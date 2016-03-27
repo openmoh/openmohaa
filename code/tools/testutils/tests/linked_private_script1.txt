@@ -1,0 +1,11 @@
+main:
+	local.script_file = "path_to/linked_private_script2.txt"
+
+	thread local.script_file::public_label 1 2 3
+
+	println( "Creating thread to private label" );
+	thread local.script_file::private_label 5
+
+	println( "Creating thread to script2 that will call private label" );
+	thread local.script_file::private_label_caller 5
+end

@@ -1,0 +1,31 @@
+main:
+	if( !level.userID )
+	{
+		level.userID = 274
+		level.tid = 0
+	}
+
+	level.mutex = spawn ScriptMutex
+
+	for( local.i = 1; local.i <= 10; local.i++ )
+	{
+		thread threaded;
+	}
+
+end
+
+threaded:
+	level.tid++
+	local.tid = level.tid
+
+	while( 1 )
+	{
+		println( "User ID: " + level.userID + " TID: " + local.tid );
+
+		// level.userID must not be assigned into random values
+
+		lock( level.mutex )
+		level.userID++
+		unlock( level.mutex )
+	}
+end

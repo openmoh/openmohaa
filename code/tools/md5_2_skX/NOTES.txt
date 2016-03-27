@@ -1,0 +1,25 @@
+su44: these are command line arguments used by me to test md5_2_skX functionality
+
+//
+// Doom3 ---> MoHAA conversion
+//
+1) generate MoHAA tik, skd, and skc files for Doom3 md5mesh and md5anims (Xreal "Shina" player model)
+testmodels/xreal_shina/body.md5mesh testmodels/xreal_shina/run.md5anim testmodels/xreal_shina/walk.md5anim testmodels/xreal_shina/jump.md5anim testmodels/xreal_shina/step.md5anim testmodels/xreal_shina/crouch.md5anim testmodels/xreal_shina/attack.md5anim testmodels/xreal_shina/land.md5anim testmodels/xreal_shina/die.md5anim testmodels/xreal_shina/idle.md5anim -tik ../main/models/omtests/shina.tik
+2) generate MoHAA tik, skd, and skc files for Doom3 md5mesh and md5anims (Xreal "Sarge" player model)
+testmodels/xreal_sarge/body.md5mesh testmodels/xreal_sarge/run.md5anim testmodels/xreal_sarge/walk.md5anim testmodels/xreal_sarge/jump.md5anim -tik ../main/models/omtests/sarge.tik
+//
+// MoHAA --> Doom3 conversion (generated md5anims might be buggy; you have been warned)
+//
+3) converts MoHAA's mp44 skd/skc's to Doom3 md5mesh/md5anim's
+-decompile ../main/pak0_unpacked/models/weapons/mp44.tik -outdir ../main/decompiledmodels/models
+4) converts MoHAA's jeep skd/skc's to Doom3 md5mesh/md5anim's
+-decompile ../main/pak0_unpacked/models/vehicles/jeep.tik -outdir ../main/decompiledmodels/models
+//
+// Doom3 --> SKL conversion
+//
+5) converts Doom3 model and animations to SKL file format (separate skl file is generated for each md5anim)
+testmodels/xreal_shina/body.md5mesh testmodels/xreal_shina/run.md5anim testmodels/xreal_shina/walk.md5anim testmodels/xreal_shina/jump.md5anim testmodels/xreal_shina/step.md5anim testmodels/xreal_shina/crouch.md5anim testmodels/xreal_shina/attack.md5anim testmodels/xreal_shina/land.md5anim testmodels/xreal_shina/die.md5anim testmodels/xreal_shina/idle.md5anim -skl
+6) converts Doom3 model and animations to SKL file format (separate skl file is generated for each md5anim)
+testmodels/xreal_sarge/body.md5mesh testmodels/xreal_sarge/run.md5anim testmodels/xreal_sarge/walk.md5anim testmodels/xreal_sarge/jump.md5anim -skl
+
+

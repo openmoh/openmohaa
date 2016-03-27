@@ -1,0 +1,450 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="global">
+      <UniqueIdentifier>{9cbf895e-7cd6-4d44-9491-49b99c7ec6ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tiki_skeletor">
+      <UniqueIdentifier>{8d8c8602-bd22-47a2-b420-53e8a35ab2c0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\code\globalcpp\archive.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\class.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\console.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\dbgheap.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\listener.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\lz77.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\md5.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\scriptvariable.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\q_math.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\q_shared.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\str.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\con_set.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\dummy\dummy_game.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\dummy\dummy_level.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\mem_blockalloc.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\mem_tempalloc.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\script.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\basemain.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\scriptexception.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\sys\con_log.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_client.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_input.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_net.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_snddma.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\common.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\files.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\unzip.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\sys\sys_win32.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\cmd.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\memory.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\cvar.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\crc.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_server.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_sys.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_cm.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\md4.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bspconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\formatconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\mapconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\skcconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\skdconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\tr_shared.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\renderergl2\tr_curve.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\bonetable.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\skeletor.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_loadanimation.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_model_files.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_utilities.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\skeletorbones.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\tokenizer.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_anim.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_cache.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_commands.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_files.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_frame.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_imports.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_main.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_parse.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_skel.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_surface.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_tag.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_utility.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\tiki_script.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\msg.c">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\huffman.c">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\client\skeletor_imports.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\alias.c">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\tikiconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\g_spawn.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\shadermanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\code\globalcpp\archive.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\class.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\console.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\const_str.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\container.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\containerclass.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\crc32.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\dbgheap.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\glb_local.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\Linklist.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\listener.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\lz77.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\md5.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\script.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\scriptvariable.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\vector.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\q_shared.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\qcommon.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\qfiles.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\short3.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\stack.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\str.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\con_arrayset.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\con_set.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\dummy\game.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\dummy\level.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\mem_blockalloc.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\mem_tempalloc.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\safeptr.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\scriptexception.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\basemain.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\unzip.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\crc.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bspconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\formatconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\mapconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\skcconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\skdconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\baseimp.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\tr_shared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\skeletor.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_animation_file_format.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_internal.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_model_file_format.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_name_lists.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\SkelMat3.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\SkelMat4.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\SkelQuat.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\SkelVec3.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\SkelVec4.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\tokenizer.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_anim.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_cache.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_commands.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_files.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_frame.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_imports.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_main.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_parse.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_shared.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_skel.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_surface.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_tag.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_utility.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\tiki.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\tiki_script.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\alias.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\tikiconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\g_spawn.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\shadermanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

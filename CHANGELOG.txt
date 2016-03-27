@@ -1,0 +1,13 @@
+=== Patch 1.12 ===
+
+>>> Client :
+- Added GFX features such as bloom, SSAO & FXAA
+- Added support of .vision files
+- Added support of custom weapons and view model animations
+
+>>> Game :
+- Added more scripting functions
+- Lot more..
+
+
+THIS CHANGELOG IS NOT COMPLETED YET.

@@ -1,0 +1,20 @@
+File layout
+======================
+
+build/              --> Output files
+code/               --> OpenMoHAA source code
+code/cgame          --> Client game code
+code/cgame_hook     --> Client game patch for MoHAA (hooks the default cgamex86.dll)
+code/client         --> Client (network stuff, snapshots, etc)
+code/game           --> Server game code (game logic stuff, etc)
+code/globalcpp      --> C++ Global stuff such as the Script Engine & Parser
+code/mohui          --> MoHAA User Interface
+code/null           --> Null redirector (used by the OpenMoHAA Dedicated Server)
+code/qcommon        --> Global shared stuff such as maths
+code/renderer       --> OpenMoHAA renderer
+code/renderer_gl3   --> Newest renderer (not working and buggy)
+code/sdl(12)        --> SDL code
+code/server         --> Server code (networkn snapshots, handling clients etc)
+code/sys            --> Main application system
+code/testutils      --> Test utility for scripts and various stuff
+misc/               --> Project stuff, definition files and various resources stuff.

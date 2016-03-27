@@ -1,0 +1,791 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A9E3E13B-C83E-48AC-91EA-4942B0FF723A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>openmohaa</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v120_xp</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
+    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
+    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;USE_LOCAL_HEADERS;GLEW_STATIC;NO_SCRIPTENGINE;CLIENT;_DEBUG;_WINDOWS;BOTLIB;USE_OPENAL;USE_CODEC_MP3;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/libmad/include;../../../code/globalcpp;../../../code/tools;../../../code/server;../../../code/uilib;../../../code/qcommon;../../../code/tiki</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opengl32.lib;winmm.lib;wsock32.lib;sdl2.lib;sdl2main.lib;libmad.lib;OpenAL32.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <AdditionalLibraryDirectories>..\..\..\code\libs\win32</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt;msvcrt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;USE_LOCAL_HEADERS;GLEW_STATIC;NO_SCRIPTENGINE;CLIENT;_DEBUG;_WINDOWS;BOTLIB;USE_OPENAL;USE_CODEC_MP3;;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/libmad/include;../../../code/globalcpp;../../../code/tools;../../../code/server;../../../code/uilib;../../../code/qcommon;../../../code/tiki</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opengl32.lib;winmm.lib;wsock32.lib;sdl2.lib;sdl2main.lib;libmad.lib;OpenAL32.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>
+      </IgnoreAllDefaultLibraries>
+      <AdditionalLibraryDirectories>..\..\..\code\libs\win64</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>libcmt;msvcrt.lib</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;USE_LOCAL_HEADERS;GLEW_STATIC;NO_SCRIPTENGINE;CLIENT;NDEBUG;_WINDOWS;BOTLIB;USE_OPENAL;USE_CODEC_MP3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/libmad/include;../../../code/globalcpp;../../../code/tools;../../../code/server;../../../code/uilib;../../../code/qcommon;../../../code/tiki</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\..\..\code\libs\win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opengl32.lib;winmm.lib;wsock32.lib;sdl2.lib;sdl2main.lib;libmad.lib;OpenAL32.lib;glew32s.lib;dxguid.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmt;</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;USE_LOCAL_HEADERS;GLEW_STATIC;NO_SCRIPTENGINE;CLIENT;NDEBUG;_WINDOWS;BOTLIB;USE_OPENAL;USE_CODEC_MP3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/libmad/include;../../../code/globalcpp;../../../code/tools;../../../code/server;../../../code/uilib;../../../code/qcommon;../../../code/tiki</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>StdAfx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\..\..\code\libs\win64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;opengl32.lib;winmm.lib;wsock32.lib;sdl2.lib;sdl2main.lib;libmad.lib;OpenAL32.lib;glew32s.lib;dxguid.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>libcmt;</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\code\client\cl_avi.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_cgame.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_cin.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_console.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_consolecmds.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_curl.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_input.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_inv.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_invrender.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_keys.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_main.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_net_chan.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_parse.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_scrn.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_ui.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uibind.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uidmbox.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uifilepicker.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uigmbox.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uilangame.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uiloadsave.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uimaprunner.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uiminicon.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uimpmappicker.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uiplayermodelpicker.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uiserverlist.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uisoundpicker.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uistd.cpp" />
+    <ClCompile Include="..\..\..\code\client\cl_uiview3d.cpp" />
+    <ClCompile Include="..\..\..\code\client\qal.c" />
+    <ClCompile Include="..\..\..\code\client\skeletor_imports.cpp" />
+    <ClCompile Include="..\..\..\code\client\snd_adpcm.c" />
+    <ClCompile Include="..\..\..\code\client\snd_codec.c" />
+    <ClCompile Include="..\..\..\code\client\snd_codec_mp3.c" />
+    <ClCompile Include="..\..\..\code\client\snd_codec_ogg.c" />
+    <ClCompile Include="..\..\..\code\client\snd_codec_wav.c" />
+    <ClCompile Include="..\..\..\code\client\snd_dma_new.cpp" />
+    <ClCompile Include="..\..\..\code\client\snd_main.c" />
+    <ClCompile Include="..\..\..\code\client\snd_mem.c" />
+    <ClCompile Include="..\..\..\code\client\snd_mix.c" />
+    <ClCompile Include="..\..\..\code\client\snd_openal_new.c" />
+    <ClCompile Include="..\..\..\code\client\snd_wavelet.c" />
+    <ClCompile Include="..\..\..\code\client\usignal.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\archive.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\class.cpp" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jaricom.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcapimin.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcapistd.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcarith.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jccoefct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jccolor.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcdctmgr.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jchuff.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcinit.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcmainct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcmarker.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcmaster.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcomapi.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcparam.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcprepct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jcsample.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jctrans.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdapimin.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdapistd.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdarith.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdatadst.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdatasrc.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdcoefct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdcolor.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jddctmgr.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdhuff.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdinput.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdmainct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdmarker.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdmaster.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdmerge.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdpostct.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdsample.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jdtrans.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jerror.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jfdctflt.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jfdctfst.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jfdctint.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jidctflt.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jidctfst.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jidctint.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jmemmgr.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jmemnobs.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jquant1.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jquant2.c" />
+    <ClCompile Include="..\..\..\code\jpeg-8c\jutils.c" />
+    <ClCompile Include="..\..\..\code\qcommon\alias.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_fencemask.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_trace_lbd.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\common.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\con_set.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\dbgheap.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\listener.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\lz77.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\script.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\scriptexception.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\scripttimer.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\scriptvariable.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\crc.c" />
+    <ClCompile Include="..\..\..\code\qcommon\localization.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\memory.c" />
+    <ClCompile Include="..\..\..\code\qcommon\mem_blockalloc.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\mem_tempalloc.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\str.cpp" />
+    <ClCompile Include="..\..\..\code\mohui\ui_main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\mohui\ui_model.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\mohui\ui_quarks.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\mohui\ui_urc.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\png\png.c" />
+    <ClCompile Include="..\..\..\code\png\pngerror.c" />
+    <ClCompile Include="..\..\..\code\png\pngget.c" />
+    <ClCompile Include="..\..\..\code\png\pngmem.c" />
+    <ClCompile Include="..\..\..\code\png\pngpread.c" />
+    <ClCompile Include="..\..\..\code\png\pngread.c" />
+    <ClCompile Include="..\..\..\code\png\pngrio.c" />
+    <ClCompile Include="..\..\..\code\png\pngrtran.c" />
+    <ClCompile Include="..\..\..\code\png\pngrutil.c" />
+    <ClCompile Include="..\..\..\code\png\pngset.c" />
+    <ClCompile Include="..\..\..\code\png\pngtrans.c" />
+    <ClCompile Include="..\..\..\code\png\pngwio.c" />
+    <ClCompile Include="..\..\..\code\png\pngwrite.c" />
+    <ClCompile Include="..\..\..\code\png\pngwtran.c" />
+    <ClCompile Include="..\..\..\code\png\pngwutil.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cmd.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_load.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_patch.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_polylib.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_terrain.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_test.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cm_trace.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cvar.c" />
+    <ClCompile Include="..\..\..\code\qcommon\files.c" />
+    <ClCompile Include="..\..\..\code\qcommon\huffman.c" />
+    <ClCompile Include="..\..\..\code\qcommon\md4.c" />
+    <ClCompile Include="..\..\..\code\qcommon\md5.c" />
+    <ClCompile Include="..\..\..\code\qcommon\msg.c" />
+    <ClCompile Include="..\..\..\code\qcommon\net_chan.c" />
+    <ClCompile Include="..\..\..\code\qcommon\net_ip.c" />
+    <ClCompile Include="..\..\..\code\qcommon\puff.c" />
+    <ClCompile Include="..\..\..\code\qcommon\q_math.c" />
+    <ClCompile Include="..\..\..\code\qcommon\q_shared.c" />
+    <ClCompile Include="..\..\..\code\qcommon\tiki_script.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\unzip.c" />
+    <ClCompile Include="..\..\..\code\renderercommon\tr_font.c" />
+    <ClCompile Include="..\..\..\code\renderercommon\tr_image_bmp.c" />
+    <ClCompile Include="..\..\..\code\renderercommon\tr_image_jpg.c" />
+    <ClCompile Include="..\..\..\code\renderercommon\tr_image_pcx.c" />
+    <ClCompile Include="..\..\..\code\renderercommon\tr_image_png.c" />
+    <ClCompile Include="..\..\..\code\renderercommon\tr_image_tga.c" />
+    <ClCompile Include="..\..\..\code\renderercommon\tr_noise.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_backend.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_bsp.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_cmds.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_curve.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_draw.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_extensions.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_extramath.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_fbo.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_flares.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_glsl.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_image.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_init.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_light.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_main.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_marks.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_mesh.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_model.cpp" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_postprocess.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_progs.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_scene.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_shade.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_shader.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_shade_calc.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_shadows.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_sky.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_sprite.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_staticmodels.cpp" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_subs.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_surface.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_swipe.cpp" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_terrain.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_util.cpp" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_vbo.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_world.c" />
+    <ClCompile Include="..\..\..\code\sdl\sdl_gamma.c" />
+    <ClCompile Include="..\..\..\code\sdl\sdl_glimp.c" />
+    <ClCompile Include="..\..\..\code\sdl\sdl_input.c" />
+    <ClCompile Include="..\..\..\code\sdl\sdl_snd.c" />
+    <ClCompile Include="..\..\..\code\server\game.cpp" />
+    <ClCompile Include="..\..\..\code\server\level.cpp" />
+    <ClCompile Include="..\..\..\code\server\sv_ccmds.c" />
+    <ClCompile Include="..\..\..\code\server\sv_client.c" />
+    <ClCompile Include="..\..\..\code\server\sv_game.c" />
+    <ClCompile Include="..\..\..\code\server\sv_init.c" />
+    <ClCompile Include="..\..\..\code\server\sv_main.c" />
+    <ClCompile Include="..\..\..\code\server\sv_net_chan.c" />
+    <ClCompile Include="..\..\..\code\server\sv_snapshot.c" />
+    <ClCompile Include="..\..\..\code\server\sv_snd.c" />
+    <ClCompile Include="..\..\..\code\server\sv_world.c" />
+    <ClCompile Include="..\..\..\code\skeletor\bonetable.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\skeletor.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\skeletorbones.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_loadanimation.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_model_files.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_utilities.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\tokenizer.cpp" />
+    <ClCompile Include="..\..\..\code\sys\con_log.c" />
+    <ClCompile Include="..\..\..\code\sys\con_passive.c" />
+    <ClCompile Include="..\..\..\code\sys\sys_main.c" />
+    <ClCompile Include="..\..\..\code\sys\sys_win32.c" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_anim.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_cache.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_commands.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_files.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_frame.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_imports.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_main.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_parse.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_skel.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_surface.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_tag.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_utility.cpp" />
+    <ClCompile Include="..\..\..\code\tools\zlib\adler32.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\compress.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\crc32.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\deflate.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\gzclose.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\gzlib.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\gzread.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\gzwrite.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\infback.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\inffast.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\inflate.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\inftrees.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\trees.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\uncompr.c" />
+    <ClCompile Include="..\..\..\code\tools\zlib\zutil.c" />
+    <ClCompile Include="..\..\..\code\uilib\ucolor.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uibind.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uibindlist.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uibutton.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uicheckbox.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uiconsole.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uidialog.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uifield.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uifloatwnd.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uifont.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uiglobalgamelist.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uihorizscroll.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uilabel.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uilangamelist.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uilayout.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uilist.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uilistbox.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uilistctrl.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uimenu.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uimledit.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uinotepad.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uipopupmenu.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uipulldownmenu.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uipulldownmenucontainer.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uislider.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uistatus.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uivertscroll.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uiwidget.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\uiwinman.cpp" />
+    <ClCompile Include="..\..\..\code\uilib\ui_init.cpp" />
+    <ClCompile Include="..\..\..\code\uilib_ver2\ucolor.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\uilib_ver2\uifont.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\uilib_ver2\uilayout.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\uilib_ver2\uimenu.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\uilib_ver2\uiwidget.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\uilib_ver2\ui_drawing.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\uilib_ver2\ui_general.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\uilib_ver2\ui_init.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\uilib_ver2\ui_scoreboard.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\code\client\client.h" />
+    <ClInclude Include="..\..\..\code\client\cl_curl.h" />
+    <ClInclude Include="..\..\..\code\client\cl_inv.h" />
+    <ClInclude Include="..\..\..\code\client\cl_invrender.h" />
+    <ClInclude Include="..\..\..\code\client\cl_ui.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uibind.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uidmbox.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uifilepicker.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uigmbox.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uilangame.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uiloadsave.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uimaprunner.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uiminicon.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uimpmappicker.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uiplayermodelpicker.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uiserverlist.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uisoundpicker.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uistd.h" />
+    <ClInclude Include="..\..\..\code\client\cl_uiview3d.h" />
+    <ClInclude Include="..\..\..\code\client\keycodes.h" />
+    <ClInclude Include="..\..\..\code\client\qal.h" />
+    <ClInclude Include="..\..\..\code\client\snd_codec.h" />
+    <ClInclude Include="..\..\..\code\client\snd_local.h" />
+    <ClInclude Include="..\..\..\code\client\snd_public.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\archive.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\baseimp.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\class.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\container.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\containerclass.h" />
+    <ClInclude Include="..\..\..\code\jpeg-8c\jconfig.h" />
+    <ClInclude Include="..\..\..\code\jpeg-8c\jdct.h" />
+    <ClInclude Include="..\..\..\code\jpeg-8c\jerror.h" />
+    <ClInclude Include="..\..\..\code\jpeg-8c\jinclude.h" />
+    <ClInclude Include="..\..\..\code\jpeg-8c\jmemsys.h" />
+    <ClInclude Include="..\..\..\code\jpeg-8c\jmorecfg.h" />
+    <ClInclude Include="..\..\..\code\jpeg-8c\jpegint.h" />
+    <ClInclude Include="..\..\..\code\jpeg-8c\jpeglib.h" />
+    <ClInclude Include="..\..\..\code\jpeg-8c\jversion.h" />
+    <ClInclude Include="..\..\..\code\qcommon\alias.h" />
+    <ClInclude Include="..\..\..\code\qcommon\con_arrayset.h" />
+    <ClInclude Include="..\..\..\code\qcommon\con_set.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\crc32.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\dbgheap.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\glb_local.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\Linklist.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\listener.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\lz77.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\safeptr.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\script.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\scriptexception.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\scripttimer.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\scriptvariable.h" />
+    <ClInclude Include="..\..\..\code\qcommon\short3.h" />
+    <ClInclude Include="..\..\..\code\qcommon\stack.h" />
+    <ClInclude Include="..\..\..\code\qcommon\crc.h" />
+    <ClInclude Include="..\..\..\code\qcommon\localization.h" />
+    <ClInclude Include="..\..\..\code\qcommon\mem_blockalloc.h" />
+    <ClInclude Include="..\..\..\code\qcommon\mem_tempalloc.h" />
+    <ClInclude Include="..\..\..\code\qcommon\str.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\vector.h" />
+    <ClInclude Include="..\..\..\code\mohui\ui_local.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\mohui\ui_public.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\png\png.h" />
+    <ClInclude Include="..\..\..\code\png\pngconf.h" />
+    <ClInclude Include="..\..\..\code\png\pngdebug.h" />
+    <ClInclude Include="..\..\..\code\png\pnginfo.h" />
+    <ClInclude Include="..\..\..\code\png\pnglibconf.h" />
+    <ClInclude Include="..\..\..\code\png\pngpriv.h" />
+    <ClInclude Include="..\..\..\code\png\pngstruct.h" />
+    <ClInclude Include="..\..\..\code\png\zconf.h" />
+    <ClInclude Include="..\..\..\code\png\zlib.h" />
+    <ClInclude Include="..\..\..\code\qcommon\cm_local.h" />
+    <ClInclude Include="..\..\..\code\qcommon\cm_patch.h" />
+    <ClInclude Include="..\..\..\code\qcommon\cm_polylib.h" />
+    <ClInclude Include="..\..\..\code\qcommon\cm_public.h" />
+    <ClInclude Include="..\..\..\code\qcommon\cm_terrain.h" />
+    <ClInclude Include="..\..\..\code\qcommon\puff.h" />
+    <ClInclude Include="..\..\..\code\qcommon\qcommon.h" />
+    <ClInclude Include="..\..\..\code\qcommon\qfiles.h" />
+    <ClInclude Include="..\..\..\code\qcommon\q_platform.h" />
+    <ClInclude Include="..\..\..\code\qcommon\q_shared.h" />
+    <ClInclude Include="..\..\..\code\qcommon\surfaceflags.h" />
+    <ClInclude Include="..\..\..\code\qcommon\tiki_script.h" />
+    <ClInclude Include="..\..\..\code\qcommon\unzip.h" />
+    <ClInclude Include="..\..\..\code\qcommon\vm_local.h" />
+    <ClInclude Include="..\..\..\code\renderercommon\iqm.h" />
+    <ClInclude Include="..\..\..\code\renderercommon\qgl.h" />
+    <ClInclude Include="..\..\..\code\renderercommon\tr_common.h" />
+    <ClInclude Include="..\..\..\code\renderercommon\tr_public.h" />
+    <ClInclude Include="..\..\..\code\renderercommon\tr_types.h" />
+    <ClInclude Include="..\..\..\code\renderergl2\tr_extramath.h" />
+    <ClInclude Include="..\..\..\code\renderergl2\tr_extratypes.h" />
+    <ClInclude Include="..\..\..\code\renderergl2\tr_fbo.h" />
+    <ClInclude Include="..\..\..\code\renderergl2\tr_local.h" />
+    <ClInclude Include="..\..\..\code\renderergl2\tr_postprocess.h" />
+    <ClInclude Include="..\..\..\code\sdl\sdl_icon.h" />
+    <ClInclude Include="..\..\..\code\server\game.h" />
+    <ClInclude Include="..\..\..\code\server\level.h" />
+    <ClInclude Include="..\..\..\code\server\server.h" />
+    <ClInclude Include="..\..\..\code\skeletor\skeletor.h" />
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_animation_file_format.h" />
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_internal.h" />
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_model_file_format.h" />
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_name_lists.h" />
+    <ClInclude Include="..\..\..\code\skeletor\SkelMat3.h" />
+    <ClInclude Include="..\..\..\code\skeletor\SkelMat4.h" />
+    <ClInclude Include="..\..\..\code\skeletor\SkelQuat.h" />
+    <ClInclude Include="..\..\..\code\skeletor\SkelVec3.h" />
+    <ClInclude Include="..\..\..\code\skeletor\SkelVec4.h" />
+    <ClInclude Include="..\..\..\code\skeletor\tokenizer.h" />
+    <ClInclude Include="..\..\..\code\sys\sys_local.h" />
+    <ClInclude Include="..\..\..\code\sys\win_resource.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_anim.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_cache.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_commands.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_files.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_frame.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_imports.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_main.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_parse.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_shared.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_skel.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_surface.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_tag.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_utility.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\crc32.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\deflate.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\gzguts.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\inffast.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\inffixed.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\inflate.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\inftrees.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\trees.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\zconf.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\zlib.h" />
+    <ClInclude Include="..\..\..\code\tools\zlib\zutil.h" />
+    <ClInclude Include="..\..\..\code\uilib\editfield.h" />
+    <ClInclude Include="..\..\..\code\uilib\ucolor.h" />
+    <ClInclude Include="..\..\..\code\uilib\uibind.h" />
+    <ClInclude Include="..\..\..\code\uilib\uibindlist.h" />
+    <ClInclude Include="..\..\..\code\uilib\uibutton.h" />
+    <ClInclude Include="..\..\..\code\uilib\uicheckbox.h" />
+    <ClInclude Include="..\..\..\code\uilib\uicommon.h" />
+    <ClInclude Include="..\..\..\code\uilib\uiconsole.h" />
+    <ClInclude Include="..\..\..\code\uilib\uidialog.h" />
+    <ClInclude Include="..\..\..\code\uilib\uifield.h" />
+    <ClInclude Include="..\..\..\code\uilib\uifloatwnd.h" />
+    <ClInclude Include="..\..\..\code\uilib\uifont.h" />
+    <ClInclude Include="..\..\..\code\uilib\uiglobalgamelist.h" />
+    <ClInclude Include="..\..\..\code\uilib\uihorizscroll.h" />
+    <ClInclude Include="..\..\..\code\uilib\uilabel.h" />
+    <ClInclude Include="..\..\..\code\uilib\uilangamelist.h" />
+    <ClInclude Include="..\..\..\code\uilib\uilayout.h" />
+    <ClInclude Include="..\..\..\code\uilib\uilist.h" />
+    <ClInclude Include="..\..\..\code\uilib\uilistbox.h" />
+    <ClInclude Include="..\..\..\code\uilib\uilistctrl.h" />
+    <ClInclude Include="..\..\..\code\uilib\uimenu.h" />
+    <ClInclude Include="..\..\..\code\uilib\uimledit.h" />
+    <ClInclude Include="..\..\..\code\uilib\uinotepad.h" />
+    <ClInclude Include="..\..\..\code\uilib\uipoint2d.h" />
+    <ClInclude Include="..\..\..\code\uilib\uipopupmenu.h" />
+    <ClInclude Include="..\..\..\code\uilib\uipulldownmenu.h" />
+    <ClInclude Include="..\..\..\code\uilib\uipulldownmenucontainer.h" />
+    <ClInclude Include="..\..\..\code\uilib\uirect2d.h" />
+    <ClInclude Include="..\..\..\code\uilib\uisize2d.h" />
+    <ClInclude Include="..\..\..\code\uilib\uislider.h" />
+    <ClInclude Include="..\..\..\code\uilib\uistatus.h" />
+    <ClInclude Include="..\..\..\code\uilib\uivertscroll.h" />
+    <ClInclude Include="..\..\..\code\uilib\uiwidget.h" />
+    <ClInclude Include="..\..\..\code\uilib\uiwinman.h" />
+    <ClInclude Include="..\..\..\code\uilib\ui_extern.h" />
+    <ClInclude Include="..\..\..\code\uilib\ui_local.h" />
+    <ClInclude Include="..\..\..\code\uilib\ui_public.h" />
+    <ClInclude Include="..\..\..\code\uilib\ulist.h" />
+    <ClInclude Include="..\..\..\code\uilib\usignal.h" />
+    <ClInclude Include="..\..\..\code\uilib_ver2\ucolor.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\uifont.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\uilayout.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\uimenu.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\uirect.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\uiwidget.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\ui_drawing.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\ui_extern.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\ui_general.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\ui_local.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\ui_local_q3.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\ui_public.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\uilib_ver2\ui_scoreboard.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\code\sys\win_resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\code\jpeg-8c\README" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

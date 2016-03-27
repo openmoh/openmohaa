@@ -1,0 +1,12 @@
+TIKI
+
+// su44: bones "Bone4" is a hoserot (type5) with 
+// parent "Bone2" and target "Bone3"
+setup {
+  scale 1
+  skelmodel models/omtests/testhoserot1/testhoserot1.skd
+}
+
+animations {
+  idle models/omtests/testhoserot1/testhoserot1.skc
+}

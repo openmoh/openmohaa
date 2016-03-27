@@ -1,0 +1,288 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\global">
+      <UniqueIdentifier>{ae96cdb0-39e6-43ce-832e-017bdd63f7ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\global\parser">
+      <UniqueIdentifier>{f25d6910-420f-45d7-a8d6-3b88572f507f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\global">
+      <UniqueIdentifier>{d8d569f9-ed4a-4f58-b776-756f778c9926}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\global\parser">
+      <UniqueIdentifier>{0565b52a-788b-4211-bf88-17cbe011352e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\code\globalcpp\gamescript.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\compiler.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\script.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\archive.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\scriptmaster.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\listener.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\class.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\scriptvm.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\scriptvariable.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\dbgheap.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\scriptexception.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\simpleentity.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\lz77.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\world.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\g_spawn.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\object.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\parm.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\scripttimer.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\md5.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\parser\yyLexer.cpp">
+      <Filter>Source Files\global\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\parser\yyParser.cpp">
+      <Filter>Source Files\global\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\parser\parsetree.cpp">
+      <Filter>Source Files\global\parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\q_math.c">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\q_shared.c">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\scriptopcodes.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\dummy\dummy_base.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\dummy\dummy_game.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\dummy\dummy_level.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\console.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\slre.c">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\testutils\conevent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\testutils\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\str.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\con_set.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\mem_blockalloc.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\mem_tempalloc.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\configurator.cpp">
+      <Filter>Source Files\global</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\code\globalcpp\parser\parsetree.h">
+      <Filter>Header Files\global\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\parser\yyLexer.h">
+      <Filter>Header Files\global\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\parser\yyParser.h">
+      <Filter>Header Files\global\parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\gamescript.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\compiler.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\script.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\archive.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\container.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\listener.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\scriptvariable.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\dbgheap.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\class.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\scriptexception.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\scriptmaster.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\simpleentity.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\lz77.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\world.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\vector.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\trigger.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\containerclass.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\parm.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\g_spawn.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\Linklist.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\safeptr.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\scripttimer.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\crc32.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\object.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\glb_local.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\md5.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\const_str.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\q_shared.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\scriptopcodes.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\dummy\dummy_base.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\dummy\game.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\console.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\dummy\level.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\baseimp.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\slre.h">
+      <Filter>Source Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\testutils\conevent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\testutils\ubersdk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\str.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\scriptvm.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\short3.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\mem_blockalloc.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\con_arrayset.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\con_set.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\mem_tempalloc.h">
+      <Filter>Header Files\global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\configurator.h">
+      <Filter>Source Files\global</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

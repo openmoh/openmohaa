@@ -1,0 +1,96 @@
+/*
+===========================================================================
+Copyright (C) 2015 the OpenMoHAA team
+
+This file is part of OpenMoHAA source code.
+
+OpenMoHAA source code is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+OpenMoHAA source code is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with OpenMoHAA source code; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
+
+#include "ui_local.h"
+
+CLASS_DECLARATION( UIFloatingWindow, UIDialog, NULL )
+{
+	{ NULL, NULL }
+};
+
+UIDialog::UIDialog()
+{
+	// FIXME: stub
+}
+
+void UIDialog::FrameInitialized
+	(
+	void
+	)
+
+{
+	// FIXME: stub
+}
+
+void UIDialog::LinkCvar
+	(
+	str cvarname
+	)
+
+{
+	// FIXME: stub
+}
+
+void UIDialog::SetOKCommand
+	(
+	str cvarname
+	)
+
+{
+	// FIXME: stub
+}
+
+void UIDialog::SetCancelCommand
+	(
+	str cvarname
+	)
+
+{
+	// FIXME: stub
+}
+
+void UIDialog::SetLabelMaterial
+	(
+	UIReggedMaterial *mat
+	)
+
+{
+	// FIXME: stub
+}
+
+void UIDialog::SetOkMaterial
+	(
+	UIReggedMaterial *mat
+	)
+
+{
+	// FIXME: stub
+}
+
+void UIDialog::SetCancelMaterial
+	(
+	UIReggedMaterial *mat
+	)
+
+{
+	// FIXME: stub
+}

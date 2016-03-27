@@ -1,0 +1,4 @@
+In case compile errors like "cannot include <unistd.h>" in win_flex generated file try add --wincompat invoke option.
+This new option changes <unistd.h> unix header with windows analog <io.h> and replaces isatty/fileno functions to 
+"safe" windows analogs _isatty/_fileno as well. If you have compile issues with it afterwards please open ticket
+at http://sourceforge.net/p/winflexbison/tickets .

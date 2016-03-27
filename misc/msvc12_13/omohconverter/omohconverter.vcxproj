@@ -1,0 +1,315 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2573DDFC-0576-4766-8A8E-E482035D12AF}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>omohconverter</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2016.1.2\lib\vs2013\x86\debug</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2016.1.2\lib\vs2013\x64\debug</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2016.1.2\lib\vs2013\x86\release</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2016.1.2\lib\vs2013\x64\release</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\code\client\skeletor_imports.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\archive.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\basemain.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\class.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\console.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\dbgheap.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\dummy\dummy_game.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\dummy\dummy_level.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\g_spawn.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\listener.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\lz77.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\md5.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\script.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\scriptexception.cpp" />
+    <ClCompile Include="..\..\..\code\globalcpp\scriptvariable.cpp" />
+    <ClCompile Include="..\..\..\code\null\null_client.c" />
+    <ClCompile Include="..\..\..\code\null\null_cm.c" />
+    <ClCompile Include="..\..\..\code\null\null_input.c" />
+    <ClCompile Include="..\..\..\code\null\null_net.c" />
+    <ClCompile Include="..\..\..\code\null\null_server.c" />
+    <ClCompile Include="..\..\..\code\null\null_snddma.c" />
+    <ClCompile Include="..\..\..\code\null\null_sys.c" />
+    <ClCompile Include="..\..\..\code\qcommon\alias.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cmd.c" />
+    <ClCompile Include="..\..\..\code\qcommon\common.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\con_set.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\crc.c" />
+    <ClCompile Include="..\..\..\code\qcommon\cvar.c" />
+    <ClCompile Include="..\..\..\code\qcommon\files.c" />
+    <ClCompile Include="..\..\..\code\qcommon\huffman.c" />
+    <ClCompile Include="..\..\..\code\qcommon\md4.c" />
+    <ClCompile Include="..\..\..\code\qcommon\memory.c" />
+    <ClCompile Include="..\..\..\code\qcommon\mem_blockalloc.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\mem_tempalloc.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\msg.c" />
+    <ClCompile Include="..\..\..\code\qcommon\q_math.c" />
+    <ClCompile Include="..\..\..\code\qcommon\q_shared.c" />
+    <ClCompile Include="..\..\..\code\qcommon\str.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\tiki_script.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\unzip.c" />
+    <ClCompile Include="..\..\..\code\renderergl2\tr_curve.c" />
+    <ClCompile Include="..\..\..\code\skeletor\bonetable.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\skeletor.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\skeletorbones.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_loadanimation.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_model_files.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_utilities.cpp" />
+    <ClCompile Include="..\..\..\code\skeletor\tokenizer.cpp" />
+    <ClCompile Include="..\..\..\code\sys\con_log.c" />
+    <ClCompile Include="..\..\..\code\sys\sys_win32.c" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_anim.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_cache.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_commands.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_files.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_frame.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_imports.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_main.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_parse.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_skel.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_surface.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_tag.cpp" />
+    <ClCompile Include="..\..\..\code\tiki\tiki_utility.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\bspconverter.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\formatconverter.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\main.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\mapconverter.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\shadermanager.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\skcconverter.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\skdconverter.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\tikiconverter.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\tr_shared.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\code\globalcpp\archive.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\baseimp.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\basemain.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\class.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\console.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\const_str.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\container.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\containerclass.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\crc32.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\dbgheap.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\dummy\game.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\dummy\level.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\glb_local.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\g_spawn.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\Linklist.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\listener.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\lz77.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\md5.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\safeptr.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\script.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\scriptexception.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\scriptvariable.h" />
+    <ClInclude Include="..\..\..\code\globalcpp\vector.h" />
+    <ClInclude Include="..\..\..\code\qcommon\alias.h" />
+    <ClInclude Include="..\..\..\code\qcommon\con_arrayset.h" />
+    <ClInclude Include="..\..\..\code\qcommon\con_set.h" />
+    <ClInclude Include="..\..\..\code\qcommon\crc.h" />
+    <ClInclude Include="..\..\..\code\qcommon\mem_blockalloc.h" />
+    <ClInclude Include="..\..\..\code\qcommon\mem_tempalloc.h" />
+    <ClInclude Include="..\..\..\code\qcommon\qcommon.h" />
+    <ClInclude Include="..\..\..\code\qcommon\qfiles.h" />
+    <ClInclude Include="..\..\..\code\qcommon\q_shared.h" />
+    <ClInclude Include="..\..\..\code\qcommon\short3.h" />
+    <ClInclude Include="..\..\..\code\qcommon\stack.h" />
+    <ClInclude Include="..\..\..\code\qcommon\str.h" />
+    <ClInclude Include="..\..\..\code\qcommon\tiki.h" />
+    <ClInclude Include="..\..\..\code\qcommon\tiki_script.h" />
+    <ClInclude Include="..\..\..\code\qcommon\unzip.h" />
+    <ClInclude Include="..\..\..\code\skeletor\skeletor.h" />
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_animation_file_format.h" />
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_internal.h" />
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_model_file_format.h" />
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_name_lists.h" />
+    <ClInclude Include="..\..\..\code\skeletor\SkelMat3.h" />
+    <ClInclude Include="..\..\..\code\skeletor\SkelMat4.h" />
+    <ClInclude Include="..\..\..\code\skeletor\SkelQuat.h" />
+    <ClInclude Include="..\..\..\code\skeletor\SkelVec3.h" />
+    <ClInclude Include="..\..\..\code\skeletor\SkelVec4.h" />
+    <ClInclude Include="..\..\..\code\skeletor\tokenizer.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_anim.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_cache.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_commands.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_files.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_frame.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_imports.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_main.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_parse.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_shared.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_skel.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_surface.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_tag.h" />
+    <ClInclude Include="..\..\..\code\tiki\tiki_utility.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\bspconverter.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\formatconverter.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\mapconverter.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\shadermanager.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\skcconverter.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\skdconverter.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\tikiconverter.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\tr_shared.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

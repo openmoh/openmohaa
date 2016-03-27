@@ -1,0 +1,25 @@
+//// //// //// //// ////
+/// OpenMoHAA - TODO ///
+//// //// //// //// ////
+
+================
+= Server code  =
+================
+1) Fix some crashes
+
+================
+=    Client    =
+================
+2) Better client/sound implementation
+3) Better renderer implementation (light, fog)
+4) Better cgame implementation (using FAKK2)
+5) UI implementation (unfortunately, the mohaa UI is fully based on FAKK 2 sources but isn't available anywhere)
+
+================
+=  Game code   =
+================
+6) Finish the vehicle implementation
+--- Open Beta ---
+7) Actors/SinglePlayer
+8) SH/BT features (there are not much things to implement I guess)
+--- Release ---
