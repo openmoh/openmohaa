@@ -626,6 +626,7 @@ void SkeletorCacheUnloadData( int index )
 
 	if( m_cachedData[ m_cachedDataLookup[ index ] ].data ) {
 		skelAnimDataGameHeader_s::DeallocAnimData( m_cachedData[ m_cachedDataLookup[ index ] ].data );
+		m_cachedData[ m_cachedDataLookup[ index ] ].data = NULL;
 	}
 
 	m_cachedData[ m_cachedDataLookup[ index ] ].lookup = -1;
@@ -864,6 +865,7 @@ dtikianim_t *TIKI_InitTiki( dloaddef_t *ld, size_t defsize )
 			if( !SkeletorCacheLoadData( anim->name, bPrecache, index ) )
 			{
 				TIKI_Error( "TIKI_InitTiki: Failed to load animation '%s' at %s\n", anim->name, anim->location );
+				panim->m_aliases[ i ] = -1;
 				continue;
 			}
 		}

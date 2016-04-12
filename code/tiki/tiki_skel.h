@@ -34,6 +34,7 @@ void TIKI_CalcLodConsts( lodControl_t *LOD );
 qboolean TIKI_LoadSKB( const char *path, skelcache_t *cache );
 qboolean TIKI_LoadSKD( const char *path, skelcache_t *cache );
 skelHeaderGame_t *TIKI_GetSkel( int index );
+int TIKI_GetSkelCache( skelHeaderGame_t *pSkel );
 void TIKI_FreeSkel( int index );
 void TIKI_FreeSkelCache( skelcache_t *cache );
 skelcache_t *TIKI_FindSkel( const char *path );

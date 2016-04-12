@@ -839,6 +839,24 @@ skelHeaderGame_t *TIKI_GetSkel( int index )
 
 /*
 ===============
+TIKI_GetSkelCache
+===============
+*/
+int TIKI_GetSkelCache( skelHeaderGame_t *pSkel )
+{
+	for( int index = 0; index < cache_maxskel; index++ )
+	{
+		if( skelcache[ index ].skel == pSkel )
+		{
+			return index;
+		}
+	}
+
+	return -1;
+}
+
+/*
+===============
 TIKI_FreeSkel
 ===============
 */
@@ -869,7 +887,7 @@ void TIKI_FreeSkelCache( skelcache_t *cache )
 {
 	skelSurfaceGame_t *pSurf;
 
-	if( !cache->skel ) {
+	if( cache->skel == NULL ) {
 		return;
 	}
 
@@ -959,9 +977,9 @@ int TIKI_RegisterSkel( const char *path, dtiki_t *tiki )
 		return -1;
 	}
 
-	if( cache - skelcache > cache_maxskel )
+	if( cache - skelcache + 1 > cache_maxskel )
 	{
-		cache_maxskel = cache - skelcache;
+		cache_maxskel = cache - skelcache + 1;
 	}
 
 	extension = TIKI_FileExtension( path );
