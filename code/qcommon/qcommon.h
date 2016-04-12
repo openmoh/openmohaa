@@ -631,6 +631,7 @@ fileHandle_t	FS_FOpenTextFileWrite( const char *qpath );
 // will properly create any needed paths and deal with seperater character issues
 
 int		FS_filelength( fileHandle_t f );
+void	FS_ReplaceSeparators( char *path );
 void	FS_DeleteFile( const char *filename );
 void	FS_CanonicalFilename( char *filename );
 fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
