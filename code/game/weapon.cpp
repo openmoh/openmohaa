@@ -2891,13 +2891,16 @@ void Weapon::GiveStartingAmmoToOwner
 					}
 					else
 					{
-						start_ammo = 0;
 						ammo_in_clip[ mode ] = start_ammo + ammo_in_clip[ mode ];
+						start_ammo = 0;
 					}
 				}
 			}
 
-			owner->GiveAmmo( ammotype, start_ammo );
+			if( start_ammo )
+			{
+				owner->GiveAmmo( ammotype, start_ammo );
+			}
 		}
 	}
 }
