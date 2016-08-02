@@ -318,7 +318,7 @@ void BarrelObject::BarrelThink
 
 	if( m_vJitterAngles[ 0 ] > 0.0f )
 	{
-		m_vJitterAngles[ 0 ] -= 1 / 3 * m_fJitterScale;
+		m_vJitterAngles[ 0 ] -= 1.f / 3.f * m_fJitterScale;
 
 		if( m_vJitterAngles[ 0 ] > 0.0f )
 		{
@@ -327,7 +327,7 @@ void BarrelObject::BarrelThink
 	}
 	else if( m_vJitterAngles[ 0 ] < 0.0f )
 	{
-		m_vJitterAngles[ 0 ] += 1 / 3 * m_fJitterScale;
+		m_vJitterAngles[ 0 ] += 1.f / 3.f * m_fJitterScale;
 
 		if( m_vJitterAngles[ 0 ] < 0.0f )
 		{
@@ -339,7 +339,7 @@ void BarrelObject::BarrelThink
 
 	if( m_vJitterAngles[ 2 ] > 0.0f )
 	{
-		m_vJitterAngles[ 2 ] -= 1 / 3 * m_fJitterScale;
+		m_vJitterAngles[ 2 ] -= 1.f / 3.f * m_fJitterScale;
 
 		if( m_vJitterAngles[ 2 ] > 0.0f )
 		{
@@ -348,7 +348,7 @@ void BarrelObject::BarrelThink
 	}
 	else if( m_vJitterAngles[ 2 ] < 0.0f )
 	{
-		m_vJitterAngles[ 2 ] += 1 / 3 * m_fJitterScale;
+		m_vJitterAngles[ 2 ] += 1.f / 3.f * m_fJitterScale;
 
 		if( m_vJitterAngles[ 2 ] < 0.0f )
 		{
