@@ -446,5 +446,8 @@
     <ClInclude Include="..\..\..\code\tools\converter\shadermanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

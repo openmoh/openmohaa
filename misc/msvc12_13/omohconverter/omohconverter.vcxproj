@@ -121,6 +121,9 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2016.1.2\lib\vs2013\x64\debug</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>$(SolutionDir)..\..\build_increment.bat $(SolutionDir)..\..\$(ProjectName)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -308,6 +311,7 @@
     <ClInclude Include="..\..\..\code\tools\converter\skdconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\tikiconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\tr_shared.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\version.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
