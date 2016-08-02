@@ -3667,8 +3667,8 @@ void FuncLadder::EnsureOverLadder( Entity *pUser )
 	if( trace.startsolid || trace.allsolid )
 	{
 		trace = G_Trace( origin,
-			mins,
-			maxs,
+			pUser->mins,
+			pUser->maxs,
 			vPos,
 			pUser->edict,
 			MASK_PLAYERSOLID,
