@@ -345,8 +345,8 @@ typedef struct refImport_s
 	int ( *Milliseconds )( );
 	char * ( *LV_ConvertString )( const char *string );
 	void ( *Hunk_Clear )( );
-	void * ( *Hunk_Alloc )( int size );
-	void * ( *Hunk_AllocateTempMemory )( int size );
+	void * ( *Hunk_Alloc )( size_t size );
+	void * ( *Hunk_AllocateTempMemory )( size_t size );
 	void ( *Hunk_FreeTempMemory )( void *buffer );
 	void * ( *Malloc )( size_t size );
 	void ( *Free )( void *ptr );

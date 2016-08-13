@@ -263,12 +263,14 @@ void TIKI_FreeAll()
 			}
 
 			tiki->m_boneList.CleanUpChannels();
+			/*
 			if( tiki->a->m_aliases )
 			{
 				TIKI_Free( tiki->a->m_aliases );
 				tiki->a->m_aliases = NULL;
 				tiki->a->num_anims = 0;
 			}
+			*/
 
 			TIKI_Free( tiki );
 		}
@@ -285,6 +287,14 @@ void TIKI_FreeAll()
 			tikianim = *entryanim;
 
 			TIKI_RemoveTiki( tikianim );
+
+			if( tikianim->m_aliases )
+			{
+				TIKI_Free( tikianim->m_aliases );
+				tikianim->m_aliases = NULL;
+				tikianim->num_anims = 0;
+			}
+
 			TIKI_Free( tikianim );
 		}
 

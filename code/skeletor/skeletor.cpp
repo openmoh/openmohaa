@@ -164,6 +164,7 @@ skelAnimDataGameHeader_s *skelAnimDataGameHeader_s::AllocRLEChannelData( int num
 	animSize = sizeof( skelAnimDataGameHeader_t ) + ( numChannels - 1 ) * sizeof( skanChannelHdr );
 	data = ( skelAnimDataGameHeader_t * )Skel_Alloc( animSize );
 	data->flags = 0;
+	data->nTotalChannels = numChannels;
 	data->channelList.InitChannels();
 	data->nBytesUsed = animSize;
 	return data;
@@ -552,13 +553,13 @@ void SkeletorGetAnimFrame( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t
 	skelAnimStoreFrameList_c frameList;
 	skelAnimFrame_t *newFrame;
 
-	frameList.actionWeight = 1.0;
+	frameList.actionWeight = animData ? 1.0 : 0;
 	frameList.numMovementFrames = 0;
 	frameList.numActionFrames = 1;
 	frameList.m_blendInfo[ 32 ].weight = 1.0;
 	frameList.m_blendInfo[ 32 ].pAnimationData = animData;
 	frameList.m_blendInfo[ 32 ].frame = frame;
-	numBones = boneList->NumChannels();
+	numBones = skelmodel->numBones;
 
 	bone = ( skelBone_Base ** )Skel_Alloc( sizeof( skelBone_Base * ) * numBones );
 	memset( bone, 0, sizeof( skelBone_Base * ) * numBones );
@@ -572,9 +573,27 @@ void SkeletorGetAnimFrame( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t
 	}
 
 	newFrame = ( skelAnimFrame_t * )Skel_Alloc( sizeof( skelAnimFrame_t ) + sizeof( SkelMat4 ) * numBones );
-	newFrame->radius = animData->m_frame->radius;
-	newFrame->bounds[ 0 ] = animData->bounds[ 0 ];
-	newFrame->bounds[ 1 ] = animData->bounds[ 1 ];
+
+	if( animData )
+	{
+		if( animData->m_frame )
+		{
+			newFrame->radius = animData->m_frame->radius;
+		}
+		else
+		{
+			newFrame->radius = 0;
+		}
+
+		newFrame->bounds[ 0 ] = animData->bounds[ 0 ];
+		newFrame->bounds[ 1 ] = animData->bounds[ 1 ];
+	}
+	else
+	{
+		newFrame->radius = 0;
+		newFrame->bounds[ 0 ] = SkelVec3();
+		newFrame->bounds[ 1 ] = SkelVec3();
+	}
 
 	for( i = 0; i < numBones; i++ )
 	{
@@ -628,10 +647,8 @@ void SkeletorGetAnimFrame( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t
 	Skel_Free( newFrame );
 }
 
-void TIKI_GetSkelAnimFrame2( dtiki_t *tiki, skelBoneCache_t *bones, int anim, int frame, float *radius, vec3_t *mins, vec3_t *maxes )
+void TIKI_GetSkelAnimFrameInternal( dtiki_t *tiki, skelBoneCache_t *bones, skelAnimDataGameHeader_t *animData, int frame, float *radius, vec3_t *mins, vec3_t *maxes )
 {
-		short *aliases;
-	skelAnimDataGameHeader_t *animData;
 	//int boneNum;
 	int numBones;
 	skelBone_Base **bone;
@@ -642,16 +659,7 @@ void TIKI_GetSkelAnimFrame2( dtiki_t *tiki, skelBoneCache_t *bones, int anim, in
 	//skanBlendInfo *frame;
 	skelHeaderGame_t *skelmodel;
 
-	aliases = tiki->a->m_aliases;
-	if( *aliases == -1 )
-	{
-		SKEL_Warning( "TIKI_GetSkelAnimFrame: Bad anim in static model %s, couldn't generate pose properly.\n", tiki->name );
-		return;
-	}
-
-	animData = SkeletorCacheGetData( aliases[ anim ] );
-
-	frameList.actionWeight = 1.0;
+	frameList.actionWeight = animData ? 1.0 : 0;
 	frameList.numMovementFrames = 0;
 	frameList.numActionFrames = 1;
 	frameList.m_blendInfo[ 32 ].weight = 1.0;
@@ -675,9 +683,27 @@ void TIKI_GetSkelAnimFrame2( dtiki_t *tiki, skelBoneCache_t *bones, int anim, in
 	}
 
 	newFrame = ( skelAnimFrame_t * )Skel_Alloc( sizeof( skelAnimFrame_t ) + sizeof( SkelMat4 ) * numBones );
-	newFrame->radius = animData->m_frame->radius;
-	newFrame->bounds[ 0 ] = animData->bounds[ 0 ];
-	newFrame->bounds[ 1 ] = animData->bounds[ 1 ];
+
+	if( animData )
+	{
+		if( animData->m_frame )
+		{
+			newFrame->radius = animData->m_frame->radius;
+		}
+		else
+		{
+			newFrame->radius = 0;
+		}
+
+		newFrame->bounds[ 0 ] = animData->bounds[ 0 ];
+		newFrame->bounds[ 1 ] = animData->bounds[ 1 ];
+	}
+	else
+	{
+		newFrame->radius = 0;
+		newFrame->bounds[ 0 ] = SkelVec3();
+		newFrame->bounds[ 1 ] = SkelVec3();
+	}
 
 	for( i = 0; i < numBones; i++ )
 	{
@@ -722,6 +748,23 @@ void TIKI_GetSkelAnimFrame2( dtiki_t *tiki, skelBoneCache_t *bones, int anim, in
 	}
 
 	Skel_Free( newFrame );
+}
+
+void TIKI_GetSkelAnimFrame2( dtiki_t *tiki, skelBoneCache_t *bones, int anim, int frame, float *radius, vec3_t *mins, vec3_t *maxes )
+{
+	short *aliases;
+	skelAnimDataGameHeader_t *animData;
+
+	aliases = tiki->a->m_aliases;
+	if( *aliases == -1 )
+	{
+		SKEL_Warning( "TIKI_GetSkelAnimFrame: Bad anim in static model %s, couldn't generate pose properly.\n", tiki->name );
+		return;
+	}
+
+	animData = SkeletorCacheGetData( aliases[ anim ] );
+
+	TIKI_GetSkelAnimFrameInternal( tiki, bones, animData, frame, NULL, NULL, NULL );
 }
 
 void TIKI_GetSkelAnimFrame( dtiki_t *tiki, skelBoneCache_t *bones, float *radius, vec3_t *mins, vec3_t *maxes )

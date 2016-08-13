@@ -531,7 +531,11 @@ skelBone_Base *skelBone_Base::Parent() const
 
 SkelMat4 skelBone_Zero::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
-	m_cachedValue = m_parent->GetTransform( frames );
+	if( m_parent )
+	{
+		m_cachedValue = m_parent->GetTransform( frames );
+	}
+
 	m_isDirty = false;
 	return m_cachedValue;
 }
@@ -559,7 +563,14 @@ SkelMat4 skelBone_Rotation::GetDirtyTransform( const skelAnimStoreFrameList_c *f
 	incomingQuat.GetMat4( incomingValue );
 	VectorCopy( m_baseValue, incomingValue[ 3 ] );
 
-	m_cachedValue.Multiply( incomingValue, m_parent->GetTransform( frames ) );
+	if( m_parent )
+	{
+		m_cachedValue.Multiply( incomingValue, m_parent->GetTransform( frames ) );
+	}
+	else
+	{
+		m_cachedValue = incomingValue;
+	}
 
 	if( m_controller )
 	{
@@ -607,7 +618,14 @@ SkelMat4 skelBone_PosRot::GetDirtyTransform( const skelAnimStoreFrameList_c *fra
 	incomingQuat.GetMat4( incomingValue );
 	VectorCopy( incomingOffset, incomingValue[ 3 ] );
 
-	m_cachedValue.Multiply( incomingValue, m_parent->GetTransform( frames ) );
+	if( m_parent )
+	{
+		m_cachedValue.Multiply( incomingValue, m_parent->GetTransform( frames ) );
+	}
+	else
+	{
+		m_cachedValue = incomingValue;
+	}
 
 	if( m_controller )
 	{
@@ -661,7 +679,14 @@ SkelMat4 skelBone_Root::GetDirtyTransform( const skelAnimStoreFrameList_c *frame
 	incomingQuat.GetMat4( incomingValue );
 	VectorCopy( incomingOffset, incomingValue[ 3 ] );
 
-	m_cachedValue.Multiply( incomingValue, m_parent->GetTransform( frames ) );
+	if( m_parent )
+	{
+		m_cachedValue.Multiply( incomingValue, m_parent->GetTransform( frames ) );
+	}
+	else
+	{
+		m_cachedValue = incomingValue;
+	}
 
 	if( m_controller )
 	{
@@ -702,7 +727,11 @@ SkelMat4 skelBone_IKshoulder::GetDirtyTransform( const skelAnimStoreFrameList_c 
 		return m_cachedValue;
 	}
 
-	baseMatrix = m_parent->GetTransform( frames );
+	if( m_parent )
+	{
+		baseMatrix = m_parent->GetTransform( frames );
+	}
+
 	baseMatrix[ 3 ][ 0 ] += m_baseValue[ 0 ] * baseMatrix[ 0 ][ 0 ] + m_baseValue[ 1 ] * baseMatrix[ 1 ][ 0 ] + m_baseValue[ 2 ] * baseMatrix[ 2 ][ 0 ];
 	baseMatrix[ 3 ][ 1 ] += m_baseValue[ 0 ] * baseMatrix[ 0 ][ 1 ] + m_baseValue[ 1 ] * baseMatrix[ 1 ][ 1 ] + m_baseValue[ 2 ] * baseMatrix[ 2 ][ 1 ];
 	baseMatrix[ 3 ][ 2 ] += m_baseValue[ 0 ] * baseMatrix[ 0 ][ 2 ] + m_baseValue[ 1 ] * baseMatrix[ 1 ][ 2 ] + m_baseValue[ 2 ] * baseMatrix[ 2 ][ 2 ];
@@ -939,8 +968,12 @@ SkelMat4 skelBone_AvRot::GetDirtyTransform( const skelAnimStoreFrameList_c *fram
 
 	VectorCopy( m_basePos, m_cachedValue[ 3 ] );
 
-	temp.Multiply( m_cachedValue, m_parent->GetTransform( frames ) );
-	m_cachedValue = temp;
+	if( m_parent )
+	{
+		temp.Multiply( m_cachedValue, m_parent->GetTransform( frames ) );
+		m_cachedValue = temp;
+	}
+
 	m_cachedQuat.GetMat4( m_cachedValue );
 
 	m_isDirty = false;
@@ -979,7 +1012,14 @@ skelBone_Base *skelBone_AvRot::GetBoneRef( int num )
 
 SkelMat4 skelBone_HoseRot::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
-	return GetDirtyTransform( m_parent->GetTransform( frames ), m_target->GetTransform( frames ) );
+	SkelMat4 mat;
+
+	if( m_parent )
+	{
+		mat = m_parent->GetTransform( frames );
+	}
+
+	return GetDirtyTransform( mat, m_target->GetTransform( frames ) );
 }
 
 SkelMat4 skelBone_HoseRot::GetDirtyTransform( SkelMat4& myParentTM, SkelMat4& targetTM )
@@ -1104,8 +1144,11 @@ SkelMat4 skelBone_HoseRotBoth::GetDirtyTransform( const skelAnimStoreFrameList_c
 	SkelMat4 myParentTM;
 	SkelMat4 targetTM;
 
-	myParentTM = m_parent->GetTransform( frames );
-	targetTM = m_target->GetTransform( frames );
+	if( m_parent )
+	{
+		myParentTM = m_parent->GetTransform( frames );
+		targetTM = m_target->GetTransform( frames );
+	}
 
 	VectorInverse( targetTM[ 0 ] );
 	VectorInverse( targetTM[ 2 ] );
@@ -1127,8 +1170,11 @@ SkelMat4 skelBone_HoseRotParent::GetDirtyTransform( const skelAnimStoreFrameList
 	SkelMat4 myParentTM;
 	SkelMat4 targetTM;
 
-	myParentTM = m_parent->GetTransform( frames );
-	targetTM = m_target->GetTransform( frames );
+	if( m_parent )
+	{
+		myParentTM = m_parent->GetTransform( frames );
+		targetTM = m_target->GetTransform( frames );
+	}
 
 	VectorInverse( myParentTM[ 0 ] );
 	VectorInverse( myParentTM[ 2 ] );

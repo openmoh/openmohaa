@@ -19,6 +19,15 @@
     <Filter Include="tiki_skeletor">
       <UniqueIdentifier>{8d8c8602-bd22-47a2-b420-53e8a35ab2c0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="q3map">
+      <UniqueIdentifier>{bb5b422a-47f6-47e8-8873-39789c9a917b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="q3_common">
+      <UniqueIdentifier>{b8821f97-61c4-492a-97b8-8dc7d7b23b93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jpeglib">
+      <UniqueIdentifier>{bda88887-861f-493a-9248-9792a05d2489}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\code\globalcpp\archive.cpp">
@@ -233,6 +242,195 @@
     </ClCompile>
     <ClCompile Include="..\..\..\code\tools\converter\shadermanager.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bspentity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bsplight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bspworld.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jcomapi.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdapimin.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdapistd.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdatasrc.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdcoefct.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdcolor.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jddctmgr.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdhuff.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdinput.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmainct.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmarker.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmaster.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdpostct.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdsample.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdtrans.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jerror.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jfdctflt.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jidctflt.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jmemmgr.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jmemnobs.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jpgload.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jutils.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\brush.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\brush_primit.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\bsp.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\facebsp.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\fog.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\glfile.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\leakfile.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\light.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\light_trace.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\lightmaps.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\lightv.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\map.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\mesh.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\misc_model.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\nodraw.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\patch.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\portals.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\prtfile.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\shaders.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\soundv.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\surface.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\terrain.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\tjunction.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\tree.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\vis.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\visflow.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\writebsp.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\aselib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\bspfile.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\cmdlib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\imagelib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\l3dslib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\mathlib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\mutex.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\polylib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\scriplib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\threads.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\trilib.c">
+      <Filter>q3_common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -449,5 +647,113 @@
     <ClInclude Include="..\..\..\code\tools\converter\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bspentity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bsplight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bspworld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jchuff.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jconfig.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jdct.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jdhuff.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jerror.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jinclude.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jmemsys.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jmorecfg.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jpegint.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jversion.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\light.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\map.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\mesh.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\qbsp.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\shaders.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\vis.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\aselib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\bspfile.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\cmdlib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\imagelib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeglib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\l3dslib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\mathlib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\mutex.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\pakstuff.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\polylib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\polyset.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\scriplib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\str.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\surfaceflags.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\threads.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\trilib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

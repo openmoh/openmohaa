@@ -136,6 +136,8 @@ void DbgHeap::ReferencePointer
 	)
 
 {
+	return;
+
 	refptr_t *ref = FindReference( ptr );
 	refptr_t **rootptr;
 
@@ -174,6 +176,8 @@ void DbgHeap::DereferencePointer
 	)
 
 {
+	return;
+
 	refptr_t *ref = FindReference( ptr );
 
 	assert( ref );
@@ -194,11 +198,39 @@ void DbgHeap::DereferencePointer
 
 	ref->refcount--;
 
+	/*
+	if( !ref->refcount )
+	{
+		refptr_t *r;
+		refptr_t *rootptr;
+
+		rootptr = hashTable[ ( ( size_t )ptr / 8 ) % DBG_HEAP_HASHSIZE ];
+
+		if( ref != rootptr )
+		{
+			for( r = rootptr; r != NULL; r = r->next )
+			{
+				if( r->ptr == ptr )
+				{
+					ref->next = r->next;
+					break;
+				}
+				ref = r;
+			}
+		}
+		else
+		{
+			hashTable[ ( ( size_t )ptr / 8 ) % DBG_HEAP_HASHSIZE ] = ref->next;
+		}
+	}
+	*/
+
 #ifdef WIN32
 	RtlCaptureStackBackTrace( 1, DBG_HEAP_MAX_CALLSTACK, ref->callstack, NULL );
 #endif
 }
 
+/*
 void *operator new( size_t size )
 {
 	void *ptr = malloc( size );
@@ -224,3 +256,4 @@ void operator delete[]( void *ptr )
 	m_Heap.DereferencePointer( ptr );
 	free( ptr );
 }
+*/

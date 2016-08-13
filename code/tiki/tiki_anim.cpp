@@ -95,7 +95,14 @@ int TIKI_Anim_NumForName( dtiki_t *pmdl, const char *name )
 		iMiddle = ( iBottom + iTop ) / 2;
 
 		panimdef = pmdl->a->animdefs[ iMiddle ];
-		iComp = stricmp( panimdef->alias, name );
+		if( !panimdef )
+		{
+			iComp = -1;
+		}
+		else
+		{
+			iComp = stricmp( panimdef->alias, name );
+		}
 
 		if( !iComp )
 		{
@@ -161,13 +168,13 @@ int TIKI_Anim_NumForName( dtiki_t *pmdl, const char *name )
 			return iMiddle;
 		}
 
-		if( iComp <= 0 )
+		if( iComp > 0 )
 		{
-			iBottom = iMiddle + 1;
+			iTop = iMiddle - 1;
 		}
 		else
 		{
-			iTop = iMiddle - 1;
+			iBottom = iMiddle + 1;
 		}
 	}
 

@@ -738,6 +738,8 @@ void FS_Remove( const char *osPath );
 void	FS_FilenameCompletion( const char *dir, const char *ext,
 		qboolean stripExt, void(*callback)(const char *s) );
 
+void	FS_GetRelativeFilename( const char *currentDirectory, const char *absoluteFilename, char *out, size_t destlen );
+
 extern char fs_gamedir[];
 extern cvar_t *fs_debug;
 extern cvar_t *fs_mapdir;
@@ -1134,24 +1136,32 @@ temp file loading
 
 const char *Z_EmptyStringPointer( void );
 const char *Z_NumberStringPointer( int iNum );
+
+#ifndef _DEBUG_MEM
 void *Z_TagMalloc( size_t size, int tag );
 void *Z_Malloc( size_t size );
 void Z_Free( void *ptr );
+#endif
+
 void Z_FreeTags( int tag );
+
 void Z_InitMemory( void );
 void Z_Shutdown( void );
 int Z_AvailableMemory( void );
 void Z_LogHeap( void );
 void Z_Meminfo_f( void );
 
+#ifndef _DEBUG_MEM
 void *Hunk_Alloc( size_t size );
+void *Hunk_AllocateTempMemory( size_t size );
+void Hunk_FreeTempMemory( void *buf );
+#endif
+
 void Hunk_Clear( void );
 void Hunk_ClearToMark( void );
 void Hunk_SetMark( void );
 qboolean Hunk_CheckMark( void );
 void Hunk_ClearTempMemory( void );
-void *Hunk_AllocateTempMemory( int size );
-void Hunk_FreeTempMemory( void *buf );
 int	Hunk_MemoryRemaining( void );
 void Hunk_Log( void);
 void Hunk_Trash( void );

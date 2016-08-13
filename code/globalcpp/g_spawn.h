@@ -54,7 +54,7 @@ public:
 
 	void           Clear( void );
 
-	char			*Parse( char *data );
+	char			*Parse( char *data, bool bAllowUtils = false );
 	const char     *getArg( const char *key, const char *defaultValue = NULL );
 	void           setArg( const char *key, const char *value );
 

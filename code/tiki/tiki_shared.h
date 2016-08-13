@@ -60,11 +60,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // skd skeletor
 #define TIKI_SKD_HEADER_IDENT		( *( int * )"SKMD" )
-#define TIKI_SKD_HEADER_VERSION		5
+#define TIKI_SKD_HEADER_OLD_VERSION	5
+#define TIKI_SKD_HEADER_VERSION		6
 
 // skc skeletor animations
 #define TIKI_SKC_HEADER_IDENT		( *( int * )"SKAN" )
-#define TIKI_SKC_HEADER_VERSION		13
+#define TIKI_SKC_HEADER_OLD_VERSION	13
+#define TIKI_SKC_HEADER_VERSION		14
 
 // tiki limitations
 #define TIKI_MAX_BONES				100

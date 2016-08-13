@@ -32,8 +32,6 @@ private:
 	Entry< k, v >				**reverseTable;		// the index table
 
 protected:
-	virtual void				rehash();
-
 	virtual Entry< k, v >		*addNewKeyEntry( const k& key );
 
 public:
@@ -41,6 +39,7 @@ public:
 	~con_arrayset();
 
 	virtual void				clear();
+	virtual void				resize( int count );
 
 	unsigned int				findKeyIndex( const k& key );
 	unsigned int				addKeyIndex( const k& key );
@@ -63,13 +62,13 @@ con_arrayset<key, value>::~con_arrayset()
 }
 
 template< typename key, typename value >
-void con_arrayset<key, value>::rehash()
+void con_arrayset<key, value>::resize( int count )
 {
 	Entry< key, value > **oldReverseTable = reverseTable;
 	unsigned int oldTableLength = this->tableLength;
 	int i;
 
-	con_set< key, value >::rehash();
+	con_set< key, value >::resize( count );
 
 	// allocate a bigger reverse table
 	reverseTable = ( new Entry< key, value > *[ this->tableLength ]() ) - 1;

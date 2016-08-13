@@ -113,7 +113,19 @@ int HashCode< float >( const float& key )
 }
 
 template<>
+int HashCode< double >( const double& key )
+{
+	return *( int * )&key;
+}
+
+template<>
 int HashCode< str >( const str& key )
 {
 	return HashCode< const char * >( key.c_str() );
+}
+
+template<>
+int HashCode< Vector >( const Vector& key )
+{
+	return ( int )( ( key[ 0 ] + key[ 1 ] + key[ 2 ] ) / 3 );
 }

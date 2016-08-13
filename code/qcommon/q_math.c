@@ -2005,6 +2005,11 @@ void VectorPackTo01( vec3_t v ) {
 	v[ 2 ] += 0.5f;
 }
 
+vec_t Q_rint( vec_t in )
+{
+	return floor( in + 0.5 );
+}
+
 void _VectorMA( const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc) {
 	vecc[0] = veca[0] + scale*vecb[0];
 	vecc[1] = veca[1] + scale*vecb[1];

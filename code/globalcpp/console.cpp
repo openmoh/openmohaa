@@ -143,7 +143,7 @@ bool ConsoleInput::Execute
 	const char *com_token;
 	str sCommand;
 
-	buffer = ( char * )bi.Malloc( strlen( data ) + 1 );
+	buffer = ( char * )malloc( strlen( data ) + 1 );
 	strcpy( buffer, data );
 
 	com_token = COM_Parse( &buffer );
@@ -151,6 +151,7 @@ bool ConsoleInput::Execute
 	if( !com_token )
 	{
 		Com_Printf( "Enter a valid command.\n" );
+		free( buffer );
 		return false;
 	}
 
@@ -177,15 +178,18 @@ bool ConsoleInput::Execute
 		else
 		{
 			Com_Printf( "Command '%s' not available from console.\n", sCommand.c_str() );
+			free( buffer );
 			return false;
 		}
 	}
 	else
 	{
 		Com_Printf( "Command '%s' is not valid. Type help for more info.\n", sCommand.c_str() );
+		free( buffer );
 		return false;
 	}
 
+	free( buffer );
 	return true;
 }
 
@@ -210,7 +214,7 @@ bool ConsoleInput::Execute
 		return false;
 	}
 
-	data = ( char * )bi.Malloc( iLength + 1 );
+	data = ( char * )malloc( iLength + 1 );
 
 	memset( data, 0, iLength + 1 );
 
@@ -220,7 +224,10 @@ bool ConsoleInput::Execute
 		strcat( data, " " );
 	}
 
-	return Execute( data );
+	bool bResult = Execute( data );
+	free( data );
+
+	return bResult;
 }
 
 void ConsoleInput::Input_Idle
@@ -229,7 +236,7 @@ void ConsoleInput::Input_Idle
 	)
 
 {
-	char *szBuffer = ( char * )bi.Malloc( 255 );
+	char *szBuffer = ( char * )malloc( 255 );
 	int i;
 
 	while( 1 )

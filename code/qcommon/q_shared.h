@@ -98,6 +98,19 @@ extern "C" {
 
 #ifndef Q3_VM
 
+#ifdef _DEBUG_MEM
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+#define Z_Malloc malloc
+#define Z_TagMalloc(size, tag) malloc( size )
+#define Z_Free(ptr) free(ptr)
+#define Hunk_Alloc(size) malloc(size)
+#define Hunk_AllocateTempMemory(size) malloc(size)
+#define Hunk_FreeTempMemory(ptr) free(ptr)
+#endif
+
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -619,6 +632,7 @@ void _VectorAdd( const vec3_t veca, const vec3_t vecb, vec3_t out );
 void _VectorCopy( const vec3_t in, vec3_t out );
 void _VectorScale( const vec3_t in, float scale, vec3_t out );
 void _VectorMA( const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc );
+vec_t Q_rint( vec_t in );
 
 unsigned ColorBytes3 (float r, float g, float b);
 unsigned ColorBytes4 (float r, float g, float b, float a);
@@ -1053,7 +1067,7 @@ unsigned long long rdtsc( void );
 
 float Com_Clamp( float min, float max, float value );
 
-char	*COM_SkipPath( char *pathname );
+char	*COM_SkipPath( const char *pathname );
 const char	*COM_GetExtension( const char *name );
 void	COM_StripExtension(const char *in, char *out, int destsize);
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
@@ -1534,7 +1548,7 @@ typedef enum
 #define	MAX_CLIENTS			64		// absolute limit
 #define MAX_LOCATIONS		64
 
-#define MAX_MAP_BOUNDS          8192
+#define MAX_MAP_BOUNDS          16384
 #define MIN_MAP_BOUNDS          ( -MAX_MAP_BOUNDS )
 #define MAP_SIZE                ( MAX_MAP_BOUNDS - MIN_MAP_BOUNDS )
 

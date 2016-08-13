@@ -370,6 +370,72 @@ void ReadEncodedFrames( msg_t *msg, skelAnimDataGameHeader_t *enAnim )
 	enAnim->nBytesUsed = MSG_ReadLong( msg );
 }
 
+void ReadEncodedFramesEx( msg_t *msg, skelAnimDataGameHeader_t *enAnim )
+{
+	skanChannelHdr *pChannel;
+	skanGameFrame *pFrame;
+	int frameCnt;
+	int i, j;
+	const char *name;
+	int type;
+
+	for( i = 0; i < enAnim->nTotalChannels; i++ )
+	{
+		pChannel = &enAnim->ary_channels[ i ];
+
+		name = enAnim->channelList.ChannelName( &skeletor_c::m_channelNames, i );
+		type = GetChannelTypeFromName( name );
+		frameCnt = MSG_ReadShort( msg );
+
+		pFrame = ( skanGameFrame * )Skel_Alloc( frameCnt * sizeof( skanGameFrame ) );
+		pChannel->ary_frames = pFrame;
+		pChannel->nFramesInChannel = frameCnt;
+
+		if( type )
+		{
+			if( type == 1 )
+			{
+				for( j = 0; j < pChannel->nFramesInChannel; j++ )
+				{
+					pFrame = &pChannel->ary_frames[ j ];
+					pFrame->nFrameNum = MSG_ReadShort( msg );
+					pFrame->nPrevFrameIndex = MSG_ReadShort( msg );
+					pFrame->pChannelData[ 0 ] = MSG_ReadFloat( msg );
+					pFrame->pChannelData[ 1 ] = MSG_ReadFloat( msg );
+					pFrame->pChannelData[ 2 ] = MSG_ReadFloat( msg );
+					pFrame->pChannelData[ 3 ] = 0;
+				}
+			}
+			else if( type == 3 )
+			{
+				for( j = 0; j < pChannel->nFramesInChannel; j++ )
+				{
+					pFrame = &pChannel->ary_frames[ j ];
+					pFrame->nFrameNum = MSG_ReadShort( msg );
+					pFrame->nPrevFrameIndex = MSG_ReadShort( msg );
+					pFrame->pChannelData[ 0 ] = MSG_ReadFloat( msg );
+					pFrame->pChannelData[ 1 ] = 0;
+					pFrame->pChannelData[ 2 ] = 0;
+					pFrame->pChannelData[ 3 ] = 0;
+				}
+			}
+		}
+		else
+		{
+			for( j = 0; j < pChannel->nFramesInChannel; j++ )
+			{
+				pFrame = &pChannel->ary_frames[ j ];
+				pFrame->nFrameNum = MSG_ReadShort( msg );
+				pFrame->nPrevFrameIndex = MSG_ReadShort( msg );
+				pFrame->pChannelData[ 0 ] = MSG_ReadFloat( msg );
+				pFrame->pChannelData[ 1 ] = MSG_ReadFloat( msg );
+				pFrame->pChannelData[ 2 ] = MSG_ReadFloat( msg );
+				pFrame->pChannelData[ 3 ] = MSG_ReadFloat( msg );
+			}
+		}
+	}
+}
+
 skelAnimDataGameHeader_t *skeletor_c::LoadProcessedAnim( const char *path, void *buffer, int len, const char *name )
 {
 	skelAnimDataGameHeader_t *enAnim;
@@ -432,5 +498,69 @@ skelAnimDataGameHeader_t *skeletor_c::LoadProcessedAnim( const char *path, void 
 	}
 
 	enAnim->channelList.PackChannels();
+	return enAnim;
+}
+
+skelAnimDataGameHeader_t *skeletor_c::LoadProcessedAnimEx( const char *path, void *buffer, int len, const char *name )
+{
+	skelAnimDataGameHeader_t *enAnim;
+	int i;
+	msg_t msg;
+	int numChannels;
+	skelAnimGameFrame_t *newFrame;
+
+	MSG_Init( &msg, ( byte * )buffer, len );
+	msg.cursize = len;
+	MSG_BeginReading( &msg );
+
+	numChannels = MSG_ReadShort( &msg );
+	enAnim = skelAnimDataGameHeader_t::AllocRLEChannelData( numChannels );
+	enAnim->channelList.ZeroChannels();
+	enAnim->flags = MSG_ReadLong( &msg );
+	enAnim->frameTime = MSG_ReadFloat( &msg );
+	enAnim->totalDelta[ 0 ] = MSG_ReadFloat( &msg );
+	enAnim->totalDelta[ 1 ] = MSG_ReadFloat( &msg );
+	enAnim->totalDelta[ 2 ] = MSG_ReadFloat( &msg );
+	enAnim->totalAngleDelta = MSG_ReadFloat( &msg );
+	enAnim->numFrames = MSG_ReadLong( &msg );
+	enAnim->bHasDelta = MSG_ReadByte( &msg ) != 0;
+	enAnim->bHasUpper = MSG_ReadByte( &msg ) != 0;
+	enAnim->bHasMorph = MSG_ReadByte( &msg ) != 0;
+
+	for( i = 0; i < enAnim->nTotalChannels; i++ )
+	{
+		enAnim->channelList.AddChannel( m_channelNames.RegisterChannel( MSG_ReadString( &msg ) ) );
+	}
+
+	enAnim->channelList.PackChannels();
+
+	newFrame = ( skelAnimGameFrame_t * )Skel_Alloc( enAnim->numFrames * sizeof( skelAnimGameFrame_t ) );
+	enAnim->m_frame = newFrame;
+
+	for( i = 0; i < enAnim->numFrames; i++ )
+	{
+		newFrame->bounds[ 0 ][ 0 ] = MSG_ReadFloat( &msg );
+		newFrame->bounds[ 0 ][ 1 ] = MSG_ReadFloat( &msg );
+		newFrame->bounds[ 0 ][ 2 ] = MSG_ReadFloat( &msg );
+		newFrame->bounds[ 1 ][ 0 ] = MSG_ReadFloat( &msg );
+		newFrame->bounds[ 1 ][ 1 ] = MSG_ReadFloat( &msg );
+		newFrame->bounds[ 1 ][ 2 ] = MSG_ReadFloat( &msg );
+		newFrame->radius = MSG_ReadFloat( &msg );
+		newFrame->delta[ 0 ] = MSG_ReadFloat( &msg );
+		newFrame->delta[ 1 ] = MSG_ReadFloat( &msg );
+		newFrame->delta[ 2 ] = MSG_ReadFloat( &msg );
+		newFrame->angleDelta = MSG_ReadFloat( &msg );
+		newFrame->pChannels = NULL;
+		newFrame++;
+	}
+
+	enAnim->bounds[ 0 ][ 0 ] = MSG_ReadFloat( &msg );
+	enAnim->bounds[ 0 ][ 1 ] = MSG_ReadFloat( &msg );
+	enAnim->bounds[ 0 ][ 2 ] = MSG_ReadFloat( &msg );
+	enAnim->bounds[ 1 ][ 0 ] = MSG_ReadFloat( &msg );
+	enAnim->bounds[ 1 ][ 1 ] = MSG_ReadFloat( &msg );
+	enAnim->bounds[ 1 ][ 2 ] = MSG_ReadFloat( &msg );
+	ReadEncodedFramesEx( &msg, enAnim );
+
 	return enAnim;
 }

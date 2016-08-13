@@ -191,16 +191,23 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 	if( pHeader->version > TIKI_SKB_HEADER_VERSION )
 	{
 		char *pMorphTargets;
-		size_t nLen;
+		intptr_t nLen;
 
 		nBoxBytes = pHeader->numBoxes * sizeof( skelHitBox_t );
 		pMorphTargets = ( char * )pHeader + pHeader->ofsMorphTargets;
 
-		for( i = 0; i < pHeader->numMorphTargets; i++ )
+		if( pHeader->ofsMorphTargets > 0 || ( pHeader->ofsMorphTargets + pHeader->numMorphTargets ) < length )
 		{
-			nLen = strlen( pMorphTargets ) + 1;
-			nMorphBytes += nLen;
-			pMorphTargets += nLen;
+			for( i = 0; i < pHeader->numMorphTargets; i++ )
+			{
+				nLen = strlen( pMorphTargets ) + 1;
+				nMorphBytes += nLen;
+				pMorphTargets += nLen;
+			}
+		}
+		else
+		{
+			nMorphBytes = pHeader->numMorphTargets;
 		}
 	}
 	else if( pHeader->version == TIKI_SKB_HEADER_VERSION )
@@ -325,7 +332,7 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 
 	if( nBoneBytes )
 	{
-		if( pHeader->version < TIKI_SKD_HEADER_VERSION )
+		if( pHeader->version <= TIKI_SKB_HEADER_VERSION )
 		{
 			skelBoneName_t *TIKI_bones = ( skelBoneName_t * )( ( byte * )pHeader + pHeader->ofsBones );
 			for( i = 0; i < pSkel->numBones; i++ )
@@ -372,7 +379,7 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 
 	if( nBoxBytes )
 	{
-		if( pHeader->ofsBoxes < 0 || ( nBoxBytes + pHeader->ofsBoxes ) > length )
+		if( pHeader->ofsBoxes <= 0 || ( nBoxBytes + pHeader->ofsBoxes ) >= length )
 		{
 			Com_Printf( "^~^~^ Box data is corrupted for '%s'\n", cache->path );
 			pSkel->numMorphTargets = 0;
@@ -398,7 +405,7 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 
 	if( nMorphBytes )
 	{
-		if( pHeader->ofsMorphTargets < 0 || ( nMorphBytes + pHeader->ofsMorphTargets ) > length )
+		if( pHeader->ofsMorphTargets <= 0 || ( nMorphBytes + pHeader->ofsMorphTargets ) >= length )
 		{
 			Com_Printf( "^~^~^ Morph targets data is corrupted for '%s'\n", cache->path );
 			pSkel->numMorphTargets = 0;
@@ -524,7 +531,7 @@ qboolean TIKI_LoadSKB( const char *path, skelcache_t *cache )
 	}
 
 	version = LittleLong( pheader->version );
-	if( version != TIKI_SKB_HEADER_VER_3 || version != TIKI_SKB_HEADER_VERSION )
+	if( version != TIKI_SKB_HEADER_VER_3 && version != TIKI_SKB_HEADER_VERSION )
 	{
 		TIKI_Error( "TIKI_LoadSKB: %s has wrong version (%i should be %i or %i)\n", path, version, TIKI_SKB_HEADER_VER_3, TIKI_SKB_HEADER_VERSION );
 		TIKI_Free( pheader );
@@ -599,10 +606,12 @@ qboolean TIKI_LoadSKB( const char *path, skelcache_t *cache )
 			newVerts->numMorphs = 0;
 			newVerts->numWeights = oldVerts->numWeights;
 
+			skelWeight_t *newWeights = ( skelWeight_t * )( ( byte * )newVerts + sizeof( skeletorVertex_t ) );
+
 			for( k = 0; k < oldVerts->numWeights; k++ )
 			{
-				skelWeight_t *newWeights = ( skelWeight_t * )( ( byte * )newVerts + sizeof( skeletorVertex_t ) * k );
 				memcpy( newWeights, &oldVerts->weights[ k ], sizeof( skelWeight_t ) );
+				newWeights++;
 			}
 
 			oldVerts = ( skelVertex_t * )( ( byte * )oldVerts + sizeof( skelWeight_t ) * oldVerts->numWeights + ( sizeof( skelVertex_t ) - sizeof( skelWeight_t ) ) );
@@ -781,7 +790,7 @@ qboolean TIKI_LoadSKD( const char *path, skelcache_t *cache )
 
 	// Check the version
 	version = LittleLong( pheader->version );
-	if( version != TIKI_SKD_HEADER_VERSION )
+	if( version != TIKI_SKD_HEADER_OLD_VERSION && version != TIKI_SKD_HEADER_VERSION )
 	{
 		TIKI_Error( "TIKI_LoadSKD: %s has wrong version (%i should be %i)\n", path, version, TIKI_SKD_HEADER_VERSION );
 		TIKI_FreeFile( pheader );

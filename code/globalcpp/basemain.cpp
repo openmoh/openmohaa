@@ -126,4 +126,9 @@ int main( int argc, char **argv )
 	MainEvent( conev );
 
 	conev.FreeObjectList();
+
+	L_ShutdownEvents();
+
+	Com_Shutdown();
+	FS_Shutdown( qtrue );
 }

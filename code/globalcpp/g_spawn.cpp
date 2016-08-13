@@ -80,7 +80,7 @@ Parses spawnflags out of the given string, returning the new position.
 Clears out any previous args.
 ====================
 */
-char *SpawnArgs::Parse( char *data )
+char *SpawnArgs::Parse( char *data, bool bAllowUtils )
 {
 	str         keyname;
 	const char	*com_token;
@@ -130,7 +130,7 @@ char *SpawnArgs::Parse( char *data )
 		
 		// keynames with a leading underscore are used for utility comments,
 		// and are immediately discarded by the game
-		if ( keyname[ 0 ] == '_' )
+		if ( !bAllowUtils && keyname[ 0 ] == '_' )
 		{
 			continue;
 		}

@@ -331,7 +331,7 @@ qboolean TIKI_ParseIncludes( dloaddef_t *ld )
 	const char *token;
 	qboolean b_incl = false;
 	const char *mapname;
-	int depth;
+	int depth = 0;
 
 	token = ld->tikiFile.GetToken( true );
 	if( sv_mapname )
@@ -345,7 +345,9 @@ qboolean TIKI_ParseIncludes( dloaddef_t *ld )
 
 	while( 1 )
 	{
-		if( !strncmp( token, mapname, strlen( token ) ) )
+		if( !strncmp( token, mapname, strlen( token ) )
+			|| !strncmp( token, "spearheadserver", strlen( token ) )
+			|| !strncmp( token, "breakthroughserver", strlen( token ) ) )
 		{
 			b_incl = true;
 		}
@@ -395,7 +397,7 @@ void TIKI_ParseAnimations( dloaddef_t *ld )
 	dloadanim_t *anim;
 	qboolean b_mapspec = false;
 	const char *mapname;
-	size_t depth;
+	size_t depth = 0;
 
 	ld->tikiFile.GetToken( true );
 
@@ -1153,6 +1155,9 @@ void TIKI_ParseInitCommands( dloaddef_t *ld, dloadinitcmd_t **cmdlist, int maxcm
 			if( cmd )
 			{
 				( *numcmds )++;
+
+				cmd->num_args = 0;
+				cmd->args = NULL;
 
 				ld->tikiFile.UnGetToken();
 				while( ld->tikiFile.TokenAvailable( false ) )

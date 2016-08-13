@@ -259,6 +259,65 @@ bool IsBogusChannelName( const char *name )
 	return false;
 }
 
+int GetChannelTypeFromName( const char *name )
+{
+	int i;
+	size_t len;
+
+	if( !name )
+	{
+		return 2;
+	}
+
+	for( i = 0; i < sizeof( bogusNameTable ) / sizeof( bogusNameTable[ 0 ] ); i++ )
+	{
+		if( !Q_stricmp( name, bogusNameTable[ i ] ) )
+		{
+			return 2;
+		}
+	}
+
+	if( strstr( name, "Bip0" ) && !strstr( name, "Bip01" ) && !strstr( name, "Footsteps" ) )
+	{
+		return 2;
+	}
+
+	len = strlen( name );
+
+	if( len >= 4 )
+	{
+		if( !memcmp( name + len - 4, " rot", 5 ) )
+		{
+			return 0;
+		}
+		else if( !memcmp( name + len - 4, " pos", 5 ) )
+		{
+			return 1;
+		}
+		else if( len >= 6 )
+		{
+			if( !memcmp( name + len - 4, " rotFK", 7 ) )
+			{
+				return 2;
+			}
+			else
+			{
+				return 3;
+			}
+		}
+		else
+		{
+			return 3;
+		}
+	}
+	else
+	{
+		return 3;
+	}
+
+	return false;
+}
+
 int ChannelNameTable::RegisterChannel( const char *name )
 {
 	int index;

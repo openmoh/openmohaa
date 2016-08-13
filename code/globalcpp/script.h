@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TOKENSPACE			(' ')
 #define TOKENSPECIAL		('$')
 
-#define	MAXTOKEN	256
+#define	MAXTOKEN	512
 
 typedef struct
 	{

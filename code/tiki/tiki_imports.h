@@ -30,8 +30,15 @@ extern "C" {
 #endif
 
 void TIKI_DPrintf( const char *fmt, ... );
+
+#ifndef _DEBUG_MEM
 void TIKI_Free( void *ptr );
 void *TIKI_Alloc( size_t size );
+#else
+#define TIKI_Free(ptr) free(ptr)
+#define TIKI_Alloc(size) malloc(size)
+#endif
+
 void TIKI_FreeFile( void *buffer );
 int TIKI_ReadFileEx( const char *qpath, void **buffer, qboolean quiet );
 

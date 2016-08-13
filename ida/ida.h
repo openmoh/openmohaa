@@ -2335,9 +2335,25 @@ typedef struct skelAnimDataGameHeader_s {
 	skanChannelHdr ary_channels[ 1 ];
 } skelAnimDataGameHeader_t;
 
+typedef struct skelAnimDataGameHeader2_s {
+	int flags;
+	char bHasDelta;
+	char bHasMorph;
+	short bHasUpper;
+	int numFrames;
+	SkelVec3 totalDelta;
+	float totalAngleDelta;
+	float frameTime;
+	SkelVec3 bounds[ 2 ];
+	skelAnimGameFrame_t *m_frame;
+	short int nTotalChannels;
+	skelChannelList_c channelList;
+	skanChannelHdr ary_channels[ 1 ];
+} skelAnimDataGameHeader2_t;
+
 typedef struct ChannelName_s {
-	char		name[ 32 ];
-	short		un1;
+	char			name[ 32 ];
+	short int		channelNum;
 } ChannelName_t;
 
 typedef struct ChannelNameTable_s {
@@ -2458,16 +2474,14 @@ typedef struct fcm_s
 
 typedef struct varnode_s
 {
-  short unsigned int flags;
-
+	short unsigned int flags;
 } varnode_t;
 
-typedef union varnodeUnpacked_u {
-	float fVariance;
-	struct s {
-		byte flags;
-		unsigned char unused[ 3 ];
-	};
+typedef struct varnodeUnpacked_u {
+	byte flags;
+	byte unused_0;
+	byte unused_1;
+	byte unused_2;
 } varnodeUnpacked_t;
 
 typedef unsigned short terraInt;
@@ -2521,6 +2535,31 @@ typedef struct srfTerrain_s {
 	float lmapX;
 	float lmapY;
 } srfTerrain_t;
+
+typedef struct cTerraPatch_s {
+	byte	flags;
+	byte	lmapScale;
+	byte	s;
+	byte	t;
+
+	float	texCoord[ 2 ][ 2 ][ 2 ];
+
+	char	x;
+	char	y;
+
+	short			iBaseHeight;
+	unsigned short	iShader;
+	unsigned short	iLightMap;
+
+	short	iNorth;
+	short	iEast;
+	short	iSouth;
+	short	iWest;
+
+	varnode_t		varTree[ 2 ][ 63 ];
+
+	unsigned char	heightmap[ 9 * 9 ];
+} cTerraPatch_t;
 
 typedef struct cTerraPatchUnpacked_s {
 	srfTerrain_t drawinfo;
@@ -5472,6 +5511,26 @@ typedef struct reallightinfo_s {
   vec3_t vDirection;
 } reallightinfo_t;
 
+typedef struct light_s {
+	char char0;
+	_DWORD dword4;
+	vec3_t m_vOrigin;
+	vec3_t m_vSpotDir;
+	_BYTE gap20[4];
+	bool m_bLinear;
+	float m_fFalloff;
+	_BYTE gap2C[4];
+	float m_fRealIntensity;
+	vec3_t m_vColor;
+	float m_fSpotRadiusByDistance;
+	_BYTE gap44[4];
+	_DWORD dword48;
+	void *m_pShader;
+	float m_fScale;
+	float m_fOverbright;
+	float m_fDist;
+} light_t;
+
 typedef float cube_entry_t[3][4];
 
 typedef struct {
@@ -5498,8 +5557,8 @@ typedef struct {
   struct mnode_s *leaf;
   qboolean needs_trace;
   qboolean spot_light;
-  float spot_radiusbydistance;
   vec3_t spot_dir;
+  float spot_radiusbydistance;
   int reference_count;
 } spherel_t;
 

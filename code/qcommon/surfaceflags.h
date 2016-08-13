@@ -87,7 +87,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SURF_NOMARKS			0x20	// don't leave missile marks
 #define	SURF_CASTSHADOW			0x40
 #define	SURF_NODRAW				0x80	// don't generate a drawsurface at all
-#define	SURF_NOLIGHTMAP			0x100	// surface doesn't need a lightmap
+#define SURF_HINT				0x100	// make a primary bsp splitter
 #define	SURF_ALPHASHADOW		0x200	// do per-pixel light shadow casting in q3map
 #define	SURF_NOSTEPS			0x400	// no footstep sounds
 #define	SURF_NONSOLID			0x800	// don't collide against curves with this set
@@ -109,7 +109,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SURF_CARPET				0x8000000	// carpet effects
 #define SURF_BACKSIDE			0x10000000	// su44: backside
 #define SURF_NODLIGHT			0x20000000	// don't dlight even if solid (solid lava, skies)
-#define SURF_HINT				0x40000000	// make a primary bsp splitter
+#define	SURF_NOLIGHTMAP			0x40000000	// surface doesn't need a lightmap
 #define SURF_UNKNOWN3			0x80000000	// IneQuation: WTF?
 
 #define	SURF_FLESH				0x40	// make flesh sounds and effects

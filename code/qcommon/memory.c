@@ -76,6 +76,8 @@ const char *Z_NumberStringPointer( int iNum )
 	return ( const char * )numberstring[ iNum - '0' ].mem;
 }
 
+#ifndef _DEBUG_MEM
+
 /*
 ========================
 Z_Free
@@ -108,6 +110,8 @@ void Z_Free( void *ptr )
 	free( block );
 }
 
+#endif
+
 /*
 ========================
 Z_FreeTags
@@ -127,6 +131,8 @@ void Z_FreeTags( int tag )
 	mem_blocks[ tag ].prev = &mem_blocks[ tag ];
 	mem_blocks[ tag ].next = &mem_blocks[ tag ];
 }
+
+#ifndef _DEBUG_MEM
 
 /*
 ========================
@@ -165,6 +171,8 @@ void *Z_TagMalloc( size_t size, int tag )
 
 	return ( void * )( ( byte * )block + sizeof( memblock_t ) );
 }
+
+#endif
 
 /*
 ========================
@@ -354,6 +362,8 @@ void Z_Shutdown( void ) {
 	}
 }
 
+#ifndef _DEBUG_MEM
+
 /*
 =================
 Hunk_Alloc
@@ -370,6 +380,8 @@ void *Hunk_Alloc( size_t size ) {
 	return ptr;
 }
 
+#endif
+
 /*
 =================
 Hunk_Clear
@@ -381,6 +393,8 @@ void Hunk_Clear( void ) {
 	Z_FreeTags( TAG_STATIC );
 }
 
+#ifndef _DEBUG_MEM
+
 /*
 =================
 Hunk_AllocateTempMemory
@@ -390,7 +404,7 @@ Multiple files can be loaded in temporary memory.
 When the files-in-use count reaches zero, all temp memory will be deleted
 =================
 */
-void *Hunk_AllocateTempMemory( int size ) {
+void *Hunk_AllocateTempMemory( size_t size ) {
 	return Z_TagMalloc( size, TAG_TEMP );
 }
 
@@ -402,6 +416,8 @@ Hunk_FreeTempMemory
 void Hunk_FreeTempMemory( void *ptr ) {
 	Z_Free( ptr );
 }
+
+#endif
 
 /*
 =================
@@ -438,6 +454,8 @@ void Com_TouchMemory( void ) {
 	Z_TouchMemory();
 }
 
+#ifndef _DEBUG_MEM
+
 /*
 ========================
 Z_Malloc
@@ -451,3 +469,5 @@ void *Z_Malloc( size_t size ) {
 
 	return ptr;
 }
+
+#endif

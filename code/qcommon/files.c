@@ -2625,6 +2625,7 @@ void FS_AddGameDirectory( const char *path, const char *dir ) {
 		search = Z_Malloc (sizeof(searchpath_t));
 		search->pack = pak;
 		search->next = fs_searchpaths;
+		search->dir = NULL;
 		fs_searchpaths = search;
 	}
 
@@ -2636,6 +2637,7 @@ void FS_AddGameDirectory( const char *path, const char *dir ) {
 	//
 	search = Z_Malloc( sizeof( searchpath_t ) );
 	search->dir = Z_Malloc( sizeof( *search->dir ) );
+	search->pack = NULL;
 
 	Q_strncpyz( search->dir->path, path, sizeof( search->dir->path ) );
 	Q_strncpyz( search->dir->gamedir, dir, sizeof( search->dir->gamedir ) );
@@ -3611,4 +3613,112 @@ void	FS_FilenameCompletion( const char *dir, const char *ext,
 		callback( filename );
 	}
 	FS_FreeFileList( filenames );
+}
+
+#define ABSOLUTE_NAME_START 3
+
+void FS_GetRelativeFilename( const char *currentDirectory, const char *absoluteFilename, char *out, size_t destlen )
+{
+	// declarations - put here so this should work in a C compiler
+	int afMarker = 0, rfMarker = 0;
+	size_t cdLen = 0, afLen = 0;
+	int i = 0;
+	int levels = 0;
+	cdLen = strlen( currentDirectory );
+	afLen = strlen( absoluteFilename );
+
+	// make sure the names are not too long or too short
+	if( cdLen > destlen || cdLen < ABSOLUTE_NAME_START + 1 ||
+		afLen > destlen || afLen < ABSOLUTE_NAME_START + 1 )
+	{
+		return;
+	}
+
+	// Handle DOS names that are on different drives:
+	if( currentDirectory[ 0 ] != absoluteFilename[ 0 ] )
+	{
+		// not on the same drive, so only absolute filename will do
+		strncpy( out, absoluteFilename, destlen );
+		return;
+	}
+
+	// they are on the same drive, find out how much of the current directory
+	// is in the absolute filename
+	i = ABSOLUTE_NAME_START;
+	while( i < afLen && i < cdLen )
+	{
+		if( currentDirectory[ i ] == absoluteFilename[ i ]
+			|| currentDirectory[ i ] == '\\' && absoluteFilename[ i ] == '/'
+			|| currentDirectory[ i ] == '/' && absoluteFilename[ i ] == '\\' )
+		{
+			i++;
+		}
+		else
+		{
+			break;
+		}
+	}
+	if( i == cdLen )
+	{
+		if( absoluteFilename[ i ] == '\\' || absoluteFilename[ i - 1 ] == '\\'
+			|| absoluteFilename[ i ] == '/' || absoluteFilename[ i - 1 ] == '/' )
+		{
+			// the whole current directory name is in the file name,
+			// so we just trim off the current directory name to get the
+			// current file name.
+			if( absoluteFilename[ i ] == '\\' || absoluteFilename[ i ] == '/' )
+			{
+				// a directory name might have a trailing slash but a relative
+				// file name should not have a leading one...
+				i++;
+			}
+
+			strncpy( out, &absoluteFilename[ i ], destlen );
+			return;
+		}
+	}
+	// The file is not in a child directory of the current directory, so we
+	// need to step back the appropriate number of parent directories by
+	// using "..\"s.  First find out how many levels deeper we are than the
+	// common directory
+	afMarker = i;
+	levels = 1;
+	// count the number of directory levels we have to go up to get to the
+	// common directory
+	while( i < cdLen )
+	{
+		i++;
+		if( currentDirectory[ i ] == '\\' || currentDirectory[ i ] == '/' )
+		{
+			// make sure it's not a trailing slash
+			i++;
+			if( currentDirectory[ i ] != '\0' )
+			{
+				levels++;
+			}
+		}
+	}
+	// move the absolute filename marker back to the start of the directory name
+	// that it has stopped in.
+	while( afMarker > 0 && absoluteFilename[ afMarker - 1 ] != '\\' && absoluteFilename[ afMarker - 1 ] != '/' )
+	{
+		afMarker--;
+	}
+	// check that the result will not be too long
+	if( levels * 3 + afLen - afMarker > destlen )
+	{
+		return;
+	}
+
+	// add the appropriate number of "..\"s.
+	rfMarker = 0;
+	for( i = 0; i < levels; i++ )
+	{
+		out[ rfMarker++ ] = '.';
+		out[ rfMarker++ ] = '.';
+		out[ rfMarker++ ] = PATH_SEP;
+	}
+
+	// copy the rest of the filename into the result string
+	strcpy( &out[ rfMarker ], &absoluteFilename[ afMarker ] );
 }

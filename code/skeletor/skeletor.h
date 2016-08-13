@@ -109,6 +109,7 @@ public:
 	static skelAnimDataGameHeader_t		*ConvertSkelFileToGame( skelAnimDataFileHeader_t *pHeader, int iBuffLength, const char *path );
 	static void							SaveProcessedAnim( skelAnimDataGameHeader_t *enAnim, const char *path, skelAnimDataFileHeader_t *pHeader );
 	static skelAnimDataGameHeader_t		*LoadProcessedAnim( const char *path, void *buffer, int len, const char *name );
+	static skelAnimDataGameHeader_t		*LoadProcessedAnimEx( const char *path, void *buffer, int len, const char *name );
 	void								PrintBoneCacheList();
 	void								PrintBoneList();
 	void								LoadMorphTargetNames( skelHeaderGame_t *modelHeader );
@@ -153,14 +154,22 @@ void BoneGetFrames( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t *animD
 void SkeletorGetAnimFrame( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t *animData, skelChannelList_c *boneList, skelBoneCache_t *bones, int frame, float *radius, vec3_t *mins, vec3_t *maxes );
 void TIKI_GetSkelAnimFrame( dtiki_t *tiki, skelBoneCache_t *bones, float *radius, vec3_t *mins, vec3_t *maxes );
 void TIKI_GetSkelAnimFrame2( dtiki_t *tiki, skelBoneCache_t *bones, int anim, int frame, float *radius, vec3_t *mins, vec3_t *maxes );
+void TIKI_GetSkelAnimFrameInternal( dtiki_t *tiki, skelBoneCache_t *bones, skelAnimDataGameHeader_t *animData, int frame, float *radius, vec3_t *mins, vec3_t *maxes );
 
 //
 // skeletor_imports.cpp
 //
 
 void Skel_DPrintf( const char *fmt, ... );
+
+#ifndef _DEBUG_MEM
 void Skel_Free( void *ptr );
 void *Skel_Alloc( size_t size );
+#else
+#define Skel_Free(ptr) free(ptr)
+#define Skel_Alloc(size) malloc(size)
+#endif
+
 void Skel_FreeFile( void *buffer );
 int Skel_ReadFileEx( const char *qpath, void **buffer, qboolean quiet );
 

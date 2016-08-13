@@ -471,6 +471,13 @@ void L_ShutdownEvents( void )
 
 	L_ClearEventList();
 
+	eventInfo_t *evi, *prev;
+	for( evi = lastEvent; evi != NULL; evi = prev )
+	{
+		prev = evi->prev;
+		free( evi );
+	}
+
 	Event::commandList.clear();
 	Event::eventDefList.clear();
 
@@ -3239,6 +3246,9 @@ qboolean Listener::ProcessPendingEvents( void )
 
 			// ProcessEvent will dispose of this event when it is done
 			obj->ProcessEvent( event->event );
+
+			// free up the node
+			delete event;
 
 			// start over, since can't guarantee that we didn't process any previous or following events
 			event = Event::EventQueue.next;

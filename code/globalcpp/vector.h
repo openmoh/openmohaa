@@ -39,6 +39,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define VECTOR_FABS  fabs
 #endif
 
+static float vrsqrt( float number )
+{
+	union {
+		float f;
+		int i;
+	} t;
+	float x2, y;
+	const float threehalfs = 1.5F;
+
+	x2 = number * 0.5F;
+	t.f = number;
+	t.i = 0x5f3759df - ( t.i >> 1 ); // what the fuck?
+	y = t.f;
+	y = y * ( threehalfs - ( x2 * y * y ) ); // 1st iteration
+	return y;
+}
+
 class Vector
 {
 public:
@@ -101,9 +118,11 @@ public:
 	const Vector &			CrossProduct( vec3_t a, const Vector &b	);
 	const Vector &			CrossProduct( const Vector &a, vec3_t b	);
 	float					length( void ) const;
+	float					lengthfast( void ) const;
 	float					lengthSquared( void ) const;
 	float					lengthXY( void ) const;
 	float					normalize( void );
+	void					normalizefast( void );
 	void					EulerNormalize( void );
 	void					EulerNormalize360( void );
 	static Vector			Clamp( Vector &value, const Vector &min, const Vector &max );
@@ -518,6 +537,11 @@ inline float Vector::length( void ) const
 	return sqrt( lengthSquared() );
 }
 
+inline float Vector::lengthfast( void ) const
+{
+	return vrsqrt( lengthSquared() );
+}
+
 //----------------------------------------------------------------
 // Name:				lengthXY
 // Class:			Vector
@@ -558,6 +582,27 @@ inline float Vector::normalize( void )
 	}
 
 	return length;
+}
+
+//----------------------------------------------------------------
+// Name:				normalizefast
+// Class:			Vector
+//
+// Description:	fast version of normalize
+//
+// Parameters:		None
+//
+// Returns:			float - length of the vector before the function
+//----------------------------------------------------------------
+inline void Vector::normalizefast( void )
+{
+	float ilength;
+
+	ilength = this->lengthfast();
+
+	x *= ilength;
+	y *= ilength;
+	z *= ilength;
 }
 
 //----------------------------------------------------------------

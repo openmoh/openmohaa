@@ -549,7 +549,7 @@ Com_StringContains
 ============
 */
 const char *Com_StringContains(const char *str1, const char *str2, int casesensitive) {
-	size_t len;
+	intptr_t len;
 	int i, j;
 
 	len = strlen(str1) - strlen(str2);

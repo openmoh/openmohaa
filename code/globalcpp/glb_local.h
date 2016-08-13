@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define glbs gi
 
 #include "g_local.h"
+#include <script.h>
 #include "qcommon.h"
 
 #else
@@ -58,6 +59,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <containerclass.h>
 #include <stack.h>
 #include <listener.h>
+#include <script.h>
 
 #include "../qcommon/qcommon.h"
 

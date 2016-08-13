@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __SKELETOR_NAME_LISTS_FORMAT_H__
 #define __SKELETOR_NAME_LISTS_FORMAT_H__
 
-#define MAX_CHANNELS			2048
+#define MAX_CHANNELS			16384
 #define MAX_CHANNEL_NAME		32
 
 typedef struct ChannelName_s {
@@ -56,6 +56,8 @@ private:
 	void			CopyChannel( ChannelName_t *dest, const ChannelName_t *source );
 	void			SetChannelName( ChannelName_t *channel, const char *newName );
 };
+
+int GetChannelTypeFromName( const char *name );
 
 #else
 

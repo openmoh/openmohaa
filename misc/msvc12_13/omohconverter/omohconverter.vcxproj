@@ -93,7 +93,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
@@ -102,24 +102,32 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2016.1.2\lib\vs2013\x86\debug</AdditionalLibraryDirectories>
+      <StackReserveSize>
+      </StackReserveSize>
+      <StackCommitSize>
+      </StackCommitSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2016.1.2\lib\vs2013\x64\debug</AdditionalLibraryDirectories>
+      <StackReserveSize>
+      </StackReserveSize>
+      <StackCommitSize>
+      </StackCommitSize>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)..\..\build_increment.bat $(SolutionDir)..\..\$(ProjectName)</Command>
@@ -134,7 +142,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -144,6 +152,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2016.1.2\lib\vs2013\x86\release</AdditionalLibraryDirectories>
+      <StackReserveSize>
+      </StackReserveSize>
+      <StackCommitSize>
+      </StackCommitSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -155,7 +167,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2016.1.2/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -165,6 +177,10 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2016.1.2\lib\vs2013\x64\release</AdditionalLibraryDirectories>
+      <StackReserveSize>
+      </StackReserveSize>
+      <StackCommitSize>
+      </StackCommitSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -230,7 +246,43 @@
     <ClCompile Include="..\..\..\code\tiki\tiki_surface.cpp" />
     <ClCompile Include="..\..\..\code\tiki\tiki_tag.cpp" />
     <ClCompile Include="..\..\..\code\tiki\tiki_utility.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\aselib.c" />
+    <ClCompile Include="..\..\..\code\tools\common\bspfile.c" />
+    <ClCompile Include="..\..\..\code\tools\common\cmdlib.c" />
+    <ClCompile Include="..\..\..\code\tools\common\imagelib.c" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jcomapi.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdapimin.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdapistd.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdatasrc.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdcoefct.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdcolor.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jddctmgr.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdhuff.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdinput.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmainct.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmarker.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmaster.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdpostct.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdsample.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdtrans.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jerror.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jfdctflt.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jidctflt.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jmemmgr.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jmemnobs.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jpgload.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jutils.cpp" />
+    <ClCompile Include="..\..\..\code\tools\common\l3dslib.c" />
+    <ClCompile Include="..\..\..\code\tools\common\mathlib.c" />
+    <ClCompile Include="..\..\..\code\tools\common\mutex.c" />
+    <ClCompile Include="..\..\..\code\tools\common\polylib.c" />
+    <ClCompile Include="..\..\..\code\tools\common\scriplib.c" />
+    <ClCompile Include="..\..\..\code\tools\common\threads.c" />
+    <ClCompile Include="..\..\..\code\tools\common\trilib.c" />
     <ClCompile Include="..\..\..\code\tools\converter\bspconverter.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\bspentity.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\bsplight.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\bspworld.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\formatconverter.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\main.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\mapconverter.cpp" />
@@ -239,6 +291,33 @@
     <ClCompile Include="..\..\..\code\tools\converter\skdconverter.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\tikiconverter.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\tr_shared.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\brush.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\brush_primit.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\bsp.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\facebsp.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\fog.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\glfile.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\leakfile.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\light.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\lightmaps.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\lightv.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\light_trace.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\map.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\mesh.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\misc_model.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\nodraw.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\patch.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\portals.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\prtfile.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\shaders.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\soundv.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\surface.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\terrain.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\tjunction.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\tree.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\vis.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\visflow.c" />
+    <ClCompile Include="..\..\..\code\tools\q3map\writebsp.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\code\globalcpp\archive.h" />
@@ -303,7 +382,36 @@
     <ClInclude Include="..\..\..\code\tiki\tiki_surface.h" />
     <ClInclude Include="..\..\..\code\tiki\tiki_tag.h" />
     <ClInclude Include="..\..\..\code\tiki\tiki_utility.h" />
+    <ClInclude Include="..\..\..\code\tools\common\aselib.h" />
+    <ClInclude Include="..\..\..\code\tools\common\bspfile.h" />
+    <ClInclude Include="..\..\..\code\tools\common\cmdlib.h" />
+    <ClInclude Include="..\..\..\code\tools\common\imagelib.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jchuff.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jconfig.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jdct.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jdhuff.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jerror.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jinclude.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jmemsys.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jmorecfg.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jpegint.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jversion.h" />
+    <ClInclude Include="..\..\..\code\tools\common\jpeglib.h" />
+    <ClInclude Include="..\..\..\code\tools\common\l3dslib.h" />
+    <ClInclude Include="..\..\..\code\tools\common\mathlib.h" />
+    <ClInclude Include="..\..\..\code\tools\common\mutex.h" />
+    <ClInclude Include="..\..\..\code\tools\common\pakstuff.h" />
+    <ClInclude Include="..\..\..\code\tools\common\polylib.h" />
+    <ClInclude Include="..\..\..\code\tools\common\polyset.h" />
+    <ClInclude Include="..\..\..\code\tools\common\scriplib.h" />
+    <ClInclude Include="..\..\..\code\tools\common\str.h" />
+    <ClInclude Include="..\..\..\code\tools\common\surfaceflags.h" />
+    <ClInclude Include="..\..\..\code\tools\common\threads.h" />
+    <ClInclude Include="..\..\..\code\tools\common\trilib.h" />
     <ClInclude Include="..\..\..\code\tools\converter\bspconverter.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\bspentity.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\bsplight.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\bspworld.h" />
     <ClInclude Include="..\..\..\code\tools\converter\formatconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\mapconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\shadermanager.h" />
@@ -312,6 +420,15 @@
     <ClInclude Include="..\..\..\code\tools\converter\tikiconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\tr_shared.h" />
     <ClInclude Include="..\..\..\code\tools\converter\version.h" />
+    <ClInclude Include="..\..\..\code\tools\q3map\light.h" />
+    <ClInclude Include="..\..\..\code\tools\q3map\map.h" />
+    <ClInclude Include="..\..\..\code\tools\q3map\mesh.h" />
+    <ClInclude Include="..\..\..\code\tools\q3map\qbsp.h" />
+    <ClInclude Include="..\..\..\code\tools\q3map\shaders.h" />
+    <ClInclude Include="..\..\..\code\tools\q3map\vis.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

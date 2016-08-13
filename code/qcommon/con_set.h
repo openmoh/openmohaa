@@ -50,8 +50,8 @@ public:
 	Entry					*next;
 
 public:
-	void *operator new( size_t size );
-	void operator delete( void *ptr );
+	//void *operator new( size_t size );
+	//void operator delete( void *ptr );
 
 	Entry();
 
@@ -66,7 +66,7 @@ class con_set
 	friend class con_set_enum < k, v > ;
 
 public:
-	static MEM_BlockAlloc< Entry< k, v >, char[ 256 ] > Entry_allocator;
+	static MEM_BlockAlloc< Entry< k, v >, MEM_BLOCKSIZE > Entry_allocator;
 
 protected:
 	Entry< k, v >				**table;			// hashtable
@@ -81,8 +81,6 @@ protected:
 	Entry< k, v >				*addKeyEntry( const k& key );
 	virtual Entry< k, v >		*addNewKeyEntry( const k& key );
 
-	virtual void				rehash();
-
 public:
 	con_set();
 	~con_set();
@@ -92,6 +90,7 @@ public:
 #endif
 
 	virtual void				clear();
+	virtual void				resize( int count = 0 );
 
 	v							*findKeyValue( const k& key );
 	k							*firstKeyValue();
@@ -140,7 +139,8 @@ public:
 	void		Archive( Archiver& arc );
 #endif
 
-	void		clear();
+	void			clear();
+	virtual void	resize( int count = 0 );
 
 	value&		operator[]( const key& index );
 
@@ -184,11 +184,12 @@ int HashCode( const str& key );
 */
 
 template< typename k, typename v >
-MEM_BlockAlloc< Entry< k, v >, char[ 256 ] > con_set< k, v >::Entry_allocator;
+MEM_BlockAlloc< Entry< k, v >, MEM_BLOCKSIZE > con_set< k, v >::Entry_allocator;
 
 template< typename k >
 int HashCode( const k& key );
 
+/*
 template< typename k, typename v >
 void *Entry< k, v >::operator new( size_t size )
 {
@@ -200,6 +201,7 @@ void Entry< k, v >::operator delete( void *ptr )
 {
 	con_set< k, v >::Entry_allocator.Free( ptr );
 }
+*/
 
 template< typename k, typename v >
 Entry< k, v >::Entry()
@@ -262,18 +264,31 @@ void con_set< key, value >::clear()
 }
 
 template< typename key, typename value >
-void con_set< key, value >::rehash()
+void con_set< key, value >::resize( int count )
 {
 	Entry< key, value > **oldTable = table;
 	Entry< key, value > *e, *old;
 	int oldTableLength = tableLength;
 	int i, index;
 
-	tableLength += 4;
-	//threshold = ( unsigned int )( ( float )tableLength * 0.75f );
-	threshold = tableLength * ( 3 / 4 );
+	if( count > 0 )
+	{
+		tableLength += count;
+		threshold = tableLength;
+	}
+	else
+	{
+		//threshold = ( unsigned int )( ( float )tableLength * 0.75f );
+		threshold = ( unsigned int )( ( float )tableLength * 0.75 );
+		if( threshold < 1 )
+		{
+			threshold = 1;
+		}
 
-	// allocate a bigger table
+		tableLength += threshold;
+	}
+
+	// allocate a new table
 	table = new Entry< key, value > *[ tableLength ]();
 	memset( table, 0, tableLength * sizeof( Entry< key, value > * ) );
 
@@ -339,7 +354,7 @@ Entry< k, v > *con_set< k, v >::addNewKeyEntry( const k& key )
 
 	if( count >= threshold )
 	{
-		rehash();
+		resize();
 	}
 
 	index = HashCode< k >( key ) % tableLength;
@@ -540,6 +555,12 @@ template< typename key, typename value >
 void con_map< key, value >::clear()
 {
 	m_con_set.clear();
+}
+
+template< typename key, typename value >
+void con_map< key, value >::resize( int count )
+{
+	m_con_set.resize( count );
 }
 
 template< typename key, typename value >

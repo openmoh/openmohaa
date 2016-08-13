@@ -509,8 +509,8 @@ typedef struct {
 #define	LIGHTMAP_HEIGHT		128
 #define	LIGHTMAP_SIZE		128	// IneQuation: moved it here, MUST MATCH THE FORMER TWO
 
-#define MAX_WORLD_COORD		( 128*1024 )
-#define MIN_WORLD_COORD		( -128*1024 )
+#define MAX_WORLD_COORD		( 128*128 )
+#define MIN_WORLD_COORD		( -128*128 )
 #define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
 
 //=============================================================================
