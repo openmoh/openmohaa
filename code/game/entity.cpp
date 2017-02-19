@@ -3790,32 +3790,32 @@ void Entity::Sound
 
 				if( argstype == 0 )
 				{
-					volume = G_CRandom() * ret->volumeMod + ret->volume;
-					pitch = G_CRandom() * ret->pitchMod + ret->pitch;
+					volume = G_Random() * ret->volumeMod + ret->volume;
+					pitch = G_Random() * ret->pitchMod + ret->pitch;
 					min_dist = ret->dist;
 					max_dist = ret->maxDist;
 				}
 				else if( argstype == 1 )
 				{
 					if( volume >= 0.0f )
-						volume = G_CRandom() * ret->volumeMod + volume;
+						volume = G_Random() * ret->volumeMod + volume;
 					else
-						pitch = G_CRandom() * ret->pitchMod + ret->pitch;
+						pitch = G_Random() * ret->pitchMod + ret->pitch;
 
 					if( pitch >= 0.0f )
-						pitch = G_CRandom() * ret->pitchMod + pitch;
+						pitch = G_Random() * ret->pitchMod + pitch;
 					else
-						pitch = G_CRandom() * ret->pitchMod + ret->pitch;
+						pitch = G_Random() * ret->pitchMod + ret->pitch;
 				}
 				else
 				{
 					if( volume <= 0.0f )
-						volume = G_CRandom() * ret->volumeMod + ret->volume;
+						volume = G_Random() * ret->volumeMod + ret->volume;
 
 					if( pitch >= 0.0f )
-						pitch = G_CRandom() * ret->pitchMod + pitch;
+						pitch = G_Random() * ret->pitchMod + pitch;
 					else
-						pitch = G_CRandom() * ret->pitchMod + ret->pitch;
+						pitch = G_Random() * ret->pitchMod + ret->pitch;
 
 					if( min_dist < 0.0f )
 						min_dist = ret->dist;
