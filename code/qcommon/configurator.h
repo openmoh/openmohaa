@@ -65,16 +65,16 @@ private:
 	Container< configSection_t * > m_reverseSections;
 
 private:
-	int			GetLine( char *dest, const char *data, int size );
+	size_t		GetLine( char *dest, const char *data, size_t size );
 	str			GetValue( const char *section, const char *key, str defaultValue, int index = -1 );
 	configKey_t	*GetKey( const char *section, const char *key, int index = -1 );
 
 	int		CutLine( char *data );
-	bool	SetupLine( char *line, int& lineno, int& len, int& last );
-	bool	FindData( int type, const char *section, const char *key, int *offset, const char *data, int size );
-	void	ParseData( const char *data, int size );
-	void	WriteData( char **data, int *size );
-	void	WriteData2( char **data, int *size );
+	bool	SetupLine( char *line, int& lineno, size_t& len, size_t& last );
+	bool	FindData( int type, const char *section, const char *key, size_t *offset, const char *data, size_t size );
+	void	ParseData( const char *data, size_t size );
+	void	WriteData( char **data, size_t *size );
+	void	WriteData2( char **data, size_t *size );
 	int		ParseLine( char *line, char *section, char *key, char *value );
 
 	configSection_t		*CreateSection( const char *section );

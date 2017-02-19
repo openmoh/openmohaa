@@ -232,7 +232,6 @@ void CMod_LoadNodes( gamelump_t *l ) {
 			out->children[j] = child;
 		}
 	}
-
 }
 
 /*
@@ -616,6 +615,7 @@ void CMod_LoadPatches( gamelump_t *surfs, gamelump_t *verts, int *shaderSubdivis
 		Com_Error( ERR_DROP, "CM_LoadMap: funny lump size in %s", cm.name );
 	cm.numSurfaces = count = surfs->length / sizeof(*in);
 	cm.surfaces = Hunk_Alloc( cm.numSurfaces * sizeof( cm.surfaces[0] ) );
+	memset( cm.surfaces, 0, cm.numSurfaces * sizeof( cm.surfaces[ 0 ] ) );
 
 	dv = ( drawVert_t * )verts->buffer;
 	if( verts->length % sizeof( *dv ) )

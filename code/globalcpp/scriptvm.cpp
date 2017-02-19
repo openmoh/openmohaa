@@ -333,7 +333,7 @@ void ScriptClass::RemoveThread( ScriptVM *m_ScriptVM )
 	{
 		m_Threads = m_ScriptVM->next;
 
-		if( m_ScriptVM->next == NULL ) {
+		if( m_Threads == NULL ) {
 			delete this;
 		}
 	}
@@ -1912,7 +1912,7 @@ __execMethodInternal:
 			break;
 
 		case OP_UN_SIZE:
-			pTop->setIntValue( pTop->size() );
+			pTop->setIntValue( ( int )pTop->size() );
 			break;
 
 		case OP_UN_TARGETNAME:

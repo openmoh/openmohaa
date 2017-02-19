@@ -346,7 +346,7 @@ int	DM_Manager::compareScores( const void *elem1, const void *elem2 )
 
 void DM_Manager::InsertEntry( const char *entry )
 {
-	int len = strlen( entry );
+	size_t len = strlen( entry );
 
 	if( scoreLength + len < MAX_STRING_CHARS )
 	{

@@ -39,7 +39,7 @@ const_str AbstractScript::ConstFilename( void )
 	return m_Filename;
 }
 
-bool AbstractScript::GetSourceAt( unsigned int sourcePos, str &sourceLine, int &column, int &line )
+bool AbstractScript::GetSourceAt( size_t sourcePos, str &sourceLine, int &column, int &line )
 {
 	if( !m_SourceBuffer || sourcePos >= m_SourceLength ) {
 		return false;
@@ -99,7 +99,7 @@ void AbstractScript::PrintSourcePos( sourceinfo_t *sourcePos, bool dev )
 	}
 }
 
-void AbstractScript::PrintSourcePos( unsigned int sourcePos, bool dev )
+void AbstractScript::PrintSourcePos( size_t sourcePos, bool dev )
 {
 	int line;
 	int column;
@@ -462,7 +462,7 @@ void GameScript::Archive( Archiver& arc )
 	const_str s;
 	command_t *c, cmd;
 
-	arc.ArchiveUnsigned( &m_ProgLength );
+	arc.ArchiveSize( ( long * )&m_ProgLength );
 
 	if( arc.Saving() )
 	{
@@ -700,9 +700,9 @@ void GameScript::Close( void )
 	m_bPrecompiled = false;
 }
 
-void GameScript::Load( const void *sourceBuffer, int sourceLength )
+void GameScript::Load( const void *sourceBuffer, size_t sourceLength )
 {
-	int nodeLength;
+	size_t nodeLength;
 	char *m_PreprocessedBuffer;
 
 	m_SourceBuffer = ( char * )glbs.Malloc( sourceLength + 1 );

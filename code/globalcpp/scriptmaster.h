@@ -194,8 +194,10 @@ private:
 public:
 	CLASS_PROTOTYPE( ScriptThread );
 
+#ifndef _DEBUG_MEM
 	void *operator new( size_t size );
 	void operator delete( void *ptr );
+#endif
 
 	virtual void	Archive( Archiver &arc );
 	void			ArchiveInternal( Archiver& arc );

@@ -729,7 +729,7 @@ qboolean G_Push
 	Vector		mins, maxs;
 	Vector		save;
 	pushed_t	*p;
-	Vector		org, org2, move2;
+	Vector		org, org2, move2, neworg;
 	Vector		norm;
 	float		mat[ 3 ][ 3 ];
 	pushed_t	*pusher_p;
@@ -891,7 +891,10 @@ qboolean G_Push
 
 		move2 += org2 - org;
 
-		// L: This one seems to be better
+		neworg = move2 + check->origin;
+
+		/*
+		// This one seems to be better for the bind command
 		if( G_TestEntityPosition( check, check->origin ) )
 		{
 			trace_t trace;
@@ -907,8 +910,9 @@ qboolean G_Push
 
 			move2 = trace.endpos - check->origin;
 		}
+		*/
 
-		/*if( G_TestEntityPosition( check, check->origin ) )
+		if( G_TestEntityPosition( check, neworg ) )
 		{
 			trace_t trace;
 			Vector end;
@@ -932,16 +936,16 @@ qboolean G_Push
 			{
 				if( check->IsSubclassOfPlayer() )
 				{
-					trace = G_Trace( Vector( trace.endpos ), check->mins, check->maxs, move2 + check->origin, check, check->edict->clipmask, true, "G_Push" );
+					trace = G_Trace( Vector( trace.endpos ), check->mins, check->maxs, neworg, check, check->edict->clipmask, true, "G_Push" );
 				}
 				else
 				{
-					trace = G_Trace( Vector( trace.endpos ), check->mins, check->maxs, move2 + check->origin, check, check->edict->clipmask, false, "G_Push" );
+					trace = G_Trace( Vector( trace.endpos ), check->mins, check->maxs, neworg, check, check->edict->clipmask, false, "G_Push" );
 				}
 
 				move2 = trace.endpos - check->origin;
 			}
-		}*/
+		}
 
 		check->addOrigin( check->getParentVector( move2 ) );
 

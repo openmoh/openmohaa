@@ -63,7 +63,7 @@ cLocalization::cLocalization()
 	int iFileCount;
 	char **ppszFiles;
 	char szFilename[ MAX_QPATH ];
-	int iBasePos;
+	size_t iBasePos;
 
 	ppszFiles = FS_ListFilteredFiles( "global", "txt", "localization*.txt", qfalse, &iFileCount );
 	strcpy( szFilename, "global/" );
@@ -92,8 +92,8 @@ void cLocalization::LoadFile( const char *name )
 	const char *token;
 	loc_entry_t new_entry;
 	const char *p, *p2;
-	int rl;
-	int ll;
+	size_t rl;
+	size_t ll;
 
 	Com_Printf( "Loading Localization File %s\n", name );
 
@@ -215,7 +215,7 @@ void cLocalization::LoadFile( const char *name )
 	Com_Printf( "Loaded %d localization entries\n", m_entries.NumObjects() );
 }
 
-static int bjb_strnscmp( const char *a, const char *b, int n )
+static int bjb_strnscmp( const char *a, const char *b, size_t n )
 {
 	while( 1 )
 	{
@@ -241,7 +241,7 @@ static int bjb_strnscmp( const char *a, const char *b, int n )
 	return *a - *b;
 }
 
-static void bjb_rebreak( const char *var, char *buf, int max )
+static void bjb_rebreak( const char *var, char *buf, size_t max )
 {
 	const char *nl;
 	char *rb, *rb1, *rb2;
@@ -305,15 +305,16 @@ _new_line_set:
 
 const char *cLocalization::ConvertString( const char *var )
 {
-	int i, l, m, n, o;
-	int nArg1;
+	size_t l;
+	intptr_t i, m, n, o;
+	intptr_t nArg1;
 	const char *pArg1, *pArg2;
 	const char *pRef;
 	const char *pVar;
 	const char *pAfter;
 	const char *pSrc;
-	int nAfter, nBefore;
-	int n1, n2;
+	intptr_t nAfter, nBefore;
+	intptr_t n1, n2;
 	loc_entry_t *entry;
 	str s1, s2;
 

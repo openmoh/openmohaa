@@ -189,7 +189,7 @@ Send one fragment of the current message
 void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	msg_t		send;
 	byte		send_buf[MAX_PACKETLEN];
-	int			fragmentLength;
+	size_t		fragmentLength;
 
 	// write the packet header
 	MSG_InitOOB (&send, send_buf, sizeof(send_buf));				// <-- only do the oob here
@@ -207,8 +207,8 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 		fragmentLength = chan->unsentLength - chan->unsentFragmentStart;
 	}
 
-	MSG_WriteLong( &send, chan->unsentFragmentStart );
-	MSG_WriteShort( &send, fragmentLength );
+	MSG_WriteLong( &send, (int)chan->unsentFragmentStart );
+	MSG_WriteShort( &send, (short)fragmentLength );
 	MSG_WriteData( &send, chan->unsentBuffer + chan->unsentFragmentStart, fragmentLength );
 
 	// send the datagram
@@ -243,7 +243,7 @@ Sends a message to a connection, fragmenting if necessary
 A 0 length will still generate a packet.
 ================
 */
-void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
+void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data ) {
 	msg_t		send;
 	byte		send_buf[MAX_PACKETLEN];
 
@@ -543,7 +543,7 @@ LOOPBACK BUFFERS FOR LOCAL PLAYER
 
 typedef struct {
 	byte	data[MAX_PACKETLEN];
-	int		datalen;
+	size_t	datalen;
 } loopmsg_t;
 
 typedef struct {
@@ -579,7 +579,7 @@ qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_messag
 }
 
 
-void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t to)
+void NET_SendLoopPacket (netsrc_t sock, size_t length, const void *data, netadr_t to)
 {
 	int		i;
 	loopback_t	*loop;
@@ -597,7 +597,7 @@ void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t t
 
 typedef struct packetQueue_s {
         struct packetQueue_s *next;
-        int length;
+		size_t length;
         byte *data;
         netadr_t to;
         int release;
@@ -605,7 +605,7 @@ typedef struct packetQueue_s {
 
 packetQueue_t *packetQueue = NULL;
 
-static void NET_QueuePacket( int length, const void *data, netadr_t to,
+static void NET_QueuePacket( size_t length, const void *data, netadr_t to,
 	int offset )
 {
 	packetQueue_t *new, *next = packetQueue;
@@ -652,7 +652,7 @@ void NET_FlushPacketQueue(void)
 	}
 }
 
-void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) {
+void NET_SendPacket( netsrc_t sock, size_t length, const void *data, netadr_t to ) {
 
 	// sequenced packets are shown in netchan, so just show oob
 	if ( showpackets->integer && *(int *)data == -1 )	{

@@ -330,8 +330,8 @@ unsigned char *gsseckey(
                     y,
                     num,
                     num2,
-                    size,
-                    keysz;
+                    size;
+	size_t			keysz;
     unsigned char   enctmp[256],
                     *p;
     const static unsigned char enctype1_data[256] = /* pre-built */
@@ -486,7 +486,7 @@ qboolean	NETGS_SendMasterRequest( void ) {
 	gsseckey( encodedstring, string2encode, GS_MOHAAKEY, 0 );
 
 	Q_snprintf( requestString, sizeof(requestString), "\\gamename\\%s\\gamever\\%s\\location\\0\\validate\\%s\\final\\\\queryid\\1.1\\", GS_GAMENAME, GS_GAMEVER, encodedstring );
-	if (send(tcpsock, requestString, strlen(requestString), 0) == -1 ) {
+	if (send(tcpsock, requestString, (int)strlen(requestString), 0) == -1 ) {
 		close( tcpsock );
 		return qfalse;
 	}
@@ -495,7 +495,7 @@ qboolean	NETGS_SendMasterRequest( void ) {
 	// see "\\where\\"
 	// PS: I really wonder what "cmp" stands for. "groups" and "info2" may also be used. i have no idea!
 	Q_snprintf( requestString, sizeof(requestString), "\\list\\%s\\gamename\\%s\\final\\", "cmp", GS_GAMENAME );
-	if (send(tcpsock, requestString, strlen(requestString), 0) == -1 ) {
+	if (send(tcpsock, requestString, (int)strlen(requestString), 0) == -1 ) {
 		close( tcpsock );
 		return qfalse;
 	}
@@ -583,7 +583,7 @@ qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
 #ifdef _DEBUG
 	recvfromCount++;		// performance check
 #endif
-	ret = recvfrom( ip_socket, net_message->data, net_message->maxsize, 0, (struct sockaddr *)&from, &fromlen );
+	ret = recvfrom( ip_socket, net_message->data, (int)net_message->maxsize, 0, (struct sockaddr *)&from, &fromlen );
 	if (ret == SOCKET_ERROR)
 	{
 		err = socketError;
@@ -632,7 +632,7 @@ static char socksBuf[4096];
 Sys_SendPacket
 ==================
 */
-void Sys_SendPacket( int length, const void *data, netadr_t to ) {
+void Sys_SendPacket( size_t length, const void *data, netadr_t to ) {
 	int				ret;
 	struct sockaddr	addr;
 
@@ -655,10 +655,10 @@ void Sys_SendPacket( int length, const void *data, netadr_t to ) {
 		*(int *)&socksBuf[4] = ((struct sockaddr_in *)&addr)->sin_addr.s_addr;
 		*(short *)&socksBuf[8] = ((struct sockaddr_in *)&addr)->sin_port;
 		memcpy( &socksBuf[10], data, length );
-		ret = sendto( ip_socket, socksBuf, length+10, 0, &socksRelayAddr, sizeof(socksRelayAddr) );
+		ret = sendto( ip_socket, socksBuf, (int)(length+10), 0, &socksRelayAddr, sizeof(socksRelayAddr) );
 	}
 	else {
-		ret = sendto( ip_socket, data, length, 0, &addr, sizeof(addr) );
+		ret = sendto( ip_socket, data, (int)length, 0, &addr, sizeof(addr) );
 	}
 	if( ret == SOCKET_ERROR ) {
 		int err = socketError;
@@ -923,25 +923,25 @@ void NET_OpenSocks( int port ) {
 
 	// do username/password authentication if needed
 	if ( buf[1] == 2 ) {
-		int		ulen;
-		int		plen;
+		size_t	ulen;
+		size_t	plen;
 
 		// build the request
 		ulen = strlen( net_socksUsername->string );
 		plen = strlen( net_socksPassword->string );
 
 		buf[0] = 1;		// username/password authentication version
-		buf[1] = ulen;
+		buf[1] = (unsigned char)ulen;
 		if ( ulen ) {
 			memcpy( &buf[2], net_socksUsername->string, ulen );
 		}
-		buf[2 + ulen] = plen;
+		buf[2 + ulen] = (unsigned char)plen;
 		if ( plen ) {
 			memcpy( &buf[3 + ulen], net_socksPassword->string, plen );
 		}
 
 		// send it
-		if ( send( socks_socket, buf, 3 + ulen + plen, 0 ) == SOCKET_ERROR ) {
+		if ( send( socks_socket, buf, (int)(3 + ulen + plen), 0 ) == SOCKET_ERROR ) {
 			err = socketError;
 			Com_Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
 			return;

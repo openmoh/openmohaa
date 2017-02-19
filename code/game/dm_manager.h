@@ -65,7 +65,7 @@ private:
 
 	// scoreboard data
 	char			scoreString[ MAX_STRING_CHARS ];
-	int				scoreLength;
+	size_t			scoreLength;
 	int				scoreEntries;
 
 private:

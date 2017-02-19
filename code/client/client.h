@@ -222,8 +222,8 @@ typedef struct {
 	char		sv_dlURL[MAX_CVAR_VALUE_STRING];
 	int			downloadNumber;
 	int			downloadBlock;	// block we are waiting for
-	int			downloadCount;	// how many bytes we got
-	int			downloadSize;	// how many bytes we got
+	size_t		downloadCount;	// how many bytes we got
+	size_t		downloadSize;	// how many bytes we got
 	char		downloadList[MAX_INFO_STRING]; // list of paks we need to download
 	qboolean	downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
 

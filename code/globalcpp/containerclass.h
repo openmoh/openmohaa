@@ -47,7 +47,7 @@ public:
 	int					IndexOfObject( const Type& obj ) { return value.IndexOfObject( obj ); }
 	void				InsertObjectAt( int index, const Type& obj ) { return value.InsertObjectAt( index, obj ); }
 	int					NumObjects( void ) const { return value.NumObjects(); }
-	Type&				ObjectAt( const int index ) const { return value.ObjectAt( index ); }
+	Type&				ObjectAt( const size_t index ) const { return value.ObjectAt( index ); }
 	bool				ObjectInList( const Type& obj ) { return value.ObjectInList( obj ); }
 	void				RemoveObjectAt( int index ) { return value.RemoveObjectAt( index ); }
 	void				RemoveObject( const Type& obj ) { return value.RemoveObject( obj ); }

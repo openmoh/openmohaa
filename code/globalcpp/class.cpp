@@ -215,7 +215,6 @@ unsigned int numclassesallocated = 0;
 bool classInited = false;
 
 #ifndef _DEBUG_MEM
-
 void *Class::operator new( size_t s )
 {
 	size_t *p;

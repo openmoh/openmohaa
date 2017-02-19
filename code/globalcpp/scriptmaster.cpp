@@ -3170,6 +3170,7 @@ void ScriptMaster::RegisterAliasInternal
 	{
 		str s;
 
+		// MOHAA doesn't check that
 		if( ev->IsListenerAt( i ) )
 		{
 			Listener *l = ev->GetListener( i );
@@ -3284,14 +3285,25 @@ ScriptThread::ScriptThread( ScriptClass *scriptClass, unsigned char *pCodePos )
 
 ScriptThread::~ScriptThread()
 {
-	if( !m_ScriptVM )
+	ScriptVM* vm = m_ScriptVM;
+	if( !vm )
 	{
 		ScriptError( "Attempting to delete a dead thread." );
 	}
 
-	Stop();
+	m_ScriptVM = NULL;
+	if( vm->ThreadState() == THREAD_WAITING )
+	{
+		vm->m_ThreadState = THREAD_RUNNING;
+		Director.RemoveTiming( this );
+	}
+	else if( vm->ThreadState() == THREAD_SUSPENDED )
+	{
+		vm->m_ThreadState = THREAD_RUNNING;
+		CancelWaitingAll();
+	}
 
-	m_ScriptVM->NotifyDelete();
+	vm->NotifyDelete();
 }
 
 void ScriptThread::CreateReturnThread
@@ -3836,8 +3848,8 @@ void ScriptThread::FileReadAll
 	FILE *f = NULL;
 	char *ret = NULL;
 	long currentPos = 0;
-	long size = 0;
-	long sizeRead = 0;
+	size_t size = 0;
+	size_t sizeRead = 0;
 
 	numArgs = ev->NumArgs();
 
@@ -3879,7 +3891,7 @@ void ScriptThread::FileSaveAll
 	int id = 0;
 	int numArgs = 0;
 	FILE *f = NULL;
-	long sizeWrite = 0;
+	size_t sizeWrite = 0;
 	str text;
 
 	numArgs = ev->NumArgs();
@@ -3901,7 +3913,7 @@ void ScriptThread::FileSaveAll
 
 	sizeWrite = fwrite( text, 1, strlen( text ), f );
 
-	ev->AddInteger( sizeWrite );
+	ev->AddInteger( ( int )sizeWrite );
 }
 
 void ScriptThread::FileRemove
@@ -3973,7 +3985,7 @@ void ScriptThread::FileCopy
 	)
 
 {
-	unsigned int n = 0;
+	size_t n = 0;
 	int numArgs = 0;
 	unsigned int ret = 0;
 	str filename, copyfilename;
@@ -4361,9 +4373,9 @@ void ScriptThread::PregMatch
 {
 	slre_cap sl_cap[ 32 ];
 	int i, j;
-	int iMaxLength;
-	int iLength;
-	int iFoundLength = 0;
+	size_t iMaxLength;
+	size_t iLength;
+	size_t iFoundLength = 0;
 	str pattern, subject;
 	ScriptVariable index, value, subindex, subvalue;
 	ScriptVariable array, subarray;

@@ -278,8 +278,8 @@ void PF_MSG_WriteFloat (float f)
 void PF_MSG_WriteString (const char *s)
 {
  	cgm_t *pCGM;
-	int i,j;
-	int l;
+	int i;
+	size_t j, l;
 	l = strlen(s);
 	l+=1; // include trailing zero
 	pCGM = g_CGMessages;
@@ -1320,9 +1320,14 @@ void SV_AddGameCommand( const char *cmdName, xcommand_t function ) {
 SV_Malloc
 ===============
 */
-void *SV_Malloc( int size )
+void *SV_Malloc( size_t size )
 {
 	return Z_TagMalloc( size, TAG_GAME );
+}
+
+void SV_Free( void* ptr )
+{
+	Z_Free( ptr );
 }
 
 /*
@@ -1506,7 +1511,7 @@ void SV_InitGameProgs( void ) {
 	import.SetUserinfo					= SV_SetUserinfo;
 
 	import.Malloc						= SV_Malloc;
-	import.Free							= Z_Free;
+	import.Free							= SV_Free;
 
 	import.Cvar_Get						= Cvar_Get;
 	import.Cvar_Set						= Cvar_Set;

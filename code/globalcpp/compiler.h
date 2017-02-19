@@ -162,8 +162,8 @@ public:
 
 	char				*Preprocess( char *sourceBuffer );
 	void				Preclean( char *processedBuffer );
-	unsigned int		Parse( GameScript *m_GameScript, char *sourceBuffer );
-	unsigned int		Compile( GameScript *m_GameScript, unsigned char *progBuffer );
+	size_t				Parse( GameScript *m_GameScript, char *sourceBuffer );
+	size_t				Compile( GameScript *m_GameScript, unsigned char *progBuffer );
 	void				Optimize( unsigned char *progBuffer );
 
 	static str			GetLine( str content, int line );

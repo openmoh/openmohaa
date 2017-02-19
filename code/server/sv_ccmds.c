@@ -511,7 +511,8 @@ SV_Status_f
 ================
 */
 static void SV_Status_f( void ) {
-	int			i, j, l;
+	int			i;
+	size_t		j, l;
 	client_t	*cl;
 	playerState_t	*ps;
 	const char		*s;

@@ -331,8 +331,8 @@ void SVC_Status( netadr_t from ) {
 	int		i;
 	client_t	*cl;
 	playerState_t	*ps;
-	int		statusLength;
-	int		playerLength;
+	size_t	statusLength;
+	size_t	playerLength;
 	char	infostring[MAX_INFO_STRING];
 
 	// ignore if we are in single player

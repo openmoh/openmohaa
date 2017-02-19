@@ -1155,7 +1155,7 @@ qboolean G_ArchiveLevel
 		Archiver arc;
 		gentity_t  *edict;
 		char szSaveName[ MAX_STRING_TOKENS ];
-		char *pszSaveName;
+		const char *pszSaveName;
 		cvar_t *cvar;
 
 		COM_StripExtension( filename, szSaveName, sizeof( szSaveName ) );

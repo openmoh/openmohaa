@@ -50,7 +50,7 @@ public:
 	// File variables
 	const_str		m_Filename;
 	char			*m_SourceBuffer;
-	unsigned int	m_SourceLength;
+	size_t			m_SourceLength;
 
 	// Developper variable
 	con_set< uchar *, sourceinfo_t > *m_ProgToSource;
@@ -61,9 +61,9 @@ public:
 
 	str&					Filename( void );
 	const_str				ConstFilename( void );
-	bool					GetSourceAt( unsigned int sourcePos, str &sourceLine, int &column, int &line );
+	bool					GetSourceAt( size_t sourcePos, str &sourceLine, int &column, int &line );
 	void					PrintSourcePos( sourceinfo_t *sourcePos, bool dev );
-	void					PrintSourcePos( unsigned int sourcePos, bool dev );
+	void					PrintSourcePos( size_t sourcePos, bool dev );
 	void					PrintSourcePos( unsigned char *m_pCodePos, bool dev );
 	void					PrintSourcePos( str sourceLine, int column, int line, bool dev );
 };
@@ -112,7 +112,7 @@ public:
 		// program variables
 		StateScript		m_State;
 		unsigned char	*m_ProgBuffer;
-		unsigned int	m_ProgLength;
+		size_t			m_ProgLength;
 
 		// compile variables
 		bool			successCompile;
@@ -132,7 +132,7 @@ public:
 	void					ArchiveCodePos( Archiver& arc, unsigned char **codePos );
 
 	void					Close( void );
-	void					Load( const void *sourceBuffer, int sourceLength );
+	void					Load( const void *sourceBuffer, size_t sourceLength );
 
 
 	bool					GetCodePos( unsigned char *codePos, str& filename, int& pos );

@@ -124,7 +124,7 @@ public:
 	void  			ArchiveQuat( Quat * quat );
 	void			ArchiveInteger( int * num );
 	void  			ArchiveUnsigned( unsigned * unum );
-	void  			ArchiveSize( size_t * unum );
+	void  			ArchiveSize( long * unum );
 	void			ArchiveByte( byte * num );
 	void			ArchiveChar( char * ch );
 	void			ArchiveShort( short * num );

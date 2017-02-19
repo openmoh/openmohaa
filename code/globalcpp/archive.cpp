@@ -701,7 +701,7 @@ void Archiver::Archive##func							\
 ARCHIVE( Vector, Vector );
 ARCHIVE( Integer, int );
 ARCHIVE( Unsigned, unsigned );
-ARCHIVE( Size, size_t );
+ARCHIVE( Size, long );
 ARCHIVE( Byte, byte );
 ARCHIVE( Char, char );
 ARCHIVE( Short, short );

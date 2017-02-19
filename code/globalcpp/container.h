@@ -78,7 +78,7 @@ public:
 	void				InsertObjectAt( int index, const Type& obj );
 	int					MaxObjects( void ) const;
 	int					NumObjects( void ) const;
-	Type&				ObjectAt( const int index ) const;
+	Type&				ObjectAt( const size_t index ) const;
 	bool				ObjectInList( const Type& obj );
 	void				RemoveObjectAt( int index );
 	void				RemoveObject( const Type& obj );
@@ -319,7 +319,7 @@ int Container<Type>::NumObjects( void ) const
 }
 
 template< class Type >
-Type& Container<Type>::ObjectAt( int index ) const
+Type& Container<Type>::ObjectAt( const size_t index ) const
 {
 	if( ( index <= 0 ) || ( index > numobjects ) ) {
 		CONTAINER_Error( ERR_DROP, "Container::ObjectAt : index out of range" );

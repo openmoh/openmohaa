@@ -39,9 +39,9 @@
 
 struct bracket_pair {
   const char *ptr;  /* Points to the first char after '(' in regex  */
-  int len;          /* Length of the text between '(' and ')'       */
+  size_t len;          /* Length of the text between '(' and ')'       */
   int branches;     /* Index in the branches array for this pair    */
-  int num_branches; /* Number of '|' in this bracket pair           */
+  unsigned int num_branches; /* Number of '|' in this bracket pair           */
 };
 
 struct branch {
@@ -82,8 +82,8 @@ static int op_len(const char *re) {
   return re[0] == '\\' && re[1] == 'x' ? 4 : re[0] == '\\' ? 2 : 1;
 }
 
-static int set_len(const char *re, int re_len) {
-  int len = 0;
+static size_t set_len(const char *re, size_t re_len) {
+  size_t len = 0;
 
   while (len < re_len && re[len] != ']') {
     len += op_len(re + len);
@@ -92,7 +92,7 @@ static int set_len(const char *re, int re_len) {
   return len <= re_len ? len + 1 : -1;
 }
 
-static int get_op_len(const char *re, int re_len) {
+static size_t get_op_len(const char *re, size_t re_len) {
   return re[0] == '[' ? set_len(re + 1, re_len - 1) + 1 : op_len(re);
 }
 
@@ -156,9 +156,10 @@ static int match_op(const unsigned char *re, const unsigned char *s,
   return result;
 }
 
-static int match_set(const char *re, int re_len, const char *s,
+static int match_set(const char *re, size_t re_len, const char *s,
                      struct regex_info *info) {
-  int len = 0, result = -1, invert = re[0] == '^';
+  size_t len = 0;
+  int result = -1, invert = re[0] == '^';
 
   if (invert) re++, re_len--;
 
@@ -178,12 +179,12 @@ static int match_set(const char *re, int re_len, const char *s,
   return (!invert && result > 0) || (invert && result <= 0) ? 1 : -1;
 }
 
-static int doh(const char *s, int s_len, struct regex_info *info, int bi);
+static size_t doh(const char *s, size_t s_len, struct regex_info *info, int bi);
 
-static int bar(const char *re, int re_len, const char *s, int s_len,
+static size_t bar(const char *re, size_t re_len, const char *s, size_t s_len,
                struct regex_info *info, int bi) {
   /* i is offset in re, j is offset in s, bi is brackets index */
-  int i, j, n, step;
+	size_t i, j, n, step;
 
   for (i = j = 0; i < re_len && j <= s_len; i += step) {
 
@@ -201,11 +202,11 @@ static int bar(const char *re, int re_len, const char *s, int s_len,
       DBG(("QUANTIFIER: [%.*s]%c [%.*s]\n", step, re + i,
            re[i + step], s_len - j, s + j));
       if (re[i + step] == '?') {
-        int result = bar(re + i, step, s + j, s_len - j, info, bi);
+        size_t result = bar(re + i, step, s + j, s_len - j, info, bi);
         j += result > 0 ? result : 0;
         i++;
       } else if (re[i + step] == '+' || re[i + step] == '*') {
-        int j2 = j, nj = j, n1, n2 = -1, ni, non_greedy = 0;
+        size_t j2 = j, nj = j, n1, n2 = -1, ni, non_greedy = 0;
 
         /* Points to the regexp code after the quantifier */
         ni = i + step + 1;
@@ -269,7 +270,7 @@ static int bar(const char *re, int re_len, const char *s, int s_len,
         /* Nothing follows brackets */
         n = doh(s + j, s_len - j, info, bi);
       } else {
-        int j2;
+        size_t j2;
         for (j2 = 0; j2 <= s_len - j; j2++) {
           if ((n = doh(s + j, s_len - (j + j2), info, bi)) >= 0 &&
               bar(re + i + step, re_len - (i + step),
@@ -300,16 +301,16 @@ static int bar(const char *re, int re_len, const char *s, int s_len,
 }
 
 /* Process branch points */
-static int doh(const char *s, int s_len, struct regex_info *info, int bi) {
+static size_t doh(const char *s, size_t s_len, struct regex_info *info, int bi) {
   const struct bracket_pair *b = &info->brackets[bi];
-  int i = 0, len, result;
+  size_t i = 0, len, result;
   const char *p;
 
   do {
     p = i == 0 ? b->ptr : info->branches[b->branches + i - 1].schlong + 1;
     len = b->num_branches == 0 ? b->len :
-      i == b->num_branches ? (int) (b->ptr + b->len - p) :
-      (int) (info->branches[b->branches + i].schlong - p);
+      i == b->num_branches ? (b->ptr + b->len - p) :
+      (info->branches[b->branches + i].schlong - p);
     DBG(("%s %d %d [%.*s] [%.*s]\n", __func__, bi, i, len, p, s_len, s));
     result = bar(p, len, s, s_len, info, bi);
     DBG(("%s <- %d\n", __func__, result));
@@ -318,8 +319,10 @@ static int doh(const char *s, int s_len, struct regex_info *info, int bi) {
   return result;
 }
 
-static int baz(const char *s, int s_len, struct regex_info *info) {
-  int i, result = -1, is_anchored = info->brackets[0].ptr[0] == '^';
+static size_t baz(const char *s, size_t s_len, struct regex_info *info) {
+  size_t i;
+  int is_anchored = info->brackets[0].ptr[0] == '^';
+  size_t result = -1;
 
   for (i = 0; i <= s_len; i++) {
     result = doh(s + i, s_len - i, info, 0);
@@ -362,9 +365,11 @@ static void setup_branch_points(struct regex_info *info) {
   }
 }
 
-static int foo(const char *re, int re_len, const char *s, int s_len,
+static size_t foo(const char *re, size_t re_len, const char *s, size_t s_len,
                struct regex_info *info) {
-  int i, step, depth = 0;
+  size_t i;
+  size_t step;
+  int depth = 0;
 
   /* First bracket captures everything */
   info->brackets[0].ptr = re;
@@ -422,7 +427,7 @@ static int foo(const char *re, int re_len, const char *s, int s_len,
   return baz(s, s_len, info);
 }
 
-int slre_match(const char *regexp, const char *s, int s_len,
+size_t slre_match(const char *regexp, const char *s, size_t s_len,
                struct slre_cap *caps, int num_caps, int flags) {
   struct regex_info info;
 
@@ -433,5 +438,5 @@ int slre_match(const char *regexp, const char *s, int s_len,
   info.caps = caps;
 
   DBG(("========================> [%s] [%.*s]\n", regexp, s_len, s));
-  return foo(regexp, (int) strlen(regexp), s, s_len, &info);
+  return foo(regexp, strlen(regexp), s, s_len, &info);
 }

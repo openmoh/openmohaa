@@ -35,9 +35,9 @@ char *str_replace( char *orig, char *rep, char *with ) {
 	char *result; // the return string
 	char *ins;    // the next insert point
 	char *tmp;    // varies
-	int len_rep;  // length of rep
-	int len_with; // length of with
-	int len_front; // distance between rep and end of last rep
+	size_t len_rep;  // length of rep
+	size_t len_with; // length of with
+	size_t len_front; // distance between rep and end of last rep
 	int count;    // number of replacements
 
 	if( !orig )
@@ -90,7 +90,7 @@ void parsetree_init()
 	parsedata.total_length = 0;
 }
 
-int parsetree_length()
+size_t parsetree_length()
 {
 	return parsedata.total_length;
 }

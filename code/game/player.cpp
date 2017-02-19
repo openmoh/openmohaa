@@ -4503,7 +4503,7 @@ void Player::InitModel
 	char *model_replace;
 
 	strcpy( model_name, model.c_str() );
-	int len = strlen( model_name );
+	size_t len = strlen( model_name );
 
 	model_replace = model_name + len - 4;
 

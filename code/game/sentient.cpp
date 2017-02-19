@@ -629,7 +629,7 @@ Sentient::Sentient()
 	m_fDamageMultipliers[ 18 ] = 0.5f;
 
 	m_PrevSentient = NULL;
-	m_NextSentient = level.m_HeadSentient[ 1 ];
+	m_NextSentient = level.m_HeadSentient[ m_Team ];
 
 	if( m_NextSentient )
 	{
@@ -656,7 +656,7 @@ Sentient::~Sentient()
 	}
 	else
 	{
-		level.m_HeadSentient[ m_Team ] = this;
+		level.m_HeadSentient[ m_Team ] = m_NextSentient;
 	}
 
 	m_PrevSentient = NULL;
@@ -3701,7 +3701,7 @@ void Sentient::CheckAnimations
             }
          else if ( !Q_stricmpn( c, cs, strlen( cs ) ) ) // partial match
             {
-            int state_len = strlen( cs );
+            size_t state_len = strlen( cs );
 
             // Animation in tik file is longer than the state machine's anim
             if ( strlen( c ) > state_len )
@@ -4136,7 +4136,7 @@ void Sentient::EventGerman
 	m_NextSentient = level.m_HeadSentient[ TEAM_GERMAN ];
 	if( m_NextSentient )
 	{
-		m_PrevSentient = this;
+		m_NextSentient->m_PrevSentient = this;
 	}
 
 	level.m_HeadSentient[ m_Team ] = this;
@@ -4183,13 +4183,13 @@ void Sentient::EventAmerican
 	}
 
 	m_NextSentient = NULL;
-	m_Team = TEAM_AMERICAN;
 	m_PrevSentient = NULL;
+	m_Team = TEAM_AMERICAN;
 
 	m_NextSentient = level.m_HeadSentient[ TEAM_AMERICAN ];
 	if( m_NextSentient )
 	{
-		m_PrevSentient = this;
+		m_NextSentient->m_PrevSentient = this;
 	}
 
 	level.m_HeadSentient[ m_Team ] = this;

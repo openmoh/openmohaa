@@ -727,6 +727,7 @@ CopyString
 char *CopyString( const char *in ) {
 	char	*out;
 
+#ifndef _DEBUG_MEM
 	if (!in[0]) {
 		return ( char * )Z_EmptyStringPointer();
 	}
@@ -735,6 +736,7 @@ char *CopyString( const char *in ) {
 			return ( char * )Z_NumberStringPointer( *in );
 		}
 	}
+#endif
 
 	out = ( char * )Z_Malloc( strlen( in ) + 1 );
 	strcpy( out, in );

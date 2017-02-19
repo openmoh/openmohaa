@@ -45,10 +45,10 @@ Configurator::~Configurator()
 	Close();
 }
 
-int Configurator::GetLine( char *dest, const char *data, int size )
+size_t Configurator::GetLine( char *dest, const char *data, size_t size )
 {
 	const char *p = data;
-	int i = 0;
+	size_t i = 0;
 
 	while( *p == '\n' )
 		p++;
@@ -109,7 +109,7 @@ configSection_t *Configurator::CreateSection( const char *section )
 int Configurator::GetKeyArray( char *key )
 {
 	int count;
-	int len;
+	size_t len;
 	int arrayindex = -1;
 	char *p1, *p2;
 
@@ -138,7 +138,7 @@ int Configurator::GetKeyArray( char *key )
 int Configurator::GetKeyArray( str& key )
 {
 	int count;
-	int len;
+	size_t len;
 	int arrayindex = -1;
 	str arrayval;
 	char *p1, *p2;
@@ -248,7 +248,7 @@ int Configurator::CutLine( char *data )
 	return p - data;
 }
 
-bool Configurator::SetupLine( char *line, int& lineno, int& len, int& last )
+bool Configurator::SetupLine( char *line, int& lineno, size_t& len, size_t& last )
 {
 	lineno++;
 	len = ( int )strlen( line ) - 1;
@@ -282,7 +282,7 @@ bool Configurator::SetupLine( char *line, int& lineno, int& len, int& last )
 	return true;
 }
 
-void Configurator::WriteData( char **data, int *size )
+void Configurator::WriteData( char **data, size_t *size )
 {
 	configSection_t *section;
 	configKey_t *key;
@@ -290,9 +290,10 @@ void Configurator::WriteData( char **data, int *size )
 	str value;
 	char *oldData = *data;
 	char *currentData = *data;
-	int currentSize = *size;
-	int len, tlen = 0;
-	int i, j, k, offset, offset2;
+	size_t currentSize = *size;
+	size_t len, tlen = 0;
+	int i, j, k;
+	size_t offset, offset2;
 	bool bFound;
 
 	for( i = 1; i <= m_reverseSections.NumObjects(); i++ )
@@ -411,7 +412,7 @@ void Configurator::WriteData( char **data, int *size )
 	*size = currentSize;
 }
 
-void Configurator::WriteData2( char **data, int *size )
+void Configurator::WriteData2( char **data, size_t *size )
 {
 	configSection_t *section;
 	configKey_t *key;
@@ -419,9 +420,9 @@ void Configurator::WriteData2( char **data, int *size )
 	str value;
 	char *oldData = *data;
 	char *currentData = *data;
-	int currentSize = *size;
+	size_t currentSize = *size;
 	char *p = currentData;
-	int tlen = 0;
+	size_t tlen = 0;
 	int i, j, k;
 
 	for( i = 1; i <= m_reverseSections.NumObjects(); i++ )
@@ -532,17 +533,17 @@ void Configurator::WriteData2( char **data, int *size )
 	*size = tlen;
 }
 
-bool Configurator::FindData( int type, const char *s, const char *k, int *offset, const char *data, int size )
+bool Configurator::FindData( int type, const char *s, const char *k, size_t *offset, const char *data, size_t size )
 {
 	static char	line[ MAX_STRING_TOKENS + 1 ];
 	static char	section[ MAX_STRING_TOKENS + 1 ];
 	static char	key[ MAX_STRING_TOKENS + 1 ];
 	static char	val[ MAX_STRING_TOKENS + 1 ];
 
-	int		last = 0;
-	int		len;
-	int		olen = 0;
-	int		tlen = 0;
+	size_t	last = 0;
+	size_t	len;
+	size_t	olen = 0;
+	size_t	tlen = 0;
 	int		lineno = 0;
 	int		arrayindex;
 
@@ -603,16 +604,16 @@ bool Configurator::FindData( int type, const char *s, const char *k, int *offset
 	return false;
 }
 
-void Configurator::ParseData( const char *data, int size )
+void Configurator::ParseData( const char *data, size_t size )
 {
 	static char	line[ MAX_STRING_TOKENS + 1 ];
 	static char	section[ MAX_STRING_TOKENS + 1 ];
 	static char	key[ MAX_STRING_TOKENS + 1 ];
 	static char	val[ MAX_STRING_TOKENS + 1 ];
 
-	int		last = 0;
-	int		len;
-	int		tlen = 0;
+	size_t	last = 0;
+	size_t	len;
+	size_t	tlen = 0;
 	int		lineno = 0;
 	unsigned int index = 0;
 
@@ -667,7 +668,7 @@ __error:
 
 int Configurator::ParseLine( char *line, char *section, char *key, char *value )
 {
-	int len;
+	size_t len;
 	int result;
 
 	len = strlen( line );
@@ -873,7 +874,7 @@ void Configurator::SetWrite( bool bWrite )
 void Configurator::Parse( const char *filename )
 {
 	FILE *file;
-	int size;
+	size_t size;
 	char *buffer;
 
 	m_bNoWrite = false;
@@ -907,7 +908,8 @@ void Configurator::Close( void )
 {
 	FILE *file;
 	char *buffer;
-	int i, size;
+	int i;
+	size_t size;
 
 	if( !m_filename.length() || !m_bNeedWrite )
 	{

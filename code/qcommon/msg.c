@@ -1374,20 +1374,26 @@ void MSG_WriteSounds (msg_t *msg, server_sound_t *sounds, int snapshot_number_of
 				MSG_WriteBits( msg, sounds[i].channel, 7 );
 				MSG_WriteBits( msg, sounds[i].sound_index, 9 );
 
-				if ( -1.0f >= sounds[i].volume ){ //volume ranges from -1.0 to -infty??
+				if( sounds[ i ].volume != -1.0f ) {
 					MSG_WriteBits( msg, 1, 1 );
 					MSG_WriteFloat( msg, sounds[i].volume );
-				} else MSG_WriteBits( msg, 0, 1 );
+				} else {
+					MSG_WriteBits( msg, 0, 1 );
+				}
 
-				if ( -1.0f >= sounds[i].min_dist ){
+				if ( sounds[i].min_dist != -1.0f ){
 					MSG_WriteBits( msg, 1, 1 );
 					MSG_WriteFloat( msg, sounds[i].min_dist );
-				} else MSG_WriteBits( msg, 0, 1 );
+				} else {
+					MSG_WriteBits( msg, 0, 1 );
+				}
 
-				if ( -1.0f >= sounds[i].pitch ){
+				if ( sounds[i].pitch != -1.0f ){
 					MSG_WriteBits( msg, 1, 1 );
-					MSG_WriteFloat( msg, sounds[i].min_dist );
-				} else MSG_WriteBits( msg, 0, 1 );
+					MSG_WriteFloat( msg, sounds[i].pitch );
+				} else {
+					MSG_WriteBits( msg, 0, 1 );
+				}
 
 				MSG_WriteFloat( msg, sounds[i].maxDist );
 			}

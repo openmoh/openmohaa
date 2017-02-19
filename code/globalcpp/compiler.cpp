@@ -1739,7 +1739,7 @@ int yyerror( const char *msg )
 	return 1;
 }
 
-unsigned int ScriptCompiler::Parse( GameScript *gameScript, char *sourceBuffer )
+size_t ScriptCompiler::Parse( GameScript *gameScript, char *sourceBuffer )
 {
 	parsedata = yyparsedata();
 
@@ -1786,9 +1786,9 @@ unsigned int ScriptCompiler::Parse( GameScript *gameScript, char *sourceBuffer )
 	return parsedata.total_length;
 }
 
-unsigned int ScriptCompiler::Compile( GameScript *gameScript, unsigned char *progBuffer )
+size_t ScriptCompiler::Compile( GameScript *gameScript, unsigned char *progBuffer )
 {
-	int length;
+	size_t length;
 
 	if( progBuffer == NULL )
 	{

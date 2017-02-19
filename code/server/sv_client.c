@@ -951,9 +951,9 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 
 		// block zero is special, contains file size
 		if ( cl->downloadXmitBlock == 0 )
-			MSG_WriteLong( msg, cl->downloadSize );
+			MSG_WriteLong( msg, (int)cl->downloadSize );
  
-		MSG_WriteShort( msg, cl->downloadBlockSize[curindex] );
+		MSG_WriteShort( msg, ( short )cl->downloadBlockSize[curindex] );
 
 		// Write the block
 		if ( cl->downloadBlockSize[curindex] ) {
@@ -1166,7 +1166,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 	char	*val;
 	char	*ip;
 	int		i;
-	int	len;
+	size_t len;
 
 	// name for C code
 	Q_strncpyz( cl->name, Info_ValueForKey (cl->userinfo, "name"), sizeof(cl->name) );

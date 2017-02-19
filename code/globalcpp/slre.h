@@ -31,11 +31,11 @@ extern "C" {
 
 struct slre_cap {
   const char *ptr;
-  int len;
+  size_t len;
 };
 
 
-int slre_match(const char *regexp, const char *buf, int buf_len,
+size_t slre_match(const char *regexp, const char *buf, size_t buf_len,
                struct slre_cap *caps, int num_caps, int flags);
 
 /* Possible flags for slre_match() */

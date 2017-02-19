@@ -40,7 +40,7 @@ static int qconsole_history_oldest = 0;
 
 // current edit buffer
 static char qconsole_line[ MAX_EDIT_LINE ];
-static int qconsole_linelen = 0;
+static size_t qconsole_linelen = 0;
 
 static HANDLE qconsole_hout;
 static HANDLE qconsole_hin;
@@ -312,7 +312,7 @@ char *CON_Input( void )
 
 			if( key == VK_BACK )
 			{
-				int pos = ( qconsole_linelen > 0 ) ?
+				size_t pos = ( qconsole_linelen > 0 ) ?
 					qconsole_linelen - 1 : 0; 
 
 				qconsole_line[ pos ] = '\0';

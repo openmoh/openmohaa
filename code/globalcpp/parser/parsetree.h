@@ -95,7 +95,7 @@ typedef struct {
 
 void		parsetree_freeall();
 void		parsetree_init();
-int			parsetree_length();
+size_t		parsetree_length();
 char		*parsetree_malloc( size_t s );
 
 int			node_compare( void *pe1, void *pe2 );
@@ -128,7 +128,7 @@ struct yyexception {
 };
 
 struct yyparsedata {
-	int				total_length;
+	size_t			total_length;
 
 	int				braces_count;
 	int				line_count;

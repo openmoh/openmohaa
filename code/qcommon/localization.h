@@ -33,14 +33,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <container.h>
 
 typedef struct {
-	str		m_refName;
-	str		m_locName;
-	int		m_r1_rep;
-	int		m_r2_rep;
-	int		m_r3_rep;
-	int		m_l1_rep;
-	int		m_l2_rep;
-	int		m_l3_rep;
+	str			m_refName;
+	str			m_locName;
+	intptr_t	m_r1_rep;
+	intptr_t	m_r2_rep;
+	intptr_t	m_r3_rep;
+	intptr_t	m_l1_rep;
+	intptr_t	m_l2_rep;
+	intptr_t	m_l3_rep;
 } loc_entry_t;
 
 class cLocalization {

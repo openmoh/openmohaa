@@ -26,7 +26,7 @@
 
 #include "compiler.h"
 #include "yyParser.h"
- 
+
 #include <stdio.h>
 
 void fprintf2( FILE *f, const char *format, ... )
@@ -59,7 +59,7 @@ void yylexerror( const char *msg )
 	assert( 0 );
 }
 
-static void TextEscapeValue( char *str, int len )
+static void TextEscapeValue( char *str, size_t len )
 {
 	char *to = parsetree_malloc( len + 1 );
 
@@ -106,7 +106,7 @@ static void TextEscapeValue( char *str, int len )
 }
 
 
-static void TextValue( char *str, int len )
+static void TextValue( char *str, size_t len )
 {
 	yylval.s.val.stringValue = parsetree_malloc( len + 1 );
 	strncpy( yylval.s.val.stringValue, str, len );

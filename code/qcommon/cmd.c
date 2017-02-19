@@ -120,7 +120,7 @@ Adds a \n to the text
 */
 void Cbuf_InsertText( const char *text ) {
 	size_t	len;
-	size_t	i;
+	intptr_t	i;
 
 	len = strlen( text ) + 1;
 	if ( len + cmd_text.cursize > cmd_text.maxsize ) {

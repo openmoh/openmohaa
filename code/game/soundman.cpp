@@ -1424,7 +1424,7 @@ void SoundManager::Save
    Entity      *ent;
    str         buf;
 	str         filename;
-   int         i;
+   size_t         i;
 
    // get the name of the sound file from the world
    filename = "maps/";
@@ -1756,7 +1756,7 @@ void SoundManager::Load
    )
 {
 	str filename;
-	int i;
+	intptr_t i;
 
 	// get the name of the sound file from the world
 	filename = "maps/";
