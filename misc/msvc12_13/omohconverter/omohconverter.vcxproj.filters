@@ -432,6 +432,9 @@
     <ClCompile Include="..\..\..\code\tools\common\trilib.c">
       <Filter>q3_common</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\multimain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\code\globalcpp\archive.h">
@@ -751,6 +754,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\code\tools\common\trilib.h">
       <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\multimain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\main.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
