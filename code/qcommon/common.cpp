@@ -147,6 +147,8 @@ void Com_EndRedirect (void)
 	rd_flush = NULL;
 }
 
+#ifndef _COM_NOPRINTF
+
 /*
 =============
 Com_Printf
@@ -248,6 +250,8 @@ void QDECL Com_DPrintf( const char *fmt, ...) {
 
 	Com_Printf ("%s", msg);
 }
+
+#endif
 
 /*
 =============
