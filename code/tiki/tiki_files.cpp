@@ -516,6 +516,11 @@ SkeletorCacheGetData
 */
 skelAnimDataGameHeader_t *SkeletorCacheGetData( int index )
 {
+	if( index < 0 )
+	{
+		return NULL;
+	}
+
 	skelAnimDataGameHeader_t *data = m_cachedData[ index ].data;
 	if( !data )
 	{
