@@ -1422,12 +1422,13 @@ void RotatingDoor::DoOpen( Event *ev )
 
 			if( other )
 			{
-				Vector vMMOrigin = mins + maxs;
+				Vector vMMOrigin ( mins + maxs );
 				Vector vMMCenter = vMMOrigin * 0.5f;
 				Vector vDoorDir;
 				Vector vPerpDir;
 
-				vMMOrigin -= vMMCenter;
+				vMMOrigin = vMMOrigin - vMMCenter;
+				vMMOrigin.normalize();
 
 				vDoorDir[ 0 ] = dir[ 1 ];
 				vDoorDir[ 1 ] = -dir[ 0 ];
@@ -1436,11 +1437,12 @@ void RotatingDoor::DoOpen( Event *ev )
 				p = other->origin - origin;
 
 				vPerpDir = p;
+				vPerpDir[ 2 ] = 0.f;
 				vPerpDir.normalize();
 
 				if( m_bAlwaysAway )
 				{
-					diropened = DotProduct( p, vDoorDir );
+					diropened = DotProduct( vPerpDir, vDoorDir );
 
 					if( DotProduct( dir, vMMOrigin ) > 0.0f ) {
 						diropened = -diropened;
@@ -1466,7 +1468,7 @@ void RotatingDoor::DoOpen( Event *ev )
 		diropened = -init_door_direction;
 	}
 
-	if( diropened <= 0.0f )
+	if( diropened < 0.0f )
 	{
 		ang = startangle + Vector( 0.0f, angle, 0.0f );
 	}
