@@ -120,3 +120,7 @@ void Key_GetKeysForCommand( const char *command, int *key1, int *key2 ) {
 
 void SCR_DebugGraph( float value, int color ) {
 }
+
+qboolean CL_FinishedIntro( void ) {
+	return qtrue;
+}
