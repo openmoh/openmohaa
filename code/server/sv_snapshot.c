@@ -567,7 +567,7 @@ to take to clear, based on the current rate
 ====================
 */
 #define	HEADER_RATE_BYTES	48		// include our header, IP header, and some overhead
-static int SV_RateMsec( client_t *client, int messageSize ) {
+static int SV_RateMsec( client_t *client, size_t messageSize ) {
 	int		rate;
 	int		rateMsec;
 
@@ -585,7 +585,7 @@ static int SV_RateMsec( client_t *client, int messageSize ) {
 		}
 	}
 
-	rateMsec = ( messageSize + HEADER_RATE_BYTES ) * 1000 / rate * com_timescale->value;
+	rateMsec = ( int )( messageSize + HEADER_RATE_BYTES ) * 1000 / rate * com_timescale->value;
 
 	return rateMsec;
 }
@@ -676,6 +676,12 @@ void SV_SendClientSnapshot( client_t *client ) {
 	// send over all the relevant entityState_t
 	// and the playerState_t
 	SV_WriteSnapshotToClient( client, &msg );
+
+	// clear the sounds on the client, preventing them to be sent each at packet
+	SV_ClearSounds( client );
+
+	// clear center print, preventing it to be sent at each packet
+	client->centerprint[ 0 ] = 0;
 
 	// su44: write any pending MoHAA cg messages
 	SV_WriteCGMToClient( client, &msg );

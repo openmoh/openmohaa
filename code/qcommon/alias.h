@@ -47,7 +47,7 @@ const char *S_ChannelNumToName( int iChannel );
 //
 #define MAX_ALIAS_NAME_LENGTH 40
 #define MAX_REAL_NAME_LENGTH 128
-#define MAX_ALIASLIST_NAME_LENGTH 32
+#define MAX_ALIASLIST_NAME_LENGTH 40
 
 typedef struct AliasActorNode_s
 	{
