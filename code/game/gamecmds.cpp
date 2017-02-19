@@ -61,8 +61,8 @@ consolecmd_t G_ConsoleCmds[] =
       { "levelvars",		G_LevelVarsCmd,			qfalse },
       { "gamevars",			G_GameVarsCmd,			qfalse },
 	  { "compilescript",	G_CompileScript,		qfalse },
-	  { "addbots",			G_AddBot,				qtrue },
-	  { "removebots",		G_RemoveBot,			qtrue },
+	  { "addbot",			G_AddBot,				qtrue },
+	  { "removebot",		G_RemoveBot,			qtrue },
 #ifdef _DEBUG
 	  { "bot",				G_BotCommand,			qtrue },
 #endif
@@ -627,7 +627,6 @@ qboolean G_CompileScript
 	return qtrue;
 }
 
-static int botnum = 0;
 static gentity_t *firstBot = NULL;
 
 qboolean G_AddBot
@@ -659,8 +658,6 @@ qboolean G_AddBot
 
 	for( n = 0; n < numbots; n++ )
 	{
-		botnum++;
-
 		for( i = maxclients->integer; i < game.maxclients; i++ )
 		{
 			e = &g_entities[ i ];
@@ -684,10 +681,10 @@ qboolean G_AddBot
 		}
 		else
 		{
-			sprintf( botName, "bot%d", botnum );
+			sprintf( botName, "bot%d", clientNum - maxclients->integer + 1 );
 		}
 
-		sprintf( challenge, "%d", botnum );
+		sprintf( challenge, "%d", clientNum - maxclients->integer + 1 );
 
 		e->s.clientNum = clientNum;
 		e->s.number = clientNum;
@@ -697,8 +694,8 @@ qboolean G_AddBot
 		Info_SetValueForKey( e->client->pers.userinfo, "dm_playergermanmodel", "german_afrika_officer" );
 		Info_SetValueForKey( e->client->pers.userinfo, "fov", "80" );
 		Info_SetValueForKey( e->client->pers.userinfo, "protocol", "8" );
-		Info_SetValueForKey( e->client->pers.userinfo, "ip", "192.168.0.192" );
-		Info_SetValueForKey( e->client->pers.userinfo, "qport", "8888" );
+		Info_SetValueForKey( e->client->pers.userinfo, "ip", "0.0.0.0" );
+		Info_SetValueForKey( e->client->pers.userinfo, "qport", "0" );
 		Info_SetValueForKey( e->client->pers.userinfo, "challenge", challenge );
 		Info_SetValueForKey( e->client->pers.userinfo, "snaps", "1" );
 		Info_SetValueForKey( e->client->pers.userinfo, "rate", "1" );
@@ -728,15 +725,20 @@ qboolean G_RemoveBot
 	)
 
 {
-	//int numbots;
-
 	if( gi.Argc() <= 1 )
 	{
 		gi.Printf( "Usage: removebot [numbots]\n" );
 		return qfalse;
 	}
 
-	// FIXME: not implemented yet
+	for( int n = game.maxclients - 1; n >= maxclients->integer; n-- )
+	{
+		gentity_t *e = &g_entities[ n ];
+		if( e->inuse && e->client )
+		{
+			G_ClientDisconnect( e );
+		}
+	}
 
 	return qtrue;
 }
