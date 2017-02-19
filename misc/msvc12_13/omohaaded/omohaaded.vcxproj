@@ -95,7 +95,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;_DEBUG;_CONSOLE;BOTLIB;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;_DEBUG;CONSOLE;BOTLIB;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../../code/SDL12/include;../../../code/libmad/include;../../../code/globalcpp;../../../code/qcommon;../../../code/server;../../../code/tiki</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>
@@ -113,7 +113,7 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;_DEBUG;_CONSOLE;BOTLIB;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;_DEBUG;CONSOLE;BOTLIB;DEDICATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../../code/SDL12/include;../../../code/libmad/include;../../../code/globalcpp;../../../code/qcommon;../../../code/server;../../../code/tiki</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
     </ClCompile>

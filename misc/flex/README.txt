@@ -1,4 +1,67 @@
 =======
+versions 2.4.8/2.5.8
+--------------
+recovered win_flex --header-file option
+
+=======
+versions 2.4.8/2.5.8
+--------------
+fixed outdated FlexLexer.h file
+
+=======
+versions 2.4.7/2.5.7
+--------------
+upgrade win_flex to version 2.6.3
+fixed compilation warnings
+
+=======
+versions 2.4.6/2.5.6
+--------------
+upgrade win_bison to version 3.0.4
+win_bison v2.7 is unchanged
+add separate custom build rules for win_bison "custom_build_rules\win_bison_only"
+    and win_flex "custom_build_rules\win_flex_only"
+
+=======
+versions 2.4.5/2.5.5
+--------------
+fix missing Additional Options in custom build rules
+fix incorrect "----header-file" option in flex custom build rules
+add some extra flex options to Visual Studio property pages:
+   1. Prefix (--prefix="...")
+   2. C++ Class Name (--yyclass="...")
+
+=======
+versions 2.4.4/2.5.4
+--------------
+fix silent errors in custom build rules
+add some flex/bison options to Visual Studio property pages:
+Bison:
+   1. Output File Name (--output="...")
+   2. Defines File Name (--defines="...")
+   3. Debug (--debug)
+   4. Verbose (--verbose)
+   5. No lines (--no-lines)
+   6. File Prefix (--file-prefix="...")
+   7. Graph File (--graph="...")
+   8. Warnings (--warnings="...")
+   9. Report (--report="...")
+   10. Report File Name (--report-file="...")
+   
+Flex:
+   1. Output File Name (--outfile="...")
+   2. Header File Name (--header-file="...")
+   3. Windows compatibility mode (--wincompat)
+   4. Case-insensitive mode (--case-insensitive)
+   5. Lex-compatibility mode (--lex-compat)
+   6. Start Condition Stacks (--stack)
+   7. Bison Bridge Mode (--bison-bridge)
+   8. No #line Directives (--noline)
+   9. Generate Reentrant Scanner (--reentrant)
+   10. Generate C++ Scanner (--c++)
+   11. Debug Mode (--debug)
+
+=======
 versions 2.4.3/2.5.3
 --------------
 fix incorrect #line directives in win_flex.exe
