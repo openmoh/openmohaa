@@ -54,10 +54,21 @@ public:
 	void		DereferencePointer( void *ptr );
 };
 
+
 extern void *operator new( size_t size );
 extern void *operator new[]( size_t size );
 extern void	operator delete( void *ptr );
 extern void	operator delete[]( void *ptr );
+
+#ifdef _DEBUG_MEM
+extern void *operator new( size_t size, const char* file, int line );
+extern void *operator new[]( size_t size, const char* file, int line );
+extern void	operator delete( void *ptr, const char* file, int line );
+extern void	operator delete[]( void *ptr, const char* file, int line );
+
+#define DEBUG_NEW new(__FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif
 
 extern DbgHeap m_Heap;
 

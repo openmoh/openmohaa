@@ -257,3 +257,30 @@ void operator delete[]( void *ptr )
 	free( ptr );
 }
 */
+
+#ifdef _DEBUG_MEM
+
+#undef new
+
+void *operator new( size_t size, const char* file, int line )
+{
+	return _malloc_dbg( size, _NORMAL_BLOCK, file, line );
+}
+
+void *operator new[]( size_t size, const char* file, int line )
+{
+	return _malloc_dbg( size, _NORMAL_BLOCK, file, line );
+}
+
+void operator delete( void *ptr, const char* file, int line )
+{
+	return _free_dbg( ptr, _NORMAL_BLOCK );
+}
+
+void operator delete[]( void *ptr, const char* file, int line )
+{
+	return _free_dbg( ptr, _NORMAL_BLOCK );
+}
+
+#endif
+
