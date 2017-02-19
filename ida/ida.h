@@ -8356,3 +8356,37 @@ typedef struct MEM_TempAlloc_s {
 	unsigned char *m_CurrentMemoryBlock;
 	int m_CurrentMemoryPos;
 } MEM_TempAlloc_t;
+
+#define MAX_ALIAS_NAME_LENGTH 40
+#define MAX_REAL_NAME_LENGTH 128
+#define MAX_ALIASLIST_NAME_LENGTH 40
+
+typedef struct AliasListNode_s {
+	char alias_name[ MAX_ALIAS_NAME_LENGTH ];
+	char real_name[ MAX_REAL_NAME_LENGTH ];
+	float weight;
+
+	// Static alias info
+	byte stop_flag;
+	struct AliasListNode_s *next;
+
+	// Global alias info
+	float pitch;
+	float volume;
+	float pitchMod;
+	float volumeMod;
+	float dist;
+	float maxDist;
+	int channel;
+	int streamed;
+	char *subtitle;
+} AliasListNode_t;
+
+typedef struct AliasList_s
+   {
+   char name[ MAX_ALIASLIST_NAME_LENGTH ];
+   qboolean    dirty;
+   int         num_in_list;
+   AliasListNode_t ** sorted_list;
+   AliasListNode_t * data_list;
+   } AliasList_t;
