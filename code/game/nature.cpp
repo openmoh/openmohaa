@@ -42,6 +42,7 @@ Event EV_Emitter_EmitterName
 CLASS_DECLARATION( Entity, Emitter, "func_emitter" )
    {
       { &EV_Emitter_EmitterName,    &Emitter::EmitterName },
+	  { NULL,						NULL }
    };
 
 Emitter::Emitter
