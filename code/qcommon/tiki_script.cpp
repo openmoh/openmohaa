@@ -414,7 +414,7 @@ void TikiScript::AddMacro( const char *name, const char *expansion )
 */
 qboolean TikiScript::ProcessCommand( qboolean crossline )
 {
-	int dummy;
+	char dummy;
 	int i;
 	size_t len;
 	char command[ 256 ];
