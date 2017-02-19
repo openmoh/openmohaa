@@ -267,9 +267,10 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	static int	errorCount;
 	int			currentTime;
 
+#ifdef _DEBUG
 	*( int * )0 = 0;
-
 	assert( 0 );
+#endif
 
 	Cvar_Set( "com_errorCode", va( "%i", code ) );
 
@@ -1609,6 +1610,8 @@ int Com_ModifyMsec( int msec ) {
 	return msec;
 }
 
+qboolean CL_FinishedIntro( void );
+
 /*
 =================
 Com_Frame
@@ -1670,7 +1673,7 @@ void Com_Frame( void ) {
 		msec = com_frameTime - lastTime;
 	} while ( msec < minMsec );
 
-	if( com_dedicated->integer ) //|| CL_FinishedIntro() )
+	if( com_dedicated->integer || CL_FinishedIntro() )
 	{
 		Cbuf_Execute( 0 );
 	}
