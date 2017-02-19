@@ -467,7 +467,7 @@ CM_ResetAreaPortals
 */
 void	CM_ResetAreaPortals( void )
 {
-	memset( cm.areaPortals, 0, cm.numAreas * cm.numAreas * sizeof( cArea_t * ) );
+	memset( cm.areaPortals, 0, cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ) );
 	CM_FloodAreaConnections();
 }
 
@@ -479,7 +479,7 @@ CM_WritePortalState
 void	CM_WritePortalState( fileHandle_t f )
 {
 	FS_Write( &cm.numAreas, sizeof( int ), f );
-	FS_Write( &cm.areaPortals, cm.numAreas * cm.numAreas * sizeof( cArea_t * ), f );
+	FS_Write( &cm.areaPortals, cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), f );
 }
 
 /*
@@ -494,7 +494,7 @@ void	CM_ReadPortalState( fileHandle_t f )
 	if( cm.numAreas != cm.numAreas ) {
 		Com_Error( ERR_DROP, "numareaportals differs from save game" );
 	}
-	FS_Read( &cm.areaPortals, cm.numAreas * cm.numAreas * sizeof( cArea_t * ), f );
+	FS_Read( &cm.areaPortals, cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), f );
 	CM_FloodAreaConnections();
 }
 
