@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 #include "tiki_shared.h"
+#include "dbgheap.h"
 
 int cache_numskel = 0;
 int cache_maxskel = 0;

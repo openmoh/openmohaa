@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "q_shared.h"
 #include "skeletor.h"
+#include "dbgheap.h"
 
 void SKEL_Message( const char *fmt, ... )
 {

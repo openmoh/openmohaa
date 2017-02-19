@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <mem_blockalloc.h>
 #include <con_set.h>
 #include "tiki_files.h"
+#include "dbgheap.h"
 
 /*
 ===============

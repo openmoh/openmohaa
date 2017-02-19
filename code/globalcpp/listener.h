@@ -305,8 +305,10 @@ public:
 	bool		operator==( Event ev ) { return eventnum == ev.eventnum; }
 	bool		operator!=( Event ev ) { return eventnum != ev.eventnum; }
 
+#ifndef _DEBUG_MEM
 	void *operator new( size_t size );
 	void operator delete( void *ptr );
+#endif
 
 	Event();
 	Event( const Event *ev );

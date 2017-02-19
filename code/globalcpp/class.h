@@ -255,8 +255,10 @@ private:
 public:
 	CLASS_PROTOTYPE( Class );
 
+#ifndef _DEBUG_MEM
 	void * operator	new( size_t );
 	void operator delete( void * );
+#endif
 
 	Class();
 	virtual ~Class();

@@ -1125,6 +1125,8 @@ CLASS_DECLARATION( Class, Event, NULL )
 	{ NULL, NULL }
 };
 
+#ifndef _DEBUG_MEM
+
 /*
 =======================
 new Event
@@ -1144,6 +1146,8 @@ void Event::operator delete( void *ptr )
 {
 	Event_allocator.Free( ptr );
 }
+
+#endif
 
 /*
 =======================

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 #include "../skeletor/skeletor.h"
 #include "tiki_cache.h"
+#include "dbgheap.h"
 
 /*
 ===============
