@@ -150,6 +150,8 @@ void ConvertToFKPositionName( const char *boneName, char *rotChannelName );
 void AddToBounds( SkelVec3 *bounds, SkelVec3 *newBounds );
 #ifdef __cplusplus
 void BoneGetFrames( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t *animData, skelChannelList_c *boneList, int boneNum, Container< skanAnimFrame >& outFrames );
+void TIKI_GetSkelAnimFrameInternal2(dtiki_t *tiki, skelBoneCache_t *bones, skelAnimStoreFrameList_c *frameList, float *radius, vec3_t *mins, vec3_t *maxes);
+void SkeletorGetAnimFrame2(skelHeaderGame_t *skelmodel, skelChannelList_c *boneList, skelBoneCache_t *bones, skelAnimStoreFrameList_c *frameList, float *radius, vec3_t *mins, vec3_t *maxes);
 #endif
 void SkeletorGetAnimFrame( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t *animData, skelChannelList_c *boneList, skelBoneCache_t *bones, int frame, float *radius, vec3_t *mins, vec3_t *maxes );
 void TIKI_GetSkelAnimFrame( dtiki_t *tiki, skelBoneCache_t *bones, float *radius, vec3_t *mins, vec3_t *maxes );

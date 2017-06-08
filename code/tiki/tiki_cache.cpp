@@ -305,8 +305,12 @@ void TIKI_FreeAll()
 	tiki_loading = true;
 	if( skelcache )
 	{
-		for( i = 0; i < cache_maxskel; i++ ) {
-			TIKI_FreeSkel( i );
+		for( i = 0; i < cache_maxskel; i++ )
+		{
+			if (skelcache->skel)
+			{
+				TIKI_FreeSkel(i);
+			}
 		}
 	}
 }

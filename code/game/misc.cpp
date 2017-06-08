@@ -2534,6 +2534,7 @@ Event EV_VehiclePoint_SetSpawnFlags
 CLASS_DECLARATION( Waypoint, VehiclePoint, NULL )
 {
 	{ &EV_VehiclePoint_SetSpawnFlags,				&VehiclePoint::SetSpawnFlags },
+	{ NULL, NULL }
 };
 
 void VehiclePoint::SetSpawnFlags

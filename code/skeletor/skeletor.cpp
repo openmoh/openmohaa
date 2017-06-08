@@ -546,6 +546,83 @@ void BoneGetFrames( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t *animD
 	}
 }
 
+void SkeletorGetAnimFrame2(skelHeaderGame_t *skelmodel, skelChannelList_c *boneList, skelBoneCache_t *bones, skelAnimStoreFrameList_c *frameList, float *radius, vec3_t *mins, vec3_t *maxes)
+{
+	int numBones;
+	skelBone_Base **bone;
+	int i;
+	skelAnimFrame_t *newFrame;
+
+	numBones = skelmodel->numBones;
+
+	bone = (skelBone_Base **)Skel_Alloc(sizeof(skelBone_Base *) * numBones);
+	memset(bone, 0, sizeof(skelBone_Base *) * numBones);
+
+	SkeletorLoadBonesFromBuffer(boneList, skelmodel, bone);
+
+	for (i = 0; i < numBones; i++)
+	{
+		bone[i]->m_controller = NULL;
+		bone[i]->m_isDirty = true;
+	}
+
+	newFrame = (skelAnimFrame_t *)Skel_Alloc(sizeof(skelAnimFrame_t) + sizeof(SkelMat4) * numBones);
+	newFrame->radius = 0;
+	newFrame->bounds[0] = SkelVec3();
+	newFrame->bounds[1] = SkelVec3();
+
+	for (i = 0; i < numBones; i++)
+	{
+		//skelBone_Base *Parent = bone[ i ]->Parent();
+		//bone[ i ]->SetParent( &skeletor_c::m_worldBone );
+		newFrame->bones[i] = bone[i]->GetTransform(frameList);
+		//bone[ i ]->SetParent( Parent );
+	}
+
+	for (i = 0; i < numBones; i++)
+	{
+		VectorCopy(newFrame->bones[i][3], bones[i].offset);
+		bones[i].matrix[0][0] = newFrame->bones[i][0][0];
+		bones[i].matrix[0][1] = newFrame->bones[i][0][1];
+		bones[i].matrix[0][2] = newFrame->bones[i][0][2];
+		bones[i].matrix[0][3] = 0;
+		bones[i].matrix[1][0] = newFrame->bones[i][1][0];
+		bones[i].matrix[1][1] = newFrame->bones[i][1][1];
+		bones[i].matrix[1][2] = newFrame->bones[i][1][2];
+		bones[i].matrix[1][3] = 0;
+		bones[i].matrix[2][0] = newFrame->bones[i][2][0];
+		bones[i].matrix[2][1] = newFrame->bones[i][2][1];
+		bones[i].matrix[2][2] = newFrame->bones[i][2][2];
+		bones[i].matrix[2][3] = 0;
+	}
+
+	for (i = 0; i < numBones; i++)
+	{
+		delete bone[i];
+	}
+
+	Skel_Free(bone);
+
+	if (radius) {
+		*radius = newFrame->radius;
+	}
+
+	if (mins || maxes)
+	{
+		for (i = 0; i < 3; i++)
+		{
+			if (mins) {
+				(*mins)[i] = newFrame->bounds[0][i];
+			}
+			if (maxes) {
+				(*maxes)[i] = newFrame->bounds[1][i];
+			}
+		}
+	}
+
+	Skel_Free(newFrame);
+}
+
 void SkeletorGetAnimFrame( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t *animData, skelChannelList_c *boneList, skelBoneCache_t *bones, int frame, float *radius, vec3_t *mins, vec3_t *maxes )
 {
 	int numBones;
@@ -555,11 +632,23 @@ void SkeletorGetAnimFrame( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t
 	skelAnimFrame_t *newFrame;
 
 	frameList.actionWeight = animData ? 1.0 : 0;
-	frameList.numMovementFrames = 0;
-	frameList.numActionFrames = 1;
-	frameList.m_blendInfo[ 32 ].weight = 1.0;
-	frameList.m_blendInfo[ 32 ].pAnimationData = animData;
-	frameList.m_blendInfo[ 32 ].frame = frame;
+
+	if (!animData->bHasDelta)
+	{
+		frameList.numMovementFrames = 0;
+		frameList.numActionFrames = 1;
+		frameList.m_blendInfo[32].weight = 1.0;
+		frameList.m_blendInfo[32].pAnimationData = animData;
+		frameList.m_blendInfo[32].frame = frame;
+	}
+	else
+	{
+		frameList.numMovementFrames = 1;
+		frameList.numActionFrames = 0;
+		frameList.m_blendInfo[0].weight = 1.0;
+		frameList.m_blendInfo[0].pAnimationData = animData;
+		frameList.m_blendInfo[0].frame = frame;
+	}
 	numBones = skelmodel->numBones;
 
 	bone = ( skelBone_Base ** )Skel_Alloc( sizeof( skelBone_Base * ) * numBones );
@@ -648,6 +737,104 @@ void SkeletorGetAnimFrame( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t
 	Skel_Free( newFrame );
 }
 
+void TIKI_GetSkelAnimFrameInternal2(dtiki_t *tiki, skelBoneCache_t *bones, skelAnimStoreFrameList_c* frameList, float *radius, vec3_t *mins, vec3_t *maxes)
+{
+	//int boneNum;
+	int numBones;
+	skelBone_Base **bone;
+	int i;
+	skelAnimFrame_t *newFrame;
+	//int realAnimIndex;
+	//skanBlendInfo *frame;
+	skelHeaderGame_t *skelmodel;
+
+	numBones = tiki->m_boneList.NumChannels();
+
+	bone = (skelBone_Base **)Skel_Alloc(sizeof(skelBone_Base *) * numBones);
+	memset(bone, 0, sizeof(skelBone_Base *) * numBones);
+
+	for (i = 0; i < tiki->numMeshes; i++)
+	{
+		skelmodel = TIKI_GetSkel(tiki->mesh[i]);
+		SkeletorLoadBonesFromBuffer(&tiki->m_boneList, skelmodel, bone);
+	}
+
+	for (i = 0; i < numBones; i++)
+	{
+		bone[i]->m_controller = NULL;
+		bone[i]->m_isDirty = true;
+	}
+
+	newFrame = (skelAnimFrame_t *)Skel_Alloc(sizeof(skelAnimFrame_t) + sizeof(SkelMat4) * numBones);
+
+	/*
+	if (animData)
+	{
+		if (animData->m_frame)
+		{
+			newFrame->radius = animData->m_frame->radius;
+		}
+		else
+		{
+			newFrame->radius = 0;
+		}
+
+		newFrame->bounds[0] = animData->bounds[0];
+		newFrame->bounds[1] = animData->bounds[1];
+	}
+	else
+	*/
+	{
+		newFrame->radius = 0;
+		newFrame->bounds[0] = SkelVec3();
+		newFrame->bounds[1] = SkelVec3();
+	}
+
+	for (i = 0; i < numBones; i++)
+	{
+		newFrame->bones[i] = bone[i]->GetTransform(frameList);
+	}
+
+	for (i = 0; i < numBones; i++)
+	{
+		delete bone[i];
+	}
+
+	Skel_Free(bone);
+
+	for (i = 0; i < numBones; i++)
+	{
+		VectorCopy(newFrame->bones[i][3], bones[i].offset);
+		bones[i].matrix[0][0] = newFrame->bones[i][0][0];
+		bones[i].matrix[0][1] = newFrame->bones[i][0][1];
+		bones[i].matrix[0][2] = newFrame->bones[i][0][2];
+		bones[i].matrix[0][3] = 0;
+		bones[i].matrix[1][0] = newFrame->bones[i][1][0];
+		bones[i].matrix[1][1] = newFrame->bones[i][1][1];
+		bones[i].matrix[1][2] = newFrame->bones[i][1][2];
+		bones[i].matrix[1][3] = 0;
+		bones[i].matrix[2][0] = newFrame->bones[i][2][0];
+		bones[i].matrix[2][1] = newFrame->bones[i][2][1];
+		bones[i].matrix[2][2] = newFrame->bones[i][2][2];
+		bones[i].matrix[2][3] = 0;
+	}
+
+	if (radius) {
+		*radius = newFrame->radius;
+	}
+
+	if (mins && maxes)
+	{
+		for (i = 0; i < 3; i++)
+		{
+			(*mins)[i] = newFrame->bounds[0][i];
+			(*maxes)[i] = newFrame->bounds[1][i];
+		}
+	}
+
+	Skel_Free(newFrame);
+}
+
 void TIKI_GetSkelAnimFrameInternal( dtiki_t *tiki, skelBoneCache_t *bones, skelAnimDataGameHeader_t *animData, int frame, float *radius, vec3_t *mins, vec3_t *maxes )
 {
 	//int boneNum;
@@ -661,11 +848,22 @@ void TIKI_GetSkelAnimFrameInternal( dtiki_t *tiki, skelBoneCache_t *bones, skelA
 	skelHeaderGame_t *skelmodel;
 
 	frameList.actionWeight = animData ? 1.0 : 0;
-	frameList.numMovementFrames = 0;
-	frameList.numActionFrames = 1;
-	frameList.m_blendInfo[ 32 ].weight = 1.0;
-	frameList.m_blendInfo[ 32 ].pAnimationData = animData;
-	frameList.m_blendInfo[ 32 ].frame = frame;
+	if (!animData || !animData->bHasDelta)
+	{
+		frameList.numMovementFrames = 0;
+		frameList.numActionFrames = 1;
+		frameList.m_blendInfo[32].weight = 1.0;
+		frameList.m_blendInfo[32].pAnimationData = animData;
+		frameList.m_blendInfo[32].frame = frame;
+	}
+	else
+	{
+		frameList.numMovementFrames = 1;
+		frameList.numActionFrames = 0;
+		frameList.m_blendInfo[0].weight = 1.0;
+		frameList.m_blendInfo[0].pAnimationData = animData;
+		frameList.m_blendInfo[0].frame = frame;
+	}
 	numBones = tiki->m_boneList.NumChannels();
 
 	bone = ( skelBone_Base ** )Skel_Alloc( sizeof( skelBone_Base * ) * numBones );

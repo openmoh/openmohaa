@@ -1555,6 +1555,8 @@ Entity::Entity()
 	m_iNumBlockedPaths = 0;
 	m_BlockedPaths = NULL;
 
+	m_bHintRequiresLookAt = true;
+
 	// Misc
 	m_bBindChilds = false;
 }
@@ -6806,103 +6808,41 @@ void Entity::SetDepthHack( Event *ev )
 	}
 }
 
-void Entity::SetHintRequireLookAt( Event *ev )
+void Entity::ProcessHint(gentity_t* client, bool bShow)
 {
-	// FIXME: stub
-	STUB();
-#if 0
-	qboolean lookat = ev->GetBoolean( 1 );
-	hintstring_t * hint_string = NULL;
+	Player* player = (Player*)client->entity;
 
-	for( int i = 0; i < hintstrings.NumObjects(); i++ )
+	if (client->client != NULL)
 	{
-		hintstring_t * index = hintstrings[ i ];
+		qboolean is_hidden = bShow && (edict->s.renderfx & RF_INVISIBLE);
+		qboolean can_see = bShow && player->canUse(this, m_bHintRequiresLookAt); //( player->IsTouching( this ) || player->CanSee( this, string->fov, 94 ) == 1 );
 
-		if( index->ent_num == entnum )
+		if (bShow && can_see && !is_hidden && !player->IsDead() && !player->IsSpectator())
 		{
-			if( lookat && index->string[ 0 ] == '\0' )
+			if (sv_reborn->integer)
 			{
-				hintstrings.RemoveObject( index );
-				delete index;
-			} else {
-				index->needlookat = lookat;
+				gi.MSG_SetClient(client - g_entities);
+
+				// Send the hint string once
+				gi.MSG_StartCGM(CGM_HINTSTRING);
+					gi.MSG_WriteString(m_HintString);
+				gi.MSG_EndCGM();
 			}
-			return;
+		}
+		else
+		{
 		}
 	}
+}
 
-	if( lookat ) {
-		return;
-	}
-
-	hint_string = new hintstring_t;
-	hint_string->ent_num = entnum;
-	hint_string->needlookat = lookat;
-	hint_string->changed = false;
-
-	hintstrings.AddObject( hint_string );
-#endif
+void Entity::SetHintRequireLookAt( Event *ev )
+{
+	m_bHintRequiresLookAt = ev->GetBoolean(1);
 }
 
 void Entity::SetHintString( Event * ev )
 {
-	// FIXME: stub
-	STUB();
-#if 0
-	str string = ev->GetString( 1 );
-	hintstring_t * hint_string = NULL;
-	qboolean isInvalid = !string;
-
-	if( !sv_reborn->integer && !isInvalid ) {
-		string.replace( "&&1", "Your use key" );
-	}
-
-	for( int i = 0; i < hintstrings.NumObjects(); i++ )
-	{
-		hintstring_t * index = hintstrings[ i ];
-
-		if( index->ent_num == entnum )
-		{
-			if( isInvalid )
-			{
-				index->string[ 0 ] = '\0';
-
-				ProcessHint( index, true );
-
-				if( !index->needlookat ) {
-					return;
-				}
-
-				hintstrings.RemoveObject( index );
-				delete index;
-
-				return;
-			}
-
-			if( index->string[ 0 ] != '\0' ) {
-				index->changed = true;
-			}
-
-			strcpy( index->string, string );
-
-			return;
-		}
-	}
-
-	if( isInvalid ) {
-		return;
-	}
-
-	hint_string = new hintstring_t;
-	hint_string->ent_num = entnum;
-	hint_string->needlookat = true;
-	hint_string->changed = false;
-
-	strcpy( hint_string->string, string );
-	strcpy( hint_string->previous, string );
-
-	hintstrings.AddObject( hint_string );
-#endif
+	m_HintString = ev->GetString(1);
 }
 
 void Entity::SetShader

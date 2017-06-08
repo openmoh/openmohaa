@@ -4156,6 +4156,8 @@ Player::Player()
 	m_iNumRightLegShots = 0;
 	m_iNumTorsoShots = 0;
 
+	m_bShowingHint = false;
+
 	m_sPerferredWeaponOverride = "";
 
 	SetTargetName( "player" );
@@ -4346,6 +4348,8 @@ void Player::InitClient( void )
 	client->ps.commandTime = level.svsTime;
 
 	gi.SendServerCommand( client - game.clients, "stopwatch 0 0" );
+
+	m_bShowingHint = false;
 }
 
 void Player::InitState
@@ -6449,6 +6453,37 @@ void Player::ClientMove
 {
 	pmove_t pm;
 	Vector move;
+
+	int touch[MAX_GENTITIES];
+	int num = getUseableEntities(touch, MAX_GENTITIES, true);
+	bool bHintShown = false;
+
+	for (int i = 0; i < num; i++)
+	{
+		Entity* entity = g_entities[touch[i]].entity;
+		if (entity && entity->m_HintString.length())
+		{
+			entity->ProcessHint(edict, true);
+			bHintShown = true;
+			m_bShowingHint = true;
+			break;
+		}
+	}
+
+	if (!bHintShown && m_bShowingHint)
+	{
+		m_bShowingHint = false;
+
+		if (sv_reborn->integer)
+		{
+			gi.MSG_SetClient(edict - g_entities);
+
+			// Send the hint string once
+			gi.MSG_StartCGM(CGM_HINTSTRING);
+				gi.MSG_WriteString("");
+			gi.MSG_EndCGM();
+		}
+	}
 
 	oldorigin = origin;
 

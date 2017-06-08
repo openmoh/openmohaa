@@ -85,6 +85,8 @@ ScriptEvent scriptedEvents[ SE_MAX ];
 
 MEM_BlockAlloc< ScriptThread, MEM_BLOCKSIZE > ScriptThread_allocator;
 
+FlagList flags;
+
 CLASS_DECLARATION( Class, ScriptEvent, NULL )
 {
 	{ NULL, NULL }
@@ -4450,7 +4452,18 @@ void ScriptThread::FlagClear
 	)
 
 {
-	// FIXME: TODO
+	str name;
+	Flag *flag;
+
+	name = ev->GetString(1);
+
+	flag = flags.FindFlag(name);
+
+	if (flag == NULL) {
+		ScriptError("Invalid flag '%s'\n", name.c_str());
+	}
+
+	delete flag;
 }
 
 void ScriptThread::FlagInit
@@ -4459,7 +4472,22 @@ void ScriptThread::FlagInit
 	)
 
 {
-	// FIXME: TODO
+	str name;
+	Flag *flag;
+
+	name = ev->GetString(1);
+
+	flag = flags.FindFlag(name);
+
+	if (flag != NULL)
+	{
+		flag->Reset();
+		return;
+	}
+
+	flag = new Flag;
+	flag->bSignaled = false;
+	strcpy(flag->flagName, name);
 }
 
 void ScriptThread::FlagSet
@@ -4468,7 +4496,18 @@ void ScriptThread::FlagSet
 	)
 
 {
-	// FIXME: TODO
+	str name;
+	Flag *flag;
+
+	name = ev->GetString(1);
+
+	flag = flags.FindFlag(name);
+
+	if (flag == NULL) {
+		ScriptError("Invalid flag '%s'.\n", name.c_str());
+	}
+
+	flag->Set();
 }
 
 void ScriptThread::FlagWait
@@ -4477,7 +4516,18 @@ void ScriptThread::FlagWait
 	)
 
 {
-	// FIXME: TODO
+	str name;
+	Flag *flag;
+
+	name = ev->GetString(1);
+
+	flag = flags.FindFlag(name);
+
+	if (flag == NULL) {
+		ScriptError("Invalid flag '%s'.\n", name.c_str());
+	}
+
+	flag->Wait(this);
 }
 
 void ScriptThread::Lock
@@ -5449,7 +5499,7 @@ void ScriptThread::Abs
 	)
 
 {
-	ev->AddFloat( abs( ev->GetFloat( 1 ) ) );
+	ev->AddFloat(fabs( ev->GetFloat( 1 ) ) );
 }
 
 void ScriptThread::ServerStufftext
@@ -9306,6 +9356,83 @@ void LightStyleClass::Archive( Archiver &arc )
 			gi.SetLightStyle( i, styles[ i ].c_str() );
 		}
 	}
+}
+
+
+Flag *FlagList::FindFlag(const char * name)
+{
+	for (int i = 0; i < m_Flags.NumObjects(); i++)
+	{
+		Flag * index = m_Flags[i];
+
+		// found the flag
+		if (strcmp(index->flagName, name) == 0) {
+			return index;
+		}
+	}
+
+	return NULL;
+}
+
+void FlagList::AddFlag(Flag *flag)
+{
+	m_Flags.AddObject(flag);
+}
+
+void FlagList::RemoveFlag(Flag *flag)
+{
+	m_Flags.RemoveObject(flag);
+}
+
+Flag::Flag()
+{
+	flags.AddFlag(this);
+}
+
+Flag::~Flag()
+{
+	flags.RemoveFlag(this);
+
+	m_WaitList.FreeObjectList();
+}
+
+void Flag::Reset()
+{
+	bSignaled = false;
+}
+
+void Flag::Set()
+{
+	// Don't signal again
+	if (bSignaled) {
+		return;
+	}
+
+	bSignaled = true;
+
+	for (int i = 0; i < m_WaitList.NumObjects(); i++)
+	{
+		ScriptVM *Thread = m_WaitList[i];
+
+		if (Thread->state != STATE_DESTROYED && Thread->m_Thread != NULL) {
+			Thread->m_Thread->StoppedWaitFor(STRING_EMPTY, false);
+		}
+	}
+
+	// Clear the list
+	m_WaitList.FreeObjectList();
+}
+
+void Flag::Wait(ScriptThread *Thread)
+{
+	// Don't wait if it's signaled
+	if (bSignaled) {
+		return;
+	}
+
+	Thread->StartedWaitFor();
+
+	m_WaitList.AddObject(Thread->m_ScriptVM);
 }
 
 #endif

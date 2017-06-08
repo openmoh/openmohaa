@@ -270,7 +270,9 @@ public:
 
 	// miscellaneous
 	qboolean			m_bBindChilds;
-
+	bool m_bHintRequiresLookAt;
+	str m_HintString;
+	
 	Entity();
 	virtual				~Entity();
 
@@ -576,6 +578,7 @@ public:
 	virtual qboolean	BlocksAIMovement( void ) const;
 	virtual qboolean	AIDontFace( void ) const;
 
+	void ProcessHint(gentity_t* client, bool bShow);
 	void				GetZone( Event *ev );
 	void				IsInZone( Event *ev );
 	void				SetDepthHack( Event *ev );

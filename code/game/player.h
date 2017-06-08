@@ -281,6 +281,8 @@ private:
 	int		m_iInfoClientHealth;
 	float	m_fInfoClientTime;
 
+	bool m_bShowingHint;
+
 public:
 	int m_iNumObjectives;
 	int m_iObjectivesCompleted;

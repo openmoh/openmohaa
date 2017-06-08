@@ -285,12 +285,12 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 
 	PM_GetMove( &fmove, &smove );
 
-	max = abs( fmove );
-	if( abs( smove ) > max ) {
-		max = abs( smove );
+	max = fabs( fmove );
+	if(fabs( smove ) > max ) {
+		max = fabs( smove );
 	}
-	if ( abs( cmd->upmove ) > max ) {
-		max = abs( cmd->upmove );
+	if (fabs( cmd->upmove ) > max ) {
+		max = fabs( cmd->upmove );
 	}
 	if ( !max ) {
 		return 0;

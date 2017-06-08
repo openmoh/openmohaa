@@ -914,6 +914,9 @@ void TIKI_FreeSkelCache( skelcache_t *cache )
 
 	TIKI_Free( cache->skel );
 	cache->skel = NULL;
+	cache->size = 0;
+	cache->path[0] = 0;
+	cache->numuses = 0;
 }
 
 /*
