@@ -3035,9 +3035,9 @@ bool Listener::ProcessEvent( Event *ev )
 	if( !ev->eventnum )
 	{
 #ifdef _DEBUG
-		EVENT_Printf( "^~^~^ Failed execution of event '%s' for class '%s'\n", ev->name.c_str(), c->classname );
+		EVENT_DPrintf( "^~^~^ Failed execution of event '%s' for class '%s'\n", ev->name.c_str(), c->classname );
 #else
-		EVENT_Printf( "^~^~^ Failed execution of event for class '%s'\n", c->classname );
+		EVENT_DPrintf( "^~^~^ Failed execution of event for class '%s'\n", c->classname );
 #endif
 
 		delete ev;
