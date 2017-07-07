@@ -149,6 +149,7 @@ static bool UseField( void )
 <C_COMMENT>.					{ ; }
 "*/"							{ Compiler.CompileError( parsedata.pos - yyleng, "'*/' found outside of comment" ); }
 
+\\[\r\n]+						{ ; }
 "//"[^\r\n]*					{ if( prev_yylex != TOKEN_EOL ) YYLEX( TOKEN_EOL ); }
 
 <VARIABLES>[\r\n]*				{ BEGIN( INITIAL ); YYLEX( TOKEN_EOL ); }
