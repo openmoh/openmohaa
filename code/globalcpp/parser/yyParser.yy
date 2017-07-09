@@ -43,7 +43,7 @@ extern yyparsedata parsedata;
 
 %error-verbose
 
-%expect 304
+%expect 306
 
 %token END	0
 %token TOKEN_EOL
