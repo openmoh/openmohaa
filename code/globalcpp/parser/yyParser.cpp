@@ -597,16 +597,16 @@ static const yytype_int8 yyrhs[] =
 static const yytype_uint16 yyrline[] =
 {
        0,   111,   111,   115,   117,   118,   122,   123,   124,   125,
-     126,   127,   128,   129,   130,   135,   136,   137,   138,   139,
-     140,   142,   144,   145,   146,   147,   148,   149,   150,   151,
-     152,   153,   154,   155,   156,   157,   161,   165,   166,   167,
-     168,   169,   170,   171,   172,   173,   174,   175,   176,   177,
-     178,   179,   180,   181,   182,   183,   184,   185,   186,   190,
-     192,   194,   195,   196,   197,   198,   199,   203,   204,   205,
-     209,   210,   214,   215,   216,   220,   221,   222,   223,   224,
-     225,   226,   227,   228,   229,   230,   231,   232,   233,   234,
-     235,   236,   237,   241,   242,   246,   250,   251,   252,   256,
-     257,   261,   262
+     126,   127,   128,   129,   130,   139,   140,   141,   142,   143,
+     144,   146,   148,   149,   150,   151,   152,   153,   154,   155,
+     156,   157,   158,   159,   160,   161,   165,   169,   170,   171,
+     172,   173,   174,   175,   176,   177,   178,   179,   180,   181,
+     182,   183,   184,   185,   186,   187,   188,   189,   190,   194,
+     196,   198,   199,   200,   201,   202,   203,   207,   208,   209,
+     213,   214,   218,   219,   220,   224,   225,   226,   227,   228,
+     229,   230,   231,   232,   233,   234,   235,   236,   237,   238,
+     239,   240,   241,   245,   246,   250,   254,   255,   256,   260,
+     261,   265,   266
 };
 #endif
 
@@ -1926,487 +1926,487 @@ yyreduce:
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 135 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 139 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_do, (yyvsp[(3) - (6)].s.val), (yyvsp[(6) - (6)].s.val), YYLLOC ); }
     break;
 
   case 16:
 /* Line 1792 of yacc.c  */
-#line 136 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 140 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_catch, (yyvsp[(3) - (7)].s.val), (yyvsp[(7) - (7)].s.val), YYLLOC ); }
     break;
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 137 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 141 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_switch, (yyvsp[(2) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 138 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 142 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_break, YYLLOC ); }
     break;
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 139 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 143 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_continue, YYLLOC ); }
     break;
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 140 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 144 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_cmd, (yyvsp[(1) - (2)].s).val, node1( sval_none, (yyvsp[(2) - (2)].s.val) ), node_pos( (yyvsp[(1) - (2)].s).sourcePos ) ); }
     break;
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 142 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 146 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_cmd_method, (yyvsp[(1) - (3)].s.val), (yyvsp[(2) - (3)].s).val, node1( sval_none, (yyvsp[(3) - (3)].s.val) ), node_pos( (yyvsp[(2) - (3)].s).sourcePos ) ); }
     break;
 
   case 22:
 /* Line 1792 of yacc.c  */
-#line 144 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 148 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ); }
     break;
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 145 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 149 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), node4( sval_operation, node1b( OP_BIN_PLUS ), (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ), YYLLOC ); }
     break;
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 146 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 150 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), node4( sval_operation, node1b( OP_BIN_MINUS ), (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ), YYLLOC ); }
     break;
 
   case 25:
 /* Line 1792 of yacc.c  */
-#line 147 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 151 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), node4( sval_operation, node1b( OP_BIN_MULTIPLY ), (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ), YYLLOC ); }
     break;
 
   case 26:
 /* Line 1792 of yacc.c  */
-#line 148 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 152 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), node4( sval_operation, node1b( OP_BIN_DIVIDE ), (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ), YYLLOC ); }
     break;
 
   case 27:
 /* Line 1792 of yacc.c  */
-#line 149 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 153 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), node4( sval_operation, node1b( OP_BIN_PERCENTAGE ), (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ), YYLLOC ); }
     break;
 
   case 28:
 /* Line 1792 of yacc.c  */
-#line 150 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 154 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), node4( sval_operation, node1b( OP_BIN_BITWISE_AND ), (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ), YYLLOC ); }
     break;
 
   case 29:
 /* Line 1792 of yacc.c  */
-#line 151 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 155 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), node4( sval_operation, node1b( OP_BIN_BITWISE_EXCL_OR ), (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ), YYLLOC ); }
     break;
 
   case 30:
 /* Line 1792 of yacc.c  */
-#line 152 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 156 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), node4( sval_operation, node1b( OP_BIN_BITWISE_OR ), (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ), YYLLOC ); }
     break;
 
   case 31:
 /* Line 1792 of yacc.c  */
-#line 153 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 157 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), node4( sval_operation, node1b( OP_BIN_SHIFT_LEFT ), (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ), YYLLOC ); }
     break;
 
   case 32:
 /* Line 1792 of yacc.c  */
-#line 154 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 158 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (3)].s.val), node4( sval_operation, node1b( OP_BIN_SHIFT_RIGHT ), (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ), YYLLOC ); }
     break;
 
   case 33:
 /* Line 1792 of yacc.c  */
-#line 155 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 159 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (2)].s.val), node2( sval_func1, node1b( OP_UN_INC ), (yyvsp[(1) - (2)].s.val) ), YYLLOC ); }
     break;
 
   case 34:
 /* Line 1792 of yacc.c  */
-#line 156 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 160 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_assignment, (yyvsp[(1) - (2)].s.val), node2( sval_func1, node1b( OP_UN_DEC ), (yyvsp[(1) - (2)].s.val) ), YYLLOC ); }
     break;
 
   case 36:
 /* Line 1792 of yacc.c  */
-#line 161 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 165 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_statement_list, (yyvsp[(3) - (5)].s.val) ); }
     break;
 
   case 37:
 /* Line 1792 of yacc.c  */
-#line 165 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 169 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_and, (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 38:
 /* Line 1792 of yacc.c  */
-#line 166 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 170 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_or, (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 39:
 /* Line 1792 of yacc.c  */
-#line 167 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 171 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_BITWISE_AND ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 40:
 /* Line 1792 of yacc.c  */
-#line 168 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 172 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_BITWISE_EXCL_OR ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 41:
 /* Line 1792 of yacc.c  */
-#line 169 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 173 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_BITWISE_OR ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 42:
 /* Line 1792 of yacc.c  */
-#line 170 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 174 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_EQUALITY ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 43:
 /* Line 1792 of yacc.c  */
-#line 171 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 175 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_INEQUALITY ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 44:
 /* Line 1792 of yacc.c  */
-#line 172 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 176 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_LESS_THAN ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 45:
 /* Line 1792 of yacc.c  */
-#line 173 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 177 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_GREATER_THAN ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 46:
 /* Line 1792 of yacc.c  */
-#line 174 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 178 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_LESS_THAN_OR_EQUAL ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 47:
 /* Line 1792 of yacc.c  */
-#line 175 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 179 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_GREATER_THAN_OR_EQUAL ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 48:
 /* Line 1792 of yacc.c  */
-#line 176 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 180 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_PLUS ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 49:
 /* Line 1792 of yacc.c  */
-#line 177 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 181 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_MINUS ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 50:
 /* Line 1792 of yacc.c  */
-#line 178 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 182 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_MULTIPLY ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 51:
 /* Line 1792 of yacc.c  */
-#line 179 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 183 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_DIVIDE ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 52:
 /* Line 1792 of yacc.c  */
-#line 180 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 184 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_PERCENTAGE ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 53:
 /* Line 1792 of yacc.c  */
-#line 181 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 185 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_SHIFT_LEFT ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 54:
 /* Line 1792 of yacc.c  */
-#line 182 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 186 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_SHIFT_RIGHT ), (yyvsp[(1) - (4)].s.val), (yyvsp[(4) - (4)].s.val), YYLLOC ); }
     break;
 
   case 55:
 /* Line 1792 of yacc.c  */
-#line 183 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 187 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_ifelse, (yyvsp[(1) - (5)].s.val), (yyvsp[(3) - (5)].s.val), (yyvsp[(5) - (5)].s.val), YYLLOC ); }
     break;
 
   case 58:
 /* Line 1792 of yacc.c  */
-#line 186 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 190 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_store_string, (yyvsp[(1) - (1)].s).val ); }
     break;
 
   case 59:
 /* Line 1792 of yacc.c  */
-#line 190 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 194 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_cmd_default_ret, (yyvsp[(1) - (2)].s).val, node1( sval_none, (yyvsp[(2) - (2)].s.val) ), node_pos( (yyvsp[(1) - (2)].s).sourcePos ) ); }
     break;
 
   case 60:
 /* Line 1792 of yacc.c  */
-#line 192 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 196 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_cmd_method_ret, (yyvsp[(1) - (3)].s.val), (yyvsp[(2) - (3)].s).val, node1( sval_none, (yyvsp[(3) - (3)].s.val) ), node_pos( (yyvsp[(2) - (3)].s).sourcePos ) ); }
     break;
 
   case 61:
 /* Line 1792 of yacc.c  */
-#line 194 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 198 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_MINUS ), (yyvsp[(2) - (2)].s.val), YYLLOC ); }
     break;
 
   case 62:
 /* Line 1792 of yacc.c  */
-#line 195 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 199 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_COMPLEMENT ), (yyvsp[(2) - (2)].s.val), YYLLOC ); }
     break;
 
   case 63:
 /* Line 1792 of yacc.c  */
-#line 196 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 200 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node2( sval_not, (yyvsp[(2) - (2)].s.val), YYLLOC ); }
     break;
 
   case 64:
 /* Line 1792 of yacc.c  */
-#line 197 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 201 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_constarray, node2( sval_store_string, (yyvsp[(1) - (3)].s).val, node_pos( (yyvsp[(1) - (3)].s).sourcePos ) ), (yyvsp[(3) - (3)].s.val), YYLLOC ); }
     break;
 
   case 65:
 /* Line 1792 of yacc.c  */
-#line 198 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 202 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_constarray, (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ); }
     break;
 
   case 66:
 /* Line 1792 of yacc.c  */
-#line 199 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 203 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_makearray, (yyvsp[(3) - (5)].s.val) ); }
     break;
 
   case 67:
 /* Line 1792 of yacc.c  */
-#line 203 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 207 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node0( sval_none ); }
     break;
 
   case 68:
 /* Line 1792 of yacc.c  */
-#line 204 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 208 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = append_node( (yyvsp[(1) - (2)].s.val), (yyvsp[(2) - (2)].s.val) ); }
     break;
 
   case 69:
 /* Line 1792 of yacc.c  */
-#line 205 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 209 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = linked_list_end( (yyvsp[(1) - (1)].s.val) ); }
     break;
 
   case 70:
 /* Line 1792 of yacc.c  */
-#line 209 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 213 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = append_node( (yyvsp[(1) - (2)].s.val), (yyvsp[(2) - (2)].s.val) ); }
     break;
 
   case 71:
 /* Line 1792 of yacc.c  */
-#line 210 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 214 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = linked_list_end( (yyvsp[(1) - (1)].s.val) ); }
     break;
 
   case 73:
 /* Line 1792 of yacc.c  */
-#line 215 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 219 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_store_string, (yyvsp[(1) - (1)].s).val ); }
     break;
 
   case 74:
 /* Line 1792 of yacc.c  */
-#line 216 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 220 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_constarray, (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s.val), YYLLOC ); }
     break;
 
   case 75:
 /* Line 1792 of yacc.c  */
-#line 220 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 224 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_TARGETNAME ), (yyvsp[(3) - (4)].s.val), YYLLOC ); }
     break;
 
   case 76:
 /* Line 1792 of yacc.c  */
-#line 221 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 225 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_TARGETNAME ), node1( sval_store_string, (yyvsp[(2) - (2)].s).val ), YYLLOC ); }
     break;
 
   case 77:
 /* Line 1792 of yacc.c  */
-#line 222 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 226 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_TARGETNAME ), node1( sval_store_string, (yyvsp[(2) - (2)].s).val ), YYLLOC ); }
     break;
 
   case 78:
 /* Line 1792 of yacc.c  */
-#line 223 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 227 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_field, (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s).val, node_pos( (yyvsp[(3) - (3)].s).sourcePos ) ); }
     break;
 
   case 79:
 /* Line 1792 of yacc.c  */
-#line 224 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 228 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_field, (yyvsp[(1) - (3)].s.val), (yyvsp[(3) - (3)].s).val, node_pos( (yyvsp[(3) - (3)].s).sourcePos ) ); }
     break;
 
   case 80:
 /* Line 1792 of yacc.c  */
-#line 225 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 229 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_SIZE ), (yyvsp[(1) - (3)].s.val), YYLLOC ); }
     break;
 
   case 81:
 /* Line 1792 of yacc.c  */
-#line 226 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 230 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_array, (yyvsp[(1) - (4)].s.val), (yyvsp[(3) - (4)].s.val), (yyvsp[(1) - (4)].s.val) ); }
     break;
 
   case 82:
 /* Line 1792 of yacc.c  */
-#line 227 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 231 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_store_string, (yyvsp[(1) - (1)].s).val ); }
     break;
 
   case 84:
 /* Line 1792 of yacc.c  */
-#line 229 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 233 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node4( sval_calc_vector, (yyvsp[(2) - (5)].s.val), (yyvsp[(3) - (5)].s.val), (yyvsp[(4) - (5)].s.val), YYLLOC ); }
     break;
 
   case 85:
 /* Line 1792 of yacc.c  */
-#line 230 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 234 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node2( sval_store_method, (yyvsp[(1) - (1)].s).val, YYLLOC ); }
     break;
 
   case 86:
 /* Line 1792 of yacc.c  */
-#line 231 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 235 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = (yyvsp[(2) - (3)].s.val); }
     break;
 
   case 87:
 /* Line 1792 of yacc.c  */
-#line 232 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 236 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node0( sval_none ); }
     break;
 
   case 88:
 /* Line 1792 of yacc.c  */
-#line 233 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 237 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_MINUS ), (yyvsp[(2) - (2)].s.val), YYLLOC ); }
     break;
 
   case 89:
 /* Line 1792 of yacc.c  */
-#line 234 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 238 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_COMPLEMENT ), (yyvsp[(2) - (2)].s.val), YYLLOC ); }
     break;
 
   case 90:
 /* Line 1792 of yacc.c  */
-#line 235 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 239 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node2( sval_not, (yyvsp[(2) - (2)].s.val), YYLLOC ); }
     break;
 
   case 91:
 /* Line 1792 of yacc.c  */
-#line 236 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 240 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_store_null, YYLLOC ); }
     break;
 
   case 92:
 /* Line 1792 of yacc.c  */
-#line 237 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 241 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_store_nil, YYLLOC ); }
     break;
 
   case 93:
 /* Line 1792 of yacc.c  */
-#line 241 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 245 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_store_float, (yyvsp[(1) - (1)].s).val ); }
     break;
 
   case 94:
 /* Line 1792 of yacc.c  */
-#line 242 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 246 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node1( sval_store_integer, (yyvsp[(1) - (1)].s).val ); }
     break;
 
   case 96:
 /* Line 1792 of yacc.c  */
-#line 250 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 254 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = node0( sval_none ); }
     break;
 
   case 97:
 /* Line 1792 of yacc.c  */
-#line 251 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 255 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = append_node( (yyvsp[(1) - (3)].s.val), node1( sval_makearray, (yyvsp[(2) - (3)].s.val) ) ); }
     break;
 
   case 98:
 /* Line 1792 of yacc.c  */
-#line 252 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 256 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = linked_list_end( node1( sval_makearray, (yyvsp[(1) - (2)].s.val) ) ); }
     break;
 
   case 99:
 /* Line 1792 of yacc.c  */
-#line 256 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 260 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = linked_list_end( (yyvsp[(1) - (1)].s.val) ); }
     break;
 
   case 100:
 /* Line 1792 of yacc.c  */
-#line 257 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 261 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     { (yyval.s.val) = append_node( (yyvsp[(1) - (2)].s.val), (yyvsp[(2) - (2)].s.val) ); }
     break;
 
   case 101:
 /* Line 1792 of yacc.c  */
-#line 261 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 265 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
     {}
     break;
 
@@ -2644,5 +2644,5 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 265 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
+#line 269 "..\\..\\..\\code\\globalcpp\\parser\\yyParser.yy"
 
