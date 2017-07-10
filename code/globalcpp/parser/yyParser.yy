@@ -43,7 +43,7 @@ extern yyparsedata parsedata;
 
 %error-verbose
 
-%expect 281
+%expect 306
 
 %token END	0
 %token TOKEN_EOL
@@ -131,6 +131,10 @@ statement:
 	{
 		sval_u while_stmt = node4( sval_while, $E, $S, node1( sval_statement_list, $INC ), YYLLOC );
 		$$ = node1( sval_statement_list, append_node( linked_list_end( $SINIT ), while_stmt ) );
+	}
+	| TOKEN_FOR TOKEN_LPAREN TOKEN_SEMICOLON expr[E] TOKEN_SEMICOLON statement_list[INC] TOKEN_RPAREN newline statement[S]
+	{
+		$$ = node4( sval_while, $E, $S, node1( sval_statement_list, $INC ), YYLLOC );
 	}
 	| TOKEN_DO newline statement[S] newline TOKEN_WHILE prim_expr[E] { $$ = node3( sval_do, $S, $E, YYLLOC ); }
 	| TOKEN_TRY newline compound_statement newline TOKEN_CATCH newline compound_statement { $$ = node3( sval_catch, $3, $7, YYLLOC ); }
