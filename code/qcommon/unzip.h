@@ -319,7 +319,7 @@ extern long unztell (unzFile file);
   Seek to the specified offset according to the origin in uncompressed data
 */
 
-extern long unzseek (unzFile file, long int offset, int origin);
+extern long unzseek(unzFile file, long int offset, int origin);
 
 /*
   Give the current position in uncompressed data
@@ -345,3 +345,9 @@ extern int unzGetLocalExtrafield (unzFile file, void* buf, unsigned len);
   the return value is the number of unsigned chars copied in buf, or (if <0) 
 	the error code
 */
+
+/* Get the current file offset */
+extern long unzGetOffset(unzFile file);
+
+/* Set the current file offset */
+extern int unzSetOffset(unzFile file, long pos);

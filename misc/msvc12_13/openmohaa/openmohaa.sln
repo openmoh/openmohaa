@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openmohaa", "openmohaa.vcxproj", "{A9E3E13B-C83E-48AC-91EA-4942B0FF723A}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -119,7 +119,7 @@ Global
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Debug|Win32.ActiveCfg = Debug|Win32
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Debug|Win32.Build.0 = Debug|Win32
-		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Debug|x64.ActiveCfg = Debug|x64
+		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Debug|x64.ActiveCfg = Debug_Q3|x64
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Release|Win32.ActiveCfg = Release|Win32

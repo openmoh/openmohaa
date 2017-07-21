@@ -4365,4 +4365,41 @@ void  zcfree (voidp opaque, voidp ptr)
     if (opaque) return; /* make compiler happy */
 }
 
+/* Additions by RX '2004 */
+extern long unzGetOffset (file)
+    unzFile file;
+{
+    unz_s* s;
+
+    if (file==NULL)
+          return UNZ_PARAMERROR;
+    s=(unz_s*)file;
+    if (!s->current_file_ok)
+      return 0;
+    if (s->gi.number_entry != 0 && s->gi.number_entry != 0xffff)
+      if (s->num_file==s->gi.number_entry)
+         return 0;
+    return s->pos_in_central_dir;
+}
+
+extern int unzSetOffset (file, pos)
+        unzFile file;
+        long pos;
+{
+    unz_s* s;
+    int err;
+
+    if (file==NULL)
+        return UNZ_PARAMERROR;
+    s=(unz_s*)file;
+
+    s->pos_in_central_dir = pos;
+    s->num_file = s->gi.number_entry;      /* hack */
+    err = unzlocal_GetCurrentFileInfoInternal(file,&s->cur_file_info,
+                                              &s->cur_file_info_internal,
+                                              NULL,0,NULL,0,NULL,0);
+    s->current_file_ok = (err == UNZ_OK);
+    return err;
+}
+
 

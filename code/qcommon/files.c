@@ -202,6 +202,7 @@ static const unsigned pak_checksums[] = {
 typedef struct fileInPack_s {
 	char					*name;		// name of the file
 	unsigned long			pos;		// file info position in zip
+	unsigned long			len;		// uncompressed file size
 	struct	fileInPack_s*	next;		// next file in the hash
 } fileInPack_t;
 
@@ -275,6 +276,7 @@ typedef struct {
 	int			baseOffset;
 	int			fileSize;
 	int			zipFilePos;
+	int			zipFileLen;
 	qboolean	zipFile;
 	char		name[MAX_ZPATH];
 } fileHandleData_t;
@@ -1227,6 +1229,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					// open the file in the zip
 					unzOpenCurrentFile( fsh[*file].handleFiles.file.z );
 					fsh[*file].zipFilePos = pakFile->pos;
+					fsh[*file].zipFileLen = pakFile->len;
 
 					if ( fs_debug->integer ) {
 						Com_Printf( "FS_FOpenFileRead: %s (found in '%s')\n",
@@ -1412,6 +1415,7 @@ FS_Seek
 =================
 */
 int FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ) {
+#if 0
 	int		_origin;
 
 	if ( !fs_searchpaths ) {
@@ -1504,6 +1508,97 @@ int FS_Seek( fileHandle_t f, long offset, fsOrigin_t origin ) {
 		}
 
 		return fseek( file, offset, _origin );
+	}
+#endif
+#else
+	int		_origin;
+
+	if (!fs_searchpaths) {
+		Com_Error(ERR_FATAL, "Filesystem call made without initialization");
+		return -1;
+	}
+
+	if (fsh[f].zipFile == qtrue) {
+		//FIXME: this is really, really crappy
+		//(but better than what was here before)
+		byte	buffer[PK3_SEEK_BUFFER_SIZE];
+		int		remainder;
+		int		currentPosition = FS_FTell(f);
+
+		// change negative offsets into FS_SEEK_SET
+		if (offset < 0) {
+			switch (origin) {
+			case FS_SEEK_END:
+				remainder = fsh[f].zipFileLen + offset;
+				break;
+
+			case FS_SEEK_CUR:
+				remainder = currentPosition + offset;
+				break;
+
+			case FS_SEEK_SET:
+			default:
+				remainder = 0;
+				break;
+			}
+
+			if (remainder < 0) {
+				remainder = 0;
+			}
+
+			origin = FS_SEEK_SET;
+		}
+		else {
+			if (origin == FS_SEEK_END) {
+				remainder = fsh[f].zipFileLen - currentPosition + offset;
+			}
+			else {
+				remainder = offset;
+			}
+		}
+
+		switch (origin) {
+		case FS_SEEK_SET:
+			if (remainder == currentPosition) {
+				return 0;
+			}
+			unzSetOffset(fsh[f].handleFiles.file.z, fsh[f].zipFilePos);
+			unzOpenCurrentFile(fsh[f].handleFiles.file.z);
+			//fallthrough
+
+		case FS_SEEK_END:
+		case FS_SEEK_CUR:
+			while (remainder > PK3_SEEK_BUFFER_SIZE) {
+				FS_Read(buffer, PK3_SEEK_BUFFER_SIZE, f);
+				remainder -= PK3_SEEK_BUFFER_SIZE;
+			}
+			FS_Read(buffer, remainder, f);
+			return 0;
+
+		default:
+			Com_Error(ERR_FATAL, "Bad origin in FS_Seek");
+			return -1;
+		}
+	}
+	else {
+		FILE *file;
+		file = FS_FileForHandle(f);
+		switch (origin) {
+		case FS_SEEK_CUR:
+			_origin = SEEK_CUR;
+			break;
+		case FS_SEEK_END:
+			_origin = SEEK_END;
+			break;
+		case FS_SEEK_SET:
+			_origin = SEEK_SET;
+			break;
+		default:
+			Com_Error(ERR_FATAL, "Bad origin in FS_Seek");
+			break;
+		}
+
+		return fseek(file, offset, _origin);
 	}
 #endif
 }
@@ -1904,7 +1999,9 @@ static pack_t *FS_LoadZipFile( char *zipfile, const char *basename )
 		strcpy( buildBuffer[i].name, filename_inzip );
 		namePtr += strlen(filename_inzip) + 1;
 		// store the file position in the zip
-		unzGetCurrentFileInfoPosition(uf, &buildBuffer[i].pos);
+		//unzGetCurrentFileInfoPosition(uf, &buildBuffer[i].pos);
+		buildBuffer[i].pos = unzGetOffset(uf);
+		buildBuffer[i].len = file_info.uncompressed_size;
 		//
 		buildBuffer[i].next = pack->hashTable[hash];
 		pack->hashTable[hash] = &buildBuffer[i];
@@ -3435,7 +3532,8 @@ void FS_InitFilesystem( void ) {
 		// busted and error out now, rather than getting an unreadable
 		// graphics screen when the font fails to load
 		if( FS_ReadFile( "default.cfg", NULL ) <= 0 ) {
-			Com_Error( ERR_FATAL, "ERROR: Couldn't load default.cfg\n\n*********************************************\n**** PUT ORIGINAL MOHAA PAK*.PK3 FILES   ****\n**** AND SOUND DIRECTORY IN MAIN/ SUBDIR ****\n*********************************************\n" );
+			//Com_Error( ERR_FATAL, "ERROR: Couldn't load default.cfg\n\n*********************************************\n**** PUT ORIGINAL MOHAA PAK*.PK3 FILES   ****\n**** AND SOUND DIRECTORY IN MAIN/ SUBDIR ****\n*********************************************\n" );
+			Com_Error( ERR_FATAL, "ERROR: Couldn't load default.cfg\n\n*********************************************\n" );
 		}
 	}
 

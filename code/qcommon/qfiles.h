@@ -151,6 +151,7 @@ typedef struct ftx_s {
 // vertex scales
 #define	MD3_XYZ_SCALE		(1.0/64)
 
+#if 0
 typedef struct md3Frame_s {
 	vec3_t		bounds[2];
 	vec3_t		localOrigin;
@@ -447,6 +448,8 @@ typedef struct {
 
 	int			ofsEnd;				// end of file
 } mdrHeader_t;
+
+#endif
 
 #endif
 

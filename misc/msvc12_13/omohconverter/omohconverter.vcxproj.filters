@@ -357,9 +357,6 @@
     <ClCompile Include="..\..\..\code\tools\q3map\mesh.c">
       <Filter>q3map</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\code\tools\q3map\misc_model.c">
-      <Filter>q3map</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\code\tools\q3map\nodraw.c">
       <Filter>q3map</Filter>
     </ClCompile>
@@ -434,6 +431,27 @@
     </ClCompile>
     <ClCompile Include="..\..\..\code\tools\converter\multimain.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\meshobject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bsploader_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bsploader_moh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bsploader_q3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\md3converter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\md4converter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\misc_model.c">
+      <Filter>q3map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -761,5 +779,31 @@
     <ClInclude Include="..\..\..\code\tools\converter\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\meshobject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bsploader_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bsploader_moh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bsploader_q3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\md3converter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\md4converter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="omohconverter.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

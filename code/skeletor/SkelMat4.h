@@ -34,7 +34,7 @@ public:
 	float val[ 4 ][ 3 ];
 
 protected:
-	void SkelMat4::copy( const SkelMat4& );
+	void copy( const SkelMat4& );
 
 public:
 	void		MakeIdentity();
