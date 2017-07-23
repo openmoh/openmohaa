@@ -453,6 +453,9 @@
     <ClCompile Include="..\..\..\code\tools\q3map\misc_model.c">
       <Filter>q3map</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bspentity_speaker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\code\globalcpp\archive.h">
@@ -798,6 +801,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bspentity_speaker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

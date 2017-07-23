@@ -155,7 +155,13 @@ class str
 
                void     CapLength ( size_t newlen );
 
-               void     BackSlashesToSlashes ();
+			   void     BackSlashesToSlashes();
+			   void     SlashesToBackSlashes();
+			   void		DefaultExtension(const char *extension);
+			   const char* GetExtension() const;
+			   void		StripExtension();
+			   void		SkipFile();
+			   void		SkipPath();
    };
 
 typedef unsigned int const_str;

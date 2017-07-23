@@ -540,6 +540,128 @@ void str::BackSlashesToSlashes
       }
    }
 
+void str::SlashesToBackSlashes
+   (
+   void
+   )
+
+   {
+   size_t i;
+
+   EnsureDataWritable ();
+
+   for ( i=0; i < m_data->len; i++ )
+      {
+      if ( m_data->data[i] == '/' )
+         m_data->data[i] = '\\';
+      }
+   }
+
+void str::DefaultExtension(const char *extension)
+{
+	EnsureDataWritable();
+
+	const char* src = m_data->data + m_data->len - 1;
+
+	while (*src != '/' && src != m_data->data)
+	{
+		if (*src == '.')
+		{
+			// it has an extension
+			return;
+		}
+		src--;
+	}
+
+	append(".");
+	append(extension);
+}
+
+const char* str::GetExtension() const
+{
+	size_t length, i;
+
+	length = m_data->len - 1;
+	i = length;
+
+	while (m_data->data[i] != '.')
+	{
+		i--;
+		if (m_data->data[i] == '/' || i == 0)
+		{
+			return ""; // no extension
+		}
+	}
+
+	return &m_data->data[i + 1];
+}
+
+void str::StripExtension()
+{
+	EnsureDataWritable();
+
+	size_t i = m_data->len;
+	while (i > 0 && m_data->data[i] != '.')
+	{
+		i--;
+		if (m_data->data[i] == '/')
+			return; // no extension
+	}
+	if (i)
+	{
+		m_data->len = i;
+		m_data->data[m_data->len] = 0;
+
+		EnsureDataWritable();
+	}
+}
+
+void str::SkipFile()
+{
+	EnsureDataWritable();
+
+	size_t i = m_data->len;
+	while (i > 0 && m_data->data[i] != '/' && m_data->data[i] != '\\')
+	{
+		i--;
+	}
+	m_data->len = i;
+	m_data->data[m_data->len] = 0;
+
+	EnsureDataWritable();
+}
+
+void str::SkipPath()
+{
+	EnsureDataWritable();
+
+	const char *pathname = m_data->data;
+	const char *last;
+
+	last = m_data->data;
+	while (*pathname)
+	{
+		if (*pathname == '/' || *pathname == '\\')
+			last = pathname + 1;
+		pathname++;
+	}
+
+	size_t lastpos = last - m_data->data;
+	if (lastpos > 0)
+	{
+		size_t length = m_data->len - lastpos;
+		for (size_t i = 0; i < length; i++)
+		{
+			m_data->data[i] = last[i];
+		}
+
+		m_data->len = length;
+		m_data->data[length] = 0;
+
+		EnsureDataWritable();
+	}
+}
+
 void str::snprintf 
    (
    char *dst,

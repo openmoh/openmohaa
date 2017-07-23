@@ -452,6 +452,7 @@
     <ClCompile Include="..\..\..\code\tools\common\threads.c" />
     <ClCompile Include="..\..\..\code\tools\common\trilib.c" />
     <ClCompile Include="..\..\..\code\tools\converter\bspconverter.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\bspentity_speaker.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\bsploader_base.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\bsploader_moh.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Q3|x64'">true</ExcludedFromBuild>
@@ -609,6 +610,7 @@
     <ClInclude Include="..\..\..\code\tools\common\threads.h" />
     <ClInclude Include="..\..\..\code\tools\common\trilib.h" />
     <ClInclude Include="..\..\..\code\tools\converter\bspconverter.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\bspentity_speaker.h" />
     <ClInclude Include="..\..\..\code\tools\converter\bsploader_base.h" />
     <ClInclude Include="..\..\..\code\tools\converter\bsploader_moh.h" />
     <ClInclude Include="..\..\..\code\tools\converter\bspentity.h" />
@@ -637,7 +639,12 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="omohconverter.rc" />
+    <ResourceCompile Include="omohconverter.rc">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release_Q3|Win32'">NOT_MOHUE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release_Q3|x64'">NOT_MOHUE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug_Q3|Win32'">NOT_MOHUE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug_Q3|x64'">NOT_MOHUE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
