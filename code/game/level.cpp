@@ -1749,7 +1749,7 @@ void Level::EventSetClockSide
 {
 	const_str clockside = ev->GetConstString( 1 );
 
-	if( clockside < STRING_ALLIES || clockside > STRING_DRAW )
+	if( clockside < STRING_ALLIES || clockside > STRING_KILLS)
 	{
 		ScriptError( "clockside must be 'axis', 'allies', 'kills', or 'draw'" );
 	}
