@@ -168,7 +168,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_COM_NOPRINTF;_DEBUG_MEM;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;../../../code/tools/boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
@@ -190,7 +190,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_COM_NOPRINTF;_DEBUG_MEM;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;../../../code/tools/boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
@@ -211,7 +211,7 @@
       </PrecompiledHeader>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_COM_NOPRINTF;_DEBUG_MEM;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;../../../code/tools/boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <WarningLevel>Level3</WarningLevel>
@@ -236,7 +236,7 @@
       </PrecompiledHeader>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_COM_NOPRINTF;NOT_MOHUE;_DEBUG_MEM;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;../../../code/tools/boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <WarningLevel>Level3</WarningLevel>
@@ -264,7 +264,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_COM_NOPRINTF;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;../../../code/tools/boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -289,7 +289,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_COM_NOPRINTF;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;../../../code/tools/boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -314,7 +314,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_COM_NOPRINTF;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;../../../code/tools/boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -339,7 +339,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;NO_SCRIPTENGINE;STANDALONE;_COM_NOPRINTF;NOT_MOHUE;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../../code/SDL2/include;../../../code/globalcpp;../../../code/testutils;../../../code/globalcpp/dummy;../../../code/qcommon;../../../code/tools/FBX/FBX SDK/2018.1/include;../../../code/tools/common;../../../code/tools/boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
