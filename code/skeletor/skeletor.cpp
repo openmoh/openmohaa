@@ -633,21 +633,24 @@ void SkeletorGetAnimFrame( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t
 
 	frameList.actionWeight = animData ? 1.0 : 0;
 
-	if (!animData->bHasDelta)
+	if (animData)
 	{
-		frameList.numMovementFrames = 0;
-		frameList.numActionFrames = 1;
-		frameList.m_blendInfo[32].weight = 1.0;
-		frameList.m_blendInfo[32].pAnimationData = animData;
-		frameList.m_blendInfo[32].frame = frame;
-	}
-	else
-	{
-		frameList.numMovementFrames = 1;
-		frameList.numActionFrames = 0;
-		frameList.m_blendInfo[0].weight = 1.0;
-		frameList.m_blendInfo[0].pAnimationData = animData;
-		frameList.m_blendInfo[0].frame = frame;
+		if (!animData->bHasDelta)
+		{
+			frameList.numMovementFrames = 0;
+			frameList.numActionFrames = 1;
+			frameList.m_blendInfo[32].weight = 1.0;
+			frameList.m_blendInfo[32].pAnimationData = animData;
+			frameList.m_blendInfo[32].frame = frame;
+		}
+		else
+		{
+			frameList.numMovementFrames = 1;
+			frameList.numActionFrames = 0;
+			frameList.m_blendInfo[0].weight = 1.0;
+			frameList.m_blendInfo[0].pAnimationData = animData;
+			frameList.m_blendInfo[0].frame = frame;
+		}
 	}
 	numBones = skelmodel->numBones;
 
@@ -685,12 +688,22 @@ void SkeletorGetAnimFrame( skelHeaderGame_t *skelmodel, skelAnimDataGameHeader_t
 		newFrame->bounds[ 1 ] = SkelVec3();
 	}
 
-	for( i = 0; i < numBones; i++ )
+	if (animData)
 	{
-		//skelBone_Base *Parent = bone[ i ]->Parent();
-		//bone[ i ]->SetParent( &skeletor_c::m_worldBone );
-		newFrame->bones[ i ] = bone[ i ]->GetTransform( &frameList );
-		//bone[ i ]->SetParent( Parent );
+		for (i = 0; i < numBones; i++)
+		{
+			//skelBone_Base *Parent = bone[ i ]->Parent();
+			//bone[ i ]->SetParent( &skeletor_c::m_worldBone );
+			newFrame->bones[i] = bone[i]->GetTransform(&frameList);
+			//bone[ i ]->SetParent( Parent );
+		}
+	}
+	else
+	{
+		for (i = 0; i < numBones; i++)
+		{
+			newFrame->bones[i] = SkelMat4();
+		}
 	}
 
 	for( i = 0; i < numBones; i++ )
