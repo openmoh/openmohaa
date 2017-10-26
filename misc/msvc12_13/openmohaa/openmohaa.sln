@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openmohaa", "openmohaa.vcxproj", "{A9E3E13B-C83E-48AC-91EA-4942B0FF723A}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -26,6 +26,16 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FLEX_Bison", "..\FLEX_Bison\FLEX_Bison.vcxproj", "{C43E74A6-EA43-4264-B8E5-F6E4CC9843DC}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "omohconverter", "..\omohconverter\omohconverter.vcxproj", "{2573DDFC-0576-4766-8A8E-E482035D12AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5} = {7A66A643-9419-4609-BA8F-95E8A9F9E8E5}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOHConverterModule", "..\MOHConverterModule\MOHConverterModule.vcxproj", "{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7E035F4B-CEA0-4985-980A-18635BF759B3} = {7E035F4B-CEA0-4985-980A-18635BF759B3}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOHConverterWorker", "..\MOHConverterWorker\MOHConverterWorker.vcxproj", "{7E035F4B-CEA0-4985-980A-18635BF759B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -125,8 +135,35 @@ Global
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Release|Win32.ActiveCfg = Release|Win32
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Release|Win32.Build.0 = Release|Win32
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Release|x64.ActiveCfg = Release|x64
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Win32.Build.0 = Debug|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|x64.ActiveCfg = Debug|x64
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|x64.Build.0 = Debug|x64
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Win32.ActiveCfg = Release|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Win32.Build.0 = Release|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|x64.ActiveCfg = Release|x64
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|x64.Build.0 = Release|x64
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Debug|Win32.Build.0 = Debug|Win32
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Debug|x64.ActiveCfg = Debug|x64
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Debug|x64.Build.0 = Debug|x64
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Release|Win32.ActiveCfg = Release|Win32
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Release|Win32.Build.0 = Release|Win32
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Release|x64.ActiveCfg = Release|x64
+		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {441D4217-B4CB-4C53-9251-3046DC9CF5B3}
 	EndGlobalSection
 EndGlobal

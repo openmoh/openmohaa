@@ -93,19 +93,10 @@
     <ClCompile Include="..\..\..\code\qcommon\cvar.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\code\qcommon\files.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\code\qcommon\huffman.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\code\qcommon\md4.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\code\qcommon\md5.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\code\qcommon\msg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\code\qcommon\net_chan.c">
@@ -887,6 +878,15 @@
     </ClCompile>
     <ClCompile Include="..\..\..\code\client\cl_uiserverlist.cpp">
       <Filter>uilib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\files.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\huffman.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\msg.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

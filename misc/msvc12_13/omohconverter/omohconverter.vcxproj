@@ -115,49 +115,49 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <OutDir>$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Q3|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <OutDir>$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <OutDir>$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Q3|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <OutDir>$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>q3converter_$(PlatformShortName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <OutDir>$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Q3|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <OutDir>$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <OutDir>$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(PlatformShortName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Q3|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)..\..\..\build\</OutDir>
+    <OutDir>$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(ProjectName)$(PlatformShortName)\$(Configuration)\</IntDir>
     <TargetName>q3converter_$(PlatformShortName)</TargetName>
   </PropertyGroup>
@@ -175,12 +175,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2017.1\lib\vs2015\x86\debug</AdditionalLibraryDirectories>
       <StackReserveSize>
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Q3|Win32'">
@@ -197,12 +197,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2017.1\lib\vs2015\x86\debug</AdditionalLibraryDirectories>
       <StackReserveSize>
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -219,12 +219,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2018.1\lib\vs2015\x64\debug</AdditionalLibraryDirectories>
       <StackReserveSize>
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)..\..\build_increment.bat $(SolutionDir)..\..\$(ProjectName)</Command>
@@ -244,12 +244,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2018.1\lib\vs2015\x64\debug</AdditionalLibraryDirectories>
       <StackReserveSize>
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)..\..\build_increment.bat $(SolutionDir)..\..\$(ProjectName)</Command>
@@ -272,12 +272,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2017.1\lib\vs2015\x86\release</AdditionalLibraryDirectories>
       <StackReserveSize>
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Q3|Win32'">
@@ -297,12 +297,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2017.1\lib\vs2015\x86\release</AdditionalLibraryDirectories>
       <StackReserveSize>
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -322,12 +322,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2018.1\lib\vs2015\x64\release</AdditionalLibraryDirectories>
       <StackReserveSize>
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Q3|x64'">
@@ -347,16 +347,15 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;winmm.lib;libfbxsdk-md.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\code\tools\FBX\FBX SDK\2018.1\lib\vs2015\x64\release</AdditionalLibraryDirectories>
       <StackReserveSize>
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\code\client\skeletor_imports.cpp" />
     <ClCompile Include="..\..\..\code\globalcpp\archive.cpp" />
     <ClCompile Include="..\..\..\code\globalcpp\basemain.cpp" />
     <ClCompile Include="..\..\..\code\globalcpp\class.cpp" />
@@ -378,147 +377,26 @@
     <ClCompile Include="..\..\..\code\null\null_server.c" />
     <ClCompile Include="..\..\..\code\null\null_snddma.c" />
     <ClCompile Include="..\..\..\code\null\null_sys.c" />
-    <ClCompile Include="..\..\..\code\qcommon\alias.c" />
+    <ClCompile Include="..\..\..\code\null\null_tiki.c" />
     <ClCompile Include="..\..\..\code\qcommon\cmd.c" />
     <ClCompile Include="..\..\..\code\qcommon\common.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\con_set.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\crc.c" />
     <ClCompile Include="..\..\..\code\qcommon\cvar.c" />
-    <ClCompile Include="..\..\..\code\qcommon\files.c" />
-    <ClCompile Include="..\..\..\code\qcommon\huffman.c" />
+    <ClCompile Include="..\..\..\code\qcommon\files.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\huffman.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\md4.c" />
     <ClCompile Include="..\..\..\code\qcommon\memory.c" />
     <ClCompile Include="..\..\..\code\qcommon\mem_blockalloc.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\mem_tempalloc.cpp" />
-    <ClCompile Include="..\..\..\code\qcommon\msg.c" />
+    <ClCompile Include="..\..\..\code\qcommon\msg.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\q_math.c" />
     <ClCompile Include="..\..\..\code\qcommon\q_shared.c" />
     <ClCompile Include="..\..\..\code\qcommon\str.cpp" />
-    <ClCompile Include="..\..\..\code\qcommon\tiki_script.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\unzip.c" />
-    <ClCompile Include="..\..\..\code\renderergl2\tr_curve.c" />
-    <ClCompile Include="..\..\..\code\skeletor\bonetable.cpp" />
-    <ClCompile Include="..\..\..\code\skeletor\skeletor.cpp" />
-    <ClCompile Include="..\..\..\code\skeletor\skeletorbones.cpp" />
-    <ClCompile Include="..\..\..\code\skeletor\skeletor_loadanimation.cpp" />
-    <ClCompile Include="..\..\..\code\skeletor\skeletor_model_files.cpp" />
-    <ClCompile Include="..\..\..\code\skeletor\skeletor_utilities.cpp" />
-    <ClCompile Include="..\..\..\code\skeletor\tokenizer.cpp" />
     <ClCompile Include="..\..\..\code\sys\con_log.c" />
     <ClCompile Include="..\..\..\code\sys\sys_win32.c" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_anim.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_cache.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_commands.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_files.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_frame.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_imports.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_main.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_parse.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_skel.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_surface.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_tag.cpp" />
-    <ClCompile Include="..\..\..\code\tiki\tiki_utility.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\aselib.c" />
-    <ClCompile Include="..\..\..\code\tools\common\bspfile.c" />
-    <ClCompile Include="..\..\..\code\tools\common\cmdlib.c" />
-    <ClCompile Include="..\..\..\code\tools\common\imagelib.c" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jcomapi.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdapimin.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdapistd.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdatasrc.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdcoefct.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdcolor.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jddctmgr.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdhuff.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdinput.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmainct.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmarker.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmaster.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdpostct.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdsample.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdtrans.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jerror.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jfdctflt.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jidctflt.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jmemmgr.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jmemnobs.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jpgload.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jutils.cpp" />
-    <ClCompile Include="..\..\..\code\tools\common\l3dslib.c" />
-    <ClCompile Include="..\..\..\code\tools\common\mathlib.c" />
-    <ClCompile Include="..\..\..\code\tools\common\mutex.c" />
-    <ClCompile Include="..\..\..\code\tools\common\polylib.c" />
-    <ClCompile Include="..\..\..\code\tools\common\scriplib.c" />
-    <ClCompile Include="..\..\..\code\tools\common\threads.c" />
-    <ClCompile Include="..\..\..\code\tools\common\trilib.c" />
-    <ClCompile Include="..\..\..\code\tools\converter\bspconverter.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\bspentity_speaker.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\bsploader_base.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\bsploader_moh.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Q3|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Q3|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\code\tools\converter\bspentity.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\bsplight.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\bsploader_q3.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\code\tools\converter\bspworld.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\formatconverter.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\main.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\mapconverter.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\md3converter.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\code\tools\converter\md4converter.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\code\tools\converter\meshobject.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\multimain.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\shadermanager.cpp" />
-    <ClCompile Include="..\..\..\code\tools\converter\skcconverter.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Q3|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Q3|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\code\tools\converter\skdconverter.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Q3|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Q3|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\code\tools\converter\tikiconverter.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Q3|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_Q3|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\code\tools\converter\tr_shared.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\brush.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\brush_primit.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\bsp.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\facebsp.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\fog.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\glfile.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\leakfile.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\light.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\lightmaps.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\lightv.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\light_trace.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\map.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\mesh.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\misc_model.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\nodraw.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\patch.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\portals.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\prtfile.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\shaders.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\soundv.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\surface.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\terrain.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\tjunction.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\tree.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\vis.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\visflow.c" />
-    <ClCompile Include="..\..\..\code\tools\q3map\writebsp.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\code\globalcpp\archive.h" />
@@ -544,7 +422,6 @@
     <ClInclude Include="..\..\..\code\globalcpp\scriptexception.h" />
     <ClInclude Include="..\..\..\code\globalcpp\scriptvariable.h" />
     <ClInclude Include="..\..\..\code\globalcpp\vector.h" />
-    <ClInclude Include="..\..\..\code\qcommon\alias.h" />
     <ClInclude Include="..\..\..\code\qcommon\con_arrayset.h" />
     <ClInclude Include="..\..\..\code\qcommon\con_set.h" />
     <ClInclude Include="..\..\..\code\qcommon\crc.h" />
@@ -556,59 +433,7 @@
     <ClInclude Include="..\..\..\code\qcommon\short3.h" />
     <ClInclude Include="..\..\..\code\qcommon\stack.h" />
     <ClInclude Include="..\..\..\code\qcommon\str.h" />
-    <ClInclude Include="..\..\..\code\qcommon\tiki.h" />
-    <ClInclude Include="..\..\..\code\qcommon\tiki_script.h" />
     <ClInclude Include="..\..\..\code\qcommon\unzip.h" />
-    <ClInclude Include="..\..\..\code\skeletor\skeletor.h" />
-    <ClInclude Include="..\..\..\code\skeletor\skeletor_animation_file_format.h" />
-    <ClInclude Include="..\..\..\code\skeletor\skeletor_internal.h" />
-    <ClInclude Include="..\..\..\code\skeletor\skeletor_model_file_format.h" />
-    <ClInclude Include="..\..\..\code\skeletor\skeletor_name_lists.h" />
-    <ClInclude Include="..\..\..\code\skeletor\SkelMat3.h" />
-    <ClInclude Include="..\..\..\code\skeletor\SkelMat4.h" />
-    <ClInclude Include="..\..\..\code\skeletor\SkelQuat.h" />
-    <ClInclude Include="..\..\..\code\skeletor\SkelVec3.h" />
-    <ClInclude Include="..\..\..\code\skeletor\SkelVec4.h" />
-    <ClInclude Include="..\..\..\code\skeletor\tokenizer.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_anim.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_cache.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_commands.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_files.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_frame.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_imports.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_main.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_parse.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_shared.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_skel.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_surface.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_tag.h" />
-    <ClInclude Include="..\..\..\code\tiki\tiki_utility.h" />
-    <ClInclude Include="..\..\..\code\tools\common\aselib.h" />
-    <ClInclude Include="..\..\..\code\tools\common\bspfile.h" />
-    <ClInclude Include="..\..\..\code\tools\common\cmdlib.h" />
-    <ClInclude Include="..\..\..\code\tools\common\imagelib.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jchuff.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jconfig.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jdct.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jdhuff.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jerror.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jinclude.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jmemsys.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jmorecfg.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jpegint.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jversion.h" />
-    <ClInclude Include="..\..\..\code\tools\common\jpeglib.h" />
-    <ClInclude Include="..\..\..\code\tools\common\l3dslib.h" />
-    <ClInclude Include="..\..\..\code\tools\common\mathlib.h" />
-    <ClInclude Include="..\..\..\code\tools\common\mutex.h" />
-    <ClInclude Include="..\..\..\code\tools\common\pakstuff.h" />
-    <ClInclude Include="..\..\..\code\tools\common\polylib.h" />
-    <ClInclude Include="..\..\..\code\tools\common\polyset.h" />
-    <ClInclude Include="..\..\..\code\tools\common\scriplib.h" />
-    <ClInclude Include="..\..\..\code\tools\common\str.h" />
-    <ClInclude Include="..\..\..\code\tools\common\surfaceflags.h" />
-    <ClInclude Include="..\..\..\code\tools\common\threads.h" />
-    <ClInclude Include="..\..\..\code\tools\common\trilib.h" />
     <ClInclude Include="..\..\..\code\tools\converter\bspconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\bspentity_speaker.h" />
     <ClInclude Include="..\..\..\code\tools\converter\bsploader_base.h" />
@@ -623,19 +448,12 @@
     <ClInclude Include="..\..\..\code\tools\converter\md3converter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\md4converter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\meshobject.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\multimain.h" />
     <ClInclude Include="..\..\..\code\tools\converter\shadermanager.h" />
     <ClInclude Include="..\..\..\code\tools\converter\skcconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\skdconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\tikiconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\tr_shared.h" />
     <ClInclude Include="..\..\..\code\tools\converter\version.h" />
-    <ClInclude Include="..\..\..\code\tools\q3map\light.h" />
-    <ClInclude Include="..\..\..\code\tools\q3map\map.h" />
-    <ClInclude Include="..\..\..\code\tools\q3map\mesh.h" />
-    <ClInclude Include="..\..\..\code\tools\q3map\qbsp.h" />
-    <ClInclude Include="..\..\..\code\tools\q3map\shaders.h" />
-    <ClInclude Include="..\..\..\code\tools\q3map\vis.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

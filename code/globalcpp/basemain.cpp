@@ -83,7 +83,36 @@ void BaseIdle( void )
 	}
 }
 
-int MainEvent( const Container< Event * >& conev );
+
+#ifdef _WINDLL
+void InitModule();
+void ShutdownModule();
+
+BOOL APIENTRY DllMain(HMODULE hModule,
+	DWORD  ul_reason_for_call,
+	LPVOID lpReserved
+)
+{
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH:
+		BaseInit();
+		InitModule();
+		break;
+	case DLL_PROCESS_DETACH:
+		ShutdownModule();
+
+		L_ShutdownEvents();
+
+		Com_Shutdown();
+		FS_Shutdown(qtrue);
+		break;
+	}
+	return TRUE;
+}
+#else
+
+int MainEvent(const Container< Event * >& conev);
 
 int main( int argc, char **argv )
 {
@@ -132,3 +161,5 @@ int main( int argc, char **argv )
 	Com_Shutdown();
 	FS_Shutdown( qtrue );
 }
+
+#endif
