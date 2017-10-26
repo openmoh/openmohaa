@@ -30,12 +30,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "omohconverter", "..\omohcon
 		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5} = {7A66A643-9419-4609-BA8F-95E8A9F9E8E5}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOHConverterModule", "..\MOHConverterModule\MOHConverterModule.vcxproj", "{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOHConverterWorker", "..\MOHConverterWorker\MOHConverterWorker.vcxproj", "{7E035F4B-CEA0-4985-980A-18635BF759B3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOHConverterLibrary", "..\MOHConverterLibrary\MOHConverterLibrary.vcxproj", "{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7E035F4B-CEA0-4985-980A-18635BF759B3} = {7E035F4B-CEA0-4985-980A-18635BF759B3}
 	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MOHConverterWorker", "..\MOHConverterWorker\MOHConverterWorker.vcxproj", "{7E035F4B-CEA0-4985-980A-18635BF759B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -135,18 +135,6 @@ Global
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Release|Win32.ActiveCfg = Release|Win32
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Release|Win32.Build.0 = Release|Win32
 		{2573DDFC-0576-4766-8A8E-E482035D12AF}.Release|x64.ActiveCfg = Release|x64
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Win32.ActiveCfg = Debug|Win32
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Win32.Build.0 = Debug|Win32
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|x64.ActiveCfg = Debug|x64
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|x64.Build.0 = Debug|x64
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Mixed Platforms.Build.0 = Release|Win32
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Win32.ActiveCfg = Release|Win32
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Win32.Build.0 = Release|Win32
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|x64.ActiveCfg = Release|x64
-		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|x64.Build.0 = Release|x64
 		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -159,6 +147,18 @@ Global
 		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Release|Win32.Build.0 = Release|Win32
 		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Release|x64.ActiveCfg = Release|x64
 		{7E035F4B-CEA0-4985-980A-18635BF759B3}.Release|x64.Build.0 = Release|x64
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|Win32.Build.0 = Debug|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|x64.ActiveCfg = Debug|x64
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Debug|x64.Build.0 = Debug|x64
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Win32.ActiveCfg = Release|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|Win32.Build.0 = Release|Win32
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|x64.ActiveCfg = Release|x64
+		{7A66A643-9419-4609-BA8F-95E8A9F9E8E5}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

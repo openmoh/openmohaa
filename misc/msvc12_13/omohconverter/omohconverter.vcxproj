@@ -180,7 +180,7 @@
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
-      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Q3|Win32'">
@@ -202,7 +202,7 @@
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
-      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -224,7 +224,7 @@
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
-      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)..\..\build_increment.bat $(SolutionDir)..\..\$(ProjectName)</Command>
@@ -249,7 +249,7 @@
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
-      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)..\..\build_increment.bat $(SolutionDir)..\..\$(ProjectName)</Command>
@@ -277,7 +277,7 @@
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
-      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Q3|Win32'">
@@ -302,7 +302,7 @@
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
-      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -327,7 +327,7 @@
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
-      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Q3|x64'">
@@ -352,7 +352,7 @@
       </StackReserveSize>
       <StackCommitSize>
       </StackCommitSize>
-      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterModule_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
