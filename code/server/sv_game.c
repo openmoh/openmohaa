@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../botlib/botlib.h"
 #include "../client/snd_public.h"
 #include "../client/client.h"
-#include <localization.h>
-#include <crc.h>
+#include "../qcommon/localization.h"
+#include "../qcommon/crc.h"
 
 debugline_t *DebugLines;
 int numDebugLines;
