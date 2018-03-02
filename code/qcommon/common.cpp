@@ -1419,6 +1419,7 @@ void Com_Init( char *commandLine ) {
 	com_showtrace = Cvar_Get( "com_showtrace", "0", CVAR_CHEAT );
 	com_dropsim = Cvar_Get( "com_dropsim", "0", CVAR_CHEAT );
 	com_viewlog = Cvar_Get( "viewlog", "0", CVAR_CHEAT );
+	com_logfile = Cvar_Get("logfile", "0", CVAR_TEMP);
 	com_speeds = Cvar_Get( "com_speeds", "0", 0 );
 	com_timedemo = Cvar_Get( "timedemo", "0", CVAR_CHEAT );
 	com_dedicated = Cvar_Get( "dedicated", "0", CVAR_LATCH );
