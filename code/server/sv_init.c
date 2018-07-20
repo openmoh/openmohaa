@@ -836,7 +836,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		// any media configstring setting now should issue a warning
 		// and any configstring changes should be reliably transmitted
 		// to all clients
-		sv.state = SS_GAME;
+		sv.state = SS_LOADING2;
 		sv.restarting = qfalse;
 
 		// send a heartbeat now so the master will get up to date info
@@ -850,7 +850,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 	}
 	else
 	{
-		sv.state = SS_GAME;
+		sv.state = SS_LOADING2;
 		sv.restarting = qfalse;
 
 		for( i = 0; i < svs.iNumClients; i++ )
