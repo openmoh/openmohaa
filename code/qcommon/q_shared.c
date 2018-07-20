@@ -1595,6 +1595,8 @@ char *Info_ValueForKey( const char *s, const char *key ) {
 
 		while (*s != '\\' && *s)
 		{
+			if (!*s)
+				return "";
 			*o++ = *s++;
 		}
 		*o = 0;
