@@ -209,6 +209,15 @@ Event EV_Item_SetAmount
    "Sets the amount of the item.",
 	EV_NORMAL
 	);
+Event EV_Item_SetDMAmount
+(
+	"dmamount",
+	EV_DEFAULT,
+	"i",
+	"amount",
+	"Sets the amount of the item.",
+	EV_NORMAL
+);
 Event EV_Item_SetMaxAmount
 	( 
 	"maxamount",
@@ -332,6 +341,7 @@ CLASS_DECLARATION( Trigger, Item, NULL )
 	{ &EV_Item_DropToFloor,			&Item::DropToFloor },
 	{ &EV_Item_Respawn,				&Item::Respawn },
 	{ &EV_Item_SetAmount,			&Item::SetAmountEvent },
+	{ &EV_Item_SetDMAmount,			&Item::SetDMAmountEvent },
 	{ &EV_Item_SetMaxAmount,		&Item::SetMaxAmount },
 	{ &EV_Item_SetItemName,			&Item::SetItemName },
 	{ &EV_Item_Pickup,				&Item::Pickup },
@@ -923,13 +933,24 @@ void Item::SetMax
    }
 
 void Item::SetAmountEvent
-	(
+(
 	Event *ev
-	)
+)
 
-	{
+{
 	setAmount( ev->GetInteger( 1 ) );
-   }
+}
+
+void Item::SetDMAmountEvent
+(
+	Event *ev
+)
+
+{
+	if (!g_gametype->integer)
+		return;
+	setAmount(ev->GetInteger(1));
+}
 
 void Item::SetMaxAmount
 	(

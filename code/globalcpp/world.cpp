@@ -31,6 +31,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 WorldPtr world;
 
+Event EV_World_MapTime
+(
+	"map_time",
+	EV_DEFAULT,
+	"i",
+	"version",
+	"Internal usage."
+);
 Event EV_World_SetSoundtrack
 (
 	"soundtrack",
@@ -206,6 +214,23 @@ Event EV_World_SetNorthYaw
 	"f",
 	"yaw",
 	"Sets the yaw direction that is considered to be north"
+);
+Event EV_World_SetSunDiffuse
+(
+	"sundiffuse",
+	EV_DEFAULT,
+	"f",
+	"factor",
+	"Sets the fraction of the sunlight to use for diffuse sun"
+);
+
+Event EV_World_SetSunDiffuseColor
+(
+	"sundiffusecolor",
+	EV_DEFAULT,
+	"v",
+	"diffusecolor",
+	"Sets an alternate sun color to use for clcing diffuse sun"
 );
 
 void World::AddTargetEntity( SimpleEntity *ent )
@@ -562,6 +587,8 @@ CLASS_DECLARATION( Entity, World, "worldspawn" )
 	{ &EV_World_LightmapDensity,		NULL },
 	{ &EV_World_SunFlare,				NULL },
 	{ &EV_World_SunFlareInPortalSky,	NULL },
+	{ &EV_World_SetSunDiffuse,			NULL },
+	{ &EV_World_SetSunDiffuseColor,		NULL },
 	{ NULL,								NULL }
 };
 
