@@ -98,6 +98,7 @@ public:
 	virtual str       getName( void );
 	virtual int       getIndex( void );
 	virtual void      SetAmountEvent( Event *ev );
+	virtual void      SetDMAmountEvent(Event *ev);
 	virtual void      SetMaxAmount( Event *ev );
 	virtual void      SetItemName( Event *ev );
 
