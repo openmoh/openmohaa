@@ -145,9 +145,7 @@ Sentient *ActorEnemySet::GetCurrentEnemy
 	) const
 
 {
-	// FIXME: stub
-	STUB();
-	return NULL;
+	return m_pCurrentEnemy;
 }
 
 float ActorEnemySet::GetCurrentVisibility

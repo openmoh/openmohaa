@@ -243,6 +243,7 @@ typedef struct {
 	vec3_t pos[ 1 ];
 } FallPath;
 
+#define THINKSTATE_NONE				0
 #define THINKSTATE_IDLE				1
 #define THINKSTATE_PAIN				2
 #define THINKSTATE_KILLED			3
@@ -267,7 +268,7 @@ typedef struct {
 class Actor;
 typedef SafePtr<Actor> ActorPtr;
 
-class Actor : public SimpleActor
+class Actor : public SimpleActor //#19
 {
 	struct GlobalFuncs_t {
 		void ( Actor::*ThinkState )( void );
@@ -662,7 +663,7 @@ public:
 	void Think_MachineGunner( void );
 	void ThinkHoldGun( void );
 	void FinishedAnimation_MachineGunner( void );
-	bool MachineGunner_CanSee( Entity *e1, float fov, float vision_distance );
+	bool MachineGunner_CanSee( Entity *ent, float fov, float vision_distance );
 	void CanSee( Event *ev );
 	static void InitDogIdle( GlobalFuncs_t *func );
 	static void InitDogAttack( GlobalFuncs_t *func );
@@ -754,7 +755,7 @@ public:
 	void ReceiveAIEvent( vec3_t event_origin, int iType, Entity *originator, float fDistSquared, float fMaxDistSquared );
 	void DefaultReceiveAIEvent( vec3_t event_origin, int iType, Entity *originator, float fDistSquared, float fMaxDistSquared );
 	int PriorityForEventType( int iType );
-	void CuriousSound( int iType, vec3_t sound_origin, float fDistSquared, float fMaxDistSquared, Entity *originator );
+	void CuriousSound( int iType, vec3_t sound_origin, float fDistSquared, float fMaxDistSquared );
 	void WeaponSound( int iType, vec3_t sound_origin, float fDistSquared, float fMaxDistSquared, Entity *originator );
 	void FootstepSound( vec3_t sound_origin, float fDistSquared, float fMaxDistSquared, Entity *originator );
 	void VoiceSound( int iType, vec3_t sound_origin, float fDistSquared, float fMaxDistSquared, Entity *originator );
@@ -764,7 +765,7 @@ public:
 	void RaiseAlertnessForEventType( int iType );
 	void RaiseAlertness( float fAmout );
 	virtual bool CanSee( Entity *e1, float fov, float vision_distance );
-	virtual Vector GunPosition( void ) const;
+	virtual Vector GunPosition( void );
 	bool WithinVisionDistance( Entity *ent ) const;
 	bool InFOV( Vector pos, float check_fov, float check_fovdot );
 	bool EnemyInFOV( int iMaxDirtyTime );
