@@ -236,7 +236,7 @@ void Actor::State_Cover_FinishReloading
 	m_eNextAnimMode = 1;
 	m_bNextForceStart = false;
 	m_csNextAnimString = m_csSpecialAttack;
-	m_State = 304;
+	m_State = 308;
 	m_iStateTime = level.inttime;
 }
 
@@ -483,7 +483,7 @@ void Actor::State_Cover_Shoot
 			return;
 		}
 	}
-
+	sizeof(SimpleEntity);
 	Anim_Shoot();
 	AimAtAimNode();
 
