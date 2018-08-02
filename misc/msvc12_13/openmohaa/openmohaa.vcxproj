@@ -272,10 +272,13 @@
     <ClCompile Include="..\..\..\code\globalcpp\scripttimer.cpp" />
     <ClCompile Include="..\..\..\code\globalcpp\scriptvariable.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\crc.c" />
+    <ClCompile Include="..\..\..\code\qcommon\files.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\huffman.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\localization.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\memory.c" />
     <ClCompile Include="..\..\..\code\qcommon\mem_blockalloc.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\mem_tempalloc.cpp" />
+    <ClCompile Include="..\..\..\code\qcommon\msg.cpp" />
     <ClCompile Include="..\..\..\code\qcommon\str.cpp" />
     <ClCompile Include="..\..\..\code\mohui\ui_main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -324,11 +327,8 @@
     <ClCompile Include="..\..\..\code\qcommon\cm_test.c" />
     <ClCompile Include="..\..\..\code\qcommon\cm_trace.c" />
     <ClCompile Include="..\..\..\code\qcommon\cvar.c" />
-    <ClCompile Include="..\..\..\code\qcommon\files.c" />
-    <ClCompile Include="..\..\..\code\qcommon\huffman.c" />
     <ClCompile Include="..\..\..\code\qcommon\md4.c" />
     <ClCompile Include="..\..\..\code\qcommon\md5.c" />
-    <ClCompile Include="..\..\..\code\qcommon\msg.c" />
     <ClCompile Include="..\..\..\code\qcommon\net_chan.c" />
     <ClCompile Include="..\..\..\code\qcommon\net_ip.c" />
     <ClCompile Include="..\..\..\code\qcommon\puff.c" />
