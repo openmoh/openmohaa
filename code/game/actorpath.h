@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __ACTORPATH_H__
 #define __ACTORPATH_H__
 
+
+#define MIN_FALLHEIGHT 18
+#define MAX_FALLHEIGHT 1024
 class ActorPath {
 	// path list
 	PathInfo *m_path;

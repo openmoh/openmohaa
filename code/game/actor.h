@@ -222,6 +222,7 @@ typedef struct
 #define MAX_ORIGIN_HISTORY	4
 #define MAX_THINKMAP		9
 #define MAX_THINKSTATES		4
+#define MAX_THINKLEVELS		29
 #define MAX_COVER_NODES		16
 #define MAX_BODYQUEUE		5
 #define MAX_GLOBAL_FUNCS	35
@@ -268,7 +269,7 @@ typedef struct {
 class Actor;
 typedef SafePtr<Actor> ActorPtr;
 
-class Actor : public SimpleActor //#19
+class Actor : public SimpleActor
 {
 	struct GlobalFuncs_t {
 		void ( Actor::*ThinkState )( void );
@@ -276,7 +277,7 @@ class Actor : public SimpleActor //#19
 		void ( Actor::*ResumeState )( void );
 		void ( Actor::*EndState )( void );
 		void ( Actor::*SuspendState )( void );
-		void ( Actor::*un3 )( void );
+		void ( Actor::*RestartState )( void );
 		void ( Actor::*FinishedAnimation )( void );
 		void ( Actor::*PostShoot )( void );
 		void ( Actor::*Pain )( Event *ev );

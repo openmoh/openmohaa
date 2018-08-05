@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <parm.h>
 #include "bg_local.h"
 #include "weapturret.h"
+#include "sentient.h"
 
 Vector MINS(-15.0,-15.0,0.0);
 Vector MAXS(15.0,15.0,96.0);
@@ -2844,6 +2845,7 @@ void Actor::BeginState
 	)
 
 {
+	Com_Printf("testestest");
 	m_Think[ m_ThinkLevel ] = m_ThinkMap[ m_ThinkState ];
 
 	GlobalFuncs_t *func = &GlobalFuncs[ m_Think[ m_ThinkLevel ] ];
@@ -3116,7 +3118,8 @@ void Actor::ResetBodyQueue
 		//do nothing.
 	}
 
-	mCurBody = 0;
+	//FIXME: linker err
+	//mCurBody = 0;
 }
 
 void Actor::AddToBodyQue
@@ -3126,6 +3129,7 @@ void Actor::AddToBodyQue
 
 {
 	//FIXME: wrong notation, maybe mBodyQueu + mCurBody ?
+	/*
 	if (mBodyQueue[4*mCurBody+3])
 	{
 		Event * ev = new Event(EV_Remove);
@@ -3133,6 +3137,7 @@ void Actor::AddToBodyQue
 	}
 	mBodyQueue[4 * mCurBody] = this;
 	mCurBody = (mCurBody + 1) % 5;
+	*/
 }
 
 Vector Actor::GetAntiBunchPoint
@@ -3141,6 +3146,8 @@ Vector Actor::GetAntiBunchPoint
 	)
 
 {
+	int count = 0;
+	Vector ret = vec_origin;
 	if (m_pNextSquadMate != this)
 	{
 		for (auto pSquadMate = m_pNextSquadMate; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate)
@@ -3150,17 +3157,27 @@ Vector Actor::GetAntiBunchPoint
 			float distSq = dist * dist;
 			if (distSq != 0)
 			{
-
+				if (m_fInterval*m_fInterval > distSq)
+				{
+					count++;
+					ret += origin + (dist/sqrt(distSq)) * (m_fInterval - sqrt(distSq));
+				}
 			}
 		}
-	}
-	else
-	{
 
+		if (count)
+		{
+			if (count != 1)
+			{
+				ret /= count;
+			}
+		}
+		else
+		{
+			ret = origin;
+		}
 	}
-	// FIXME: stub
-	STUB();
-	return vec_zero;
+	return ret;
 }
 
 void Actor::InitVoid
@@ -3179,6 +3196,7 @@ char *Actor::DumpCallTrace
 	) const
 
 {
+	//NOTREFRENCED
 	// FIXME: stub
 	STUB();
 	return NULL;
@@ -3190,49 +3208,83 @@ void Actor::Init
 	)
 
 {
-	/*
-	sizeof(GlobalFuncs_t);
 	g_showinfo = gi.Cvar_Get("g_showinfo", "0", NULL);
-	int v2 = 0;
-	int v1 = MAX_GLOBAL_FUNCS - 1;
-	do
+
+	for (int i = 0; i < MAX_GLOBAL_FUNCS; i++)
 	{
-		GlobalFuncs[v2] = NULL;
-		GlobalFuncs[v2 + 1] = 0;
-		GlobalFuncs[v2 + 2] = 0;
-		GlobalFuncs[v2 + 3] = 0;
-		GlobalFuncs[v2 + 4] = 0;
-		GlobalFuncs[v2 + 5] = 0;
-		GlobalFuncs[v2 + 6] = 0;
-		GlobalFuncs[v2 + 7] = 0;
-		GlobalFuncs[v2 + 8] = 0;
-		GlobalFuncs[v2 + 9] = 0;
-		GlobalFuncs[v2 + 10] = DefaultRestart;
-		GlobalFuncs[v2 + 11] = 0;
-		GlobalFuncs[v2 + 12] = 0;
-		GlobalFuncs[v2 + 13] = 0;
-		GlobalFuncs[v2 + 14] = 0;
-		GlobalFuncs[v2 + 15] = 0;
-		GlobalFuncs[v2 + 16] = DefaultPain;
-		GlobalFuncs[v2 + 17] = 0;
-		GlobalFuncs[v2 + 18] = DefaultKilled;
-		GlobalFuncs[v2 + 19] = 0;
-		GlobalFuncs[v2 + 20] = 0;
-		GlobalFuncs[v2 + 21] = 0;
-		GlobalFuncs[v2 + 22] = 0;
-		GlobalFuncs[v2 + 23] = 0;
-		GlobalFuncs[v2 + 26] = DefaultReceiveAIEvent;
-		GlobalFuncs[v2 + 27] = 0;
-		GlobalFuncs[v2 + 28] = 0;
-		GlobalFuncs[v2 + 24] = 0;
-		GlobalFuncs[v2 + 25] = 0;
-		v2 += 29;
-		--v1;
-	} while (v1 >= 0);
-	GlobalFuncs[28] = IsVoidState;
-	*/
-	// FIXME: stub
-	STUB();
+		GlobalFuncs[i].ThinkState = NULL;
+		GlobalFuncs[i].BeginState = NULL;
+		GlobalFuncs[i].ResumeState = NULL;
+		GlobalFuncs[i].EndState = NULL;
+		GlobalFuncs[i].SuspendState = NULL;
+		GlobalFuncs[i].RestartState = &Actor::DefaultRestart;
+		GlobalFuncs[i].FinishedAnimation = NULL;
+		GlobalFuncs[i].PostShoot = NULL;
+		GlobalFuncs[i].Pain = &Actor::DefaultPain;
+		GlobalFuncs[i].Killed = &Actor::DefaultKilled;
+		GlobalFuncs[i].PassesTransitionConditions = NULL;
+		GlobalFuncs[i].ShowInfo = NULL;
+		GlobalFuncs[i].ReceiveAIEvent = &Actor::DefaultReceiveAIEvent;
+		GlobalFuncs[i].IsState = NULL;
+		GlobalFuncs[i].PathnodeClaimRevoked = NULL;
+	}
+
+	GlobalFuncs[0].IsState = &Actor::IsVoidState;
+
+	//FIXME: create enum
+	InitTurret(&GlobalFuncs[1]);
+	InitCover(&GlobalFuncs[2]);
+	InitPatrol(&GlobalFuncs[3]);
+	InitRunner(&GlobalFuncs[4]);
+	InitPain(&GlobalFuncs[5]);
+	InitKilled(&GlobalFuncs[6]);
+	InitIdle(&GlobalFuncs[8]);
+	InitCurious(&GlobalFuncs[9]);
+	InitDisguiseSalute(&GlobalFuncs[10]);
+	InitDisguiseSentry(&GlobalFuncs[11]);
+	InitDisguiseOfficer(&GlobalFuncs[12]);
+	InitDisguiseRover(&GlobalFuncs[13]);
+	InitDisguiseNone(&GlobalFuncs[14]);
+	InitAlarm(&GlobalFuncs[15]);
+	InitGrenade(&GlobalFuncs[16]);
+	InitMachineGunner(&GlobalFuncs[17]);
+	InitDogIdle(&GlobalFuncs[18]);
+	InitDogAttack(&GlobalFuncs[19]);
+	InitDogCurious(&GlobalFuncs[20]);
+	InitAnim(&GlobalFuncs[22]);
+	InitAnimCurious(&GlobalFuncs[23]);
+	InitAim(&GlobalFuncs[24]);
+	InitBalconyIdle(&GlobalFuncs[25]);
+	InitBalconyCurious(&GlobalFuncs[26]);
+	InitBalconyAttack(&GlobalFuncs[27]);
+	InitBalconyDisguise(&GlobalFuncs[28]);
+	InitBalconyGrenade(&GlobalFuncs[29]);
+	InitBalconyPain(&GlobalFuncs[30]);
+	InitBalconyKilled(&GlobalFuncs[31]);
+	InitWeaponless(&GlobalFuncs[32]);
+	InitNoClip(&GlobalFuncs[33]);
+	InitDead(&GlobalFuncs[34]);
+	
+	AddWaitTill(STRING_TRIGGER);
+	AddWaitTill(STRING_MOVE);
+	AddWaitTill(STRING_VISIBLE);
+	AddWaitTill(STRING_ANIMDONE);
+	AddWaitTill(STRING_UPPERANIMDONE);
+	AddWaitTill(STRING_SAYDONE);
+	AddWaitTill(STRING_FLAGGEDANIMDONE);
+	AddWaitTill(STRING_DEATH);
+	AddWaitTill(STRING_PAIN);
+	AddWaitTill(STRING_HASENEMY);
+	AddWaitTill(STRING_MOVEDONE);
+	AddWaitTill(STRING_SOUNDDONE);
+	AddWaitTill(STRING_TURNDONE);
+
+	if (developer->integer)
+	{
+		Com_Printf("sizeof(Actor) == %i\n", sizeof(Actor));
+		//FIXME: magic ??
+		Com_Printf("Magic sizeof actor numer: %d\n", sizeof(Actor));
+	}
 }
 
 void Actor::FixAIParameters
@@ -3241,8 +3293,111 @@ void Actor::FixAIParameters
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: needs revision(silly mistakes)
+
+	float distmin, distmin2, distmax;
+	if (m_pTetherEnt)
+	{
+		float leash = 64;
+		if ( m_pTetherEnt->IsSubclassOfEntity() )
+		{
+			leash = m_pTetherEnt->angles.y - m_pTetherEnt->origin.y + m_pTetherEnt->angles.z + m_pTetherEnt->origin.z;
+		}
+		if ( leash <= m_fLeash)
+		{
+			distmin = m_fLeash;
+		}
+		else
+		{
+			Com_Printf("^~^~^ LD ERROR: (entnum %i, radnum %i, targetname '%s'):    increasing leash from %g to %g.\n"
+				"^~^~^ Leash must be larger than the size of the entity to which an AI is tethered.\n"
+				"\n",
+				entnum,
+				radnum,
+				targetname.c_str(),
+				m_fLeash,
+				leash);
+			m_fLeash = leash;
+			distmin = leash;
+			m_fLeashSquared = leash * leash;
+		}
+	}
+	else
+	{
+		distmin = m_fLeash;
+	}
+	if (m_fMinDistance <= distmin)
+	{
+		distmax = m_fMinDistance;
+	}
+	else
+	{
+		Com_Printf("^~^~^ LD ERROR: (entnum %i, radnum %i, targetname '%s'):    reducing mindist from %g to %g to match leash.\n"
+			"^~^~^ Leash must be greater than mindist, or the AI will want to both run away and stay put.\n"
+			"\n",
+			entnum,
+			radnum,
+			targetname.c_str(),
+			m_fMinDistance,
+			distmin);
+		m_fMinDistance = distmin;
+		distmax = distmin;
+		m_fMinDistanceSquared = distmin * distmin;
+	}
+	distmax += 128;
+	if (distmax - 1 > m_fMaxDistance)
+	{
+		Com_Printf("^~^~^ LD ERROR: (entnum %i, radnum %i, targetname '%s'):    increasing maxdist from %g to %g to exceed mindist.\n"
+			"^~^~^ Maxdist should be %i greater than mindist, or the AI will want to both run away and charge, or just do oscillatory behavior.\n"
+			"\n",
+			entnum,
+			radnum,
+			targetname.c_str(),
+			m_fMaxDistance,
+			distmax,
+			128);
+		
+		m_fMaxDistance = distmax;
+		m_fMaxDistanceSquared = distmax * distmax;
+	}
+	if (world->farplane_distance > 0)
+	{
+		//FIXME: macro and floats
+		if (m_fMaxDistance > world->farplane_distance * 0.828 +1)
+		{
+			Com_Printf(
+				"^~^~^ LD ERROR: (entnum %i, radnum %i, targetname '%s'):    reducing maxdist from %g to %g to be %g%% of farplane.\n"
+				"^~^~^ Maxdist should be this distance within fog, or AI will be able to see and attack through fog.\n"
+				"\n",
+				entnum,
+				radnum,
+				targetname.c_str(),
+				m_fMaxDistance,
+				world->farplane_distance * 0.828,
+				2);
+			distmin2 = m_fMinDistance;
+			m_fMaxDistance = world->farplane_distance * 0.828;
+			m_fMaxDistanceSquared = m_fMaxDistance * m_fMaxDistance;
+			if (distmin2 + 128.0 - 1.0 > m_fMaxDistance)
+			{
+				Com_Printf(
+					"^~^~^ LD ERROR: (entnum %i, radnum %i, targetname '%s'):    reducing mindist from %g to %g to be less than maxdist "
+					"after fog adjustment.\n"
+					"\n",
+					entnum,
+					radnum,
+					targetname.c_str(),
+					distmin2,
+					m_fMaxDistance <= 128 ? 0 : m_fMaxDistance - 128);
+				m_fMinDistance = m_fMaxDistance - 128.0;
+				if (m_fMaxDistance - 128.0 < 0)
+				{
+					m_fMinDistance = 0.0;
+				}
+				m_fMinDistanceSquared = m_fMinDistance * m_fMinDistance;
+			}
+		}
+	}
 }
 
 bool Actor::AttackEntryAnimation
@@ -3251,6 +3406,51 @@ bool Actor::AttackEntryAnimation
 	)
 
 {
+	if (m_Enemy)
+	{
+		//FIXME: macro
+		if (level.inttime >= level.m_iAttackEntryAnimTime + 3000)
+		{
+			float distSq = (m_Enemy->origin - origin).lengthXY(true);
+			//FIXME: macro
+			if (m_bNoSurprise || distSq >= 65536) //2 power 16
+			{
+				if (distSq > 1048576 && !(rand() & 3))//2 power 20
+				{
+					if (m_pNextSquadMate != this)
+					{
+						for (auto pSquadMate = m_pNextSquadMate; true; pSquadMate->m_pNextSquadMate)
+						{
+							if (m_fInterval*m_fInterval*4 > (pSquadMate->origin - origin).lengthSquared())
+							{
+								break;
+							}
+							if (pSquadMate == this)
+							{
+								if (m_bNewEnemy)
+								{
+									//FIXME: macro
+									Anim_Say(STRING_ANIM_SAY_SIGHTED_SCR, 200, false);
+									m_bNoSurprise = true;
+									m_bNewEnemy = false;
+									return false;
+								}
+							}
+						}
+						if (m_Enemy->origin.x - origin.x != 0 || m_Enemy->origin.y - origin.y != 0)
+						{
+							//continue here
+							vectoyaw(m_Enemy->origin - origin);
+						}
+					}
+				}
+			}
+			else
+			{
+
+			}
+		}
+	}
 	// FIXME: stub
 	STUB();
 	return false;
@@ -3454,8 +3654,26 @@ void Actor::UpdateEnableEnemy
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_bEnableEnemy != m_bDesiredEnableEnemy)
+	{
+		m_bEnableEnemy = m_bDesiredEnableEnemy;
+		if (m_bDesiredEnableEnemy)
+		{
+			if (!m_bFixedLeash)
+			{
+				m_vHome = origin;
+			}
+		}
+		else
+		{
+			//FIXME: macros
+			if ((m_ThinkStates[0] - 4) <= 2)
+			{
+				SetThinkState(1, 0);
+			}
+			SetEnemy(NULL, 0);
+		}
+	}
 }
 
 void Actor::ThinkStateTransitions
@@ -3485,6 +3703,65 @@ void Actor::ChangeAnim
 	)
 
 {
+	if (m_pAnimThread)
+	{
+		if (g_scripttrace->integer && m_pAnimThread->CanScriptTracePrint())
+		{
+			Com_Printf("--- Change Anim\n");
+		}
+		m_pAnimThread->AbortRegistration(STRING_EMPTY, this);
+		ScriptClass * sc = m_pAnimThread->GetScriptClass();
+		if (sc)
+		{
+			delete sc;
+		}
+	}
+	//FIXME: macro
+	if (m_ThinkState != THINKSTATE_ATTACK)
+	{
+		/*if (m_ThinkState < THINKSTATE_ATTACK)
+		{
+			if (m_ThinkState >= THINKSTATE_PAIN)
+			{
+				if (m_bMotionAnimSet)
+					AnimFinished(m_iMotionSlot, true);
+				if (m_bActionAnimSet)
+					AnimFinished(m_iActionSlot, true);
+				if (m_bSayAnimSet)
+				{
+					AnimFinished(m_iSaySlot, true);
+				}
+			}
+		}
+		if (m_ThinkState != THINKSTATE_GRENADE)
+		{
+			if (m_bMotionAnimSet && !m_bLevelMotionAnim)
+				AnimFinished(m_iMotionSlot, true);
+			if (m_bActionAnimSet && !m_bLevelActionAnim)
+				AnimFinished(m_iActionSlot, true);
+			if (m_bSayAnimSet && !m_bLevelSayAnim)
+			{
+				AnimFinished(m_iSaySlot, true);
+			}
+		}*/
+		if (m_ThinkState > THINKSTATE_ATTACK)
+		{
+			if (m_ThinkState != THINKSTATE_GRENADE)
+			{
+
+			}
+
+		}
+		else
+		{
+			if (m_ThinkState < THINKSTATE_PAIN)
+			{
+
+			}
+
+		}
+	
+	}
 	// FIXME: stub
 	STUB();
 }
@@ -3495,8 +3772,64 @@ void Actor::UpdateSayAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if ((m_ThinkState - 2) > 1)
+	{
+		int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(m_csSayAnim));
+		if (animnum == -1)
+		{
+			return;
+		}
+		int flags = gi.Anim_FlagsSkel(edict->tiki, animnum);
+
+		if (flags & ANIM_TOGGLEBIT)
+		{
+			if (m_ThinkState != 4 && m_ThinkState != 7)
+			{
+				ChangeActionAnim();
+				if (flags & ANIM_NOACTION)
+				{
+					ChangeMotionAnim();
+
+					StartMotionAnimSlot(0, animnum, 1);
+
+					m_bLevelActionAnim = true;
+					m_bLevelMotionAnim = true;
+
+					m_iActionSlot = GetMotionSlot(0);
+					m_iMotionSlot = GetMotionSlot(0);
+				}
+				else
+				{
+					m_bActionAnimSet = true;
+
+					StartActionAnimSlot(animnum);
+
+					m_bLevelActionAnim = true;
+
+					m_iActionSlot = GetActionSlot(0);
+				}
+				ChangeSayAnim();
+				m_bSayAnimSet = true;
+				m_bNextLevelSayAnim = false;
+				m_bLevelSayAnim = m_bNextLevelSayAnim; 
+				m_iSaySlot = m_iActionSlot;
+				return;
+			}
+		}
+		else if (m_bNextLevelSayAnim == 2 || m_ThinkState != 4 && m_ThinkState != 7)
+		{
+			ChangeSayAnim();
+			m_bSayAnimSet = true;
+			StartSayAnimSlot(animnum);
+			m_bNextLevelSayAnim = 0;
+			m_bLevelSayAnim = m_bNextLevelSayAnim;
+			m_iSaySlot = GetSaySlot();
+			return;
+		}
+	}
+
+	if (!m_bSayAnimSet)
+		Unregister(STRING_SAYDONE);
 }
 
 void Actor::UpdateUpperAnim
@@ -3505,8 +3838,29 @@ void Actor::UpdateUpperAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(m_csUpperAnim));
+	if (animnum != -1)
+	{
+		if (m_ThinkState == 4 || m_ThinkState == 7 || m_ThinkState == 3 || m_ThinkState == 2)
+		{
+			if (!m_bActionAnimSet)
+			{
+				Unregister(STRING_UPPERANIMDONE);
+			}
+		}
+		else
+		{
+			ChangeActionAnim();
+			
+			m_bActionAnimSet = true;
+
+			StartActionAnimSlot(animnum);
+
+			m_bLevelActionAnim = true;
+			m_iActionSlot = SimpleActor::GetActionSlot(0);
+
+		}
+	}
 }
 
 void Actor::UpdateAnim
@@ -3526,8 +3880,13 @@ void Actor::StoppedWaitFor
 	)
 
 {
-	// FIXME: stub
-	STUB();
+
+	GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+
+	if (func->FinishedAnimation)
+		(this->*func->FinishedAnimation)();
+
+	g_iInThinks ^= 1;//toggle
 }
 
 bool Actor::ValidGrenadePath
@@ -3550,9 +3909,35 @@ Vector Actor::CalcThrowVelocity
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return vec_zero;
+	//FIXME: needs revivsion + variable names
+	Vector ret;
+	long double v3; // fst7
+	long double v4; // fst5
+	long double v5; // tt
+	long double v6; // fst5
+	long double v7; // t1
+	float v8; // ST0C_4
+	long double v9; // fst3
+	float v10; // ST0C_4
+	long double v11; // fst3
+	long double v12; // fst5
+	float v13; // ST0C_4
+
+	v3 = vTo.x - vFrom.x;
+	v4 = vTo.y - vFrom.y;
+	v5 = v4;
+	v6 = v4 * v4 + v3 * v3;
+	v7 = vTo.z - vFrom.z;
+	v8 = sqrt(v7 * v7 + v6);
+	v9 = v8;
+	v10 = sqrt(0.8 * sv_gravity->value * 0.5 * v6 / v8);
+	v11 = (v9 + v7) / (v9 - v7) / v6;
+	v12 = v10;
+	v13 = v10 * sqrt(v11);
+	ret.z = v12;
+	ret.x = v3 * v13;
+	ret.y = v5 * v13;
+	return ret;
 }
 
 Vector Actor::CanThrowGrenade
@@ -3879,33 +4264,16 @@ void Actor::PostThink
 	CheckUnregister();
 	if (bDontFaceWall)
 	{
-		/*	FIXME: can't understand it.
-			v7 = 0;
-			v2 = 0;
-			v4 = (&`vtable for'SafePtr<SimpleEntity> + 2);
-			v3 = this->m_pTurnEntity._vptr$;
-			v5 = 0;
-			v6 = 0;
-			SafePtrBase::InitSafePtr(&v4, &v3->baseListener.baseClass);
-			if ( !v7 || this->m_ThinkState != 1 )
-			v2 = 1;
-			v4 = (&`vtable for'SafePtrBase + 2);
-			if ( v7 )
-			{
-			SafePtrBase::RemoveReference(&v4, v7);
-			v7 = 0;
-			}
-			if ( v2 )
-			Actor::DontFaceWall(this);
-		*/
+		if (!m_pTurnEntity || m_ThinkState != 1)
+		{
+			DontFaceWall();
+		}
 	}
 	UpdateAngles();
 	UpdateAnim();
 	DoMove();
 	UpdateBoneControllers();
 	UpdateFootsteps();
-	// FIXME: stub
-	STUB();
 }
 
 void Actor::SetMoveInfo
@@ -3975,8 +4343,47 @@ void Actor::TouchStuff
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int i, j;
+	gentity_t  *other;
+	Event		*event;
+
+	if (getMoveType() != MOVETYPE_NOCLIP)
+	{
+		G_TouchTriggers( this );
+	}
+
+	for (i = 0; i < mm->numtouch; i++)
+	{
+		other = &g_entities[pm->touchents[i]];
+
+		for (j = 0; j < i; j++)
+		{
+			gentity_t *ge = &g_entities[j];
+
+			if (ge == other)
+				break;
+		}
+
+		if (j != i)
+		{
+			// duplicated
+			continue;
+		}
+
+		// Don't bother touching the world
+		if ((!other->entity) || (other->entity == world))
+		{
+			continue;
+		}
+
+		event = new Event(EV_Touch);
+		event->AddEntity(this);
+		other->entity->ProcessEvent(event);
+
+		event = new Event(EV_Touch);
+		event->AddEntity(other->entity);
+		ProcessEvent(event);
+	}
 }
 
 void Actor::ExtractConstraints
@@ -4010,6 +4417,8 @@ void Actor::EventGiveWeapon
 	)
 
 {
+	str weapName = ev->GetString(1);
+	weapName.tolower();
 	// FIXME: stub
 	STUB();
 }
@@ -4192,12 +4601,11 @@ void Actor::EventShareEnemy
 
 {
 
-	/*
 	if (m_Enemy)
 	{
 		if (! ((m_bEnemyIsDisguised || m_Enemy->m_bIsDisguised) && !m_bForceAttackPlayer && m_ThinkState != 4) )
 		{
-			for (Actor * pSquadMate = m_pNextSquadMate; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate)
+			for (Actor * pSquadMate = (Actor *)m_pNextSquadMate.Pointer(); pSquadMate != this; pSquadMate = (Actor *)pSquadMate->m_pNextSquadMate.Pointer())
 			{
 				if (pSquadMate->IsSubclassOfActor())
 				{
@@ -4210,7 +4618,7 @@ void Actor::EventShareEnemy
 				}
 			}
 		}
-	}*/
+	}
 }
 
 void Actor::EventShareGrenade
@@ -4219,10 +4627,10 @@ void Actor::EventShareGrenade
 	)
 
 {
-	/*
+	
 	if (m_pGrenade)
 	{
-		for (Actor * pSquadMate = m_pNextSquadMate; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate)
+		for (Actor * pSquadMate = (Actor *)m_pNextSquadMate.Pointer(); pSquadMate != this; pSquadMate = (Actor *)pSquadMate->m_pNextSquadMate.Pointer())
 		{
 			if (pSquadMate->IsSubclassOfActor())
 			{
@@ -4242,7 +4650,7 @@ void Actor::EventShareGrenade
 				}
 			}
 		}
-	}*/
+	}
 }
 
 void Actor::ReceiveAIEvent
@@ -4488,7 +4896,7 @@ void Actor::RaiseAlertnessForEventType
 
 {
 	//FIXME: inunderstandable variables
-	long double v2,v3,v4,v5,v6,v7,v8;
+	long double v2,v3,v4,v7,v8;
 	switch (iType)
 	{
 	case AI_EVENT_WEAPON_FIRE:
@@ -4508,7 +4916,7 @@ void Actor::RaiseAlertnessForEventType
 		goto ACTOREVENTLABEL_3;
 	case AI_EVENT_GERMAN_VOICE:
 	case AI_EVENT_GERMAN_URGENT:
-		if (m_Team == 1)
+		if (m_Team == TEAM_AMERICAN)
 		{
 			v7 = this->m_fNoticeTimeScale * 0.66666669;
 			if (v7 >= 0.25)
@@ -4716,7 +5124,7 @@ bool Actor::InFOV
 	)
 
 {
-	bool inFov;
+	//bool inFov;
 
 	// FIXME: stub
 	STUB();
@@ -4933,8 +5341,8 @@ void Actor::DeathSinkStart
 {
 	//FIXME: macro: supposed FL_something
 	flags &= 0xFFFFFEFF;
-	movetype = MOVETYPE_NONE;
-	DeathSinkStart(ev);
+	setMoveType(MOVETYPE_NONE);
+	Entity::DeathSinkStart(ev);
 }
 
 bool Actor::NoticeShot
@@ -5490,7 +5898,7 @@ void Actor::Dumb
 
 {
 	Event *e1 = new Event(EV_Listener_ExecuteScript);
-	e1->AddConstString('v');
+	e1->AddConstString(STRING_GLOBAL_DISABLE_AI_SCR);
 	ExecuteScript(e1);
 }
 
@@ -5702,7 +6110,6 @@ void Actor::ResetBoneControllers
 	)
 
 {
-	gentity_t *v1; // eax
 
 	if (edict->s.bone_tag[HEAD_TAG] != -1)
 	{
@@ -5848,8 +6255,7 @@ void Actor::EventSetPatrolPath
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	SetPatrolCurrentNode(ev->GetListener(1));
 }
 
 void Actor::EventGetPatrolPath
@@ -5858,8 +6264,7 @@ void Actor::EventGetPatrolPath
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddListener(m_patrolCurrentNode);
 }
 
 void Actor::EventSetPatrolWaitTrigger
@@ -5868,8 +6273,7 @@ void Actor::EventSetPatrolWaitTrigger
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bPatrolWaitTrigger = ev->GetBoolean(1);
 }
 
 void Actor::EventGetPatrolWaitTrigger
@@ -5878,8 +6282,7 @@ void Actor::EventGetPatrolWaitTrigger
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bPatrolWaitTrigger);
 }
 
 void Actor::ShowInfo_PatrolCurrentNode
@@ -5888,8 +6291,15 @@ void Actor::ShowInfo_PatrolCurrentNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+
+	if (m_patrolCurrentNode)
+	{
+		Com_Printf("current patrol node: %s\n", m_patrolCurrentNode->targetname.c_str());
+	}
+	else
+	{
+		Com_Printf("no current patrol node\n");
+	}
 }
 
 bool Actor::MoveOnPathWithSquad
@@ -5929,8 +6339,28 @@ void Actor::UpdatePatrolCurrentNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	bool next = false;
+	if (m_patrolCurrentNode)
+	{
+		if (m_patrolCurrentNode->IsSubclassOfTempWaypoint())
+		{
+			if (fabs(origin[0] - m_patrolCurrentNode->origin[0]) < 16.0
+				&& fabs(origin[1] - m_patrolCurrentNode->origin[1]) < 16.0)
+			{
+				next = true;
+			}
+		}
+		else if(PathExists() && PathComplete())
+		{
+
+			next = true;
+		}
+
+	}
+	if (next)
+	{
+		NextPatrolCurrentNode();
+	}
 }
 
 bool Actor::MoveToPatrolCurrentNode
@@ -5950,8 +6380,15 @@ void Actor::ClearAimNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_aimNode)
+	{
+
+		if (m_aimNode->IsSubclassOfTempWaypoint())
+		{
+			delete m_aimNode;
+		}
+		m_aimNode = NULL;
+	}
 }
 
 void Actor::SetAimNode
@@ -5960,8 +6397,12 @@ void Actor::SetAimNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ClearAimNode();
+
+	TempWaypoint * twp = new TempWaypoint();
+	m_aimNode = twp;
+
+	m_aimNode->setOrigin(vec);
 }
 
 void Actor::SetAimNode
@@ -5970,8 +6411,21 @@ void Actor::SetAimNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ClearAimNode();
+	if (l)
+	{
+		if (!l->isInheritedBy(&SimpleEntity::ClassInfo))
+		{
+			ScriptError(
+				"Bad aim node with classname '%s' specified for '%s' at (%f %f %f)\n",
+				l->getClassname(),
+				targetname.c_str(),
+				origin.x,
+				origin.y,
+				origin.z);
+		}
+		m_aimNode = (SimpleEntity *)l;
+	}
 }
 
 void Actor::ShowInfo_AimNode
@@ -5980,8 +6434,14 @@ void Actor::ShowInfo_AimNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_aimNode)
+	{
+		Com_Printf("aim node: %s\n", m_aimNode->targetname.c_str());
+	}
+	else
+	{
+		Com_Printf("no current aim node\n");
+	}
 }
 
 void Actor::EventSetAccuracy
@@ -5990,8 +6450,7 @@ void Actor::EventSetAccuracy
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	mAccuracy = ev->GetFloat(1) / 100;
 }
 
 void Actor::EventGetAccuracy
@@ -6000,8 +6459,7 @@ void Actor::EventGetAccuracy
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddFloat(mAccuracy * 100);
 }
 
 int Actor::GetThinkType
@@ -6022,8 +6480,9 @@ void Actor::SetThink
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_ThinkMap[state] = think;
+	if (m_ThinkState == state)
+		m_bDirtyThinkState = true;
 }
 
 void Actor::SetThinkIdle
@@ -6100,8 +6559,13 @@ void Actor::EventSetFov
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float fov = ev->GetFloat(1);
+	if (fov < 0 || fov > 360)
+	{
+		ScriptError("fov must be in the range [0,360]");
+	}
+	m_fFov = fov;
+	m_fFovDot = cos(0.5 * fov * M_PI / 180.0);
 }
 
 void Actor::EventSetDestIdle
@@ -6189,8 +6653,12 @@ void Actor::EventSetDisguiseLevel
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_iDisguiseLevel = ev->GetInteger(1);
+	if (m_iDisguiseLevel -1 > 1)
+	{
+		m_iDisguiseLevel = 1;
+		ScriptError("bad disguise level %d for %s, setting to 1\n", m_iDisguiseLevel, targetname.c_str());
+	}
 }
 
 void Actor::EventGetDisguiseLevel
@@ -6227,8 +6695,18 @@ void Actor::EventSetMinDistance
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_fMinDistance = ev->GetFloat(1);
+	//FIXME: macro
+	if (m_fMinDistance < 0)
+	{
+		m_fMinDistance = 0;
+		Com_Printf(
+			"^~^~^ Warning: mindist negative, forcing to %g for entity %i, targetname '%s'\n",
+			m_fMinDistance,
+			entnum,
+			targetname.c_str());
+	}
+	m_fMinDistanceSquared = m_fMinDistance * m_fMinDistance;
 }
 
 void Actor::EventGetMinDistance
@@ -6246,8 +6724,18 @@ void Actor::EventSetMaxDistance
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_fMaxDistance = ev->GetFloat(1);
+	//FIXME: macro
+	if (m_fMaxDistance < 256)
+	{
+		m_fMaxDistance = 256;
+		Com_Printf(
+			"^~^~^ Warning: maxdist too small, forcing to %g for entity %i, targetname '%s'\n",
+			m_fMaxDistance,
+			entnum,
+			targetname.c_str());
+	}
+	m_fMaxDistanceSquared = m_fMaxDistance * m_fMaxDistance;
 }
 
 void Actor::EventGetMaxDistance
@@ -6265,8 +6753,8 @@ void Actor::EventSetLeash
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_fLeash = ev->GetFloat(1);
+	m_fLeashSquared = m_fLeash * m_fLeash;
 }
 
 void Actor::EventGetLeash
@@ -6284,8 +6772,7 @@ void Actor::EventSetInterval
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_fInterval = ev->GetFloat(1);
 }
 
 void Actor::EventDistToEnemy
@@ -6294,8 +6781,12 @@ void Actor::EventDistToEnemy
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float dist = 0;
+	if (m_Enemy)
+	{
+		Vector distV = origin - m_Enemy->origin;
+		dist = sqrt(DotProduct(distV, distV));
+	}
 }
 
 void Actor::EventGetInterval
@@ -6331,8 +6822,7 @@ void Actor::EventSetAnimName
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_csAnimName = ev->GetConstString(1);
 }
 
 void Actor::EventGetAnimName
@@ -6350,8 +6840,8 @@ void Actor::EventSetDisguiseRange
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float range = ev->GetFloat(1);
+	m_fMaxDisguiseDistSquared = range * range;
 }
 
 void Actor::EventGetDisguiseRange
@@ -6369,8 +6859,7 @@ void Actor::EventSetDisguisePeriod
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_iDisguisePeriod = ev->GetFloat(1) * 1000 + 0.5;
 }
 
 void Actor::EventGetDisguisePeriod
@@ -6388,8 +6877,16 @@ void Actor::EventSetDisguiseAcceptThread
 	)
 
 {
-	// FIXME: stub
-	STUB();
+
+	if (ev->IsFromScript())
+	{
+		m_DisguiseAcceptThread.SetThread(ev->GetValue());
+	}
+	else
+	{
+
+		m_DisguiseAcceptThread.Set(ev->GetString(1));
+	}
 }
 
 void Actor::EventGetDisguiseAcceptThread
@@ -6408,8 +6905,16 @@ void Actor::EventAttackPlayer
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Player *pPlayer = (Player *)G_GetEntity(0);
+	if (!pPlayer)
+	{
+		ScriptError("player doesn't exist");
+	}
+	else
+	{
+		m_PotentialEnemies.ConfirmEnemy(this, pPlayer);
+		m_bForceAttackPlayer = true;
+	}
 }
 
 void Actor::ForceAttackPlayer
@@ -6418,8 +6923,7 @@ void Actor::ForceAttackPlayer
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_PotentialEnemies.ConfirmEnemy(this, (Sentient *)G_GetEntity(0));
 }
 
 void Actor::EventSetAlarmNode
@@ -6428,8 +6932,15 @@ void Actor::EventSetAlarmNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Listener *l = ev->GetListener(1);
+	if (l)
+	{
+		if (!l->isInheritedBy(&SimpleEntity::ClassInfo))
+		{
+			ScriptError("Alarm node must be an entity");
+		}
+	}
+	m_AlarmNode = (SimpleEntity *)l;
 }
 
 void Actor::EventGetAlarmNode
@@ -6447,8 +6958,15 @@ void Actor::EventSetAlarmThread
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->IsFromScript())
+	{
+		m_AlarmThread.SetThread(ev->GetValue());
+	}
+	else
+	{
+
+		m_AlarmThread.Set(ev->GetString(1));
+	}
 }
 
 void Actor::EventGetAlarmThread
@@ -6457,8 +6975,8 @@ void Actor::EventGetAlarmThread
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: reverse ScriptThreadLabel
+	//m_AlarmThread.GetScriptValue(ev->GetValue());
 }
 
 void Actor::EventSetSoundAwareness
@@ -6467,8 +6985,7 @@ void Actor::EventSetSoundAwareness
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_fSoundAwareness = ev->GetFloat(1);
 }
 
 void Actor::EventGetSoundAwareness
@@ -6486,8 +7003,7 @@ void Actor::EventSetGrenadeAwareness
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_fGrenadeAwareness = ev->GetFloat(1);
 }
 
 void Actor::EventGetGrenadeAwareness
@@ -6523,8 +7039,11 @@ void Actor::EventSetTurret
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Listener *l = ev->GetListener(1);
+	if (l->isInheritedBy(&TurretGun::ClassInfo))
+	{
+		m_pTurret = (TurretGun *)l;
+	}
 }
 
 void Actor::EventGetTurret
@@ -6570,8 +7089,7 @@ void Actor::EventGetAmmoGrenade
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(AmmoCount("grenade"));
 }
 
 void Actor::EventSetAmmoGrenade
@@ -6580,8 +7098,7 @@ void Actor::EventSetAmmoGrenade
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	GiveAmmo("grenade", ev->GetInteger(1));
 }
 
 void Actor::EventInterruptPoint
@@ -6600,8 +7117,14 @@ void Actor::EventAnimScript
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bAnimScriptSet = true;
+	m_csAnimScript = ev->GetConstString(1);
+
+	//FIXME: macro
+	m_AnimMode = 1;
+
+	//FIXME: macro: THINKSTATE_*
+	SetThinkIdle(22);
 }
 
 void Actor::EventAnimScript_Scripted
@@ -6610,8 +7133,14 @@ void Actor::EventAnimScript_Scripted
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bAnimScriptSet = true;
+	m_csAnimScript = ev->GetConstString(1);
+
+	//FIXME: macro
+	m_AnimMode = 5;
+
+	//FIXME: macro: THINKSTATE_*
+	SetThinkIdle(22);
 }
 
 void Actor::EventAnimScript_Noclip
@@ -6620,8 +7149,13 @@ void Actor::EventAnimScript_Noclip
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bAnimScriptSet = true;
+	m_csAnimScript = ev->GetConstString(1);
+	//FIXME: macro
+	m_AnimMode = 6;
+
+	//FIXME: macro: THINKSTATE_*
+	SetThinkIdle(22);
 }
 
 void Actor::EventReload_mg42
@@ -6630,8 +7164,20 @@ void Actor::EventReload_mg42
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: macos/enum
+	if (m_State != 1201)
+	{
+		if (m_State == 1200)
+		{
+			m_State = 1201;
+			m_bAnimScriptSet = true;
+			m_iStateTime = level.inttime;
+		}
+		else
+		{
+			Unregister(STRING_ANIMDONE);
+		}
+	}
 }
 
 void Actor::SetPathWithLeash
@@ -6642,8 +7188,27 @@ void Actor::SetPathWithLeash
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	vec2_t dist = { vDestPos[0] - m_vHome[0],  vDestPos[1] - m_vHome[1] };
+	float distSq = DotProduct2D(dist, dist);
+	if (distSq <= m_fLeashSquared)
+	{
+		dist[0] = origin[0] - m_vHome[0];
+		dist[1] = origin[1] - m_vHome[1];
+		distSq = DotProduct2D(dist, dist);
+		if (distSq <= m_fLeashSquared)
+		{
+			SetPath(
+				vDestPos,
+				description,
+				iMaxDirtyTime,
+				m_vHome,
+				m_fLeashSquared);
+		}
+	}
+	else
+	{
+		ClearPath();
+	}
 }
 
 void Actor::SetPathWithLeash
@@ -6654,8 +7219,27 @@ void Actor::SetPathWithLeash
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (pDestNode)
+	{
+		SetPathWithLeash(
+			pDestNode->origin,
+			description,
+			iMaxDirtyTime);
+	}
+	else
+	{
+		if (m_bPathErrorTime + 5000 < level.inttime)
+		{
+			m_bPathErrorTime = level.inttime;
+			Com_Printf(
+				"^~^~^ No destination node specified for '%s' at (%f %f %f)\n",
+				targetname.c_str(),
+				origin[0],
+				origin[1],
+				origin[2]);
+		}
+		ClearPath();
+	}
 }
 
 void Actor::FindPathAwayWithLeash
@@ -6666,19 +7250,46 @@ void Actor::FindPathAwayWithLeash
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_Path.FindPathAway(
+		origin,
+		vAwayFrom,
+		vDirPreferred,
+		this,
+		fMinSafeDist,
+		m_vHome,
+		m_fLeashSquared);
+	ShortenPathToAvoidSquadMates();
 }
 
 void Actor::FindPathNearWithLeash
-(
-vec3_t vNearbyTo,
-float fCloseDistSquared
-)
+	(
+	vec3_t vNearbyTo,
+	float fCloseDistSquared
+	)
 
 {
-	// FIXME: stub
-	STUB();
+	vec2_t dist = {vNearbyTo[0] - m_vHome[0],  vNearbyTo[1] - m_vHome[1]};
+	float distSq = DotProduct2D(dist,dist);
+	
+	if (distSq <= m_fLeashSquared + fCloseDistSquared + 2 * sqrt(m_fLeashSquared * fCloseDistSquared))
+	{
+		dist[0] = origin[0] - m_vHome[0];
+		dist[1] = origin[1] - m_vHome[1];
+		distSq = DotProduct2D(dist, dist);
+		if (distSq <= m_fLeashSquared)
+		{
+			m_Path.FindPathNear(
+				origin,
+				vNearbyTo,
+				this,
+				0,
+				fCloseDistSquared,
+				m_vHome,
+				m_fLeashSquared);
+			ShortenPathToAvoidSquadMates();
+		}
+
+	}
 }
 
 bool Actor::CanMovePathWithLeash
@@ -6725,16 +7336,30 @@ bool Actor::ShortenPathToAttack
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (PathExists() && !PathComplete() && PathAvoidsSquadMates())
+	{
+		for (auto current_node = CurrentPathNode(); current_node > LastPathNode(); current_node--)
+		{
+			Vector dist = current_node->point - origin;
+			if (dist * dist >= fMinDist * fMinDist)
+			{
+				if (CanSeeFrom(eyeposition + current_node->point, m_Enemy))
+				{
+					m_Path.TrimPathFromEnd((current_node - LastPathNode()) / 32);
+					return true;
+				}
+			}
+		}
+	}
+
 	return false;
 }
 
 void Actor::StrafeToAttack
-(
-float fDist,
-vec3_t vDir
-)
+	(
+	float fDist,
+	vec3_t vDir
+	)
 
 {
 
@@ -6771,8 +7396,9 @@ void Actor::EventSetHeadModel
 	)
 
 {
-	// FIXME: stub
-	STUB();
+
+	m_csHeadModel = ev->GetConstString(1);
+	setModel();
 }
 
 void Actor::EventGetHeadModel
@@ -6781,8 +7407,7 @@ void Actor::EventGetHeadModel
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddConstString(m_csHeadModel);
 }
 
 void Actor::EventSetHeadSkin
@@ -6791,8 +7416,8 @@ void Actor::EventSetHeadSkin
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_csHeadSkin = ev->GetConstString(1);
+	setModel();
 }
 
 void Actor::EventGetHeadSkin
@@ -6810,8 +7435,7 @@ void Actor::EventSetNoIdle
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bNoIdleAfterAnim = ev->GetInteger(1);
 }
 
 void Actor::EventGetNoIdle
@@ -6820,8 +7444,7 @@ void Actor::EventGetNoIdle
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bNoIdleAfterAnim);
 }
 
 void Actor::EventGetEnemy
@@ -6830,8 +7453,7 @@ void Actor::EventGetEnemy
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddListener(m_Enemy);
 }
 
 void Actor::EventSetMaxNoticeTimeScale
@@ -6840,8 +7462,17 @@ void Actor::EventSetMaxNoticeTimeScale
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float noticeScale; // fst7
+
+	noticeScale = ev->GetFloat(1);
+	if (noticeScale <= 0.0)
+	{
+		Com_Printf("^~^~^ ERROR: noticescale: value must be greater than 0\n");
+	}
+	else
+	{
+		m_fMaxNoticeTimeScale = noticeScale / 100;
+	}
 }
 
 void Actor::EventGetMaxNoticeTimeScale
@@ -6850,8 +7481,8 @@ void Actor::EventGetMaxNoticeTimeScale
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: *100 ?
+	ev->AddFloat(m_fMaxNoticeTimeScale * 100);
 }
 
 void Actor::EventSetFixedLeash
@@ -6860,8 +7491,7 @@ void Actor::EventSetFixedLeash
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bFixedLeash = ev->GetInteger(1);
 }
 
 void Actor::EventGetFixedLeash
@@ -6870,8 +7500,7 @@ void Actor::EventGetFixedLeash
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bFixedLeash);
 }
 
 void Actor::Holster
@@ -6880,8 +7509,10 @@ void Actor::Holster
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (activeWeaponList[0])
+	{
+		DeactivateWeapon(WEAPON_MAIN);
+	}
 }
 
 void Actor::Unholster
@@ -6890,8 +7521,17 @@ void Actor::Unholster
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Weapon *weap;
+
+	if (!activeWeaponList[0])
+	{
+		weap = GetWeapon(WEAPON_MAIN);
+		if (weap)
+		{
+			useWeapon(weap, WEAPON_MAIN);
+			ActivateNewWeapon();
+		}
+	}
 }
 
 void Actor::EventHolster
@@ -6900,8 +7540,10 @@ void Actor::EventHolster
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (activeWeaponList[WEAPON_MAIN])
+	{
+		DeactivateWeapon(WEAPON_MAIN);
+	}
 }
 
 void Actor::EventUnholster
@@ -6910,8 +7552,7 @@ void Actor::EventUnholster
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Unholster();
 }
 
 void Actor::EventSoundDone
@@ -6920,8 +7561,29 @@ void Actor::EventSoundDone
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//soundChannel_t
+	int channel = ev->GetInteger(1);
+	str name = ev->GetString(2);
+	if (gi.S_IsSoundPlaying(channel, name))
+	{
+		Event *e1 = new Event(EV_SoundDone);
+		e1->AddInteger(channel);
+		e1->AddString(name);
+		PostEvent(e1, level.frametime);
+	}
+	//FIXME: macro
+	else if (m_bSayAnimSet && m_iSaySlot == -2)
+	{
+		ChangeSayAnim();
+		if (m_csSayAnim == STRING_EMPTY)
+		{
+			Unregister(STRING_SAYDONE);
+		}
+	}
+	else
+	{
+		Unregister(STRING_SOUNDDONE);
+	}
 }
 
 void Actor::EventSound
@@ -6930,8 +7592,7 @@ void Actor::EventSound
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ProcessSoundEvent(ev, m_Team == TEAM_AMERICAN);
 }
 
 void Actor::EventIsEnemyVisible
@@ -6940,8 +7601,7 @@ void Actor::EventIsEnemyVisible
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bEnemyVisible);
 }
 
 void Actor::EventGetEnemyVisibleChangeTime
@@ -6950,8 +7610,8 @@ void Actor::EventGetEnemyVisibleChangeTime
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: /100 ??
+	ev->AddFloat(m_iEnemyVisibleChangeTime / 100);
 }
 
 void Actor::EventGetLastEnemyVisibleTime
@@ -6960,8 +7620,8 @@ void Actor::EventGetLastEnemyVisibleTime
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: /100 ??
+	ev->AddFloat(m_iLastEnemyVisibleTime / 100 );
 }
 
 void Actor::EventSetFallHeight
@@ -6970,8 +7630,18 @@ void Actor::EventSetFallHeight
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float fHeight = ev->GetFloat(1);
+
+	if (fHeight < MIN_FALLHEIGHT)
+	{
+		ScriptError("value less than %d not allowed", MIN_FALLHEIGHT);
+	}
+	if (fHeight > MAX_FALLHEIGHT)
+	{
+		ScriptError("value greater than %d not allowed", MAX_FALLHEIGHT);
+	}
+
+	m_Path.SetFallHeight(fHeight);
 }
 
 void Actor::EventGetFallHeight
@@ -6980,8 +7650,7 @@ void Actor::EventGetFallHeight
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddFloat(m_Path.GetFallHeight());
 }
 
 void Actor::EventCanMoveTo
@@ -7000,8 +7669,21 @@ void Actor::EventMoveDir
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	
+	vec2_t vec;
+	if (!PathGoalSlowdownStarted())
+	{
+		vec[0] = velocity.x;
+		vec[1] = velocity.y;
+		if ( velocity.x == 0 && velocity.y == 0 && PathExists() && !PathComplete())
+		{
+				vec[0] = PathDelta()[0];
+				vec[1] = PathDelta()[1];
+		}
+		VectorNormalize2D(vec);
+	}
+
+	ev->AddVector(vec);
 }
 
 void Actor::EventIntervalDir
@@ -7010,8 +7692,24 @@ void Actor::EventIntervalDir
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Vector dir;
+	dir = m_vIntervalDir;
+	//FIXME: macro
+	if (level.inttime >= m_iIntervalDirTime + 250)
+	{
+		m_vIntervalDir = vec_zero;
+		m_iIntervalDirTime = level.inttime;
+		if (m_Enemy)
+		{
+			m_vIntervalDir = GetAntiBunchPoint() - origin;
+			if (m_vIntervalDir.x != 0 || m_vIntervalDir.y != 0)
+			{
+				VectorNormalizeFast(m_vIntervalDir);
+			}
+		}
+	}
+	//FIXME: not sure if i should add dir or m_vIntervalDir
+	ev->AddVector(m_vIntervalDir);
 }
 
 void Actor::EventResetLeash
@@ -7020,8 +7718,8 @@ void Actor::EventResetLeash
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_vHome = origin;
+	delete m_pTetherEnt;
 }
 
 void Actor::EventTether
@@ -7030,8 +7728,7 @@ void Actor::EventTether
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_pTetherEnt = ev->GetSimpleEntity(1);
 }
 
 void Actor::EventGetThinkState
@@ -7040,8 +7737,7 @@ void Actor::EventGetThinkState
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddConstString(m_csThinkStateNames[m_ThinkState]);
 }
 
 void Actor::EventGetEnemyShareRange
@@ -7050,8 +7746,7 @@ void Actor::EventGetEnemyShareRange
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddFloat(m_fMaxShareDistSquared);
 }
 
 void Actor::EventSetEnemyShareRange
@@ -7060,8 +7755,8 @@ void Actor::EventSetEnemyShareRange
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float dist = ev->GetFloat(1);
+	m_fMaxShareDistSquared = dist * dist;
 }
 
 void Actor::EventGetKickDir
@@ -7070,8 +7765,7 @@ void Actor::EventGetKickDir
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddVector(m_vKickDir);
 }
 
 void Actor::EventGetNoLongPain
@@ -7080,8 +7774,7 @@ void Actor::EventGetNoLongPain
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bNoLongPain);
 }
 
 void Actor::EventSetNoLongPain
@@ -7090,8 +7783,7 @@ void Actor::EventSetNoLongPain
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bNoLongPain = ev->GetBoolean(1);
 }
 
 void Actor::EventGetFavoriteEnemy
@@ -7100,8 +7792,7 @@ void Actor::EventGetFavoriteEnemy
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddEntity(m_FavoriteEnemy);
 }
 
 void Actor::EventSetFavoriteEnemy
@@ -7110,8 +7801,8 @@ void Actor::EventSetFavoriteEnemy
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Sentient *fEnemy = (Sentient*)ev->GetEntity(1);
+	m_FavoriteEnemy = fEnemy;
 }
 
 void Actor::EventGetMumble
@@ -7120,8 +7811,7 @@ void Actor::EventGetMumble
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bMumble);
 }
 
 void Actor::EventSetMumble
@@ -7130,8 +7820,7 @@ void Actor::EventSetMumble
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bMumble = ev->GetInteger(1);
 }
 
 void Actor::EventGetBreathSteam
@@ -7140,8 +7829,7 @@ void Actor::EventGetBreathSteam
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bBreathSteam);
 }
 
 void Actor::EventSetBreathSteam
@@ -7150,8 +7838,7 @@ void Actor::EventSetBreathSteam
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bBreathSteam = ev->GetInteger(1);
 }
 
 void Actor::EventSetNextBreathTime
@@ -7178,10 +7865,8 @@ void Actor::EventGetNoSurprise
 	(
 	Event *ev
 	)
-
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bNoSurprise);
 }
 
 void Actor::EventSetNoSurprise
@@ -7190,8 +7875,8 @@ void Actor::EventSetNoSurprise
 	)
 
 {
-	// FIXME: stub
-	STUB();
+
+	m_bNoSurprise = ev->GetBoolean(1);
 }
 
 void Actor::EventGetSilent
@@ -7200,8 +7885,7 @@ void Actor::EventGetSilent
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bSilent);
 }
 
 void Actor::EventSetSilent
@@ -7210,8 +7894,7 @@ void Actor::EventSetSilent
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bSilent = ev->GetBoolean(1);
 }
 
 void Actor::EventGetAvoidPlayer
@@ -7220,8 +7903,7 @@ void Actor::EventGetAvoidPlayer
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bAutoAvoidPlayer);
 }
 
 void Actor::EventSetAvoidPlayer
@@ -7230,8 +7912,7 @@ void Actor::EventSetAvoidPlayer
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bAutoAvoidPlayer = ev->GetBoolean(1);
 }
 
 void Actor::EventGetLookAroundAngle
@@ -7240,8 +7921,9 @@ void Actor::EventGetLookAroundAngle
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: weird
+	//ev->GetFloat(m_fLookAroundFov);
+	ev->AddFloat(m_fLookAroundFov);
 }
 
 void Actor::EventSetLookAroundAngle
@@ -7250,8 +7932,12 @@ void Actor::EventSetLookAroundAngle
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float angle = ev->GetFloat(1);
+	if (angle < 0.0 || angle > 60.0)
+	{
+		ScriptError("lookaroundangle must be >= 0 and <= 60");
+	}
+	m_fLookAroundFov = angle;
 }
 
 void Actor::EventHasCompleteLookahead
@@ -7260,8 +7946,9 @@ void Actor::EventHasCompleteLookahead
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int completeLH = PathExists() && PathHasCompleteLookahead();
+	
+	ev->AddInteger(completeLH);
 }
 
 void Actor::EventPathDist
@@ -7270,8 +7957,12 @@ void Actor::EventPathDist
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float dist = 0;
+	if (PathExists() && !PathComplete())
+	{
+		dist = PathDist();
+	}
+	ev->AddFloat(dist);
 }
 
 void Actor::EventCanShootEnemyFrom
@@ -7280,8 +7971,12 @@ void Actor::EventCanShootEnemyFrom
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int canShoot = false;
+	if (m_Enemy)
+	{
+		canShoot = CanSeeFrom(ev->GetVector(1), m_Enemy);
+	}
+	ev->AddInteger(canShoot);
 }
 
 void Actor::EventCanShoot
@@ -7290,8 +7985,14 @@ void Actor::EventCanShoot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Entity *target = ev->GetEntity(1);
+
+	if (!target)
+	{
+		ScriptError("canshoot applied to null listener");
+	}
+
+	ev->AddInteger(CanShoot(target));
 }
 
 void Actor::EventSetInReload
@@ -7300,8 +8001,8 @@ void Actor::EventSetInReload
 	)
 
 {
-	// FIXME: stub
-	STUB();
+
+	m_bInReload = ev->GetBoolean(1);
 }
 
 void Actor::EventGetInReload
@@ -7310,8 +8011,7 @@ void Actor::EventGetInReload
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddInteger(m_bInReload);
 }
 
 void Actor::EventSetReloadCover
@@ -7320,8 +8020,7 @@ void Actor::EventSetReloadCover
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bNeedReload = ev->GetBoolean(1);
 }
 
 void Actor::EventBreakSpecial
@@ -7330,8 +8029,7 @@ void Actor::EventBreakSpecial
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	mbBreakSpecialAttack = 1;
 }
 
 void Actor::GetVoiceType
@@ -7340,8 +8038,10 @@ void Actor::GetVoiceType
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//voice type in actor is a char.
+	const char *vType = va("%c", mVoiceType);
+	str vTypeStr = vType;
+	ev->AddString(vTypeStr);
 }
 
 void Actor::SetVoiceType
@@ -7350,8 +8050,17 @@ void Actor::SetVoiceType
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//voice type in actor is a char.
+	str vType = ev->GetString(1);
+	if (*vType.c_str())
+	{
+		mVoiceType = *vType.c_str();
+	}
+	else
+	{
+		//FIXME: enum
+		mVoiceType = -1;
+	}
 }
 
 void Actor::ResolveVoiceType
@@ -7370,8 +8079,7 @@ void Actor::EventSetBalconyHeight
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_fBalconyHeight = ev->GetFloat(1);
 }
 
 void Actor::EventGetBalconyHeight
@@ -7380,8 +8088,7 @@ void Actor::EventGetBalconyHeight
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddFloat(m_fBalconyHeight);
 }
 
 PathNode *Actor::FindSniperNodeAndSetPath
@@ -7458,8 +8165,15 @@ void Actor::ClearStates
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: macros
+	for (int i = 0; i <= 8; i++)
+	{
+		m_ThinkMap[i] = 0;
+		if (m_ThinkState == i)
+		{
+			m_bDirtyThinkState = true;
+		}
+	}
 }
 
 void Actor::CheckUnregister
@@ -7468,8 +8182,20 @@ void Actor::CheckUnregister
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bBecomeRunner = false;
+	if (parm.movefail)
+	{
+		parm.movedone = false;
+		Unregister(STRING_MOVEDONE);
+	}
+	if (m_Enemy)
+	{
+		Unregister(STRING_HASENEMY);
+	}
+	if (m_bEnemyVisible)
+	{
+		Unregister(STRING_VISIBLE);
+	}
 }
 
 void Actor::BecomeCorpse
@@ -7478,8 +8204,18 @@ void Actor::BecomeCorpse
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Event * e1;
+
+	AddToBodyQue();
+
+	edict->r.contents = CONTENTS_TRIGGER;
+	edict->r.svFlags &= ~SVF_USE_CURRENT_ORIGIN;
+	setSolidType(SOLID_NOT);
+	movetype = MOVETYPE_NONE;
+	edict->s.renderfx &= ~RF_SHADOW;
+
+	e1 = new Event(EV_DeathSinkStart);
+	PostEvent(e1, 20, 0);
 }
 
 void Actor::PathnodeClaimRevoked
@@ -7508,8 +8244,8 @@ void Actor::EventSetMoveDoneRadius
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float moveDoneR = ev->GetFloat(1);
+	m_fMoveDoneRadiusSquared = moveDoneR * moveDoneR;
 }
 
 
@@ -7530,8 +8266,39 @@ void Actor::IdleThink
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: revision
+	IdlePoint();
+	IdleLook();
+	if (PathExists() && PathComplete())
+	{
+		ClearPath();
+	}
+	if (m_bAutoAvoidPlayer && !PathExists())
+	{
+		SetPathToNotBlockSentient(( Sentient * )G_GetEntity(0));
+	}
+	if (!PathExists())
+	{
+		Anim_Idle();
+		IdleTurn();
+		PostThink(true);
+	}
+	else
+	{
+		//FIXME: macros
+		Anim_WalkTo(2);
+
+		if (PathDist() <= 128.0)
+		{
+			IdleTurn();
+			PostThink(true);
+		}
+		else
+		{
+			FaceMotion();
+		}
+	}
+	
 }
 
 void Actor::ClearEnemies
@@ -7569,8 +8336,20 @@ void Actor::DumpAnimInfo
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Animate::DumpAnimInfo();
+	Vector desiredLook = m_bHasDesiredLookAngles ? m_DesiredLookAngles : vec_zero;
+	//FIXME: macros: bones
+	Vector head = GetControllerAngles(0);
+	Vector torso = GetControllerAngles(1);
+	MPrintf("Desired look yaw: %.1f, pitch: %.1f.  Head yaw: %.1f, pitch %.1f.  Torso yaw: %.1f, pitch: %.1f\n",
+		desiredLook.x,
+		desiredLook.y,
+		head.x,
+		head.y,
+		torso.x,
+		torso.y
+		);
+
 }
 
 bool Actor::AutoArchiveModel

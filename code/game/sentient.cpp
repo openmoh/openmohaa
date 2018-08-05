@@ -602,7 +602,7 @@ Sentient::Sentient()
 	m_iLastHitTime = 0;
 	m_bHasDisguise = false;
 	m_ShowPapersTime = 0;
-	m_Team = 1;
+	m_Team = TEAM_AMERICAN;
 	m_iThreatBias = 0;
 	m_bFootOnGround_Right = true;
 	m_bFootOnGround_Left = true;

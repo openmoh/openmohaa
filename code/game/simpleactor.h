@@ -126,7 +126,7 @@ public:
 	virtual bool CanTarget( void );
 	virtual bool IsImmortal( void );
 	bool DoesTheoreticPathExist( Vector vDestPos, float fMaxPath );
-	void SetPath( Vector vDestPos, char *description, int iMaxDirtyTime, float *vLeashHome, float fLeashDistSquared );
+	void SetPath( Vector vDestPos, const char *description, int iMaxDirtyTime, float *vLeashHome, float fLeashDistSquared );
 	void SetPath( SimpleEntity *pDestNode, char *description, int iMaxDirtyTime );
 	void SetPathWithinDistance( Vector vDestPos, char *description, float fMaxPath, int iMaxDirtyTime );
 	void FindPathAway( vec3_t vAwayFrom, vec3_t vDirPreferred, float fMinSafeDist );

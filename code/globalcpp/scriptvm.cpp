@@ -2312,3 +2312,35 @@ void ScriptVM::RequestContextSwitch( void )
 	m_ThreadState = THREAD_CONTEXT_SWITCH;
 	Suspend();
 }
+
+bool ScriptVM::CanScriptTracePrint
+	(
+	void
+	)
+{
+	if (g_scripttrace->integer < 1 || g_scripttrace->integer > 4)
+	{
+		return false;
+	}
+	if (g_scripttrace->integer <= 2)
+	{
+		return true;
+	}
+	if (!m_ScriptClass)
+	{
+		return false;
+	}
+	if (!*g_monitor->string || !m_ScriptClass->m_Self || !m_ScriptClass->m_Self->isInheritedBy(&SimpleEntity::ClassInfo) || ((SimpleEntity *)m_ScriptClass->m_Self.Pointer())->targetname != g_monitor->string)
+	{
+		if (g_monitorNum->integer >= 0)
+		{
+			if (m_ScriptClass->m_Self && m_ScriptClass->m_Self->isInheritedBy(&Entity::ClassInfo) && ((Entity *)m_ScriptClass->m_Self.Pointer())->entnum == g_monitorNum->integer)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	return true;
+
+}

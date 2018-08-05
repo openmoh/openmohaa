@@ -324,6 +324,8 @@ public:
 
 	void			AllowContextSwitch( bool allow = true );
 	void			RequestContextSwitch();
+
+	bool			CanScriptTracePrint( void );
 };
 
 extern MEM_BlockAlloc< ScriptClass, MEM_BLOCKSIZE > ScriptClass_allocator;

@@ -120,7 +120,7 @@ public:
 	float					length( void ) const;
 	float					lengthfast( void ) const;
 	float					lengthSquared( void ) const;
-	float					lengthXY( void ) const;
+	float					lengthXY( bool squared = false ) const;
 	float					normalize( void );
 	void					normalizefast( void );
 	void					EulerNormalize( void );
@@ -553,9 +553,9 @@ inline float Vector::lengthfast( void ) const
 //
 // Returns:			float - length of the vector in the xy plane
 //----------------------------------------------------------------
-inline float Vector::lengthXY( void ) const
+inline float Vector::lengthXY( bool squared = false ) const
 {
-	return sqrt(( x * x ) + ( y * y ));
+	return squared ? (x * x) + (y * y) : sqrt(( x * x ) + ( y * y ));
 }
 
 //----------------------------------------------------------------

@@ -34,7 +34,7 @@ void Actor::InitTurret
 	func->BeginState					= &Actor::Begin_Turret;
 	func->EndState						= &Actor::End_Turret;
 	func->SuspendState					= &Actor::Suspend_Turret;
-	func->ResumeState					= NULL;
+	func->RestartState					= NULL;
 	func->FinishedAnimation				= &Actor::FinishedAnimation_Turret;
 	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Attack;
 	func->PostShoot						= &Actor::InterruptPoint_Turret;
