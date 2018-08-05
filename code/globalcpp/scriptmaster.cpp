@@ -6666,7 +6666,13 @@ void ScriptThread::CanSwitchTeams
 		disable_team_spectate = !bAllow2;
 	}
 }
-
+bool ScriptThread::CanScriptTracePrint
+	(
+	void
+	)
+{
+	return m_ScriptVM->CanScriptTracePrint();
+}
 void ScriptThread::Earthquake
 	(
 	Event *ev

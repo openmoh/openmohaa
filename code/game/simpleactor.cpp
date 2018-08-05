@@ -299,7 +299,7 @@ bool SimpleActor::DoesTheoreticPathExist
 void SimpleActor::SetPath
 	(
 	Vector vDestPos,
-	char *description,
+	const char *description,
 	int iMaxDirtyTime,
 	float *vLeashHome,
 	float fLeashDistSquared

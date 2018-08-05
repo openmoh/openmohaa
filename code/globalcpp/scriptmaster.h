@@ -229,6 +229,7 @@ public:
 	void			Wait( float time );
 
 	void		CanSwitchTeams( Event *ev );
+	bool		CanScriptTracePrint( void );
 	void		CharToInt( Event *ev );
 	void		Conprintf( Event *ev );
 	void		CreateHUD( Event *ev );
