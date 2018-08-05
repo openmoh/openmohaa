@@ -20,6 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(STRICTUNZIP) || defined(STRICTZIPUNZIP)
 /* like the STRICT of WIN32, we define a pointer that cannot be converted
     from (void*) without cast */
@@ -351,3 +355,7 @@ extern long unzGetOffset(unzFile file);
 
 /* Set the current file offset */
 extern int unzSetOffset(unzFile file, long pos);
+
+#ifdef __cplusplus
+}
+#endif

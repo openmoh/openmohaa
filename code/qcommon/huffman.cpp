@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
-static int			bloc = 0;
+int bloc = 0;
 
 void	Huff_putBit( int bit, byte *fout, int *offset) {
 	bloc = *offset;

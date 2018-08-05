@@ -22,9 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
-static huffman_t		msgHuff;
+huffman_t msgHuff;
 
-static qboolean			msgInit = qfalse;
+qboolean msgInit = qfalse;
 
 int pcount[256];
 
@@ -590,7 +590,7 @@ delta functions
 =============================================================================
 */
 
-extern cvar_t *cl_shownet;
+extern "C" cvar_t *cl_shownet;
 
 #define	LOG(x) if( cl_shownet->integer == 4 ) { Com_Printf("%s ", x ); };
 
@@ -637,7 +637,7 @@ delta functions with keys
 =============================================================================
 */
 
-int kbitmask[32] = {
+unsigned int kbitmask[32] = {
 	0x00000001, 0x00000003, 0x00000007, 0x0000000F,
 	0x0000001F,	0x0000003F,	0x0000007F,	0x000000FF,
 	0x000001FF,	0x000003FF,	0x000007FF,	0x00000FFF,

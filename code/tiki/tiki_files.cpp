@@ -56,7 +56,6 @@ static int m_cachedDataLookup[ 4095 ];
 static skeletorCacheEntry_t m_cachedData[ 4095 ];
 InitSkelCache InitSkelCache::init;
 MEM_TempAlloc TIKI_allocator;
-dloaddef_t loaddef;
 
 /*
 ===============
@@ -114,6 +113,7 @@ TIKI_LoadTikiAnim
 qboolean loadtikicommands = true;
 dtikianim_t *TIKI_LoadTikiAnim( const char *path )
 {
+	dloaddef_t loaddef;
 	dtikianim_t *tiki = NULL;
 	const char *token;
 	float tempVec[ 3 ];
@@ -503,7 +503,7 @@ skelAnimDataGameHeader_t *SkeletorCacheFileCallback( const char *path )
 		Com_Printf( "+loadanim: %s\n", path );
 	}
 
-	sprintf( tempName, "g%s", path );
+	sprintf_s( tempName, "g%s", path );
 	UI_LoadResource( tempName );
 
 	return finishedHeader;
@@ -864,7 +864,7 @@ dtikianim_t *TIKI_InitTiki( dloaddef_t *ld, size_t defsize )
 	}
 
 	TIKI_GetAnimOrder( ld, order );
-	sprintf( tempName, "e%s", ld->path );
+	sprintf_s( tempName, "e%s", ld->path );
 	UI_LoadResource( tempName );
 
 	panim->m_aliases = temp_aliases;

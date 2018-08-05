@@ -1,0 +1,792 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="global">
+      <UniqueIdentifier>{59baf7aa-c554-49f9-b8b8-e8c0b6dac12e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jpeglib">
+      <UniqueIdentifier>{af2ae363-bcbf-4a63-89b3-c62a1ead0a03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="q3_common">
+      <UniqueIdentifier>{b1138651-5949-46da-85fd-668db93ae6b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="q3map">
+      <UniqueIdentifier>{05794acd-48df-447f-b8ee-d18ee6a5a5cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tiki_skeletor">
+      <UniqueIdentifier>{2b3af113-ea68-4687-be17-f2c70041c1e1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\code\globalcpp\archive.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\class.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\dbgheap.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\g_spawn.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\listener.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\lz77.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\md5.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\script.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\scriptvariable.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\alias.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\cmd.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\crc.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\cvar.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\files.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\huffman.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\md4.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\mem_blockalloc.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\mem_tempalloc.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\memory.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\msg.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\q_math.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\q_shared.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\str.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\unzip.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\tiki_script.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\bonetable.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\skeletor.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_loadanimation.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_model_files.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\skeletor_utilities.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\skeletorbones.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\skeletor\tokenizer.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_anim.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_cache.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_commands.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_files.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_frame.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_imports.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_main.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_parse.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_skel.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_surface.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_tag.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tiki\tiki_utility.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\aselib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\bspfile.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\cmdlib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\imagelib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\l3dslib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\mathlib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\mutex.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\polylib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\scriplib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\threads.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\trilib.c">
+      <Filter>q3_common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jcomapi.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdapimin.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdapistd.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdatasrc.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdcoefct.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdcolor.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jddctmgr.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdhuff.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdinput.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmainct.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmarker.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdmaster.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdpostct.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdsample.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jdtrans.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jerror.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jfdctflt.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jidctflt.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jmemmgr.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jmemnobs.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jpgload.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\common\jpeg6\jutils.cpp">
+      <Filter>jpeglib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\brush.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\brush_primit.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\bsp.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\facebsp.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\fog.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\glfile.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\leakfile.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\light.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\light_trace.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\lightmaps.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\lightv.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\map.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\mesh.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\misc_model.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\nodraw.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\patch.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\portals.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\prtfile.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\shaders.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\soundv.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\surface.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\terrain.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\tjunction.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\tree.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\vis.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\visflow.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\q3map\writebsp.c">
+      <Filter>q3map</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\formatconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\meshobject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\skcconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bsploader_moh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bspconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\tikiconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\skdconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\shadermanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bsploader_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bspentity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bspentity_speaker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bspworld.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\mapconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\bsplight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\dummy\dummy_game.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\dummy\dummy_level.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\common.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\qcommon\con_set.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\scriptexception.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_client.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_cm.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_input.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_net.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_server.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_snddma.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\null\null_sys.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\sys\sys_win32.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\tr_shared.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\curve.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\sys\con_log.c">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\client\skeletor_imports.cpp">
+      <Filter>tiki_skeletor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\mainworker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\pipe.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\globalcpp\basemain.cpp">
+      <Filter>global</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\code\globalcpp\archive.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\baseimp.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\class.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\container.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\containerclass.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\crc32.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\dbgheap.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\g_spawn.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\glb_local.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\Linklist.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\listener.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\lz77.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\md5.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\safeptr.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\script.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\scriptvariable.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\vector.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\alias.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\mem_blockalloc.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\mem_tempalloc.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\q_platform.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\q_shared.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\qcommon.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\qfiles.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\queue.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\short3.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\stack.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\str.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\surfaceflags.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\unzip.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\tiki.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\tiki_script.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\skeletor.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_animation_file_format.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_internal.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_model_file_format.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\skeletor_name_lists.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\SkelMat3.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\SkelMat4.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\SkelQuat.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\SkelVec3.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\SkelVec4.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\skeletor\tokenizer.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_anim.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_cache.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_commands.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_files.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_frame.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_imports.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_main.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_parse.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_shared.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_skel.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_surface.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_tag.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tiki\tiki_utility.h">
+      <Filter>tiki_skeletor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\aselib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\bspfile.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\cmdlib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\imagelib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeglib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\l3dslib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\mathlib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\mutex.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\pakstuff.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\polylib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\polyset.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\scriplib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\str.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\surfaceflags.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\threads.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\trilib.h">
+      <Filter>q3_common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jchuff.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jconfig.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jdct.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jdhuff.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jerror.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jinclude.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jmemsys.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jmorecfg.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jpegint.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\common\jpeg6\jversion.h">
+      <Filter>jpeglib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\light.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\map.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\mesh.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\qbsp.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\shaders.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\q3map\vis.h">
+      <Filter>q3map</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\meshobject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\formatconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bspconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\tikiconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bsploader_q3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bsploader_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bspentity_speaker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bspworld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bspentity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\md3converter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\md4converter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bsploader_q2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bsploader_moh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\mapconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\skcconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\skdconverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\bsplight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\multimain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\shadermanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\tr_shared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\con_arrayset.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\qcommon\con_set.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\scriptexception.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\pipe.h">
+      <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\globalcpp\basemain.h">
+      <Filter>global</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
