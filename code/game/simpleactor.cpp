@@ -1067,7 +1067,7 @@ bool SimpleActor::UpdateSelectedAnimation
 	return false;
 }
 
-char *SimpleActor::DumpCallTrace
+const char *SimpleActor::DumpCallTrace
 	(
 	const char *pszFmt,
 	...

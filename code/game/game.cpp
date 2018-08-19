@@ -464,11 +464,21 @@ SimpleEntity *G_FindTarget( SimpleEntity *ent, const char *name )
 
 SimpleEntity *G_FindRandomSimpleTarget( const char *name )
 {
-	//int nFound;
-
-	// FIXME: stub
-	STUB();
-	return NULL;
+	SimpleEntity *found = NULL, *ent = NULL;
+	if (name && *name)
+	{
+		while (1)
+		{
+			ent = world->GetNextEntity(name, ent);
+			if (!ent)
+			{
+				break;
+			}
+			rand();
+			found = ent;
+		}
+	}
+	return found;
 }
 
 void G_TouchTriggers( Entity *ent )

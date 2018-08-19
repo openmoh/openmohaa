@@ -132,7 +132,7 @@ public:
 	void			RemoveWhenStopped( Event *ev );
 	void			ExplodeOnTouch( Event *ev );
 	void			Stopped( Event *ev );
-	Sentient		*GetOwner();
+	Sentient		*GetOwner( void );
 	void			SetMartyr( int entnum );
 	bool			CheckTeams( void );
 	void			SetOwner( Entity *owner );

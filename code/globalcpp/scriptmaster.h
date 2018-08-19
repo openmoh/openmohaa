@@ -211,12 +211,14 @@ public:
 
 	void			Execute( Event &ev );
 	void			Execute( Event *ev = NULL );
+	void			Execute(ScriptVariable *data, int dataSize);
 	void			DelayExecute( Event& ev );
 	void			DelayExecute( Event *ev = NULL );
 
 	void			AllowContextSwitch( bool allow = true );
 
 	ScriptClass		*GetScriptClass( void );
+	str				ScriptThread::FileName(void);
 	int				GetThreadState( void );
 	ScriptThread	*GetWaitingContext( void );
 	void			SetWaitingContext( ScriptThread *thread );
@@ -227,6 +229,8 @@ public:
 	void			ScriptExecute( ScriptVariable *data, int dataSize, ScriptVariable &returnValue );
 	void			Stop( void );
 	void			Wait( float time );
+	void			StartTiming( float time );
+	void			StartTiming( void );
 
 	void		CanSwitchTeams( Event *ev );
 	bool		CanScriptTracePrint( void );

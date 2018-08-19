@@ -1964,8 +1964,7 @@ vec_t VectorNormalize2( const vec3_t v, vec3_t out ) {
 vec_t VectorNormalize2D( vec2_t v ) {
 	float	length, ilength;
 
-	length = v[ 0 ] * v[ 0 ] + v[ 1 ] * v[ 1 ];
-	length = sqrt( length );
+	length = VectorLength2D(v);
 
 	if( length ) {
 		ilength = 1 / length;

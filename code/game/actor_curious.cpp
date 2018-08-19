@@ -128,6 +128,5 @@ void Actor::SetCuriousAnimHint
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_iCuriousAnimHint = iAnimHint;
 }

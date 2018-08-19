@@ -69,6 +69,7 @@ void cMoveGrid::CalculateBoxPoints
 
 {
 	// FIXME: stub
+	STUB();
 }
 
 gridpoint_t *cMoveGrid::GetGridPoint
@@ -106,8 +107,9 @@ void cMoveGrid::Move
 		}
 	}
 
-	// FIXME: stub
 	// this is not called anyways
+	// FIXME: stub
+	STUB();
 }
 
 qboolean cMoveGrid::CheckStuck

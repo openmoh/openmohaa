@@ -78,6 +78,7 @@ public:
 	void				TrimPathFromEnd( int nNodesPop );
 	void				Shorten( float fDistRemove );
 	bool				HasCompleteLookahead( void ) const;
+	bool				IsSide( void ) const;
 	void				ForceShortLookahead( void );
 
 	virtual void		Archive( Archiver& arc );

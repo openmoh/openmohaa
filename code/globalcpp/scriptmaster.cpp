@@ -8816,6 +8816,16 @@ void ScriptThread::Execute
 	}
 }
 
+void ScriptThread::Execute
+(
+	ScriptVariable *data,
+	int dataSize
+)
+
+{
+	ScriptExecuteInternal(data, dataSize);
+}
+
 void ScriptThread::DelayExecute
 	(
 	Event& ev
@@ -8855,6 +8865,11 @@ void ScriptThread::AllowContextSwitch( bool allow )
 ScriptClass *ScriptThread::GetScriptClass( void )
 {
 	return m_ScriptVM->m_ScriptClass;
+}
+
+str ScriptThread::FileName(void)
+{
+	return m_ScriptVM->Filename();
 }
 
 int ScriptThread::GetThreadState( void )
@@ -8992,6 +9007,29 @@ void ScriptThread::Wait( float time )
 
 	Director.AddTiming( this, time );
 	m_ScriptVM->Suspend();
+}
+
+void ScriptThread::StartTiming(float time)
+{
+	if (m_ScriptVM->ThreadState() == THREAD_WAITING)
+	{
+		m_ScriptVM->m_ThreadState = THREAD_RUNNING;
+		Director.RemoveTiming(this);
+	}
+	else if (m_ScriptVM->ThreadState() == THREAD_SUSPENDED)
+	{
+		m_ScriptVM->m_ThreadState = THREAD_RUNNING;
+		CancelWaitingAll();
+	}
+
+	m_ScriptVM->m_ThreadState = THREAD_WAITING;
+	
+	Director.AddTiming(this, time);
+}
+
+void ScriptThread::StartTiming(void)
+{
+	StartTiming(level.inttime);
 }
 
 CLASS_DECLARATION( Listener, ScriptThread, NULL )

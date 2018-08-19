@@ -553,7 +553,7 @@ inline float Vector::lengthfast( void ) const
 //
 // Returns:			float - length of the vector in the xy plane
 //----------------------------------------------------------------
-inline float Vector::lengthXY( bool squared = false ) const
+inline float Vector::lengthXY( bool squared ) const
 {
 	return squared ? (x * x) + (y * y) : sqrt(( x * x ) + ( y * y ));
 }

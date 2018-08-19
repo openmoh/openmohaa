@@ -733,7 +733,6 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 	VectorClear( angles );
 }
 
-
 float vectoyaw( const vec3_t vec ) {
 	float	yaw;
 	
@@ -1977,6 +1976,49 @@ void RestoreSoundtrack( void )
 
 		gi.SetConfigstring( CS_MUSIC, level.current_soundtrack.c_str() );
 		gi.DPrintf( "soundtrack restored %s.\n", level.current_soundtrack.c_str() );
+	}
+}
+
+const char * G_AIEventStringFromType(int iType)
+{
+	switch (iType)
+	{
+	case AI_EVENT_WEAPON_FIRE:
+		return "weapon_fire";
+		break;
+	case AI_EVENT_WEAPON_IMPACT:
+		return "weapon_impact";
+		break;
+	case AI_EVENT_EXPLOSION:
+		return "explosion";
+		break;
+	case AI_EVENT_AMERICAN_VOICE:
+		return "american_voice";
+		break;
+	case AI_EVENT_GERMAN_VOICE:
+		return "german_voice";
+		break;
+	case AI_EVENT_AMERICAN_URGENT:
+		return "american_urgent";
+		break;
+	case AI_EVENT_GERMAN_URGENT:
+		return "german_urgent";
+		break;
+	case AI_EVENT_MISC:
+		return "misc";
+		break;
+	case AI_EVENT_MISC_LOUD:
+		return "misc_loud";
+		break;
+	case AI_EVENT_FOOTSTEP:
+		return "footstep";
+		break;
+	case AI_EVENT_GRENADE:
+		return "grenade";
+		break;
+	default:
+		return "????";
+		break;
 	}
 }
 
