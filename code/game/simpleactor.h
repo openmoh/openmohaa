@@ -235,5 +235,5 @@ public:
 	void Anim_Emotion( int eEmotionMode );
 	void Anim_Say( const_str csSayAnimScript, int iMinTimeSinceLastSay, bool bCanInterrupt );
 	void Anim_FullBody( const_str csFullBodyAnim, int eAnimMode );
-	virtual char *DumpCallTrace( const char *pszFmt, ... ) const;
+	virtual const char *DumpCallTrace( const char *pszFmt, ... ) const;
 };

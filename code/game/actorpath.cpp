@@ -518,7 +518,7 @@ int ActorPath::CurrentNodeIndex
 	) const
 
 {
-	return m_pathpos - m_path;
+	return m_pathpos ? m_pathpos - m_path : -1;
 }
 
 PathInfo *ActorPath::NextNode
@@ -527,7 +527,7 @@ PathInfo *ActorPath::NextNode
 	) const
 
 {
-	return m_pathpos - 1;
+	return m_pathpos == m_path ? NULL : m_pathpos - 1;
 }
 
 PathInfo *ActorPath::LastNode
@@ -664,6 +664,14 @@ bool ActorPath::HasCompleteLookahead
 
 {
 	return m_HasCompleteLookahead;
+}
+
+bool ActorPath::IsSide
+	(
+	void
+	) const
+{
+	return m_Side;
 }
 
 void ActorPath::ForceShortLookahead

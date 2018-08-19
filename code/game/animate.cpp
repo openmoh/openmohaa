@@ -500,6 +500,30 @@ void Animate::SetSyncTime( float s )
 	}
 }
 
+void Animate::UseSyncTime(int slot, int sync)
+{
+	int v3; // eax
+	unsigned int v4; // eax
+	int v5; // eax
+
+	if (sync)
+	{
+		v3 = animFlags[slot];
+		if (animFlags[slot] & ANIM_SYNC)
+			return;
+		
+		animFlags[slot] = (animFlags[slot] | (ANIM_SYNC | ANIM_NODELTA)) & ANIM_FINISHED;
+	}
+	else
+	{
+		v5 = animFlags[slot];
+		if (animFlags[slot] & ANIM_SYNC)
+		{
+			animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & (ANIM_FINISHED | ANIM_SYNC);
+		}
+	}
+}
+
 void Animate::PreAnimate( void )
 {
 	int i;

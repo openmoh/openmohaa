@@ -62,8 +62,17 @@ void Actor::BecomeTurretGuy
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	SetThinkIdle(8);
+
+	SetThink(THINKSTATE_ATTACK, 1);
+	SetThink(THINKSTATE_DISGUISE, 10);
+	SetThink(THINKSTATE_GRENADE, 16);
+
+	if (m_Think[m_ThinkLevel] == 1 && Turret_DecideToSelectState())
+	{
+		m_State = 100;
+		m_iStateTime = level.inttime;
+	}
 }
 void Actor::Think_MachineGunner
 	(

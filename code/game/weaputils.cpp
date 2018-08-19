@@ -1489,6 +1489,18 @@ void Projectile::ExplodeOnTouch
 	m_bExplodeOnTouch = true;
 }
 
+Sentient *Projectile::GetOwner
+	(
+	void
+	)
+{
+	Sentient *pOwner = (Sentient *)G_GetEntity(owner);
+	if (!pOwner || !pOwner->IsSubclassOfSentient())
+		return NULL;
+	else
+		return pOwner;
+}
+
 void Projectile::Stopped
    (
    Event *ev

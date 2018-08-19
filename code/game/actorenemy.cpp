@@ -154,9 +154,7 @@ float ActorEnemySet::GetCurrentVisibility
 	) const
 
 {
-	// FIXME: stub
-	STUB();
-	return 0;
+	return m_fCurrentVisibility;
 }
 
 int ActorEnemySet::GetCurrentThreat
@@ -165,9 +163,7 @@ int ActorEnemySet::GetCurrentThreat
 	) const
 
 {
-	// FIXME: stub
-	STUB();
-	return 0;
+	return m_iCurrentThreat;
 }
 
 qboolean ActorEnemySet::IsEnemyConfirmed

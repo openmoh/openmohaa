@@ -2015,6 +2015,24 @@ void Level::EventGetFlags
 {
 }
 
+str	Level::GetRandomHeadModel(const char *model)
+{
+	//FIXME: macros
+	char s[1024];
+	int num = random() * 0.000030517578 * gi.NumHeadModels(model);
+	gi.GetHeadModel(model, num, s);
+	return s;
+}
+
+str	Level::GetRandomHeadSkin(const char *model)
+{
+	//FIXME: macros
+	char s[1024];
+	int num = random() * 0.000030517578 * gi.NumHeadSkins(model);
+	gi.GetHeadSkin(model, num, s);
+	return s;
+}
+
 CLASS_DECLARATION( Listener, Level, NULL )
 {
 	{ &EV_Level_GetTime, 					&Level::GetTime },

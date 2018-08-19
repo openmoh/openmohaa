@@ -74,8 +74,8 @@ char *PathSearch::last_error;
 byte *bulkNavMemory = NULL;
 byte *startBulkNavMemory = NULL;
 
-static Vector PLAYER_BASE_MIN( -15.5f, -15.5f, 0 );
-static Vector PLAYER_BASE_MAX( 15.5f, 15.5f, 0 );
+Vector PLAYER_BASE_MIN( -15.5f, -15.5f, 0 );
+Vector PLAYER_BASE_MAX( 15.5f, 15.5f, 0 );
 Vector testpos[ 200 ];
 Vector ai_startpath;
 Vector ai_endpath;

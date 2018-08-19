@@ -44,7 +44,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 Vector MINS(-15.0,-15.0,0.0);
 Vector MAXS(15.0,15.0,96.0);
+
+extern Vector PLAYER_BASE_MIN;
+extern Vector PLAYER_BASE_MAX;
+
+bool bEntinfoInit = false;
+
 cvar_t *g_showinfo;
+
+const char * gAmericanVoices[] = {"a", "c", "h"};
+const char * gGermanVoices[] = {"a", "c", "d"};
 
 Event EV_Actor_SetGun
 	(
@@ -2536,7 +2545,7 @@ Actor::Actor()
 	VectorClear2D( obstacle_vel );
 	m_bLockThinkState = false;
 	InitThinkStates();
-	SetThinkState( 1, 0 );
+	SetThinkState(THINKSTATE_IDLE, 0 );
 	m_fMinDistance = 128;
 	m_fMinDistanceSquared = 128 * 128;
 	m_fMaxDistance = 1024;
@@ -2571,7 +2580,7 @@ Actor::Actor()
 	m_iNextWatchStepTime = 0;
 	m_iCuriousTime = 0;
 	m_iCuriousLevel = 0;
-	m_iCuriousAnimHint = 0;
+	SetCuriousAnimHint(0);
 	m_bScriptGoalValid = false;
 	m_bNoSurprise = false;
 	memset( &m_pPotentialCoverNode, 0, sizeof( m_pPotentialCoverNode ) );
@@ -2673,7 +2682,7 @@ void Actor::ShowInfo
 	if( func->ShowInfo )
 		( this->*func->ShowInfo )( );
 
-	return Com_Printf( "-------------------------------------------------------------------------------\n" );
+	Com_Printf( "-------------------------------------------------------------------------------\n" );
 }
 
 void Actor::MoveTo
@@ -2845,7 +2854,7 @@ void Actor::BeginState
 	)
 
 {
-	Com_Printf("testestest");
+
 	m_Think[ m_ThinkLevel ] = m_ThinkMap[ m_ThinkState ];
 
 	GlobalFuncs_t *func = &GlobalFuncs[ m_Think[ m_ThinkLevel ] ];
@@ -2881,8 +2890,8 @@ void Actor::RestartState
 {
 	GlobalFuncs_t *func = &GlobalFuncs[ m_Think[ m_ThinkLevel ] ];
 
-	if( func->ThinkState )
-		( this->*func->ThinkState )();
+	if( func->RestartState)
+		( this->*func->RestartState)();
 }
 
 void Actor::setContentsSolid
@@ -3012,8 +3021,9 @@ void Actor::UpdateEnemyInternal
 	)
 
 {
-	for (Sentient *pSent = level.m_HeadSentient[1 - this->m_Team]; pSent; pSent = pSent->m_NextSentient)
+	for (Sentient *pSent = level.m_HeadSentient[1 - m_Team]; pSent; pSent = pSent->m_NextSentient)
 		m_PotentialEnemies.AddPotentialEnemy(pSent);
+
 	m_PotentialEnemies.CheckEnemies(this);
 	
 	if (m_Enemy != m_PotentialEnemies.GetCurrentEnemy())
@@ -3052,7 +3062,7 @@ void Actor::SetEnemy
 
 	if (m_Enemy)
 	{
-		Event *e1 = new Event(EV_Actor_ShareEnemy);
+		Event e1(EV_Actor_ShareEnemy);
 		//FIXME: macro
 		PostEvent(e1, 0.75);
 
@@ -3132,7 +3142,7 @@ void Actor::AddToBodyQue
 	/*
 	if (mBodyQueue[4*mCurBody+3])
 	{
-		Event * ev = new Event(EV_Remove);
+		Event ev(EV_Remove);
 		PostEvent(ev, 0, 0);
 	}
 	mBodyQueue[4 * mCurBody] = this;
@@ -3189,17 +3199,109 @@ void Actor::InitVoid
 	func->IsState = &Actor::IsVoidState;
 }
 
-char *Actor::DumpCallTrace
+const char *Actor::DumpCallTrace
 	(
 	const char *pszFmt,
 	...
 	) const
 
 {
-	//NOTREFRENCED
-	// FIXME: stub
-	STUB();
-	return NULL;
+	cvar_t *sv_mapname;
+	tm *ptm; 
+	time_t t;
+	Vector vPlayer = vec_zero;
+	char szFile[64];
+	int i2;
+	int i1;
+	int i;
+	char szTemp[65536];
+	char szTemp2[1024];
+
+	va_list va;
+	
+	va_start(va, pszFmt);
+	
+	sv_mapname = gi.Cvar_Get("mapname", "unknown", NULL);
+
+	Player *p = (Player *)G_GetEntity(0);
+	if (p)
+	{
+		vPlayer = p->origin;
+	}
+
+	i = sprintf(
+		szTemp,
+		"map = %s\n"
+		"time = %i (%i:%02i)\n"
+		"entnum = %i, targetname = '%s'\n"
+		"origin = (%g %g %g)\n"
+		"think = %s, thinkstate = %s\n"
+		"type_idle = %s\n"
+		"type_attack = %s\n"
+		"m_State = %i, m_pszDebugState = %s\n"
+		"player is at (%g %g %g)\n"
+		"--------------------------------------\n",
+		sv_mapname->string,
+		level.inttime,
+		level.inttime / 60000,
+		level.inttime / 1000 - 60 * (level.inttime / 60000),
+		entnum,
+		targetname.c_str(),
+		origin[0],
+		origin[1],
+		origin[2],
+		ThinkName().c_str(),
+		ThinkStateName().c_str(),
+		Director.GetString(m_csThinkNames[m_ThinkMap[THINKSTATE_IDLE]]).c_str(),
+		Director.GetString(m_csThinkNames[m_ThinkMap[THINKSTATE_ATTACK]]).c_str(),
+		m_State,
+		m_pszDebugState,
+		vPlayer[0],
+		vPlayer[1],
+		vPlayer[2]);
+
+	if (pszFmt)
+	{
+		i2 = i + vsprintf(&szTemp[i], pszFmt, va);
+	}
+	if (i2 != i)
+	{
+		strcpy(&szTemp[i2], "\n--------------------------------------\n");
+	}
+
+	t = time(0);
+	ptm = localtime(&t);
+	sprintf(
+		szFile,
+		"main\\ai_trace_%s_%i_%i_%02i%02i.log",
+		sv_mapname->string,
+		ptm->tm_mon + 1,
+		ptm->tm_mday,
+		ptm->tm_hour,
+		ptm->tm_min);
+
+	for (i=0; szFile[i]; i++)
+	{
+		if (szFile[i] == '\\' || szFile[i] == '/')
+			szFile[i] = '_';
+	}
+	sprintf(szTemp2, "Include '%s' in your bug report!", szFile);
+	//PreAssertMessage:
+	fprintf(stderr, "IMPORTANT: %s\n", szTemp2);
+	
+	va_end(va);
+
+	return ::va(
+		"\n"
+		"\t-------------------------- IMPORTANT REMINDER --------------------------\n"
+		"\n"
+		"\tinclude '%s' in your bug report! \n"
+		"\n"
+		"\t----------------------- END IMPORTANT REMINDER -----------------------\n"
+		"\n"
+		"%s",
+		szFile,
+		szTemp);
 }
 
 void Actor::Init
@@ -3437,22 +3539,61 @@ bool Actor::AttackEntryAnimation
 								}
 							}
 						}
-						if (m_Enemy->origin.x - origin.x != 0 || m_Enemy->origin.y - origin.y != 0)
+						vec2_t vDelta;
+						vDelta[0] = m_Enemy->origin.x - origin.x;
+						vDelta[1] = m_Enemy->origin.y - origin.y;
+						if (vDelta[0] != 0 || vDelta[1] != 0)
 						{
 							//continue here
-							vectoyaw(m_Enemy->origin - origin);
+							m_YawAchieved = false;
+							m_DesiredYaw = vectoyaw(vDelta);
 						}
+
+						m_bHasDesiredLookAngles = true;
+
+						vectoangles(m_Enemy->origin - origin, m_DesiredLookAngles);
+
+						m_DesiredLookAngles[0] = AngleNormalize180(m_DesiredLookAngles[0]);
+						m_DesiredLookAngles[1] = AngleNormalize180(m_DesiredLookAngles[1] - angles[1]);
+						m_csNextAnimString = STRING_ANIM_STANDIDENTIFY_SCR;
+
+						m_bNextForceStart = true;
+						this->m_bNoSurprise = true;
+						this->m_bNewEnemy = false;
+
+						return true;
+
 					}
 				}
 			}
 			else
 			{
+				//FIXME: macro
+				if (rand() > distSq * 0.0026041667)
+				{
+					//FIXME: macro
+					m_eNextAnimMode = 1;
+					m_csNextAnimString = STRING_ANIM_STANDSHOCK_SCR;
 
+					m_bNextForceStart = true;
+					this->m_bNoSurprise = true;
+					this->m_bNewEnemy = false;
+
+					return true;
+				}
 			}
 		}
+
+		if (m_bNewEnemy)
+		{
+			//FIXME: macro
+			Anim_Say(STRING_ANIM_SAY_SIGHTED_SCR, 200, false);
+			m_bNoSurprise = true;
+			m_bNewEnemy = false;
+			return false;
+		}
+
 	}
-	// FIXME: stub
-	STUB();
 	return false;
 }
 
@@ -3462,8 +3603,32 @@ void Actor::CheckForThinkStateTransition
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (!CheckForTransition(0, THINKSTATE_GRENADE))
+	{
+		if (!m_bEnableEnemy)
+		{
+			CheckForTransition(0, THINKSTATE_IDLE);
+		}
+		else
+		{
+			if (!CheckForTransition(0, THINKSTATE_ATTACK))
+			{
+
+				if (!CheckForTransition(0, THINKSTATE_DISGUISE))
+				{
+
+					if (CheckForTransition(0, THINKSTATE_CURIOUS))
+					{
+						m_pszDebugState = "from_sight";
+					}
+					else
+					{
+						CheckForTransition(0, THINKSTATE_IDLE);
+					}
+				}
+			}
+		}
+	}
 }
 
 bool Actor::CheckForTransition
@@ -3604,7 +3769,7 @@ bool Actor::PassesTransitionConditions_Curious
 
 	if( !m_Enemy && m_iCuriousTime )
 	{
-		m_iCuriousAnimHint = 6;
+		SetCuriousAnimHint(6);
 		return true;
 	}
 
@@ -3612,14 +3777,14 @@ bool Actor::PassesTransitionConditions_Curious
 	{
 		if( !m_bForceAttackPlayer && m_ThinkState != 4 )
 		{
-			m_iCuriousAnimHint = 6;
+			SetCuriousAnimHint(6);
 			return true;
 		}
 	}
 
 	if( m_PotentialEnemies.GetCurrentVisibility() <= 0.999f )
 	{
-		m_iCuriousAnimHint = 6;
+		SetCuriousAnimHint(6);
 		return true;
 	}
 
@@ -3669,7 +3834,7 @@ void Actor::UpdateEnableEnemy
 			//FIXME: macros
 			if ((m_ThinkStates[0] - 4) <= 2)
 			{
-				SetThinkState(1, 0);
+				SetThinkState(THINKSTATE_IDLE, 0);
 			}
 			SetEnemy(NULL, 0);
 		}
@@ -3682,8 +3847,86 @@ void Actor::ThinkStateTransitions
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int newThinkLevel;
+	int newThinkState;
+
+	GlobalFuncs_t *func;// = &GlobalFuncs[m_Think[m_ThinkLevel]];
+
+	for (newThinkLevel = MAX_THINKSTATES -1; newThinkLevel >=0 ; newThinkLevel--)
+	{
+		newThinkState = m_ThinkMap[newThinkLevel];
+		if (newThinkState)
+		{
+			break;
+		}
+	}
+
+	if (m_ThinkMap[newThinkState] == m_Think[m_ThinkLevel])
+	{
+		if (newThinkLevel != m_ThinkLevel || m_ThinkState != newThinkState)
+		{
+			m_ThinkLevel = newThinkLevel;
+			m_ThinkState = newThinkState;
+			m_Think[newThinkLevel] = m_ThinkMap[newThinkState];
+			return;
+		}
+
+		func = &GlobalFuncs[m_ThinkMap[newThinkState]];
+		if (func->RestartState)
+			(this->*func->RestartState)();
+	}
+	else
+	{
+		if (newThinkLevel > 0)
+		{
+			for (int i = 0 ; i < newThinkLevel; i++)
+			{
+				if (!m_ThinkStates[i])
+					EndState(i);
+			}
+		}
+		if (newThinkLevel > m_ThinkLevel)
+		{
+			SuspendState();
+
+			m_ThinkLevel = newThinkLevel;
+			m_ThinkState = m_ThinkStates[newThinkLevel];
+			m_Think[newThinkLevel] = m_ThinkMap[m_ThinkState];
+
+			BeginState();
+			return;
+		}
+		EndState(m_ThinkLevel);
+
+		if (newThinkLevel == this->m_ThinkLevel)
+		{
+			m_ThinkState = m_ThinkStates[newThinkLevel];
+			m_Think[newThinkLevel] = m_ThinkMap[m_ThinkState];
+
+			BeginState();
+			return;
+		}
+
+		m_ThinkLevel = newThinkLevel;
+		m_ThinkState = m_ThinkStates[newThinkLevel];
+
+
+		if (m_Think[newThinkLevel] != m_ThinkMap[m_ThinkState])
+		{
+			EndState(newThinkLevel);
+
+			
+			m_Think[m_ThinkLevel] = m_ThinkMap[m_ThinkState];
+
+			BeginState();
+			return;
+
+		}
+
+		func = &GlobalFuncs[m_ThinkMap[newThinkState]];
+		if (func->ResumeState)
+			(this->*func->ResumeState)();
+	}
 }
 
 void Actor::TransitionState
@@ -3693,8 +3936,8 @@ void Actor::TransitionState
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	// not found in ida
+	
 }
 
 void Actor::ChangeAnim
@@ -3703,6 +3946,7 @@ void Actor::ChangeAnim
 	)
 
 {
+	//FIXME: needs organization.
 	if (m_pAnimThread)
 	{
 		if (g_scripttrace->integer && m_pAnimThread->CanScriptTracePrint())
@@ -3719,9 +3963,38 @@ void Actor::ChangeAnim
 	//FIXME: macro
 	if (m_ThinkState != THINKSTATE_ATTACK)
 	{
-		/*if (m_ThinkState < THINKSTATE_ATTACK)
+		if (m_ThinkState > THINKSTATE_ATTACK)
 		{
-			if (m_ThinkState >= THINKSTATE_PAIN)
+			if (m_ThinkState != THINKSTATE_GRENADE)
+			{
+				if (m_bMotionAnimSet && !m_bLevelMotionAnim)
+					AnimFinished(m_iMotionSlot, true);
+				if (m_bActionAnimSet && !m_bLevelActionAnim)
+					Actor::AnimFinished(m_iActionSlot, true);
+
+				if (m_bSayAnimSet && !m_bLevelSayAnim)
+				{
+					AnimFinished(m_iSaySlot, true);
+
+					//FIXME: macro
+					m_fCrossblendTime = 0.5;
+
+					m_pAnimThread = m_Anim.Create(this);
+
+					if (m_pAnimThread)
+					{
+						if (g_scripttrace->integer)
+						{
+							if (m_pAnimThread->CanScriptTracePrint())
+								Com_Printf("+++ Change Anim\n");
+						}
+						m_pAnimThread->Register(STRING_EMPTY, this);
+
+						m_pAnimThread->StartTiming();
+					}
+				}
+			}
+			else
 			{
 				if (m_bMotionAnimSet)
 					AnimFinished(m_iMotionSlot, true);
@@ -3729,26 +4002,26 @@ void Actor::ChangeAnim
 					AnimFinished(m_iActionSlot, true);
 				if (m_bSayAnimSet)
 				{
-					AnimFinished(m_iSaySlot, true);
-				}
-			}
-		}
-		if (m_ThinkState != THINKSTATE_GRENADE)
-		{
-			if (m_bMotionAnimSet && !m_bLevelMotionAnim)
-				AnimFinished(m_iMotionSlot, true);
-			if (m_bActionAnimSet && !m_bLevelActionAnim)
-				AnimFinished(m_iActionSlot, true);
-			if (m_bSayAnimSet && !m_bLevelSayAnim)
-			{
-				AnimFinished(m_iSaySlot, true);
-			}
-		}*/
-		if (m_ThinkState > THINKSTATE_ATTACK)
-		{
-			if (m_ThinkState != THINKSTATE_GRENADE)
-			{
+					if (m_bLevelSayAnim == 2)
+					{
+						//FIXME: macro
+						m_fCrossblendTime = 0.5;
 
+						m_pAnimThread = m_Anim.Create(this);
+
+						if (m_pAnimThread)
+						{
+							if (g_scripttrace->integer)
+							{
+								if (m_pAnimThread->CanScriptTracePrint())
+									Com_Printf("+++ Change Anim\n");
+							}
+							m_pAnimThread->Register(STRING_EMPTY, this);
+
+							m_pAnimThread->StartTiming();
+						}
+					}
+				}
 			}
 
 		}
@@ -3756,14 +4029,65 @@ void Actor::ChangeAnim
 		{
 			if (m_ThinkState < THINKSTATE_PAIN)
 			{
+				if (m_bMotionAnimSet && !m_bLevelMotionAnim)
+					AnimFinished(m_iMotionSlot, true);
+				if (m_bActionAnimSet && !m_bLevelActionAnim)
+					Actor::AnimFinished(m_iActionSlot, true);
 
+				if (m_bSayAnimSet && !m_bLevelSayAnim)
+				{
+					AnimFinished(m_iSaySlot, true);
+
+				//LABEL_14:
+					//FIXME: macro
+					m_fCrossblendTime = 0.5;
+
+					m_pAnimThread = m_Anim.Create(this);
+
+					if (m_pAnimThread)
+					{
+						if (g_scripttrace->integer)
+						{
+							if (m_pAnimThread->CanScriptTracePrint())
+								Com_Printf("+++ Change Anim\n");
+						}
+						m_pAnimThread->Register(STRING_EMPTY, this);
+
+						m_pAnimThread->StartTiming();
+					}
+				}
+			}
+			else
+			{
+				if (m_bMotionAnimSet)
+					AnimFinished(m_iMotionSlot, true);
+				if (m_bActionAnimSet)
+					AnimFinished(m_iActionSlot, true);
+
+				if (m_bSayAnimSet == 0)
+				{
+					//FIXME: macro
+					m_fCrossblendTime = 0.5;
+
+					m_pAnimThread = m_Anim.Create(this);
+
+					if (m_pAnimThread)
+					{
+						if (g_scripttrace->integer)
+						{
+							if (m_pAnimThread->CanScriptTracePrint())
+								Com_Printf("+++ Change Anim\n");
+						}
+						m_pAnimThread->Register(STRING_EMPTY, this);
+
+						m_pAnimThread->StartTiming();
+					}
+				}
 			}
 
 		}
 	
 	}
-	// FIXME: stub
-	STUB();
 }
 
 void Actor::UpdateSayAnim
@@ -3772,9 +4096,9 @@ void Actor::UpdateSayAnim
 	)
 
 {
-	if ((m_ThinkState - 2) > 1)
+	if ((m_ThinkState) > 3)
 	{
-		int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(m_csSayAnim));
+		int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(m_csSayAnim).c_str());
 		if (animnum == -1)
 		{
 			return;
@@ -3838,7 +4162,7 @@ void Actor::UpdateUpperAnim
 	)
 
 {
-	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(m_csUpperAnim));
+	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(m_csUpperAnim).c_str());
 	if (animnum != -1)
 	{
 		if (m_ThinkState == 4 || m_ThinkState == 7 || m_ThinkState == 3 || m_ThinkState == 2)
@@ -3869,8 +4193,79 @@ void Actor::UpdateAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bAnimating = true;
+	SimpleActor::UpdateAim();
+	if (UpdateSelectedAnimation())
+	{
+		ChangeAnim();
+	}
+
+	if (Director.iPaused-- == 1)
+	{
+		Director.ExecuteRunning();
+	}
+	Director.iPaused++;
+
+	if (m_csSayAnim != STRING_EMPTY)
+	{
+		UpdateSayAnim();
+		m_csSayAnim = STRING_EMPTY;
+	}
+
+	if (m_csUpperAnim != STRING_EMPTY)
+	{
+		UpdateUpperAnim();
+		m_csUpperAnim = STRING_EMPTY;
+	}
+
+	if (!m_bSayAnimSet && !m_bDog)
+	{
+		UpdateEmotion();
+	}
+
+	//FIXME: macro
+	for (int slot = 0; slot < 14; slot++)
+	{
+
+		//FIXME: better notation
+		if (!((m_bUpdateAnimDoneFlags >> slot) & 1) )
+		{
+			UpdateAnimSlot(slot);
+		}
+	}
+
+	float fAnimTime, fAnimWeight, total_weight = 0, time = 0;
+	for (int slot = 0; slot < 14; slot++)
+	{
+		if ((m_weightType[slot] == 1 || m_weightType[slot] == 4) && animFlags[slot] & ANIM_LOOP)
+		{
+			UseSyncTime(slot, 1);
+			fAnimTime = AnimTime(slot);
+			fAnimWeight = edict->s.frameInfo[slot].weight;
+			//FIXME: macro
+			if ((int)time & 0x7F800000 == 0x7F800000)
+			{
+				Com_Printf("ent %i, targetname '%s', anim '%s', slot %i, fAnimTime %f, fAnimWeight %f\n",
+					entnum,
+					targetname.c_str(),
+					AnimName(slot),
+					slot,
+					fAnimTime,
+					fAnimWeight);
+			}
+			time += fAnimTime * fAnimWeight;
+			total_weight += fAnimWeight;
+		}
+		else
+		{
+			UseSyncTime(slot, 0);
+		}
+	}
+
+	if (total_weight != 0)
+	{
+		SetSyncRate(time / total_weight);
+	}
 }
 
 void Actor::StoppedWaitFor
@@ -3894,11 +4289,127 @@ bool Actor::ValidGrenadePath
 	Vector& vFrom,
 	Vector& vTo,
 	Vector& vVel
-	) const
+	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: macros
+	float fGravity, fTime1, fTime2, fTime3, fTimeLand;
+	Vector mins(-4, -4, -4);
+	Vector maxs(4, 4, 4);
+
+	Vector vPoint1, vPoint2, vPoint3;
+
+	if (vVel.lengthSquared() > 589824)
+	{
+		return false;
+	}
+	fGravity = 0.8 * sv_gravity->value;
+
+	fTime1 = vVel.z * fGravity / 0.5;
+
+	vPoint1.x = vVel.x * fTime1 + vFrom.x;
+	vPoint1.y = vVel.y * fTime1 + vFrom.y;
+	vPoint1.z = vVel.z * fTime1 * 0.75 + vFrom.z;
+
+	maxs.z = fGravity * 0.125 * fTime1 * fTime1 + 4;
+
+	if (ai_debug_grenades->integer)
+	{
+		G_DebugLine(vFrom, vPoint1, 1.0, 0.5, 0.5, 1.0);
+	}
+
+	if (G_SightTrace(vFrom,
+		mins,
+		maxs,
+		vPoint1,
+		this,
+		NULL,
+		//FIXME: macro
+		1107569409,
+		qfalse,
+		"Actor::ValidGrenadePath 1"))
+	{
+		fTime2 = fTime1 + fTime1;
+
+		vPoint2.x = vVel.x * fTime2 + vFrom.x;
+		vPoint2.y = vVel.y * fTime2 + vFrom.y;
+		vPoint2.z = vVel.z * fTime2 * 0.5 + vFrom.z;
+
+		if (ai_debug_grenades->integer)
+		{
+			G_DebugLine(vPoint1, vPoint2, 1.0, 0.5, 0.5, 1.0);
+		}
+		if (G_SightTrace(vPoint1,
+			mins,
+			maxs,
+			vPoint2,
+			this,
+			NULL,
+			//FIXME: macro
+			1107569409,
+			qfalse,
+			"Actor::ValidGrenadePath 2"))
+		{
+			if (fabs(vVel.y) >= fabs(vVel.x))
+			{
+				fTimeLand = (vTo.y - vFrom.y) / vVel.y;
+			}
+			else
+			{
+				fTimeLand = (vTo.x - vFrom.x) / vVel.x;
+			}
+
+			fTime3 = (fTime2 + fTimeLand) / 2;
+			maxs.z = fGravity * 0.03125 * (fTimeLand - fTime2) * (fTimeLand - fTime2) + 4;
+
+
+			vPoint3.x = vVel.x * fTime3 + vFrom.x;
+			vPoint3.y = vVel.y * fTime3 + vFrom.y;
+			vPoint3.z = (vVel.z - fGravity * 0.5 * fTime3) * fTime3 + vFrom.z; 
+			
+			if (ai_debug_grenades->integer)
+			{
+				G_DebugLine(vPoint2, vPoint3, 1.0, 0.5, 0.5, 1.0);
+			}
+			if (G_SightTrace(vPoint2,
+				mins,
+				maxs,
+				vPoint3,
+				this,
+				NULL,
+				//FIXME: macro
+				1107569409,
+				qfalse,
+				"Actor::ValidGrenadePath 3"))
+			{
+
+				if (ai_debug_grenades->integer)
+				{
+					G_DebugLine(vPoint3, vTo, 1.0, 0.5, 0.5, 1.0);
+				}
+				trace_t trace = G_Trace(vPoint3, mins, maxs, vTo, this, 1107569409, qfalse, "Actor::ValidGrenadePath 4");
+				if (!trace.allsolid)
+				{
+					if (trace.ent)
+					{
+						if (trace.ent->entity->IsSubclassOfSentient())
+						{
+							Sentient *sen = (Sentient *)trace.ent->entity;
+							if (sen->m_Team != m_Team)
+							{
+								return true;
+							}
+						}
+
+					}
+				}
+				else if(trace.entityNum == 1022 && trace.plane.normal[2] >= 1)
+				{
+					return true;
+				}
+			}
+		}
+	}
 	return false;
 }
 
@@ -3911,32 +4422,32 @@ Vector Actor::CalcThrowVelocity
 {
 	//FIXME: needs revivsion + variable names
 	Vector ret;
-	long double v3; // fst7
-	long double v4; // fst5
-	long double v5; // tt
-	long double v6; // fst5
-	long double v7; // t1
-	float v8; // ST0C_4
-	long double v9; // fst3
 	float v10; // ST0C_4
 	long double v11; // fst3
-	long double v12; // fst5
 	float v13; // ST0C_4
+	//////
+	float fVelHorz;
+	float fVelVert;
+	float fDeltaZ;
+	float fDistance;
+	float fHorzDistSquared;
 
-	v3 = vTo.x - vFrom.x;
-	v4 = vTo.y - vFrom.y;
-	v5 = v4;
-	v6 = v4 * v4 + v3 * v3;
-	v7 = vTo.z - vFrom.z;
-	v8 = sqrt(v7 * v7 + v6);
-	v9 = v8;
-	v10 = sqrt(0.8 * sv_gravity->value * 0.5 * v6 / v8);
-	v11 = (v9 + v7) / (v9 - v7) / v6;
-	v12 = v10;
+	fVelHorz = vTo.x - vFrom.x;
+	fVelVert = vTo.y - vFrom.y;
+	fDeltaZ = vTo.z - vFrom.z;
+
+	fHorzDistSquared = fVelVert * fVelVert + fVelHorz * fVelHorz;
+
+	fDistance = sqrt(fDeltaZ * fDeltaZ + fHorzDistSquared);
+
+	v10 = sqrt(0.8 * sv_gravity->value * 0.5 * fHorzDistSquared / fDistance);
+	//mohaa : vz = sqrt(hd * g/2 * 0.8 * cos(theta)), theta=inclination angle.
+
+	v11 = (fDistance + fDeltaZ) / (fDistance - fDeltaZ) / fHorzDistSquared;
 	v13 = v10 * sqrt(v11);
-	ret.z = v12;
-	ret.x = v3 * v13;
-	ret.y = v5 * v13;
+	ret.z = v10;
+	ret.x = fVelHorz * v13;
+	ret.y = fVelVert * v13;
 	return ret;
 }
 
@@ -3944,12 +4455,20 @@ Vector Actor::CanThrowGrenade
 	(
 	Vector& vFrom,
 	Vector& vTo
-	) const
+	)
 
 {
-	// FIXME: stub
-	STUB();
-	return vec_zero;
+	Vector vVel = vec_zero;
+
+	vVel = CalcThrowVelocity(vFrom, vTo);
+	if ( vVel == vec_zero || !ValidGrenadePath(vFrom, vTo, vVel))
+	{
+		return vec_zero;
+	}
+	else
+	{
+		return vVel;
+	}
 }
 
 Vector Actor::CalcRollVelocity
@@ -3959,21 +4478,48 @@ Vector Actor::CalcRollVelocity
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return vec_zero;
+	float fOOTime, fVelVert, fVelHorz, fGravity;
+	Vector vDelta = vFrom - vTo, vRet;
+
+
+	if (vDelta[2] > 0)
+	{
+		fGravity = 0.8 * sv_gravity->value;
+
+		vRet[2] = sqrt(-vDelta[2] * fGravity);
+		//FIXME: macro
+		//FIXME: not sure of this line.
+		fOOTime = fGravity * 0.21961521 / vRet[2];
+
+		fVelHorz = -vDelta[0];
+		fVelVert = -vDelta[1];
+
+		vRet[0] = fVelHorz * fOOTime;
+		vRet[2] = fVelVert * fOOTime;
+	}
+	else
+	{
+		return vec_zero;
+	}
 }
 
 Vector Actor::CanRollGrenade
 	(
 	Vector& vFrom,
 	Vector& vTo
-	) const
+	)
 
 {
-	// FIXME: stub
-	STUB();
-	return vec_zero;
+	Vector vVel = vec_zero;
+	vVel = CalcRollVelocity(vFrom, vTo);
+	if (vVel == vec_zero || !ValidGrenadePath(vFrom, vTo, vVel))
+	{
+		return vec_zero;
+	}
+	else
+	{
+		return vVel;
+	}
 }
 
 bool Actor::CanTossGrenadeThroughHint
@@ -3984,25 +4530,129 @@ bool Actor::CanTossGrenadeThroughHint
 	bool bDesperate,
 	Vector *pvVel,
 	eGrenadeTossMode *peMode
-	) const
+	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	float fGravity = 0.8 * sv_gravity->value;
+	float fAngle, fTemp, fTemp2, fTemp3, fTemp4, fVelVert, fVelHorz, fRange, fRangeSquared, fDist, fDistSquared, fHeight;
+	bool bSuccess = false;
+
+	Vector vDelta, vHintDelta;
+
+	if (!bDesperate)
+	{
+		vHintDelta = pHint->origin - vFrom;
+		vDelta = vFrom - vTo;
+		
+		fDist = vDelta.lengthXY();
+		fDistSquared = fDist * fDist;
+
+		fRange = vHintDelta.z * fDist - vDelta.z * vHintDelta.lengthXY();
+
+		if (fRange == 0)
+		{
+			return false;
+		}
+		fTemp4 = 1 / fRange;
+		fRange = (fDist - vHintDelta.lengthXY()) / fRange;
+
+		if (fRange <= 0)
+		{
+			return false;
+		}
+
+		fTemp = sqrt(fRange * (fDist * (fGravity * 0.5 * vHintDelta.lengthXY())));
+		fTemp2 = (vHintDelta.z * fDistSquared - vDelta.z * vHintDelta.lengthXY(true)) * fGravity * 0.5;
+		fTemp3 = fTemp / vHintDelta.lengthXY();
+
+		pvVel->x = vHintDelta.x * fTemp3;
+		pvVel->y = vHintDelta.y * fTemp3;
+		pvVel->z = 0.5 * fTemp2 / fTemp * fTemp4;
+
+		*peMode = AI_GREN_TOSS_HINT;
+
+		return ValidGrenadePath(vFrom, pHint->origin, *pvVel);
+	}
+
+	vHintDelta = pHint->origin - vFrom;
+
+
+	fRange = vHintDelta.lengthXY();
+	fRangeSquared = fRange * fRange;
+
+	if (fRangeSquared != 0)
+	{
+		fDist = vHintDelta.length();
+		fHeight = fRangeSquared * fGravity / 589824.0 + vHintDelta.z;
+		if (-fHeight <= -fDist)
+		{
+			fAngle = (atan2(vHintDelta.z / fRangeSquared, 1.0) + atan2(fHeight / fDist, sqrt(1.0 - fHeight / fDist * (fHeight / fDist)))) / 2;
+			pvVel->x = vHintDelta.x * 768.0 / fRangeSquared * cos(fAngle);
+			pvVel->y = vHintDelta.y * 768.0 / fRangeSquared * cos(fAngle);
+			pvVel->z = 768.0 * cos(fAngle);
+			return ValidGrenadePath(vFrom, pHint->origin, *pvVel);
+		}
+	}
+
+	return bSuccess;
 }
 
 Vector Actor::GrenadeThrowPoint
 	(
-	Vector& vFrom,
-	Vector& vDelta,
+	const Vector& vFrom,
+	const Vector& vDelta,
 	const_str csAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return vec_zero;
+	vec2_t axis;
+	Vector vRet;
+
+	VectorCopy2D(vDelta, axis);
+	VectorNormalize2D(axis);
+
+	if (csAnim == STRING_ANIM_GRENADEKICK_SCR)
+	{
+		vRet = vFrom;
+		vRet.z += 8;
+		return vRet;
+	}
+	else
+	{
+		if (csAnim > STRING_ANIM_GRENADEKICK_SCR)
+		{
+			if (csAnim != STRING_ANIM_GRENADETHROW_SCR && csAnim != STRING_ANIM_GRENADETOSS_SCR)
+			{
+				vRet = vFrom;
+				vRet.z += 80;
+				return vRet;
+			}
+			else
+			{
+				vRet.x = vFrom.x - axis[0] * 34 + axis[1] * 8;
+				vRet.y = vFrom.y - axis[0] * 8 - axis[1] * 34;
+				vRet.z = 52 + vFrom.z;
+				return vRet;
+			}
+		}
+		else
+		{
+			if (csAnim != STRING_ANIM_GRENADERETURN_SCR)
+			{
+				vRet = vFrom;
+				vRet.z += 80;
+				return vRet;
+			}
+			else
+			{
+
+				vRet.x = vFrom.x + axis[0] * 25 + axis[1] * 2;
+				vRet.y = vFrom.y - axis[0] * 2 + axis[1] * 25;
+				vRet.z = 89 + vFrom.z;
+				return vRet;
+			}
+		}
+	}
 }
 
 Vector Actor::CalcKickVelocity
@@ -4012,9 +4662,18 @@ Vector Actor::CalcKickVelocity
 	) const
 
 {
-	// FIXME: stub
-	STUB();
-	return vec_zero;
+	float fScale;
+
+	Vector ret;
+	float v4;
+
+	fScale = 0.57735032 * fDist;
+	v4 = sqrt(0.8 * sv_gravity->value * 0.5 / (fScale - vDelta[2]));
+	ret[0] = vDelta[0] * v4;
+	ret[1] = vDelta[1] * v4;
+	ret[2] = fScale * v4;
+
+	return ret;
 }
 
 bool Actor::CanKickGrenade
@@ -4023,22 +4682,69 @@ bool Actor::CanKickGrenade
 	Vector &vTo,
 	Vector &vFace,
 	Vector *pvVel
-	) const
+	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	Vector vEnd, vStart, vDelta, vVel;
+	float fDist;
+
+	if (sv_gravity->value <= 0.0)
+	{
+		return false;
+	}
+
+	vStart = GrenadeThrowPoint(vFrom, vFace, STRING_ANIM_GRENADEKICK_SCR);
+	vDelta = vTo - vStart;
+
+	if (vDelta.z >= 0 || Vector::Dot(vFace, vDelta) < 0.0 || vDelta.lengthXY() < 256 || vDelta.lengthXY() >= 255401.28 / (sv_gravity->value * 0.8) + 192.0)
+	{
+		return false;
+	}
+
+	if (vDelta.lengthXY() < 512)
+		fDist = 192.0 / vDelta.lengthXY() + 0.25;
+	else
+		fDist = 1.0 - 192.0 / vDelta.lengthXY();
+
+	float vdlxy = vDelta.lengthXY();
+
+	vDelta[0] *= fDist;
+	vDelta[1] *= fDist;
+
+	vEnd = vDelta + vStart;
+
+	vVel = CalcKickVelocity(fDist * vDelta, fDist * vdlxy);
+
+
+	if (vVel == vec_zero || !ValidGrenadePath(vStart, vEnd, vVel))
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
 bool Actor::GrenadeWillHurtTeamAt
 	(
 	Vector& vTo
-	) const
+	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_pNextSquadMate == this)
+	{
+		return false;
+	}
+
+	for (Actor * pSquadMate = (Actor *)m_pNextSquadMate.Pointer(); pSquadMate != this; pSquadMate = (Actor *)pSquadMate->m_pNextSquadMate.Pointer())
+	{
+		//FIXME: macro
+		if ((pSquadMate->origin-vTo).length() <= 65536)
+		{
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -4049,11 +4755,94 @@ bool Actor::CanGetGrenadeFromAToB
 	bool bDesperate,
 	Vector *pvVel,
 	eGrenadeTossMode *peMode
-	) const
+	)
 
 {
-	// FIXME: stub
-	STUB();
+	float fDot;
+	Vector vHint;
+	Vector vStart;
+	Vector vAxisY;
+	Vector vAxisX;
+	Vector vDelta;
+	Vector vDelta2 = vec_zero;
+	int nHints;
+	GrenadeHint *apHint[4];
+	float fRangeSquared;
+
+	if (sv_gravity->value <= 0)
+		return false;
+
+	vDelta = vTo - vFrom;
+	fRangeSquared = vDelta.lengthSquared();
+
+	if (fRangeSquared < 65536)
+		return false;
+	if (bDesperate)
+	{
+		vStart = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADERETURN_SCR);
+	}
+
+	if (fRangeSquared < 1048576)
+	{
+		if (!bDesperate)
+		{
+			vStart = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADETOSS_SCR);
+		}
+
+		*pvVel = CanRollGrenade(vStart, vTo);
+
+		if (*pvVel == vec_zero)
+		{
+			*peMode = AI_GREN_TOSS_ROLL;
+			return true;
+		}
+
+		if (!bDesperate)
+		{
+			vStart = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADETHROW_SCR);
+		}
+
+		*pvVel = CanThrowGrenade(vStart, vTo);
+
+		if (*pvVel == vec_zero)
+		{
+			*peMode = AI_GREN_TOSS_THROW;
+			return true;
+		}
+	}
+
+	if (!bDesperate)
+	{
+		return false;
+	}
+
+	nHints = GrenadeHint::GetClosestSet(apHint, 4, vStart, 1048576);
+
+	for (int i = 0; i <= nHints; i++)
+	{
+		if (bDesperate)
+		{
+			vStart = GrenadeThrowPoint(vFrom, vDelta2, STRING_ANIM_GRENADERETURN_SCR);
+			if (CanTossGrenadeThroughHint(apHint[i], vStart, vTo, bDesperate, pvVel, peMode))
+				return true;
+			continue;
+		}
+
+		vHint = apHint[i]->origin;
+		vDelta2 = vHint - vFrom;
+
+		fDot = DotProduct2D(vDelta2, vDelta);
+		if (fDot >= 0 && fDot * fDot <= vDelta.lengthXY(true) * vDelta2.lengthXY(true) * 0.89999998)
+		{
+			vStart = GrenadeThrowPoint(vFrom, vDelta2, STRING_ANIM_GRENADETOSS_SCR);
+			if (CanTossGrenadeThroughHint(apHint[i], vStart, vTo, bDesperate, pvVel, peMode))
+				return true;
+		}
+
+		
+	}
+
+	*peMode = AI_GREN_TOSS_NONE;
 	return false;
 }
 
@@ -4062,11 +4851,16 @@ bool Actor::DecideToThrowGrenade
 	Vector& vTo,
 	Vector *pvVel,
 	eGrenadeTossMode *peMode
-	) const
+	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (Sentient::AmmoCount("grenade"))
+	{
+		if (!GrenadeWillHurtTeamAt(vTo))
+		{
+			return CanGetGrenadeFromAToB(origin, vTo, false, pvVel, peMode);
+		}
+	}
 	return false;
 }
 
@@ -4076,8 +4870,41 @@ void Actor::Grenade_EventFire
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	const_str csAnim;
+	str strGrenade;
+	float speed;
+	Vector pos, dir, vStart;
+
+	gi.Tag_NumForName(edict->tiki, "tag_weapon_right");
+	
+	if (m_eGrenadeMode == AI_GREN_TOSS_ROLL)
+	{
+		csAnim = STRING_ANIM_GRENADETHROW_SCR;
+	}
+	else
+	{
+		csAnim = STRING_ANIM_GRENADETOSS_SCR;
+	}
+
+	vStart = GrenadeThrowPoint(origin, orientation[0], csAnim);
+
+	dir = m_vGrenadeVel;
+
+	speed = VectorNormalize(dir);
+
+	if (m_Team == TEAM_AMERICAN)
+	{
+		strGrenade = "models/projectiles/M2FGrenade.tik";
+	}
+	else
+	{
+		strGrenade = "models/projectiles/steilhandgranate.tik";
+	}
+
+	ProjectileAttack(vStart, dir, this, strGrenade, 0, speed);
+
+	UseAmmo("grenade", 1);
+
 }
 
 void Actor::GenericGrenadeTossThink
@@ -4086,8 +4913,27 @@ void Actor::GenericGrenadeTossThink
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Vector vGrenadeVel = vec_zero;
+	eGrenadeTossMode eGrenadeMode;
+
+	if (m_Enemy && level.inttime >= m_iStateTime + 200)
+	{
+		if (Actor::CanGetGrenadeFromAToB(
+			origin,
+			m_Enemy->velocity-m_Enemy->origin,
+			false,
+			&vGrenadeVel,
+			&eGrenadeMode))
+		{
+			m_vGrenadeVel = vGrenadeVel;
+			m_eGrenadeMode = eGrenadeMode;
+		}
+		m_iStateTime = level.inttime;
+	}
+
+	m_YawAchieved = false;
+	m_DesiredYaw = vectoyaw(m_vGrenadeVel);
+	ContinueAnimation();
 }
 
 void Actor::CanSee
@@ -4098,7 +4944,7 @@ void Actor::CanSee
 {
 	float fov = 0;
 	float vision_distance = 0;
-	if (m_Think[this->m_ThinkLevel] != 17 || !this->m_pTurret)
+	if (m_Think[m_ThinkLevel] != 17 || !m_pTurret)
 	{
 		return Entity::CanSee(ev);
 	}
@@ -4144,7 +4990,6 @@ void Actor::CanSee
 	{
 		int cansee = MachineGunner_CanSee(ent, fov, vision_distance);
 		ev->AddInteger(cansee);
-		
 	}
 }
 
@@ -4207,7 +5052,7 @@ void Actor::Think
 				//FIXME: possible macros/enums
 				if ((m_ThinkStates[0] - 4) <= 2)
 				{
-					SetThinkState(1, 0);
+					SetThinkState(THINKSTATE_IDLE, 0);
 				}
 				SetEnemy(0, 0);
 			}
@@ -4232,27 +5077,17 @@ void Actor::Think
 			m_bDirtyThinkState = false;
 			ThinkStateTransitions();
 		}
-		/*	FIXME: have fun!
-			v13 = 29 * this->m_Think[this->m_ThinkLevel];
-			v14 = Actor::GlobalFuncs[v13];
-			v15 = Actor::GlobalFuncs[v13 + 1];
-			if ( v14 )
-			{
-				if ( v14 & 1 )
-					v16 = (*(&this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable
-							+ v15))[v14 >> 2];
-				else
-					v16 = Actor::GlobalFuncs[v13];
-				v16(this + v15);
-			}
-		*/
+
+		GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+
+		if (func->ThinkState)
+			(this->*func->ThinkState)();
+
 		m_bNeedReload = false;
 		mbBreakSpecialAttack = false;
 		if (!--Director.iPaused)
 			Director.ExecuteRunning();
 	}
-	// FIXME: stub
-	STUB();
 }
 
 void Actor::PostThink
@@ -4319,8 +5154,139 @@ void Actor::GetMoveInfo
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: macros
+	m_walking = mm->walking;
+	m_groundPlane = mm->groundPlane;
+	m_groundPlaneNormal = mm->groundPlaneNormal;
+	groundentity = NULL;
+
+	TouchStuff(mm);
+
+	if (m_eAnimMode >= 2)
+	{
+		if (m_eAnimMode <= 3)
+		{
+			if (mm->hit_temp_obstacle)
+			{
+				if (mm->hit_temp_obstacle & 1)
+				{
+					m_Path.Clear();
+					Player *p = (Player *)G_GetEntity(0);
+
+					if (!IsTeamMate(p))
+					{
+						if (!m_bEnableEnemy)
+						{
+							m_bDesiredEnableEnemy = true;
+							m_bEnableEnemy = true;
+							if (!m_bFixedLeash)
+							{
+								m_vHome = origin;
+							}
+						}
+
+						BecomeTurretGuy();
+
+						m_PotentialEnemies.ConfirmEnemy(this, p);
+						m_bForceAttackPlayer = true;
+					}
+				}
+				velocity = vec_zero;
+				return;
+			}
+			if (mm->hit_obstacle)
+			{
+				if (level.inttime >= m_Path.Time() + 1000)
+				{
+					m_Path.ReFindPath(origin, this);
+				}
+				else
+				{
+					if (!m_Path.NextNode() || 
+							(!(m_Path.NextNode()->bAccurate && m_Path.IsSide())
+							&& m_Path.NextNode() == m_Path.CurrentNode()
+							&& m_Path.CurrentNode() != m_Path.StartNode())
+						)
+					{
+						m_Path.Clear();
+						velocity = vec_zero;
+						return;
+					}
+
+					if (m_Path.CurrentNode() == m_Path.StartNode())
+					{
+						Com_Printf(
+							"^~^~^ BAD FAILSAFE: %.2f %.2f %.2f, '%s'\n",
+							origin[0],
+							origin[1],
+							origin[2],
+							targetname.c_str());
+					}
+
+					DoFailSafeMove(m_Path.NextNode()->point);
+				}
+			}
+			else if (velocity.lengthXY(true) < -0.69999999 && level.inttime >= m_Path.Time() + 1000)
+			{
+				m_Path.ReFindPath(origin, this);
+			}
+		}
+		else if (m_eAnimMode == 4)
+		{
+			if (mm->hit_temp_obstacle)
+			{
+				if (mm->hit_temp_obstacle & 1)
+				{
+					m_Path.Clear();
+					Player *p = (Player *)G_GetEntity(0);
+
+					if (!IsTeamMate(p))
+					{
+						if (!m_bEnableEnemy)
+						{
+							m_bDesiredEnableEnemy = true;
+							m_bEnableEnemy = true;
+							if (!m_bFixedLeash)
+							{
+								m_vHome = origin;
+							}
+						}
+
+						BecomeTurretGuy();
+
+						m_PotentialEnemies.ConfirmEnemy(this, p);
+						m_bForceAttackPlayer = true;
+					}
+				}
+			}
+			else if (mm->hit_obstacle)
+			{
+				Vector end = m_Dest;
+				end.z -= 16384.0;
+				trace_t trace = G_Trace(
+					m_Dest,
+					PLAYER_BASE_MIN,
+					PLAYER_BASE_MAX,
+					end,
+					NULL,
+					1,
+					qfalse,
+					"Actor::GetMoveInfo");
+
+				DoFailSafeMove(trace.endpos);
+			}
+		}
+	}
+
+	setOrigin(mm->origin);
+
+	if (VectorLengthSquared(mm->velocity) < 1)
+	{
+		velocity = vec_zero;
+		return;
+	}
+
+	velocity = mm->velocity;
 }
 
 void Actor::DoFailSafeMove
@@ -4330,9 +5296,9 @@ void Actor::DoFailSafeMove
 
 {
 	Com_Printf("(entnum %d, radnum %d) blocked, doing failsafe\n", entnum, radnum);
-	m_NoClipDest[0] = dest[0];
-	m_NoClipDest[1] = dest[1];
-	m_NoClipDest[2] = dest[2];
+
+	VectorCopy(dest, m_NoClipDest);
+
 	//FIXME: macros
 	SetThinkState(8, 3);
 }
@@ -4392,8 +5358,7 @@ void Actor::ExtractConstraints
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	// not found in ida
 }
 
 void Actor::EventGiveWeaponInternal
@@ -4417,10 +5382,27 @@ void Actor::EventGiveWeapon
 	)
 
 {
+	Event e1(EV_Listener_ExecuteScript);
 	str weapName = ev->GetString(1);
 	weapName.tolower();
-	// FIXME: stub
-	STUB();
+	const_str csWeapName = Director.AddString(weapName);
+
+	m_csLoadOut = csWeapName;
+
+	if (csWeapName == STRING_MG42)
+	{
+		csWeapName = STRING_MP40;
+	}
+
+	m_csWeapon = csWeapName;
+
+	setModel();
+
+	e1.AddConstString(STRING_GLOBAL_WEAPON_SCR);
+	e1.AddString(weapName);
+
+	ExecuteScript(&e1);
+
 }
 
 void Actor::EventGetWeapon
@@ -4665,22 +5647,12 @@ void Actor::ReceiveAIEvent
 {
 	if (originator != this && originator != GetActiveWeapon(WEAPON_MAIN))
 	{
-		/*	FIXME: have fun.
-			v6 = 29 * this->m_Think[this->m_ThinkLevel];
-			v7 = Actor::GlobalFuncs[v6 + 26];
-			v8 = Actor::GlobalFuncs[v6 + 27];
-			if ( v7 )
-			{
-			  if ( v7 & 1 )
-				v9 = (*(&this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + v8))[v7 >> 2];
-			  else
-				v9 = Actor::GlobalFuncs[v6 + 26];
-			  v9(this + v8, event_origin, iType, originator, LODWORD(fDistSquared), LODWORD(fMaxDistSquared));
-			}
-		*/
+
+		GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+
+		if (func->ReceiveAIEvent)
+			(this->*func->ReceiveAIEvent)(event_origin, iType, originator, fDistSquared, fMaxDistSquared);
 	}
-	// FIXME: stub
-	STUB();
 }
 
 void Actor::DefaultReceiveAIEvent
@@ -4693,8 +5665,46 @@ void Actor::DefaultReceiveAIEvent
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (!IsDead())
+	{
+		if (!originator->IsDead() && originator->IsSubclassOfSentient() && ((Sentient *)originator)->m_Team == m_Team && !IsSquadMate((Sentient *)originator))
+		{
+			MergeWithSquad((Sentient *)originator);
+		}
+		switch (iType)
+		{
+		case AI_EVENT_WEAPON_FIRE:
+		case AI_EVENT_WEAPON_IMPACT:
+			if (m_fHearing * m_fHearing > fDistSquared)
+				WeaponSound(iType, event_origin, fDistSquared, fMaxDistSquared, originator);
+			break;
+		case AI_EVENT_EXPLOSION:
+		case AI_EVENT_MISC:
+		case AI_EVENT_MISC_LOUD:
+			if (m_fHearing * m_fHearing > fDistSquared)
+				CuriousSound(iType, event_origin, fDistSquared, fMaxDistSquared);
+			break;
+		case AI_EVENT_AMERICAN_VOICE:
+		case AI_EVENT_GERMAN_VOICE:
+		case AI_EVENT_AMERICAN_URGENT:
+		case AI_EVENT_GERMAN_URGENT:
+			if (m_fHearing * m_fHearing > fDistSquared)
+				VoiceSound(iType, event_origin, fDistSquared, fMaxDistSquared, originator);
+			break;
+		case AI_EVENT_FOOTSTEP:
+			if (m_fHearing * m_fHearing > fDistSquared)
+				FootstepSound(event_origin, fDistSquared, fMaxDistSquared, originator);
+			break;
+		case AI_EVENT_GRENADE:
+			Actor::GrenadeNotification(originator);
+			break;
+		default:
+			{
+				assert(!DumpCallTrace("iType = %i", iType));
+			}
+			break;
+		}
+	}
 }
 
 int Actor::PriorityForEventType
@@ -4705,24 +5715,26 @@ int Actor::PriorityForEventType
 {
 	switch( iType )
 	{
-	case 1:
+
+	//FIXME: return macros
+	case AI_EVENT_WEAPON_FIRE:
 		return 7;
-	case 2:
+	case AI_EVENT_WEAPON_IMPACT:
 		return 5;
-	case 3:
+	case AI_EVENT_EXPLOSION:
 		return 6;
-	case 4:
-	case 5:
+	case AI_EVENT_AMERICAN_VOICE:
+	case AI_EVENT_GERMAN_VOICE:
 		return 3;
-	case 6:
-	case 7:
+	case AI_EVENT_AMERICAN_URGENT:
+	case AI_EVENT_GERMAN_URGENT:
 		return 4;
-	case 8:
+	case AI_EVENT_MISC:
 		return 1;
-	case 9:
-	case 10:
+	case AI_EVENT_MISC_LOUD:
+	case AI_EVENT_FOOTSTEP:
 		return 2;
-	case 11:
+	case AI_EVENT_GRENADE:
 		return 8;
 	default:
 		assert( !"PriorityForEventType: unknown ai_event type" );
@@ -4739,29 +5751,68 @@ void Actor::CuriousSound
 	)
 
 {
-	float v6, v7, v8;
+	float v7, v8, fRangeFactor = 1.0;
+	int iPriority;
 	if (m_bEnableEnemy)
 	{
 		if (m_ThinkStates[0] == 1 || m_ThinkStates[0] == 5)
 		{
 			//FIXME: name variables.
-			v6 = 1.0;
-			if (fMaxDistSquared == 0.0)
-			{
-				v6 = 1.0;
-			}
-			else
+			if (fMaxDistSquared != 0.0)
 			{
 				v7 = 1*(1.0/3) - fDistSquared * (1*(1.0 / 3)) / fMaxDistSquared;
 				if (v7 <= 1.0)
-					v6 = v7;
+					fRangeFactor = v7;
 			}
-			v8 = v6 * this->m_fSoundAwareness;
-			//FIXME:not finished yet
+			v8 = fRangeFactor * m_fSoundAwareness;
+			//FIXME: macro
+			if (v8 >= rand() * 0.000000046566129)
+			{
+				RaiseAlertnessForEventType(iType);
+				iPriority = PriorityForEventType(iType);
+				if (iPriority >= m_iCuriousLevel)
+				{
+					m_iCuriousLevel = iPriority;
+					if (iType == AI_EVENT_WEAPON_IMPACT)
+					{
+						//FIXME: macro
+						if (fDistSquared <= 36864.0)
+							SetCuriousAnimHint(1);
+					}
+					else if (iType > AI_EVENT_WEAPON_IMPACT)
+					{
+						if (iType == AI_EVENT_EXPLOSION)
+						{
+							//FIXME: macro
+							if (fDistSquared <= 589824.0)
+								SetCuriousAnimHint(3);
+						}
+						else
+						{
+							SetCuriousAnimHint(5);
+						}
+					}
+					else if (iType == AI_EVENT_WEAPON_FIRE)
+					{
+						//FIXME: macro
+						if (fDistSquared <= 262144.0)
+							SetCuriousAnimHint(2);
+					}
+					else
+					{
+						SetCuriousAnimHint(5);
+					}
+
+					SetEnemyPos(sound_origin);
+					
+					SetThinkState(THINKSTATE_NONE, m_ThinkLevel);
+					SetThinkState(THINKSTATE_CURIOUS, 0);
+
+					m_pszDebugState = (char *)G_AIEventStringFromType(iType);
+				}
+			}
 		}
 	}
-	// FIXME: stub
-	STUB();
 }
 
 void Actor::WeaponSound
@@ -4774,6 +5825,62 @@ void Actor::WeaponSound
 	)
 
 {
+	Sentient *pOwner;
+	if (originator->IsSubclassOfWeapon())
+	{
+		pOwner = ((Weapon *)originator)->GetOwner();
+	}
+	else
+	{
+		if (!originator->IsSubclassOfProjectile())
+		{
+			/*
+			 * useless assert
+			 *if ( !dword_39A8FC )
+				{
+					strcpy(v31, "\"Actor::WeaponSound: non-weapon made a weapon sound.\\n\"\n\tMessage: ");
+					memset(&s, 0, 0x3FBDu);
+					v7 = Class::getClassname(&originator->baseItem.baseTrigger.baseAnimate.baseEntity.baseSimple.baseListener.baseClass);
+					v8 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
+						   this,
+						   "class = %s",
+						   v7);
+					Q_strcat(v31, 0x4000, v8);
+					v9 = MyAssertHandler(v31, "fgame/actor.cpp", 9553, 0);
+					if ( v9 < 0 )
+					{
+					  dword_39A8FC = 1;
+					}
+					else if ( v9 > 0 )
+					{
+					  __debugbreak();
+					}
+				}
+			*/
+			return;
+		}
+		pOwner = ((Projectile *)originator)->GetOwner();
+	}
+
+	if (!pOwner)
+	{
+		return;
+	}
+
+	if (pOwner->m_Team == m_Team)
+	{
+		if (!pOwner->m_Enemy)
+		{
+			if (pOwner->IsSubclassOfActor())
+			{
+				
+			}
+		}
+	}
+	else
+	{
+		
+	}
 	// FIXME: stub
 	STUB();
 }
@@ -4787,8 +5894,52 @@ void Actor::FootstepSound
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (originator->IsSubclassOfSentient())
+	{
+		if ( (m_ThinkStates[0] == THINKSTATE_IDLE || m_ThinkStates[0] == THINKSTATE_CURIOUS ) && m_bEnableEnemy)
+		{
+			if (m_Team == ((Sentient *)originator)->m_Team || ((Sentient *)originator)->m_bIsDisguised)
+			{
+				return;
+			}
+			if (originator == m_Enemy)
+			{
+				if (EnemyInFOV(0) && CanSeeEnemy(0))
+				{
+					return;
+				}
+			}
+			else
+			{
+				if (InFOV(originator->centroid, m_fFov, m_fFovDot) && CanSeeFrom(EyePosition(), originator))
+				{
+					return;
+				}
+			}
+			CuriousSound(AI_EVENT_FOOTSTEP, sound_origin, fDistSquared, fMaxDistSquared);
+		}
+	}
+	else
+	{
+		/*
+		 * useless assert
+			strcpy(v12, "\"'ai_event footstep' in a tiki used by something besides AI or player.\\n\"\n\tMessage: ");
+			memset(&s, 0, 0x3FABu);
+			v5 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
+					this,
+					&nullStr);
+			Q_strcat(v12, 0x4000, v5);
+			v6 = MyAssertHandler(v12, "fgame/actor.cpp", 9618, 0);
+			if ( v6 < 0 )
+			{
+				dword_39A900 = 1;
+			}
+			else if ( v6 > 0 )
+			{
+				__debugbreak();
+			}
+		 */
+	}
 }
 
 void Actor::VoiceSound
@@ -4801,6 +5952,9 @@ void Actor::VoiceSound
 	)
 
 {
+	if (iType != 4 && iType != 5 && iType != 6 && iType != 4)
+	{
+	}
 	// FIXME: stub
 	STUB();
 }
@@ -4811,8 +5965,71 @@ void Actor::GrenadeNotification
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	bool bCanSee = false, bInFOV = false;
+	if (!m_pGrenade)
+	{
+		if (originator == m_Enemy)
+		{
+			bInFOV = EnemyInFOV(0);
+			bCanSee = CanSeeEnemy(0);
+		}
+		else
+		{
+			bInFOV = InFOV(originator->centroid, m_fFov, m_fFovDot);
+			if (bInFOV)
+			{
+				if (gi.AreasConnected(edict->r.areanum, originator->edict->r.areanum))
+				{
+					bCanSee = CanSeeFrom(EyePosition(), originator);
+				}
+			}
+
+		}
+		if (bCanSee && bInFOV)
+		{
+			
+			
+			assert(originator->IsSubclassOfProjectile());
+
+			SetGrenade(originator);
+			Event e1(EV_Actor_ShareGrenade);
+			PostEvent(e1, 0.5);
+
+			Anim_Say(STRING_ANIM_SAY_GRENADE_SIGHTED_SCR, 0, true);
+		}
+	}
+
+	if (m_pGrenade == originator)
+	{
+
+		float fGrav, fDeltaZ, fVelDivGrav, fTimeLand;
+		vec2_t vLand;
+		vec2_t vMove;
+
+		fGrav = sv_gravity->value * m_pGrenade->gravity;
+
+		fDeltaZ = originator->origin[2] - origin[2];
+
+		fVelDivGrav = originator->velocity[2] / fGrav;
+
+		//from s=v*t + 0.5*a*t^2, apply for z velocity, solve.
+		fTimeLand = fVelDivGrav + sqrt((fDeltaZ + fDeltaZ) / fGrav + fVelDivGrav * fVelDivGrav);
+
+		vLand[0] = fTimeLand * originator->velocity[0] + originator->origin[0];
+		vLand[1] = fTimeLand * originator->velocity[1] + originator->origin[1];
+
+		vMove[0] = m_vGrenadePos[0] - vLand[0];
+		vMove[1] = m_vGrenadePos[1] - vLand[1];
+		
+		if (VectorLength2D(vMove) > 16.0)
+		{
+			m_vGrenadePos[0] = vLand[0];
+			m_vGrenadePos[1] = vLand[1];
+			m_vGrenadePos[2] = origin[2];
+			m_bGrenadeBounced = true;
+		}
+		
+	}
 }
 
 void Actor::SetGrenade
@@ -4826,7 +6043,7 @@ void Actor::SetGrenade
 		m_pGrenade = pGrenade;
 	}
 	
-	m_bGrenadeBounced = 1;
+	m_bGrenadeBounced = true;
 	
 	m_iFirstGrenadeTime = level.inttime;
 
@@ -4896,7 +6113,7 @@ void Actor::RaiseAlertnessForEventType
 
 {
 	//FIXME: inunderstandable variables
-	long double v2,v3,v4,v7,v8;
+	long double v2,v3,v4,v8;
 	switch (iType)
 	{
 	case AI_EVENT_WEAPON_FIRE:
@@ -4914,16 +6131,6 @@ void Actor::RaiseAlertnessForEventType
 			return;
 		v2 = 0.25;
 		goto ACTOREVENTLABEL_3;
-	case AI_EVENT_GERMAN_VOICE:
-	case AI_EVENT_GERMAN_URGENT:
-		if (m_Team == TEAM_AMERICAN)
-		{
-			v7 = this->m_fNoticeTimeScale * 0.66666669;
-			if (v7 >= 0.25)
-				v7 = 0.25;
-			m_fNoticeTimeScale = m_fNoticeTimeScale - v7;
-		}
-		goto ACTOREVENTLABEL_7;
 	case AI_EVENT_MISC:
 		v2 = 0.02;
 		goto ACTOREVENTLABEL_3;
@@ -4941,8 +6148,14 @@ void Actor::RaiseAlertnessForEventType
 			v4 = v3;
 		m_fNoticeTimeScale = v8 - v4;
 		break;
+	case AI_EVENT_GERMAN_VOICE:
+	case AI_EVENT_GERMAN_URGENT:
+		if (m_Team == TEAM_AMERICAN)
+		{
+			RaiseAlertness(0.25);
+		}
 	default:
-	ACTOREVENTLABEL_7:
+		assert(0);
 		/* useless assert
 		if (!dword_39A90C)
 		{
@@ -4968,17 +6181,17 @@ void Actor::RaiseAlertnessForEventType
 
 void Actor::RaiseAlertness
 	(
-	float fAmout
+	float fAmount
 	)
 
 {
 	//FIXME: inunderstandable variable
-	long double v2; // fst7
+	float v2; // fst7
 
 	v2 = m_fNoticeTimeScale * 0.66666669;
-	if (fAmout <= v2)
-		v2 = fAmout;
-	m_fNoticeTimeScale = m_fNoticeTimeScale - v2;
+	if (fAmount <= v2)
+		v2 = fAmount;
+	m_fNoticeTimeScale -= v2;
 }
 
 bool Actor::CanSee
@@ -5077,19 +6290,25 @@ bool Actor::InFOV
 
 {
 
-	bool inFov = true;
+	bool bInFov = true;
 	if (check_fov != 360.0)
 	{
 		Vector delta = pos - EyePosition();
 		if (delta.x == 0 && delta.y == 0)
 		{
-			return inFov;
+			return bInFov;
 		}
-		inFov = false;
+		bInFov = false;
+		Vector a;
+		a[0] = delta.x * orientation[0][0];
+		a[1] = delta.y * orientation[0][1] + a[0];
+		if (a[0] >= 0)
+		{
+			bInFov = a[0] * a[0] > delta.lengthXY() * (check_fovdot * check_fovdot);
+		}
+		
 	}
-	// FIXME: stub
-	STUB();
-	return false;
+	return bInFov;
 }
 
 bool Actor::EnemyInFOV
@@ -5124,11 +6343,8 @@ bool Actor::InFOV
 	)
 
 {
-	//bool inFov;
-
-	// FIXME: stub
-	STUB();
-	return false;
+	//Proposed. Not sure if there are other checks.
+	return InFOV(pos, m_fFov, m_fFovDot);
 }
 
 bool Actor::InFOV
@@ -5137,9 +6353,8 @@ bool Actor::InFOV
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	//Proposed. Not sure if there are other checks.
+	return InFOV(ent->origin, m_fFov, m_fFovDot);
 }
 
 bool Actor::CanSeeNoFOV
@@ -5148,8 +6363,7 @@ bool Actor::CanSeeNoFOV
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	// not found in ida
 	return false;
 }
 
@@ -5159,8 +6373,7 @@ bool Actor::CanSeeFOV
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	// not found in ida
 	return false;
 }
 
@@ -5171,8 +6384,7 @@ bool Actor::CanSeeEnemyFOV
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	// not found in ida
 	return false;
 }
 
@@ -5182,9 +6394,55 @@ bool Actor::CanShoot
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	bool bCanShootEnemy = false;
+	if (ent->IsSubclassOfSentient())
+	{
+		Sentient * sen = (Sentient *)ent;
+		//FIXME: macro.
+		if (world->farplane_distance == 0 || world->farplane_distance * world->farplane_distance * 0.68558401 > (origin - sen->origin).lengthSquared())
+		{
+			if (gi.AreasConnected(
+				edict->r.areanum,
+				sen->edict->r.areanum))
+			{
+				if (G_SightTrace(
+					GunPosition(),
+					vec_zero,
+					vec_zero,
+					sen->centroid,
+					this,
+					sen,
+					MASK_CANSEE,
+					qfalse,
+					"Actor::CanShoot centroid")
+					||
+						G_SightTrace(GunPosition(), vec_zero, vec_zero, sen->EyePosition(), this, sen, MASK_CANSEE, qfalse, "Actor::CanShoot eyes"))
+				{
+					bCanShootEnemy = true;
+				}
+			}
+		}
+		if (m_Enemy)
+		{
+			m_bCanShootEnemy = bCanShootEnemy;
+			m_iCanShootCheckTime = level.inttime;
+		}
+	}
+	else
+	{
+
+		if (gi.AreasConnected(
+			edict->r.areanum,
+			ent->edict->r.areanum))
+		{
+			if (CanSeeFrom(GunPosition(), ent))
+			{
+				bCanShootEnemy = true;
+			}
+		}
+	}
+
+	return bCanShootEnemy;
 }
 
 bool Actor::CanSeeFrom
@@ -5194,9 +6452,16 @@ bool Actor::CanSeeFrom
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	Vector vPos(pos);
+	bool bCanSee = false;
+	if (world->farplane_distance == 0 || world->farplane_distance * world->farplane_distance * 0.68558401 > (origin - ent->origin).lengthSquared())
+	{
+		if (!ent->IsSubclassOfActor() && G_SightTrace(vPos, vec_zero, vec_zero, ent->centroid, this, ent, MASK_CANSEE, qfalse, "Actor::CanSeeFrom"))
+		{
+			bCanSee = true;
+		}
+	}
+	return bCanSee;
 }
 
 bool Actor::CanSeeEnemy
@@ -5205,9 +6470,11 @@ bool Actor::CanSeeEnemy
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	//FIXME: macro
+	if (level.inttime > iMaxDirtyTime + m_iEnemyVisibleCheckTime)
+		CanSee(m_Enemy, 0, 0.828 * world->farplane_distance);
+
+	return m_bEnemyVisible;
 }
 
 bool Actor::CanShootEnemy
@@ -5229,8 +6496,186 @@ void Actor::ShowInfo
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float fMaxDist, fMinDot;
+	static cvar_t *g_entinfo_max;
+
+	if (!bEntinfoInit)
+	{
+		g_entinfo_max = gi.Cvar_Get("g_entinfo_max", "2048", NULL);
+		bEntinfoInit = true;
+	}
+
+	fMinDot = 0.89999998;
+	fMaxDist = g_entinfo_max->value;
+
+	if (m_ThinkState == THINKSTATE_KILLED)
+	{
+		fMinDot = 0.99000001;
+		fMaxDist = 512;
+	}
+
+	if (g_entinfo->integer != 4)
+	{
+		if (fDot <= fMinDot)
+		{
+			if (fDot <= 0 || fDist >= 256)
+				return;
+		}
+
+		if (fMaxDist <= fDist || fDist <= 64)
+			return;
+	}
+	if (!m_bEnableEnemy)
+	{
+		Vector a = origin;
+		a.z += maxs.z + 74;
+
+		G_DebugString(a, 1.0, 1.0, 1.0, 1065353216, "DISABLED");
+	}
+	
+	{
+		Vector a = origin;
+		a.z += maxs.z + 56;
+
+
+		G_DebugString(
+			a,
+			1.0,
+			1.0,
+			1.0,
+			1065353216,
+			"%i:%i:%s:%.1f",
+			entnum,
+			radnum,
+			targetname.c_str(),
+			health);
+	}
+
+	if (m_Enemy)
+	{
+		Vector a = origin;
+		a.z += maxs.z + 38;
+
+
+		G_DebugString(
+			a,
+			1.0,
+			1.0,
+			1.0,
+			1065353216,
+			"%i:%s:%.1f:%i",
+			m_Enemy->entnum,
+			m_Enemy->radnum,
+			m_Enemy->targetname.c_str(),
+			m_Enemy->health,
+			m_PotentialEnemies.GetCurrentThreat());
+	}
+
+	if (m_ThinkState == THINKSTATE_CURIOUS)
+	{
+
+		Vector a = origin;
+		a.z += maxs.z + 20;
+
+
+		G_DebugString(
+			a,
+			1.0,
+			1.0,
+			1.0,
+			1065353216,
+			"%s:%%%.1f",
+			Director.GetString(m_csThinkStateNames[THINKSTATE_CURIOUS]).c_str(),
+			m_PotentialEnemies.GetCurrentVisibility() * 100);
+	}
+	else
+	{
+
+		Vector a = origin;
+		a.z += maxs.z + 20;
+
+
+		G_DebugString(
+			a,
+			1.0,
+			1.0,
+			1.0,
+			1065353216,
+			"%s",
+			Director.GetString(m_csThinkStateNames[m_ThinkState]).c_str());
+	}
+
+
+	{
+		Vector a = origin;
+		a.z += maxs.z + 2;
+
+		str sAnimThreadFile = m_pAnimThread ? m_pAnimThread->FileName() : "(null)";
+
+
+
+		G_DebugString(
+			a,
+			1.0,
+			1.0,
+			1.0,
+			1065353216,
+			"%s:%s:%i - %s",
+			Director.GetString(m_csThinkNames[m_Think[m_ThinkLevel]]).c_str(),
+			m_pszDebugState,
+			m_State,
+			sAnimThreadFile.c_str());
+	}
+
+	if (g_entinfo->integer == 1)
+	{
+		if (m_pGrenade)
+			G_DebugLine(m_pGrenade->origin, m_vGrenadePos, 1.0, 0.0, 0.0, 1.0);
+
+		Vector a = m_vHome;
+		a.z += maxs.z + 18;
+
+		G_DebugLine(centroid, a, 0.0, 1.0, 0.0, 1.0);
+
+		G_DebugCircle(a, m_fLeash, 0.0, 1.0, 0.0, 1.0, qtrue);
+
+		G_DebugCircle(
+			centroid,
+			m_fMinDistance,
+			1.0,
+			0.0,
+			0.0,
+			1.0,
+			qtrue);
+
+		G_DebugCircle(
+			centroid,
+			m_fMaxDistance,
+			0.0,
+			0.0,
+			1.0,
+			1.0,
+			qtrue);
+	}
+	else if (g_entinfo->integer == 2)
+	{
+		G_DebugCircle(
+			centroid,
+			m_fHearing,
+			1.0,
+			0.0,
+			0.0,
+			1.0,
+			qtrue);
+		G_DebugCircle(
+			centroid,
+			m_fSight,
+			0.0,
+			0.0,
+			1.0,
+			1.0,
+			qtrue);
+	}
 }
 
 void Actor::DefaultPain
@@ -5241,7 +6686,7 @@ void Actor::DefaultPain
 {
 	//FIXME: macros
 	m_ThinkMap[2] = 5;
-	if (m_ThinkState == 2)
+	if (m_ThinkState == THINKSTATE_PAIN)
 		m_bDirtyThinkState = true;
 	HandlePain(ev);
 }
@@ -5252,8 +6697,40 @@ void Actor::HandlePain
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Event e1(EV_Listener_ExecuteScript);
+	if (m_bEnablePain)
+	{
+
+		e1.AddConstString(STRING_GLOBAL_PAIN_SCR);
+
+		for (int i = 1; i < ev->NumArgs(); i++)
+		{
+			e1.AddValue(ev->GetValue(i));
+		}
+		ExecuteScript(&e1);
+		
+		SetThinkState(THINKSTATE_PAIN, 1);
+
+		RaiseAlertness(0.5);
+
+		m_PainTime = level.inttime;
+
+		Entity *ent = ev->GetEntity(1);
+		if (ent && ent->IsSubclassOfSentient() && !IsTeamMate((Sentient *)ent))
+		{
+			m_pLastAttacker = ent;
+			//FIXME: macro
+			SetCuriousAnimHint(7);
+
+			if (m_bEnableEnemy && m_ThinkStates[0] == THINKSTATE_IDLE)
+			{
+				SetEnemyPos(ent->origin);
+				m_pszDebugState = "from_pain";
+				SetThinkState(THINKSTATE_CURIOUS, 0);
+			}
+		}
+		Unregister(STRING_PAIN);
+	}
 }
 
 void Actor::EventPain
@@ -5262,8 +6739,12 @@ void Actor::EventPain
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ShowInfo();
+
+	GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+
+	if (func->Pain)
+		(this->*func->Pain)(ev);
 }
 
 void Actor::DefaultKilled
@@ -5275,10 +6756,13 @@ void Actor::DefaultKilled
 {
 	//FIXME: macros
 	ClearStates();
+
 	m_ThinkMap[3] = 6;
-	if (m_ThinkState == 3)
-		m_bDirtyThinkState = 1;
-	return Actor::HandleKilled(ev, bPlayDeathAnim);
+
+	if (m_ThinkState == THINKSTATE_KILLED)
+		m_bDirtyThinkState = true;
+
+	Actor::HandleKilled(ev, bPlayDeathAnim);
 }
 
 void Actor::HandleKilled
@@ -5288,8 +6772,32 @@ void Actor::HandleKilled
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	deadflag = DEAD_DEAD;
+	health = 0.0;
+	if (bPlayDeathAnim)
+	{
+		Event e1(EV_Listener_ExecuteScript);
+		e1.AddConstString(STRING_GLOBAL_KILLED_SCR);
+		for (int i = 1; i < ev->NumArgs(); i++)
+		{
+			e1.AddValue(ev->GetValue(i));
+		}
+		ExecuteScript(&e1);
+	}
+	else
+	{
+		//FIXME: macros
+		m_ThinkMap[3] = 34;
+		if (m_ThinkState == THINKSTATE_KILLED)
+			m_bDirtyThinkState = true;
+	}
+
+	ClearThinkStates();
+	
+	SetThinkState(THINKSTATE_KILLED, 2);
+
+	Unregister(STRING_DEATH);
+	Unregister(STRING_PAIN);
 }
 
 void Actor::DispatchEventKilled
@@ -5299,8 +6807,19 @@ void Actor::DispatchEventKilled
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+
+	if (func->Killed)
+		(this->*func->Killed)(ev, bPlayDeathAnim);
+	
+	SetEnemy(NULL, false);
+
+	DisbandSquadMate(this);
+	if (bPlayDeathAnim)
+	{
+		DropInventoryItems();
+	}
+
 }
 
 void Actor::EventKilled
@@ -5309,8 +6828,29 @@ void Actor::EventKilled
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	DispatchEventKilled(ev, true);
+
+	Player *p1 = (Player *)ev->GetEntity(1);
+	if (p1)
+	{
+		if (p1->IsSubclassOfPlayer() && p1->m_Team == m_Team)
+		{
+			p1->m_iNumEnemiesKilled++;
+		}
+		if (p1->IsSubclassOfSentient())
+		{
+			for (Sentient *pSent = level.m_HeadSentient[m_Team]; pSent; pSent = pSent->m_NextSentient)
+			{
+				if (pSent != this)
+				{
+					if (pSent->IsSubclassOfActor())
+						NotifySquadmateKilled(pSent, p1);
+				}
+			}
+		}
+
+	}
+
 }
 
 void Actor::EventBeDead
@@ -5319,8 +6859,7 @@ void Actor::EventBeDead
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	DispatchEventKilled(ev, false);
 }
 
 void Actor::DeathEmbalm
@@ -5329,19 +6868,32 @@ void Actor::DeathEmbalm
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (maxs[2] > 8)
+	{
+		maxs[2] -= 4;
+		if (maxs[2] > 8)
+		{
+			Event e1(EV_Actor_DeathEmbalm);
+			PostEvent(e1, 0.5);
+		}
+		else
+		{
+			maxs[2] = 8.0;
+		}
+
+		setSize(mins, maxs);
+	}
 }
 
 void Actor::DeathSinkStart
 	(
 	Event *ev
 	)
-
 {
-	//FIXME: macro: supposed FL_something
-	flags &= 0xFFFFFEFF;
+	flags &= ~FL_BLOOD;
+
 	setMoveType(MOVETYPE_NONE);
+
 	Entity::DeathSinkStart(ev);
 }
 
@@ -5353,9 +6905,23 @@ bool Actor::NoticeShot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (pShooter->m_Team != m_Team)
+	{
+		return true;
+	}
+
+	m_bEnemyIsDisguised = false;
+
+	if (pTarget)
+	{
+		if (DoesTheoreticPathExist(pShooter->origin, fDist * 1.5) || CanSee(pTarget, 0, 0.828 * world->farplane_distance))
+		{
+			m_PotentialEnemies.ConfirmEnemy(this, pTarget);
+		}
+	}
+
 	return false;
+
 }
 
 bool Actor::NoticeFootstep
@@ -5364,9 +6930,26 @@ bool Actor::NoticeFootstep
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	if (m_Team == pPedestrian->m_Team || pPedestrian->m_bIsDisguised)
+		return false;
+	if (pPedestrian == m_Enemy)
+	{
+		if (EnemyInFOV(0) && CanSeeEnemy(0))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if (InFOV(pPedestrian->centroid, m_fFov, m_fFovDot) && gi.AreasConnected(edict->r.areanum, pPedestrian->edict->r.areanum))
+		{
+			if (CanSeeFrom(EyePosition(), pPedestrian))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 bool Actor::NoticeVoice
@@ -5375,9 +6958,26 @@ bool Actor::NoticeVoice
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	if (IsSquadMate(pVocallist))
+		return false;
+	if (pVocallist == m_Enemy)
+	{
+		if (EnemyInFOV(0) && CanSeeEnemy(0))
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if (InFOV(pVocallist->centroid, m_fFov, m_fFovDot) && gi.AreasConnected(edict->r.areanum, pVocallist->edict->r.areanum))
+		{
+			if (CanSeeFrom(EyePosition(), pVocallist))
+			{
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 void Actor::ClearLookEntity
@@ -5402,8 +7002,25 @@ void Actor::LookAt
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (g_showlookat->integer == entnum || g_showlookat->integer == -1)
+	{
+		Com_Printf(
+			"Script lookat: %i %i %s looking at point %.0f %.0f %.0f\n",
+			entnum,
+			radnum,
+			targetname.c_str(),
+			vec.x,
+			vec.y,
+			vec.z);
+	}
+
+	ClearLookEntity();
+
+	TempWaypoint *twp = new TempWaypoint();
+	m_pLookEntity = twp;
+
+	m_pLookEntity->setOrigin(vec);
+
 }
 
 void Actor::LookAt
@@ -5412,8 +7029,36 @@ void Actor::LookAt
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ClearLookEntity();
+	if ( l )
+	{
+		if (!l->isInheritedBy(&SimpleEntity::ClassInfo))
+		{
+			ScriptError("Bad look entity with classname '%s' specified for '%s' at (%f %f %f)\n", 
+				l->getClassname(),
+				targetname.c_str(),
+				origin.x,
+				origin.y,
+				origin.z
+				);
+		}
+		if (l != this)
+		{
+			l = (SimpleEntity*)l;
+			if (g_showlookat->integer == entnum || g_showlookat->integer == -1)
+			{
+				Com_Printf(
+					"Script lookat: %i %i %s looking at point %.0f %.0f %.0f\n",
+					entnum,
+					radnum,
+					targetname.c_str(),
+					((SimpleEntity*)l)->origin.x,
+					((SimpleEntity*)l)->origin.y,
+					((SimpleEntity*)l)->origin.z);
+			}
+			m_pLookEntity = (SimpleEntity*)l;
+		}
+	}
 }
 
 void Actor::ForwardLook
@@ -5422,8 +7067,7 @@ void Actor::ForwardLook
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	// not found in ida
 }
 
 void Actor::LookAtLookEntity
@@ -5432,8 +7076,17 @@ void Actor::LookAtLookEntity
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Vector dir;
+	if (m_pLookEntity->IsSubclassOfSentient())
+	{
+		dir = ((Sentient *)m_pLookEntity.Pointer())->EyePosition() - EyePosition();
+	}
+	else
+	{
+		dir = m_pLookEntity->centroid - EyePosition();
+	}
+
+	SetDesiredLookDir(dir);
 }
 
 void Actor::IdleLook
@@ -5458,8 +7111,14 @@ void Actor::IdleLook
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_pLookEntity)
+	{
+		LookAtLookEntity();
+	}
+	else
+	{
+		SetDesiredLookDir(dir);
+	}
 }
 
 void Actor::SetDesiredLookDir
@@ -5493,8 +7152,40 @@ void Actor::EventLookAt
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->IsVectorAt(1))
+	{
+		Vector dir = ev->GetVector(1);
+		if (g_showlookat->integer == entnum || g_showlookat->integer == -1)
+		{
+			Com_Printf(
+				"Script lookat: %i %i %s looking at point %.0f %.0f %.0f\n",
+				entnum,
+				radnum,
+				targetname.c_str(),
+				dir.x,
+				dir.y,
+				dir.z);
+		}
+		if (m_pLookEntity)
+		{
+			if (m_pLookEntity->IsSubclassOfAnimate())
+			{
+				delete m_pLookEntity;
+			}
+			m_pLookEntity = NULL;
+		}
+
+		TempWaypoint *twp = new TempWaypoint();
+		m_pLookEntity = twp;
+
+		m_pLookEntity->setOrigin(dir);
+	}
+	else
+	{
+		LookAt(ev->GetListener(1));
+	}
+
+	m_iLookFlags = 0;
 }
 
 void Actor::EventEyesLookAt
@@ -5503,8 +7194,9 @@ void Actor::EventEyesLookAt
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	EventLookAt(ev);
+
+	m_iLookFlags = m_pLookEntity != NULL;
 }
 
 void Actor::NoPoint
@@ -5524,8 +7216,21 @@ void Actor::IdlePoint
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_pPointEntity)
+	{
+		float yaw = AngleNormalize180(origin[1] - angles[1] + 30);
+		if (yaw > 100)
+			yaw = 100;
+		if (yaw < -80)
+			yaw = -80;
+		m_vLUpperArmDesiredAngles[0] = origin[0];
+		m_vLUpperArmDesiredAngles[1] = yaw;
+		m_vLUpperArmDesiredAngles[2] = origin[2];
+	}
+	else
+	{
+		NoPoint();
+	}
 }
 
 void Actor::ClearPointEntity
@@ -5564,8 +7269,23 @@ void Actor::PointAt
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ClearPointEntity();
+	if (l)
+	{
+		if (l->isInheritedBy(&SimpleEntity::ClassInfo))
+		{
+			ScriptError("Bad point entity with classname '%s' specified for '%s' at (%f %f %f)\n",
+				l->getClassname(),
+				targetname.c_str(),
+				origin.x,
+				origin.y,
+				origin.z);
+		}
+		if (l != this)
+		{
+			m_pPointEntity = (SimpleEntity *)l;
+		}
+	}
 }
 
 void Actor::EventPointAt
@@ -5574,8 +7294,28 @@ void Actor::EventPointAt
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->IsVectorAt(1))
+	{
+		Vector dir = ev->GetVector(1);
+		
+		if (m_pPointEntity)
+		{
+			if (m_pPointEntity->IsSubclassOfAnimate())
+			{
+				delete m_pPointEntity;
+			}
+			m_pPointEntity = NULL;
+		}
+
+		TempWaypoint *twp = new TempWaypoint();
+		m_pPointEntity = twp;
+
+		m_pPointEntity->setOrigin(dir);
+	}
+	else
+	{
+		PointAt(ev->GetListener(1));
+	}
 }
 
 void Actor::ClearTurnEntity
@@ -5614,8 +7354,27 @@ void Actor::TurnTo
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ClearTurnEntity();
+	if (l)
+	{
+		if (l->isInheritedBy(&SimpleEntity::ClassInfo))
+		{
+			ScriptError("Bad turn entity with classname '%s' specified for '%s' at (%f %f %f)\n",
+				l->getClassname(),
+				targetname.c_str(),
+				origin.x,
+				origin.y,
+				origin.z);
+		}
+		if (l != this)
+		{
+			m_pTurnEntity = (SimpleEntity *)l;
+		}
+	}
+	else
+	{
+		m_pTurnEntity = this;
+	}
 }
 
 void Actor::IdleTurn
@@ -5624,8 +7383,55 @@ void Actor::IdleTurn
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_pTurnEntity)
+	{
+		for (int i = 0; i >= 1; i++)
+		{
+			if (m_pTurnEntity == this)
+			{
+				m_YawAchieved = true;
+				m_pTurnEntity = NULL;
+				return;
+			}
+			vec2_t facedir;
+			facedir[0] = m_pTurnEntity->centroid[0] - origin[0];
+			facedir[1] = m_pTurnEntity->centroid[1] - origin[1];
+			if (facedir[0] != 0 || facedir[1] != 0)
+			{
+				m_YawAchieved = false;
+				m_DesiredYaw = vectoyaw(facedir);
+			}
+
+			float error = m_DesiredYaw - angles[1];
+			if (error <= 180)
+			{
+				if (error < -180.0)
+					error += 360;
+			}
+			else
+			{
+				error -= 360;
+			}
+			if (error >= m_fTurnDoneError + 0.001 || -(m_fTurnDoneError + 0.001) >= error)
+			{
+				return;
+			}
+
+
+			if (Director.iPaused-- == 1)
+			{
+				Director.ExecuteRunning();
+			}
+			Unregister(STRING_TURNDONE);
+			Director.iPaused++;
+
+			//FIXME: what ?? it was m_pTurnEntity == m_pTurnEntity
+			if (m_pTurnEntity == NULL)
+			{
+				break;
+			}
+		}
+	}
 }
 
 void Actor::EventTurnTo
@@ -5634,8 +7440,28 @@ void Actor::EventTurnTo
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->IsVectorAt(1))
+	{
+		Vector dir = ev->GetVector(1);
+
+		if (m_pTurnEntity)
+		{
+			if (m_pTurnEntity->IsSubclassOfAnimate())
+			{
+				delete m_pTurnEntity;
+			}
+			m_pTurnEntity = NULL;
+		}
+
+		TempWaypoint *twp = new TempWaypoint();
+		m_pTurnEntity = twp;
+
+		m_pTurnEntity->setOrigin(dir);
+	}
+	else
+	{
+		TurnTo(ev->GetListener(1));
+	}
 }
 
 void Actor::EventSetTurnDoneError
@@ -5644,8 +7470,12 @@ void Actor::EventSetTurnDoneError
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_fTurnDoneError = ev->GetFloat(1);
+	if (m_fTurnDoneError < 0)
+	{
+		m_fTurnDoneError = 0;
+		ScriptError("turndoneerror was set to a negative value - capped to 0");
+	}
 }
 
 void Actor::EventGetTurnDoneError
@@ -5654,8 +7484,7 @@ void Actor::EventGetTurnDoneError
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddFloat(m_fTurnDoneError);
 }
 
 void Actor::LookAround
@@ -5664,6 +7493,22 @@ void Actor::LookAround
 	)
 
 {
+	vec3_t vDest, vAngle;
+	float fModTime;
+
+	if (level.inttime >= m_iNextLookTime)
+	{
+
+	}
+
+	if (m_bHasDesiredLookDest)
+	{
+
+	}
+	else
+	{
+		m_bHasDesiredLookAngles = false;
+	}
 	// FIXME: stub
 	STUB();
 }
@@ -5671,12 +7516,27 @@ void Actor::LookAround
 bool Actor::SoundSayAnim
 	(
 	const_str name,
-	int bLevelSayAnim
+	bool bLevelSayAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str());
+	if (animnum == -1)
+	{
+		ChangeSayAnim();
+		m_bSayAnimSet = true;
+		m_iSaySlot = -2;
+		m_bLevelSayAnim = bLevelSayAnim;
+
+		Com_Printf(
+			"Couldn't find animation '%s' in '%s' - trying sound alias instead.\n",
+			Director.GetString(name).c_str(),
+			edict->tiki->a->name);
+
+		Sound(Director.GetString(name), 0,0,0,0,0,0, 1,1);
+
+		return true;
+	}
 	return false;
 }
 
@@ -5686,8 +7546,123 @@ void Actor::EventSetAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//"anim slot weight flagged"
+	int numArgs = ev->NumArgs(), slot = 0, animnum;
+	float weight = 1;
+	const_str anim, flagVal;
+	qboolean flagged = qfalse;
+
+	//FIXME: better notation, but this works for now.
+	if (numArgs < 1 || numArgs > 4)
+	{
+		ScriptError("bad number of arguments");
+	}
+	else if (numArgs == 1)
+	{
+		anim = ev->GetConstString(1);
+		animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
+		if (animnum == -1)
+		{
+			ScriptException::next_bIsForAnim = true;
+			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+		}
+	}
+	else if (numArgs == 2)
+	{
+		anim = ev->GetConstString(1);
+		animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
+		if (animnum == -1)
+		{
+			ScriptException::next_bIsForAnim = true;
+			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+		}
+		slot = ev->GetInteger(2);
+		if (slot > 2)
+		{
+			ScriptError("Bad animation slot, only 0 and 1 supported");
+		}
+	}
+	else if (numArgs == 3)
+	{
+		weight = ev->GetFloat(3);
+		if (weight < 0)
+		{
+			ScriptError("Negative anim weight not allowed");
+		}
+		if (weight != 0)
+		{
+			slot = ev->GetInteger(2);
+			if (slot > 2)
+			{
+				ScriptError("Bad animation slot, only 0 and 1 supported");
+			}
+		}
+
+		anim = ev->GetConstString(1);
+		animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
+		if (animnum == -1)
+		{
+			ScriptException::next_bIsForAnim = true;
+			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+		}
+	}
+	else if (numArgs == 4)
+	{
+		flagVal = ev->GetConstString(4);
+		flagged = qtrue;
+		if (flagVal != STRING_FLAGGED)
+		{
+			ScriptError("unknown keyword '%s', expected 'flagged'", Director.GetString(flagVal).c_str());
+		}
+		weight = ev->GetFloat(3);
+		if (weight < 0)
+		{
+			ScriptError("Negative anim weight not allowed");
+		}
+		if (weight != 0)
+		{
+			slot = ev->GetInteger(2);
+			if (slot > 2)
+			{
+				ScriptError("Bad animation slot, only 0 and 1 supported");
+			}
+		}
+
+		anim = ev->GetConstString(1);
+		animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
+		if (animnum == -1)
+		{
+			ScriptException::next_bIsForAnim = true;
+			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+		}
+	}
+	
+	if (!slot)
+	{
+		flagged = qtrue;
+	}
+	if (flagged)
+	{
+		parm.motionfail = qtrue;
+	}
+	if (!m_bLevelMotionAnim)
+	{
+		if (slot)
+		{
+			m_weightType[GetMotionSlot(slot)] = 0;
+		}
+		else
+		{
+			ChangeMotionAnim();
+			m_bMotionAnimSet = true;
+		}
+		StartMotionAnimSlot(slot, animnum, weight);
+		if (flagged)
+		{
+			m_iMotionSlot = GetMotionSlot(slot);
+			parm.motionfail = qfalse;
+		}
+	}
 }
 
 void Actor::EventIdleSayAnim
@@ -5696,8 +7671,37 @@ void Actor::EventIdleSayAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	const_str name;
+	if (ev->NumArgs())
+	{
+		if (ev->NumArgs() != 1)
+		{
+			ScriptError("bad number of arguments");
+		}
+
+		name = ev->GetConstString(1);
+
+		if (m_ThinkState <= THINKSTATE_ATTACK || m_ThinkState == THINKSTATE_GRENADE)
+		{
+			m_csSayAnim = name;
+			//FIXME: macro
+			m_bNextLevelSayAnim = 1;
+		}
+		else
+		{
+			if (!SoundSayAnim(name,true) )
+			{
+				m_csSayAnim = name;
+				//FIXME: macro
+				m_bNextLevelSayAnim = 1;
+			}
+
+		}
+	}
+	else if (m_bLevelSayAnim == true)
+	{
+		AnimFinished(m_iSaySlot, true);
+	}
 }
 
 void Actor::EventSayAnim
@@ -5706,8 +7710,37 @@ void Actor::EventSayAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	const_str name;
+	if (ev->NumArgs())
+	{
+		if (ev->NumArgs() != 1)
+		{
+			ScriptError("bad number of arguments");
+		}
+
+		name = ev->GetConstString(1);
+
+		if (m_ThinkState <= THINKSTATE_KILLED)
+		{
+			m_csSayAnim = name;
+			//FIXME: macro
+			m_bNextLevelSayAnim = 2;
+		}
+		else
+		{
+			if (!SoundSayAnim(name, true))
+			{
+				m_csSayAnim = name;
+				//FIXME: macro
+				m_bNextLevelSayAnim = 2;
+			}
+
+		}
+	}
+	else if (m_bLevelSayAnim == true)
+	{
+		AnimFinished(m_iSaySlot, true);
+	}
 }
 
 void Actor::EventSetSayAnim
@@ -5716,8 +7749,27 @@ void Actor::EventSetSayAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	const_str name;
+	if (ev->NumArgs())
+	{
+		if (ev->NumArgs() != 1)
+		{
+			ScriptError("bad number of arguments");
+		}
+		if (!m_bLevelSayAnim)
+		{
+			name = ev->GetConstString(1);
+
+			parm.sayfail = qtrue;
+
+			if (!SoundSayAnim(name, true))
+			{
+				//FIXME: assumption, not sure. I think it's an inline func inside UpdateSayAnim()
+				UpdateSayAnim();
+			}
+			parm.sayfail = qfalse;
+		}
+	}
 }
 
 void Actor::EventSetMotionAnim
@@ -5726,8 +7778,28 @@ void Actor::EventSetMotionAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->NumArgs() != 1)
+	{
+		ScriptError("bad number of arguments");
+	}
+	const_str anim = ev->GetConstString(1);
+	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
+	if (animnum == -1)
+	{
+		ScriptException::next_bIsForAnim = 1;
+		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+	}
+
+	parm.motionfail = qtrue;
+
+	if (!m_bLevelMotionAnim)
+	{
+		ChangeMotionAnim();
+		m_bMotionAnimSet = true;
+		StartMotionAnimSlot(0, animnum, 1.0);
+		m_iMotionSlot = GetMotionSlot(0);
+		parm.motionfail = qfalse;
+	}
 }
 
 void Actor::EventSetAimMotionAnim
@@ -5736,8 +7808,52 @@ void Actor::EventSetAimMotionAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->NumArgs() != 3)
+	{
+		ScriptError("bad number of arguments");
+	}
+
+	//FIXME: maybe inline func ?
+
+	const_str anim = ev->GetConstString(1);
+	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
+	if (animnum == -1)
+	{
+		ScriptException::next_bIsForAnim = 1;
+		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+	}
+
+	const_str anim2 = ev->GetConstString(2);
+	int animnum2 = gi.Anim_NumForName(edict->tiki, Director.GetString(anim2).c_str());
+	if (animnum2 == -1)
+	{
+		ScriptException::next_bIsForAnim = 1;
+		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim2).c_str(), edict->tiki->a->name);
+	}
+
+	const_str anim3 = ev->GetConstString(3);
+	int animnum3 = gi.Anim_NumForName(edict->tiki, Director.GetString(anim3).c_str());
+	if (animnum3 == -1)
+	{
+		ScriptException::next_bIsForAnim = 1;
+		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim3).c_str(), edict->tiki->a->name);
+	}
+
+
+	parm.motionfail = qtrue;
+
+	if (!m_bLevelMotionAnim)
+	{
+		ChangeMotionAnim();
+		m_bMotionAnimSet = true;
+		UpdateAimMotion();
+		StartAimMotionAnimSlot(0, animnum);
+		StartAimMotionAnimSlot(1, animnum2);
+		StartAimMotionAnimSlot(2, animnum3);
+		m_iMotionSlot = GetMotionSlot(1);
+		parm.motionfail = qfalse;
+	}
+
 }
 
 void Actor::EventSetActionAnim
@@ -5746,8 +7862,65 @@ void Actor::EventSetActionAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->NumArgs() != 3)
+	{
+		ScriptError("bad number of arguments");
+	}
+
+	m_fAimLimit_down = ev->GetFloat(2);
+	if (m_fAimLimit_down > 0)
+	{
+		m_fAimLimit_down = -0.001;
+		ScriptError("Positive lower_limit not allowed");
+	}
+
+	m_fAimLimit_up = ev->GetFloat(3);
+	if (m_fAimLimit_up <= 0)
+	{
+		m_fAimLimit_up = 0.001;
+		ScriptError("Negative upper_limit not allowed");
+	}
+
+	const_str anim = ev->GetConstString(1);
+	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
+	if (animnum == -1)
+	{
+		ScriptException::next_bIsForAnim = 1;
+		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+	}
+	//FIXME: repeated 3 times for no reason ?
+	/*
+	
+		const_str anim2 = ev->GetConstString(2);
+		int animnum2 = gi.Anim_NumForName(edict->tiki, Director.GetString(anim2));
+		if (animnum2 == -1)
+		{
+			ScriptException::next_bIsForAnim = 1;
+			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim2), edict->tiki->a->name);
+		}
+
+		const_str anim3 = ev->GetConstString(3);
+		int animnum3 = gi.Anim_NumForName(edict->tiki, Director.GetString(anim3));
+		if (animnum3 == -1)
+		{
+			ScriptException::next_bIsForAnim = 1;
+			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim3), edict->tiki->a->name);
+		}
+	*/
+	parm.upperfail = qtrue;
+	if (!m_bLevelActionAnim)
+	{
+		ChangeActionAnim();
+		m_bAimAnimSet = true;
+		m_bActionAnimSet = true;
+		UpdateAim();
+		//FIXME: 3 calls on same animnum ?? weird.
+		StartAimAnimSlot(0, animnum);
+		StartAimAnimSlot(1, animnum);
+		StartAimAnimSlot(2, animnum);
+		m_iActionSlot = GetActionSlot(0);
+		parm.upperfail = qfalse;
+	}
 }
 
 void Actor::EventUpperAnim
@@ -5756,8 +7929,26 @@ void Actor::EventUpperAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->NumArgs())
+	{
+		if (ev->NumArgs() != 1)
+		{
+			ScriptError("bad number of arguments");
+		}
+		const_str anim = ev->GetConstString(1);
+		int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
+		if (animnum == -1)
+		{
+			ScriptException::next_bIsForAnim = 1;
+			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+		}
+
+		m_csUpperAnim = anim;
+	}
+	else if (m_bLevelActionAnim)
+	{
+		AnimFinished(m_iActionSlot, true);
+	}
 }
 
 void Actor::EventSetUpperAnim
@@ -5766,8 +7957,27 @@ void Actor::EventSetUpperAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->NumArgs() != 1)
+	{
+		ScriptError("bad number of arguments");
+	}
+
+	const_str anim = ev->GetConstString(1);
+	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
+	if (animnum == -1)
+	{
+		ScriptException::next_bIsForAnim = 1;
+		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+	}
+	parm.upperfail = qtrue;
+	if (!m_bLevelActionAnim)
+	{
+		ChangeActionAnim();
+		m_bActionAnimSet = true;
+		StartActionAnimSlot(animnum);
+		m_iActionSlot = SimpleActor::GetActionSlot(0);
+		parm.upperfail = qfalse;
+	}
 }
 
 void Actor::EventEndActionAnim
@@ -5776,8 +7986,12 @@ void Actor::EventEndActionAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	parm.upperfail = qtrue;
+	if (!m_bLevelActionAnim)
+	{
+		ChangeActionAnim();
+		parm.upperfail = qfalse;
+	}
 }
 
 void Actor::EventDamagePuff
@@ -5786,8 +8000,18 @@ void Actor::EventDamagePuff
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	
+	Vector pos = ev->GetVector(1), dir = ev->GetVector(2);
+	gi.SetBroadcastVisible(pos, NULL);
+	//FIXME: macro
+	gi.MSG_StartCGM(7);
+	gi.MSG_WriteCoord(pos.x);
+	gi.MSG_WriteCoord(pos.y);
+	gi.MSG_WriteCoord(pos.z);
+
+	gi.MSG_WriteDir(dir);
+	gi.MSG_WriteBits(0, 1);
+	gi.MSG_EndCGM();
 }
 
 void Actor::SafeSetOrigin
@@ -5796,8 +8020,22 @@ void Actor::SafeSetOrigin
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (newOrigin == origin)
+	{
+		return;
+	}
+
+	setOrigin(newOrigin);
+	if (!m_bNoPlayerCollision)
+	{
+		Player *p = (Player *)G_GetEntity(0);
+		if (p && IsTouching(p))
+		{
+			Com_Printf("(entnum %d, radnum %d) is going not solid to not get stuck in the player\n", entnum, radnum);
+			m_bNoPlayerCollision = true;
+			setSolidType(SOLID_NOT);
+		}
+	}
 }
 
 void Actor::DoMove
@@ -5806,8 +8044,87 @@ void Actor::DoMove
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	mmove_t mm;
+	//FIXME: macros
+	if (m_bDoPhysics
+		&& m_iOriginTime != level.inttime
+		&& !m_pGlueMaster
+		&& !bindmaster)
+	{
+		switch (m_eAnimMode)
+		{
+		case 1:
+		{
+			SetMoveInfo(&mm);
+
+			VectorCopy2D(frame_delta, mm.desired_dir);
+			mm.desired_speed = VectorNormalize2D(mm.desired_dir) / level.frametime;
+
+			if (mm.desired_speed > m_maxspeed)
+				mm.desired_speed = m_maxspeed;
+
+			MmoveSingle(&mm);
+			GetMoveInfo(&mm);
+			break;
+
+		}
+			break;
+		case 2:
+		{
+			MovePath(frame_delta.length() / level.frametime);
+		}
+			break;
+		case 3:
+		{
+			MovePathGoal(frame_delta.length() / level.frametime);
+		}
+			break;
+		case 4:
+		{
+
+			SetMoveInfo(&mm);
+
+			mm.desired_speed = frame_delta.length() / level.frametime;
+
+			if (mm.desired_speed > m_maxspeed)
+				mm.desired_speed = m_maxspeed;
+
+			VectorCopy2D(m_Dest, mm.desired_dir);
+			VectorAdd2D(-origin, mm.desired_dir, mm.desired_dir);
+
+			VectorNormalize2D(mm.desired_dir);
+
+			MmoveSingle(&mm);
+			GetMoveInfo(&mm);
+			break;
+		}
+			break;
+		case 5:
+		{
+			trace_t trace;
+			trace = G_Trace(origin, mins, maxs, frame_delta + origin, this, edict->clipmask & 0xF9FFE47D, qtrue, "Actor");
+			SafeSetOrigin(trace.endpos);
+			velocity = frame_delta / level.frametime;
+		}
+			break;
+		case 6:
+		{
+			SafeSetOrigin(frame_delta+origin);
+			velocity = frame_delta / level.frametime;
+		}
+			break;
+		case 7:
+		{
+			SafeSetOrigin(m_pFallPath->pos[m_pFallPath->currentPos]);
+			m_pFallPath->currentPos++;
+			velocity = vec_zero;
+		}
+			break;
+		default:
+			break;
+		}
+		m_maxspeed = 1000000.0;
+	}
 }
 
 void Actor::AnimFinished
@@ -5817,8 +8134,42 @@ void Actor::AnimFinished
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (stop && slot >= 0)
+		animFlags[slot] |= ANIM_NOACTION;
+	if (slot == m_iMotionSlot)
+	{
+		if (stop)
+		{
+			m_bLevelMotionAnim = 0;
+			m_iMotionSlot = -1;
+		}
+		MPrintf("flagged anim finished slot %d\n", slot);
+		Unregister( 41);
+	}
+	if (slot == m_iActionSlot)
+	{
+		if (stop)
+			ChangeActionAnim();
+		if (m_csUpperAnim == 1)
+		{
+			MPrintf("upper anim finished slot %d\n", slot);
+			Unregister(STRING_UPPERANIMDONE);
+		}
+	}
+	if (slot == m_iSaySlot)
+	{
+		if (stop)
+			SimpleActor::ChangeSayAnim();
+		if (m_csSayAnim == 1)
+		{
+			MPrintf("say anim finished slot %d\n", slot);
+			Unregister(STRING_SAYDONE);
+		}
+	}
+	else if (slot == GetSaySlot() && stop)
+	{
+		ChangeSayAnim();
+	}
 }
 
 void Actor::AnimFinished
@@ -5827,8 +8178,8 @@ void Actor::AnimFinished
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	animFlags[slot] &= ~ANIM_FINISHED;
+	AnimFinished(slot, animFlags[slot] & ANIM_LOOP);
 }
 
 void Actor::PlayAnimation
@@ -5837,8 +8188,10 @@ void Actor::PlayAnimation
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Event e1(EV_Listener_ExecuteScript);
+	e1.AddConstString(STRING_GLOBAL_ANIM_SCR);
+	e1.AddValue(ev->GetValue(1));
+	ExecuteScript(&e1);
 }
 
 void Actor::PlayScriptedAnimation
@@ -5847,8 +8200,10 @@ void Actor::PlayScriptedAnimation
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Event e1(EV_Listener_ExecuteScript);
+	e1.AddConstString(STRING_GLOBAL_ANIM_SCRIPTED_SCR);
+	e1.AddValue(ev->GetValue(1));
+	ExecuteScript(&e1);
 }
 
 void Actor::PlayNoclipAnimation
@@ -5857,8 +8212,10 @@ void Actor::PlayNoclipAnimation
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Event e1(EV_Listener_ExecuteScript);
+	e1.AddConstString(STRING_GLOBAL_ANIM_NOCLIP_SCR);
+	e1.AddValue(ev->GetValue(1));
+	ExecuteScript(&e1);
 }
 
 void Actor::MoveDest
@@ -5867,8 +8224,22 @@ void Actor::MoveDest
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	mmove_t mm;
+	vec2_t offset;
+
+	SetMoveInfo(&mm);
+
+	if (fMoveSpeed > m_maxspeed)
+		fMoveSpeed = m_maxspeed;
+
+	offset[0] = m_Dest[0] - origin[0];
+	offset[1] = m_Dest[1] - origin[1];
+
+	VectorNormalize2D(offset);
+
+	MmoveSingle(&mm);
+
+	GetMoveInfo(&mm);
 }
 
 void Actor::MovePath
@@ -5877,8 +8248,280 @@ void Actor::MovePath
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: macros
+	mmove_t mm;
+
+
+
+	SetMoveInfo(&mm);
+
+	mm.desired_speed = fMoveSpeed;
+	if (mm.desired_speed > m_maxspeed)
+	{
+		mm.desired_speed = m_maxspeed;
+	}
+
+	m_Path.UpdatePos(origin);
+
+	if (ai_debugpath->integer)
+	{
+		;
+		Vector pos, dest;
+		pos = origin;
+		pos.z += 32;
+		dest = m_Path.CurrentDelta();
+		dest += origin;
+		dest.z += 32;
+		G_DebugLine(pos, dest, 1, 0, 0, 1);
+		for (PathInfo *current_path = m_Path.CurrentNode(); current_path != m_Path.LastNode(); current_path = m_Path.NextNode())
+		{
+			pos = current_path->point;
+			pos.z += 32;
+			dest = m_Path.CurrentDelta();
+			dest += origin;
+			//FIXME: not sure.
+			dest.x -= 32;
+			dest.z += 32;
+			G_DebugLine(pos, dest, 0, 1, 0, 1);
+		}
+	}
+
+	VectorCopy2D(m_Path.CurrentDelta(), mm.desired_dir);
+
+	MmoveSingle(&mm);
+	if (!mm.hit_obstacle)
+	{
+		if (m_WallDir)
+		{
+			if (level.inttime >= m_iWallDodgeTimeout)
+			{
+				m_WallDir = 0;
+			}
+			else
+			{
+				if (DotProduct2D(mm.desired_dir, m_PrevObstacleNormal) > 0 && CrossProduct2D(mm.desired_dir, m_PrevObstacleNormal) < 0)
+				{
+					m_iWallDodgeTimeout = level.inttime + 1000;
+					m_WallDir = -m_WallDir;
+				}
+			}
+		}
+		GetMoveInfo(&mm);
+		return;
+	}
+
+	velocity.copyTo(mm.velocity);
+	origin.copyTo(mm.origin);
+	mm.groundPlane = m_groundPlane;
+	mm.walking = m_walking;
+	m_groundPlaneNormal.copyTo(mm.groundPlaneNormal);
+	VectorCopy2D(mm.obstacle_normal, m_PrevObstacleNormal);
+
+	m_Path.UpdatePos(mm.hit_origin);
+	if (!m_Path.NextNode())
+	{
+		if (!m_WallDir)
+		{
+			auto dir = m_Path.CurrentDelta();
+			if (m_Path.NextNode())
+			{
+				dir = m_Path.NextNode()->dir;
+			}
+
+			if (dir[1] * mm.obstacle_normal[0] < dir[0] * mm.obstacle_normal[1])
+			{
+				mm.desired_dir[0] = mm.obstacle_normal[0];
+				mm.desired_dir[1] = -mm.obstacle_normal[1];
+				m_WallDir = 1;
+			}
+			else
+			{
+				mm.desired_dir[0] = -mm.obstacle_normal[0];
+				mm.desired_dir[1] = mm.obstacle_normal[1];
+				m_WallDir = -1;
+			}
+			MmoveSingle(&mm);
+			if (!mm.hit_obstacle)
+			{
+				m_iWallDodgeTimeout = level.inttime + 1000;
+			}
+			else
+			{
+				m_WallDir = 0;
+				m_iWallDodgeTimeout = 0;
+			}
+			GetMoveInfo(&mm);
+			return;
+		}
+	}
+
+	if (! (m_Path.NextNode() && m_Path.NextNode()->bAccurate && m_Path.IsSide()) )
+	{
+		if (m_WallDir)
+		{
+			if (m_WallDir < 0)
+			{
+				mm.desired_dir[0] = -mm.obstacle_normal[1];
+				mm.desired_dir[1] = mm.obstacle_normal[0];
+			}
+			else
+			{
+				mm.desired_dir[0] = mm.obstacle_normal[1];
+				mm.desired_dir[1] = -mm.obstacle_normal[0];
+			}
+			MmoveSingle(&mm);
+			if (mm.hit_obstacle)
+			{
+				m_WallDir = 0;
+				m_iWallDodgeTimeout = 0;
+			}
+			GetMoveInfo(&mm);
+			return;
+		}
+		else
+		{
+
+			auto dir = m_Path.CurrentDelta();
+			auto pNextNode = m_Path.NextNode();
+
+			if (pNextNode)
+			{
+				dir = pNextNode->dir;
+			}
+
+			vec2_t vDelta;
+			vDelta[0] = pNextNode->point[1] - mm.hit_origin[0];
+			vDelta[1] = pNextNode->point[0] - mm.hit_origin[1];
+
+			if (DotProduct2D(dir, vDelta) >= 0)
+			{
+				float fCross = CrossProduct2D(dir, vDelta);
+				if (fCross <= -16)
+				{
+					mm.desired_dir[1] = mm.obstacle_normal[0];
+					mm.desired_dir[0] = -mm.obstacle_normal[1];
+				}
+				else
+				{
+					if (fCross >= 16)
+					{
+					
+						mm.desired_dir[0] = mm.obstacle_normal[1];
+						mm.desired_dir[1] = -mm.obstacle_normal[0];
+						MmoveSingle(&mm);
+						GetMoveInfo(&mm);
+						return;
+					}
+				}
+			}
+			{
+				if (!m_WallDir)
+				{
+					auto dir = m_Path.CurrentDelta();
+					if (m_Path.NextNode())
+					{
+						dir = m_Path.NextNode()->dir;
+					}
+
+					if (dir[1] * mm.obstacle_normal[0] < dir[0] * mm.obstacle_normal[1])
+					{
+						mm.desired_dir[0] = mm.obstacle_normal[1];
+						mm.desired_dir[1] = -mm.obstacle_normal[0];
+						m_WallDir = 1;
+					}
+					else
+					{
+						mm.desired_dir[0] = -mm.obstacle_normal[1];
+						mm.desired_dir[1] = mm.obstacle_normal[0];
+						m_WallDir = -1;
+					}
+					MmoveSingle(&mm);
+					if (!mm.hit_obstacle)
+					{
+						m_iWallDodgeTimeout = level.inttime + 1000;
+					}
+					else
+					{
+						m_WallDir = 0;
+						m_iWallDodgeTimeout = 0;
+					}
+					GetMoveInfo(&mm);
+					return;
+				}
+				else if (m_WallDir < 0)
+				{
+					mm.desired_dir[0] = -mm.obstacle_normal[1];
+					mm.desired_dir[1] = mm.obstacle_normal[0];
+				}
+				else
+				{
+					mm.desired_dir[0] = mm.obstacle_normal[1];
+					mm.desired_dir[1] = -mm.obstacle_normal[0];
+				}
+				MmoveSingle(&mm);
+				if (mm.hit_obstacle)
+				{
+					m_WallDir = 0;
+					m_iWallDodgeTimeout = 0;
+				}
+				GetMoveInfo(&mm);
+				return;
+			}
+		}
+	}
+
+	m_iWallDodgeTimeout = level.inttime + 1000;
+
+	{
+		auto dir = m_Path.CurrentDelta();
+		auto pNextNode = m_Path.NextNode();
+
+		if (pNextNode)
+		{
+			dir = pNextNode->dir;
+		}
+
+		vec2_t vDelta;
+		vDelta[0] = pNextNode->point[1] - mm.hit_origin[0];
+		vDelta[1] = pNextNode->point[0] - mm.hit_origin[1];
+
+		if (vDelta[0] * dir[1] <= vDelta[1] * dir[0])
+		{
+			mm.desired_dir[0] = mm.obstacle_normal[1];
+			mm.desired_dir[1] = -mm.obstacle_normal[0];
+			m_WallDir = 1;
+		}
+		else
+		{
+			mm.desired_dir[0] = -mm.obstacle_normal[1];
+			mm.desired_dir[1] = mm.obstacle_normal[0];
+			m_WallDir = -1;
+		}
+		MmoveSingle(&mm);
+		if (mm.hit_obstacle)
+		{
+			VectorCopy(velocity, mm.velocity);
+			VectorCopy(origin, mm.origin);
+			mm.groundPlane = m_groundPlane;
+			mm.walking = m_walking;
+			VectorCopy(m_groundPlaneNormal, mm.groundPlaneNormal);
+
+			VectorCopy2D(mm.obstacle_normal, m_PrevObstacleNormal);
+
+			if (m_WallDir == -1)
+			{
+				mm.desired_dir[0] = -mm.obstacle_normal[1];
+				mm.desired_dir[1] = mm.obstacle_normal[0];
+			}
+			else
+			{
+				mm.desired_dir[0] = mm.obstacle_normal[1];
+				mm.desired_dir[1] = -mm.obstacle_normal[0];
+			}
+			MmoveSingle(&mm);
+		}
+	}
+	GetMoveInfo(&mm);
 }
 
 void Actor::MovePathGoal
@@ -5887,8 +8530,56 @@ void Actor::MovePathGoal
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float fTimeToGo, fDeltaSquareLen, fSlowdownSpeed;
+	vec2_t vDelta;
+
+	if (!m_Path.HasCompleteLookahead())
+	{
+		MovePath(fMoveSpeed);
+		m_fPathGoalTime = 0;
+		return;
+	}
+	fTimeToGo = m_fPathGoalTime - level.time;
+	VectorCopy2D(origin, vDelta);
+
+	VectorSub2D(vDelta, m_Path.LastNode()->point, vDelta);
+
+	fDeltaSquareLen = VectorLength2DSquared(vDelta);
+	if (fTimeToGo <= -0.001)
+	{
+		if (fDeltaSquareLen < (fMoveSpeed * fMoveSpeed * 0.0625))
+		{
+			fTimeToGo = 0.5;
+			m_fPathGoalTime = level.time + fTimeToGo;
+			if (m_csPathGoalEndAnimScript == STRING_EMPTY)
+			{
+				m_csPathGoalEndAnimScript = STRING_ANIM_IDLE_SCR;
+			}
+			m_bStartPathGoalEndAnim = true;
+		}
+		else
+		{
+			MovePath(fMoveSpeed);
+			m_fPathGoalTime = 0;
+			return;
+		}
+	}
+	fSlowdownSpeed = sqrt(fDeltaSquareLen) * (2 / (fTimeToGo + level.frametime));
+	if (fSlowdownSpeed > fMoveSpeed + 0.001 && fSlowdownSpeed > 0.4 * sv_runspeed->value)
+	{
+		m_fPathGoalTime = 0;
+		m_eNextAnimMode = 3;
+		m_csNextAnimString = NULL;
+		m_NextAnimLabel = m_Anim;
+		m_bNextForceStart = true;
+		MovePath(fMoveSpeed);
+	}
+	else
+	{
+		MovePath(fSlowdownSpeed);
+		if (level.time >= m_fPathGoalTime)
+			m_eAnimMode = 1;
+	}
 }
 
 void Actor::Dumb
@@ -5897,9 +8588,9 @@ void Actor::Dumb
 	)
 
 {
-	Event *e1 = new Event(EV_Listener_ExecuteScript);
-	e1->AddConstString(STRING_GLOBAL_DISABLE_AI_SCR);
-	ExecuteScript(e1);
+	Event e1(EV_Listener_ExecuteScript);
+	e1.AddConstString(STRING_GLOBAL_DISABLE_AI_SCR);
+	ExecuteScript(&e1);
 }
 
 void Actor::PhysicsOn
@@ -5958,8 +8649,12 @@ void Actor::EventSetMood
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_csMood = ev->GetConstString(1);
+	if (m_csMood > STRING_ALERT)
+	{
+		m_csMood = STRING_BORED;
+		ScriptError("invalid mood - setting to bored");
+	}
 }
 
 void Actor::EventGetAngleYawSpeed
@@ -5968,8 +8663,7 @@ void Actor::EventGetAngleYawSpeed
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddFloat(m_fAngleYawSpeed);
 }
 
 void Actor::EventSetAngleYawSpeed
@@ -5978,8 +8672,12 @@ void Actor::EventSetAngleYawSpeed
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float speed = ev->GetFloat(1);
+	if (speed <= 0)
+	{
+		ScriptError("Attempting to set illegal turnspeed %f", speed);
+	}
+	m_fAngleYawSpeed = speed;
 }
 
 void Actor::EventSetAimTarget
@@ -5988,8 +8686,8 @@ void Actor::EventSetAimTarget
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Weapon *weap = GetActiveWeapon(WEAPON_MAIN);
+	weap->SetAimTarget(ev->GetEntity(1));
 }
 
 void Actor::UpdateAngles
@@ -5998,18 +8696,54 @@ void Actor::UpdateAngles
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float max_change, error, dist;
+	vec3_t new_angles;
+
+	if (!m_YawAchieved)
+	{
+
+		error = m_DesiredYaw - angles[1];
+		if (error <= 180)
+		{
+			if (error < -180.0)
+				error += 360;
+		}
+		else
+		{
+			error -= 360;
+		}
+
+		dist = m_fAngleYawSpeed * level.frametime;
+		if (-dist <= error)
+		{
+			max_change = dist;
+			if (error <= dist)
+			{
+				max_change = error;
+				m_YawAchieved = true;
+			}
+		}
+		else
+		{
+			max_change = -dist;
+		}
+		new_angles[0] = angles[0] + max_change;
+		new_angles[1] = angles[1] + max_change;
+		new_angles[2] = angles[2] + max_change;
+		setAngles(new_angles);
+	}
 }
 
 void Actor::SetLeashHome
 (
-Vector vHome
+	Vector vHome
 )
 
 {
-	// FIXME: stub
-	STUB();
+	if (!m_bFixedLeash)
+	{
+		m_vHome = vHome;
+	}
 }
 
 void Actor::AimAtTargetPos
@@ -6018,8 +8752,7 @@ void Actor::AimAtTargetPos
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	// not found in ida
 }
 
 void Actor::AimAtAimNode
@@ -6043,8 +8776,24 @@ void Actor::AimAtEnemyBehavior
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Vector v;
+	m_bHasDesiredLookAngles = true;
+	
+	v = mTargetPos - EyePosition();
+
+	vectoangles(v, m_DesiredLookAngles);
+	m_DesiredLookAngles[0] = AngleNormalize180(m_DesiredLookAngles[0]);
+	m_DesiredLookAngles[1] = AngleNormalize180(m_DesiredLookAngles[1] - angles[1]);
+
+	m_DesiredGunDir.x = v.toPitch();
+	m_DesiredGunDir.y = v.toYaw();
+	m_DesiredGunDir.z = 0;
+	
+	m_YawAchieved = false;
+
+	m_DesiredYaw = v.toYaw();
+
+	Anim_Aim();
 }
 
 void Actor::FaceMotion
@@ -6053,8 +8802,44 @@ void Actor::FaceMotion
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	vec3_t dir;
+	Vector delta;
+	velocity.copyTo(dir);
+
+	if (VectorLength2DSquared(dir) > 1)
+	{
+		delta = origin - m_vOriginHistory[m_iCurrentHistory];
+
+		if (delta.lengthXY(true) >= 1)
+		{
+			if (dir[1] *delta[0] + dir[0] * delta[1] > 0)
+			{
+				delta.copyTo(dir);
+			}
+		}
+		if (m_ThinkState == 1)
+		{
+			IdleLook(dir);
+		}
+		else
+		{
+			m_bHasDesiredLookAngles = true;
+
+			vectoangles(dir, m_DesiredLookAngles);
+			m_DesiredLookAngles[0] = AngleNormalize180(m_DesiredLookAngles[0]);
+			m_DesiredLookAngles[1] = AngleNormalize180(m_DesiredLookAngles[1] - angles[1]);
+		}
+		m_YawAchieved = false;
+		m_DesiredYaw = vectoyaw(dir);
+	}
+	else if (m_ThinkState == 1 && m_pLookEntity)
+	{
+		LookAtLookEntity();
+	}
+	else
+	{
+		m_bHasDesiredLookAngles = false;
+	}
 }
 
 void Actor::FaceDirectionDuringMotion
@@ -6063,6 +8848,26 @@ void Actor::FaceDirectionDuringMotion
 	)
 
 {
+	m_bHasDesiredLookAngles = true;
+	
+
+	vectoangles(vLook, m_DesiredLookAngles);
+
+	m_DesiredLookAngles[0] = AngleNormalize180(m_DesiredLookAngles[0]);
+	m_DesiredLookAngles[1] = AngleNormalize180(m_DesiredLookAngles[1] = angles[1]);
+
+	if (velocity[0] != 0 || velocity[1] != 0)
+	{
+		if (velocity[1] == 0)
+		{
+			if (velocity[0] == 0)
+			{
+			}
+		}
+	}
+
+	m_YawAchieved = false;
+	m_DesiredYaw = vectoyaw(vLook);
 	// FIXME: stub
 	STUB();
 }
@@ -6084,8 +8889,33 @@ void Actor::FaceEnemyOrMotion
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Vector vDelta = origin - m_vLastEnemyPos;
+	vDelta.z = 0;
+	if (iTimeIntoMove > 999)
+	{
+		if (m_Path.CurrentNodeIndex() != m_sCurrentPathNodeIndex)
+		{
+			float fDot = DotProduct2D(vDelta, m_Path.CurrentDelta());
+			m_bFaceEnemy = fDot <= 0 || vDelta.lengthXY(true) * 4096 >= fDot * fDot;
+
+			m_sCurrentPathNodeIndex = m_Path.CurrentNodeIndex();
+		}
+	}
+	else
+	{
+		m_bFaceEnemy = true;
+	}
+
+	if (m_bFaceEnemy && (vDelta.x >= 15.0 || vDelta.x <= -15.0 || vDelta.y >= 15.0 || vDelta.y <= -15.0))
+	{
+		vDelta.x = -vDelta.x;
+		vDelta.y = -vDelta.y;
+		FaceDirectionDuringMotion(vDelta);
+	}
+	else
+	{
+		FaceMotion();
+	}
 }
 
 int Actor::NextUpdateTime
@@ -6225,8 +9055,18 @@ void Actor::NextPatrolCurrentNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (this->m_bScriptGoalValid)
+	{
+		m_bScriptGoalValid = m_patrolCurrentNode->origin != m_vScriptGoal;
+	}
+	if (m_patrolCurrentNode->IsSubclassOfTempWaypoint())
+	{
+		ClearPatrolCurrentNode();
+	}
+	else
+	{
+		m_patrolCurrentNode = m_patrolCurrentNode->Next();
+	}
 }
 
 void Actor::SetPatrolCurrentNode
@@ -6235,8 +9075,22 @@ void Actor::SetPatrolCurrentNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_patrolCurrentNode)
+	{
+		if (m_patrolCurrentNode->IsSubclassOfTempWaypoint())
+		{
+			delete m_patrolCurrentNode;
+		}
+		m_patrolCurrentNode = NULL;
+	}
+	TempWaypoint * twp = new TempWaypoint();
+
+	if (m_patrolCurrentNode != twp)
+	{
+		m_patrolCurrentNode = twp;
+	}
+	m_patrolCurrentNode->setOrigin(vec);
+
 }
 
 void Actor::SetPatrolCurrentNode
@@ -6245,8 +9099,30 @@ void Actor::SetPatrolCurrentNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_patrolCurrentNode)
+	{
+		if (m_patrolCurrentNode->IsSubclassOfTempWaypoint())
+		{
+			delete m_patrolCurrentNode;
+		}
+		m_patrolCurrentNode = NULL;
+	}
+
+	if (!l->isInheritedBy(&SimpleEntity::ClassInfo))
+	{
+		ScriptError("Bad patrol path with classname '%s' specified for '%s' at (%f %f %f)\n",
+			l->getClassname(),
+			targetname.c_str(),
+			origin.x,
+			origin.y,
+			origin.z
+			);
+	}
+
+	if (m_patrolCurrentNode != l)
+	{
+		m_patrolCurrentNode = (SimpleEntity *)l;
+	}
 }
 
 void Actor::EventSetPatrolPath
@@ -6308,9 +9184,74 @@ bool Actor::MoveOnPathWithSquad
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	float fDistSquared, fIntervalSquared;
+	vec2_t vMyNormalDir, vDelta, vHisDir;
+	Player *p;
+
+	//FIXMEL: macro
+	if (level.inttime < m_iSquadStandTime + 500 || !PathExists() || PathComplete())
+	{
+		return false;
+	}
+	fIntervalSquared = m_fInterval * m_fInterval;
+	if (m_iSquadStandTime)
+	{
+		fIntervalSquared *= 2;
+	}
+
+	p = (Player *)G_GetEntity(0);
+	
+	if (IsTeamMate(p))
+	{
+		VectorSub2D(p->origin, origin, vDelta);
+		fDistSquared = VectorLength2DSquared(vDelta);
+		if (fIntervalSquared > fDistSquared && DotProduct2D(vDelta, PathDelta()) > 0)
+		{
+			VectorSub2D(velocity, p->velocity, vMyNormalDir);
+			VectorNormalize2D(vMyNormalDir);
+			if (fDistSquared - DotProduct2D(vDelta, vMyNormalDir) < 2304)
+			{
+				m_iSquadStandTime = level.inttime;
+				return false;
+			}
+		}
+	}
+
+	for (Actor *pSquadMate = (Actor *)m_pNextSquadMate.Pointer(); pSquadMate != this; pSquadMate = (Actor *)pSquadMate->m_pNextSquadMate.Pointer())
+	{
+		if (!pSquadMate->IsSubclassOfActor())
+		{
+			continue;
+		}
+		VectorSub2D(pSquadMate->origin, origin, vDelta);
+		fDistSquared = VectorLength2DSquared(vDelta);
+		if (fDistSquared >= fIntervalSquared || DotProduct2D(vDelta, PathDelta()) <= 0)
+		{
+			
+			continue;
+		}
+		if (pSquadMate->PathExists() || pSquadMate->PathComplete())
+		{
+			VectorCopy2D(pSquadMate->velocity, vHisDir);
+			if (VectorLength2DSquared(vHisDir) <= 8)
+			{
+				continue;
+			}
+		}
+		else
+		{
+			VectorCopy2D(pSquadMate->PathDelta(), vHisDir);
+
+		}
+
+		if (DotProduct2D(PathDelta(), vHisDir) >= 0 && (entnum == pSquadMate->entnum || DotProduct2D(vHisDir, vDelta) >= 0))
+		{
+			m_iSquadStandTime = level.inttime;
+			return false;
+		}
+	}
+	m_iSquadStandTime = 0;
+	return true;
 }
 
 bool Actor::MoveToWaypointWithPlayer
@@ -6319,8 +9260,52 @@ bool Actor::MoveToWaypointWithPlayer
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float fIntervalSquared, fDistSquared;
+	vec2_t vMyNormalDir, vDelta, vMyDir;
+
+	if (level.inttime < m_iSquadStandTime + 500)
+	{
+		return false;
+	}
+	
+	fIntervalSquared = m_fInterval * m_fInterval;
+	if (m_iSquadStandTime)
+	{
+		fIntervalSquared += fIntervalSquared;
+	}
+
+	Player *p = (Player *)G_GetEntity(0);
+	if (IsTeamMate(p))
+	{
+		vDelta[0] = p->origin[0] - origin[0];
+		vDelta[1] = p->origin[1] - origin[1];
+		fDistSquared = VectorLength2DSquared(vDelta);
+
+		if (fDistSquared >= fIntervalSquared)
+		{
+			m_iSquadStandTime = 0;
+			return true;
+		}
+
+		vMyDir[0] = m_patrolCurrentNode->origin[0] - origin[0];
+		vMyDir[1] = m_patrolCurrentNode->origin[1] - origin[1];
+		if (DotProduct2D(vDelta, vMyDir) < 0)
+		{
+			m_iSquadStandTime = 0;
+			return true;
+		}
+
+		vMyNormalDir[0] = velocity[0] - p->velocity[0];
+		vMyNormalDir[1] = velocity[1] - p->velocity[1];
+		VectorNormalize2D(vMyNormalDir);
+
+		if (fDistSquared - DotProduct2D(vDelta, vMyNormalDir) > 2304)
+		{
+			m_iSquadStandTime = 0;
+			return true;
+		}
+		m_iSquadStandTime = level.inttime;
+	}
 	return false;
 }
 
@@ -6369,8 +9354,101 @@ bool Actor::MoveToPatrolCurrentNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	UpdatePatrolCurrentNode();
+	if (m_patrolCurrentNode && !m_bPatrolWaitTrigger)
+	{
+		if (m_patrolCurrentNode->IsSubclassOfWaypoint())
+		{
+			if (MoveToWaypointWithPlayer())
+			{
+				m_bNextForceStart = false;
+				m_eNextAnimMode = 4;
+				m_csNextAnimString = m_csPatrolCurrentAnim;
+				FaceMotion();
+			}
+			else
+			{
+				Anim_Stand();
+				if (m_pLookEntity)
+					LookAtLookEntity();
+				else
+					m_bHasDesiredLookAngles = false;
+			}
+			m_Dest[0] = m_patrolCurrentNode->origin[0];
+			m_Dest[1] = m_patrolCurrentNode->origin[1];
+			m_Dest[2] = m_patrolCurrentNode->origin[2];
+			if (m_fMoveDoneRadiusSquared == 0.0 || m_patrolCurrentNode->Next())
+				return false;
+			Vector delta = m_patrolCurrentNode->origin - origin;
+			return m_fMoveDoneRadiusSquared >= delta.lengthXY(true);
+		}
+		else
+		{
+			SimpleActor::SetPath(
+				m_patrolCurrentNode->origin,
+				"Actor::MoveToPatrolCurrentNode",
+				0,
+				0,
+				0);
+			if (!PathExists())
+			{
+				if (m_pLookEntity)
+					LookAtLookEntity();
+				else
+					m_bHasDesiredLookAngles = false;
+				Anim_Idle();
+				parm.movefail = qtrue;
+				return false;
+			}
+			if (MoveOnPathWithSquad())
+			{
+				const_str csAnimString;
+				if (PatrolNextNodeExists())
+				{
+					csAnimString = this->m_csPatrolCurrentAnim;
+					m_eNextAnimMode = 2;
+				}
+				else
+				{
+					csAnimString = this->m_csPatrolCurrentAnim;
+					m_eNextAnimMode = 3;
+				}
+				m_csNextAnimString = csAnimString;
+				m_bNextForceStart = true;
+				FaceMotion();
+			}
+			else
+			{
+				Anim_Stand();
+				if (m_pLookEntity)
+					LookAtLookEntity();
+				else
+					m_bHasDesiredLookAngles = false;
+			}
+
+			if (m_fMoveDoneRadiusSquared == 0)
+				return false;
+
+			if (PathComplete())
+			{
+				return true;
+			}
+
+			if (!m_Path.HasCompleteLookahead() || m_patrolCurrentNode->Next())
+			{
+				return false;
+			}
+			Vector delta = PathDelta();
+			return m_fMoveDoneRadiusSquared >= delta.lengthXY(true);
+		}
+	}
+
+
+	if (m_pLookEntity)
+		LookAtLookEntity();
+	else
+		m_bHasDesiredLookAngles = false;
+	Anim_Idle();
 	return false;
 }
 
@@ -6468,9 +9546,15 @@ int Actor::GetThinkType
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	int result = 0;
+	while (m_csThinkNames[result] != csName)
+	{
+		if (++result > 34)
+		{
+			ScriptError("unknown think type '%s'", Director.GetString(csName).c_str());
+		}
+	}
+	return result;
 }
 
 void Actor::SetThink
@@ -6491,8 +9575,44 @@ void Actor::SetThinkIdle
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: macros
+	int think_curious;
+
+	switch (think_idle)
+	{
+	case 3:
+	case 4:
+		m_bBecomeRunner = true;
+		think_curious = 9;
+		break;
+	case 17:
+		think_curious = 17;
+		break;
+	case 18:
+		think_curious = 20;
+		m_ThinkMap[7] = 20;
+		if (m_ThinkState == 7)
+			m_bDirtyThinkState = true;
+		break;
+	case 22:
+		think_curious = 23;
+		break;
+	case 25:
+		think_curious = 26;
+		break;
+	default:
+		think_curious = 9;
+		break;
+	}
+
+
+	m_ThinkMap[1] = think_idle;
+	if (m_ThinkState == 1)
+		m_bDirtyThinkState = true;
+
+	m_ThinkMap[5] = think_curious;
+	if (m_ThinkState == 5)
+		m_bDirtyThinkState = true;
 }
 
 void Actor::SetThinkState
@@ -6502,6 +9622,30 @@ void Actor::SetThinkState
 	)
 
 {
+	//FIXME: macros
+	if (state == THINKSTATE_ATTACK)
+	{
+		m_csIdleMood = STRING_NERVOUS;
+		if (m_ThinkMap[4] != 15 && m_ThinkMap[4] != 32 && m_ThinkMap[4] != 19 && !GetWeapon(WEAPON_MAIN))
+		{
+			Com_Printf(
+				"^~^~^ LD ERROR: (entnum %i, radnum %i, targetname '%s'):    forcing weaponless attack state.\n"
+				"^~^~^ Level designers should specify 'type_attack weaponless' for this guy.\n",
+				entnum,
+				radnum,
+				targetname.c_str());
+			m_ThinkMap[4] = 32;
+			if (m_ThinkState == THINKSTATE_ATTACK)
+				m_bDirtyThinkState = true;
+		}
+	}
+
+	m_ThinkStates[level] = state;
+
+	if (m_ThinkLevel > level)
+	{
+		m_bDirtyThinkState = true;
+	}
 
 }
 
@@ -6574,8 +9718,7 @@ void Actor::EventSetDestIdle
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	// not found in ida
 }
 
 void Actor::EventSetDestIdle2
@@ -6584,8 +9727,7 @@ void Actor::EventSetDestIdle2
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	// not found in ida
 }
 
 void Actor::EventSetTypeIdle
@@ -6594,8 +9736,14 @@ void Actor::EventSetTypeIdle
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int think = GetThinkType(ev->GetConstString(1));
+	if (!Actor::GlobalFuncs[think].IsState(THINKSTATE_IDLE))
+	{
+		SetThinkIdle(8);
+		ScriptError("Invalid idle think '%s'", Director.GetString(m_csThinkNames[think]).c_str());
+	}
+
+	SetThinkIdle(think);
 }
 
 void Actor::EventGetTypeIdle
@@ -6614,8 +9762,21 @@ void Actor::EventSetTypeAttack
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int think = GetThinkType(ev->GetConstString(1));
+	if (!Actor::GlobalFuncs[think].IsState(THINKSTATE_ATTACK))
+	{
+		m_ThinkMap[THINKSTATE_ATTACK] = 1;
+		if (m_ThinkState == THINKSTATE_ATTACK)
+		{
+			m_bDirtyThinkState = true;
+		}
+		ScriptError("Invalid attack think '%s'", Director.GetString(m_csThinkNames[think]).c_str());
+	}
+	m_ThinkMap[THINKSTATE_ATTACK] = think;
+	if (m_ThinkState == THINKSTATE_ATTACK)
+	{
+		m_bDirtyThinkState = true;
+	}
 }
 
 void Actor::EventGetTypeAttack
@@ -6634,8 +9795,21 @@ void Actor::EventSetTypeDisguise
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int think = GetThinkType(ev->GetConstString(1));
+	if (!Actor::GlobalFuncs[think].IsState(THINKSTATE_DISGUISE))
+	{
+		m_ThinkMap[THINKSTATE_DISGUISE] = 10;
+		if (m_ThinkState == THINKSTATE_DISGUISE)
+		{
+			m_bDirtyThinkState = true;
+		}
+		ScriptError("Invalid disguise think '%s'", Director.GetString(m_csThinkNames[think]).c_str());
+	}
+	m_ThinkMap[THINKSTATE_DISGUISE] = think;
+	if (m_ThinkState == THINKSTATE_DISGUISE)
+	{
+		m_bDirtyThinkState = true;
+	}
 }
 
 void Actor::EventGetTypeDisguise
@@ -6676,8 +9850,26 @@ void Actor::EventSetTypeGrenade
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: not sure of m_ThinkMap[THINKSTATE_GRENADE]
+	int think = GetThinkType(ev->GetConstString(1));
+	if (!(&GlobalFuncs[think])->IsState(THINKSTATE_GRENADE))
+	{
+		//FIXME: macro
+		m_ThinkMap[THINKSTATE_GRENADE] = 16;
+		if (m_ThinkState == THINKSTATE_GRENADE)
+		{
+			m_bDirtyThinkState = true;
+		}
+		;
+		ScriptError("Invalid grenade think '%s'", Director.GetString(m_csThinkNames[m_ThinkMap[THINKSTATE_GRENADE]]).c_str());
+	}
+	
+	m_ThinkMap[THINKSTATE_GRENADE] = think;
+
+	if (m_ThinkState == THINKSTATE_GRENADE)
+	{
+		m_bDirtyThinkState = true;
+	}
 }
 
 void Actor::EventGetTypeGrenade
@@ -6686,7 +9878,7 @@ void Actor::EventGetTypeGrenade
 	)
 
 {
-	ev->AddConstString(m_csThinkNames[m_ThinkMap[7]]);
+	ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_GRENADE]]);
 }
 
 void Actor::EventSetMinDistance
@@ -6696,7 +9888,7 @@ void Actor::EventSetMinDistance
 
 {
 	m_fMinDistance = ev->GetFloat(1);
-	//FIXME: macro
+
 	if (m_fMinDistance < 0)
 	{
 		m_fMinDistance = 0;
@@ -6895,8 +10087,7 @@ void Actor::EventGetDisguiseAcceptThread
 	)
 
 {
-	//FIXME: reverse ScriptThreadLabel
-	//m_DisguiseAcceptThread.GetScriptValue(ev->GetValue());
+	m_DisguiseAcceptThread.GetScriptValue(&ev->GetValue());
 }
 
 void Actor::EventAttackPlayer
@@ -6975,8 +10166,8 @@ void Actor::EventGetAlarmThread
 	)
 
 {
-	//FIXME: reverse ScriptThreadLabel
-	//m_AlarmThread.GetScriptValue(ev->GetValue());
+	
+	m_AlarmThread.GetScriptValue(&ev->GetValue());
 }
 
 void Actor::EventSetSoundAwareness
@@ -7107,8 +10298,11 @@ void Actor::EventInterruptPoint
 	)
 
 {
-	// FIXME: stub
-	STUB();
+
+	GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+	
+	if (func->PostShoot)
+		(this->*func->PostShoot)();
 }
 
 void Actor::EventAnimScript
@@ -7362,7 +10556,36 @@ void Actor::StrafeToAttack
 	)
 
 {
+	Vector vEnemyCentroid, vDelta, vSpot, vDestPos;
+	Vector mins(-16,-16,16);
+	Vector maxs(16,16,128);
 
+	vDestPos = vDir;
+	vDestPos *= fDist;
+	vDestPos += origin;
+
+	vDelta = vDestPos - m_vLastEnemyPos;
+
+	if (m_fMaxDistanceSquared <= vDelta.lengthSquared() || vDelta.lengthSquared() <= m_fMinDistanceSquared )
+	{
+		ClearPath();
+		return;
+	}
+	if (!G_SightTrace(
+		origin,
+		mins,
+		maxs,
+		vDestPos,
+		this,
+		NULL,
+		//FIXME: macro
+		1107437825,
+		qtrue,
+		"Actor::StrafeToAttack 1"))
+	{
+		ClearPath();
+		return;
+	}
 	// FIXME: stub
 	STUB();
 }
@@ -7373,6 +10596,124 @@ Vector Actor::GunTarget
 	)
 
 {
+	float accuracy;
+	static bool doInit = true;
+	static cvar_t *aiRanges[4];
+	Vector vRet;
+
+	if (doInit)
+	{
+		aiRanges[0] = gi.Cvar_Get("g_aishortrange", "500", 0);
+		aiRanges[1] = gi.Cvar_Get("g_aimediumrange", "700", 0);
+		aiRanges[2] = gi.Cvar_Get("g_ailongrange", "1000", 0);
+		aiRanges[3] = gi.Cvar_Get("g_aisniperrange", "2200", 0);
+		doInit = false;
+	}
+
+	if (mTargetPos == vec_zero)
+	{
+		AnglesToAxis(origin, orientation);
+		vRet = Vector(orientation[0]) * 2048 + EyePosition();
+		return vRet;
+	}
+	float scatterMult = 1;
+
+	Player *player = NULL;
+	if (m_Enemy)
+	{
+		if (m_Enemy->IsSubclassOfPlayer())
+		{
+			player = (Player *)m_Enemy.Pointer();
+
+
+			Weapon *weap = GetActiveWeapon(WEAPON_MAIN);
+			Vector dir;
+			dir = player->centroid - centroid;
+
+			if (weap)
+			{
+
+				MPrintf("WEAPON RANGE: %f  dist: %f\n", aiRanges[weap->mAIRange]->value, dir.length());
+				scatterMult = dir.length() / aiRanges[weap->mAIRange]->value;
+				if (dir.length() > aiRanges[weap->mAIRange]->value)
+				{
+					if (scatterMult > 1)
+					{
+						accuracy = mAccuracy / scatterMult;
+					}
+					MPrintf("OUT OF RANGE - scatterMult: %f\n", scatterMult);
+				}
+			}
+			else
+			{
+				/*
+				 *useless assert
+				  if ( !dword_39A914 )
+				  {
+					strcpy(&v54, "\"ERROR Actor::GunTarget without a weapon\\n\"\n\tMessage: ");
+					memset(&s, 0, 0x3FC9u);
+					v48 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
+							this,
+							&nullStr);
+					Q_strcat(&v54, 0x4000, v48);
+					v49 = MyAssertHandler(&v54, "fgame/actor.cpp", 10977, 0);
+					if ( v49 < 0 )
+					{
+					  dword_39A914 = 1;
+					}
+					else if ( v49 > 0 )
+					{
+					  __debugbreak();
+					}
+				  }
+				 
+				 */
+			}
+		}
+		else if (fabs(m_Enemy->origin[2] - origin[2]) >= 128)
+		{
+			scatterMult = 0.5;
+		}
+	}
+
+	if (random2() > accuracy)
+	{
+		MPrintf("MISS - scatterMult: %f\n", scatterMult);
+		
+		if (player)
+		{
+			static cvar_t *scatterHeight;
+			static cvar_t *scatterWide;
+			static bool doInitScatters = false;
+			int lastTrail;
+			
+			lastTrail = player->mCurTrailOrigin - 1;
+			if (lastTrail < 0)
+				lastTrail = 1;
+			
+			vRet = player->mvTrail[lastTrail];
+			//continue here:
+			//Player *tPlayer = player + 12*lastTrail;//weird
+			if (!G_SightTrace(GunPosition(), vec_zero, vec_zero, player->mvTrail[lastTrail], this, player, 33819417, 0, "Actor::GunTarget 1"))
+			{
+				vRet = player->mvTrailEyes[lastTrail];
+			}
+			if (!doInitScatters)
+			{
+				scatterWide = gi.Cvar_Get("g_aiScatterWide", "16.0", 0);
+				scatterHeight = gi.Cvar_Get("g_aiScatterHeight", "45.0", 0);
+				doInitScatters = true;
+			}
+			vRet.x += crandom() * scatterWide->value * scatterMult;
+			vRet.y += crandom() * scatterWide->value * scatterMult;
+			vRet.z += crandom() * scatterHeight->value * scatterMult;
+			
+			//continue here:
+			//if (player->GetVehicleTank())
+			{
+			}
+		}
+	}
 	// FIXME: stub
 	STUB();
 	return vec_zero;
@@ -7384,9 +10725,30 @@ qboolean Actor::setModel
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	qboolean bSuccess;
+	str name, tempstr;
 
+	if (model != NULL)
+	{
+		if (m_csLoadOut != STRING_EMPTY)
+		{
+
+			name = "weapon|" + Director.GetString(m_csLoadOut) + "|";
+		}
+
+		if (m_csHeadModel == STRING_EMPTY)
+		{
+			m_csHeadModel = Director.AddString(level.GetRandomHeadModel(model));
+		}
+		name += "headmodel|" + Director.GetString(m_csHeadModel) + "|";
+
+		if (m_csHeadSkin == STRING_EMPTY)
+		{
+			m_csHeadSkin = Director.AddString(level.GetRandomHeadSkin(model));
+		}
+		name += "headskin|" + Director.GetString(m_csHeadSkin) + "|";//FIXME: not sure of this last "|"
+	}
+	model = name;
 	return Entity::setModel();
 }
 
@@ -7566,9 +10928,9 @@ void Actor::EventSoundDone
 	str name = ev->GetString(2);
 	if (gi.S_IsSoundPlaying(channel, name))
 	{
-		Event *e1 = new Event(EV_SoundDone);
-		e1->AddInteger(channel);
-		e1->AddString(name);
+		Event e1(EV_SoundDone);
+		e1.AddInteger(channel);
+		e1.AddString(name);
 		PostEvent(e1, level.frametime);
 	}
 	//FIXME: macro
@@ -7659,8 +11021,89 @@ void Actor::EventCanMoveTo
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float fIntervalSquared, fDistSquared;
+	vec2_t vDelta;
+	Vector vDest;
+
+	vDest = ev->GetVector(1);
+	VectorSub2D(vDest, m_vHome, vDelta);
+	fDistSquared = VectorLength2DSquared(vDelta);
+	if (fDistSquared >= m_fLeashSquared)
+	{
+		ev->AddInteger(0);
+		return;
+	}
+	else if(m_Enemy != NULL)
+	{
+		VectorSub2D(vDest, m_Enemy->origin, vDelta);
+		fDistSquared = VectorLength2DSquared(vDelta);
+		if (m_fMinDistanceSquared >= fDistSquared || fDistSquared >= m_fMaxDistanceSquared)
+		{
+			ev->AddInteger(qfalse);
+			return;
+		}
+	}
+	if (m_fInterval == 0)
+	{
+		for (auto pSquadMate = m_pNextSquadMate; pSquadMate != this ; pSquadMate = pSquadMate->m_pNextSquadMate)
+		{
+			float v27, v29, v30, v32, v33, v34, v35, v37, v38, v45, v44;
+			if (pSquadMate->IsSubclassOfActor())
+			{
+				Sentient *pEnemy = pSquadMate->m_Enemy;
+				if (pEnemy)
+				{
+					v27 = pSquadMate->origin[0];
+					v29 = pEnemy->origin[0] - v27;
+					v30 = pSquadMate->origin[1];
+					v32 = pEnemy->origin[1] - v30;
+				}
+				else
+				{
+					continue;
+				}
+			}
+			else
+			{
+				v27 = pSquadMate->origin[0];
+				v29 = pSquadMate->orientation[0][0];
+				v32 = pSquadMate->orientation[0][1];
+				v30 = pSquadMate->origin[1];
+			}
+			v33 = v32 * origin[0];
+			v34 = v27 * v32 - v30 * v29;
+			v35 = v33 - v29 * origin[1] - v34;
+			v37 = v32 * v44;
+			v38 = v37 - v29 * v45 - v34;
+
+			// check if they both have different sign.
+			if (((int)v38 ^ (int)v35) < 0)
+			{
+				ev->AddInteger(qfalse);
+				return;
+			}
+		}
+		ev->AddInteger(qtrue);
+		return;
+	}
+
+	fIntervalSquared = m_fInterval * m_fInterval;
+
+	for (auto pSquadMate = m_pNextSquadMate; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate)
+	{
+		Vector vDel;
+		vDel = vDest - pSquadMate->origin;
+		if (fIntervalSquared <= vDest.lengthSquared())
+		{
+			continue;
+		}
+
+		if ((origin-pSquadMate->origin).lengthSquared() > vDest.lengthSquared())
+		{
+			break;
+		}
+	}
+	ev->AddInteger(qfalse);
 }
 
 void Actor::EventMoveDir
@@ -7847,8 +11290,11 @@ void Actor::EventSetNextBreathTime
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ScriptVariable sVar;
+	ScriptThread *t = Director.CreateThread("global/breathe.scr", "nextbreathtime");
+	
+	sVar.setFloatValue(ev->GetFloat(1));
+	t->Execute(&sVar, 1);
 }
 
 void Actor::EventCalcGrenadeToss
@@ -7857,8 +11303,51 @@ void Actor::EventCalcGrenadeToss
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: macros
+	Vector vTarget;
+	vTarget = ev->GetVector(1);
+	if (DecideToThrowGrenade(vTarget, &m_vGrenadeVel, &m_eGrenadeMode))
+	{
+		if (m_eGrenadeMode == 2)
+		{
+			ev->AddConstString(STRING_ANIM_GRENADETOSS_SCR);
+		}
+		else
+		{
+			if (m_eGrenadeMode > 2 ? m_eGrenadeMode == 3 : m_eGrenadeMode == 1)
+			{
+				ev->AddConstString(STRING_ANIM_GRENADETHROW_SCR);
+			}
+			/*
+			 useless assert:
+			 else if ( !dword_39A8F0 )
+			  {
+				strcpy(&v13, "\"invalid return condition for Actor::EventCalcGrenadeToss\"\n\tMessage: ");
+				memset(&s, 0, 0x3FBAu);
+				v7 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
+					   this,
+					   &nullStr);
+				Q_strcat(&v13, 0x4000, v7);
+				v8 = MyAssertHandler(&v13, "fgame/actor.cpp", 12490, 0);
+				if ( v8 < 0 )
+				{
+				  dword_39A8F0 = 1;
+				}
+				else if ( v8 > 0 )
+				{
+				  __debugbreak();
+				}
+			  }
+			 */
+		}
+		
+		m_YawAchieved = false;
+		m_DesiredYaw = vectoyaw(m_vGrenadeVel);
+	}
+	else
+	{
+		ev->AddConstString(STRING_EMPTY);
+	}
 }
 
 void Actor::EventGetNoSurprise
@@ -8069,8 +11558,66 @@ void Actor::ResolveVoiceType
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	char validVoice[128];
+
+	if (mVoiceType == -1)
+	{
+		int d = 3.0 * random();
+		if (m_Team == TEAM_AMERICAN)
+		{
+			mVoiceType = *gAmericanVoices[d];
+		}
+		else
+		{
+			mVoiceType = *gGermanVoices[d];
+		}
+	}
+	else
+	{
+		if (m_Team == TEAM_AMERICAN)
+		{
+			for (int i = 0; *gAmericanVoices[i] != mVoiceType ; i++)
+			{
+				if (i > 3)
+				{
+					sprintf(validVoice, "");
+					for (int j = 0; j <= 2 ; j++)
+					{
+						strcat(validVoice, gAmericanVoices[j]);
+						strcat(validVoice, " ");
+					}
+					Com_Printf("ERROR: Bad voice type %c.  Valid American voicetypes are: %s\n", mVoiceType, validVoice);
+					mVoiceType = -1;
+
+					int d = 3.0 * random();
+					mVoiceType = *gAmericanVoices[d];
+				}
+			}
+		}
+		else
+		{
+
+			for (int i = 0; *gGermanVoices[i] != mVoiceType; i++)
+			{
+				if (i > 3)
+				{
+					sprintf(validVoice, "");
+					for (int j = 0; j <= 2; j++)
+					{
+						strcat(validVoice, gGermanVoices[j]);
+						strcat(validVoice, " ");
+					}
+					Com_Printf("ERROR: Bad voice type %c.  Valid German voicetypes are: %s\n", mVoiceType, validVoice);
+					mVoiceType = -1;
+
+					int d = 3.0 * random();
+					mVoiceType = *gGermanVoices[d];
+				
+				}
+			}
+		}
+
+	}
 }
 
 void Actor::EventSetBalconyHeight
@@ -8126,8 +11673,15 @@ void Actor::Remove
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	EndStates();
+
+	if (deadflag != DEAD_DEAD)
+	{
+		health = 0;
+		deadflag = DEAD_DEAD;
+	}
+
+	Delete();
 }
 
 void Actor::DontFaceWall
@@ -8136,8 +11690,130 @@ void Actor::DontFaceWall
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	PathNode *pNode;
+	vec2_t vDelta;
+	float fErrorLerp, fEyeRadius, fCosAngle, fSinAngle, fAngle, fAngleRad, fTime;
+	Vector start;
+	Vector end;
+	
+	//FIXME: macro: AI_*
+	if (m_pCoverNode && m_pCoverNode->nodeflags & (AI_CORNER_LEFT | AI_CORNER_RIGHT | AI_SNIPER | AI_CRATE))
+	{
+		m_eDontFaceWallMode = 1;
+		return;
+	}
+
+	if (velocity.lengthXY(true) > 64)
+	{
+		m_eDontFaceWallMode = 2;
+		return;
+	}
+
+	fAngle = AngleNormalize360(m_YawAchieved ? angles.y : m_DesiredYaw);
+
+	fTime = (level.time - m_fDfwTime) * 0.5;
+	if (fTime > 1)
+	{
+		fTime = 1;
+	}
+
+
+	VectorSub2D(m_vDfwPos, origin, vDelta);
+
+	if (Square(fTime * -14.0 + 16.0) > VectorLength2DSquared(vDelta) 
+		&& (fabs(AngleNormalize180(m_fDfwRequestedYaw - m_DesiredYaw)) <= fTime * -29.0 + 30.0
+				|| fabs(AngleNormalize180(m_fDfwDerivedYaw - m_DesiredYaw)) <= fTime * -29.0 + 30.0)
+		)
+	{
+		if (m_eDontFaceWallMode <= 8)
+		{
+			m_YawAchieved = false;
+			m_DesiredYaw = m_fDfwDerivedYaw;
+		}
+	}
+	else
+	{
+		m_vDfwPos = origin;
+		m_fDfwRequestedYaw = fAngle;
+		m_fDfwTime = level.time;
+
+		fAngleRad = fAngle * M_PI / 180;
+		fSinAngle = sin(fAngleRad);
+		fCosAngle = cos(fAngleRad);
+
+		VectorSub2D(EyePosition(), origin, vDelta);
+		fEyeRadius = VectorLength2D(vDelta);
+
+		start = vec_zero;
+		start.x = fEyeRadius * fCosAngle + origin.x;
+		start.y = fEyeRadius * fSinAngle + origin.y;
+
+		end = vec_zero;
+		end.x = 64 * fCosAngle + start.x;
+		end.x = 64 * fSinAngle + start.y;
+		trace_t trace = G_Trace(start, vec_zero, vec_zero, end, this, 33819417, qfalse, "Actor::DontFaceWall");
+		if (trace.entityNum == 1023 || trace.fraction >= 1 || trace.startsolid)
+		{
+			m_eDontFaceWallMode = 3;
+		}
+		else if (trace.entityNum == 1022 || trace.ent->entity->AIDontFace())
+		{
+			if (trace.plane.normal[2] < -0.69999999 || trace.plane.normal[2] > 0.69999999)
+			{
+				m_eDontFaceWallMode = 5;
+			}
+			else
+			{
+				if (m_Enemy && Vector::Dot(trace.plane.normal, m_Enemy->origin) - trace.plane.dist < 0 )
+				{
+					end = m_Enemy->origin;
+				}
+				else
+				{
+					end = start + (end - start)*128;
+				}
+
+
+				PathNode *node = PathManager.FindCornerNodeForWall(origin, end, this, 0.0f, trace.plane.normal);
+				if (node)
+				{
+
+					VectorSub2D(node->m_PathPos, origin, vDelta);
+					if (vDelta[0] != 0 || vDelta[1] != 0)
+					{
+						m_YawAchieved = false;
+						m_DesiredYaw = vectoyaw(vDelta);
+					}
+					m_eDontFaceWallMode = 6;
+				}
+				else if (trace.fraction <= 0.46875)
+				{
+					m_YawAchieved = false;
+					m_DesiredYaw = vectoyaw(trace.plane.normal);
+					m_eDontFaceWallMode = 7;
+				}
+				else
+				{
+					if (m_DesiredYaw < 90.0)
+						m_DesiredYaw += 270.0;
+					else
+						m_DesiredYaw -=  90.0;
+
+					m_YawAchieved = false;
+					m_eDontFaceWallMode = 8;
+				}
+				m_fDfwDerivedYaw = m_DesiredYaw;
+				return;
+			}
+		}
+		else
+		{
+			m_eDontFaceWallMode = 4;
+		}
+
+		m_fDfwDerivedYaw = m_fDfwRequestedYaw;
+	}
+
 }
 
 bool Actor::AvoidingFacingWall
@@ -8155,8 +11831,18 @@ void Actor::EndStates
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	for (int i = 0; i < MAX_THINKSTATES; i++)
+	{
+		GlobalFuncs_t *func = &GlobalFuncs[m_Think[i]];
+		
+		if (func->EndState)
+			(this->*func->EndState)();
+
+		if (m_pAnimThread)
+		{
+			m_pAnimThread->AbortRegistration(STRING_EMPTY, this);
+		}
+	}
 }
 
 void Actor::ClearStates
@@ -8165,8 +11851,7 @@ void Actor::ClearStates
 	)
 
 {
-	//FIXME: macros
-	for (int i = 0; i <= 8; i++)
+	for (int i = 0; i <= MAX_THINKMAP; i++)
 	{
 		m_ThinkMap[i] = 0;
 		if (m_ThinkState == i)
@@ -8204,7 +11889,7 @@ void Actor::BecomeCorpse
 	)
 
 {
-	Event * e1;
+	Event e1(EV_DeathSinkStart);
 
 	AddToBodyQue();
 
@@ -8214,7 +11899,7 @@ void Actor::BecomeCorpse
 	movetype = MOVETYPE_NONE;
 	edict->s.renderfx &= ~RF_SHADOW;
 
-	e1 = new Event(EV_DeathSinkStart);
+	
 	PostEvent(e1, 20, 0);
 }
 
@@ -8224,8 +11909,16 @@ void Actor::PathnodeClaimRevoked
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	for (int i = m_ThinkLevel; i >= 0; --i)
+	{
+
+
+		GlobalFuncs_t *func = &GlobalFuncs[m_Think[i]];
+		if (func->PathnodeClaimRevoked)
+			(this->*func->PathnodeClaimRevoked)();
+	}
+	node->Relinquish();
+	m_pCoverNode = NULL;
 }
 
 void Actor::SetPathToNotBlockSentient
@@ -8234,8 +11927,103 @@ void Actor::SetPathToNotBlockSentient
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Vector vDest, vPerp, vAway;
+
+	if (pOther)
+	{
+		if (!pOther->IsDead())
+		{
+			if (IsTeamMate(pOther))
+			{
+				if (pOther->velocity.lengthSquared() > 1)
+				{
+					vDest = origin - pOther->origin;
+					if (vDest.lengthSquared() < 2304 && DotProduct2D(pOther->velocity, vDest) > 0)
+					{
+						if (CrossProduct2D(vDest, pOther->velocity) >= 0)
+						{
+							vPerp.x = -pOther->velocity.y;
+							vPerp.y = pOther->velocity.x;
+							vPerp.z = 0;
+						}
+						else
+						{
+							vPerp.x = pOther->velocity.y;
+							vPerp.y = -pOther->velocity.x;
+							vPerp.z = 0;
+						}
+
+						VectorNormalizeFast(vPerp);
+						
+						vAway = vPerp * 48 + origin;
+
+						if (G_SightTrace(
+							vAway,
+							mins,
+							maxs,
+							vAway,
+							this,
+							pOther,
+							33557249,
+							0,
+							"Actor::SetPathToNotBlockSentient 1"))
+						{
+							SetPathWithinDistance(vAway, "", 96, 0);
+						}
+
+						if (!PathExists())
+						{
+							vAway = vDest;
+							VectorNormalizeFast(vAway);
+
+							vAway = vAway * 48 + origin;
+							if (G_SightTrace(
+								vAway,
+								mins,
+								maxs,
+								vAway,
+								this,
+								pOther,
+								33557249,
+								0,
+								"Actor::SetPathToNotBlockSentient 2"))
+							{
+								SetPathWithinDistance(vAway, "", 96, 0);
+							}
+
+							if (!PathExists())
+							{
+								vAway = vPerp * 48 - origin;
+								if (G_SightTrace(
+									vAway,
+									mins,
+									maxs,
+									vAway,
+									this,
+									pOther,
+									33557249,
+									0,
+									"Actor::SetPathToNotBlockSentient 3"))
+								{
+									SetPathWithinDistance(vAway, "", 96, 0);
+								}
+
+								if (!PathExists())
+								{
+									vAway = vDest;
+									VectorNormalizeFast(vAway);
+
+									FindPathAway(origin, vAway * 100, 96);
+
+								}
+							}
+
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void Actor::EventSetMoveDoneRadius
@@ -8255,9 +12043,121 @@ bool Actor::CalcFallPath
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	float startTime, animTime, startDeltaTime, nextTime;
+	vec3_t vAbsDelta, vRelDelta, pos[200];
+	int anim, loop, currentPos, i;
+	mmove_t mm;
+
+	SetMoveInfo(&mm);
+
+	mm.desired_speed = 80;
+	mm.tracemask &= 0xFDFFF4FF;
+
+	VectorCopy2D(orientation[0], mm.desired_dir);
+
+	anim = gi.Anim_NumForName(edict->tiki, "death_balcony_intro");
+	animTime = gi.Anim_Time(edict->tiki, anim);
+
+	startTime = 0.64999998;
+
+	i = 0;
+	while (true)
+	{
+		MmoveSingle(&mm);
+		
+		i++;
+		VectorCopy(mm.origin, pos[i]);
+
+		if (i >= 200)
+		{
+			break;
+		}
+
+		if (mm.hit_obstacle)
+		{
+			for (int i = 0.64999998; i < startTime; i = nextTime)
+			{
+				nextTime = i + level.frametime;
+				if (nextTime >= startTime - 0.0099999998)
+					nextTime = startTime;
+				startDeltaTime = i;
+				(gi.Anim_DeltaOverTime)(
+					edict->tiki,
+					anim,
+					startDeltaTime,
+					nextTime,
+					vAbsDelta);
+				MatrixTransformVector(vAbsDelta, orientation, vRelDelta);
+
+				i++;
+				
+				VectorAdd(vRelDelta, mm.origin, mm.origin);
+				VectorCopy(mm.origin, pos[i]);
+
+				if (i >= 200)
+					return false;
+			}
+			mm.desired_speed = 0;
+			mm.groundPlane = qfalse;
+			mm.walking = qfalse;
+			mm.velocity[0] = 0;
+			mm.velocity[1] = 0;
+			mm.velocity[2] = -171;
+			
+			loop = i;
+
+			while (true)
+			{
+				MmoveSingle(&mm);
+
+				i++;
+				VectorCopy(mm.origin, pos[i]);
+
+				if (i >= 200)
+				{
+					break;
+				}
+
+				if (mm.hit_obstacle)
+					return false;
+
+				if (mm.groundPlane)
+				{
+					if (m_fBalconyHeight > origin[2] - pos[i][2])
+						return false;
+
+					m_pFallPath = (FallPath *)gi.Malloc(sizeof(FallPath) * i);
+
+					m_pFallPath->length = i;
+
+					m_pFallPath->currentPos = 0;
+					m_pFallPath->startTime = startTime;
+					m_pFallPath->loop = loop;
+
+					if (i > 0)
+					{
+						for (int j = i; j ; j--)
+						{
+							VectorCopy(pos[j], m_pFallPath->pos[j]);
+						}
+					}
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+
+		if (mm.groundPlane)
+		{
+			startTime -= level.frametime;
+			if (startTime >= 0)
+				continue;
+		}
+		return false;
+	}
+
 }
 
 void Actor::IdleThink
@@ -8326,8 +12226,56 @@ void Actor::setOriginEvent
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	bool bRejoin = false;
+	//FIXME: macro
+	if ((org - origin).lengthSquared() > 1048576)
+	{
+		bRejoin = true;
+		DisbandSquadMate(this);
+	}
+	
+	m_iOriginTime = level.inttime;
+
+	m_vOriginHistory[0][0] = org.x;
+	m_vOriginHistory[0][1] = org.y;
+	m_vOriginHistory[1][0] = org.x;
+	m_vOriginHistory[1][1] = org.y;
+	m_vOriginHistory[2][0] = org.x;
+	m_vOriginHistory[2][1] = org.y;
+	m_vOriginHistory[3][0] = org.x;
+	m_vOriginHistory[3][1] = org.y;
+
+	VectorClear(velocity);
+
+	if (level.Spawned())
+	{
+		if (org != origin)
+		{
+			setOrigin(org);
+		}
+		if (!m_bNoPlayerCollision)
+		{
+			Player *p = (Player *)G_GetEntity(0);
+			if (p && IsTouching(p))
+			{
+				Com_Printf(
+					"(entnum %d, radnum %d) is going not solid to not get stuck in the player\n", entnum, radnum);
+				m_bNoPlayerCollision = 1;
+				setSolidType(SOLID_NOT);
+			}
+		}
+	}
+	else
+	{
+		setOrigin(org);
+	}
+	m_vHome = origin;
+
+	if (bRejoin)
+	{
+		//FIXME: macro
+		JoinNearbySquads(1024);
+	}
 }
 
 void Actor::DumpAnimInfo

@@ -171,8 +171,7 @@ public:
 	bool				TrySetScript( const_str label );
 	bool				TrySetScript( const char *label );
 
-	void				GetScriptValue(Event *ev);
-	void				SetScriptValue(Event *ev);
+	void				GetScriptValue(ScriptVariable *var);
 
 	bool				IsSet( void );
 

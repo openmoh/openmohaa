@@ -294,6 +294,7 @@ void RestoreMusicVolume( float fade_time );
 void ChangeSoundtrack( const char * soundtrack );
 void RestoreSoundtrack( void );
 int G_AIEventTypeFromString( const char *pszType );
+const char * G_AIEventStringFromType(int iType );
 float G_AIEventRadius( int iType );
 void G_BroadcastAIEvent( Entity *originator, Vector origin, char *pszType );
 void G_BroadcastAIEvent( Entity *originator, Vector origin, int iType, float radius );

@@ -44,8 +44,11 @@ void Actor::Begin_Anim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_csMood = m_csIdleMood;
+	ClearPath();
+	m_YawAchieved = true;
+	m_State = 1000;
+	m_iStateTime = level.inttime;
 }
 
 void Actor::Think_Anim

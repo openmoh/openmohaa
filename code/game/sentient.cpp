@@ -4535,5 +4535,71 @@ void Sentient::UpdateFootsteps
 	)
 
 {
-	// FIXME
+	//FIXME: macros
+	int iTagNum, iAnimFlags = 0, iAnimNum;
+	for (int i = 0; i < MAX_FRAMEINFOS; i++)
+	{
+		if (edict->s.frameInfo[i].weight != 0 && CurrentAnim(i) >= 0)
+		{
+			iAnimNum = CurrentAnim(i);
+			iAnimFlags |= gi.Anim_Flags(edict->tiki, iAnimNum);
+		}
+	}
+
+	//FIXME: macros
+	if ((iAnimFlags & 0xC00) != 3072)
+	{
+		m_bFootOnGround_Right = true;
+		m_bFootOnGround_Left = true;
+		return;
+	}
+	if (m_bFootOnGround_Right)
+	{
+		iTagNum = gi.Tag_NumForName(edict->tiki, "Bip01 R Foot");
+		if (iTagNum >= 0)
+		{
+			m_bFootOnGround_Right = G_TIKI_IsOnGround(edict, iTagNum, 13.653847);
+		}
+		else
+		{
+			m_bFootOnGround_Right = true;
+		}
+	}
+	else
+	{
+		iTagNum = gi.Tag_NumForName(edict->tiki, "Bip01 R Foot");
+		if (iTagNum >= 0)
+		{
+			if (G_TIKI_IsOnGround(edict, iTagNum, 13.461539))
+			{
+				BroadcastAIEvent(10, G_AIEventRadius(10));
+			}
+		}
+		m_bFootOnGround_Right = true;
+	}
+
+	if (m_bFootOnGround_Left)
+	{
+		iTagNum = gi.Tag_NumForName(edict->tiki, "Bip01 L Foot");
+		if (iTagNum >= 0)
+		{
+			m_bFootOnGround_Left = G_TIKI_IsOnGround(edict, iTagNum, 13.653847);
+		}
+		else
+		{
+			m_bFootOnGround_Left = true;
+		}
+	}
+	else
+	{
+		iTagNum = gi.Tag_NumForName(edict->tiki, "Bip01 R Foot");
+		if (iTagNum >= 0)
+		{
+			if (G_TIKI_IsOnGround(edict, iTagNum, 13.461539))
+			{
+				BroadcastAIEvent(10, G_AIEventRadius(10));
+			}
+		}
+		m_bFootOnGround_Left = true;
+	}
 }

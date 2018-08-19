@@ -122,6 +122,7 @@ public:
 	void				SetOnceType( int slot = 0 );
 	void				SetSyncRate( float rate );
 	void				SetSyncTime( float s );
+	void				UseSyncTime(int slot, int sync);
 
 	void				Pause( int slot = 0, int pause = 1 );
 	void				StopAnimating( int slot = 0 );

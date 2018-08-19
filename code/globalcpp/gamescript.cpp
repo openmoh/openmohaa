@@ -1045,6 +1045,27 @@ bool ScriptThreadLabel::TrySetScript( const_str label )
 	return TrySetScript( Director.GetString( label ) );
 }
 
+void ScriptThreadLabel::GetScriptValue(ScriptVariable *var)
+{
+	//FIXME: macro: 2 ?
+	ScriptVariable var_array[2];
+
+	if (m_Script)
+	{
+		var_array[0].setConstStringValue(m_Script->ConstFilename());
+		var_array[1].setConstStringValue(m_Label);
+		var->setConstArrayValue(var_array, 2);
+		for (int i = 0; i < 2; i++)
+		{
+			var_array[i].Clear();
+		}
+	}
+	else
+	{
+		var->Clear();
+	}
+}
+
 bool ScriptThreadLabel::IsSet( void )
 {
 	return m_Script != NULL ? true : false;
