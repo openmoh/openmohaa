@@ -181,6 +181,7 @@
       <StackCommitSize>
       </StackCommitSize>
       <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>MOHConverterLibrary_x64.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug_Q3|Win32'">
@@ -203,6 +204,7 @@
       <StackCommitSize>
       </StackCommitSize>
       <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>MOHConverterLibrary_x64.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -225,6 +227,7 @@
       <StackCommitSize>
       </StackCommitSize>
       <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>MOHConverterLibrary_x64.dll</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)..\..\build_increment.bat $(SolutionDir)..\..\$(ProjectName)</Command>
@@ -250,6 +253,7 @@
       <StackCommitSize>
       </StackCommitSize>
       <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>MOHConverterLibrary_x64.dll</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>$(SolutionDir)..\..\build_increment.bat $(SolutionDir)..\..\$(ProjectName)</Command>
@@ -278,6 +282,7 @@
       <StackCommitSize>
       </StackCommitSize>
       <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>MOHConverterLibrary_x64.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Q3|Win32'">
@@ -303,6 +308,7 @@
       <StackCommitSize>
       </StackCommitSize>
       <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>MOHConverterLibrary_x64.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -328,6 +334,7 @@
       <StackCommitSize>
       </StackCommitSize>
       <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>MOHConverterLibrary_x64.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Q3|x64'">
@@ -353,6 +360,7 @@
       <StackCommitSize>
       </StackCommitSize>
       <AdditionalDependencies>winmm.lib;$(SolutionDir)..\..\..\build\$(Configuration)\$(PlatformShortName)\MOHConverterLibrary_$(PlatformShortName).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>MOHConverterLibrary_x64.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -434,27 +442,8 @@
     <ClInclude Include="..\..\..\code\qcommon\stack.h" />
     <ClInclude Include="..\..\..\code\qcommon\str.h" />
     <ClInclude Include="..\..\..\code\qcommon\unzip.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\bspconverter.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\bspentity_speaker.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\bsploader_base.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\bsploader_moh.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\bspentity.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\bsplight.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\bsploader_q3.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\bspworld.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\formatconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\main.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\mapconverter.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\md3converter.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\md4converter.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\meshobject.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\shadermanager.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\skcconverter.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\skdconverter.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\tikiconverter.h" />
-    <ClInclude Include="..\..\..\code\tools\converter\tr_shared.h" />
     <ClInclude Include="..\..\..\code\tools\converter\version.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="omohconverter.rc">

@@ -796,15 +796,78 @@ inline void Vehicle::Archive
 }
 
 class DrivableVehicle : public Vehicle
-	{
-	public:
+{
+public:
 
-      CLASS_PROTOTYPE( DrivableVehicle );
+	CLASS_PROTOTYPE(DrivableVehicle);
 
-								DrivableVehicle( void );
+	DrivableVehicle(void);
 
-		virtual void		Killed( Event *ev );
-	};
+	virtual void Killed(Event* ev);
+};
+
+class VehicleWheelsX4 : public DrivableVehicle
+{
+private:
+	wheel_s m_sWheels[4];
+
+public:
+	CLASS_PROTOTYPE(VehicleWheelsX4);
+
+	VehicleWheelsX4();
+
+	virtual void UpdateVariables(Vector *acceleration, Vector *vpn, Vector *vup, Vector *vright, Vector *t_vpn, Vector *t_vup, Vector *t_vright) override;
+	virtual float TorqueLookup(int rpm) override;
+	virtual void Think() override;
+	virtual void Postthink() override;
+	virtual void Killed(Event* ev) override;
+};
+
+class VehicleWheelsX2 : public DrivableVehicle
+{
+private:
+	wheel_s m_sWheels[2];
+
+public:
+	CLASS_PROTOTYPE(VehicleWheelsX2);
+
+	VehicleWheelsX2();
+
+	virtual void UpdateVariables(Vector *acceleration, Vector *vpn, Vector *vup, Vector *vright, Vector *t_vpn, Vector *t_vup, Vector *t_vright) override;
+	virtual float TorqueLookup(int rpm) override;
+	virtual void Think() override;
+	virtual void Postthink() override;
+	virtual void Killed(Event* ev) override;
+};
+
+class VehicleTank : public DrivableVehicle
+{
+public:
+	CLASS_PROTOTYPE(VehicleTank);
+
+	VehicleTank();
+	~VehicleTank();
+
+	virtual qboolean Drive(usercmd_t *ucmd) override;
+	void EventDamage(Event *ev);
+	virtual void Think() override;
+	virtual void Postthink() override;
+	virtual void CalculateOriginOffset() override;
+	virtual void UpdateSound();
+	virtual void AttachDriverSlot(Event* ev);
+};
+
+class VehicleHalfTrack : public DrivableVehicle
+{
+public:
+	CLASS_PROTOTYPE(VehicleHalfTrack);
+
+	VehicleHalfTrack();
+
+	virtual void Think() override;
+	virtual void Postthink() override;
+	virtual void Killed(Event* ev) override;
+};
 
 typedef SafePtr<Vehicle> VehiclePtr;
 

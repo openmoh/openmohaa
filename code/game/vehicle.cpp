@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2018 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 

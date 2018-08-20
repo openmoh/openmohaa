@@ -122,9 +122,11 @@
     <ClCompile Include="..\..\..\code\tools\converter\bspworld.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\curve.c" />
     <ClCompile Include="..\..\..\code\tools\converter\formatconverter.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\imageconverter.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\mainworker.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\mapconverter.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\meshobject.cpp" />
+    <ClCompile Include="..\..\..\code\tools\converter\sha256.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\shadermanager.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\skcconverter.cpp" />
     <ClCompile Include="..\..\..\code\tools\converter\skdconverter.cpp" />
@@ -256,11 +258,14 @@
     <ClInclude Include="..\..\..\code\tools\converter\bsploader_q3.h" />
     <ClInclude Include="..\..\..\code\tools\converter\bspworld.h" />
     <ClInclude Include="..\..\..\code\tools\converter\formatconverter.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\imageconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\mapconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\md3converter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\md4converter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\meshobject.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\MOHConverterLibrary_Internal.h" />
     <ClInclude Include="..\..\..\code\tools\converter\multimain.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\sha256.h" />
     <ClInclude Include="..\..\..\code\tools\converter\shadermanager.h" />
     <ClInclude Include="..\..\..\code\tools\converter\skcconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\skdconverter.h" />

@@ -444,6 +444,12 @@
     <ClCompile Include="..\..\..\code\globalcpp\basemain.cpp">
       <Filter>global</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\sha256.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\code\tools\converter\imageconverter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\code\globalcpp\archive.h">
@@ -787,6 +793,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\code\globalcpp\basemain.h">
       <Filter>global</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\sha256.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\MOHConverterLibrary_Internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\code\tools\converter\imageconverter.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

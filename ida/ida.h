@@ -5894,6 +5894,66 @@ typedef struct {
   fontheader_t *pFontDebugStrings;
 } trGlobals_t;
 
+typedef struct srfMarkFragment_s {
+ public:
+  surfaceType_t surfaceType;
+  int iIndex;
+  int numVerts;
+  polyVert_t *verts;
+} srfMarkFragment_t;
+
+typedef struct lmEditPoly_s {
+  srfMarkFragment_t surf;
+  shader_t *shader;
+  int viewCount;
+  polyVert_t verts[8];
+  mnode_t *pLeafs[8];
+  int iNumLeafs;
+} lmEditPoly_t;
+
+typedef struct lmEditMarkDef_s {
+  shader_t *markShader;
+  vec3_t vPos;
+  vec3_t vProjection;
+  float fRadius;
+  float fHeightScale;
+  float fWidthScale;
+  float fRotation;
+  float color[4];
+  qboolean bDoLighting;
+  lmEditPoly_t *pMarkEditPolys;
+  int iNumEditPolys;
+  vec3_t vPathCorners[4];
+} lmEditMarkDef_t;
+
+typedef struct lmPoly_s {
+  srfMarkFragment_t surf;
+  shader_t *shader;
+  int viewCount;
+} lmPoly_t;
+
+typedef struct {
+  qboolean bLevelMarksLoaded;
+  char szDCLFilename[256];
+  lmPoly_t *pMarkFragments;
+  qboolean bAutoApplySettings;
+  lmEditPoly_t *pFreeEditPolys;
+  lmEditMarkDef_t activeMarkDefs;
+  lmEditMarkDef_t *pFreeMarkDefs;
+  lmEditMarkDef_t *pCurrentMark;
+  qboolean bPathLayingMode;
+  treadMark_t treadMark;
+  lmEditMarkDef_t *pTreadMarkStartDecal;
+  lmEditMarkDef_t *pTreadMarkEndDecal;
+} lmGlobals_t;
+
+struct poolInfo_s {
+  int iFreeHead;
+  int iCur;
+  int nFree;
+};
+typedef struct poolInfo_s poolInfo_t;
+
 typedef unsigned char color4ub_t[4];
 typedef struct stageVars {
   unsigned char colors[1000][4];

@@ -270,9 +270,13 @@
     <ClCompile Include="..\..\..\code\game\trigger.cpp" />
     <ClCompile Include="..\..\..\code\game\vehicle.cpp" />
     <ClCompile Include="..\..\..\code\game\VehicleCollisionEntity.cpp" />
+    <ClCompile Include="..\..\..\code\game\VehicleHalfTrack.cpp" />
     <ClCompile Include="..\..\..\code\game\VehicleSlot.cpp" />
     <ClCompile Include="..\..\..\code\game\VehicleSoundEntity.cpp" />
+    <ClCompile Include="..\..\..\code\game\VehicleTank.cpp" />
     <ClCompile Include="..\..\..\code\game\vehicleturret.cpp" />
+    <ClCompile Include="..\..\..\code\game\VehicleWheelsX2.cpp" />
+    <ClCompile Include="..\..\..\code\game\VehicleWheelsX4.cpp" />
     <ClCompile Include="..\..\..\code\game\viewthing.cpp" />
     <ClCompile Include="..\..\..\code\game\weapon.cpp" />
     <ClCompile Include="..\..\..\code\game\weapturret.cpp" />

@@ -604,7 +604,8 @@ qboolean	FS_ConditionalRestart( int checksumFeed );
 void	FS_Restart( int checksumFeed );
 // shutdown and restart the filesystem so changes to fs_gamedir can take effect
 
-void FS_AddGameDirectory( const char *path, const char *dir );
+void FS_AddGameDirectory(const char *path, const char *dir);
+void FS_AddGameDirectory2(const char *path, const char *dir, qboolean original_paks_priority);
 
 char	**FS_ListFilteredFiles( const char *path, const char *extension, char *filter, qboolean wantSubs, int *numfiles );
 char	**FS_ListFiles( const char *directory, const char *extension, qboolean wantSubs, int *numfiles );
