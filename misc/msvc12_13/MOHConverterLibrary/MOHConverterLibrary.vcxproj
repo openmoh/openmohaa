@@ -106,6 +106,7 @@
     <ClInclude Include="..\..\..\code\tools\converter\meshobject.h" />
     <ClInclude Include="..\..\..\code\tools\converter\MOHConverterLibrary.h" />
     <ClInclude Include="..\..\..\code\tools\converter\multimain.h" />
+    <ClInclude Include="..\..\..\code\tools\converter\picosha2.h" />
     <ClInclude Include="..\..\..\code\tools\converter\shadermanager.h" />
     <ClInclude Include="..\..\..\code\tools\converter\skcconverter.h" />
     <ClInclude Include="..\..\..\code\tools\converter\skdconverter.h" />

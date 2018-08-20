@@ -302,6 +302,34 @@ static char		*fs_serverReferencedPakNames[MAX_SEARCH_PATHS];		// pk3 names
 char lastValidBase[MAX_OSPATH];
 char lastValidGame[MAX_OSPATH];
 
+static const char* fs_originalPaks_main[] =
+{
+	"Pak0.pk3",
+	"Pak1.pk3",
+	"Pak2.pk3",
+	"Pak3.pk3",
+	"Pak4.pk3",
+	"Pak5.pk3",
+	"Pak6.pk3"
+};
+
+static const char* fs_originalPaks_mainta[] =
+{
+	"pak1.pk3",
+	"pak2.pk3",
+	"pak3.pk3",
+	"pak4.pk3",
+	"pak5.pk3"
+};
+
+static const char* fs_originalPaks_maintt[] =
+{
+	"pak1.pk3",
+	"pak2.pk3",
+	"pak3.pk3",
+	"pak4.pk3"
+};
+
 #ifdef FS_MISSING
 FILE*		missingFiles = NULL;
 #endif
@@ -2669,13 +2697,37 @@ void FS_TouchFile_f( void ) {
 //===========================================================================
 
 
-static int QDECL paksort( const void *a, const void *b ) {
+static int QDECL paksort(const void *a, const void *b) {
 	char	*aa, *bb;
 
 	aa = *(char **)a;
 	bb = *(char **)b;
 
+	const char* f1 = COM_SkipPath(aa);
+	const char* f2 = COM_SkipPath(bb);
+
 	return FS_PathCmp( aa, bb );
+}
+
+static void FS_SortOriginalPaks(char **pakfiles, int numfiles, const char** originalPaks, int numOriginalPaks)
+{
+	int i, j;
+	int numSorted = numfiles;
+	char* tmp;
+
+	for (i = numfiles - 1; i >= 0; i--)
+	{
+		for (j = 0; j < numOriginalPaks; j++)
+		{
+			if (!stricmp(pakfiles[i], originalPaks[j]))
+			{
+				tmp = pakfiles[numSorted - 1];
+				pakfiles[numSorted - 1] = pakfiles[i];
+				pakfiles[i] = tmp;
+				numSorted--;
+			}
+		}
+	}
 }
 
 /*
@@ -2686,7 +2738,11 @@ Sets fs_gamedir, adds the directory to the head of the path,
 then loads the zip headers
 ================
 */
-void FS_AddGameDirectory( const char *path, const char *dir ) {
+void FS_AddGameDirectory(const char *path, const char *dir) {
+	FS_AddGameDirectory2(path, dir, false);
+}
+
+void FS_AddGameDirectory2( const char *path, const char *dir, qboolean original_paks_priority) {
 	searchpath_t	*sp;
 	int				i;
 	searchpath_t	*search;
@@ -2710,7 +2766,23 @@ void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 	pakfiles = Sys_ListFiles( pakfile, ".pk3", NULL, &numfiles, qfalse );
 
-	qsort( pakfiles, numfiles, sizeof(char*), paksort );
+	qsort(pakfiles, numfiles, sizeof(char*), paksort);
+
+	if (original_paks_priority)
+	{
+		if (!stricmp(dir, "main"))
+		{
+			FS_SortOriginalPaks(pakfiles, numfiles, fs_originalPaks_main, sizeof(fs_originalPaks_main)/sizeof(fs_originalPaks_main[0]));
+		}
+		else if (!stricmp(dir, "mainta"))
+		{
+			FS_SortOriginalPaks(pakfiles, numfiles, fs_originalPaks_mainta, sizeof(fs_originalPaks_mainta) / sizeof(fs_originalPaks_mainta[0]));
+		}
+		else if (!stricmp(dir, "maintt"))
+		{
+			FS_SortOriginalPaks(pakfiles, numfiles, fs_originalPaks_maintt, sizeof(fs_originalPaks_maintt) / sizeof(fs_originalPaks_maintt[0]));
+		}
+	}
 
 	for ( i = 0 ; i < numfiles ; i++ ) {
 		pakfile = FS_BuildOSPath( path, dir, pakfiles[i] );
