@@ -57,8 +57,32 @@ void Actor::Think_Anim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (RequireThink())
+	{
+		UpdateEyeOrigin();
+		IdlePoint();
+		IdleLook();
+		if (m_State == 1000)
+		{
+			m_bAnimScriptSet = false;
+			m_pszDebugState = "initial";
+			m_eNextAnimMode = m_AnimMode;
+			m_bNextForceStart = true;
+			m_csNextAnimString = m_csAnimScript;
+			m_State = 1001;
+			m_iStateTime = level.inttime;
+		}
+		else if (m_State == 1001)
+		{
+			m_bNextForceStart = false;
+			m_pszDebugState = "main";
+			m_eNextAnimMode = m_AnimMode;
+			m_csNextAnimString = m_csAnimScript;
+		}
+		CheckForThinkStateTransition();
+		IdleTurn();
+		PostThink(false);
+	}
 }
 
 void Actor::FinishedAnimation_Anim
@@ -67,8 +91,14 @@ void Actor::FinishedAnimation_Anim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (!m_bAnimScriptSet)
+	{
+		if (m_bNoIdleAfterAnim)
+			m_csAnimScript = STRING_ANIM_CONTINUE_LAST_ANIM_SCR;
+		else
+			SetThinkIdle(8);
+		Unregister(STRING_ANIMDONE);
+	}
 }
 
 void Actor::ShowInfo_Anim
@@ -77,6 +107,5 @@ void Actor::ShowInfo_Anim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Com_Printf("anim script: %s, anim mode %d\n", Director.GetString(m_csAnimScript).c_str(), m_AnimMode);
 }

@@ -3549,17 +3549,13 @@ bool Actor::AttackEntryAnimation
 							m_DesiredYaw = vectoyaw(vDelta);
 						}
 
-						m_bHasDesiredLookAngles = true;
+						SetDesiredLookDir(m_Enemy->origin - origin);
 
-						vectoangles(m_Enemy->origin - origin, m_DesiredLookAngles);
-
-						m_DesiredLookAngles[0] = AngleNormalize180(m_DesiredLookAngles[0]);
-						m_DesiredLookAngles[1] = AngleNormalize180(m_DesiredLookAngles[1] - angles[1]);
 						m_csNextAnimString = STRING_ANIM_STANDIDENTIFY_SCR;
 
 						m_bNextForceStart = true;
-						this->m_bNoSurprise = true;
-						this->m_bNewEnemy = false;
+						m_bNoSurprise = true;
+						m_bNewEnemy = false;
 
 						return true;
 
@@ -3681,9 +3677,8 @@ bool Actor::PassesTransitionConditions_Attack
 
 	if( m_Enemy && !( m_Enemy->flags & FL_NOTARGET ) )
 	{
-		if( m_bEnemyIsDisguised || m_Enemy->m_bIsDisguised )
+		if(EnemyIsDisguised())
 		{
-			if( !m_bForceAttackPlayer && m_ThinkState != 4 )
 				return true;
 		}
 
@@ -3714,9 +3709,8 @@ bool Actor::PassesTransitionConditions_Disguise
 	if( !m_Enemy )
 		return false;
 
-	if( m_bEnemyIsDisguised || m_Enemy->m_bIsDisguised )
+	if(EnemyIsDisguised())
 	{
-		if( !m_bForceAttackPlayer && m_ThinkState != 4 )
 		{
 			if( m_PotentialEnemies.GetCurrentVisibility() > 0.999f )
 			{
@@ -3773,13 +3767,10 @@ bool Actor::PassesTransitionConditions_Curious
 		return true;
 	}
 
-	if( m_bEnemyIsDisguised || m_Enemy->m_bIsDisguised )
+	if(EnemyIsDisguised())
 	{
-		if( !m_bForceAttackPlayer && m_ThinkState != 4 )
-		{
-			SetCuriousAnimHint(6);
-			return true;
-		}
+		SetCuriousAnimHint(6);
+		return true;
 	}
 
 	if( m_PotentialEnemies.GetCurrentVisibility() <= 0.999f )
@@ -4422,32 +4413,52 @@ Vector Actor::CalcThrowVelocity
 {
 	//FIXME: needs revivsion + variable names
 	Vector ret;
+	Vector vDelta;
 	float v10; // ST0C_4
 	long double v11; // fst3
-	float v13; // ST0C_4
 	//////
+	float fGravity;
 	float fVelHorz;
 	float fVelVert;
 	float fDeltaZ;
 	float fDistance;
 	float fHorzDistSquared;
+	float fOOTime;
 
-	fVelHorz = vTo.x - vFrom.x;
-	fVelVert = vTo.y - vFrom.y;
-	fDeltaZ = vTo.z - vFrom.z;
+	fGravity = 0.8 * sv_gravity->value;
+
+	vDelta = vTo - vFrom;
+
+	fVelHorz = vDelta.x;
+	fVelVert = vDelta.y;
+	fDeltaZ = vDelta.z;
 
 	fHorzDistSquared = fVelVert * fVelVert + fVelHorz * fVelHorz;
 
 	fDistance = sqrt(fDeltaZ * fDeltaZ + fHorzDistSquared);
 
-	v10 = sqrt(0.8 * sv_gravity->value * 0.5 * fHorzDistSquared / fDistance);
-	//mohaa : vz = sqrt(hd * g/2 * 0.8 * cos(theta)), theta=inclination angle.
+	// original irl equation: v10 = sqrt(fGravity * 0.5 * fHorzDistSquared / (fDistance * trigMult ))
+	// trigMult = (cos(th)/ tan(al) - sin(th)/tanSquared(al))
+	// al = inital velocity angle with ground plane.
+	// th = angle between vDelta and ground plane.
+	// mohaa devs decided to let trigMult be 1, for the sake of simplicity I guess.
+	v10 = sqrt(fGravity * 0.5 * fHorzDistSquared / fDistance);
 
+
+	// no I dea what this means.
+	// maybe it's related to their angle choice.
+	// calculates the 1/distanceSquared necessary for fOOTime calculation.
 	v11 = (fDistance + fDeltaZ) / (fDistance - fDeltaZ) / fHorzDistSquared;
-	v13 = v10 * sqrt(v11);
+
+	// 1/(speed * sqrt(1/distanceSquared))
+	// 1/(speed * 1/distance)
+	// 1/(1/time)
+	// time
+	fOOTime = 1 / (v10 * sqrt(v11));
+
 	ret.z = v10;
-	ret.x = fVelHorz * v13;
-	ret.y = fVelVert * v13;
+	ret.x = fVelHorz / fOOTime;
+	ret.y = fVelVert / fOOTime;
 	return ret;
 }
 
@@ -4481,21 +4492,28 @@ Vector Actor::CalcRollVelocity
 	float fOOTime, fVelVert, fVelHorz, fGravity;
 	Vector vDelta = vFrom - vTo, vRet;
 
-
-	if (vDelta[2] > 0)
+	// you must throw from above.
+	// start point must be above (higher) than end point.
+	if (vDelta.z > 0)
 	{
 		fGravity = 0.8 * sv_gravity->value;
 
-		vRet[2] = sqrt(-vDelta[2] * fGravity);
-		//FIXME: macro
-		//FIXME: not sure of this line.
-		fOOTime = fGravity * 0.21961521 / vRet[2];
+		// Required down velocity to hit the ground twice as fast as freefall time.
+		vRet.z = sqrt(vDelta.z * fGravity);
 
-		fVelHorz = -vDelta[0];
-		fVelVert = -vDelta[1];
 
-		vRet[0] = fVelHorz * fOOTime;
-		vRet[2] = fVelVert * fOOTime;
+		
+		// accel = speed / time, hence : time = speed / accel, 0.21961521 is an arbitary scalar.
+		// since the scalar is way less than 1, it will take more time to hit the ground than to arrive to target dest.
+		// this is kinda like a low toss rather than a roll. if I understand correctly.
+		fOOTime = vRet.z / fGravity * 0.21961521;
+
+		// speed = distance / time
+		vRet.x = fVelHorz = -vDelta.x / fOOTime;
+		vRet.y = fVelVert = -vDelta.y / fOOTime;
+
+		
+		return vRet;
 	}
 	else
 	{
@@ -4775,6 +4793,7 @@ bool Actor::CanGetGrenadeFromAToB
 	vDelta = vTo - vFrom;
 	fRangeSquared = vDelta.lengthSquared();
 
+	//range < 256
 	if (fRangeSquared < 65536)
 		return false;
 	if (bDesperate)
@@ -4782,7 +4801,8 @@ bool Actor::CanGetGrenadeFromAToB
 		vStart = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADERETURN_SCR);
 	}
 
-	if (fRangeSquared < 1048576)
+	//range < 256
+	if (fRangeSquared < 1024)
 	{
 		if (!bDesperate)
 		{
@@ -4791,7 +4811,7 @@ bool Actor::CanGetGrenadeFromAToB
 
 		*pvVel = CanRollGrenade(vStart, vTo);
 
-		if (*pvVel == vec_zero)
+		if (*pvVel != vec_zero)
 		{
 			*peMode = AI_GREN_TOSS_ROLL;
 			return true;
@@ -4804,7 +4824,7 @@ bool Actor::CanGetGrenadeFromAToB
 
 		*pvVel = CanThrowGrenade(vStart, vTo);
 
-		if (*pvVel == vec_zero)
+		if (*pvVel != vec_zero)
 		{
 			*peMode = AI_GREN_TOSS_THROW;
 			return true;
@@ -5585,7 +5605,7 @@ void Actor::EventShareEnemy
 
 	if (m_Enemy)
 	{
-		if (! ((m_bEnemyIsDisguised || m_Enemy->m_bIsDisguised) && !m_bForceAttackPlayer && m_ThinkState != 4) )
+		if (!EnemyIsDisguised())
 		{
 			for (Actor * pSquadMate = (Actor *)m_pNextSquadMate.Pointer(); pSquadMate != this; pSquadMate = (Actor *)pSquadMate->m_pNextSquadMate.Pointer())
 			{
@@ -5866,23 +5886,85 @@ void Actor::WeaponSound
 	{
 		return;
 	}
+	Sentient *pEnemy;
 
+	pEnemy = pOwner->m_Enemy;
 	if (pOwner->m_Team == m_Team)
 	{
-		if (!pOwner->m_Enemy)
+		if (!pEnemy)
 		{
 			if (pOwner->IsSubclassOfActor())
 			{
-				
+				Actor *pAOwner = (Actor *)pOwner;
+				//FIXME: macro
+				if (originator->IsSubclassOfWeapon() && pAOwner->m_Think[0] == 17)
+				{
+					Weapon *pWOriginator = (Weapon *)originator;
+					if (pWOriginator->aim_target)
+					{
+						if (pWOriginator->aim_target->IsSubclassOfSentient())
+						{
+							if (((Sentient *)(pWOriginator->aim_target.Pointer()))->m_Team != pAOwner->m_Team)
+								pEnemy = (Sentient *)(pWOriginator->aim_target.Pointer());
+						}
+						else if (pAOwner->m_Team == TEAM_GERMAN)
+						{
+							for (pEnemy = level.m_HeadSentient[1]; ; pEnemy = pEnemy->m_NextSentient)
+							{
+								if (!pEnemy)
+								{
+									return;
+								}
+								Vector vDist = pEnemy->centroid - pWOriginator->aim_target->origin;
+								if (vDist.lengthSquared() <= 2304 || vDist.lengthSquared() != 2304)
+								{
+									break;
+								}
+							}
+						}
+					}
+				}
 			}
 		}
+		if (!pEnemy)
+			return;
 	}
 	else
 	{
-		
+		if (!pEnemy)
+			return;
 	}
-	// FIXME: stub
-	STUB();
+
+	//v14 = &this->m_PotentialEnemies;
+	if (m_PotentialEnemies.CaresAboutPerfectInfo(pEnemy))
+	{
+		float fDist = sqrt(fDistSquared);
+		if (pOwner->m_Team == m_Team)
+		{
+			m_bEnemyIsDisguised = false;
+			if (pEnemy)
+			{
+				//v16 = fDist * 1.5;
+				if (DoesTheoreticPathExist(
+					pOwner->origin,
+					fDist * 1.5)
+					||
+					CanSee(
+						pEnemy,
+						0,
+						0.82800001 * world->farplane_distance))
+				{
+					m_PotentialEnemies.ConfirmEnemy(this, pEnemy);
+				}
+			}
+		}
+		else
+		{
+			if (pOwner->m_Team != m_Team)
+				m_PotentialEnemies.ConfirmEnemy(this, pOwner);
+			CuriousSound(iType, sound_origin, fDistSquared, fMaxDistSquared);
+		}
+	}
 }
 
 void Actor::FootstepSound
@@ -6263,7 +6345,7 @@ bool Actor::WithinVisionDistance
 {
 	float fRadius = world->m_fAIVisionDistance;
 
-	if( world->m_fAIVisionDistance == 0.0f )
+	if(fRadius == 0 )
 	{
 		fRadius = m_fSight;
 	}
@@ -6275,7 +6357,9 @@ bool Actor::WithinVisionDistance
 	if( ent )
 	{
 		Vector vDelta = ent->origin - origin;
-		return vDelta.lengthSquared() < fRadius;
+		//it's basically the same as vDelta.length() < fRadius,
+		//but this is faster because sqrt in vDelta.length() is slower than multiplication.
+		return vDelta.lengthSquared() < fRadius * fRadius;
 	}
 
 	return false;
@@ -8962,6 +9046,9 @@ void Actor::UpdateBoneControllers
 	)
 
 {
+	Vector torsoAngles, headAngles, LocalLookAngles;
+	float min_accel_change, max_accel_change, max_change, error, yawError, pitchError, torsoYawError, tolerable_error;
+
 	// FIXME: stub
 	STUB();
 }
@@ -10586,8 +10673,31 @@ void Actor::StrafeToAttack
 		ClearPath();
 		return;
 	}
-	// FIXME: stub
-	STUB();
+	vSpot = vDir;
+	vSpot *= fDist;
+
+	vDelta = m_vLastEnemyPos;
+	vDelta.z += m_Enemy->centroid.z - m_Enemy->origin.z;
+
+	if (!G_SightTrace(
+		EyePosition() + vSpot,
+		vec_zero,
+		vec_zero,
+		vDelta,
+		this,
+		m_Enemy,
+		//FIXME: macro
+		33819417,
+		qfalse,
+		"Actor::StrafeToAttack 1"))
+	{
+		SetPathWithLeash(vDestPos, "", 0);
+	}
+	else
+	{
+		ClearPath();
+
+	}
 }
 
 Vector Actor::GunTarget
@@ -10708,15 +10818,67 @@ Vector Actor::GunTarget
 			vRet.y += crandom() * scatterWide->value * scatterMult;
 			vRet.z += crandom() * scatterHeight->value * scatterMult;
 			
-			//continue here:
-			//if (player->GetVehicleTank())
+			if (player &&  player->GetVehicleTank())
 			{
+				vRet.z -= 128;
 			}
 		}
+		else
+		{
+			int sign;
+
+			if (random() > 0.5)
+				sign = 1;
+			else
+				sign = -1;
+			vRet.x = sign * 32 * (random() + 1);
+
+			if (random() > 0.5)
+				sign = 1;
+			else
+				sign = -1;
+			vRet.y = sign * 32 * (random() + 1);
+
+			if (random() > 0.5)
+				sign = 1;
+			else
+				sign = -1;
+			vRet.z = sign * 48 * (random() + 1);
+
+			vRet += mTargetPos;
+
+			if (player &&  player->GetVehicleTank())
+			{
+				vRet.z -= 128;
+			}
+		}
+		return vRet;
 	}
-	// FIXME: stub
-	STUB();
-	return vec_zero;
+
+	MPrintf("HIT\n");
+
+	if (player)
+	{
+		vRet = player->centroid;
+	}
+	else
+	{
+		vRet = mTargetPos;
+	}
+
+	if (m_Enemy)
+	{
+		if (!G_SightTrace(GunPosition(), vec_zero, vec_zero, vRet, this, m_Enemy, 33819417, qfalse, "Actor::GunTarget 1"))
+		{
+			vRet = EyePosition();
+		}
+	}
+
+	if (player &&  player->GetVehicleTank())
+	{
+		vRet.z -= 128;
+	}
+	return vRet;
 }
 
 qboolean Actor::setModel
@@ -11198,8 +11360,8 @@ void Actor::EventSetEnemyShareRange
 	)
 
 {
-	float dist = ev->GetFloat(1);
-	m_fMaxShareDistSquared = dist * dist;
+	float fRange = ev->GetFloat(1);
+	m_fMaxShareDistSquared = fRange * fRange;
 }
 
 void Actor::EventGetKickDir
@@ -11308,13 +11470,13 @@ void Actor::EventCalcGrenadeToss
 	vTarget = ev->GetVector(1);
 	if (DecideToThrowGrenade(vTarget, &m_vGrenadeVel, &m_eGrenadeMode))
 	{
-		if (m_eGrenadeMode == 2)
+		if (m_eGrenadeMode == AI_GREN_TOSS_ROLL)
 		{
 			ev->AddConstString(STRING_ANIM_GRENADETOSS_SCR);
 		}
 		else
 		{
-			if (m_eGrenadeMode > 2 ? m_eGrenadeMode == 3 : m_eGrenadeMode == 1)
+			if (m_eGrenadeMode > AI_GREN_TOSS_ROLL ? m_eGrenadeMode == AI_GREN_TOSS_HINT : m_eGrenadeMode == AI_GREN_TOSS_THROW)
 			{
 				ev->AddConstString(STRING_ANIM_GRENADETHROW_SCR);
 			}
@@ -12217,7 +12379,7 @@ bool Actor::EnemyIsDisguised
 	)
 
 {
-	return ( m_bEnemyIsDisguised || m_Enemy->m_bIsDisguised ) && ( !m_bForceAttackPlayer && m_ThinkState != 4 );
+	return ( m_bEnemyIsDisguised || m_Enemy->m_bIsDisguised ) && ( !m_bForceAttackPlayer && m_ThinkState != THINKSTATE_ATTACK );
 }
 
 void Actor::setOriginEvent
@@ -12260,7 +12422,7 @@ void Actor::setOriginEvent
 			{
 				Com_Printf(
 					"(entnum %d, radnum %d) is going not solid to not get stuck in the player\n", entnum, radnum);
-				m_bNoPlayerCollision = 1;
+				m_bNoPlayerCollision = true;
 				setSolidType(SOLID_NOT);
 			}
 		}
@@ -12274,7 +12436,7 @@ void Actor::setOriginEvent
 	if (bRejoin)
 	{
 		//FIXME: macro
-		JoinNearbySquads(1024);
+		JoinNearbySquads();
 	}
 }
 

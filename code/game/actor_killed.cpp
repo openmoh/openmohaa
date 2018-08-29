@@ -51,8 +51,16 @@ void Actor::Begin_Killed
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Event e1(EV_Actor_DeathEmbalm); // ebx
+
+	ClearPath();
+	ResetBoneControllers();
+
+	PostEvent(
+		e1,
+		0.05);
+	m_State = 700;
+	m_iStateTime = level.inttime;
 }
 
 void Actor::Think_Killed
@@ -61,8 +69,20 @@ void Actor::Think_Killed
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Unregister(STRING_ANIMDONE);
+	if (m_State == 700)
+	{
+		m_pszDebugState = "begin";
+		NoPoint();
+		m_bHasDesiredLookAngles = false;
+		m_YawAchieved = true;
+		Anim_Killed();
+		PostThink(false);
+	}
+	else
+	{
+		m_pszDebugState = "end";
+	}
 }
 
 void Actor::FinishedAnimation_Killed
@@ -71,6 +91,7 @@ void Actor::FinishedAnimation_Killed
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	BecomeCorpse();
+	m_State = 701;
+	m_iStateTime = level.inttime;
 }

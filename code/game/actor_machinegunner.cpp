@@ -53,8 +53,17 @@ void Actor::End_MachineGunner
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (!Sentient::GetWeapon(WEAPON_MAIN))
+		giveItem("models/weapons/mp40.tik");
+
+	Unholster();
+	if (m_pTurret)
+	{
+		if (m_pTurret->GetOwner() == this)
+		{
+			m_pTurret->TurretEndUsed();
+		}
+	}
 }
 void Actor::BecomeTurretGuy
 	(
@@ -98,8 +107,12 @@ void Actor::FinishedAnimation_MachineGunner
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (!m_bAnimScriptSet && m_State == 1201)
+	{
+		m_State = 1200;
+		m_iStateTime = level.inttime;
+		Unregister(STRING_ANIMDONE);
+	}
 }
 
 bool Actor::MachineGunner_CanSee

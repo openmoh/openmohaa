@@ -42,8 +42,7 @@ void Actor::Begin_Pain
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_PainState = 500;
 }
 
 void Actor::Think_Pain
@@ -52,8 +51,24 @@ void Actor::Think_Pain
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	NoPoint();
+
+	m_bHasDesiredLookAngles = false;
+
+	UpdateEyeOrigin();
+
+	if (m_PainState == 500)
+	{
+		m_pszDebugState = "initial";
+		Anim_StartPain();
+		m_PainState = 501;
+	}
+	else if (m_PainState == 501)
+	{
+		m_pszDebugState = "main";
+		Anim_Pain();
+	}
+	PostThink(false);
 }
 
 void Actor::FinishedAnimation_Pain
@@ -62,6 +77,6 @@ void Actor::FinishedAnimation_Pain
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_PainState != 500)
+		EndCurrentThinkState();
 }

@@ -40,9 +40,7 @@ bool Actor::IsNoClipState
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return false;
+	return state == THINKSTATE_NOCLIP;
 }
 
 void Actor::Think_NoClip

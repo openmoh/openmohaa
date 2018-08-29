@@ -252,6 +252,7 @@ typedef struct {
 #define THINKSTATE_CURIOUS			5
 #define THINKSTATE_DISGUISE			6
 #define THINKSTATE_GRENADE			7
+#define THINKSTATE_NOCLIP			8
 
 #define AI_EVENT_NONE				0
 #define AI_EVENT_WEAPON_FIRE		1

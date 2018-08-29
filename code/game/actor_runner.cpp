@@ -45,8 +45,10 @@ void Actor::Begin_Runner
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_csMood = STRING_NERVOUS;
+	m_csIdleMood = STRING_NERVOUS;
+	m_YawAchieved = true;
+	ClearPath();
 }
 
 void Actor::End_Runner
@@ -55,8 +57,7 @@ void Actor::End_Runner
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	parm.movefail = true;
 }
 
 void Actor::Resume_Runner
@@ -65,8 +66,7 @@ void Actor::Resume_Runner
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	;
 }
 
 void Actor::Think_Runner
@@ -75,8 +75,38 @@ void Actor::Think_Runner
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (RequireThink())
+	{
+		parm.movefail = false;
+
+		UpdateEyeOrigin();
+		NoPoint();
+		m_pszDebugState = "";
+
+		CheckForThinkStateTransition();
+
+		if (m_patrolCurrentNode)
+		{
+			if (!MoveToPatrolCurrentNode())
+			{
+				Unregister(STRING_MOVE);
+				PostThink(true);
+				return;
+			}
+		}
+		else
+		{
+			SetThinkIdle(8);
+			m_bScriptGoalValid = false;
+		}
+
+		parm.movedone = true;
+		Unregister(STRING_MOVEDONE);
+
+		Unregister(STRING_MOVE);
+		PostThink(true);
+		return;
+	}
 }
 
 void Actor::ShowInfo_Runner
@@ -85,6 +115,5 @@ void Actor::ShowInfo_Runner
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ShowInfo_PatrolCurrentNode();
 }

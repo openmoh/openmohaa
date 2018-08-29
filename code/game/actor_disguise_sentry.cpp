@@ -45,8 +45,61 @@ void Actor::Begin_DisguiseSentry
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	vec2_t vDelta;
+
+
+	m_csMood = STRING_BORED;
+	/*
+		useless assert
+	  if ( !dword_39AC34 )
+	  {
+		if ( !this->baseSimpleActor.baseSentient.m_Enemy._vptr$ )
+		{
+		  v15 = MyAssertHandler("m_Enemy", "fgame/actor_disguise_rover.cpp", 38, 1);
+		  if ( v15 < 0 )
+		  {
+			dword_39AC34 = 1;
+		  }
+		  else if ( v15 > 0 )
+		  {
+			__debugbreak();
+		  }
+		}
+	  }
+	 */
+
+	if (m_Enemy)
+	{
+		if ((EnemyIsDisguised() || m_Enemy->IsSubclassOfActor()) && !level.m_bAlarm)
+		{
+			VectorSub2D(m_Enemy->origin, origin, vDelta);
+
+			if (vDelta[0] != 0 || vDelta[1] != 0)
+			{
+				m_YawAchieved = false;
+				m_DesiredYaw = vectoyaw(vDelta);
+			}
+
+			SetDesiredLookDir(m_Enemy->origin - origin);
+
+			m_eNextAnimMode = 1;
+			m_csNextAnimString = STRING_ANIM_DISGUISE_WAIT_SCR;
+			m_bNextForceStart = false;
+
+			m_State = 1;
+
+			m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
+			m_iStateTime = level.inttime;
+		}
+		else
+		{
+			SetThinkState(4, 0);
+		}
+	}
+	else
+	{
+		SetThinkState(1, 0);
+	}
 }
 
 void Actor::End_DisguiseSentry
@@ -55,8 +108,7 @@ void Actor::End_DisguiseSentry
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_iNextDisguiseTime = level.inttime + (m_State ? m_iDisguisePeriod : 500);
 }
 
 void Actor::Resume_DisguiseSentry
@@ -65,8 +117,7 @@ void Actor::Resume_DisguiseSentry
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Begin_DisguiseSentry();
 }
 
 void Actor::Suspend_DisguiseSentry
@@ -75,8 +126,7 @@ void Actor::Suspend_DisguiseSentry
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	End_DisguiseSentry();
 }
 
 void Actor::Think_DisguiseSentry

@@ -45,8 +45,9 @@ void Actor::Begin_Patrol
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_csMood = STRING_BORED;
+	m_YawAchieved = true;
+	ClearPath();
 }
 
 void Actor::End_Patrol
@@ -65,8 +66,7 @@ void Actor::Resume_Patrol
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	parm.movefail = true;
 }
 
 void Actor::Think_Patrol
@@ -75,8 +75,40 @@ void Actor::Think_Patrol
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (Actor::RequireThink())
+	{
+		parm.movefail = false;
+
+		UpdateEyeOrigin();
+		NoPoint();
+
+		m_pszDebugState = "";
+		m_csPatrolCurrentAnim = STRING_ANIM_PATROL_SCR;
+
+		if (m_fLookAroundFov > 1.0)
+			LookAround(m_fLookAroundFov);
+
+		CheckForThinkStateTransition();
+		if (m_patrolCurrentNode)
+		{
+			if (!MoveToPatrolCurrentNode())
+			{
+				PostThink(true);
+				return;
+			}
+		}
+		else
+		{
+			SetThinkIdle(8);
+			m_bScriptGoalValid = false;
+		}
+		parm.movedone = true;
+
+		Unregister(STRING_MOVEDONE);
+
+		PostThink(true);
+		return;
+	}
 }
 
 void Actor::ShowInfo_Patrol
@@ -85,6 +117,5 @@ void Actor::ShowInfo_Patrol
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ShowInfo_PatrolCurrentNode();
 }

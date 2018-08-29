@@ -4529,6 +4529,21 @@ Vector Sentient::GetViewAngles
 	return angles;
 }
 
+VehicleTank	*Sentient::GetVehicleTank
+	(
+	void
+	)
+{
+	if (m_pVehicle && m_pVehicle->IsSubclassOfVehicleTank())
+	{
+		return (VehicleTank	*)m_pVehicle.Pointer();
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
 void Sentient::UpdateFootsteps
 	(
 	void
