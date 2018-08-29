@@ -500,8 +500,8 @@ void SimpleActor::SetDesiredYaw
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_YawAchieved = false;
+	m_DesiredYaw = yaw;
 }
 
 void SimpleActor::SetDesiredYawDir
@@ -510,8 +510,8 @@ void SimpleActor::SetDesiredYawDir
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_YawAchieved = false;
+	m_DesiredYaw = vectoyaw(vec);
 }
 
 void SimpleActor::SetDesiredYawDest

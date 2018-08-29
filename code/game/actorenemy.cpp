@@ -23,15 +23,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // actorenemy.cpp:
 
 #include "actorenemy.h"
+#include "world.h"
+#include "sentient.h"
+#include "actor.h"
 
 ActorEnemy::ActorEnemy()
 {
-
+	//no need
 }
 
 ActorEnemy::~ActorEnemy()
 {
-
+	//no need
 }
 
 float ActorEnemy::UpdateVisibility
@@ -42,7 +45,34 @@ float ActorEnemy::UpdateVisibility
 	)
 
 {
-	return 0;
+	float fLMRF, fFrameTime;
+
+	fFrameTime = level.time - m_fLastLookTime;
+
+	m_fLastLookTime = level.time;
+
+	fLMRF = UpdateLMRF(pSelf, pbInFovAndRange, pbVisible);
+	if (fLMRF < 8.0)
+	{
+		m_fVisibility += fFrameTime / fLMRF;
+	}
+	else
+	{
+		if (m_fVisibility < 1.0)
+		{
+			m_fVisibility -= fFrameTime * 0.25;
+			if (m_fVisibility < 0.0)
+				m_fVisibility = 0.0;
+		}
+	}
+
+	m_fTotalVisibility = m_fVisibility + GetEnemy()->m_fPlayerSightLevel;
+	if (m_fTotalVisibility > 1)
+	{
+		m_fVisibility = 1;
+		m_fTotalVisibility = 1;
+	}
+	return m_fTotalVisibility;
 }
 
 int ActorEnemy::UpdateThreat
@@ -51,6 +81,22 @@ int ActorEnemy::UpdateThreat
 	)
 
 {
+	static float fRangeThreatSquared[15];
+	static int iWeaponThreat[7][5];
+
+	m_iThreat = 0;
+	m_fCurrentRangeSquared = 1e38;
+
+	if (m_pEnemy->m_bIsDisguised || m_fTotalVisibility < 1)
+		return m_iThreat;
+
+	m_iThreat = 10000;
+	if (m_bVisible == true)
+		m_iThreat = 10500;
+
+
+	// FIXME: stub
+	STUB();
 	return NULL;
 }
 
@@ -60,9 +106,7 @@ Sentient *ActorEnemy::GetEnemy
 	) const
 
 {
-	// FIXME: stub
-	STUB();
-	return NULL;
+	return m_pEnemy;
 }
 
 float ActorEnemy::GetVisibility
@@ -71,9 +115,7 @@ float ActorEnemy::GetVisibility
 	) const
 
 {
-	// FIXME: stub
-	STUB();
-	return 0;
+	return m_fVisibility;
 }
 
 int ActorEnemy::GetThreat
@@ -82,9 +124,7 @@ int ActorEnemy::GetThreat
 	) const
 
 {
-	// FIXME: stub
-	STUB();
-	return 0;
+	return m_iThreat;
 }
 
 float ActorEnemy::GetRangeSquared
@@ -93,10 +133,80 @@ float ActorEnemy::GetRangeSquared
 	) const
 
 {
-	// FIXME: stub
-	STUB();
-	return 0;
+	return m_fCurrentRangeSquared;
 }
+
+float ActorEnemy::UpdateLMRF
+	(
+	Actor *pSelf,
+	bool *pbInFovAndRange,
+	bool *pbVisible
+	)
+{
+	//FIXME: variable names, I did my best
+	Vector vDelta;
+	float fFarPlane, fLMRF = 8, fMinSightTime, fFovScale, fForward, fNormalizedRange, fRangeScale, fRange, fMaxRange;
+	float fTmp1, fTmp2, fTmp3;
+
+	*pbInFovAndRange = false;
+	*pbVisible = false;
+
+	vDelta = pSelf->origin - GetEnemy()->origin;
+
+	fFarPlane = world->farplane_distance;
+	
+	fRange = pSelf->m_fSight;
+
+	if (fFarPlane > 0)
+	{
+		fRange = fFarPlane * 0.828;
+		if (pSelf->m_fSight <= fRange)
+			fRange = pSelf->m_fSight;
+	}
+
+
+	if (Square(fRange) < vDelta.lengthXY(true))
+	{
+		return fLMRF;
+	}
+
+	fForward = vDelta.lengthXY();
+
+	if (-DotProduct2D(vDelta, pSelf->m_vEyeDir) < 0)
+	{
+		return fLMRF;
+	}
+
+	fTmp2 = 128.0 - DotProduct2D(vDelta, pSelf->m_vEyeDir);
+	
+	if (fForward * pSelf->m_fFovDot > fTmp2)
+	{
+		return fLMRF;
+	}
+
+	*pbInFovAndRange = true;
+
+	if (!pSelf->CanSee(m_pEnemy, 0, 0))
+	{
+		return fLMRF;
+	}
+	
+	*pbVisible = true;
+	fTmp1 = fForward + 128.0;
+	*pbVisible = true;
+	fTmp3 = fTmp1 / fTmp2;
+	fRangeScale = fForward
+		/ fRange
+		* (((fForward / fRange * 16.0 + -16.0) * (fForward / fRange) + -1.0) * (fForward / fRange) + 7.0)
+		/ 3.0
+		* GetEnemy()->stealthMovementScale;
+	fFovScale = (1 / fTmp3 * -1.3 - (pSelf->m_fFovDot * 0.2 - 1.5)) / (1.0 - pSelf->m_fFovDot);
+	fLMRF = g_ai_noticescale->value * pSelf->m_fNoticeTimeScale * (fTmp3 * fRangeScale + fTmp3 * fRangeScale);
+	if (fFovScale > fLMRF)
+		fLMRF = fFovScale;
+	return fLMRF;
+}
+
 
 ActorEnemySet::ActorEnemySet()
 {

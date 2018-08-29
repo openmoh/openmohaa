@@ -116,6 +116,30 @@ void Actor::Think_Dog_Curious
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (RequireThink())
+	{
+		UpdateEyeOrigin();
+		m_pszDebugState = "Dog_Curious";
+
+		if (m_Enemy && !m_Enemy->IsSubclassOfActor())
+		{
+			vec2_t vDelta;
+			VectorSub2D(m_Enemy->origin, origin, vDelta);
+
+			if (vDelta[0] != 0 || vDelta[1] != 0)
+			{
+				m_YawAchieved = false;
+				m_DesiredYaw = vectoyaw(vDelta);
+			}
+
+			SetDesiredLookDir(m_Enemy->origin - origin);
+
+		}
+		m_bNextForceStart = false;
+		m_eNextAnimMode = 1;
+		m_csNextAnimString = STRING_ANIM_DOG_CURIOUS_SCR;
+
+		CheckForThinkStateTransition();
+		PostThink(false);
+	}
 }

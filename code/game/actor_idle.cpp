@@ -42,8 +42,8 @@ void Actor::Begin_Idle
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_csMood = m_csIdleMood;
+	ClearPath();
 }
 
 void Actor::Think_Idle
@@ -52,6 +52,11 @@ void Actor::Think_Idle
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (RequireThink())
+	{
+		UpdateEyeOrigin();
+		m_pszDebugState = "";
+		CheckForThinkStateTransition();
+		IdleThink();
+	}
 }

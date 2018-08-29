@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 #include "container.h"
 #include "animate.h"
+#include "vehicle.h"
 
 #define LOCATION_MISS				-2
 #define LOCATION_GENERAL			-1
@@ -341,7 +342,9 @@ class Sentient : public Animate
 
 		void				PutawayWeapon( Event *ev );
 		void				WeaponCommand( Event *ev );
-
+		
+		VehicleTank			*GetVehicleTank( void );
+		
 		void				UpdateFootsteps( void );
 
 		void					SetMaxMouthAngle( Event *ev );

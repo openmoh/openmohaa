@@ -44,8 +44,23 @@ void Actor::Begin_Weaponless
 	)
 
 {
-	// FIXME: stub
-	STUB();
+
+	DoForceActivate();
+
+	m_csMood = STRING_ALERT;
+	m_csIdleMood = STRING_NERVOUS;
+
+	if (level.inttime < m_iEnemyChangeTime + 200)
+	{
+		SetLeashHome(origin);
+		if (AttackEntryAnimation())
+		{
+			m_State = 902;
+			m_bLockThinkState = true;
+			m_iStateTime = level.inttime;
+		}
+	}
+	m_State = 900;
 }
 
 void Actor::Suspend_Weaponless
@@ -54,8 +69,12 @@ void Actor::Suspend_Weaponless
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_State <= 902)
+	{
+		m_State = 900;
+		m_iStateTime = level.inttime;
+	}
+
 }
 
 void Actor::Think_Weaponless
@@ -64,8 +83,65 @@ void Actor::Think_Weaponless
 	)
 
 {
-	// FIXME: stub
-	STUB();
+
+	if (RequireThink())
+	{
+		UpdateEyeOrigin();
+		NoPoint();
+		UpdateEnemy(500);
+
+
+		if (m_State == 902)
+		{
+			ContinueAnimation();
+		}
+		else
+		{
+			m_bLockThinkState = false;
+			if (!m_Enemy)
+			{
+				SetThinkState(1, 0);
+				IdleThink();
+				return;
+			}
+			if (m_State == 900)
+			{
+				State_Weaponless_Normal();
+			}
+			else if (m_State == 901)
+			{
+				GenericGrenadeTossThink();
+			}
+			else
+			{
+				Com_Printf("Think_Weaponless: invalid think state %i\n", m_State);
+				/* useless assert
+				if ( !dword_39ACFC )
+				{
+				  strcpy(v4, "\"invalid think state\"\n\tMessage: ");
+				  memset(&s, 0, 0x3FDFu);
+				  v2 = DumpCallTrace(
+						 "thinkstate = %i",
+						 m_State);
+				  Q_strcat(v4, 0x4000, v2);
+				  v3 = MyAssertHandler(v4, "fgame/actor_weaponless.cpp", 155, 0);
+				  if ( v3 < 0 )
+				  {
+					dword_39ACFC = 1;
+				  }
+				  else if ( v3 > 0 )
+				  {
+					__debugbreak();
+				  }
+				}
+				*/
+			}
+			CheckForTransition(7, 0);
+		}
+		PostThink(true);
+		if (GetWeapon(WEAPON_MAIN))
+			SetThink(4, 1);
+	}
 }
 
 void Actor::FinishedAnimation_Weaponless
@@ -74,8 +150,11 @@ void Actor::FinishedAnimation_Weaponless
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_State <= 902)
+	{
+		m_State = 900;
+		m_iStateTime = level.inttime + 4000;
+	}
 }
 
 void Actor::State_Weaponless_Normal
@@ -84,6 +163,45 @@ void Actor::State_Weaponless_Normal
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int iStateTime;
+	if (m_bScriptGoalValid)
+		SetPath(
+			m_vScriptGoal,
+			"",
+			0,
+			NULL,
+			0); 
+	if (PathExists() && !PathComplete())
+	{
+		FaceMotion();
+		Anim_RunToDanger(3);
+	}
+	else
+	{
+		m_bScriptGoalValid = false;
+
+		AimAtAimNode();
+		
+		Anim_Stand();
+		if (level.inttime >= this->m_iStateTime)
+		{
+			if (DecideToThrowGrenade(m_Enemy->velocity + m_Enemy->origin, &m_vGrenadeVel, &m_eGrenadeMode))
+			{
+				m_YawAchieved = false;
+				m_DesiredYaw = vectoyaw(m_vGrenadeVel);
+
+				m_State = 901;
+				m_eNextAnimMode = 1;
+				m_bNextForceStart = false;
+				m_csNextAnimString = (m_eGrenadeMode == AI_GREN_TOSS_ROLL) ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
+				iStateTime = level.inttime;
+			}
+			else
+			{
+				m_State = 900;
+				iStateTime = level.inttime + 1000;
+			}
+			m_iStateTime = iStateTime;
+		}
+	}
 }
