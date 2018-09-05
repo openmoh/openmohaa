@@ -2536,6 +2536,8 @@ const_str Actor::m_csThinkStateNames[ MAX_THINKMAP ] = {
 	STRING_NOCLIP
 };
 
+SafePtr< Actor > Actor::mBodyQueue[MAX_BODYQUEUE];
+int Actor::mCurBody;
 Actor::Actor()
 {
 	entflags |= EF_ACTOR;
