@@ -1095,7 +1095,7 @@ void Level::CleanUp( qboolean samemap, qboolean resetConfigStrings )
 	// Reset the boss health cvar
 	gi.Cvar_Set( "bosshealth", "0" );
 
-	// FIXME: Actor::ResetBodyQueue();
+	Actor::ResetBodyQueue();
 
 	if( world ) {
 		world->FreeTargetList();

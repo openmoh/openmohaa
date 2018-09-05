@@ -92,12 +92,12 @@ void Actor::Begin_DisguiseRover
 		}
 		else
 		{
-			SetThinkState(4, 0);
+			SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
 		}
 	}
 	else
 	{
-		SetThinkState(1, 0);
+		SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 	}
 }
 
@@ -134,6 +134,81 @@ void Actor::Think_DisguiseRover
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (!RequireThink())
+	{
+		return;
+	}
+	UpdateEyeOrigin();
+	NoPoint();
+	ContinueAnimation();
+	UpdateEnemy(1500);
+
+	assert(m_Enemy != NULL);
+
+	if (!m_Enemy)
+	{
+		SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+		return;
+	}
+
+	if (!EnemyIsDisguised() && !m_Enemy->IsSubclassOfActor() && m_State != 3)
+	{
+		m_State = 3;
+		m_iStateTime = level.inttime;
+	}
+
+	if (level.m_bAlarm)
+	{
+		SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+		return;
+	}
+	
+	{
+		vec2_t facedir;
+		facedir[0] = m_Enemy->origin[0] - origin[0];
+		facedir[1] = m_Enemy->origin[1] - origin[1];
+		if (facedir[0] != 0 || facedir[1] != 0)
+		{
+			m_YawAchieved = false;
+			m_DesiredYaw = vectoyaw(facedir);
+		}
+
+	}
+	
+	SetDesiredLookDir(m_Enemy->origin - origin);
+
+	if (m_State == 2)
+	{
+		m_pszDebugState = "accept";
+		State_Disguise_Accept();
+	}
+	else if(m_State > 2)
+	{
+		if (m_State == 3)
+		{
+			m_pszDebugState = "enemy";
+			State_Disguise_Enemy();
+		}
+		else if (m_State == 4)
+		{
+			m_pszDebugState = "halt";
+			State_Disguise_Halt();
+		}
+		else
+		{
+			assert(!"invalid think state");
+		}
+	}
+	else if (m_State == 1)
+	{
+		m_pszDebugState = "papers";
+		State_Disguise_Papers();
+	}
+	else
+	{
+		assert(!"invalid think state");
+	}
+
+	CheckForTransition(THINKSTATE_GRENADE, 0);
+	PostThink(true);
 }

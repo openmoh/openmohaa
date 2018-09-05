@@ -141,6 +141,14 @@ SimpleEntity *G_FindRandomSimpleTarget(
 	const char *name
 );
 
+/* G_FindRandomSimpleTarget
+*
+* Find a random entity with the specified targetname.
+*/
+Entity *G_FindRandomTarget(
+	const char *name
+);
+
 /* G_GetClientNumber
 *
 * Gets the specified client number from an entity.

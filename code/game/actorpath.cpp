@@ -63,7 +63,7 @@ bool ActorPath::DoesTheoreticPathExist
 	float maxPath,
 	float *vLeashHome,
 	float fLeashDistSquared
-	) const
+	)
 
 {
 	return PathSearch::FindPath( start, end, ent, maxPath, NULL, 0, m_FallHeight ) != 0;

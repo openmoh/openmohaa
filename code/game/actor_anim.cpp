@@ -96,7 +96,7 @@ void Actor::FinishedAnimation_Anim
 		if (m_bNoIdleAfterAnim)
 			m_csAnimScript = STRING_ANIM_CONTINUE_LAST_ANIM_SCR;
 		else
-			SetThinkIdle(8);
+			SetThinkIdle(THINK_IDLE);
 		Unregister(STRING_ANIMDONE);
 	}
 }

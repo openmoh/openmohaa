@@ -49,6 +49,74 @@ void Actor::Think_NoClip
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//FIXME: not sure of naming
+	bool done = false;
+	Vector newOrigin = vec_zero;
+	Vector total_offset;
+	Vector total_offset_unit;
+	float total_dist;
+	vec3_t frame_offset;
+	float frame_dist;
+
+	m_pszDebugState = "";
+
+	if (m_eNextAnimMode < 0)
+	{
+		m_bNextForceStart = false;
+		m_csNextAnimString = NULL;
+
+		m_eNextAnimMode = m_eAnimMode;
+
+
+		m_NextAnimLabel = m_Anim;
+	}
+
+	CheckUnregister();
+	UpdateAngles();
+	UpdateAnim();
+
+	total_offset = m_NoClipDest - origin;
+	total_dist = VectorNormalize2(total_offset, total_offset_unit);
+
+	frame_dist = level.frametime * m_maxspeed;
+
+	if (frame_dist >= frame_delta.lengthSquared())
+	{
+		frame_dist = frame_delta.lengthSquared();
+	}
+
+	if (frame_dist < total_dist)
+	{
+		newOrigin = total_offset_unit * frame_dist + origin;
+
+	}
+	else
+	{
+		done = true;
+		newOrigin = m_NoClipDest;
+	}
+
+	SafeSetOrigin(newOrigin);
+	
+	velocity = total_offset_unit / level.frametime;
+
+	if (velocity.lengthSquared() < 1)
+	{
+		done = true;
+		velocity = vec_zero;
+	}
+	groundentity = NULL;
+
+	if (done)
+	{
+		Com_Printf(
+			"(entnum %d, radnum %d) failsafe finished\n",
+			entnum,
+			radnum);
+		EndCurrentThinkState();
+	}
+
+	UpdateBoneControllers();
+	UpdateFootsteps();
+
 }

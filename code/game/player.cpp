@@ -7206,7 +7206,7 @@ void Player::Think
 				{
 					Actor *act = ( Actor * )pSent;
 
-					if( pSent->m_Enemy == this && act->m_ThinkStates[ 0 ] == THINKSTATE_ATTACK )
+					if( pSent->m_Enemy == this && act->IsAttacking())
 					{
 						m_bIsDisguised = false;
 						break;

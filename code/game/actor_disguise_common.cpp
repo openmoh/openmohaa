@@ -66,7 +66,7 @@ void Actor::State_Disguise_Wait
 			}
 			else
 			{
-				SetThinkState(1, 0);
+				SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 			}
 		}
 	}
@@ -85,7 +85,7 @@ void Actor::State_Disguise_Papers
 	m_bNextForceStart = false;
 	if (m_iEnemyShowPapersTime < m_Enemy->m_ShowPapersTime)
 	{
-		if (level.m_iPapersLevel < this->m_iDisguiseLevel)
+		if (level.m_iPapersLevel < m_iDisguiseLevel)
 		{
 			m_State = 5;
 		}
@@ -158,7 +158,7 @@ void Actor::State_Disguise_Enemy
 
 	if (level.inttime > m_iStateTime + 3000 && !m_Enemy->IsSubclassOfActor())
 	{
-		SetThinkState(4, 0);
+		SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
 	}
 }
 
@@ -174,7 +174,7 @@ void Actor::State_Disguise_Halt
 
 	if (level.inttime > m_iStateTime + 1500 && !m_Enemy->IsSubclassOfActor())
 	{
-		SetThinkState(4, 0);
+		SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
 	}
 }
 
@@ -190,8 +190,8 @@ void Actor::State_Disguise_Accept
 
 	if (level.inttime > m_iStateTime + 3000 )
 	{
-		SetThinkState(1, 0);
-		SetThink(6, 10);
+		SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+		SetThink(THINKSTATE_DISGUISE, THINK_DISGUISE_SALUTE);
 	}
 }
 
@@ -207,6 +207,6 @@ void Actor::State_Disguise_Deny
 
 	if (level.inttime > m_iStateTime + 3000)
 	{
-		SetThinkState(1, 0);
+		SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 	}
 }

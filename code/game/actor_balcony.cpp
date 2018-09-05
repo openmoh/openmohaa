@@ -122,7 +122,7 @@ void Actor::Pain_Balcony
 	)
 
 {
-	SetThink( THINKSTATE_PAIN, 30 );
+	SetThink( THINKSTATE_PAIN, THINK_BALCONY_PAIN);
 	HandlePain( ev );
 }
 
@@ -134,7 +134,7 @@ void Actor::Killed_Balcony
 
 {
 	ClearStates();
-	SetThink( THINKSTATE_KILLED, 31 );
+	SetThink( THINKSTATE_KILLED, THINK_BALCONY_KILLED);
 	HandleKilled( ev, true );
 
 	if( !bPlayDeathAnim )
@@ -229,7 +229,7 @@ void Actor::Think_BalconyAttack
 
 	if( !m_Enemy )
 	{
-		SetThinkState( THINKSTATE_IDLE, 0 );
+		SetThinkState( THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 		IdleThink();
 		return;
 	}
@@ -246,7 +246,7 @@ void Actor::Think_BalconyAttack
 		m_pszDebugState = "shoot";
 		State_Balcony_Shoot();
 	}
-	else if( m_State = 200 )
+	else if( m_State == 200 )
 	{
 		m_pszDebugState = "findenemy";
 		State_Balcony_FindEnemy();
@@ -266,7 +266,7 @@ void Actor::FinishedAnimation_BalconyAttack
 	)
 
 {
-	if( m_State = 202 )
+	if( m_State == 202 )
 		State_Balcony_PostShoot();
 }
 
@@ -312,7 +312,7 @@ void Actor::Think_BalconyKilled
 
 	Unregister( STRING_ANIMDONE );
 
-	if( m_State = 805 )
+	if( m_State == 805 )
 	{
 		m_pszDebugState = "end";
 	}
@@ -328,7 +328,7 @@ void Actor::Think_BalconyKilled
 			m_bNextForceStart = true;
 			m_eNextAnimMode = 7;
 			m_pszDebugState = "begin";
-			m_csNextAnimString = 270;
+			m_csNextAnimString = STRING_ANIM_NO_KILLED_SCR;
 			ChangeMotionAnim();
 			animnum = gi.Anim_NumForName( edict->tiki, "death_balcony_intro" );
 			NewAnim( animnum );
@@ -354,6 +354,7 @@ void Actor::Think_BalconyKilled
 		case 804:
 			m_pszDebugState = "outtro";
 			Anim_FullBody( STRING_DEATH_BALCONY_OUTTRO, 1 );
+			break;
 		case 806:
 			m_pszDebugState = "normal";
 			Anim_Killed();
@@ -367,25 +368,22 @@ void Actor::Think_BalconyKilled
 
 		if( m_State >= 800 )
 		{
-			if( m_State <= 801 )
+			if( m_State == 801 )
 			{
 				if( m_pFallPath->currentPos >= m_pFallPath->length )
 				{
 					m_State = 803;
 					m_iStateTime = level.inttime;
-					return;
 				}
-
-				if( m_pFallPath->currentPos >= m_pFallPath->loop )
+				else if (m_pFallPath->currentPos >= m_pFallPath->loop)
 				{
 					m_State = 802;
 					m_iStateTime = level.inttime;
-					return;
 				}
 			}
-			else
+			else if( m_State == 802 )
 			{
-				if( m_State == 802 && m_pFallPath->currentPos >= m_pFallPath->length )
+				if (m_pFallPath->currentPos >= m_pFallPath->length)
 				{
 					m_State = 803;
 					m_iStateTime = level.inttime;

@@ -135,7 +135,7 @@ void Actor::State_Alarm_Idle
 
 {
 	AimAtAimNode();
-	SetThink( 4, THINKSTATE_IDLE );
+	SetThink(THINKSTATE_ATTACK, THINK_TURRET);
 }
 
 void Actor::Think_Alarm

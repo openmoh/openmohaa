@@ -161,7 +161,7 @@ void Actor::State_Cover_FindCover
 	{
 		if( !m_iPotentialCoverCount )
 		{
-			SetThink( THINKSTATE_ATTACK, 1 );
+			SetThink( THINKSTATE_ATTACK, THINK_TURRET );
 		}
 	}
 }
@@ -490,7 +490,7 @@ void Actor::State_Cover_Shoot
 	if( level.inttime > m_iStateTime + 10000 )
 	{
 		gi.Cvar_Set( "g_monitornum", va( "%i", entnum ) );
-		assert( "!anim/shoot.scr took over 10 seconds" );
+		assert( !"anim/shoot.scr took over 10 seconds" );
 		Com_Error( ERR_DROP, "anim/shoot.scr took over 10 seconds, entnum = %i, targetname = %s", entnum, targetname.c_str() );
 	}
 }
@@ -577,7 +577,7 @@ __setpath:
 		else
 		{
 			m_bTurretNoInitialCover = true;
-			SetThink( THINKSTATE_ATTACK, 1 );
+			SetThink( THINKSTATE_ATTACK, THINK_TURRET );
 		}
 
 		return;
@@ -679,7 +679,7 @@ void Actor::State_Cover_FakeEnemy
 
 	if( level.inttime >= m_iStateTime )
 	{
-		SetThinkState( THINKSTATE_IDLE, 0 );
+		SetThinkState( THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 	}
 }
 

@@ -93,12 +93,12 @@ void Actor::Begin_DisguiseSentry
 		}
 		else
 		{
-			SetThinkState(4, 0);
+			SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
 		}
 	}
 	else
 	{
-		SetThinkState(1, 0);
+		SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 	}
 }
 
@@ -135,6 +135,80 @@ void Actor::Think_DisguiseSentry
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (RequireThink())
+	{
+		UpdateEyeOrigin();
+		NoPoint();
+		ContinueAnimation();
+		UpdateEnemy(1500);
+
+		assert(m_Enemy != NULL);
+
+		if (!m_Enemy)
+		{
+			SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+			return;
+		}
+		if (!EnemyIsDisguised() && !m_Enemy->IsSubclassOfActor() && m_State != 3)
+		{
+			m_State = 3;
+			m_iStateTime = level.inttime;
+		}
+
+		if (level.m_bAlarm)
+		{
+			SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+		}
+		else
+		{
+
+			{
+				vec2_t facedir;
+				facedir[0] = m_Enemy->origin[0] - origin[0];
+				facedir[1] = m_Enemy->origin[1] - origin[1];
+				if (facedir[0] != 0 || facedir[1] != 0)
+				{
+					m_YawAchieved = false;
+					m_DesiredYaw = vectoyaw(facedir);
+				}
+
+			}
+
+			SetDesiredLookDir(m_Enemy->origin - origin);
+
+			switch (m_State)
+			{
+			case 0:
+				m_pszDebugState = "wait";
+				State_Disguise_Wait();
+				break;
+			case 1:
+				m_pszDebugState = "papers";
+				State_Disguise_Papers();
+				break;
+			case 2:
+				m_pszDebugState = "accept";
+				State_Disguise_Accept();
+				break;
+			case 3:
+				m_pszDebugState = "enemy";
+				State_Disguise_Enemy();
+				break;
+			case 4:
+				m_pszDebugState = "halt";
+				State_Disguise_Halt();
+				break;
+			case 5:
+				m_pszDebugState = "deny";
+				State_Disguise_Deny();
+				break;
+			default:
+				Com_Printf("Actor::Think_DisguiseSentry: invalid think state %i\n", m_State);
+				assert(!"invalid think state");
+				break;
+			}
+			CheckForTransition(THINKSTATE_GRENADE, 0);
+			PostThink(true);
+		}
+	}
 }
