@@ -252,7 +252,8 @@ typedef struct skelHeaderGame_s {
 
 typedef struct boneData_s {
 	short int channel;
-	enum boneType_e boneType;
+	//enum boneType_e boneType;
+	enum boneType;
 	short int parent;
 	short int numChannels;
 	short int numRefs;

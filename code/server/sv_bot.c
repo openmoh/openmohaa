@@ -306,7 +306,9 @@ void *BotImport_HunkAlloc( int size ) {
 	if( Hunk_CheckMark() ) {
 		Com_Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set\n" );
 	}
-	return Hunk_Alloc( size, h_high );
+	//error code was:
+	//return Hunk_Alloc( size, h_high );
+	return Hunk_Alloc( size );
 }
 
 /*
@@ -540,7 +542,7 @@ void SV_BotInitBotLib(void) {
 
 	// file system access
 	botlib_import.FS_FOpenFile = FS_FOpenFileByMode;
-	botlib_import.FS_Read = FS_Read2;
+	botlib_import.FS_Read = FS_Read;// was FS_Read2 somehow
 	botlib_import.FS_Write = FS_Write;
 	botlib_import.FS_FCloseFile = FS_FCloseFile;
 	botlib_import.FS_Seek = FS_Seek;

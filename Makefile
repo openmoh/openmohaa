@@ -1063,7 +1063,7 @@ Q3OBJ = \
   $(B)/client/cm_trace.o \
   \
   $(B)/client/cmd.o \
-  $(B)/client/common.o \
+#  $(B)/client/common.o \
   $(B)/client/cvar.o \
   $(B)/client/files.o \
   $(B)/client/md4.o \
@@ -1292,7 +1292,7 @@ Q3DOBJ = \
   $(B)/ded/cm_test.o \
   $(B)/ded/cm_trace.o \
   $(B)/ded/cmd.o \
-  $(B)/ded/common.o \
+#  $(B)/ded/common.o \
   $(B)/ded/cvar.o \
   $(B)/ded/files.o \
   $(B)/ded/md4.o \

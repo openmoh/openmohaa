@@ -341,6 +341,11 @@ MATHLIB
 ==============================================================
 */
 
+typedef enum {
+	h_high,
+	h_low,
+	h_dontcare
+} ha_pref;
 
 typedef float vec_t;
 typedef vec_t vec2_t[2];

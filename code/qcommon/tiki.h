@@ -114,7 +114,7 @@ typedef struct {
 
 typedef struct dloaddef_s dloaddef_t;
 
-#include <tiki_script.h>
+#include "tiki_script.h"
 
 #ifdef __cplusplus
 
