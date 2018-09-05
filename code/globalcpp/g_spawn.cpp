@@ -422,10 +422,11 @@ Listener *SpawnArgs::SpawnInternal( void )
 		}
 	}
 
-	if( g_spawnai->integer )
+	if( !g_spawnai->integer )
 	{
 		value = getArg( "classname", NULL );
 
+		//dont spawn ai_* if g_spawnai is 0
 		if( value )
 		{
 			if( !Q_stricmpn( value, "ai_", 3 ) )

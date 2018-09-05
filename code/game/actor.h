@@ -62,9 +62,9 @@ extern Event EV_Actor_DeathEmbalm;
 
 // Bones used by actor
 
-#define ACTOR_MOUTH_TAG  0
-#define ACTOR_HEAD_TAG   1
-#define ACTOR_TORSO_TAG  2
+//#define ACTOR_MOUTH_TAG  0
+#define ACTOR_HEAD_TAG   0
+#define ACTOR_TORSO_TAG  1
 
 // Dialog stuff
 
@@ -90,25 +90,25 @@ typedef struct
 } DialogParm_t;
 
 typedef struct DialogNode_s
-   {
-	char alias_name[ MAX_ALIAS_NAME_LENGTH ];
+{
+	char alias_name[MAX_ALIAS_NAME_LENGTH];
 	int random_flag;
 	int number_of_parms;
 	float random_percent;
-	DialogParm_t parms[ MAX_DIALOG_PARMS ];
-   struct DialogNode_s *next;
-   } DialogNode_t;
+	DialogParm_t parms[MAX_DIALOG_PARMS];
+	struct DialogNode_s *next;
+} DialogNode_t;
 
 typedef enum
-	{
-   IS_INANIMATE,
+{
+	IS_INANIMATE,
 	IS_MONSTER,
 	IS_ENEMY,
 	IS_CIVILIAN,
 	IS_FRIEND,
-   IS_ANIMAL,
+	IS_ANIMAL,
 	NUM_ACTORTYPES
-	} actortype_t;
+} actortype_t;
 
 // Stimuli types
 
@@ -236,6 +236,20 @@ typedef enum
 	AI_GREN_KICK
 } eGrenadeTossMode;
 
+typedef enum
+{
+	AI_GRENSTATE_FLEE,
+	AI_GRENSTATE_THROW_ACQUIRE,
+	AI_GRENSTATE_THROW,
+	AI_GRENSTATE_KICK_ACQUIRE,
+	AI_GRENSTATE_KICK,
+	AI_GRENSTATE_MARTYR_ACQUIRE,
+	AI_GRENSTATE_MARTYR,
+	AI_GRENSTATE_UNK,
+	AI_GRENSTATE_FLEE_SUCCESS, //fled the grenade succesfully, i'm safe
+	AI_GRENSTATE_FLEE_FAIL, //failed to flee, I'm gonna get hurt or die :'(
+} eGrenadeState;
+
 typedef struct {
 	byte length;
 	byte currentPos;
@@ -244,7 +258,7 @@ typedef struct {
 	vec3_t pos[ 1 ];
 } FallPath;
 
-#define THINKSTATE_NONE				0
+#define THINKSTATE_VOID				0
 #define THINKSTATE_IDLE				1
 #define THINKSTATE_PAIN				2
 #define THINKSTATE_KILLED			3
@@ -266,6 +280,53 @@ typedef struct {
 #define AI_EVENT_MISC_LOUD			9
 #define AI_EVENT_FOOTSTEP			10
 #define AI_EVENT_GRENADE			11
+
+enum  thinkNums 
+{
+	THINK_VOID,
+	THINK_TURRET,
+	THINK_COVER,
+	THINK_PATROL,
+	THINK_RUNNER,
+	THINK_PAIN,
+	THINK_KILLED,
+	THINK_MOVETO,
+	THINK_IDLE,
+	THINK_CURIOUS,
+	THINK_DISGUISE_SALUTE,
+	THINK_DISGUISE_SENTRY,
+	THINK_DISGUISE_OFFICER,
+	THINK_DISGUISE_ROVER,
+	THINK_DISGUISE_NONE,
+	THINK_ALARM,
+	THINK_GRENADE,
+	THINK_MACHINEGUNNER,
+	THINK_DOG_IDLE,
+	THINK_DOG_ATTACK,
+	THINK_DOG_CURIOUS,
+	THINK_DOG_GRENADE,
+	THINK_ANIM,
+	THINK_ANIM_CURIOUS,
+	THINK_AIM,
+	THINK_BALCONY_IDLE,
+	THINK_BALCONY_CURIOUS,
+	THINK_BALCONY_ATTACK,
+	THINK_BALCONY_DISGUISE,
+	THINK_BALCONY_GRENADE,
+	THINK_BALCONY_PAIN,
+	THINK_BALCONY_KILLED,
+	THINK_WEAPONLESS,
+	THINK_NOCLIP,
+	THINK_DEAD
+};
+
+enum thinkLevelNums
+{
+	THINKLEVEL_NORMAL,
+	THINKLEVEL_PAIN,
+	THINKLEVEL_KILLED,
+	THINKLEVEL_NOCLIP
+};
 
 class Actor;
 typedef SafePtr<Actor> ActorPtr;
@@ -392,7 +453,7 @@ public:
 	SafePtr<Entity> m_pGrenade;
 	Vector m_vGrenadePos;
 	int m_iFirstGrenadeTime;
-	int m_eGrenadeState;
+	eGrenadeState m_eGrenadeState;
 	eGrenadeTossMode m_eGrenadeMode;
 	Vector m_vGrenadeVel;
 	Vector m_vKickDir;
@@ -467,7 +528,7 @@ protected:
 public:
 	Actor();
 	
-	virtual void setContentsSolid( void );
+	virtual void setContentsSolid( void ) override;
 	void InitThinkStates( void );
 	void UpdateEyeOrigin( void );
 	bool RequireThink( void );
@@ -479,7 +540,7 @@ public:
 	void AddToBodyQue( void );
 	Vector GetAntiBunchPoint( void );
 	static void InitVoid( GlobalFuncs_t *func );
-	virtual const char *DumpCallTrace( const char *pszFmt, ... ) const;
+	virtual const char *DumpCallTrace( const char *pszFmt, ... ) const override;
 	static void Init( void );
 	void FixAIParameters( void );
 	bool AttackEntryAnimation( void );
@@ -595,7 +656,7 @@ public:
 	void Grenade_EventFire( Event *ev );
 	void GenericGrenadeTossThink( void );
 	static void InitGrenade( GlobalFuncs_t *func );
-	bool Grenade_Acquire( int eNextState, const_str csReturnAnim );
+	bool Grenade_Acquire( eGrenadeState eNextState, const_str csReturnAnim );
 	void Grenade_Flee( void );
 	void Grenade_ThrowAcquire( void );
 	void Grenade_Throw( void );
@@ -1202,7 +1263,7 @@ inline void Actor::Archive
 	arc.ArchiveSafePointer( &m_pGrenade);
 	arc.ArchiveVector( &m_vGrenadePos);
 	arc.ArchiveInteger( &m_iFirstGrenadeTime);
-	arc.ArchiveInteger( &m_eGrenadeState);
+	ArchiveEnum( m_eGrenadeState, eGrenadeState );
 	ArchiveEnum( m_eGrenadeMode, eGrenadeTossMode );
 	arc.ArchiveVector( &m_vGrenadeVel);
 	arc.ArchiveVector( &m_vKickDir);

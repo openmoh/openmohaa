@@ -464,21 +464,50 @@ SimpleEntity *G_FindTarget( SimpleEntity *ent, const char *name )
 
 SimpleEntity *G_FindRandomSimpleTarget( const char *name )
 {
-	SimpleEntity *found = NULL, *ent = NULL;
+	SimpleEntity *found = NULL, *ent = world;
+	int nFound = 0;
+
 	if (name && *name)
 	{
-		while (1)
+		while (true)
 		{
 			ent = world->GetNextEntity(name, ent);
 			if (!ent)
 			{
 				break;
 			}
-			rand();
-			found = ent;
+
+			if (++nFound * rand() <= 0x7FFF)
+			{
+				found = ent;
+			}
 		}
 	}
 	return found;
+}
+
+Entity *G_FindRandomTarget( const char *name )
+{
+	SimpleEntity *found = NULL, *ent = world;
+	int nFound = 0;
+
+	if (name && *name)
+	{
+		while (true)
+		{
+			ent = world->GetNextEntity(name, ent);
+			if (!ent)
+			{
+				break;
+			}
+
+			if (ent->IsSubclassOfEntity() && ++nFound * rand() <= 0x7FFF)
+			{
+				found = ent;
+			}
+		}
+	}
+	return (Entity *)found;
 }
 
 void G_TouchTriggers( Entity *ent )

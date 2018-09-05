@@ -94,12 +94,12 @@ void Actor::Begin_DisguiseSalute
 		}
 		else
 		{
-			SetThinkState(4, 0);
+			SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
 		}
 	}
 	else
 	{
-		SetThinkState(1, 0);
+		SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 	}
 }
 
@@ -136,8 +136,39 @@ void Actor::Think_DisguiseSalute
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	NoPoint();
+	ContinueAnimation();
+	UpdateEnemy(2000);
+
+	assert(m_Enemy != NULL);
+
+	if (m_Enemy)
+	{
+		if (!EnemyIsDisguised() && !m_Enemy->IsSubclassOfActor() && level.m_bAlarm)
+		{
+			{
+				vec2_t facedir;
+				facedir[0] = m_Enemy->origin[0] - origin[0];
+				facedir[1] = m_Enemy->origin[1] - origin[1];
+				if (facedir[0] != 0 || facedir[1] != 0)
+				{
+					SetDesiredYawDir(facedir);
+				}
+
+			}
+			SetDesiredLookDir(m_Enemy->origin - origin);
+
+			PostThink(true);
+		}
+		else
+		{
+			SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+		}
+	}
+	else
+	{
+		SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+	}
 }
 
 void Actor::FinishedAnimation_DisguiseSalute
@@ -146,5 +177,5 @@ void Actor::FinishedAnimation_DisguiseSalute
 	)
 
 {
-	SetThinkState(1, 0);
+	SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 }

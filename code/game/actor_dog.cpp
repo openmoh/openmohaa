@@ -78,6 +78,7 @@ void Actor::End_Dog
 	)
 
 {
+	;
 }
 
 void Actor::Think_Dog_Idle
@@ -106,8 +107,72 @@ void Actor::Think_Dog_Attack
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (!RequireThink())
+	{
+		return;
+	}
+
+	UpdateEyeOrigin();
+	m_pszDebugState = "Dog_Attack";
+
+	if (m_Enemy && !(m_Enemy->IsSubclassOfActor()))
+	{
+
+		SetPath(m_Enemy->origin, "", 0, NULL, 0.0);
+		if (PathExists())
+		{
+			vec2_t delta;
+			VectorSub2D(m_Enemy->origin, origin, delta);
+
+			if (VectorLength2DSquared(delta) >= 8000)
+			{
+				FaceMotion();
+				m_csNextAnimString = STRING_ANIM_DOG_CHASE_SCR;
+				m_eNextAnimMode = 2;
+			}
+			else
+			{
+				{
+					vec2_t facedir;
+					facedir[0] = m_Enemy->origin[0] - origin[0];
+					facedir[1] = m_Enemy->origin[1] - origin[1];
+					if (facedir[0] != 0 || facedir[1] != 0)
+					{
+						m_YawAchieved = false;
+						m_DesiredYaw = vectoyaw(facedir);
+					}
+
+				}
+				SetDesiredLookDir(m_Enemy->origin - origin);
+				m_eNextAnimMode = 1;
+				m_csNextAnimString = STRING_ANIM_DOG_ATTACK_SCR;
+			}
+			m_bNextForceStart = false;
+			CheckForThinkStateTransition();
+			PostThink(false);
+			return;
+		}
+
+		{
+			vec2_t facedir;
+			facedir[0] = m_Enemy->origin[0] - origin[0];
+			facedir[1] = m_Enemy->origin[1] - origin[1];
+			if (facedir[0] != 0 || facedir[1] != 0)
+			{
+				SetDesiredYawDir(facedir);
+			}
+
+		}
+		SetDesiredLookDir(m_Enemy->origin - origin);
+	}
+	m_bNextForceStart = false;
+	m_eNextAnimMode = 1;
+	m_csNextAnimString = STRING_ANIM_DOG_CURIOUS_SCR;
+	m_State = 20;
+	m_iStateTime = level.inttime;
+
+	CheckForThinkStateTransition();
+	PostThink(false);
 }
 
 void Actor::Think_Dog_Curious
@@ -128,8 +193,7 @@ void Actor::Think_Dog_Curious
 
 			if (vDelta[0] != 0 || vDelta[1] != 0)
 			{
-				m_YawAchieved = false;
-				m_DesiredYaw = vectoyaw(vDelta);
+				SetDesiredYawDir(vDelta);
 			}
 
 			SetDesiredLookDir(m_Enemy->origin - origin);

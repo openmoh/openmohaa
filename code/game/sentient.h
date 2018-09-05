@@ -87,6 +87,7 @@ class Item;
 class InventoryItem;
 class Ammo;
 class Vehicle;
+class VehicleTank;
 class TurretGun;
 
 #define MAX_ACTIVE_WEAPONS NUM_ACTIVE_WEAPONS
@@ -94,6 +95,8 @@ class TurretGun;
 
 #define TEAM_GERMAN		0
 #define TEAM_AMERICAN	1
+
+#define THREATBIAS_IGNOREME 0xFFFFE4C7
 
 typedef SafePtr< Weapon > WeaponPtr;
 
@@ -342,9 +345,9 @@ class Sentient : public Animate
 
 		void				PutawayWeapon( Event *ev );
 		void				WeaponCommand( Event *ev );
-		
+	
 		VehicleTank			*GetVehicleTank( void );
-		
+	
 		void				UpdateFootsteps( void );
 
 		void					SetMaxMouthAngle( Event *ev );

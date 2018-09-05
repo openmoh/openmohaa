@@ -96,7 +96,7 @@ void Actor::Think_Runner
 		}
 		else
 		{
-			SetThinkIdle(8);
+			SetThinkIdle(THINK_IDLE);
 			m_bScriptGoalValid = false;
 		}
 

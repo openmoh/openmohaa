@@ -22,7 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // simpleactor.cpp: Base class for character AI
 
-#include "simpleactor.h"
+#include "actor.h"
+#include "bg_local.h"
 
 CLASS_DECLARATION( Sentient, SimpleActor, NULL )
 {
@@ -38,13 +39,13 @@ SimpleActor::SimpleActor()
 
 	m_AnimMotionHigh			= true;
 	m_DesiredGunDir				= vec_zero;
-	m_eEmotionMode				= 1;
+	m_eEmotionMode				= EMOTION_NEUTRAL;
 	m_eNextAnimMode				= -1;
 	m_fPathGoalTime				= 0.0f;
 	m_csPathGoalEndAnimScript	= STRING_EMPTY;
 
-	m_AnimActionHigh			= 1;
-	m_AnimDialogHigh			= 1;
+	m_AnimActionHigh			= true;
+	m_AnimDialogHigh			= true;
 	m_fAimLimit_up				= 60.0f;
 	m_fAimLimit_down			= -60.0f;
 
@@ -142,7 +143,8 @@ void SimpleActor::Archive
 
 	Director.ArchiveString( arc, m_csMood );
 	Director.ArchiveString( arc, m_csIdleMood );
-	arc.ArchiveInteger( &m_eEmotionMode );
+
+	ArchiveEnum(m_eEmotionMode, eEmotionMode);
 
 	arc.ArchiveFloat( &m_fAimLimit_up );
 	arc.ArchiveFloat( &m_fAimLimit_down );
@@ -238,7 +240,7 @@ void SimpleActor::StopAnimating
 {
 	int index = 0;
 
-	groundplane.normal[ slot ] = 0;
+	m_weightType[ slot ] = 0;
 	DoExitCommands( slot );
 
 	if( edict->s.frameInfo[ slot ].index || gi.TIKI_NumAnims( edict->tiki ) <= 1 )
@@ -273,7 +275,7 @@ bool SimpleActor::CanTarget
 
 {
 	OVERLOADED_ERROR();
-	return 0;
+	return false;
 }
 
 bool SimpleActor::IsImmortal
@@ -283,7 +285,7 @@ bool SimpleActor::IsImmortal
 
 {
 	OVERLOADED_ERROR();
-	return 0;
+	return false;
 }
 
 bool SimpleActor::DoesTheoreticPathExist
@@ -293,7 +295,7 @@ bool SimpleActor::DoesTheoreticPathExist
 	)
 
 {
-	return m_Path.DoesTheoreticPathExist( origin, vDestPos, this, fMaxPath, 0, 0 );
+	return m_Path.DoesTheoreticPathExist( origin, vDestPos, this, fMaxPath, NULL, 0 );
 }
 
 void SimpleActor::SetPath
@@ -306,8 +308,50 @@ void SimpleActor::SetPath
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (!PathExists()
+		|| ((level.inttime >= m_Path.Time() + iMaxDirtyTime
+			|| m_Path.Complete(origin)) && m_Path.LastNode()->point != vDestPos)
+		)
+	{
+		m_Path.FindPath(origin,
+			vDestPos,
+			this,
+			0.0,
+			vLeashHome,
+			fLeashDistSquared);
+
+		if (!m_Path.LastNode())
+		{
+			if (g_patherror->integer)
+			{
+				if (description)
+				{
+					int thinkState = ((Actor *)this)->m_ThinkState;
+					if (g_patherror->integer == 1 || g_patherror->integer == 2 && (thinkState == THINKSTATE_IDLE || thinkState == THINKSTATE_CURIOUS))
+					{
+						if (m_bPathErrorTime + 5000 < level.inttime)
+						{
+							m_bPathErrorTime = level.inttime;
+							Com_Printf(
+								"^~^~^ Path not found in '%s' for (entnum %d, radnum %d, targetname '%s') from (%f %f %f) to (%f %f %f)\n",
+								description,
+								entnum,
+								radnum,
+								targetname.c_str(),
+								origin.x,
+								origin.y,
+								origin.z,
+								vDestPos.x,
+								vDestPos.y,
+								vDestPos.z
+								);
+							Com_Printf("Reason: %s\n", PathSearch::last_error);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void SimpleActor::SetPath
@@ -318,8 +362,29 @@ void SimpleActor::SetPath
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (pDestNode)
+	{
+		SetPath(
+			pDestNode->origin,
+			description,
+			iMaxDirtyTime,
+			NULL,
+			0.0);
+	}
+	else
+	{
+		if (m_bPathErrorTime + 5000 < level.inttime)
+		{
+			m_bPathErrorTime = level.inttime;
+			Com_Printf(
+				"^~^~^ No destination node specified for '%s' at (%f %f %f)\n",
+				targetname.c_str(),
+				origin.x,
+				origin.y,
+				origin.z);
+		}
+		ClearPath();
+	}
 }
 
 void SimpleActor::SetPathWithinDistance
@@ -331,20 +396,60 @@ void SimpleActor::SetPathWithinDistance
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (!PathExists()
+		|| ((level.inttime >= m_Path.Time() + iMaxDirtyTime
+			|| m_Path.Complete(origin)) && m_Path.LastNode()->point != vDestPos)
+		)
+	{
+		m_Path.FindPath(origin,
+			vDestPos,
+			this,
+			fMaxPath,
+			NULL,
+			0);
+
+		if (!m_Path.LastNode())
+		{
+			if (g_patherror->integer)
+			{
+				if (description)
+				{
+					int thinkState = ((Actor *)this)->m_ThinkState;
+					if (g_patherror->integer == 1 || g_patherror->integer == 2 && (thinkState == THINKSTATE_IDLE || thinkState == THINKSTATE_CURIOUS))
+					{
+						if (m_bPathErrorTime + 5000 < level.inttime)
+						{
+							m_bPathErrorTime = level.inttime;
+							Com_Printf(
+								"^~^~^ Path not found in '%s' for '%s' from (%f %f %f) to (%f %f %f)\n",
+								description,
+								targetname.c_str(),
+								origin.x,
+								origin.y,
+								origin.z,
+								vDestPos.x,
+								vDestPos.y,
+								vDestPos.z);
+							Com_Printf("Reason: %s\n", PathSearch::last_error);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void SimpleActor::FindPathAway
 	(
-	vec3_t vAwayFrom,
-	vec3_t vDirPreferred,
+	vec_t *vAwayFrom,
+	vec_t *vDirPreferred,
 	float fMinSafeDist
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_Path.FindPathAway(origin, vAwayFrom, vDirPreferred, this, fMinSafeDist, NULL, 0);
+	
+	ShortenPathToAvoidSquadMates();
 }
 
 void SimpleActor::ClearPath
@@ -353,8 +458,7 @@ void SimpleActor::ClearPath
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_Path.Clear();
 }
 
 bool SimpleActor::PathComplete
@@ -396,6 +500,13 @@ bool SimpleActor::PathAvoidsSquadMates
 	) const
 
 {
+	if (ai_pathchecktime->value <= 0.0)
+		return true;
+
+	if ((G_GetEntity(0)->origin - origin).lengthXY(true) > Square(ai_pathcheckdist->value))
+	{
+		return true;
+	}
 	// FIXME: stub
 	STUB();
 	return false;
@@ -407,8 +518,44 @@ void SimpleActor::ShortenPathToAvoidSquadMates
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (PathExists() && !PathComplete())
+	{
+		Vector vBuddyPos;
+		Vector vDelta;
+		do 
+		{
+			Actor *pSquadMate = (Actor *)m_pNextSquadMate.Pointer();
+			if (pSquadMate == this)
+			{
+				break;
+			}
+
+			while (true)
+			{
+				vBuddyPos = pSquadMate->origin;
+				if (pSquadMate->IsSubclassOfActor() && pSquadMate->PathExists())
+				{
+					vBuddyPos = pSquadMate->LastPathNode()->point;
+				}
+				vDelta.x = LastPathNode()->point[0] - vBuddyPos.x;
+				if (vDelta.x >= -15.0 && vDelta.x <= 15.0)
+				{
+					vDelta.y = LastPathNode()->point[1] - vBuddyPos.y;
+					vDelta.z = LastPathNode()->point[2] - vBuddyPos.z;
+					
+					if (vDelta.y >= -15.0 && vDelta.y <= 15.0 && vDelta.z >= 0.0 && vDelta.z <= 94.0)
+						break;
+				}
+				pSquadMate = (Actor *)pSquadMate->m_pNextSquadMate.Pointer();
+				if (pSquadMate == this)
+				{
+					return;
+				}
+			}
+			m_Path.Shorten(45.0);
+
+		} while (PathExists());
+	}
 }
 
 PathInfo *SimpleActor::CurrentPathNode
@@ -480,8 +627,7 @@ void SimpleActor::SetDest
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	VectorCopy(m_Dest, dest);
 }
 
 void SimpleActor::StopTurning
@@ -490,7 +636,7 @@ void SimpleActor::StopTurning
 	)
 
 {
-	// FIXME: stub
+	// not found in ida
 	STUB();
 }
 
@@ -520,8 +666,8 @@ void SimpleActor::SetDesiredYawDest
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bHasDesiredLookDest = true;
+	VectorCopy(vec, m_vDesiredLookDest);
 }
 
 void SimpleActor::UpdateEmotion
@@ -530,8 +676,27 @@ void SimpleActor::UpdateEmotion
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int anim;
+	if (IsDead())
+	{
+		m_eEmotionMode = EMOTION_DEAD;
+	}
+
+	anim = GetEmotionAnim();
+
+	if (anim == -1)
+	{
+		Com_Printf(
+			"Failed to set emotion for (entnum %d, radnum %d, targetname '%s'\n",
+			entnum,
+			radnum,
+			targetname.c_str());
+	}
+	else
+	{
+		m_bSayAnimSet = true;
+		StartSayAnimSlot(anim);
+	}
 }
 
 int SimpleActor::GetEmotionAnim
@@ -540,9 +705,99 @@ int SimpleActor::GetEmotionAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return 0;
+	char *emotionanim = NULL;
+	int anim;
+
+	if (m_eEmotionMode)
+	{
+		switch (m_eEmotionMode)
+		{
+		case EMOTION_NEUTRAL:
+		case EMOTION_AIMING:
+			emotionanim = "facial_idle_neutral";
+		case EMOTION_WORRY:
+			emotionanim = "facial_idle_worry";
+		case EMOTION_PANIC:
+			emotionanim = "facial_idle_panic";
+		case EMOTION_FEAR:
+			emotionanim = "facial_idle_fear";
+		case EMOTION_DISGUST:
+			emotionanim = "facial_idle_disgust";
+		case EMOTION_ANGER:
+			emotionanim = "facial_idle_anger"; 
+		case EMOTION_DETERMINED:
+		case EMOTION_CURIOUS:
+			emotionanim = "facial_idle_determined";
+		case 	EMOTION_DEAD:
+			emotionanim = "facial_idle_dead";
+		default:
+			assert(!"Unknown value for m_EmotionMode");
+			/*
+			 *useless assert
+			if (dword_39AFB8)
+				return -1;
+			v8 = 16308;
+			qmemcpy(&v11, "\"Unknown value for m_EmotionMode in SimpleActor::GetEmotionAnim\"\n\tMessage: ", 0x4Cu);
+			v9 = &v13;
+			if (&v13 & 4)
+			{
+				v9 = &v14;
+				v8 = 16304;
+				v13 = 0;
+			}
+			memset32(v9, dword_39AFB8, v8 >> 2);
+			v10 = (*(this->baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
+				this,
+				&nullStr);
+			Q_strcat(&v11, 0x4000, v10);
+			v5 = MyAssertHandler(&v11, "fgame/simpleactor.cpp", 1529, 0);
+			if (v5 >= 0)
+				goto LABEL_9;
+			dword_39AFB8 = 1;*/
+			return -1;
+			break;
+		}
+	}
+	else
+	{
+		if (m_csMood == STRING_NERVOUS)
+		{
+			emotionanim = "facial_idle_determined";
+		}
+		else if (m_csMood <= STRING_NERVOUS)
+		{
+			if (m_csMood != STRING_BORED)
+			{
+				assert(!"Unknown value for m_csMood");
+				return -1;
+			}
+
+			emotionanim = "facial_idle_neutral";
+		}
+		else if (m_csMood == STRING_CURIOUS)
+		{
+			emotionanim = "facial_idle_determined";
+		}
+		else if (m_csMood != STRING_ALERT)
+		{
+			assert(!"Unknown value for m_csMood");
+			return -1;
+		}
+	}
+
+	if (emotionanim == NULL)
+	{
+		emotionanim = "facial_idle_anger";
+		assert(!"Unexpected behaviour in SimpleActor::GetEmotionAnim");
+	}
+
+	anim = gi.Anim_NumForName(edict->tiki, emotionanim);
+	if (anim == -1)
+		Com_Printf(
+			"^~^~^ SimpleActor::GetEmotionAnim: unknown animation '%s' in '%s'\n",
+			emotionanim,
+			edict->tiki->a->name);
+	return anim;
 }
 
 int SimpleActor::GetMotionSlot
@@ -575,7 +830,7 @@ int SimpleActor::GetSaySlot
 	)
 
 {
-	return m_AnimDialogHigh ? 12 : 11;
+	return m_AnimDialogHigh ? 13 : 12;
 }
 
 void SimpleActor::StartCrossBlendAnimSlot
@@ -584,8 +839,21 @@ void SimpleActor::StartCrossBlendAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_weightType[slot] == 1)
+	{
+		m_weightType[slot] = 4;
+	}
+	else
+	{
+		if (m_weightType[slot] < 1)
+			return;
+		if (m_weightType[slot] == 6)
+			m_weightType[slot] = 5;
+		else
+			m_weightType[slot] = 3;
+	}
+	m_weightCrossBlend[slot] = 1.0;
+	m_weightBase[slot] = edict->s.frameInfo[slot].weight;
 }
 
 void SimpleActor::StartMotionAnimSlot
@@ -596,8 +864,18 @@ void SimpleActor::StartMotionAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int iSlot = GetMotionSlot(slot);
+
+	m_weightCrossBlend[iSlot] = 0.0;
+	m_weightType[iSlot] = 1;
+	m_weightBase[iSlot] = weight;
+
+	NewAnim(anim, iSlot, 1.0);
+	animFlags[iSlot] |= ANIM_NOACTION;
+
+	SetTime(iSlot, 0.0);
+
+	UpdateNormalAnimSlot(iSlot);
 }
 
 void SimpleActor::StartAimMotionAnimSlot
@@ -607,8 +885,17 @@ void SimpleActor::StartAimMotionAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int iSlot = GetMotionSlot(slot);
+
+	m_weightCrossBlend[iSlot] = 0.0;
+	m_weightType[iSlot] = 1;
+
+	NewAnim(anim, iSlot, 1.0);
+	animFlags[iSlot] |= ANIM_NOACTION;
+
+	SetTime(iSlot, 0.0);
+
+	UpdateNormalAnimSlot(iSlot);
 }
 
 void SimpleActor::StartActionAnimSlot
@@ -617,8 +904,17 @@ void SimpleActor::StartActionAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int iSlot = GetActionSlot(0);
+
+	m_weightCrossBlend[iSlot] = 0.0;
+	m_weightType[iSlot] = 2;
+	m_weightBase[iSlot] = 1.0;
+
+	NewAnim(anim, iSlot, 1.0);
+
+	SetTime(iSlot, 0.0);
+
+	UpdateNormalAnimSlot(iSlot);
 }
 
 void SimpleActor::StartSayAnimSlot
@@ -627,8 +923,17 @@ void SimpleActor::StartSayAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int iSlot = GetSaySlot();
+
+	m_weightCrossBlend[iSlot] = 0.0;
+	m_weightType[iSlot] = 6;
+	m_weightBase[iSlot] = 1.0;
+
+	NewAnim(anim, iSlot, 1.0);
+	animFlags[iSlot] |= ANIM_NOACTION;
+
+	SetTime(iSlot, 0.0);
+	UpdateSayAnimSlot();
 }
 
 void SimpleActor::StartAimAnimSlot
@@ -638,8 +943,16 @@ void SimpleActor::StartAimAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int iSlot = GetActionSlot(slot);
+
+	m_weightCrossBlend[iSlot] = 0.0;
+	m_weightType[iSlot] = 7;
+
+	NewAnim(anim, iSlot, 1.0);
+
+	SetTime(iSlot, 0.0);
+
+	UpdateNormalAnimSlot(iSlot);
 }
 
 void SimpleActor::SetBlendedWeight
@@ -648,8 +961,18 @@ void SimpleActor::SetBlendedWeight
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bUpdateAnimDoneFlags |= 1 << slot;
+	if (m_weightCrossBlend[slot] < 1.0)
+	{
+		edict->s.frameInfo[slot].weight = (3.0 - m_weightCrossBlend[slot] - m_weightCrossBlend[slot])
+			* Square(m_weightCrossBlend[slot])
+			* m_weightBase[slot];
+	}
+	else
+	{
+		m_weightCrossBlend[slot] = 1.0;
+		edict->s.frameInfo[slot].weight = m_weightBase[slot];
+	}
 }
 
 void SimpleActor::EventSetAnimLength
@@ -658,8 +981,48 @@ void SimpleActor::EventSetAnimLength
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int slot;
+	float length;
+	
+	if (ev->NumArgs() != 1)
+	{
+		ScriptError("bad number of arguments");
+	}
+
+	length = ev->GetFloat(1);
+
+	if (length <= 0)
+	{
+		ScriptError("Positive lengths only allowed");
+	}
+
+	if (m_bMotionAnimSet)
+	{
+		ScriptError("Must set anim before length");
+	}
+
+	slot = GetMotionSlot(0);
+
+	if (animFlags[slot] & ANIM_LOOP)
+	{
+		gi.Anim_Frametime(edict->tiki, edict->s.frameInfo[slot].index);
+
+		animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
+
+		animtimes[slot] = Square(gi.Anim_NumFrames(edict->tiki, edict->s.frameInfo[slot].index) - 1);
+
+		SetOnceType(slot);
+	}
+
+	SetSyncTime(0);
+
+	if (length > animtimes[slot])
+	{
+		ScriptError("cannot lengthen animation which has length %f", animtimes[slot]);
+	}
+	
+	animtimes[slot] = length;
+	animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
 }
 
 void SimpleActor::UpdateNormalAnimSlot
@@ -668,8 +1031,9 @@ void SimpleActor::UpdateNormalAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_weightCrossBlend[slot] += m_fCrossblendTime == 0.0 ? 1.0 : level.frametime / m_fCrossblendTime;
+
+	SetBlendedWeight(slot);
 }
 
 void SimpleActor::UpdateCrossBlendAnimSlot
@@ -678,8 +1042,17 @@ void SimpleActor::UpdateCrossBlendAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_weightCrossBlend[slot] -= m_fCrossblendTime == 0.0 ? 1.0 : level.frametime / m_fCrossblendTime;
+
+	if (m_weightCrossBlend[slot] > 0.0)
+	{
+		SetBlendedWeight(slot);
+	}
+	else
+	{
+		m_weightType[slot] = 8;
+		edict->s.frameInfo[slot].weight = 0.0;
+	}
 }
 
 void SimpleActor::UpdateCrossBlendDialogAnimSlot
@@ -688,8 +1061,17 @@ void SimpleActor::UpdateCrossBlendDialogAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_weightCrossBlend[slot] -= m_iSaySlot < 0 ? level.frametime + level.frametime : level.frametime / 0.1;
+
+	if (m_weightCrossBlend[slot] > 0.0)
+	{
+		SetBlendedWeight(slot);
+	}
+	else
+	{
+		m_weightType[slot] = 8;
+		edict->s.frameInfo[slot].weight = 0.0;
+	}
 }
 
 void SimpleActor::UpdateSayAnimSlot
@@ -698,8 +1080,9 @@ void SimpleActor::UpdateSayAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_weightCrossBlend[slot] += m_iSaySlot < 0 ? level.frametime + level.frametime : level.frametime / 0.1;
+
+	SetBlendedWeight(slot);
 }
 
 void SimpleActor::UpdateLastFrameSlot
@@ -708,8 +1091,19 @@ void SimpleActor::UpdateLastFrameSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_weightType[slot] = 0;
+	DoExitCommands(slot);
+
+	if (edict->s.frameInfo[slot].index || gi.TIKI_NumAnims(edict->tiki) <= 1)
+		edict->s.frameInfo[slot].index = 0;
+	else
+		edict->s.frameInfo[slot].index = 1;
+	
+	animFlags[slot] = ANIM_PAUSED | ANIM_NOEXIT | ANIM_NODELTA | ANIM_LOOP;
+
+	edict->s.frameInfo[slot].weight = 0.0;
+
+	animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
 }
 
 void SimpleActor::UpdateAnimSlot
@@ -718,8 +1112,32 @@ void SimpleActor::UpdateAnimSlot
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	switch (m_weightType[slot])
+	{
+	case 0:
+		return;
+		break;
+	case 1:
+	case 2:
+	case 7:
+		UpdateNormalAnimSlot(slot);
+		break;
+	case 3:
+	case 4:
+		UpdateCrossBlendAnimSlot(slot);
+		break;
+	case 5:
+		UpdateCrossBlendDialogAnimSlot(slot);
+		break;
+	case 6:
+		UpdateSayAnimSlot(slot);
+		break;
+	case 8:
+		UpdateLastFrameSlot(slot);
+	default:
+		assert(!"impleActor::UpdateAnimSlot: Bad weight type.");
+		break;
+	}
 }
 
 void SimpleActor::StopAllAnimating
@@ -728,8 +1146,12 @@ void SimpleActor::StopAllAnimating
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	SetSyncTime(0);
+
+	for (int slot = 0; slot < MAX_FRAMEINFOS; slot++)
+	{
+		UpdateLastFrameSlot(slot);
+	}
 }
 
 void SimpleActor::ChangeMotionAnim
@@ -738,8 +1160,32 @@ void SimpleActor::ChangeMotionAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int lastMotionSlot;
+	int firstMotionSlot;
+	int iSlot;
+	int i;
+
+	m_bMotionAnimSet = false;
+	m_iMotionSlot = -1;
+	m_bLevelMotionAnim = false;
+
+	if (m_ChangeMotionAnimIndex != level.frame_skel_index)
+	{
+		m_ChangeMotionAnimIndex = level.frame_skel_index;
+
+		MPrintf("Swapping motion channels....\n");
+		for (iSlot = GetMotionSlot(0), i = 0; i < 3; i++, iSlot++)
+		{
+			StartCrossBlendAnimSlot(iSlot);
+		}
+		m_AnimDialogHigh ^= 1; // toggle
+
+	}
+	
+	for (iSlot = GetMotionSlot(0), i = 0; i < 3; i++, iSlot++)
+	{
+		StopAnimating(iSlot);
+	}
 }
 
 void SimpleActor::ChangeActionAnim
@@ -748,8 +1194,32 @@ void SimpleActor::ChangeActionAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int iSlot;
+	int i;
+
+	m_bAimAnimSet = false;
+	m_bActionAnimSet = false;
+	m_iActionSlot = -1;
+	m_bLevelActionAnim = false;
+
+
+	if (m_ChangeActionAnimIndex != level.frame_skel_index)
+	{
+		m_ChangeActionAnimIndex = level.frame_skel_index;
+
+		MPrintf("Swapping action channels....\n");
+		for (iSlot = GetActionSlot(0), i = 0; i < 3; i++, iSlot++)
+		{
+			animFlags[iSlot] |= ANIM_NOACTION;
+			StartCrossBlendAnimSlot(iSlot);
+		}
+		m_AnimDialogHigh ^= 1; // toggle
+	}
+
+	for (iSlot = GetActionSlot(0), i = 0; i < 3; i++, iSlot++)
+	{
+		StopAnimating(iSlot);
+	}
 }
 
 void SimpleActor::ChangeSayAnim
@@ -758,8 +1228,27 @@ void SimpleActor::ChangeSayAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int iSlot; 
+
+	m_bSayAnimSet = false;
+	m_bLevelSayAnim = false;
+	m_iVoiceTime = level.inttime;
+	m_iSaySlot = -1;
+
+	if (m_ChangeSayAnimIndex != level.frame_skel_index)
+	{
+		m_ChangeSayAnimIndex = level.frame_skel_index;
+		
+		MPrintf("Swapping dialog channel....\n");
+		
+		iSlot = GetSaySlot();
+		StartCrossBlendAnimSlot(iSlot);
+
+		m_AnimDialogHigh ^= 1; // toggle
+	}
+
+	iSlot = GetSaySlot();
+	StopAnimating(iSlot);
 }
 
 void SimpleActor::UpdateAim
@@ -768,8 +1257,53 @@ void SimpleActor::UpdateAim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	float dir;
+
+	int aimForwardSlot;
+	int aimUpSlot;
+	int aimDownSlot;
+
+	if (m_bAimAnimSet)
+	{
+		aimForwardSlot = GetActionSlot(0);
+		aimUpSlot = aimForwardSlot + 1;
+		aimDownSlot = aimForwardSlot + 2;
+
+		dir = -m_DesiredGunDir[0];
+		if (dir <= 180 && dir < -180)
+		{
+			dir += 360;
+		}
+		else
+		{
+			dir -= 360;
+		}
+		float factor;
+		if (dir < 0)
+		{
+			if (dir < m_fAimLimit_down)
+				dir = m_fAimLimit_down;
+
+			factor = dir / m_fAimLimit_down;
+
+			m_weightBase[aimForwardSlot] = 0;
+			m_weightBase[aimUpSlot] = 1 - factor;
+			m_weightBase[aimDownSlot] = factor;
+		}
+		else
+		{
+			if (dir < m_fAimLimit_up)
+				dir = m_fAimLimit_up;
+
+			factor = dir / m_fAimLimit_up;
+
+			m_weightBase[aimForwardSlot] = factor;
+			m_weightBase[aimUpSlot] = 1 - factor;
+			m_weightBase[aimDownSlot] = 0;
+
+		}
+		SetControllerAngles(TORSO_TAG, vec_origin);
+	}
 }
 
 void SimpleActor::UpdateAimMotion
@@ -778,8 +1312,20 @@ void SimpleActor::UpdateAimMotion
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int slot = GetMotionSlot(0);
+
+	if (m_fCrouchWeight < 0.0)
+	{
+		m_weightBase[slot] = 0.0;
+		m_weightBase[slot + 1] = m_fCrouchWeight + 1.0;
+		m_weightBase[slot + 2] = -m_fCrouchWeight;
+	}
+	else
+	{
+		m_weightBase[slot] = m_fCrouchWeight;
+		m_weightBase[slot + 1] = 1.0 - m_fCrouchWeight;
+		m_weightBase[slot + 2] = 0.0;
+	}
 }
 
 void SimpleActor::EventAIOn
@@ -788,8 +1334,7 @@ void SimpleActor::EventAIOn
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bDoAI = true;
 }
 
 void SimpleActor::EventAIOff
@@ -798,8 +1343,7 @@ void SimpleActor::EventAIOff
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_bDoAI = false;
 }
 
 void SimpleActor::EventGetWeaponGroup
@@ -808,8 +1352,13 @@ void SimpleActor::EventGetWeaponGroup
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Weapon *weapon = GetActiveWeapon(WEAPON_MAIN);
+	const_str csWeaponGroup = weapon->GetWeaponGroup();
+	if (csWeaponGroup == STRING_NONE)
+	{
+		csWeaponGroup = STRING_UNARMED;
+	}
+	ev->AddConstString(csWeaponGroup);
 }
 
 void SimpleActor::EventGetWeaponType
@@ -818,8 +1367,65 @@ void SimpleActor::EventGetWeaponType
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Weapon *weapon;
+	const_str csWeaponType;
+
+	if (!m_pTurret)
+	{
+		weapon = GetActiveWeapon(WEAPON_MAIN);
+	}
+
+	if (!weapon)
+	{
+		csWeaponType = STRING_RIFLE;
+	}
+	else
+	{
+		int iWeaponClass = weapon->GetWeaponClass();
+
+		switch (iWeaponClass)
+		{
+		case WEAPON_CLASS_PISTOL:
+			csWeaponType = STRING_PISTOL;
+			break;
+		case WEAPON_CLASS_RIFLE:
+			csWeaponType = STRING_RIFLE;
+			break;
+		case WEAPON_CLASS_SMG:
+			csWeaponType = STRING_SMG;
+			break;
+		case WEAPON_CLASS_MG:
+			csWeaponType = STRING_MG;
+			break;
+		case WEAPON_CLASS_GRENADE:
+			csWeaponType = STRING_GRENADE;
+			break;
+		case WEAPON_CLASS_HEAVY:
+			csWeaponType = STRING_HEAVY;
+			break;
+		case WEAPON_CLASS_CANNON:
+			csWeaponType = STRING_CANNON;
+			break;
+		case WEAPON_CLASS_ITEM:
+			csWeaponType = STRING_ITEM;
+			break;
+		case WEAPON_CLASS_ITEM2:
+			csWeaponType = STRING_ITEM2;
+			break;
+		case WEAPON_CLASS_ITEM3:
+			csWeaponType = STRING_ITEM3;
+			break;
+		case WEAPON_CLASS_ITEM4:
+			csWeaponType = STRING_ITEM4;
+			break;
+		default:
+			csWeaponType = STRING_EMPTY;
+			break;
+		}
+
+	}
+
+	ev->AddConstString(csWeaponType);
 }
 
 void SimpleActor::EventGetPainHandler
@@ -828,8 +1434,11 @@ void SimpleActor::EventGetPainHandler
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ScriptVariable var;
+	
+	m_PainHandler.GetScriptValue(&var);
+
+	ev->AddValue(var);
 }
 
 void SimpleActor::EventSetPainHandler
@@ -838,8 +1447,17 @@ void SimpleActor::EventSetPainHandler
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->IsFromScript())
+	{
+		ScriptVariable var = ev->GetValue(1);
+		
+		m_PainHandler.SetScript(var);
+	}
+	else
+	{
+		str varString = ev->GetString(1);
+		m_PainHandler.SetScript(varString);
+	}
 }
 
 void SimpleActor::EventGetDeathHandler
@@ -848,8 +1466,11 @@ void SimpleActor::EventGetDeathHandler
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ScriptVariable var;
+
+	m_DeathHandler.GetScriptValue(&var);
+
+	ev->AddValue(var);
 }
 
 void SimpleActor::EventSetDeathHandler
@@ -858,8 +1479,17 @@ void SimpleActor::EventSetDeathHandler
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->IsFromScript())
+	{
+		ScriptVariable var = ev->GetValue(1);
+
+		m_DeathHandler.SetScript(var);
+	}
+	else
+	{
+		str varString = ev->GetString(1);
+		m_DeathHandler.SetScript(varString);
+	}
 }
 
 void SimpleActor::EventGetAttackHandler
@@ -868,8 +1498,11 @@ void SimpleActor::EventGetAttackHandler
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ScriptVariable var;
+
+	m_AttackHandler.GetScriptValue(&var);
+
+	ev->AddValue(var);
 }
 
 void SimpleActor::EventSetAttackHandler
@@ -878,8 +1511,17 @@ void SimpleActor::EventSetAttackHandler
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->IsFromScript())
+	{
+		ScriptVariable var = ev->GetValue(1);
+
+		m_AttackHandler.SetScript(var);
+	}
+	else
+	{
+		str varString = ev->GetString(1);
+		m_AttackHandler.SetScript(varString);
+	}
 }
 
 void SimpleActor::EventGetSniperHandler
@@ -888,8 +1530,11 @@ void SimpleActor::EventGetSniperHandler
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ScriptVariable var;
+
+	m_SniperHandler.GetScriptValue(&var);
+
+	ev->AddValue(var);
 }
 
 void SimpleActor::EventSetSniperHandler
@@ -898,8 +1543,17 @@ void SimpleActor::EventSetSniperHandler
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (ev->IsFromScript())
+	{
+		ScriptVariable var = ev->GetValue(1);
+
+		m_SniperHandler.SetScript(var);
+	}
+	else
+	{
+		str varString = ev->GetString(1);
+		m_SniperHandler.SetScript(varString);
+	}
 }
 
 void SimpleActor::EventSetCrossblendTime
@@ -908,8 +1562,7 @@ void SimpleActor::EventSetCrossblendTime
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_fCrossblendTime = ev->GetFloat(1);
 }
 
 void SimpleActor::EventGetCrossblendTime
@@ -918,8 +1571,7 @@ void SimpleActor::EventGetCrossblendTime
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddFloat(m_fCrossblendTime);
 }
 
 void SimpleActor::EventSetEmotion
@@ -928,8 +1580,45 @@ void SimpleActor::EventSetEmotion
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	switch (ev->GetConstString(1))
+	{
+	case STRING_EMOTION_NONE:
+		m_eEmotionMode = EMOTION_NONE;
+		break;
+	case STRING_EMOTION_NEUTRAL:
+		m_eEmotionMode = EMOTION_NEUTRAL;
+		break;
+	case STRING_EMOTION_WORRY:
+		m_eEmotionMode = EMOTION_WORRY;
+		break;
+	case STRING_EMOTION_PANIC:
+		m_eEmotionMode = EMOTION_PANIC;
+		break;
+	case STRING_EMOTION_FEAR:
+		m_eEmotionMode = EMOTION_FEAR;
+		break;
+	case STRING_EMOTION_DISGUST:
+		m_eEmotionMode = EMOTION_DISGUST;
+		break;
+	case STRING_EMOTION_ANGER:
+		m_eEmotionMode = EMOTION_ANGER;
+		break;
+	case STRING_EMOTION_AIMING:
+		m_eEmotionMode = EMOTION_AIMING;
+		break;
+	case STRING_EMOTION_DETERMINED:
+		m_eEmotionMode = EMOTION_DETERMINED;
+		break;
+	case STRING_EMOTION_DEAD:
+		m_eEmotionMode = EMOTION_DEAD;
+		break;
+	case STRING_EMOTION_CURIOUS:
+		m_eEmotionMode = EMOTION_CURIOUS;
+		break;
+	default:
+		assert(!"Unknown emotion mode specified in script.");
+		break;
+	}
 }
 
 void SimpleActor::EventGetPosition
@@ -938,8 +1627,7 @@ void SimpleActor::EventGetPosition
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ev->AddConstString(m_csCurrentPosition);
 }
 
 void SimpleActor::EventSetPosition
@@ -948,8 +1636,7 @@ void SimpleActor::EventSetPosition
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_csCurrentPosition = ev->GetConstString(1);
 }
 
 void SimpleActor::EventGetAnimMode
@@ -958,7 +1645,7 @@ void SimpleActor::EventGetAnimMode
 	)
 
 {
-	// FIXME: stub
+	// not found in ida
 	STUB();
 }
 
@@ -968,7 +1655,7 @@ void SimpleActor::EventSetAnimMode
 	)
 
 {
-	// FIXME: stub
+	// not found in ida
 	STUB();
 }
 
@@ -978,8 +1665,7 @@ void SimpleActor::EventSetAnimFinal
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	ScriptError("animfinal is obsolete");
 }
 
 void SimpleActor::DesiredAnimation
@@ -989,7 +1675,7 @@ void SimpleActor::DesiredAnimation
 	)
 
 {
-	// FIXME: stub
+	// not found in ida
 	STUB();
 }
 
@@ -1000,7 +1686,7 @@ void SimpleActor::StartAnimation
 	)
 
 {
-	// FIXME: stub
+	// not found in ida
 	STUB();
 }
 
@@ -1011,7 +1697,7 @@ void SimpleActor::DesiredAnimation
 	)
 
 {
-	// FIXME: stub
+	// not found in ida
 	STUB();
 }
 
@@ -1022,7 +1708,7 @@ void SimpleActor::StartAnimation
 	)
 
 {
-	// FIXME: stub
+	// not found in ida
 	STUB();
 }
 
@@ -1032,7 +1718,7 @@ void SimpleActor::ContinueAnimationAllowNoPath
 	)
 
 {
-	// FIXME: stub
+	// not found in ida
 	STUB();
 }
 
@@ -1042,8 +1728,19 @@ void SimpleActor::ContinueAnimation
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	if (m_eNextAnimMode < 0)
+	{
+		m_bNextForceStart = false;
+		m_csNextAnimString = NULL;
+		m_eNextAnimMode = m_eAnimMode;
+		m_NextAnimLabel = m_Anim;
+	}
+
+	if (m_eAnimMode <= 3 && !PathExists())
+	{
+		assert(!"ContinueAnimation() called on a pathed animation, but no path exists");
+		Anim_Stand();
+	}
 }
 
 void SimpleActor::SetPathGoalEndAnim
@@ -1052,8 +1749,7 @@ void SimpleActor::SetPathGoalEndAnim
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	m_csPathGoalEndAnimScript = csEndAnim;
 }
 
 bool SimpleActor::UpdateSelectedAnimation
@@ -1062,8 +1758,50 @@ bool SimpleActor::UpdateSelectedAnimation
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	
+	if (m_csNextAnimString == NULL)
+	{
+		if (!m_bNextForceStart && m_pAnimThread == NULL && m_eAnimMode == m_eNextAnimMode && m_Anim == m_NextAnimLabel)
+		{
+			m_bStartPathGoalEndAnim = false;
+			m_eNextAnimMode = -1;
+			return false;
+		}
+		else
+		{
+			m_Anim = m_NextAnimLabel;
+		//LABEL_7:
+			m_eAnimMode = m_eNextAnimMode;
+			if (m_eNextAnimMode != 3)
+				SetPathGoalEndAnim(STRING_EMPTY);
+			m_bStartPathGoalEndAnim = false;
+			m_eNextAnimMode = -1;
+			return true;
+		}
+	}
+	else if (m_bNextForceStart || m_pAnimThread != NULL || m_eAnimMode != m_eNextAnimMode || (m_fPathGoalTime <= level.time && !m_Anim.IsFile(m_csNextAnimString)))
+	{
+		m_Anim.TrySetScript(Director.GetString(m_csNextAnimString));
+		m_eAnimMode = m_eNextAnimMode;
+		if (m_eNextAnimMode != 3)
+			SetPathGoalEndAnim(STRING_EMPTY);
+		m_bStartPathGoalEndAnim = false;
+		m_eNextAnimMode = -1;
+		return true;
+	}
+	else
+	{
+		m_eNextAnimMode = -1;
+		if (m_bStartPathGoalEndAnim)
+		{
+			m_bStartPathGoalEndAnim = false;
+			if (!m_Anim.IsFile(m_csPathGoalEndAnimScript))
+			{
+				m_Anim.TrySetScript(Director.GetString(m_csPathGoalEndAnimScript));
+				return true;
+			}
+		}
+	}
 	return false;
 }
 
@@ -1074,5 +1812,6 @@ const char *SimpleActor::DumpCallTrace
 	) const
 
 {
+	OVERLOADED_ERROR();
 	return "overloaded version should always get called";
 }

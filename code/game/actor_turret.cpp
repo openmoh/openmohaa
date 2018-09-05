@@ -111,18 +111,232 @@ void Actor::Think_Turret
 
 {
 
-	//FIXME: weird, appears to be looping here ? O.o
-	if (!RequireThink())
+
+	if (RequireThink())
 	{
-		return;
+		UpdateEyeOrigin();
+		NoPoint();
+		UpdateEnemy(200);
+		
+		if (m_Enemy && m_State == 110)
+		{
+			if (!m_bTurretNoInitialCover)
+			{
+				if (Turret_TryToBecomeCoverGuy())
+				{
+					m_pszDebugState = "CoverInstead";
+					CheckUnregister();
+					UpdateAngles();
+					DoMove();
+					UpdateBoneControllers();
+					UpdateFootsteps();
+					return;
+				}
+			}
+			m_bTurretNoInitialCover = false;
+
+			Turret_SelectState();
+
+			if (m_State == 100 && !CanSeeEnemy(0))
+			{
+				SetEnemyPos(m_Enemy->origin);
+				AimAtEnemyBehavior();
+				m_State = 113;
+				m_iStateTime = level.inttime;
+			}
+
+			SetLeashHome(origin);
+
+			if (level.inttime < m_iEnemyChangeTime + 200)
+			{
+				if (AttackEntryAnimation())
+				{
+					m_State = 108;
+					m_bLockThinkState = true;
+					m_iStateTime = level.inttime;
+				}
+			}
+		}
+
+		if (level.inttime > m_iStateTime + 3000)
+			Turret_SelectState();
+
+		if (m_State == 108)
+		{
+			m_pszDebugState = "IntroAnim";
+			AimAtAimNode();
+			ContinueAnimation();
+		}
+		else
+		{
+			m_bLockThinkState = false;
+			if (!m_Enemy && m_State != 109 && m_State != 104)
+			{
+				m_State = 109;
+				m_iStateTime = level.inttime + ((rand() + 0xFA) & 0x7FF);
+			}
+			if (!m_Enemy)
+			{
+				if (m_State != 109)
+				{
+					if (m_State != 104
+						|| (origin - m_vHome).lengthXY(true) <= 0.64f * m_fLeashSquared + 64.0f
+						|| !State_Turret_RunHome(false) )
+					{
+						m_pszDebugState = "Idle";
+						SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+						IdleThink();
+					}
+					else
+					{
+						m_pszDebugState = "Idle->RunHome";
+						PostThink(true);
+					}
+					return;
+				}
+			}
+			if (m_Enemy && m_State == 109)
+			{
+				Actor::SetEnemyPos(m_Enemy->origin);
+				AimAtEnemyBehavior();
+				m_State = 113;
+				m_iStateTime = level.inttime;
+			}
+
+			if (Turret_DecideToSelectState())
+				Turret_SelectState();
+
+			switch (m_State)
+			{
+			case 100:
+				m_pszDebugState = "Combat";
+				State_Turret_Combat();
+				break;
+			case 101:
+				m_pszDebugState = "Reacquire";
+				State_Turret_Reacquire();
+				break;
+			case 102:
+				m_pszDebugState = "TakeSniperNode";
+				if (!PathExists() || PathComplete())
+				{
+					AimAtEnemyBehavior();
+					m_State = 103;
+					m_iStateTime = level.inttime;
+				}
+				else
+				{
+					FaceMotion();
+					Anim_RunToDanger(3);
+				}
+				break;
+			case 103:
+				m_pszDebugState = "SniperNode";
+				State_Turret_SniperNode();
+				break;
+			case 104:
+				m_pszDebugState = "RunHome";
+				State_Turret_RunHome(true);
+				break;
+			case 105:
+				m_pszDebugState = "RunAway";
+				State_Turret_RunAway();
+				break;
+			case 106:
+				m_pszDebugState = "Charge";
+				State_Turret_Charge();
+				break;
+			case 107:
+				m_pszDebugState = "Grenade";
+				GenericGrenadeTossThink();
+				break;
+			case 109:
+				m_pszDebugState = "FakeEnemy";
+				State_Turret_FakeEnemy();
+				break;
+			case 111:
+				m_pszDebugState = "BecomeCover";
+				ContinueAnimation();
+				break;
+			case 112:
+				m_pszDebugState = "Wait";
+				State_Turret_Wait();
+				break;
+			case 113:
+				m_pszDebugState = "Retarget_Sniper_Node";
+				State_Turret_Retarget_Sniper_Node();
+				break;
+			case 114:
+				m_pszDebugState = "Retarget_Step_Side_Small";
+				State_Turret_Retarget_Step_Side_Small();
+				break;
+			case 115:
+				m_pszDebugState = "Retarget_Path_Exact";
+				AimAtEnemyBehavior();
+				SetPathWithLeash(m_vLastEnemyPos, "", 0);
+				if (!ShortenPathToAttack(128.0f))
+				{
+					Turret_NextRetarget();
+				}
+				else
+				{
+					ShortenPathToAvoidSquadMates();
+					if (PathExists())
+					{
+						m_State = 101;
+						m_iStateTime = level.inttime;
+					}
+					else
+					{
+						Turret_NextRetarget();
+					}
+				}
+			case 116:
+				m_pszDebugState = "Retarget_Path_Near";
+				AimAtEnemyBehavior();
+				FindPathNearWithLeash(m_vLastEnemyPos, m_fMinDistanceSquared);
+				if (ShortenPathToAttack(128.0f))
+				{
+					m_State = 101;
+					m_iStateTime = level.inttime;
+				}
+				else
+				{
+					Turret_NextRetarget();
+				}
+				break;
+			case 117:
+				m_pszDebugState = "Retarget_Step_Side_Medium";
+				State_Turret_Retarget_Step_Side_Medium();
+				break;
+			case 118:
+				m_pszDebugState = "Retarget_Step_Side_Large";
+				State_Turret_Retarget_Step_Side_Large();
+				break;
+			case 119:
+				m_pszDebugState = "Retarget_Step_Face_Medium";
+				State_Turret_Retarget_Step_Face_Medium();
+				break;
+			case 120:
+				m_pszDebugState = "Retarget_Step_Face_Large";
+				State_Turret_Retarget_Step_Face_Large();
+				break;
+			default:
+				Com_Printf("Actor::Think_Turret: invalid think state %i\n", m_State);
+				assert(!"invalid think state");
+				break;
+			}
+			CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
+		}
+		if (m_State == 112)
+		{
+			PostThink(false);
+		}
+		else
+		{
+			PostThink(true);
+		}
 	}
-
-	UpdateEyeOrigin();
-	NoPoint();
-	UpdateEnemy(200);
-
-	// FIXME: stub
-	STUB();
 }
 
 void Actor::FinishedAnimation_Turret
@@ -157,7 +371,7 @@ void Actor::ReceiveAIEvent_Turret
 			{
 				m_State = 111;
 				m_iStateTime = level.inttime;
-				SetThink(4, 2);
+				SetThink(THINKSTATE_ATTACK, THINK_COVER);
 			}
 			else if (pCoverNode)
 			{
@@ -280,14 +494,11 @@ void Actor::Turret_SelectState
 		SetPath(m_vHome, "", 0, NULL, 0.0);
 		ShortenPathToAvoidSquadMates();
 
-		if (PathExists())
+		if (PathExists() && !PathComplete())
 		{
-			if (!PathComplete())
-			{
-				m_State = 104;
-				m_iStateTime = level.inttime;
-				return;
-			}
+			m_State = 104;
+			m_iStateTime = level.inttime;
+			return;
 		}
 		else
 		{
@@ -343,8 +554,8 @@ void Actor::Turret_SelectState
 	if (DecideToThrowGrenade(m_Enemy->velocity + m_vLastEnemyPos, &m_vGrenadeVel, &m_eGrenadeMode))
 	{
 		m_bNextForceStart = false;
-		m_YawAchieved = false;
-		m_DesiredYaw = vectoyaw(this->m_vGrenadeVel);
+		SetDesiredYawDir(m_vGrenadeVel);
+
 		m_eNextAnimMode = 1;
 		m_State = 107;
 		m_csNextAnimString = (m_eGrenadeMode == AI_GREN_TOSS_ROLL) ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
@@ -380,13 +591,13 @@ bool Actor::Turret_TryToBecomeCoverGuy
 	)
 
 {
-	auto pCoverNode = this->m_pCoverNode;
+	auto pCoverNode = m_pCoverNode;
 	Cover_FindCover(true);
 	if (m_pCoverNode)
 	{
 		m_State = 111;
 		m_iStateTime = level.inttime;
-		SetThink(4, 2);
+		SetThink(THINKSTATE_ATTACK, THINK_COVER);
 		return true;
 	}
 	else
@@ -644,7 +855,7 @@ bool Actor::State_Turret_RunHome
 
 {
 
-	SetPath(this->m_vHome, "", 0, NULL, 0.0);
+	SetPath(m_vHome, "", 0, NULL, 0.0);
 	ShortenPathToAvoidSquadMates();
 	if (!PathExists() || PathComplete())
 	{
@@ -700,7 +911,7 @@ void Actor::State_Turret_Charge
 	)
 
 {
-	SetPathWithLeash(this->m_vLastEnemyPos, "", 0);
+	SetPathWithLeash(m_vLastEnemyPos, "", 0);
 	ShortenPathToAvoidSquadMates();
 	if (!PathExists())
 	{
@@ -766,7 +977,7 @@ void Actor::State_Turret_FakeEnemy
 	AimAtAimNode();
 	Anim_Aim();
 	if (level.inttime >= m_iStateTime)
-		SetThinkState(THINKSTATE_IDLE, 0);
+		SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 }
 
 void Actor::State_Turret_Wait
@@ -787,7 +998,7 @@ void Actor::State_Turret_Wait
 		{
 			m_State = 111;
 			m_iStateTime = level.inttime;
-			SetThink(THINKSTATE_ATTACK, 2);
+			SetThink(THINKSTATE_ATTACK, THINK_COVER);
 			bSmth = true;
 		}
 		else
@@ -816,7 +1027,7 @@ void Actor::State_Turret_Wait
 	{
 		if (level.inttime >= m_iLastFaceDecideTime + 1500)
 		{
-			this->m_iLastFaceDecideTime = level.inttime + (rand() & 0x1FF);
+			m_iLastFaceDecideTime = level.inttime + (rand() & 0x1FF);
 			
 			
 			
@@ -869,17 +1080,8 @@ void Actor::State_Turret_Retarget_Sniper_Node
 		pSniperNode->Claim(this);
 		m_State = 102;
 		m_iStateTime = level.inttime;
-		if (PathExists() && !PathComplete())
-		{
-			FaceMotion();
-			Anim_RunToDanger(3);
-		}
-		else
-		{
-			AimAtEnemyBehavior();
-			m_State = 103;
-			m_iStateTime = level.inttime;
-		}
+		
+		State_Turret_TakeSniperNode();
 	}
 	else if (bTryAgain)
 	{

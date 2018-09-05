@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // actorenemy.h
 
+#ifndef __ACTORENEMY_H__
+#define __ACTORENEMY_H__
+
 #include "g_local.h"
 
 class Actor;
@@ -116,3 +119,5 @@ inline void ActorEnemySet::Archive
 	arc.ArchiveFloat( &m_fCurrentVisibility );
 	arc.ArchiveInteger( &m_iCurrentThreat );
 }
+
+#endif /* actorenemy.h */

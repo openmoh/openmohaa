@@ -794,6 +794,8 @@ float erandom( float mean );
 void vectoangles( const vec3_t value1, vec3_t angles );
 void VectorToAngles( const vec3_t vec, vec3_t angles );
 void AnglesToAxis( const vec3_t angles, vec3_t axis[3] );
+static  void init( void );
+float	noise1(float arg);
 
 void	R_ConcatRotations( float in1[ 3 ][ 3 ], float in2[ 3 ][ 3 ], float out[ 3 ][ 3 ] );
 void	R_ConcatTransforms( float in1[ 3 ][ 4 ], float in2[ 3 ][ 4 ], float out[ 3 ][ 4 ] );

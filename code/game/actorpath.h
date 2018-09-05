@@ -55,7 +55,7 @@ public:
 	~ActorPath();
 
 	void				Clear( void );
-	bool				DoesTheoreticPathExist( float *start, float *end, class SimpleActor *ent, float maxPath, float *vLeashHome, float fLeashDistSquared ) const;
+	bool				DoesTheoreticPathExist( float *start, float *end, class SimpleActor *ent, float maxPath, float *vLeashHome, float fLeashDistSquared );
 	void				FindPath( float *start, float *end, Entity *ent, float maxPath, float *vLeashHome, float fLeashDistSquared );
 	void				FindPathAway( float *start, float *avoid, float *vPreferredDir, Entity *ent, float fMinSafeDist, float *vLeashHome, float fLeashDistSquared );
 	void				FindPathNear( float *start, float *nearby, Entity *ent, float maxPath, float fRadiusSquared, float *vLeashHome, float fLeashDistSquared );

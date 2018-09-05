@@ -166,9 +166,9 @@ typedef enum {
 } netadrtype_t;
 
 typedef enum {
-//	NS_MASTER,
-	NS_SERVER,
-	NS_CLIENT
+	//NS_MASTER,
+	NS_CLIENT,
+	NS_SERVER
 } netsrc_t;
 
 typedef struct {

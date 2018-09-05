@@ -957,6 +957,7 @@ void G_ClientBegin( gentity_t *ent, usercmd_t *cmd )
 
 		if( ent->inuse && ent->entity )
 		{
+			VectorClear(ent->client->cmd_angles);
 			// the client has cleared the client side viewangles upon
 			// connecting to the server, which is different than the
 			// state when the game is saved, so we need to compensate

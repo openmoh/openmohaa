@@ -56,8 +56,8 @@ void Actor::End_Patrol
 	)
 
 {
-	// FIXME: stub
-	STUB();
+
+	parm.movefail = true;
 }
 
 void Actor::Resume_Patrol
@@ -66,7 +66,7 @@ void Actor::Resume_Patrol
 	)
 
 {
-	parm.movefail = true;
+	;
 }
 
 void Actor::Think_Patrol
@@ -99,7 +99,7 @@ void Actor::Think_Patrol
 		}
 		else
 		{
-			SetThinkIdle(8);
+			SetThinkIdle(THINK_IDLE);
 			m_bScriptGoalValid = false;
 		}
 		parm.movedone = true;

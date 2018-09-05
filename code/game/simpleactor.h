@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // simpleactor.h: Base class for character AI.
 
+#ifndef __SIMPLEACTOR_H__
+#define __SIMPLEACTOR_H__
+
 #include "weapon.h"
 #include "sentient.h"
 #include "container.h"
@@ -31,6 +34,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "characterstate.h"
 #include "actorpath.h"
 
+enum eEmotionMode {
+	EMOTION_NONE,
+	EMOTION_NEUTRAL,
+	EMOTION_WORRY,
+	EMOTION_PANIC,
+	EMOTION_FEAR,
+	EMOTION_DISGUST,
+	EMOTION_ANGER,
+	EMOTION_AIMING,
+	EMOTION_DETERMINED,
+	EMOTION_DEAD,
+	EMOTION_CURIOUS
+};
 class SimpleActor;
 
 typedef SafePtr<SimpleActor> SimpleActorPtr;
@@ -66,7 +82,7 @@ public:
 	Vector watch_offset;
 	bool m_bThink;
 	int m_PainTime;
-	int m_eEmotionMode;
+	eEmotionMode m_eEmotionMode;
 	float m_fAimLimit_up;
 	float m_fAimLimit_down;
 	int m_ChangeMotionAnimIndex;
@@ -129,7 +145,7 @@ public:
 	void SetPath( Vector vDestPos, const char *description, int iMaxDirtyTime, float *vLeashHome, float fLeashDistSquared );
 	void SetPath( SimpleEntity *pDestNode, char *description, int iMaxDirtyTime );
 	void SetPathWithinDistance( Vector vDestPos, char *description, float fMaxPath, int iMaxDirtyTime );
-	void FindPathAway( vec3_t vAwayFrom, vec3_t vDirPreferred, float fMinSafeDist );
+	void FindPathAway( vec_t *vAwayFrom, vec_t *vDirPreferred, float fMinSafeDist );
 	void ClearPath( void );
 	bool PathComplete( void ) const;
 	bool PathExists( void ) const;
@@ -232,8 +248,10 @@ public:
 	void Anim_RunToDive( int eAnimMode );
 	void Anim_RunToFlee( int eAnimMode );
 	void Anim_RunToInOpen( int eAnimMode );
-	void Anim_Emotion( int eEmotionMode );
+	void Anim_Emotion( eEmotionMode eEmotMode );
 	void Anim_Say( const_str csSayAnimScript, int iMinTimeSinceLastSay, bool bCanInterrupt );
 	void Anim_FullBody( const_str csFullBodyAnim, int eAnimMode );
 	virtual const char *DumpCallTrace( const char *pszFmt, ... ) const;
 };
+
+#endif /* simpleactor.h */

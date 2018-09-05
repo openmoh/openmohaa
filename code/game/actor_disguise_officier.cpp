@@ -91,12 +91,12 @@ void Actor::Begin_DisguiseOfficer
 		}
 		else
 		{
-			SetThinkState(4, 0);
+			SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
 		}
 	}
 	else
 	{
-		SetThinkState(1, 0);
+		SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 	}
 }
 
@@ -160,7 +160,7 @@ void Actor::Think_DisguiseOfficer
 
 		if (!m_Enemy)
 		{
-			SetThinkState(1, 0);
+			SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 			return;
 		}
 		if (!EnemyIsDisguised() && !(m_Enemy->IsSubclassOfActor()) && m_State != 3)
@@ -170,7 +170,7 @@ void Actor::Think_DisguiseOfficer
 		}
 		if (level.m_bAlarm)
 		{
-			SetThinkState(4, 0);
+			SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
 			return;
 		}
 		vec2_t vDelta;
@@ -260,7 +260,7 @@ void Actor::Think_DisguiseOfficer
 				State_Disguise_Fake_Papers();
 			}
 		}
-		CheckForTransition(7, 0);
+		CheckForTransition(THINKSTATE_GRENADE, 0);
 		PostThink(true);
 	}
 }

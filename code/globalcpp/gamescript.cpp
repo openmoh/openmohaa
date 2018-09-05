@@ -1068,7 +1068,12 @@ void ScriptThreadLabel::GetScriptValue(ScriptVariable *var)
 
 bool ScriptThreadLabel::IsSet( void )
 {
-	return m_Script != NULL ? true : false;
+	return m_Script != NULL;
+}
+
+bool ScriptThreadLabel::IsFile(const_str filename)
+{
+	return m_Script && m_Script->ConstFilename() == filename && m_Label == STRING_EMPTY;
 }
 
 void ScriptThreadLabel::Archive( Archiver& arc )

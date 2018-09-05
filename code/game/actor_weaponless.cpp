@@ -61,6 +61,7 @@ void Actor::Begin_Weaponless
 		}
 	}
 	m_State = 900;
+	m_iStateTime = level.inttime;
 }
 
 void Actor::Suspend_Weaponless
@@ -100,7 +101,7 @@ void Actor::Think_Weaponless
 			m_bLockThinkState = false;
 			if (!m_Enemy)
 			{
-				SetThinkState(1, 0);
+				SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 				IdleThink();
 				return;
 			}
@@ -136,11 +137,11 @@ void Actor::Think_Weaponless
 				}
 				*/
 			}
-			CheckForTransition(7, 0);
+			CheckForTransition(THINKSTATE_GRENADE, 0);
 		}
 		PostThink(true);
 		if (GetWeapon(WEAPON_MAIN))
-			SetThink(4, 1);
+			SetThink(THINKSTATE_ATTACK, THINK_TURRET);
 	}
 }
 
@@ -183,12 +184,11 @@ void Actor::State_Weaponless_Normal
 		AimAtAimNode();
 		
 		Anim_Stand();
-		if (level.inttime >= this->m_iStateTime)
+		if (level.inttime >= m_iStateTime)
 		{
 			if (DecideToThrowGrenade(m_Enemy->velocity + m_Enemy->origin, &m_vGrenadeVel, &m_eGrenadeMode))
 			{
-				m_YawAchieved = false;
-				m_DesiredYaw = vectoyaw(m_vGrenadeVel);
+				SetDesiredYawDir(m_vGrenadeVel);
 
 				m_State = 901;
 				m_eNextAnimMode = 1;

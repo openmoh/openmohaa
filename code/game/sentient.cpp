@@ -4256,7 +4256,7 @@ void Sentient::EventSetThreatBias
 
 		if( !Q_stricmp( sBias, "ignoreme" ) )
 		{
-			m_iThreatBias = 0xFFFFE4C7;
+			m_iThreatBias = THREATBIAS_IGNOREME;
 			return;
 		}
 	}
@@ -4560,7 +4560,7 @@ void Sentient::UpdateFootsteps
 			iAnimFlags |= gi.Anim_Flags(edict->tiki, iAnimNum);
 		}
 	}
-
+	
 	//FIXME: macros
 	if ((iAnimFlags & 0xC00) != 3072)
 	{

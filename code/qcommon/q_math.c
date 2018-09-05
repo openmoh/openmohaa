@@ -924,6 +924,61 @@ float LerpAngle (float from, float to, float frac) {
 
 	return a;
 }
+static float fNoise1Arr[514];
+static int iNoise1Arr[256];
+
+static void init(void)
+{
+	//This is an ugly func I wont bother variable naming.
+	int i;
+	for (i = 0; i < 256; i++)
+	{
+		iNoise1Arr[i] = i;
+		fNoise1Arr[i] = (rand() % 512 - 256) * 0.00390625;
+	}
+	int v21, v22;
+	for (int j = i - 1; j; iNoise1Arr[v22 % 256] = v21)
+	{
+		v21 = iNoise1Arr[j];
+		v22 = rand();
+		iNoise1Arr[j--] = iNoise1Arr[v22 % 256];
+	}
+
+	for (size_t k = 0; k < 258; k++)
+	{
+		fNoise1Arr[k + 256] = fNoise1Arr[k];
+	}
+
+}
+static int start = 1;
+
+float noise1(float arg)
+{
+	/*
+	 * This is an ugly func I wont bother variable naming.
+	 *vec_t vec;
+	float u, t, sx, rx1, rx0;
+	int bx0;*/
+
+
+	if (start)
+	{
+		init();
+		start = 0;
+	}
+
+	double v1; // st7
+	int v2; // eax
+	double v3; // st7
+	float v5; // [esp+4h] [ebp+4h]
+
+	v1 = arg + 4096.0;
+	v2 = (unsigned __int8)(signed __int64)v1;
+	v3 = v1 - (double)(signed int)(signed __int64)v1;
+	v5 = v3 * fNoise1Arr[iNoise1Arr[v2]];
+	return ((v3 - 1.0) * fNoise1Arr[iNoise1Arr[(unsigned __int8)(v2 + 1)]] - v5) * ((3.0 - (v3 + v3)) * (v3 * v3))
+		+ v5;
+}
 
 /*
 ================

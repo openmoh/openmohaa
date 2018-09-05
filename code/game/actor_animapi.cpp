@@ -55,7 +55,7 @@ void SimpleActor::Anim_Attack
 
 {
 	m_eNextAnimMode = 1;
-	m_csNextAnimString = 0;
+	m_csNextAnimString = NULL;
 	m_NextAnimLabel = m_AttackHandler;
 	m_bNextForceStart = false;
 }
@@ -350,11 +350,11 @@ void SimpleActor::Anim_RunToInOpen
 
 void SimpleActor::Anim_Emotion
 	(
-	int eEmotionMode
+	eEmotionMode eEmotMode
 	)
 
 {
-	m_eEmotionMode = eEmotionMode;
+	m_eEmotionMode = eEmotMode;
 }
 
 void SimpleActor::Anim_Say

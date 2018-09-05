@@ -171,11 +171,25 @@ public:
 	bool				TrySetScript( const_str label );
 	bool				TrySetScript( const char *label );
 
+	bool				IsSet(void);
+	bool				IsFile(const_str filename);
+
 	void				GetScriptValue(ScriptVariable *var);
 
-	bool				IsSet( void );
 
 	void				Archive( Archiver& arc );
+
+	friend	bool		operator==(const ScriptThreadLabel& a, const ScriptThreadLabel& b);
 };
+
+
+inline bool operator==
+(
+	const ScriptThreadLabel& a,
+	const ScriptThreadLabel& b
+	)
+{
+	return a.m_Label == b.m_Label && a.m_Script == b.m_Script;
+}
 
 #endif

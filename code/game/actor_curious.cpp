@@ -51,7 +51,7 @@ void Actor::Begin_Curious
 
 	DoForceActivate();
 	m_csMood = STRING_CURIOUS;
-	Anim_Emotion(10);
+	Anim_Emotion(EMOTION_CURIOUS);
 
 	if (level.inttime > level.m_iCuriousVoiceTime + 3000)
 	{
@@ -76,7 +76,7 @@ void Actor::Begin_Curious
 	if (m_bScriptGoalValid)
 	{
 		SetPath(
-			this->m_vScriptGoal,
+			m_vScriptGoal,
 			"",
 			0,
 			NULL,
@@ -92,19 +92,30 @@ void Actor::Begin_Curious
 
 	if (!m_bScriptGoalValid)
 	{
+		//check if last enemy pos is within leash area (distance to m_vHome is <= m_fLeash)
 		vDelta = m_vLastEnemyPos - m_vHome;
 		if (vDelta.lengthSquared() <= m_fLeashSquared)
 		{
+			//it's within leash area, go check it.
 			SetPath(m_vLastEnemyPos, "", 0, NULL, 0.0);
 		}
 		else
 		{
+			//it's NOT within leash area,
+
+			//am I within leash area ?
 			if ((origin - m_vHome).lengthSquared() <= m_fLeashSquared)
 			{
+				//I'm inside leash area,
+				//Try to go towards enemy as much as possible without leaving leash area.
+				//vDest = vHome + U * leash
+				//U = unit vector of vDelta.
 				SetPath(vDelta * sqrt(m_fLeashSquared / vDelta.lengthSquared()) + m_vHome, "", 0, NULL, 0.0);
 			}
 			else
 			{
+				//I'm outside leash area,
+				//go to enemy, it doesn't matter.
 				SetPath(m_vLastEnemyPos, "", 0, NULL, 0.0);
 			}
 		}
@@ -121,8 +132,7 @@ void Actor::Begin_Curious
 			VectorSub2D(m_vLastEnemyPos, origin, vDel);
 			if (vDel[0] != 0 || vDel[1] != 0)
 			{ 
-				m_YawAchieved = false;
-				m_DesiredYaw = vectoyaw(vDel);
+				SetDesiredYawDir(vDel);
 			}
 			m_eNextAnimMode = 1;
 			m_csNextAnimString = STRING_ANIM_SURPRISE_SCR;
@@ -171,8 +181,231 @@ void Actor::Think_Curious
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	//horrible function!
+	if (RequireThink())
+	{
+		UpdateEyeOrigin();
+		NoPoint();
+		UpdateEnemy(100);
+
+		if(m_State == 1101)
+		{
+			ContinueAnimation();
+			//LABEL_16:
+			CheckForThinkStateTransition();
+			PostThink(true);
+			return;
+		}
+
+		m_bLockThinkState = false;
+		
+		if (!PathExists() || PathComplete())
+		{
+			//v1 = &this->baseSimpleActor.baseSentient.m_Enemy;
+			//goto LABEL_6;
+			
+			ClearPath();
+			Anim_Stand();
+			LookAtCuriosity();
+
+			if (!m_Enemy || EnemyIsDisguised())
+			{
+				if (level.inttime > m_iCuriousTime + 500)
+				{
+					SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+					m_iCuriousTime = 0;
+				}
+			}
+			CheckForThinkStateTransition();
+			PostThink(true);
+			return;
+		}
+
+		if (m_Enemy || CanSeeEnemy(100))
+		{
+			ClearPath();
+			Anim_Stand();
+			LookAtCuriosity();
+			if (!m_Enemy || EnemyIsDisguised())
+			{
+				if (level.inttime > m_iCuriousTime + 500)
+				{
+					SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+					m_iCuriousTime = 0;
+				}
+			}
+			CheckForThinkStateTransition();
+			PostThink(true);
+			return;
+		}
+		else
+		{
+			if (m_iCuriousLevel <= 5)
+			{
+				if (!InFOV(m_vLastEnemyPos, m_fFov, m_fFovDot))
+				{
+
+					if ((m_bScriptGoalValid || CanMovePathWithLeash())
+						&& MoveOnPathWithSquad())
+					{
+						if (PatrolNextNodeExists())
+						{
+							m_eNextAnimMode = 2;
+						}
+						else
+						{
+							//v11 = SimpleActor::GetRunAnim(this);
+							m_eNextAnimMode = 3;
+						}
+						m_csNextAnimString = GetRunAnim();
+						m_bNextForceStart = false;
+
+						FaceMotion();
+					}
+					else
+					{
+						Anim_Stand();
+					}
+
+					if (level.inttime >= m_iNextWatchStepTime
+						&& velocity.lengthSquared() >= 4.0)
+					{
+						SetDesiredLookDir(velocity);
+
+						m_iNextWatchStepTime = level.inttime + (rand() & 0x1FF) + 500;
+					}
+					else
+					{
+						LookAtCuriosity();
+					}
+					CheckForThinkStateTransition();
+					PostThink(true);
+					return;
+				}
+				else
+				{
+
+					Vector vEnd = EyePosition() - m_vLastEnemyPos;
+					VectorNormalizeFast(vEnd);
+
+					vEnd += m_vLastEnemyPos;
+					if (!G_SightTrace(EyePosition(), vec_zero, vec_zero, vEnd, this, NULL, 33819417, qfalse, "Actor::Think_Curious"))
+					{
+						if ((m_bScriptGoalValid || CanMovePathWithLeash())
+							&& MoveOnPathWithSquad())
+						{
+							if (PatrolNextNodeExists())
+							{
+								m_eNextAnimMode = 2;
+							}
+							else
+							{
+								//v11 = SimpleActor::GetRunAnim(this);
+								m_eNextAnimMode = 3;
+							}
+							m_csNextAnimString = GetRunAnim();
+							m_bNextForceStart = false;
+
+							FaceMotion();
+						}
+						else
+						{
+							Anim_Stand();
+						}
+
+						if (level.inttime >= m_iNextWatchStepTime
+							&& velocity.lengthSquared() >= 4.0)
+						{
+							SetDesiredLookDir(velocity);
+							
+							m_iNextWatchStepTime = level.inttime + (rand() & 0x1FF) + 500;
+						}
+						else
+						{
+							LookAtCuriosity();
+						}
+						CheckForThinkStateTransition();
+						PostThink(true);
+						return;
+					}
+					else
+					{
+
+						ClearPath();
+						Anim_Stand();
+						LookAtCuriosity();
+						if (!m_Enemy || EnemyIsDisguised())
+						{
+							if (level.inttime > m_iCuriousTime + 500)
+							{
+								SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+								m_iCuriousTime = 0;
+							}
+						}
+						CheckForThinkStateTransition();
+						PostThink(true);
+						return;
+					}
+				}
+			}
+			else
+			{
+				if ((PathGoal()-origin).lengthSquared() >= 2304)
+				{
+					if ((m_bScriptGoalValid || CanMovePathWithLeash())
+						&& MoveOnPathWithSquad())
+					{
+						if (PatrolNextNodeExists())
+						{
+							m_eNextAnimMode = 2;
+						}
+						else
+						{
+							//v11 = SimpleActor::GetRunAnim(this);
+							m_eNextAnimMode = 3;
+						}
+						m_csNextAnimString = GetRunAnim();
+						m_bNextForceStart = false;
+
+						FaceMotion();
+					}
+					else
+					{
+						Anim_Stand();
+					}
+
+					if (level.inttime >= m_iNextWatchStepTime
+						&& velocity.lengthSquared() >= 4.0)
+					{
+						SetDesiredLookDir(velocity);
+
+						m_iNextWatchStepTime = level.inttime + (rand() & 0x1FF) + 500;
+					}
+					else
+					{
+						LookAtCuriosity();
+					}
+					CheckForThinkStateTransition();
+					PostThink(true);
+					return;
+				}
+			}
+			ClearPath();
+			Anim_Stand();
+			LookAtCuriosity();
+			if (!m_Enemy || EnemyIsDisguised())
+			{
+				if (level.inttime > m_iCuriousTime + 500)
+				{
+					SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+					m_iCuriousTime = 0;
+				}
+			}
+			CheckForThinkStateTransition();
+			PostThink(true);
+			return;
+		}
+	}
 }
 
 void Actor::FinishedAnimation_Curious
@@ -254,7 +487,7 @@ void Actor::TimeOutCurious
 	{
 		if (level.inttime > m_iCuriousTime + 500)
 		{
-			SetThinkState(1, 0);
+			SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 			m_iCuriousTime = 0;
 		}
 	}
