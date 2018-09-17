@@ -48,24 +48,8 @@ void Actor::Begin_DisguiseOfficer
 {
 	vec2_t vDelta;
 	m_csMood = STRING_BORED;
-	/*
-		useless assert
-	  if ( !dword_39AC1C )
-	  {
-		if ( !this->baseSimpleActor.baseSentient.m_Enemy._vptr$ )
-		{
-		  v15 = MyAssertHandler("m_Enemy", "fgame/actor_disguise_officer.cpp", 38, 1);
-		  if ( v15 < 0 )
-		  {
-			dword_39AC1C = 1;
-		  }
-		  else if ( v15 > 0 )
-		  {
-			__debugbreak();
-		  }
-		}
-	  }
-	 */
+	assert(m_Enemy);
+
 	if (m_Enemy)
 	{
 		if ( (EnemyIsDisguised() || m_Enemy->IsSubclassOfActor())  && !level.m_bAlarm)
@@ -74,8 +58,7 @@ void Actor::Begin_DisguiseOfficer
 
 			if (vDelta[0] != 0 || vDelta[1] != 0)
 			{
-				m_YawAchieved = false;
-				m_DesiredYaw = vectoyaw(vDelta);
+				SetDesiredYawDir(vDelta);
 			}
 
 			SetDesiredLookDir(m_Enemy->origin - origin);
@@ -139,24 +122,7 @@ void Actor::Think_DisguiseOfficer
 		NoPoint();
 		ContinueAnimation();
 		UpdateEnemy(1500);
-		/*
-		 * useless assert
-		if ( !dword_39AC20 )
-		{
-			if ( !this->baseSimpleActor.baseSentient.m_Enemy._vptr$ )
-			{
-			v18 = MyAssertHandler("m_Enemy", "fgame/actor_disguise_officer.cpp", 139, 1);
-			if ( v18 < 0 )
-			{
-				dword_39AC20 = 1;
-			}
-			else if ( v18 > 0 )
-			{
-				__debugbreak();
-			}
-			}
-		}
-		*/
+		assert(m_Enemy);
 
 		if (!m_Enemy)
 		{
@@ -179,8 +145,7 @@ void Actor::Think_DisguiseOfficer
 
 		if (vDelta[0] != 0 || vDelta[1] != 0)
 		{
-			m_YawAchieved = false;
-			m_DesiredYaw = vectoyaw(vDelta);
+			SetDesiredYawDir(vDelta);
 		}
 
 		SetDesiredLookDir(m_Enemy->origin - origin);
@@ -195,29 +160,10 @@ void Actor::Think_DisguiseOfficer
 			if (m_State != 4)
 			{
 				Com_Printf("Actor::Think_DisguiseOfficer: invalid think state %i\n", m_State);
-				/*
-				 * useless assert
-				 *if ( !dword_39AC24 )
-				{
-				  strcpy(v20, "\"invalid think state\"\n\tMessage: ");
-				  memset(&s, 0, 0x3FDFu);
-				  v16 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable
-						 + 87))(
-						  this,
-						  "thinkstate = %i",
-						  this->m_State);
-				  Q_strcat(v20, 0x4000, v16);
-				  v17 = MyAssertHandler(v20, "fgame/actor_disguise_officer.cpp", 182, 0);
-				  if ( v17 < 0 )
-				  {
-					dword_39AC24 = 1;
-				  }
-				  else if ( v17 > 0 )
-				  {
-					__debugbreak();
-				  }
-				}
-				 **/
+				char assertStr[16317] = { 0 };
+				strcpy(assertStr, "\"invalid think state\"\n\tMessage: ");
+				Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("thinkstate = %i", m_State));
+				assert(!assertStr);
 			}
 			else
 			{
@@ -227,40 +173,20 @@ void Actor::Think_DisguiseOfficer
 		}
 		else
 		{
-			if (m_State != 1)
-
-			{
-				/*
-				 * useless assert
-				 *if ( !dword_39AC24 )
-				{
-				  strcpy(v20, "\"invalid think state\"\n\tMessage: ");
-				  memset(&s, 0, 0x3FDFu);
-				  v16 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable
-						 + 87))(
-						  this,
-						  "thinkstate = %i",
-						  this->m_State);
-				  Q_strcat(v20, 0x4000, v16);
-				  v17 = MyAssertHandler(v20, "fgame/actor_disguise_officer.cpp", 182, 0);
-				  if ( v17 < 0 )
-				  {
-					dword_39AC24 = 1;
-				  }
-				  else if ( v17 > 0 )
-				  {
-					__debugbreak();
-				  }
-				}
-				 **/
-			}
-			else
+			if (m_State == 1)
 			{
 				m_pszDebugState = "papers";
 				State_Disguise_Fake_Papers();
 			}
+			else
+			{
+				char assertStr[16317] = { 0 };
+				strcpy(assertStr, "\"invalid think state\"\n\tMessage: ");
+				Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("thinkstate = %i", m_State));
+				assert(!assertStr);
+			}
 		}
-		CheckForTransition(THINKSTATE_GRENADE, 0);
+		CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
 		PostThink(true);
 	}
 }

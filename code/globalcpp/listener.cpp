@@ -455,6 +455,7 @@ void L_ProcessPendingEvents()
 
 		// the event is removed from its list
 		LL_Remove( node, next, prev );
+		//gi.DPrintf2("Event: %s\n", node->event->getName().c_str());
 
 		// ProcessEvent will dispose of this event when it is done
 		obj->ProcessEvent( node->event );
@@ -4267,7 +4268,7 @@ void Listener::WaitTill( Event *ev )
 
 	name = ev->GetConstString( 1 );
 
-	if( WaitTillDisabled( name ) )
+	if( WaitTillDefined( name ) )
 	{
 		ScriptError( "invalid waittill %s for '%s'", Director.GetString( name ).c_str(), getClassname() );
 	}
@@ -4295,7 +4296,7 @@ void Listener::WaitTillTimeout( Event *ev )
 	timeout_time = ev->GetFloat( 1 );
 	name = ev->GetConstString( 2 );
 
-	if( WaitTillDisabled( name ) )
+	if( WaitTillDefined( name ) )
 	{
 		ScriptError( "invalid waittill %s for '%s'", Director.GetString( name ).c_str(), getClassname() );
 	}
@@ -4324,7 +4325,7 @@ void Listener::WaitTillAny( Event *ev )
 	{
 		name = ev->GetConstString( i );
 
-		if( WaitTillDisabled( name ) )
+		if( WaitTillDefined( name ) )
 		{
 			ScriptError( "invalid waittill %s for '%s'", Director.GetString( name ).c_str(), getClassname() );
 		}
@@ -4356,7 +4357,7 @@ void Listener::WaitTillAnyTimeout( Event *ev )
 	{
 		name = ev->GetConstString( i );
 
-		if( WaitTillDisabled( name ) )
+		if( WaitTillDefined( name ) )
 		{
 			ScriptError( "invalid waittill %s for '%s'", Director.GetString( name ).c_str(), getClassname() );
 		}

@@ -205,6 +205,12 @@ class PathNode : public SimpleEntity
 
 typedef SafePtr<PathNode> PathNodePtr;
 
+class nodeinfo {
+public:
+	PathNode *pNode;
+	float fDistSquared;
+};
+
 #define PATHMAP_CELLSIZE	256
 #define PATHMAP_GRIDSIZE	( MAX_MAP_BOUNDS * 2 / PATHMAP_CELLSIZE )
 

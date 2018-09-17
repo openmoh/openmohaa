@@ -983,16 +983,18 @@ void Teleporter::StopTeleport
 	}
 
 Teleporter::Teleporter()
+{
+	AddWaitTill(STRING_TELEPORT);
+
+	if ( LoadingSavegame )
 	{
-   if ( LoadingSavegame )
-      {
-      return;
-      }
+		return;
+	}
 
 	if ( spawnflags & 1 )
-		{
-      PostEvent( EV_Show, EV_POSTSPAWN );
-		}
+	{
+		PostEvent( EV_Show, EV_POSTSPAWN );
+	}
 
 	//respondto = spawnflags ^ ( TRIGGER_PLAYERS | TRIGGER_MONSTERS | TRIGGER_PROJECTILES );
 	respondto = spawnflags ^ ( TRIGGER_PLAYERS );
@@ -1002,13 +1004,13 @@ Teleporter::Teleporter()
 	// Cache all needed stuff
 
 	if ( !( spawnflags & NO_EFFECTS ) )
-		{
+	{
 		CacheResource( "models/fx_bigteleport.tik" );
 		//CacheResource( "sound/environment/electric/singles/dimming.wav", this );
 		CacheResource( "fx_teleport2.tik" );
 		//CacheResource( "snd_teleport", this );
-		}
 	}
+}
 
 /*****************************************************************************/
 /*QUAKED func_teleportdest (0 0.25 0.5) (-32 -32 0) (32 32 8)
@@ -1183,6 +1185,7 @@ CLASS_DECLARATION( Entity, UseAnim, "func_useanim" )
 
 UseAnim::UseAnim()
 	{
+   AddWaitTill(STRING_TRIGGER);
    if ( LoadingSavegame )
       {
       return;
@@ -1995,6 +1998,10 @@ CLASS_DECLARATION( Animate, UseObject, "func_useobject" )
 UseObject::UseObject()
 	{
    Event * e;
+
+   AddWaitTill(STRING_RESET);
+   AddWaitTill(STRING_MOVE);
+   AddWaitTill(STRING_STOP);
 
    if ( LoadingSavegame )
       {

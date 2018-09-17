@@ -436,9 +436,22 @@ void SimpleEntity::GetUpVector( Event *ev )
 	ev->AddVector( up );
 }
 
-void SimpleEntity::MPrintf( const char *msg, ... )
+void SimpleEntity::MPrintf( const char *fmt, ... )
 {
+	va_list		argptr;
+	char		msg[MAXPRINTMSG];
+	if (*g_monitor->string == NULL)
+	{
+		return;
+	}
 
+	if (targetname == g_monitor->string)
+	{
+		va_start(argptr, fmt);
+		Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
+		va_end(argptr);
+		Com_Printf("%s", msg);
+	}
 }
 
 int SimpleEntity::IsSubclassOfEntity( void ) const

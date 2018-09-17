@@ -862,6 +862,7 @@ char *G_ClientConnect( int clientNum, qboolean firstTime ) {
 	gentity_t	*ent;
 	char		userinfo[ MAX_INFO_STRING ];
 
+	gi.DPrintf("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
 	if( !g_gametype->integer ) {
 		return NULL;
 	}
@@ -935,7 +936,6 @@ char *G_ClientConnect( int clientNum, qboolean firstTime ) {
 
 		G_PrintToAllClients( va( "%s is preparing for deployment\n", client->pers.netname ) );
 	}
-
 	return NULL;
 }
 

@@ -73,8 +73,8 @@ SimpleActor::SimpleActor()
 	m_iSaySlot					= -1;
 	m_bLevelMotionAnim			= false;
 	m_bLevelActionAnim			= false;
-	m_bLevelSayAnim				= false;
-	m_bNextLevelSayAnim			= false;
+	m_bLevelSayAnim				= 0;
+	m_bNextLevelSayAnim			= 0;
 	m_DesiredYaw				= 0.0f;
 	m_YawAchieved				= true;
 	m_bPathErrorTime			= -10000000.0f;
@@ -255,7 +255,7 @@ void SimpleActor::StopAnimating
 	animFlags[ slot ] = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT | ANIM_PAUSED;
 	edict->s.frameInfo[ slot ].weight = 0;
 	animtimes[ slot ] = 0;
-	animFlags[ slot ] = ( animFlags[ slot ] | ANIM_NODELTA ) & ANIM_FINISHED;
+	animFlags[ slot ] = ( animFlags[ slot ] | ANIM_NODELTA ) & ~ANIM_FINISHED;
 }
 
 void SimpleActor::AnimFinished
@@ -264,8 +264,7 @@ void SimpleActor::AnimFinished
 	)
 
 {
-	DumpCallTrace( "" );
-	assert( !"" );
+	assert( !DumpCallTrace("") );
 }
 
 bool SimpleActor::CanTarget
@@ -309,8 +308,9 @@ void SimpleActor::SetPath
 
 {
 	if (!PathExists()
-		|| ((level.inttime >= m_Path.Time() + iMaxDirtyTime
-			|| m_Path.Complete(origin)) && m_Path.LastNode()->point != vDestPos)
+		|| ( ( level.inttime >= m_Path.Time() + iMaxDirtyTime
+			 || m_Path.Complete(origin) )
+				&& m_Path.LastNode()->point != vDestPos)
 		)
 	{
 		m_Path.FindPath(origin,
@@ -715,45 +715,35 @@ int SimpleActor::GetEmotionAnim
 		case EMOTION_NEUTRAL:
 		case EMOTION_AIMING:
 			emotionanim = "facial_idle_neutral";
+			break;
 		case EMOTION_WORRY:
 			emotionanim = "facial_idle_worry";
+			break;
 		case EMOTION_PANIC:
 			emotionanim = "facial_idle_panic";
+			break;
 		case EMOTION_FEAR:
 			emotionanim = "facial_idle_fear";
+			break;
 		case EMOTION_DISGUST:
 			emotionanim = "facial_idle_disgust";
+			break;
 		case EMOTION_ANGER:
-			emotionanim = "facial_idle_anger"; 
+			emotionanim = "facial_idle_anger";
+			break;
 		case EMOTION_DETERMINED:
 		case EMOTION_CURIOUS:
 			emotionanim = "facial_idle_determined";
-		case 	EMOTION_DEAD:
+			break;
+		case EMOTION_DEAD:
 			emotionanim = "facial_idle_dead";
+			break;
 		default:
-			assert(!"Unknown value for m_EmotionMode");
-			/*
-			 *useless assert
-			if (dword_39AFB8)
-				return -1;
-			v8 = 16308;
-			qmemcpy(&v11, "\"Unknown value for m_EmotionMode in SimpleActor::GetEmotionAnim\"\n\tMessage: ", 0x4Cu);
-			v9 = &v13;
-			if (&v13 & 4)
-			{
-				v9 = &v14;
-				v8 = 16304;
-				v13 = 0;
-			}
-			memset32(v9, dword_39AFB8, v8 >> 2);
-			v10 = (*(this->baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
-				this,
-				&nullStr);
-			Q_strcat(&v11, 0x4000, v10);
-			v5 = MyAssertHandler(&v11, "fgame/simpleactor.cpp", 1529, 0);
-			if (v5 >= 0)
-				goto LABEL_9;
-			dword_39AFB8 = 1;*/
+
+			char assertStr[16317] = { 0 };
+			strcpy(assertStr, "\"Unknown value for m_EmotionMode in SimpleActor::GetEmotionAnim\"\n\tMessage: ");
+			Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
+			assert(!assertStr);
 			return -1;
 			break;
 		}
@@ -1112,10 +1102,10 @@ void SimpleActor::UpdateAnimSlot
 	)
 
 {
-	switch (m_weightType[slot])
+	int weightType = m_weightType[slot];
+	switch (weightType)
 	{
 	case 0:
-		return;
 		break;
 	case 1:
 	case 2:
@@ -1134,8 +1124,9 @@ void SimpleActor::UpdateAnimSlot
 		break;
 	case 8:
 		UpdateLastFrameSlot(slot);
+		break;
 	default:
-		assert(!"impleActor::UpdateAnimSlot: Bad weight type.");
+		assert(weightType && !"impleActor::UpdateAnimSlot: Bad weight type.");
 		break;
 	}
 }
@@ -1231,7 +1222,7 @@ void SimpleActor::ChangeSayAnim
 	int iSlot; 
 
 	m_bSayAnimSet = false;
-	m_bLevelSayAnim = false;
+	m_bLevelSayAnim = 0;
 	m_iVoiceTime = level.inttime;
 	m_iSaySlot = -1;
 
@@ -1718,8 +1709,13 @@ void SimpleActor::ContinueAnimationAllowNoPath
 	)
 
 {
-	// not found in ida
-	STUB();
+	if (m_eNextAnimMode < 0)
+	{
+		m_bNextForceStart = false;
+		m_csNextAnimString = NULL;
+		m_eNextAnimMode = m_eAnimMode;
+		m_NextAnimLabel = m_Anim;
+	}
 }
 
 void SimpleActor::ContinueAnimation
@@ -1738,7 +1734,7 @@ void SimpleActor::ContinueAnimation
 
 	if (m_eAnimMode <= 3 && !PathExists())
 	{
-		assert(!"ContinueAnimation() called on a pathed animation, but no path exists");
+		assert(!DumpCallTrace("ContinueAnimation() called on a pathed animation, but no path exists"));
 		Anim_Stand();
 	}
 }

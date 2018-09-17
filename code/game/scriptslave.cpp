@@ -650,6 +650,12 @@ ScriptSlave::ScriptSlave()
 {
 	g_showflypath = gi.Cvar_Get( "g_showflypath", "0", NULL );
 
+	AddWaitTill(STRING_TOUCH);
+	AddWaitTill(STRING_BLOCK);
+	AddWaitTill(STRING_TRIGGER);
+	AddWaitTill(STRING_USE);
+	AddWaitTill(STRING_DAMAGE);
+
 	if( LoadingSavegame )
 	{
 		// Archive function will setup all necessary data

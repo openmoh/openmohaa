@@ -343,7 +343,17 @@ float ActorEnemy::UpdateLMRF
 
 ActorEnemySet::ActorEnemySet()
 {
+	m_pCurrentEnemy = NULL;
+	m_iCheckCount = 0;
 
+	if (m_pCurrentEnemy)
+	{
+		//delete m_pCurrentEnemy;
+		m_pCurrentEnemy = NULL;
+	}
+	
+	m_iCurrentThreat = 0;
+	m_fCurrentVisibility = 0.0;
 }
 
 ActorEnemySet::~ActorEnemySet()
@@ -425,7 +435,7 @@ void ActorEnemySet::FlagBadEnemy
 	{
 		if (m_pCurrentEnemy)
 		{
-			delete m_pCurrentEnemy;
+			//delete m_pCurrentEnemy;
 			m_pCurrentEnemy = NULL;
 		}
 		m_fCurrentVisibility = 0.0;
@@ -465,7 +475,7 @@ void ActorEnemySet::CheckEnemies
 		m_iCurrentThreat = 0;
 		if (m_pCurrentEnemy)
 		{
-			delete m_pCurrentEnemy;
+			//delete m_pCurrentEnemy;
 			m_pCurrentEnemy = NULL;
 		}
 	}
@@ -487,7 +497,7 @@ void ActorEnemySet::CheckEnemies
 					m_iCurrentThreat = 0;
 					if (m_pCurrentEnemy)
 					{
-						delete m_pCurrentEnemy;
+						//delete m_pCurrentEnemy;
 						m_pCurrentEnemy = NULL;
 					}
 					m_fCurrentVisibility = 0.0;
@@ -502,7 +512,7 @@ void ActorEnemySet::CheckEnemies
 						m_iCurrentThreat = 0;
 						if (m_pCurrentEnemy)
 						{
-							delete m_pCurrentEnemy;
+							//delete m_pCurrentEnemy;
 							m_pCurrentEnemy = NULL;
 						}
 						m_fCurrentVisibility = fVisibility;
@@ -544,7 +554,7 @@ void ActorEnemySet::CheckEnemies
 		{
 			if (m_pCurrentEnemy)
 			{
-				delete m_pCurrentEnemy;
+				//delete m_pCurrentEnemy;
 				m_pCurrentEnemy = NULL;
 			}
 			m_iCurrentThreat = 0;
@@ -574,7 +584,7 @@ void ActorEnemySet::CheckEnemies
 		{
 			if (m_pCurrentEnemy)
 			{
-				delete m_pCurrentEnemy;
+				//delete m_pCurrentEnemy;
 				m_pCurrentEnemy = NULL;
 			}
 			m_iCurrentThreat = 0;
@@ -649,7 +659,7 @@ void ActorEnemySet::RemoveAll
 	m_iCheckCount = 0;
 	if (m_pCurrentEnemy)
 	{
-		delete m_pCurrentEnemy;
+		//delete m_pCurrentEnemy;
 		m_pCurrentEnemy = NULL;
 	}
 	m_fCurrentVisibility = 0.0;
@@ -700,7 +710,7 @@ void ActorEnemySet::ConfirmEnemyIfCanSeeSharerOrEnemy
 		{
 			if (!pSelf->CanSee(
 				pSharer,
-				pSelf->m_bSilent ? 1119092736 : NULL,
+				pSelf->m_bSilent ? 90.0f : 0,
 				0.828 * world->farplane_distance))
 				return;
 		}

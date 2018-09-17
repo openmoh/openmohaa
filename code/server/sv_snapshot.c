@@ -509,6 +509,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	ps = SV_GameClientNum( client - svs.clients );
 	frame->ps = *ps;
 
+	//SV_SvEntityForGentity
 	// never send client's own entity, because it can
 	// be regenerated from the playerstate
 	clientNum = frame->ps.clientNum;
@@ -516,13 +517,22 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
 	}
 	svEnt = &sv.svEntities[ clientNum ];
-
+	
 	// su44: that's not done in MoHAA
 	//svEnt->snapshotCounter = sv.snapshotCounter;
 
 	// find the client's viewpoint
-	VectorCopy( ps->origin, org );
-	org[2] += ps->viewheight;
+	if (ps->pm_flags & PMF_CAMERA_VIEW)
+	{
+		VectorCopy(ps->camera_origin, org);
+	}
+	else
+	{
+		VectorCopy(ps->origin, org);
+		org[2] += ps->viewheight;
+	}
+
+	SV_AddEntToSnapshot(svEnt, SV_GentityNum(client - svs.clients), &entityNumbers.numSnapshotEntities, 0, 0);
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
@@ -541,6 +551,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 		((int *)frame->areabits)[i] = ((int *)frame->areabits)[i] ^ -1;
 	}
 
+	
 	// copy the entity states out
 	frame->num_entities = 0;
 	frame->first_entity = svs.nextSnapshotEntities;

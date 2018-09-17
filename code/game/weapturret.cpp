@@ -220,6 +220,8 @@ TurretGun::TurretGun()
 {
 	entflags |= EF_TURRET;
 
+	AddWaitTill(STRING_ONTARGET);
+
 	if( LoadingSavegame )
 	{
 		return;
@@ -332,7 +334,7 @@ void TurretGun::Archive
 	arc.ArchiveBool( &m_bUsable );
 
 	m_UseThread.Archive( arc );
-
+	
 	arc.ArchiveBool( &m_bHadOwner );
 	arc.ArchiveBool( &m_bRestable );
 

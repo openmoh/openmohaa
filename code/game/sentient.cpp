@@ -329,6 +329,15 @@ Event EV_Sentient_DeactivateWeapon
    "Deactivate the weapon in the specified hand.",
 	EV_NORMAL
 	);
+Event EV_Sentient_DropItems
+(
+	"dropitems",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"drops inventory items",
+	EV_NORMAL
+);
 Event EV_Sentient_DontDropWeapons
 	(
 	"dontdropweapons",
@@ -533,6 +542,7 @@ CLASS_DECLARATION( Animate, Sentient, NULL )
 		{ &EV_Sentient_PutawayWeapon,			&Sentient::PutawayWeapon },
 		{ &EV_Sentient_UseItem,					&Sentient::EventUseItem },
 		{ &EV_Sentient_UseLastWeapon,			&Sentient::EventActivateLastActiveWeapon },
+		{ &EV_Sentient_DropItems,				&Sentient::EventDropItems },
 		{ &EV_Sentient_DontDropWeapons,			&Sentient::EventDontDropWeapons },
 		{ &EV_Sentient_UseWeaponClass,			&Sentient::EventUseWeaponClass },
 		{ &EV_Sentient_ToggleItemUse,			&Sentient::EventToggleItem },
@@ -3918,6 +3928,11 @@ void Sentient::EventActivateLastActiveWeapon
 	}
 }
 
+void Sentient::EventDropItems(Event *ev)
+{
+	DropInventoryItems();
+}
+
 void Sentient::EventDontDropWeapons
 	(
 	Event *ev
@@ -4372,7 +4387,7 @@ void Sentient::JoinNearbySquads
 	)
 
 {
-	float fJoinRadiusSquared = fJoinRadius * fJoinRadius;
+	float fJoinRadiusSquared = Square(fJoinRadius);
 
 	for( Sentient *pFriendly = level.m_HeadSentient[ m_Team ]; pFriendly != NULL; pFriendly = pFriendly->m_NextSentient )
 	{

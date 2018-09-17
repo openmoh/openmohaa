@@ -1259,7 +1259,7 @@ Event EV_Actor_SetSoundAwareness
 	EV_DEFAULT,
 	"f",
 	"awareness_percent",
-	"sets the awareness of sounds in 0EV_DEFAULT00 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius"
+	"sets the awareness of sounds in 0-100 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius"
 	);
 
 Event EV_Actor_SetSoundAwareness2
@@ -1268,7 +1268,7 @@ Event EV_Actor_SetSoundAwareness2
 	EV_DEFAULT,
 	"f",
 	"awareness_percent",
-	"sets the awareness of sounds in 0EV_DEFAULT00 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius",
+	"sets the awareness of sounds in 0-100 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius",
 	EV_SETTER
 	);
 
@@ -1278,7 +1278,7 @@ Event EV_Actor_GetSoundAwareness
 	EV_DEFAULT,
 	NULL,
 	NULL,
-	"gets the awareness of sounds in 0EV_DEFAULT00 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius",
+	"gets the awareness of sounds in 0-100 percent chance of hearing a sound withinhalf of the sound's radius' fades to zero outside sound's radius",
 	EV_GETTER
 	);
 
@@ -1288,7 +1288,7 @@ Event EV_Actor_SetGrenadeAwareness
 	EV_DEFAULT,
 	"f",
 	"awareness_percent",
-	"sets the awareness of grenades in 0EV_DEFAULT00 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)"
+	"sets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)"
 	);
 
 
@@ -1298,7 +1298,7 @@ Event EV_Actor_SetGrenadeAwareness2
 	EV_DEFAULT,
 	"f",
 	"awareness_percent",
-	"sets the awareness of grenades in 0EV_DEFAULT00 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)",
+	"sets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)",
 	EV_SETTER
 	);
 
@@ -1308,7 +1308,7 @@ Event EV_Actor_GetGrenadeAwareness
 	EV_DEFAULT,
 	NULL,
 	NULL,
-	"gets the awareness of grenades in 0EV_DEFAULT00 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)",
+	"gets the awareness of grenades in 0-100 percent chance of responding to a grenadewhen the AI sees it (applied once every 0.4 seconds)",
 	EV_GETTER
 	);
 
@@ -2456,6 +2456,9 @@ CLASS_DECLARATION( SimpleActor, Actor, "Actor" )
 	{ &EV_Actor_GetMumble,						&Actor::EventGetMumble },
 	{ &EV_Actor_SetMumble,						&Actor::EventSetMumble },
 	{ &EV_Actor_SetMumble2,						&Actor::EventSetMumble },
+	{ &EV_Actor_GetBreathSteam,					&Actor::EventGetBreathSteam },
+	{ &EV_Actor_SetBreathSteam,					&Actor::EventSetBreathSteam },
+	{ &EV_Actor_SetBreathSteam2,				&Actor::EventSetBreathSteam },
 	{ &EV_Actor_CalcGrenadeToss,				&Actor::EventCalcGrenadeToss },
 	{ &EV_Actor_GetNoSurprise,					&Actor::EventGetNoSurprise },
 	{ &EV_Actor_SetNoSurprise,					&Actor::EventSetNoSurprise },
@@ -2538,6 +2541,15 @@ const_str Actor::m_csThinkStateNames[ MAX_THINKMAP ] = {
 
 SafePtr< Actor > Actor::mBodyQueue[MAX_BODYQUEUE];
 int Actor::mCurBody;
+
+
+/*
+===============
+Actor::Actor
+
+Constructor
+===============
+*/
 Actor::Actor()
 {
 	entflags |= EF_ACTOR;
@@ -2555,11 +2567,11 @@ Actor::Actor()
 	mass = 175;
 	flags |= FL_THINK;
 	flags &= ~FL_UNKNOWN;
-	edict->r.contents = CONTENTS_NOBOTCLIP;
+	setContentsSolid();
 	setSolidType( SOLID_BBOX );
 	m_fFov = 90.0f;
 	takedamage = DAMAGE_AIM;
-	m_fFovDot = cos( 0.78f );
+	m_fFovDot = cos( 0.5 * m_fFov * M_PI / 180 );
 	m_eAnimMode = 0;
 	m_eEmotionMode = EMOTION_NONE;
 	m_bDoPhysics = true;
@@ -2595,11 +2607,11 @@ Actor::Actor()
 	InitThinkStates();
 	SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 	m_fMinDistance = 128;
-	m_fMinDistanceSquared = 128 * 128;
+	m_fMinDistanceSquared = Square(128);
 	m_fMaxDistance = 1024;
-	m_fMaxDistanceSquared = 1024 * 1024;
+	m_fMaxDistanceSquared = Square(1024);
 	m_fLeash = 512;
-	m_fLeashSquared = 512 * 512;
+	m_fLeashSquared = Square(512);
 	m_iEyeUpdateTime = level.inttime;
 	if( m_iEyeUpdateTime < 1000 )
 		m_iEyeUpdateTime = 1000;
@@ -2703,6 +2715,7 @@ Actor::Actor()
 	m_fTurnDoneError = 0;
 	m_fBalconyHeight = 128;
 	m_bNoPlayerCollision = false;
+	m_pFallPath = NULL;
 	for( int i = 0; i < MAX_ORIGIN_HISTORY; i++ )
 	{
 		VectorClear2D( m_vOriginHistory[ i ] );
@@ -2713,6 +2726,13 @@ Actor::Actor()
 	m_bBecomeRunner = false;
 }
 
+/*
+===============
+Actor::ShowInfo
+
+Prints basic actor information.
+===============
+*/
 void Actor::ShowInfo
 	(
 	void
@@ -2733,6 +2753,13 @@ void Actor::ShowInfo
 	Com_Printf( "-------------------------------------------------------------------------------\n" );
 }
 
+/*
+===============
+Actor::MoveTo
+
+Move actor to specific location/listener with specific animation.
+===============
+*/
 void Actor::MoveTo
 	(
 	Event *ev
@@ -2760,6 +2787,13 @@ void Actor::MoveTo
 	SetThinkIdle( THINKSTATE_ATTACK );
 }
 
+/*
+===============
+Actor::WalkTo
+
+Walk to specific location.
+===============
+*/
 void Actor::WalkTo
 	(
 	Event *ev
@@ -2772,6 +2806,13 @@ void Actor::WalkTo
 	ExecuteScript( &event );
 }
 
+/*
+===============
+Actor::RunTo
+
+Run to specific location.
+===============
+*/
 void Actor::RunTo
 	(
 	Event *ev
@@ -2784,6 +2825,13 @@ void Actor::RunTo
 	ExecuteScript( &event );
 }
 
+/*
+===============
+Actor::CrouchTo
+
+Crouch to specific location.
+===============
+*/
 void Actor::CrouchTo
 	(
 	Event *ev
@@ -2796,6 +2844,13 @@ void Actor::CrouchTo
 	ExecuteScript( &event );
 }
 
+/*
+===============
+Actor::CrawlTo
+
+Crawl to specific location.
+===============
+*/
 void Actor::CrawlTo
 	(
 	Event *ev
@@ -2808,6 +2863,13 @@ void Actor::CrawlTo
 	ExecuteScript( &event );
 }
 
+/*
+===============
+Actor::AimAt
+
+Aim at specified target.
+===============
+*/
 void Actor::AimAt
 	(
 	Event *ev
@@ -2858,6 +2920,13 @@ void Actor::AimAt
 	SetThinkIdle( m_aimNode != NULL ? THINK_AIM : THINK_IDLE);
 }
 
+/*
+===============
+Actor::DefaultRestart
+
+Default restart of current think state.
+===============
+*/
 void Actor::DefaultRestart
 	(
 	void
@@ -2868,6 +2937,13 @@ void Actor::DefaultRestart
 	BeginState();
 }
 
+/*
+===============
+Actor::SuspendState
+
+Suspend current think state.
+===============
+*/
 void Actor::SuspendState
 	(
 	void
@@ -2880,6 +2956,13 @@ void Actor::SuspendState
 		( this->*func->SuspendState )( );
 }
 
+/*
+===============
+Actor::ResumeState
+
+Resume current think state.
+===============
+*/
 void Actor::ResumeState
 	(
 	void
@@ -2892,6 +2975,13 @@ void Actor::ResumeState
 		( this->*func->ResumeState )( );
 }
 
+/*
+===============
+Actor::BeginState
+
+Begin current think state.
+===============
+*/
 void Actor::BeginState
 	(
 	void
@@ -2908,6 +2998,13 @@ void Actor::BeginState
 	m_Think[ m_ThinkLevel ] = m_ThinkMap[ m_ThinkState ];
 }
 
+/*
+===============
+Actor::EndState
+
+End current think state.
+===============
+*/
 void Actor::EndState
 	(
 	int level
@@ -2925,6 +3022,13 @@ void Actor::EndState
 		m_pAnimThread->AbortRegistration( STRING_EMPTY, this );
 }
 
+/*
+===============
+Actor::RestartState
+
+Restart current think state.
+===============
+*/
 void Actor::RestartState
 	(
 	void
@@ -2937,6 +3041,12 @@ void Actor::RestartState
 		( this->*func->RestartState)();
 }
 
+/*
+===============
+Actor::setContentsSolid
+
+===============
+*/
 void Actor::setContentsSolid
 	(
 	void
@@ -2946,6 +3056,13 @@ void Actor::setContentsSolid
 	setContents(CONTENTS_NOBOTCLIP);
 }
 
+/*
+===============
+Actor::InitThinkStates
+
+Initialize think related stuff.
+===============
+*/
 void Actor::InitThinkStates
 	(
 	void
@@ -2979,23 +3096,26 @@ void Actor::InitThinkStates
 
 }
 
+/*
+===============
+Actor::UpdateEyeOrigin
+
+Update eye position.
+===============
+*/
 void Actor::UpdateEyeOrigin
 	(
 	void
 	)
 
 {
-	Vector eyeTag; // [esp+50h] [ebp-18h]
+	Vector eyeTag = vec_zero; // [esp+50h] [ebp-18h]
 
 	int currLvlTime = level.inttime;
 	int currTime = m_iEyeUpdateTime;
 
 	if (currLvlTime > currTime)
 	{
-		eyeTag.x = 0.0;
-		eyeTag.y = 0.0;
-		eyeTag.z = 0.0;
-
 		do
 			currTime += 100;
 		while (currTime < currLvlTime);
@@ -3033,6 +3153,13 @@ void Actor::UpdateEyeOrigin
 	}
 }
 
+/*
+===============
+Actor::RequireThink
+
+Do I need to think ?
+===============
+*/
 bool Actor::RequireThink
 	(
 	void
@@ -3046,6 +3173,13 @@ bool Actor::RequireThink
 	
 }
 
+/*
+===============
+Actor::UpdateEnemy
+
+Update enemy w.r.t m_iEnemyCheckTime.
+===============
+*/
 void Actor::UpdateEnemy
 	(
 	int iMaxDirtyTime
@@ -3056,6 +3190,13 @@ void Actor::UpdateEnemy
 		Actor::UpdateEnemyInternal();
 }
 
+/*
+===============
+Actor::UpdateEnemyInternal
+
+Real update enemy.
+===============
+*/
 void Actor::UpdateEnemyInternal
 	(
 	void
@@ -3070,7 +3211,7 @@ void Actor::UpdateEnemyInternal
 	if (m_Enemy != m_PotentialEnemies.GetCurrentEnemy())
 		SetEnemy(m_PotentialEnemies.GetCurrentEnemy(), false);
 
-	m_fNoticeTimeScale = (level.inttime - m_iEnemyCheckTime) / 10000 + m_fNoticeTimeScale;
+	m_fNoticeTimeScale += (level.inttime - m_iEnemyCheckTime) / 10000;
 
 	if (m_fNoticeTimeScale > m_fMaxNoticeTimeScale)
 		m_fNoticeTimeScale = m_fMaxNoticeTimeScale;
@@ -3078,6 +3219,13 @@ void Actor::UpdateEnemyInternal
 	m_iEnemyCheckTime = level.inttime;
 }
 
+/*
+===============
+Actor::SetEnemy
+
+Set current enemy.
+===============
+*/
 void Actor::SetEnemy
 	(
 	Sentient *pEnemy,
@@ -3095,7 +3243,7 @@ void Actor::SetEnemy
 		m_Enemy->m_iAttackerCount--;
 	}
 	m_bNewEnemy = m_Enemy == NULL;
-	delete m_Enemy;
+	//delete m_Enemy;
 
 	m_Enemy = pEnemy;
 
@@ -3130,32 +3278,50 @@ void Actor::SetEnemy
 	}
 }
 
+/*
+===============
+Actor::SetEnemyPos
+
+Update stored enemy position information.
+===============
+*/
 void Actor::SetEnemyPos
 (
 	Vector vPos
 )
 
 {
+	Vector vEnemyPos;
 	if (m_vLastEnemyPos != vPos)
 	{
 		m_iLastEnemyPosChangeTime = level.inttime;
 		m_vLastEnemyPos = vPos;
+		vEnemyPos = m_vLastEnemyPos;
 		if (m_Enemy)
 		{
 			mTargetPos += m_Enemy->eyeposition;
+			vEnemyPos = m_Enemy->eyeposition;
 		}
 		else
 		{
 			mTargetPos.z += 88;
 		}
 
-		if (mTargetPos.z - m_Enemy->EyePosition().z < 128)
+		if (mTargetPos.z - vEnemyPos.z < 128)
 		{
 			mTargetPos.z -= 16;
 		}
 	}
 }
 
+/*
+===============
+Actor::ResetBodyQueue
+
+Clear body queue.
+Called upon Level::Cleanup()
+===============
+*/
 void Actor::ResetBodyQueue
 	(
 	void
@@ -3173,6 +3339,13 @@ void Actor::ResetBodyQueue
 	mCurBody = 0;
 }
 
+/*
+===============
+Actor::AddToBodyQue
+
+Add this to body queue.
+===============
+*/
 void Actor::AddToBodyQue
 	(
 	void
@@ -3181,6 +3354,8 @@ void Actor::AddToBodyQue
 {
 	SafePtr<Actor> lastActor = mBodyQueue[mCurBody + 3];
 	
+
+
 	if (lastActor)
 	{
 		Event ev(EV_Remove);
@@ -3188,10 +3363,18 @@ void Actor::AddToBodyQue
 	}
 
 	mBodyQueue[mCurBody] = this;
+
+	//update current body index
 	mCurBody = (mCurBody + 1) % 5;
 	
 }
 
+/*
+===============
+Actor::GetAntiBunchPoint
+
+===============
+*/
 Vector Actor::GetAntiBunchPoint
 	(
 	void
@@ -3209,7 +3392,7 @@ Vector Actor::GetAntiBunchPoint
 			float distSq = dist * dist;
 			if (distSq != 0)
 			{
-				if (m_fInterval*m_fInterval > distSq)
+				if (Square(m_fInterval) > distSq)
 				{
 					count++;
 					ret += origin + (dist/sqrt(distSq)) * (m_fInterval - sqrt(distSq));
@@ -3232,6 +3415,13 @@ Vector Actor::GetAntiBunchPoint
 	return ret;
 }
 
+/*
+===============
+Actor::InitVoid
+
+Init void global func
+===============
+*/
 void Actor::InitVoid
 	(
 	GlobalFuncs_t *func
@@ -3241,6 +3431,13 @@ void Actor::InitVoid
 	func->IsState = &Actor::IsVoidState;
 }
 
+/*
+===============
+Actor::DumpCallTrace
+
+Dump useful debug info.
+===============
+*/
 const char *Actor::DumpCallTrace
 	(
 	const char *pszFmt,
@@ -3346,6 +3543,15 @@ const char *Actor::DumpCallTrace
 		szTemp);
 }
 
+
+/*
+===============
+Actor::Init
+
+Initialize global actor variables.
+Called from G_InitGame()
+===============
+*/
 void Actor::Init
 	(
 	void
@@ -3407,10 +3613,12 @@ void Actor::Init
 	InitNoClip(&GlobalFuncs[THINK_NOCLIP]);
 	InitDead(&GlobalFuncs[THINK_DEAD]);
 	
+
+	
 	AddWaitTill(STRING_TRIGGER);
 	AddWaitTill(STRING_MOVE);
-	AddWaitTill(STRING_VISIBLE);
 	AddWaitTill(STRING_ANIMDONE);
+	AddWaitTill(STRING_VISIBLE);
 	AddWaitTill(STRING_UPPERANIMDONE);
 	AddWaitTill(STRING_SAYDONE);
 	AddWaitTill(STRING_FLAGGEDANIMDONE);
@@ -3421,6 +3629,8 @@ void Actor::Init
 	AddWaitTill(STRING_SOUNDDONE);
 	AddWaitTill(STRING_TURNDONE);
 
+	gi.DPrintf("actor waittills registered\n");
+
 	if (developer->integer)
 	{
 		Com_Printf("sizeof(Actor) == %i\n", sizeof(Actor));
@@ -3429,6 +3639,13 @@ void Actor::Init
 	}
 }
 
+/*
+===============
+Actor::FixAIParameters
+
+Fix path related parameters.
+===============
+*/
 void Actor::FixAIParameters
 	(
 	void
@@ -3461,7 +3678,7 @@ void Actor::FixAIParameters
 				leash);
 			m_fLeash = leash;
 			distmin = leash;
-			m_fLeashSquared = leash * leash;
+			m_fLeashSquared = Square(leash);
 		}
 	}
 	else
@@ -3536,7 +3753,7 @@ void Actor::FixAIParameters
 				{
 					m_fMinDistance = 0.0;
 				}
-				m_fMinDistanceSquared = m_fMinDistance * m_fMinDistance;
+				m_fMinDistanceSquared = Square(m_fMinDistance);
 			}
 		}
 	}
@@ -3577,7 +3794,6 @@ bool Actor::AttackEntryAnimation
 							}
 							if (pSquadMate == this)
 							{
-								//FIXME: macro
 								if (m_bNewEnemy)
 									Anim_Say(STRING_ANIM_SAY_SIGHTED_SCR, 200, false);
 
@@ -3610,7 +3826,7 @@ bool Actor::AttackEntryAnimation
 			else
 			{
 				//FIXME: macro
-				if ( rand() / 0x17F > distSq )
+				if ( rand() > distSq  * 0.0026041667) //rand() / 0x17F
 				{
 					//FIXME: macro
 					m_eNextAnimMode = 1;
@@ -3636,6 +3852,13 @@ bool Actor::AttackEntryAnimation
 	return false;
 }
 
+/*
+===============
+Actor::CheckForThinkStateTransition
+
+Check for all thinkstates transitions.
+===============
+*/
 void Actor::CheckForThinkStateTransition
 	(
 	void
@@ -3670,6 +3893,13 @@ void Actor::CheckForThinkStateTransition
 	}
 }
 
+/*
+===============
+Actor::CheckForTransition
+
+Check for thinkstate transition.
+===============
+*/
 bool Actor::CheckForTransition
 	(
 	int state,
@@ -3692,6 +3922,15 @@ bool Actor::CheckForTransition
 
 	return false;
 }
+
+
+/*
+===============
+Actor::PassesTransitionConditions_Grenade
+
+Should actor transition think state to grenade ?
+===============
+*/
 bool Actor::PassesTransitionConditions_Grenade
 	(
 	void
@@ -3706,6 +3945,13 @@ bool Actor::PassesTransitionConditions_Grenade
 	return false;
 }
 
+/*
+===============
+Actor::PassesTransitionConditions_Attack
+
+Should actor transition think state to attack ?
+===============
+*/
 bool Actor::PassesTransitionConditions_Attack
 	(
 	void
@@ -3732,6 +3978,13 @@ bool Actor::PassesTransitionConditions_Attack
 	return false;
 }
 
+/*
+===============
+Actor::PassesTransitionConditions_Disguise
+
+Should actor transition think state to disguise ?
+===============
+*/
 bool Actor::PassesTransitionConditions_Disguise
 	(
 	void
@@ -3760,14 +4013,13 @@ bool Actor::PassesTransitionConditions_Disguise
 				if( fabs( m_Enemy->origin[ 2 ] - origin[ 2 ] ) <= 48.0f )
 				{
 					vec2_t delta;
-					float fRadius;
+					float fHorzDistanceSquared;
 
-					delta[ 0 ] = m_Enemy->origin[ 0 ] - origin[ 0 ];
-					delta[ 1 ] = m_Enemy->origin[ 1 ] - origin[ 1 ];
+					VectorSub2D(m_Enemy->origin, origin, delta);
 
-					fRadius = delta[ 0 ] * delta[ 0 ] + delta[ 1 ] * delta[ 1 ];
+					fHorzDistanceSquared = VectorLength2DSquared(delta);
 
-					if( fRadius > 1024.0f && fRadius < m_fMaxDisguiseDistSquared )
+					if(fHorzDistanceSquared > Square(32) && fHorzDistanceSquared < m_fMaxDisguiseDistSquared)
 					{
 						Player *player = ( Player * )G_GetEntity( 0 );
 						Vector pos = EyePosition();
@@ -3791,6 +4043,13 @@ bool Actor::PassesTransitionConditions_Disguise
 	return false;
 }
 
+/*
+===============
+Actor::PassesTransitionConditions_Curious
+
+Should actor transition think state to curious ?
+===============
+*/
 bool Actor::PassesTransitionConditions_Curious
 	(
 	void
@@ -3820,28 +4079,14 @@ bool Actor::PassesTransitionConditions_Curious
 	return false;
 }
 
-bool Actor::PassesTransitionConditions_Idle
-	(
-	void
-	)
+/*
+===============
+Actor::UpdateEnableEnemy
 
-{
-
-	if( m_bEnableEnemy )
-	{
-		if( level.inttime > m_iEnemyCheckTime + 500 )
-			UpdateEnemyInternal();
-	}
-
-	if( m_bLockThinkState )
-		return false;
-
-	if( !m_Enemy && !m_iCuriousTime )
-		return true;
-
-	return false;
-}
-
+Enable/disable enemy based on desired value.
+Can be changed from script.
+===============
+*/
 void Actor::UpdateEnableEnemy
 	(
 	void
@@ -3853,15 +4098,11 @@ void Actor::UpdateEnableEnemy
 		m_bEnableEnemy = m_bDesiredEnableEnemy;
 		if (m_bDesiredEnableEnemy)
 		{
-			if (!m_bFixedLeash)
-			{
-				m_vHome = origin;
-			}
+			SetLeashHome(origin);
 		}
 		else
 		{
-			//FIXME: macros
-			if (m_ThinkStates[0] <= THINKSTATE_DISGUISE)
+			if (m_ThinkStates[THINKLEVEL_NORMAL] <= THINKSTATE_DISGUISE)
 			{
 				SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 			}
@@ -3870,6 +4111,14 @@ void Actor::UpdateEnableEnemy
 	}
 }
 
+/*
+===============
+Actor::ThinkStateTransitions
+
+Transition think state and level.
+Called when thinkstate/level are change.
+===============
+*/
 void Actor::ThinkStateTransitions
 	(
 	void
@@ -3906,7 +4155,7 @@ void Actor::ThinkStateTransitions
 	}
 	else
 	{
-		if (newThinkLevel > 0)
+		if (newThinkLevel > THINKLEVEL_NORMAL)
 		{
 			for (int i = 0 ; i < newThinkLevel; i++)
 			{
@@ -3961,6 +4210,12 @@ void Actor::ThinkStateTransitions
 	}
 }
 
+/*
+===============
+Actor::TransitionState
+
+===============
+*/
 void Actor::TransitionState
 	(
 	int iNewState,
@@ -3972,6 +4227,13 @@ void Actor::TransitionState
 	
 }
 
+/*
+===============
+Actor::ChangeAnim
+
+Change current animation.
+===============
+*/
 void Actor::ChangeAnim
 	(
 	void
@@ -4002,7 +4264,7 @@ void Actor::ChangeAnim
 				if (m_bMotionAnimSet && !m_bLevelMotionAnim)
 					AnimFinished(m_iMotionSlot, true);
 				if (m_bActionAnimSet && !m_bLevelActionAnim)
-					Actor::AnimFinished(m_iActionSlot, true);
+					AnimFinished(m_iActionSlot, true);
 
 				if (m_bSayAnimSet && !m_bLevelSayAnim)
 				{
@@ -4122,24 +4384,38 @@ void Actor::ChangeAnim
 	}
 }
 
+/*
+===============
+Actor::UpdateSayAnim
+
+Update say animation.
+===============
+*/
 void Actor::UpdateSayAnim
 	(
 	void
 	)
 
 {
+	gi.DPrintf("Actor::UpdateSayAnim 1\n");
+
 	if (m_ThinkState > THINKSTATE_KILLED)
 	{
+		gi.DPrintf("Actor::UpdateSayAnim 2\n");
 		int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(m_csSayAnim).c_str());
 		if (animnum == -1)
 		{
 			return;
 		}
+		gi.DPrintf("Actor::UpdateSayAnim 3\n");
+
 		int flags = gi.Anim_FlagsSkel(edict->tiki, animnum);
 
-		if (flags & ANIM_TOGGLEBIT)
+		//FIXME: macro
+		if (flags & 256)
 		{
-			if (m_ThinkState != THINKSTATE_ATTACK && m_ThinkState != THINKSTATE_GRENADE)
+			gi.DPrintf("Actor::UpdateSayAnim 4\n");
+			if ( !IsAttackState(m_ThinkState) && !IsGrenadeState(m_ThinkState) )
 			{
 				ChangeActionAnim();
 				if (flags & ANIM_NOACTION)
@@ -4166,28 +4442,41 @@ void Actor::UpdateSayAnim
 				}
 				ChangeSayAnim();
 				m_bSayAnimSet = true;
-				m_bNextLevelSayAnim = false;
-				m_bLevelSayAnim = m_bNextLevelSayAnim; 
+				m_bLevelSayAnim = m_bNextLevelSayAnim;
+				m_bNextLevelSayAnim = 0;
 				m_iSaySlot = m_iActionSlot;
 				return;
 			}
+			gi.DPrintf("Actor::UpdateSayAnim 4\n");
 		}
-		else if (m_bNextLevelSayAnim == 2 || m_ThinkState != THINKSTATE_ATTACK && m_ThinkState != THINKSTATE_GRENADE)
+		else if (m_bNextLevelSayAnim == 2 || (!IsAttackState(m_ThinkState) && !IsGrenadeState(m_ThinkState)) )
 		{
+			gi.DPrintf("Actor::UpdateSayAnim 6\n");
 			ChangeSayAnim();
 			m_bSayAnimSet = true;
 			StartSayAnimSlot(animnum);
-			m_bNextLevelSayAnim = 0;
 			m_bLevelSayAnim = m_bNextLevelSayAnim;
+			m_bNextLevelSayAnim = 0;
 			m_iSaySlot = GetSaySlot();
+			gi.DPrintf("Actor::UpdateSayAnim 7\n");
 			return;
 		}
 	}
 
 	if (!m_bSayAnimSet)
+	{
 		Unregister(STRING_SAYDONE);
+		gi.DPrintf("Actor::UpdateSayAnim 8\n");
+	}
 }
 
+/*
+===============
+Actor::UpdateUpperAnim
+
+Update upper animation.
+===============
+*/
 void Actor::UpdateUpperAnim
 	(
 	void
@@ -4219,6 +4508,13 @@ void Actor::UpdateUpperAnim
 	}
 }
 
+/*
+===============
+Actor::UpdateAnim
+
+Update animation.
+===============
+*/
 void Actor::UpdateAnim
 	(
 	void
@@ -4275,7 +4571,8 @@ void Actor::UpdateAnim
 			fAnimTime = AnimTime(slot);
 			fAnimWeight = edict->s.frameInfo[slot].weight;
 			//FIXME: macro
-			if ((((int)time) & 0x7F800000) == 0x7F800000)
+			
+			if (time == INFINITY)
 			{
 				Com_Printf("ent %i, targetname '%s', anim '%s', slot %i, fAnimTime %f, fAnimWeight %f\n",
 					entnum,
@@ -4300,6 +4597,13 @@ void Actor::UpdateAnim
 	}
 }
 
+/*
+===============
+Actor::StoppedWaitFor
+
+Called when stopped wait for an actor.
+===============
+*/
 void Actor::StoppedWaitFor
 (
 	const_str name,
@@ -4319,6 +4623,14 @@ void Actor::StoppedWaitFor
 	g_iInThinks--;
 }
 
+/*
+===============
+Actor::ValidGrenadePath
+
+Returns true if grenade trajectory is valid.
+i.e grenade can get from vFrom to vTo with vVel with any obstacles.
+===============
+*/
 bool Actor::ValidGrenadePath
 	(
 	Vector& vFrom,
@@ -4448,6 +4760,13 @@ bool Actor::ValidGrenadePath
 	return false;
 }
 
+/*
+===============
+Actor::CalcThrowVelocity
+
+Calculates required grenade throw velocity to get grenade from vFrom to vTo.
+===============
+*/
 Vector Actor::CalcThrowVelocity
 	(
 	Vector& vFrom,
@@ -4506,6 +4825,14 @@ Vector Actor::CalcThrowVelocity
 	return ret;
 }
 
+/*
+===============
+Actor::CanThrowGrenade
+
+Returns required velocity to throw grenade from vFrom to vTo.
+Or vec_zero if it's not possible.
+===============
+*/
 Vector Actor::CanThrowGrenade
 	(
 	Vector& vFrom,
@@ -4526,6 +4853,14 @@ Vector Actor::CanThrowGrenade
 	}
 }
 
+/*
+===============
+Actor::CalcRollVelocity
+
+Calculates required grenade roll velocity to get grenade from vFrom to vTo.
+Roll here means a low toss.
+===============
+*/
 Vector Actor::CalcRollVelocity
 	(
 	Vector& vFrom,
@@ -4565,6 +4900,15 @@ Vector Actor::CalcRollVelocity
 	}
 }
 
+/*
+===============
+Actor::CanRollGrenade
+
+Returns required velocity to roll grenade from vFrom to vTo.
+Or vec_zero if it's not possible.
+Roll here means a low toss.
+===============
+*/
 Vector Actor::CanRollGrenade
 	(
 	Vector& vFrom,
@@ -4584,6 +4928,14 @@ Vector Actor::CanRollGrenade
 	}
 }
 
+/*
+===============
+Actor::CanTossGrenadeThroughHint
+
+Returns true if actor can toss grenade through specified hint.
+pvVel and peMode are modified.
+===============
+*/
 bool Actor::CanTossGrenadeThroughHint
 	(
 	GrenadeHint *pHint,
@@ -4659,6 +5011,13 @@ bool Actor::CanTossGrenadeThroughHint
 	return bSuccess;
 }
 
+/*
+===============
+Actor::GrenadeThrowPoint
+
+Returns real grenade throw point.
+===============
+*/
 Vector Actor::GrenadeThrowPoint
 	(
 	const Vector& vFrom,
@@ -4717,6 +5076,13 @@ Vector Actor::GrenadeThrowPoint
 	}
 }
 
+/*
+===============
+Actor::CalcKickVelocity
+
+Calculates required grenade kick velocity.
+===============
+*/
 Vector Actor::CalcKickVelocity
 	(
 	Vector& vDelta,
@@ -4724,13 +5090,14 @@ Vector Actor::CalcKickVelocity
 	) const
 
 {
-	float fScale;
-
+	float fScale, fGravity;
 	Vector ret;
 	float v4;
 
+	fGravity = 0.8 * sv_gravity->value;
+
 	fScale = 0.57735032 * fDist;
-	v4 = sqrt(0.8 * sv_gravity->value * 0.5 / (fScale - vDelta[2]));
+	v4 = sqrt(fGravity * 0.5 / (fScale - vDelta[2]));
 	ret[0] = vDelta[0] * v4;
 	ret[1] = vDelta[1] * v4;
 	ret[2] = fScale * v4;
@@ -4738,6 +5105,15 @@ Vector Actor::CalcKickVelocity
 	return ret;
 }
 
+/*
+===============
+Actor::CanKickGrenade
+
+Returns true if actor can kick grenade from vFrom to vTo.
+Or false if it's not possible.
+pvVel is changed.
+===============
+*/
 bool Actor::CanKickGrenade
 	(
 	Vector &vFrom,
@@ -4748,9 +5124,9 @@ bool Actor::CanKickGrenade
 
 {
 	Vector vEnd, vStart, vDelta, vVel;
-	float fDist;
-
-	if (sv_gravity->value <= 0.0)
+	float fDist, fGravity, fScale;
+	fGravity = sv_gravity->value * 0.8;
+	if (fGravity <= 0.0)
 	{
 		return false;
 	}
@@ -4758,27 +5134,29 @@ bool Actor::CanKickGrenade
 	vStart = GrenadeThrowPoint(vFrom, vFace, STRING_ANIM_GRENADEKICK_SCR);
 	vDelta = vTo - vStart;
 
-	if (vDelta.z >= 0 || Vector::Dot(vFace, vDelta) < 0.0 || vDelta.lengthXY() < 256 || vDelta.lengthXY() >= 255401.28 / (sv_gravity->value * 0.8) + 192.0)
+	fDist = vDelta.lengthXY();
+	if (vDelta.z >= 0 || Vector::Dot(vDelta, vFace) < 0.0 || fDist < 256 || fDist >= 255401.28 / fGravity + 192.0)
 	{
 		return false;
 	}
 
-	if (vDelta.lengthXY() < 512)
-		fDist = 192.0 / vDelta.lengthXY() + 0.25;
+	if (fDist < 512)
+		fScale = 192.0 / fDist + 0.25;
 	else
-		fDist = 1.0 - 192.0 / vDelta.lengthXY();
-
-	float vdlxy = vDelta.lengthXY();
-
-	vDelta[0] *= fDist;
-	vDelta[1] *= fDist;
-
-	vEnd = vDelta + vStart;
-
-	vVel = CalcKickVelocity(fDist * vDelta, fDist * vdlxy);
+		fScale = 1.0 - 192.0 / fDist;
 
 
-	if (vVel == vec_zero || !ValidGrenadePath(vStart, vEnd, vVel))
+
+	vEnd = vStart + vDelta;
+
+
+	vDelta[0] *= fScale;
+	vDelta[1] *= fScale;
+
+	*pvVel = CalcKickVelocity(vDelta, fScale * fDist);
+
+
+	if (*pvVel == vec_zero || !ValidGrenadePath(vStart, vEnd, *pvVel))
 	{
 		return false;
 	}
@@ -4788,6 +5166,13 @@ bool Actor::CanKickGrenade
 	}
 }
 
+/*
+===============
+Actor::GrenadeWillHurtTeamAt
+
+Returns true if grenade will hurt team at vTo.
+===============
+*/
 bool Actor::GrenadeWillHurtTeamAt
 	(
 	Vector& vTo
@@ -4801,7 +5186,6 @@ bool Actor::GrenadeWillHurtTeamAt
 
 	for (Actor * pSquadMate = (Actor *)m_pNextSquadMate.Pointer(); pSquadMate != this; pSquadMate = (Actor *)pSquadMate->m_pNextSquadMate.Pointer())
 	{
-		//FIXME: macro
 		if ((pSquadMate->origin-vTo).length() <= 65536)
 		{
 			return true;
@@ -4810,6 +5194,15 @@ bool Actor::GrenadeWillHurtTeamAt
 	return false;
 }
 
+/*
+===============
+Actor::CanGetGrenadeFromAToB
+
+Returns true if actor can get a grenade from vFrom to vTo.
+pvVel is the kick/roll/throw velocity.
+peMode is the possible toss mode.
+===============
+*/
 bool Actor::CanGetGrenadeFromAToB
 	(
 	Vector& vFrom,
@@ -4838,15 +5231,15 @@ bool Actor::CanGetGrenadeFromAToB
 	fRangeSquared = vDelta.lengthSquared();
 
 	//range < 256
-	if (fRangeSquared < 65536)
+	if (fRangeSquared < Square(256))
 		return false;
 	if (bDesperate)
 	{
 		vStart = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADERETURN_SCR);
 	}
 
-	//range < 256
-	if (fRangeSquared < 1024)
+	//range < 32
+	if (fRangeSquared < Square(1024))
 	{
 		if (!bDesperate)
 		{
@@ -4880,7 +5273,7 @@ bool Actor::CanGetGrenadeFromAToB
 		return false;
 	}
 
-	nHints = GrenadeHint::GetClosestSet(apHint, 4, vStart, 1048576);
+	nHints = GrenadeHint::GetClosestSet(apHint, 4, vStart, Square(1024));
 
 	for (int i = 0; i <= nHints; i++)
 	{
@@ -4910,6 +5303,15 @@ bool Actor::CanGetGrenadeFromAToB
 	return false;
 }
 
+/*
+===============
+Actor::DecideToThrowGrenade
+
+Returns true if actor will throw grenade to vTo.
+pvVel is the kick/roll/throw velocity.
+peMode is the toss mode.
+===============
+*/
 bool Actor::DecideToThrowGrenade
 	(
 	Vector& vTo,
@@ -4928,6 +5330,13 @@ bool Actor::DecideToThrowGrenade
 	return false;
 }
 
+/*
+===============
+Actor::Grenade_EventFire
+
+Throw grenade animation
+===============
+*/
 void Actor::Grenade_EventFire
 	(
 	Event *ev
@@ -4971,6 +5380,14 @@ void Actor::Grenade_EventFire
 
 }
 
+/*
+===============
+Actor::GenericGrenadeTossThink
+
+Called when actor in grenade state.
+i.e. actor noticed a grenade and must think fast.
+===============
+*/
 void Actor::GenericGrenadeTossThink
 	(
 	void
@@ -4982,7 +5399,7 @@ void Actor::GenericGrenadeTossThink
 
 	if (m_Enemy && level.inttime >= m_iStateTime + 200)
 	{
-		if (Actor::CanGetGrenadeFromAToB(
+		if (CanGetGrenadeFromAToB(
 			origin,
 			m_Enemy->velocity-m_Enemy->origin,
 			false,
@@ -4995,11 +5412,17 @@ void Actor::GenericGrenadeTossThink
 		m_iStateTime = level.inttime;
 	}
 
-	m_YawAchieved = false;
-	m_DesiredYaw = vectoyaw(m_vGrenadeVel);
+	SetDesiredYawDir(m_vGrenadeVel);
 	ContinueAnimation();
 }
 
+/*
+===============
+Actor::CanSee
+
+Returns true to script if actor cansee entity.
+===============
+*/
 void Actor::CanSee
 	(
 	Event *ev
@@ -5008,7 +5431,8 @@ void Actor::CanSee
 {
 	float fov = 0;
 	float vision_distance = 0;
-	if (m_Think[m_ThinkLevel] != 17 || !m_pTurret)
+
+	if (m_Think[m_ThinkLevel] != THINK_MACHINEGUNNER || !m_pTurret)
 	{
 		return Entity::CanSee(ev);
 	}
@@ -5057,6 +5481,14 @@ void Actor::CanSee
 	}
 }
 
+/*
+===============
+Actor::Think
+
+Think function for actor.
+Calls think function related to the current thinkstate.
+===============
+*/
 void Actor::Think
 	(
 	void
@@ -5069,6 +5501,7 @@ void Actor::Think
 		&& m_bDoAI
 		&& edict->tiki)
 	{
+		//gi.DPrintf("Actor::Think 1\n");
 		Director.iPaused++;
 		
 		v1 = level.inttime;
@@ -5086,8 +5519,8 @@ void Actor::Think
 			{
 				ohIndex = 3;
 			}
-			m_vOriginHistory[ohIndex][0] = origin[0];
-			m_vOriginHistory[ohIndex][1] = origin[1];
+
+			VectorCopy2D(origin, m_vOriginHistory[ohIndex]);
 		}
 		if (m_bNoPlayerCollision)
 		{
@@ -5099,34 +5532,17 @@ void Actor::Think
 				m_bNoPlayerCollision = false;
 			}
 		}
+		//gi.DPrintf("Actor::Think 2\n");
 		m_eNextAnimMode = -1;
 		FixAIParameters();
-		if (m_bEnableEnemy != m_bDesiredEnableEnemy)
-		{
-			m_bEnableEnemy = m_bDesiredEnableEnemy;
-			if (m_bDesiredEnableEnemy)
-			{
-				if (!m_bFixedLeash)
-				{
-					m_vHome = origin;
-				}
-			}
-			else
-			{
-				
-				if (m_ThinkStates[THINKLEVEL_NORMAL] <= THINKSTATE_DISGUISE)
-				{
-					SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
-				}
-				SetEnemy(NULL, false);
-			}
-		}
+		UpdateEnableEnemy();
 
 		if (m_pTetherEnt)
 		{
 			m_vHome = m_pTetherEnt->origin;
 		}
 
+		//gi.DPrintf("Actor::Think 3\n");
 		if (m_bBecomeRunner)
 		{
 			parm.movefail = false;
@@ -5142,6 +5558,7 @@ void Actor::Think
 			ThinkStateTransitions();
 		}
 
+		//gi.DPrintf("Actor::Think 4\n");
 		GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
 
 		if (func->ThinkState)
@@ -5151,9 +5568,18 @@ void Actor::Think
 		mbBreakSpecialAttack = false;
 		if (!--Director.iPaused)
 			Director.ExecuteRunning();
+		
+		//gi.DPrintf("Actor::Think 5: entnum %d, classname: %s\n", entnum, G_GetEntity(0) ? G_GetEntity(0)->getClassname() : "");
 	}
 }
 
+/*
+===============
+Actor::PostThink
+
+Called after think is finished.
+===============
+*/
 void Actor::PostThink
 	(
 	bool bDontFaceWall
@@ -5171,10 +5597,19 @@ void Actor::PostThink
 	UpdateAngles();
 	UpdateAnim();
 	DoMove();
+	//gi.DPrintf("Actor::PostThink 1\n");
 	UpdateBoneControllers();
+	//gi.DPrintf("Actor::PostThink 2\n");
 	UpdateFootsteps();
 }
 
+/*
+===============
+Actor::SetMoveInfo
+
+Copies current move information to mm.
+===============
+*/
 void Actor::SetMoveInfo
 	(
 	mmove_t *mm
@@ -5212,6 +5647,13 @@ void Actor::SetMoveInfo
 	mm->tracemask = m_bNoPlayerCollision == false ? MASK_PATHSOLID : MASK_TARGETPATH;
 }
 
+/*
+===============
+Actor::GetMoveInfo
+
+Fetch current move information from mm.
+===============
+*/
 void Actor::GetMoveInfo
 	(
 	mmove_t *mm
@@ -5243,10 +5685,7 @@ void Actor::GetMoveInfo
 						{
 							m_bDesiredEnableEnemy = true;
 							m_bEnableEnemy = true;
-							if (!m_bFixedLeash)
-							{
-								m_vHome = origin;
-							}
+							SetLeashHome(origin);
 						}
 
 						BecomeTurretGuy();
@@ -5310,10 +5749,7 @@ void Actor::GetMoveInfo
 						{
 							m_bDesiredEnableEnemy = true;
 							m_bEnableEnemy = true;
-							if (!m_bFixedLeash)
-							{
-								m_vHome = origin;
-							}
+							SetLeashHome(origin);
 						}
 
 						BecomeTurretGuy();
@@ -5347,12 +5783,20 @@ void Actor::GetMoveInfo
 	if (VectorLengthSquared(mm->velocity) < 1)
 	{
 		velocity = vec_zero;
-		return;
+	}
+	else
+	{
+		velocity = mm->velocity;
 	}
 
-	velocity = mm->velocity;
 }
 
+/*
+===============
+Actor::DoFailSafeMove
+
+===============
+*/
 void Actor::DoFailSafeMove
 	(
 	vec3_t dest
@@ -5367,6 +5811,12 @@ void Actor::DoFailSafeMove
 	SetThinkState(THINKSTATE_NOCLIP, THINKLEVEL_NOCLIP);
 }
 
+/*
+===============
+Actor::TouchStuff
+
+===============
+*/
 void Actor::TouchStuff
 	(
 	mmove_t *mm
@@ -5416,6 +5866,12 @@ void Actor::TouchStuff
 	}
 }
 
+/*
+===============
+Actor::ExtractConstraints
+
+===============
+*/
 void Actor::ExtractConstraints
 	(
 	mmove_t *mm
@@ -5425,6 +5881,15 @@ void Actor::ExtractConstraints
 	// not found in ida
 }
 
+/*
+===============
+Actor::EventGiveWeaponInternal
+
+Give weapon to actor.
+
+Called from STRING_GLOBAL_WEAPON_SCR.
+===============
+*/
 void Actor::EventGiveWeaponInternal
 	(
 	Event *ev
@@ -5440,6 +5905,13 @@ void Actor::EventGiveWeaponInternal
 	}
 }
 
+/*
+===============
+Actor::EventGiveWeapon
+
+Give weapon to actor.
+===============
+*/
 void Actor::EventGiveWeapon
 	(
 	Event *ev
@@ -5469,6 +5941,13 @@ void Actor::EventGiveWeapon
 
 }
 
+/*
+===============
+Actor::EventGetWeapon
+
+Returns weapon path to script.
+===============
+*/
 void Actor::EventGetWeapon
 	(
 	Event *ev
@@ -5478,15 +5957,29 @@ void Actor::EventGetWeapon
 	ev->AddConstString(m_csWeapon);
 }
 
+/*
+===============
+Actor::FireWeapon
+
+Fire weapon from script.
+===============
+*/
 void Actor::FireWeapon
 	(
 	Event *ev
 	)
 
 {
-	Sentient::FireWeapon(0, FIRE_PRIMARY);
+	Sentient::FireWeapon(WEAPON_MAIN, FIRE_PRIMARY);
 }
 
+/*
+===============
+Actor::CanTarget
+
+Actor can target.
+===============
+*/
 bool Actor::CanTarget
 	(
 	void
@@ -5496,6 +5989,13 @@ bool Actor::CanTarget
 	return true;
 }
 
+/*
+===============
+Actor::IsImmortal
+
+Actor is immortal ?
+===============
+*/
 bool Actor::IsImmortal
 	(
 	void
@@ -5512,15 +6012,6 @@ bool Actor::IsVoidState
 
 {
 	return true;
-}
-
-bool Actor::IsIdleState
-	(
-	int state
-	)
-
-{
-	return state == THINKSTATE_IDLE;
 }
 
 bool Actor::IsCuriousState
@@ -5595,6 +6086,13 @@ bool Actor::IsDogState
 	return true;
 }
 
+/*
+===============
+Actor::IgnoreSoundSet
+
+Make actor ignore iType sound.
+===============
+*/
 void Actor::IgnoreSoundSet
 	(
 	int iType
@@ -5604,15 +6102,29 @@ void Actor::IgnoreSoundSet
 	m_iIgnoreSoundsMask |= 1 << iType;
 }
 
+/*
+===============
+Actor::IgnoreSoundSetAll
+
+Make actor ignore all types of sound.
+===============
+*/
 void Actor::IgnoreSoundSetAll
 	(
 	void
 	)
 
 {
-	m_iIgnoreSoundsMask = 65535;
+	m_iIgnoreSoundsMask = ~AI_EVENT_NONE;
 }
 
+/*
+===============
+Actor::IgnoreSoundClear
+
+Don't ignore iType of sound.
+===============
+*/
 void Actor::IgnoreSoundClear
 	(
 	int iType
@@ -5622,6 +6134,13 @@ void Actor::IgnoreSoundClear
 	m_iIgnoreSoundsMask &= ~iType;
 }
 
+/*
+===============
+Actor::IgnoreSoundClearAll
+
+Make actor ignore no type of sound.
+===============
+*/
 void Actor::IgnoreSoundClearAll
 	(
 	void
@@ -5631,6 +6150,13 @@ void Actor::IgnoreSoundClearAll
 	m_iIgnoreSoundsMask = 0;
 }
 
+/*
+===============
+Actor::IgnoreSoundClearAll
+
+returns true if actor should ignore iType of sound.
+===============
+*/
 bool Actor::IgnoreSound
 	(
 	int iType
@@ -5640,6 +6166,13 @@ bool Actor::IgnoreSound
 	return ( m_iIgnoreSoundsMask >> iType ) & 1;
 }
 
+/*
+===============
+Actor::EventShareEnemy
+
+Share enemy with squad mates.
+===============
+*/
 void Actor::EventShareEnemy
 	(
 	Event *ev
@@ -5667,6 +6200,13 @@ void Actor::EventShareEnemy
 	}
 }
 
+/*
+===============
+Actor::EventShareGrenade
+
+Share grenade with squad mates.
+===============
+*/
 void Actor::EventShareGrenade
 	(
 		Event *ev
@@ -5683,9 +6223,9 @@ void Actor::EventShareGrenade
 				if (!pSquadMate->m_pGrenade)
 				{
 					Vector dist = pSquadMate->origin - origin;
-					float distSq = dist * dist;
+					float distSq = Square(dist);
 					
-					if (distSq < 589824)
+					if (distSq < Square(768))
 					{
 						
 						if (DoesTheoreticPathExist(pSquadMate->origin, 1536))
@@ -5699,6 +6239,13 @@ void Actor::EventShareGrenade
 	}
 }
 
+/*
+===============
+Actor::ReceiveAIEvent
+
+Calls proper RecieveAIEvent for current ThinkState.
+===============
+*/
 void Actor::ReceiveAIEvent
 	(
 	vec3_t event_origin,
@@ -5719,6 +6266,13 @@ void Actor::ReceiveAIEvent
 	}
 }
 
+/*
+===============
+Actor::DefaultReceiveAIEvent
+
+Default AI event handler.
+===============
+*/
 void Actor::DefaultReceiveAIEvent
 	(
 	vec3_t event_origin,
@@ -5735,28 +6289,29 @@ void Actor::DefaultReceiveAIEvent
 		{
 			MergeWithSquad((Sentient *)originator);
 		}
+
 		switch (iType)
 		{
 		case AI_EVENT_WEAPON_FIRE:
 		case AI_EVENT_WEAPON_IMPACT:
-			if (m_fHearing * m_fHearing > fDistSquared)
+			if ( Square(m_fHearing) > fDistSquared)
 				WeaponSound(iType, event_origin, fDistSquared, fMaxDistSquared, originator);
 			break;
 		case AI_EVENT_EXPLOSION:
 		case AI_EVENT_MISC:
 		case AI_EVENT_MISC_LOUD:
-			if (m_fHearing * m_fHearing > fDistSquared)
+			if ( Square(m_fHearing) > fDistSquared)
 				CuriousSound(iType, event_origin, fDistSquared, fMaxDistSquared);
 			break;
 		case AI_EVENT_AMERICAN_VOICE:
 		case AI_EVENT_GERMAN_VOICE:
 		case AI_EVENT_AMERICAN_URGENT:
 		case AI_EVENT_GERMAN_URGENT:
-			if (m_fHearing * m_fHearing > fDistSquared)
+			if ( Square(m_fHearing) > fDistSquared)
 				VoiceSound(iType, event_origin, fDistSquared, fMaxDistSquared, originator);
 			break;
 		case AI_EVENT_FOOTSTEP:
-			if (m_fHearing * m_fHearing > fDistSquared)
+			if ( Square(m_fHearing) > fDistSquared)
 				FootstepSound(event_origin, fDistSquared, fMaxDistSquared, originator);
 			break;
 		case AI_EVENT_GRENADE:
@@ -5764,13 +6319,23 @@ void Actor::DefaultReceiveAIEvent
 			break;
 		default:
 			{
-				assert(!DumpCallTrace("iType = %i", iType));
+				char assertStr[16317] = { 0 };
+				strcpy(assertStr, "\"unknown ai_event type\"\n\tMessage: ");
+				Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("iType = %i", iType));
+				assert(!assertStr);
 			}
 			break;
 		}
 	}
 }
 
+/*
+===============
+Actor::PriorityForEventType
+
+Returns priority for event type.
+===============
+*/
 int Actor::PriorityForEventType
 	(
 	int iType
@@ -5806,6 +6371,13 @@ int Actor::PriorityForEventType
 	}
 }
 
+/*
+===============
+Actor::CuriousSound
+
+Handles curious sound.
+===============
+*/
 void Actor::CuriousSound
 	(
 	int iType,
@@ -5840,7 +6412,7 @@ void Actor::CuriousSound
 					if (iType == AI_EVENT_WEAPON_IMPACT)
 					{
 						//FIXME: macro
-						if (fDistSquared <= 36864.0)
+						if (fDistSquared <= Square(192))
 							SetCuriousAnimHint(1);
 					}
 					else if (iType > AI_EVENT_WEAPON_IMPACT)
@@ -5848,7 +6420,7 @@ void Actor::CuriousSound
 						if (iType == AI_EVENT_EXPLOSION)
 						{
 							//FIXME: macro
-							if (fDistSquared <= 589824.0)
+							if (fDistSquared <= Square(768))
 								SetCuriousAnimHint(3);
 						}
 						else
@@ -5859,7 +6431,7 @@ void Actor::CuriousSound
 					else if (iType == AI_EVENT_WEAPON_FIRE)
 					{
 						//FIXME: macro
-						if (fDistSquared <= 262144.0)
+						if (fDistSquared <= Square(512))
 							SetCuriousAnimHint(2);
 					}
 					else
@@ -5879,6 +6451,13 @@ void Actor::CuriousSound
 	}
 }
 
+/*
+===============
+Actor::WeaponSound
+
+Handles weapon sound.
+===============
+*/
 void Actor::WeaponSound
 	(
 	int iType,
@@ -5898,29 +6477,11 @@ void Actor::WeaponSound
 	{
 		if (!originator->IsSubclassOfProjectile())
 		{
-			/*
-			 * useless assert
-			 *if ( !dword_39A8FC )
-				{
-					strcpy(v31, "\"Actor::WeaponSound: non-weapon made a weapon sound.\\n\"\n\tMessage: ");
-					memset(&s, 0, 0x3FBDu);
-					v7 = Class::getClassname(&originator->baseItem.baseTrigger.baseAnimate.baseEntity.baseSimple.baseListener.baseClass);
-					v8 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
-						   this,
-						   "class = %s",
-						   v7);
-					Q_strcat(v31, 0x4000, v8);
-					v9 = MyAssertHandler(v31, "fgame/actor.cpp", 9553, 0);
-					if ( v9 < 0 )
-					{
-					  dword_39A8FC = 1;
-					}
-					else if ( v9 > 0 )
-					{
-					  __debugbreak();
-					}
-				}
-			*/
+			char assertStr[16317] = { 0 };
+			strcpy(assertStr, "\"Actor::WeaponSound: non-weapon made a weapon sound.\\n\"\n\tMessage: ");
+			Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("class = %s", originator->getClassname()));
+			assert(!assertStr);
+			
 			return;
 		}
 		pOwner = ((Projectile *)originator)->GetOwner();
@@ -5983,34 +6544,21 @@ void Actor::WeaponSound
 	if (m_PotentialEnemies.CaresAboutPerfectInfo(pEnemy))
 	{
 		float fDist = sqrt(fDistSquared);
-		if (pOwner->m_Team == m_Team)
+		if (NoticeShot(pOwner, pEnemy, fDist))
 		{
-			m_bEnemyIsDisguised = false;
-			if (pEnemy)
-			{
-				//v16 = fDist * 1.5;
-				if (DoesTheoreticPathExist(
-					pOwner->origin,
-					fDist * 1.5)
-					||
-					CanSee(
-						pEnemy,
-						0,
-						0.82800001 * world->farplane_distance))
-				{
-					m_PotentialEnemies.ConfirmEnemy(this, pEnemy);
-				}
-			}
-		}
-		else
-		{
-			if (pOwner->m_Team != m_Team)
-				m_PotentialEnemies.ConfirmEnemy(this, pOwner);
+			m_PotentialEnemies.ConfirmEnemy(this, pOwner);
 			CuriousSound(iType, sound_origin, fDistSquared, fMaxDistSquared);
 		}
 	}
 }
 
+/*
+===============
+Actor::FootstepSound
+
+Handles footstep sound.
+===============
+*/
 void Actor::FootstepSound
 	(
 	vec3_t sound_origin,
@@ -6022,52 +6570,30 @@ void Actor::FootstepSound
 {
 	if (originator->IsSubclassOfSentient())
 	{
-		if ( (m_ThinkStates[0] == THINKSTATE_IDLE || m_ThinkStates[0] == THINKSTATE_CURIOUS ) && m_bEnableEnemy)
+		if ( (m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_IDLE || m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_CURIOUS ) && m_bEnableEnemy)
 		{
-			if (m_Team == ((Sentient *)originator)->m_Team || ((Sentient *)originator)->m_bIsDisguised)
+			if (NoticeFootstep((Sentient *)originator))
 			{
-				return;
+				CuriousSound(AI_EVENT_FOOTSTEP, sound_origin, fDistSquared, fMaxDistSquared);
 			}
-			if (originator == m_Enemy)
-			{
-				if (EnemyInFOV(0) && CanSeeEnemy(0))
-				{
-					return;
-				}
-			}
-			else
-			{
-				if (InFOV(originator->centroid, m_fFov, m_fFovDot) && CanSeeFrom(EyePosition(), originator))
-				{
-					return;
-				}
-			}
-			CuriousSound(AI_EVENT_FOOTSTEP, sound_origin, fDistSquared, fMaxDistSquared);
 		}
 	}
 	else
 	{
-		/*
-		 * useless assert
-			strcpy(v12, "\"'ai_event footstep' in a tiki used by something besides AI or player.\\n\"\n\tMessage: ");
-			memset(&s, 0, 0x3FABu);
-			v5 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
-					this,
-					&nullStr);
-			Q_strcat(v12, 0x4000, v5);
-			v6 = MyAssertHandler(v12, "fgame/actor.cpp", 9618, 0);
-			if ( v6 < 0 )
-			{
-				dword_39A900 = 1;
-			}
-			else if ( v6 > 0 )
-			{
-				__debugbreak();
-			}
-		 */
+		char assertStr[16317] = { 0 };
+		strcpy(assertStr, "\"'ai_event footstep' in a tiki used by something besides AI or player.\\n\"\n\tMessage: ");
+		Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
+		assert(!assertStr);
 	}
 }
 
+/*
+===============
+Actor::VoiceSound
+
+Handles voice sound.
+===============
+*/
 void Actor::VoiceSound
 	(
 	int iType,
@@ -6080,20 +6606,20 @@ void Actor::VoiceSound
 {
 	bool bFriendly;
 	//FIXME: macros
-	if (m_ThinkStates[0] != THINKSTATE_IDLE && m_ThinkStates[0] != THINKSTATE_CURIOUS || !m_bEnableEnemy)
+	if (m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_IDLE && m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_CURIOUS || !m_bEnableEnemy)
 		return;
 
 	bFriendly = m_Team == TEAM_GERMAN;
-
-	if (iType <= 5)
+	
+	if (iType <= AI_EVENT_GERMAN_VOICE)
 	{
-		assert(iType == 4);
+		assert(iType == AI_EVENT_AMERICAN_VOICE);
 	}
 	else
 	{
-		assert(iType <= 7);
+		assert(iType <= AI_EVENT_GERMAN_URGENT);
 
-		if (iType == 6)
+		if (iType == AI_EVENT_AMERICAN_URGENT)
 		{
 			bFriendly = m_Team == TEAM_AMERICAN;
 		}
@@ -6101,34 +6627,21 @@ void Actor::VoiceSound
 
 	if (bFriendly)
 	{
-		if (IsSquadMate((Sentient *)originator))
+		if (NoticeVoice((Sentient *)originator))
 		{
-			return;
-		}
-
-		if (originator == m_Enemy)
-		{
-			if (EnemyInFOV(0) && CanSeeEnemy(0))
-			{
-				return;
-			}
-		}
-		else
-		{
-			if (InFOV(originator->centroid, m_fFov, m_fFovDot)
-				&& gi.AreasConnected(edict->r.areanum, originator->edict->r.areanum))
-			{
-				if (CanSeeFrom(EyePosition(), originator))
-				{
-					return;
-				}
-			}
+			CuriousSound(iType, sound_origin, fDistSquared, fMaxDistSquared);
 		}
 	}
 
-	CuriousSound(iType, sound_origin, fDistSquared, fMaxDistSquared);
 }
 
+/*
+===============
+Actor::GrenadeNotification
+
+Handles grenade notification.
+===============
+*/
 void Actor::GrenadeNotification
 	(
 	Entity *originator
@@ -6183,35 +6696,36 @@ void Actor::GrenadeNotification
 		fVelDivGrav = originator->velocity[2] / fGrav;
 
 		//from s=v*t + 0.5*a*t^2, apply for z velocity, solve.
-		fTimeLand = fVelDivGrav + sqrt((fDeltaZ + fDeltaZ) / fGrav + fVelDivGrav * fVelDivGrav);
+		fTimeLand = fVelDivGrav + sqrt((fDeltaZ + fDeltaZ) / fGrav + Square(fVelDivGrav));
 
-		vLand[0] = fTimeLand * originator->velocity[0] + originator->origin[0];
-		vLand[1] = fTimeLand * originator->velocity[1] + originator->origin[1];
 
-		vMove[0] = m_vGrenadePos[0] - vLand[0];
-		vMove[1] = m_vGrenadePos[1] - vLand[1];
+		VectorMA2D(originator->origin, fTimeLand, originator->velocity, vLand);
+
+		VectorSub2D(m_vGrenadePos, vLand, vMove);
 		
-		if (VectorLength2D(vMove) > 16.0)
+		if (VectorLength2D(vMove) > 16)
 		{
-			m_vGrenadePos[0] = vLand[0];
-			m_vGrenadePos[1] = vLand[1];
-			m_vGrenadePos[2] = origin[2];
+			m_vGrenadePos = Vector(vLand[0], vLand[1], origin[2]);
 			m_bGrenadeBounced = true;
 		}
 		
 	}
 }
 
+/*
+===============
+Actor::SetGrenade
+
+Set current grenade.
+===============
+*/
 void Actor::SetGrenade
 	(
 	Entity *pGrenade
 	)
 
 {
-	if (m_pGrenade != pGrenade)
-	{
-		m_pGrenade = pGrenade;
-	}
+	m_pGrenade = pGrenade;
 	
 	m_bGrenadeBounced = true;
 	
@@ -6221,6 +6735,13 @@ void Actor::SetGrenade
 
 }
 
+/*
+===============
+Actor::NotifySquadmateKilled
+
+Handle squadmate killed notification.
+===============
+*/
 void Actor::NotifySquadmateKilled
 	(
 	Sentient *pSquadMate,
@@ -6252,7 +6773,7 @@ void Actor::NotifySquadmateKilled
 			//FIXME: macro for that constant
 			if (!shouldConfirm)
 			{
-				if (distSq <= 589824)
+				if (distSq <= Square(768))
 				{
 					Vector start, end;
 					if (origin.z <= pSquadMate->origin.z)
@@ -6265,7 +6786,7 @@ void Actor::NotifySquadmateKilled
 						start = pSquadMate->origin;
 						end = origin;
 					}
-					shouldConfirm = m_Path.DoesTheoreticPathExist(start, end, this, 0x44C00000, 0, 0);
+					shouldConfirm = m_Path.DoesTheoreticPathExist(start, end, this, 1536, 0, 0);
 				}
 			}
 			if (shouldConfirm)
@@ -6276,6 +6797,13 @@ void Actor::NotifySquadmateKilled
 	}
 }
 
+/*
+===============
+Actor::RaiseAlertnessForEventType
+
+Raise alertness(enemy notice) for specifc event.
+===============
+*/
 void Actor::RaiseAlertnessForEventType
 	(
 	int iType
@@ -6312,32 +6840,23 @@ void Actor::RaiseAlertnessForEventType
 			RaiseAlertness(0.25);
 		}
 	default:
-		assert(0);
+		char assertStr[16317] = { 0 };
+		strcpy(assertStr, "\"Actor::RaiseAlertnessForEventType: unknown event type\\n\"\n\tMessage: ");
+		Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
+		assert(!assertStr);
 		return;
-		/* useless assert
-		if (!dword_39A90C)
-		{
-			strcpy(&v9, "\"Actor::RaiseAlertnessForEventType: unknown event type\\n\"\n\tMessage: ");
-			memset(&s, 0, 0x3FBBu);
-			v5 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
-				this,
-				&s2);
-			Q_strcat(&v9, 0x4000, v5);
-			v6 = MyAssertHandler(&v9, "fgame/actor.cpp", 9864, 0);
-			if (v6 < 0)
-			{
-				dword_39A90C = 1;
-			}
-			else if (v6 > 0)
-			{
-				__debugbreak();
-			}
-		}*/
 		break;
 	}
 	RaiseAlertness(fAmount);
 }
 
+/*
+===============
+Actor::RaiseAlertness
+
+Lower enemy notice time by fAmount.
+===============
+*/
 void Actor::RaiseAlertness
 	(
 	float fAmount
@@ -6348,9 +6867,16 @@ void Actor::RaiseAlertness
 
 	fMaxAmount = m_fNoticeTimeScale * 2/3;
 
-	m_fNoticeTimeScale -= fAmount <= fMaxAmount ? fAmount : fAmount;
+	m_fNoticeTimeScale -= fAmount <= fMaxAmount ? fAmount : fMaxAmount;
 }
 
+/*
+===============
+Actor::CanSee
+
+Returns true if actor cansee entity through fov and vision_distance.
+===============
+*/
 bool Actor::CanSee
 	(
 	Entity *e1,
@@ -6362,6 +6888,7 @@ bool Actor::CanSee
 	bool canSee = Sentient::CanSee(e1, fov, vision_distance);
 	if (e1 == m_Enemy)
 	{
+		m_iEnemyVisibleCheckTime = level.inttime;
 		if (canSee)
 		{
 			SetEnemyPos(e1->origin);
@@ -6390,6 +6917,13 @@ bool Actor::CanSee
 	return canSee;
 }
 
+/*
+===============
+Actor::GunPosition
+
+Returns current gun position.
+===============
+*/
 Vector Actor::GunPosition
 	(
 	void
@@ -6412,6 +6946,13 @@ Vector Actor::GunPosition
 	return m_vGunPosition;
 }
 
+/*
+===============
+Actor::WithinVisionDistance
+
+Returns true if entity is witthin vision distance.
+===============
+*/
 bool Actor::WithinVisionDistance
 	(
 	Entity *ent
@@ -6440,6 +6981,13 @@ bool Actor::WithinVisionDistance
 	return false;
 }
 
+/*
+===============
+Actor::InFOV
+
+Returns true if positin is within fov.
+===============
+*/
 bool Actor::InFOV
 	(
 	Vector pos,
@@ -6458,18 +7006,25 @@ bool Actor::InFOV
 			return bInFov;
 		}
 		bInFov = false;
-		Vector a;
-		a[0] = delta.x * orientation[0][0];
-		a[1] = delta.y * orientation[0][1] + a[0];
-		if (a[0] >= 0)
+		
+		
+		float fDot = DotProduct2D(delta, orientation[0]);
+		if (fDot >= 0)
 		{
-			bInFov = a[0] * a[0] > delta.lengthXY() * (check_fovdot * check_fovdot);
+			bInFov = Square(fDot) > delta.lengthXY(true) * Square(check_fovdot);
 		}
 		
 	}
 	return bInFov;
 }
 
+/*
+===============
+Actor::EnemyInFOV
+
+Returns true if enemy is within fov.
+===============
+*/
 bool Actor::EnemyInFOV
 	(
 	int iMaxDirtyTime
@@ -6496,6 +7051,13 @@ bool Actor::EnemyInFOV
 	return inFov;
 }
 
+/*
+===============
+Actor::InFOV
+
+Returns true if pos is within fov.
+===============
+*/
 bool Actor::InFOV
 	(
 	Vector pos
@@ -6506,6 +7068,13 @@ bool Actor::InFOV
 	return InFOV(pos, m_fFov, m_fFovDot);
 }
 
+/*
+===============
+Actor::InFOV
+
+Returns true if ent is within fov.
+===============
+*/
 bool Actor::InFOV
 	(
 	Entity *ent
@@ -6547,6 +7116,13 @@ bool Actor::CanSeeEnemyFOV
 	return false;
 }
 
+/*
+===============
+Actor::CanShoot
+
+Returns true if actor can shoot entity.
+===============
+*/
 bool Actor::CanShoot
 	(
 	Entity *ent
@@ -6558,7 +7134,7 @@ bool Actor::CanShoot
 	{
 		Sentient * sen = (Sentient *)ent;
 		//FIXME: macro.
-		if (world->farplane_distance == 0 || world->farplane_distance * world->farplane_distance * 0.68558401 > (origin - sen->origin).lengthSquared())
+		if (world->farplane_distance == 0 || Square(world->farplane_distance * 0.828) > (origin - sen->origin).lengthSquared())
 		{
 			if (gi.AreasConnected(
 				edict->r.areanum,
@@ -6574,8 +7150,16 @@ bool Actor::CanShoot
 					MASK_CANSEE,
 					qfalse,
 					"Actor::CanShoot centroid")
-					||
-						G_SightTrace(GunPosition(), vec_zero, vec_zero, sen->EyePosition(), this, sen, MASK_CANSEE, qfalse, "Actor::CanShoot eyes"))
+					||	G_SightTrace(
+						GunPosition(),
+						vec_zero,
+						vec_zero,
+						sen->EyePosition(),
+						this,
+						sen,
+						MASK_CANSEE,
+						qfalse,
+						"Actor::CanShoot eyes"))
 				{
 					bCanShootEnemy = true;
 				}
@@ -6604,6 +7188,13 @@ bool Actor::CanShoot
 	return bCanShootEnemy;
 }
 
+/*
+===============
+Actor::CanSeeFrom
+
+Returns true if actor can see entity from pos.
+===============
+*/
 bool Actor::CanSeeFrom
 	(
 	vec3_t pos,
@@ -6613,7 +7204,7 @@ bool Actor::CanSeeFrom
 {
 	Vector vPos(pos);
 	bool bCanSee = false;
-	if (world->farplane_distance == 0 || world->farplane_distance * world->farplane_distance * 0.68558401 > (origin - ent->origin).lengthSquared())
+	if (world->farplane_distance == 0 || Square(world->farplane_distance * 0.828) > (origin - ent->origin).lengthSquared())
 	{
 		if (!ent->IsSubclassOfActor() && G_SightTrace(vPos, vec_zero, vec_zero, ent->centroid, this, ent, MASK_CANSEE, qfalse, "Actor::CanSeeFrom"))
 		{
@@ -6623,6 +7214,13 @@ bool Actor::CanSeeFrom
 	return bCanSee;
 }
 
+/*
+===============
+Actor::CanSeeEnemy
+
+Returns true if actor can see enemy.
+===============
+*/
 bool Actor::CanSeeEnemy
 	(
 	int iMaxDirtyTime
@@ -6636,6 +7234,13 @@ bool Actor::CanSeeEnemy
 	return m_bEnemyVisible;
 }
 
+/*
+===============
+Actor::CanShootEnemy
+
+Returns true if actor can shoot enemy.
+===============
+*/
 bool Actor::CanShootEnemy
 	(
 	int iMaxDirtyTime
@@ -6648,6 +7253,13 @@ bool Actor::CanShootEnemy
 	return m_bCanShootEnemy;
 }
 
+/*
+===============
+Actor::ShowInfo
+
+Display actor info.
+===============
+*/
 void Actor::ShowInfo
 	(
 	float fDot,
@@ -6667,7 +7279,7 @@ void Actor::ShowInfo
 	fMinDot = 0.9f;
 	fMaxDist = g_entinfo_max->value;
 
-	if (m_ThinkState == THINKSTATE_KILLED)
+	if ( IsKilledState(m_ThinkState) )
 	{
 		fMinDot = 0.99f;
 		fMaxDist = 512;
@@ -6730,7 +7342,7 @@ void Actor::ShowInfo
 			m_PotentialEnemies.GetCurrentThreat());
 	}
 
-	if (m_ThinkState == THINKSTATE_CURIOUS)
+	if ( IsCuriousState(m_ThinkState) )
 	{
 
 		Vector a = origin;
@@ -6837,6 +7449,13 @@ void Actor::ShowInfo
 	}
 }
 
+/*
+===============
+Actor::DefaultPain
+
+Default pain handler.
+===============
+*/
 void Actor::DefaultPain
 	(
 	Event *ev
@@ -6848,6 +7467,13 @@ void Actor::DefaultPain
 	HandlePain(ev);
 }
 
+/*
+===============
+Actor::HandlePain
+
+Hangled pain event.
+===============
+*/
 void Actor::HandlePain
 	(
 	Event *ev
@@ -6860,10 +7486,11 @@ void Actor::HandlePain
 
 		e1.AddConstString(STRING_GLOBAL_PAIN_SCR);
 
-		for (int i = 1; i < ev->NumArgs(); i++)
+		for (int i = 1; i <= ev->NumArgs(); i++)
 		{
 			e1.AddValue(ev->GetValue(i));
 		}
+
 		ExecuteScript(&e1);
 		
 		SetThinkState(THINKSTATE_PAIN, THINKLEVEL_PAIN);
@@ -6876,10 +7503,13 @@ void Actor::HandlePain
 		if (ent && ent->IsSubclassOfSentient() && !IsTeamMate((Sentient *)ent))
 		{
 			m_pLastAttacker = ent;
+
+			m_iCuriousLevel = 9;
+
 			//FIXME: macro
 			SetCuriousAnimHint(7);
 
-			if (m_bEnableEnemy && m_ThinkStates[0] == THINKSTATE_IDLE)
+			if (m_bEnableEnemy && m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_IDLE)
 			{
 				SetEnemyPos(ent->origin);
 				m_pszDebugState = "from_pain";
@@ -6890,6 +7520,13 @@ void Actor::HandlePain
 	}
 }
 
+/*
+===============
+Actor::EventPain
+
+Pain event.
+===============
+*/
 void Actor::EventPain
 	(
 	Event *ev
@@ -6904,6 +7541,13 @@ void Actor::EventPain
 		(this->*func->Pain)(ev);
 }
 
+/*
+===============
+Actor::DefaultKilled
+
+Default killed handler.
+===============
+*/
 void Actor::DefaultKilled
 	(
 	Event *ev,
@@ -6918,6 +7562,13 @@ void Actor::DefaultKilled
 	HandleKilled(ev, bPlayDeathAnim);
 }
 
+/*
+===============
+Actor::HandleKilled
+
+Hangled killed event.
+===============
+*/
 void Actor::HandleKilled
 	(
 	Event *ev,
@@ -6947,10 +7598,18 @@ void Actor::HandleKilled
 	//FIXME: macros
 	SetThinkState(THINKSTATE_KILLED, THINKLEVEL_KILLED);
 
+	gi.DPrintf("Waittill death unregisterd\n");
 	Unregister(STRING_DEATH);
 	Unregister(STRING_PAIN);
 }
 
+/*
+===============
+Actor::DispatchEventKilled
+
+Dispatch killed event.
+===============
+*/
 void Actor::DispatchEventKilled
 	(
 	Event *ev,
@@ -6973,6 +7632,13 @@ void Actor::DispatchEventKilled
 
 }
 
+/*
+===============
+Actor::EventKilled
+
+Killed event.
+===============
+*/
 void Actor::EventKilled
 	(
 	Event *ev
@@ -7004,6 +7670,13 @@ void Actor::EventKilled
 
 }
 
+/*
+===============
+Actor::EventBeDead
+
+Become dead.
+===============
+*/
 void Actor::EventBeDead
 	(
 	Event *ev
@@ -7013,6 +7686,13 @@ void Actor::EventBeDead
 	DispatchEventKilled(ev, false);
 }
 
+/*
+===============
+Actor::DeathEmbalm
+
+preps the dead actor for turning nonsolid gradually over time
+===============
+*/
 void Actor::DeathEmbalm
 	(
 	Event *ev
@@ -7036,6 +7716,13 @@ void Actor::DeathEmbalm
 	}
 }
 
+/*
+===============
+Actor::DeathSinkStart
+
+Makes the actor sink into the ground and then get removed(this starts it).
+===============
+*/
 void Actor::DeathSinkStart
 	(
 	Event *ev
@@ -7048,6 +7735,14 @@ void Actor::DeathSinkStart
 	Entity::DeathSinkStart(ev);
 }
 
+/*
+===============
+Actor::NoticeShot
+
+Returns true if shooter is an enemy.
+Otherwise the shooter is a team mate and target is registered an enemy if he's visible/reachable.
+===============
+*/
 bool Actor::NoticeShot
 	(
 	Sentient *pShooter,
@@ -7075,6 +7770,14 @@ bool Actor::NoticeShot
 
 }
 
+/*
+===============
+Actor::NoticeFootstep
+
+Returns true if actor should notice this footstep sound (pedestrian is not visible for actor).
+Otherwise returns false.
+===============
+*/
 bool Actor::NoticeFootstep
 	(
 	Sentient *pPedestrian
@@ -7103,6 +7806,14 @@ bool Actor::NoticeFootstep
 	return true;
 }
 
+/*
+===============
+Actor::NoticeVoice
+
+Returns true if actor should notice this voice sound (vocalist is not visible for actor).
+Otherwise returns false.
+===============
+*/
 bool Actor::NoticeVoice
 	(
 	Sentient *pVocallist
@@ -7131,6 +7842,13 @@ bool Actor::NoticeVoice
 	return true;
 }
 
+/*
+===============
+Actor::ClearLookEntity
+
+Clear look entity.
+===============
+*/
 void Actor::ClearLookEntity
 	(
 	void
@@ -7139,7 +7857,7 @@ void Actor::ClearLookEntity
 {
 	if (m_pLookEntity)
 	{
-		if (m_pLookEntity->IsSubclassOfAnimate())
+		if (m_pLookEntity->IsSubclassOfTempWaypoint())
 		{
 			delete m_pLookEntity;
 		}
@@ -7147,6 +7865,13 @@ void Actor::ClearLookEntity
 	}
 }
 
+/*
+===============
+Actor::LookAt
+
+Change current look entity.
+===============
+*/
 void Actor::LookAt
 	(
 	Vector& vec
@@ -7174,6 +7899,13 @@ void Actor::LookAt
 
 }
 
+/*
+===============
+Actor::LookAt
+
+Change current look entity.
+===============
+*/
 void Actor::LookAt
 	(
 	Listener *l
@@ -7183,7 +7915,7 @@ void Actor::LookAt
 	ClearLookEntity();
 	if ( l )
 	{
-		if (!l->isInheritedBy(&SimpleEntity::ClassInfo))
+		if (!l->inheritsFrom(&SimpleEntity::ClassInfo))
 		{
 			ScriptError("Bad look entity with classname '%s' specified for '%s' at (%f %f %f)\n", 
 				l->getClassname(),
@@ -7212,6 +7944,13 @@ void Actor::LookAt
 	}
 }
 
+/*
+===============
+Actor::ForwardLook
+
+
+===============
+*/
 void Actor::ForwardLook
 	(
 	void
@@ -7221,6 +7960,13 @@ void Actor::ForwardLook
 	// not found in ida
 }
 
+/*
+===============
+Actor::LookAtLookEntity
+
+Change current look entity.
+===============
+*/
 void Actor::LookAtLookEntity
 	(
 	void
@@ -7240,6 +7986,13 @@ void Actor::LookAtLookEntity
 	SetDesiredLookDir(dir);
 }
 
+/*
+===============
+Actor::IdleLook
+
+Idle look behaviour.
+===============
+*/
 void Actor::IdleLook
 	(
 	void
@@ -7256,6 +8009,13 @@ void Actor::IdleLook
 	}
 }
 
+/*
+===============
+Actor::IdleLook
+
+Idle look behaviour.
+===============
+*/
 void Actor::IdleLook
 	(
 	vec3_t dir
@@ -7272,6 +8032,13 @@ void Actor::IdleLook
 	}
 }
 
+/*
+===============
+Actor::SetDesiredLookDir
+
+Change desired look direction.
+===============
+*/
 void Actor::SetDesiredLookDir
 	(
 	vec3_t dir
@@ -7285,6 +8052,13 @@ void Actor::SetDesiredLookDir
 	m_DesiredLookAngles[ 0 ] = AngleNormalize180( m_DesiredLookAngles[ 0 ] );
 }
 
+/*
+===============
+Actor::SetDesiredLookAnglesRelative
+
+Change desired look angles relatively.
+===============
+*/
 void Actor::SetDesiredLookAnglesRelative
 	(
 	vec3_t ang
@@ -7297,6 +8071,13 @@ void Actor::SetDesiredLookAnglesRelative
 	m_DesiredLookAngles[ 2 ] = AngleNormalize180( ang[ 2 ] );
 }
 
+/*
+===============
+Actor::EventLookAt
+
+Look at event.
+===============
+*/
 void Actor::EventLookAt
 	(
 	Event *ev
@@ -7305,40 +8086,23 @@ void Actor::EventLookAt
 {
 	if (ev->IsVectorAt(1))
 	{
-		Vector dir = ev->GetVector(1);
-		if (g_showlookat->integer == entnum || g_showlookat->integer == -1)
-		{
-			Com_Printf(
-				"Script lookat: %i %i %s looking at point %.0f %.0f %.0f\n",
-				entnum,
-				radnum,
-				targetname.c_str(),
-				dir.x,
-				dir.y,
-				dir.z);
-		}
-		if (m_pLookEntity)
-		{
-			if (m_pLookEntity->IsSubclassOfAnimate())
-			{
-				delete m_pLookEntity;
-			}
-			m_pLookEntity = NULL;
-		}
-
-		TempWaypoint *twp = new TempWaypoint();
-		m_pLookEntity = twp;
-
-		m_pLookEntity->setOrigin(dir);
+		LookAt(ev->GetVector(1));
 	}
 	else
 	{
 		LookAt(ev->GetListener(1));
 	}
 
-	m_iLookFlags = 0;
+	m_iLookFlags = 0;//LOOK_NORMAL
 }
 
+/*
+===============
+Actor::EventEyesLookAt
+
+Eyes look at event.
+===============
+*/
 void Actor::EventEyesLookAt
 	(
 	Event *ev
@@ -7347,9 +8111,16 @@ void Actor::EventEyesLookAt
 {
 	EventLookAt(ev);
 
-	m_iLookFlags = m_pLookEntity != NULL;
+	m_iLookFlags = 1;//LOOK_EYE
 }
 
+/*
+===============
+Actor::NoPoint
+
+Don't point at anything.
+===============
+*/
 void Actor::NoPoint
 	(
 	void
@@ -7359,6 +8130,13 @@ void Actor::NoPoint
 	VectorClear(m_vLUpperArmDesiredAngles);
 }
 
+/*
+===============
+Actor::IdlePoint
+
+Idle point behaviour.
+===============
+*/
 void Actor::IdlePoint
 	(
 	void
@@ -7382,6 +8160,13 @@ void Actor::IdlePoint
 	}
 }
 
+/*
+===============
+Actor::ClearPointEntity
+
+Clear point entity.
+===============
+*/
 void Actor::ClearPointEntity
 	(
 	void
@@ -7390,7 +8175,7 @@ void Actor::ClearPointEntity
 {
 	if (m_pPointEntity)
 	{
-		if (m_pPointEntity->IsSubclassOfAnimate())
+		if (m_pPointEntity->IsSubclassOfTempWaypoint())
 		{
 			delete m_pPointEntity;
 		}
@@ -7398,20 +8183,33 @@ void Actor::ClearPointEntity
 	}
 }
 
+/*
+===============
+Actor::PointAt
+
+Change point entity.
+===============
+*/
 void Actor::PointAt
 	(
 	Vector& vec
 	)
 
 {
-	TempWaypoint *twp; // ebx
-
 	ClearPointEntity();
-	twp = new TempWaypoint();
+
+	TempWaypoint *twp = new TempWaypoint();
 	m_pPointEntity = twp;
 	m_pPointEntity->setOrigin(vec);
 }
 
+/*
+===============
+Actor::PointAt
+
+Change point entity.
+===============
+*/
 void Actor::PointAt
 	(
 	Listener* l
@@ -7421,7 +8219,7 @@ void Actor::PointAt
 	ClearPointEntity();
 	if (l)
 	{
-		if (l->isInheritedBy(&SimpleEntity::ClassInfo))
+		if (l->inheritsFrom(&SimpleEntity::ClassInfo))
 		{
 			ScriptError("Bad point entity with classname '%s' specified for '%s' at (%f %f %f)\n",
 				l->getClassname(),
@@ -7437,6 +8235,13 @@ void Actor::PointAt
 	}
 }
 
+/*
+===============
+Actor::EventPointAt
+
+Point at event.
+===============
+*/
 void Actor::EventPointAt
 	(
 	Event *ev
@@ -7445,21 +8250,8 @@ void Actor::EventPointAt
 {
 	if (ev->IsVectorAt(1))
 	{
-		Vector dir = ev->GetVector(1);
 		
-		if (m_pPointEntity)
-		{
-			if (m_pPointEntity->IsSubclassOfAnimate())
-			{
-				delete m_pPointEntity;
-			}
-			m_pPointEntity = NULL;
-		}
-
-		TempWaypoint *twp = new TempWaypoint();
-		m_pPointEntity = twp;
-
-		m_pPointEntity->setOrigin(dir);
+		PointAt(ev->GetVector(1));
 	}
 	else
 	{
@@ -7467,6 +8259,13 @@ void Actor::EventPointAt
 	}
 }
 
+/*
+===============
+Actor::ClearTurnEntity
+
+Clear turn entity.
+===============
+*/
 void Actor::ClearTurnEntity
 	(
 	void
@@ -7475,7 +8274,7 @@ void Actor::ClearTurnEntity
 {
 	if (m_pTurnEntity)
 	{
-		if (m_pTurnEntity->IsSubclassOfAnimate())
+		if (m_pTurnEntity->IsSubclassOfTempWaypoint())
 		{
 			delete m_pTurnEntity;
 		}
@@ -7483,20 +8282,33 @@ void Actor::ClearTurnEntity
 	}
 }
 
+/*
+===============
+Actor::TurnTo
+
+Change turn entity.
+===============
+*/
 void Actor::TurnTo
 	(
 	Vector& vec
 	)
 
 {
-	TempWaypoint *twp; // ebx
-
 	ClearTurnEntity();
-	twp = new TempWaypoint();
+
+	TempWaypoint *twp = new TempWaypoint();
 	m_pTurnEntity = twp;
 	m_pTurnEntity->setOrigin(vec);
 }
 
+/*
+===============
+Actor::TurnTo
+
+Change turn entity.
+===============
+*/
 void Actor::TurnTo
 	(
 	Listener *l
@@ -7506,7 +8318,7 @@ void Actor::TurnTo
 	ClearTurnEntity();
 	if (l)
 	{
-		if (l->isInheritedBy(&SimpleEntity::ClassInfo))
+		if (!l->inheritsFrom(&SimpleEntity::ClassInfo))
 		{
 			ScriptError("Bad turn entity with classname '%s' specified for '%s' at (%f %f %f)\n",
 				l->getClassname(),
@@ -7526,6 +8338,13 @@ void Actor::TurnTo
 	}
 }
 
+/*
+===============
+Actor::IdleTurn
+
+Idle turn behaviour.
+===============
+*/
 void Actor::IdleTurn
 	(
 	void
@@ -7543,8 +8362,7 @@ void Actor::IdleTurn
 				return;
 			}
 			vec2_t facedir;
-			facedir[0] = m_pTurnEntity->centroid[0] - origin[0];
-			facedir[1] = m_pTurnEntity->centroid[1] - origin[1];
+			VectorSub2D(m_pTurnEntity->centroid, origin, facedir);
 			if (facedir[0] != 0 || facedir[1] != 0)
 			{
 				SetDesiredYawDir(facedir);
@@ -7582,6 +8400,13 @@ void Actor::IdleTurn
 	}
 }
 
+/*
+===============
+Actor::EventTurnTo
+
+Turn to event.
+===============
+*/
 void Actor::EventTurnTo
 	(
 	Event *ev
@@ -7590,21 +8415,7 @@ void Actor::EventTurnTo
 {
 	if (ev->IsVectorAt(1))
 	{
-		Vector dir = ev->GetVector(1);
-
-		if (m_pTurnEntity)
-		{
-			if (m_pTurnEntity->IsSubclassOfAnimate())
-			{
-				delete m_pTurnEntity;
-			}
-			m_pTurnEntity = NULL;
-		}
-
-		TempWaypoint *twp = new TempWaypoint();
-		m_pTurnEntity = twp;
-
-		m_pTurnEntity->setOrigin(dir);
+		TurnTo(ev->GetVector(1));
 	}
 	else
 	{
@@ -7612,6 +8423,13 @@ void Actor::EventTurnTo
 	}
 }
 
+/*
+===============
+Actor::EventSetTurnDoneError
+
+Set the error amount that turndone will occur for the turnto command.
+===============
+*/
 void Actor::EventSetTurnDoneError
 	(
 	Event *ev
@@ -7626,6 +8444,13 @@ void Actor::EventSetTurnDoneError
 	}
 }
 
+/*
+===============
+Actor::EventGetTurnDoneError
+
+Get the error amount that turndone will occur for the turnto command.
+===============
+*/
 void Actor::EventGetTurnDoneError
 	(
 	Event *ev
@@ -7635,6 +8460,13 @@ void Actor::EventGetTurnDoneError
 	ev->AddFloat(m_fTurnDoneError);
 }
 
+/*
+===============
+Actor::LookAround
+
+Look around behaviour.
+===============
+*/
 void Actor::LookAround
 	(
 	float fFovAdd
@@ -7679,10 +8511,17 @@ void Actor::LookAround
 	}
 }
 
+/*
+===============
+Actor::SoundSayAnim
+
+Returns true if animation not found.
+===============
+*/
 bool Actor::SoundSayAnim
 	(
 	const_str name,
-	bool bLevelSayAnim
+	byte bLevelSayAnim
 	)
 
 {
@@ -7699,13 +8538,20 @@ bool Actor::SoundSayAnim
 			Director.GetString(name).c_str(),
 			edict->tiki->a->name);
 
-		Sound(Director.GetString(name), 0, 0, 0, NULL, 0, 0, 1, 1);
+		Sound(Director.GetString(name), 0, 0, 0, NULL, 0, 0, 1, -1);
 
 		return true;
 	}
 	return false;
 }
 
+/*
+===============
+Actor::EventSetAnim
+
+Set animation event.
+===============
+*/
 void Actor::EventSetAnim
 	(
 	Event *ev
@@ -7831,6 +8677,13 @@ void Actor::EventSetAnim
 	}
 }
 
+/*
+===============
+Actor::EventIdleSayAnim
+
+Play idle say dialogue.
+===============
+*/
 void Actor::EventIdleSayAnim
 	(
 	Event *ev
@@ -7847,7 +8700,7 @@ void Actor::EventIdleSayAnim
 
 		name = ev->GetConstString(1);
 
-		if (m_ThinkState <= THINKSTATE_ATTACK || m_ThinkState == THINKSTATE_GRENADE)
+		if (m_ThinkState <= THINKSTATE_ATTACK || IsGrenadeState(m_ThinkState))
 		{
 			m_csSayAnim = name;
 			//FIXME: macro
@@ -7870,6 +8723,13 @@ void Actor::EventIdleSayAnim
 	}
 }
 
+/*
+===============
+Actor::EventSayAnim
+
+Play idle dialogue.
+===============
+*/
 void Actor::EventSayAnim
 	(
 	Event *ev
@@ -7886,29 +8746,30 @@ void Actor::EventSayAnim
 
 		name = ev->GetConstString(1);
 
-		if (m_ThinkState <= THINKSTATE_KILLED)
+		if (m_ThinkState <= THINKSTATE_KILLED || !SoundSayAnim(name, 2))
 		{
 			m_csSayAnim = name;
 			//FIXME: macro
 			m_bNextLevelSayAnim = 2;
+			gi.DPrintf("Actor::EventSayAnim: 1 %s\n", targetname.c_str());
 		}
-		else
-		{
-			if (!SoundSayAnim(name, true))
-			{
-				m_csSayAnim = name;
-				//FIXME: macro
-				m_bNextLevelSayAnim = 2;
-			}
-
-		}
+		gi.DPrintf("Actor::EventSayAnim: 2 %s\n", targetname.c_str());
 	}
 	else if (m_bLevelSayAnim == 1)
 	{
 		AnimFinished(m_iSaySlot, true);
+		gi.DPrintf("Actor::EventSayAnim: 3 %s\n", targetname.c_str());
 	}
+	gi.DPrintf("Actor::EventSayAnim: 4 %s\n", targetname.c_str());
 }
 
+/*
+===============
+Actor::EventSetSayAnim
+
+Set say animation.
+===============
+*/
 void Actor::EventSetSayAnim
 	(
 	Event *ev
@@ -7922,7 +8783,7 @@ void Actor::EventSetSayAnim
 		{
 			ScriptError("bad number of arguments");
 		}
-		if (!m_bLevelSayAnim)
+		if (m_bLevelSayAnim == 0)
 		{
 			name = ev->GetConstString(1);
 
@@ -7938,12 +8799,21 @@ void Actor::EventSetSayAnim
 	}
 }
 
+/*
+===============
+Actor::EventSetSayAnim
+
+Set motion animation.
+===============
+*/
 void Actor::EventSetMotionAnim
 	(
 	Event *ev
 	)
 
 {
+	gi.DPrintf("Actor::EventSetMotionAnim\n");
+
 	if (ev->NumArgs() != 1)
 	{
 		ScriptError("bad number of arguments");
@@ -7968,6 +8838,13 @@ void Actor::EventSetMotionAnim
 	}
 }
 
+/*
+===============
+Actor::EventSetSayAnim
+
+Set aim motion animation.
+===============
+*/
 void Actor::EventSetAimMotionAnim
 	(
 	Event *ev
@@ -8022,6 +8899,13 @@ void Actor::EventSetAimMotionAnim
 
 }
 
+/*
+===============
+Actor::EventSetSayAnim
+
+Set action animation.
+===============
+*/
 void Actor::EventSetActionAnim
 	(
 	Event *ev
@@ -8087,6 +8971,13 @@ void Actor::EventSetActionAnim
 	}
 }
 
+/*
+===============
+Actor::EventSetSayAnim
+
+Set upper body.
+===============
+*/
 void Actor::EventUpperAnim
 	(
 	Event *ev
@@ -8115,6 +9006,13 @@ void Actor::EventUpperAnim
 	}
 }
 
+/*
+===============
+Actor::EventSetUpperAnim
+
+Set upper body animation.
+===============
+*/
 void Actor::EventSetUpperAnim
 	(
 	Event *ev
@@ -8144,6 +9042,13 @@ void Actor::EventSetUpperAnim
 	}
 }
 
+/*
+===============
+Actor::EventSetUpperAnim
+
+End action animation.
+===============
+*/
 void Actor::EventEndActionAnim
 	(
 	Event *ev
@@ -8158,6 +9063,13 @@ void Actor::EventEndActionAnim
 	}
 }
 
+/*
+===============
+Actor::EventDamagePuff
+
+Spawns a puff of 'blood' smoke at the speficied location in the specified direction.
+===============
+*/
 void Actor::EventDamagePuff
 	(
 	Event *ev
@@ -8178,6 +9090,13 @@ void Actor::EventDamagePuff
 	gi.MSG_EndCGM();
 }
 
+/*
+===============
+Actor::SafeSetOrigin
+
+Safe set origin.
+===============
+*/
 void Actor::SafeSetOrigin
 	(
 	vec3_t newOrigin
@@ -8190,6 +9109,7 @@ void Actor::SafeSetOrigin
 	}
 
 	setOrigin(newOrigin);
+
 	if (!m_bNoPlayerCollision)
 	{
 		Player *p = (Player *)G_GetEntity(0);
@@ -8202,6 +9122,13 @@ void Actor::SafeSetOrigin
 	}
 }
 
+/*
+===============
+Actor::DoMove
+
+Move the actor based on m_eAnimMode.
+===============
+*/
 void Actor::DoMove
 	(
 	void
@@ -8217,53 +9144,39 @@ void Actor::DoMove
 	{
 		switch (m_eAnimMode)
 		{
-		case 1:
+		case 1://normal i guess ?
 		{
 			SetMoveInfo(&mm);
 
 			VectorCopy2D(frame_delta, mm.desired_dir);
-			mm.desired_speed = VectorNormalize2D(mm.desired_dir) / level.frametime;
+			float frameDeltaLen = VectorNormalize2D(mm.desired_dir);
+
+			mm.desired_speed = frameDeltaLen / level.frametime;
 
 			if (mm.desired_speed > m_maxspeed)
 				mm.desired_speed = m_maxspeed;
 
 			MmoveSingle(&mm);
 			GetMoveInfo(&mm);
-			break;
 
 		}
 			break;
-		case 2:
+		case 2://path
 		{
 			MovePath(frame_delta.length() / level.frametime);
 		}
 			break;
-		case 3:
+		case 3://path_goal (end) ?
 		{
 			MovePathGoal(frame_delta.length() / level.frametime);
 		}
 			break;
-		case 4:
+		case 4://dest
 		{
-
-			SetMoveInfo(&mm);
-
-			mm.desired_speed = frame_delta.length() / level.frametime;
-
-			if (mm.desired_speed > m_maxspeed)
-				mm.desired_speed = m_maxspeed;
-
-			VectorCopy2D(m_Dest, mm.desired_dir);
-			VectorAdd2D(-origin, mm.desired_dir, mm.desired_dir);
-
-			VectorNormalize2D(mm.desired_dir);
-
-			MmoveSingle(&mm);
-			GetMoveInfo(&mm);
-			break;
+			MoveDest(frame_delta.length() / level.frametime);
 		}
 			break;
-		case 5:
+		case 5://scripted
 		{
 			trace_t trace;
 			trace = G_Trace(origin, mins, maxs, frame_delta + origin, this, edict->clipmask & 0xF9FFE47D, qtrue, "Actor");
@@ -8271,13 +9184,13 @@ void Actor::DoMove
 			velocity = frame_delta / level.frametime;
 		}
 			break;
-		case 6:
+		case 6://noclip
 		{
 			SafeSetOrigin(frame_delta+origin);
 			velocity = frame_delta / level.frametime;
 		}
 			break;
-		case 7:
+		case 7://falling path
 		{
 			SafeSetOrigin(m_pFallPath->pos[m_pFallPath->currentPos]);
 			m_pFallPath->currentPos++;
@@ -8287,10 +9200,16 @@ void Actor::DoMove
 		default:
 			break;
 		}
-		m_maxspeed = 1000000.0;
+		m_maxspeed = 1000000.0f;
 	}
 }
 
+/*
+===============
+Actor::AnimFinished
+
+===============
+*/
 void Actor::AnimFinished
 	(
 	int slot,
@@ -8304,17 +9223,17 @@ void Actor::AnimFinished
 	{
 		if (stop)
 		{
-			m_bLevelMotionAnim = 0;
+			m_bLevelMotionAnim = false;
 			m_iMotionSlot = -1;
 		}
 		MPrintf("flagged anim finished slot %d\n", slot);
-		Unregister( 41);
+		Unregister(STRING_FLAGGEDANIMDONE);
 	}
 	if (slot == m_iActionSlot)
 	{
 		if (stop)
 			ChangeActionAnim();
-		if (m_csUpperAnim == 1)
+		if (m_csUpperAnim == STRING_EMPTY)
 		{
 			MPrintf("upper anim finished slot %d\n", slot);
 			Unregister(STRING_UPPERANIMDONE);
@@ -8323,10 +9242,11 @@ void Actor::AnimFinished
 	if (slot == m_iSaySlot)
 	{
 		if (stop)
-			SimpleActor::ChangeSayAnim();
-		if (m_csSayAnim == 1)
+			ChangeSayAnim();
+		if (m_csSayAnim == STRING_EMPTY)
 		{
 			MPrintf("say anim finished slot %d\n", slot);
+			//gi.DPrintf("unregister STRING_SAYDONE\n");
 			Unregister(STRING_SAYDONE);
 		}
 	}
@@ -8336,6 +9256,12 @@ void Actor::AnimFinished
 	}
 }
 
+/*
+===============
+Actor::AnimFinished
+
+===============
+*/
 void Actor::AnimFinished
 	(
 	int slot
@@ -8343,9 +9269,16 @@ void Actor::AnimFinished
 
 {
 	animFlags[slot] &= ~ANIM_FINISHED;
-	AnimFinished(slot, animFlags[slot] & ANIM_LOOP);
+	AnimFinished(slot, ((animFlags[slot] & ANIM_LOOP) != ANIM_LOOP));
 }
 
+/*
+===============
+Actor::PlayAnimation
+
+Play animation
+===============
+*/
 void Actor::PlayAnimation
 	(
 	Event *ev
@@ -8358,6 +9291,13 @@ void Actor::PlayAnimation
 	ExecuteScript(&e1);
 }
 
+/*
+===============
+Actor::PlayScriptedAnimation
+
+Play scripted animation
+===============
+*/
 void Actor::PlayScriptedAnimation
 	(
 	Event *ev
@@ -8370,6 +9310,13 @@ void Actor::PlayScriptedAnimation
 	ExecuteScript(&e1);
 }
 
+/*
+===============
+Actor::PlayNoclipAnimation
+
+Play noclip animation
+===============
+*/
 void Actor::PlayNoclipAnimation
 	(
 	Event *ev
@@ -8382,6 +9329,13 @@ void Actor::PlayNoclipAnimation
 	ExecuteScript(&e1);
 }
 
+/*
+===============
+Actor::MoveDest
+
+Play noclip animation
+===============
+*/
 void Actor::MoveDest
 	(
 	float fMoveSpeed
@@ -8396,16 +9350,24 @@ void Actor::MoveDest
 	if (fMoveSpeed > m_maxspeed)
 		fMoveSpeed = m_maxspeed;
 
-	offset[0] = m_Dest[0] - origin[0];
-	offset[1] = m_Dest[1] - origin[1];
+	mm.desired_speed = fMoveSpeed;
 
-	VectorNormalize2D(offset);
+	VectorSub2D(m_Dest, origin, offset);
+
+	VectorNormalize2D2(offset, mm.desired_dir);
 
 	MmoveSingle(&mm);
 
 	GetMoveInfo(&mm);
 }
 
+/*
+===============
+Actor::MovePath
+
+Move on path.
+===============
+*/
 void Actor::MovePath
 	(
 	float fMoveSpeed
@@ -8686,6 +9648,13 @@ void Actor::MovePath
 	GetMoveInfo(&mm);
 }
 
+/*
+===============
+Actor::MovePathGoal
+
+Move on path end(goal).
+===============
+*/
 void Actor::MovePathGoal
 	(
 	float fMoveSpeed
@@ -8702,14 +9671,14 @@ void Actor::MovePathGoal
 		return;
 	}
 	fTimeToGo = m_fPathGoalTime - level.time;
-	VectorCopy2D(origin, vDelta);
 
-	VectorSub2D(vDelta, m_Path.LastNode()->point, vDelta);
+
+	VectorSub2D(origin, m_Path.LastNode()->point, vDelta);
 
 	fDeltaSquareLen = VectorLength2DSquared(vDelta);
 	if (fTimeToGo <= -0.001)
 	{
-		if (fDeltaSquareLen < (fMoveSpeed * fMoveSpeed * 0.0625))
+		if (fDeltaSquareLen < (Square(fMoveSpeed * Square(0.5))))
 		{
 			fTimeToGo = 0.5;
 			m_fPathGoalTime = level.time + fTimeToGo;
@@ -8726,6 +9695,7 @@ void Actor::MovePathGoal
 			return;
 		}
 	}
+
 	fSlowdownSpeed = sqrt(fDeltaSquareLen) * (2 / (fTimeToGo + level.frametime));
 	if (fSlowdownSpeed > fMoveSpeed + 0.001 && fSlowdownSpeed > 0.4 * sv_runspeed->value)
 	{
@@ -8744,6 +9714,13 @@ void Actor::MovePathGoal
 	}
 }
 
+/*
+===============
+Actor::Dumb
+
+Make actor dumb.
+===============
+*/
 void Actor::Dumb
 	(
 	Event *ev
@@ -8755,6 +9732,13 @@ void Actor::Dumb
 	ExecuteScript(&e1);
 }
 
+/*
+===============
+Actor::PhysicsOn
+
+Enable physics.
+===============
+*/
 void Actor::PhysicsOn
 	(
 	Event *ev
@@ -8764,6 +9748,13 @@ void Actor::PhysicsOn
 	m_bDoPhysics = true;
 }
 
+/*
+===============
+Actor::PhysicsOn
+
+Disable PhysicsOff.
+===============
+*/
 void Actor::PhysicsOff
 	(
 	Event *ev
@@ -8773,6 +9764,13 @@ void Actor::PhysicsOff
 	m_bDoPhysics = false;
 }
 
+/*
+===============
+Actor::EventStart
+
+Initialize actor.
+===============
+*/
 void Actor::EventStart
 	(
 	Event *ev
@@ -8781,8 +9779,8 @@ void Actor::EventStart
 {
 	ResolveVoiceType();
 	setSize(MINS, MAXS);//notsure
-	//FIXME: macro
-	droptofloor(16384);// a power of 2
+
+	droptofloor(16384);
 	
 	SetControllerTag( HEAD_TAG, gi.Tag_NumForName( edict->tiki, "Bip01 Head" ) );
 	SetControllerTag( TORSO_TAG, gi.Tag_NumForName( edict->tiki, "Bip01" ) );
@@ -8796,6 +9794,13 @@ void Actor::EventStart
 	}
 }
 
+/*
+===============
+Actor::EventGetMood
+
+Get current mood.
+===============
+*/
 void Actor::EventGetMood
 	(
 	Event *ev
@@ -8805,6 +9810,13 @@ void Actor::EventGetMood
 	ev->AddConstString(m_csMood);
 }
 
+/*
+===============
+Actor::EventSetMood
+
+Set current mood.
+===============
+*/
 void Actor::EventSetMood
 	(
 	Event *ev
@@ -8819,6 +9831,13 @@ void Actor::EventSetMood
 	}
 }
 
+/*
+===============
+Actor::EventGetAngleYawSpeed
+
+Get current AngleYawSpeed.
+===============
+*/
 void Actor::EventGetAngleYawSpeed
 	(
 	Event *ev
@@ -8828,6 +9847,13 @@ void Actor::EventGetAngleYawSpeed
 	ev->AddFloat(m_fAngleYawSpeed);
 }
 
+/*
+===============
+Actor::EventSetAngleYawSpeed
+
+Set current AngleYawSpeed.
+===============
+*/
 void Actor::EventSetAngleYawSpeed
 	(
 	Event *ev
@@ -8842,6 +9868,13 @@ void Actor::EventSetAngleYawSpeed
 	m_fAngleYawSpeed = speed;
 }
 
+/*
+===============
+Actor::EventSetAimTarget
+
+Set current weapon's aim tagret.
+===============
+*/
 void Actor::EventSetAimTarget
 	(
 	Event *ev
@@ -8852,6 +9885,13 @@ void Actor::EventSetAimTarget
 	weap->SetAimTarget(ev->GetEntity(1));
 }
 
+/*
+===============
+Actor::UpdateAngles
+
+Update current angles.
+===============
+*/
 void Actor::UpdateAngles
 	(
 	void
@@ -8896,6 +9936,13 @@ void Actor::UpdateAngles
 	}
 }
 
+/*
+===============
+Actor::SetLeashHome
+
+Set leash home.
+===============
+*/
 void Actor::SetLeashHome
 (
 	Vector vHome
@@ -8908,57 +9955,71 @@ void Actor::SetLeashHome
 	}
 }
 
+/*
+===============
+Actor::AimAtTargetPos
+
+Aim at mTargetPos.
+===============
+*/
 void Actor::AimAtTargetPos
 	(
 	void
 	)
 
 {
-	// not found in ida
+	Vector vDir = mTargetPos - EyePosition() + Vector(0, 0, 16);
+	SetDesiredLookDir(vDir);
+	m_DesiredGunDir[0] = 360.0f - vDir.toPitch();
+	m_DesiredGunDir[1] = vDir.toYaw();
+	m_DesiredGunDir[2] = 0;
+
+	SetDesiredYawDir(vDir);
 }
 
+/*
+===============
+Actor::AimAtAimNode
+
+Aim at m_aimNode.
+===============
+*/
 void Actor::AimAtAimNode
 	(
 	void
 	)
 
 {
-	Vector vDir = mTargetPos - EyePosition() + Vector( 0, 0, 16 );
-	SetDesiredLookDir( vDir );
-	m_DesiredGunDir[ 0 ] = 360.0f - vDir.toPitch();
-	m_DesiredGunDir[ 1 ] = vDir.toYaw();
-	m_DesiredGunDir[ 2 ] = 0;
+	mTargetPos = m_aimNode->origin;
 
-	m_YawAchieved = false;
-	m_DesiredYaw = vDir.toYaw();
+	AimAtTargetPos();
 }
 
+/*
+===============
+Actor::AimAtEnemyBehavior
+
+Aiming at enemy behaviour.
+Usally called after SetEnemyPos()
+===============
+*/
 void Actor::AimAtEnemyBehavior
 	(
 	void
 	)
 
 {
-	Vector v;
-	m_bHasDesiredLookAngles = true;
-	
-	v = mTargetPos - EyePosition();
-
-	vectoangles(v, m_DesiredLookAngles);
-	m_DesiredLookAngles[0] = AngleNormalize180(m_DesiredLookAngles[0]);
-	m_DesiredLookAngles[1] = AngleNormalize180(m_DesiredLookAngles[1] - angles[1]);
-
-	m_DesiredGunDir.x = v.toPitch();
-	m_DesiredGunDir.y = v.toYaw();
-	m_DesiredGunDir.z = 0;
-	
-	m_YawAchieved = false;
-
-	m_DesiredYaw = v.toYaw();
+	AimAtTargetPos();
 
 	Anim_Aim();
 }
 
+/*
+===============
+Actor::FaceMotion
+
+===============
+*/
 void Actor::FaceMotion
 	(
 	void
@@ -8980,24 +10041,21 @@ void Actor::FaceMotion
 				delta.copyTo(dir);
 			}
 		}
-		if (m_ThinkState == THINKSTATE_IDLE)
+
+		if (IsIdleState(m_ThinkState))
 		{
 			IdleLook(dir);
 		}
 		else
 		{
-			m_bHasDesiredLookAngles = true;
-
-			vectoangles(dir, m_DesiredLookAngles);
-			m_DesiredLookAngles[0] = AngleNormalize180(m_DesiredLookAngles[0]);
-			m_DesiredLookAngles[1] = AngleNormalize180(m_DesiredLookAngles[1] - angles[1]);
+			SetDesiredLookDir(dir);
 		}
-		m_YawAchieved = false;
-		m_DesiredYaw = vectoyaw(dir);
+
+		SetDesiredYawDir(dir);
 	}
-	else if (m_ThinkState == THINKSTATE_IDLE && m_pLookEntity)
+	else if (IsIdleState(m_ThinkState))
 	{
-		LookAtLookEntity();
+		IdleLook();
 	}
 	else
 	{
@@ -9005,6 +10063,13 @@ void Actor::FaceMotion
 	}
 }
 
+/*
+===============
+Actor::FaceDirectionDuringMotion
+
+Face direction during motion.
+===============
+*/
 void Actor::FaceDirectionDuringMotion
 	(
 	vec3_t vLook
@@ -9078,6 +10143,13 @@ void Actor::FaceDirectionDuringMotion
 
 }
 
+/*
+===============
+Actor::PathDistanceAlongVector
+
+Returns projected distance from vDir along path.
+===============
+*/
 float Actor::PathDistanceAlongVector
 	(
 	vec3_t vDir
@@ -9089,6 +10161,13 @@ float Actor::PathDistanceAlongVector
 	return DotProduct2D( vDelta, vDir );
 }
 
+/*
+===============
+Actor::FaceEnemyOrMotion
+
+
+===============
+*/
 void Actor::FaceEnemyOrMotion
 	(
 	int iTimeIntoMove
@@ -9124,6 +10203,13 @@ void Actor::FaceEnemyOrMotion
 	}
 }
 
+/*
+===============
+Actor::NextUpdateTime
+
+Returns next update time.
+===============
+*/
 int Actor::NextUpdateTime
 	(
 	int iLastUpdateTime,
@@ -9140,6 +10226,13 @@ int Actor::NextUpdateTime
 	return i;
 }
 
+/*
+===============
+Actor::ResetBoneControllers
+
+Reset Bone Controllers.
+===============
+*/
 void Actor::ResetBoneControllers
 	(
 	void
@@ -9162,6 +10255,13 @@ void Actor::ResetBoneControllers
 	}
 }
 
+/*
+===============
+Actor::UpdateBoneControllers
+
+Update Bone Controllers.
+===============
+*/
 void Actor::UpdateBoneControllers
 	(
 	void
@@ -9293,7 +10393,6 @@ void Actor::UpdateBoneControllers
 		
 		LocalLookAngles = vec_zero;
 	}
-	
 	headAngles = GetControllerAngles(HEAD_TAG);
 	torsoAngles = GetControllerAngles(TORSO_TAG);
 
@@ -9553,8 +10652,20 @@ void Actor::UpdateBoneControllers
 
 
 	SetControllerAngles(ARMS_TAG, Vector(m_vLUpperArmDesiredAngles[0], fAng15 + armAngles[1], 0));
+
+
+	/////////////////////////////////////////////
+	return;
+	/////////////////////////////////////////////
 }
 
+/*
+===============
+Actor::ReadyToFire
+
+Returns true if weapon is ready to fire.
+===============
+*/
 void Actor::ReadyToFire
 	(
 	Event *ev
@@ -9571,6 +10682,13 @@ void Actor::ReadyToFire
 	ev->AddInteger(ready);
 }
 
+/*
+===============
+Actor::GetLocalYawFromVector
+
+Returns local yaw from vector. EV_Actor_GetLocalYawFromVector
+===============
+*/
 void Actor::GetLocalYawFromVector
 	(
 	Event *ev
@@ -9586,6 +10704,13 @@ void Actor::GetLocalYawFromVector
 	ev->AddFloat(yaw);
 }
 
+/*
+===============
+Actor::EventGetSight
+
+Return current sight (vision distance).
+===============
+*/
 void Actor::EventGetSight
 	(
 	Event *ev
@@ -9595,6 +10720,13 @@ void Actor::EventGetSight
 	ev->AddFloat(m_fSight);
 }
 
+/*
+===============
+Actor::EventSetSight
+
+Set current sight (vision distance).
+===============
+*/
 void Actor::EventSetSight
 	(
 	Event *ev
@@ -9604,6 +10736,13 @@ void Actor::EventSetSight
 	m_fSight = ev->GetFloat(1);
 }
 
+/*
+===============
+Actor::EventGetHearing
+
+Get current hearing distance.
+===============
+*/
 void Actor::EventGetHearing
 	(
 	Event *ev
@@ -9613,6 +10752,13 @@ void Actor::EventGetHearing
 	ev->AddFloat(m_fHearing);
 }
 
+/*
+===============
+Actor::EventSetHearing
+
+Set current hearing distance.
+===============
+*/
 void Actor::EventSetHearing
 	(
 	Event *ev
@@ -9622,6 +10768,13 @@ void Actor::EventSetHearing
 	m_fHearing = ev->GetFloat(1);
 }
 
+/*
+===============
+Actor::ClearPatrolCurrentNode
+
+Clear current patrol node.
+===============
+*/
 void Actor::ClearPatrolCurrentNode
 	(
 	void
@@ -9630,7 +10783,7 @@ void Actor::ClearPatrolCurrentNode
 {
 	if (m_patrolCurrentNode)
 	{
-		if (m_patrolCurrentNode->IsSubclassOfAnimate())
+		if (m_patrolCurrentNode->IsSubclassOfTempWaypoint())
 		{
 			delete m_patrolCurrentNode;
 		}
@@ -9638,6 +10791,13 @@ void Actor::ClearPatrolCurrentNode
 	}
 }
 
+/*
+===============
+Actor::NextPatrolCurrentNode
+
+Switch to next patrol node.
+===============
+*/
 void Actor::NextPatrolCurrentNode
 	(
 	void
@@ -9646,7 +10806,10 @@ void Actor::NextPatrolCurrentNode
 {
 	if (m_bScriptGoalValid)
 	{
-		m_bScriptGoalValid = m_patrolCurrentNode->origin != m_vScriptGoal;
+		if (m_patrolCurrentNode->origin == m_vScriptGoal)
+		{
+			m_bScriptGoalValid = false;
+		}
 	}
 	if (m_patrolCurrentNode->IsSubclassOfTempWaypoint())
 	{
@@ -9658,48 +10821,47 @@ void Actor::NextPatrolCurrentNode
 	}
 }
 
+/*
+===============
+Actor::SetPatrolCurrentNode
+
+Set current patrol node.
+===============
+*/
 void Actor::SetPatrolCurrentNode
 	(
 	Vector& vec
 	)
 
 {
-	if (m_patrolCurrentNode)
-	{
-		if (m_patrolCurrentNode->IsSubclassOfTempWaypoint())
-		{
-			delete m_patrolCurrentNode;
-		}
-		m_patrolCurrentNode = NULL;
-	}
+	ClearPatrolCurrentNode();
+	
 	TempWaypoint * twp = new TempWaypoint();
 
-	if (m_patrolCurrentNode != twp)
-	{
-		m_patrolCurrentNode = twp;
-	}
+	m_patrolCurrentNode = twp;
+
 	m_patrolCurrentNode->setOrigin(vec);
 
 }
 
+/*
+===============
+Actor::SetPatrolCurrentNode
+
+Set current patrol node.
+===============
+*/
 void Actor::SetPatrolCurrentNode
 	(
 	Listener *l
 	)
 
 {
-	if (m_patrolCurrentNode)
+	ClearPatrolCurrentNode();
+	
+	if (!l->inheritsFrom(&SimpleEntity::ClassInfo))
 	{
-		if (m_patrolCurrentNode->IsSubclassOfTempWaypoint())
-		{
-			delete m_patrolCurrentNode;
-		}
-		m_patrolCurrentNode = NULL;
-	}
-
-	if (!l->isInheritedBy(&SimpleEntity::ClassInfo))
-	{
-		ScriptError("Bad patrol path with classname '%s' specified for '%s' at (%f %f %f)\n",
+		ScriptError("Bad patrol path with classname '%s' specified for '%s' at (%f %f %f) %i\n",
 			l->getClassname(),
 			targetname.c_str(),
 			origin.x,
@@ -9708,12 +10870,16 @@ void Actor::SetPatrolCurrentNode
 			);
 	}
 
-	if (m_patrolCurrentNode != l)
-	{
-		m_patrolCurrentNode = (SimpleEntity *)l;
-	}
+	m_patrolCurrentNode = (SimpleEntity *)l;
 }
 
+/*
+===============
+Actor::EventSetPatrolPath
+
+Set current patrol path.
+===============
+*/
 void Actor::EventSetPatrolPath
 	(
 	Event *ev
@@ -9723,6 +10889,13 @@ void Actor::EventSetPatrolPath
 	SetPatrolCurrentNode(ev->GetListener(1));
 }
 
+/*
+===============
+Actor::EventGetPatrolPath
+
+Get current patrol path.
+===============
+*/
 void Actor::EventGetPatrolPath
 	(
 	Event *ev
@@ -9732,6 +10905,13 @@ void Actor::EventGetPatrolPath
 	ev->AddListener(m_patrolCurrentNode);
 }
 
+/*
+===============
+Actor::EventSetPatrolWaitTrigger
+
+Set m_bPatrolWaitTrigger.
+===============
+*/
 void Actor::EventSetPatrolWaitTrigger
 	(
 	Event *ev
@@ -9741,6 +10921,13 @@ void Actor::EventSetPatrolWaitTrigger
 	m_bPatrolWaitTrigger = ev->GetBoolean(1);
 }
 
+/*
+===============
+Actor::EventGetPatrolWaitTrigger
+
+Get m_bPatrolWaitTrigger.
+===============
+*/
 void Actor::EventGetPatrolWaitTrigger
 	(
 	Event *ev
@@ -9750,6 +10937,13 @@ void Actor::EventGetPatrolWaitTrigger
 	ev->AddInteger(m_bPatrolWaitTrigger);
 }
 
+/*
+===============
+Actor::ShowInfo_PatrolCurrentNode
+
+Show current patrol node info.
+===============
+*/
 void Actor::ShowInfo_PatrolCurrentNode
 	(
 	void
@@ -9767,6 +10961,13 @@ void Actor::ShowInfo_PatrolCurrentNode
 	}
 }
 
+/*
+===============
+Actor::MoveOnPathWithSquad
+
+Move on path with squad.
+===============
+*/
 bool Actor::MoveOnPathWithSquad
 	(
 	void
@@ -9782,7 +10983,7 @@ bool Actor::MoveOnPathWithSquad
 	{
 		return false;
 	}
-	fIntervalSquared = m_fInterval * m_fInterval;
+	fIntervalSquared = Square(m_fInterval);
 	if (m_iSquadStandTime)
 	{
 		fIntervalSquared *= 2;
@@ -9843,6 +11044,13 @@ bool Actor::MoveOnPathWithSquad
 	return true;
 }
 
+/*
+===============
+Actor::MoveToWaypointWithPlayer
+
+Move to waypoint with player.
+===============
+*/
 bool Actor::MoveToWaypointWithPlayer
 	(
 	void
@@ -9857,7 +11065,7 @@ bool Actor::MoveToWaypointWithPlayer
 		return false;
 	}
 	
-	fIntervalSquared = m_fInterval * m_fInterval;
+	fIntervalSquared = Square(m_fInterval);
 	if (m_iSquadStandTime)
 	{
 		fIntervalSquared += fIntervalSquared;
@@ -9898,6 +11106,13 @@ bool Actor::MoveToWaypointWithPlayer
 	return false;
 }
 
+/*
+===============
+Actor::PatrolNextNodeExists
+
+Returns true if next patrol node exits.
+===============
+*/
 bool Actor::PatrolNextNodeExists
 	(
 	void
@@ -9907,6 +11122,13 @@ bool Actor::PatrolNextNodeExists
 	return m_patrolCurrentNode && !( m_patrolCurrentNode->IsSubclassOfTempWaypoint() ) && m_patrolCurrentNode->Next();
 }
 
+/*
+===============
+Actor::UpdatePatrolCurrentNode
+
+Update current patrol node.
+===============
+*/
 void Actor::UpdatePatrolCurrentNode
 	(
 	void
@@ -9937,6 +11159,13 @@ void Actor::UpdatePatrolCurrentNode
 	}
 }
 
+/*
+===============
+Actor::MoveToPatrolCurrentNode
+
+
+===============
+*/
 bool Actor::MoveToPatrolCurrentNode
 	(
 	void
@@ -9946,6 +11175,7 @@ bool Actor::MoveToPatrolCurrentNode
 	UpdatePatrolCurrentNode();
 	if (m_patrolCurrentNode && !m_bPatrolWaitTrigger)
 	{
+		Vector delta;
 		if (m_patrolCurrentNode->IsSubclassOfWaypoint())
 		{
 			if (MoveToWaypointWithPlayer())
@@ -9958,18 +11188,14 @@ bool Actor::MoveToPatrolCurrentNode
 			else
 			{
 				Anim_Stand();
-				if (m_pLookEntity)
-					LookAtLookEntity();
-				else
-					m_bHasDesiredLookAngles = false;
+				IdleLook();
 			}
 			
 			SetDest(m_patrolCurrentNode->origin);
 
 			if (m_fMoveDoneRadiusSquared == 0.0 || m_patrolCurrentNode->Next())
 				return false;
-			Vector delta = m_patrolCurrentNode->origin - origin;
-			return m_fMoveDoneRadiusSquared >= delta.lengthXY(true);
+			delta = m_patrolCurrentNode->origin - origin;
 		}
 		else
 		{
@@ -9989,19 +11215,16 @@ bool Actor::MoveToPatrolCurrentNode
 			}
 			if (MoveOnPathWithSquad())
 			{
-				const_str csAnimString;
 				if (PatrolNextNodeExists())
 				{
-					csAnimString = m_csPatrolCurrentAnim;
 					m_eNextAnimMode = 2;
 				}
 				else
 				{
-					csAnimString = m_csPatrolCurrentAnim;
 					m_eNextAnimMode = 3;
 				}
-				m_csNextAnimString = csAnimString;
-				m_bNextForceStart = true;
+				m_csNextAnimString = m_csPatrolCurrentAnim;
+				m_bNextForceStart = false;
 				FaceMotion();
 			}
 			else
@@ -10022,9 +11245,10 @@ bool Actor::MoveToPatrolCurrentNode
 			{
 				return false;
 			}
-			Vector delta = PathDelta();
-			return m_fMoveDoneRadiusSquared >= delta.lengthXY(true);
+			delta = PathDelta();
 		}
+		return m_fMoveDoneRadiusSquared >= delta.lengthXY(true);
+		
 	}
 
 
@@ -10033,6 +11257,13 @@ bool Actor::MoveToPatrolCurrentNode
 	return false;
 }
 
+/*
+===============
+Actor::ClearAimNode
+
+Clear aim node.
+===============
+*/
 void Actor::ClearAimNode
 	(
 	void
@@ -10050,6 +11281,13 @@ void Actor::ClearAimNode
 	}
 }
 
+/*
+===============
+Actor::SetAimNode
+
+Change aim node.
+===============
+*/
 void Actor::SetAimNode
 	(
 	Vector& vec
@@ -10064,6 +11302,13 @@ void Actor::SetAimNode
 	m_aimNode->setOrigin(vec);
 }
 
+/*
+===============
+Actor::SetAimNode
+
+Change aim node.
+===============
+*/
 void Actor::SetAimNode
 	(
 	Listener *l
@@ -10073,7 +11318,7 @@ void Actor::SetAimNode
 	ClearAimNode();
 	if (l)
 	{
-		if (!l->isInheritedBy(&SimpleEntity::ClassInfo))
+		if (!l->inheritsFrom(&SimpleEntity::ClassInfo))
 		{
 			ScriptError(
 				"Bad aim node with classname '%s' specified for '%s' at (%f %f %f)\n",
@@ -10087,6 +11332,13 @@ void Actor::SetAimNode
 	}
 }
 
+/*
+===============
+Actor::ShowInfo_AimNode
+
+Show current aim node info.
+===============
+*/
 void Actor::ShowInfo_AimNode
 	(
 	void
@@ -10103,6 +11355,13 @@ void Actor::ShowInfo_AimNode
 	}
 }
 
+/*
+===============
+Actor::EventSetAccuracy
+
+Set current accuracy.
+===============
+*/
 void Actor::EventSetAccuracy
 	(
 	Event *ev
@@ -10112,6 +11371,13 @@ void Actor::EventSetAccuracy
 	mAccuracy = ev->GetFloat(1) / 100;
 }
 
+/*
+===============
+Actor::EventGetAccuracy
+
+Get current accuracy.
+===============
+*/
 void Actor::EventGetAccuracy
 	(
 	Event *ev
@@ -10121,6 +11387,13 @@ void Actor::EventGetAccuracy
 	ev->AddFloat(mAccuracy * 100);
 }
 
+/*
+===============
+Actor::GetThinkType
+
+Get think for csName.
+===============
+*/
 int Actor::GetThinkType
 	(
 	const_str csName
@@ -10138,6 +11411,13 @@ int Actor::GetThinkType
 	return result;
 }
 
+/*
+===============
+Actor::SetThink
+
+Set current think.
+===============
+*/
 void Actor::SetThink
 	(
 	int state,
@@ -10150,6 +11430,13 @@ void Actor::SetThink
 		m_bDirtyThinkState = true;
 }
 
+/*
+===============
+Actor::SetThink
+
+Set think to idle.
+===============
+*/
 void Actor::SetThinkIdle
 	(
 	int think_idle
@@ -10189,6 +11476,13 @@ void Actor::SetThinkIdle
 	SetThink(THINKSTATE_CURIOUS, think_curious);
 }
 
+/*
+===============
+Actor::SetThinkState
+
+Set thinkstate.
+===============
+*/
 void Actor::SetThinkState
 	(
 	int state,
@@ -10196,7 +11490,7 @@ void Actor::SetThinkState
 	)
 
 {
-	if (state == THINKSTATE_ATTACK)
+	if (IsAttackState(state))
 	{
 		m_csIdleMood = STRING_NERVOUS;
 		if (m_ThinkMap[THINKSTATE_ATTACK] != THINK_ALARM && m_ThinkMap[THINKSTATE_ATTACK] != THINK_WEAPONLESS && m_ThinkMap[THINKSTATE_ATTACK] != THINK_DOG_ATTACK && !GetWeapon(WEAPON_MAIN))
@@ -10220,6 +11514,13 @@ void Actor::SetThinkState
 
 }
 
+/*
+===============
+Actor::EndCurrentThinkState
+
+End current think state.
+===============
+*/
 void Actor::EndCurrentThinkState
 	(
 	void
@@ -10229,6 +11530,13 @@ void Actor::EndCurrentThinkState
 	SetThinkState(THINKSTATE_VOID, m_ThinkLevel);
 }
 
+/*
+===============
+Actor::ClearThinkStates
+
+Clear all thinkstates.
+===============
+*/
 void Actor::ClearThinkStates
 	(
 	void
@@ -10241,6 +11549,13 @@ void Actor::ClearThinkStates
 	}
 }
 
+/*
+===============
+Actor::CurrentThink
+
+Current think.
+===============
+*/
 int Actor::CurrentThink
 	(
 	void
@@ -10250,15 +11565,29 @@ int Actor::CurrentThink
 	return m_Think[ m_ThinkLevel ];
 }
 
+/*
+===============
+Actor::IsAttacking
+
+Returns true if actor is in attack state.
+===============
+*/
 bool Actor::IsAttacking
 	(
 	void
 	) const
 
 {
-	return m_ThinkStates[ 0 ] == THINKSTATE_ATTACK;
+	return m_ThinkStates[ THINKLEVEL_NORMAL ] == THINKSTATE_ATTACK;
 }
 
+/*
+===============
+Actor::EventGetFov
+
+Get current fov.
+===============
+*/
 void Actor::EventGetFov
 	(
 	Event *ev
@@ -10268,6 +11597,13 @@ void Actor::EventGetFov
 	ev->AddFloat(m_fFov);
 }
 
+/*
+===============
+Actor::EventSetFov
+
+Set current fov.
+============
+*/
 void Actor::EventSetFov
 	(
 	Event *ev
@@ -10323,7 +11659,6 @@ void Actor::EventGetTypeIdle
 	)
 
 {
-	
 	ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_IDLE]]);
 }
 
@@ -10350,7 +11685,6 @@ void Actor::EventGetTypeAttack
 	)
 
 {
-	
 	ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_ATTACK]]);
 }
 
@@ -10495,7 +11829,7 @@ void Actor::EventSetLeash
 
 {
 	m_fLeash = ev->GetFloat(1);
-	m_fLeashSquared = m_fLeash * m_fLeash;
+	m_fLeashSquared = Square(m_fLeash);
 }
 
 void Actor::EventGetLeash
@@ -10582,7 +11916,7 @@ void Actor::EventSetDisguiseRange
 
 {
 	float range = ev->GetFloat(1);
-	m_fMaxDisguiseDistSquared = range * range;
+	m_fMaxDisguiseDistSquared = Square(range);
 }
 
 void Actor::EventGetDisguiseRange
@@ -10675,7 +12009,7 @@ void Actor::EventSetAlarmNode
 	Listener *l = ev->GetListener(1);
 	if (l)
 	{
-		if (!l->isInheritedBy(&SimpleEntity::ClassInfo))
+		if (!l->inheritsFrom(&SimpleEntity::ClassInfo))
 		{
 			ScriptError("Alarm node must be an entity");
 		}
@@ -10780,7 +12114,7 @@ void Actor::EventSetTurret
 
 {
 	Listener *l = ev->GetListener(1);
-	if (l->isInheritedBy(&TurretGun::ClassInfo))
+	if (l->inheritsFrom(&TurretGun::ClassInfo))
 	{
 		m_pTurret = (TurretGun *)l;
 	}
@@ -11153,7 +12487,7 @@ void Actor::StrafeToAttack
 		qfalse,
 		"Actor::StrafeToAttack 1"))
 	{
-		SetPathWithLeash(vDestPos, "", 0);
+		SetPathWithLeash(vDestPos, NULL, 0);
 	}
 	else
 	{
@@ -11218,28 +12552,10 @@ Vector Actor::GunTarget
 			}
 			else
 			{
-				/*
-				 *useless assert
-				  if ( !dword_39A914 )
-				  {
-					strcpy(&v54, "\"ERROR Actor::GunTarget without a weapon\\n\"\n\tMessage: ");
-					memset(&s, 0, 0x3FC9u);
-					v48 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
-							this,
-							&nullStr);
-					Q_strcat(&v54, 0x4000, v48);
-					v49 = MyAssertHandler(&v54, "fgame/actor.cpp", 10977, 0);
-					if ( v49 < 0 )
-					{
-					  dword_39A914 = 1;
-					}
-					else if ( v49 > 0 )
-					{
-					  __debugbreak();
-					}
-				  }
-				 
-				 */
+				char assertStr[16317] = { 0 };
+				strcpy(assertStr, "\"ERROR Actor::GunTarget without a weapon\\n\"\n\tMessage: ");
+				Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
+				assert(!assertStr);
 			}
 		}
 		else if (fabs(m_Enemy->origin[2] - origin[2]) >= 128)
@@ -11349,10 +12665,13 @@ qboolean Actor::setModel
 	)
 
 {
+	str headModel, headSkin, weapon;
+	headModel = level.GetRandomHeadModel(model);
+	headSkin = level.GetRandomHeadSkin(model);
 	//qboolean bSuccess;
-	str name, tempstr;
+	str name = "", tempstr;
 
-	if (model != NULL)
+	if (model != "")
 	{
 		if (m_csLoadOut != STRING_EMPTY)
 		{
@@ -11364,16 +12683,26 @@ qboolean Actor::setModel
 		{
 			m_csHeadModel = Director.AddString(level.GetRandomHeadModel(model));
 		}
-		name += "headmodel|" + Director.GetString(m_csHeadModel) + "|";
+
+		if (m_csHeadModel != STRING_EMPTY)
+		{
+			name += "headmodel|" + Director.GetString(m_csHeadModel) + "|";
+		}
 
 		if (m_csHeadSkin == STRING_EMPTY)
 		{
 			m_csHeadSkin = Director.AddString(level.GetRandomHeadSkin(model));
 		}
-		name += "headskin|" + Director.GetString(m_csHeadSkin) + "|";//FIXME: not sure of this last "|"
+
+		if (m_csHeadSkin != STRING_EMPTY)
+		{
+			name += "headskin|" + Director.GetString(m_csHeadSkin) + "|";//FIXME: not sure of this last "|"
+		}
+		name += model;
 	}
-	model = name;
-	return Entity::setModel();
+	//gi.DPrintf2("Actor::setModel(): name: %s, model: %s, headModel: %s, headSkin: %s\n", name.c_str(), model.c_str(), headModel.c_str(), headSkin.c_str());
+	level.skel_index[edict->s.number] = -1;
+	return gi.setmodel(edict, name);
 }
 
 void Actor::EventSetHeadModel
@@ -11477,7 +12806,7 @@ void Actor::EventSetFixedLeash
 	)
 
 {
-	m_bFixedLeash = ev->GetInteger(1);
+	m_bFixedLeash = ev->GetBoolean(1);
 }
 
 void Actor::EventGetFixedLeash
@@ -11557,12 +12886,12 @@ void Actor::EventSoundDone
 		e1.AddString(name);
 		PostEvent(e1, level.frametime);
 	}
-	//FIXME: macro
-	else if (m_bSayAnimSet && m_iSaySlot == -2)
+	else if (m_bSayAnimSet && m_iSaySlot == -2) //FIXME: macro
 	{
 		ChangeSayAnim();
 		if (m_csSayAnim == STRING_EMPTY)
 		{
+			//gi.DPrintf("unregister STRING_SAYDONE\n");
 			Unregister(STRING_SAYDONE);
 		}
 	}
@@ -11711,7 +13040,7 @@ void Actor::EventCanMoveTo
 		return;
 	}
 
-	fIntervalSquared = m_fInterval * m_fInterval;
+	fIntervalSquared = Square(m_fInterval);
 
 	for (auto pSquadMate = m_pNextSquadMate; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate)
 	{
@@ -11784,7 +13113,8 @@ void Actor::EventResetLeash
 
 {
 	m_vHome = origin;
-	delete m_pTetherEnt;
+	//delete m_pTetherEnt;
+	m_pTetherEnt = NULL;
 }
 
 void Actor::EventTether
@@ -11940,31 +13270,17 @@ void Actor::EventCalcGrenadeToss
 			{
 				ev->AddConstString(STRING_ANIM_GRENADETHROW_SCR);
 			}
-			/*
-			 useless assert:
-			 else if ( !dword_39A8F0 )
-			  {
-				strcpy(&v13, "\"invalid return condition for Actor::EventCalcGrenadeToss\"\n\tMessage: ");
-				memset(&s, 0, 0x3FBAu);
-				v7 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
-					   this,
-					   &nullStr);
-				Q_strcat(&v13, 0x4000, v7);
-				v8 = MyAssertHandler(&v13, "fgame/actor.cpp", 12490, 0);
-				if ( v8 < 0 )
-				{
-				  dword_39A8F0 = 1;
-				}
-				else if ( v8 > 0 )
-				{
-				  __debugbreak();
-				}
-			  }
-			 */
+			else
+			{
+				char assertStr[16317] = { 0 };
+				strcpy(assertStr, "\"invalid return condition for Actor::EventCalcGrenadeToss\"\n\tMessage: ");
+				Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
+				assert(!assertStr);
+			}
+
 		}
 		
-		m_YawAchieved = false;
-		m_DesiredYaw = vectoyaw(m_vGrenadeVel);
+		SetDesiredYawDir(m_vGrenadeVel);
 	}
 	else
 	{
@@ -12140,7 +13456,7 @@ void Actor::EventBreakSpecial
 	)
 
 {
-	mbBreakSpecialAttack = 1;
+	mbBreakSpecialAttack = true;
 }
 
 void Actor::GetVoiceType
@@ -12325,7 +13641,7 @@ void Actor::DontFaceWall
 		return;
 	}
 
-	if (velocity.lengthXY(true) > 64)
+	if (velocity.lengthXY(true) > Square(8))
 	{
 		m_eDontFaceWallMode = 2;
 		return;
@@ -12349,8 +13665,7 @@ void Actor::DontFaceWall
 	{
 		if (m_eDontFaceWallMode <= 8)
 		{
-			m_YawAchieved = false;
-			m_DesiredYaw = m_fDfwDerivedYaw;
+			SetDesiredYaw(m_fDfwDerivedYaw);
 		}
 	}
 	else
@@ -12403,15 +13718,13 @@ void Actor::DontFaceWall
 					VectorSub2D(node->m_PathPos, origin, vDelta);
 					if (vDelta[0] != 0 || vDelta[1] != 0)
 					{
-						m_YawAchieved = false;
-						m_DesiredYaw = vectoyaw(vDelta);
+						SetDesiredYawDir(vDelta);
 					}
 					m_eDontFaceWallMode = 6;
 				}
 				else if (trace.fraction <= 0.46875)
 				{
-					m_YawAchieved = false;
-					m_DesiredYaw = vectoyaw(trace.plane.normal);
+					SetDesiredYawDir(trace.plane.normal);
 					m_eDontFaceWallMode = 7;
 				}
 				else
@@ -12586,7 +13899,7 @@ void Actor::SetPathToNotBlockSentient
 							0,
 							"Actor::SetPathToNotBlockSentient 1"))
 						{
-							SetPathWithinDistance(vAway, "", 96, 0);
+							SetPathWithinDistance(vAway, NULL, 96, 0);
 						}
 
 						if (!PathExists())
@@ -12606,7 +13919,7 @@ void Actor::SetPathToNotBlockSentient
 								0,
 								"Actor::SetPathToNotBlockSentient 2"))
 							{
-								SetPathWithinDistance(vAway, "", 96, 0);
+								SetPathWithinDistance(vAway, NULL, 96, 0);
 							}
 
 							if (!PathExists())
@@ -12623,7 +13936,7 @@ void Actor::SetPathToNotBlockSentient
 									0,
 									"Actor::SetPathToNotBlockSentient 3"))
 								{
-									SetPathWithinDistance(vAway, "", 96, 0);
+									SetPathWithinDistance(vAway, NULL, 96, 0);
 								}
 
 								if (!PathExists())
@@ -12651,7 +13964,7 @@ void Actor::EventSetMoveDoneRadius
 
 {
 	float moveDoneR = ev->GetFloat(1);
-	m_fMoveDoneRadiusSquared = moveDoneR * moveDoneR;
+	m_fMoveDoneRadiusSquared = Square(moveDoneR);
 }
 
 
@@ -12779,47 +14092,6 @@ bool Actor::CalcFallPath
 
 }
 
-void Actor::IdleThink
-	(
-	void
-	)
-
-{
-	//FIXME: revision
-	IdlePoint();
-	IdleLook();
-	if (PathExists() && PathComplete())
-	{
-		ClearPath();
-	}
-	if (m_bAutoAvoidPlayer && !PathExists())
-	{
-		SetPathToNotBlockSentient(( Sentient * )G_GetEntity(0));
-	}
-	if (!PathExists())
-	{
-		Anim_Idle();
-		IdleTurn();
-		PostThink(true);
-	}
-	else
-	{
-		//FIXME: macros
-		Anim_WalkTo(2);
-
-		if (PathDist() <= 128.0)
-		{
-			IdleTurn();
-			PostThink(true);
-		}
-		else
-		{
-			FaceMotion();
-		}
-	}
-	
-}
-
 void Actor::ClearEnemies
 	(
 	void
@@ -12847,7 +14119,7 @@ void Actor::setOriginEvent
 {
 	bool bRejoin = false;
 	//FIXME: macro
-	if ((org - origin).lengthSquared() > 1048576)
+	if ((org - origin).lengthSquared() > Square(1024))
 	{
 		bRejoin = true;
 		DisbandSquadMate(this);
@@ -12855,39 +14127,21 @@ void Actor::setOriginEvent
 	
 	m_iOriginTime = level.inttime;
 
-	m_vOriginHistory[0][0] = org.x;
-	m_vOriginHistory[0][1] = org.y;
-	m_vOriginHistory[1][0] = org.x;
-	m_vOriginHistory[1][1] = org.y;
-	m_vOriginHistory[2][0] = org.x;
-	m_vOriginHistory[2][1] = org.y;
-	m_vOriginHistory[3][0] = org.x;
-	m_vOriginHistory[3][1] = org.y;
+	VectorCopy2D(org, m_vOriginHistory[0]);
+	VectorCopy2D(org, m_vOriginHistory[1]);
+	VectorCopy2D(org, m_vOriginHistory[2]);
 
 	VectorClear(velocity);
 
 	if (level.Spawned())
 	{
-		if (org != origin)
-		{
-			setOrigin(org);
-		}
-		if (!m_bNoPlayerCollision)
-		{
-			Player *p = (Player *)G_GetEntity(0);
-			if (p && IsTouching(p))
-			{
-				Com_Printf(
-					"(entnum %d, radnum %d) is going not solid to not get stuck in the player\n", entnum, radnum);
-				m_bNoPlayerCollision = true;
-				setSolidType(SOLID_NOT);
-			}
-		}
+		SafeSetOrigin(org);
 	}
 	else
 	{
 		setOrigin(org);
 	}
+
 	m_vHome = origin;
 
 	if (bRejoin)

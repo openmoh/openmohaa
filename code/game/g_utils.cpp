@@ -2079,7 +2079,7 @@ float G_AIEventRadius
 		0
 	};
 
-	if( iType <= 11 )
+	if( iType <= AI_EVENT_GRENADE)
 	{
 		return fRadius[ iType ];
 	}
@@ -2118,8 +2118,8 @@ void G_BroadcastAIEvent
 	int i;
 	int iNumSentients;
 	int iAreaNum;
-
-	if( iType < 10 )
+	
+	if( iType < AI_EVENT_FOOTSTEP)
 	{
 		ent = ( Sentient * )G_GetEntity( 0 );
 
@@ -2133,7 +2133,7 @@ void G_BroadcastAIEvent
 	assert( originator );
 	if( originator && !( originator->flags & FL_NOTARGET ) )
 	{
-		r2 = radius * radius;
+		r2 = Square(radius);
 		iNumSentients = SentientList.NumObjects();
 		for( i = 1; i <= iNumSentients; i++ )
 		{
@@ -2146,7 +2146,7 @@ void G_BroadcastAIEvent
 			delta = origin - ent->centroid;
 
 			// dot product returns length squared
-			dist2 = delta * delta;
+			dist2 = Square(delta);
 
 			if( originator )
 				iAreaNum = originator->edict->r.areanum;

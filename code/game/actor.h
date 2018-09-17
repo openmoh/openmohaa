@@ -322,7 +322,7 @@ enum  thinkNums
 
 enum thinkLevelNums
 {
-	THINKLEVEL_NORMAL,
+	THINKLEVEL_NORMAL, //I think it should be THINKLEVEL_IDLE
 	THINKLEVEL_PAIN,
 	THINKLEVEL_KILLED,
 	THINKLEVEL_NOCLIP
@@ -352,161 +352,161 @@ class Actor : public SimpleActor
 	};
 
 public:
-	static GlobalFuncs_t GlobalFuncs[ MAX_GLOBAL_FUNCS ];
-	static const_str m_csThinkNames[ MAX_GLOBAL_FUNCS ];
-	static const_str m_csThinkStateNames[ MAX_THINKMAP ];
-	int m_ThinkMap[ MAX_THINKMAP ];
-	int m_ThinkStates[ MAX_THINKSTATES ];
-	int m_Think[ MAX_THINKSTATES ];
-	int m_ThinkLevel;
-	int m_ThinkState;
-	int m_State;
-	int m_iStateTime;
-	bool m_bLockThinkState;
-	bool m_bDirtyThinkState;
-	char *m_pszDebugState;
-	bool m_bAnimating;
-	bool m_bDog;
-	int mVoiceType;
-	bool m_bSilent;
-	bool m_bNoSurprise;
-	bool m_bMumble;
-	bool m_bBreathSteam;
-	const_str m_csHeadModel;
-	const_str m_csHeadSkin;
-	const_str m_csWeapon;
-	const_str m_csLoadOut;
-	SentientPtr m_FavoriteEnemy;
-	int m_iEnemyCheckTime;
-	int m_iEnemyChangeTime;
-	int m_iEnemyVisibleCheckTime;
-	int m_iEnemyVisibleChangeTime;
-	int m_iLastEnemyVisibleTime;
-	int m_iEnemyFovCheckTime;
-	int m_iEnemyFovChangeTime;
-	Vector m_vLastEnemyPos;
-	int m_iLastEnemyPosChangeTime;
-	float m_fMaxShareDistSquared;
-	int m_iCanShootCheckTime;
-	bool m_bCanShootEnemy;
-	bool m_bDesiredEnableEnemy;
-	bool m_bEnableEnemy;
-	bool m_bEnablePain;
-	bool m_bNoLongPain;
-	bool m_bNewEnemy;
-	bool m_bEnemyIsDisguised;
-	bool m_bEnemyVisible;
-	bool m_bEnemyInFOV;
-	bool m_bForceAttackPlayer;
-	bool m_bAutoAvoidPlayer;
-	bool m_bNoIdleAfterAnim;
-	bool m_bAnimScriptSet;
-	const_str m_csAnimScript;
-	int m_AnimMode;
-	float m_fDfwRequestedYaw;
-	float m_fDfwDerivedYaw;
-	Vector m_vDfwPos;
-	float m_fDfwTime;
-	int m_iGunPositionCheckTime;
-	Vector m_vGunPosition;
+	static GlobalFuncs_t GlobalFuncs[ MAX_GLOBAL_FUNCS ];//GlobalFuncs: contains different funcs needed for each actor think/thinkstate
+	static const_str m_csThinkNames[ MAX_GLOBAL_FUNCS ];//const string array containig think names
+	static const_str m_csThinkStateNames[ MAX_THINKMAP ];//const string array containig think state names
+	int m_ThinkMap[ MAX_THINKMAP ];//map contating every think value for each thinkstate
+	int m_ThinkStates[ MAX_THINKSTATES ];//think state for every think level
+	int m_Think[ MAX_THINKSTATES ];//think value for every think level
+	int m_ThinkLevel;//current think level
+	int m_ThinkState;//current think state
+	int m_State;//current state (different than think state)
+	int m_iStateTime;//current state change time
+	bool m_bLockThinkState;//should block think state ?
+	bool m_bDirtyThinkState;//think state changed
+	char *m_pszDebugState;// debug state for m_State
+	bool m_bAnimating;//currently animating ( used in G_RunFrame )
+	bool m_bDog;//Am I a doggo ?
+	int mVoiceType;//char refereing to voice type, chec gAmericanVoices and gGermanVoices
+	bool m_bSilent;//check EV_Actor_GetSilent, EV_Actor_SetSilent and EV_Actor_SetSilent2
+	bool m_bNoSurprise;//check EV_Actor_GetNoSurprise, EV_Actor_SetNoSurprise and EV_Actor_SetNoSurprise2
+	bool m_bMumble;//actor can mumble ?
+	bool m_bBreathSteam;//actor is allowed to have steamy breath
+	const_str m_csHeadModel;//const string of head model
+	const_str m_csHeadSkin;//const string of head skin
+	const_str m_csWeapon;//const string of weapon model
+	const_str m_csLoadOut;//const string of REAL weapon model (check Actor::EventGiveWeapon)
+	SentientPtr m_FavoriteEnemy;//favorite enemy
+	int m_iEnemyCheckTime;//last time enemy was checked
+	int m_iEnemyChangeTime;//last time enemy was changed
+	int m_iEnemyVisibleCheckTime;//last time a visible(CanSee) enemy was checked
+	int m_iEnemyVisibleChangeTime;//last time a visible(CanSee) enemy was changed
+	int m_iLastEnemyVisibleTime;//last time a visible(CanSee) enemy was seen
+	int m_iEnemyFovCheckTime;//last time a visible(CanSee + infov) enemy was checked
+	int m_iEnemyFovChangeTime;//last time a visible(CanSee + infov) enemy was changed
+	Vector m_vLastEnemyPos;//last known enemy position.
+	int m_iLastEnemyPosChangeTime;//last time enemy position was changed.
+	float m_fMaxShareDistSquared;// check EV_Actor_GetEnemyShareRange and EV_Actor_SetEnemyShareRange
+	bool m_bCanShootEnemy;//can actor shoot enemy ?
+	int m_iCanShootCheckTime;//last time m_bCanShootEnemy was changed
+	bool m_bDesiredEnableEnemy;//desired enable enemy(changed from script)
+	bool m_bEnableEnemy;//enable enemy (change from code only, Actor::UpdateEnableEnemy)
+	bool m_bEnablePain;//can take pain ?
+	bool m_bNoLongPain;//allow long pain ?
+	bool m_bNewEnemy;//last set enemy is new ?
+	bool m_bEnemyIsDisguised;//is enemy disguised ?
+	bool m_bEnemyVisible;//is enemy visible (CanSee) ?
+	bool m_bEnemyInFOV;//is enemy in fov (CanSee) ?
+	bool m_bForceAttackPlayer;//attack player even if disguised.
+	bool m_bAutoAvoidPlayer;//actor should avoud player (Actor::IdleThink) (get out of the players way)
+	bool m_bNoIdleAfterAnim;//actor will not go into idle after playing an animation
+	bool m_bAnimScriptSet;//is anim script set ?
+	const_str m_csAnimScript;//const string of anim script path
+	int m_AnimMode;//anim mode
+	float m_fDfwRequestedYaw;//Don't Face Wall request yaw.
+	float m_fDfwDerivedYaw;//Don't Face Wall derived yaw.
+	Vector m_vDfwPos;//Don't Face Wall derived position.
+	float m_fDfwTime;//Don't Face Wall time.
+	int m_iGunPositionCheckTime;//last time GunPostiton() was called
+	Vector m_vGunPosition;//gun position
 	int m_iWallDodgeTimeout;
 	vec2_t m_PrevObstacleNormal;
 	char m_WallDir;
-	float m_fMoveDoneRadiusSquared;
-	int m_iOriginTime;
-	bool m_bFaceEnemy;
-	bool m_bDoPhysics;
-	bool m_bBecomeRunner;
-	bool m_bPatrolWaitTrigger;
+	float m_fMoveDoneRadiusSquared;//EV_Actor_SetMoveDoneRadius
+	int m_iOriginTime;//last time origin was changed
+	bool m_bFaceEnemy;//should I face enemy ?
+	bool m_bDoPhysics;//physics on/off ?
+	bool m_bBecomeRunner;//should become runner/patrol guy
+	bool m_bPatrolWaitTrigger;//If true, patrol guys and running men wait until triggered to move
 	bool m_bScriptGoalValid;
 	Vector m_vScriptGoal;
 	int m_iNextWatchStepTime;
-	SafePtr<SimpleEntity> m_patrolCurrentNode;
-	const_str m_csPatrolCurrentAnim;
+	SafePtr<SimpleEntity> m_patrolCurrentNode;//current patrol node
+	const_str m_csPatrolCurrentAnim;//current patrol anim
 	int m_iSquadStandTime;
-	float m_fInterval;
+	float m_fInterval;//distance AI tries to keep between squadmates while moving.
 	int m_iIntervalDirTime;
-	Vector m_vIntervalDir;
+	Vector m_vIntervalDir;//the direction the AI would like to move to maintain its interval
 	short m_sCurrentPathNodeIndex;
-	int m_PainState;
-	int m_iCuriousTime;
-	int m_iCuriousLevel;
+	int m_PainState;//current pain state(similar to m_State)
+	int m_iCuriousTime;//last time actor switched to curious state.
+	int m_iCuriousLevel;//Current level of curiousity. It's value is from PriorityForEventType()
 	int m_iCuriousAnimHint;
-	int m_iNextDisguiseTime;
-	int m_iDisguisePeriod;
-	float m_fMaxDisguiseDistSquared;
-	int m_iEnemyShowPapersTime;
-	ScriptThreadLabel m_DisguiseAcceptThread;
-	int m_iDisguiseLevel;
-	SafePtr< SimpleEntity > m_AlarmNode;
-	ScriptThreadLabel m_AlarmThread;
-	int m_iRunHomeTime;
-	bool m_bTurretNoInitialCover;
-	PathNode *m_pPotentialCoverNode[ MAX_COVER_NODES ];
-	int m_iPotentialCoverCount;
-	PathNode *m_pCoverNode;
-	const_str m_csSpecialAttack;
-	bool m_bInReload;
-	bool m_bNeedReload;
-	bool mbBreakSpecialAttack;
-	bool m_bGrenadeBounced;
-	SafePtr<Entity> m_pGrenade;
-	Vector m_vGrenadePos;
-	int m_iFirstGrenadeTime;
-	eGrenadeState m_eGrenadeState;
-	eGrenadeTossMode m_eGrenadeMode;
-	Vector m_vGrenadeVel;
-	Vector m_vKickDir;
-	FallPath *m_pFallPath;
-	float m_fBalconyHeight;
-	bool m_bNoPlayerCollision;
-	float m_fNoticeTimeScale;
-	float m_fMaxNoticeTimeScale;
-	ActorEnemySet m_PotentialEnemies;
-	float m_fSight;
-	float m_fHearing;
-	float m_fSoundAwareness;
-	float m_fGrenadeAwareness;
-	int m_iIgnoreSoundsMask;
-	float m_fFov;
-	float m_fFovDot;
-	int m_iEyeUpdateTime;
-	Vector m_vEyeDir;
-	int m_iNextLookTime;
-	float m_fLookAroundFov;
-	SafePtr<SimpleEntity> m_pLookEntity;
-	int m_iLookFlags;
-	SafePtr<SimpleEntity> m_pPointEntity;
-	SafePtr<SimpleEntity> m_pTurnEntity;
-	float m_fTurnDoneError;
-	float m_fAngleYawSpeed;
-	SafePtr<SimpleEntity> m_aimNode;
-	int m_eDontFaceWallMode;
+	int m_iNextDisguiseTime;//next time to check for state change to disguise. PassesTransitionConditions_Disguise()
+	int m_iDisguisePeriod;//EV_Actor_SetDisguisePeriod
+	float m_fMaxDisguiseDistSquared;//EV_Actor_SetDisguiseRange
+	int m_iEnemyShowPapersTime;//next time enemy should show papers
+	ScriptThreadLabel m_DisguiseAcceptThread;//the thread for actor when accepting papers
+	int m_iDisguiseLevel;//disguise level of the actor, might be 1 or 2
+	SafePtr< SimpleEntity > m_AlarmNode;//node for actor to raise alaram against player.
+	ScriptThreadLabel m_AlarmThread;//alarm thread for actor
+	int m_iRunHomeTime;//used for turret actot to run back to home Turret_SelectState()
+	bool m_bTurretNoInitialCover;//no cover path for initial turret state
+	PathNode *m_pPotentialCoverNode[ MAX_COVER_NODES ];//potential cover nodes
+	int m_iPotentialCoverCount;//potential cover node count
+	PathNode *m_pCoverNode;//current cover node
+	const_str m_csSpecialAttack;//special cover node attack script.
+	bool m_bInReload;//actor is reloading
+	bool m_bNeedReload;//actor needs reloading
+	bool mbBreakSpecialAttack;//should break(stop) special attack ?
+	bool m_bGrenadeBounced;//grenade has bounced ? (usually means actor should flee)
+	SafePtr<Entity> m_pGrenade;//current grenade
+	Vector m_vGrenadePos;//grenade position
+	int m_iFirstGrenadeTime;//first time grenade was noticed
+	eGrenadeState m_eGrenadeState;//grenade state
+	eGrenadeTossMode m_eGrenadeMode;//grenade mode
+	Vector m_vGrenadeVel;//grenade velocity
+	Vector m_vKickDir;//grenade kick direction
+	FallPath *m_pFallPath;//falling path
+	float m_fBalconyHeight;//minimum height a balcony guy must fall to do special balcony death
+	bool m_bNoPlayerCollision;//actor should not collide with player
+	float m_fNoticeTimeScale;//multiplier in time to notice an enemy
+	float m_fMaxNoticeTimeScale;//max multiplier in time to notice an enemy
+	ActorEnemySet m_PotentialEnemies;//set of potential enemies
+	float m_fSight;//vision distance of the actor
+	float m_fHearing;//hearing radius of the actor
+	float m_fSoundAwareness;//EV_Actor_GetSoundAwareness
+	float m_fGrenadeAwareness;//EV_Actor_GetGrenadeAwareness
+	int m_iIgnoreSoundsMask;//mask of AI_EVENT* bits for the actor to ignore.
+	float m_fFov;//fov angle of the actor
+	float m_fFovDot;//used for infov check
+	int m_iEyeUpdateTime;//eye update time
+	Vector m_vEyeDir;//eye direction
+	int m_iNextLookTime;//next time to look around
+	float m_fLookAroundFov;//fov angle for look around
+	SafePtr<SimpleEntity> m_pLookEntity;//entity to look at
+	int m_iLookFlags;//look flags(should be a bool)
+	SafePtr<SimpleEntity> m_pPointEntity;//entity to point at
+	SafePtr<SimpleEntity> m_pTurnEntity;//entity to turn to
+	float m_fTurnDoneError;//allowed error(difference) in angles after doing turnto command
+	float m_fAngleYawSpeed;//turn speed of the actor
+	SafePtr<SimpleEntity> m_aimNode;//node to aim at
+	int m_eDontFaceWallMode;//dont face wall mode
 	int m_iLastFaceDecideTime;
-	vec2_t m_vOriginHistory[ MAX_ORIGIN_HISTORY ];
-	int m_iCurrentHistory;
+	vec2_t m_vOriginHistory[ MAX_ORIGIN_HISTORY ];// origin history
+	int m_iCurrentHistory;//current origin history index
 	bool m_bHeadAnglesAchieved;
 	bool m_bLUpperArmAnglesAchieved;
 	bool m_bTorsoAnglesAchieved;
 	bool align3;
-	float m_fHeadMaxTurnSpeed;
-	vec3_t m_vHeadDesiredAngles;
-	float m_fLUpperArmTurnSpeed;
-	vec3_t m_vLUpperArmDesiredAngles;
-	float m_fTorsoMaxTurnSpeed;
-	float m_fTorsoCurrentTurnSpeed;
-	vec3_t m_vTorsoDesiredAngles;
-	static SafePtr< Actor > mBodyQueue[ MAX_BODYQUEUE ];
-	static int mCurBody;
-	Vector m_vHome;
-	SafePtr<SimpleEntity> m_pTetherEnt;
-	float m_fMinDistance;
-	float m_fMinDistanceSquared;
-	float m_fMaxDistance;
-	float m_fMaxDistanceSquared;
-	float m_fLeash;
-	float m_fLeashSquared;
-	bool m_bFixedLeash;
+	float m_fHeadMaxTurnSpeed;//max head turn speed
+	vec3_t m_vHeadDesiredAngles;//desired head angles
+	float m_fLUpperArmTurnSpeed;//up arm turn speed
+	vec3_t m_vLUpperArmDesiredAngles;//upper arm desired angles
+	float m_fTorsoMaxTurnSpeed;//max torso turn speed
+	float m_fTorsoCurrentTurnSpeed;//currnet torso turn speed
+	vec3_t m_vTorsoDesiredAngles;//desired torso angles
+	static SafePtr< Actor > mBodyQueue[ MAX_BODYQUEUE ];//global body queue
+	static int mCurBody;//current body queue index
+	Vector m_vHome;//leash home
+	SafePtr<SimpleEntity> m_pTetherEnt;//tether entity
+	float m_fMinDistance;//minimum distance actor tries to keep between itself and the player
+	float m_fMinDistanceSquared;//square of minimum distance actor tries to keep between itself and the player
+	float m_fMaxDistance;//maximum distance actor tries to allow between itself and the player
+	float m_fMaxDistanceSquared;//square of maximum distance actor tries to allow between itself and the player
+	float m_fLeash;//maximum distance actor will wander from its leash home
+	float m_fLeashSquared;//square of maximum distance actor will wander from its leash home
+	bool m_bFixedLeash;//if true, leash will not change.
 
 public:
 	CLASS_PROTOTYPE( Actor );
@@ -558,7 +558,7 @@ public:
 	void UpdateSayAnim( void );
 	void UpdateUpperAnim( void );
 	void UpdateAnim( void );
-	virtual void StoppedWaitFor( const_str name, bool bDeleting );
+	virtual void StoppedWaitFor( const_str name, bool bDeleting ) override;
 	static void InitTurret( GlobalFuncs_t *func );
 	void Begin_Turret( void );
 	void End_Turret( void );
@@ -785,6 +785,7 @@ public:
 	void Think_Weaponless( void );
 	void FinishedAnimation_Weaponless( void );
 	void State_Weaponless_Normal( void );
+	void State_Weaponless_Grenade( void );
 	virtual void Think( void );
 	void PostThink( bool bDontFaceWall );
 	virtual void SetMoveInfo( mmove_t *mm );
@@ -842,7 +843,7 @@ public:
 	bool CanSeeEnemy( int iMaxDirtyTime );
 	bool CanShootEnemy( int iMaxDirtyTime );
 	void ShowInfo( void );
-	virtual void ShowInfo( float fDot, float fDist );
+	virtual void ShowInfo( float fDot, float fDist ) override;
 	void DefaultPain( Event *ev );
 	void HandlePain( Event *ev );
 	void EventPain( Event *ev );
@@ -881,7 +882,7 @@ public:
 	void EventSetTurnDoneError( Event *ev );
 	void EventGetTurnDoneError( Event *ev );
 	void LookAround( float fFovAdd );
-	bool SoundSayAnim( const_str name, bool bLevelSayAnim );
+	bool SoundSayAnim( const_str name, byte bLevelSayAnim );
 	void EventSetAnim( Event *ev );
 	void EventIdleSayAnim( Event *ev );
 	void EventSayAnim( Event *ev );
@@ -1327,7 +1328,7 @@ inline void Actor::Archive
 	{
 		if( arc.Loading() )
 		{
-			m_pFallPath = ( FallPath * )gi.Malloc( sizeof( FallPath ) * length );
+			m_pFallPath = ( FallPath * )gi.Malloc((sizeof(FallPath::pos)) * length + (sizeof(FallPath) - sizeof(FallPath::pos)));
 			m_pFallPath->length = length;
 		}
 

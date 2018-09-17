@@ -457,6 +457,7 @@ void Entry < unsigned char *, sourceinfo_t >::Archive( Archiver& arc )
 
 void GameScript::Archive( Archiver& arc )
 {
+	/*
 	int count = 0, i;
 	unsigned char *p, *code_pos, *code_end;
 	const_str s;
@@ -614,31 +615,38 @@ void GameScript::Archive( Archiver& arc )
 
 	m_State.Archive( arc );
 
-	current_progBuffer = NULL;
+	current_progBuffer = NULL;*/
 }
 
 void GameScript::Archive( Archiver& arc, GameScript *& scr )
 {
 	str filename;
 
-	if( !arc.Saving() )
+	if( arc.Saving() )
 	{
-		arc.ArchiveString( &filename );
-
-		if( filename != "" )
+		if (scr)
 		{
-			scr = Director.GetScript( filename );
+			filename = scr->Filename();
+		}
+		else
+		{
+			filename = "";
+		}
+
+		arc.ArchiveString(&filename);
+	}
+	else
+	{
+		arc.ArchiveString(&filename);
+
+		if (filename != "")
+		{
+			scr = Director.GetScript(filename);
 		}
 		else
 		{
 			scr = NULL;
 		}
-	}
-	else
-	{
-		filename = scr->Filename();
-
-		arc.ArchiveString( &filename );
 	}
 }
 
@@ -887,11 +895,12 @@ void ScriptThreadLabel::Execute( Listener *listener, Event *ev )
 	}
 }
 
-void ScriptThreadLabel::Set( const char *label )
+void ScriptThreadLabel::Set(const char *label)
 {
 	str script;
 	char buffer[ 1023 ];
 	char *p = buffer;
+	int i = 0;
 	bool foundLabel = false;
 
 	if( !label || !*label )
@@ -903,7 +912,7 @@ void ScriptThreadLabel::Set( const char *label )
 
 	strcpy( buffer, label );
 
-	while( *p != '\0' )
+	while( true )
 	{
 		if( p[ 0 ] == ':' && p[ 1 ] == ':' )
 		{
@@ -917,13 +926,31 @@ void ScriptThreadLabel::Set( const char *label )
 		}
 
 		p++;
+		i++;
+
+		if (*p == '\0')
+		{
+			break;
+		}
+
+		if (i >= 1023)
+		{
+			//we didn't find label but this is how it works.
+			//the whole string is the label
+			m_Label = Director.AddString(buffer);
+			script = buffer;
+			foundLabel = true;
+			break;
+		}
+		
 	}
 
 	if( !foundLabel )
 	{
 		script = level.m_mapscript;
-		m_Label = Director.AddString( buffer );
+		m_Label = Director.AddString(buffer);
 	}
+
 
 	m_Script = Director.GetGameScript( script );
 
@@ -969,7 +996,66 @@ void ScriptThreadLabel::SetScript( const ScriptVariable& label )
 
 void ScriptThreadLabel::SetScript( const char *label )
 {
-	Set( label );
+	str script;
+	char buffer[1023];
+	char *p = buffer;
+	int i = 0;
+	bool foundLabel = false;
+
+	if (!label || !*label)
+	{
+		m_Script = NULL;
+		m_Label = STRING_EMPTY;
+		return;
+	}
+
+	strcpy(buffer, label);
+
+	script = buffer;
+	while (true)
+	{
+		if (p[0] == ':' && p[1] == ':')
+		{
+			*p = '\0';
+
+			m_Label = Director.AddString(&p[2]);
+			foundLabel = true;
+
+			break;
+		}
+
+		p++;
+		i++;
+
+		if (*p == '\0')
+		{
+			m_Label = STRING_EMPTY;
+			foundLabel = true;
+			break;
+		}
+
+		if (i >= 1023)
+		{
+			//we didn't find label so empty label
+			m_Label = STRING_EMPTY;
+			foundLabel = false;
+			break;
+		}
+
+	}
+
+
+	m_Script = Director.GetGameScript(script);
+
+	if (!m_Script->m_State.FindLabel(m_Label))
+	{
+		str l = Director.GetString(m_Label);
+
+		m_Script = NULL;
+		m_Label = STRING_EMPTY;
+
+		ScriptError("^~^~^ Could not find label '%s' in '%s'", l.c_str(), script.c_str());
+	}
 }
 
 void ScriptThreadLabel::SetThread( const ScriptVariable& label )
@@ -1078,6 +1164,7 @@ bool ScriptThreadLabel::IsFile(const_str filename)
 
 void ScriptThreadLabel::Archive( Archiver& arc )
 {
-	m_Script->Archive( arc );
+	GameScript::Archive(arc, m_Script);
+
 	Director.ArchiveString( arc, m_Label );
 }

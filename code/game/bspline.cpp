@@ -672,6 +672,9 @@ SplinePath::SplinePath()
 {
 	entflags |= EF_SPLINEPATH;
 
+	AddWaitTill(STRING_REACH);
+
+
 	owner = this;
 	next = NULL;
 	loop = NULL;

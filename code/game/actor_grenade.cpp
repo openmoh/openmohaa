@@ -55,7 +55,7 @@ bool Actor::Grenade_Acquire
 		bRetVal = true;
 		vDest = origin - m_vGrenadePos;
 		vDest = vDest * 16 + m_vGrenadePos;
-		SetPath(vDest, "", 0, NULL, 0.0);
+		SetPath(vDest, NULL, 0, NULL, 0.0);
 	}
 	if (PathExists())
 	{
@@ -95,8 +95,7 @@ bool Actor::Grenade_Acquire
 					facedir[1] = m_vGrenadePos[1] - origin[1];
 					if (facedir[0] != 0 || facedir[1] != 0)
 					{
-						m_YawAchieved = false;
-						m_DesiredYaw = vectoyaw(facedir);
+						SetDesiredYawDir(facedir);
 					}
 
 				}
@@ -195,7 +194,7 @@ void Actor::Grenade_Flee
 		{
 			m_eGrenadeState = AI_GRENSTATE_FLEE_SUCCESS;
 			Anim_Attack();
-			AimAtAimNode();
+			AimAtTargetPos();
 		}
 		else
 		{
@@ -290,7 +289,7 @@ void Actor::Grenade_MartyrAcquire
 
 		vDest = vDest * 88 + m_vGrenadePos;
 
-		SetPath(vDest, "", 0, NULL, 0.0);
+		SetPath(vDest, NULL, 0, NULL, 0.0);
 	}
 
 	if (PathExists())
@@ -636,64 +635,42 @@ void Actor::Think_Grenade
 	case AI_GRENSTATE_FLEE_FAIL:
 		m_pszDebugState = "RunAway";
 		Grenade_Flee();
-		PostThink(false);
-		return;
+		break;
 	case AI_GRENSTATE_THROW_ACQUIRE:
 		m_pszDebugState = "ThrowAcquire";
 		Grenade_ThrowAcquire();
-		PostThink(false);
-		return;
+		break;
 	case AI_GRENSTATE_THROW:
 		m_pszDebugState = "Throw";
 		Grenade_Throw();
-		PostThink(false);
-		return;
+		break;
 	case AI_GRENSTATE_KICK_ACQUIRE:
 		m_pszDebugState = "KickAcquire";
 		Grenade_KickAcquire();
-		PostThink(false);
-		return;
+		break;
 	case AI_GRENSTATE_KICK:
 		m_pszDebugState = "Kick";
 		m_bHasDesiredLookAngles = false;
 		ContinueAnimation();
-		PostThink(false);
-		return;
+		break;
 	case AI_GRENSTATE_MARTYR_ACQUIRE:
 		m_pszDebugState = "MartyrAcquire";
 		Grenade_MartyrAcquire();
-		PostThink(false);
-		return;
+		break;
 	case AI_GRENSTATE_MARTYR:
 		m_pszDebugState = "Martyr";
 		Grenade_Martyr();
-		PostThink(false);
-		return;
+		break;
 	default:
 		m_pszDebugState = "***Invalid***";
-		/* useless assert
-		if ( !dword_39AC88 )
-		{
-			strcpy(v4, \"invalid grenade state\"\n\tMessage: ");
-			memset(&s, 0, 0x3FDFu);
-			v2 = DumpCallTrace(
-					"thinkstate = %i",
-					m_State);
-			Q_strcat(v4, 0x4000, v2);
-			v3 = MyAssertHandler(v4, "fgame/actor_grenade.cpp", 762, 0);
-			if ( v3 < 0 )
-			{
-			dword_39ACFC = 1;
-			}
-			else if ( v3 > 0 )
-			{
-			__debugbreak();
-			}
-		}
-		*/
-		PostThink(false);
-		return;
+		char assertStr[16317] = { 0 };
+		strcpy(assertStr, "\"invalid grenade state\"\n\tMessage: ");
+		Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("thinkstate = %i", m_State));
+		assert(!assertStr);
+		break;
 	}
+
+	PostThink(false);
 }
 
 void Actor::FinishedAnimation_Grenade
@@ -717,27 +694,10 @@ void Actor::FinishedAnimation_Grenade
 		Grenade_NextThinkState();
 		break;
 	default:
-		/*
-		 * useless assert
-		if (!dword_39AC84)
-		{
-			strcpy(&v3, "\"invalid grenade state in FinishedAnimation()\"\n\tMessage: ");
-			memset(&s, 0, 0x3FC6u);
-			v1 = (*(this->baseSimpleActor.baseSentient.baseAnimate.baseEntity.baseSimple.baseListener.baseClass.vftable + 87))(
-				this,
-				"state = %i",
-				this->m_eGrenadeState);
-			Q_strcat(&v3, 0x4000, v1);
-			v2 = MyAssertHandler(&v3, "fgame/actor_grenade.cpp", 663, 0);
-			if (v2 < 0)
-			{
-				dword_39AC84 = 1;
-			}
-			else if (v2 > 0)
-			{
-				__debugbreak();
-			}
-		}*/
+		char assertStr[16317] = { 0 };
+		strcpy(assertStr, "\"invalid grenade state in FinishedAnimation()\"\n\tMessage: ");
+		Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("state = %i", m_eGrenadeState));
+		assert(!assertStr);
 		break;
 	}
 }

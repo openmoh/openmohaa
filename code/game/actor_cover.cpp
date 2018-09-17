@@ -126,7 +126,7 @@ void Actor::State_Cover_NewEnemy
 	else
 	{
 		Anim_Aim();
-		AimAtAimNode();
+		AimAtTargetPos();
 		m_State = 307;
 	}
 
@@ -140,7 +140,7 @@ void Actor::State_Cover_FindCover
 
 {
 	Anim_Aim();
-	AimAtAimNode();
+	AimAtTargetPos();
 	Cover_FindCover( false );
 
 	if( m_pCoverNode )
@@ -197,7 +197,7 @@ void Actor::State_Cover_FinishReloading
 	if( m_bInReload )
 	{
 		ContinueAnimation();
-		AimAtAimNode();
+		AimAtTargetPos();
 		return;
 	}
 
@@ -226,17 +226,17 @@ void Actor::State_Cover_FinishReloading
 		}
 
 		Anim_Aim();
-		AimAtAimNode();
+		AimAtTargetPos();
 		return;
 	}
 
-	m_YawAchieved = false;
-	m_DesiredYaw = angles[ 1 ];
+	SetDesiredYaw(angles[1]);
+	
 	SafeSetOrigin( origin );
 	m_eNextAnimMode = 1;
 	m_bNextForceStart = false;
 	m_csNextAnimString = m_csSpecialAttack;
-	m_State = 308;
+	m_State = 304;
 	m_iStateTime = level.inttime;
 }
 
@@ -257,34 +257,38 @@ void Actor::State_Cover_Target
 	}
 
 	Anim_Aim();
-	AimAtAimNode();
+	AimAtTargetPos();
 
 	if( level.inttime > m_iStateTime + 300 && fabs( m_DesiredYaw - angles[ 1 ] ) < 0.001f )
 	{
 		Vector end = m_vLastEnemyPos + velocity;
 		if( DecideToThrowGrenade( end, &m_vGrenadeVel, &m_eGrenadeMode ) )
 		{
-			m_YawAchieved = false;
-			m_DesiredYaw = vectoyaw( m_vGrenadeVel );
+			SetDesiredYawDir(m_vGrenadeVel);
 			m_eNextAnimMode = 1;
 			m_bNextForceStart = false;
 			m_State = 310;
-			m_csNextAnimString = m_eGrenadeMode == 2 ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
+			m_csNextAnimString = m_eGrenadeMode == AI_GREN_TOSS_ROLL ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
+			m_iStateTime = level.inttime;
 		}
 		else if( CanSeeEnemy( 500 ) && CanShootEnemy( 500 ) )
 		{
 			m_State = 309;
+			m_iStateTime = level.inttime;
 		}
 		else
 		{
-			if( m_Team == TEAM_AMERICAN )
+			m_State = 308;
+
+			if (m_Team == TEAM_AMERICAN)
 			{
-				m_iStateTime = level.inttime + ( rand() % 2001 + 2000 );
+				m_iStateTime = level.inttime + (rand() % 2001 + 2000);
 			}
 			else
 			{
-				m_iStateTime = level.inttime + ( rand() % 11001 + 4000 );
+				m_iStateTime = level.inttime + (rand() % 11001 + 4000);
 			}
+
 		}
 	}
 }
@@ -313,8 +317,7 @@ void Actor::State_Cover_Hide
 
 	if( m_csSpecialAttack )
 	{
-		m_DesiredYaw = angles[ 1 ];
-		m_YawAchieved = false;
+		SetDesiredYaw(angles[1]);
 		SafeSetOrigin( origin );
 		m_eNextAnimMode = 1;
 		m_bNextForceStart = false;
@@ -371,10 +374,9 @@ void Actor::State_Cover_Hide
 
 			Vector vDelta = node->m_PathPos - origin;
 
-			if( vDelta[ 0 ] || vDelta[ 1 ] == 0 )
+			if( vDelta[ 0 ] || vDelta[ 1 ] )
 			{
-				m_DesiredYaw = vectoyaw( vDelta );
-				m_YawAchieved = false;
+				SetDesiredYawDir(vDelta);
 			}
 		}
 
@@ -405,15 +407,14 @@ void Actor::State_Cover_Hide
 
 				if( vDelta[ 0 ] == 0.0f || vDelta[ 1 ] == 0.0f )
 				{
-					m_DesiredYaw = vectoyaw( vDelta );
-					m_YawAchieved = false;
+					SetDesiredYawDir(vDelta);
 				}
 
 				m_eDontFaceWallMode = 6;
 			}
 			else
 			{
-				AimAtAimNode();
+				AimAtTargetPos();
 				DontFaceWall();
 			}
 		}
@@ -432,6 +433,7 @@ void Actor::State_Cover_Hide
 		return;
 
 	PathNode *pNode = ( PathNode * )G_FindRandomSimpleTarget( m_pCoverNode->target );
+
 	m_pCoverNode->Relinquish();
 	m_pCoverNode = NULL;
 
@@ -485,7 +487,7 @@ void Actor::State_Cover_Shoot
 	}
 	sizeof(SimpleEntity);
 	Anim_Shoot();
-	AimAtAimNode();
+	AimAtTargetPos();
 
 	if( level.inttime > m_iStateTime + 10000 )
 	{
@@ -548,8 +550,8 @@ void Actor::State_Cover_SpecialAttack
 		}
 	}
 
-	m_DesiredYaw = angles[ 1 ];
-	m_YawAchieved = false;
+	SetDesiredYaw(angles[1]);
+
 	m_eNextAnimMode = 1;
 	m_csNextAnimString = m_csSpecialAttack;
 	m_bNextForceStart = false;
@@ -583,7 +585,7 @@ __setpath:
 		return;
 	}
 
-	AimAtAimNode();
+	AimAtTargetPos();
 	Anim_Aim();
 	DontFaceWall();
 
@@ -615,7 +617,7 @@ void Actor::State_Cover_SearchNode
 	if( CanSeeEnemy( 200 ) )
 	{
 		Anim_Aim();
-		AimAtAimNode();
+		AimAtTargetPos();
 		m_iStateTime = level.inttime;
 		return;
 	}
@@ -628,7 +630,7 @@ void Actor::State_Cover_SearchNode
 	else
 	{
 		Anim_Aim();
-		AimAtAimNode();
+		AimAtTargetPos();
 
 		if( level.inttime > m_iStateTime + 3000 )
 		{
@@ -674,7 +676,7 @@ void Actor::State_Cover_FakeEnemy
 	)
 
 {
-	AimAtAimNode();
+	AimAtTargetPos();
 	Anim_Aim();
 
 	if( level.inttime >= m_iStateTime )
@@ -782,7 +784,7 @@ void Actor::Think_Cover
 			break;
 		}
 
-		CheckForTransition( THINKSTATE_GRENADE, 0 );
+		CheckForTransition( THINKSTATE_GRENADE, THINKLEVEL_NORMAL );
 	}
 
 	if( m_State != 305 && m_State != 307 && m_State != 308 && m_State != 309 )

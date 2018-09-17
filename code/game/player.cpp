@@ -1900,7 +1900,7 @@ qboolean Player::checkattackleft
 	)
 
 {
-	if( level.playerfrozen || m_bFrozen || ( flags & FL_IMMOBILE ) || !m_bAllowFighting )
+	if( level.playerfrozen || m_bFrozen || ( flags & FL_IMMOBILE ) || (g_gametype->integer && !m_bAllowFighting) )
 	{
 		return false;
 	}
@@ -4196,7 +4196,9 @@ Player::~Player()
 {
 	int         i, num;
 	Conditional *cond;
-
+	
+	gi.DPrintf("Player::~Player()\n");
+	//assert(0);
 	num = legs_conditionals.NumObjects();
 	for( i = num; i>0; i-- )
 	{
@@ -5032,7 +5034,7 @@ void Player::Obituary( Entity *attacker, Entity *inflictor, int meansofdeath, in
 	const char *s2;
 	qboolean bDispLocation;
 
-	if( !g_gametype->integer ) {
+	if( g_gametype->integer == GT_SINGLE_PLAYER ) {
 		return;
 	}
 
@@ -7170,7 +7172,11 @@ void Player::Think
 	Event *m_pWeaponCommand = NULL;
 	Weapon *pWeap;
 
-	edict->s.eFlags &= ~EF_UNARMED;
+	/*if (!this)
+	{
+		gi.DPrintf("Player::Think() : this is null\n");
+	}*/
+	//edict->s.eFlags &= ~EF_UNARMED; where did you get this @ley0k :3
 
 	if( whereami->integer &&
 		origin != oldorigin )
@@ -7178,7 +7184,7 @@ void Player::Think
 		gi.DPrintf( "x %8.2f y %8.2f z %8.2f area %2d\n", origin[ 0 ], origin[ 1 ], origin[ 2 ], edict->r.areanum );
 	}
 
-	if( !g_gametype->integer && g_playermodel->modified )
+	if( g_gametype->integer == GT_SINGLE_PLAYER && g_playermodel->modified )
 	{
 		setModel( "models/player/" + str( g_playermodel->string ) + ".tik" );
 
@@ -7190,7 +7196,7 @@ void Player::Think
 		g_playermodel->modified = qfalse;
 	}
 
-	if( !g_gametype->integer )
+	if( g_gametype->integer == GT_SINGLE_PLAYER)
 	{
 		m_bIsDisguised = false;
 
@@ -7236,166 +7242,184 @@ void Player::Think
 	oldvelocity = velocity;
 	old_v_angle = v_angle;
 
-	if( ( !g_gametype->integer ) &&
-		( ( server_new_buttons & BUTTON_ATTACK ) || ( server_new_buttons & BUTTON_ATTACK2 ) ) &&
-		( !GetActiveWeapon( WEAPON_MAIN ) ) &&
-		( !IsDead() ) &&
-		( !IsNewActiveWeapon() ) &&
-		( !LoadingSavegame ) )
+	if (g_gametype->integer == GT_SINGLE_PLAYER)
 	{
-		Event *ev = new Event( "useweaponclass" );
-		ev->AddString( "item1" );
 
-		ProcessEvent( ev );
-	}
-
-	if( deadflag == DEAD_DEAD && level.time >= respawn_time )
-	{
-		if( dmManager.AllowRespawn() )
+		if (((server_new_buttons & BUTTON_ATTACK) || (server_new_buttons & BUTTON_ATTACK2)) &&
+			(!GetActiveWeapon(WEAPON_MAIN)) &&
+			(!IsDead()) &&
+			(!IsNewActiveWeapon()) &&
+			(!LoadingSavegame) )
 		{
-			if( ( ( server_new_buttons & BUTTON_ATTACK ) || ( server_new_buttons & BUTTON_ATTACK2 ) ) ||
-				g_forcerespawn->integer > 0 && level.time > g_forcerespawn->integer + respawn_time )
-			{
-				m_bSpectator = false;
-				m_bTempSpectator = false;
-				client->ps.pm_flags &= ~PMF_SPECTATING;
-				PostEvent( EV_Player_Respawn, 0 );
-			}
-		}
-		else
-		{
-			if( !IsSpectator() )
-			{
-				BeginTempSpectator();
-			}
-		}
-	}
+			 Event *ev = new Event("useweaponclass");
+			 ev->AddString("item1");
 
-	if( IsSpectator() && !m_bTempSpectator )
-	{
-		if( level.time <= respawn_time || ( !( server_new_buttons & BUTTON_ATTACK ) || ( server_new_buttons & BUTTON_ATTACK2 ) ) )
-		{
-			if( level.time - 10.0f > m_fWeapSelectTime )
-			{
-				m_fWeapSelectTime = level.time;
-				gi.centerprintf( edict, gi.LV_ConvertString( "Press fire to join the battle!" ) );
-			}
-		}
-		else if( !current_team || dm_team == TEAM_SPECTATOR )
-		{
-			gi.SendServerCommand( edict - g_entities, "stufftext \"pushmenu_teamselect\"" );
-		}
-		else if( !client->pers.weapon[ 0 ] )
-		{
-			if( level.time > m_fWeapSelectTime )
-			{
-				m_fWeapSelectTime = level.time + 1.0f;
-				gi.SendServerCommand( edict - g_entities, "stufftext \"pushmenu_weaponselect\"" );
-			}
-		}
-		else if( ( g_gametype->integer == GT_FFA ||
-			( g_gametype->integer && dm_team > TEAM_FREEFORALL ) ) &&
-			( deadflag != DEAD_DEAD ) )
-		{
-			m_bSpectator = false;
-			m_bTempSpectator = false;
-			client->ps.pm_flags &= ~PMF_SPECTATING;
-
-			if( deadflag ) {
-				deadflag = DEAD_DEAD;
-			}
-
-			PostEvent( EV_Player_Respawn, 0 );
-		}
-	}
-	else if( !client->pers.weapon[ 0 ] )
-	{
-		Spectator();
-		gi.SendServerCommand( edict - g_entities, "stufftext \"pushmenu_weaponselect\"" );
-	}
-
-	if( IsSpectator() )
-	{
-		if( ( server_new_buttons & BUTTON_USE ) )
-		{
-			SetPlayerSpectate();
-		}
-
-		if( ( g_gametype->integer <= GT_FFA ) ||
-			( !g_forceteamspectate->integer ) ||
-			( dm_team <= TEAM_FREEFORALL ) )
-		{
-			if( last_ucmd.upmove )
-			{
-				m_iPlayerSpectating = 0;
-			}
-
-			if( m_iPlayerSpectating )
-			{
-				gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
-				Player *player = ( Player * )ent->entity;
-
-				if( ( !ent->inuse ) ||
-					( !player ) ||
-					( player->deadflag >= DEAD_DEAD ) ||
-					(
-					( player->IsSpectator() ) ||
-					(
-					g_gametype->integer > GT_FFA &&
-					g_forceteamspectate->integer &&
-					dm_team > TEAM_FREEFORALL &&
-					player->GetTeam() != GetTeam()
-					)
-					) )
-				{
-					SetPlayerSpectate();
-				}
-
-			}
-		}
-		else
-		{
-			if( !m_iPlayerSpectating )
-			{
-				SetPlayerSpectate();
-			}
-			else
-			{
-				gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
-				Player *player = ( Player * )ent->entity;
-
-				if( !ent->inuse )
-				{
-					SetPlayerSpectate();
-				}
-				else if( !player )
-				{
-					SetPlayerSpectate();
-				}
-				else if( player->deadflag >= DEAD_DEAD )
-				{
-					SetPlayerSpectate();
-				}
-				else if( player->IsSpectator() )
-				{
-					SetPlayerSpectate();
-				}
-				else if( g_gametype->integer > GT_FFA )
-				{
-					if( ( dm_team > TEAM_FREEFORALL ) &&
-						( g_forceteamspectate->integer ) &&
-						( GetDM_Team()->NumLivePlayers() ) &&
-						( player->GetTeam() != GetTeam() ) )
-					{
-						SetPlayerSpectate();
-					}
-				}
-			}
+			 ProcessEvent(ev);
 		}
 	}
 	else
 	{
-		m_iPlayerSpectating = 0;
+
+		bool shouldBecomeTempSpec = false;
+		if (deadflag == DEAD_DEAD && level.time > respawn_time)
+		{
+			if (dmManager.AllowRespawn())
+			{
+				if (((server_new_buttons & BUTTON_ATTACK) || (server_new_buttons & BUTTON_ATTACK2)) ||
+					g_forcerespawn->integer > 0 && level.time > g_forcerespawn->integer + respawn_time)
+				{
+					m_bSpectator = false;
+					m_bTempSpectator = false;
+					client->ps.pm_flags &= ~PMF_SPECTATING;
+					PostEvent(EV_Player_Respawn, 0);
+				}
+			}
+			else
+			{
+				shouldBecomeTempSpec = true;
+			}
+		}
+		else
+		{
+			shouldBecomeTempSpec = true;
+		}
+
+
+		if (shouldBecomeTempSpec)
+		{
+			if (!IsSpectator())
+			{
+				BeginTempSpectator();
+			}
+		}
+
+		if (IsSpectator() && !m_bTempSpectator)
+		{
+			if (level.time <= respawn_time || !((server_new_buttons & BUTTON_ATTACK) || (server_new_buttons & BUTTON_ATTACK2)))
+			{
+				if (level.time - 10.0f > m_fWeapSelectTime)
+				{
+					m_fWeapSelectTime = level.time;
+					gi.centerprintf(edict, gi.LV_ConvertString("Press fire to join the battle!"));
+				}
+			}
+			else if (!current_team || dm_team == TEAM_SPECTATOR)
+			{
+				gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_teamselect\"");
+			}
+			else if (!client->pers.weapon[0])
+			{
+				if (level.time > m_fWeapSelectTime)
+				{
+					m_fWeapSelectTime = level.time + 1.0f;
+					gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_weaponselect\"");
+				}
+			}
+			else if ((g_gametype->integer == GT_FFA ||
+				(g_gametype->integer && dm_team > TEAM_FREEFORALL)) &&
+				(deadflag != DEAD_DEAD))
+			{
+				m_bSpectator = false;
+				m_bTempSpectator = false;
+				client->ps.pm_flags &= ~PMF_SPECTATING;
+
+				if (deadflag) {
+					deadflag = DEAD_DEAD;
+				}
+
+				PostEvent(EV_Player_Respawn, 0);
+			}
+		}
+		else if (!client->pers.weapon[0])
+		{
+			Spectator();
+			gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_weaponselect\"");
+		}
+
+		if (IsSpectator())
+		{
+			if ((server_new_buttons & BUTTON_USE))
+			{
+				SetPlayerSpectate();
+			}
+
+			if ((g_gametype->integer <= GT_FFA) ||
+				(!g_forceteamspectate->integer) ||
+				(dm_team <= TEAM_FREEFORALL))
+			{
+				if (last_ucmd.upmove)
+				{
+					m_iPlayerSpectating = 0;
+				}
+
+				if (m_iPlayerSpectating)
+				{
+					gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
+					Player *player = (Player *)ent->entity;
+
+					if ((!ent->inuse) ||
+						(!player) ||
+						(player->deadflag >= DEAD_DEAD) ||
+						(
+						(player->IsSpectator()) ||
+							(
+								g_gametype->integer > GT_FFA &&
+								g_forceteamspectate->integer &&
+								dm_team > TEAM_FREEFORALL &&
+								player->GetTeam() != GetTeam()
+								)
+							))
+					{
+						SetPlayerSpectate();
+					}
+
+				}
+			}
+			else
+			{
+				if (!m_iPlayerSpectating)
+				{
+					SetPlayerSpectate();
+				}
+				else
+				{
+					gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
+					Player *player = (Player *)ent->entity;
+
+					if (!ent->inuse)
+					{
+						SetPlayerSpectate();
+					}
+					else if (!player)
+					{
+						SetPlayerSpectate();
+					}
+					else if (player->deadflag >= DEAD_DEAD)
+					{
+						SetPlayerSpectate();
+					}
+					else if (player->IsSpectator())
+					{
+						SetPlayerSpectate();
+					}
+					else if (g_gametype->integer > GT_FFA)
+					{
+						if ((dm_team > TEAM_FREEFORALL) &&
+							(g_forceteamspectate->integer) &&
+							(GetDM_Team()->NumLivePlayers()) &&
+							(player->GetTeam() != GetTeam()))
+						{
+							SetPlayerSpectate();
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			m_iPlayerSpectating = 0;
+		}
+
 	}
 
 	if( g_logstats->integer )
@@ -7409,7 +7433,6 @@ void Player::Think
 
 	if( !IsDead() )
 	{
-
 		m_iClientWeaponCommand = ( server_new_buttons & 0x780 ) >> 7;
 
 		switch( m_iClientWeaponCommand )
@@ -7496,6 +7519,7 @@ void Player::Think
 
 	UpdateFootsteps();
 
+	// where did you get this @ley0k :3
 	if( !animDoneVM )
 	{
 		int index;

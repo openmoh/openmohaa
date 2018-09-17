@@ -117,7 +117,7 @@ extern "C" {
 #endif
 
 typedef enum {
-	GT_SINGLE_PLAYER,	// single player ffa
+	GT_SINGLE_PLAYER,	// single player
 	GT_FFA,				// free for all
 	GT_TEAM,			// team deathmatch
 	GT_TEAM_ROUNDS,

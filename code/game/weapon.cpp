@@ -4178,7 +4178,7 @@ void Weapon::StartReloading( void )
 		return;
 	}
 
-	Event *ev = new Event( EV_Weapon_DoneReloading );
+	Event ev( EV_Weapon_DoneReloading );
 
 	if( SetWeaponAnim( "reload", ev ) )
 	{

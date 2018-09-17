@@ -1104,18 +1104,20 @@ void Door::SpawnTriggerField
 	}
 
 
+
 void Door::LinkDoors
 	(
 	Event *ev
 	)
 
 {
-	Entity *entptr;
-	Door	*ent;
-	Door	*next;
-	Vector			cmins;
-	Vector			cmaxs;
-	int				i;
+	Entity       *entptr;
+	Door	        *ent;
+	Door		   *next;
+	Vector	       cmins;
+	Vector		   cmaxs;
+	int		iNumTouching;
+	int				   i;
 
 	setSolidType( SOLID_BSP );
 	setMoveType( MOVETYPE_PUSH );
@@ -1133,6 +1135,31 @@ void Door::LinkDoors
 	{
 		// don't want to link this door
 		nextdoor = entnum;
+		return;
+	}
+	iNumTouching = 0;
+
+	for (ent = this; ent; ent = (Door *)G_FindClass(ent, getClassID()))
+	{
+		if (DoorTouches(ent) && ent != this)
+		{
+			iNumTouching++;
+		}
+	}
+
+	if (iNumTouching == 0)
+	{
+		for (ent = (Door *)G_FindClass(NULL, getClassID()); ent; ent = (Door *)G_FindClass(ent, getClassID()))
+		{
+			if (DoorTouches(ent) && ent != this)
+			{
+				iNumTouching++;
+			}
+		}
+	}
+
+	if (iNumTouching != 0)
+	{
 		return;
 	}
 
@@ -1844,23 +1871,26 @@ void ScriptDoor::SetInitThread
    }
 
 ScriptDoor::ScriptDoor()
+{
+	AddWaitTill(STRING_OPEN);
+	AddWaitTill(STRING_CLOSE);
+
+	if ( LoadingSavegame )
 	{
-   if ( LoadingSavegame )
-      {
-      return;
-      }
+		return;
+	}
 	startangle = angles;
 
-   //
-   // clear out the sounds if necessary
-   // scripted doors typically have their own sounds
-   //
-   sound_open_start = "";
-   sound_open_end = "";
-   sound_close_start = "";
-   sound_close_end = "";
+	//
+	// clear out the sounds if necessary
+	// scripted doors typically have their own sounds
+	//
+	sound_open_start = "";
+	sound_open_end = "";
+	sound_close_start = "";
+	sound_close_end = "";
 
 	movedir = G_GetMovedir( 0 );
 
-   PostEvent( EV_ScriptDoor_DoInit, EV_POSTSPAWN );
-	}
+	PostEvent( EV_ScriptDoor_DoInit, EV_POSTSPAWN );
+}

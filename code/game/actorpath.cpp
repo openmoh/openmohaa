@@ -49,7 +49,7 @@ void ActorPath::Clear
 {
 	m_startpathpos = 0;
 	m_pathpos = 0;
-	m_Side = 0;
+	m_Side = false;
 	m_Time = -10000000;
 	m_delta[ 0 ] = 0;
 	m_delta[ 1 ] = 0;
@@ -87,9 +87,9 @@ void ActorPath::FindPath
 		if( depth > m_pathlen )
 		{
 			if( m_path )
-				delete m_path;
+				delete[] m_path;
 
-			m_pathlen = 10 * ( depth - 1 ) / 10 + 10;
+			m_pathlen = 10 * (( depth - 1 ) / 10) + 10;
 			m_path = new PathInfo[ m_pathlen ];
 		}
 

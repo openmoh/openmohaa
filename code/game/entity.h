@@ -424,6 +424,8 @@ public:
 	void					EventGetMaxHealth( Event *ev );
 	void					GetHealth( Event *ev );
 	void					SetHealth( Event *ev );
+	void					EventGetNormalHealth( Event *ev );
+	void					EventNormalDamage( Event *ev );
 	void					SetSize( Event *ev );
 	void					SetSize( void );
 	void					SetMins( Event *ev );

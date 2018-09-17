@@ -164,7 +164,7 @@ void Actor::Think_Turret
 		if (m_State == 108)
 		{
 			m_pszDebugState = "IntroAnim";
-			AimAtAimNode();
+			AimAtTargetPos();
 			ContinueAnimation();
 		}
 		else
@@ -248,7 +248,7 @@ void Actor::Think_Turret
 				break;
 			case 107:
 				m_pszDebugState = "Grenade";
-				GenericGrenadeTossThink();
+				State_Turret_Grenade();
 				break;
 			case 109:
 				m_pszDebugState = "FakeEnemy";
@@ -273,7 +273,7 @@ void Actor::Think_Turret
 			case 115:
 				m_pszDebugState = "Retarget_Path_Exact";
 				AimAtEnemyBehavior();
-				SetPathWithLeash(m_vLastEnemyPos, "", 0);
+				SetPathWithLeash(m_vLastEnemyPos, NULL, 0);
 				if (!ShortenPathToAttack(128.0f))
 				{
 					Turret_NextRetarget();
@@ -361,9 +361,9 @@ void Actor::ReceiveAIEvent_Turret
 	)
 
 {
-	if (iType == 2)
+	if (iType == AI_EVENT_WEAPON_IMPACT)
 	{
-		if (m_Enemy && fDistSquared <= 16384)
+		if (m_Enemy && fDistSquared <= Square(128))
 		{
 			auto pCoverNode = m_pCoverNode;
 			Cover_FindCover(true);
@@ -482,7 +482,7 @@ void Actor::Turret_SelectState
 	{
 		m_iRunHomeTime = 0;
 	}
-	else if (!m_iRunHomeTime)
+	else if (m_iRunHomeTime == 0)
 	{
 		m_iRunHomeTime = level.inttime + (rand() & 0xFFF) + 1000;
 	}
@@ -491,7 +491,7 @@ void Actor::Turret_SelectState
 		m_iRunHomeTime = 0;
 
 		ClearPath();
-		SetPath(m_vHome, "", 0, NULL, 0.0);
+		SetPath(m_vHome, NULL, 0, NULL, 0.0);
 		ShortenPathToAvoidSquadMates();
 
 		if (PathExists() && !PathComplete())
@@ -532,7 +532,7 @@ void Actor::Turret_SelectState
 		bool bSmthing = false;
 		if (m_Team == TEAM_GERMAN)
 		{
-			if ((m_Enemy->origin-m_vHome).lengthSquared() >= Square(m_fLeash + m_fMaxDistance) && !Actor::CanSeeEnemy(200))
+			if ((m_Enemy->origin-m_vHome).lengthSquared() >= Square(m_fLeash + m_fMaxDistance) && !CanSeeEnemy(200))
 				bSmthing = true;
 		}
 		if (bSmthing)
@@ -643,7 +643,7 @@ void Actor::Turret_NextRetarget
 		if (fDistSquared < m_fLeashSquared
 			|| (SetPath(
 				m_vHome,
-				"",
+				NULL,
 				0,
 				NULL,
 				0.0),
@@ -682,7 +682,7 @@ void Actor::Turret_NextRetarget
 		}
 		m_State = 104;
 		m_iStateTime = level.inttime;
-		SetPath(m_vHome, "", 0, NULL, 0.0);
+		SetPath(m_vHome, NULL, 0, NULL, 0.0);
 		ShortenPathToAvoidSquadMates();
 		if (!PathExists() || PathComplete())
 		{
@@ -741,13 +741,13 @@ void Actor::State_Turret_Combat
 		ClearPath();
 		Anim_Attack();
 		SetDesiredLookDir(mTargetPos - EyePosition());
-		AimAtAimNode();
+		AimAtTargetPos();
 		Turret_CheckRetarget();
 		return;
 	}
 	if (!PathExists() || PathComplete() || !PathAvoidsSquadMates())
 	{
-		SetPathWithLeash(m_vLastEnemyPos, "", 0);
+		SetPathWithLeash(m_vLastEnemyPos, NULL, 0);
 		ShortenPathToAvoidSquadMates();
 	}
 	if (!PathExists() || PathComplete() || !PathAvoidsSquadMates())
@@ -838,7 +838,7 @@ void Actor::State_Turret_SniperNode
 	)
 
 {
-	AimAtAimNode();
+	AimAtTargetPos();
 	Anim_Sniper();
 	if (Turret_CheckRetarget())
 	{
@@ -855,7 +855,7 @@ bool Actor::State_Turret_RunHome
 
 {
 
-	SetPath(m_vHome, "", 0, NULL, 0.0);
+	SetPath(m_vHome, NULL, 0, NULL, 0.0);
 	ShortenPathToAvoidSquadMates();
 	if (!PathExists() || PathComplete())
 	{
@@ -911,7 +911,7 @@ void Actor::State_Turret_Charge
 	)
 
 {
-	SetPathWithLeash(m_vLastEnemyPos, "", 0);
+	SetPathWithLeash(m_vLastEnemyPos, NULL, 0);
 	ShortenPathToAvoidSquadMates();
 	if (!PathExists())
 	{
@@ -974,7 +974,7 @@ void Actor::State_Turret_FakeEnemy
 	)
 
 {
-	AimAtAimNode();
+	AimAtTargetPos();
 	Anim_Aim();
 	if (level.inttime >= m_iStateTime)
 		SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
@@ -1040,14 +1040,13 @@ void Actor::State_Turret_Wait
 			{
 				if (pNode->m_PathPos - origin != vec_zero)
 				{
-					m_YawAchieved = false;
-					m_DesiredYaw = vectoyaw(pNode->m_PathPos - origin);
+					SetDesiredYawDir(pNode->m_PathPos - origin);
 				}
 				m_eDontFaceWallMode = 6;
 			}
 			else
 			{
-				AimAtAimNode();
+				AimAtTargetPos();
 				DontFaceWall();
 			}
 		}
@@ -1100,7 +1099,7 @@ void Actor::State_Turret_Retarget_Path_Exact
 
 {
 	AimAtEnemyBehavior();
-	SetPathWithLeash(m_vLastEnemyPos, "", 0);
+	SetPathWithLeash(m_vLastEnemyPos, NULL, 0);
 	if (ShortenPathToAttack(128)
 		&& (ShortenPathToAvoidSquadMates(), PathExists()))
 	{
