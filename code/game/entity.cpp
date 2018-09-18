@@ -84,6 +84,24 @@ Event EV_SpawnFlags
 	"spawnflags from the BSP, these are set inside the editor",
 	EV_NORMAL
 	);
+Event EV_GetNormalHealth
+	( 
+	"normal_health",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"The Normal Health of the Actor",
+	EV_GETTER
+	);
+Event EV_NormalDamage
+(
+	"normal_damage",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"The Normal Health of the Actor (0 - 100)",
+	EV_NORMAL
+);
 Event EV_SetTeam
 	( 
 	"team",
@@ -1436,6 +1454,8 @@ CLASS_DECLARATION( SimpleEntity, Entity, NULL )
 		{ &EV_ScriptRemove,					&Entity::Remove },
 		{ &EV_ConnectPaths,					&Entity::EventConnectPaths },
 		{ &EV_VolumeDamage,					&Entity::EventVolumeDamage },
+		{ &EV_GetNormalHealth,				&Entity::EventGetNormalHealth },
+		{ &EV_NormalDamage,					&Entity::EventNormalDamage },
 		{ &EV_Entity_AddImmunity,			&Entity::AddImmunity },
 		{ &EV_Entity_RemoveImmunity,		&Entity::RemoveImmunity },
 		{ &EV_GetEntnum,					&Entity::EventGetEntnum },
@@ -1468,6 +1488,10 @@ Entity::Entity()
 	radnum = -1;
 
 	entflags |= EF_ENTITY;
+
+	AddWaitTill(STRING_DAMAGE);
+	AddWaitTill(STRING_SPAWN);
+	AddWaitTill(STRING_SOUNDDONE);
 
 	if( LoadingSavegame )
 	{
@@ -2470,7 +2494,23 @@ void Entity::ShowInfo
 	)
 
 {
+	int i;
+	char szText[512];
+	if (fDot > 0.94999999 && fDist < 1024.0 && fDist > 64.0)
+	{
+		i = sprintf(szText, "%i:%i", entnum, radnum);
+		if (targetname.length())
+		{
+			i = sprintf(&szText[i], ":%s", targetname.c_str());
+		}
 
+		if (health != 0)
+		{
+			sprintf(&szText[i], ":%.1f", health);
+		}
+
+		G_DebugString(Vector(origin.x + 0, origin.y + 0, origin.z + maxs.z + 65), 1.0, 1.0, 1.0, 1.0, szText);
+	}
 }
 
 void Entity::GetRawTag
@@ -4226,6 +4266,53 @@ void Entity::GetHealth
 	ev->AddFloat( health );
 }
 
+
+void Entity::EventGetNormalHealth(Event *ev)
+{
+	ev->AddFloat( health / max_health * 100 );
+}
+
+void Entity::EventNormalDamage(Event *ev)
+{
+	Vector position = vec_zero, direction, normal;
+
+	Entity *attacker = world;
+	float damage;
+
+	normal = direction = Vector(0, 1, 0);
+
+	int numArgs = ev->NumArgs();
+	if (numArgs == 1)
+	{
+		damage = ev->GetFloat(1) / 100 * max_health;
+	}
+	else if (numArgs == 2)
+	{
+		damage = ev->GetFloat(1) / 100 * max_health;
+		direction = ev->GetVector(2);
+	}
+	else
+	{
+		ScriptError("Wrong number of arguments for normal_damage.\n");
+	}
+
+	Event e1(EV_Damage);
+
+	e1.AddEntity(attacker); //attacker
+
+	e1.AddFloat(damage); //damage
+	e1.AddEntity(attacker); //inflictor
+	e1.AddVector(position); //position
+	e1.AddVector(direction); //direction
+	e1.AddVector(normal); //normal
+	e1.AddInteger(0); //knockback
+	e1.AddInteger(DAMAGE_NONE); //damageflags
+	e1.AddInteger(MOD_NONE); //meansofdeath
+	e1.AddInteger(LOCATION_GENERAL); //location
+	
+	ProcessEvent(e1);
+}
+
 void Entity::SetSize
 	(
 	Event *ev
@@ -4877,7 +4964,7 @@ void Entity::BroadcastAIEvent
 
 	if( !( this->flags & FL_NOTARGET ) )
 	{
-		iType = 8;
+		iType = AI_EVENT_MISC;
 
 		if( ev->NumArgs() > 0 )
 		{

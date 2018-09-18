@@ -103,6 +103,8 @@ CrateObject::CrateObject()
 {
 	entflags |= EF_CRATEOBJECT;
 
+	AddWaitTill(STRING_DEATH);
+
 	if( LoadingSavegame )
 	{
 		return;

@@ -369,6 +369,8 @@ Item::Item()
 
 	entflags |= EF_ITEM;
 
+	AddWaitTill(STRING_PICKUP);
+
 	if( LoadingSavegame )
 	{
 		return;
@@ -459,6 +461,8 @@ void Item::PlaceItem
 	showModel();
 
 	groundentity = NULL;
+
+	setSize(Vector(-12, -12, -2), Vector(12, 12, 12));
 }
 
 /*
@@ -478,7 +482,9 @@ void Item::DropToFloor
 	Vector save;
 
 	PlaceItem();
+	setMoveType(MOVETYPE_NONE);
 
+	/*
 	addOrigin( Vector( "0 0 1" ) );
 
 	save = origin;
@@ -500,7 +506,7 @@ void Item::DropToFloor
 
 	game.vars->GetOrCreateVariable( fullname.c_str() );
 	level.vars->GetOrCreateVariable( fullname.c_str() );
-
+	*/
 }
 
 qboolean Item::Drop

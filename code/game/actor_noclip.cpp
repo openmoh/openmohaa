@@ -60,16 +60,7 @@ void Actor::Think_NoClip
 
 	m_pszDebugState = "";
 
-	if (m_eNextAnimMode < 0)
-	{
-		m_bNextForceStart = false;
-		m_csNextAnimString = NULL;
-
-		m_eNextAnimMode = m_eAnimMode;
-
-
-		m_NextAnimLabel = m_Anim;
-	}
+	ContinueAnimationAllowNoPath();
 
 	CheckUnregister();
 	UpdateAngles();

@@ -60,3 +60,83 @@ void Actor::Think_Idle
 		IdleThink();
 	}
 }
+
+void Actor::IdleThink
+(
+	void
+)
+
+{
+	//FIXME: revision
+	IdlePoint();
+	IdleLook();
+	if (PathExists() && PathComplete())
+	{
+		ClearPath();
+	}
+	if (m_bAutoAvoidPlayer && !PathExists())
+	{
+		SetPathToNotBlockSentient((Sentient *)G_GetEntity(0));
+	}
+	if (!PathExists())
+	{
+		Anim_Idle();
+		IdleTurn();
+		PostThink(true);
+	}
+	else
+	{
+		//FIXME: macros
+		Anim_WalkTo(2);
+
+		if (PathDist() <= 128.0)
+		{
+			IdleTurn();
+			PostThink(true);
+		}
+		else
+		{
+			FaceMotion();
+		}
+	}
+
+}
+
+
+/*
+===============
+Actor::PassesTransitionConditions_Idle
+
+Should actor transition think state to idle ?
+===============
+*/
+bool Actor::PassesTransitionConditions_Idle
+(
+	void
+)
+
+{
+
+	if (m_bEnableEnemy)
+	{
+		if (level.inttime > m_iEnemyCheckTime + 500)
+			UpdateEnemyInternal();
+	}
+
+	if (m_bLockThinkState)
+		return false;
+
+	if (!m_Enemy && !m_iCuriousTime)
+		return true;
+
+	return false;
+}
+
+bool Actor::IsIdleState
+(
+	int state
+)
+
+{
+	return state == THINKSTATE_IDLE;
+}

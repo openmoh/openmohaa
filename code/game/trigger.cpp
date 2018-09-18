@@ -272,7 +272,9 @@ CLASS_DECLARATION( Animate, Trigger, "trigger_multiple" )
 
 Trigger::Trigger()
 {
-	if( LoadingSavegame )
+	AddWaitTill(STRING_TRIGGER);
+
+	if (LoadingSavegame)
 	{
 		// Archive function will setup all necessary data
 		return;

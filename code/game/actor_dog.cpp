@@ -69,7 +69,7 @@ void Actor::Begin_Dog
 	)
 
 {
-	m_bAnimating = true;
+	m_bDog = true;
 }
 
 void Actor::End_Dog
@@ -118,7 +118,7 @@ void Actor::Think_Dog_Attack
 	if (m_Enemy && !(m_Enemy->IsSubclassOfActor()))
 	{
 
-		SetPath(m_Enemy->origin, "", 0, NULL, 0.0);
+		SetPath(m_Enemy->origin, NULL, 0, NULL, 0.0);
 		if (PathExists())
 		{
 			vec2_t delta;
@@ -138,8 +138,7 @@ void Actor::Think_Dog_Attack
 					facedir[1] = m_Enemy->origin[1] - origin[1];
 					if (facedir[0] != 0 || facedir[1] != 0)
 					{
-						m_YawAchieved = false;
-						m_DesiredYaw = vectoyaw(facedir);
+						SetDesiredYawDir(facedir);
 					}
 
 				}

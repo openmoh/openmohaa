@@ -1103,6 +1103,24 @@ void Level::CleanUp( qboolean samemap, qboolean resetConfigStrings )
 
 	num_earthquakes = 0;
 
+	AddWaitTill(STRING_PRESPAWN);
+	AddWaitTill(STRING_SPAWN);
+	AddWaitTill(STRING_PLAYERSPAWN);
+	AddWaitTill(STRING_SKIP);
+	AddWaitTill(STRING_POSTTHINK);
+
+	if (g_gametype->integer <= GT_OBJECTIVE)
+	{
+		AddWaitTill(STRING_ROUNDSTART);
+	}
+
+	if (g_gametype->integer > GT_FFA)
+	{
+		AddWaitTill(STRING_ALLIESWIN);
+		AddWaitTill(STRING_AXISWIN);
+		AddWaitTill(STRING_DRAW);
+	}
+
 	classinfo()->RemoveWaitTill( "prespawn" );
 	classinfo()->RemoveWaitTill( "spawn" );
 	classinfo()->RemoveWaitTill( "skip" );
@@ -1455,6 +1473,7 @@ void Level::PreSpawnSentient( Event *ev )
 	}
 
 	PathManager.CreatePaths();
+
 }
 
 /*

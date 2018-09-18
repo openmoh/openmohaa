@@ -213,6 +213,7 @@ class Sentient : public Animate
 		void				ActivateLastActiveWeapon( void );
 		void              CheckAnimations( Event *ev );
 		void				EventActivateLastActiveWeapon( Event *ev );
+		void				EventDropItems( Event *ev );
 		void				EventDontDropWeapons( Event *ev );
 		void				EventUseItem( Event *ev );
 		void				EventUseWeaponClass( Event *ev );

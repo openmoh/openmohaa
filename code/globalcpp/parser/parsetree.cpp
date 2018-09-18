@@ -135,13 +135,6 @@ char *parsetree_malloc( size_t s )
 	return ( char * )parsetree_allocator.Alloc( s );
 }
 
-int node_compare( void *pe1, void *pe2 )
-{
-	// wtf
-	// fixme
-	return 0;
-}
-
 sval_u append_lists( sval_u val1, sval_u val2 )
 {
 	val1.node[ 1 ].node[ 1 ] = val2.node[ 0 ];

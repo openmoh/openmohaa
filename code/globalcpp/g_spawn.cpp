@@ -609,11 +609,11 @@ Listener *SpawnArgs::SpawnInternal( void )
 #if defined ( GAME_DLL )
 				if( obj->isSubclassOf( SimpleActor ) )
 				{
-					if( Q_stricmpn( key, "human", 5 ) &&
-						Q_stricmpn( key, "models/human", 12 ) &&
-						Q_stricmpn( key, "models//human", 13 ) &&
-						Q_stricmpn( key, "animal", 6 ) &&
-						Q_stricmpn( key, "models/animal", 13 ) )
+					if( Q_stricmpn( value, "human", 5 ) &&
+						Q_stricmpn( value, "models/human", 12 ) &&
+						Q_stricmpn( value, "models//human", 13 ) &&
+						Q_stricmpn( value, "animal", 6 ) &&
+						Q_stricmpn( value, "models/animal", 13 ) )
 					{
 						Com_Printf( "^~^~^ model '%s' cannot be an actor - please fix the .tik file\n", value );
 

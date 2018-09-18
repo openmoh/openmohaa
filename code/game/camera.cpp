@@ -724,6 +724,9 @@ Camera::Camera()
 
 	entflags |= EF_CAMERA;
 
+	AddWaitTill(STRING_START);
+	AddWaitTill(STRING_TRIGGER);
+
 	camera_fov = 90;
 	camera_speed = 1;
 	orbit_height = 128;

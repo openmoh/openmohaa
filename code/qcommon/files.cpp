@@ -1719,6 +1719,7 @@ int FS_ReadFileEx( const char *qpath, void **buffer, qboolean quiet ) {
 	}
 
 	if ( !qpath || !qpath[0] ) {
+		assert(0);
 		Com_Error( ERR_FATAL, "FS_ReadFile with empty name\n" );
 	}
 

@@ -61,6 +61,7 @@ void Actor::Begin_Curious
 				STRING_ANIM_SAY_CURIOUS_SOUND_SCR,
 				8000,
 				false);
+			level.m_iCuriousVoiceTime = level.inttime;
 		}
 		else if (m_iCuriousAnimHint == 6)
 		{
@@ -68,9 +69,11 @@ void Actor::Begin_Curious
 				STRING_ANIM_SAY_CURIOUS_SIGHT_SCR,
 				8000,
 				false);
+			level.m_iCuriousVoiceTime = level.inttime;
 		}
 	}
-	level.m_iCuriousVoiceTime = level.inttime;
+
+	m_iCuriousTime = level.inttime;
 
 	SetLeashHome(origin);
 	if (m_bScriptGoalValid)
@@ -97,7 +100,7 @@ void Actor::Begin_Curious
 		if (vDelta.lengthSquared() <= m_fLeashSquared)
 		{
 			//it's within leash area, go check it.
-			SetPath(m_vLastEnemyPos, "", 0, NULL, 0.0);
+			SetPath(m_vLastEnemyPos, NULL, 0, NULL, 0.0);
 		}
 		else
 		{
@@ -110,13 +113,13 @@ void Actor::Begin_Curious
 				//Try to go towards enemy as much as possible without leaving leash area.
 				//vDest = vHome + U * leash
 				//U = unit vector of vDelta.
-				SetPath(vDelta * sqrt(m_fLeashSquared / vDelta.lengthSquared()) + m_vHome, "", 0, NULL, 0.0);
+				SetPath(vDelta * sqrt(m_fLeashSquared / vDelta.lengthSquared()) + m_vHome, NULL, 0, NULL, 0.0);
 			}
 			else
 			{
 				//I'm outside leash area,
 				//go to enemy, it doesn't matter.
-				SetPath(m_vLastEnemyPos, "", 0, NULL, 0.0);
+				SetPath(m_vLastEnemyPos, NULL, 0, NULL, 0.0);
 			}
 		}
 
@@ -125,6 +128,11 @@ void Actor::Begin_Curious
 		{
 			m_eNextAnimMode = 1;
 			m_csNextAnimString = STRING_ANIM_STANDFLINCH_SCR;
+
+			m_bNextForceStart = true;
+			m_State = 1101;
+			m_bLockThinkState = true;
+			m_iStateTime = level.inttime;
 		}
 		else if(m_Enemy && m_PotentialEnemies.GetCurrentVisibility() < 0.1)
 		{
@@ -136,11 +144,12 @@ void Actor::Begin_Curious
 			}
 			m_eNextAnimMode = 1;
 			m_csNextAnimString = STRING_ANIM_SURPRISE_SCR;
+
+			m_bNextForceStart = true;
+			m_State = 1101;
+			m_bLockThinkState = true;
+			m_iStateTime = level.inttime;
 		}
-		m_bNextForceStart = true;
-		m_State = 1101;
-		m_bLockThinkState = true;
-		m_iStateTime = level.inttime;
 	}
 
 	m_iNextWatchStepTime = level.inttime + (rand() & 0x1FF);
@@ -429,6 +438,11 @@ void Actor::LookAtCuriosity
 	unsigned int iSeed;
 	if (m_Enemy && EnemyIsDisguised())
 	{
+		SetDesiredLookDir(m_Enemy->origin - origin);
+		fLookScale = 0.25;
+	}
+	else
+	{
 		vAngles = m_vLastEnemyPos - origin;
 		if (vAngles.x < 15.0 && vAngles.x > -15.0 && vAngles.y < 15.0 && vAngles.y > -15.0)
 		{
@@ -448,11 +462,6 @@ void Actor::LookAtCuriosity
 			}
 		}
 		fLookScale = 1;
-	}
-	else
-	{
-		SetDesiredLookDir(m_Enemy->origin - origin);
-		fLookScale = 0.25;
 	}
 	
 	//FIXME: wth is this ! @_@
@@ -500,4 +509,13 @@ void Actor::SetCuriousAnimHint
 
 {
 	m_iCuriousAnimHint = iAnimHint;
+}
+
+bool Actor::IsCuriousState
+(
+	int state
+)
+
+{
+	return state == THINKSTATE_CURIOUS;
 }

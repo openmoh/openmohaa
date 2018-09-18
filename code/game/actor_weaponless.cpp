@@ -111,33 +111,17 @@ void Actor::Think_Weaponless
 			}
 			else if (m_State == 901)
 			{
-				GenericGrenadeTossThink();
+				State_Weaponless_Grenade();
 			}
 			else
 			{
 				Com_Printf("Think_Weaponless: invalid think state %i\n", m_State);
-				/* useless assert
-				if ( !dword_39ACFC )
-				{
-				  strcpy(v4, "\"invalid think state\"\n\tMessage: ");
-				  memset(&s, 0, 0x3FDFu);
-				  v2 = DumpCallTrace(
-						 "thinkstate = %i",
-						 m_State);
-				  Q_strcat(v4, 0x4000, v2);
-				  v3 = MyAssertHandler(v4, "fgame/actor_weaponless.cpp", 155, 0);
-				  if ( v3 < 0 )
-				  {
-					dword_39ACFC = 1;
-				  }
-				  else if ( v3 > 0 )
-				  {
-					__debugbreak();
-				  }
-				}
-				*/
+				char assertStr[16317] = { 0 };
+				strcpy(assertStr, "\"invalid think state\"\n\tMessage: ");
+				Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("thinkstate = %i",	m_State));
+				assert(!assertStr);
 			}
-			CheckForTransition(THINKSTATE_GRENADE, 0);
+			CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
 		}
 		PostThink(true);
 		if (GetWeapon(WEAPON_MAIN))
@@ -168,7 +152,7 @@ void Actor::State_Weaponless_Normal
 	if (m_bScriptGoalValid)
 		SetPath(
 			m_vScriptGoal,
-			"",
+			NULL,
 			0,
 			NULL,
 			0); 
@@ -181,7 +165,7 @@ void Actor::State_Weaponless_Normal
 	{
 		m_bScriptGoalValid = false;
 
-		AimAtAimNode();
+		AimAtTargetPos();
 		
 		Anim_Stand();
 		if (level.inttime >= m_iStateTime)
@@ -204,4 +188,14 @@ void Actor::State_Weaponless_Normal
 			m_iStateTime = iStateTime;
 		}
 	}
+}
+
+
+void Actor::State_Weaponless_Grenade
+(
+	void
+)
+
+{
+	GenericGrenadeTossThink();
 }

@@ -109,7 +109,7 @@ void Actor::State_Alarm_Move
 		if( PathComplete() )
 		{
 			Anim_Aim();
-			AimAtAimNode();
+			AimAtTargetPos();
 		}
 		else
 		{
@@ -124,7 +124,7 @@ void Actor::State_Alarm_Move
 		parm.movefail = true;
 
 		Anim_Aim();
-		AimAtAimNode();
+		AimAtTargetPos();
 	}
 }
 
@@ -134,7 +134,7 @@ void Actor::State_Alarm_Idle
 	)
 
 {
-	AimAtAimNode();
+	AimAtTargetPos();
 	SetThink(THINKSTATE_ATTACK, THINK_TURRET);
 }
 

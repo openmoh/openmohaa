@@ -1061,10 +1061,14 @@ void ArchiveAliases
 			{
 				const char *p = name;
 
-				while( p )
+				while( true)
 				{
-					name = p;
 					p = strchr( name, '|' );
+					if (!p)
+					{
+						return;
+					}
+					name = p + 1;
 				}
 
 				modelanim = gi.modeltikianim( name );

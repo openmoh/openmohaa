@@ -1379,9 +1379,77 @@ PathNode *PathSearch::NearestStartNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return NULL;
+	PathNode *node = NULL;
+	int i;
+	MapCell *cell;
+	int nodes[128];
+	vec3_t deltas[128];
+	vec3_t start;
+	vec3_t end;
+
+	cell = GetNodesInCell(pos);
+
+	if (!cell)
+		return NULL;
+
+	int node_count = NearestNodeSetup(pos, cell, nodes, deltas);
+	int n = 0;
+	int j = 0;
+
+	VectorCopy(pos, start);
+	start[2] += 32.0f;
+
+	Vector vMins = Vector(-15, -15, 0);
+	Vector vMaxs = Vector(15, 15, 62);
+
+	for (i = 0; i < node_count; i++)
+	{
+		node = pathnodes[cell->nodes[nodes[i]]];
+
+		VectorAdd(start, deltas[nodes[i]], end);
+
+		Vector vStart = start;
+		Vector vEnd = end;
+
+		if (G_SightTrace(
+			vStart,
+			vMins,
+			vMaxs,
+			vEnd,
+			(gentity_t *)NULL,
+			(gentity_t *)NULL,
+			1107437825, //FIXME: macro
+			qtrue,
+			"PathSearch::NearestStartNode 1"))
+		{
+			ent->m_NearestNode = node;
+			ent->m_vNearestNodePos = end;
+			return node;
+		}
+	}
+
+	if (ent->m_NearestNode &&
+		(G_SightTrace(
+			Vector(start),
+			vMins,
+			vMaxs,
+			ent->m_vNearestNodePos,
+			(gentity_t *)ent,
+			(gentity_t *)NULL,
+			1073883393, //FIXME: macro
+			qtrue,
+			"PathSearch::NearestStartNode 2"))
+		|| node_count <= 0
+		)
+	{
+		node = ent->m_NearestNode;
+	}
+	else
+	{
+		node = pathnodes[cell->nodes[nodes[0]]];
+	}
+
+	return node;
 }
 
 PathNode *PathSearch::NearestEndNode
@@ -1417,8 +1485,7 @@ PathNode *PathSearch::NearestEndNode
 	{
 		node = pathnodes[ cell->nodes[ nodes[ i ] ] ];
 
-		VectorCopy( start, end );
-		VectorAdd( end, deltas[ nodes[ i ] ], end );
+		VectorAdd(start, deltas[nodes[i]], end);
 
 		Vector vStart = start;
 		Vector vMins = Vector( -15, -15, 0 );
@@ -2966,6 +3033,21 @@ int PathSearch::FindPathNear
 	return Node->m_Depth;
 }
 
+int	node_compare(const void *pe1, const void *pe2)
+{
+	nodeinfo *Pe1 = (nodeinfo *) pe1;
+	nodeinfo *Pe2 = (nodeinfo *) pe2;
+	int iConcealment;
+
+	iConcealment = (Pe1->pNode->nodeflags & 0xB0) != 0;
+	if (Pe2->pNode->nodeflags & 0xB0)
+		--iConcealment;
+	return ((Pe1->fDistSquared)
+		+ (iConcealment << 23)
+		+ (((Pe1->pNode->nodeflags & 8) - (Pe2->pNode->nodeflags & 8)) << 21)
+		- (Pe2->fDistSquared));
+
+}
 PathNode *PathSearch::FindCornerNodeForWall
 	(
 	float *start,
@@ -2979,6 +3061,100 @@ PathNode *PathSearch::FindCornerNodeForWall
 	// FIXME: stub
 	STUB();
 	return NULL;
+
+	PathNode *ParentNode;
+	PathNode *OpenNode;
+	int i;
+
+	Node = NearestStartNode(start, ent);
+	if (!Node)
+	{
+		last_error = "couldn't find start node";
+		return NULL;
+	}
+
+	if (DotProduct(start, plane) - plane[3] < 0.0)
+	{
+		last_error = "starting point is already behind the wall";
+		return NULL;
+	}
+
+	if (DotProduct(plane, end) - plane[3] > 0.0)
+	{
+		last_error = "end point is in front of the wall";
+		return NULL;
+	}
+
+	total_dist = 1.0e12f;
+
+	if (maxPath == 0.0)
+		maxPath = 1.0e12f;
+
+	findFrame++;
+	open = NULL;
+
+	VectorSub2D(Node->origin, start, path_startdir);
+	Node->g = VectorNormalize2D(path_startdir);
+
+	VectorSub2D(end, start, path_totaldir);
+	Node->h = VectorNormalize2D(path_totaldir);
+
+	Node->inopen = true;
+
+	Node->Parent = NULL;
+
+	Node->m_Depth = 3;
+	Node->m_PathPos = start;
+	Node->findCount = findFrame;
+	Node->PrevNode = 0;
+	Node->NextNode = 0;
+
+	open = Node;
+
+	if (!open)
+	{
+		last_error = "unreachable path";
+		return NULL;
+	}
+
+	OpenNode = Node;
+	while (true)
+	{
+		Node = OpenNode;
+
+		Node->inopen = false;
+
+		open = Node->NextNode;
+		if (open)
+		{
+			open->PrevNode = NULL;
+		}
+
+		ParentNode = Node->Parent;
+
+		if (ParentNode
+			&& DotProduct(plane, Node->m_PathPos) - plane[3] < 0.0)
+		{
+			vec2_t delta;
+			VectorSub2D(ParentNode->m_PathPos, start, delta);
+			if (VectorLength2DSquared(delta) < 256.0)
+				ParentNode = Node;
+			return ParentNode;
+		}
+
+		i = Node->numChildren;
+		if (i)
+		{
+			break;
+		}
+
+		OpenNode = open;
+		if (!OpenNode)
+		{
+			last_error = "unreachable path";
+			return NULL;
+		}
+	} 
 }
 
 PathNode *PathSearch::FindCornerNodeForExactPath
@@ -3004,9 +3180,55 @@ int PathSearch::FindPotentialCover
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return NULL;
+	Actor *pSelf = (Actor *)pEnt;
+	PathNode *pNode;
+	Vector delta;
+	int nNodes = 0;
+	nodeinfo nodes[MAX_PATHNODES];
+
+	for (int i = 0; i < nodecount; i++)
+	{
+		pNode = pathnodes[i];
+		if (pNode && pNode->nodeflags & AI_SNIPER)
+		{
+			if (pNode->pLastClaimer == pSelf || (pNode->iAvailableTime && level.inttime >= pNode->iAvailableTime) || (pNode->pLastClaimer == NULL))
+			{
+				delta = pNode->origin - pSelf->m_vHome;
+				if (delta.lengthSquared() <= pSelf->m_fLeashSquared)
+				{
+					delta = pNode->origin - pEnemy->origin;
+					if (delta.lengthSquared() >= pSelf->m_fMinDistanceSquared && delta.lengthSquared() <= pSelf->m_fMaxDistanceSquared)
+					{
+						delta = pNode->origin - pSelf->origin;
+						nodes[nNodes].pNode = pNode;
+						nodes[nNodes].fDistSquared = delta.lengthSquared();
+						nNodes++;
+					}
+				}
+			}
+		}
+	}
+
+	if (nNodes)
+	{
+		qsort(nodes, nNodes, sizeof(nodeinfo), node_compare);
+
+		if (nNodes > iMaxFind)
+			nNodes = iMaxFind;
+
+		if (nNodes > 0)
+		{
+			pNode = ppFoundNodes[nNodes - 1];
+
+			for (int i = 0; i < nNodes; i++)
+			{
+				pNode = nodes[i].pNode;
+				pNode--;
+			}
+		}
+
+	}
+	return nNodes;
 }
 
 void PathSearch::PlayerCover
@@ -3063,7 +3285,6 @@ PathNode *PathSearch::FindNearestCover
 	STUB();
 	return NULL;
 }
-
 PathNode *PathSearch::FindNearestSniperNode
 	(
 	SimpleActor *pEnt,
@@ -3072,8 +3293,57 @@ PathNode *PathSearch::FindNearestSniperNode
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	Actor *pSelf = (Actor *)pEnt;
+	PathNode *pNode;
+	Vector delta;
+	int nNodes = 0;
+	nodeinfo nodes[MAX_PATHNODES];
+	
+	for (int i = 0; i < nodecount; i++)
+	{
+		pNode = pathnodes[i];
+		if (pNode && pNode->nodeflags & AI_SNIPER)
+		{
+			if (pNode->pLastClaimer == pSelf || (pNode->iAvailableTime && level.inttime >= pNode->iAvailableTime) || (pNode->pLastClaimer == NULL))
+			{
+				delta = pNode->origin - pSelf->m_vHome;
+				if (delta.lengthSquared() <= pSelf->m_fLeashSquared)
+				{
+					delta = pNode->origin - pEnemy->origin;
+					if (delta.lengthSquared() >= pSelf->m_fMinDistanceSquared && delta.lengthSquared() <= pSelf->m_fMaxDistanceSquared)
+					{
+						delta = pNode->origin - pSelf->origin;
+						nodes[nNodes].pNode = pNode;
+						nodes[nNodes].fDistSquared = delta.lengthSquared();
+						nNodes++;
+					}
+				}
+			}
+		}
+	}
+
+	if (nNodes == 0)
+	{
+		return NULL;
+	}
+
+	qsort(nodes, nNodes, sizeof(nodeinfo), node_compare);
+
+	if (nNodes <= 0)
+		return NULL;
+
+	for (int i = 0; i < nNodes; i++)
+	{
+		pNode = nodes[i].pNode;
+		if (pSelf->CanSeeFrom(pSelf->EyePosition() + pNode->origin, pEnemy))
+		{
+			return pNode;
+		}
+		
+		pNode->iAvailableTime = level.inttime + 5000;
+		pNode->pLastClaimer = NULL;
+	}
+
 	return NULL;
 }
 

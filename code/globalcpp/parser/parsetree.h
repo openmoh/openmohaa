@@ -98,7 +98,6 @@ void		parsetree_init();
 size_t		parsetree_length();
 char		*parsetree_malloc( size_t s );
 
-int			node_compare( void *pe1, void *pe2 );
 
 sval_u		append_lists( sval_u val1, sval_u val2 );
 sval_u		append_node( sval_u val1, sval_u val2 );

@@ -67,7 +67,7 @@ void SimpleActor::Anim_Sniper
 
 {
 	m_eNextAnimMode = 1;
-	m_csNextAnimString = 0;
+	m_csNextAnimString = NULL;
 	m_NextAnimLabel = m_SniperHandler;
 	m_bNextForceStart = false;
 }
@@ -156,7 +156,7 @@ void SimpleActor::Anim_Killed
 
 {
 	m_eAnimMode = 1;
-	m_csNextAnimString = 0;
+	m_csNextAnimString = NULL;
 	m_NextAnimLabel = m_DeathHandler;
 	m_bNextForceStart = false;
 }
@@ -168,7 +168,7 @@ void SimpleActor::Anim_StartPain
 
 {
 	m_eAnimMode = 1;
-	m_csNextAnimString = 0;
+	m_csNextAnimString = NULL;
 	m_NextAnimLabel = m_PainHandler;
 	m_bNextForceStart = true;
 }
@@ -386,15 +386,14 @@ void SimpleActor::Anim_FullBody
 {
 	if( m_csAnimName == csFullBodyAnim )
 	{
-		m_eNextAnimMode = eAnimMode;
-		m_csNextAnimString = STRING_ANIM_FULLBODY_SCR;
 		m_bNextForceStart = false;
 	}
 	else
 	{
-		m_csAnimName = csFullBodyAnim;
-		m_eNextAnimMode = eAnimMode;
-		m_csNextAnimString = STRING_ANIM_FULLBODY_SCR;
 		m_bNextForceStart = true;
+		m_csAnimName = csFullBodyAnim;
 	}
+
+	m_csNextAnimString = STRING_ANIM_FULLBODY_SCR;
+	m_eNextAnimMode = eAnimMode;
 }

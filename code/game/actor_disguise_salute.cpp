@@ -50,24 +50,8 @@ void Actor::Begin_DisguiseSalute
 	Com_Printf("Saluting guy....\n");
 	
 	m_csMood = STRING_BORED;
-	/*
-		useless assert
-	  if ( !dword_39AC34 )
-	  {
-		if ( !this->baseSimpleActor.baseSentient.m_Enemy._vptr$ )
-		{
-		  v15 = MyAssertHandler("m_Enemy", "fgame/actor_disguise_rover.cpp", 38, 1);
-		  if ( v15 < 0 )
-		  {
-			dword_39AC34 = 1;
-		  }
-		  else if ( v15 > 0 )
-		  {
-			__debugbreak();
-		  }
-		}
-	  }
-	 */
+	assert(m_Enemy);
+
 
 	if (m_Enemy)
 	{
@@ -77,8 +61,7 @@ void Actor::Begin_DisguiseSalute
 
 			if (vDelta[0] != 0 || vDelta[1] != 0)
 			{
-				m_YawAchieved = false;
-				m_DesiredYaw = vectoyaw(vDelta);
+				SetDesiredYawDir(vDelta);
 			}
 
 			SetDesiredLookDir(m_Enemy->origin - origin);

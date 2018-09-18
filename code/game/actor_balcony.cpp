@@ -187,7 +187,7 @@ void Actor::State_Balcony_Target
 
 {
 	Anim_Aim();
-	AimAtAimNode();
+	AimAtTargetPos();
 
 	if( level.inttime > m_iStateTime + 1000 )
 	{
@@ -212,7 +212,7 @@ void Actor::State_Balcony_Shoot
 
 {
 	Anim_Shoot();
-	AimAtAimNode();
+	AimAtTargetPos();
 }
 
 void Actor::Think_BalconyAttack
@@ -297,7 +297,7 @@ void Actor::End_BalconyKilled
 {
 	if( m_pFallPath )
 	{
-		delete m_pFallPath;
+		gi.Free(m_pFallPath);
 		m_pFallPath = NULL;
 	}
 }
@@ -329,9 +329,18 @@ void Actor::Think_BalconyKilled
 			m_eNextAnimMode = 7;
 			m_pszDebugState = "begin";
 			m_csNextAnimString = STRING_ANIM_NO_KILLED_SCR;
+
+			animnum = gi.Anim_NumForName(edict->tiki, "death_balcony_intro");
+
 			ChangeMotionAnim();
-			animnum = gi.Anim_NumForName( edict->tiki, "death_balcony_intro" );
-			NewAnim( animnum );
+
+			m_bMotionAnimSet = true;
+			m_iMotionSlot = GetMotionSlot(0);
+			m_weightType[m_iMotionSlot] = 1;
+			m_weightCrossBlend[m_iMotionSlot] = 0.0;
+			m_weightBase[m_iMotionSlot] = 1.0;
+
+			NewAnim( animnum, m_iMotionSlot );
 			SetTime( m_iMotionSlot, m_pFallPath->startTime );
 			UpdateNormalAnimSlot( m_iMotionSlot );
 			m_State = 801;

@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // needs to be larger than PACKET_BACKUP
 
 
-#define	MAX_ENTITIES_IN_SNAPSHOT	256
+#define	MAX_ENTITIES_IN_SNAPSHOT	1024
 #define	MAX_SOUNDS_IN_SNAPSHOT		64
 #define MAX_HUDDRAW_ELEMENTS		256
 

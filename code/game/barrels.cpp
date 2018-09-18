@@ -81,7 +81,10 @@ CLASS_DECLARATION( Entity, BarrelObject, "func_barrel" )
 
 BarrelObject::BarrelObject()
 {
-	if( LoadingSavegame )
+
+	AddWaitTill(STRING_DEATH);
+
+	if (LoadingSavegame)
 	{
 		return;
 	}

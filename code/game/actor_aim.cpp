@@ -62,9 +62,6 @@ void Actor::Think_Aim
 
 	if( m_aimNode )
 	{
-		mTargetPos = m_aimNode->origin;
-		m_bHasDesiredLookAngles = true;
-
 		AimAtAimNode();
 	}
 

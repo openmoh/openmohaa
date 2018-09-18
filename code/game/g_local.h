@@ -343,6 +343,7 @@ void TossClientPersistantPowerups( gentity_t *self );
 void TossClientCubes( gentity_t *self );
 
 // damage flags
+#define DAMAGE_NONE				0
 #define DAMAGE_RADIUS			0x00000001	// damage was indirect
 #define DAMAGE_NO_ARMOR			0x00000002	// armour does not protect from this damage
 #define DAMAGE_ENERGY			0x00000004	// damage is from an energy based weapon

@@ -64,11 +64,10 @@ void Actor::Think_Anim
 		IdleLook();
 		if (m_State == 1000)
 		{
+			m_bNextForceStart = true;
+
 			m_bAnimScriptSet = false;
 			m_pszDebugState = "initial";
-			m_eNextAnimMode = m_AnimMode;
-			m_bNextForceStart = true;
-			m_csNextAnimString = m_csAnimScript;
 			m_State = 1001;
 			m_iStateTime = level.inttime;
 		}
@@ -76,9 +75,10 @@ void Actor::Think_Anim
 		{
 			m_bNextForceStart = false;
 			m_pszDebugState = "main";
-			m_eNextAnimMode = m_AnimMode;
-			m_csNextAnimString = m_csAnimScript;
 		}
+		m_eNextAnimMode = m_AnimMode;
+		m_csNextAnimString = m_csAnimScript;
+
 		CheckForThinkStateTransition();
 		IdleTurn();
 		PostThink(false);
