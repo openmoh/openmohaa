@@ -3073,7 +3073,7 @@ void Actor::InitThinkStates
 	{
 		m_ThinkMap[i] = THINK_VOID;
 	}
-	for (size_t i = 0; i < MAX_THINKSTATES; i++)
+	for (size_t i = 0; i < NUM_THINKLEVELS; i++)
 	{
 		m_Think[i] = THINK_VOID;
 		m_ThinkStates[i] = THINKSTATE_VOID;
@@ -4130,7 +4130,7 @@ void Actor::ThinkStateTransitions
 
 	//GlobalFuncs_t *func;// = &GlobalFuncs[m_Think[m_ThinkLevel]];
 
-	for (newThinkLevel = MAX_THINKSTATES -1; newThinkLevel >= 0 ; newThinkLevel--)
+	for (newThinkLevel = NUM_THINKLEVELS -1; newThinkLevel >= 0 ; newThinkLevel--)
 	{
 		newThinkState = m_ThinkStates[newThinkLevel];
 		if (newThinkState)
@@ -5834,7 +5834,7 @@ void Actor::TouchStuff
 
 	for (i = 0; i < mm->numtouch; i++)
 	{
-		other = &g_entities[pm->touchents[i]];
+		other = &g_entities[mm->touchents[i]];
 
 		for (j = 0; j < i; j++)
 		{
@@ -11543,7 +11543,7 @@ void Actor::ClearThinkStates
 	)
 
 {
-	for (int i = 0; i <= MAX_THINKSTATES-1; i++)
+	for (int i = 0; i <= NUM_THINKLEVELS -1; i++)
 	{
 		SetThinkState(THINKSTATE_VOID, i);
 	}
@@ -13766,7 +13766,7 @@ void Actor::EndStates
 	)
 
 {
-	for (int i = 0; i < MAX_THINKSTATES; i++)
+	for (int i = 0; i < NUM_THINKLEVELS; i++)
 	{
 		GlobalFuncs_t *func = &GlobalFuncs[m_Think[i]];
 		

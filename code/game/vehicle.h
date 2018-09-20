@@ -55,7 +55,7 @@ extern cvar_t *g_showvehicleentrypoints;
 extern cvar_t *g_showvehicleslotpoints;
 extern cvar_t *g_showvehiclepath;
 
-typedef struct wheel_s {
+class wheel_s {
 	Vector vOrigin;
 	Vector vAcceleration;
 	Vector vVelocity;
@@ -80,7 +80,7 @@ typedef struct wheel_s {
 	qboolean bSkidding;
 	qboolean bSpinning;
 	int iPowered;
-} wheel_t;
+};
 
 class VehicleBase : public Animate
 {
