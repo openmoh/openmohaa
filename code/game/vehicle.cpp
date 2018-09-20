@@ -3679,7 +3679,66 @@ void Vehicle::TouchStuff
 	)
 
 {
-	// FIXME: stub
+	int i, j;
+	gentity_t *other;
+	Event		*event;
+
+	if (driver.ent)
+		G_TouchTriggers(driver.ent);
+
+	for (int i = 0; i < MAX_PASSENGERS; i++)
+	{
+		if (Passengers[i].ent)
+		{
+			G_TouchTriggers(Passengers[i].ent);
+		}
+	}
+
+	for (int i = 0; i < MAX_TURRETS; i++)
+	{
+		if (Turrets[i].ent)
+		{
+			G_TouchTriggers(Turrets[i].ent);
+		}
+	}
+
+	if (getMoveType() != MOVETYPE_NOCLIP)
+	{
+		G_TouchTriggers(this);
+	}
+
+	for (i = 0; i < vm->numtouch; i++)
+	{
+		other = &g_entities[vm->touchents[i]];
+
+		for (j = 0; j < i; j++)
+		{
+			gentity_t *ge = &g_entities[j];
+
+			if (ge == other)
+				break;
+		}
+
+		if (j != i)
+		{
+			// duplicated
+			continue;
+		}
+
+		// Don't bother touching the world
+		if ((!other->entity) || (other->entity == world))
+		{
+			continue;
+		}
+
+		event = new Event(EV_Touch);
+		event->AddEntity(this);
+		other->entity->ProcessEvent(event);
+
+		event = new Event(EV_Touch);
+		event->AddEntity(other->entity);
+		ProcessEvent(event);
+	}
 }
 
 /*
@@ -4700,12 +4759,12 @@ void Vehicle::UpdateTires
 
 			if( trace.fraction == 1.0 )
 			{
-				m_bTireHit[ index ] = 0;
+				m_bTireHit[ index ] = false;
 			}
 			else
 			{
 				m_vTireEnd[ index ] = trace.endpos;
-				m_bTireHit[ index ] = 1;
+				m_bTireHit[ index ] = true;
 			}
 		}
 	} while( iNumSkippedEntities != 0 );
@@ -4739,7 +4798,84 @@ void Vehicle::UpdateNormals
 	Vector i;
 	Vector j;
 
-	// FIXME: stub
+	if (real_velocity.length() <= 0.5)
+	{
+		if (m_iLastTiresUpdate != -1 && m_iLastTiresUpdate + 1000 > level.inttime)
+			return;
+	}
+
+	AngleVectorsLeft(angles, NULL, pitch, NULL);
+
+	m_vNormalSum = vec_zero;
+
+	pitch = -pitch;
+
+	m_iNumNormals = 0;
+
+	if (m_bTireHit[0] && m_bTireHit[1] && m_bTireHit[2])
+	{
+		vDist1 = m_vTireEnd[1] - m_vTireEnd[0];
+		vDist2 = m_vTireEnd[1] - m_vTireEnd[2];
+		
+		vCross.CrossProduct(vDist1, vDist2);
+		VectorNormalize(vCross);
+
+		m_vNormalSum += vCross;
+
+		m_iNumNormals++;
+	}
+
+	if (m_bTireHit[1] && m_bTireHit[2] && m_bTireHit[3])
+	{
+		vDist1 = m_vTireEnd[2] - m_vTireEnd[1];
+		vDist2 = m_vTireEnd[2] - m_vTireEnd[3];
+		
+		vCross.CrossProduct(vDist1, vDist2);
+		VectorNormalize(vCross);
+
+		m_vNormalSum += vCross;
+
+		m_iNumNormals++;
+	}
+
+	if (m_bTireHit[2] && m_bTireHit[3] && m_bTireHit[0])
+	{
+		vDist1 = m_vTireEnd[3] - m_vTireEnd[0];
+		vDist2 = m_vTireEnd[3] - m_vTireEnd[2];
+
+		vCross.CrossProduct(vDist1, vDist2);
+		VectorNormalize(vCross);
+
+		m_vNormalSum += vCross;
+
+		m_iNumNormals++;
+	}
+
+	if (m_bTireHit[3] && m_bTireHit[0] && m_bTireHit[1])
+	{
+		vDist1 = m_vTireEnd[0] - m_vTireEnd[3];
+		vDist2 = m_vTireEnd[0] - m_vTireEnd[1];
+
+		vCross.CrossProduct(vDist1, vDist2);
+		VectorNormalize(vCross);
+
+		m_vNormalSum += vCross;
+
+		m_iNumNormals++;
+	}
+
+	if (m_iNumNormals > 1)
+	{
+		temp = m_vNormalSum / m_iNumNormals;
+
+		i.CrossProduct(temp, pitch);
+
+		angles[0] = i.toPitch();
+
+		j.CrossProduct(temp, i);
+
+		angles[2] = j.toPitch();
+	}
 }
 
 /*
@@ -5402,6 +5538,52 @@ void Vehicle::AutoPilot
 	)
 
 {
+	float *vTmp;
+
+	if (!m_pCurPath || m_pCurPath->m_iPoints == 0)
+	{
+		m_bAutoPilot = false;
+		return;
+	}
+
+	if (g_showvehiclepath && g_showvehiclepath->integer)
+	{
+		int iFlags = 0;
+		float fZ;
+		Vector vTmp1;
+		Vector vTmp2;
+		for (int i = 0; i < m_pCurPath->m_iPoints; i++)
+		{
+			vTmp = m_pCurPath->GetByNode(i, &iFlags);
+			vTmp1 = vTmp + 1;
+			fZ = 0;
+			//FIXME: macros
+			if (iFlags & 1)
+			{
+				fZ = 1;
+				G_DebugString(vTmp1 + Vector(0, 0, 32), sin(level.time) + 3, 1, 1, 0, "START_STOPPING");
+			}
+			if (iFlags & 2)
+			{
+				G_DebugString(vTmp1 + Vector(0, 0, (fZ + 1) * 32), sin(level.time) + 3, 0, 1, 0, "START_SKIDDING");
+				fZ++;
+			}
+			if (iFlags & 4)
+			{
+				G_DebugString(vTmp1 + Vector(0, 0, (fZ + 1) * 32), sin(level.time) + 3, 0, 0, 1, "STOP_SKIDDING");
+			}
+			Vector vMaxs = Vector(sin(level.time), sin(level.time), sin(level.time)) * 16;
+			Vector vMins = vMaxs * -1;
+			Vector vMaxs = Vector(sin(level.time), sin(level.time), sin(level.time)) * 16;
+			G_DebugBBox(vTmp1, vMins, vMaxs, 0, 0, 1, 1);
+
+
+			vTmp = m_pCurPath->GetByNode(i + 1, NULL);
+			vTmp2 = vTmp + 1;
+
+			G_DebugLine(vTmp1, vTmp2, 0, 1, 0, 1);
+		}
+	}
 	// FIXME: stub
 }
 

@@ -32,12 +32,24 @@ CLASS_DECLARATION(DrivableVehicle, VehicleHalfTrack, "VehicleHalfTrack")
 
 VehicleHalfTrack::VehicleHalfTrack()
 {
-	// FIXME: STUB
+
+	;
 }
 
 void VehicleHalfTrack::Think()
 {
-	// FIXME: STUB
+	vmove_t vm;
+	flags |= FL_POSTTHINK;
+
+	prev_velocity = velocity;
+
+	SetSlotsNonSolid();
+
+	SetMoveInfo(&vm);
+	VmoveSingle(&vm);
+	GetMoveInfo(&vm);
+
+	SetSlotsSolid();
 }
 
 void VehicleHalfTrack::Postthink()
@@ -47,5 +59,5 @@ void VehicleHalfTrack::Postthink()
 
 void VehicleHalfTrack::Killed(Event* ev)
 {
-	// FIXME: STUB
+	deadflag = DEAD_DEAD;
 }

@@ -32,7 +32,19 @@ CLASS_DECLARATION(DrivableVehicle, VehicleWheelsX4, "VehicleWheelsX4")
 
 VehicleWheelsX4::VehicleWheelsX4()
 {
-	// FIXME: STUB
+	m_iGear = 1;
+	m_iRPM = 0;
+	gravity = 1.0;
+	m_fDifferentialRatio = 4.8800001;
+	m_fGearEfficiency = 0.69999999;
+	m_fGearRatio[0] = -2.9400001;
+	m_fGearRatio[1] = 2.9400001;
+	m_fGearRatio[2] = 1.9400001;
+	m_fGearRatio[3] = 1.0;
+	m_fAccelerator = 0.0;
+	m_bBackSlipping = qfalse;
+	m_bAutomatic = qtrue;
+	m_bFrontSlipping = qfalse;
 }
 
 void VehicleWheelsX4::UpdateVariables(Vector *acceleration, Vector *vpn, Vector *vup, Vector *vright, Vector *t_vpn, Vector *t_vup, Vector *t_vright)
@@ -42,13 +54,29 @@ void VehicleWheelsX4::UpdateVariables(Vector *acceleration, Vector *vpn, Vector 
 
 float VehicleWheelsX4::TorqueLookup(int rpm)
 {
-	// FIXME: STUB
-	return 0.f;
+	if (rpm <= 2099)
+		return 20.0;
+	if (rpm > 3599)
+		return 0.0;
+	return (20 * (3600 - rpm)) * 0.001;
 }
 
 void VehicleWheelsX4::Think()
 {
-	// FIXME: STUB
+	vmove_t vm;
+	flags |= FL_POSTTHINK;
+	
+	prev_velocity = velocity;
+
+	angles -= m_vAnglesOffset;
+	origin -= m_vOriginOffset;
+
+	mins = m_vOldMins;
+	maxs = m_vOldMaxs;
+
+	SetMoveInfo(&vm);
+	VmoveSingle(&vm);
+	GetMoveInfo(&vm);
 }
 
 void VehicleWheelsX4::Postthink()
@@ -58,5 +86,5 @@ void VehicleWheelsX4::Postthink()
 
 void VehicleWheelsX4::Killed(Event* ev)
 {
-	// FIXME: STUB
+	deadflag = DEAD_DEAD;
 }

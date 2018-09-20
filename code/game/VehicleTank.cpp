@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "vehicle.h"
+#include "vehicleturret.h"
 #include "player.h"
 
 CLASS_DECLARATION(DrivableVehicle, VehicleTank, "VehicleTank")
@@ -31,28 +32,88 @@ CLASS_DECLARATION(DrivableVehicle, VehicleTank, "VehicleTank")
 
 VehicleTank::VehicleTank()
 {
-	// FIXME: STUB
+	entflags |= FL_ROTATEDBOUNDS;
 }
 
 VehicleTank::~VehicleTank()
 {
-	// FIXME: STUB
+	entflags &= ~FL_ROTATEDBOUNDS;
 }
 
 qboolean VehicleTank::Drive(usercmd_t *ucmd)
 {
-	// FIXME: STUB
-	return false;
+	Vector i;
+	Vector j;
+	Vector k;
+	Vector vTmp;
+
+	vTmp = velocity;
+	VectorNormalize(vTmp);
+
+	if (!driver.ent || !driver.ent->client)
+	{
+		return qfalse;
+	}
+
+	if (!drivable)
+	{
+		driver.ent->client->ps.pm_flags |= PMF_FROZEN;
+		ucmd->forwardmove = 0;
+		ucmd->rightmove = 0;
+		ucmd->upmove = 0;
+		return qfalse;
+	}
+
+	moveimpulse = ucmd->forwardmove * (vTmp.length() + 1.0);
+	
+	m_bIsBraking = ucmd->forwardmove >> 31;
+
+	m_fAccelerator += ucmd->forwardmove * 0.005;
+
+	if (m_fAccelerator < 0)
+	{
+		m_fAccelerator = 0.0;
+	}
+
+	turnimpulse = -ucmd->rightmove;
+
+	VehicleTurretGun *vtg = (VehicleTurretGun *)Turrets[0].ent.Pointer();
+
+	if (vtg && vtg->IsSubclassOfVehicleTurretGun() && driver.ent->IsSubclassOfSentient())
+	{
+		vtg->RemoteControl(ucmd, (Sentient *)driver.ent.Pointer());
+
+		if (ucmd->upmove)
+			turnimpulse -= AngleSubtract(angles[1], vtg->angles[1]);
+	}
+	return qtrue;
 }
 
 void VehicleTank::EventDamage(Event *ev)
 {
-	// FIXME: STUB
+	int mod;
+	mod = ev->GetInteger(9);
+	MOD_ELECTRIC;
+	if (mod > MOD_VEHICLE && mod != MOD_SHOTGUN && mod != MOD_GRENADE)
+	{
+		Vehicle::EventDamage(ev);
+		if (g_gametype->integer == GT_SINGLE_PLAYER)
+		{
+			Player *p = (Player *)driver.ent.Pointer();
+			if (p)
+			{
+				if (p->IsSubclassOfPlayer())
+				{
+					p->m_iNumHitsTaken++;
+				}
+			}
+		}
+	}
 }
 
 void VehicleTank::Think()
 {
-	// FIXME: STUB
+	flags |= FL_POSTTHINK;
 }
 
 void VehicleTank::Postthink()
@@ -72,6 +133,17 @@ void VehicleTank::UpdateSound()
 
 void VehicleTank::AttachDriverSlot(Event* ev)
 {
-	// FIXME: STUB
+	Vehicle::AttachDriverSlot(ev);
+
+	VehicleTurretGun *vtg = (VehicleTurretGun *)Turrets[0].ent.Pointer();
+
+	if (vtg && vtg->IsSubclassOfVehicleTurretGun() && driver.ent->IsSubclassOfSentient())
+	{
+		vtg->SetOwner((Sentient *)driver.ent.Pointer());
+		Think();
+		Postthink();
+		vtg->Think();
+	}
+
 }
 
