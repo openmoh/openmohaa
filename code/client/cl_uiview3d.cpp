@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "cl_ui.h"
+#include "cl_screen.h"
 
 CLASS_DECLARATION( UIWidget, View3D, NULL )
 {
@@ -39,6 +40,15 @@ void View3D::Draw
 
 {
 	// FIXME: stub
+	if (cls.state != CA_DISCONNECTED)
+	{
+		SCR_DrawScreenField();
+	}
+	
+	//dword_893691C(v1, v2, v3, v4);
+
+	set2D();
+	Draw2D();
 }
 
 void View3D::DrawLetterbox

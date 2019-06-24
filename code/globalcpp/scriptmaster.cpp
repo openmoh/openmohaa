@@ -4367,6 +4367,9 @@ void ScriptThread::GetTimeZone
 	ev->AddInteger( timediff );
 }
 
+// IMPORTANT NOTE:
+// SLRE is buggy, consider switch to Boost.Regex or .xpressive
+
 void ScriptThread::PregMatch
 	(
 	Event *ev
@@ -5328,7 +5331,7 @@ void ScriptThread::RegisterEvent
 
 	evType = EventNameToType( eventname, eventname_full );
 
-	if( evType == -1 )
+	if( evType == SE_DEFAULT)
 	{
 		ScriptError( "Wrong event type name for registerev!\n" );
 
@@ -5493,13 +5496,25 @@ void ScriptThread::ArchiveInternal( Archiver& arc )
 	m_ScriptVM->Archive( arc );
 }
 
-void ScriptThread::Abs
+void ScriptThread::GetAbs
 	(
 	Event *ev
 	)
 
 {
-	ev->AddFloat(fabs( ev->GetFloat( 1 ) ) );
+	ScriptVariable& val = ev->GetValue(1);
+	if (val.GetType() == VARIABLE_INTEGER)
+	{
+		ev->AddInteger(ev->GetInteger(1));
+	}
+	else
+	{
+		if (val.GetType() != VARIABLE_FLOAT)
+		{
+			ScriptError("abs applied to bad type '%s'", val.GetTypeName());
+		}
+		ev->AddFloat(fabs(ev->GetFloat(1)));
+	}
 }
 
 void ScriptThread::ServerStufftext
@@ -6386,96 +6401,96 @@ void ScriptThread::TraceDetails
 	)
 
 {
+
 	int numArgs = 0;
 	int pass_entity = 0;
 	int mask = 0x2000B01;
 	trace_t trace;
 	Vector vecStart, vecEnd, vecMins, vecMaxs;
 	Entity *entity;
+	//todo : remove all these vars and add one for index and one for value
 
-	ScriptVariable *ref = new ScriptVariable, *array = new ScriptVariable;
-	ScriptVariable *allSolidIndex = new ScriptVariable, *allSolidValue = new ScriptVariable;
-	ScriptVariable *startSolidIndex = new ScriptVariable, *startSolidValue = new ScriptVariable;
-	ScriptVariable *fractionIndex = new ScriptVariable, *fractionValue = new ScriptVariable;
-	ScriptVariable *endPosIndex = new ScriptVariable, *endPosValue = new ScriptVariable;
-	ScriptVariable *surfaceFlagsIndex = new ScriptVariable, *surfaceFlagsValue = new ScriptVariable;
-	ScriptVariable *shaderNumIndex = new ScriptVariable, *shaderNumValue = new ScriptVariable;
-	ScriptVariable *contentsIndex = new ScriptVariable, *contentsValue = new ScriptVariable;
-	ScriptVariable *entityNumIndex = new ScriptVariable, *entityNumValue = new ScriptVariable;
-	ScriptVariable *locationIndex = new ScriptVariable, *locationValue = new ScriptVariable;
-	ScriptVariable *entityIndex = new ScriptVariable, *entityValue = new ScriptVariable;
+	ScriptVariable array;
+	ScriptVariable allSolidIndex, allSolidValue;
+	ScriptVariable startSolidIndex, startSolidValue;
+	ScriptVariable fractionIndex, fractionValue;
+	ScriptVariable endPosIndex, endPosValue;
+	ScriptVariable surfaceFlagsIndex, surfaceFlagsValue;
+	ScriptVariable shaderNumIndex, shaderNumValue;
+	ScriptVariable contentsIndex, contentsValue;
+	ScriptVariable entityNumIndex, entityNumValue;
+	ScriptVariable locationIndex, locationValue;
+	ScriptVariable entityIndex, entityValue;
 
 	numArgs = ev->NumArgs();
 
-	if( numArgs < 2 || numArgs > 6 )
+	if (numArgs < 2 || numArgs > 6)
 	{
-		ScriptError( "Wrong arguments count for traced!\n" );
+		ScriptError("Wrong arguments count for traced!\n");
 		return;
 	}
 
-	vecStart = ev->GetVector( 1 );
-	vecEnd = ev->GetVector( 2 );
+	vecStart = ev->GetVector(1);
+	vecEnd = ev->GetVector(2);
 
-	if( numArgs >= 3 ) {
-		pass_entity = ev->GetInteger( 3 );
+	if (numArgs >= 3) {
+		pass_entity = ev->GetInteger(3);
 	}
 
-	if( numArgs >= 4 ) {
-		vecMins = ev->GetVector( 4 );
+	if (numArgs >= 4) {
+		vecMins = ev->GetVector(4);
 	}
 
-	if( numArgs >= 5 ) {
-		vecMaxs = ev->GetVector( 5 );
+	if (numArgs >= 5) {
+		vecMaxs = ev->GetVector(5);
 	}
 
-	if( numArgs == 6 ) {
-		mask = ev->GetInteger( 6 );
+	if (numArgs == 6) {
+		mask = ev->GetInteger(6);
 	}
 
-	glbs.Trace( &trace, vecStart, vecMins, vecMaxs, vecEnd, pass_entity, mask, 0, 0 );
+	glbs.Trace(&trace, vecStart, vecMins, vecMaxs, vecEnd, pass_entity, mask, 0, 0);
 
-	allSolidIndex->setStringValue( "allSolid" );
-	startSolidIndex->setStringValue( "startSolid" );
-	fractionIndex->setStringValue( "fraction" );
-	endPosIndex->setStringValue( "endpos" );
-	surfaceFlagsIndex->setStringValue( "surfaceFlags" );
-	shaderNumIndex->setStringValue( "shaderNum" );
-	contentsIndex->setStringValue( "contents" );
-	entityNumIndex->setStringValue( "entityNum" );
-	locationIndex->setStringValue( "location" );
-	entityIndex->setStringValue( "entity" );
+	allSolidIndex.setStringValue("allSolid");
+	startSolidIndex.setStringValue("startSolid");
+	fractionIndex.setStringValue("fraction");
+	endPosIndex.setStringValue("endpos");
+	surfaceFlagsIndex.setStringValue("surfaceFlags");
+	shaderNumIndex.setStringValue("shaderNum");
+	contentsIndex.setStringValue("contents");
+	entityNumIndex.setStringValue("entityNum");
+	locationIndex.setStringValue("location");
+	entityIndex.setStringValue("entity");
 
-	allSolidValue->setIntValue( trace.allsolid );
-	startSolidValue->setIntValue( trace.startsolid );
-	fractionValue->setFloatValue( trace.fraction );
-	endPosValue->setVectorValue( trace.endpos );
-	surfaceFlagsValue->setIntValue( trace.surfaceFlags );
-	shaderNumValue->setIntValue( trace.shaderNum );
-	contentsValue->setIntValue( trace.contents );
-	entityNumValue->setIntValue( trace.entityNum );
-	locationValue->setIntValue( trace.location );
+	allSolidValue.setIntValue(trace.allsolid);
+	startSolidValue.setIntValue(trace.startsolid);
+	fractionValue.setFloatValue(trace.fraction);
+	endPosValue.setVectorValue(trace.endpos);
+	surfaceFlagsValue.setIntValue(trace.surfaceFlags);
+	shaderNumValue.setIntValue(trace.shaderNum);
+	contentsValue.setIntValue(trace.contents);
+	entityNumValue.setIntValue(trace.entityNum);
+	locationValue.setIntValue(trace.location);
 
-	entity = G_GetEntity( trace.entityNum );
+	entity = G_GetEntity(trace.entityNum);
 
 	// Have to use G_GetEntity instead otherwise it won't work
-	if( entity != NULL ) {
-		entityValue->setListenerValue( entity );
+	if (entity != NULL) {
+		entityValue.setListenerValue(entity);
 	}
 
-	ref->setRefValue( array );
+	array.setArrayAtRef(allSolidIndex, allSolidValue);
+	array.setArrayAtRef(startSolidIndex, startSolidValue);
+	array.setArrayAtRef(fractionIndex, fractionValue);
+	array.setArrayAtRef(endPosIndex, endPosValue);
+	array.setArrayAtRef(surfaceFlagsIndex, surfaceFlagsValue);
+	array.setArrayAtRef(shaderNumIndex, shaderNumValue);
+	array.setArrayAtRef(contentsIndex, contentsValue);
+	array.setArrayAtRef(entityNumIndex, entityNumValue);
+	array.setArrayAtRef(locationIndex, locationValue);
+	array.setArrayAtRef(entityIndex, entityValue);
 
-	ref->setArrayAt( *allSolidIndex, *allSolidValue );
-	ref->setArrayAt( *startSolidIndex, *startSolidValue );
-	ref->setArrayAt( *fractionIndex, *fractionValue );
-	ref->setArrayAt( *endPosIndex, *endPosValue );
-	ref->setArrayAt( *surfaceFlagsIndex, *surfaceFlagsValue );
-	ref->setArrayAt( *shaderNumIndex, *shaderNumValue );
-	ref->setArrayAt( *contentsIndex, *contentsValue );
-	ref->setArrayAt( *entityNumIndex, *entityNumValue );
-	ref->setArrayAt( *locationIndex, *locationValue );
-	ref->setArrayAt( *entityIndex, *entityValue );
-
-	ev->AddValue( *array );
+	ev->AddValue(array);
 
 }
 
@@ -7200,7 +7215,7 @@ void ScriptThread::EventHudDrawColor
 {
 	int numArgs = -1;
 	int index = -1;
-	float color[ 3 ] = { 0.0f, 0.0f, 0.0f };
+	Vector color;
 
 	numArgs = ev->NumArgs();
 
@@ -7216,6 +7231,7 @@ void ScriptThread::EventHudDrawColor
 	color[ 1 ] = ev->GetFloat( 3 ); // green
 	color[ 2 ] = ev->GetFloat( 4 ); // blue
 
+	Vector::Clamp(color, vec_zero, Vector(1, 1, 1));
 
 	HudDrawColor( index, color );
 }
@@ -7238,6 +7254,7 @@ void ScriptThread::EventHudDrawAlpha
 	}
 
 	alpha = ev->GetFloat( 2 );
+	Q_clamp(alpha, 0, 1);
 
 	HudDrawAlpha( index, alpha );
 }
@@ -9038,7 +9055,7 @@ CLASS_DECLARATION( Listener, ScriptThread, NULL )
 	{ &EV_Listener_CreateThread,				&ScriptThread::CreateThread },
 	{ &EV_Listener_ExecuteReturnScript,			&ScriptThread::ExecuteReturnScript },
 	{ &EV_Listener_ExecuteScript,				&ScriptThread::ExecuteScript },
-	{ &EV_ScriptThread_Abs,						&ScriptThread::Abs },
+	{ &EV_ScriptThread_Abs,						&ScriptThread::GetAbs },
 	{ &EV_ScriptThread_AnglesToForward,			&ScriptThread::Angles_ToForward },
 	{ &EV_ScriptThread_AnglesToLeft,			&ScriptThread::Angles_ToLeft },
 	{ &EV_ScriptThread_AnglesToUp,				&ScriptThread::Angles_ToUp },

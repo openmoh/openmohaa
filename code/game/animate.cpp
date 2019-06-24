@@ -88,10 +88,10 @@ Animate::Animate()
 
 	frame_delta = vec_zero;
 
-	edict->s.actionWeight = 1.0f;
 
 	if( !LoadingSavegame )
 	{
+		edict->s.actionWeight = 1.0f;
 		for( int i = 0; i < 16; i++ )
 		{
 			edict->s.frameInfo[ i ].index = 0;

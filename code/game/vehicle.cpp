@@ -47,7 +47,7 @@ Event EV_Vehicle_Enter
 	"enter",
 	EV_DEFAULT,
 	"eS",
-	"vehicle driver_",
+	"vehicle driver_anim",
 	"Called when someone gets into a vehicle."
 	);
 
@@ -5574,7 +5574,7 @@ void Vehicle::AutoPilot
 			}
 			Vector vMaxs = Vector(sin(level.time), sin(level.time), sin(level.time)) * 16;
 			Vector vMins = vMaxs * -1;
-			Vector vMaxs = Vector(sin(level.time), sin(level.time), sin(level.time)) * 16;
+			vMaxs = Vector(sin(level.time), sin(level.time), sin(level.time)) * 16;
 			G_DebugBBox(vTmp1, vMins, vMaxs, 0, 0, 1, 1);
 
 

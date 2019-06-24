@@ -518,13 +518,14 @@ void ClassDef::BuildResponseList( void )
 		responseLookup = NULL;
 	}
 
-	num = Event::NumEventCommands();
+	num = Event::NumEventCommands();//size will be total event count, because it WAS faster to look for an event via eventnum
+									//nowadays there's not much overhead in performance, TODO: change size to appropriate.
 	responseLookup = ( ResponseDef< Class > ** )new char[ sizeof( ResponseDef< Class > * ) * num ];
 	memset( responseLookup, 0, sizeof( ResponseDef< Class > * ) * num );
 
 	set = new qboolean[ num ];
 	memset( set, 0, sizeof( qboolean ) * num );
-
+	
 	this->numEvents = num;
 
 	for( c = this; c != NULL; c = c->super )

@@ -125,7 +125,8 @@ public:
 	void					normalizefast( void );
 	void					EulerNormalize( void );
 	void					EulerNormalize360( void );
-	static Vector			Clamp( Vector &value, const Vector &min, const Vector &max );
+	static Vector			Clamp( const Vector &value, const Vector &min, const Vector &max );
+	static void				Clamp( Vector &value, const Vector &min, const Vector &max );
 	static Vector			Cross( const Vector &vector1, const Vector &vector2 );
 	static float			Dot( const Vector &vector1, const Vector &vector2 );
 	static float			Dot( vec3_t a, const Vector &b );
@@ -470,25 +471,19 @@ inline const Vector & Vector::CrossProduct( const Vector &a, vec3_t b )
 	return *this;
 }
 
-inline Vector Vector::Clamp( Vector &value, const Vector &minimum, const Vector &maximum )
+inline Vector Vector::Clamp(const Vector &value, const Vector &minimum, const Vector &maximum )
 {
 	Vector clamped(value);
-	for (int i=0; i<3; i++)
-	{
-		const float min = minimum[i];
-		const float max = maximum[i];
-		assert( min <= max );
-
-		if (clamped[i] < min)
-		{
-			clamped[i] = min;
-		}
-		else if (clamped[i] > max)
-		{
-			clamped[i] = max;
-		}
-	}
+	Vector::Clamp(clamped, minimum, maximum);
 	return clamped;
+}
+
+inline void Vector::Clamp(Vector &value, const Vector &minimum, const Vector &maximum)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		Q_clamp(value[i], minimum[i], maximum[i]);
+	}
 }
 inline Vector Vector::Cross( const Vector &vector1, const Vector &vector2 )
 {

@@ -1223,7 +1223,7 @@ void PlayerBot::State_Idle
 	)
 
 {
-	AimAtTargetPos();
+	AimAtAimNode();
 	CheckReload();
 
 	if( !MoveToBestAttractivePoint() && !IsMoving() )
@@ -1294,7 +1294,7 @@ void PlayerBot::State_Curious
 
 {
 	//AimAt( m_vLastCuriousPos );
-	AimAtTargetPos();
+	AimAtAimNode();
 
 	if( !MoveToBestAttractivePoint( 3 ) && !IsMoving() )
 	{
