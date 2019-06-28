@@ -4251,7 +4251,8 @@ void Player::Init( void )
 
 	// notify scripts for the spawning player
 	parm.other = this;
-	level.Unregister( "playerspawn" );
+	parm.owner = this;
+	level.Unregister( STRING_PLAYERSPAWN );
 
 	// make sure we put the player back into the world
 	link();
@@ -9124,6 +9125,7 @@ void Player::SetPlayerView
 		}
 		else if( camera->IsSubclassOfPlayer() )
 		{
+			//FIXME: inline func Player::GetSpectateFollowOrientation
 			if( !g_spectatefollow_firstperson->integer )
 			{
 				Vector forward, right, up;

@@ -3,8 +3,12 @@ typedef unsigned int DWORD;
 typedef float vec3_t[3];
 
 typedef DWORD solid_t;
+typedef DWORD _DWORD;
 typedef unsigned char byte;
+typedef unsigned char BYTE;
+typedef BYTE _BYTE;
 
+typedef unsigned int size_t;
 #define	CVAR_ARCHIVE			1
 #define	CVAR_USERINFO			2
 #define	CVAR_SERVERINFO			4
@@ -1203,7 +1207,7 @@ typedef struct unz_file_info_s
     unsigned long internal_fa;
     unsigned long external_fa;
 
-    tm_unz tmu_date;
+    struct tm_unz tmu_date;
 } unz_file_info;
 
 typedef struct unz_file_info_internal_s
@@ -1232,12 +1236,12 @@ typedef struct z_stream_s {
     unsigned long   reserved;
 } z_stream;
 
-typedef z_stream *z_streamp;
+//typedef z_stream *z_streamp;
 
 typedef struct
 {
 	char  *read_buffer;
-	z_stream stream;
+	struct z_stream stream;
 
 	unsigned long pos_in_zipfile;
 	unsigned long stream_initialised;
@@ -1250,15 +1254,15 @@ typedef struct
 	unsigned long crc32_wait;
 	unsigned long rest_read_compressed;
 	unsigned long rest_read_uncompressed;
-	FILE* file;
+	struct FILE* file;
 	unsigned long compression_method;
 	unsigned long byte_before_the_zipfile;
 } file_in_zip_read_info_s;
 
 typedef struct
 {
-	FILE* file;
-	unz_global_info gi;
+	struct FILE* file;
+	struct unz_global_info gi;
 	unsigned long byte_before_the_zipfile;
 	unsigned long num_file;
 	unsigned long pos_in_central_dir;
@@ -1268,9 +1272,9 @@ typedef struct
 	unsigned long size_central_dir;
 	unsigned long offset_central_dir;
 
-	unz_file_info cur_file_info;
-	unz_file_info_internal cur_file_info_internal;
-    file_in_zip_read_info_s* pfile_in_zip_read;
+	struct unz_file_info cur_file_info;
+	struct unz_file_info_internal cur_file_info_internal;
+    struct file_in_zip_read_info_s* pfile_in_zip_read;
 	unsigned char*	tmpFile;
 	int	tmpPos,tmpSize;
 } unz_s;
@@ -1291,8 +1295,8 @@ typedef struct {
 	int				numfiles;
 	int				referenced;
 	int				hashSize;
-	fileInPack_t*	*hashTable;
-	fileInPack_t*	buildBuffer;
+	struct fileInPack_t*	*hashTable;
+	struct fileInPack_t*	buildBuffer;
 } pack_t;
 
 typedef struct {
@@ -1303,14 +1307,14 @@ typedef struct {
 typedef struct searchpath_s {
 	struct searchpath_s *next;
 
-	pack_t		*pack;
-	directory_t	*dir;
+	struct pack_t		*pack;
+	struct directory_t	*dir;
 } searchpath_t;
 
 typedef struct sysEvent_s
 {
   int evTime;
-  sysEventType_t evType;
+  enum sysEventType_t evType;
   int evValue;
   int evValue2;
   int evPtrLength;
@@ -1334,20 +1338,20 @@ typedef struct
 {
 	int			blocNode;
 	int			blocPtrs;
-	node_t*		tree;
-	node_t*		lhead;
-	node_t*		ltail;
-	node_t*		loc[HMAX+1];
-	node_t**	freelist;
-	node_t		nodeList[768];
-	node_t*		nodePtrs[768];
+	struct	node_t*		tree;
+	struct	node_t*		lhead;
+	struct	node_t*		ltail;
+	struct	node_t*		loc[HMAX+1];
+	struct	node_t**	freelist;
+	struct	node_t		nodeList[768];
+	struct	node_t*		nodePtrs[768];
 
 } huff_t;
 
 typedef struct
 {
-	huff_t		compressor;
-	huff_t		decompressor;
+	struct	huff_t		compressor;
+	struct	huff_t		decompressor;
 
 } huffman_t;
 
@@ -1383,7 +1387,7 @@ typedef struct client_persistant_s
 
 typedef struct cplane_s
 {
-	vec3_t normal;
+	struct	vec3_t normal;
 	float dist;
 	BYTE type;
 	BYTE signBits;
@@ -1403,7 +1407,7 @@ typedef struct outPacket_s
   int p_cmdNumber;
   int p_serverTime;
   int p_realtime;
-  userEyes_t p_eyeinfo;
+  struct userEyes_t p_eyeinfo;
 
 } outPacket_t;
 
@@ -1912,7 +1916,7 @@ typedef struct Event_s {
 	void				*data;
 } Event_t, Event;
 
-typedef struct Event_s {
+typedef struct Event2_s {
 	Class				baseClass;
 	unsigned short		eventnum;
 	unsigned short		dataSize;
@@ -2561,6 +2565,157 @@ typedef struct cTerraPatch_s {
 	unsigned char	heightmap[ 9 * 9 ];
 } cTerraPatch_t;
 
+typedef struct image_s {
+  char imgName[64];
+  int width;
+  int height;
+  int uploadWidth;
+  int uploadHeight;
+  unsigned int texnum;
+  int frameUsed;
+  int bytesUsed;
+  int internalFormat;
+  int TMU;
+  int numMipmaps;
+  qboolean dynamicallyUpdated;
+  qboolean allowPicmip;
+  qboolean force32bit;
+  unsigned int wrapClampModeX;
+  unsigned int wrapClampModeY;
+  int r_sequence;
+  int UseCount;
+  struct image_s *next;
+} image_t;
+
+typedef struct {
+  float cloudHeight;
+  image_t *outerbox[6];
+  image_t *innerbox[6];
+} skyParms_t;
+
+
+typedef enum { CT_FRONT_SIDED, CT_BACK_SIDED, CT_TWO_SIDED } cullType_t;
+typedef enum { SPRITE_PARALLEL, SPRITE_PARALLEL_ORIENTED, SPRITE_ORIENTED, SPRITE_PARALLEL_UPRIGHT } spriteType_t;
+
+typedef struct {
+  spriteType_t type;
+  float scale;
+} spriteParms_t;
+
+
+typedef enum { SS_BAD, SS_PORTAL, SS_PORTALSKY, SS_ENVIRONMENT, SS_OPAQUE, SS_DECAL, SS_SEE_THROUGH, SS_BANNER, SS_UNDERWATER, SS_BLEND0, SS_BLEND1, SS_BLEND2, SS_BLEND3, SS_BLEND6, SS_STENCIL_SHADOW, SS_ALMOST_NEAREST, SS_NEAREST } shaderSort_t;
+typedef enum { GF_NONE, GF_SIN, GF_SQUARE, GF_TRIANGLE, GF_SAWTOOTH, GF_INVERSE_SAWTOOTH, GF_NOISEANIM, GF_NOISESTATIC, GF_NOISE } genFunc_t;
+typedef enum { DEFORM_NONE, DEFORM_WAVE, DEFORM_NORMALS, DEFORM_BULGE, DEFORM_MOVE, DEFORM_AUTOSPRITE, DEFORM_AUTOSPRITE2, DEFORM_LIGHTGLOW, DEFORM_FLAP_S, DEFORM_FLAP_T } deform_t;
+typedef enum { USE_S_COORDS, USE_T_COORDS } texDirection_t;
+typedef enum { AGEN_IDENTITY, AGEN_SKIP, AGEN_ENTITY, AGEN_ONE_MINUS_ENTITY, AGEN_VERTEX, AGEN_ONE_MINUS_VERTEX, AGEN_LIGHTING_SPECULAR, AGEN_WAVEFORM, AGEN_PORTAL, AGEN_NOISE, AGEN_DOT, AGEN_ONE_MINUS_DOT, AGEN_CONSTANT, AGEN_GLOBAL_ALPHA, AGEN_SKYALPHA, AGEN_ONE_MINUS_SKYALPHA, AGEN_SCOORD, AGEN_TCOORD, AGEN_DIST_FADE, AGEN_ONE_MINUS_DIST_FADE, AGEN_DOT_VIEW, AGEN_ONE_MINUS_DOT_VIEW } alphaGen_t;
+typedef enum { CGEN_BAD, CGEN_IDENTITY, CGEN_IDENTITY_LIGHTING, CGEN_ENTITY, CGEN_ONE_MINUS_ENTITY, CGEN_EXACT_VERTEX, CGEN_VERTEX, CGEN_ONE_MINUS_VERTEX, CGEN_WAVEFORM, CGEN_MULTIPLY_BY_WAVEFORM, CGEN_LIGHTING_GRID, CGEN_LIGHTING_SPHERICAL, CGEN_CONSTANT, CGEN_NOISE, CGEN_GLOBAL_COLOR, CGEN_STATIC, CGEN_SCOORD, CGEN_TCOORD, CGEN_DOT, CGEN_ONE_MINUS_DOT } colorGen_t;
+typedef enum { TCGEN_BAD, TCGEN_IDENTITY, TCGEN_LIGHTMAP, TCGEN_TEXTURE, TCGEN_ENVIRONMENT_MAPPED, TCGEN_VECTOR, TCGEN_ENVIRONMENT_MAPPED2, TCGEN_SUN_REFLECTION } texCoordGen_t;
+typedef enum { TMOD_NONE, TMOD_TRANSFORM, TMOD_TURBULENT, TMOD_SCROLL, TMOD_SCALE, TMOD_STRETCH, TMOD_ROTATE, TMOD_ENTITY_TRANSLATE, TMOD_NOISE, TMOD_OFFSET, TMOD_PARALLAX, TMOD_MACRO, TMOD_WAVETRANS, TMOD_WAVETRANT, TMOD_BULGETRANS } texMod_t;
+
+typedef struct {
+  genFunc_t func;
+  float base;
+  float amplitude;
+  float phase;
+  float frequency;
+} waveForm_t;
+
+typedef struct {
+  deform_t deformation;
+  float moveVector[3];
+  waveForm_t deformationWave;
+  float deformationSpread;
+  float bulgeWidth;
+  float bulgeHeight;
+  float bulgeSpeed;
+} deformStage_t;
+
+
+typedef struct {
+  texMod_t type;
+  waveForm_t wave;
+  float matrix[2][2];
+  float translate[2];
+  float scale[2];
+  float rate[2];
+  float scroll[2];
+  float rotateSpeed;
+  float rotateStart;
+  float rotateCoef;
+} texModInfo_t;
+
+typedef struct {
+  image_t *image[64];
+  int numImageAnimations;
+  float imageAnimationSpeed;
+  float imageAnimationPhase;
+  texCoordGen_t tcGen;
+  float tcGenVectors[2][3];
+  int numTexMods;
+  texModInfo_t *texMods;
+  int isLightmap;
+  int vertexLightmap;
+  unsigned char flags;
+} textureBundle_t;
+
+typedef struct {
+  int active;
+  textureBundle_t bundle[2];
+  int multitextureEnv;
+  waveForm_t rgbWave;
+  colorGen_t rgbGen;
+  waveForm_t alphaWave;
+  alphaGen_t alphaGen;
+  unsigned int stateBits;
+  int noMipMaps;
+  int noPicMip;
+  int force32bit;
+  float alphaMin;
+  float alphaMax;
+  float specOrigin[3];
+  unsigned char colorConst[4];
+  unsigned char alphaConst;
+  unsigned char alphaConstMin;
+} shaderStage_t;
+
+typedef struct shader_t {
+  char name[64];
+  int lightmapIndex;
+  int index;
+  int sortedIndex;
+  float sort;
+  int defaultShader;
+  int explicitlyDefined;
+  int surfaceFlags;
+  int contentFlags;
+  int entityMergable;
+  int isSky;
+  skyParms_t sky;
+  spriteParms_t sprite;
+  int isPortalSky;
+  float subdivisions;
+  float fDistRange;
+  float fDistNear;
+  float light;
+  cullType_t cullType;
+  int polygonOffset;
+  int needsNormal;
+  int needsST1;
+  int needsST2;
+  int needsColor;
+  int numDeforms;
+  deformStage_t deforms[3];
+  int numUnfoggedPasses;
+  shaderStage_t *unfoggedStages[8];
+  int needsLGrid;
+  int needsLSpherical;
+  int stagesWithAlphaFog;
+  int flags;
+  void *optimalStageIteratorFunc;
+  float timeOffset;
+  struct shader_s *next;
+} shader_t;
+
 typedef struct cTerraPatchUnpacked_s {
 	srfTerrain_t drawinfo;
 	int viewCount;
@@ -2597,6 +2752,83 @@ typedef struct cStaticModel_s
   int numVertexData;
 
 } cStaticModel_t;
+
+typedef struct dtikicmd_s
+{
+	int frame_num;
+	int num_args;
+	char **args;
+
+} dtikicmd_t;
+
+typedef struct dtikianimdef_s
+{
+	char alias[48];
+	float weight;
+	float blendtime;
+	int flags;
+	int num_client_cmds;
+	dtikicmd_t *client_cmds;
+	int num_server_cmds;
+	dtikicmd_t *server_cmds;
+
+} dtikianimdef_t;
+
+typedef struct dtikianim_s
+{
+	char *name;
+	int num_anims;
+	void *alias_list;
+	int num_client_initcmds;
+	dtikicmd_t *client_initcmds;
+	int num_server_initcmds;
+	dtikicmd_t *server_initcmds;
+	BYTE *modelData;
+	int modelDataSize;
+	vec3_t mins;
+	vec3_t maxs;
+	short int *m_aliases;
+	char *headmodels;
+	char *headskins;
+	qboolean bIsCharacter;
+	dtikianimdef_t *animdefs[1];
+
+} dtikianim_t;
+
+typedef struct dtikiSurface_s
+{
+  char name[64];
+  char shader[4][64];
+  int hShader[4];
+  int numskins;
+  int flags;
+  float damage_multiplier;
+
+} dtikiSurface_t;
+
+typedef struct dtiki_s
+{
+	char *name;
+	dtikianim_t *a;
+	void *skeletor;
+	int numSurfaces;
+	dtikiSurface_t *surfaces;
+	float loadScale;
+	float lodScale;
+	float lodBias;
+	vec3_t lightOffset;
+	vec3_t loadOrigin;
+	float radius;
+	skelChannelList_t boneList;
+	int numMeshes;
+	short int mesh[1];
+
+} dtiki_t;
+
+typedef struct {
+  float transformed[3];
+  int index;
+} sphere_dlight_t;
 
 typedef struct cStaticModelUnpacked_s {
 	qboolean useSpecialLighting;
@@ -2854,58 +3086,8 @@ typedef struct tiki_cmd_s
 
 } tiki_cmd_t;
 
-typedef struct dtikicmd_s
-{
-	int frame_num;
-	int num_args;
-	char **args;
 
-} dtikicmd_t;
 
-typedef struct dtikianimdef_s
-{
-	char alias[48];
-	float weight;
-	float blendtime;
-	int flags;
-	int num_client_cmds;
-	dtikicmd_t *client_cmds;
-	int num_server_cmds;
-	dtikicmd_t *server_cmds;
-
-} dtikianimdef_t;
-
-typedef struct dtikianim_s
-{
-	char *name;
-	int num_anims;
-	void *alias_list;
-	int num_client_initcmds;
-	dtikicmd_t *client_initcmds;
-	int num_server_initcmds;
-	dtikicmd_t *server_initcmds;
-	BYTE *modelData;
-	int modelDataSize;
-	vec3_t mins;
-	vec3_t maxs;
-	short int *m_aliases;
-	char *headmodels;
-	char *headskins;
-	qboolean bIsCharacter;
-	dtikianimdef_t *animdefs[1];
-
-} dtikianim_t;
-
-typedef struct dtikiSurface_s
-{
-  char name[64];
-  char shader[4][64];
-  int hShader[4];
-  int numskins;
-  int flags;
-  float damage_multiplier;
-
-} dtikiSurface_t;
 
 typedef struct skelHeader_s
 {
@@ -3278,24 +3460,6 @@ typedef struct tikiFrame_s
 
 } tikiFrame_t;
 
-typedef struct dtiki_s
-{
-	char *name;
-	dtikianim_t *a;
-	void *skeletor;
-	int numSurfaces;
-	dtikiSurface_t *surfaces;
-	float loadScale;
-	float lodScale;
-	float lodBias;
-	vec3_t lightOffset;
-	vec3_t loadOrigin;
-	float radius;
-	skelChannelList_t boneList;
-	int numMeshes;
-	short int mesh[1];
-
-} dtiki_t;
 
 typedef struct {
 	char path[ 100 ];
@@ -3465,6 +3629,63 @@ typedef struct SafePtr2_s {
 	void *_vptr$;
 } SafePtr2_t, SafePtr;
 
+typedef struct SentientSPtr_s {
+	struct Class *ptr;
+    struct SafePtr2_s *prev;
+    struct SafePtr2_s *next;
+	struct Sentient_t *_vptr$;
+} SentientSPtr_t;
+
+typedef struct WeaponSPtr_s {
+	struct Class *ptr;
+    struct SafePtr2_s *prev;
+    struct SafePtr2_s *next;
+	struct Weapon_t *_vptr$;
+} WeaponSPtr_t;
+
+typedef struct SentientSPtr2_s {
+	struct Sentient_t *ptr;
+    struct SafePtr2_s *prev;
+    struct SafePtr2_s *next;
+	struct Sentient_t *_vptr$;
+} SentientSPtr2_t;
+
+
+typedef struct Vehicletr_s {
+	struct VehicleBase_t *ptr;
+    struct SafePtr2_s *prev;
+    struct SafePtr2_s *next;
+	struct VehicleBase_t *_vptr$;
+} VehicleSPtr_t;
+
+typedef struct WeaponSPtr_s {
+	struct Weapon_t *ptr;
+    struct SafePtr2_s *prev;
+    struct SafePtr2_s *next;
+	struct Weapon_t *_vptr$;
+} WeaponSPtr_t;
+
+typedef struct TurretGunSPtr_s {
+	struct TurretGun_t *ptr;
+    struct SafePtr2_s *prev;
+    struct SafePtr2_s *next;
+	struct TurretGun_t *_vptr$;
+} TurretGunSPtr_t;
+
+typedef struct EntitySPtr_s {
+	struct Entity_t *ptr;
+    struct SafePtr2_s *prev;
+    struct SafePtr2_s *next;
+	struct Entity_t *_vptr$;
+} EntitySPtr_t;
+
+typedef struct SimpleEntitySPtr_s {
+	struct SimpleEntity_t *ptr;
+    struct SafePtr2_s *prev;
+    struct SafePtr2_s *next;
+	struct SimpleEntity_t *_vptr$;
+} SimpleEntitySPtr_t;
+
 typedef struct ContainerClass_s {
 	Class_t baseClass;
 	Container_t value;
@@ -3546,8 +3767,8 @@ typedef struct ScriptVariable_s {
 } ScriptVariable_t;
 
 typedef struct ScriptThreadLabel_s {
-	void			*m_Script;
-	str				m_Label;
+	struct GameScript_t	*m_Script;
+	int				m_Label;
 } ScriptThreadLabel_t;
 
 typedef struct Listener_s
@@ -3616,7 +3837,7 @@ typedef struct Entity_s
     int watertype;
     int waterlevel;
     damage_t takedamage;
-    DWORD enemy[4];
+    EntitySPtr_t enemy;
     float pain_finished;
     float damage_debounce_time;
     int damage_type;
@@ -4480,7 +4701,7 @@ typedef struct Sentient_s
 	ActiveWeapon_t lastActiveWeapon;
 	float m_fDamageMultipliers[ 19 ];
 	SafePtr2_t m_pVehicle;
-	SafePtr2_t m_pTurret;
+	TurretGunSPtr_t m_pTurret;
 	SafePtr2_t m_pLadder;
 	str m_sHelmetSurface1;
 	str m_sHelmetSurface2;
@@ -4496,7 +4717,7 @@ typedef struct Sentient_s
 	int m_Team;
 	int m_iAttackerCount;
 	SafePtr2_t m_pLastAttacker;
-	SafePtr2_t m_Enemy;
+	SentientSPtr_t m_Enemy;
 	float m_fPlayerSightLevel;
 	char m_bIsDisguised;
 	char m_bHasDisguise;
@@ -4657,9 +4878,9 @@ typedef struct SimpleActor_s {
 	const_str_t m_csUpperAnim;
 	const_str_t m_csCurrentPosition;
 	int m_bPathErrorTime;
-	PathNode_t *m_NearestNode;
+	struct PathNode_t *m_NearestNode;
 	Vector m_vNearestNodePos;
-	int m_bUpdateAnimDoneFlags;
+	short int m_bUpdateAnimDoneFlags;
 	float m_maxspeed;
 	const_str_t m_csMood;
 	const_str_t m_csIdleMood;
@@ -4690,16 +4911,21 @@ typedef struct ActorEnemy_s {
 	float m_fVisibility;
 	float m_fTotalVisibility;
 	int m_iThreat;
-	SafePtr2_t m_pEnemy;
+	SentientSPtr2_t m_pEnemy;
 	float m_fCurrentRangeSquared;
 	Vector m_vLastKnownPos;
 	int m_iLastSightChangeTime;
 	bool m_bVisible;
 } ActorEnemy_t;
 
+typedef struct ActorEnemyContainer_s {
+	ActorEnemy_t	*objlist;
+	int		numobjects;
+	int		maxobjects;
+} ActorEnemyContainer_t, ActorEnemyContainer;
 typedef struct ActorEnemySet_s {
 	Class_t baseClass;
-	Container_t m_Enemies;
+	ActorEnemyContainer_t m_Enemies;
 	int m_iCheckCount;
 	SafePtr2_t m_pCurrentEnemy;
 	float m_fCurrentVisibility;
@@ -4717,35 +4943,34 @@ typedef enum
 
 typedef struct GlobalFuncs_s {
 	void ( *ThinkState )( void );
-	bool pfn_or_virtual1;
+	int  pfn_or_virtual1;
 	void ( *BeginState )( void );
-	bool pfn_or_virtual2;
+	int  pfn_or_virtual2;
 	void ( *ResumeState )( void );
-	bool pfn_or_virtual3;
+	int  pfn_or_virtual3;
 	void ( *EndState )( void );
-	bool pfn_or_virtual4;
+	int  pfn_or_virtual4;
 	void ( *SuspendState )( void );
-	bool pfn_or_virtual5;
-	void ( *un3 )( void );
-	bool pfn_or_virtual6;
+	int  pfn_or_virtual5;
+	void ( *RestartState )( void );
+	int  pfn_or_virtual6;
 	void ( *FinishedAnimation )( void );
-	bool pfn_or_virtual7;
+	int  pfn_or_virtual7;
 	void ( *PostShoot )( void );
-	bool pfn_or_virtual8;
+	int  pfn_or_virtual8;
 	void ( *Pain )( Event_t *ev );
-	bool pfn_or_virtual9;
+	int  pfn_or_virtual9;
 	void ( *Killed )( Event_t *ev, bool bPlayDeathAnim );
-	bool pfn_or_virtual10;
+	int  pfn_or_virtual10;
 	bool ( *PassesTransitionConditions )( void );
-	bool pfn_or_virtual11;
+	int  pfn_or_virtual11;
 	void ( *ShowInfo )( void );
-	bool pfn_or_virtual12;
+	int  pfn_or_virtual12;
 	void ( *PathnodeClaimRevoked )( void );
-	bool pfn_or_virtual13;
+	int  pfn_or_virtual13;
 	void ( *ReceiveAIEvent )( vec3_t event_origin, int iType, Entity_t *originator, float fDistSquared, float fMaxDistSquared );
-	bool pfn_or_virtual14;
+	int  pfn_or_virtual14;
 	bool ( *IsState )( int state );
-	bool pfn_or_virtual15;
 } GlobalFuncs_t;
 
 typedef struct Actor_s {
@@ -4758,12 +4983,10 @@ typedef struct Actor_s {
 	int m_State;
 	int m_iStateTime;
 	char m_bLockThinkState;
-	char align1;
-	short m_bDirtyThinkState;
+	char m_bDirtyThinkState;
 	char *m_pszDebugState;
 	char m_bAnimating;
-	char align2;
-	short m_bDog;
+	char m_bDog;
 	int mVoiceType;
 	char m_bSilent;
 	char m_bNoSurprise;
@@ -4839,15 +5062,15 @@ typedef struct Actor_s {
 	ScriptThreadLabel_t m_AlarmThread;
 	int m_iRunHomeTime;
 	int m_bTurretNoInitialCover;
-	PathNode_t *m_pPotentialCoverNode[16];
+	struct PathNode_t *m_pPotentialCoverNode[16];
 	int m_iPotentialCoverCount;
-	PathNode_t *m_pCoverNode;
+	struct PathNode_t *m_pCoverNode;
 	const_str_t m_csSpecialAttack;
 	char m_bInReload;
 	char m_bNeedReload;
 	char mbBreakSpecialAttack;
 	char m_bGrenadeBounced;
-	SafePtr2_t m_pGrenade;
+	EntitySPtr_t m_pGrenade;
 	Vector m_vGrenadePos;
 	int m_iFirstGrenadeTime;
 	int m_eGrenadeState;
@@ -5349,154 +5572,11 @@ typedef enum { AGEN_IDENTITY, AGEN_SKIP, AGEN_ENTITY, AGEN_ONE_MINUS_ENTITY, AGE
 typedef enum { CGEN_BAD, CGEN_IDENTITY, CGEN_IDENTITY_LIGHTING, CGEN_ENTITY, CGEN_ONE_MINUS_ENTITY, CGEN_EXACT_VERTEX, CGEN_VERTEX, CGEN_ONE_MINUS_VERTEX, CGEN_WAVEFORM, CGEN_MULTIPLY_BY_WAVEFORM, CGEN_LIGHTING_GRID, CGEN_LIGHTING_SPHERICAL, CGEN_CONSTANT, CGEN_NOISE, CGEN_GLOBAL_COLOR, CGEN_STATIC, CGEN_SCOORD, CGEN_TCOORD, CGEN_DOT, CGEN_ONE_MINUS_DOT } colorGen_t;
 typedef enum { TCGEN_BAD, TCGEN_IDENTITY, TCGEN_LIGHTMAP, TCGEN_TEXTURE, TCGEN_ENVIRONMENT_MAPPED, TCGEN_VECTOR, TCGEN_ENVIRONMENT_MAPPED2, TCGEN_SUN_REFLECTION } texCoordGen_t;
 
-typedef struct {
-  genFunc_t func;
-  float base;
-  float amplitude;
-  float phase;
-  float frequency;
-} waveForm_t;
 
-typedef enum { SS_BAD, SS_PORTAL, SS_PORTALSKY, SS_ENVIRONMENT, SS_OPAQUE, SS_DECAL, SS_SEE_THROUGH, SS_BANNER, SS_UNDERWATER, SS_BLEND0, SS_BLEND1, SS_BLEND2, SS_BLEND3, SS_BLEND6, SS_STENCIL_SHADOW, SS_ALMOST_NEAREST, SS_NEAREST } shaderSort_t;
-typedef enum { GF_NONE, GF_SIN, GF_SQUARE, GF_TRIANGLE, GF_SAWTOOTH, GF_INVERSE_SAWTOOTH, GF_NOISEANIM, GF_NOISESTATIC, GF_NOISE } genFunc_t;
-typedef enum { DEFORM_NONE, DEFORM_WAVE, DEFORM_NORMALS, DEFORM_BULGE, DEFORM_MOVE, DEFORM_AUTOSPRITE, DEFORM_AUTOSPRITE2, DEFORM_LIGHTGLOW, DEFORM_FLAP_S, DEFORM_FLAP_T } deform_t;
-typedef enum { USE_S_COORDS, USE_T_COORDS } texDirection_t;
-typedef enum { AGEN_IDENTITY, AGEN_SKIP, AGEN_ENTITY, AGEN_ONE_MINUS_ENTITY, AGEN_VERTEX, AGEN_ONE_MINUS_VERTEX, AGEN_LIGHTING_SPECULAR, AGEN_WAVEFORM, AGEN_PORTAL, AGEN_NOISE, AGEN_DOT, AGEN_ONE_MINUS_DOT, AGEN_CONSTANT, AGEN_GLOBAL_ALPHA, AGEN_SKYALPHA, AGEN_ONE_MINUS_SKYALPHA, AGEN_SCOORD, AGEN_TCOORD, AGEN_DIST_FADE, AGEN_ONE_MINUS_DIST_FADE, AGEN_DOT_VIEW, AGEN_ONE_MINUS_DOT_VIEW } alphaGen_t;
-typedef enum { CGEN_BAD, CGEN_IDENTITY, CGEN_IDENTITY_LIGHTING, CGEN_ENTITY, CGEN_ONE_MINUS_ENTITY, CGEN_EXACT_VERTEX, CGEN_VERTEX, CGEN_ONE_MINUS_VERTEX, CGEN_WAVEFORM, CGEN_MULTIPLY_BY_WAVEFORM, CGEN_LIGHTING_GRID, CGEN_LIGHTING_SPHERICAL, CGEN_CONSTANT, CGEN_NOISE, CGEN_GLOBAL_COLOR, CGEN_STATIC, CGEN_SCOORD, CGEN_TCOORD, CGEN_DOT, CGEN_ONE_MINUS_DOT } colorGen_t;
-typedef enum { TCGEN_BAD, TCGEN_IDENTITY, TCGEN_LIGHTMAP, TCGEN_TEXTURE, TCGEN_ENVIRONMENT_MAPPED, TCGEN_VECTOR, TCGEN_ENVIRONMENT_MAPPED2, TCGEN_SUN_REFLECTION } texCoordGen_t;
-typedef enum { TMOD_NONE, TMOD_TRANSFORM, TMOD_TURBULENT, TMOD_SCROLL, TMOD_SCALE, TMOD_STRETCH, TMOD_ROTATE, TMOD_ENTITY_TRANSLATE, TMOD_NOISE, TMOD_OFFSET, TMOD_PARALLAX, TMOD_MACRO, TMOD_WAVETRANS, TMOD_WAVETRANT, TMOD_BULGETRANS } texMod_t;
 
-typedef struct {
-  deform_t deformation;
-  float moveVector[3];
-  waveForm_t deformationWave;
-  float deformationSpread;
-  float bulgeWidth;
-  float bulgeHeight;
-  float bulgeSpeed;
-} deformStage_t;
 
-typedef struct image_s {
-  char imgName[64];
-  int width;
-  int height;
-  int uploadWidth;
-  int uploadHeight;
-  unsigned int texnum;
-  int frameUsed;
-  int bytesUsed;
-  int internalFormat;
-  int TMU;
-  int numMipmaps;
-  qboolean dynamicallyUpdated;
-  qboolean allowPicmip;
-  qboolean force32bit;
-  unsigned int wrapClampModeX;
-  unsigned int wrapClampModeY;
-  int r_sequence;
-  int UseCount;
-  struct image_s *next;
-} image_t;
 
-typedef struct {
-  texMod_t type;
-  waveForm_t wave;
-  float matrix[2][2];
-  float translate[2];
-  float scale[2];
-  float rate[2];
-  float scroll[2];
-  float rotateSpeed;
-  float rotateStart;
-  float rotateCoef;
-} texModInfo_t;
 
-typedef struct {
-  image_t *image[64];
-  int numImageAnimations;
-  float imageAnimationSpeed;
-  float imageAnimationPhase;
-  texCoordGen_t tcGen;
-  float tcGenVectors[2][3];
-  int numTexMods;
-  texModInfo_t *texMods;
-  int isLightmap;
-  int vertexLightmap;
-  unsigned char flags;
-} textureBundle_t;
-
-typedef struct {
-  int active;
-  textureBundle_t bundle[2];
-  int multitextureEnv;
-  waveForm_t rgbWave;
-  colorGen_t rgbGen;
-  waveForm_t alphaWave;
-  alphaGen_t alphaGen;
-  unsigned int stateBits;
-  int noMipMaps;
-  int noPicMip;
-  int force32bit;
-  float alphaMin;
-  float alphaMax;
-  float specOrigin[3];
-  unsigned char colorConst[4];
-  unsigned char alphaConst;
-  unsigned char alphaConstMin;
-} shaderStage_t;
-
-typedef enum { CT_FRONT_SIDED, CT_BACK_SIDED, CT_TWO_SIDED } cullType_t;
-
-typedef struct {
-  float cloudHeight;
-  image_t *outerbox[6];
-  image_t *innerbox[6];
-} skyParms_t;
-
-typedef enum { SPRITE_PARALLEL, SPRITE_PARALLEL_ORIENTED, SPRITE_ORIENTED, SPRITE_PARALLEL_UPRIGHT } spriteType_t;
-
-typedef struct {
-  spriteType_t type;
-  float scale;
-} spriteParms_t;
-
-typedef struct shader_t {
-  char name[64];
-  int lightmapIndex;
-  int index;
-  int sortedIndex;
-  float sort;
-  int defaultShader;
-  int explicitlyDefined;
-  int surfaceFlags;
-  int contentFlags;
-  int entityMergable;
-  int isSky;
-  skyParms_t sky;
-  spriteParms_t sprite;
-  int isPortalSky;
-  float subdivisions;
-  float fDistRange;
-  float fDistNear;
-  float light;
-  cullType_t cullType;
-  int polygonOffset;
-  int needsNormal;
-  int needsST1;
-  int needsST2;
-  int needsColor;
-  int numDeforms;
-  deformStage_t deforms[3];
-  int numUnfoggedPasses;
-  shaderStage_t *unfoggedStages[8];
-  int needsLGrid;
-  int needsLSpherical;
-  int stagesWithAlphaFog;
-  int flags;
-  void *optimalStageIteratorFunc;
-  float timeOffset;
-  struct shader_s *next;
-} shader_t;
 
 typedef enum { LIGHT_POINT, LIGHT_DIRECTIONAL, LIGHT_SPOT, LIGHT_SPOT_FAST } lighttype_t;
 typedef struct reallightinfo_s {
@@ -5572,10 +5652,6 @@ typedef struct {
   float maxs[3];
 } portalsky_t;
 
-typedef struct {
-  float transformed[3];
-  int index;
-} sphere_dlight_t;
 
 typedef struct msurface_s {
   int viewCount;
@@ -5607,23 +5683,13 @@ typedef struct mnode_s {
 } mnode_t;
 
 typedef struct {
-  float bounds[2][3];
-  msurface_t *firstSurface;
-  int numSurfaces;
-  void **pFirstMarkFragment;
-  int iNumMarkFragment;
-  int frameCount;
-  qboolean hasLightmap;
-} bmodel_t;
-
-typedef struct {
   char name[64];
   char baseName[64];
   int dataSize;
   int numShaders;
   dshader_t *shaders;
   int numBmodels;
-  bmodel_t *bmodels;
+  struct bmodel_t *bmodels;
   int numplanes;
   cplane_t *planes;
   int numnodes;
@@ -5864,7 +5930,7 @@ typedef struct {
   int currentSpriteNum;
   int shiftedEntityNum;
   int shiftedIsStatic;
-  model_t *currentModel;
+  struct model_t *currentModel;
   viewParms_t viewParms;
   float identityLight;
   int identityLightByte;
@@ -5882,7 +5948,7 @@ typedef struct {
   float sunDirection[3];
   frontEndCounters_t pc;
   int frontEndMsec;
-  model_s models[700];
+  struct model_s models[700];
   int numModels;
   int numImages;
   image_s images[1536];
@@ -5903,66 +5969,6 @@ typedef struct {
   int skel_index[1024];
   fontheader_t *pFontDebugStrings;
 } trGlobals_t;
-
-typedef struct srfMarkFragment_s {
- public:
-  surfaceType_t surfaceType;
-  int iIndex;
-  int numVerts;
-  polyVert_t *verts;
-} srfMarkFragment_t;
-
-typedef struct lmEditPoly_s {
-  srfMarkFragment_t surf;
-  shader_t *shader;
-  int viewCount;
-  polyVert_t verts[8];
-  mnode_t *pLeafs[8];
-  int iNumLeafs;
-} lmEditPoly_t;
-
-typedef struct lmEditMarkDef_s {
-  shader_t *markShader;
-  vec3_t vPos;
-  vec3_t vProjection;
-  float fRadius;
-  float fHeightScale;
-  float fWidthScale;
-  float fRotation;
-  float color[4];
-  qboolean bDoLighting;
-  lmEditPoly_t *pMarkEditPolys;
-  int iNumEditPolys;
-  vec3_t vPathCorners[4];
-} lmEditMarkDef_t;
-
-typedef struct lmPoly_s {
-  srfMarkFragment_t surf;
-  shader_t *shader;
-  int viewCount;
-} lmPoly_t;
-
-typedef struct {
-  qboolean bLevelMarksLoaded;
-  char szDCLFilename[256];
-  lmPoly_t *pMarkFragments;
-  qboolean bAutoApplySettings;
-  lmEditPoly_t *pFreeEditPolys;
-  lmEditMarkDef_t activeMarkDefs;
-  lmEditMarkDef_t *pFreeMarkDefs;
-  lmEditMarkDef_t *pCurrentMark;
-  qboolean bPathLayingMode;
-  treadMark_t treadMark;
-  lmEditMarkDef_t *pTreadMarkStartDecal;
-  lmEditMarkDef_t *pTreadMarkEndDecal;
-} lmGlobals_t;
-
-struct poolInfo_s {
-  int iFreeHead;
-  int iCur;
-  int nFree;
-};
-typedef struct poolInfo_s poolInfo_t;
 
 typedef unsigned char color4ub_t[4];
 typedef struct stageVars {
@@ -7001,6 +7007,15 @@ typedef struct Player_s
 	int						un1[20];
 } Player;
 
+typedef struct {
+  float bounds[2][3];
+  msurface_t *firstSurface;
+  int numSurfaces;
+  void **pFirstMarkFragment;
+  int iNumMarkFragment;
+  int frameCount;
+  qboolean hasLightmap;
+} bmodel_t;
 
 typedef struct {
   float width;
@@ -7938,7 +7953,7 @@ typedef struct VehicleBase_s {
 
 typedef struct cVehicleSlot_s {
 	Class_t baseClass;
-	SafePtr2_t ent;
+	EntitySPtr_t ent;
 	int flags;
 	int boneindex;
 	int enter_boneindex;
@@ -8093,7 +8108,7 @@ typedef struct Vehicle_s {
 	int m_iLastTiresUpdate; /* bitsize 32, bitpos 24448 */
 	void *m_pAlternatePath; /* bitsize 32, bitpos 24480 */
 	int m_iAlternateNode; /* bitsize 32, bitpos 24512 */
-	void *m_pCurPath; /* bitsize 32, bitpos 24544 */
+	cSpline_4_512_t *m_pCurPath; /* bitsize 32, bitpos 24544 */
 	int m_iCurNode; /* bitsize 32, bitpos 24576 */
 	void *m_pNextPath; /* bitsize 32, bitpos 24608 */
 	int m_iNextPathStartNode; /* bitsize 32, bitpos 24640 */
@@ -8451,3 +8466,58 @@ typedef struct AliasList_s
    AliasListNode_t ** sorted_list;
    AliasListNode_t * data_list;
    } AliasList_t;
+
+typedef struct ScriptDoor_s
+{
+	Door_t baseDoor;
+	ScriptThreadLabel_t		initlabel;
+	ScriptThreadLabel_t		openlabel;
+	ScriptThreadLabel_t		closelabel;
+	float    doorsize;
+	Vector	startangle;
+	Vector   startorigin;
+	Vector   movedir;
+} ScriptDoor_t;
+
+
+typedef struct nodeinfo {
+	struct PathNode_t *pNode;
+	float fDistSquared;
+}nodeinfo;
+
+typedef struct wheel_s {
+	Vector vOrigin;
+	Vector vAcceleration;
+	Vector vVelocity;
+	Vector vLongForce;
+	Vector vLatForce;
+	Vector vForce;
+	Vector vOrientation;
+	Vector vResistance;
+	float fYawOffset;
+	float fSlipAngle;
+	float fGripCoef;
+	float fLoad;
+	float fLongForce;
+	float fLatForce;
+	float fForce;
+	float fTraction;
+	float fLongTorque;
+	float fLatTorque;
+	float fTorque;
+	float fLongDist;
+	float fLatDist;
+	qboolean bSkidding;
+	qboolean bSpinning;
+	int iPowered;
+} wheel_t;
+
+typedef struct VehicleWheelsX2_s {
+	Vehicle_t baseVehicle;
+	wheel_s m_sWheels[2];
+} VehicleWheelsX2_t;
+
+typedef struct VehicleWheelsX4_s {
+	Vehicle_t baseVehicle;
+	wheel_s m_sWheels[4];
+} VehicleWheelsX4_t;

@@ -191,8 +191,10 @@ qboolean MOD_matches( int incoming_damage, int damage_type )
 	{
 		return true;
 	}
-
-	return false;
+	else
+	{
+		return incoming_damage == damage_type;
+	}
 }
 
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {

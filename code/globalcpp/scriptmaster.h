@@ -345,7 +345,7 @@ public:
 	void		VisionSetNaked( Event *ev );
 	void		CancelWaiting( Event *ev );
 
-	void		Abs( Event *ev );
+	void		GetAbs( Event *ev );
 	void		AddObjective( Event *ev );
 	void		AddObjective( int index, int status, str text, Vector location );
 	void		ClearObjectiveLocation( Event *ev );

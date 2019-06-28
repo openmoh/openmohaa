@@ -437,7 +437,7 @@ SCR_DrawScreenField
 This will be called twice if rendering in stereo mode
 ==================
 */
-void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
+void SCR_DrawScreenField( void ) {
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
 	if ( cls.state != CA_ACTIVE && cls.state != CA_CINEMATIC ) {
@@ -456,7 +456,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	case CA_LOADING:
 	case CA_PRIMED:
 		// draw the game information screen and loading progress
-		CL_CGameRendering( stereoFrame );
+		CL_CGameRendering(s_scr_stereoFrame);
 
 		// also draw the connection information, so it doesn't
 		// flash away too briefly on local or lan games
@@ -472,7 +472,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 		SCR_DrawCinematic();
 		break;
 	case CA_ACTIVE:
-		CL_CGameRendering( stereoFrame );
+		CL_CGameRendering(s_scr_stereoFrame);
 		break;
 	default:
 		break;
@@ -490,7 +490,7 @@ void UpdateStereoSide( stereoFrame_t s ) {
 	if( cls.state == CA_CINEMATIC ) {
 		SCR_DrawCinematic();
 	}
-	//UI_Update();
+	UI_Update();
 }
 
 /*

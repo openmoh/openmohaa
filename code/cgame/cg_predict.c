@@ -356,7 +356,7 @@ void CG_PredictPlayerState( void ) {
 	qboolean	moved;
 	usercmd_t	oldestCmd;
 	usercmd_t	latestCmd;
-
+	//FIXME: stub
 	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
 
 	// if this is the first frame we must guarantee
@@ -369,13 +369,13 @@ void CG_PredictPlayerState( void ) {
 
 
 	// demo playback just copies the moves
-	if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_SPECTATE_FOLLOW) ) {
+	if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_NO_PREDICTION ) || (cg.snap->ps.pm_flags & PMF_FROZEN) ) {
 		CG_InterpolatePlayerState( qfalse );
 		return;
 	}
 
 	// non-predicting local movement will grab the latest angles
-	if ( cg_nopredict->integer || cg_synchronousClients->integer ) {
+	if ( cg_nopredict->integer || cg_synchronousClients->integer || cg.snap->ps.pm_type & PM_NOCLIP) {
 		CG_InterpolatePlayerState( qtrue );
 		return;
 	}

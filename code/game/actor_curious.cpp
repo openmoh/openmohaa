@@ -510,12 +510,3 @@ void Actor::SetCuriousAnimHint
 {
 	m_iCuriousAnimHint = iAnimHint;
 }
-
-bool Actor::IsCuriousState
-(
-	int state
-)
-
-{
-	return state == THINKSTATE_CURIOUS;
-}
