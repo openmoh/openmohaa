@@ -3465,17 +3465,17 @@ typedef struct spawnsort_s {
 } spawnsort_t;
 
 typedef struct SafePtr2_s {
-	struct Class *ptr;
+	void *_vptr$;
     struct SafePtr2_s *prev;
     struct SafePtr2_s *next;
-	void *_vptr$;
+	void *ptr;
 } SafePtr2_t, SafePtr;
 
 typedef struct SentientSPtr_s {
-	struct Class *ptr;
+	void *_vptr$;
     struct SafePtr2_s *prev;
     struct SafePtr2_s *next;
-	Sentient_t *_vptr$;
+	Sentient_t *ptr;
 } SentientSPtr_t;
 
 typedef struct WeaponSPtr_s {
@@ -3486,10 +3486,10 @@ typedef struct WeaponSPtr_s {
 } WeaponSPtr_t;
 
 typedef struct SentientSPtr2_s {
-	struct Sentient_t *ptr;
+	void *_vptr$;
     struct SafePtr2_s *prev;
     struct SafePtr2_s *next;
-	Sentient_t *_vptr$;
+	Sentient_t *ptr;
 } SentientSPtr2_t;
 
 
@@ -3594,6 +3594,11 @@ typedef struct con_set_enum_s {
 typedef struct con_map_enum_s {
 	con_set_enum_t	m_Set_Enum;
 } con_map_enum_t;
+
+typedef struct con_timer_Element_s {
+	Class_t				*obj;
+	int					inttime;
+} con_timer_Element_t;
 
 typedef struct con_timer_s {
 	Class_t				baseClass;

@@ -503,7 +503,7 @@ void Animate::SetSyncTime( float s )
 void Animate::UseSyncTime(int slot, int sync)
 {
 	int v3; // eax
-	unsigned int v4; // eax
+	//unsigned int v4; // eax
 	int v5; // eax
 
 	if (sync)
@@ -550,7 +550,7 @@ void Animate::PostAnimate( void )
 
 	deltaSyncTime = syncTime;
 
-	if( pauseSyncTime == 0.0f )
+	if( !pauseSyncTime )
 	{
 		syncTime = 1.0f / syncRate * level.frametime + deltaSyncTime;
 	}
@@ -609,27 +609,42 @@ void Animate::PostAnimate( void )
 
 			animFlags[ i ] &= ~ANIM_NODELTA;
 
-			if( ( animFlags[ i ] & ANIM_SYNC && edict->s.frameInfo[ i ].time > animtimes[ i ] ) ||
-				( edict->s.frameInfo[ i ].time > animtimes[ i ] - 0.01f ) )
+			bool bTemp;
+			if (animFlags[i] & ANIM_SYNC)
 			{
-				if( animFlags[ i ] & ANIM_LOOP )
+				bTemp = edict->s.frameInfo[i].time < animtimes[i];
+			}
+			else
+			{
+				bTemp = edict->s.frameInfo[i].time < animtimes[i] - 0.01f;
+			}
+			if( !bTemp )
+			{
+				if (animFlags[i] & ANIM_LOOP)
 				{
-					animFlags[ i ] |= ANIM_FINISHED;
+					animFlags[i] |= ANIM_FINISHED;
 
-					if( edict->s.frameInfo[ i ].time > animtimes[ i ] )
+					do 
 					{
-						edict->s.frameInfo[ i ].time = 0;
+						edict->s.frameInfo[i].time -= animtimes[i];
+					} while (edict->s.frameInfo[i].time >= animtimes[i]);
+
+					if (edict->s.frameInfo[i].time < 0)
+					{
+						edict->s.frameInfo[i].time = 0;
 					}
+
 				}
 				else
 				{
-					if( startTime != animtimes[ i ] )
+					if (startTime != animtimes[i])
 					{
-						animFlags[ i ] |= ANIM_FINISHED;
+						animFlags[i] |= ANIM_FINISHED;
 					}
 
-					edict->s.frameInfo[ i ].time = animtimes[ i ];
+					edict->s.frameInfo[i].time = animtimes[i];
 				}
+
 			}
 		}
 

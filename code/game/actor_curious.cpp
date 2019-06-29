@@ -47,7 +47,7 @@ void Actor::Begin_Curious
 
 {
 	Vector vDelta;
-	float fDistSquared;
+	//float fDistSquared;
 
 	DoForceActivate();
 	m_csMood = STRING_CURIOUS;
@@ -202,6 +202,7 @@ void Actor::Think_Curious
 			ContinueAnimation();
 			//LABEL_16:
 			CheckForThinkStateTransition();
+			glbs.Printf("Think_Curious CheckForThinkStateTransition 1\n");
 			PostThink(true);
 			return;
 		}
@@ -221,11 +222,13 @@ void Actor::Think_Curious
 			{
 				if (level.inttime > m_iCuriousTime + 500)
 				{
+					glbs.Printf("Think_Curious m_Enemy: %s EnemyIsDisguised: %s\n", m_Enemy ? "true": "false", EnemyIsDisguised() ? "true" : "false");
 					SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 					m_iCuriousTime = 0;
 				}
 			}
 			CheckForThinkStateTransition();
+			glbs.Printf("Think_Curious CheckForThinkStateTransition 2\n");
 			PostThink(true);
 			return;
 		}
@@ -244,6 +247,7 @@ void Actor::Think_Curious
 				}
 			}
 			CheckForThinkStateTransition();
+			glbs.Printf("Think_Curious CheckForThinkStateTransition 3\n");
 			PostThink(true);
 			return;
 		}
@@ -288,6 +292,7 @@ void Actor::Think_Curious
 						LookAtCuriosity();
 					}
 					CheckForThinkStateTransition();
+					glbs.Printf("Think_Curious CheckForThinkStateTransition 4\n");
 					PostThink(true);
 					return;
 				}
@@ -334,6 +339,7 @@ void Actor::Think_Curious
 							LookAtCuriosity();
 						}
 						CheckForThinkStateTransition();
+						glbs.Printf("Think_Curious CheckForThinkStateTransition 5\n");
 						PostThink(true);
 						return;
 					}
@@ -352,6 +358,7 @@ void Actor::Think_Curious
 							}
 						}
 						CheckForThinkStateTransition();
+						glbs.Printf("Think_Curious CheckForThinkStateTransition 6\n");
 						PostThink(true);
 						return;
 					}
@@ -395,6 +402,7 @@ void Actor::Think_Curious
 						LookAtCuriosity();
 					}
 					CheckForThinkStateTransition();
+					glbs.Printf("Think_Curious CheckForThinkStateTransition 7\n");
 					PostThink(true);
 					return;
 				}
@@ -411,6 +419,7 @@ void Actor::Think_Curious
 				}
 			}
 			CheckForThinkStateTransition();
+			glbs.Printf("Think_Curious CheckForThinkStateTransition 8\n");
 			PostThink(true);
 			return;
 		}
@@ -506,7 +515,6 @@ void Actor::SetCuriousAnimHint
 	(
 	int iAnimHint
 	)
-
 {
 	m_iCuriousAnimHint = iAnimHint;
 }

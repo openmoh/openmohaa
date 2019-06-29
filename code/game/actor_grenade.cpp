@@ -62,7 +62,7 @@ bool Actor::Grenade_Acquire
 		if (PathComplete())
 		{
 			m_bHasDesiredLookAngles = false;
-			if (m_pGrenade->velocity.lengthXY(true) >= 1024)
+			if (m_pGrenade->velocity.lengthXYSquared() >= 1024)
 			{
 				Anim_Stand();
 			}
@@ -119,7 +119,7 @@ void Actor::Grenade_Flee
 	)
 
 {
-	float origin_ratio;
+	//float origin_ratio;
 	float fMinCloseDistSquared;
 	float fCosAngle;
 	float fSinAngle;
@@ -180,7 +180,7 @@ void Actor::Grenade_Flee
 	else
 	{
 
-		if ((origin - m_vGrenadePos).lengthXY(true) >= 100352 
+		if ((origin - m_vGrenadePos).lengthXYSquared() >= 100352 
 			|| !G_SightTrace(
 			centroid,
 			vec_zero,
@@ -302,7 +302,7 @@ void Actor::Grenade_MartyrAcquire
 			m_pGrenade->velocity = vec_zero;
 
 			//weird ? m_pGrenade->velocity is vec_zero ???
-			if (m_pGrenade->velocity.lengthXY(true) < 1024)
+			if (m_pGrenade->velocity.lengthXYSquared() < 1024)
 			{
 				m_pGrenade->velocity = vec_zero;
 
@@ -315,7 +315,7 @@ void Actor::Grenade_MartyrAcquire
 		{
 			Anim_RunToCasual(3);
 			m_csPathGoalEndAnimScript = STRING_ANIM_GRENADEMARTYR_SCR;
-			if ((origin-m_vGrenadePos).lengthXY(true) > 16384)
+			if ((origin-m_vGrenadePos).lengthXYSquared() > 16384)
 			{
 				FaceMotion();
 			}
@@ -491,7 +491,7 @@ void Actor::Begin_Grenade
 		}
 		vDelta = m_vGrenadePos - origin;
 		vDelta.z = 0;
-		fDistSquared = vDelta.lengthXY(true);
+		fDistSquared = vDelta.lengthXYSquared();
 		if (fDistSquared >= 65536)
 		{
 			m_eGrenadeState = AI_GRENSTATE_FLEE;

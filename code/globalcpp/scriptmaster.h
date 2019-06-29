@@ -199,11 +199,13 @@ public:
 	void operator delete( void *ptr );
 #endif
 
-	virtual void	Archive( Archiver &arc );
+	virtual void	Archive( Archiver &arc ) override;
 	void			ArchiveInternal( Archiver& arc );
-	virtual void	StartedWaitFor( void );
-	virtual void	StoppedNotify( void );
-	virtual void	StoppedWaitFor( const_str name, bool bDeleting );
+	virtual void	StartedWaitFor( void ) override;
+	virtual void	StoppedNotify( void ) override;
+	virtual void	StoppedWaitFor( const_str name, bool bDeleting ) override;
+	virtual	ScriptThread *CreateThreadInternal(const ScriptVariable& label) override;
+	virtual ScriptThread *CreateScriptInternal(const ScriptVariable& label) override;
 
 	ScriptThread();
 	ScriptThread( ScriptClass *scriptClass, unsigned char *pCodePos );

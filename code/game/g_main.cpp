@@ -103,10 +103,9 @@ void QDECL G_Error( int type, const char *fmt, ... )
 	va_end( argptr );
 
 	// need to manually crash otherwise visual studio fuck up with the stack pointer...
-	*( int * )0 = 0;
+	//*( int * )0 = 0;
 
-	assert( 0 );
-	SV_Error( type, text );
+	assert( !text );
 }
 
 void* G_Malloc( int size )
@@ -251,9 +250,12 @@ G_InitGame
 */
 void G_InitGame( int levelTime, int randomSeed )
 {
-	G_Printf( "------- Game Initialization -------\n" );
+	G_Printf( "==== InitGame ====\n" );
 	G_Printf( "gamename: %s\n", GAMEVERSION );
 	G_Printf( "gamedate: %s\n", __DATE__ );
+
+	SV_Error = gi.Error;
+	gi.Error = G_Error;
 
 	srand( randomSeed );
 
@@ -276,6 +278,7 @@ void G_InitGame( int levelTime, int randomSeed )
 	PlayerBot::Init();
 
 	sv_numtraces = 0;
+	sv_numpmtraces = 0;
 
 	if( developer->integer && !g_gametype->integer )
 	{
@@ -552,7 +555,7 @@ void G_RunFrame( int levelTime, int frameTime )
 			if( actor->IsSubclassOfActor() )
 			{
 				actor->m_bUpdateAnimDoneFlags = 0;
-				if( actor->m_bAnimating != 0 )
+				if( actor->m_bAnimating )
 					actor->PreAnimate();
 			}
 		}
@@ -1467,9 +1470,6 @@ gameExport_t* GetGameAPI( gameImport_t *import )
 	gi = *import;
 
 #ifdef _DEBUG
-	SV_Error						= gi.Error;
-	gi.Error						= G_Error;
-
 	//SV_Malloc						= gi.Malloc;
 	///gi.Malloc						= G_Malloc;
 

@@ -198,9 +198,9 @@ bool StateScript::AddLabel( const_str label, unsigned char *pos, bool private_se
 	s.key = label;
 	s.isprivate = private_section;
 
-	if( !label_list.findKeyValue( 0 ) )
+	if( !label_list.findKeyValue(STRING_NULL) )
 	{
-		label_list.addKeyValue( 0 ) = s;
+		label_list.addKeyValue(STRING_NULL) = s;
 	}
 
 	reverse_label_list.AddObject( &s );
@@ -258,7 +258,7 @@ const_str StateScript::NearestLabel( unsigned char *pos )
 {
 	unsigned int offset = pos - m_Parent->m_ProgBuffer;
 	unsigned int bestOfs = 0;
-	const_str label = 0;
+	const_str label = STRING_NULL;
 
 	for( int i = 1; i <= reverse_label_list.NumObjects(); i++ )
 	{
@@ -282,7 +282,7 @@ const_str StateScript::NearestLabel( unsigned char *pos )
 
 GameScript::GameScript()
 {
-	m_Filename = 0;
+	m_Filename = STRING_NULL;
 	successCompile = false;
 
 	m_ProgBuffer = NULL;
@@ -367,7 +367,7 @@ void ArchiveOpcode( Archiver& arc, unsigned char *code )
 __exec:
 		if( !arc.Loading() )
 		{
-			index = archivedEvents.AddUniqueObject( *reinterpret_cast< unsigned int * >( code + 2 ) );
+			index = archivedEvents.AddUniqueObject( *reinterpret_cast< const_str * >( code + 2 ) );
 		}
 
 		arc.ArchiveUnsigned( &index );
@@ -411,7 +411,7 @@ __exec:
 	case OP_STORE_STRING:
 		if( !arc.Loading() )
 		{
-			index = archivedStrings.AddUniqueObject( *reinterpret_cast< unsigned int * >( code + 1 ) );
+			index = archivedStrings.AddUniqueObject( *reinterpret_cast< const_str * >( code + 1 ) );
 		}
 
 		arc.ArchiveUnsigned( &index );

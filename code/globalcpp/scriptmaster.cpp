@@ -8996,6 +8996,16 @@ void ScriptThread::StoppedWaitFor( const_str name, bool bDeleting )
 	}
 }
 
+ScriptThread *ScriptThread::CreateThreadInternal(const ScriptVariable& label)
+{
+	return m_ScriptVM->GetScriptClass()->CreateThreadInternal(label);
+}
+
+ScriptThread * ScriptThread::CreateScriptInternal(const ScriptVariable & label)
+{
+	return m_ScriptVM->GetScriptClass()->CreateScriptInternal(label);
+}
+
 void ScriptThread::Pause()
 {
 	Stop();
@@ -9018,35 +9028,27 @@ void ScriptThread::Stop( void )
 
 void ScriptThread::Wait( float time )
 {
-	Stop();
-
-	m_ScriptVM->m_ThreadState = THREAD_WAITING;
-
-	Director.AddTiming( this, time );
+	StartTiming(time);
 	m_ScriptVM->Suspend();
 }
 
 void ScriptThread::StartTiming(float time)
 {
-	if (m_ScriptVM->ThreadState() == THREAD_WAITING)
-	{
-		m_ScriptVM->m_ThreadState = THREAD_RUNNING;
-		Director.RemoveTiming(this);
-	}
-	else if (m_ScriptVM->ThreadState() == THREAD_SUSPENDED)
-	{
-		m_ScriptVM->m_ThreadState = THREAD_RUNNING;
-		CancelWaitingAll();
-	}
+	Stop();
 
 	m_ScriptVM->m_ThreadState = THREAD_WAITING;
 	
+	if (time < 0)
+	{
+		time = 0;
+	}
+
 	Director.AddTiming(this, time);
 }
 
 void ScriptThread::StartTiming(void)
 {
-	StartTiming(level.inttime);
+	StartTiming(0);//start timing now
 }
 
 CLASS_DECLARATION( Listener, ScriptThread, NULL )

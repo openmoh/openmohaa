@@ -1444,7 +1444,7 @@ void ScriptVariable::setConstArrayValue( ScriptVariable *pVar, unsigned int size
 
 #ifndef NO_SCRIPTENGINE
 
-int ScriptVariable::constStringValue( void ) const
+const_str ScriptVariable::constStringValue( void ) const
 {
 	if( GetType() == VARIABLE_CONSTSTRING )
 	{
@@ -1663,9 +1663,7 @@ void ScriptVariable::operator*=( const ScriptVariable& value )
 		break;
 
 	case VARIABLE_VECTOR + VARIABLE_VECTOR * VARIABLE_MAX: // ( vector ) * ( vector )
-		m_data.vectorValue[ 0 ] = m_data.vectorValue[ 0 ] * value.m_data.vectorValue[ 0 ];
-		m_data.vectorValue[ 1 ] = m_data.vectorValue[ 1 ] * value.m_data.vectorValue[ 1 ];
-		m_data.vectorValue[ 2 ] = m_data.vectorValue[ 2 ] * value.m_data.vectorValue[ 2 ];
+		setFloatValue(DotProduct(m_data.vectorValue, value.m_data.vectorValue));
 		break;
 	}
 }

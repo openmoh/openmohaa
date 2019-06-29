@@ -205,7 +205,7 @@ public:
 	void					setConstArrayValue( ScriptVariable *pVar, unsigned int size );
 
 #ifndef NO_SCRIPTENGINE
-	int						constStringValue( void ) const;
+	const_str				constStringValue( void ) const;
 	void					setConstStringValue( const_str s );
 #endif
 

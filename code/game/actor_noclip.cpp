@@ -55,7 +55,7 @@ void Actor::Think_NoClip
 	Vector total_offset;
 	Vector total_offset_unit;
 	float total_dist;
-	vec3_t frame_offset;
+	//vec3_t frame_offset;
 	float frame_dist;
 
 	m_pszDebugState = "";
