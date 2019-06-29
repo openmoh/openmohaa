@@ -3858,22 +3858,22 @@ void Vehicle::MoveVehicle
 	)
 	
 {
-	//trace_t tr;
+	trace_t tr;
 	Vector vecStart;
 	Vector vecStart2;
 	Vector vecEnd;
 	Vector vecDelta;
 	Vector vecAng;
-	//int i;
-	//gridpoint_t *gp;
+	int i;
+	gridpoint_t *gp;
 	vmove_t vm;
 	float flMoveFrac = 1.0f;
-	//float fSpeed;
+	float fSpeed;
 	bool bDoGravity = true;
 	bool bHitPerson = false;
-	//Entity *pSkippedEntities[ MAX_SKIPPED_ENTITIES ];
-	//int iContentsEntities[ MAX_SKIPPED_ENTITIES ];
-	//solid_t solidEntities[ MAX_SKIPPED_ENTITIES ];
+	Entity *pSkippedEntities[ MAX_SKIPPED_ENTITIES ];
+	int iContentsEntities[ MAX_SKIPPED_ENTITIES ];
+	solid_t solidEntities[ MAX_SKIPPED_ENTITIES ];
 	int iNumSkippedEntities = 0;
 
 	if( m_bMovementLocked )
@@ -3899,9 +3899,7 @@ void Vehicle::MoveVehicle
 
 	setOrigin( vm.vs->origin );
 
-	// FIXME: stub
-
-	/*if( velocity.length() > 0.5f )
+	if( velocity.length() > 0.5f )
 	{
 		fSpeed = DotProduct( velocity, orientation[ 0 ] );
 		vecDelta = velocity * level.frametime;
@@ -3925,7 +3923,7 @@ void Vehicle::MoveVehicle
 
 				for( ;; )
 				{
-					tr = G_Trace( vecStart2, Vector( vm.mins ) - Vector( -32, -32, -32 ), Vector( vm.maxs ) + Vector( 32, 32, 32 ), vecStart2, this, 0x6001382, false, "Vehicle::Move" );
+					tr = G_Trace( vecStart2, Vector( vm.mins ) - Vector( -32, -32, -32 ), Vector( vm.maxs ) + Vector( 32, 32, 32 ), vecStart2, this, 0x6001382, false, "Vehicle::MoveVehicle" );
 
 					if( !tr.ent || !tr.ent->entity || tr.ent->entity == world )
 					{
@@ -3986,7 +3984,7 @@ void Vehicle::MoveVehicle
 
 			for( ;; )
 			{
-				tr = G_Trace( vecStart, Vector( vm.mins ), Vector( vm.maxs ), vecEnd, this, edict->clipmask, false, "Vehicle::Move" );
+				tr = G_Trace( vecStart, Vector( vm.mins ), Vector( vm.maxs ), vecEnd, this, edict->clipmask, false, "Vehicle::MoveVehicle" );
 
 				if( tr.fraction == 1.0f && !tr.allsolid && !tr.startsolid )
 				{
@@ -4010,7 +4008,7 @@ void Vehicle::MoveVehicle
 
 					for( ;; )
 					{
-						tr = G_Trace( vecStart, Vector( vm.mins ), Vector( vm.maxs ), vecEnd, this, edict->clipmask, false, "Vehicle::Move" );
+						tr = G_Trace( vecStart, Vector( vm.mins ), Vector( vm.maxs ), vecEnd, this, edict->clipmask, false, "Vehicle::MoveVehicle" );
 
 						if( tr.fraction != 1.0f || tr.plane.normal[ 2 ] < 0.7f || tr.allsolid )
 						{
@@ -4019,7 +4017,7 @@ void Vehicle::MoveVehicle
 
 						if( !tr.ent || !tr.ent->entity || tr.ent->entity == world )
 						{
-							// FIXME
+							goto _label1;
 							break;
 						}
 
@@ -4073,7 +4071,8 @@ void Vehicle::MoveVehicle
 					{
 						bHitPerson = true;
 					}
-
+					
+_label1:
 					if( g_showvehiclemovedebug->integer )
 					{
 						Com_Printf( "Vehicle Hit(MV2): %s : %s\n", tr.ent->entity->getClassname(), tr.ent->entity->targetname.c_str() );
@@ -4170,7 +4169,7 @@ void Vehicle::MoveVehicle
 				}
 			}
 		}
-	}*/
+	}
 }
 
 /*
