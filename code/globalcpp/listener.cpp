@@ -423,6 +423,7 @@ void L_InitEvents( void )
 	g_eventstats	= gi.Cvar_Get( "g_eventstats", "0", 0 );
 #endif
 
+	gi.Printf("L_InitEvents\n");
 	Event::LoadEvents();
 	ClassDef::BuildEventResponses();
 
@@ -2222,7 +2223,7 @@ bool Event::GetBoolean( int pos )
 GetConstString
 =======================
 */
-int Event::GetConstString( int pos )
+const_str Event::GetConstString( int pos )
 {
 	ScriptVariable& variable = GetValue( pos );
 
@@ -3439,13 +3440,13 @@ void Listener::CancelWaiting( const_str name )
 		}
 	}
 
-	if( !DisableListenerNotify )
+	for (int i = stoppedListeners.NumObjects(); i > 0; i--)
 	{
-		for( int i = stoppedListeners.NumObjects(); i > 0; i-- )
-		{
-			Listener *listener = stoppedListeners.ObjectAt( i );
+		Listener *listener = stoppedListeners.ObjectAt(i);
 
-			if( listener )
+		if (listener)
+		{
+			if (!DisableListenerNotify)
 			{
 				listener->StoppedNotify();
 			}
@@ -3480,17 +3481,16 @@ void Listener::CancelWaitingAll()
 	m_WaitForList = NULL;
 
 	if( !DisableListenerNotify )
+		StoppedWaitFor(STRING_NULL, false );
+
+	for (int i = stoppedListeners.NumObjects(); i > 0; i--)
 	{
-		StoppedWaitFor( 0, false );
+		Listener *listener = stoppedListeners.ObjectAt(i);
 
-		for( int i = stoppedListeners.NumObjects(); i > 0; i-- )
+		if (listener)
 		{
-			Listener *listener = stoppedListeners.ObjectAt( i );
-
-			if( listener )
-			{
+			if (!DisableListenerNotify)
 				listener->StoppedNotify();
-			}
 		}
 	}
 }

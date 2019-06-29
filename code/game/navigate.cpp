@@ -378,7 +378,7 @@ const_str PathNode::GetSpecialAttack
 	else
 	{
 		if( nodeflags >= 0 )
-			return 0;
+			return STRING_NULL;
 
 		iSpecialAttack = 2;
 		csAnimation = STRING_ANIM_OVERATTACK_SCR;
@@ -398,7 +398,7 @@ const_str PathNode::GetSpecialAttack
 	fRangeSquared = vDelta[ 0 ] * vDelta[ 0 ] + vDelta[ 1 ] * vDelta[ 1 ];
 
 	if( fRangeSquared < g_AttackParms[ iSpecialAttack ].fMinRangeSquared || fRangeSquared > g_AttackParms[ iSpecialAttack ].fMaxRangeSquared )
-		return 0;
+		return STRING_NULL;
 
 	fMinAngle = atan2( vDelta[ 0 ], vDelta[ 1 ] ) * ( 180.0f / M_PI ) - angles[ 1 ];
 
@@ -426,16 +426,16 @@ const_str PathNode::GetSpecialAttack
 	if( g_AttackParms[ iSpecialAttack ].fMinAngle <= g_AttackParms[ iSpecialAttack ].fMaxAngle )
 	{
 		if( g_AttackParms[ iSpecialAttack ].fMinAngle > fMaxAngle )
-			return 0;
+			return STRING_NULL;
 	}
 	else
 	{
 		if( g_AttackParms[ iSpecialAttack ].fMinAngle <= fMaxAngle )
-			return 0;
+			return STRING_NULL;
 	}
 
 	if( fMaxAngle > g_AttackParms[ iSpecialAttack ].fMaxAngle )
-		return 0;
+		return STRING_NULL;
 
 	return csAnimation;
 }

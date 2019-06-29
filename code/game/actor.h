@@ -157,60 +157,60 @@ typedef struct
 // Actor flags
 
 #define ACTOR_FLAG_NOISE_HEARD					0
-#define ACTOR_FLAG_INVESTIGATING					1
+#define ACTOR_FLAG_INVESTIGATING				1
 #define ACTOR_FLAG_DEATHGIB						2
-#define ACTOR_FLAG_DEATHFADE						3
-#define ACTOR_FLAG_NOCHATTER						4
+#define ACTOR_FLAG_DEATHFADE					3
+#define ACTOR_FLAG_NOCHATTER					4
 #define ACTOR_FLAG_INACTIVE						5
-#define ACTOR_FLAG_ANIM_DONE						6
+#define ACTOR_FLAG_ANIM_DONE					6
 #define ACTOR_FLAG_STATE_DONE_TIME_VALID		7
-#define ACTOR_FLAG_AI_ON							8
+#define ACTOR_FLAG_AI_ON						8
 #define ACTOR_FLAG_LAST_CANSEEENEMY				9
 #define ACTOR_FLAG_LAST_CANSEEENEMY_NOFOV		10
 #define ACTOR_FLAG_DIALOG_PLAYING				11
-#define ACTOR_FLAG_ALLOW_TALK						12
+#define ACTOR_FLAG_ALLOW_TALK					12
 #define ACTOR_FLAG_DAMAGE_ONCE_ON				13
 #define ACTOR_FLAG_DAMAGE_ONCE_DAMAGED			14
-#define ACTOR_FLAG_BOUNCE_OFF						15
+#define ACTOR_FLAG_BOUNCE_OFF					15
 #define ACTOR_FLAG_NOTIFY_OTHERS_AT_DEATH		16
-#define ACTOR_FLAG_HAS_THING1						17
-#define ACTOR_FLAG_HAS_THING2						18
-#define ACTOR_FLAG_HAS_THING3						19
-#define ACTOR_FLAG_HAS_THING4						20
+#define ACTOR_FLAG_HAS_THING1					17
+#define ACTOR_FLAG_HAS_THING2					18
+#define ACTOR_FLAG_HAS_THING3					19
+#define ACTOR_FLAG_HAS_THING4					20
 #define ACTOR_FLAG_LAST_ATTACK_HIT				21
-#define ACTOR_FLAG_STARTED							22
+#define ACTOR_FLAG_STARTED						22
 #define ACTOR_FLAG_ALLOW_HANGBACK				23
 #define ACTOR_FLAG_USE_GRAVITY					24
 #define ACTOR_FLAG_SPAWN_FAILED					25
-#define ACTOR_FLAG_FADING_OUT						26
+#define ACTOR_FLAG_FADING_OUT					26
 #define ACTOR_FLAG_DEATHSHRINK					27
-#define ACTOR_FLAG_DEATHSINK					   28
-#define ACTOR_FLAG_STAYSOLID					   29
-#define ACTOR_FLAG_STUNNED						   30
-#define ACTOR_FLAG_ALLOW_FALL					   31
-#define ACTOR_FLAG_FINISHED					   32
-#define ACTOR_FLAG_IN_LIMBO					   33
-#define ACTOR_FLAG_CAN_WALK_ON_OTHERS		   34
-#define ACTOR_FLAG_PUSHABLE					   35
-#define ACTOR_FLAG_LAST_TRY_TALK				   36
-#define ACTOR_FLAG_ATTACKABLE_BY_ACTORS	   37
-#define ACTOR_FLAG_TARGETABLE					   38
-#define ACTOR_FLAG_ATTACK_ACTORS				   39
+#define ACTOR_FLAG_DEATHSINK					28
+#define ACTOR_FLAG_STAYSOLID					29
+#define ACTOR_FLAG_STUNNED						30
+#define ACTOR_FLAG_ALLOW_FALL					31
+#define ACTOR_FLAG_FINISHED						32
+#define ACTOR_FLAG_IN_LIMBO						33
+#define ACTOR_FLAG_CAN_WALK_ON_OTHERS			34
+#define ACTOR_FLAG_PUSHABLE						35
+#define ACTOR_FLAG_LAST_TRY_TALK				36
+#define ACTOR_FLAG_ATTACKABLE_BY_ACTORS			37
+#define ACTOR_FLAG_TARGETABLE					38
+#define ACTOR_FLAG_ATTACK_ACTORS				39
 #define ACTOR_FLAG_IMMORTAL						40
 #define ACTOR_FLAG_TURNING_HEAD					41
 #define ACTOR_FLAG_DIE_COMPLETELY				42
 #define ACTOR_FLAG_BLEED_AFTER_DEATH			43
-#define ACTOR_FLAG_IGNORE_STUCK_WARNING		44
+#define ACTOR_FLAG_IGNORE_STUCK_WARNING			44
 #define ACTOR_FLAG_IGNORE_OFF_GROUND_WARNING	45
 #define ACTOR_FLAG_ALLOWED_TO_KILL				46
 #define ACTOR_FLAG_TOUCH_TRIGGERS				47
 #define ACTOR_FLAG_IGNORE_WATER					48
 #define ACTOR_FLAG_NEVER_IGNORE_SOUNDS			49
 #define ACTOR_FLAG_SIMPLE_PATHFINDING			50
-#define ACTOR_FLAG_HAVE_MOVED						51
+#define ACTOR_FLAG_HAVE_MOVED					51
 #define ACTOR_FLAG_NO_PAIN_SOUNDS				52
 #define ACTOR_FLAG_UPDATE_BOSS_HEALTH			53
-#define ACTOR_FLAG_IGNORE_PAIN_FROM_ACTORS	54
+#define ACTOR_FLAG_IGNORE_PAIN_FROM_ACTORS		54
 #define ACTOR_FLAG_DAMAGE_ALLOWED				55
 #define ACTOR_FLAG_ALWAYS_GIVE_WATER			56
 
@@ -220,11 +220,8 @@ typedef struct
 #define ACTOR_FLAG_MAX								56
 
 #define MAX_ORIGIN_HISTORY	4
-#define MAX_THINKMAP		9
-#define MAX_THINKLEVELS		29
 #define MAX_COVER_NODES		16
 #define MAX_BODYQUEUE		5
-#define MAX_GLOBAL_FUNCS	35
 
 typedef enum
 {
@@ -257,15 +254,19 @@ typedef struct {
 	vec3_t pos[ 1 ];
 } FallPath;
 
-#define THINKSTATE_VOID				0
-#define THINKSTATE_IDLE				1
-#define THINKSTATE_PAIN				2
-#define THINKSTATE_KILLED			3
-#define THINKSTATE_ATTACK			4
-#define THINKSTATE_CURIOUS			5
-#define THINKSTATE_DISGUISE			6
-#define THINKSTATE_GRENADE			7
-#define THINKSTATE_NOCLIP			8
+enum eThinkState
+{
+	THINKSTATE_VOID,
+	THINKSTATE_IDLE,
+	THINKSTATE_PAIN,
+	THINKSTATE_KILLED,
+	THINKSTATE_ATTACK,
+	THINKSTATE_CURIOUS,
+	THINKSTATE_DISGUISE,
+	THINKSTATE_GRENADE,
+	THINKSTATE_NOCLIP,
+	NUM_THINKSTATES,
+};
 
 #define AI_EVENT_NONE				0
 #define AI_EVENT_WEAPON_FIRE		1
@@ -280,7 +281,7 @@ typedef struct {
 #define AI_EVENT_FOOTSTEP			10
 #define AI_EVENT_GRENADE			11
 
-enum  thinkNums 
+enum eThinkNum
 {
 	THINK_VOID,
 	THINK_TURRET,
@@ -316,10 +317,11 @@ enum  thinkNums
 	THINK_BALCONY_KILLED,
 	THINK_WEAPONLESS,
 	THINK_NOCLIP,
-	THINK_DEAD
+	THINK_DEAD,
+	NUM_THINKS,
 };
 
-enum thinkLevelNums
+enum eThinkLevel
 {
 	THINKLEVEL_NORMAL, //I think it should be THINKLEVEL_IDLE
 	THINKLEVEL_PAIN,
@@ -352,27 +354,36 @@ class Actor : public SimpleActor
 	};
 
 public:
-	/* GlobalFuncs: contains different funcs needed for each actor think/thinkstate */
-	static GlobalFuncs_t GlobalFuncs[MAX_GLOBAL_FUNCS];
+	/* GlobalFuncs: contains different funcs needed for each actor think 
+	 * think is basically a mode for the actor
+	 * when m_ThinkLevel changes, new think value is inside m_Think
+	 * to access current think : m_Think[m_ThinkLevel]
+	 * to access GlobalFuncs related to current think
+	 * GlobalFuncs[m_Think[m_ThinkLevel]];
+	 **/
+	static GlobalFuncs_t GlobalFuncs[NUM_THINKS];
 	/* const string array containig think names */
-	static const_str m_csThinkNames[MAX_GLOBAL_FUNCS];
+	static const_str m_csThinkNames[NUM_THINKS];
 	/* const string array containig think state names */
-	static const_str m_csThinkStateNames[MAX_THINKMAP];
+	static const_str m_csThinkStateNames[NUM_THINKSTATES];
 	/* map contating every think value for each thinkstate */
-	int m_ThinkMap[MAX_THINKMAP];
+	eThinkNum m_ThinkMap[NUM_THINKSTATES];
 	/* think state for every think level */
-	int m_ThinkStates[NUM_THINKLEVELS];
+	eThinkState m_ThinkStates[NUM_THINKLEVELS];
 	/* think value for every think level */
-	int m_Think[NUM_THINKLEVELS];
-	/* current think level */
-	int m_ThinkLevel;
-	/* current think state */
-	int m_ThinkState;
+	eThinkNum m_Think[NUM_THINKLEVELS];
+	/* current think level
+	 * think levels are more like priorities
+	 * highest level is used.
+	 **/
+	eThinkLevel m_ThinkLevel;
+	/* current think state*/
+	eThinkState m_ThinkState;
 	/* current state (different than think state) */
 	int m_State;
 	/* current state change time */
 	int m_iStateTime;
-	/* should block think state ? */
+	/* should lock think state ? */
 	bool m_bLockThinkState;
 	/* think state changed */
 	bool m_bDirtyThinkState;
@@ -685,7 +696,7 @@ public:
 	void FixAIParameters( void );
 	bool AttackEntryAnimation( void );
 	void CheckForThinkStateTransition( void );
-	bool CheckForTransition( int state, int level );
+	bool CheckForTransition( eThinkState state, eThinkLevel level );
 	bool PassesTransitionConditions_Grenade( void );
 	bool PassesTransitionConditions_Attack( void );
 	bool PassesTransitionConditions_Disguise( void );
@@ -1092,9 +1103,9 @@ public:
 	void EventSetAccuracy( Event *ev );
 	void EventGetAccuracy( Event *ev );
 	int GetThinkType( const_str csName );
-	void SetThink( int state, int think );
-	void SetThinkIdle( int think_idle );
-	void SetThinkState( int state, int level );
+	void SetThink( eThinkState state, eThinkNum think );
+	void SetThinkIdle( eThinkNum think_idle );
+	void SetThinkState( eThinkState state, eThinkLevel level );
 	void EndCurrentThinkState( void );
 	void ClearThinkStates( void );
 	int CurrentThink( void ) const;
@@ -1294,19 +1305,19 @@ inline void Actor::Archive
 {
 	SimpleActor::Archive( arc );
 
-	for( int i = MAX_THINKMAP - 1; i >= 0; i-- )
+	for( int i = NUM_THINKSTATES - 1; i >= 0; i-- )
 	{
-		arc.ArchiveInteger( &m_ThinkMap[ i ] );
+		ArchiveEnum(m_ThinkMap[i], eThinkNum);
 	}
 
 	for( int i = NUM_THINKLEVELS - 1; i >= 0; i-- )
 	{
-		arc.ArchiveInteger( &m_ThinkStates[ i ] );
-		arc.ArchiveInteger( &m_Think[ i ] );
+		ArchiveEnum(m_ThinkStates[i], eThinkState);
+		ArchiveEnum(m_Think[i], eThinkNum);
 	}
 
-	arc.ArchiveInteger( &m_ThinkLevel );
-	arc.ArchiveInteger( &m_ThinkState);
+	ArchiveEnum(m_ThinkLevel, eThinkLevel);
+	ArchiveEnum(m_ThinkState, eThinkState);
 	arc.ArchiveInteger( &m_State);
 	arc.ArchiveInteger( &m_iStateTime);
 	arc.ArchiveBool( &m_bLockThinkState);

@@ -189,7 +189,7 @@ void Actor::Think_DisguiseSentry
 				assert(!"invalid think state");
 				break;
 			}
-			CheckForTransition(THINKSTATE_GRENADE, 0);
+			CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
 			PostThink(true);
 		}
 	}

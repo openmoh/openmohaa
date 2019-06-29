@@ -576,7 +576,7 @@ void ClassDef::BuildEventResponses( void )
 		numclasses++;
 	}
 
-	CLASS_DPrintf( "\n------------------\nEvent system initialized: "
+	glbs.DPrintf( "\n------------------\nEvent system initialized: "
 		"%d classes %d events %d total memory in response list\n\n", numclasses, Event::NumEventCommands(), amount );
 }
 

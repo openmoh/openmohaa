@@ -4375,7 +4375,7 @@ void Weapon::MakeNoise
 
 	if( attached && ( next_noise_time <= level.time || force ) )
 	{
-		BroadcastAIEvent( 8, radius );
+		BroadcastAIEvent(AI_EVENT_MISC, radius );
 		next_noise_time = level.time + 1;
 	}
 }

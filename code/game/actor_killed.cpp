@@ -58,7 +58,7 @@ void Actor::Begin_Killed
 
 	PostEvent(
 		e1,
-		0.05);
+		0.05f);
 	m_State = 700;
 	m_iStateTime = level.inttime;
 }

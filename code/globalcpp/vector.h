@@ -120,7 +120,8 @@ public:
 	float					length( void ) const;
 	float					lengthfast( void ) const;
 	float					lengthSquared( void ) const;
-	float					lengthXY( bool squared = false ) const;
+	float					lengthXY() const;
+	float					lengthXYSquared() const;
 	float					normalize( void );
 	void					normalizefast( void );
 	void					EulerNormalize( void );
@@ -548,9 +549,25 @@ inline float Vector::lengthfast( void ) const
 //
 // Returns:			float - length of the vector in the xy plane
 //----------------------------------------------------------------
-inline float Vector::lengthXY( bool squared ) const
+inline float Vector::lengthXY() const
 {
-	return squared ? (x * x) + (y * y) : sqrt(( x * x ) + ( y * y ));
+	return sqrt(( x * x ) + ( y * y ));
+}
+
+//----------------------------------------------------------------
+// Name:				lengthXYSquared
+// Class:			Vector
+//
+// Description:	Returns length of the vector squared (using only the x
+//						and y components
+//
+// Parameters:		None
+//
+// Returns:			float - squared length of the vector in the xy plane
+//----------------------------------------------------------------
+inline float Vector::lengthXYSquared() const
+{
+	return ( x * x ) + ( y * y );
 }
 
 //----------------------------------------------------------------

@@ -358,7 +358,7 @@ public:
 
 	bool			GetBoolean( int pos );
 
-	int				GetConstString( int pos );
+	const_str		GetConstString( int pos );
 
 	Entity			*GetEntity( int pos );
 

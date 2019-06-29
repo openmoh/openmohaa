@@ -190,6 +190,6 @@ void Actor::Think_DisguiseRover
 		assert(!"invalid think state");
 	}
 
-	CheckForTransition(THINKSTATE_GRENADE, 0);
+	CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
 	PostThink(true);
 }

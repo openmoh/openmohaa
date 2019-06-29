@@ -1115,7 +1115,7 @@ Event EV_SetShaderData
 	"ff",
 	"data0 data1",
 	"sets the shader controllers for this entity.",
-	EV_RETURN
+	EV_NORMAL
 );
 Event EV_Entity_SetVelocity
 (

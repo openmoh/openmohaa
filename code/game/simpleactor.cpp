@@ -49,7 +49,7 @@ SimpleActor::SimpleActor()
 	m_fAimLimit_up				= 60.0f;
 	m_fAimLimit_down			= -60.0f;
 
-	m_csNextAnimString			= 0;
+	m_csNextAnimString			= STRING_NULL;
 	m_bNextForceStart			= false;
 	m_fCrossblendTime			= 0.5f;
 	m_csCurrentPosition			= STRING_STAND;
@@ -500,12 +500,50 @@ bool SimpleActor::PathAvoidsSquadMates
 	) const
 
 {
+
+	Entity* player;
+	float fDelta;
+	float fDistSoFar;
+	float fDistCap;
+	float vDelta2[2];
+	float vMins[3];
+	float vMaxs[3];
+	float vPos[3];
+	Sentient *pOther;
+	Sentient *pBuddy[256];
+	int iNumBuddies;
+	int i;
+	float fRatio;
+
 	if (ai_pathchecktime->value <= 0.0)
 		return true;
-
-	if ((G_GetEntity(0)->origin - origin).lengthXY(true) > Square(ai_pathcheckdist->value))
+	player = G_GetEntity(0);
+	if (!player)
 	{
 		return true;
+	}
+
+	player = G_GetEntity(0);
+	player = G_GetEntity(0);
+	
+	fDelta = (player->origin - origin).lengthXYSquared();
+	if (fDelta > Square(ai_pathcheckdist->value))
+	{
+		return true;
+	}
+
+	fDistSoFar = 0;
+	for (auto pNode = CurrentPathNode(); pNode >= LastPathNode(); pNode--)
+	{
+		if (fDistSoFar <= 0)
+		{
+			break;
+		}
+		//fDistCap = (ai_pathchecktime->value * 250.0) + 0.001 - fDistSoFar;
+
+		//if (pNode->point[2] > fDistCap)
+		{
+		}
 	}
 	// FIXME: stub
 	STUB();
@@ -636,8 +674,8 @@ void SimpleActor::StopTurning
 	)
 
 {
-	// not found in ida
-	STUB();
+	//fixme: this is an inline function.
+	m_YawAchieved = true;
 }
 
 void SimpleActor::SetDesiredYaw
@@ -679,7 +717,7 @@ void SimpleActor::UpdateEmotion
 	int anim;
 	if (IsDead())
 	{
-		m_eEmotionMode = EMOTION_DEAD;
+		Anim_Emotion(EMOTION_DEAD);
 	}
 
 	anim = GetEmotionAnim();
@@ -761,8 +799,11 @@ int SimpleActor::GetEmotionAnim
 				assert(!"Unknown value for m_csMood");
 				return -1;
 			}
+			else
+			{
+				emotionanim = "facial_idle_neutral";
+			}
 
-			emotionanim = "facial_idle_neutral";
 		}
 		else if (m_csMood == STRING_CURIOUS)
 		{
@@ -773,12 +814,16 @@ int SimpleActor::GetEmotionAnim
 			assert(!"Unknown value for m_csMood");
 			return -1;
 		}
+		else
+		{
+
+		}
 	}
 
 	if (emotionanim == NULL)
 	{
 		emotionanim = "facial_idle_anger";
-		assert(!"Unexpected behaviour in SimpleActor::GetEmotionAnim");
+		//assert(!"Unexpected behaviour in SimpleActor::GetEmotionAnim");
 	}
 
 	anim = gi.Anim_NumForName(edict->tiki, emotionanim);
@@ -1151,8 +1196,8 @@ void SimpleActor::ChangeMotionAnim
 	)
 
 {
-	int lastMotionSlot;
-	int firstMotionSlot;
+	//int lastMotionSlot;
+	//int firstMotionSlot;
 	int iSlot;
 	int i;
 
@@ -1169,7 +1214,7 @@ void SimpleActor::ChangeMotionAnim
 		{
 			StartCrossBlendAnimSlot(iSlot);
 		}
-		m_AnimDialogHigh ^= 1; // toggle
+		m_AnimDialogHigh = !m_AnimDialogHigh;
 
 	}
 	
@@ -1256,19 +1301,24 @@ void SimpleActor::UpdateAim
 
 	if (m_bAimAnimSet)
 	{
+		dir = -m_DesiredGunDir[0];
+
 		aimForwardSlot = GetActionSlot(0);
 		aimUpSlot = aimForwardSlot + 1;
 		aimDownSlot = aimForwardSlot + 2;
 
-		dir = -m_DesiredGunDir[0];
-		if (dir <= 180 && dir < -180)
+		if (dir <= 180)
 		{
-			dir += 360;
+			if (dir < -180)
+			{
+				dir += 360;
+			}
 		}
 		else
 		{
 			dir -= 360;
 		}
+
 		float factor;
 		if (dir < 0)
 		{
@@ -1283,7 +1333,7 @@ void SimpleActor::UpdateAim
 		}
 		else
 		{
-			if (dir < m_fAimLimit_up)
+			if (dir > m_fAimLimit_up)
 				dir = m_fAimLimit_up;
 
 			factor = dir / m_fAimLimit_up;
@@ -1574,37 +1624,37 @@ void SimpleActor::EventSetEmotion
 	switch (ev->GetConstString(1))
 	{
 	case STRING_EMOTION_NONE:
-		m_eEmotionMode = EMOTION_NONE;
+		Anim_Emotion(EMOTION_NONE);
 		break;
 	case STRING_EMOTION_NEUTRAL:
-		m_eEmotionMode = EMOTION_NEUTRAL;
+		Anim_Emotion(EMOTION_NEUTRAL);
 		break;
 	case STRING_EMOTION_WORRY:
-		m_eEmotionMode = EMOTION_WORRY;
+		Anim_Emotion(EMOTION_WORRY);
 		break;
 	case STRING_EMOTION_PANIC:
-		m_eEmotionMode = EMOTION_PANIC;
+		Anim_Emotion(EMOTION_PANIC);
 		break;
 	case STRING_EMOTION_FEAR:
-		m_eEmotionMode = EMOTION_FEAR;
+		Anim_Emotion(EMOTION_FEAR);
 		break;
 	case STRING_EMOTION_DISGUST:
-		m_eEmotionMode = EMOTION_DISGUST;
+		Anim_Emotion(EMOTION_DISGUST);
 		break;
 	case STRING_EMOTION_ANGER:
-		m_eEmotionMode = EMOTION_ANGER;
+		Anim_Emotion(EMOTION_ANGER);
 		break;
 	case STRING_EMOTION_AIMING:
-		m_eEmotionMode = EMOTION_AIMING;
+		Anim_Emotion(EMOTION_AIMING);
 		break;
 	case STRING_EMOTION_DETERMINED:
-		m_eEmotionMode = EMOTION_DETERMINED;
+		Anim_Emotion(EMOTION_DETERMINED);
 		break;
 	case STRING_EMOTION_DEAD:
-		m_eEmotionMode = EMOTION_DEAD;
+		Anim_Emotion(EMOTION_DEAD);
 		break;
 	case STRING_EMOTION_CURIOUS:
-		m_eEmotionMode = EMOTION_CURIOUS;
+		Anim_Emotion(EMOTION_CURIOUS);
 		break;
 	default:
 		assert(!"Unknown emotion mode specified in script.");
@@ -1666,8 +1716,10 @@ void SimpleActor::DesiredAnimation
 	)
 
 {
-	// not found in ida
-	STUB();
+	//fixme: this is an inline function.
+	m_eNextAnimMode = eAnimMode;
+	m_csNextAnimString = csAnimString;
+	m_bNextForceStart = false;
 }
 
 void SimpleActor::StartAnimation
@@ -1677,8 +1729,10 @@ void SimpleActor::StartAnimation
 	)
 
 {
-	// not found in ida
-	STUB();
+	//fixme: this is an inline function.
+	m_eNextAnimMode = eAnimMode;
+	m_csNextAnimString = csAnimString;
+	m_bNextForceStart = true;
 }
 
 void SimpleActor::DesiredAnimation
@@ -1688,8 +1742,11 @@ void SimpleActor::DesiredAnimation
 	)
 
 {
-	// not found in ida
-	STUB();
+	//fixme: this is an inline function.
+	m_eNextAnimMode = eAnimMode;
+	m_csNextAnimString = STRING_NULL;
+	m_NextAnimLabel = AnimLabel;
+	m_bNextForceStart = false;
 }
 
 void SimpleActor::StartAnimation
@@ -1699,8 +1756,11 @@ void SimpleActor::StartAnimation
 	)
 
 {
-	// not found in ida
-	STUB();
+	//fixme: this is an inline function.
+	m_eNextAnimMode = eAnimMode;
+	m_csNextAnimString = STRING_NULL;
+	m_NextAnimLabel = AnimLabel;
+	m_bNextForceStart = true;
 }
 
 void SimpleActor::ContinueAnimationAllowNoPath
@@ -1712,7 +1772,7 @@ void SimpleActor::ContinueAnimationAllowNoPath
 	if (m_eNextAnimMode < 0)
 	{
 		m_bNextForceStart = false;
-		m_csNextAnimString = NULL;
+		m_csNextAnimString = STRING_NULL;
 		m_eNextAnimMode = m_eAnimMode;
 		m_NextAnimLabel = m_Anim;
 	}
@@ -1724,17 +1784,19 @@ void SimpleActor::ContinueAnimation
 	)
 
 {
-	if (m_eNextAnimMode < 0)
+	int eAnimMode = m_eNextAnimMode;
+	if (eAnimMode < 0)
 	{
 		m_bNextForceStart = false;
-		m_csNextAnimString = NULL;
+		m_csNextAnimString = STRING_NULL;
 		m_eNextAnimMode = m_eAnimMode;
 		m_NextAnimLabel = m_Anim;
+		eAnimMode = m_eAnimMode;
 	}
 
-	if (m_eAnimMode <= 3 && !PathExists())
+	if (eAnimMode <= 3 && !PathExists())
 	{
-		assert(!DumpCallTrace("ContinueAnimation() called on a pathed animation, but no path exists"));
+		//assert(!DumpCallTrace("ContinueAnimation() called on a pathed animation, but no path exists"));
 		Anim_Stand();
 	}
 }
@@ -1754,19 +1816,69 @@ bool SimpleActor::UpdateSelectedAnimation
 	)
 
 {
-	
-	if (m_csNextAnimString == NULL)
+	if (m_csNextAnimString ==  STRING_NULL)
 	{
-		if (!m_bNextForceStart && m_pAnimThread == NULL && m_eAnimMode == m_eNextAnimMode && m_Anim == m_NextAnimLabel)
-		{
-			m_bStartPathGoalEndAnim = false;
-			m_eNextAnimMode = -1;
-			return false;
-		}
-		else
+		if (m_bNextForceStart)
 		{
 			m_Anim = m_NextAnimLabel;
-		//LABEL_7:
+			m_eAnimMode = m_eNextAnimMode;
+			if (m_eNextAnimMode != 3)
+				SetPathGoalEndAnim(STRING_EMPTY);
+			m_bStartPathGoalEndAnim = false;
+			m_eNextAnimMode = -1;
+			return true;
+		}
+
+		if (m_pAnimThread)
+		{
+			if (m_eAnimMode == m_eNextAnimMode)
+			{
+				if (m_Anim == m_NextAnimLabel)
+				{
+					m_bStartPathGoalEndAnim = false;
+					m_eNextAnimMode = -1;
+					return false;
+				}
+			}
+		}
+		m_Anim = m_NextAnimLabel;
+		m_eAnimMode = m_eNextAnimMode;
+		if (m_eNextAnimMode != 3)
+			SetPathGoalEndAnim(STRING_EMPTY);
+		m_bStartPathGoalEndAnim = false;
+		m_eNextAnimMode = -1;
+		return true;
+	}
+
+	if (m_bNextForceStart)
+	{
+
+		Com_Printf("UpdateSelectedAnimation\n");
+		m_Anim.TrySetScript(m_csNextAnimString);
+		m_eAnimMode = m_eNextAnimMode;
+		if (m_eNextAnimMode != 3)
+			SetPathGoalEndAnim(STRING_EMPTY);
+		m_bStartPathGoalEndAnim = false;
+		m_eNextAnimMode = -1;
+		return true;
+	}
+
+	if (!m_pAnimThread || m_eAnimMode != m_eNextAnimMode)
+	{
+		m_Anim.TrySetScript(m_csNextAnimString);
+		m_eAnimMode = m_eNextAnimMode;
+		if (m_eNextAnimMode != 3)
+			SetPathGoalEndAnim(STRING_EMPTY);
+		m_bStartPathGoalEndAnim = false;
+		m_eNextAnimMode = -1;
+		return true;
+	}
+
+	if (m_fPathGoalTime <= level.time)
+	{
+		if (!m_Anim.IsFile(m_csNextAnimString))
+		{
+			m_Anim.TrySetScript(m_csNextAnimString);
 			m_eAnimMode = m_eNextAnimMode;
 			if (m_eNextAnimMode != 3)
 				SetPathGoalEndAnim(STRING_EMPTY);
@@ -1775,27 +1887,16 @@ bool SimpleActor::UpdateSelectedAnimation
 			return true;
 		}
 	}
-	else if (m_bNextForceStart || m_pAnimThread != NULL || m_eAnimMode != m_eNextAnimMode || (m_fPathGoalTime <= level.time && !m_Anim.IsFile(m_csNextAnimString)))
+
+	m_eNextAnimMode = -1;
+	if (m_bStartPathGoalEndAnim)
 	{
-		m_Anim.TrySetScript(Director.GetString(m_csNextAnimString));
-		m_eAnimMode = m_eNextAnimMode;
-		if (m_eNextAnimMode != 3)
-			SetPathGoalEndAnim(STRING_EMPTY);
 		m_bStartPathGoalEndAnim = false;
-		m_eNextAnimMode = -1;
-		return true;
-	}
-	else
-	{
-		m_eNextAnimMode = -1;
-		if (m_bStartPathGoalEndAnim)
+
+		if (!m_Anim.IsFile(m_csPathGoalEndAnimScript))
 		{
-			m_bStartPathGoalEndAnim = false;
-			if (!m_Anim.IsFile(m_csPathGoalEndAnimScript))
-			{
-				m_Anim.TrySetScript(Director.GetString(m_csPathGoalEndAnimScript));
-				return true;
-			}
+			m_Anim.TrySetScript(m_csPathGoalEndAnimScript);
+			return true;
 		}
 	}
 	return false;

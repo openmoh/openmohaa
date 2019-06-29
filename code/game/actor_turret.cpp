@@ -180,7 +180,7 @@ void Actor::Think_Turret
 				if (m_State != 109)
 				{
 					if (m_State != 104
-						|| (origin - m_vHome).lengthXY(true) <= 0.64f * m_fLeashSquared + 64.0f
+						|| (origin - m_vHome).lengthXYSquared() <= 0.64f * m_fLeashSquared + 64.0f
 						|| !State_Turret_RunHome(false) )
 					{
 						m_pszDebugState = "Idle";
@@ -784,13 +784,13 @@ void Actor::State_Turret_Reacquire
 	)
 
 {
-	Sentient *v1; // ecx
+	/*Sentient *v1; // ecx
 	float v2; // ST08_4
 	float v3; // ST0C_4
 	Sentient *v4; // ecx
 	float v5; // ST08_4
 	float v6; // ST0C_4
-
+	*/
 	if (PathExists() && !PathComplete())
 	{
 		if (CanMovePathWithLeash())

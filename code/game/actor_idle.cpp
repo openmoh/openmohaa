@@ -42,6 +42,7 @@ void Actor::Begin_Idle
 	)
 
 {
+	glbs.Printf("Begin_Idle\n");
 	m_csMood = m_csIdleMood;
 	ClearPath();
 }
@@ -67,7 +68,6 @@ void Actor::IdleThink
 )
 
 {
-	//FIXME: revision
 	IdlePoint();
 	IdleLook();
 	if (PathExists() && PathComplete())
@@ -78,27 +78,22 @@ void Actor::IdleThink
 	{
 		SetPathToNotBlockSentient((Sentient *)G_GetEntity(0));
 	}
-	if (!PathExists())
+
+	if (PathExists())
 	{
-		Anim_Idle();
-		IdleTurn();
-		PostThink(true);
+		Anim_WalkTo(2);
+		if (PathDist() <= 128.0)
+			IdleTurn();
+		else
+			FaceMotion();
 	}
 	else
 	{
-		//FIXME: macros
-		Anim_WalkTo(2);
-
-		if (PathDist() <= 128.0)
-		{
-			IdleTurn();
-			PostThink(true);
-		}
-		else
-		{
-			FaceMotion();
-		}
+		Anim_Idle();
+		IdleTurn();
 	}
+
+	PostThink(true);
 
 }
 
@@ -116,12 +111,9 @@ bool Actor::PassesTransitionConditions_Idle
 )
 
 {
+	glbs.Printf("PassesTransitionConditions_Idle\n");
 
-	if (m_bEnableEnemy)
-	{
-		if (level.inttime > m_iEnemyCheckTime + 500)
-			UpdateEnemyInternal();
-	}
+	UpdateEnemy(500);
 
 	if (m_bLockThinkState)
 		return false;

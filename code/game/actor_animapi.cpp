@@ -54,10 +54,7 @@ void SimpleActor::Anim_Attack
 	)
 
 {
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = NULL;
-	m_NextAnimLabel = m_AttackHandler;
-	m_bNextForceStart = false;
+	DesiredAnimation(1, m_AttackHandler);
 }
 
 void SimpleActor::Anim_Sniper
@@ -66,10 +63,7 @@ void SimpleActor::Anim_Sniper
 	)
 
 {
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = NULL;
-	m_NextAnimLabel = m_SniperHandler;
-	m_bNextForceStart = false;
+	DesiredAnimation(1, m_SniperHandler);
 }
 
 void SimpleActor::Anim_Aim
@@ -78,9 +72,7 @@ void SimpleActor::Anim_Aim
 	)
 
 {
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = STRING_ANIM_AIM_SCR;
-	m_bNextForceStart = false;
+	DesiredAnimation(1, STRING_ANIM_AIM_SCR);
 }
 
 void SimpleActor::Anim_Shoot
@@ -89,9 +81,7 @@ void SimpleActor::Anim_Shoot
 	)
 
 {
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = STRING_ANIM_SHOOT_SCR;
-	m_bNextForceStart = false;
+	DesiredAnimation(1, STRING_ANIM_SHOOT_SCR);
 }
 
 void SimpleActor::Anim_Idle
@@ -100,9 +90,7 @@ void SimpleActor::Anim_Idle
 	)
 
 {
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = STRING_ANIM_IDLE_SCR;
-	m_bNextForceStart = false;
+	DesiredAnimation(1, STRING_ANIM_IDLE_SCR);
 }
 
 void SimpleActor::Anim_Crouch
@@ -111,9 +99,7 @@ void SimpleActor::Anim_Crouch
 	)
 
 {
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = STRING_ANIM_CROUCH_SCR;
-	m_bNextForceStart = false;
+	DesiredAnimation(1, STRING_ANIM_CROUCH_SCR);
 }
 
 void SimpleActor::Anim_Prone
@@ -122,9 +108,7 @@ void SimpleActor::Anim_Prone
 	)
 
 {
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = STRING_ANIM_PRONE_SCR;
-	m_bNextForceStart = false;
+	DesiredAnimation(1, STRING_ANIM_PRONE_SCR);
 }
 
 void SimpleActor::Anim_Stand
@@ -133,9 +117,7 @@ void SimpleActor::Anim_Stand
 	)
 
 {
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = STRING_ANIM_STAND_SCR;
-	m_bNextForceStart = false;
+	DesiredAnimation(1, STRING_ANIM_STAND_SCR);
 }
 
 void SimpleActor::Anim_Cower
@@ -144,9 +126,7 @@ void SimpleActor::Anim_Cower
 	)
 
 {
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = STRING_ANIM_COWER_SCR;
-	m_bNextForceStart = false;
+	DesiredAnimation(1, STRING_ANIM_COWER_SCR);
 }
 
 void SimpleActor::Anim_Killed
@@ -155,10 +135,8 @@ void SimpleActor::Anim_Killed
 	)
 
 {
-	m_eAnimMode = 1;
-	m_csNextAnimString = NULL;
-	m_NextAnimLabel = m_DeathHandler;
-	m_bNextForceStart = false;
+	Com_Printf("m_eAnimMode Anim_Killed \n");
+	DesiredAnimation(1, m_DeathHandler);
 }
 
 void SimpleActor::Anim_StartPain
@@ -167,10 +145,9 @@ void SimpleActor::Anim_StartPain
 	)
 
 {
-	m_eAnimMode = 1;
-	m_csNextAnimString = NULL;
-	m_NextAnimLabel = m_PainHandler;
-	m_bNextForceStart = true;
+	Com_Printf("m_eAnimMode Anim_StartPain \n");
+	StartAnimation(1, m_PainHandler);
+	
 }
 
 void SimpleActor::Anim_Pain
@@ -189,9 +166,7 @@ void SimpleActor::Anim_CrouchRunTo
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_CROUCH_RUN_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_CROUCH_RUN_SCR);
 }
 
 void SimpleActor::Anim_CrouchWalkTo
@@ -200,9 +175,7 @@ void SimpleActor::Anim_CrouchWalkTo
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_CROUCH_WALK_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_CROUCH_WALK_SCR);
 }
 
 void SimpleActor::Anim_StandRunTo
@@ -211,9 +184,7 @@ void SimpleActor::Anim_StandRunTo
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_RUN_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_RUN_SCR);
 }
 
 void SimpleActor::Anim_StandWalkTo
@@ -222,9 +193,7 @@ void SimpleActor::Anim_StandWalkTo
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_WALK_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_WALK_SCR);
 }
 
 void SimpleActor::Anim_RunTo
@@ -233,9 +202,7 @@ void SimpleActor::Anim_RunTo
 	)
 
 {
-	m_bNextForceStart = false;
-	m_csNextAnimString = GetRunAnim();
-	m_eNextAnimMode = eAnimMode;
+	DesiredAnimation(eAnimMode, GetRunAnim());
 }
 
 void SimpleActor::Anim_WalkTo
@@ -244,9 +211,7 @@ void SimpleActor::Anim_WalkTo
 	)
 
 {
-	m_bNextForceStart = false;
-	m_csNextAnimString = GetWalkAnim();
-	m_eNextAnimMode = eAnimMode;
+	DesiredAnimation(eAnimMode, GetWalkAnim());
 }
 
 void SimpleActor::Anim_RunAwayFiring
@@ -255,9 +220,7 @@ void SimpleActor::Anim_RunAwayFiring
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_RUNAWAYFIRING_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_RUNAWAYFIRING_SCR);
 }
 
 void SimpleActor::Anim_RunToShooting
@@ -266,9 +229,7 @@ void SimpleActor::Anim_RunToShooting
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_RUN_SHOOT_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_RUN_SHOOT_SCR);
 }
 
 void SimpleActor::Anim_RunToAlarm
@@ -277,9 +238,7 @@ void SimpleActor::Anim_RunToAlarm
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_RUNTO_ALARM_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_RUNTO_ALARM_SCR);
 }
 
 void SimpleActor::Anim_RunToCasual
@@ -288,9 +247,7 @@ void SimpleActor::Anim_RunToCasual
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_RUNTO_CASUAL_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_RUNTO_CASUAL_SCR);
 }
 
 void SimpleActor::Anim_RunToCover
@@ -299,9 +256,7 @@ void SimpleActor::Anim_RunToCover
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_RUNTO_COVER_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_RUNTO_COVER_SCR);
 }
 
 void SimpleActor::Anim_RunToDanger
@@ -310,9 +265,7 @@ void SimpleActor::Anim_RunToDanger
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_RUNTO_DANGER_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_RUNTO_DANGER_SCR);
 }
 
 void SimpleActor::Anim_RunToDive
@@ -321,9 +274,7 @@ void SimpleActor::Anim_RunToDive
 	)
 
 {
-	m_csNextAnimString = STRING_ANIM_RUNTO_DIVE_SCR;
-	m_eNextAnimMode = eAnimMode;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_RUNTO_DIVE_SCR);
 }
 
 void SimpleActor::Anim_RunToFlee
@@ -332,9 +283,7 @@ void SimpleActor::Anim_RunToFlee
 	)
 
 {
-	m_eNextAnimMode = eAnimMode;
-	m_csNextAnimString = STRING_ANIM_RUNTO_FLEE_SCR;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_RUNTO_FLEE_SCR);
 }
 
 void SimpleActor::Anim_RunToInOpen
@@ -343,9 +292,7 @@ void SimpleActor::Anim_RunToInOpen
 	)
 
 {
-	m_eNextAnimMode = eAnimMode;
-	m_csNextAnimString = STRING_ANIM_RUNTO_INOPEN_SCR;
-	m_bNextForceStart = false;
+	DesiredAnimation(eAnimMode, STRING_ANIM_RUNTO_INOPEN_SCR);
 }
 
 void SimpleActor::Anim_Emotion
@@ -386,14 +333,11 @@ void SimpleActor::Anim_FullBody
 {
 	if( m_csAnimName == csFullBodyAnim )
 	{
-		m_bNextForceStart = false;
+		DesiredAnimation(eAnimMode, STRING_ANIM_FULLBODY_SCR);
 	}
 	else
 	{
-		m_bNextForceStart = true;
 		m_csAnimName = csFullBodyAnim;
+		StartAnimation(eAnimMode, STRING_ANIM_FULLBODY_SCR);
 	}
-
-	m_csNextAnimString = STRING_ANIM_FULLBODY_SCR;
-	m_eNextAnimMode = eAnimMode;
 }

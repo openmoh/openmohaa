@@ -170,7 +170,7 @@ void Actor::Think_MachineGunner
 					ThinkHoldGun();
 					return;
 				}
-				if (m_ThinkStates[0] != THINKSTATE_IDLE)
+				if (m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_IDLE)
 				{
 					BecomeTurretGuy();
 					return;
@@ -208,10 +208,10 @@ void Actor::ThinkHoldGun
 	float machine_gunner_hands_up_stand;
 	float heightDiff;
 	float right;
-	vec3_t newOrigin;
+	//vec3_t newOrigin;
 	Vector offset;
 	Vector start;
-	vec3_t new_angles;
+	//vec3_t new_angles;
 	Vector vForward;
 
 	UpdateEyeOrigin();
@@ -249,11 +249,11 @@ void Actor::ThinkHoldGun
 
 	if (m_State == 1201)
 	{
-		heightDiff = 71.6;
+		heightDiff = 71.6f;
 	}
 	else
 	{
-		heightDiff = 71.8;
+		heightDiff = 71.8f;
 	}
 
 	machine_gunner_hands_up_stand = origin[2] - (m_pTurret->origin[2] - heightDiff);
