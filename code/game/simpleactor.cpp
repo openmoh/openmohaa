@@ -968,7 +968,7 @@ void SimpleActor::StartSayAnimSlot
 	animFlags[iSlot] |= ANIM_NOACTION;
 
 	SetTime(iSlot, 0.0);
-	UpdateSayAnimSlot();
+	UpdateSayAnimSlot(iSlot);
 }
 
 void SimpleActor::StartAimAnimSlot
