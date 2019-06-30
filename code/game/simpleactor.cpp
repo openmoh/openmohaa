@@ -1244,15 +1244,18 @@ void SimpleActor::ChangeActionAnim
 		m_ChangeActionAnimIndex = level.frame_skel_index;
 
 		MPrintf("Swapping action channels....\n");
-		for (iSlot = GetActionSlot(0), i = 0; i < 3; i++, iSlot++)
+
+		iSlot = GetActionSlot(0);
+		for (i = iSlot; i < iSlot + 3; i++)
 		{
-			animFlags[iSlot] |= ANIM_NOACTION;
-			StartCrossBlendAnimSlot(iSlot);
+			animFlags[i] |= ANIM_NOACTION;
+			StartCrossBlendAnimSlot(i);
 		}
 		m_AnimDialogHigh ^= 1; // toggle
 	}
 
-	for (iSlot = GetActionSlot(0), i = 0; i < 3; i++, iSlot++)
+	iSlot = GetActionSlot(0);
+	for (i = iSlot; i < iSlot + 3; i++)
 	{
 		StopAnimating(iSlot);
 	}

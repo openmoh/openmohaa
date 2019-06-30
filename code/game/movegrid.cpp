@@ -68,8 +68,85 @@ void cMoveGrid::CalculateBoxPoints
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	int x, y, z;
+	int rx, ry, rz;
+	int xdelta, ydelta, zdelta;
+
+	Vector vBoxSize = vBoxSize = Vector(v.maxs) - Vector(v.mins);
+
+	rx = (int)(vBoxSize[0] / (float)m_iXRes);
+	ry = (int)(vBoxSize[1] / (float)m_iYRes);
+	rz = (int)(vBoxSize[2] / (float)m_iZRes);
+
+	xdelta = ydelta = zdelta = 0;
+
+	for (x = 0; x < m_iXRes; x++)
+	{
+		for (y = 0; y < m_iYRes; y++)
+		{
+			for (z = 0; z < m_iZRes; z++)
+			{
+				gridpoint_t* gridPoint = GetGridPoint(x, y, z);
+
+				gridPoint->origin = Vector(
+					(float)(xdelta - rx),
+					(float)(ydelta - ry),
+					(float)rz * 0.5f
+				);
+			}
+		}
+	}
+
+	for (x = 0; x < m_iXRes; x++)
+	{
+		for (y = 0; y < m_iYRes; y++)
+		{
+			for (z = 0; z < m_iZRes; z++)
+			{
+				gridpoint_t* gridPoint = GetGridPoint(x, y, z);
+
+				Vector vTmp;
+				MatrixTransformVector(gridPoint->origin, orientation, vTmp);
+
+				gridPoint->origin = vTmp;
+				memcpy(&gridPoint->vm, &v, sizeof(gridPoint->vm));
+				gridPoint->vm.vs = &gridPoint->vs;
+
+				if (rx >= ry)
+				{
+					VectorSet(
+						gridPoint->vm.mins,
+						(float)-ry * 0.5f,
+						(float)-ry * 0.5f,
+						(float)-rz * 0.5f
+					);
+
+					VectorSet(
+						gridPoint->vm.maxs,
+						(float)ry * 0.5f,
+						(float)ry * 0.5f,
+						(float)rz * 0.5f
+					);
+				}
+				else
+				{
+					VectorSet(
+						gridPoint->vm.mins,
+						(float)-rx * 0.5f,
+						(float)-rx * 0.5f,
+						(float)-rz * 0.5f
+					);
+
+					VectorSet(
+						gridPoint->vm.maxs,
+						(float)rx * 0.5f,
+						(float)rx * 0.5f,
+						(float)rz * 0.5f
+					);
+				}
+			}
+		}
+	}
 }
 
 gridpoint_t *cMoveGrid::GetGridPoint
