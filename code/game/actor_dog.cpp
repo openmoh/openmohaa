@@ -167,8 +167,7 @@ void Actor::Think_Dog_Attack
 	m_bNextForceStart = false;
 	m_eNextAnimMode = 1;
 	m_csNextAnimString = STRING_ANIM_DOG_CURIOUS_SCR;
-	m_State = 20;
-	m_iStateTime = level.inttime;
+	TransitionState(20, 0);
 
 	CheckForThinkStateTransition();
 	PostThink(false);

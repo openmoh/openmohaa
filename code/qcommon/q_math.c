@@ -680,15 +680,15 @@ void vectoangles( const vec3_t value1, vec3_t angles ) {
 		}
 	}
 	else {
-		if ( value1[0] ) {
+		//if ( value1[0] ) {
 			yaw = ( atan2 ( value1[1], value1[0] ) * 180 / M_PI );
-		}
-		else if ( value1[1] > 0 ) {
-			yaw = 90;
-		}
-		else {
-			yaw = 270;
-		}
+		//}
+		//else if ( value1[1] > 0 ) {
+		//	yaw = 90;
+		//}
+		//else {
+		//	yaw = 270;
+		//}
 		if ( yaw < 0 ) {
 			yaw += 360;
 		}

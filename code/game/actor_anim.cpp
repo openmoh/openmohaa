@@ -47,8 +47,7 @@ void Actor::Begin_Anim
 	m_csMood = m_csIdleMood;
 	ClearPath();
 	m_YawAchieved = true;
-	m_State = 1000;
-	m_iStateTime = level.inttime;
+	TransitionState(1000, 0);
 }
 
 void Actor::Think_Anim
@@ -68,8 +67,7 @@ void Actor::Think_Anim
 
 			m_bAnimScriptSet = false;
 			m_pszDebugState = "initial";
-			m_State = 1001;
-			m_iStateTime = level.inttime;
+			TransitionState(1001, 0);
 		}
 		else if (m_State == 1001)
 		{

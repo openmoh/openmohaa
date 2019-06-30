@@ -147,8 +147,7 @@ void Actor::Begin_BalconyAttack
 	)
 
 {
-	m_State = 200;
-	m_iStateTime = level.inttime;
+	TransitionState(200, 0);
 }
 
 void Actor::State_Balcony_PostShoot
@@ -159,8 +158,7 @@ void Actor::State_Balcony_PostShoot
 {
 	if( m_Enemy )
 	{
-		m_State = 201;
-		m_iStateTime = level.inttime;
+		TransitionState(201, 0);
 	}
 }
 
@@ -175,8 +173,7 @@ void Actor::State_Balcony_FindEnemy
 
 	if( CanSeeEnemy( 200 ) )
 	{
-		m_State = 201;
-		m_iStateTime = level.inttime;
+		TransitionState(201, 0);
 	}
 }
 
@@ -193,15 +190,13 @@ void Actor::State_Balcony_Target
 	{
 		if( CanSeeEnemy( 0 ) && CanShootEnemy( 0 ) )
 		{
-			m_State = 202;
+			TransitionState(202, 0);
 		}
 		else
 		{
 			ClearPath();
-			m_State = 200;
+			TransitionState(200, 0);
 		}
-
-		m_iStateTime = level.inttime;
 	}
 }
 
@@ -282,11 +277,9 @@ void Actor::Begin_BalconyKilled
 	PostEvent( EV_Actor_DeathEmbalm, 0.05f );
 
 	if( CalcFallPath() )
-		m_State = 800;
+		TransitionState(800, 0);
 	else
-		m_State = 806;
-
-	m_iStateTime = level.inttime;
+		TransitionState(806, 0);
 }
 
 void Actor::End_BalconyKilled
@@ -343,8 +336,7 @@ void Actor::Think_BalconyKilled
 			NewAnim( animnum, m_iMotionSlot );
 			SetTime( m_iMotionSlot, m_pFallPath->startTime );
 			UpdateNormalAnimSlot( m_iMotionSlot );
-			m_State = 801;
-			m_iStateTime = level.inttime;
+			TransitionState(801, 0);
 			break;
 		case 801:
 			m_bNextForceStart = false;
@@ -357,8 +349,7 @@ void Actor::Think_BalconyKilled
 			Anim_FullBody( STRING_DEATH_BALCONY_LOOP, 7 );
 			break;
 		case 803:
-			m_State = 804;
-			m_iStateTime = level.inttime;
+			TransitionState(804, 0);
 			StopAllAnimating();
 		case 804:
 			m_pszDebugState = "outtro";
@@ -381,21 +372,18 @@ void Actor::Think_BalconyKilled
 			{
 				if( m_pFallPath->currentPos >= m_pFallPath->length )
 				{
-					m_State = 803;
-					m_iStateTime = level.inttime;
+					TransitionState(803, 0);
 				}
 				else if (m_pFallPath->currentPos >= m_pFallPath->loop)
 				{
-					m_State = 802;
-					m_iStateTime = level.inttime;
+					TransitionState(802, 0);
 				}
 			}
 			else if( m_State == 802 )
 			{
 				if (m_pFallPath->currentPos >= m_pFallPath->length)
 				{
-					m_State = 803;
-					m_iStateTime = level.inttime;
+					TransitionState(803, 0);
 				}
 			}
 		}
@@ -411,13 +399,11 @@ void Actor::FinishedAnimation_BalconyKilled
 	if( m_State == 804 || m_State == 806 )
 	{
 		BecomeCorpse();
-		m_State = 805;
-		m_iStateTime = level.inttime;
+		TransitionState(805, 0);
 	}
 	else if( m_State == 801 )
 	{
-		m_State = 802;
-		m_iStateTime = level.inttime;
+		TransitionState(802, 0);
 		StopAllAnimating();
 	}
 }

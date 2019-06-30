@@ -90,8 +90,7 @@ void Actor::Begin_Curious
 			m_bScriptGoalValid = false;
 		}
 	}
-	m_State = 1100;
-	m_iStateTime = level.inttime;
+	TransitionState(1100, 0);
 
 	if (!m_bScriptGoalValid)
 	{
@@ -130,9 +129,8 @@ void Actor::Begin_Curious
 			m_csNextAnimString = STRING_ANIM_STANDFLINCH_SCR;
 
 			m_bNextForceStart = true;
-			m_State = 1101;
 			m_bLockThinkState = true;
-			m_iStateTime = level.inttime;
+			TransitionState(1101, 0);
 		}
 		else if(m_Enemy && m_PotentialEnemies.GetCurrentVisibility() < 0.1)
 		{
@@ -146,9 +144,8 @@ void Actor::Begin_Curious
 			m_csNextAnimString = STRING_ANIM_SURPRISE_SCR;
 
 			m_bNextForceStart = true;
-			m_State = 1101;
 			m_bLockThinkState = true;
-			m_iStateTime = level.inttime;
+			TransitionState(1101, 0);
 		}
 	}
 

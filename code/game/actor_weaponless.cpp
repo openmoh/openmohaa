@@ -55,13 +55,12 @@ void Actor::Begin_Weaponless
 		SetLeashHome(origin);
 		if (AttackEntryAnimation())
 		{
-			m_State = 902;
 			m_bLockThinkState = true;
-			m_iStateTime = level.inttime;
+
+			TransitionState(902, 0);
 		}
 	}
-	m_State = 900;
-	m_iStateTime = level.inttime;
+	TransitionState(900, 0);
 }
 
 void Actor::Suspend_Weaponless
@@ -72,8 +71,7 @@ void Actor::Suspend_Weaponless
 {
 	if (m_State <= 902)
 	{
-		m_State = 900;
-		m_iStateTime = level.inttime;
+		TransitionState(900, 0);
 	}
 
 }
@@ -137,8 +135,7 @@ void Actor::FinishedAnimation_Weaponless
 {
 	if (m_State <= 902)
 	{
-		m_State = 900;
-		m_iStateTime = level.inttime + 4000;
+		TransitionState(900, 4000);
 	}
 }
 

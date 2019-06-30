@@ -1799,7 +1799,7 @@ void SimpleActor::ContinueAnimation
 
 	if (eAnimMode <= 3 && !PathExists())
 	{
-		//assert(!DumpCallTrace("ContinueAnimation() called on a pathed animation, but no path exists"));
+		assert(!DumpCallTrace("ContinueAnimation() called on a pathed animation, but no path exists"));
 		Anim_Stand();
 	}
 }

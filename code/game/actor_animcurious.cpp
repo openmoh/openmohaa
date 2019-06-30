@@ -78,7 +78,6 @@ void Actor::FinishedAnimation_AnimCurious
 {
 	if( m_State == 1101 )
 	{
-		m_State = 1100;
-		m_iStateTime = level.inttime;
+		TransitionState(1100, 0);
 	}
 }

@@ -70,10 +70,9 @@ void Actor::Begin_DisguiseSalute
 			m_csNextAnimString = STRING_ANIM_DISGUISE_SALUTE_SCR;
 			m_bNextForceStart = false;
 
-			m_State = 1;
 
 			m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
-			m_iStateTime = level.inttime;
+			TransitionState(1, 0);
 		}
 		else
 		{

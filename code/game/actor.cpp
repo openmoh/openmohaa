@@ -3089,18 +3089,15 @@ void Actor::UpdateEyeOrigin
 	)
 
 {
-	Vector eyeTag = vec_zero; // [esp+50h] [ebp-18h]
+	Vector eyeTag = vec_zero;
 
 	int currLvlTime = level.inttime;
 	int currTime = m_iEyeUpdateTime;
 
 	if (currLvlTime > currTime)
 	{
-		do
-			currTime += 100;
-		while (currTime < currLvlTime);
 
-		m_iEyeUpdateTime = currTime;
+		m_iEyeUpdateTime = NextUpdateTime(currTime, 100);
 
 		GetTag( "eyes bone", &eyeTag, &m_vEyeDir);
 
@@ -3123,12 +3120,12 @@ void Actor::UpdateEyeOrigin
 		if (eyeposition[1] > 10.5)
 			eyeposition[1] = 10.5;
 
-		if (eyeposition[0] < 4.5)
+		if (eyeposition[2] < 4.5)
 		{
-			eyeposition[0] = 4.5;
+			eyeposition[2] = 4.5;
 		}
-		if (eyeposition[0] > 89.5)
-			eyeposition[0] = 89.5;
+		if (eyeposition[2] > 89.5)
+			eyeposition[2] = 89.5;
 
 	}
 }
@@ -3275,23 +3272,20 @@ void Actor::SetEnemyPos
 )
 
 {
-	Vector vEnemyPos;
 	if (m_vLastEnemyPos != vPos)
 	{
 		m_iLastEnemyPosChangeTime = level.inttime;
 		m_vLastEnemyPos = vPos;
-		vEnemyPos = m_vLastEnemyPos;
 		if (m_Enemy)
 		{
 			mTargetPos += m_Enemy->eyeposition;
-			vEnemyPos = m_Enemy->eyeposition;
 		}
 		else
 		{
 			mTargetPos.z += 88;
 		}
 
-		if (mTargetPos.z - vEnemyPos.z < 128)
+		if (mTargetPos.z - EyePosition().z < 128)
 		{
 			mTargetPos.z -= 16;
 		}
@@ -9929,17 +9923,17 @@ void Actor::FaceMotion
 	)
 
 {
-	vec3_t dir;
 	Vector delta;
-	velocity.copyTo(dir);
 
-	if (VectorLength2DSquared(dir) > 1)
+	if (VectorLength2DSquared(velocity) > 1)
 	{
+		vec3_t dir;
+		velocity.copyTo(dir);
 		delta = origin - m_vOriginHistory[m_iCurrentHistory];
 
 		if (delta.lengthXYSquared() >= 1)
 		{
-			if (dir[1] *delta[0] + dir[0] * delta[1] > 0)
+			if (DotProduct2D(velocity, delta) > 0)
 			{
 				delta.copyTo(dir);
 			}
@@ -9956,9 +9950,9 @@ void Actor::FaceMotion
 
 		SetDesiredYawDir(dir);
 	}
-	else if (IsIdleState(m_ThinkState))
+	else if (IsIdleState(m_ThinkState) && m_pLookEntity)
 	{
-		IdleLook();
+		LookAtLookEntity();
 	}
 	else
 	{
@@ -9986,23 +9980,11 @@ void Actor::FaceDirectionDuringMotion
 
 	if (velocity[0] != 0 || velocity[1] != 0)
 	{
-		float fMagsSquared = VectorLength2DSquared(vLook) * Square(velocity[1]) + Square(velocity[0]);
+		float fMagsSquared = VectorLength2DSquared(vLook) * VectorLength2DSquared(velocity);
 		float fDot = DotProduct2D(velocity, vLook);
 		float fDotSquared = Square(fDot);
 
-		if (velocity[1] == 0 && velocity[0] == 0)
-		{
-			yaw = 0;
-		}
-		else
-		{
-			yaw = atan2(velocity[1], velocity[0]) * 180 / M_PI;
-		}
-
-		if (yaw < 0)
-		{
-			yaw += 360;
-		}
+		yaw = velocity.toYaw();
 
 		float fYaw2;
 		if (fMagsSquared * 0.5 < fDotSquared)
@@ -10083,8 +10065,8 @@ void Actor::FaceEnemyOrMotion
 	{
 		if (m_Path.CurrentNodeIndex() != m_sCurrentPathNodeIndex)
 		{
-			float fDot = DotProduct2D(vDelta, m_Path.CurrentDelta());
-			m_bFaceEnemy = fDot <= 0 || vDelta.lengthXYSquared() * 4096 >= fDot * fDot;
+			float fDist = PathDistanceAlongVector(vDelta);
+			m_bFaceEnemy = fDist <= 0 || vDelta.lengthXYSquared() * Square(64) >= Square(fDist);
 
 			m_sCurrentPathNodeIndex = m_Path.CurrentNodeIndex();
 		}
@@ -13126,9 +13108,8 @@ void Actor::EventReload_mg42
 	{
 		if (m_State == 1200)
 		{
-			m_State = 1201;
 			m_bAnimScriptSet = true;
-			m_iStateTime = level.inttime;
+			TransitionState(1201, 0);
 		}
 		else
 		{

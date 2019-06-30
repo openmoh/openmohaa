@@ -75,8 +75,7 @@ void Actor::Begin_MachineGunner
 			Holster();
 
 			m_pTurret->TurretBeginUsed(this);
-			m_State = 1200;
-			m_iStateTime = level.inttime;
+			TransitionState(1200, 0);
 		}
 	}
 	else
@@ -120,8 +119,7 @@ void Actor::BecomeTurretGuy
 
 	if (CurrentThink() == THINK_IDLE && Turret_DecideToSelectState())
 	{
-		m_State = 100;
-		m_iStateTime = level.inttime;
+		TransitionState(100, 0);
 	}
 }
 
@@ -331,8 +329,7 @@ void Actor::FinishedAnimation_MachineGunner
 {
 	if (!m_bAnimScriptSet && m_State == 1201)
 	{
-		m_State = 1200;
-		m_iStateTime = level.inttime;
+		TransitionState(1200, 0);
 		Unregister(STRING_ANIMDONE);
 	}
 }

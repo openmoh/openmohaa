@@ -67,10 +67,9 @@ void Actor::Begin_DisguiseOfficer
 			m_csNextAnimString = STRING_ANIM_DISGUISE_PAPERS_SCR;
 			m_bNextForceStart = false;
 
-			m_State = 1;
 
 			m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
-			m_iStateTime = level.inttime;
+			TransitionState(1, 0);
 		}
 		else
 		{
@@ -131,8 +130,7 @@ void Actor::Think_DisguiseOfficer
 		}
 		if (!EnemyIsDisguised() && !(m_Enemy->IsSubclassOfActor()) && m_State != 3)
 		{
-			m_State = 3;
-			m_iStateTime = level.inttime;
+			TransitionState(3, 0);
 		}
 		if (level.m_bAlarm)
 		{

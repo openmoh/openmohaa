@@ -54,21 +54,18 @@ void Actor::Begin_Alarm
 
 		if( PathExists() )
 		{
-			m_State = 601;
-			m_iStateTime = level.inttime;
+			TransitionState(601, 0);
 		}
 		else
 		{
-			m_State = 600;
-			m_iStateTime = level.inttime;
+			TransitionState(600, 0);
 			parm.movefail = true;
 		}
 	}
 	else
 	{
 		SetLeashHome( origin );
-		m_State = 600;
-		m_iStateTime = level.inttime;
+		TransitionState(600, 0);
 		m_AlarmThread.Execute( this );
 	}
 }
@@ -93,8 +90,7 @@ void Actor::State_Alarm_StartThread
 	else
 		SetLeashHome( origin );
 
-	m_State = 600;
-	m_iStateTime = level.inttime;
+	TransitionState(600, 0);
 	m_AlarmThread.Execute();
 }
 
@@ -119,8 +115,7 @@ void Actor::State_Alarm_Move
 	}
 	else
 	{
-		m_State = 600;
-		m_iStateTime = level.inttime;
+		TransitionState(600, 0);
 		parm.movefail = true;
 
 		Anim_Aim();

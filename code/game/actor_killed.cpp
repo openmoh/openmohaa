@@ -59,8 +59,7 @@ void Actor::Begin_Killed
 	PostEvent(
 		e1,
 		0.05f);
-	m_State = 700;
-	m_iStateTime = level.inttime;
+	TransitionState(700, 0);
 }
 
 void Actor::Think_Killed
@@ -92,6 +91,5 @@ void Actor::FinishedAnimation_Killed
 
 {
 	BecomeCorpse();
-	m_State = 701;
-	m_iStateTime = level.inttime;
+	TransitionState(701, 0);
 }

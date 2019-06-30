@@ -741,13 +741,13 @@ float vectoyaw( const vec3_t vec ) {
 	if (vec[YAW] == 0 && vec[PITCH] == 0) {
 		yaw = 0;
 	} else {
-		if (vec[PITCH]) {
+		//if (vec[PITCH]) {
 			yaw = ( atan2( vec[YAW], vec[PITCH]) * 180 / M_PI );
-		} else if (vec[YAW] > 0) {
-			yaw = 90;
-		} else {
-			yaw = 270;
-		}
+		//} else if (vec[YAW] > 0) {
+		//	yaw = 90;
+		//} else {
+		//	yaw = 270;
+		//}
 		if (yaw < 0) {
 			yaw += 360;
 		}

@@ -52,8 +52,7 @@ void Actor::State_Disguise_Wait
 
 	if (m_fMaxDisguiseDistSquared > fDistSquared * 4)
 	{
-		m_State = 1;
-		m_iStateTime = level.inttime;
+		TransitionState(1, 0);
 	}
 	else
 	{
@@ -61,8 +60,7 @@ void Actor::State_Disguise_Wait
 		{
 			if (fDistSquared <= 65536)
 			{
-				m_State = 1;
-				m_iStateTime = level.inttime;
+				TransitionState(1, 0);
 			}
 			else
 			{
@@ -93,16 +91,14 @@ void Actor::State_Disguise_Papers
 		{
 			if (m_DisguiseAcceptThread.IsSet())
 				m_DisguiseAcceptThread.Execute(this);
-			m_State = 2;
+			TransitionState(2, 0);
 		}
-		m_iStateTime = level.inttime;
 	}
 	else
 	{
 		if (level.inttime > m_iStateTime + 12000)
 		{
-			m_State = 3;
-			m_iStateTime = level.inttime;
+			TransitionState(3, 0);
 		}
 		else
 		{
@@ -110,8 +106,7 @@ void Actor::State_Disguise_Papers
 
 			if (VectorLength2DSquared(vDelta) > 65536)
 			{
-				m_State = 4;
-				m_iStateTime = level.inttime;
+				TransitionState(4, 0);
 			}
 		}
 	}
@@ -130,8 +125,7 @@ void Actor::State_Disguise_Fake_Papers
 	m_bNextForceStart = false;
 	if (m_iEnemyShowPapersTime < m_Enemy->m_ShowPapersTime || level.inttime > m_iStateTime + 12000)
 	{
-		m_State = 3;
-		m_iStateTime = level.inttime;
+		TransitionState(3, 0);
 	}
 	else
 	{
@@ -139,8 +133,7 @@ void Actor::State_Disguise_Fake_Papers
 
 		if (VectorLength2DSquared(vDelta) > 65536)
 		{
-			m_State = 4;
-			m_iStateTime = level.inttime;
+			TransitionState(4, 0);
 		}
 	}
 
