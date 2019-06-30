@@ -2972,7 +2972,7 @@ void Actor::BeginState
 
 	GlobalFuncs_t *func = &GlobalFuncs[ m_Think[ m_ThinkLevel ] ];
 
-	if( func )
+	if( func->BeginState )
 		( this->*func->BeginState )();
 
 	m_Think[ m_ThinkLevel ] = m_ThinkMap[ m_ThinkState ];
@@ -4313,7 +4313,6 @@ void Actor::ChangeAnim
 		Com_Printf("ChangeAnim: m_pAnimThread started\n");
 	}
 }
-
 /*
 ===============
 Actor::UpdateSayAnim
@@ -8455,7 +8454,7 @@ bool Actor::SoundSayAnim
 	return false;
 }
 
-static bool UnknownAnim(char *name, dtiki_t *tiki)
+static bool UnknownAnim(const char *name, dtiki_t *tiki)
 {
 	ScriptException::next_bIsForAnim = true;
 	ScriptError("unknown animation '%s' in '%s'", name, tiki->a->name);
@@ -8491,8 +8490,7 @@ void Actor::EventSetAnim
 		animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
 		if (animnum == -1)
 		{
-			ScriptException::next_bIsForAnim = true;
-			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+			UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
 		}
 	}
 	else if (numArgs == 2)
@@ -8501,8 +8499,7 @@ void Actor::EventSetAnim
 		animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
 		if (animnum == -1)
 		{
-			ScriptException::next_bIsForAnim = true;
-			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+			UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
 		}
 		slot = ev->GetInteger(2);
 		if (slot > 2)
@@ -8530,8 +8527,7 @@ void Actor::EventSetAnim
 		animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
 		if (animnum == -1)
 		{
-			ScriptException::next_bIsForAnim = true;
-			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+			UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
 		}
 	}
 	else if (numArgs == 4)
@@ -8560,8 +8556,7 @@ void Actor::EventSetAnim
 		animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
 		if (animnum == -1)
 		{
-			ScriptException::next_bIsForAnim = true;
-			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+			UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
 		}
 	}
 	
@@ -8735,13 +8730,14 @@ void Actor::EventSetMotionAnim
 		ScriptError("bad number of arguments");
 	}
 	const_str anim = ev->GetConstString(1);
-	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
+	str animstr = Director.GetString(anim);
+	int animnum = gi.Anim_NumForName(edict->tiki, animstr.c_str());
 	if (animnum == -1)
 	{
-		ScriptException::next_bIsForAnim = 1;
-		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+		UnknownAnim(animstr.c_str(), edict->tiki);
 	}
 
+	gi.DPrintf("Actor::EventSetMotionAnim %s %d\n", animstr.c_str(), animnum);
 	parm.motionfail = qtrue;
 
 	if (!m_bLevelMotionAnim)
@@ -8780,24 +8776,21 @@ void Actor::EventSetAimMotionAnim
 	anim_crouch = gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str());
 	if (anim_crouch == -1)
 	{
-		ScriptException::next_bIsForAnim = 1;
-		ScriptError("unknown animation '%s' in '%s'", Director.GetString(name).c_str(), edict->tiki->a->name);
+		UnknownAnim(Director.GetString(name).c_str(), edict->tiki);
 	}
 
 	name = ev->GetConstString(2);
 	anim_stand = gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str());
 	if (anim_stand == -1)
 	{
-		ScriptException::next_bIsForAnim = 1;
-		ScriptError("unknown animation '%s' in '%s'", Director.GetString(name).c_str(), edict->tiki->a->name);
+		UnknownAnim(Director.GetString(name).c_str(), edict->tiki);
 	}
 
 	name = ev->GetConstString(3);
 	anim_high = gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str());
 	if (anim_high == -1)
 	{
-		ScriptException::next_bIsForAnim = 1;
-		ScriptError("unknown animation '%s' in '%s'", Director.GetString(name).c_str(), edict->tiki->a->name);
+		UnknownAnim(Director.GetString(name).c_str(), edict->tiki);
 	}
 
 
@@ -8853,24 +8846,21 @@ void Actor::EventSetActionAnim
 	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
 	if (animnum == -1)
 	{
-		ScriptException::next_bIsForAnim = 1;
-		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+		UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
 	}
 	
 	const_str anim2 = ev->GetConstString(2);
 	int animnum2 = gi.Anim_NumForName(edict->tiki, Director.GetString(anim2));
 	if (animnum2 == -1)
 	{
-		ScriptException::next_bIsForAnim = 1;
-		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim2), edict->tiki->a->name);
+		UnknownAnim(Director.GetString(anim2).c_str(), edict->tiki);
 	}
 
 	const_str anim3 = ev->GetConstString(3);
 	int animnum3 = gi.Anim_NumForName(edict->tiki, Director.GetString(anim3));
 	if (animnum3 == -1)
 	{
-		ScriptException::next_bIsForAnim = 1;
-		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim3), edict->tiki->a->name);
+		UnknownAnim(Director.GetString(anim3).c_str(), edict->tiki);
 	}
 	
 	parm.upperfail = qtrue;
@@ -8912,8 +8902,7 @@ void Actor::EventUpperAnim
 		int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
 		if (animnum == -1)
 		{
-			ScriptException::next_bIsForAnim = 1;
-			ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+			UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
 		}
 
 		m_csUpperAnim = anim;
@@ -8946,9 +8935,9 @@ void Actor::EventSetUpperAnim
 	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
 	if (animnum == -1)
 	{
-		ScriptException::next_bIsForAnim = 1;
-		ScriptError("unknown animation '%s' in '%s'", Director.GetString(anim).c_str(), edict->tiki->a->name);
+		UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
 	}
+
 	parm.upperfail = qtrue;
 	if (!m_bLevelActionAnim)
 	{

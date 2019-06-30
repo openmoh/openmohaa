@@ -844,6 +844,30 @@ StateScript *GameScript::GetCatchStateScript( unsigned char *in, unsigned char *
 	}
 }
 
+bool GameScript::ScriptCheck(void)
+{
+	if (g_scriptcheck->integer == 1)
+	{
+		return true;
+	}
+
+	if (g_scriptcheck->integer <= 3)
+	{
+		if (strstr(Filename().c_str(), "anim/") != Filename().c_str())
+		{
+			return true;
+		}
+	}
+	if (g_scriptcheck->integer == 3)
+	{
+		if (strstr(Filename().c_str(), "global/") != Filename().c_str())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 ScriptThreadLabel::ScriptThreadLabel()
 {
 	m_Script = NULL;

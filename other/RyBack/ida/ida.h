@@ -8510,3 +8510,9 @@ typedef struct VehicleWheelsX4_s {
 	Vehicle_t baseVehicle;
 	wheel_s m_sWheels[4];
 } VehicleWheelsX4_t;
+
+typedef struct ScriptException_s {
+	str string;
+	int bAbort;
+	int bIsForAnim;
+} ScriptException_t;
