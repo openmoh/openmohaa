@@ -146,6 +146,8 @@ public:
 	StateScript				*CreateSwitchStateScript( void );
 
 	StateScript				*GetCatchStateScript( unsigned char *in, unsigned char *&out );
+
+	bool					ScriptCheck( void );
 };
 
 class ScriptThreadLabel {
