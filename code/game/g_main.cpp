@@ -842,6 +842,9 @@ void G_SoundCallback( int entNum, soundChannel_t channelNumber, const char *name
 
 qboolean G_AllowPaused( void )
 {
+#ifdef _DEBUG
+	return false;
+#endif
 	return ( !level.exitintermission ) && ( level.intermissiontime == 0.0f ) && ( !level.died_already );
 }
 

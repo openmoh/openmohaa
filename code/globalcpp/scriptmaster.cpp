@@ -8924,18 +8924,18 @@ void ScriptThread::ScriptExecute( ScriptVariable *data, int dataSize, ScriptVari
 
 void ScriptThread::ScriptExecuteInternal( ScriptVariable *data, int dataSize )
 {
-	SafePtr< ScriptThread > previousThread = Director.m_PreviousThread;
-	SafePtr< ScriptThread > currentThread = Director.m_CurrentThread;
+	SafePtr<ScriptThread> currentThread = Director.m_CurrentThread;
+	SafePtr<ScriptThread> previousThread = Director.m_PreviousThread;
 
-	Director.m_PreviousThread = previousThread;
+	Director.m_PreviousThread = currentThread;
 	Director.m_CurrentThread = this;
 
 	Stop();
-	m_ScriptVM->Execute( data, dataSize );
+	m_ScriptVM->Execute(data, dataSize);
 
 	// restore the previous values
-	Director.m_PreviousThread = previousThread;
 	Director.m_CurrentThread = currentThread;
+	Director.m_PreviousThread = previousThread;
 
 	Director.ExecuteRunning();
 }
