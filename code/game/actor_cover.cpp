@@ -116,7 +116,7 @@ void Actor::State_Cover_NewEnemy
 	if( m_pCoverNode && PathExists() && PathComplete() )
 	{
 		Anim_RunToCover( 3 );
-		m_State = 302;
+		TransitionState(302, 0);
 	}
 	else
 	{
@@ -140,8 +140,8 @@ void Actor::State_Cover_FindCover
 	{
 		if( PathExists() && !PathComplete() )
 		{
-			Anim_RunToCover( 3 );
-			m_State = 302;
+			Anim_RunToCover(3);
+			TransitionState(302, 0);
 		}
 		else
 		{

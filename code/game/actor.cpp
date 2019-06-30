@@ -3758,15 +3758,15 @@ bool Actor::AttackEntryAnimation
 		{
 			float distSq = (m_Enemy->origin - origin).lengthXYSquared();
 
-			if (m_bNoSurprise || distSq >= 65536) //256 sq
+			if (m_bNoSurprise || distSq >= Square(256))
 			{
-				if (distSq > 1048576 && !(rand() & 3))//1024 sq
+				if (distSq > Square(1024) && !(rand() & 3))
 				{
 					if (m_pNextSquadMate != this)
 					{
 						for (auto pSquadMate = m_pNextSquadMate; true; pSquadMate->m_pNextSquadMate)
 						{
-							if (Square(m_fInterval) * 4 > (pSquadMate->origin - origin).lengthSquared())
+							if (Square(m_fInterval) * Square(2) > (pSquadMate->origin - origin).lengthSquared())
 							{
 								break;
 							}
