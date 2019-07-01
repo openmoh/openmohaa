@@ -671,7 +671,6 @@ void Actor::State_Turret_Combat
 	{
 		ClearPath();
 		Anim_Attack();
-		SetDesiredLookDir(mTargetPos - EyePosition());
 		AimAtTargetPos();
 		Turret_CheckRetarget();
 		return;

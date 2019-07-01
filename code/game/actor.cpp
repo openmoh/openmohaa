@@ -3276,6 +3276,7 @@ void Actor::SetEnemyPos
 	{
 		m_iLastEnemyPosChangeTime = level.inttime;
 		m_vLastEnemyPos = vPos;
+		mTargetPos = m_vLastEnemyPos;
 		if (m_Enemy)
 		{
 			mTargetPos += m_Enemy->eyeposition;
@@ -8230,10 +8231,8 @@ void Actor::TurnTo
 				origin.y,
 				origin.z);
 		}
-		if (l != this)
-		{
-			m_pTurnEntity = (SimpleEntity *)l;
-		}
+
+		m_pTurnEntity = (SimpleEntity *)l;
 	}
 	else
 	{
@@ -8266,25 +8265,19 @@ void Actor::IdleTurn
 			}
 			vec2_t facedir;
 			VectorSub2D(m_pTurnEntity->centroid, origin, facedir);
-			if (facedir[0] != 0 || facedir[1] != 0)
+			if (facedir[0] || facedir[1])
 			{
 				SetDesiredYawDir(facedir);
 			}
 
-			float error = m_DesiredYaw - angles[1];
-			if (error <= 180)
-			{
-				if (error < -180.0)
-					error += 360;
-			}
-			else
-			{
-				error -= 360;
-			}
+			float error = AngleNormalize180(m_DesiredYaw - angles[1]);
+
 			if (error >= m_fTurnDoneError + 0.001 || -(m_fTurnDoneError + 0.001) >= error)
 			{
 				return;
 			}
+
+			SafePtr<SimpleEntity> prevTurnEntity = m_pTurnEntity;
 
 			Director.iPaused--;
 			if (!Director.iPaused)
@@ -8295,7 +8288,7 @@ void Actor::IdleTurn
 			Director.iPaused++;
 
 
-			if (m_pTurnEntity == NULL)
+			if (m_pTurnEntity == prevTurnEntity)
 			{
 				break;
 			}
