@@ -2724,6 +2724,7 @@ Actor::Actor()
 	m_iCurrentHistory = 0;
 	m_bDog = false;
 	m_bBecomeRunner = false;
+	mVoiceType = -1;
 }
 
 /*
@@ -8434,7 +8435,7 @@ bool Actor::SoundSayAnim
 			Director.GetString(name).c_str(),
 			edict->tiki->a->name);
 
-		Sound(Director.GetString(name), 0, 0, 0, NULL, 0, 0, 1, -1);
+		Sound(Director.GetString(name), 0, 0, 0, NULL, 0, 1, 1, -1);
 
 		return true;
 	}
@@ -8675,25 +8676,76 @@ void Actor::EventSetSayAnim
 
 {
 	const_str name;
-	if (ev->NumArgs())
+	str sName;
+	if (ev->NumArgs() != 1)
 	{
-		if (ev->NumArgs() != 1)
+		ScriptError("bad number of arguments");
+	}
+
+	if (m_bLevelSayAnim == 0)
+	{
+		name = ev->GetConstString(1);
+
+		parm.sayfail = qtrue;
+		sName = Director.GetString(name);
+		int animnum = gi.Anim_NumForName(edict->tiki, sName.c_str());
+
+		Com_Printf("EventSetSayAnim sName: %s, animnum: %d, mVoiceType: %d\n", sName.c_str(), animnum, mVoiceType);
+		if (animnum == -1)
 		{
-			ScriptError("bad number of arguments");
+			SoundSayAnim(name, m_bLevelSayAnim);
 		}
-		if (m_bLevelSayAnim == 0)
+		else
 		{
-			name = ev->GetConstString(1);
-
-			parm.sayfail = qtrue;
-
-			if (!SoundSayAnim(name, true))
+			int flags = gi.Anim_FlagsSkel(edict->tiki, animnum);
+			if (flags & 256)
 			{
-				//FIXME: assumption, not sure. I think it's an inline func inside UpdateSayAnim()
-				UpdateSayAnim();
+				if (m_bLevelActionAnim)
+				{
+					if (!m_bSayAnimSet)
+					{
+						m_iSaySlot = m_iActionSlot;
+					}
+					return;
+				}
+				if (flags & TAF_HASDELTA)
+				{
+					if (m_bLevelMotionAnim)
+					{
+						if (!m_bSayAnimSet)
+						{
+							m_iSaySlot = m_iMotionSlot;
+						}
+						return;
+					}
+					ChangeActionAnim();
+					ChangeMotionAnim();
+					StartMotionAnimSlot(0, animnum, 1.0);
+
+					m_iMotionSlot = m_iActionSlot = GetMotionSlot(0);
+				}
+				else
+				{
+					ChangeActionAnim();
+					m_bActionAnimSet = true;
+					StartActionAnimSlot(animnum);
+					m_iActionSlot = GetActionSlot(0);
+				}
+				ChangeSayAnim();
+				m_bSayAnimSet = true;
+				m_iSaySlot = m_iActionSlot;
 			}
-			parm.sayfail = qfalse;
+			else
+			{
+				ChangeSayAnim();
+				m_bSayAnimSet = true;
+				StartSayAnimSlot(animnum);
+				m_iSaySlot = GetSaySlot();
+
+			}
+
 		}
+		parm.sayfail = qfalse;
 	}
 }
 
@@ -8739,7 +8791,7 @@ void Actor::EventSetMotionAnim
 
 /*
 ===============
-Actor::EventSetSayAnim
+Actor::EventSetAimMotionAnim
 
 Set aim motion animation.
 ===============
@@ -8799,7 +8851,7 @@ void Actor::EventSetAimMotionAnim
 
 /*
 ===============
-Actor::EventSetSayAnim
+Actor::EventSetActionAnim
 
 Set action animation.
 ===============
@@ -8868,7 +8920,7 @@ void Actor::EventSetActionAnim
 
 /*
 ===============
-Actor::EventSetSayAnim
+Actor::EventUpperAnim
 
 Set upper body.
 ===============
@@ -14333,9 +14385,9 @@ void Actor::SetVoiceType
 {
 	//voice type in actor is a char.
 	str vType = ev->GetString(1);
-	if (*vType.c_str())
+	if (vType[0])
 	{
-		mVoiceType = *vType.c_str();
+		mVoiceType = vType[0];
 	}
 	else
 	{
@@ -14354,59 +14406,60 @@ void Actor::ResolveVoiceType
 
 	if (mVoiceType == -1)
 	{
-		int d = 3.0 * random();
+		int d = 3.0 * 0.99 * random();
 		if (m_Team == TEAM_AMERICAN)
 		{
-			mVoiceType = *gAmericanVoices[d];
+			mVoiceType = gAmericanVoices[d][0];
 		}
 		else
 		{
-			mVoiceType = *gGermanVoices[d];
+			mVoiceType = gGermanVoices[d][0];
 		}
 	}
 	else
 	{
 		if (m_Team == TEAM_AMERICAN)
 		{
-			for (int i = 0; *gAmericanVoices[i] != mVoiceType ; i++)
+			for (int i = 0; i < 3 ; i++)
 			{
-				if (i > 3)
+				if (gAmericanVoices[i][0] == mVoiceType)
 				{
-					sprintf(validVoice, "");
-					for (int j = 0; j <= 2 ; j++)
-					{
-						strcat(validVoice, gAmericanVoices[j]);
-						strcat(validVoice, " ");
-					}
-					Com_Printf("ERROR: Bad voice type %c.  Valid American voicetypes are: %s\n", mVoiceType, validVoice);
-					mVoiceType = -1;
-
-					int d = 3.0 * random();
-					mVoiceType = *gAmericanVoices[d];
+					return;
 				}
 			}
+			sprintf(validVoice, "");
+			for (int i = 0; i < 3; i++)
+			{
+				strcat(validVoice, gAmericanVoices[i]);
+				strcat(validVoice, " ");
+			}
+			Com_Printf("ERROR: Bad voice type %c.  Valid American voicetypes are: %s\n", mVoiceType, validVoice);
+			mVoiceType = -1;
+
+			int d = 3.0 * 0.99 * random();
+			mVoiceType = gAmericanVoices[d][0];
 		}
 		else
 		{
 
-			for (int i = 0; *gGermanVoices[i] != mVoiceType; i++)
+			for (int i = 0; i < 3; i++)
 			{
-				if (i > 3)
+				if (gGermanVoices[i][0] == mVoiceType)
 				{
-					sprintf(validVoice, "");
-					for (int j = 0; j <= 2; j++)
-					{
-						strcat(validVoice, gGermanVoices[j]);
-						strcat(validVoice, " ");
-					}
-					Com_Printf("ERROR: Bad voice type %c.  Valid German voicetypes are: %s\n", mVoiceType, validVoice);
-					mVoiceType = -1;
-
-					int d = 3.0 * random();
-					mVoiceType = *gGermanVoices[d];
-				
+					return;
 				}
 			}
+			sprintf(validVoice, "");
+			for (int i = 0; i < 3; i++)
+			{
+				strcat(validVoice, gGermanVoices[i]);
+				strcat(validVoice, " ");
+			}
+			Com_Printf("ERROR: Bad voice type %c.  Valid German voicetypes are: %s\n", mVoiceType, validVoice);
+			mVoiceType = -1;
+
+			int d = 3.0 * 0.99 * random();
+			mVoiceType = gGermanVoices[d][0];
 		}
 
 	}

@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include "object.h"
 #include <g_spawn.h>
-
+extern Event EV_Entity_Start;
 //====================
 //Player::ActorInfo
 //====================
@@ -424,6 +424,9 @@ void Player::SpawnEntity
    e = new Event( EV_SetAnim );
    e->AddString( "idle" );
    ent->PostEvent( e, EV_SPAWNARG );
+
+   ent->ProcessPendingEvents();
+   ent->ProcessEvent(EV_Entity_Start);
    }
 
 //====================

@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define scriptcheck g_scriptcheck
 #endif
 
+extern Event EV_Entity_Start;
 CLASS_DECLARATION( Class, SpawnArgs, NULL )
 {
 	{ NULL, NULL }
@@ -383,6 +384,7 @@ Listener *SpawnArgs::Spawn( void )
 	if( ent )
 	{
 		ent->ProcessPendingEvents();
+		ent->ProcessEvent(EV_Entity_Start);
 	}
 
 	return ent;

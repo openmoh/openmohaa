@@ -1251,7 +1251,7 @@ void SimpleActor::ChangeActionAnim
 			animFlags[i] |= ANIM_NOACTION;
 			StartCrossBlendAnimSlot(i);
 		}
-		m_AnimDialogHigh ^= 1; // toggle
+		m_AnimDialogHigh = !m_AnimDialogHigh; // toggle
 	}
 
 	iSlot = GetActionSlot(0);

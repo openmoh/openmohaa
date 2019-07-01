@@ -553,6 +553,8 @@ Event EV_Level_GetFlags
 	EV_GETTER
 	);
 
+extern Event EV_Entity_Start;
+
 Level::Level()
 {
 	Init();
@@ -1350,9 +1352,10 @@ void Level::Precache( void )
 
 void Level::SpawnEntities( char *entities, int svsTime )
 {
-	int				inhibit, simple = 0, count = 0;
+	int				inhibit, radnum = 0, count = 0;
 	int				enttime;
 	const char		*value;
+	char			name[128];
 	SpawnArgs		args;
 	Listener		*listener;
 	Entity			*ent;
@@ -1410,16 +1413,20 @@ void Level::SpawnEntities( char *entities, int svsTime )
 
 		if( listener )
 		{
-			simple++;
+			radnum++;
 
 			if( listener->isSubclassOf( Entity ) )
 			{
 				count++;
 
 				ent = ( Entity * )listener;
-				ent->radnum = simple;
+				ent->radnum = radnum;
 
 				Q_strncpyz( ent->edict->entname, ent->getClassID(), sizeof( ent->edict->entname ) );
+
+				ent->PostEvent(EV_Entity_Start, -1.0, 0);
+				sprintf(name, "i%d", radnum);
+				gi.LoadResource(name);
 			}
 		}
 	}
@@ -1449,7 +1456,7 @@ void Level::SpawnEntities( char *entities, int svsTime )
 	m_LoopProtection = true;
 
 	Com_Printf( "%i entities spawned\n", count );
-	Com_Printf( "%i simple entities spawned\n", simple );
+	Com_Printf( "%i simple entities spawned\n", radnum );
 	Com_Printf( "%i entities inhibited\n", inhibit );
 
 	Com_Printf( "-------------------- Spawning Entities Done ------------------ %i ms\n", gi.Milliseconds() - enttime );
