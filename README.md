@@ -84,11 +84,15 @@ Now you can compile the solution.
 =====
 
 SDL
-http://www.libsdl.org/ download Source code, compile
+
+http://www.libsdl.org/
+
+download Source code, compile
 
 =====
 
 OpenAL
+
 http://connect.creativelabs.com/openal/default.aspx download OpenAL soft source
 
 download CMake at http://www.cmake.org/cmake/resources/software.html
@@ -98,7 +102,10 @@ run cmake on OpenAL, compile
 =====
 
 LibMAD
-http://www.underbit.com/products/mad/ download source code, compile
+
+http://www.underbit.com/products/mad/
+
+download source code, compile
 
 =====
 
