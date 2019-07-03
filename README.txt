@@ -93,3 +93,7 @@ URL
 http://openmohaa.sf.net/
 http://www.x-null.net/
 http://sfxmodding.net/
+
+Contact
+=======================
+Any questions? Join our Discord : https://discord.gg/NYtH58R
