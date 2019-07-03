@@ -1,3 +1,4 @@
+
 <<<<<<< HEAD
  / _ \ _ __   ___ _ __ |  \/  |/ _ \| | | |  / \      / \
 | | | | '_ \ / _ \ '_ \| |\/| | | | | |_| | / _ \    / _ \
@@ -9,6 +10,10 @@ Alert
 =======================
 The OpenMoHAA client build is currently unusable due to the UI being reimplemented, please don't use it.
 Currently only the server version is working.
+
+Discord
+=======================
+[![Discord Banner 1](https://discordapp.com/api/guilds/596049712579215361/widget.png?style=banner2)](https://discord.gg/NYtH58R)
 
 Running
 =======================
@@ -93,7 +98,3 @@ URL
 http://openmohaa.sf.net/
 http://www.x-null.net/
 http://sfxmodding.net/
-
-Contact
-=======================
-Any questions? Join our Discord : https://discord.gg/NYtH58R
