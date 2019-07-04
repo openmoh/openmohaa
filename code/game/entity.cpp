@@ -6527,7 +6527,7 @@ void Entity::EventSightTrace
 {
 	Vector start, end, mins, maxs;
 	int mask = 0x2000B01;
-	Entity *ent;
+	Entity *ent = nullptr;
 	qboolean hit = qfalse;
 
 	mins = vec_zero;
