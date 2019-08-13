@@ -7260,8 +7260,6 @@ void Player::Think
 	}
 	else
 	{
-
-		bool shouldBecomeTempSpec = false;
 		if (deadflag == DEAD_DEAD && level.time > respawn_time)
 		{
 			if (dmManager.AllowRespawn())
@@ -7275,24 +7273,12 @@ void Player::Think
 					PostEvent(EV_Player_Respawn, 0);
 				}
 			}
-			else
-			{
-				shouldBecomeTempSpec = true;
-			}
-		}
-		else
-		{
-			shouldBecomeTempSpec = true;
-		}
-
-
-		if (shouldBecomeTempSpec)
-		{
-			if (!IsSpectator())
+			else if(!IsSpectator())
 			{
 				BeginTempSpectator();
 			}
 		}
+
 
 		if (IsSpectator() && !m_bTempSpectator)
 		{
