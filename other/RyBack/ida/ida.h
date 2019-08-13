@@ -8516,3 +8516,8 @@ typedef struct ScriptException_s {
 	int bAbort;
 	int bIsForAnim;
 } ScriptException_t;
+
+typedef struct PathSearch_s {
+	Listener_t baseListener;
+	//in here....
+} PathSearch_t;

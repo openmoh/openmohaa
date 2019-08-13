@@ -10190,10 +10190,9 @@ void Actor::ResetBoneControllers
 Actor::UpdateBoneControllers
 
 Update Bone Controllers.
-Reversed correctly, since decompiled output has same behaviour as reversed output.
+Reversed incorrectly, since decompiled output has different behaviour as reversed output.
 ===============
 */
-/*
 void Actor::UpdateBoneControllers
 	(
 	void
@@ -11165,7 +11164,8 @@ ACTOR_UPDATEBONECONTROLLERS_43:
 	v178[2] = 0.0;
 	SetControllerAngles(2, v178);
 }
-*/
+
+/*
 void Actor::UpdateBoneControllers()
 {
 	Vector torsoAngles, headAngles, LocalLookAngles, vec1, vLookDest, vec2, vLookDir, lineVec, eyePosition;
@@ -11561,6 +11561,8 @@ void Actor::UpdateBoneControllers()
 	return;
 	/////////////////////////////////////////////
 }
+
+*/
 /*
 ===============
 Actor::ReadyToFire
@@ -11577,10 +11579,9 @@ void Actor::ReadyToFire
 	bool ready;
 
 	Weapon *weap = GetActiveWeapon(WEAPON_MAIN);
-	if (weap)
-		ready = weap->ReadyToFire(FIRE_PRIMARY, true);
-	else
-		ready = false;
+
+	ready = weap && weap->ReadyToFire(FIRE_PRIMARY, true);
+
 	ev->AddInteger(ready);
 }
 

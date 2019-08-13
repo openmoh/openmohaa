@@ -3159,15 +3159,73 @@ PathNode *PathSearch::FindCornerNodeForWall
 
 PathNode *PathSearch::FindCornerNodeForExactPath
 	(
-	SimpleActor *self,
+	SimpleActor *pSelf,
 	Sentient *enemy,
 	float fMaxPath
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return NULL;
+	PathNode *pPathNode[4096];
+
+	if (!PathSearch::FindPath(enemy->origin, pSelf->origin,	pSelf, fMaxPath, 0, 0.0, 100))
+		return NULL;
+	int iDepth;
+	for (PathNode* pParentNode = Node->Parent; pParentNode; pParentNode = pParentNode->Parent, iDepth++)
+	{
+		pPathNode[iDepth] = pParentNode;
+	}
+
+	Node = pPathNode[iDepth -1];
+
+
+	if (iDepth == 0)
+	{
+		return NULL;
+	}
+	size_t i;
+	for (i = 0; i < iDepth; i += 2)
+	{
+		if (!G_SightTrace(
+			pSelf->EyePosition(),
+			vec_zero,
+			vec_zero,
+			pSelf->EyePosition() - pSelf->origin + pPathNode[i]->m_PathPos,
+			pSelf,
+			enemy,
+			0x2040B19, 
+			0,
+			"FindCornerNodeFoExactPath 1"))
+		{
+			break;
+		}
+	}
+
+	int index = i - 1;
+	if (index < iDepth)
+	{
+		if (index)
+		{
+			if (!G_SightTrace(
+				pSelf->EyePosition(),
+				vec_zero,
+				vec_zero,
+				pSelf->EyePosition() - pSelf->origin + pPathNode[i]->m_PathPos,
+				pSelf,
+				enemy,
+				0x2040B19,
+				0,
+				"FindCornerNodeFoExactPath 2"))
+			{
+				index--;
+			}
+		}
+	}
+	else
+	{
+		index = iDepth - 1;
+	}
+
+	return pPathNode[index];
 }
 
 int PathSearch::FindPotentialCover

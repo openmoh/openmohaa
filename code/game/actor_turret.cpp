@@ -570,71 +570,57 @@ void Actor::Turret_NextRetarget
 
 
 	m_State++;
-	if (m_State > 120)
+
+	if (Turret_IsRetargeting())
 	{
-		VectorSub2D(origin, m_vHome, vDelta);
-		fDistSquared = VectorLength2DSquared(vDelta);
-		if (fDistSquared < m_fLeashSquared
-			|| (SetPath(
-				m_vHome,
-				NULL,
-				0,
-				NULL,
-				0.0),
-				ShortenPathToAvoidSquadMates(),
-				!PathExists())
-			|| PathComplete())
-		{
-			if (m_Team == TEAM_AMERICAN)
-			{
-				if (!CanSeeEnemy(200))
-				{
-					m_PotentialEnemies.FlagBadEnemy(m_Enemy);
-					UpdateEnemy(-1);
-				}
-				if (!m_Enemy)
-				{
-					Anim_Stand();
-					return;
-				}
-			}
-			else
-			{
-				if (!CanSeeEnemy(200))
-				{
-					m_State = 112;
-					m_iStateTime = level.inttime;
-					State_Turret_Wait();
-					return;
-				}
-				m_pszDebugState = "Retarget->Combat";
-			}
-			TransitionState(100, 0);
-			State_Turret_Combat();
-			return;
-		}
-		TransitionState(104, 0);
+		m_iStateTime = level.inttime;
+		return;
+	}
+
+	VectorSub2D(origin, m_vHome, vDelta);
+	fDistSquared = VectorLength2DSquared(vDelta);
+
+	if (fDistSquared >= m_fLeashSquared)
+	{
 		SetPath(m_vHome, NULL, 0, NULL, 0.0);
 		ShortenPathToAvoidSquadMates();
-		if (!PathExists() || PathComplete())
+		if (PathExists() && !PathComplete())
 		{
-			Com_Printf(
-				"^~^~^ (entnum %i, radnum %i, targetname '%s') cannot reach his leash home\n",
-				entnum,
-				radnum,
-				targetname.c_str());
-			m_pszDebugState = "home->combat";
+			TransitionState(104, 0);
+			State_Turret_RunHome(true);
+			return;
+		}
+	}
+
+	if (m_Team == TEAM_AMERICAN)
+	{
+		if (!CanSeeEnemy(200))
+		{
+			m_PotentialEnemies.FlagBadEnemy(m_Enemy);
+			UpdateEnemy(-1);
+		}
+		if (!m_Enemy)
+		{
+			Anim_Stand();
+			return;
+		}
+		TransitionState(100, 0);
+		State_Turret_Combat();
+		
+	}
+	else
+	{
+		if (CanSeeEnemy(200))
+		{
+			m_pszDebugState = "Retarget->Combat";
+			TransitionState(100, 0);
 			State_Turret_Combat();
 		}
 		else
 		{
-			FaceMotion();
-			Anim_RunToInOpen(2);
+			TransitionState(112, 0);
+			State_Turret_Wait();
 		}
-	}
-	else
-	{
-		m_iStateTime = level.inttime;
 	}
 }
 
@@ -648,8 +634,11 @@ void Actor::Turret_SideStep
 	AimAtEnemyBehavior();
 	//v3 = iStepSize;
 	StrafeToAttack(iStepSize, vDir);
-	if (PathExists() && !PathComplete() && PathAvoidsSquadMates()
-		|| (Actor::StrafeToAttack(-iStepSize, vDir), SimpleActor::PathExists())
+	if (PathExists()
+		&& !PathComplete()
+		&& PathAvoidsSquadMates()
+		|| (StrafeToAttack(-iStepSize, vDir),
+			PathExists())
 		&& !PathComplete()
 		&& PathAvoidsSquadMates())
 	{
@@ -687,22 +676,26 @@ void Actor::State_Turret_Combat
 			ClearPath();
 		ShortenPathToAvoidSquadMates();
 	}
-	if (PathExists() && !PathComplete() && PathAvoidsSquadMates())
+	if (!PathExists()
+		|| PathComplete()
+		|| !PathAvoidsSquadMates())
 	{
-		m_pszDebugState = "combat->move";
-		if (MovePathWithLeash())
-		{
-			Turret_CheckRetarget();
-			return;
-		}
-		m_pszDebugState = "combat->move->aim";
+		m_pszDebugState = "combat->chill";
+		Turret_BeginRetarget();
 	}
 	else
 	{
-		m_pszDebugState = "combat->chill";
+		m_pszDebugState = "combat->move";
+		if (!MovePathWithLeash())
+		{
+			m_pszDebugState = "combat->move->aim";
+			Turret_BeginRetarget();
+		}
+		else
+		{
+			Turret_CheckRetarget();
+		}
 	}
-
-	Turret_BeginRetarget();
 
 }
 
