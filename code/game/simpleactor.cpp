@@ -461,10 +461,6 @@ bool SimpleActor::PathAvoidsSquadMates
 	) const
 
 {
-	// FIXME: stub
-	UNIMPLEMENTED();
-	STUB();
-
 	Entity* player;
 	float fDelta;
 	float fDistSoFar;
@@ -473,11 +469,11 @@ bool SimpleActor::PathAvoidsSquadMates
 	float vMins[3];
 	float vMaxs[3];
 	float vPos[3];
-	Sentient *pOther;
+	//Sentient *pOther;
 	Sentient *pBuddy[256];
 	int iNumBuddies;
 	int i;
-	float fRatio;
+	//float fRatio;
 
 	if (ai_pathchecktime->value <= 0.0)
 		return true;
@@ -489,28 +485,150 @@ bool SimpleActor::PathAvoidsSquadMates
 
 	//player = G_GetEntity(0);
 	//player = G_GetEntity(0);
-	
-	fDelta = (player->origin - origin).lengthXYSquared();
-	if (fDelta > Square(ai_pathcheckdist->value))
+	VectorSub2D(player->origin, origin, vDelta2);
+	if (VectorLength2D(vDelta2) > Square(ai_pathcheckdist->value))
 	{
 		return true;
 	}
 
+	fDistCap = (ai_pathchecktime->value * 250.0);
 	fDistSoFar = 0;
-	for (auto pNode = CurrentPathNode() -1 ; pNode >= LastPathNode(); pNode--)
+
+	VectorCopy(vMins, CurrentPathNode()->point);
+	VectorCopy(vMaxs, CurrentPathNode()->point);
+	PathInfo *pNode = CurrentPathNode() - 1;
+	
+	while (1)
 	{
-		if (fDistSoFar <= (ai_pathchecktime->value * 250.0))
-		{
+		if (pNode < LastPathNode())
 			break;
+
+		if (fDistSoFar <= fDistCap)
+			break;
+
+		fDelta = fDistCap + 0.001 - fDistSoFar;
+
+		if (pNode->dist < fDelta)
+		{
+			VectorCopy(pNode->point, vPos);
+		}
+		else
+		{
+			VectorSubtract(pNode[1].point, pNode[0].point, vPos);
+			VectorMA(pNode[1].point, fDelta / pNode->dist, vPos, vPos);
+		}
+		
+		if (vPos[0] > vMaxs[0])
+		{
+			vMaxs[0] = vPos[0];
+		}
+		else
+		{
+			if (vPos[0] < vMins[0] )
+			{
+				vMins[0] = vPos[0];
+			}
 		}
 
-		fDistCap = (ai_pathchecktime->value * 250.0) + 0.001 - fDistSoFar;
-
-		if (pNode->point[2] > fDistCap)
+		if (vPos[1] > vMaxs[1])
 		{
+			vMaxs[1] = vPos[1];
+		}
+		else
+		{
+			if (vPos[1] < vMins[1])
+			{
+				vMins[1] = vPos[1];
+			}
+		}
+
+		if (vPos[2] > vMaxs[2])
+		{
+			vMaxs[2] = vPos[2];
+		}
+		else
+		{
+			if (vPos[2] < vMins[2])
+			{
+				vMins[2] = vPos[2];
+			}
+		}
+
+		fDistSoFar += fDelta;
+		pNode--;
+	}
+
+	vMins[0] -= 30;
+	vMins[1] -= 30;
+	vMins[2] -= 94;
+
+	vMaxs[0] += 30;
+	vMaxs[1] += 30;
+	vMaxs[2] += 94;
+
+	iNumBuddies = 0;
+	if ((Sentient *)m_pNextSquadMate != this)
+	{
+		do
+		{
+			if (m_pNextSquadMate->origin[0] > vMins[0] && m_pNextSquadMate->origin[0] < vMaxs[0]
+				&& m_pNextSquadMate->origin[1] > vMins[1] && m_pNextSquadMate->origin[1] < vMaxs[1]
+				&& m_pNextSquadMate->origin[2] > vMins[2] && m_pNextSquadMate->origin[2] < vMaxs[2]
+				)
+			{
+				VectorSub2D(m_pNextSquadMate->origin, origin, vDelta2);
+				if (vDelta2[0] <= -32 || vDelta2[0] >= 32 || vDelta2[1] <= -32 || vDelta2[1] >= 32)
+				{
+					if (DotProduct2D(vDelta2, m_pNextSquadMate->velocity) <= 0)
+					{
+						pBuddy[iNumBuddies++] = m_pNextSquadMate;
+					}
+				}
+			}
+		} while ((Sentient *)m_pNextSquadMate != this && iNumBuddies <= 255);
+	}
+
+	if (iNumBuddies == 0)
+	{
+		return true;
+	}
+	float fDist;
+	while (1)
+	{
+		i = 0;
+
+		if (iNumBuddies > 0)
+			break;
+weird_lbl:
+		pNode++;
+
+		VectorCopy2D(pNode->point, vPos);
+		fDist = pNode->dist;
+
+		if (pNode >= CurrentPathNode())
+			return true;
+	}
+	float fDot;
+	while (1)
+	{
+		VectorSub2D(pBuddy[i]->origin, vPos, vDelta2);
+		if (VectorLength2D(vDelta2) <= 900)
+		{
+			return false;
+		}
+		fDot = DotProduct2D(vDelta2, pNode->dir);
+		if (fDot < 0.0 && -fDist <= fDot)
+		{
+			if (Square(CrossProduct2D(vDelta2, pNode->dir)) <= 900)
+			{
+				return false;
+			}
+		}
+		if (++i >= iNumBuddies)
+		{
+			goto weird_lbl;
 		}
 	}
-	return false;
 }
 
 void SimpleActor::ShortenPathToAvoidSquadMates
@@ -640,7 +758,6 @@ void SimpleActor::StopTurning
 	)
 
 {
-	//fixme: this is an inline function.
 	m_YawAchieved = true;
 }
 
@@ -670,9 +787,13 @@ void SimpleActor::SetDesiredYawDest
 	)
 
 {
-	//FIXME: something's wrong here
-	m_bHasDesiredLookDest = true;
-	VectorCopy(vec, m_vDesiredLookDest);
+	float facedir[2];
+	VectorSub2D(vec, origin, facedir);
+	if (facedir[0] == 0 || facedir[1] == 0)
+	{
+		m_YawAchieved = false;
+		m_DesiredYaw = vectoyaw(vec);
+	}
 }
 
 void SimpleActor::UpdateEmotion
@@ -1642,7 +1763,6 @@ void SimpleActor::EventGetAnimMode
 
 {
 	// not found in ida
-	STUB();
 }
 
 void SimpleActor::EventSetAnimMode
@@ -1652,7 +1772,6 @@ void SimpleActor::EventSetAnimMode
 
 {
 	// not found in ida
-	STUB();
 }
 
 void SimpleActor::EventSetAnimFinal

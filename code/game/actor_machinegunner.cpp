@@ -239,7 +239,7 @@ void Actor::ThinkHoldGun
 
 	CheckUnregister();
 
-	m_YawAchieved = true;
+	StopTurning();
 
 	setAngles(Vector(0,m_pTurret->angles[1],0));
 

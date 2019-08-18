@@ -46,7 +46,7 @@ void Actor::Begin_Anim
 {
 	m_csMood = m_csIdleMood;
 	ClearPath();
-	m_YawAchieved = true;
+	StopTurning();
 	TransitionState(1000, 0);
 }
 

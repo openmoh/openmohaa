@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bg_local.h"
 #include "weapturret.h"
 #include "sentient.h"
+#include <cmath>
 
 Vector MINS(-15.0,-15.0,0.0);
 Vector MAXS(15.0,15.0,96.0);
@@ -4211,6 +4212,98 @@ Actor::ChangeAnim
 Change current animation.
 ===============
 */
+
+void Actor::ChangeAnim
+(
+	void
+)
+{
+	bool v3; // zf
+
+	if (m_pAnimThread)
+	{
+		if (g_scripttrace->integer)
+		{
+			if (m_pAnimThread->CanScriptTracePrint())
+				Com_Printf("--- Change Anim\n");
+		}
+		m_pAnimThread->AbortRegistration(
+			STRING_EMPTY,
+			this);
+		ScriptClass * sc = m_pAnimThread->GetScriptClass();
+		if (sc)
+		{
+			delete sc;
+		}
+		Com_Printf("ChangeAnim: m_pAnimThread aborted\n");
+	}
+	m_ThinkState = this->m_ThinkState;
+	if (m_ThinkState != 4)                                // THINKSTATE_ATTACK
+	{
+		if (m_ThinkState <= 4)                              // THINKSTATE_ATTACK
+		{
+			if (m_ThinkState >= 2)                            // THINKSTATE_PAIN
+			{
+				if (m_bMotionAnimSet)
+					AnimFinished(m_iMotionSlot, true);
+				if (m_bActionAnimSet)
+					AnimFinished(m_iActionSlot, true);
+				v3 = m_bSayAnimSet == 0;
+			LABEL_13:
+				if (v3)
+					goto LABEL_14;
+				goto LABEL_20;
+			}
+			goto LABEL_21;
+		}
+		if (m_ThinkState != 7)                              // m_ThinkState != THINKSTATE_GRENADE
+		{
+		LABEL_21:
+			if (m_bMotionAnimSet)
+			{
+				if (!m_bLevelMotionAnim)
+					AnimFinished(m_iMotionSlot, true);
+			}
+			if (m_bActionAnimSet)
+			{
+				if (!m_bLevelActionAnim)
+					AnimFinished(m_iActionSlot, true);
+			}
+			if (m_bSayAnimSet && !m_bLevelSayAnim)
+			{
+			LABEL_20:
+				AnimFinished(m_iSaySlot, true);
+				goto LABEL_14;
+			}
+			goto LABEL_14;
+		}
+	}
+	if (m_bMotionAnimSet)
+		AnimFinished(m_iMotionSlot, true);
+	if (m_bActionAnimSet)
+		AnimFinished(m_iActionSlot, true);
+	if (m_bSayAnimSet)
+	{
+		v3 = m_bLevelSayAnim == 2;
+		goto LABEL_13;
+	}
+LABEL_14:
+	m_fCrossblendTime = 0.5;
+	m_pAnimThread = m_Anim.Create(this);
+	if (m_pAnimThread)
+	{
+		if (g_scripttrace->integer)
+		{
+			if (m_pAnimThread->CanScriptTracePrint())
+				Com_Printf("+++ Change Anim\n");
+		}
+		m_pAnimThread->Register(STRING_EMPTY, this);
+
+		m_pAnimThread->StartTiming();
+		Com_Printf("ChangeAnim: m_pAnimThread started\n");
+	}
+}
+/*
 void Actor::ChangeAnim
 	(
 	void
@@ -4309,6 +4402,9 @@ void Actor::ChangeAnim
 		Com_Printf("ChangeAnim: m_pAnimThread started\n");
 	}
 }
+*/
+
+
 /*
 ===============
 Actor::UpdateSayAnim
@@ -4352,8 +4448,7 @@ void Actor::UpdateSayAnim
 					m_bLevelActionAnim = true;
 					m_bLevelMotionAnim = true;
 
-					m_iActionSlot = GetMotionSlot(0);
-					m_iMotionSlot = GetMotionSlot(0);
+					m_iMotionSlot = m_iActionSlot = GetMotionSlot(0);
 				}
 				else
 				{
@@ -4496,7 +4591,8 @@ void Actor::UpdateAnim
 			UseSyncTime(slot, 1);
 			fAnimTime = AnimTime(slot);
 			fAnimWeight = edict->s.frameInfo[slot].weight;
-			if (time == INFINITY)
+			time += fAnimTime * fAnimWeight;
+			if (std::isinf(time))
 			{
 				Com_Printf("ent %i, targetname '%s', anim '%s', slot %i, fAnimTime %f, fAnimWeight %f\n",
 					entnum,
@@ -4506,7 +4602,6 @@ void Actor::UpdateAnim
 					fAnimTime,
 					fAnimWeight);
 			}
-			time += fAnimTime * fAnimWeight;
 			total_weight += fAnimWeight;
 		}
 		else
@@ -8260,7 +8355,7 @@ void Actor::IdleTurn
 		{
 			if (m_pTurnEntity == this)
 			{
-				m_YawAchieved = true;
+				StopTurning();
 				m_pTurnEntity = NULL;
 				return;
 			}
@@ -8387,7 +8482,8 @@ void Actor::LookAround
 		trace_t trace = G_Trace(EyePosition(), vec_zero, vec_zero, vDest, this, 25, qfalse, "Actor::LookAround");
 		if (trace.fraction > 0.125)
 		{
-			SetDesiredYawDest(trace.endpos);
+			m_bHasDesiredLookDest = true;
+			VectorCopy(trace.endpos, m_vDesiredLookDest);
 			m_iNextLookTime = level.inttime + rand() % 500 + 750;
 		}
 		else
@@ -8607,7 +8703,7 @@ void Actor::EventIdleSayAnim
 		}
 		else
 		{
-			if (!SoundSayAnim(name,true) )
+			if (!SoundSayAnim(name, 1) )
 			{
 				m_csSayAnim = name;
 				//FIXME: macro
@@ -8691,14 +8787,10 @@ void Actor::EventSetSayAnim
 		int animnum = gi.Anim_NumForName(edict->tiki, sName.c_str());
 
 		Com_Printf("EventSetSayAnim sName: %s, animnum: %d, mVoiceType: %d\n", sName.c_str(), animnum, mVoiceType);
-		if (animnum == -1)
-		{
-			SoundSayAnim(name, m_bLevelSayAnim);
-		}
-		else
+		if (!SoundSayAnim(name, m_bLevelSayAnim))
 		{
 			int flags = gi.Anim_FlagsSkel(edict->tiki, animnum);
-			if (flags & 256)
+			if (flags & TAF_HASUPPER)
 			{
 				if (m_bLevelActionAnim)
 				{
@@ -8751,7 +8843,7 @@ void Actor::EventSetSayAnim
 
 /*
 ===============
-Actor::EventSetSayAnim
+Actor::EventSetMotionAnim
 
 Set motion animation.
 ===============
@@ -9867,7 +9959,7 @@ void Actor::UpdateAngles
 			if (error <= dist)
 			{
 				max_change = error;
-				m_YawAchieved = true;
+				StopTurning();
 			}
 		}
 		else

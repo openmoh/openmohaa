@@ -3058,10 +3058,6 @@ PathNode *PathSearch::FindCornerNodeForWall
 	)
 
 {
-	// FIXME: stub
-	STUB();
-	return NULL;
-
 	PathNode *ParentNode;
 	PathNode *OpenNode;
 	int i;
@@ -3109,6 +3105,7 @@ PathNode *PathSearch::FindCornerNodeForWall
 	Node->PrevNode = 0;
 	Node->NextNode = 0;
 
+	OpenNode = Node;
 	open = Node;
 
 	if (!open)
@@ -3117,7 +3114,6 @@ PathNode *PathSearch::FindCornerNodeForWall
 		return NULL;
 	}
 
-	OpenNode = Node;
 	while (true)
 	{
 		Node = OpenNode;
@@ -3137,24 +3133,119 @@ PathNode *PathSearch::FindCornerNodeForWall
 		{
 			vec2_t delta;
 			VectorSub2D(ParentNode->m_PathPos, start, delta);
-			if (VectorLength2DSquared(delta) < 256.0)
+			if (VectorLength2DSquared(delta) < Square(16))
 				ParentNode = Node;
 			return ParentNode;
 		}
 
 		i = Node->numChildren;
 		if (i)
-		{
 			break;
-		}
-
+weird_lbl:
 		OpenNode = open;
 		if (!OpenNode)
 		{
 			last_error = "unreachable path";
 			return NULL;
 		}
-	} 
+	}
+
+	int f, g, h;
+	while (true)
+	{
+		pathway_t *pathway = &Node->Child[--i];
+		PathNode *pSomeNode = PathSearch::pathnodes[pathway->node];
+		g = (pathway->dist + Node->g + 1.0);
+		if (pSomeNode->findCount == PathSearch::findFrame)
+		{
+			if (g >= pSomeNode->g)
+			{
+				if (i == 0)
+					goto weird_lbl;
+
+				continue;
+			}
+			if (pSomeNode->inopen)
+			{
+				pSomeNode->inopen = false;
+
+				if (pSomeNode->NextNode)
+					pSomeNode->NextNode->PrevNode = pSomeNode->PrevNode;
+				if (pSomeNode->PrevNode)
+					pSomeNode->PrevNode->NextNode = pSomeNode->NextNode;
+				else
+					PathSearch::open = pSomeNode->NextNode;
+			}
+		}
+
+		vec2_t vDelta2;
+		VectorSub2D(end, pathway->pos1, vDelta2);
+		pSomeNode->h = h = VectorLength2D(vDelta2);
+
+		f = (h + g);
+
+		if (f >= maxPath)
+			break;
+
+		pSomeNode->f = f;
+		pSomeNode->pathway = i;
+		pSomeNode->g = g;
+		pSomeNode->Parent = Node;
+		pSomeNode->inopen = true;
+		pSomeNode->m_PathPos = pathway->pos2;
+		pSomeNode->findCount = PathSearch::findFrame;
+		pSomeNode->m_Depth = Node->m_Depth + 1;
+
+		if (!PathSearch::open)
+		{
+			pSomeNode->NextNode = NULL;
+			pSomeNode->PrevNode = NULL;
+			PathSearch::open = pSomeNode;
+			if (i == 0)
+				goto weird_lbl;
+
+			continue;
+		}
+
+		if (PathSearch::open->f == f)
+		{
+			pSomeNode->PrevNode = NULL;
+			pSomeNode->NextNode = PathSearch::open;
+			PathSearch::open->PrevNode = pSomeNode;
+			PathSearch::open = pSomeNode;
+			if (i == 0)
+				goto weird_lbl;
+
+			continue;
+		}
+		PathNode * pNextOpenNode = PathSearch::open->NextNode;
+		if (pNextOpenNode)
+		{
+			if (f > pNextOpenNode->f)
+			{
+				do 
+				{
+					pNextOpenNode = pNextOpenNode->NextNode;
+					if (!pNextOpenNode)
+						break;
+
+				} while (f > pNextOpenNode->f);
+			}
+		}
+
+		pSomeNode->NextNode = pNextOpenNode;
+
+		if (pNextOpenNode)
+			pNextOpenNode->PrevNode = pSomeNode;
+
+		pNextOpenNode->NextNode = pSomeNode;
+		pSomeNode->PrevNode = pNextOpenNode;
+
+		if (i == 0)
+			goto weird_lbl;
+	}
+	PathSearch::last_error = "specified path distance exceeded";
+	return NULL;
 }
 
 PathNode *PathSearch::FindCornerNodeForExactPath
@@ -3339,10 +3430,10 @@ PathNode *PathSearch::FindNearestCover
 	)
 
 {
-	// FIXME: stub
-	STUB();
+	// not found in ida
 	return NULL;
 }
+
 PathNode *PathSearch::FindNearestSniperNode
 	(
 	SimpleActor *pEnt,

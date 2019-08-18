@@ -313,7 +313,7 @@ void Actor::Think_BalconyKilled
 	{
 		NoPoint();
 		m_bHasDesiredLookAngles = false;
-		m_YawAchieved = true;
+		StopTurning();
 
 		switch( m_State )
 		{

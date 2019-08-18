@@ -368,6 +368,9 @@ int TIKI_Anim_FlagsSkel( dtiki_t *pmdl, int animnum )
 	if( animData->bHasMorph )
 		flags |= TAF_HASMORPH;
 
+	if (animData->bHasUpper)
+		flags |= TAF_HASUPPER;
+
 	return flags;
 }
 
