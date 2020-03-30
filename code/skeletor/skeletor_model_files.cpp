@@ -115,7 +115,7 @@ void CreatePosRotBoneData( const char *newBoneName, const char *newBoneParentNam
 	rotChannelName = ( char * )Skel_Alloc( strlen( newBoneName ) + 5 );
 	ConvertToRotationName( newBoneName, rotChannelName );
 	boneData->channelIndex[ 0 ] = skeletor_c::m_channelNames.RegisterChannel( rotChannelName );
-	if( boneData->channelIndex[ 0 ] )
+	if( boneData->channelIndex[ 0 ] < 0 )
 	{
 		SKEL_Warning( "Channel named %s not added. (Bone will not work without it)\n", rotChannelName );
 		boneData->boneType = SKELBONE_ZERO;
@@ -125,7 +125,7 @@ void CreatePosRotBoneData( const char *newBoneName, const char *newBoneParentNam
 	posChannelName = ( char * )Skel_Alloc( strlen( newBoneName ) + 5 );
 	ConvertToPositionName( newBoneName, posChannelName );
 	boneData->channelIndex[ 1 ] = skeletor_c::m_channelNames.RegisterChannel( posChannelName );
-	if( boneData->channelIndex[ 0 ] )
+	if( boneData->channelIndex[ 1 ] < 0 )
 	{
 		SKEL_Warning( "Channel named %s not added. (Bone will not work without it)\n", posChannelName );
 		boneData->boneType = SKELBONE_ZERO;
