@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // skeletor animation flags
 #define TAF_HASDELTA			0x40
 #define TAF_HASMORPH			0x80
+#define TAF_HASUPPER			0x100
 
 // tiki anim command frames
 #define TIKI_FRAME_LAST				-5			// exec at last

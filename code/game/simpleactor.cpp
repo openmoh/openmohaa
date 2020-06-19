@@ -310,7 +310,7 @@ void SimpleActor::SetPath
 	if (!PathExists()
 		|| ( ( level.inttime >= m_Path.Time() + iMaxDirtyTime
 			 || m_Path.Complete(origin) )
-				&& m_Path.LastNode()->point != vDestPos)
+				&& PathGoal() != vDestPos)
 		)
 	{
 		m_Path.FindPath(origin,
@@ -320,7 +320,7 @@ void SimpleActor::SetPath
 			vLeashHome,
 			fLeashDistSquared);
 
-		if (!m_Path.LastNode())
+		if (!PathExists())
 		{
 			if (g_patherror->integer)
 			{
@@ -396,47 +396,7 @@ void SimpleActor::SetPathWithinDistance
 	)
 
 {
-	if (!PathExists()
-		|| ((level.inttime >= m_Path.Time() + iMaxDirtyTime
-			|| m_Path.Complete(origin)) && m_Path.LastNode()->point != vDestPos)
-		)
-	{
-		m_Path.FindPath(origin,
-			vDestPos,
-			this,
-			fMaxPath,
-			NULL,
-			0);
-
-		if (!m_Path.LastNode())
-		{
-			if (g_patherror->integer)
-			{
-				if (description)
-				{
-					int thinkState = ((Actor *)this)->m_ThinkState;
-					if (g_patherror->integer == 1 || g_patherror->integer == 2 && (thinkState == THINKSTATE_IDLE || thinkState == THINKSTATE_CURIOUS))
-					{
-						if (m_bPathErrorTime + 5000 < level.inttime)
-						{
-							m_bPathErrorTime = level.inttime;
-							Com_Printf(
-								"^~^~^ Path not found in '%s' for '%s' from (%f %f %f) to (%f %f %f)\n",
-								description,
-								targetname.c_str(),
-								origin.x,
-								origin.y,
-								origin.z,
-								vDestPos.x,
-								vDestPos.y,
-								vDestPos.z);
-							Com_Printf("Reason: %s\n", PathSearch::last_error);
-						}
-					}
-				}
-			}
-		}
-	}
+	SetPath(vDestPos, description, iMaxDirtyTime, NULL, 0);
 }
 
 void SimpleActor::FindPathAway
@@ -491,6 +451,7 @@ bool SimpleActor::PathIsValid
 	) const
 
 {
+	//Called by SetPath...
 	return true;
 }
 
@@ -500,7 +461,6 @@ bool SimpleActor::PathAvoidsSquadMates
 	) const
 
 {
-
 	Entity* player;
 	float fDelta;
 	float fDistSoFar;
@@ -509,11 +469,11 @@ bool SimpleActor::PathAvoidsSquadMates
 	float vMins[3];
 	float vMaxs[3];
 	float vPos[3];
-	Sentient *pOther;
+	//Sentient *pOther;
 	Sentient *pBuddy[256];
 	int iNumBuddies;
 	int i;
-	float fRatio;
+	//float fRatio;
 
 	if (ai_pathchecktime->value <= 0.0)
 		return true;
@@ -523,31 +483,152 @@ bool SimpleActor::PathAvoidsSquadMates
 		return true;
 	}
 
-	player = G_GetEntity(0);
-	player = G_GetEntity(0);
-	
-	fDelta = (player->origin - origin).lengthXYSquared();
-	if (fDelta > Square(ai_pathcheckdist->value))
+	//player = G_GetEntity(0);
+	//player = G_GetEntity(0);
+	VectorSub2D(player->origin, origin, vDelta2);
+	if (VectorLength2D(vDelta2) > Square(ai_pathcheckdist->value))
 	{
 		return true;
 	}
 
+	fDistCap = (ai_pathchecktime->value * 250.0);
 	fDistSoFar = 0;
-	for (auto pNode = CurrentPathNode(); pNode >= LastPathNode(); pNode--)
-	{
-		if (fDistSoFar <= 0)
-		{
-			break;
-		}
-		//fDistCap = (ai_pathchecktime->value * 250.0) + 0.001 - fDistSoFar;
 
-		//if (pNode->point[2] > fDistCap)
+	VectorCopy(vMins, CurrentPathNode()->point);
+	VectorCopy(vMaxs, CurrentPathNode()->point);
+	PathInfo *pNode = CurrentPathNode() - 1;
+	
+	while (1)
+	{
+		if (pNode < LastPathNode())
+			break;
+
+		if (fDistSoFar <= fDistCap)
+			break;
+
+		fDelta = fDistCap + 0.001 - fDistSoFar;
+
+		if (pNode->dist < fDelta)
 		{
+			VectorCopy(pNode->point, vPos);
+		}
+		else
+		{
+			VectorSubtract(pNode[1].point, pNode[0].point, vPos);
+			VectorMA(pNode[1].point, fDelta / pNode->dist, vPos, vPos);
+		}
+		
+		if (vPos[0] > vMaxs[0])
+		{
+			vMaxs[0] = vPos[0];
+		}
+		else
+		{
+			if (vPos[0] < vMins[0] )
+			{
+				vMins[0] = vPos[0];
+			}
+		}
+
+		if (vPos[1] > vMaxs[1])
+		{
+			vMaxs[1] = vPos[1];
+		}
+		else
+		{
+			if (vPos[1] < vMins[1])
+			{
+				vMins[1] = vPos[1];
+			}
+		}
+
+		if (vPos[2] > vMaxs[2])
+		{
+			vMaxs[2] = vPos[2];
+		}
+		else
+		{
+			if (vPos[2] < vMins[2])
+			{
+				vMins[2] = vPos[2];
+			}
+		}
+
+		fDistSoFar += fDelta;
+		pNode--;
+	}
+
+	vMins[0] -= 30;
+	vMins[1] -= 30;
+	vMins[2] -= 94;
+
+	vMaxs[0] += 30;
+	vMaxs[1] += 30;
+	vMaxs[2] += 94;
+
+	iNumBuddies = 0;
+	if ((Sentient *)m_pNextSquadMate != this)
+	{
+		do
+		{
+			if (m_pNextSquadMate->origin[0] > vMins[0] && m_pNextSquadMate->origin[0] < vMaxs[0]
+				&& m_pNextSquadMate->origin[1] > vMins[1] && m_pNextSquadMate->origin[1] < vMaxs[1]
+				&& m_pNextSquadMate->origin[2] > vMins[2] && m_pNextSquadMate->origin[2] < vMaxs[2]
+				)
+			{
+				VectorSub2D(m_pNextSquadMate->origin, origin, vDelta2);
+				if (vDelta2[0] <= -32 || vDelta2[0] >= 32 || vDelta2[1] <= -32 || vDelta2[1] >= 32)
+				{
+					if (DotProduct2D(vDelta2, m_pNextSquadMate->velocity) <= 0)
+					{
+						pBuddy[iNumBuddies++] = m_pNextSquadMate;
+					}
+				}
+			}
+		} while ((Sentient *)m_pNextSquadMate != this && iNumBuddies <= 255);
+	}
+
+	if (iNumBuddies == 0)
+	{
+		return true;
+	}
+	float fDist;
+	while (1)
+	{
+		i = 0;
+
+		if (iNumBuddies > 0)
+			break;
+weird_lbl:
+		pNode++;
+
+		VectorCopy2D(pNode->point, vPos);
+		fDist = pNode->dist;
+
+		if (pNode >= CurrentPathNode())
+			return true;
+	}
+	float fDot;
+	while (1)
+	{
+		VectorSub2D(pBuddy[i]->origin, vPos, vDelta2);
+		if (VectorLength2D(vDelta2) <= 900)
+		{
+			return false;
+		}
+		fDot = DotProduct2D(vDelta2, pNode->dir);
+		if (fDot < 0.0 && -fDist <= fDot)
+		{
+			if (Square(CrossProduct2D(vDelta2, pNode->dir)) <= 900)
+			{
+				return false;
+			}
+		}
+		if (++i >= iNumBuddies)
+		{
+			goto weird_lbl;
 		}
 	}
-	// FIXME: stub
-	STUB();
-	return false;
 }
 
 void SimpleActor::ShortenPathToAvoidSquadMates
@@ -560,8 +641,10 @@ void SimpleActor::ShortenPathToAvoidSquadMates
 	{
 		Vector vBuddyPos;
 		Vector vDelta;
+		Vector vGoal;
 		do 
 		{
+			vGoal = PathGoal();
 			Actor *pSquadMate = (Actor *)m_pNextSquadMate.Pointer();
 			if (pSquadMate == this)
 			{
@@ -570,16 +653,17 @@ void SimpleActor::ShortenPathToAvoidSquadMates
 
 			while (true)
 			{
+				vGoal = PathGoal();
 				vBuddyPos = pSquadMate->origin;
 				if (pSquadMate->IsSubclassOfActor() && pSquadMate->PathExists())
 				{
-					vBuddyPos = pSquadMate->LastPathNode()->point;
+					vBuddyPos = pSquadMate->PathGoal();
 				}
-				vDelta.x = LastPathNode()->point[0] - vBuddyPos.x;
+				vDelta.x = vGoal[0] - vBuddyPos.x;
 				if (vDelta.x >= -15.0 && vDelta.x <= 15.0)
 				{
-					vDelta.y = LastPathNode()->point[1] - vBuddyPos.y;
-					vDelta.z = LastPathNode()->point[2] - vBuddyPos.z;
+					vDelta.y = vGoal[1] - vBuddyPos.y;
+					vDelta.z = vGoal[2] - vBuddyPos.z;
 					
 					if (vDelta.y >= -15.0 && vDelta.y <= 15.0 && vDelta.z >= 0.0 && vDelta.z <= 94.0)
 						break;
@@ -638,7 +722,7 @@ Vector SimpleActor::PathGoal
 	) const
 
 {
-	return m_Path.CurrentPathGoal();
+	return LastPathNode()->point;
 }
 
 float *SimpleActor::PathDelta
@@ -665,7 +749,7 @@ void SimpleActor::SetDest
 	)
 
 {
-	VectorCopy(m_Dest, dest);
+	VectorCopy(dest, m_Dest);
 }
 
 void SimpleActor::StopTurning
@@ -674,7 +758,6 @@ void SimpleActor::StopTurning
 	)
 
 {
-	//fixme: this is an inline function.
 	m_YawAchieved = true;
 }
 
@@ -704,8 +787,13 @@ void SimpleActor::SetDesiredYawDest
 	)
 
 {
-	m_bHasDesiredLookDest = true;
-	VectorCopy(vec, m_vDesiredLookDest);
+	float facedir[2];
+	VectorSub2D(vec, origin, facedir);
+	if (facedir[0] == 0 || facedir[1] == 0)
+	{
+		m_YawAchieved = false;
+		m_DesiredYaw = vectoyaw(vec);
+	}
 }
 
 void SimpleActor::UpdateEmotion
@@ -1126,19 +1214,7 @@ void SimpleActor::UpdateLastFrameSlot
 	)
 
 {
-	m_weightType[slot] = 0;
-	DoExitCommands(slot);
-
-	if (edict->s.frameInfo[slot].index || gi.TIKI_NumAnims(edict->tiki) <= 1)
-		edict->s.frameInfo[slot].index = 0;
-	else
-		edict->s.frameInfo[slot].index = 1;
-	
-	animFlags[slot] = ANIM_PAUSED | ANIM_NOEXIT | ANIM_NODELTA | ANIM_LOOP;
-
-	edict->s.frameInfo[slot].weight = 0.0;
-
-	animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
+	StopAnimating(slot);
 }
 
 void SimpleActor::UpdateAnimSlot
@@ -1186,7 +1262,7 @@ void SimpleActor::StopAllAnimating
 
 	for (int slot = 0; slot < MAX_FRAMEINFOS; slot++)
 	{
-		UpdateLastFrameSlot(slot);
+		StopAnimating(slot);
 	}
 }
 
@@ -1283,7 +1359,7 @@ void SimpleActor::ChangeSayAnim
 		iSlot = GetSaySlot();
 		StartCrossBlendAnimSlot(iSlot);
 
-		m_AnimDialogHigh ^= 1; // toggle
+		m_AnimDialogHigh = !m_AnimDialogHigh; // toggle
 	}
 
 	iSlot = GetSaySlot();
@@ -1304,23 +1380,12 @@ void SimpleActor::UpdateAim
 
 	if (m_bAimAnimSet)
 	{
-		dir = -m_DesiredGunDir[0];
+		dir = AngleNormalize180(-m_DesiredGunDir[0]);
 
 		aimForwardSlot = GetActionSlot(0);
 		aimUpSlot = aimForwardSlot + 1;
 		aimDownSlot = aimForwardSlot + 2;
 
-		if (dir <= 180)
-		{
-			if (dir < -180)
-			{
-				dir += 360;
-			}
-		}
-		else
-		{
-			dir -= 360;
-		}
 
 		float factor;
 		if (dir < 0)
@@ -1396,11 +1461,19 @@ void SimpleActor::EventGetWeaponGroup
 	)
 
 {
+	const_str csWeaponGroup;
 	Weapon *weapon = GetActiveWeapon(WEAPON_MAIN);
-	const_str csWeaponGroup = weapon->GetWeaponGroup();
-	if (csWeaponGroup == STRING_NONE)
+	if (!weapon)
 	{
 		csWeaponGroup = STRING_UNARMED;
+	}
+	else 
+	{
+		csWeaponGroup = weapon->GetWeaponGroup();
+		if (csWeaponGroup == STRING_EMPTY)
+		{
+			csWeaponGroup = STRING_UNARMED;
+		}
 	}
 	ev->AddConstString(csWeaponGroup);
 }
@@ -1690,7 +1763,6 @@ void SimpleActor::EventGetAnimMode
 
 {
 	// not found in ida
-	STUB();
 }
 
 void SimpleActor::EventSetAnimMode
@@ -1700,7 +1772,6 @@ void SimpleActor::EventSetAnimMode
 
 {
 	// not found in ida
-	STUB();
 }
 
 void SimpleActor::EventSetAnimFinal
@@ -1810,6 +1881,7 @@ void SimpleActor::SetPathGoalEndAnim
 	)
 
 {
+	//fixme: this is an inline function
 	m_csPathGoalEndAnimScript = csEndAnim;
 }
 

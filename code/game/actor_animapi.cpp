@@ -312,15 +312,15 @@ void SimpleActor::Anim_Say
 	)
 
 {
-	if( m_bSayAnimSet && !bCanInterrupt )
-		return;
-
-	if( level.inttime > m_iVoiceTime + iMinTimeSinceLastSay )
+	if (!m_bSayAnimSet || bCanInterrupt)
 	{
-		ScriptThreadLabel label;
+		if (level.inttime > m_iVoiceTime + iMinTimeSinceLastSay)
+		{
+			ScriptThreadLabel label;
 
-		label.TrySetScript( csSayAnimScript );
-		label.Execute( this );
+			label.TrySetScript(csSayAnimScript);
+			label.Execute(this);
+		}
 	}
 }
 

@@ -46,7 +46,7 @@ void Actor::Begin_Patrol
 
 {
 	m_csMood = STRING_BORED;
-	m_YawAchieved = true;
+	StopTurning();
 	ClearPath();
 }
 

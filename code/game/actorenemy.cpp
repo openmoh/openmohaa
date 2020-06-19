@@ -618,7 +618,6 @@ qboolean ActorEnemySet::IsEnemyConfirmed
 
 {
 	// not found in ida
-	STUB();
 	return false;
 }
 

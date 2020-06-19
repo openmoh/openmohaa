@@ -47,7 +47,7 @@ void Actor::Begin_Runner
 {
 	m_csMood = STRING_NERVOUS;
 	m_csIdleMood = STRING_NERVOUS;
-	m_YawAchieved = true;
+	StopTurning();
 	ClearPath();
 }
 

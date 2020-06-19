@@ -1,4 +1,0 @@
-Sorry about that.
-
-I made so much modifications for the UI, so I didn't add files to the VS2008/Eclipse projects yet.
-So it's advised to use VS2013 if you want to compile successfully.

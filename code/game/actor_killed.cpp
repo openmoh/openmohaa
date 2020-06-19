@@ -74,7 +74,7 @@ void Actor::Think_Killed
 		m_pszDebugState = "begin";
 		NoPoint();
 		m_bHasDesiredLookAngles = false;
-		m_YawAchieved = true;
+		StopTurning();
 		Anim_Killed();
 		PostThink(false);
 	}
