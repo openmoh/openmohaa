@@ -600,9 +600,7 @@ PlayerStart *DM_Team::GetRandomSpawnpointWithMetric( Player *player, float( *Met
 					points[ numSpots ].spawnpoint = new PlayerStart;
 					points[ numSpots ].spawnpoint->setOrigin( trace.endpos );
 					points[ numSpots ].spawnpoint->setAngles( spot->angles );
-
-					MetricFunction( vNewSpawn, this, player );
-					points[ numSpots ].fMetric = 0;
+					points[ numSpots ].fMetric = MetricFunction( vNewSpawn, this, player );
 
 					if( numSpots >= ( sizeof( points ) / sizeof( points[ 0 ] ) ) ) {
 						break;
@@ -637,8 +635,7 @@ PlayerStart *DM_Team::GetRandomSpawnpointWithMetric( Player *player, float( *Met
 		if( !SpotWouldTelefrag( spot->origin ) )
 		{
 			points[ numSpots ].spawnpoint = spot;
-			MetricFunction( spot->origin, this, player );
-			points[ numSpots ].fMetric = 0;
+			points[ numSpots ].fMetric = MetricFunction( spot->origin, this, player );
 
 			if( numSpots >= ( sizeof( points ) / sizeof( points[ 0 ] ) ) ) {
 				break;

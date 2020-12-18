@@ -1529,14 +1529,20 @@ typedef struct playerState_bt_s
 	vec3_t cameraPosOfs;
 	int cameraFlags;
 	vec3_t damageAngles;
-	int unk1;
+	int radarInfo;
 	qboolean voted;
 	int ping;
 	vec3_t eyePos;
-	int unk2;
-	int unk3;
 
 } playerState_bt_t;
+
+struct radarUnpacked_t
+{
+	int clientNum;
+	float x;
+	float y;
+	float yaw;
+};
 
 typedef struct gclient_s
 {
@@ -1576,6 +1582,26 @@ typedef struct clSnapshot_s
   unsigned char areamask[32];
   int cmdNum;
   playerState_t ps;
+  int numEntities;
+  int parseEntitiesNum;
+  int serverCommandNum;
+  int number_of_sounds;
+  server_sound_t sounds[64];
+
+} clSnapshot_t;
+
+typedef struct clSnapshot_s
+{
+  qboolean valid;
+  int snapFlags;
+  int serverTime;
+  int serverTimeResidual;
+  int messageNum;
+  int deltaNum;
+  int ping;
+  unsigned char areamask[32];
+  int cmdNum;
+  playerState_bt_t ps;
   int numEntities;
   int parseEntitiesNum;
   int serverCommandNum;
@@ -3846,6 +3872,13 @@ typedef struct clientInfo_s
 
 } clientInfo_t;
 
+typedef struct clientInfo_bt_s
+{
+	teamType_t team;
+	char name[64];
+
+} clientInfo_bt_t;
+
 typedef struct objective_s
 {
 	char text[MAX_STRINGCHARS];
@@ -4133,8 +4166,8 @@ typedef struct cgs_bt_s
 	int timeLimit;
 	int maxClients;
 	int cinematic;
+	int mapChecksum;
 	char mapName[MAX_QPATH];
-	int unk0;
 	int voteTime;
 	int numVotesYes;
 	int numVotesNo;
@@ -4286,10 +4319,7 @@ typedef struct cg_bt_s
 	float currentViewHeight;
 	float currentViewBobPhase;
 	float currentViewBobAmp;
-	int unk1;
-	int unk2;
-	int unk3;
-	int unk4;
+	int unk1[10];
 	dtiki_t* lastPlayerWorldModel;
 	dtiki_t* playerFPSModel;
 	int playerFPSModelHandle;
@@ -4349,8 +4379,8 @@ typedef struct cg_bt_s
 	float objectivesCurrentAlpha;
 	int currentObjective;
 	rain_t rain;
-	int unk14[16];
-	clientInfo_t clientinfo[MAX_CLIENTS];
+	int unk14[18];
+	clientInfo_bt_t clientinfo[MAX_CLIENTS];
 
 } cg_bt_t;
 
@@ -7057,6 +7087,54 @@ typedef struct gameExport_s
 	char *errorMessage;
 
 } gameExport_t;
+
+typedef struct gameExport_bt_s
+{
+	int apiVersion;
+
+	void ( *Init )( int svsStartTime, int randomSeed );
+	void ( *Shutdown )( );
+	void ( *Cleanup )( qboolean sameMap );
+	void ( *Precache )( );
+	void ( *SetMap )( const char *mapName );
+	void ( *Restart )( );
+	void ( *SetTime )( int svsStartTime, int svsTime );
+	void ( *SpawnEntities )( const char *entities, int svsTime);
+	const char *( *ClientConnect )( int clientNum, qboolean firstTime );
+	void ( *ClientBegin )( gentity_t *ent, userCmd_t *cmd );
+	void ( *ClientUserinfoChanged )( gentity_t *ent, const char *userInfo );
+	void ( *ClientDisconnect )( gentity_t *ent );
+	void ( *ClientCommand )( gentity_t *ent );
+	void ( *ClientThink )( gentity_t *ent, userCmd_t *ucmd, userEyes_t *eyeInfo );
+	void ( *BotBegin )( gentity_t *ent, userCmd_t *cmd );
+	void ( *BotThink )( gentity_t *ent, userCmd_t *ucmd, userEyes_t *eyeInfo );
+	void ( *PrepFrame )( );
+	void ( *RunFrame )( int svsTime, int frameTime );
+	void ( *ServerSpawned )( );
+	void ( *RegisterSounds )( );
+	qboolean ( *AllowPaused )( );
+	qboolean ( *ConsoleCommand )( );
+	void ( *ArchivePersistant )( const char *name, qboolean loading );
+	void ( *WriteLevel )( const char *fileName, qboolean autoSave );
+	qboolean ( *ReadLevel )( const char *fileName );
+	qboolean ( *LevelArchiveValid )( const char *fileName );
+	void ( *ArchiveInteger )( int *i );
+	void ( *ArchiveFloat )( float *fl );
+	void ( *ArchiveString )( char *s );
+	void ( *ArchiveSvsTime )( int *pi );
+	orientation_t ( *TIKI_Orientation )( gentity_t *edict, int num );
+	void ( *DebugCircle )( float *org, float radius, float r, float g, float b, float alpha, qboolean horizontal );
+	void ( *SetFrameNumber )( int frameNumber );
+	void ( *SoundCallback )( int entNum, soundChannel_t channelNumber, const char *name );
+
+	profGame_t *profStruct;
+	gentity_t *gentities;
+	int gentitySize;
+	int numEntities;
+	int maxEntities;
+	char *errorMessage;
+
+} gameExport_bt_t;
 
 /*
 These are custom function non related to MOHAA
