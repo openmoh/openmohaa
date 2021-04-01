@@ -86,8 +86,6 @@
 - /source/fgame/navigate.cpp
 - /source/fgame/object.cpp
 - /source/fgame/parm.cpp
-- /source/fgame/parser/parsetree.cpp
-- /source/fgame/parsetree.cpp
 - /source/fgame/player.cpp
 - /source/fgame/playerstart.cpp
 - /source/fgame/player_animation.cpp
@@ -129,7 +127,10 @@
 - /source/fgame/windows.cpp
 - /source/fgame/worldspawn.cpp
 - /source/parser/lex.yy.c
+- /source/parser/lex_source.txt
+- /source/parser/parsetree.cpp
 - /source/parser/y.tab.c
+- /source/parser/yacc_source.txt
 - /source/qcommon/assertive.c
 - /source/qcommon/calltrace.cpp
 - /source/qcommon/class.cpp

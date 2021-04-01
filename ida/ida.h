@@ -5,6 +5,14 @@ typedef float vec3_t[3];
 typedef DWORD solid_t;
 typedef unsigned char byte;
 
+typedef unsigned __int8 uint8_t;
+typedef __int8 int8_t;
+typedef unsigned __int16 uint16_t;
+typedef __int16 int16_t;
+typedef unsigned __int32 uint32_t;
+typedef __int32 int32_t;
+typedef uint32_t size_t;
+
 #define	CVAR_ARCHIVE			1
 #define	CVAR_USERINFO			2
 #define	CVAR_SERVERINFO			4
@@ -107,7 +115,7 @@ typedef unsigned char byte;
 #define MAX_CONFIGSTRINGS		2736
 #define MAX_EXTSTRINGCHARS		4096
 #define MAX_GAMESTATECHARS		32000
-#define MAX_GAMESTATECHARS_BT	41952
+#define MAX_GAMESTATECHARS_SH	41952
 
 #define CS_MAXSOUNDS_BITS		8
 #define CS_MAXLIGHTSTYLES		32
@@ -258,6 +266,7 @@ typedef int cvarHandle_t;
 typedef int fileHandle_t;
 typedef int qboolean;
 
+typedef float vec_t;
 typedef float vec2_t[2];
 typedef float vec3_t[3];
 typedef float vec4_t[4];
@@ -1251,14 +1260,14 @@ typedef struct
 	unsigned long crc32_wait;
 	unsigned long rest_read_compressed;
 	unsigned long rest_read_uncompressed;
-	FILE* file;
+	void* file;
 	unsigned long compression_method;
 	unsigned long byte_before_the_zipfile;
 } file_in_zip_read_info_s;
 
 typedef struct
 {
-	FILE* file;
+	void* file;
 	unz_global_info gi;
 	unsigned long byte_before_the_zipfile;
 	unsigned long num_file;
@@ -1386,9 +1395,9 @@ typedef struct cplane_s
 {
 	vec3_t normal;
 	float dist;
-	BYTE type;
-	BYTE signBits;
-	BYTE pad[2];
+	uint8_t type;
+	uint8_t signBits;
+	uint8_t pad[2];
 
 } cplane_t;
 
@@ -1486,7 +1495,7 @@ typedef struct playerState_s
 
 } playerState_t;
 
-typedef struct playerState_bt_s
+typedef struct playerState_sh_s
 {
 	int commandTime;
 	pmType_t pmType;
@@ -1534,7 +1543,7 @@ typedef struct playerState_bt_s
 	int ping;
 	vec3_t eyePos;
 
-} playerState_bt_t;
+} playerState_sh_t;
 
 struct radarUnpacked_t
 {
@@ -1554,6 +1563,17 @@ typedef struct gclient_s
   int activeWarning;
 
 } gclient_t;
+
+typedef struct gclient_sh_s
+{
+  playerState_sh_t ps;
+  int ping;
+  client_persistant_t pers;
+  float cmd_angles[3];
+  int lastActiveTime;
+  int activeWarning;
+
+} gclient_sh_t;
 
 typedef struct server_sound_s
 {
@@ -1590,7 +1610,7 @@ typedef struct clSnapshot_s
 
 } clSnapshot_t;
 
-typedef struct clSnapshot_s
+typedef struct clSnapshot_sh_s
 {
   qboolean valid;
   int snapFlags;
@@ -1601,14 +1621,14 @@ typedef struct clSnapshot_s
   int ping;
   unsigned char areamask[32];
   int cmdNum;
-  playerState_bt_t ps;
+  playerState_sh_t ps;
   int numEntities;
   int parseEntitiesNum;
   int serverCommandNum;
   int number_of_sounds;
   server_sound_t sounds[64];
 
-} clSnapshot_t;
+} clSnapshot_sh_t;
 
 typedef struct qtime_s
 {
@@ -1651,7 +1671,7 @@ typedef struct aliasListNode_s
 	char aliasName[40];
 	char realName[128];
 	float weight;
-	BYTE stopFlag;
+	uint8_t stopFlag;
 	struct AliasListNode_s *next;
 	float pitch;
 	float volume;
@@ -1675,10 +1695,45 @@ typedef struct aliasList_s
 
 } aliasList_t;
 
+
+#define MAX_ALIAS_NAME_LENGTH 40
+#define MAX_REAL_NAME_LENGTH 128
+#define MAX_ALIASLIST_NAME_LENGTH 40
+
+typedef struct AliasListNode_s {
+	char alias_name[ MAX_ALIAS_NAME_LENGTH ];
+	char real_name[ MAX_REAL_NAME_LENGTH ];
+	float weight;
+
+	// Static alias info
+	byte stop_flag;
+	struct AliasListNode_s *next;
+
+	// Global alias info
+	float pitch;
+	float volume;
+	float pitchMod;
+	float volumeMod;
+	float dist;
+	float maxDist;
+	int channel;
+	int streamed;
+	char *subtitle;
+} AliasListNode_t;
+
+typedef struct AliasList_s
+   {
+   char name[ MAX_ALIASLIST_NAME_LENGTH ];
+   qboolean    dirty;
+   int         num_in_list;
+   AliasListNode_t ** sorted_list;
+   AliasListNode_t * data_list;
+   } AliasList_t;
+
 typedef struct usercmd_s
 {
 	int serverTime;
-	BYTE msec;
+	uint8_t msec;
 	short unsigned int buttons;
 	short int angles[3];
 	signed char forwardmove;
@@ -1686,6 +1741,18 @@ typedef struct usercmd_s
 	signed char upmove;
 
 } userCmd_t;
+
+typedef struct usercmd_sh_s
+{
+	int serverTime;
+	short unsigned int buttons;
+	short int angles[3];
+	uint8_t msec;
+	signed char forwardmove;
+	signed char rightmove;
+	signed char upmove;
+
+} userCmd_sh_t;
 
 typedef struct pmove_s
 {
@@ -1710,9 +1777,9 @@ typedef struct pmove_s
 
 } pmove_t;
 
-typedef struct pmove_bt_s
+typedef struct pmove_sh_s
 {
-  playerState_bt_t *ps;
+  playerState_sh_t *ps;
   userCmd_t cmd;
   int tracemask;
   qboolean noFootsteps;
@@ -1732,7 +1799,7 @@ typedef struct pmove_bt_s
   void (*trace) ();
   int (*pointcontents) ();
 
-} pmove_bt_t;
+} pmove_sh_t;
 
 typedef struct pml_s {
   float forward[3];
@@ -1789,13 +1856,13 @@ typedef struct gameState_s
 
 } gameState_t;
 
-typedef struct gameState_bt_s
+typedef struct gameState_sh_s
 {
 	int stringOffsets[MAX_CONFIGSTRINGS];
-	char stringData[MAX_GAMESTATECHARS_BT];
+	char stringData[MAX_GAMESTATECHARS_SH];
 	int dataCount;
 
-} gameState_bt_t;
+} gameState_sh_t;
 
 typedef struct entityState_s
 {
@@ -1829,7 +1896,7 @@ typedef struct entityState_s
 	int boneTag[MAX_BONECONTROLLERS];
 	vec3_t boneAngles[MAX_BONECONTROLLERS];
 	vec4_t boneQuat[MAX_BONECONTROLLERS];
-	BYTE surfaces[MAX_SURFACES];
+	uint8_t surfaces[MAX_SURFACES];
 	int clientNum;
 	int groundEntityNum;
 	int solid;
@@ -1892,11 +1959,75 @@ typedef struct clientActive_s
 
 } clientActive_t;
 
+typedef struct clientActive_sh_s
+{
+  int timeoutcount;
+  clSnapshot_sh_t snap;
+  int serverTime;
+  int oldServerTime;
+  int serverStartTime;
+  int oldFrameServerTime;
+  int serverTimeDelta;
+  qboolean extrapolatedSnapshot;
+  qboolean newSnapshots;
+  gameState_sh_t gameState;
+  char mapname[64];
+  int parseEntitiesNum;
+  int mouseDx[2];
+  int mouseDy[2];
+  int mouseIndex;
+  int mousex;
+  int mousey;
+  unsigned int mouseButtons;
+  int joystickAxis[6];
+  userCmd_sh_t cmds[128];
+  int cmdNumber;
+  outPacket_t outPackets[32];
+  vec3_t viewangles;
+  int serverId;
+  clSnapshot_sh_t snapshots[32];
+  entityState_t entityBaselines[1024];
+  entityState_t parseEntities[2048];
+
+} clientActive_sh_t;
+
+typedef struct clientActive_bt_s
+{
+  int timeoutcount;
+  clSnapshot_sh_t snap;
+  int serverTime;
+  int oldServerTime;
+  int serverStartTime;
+  int oldFrameServerTime;
+  int serverTimeDelta;
+  qboolean extrapolatedSnapshot;
+  qboolean newSnapshots;
+  gameState_sh_t gameState;
+  char mapname[64];
+  int parseEntitiesNum;
+  int mouseDx[2];
+  int mouseDy[2];
+  int mouseIndex;
+  int mousex;
+  int mousey;
+  unsigned int mouseButtons;
+  int joystickAxis[6];
+  userCmd_t cmds[128];
+  int cmdNumber;
+  outPacket_t outPackets[32];
+  vec3_t viewangles;
+  int serverId;
+  clSnapshot_sh_t snapshots[32];
+  entityState_t entityBaselines[1024];
+  entityState_t parseEntities[2048];
+
+} clientActive_bt_t;
+
 typedef struct netAdr_s
 {
 	netAdrType_t type;
-	BYTE ip[4];
-	BYTE ipx[10];
+	uint8_t ip[4];
+	uint8_t ipx[10];
 	short unsigned int port;
 
 } netAdr_t;
@@ -1911,54 +2042,95 @@ typedef struct netChan_s
 	int outgoingSequence;
 	int fragmentSequence;
 	int fragmentLength;
-	BYTE fragmentBuffer[49152];
+	uint8_t fragmentBuffer[49152];
 	qboolean unsentFragments;
 	int unsentFragmentStart;
 	int unsentLength;
-	BYTE unsentBuffer[49152];
+	uint8_t unsentBuffer[49152];
 
 } netChan_t;
 
 typedef struct clientConnection_s
 {
-	int			clientNum;
-	int			lastPacketSentTime;
-	int			lastPacketTime;
-	netAdr_t	serverAddress;
-	int			z_unknown1;
-	int			connectTime;				// for connection retransmits
-	int			connectPacketCount;			// for display on connection dialog
-	char		serverMessage[MAX_STRINGTOKENS];	// for display on connection dialog
-	int			challenge;					// from the server to use for connecting
-	int			checksumFeed;				// from the server for checksum calculations
-	int			reliableSequence;
-	int			reliableAcknowledge;		// the last one the server has executed
-	char		reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRINGCHARS/2];
-	int			serverMessageSequence;
-	char		serverCommands[MAX_RELIABLECOMMANDS][MAX_STRINGCHARS/2];
-	int			serverCommandSequence;
-	fileHandle_t download;
-	char		downloadTempName[MAX_OSPATH];
-	char		downloadName[MAX_OSPATH];
-	int			downloadNumber;
-	int			downloadBlock;	// block we are waiting for
-	int			downloadCount;	// how many bytes we got
-	int			downloadSize;	// how many bytes we got
-	char		downloadList[MAX_INFOSTRING]; // list of paks we need to download
-	qboolean	downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
-	char		demoName[MAX_QPATH];
-	qboolean	demorecording;
-	qboolean	demoplaying;
-	qboolean	demowaiting;	// don't record until a non-delta message is received
-	qboolean	firstDemoFrameSkipped;
-	fileHandle_t	demofile;
-	int			timeDemoFrames;		// counter of rendered frames
-	int			timeDemoStart;		// cls.realtime before first frame
-	int			timeDemoBaseTime;	// 0x00FDA880 - each frame will be at this time + frameNum * 50
+	int clientNum;
+	int lastPacketSentTime;
+	int lastPacketTime;
+	netAdr_t serverAddress;
+    int connectTime;
+    int connectStartTime;
+    int connectPacketCount;
+    char serverMessage[256];
+    int challenge;
+    int checksumFeed;
+    int reliableSequence;
+    int reliableAcknowledge;
+    char reliableCommands[512][1024];
+    int serverMessageSequence;
+    char serverCommands[512][1024];
+    int serverCommandSequence;
+    int download;
+    char downloadTempName[256];
+    char downloadName[256];
+    int downloadNumber;
+    int downloadBlock;
+    int downloadCount;
+    int downloadSize;
+    char downloadList[1350];
+    int downloadRestart;
+    char demoName[64];
+    int demorecording;
+    int demoplaying;
+    int demowaiting;
+    int firstDemoFrameSkipped;
+    int demofile;
+    int timeDemoFrames;
+    int timeDemoStart;
+    int timeDemoBaseTime;
 
-	BYTE		z_unknown2[0x1803C]; //-- netchan_t struct
+	netChan_t netChan;
 
 } clientConnection_t;
+
+typedef struct clientConnection_sh_s
+{
+	int clientNum;
+	int lastPacketSentTime;
+	int lastPacketTime;
+	netAdr_t serverAddress;
+    int connectTime;
+    int connectStartTime;
+    int connectPacketCount;
+    char serverMessage[1024];
+    int challenge;
+    int checksumFeed;
+    int reliableSequence;
+    int reliableAcknowledge;
+    char reliableCommands[512][2048];
+    int serverMessageSequence;
+    char serverCommands[512][2048];
+    int serverCommandSequence;
+    int download;
+    char downloadTempName[256];
+    char downloadName[256];
+    int downloadNumber;
+    int downloadBlock;
+    int downloadCount;
+    int downloadSize;
+    char downloadList[1350];
+    int downloadRestart;
+    char demoName[64];
+    int demorecording;
+    int demoplaying;
+    int demowaiting;
+    int firstDemoFrameSkipped;
+    int demofile;
+    int timeDemoFrames;
+    int timeDemoStart;
+    int timeDemoBaseTime;
+
+	netChan_t netChan;
+
+} clientConnection_sh_t;
 
 typedef struct {
   netAdr_t adr;
@@ -1979,16 +2151,16 @@ typedef struct
 typedef struct {
 	char	*name;
 	int		offset;
-	int		bits;		// 0 = float
+	int		bits;
 	int		type;
 } netField_t;
 
 typedef struct {
 	int		offset;
-	int		bits;		// 0 = float
+	int		bits;
 	int		type;
 	char	*name;
-} netField_ver17_t;
+} netField_ver15_t;
 
 typedef rectDef_t Rectangles;
 
@@ -2035,7 +2207,7 @@ typedef struct Event_s {
 	void				*data;
 } Event_t, Event;
 
-typedef struct Event_s {
+typedef struct Event2_s {
 	Class				baseClass;
 	unsigned short		eventnum;
 	unsigned short		dataSize;
@@ -2048,6 +2220,11 @@ typedef struct ResponseDef_s {
 	void			( __stdcall *response2 )( void *this, Event_t *ev );
 } ResponseDef;
 
+struct LightClass {
+    int waitTillset[5];
+    void* un6;
+};
+
 typedef struct ClassDef_s {
 	const char			*classname;
 	const char			*classID;
@@ -2059,7 +2236,81 @@ typedef struct ClassDef_s {
 	struct ClassDef_s	*super;
 	struct ClassDef_s	*next;
 	struct ClassDef_s	*prev;
+    void                *waitTillSet;
 } ClassDef;
+
+struct ClassDef_bt {
+	const char			*classname;
+	const char			*classID;
+	const char			*superclass;
+	void				*(*newInstance)(void);
+	int					classSize;
+	DWORD				*responses;
+	DWORD				**responseLookup;
+	ClassDef_bt     	*super;
+	ClassDef_bt     	*next;
+	ClassDef_bt     	*prev;
+    LightClass          *lightClass;
+};
+
+struct ListElement_pa {
+    ListElement_pa* next;
+    ListElement_pa* prev;
+    ListElement_pa* un3;
+    void* un4;
+    void* un5;
+    void* un6;
+    void* un7;
+    void* un8;
+    void* un9;
+    void* un10;
+    struct MetaClass_pa* metaClass;
+    bool un11;
+    bool un12;
+};
+
+struct SafePtr_pa {
+    struct Class_pa* ptr;
+    SafePtr_pa* next;
+    SafePtr_pa* prev;
+    void* vtbl;
+};
+
+struct ClassList_pa {
+    ClassList_pa* next;
+    ListElement_pa* ptr;
+    uint32_t count;
+};
+
+struct Class_pa {
+    void* vtbl;
+    SafePtr_pa* list;
+    void* un2;
+    struct MetaClass_pa* metaClass;
+};
+
+typedef struct ClassDef_pa_s {
+    void* vtbl;
+    ResponseDef* responses;
+    ResponseDef** responseLookup;
+    void* un2;
+    const char* classname;
+    const char* classID;
+} ClassDef_pa;
+
+struct MetaClass_pa {
+    Class_pa baseParent;
+    char classname[128];
+    char parent[128];
+    int type;
+    MetaClass_pa* super;
+    void* un6;
+    ClassDef_pa* classInfo;
+    void* un7;
+    void* un8;
+    void* un9;
+    void* un10;
+};
 
 typedef struct Class_vtable_s {
 	DWORD zero;
@@ -2219,6 +2470,14 @@ typedef struct stopWatch_s
 	int endTime;
 
 } stopWatch_t;
+
+typedef struct stopWatch_s
+{
+	int startTime;
+	int endTime;
+    int unknown1_0;
+
+} stopWatch_sh_t;
 
 /*
 typedef struct sigset_s
@@ -2771,7 +3030,7 @@ typedef struct cStaticModelUnpacked_s {
 	int firstVertexData;
 	int numVertexData;
 	int visCount;
-	dtiki_t *tiki;
+	struct dtiki_s *tiki;
 	sphere_dlight_t dlights[ 32 ];
 	int numdlights;
 	float radius;
@@ -2983,8 +3242,8 @@ typedef struct miptex_s
 
 typedef struct gridrow_s
 {
-  BYTE size;
-  BYTE *data;
+  uint8_t size;
+  uint8_t *data;
 
 } gridrow_t;
 
@@ -2993,7 +3252,7 @@ typedef struct msg_s
   qboolean allowoverflow;
   qboolean overflowed;
   qboolean oob;
-  BYTE *data;
+  uint8_t *data;
   int maxsize;
   int cursize;
   int readcount;
@@ -3045,7 +3304,7 @@ typedef struct dtikianim_s
 	dtikicmd_t *client_initcmds;
 	int num_server_initcmds;
 	dtikicmd_t *server_initcmds;
-	BYTE *modelData;
+	uint8_t *modelData;
 	int modelDataSize;
 	vec3_t mins;
 	vec3_t maxs;
@@ -3701,10 +3960,23 @@ typedef struct con_timer_s {
 } con_timer;
 
 typedef struct ScriptVariable_s {
-	BYTE	un1[3];
-	BYTE	type;
-	void	*m_data;
-} ScriptVariable_t;
+	uint8_t	key[3];
+	uint8_t	type;
+	union {
+        struct str_s *stringValue;
+        int intValue;
+        float floatValue;
+        char charValue;
+        float *vectorValue;
+        SafePtr2_t *listenerValue;
+        struct  ScriptVariable_s *refValue;
+        struct ScriptArrayHolder_s *arrayValue;
+        struct ScriptConstArrayHolder_s *constArrayValue;
+        void *containerValue;
+        void *safeContainerValue;
+        struct ScriptPointer_s *pointerValue;
+    } m_data;
+} ScriptVariable_t, ScriptVariable;
 
 typedef struct ScriptThreadLabel_s {
 	void			*m_Script;
@@ -4033,7 +4305,7 @@ typedef struct refDef_s
 	vec3_t viewAxis[3];
 	int time;
 	int rdFlags;
-	BYTE areaMask[MAX_MAPAREABYTES];
+	uint8_t areaMask[MAX_MAPAREABYTES];
 	float farplaneDistance;
 	float farplaneColor[3];
 	qboolean farplaneCull;
@@ -4044,12 +4316,42 @@ typedef struct refDef_s
 
 } refDef_t;
 
+typedef struct refDef_bt_s
+{
+	int x;
+	int y;
+	int width;
+	int height;
+	float fovX;
+	float fovY;
+	vec3_t viewOrg;
+	vec3_t viewAxis[3];
+	int time;
+	int rdFlags;
+	byte areaMask[MAX_MAPAREABYTES];
+	float farplaneDistance;
+	int unk1;
+	float farplaneColor[3];
+	qboolean farplaneCull;
+	qboolean skyPortal;
+	int unk2;
+	int unk3;
+	int unk4;
+	int unk5;
+	int unk6;
+	int unk7;
+	float skyAlpha;
+	vec3_t skyOrigin;
+	vec3_t skyAxis[3];
+
+} refDef_bt_t;
+
 typedef struct snapshot_s
 {
 	int snapFlags;
 	int ping;
 	int serverTime;
-	BYTE areaMask[MAX_MAPAREABYTES];
+	uint8_t areaMask[MAX_MAPAREABYTES];
 	playerState_t ps;
 	int numEntities;
 	entityState_t entities[MAX_ENTITIESINSNAPSHOT];
@@ -4060,13 +4362,13 @@ typedef struct snapshot_s
 
 } snapshot_t;
 
-typedef struct snapshot_bt_s
+typedef struct snapshot_sh_s
 {
 	int snapFlags;
 	int ping;
 	int serverTime;
 	byte areaMask[MAX_MAPAREABYTES];
-	playerState_bt_t ps;
+	playerState_sh_t ps;
 	int numEntities;
 	entityState_t entities[MAX_ENTITIESINSNAPSHOT];
 	int numServerCommands;
@@ -4074,7 +4376,7 @@ typedef struct snapshot_bt_s
 	int numberOfSounds;
 	serverSound_t sounds[MAX_SERVERSOUNDS];
 
-} snapshot_bt_t;
+} snapshot_sh_t;
 
 typedef struct centity_s
 {
@@ -4146,9 +4448,9 @@ typedef struct cgs_s
 
 } cgs_t;
 
-typedef struct cgs_bt_s
+typedef struct cgs_sh_s
 {
-	gameState_bt_t gameState;
+	gameState_sh_t gameState;
 	glConfig_bt_t glConfig;
 	float screenXScale;
 	float screenYScale;
@@ -4182,7 +4484,7 @@ typedef struct cgs_bt_s
 	vec3_t inlineModelMidpoints[MAX_MODELS];
 	media_t media;
 
-} cgs_bt_t;
+} cgs_sh_t;
 
 typedef struct cg_s
 {
@@ -4279,7 +4581,7 @@ typedef struct cg_s
 
 } cg_t;
 
-typedef struct cg_bt_s
+typedef struct cg_sh_s
 {
 	int clientFrame;
 	int clientNum;
@@ -4287,9 +4589,9 @@ typedef struct cg_bt_s
 	int levelShot;
 	int latestSnapshotNum;
 	int latestSnapshotTime;
-	snapshot_bt_t* snap;
-	snapshot_bt_t* nextSnap;
-	snapshot_bt_t activeSnapshots[MAX_ACTIVESNAPSHOTS];
+	snapshot_sh_t* snap;
+	snapshot_sh_t* nextSnap;
+	snapshot_sh_t activeSnapshots[MAX_ACTIVESNAPSHOTS];
 	float frameInterpolation;
 	int thisFrameTeleport;
 	int nextFrameTeleport;
@@ -4299,7 +4601,7 @@ typedef struct cg_bt_s
 	int physicsTime;
 	int renderingThirdPerson;
 	int hyperSpace;
-	playerState_bt_t predictedPlayerState;
+	playerState_sh_t predictedPlayerState;
 	int validPPS;
 	int predictedErrorTime;
 	vec3_t predictedError;
@@ -4311,7 +4613,7 @@ typedef struct cg_bt_s
 	vec3_t autoAxisSlow[3];
 	vec3_t autoAnglesFast;
 	vec3_t autoAxisFast[3];
-	refDef_t refdef;
+	refDef_bt_t refdef;
 	vec3_t playerHeadPos;
 	vec3_t refdefViewAngles;
 	vec3_t currentViewPos;
@@ -4382,7 +4684,7 @@ typedef struct cg_bt_s
 	int unk14[18];
 	clientInfo_bt_t clientinfo[MAX_CLIENTS];
 
-} cg_bt_t;
+} cg_sh_t;
 
 typedef struct clientSnapshot_s
 {
@@ -4396,6 +4698,19 @@ typedef struct clientSnapshot_s
   int messageSize;
 
 } clientSnapshot_t;
+
+typedef struct clientSnapshot_sh_s
+{
+  int areabytes;
+  unsigned char areabits[32];
+  playerState_sh_t ps;
+  int num_entities;
+  int first_entity;
+  int messageSent;
+  int messageAcked;
+  int messageSize;
+
+} clientSnapshot_sh_t;
 
 typedef struct client_s
 {
@@ -4447,6 +4762,125 @@ typedef struct client_s
 
 } client_t;
 
+typedef struct client_sh_s
+{
+	clientState_t state;
+	char userinfo[MAX_INFOSTRING];
+	int reliableSequence;
+	int reliableAcknowledge;
+	char reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRINGCHARS];
+	int reliableSent;
+	int messageAcknowledge;
+	int gamestateMessageNum;
+	int challenge;
+	struct usercmd_s lastUsercmd;
+	struct userEyes_s lastEyeinfo;
+	int lastMessageNum;
+	int lastClientCommand;
+	char  lastClientCommandString[MAX_STRINGCHARS];
+	struct gentity_s *gentity;
+	char name[MAX_NAMELENGTH];
+	char downloadName[MAX_QPATH];
+	fileHandle_t download;
+	int downloadSize;
+	int downloadCount;
+	int downloadClientBlock;
+	int downloadCurrentBlock;
+	int downloadXmitBlock;
+	unsigned char *downloadBlocks[MAX_DOWNLOADWINDOW];
+	int downloadBlockSize[MAX_DOWNLOADWINDOW];
+	qboolean downloadEOF;
+	int downloadSendTime;
+	int deltaMessage;
+	int nextReliableTime;
+	int lastPacketTime;
+	int lastConnectTime;
+	int nextSnapshotTime;
+	qboolean rateDelayed;
+	int timeoutCount;
+	clientSnapshot_sh_t frames[PACKET_BACKUP];
+	int ping;
+	int rate;
+	int snapshotMsec;
+	netChan_t netchan;
+    int unknown1_0;
+    int unknown1_1;
+    int netprofile;
+    int unknown2_0[417];
+	server_sound_t sounds[64];
+	int numberOfSounds;
+	qboolean locprint;
+	int locprintX;
+	int locprintY;
+	char stringToPrint[256];
+    int radarInfo;
+    int lastRadarTime[128];
+    int gcdNum;
+    int unknown3_0[15];
+    int unknown4_0;
+    qboolean isPure;
+
+} client_sh_t;
+
+typedef struct client_bt_s
+{
+	clientState_t state;
+	char userinfo[MAX_INFOSTRING];
+	int reliableSequence;
+	int reliableAcknowledge;
+	char reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRINGCHARS];
+	int reliableSent;
+	int messageAcknowledge;
+	int gamestateMessageNum;
+	int challenge;
+	struct usercmd_s lastUsercmd;
+	struct userEyes_s lastEyeinfo;
+	int lastMessageNum;
+	int lastClientCommand;
+	char  lastClientCommandString[MAX_STRINGCHARS];
+	struct gentity_s *gentity;
+	char name[MAX_NAMELENGTH];
+	char downloadName[MAX_QPATH];
+	fileHandle_t download;
+	int downloadSize;
+	int downloadCount;
+	int downloadClientBlock;
+	int downloadCurrentBlock;
+	int downloadXmitBlock;
+	unsigned char *downloadBlocks[MAX_DOWNLOADWINDOW];
+	int downloadBlockSize[MAX_DOWNLOADWINDOW];
+	qboolean downloadEOF;
+	int downloadSendTime;
+	int deltaMessage;
+	int nextReliableTime;
+	int lastPacketTime;
+	int lastConnectTime;
+	int nextSnapshotTime;
+	qboolean rateDelayed;
+	int timeoutCount;
+	clientSnapshot_sh_t frames[PACKET_BACKUP];
+	int ping;
+	int rate;
+	int snapshotMsec;
+	netChan_t netchan;
+    int unknown1_0;
+    int unknown1_1;
+    int netprofile;
+    int unknown2_0[417];
+	server_sound_t sounds[64];
+	int numberOfSounds;
+	qboolean locprint;
+	int locprintX;
+	int locprintY;
+	char stringToPrint[256];
+    int radarInfo;
+    int lastRadarTime[128];
+    int gcdNum;
+    int unknown3_0;
+    qboolean isPure;
+
+} client_bt_t;
+
 typedef struct {
 	byte	ip[4];
 	unsigned short	port;
@@ -4468,55 +4902,58 @@ typedef struct {
 	qboolean	visible;
 } serverInfo_t;
 
+typedef struct {
+	netAdr_t	adr;
+	char	  	hostName[ 32 ];
+	char	  	mapName[ 32 ];
+	char	  	game[ 32 ];
+	char		gameTypeString[ 32 ];
+	int			netType;
+	int			gameType;
+	int		  	clients;
+	int		  	maxClients;
+	int			minPing;
+	int			maxPing;
+	int			ping;
+	qboolean	visible;
+    qboolean    unknown0_0;
+} serverInfo_bt_t;
+
 typedef struct clientStatic_s {
-	int			startStage;
+	int startStage;
 	connstate_t	state;
-	int			loading;
-	int			keyCatchers;
-	qboolean	vid_restart;
-	qboolean	cddialog;
-	qboolean	no_menus;
-
-	char		servername[256];
-
-	qboolean	rendererRegistered;
-	qboolean	cgameStarted;
-	qboolean	uiStarted;
-	qboolean	timeScaled;
-
-	int			framecount;
-	int			frametime;
-
-	int			realtime;
-	int			realFrametime;
-
-	int				numlocalservers;
-	serverInfo_t	localServers[128];
-	qboolean		bNewLocalServerInfo;
-
-	int			numglobalservers;
+	int loading;
+	int keyCatchers;
+	qboolean vid_restart;
+	qboolean cddialog;
+	qboolean no_menus;
+	char servername[256];
+	qboolean rendererRegistered;
+	qboolean cgameStarted;
+	qboolean uiStarted;
+	qboolean timeScaled;
+	int framecount;
+	int frametime;
+	int realtime;
+	int realFrametime;
+	int numlocalservers;
+	serverInfo_t localServers[128];
+	qboolean bNewLocalServerInfo;
+	int numglobalservers;
 	serverInfo_t  globalServers[2048];
-
-	int			numGlobalServerAddresses;
-	serverAddress_t		globalServerAddresses[2048];
-
-	int			numfavoriteservers;
-	serverInfo_t	favoriteServers[128];
-
-	int			nummplayerservers;
-	serverInfo_t	mplayerServers[128];
-
+	int numGlobalServerAddresses;
+	serverAddress_t globalServerAddresses[2048];
+	int numfavoriteservers;
+	serverInfo_t favoriteServers[128];
+	int nummplayerservers;
+	serverInfo_t mplayerServers[128];
 	int pingUpdateSource;
-
 	int masterNum;
-
-	netAdr_t	updateServer;
-	char		updateChallenge[1024];
-	char		updateInfoString[1350];
-
-	netAdr_t	authorizeServer;
-
-	glConfig_t	glconfig;
+	netAdr_t updateServer;
+	char updateChallenge[1024];
+	char updateInfoString[1350];
+	netAdr_t authorizeServer;
+	glConfig_t glconfig;
 	int total_tris;
 	int total_verts;
 	int total_texels;
@@ -4527,6 +4964,119 @@ typedef struct clientStatic_s {
 	clientAnim_t anim;
 	stopWatch_t stopwatch;
 } clientStatic_t;
+
+typedef struct clientStatic_sh_s {
+	int startStage;
+	connstate_t	state;
+	int loading;
+	int keyCatchers;
+	qboolean vid_restart;
+	qboolean cddialog;
+	qboolean no_menus;
+	char servername[256];
+	qboolean rendererRegistered;
+	qboolean cgameStarted;
+	qboolean uiStarted;
+	qboolean timeScaled;
+	int framecount;
+	int frametime;
+    float serverFrameTime;
+	int realtime;
+	int realFrametime;
+	int numlocalservers;
+	serverInfo_t localServers[128];
+	qboolean bNewLocalServerInfo;
+	int numglobalservers;
+	serverInfo_t  globalServers[2048];
+	int numGlobalServerAddresses;
+	serverAddress_t globalServerAddresses[2048];
+	int numfavoriteservers;
+	serverInfo_t favoriteServers[128];
+	int nummplayerservers;
+	serverInfo_t mplayerServers[128];
+	int pingUpdateSource;
+	int masterNum;
+	netAdr_t updateServer;
+	char updateChallenge[2048];
+	char updateInfoString[1350];
+	netAdr_t authorizeServer;
+    int unknown1_0[1024];
+	glConfig_t glconfig;
+	int total_tris;
+	int total_verts;
+	int total_texels;
+	int world_tris;
+	int world_verts;
+	int character_lights;
+    int unknown2_0;
+	hdElement_t HudDrawElements[256];
+	clientAnim_t anim;
+	stopWatch_sh_t stopwatch;
+    void* savedCgameState;
+    int savedCgameStateSize;
+    char gcdResponse[73];
+    int unknown3_0;
+    int currentRate;
+} clientStatic_sh_t;
+
+typedef struct clientStatic_bt_s {
+	int startStage;
+	connstate_t	state;
+	int loading;
+	int keyCatchers;
+	qboolean vid_restart;
+	qboolean cddialog;
+	qboolean no_menus;
+	char servername[256];
+	qboolean rendererRegistered;
+	qboolean cgameStarted;
+	qboolean uiStarted;
+	qboolean timeScaled;
+	int framecount;
+	int frametime;
+    float serverFrameTime;
+	int realtime;
+	int realFrametime;
+	int numlocalservers;
+	serverInfo_bt_t localServers[128];
+	qboolean bNewLocalServerInfo;
+	int numglobalservers;
+	serverInfo_bt_t  globalServers[2048];
+	int numGlobalServerAddresses;
+	serverAddress_t globalServerAddresses[2048];
+	int numfavoriteservers;
+	serverInfo_bt_t favoriteServers[128];
+	int nummplayerservers;
+	serverInfo_bt_t mplayerServers[128];
+	int pingUpdateSource;
+	int masterNum;
+	netAdr_t updateServer;
+	char updateChallenge[2048];
+	char updateInfoString[1350];
+	netAdr_t authorizeServer;
+    int unknown1_0[1024];
+	glConfig_t glconfig;
+	int total_tris;
+	int total_verts;
+	int total_texels;
+	int world_tris;
+	int world_verts;
+	int character_lights;
+    int unknown2_0;
+	hdElement_t HudDrawElements[256];
+	clientAnim_t anim;
+	stopWatch_sh_t stopwatch;
+    void* savedCgameState;
+    int savedCgameStateSize;
+    char gcdResponse[73];
+    int unknown3_0;
+    int currentRate;
+} clientStatic_bt_t;
+
+typedef struct snapshotEntityNumbers_s {
+  int numSnapshotEntities;
+  int snapshotEntities[1024];
+} snapshotEntityNumbers_t;
 
 typedef struct svEntity_s
 {
@@ -5384,6 +5934,37 @@ typedef struct serverStatic_s
 
 } serverStatic_t;
 
+typedef struct serverStatic_sh_s
+{
+	qboolean initialized;
+	int snapFlagServerBit;
+	int time;
+	int startTime;
+	int lastTime;
+	int serverLagTime;
+	qboolean autosave;
+	int mapTime;
+	client_sh_t *clients;
+	int iNumClients;
+	int numSnapshotEntities;
+	int nextSnapshotEntities;
+	entityState_t *snapshotEntities;
+	int nextHeartbeatTime;
+	challenge_t challenges[1024];
+	netAdr_t redirectAddress;
+	netAdr_t authorizeAddress;
+	char gameName[64];
+	char mapName[64];
+	char rawServerName[64];
+	int areaBitsWarningTime;
+	qboolean soundsNeedLoad;
+	char tmFileName[64];
+	int tmMoopcount;
+	int tmOffset;
+	sgSoundSystem_t soundSystem;
+
+} serverStatic_sh_t;
+
 
 typedef struct server_s
 {
@@ -6167,7 +6748,7 @@ typedef struct {
   sphereor_t *currentSphere;
   sphereor_t spareSphere;
   sphereor_t hudSphere;
-  cStaticModelUnpacked_t *currentStaticModel;
+  struct cStaticModelUnpacked_s *currentStaticModel;
   int dsStreamVert;
   int in2D;
   unsigned char color2D[4];
@@ -6410,7 +6991,7 @@ typedef struct refExport_s
 	qhandle_t ( *RefreshShaderNoMip )( char *name );
 	void ( *EndRegistration )( );
 	void ( *FreeModels )( );
-	void ( *SetWorldVisData )( BYTE *vis );
+	void ( *SetWorldVisData )( uint8_t *vis );
 	void ( *LoadWorld )( char *name );
 	void ( *PrintBSPFileSizes )( );
 	int ( *MapVersion )( );
@@ -6429,8 +7010,8 @@ typedef struct refExport_s
 	void ( *DrawTilePic )( float x, float y, float w, float h, qhandle_t hShader );
 	void ( *DrawTilePicOffset )( float x, float y, float w, float h, qhandle_t hShader, int offsetX, int offsetY );
 	void ( *DrawTrianglePic )( vec2_t *points, vec2_t *texCoords, qhandle_t hShader );
-	void ( *DrawBackground )( int cols, int rows, int bgr, BYTE *data );
-	void ( *DrawStretchRaw )( int x, int y, int w, int h, int cols, int rows, int components, BYTE *data );
+	void ( *DrawBackground )( int cols, int rows, int bgr, uint8_t *data );
+	void ( *DrawStretchRaw )( int x, int y, int w, int h, int cols, int rows, int components, uint8_t *data );
 	void ( *DebugLine )( vec3_t start, vec3_t end, float r, float g, float b, float alpha );
 	void ( *DrawBox )( float x, float y, float w, float h );
 	void ( *AddBox )( float x, float y, float w, float h );
@@ -6646,7 +7227,7 @@ typedef struct clientGameImport_s
 
 } clientGameImport_t;
 
-typedef struct clientGameImport_bt_s
+typedef struct clientGameImport_sh_s
 {
 	int apiVersion;
 
@@ -6817,16 +7398,19 @@ typedef struct clientGameImport_bt_s
 	void (*UI_SetScoreBoardItem)(int itemNumber, char* data1, char* data2, char* data3, char* data4, char* data5, char* data6, char* data7, char* data8, float* textColor, float* backColor, qboolean isHeader);
 	void (*UI_DeleteScoreBoardItems)(int maxIndex);
 	void (*UI_ToggleDMMessageConsole)(int consoleMode);
+    void (*unknown1_0)();
 	dtiki_t* (*TIKI_FindTiki)(char* path);
 	void (*LoadResource)(char* name);
 	void (*FS_CanonicalFilename)(char* name);
+	void (*CL_RestoreSavedCgameState)();
+	void (*CL_ClearSavedCgameState)();
 
 	cvar_t* fsDebug;
 	hdElement_t* hudDrawElements;
 	clientAnim_t* anim;
 	stopWatch_t* stopWatch;
 
-} clientGameImport_bt_t;
+} clientGameImport_sh_t;
 
 typedef struct clientGameExport_s
 {
@@ -6864,6 +7448,48 @@ typedef struct clientGameExport_s
 	qboolean ( *CG_Command_ProcessFile )( char *name, qboolean quiet, dtiki_t *curTiki );
 
 } clientGameExport_t;
+
+typedef struct clientGameExport_sh_s
+{
+	void (*CG_Init)(struct clientGameImport_s* imported, int serverMessageNum, int serverCommandSequence, int clientNum);
+	void (*CG_Shutdown)();
+	void (*CG_DrawActiveFrame)(int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback);
+	qboolean (*CG_ConsoleCommand)();
+	void (*CG_GetRendererConfig)();
+	void (*CG_Draw2D)();
+	void (*CG_EyePosition)(vec3_t eyePos);
+	void (*CG_EyeOffset)(vec3_t eyeOffset);
+	void (*CG_EyeAngles)(vec3_t eyeAngles);
+	float (*CG_SensitivityScale)();
+	void (*CG_ParseCGMessage)();
+	void (*CG_RefreshHudDrawElements)();
+	void (*CG_HudDrawShader)(int info);
+	void (*CG_HudDrawFont)(int info);
+	int (*CG_GetParent)(int entNum);
+	float (*CG_GetObjectiveAlpha)();
+	int (*CG_PermanentMark)(vec3_t origin, vec3_t dir, float orientation, float sScale, float tScale, float red, float green, float blue, float alpha, qboolean doLighting, float sCenter, float tCenter, markFragment_t* markFragments, void* polyVerts);
+	int (*CG_PermanentTreadMarkDecal)(treadMark_t* treadMark, qboolean startSegment, qboolean doLighting, markFragment_t* markFragments, void* polyVerts);
+	int (*CG_PermanentUpdateTreadMark)(treadMark_t* treadMark, float alpha, float minSegment, float maxSegment, float maxOffset, float texScale);
+	void (*CG_ProcessInitCommands)(dtiki_t* tiki, refEntity_t* ent);
+	void (*CG_EndTiki)(dtiki_t* tiki);
+	char* (*CG_GetColumnName)(int columnNum, int* columnWidth);
+	void (*CG_GetScoreBoardColor)(float* red, float* green, float* blue, float* alpha);
+	void (*CG_GetScoreBoardFontColor)(float* red, float* green, float* blue, float* alpha);
+	int (*CG_GetScoreBoardDrawHeader)();
+	void (*CG_GetScoreBoardPosition)(float* x, float* y, float* width, float* height);
+	int (*CG_WeaponCommandButtonBits)();
+	int (*CG_CheckCaptureKey)(keyNum_t key, qboolean down, unsigned int time);
+
+	profCGame_t* profStruct;
+
+	qboolean(*CG_Command_ProcessFile)(char* name, qboolean quiet, dtiki_t* curTiki);
+	void(*unk1)();
+	void(*unk2)();
+	void(*unk3)();
+	void(*unk4)();
+	void(*unk5)();
+
+} clientGameExport_sh_t;
 
 typedef struct gameImport_s
 {
@@ -7000,7 +7626,7 @@ typedef struct gameImport_s
 	void ( *Sound )( vec3_t *org, int entNum, soundChannel_t channel, char *soundName, float volume, float minDist, float pitch, float maxDist, int streamed );
 	void ( *StopSound )( int entNum, soundChannel_t channel );
 	float ( *SoundLength )( soundChannel_t channel, char *name );
-	BYTE * ( *SoundAmplitudes )( soundChannel_t channel, char *name );
+	uint8_t * ( *SoundAmplitudes )( soundChannel_t channel, char *name );
 	int ( *S_IsSoundPlaying )( soundChannel_t channel, char *name );
 	short unsigned int ( *CalcCRC )( unsigned char *start, int count );
 
@@ -7344,13 +7970,13 @@ typedef enum fileaccesstype_s
 typedef struct filedesc_s
 {
 	int inUse;
-	FILE *f;
+	void *f;
 	fileaccesstype_t accessType;
 
 } filedesc_t;
 
 typedef union qfile_gus {
-	FILE*		o;
+	void*		o;
 	void		*z;
 } qfile_gut;
 
@@ -7590,6 +8216,11 @@ typedef union sval_u {
 } sval_t;
 
 typedef struct {
+    sval_t val;
+    unsigned int pos;
+} stype_t;
+
+typedef struct {
 	const char		*opcodename;
 	int				opcodelength;
 	char			opcodestackoffset;
@@ -7619,28 +8250,15 @@ typedef struct {
 	Entry_t				*defaultEntry;
 } con_arrayset_t;
 
-typedef struct ClassDef_s
-{
-	const char			*classname;
-	const char			*classID;
-	const char			*superclass;
-	void				*(*newInstance)(void);
-	int					classSize;
-	void				*responses;
-	void				**responseLookup;
-	struct ClassDef_s	*super;
-	struct ClassDef_s	*next;
-	struct ClassDef_s	*prev;
-} ClassDef_t;
-
 typedef struct ScriptMaster_s {
 	Listener_t				baseListener;
 
 	int						stackCount;			// 0x0014 (0020)
 
 	ScriptVariable_t		avar_Stack[1025];	// 0x0018 (0024)
+    //int                     un3[3];
 	Event_t					fastEvent[11];		// 0x2020 (8224)
-
+    //int                     un1[8];
 	ScriptVariable_t		*pTop;				// 0x20FC (8444)
 
 	unsigned int			cmdCount;			// 0x2100 (8448) - cmd count
@@ -7656,6 +8274,29 @@ typedef struct ScriptMaster_s {
 	con_arrayset			StringDict;
 	int						iPaused;
 } ScriptMaster_t;
+
+typedef struct ScriptMaster_sh_s {
+	Listener_t				baseListener;
+
+	int						stackCount;			// 0x0014 (0020)
+
+	ScriptVariable_t		avar_Stack[1025];	// 0x0018 (0024)
+	Event_t					fastEvent[11];		// 0x2020 (8224)
+	ScriptVariable_t		*pTop;				// 0x20FC (8444)
+
+	unsigned int			cmdCount;			// 0x2100 (8448) - cmd count
+	int						cmdTime;			// 0x2104 (8452) - Elapsed time since the maximum reached LOCALSTACK_SIZE
+	int						maxTime;			// 0x2108 (8456) - Maximum time for LOCALSTACK_SIZE
+
+	SafePtr2_t				m_PreviousThread;	// 0x210C (8460) - parm.previousthread
+	SafePtr2_t				m_CurrentThread;	// 0x211C (8476) - Current thread
+
+	con_map					m_GameScripts;
+	Container_t				m_menus;
+	con_timer				timingList;
+	con_arrayset			StringDict;
+	int						iPaused;
+} ScriptMaster_sh_t;
 
 typedef struct ScriptClass_s {
 	Listener_t			baseListener;
@@ -7680,6 +8321,50 @@ typedef struct ScriptVM_s {
 	unsigned char	state;
 	unsigned char	m_ThreadState;
 } ScriptVM_t;
+
+struct ScriptVM_pa_t;
+
+struct ScriptVM_pa_vtabl_t {
+    void (__thiscall** destroy)(ScriptVM_pa_t* this, int);
+};
+
+struct ScriptVM_pa_t {
+    ScriptVM_pa_vtabl_t* vtbl;
+    int un2;
+	struct ScriptThread_s	*m_Thread;
+	ScriptClass_t	*m_ScriptClass;
+	void *m_Stack;
+    int un5[20];
+	void			*next;
+
+    int un3;
+    
+	ScriptVariable_t m_ReturnValue;
+
+	unsigned char	*m_PrevCodePos;
+	unsigned char	*m_CodePos;
+    int un7;
+
+	unsigned char	state;
+	unsigned char	m_ThreadState;
+};
+
+typedef struct ScriptVM_sh_s {
+	void			*next;
+
+	struct ScriptThread_s	*m_Thread;
+	ScriptClass_t	*m_ScriptClass;
+
+	void			*m_Stack;
+
+	ScriptVariable_t m_ReturnValue;
+
+	unsigned char	*m_PrevCodePos;
+	unsigned char	*m_CodePos;
+
+	unsigned char	state;
+	unsigned char	m_ThreadState;
+} ScriptVM_sh_t;
 
 typedef struct ScriptPointer_s {
 	Container_t list;
@@ -7739,7 +8424,15 @@ typedef struct Game_s {
 	int				maxentities;
 } Game_t;
 
-typedef struct Level_s {
+typedef struct Game_sh_s {
+	gclient_t		*clients;
+	qboolean		autosaved;
+	int				maxclients;
+	int				maxentities;
+} Game_sh_t;
+
+
+struct Level {
 	Listener_t		baseListener;
 	char *current_map;
 
@@ -7844,9 +8537,156 @@ typedef struct Level_s {
 
 	Vector m_vObjectiveLocation;
 	bool spawning;
-} Level_t;
+};
 
-typedef enum
+struct badplace_t {
+	Vector* unknown1_0;
+	int unknown1_1;
+	float unknown2_0;
+	float unknown2_1;
+	float unknown2_2;
+	int unknown2_3;
+	float unknown2_4;
+};
+
+struct Container_badplace_t {
+	badplace_t *objlist;
+	int numobjects;
+	int maxobjects;
+};
+
+struct VoteOptions {
+	int unknown4_0;
+	int unknown4_1;
+	int unknown4_2;
+	int unknown4_3;
+	int unknown4_4;
+};
+
+struct Level_sh {
+	Listener_t		baseListener;
+	char *current_map;
+
+	int mHealthPopCount;
+
+	str m_mapscript;
+	str m_precachescript;
+	str m_pathfile;
+	str m_mapfile;
+
+	int spawn_entnum;
+	int spawnflags;
+
+	int framenum;
+	int inttime;
+	int intframetime;
+
+	float time;
+	float frametime;
+
+	int		svsTime;
+	float	svsFloatTime;
+	int		svsStartTime;
+	int		svsEndTime;
+	float unknown1_0;
+
+	str level_name;
+	str mapname;
+	str spawnpoint;
+	str nextmap;
+
+	int m_iCuriousVoiceTime;
+	int m_iAttackEntryAnimTime;
+
+	qboolean playerfrozen;
+
+	float		intermissiontime;
+	int			intermissiontype;
+	int			exitintermission;
+
+	int total_secrets;
+	int found_secrets;
+
+	trace_t impact_trace;
+
+	float earthquake_magnitude;
+
+	qboolean cinematic;
+
+	qboolean	ai_on;
+	qboolean	m_bAlarm;
+	qboolean	mbNoDropHealth;
+	int		spawning;
+	int			m_iPapersLevel;
+
+	qboolean mission_failed;
+	qboolean died_already;
+	qboolean near_exit;
+
+	Vector	water_color;
+	Vector	lava_color;
+	float	water_alpha;
+	float	lava_alpha;
+
+	str current_soundtrack;
+	str saved_soundtrack;
+
+	// Screen state
+	Vector			m_fade_color;
+	float			m_fade_alpha;
+	float			m_fade_time;
+	float			m_fade_time_start;
+	int				m_fade_type;
+	int				m_fade_style;
+
+	float			m_letterbox_fraction;
+	float			m_letterbox_time;
+	float			m_letterbox_time_start;
+	int				m_letterbox_dir;
+	Container_badplace_t m_badplaces;
+
+	Container_t automatic_cameras;
+	int unknown3_0;
+	int unknown3_1;
+
+	int m_numArenas;
+
+	float	m_voteTime;
+	int		m_voteYes;
+	int		m_voteNo;
+	int		m_numVoters;
+	str		m_voteString;
+	VoteOptions voteOptions;
+
+	Vector m_intermission_origin;
+	Vector m_intermission_angle;
+
+	int frame_skel_index;
+	int skel_index[ 1024 ];
+
+	qboolean	m_LoopProtection;
+
+	Container_t m_SimpleArchivedEntities;
+
+	earthquake_t	earthquakes[ 10 ];
+	int				num_earthquakes;
+	int				unknown5_0;
+	int				unknown5_1;
+
+	Vector		m_vObjectiveLocation;
+	Vector		m_vAlliesObjectiveLocation;
+	Vector		m_vAxisObjectiveLocation;
+	Vector		unknown6_0;
+	float		unknown6_1;
+	float		unknown6_2;
+	int			unknown6_3;
+	int			unknown6_4;
+	int			unknown6_5;
+	int			unknown6_6;
+	int			unknown6_7;
+};
+
+enum opcode_e
 {
 	OP_DONE,
 	OP_BOOL_JUMP_FALSE4,
@@ -7977,7 +8817,7 @@ typedef enum
 	OP_SWITCH,
 
 	OP_PREVIOUS,
-} opcode_e;
+};
 
 /*typedef enum sval_type_s
 {
@@ -8084,6 +8924,41 @@ typedef struct DM_Manager_s {
 	int				m_iTotalMapTime;
 
 } DM_Manager_t;
+
+struct DM_Manager_sh {
+	Listener_t		baseListener;
+	Container_t		m_players;
+	Container_t		m_teams;
+
+	DM_Team_t		m_team_spectator;
+	DM_Team_t		m_team_freeforall;
+	DM_Team_t		m_team_allies;
+	DM_Team_t		m_team_axis;
+
+	float			m_fRoundTime;
+	float			m_fRoundEndTime;
+
+	char			m_bAllowRespawns;
+	char			m_bRoundBasedGame;
+	char			m_bIgnoringClockForBomb;
+	char			pad1;
+
+	int				m_iTeamWin;
+	int				m_iDefaultRoundLimit;
+
+	int				m_csTeamClockSide;
+	int				m_csTeamBombPlantSide;
+
+	int				m_iNumTargetsToDestroy;
+	int				m_iNumTargetsDestroyed;
+
+	int				m_iNumBombsPlanted;
+	int				m_iTotalMapTime;
+	bool m_bAllowAlliesRespawn;
+	bool m_bAllowAxisRespawn;
+	bool unknown3;
+
+};
 
 typedef struct Trigger_s {
 	Animate baseAnimate;
@@ -8940,73 +9815,88 @@ typedef struct pushed_s {
 	float deltayaw;
 } pushed_t;
 
-typedef struct block_s {
+typedef struct block_scriptclass_s {
   unsigned char data[256][52];
   unsigned char prev_data[256];
   unsigned char next_data[256];
   short int free_data;
   short int used_data;
-  struct block_s *prev_block;
-  struct block_s *next_block;
-} block_t;
+  struct block_scriptclass_s *prev_block;
+  struct block_scriptclass_s *next_block;
+} block_scriptclass_t;
 
-typedef struct MEM_BlockAlloc_s {
-  block_t *m_FreeBlock;
-  block_t *m_StartUsedBlock;
-  block_t *m_StartFullBlock;
+typedef struct block_scriptclass_sh_s {
+  unsigned char data[256][49];
+  unsigned char prev_data[256];
+  unsigned char next_data[256];
+  short int free_data;
+  short int used_data;
+  struct block_scriptclass_sh_s *prev_block;
+  struct block_scriptclass_sh_s *next_block;
+} block_scriptclass_sh_t;
+
+typedef struct block_scriptclass_bt_s {
+  unsigned char data[256][48];
+  unsigned char prev_data[256];
+  unsigned char next_data[256];
+  short int free_data;
+  short int used_data;
+  struct block_scriptclass_bt_s *prev_block;
+  struct block_scriptclass_bt_s *next_block;
+} block_scriptclass_bt_t;
+
+typedef struct MEM_BlockAlloc_ScriptClass_s {
+  block_scriptclass_t *m_FreeBlock;
+  block_scriptclass_t *m_StartUsedBlock;
+  block_scriptclass_t *m_StartFullBlock;
   unsigned int m_BlockCount;
-} MEM_BlockAlloc_t;
+} MEM_BlockAlloc_ScriptClass_t;
 
-typedef struct MEM_BlockAlloc_enum_s {
-	MEM_BlockAlloc_t					*m_Owner;
-	block_s								*m_CurrentBlock;
+typedef struct MEM_BlockAlloc_scriptclass_sh_s {
+  block_scriptclass_sh_t *m_FreeBlock;
+  block_scriptclass_sh_t *m_StartUsedBlock;
+  block_scriptclass_sh_t *m_StartFullBlock;
+  unsigned int m_BlockCount;
+} MEM_BlockAlloc_scriptclass_sh_t;
+
+typedef struct MEM_BlockAlloc_scriptclass_bt_s {
+  block_scriptclass_bt_t *m_FreeBlock;
+  block_scriptclass_bt_t *m_StartUsedBlock;
+  block_scriptclass_bt_t *m_StartFullBlock;
+  unsigned int m_BlockCount;
+} MEM_BlockAlloc_scriptclass_bt_t;
+
+typedef struct MEM_BlockAlloc_enum_scriptclass_s {
+	MEM_BlockAlloc_ScriptClass_t		*m_Owner;
+	block_scriptclass_t					*m_CurrentBlock;
 	unsigned char						m_CurrentData;
 	int									m_CurrentBlockType;
-} MEM_BlockAlloc_enum_t;
+} MEM_BlockAlloc_enum_scriptclass_t;
+
+typedef struct MEM_BlockAlloc_enum_scriptclass_sh_s {
+	MEM_BlockAlloc_scriptclass_sh_t     *m_Owner;
+	block_scriptclass_sh_t				*m_CurrentBlock;
+	unsigned char						m_CurrentData;
+	int									m_CurrentBlockType;
+} MEM_BlockAlloc_enum_scriptclass_sh_t;
+
+typedef struct MEM_BlockAlloc_enum_scriptclass_bt_s {
+	MEM_BlockAlloc_scriptclass_bt_t     *m_Owner;
+	block_scriptclass_bt_t				*m_CurrentBlock;
+	unsigned char						m_CurrentData;
+	int									m_CurrentBlockType;
+} MEM_BlockAlloc_enum_scriptclass_bt_t;
 
 typedef struct MEM_TempAlloc_s {
 	unsigned char *m_CurrentMemoryBlock;
 	int m_CurrentMemoryPos;
 } MEM_TempAlloc_t;
 
-#define MAX_ALIAS_NAME_LENGTH 40
-#define MAX_REAL_NAME_LENGTH 128
-#define MAX_ALIASLIST_NAME_LENGTH 40
-
-typedef struct AliasListNode_s {
-	char alias_name[ MAX_ALIAS_NAME_LENGTH ];
-	char real_name[ MAX_REAL_NAME_LENGTH ];
-	float weight;
-
-	// Static alias info
-	byte stop_flag;
-	struct AliasListNode_s *next;
-
-	// Global alias info
-	float pitch;
-	float volume;
-	float pitchMod;
-	float volumeMod;
-	float dist;
-	float maxDist;
-	int channel;
-	int streamed;
-	char *subtitle;
-} AliasListNode_t;
-
-typedef struct AliasList_s
-   {
-   char name[ MAX_ALIASLIST_NAME_LENGTH ];
-   qboolean    dirty;
-   int         num_in_list;
-   AliasListNode_t ** sorted_list;
-   AliasListNode_t * data_list;
-   } AliasList_t;
-
 //===== Gamespy =====
 
 typedef int GError;
 typedef int gbool;
+typedef int sockaddr_in;
 
 struct DArrayImplementation {
   int count;
@@ -9049,7 +9939,7 @@ typedef struct {
   int s;
   GServer currentserver;
   long unsigned int starttime;
-  struct sockaddr_in saddr;
+  sockaddr_in saddr;
 } UpdateInfo;
 
 typedef struct {
