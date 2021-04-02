@@ -1,0 +1,15 @@
+== Remove comments from class ==
+- Find :
+- Replace :  /\* .*? \*/
+
+== Remove class name from class ==
+- Find :
+- Replace : class .+?::
+
+== Put class name for functions ==
+- Find : ^.*? 
+- Replace : $0ClassName::
+
+== Declare functions ==
+- Find : ;
+- Replace : \r\n{\r\n\t// FIXME: STUB\r\n}\r\n
