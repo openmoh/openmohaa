@@ -2247,16 +2247,16 @@ struct ClassDef_bt {
 	int					classSize;
 	DWORD				*responses;
 	DWORD				**responseLookup;
-	ClassDef_bt     	*super;
-	ClassDef_bt     	*next;
-	ClassDef_bt     	*prev;
+	struct ClassDef_bt     	*super;
+	struct ClassDef_bt     	*next;
+	struct ClassDef_bt     	*prev;
     LightClass          *lightClass;
 };
 
 struct ListElement_pa {
-    ListElement_pa* next;
-    ListElement_pa* prev;
-    ListElement_pa* un3;
+    struct ListElement_pa* next;
+    struct ListElement_pa* prev;
+    struct ListElement_pa* un3;
     void* un4;
     void* un5;
     void* un6;
@@ -2271,13 +2271,13 @@ struct ListElement_pa {
 
 struct SafePtr_pa {
     struct Class_pa* ptr;
-    SafePtr_pa* next;
-    SafePtr_pa* prev;
+    struct SafePtr_pa* next;
+    struct SafePtr_pa* prev;
     void* vtbl;
 };
 
 struct ClassList_pa {
-    ClassList_pa* next;
+    struct ClassList_pa* next;
     ListElement_pa* ptr;
     uint32_t count;
 };
@@ -3846,6 +3846,27 @@ typedef struct {
 	qboolean bInIncludesSection;
 } dloaddef_t;
 
+typedef struct {
+	char *path;
+	TikiScript tikiFile;
+	dloadanim_t *loadanims[ 4095 ];
+	dloadinitcmd_t *loadserverinitcmds[ 160 ];
+	dloadinitcmd_t *loadclientinitcmds[ 180 ];
+	int skelIndex_ld[ 12 ];
+	int numanims;
+	int numserverinitcmds;
+	int numclientinitcmds;
+	char headmodels[ 4096 ];
+	char headskins[ 4096 ];
+	qboolean bIsCharacter;
+	struct msg_s *modelBuf;
+	unsigned char modelData[ 8192 ];
+	qboolean bInIncludesSection;
+	char idleSkel[128];
+	int numskels;
+	qboolean hasSkel;
+} dloaddef_bt_t;
+
 typedef struct Container_s {
 	void	*objlist;
 	int		numobjects;
@@ -3951,6 +3972,24 @@ typedef struct con_set_enum_s {
 typedef struct con_map_enum_s {
 	con_set_enum_t	m_Set_Enum;
 } con_map_enum_t;
+
+typedef struct con_timer_element_s {
+	Class_t* obj;
+	int inttime;
+} con_timer_element_t;
+
+typedef struct Container_con_timer_s {
+	con_timer_element_t *objlist;
+	int numobjects;
+	int maxobjects;
+} Container_con_timer_t;
+
+typedef struct con_timer_s {
+	Class_t					baseClass;
+	Container_con_timer_t	m_Elements;
+	bool					m_bDirty;
+	int						inttime;
+} con_timer;
 
 typedef struct con_timer_s {
 	Class_t				baseClass;
@@ -6421,18 +6460,18 @@ typedef struct reallightinfo_s {
 
 typedef struct light_s {
 	char char0;
-	_DWORD dword4;
+	DWORD dword4;
 	vec3_t m_vOrigin;
 	vec3_t m_vSpotDir;
-	_BYTE gap20[4];
+	byte gap20[4];
 	bool m_bLinear;
 	float m_fFalloff;
-	_BYTE gap2C[4];
+	byte gap2C[4];
 	float m_fRealIntensity;
 	vec3_t m_vColor;
 	float m_fSpotRadiusByDistance;
-	_BYTE gap44[4];
-	_DWORD dword48;
+	byte gap44[4];
+	DWORD dword48;
 	void *m_pShader;
 	float m_fScale;
 	float m_fOverbright;
@@ -6830,7 +6869,6 @@ typedef struct {
 } trGlobals_t;
 
 typedef struct srfMarkFragment_s {
- public:
   surfaceType_t surfaceType;
   int iIndex;
   int numVerts;
@@ -8250,6 +8288,23 @@ typedef struct {
 	Entry_t				*defaultEntry;
 } con_arrayset_t;
 
+typedef struct StateScript_s {
+	Class_t baseClass;
+	con_set label_list;
+} StateScript_t;
+
+typedef struct GameScript_s {
+	void				*_vfptr;
+	int					m_Filename;
+	char				*m_SourceBuffer;
+	unsigned int		m_SourceLength;
+	con_map				*m_ProgToSource;
+	Container_t			m_CatchBlocks;
+	StateScript_t		m_State;
+	unsigned char		*m_ProgBuffer;
+	unsigned int		m_ProgLength;
+} GameScript_t;
+
 typedef struct ScriptMaster_s {
 	Listener_t				baseListener;
 
@@ -8300,18 +8355,23 @@ typedef struct ScriptMaster_sh_s {
 
 typedef struct ScriptClass_s {
 	Listener_t			baseListener;
-	void				*m_Script;
+	GameScript_t		*m_Script;
 	SafePtr2_t			m_Self;
 	struct ScriptVM_s	*m_Threads;
 } ScriptClass_t;
 
-typedef struct ScriptVM_s {
-	void			*next;
+typedef struct ScriptStack_s {
+	ScriptVariable_t* m_Array;
+	int m_Count;
+} ScriptStack;
+
+typedef struct ScriptVM {
+	struct ScriptVM_s *next;
 
 	struct ScriptThread_s	*m_Thread;
 	ScriptClass_t	*m_ScriptClass;
 
-	void			*m_Stack;
+	ScriptStack *m_Stack;
 
 	ScriptVariable_t m_ReturnValue;
 
@@ -8320,15 +8380,13 @@ typedef struct ScriptVM_s {
 
 	unsigned char	state;
 	unsigned char	m_ThreadState;
-} ScriptVM_t;
+} ScriptVM_s, ScriptVM_t;
 
-struct ScriptVM_pa_t;
+typedef struct{
+    void (** destroy)(struct ScriptVM_pa* this, int);
+} ScriptVM_pa_vtabl_t;
 
-struct ScriptVM_pa_vtabl_t {
-    void (__thiscall** destroy)(ScriptVM_pa_t* this, int);
-};
-
-struct ScriptVM_pa_t {
+typedef struct ScriptVM_pa {
     ScriptVM_pa_vtabl_t* vtbl;
     int un2;
 	struct ScriptThread_s	*m_Thread;
@@ -8347,7 +8405,7 @@ struct ScriptVM_pa_t {
 
 	unsigned char	state;
 	unsigned char	m_ThreadState;
-};
+} ScriptVM_pa_t;
 
 typedef struct ScriptVM_sh_s {
 	void			*next;
@@ -8377,28 +8435,11 @@ typedef struct AbstractScript_s {
 	con_map			*m_ProgToSource;
 } AbstractScript_t;
 
-typedef struct StateScript_s {
-	Class_t baseClass;
-	con_set label_list;
-} StateScript_t;
-
 typedef struct CatchBlock_s {
 	StateScript_t m_StateScript;
 	unsigned char *m_TryStartCodePos;
 	unsigned char *m_TryEndCodePos;
 } CatchBlock_t;
-
-typedef struct GameScript_s {
-	void				*_vfptr;
-	int					m_Filename;
-	char				*m_SourceBuffer;
-	unsigned int		m_SourceLength;
-	con_map				*m_ProgToSource;
-	Container_t			m_CatchBlocks;
-	StateScript_t		m_State;
-	unsigned char		*m_ProgBuffer;
-	unsigned int		m_ProgLength;
-} GameScript_t;
 
 typedef struct ScriptThread_s {
 	Listener_t	baseListener;
@@ -9223,9 +9264,9 @@ typedef struct FileRead_s {
 	size_t length;
 	byte *buffer;
 	byte *pos;
-} FileRead_t;
+} FileRead_t, FileRead;
 
-typedef struct Archiver_s {
+typedef struct Archiver {
 	Class_t baseClass;
 	Container_t classpointerList;
 	Container_t fixupList;
@@ -9237,7 +9278,7 @@ typedef struct Archiver_s {
 	int numclassespos;
 	qboolean harderror;
 	int m_iNumBytesIO;
-} Archiver_t;
+} Archiver_s, Archiver_t;
 
 typedef struct EventQueueNode_s { /* size 36 id 806 */
 	Event_t *event;
@@ -9246,7 +9287,7 @@ typedef struct EventQueueNode_s { /* size 36 id 806 */
 	SafePtr2_t m_sourceobject;
 	struct EventQueueNode_s *prev;
 	struct EventQueueNode_s *next;
-} EventQueueNode_t;
+} EventQueueNode_t, EventQueueNode;
 
 typedef struct FuncLadder_s {
 	Entity_t	baseEntity;
