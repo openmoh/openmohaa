@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 #ifndef DEDICATED
-#ifdef USE_LOCAL_HEADERS
+#ifdef USE_INTERNAL_SDL_HEADERS
 #	include "SDL_version.h"
 #else
 #	include <SDL_version.h>
