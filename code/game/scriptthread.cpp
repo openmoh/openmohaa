@@ -2319,7 +2319,7 @@ ScriptThread::~ScriptThread()
 	ScriptVM* vm = m_ScriptVM;
 	if( !vm )
 	{
-		ScriptError( "Attempting to delete a dead thread." );
+		throw ScriptException( "Attempting to delete a dead thread." );
 	}
 
 	m_ScriptVM = NULL;
@@ -2436,7 +2436,7 @@ void ScriptThread::FileOpen
 	}
 	else
 	{
-		ev->AddInteger( (int)f );
+		ev->AddInteger((int)(size_t)f);
 		sprintf( buf, "%i", scriptfiles->integer + 1 );
 		glbs.Cvar_Set( "sv_scriptfiles", buf );
 		return;

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 #include "bg_local.h"
+#include <tiki.h>
 
 CLASS_DECLARATION( Sentient, SimpleActor, NULL )
 {

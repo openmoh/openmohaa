@@ -37,10 +37,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "characterstate.h"
 #include "weaputils.h"
 #include "player.h"
-#include <parm.h>
 #include "bg_local.h"
 #include "weapturret.h"
 #include "sentient.h"
+#include <parm.h>
+#include <tiki.h>
+
 #include <cmath>
 
 Vector MINS(-15.0,-15.0,0.0);

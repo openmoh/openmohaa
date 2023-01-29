@@ -3260,7 +3260,8 @@ PathNode *PathSearch::FindCornerNodeForExactPath
 
 	if (!PathSearch::FindPath(enemy->origin, pSelf->origin,	pSelf, fMaxPath, 0, 0.0, 100))
 		return NULL;
-	int iDepth;
+
+	size_t iDepth = 0;
 	for (PathNode* pParentNode = Node->Parent; pParentNode; pParentNode = pParentNode->Parent, iDepth++)
 	{
 		pPathNode[iDepth] = pParentNode;
@@ -3291,7 +3292,7 @@ PathNode *PathSearch::FindCornerNodeForExactPath
 		}
 	}
 
-	int index = i - 1;
+	size_t index = i - 1;
 	if (index < iDepth)
 	{
 		if (index)

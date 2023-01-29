@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __CG_PUBLIC_H__
 #define __CG_PUBLIC_H__
 
+#include <tiki.h>
+
 #define	CMD_BACKUP			128
 #define	CMD_MASK			(CMD_BACKUP - 1)
 // allow a lot of command backups for very fast systems

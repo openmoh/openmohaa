@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tiki_imports.h : TIKI Imports
 
-#ifndef __TIKI_IMPORTS_H__
-#define __TIKI_IMPORTS_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,5 +44,3 @@ int TIKI_ReadFileEx( const char *qpath, void **buffer, qboolean quiet );
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __TIKI_IMPORTS_H__

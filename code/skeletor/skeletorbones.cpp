@@ -488,7 +488,7 @@ int skelBone_Base::GetNumBoneRefs( boneType_t boneType )
 	}
 }
 
-SkelMat4 skelBone_Base::GetTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_Base::GetTransform( const skelAnimStoreFrameList_c *frames )
 {
 	if( m_isDirty )
 	{
@@ -498,11 +498,6 @@ SkelMat4 skelBone_Base::GetTransform( const skelAnimStoreFrameList_c *frames )
 	{
 		return m_cachedValue;
 	}
-}
-
-SkelMat4 skelBone_Base::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
-{
-	return 0;
 }
 
 void skelBone_Base::SetParent( skelBone_Base *parent )
@@ -529,7 +524,7 @@ skelBone_Base *skelBone_Base::Parent() const
 	return m_parent;
 }
 
-SkelMat4 skelBone_Zero::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_Zero::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	if( m_parent )
 	{
@@ -554,7 +549,7 @@ skelBone_Base *skelBone_Zero::GetBoneRef( int num )
 	return NULL;
 }
 
-SkelMat4 skelBone_Rotation::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_Rotation::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	SkelMat4 incomingValue;
 	SkelQuat incomingQuat;
@@ -607,7 +602,7 @@ skelBone_Base *skelBone_Rotation::GetBoneRef( int bone )
 	return 0;
 }
 
-SkelMat4 skelBone_PosRot::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_PosRot::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	SkelVec3 incomingOffset;
 	SkelMat4 incomingValue;
@@ -668,7 +663,7 @@ skelBone_Base *skelBone_PosRot::GetBoneRef( int num )
 	return NULL;
 }
 
-SkelMat4 skelBone_Root::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_Root::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	SkelVec3 incomingOffset;
 	SkelMat4 incomingValue;
@@ -707,7 +702,7 @@ skelBone_IKshoulder::skelBone_IKshoulder()
 	m_wrist = NULL;
 }
 
-SkelMat4 skelBone_IKshoulder::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_IKshoulder::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	SkelMat4 baseMatrix, targetMatrix;
 	float desiredLength;
@@ -857,7 +852,7 @@ float skelBone_IKshoulder::GetLowerLength()
 	return m_lowerLength;
 }
 
-SkelMat4 skelBone_IKwrist::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_IKwrist::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	if( m_shoulder->m_isDirty ) {
 		m_shoulder->GetDirtyTransform( frames );
@@ -896,7 +891,7 @@ skelBone_Base *skelBone_IKwrist::GetBoneRef( int num )
 	return m_shoulder;
 }
 
-SkelMat4 skelBone_IKelbow::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_IKelbow::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	float fLength;
 	float cosA, sinA;
@@ -955,7 +950,7 @@ skelBone_AvRot::skelBone_AvRot()
 	m_reference2 = NULL;
 }
 
-SkelMat4 skelBone_AvRot::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_AvRot::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	SkelQuat temp1, temp2;
 	SkelMat4 temp;
@@ -1010,7 +1005,7 @@ skelBone_Base *skelBone_AvRot::GetBoneRef( int num )
 	}
 }
 
-SkelMat4 skelBone_HoseRot::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_HoseRot::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	SkelMat4 mat;
 
@@ -1022,7 +1017,7 @@ SkelMat4 skelBone_HoseRot::GetDirtyTransform( const skelAnimStoreFrameList_c *fr
 	return GetDirtyTransform( mat, m_target->GetTransform( frames ) );
 }
 
-SkelMat4 skelBone_HoseRot::GetDirtyTransform( SkelMat4& myParentTM, SkelMat4& targetTM )
+SkelMat4 &skelBone_HoseRot::GetDirtyTransform( SkelMat4& myParentTM, SkelMat4& targetTM )
 {
 	SkelMat4 m;
 	SkelMat4 invParentTM;
@@ -1139,7 +1134,7 @@ skelBone_Base *skelBone_HoseRot::GetBoneRef( int num )
 	return m_target;
 }
 
-SkelMat4 skelBone_HoseRotBoth::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_HoseRotBoth::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	SkelMat4 myParentTM;
 	SkelMat4 targetTM;
@@ -1165,7 +1160,7 @@ void skelBone_HoseRotBoth::SetBaseValue( boneData_t *boneData )
 	m_basePos.z = -m_basePos.z;
 }
 
-SkelMat4 skelBone_HoseRotParent::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_HoseRotParent::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	SkelMat4 myParentTM;
 	SkelMat4 targetTM;
@@ -1189,7 +1184,7 @@ void skelBone_HoseRotParent::SetBaseValue( boneData_t *boneData )
 	m_basePos.z = -m_basePos.z;
 }
 
-SkelMat4 skelBone_World::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
+SkelMat4 &skelBone_World::GetDirtyTransform( const skelAnimStoreFrameList_c *frames )
 {
 	m_cachedValue.MakeIdentity();
 	m_isDirty = false;

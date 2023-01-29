@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "lodthing.h"
 #include "viewthing.h"
 #include "playerbot.h"
+#include <tiki.h>
 
 #ifdef WIN32
 #include <intrin.h>
@@ -107,32 +108,6 @@ void QDECL G_Error( int type, const char *fmt, ... )
 	//*( int * )0 = 0;
 
 	assert( !text );
-}
-
-void* G_Malloc( int size )
-{
-	return SV_Malloc( size );
-}
-
-void G_Free( void *ptr )
-{
-	int zoneId = *( int * )( ( byte * )ptr - 4 );
-	int size = ( int )( ( byte * )ptr - 16 );
-
-	assert( ptr );
-
-	if( zoneId == 0xC057 )
-		return;
-
-	assert( zoneId == 0x2015 );
-	if( zoneId != 0x2015 )
-		return;
-
-	assert( *( unsigned int * )( *( unsigned int * )size + size - 4 ) == 0x2015 );
-	if( *( unsigned int * )( *( unsigned int * )size + size - 4 ) != 0x2015 )
-		return;
-
-	SV_Free( ptr );
 }
 
 /*
@@ -254,9 +229,6 @@ void G_InitGame( int levelTime, int randomSeed )
 	G_Printf( "==== InitGame ====\n" );
 	G_Printf( "gamename: %s\n", GAMEVERSION );
 	G_Printf( "gamedate: %s\n", __DATE__ );
-
-	SV_Error = gi.Error;
-	gi.Error = G_Error;
 
 	srand( randomSeed );
 
@@ -1469,14 +1441,6 @@ extern "C"
 gameExport_t * GetGameAPI(gameImport_t * import)
 {
 	gi = *import;
-
-#ifdef _DEBUG
-	//SV_Malloc						= gi.Malloc;
-	///gi.Malloc						= G_Malloc;
-
-	//SV_Free = gi.Free;
-	//gi.Free							= G_Free;
-#endif
 
 	globals.apiversion				= GAME_API_VERSION;
 

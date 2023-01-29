@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 #include "skeletor.h"
+#include <tiki.h>
 
 #define EPSILON		0.000000000001f
 
@@ -1001,7 +1002,7 @@ void skeletor_c::GetFrame( skelAnimFrame_t *newFrame )
 }
 
 
-SkelMat4 skeletor_c::GetBoneFrame( int boneIndex )
+SkelMat4 &skeletor_c::GetBoneFrame( int boneIndex )
 {
 	return m_bone[ boneIndex ]->GetTransform( &m_frameList );
 }
@@ -1010,7 +1011,6 @@ bool skeletor_c::IsBoneOnGround( int boneIndex, float threshold )
 {
 	return GetBoneFrame( boneIndex ).val[ 3 ][ 2 ] < threshold;
 }
-
 
 float skeletor_c::GetRadius()
 {
@@ -1111,33 +1111,25 @@ int skeletor_c::GetMorphWeightFrame( int *data )
 
 	if( m_headBoneIndex >= 0 && !VectorCompareEpsilon( m_eyeTargetPos, vec3_origin, EPSILON ) )
 	{
-		SkelVec3 lookPos;
-		SkelVec3 temp;
-		SkelMat4 headOrient;
+		SkelVec3 lookPos = m_eyeTargetPos;
+		const SkelMat4& headOrient = GetBoneFrame(m_headBoneIndex);
 		SkelMat4 invHeadOrient;
-		float lookUpAmount;
-		float lookLeftAmount;
-		float l;
-		float s;
-
-		lookPos = m_eyeTargetPos;
-		headOrient = GetBoneFrame( m_headBoneIndex );
 		invHeadOrient.TransposeRotOf( headOrient );
 
-		temp = lookPos;
+		SkelVec3 temp = lookPos;
 		lookPos[ 0 ] = temp[ 0 ] * invHeadOrient[ 0 ][ 0 ] * temp[ 1 ] * invHeadOrient[ 1 ][ 0 ] + temp[ 2 ] * invHeadOrient[ 2 ][ 0 ];
 		lookPos[ 1 ] = temp[ 0 ] * invHeadOrient[ 0 ][ 1 ] * temp[ 1 ] * invHeadOrient[ 1 ][ 1 ] + temp[ 2 ] * invHeadOrient[ 2 ][ 1 ];
 		lookPos[ 2 ] = temp[ 0 ] * invHeadOrient[ 0 ][ 2 ] * temp[ 1 ] * invHeadOrient[ 1 ][ 2 ] + temp[ 2 ] * invHeadOrient[ 2 ][ 2 ];
 
-		lookLeftAmount = lookPos[ 2 ] * 100 + data[ m_targetLookLeft ] - data[ m_targetLookRight ];
-		lookUpAmount = lookPos[ 0 ] * 100 + data[ m_targetLookUp ] - data[ m_targetLookDown ];
+		float lookLeftAmount = lookPos[2] * 100 + data[m_targetLookLeft] - data[m_targetLookRight];
+		float lookUpAmount = lookPos[0] * 100 + data[m_targetLookUp] - data[m_targetLookDown];
 
-		s = VectorLengthSquared( lookPos );
+		const float s = VectorLengthSquared( lookPos );
 
 		if( s == 0.0 ) {
-			lookPos[0 ] = 1.0;
+			lookPos[0] = 1.0;
 		} else if( s != 1.0 ) {
-			l = 1.0 / sqrt( s );
+			float l = 1.0 / sqrt( s );
 			VectorScale( lookPos, l, lookPos );
 		}
 

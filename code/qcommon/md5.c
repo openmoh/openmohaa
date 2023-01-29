@@ -164,7 +164,7 @@ static void MD5Transform(uint32_t buf[4],
  * of bytes.
  */
 static void MD5Update(struct MD5Context *ctx, unsigned char const *buf,
-	unsigned len)
+	size_t len)
 {
     uint32_t t;
 
@@ -257,7 +257,7 @@ static void MD5Final(struct MD5Context *ctx, unsigned char *digest)
 }
 
 
-char *Com_MD5File( const char *fn, int length, const char *prefix, int prefix_len )
+char *Com_MD5File( const char *fn, size_t length, const char *prefix, int prefix_len )
 {
 	static char final[33] = {""};
 	unsigned char digest[16] = {""}; 
@@ -265,9 +265,9 @@ char *Com_MD5File( const char *fn, int length, const char *prefix, int prefix_le
 	MD5_CTX md5;
 	byte buffer[2048];
 	int i;
-	int filelen = 0;
-	int r = 0;
-	int total = 0;
+    size_t filelen = 0;
+	size_t r = 0;
+	size_t total = 0;
 
 	Q_strncpyz( final, "", sizeof( final ) );
 

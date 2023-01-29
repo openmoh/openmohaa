@@ -112,7 +112,7 @@ ScriptClass::ScriptClass()
 ScriptClass::~ScriptClass()
 {
 	if (m_Script == NULL) {
-		ScriptError("Attempting to delete dead class.");
+		throw ScriptException("Attempting to delete dead class.");
 	}
 
 	KillThreads();

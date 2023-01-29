@@ -34,10 +34,10 @@ extern "C" {
 const char *   Alias_Find( const char * alias );
 qboolean Alias_Add( const char * alias, const char * name, const char * parameters );
 qboolean Alias_Delete( const char * alias );
-const char *   Alias_FindRandom( const char * alias, AliasListNode_t **ret );
+const char *   Alias_FindRandom( const char * alias, struct AliasListNode_s **ret );
 void     Alias_Dump( void );
 void     Alias_Clear( void );
-AliasList_t *Alias_GetGlobalList();
+struct AliasList_s *Alias_GetGlobalList();
 
 int S_ChannelNameToNum( const char *pszName );
 const char *S_ChannelNumToName( int iChannel );

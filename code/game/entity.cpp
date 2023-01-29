@@ -54,6 +54,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "soundman.h"
 #include "../qcommon/qfiles.h"
 #include "g_spawn.h"
+#include <tiki.h>
 
 // Generic entity events
 Event EV_SoundDone

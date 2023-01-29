@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "animate.h"
 #include "../game/player.h"
 #include "../qcommon/qfiles.h"
+#include <tiki.h>
 
 // Leg Animation events
 Event EV_SetAnim

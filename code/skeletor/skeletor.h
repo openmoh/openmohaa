@@ -115,7 +115,7 @@ public:
 	void								LoadMorphTargetNames( skelHeaderGame_t *modelHeader );
 	void								GetFrame( skelAnimFrame_t *newFrame );
 	int									GetMorphWeightFrame( int *data );
-	SkelMat4							GetBoneFrame( int boneIndex );
+	SkelMat4							&GetBoneFrame( int boneIndex );
 	void								GetFrameBounds( SkelVec3 *, SkelVec3 * );
 	float								GetModelLODRadius();
 	bool								IsBoneOnGround( int boneIndex, float threshold );

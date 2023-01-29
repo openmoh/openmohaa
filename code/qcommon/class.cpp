@@ -237,9 +237,9 @@ void *Class::operator new( size_t s )
 	p = ( size_t * )gi.Malloc( s );
 #elif defined ( CGAME_DLL )
 	p = ( size_t * )cgi.Malloc( s );
+#else
+	p = (size_t*)Z_Malloc(s);
 #endif
-
-	*p = s;
 
 	totalmemallocated += s;
 	numclassesallocated++;
@@ -260,6 +260,8 @@ void Class::operator delete( void *ptr )
 	gi.Free( p );
 #elif defined ( CGAME_DLL )
 	cgi.Free( p );
+#else
+	Z_Free(p);
 #endif
 }
 

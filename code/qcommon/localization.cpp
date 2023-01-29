@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // localization.cpp : Localization for different languages
 
 #include <localization.h>
+#include <tiki.h>
 
 cLocalization *g_localization;
 static char buf[ 1024 ];

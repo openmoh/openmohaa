@@ -24,7 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define _QCOMMON_H_
 
 #include "cm_public.h"
-#include "tiki.h"
 #include "alias.h"
 
 //Ignore __attribute__ on non-gcc platforms
@@ -256,7 +255,7 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION	8
+#define	PROTOCOL_VERSION	TARGET_GAME_PROTOCOL
 // su44: MoHAA v 1.00 uses protocol version 6
 
 // maintain a list of compatible protocols for demo playing
@@ -859,7 +858,7 @@ typedef struct {
 
 	struct tikiFrame_s	*of;
 	struct tikiFrame_s	*nf;
-	dtiki_t		*tiki;
+	struct dtiki_s *tiki;
 	int			bonestart;
 	int			morphstart;
 	qboolean	hasMorph;
@@ -1036,7 +1035,7 @@ void 		Com_Quit_f( void );
 
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
-char		*Com_MD5File(const char *filename, int length, const char *prefix, int prefix_len);
+char		*Com_MD5File(const char *filename, size_t length, const char *prefix, int prefix_len);
 int			Com_HashKey(char *string, int maxlen);
 int			Com_Filter(const char *filter, const char *name, int casesensitive);
 int			Com_FilterPath(char *filter, char *name, int casesensitive);
