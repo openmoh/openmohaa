@@ -1002,7 +1002,7 @@ void skeletor_c::GetFrame( skelAnimFrame_t *newFrame )
 }
 
 
-SkelMat4 &skeletor_c::GetBoneFrame( int boneIndex )
+SkelMat4 &skeletor_c::GetBoneFrame( int boneIndex ) const
 {
 	return m_bone[ boneIndex ]->GetTransform( &m_frameList );
 }

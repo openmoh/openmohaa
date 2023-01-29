@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon.h"
 #include "../skeletor/skeletor.h"
 #include "tiki_cache.h"
+#include "tiki_tag.h"
 
 /*
 ===============
@@ -76,13 +77,10 @@ TIKI_OrientationInternal
 */
 orientation_t TIKI_OrientationInternal( dtiki_t *tiki, int entnum, int tagnum, float scale )
 {
-	orientation_t or;
-	skeletor_c *skeletor;
-	SkelMat4 pTransform;
+	const skeletor_c* skeletor = ( skeletor_c * )TIKI_GetSkeletor( tiki, entnum );
+	const SkelMat4& pTransform = skeletor->GetBoneFrame( tagnum );
 
-	skeletor = ( skeletor_c * )TIKI_GetSkeletor( tiki, entnum );
-	pTransform = skeletor->GetBoneFrame( tagnum );
-
+	orientation_t or ;
 	or.origin[ 0 ] = ( pTransform.val[ 3 ][ 0 ] + tiki->load_origin[ 0 ] ) * ( scale * tiki->load_scale );
 	or.origin[ 1 ] = ( pTransform.val[ 3 ][ 1 ] + tiki->load_origin[ 1 ] ) * ( scale * tiki->load_scale );
 	or.origin[ 2 ] = ( pTransform.val[ 3 ][ 2 ] + tiki->load_origin[ 2 ] ) * ( scale * tiki->load_scale );
