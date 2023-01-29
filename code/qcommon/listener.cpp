@@ -344,7 +344,7 @@ template<>
 int HashCode< Event * >( Event * const& key )
 {
 	// can't use key->eventnum because eventnum will be assigned from con_set
-	return ( int )key;
+	return (int)(size_t)key;
 }
 
 template<>

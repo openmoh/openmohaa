@@ -70,7 +70,7 @@ int HashCode< unsigned char >( const unsigned char& key )
 template<>
 int HashCode< unsigned char * >( unsigned char * const& key )
 {
-	return ( int )key;
+	return (int)(size_t)key;
 }
 
 template<>
