@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "level.h"
 #include "parm.h"
 #include "scriptmaster.h"
+#include "scriptthread.h"
 #include "parser/parsetree.h"
 #include "parser/yyParser.h"
 #include "parser/yyLexer.h"

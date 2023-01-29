@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "class.h"
 #include "mover.h"
 #include "scriptmaster.h"
+#include "scriptthread.h"
 #include "scriptslave.h"
 #include "sentient.h"
 #include "weapon.h"

@@ -27,7 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "gamecmds.h"
 #include "dm_manager.h"
 #include "player.h"
-#include <scriptmaster.h>
+#include "scriptmaster.h"
+#include "lightstyleclass.h"
 #include "lodthing.h"
 #include "viewthing.h"
 #include "playerbot.h"

@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #include "scriptmaster.h"
+#include "scriptthread.h"
 #include "scriptvariable.h"
 
 Level level;
