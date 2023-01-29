@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef NO_SCRIPTENGINE
 #include "archive.h"
 #include "scriptmaster.h"
+#include "scriptthread.h"
 #endif
 
 #if defined( GAME_DLL )
@@ -563,7 +564,7 @@ void L_ProcessPendingEvents()
 
 		assert( obj );
 
-		if( node->inttime > EVENT_time)
+		if( node->inttime > EVENT_msec)
 		{
 			break;
 		}
@@ -2820,7 +2821,7 @@ EventQueueNode *Listener::PostEventInternal( Event *ev, float delay, int flags )
 	node = new EventQueueNode;
 
 	i = Event::EventQueue.next;
-	inttime = EVENT_time + ( delay * 1000.0f + 0.5f );
+	inttime = EVENT_msec + ( delay * 1000.0f + 0.5f );
 
 	while( i != &Event::EventQueue && inttime > i->inttime )
 	{
@@ -3135,7 +3136,7 @@ qboolean Listener::ProcessPendingEvents( void )
 
 	processedEvents = false;
 
-	t = EVENT_time;
+	t = EVENT_msec;
 
 	event = Event::EventQueue.next;
 	while( event != &Event::EventQueue )

@@ -618,6 +618,7 @@ extern MEM_BlockAlloc< Event, MEM_BLOCKSIZE > Event_allocator;
 #define EVENT_DPrintf gi.DPrintf
 #define EVENT_Printf gi.Printf
 #define EVENT_time   level.time
+#define EVENT_msec   level.inttime
 #define EVENT_realtime gi.Milliseconds()
 #define EVENT_Error gi.Error
 
@@ -630,11 +631,8 @@ extern MEM_BlockAlloc< Event, MEM_BLOCKSIZE > Event_allocator;
 #define EVENT_DebugPrintf cgi.DebugPrintf
 #define EVENT_DPrintf cgi.Printf
 #define EVENT_Printf cgi.Printf
-#ifndef CGAME_HOOK
 #define EVENT_time   ( ( ( float )cg.time / 1000.0f ) )
-#else
-#define EVENT_time   ( ( ( float )cg->time / 1000.0f ) )
-#endif
+#define EVENT_msec   cg.time
 #define EVENT_realtime   cgi.Milliseconds()
 #define EVENT_Error cgi.Error
 
@@ -646,6 +644,7 @@ extern MEM_BlockAlloc< Event, MEM_BLOCKSIZE > Event_allocator;
 #define EVENT_DPrintf Com_Printf
 #define EVENT_Printf Com_Printf
 #define EVENT_time   ( ( ( float )cls.realtime / 1000.0f ) )
+#define EVENT_msec   cls.realtime
 #define EVENT_realtime   Sys_Milliseconds()
 #define EVENT_Error Com_Error
 
@@ -659,6 +658,7 @@ extern MEM_BlockAlloc< Event, MEM_BLOCKSIZE > Event_allocator;
 #define EVENT_DPrintf Com_Printf
 #define EVENT_Printf Com_Printf
 #define EVENT_time   ( ( ( float )cls.realtime / 1000.0f ) )
+#define EVENT_msec   cls.realtime
 #define EVENT_realtime Sys_Milliseconds()
 #define EVENT_Error Com_Error
 
