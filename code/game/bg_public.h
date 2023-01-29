@@ -373,6 +373,7 @@ typedef enum {
 #define EF_LINKANGLES		0x00000040
 #define EF_ALLIES			0x00000080		// su44: this player is in allies team
 #define EF_AXIS				0x00000100		// su44: this player is in axis team
+#define EF_ANY_TEAM			(EF_ALLIES | EF_AXIS)
 #define EF_DEAD				0x00000200		// don't draw a foe marker over players with EF_DEAD
 
 

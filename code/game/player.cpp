@@ -4477,7 +4477,7 @@ void Player::InitModel
 		edict->s.eFlags |= EF_UNARMED;
 	}
 
-	edict->s.eFlags &= ~( EF_ALLIES | EF_AXIS );
+	edict->s.eFlags &= ~EF_ANY_TEAM;
 
 	if( dm_team == TEAM_ALLIES )
 	{
@@ -4609,6 +4609,7 @@ void Player::InitView
 void Player::InitDeathmatch( void )
 {
 	fAttackerDispTime = 0.0f;
+	pAttackerDistPointer = nullptr;
 	m_iInfoClient = -1;
 	m_fWeapSelectTime = level.time - 9.0f;
 
@@ -4634,9 +4635,7 @@ void Player::InitDeathmatch( void )
 
 	if( current_team )
 	{
-		m_bSpectator = false;
-		m_bTempSpectator = false;
-		client->ps.pm_flags &= ~PMF_SPECTATING;
+		EndSpectator();
 
 		if( dmManager.GetMatchStartTime() > 0.0f && !dmManager.AllowRespawn() &&
 			g_allowjointime->value > 0.0f && level.time - dmManager.GetMatchStartTime() > g_allowjointime->value )
@@ -6816,6 +6815,7 @@ void Player::ClientInactivityTimer
 			deadflag = 2;
 
 		PostEvent( EV_Player_Respawn, 0 );
+		return;
 	}
 
 	if( g_inactivekick->integer )
@@ -6919,6 +6919,10 @@ void Player::ClientThink
 	if( ( current_ucmd->serverTime - client->ps.commandTime ) < 1 )
 	{
 		return;
+	}
+
+	if (g_gametype->integer && dm_team == TEAM_SPECTATOR && !IsSpectator()) {
+		Spectator();
 	}
 
 	last_ucmd = *current_ucmd;
@@ -9918,11 +9922,11 @@ void Player::FinishMove
 	}
 
 	// This check is in mohaa but the animation will look bad
-	//if( !( client->ps.pm_flags & PMF_FROZEN ) )
-	//{
+	if( !( client->ps.pm_flags & PMF_FROZEN ) )
+	{
 		PlayerAngles();
 		AdjustAnimBlends();
-	//}
+	}
 
 	// burn from lava, etc
 	WorldEffects();
@@ -11334,6 +11338,9 @@ void Player::SetDM_Team( DM_Team *team )
 {
 	current_team = team;
 
+	// clear the player's team
+	edict->s.eFlags &= ~EF_ANY_TEAM;
+
 	if( team )
 	{
 		dm_team = team->teamType;
@@ -11353,7 +11360,7 @@ void Player::SetDM_Team( DM_Team *team )
 
 	client->pers.team = dm_team;
 
-	if( m_fTeamSelectTime != level.time && ( edict->s.eFlags & ( EF_ALLIES | EF_AXIS ) ) )
+	if( m_fTeamSelectTime != level.time && ( edict->s.eFlags & ( EF_ANY_TEAM ) ) )
 	{
 		InitModel();
 	}
@@ -11422,6 +11429,7 @@ void Player::Spectator( void )
 	deadflag = 0;
 
 	m_bSpectator = m_bTempSpectator ^ 1;
+	m_iPlayerSpectating = 0;
 
 	client->ps.feetfalling = 0;
 	client->ps.pm_flags |= PMF_SPECTATING;
