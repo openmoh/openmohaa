@@ -164,8 +164,6 @@ class str
 			   void		SkipPath();
    };
 
-typedef unsigned int const_str;
-
 char *strstrip( char *string );
 char *strlwc( char *string );
 

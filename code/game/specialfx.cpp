@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 #include "specialfx.h"
+#include "level.h"
 
 /*****************************************************************************/
 /*QUAKED func_fulcrum (0 0 1) ? X_AXIS_ONLY Y_AXIS_ONLY

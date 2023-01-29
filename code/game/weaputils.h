@@ -39,6 +39,7 @@ extern Event EV_Projectile_Explode;
 extern Event EV_Projectile_UpdateBeam;
 
 class Weapon;
+class Sentient;
 
 class Projectile : public Animate
 {

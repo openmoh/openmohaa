@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_public.h -- game module information visible to server
 
+#pragma once
+
+#include "bg_public.h"
+
 #define	GAME_API_VERSION	12
 
 // entity->svFlags
@@ -806,6 +810,14 @@ typedef struct gameExport_s {
 
 #ifdef __cplusplus
 extern "C"
+#endif
+
+#ifdef GAME_DLL
+#ifdef WIN32
+__declspec(dllexport)
+#else
+__attribute__((visibility("default")))
+#endif
 #endif
 gameExport_t* GetGameAPI( gameImport_t *import );
 

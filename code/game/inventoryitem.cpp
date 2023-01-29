@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "inventoryitem.h"
 #include "weaputils.h"
+#include "level.h"
 
 Event EV_InventoryItem_Shoot
 (

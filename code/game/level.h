@@ -22,10 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // level.h: General Level Info
 
-#ifndef __LEVEL_H__
-#define __LEVEL_H__
+#pragma once
 
 #include "listener.h"
+#include "g_public.h"
 
 #define MAX_HEAD_SENTIENTS		2
 #define MAX_EARTHQUAKES			10
@@ -290,5 +290,3 @@ qboolean Level::Reborn
 {
 	return reborn;
 }
-
-#endif

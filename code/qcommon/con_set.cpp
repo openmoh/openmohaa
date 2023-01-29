@@ -22,7 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // con_set.cpp: C++ map/set classes
 
-#include "glb_local.h"
+#include "con_set.h"
+#include "short3.h"
+#include "str.h"
+#include "vector.h"
 
 // Basic Hash functions
 

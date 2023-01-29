@@ -1464,11 +1464,8 @@ GetGameAPI
 Gets game imports and returns game exports
 ================
 */
-#ifndef WIN32
 extern "C"
-__attribute__((visibility("default")))
-#endif
-gameExport_t* GetGameAPI( gameImport_t *import )
+gameExport_t * GetGameAPI(gameImport_t * import)
 {
 	gi = *import;
 

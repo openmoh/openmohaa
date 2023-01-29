@@ -22,12 +22,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // game.h: General Game Info
 
-#ifndef __GAME_H__
-#define __GAME_H__
+#pragma once
 
-#include "glb_local.h"
-#include "listener.h"
 #include "level.h"
+#include "listener.h"
+#include "g_public.h"
 
 class Game : public Listener
 {
@@ -45,6 +44,8 @@ public:
 	Game();
 	~Game();
 };
+
+class SimpleArchivedEntity;
 
 /*
 * Functions prototypes
@@ -238,5 +239,3 @@ void G_TouchTriggers(
 );
 
 extern Game game;
-
-#endif /* __GAME_H__ */

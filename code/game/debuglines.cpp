@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // 
 
 #include "debuglines.h"
+#include "game.h"
 
 #define NUM_CIRCLE_SEGMENTS 24
 

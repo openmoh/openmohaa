@@ -114,7 +114,6 @@ inline ActiveWeapon::ActiveWeapon
    )
 
    {
-   weapon = NULL;
    hand   = WEAPON_ERROR;
    }
 
@@ -394,7 +393,7 @@ inline void Sentient::ClearNewActiveWeapon
    )
 
    {
-   newActiveWeapon.weapon = NULL;
+	newActiveWeapon.weapon.Clear();
    newActiveWeapon.hand   = WEAPON_ERROR;
    }
 

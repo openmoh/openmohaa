@@ -25,7 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __CON_SET_H__
 #define __CON_SET_H__
 
+#include <mem_blockalloc.h>
+
 class Class;
+class Archiver;
 
 template< typename key, typename value >
 class con_map_enum;
@@ -55,7 +58,7 @@ public:
 
 	Entry();
 
-#ifndef NO_ARCHIVE
+#ifdef ARCHIVE_SUPPORTED
 	void			Archive( Archiver& arc );
 #endif
 };
@@ -85,7 +88,7 @@ public:
 	con_set();
 	~con_set();
 
-#ifndef NO_ARCHIVE
+#ifdef ARCHIVE_SUPPORTED
 	void						Archive( Archiver& arc );
 #endif
 
@@ -135,7 +138,7 @@ private:
 	con_set< key, value > m_con_set;
 
 public:
-#ifndef NO_ARCHIVE
+#ifdef ARCHIVE_SUPPORTED
 	void		Archive( Archiver& arc );
 #endif
 

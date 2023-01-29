@@ -22,12 +22,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // mem_tempalloc.cpp: Fast temporary memory manager
 
-#include <glb_local.h>
 #include <mem_tempalloc.h>
+
+#ifdef GAME_DLL
+#include "g_local.h"
+
+#define MEM_TempAllocate(x) gi.Malloc(x)
+#define MEM_TempFree(x) gi.Free(x)
+#else
+#include "qcommon.h"
+
+#define MEM_TempAllocate(x) Z_Malloc(x)
+#define MEM_TempFree(x) Z_Free(x)
+#endif
 
 MEM_TempAlloc::MEM_TempAlloc()
 {
-	m_CurrentMemoryBlock = NULL;
+	m_CurrentMemoryBlock = nullptr;
 }
 
 void *MEM_TempAlloc::Alloc( size_t len )
@@ -47,7 +58,7 @@ void *MEM_TempAlloc::Alloc( size_t len )
 		if( len < 65536 )
 			len = 65536;
 
-		m_CurrentMemoryBlock = ( unsigned char * )glbs.Malloc( len + sizeof( unsigned char * ) );
+		m_CurrentMemoryBlock = ( unsigned char * )MEM_TempAllocate( len + sizeof( unsigned char * ) );
 		*( unsigned char ** )m_CurrentMemoryBlock = prev_block;
 		result = m_CurrentMemoryBlock + sizeof( unsigned char * );
 	}
@@ -62,7 +73,7 @@ void MEM_TempAlloc::FreeAll( void )
 	while( m_CurrentMemoryBlock )
 	{
 		prev_block = *( unsigned char ** )m_CurrentMemoryBlock;
-		glbs.Free( m_CurrentMemoryBlock );
+		MEM_TempFree( m_CurrentMemoryBlock );
 		m_CurrentMemoryBlock = prev_block;
 	}
 }

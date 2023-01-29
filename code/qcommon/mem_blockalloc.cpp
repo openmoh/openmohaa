@@ -22,14 +22,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // mem_blockalloc.cpp: Fast block memory manager
 
-#include <glb_local.h>
+#if defined(GAME_DLL)
+
+#include "g_local.h"
 
 void *MEM_Alloc( int size )
 {
-	return glbs.Malloc( size );
+	return gi.Malloc( size );
 }
 
 void MEM_Free( void *ptr )
 {
-	return glbs.Free( ptr );
+	return gi.Free( ptr );
 }
+
+#else
+
+#include "qcommon.h"
+
+void* MEM_Alloc(int size)
+{
+	return Z_Malloc(size);
+}
+
+void MEM_Free(void* ptr)
+{
+	return Z_Free(ptr);
+}
+
+#endif

@@ -26,12 +26,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptmaster.h"
 #include "world.h"
 
-#ifdef GAME_DLL
-#include "../game/camera.h"
-#include "../game/entity.h"
-#include "../game/player.h"
-#include "../game/dm_manager.h"
-#endif
+#include "camera.h"
+#include "entity.h"
+#include "player.h"
+#include "dm_manager.h"
 
 Game game;
 

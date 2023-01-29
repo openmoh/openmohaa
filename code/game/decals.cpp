@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // decals.cpp: Decal entities
 
 #include "decals.h"
-
+#include "level.h"
 
 CLASS_DECLARATION( Entity, Decal, NULL )
 	{

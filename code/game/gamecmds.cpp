@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include <compiler.h>
 #include "playerbot.h"
+#include "consoleevent.h"
 
 typedef struct
    {

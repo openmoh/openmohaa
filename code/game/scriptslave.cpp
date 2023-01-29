@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "weapon.h"
 #include "gibs.h"
 #include "explosion.h"
+#include "game.h"
 
 /*****************************************************************************/
 /*QUAKED script_object (0 0.5 1) ? NOT_SOLID

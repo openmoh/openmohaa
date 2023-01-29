@@ -31,11 +31,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <winsock.h>
 #endif
 
-#include <baseimp.h>
-
 extern "C" {
 
-baseImport_t bi;
 cvar_t *sv_scriptfiles;
 cvar_t *g_scriptcheck;
 cvar_t *g_showopcodes;
@@ -762,35 +759,6 @@ void B_Free( void *ptr ) {
 	return Z_Free( ptr );
 }
 
-/*
-====================
-Com_FillBaseImports
-====================
-*/
-void Com_FillBaseImports( void ) {
-	bi.Printf = Com_Printf;
-	bi.DPrintf = Com_DPrintf;
-	bi.Error = Com_Error;
-	bi.Malloc = B_Malloc;
-	bi.Free = B_Free;
-	bi.Milliseconds = Sys_Milliseconds;
-	bi.FS_ReadFile = FS_ReadFileEx;
-	bi.FS_FreeFile = FS_FreeFile;
-	bi.FS_CanonicalFilename = FS_CanonicalFilename;
-	bi.FS_FileNewer = FS_FileNewer;
-	bi.FS_Flush = FS_Flush;
-	bi.FS_FOpenFileAppend = FS_FOpenFileAppend;
-	bi.FS_FOpenFileWrite = FS_FOpenFileWrite;
-	bi.FS_FreeFileList = FS_FreeFileList;
-	bi.FS_ListFiles = FS_ListFiles;
-	bi.FS_PrepFileWrite = FS_PrepFileWrite;
-	bi.FS_Read = FS_Read;
-	bi.FS_Seek = FS_Seek;
-	bi.FS_Tell = FS_FTell;
-	bi.FS_Write = FS_Write;
-	bi.FS_WriteFile = FS_WriteFile;
-}
-
 void CL_ShutdownCGame( void );
 void CL_ShutdownUI( void );
 void SV_ShutdownGameProgs( void );
@@ -1302,8 +1270,6 @@ void Com_Init( char *commandLine ) {
 	// prepare enough of the subsystems to handle
 	// cvar and command buffer management
 	Com_ParseCommandLine( commandLine );
-
-	Com_FillBaseImports();
 
 	Swap_Init();
 	Cbuf_Init();

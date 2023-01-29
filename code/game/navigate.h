@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "stack.h"
 #include "container.h"
 #include "doors.h"
+#include "sentient.h"
 #include "../qcommon/qfiles.h"
 
 

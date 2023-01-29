@@ -25,8 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __MEM_BLOCKALLOC_H__
 #define __MEM_BLOCKALLOC_H__
 
-#include <linklist.h>
-#include "dbgheap.h"
+#include "linklist.h"
 
 #define MEM_BLOCKSIZE			char[ 256 ]
 

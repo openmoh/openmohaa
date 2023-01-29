@@ -145,12 +145,12 @@ typedef struct dloaddef_s {
 
 #include "../skeletor/skeletor.h"
 
+#include "../qcommon/tiki_main.h"
 #include "../tiki/tiki_anim.h"
 #include "../tiki/tiki_cache.h"
 #include "../tiki/tiki_commands.h"
 #include "../tiki/tiki_files.h"
 #include "../tiki/tiki_imports.h"
-#include "../tiki/tiki_main.h"
 #include "../tiki/tiki_parse.h"
 #include "../tiki/tiki_skel.h"
 #include "../tiki/tiki_tag.h"

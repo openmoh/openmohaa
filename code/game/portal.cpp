@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // portal.cpp: Portals - surfaces that are mirrors or cameras
 
 #include "portal.h"
+#include "game.h"
 
 /*QUAKED portal_surface (1 0 1) (-8 -8 -8) (8 8 8)
 The portal surface nearest this entity will show a view from the targeted portal_camera, or a mirror view if untargeted.

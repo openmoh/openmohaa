@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 #include "skeletor.h"
-#include "dbgheap.h"
 
 qboolean Compress( skelAnimGameFrame_t *current, skelAnimGameFrame_t *last, int channelIndex, skelChannelList_c *channelList, ChannelNameTable *channelNames )
 {
