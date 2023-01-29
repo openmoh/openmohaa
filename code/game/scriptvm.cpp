@@ -2290,37 +2290,6 @@ bool ScriptVM::EventThrow(Event* ev)
 	return false;
 }
 
-/*
-====================
-AllowContextSwitch
-====================
-*/
-void ScriptVM::AllowContextSwitch(bool allow)
-{
-	m_bAllowContextSwitch = allow;
-}
-
-/*
-====================
-RequestContextSwitch
-
-Requests a context switch
-====================
-*/
-void ScriptVM::RequestContextSwitch(void)
-{
-	if (!m_bAllowContextSwitch || !Director.m_bAllowContextSwitch) {
-		return;
-	}
-
-	//glbs.DPrintf( "Performing context switch\n" );
-
-	Director.AddContextSwitch(m_Thread);
-
-	m_ThreadState = THREAD_CONTEXT_SWITCH;
-	Suspend();
-}
-
 bool ScriptVM::CanScriptTracePrint
 (
 	void

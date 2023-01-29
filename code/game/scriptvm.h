@@ -322,9 +322,6 @@ public:
 	void			EventGoto( Event *ev );
 	bool			EventThrow( Event *ev );
 
-	void			AllowContextSwitch( bool allow = true );
-	void			RequestContextSwitch();
-
 	bool			CanScriptTracePrint( void );
 };
 

@@ -396,11 +396,6 @@ void ScriptMaster::Reset( qboolean samemap )
 	}
 }
 
-void ScriptMaster::AddContextSwitch( ScriptThread *thread )
-{
-	m_contextSwitches.AddUniqueObject( thread );
-}
-
 const_str ScriptMaster::AddString( const char *s )
 {
 	return StringDict.addKeyIndex( s );
@@ -456,7 +451,7 @@ ScriptThread *ScriptMaster::CreateScriptThread( ScriptClass *scriptClass, const_
 
 	if( !m_pCodePos )
 	{
-		ScriptError( "ScriptMaster::CreateScriptThread: label '%s' does not exist in '%s'.", Director.GetString( label ).c_str(), scriptClass->Filename().c_str() );
+		throw ScriptException( "ScriptMaster::CreateScriptThread: label '%s' does not exist in '%s'.", Director.GetString( label ).c_str(), scriptClass->Filename().c_str() );
 	}
 
 	return CreateScriptThread( scriptClass, m_pCodePos );
@@ -487,7 +482,7 @@ ScriptThread *ScriptMaster::CreateThread( GameScript *scr, str label, Listener *
 	}
 	catch( ScriptException& exc )
 	{
-		glbs.DPrintf( "ScriptMaster::CreateThread: %s\n", exc.string.c_str() );
+		gi.DPrintf( "ScriptMaster::CreateThread: %s\n", exc.string.c_str() );
 		return NULL;
 	}
 }
@@ -514,7 +509,7 @@ ScriptThread *ScriptMaster::CurrentThread( void )
 	assert( m_CurrentThread );
 	if( !m_CurrentThread )
 	{
-		ScriptError( "current thread is NULL" );
+		throw ScriptException( "current thread is NULL" );
 	}
 
 	return m_CurrentThread;
@@ -537,7 +532,7 @@ void ScriptMaster::ExecuteThread( GameScript *scr, str label )
 	}
 	catch( ScriptException& exc )
 	{
-		glbs.DPrintf( "ScriptMaster::ExecuteThread: %s\n", exc.string.c_str() );
+		gi.DPrintf( "ScriptMaster::ExecuteThread: %s\n", exc.string.c_str() );
 	}
 }
 
@@ -563,7 +558,7 @@ void ScriptMaster::ExecuteThread( GameScript *scr, str label, Event &parms )
 	}
 	catch( ScriptException& exc )
 	{
-		glbs.DPrintf( "ScriptMaster::ExecuteThread: %s\n", exc.string.c_str() );
+		gi.DPrintf( "ScriptMaster::ExecuteThread: %s\n", exc.string.c_str() );
 	}
 }
 
@@ -603,7 +598,7 @@ GameScript *ScriptMaster::GetGameScript( str filename, qboolean recompile )
 	{
 		if( !scr->successCompile )
 		{
-			ScriptError( "Script '%s' was not properly loaded\n", filename.c_str() );
+			throw ScriptException( "Script '%s' was not properly loaded\n", filename.c_str() );
 		}
 
 		return scr;
@@ -651,7 +646,7 @@ GameScript *ScriptMaster::GetGameScriptInternal( str& filename )
 
 	if( filename.length() >= MAX_QPATH )
 	{
-		glbs.Error( ERR_DROP, "Script filename '%s' exceeds maximum length of %d\n", filename.c_str(), MAX_QPATH );
+		gi.Error( ERR_DROP, "Script filename '%s' exceeds maximum length of %d\n", filename.c_str(), MAX_QPATH );
 	}
 
 	scr = m_GameScripts[ StringDict.findKeyIndex( filename ) ];
@@ -662,7 +657,7 @@ GameScript *ScriptMaster::GetGameScriptInternal( str& filename )
 	}
 
 	strcpy( filepath, filename.c_str() );
-	glbs.FS_CanonicalFilename( filepath );
+	gi.FS_CanonicalFilename( filepath );
 	filename = filepath;
 
 	scr = new GameScript( filename );
@@ -675,20 +670,20 @@ GameScript *ScriptMaster::GetGameScriptInternal( str& filename )
 		return scr;
 	}
 
-	sourceLength = glbs.FS_ReadFile( filename.c_str(), &sourceBuffer, true );
+	sourceLength = gi.FS_ReadFile( filename.c_str(), &sourceBuffer, true );
 
 	if( sourceLength < 0 )
 	{
-		ScriptError( "Can't find '%s'\n", filename.c_str() );
+		throw ScriptException( "Can't find '%s'\n", filename.c_str() );
 	}
 
 	scr->Load( sourceBuffer, sourceLength );
 
-	glbs.FS_FreeFile( sourceBuffer );
+	gi.FS_FreeFile( sourceBuffer );
 
 	if( !scr->successCompile )
 	{
-		ScriptError( "Script '%s' was not properly loaded", filename.c_str() );
+		throw ScriptException( "Script '%s' was not properly loaded", filename.c_str() );
 	}
 
 	return scr;
@@ -702,7 +697,7 @@ GameScript *ScriptMaster::GetScript( str filename, qboolean recompile )
 	}
 	catch( ScriptException& exc )
 	{
-		glbs.Printf( "ScriptMaster::GetScript: %s\n", exc.string.c_str() );
+		gi.DPrintf( "ScriptMaster::GetScript: %s\n", exc.string.c_str() );
 	}
 
 	return NULL;
@@ -716,31 +711,16 @@ GameScript *ScriptMaster::GetScript( const_str filename, qboolean recompile )
 	}
 	catch( ScriptException& exc )
 	{
-		glbs.Printf( "ScriptMaster::GetScript: %s\n", exc.string.c_str() );
+		gi.DPrintf( "ScriptMaster::GetScript: %s\n", exc.string.c_str() );
 	}
 
 	return NULL;
 }
 
-void ScriptMaster::Init()
-{
-	maxTime = 5000;
-
-	// it's more preferable to disable it. Thread can use the wait command instead.
-	// Context switch can be a problem in a trigger thread, parm.other can be sometimes invalid due to another thread
-	// calling some trigger function
-	m_bAllowContextSwitch = false;
-
-	AddString( "" );
-}
-
-
 void ScriptMaster::ExecuteRunning( void )
 {
-	int num;
 	int i;
 	int startTime;
-	ScriptThread *thread;
 
 	if( stackCount )
 	{
@@ -765,59 +745,7 @@ void ScriptMaster::ExecuteRunning( void )
 		level.m_LoopProtection = true;
 	}
 
-	startTime = glbs.Milliseconds();
-
-	// Handle context switches
-	while( ( num = m_contextSwitches.NumObjects() ) )
-	{
-		Container< SafePtr< ScriptThread > > containerCopy = m_contextSwitches;
-
-		m_contextSwitches.FreeObjectList();
-
-		for( i = 1; i <= num; i++ )
-		{
-			thread = containerCopy.ObjectAt( i );
-
-			if
-			(
-				thread &&
-				thread->GetThreadState() == THREAD_CONTEXT_SWITCH
-			)
-			{
-				ScriptThread *context = thread->GetWaitingContext();
-
-				if( context == NULL )
-				{
-					// thread will continue from the context switch
-					m_CurrentThread = thread;
-
-					thread->m_ScriptVM->m_ThreadState = THREAD_RUNNING;
-					thread->m_ScriptVM->Execute();
-				}
-				else if( context->GetThreadState() != THREAD_CONTEXT_SWITCH )
-				{
-					// execute the parent thread as the child thread is waiting for something else
-					m_CurrentThread = thread;
-
-					thread->SetWaitingContext( NULL );
-					thread->m_ScriptVM->m_ThreadState = THREAD_RUNNING;
-					thread->m_ScriptVM->Execute();
-				}
-				else
-				{
-					// re-add the thread due to it still waiting for its child thread to continue
-					// from the context switch
-					m_contextSwitches.AddObject( thread );
-				}
-			}
-		}
-
-		// interrupt in case of infinite loop
-		if( glbs.Milliseconds() - startTime >= Director.maxTime )
-		{
-			break;
-		}
-	}
+	startTime = gi.Milliseconds();
 }
 
 void ScriptMaster::SetTime( int time )
@@ -883,7 +811,7 @@ void ScriptMaster::PrintStatus( void )
 	status += str( m_GameScripts.size() ) + " total scripts compiled\n";
 	status += str( iThreadNum ) + " total threads ( " + str( iThreadRunning ) + " running thread(s), " + str( iThreadWaiting ) + " waiting thread(s), " + str( iThreadSuspended ) + " suspended thread(s) )\n";
 
-	glbs.Printf( status.c_str() );
+	gi.Printf( status.c_str() );
 }
 
 void ScriptMaster::PrintThread( int iThreadNum )
@@ -916,7 +844,7 @@ void ScriptMaster::PrintThread( int iThreadNum )
 
 	if( !bFoundThread )
 	{
-		glbs.Printf( "Can't find thread id %i.\n", iThreadNum );
+		gi.Printf( "Can't find thread id %i.\n", iThreadNum );
 	}
 
 	status = "-------------------------\n";
@@ -988,12 +916,12 @@ void ScriptMaster::PrintThread( int iThreadNum )
 		status += "\n";
 	}
 
-	glbs.Printf( status.c_str() );
+	gi.Printf( status.c_str() );
 }
 
 static int bLoadForMap( char *psMapsBuffer, const char *name )
 {
-	cvar_t *mapname = glbs.Cvar_Get( "mapname", "", 0 );
+	cvar_t *mapname = gi.Cvar_Get( "mapname", "", 0 );
 	const char *token;
 
 	if( !strncmp( "test", mapname->string, sizeof( "test" ) ) ) {
@@ -1085,7 +1013,7 @@ void ScriptMaster::RegisterAliasInternal
 
 	if( bLoadForMap( psMapsBuffer, ev->GetString( 1 ) ) )
 	{
-		glbs.GlobalAlias_Add( ev->GetString( 1 ), ev->GetString( 2 ), parameters );
+		gi.GlobalAlias_Add( ev->GetString( 1 ), ev->GetString( 2 ), parameters );
 
 		if( bCache )
 			CacheResource( ev->GetString( 2 ) );

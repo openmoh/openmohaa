@@ -29,6 +29,15 @@
 
 #define scriptfiles sv_scriptfiles
 
+Event EV_ScriptThread_CancelWaiting
+(
+	"_cancelwaiting",
+	EV_CODEONLY,
+	NULL,
+	NULL,
+	"internal event"
+);
+
 Event EV_ScriptThread_Abs
 (
 	"abs",
@@ -2062,15 +2071,6 @@ Event EV_ScriptThread_VisionSetNaked
 	EV_NORMAL
 );
 
-Event EV_ScriptThread_CancelWaiting
-(
-	"_cancelwaiting",
-	EV_CODEONLY,
-	NULL,
-	NULL,
-	"internal event"
-);
-
 CLASS_DECLARATION( Listener, ScriptThread, NULL )
 {
 	{ &EV_Listener_CreateReturnThread,			&ScriptThread::CreateReturnThread },
@@ -2283,7 +2283,6 @@ CLASS_DECLARATION( Listener, ScriptThread, NULL )
 	{ &EV_ScriptThread_SetTimer,				&ScriptThread::SetTimer },
 	{ &EV_ScriptThread_TeamGetScore,			&ScriptThread::TeamGetScore },
 	{ &EV_ScriptThread_TeamSetScore,			&ScriptThread::TeamSetScore },
-	{ &EV_ScriptThread_TeamSwitchDelay,			&ScriptThread::TeamSwitchDelay },
 	{ &EV_ScriptThread_TraceDetails,			&ScriptThread::TraceDetails },
 	{ &EV_ScriptThread_VisionGetNaked,			&ScriptThread::VisionGetNaked },
 	{ &EV_ScriptThread_VisionSetNaked,			&ScriptThread::VisionSetNaked },
@@ -2317,9 +2316,11 @@ ScriptThread::ScriptThread( ScriptClass *scriptClass, unsigned char *pCodePos )
 ScriptThread::~ScriptThread()
 {
 	ScriptVM* vm = m_ScriptVM;
-	if( !vm )
+	assert(vm);
+	if (!vm)
 	{
-		throw ScriptException( "Attempting to delete a dead thread." );
+		// should never happen
+		throw ScriptException("Attempting to delete a dead thread.");
 	}
 
 	m_ScriptVM = NULL;
@@ -2335,6 +2336,245 @@ ScriptThread::~ScriptThread()
 	}
 
 	vm->NotifyDelete();
+}
+
+void ScriptThread::Execute
+(
+	Event& ev
+)
+
+{
+	Execute(&ev);
+}
+
+void ScriptThread::Execute
+(
+	Event* ev
+)
+
+{
+	assert(m_ScriptVM);
+
+	try
+	{
+		if (ev == NULL)
+		{
+			ScriptExecuteInternal();
+		}
+		else
+		{
+			ScriptVariable returnValue;
+
+			returnValue.newPointer();
+
+			ScriptExecute(ev->data, ev->dataSize, returnValue);
+
+			ev->AddValue(returnValue);
+		}
+	}
+	catch (ScriptException& exc)
+	{
+		if (exc.bAbort)
+		{
+			gi.Error(ERR_DROP, "%s\n", exc.string.c_str());
+		}
+		else
+		{
+			Com_Printf("^~^~^ Script Error: %s\n", exc.string.c_str());
+		}
+	}
+}
+
+void ScriptThread::Execute
+(
+	ScriptVariable* data,
+	int dataSize
+)
+
+{
+	ScriptExecuteInternal(data, dataSize);
+}
+
+void ScriptThread::DelayExecute
+(
+	Event& ev
+)
+
+{
+	DelayExecute(&ev);
+}
+
+void ScriptThread::DelayExecute
+(
+	Event* ev
+)
+
+{
+	assert(m_ScriptVM);
+
+	if (ev)
+	{
+		ScriptVariable returnValue;
+
+		m_ScriptVM->SetFastData(ev->data, ev->dataSize);
+
+		returnValue.newPointer();
+		m_ScriptVM->m_ReturnValue = returnValue;
+		ev->AddValue(returnValue);
+	}
+
+	Director.AddTiming(this, 0);
+}
+
+ScriptClass* ScriptThread::GetScriptClass(void)
+{
+	return m_ScriptVM->m_ScriptClass;
+}
+
+str ScriptThread::FileName(void)
+{
+	return m_ScriptVM->Filename();
+}
+
+int ScriptThread::GetThreadState(void)
+{
+	return m_ScriptVM->ThreadState();
+}
+
+void ScriptThread::ScriptExecute(ScriptVariable* data, int dataSize, ScriptVariable& returnValue)
+{
+	m_ScriptVM->m_ReturnValue = returnValue;
+
+	ScriptExecuteInternal(data, dataSize);
+}
+
+void ScriptThread::ScriptExecuteInternal(ScriptVariable* data, int dataSize)
+{
+	SafePtr<ScriptThread> currentThread = Director.m_CurrentThread;
+	SafePtr<ScriptThread> previousThread = Director.m_PreviousThread;
+
+	Director.m_PreviousThread = currentThread;
+	Director.m_CurrentThread = this;
+
+	Stop();
+	m_ScriptVM->Execute(data, dataSize);
+
+	// restore the previous values
+	Director.m_CurrentThread = currentThread;
+	Director.m_PreviousThread = previousThread;
+
+	Director.ExecuteRunning();
+}
+
+void ScriptThread::StoppedNotify(void)
+{
+	// This is invalid and we mustn't get here
+	if (m_ScriptVM) {
+		delete this;
+	}
+}
+
+void ScriptThread::StartedWaitFor(void)
+{
+	Stop();
+
+	m_ScriptVM->m_ThreadState = THREAD_SUSPENDED;
+	m_ScriptVM->Suspend();
+}
+
+void ScriptThread::StoppedWaitFor(const_str name, bool bDeleting)
+{
+	if (!m_ScriptVM)
+	{
+		return;
+	}
+
+	// The thread is deleted if the listener is deleting
+	if (bDeleting)
+	{
+		delete this;
+		return;
+	}
+
+	CancelEventsOfType(EV_ScriptThread_CancelWaiting);
+
+	if (m_ScriptVM->m_ThreadState == THREAD_SUSPENDED)
+	{
+		if (name != 0)
+		{
+			if (m_ScriptVM->state == STATE_EXECUTION)
+			{
+				Execute();
+			}
+			else
+			{
+				m_ScriptVM->Resume();
+			}
+		}
+		else
+		{
+			m_ScriptVM->m_ThreadState = THREAD_RUNNING;
+			CancelWaitingAll();
+			m_ScriptVM->m_ThreadState = THREAD_WAITING;
+
+			Director.AddTiming(this, 0.0f);
+		}
+	}
+}
+
+ScriptThread* ScriptThread::CreateThreadInternal(const ScriptVariable& label)
+{
+	return m_ScriptVM->GetScriptClass()->CreateThreadInternal(label);
+}
+
+ScriptThread* ScriptThread::CreateScriptInternal(const ScriptVariable& label)
+{
+	return m_ScriptVM->GetScriptClass()->CreateScriptInternal(label);
+}
+
+void ScriptThread::Pause()
+{
+	Stop();
+	m_ScriptVM->Suspend();
+}
+
+void ScriptThread::Stop(void)
+{
+	if (m_ScriptVM->ThreadState() == THREAD_WAITING)
+	{
+		m_ScriptVM->m_ThreadState = THREAD_RUNNING;
+		Director.RemoveTiming(this);
+	}
+	else if (m_ScriptVM->ThreadState() == THREAD_SUSPENDED)
+	{
+		m_ScriptVM->m_ThreadState = THREAD_RUNNING;
+		CancelWaitingAll();
+	}
+}
+
+void ScriptThread::Wait(float time)
+{
+	StartTiming(time);
+	m_ScriptVM->Suspend();
+}
+
+void ScriptThread::StartTiming(float time)
+{
+	Stop();
+
+	m_ScriptVM->m_ThreadState = THREAD_WAITING;
+
+	if (time < 0)
+	{
+		time = 0;
+	}
+
+	Director.AddTiming(this, time);
+}
+
+void ScriptThread::StartTiming(void)
+{
+	StartTiming(0);
 }
 
 void ScriptThread::CreateReturnThread
@@ -2382,2096 +2622,6 @@ void ScriptThread::EventCreateListener
 	ev->AddListener( new Listener );
 }
 
-void ScriptThread::CharToInt
-	(
-	Event *ev
-	)
-
-{
-	str c = ev->GetString( 1 );
-
-	ev->AddInteger( c[ 0 ] );
-}
-
-void ScriptThread::Conprintf
-	(
-	Event *ev
-	)
-
-{
-	glbs.Printf( "%s", ev->GetString( 1 ).c_str() );
-}
-
-void ScriptThread::FileOpen
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = -1;
-	str filename = NULL;
-	str accesstype = NULL;
-	FILE *f = NULL;
-	char buf[16] = { 0 };
-
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 )
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fopen!\n" );
-
-	if ( scriptfiles->integer == 32 )
-		ScriptError( "Reborn SCRIPT ERROR: Maximum count (32) of opened files is reached. Close at least one of them, to open new file - fopen!\n" );
-
-	filename = ev->GetString( 1 );
-
-	accesstype = ev->GetString( 2 );
-
-	f = fopen( filename, accesstype );
-
-	if ( f == NULL )
-	{
-		ev->AddInteger( 0 );
-		return;
-	}
-	else
-	{
-		ev->AddInteger((int)(size_t)f);
-		sprintf( buf, "%i", scriptfiles->integer + 1 );
-		glbs.Cvar_Set( "sv_scriptfiles", buf );
-		return;
-	}
-
-
-}
-
-void ScriptThread::FileWrite
-	(
-	Event *ev
-	)
-
-{
-
-}
-
-void ScriptThread::FileRead
-	(
-	Event *ev
-	)
-
-{
-
-}
-
-void ScriptThread::FileClose
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int ret = 0;
-	FILE *f = NULL;
-	char buf[16] = { 0 };
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fclose!\n" );
-
-	id = ev->GetInteger( 1 );
-
-	/*if( (int)scriptFiles[0].f != id && (int)scriptFiles[1].f != id )
-	{
-	gi.Printf("Wrong file handle for fclose!\n");
-	return;
-	}
-
-	if( (int)scriptFiles[0].f == id )
-	{
-	scriptFiles[0].inUse = 0;
-	fclose( scriptFiles[0].f );
-	return;
-	}
-	else if( (int)scriptFiles[1].f == id )
-	{
-	scriptFiles[1].inUse = 0;
-	fclose( scriptFiles[1].f );
-	return;
-	}
-	else
-	{
-	gi.Printf("Unknown error while closing file - fclose!\n");
-	return;
-	}*/
-
-	f = (FILE *)id;
-
-	if ( f == NULL ) {
-		ScriptError( "Reborn SCRIPT ERROR: File handle is NULL for fclose!\n" );
-	}
-
-	ret = fclose( f );
-
-	if ( ret == 0 )
-	{
-		ev->AddInteger( 0 );
-		sprintf( buf, "%i", scriptfiles->integer - 1 );
-		glbs.Cvar_Set( "sv_scriptfiles", buf );
-		return;
-	}
-	else
-	{
-		ev->AddInteger( ret );
-		return;
-	}
-
-
-}
-
-void ScriptThread::FileEof
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int ret = 0;
-	FILE *f = NULL;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for feof!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	ret = feof( f );
-
-	ev->AddInteger( ret );
-}
-
-void ScriptThread::FileSeek
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int pos = 0;
-	long int offset = 0;
-	int ret = 0;
-	FILE *f = NULL;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 3 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fseek!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	offset = ev->GetInteger( 2 );
-
-	if ( offset < 0 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong file offset! Should be starting from 0. - fseek\n" );
-	}
-
-	pos = ev->GetInteger( 3 );
-
-	if ( pos != 0 && pos != 1 && pos != 2 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong file offset start! Should be between 0 - 2! - fseek\n" );
-	}
-
-	ret = fseek( f, offset, pos );
-
-	ev->AddInteger( ret );
-
-
-}
-
-void ScriptThread::FileTell
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	long int ret = 0;
-	FILE *f = NULL;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for ftell!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	ret = ftell( f );
-
-	ev->AddInteger( ret );
-}
-
-void ScriptThread::FileRewind
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	long int ret = 0;
-	FILE *f = NULL;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for frewind!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	rewind( f );
-
-}
-
-void ScriptThread::FilePutc
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int ret = 0;
-	FILE *f = NULL;
-	int c = 0;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fputc!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	c = ev->GetInteger( 2 );
-
-	ret = fputc( (char)c, f );
-
-	ev->AddInteger( ret );
-}
-
-void ScriptThread::FilePuts
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int ret = 0;
-	FILE *f = NULL;
-	str c;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fputs!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	c = ev->GetString( 2 );
-	//gi.Printf("Putting line into a file\n");
-	ret = fputs( c, f );
-	//gi.Printf("Ret val: %i\n", ret);
-	ev->AddInteger( ret );
-}
-
-void ScriptThread::FileGetc
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int ret = 0;
-	FILE *f = NULL;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fgetc!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	ret = fgetc( f );
-
-	ev->AddInteger( ret );
-}
-
-void ScriptThread::FileGets
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int maxCount = 0;
-	FILE *f = NULL;
-	char *c = NULL;
-	char *buff = NULL;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fgets!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	maxCount = ev->GetInteger( 2 );
-
-	if ( maxCount <= 0 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Maximum buffer size should be higher than 0! - fgets\n" );
-	}
-
-	buff = ( char* )glbs.Malloc( maxCount + 1 );
-
-	if ( buff == NULL )
-	{
-		ScriptError( "Reborn ERROR: Failed to allocate memory during fputs scriptCommand text buffer initialization! Try setting maximum buffer length lower.\n" );
-		ev->AddInteger( -1 );
-	}
-
-	memset( buff, 0, maxCount + 1 );
-
-	c = fgets( buff, maxCount, f );
-
-	if ( c == NULL )
-		ev->AddString( "" );
-	else
-		ev->AddString( c );
-
-	glbs.Free( buff );
-}
-
-void ScriptThread::FileError
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int ret = 0;
-	FILE *f = NULL;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for ferror!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	ret = ferror( f );
-
-	ev->AddInteger( ret );
-}
-
-void ScriptThread::FileFlush
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int ret = 0;
-	FILE *f = NULL;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fflush!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	ret = fflush( f );
-
-	ev->AddInteger( ret );
-
-}
-
-void ScriptThread::FileExists
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	FILE *f = 0;
-	str filename;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fexists!\n" );
-	}
-
-	filename = ev->GetString( 1 );
-
-	if ( filename == NULL ) {
-		ScriptError( "Reborn SCRIPT ERROR: Empty file name passed to fexists!\n" );
-	}
-
-	f = fopen( filename, "r" );
-	if( f ) {
-		fclose( f );
-		ev->AddInteger( 1 );
-	} else {
-		ev->AddInteger( 0 );
-	}
-
-}
-
-void ScriptThread::FileReadAll
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	FILE *f = NULL;
-	char *ret = NULL;
-	long currentPos = 0;
-	size_t size = 0;
-	size_t sizeRead = 0;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for freadall!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-
-	f = (FILE *)id;
-
-	currentPos = ftell( f );
-	fseek( f, 0, SEEK_END );
-	size = ftell( f );
-	fseek( f, currentPos, SEEK_SET );
-
-	ret = ( char * )glbs.Malloc( sizeof( char )*size + 1 );
-
-	if ( ret == NULL )
-	{
-		ev->AddInteger( -1 );
-		ScriptError( "Reborn SCRIPT ERROR: Error while allocating memory buffer for file content - freadall!\n" );
-	}
-
-	sizeRead = fread( ret, 1, size, f );
-	ret[sizeRead] = '\0';
-
-	ev->AddString( ret );
-
-	glbs.Free( ret );
-}
-
-void ScriptThread::FileSaveAll
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	FILE *f = NULL;
-	size_t sizeWrite = 0;
-	str text;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fsaveall!\n" );
-	}
-
-	id = ev->GetInteger( 1 );
-	f = (FILE *)id;
-
-	text = ev->GetString( 2 );
-
-	if ( text == NULL )
-	{
-		ev->AddInteger( -1 );
-		ScriptError( "Reborn SCRIPT ERROR: Text to be written is NULL - fsaveall!\n" );
-	}
-
-	sizeWrite = fwrite( text, 1, strlen( text ), f );
-
-	ev->AddInteger( ( int )sizeWrite );
-}
-
-void ScriptThread::FileRemove
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int ret = 0;
-	str filename;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for fremove!\n" );
-	}
-
-	filename = ev->GetString( 1 );
-
-	if ( filename == NULL ) {
-		ScriptError( "Reborn SCRIPT ERROR: Empty file name passed to fremove!\n" );
-	}
-
-	ret = remove( filename );
-
-	ev->AddInteger( ret );
-
-}
-
-void ScriptThread::FileRename
-	(
-	Event *ev
-	)
-
-{
-	int id = 0;
-	int numArgs = 0;
-	int ret = 0;
-	str oldfilename, newfilename;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for frename!\n" );
-	}
-
-	oldfilename = ev->GetString( 1 );
-	newfilename = ev->GetString( 2 );
-
-	if ( !oldfilename ) {
-		ScriptError( "Reborn SCRIPT ERROR: Empty old file name passed to frename!\n" );
-	}
-
-	if ( !newfilename ) {
-		ScriptError( "Reborn SCRIPT ERROR: Empty new file name passed to frename!\n" );
-	}
-
-	ret = rename( oldfilename, newfilename );
-
-	ev->AddInteger( ret );
-
-}
-
-void ScriptThread::FileCopy
-	(
-	Event *ev
-	)
-
-{
-	size_t n = 0;
-	int numArgs = 0;
-	unsigned int ret = 0;
-	str filename, copyfilename;
-	FILE *f = NULL, *fCopy = NULL;
-	char buffer[4096];
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for fcopy!\n" );
-		return;
-	}
-
-	filename = ev->GetString( 1 );
-	copyfilename = ev->GetString( 2 );
-
-	if ( !filename )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Empty file name passed to fcopy!\n" );
-		return;
-	}
-
-	if ( copyfilename )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Empty copy file name passed to fcopy!\n" );
-		return;
-	}
-
-	f = fopen( filename, "rb" );
-
-	if ( f == NULL )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Could not open \"%s\" for copying - fcopy!\n", filename.c_str() );
-		ev->AddInteger( -1 );
-		return;
-	}
-
-	fCopy = fopen( copyfilename, "wb" );
-
-	if ( fCopy == NULL )
-	{
-		fclose( f );
-		glbs.Printf( "Reborn SCRIPT ERROR: Could not open \"%s\" for copying - fcopy!\n", copyfilename.c_str() );
-		ev->AddInteger( -2 );
-		return;
-	}
-
-	while ( ( n = fread( buffer, sizeof( char ), sizeof( buffer ), f ) ) > 0 )
-	{
-		if ( fwrite( buffer, sizeof( char ), n, fCopy ) != n )
-		{
-			fclose( f );
-			fflush( fCopy );
-			fclose( fCopy );
-			glbs.Printf( "Reborn SCRIPT ERROR: There was an error while copying files - fcopy!\n" );
-			ev->AddInteger( -3 );
-			return;
-		}
-	}
-
-	fclose( f );
-	fflush( fCopy );
-	fclose( fCopy );
-
-	ev->AddInteger( 0 );
-}
-
-void ScriptThread::FileReadPak
-	(
-	Event *ev
-	)
-
-{
-	str filename;
-	char *content = NULL;
-	int numArgs = 0;
-	int ret = 0;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for freadpak!\n" );
-		return;
-	}
-
-	filename = ev->GetString( 1 );
-
-	if ( filename == NULL )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Filename is NULL - freadpak!\n" );
-		return;
-	}
-
-	ret = glbs.FS_ReadFile( filename, (void**)&content, qtrue );
-
-	if ( content == NULL )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Error while reading pak file content - freadpak!\n" );
-		ev->AddInteger( -1 );
-		return;
-	}
-
-	ev->AddString( content );
-}
-
-void ScriptThread::FileList
-	(
-	Event *ev
-	)
-
-{
-	int i = 0, numArgs = 0;
-	const char *path = NULL;
-	str extension = NULL;
-	int wantSubs = 0;
-	int numFiles = 0;
-	char **list = NULL;
-	ScriptVariable *ref = new ScriptVariable;
-	ScriptVariable *array = new ScriptVariable;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 3 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for flist!\n" );
-		return;
-	}
-
-	path = ev->GetString( 1 );
-	extension = ev->GetString( 2 );
-	wantSubs = ev->GetInteger( 3 );
-
-	list = glbs.FS_ListFiles( path, extension, wantSubs, &numFiles );
-
-	if ( numFiles == 0 )
-	{
-		glbs.FS_FreeFileList( list );
-		return;
-	}
-
-	ref->setRefValue( array );
-
-	for ( i = 0; i < numFiles; i++ )
-	{
-		ScriptVariable *indexes = new ScriptVariable;
-		ScriptVariable *values = new ScriptVariable;
-
-		indexes->setIntValue( i );
-		values->setStringValue( list[i] );
-
-		ref->setArrayAt( *indexes, *values );
-	}
-
-	glbs.FS_FreeFileList( list );
-
-	ev->AddValue( *array );
-
-	return;
-
-}
-
-void ScriptThread::FileNewDirectory
-	(
-	Event *ev
-	)
-
-{
-	str path = NULL;
-	int numArgs = 0;
-	int ret = 0;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for fnewdir!\n" );
-		return;
-	}
-
-	path = ev->GetString( 1 );
-
-	if ( path == NULL )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Path is NULL - fnewdir!\n" );
-		return;
-	}
-
-#ifdef WIN32
-	ret = _mkdir( path );
-#else
-	ret = mkdir( path, 0777 );
-#endif
-
-	ev->AddInteger( ret );
-	return;
-}
-
-void ScriptThread::FileRemoveDirectory
-	(
-	Event *ev
-	)
-
-{
-	str path = NULL;
-	int numArgs = 0;
-	int ret = 0;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for fremovedir!\n" );
-		return;
-	}
-
-	path = ev->GetString( 1 );
-
-	if ( path == NULL )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Path is NULL - fremovedir!\n" );
-		return;
-	}
-
-#ifdef WIN32
-	ret = _rmdir( path );
-#else
-	ret = rmdir( path );
-#endif
-
-	ev->AddInteger( ret );
-	return;
-}
-
-void ScriptThread::GetArrayKeys
-	(
-	Event *ev
-	)
-
-{
-	Entity *ent = NULL;
-	ScriptVariable array;
-	ScriptVariable *value;
-	int i = 0;
-	int arraysize;
-
-	/* Retrieve the array */
-	array = ev->GetValue( 1 );
-
-	/* Cast the array */
-	array.CastConstArrayValue();
-	arraysize = array.arraysize();
-
-	if ( arraysize < 1 ) {
-		return;
-	}
-
-	ScriptVariable *ref = new ScriptVariable, *newArray = new ScriptVariable;
-
-	ref->setRefValue( newArray );
-
-	for ( int i = 1; i <= arraysize; i++ )
-	{
-		value = array[ i ];
-
-		/* Get the array's name */
-		//str name = value->getName();
-
-		glbs.Printf( "name = %s\n", value->GetTypeName() );
-
-		ScriptVariable *newIndex = new ScriptVariable, *newValue = new ScriptVariable;
-
-		newIndex->setIntValue( i );
-		newValue->setStringValue( "NIL" );
-
-		//name.removeRef();
-
-		ref->setArrayAt( *newIndex, *newValue );
-	}
-
-	ev->AddValue( *newArray );
-}
-
-void ScriptThread::GetArrayValues
-	(
-	Event *ev
-	)
-
-{
-	Entity *ent = NULL;
-	ScriptVariable array;
-	ScriptVariable *value;
-	int i = 0;
-	int arraysize;
-
-	/* Retrieve the array */
-	array = ev->GetValue( 1 );
-
-	if( array.GetType() == VARIABLE_NONE ) {
-		return;
-	}
-
-	/* Cast the array */
-	array.CastConstArrayValue();
-	arraysize = array.arraysize();
-
-	if ( arraysize < 1 ) {
-		return;
-	}
-
-	ScriptVariable *ref = new ScriptVariable, *newArray = new ScriptVariable;
-
-	ref->setRefValue( newArray );
-
-	for ( int i = 1; i <= arraysize; i++ )
-	{
-		value = array[ i ];
-
-		ScriptVariable *newIndex = new ScriptVariable;
-
-		newIndex->setIntValue( i - 1 );
-
-		ref->setArrayAt( *newIndex, *value );
-	}
-
-	ev->AddValue( *newArray );
-}
-
-void ScriptThread::GetDate
-	(
-	Event *ev
-	)
-
-{
-
-	char buff[1024];
-	time_t rawtime;
-	struct tm * timeinfo;
-
-	time( &rawtime );
-	timeinfo = localtime( &rawtime );
-
-	strftime( buff, 64, "%d.%m.%Y %r", timeinfo );
-
-	ev->AddString( buff );
-}
-
-void ScriptThread::GetTimeZone
-	(
-	Event *ev
-	)
-
-{
-	int gmttime;
-	int local;
-
-	time_t rawtime;
-	struct tm * timeinfo, *ptm;
-
-	int timediff;
-	int tmp;
-
-	tmp = ev->GetInteger( 1 );
-
-	time( &rawtime );
-	timeinfo = localtime( &rawtime );
-
-	local = timeinfo->tm_hour;
-
-	ptm = gmtime( &rawtime );
-
-	gmttime = ptm->tm_hour;
-
-	timediff = local - gmttime;
-
-	ev->AddInteger( timediff );
-}
-
-// IMPORTANT NOTE:
-// SLRE is buggy, consider switch to Boost.Regex or .xpressive
-
-void ScriptThread::PregMatch
-	(
-	Event *ev
-	)
-
-{
-	slre_cap sl_cap[ 32 ];
-	int i, j;
-	size_t iMaxLength;
-	size_t iLength;
-	size_t iFoundLength = 0;
-	str pattern, subject;
-	ScriptVariable index, value, subindex, subvalue;
-	ScriptVariable array, subarray;
-
-	memset( sl_cap, 0, sizeof( sl_cap ) );
-
-	pattern = ev->GetString( 1 );
-	subject = ev->GetString( 2 );
-
-	iMaxLength = strlen( subject );
-	iLength = 0;
-	i = 0;
-
-	while( iLength < iMaxLength &&
-		( iFoundLength = slre_match( pattern, subject.c_str() + iLength, iMaxLength - iLength, sl_cap, sizeof( sl_cap ) / sizeof( sl_cap[ 0 ] ), 0 ) ) > 0 )
-	{
-		subarray.Clear();
-
-		for( j = 0; sl_cap[ j ].ptr != NULL; j++ )
-		{
-			char *buffer;
-
-			buffer = ( char * )glbs.Malloc( sl_cap[ j ].len + 1 );
-			buffer[ sl_cap[ j ].len ] = 0;
-			strncpy( buffer, sl_cap[ j ].ptr, sl_cap[ j ].len );
-
-			subindex.setIntValue( j );
-			subvalue.setStringValue( buffer );
-			subarray.setArrayAtRef( subindex, subvalue );
-
-			glbs.Free( buffer );
-
-			iLength += sl_cap[ j ].ptr - subject.c_str();
-		}
-
-		index.setIntValue( i );
-		array.setArrayAtRef( index, subarray );
-
-		i++;
-	}
-
-	ev->AddValue( array );
-}
-
-void ScriptThread::EventIsArray
-	(
-	Event *ev
-	)
-
-{
-	ScriptVariable * value = &ev->GetValue( 1 );
-
-	if( value == NULL ) {
-		return ev->AddInteger( 0 );
-	}
-
-	ev->AddInteger( value->type == VARIABLE_ARRAY || value->type == VARIABLE_CONSTARRAY || value->type == VARIABLE_SAFECONTAINER );
-}
-
-void ScriptThread::EventIsDefined
-	(
-	Event *ev
-	)
-
-{
-	ev->AddInteger( !ev->IsNilAt( 1 ) );
-}
-
-void ScriptThread::FlagClear
-	(
-	Event *ev
-	)
-
-{
-	str name;
-	Flag *flag;
-
-	name = ev->GetString(1);
-
-	flag = flags.FindFlag(name);
-
-	if (flag == NULL) {
-		ScriptError("Invalid flag '%s'\n", name.c_str());
-	}
-
-	delete flag;
-}
-
-void ScriptThread::FlagInit
-	(
-	Event *ev
-	)
-
-{
-	str name;
-	Flag *flag;
-
-	name = ev->GetString(1);
-
-	flag = flags.FindFlag(name);
-
-	if (flag != NULL)
-	{
-		flag->Reset();
-		return;
-	}
-
-	flag = new Flag;
-	flag->bSignaled = false;
-	strcpy(flag->flagName, name);
-}
-
-void ScriptThread::FlagSet
-	(
-	Event *ev
-	)
-
-{
-	str name;
-	Flag *flag;
-
-	name = ev->GetString(1);
-
-	flag = flags.FindFlag(name);
-
-	if (flag == NULL) {
-		ScriptError("Invalid flag '%s'.\n", name.c_str());
-	}
-
-	flag->Set();
-}
-
-void ScriptThread::FlagWait
-	(
-	Event *ev
-	)
-
-{
-	str name;
-	Flag *flag;
-
-	name = ev->GetString(1);
-
-	flag = flags.FindFlag(name);
-
-	if (flag == NULL) {
-		ScriptError("Invalid flag '%s'.\n", name.c_str());
-	}
-
-	flag->Wait(this);
-}
-
-void ScriptThread::MathCos
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for cos!\n" );
-		return;
-	}
-
-	x = ( double )ev->GetFloat( 1 );
-	res = cos( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathSin
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for sin!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = sin( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathTan
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for tan!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = tan( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathACos
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for acos!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = acos( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathASin
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for asin!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = asin( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathATan
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for atan!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = atan( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathATan2
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, y = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for atan2!\n" );
-		return;
-	}
-
-	y = ev->GetFloat( 1 );
-	x = ev->GetFloat( 2 );
-
-	res = atan2( y, x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathCosH
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for cosh!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = cosh( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathSinH
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for sinh!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = sinh( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathTanH
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for tanh!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = tanh( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathExp
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for exp!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = exp( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathFrexp
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-	int exp = 0;
-	ScriptVariable *ref = new ScriptVariable;
-	ScriptVariable *array = new ScriptVariable;
-	ScriptVariable *SignificandIndex = new ScriptVariable;
-	ScriptVariable *ExponentIndex = new ScriptVariable;
-	ScriptVariable *SignificandVal = new ScriptVariable;
-	ScriptVariable *ExponentVal = new ScriptVariable;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for frexp!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = frexp( x, &exp );
-
-	ref->setRefValue( array );
-
-	SignificandIndex->setStringValue( "significand" );
-	ExponentIndex->setStringValue( "exponent" );
-
-	SignificandVal->setFloatValue( (float)res );
-	ExponentVal->setIntValue( exp );
-
-	ref->setArrayAt( *SignificandIndex, *SignificandVal );
-	ref->setArrayAt( *ExponentIndex, *ExponentVal );
-
-	ev->AddValue( *array );
-}
-
-void ScriptThread::MathLdexp
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-	int exp = 0;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for ldexp!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	exp = ev->GetInteger( 2 );
-
-	res = ldexp( x, exp );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathLog
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for log!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = log( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathLog10
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for log10!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = log10( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathModf
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-	double intpart = 0;
-	//char varIntpartIndex[16] = { 0 }, varFractionalIndex[16] = { 0 }, varIntpartVal[16] = { 0 }, varFractionalVal[16] = { 0 }, varArray[16] = { 0 }, varRef[16] = { 0 };
-	ScriptVariable *array = new ScriptVariable;
-	ScriptVariable *ref = new ScriptVariable;
-	ScriptVariable *IntpartIndex = new ScriptVariable;
-	ScriptVariable *FractionalIndex = new ScriptVariable;
-	ScriptVariable *FractionalVal = new ScriptVariable;
-	ScriptVariable *IntpartVal = new ScriptVariable;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for modf!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = modf( x, &intpart );
-
-	ref->setRefValue( array );
-
-	IntpartIndex->setStringValue( "intpart" );
-	FractionalIndex->setStringValue( "fractional" );
-	FractionalVal->setFloatValue( (float)res );
-	IntpartVal->setFloatValue( (float)intpart );
-
-	ref->setArrayAt( *IntpartIndex, *IntpartVal );
-	ref->setArrayAt( *FractionalIndex, *FractionalVal );
-
-	ev->AddValue( *array );
-}
-
-void ScriptThread::MathPow
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double base = 0.0f, res = 0.0f;
-	int exponent = 0;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for pow!\n" );
-		return;
-	}
-
-	base = ev->GetFloat( 1 );
-	exponent = ev->GetInteger( 2 );
-	res = pow( base, exponent );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathSqrt
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for sqrt!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = sqrt( x );
-
-	ev->AddFloat( (float)res );
-}
-
-void ScriptThread::MathCeil
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for ceil!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = ceil( x );
-
-	ev->AddFloat( ( float )res );
-}
-
-void ScriptThread::MathFloor
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double x = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for floor!\n" );
-		return;
-	}
-
-	x = ev->GetFloat( 1 );
-	res = floor( x );
-
-	ev->AddFloat( ( float )res );
-}
-
-void ScriptThread::MathFmod
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	double numerator = 0.0f, denominator = 0.0f, res = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 2 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for fmod!\n" );
-		return;
-	}
-
-	numerator = ev->GetFloat( 1 );
-	denominator = ev->GetFloat( 2 );
-	res = fmod( numerator, denominator );
-
-	ev->AddFloat( ( float )res );
-}
-
-int checkMD5( const char *filepath, char *md5Hash )
-{
-	md5_state_t state;
-	md5_byte_t digest[ 16 ];
-	int di;
-
-	FILE *f = NULL;
-	char *buff = NULL;
-	size_t filesize = 0;
-	size_t bytesread = 0;
-
-
-	f = fopen( filepath, "rb" );
-
-	if( f == NULL )
-		return -1;
-
-	fseek( f, 0, SEEK_END );
-	filesize = ftell( f );
-	rewind( f );
-
-	//glbs.Printf("Size: %i\n", filesize);
-
-	buff = ( char * )glbs.Malloc( filesize + 1 );
-
-	if( buff == NULL )
-	{
-		fclose( f );
-		Com_Printf( "error0\n" );
-		return -2;
-	}
-
-	buff[ filesize ] = '\0';
-
-	bytesread = fread( buff, 1, filesize, f );
-
-	if( bytesread < filesize )
-	{
-		glbs.Free( buff );
-		fclose( f );
-		Com_Printf( "error1: %i\n", bytesread );
-		return -3;
-	}
-
-	fclose( f );
-
-	md5_init( &state );
-	md5_append( &state, ( const md5_byte_t * )buff, filesize );
-	md5_finish( &state, digest );
-
-	for( di = 0; di < 16; ++di )
-		sprintf( md5Hash + di * 2, "%02x", digest[ di ] );
-
-
-	glbs.Free( buff );
-
-	return 0;
-}
-
-int checkMD5String( const char *string, char *md5Hash )
-{
-	md5_state_t state;
-	md5_byte_t digest[ 16 ];
-	int di;
-
-	char *buff = NULL;
-	size_t stringlen = 0;
-
-	stringlen = strlen( string );
-
-	buff = ( char * )glbs.Malloc( stringlen + 1 );
-
-	if( buff == NULL )
-	{
-		return -1;
-	}
-
-	buff[ stringlen ] = '\0';
-	memcpy( buff, string, stringlen );
-
-	md5_init( &state );
-	md5_append( &state, ( const md5_byte_t * )buff, stringlen );
-	md5_finish( &state, digest );
-
-	for( di = 0; di < 16; ++di )
-		sprintf( md5Hash + di * 2, "%02x", digest[ di ] );
-
-
-	glbs.Free( buff );
-
-	return 0;
-}
-
-void ScriptThread::Md5File
-	(
-	Event *ev
-	)
-
-{
-	char hash[ 64 ];
-	str filename = NULL;
-	int ret = 0;
-
-	if( ev->NumArgs() != 1 )
-	{
-		ScriptError( "Wrong arguments count for md5file!\n" );
-		return;
-	}
-
-	filename = ev->GetString( 1 );
-
-	ret = checkMD5( filename, hash );
-	if ( ret != 0 )
-	{
-		ev->AddInteger( -1 );
-		ScriptError( "Error while generating MD5 checksum for file - md5file!\n" );
-		return;
-	}
-
-	ev->AddString( hash );
-
-}
-
-void ScriptThread::StringBytesCopy
-	(
-	Event *ev
-	)
-
-{
-	int bytes = ev->GetInteger( 1 );
-	str source = ev->GetString( 2 );
-	char *buffer;
-
-	buffer = ( char * )glbs.Malloc( bytes + 1 );
-
-	strncpy( buffer, source, bytes );
-	buffer[ bytes ] = 0;
-
-	ev->AddString( buffer );
-
-	glbs.Free( buffer );
-}
-
-void ScriptThread::Md5String
-	(
-	Event *ev
-	)
-
-{
-	char hash[ 64 ];
-	str text = NULL;
-	int ret = 0;
-
-	if( ev->NumArgs() != 1 )
-	{
-		ScriptError( "Wrong arguments count for md5string!\n" );
-		return;
-	}
-
-	text = ev->GetString( 1 );
-
-	ret = checkMD5String( text, hash );
-	if ( ret != 0 )
-	{
-		ev->AddInteger( -1 );
-		ScriptError( "Error while generating MD5 checksum for strin!\n" );
-		return;
-	}
-
-	ev->AddString( hash );
-
-}
-
-scriptedEvType_t EventNameToType( const char *eventname, char *fullname )
-{
-	scriptedEvType_t evType;
-
-	const char *eventname_full;
-
-	if( strcmp( eventname, "connected" ) == 0 ) {
-		eventname_full = "ConnectedEvent";
-		evType = SE_CONNECTED;
-	}
-	else if( strcmp( eventname, "disconnected" ) == 0 ) {
-		eventname_full = "DisconnectedEvent";
-		evType = SE_DISCONNECTED;
-	}
-	else if( strcmp( eventname, "spawn" ) == 0 ) {
-		eventname_full = "SpawnEvent";
-		evType = SE_SPAWN;
-	}
-	else if( strcmp( eventname, "damage" ) == 0 ) {
-		eventname_full = "DamageEvent";
-		evType = SE_DAMAGE;
-	}
-	else if( strcmp( eventname, "kill" ) == 0 ) {
-		eventname_full = "KillEvent";
-		evType = SE_KILL;
-	}
-	else if( strcmp( eventname, "keypress" ) == 0 ) {
-		eventname_full = "KeypressEvent";
-		evType = SE_KEYPRESS;
-	}
-	else if( strcmp( eventname, "intermission" ) == 0 ) {
-		eventname_full = "IntermissionEvent";
-		evType = SE_INTERMISSION;
-	}
-	else if( strcmp( eventname, "servercommand" ) == 0 ) {
-		eventname_full = "ServerCommandEvent";
-		evType = SE_SERVERCOMMAND;
-	}
-	else if( strcmp( eventname, "changeteam" ) == 0 ) {
-		eventname_full = "ChangeTeamEvent";
-		evType = SE_CHANGETEAM;
-	}
-	else
-		return SE_DEFAULT;
-
-	if( fullname != NULL ) {
-		strcpy( fullname, eventname_full );
-	}
-
-	return evType;
-}
-
-void ScriptThread::RegisterEvent
-	(
-	Event *ev
-	)
-
-{
-	str eventname;
-	char eventname_full[ 64 ];
-	scriptedEvType_t evType;
-
-	eventname = ev->GetString( 1 );
-
-	evType = EventNameToType( eventname, eventname_full );
-
-	if( evType == SE_DEFAULT)
-	{
-		ScriptError( "Wrong event type name for registerev!\n" );
-
-		ev->AddInteger( 0 );
-		return;
-	}
-
-
-	if( scriptedEvents[ evType ].IsRegistered() )
-	{
-		ScriptError( "Scripted event '%s' is already registered\n", eventname.c_str() );
-		ev->AddInteger( 1 );
-		return;
-	}
-
-	scriptedEvents[ evType ].label.SetThread( ev->GetValue( 2 ) );
-
-	if( evType == SE_KEYPRESS ) {
-		glbs.Cvar_Set( "sv_keypressevents", "1" );
-	} else if( evType == SE_SERVERCOMMAND ) {
-		glbs.Cvar_Set( "sv_servercmdevents", "1" );
-	}
-
-	ev->AddInteger( 0 );
-}
-
-void ScriptThread::UnregisterEvent
-	(
-	Event *ev
-	)
-
-{
-	str eventname = NULL;
-	char *eventname_full = NULL;
-	int numArgs = 0;
-	scriptedEvType_t evType;
-
-	eventname = ev->GetString( 1 );
-
-	evType = EventNameToType( eventname, NULL );
-
-	if( evType == -1 )
-	{
-		ScriptError( "Reborn SCRIPT ERROR: Wrong event type name for unregisterev!\n" );
-
-		ev->AddInteger( 0 );
-		return;
-	}
-
-	numArgs = ev->NumArgs();
-
-	if( numArgs != 1 )
-	{
-		ScriptError( "Reborn SCRIPT ERROR: Wrong arguments count for unregisterev!\n" );
-		return;
-	}
-
-	eventname = ev->GetString( 1 );
-
-
-	if( !scriptedEvents[ evType ].IsRegistered() )
-	{
-		ev->AddInteger( 1 );
-		return;
-	}
-
-	scriptedEvents[ evType ].label.Set( "" );
-
-	if( evType == SE_KEYPRESS )
-		glbs.Cvar_Set( "sv_keypressevents", "0" );
-	else if( evType == SE_SERVERCOMMAND )
-		glbs.Cvar_Set( "sv_servercmdevents", "0" );
-
-	ev->AddInteger( 0 );
-}
-
-void ScriptThread::TypeOfVariable
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = 0;
-	char *type = NULL;
-	ScriptVariable * variable;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 1 )
-	{
-		glbs.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for typeof!\n" );
-		return;
-	}
-
-	variable = (ScriptVariable*)&ev->GetValue( 1 );
-	type = (char*)variable->GetTypeName();
-
-	ev->AddString( type );
-}
-
-void ScriptThread::VisionGetNaked
-	(
-	Event *ev
-	)
-
-{
-	ev->AddString( vision_current );
-}
-
-void ScriptThread::VisionSetNaked
-	(
-	Event *ev
-	)
-
-{
-	str vision = ev->GetString( 1 );
-	float fade_time;
-	cvar_t *mapname = glbs.Cvar_Get( "mapname", "", 0 );
-
-	if( ev->NumArgs() > 1 ) {
-		fade_time = ev->GetFloat( 2 );
-	} else {
-		fade_time = 0.0f;
-	}
-
-	if( !vision.length() ) {
-		vision = mapname->string;
-	}
-
-	// We won't malicously overflow client commands :)
-	if( vision.length() >= MAX_STRING_TOKENS ) {
-		ScriptError( "vision_name exceeds the maximum vision name limit (256) !\n" );
-	}
-
-	vision_current = vision;
-
-#ifdef GAME_DLL
-	glbs.SendServerCommand( -1, "vsn %s %f", vision.c_str(), fade_time );
-#elif defined CGAME_DLL
-	// TODO
-#endif
-}
-
 void ScriptThread::CancelWaiting
 	(
 	Event *ev
@@ -4508,7 +2658,7 @@ void ScriptThread::GetAbs
 	{
 		if (val.GetType() != VARIABLE_FLOAT)
 		{
-			ScriptError("abs applied to bad type '%s'", val.GetTypeName());
+			throw ScriptException("abs applied to bad type '%s'", val.GetTypeName());
 		}
 		ev->AddFloat(fabs(ev->GetFloat(1)));
 	}
@@ -4520,7 +2670,7 @@ void ScriptThread::ServerStufftext
 	)
 
 {
-	glbs.SendConsoleCommand( ev->GetString( 1 ) );
+	gi.SendConsoleCommand( ev->GetString( 1 ) );
 }
 
 void ScriptThread::RemoveArchivedClass
@@ -4570,8 +2720,7 @@ void ScriptThread::SetTimer
 
 	if( ev->NumArgs() != 2 )
 	{
-		ScriptError( "Wrong arguments count for settimer!\n" );
-		return;
+		throw ScriptException( "Wrong arguments count for settimer!\n" );
 	}
 
 	interval = ev->GetInteger( 1 );
@@ -4779,7 +2928,7 @@ void ScriptThread::EventError
 		}
 	}
 
-	ScriptError( ev->GetString( 1 ) );
+	throw ScriptException( ev->GetString( 1 ) );
 }
 
 void ScriptThread::EventGoto
@@ -4822,7 +2971,7 @@ void ScriptThread::EventGetCvar
 	)
 
 {
-	str s = glbs.Cvar_Get( ev->GetString( 1 ), "", 0 )->string;
+	str s = gi.Cvar_Get( ev->GetString( 1 ), "", 0 )->string;
 
 	if( strchr( s.c_str(), '.' ) )
 	{
@@ -4844,7 +2993,7 @@ void ScriptThread::EventSetCvar
 	)
 
 {
-	glbs.Cvar_Set( ev->GetString( 1 ), ev->GetString( 2 ) );
+	gi.Cvar_Set( ev->GetString( 1 ), ev->GetString( 2 ) );
 }
 
 void ScriptThread::EventThrow
@@ -4926,7 +3075,7 @@ void ScriptThread::Println
 		return;
 
 	Print( ev );
-	glbs.DPrintf( "\n" );
+	gi.DPrintf( "\n" );
 }
 
 void ScriptThread::Print
@@ -4940,7 +3089,7 @@ void ScriptThread::Print
 
 	for( int i = 1; i <= ev->NumArgs(); i++ )
 	{
-		glbs.DPrintf( ev->GetString( i ).c_str() );
+		gi.DPrintf( ev->GetString( i ).c_str() );
 	}
 }
 
@@ -5008,7 +3157,7 @@ void ScriptThread::Spawn
 
 	if( listener && checkInheritance( &Object::ClassInfo, listener->classinfo() ) )
 	{
-		ScriptError( "You must specify an explicit classname for misc object tik models" );
+		throw ScriptException( "You must specify an explicit classname for misc object tik models" );
 	}
 }
 
@@ -5024,7 +3173,7 @@ Listener *ScriptThread::SpawnInternal
 
 	if( ev->NumArgs() <= 0 )
 	{
-		ScriptError( "Usage: spawn entityname [keyname] [value]..." );
+		throw ScriptException( "Usage: spawn entityname [keyname] [value]..." );
 	}
 
 	classname = ev->GetString( 1 );
@@ -5050,7 +3199,7 @@ Listener *ScriptThread::SpawnInternal
 
 	if( !args.getClassDef() )
 	{
-		ScriptError( "'%s' is not a valid entity name", classname.c_str() );
+		throw ScriptException( "'%s' is not a valid entity name", classname.c_str() );
 	}
 
 	const char *spawntarget = args.getArg( "spawntarget" );
@@ -5061,7 +3210,7 @@ Listener *ScriptThread::SpawnInternal
 
 		if( !target )
 		{
-			ScriptError( "Can't find targetname %s", spawntarget );
+			throw ScriptException( "Can't find targetname %s", spawntarget );
 		}
 
 		args.setArg( "origin", va( "%f %f %f", target->origin[ 0 ], target->origin[ 1 ], target->origin[ 2 ] ) );
@@ -5082,7 +3231,7 @@ Listener *ScriptThread::SpawnInternal
 	if( level.m_bRejectSpawn )
 	{
 		level.m_bRejectSpawn = false;
-		ScriptError( "Spawn command rejected for %s", classname.c_str() );
+		throw ScriptException( "Spawn command rejected for %s", classname.c_str() );
 	}
 
 	return l;
@@ -5100,7 +3249,7 @@ void ScriptThread::SpawnReturn
 
 	if( listener && checkInheritance( &Object::ClassInfo, listener->classinfo() ) )
 	{
-		ScriptError( "You must specify an explicit classname for misc object tik models" );
+		throw ScriptException( "You must specify an explicit classname for misc object tik models" );
 	}
 }
 
@@ -5221,8 +3370,8 @@ void ScriptThread::EventGetBoundKey1
 	const char *pszKeyName;
 	str sCommand = ev->GetString( 1 );
 
-	glbs.Key_GetKeysForCommand( sCommand, &iKey1, &iKey2 );
-	pszKeyName = glbs.Key_KeynumToBindString( iKey1 );
+	gi.Key_GetKeysForCommand( sCommand, &iKey1, &iKey2 );
+	pszKeyName = gi.Key_KeynumToBindString( iKey1 );
 
 	ev->AddString( pszKeyName );
 }
@@ -5238,8 +3387,8 @@ void ScriptThread::EventGetBoundKey2
 	const char *pszKeyName;
 	str sCommand = ev->GetString( 1 );
 
-	glbs.Key_GetKeysForCommand( sCommand, &iKey1, &iKey2 );
-	pszKeyName = glbs.Key_KeynumToBindString( iKey2 );
+	gi.Key_GetKeysForCommand( sCommand, &iKey1, &iKey2 );
+	pszKeyName = gi.Key_KeynumToBindString( iKey2 );
 
 	ev->AddString( pszKeyName );
 }
@@ -5250,39 +3399,7 @@ void ScriptThread::EventLocConvertString
 	)
 
 {
-	ev->AddString( glbs.LV_ConvertString( ev->GetString( 1 ) ) );
-}
-
-void ScriptThread::GetTime
-	(
-	Event *ev
-	)
-
-{
-	int timearray[ 3 ], gmttime;
-	char buff[ 1024 ];
-
-	time_t rawtime;
-	struct tm * timeinfo, *ptm;
-
-	int timediff;
-
-	time( &rawtime );
-	timeinfo = localtime( &rawtime );
-
-	timearray[ 0 ] = timeinfo->tm_hour;
-	timearray[ 1 ] = timeinfo->tm_min;
-	timearray[ 2 ] = timeinfo->tm_sec;
-
-	ptm = gmtime( &rawtime );
-
-	gmttime = ptm->tm_hour;
-
-	timediff = timearray[ 0 ] - gmttime;
-
-	sprintf( buff, "%02i:%02i:%02i", (int)timearray[0], (int)timearray[1], (int)timearray[2] );
-
-	ev->AddString( buff );
+	ev->AddString( gi.LV_ConvertString( ev->GetString( 1 ) ) );
 }
 
 #if defined ( GAME_DLL )
@@ -5329,7 +3446,7 @@ void ScriptThread::EventSightTrace
 		start = ev->GetVector( 1 );
 		break;
 	default:
-		ScriptError( "Wrong number of arguments for sighttrace." );
+		throw ScriptException( "Wrong number of arguments for sighttrace." );
 	}
 
 	// call trace
@@ -5375,7 +3492,7 @@ void ScriptThread::EventTrace
 		start = ev->GetVector( 1 );
 		break;
 	default:
-		ScriptError( "Wrong number of arguments for trace." );
+		throw ScriptException( "Wrong number of arguments for trace." );
 	}
 
 	// call trace
@@ -5389,106 +3506,6 @@ void ScriptThread::EventTrace
 		"ScriptThread::EventTrace" );
 
 	ev->AddVector( trace.endpos );
-}
-
-
-void ScriptThread::TraceDetails
-	(
-	Event *ev
-	)
-
-{
-
-	int numArgs = 0;
-	int pass_entity = 0;
-	int mask = 0x2000B01;
-	trace_t trace;
-	Vector vecStart, vecEnd, vecMins, vecMaxs;
-	Entity *entity;
-	//todo : remove all these vars and add one for index and one for value
-
-	ScriptVariable array;
-	ScriptVariable allSolidIndex, allSolidValue;
-	ScriptVariable startSolidIndex, startSolidValue;
-	ScriptVariable fractionIndex, fractionValue;
-	ScriptVariable endPosIndex, endPosValue;
-	ScriptVariable surfaceFlagsIndex, surfaceFlagsValue;
-	ScriptVariable shaderNumIndex, shaderNumValue;
-	ScriptVariable contentsIndex, contentsValue;
-	ScriptVariable entityNumIndex, entityNumValue;
-	ScriptVariable locationIndex, locationValue;
-	ScriptVariable entityIndex, entityValue;
-
-	numArgs = ev->NumArgs();
-
-	if (numArgs < 2 || numArgs > 6)
-	{
-		ScriptError("Wrong arguments count for traced!\n");
-		return;
-	}
-
-	vecStart = ev->GetVector(1);
-	vecEnd = ev->GetVector(2);
-
-	if (numArgs >= 3) {
-		pass_entity = ev->GetInteger(3);
-	}
-
-	if (numArgs >= 4) {
-		vecMins = ev->GetVector(4);
-	}
-
-	if (numArgs >= 5) {
-		vecMaxs = ev->GetVector(5);
-	}
-
-	if (numArgs == 6) {
-		mask = ev->GetInteger(6);
-	}
-
-	glbs.Trace(&trace, vecStart, vecMins, vecMaxs, vecEnd, pass_entity, mask, 0, 0);
-
-	allSolidIndex.setStringValue("allSolid");
-	startSolidIndex.setStringValue("startSolid");
-	fractionIndex.setStringValue("fraction");
-	endPosIndex.setStringValue("endpos");
-	surfaceFlagsIndex.setStringValue("surfaceFlags");
-	shaderNumIndex.setStringValue("shaderNum");
-	contentsIndex.setStringValue("contents");
-	entityNumIndex.setStringValue("entityNum");
-	locationIndex.setStringValue("location");
-	entityIndex.setStringValue("entity");
-
-	allSolidValue.setIntValue(trace.allsolid);
-	startSolidValue.setIntValue(trace.startsolid);
-	fractionValue.setFloatValue(trace.fraction);
-	endPosValue.setVectorValue(trace.endpos);
-	surfaceFlagsValue.setIntValue(trace.surfaceFlags);
-	shaderNumValue.setIntValue(trace.shaderNum);
-	contentsValue.setIntValue(trace.contents);
-	entityNumValue.setIntValue(trace.entityNum);
-	locationValue.setIntValue(trace.location);
-
-	entity = G_GetEntity(trace.entityNum);
-
-	// Have to use G_GetEntity instead otherwise it won't work
-	if (entity != NULL) {
-		entityValue.setListenerValue(entity);
-	}
-
-	array.setArrayAtRef(allSolidIndex, allSolidValue);
-	array.setArrayAtRef(startSolidIndex, startSolidValue);
-	array.setArrayAtRef(fractionIndex, fractionValue);
-	array.setArrayAtRef(endPosIndex, endPosValue);
-	array.setArrayAtRef(surfaceFlagsIndex, surfaceFlagsValue);
-	array.setArrayAtRef(shaderNumIndex, shaderNumValue);
-	array.setArrayAtRef(contentsIndex, contentsValue);
-	array.setArrayAtRef(entityNumIndex, entityNumValue);
-	array.setArrayAtRef(locationIndex, locationValue);
-	array.setArrayAtRef(entityIndex, entityValue);
-
-	ev->AddValue(array);
-
 }
 
 void ScriptThread::TriggerEvent
@@ -5539,7 +3556,7 @@ void ScriptThread::StuffCommand
 	)
 
 {
-	glbs.SendConsoleCommand( va( "%s\n", ev->GetString( 1 ).c_str() ) );
+	gi.SendConsoleCommand( va( "%s\n", ev->GetString( 1 ).c_str() ) );
 }
 
 #ifdef GAME_DLL
@@ -5615,7 +3632,7 @@ void ScriptThread::CreateHUD
 	{
 		Player *player = ( Player * )ev->GetEntity( 1 );
 		if( !player || !player->IsSubclassOfPlayer() )
-			ScriptError( "Invalid player entity!\n" );
+			throw ScriptException( "Invalid player entity!\n" );
 
 		clientNum = player->client->ps.clientNum;
 	}
@@ -5631,7 +3648,7 @@ void ScriptThread::IPrintln
 	)
 
 {
-	G_PrintToAllClients( glbs.LV_ConvertString( ev->GetString( 1 ) ), false );
+	G_PrintToAllClients( gi.LV_ConvertString( ev->GetString( 1 ) ), false );
 }
 
 void ScriptThread::IPrintln_NoLoc
@@ -5649,7 +3666,7 @@ void ScriptThread::IPrintlnBold
 	)
 
 {
-	G_PrintToAllClients( glbs.LV_ConvertString( ev->GetString( 1 ) ), true );
+	G_PrintToAllClients( gi.LV_ConvertString( ev->GetString( 1 ) ), true );
 }
 
 void ScriptThread::IPrintlnBold_NoLoc
@@ -5661,23 +3678,6 @@ void ScriptThread::IPrintlnBold_NoLoc
 	G_PrintToAllClients( ev->GetString( 1 ), true );
 }
 
-void ScriptThread::CanSwitchTeams
-	(
-	Event *ev
-	)
-
-{
-	qboolean bAllow = ev->GetBoolean( 1 );
-
-	disable_team_change = !bAllow;
-
-	if( ev->NumArgs() > 1 )
-	{
-		qboolean bAllow2 = ev->GetBoolean( 2 );
-
-		disable_team_spectate = !bAllow2;
-	}
-}
 bool ScriptThread::CanScriptTracePrint
 	(
 	void
@@ -5711,288 +3711,6 @@ void ScriptThread::Earthquake
 	}
 }
 
-void ScriptThread::GetEntity
-(
-Event *ev
-)
-
-{
-	int entnum = -1;
-	Entity *ent;
-
-	entnum = ev->GetInteger( 1 );
-
-	if ( entnum < 0 || entnum > globals.max_entities ) {
-		ScriptError( "Reborn SCRIPT ERROR: Entity number %d out of scope!\n", entnum );
-	}
-
-	ent = G_GetEntity( entnum );
-	ev->AddEntity( ent );
-}
-
-void ScriptThread::GetPlayerNetname
-	(
-	Event *ev
-	)
-
-{
-	Entity *ent = NULL;
-
-	ent = (Entity*)ev->GetEntity( 1 );
-
-	if ( ent == NULL )
-	{
-		ev->AddString( "" );
-
-		return;
-	}
-	else if ( ent->client == NULL )
-	{
-		ev->AddString( "" );
-		return;
-	}
-
-	ev->AddString( ent->client->pers.netname );
-}
-
-void ScriptThread::GetPlayerIP
-	(
-	Event *ev
-	)
-
-{
-	Entity *ent = NULL;
-	char *ip = NULL;
-	char ip_buff[65];
-	ent = (Entity*)ev->GetEntity( 1 );
-
-	if ( ent == NULL )
-	{
-		ev->AddString( "NIL" );
-
-		return;
-	}
-	else if( ent->client == NULL )
-	{
-		ev->AddString( "NIL" );
-		return;
-	}
-	
-	ip = ent->client->pers.ip;
-
-	sprintf( ip_buff, "%s:%i\0", ip, ent->client->pers.port );
-
-	ev->AddString( ip_buff );
-}
-
-void ScriptThread::GetPlayerPing
-	(
-	Event *ev
-	)
-
-{
-
-	Entity *ent = NULL;
-	int ping = -1;
-
-
-	ent = (Entity*)ev->GetEntity( 1 );
-
-	if ( ent == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for getping!\n" );
-
-		return;
-	}
-	else if ( ent->client == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Entity is probably not of player type - getping\n" );
-
-		return;
-	}
-
-	ping = ent->client->ps.ping;
-
-	ev->AddInteger( ping );
-}
-
-void ScriptThread::GetPlayerClientNum
-	(
-	Event *ev
-	)
-
-{
-
-	Entity *ent = NULL;
-	int cl_num = -1;
-
-	ent = (Entity*)ev->GetEntity( 1 );
-
-	if ( ent == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for getclientnum!\n" );
-
-		return;
-	}
-	else if ( ent->client == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Entity is probably not of player type - getclientnum\n" );
-
-		return;
-	}
-
-	cl_num = ent->client->ps.clientNum;
-
-	ev->AddInteger( cl_num );
-}
-
-void ScriptThread::GetAreaEntities
-	(
-	Event *ev
-	)
-
-{
-	Vector origin;
-	Vector mins;
-	Vector maxs;
-	Vector o_min;
-	Vector o_max;
-	int touch[ MAX_GENTITIES ];
-	int count;
-	int j = 0;
-	ScriptVariable *ref = new ScriptVariable, *array = new ScriptVariable;
-
-	origin = ev->GetVector( 1 );
-	mins = ev->GetVector( 2 );
-	maxs = ev->GetVector( 3 );
-
-	o_min = origin + mins;
-	o_max = origin + maxs;
-
-	count = gi.AreaEntities( o_min, o_max, touch, MAX_GENTITIES );
-
-	ref->setRefValue( array );
-
-	for( int i = 0; i < count; i++ )
-	{
-		Entity *entity = G_GetEntity( touch[ i ] );
-
-		if( entity == NULL ) {
-			continue;
-		}
-
-		ScriptVariable *index = new ScriptVariable, *value = new ScriptVariable;
-
-		index->setIntValue( j );
-		value->setListenerValue( entity );
-
-		ref->setArrayAt( *index, *value );
-
-		j++;
-	}
-
-	ev->AddValue( *array );
-}
-
-void ScriptThread::GetEntArray
-	(
-	Event *ev
-	)
-
-{
-	str name = ev->GetString( 1 );
-	str key = ev->GetString( 2 );
-
-	ScriptVariable array;
-	ScriptVariable index, value;
-	gentity_t *gentity = globals.gentities;
-
-	Event *event = new Event( key, EV_GETTER );
-	qboolean useEvent = event != NULL;
-	qboolean createEvent = false;
-
-	if( !event->eventnum )
-	{
-		delete event;
-		useEvent = false;
-	}
-
-	int x = 0;
-
-	for( int i = 0; i < globals.num_entities; i++, gentity++ )
-	{
-		ScriptVariable returnValue;
-
-		if( !gentity->inuse || gentity->entity == NULL ) {
-			continue;
-		}
-
-		if( createEvent )
-		{
-			event = new Event( key, EV_GETTER );
-			createEvent = false;
-		}
-
-		Entity *entity = gentity->entity;
-
-		if( useEvent ) {
-			createEvent = true;
-		}
-
-		if( !useEvent )
-		{
-			// Now look for variables if predefined keys are not specified
-
-			ScriptVariableList *vars = entity->Vars();
-
-			if( vars == NULL ) {
-				continue;
-			}
-
-			// Get the variable from the key
-			ScriptVariable *variable = vars->GetVariable( key );
-
-			if( variable == NULL ) {
-				continue;
-			}
-
-			// Check if it matches with the name
-			if( variable->stringValue() == name ) {
-				continue;
-			}
-		}
-		else
-		{
-			const char * value = NULL;
-
-			returnValue = entity->ProcessEventReturn( event );
-
-			if( !event->NumArgs() ) {
-				continue;
-			}
-
-			value = returnValue.stringValue();
-
-			if( value == NULL ) {
-				continue;
-			}
-
-			if( strcmp( value, name ) != 0 ) {
-				continue;
-			}
-		}
-
-		index.setIntValue( x );
-		value.setListenerValue( entity );
-
-		array.setArrayAt( index, value );
-
-		x++;
-	}
-
-	ev->AddValue( array );
-}
-
 void ScriptThread::EventIsAlive
 	(
 	Event *ev
@@ -6011,58 +3729,860 @@ void ScriptThread::EventIsAlive
 	}
 }
 
-void ScriptThread::EventHudDraw3d
-	(
-	Event *ev
-	)
+
+void ScriptThread::AddObjective
+(
+	Event* ev
+)
 
 {
 	int index;
-	float *tmp;
-	vec3_t vector;
-	int ent_num;
-	qboolean bAlwaysShow, bDepth;
+	int status;
+	str text = "";
+	Vector location;
 
-	index = ev->GetInteger( 1 );
+	index = ev->GetInteger(1);
+	status = ev->GetInteger(2);
 
-	if ( index < 0 && index > 255 )
+	if (index > 20)
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for huddraw_3d!\n" );
-		return;
+		throw ScriptException("Index Out Of Range");
 	}
 
-	tmp = ev->GetVector( 2 );
-	memcpy( &vector, tmp, sizeof( vec3_t ) );
+	if (status > 3)
+	{
+		throw ScriptException("Invalid Status");
+	}
 
-	ent_num = ev->GetInteger( 3 );
-	bAlwaysShow = ev->GetInteger( 4 );
-	bDepth = ev->GetInteger( 5 );
+	if (ev->IsNilAt(3))
+	{
+		text = Info_ValueForKey(gi.GetConfigstring(index - 1 + CS_OBJECTIVES), "text");
+	}
+	else
+	{
+		text = ev->GetString(3);
+	}
 
-	HudDraw3d( index, vector, ent_num, bAlwaysShow, bDepth );
+	if (ev->IsNilAt(4))
+	{
+		sscanf(Info_ValueForKey(gi.GetConfigstring(index - 1 + CS_OBJECTIVES), "loc"), "%f %f %f", &location.x, &location.y, &location.z);
+	}
+	else
+	{
+		location = ev->GetVector(4);
+	}
+
+	AddObjective(index, status, text, location);
 }
 
-void ScriptThread::EventHudDrawTimer
-	(
-	Event *ev
-	)
+void ScriptThread::AddObjective(int index, int status, str text, Vector location)
+{
+	static int last_time;
+	int flags;
+	char szSend[2048];
+	char* sTmp;
+
+	flags = 0;
+	sTmp = gi.GetConfigstring(CS_OBJECTIVES + index);
+
+	switch (status)
+	{
+	case 1:
+		flags = 1;
+		break;
+	case 2:
+		sTmp = Info_ValueForKey(sTmp, "flags");
+		if (!(atoi(sTmp) & 2))
+		{
+			if (last_time != level.inttime)
+			{
+				gi.Printf("An objective has been added!\n");
+				last_time = level.inttime;
+			}
+		}
+		flags = 2;
+		break;
+	case 3:
+		if (last_time != level.inttime)
+		{
+			gi.Printf("An objective has been completed!\n");
+			last_time = level.inttime;
+		}
+		if (!g_gametype->integer)
+		{
+			if (g_entities->entity->IsSubclassOfPlayer())
+			{
+				((Player*)g_entities->entity)->m_iObjectivesCompleted++;
+			}
+		}
+		flags = 4;
+		break;
+	}
+
+	szSend[0] = 0;
+
+	Info_SetValueForKey(szSend, "flags", va("%i", flags));
+	Info_SetValueForKey(szSend, "text", text.c_str());
+	Info_SetValueForKey(szSend, "loc", va("%f %f %f", location[0], location[1], location[2]));
+
+	gi.SetConfigstring(CS_OBJECTIVES + index, szSend);
+}
+
+void ScriptThread::ClearObjectiveLocation
+(
+	Event* ev
+)
 
 {
-	int index;
-	float duration;
-	float fade_out_time;
+	ClearObjectiveLocation();
+}
 
-	index = ev->GetInteger( 1 );
+void ScriptThread::ClearObjectiveLocation(void)
+{
+	level.m_vObjectiveLocation = vec_zero;
+}
 
-	if ( index < 0 && index > 255 )
+void ScriptThread::SetObjectiveLocation
+(
+	Event* ev
+)
+
+{
+	SetObjectiveLocation(ev->GetVector(1));
+}
+
+void ScriptThread::SetObjectiveLocation(Vector vLocation)
+{
+	level.m_vObjectiveLocation = vLocation;
+}
+
+void ScriptThread::SetCurrentObjective
+(
+	Event* ev
+)
+
+{
+	int iObjective = ev->GetInteger(1);
+
+	if (iObjective > MAX_OBJECTIVES)
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for huddraw_timer!\n" );
+		throw ScriptException("Index Out Of Range");
+	}
+
+	SetCurrentObjective(iObjective);
+}
+
+void ScriptThread::SetCurrentObjective(int iObjective)
+{
+	gi.SetConfigstring(CS_CURRENT_OBJECTIVE, va("%i", iObjective));
+
+	if (iObjective == -1)
+	{
+		level.m_vObjectiveLocation = vec_zero;
+	}
+	else
+	{
+		const char* s = gi.GetConfigstring(CS_OBJECTIVES + iObjective);
+		const char* loc = Info_ValueForKey(s, "loc");
+
+		sscanf(loc, "%f %f %f", &level.m_vObjectiveLocation[0], &level.m_vObjectiveLocation[1], &level.m_vObjectiveLocation[2]);
+	}
+}
+
+void ScriptThread::AllAIOff
+(
+	Event* ev
+)
+
+{
+	level.ai_on = qfalse;
+}
+
+void ScriptThread::AllAIOn
+(
+	Event* ev
+)
+
+{
+	level.ai_on = qtrue;
+}
+
+void ScriptThread::EventTeamWin
+(
+	Event* ev
+)
+
+{
+	const_str team;
+	int teamnum;
+
+	if (g_gametype->integer != GT_OBJECTIVE)
+	{
+		throw ScriptException("'teamwin' only valid for objective-based DM games");
+	}
+
+	team = ev->GetConstString(1);
+	if (team == STRING_ALLIES)
+	{
+		teamnum = TEAM_ALLIES;
+	}
+	else if (team == TEAM_AXIS)
+	{
+		teamnum = TEAM_AXIS;
+	}
+	else
+	{
+		throw ScriptException("'teamwin' must be called with 'axis' or 'allies' as its argument");
+	}
+
+	dmManager.TeamWin(teamnum);
+}
+
+void ScriptThread::Angles_PointAt
+(
+	Event* ev
+)
+
+{
+	Entity* pParent, * pEnt, * pTarget;
+	Vector vDelta, vVec, vAngles;
+
+	pParent = ev->GetEntity(1);
+	pEnt = ev->GetEntity(2);
+	pTarget = ev->GetEntity(3);
+
+	if (pParent)
+	{
+		vDelta = pEnt->centroid - pTarget->centroid;
+		vVec[0] = DotProduct(vDelta, pParent->orientation[0]);
+		vVec[1] = DotProduct(vDelta, pParent->orientation[1]);
+		vVec[2] = DotProduct(vDelta, pParent->orientation[2]);
+	}
+	else
+	{
+		vVec = pEnt->centroid - pTarget->centroid;
+	}
+
+	VectorNormalize(vVec);
+	vectoangles(vVec, vAngles);
+
+	ev->AddVector(vAngles);
+}
+
+void ScriptThread::EventEarthquake
+(
+	Event* ev
+)
+
+{
+	earthquake_t e;
+
+	e.duration = (int)(ev->GetFloat(1) * 1000.0f + 0.5f);
+	if (e.duration <= 0) {
 		return;
 	}
 
-	duration = ev->GetFloat( 2 );
-	fade_out_time = ev->GetFloat( 3 );
+	e.magnitude = ev->GetFloat(2);
+	e.no_rampup = ev->GetBoolean(3);
+	e.no_rampdown = ev->GetBoolean(4);
 
-	HudDrawTimer( index, duration, fade_out_time );
+	e.starttime = level.inttime;
+	e.endtime = level.inttime + e.duration;
+
+	e.m_Thread = this;
+
+	level.AddEarthquake(&e);
+}
+
+
+void ScriptThread::CueCamera
+(
+	Event* ev
+)
+
+{
+	float    switchTime;
+	Entity* ent;
+
+	if (ev->NumArgs() > 1)
+	{
+		switchTime = ev->GetFloat(2);
+	}
+	else
+	{
+		switchTime = 0;
+	}
+
+	ent = ev->GetEntity(1);
+	if (ent)
+	{
+		SetCamera(ent, switchTime);
+	}
+	else
+	{
+		throw ScriptException("Camera named %s not found", ev->GetString(1).c_str());
+	}
+}
+
+void ScriptThread::CuePlayer
+(
+	Event* ev
+)
+
+{
+	float    switchTime;
+
+	if (ev->NumArgs() > 0)
+	{
+		switchTime = ev->GetFloat(1);
+	}
+	else
+	{
+		switchTime = 0;
+	}
+
+	SetCamera(NULL, switchTime);
+}
+
+void ScriptThread::FreezePlayer
+(
+	Event* ev
+)
+
+{
+	level.playerfrozen = true;
+}
+
+void ScriptThread::ReleasePlayer
+(
+	Event* ev
+)
+
+{
+	level.playerfrozen = false;
+}
+
+void ScriptThread::EventDrawHud
+(
+	Event* ev
+)
+
+{
+	int i;
+	gentity_t* ent;
+
+	// TRIVIA: in mohaa, drawhud worked only for the first player
+	for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++)
+	{
+		if (!ent->inuse || !ent->entity || !ent->client) {
+			continue;
+		}
+
+		if (ev->GetBoolean(1))
+		{
+			ent->client->ps.pm_flags &= ~PMF_NO_HUD;
+		}
+		else
+		{
+			ent->client->ps.pm_flags |= PMF_NO_HUD;
+		}
+	}
+}
+
+void ScriptThread::EventRadiusDamage
+(
+	Event* ev
+)
+
+{
+	Vector origin = ev->GetVector(1);
+	float damage = ev->GetFloat(2);
+	float radius = ev->GetFloat(3);
+	int constant_damage;
+
+	if (ev->NumArgs() > 3)
+	{
+		constant_damage = ev->GetInteger(4);
+	}
+	else
+	{
+		constant_damage = 0;
+	}
+
+	RadiusDamage(origin, world, world, damage, NULL, MOD_EXPLOSION, radius, 0, constant_damage);
+}
+
+void ScriptThread::ForceMusicEvent
+(
+	Event* ev
+)
+
+{
+	const char* current;
+	const char* fallback;
+
+	current = NULL;
+	fallback = NULL;
+	current = ev->GetString(1);
+
+	if (ev->NumArgs() > 1) {
+		fallback = ev->GetString(2);
+	}
+
+	ChangeMusic(current, fallback, true);
+}
+
+void ScriptThread::EventPrint3D
+(
+	Event* ev
+)
+
+{
+	Vector origin;
+	float scale;
+	str string;
+
+	origin = ev->GetVector(1);
+	scale = ev->GetFloat(2);
+	string = ev->GetString(3);
+
+	G_DebugString(origin, scale, 1.0f, 1.0f, 1.0f, string);
+}
+
+void ScriptThread::SoundtrackEvent
+(
+	Event* ev
+)
+
+{
+	ChangeSoundtrack(ev->GetString(1));
+}
+
+void ScriptThread::RestoreSoundtrackEvent
+(
+	Event* ev
+)
+
+{
+	RestoreSoundtrack();
+}
+
+void ScriptThread::EventBspTransition
+(
+	Event* ev
+)
+
+{
+	str map = ev->GetString(1);
+
+	if (level.intermissiontime == 0.0f)
+	{
+		G_BeginIntermission(map, TRANS_BSP);
+	}
+}
+
+void ScriptThread::EventLevelTransition
+(
+	Event* ev
+)
+
+{
+	str map = ev->GetString(1);
+
+	if (level.intermissiontime == 0.0f)
+	{
+		G_BeginIntermission(map, TRANS_LEVEL);
+	}
+}
+
+void ScriptThread::EventMissionTransition
+(
+	Event* ev
+)
+
+{
+	str map = ev->GetString(1);
+
+	if (level.intermissiontime == 0.0f)
+	{
+		G_BeginIntermission(map, TRANS_MISSION);
+	}
+}
+
+void ScriptThread::Letterbox
+(
+	Event* ev
+)
+
+{
+	level.m_letterbox_fraction = 1.0f / 8.0f;
+	level.m_letterbox_time = ev->GetFloat(1);
+	level.m_letterbox_time_start = ev->GetFloat(1);
+	level.m_letterbox_dir = letterbox_in;
+
+	if (ev->NumArgs() > 1)
+		level.m_letterbox_fraction = ev->GetFloat(2);
+}
+
+void ScriptThread::ClearLetterbox
+(
+	Event* ev
+)
+
+{
+	level.m_letterbox_time = level.m_letterbox_time_start;
+	level.m_letterbox_dir = letterbox_out;
+}
+
+void ScriptThread::SetLightStyle
+(
+	Event* ev
+)
+
+{
+	lightStyles.SetLightStyle(ev->GetInteger(1), ev->GetString(2));
+}
+
+void ScriptThread::FadeIn
+(
+	Event* ev
+)
+
+{
+	level.m_fade_time_start = ev->GetFloat(1);
+	level.m_fade_time = ev->GetFloat(1);
+	level.m_fade_color[0] = ev->GetFloat(2);
+	level.m_fade_color[1] = ev->GetFloat(3);
+	level.m_fade_color[2] = ev->GetFloat(4);
+	level.m_fade_alpha = ev->GetFloat(5);
+	level.m_fade_type = fadein;
+	level.m_fade_style = alphablend;
+
+	if (ev->NumArgs() > 5)
+	{
+		level.m_fade_style = (fadestyle_t)ev->GetInteger(6);
+	}
+}
+
+void ScriptThread::ClearFade
+(
+	Event* ev
+)
+
+{
+	level.m_fade_time = -1;
+	level.m_fade_type = fadein;
+}
+
+void ScriptThread::FadeOut
+(
+	Event* ev
+)
+
+{
+	level.m_fade_time_start = ev->GetFloat(1);
+	level.m_fade_time = ev->GetFloat(1);
+	level.m_fade_color[0] = ev->GetFloat(2);
+	level.m_fade_color[1] = ev->GetFloat(3);
+	level.m_fade_color[2] = ev->GetFloat(4);
+	level.m_fade_alpha = ev->GetFloat(5);
+	level.m_fade_type = fadeout;
+	level.m_fade_style = alphablend;
+
+	if (ev->NumArgs() > 5)
+	{
+		level.m_fade_style = (fadestyle_t)ev->GetInteger(6);
+	}
+}
+
+void ScriptThread::MusicEvent
+(
+	Event* ev
+)
+
+{
+	const char* current;
+	const char* fallback;
+
+	current = NULL;
+	fallback = NULL;
+	current = ev->GetString(1);
+
+	if (ev->NumArgs() > 1)
+		fallback = ev->GetString(2);
+
+	ChangeMusic(current, fallback, false);
+}
+
+void ScriptThread::MusicVolumeEvent
+(
+	Event* ev
+)
+
+{
+	float volume;
+	float fade_time;
+
+	volume = ev->GetFloat(1);
+	fade_time = ev->GetFloat(2);
+
+	ChangeMusicVolume(volume, fade_time);
+}
+
+void ScriptThread::RestoreMusicVolumeEvent
+(
+	Event* ev
+)
+{
+	float fade_time;
+
+	fade_time = ev->GetFloat(1);
+
+	RestoreMusicVolume(fade_time);
+}
+
+void ScriptThread::SetCinematic
+(
+	Event* ev
+)
+
+{
+	G_StartCinematic();
+}
+
+void ScriptThread::SetNonCinematic
+(
+	Event* ev
+)
+
+{
+	G_StopCinematic();
+}
+
+void ScriptThread::CenterPrint
+(
+	Event* ev
+)
+
+{
+	int         j;
+	gentity_t* other;
+
+	for (j = 0; j < game.maxclients; j++)
+	{
+		other = &g_entities[j];
+		if (other->inuse && other->client)
+		{
+			gi.centerprintf(other, ev->GetString(1));
+		}
+	}
+}
+
+void ScriptThread::LocationPrint
+(
+	Event* ev
+)
+
+{
+	int         j;
+	gentity_t* other;
+	int         x, y;
+
+	x = ev->GetInteger(1);
+	y = ev->GetInteger(2);
+
+	for (j = 0; j < game.maxclients; j++)
+	{
+		other = &g_entities[j];
+		if (other->inuse && other->client)
+		{
+			gi.locationprintf(other, x, y, ev->GetString(3));
+		}
+	}
+}
+
+void ScriptThread::KillEnt
+(
+	Event* ev
+)
+
+{
+	int num;
+	Entity* ent;
+
+	if (ev->NumArgs() != 1)
+	{
+		throw ScriptException("No args passed in");
+	}
+
+	num = ev->GetInteger(1);
+	if ((num < 0) || (num >= globals.max_entities))
+	{
+		throw ScriptException("Value out of range.  Possible values range from 0 to %d.\n", globals.max_entities);
+	}
+
+	ent = G_GetEntity(num);
+	ent->Damage(world, world, ent->max_health + 25, vec_zero, vec_zero, vec_zero, 0, 0, 0);
+}
+
+void ScriptThread::RemoveEnt
+(
+	Event* ev
+)
+
+{
+	int num;
+	Entity* ent;
+
+	if (ev->NumArgs() != 1)
+	{
+		throw ScriptException("No args passed in");
+	}
+
+	num = ev->GetInteger(1);
+	if ((num < 0) || (num >= globals.max_entities))
+	{
+		throw ScriptException("Value out of range.  Possible values range from 0 to %d.\n", globals.max_entities);
+	}
+
+	ent = G_GetEntity(num);
+	ent->PostEvent(Event(EV_Remove), 0);
+}
+
+void ScriptThread::KillClass
+(
+	Event* ev
+)
+
+{
+	int except;
+	str classname;
+	gentity_t* from;
+	Entity* ent;
+
+	if (ev->NumArgs() < 1)
+	{
+		throw ScriptException("No args passed in");
+	}
+
+	classname = ev->GetString(1);
+
+	except = 0;
+	if (ev->NumArgs() == 2)
+	{
+		except = ev->GetInteger(1);
+	}
+
+	for (from = &g_entities[game.maxclients]; from < &g_entities[globals.num_entities]; from++)
+	{
+		if (!from->inuse)
+		{
+			continue;
+		}
+
+		assert(from->entity);
+
+		ent = from->entity;
+
+		if (ent->entnum == except)
+		{
+			continue;
+		}
+
+		if (ent->inheritsFrom(classname.c_str()))
+		{
+			ent->Damage(world, world, ent->max_health + 25, vec_zero, vec_zero, vec_zero, 0, 0, 0);
+		}
+	}
+}
+
+void ScriptThread::RemoveClass
+(
+	Event* ev
+)
+
+{
+	int except;
+	str classname;
+	gentity_t* from;
+	Entity* ent;
+
+	if (ev->NumArgs() < 1)
+	{
+		throw ScriptException("No args passed in");
+	}
+
+	classname = ev->GetString(1);
+
+	except = 0;
+	if (ev->NumArgs() == 2)
+	{
+		except = ev->GetInteger(1);
+	}
+
+	for (from = &g_entities[game.maxclients]; from < &g_entities[globals.num_entities]; from++)
+	{
+		if (!from->inuse)
+		{
+			continue;
+		}
+
+		assert(from->entity);
+
+		ent = from->entity;
+
+		if (ent->entnum == except)
+			continue;
+
+		if (ent->inheritsFrom(classname.c_str()))
+		{
+			ent->PostEvent(Event(EV_Remove), 0);
+		}
+	}
+}
+
+void ScriptThread::CameraCommand
+(
+	Event* ev
+)
+
+{
+	Event* e;
+	const char* cmd;
+	int   i;
+	int   n;
+
+	if (!ev->NumArgs())
+	{
+		throw ScriptException("Usage: cam [command] [arg 1]...[arg n]");
+	}
+
+	cmd = ev->GetString(1);
+	if (Event::FindEventNum(cmd))
+	{
+		e = new ConsoleEvent(cmd);
+
+		n = ev->NumArgs();
+		for (i = 2; i <= n; i++)
+		{
+			e->AddToken(ev->GetToken(i));
+		}
+
+		CameraMan.ProcessEvent(e);
+	}
+	else
+	{
+		throw ScriptException("Unknown camera command '%s'.\n", cmd);
+	}
+}
+
+void ScriptThread::MissionFailed
+(
+	Event* ev
+)
+
+{
+	G_MissionFailed();
 }
 
 void ScriptThread::EventHudDrawShader
@@ -6078,8 +4598,7 @@ void ScriptThread::EventHudDrawShader
 
 	if( index < 0 && index > 255 )
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for huddraw_shader!\n" );
-		return;
+		throw ScriptException("Wrong index for huddraw_shader!\n" );
 	}
 
 	shadername = ev->GetString( 2 );
@@ -6103,16 +4622,14 @@ void ScriptThread::EventHudDrawAlign
 
 	if( index < 0 && index > 255 )
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for huddraw_align!\n" );
-		return;
+		throw ScriptException("Wrong index for huddraw_align!\n" );
 	}
 
 	h_align = ev->GetString( 2 );
 
 	if( !h_align )
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: h_align is NULL for huddraw_align!\n" );
-		return;
+		throw ScriptException("h_align is NULL for huddraw_align!\n" );
 	}
 
 	v_align = ev->GetString( 3 );
@@ -6120,8 +4637,7 @@ void ScriptThread::EventHudDrawAlign
 
 	if( !v_align )
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: v_align is NULL for huddraw_align!\n" );
-		return;
+		throw ScriptException("v_align is NULL for huddraw_align!\n" );
 	}
 
 	if( h_align == "left" ) {
@@ -6133,8 +4649,7 @@ void ScriptThread::EventHudDrawAlign
 	}
 	else
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong alignement h_align string for huddraw_align!\n" );
-		return;
+		throw ScriptException("Wrong alignement h_align string for huddraw_align!\n" );
 	}
 
 	if( v_align == "top" )
@@ -6145,8 +4660,7 @@ void ScriptThread::EventHudDrawAlign
 	} else if( v_align == "bottom" ) {
 		v_alignement = 2;
 	} else {
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong alignement v_align string for huddraw_align!\n" );
-		return;
+		throw ScriptException("Wrong alignement v_align string for huddraw_align!\n" );
 	}
 
 	HudDrawAlign( index, h_alignement, v_alignement );
@@ -6168,8 +4682,7 @@ void ScriptThread::EventHudDrawRect
 
 	if( index < 0 && index > 255 )
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for huddraw_rect!\n" );
-		return;
+		throw ScriptException("Wrong index for huddraw_rect!\n" );
 	}
 
 	x = ev->GetInteger( 2 );
@@ -6193,8 +4706,7 @@ void ScriptThread::EventHudDrawVirtualSize
 
 	if( index < 0 && index > 255 )
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for huddraw_virtualsize!\n" );
-		return;
+		throw ScriptException("Wrong index for huddraw_virtualsize!\n" );
 	}
 
 	virt = ev->GetInteger( 2 );
@@ -6220,8 +4732,7 @@ void ScriptThread::EventHudDrawColor
 
 	if( index < 0 && index > 255 )
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_color!\n" );
-		return;
+		throw ScriptException("Wrong index for ihuddraw_color!\n" );
 	}
 
 	color[ 0 ] = ev->GetFloat( 2 ); // red
@@ -6246,8 +4757,7 @@ void ScriptThread::EventHudDrawAlpha
 
 	if( index < 0 && index > 255 )
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_alpha!\n" );
-		return;
+		throw ScriptException("Wrong index for ihuddraw_alpha!\n" );
 	}
 
 	alpha = ev->GetFloat( 2 );
@@ -6269,8 +4779,7 @@ void ScriptThread::EventHudDrawString
 
 	if( index < 0 && index > 255 )
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_string!\n" );
-		return;
+		throw ScriptException("Wrong index for ihuddraw_string!\n" );
 	}
 
 	string = ev->GetString( 2 );
@@ -6291,492 +4800,12 @@ void ScriptThread::EventHudDrawFont
 
 	if( index < 0 && index > 255 )
 	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_font!\n" );
-		return;
+		throw ScriptException("Wrong index for ihuddraw_font!\n" );
 	}
 
 	fontname = ev->GetString( 2 );
 
 	HudDrawFont( index, fontname );
-}
-
-void ScriptThread::EventIHudDraw3d
-	(
-	Event *ev
-	)
-
-{
-	Player * player;
-	int index;
-	float *tmp;
-	vec3_t vector;
-	int ent_num;
-	qboolean bAlwaysShow, bDepth;
-
-	player = ( Player * )ev->GetEntity( 1 );
-
-	if ( player == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for ihuddraw_3d!\n" );
-		return;
-	}
-
-	index = ev->GetInteger( 2 );
-
-	if ( index < 0 && index > 255 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_3d!\n" );
-		return;
-	}
-
-	tmp = ev->GetVector( 3 );
-	memcpy( &vector, tmp, sizeof( vec3_t ) );
-
-	ent_num = ev->GetInteger( 4 );
-	bAlwaysShow = ev->GetInteger( 5 );
-	bDepth = ev->GetInteger( 6 );
-
-	iHudDraw3d( player->edict - g_entities, index, vector, ent_num, bAlwaysShow, bDepth );
-}
-
-void ScriptThread::EventIHudDrawTimer
-	(
-	Event *ev
-	)
-
-{
-	Player * player;
-	int index;
-	float duration;
-	float fade_out_time;
-
-	player = ( Player * )ev->GetEntity( 1 );
-
-	if ( player == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for ihuddraw_timer!\n" );
-		return;
-	}
-
-	index = ev->GetInteger( 2 );
-
-	if ( index < 0 && index > 255 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_timer!\n" );
-		return;
-	}
-
-	duration = ev->GetFloat( 3 );
-	fade_out_time = ev->GetFloat( 4 );
-
-	iHudDrawTimer( player->edict - g_entities, index, duration, fade_out_time );
-}
-
-void ScriptThread::EventIHudDrawShader
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = -1;
-	int index = -1;
-	Entity *player = NULL;
-	str shadername = NULL;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 3 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for ihuddraw_shader!\n" );
-		return;
-	}
-
-	player = ( Entity * )ev->GetEntity( 1 );
-
-	if ( player == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for ihuddraw_shader!\n" );
-		return;
-	}
-
-	index = ev->GetInteger( 2 );
-
-	if ( index < 0 && index > 255 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_shader!\n" );
-		return;
-	}
-
-	shadername = ev->GetString( 3 );
-
-	iHudDrawShader( player->edict - g_entities, index, shadername );
-}
-
-void ScriptThread::EventIHudDrawAlign
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = -1;
-	int index = -1;
-	int h_alignement = -1;
-	int v_alignement = -1;
-	Entity *player = NULL;
-	str h_align;
-	str v_align;
-
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 4 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for ihuddraw_align!\n" );
-		return;
-	}
-
-	player = (Entity*)ev->GetEntity( 1 );
-
-	if ( player == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for ihuddraw_align!\n" );
-		return;
-	}
-
-	index = ev->GetInteger( 2 );
-
-	if ( index < 0 && index > 255 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_align!\n" );
-		return;
-	}
-
-	h_align = ev->GetString( 3 );
-
-	if ( !h_align )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: h_align is NULL for ihuddraw_align!\n" );
-		return;
-	}
-
-	v_align = ev->GetString( 4 );
-
-
-	if ( !v_align )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: v_align is NULL for ihuddraw_align!\n" );
-		return;
-	}
-
-	if ( h_align == "left" )
-	{
-		h_alignement = 0;
-	}
-	else if ( h_align == "center" )
-	{
-		h_alignement = 1;
-	}
-	else if ( h_align == "right" )
-	{
-		h_alignement = 2;
-	}
-	else
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong alignement h_align string for ihuddraw_align!\n" );
-		return;
-	}
-
-	if ( v_align == "top" )
-	{
-		v_alignement = 0;
-	}
-	else if ( v_align == "center" )
-	{
-		v_alignement = 1;
-	}
-	else if ( v_align == "bottom" )
-	{
-		v_alignement = 2;
-	}
-	else
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong alignement v_align string for ihuddraw_align!\n" );
-		return;
-	}
-
-	iHudDrawAlign( player->edict - g_entities, index, h_alignement, v_alignement );
-}
-
-void ScriptThread::EventIHudDrawRect
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = -1;
-	int index = -1;
-	Entity *player = NULL;
-	int x = 0;
-	int y = 0;
-	int width = 0;
-	int height = 0;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 6 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for ihuddraw_rect!\n" );
-		return;
-	}
-
-	player = (Entity*)ev->GetEntity( 1 );
-
-	if ( player == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for ihuddraw_rect!\n" );
-		return;
-	}
-
-	index = ev->GetInteger( 2 );
-
-	if ( index < 0 && index > 255 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_rect!\n" );
-		return;
-	}
-
-	x = ev->GetInteger( 3 );
-	y = ev->GetInteger( 4 );
-	width = ev->GetInteger( 5 );
-	height = ev->GetInteger( 6 );
-
-	iHudDrawRect( player->edict - g_entities, index, x, y, width, height );
-}
-
-void ScriptThread::EventIHudDrawVirtualSize
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = -1;
-	int index = -1;
-	Entity *player = NULL;
-	int virt = -1;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 3 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for ihuddraw_virtualsize!\n" );
-		return;
-	}
-
-	player = (Entity*)ev->GetEntity( 1 );
-
-	if ( player == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for ihuddraw_virtualsize!\n" );
-		return;
-	}
-
-	index = ev->GetInteger( 2 );
-
-	if ( index < 0 && index > 255 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_virtualsize!\n" );
-		return;
-	}
-
-	virt = ev->GetInteger( 3 );
-
-	if ( virt != 0 ) virt = 1;
-
-	iHudDrawVirtualSize( player->edict - g_entities, index, virt );
-}
-
-void ScriptThread::EventIHudDrawColor
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = -1;
-	int index = -1;
-	Entity *player = NULL;
-	float color[3] = { 0.0f, 0.0f, 0.0f };
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 5 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for ihuddraw_color!\n" );
-		return;
-	}
-
-	player = (Entity*)ev->GetEntity( 1 );
-
-	if ( player == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for ihuddraw_color!\n" );
-		return;
-	}
-
-	index = ev->GetInteger( 2 );
-
-	if ( index < 0 && index > 255 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_color!\n" );
-		return;
-	}
-
-	color[0] = ev->GetFloat( 3 ); // red
-	color[1] = ev->GetFloat( 4 ); // green
-	color[2] = ev->GetFloat( 5 ); // blue
-
-
-	iHudDrawColor( player->edict - g_entities, index, color );
-}
-
-void ScriptThread::EventIHudDrawAlpha
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = -1;
-	int index = -1;
-	Entity *player = NULL;
-	float alpha = 0.0f;
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 3 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for ihuddraw_alpha!\n" );
-		return;
-	}
-
-	player = ( Entity* )ev->GetEntity( 1 );
-
-	if ( player == NULL ) {
-		ScriptError( "Reborn SCRIPT ERROR: Player entity is NULL for ihuddraw_alpha!\n" );
-	}
-
-	index = ev->GetInteger( 2 );
-
-	if ( index < 0 && index > 255 ) {
-		ScriptError( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_alpha!\n" );
-	}
-
-	alpha = ev->GetFloat( 3 );
-
-	iHudDrawAlpha( player->edict - g_entities, index, alpha );
-}
-
-void ScriptThread::EventIHudDrawString
-	(
-	Event *ev
-	)
-
-{
-	int numArgs = -1;
-	int index = -1;
-	Entity *player = NULL;
-	str string;
-
-
-	numArgs = ev->NumArgs();
-
-	if ( numArgs != 3 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for ihuddraw_string!\n" );
-		return;
-	}
-
-	player = (Entity*)ev->GetEntity( 1 );
-
-	if ( player == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for ihuddraw_string!\n" );
-		return;
-	}
-
-	index = ev->GetInteger( 2 );
-
-	if ( index < 0 && index > 255 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_string!\n" );
-		return;
-	}
-
-	string = ev->GetString( 3 );
-
-	iHudDrawString( player->edict - g_entities, index, string );
-}
-
-void ScriptThread::EventIHudDrawFont
-	(
-	Event *ev
-	)
-
-{
-	int index;
-	Entity *player = NULL;
-	str fontname;
-
-	if( ev->NumArgs() != 3 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong arguments count for ihuddraw_font!\n" );
-		return;
-	}
-
-	player = ( Entity* )ev->GetEntity( 1 );
-
-	if ( player == NULL )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Player entity is NULL for ihuddraw_font!\n" );
-		return;
-	}
-
-	index = ev->GetInteger( 2 );
-
-	if ( index < 0 && index > 255 )
-	{
-		gi.Printf( "Reborn SCRIPT ERROR: Wrong index for ihuddraw_font!\n" );
-		return;
-	}
-
-	fontname = ev->GetString( 3 );
-
-	iHudDrawFont( player->edict - g_entities, index, fontname );
-}
-
-void ScriptThread::EventIsOnGround
-	(
-	Event *ev
-	)
-
-{
-	Entity *entity = ev->GetEntity( 1 );
-
-	ev->AddInteger( entity->groundentity != NULL );
-}
-
-void ScriptThread::EventIsOutOfBounds
-	(
-	Event *ev
-	)
-
-{
-	Entity * entity = ev->GetEntity( 1 );
-	int areanum = gi.AreaForPoint( entity->origin );
-
-	if( areanum == -1 ) {
-		ev->AddInteger( 1 );
-	} else {
-		ev->AddInteger( 0 );
-	}
 }
 
 void ScriptThread::FadeSound
@@ -6846,6 +4875,800 @@ void ScriptThread::RestoreSound
 		"restoresound %0.2f %f", time, max_vol);
 }
 
+void ScriptThread::EventHudDraw3d
+(
+	Event* ev
+)
+
+{
+	int index;
+	float* tmp;
+	vec3_t vector;
+	int ent_num;
+	qboolean bAlwaysShow, bDepth;
+
+	index = ev->GetInteger(1);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for huddraw_3d!\n");
+	}
+
+	tmp = ev->GetVector(2);
+	memcpy(&vector, tmp, sizeof(vec3_t));
+
+	ent_num = ev->GetInteger(3);
+	bAlwaysShow = ev->GetInteger(4);
+	bDepth = ev->GetInteger(5);
+
+	HudDraw3d(index, vector, ent_num, bAlwaysShow, bDepth);
+}
+
+void ScriptThread::EventHudDrawTimer
+(
+	Event* ev
+)
+
+{
+	int index;
+	float duration;
+	float fade_out_time;
+
+	index = ev->GetInteger(1);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for huddraw_timer!\n");
+	}
+
+	duration = ev->GetFloat(2);
+	fade_out_time = ev->GetFloat(3);
+
+	HudDrawTimer(index, duration, fade_out_time);
+}
+
+void ScriptThread::CanSwitchTeams
+(
+	Event* ev
+)
+
+{
+	qboolean bAllow = ev->GetBoolean(1);
+
+	disable_team_change = !bAllow;
+
+	if (ev->NumArgs() > 1)
+	{
+		qboolean bAllow2 = ev->GetBoolean(2);
+
+		disable_team_spectate = !bAllow2;
+	}
+}
+
+void ScriptThread::GetEntity
+(
+	Event* ev
+)
+
+{
+	int entnum = -1;
+	Entity* ent;
+
+	entnum = ev->GetInteger(1);
+
+	if (entnum < 0 || entnum > globals.max_entities) {
+		throw ScriptException("Entity number %d out of scope!\n", entnum);
+	}
+
+	ent = G_GetEntity(entnum);
+	ev->AddEntity(ent);
+}
+
+void ScriptThread::GetPlayerNetname
+(
+	Event* ev
+)
+
+{
+	Entity* ent = NULL;
+
+	ent = (Entity*)ev->GetEntity(1);
+
+	if (ent == NULL)
+	{
+		ev->AddString("");
+
+		return;
+	}
+	else if (ent->client == NULL)
+	{
+		ev->AddString("");
+		return;
+	}
+
+	ev->AddString(ent->client->pers.netname);
+}
+
+void ScriptThread::GetPlayerIP
+(
+	Event* ev
+)
+
+{
+	Entity* ent = NULL;
+	char* ip = NULL;
+	char ip_buff[65];
+	ent = (Entity*)ev->GetEntity(1);
+
+	if (ent == NULL)
+	{
+		ev->AddString("NIL");
+
+		return;
+	}
+	else if (ent->client == NULL)
+	{
+		ev->AddString("NIL");
+		return;
+	}
+
+	ip = ent->client->pers.ip;
+
+	sprintf(ip_buff, "%s:%i\0", ip, ent->client->pers.port);
+
+	ev->AddString(ip_buff);
+}
+
+void ScriptThread::GetPlayerPing
+(
+	Event* ev
+)
+
+{
+
+	Entity* ent = NULL;
+	int ping = -1;
+
+
+	ent = (Entity*)ev->GetEntity(1);
+
+	if (ent == NULL)
+	{
+		throw ScriptException("Player entity is NULL for getping!\n");
+	}
+	else if (ent->client == NULL)
+	{
+		throw ScriptException("Entity is probably not of player type - getping\n");
+	}
+
+	ping = ent->client->ps.ping;
+
+	ev->AddInteger(ping);
+}
+
+void ScriptThread::GetPlayerClientNum
+(
+	Event* ev
+)
+
+{
+
+	Entity* ent = NULL;
+	int cl_num = -1;
+
+	ent = (Entity*)ev->GetEntity(1);
+
+	if (ent == NULL)
+	{
+		throw ScriptException("Player entity is NULL for getclientnum!\n");
+	}
+	else if (ent->client == NULL)
+	{
+		throw ScriptException("Entity is probably not of player type - getclientnum\n");
+	}
+
+	cl_num = ent->client->ps.clientNum;
+
+	ev->AddInteger(cl_num);
+}
+
+void ScriptThread::GetAreaEntities
+(
+	Event* ev
+)
+
+{
+	Vector origin;
+	Vector mins;
+	Vector maxs;
+	Vector o_min;
+	Vector o_max;
+	int touch[MAX_GENTITIES];
+	int count;
+	int j = 0;
+	ScriptVariable* ref = new ScriptVariable, * array = new ScriptVariable;
+
+	origin = ev->GetVector(1);
+	mins = ev->GetVector(2);
+	maxs = ev->GetVector(3);
+
+	o_min = origin + mins;
+	o_max = origin + maxs;
+
+	count = gi.AreaEntities(o_min, o_max, touch, MAX_GENTITIES);
+
+	ref->setRefValue(array);
+
+	for (int i = 0; i < count; i++)
+	{
+		Entity* entity = G_GetEntity(touch[i]);
+
+		if (entity == NULL) {
+			continue;
+		}
+
+		ScriptVariable* index = new ScriptVariable, * value = new ScriptVariable;
+
+		index->setIntValue(j);
+		value->setListenerValue(entity);
+
+		ref->setArrayAt(*index, *value);
+
+		j++;
+	}
+
+	ev->AddValue(*array);
+}
+
+void ScriptThread::GetEntArray
+(
+	Event* ev
+)
+
+{
+	str name = ev->GetString(1);
+	str key = ev->GetString(2);
+
+	ScriptVariable array;
+	ScriptVariable index, value;
+	gentity_t* gentity = globals.gentities;
+
+	Event* event = new Event(key, EV_GETTER);
+	qboolean useEvent = event != NULL;
+	qboolean createEvent = false;
+
+	if (!event->eventnum)
+	{
+		delete event;
+		useEvent = false;
+	}
+
+	int x = 0;
+
+	for (int i = 0; i < globals.num_entities; i++, gentity++)
+	{
+		ScriptVariable returnValue;
+
+		if (!gentity->inuse || gentity->entity == NULL) {
+			continue;
+		}
+
+		if (createEvent)
+		{
+			event = new Event(key, EV_GETTER);
+			createEvent = false;
+		}
+
+		Entity* entity = gentity->entity;
+
+		if (useEvent) {
+			createEvent = true;
+		}
+
+		if (!useEvent)
+		{
+			// Now look for variables if predefined keys are not specified
+
+			ScriptVariableList* vars = entity->Vars();
+
+			if (vars == NULL) {
+				continue;
+			}
+
+			// Get the variable from the key
+			ScriptVariable* variable = vars->GetVariable(key);
+
+			if (variable == NULL) {
+				continue;
+			}
+
+			// Check if it matches with the name
+			if (variable->stringValue() == name) {
+				continue;
+			}
+		}
+		else
+		{
+			const char* value = NULL;
+
+			returnValue = entity->ProcessEventReturn(event);
+
+			if (!event->NumArgs()) {
+				continue;
+			}
+
+			value = returnValue.stringValue();
+
+			if (value == NULL) {
+				continue;
+			}
+
+			if (strcmp(value, name) != 0) {
+				continue;
+			}
+		}
+
+		index.setIntValue(x);
+		value.setListenerValue(entity);
+
+		array.setArrayAt(index, value);
+
+		x++;
+	}
+
+	ev->AddValue(array);
+}
+
+void ScriptThread::EventIHudDraw3d
+(
+	Event* ev
+)
+
+{
+	Player* player;
+	int index;
+	float* tmp;
+	vec3_t vector;
+	int ent_num;
+	qboolean bAlwaysShow, bDepth;
+
+	player = (Player*)ev->GetEntity(1);
+
+	if (player == NULL)
+	{
+		throw ScriptException("Player entity is NULL for ihuddraw_3d!\n");
+	}
+
+	index = ev->GetInteger(2);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for ihuddraw_3d!\n");
+	}
+
+	tmp = ev->GetVector(3);
+	memcpy(&vector, tmp, sizeof(vec3_t));
+
+	ent_num = ev->GetInteger(4);
+	bAlwaysShow = ev->GetInteger(5);
+	bDepth = ev->GetInteger(6);
+
+	iHudDraw3d(player->edict - g_entities, index, vector, ent_num, bAlwaysShow, bDepth);
+}
+
+void ScriptThread::EventIHudDrawTimer
+(
+	Event* ev
+)
+
+{
+	Player* player;
+	int index;
+	float duration;
+	float fade_out_time;
+
+	player = (Player*)ev->GetEntity(1);
+
+	if (player == NULL)
+	{
+		throw ScriptException("Player entity is NULL for ihuddraw_timer!\n");
+	}
+
+	index = ev->GetInteger(2);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for ihuddraw_timer!\n");
+	}
+
+	duration = ev->GetFloat(3);
+	fade_out_time = ev->GetFloat(4);
+
+	iHudDrawTimer(player->edict - g_entities, index, duration, fade_out_time);
+}
+
+void ScriptThread::EventIHudDrawShader
+(
+	Event* ev
+)
+
+{
+	int numArgs = -1;
+	int index = -1;
+	Entity* player = NULL;
+	str shadername = NULL;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 3)
+	{
+		throw ScriptException("Wrong arguments count for ihuddraw_shader!\n");
+	}
+
+	player = (Entity*)ev->GetEntity(1);
+
+	if (player == NULL)
+	{
+		throw ScriptException("Player entity is NULL for ihuddraw_shader!\n");
+	}
+
+	index = ev->GetInteger(2);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for ihuddraw_shader!\n");
+	}
+
+	shadername = ev->GetString(3);
+
+	iHudDrawShader(player->edict - g_entities, index, shadername);
+}
+
+void ScriptThread::EventIHudDrawAlign
+(
+	Event* ev
+)
+
+{
+	int numArgs = -1;
+	int index = -1;
+	int h_alignement = -1;
+	int v_alignement = -1;
+	Entity* player = NULL;
+	str h_align;
+	str v_align;
+
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 4)
+	{
+		throw ScriptException("Wrong arguments count for ihuddraw_align!\n");
+	}
+
+	player = (Entity*)ev->GetEntity(1);
+
+	if (player == NULL)
+	{
+		throw ScriptException("Player entity is NULL for ihuddraw_align!\n");
+	}
+
+	index = ev->GetInteger(2);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for ihuddraw_align!\n");
+	}
+
+	h_align = ev->GetString(3);
+
+	if (!h_align)
+	{
+		throw ScriptException("h_align is NULL for ihuddraw_align!\n");
+	}
+
+	v_align = ev->GetString(4);
+
+
+	if (!v_align)
+	{
+		throw ScriptException("v_align is NULL for ihuddraw_align!\n");
+	}
+
+	if (h_align == "left")
+	{
+		h_alignement = 0;
+	}
+	else if (h_align == "center")
+	{
+		h_alignement = 1;
+	}
+	else if (h_align == "right")
+	{
+		h_alignement = 2;
+	}
+	else
+	{
+		throw ScriptException("Wrong alignement h_align string for ihuddraw_align!\n");
+	}
+
+	if (v_align == "top")
+	{
+		v_alignement = 0;
+	}
+	else if (v_align == "center")
+	{
+		v_alignement = 1;
+	}
+	else if (v_align == "bottom")
+	{
+		v_alignement = 2;
+	}
+	else
+	{
+		throw ScriptException("Wrong alignement v_align string for ihuddraw_align!\n");
+	}
+
+	iHudDrawAlign(player->edict - g_entities, index, h_alignement, v_alignement);
+}
+
+void ScriptThread::EventIHudDrawRect
+(
+	Event* ev
+)
+
+{
+	int numArgs = -1;
+	int index = -1;
+	Entity* player = NULL;
+	int x = 0;
+	int y = 0;
+	int width = 0;
+	int height = 0;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 6)
+	{
+		throw ScriptException("Wrong arguments count for ihuddraw_rect!\n");
+	}
+
+	player = (Entity*)ev->GetEntity(1);
+
+	if (player == NULL)
+	{
+		throw ScriptException("Player entity is NULL for ihuddraw_rect!\n");
+	}
+
+	index = ev->GetInteger(2);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for ihuddraw_rect!\n");
+	}
+
+	x = ev->GetInteger(3);
+	y = ev->GetInteger(4);
+	width = ev->GetInteger(5);
+	height = ev->GetInteger(6);
+
+	iHudDrawRect(player->edict - g_entities, index, x, y, width, height);
+}
+
+void ScriptThread::EventIHudDrawVirtualSize
+(
+	Event* ev
+)
+
+{
+	int numArgs = -1;
+	int index = -1;
+	Entity* player = NULL;
+	int virt = -1;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 3)
+	{
+		throw ScriptException("Wrong arguments count for ihuddraw_virtualsize!\n");
+	}
+
+	player = (Entity*)ev->GetEntity(1);
+
+	if (player == NULL)
+	{
+		throw ScriptException("Player entity is NULL for ihuddraw_virtualsize!\n");
+	}
+
+	index = ev->GetInteger(2);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for ihuddraw_virtualsize!\n");
+	}
+
+	virt = ev->GetInteger(3);
+
+	if (virt != 0) virt = 1;
+
+	iHudDrawVirtualSize(player->edict - g_entities, index, virt);
+}
+
+void ScriptThread::EventIHudDrawColor
+(
+	Event* ev
+)
+
+{
+	int numArgs = -1;
+	int index = -1;
+	Entity* player = NULL;
+	float color[3] = { 0.0f, 0.0f, 0.0f };
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 5)
+	{
+		throw ScriptException("Wrong arguments count for ihuddraw_color!\n");
+	}
+
+	player = (Entity*)ev->GetEntity(1);
+
+	if (player == NULL)
+	{
+		throw ScriptException("Player entity is NULL for ihuddraw_color!\n");
+	}
+
+	index = ev->GetInteger(2);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for ihuddraw_color!\n");
+	}
+
+	color[0] = ev->GetFloat(3); // red
+	color[1] = ev->GetFloat(4); // green
+	color[2] = ev->GetFloat(5); // blue
+
+
+	iHudDrawColor(player->edict - g_entities, index, color);
+}
+
+void ScriptThread::EventIHudDrawAlpha
+(
+	Event* ev
+)
+
+{
+	int numArgs = -1;
+	int index = -1;
+	Entity* player = NULL;
+	float alpha = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 3)
+	{
+		throw ScriptException("Wrong arguments count for ihuddraw_alpha!\n");
+	}
+
+	player = (Entity*)ev->GetEntity(1);
+
+	if (player == NULL) {
+		throw ScriptException("Player entity is NULL for ihuddraw_alpha!\n");
+	}
+
+	index = ev->GetInteger(2);
+
+	if (index < 0 && index > 255) {
+		throw ScriptException("Wrong index for ihuddraw_alpha!\n");
+	}
+
+	alpha = ev->GetFloat(3);
+
+	iHudDrawAlpha(player->edict - g_entities, index, alpha);
+}
+
+void ScriptThread::EventIHudDrawString
+(
+	Event* ev
+)
+
+{
+	int numArgs = -1;
+	int index = -1;
+	Entity* player = NULL;
+	str string;
+
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 3)
+	{
+		throw ScriptException("Wrong arguments count for ihuddraw_string!\n");
+	}
+
+	player = (Entity*)ev->GetEntity(1);
+
+	if (player == NULL)
+	{
+		throw ScriptException("Player entity is NULL for ihuddraw_string!\n");
+	}
+
+	index = ev->GetInteger(2);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for ihuddraw_string!\n");
+	}
+
+	string = ev->GetString(3);
+
+	iHudDrawString(player->edict - g_entities, index, string);
+}
+
+void ScriptThread::EventIHudDrawFont
+(
+	Event* ev
+)
+
+{
+	int index;
+	Entity* player = NULL;
+	str fontname;
+
+	if (ev->NumArgs() != 3)
+	{
+		throw ScriptException("Wrong arguments count for ihuddraw_font!\n");
+	}
+
+	player = (Entity*)ev->GetEntity(1);
+
+	if (player == NULL)
+	{
+		throw ScriptException("Player entity is NULL for ihuddraw_font!\n");
+	}
+
+	index = ev->GetInteger(2);
+
+	if (index < 0 && index > 255)
+	{
+		throw ScriptException("Wrong index for ihuddraw_font!\n");
+	}
+
+	fontname = ev->GetString(3);
+
+	iHudDrawFont(player->edict - g_entities, index, fontname);
+}
+
+void ScriptThread::EventIsOnGround
+(
+	Event* ev
+)
+
+{
+	Entity* entity = ev->GetEntity(1);
+
+	ev->AddInteger(entity->groundentity != NULL);
+}
+
+void ScriptThread::EventIsOutOfBounds
+(
+	Event* ev
+)
+
+{
+	Entity* entity = ev->GetEntity(1);
+	int areanum = gi.AreaForPoint(entity->origin);
+
+	if (areanum == -1) {
+		ev->AddInteger(1);
+	}
+	else {
+		ev->AddInteger(0);
+	}
+}
+
 void ScriptThread::TeamGetScore
 	(
 	Event *ev
@@ -6857,8 +5680,7 @@ void ScriptThread::TeamGetScore
 
 	if( !team )
 	{
-		ScriptError( "Invalid team \"%s\"", teamname.c_str() );
-		return;
+		throw ScriptException( "Invalid team \"%s\"", teamname.c_str() );
 	}
 
 	if( team ) {
@@ -6882,8 +5704,7 @@ void ScriptThread::TeamSetScore
 	team = dmManager.GetTeam( teamname );
 	if( !team )
 	{
-		ScriptError( "Invalid team \"%s\"", teamname.c_str() );
-		return;
+		throw ScriptException( "Invalid team \"%s\"", teamname.c_str() );
 	}
 
 	score = ev->GetInteger( 2 );
@@ -6910,1140 +5731,2181 @@ void ScriptThread::TeamSetScore
 	}
 }
 
-void ScriptThread::TeamSwitchDelay
-	(
-	Event *ev
-	)
-
-{
-	ScriptDeprecated( "ScriptThread::TeamSwitchDelay" );
-}
-
-void ScriptThread::AddObjective
-	(
-	Event *ev
-	)
-
-{
-	int index;
-	int status;
-	str text = "";
-	Vector location;
-
-	index = ev->GetInteger( 1 );
-	status = ev->GetInteger( 2 );
-
-	if( index > 20 )
-	{
-		ScriptError( "Index Out Of Range" );
-	}
-
-	if( status > 3 )
-	{
-		ScriptError( "Invalid Status" );
-	}
-
-	if( ev->IsNilAt( 3 ) )
-	{
-		text = Info_ValueForKey( gi.GetConfigstring( index - 1 + CS_OBJECTIVES ), "text" );
-	}
-	else
-	{
-		text = ev->GetString( 3 );
-	}
-
-	if( ev->IsNilAt( 4 ) )
-	{
-		sscanf( Info_ValueForKey( gi.GetConfigstring( index - 1 + CS_OBJECTIVES ), "loc" ), "%f %f %f", &location.x, &location.y, &location.z );
-	}
-	else
-	{
-		location = ev->GetVector( 4 );
-	}
-
-	AddObjective( index, status, text, location );
-}
-
-void ScriptThread::AddObjective( int index, int status, str text, Vector location )
-{
-	static int last_time;
-	int flags;
-	char szSend[ 2048 ];
-	char *sTmp;
-
-	flags = 0;
-	sTmp = gi.GetConfigstring( CS_OBJECTIVES + index );
-
-	switch( status )
-	{
-	case 1:
-		flags = 1;
-		break;
-	case 2:
-		sTmp = Info_ValueForKey( sTmp, "flags" );
-		if( !( atoi( sTmp ) & 2 ) )
-		{
-			if( last_time != level.inttime )
-			{
-				gi.Printf( "An objective has been added!\n" );
-				last_time = level.inttime;
-			}
-		}
-		flags = 2;
-		break;
-	case 3:
-		if( last_time != level.inttime )
-		{
-			gi.Printf( "An objective has been completed!\n" );
-			last_time = level.inttime;
-		}
-		if( !g_gametype->integer )
-		{
-			if( g_entities->entity->IsSubclassOfPlayer() )
-			{
-				( ( Player * )g_entities->entity )->m_iObjectivesCompleted++;
-			}
-		}
-		flags = 4;
-		break;
-	}
-
-	szSend[ 0 ] = 0;
-
-	Info_SetValueForKey( szSend, "flags", va( "%i", flags ) );
-	Info_SetValueForKey( szSend, "text", text.c_str() );
-	Info_SetValueForKey( szSend, "loc", va( "%f %f %f", location[ 0 ], location[ 1 ], location[ 2 ] ) );
-
-	gi.SetConfigstring( CS_OBJECTIVES + index, szSend );
-}
-
-void ScriptThread::ClearObjectiveLocation
-	(
-	Event *ev
-	)
-
-{
-	ClearObjectiveLocation();
-}
-
-void ScriptThread::ClearObjectiveLocation( void )
-{
-	level.m_vObjectiveLocation = vec_zero;
-}
-
-void ScriptThread::SetObjectiveLocation
-	(
-	Event *ev
-	)
-
-{
-	SetObjectiveLocation( ev->GetVector( 1 ) );
-}
-
-void ScriptThread::SetObjectiveLocation( Vector vLocation )
-{
-	level.m_vObjectiveLocation = vLocation;
-}
-
-void ScriptThread::SetCurrentObjective
-	(
-	Event *ev
-	)
-
-{
-	int iObjective = ev->GetInteger( 1 );
-
-	if( iObjective > MAX_OBJECTIVES )
-	{
-		ScriptError( "Index Out Of Range" );
-	}
-
-	SetCurrentObjective( iObjective );
-}
-
-void ScriptThread::SetCurrentObjective( int iObjective )
-{
-	gi.SetConfigstring( CS_CURRENT_OBJECTIVE, va( "%i", iObjective ) );
-
-	if( iObjective == -1 )
-	{
-		level.m_vObjectiveLocation = vec_zero;
-	}
-	else
-	{
-		const char *s = gi.GetConfigstring( CS_OBJECTIVES + iObjective );
-		const char *loc = Info_ValueForKey( s, "loc" );
-
-		sscanf( loc, "%f %f %f", &level.m_vObjectiveLocation[ 0 ], &level.m_vObjectiveLocation[ 1 ], &level.m_vObjectiveLocation[ 2 ] );
-	}
-}
-
-void ScriptThread::AllAIOff
-	(
-	Event *ev
-	)
-
-{
-	level.ai_on = qfalse;
-}
-
-void ScriptThread::AllAIOn
-	(
-	Event *ev
-	)
-
-{
-	level.ai_on = qtrue;
-}
-
-void ScriptThread::EventTeamWin
-	(
-	Event *ev
-	)
-
-{
-	const_str team;
-	int teamnum;
-
-	if( g_gametype->integer != GT_OBJECTIVE )
-	{
-		ScriptError( "'teamwin' only valid for objective-based DM games" );
-	}
-
-	team = ev->GetConstString( 1 );
-	if( team == STRING_ALLIES )
-	{
-		teamnum = TEAM_ALLIES;
-	}
-	else if( team == TEAM_AXIS )
-	{
-		teamnum = TEAM_AXIS;
-	}
-	else
-	{
-		ScriptError( "'teamwin' must be called with 'axis' or 'allies' as its argument" );
-	}
-
-	dmManager.TeamWin( teamnum );
-}
-
-void ScriptThread::Angles_PointAt
-	(
-	Event *ev
-	)
-
-{
-	Entity *pParent, *pEnt, *pTarget;
-	Vector vDelta, vVec, vAngles;
-
-	pParent = ev->GetEntity( 1 );
-	pEnt = ev->GetEntity( 2 );
-	pTarget = ev->GetEntity( 3 );
-
-	if( pParent )
-	{
-		vDelta = pEnt->centroid - pTarget->centroid;
-		vVec[ 0 ] = DotProduct( vDelta, pParent->orientation[ 0 ] );
-		vVec[ 1 ] = DotProduct( vDelta, pParent->orientation[ 1 ] );
-		vVec[ 2 ] = DotProduct( vDelta, pParent->orientation[ 2 ] );
-	}
-	else
-	{
-		vVec = pEnt->centroid - pTarget->centroid;
-	}
-
-	VectorNormalize( vVec );
-	vectoangles( vVec, vAngles );
-
-	ev->AddVector( vAngles );
-}
-
-void ScriptThread::EventEarthquake
-	(
-	Event *ev
-	)
-
-{
-	earthquake_t e;
-
-	e.duration = ( int )( ev->GetFloat( 1 ) * 1000.0f + 0.5f );
-	if( e.duration <= 0 ) {
-		return;
-	}
-
-	e.magnitude		= ev->GetFloat( 2 );
-	e.no_rampup		= ev->GetBoolean( 3 );
-	e.no_rampdown	= ev->GetBoolean( 4 );
-
-	e.starttime		= level.inttime;
-	e.endtime		= level.inttime + e.duration;
-
-	e.m_Thread		= this;
-
-	level.AddEarthquake( &e );
-}
-
-
-void ScriptThread::CueCamera
-	(
-	Event *ev
-	)
-
-{
-	float    switchTime;
-	Entity   *ent;
-
-	if( ev->NumArgs() > 1 )
-	{
-		switchTime = ev->GetFloat( 2 );
-	}
-	else
-	{
-		switchTime = 0;
-	}
-
-	ent = ev->GetEntity( 1 );
-	if( ent )
-	{
-		SetCamera( ent, switchTime );
-	}
-	else
-	{
-		ScriptError( "Camera named %s not found", ev->GetString( 1 ).c_str() );
-	}
-}
-
-void ScriptThread::CuePlayer
-	(
-	Event *ev
-	)
-
-{
-	float    switchTime;
-
-	if( ev->NumArgs() > 0 )
-	{
-		switchTime = ev->GetFloat( 1 );
-	}
-	else
-	{
-		switchTime = 0;
-	}
-
-	SetCamera( NULL, switchTime );
-}
-
-void ScriptThread::FreezePlayer
-	(
-	Event *ev
-	)
-
-{
-	level.playerfrozen = true;
-}
-
-void ScriptThread::ReleasePlayer
-	(
-	Event *ev
-	)
-
-{
-	level.playerfrozen = false;
-}
-
-void ScriptThread::EventDrawHud
-	(
-	Event *ev
-	)
-
-{
-	int i;
-	gentity_t *ent;
-
-	// TRIVIA: in mohaa, drawhud worked only for the first player
-	for( i = 0, ent = g_entities; i < game.maxclients; i++, ent++ )
-	{
-		if( !ent->inuse || !ent->entity || !ent->client ) {
-			continue;
-		}
-
-		if( ev->GetBoolean( 1 ) )
-		{
-			ent->client->ps.pm_flags &= ~PMF_NO_HUD;
-		}
-		else
-		{
-			ent->client->ps.pm_flags |= PMF_NO_HUD;
-		}
-	}
-}
-
-void ScriptThread::EventRadiusDamage
-	(
-	Event *ev
-	)
-
-{
-	Vector origin = ev->GetVector( 1 );
-	float damage = ev->GetFloat( 2 );
-	float radius = ev->GetFloat( 3 );
-	int constant_damage;
-
-	if( ev->NumArgs() > 3 )
-	{
-		constant_damage = ev->GetInteger( 4 );
-	}
-	else
-	{
-		constant_damage = 0;
-	}
-
-	RadiusDamage( origin, world, world, damage, NULL, MOD_EXPLOSION, radius, 0, constant_damage );
-}
-
-void ScriptThread::ForceMusicEvent
-	(
-	Event *ev
-	)
-
-{
-	const char *current;
-	const char *fallback;
-
-	current = NULL;
-	fallback = NULL;
-	current = ev->GetString( 1 );
-
-	if( ev->NumArgs() > 1 ) {
-		fallback = ev->GetString( 2 );
-	}
-
-	ChangeMusic( current, fallback, true );
-}
-
-void ScriptThread::EventPrint3D
-	(
-	Event *ev
-	)
-
-{
-	Vector origin;
-	float scale;
-	str string;
-
-	origin = ev->GetVector( 1 );
-	scale = ev->GetFloat( 2 );
-	string = ev->GetString( 3 );
-
-	G_DebugString( origin, scale, 1.0f, 1.0f, 1.0f, string );
-}
-
-void ScriptThread::SoundtrackEvent
-	(
-	Event *ev
-	)
-
-{
-	ChangeSoundtrack( ev->GetString( 1 ) );
-}
-
-void ScriptThread::RestoreSoundtrackEvent
-	(
-	Event *ev
-	)
-
-{
-	RestoreSoundtrack();
-}
-
-void ScriptThread::EventBspTransition
-	(
-	Event *ev
-	)
-
-{
-	str map = ev->GetString( 1 );
-
-	if( level.intermissiontime == 0.0f )
-	{
-		G_BeginIntermission( map, TRANS_BSP );
-	}
-}
-
-void ScriptThread::EventLevelTransition
-	(
-	Event *ev
-	)
-
-{
-	str map = ev->GetString( 1 );
-
-	if( level.intermissiontime == 0.0f )
-	{
-		G_BeginIntermission( map, TRANS_LEVEL );
-	}
-}
-
-void ScriptThread::EventMissionTransition
-	(
-	Event *ev
-	)
-
-{
-	str map = ev->GetString( 1 );
-
-	if( level.intermissiontime == 0.0f )
-	{
-		G_BeginIntermission( map, TRANS_MISSION );
-	}
-}
-
-void ScriptThread::Letterbox
-	(
-	Event *ev
-	)
-
-{
-	level.m_letterbox_fraction = 1.0f / 8.0f;
-	level.m_letterbox_time = ev->GetFloat( 1 );
-	level.m_letterbox_time_start = ev->GetFloat( 1 );
-	level.m_letterbox_dir = letterbox_in;
-
-	if( ev->NumArgs() > 1 )
-		level.m_letterbox_fraction = ev->GetFloat( 2 );
-}
-
-void ScriptThread::ClearLetterbox
-	(
-	Event *ev
-	)
-
-{
-	level.m_letterbox_time = level.m_letterbox_time_start;
-	level.m_letterbox_dir = letterbox_out;
-}
-
-void ScriptThread::SetLightStyle
-	(
-	Event *ev
-	)
-
-{
-	lightStyles.SetLightStyle( ev->GetInteger( 1 ), ev->GetString( 2 ) );
-}
-
-void ScriptThread::FadeIn
-	(
-	Event *ev
-	)
-
-{
-	level.m_fade_time_start = ev->GetFloat( 1 );
-	level.m_fade_time = ev->GetFloat( 1 );
-	level.m_fade_color[ 0 ] = ev->GetFloat( 2 );
-	level.m_fade_color[ 1 ] = ev->GetFloat( 3 );
-	level.m_fade_color[ 2 ] = ev->GetFloat( 4 );
-	level.m_fade_alpha = ev->GetFloat( 5 );
-	level.m_fade_type = fadein;
-	level.m_fade_style = alphablend;
-
-	if( ev->NumArgs() > 5 )
-	{
-		level.m_fade_style = ( fadestyle_t )ev->GetInteger( 6 );
-	}
-}
-
-void ScriptThread::ClearFade
-	(
-	Event *ev
-	)
-
-{
-	level.m_fade_time = -1;
-	level.m_fade_type = fadein;
-}
-
-void ScriptThread::FadeOut
-	(
-	Event *ev
-	)
-
-{
-	level.m_fade_time_start = ev->GetFloat( 1 );
-	level.m_fade_time = ev->GetFloat( 1 );
-	level.m_fade_color[ 0 ] = ev->GetFloat( 2 );
-	level.m_fade_color[ 1 ] = ev->GetFloat( 3 );
-	level.m_fade_color[ 2 ] = ev->GetFloat( 4 );
-	level.m_fade_alpha = ev->GetFloat( 5 );
-	level.m_fade_type = fadeout;
-	level.m_fade_style = alphablend;
-
-	if( ev->NumArgs() > 5 )
-	{
-		level.m_fade_style = ( fadestyle_t )ev->GetInteger( 6 );
-	}
-}
-
-void ScriptThread::MusicEvent
-	(
-	Event *ev
-	)
-
-{
-	const char *current;
-	const char *fallback;
-
-	current = NULL;
-	fallback = NULL;
-	current = ev->GetString( 1 );
-
-	if( ev->NumArgs() > 1 )
-		fallback = ev->GetString( 2 );
-
-	ChangeMusic( current, fallback, false );
-}
-
-void ScriptThread::MusicVolumeEvent
-	(
-	Event *ev
-	)
-
-{
-	float volume;
-	float fade_time;
-
-	volume = ev->GetFloat( 1 );
-	fade_time = ev->GetFloat( 2 );
-
-	ChangeMusicVolume( volume, fade_time );
-}
-
-void ScriptThread::RestoreMusicVolumeEvent
-	(
-	Event *ev
-	)
-{
-	float fade_time;
-
-	fade_time = ev->GetFloat( 1 );
-
-	RestoreMusicVolume( fade_time );
-}
-
-void ScriptThread::SetCinematic
-	(
-	Event *ev
-	)
-
-{
-	G_StartCinematic();
-}
-
-void ScriptThread::SetNonCinematic
-	(
-	Event *ev
-	)
-
-{
-	G_StopCinematic();
-}
-
-void ScriptThread::CenterPrint
-	(
-	Event *ev
-	)
-
-{
-	int         j;
-	gentity_t   *other;
-
-	for( j = 0; j < game.maxclients; j++ )
-	{
-		other = &g_entities[ j ];
-		if( other->inuse && other->client )
-		{
-			gi.centerprintf( other, ev->GetString( 1 ) );
-		}
-	}
-}
-
-void ScriptThread::LocationPrint
-	(
-	Event *ev
-	)
-
-{
-	int         j;
-	gentity_t   *other;
-	int         x, y;
-
-	x = ev->GetInteger( 1 );
-	y = ev->GetInteger( 2 );
-
-	for( j = 0; j < game.maxclients; j++ )
-	{
-		other = &g_entities[ j ];
-		if( other->inuse && other->client )
-		{
-			gi.locationprintf( other, x, y, ev->GetString( 3 ) );
-		}
-	}
-}
-
-void ScriptThread::KillEnt
-	(
-	Event *ev
-	)
-
-{
-	int num;
-	Entity *ent;
-
-	if( ev->NumArgs() != 1 )
-	{
-		ScriptError( "No args passed in" );
-		return;
-	}
-
-	num = ev->GetInteger( 1 );
-	if( ( num < 0 ) || ( num >= globals.max_entities ) )
-	{
-		ScriptError( "Value out of range.  Possible values range from 0 to %d.\n", globals.max_entities );
-		return;
-	}
-
-	ent = G_GetEntity( num );
-	ent->Damage( world, world, ent->max_health + 25, vec_zero, vec_zero, vec_zero, 0, 0, 0 );
-}
-
-void ScriptThread::RemoveEnt
-	(
-	Event *ev
-	)
-
-{
-	int num;
-	Entity *ent;
-
-	if( ev->NumArgs() != 1 )
-	{
-		ScriptError( "No args passed in" );
-		return;
-	}
-
-	num = ev->GetInteger( 1 );
-	if( ( num < 0 ) || ( num >= globals.max_entities ) )
-	{
-		ScriptError( "Value out of range.  Possible values range from 0 to %d.\n", globals.max_entities );
-		return;
-	}
-
-	ent = G_GetEntity( num );
-	ent->PostEvent( Event( EV_Remove ), 0 );
-}
-
-void ScriptThread::KillClass
-	(
-	Event *ev
-	)
-
-{
-	int except;
-	str classname;
-	gentity_t * from;
-	Entity *ent;
-
-	if( ev->NumArgs() < 1 )
-	{
-		ScriptError( "No args passed in" );
-		return;
-	}
-
-	classname = ev->GetString( 1 );
-
-	except = 0;
-	if( ev->NumArgs() == 2 )
-	{
-		except = ev->GetInteger( 1 );
-	}
-
-	for( from = &g_entities[ game.maxclients ]; from < &g_entities[ globals.num_entities ]; from++ )
-	{
-		if( !from->inuse )
-		{
-			continue;
-		}
-
-		assert( from->entity );
-
-		ent = from->entity;
-
-		if( ent->entnum == except )
-		{
-			continue;
-		}
-
-		if( ent->inheritsFrom( classname.c_str() ) )
-		{
-			ent->Damage( world, world, ent->max_health + 25, vec_zero, vec_zero, vec_zero, 0, 0, 0 );
-		}
-	}
-}
-
-void ScriptThread::RemoveClass
-	(
-	Event *ev
-	)
-
-{
-	int except;
-	str classname;
-	gentity_t * from;
-	Entity *ent;
-
-	if( ev->NumArgs() < 1 )
-	{
-		ScriptError( "No args passed in" );
-		return;
-	}
-
-	classname = ev->GetString( 1 );
-
-	except = 0;
-	if( ev->NumArgs() == 2 )
-	{
-		except = ev->GetInteger( 1 );
-	}
-
-	for( from = &g_entities[ game.maxclients ]; from < &g_entities[ globals.num_entities ]; from++ )
-	{
-		if( !from->inuse )
-		{
-			continue;
-		}
-
-		assert( from->entity );
-
-		ent = from->entity;
-
-		if( ent->entnum == except )
-			continue;
-
-		if( ent->inheritsFrom( classname.c_str() ) )
-		{
-			ent->PostEvent( Event( EV_Remove ), 0 );
-		}
-	}
-}
-
-void ScriptThread::CameraCommand
-	(
-	Event *ev
-	)
-
-{
-	Event *e;
-	const char *cmd;
-	int   i;
-	int   n;
-
-	if( !ev->NumArgs() )
-	{
-		ScriptError( "Usage: cam [command] [arg 1]...[arg n]" );
-		return;
-	}
-
-	cmd = ev->GetString( 1 );
-	if( Event::FindEventNum( cmd ) )
-	{
-		e = new ConsoleEvent( cmd );
-
-		n = ev->NumArgs();
-		for( i = 2; i <= n; i++ )
-		{
-			e->AddToken( ev->GetToken( i ) );
-		}
-
-		CameraMan.ProcessEvent( e );
-	}
-	else
-	{
-		ScriptError( "Unknown camera command '%s'.\n", cmd );
-	}
-}
-
-void ScriptThread::MissionFailed
-	(
-	Event *ev
-	)
-
-{
-	G_MissionFailed();
-}
-
 #endif
 
-void ScriptThread::Execute
-	(
-	Event& ev
-	)
-
-{
-	Execute( &ev );
-}
-
-void ScriptThread::Execute
-	(
-	Event *ev
-	)
-
-{
-	assert( m_ScriptVM );
-
-	try
-	{
-		if( ev == NULL )
-		{
-			ScriptExecuteInternal();
-		}
-		else
-		{
-			ScriptVariable returnValue;
-
-			returnValue.newPointer();
-
-			ScriptExecute( ev->data, ev->dataSize, returnValue );
-
-			ev->AddValue( returnValue );
-		}
-	}
-	catch( ScriptException& exc )
-	{
-		if( exc.bAbort )
-		{
-			glbs.Error( ERR_DROP, "%s\n", exc.string.c_str() );
-		}
-		else
-		{
-			Com_Printf( "^~^~^ Script Error: %s\n", exc.string.c_str() );
-		}
-	}
-}
-
-void ScriptThread::Execute
+void ScriptThread::CharToInt
 (
-	ScriptVariable *data,
-	int dataSize
+	Event* ev
 )
 
 {
-	ScriptExecuteInternal(data, dataSize);
+	str c = ev->GetString(1);
+
+	ev->AddInteger(c[0]);
 }
 
-void ScriptThread::DelayExecute
-	(
-	Event& ev
-	)
+void ScriptThread::Conprintf
+(
+	Event* ev
+)
 
 {
-	DelayExecute( &ev );
+	gi.Printf("%s", ev->GetString(1).c_str());
 }
 
-void ScriptThread::DelayExecute
-	(
-	Event *ev
-	)
+void ScriptThread::FileOpen
+(
+	Event* ev
+)
 
 {
-	assert( m_ScriptVM );
+	int numArgs = -1;
+	str filename = NULL;
+	str accesstype = NULL;
+	FILE* f = NULL;
+	char buf[16] = { 0 };
 
-	if( ev )
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2)
+		throw ScriptException("Wrong arguments count for fopen!\n");
+
+	if (scriptfiles->integer == 32)
+		throw ScriptException("Maximum count (32) of opened files is reached. Close at least one of them, to open new file - fopen!\n");
+
+	filename = ev->GetString(1);
+
+	accesstype = ev->GetString(2);
+
+	f = fopen(filename, accesstype);
+
+	if (f == NULL)
 	{
-		ScriptVariable returnValue;
-
-		m_ScriptVM->SetFastData( ev->data, ev->dataSize );
-
-		returnValue.newPointer();
-		m_ScriptVM->m_ReturnValue = returnValue;
-		ev->AddValue( returnValue );
+		ev->AddInteger(0);
+		return;
 	}
-
-	Director.AddTiming( this, 0 );
-}
-
-void ScriptThread::AllowContextSwitch( bool allow )
-{
-	m_ScriptVM->AllowContextSwitch( allow );
-}
-
-ScriptClass *ScriptThread::GetScriptClass( void )
-{
-	return m_ScriptVM->m_ScriptClass;
-}
-
-str ScriptThread::FileName(void)
-{
-	return m_ScriptVM->Filename();
-}
-
-int ScriptThread::GetThreadState( void )
-{
-	return m_ScriptVM->ThreadState();
-}
-
-ScriptThread *ScriptThread::GetWaitingContext( void )
-{
-	return m_WaitingContext;
-}
-
-void ScriptThread::SetWaitingContext( ScriptThread *thread )
-{
-	m_WaitingContext = thread;
-}
-
-void ScriptThread::HandleContextSwitch( ScriptThread *childThread )
-{
-	if( childThread->GetThreadState() == THREAD_CONTEXT_SWITCH )
+	else
 	{
-		// so, we request a context switch
-		m_ScriptVM->RequestContextSwitch();
-
-		SetWaitingContext( childThread );
-	}
-}
-
-void ScriptThread::ScriptExecute( ScriptVariable *data, int dataSize, ScriptVariable& returnValue )
-{
-	m_ScriptVM->m_ReturnValue = returnValue;
-
-	ScriptExecuteInternal( data, dataSize );
-}
-
-void ScriptThread::ScriptExecuteInternal( ScriptVariable *data, int dataSize )
-{
-	SafePtr<ScriptThread> currentThread = Director.m_CurrentThread;
-	SafePtr<ScriptThread> previousThread = Director.m_PreviousThread;
-
-	Director.m_PreviousThread = currentThread;
-	Director.m_CurrentThread = this;
-
-	Stop();
-	m_ScriptVM->Execute(data, dataSize);
-
-	// restore the previous values
-	Director.m_CurrentThread = currentThread;
-	Director.m_PreviousThread = previousThread;
-
-	Director.ExecuteRunning();
-}
-
-void ScriptThread::StoppedNotify( void )
-{
-	// This is invalid and we mustn't get here
-	if( m_ScriptVM ) {
-		delete this;
-	}
-}
-
-void ScriptThread::StartedWaitFor( void )
-{
-	Stop();
-
-	m_ScriptVM->m_ThreadState = THREAD_SUSPENDED;
-	m_ScriptVM->Suspend();
-}
-
-void ScriptThread::StoppedWaitFor( const_str name, bool bDeleting )
-{
-	if( !m_ScriptVM )
-	{
+		ev->AddInteger((int)(size_t)f);
+		sprintf(buf, "%i", scriptfiles->integer + 1);
+		gi.Cvar_Set("sv_scriptfiles", buf);
 		return;
 	}
 
-	// The thread is deleted if the listener is deleting
-	if( bDeleting )
+
+}
+
+void ScriptThread::FileWrite
+(
+	Event* ev
+)
+
+{
+
+}
+
+void ScriptThread::FileRead
+(
+	Event* ev
+)
+
+{
+
+}
+
+void ScriptThread::FileClose
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int ret = 0;
+	FILE* f = NULL;
+	char buf[16] = { 0 };
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+		throw ScriptException("Wrong arguments count for fclose!\n");
+
+	id = ev->GetInteger(1);
+
+	/*if( (int)scriptFiles[0].f != id && (int)scriptFiles[1].f != id )
 	{
-		delete this;
+	gi.Printf("Wrong file handle for fclose!\n");
+	return;
+	}
+
+	if( (int)scriptFiles[0].f == id )
+	{
+	scriptFiles[0].inUse = 0;
+	fclose( scriptFiles[0].f );
+	return;
+	}
+	else if( (int)scriptFiles[1].f == id )
+	{
+	scriptFiles[1].inUse = 0;
+	fclose( scriptFiles[1].f );
+	return;
+	}
+	else
+	{
+	gi.Printf("Unknown error while closing file - fclose!\n");
+	return;
+	}*/
+
+	f = (FILE*)id;
+
+	if (f == NULL) {
+		throw ScriptException("File handle is NULL for fclose!\n");
+	}
+
+	ret = fclose(f);
+
+	if (ret == 0)
+	{
+		ev->AddInteger(0);
+		sprintf(buf, "%i", scriptfiles->integer - 1);
+		gi.Cvar_Set("sv_scriptfiles", buf);
+		return;
+	}
+	else
+	{
+		ev->AddInteger(ret);
 		return;
 	}
 
-	CancelEventsOfType( EV_ScriptThread_CancelWaiting );
 
-	if( m_ScriptVM->m_ThreadState == THREAD_SUSPENDED )
+}
+
+void ScriptThread::FileEof
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int ret = 0;
+	FILE* f = NULL;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1) {
+		throw ScriptException("Wrong arguments count for feof!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	ret = feof(f);
+
+	ev->AddInteger(ret);
+}
+
+void ScriptThread::FileSeek
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int pos = 0;
+	long int offset = 0;
+	int ret = 0;
+	FILE* f = NULL;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 3) {
+		throw ScriptException("Wrong arguments count for fseek!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	offset = ev->GetInteger(2);
+
+	if (offset < 0) {
+		throw ScriptException("Wrong file offset! Should be starting from 0. - fseek\n");
+	}
+
+	pos = ev->GetInteger(3);
+
+	if (pos != 0 && pos != 1 && pos != 2) {
+		throw ScriptException("Wrong file offset start! Should be between 0 - 2! - fseek\n");
+	}
+
+	ret = fseek(f, offset, pos);
+
+	ev->AddInteger(ret);
+
+
+}
+
+void ScriptThread::FileTell
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	long int ret = 0;
+	FILE* f = NULL;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1) {
+		throw ScriptException("Wrong arguments count for ftell!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	ret = ftell(f);
+
+	ev->AddInteger(ret);
+}
+
+void ScriptThread::FileRewind
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	long int ret = 0;
+	FILE* f = NULL;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1) {
+		throw ScriptException("Wrong arguments count for frewind!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	rewind(f);
+
+}
+
+void ScriptThread::FilePutc
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int ret = 0;
+	FILE* f = NULL;
+	int c = 0;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2) {
+		throw ScriptException("Wrong arguments count for fputc!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	c = ev->GetInteger(2);
+
+	ret = fputc((char)c, f);
+
+	ev->AddInteger(ret);
+}
+
+void ScriptThread::FilePuts
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int ret = 0;
+	FILE* f = NULL;
+	str c;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2) {
+		throw ScriptException("Wrong arguments count for fputs!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	c = ev->GetString(2);
+	//gi.Printf("Putting line into a file\n");
+	ret = fputs(c, f);
+	//gi.Printf("Ret val: %i\n", ret);
+	ev->AddInteger(ret);
+}
+
+void ScriptThread::FileGetc
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int ret = 0;
+	FILE* f = NULL;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1) {
+		throw ScriptException("Wrong arguments count for fgetc!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	ret = fgetc(f);
+
+	ev->AddInteger(ret);
+}
+
+void ScriptThread::FileGets
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int maxCount = 0;
+	FILE* f = NULL;
+	char* c = NULL;
+	char* buff = NULL;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2) {
+		throw ScriptException("Wrong arguments count for fgets!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	maxCount = ev->GetInteger(2);
+
+	if (maxCount <= 0) {
+		throw ScriptException("Maximum buffer size should be higher than 0! - fgets\n");
+	}
+
+	buff = (char*)gi.Malloc(maxCount + 1);
+
+	if (buff == NULL)
 	{
-		if( name != 0 )
+		throw ScriptException("Failed to allocate memory during fputs scriptCommand text buffer initialization! Try setting maximum buffer length lower.\n");
+		ev->AddInteger(-1);
+	}
+
+	memset(buff, 0, maxCount + 1);
+
+	c = fgets(buff, maxCount, f);
+
+	if (c == NULL)
+		ev->AddString("");
+	else
+		ev->AddString(c);
+
+	gi.Free(buff);
+}
+
+void ScriptThread::FileError
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int ret = 0;
+	FILE* f = NULL;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1) {
+		throw ScriptException("Wrong arguments count for ferror!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	ret = ferror(f);
+
+	ev->AddInteger(ret);
+}
+
+void ScriptThread::FileFlush
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int ret = 0;
+	FILE* f = NULL;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1) {
+		throw ScriptException("Wrong arguments count for fflush!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	ret = fflush(f);
+
+	ev->AddInteger(ret);
+
+}
+
+void ScriptThread::FileExists
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	FILE* f = 0;
+	str filename;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1) {
+		throw ScriptException("Wrong arguments count for fexists!\n");
+	}
+
+	filename = ev->GetString(1);
+
+	if (filename == NULL) {
+		throw ScriptException("Empty file name passed to fexists!\n");
+	}
+
+	f = fopen(filename, "r");
+	if (f) {
+		fclose(f);
+		ev->AddInteger(1);
+	}
+	else {
+		ev->AddInteger(0);
+	}
+
+}
+
+void ScriptThread::FileReadAll
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	FILE* f = NULL;
+	char* ret = NULL;
+	long currentPos = 0;
+	size_t size = 0;
+	size_t sizeRead = 0;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1) {
+		throw ScriptException("Wrong arguments count for freadall!\n");
+	}
+
+	id = ev->GetInteger(1);
+
+	f = (FILE*)id;
+
+	currentPos = ftell(f);
+	fseek(f, 0, SEEK_END);
+	size = ftell(f);
+	fseek(f, currentPos, SEEK_SET);
+
+	ret = (char*)gi.Malloc(sizeof(char) * size + 1);
+
+	if (ret == NULL)
+	{
+		ev->AddInteger(-1);
+		throw ScriptException("Error while allocating memory buffer for file content - freadall!\n");
+	}
+
+	sizeRead = fread(ret, 1, size, f);
+	ret[sizeRead] = '\0';
+
+	ev->AddString(ret);
+
+	gi.Free(ret);
+}
+
+void ScriptThread::FileSaveAll
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	FILE* f = NULL;
+	size_t sizeWrite = 0;
+	str text;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2) {
+		throw ScriptException("Wrong arguments count for fsaveall!\n");
+	}
+
+	id = ev->GetInteger(1);
+	f = (FILE*)id;
+
+	text = ev->GetString(2);
+
+	if (text == NULL)
+	{
+		ev->AddInteger(-1);
+		throw ScriptException("Text to be written is NULL - fsaveall!\n");
+	}
+
+	sizeWrite = fwrite(text, 1, strlen(text), f);
+
+	ev->AddInteger((int)sizeWrite);
+}
+
+void ScriptThread::FileRemove
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int ret = 0;
+	str filename;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1) {
+		throw ScriptException("Wrong arguments count for fremove!\n");
+	}
+
+	filename = ev->GetString(1);
+
+	if (filename == NULL) {
+		throw ScriptException("Empty file name passed to fremove!\n");
+	}
+
+	ret = remove(filename);
+
+	ev->AddInteger(ret);
+
+}
+
+void ScriptThread::FileRename
+(
+	Event* ev
+)
+
+{
+	int id = 0;
+	int numArgs = 0;
+	int ret = 0;
+	str oldfilename, newfilename;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2) {
+		throw ScriptException("Wrong arguments count for frename!\n");
+	}
+
+	oldfilename = ev->GetString(1);
+	newfilename = ev->GetString(2);
+
+	if (!oldfilename) {
+		throw ScriptException("Empty old file name passed to frename!\n");
+	}
+
+	if (!newfilename) {
+		throw ScriptException("Empty new file name passed to frename!\n");
+	}
+
+	ret = rename(oldfilename, newfilename);
+
+	ev->AddInteger(ret);
+
+}
+
+void ScriptThread::FileCopy
+(
+	Event* ev
+)
+
+{
+	size_t n = 0;
+	int numArgs = 0;
+	unsigned int ret = 0;
+	str filename, copyfilename;
+	FILE* f = NULL, * fCopy = NULL;
+	char buffer[4096];
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2)
+	{
+		throw ScriptException("Wrong arguments count for fcopy!\n");
+	}
+
+	filename = ev->GetString(1);
+	copyfilename = ev->GetString(2);
+
+	if (!filename)
+	{
+		throw ScriptException("Empty file name passed to fcopy!\n");
+	}
+
+	if (copyfilename)
+	{
+		throw ScriptException("Empty copy file name passed to fcopy!\n");
+	}
+
+	f = fopen(filename, "rb");
+
+	if (f == NULL)
+	{
+		ev->AddInteger(-1);
+		throw ScriptException("Could not open \"%s\" for copying - fcopy!\n", filename.c_str());
+	}
+
+	fCopy = fopen(copyfilename, "wb");
+
+	if (fCopy == NULL)
+	{
+		fclose(f);
+		ev->AddInteger(-2);
+		throw ScriptException("Could not open \"%s\" for copying - fcopy!\n", copyfilename.c_str());
+	}
+
+	while ((n = fread(buffer, sizeof(char), sizeof(buffer), f)) > 0)
+	{
+		if (fwrite(buffer, sizeof(char), n, fCopy) != n)
 		{
-			if( m_ScriptVM->state == STATE_EXECUTION )
-			{
-				Execute();
-			}
-			else
-			{
-				m_ScriptVM->Resume();
-			}
+			fclose(f);
+			fflush(fCopy);
+			fclose(fCopy);
+			ev->AddInteger(-3);
+			throw ScriptException("There was an error while copying files - fcopy!\n");
 		}
-		else
+	}
+
+	fclose(f);
+	fflush(fCopy);
+	fclose(fCopy);
+
+	ev->AddInteger(0);
+}
+
+void ScriptThread::FileReadPak
+(
+	Event* ev
+)
+
+{
+	str filename;
+	char* content = NULL;
+	int numArgs = 0;
+	int ret = 0;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for freadpak!\n");
+	}
+
+	filename = ev->GetString(1);
+
+	if (filename == NULL)
+	{
+		throw ScriptException("Filename is NULL - freadpak!\n");
+	}
+
+	ret = gi.FS_ReadFile(filename, (void**)&content, qtrue);
+
+	if (content == NULL)
+	{
+		ev->AddInteger(-1);
+		throw ScriptException("Error while reading pak file content - freadpak!\n");
+	}
+
+	ev->AddString(content);
+}
+
+void ScriptThread::FileList
+(
+	Event* ev
+)
+
+{
+	int i = 0, numArgs = 0;
+	const char* path = NULL;
+	str extension = NULL;
+	int wantSubs = 0;
+	int numFiles = 0;
+	char** list = NULL;
+	ScriptVariable* ref = new ScriptVariable;
+	ScriptVariable* array = new ScriptVariable;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 3)
+	{
+		throw ScriptException("Wrong arguments count for flist!\n");
+	}
+
+	path = ev->GetString(1);
+	extension = ev->GetString(2);
+	wantSubs = ev->GetInteger(3);
+
+	list = gi.FS_ListFiles(path, extension, wantSubs, &numFiles);
+
+	if (numFiles == 0)
+	{
+		gi.FS_FreeFileList(list);
+		return;
+	}
+
+	ref->setRefValue(array);
+
+	for (i = 0; i < numFiles; i++)
+	{
+		ScriptVariable* indexes = new ScriptVariable;
+		ScriptVariable* values = new ScriptVariable;
+
+		indexes->setIntValue(i);
+		values->setStringValue(list[i]);
+
+		ref->setArrayAt(*indexes, *values);
+	}
+
+	gi.FS_FreeFileList(list);
+
+	ev->AddValue(*array);
+
+	return;
+
+}
+
+void ScriptThread::FileNewDirectory
+(
+	Event* ev
+)
+
+{
+	str path = NULL;
+	int numArgs = 0;
+	int ret = 0;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for fnewdir!\n");
+	}
+
+	path = ev->GetString(1);
+
+	if (path == NULL)
+	{
+		throw ScriptException("Path is NULL - fnewdir!\n");
+	}
+
+#ifdef WIN32
+	ret = _mkdir(path);
+#else
+	ret = mkdir(path, 0777);
+#endif
+
+	ev->AddInteger(ret);
+	return;
+}
+
+void ScriptThread::FileRemoveDirectory
+(
+	Event* ev
+)
+
+{
+	str path = NULL;
+	int numArgs = 0;
+	int ret = 0;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for fremovedir!\n");
+	}
+
+	path = ev->GetString(1);
+
+	if (path == NULL)
+	{
+		throw ScriptException("Path is NULL - fremovedir!\n");
+	}
+
+#ifdef WIN32
+	ret = _rmdir(path);
+#else
+	ret = rmdir(path);
+#endif
+
+	ev->AddInteger(ret);
+	return;
+}
+
+void ScriptThread::GetArrayKeys
+(
+	Event* ev
+)
+
+{
+	Entity* ent = NULL;
+	ScriptVariable array;
+	ScriptVariable* value;
+	int i = 0;
+	int arraysize;
+
+	/* Retrieve the array */
+	array = ev->GetValue(1);
+
+	/* Cast the array */
+	array.CastConstArrayValue();
+	arraysize = array.arraysize();
+
+	if (arraysize < 1) {
+		return;
+	}
+
+	ScriptVariable* ref = new ScriptVariable, * newArray = new ScriptVariable;
+
+	ref->setRefValue(newArray);
+
+	for (int i = 1; i <= arraysize; i++)
+	{
+		value = array[i];
+
+		/* Get the array's name */
+		//str name = value->getName();
+
+		gi.Printf("name = %s\n", value->GetTypeName());
+
+		ScriptVariable* newIndex = new ScriptVariable, * newValue = new ScriptVariable;
+
+		newIndex->setIntValue(i);
+		newValue->setStringValue("NIL");
+
+		//name.removeRef();
+
+		ref->setArrayAt(*newIndex, *newValue);
+	}
+
+	ev->AddValue(*newArray);
+}
+
+void ScriptThread::GetArrayValues
+(
+	Event* ev
+)
+
+{
+	Entity* ent = NULL;
+	ScriptVariable array;
+	ScriptVariable* value;
+	int i = 0;
+	int arraysize;
+
+	/* Retrieve the array */
+	array = ev->GetValue(1);
+
+	if (array.GetType() == VARIABLE_NONE) {
+		return;
+	}
+
+	/* Cast the array */
+	array.CastConstArrayValue();
+	arraysize = array.arraysize();
+
+	if (arraysize < 1) {
+		return;
+	}
+
+	ScriptVariable* ref = new ScriptVariable, * newArray = new ScriptVariable;
+
+	ref->setRefValue(newArray);
+
+	for (int i = 1; i <= arraysize; i++)
+	{
+		value = array[i];
+
+		ScriptVariable* newIndex = new ScriptVariable;
+
+		newIndex->setIntValue(i - 1);
+
+		ref->setArrayAt(*newIndex, *value);
+	}
+
+	ev->AddValue(*newArray);
+}
+
+void ScriptThread::GetDate
+(
+	Event* ev
+)
+
+{
+
+	char buff[1024];
+	time_t rawtime;
+	struct tm* timeinfo;
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	strftime(buff, 64, "%d.%m.%Y %r", timeinfo);
+
+	ev->AddString(buff);
+}
+
+void ScriptThread::GetTimeZone
+(
+	Event* ev
+)
+
+{
+	int gmttime;
+	int local;
+
+	time_t rawtime;
+	struct tm* timeinfo, * ptm;
+
+	int timediff;
+	int tmp;
+
+	tmp = ev->GetInteger(1);
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	local = timeinfo->tm_hour;
+
+	ptm = gmtime(&rawtime);
+
+	gmttime = ptm->tm_hour;
+
+	timediff = local - gmttime;
+
+	ev->AddInteger(timediff);
+}
+
+// IMPORTANT NOTE:
+// SLRE is buggy, consider switch to Boost.Regex or .xpressive
+
+void ScriptThread::PregMatch
+(
+	Event* ev
+)
+
+{
+	slre_cap sl_cap[32];
+	int i, j;
+	size_t iMaxLength;
+	size_t iLength;
+	size_t iFoundLength = 0;
+	str pattern, subject;
+	ScriptVariable index, value, subindex, subvalue;
+	ScriptVariable array, subarray;
+
+	memset(sl_cap, 0, sizeof(sl_cap));
+
+	pattern = ev->GetString(1);
+	subject = ev->GetString(2);
+
+	iMaxLength = strlen(subject);
+	iLength = 0;
+	i = 0;
+
+	while (iLength < iMaxLength &&
+		(iFoundLength = slre_match(pattern, subject.c_str() + iLength, iMaxLength - iLength, sl_cap, sizeof(sl_cap) / sizeof(sl_cap[0]), 0)) > 0)
+	{
+		subarray.Clear();
+
+		for (j = 0; sl_cap[j].ptr != NULL; j++)
 		{
-			m_ScriptVM->m_ThreadState = THREAD_RUNNING;
-			CancelWaitingAll();
-			m_ScriptVM->m_ThreadState = THREAD_WAITING;
+			char* buffer;
 
-			Director.AddTiming( this, 0.0f );
+			buffer = (char*)gi.Malloc(sl_cap[j].len + 1);
+			buffer[sl_cap[j].len] = 0;
+			strncpy(buffer, sl_cap[j].ptr, sl_cap[j].len);
+
+			subindex.setIntValue(j);
+			subvalue.setStringValue(buffer);
+			subarray.setArrayAtRef(subindex, subvalue);
+
+			gi.Free(buffer);
+
+			iLength += sl_cap[j].ptr - subject.c_str();
 		}
+
+		index.setIntValue(i);
+		array.setArrayAtRef(index, subarray);
+
+		i++;
 	}
+
+	ev->AddValue(array);
 }
 
-ScriptThread *ScriptThread::CreateThreadInternal(const ScriptVariable& label)
+void ScriptThread::EventIsArray
+(
+	Event* ev
+)
+
 {
-	return m_ScriptVM->GetScriptClass()->CreateThreadInternal(label);
+	ScriptVariable* value = &ev->GetValue(1);
+
+	if (value == NULL) {
+		return ev->AddInteger(0);
+	}
+
+	ev->AddInteger(value->type == VARIABLE_ARRAY || value->type == VARIABLE_CONSTARRAY || value->type == VARIABLE_SAFECONTAINER);
 }
 
-ScriptThread * ScriptThread::CreateScriptInternal(const ScriptVariable & label)
+void ScriptThread::EventIsDefined
+(
+	Event* ev
+)
+
 {
-	return m_ScriptVM->GetScriptClass()->CreateScriptInternal(label);
+	ev->AddInteger(!ev->IsNilAt(1));
 }
 
-void ScriptThread::Pause()
+void ScriptThread::FlagClear
+(
+	Event* ev
+)
+
 {
-	Stop();
-	m_ScriptVM->Suspend();
+	str name;
+	Flag* flag;
+
+	name = ev->GetString(1);
+
+	flag = flags.FindFlag(name);
+
+	if (flag == NULL) {
+		throw ScriptException("Invalid flag '%s'\n", name.c_str());
+	}
+
+	delete flag;
 }
 
-void ScriptThread::Stop( void )
+void ScriptThread::FlagInit
+(
+	Event* ev
+)
+
 {
-	if( m_ScriptVM->ThreadState() == THREAD_WAITING )
+	str name;
+	Flag* flag;
+
+	name = ev->GetString(1);
+
+	flag = flags.FindFlag(name);
+
+	if (flag != NULL)
 	{
-		m_ScriptVM->m_ThreadState = THREAD_RUNNING;
-		Director.RemoveTiming( this );
+		flag->Reset();
+		return;
 	}
-	else if( m_ScriptVM->ThreadState() == THREAD_SUSPENDED )
+
+	flag = new Flag;
+	flag->bSignaled = false;
+	strcpy(flag->flagName, name);
+}
+
+void ScriptThread::FlagSet
+(
+	Event* ev
+)
+
+{
+	str name;
+	Flag* flag;
+
+	name = ev->GetString(1);
+
+	flag = flags.FindFlag(name);
+
+	if (flag == NULL) {
+		throw ScriptException("Invalid flag '%s'.\n", name.c_str());
+	}
+
+	flag->Set();
+}
+
+void ScriptThread::FlagWait
+(
+	Event* ev
+)
+
+{
+	str name;
+	Flag* flag;
+
+	name = ev->GetString(1);
+
+	flag = flags.FindFlag(name);
+
+	if (flag == NULL) {
+		throw ScriptException("Invalid flag '%s'.\n", name.c_str());
+	}
+
+	flag->Wait(this);
+}
+
+void ScriptThread::MathCos
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
 	{
-		m_ScriptVM->m_ThreadState = THREAD_RUNNING;
-		CancelWaitingAll();
+		throw ScriptException("Wrong arguments count for cos!\n");
 	}
+
+	x = (double)ev->GetFloat(1);
+	res = cos(x);
+
+	ev->AddFloat((float)res);
 }
 
-void ScriptThread::Wait( float time )
-{
-	StartTiming(time);
-	m_ScriptVM->Suspend();
-}
+void ScriptThread::MathSin
+(
+	Event* ev
+)
 
-void ScriptThread::StartTiming(float time)
 {
-	Stop();
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
 
-	m_ScriptVM->m_ThreadState = THREAD_WAITING;
-	
-	if (time < 0)
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
 	{
-		time = 0;
+		throw ScriptException("Wrong arguments count for sin!\n");
 	}
 
-	Director.AddTiming(this, time);
+	x = ev->GetFloat(1);
+	res = sin(x);
+
+	ev->AddFloat((float)res);
 }
 
-void ScriptThread::StartTiming(void)
+void ScriptThread::MathTan
+(
+	Event* ev
+)
+
 {
-	StartTiming(0);//start timing now
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for tan!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = tan(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathACos
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for acos!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = acos(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathASin
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for asin!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = asin(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathATan
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for atan!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = atan(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathATan2
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, y = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2)
+	{
+		throw ScriptException("Wrong arguments count for atan2!\n");
+	}
+
+	y = ev->GetFloat(1);
+	x = ev->GetFloat(2);
+
+	res = atan2(y, x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathCosH
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for cosh!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = cosh(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathSinH
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for sinh!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = sinh(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathTanH
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for tanh!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = tanh(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathExp
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for exp!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = exp(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathFrexp
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+	int exp = 0;
+	ScriptVariable* ref = new ScriptVariable;
+	ScriptVariable* array = new ScriptVariable;
+	ScriptVariable* SignificandIndex = new ScriptVariable;
+	ScriptVariable* ExponentIndex = new ScriptVariable;
+	ScriptVariable* SignificandVal = new ScriptVariable;
+	ScriptVariable* ExponentVal = new ScriptVariable;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for frexp!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = frexp(x, &exp);
+
+	ref->setRefValue(array);
+
+	SignificandIndex->setStringValue("significand");
+	ExponentIndex->setStringValue("exponent");
+
+	SignificandVal->setFloatValue((float)res);
+	ExponentVal->setIntValue(exp);
+
+	ref->setArrayAt(*SignificandIndex, *SignificandVal);
+	ref->setArrayAt(*ExponentIndex, *ExponentVal);
+
+	ev->AddValue(*array);
+}
+
+void ScriptThread::MathLdexp
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+	int exp = 0;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2)
+	{
+		throw ScriptException("Wrong arguments count for ldexp!\n");
+	}
+
+	x = ev->GetFloat(1);
+	exp = ev->GetInteger(2);
+
+	res = ldexp(x, exp);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathLog
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for log!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = log(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathLog10
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for log10!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = log10(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathModf
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+	double intpart = 0;
+	//char varIntpartIndex[16] = { 0 }, varFractionalIndex[16] = { 0 }, varIntpartVal[16] = { 0 }, varFractionalVal[16] = { 0 }, varArray[16] = { 0 }, varRef[16] = { 0 };
+	ScriptVariable* array = new ScriptVariable;
+	ScriptVariable* ref = new ScriptVariable;
+	ScriptVariable* IntpartIndex = new ScriptVariable;
+	ScriptVariable* FractionalIndex = new ScriptVariable;
+	ScriptVariable* FractionalVal = new ScriptVariable;
+	ScriptVariable* IntpartVal = new ScriptVariable;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for modf!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = modf(x, &intpart);
+
+	ref->setRefValue(array);
+
+	IntpartIndex->setStringValue("intpart");
+	FractionalIndex->setStringValue("fractional");
+	FractionalVal->setFloatValue((float)res);
+	IntpartVal->setFloatValue((float)intpart);
+
+	ref->setArrayAt(*IntpartIndex, *IntpartVal);
+	ref->setArrayAt(*FractionalIndex, *FractionalVal);
+
+	ev->AddValue(*array);
+}
+
+void ScriptThread::MathPow
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double base = 0.0f, res = 0.0f;
+	int exponent = 0;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2)
+	{
+		throw ScriptException("Wrong arguments count for pow!\n");
+	}
+
+	base = ev->GetFloat(1);
+	exponent = ev->GetInteger(2);
+	res = pow(base, exponent);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathSqrt
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for sqrt!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = sqrt(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathCeil
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for ceil!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = ceil(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathFloor
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double x = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for floor!\n");
+	}
+
+	x = ev->GetFloat(1);
+	res = floor(x);
+
+	ev->AddFloat((float)res);
+}
+
+void ScriptThread::MathFmod
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	double numerator = 0.0f, denominator = 0.0f, res = 0.0f;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 2)
+	{
+		throw ScriptException("Wrong arguments count for fmod!\n");
+	}
+
+	numerator = ev->GetFloat(1);
+	denominator = ev->GetFloat(2);
+	res = fmod(numerator, denominator);
+
+	ev->AddFloat((float)res);
+}
+
+int checkMD5(const char* filepath, char* md5Hash)
+{
+	md5_state_t state;
+	md5_byte_t digest[16];
+	int di;
+
+	FILE* f = NULL;
+	char* buff = NULL;
+	size_t filesize = 0;
+	size_t bytesread = 0;
+
+
+	f = fopen(filepath, "rb");
+
+	if (f == NULL)
+		return -1;
+
+	fseek(f, 0, SEEK_END);
+	filesize = ftell(f);
+	rewind(f);
+
+	//gi.Printf("Size: %i\n", filesize);
+
+	buff = (char*)gi.Malloc(filesize + 1);
+
+	if (buff == NULL)
+	{
+		fclose(f);
+		Com_Printf("error0\n");
+		return -2;
+	}
+
+	buff[filesize] = '\0';
+
+	bytesread = fread(buff, 1, filesize, f);
+
+	if (bytesread < filesize)
+	{
+		gi.Free(buff);
+		fclose(f);
+		Com_Printf("error1: %i\n", bytesread);
+		return -3;
+	}
+
+	fclose(f);
+
+	md5_init(&state);
+	md5_append(&state, (const md5_byte_t*)buff, filesize);
+	md5_finish(&state, digest);
+
+	for (di = 0; di < 16; ++di)
+		sprintf(md5Hash + di * 2, "%02x", digest[di]);
+
+
+	gi.Free(buff);
+
+	return 0;
+}
+
+int checkMD5String(const char* string, char* md5Hash)
+{
+	md5_state_t state;
+	md5_byte_t digest[16];
+	int di;
+
+	char* buff = NULL;
+	size_t stringlen = 0;
+
+	stringlen = strlen(string);
+
+	buff = (char*)gi.Malloc(stringlen + 1);
+
+	if (buff == NULL)
+	{
+		return -1;
+	}
+
+	buff[stringlen] = '\0';
+	memcpy(buff, string, stringlen);
+
+	md5_init(&state);
+	md5_append(&state, (const md5_byte_t*)buff, stringlen);
+	md5_finish(&state, digest);
+
+	for (di = 0; di < 16; ++di)
+		sprintf(md5Hash + di * 2, "%02x", digest[di]);
+
+
+	gi.Free(buff);
+
+	return 0;
+}
+
+void ScriptThread::Md5File
+(
+	Event* ev
+)
+
+{
+	char hash[64];
+	str filename = NULL;
+	int ret = 0;
+
+	if (ev->NumArgs() != 1)
+	{
+		throw ScriptException("Wrong arguments count for md5file!\n");
+	}
+
+	filename = ev->GetString(1);
+
+	ret = checkMD5(filename, hash);
+	if (ret != 0)
+	{
+		ev->AddInteger(-1);
+		throw ScriptException("Error while generating MD5 checksum for file - md5file!\n");
+	}
+
+	ev->AddString(hash);
+
+}
+
+void ScriptThread::StringBytesCopy
+(
+	Event* ev
+)
+
+{
+	int bytes = ev->GetInteger(1);
+	str source = ev->GetString(2);
+	char* buffer;
+
+	buffer = (char*)gi.Malloc(bytes + 1);
+
+	strncpy(buffer, source, bytes);
+	buffer[bytes] = 0;
+
+	ev->AddString(buffer);
+
+	gi.Free(buffer);
+}
+
+void ScriptThread::Md5String
+(
+	Event* ev
+)
+
+{
+	char hash[64];
+	str text = NULL;
+	int ret = 0;
+
+	if (ev->NumArgs() != 1)
+	{
+		throw ScriptException("Wrong arguments count for md5string!\n");
+	}
+
+	text = ev->GetString(1);
+
+	ret = checkMD5String(text, hash);
+	if (ret != 0)
+	{
+		ev->AddInteger(-1);
+		throw ScriptException("Error while generating MD5 checksum for strin!\n");
+	}
+
+	ev->AddString(hash);
+
+}
+
+scriptedEvType_t EventNameToType(const char* eventname, char* fullname)
+{
+	scriptedEvType_t evType;
+
+	const char* eventname_full;
+
+	if (strcmp(eventname, "connected") == 0) {
+		eventname_full = "ConnectedEvent";
+		evType = SE_CONNECTED;
+	}
+	else if (strcmp(eventname, "disconnected") == 0) {
+		eventname_full = "DisconnectedEvent";
+		evType = SE_DISCONNECTED;
+	}
+	else if (strcmp(eventname, "spawn") == 0) {
+		eventname_full = "SpawnEvent";
+		evType = SE_SPAWN;
+	}
+	else if (strcmp(eventname, "damage") == 0) {
+		eventname_full = "DamageEvent";
+		evType = SE_DAMAGE;
+	}
+	else if (strcmp(eventname, "kill") == 0) {
+		eventname_full = "KillEvent";
+		evType = SE_KILL;
+	}
+	else if (strcmp(eventname, "keypress") == 0) {
+		eventname_full = "KeypressEvent";
+		evType = SE_KEYPRESS;
+	}
+	else if (strcmp(eventname, "intermission") == 0) {
+		eventname_full = "IntermissionEvent";
+		evType = SE_INTERMISSION;
+	}
+	else if (strcmp(eventname, "servercommand") == 0) {
+		eventname_full = "ServerCommandEvent";
+		evType = SE_SERVERCOMMAND;
+	}
+	else if (strcmp(eventname, "changeteam") == 0) {
+		eventname_full = "ChangeTeamEvent";
+		evType = SE_CHANGETEAM;
+	}
+	else
+		return SE_DEFAULT;
+
+	if (fullname != NULL) {
+		strcpy(fullname, eventname_full);
+	}
+
+	return evType;
+}
+
+void ScriptThread::RegisterEvent
+(
+	Event* ev
+)
+
+{
+	str eventname;
+	char eventname_full[64];
+	scriptedEvType_t evType;
+
+	eventname = ev->GetString(1);
+
+	evType = EventNameToType(eventname, eventname_full);
+
+	if (evType == SE_DEFAULT)
+	{
+		ev->AddInteger(0);
+		throw ScriptException("Wrong event type name for registerev!\n");
+	}
+
+
+	if (scriptedEvents[evType].IsRegistered())
+	{
+		ev->AddInteger(1);
+		throw ScriptException("Scripted event '%s' is already registered\n", eventname.c_str());
+	}
+
+	scriptedEvents[evType].label.SetThread(ev->GetValue(2));
+
+	if (evType == SE_KEYPRESS) {
+		gi.Cvar_Set("sv_keypressevents", "1");
+	}
+	else if (evType == SE_SERVERCOMMAND) {
+		gi.Cvar_Set("sv_servercmdevents", "1");
+	}
+
+	ev->AddInteger(0);
+}
+
+void ScriptThread::UnregisterEvent
+(
+	Event* ev
+)
+
+{
+	str eventname = NULL;
+	char* eventname_full = NULL;
+	int numArgs = 0;
+	scriptedEvType_t evType;
+
+	eventname = ev->GetString(1);
+
+	evType = EventNameToType(eventname, NULL);
+
+	if (evType == -1)
+	{
+		ev->AddInteger(0);
+		throw ScriptException("Wrong event type name for unregisterev!\n");
+	}
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for unregisterev!\n");
+	}
+
+	eventname = ev->GetString(1);
+
+
+	if (!scriptedEvents[evType].IsRegistered())
+	{
+		ev->AddInteger(1);
+		return;
+	}
+
+	scriptedEvents[evType].label.Set("");
+
+	if (evType == SE_KEYPRESS)
+		gi.Cvar_Set("sv_keypressevents", "0");
+	else if (evType == SE_SERVERCOMMAND)
+		gi.Cvar_Set("sv_servercmdevents", "0");
+
+	ev->AddInteger(0);
+}
+
+void ScriptThread::TypeOfVariable
+(
+	Event* ev
+)
+
+{
+	int numArgs = 0;
+	char* type = NULL;
+	ScriptVariable* variable;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs != 1)
+	{
+		throw ScriptException("Wrong arguments count for typeof!\n");
+	}
+
+	variable = (ScriptVariable*)&ev->GetValue(1);
+	type = (char*)variable->GetTypeName();
+
+	ev->AddString(type);
+}
+
+void ScriptThread::VisionGetNaked
+(
+	Event* ev
+)
+
+{
+	ev->AddString(vision_current);
+}
+
+void ScriptThread::VisionSetNaked
+(
+	Event* ev
+)
+
+{
+	str vision = ev->GetString(1);
+	float fade_time;
+	cvar_t* mapname = gi.Cvar_Get("mapname", "", 0);
+
+	if (ev->NumArgs() > 1) {
+		fade_time = ev->GetFloat(2);
+	}
+	else {
+		fade_time = 0.0f;
+	}
+
+	if (!vision.length()) {
+		vision = mapname->string;
+	}
+
+	// We won't malicously overflow client commands :)
+	if (vision.length() >= MAX_STRING_TOKENS) {
+		throw ScriptException("vision_name exceeds the maximum vision name limit (256) !\n");
+	}
+
+	vision_current = vision;
+
+#ifdef GAME_DLL
+	gi.SendServerCommand(-1, "vsn %s %f", vision.c_str(), fade_time);
+#elif defined CGAME_DLL
+	// TODO
+#endif
+}
+
+void ScriptThread::GetTime
+(
+	Event* ev
+)
+
+{
+	int timearray[3], gmttime;
+	char buff[1024];
+
+	time_t rawtime;
+	struct tm* timeinfo, * ptm;
+
+	int timediff;
+
+	time(&rawtime);
+	timeinfo = localtime(&rawtime);
+
+	timearray[0] = timeinfo->tm_hour;
+	timearray[1] = timeinfo->tm_min;
+	timearray[2] = timeinfo->tm_sec;
+
+	ptm = gmtime(&rawtime);
+
+	gmttime = ptm->tm_hour;
+
+	timediff = timearray[0] - gmttime;
+
+	sprintf(buff, "%02i:%02i:%02i", (int)timearray[0], (int)timearray[1], (int)timearray[2]);
+
+	ev->AddString(buff);
+}
+
+void ScriptThread::TraceDetails
+(
+	Event* ev
+)
+
+{
+
+	int numArgs = 0;
+	int pass_entity = 0;
+	int mask = 0x2000B01;
+	trace_t trace;
+	Vector vecStart, vecEnd, vecMins, vecMaxs;
+	Entity* entity;
+	//todo : remove all these vars and add one for index and one for value
+
+	ScriptVariable array;
+	ScriptVariable allSolidIndex, allSolidValue;
+	ScriptVariable startSolidIndex, startSolidValue;
+	ScriptVariable fractionIndex, fractionValue;
+	ScriptVariable endPosIndex, endPosValue;
+	ScriptVariable surfaceFlagsIndex, surfaceFlagsValue;
+	ScriptVariable shaderNumIndex, shaderNumValue;
+	ScriptVariable contentsIndex, contentsValue;
+	ScriptVariable entityNumIndex, entityNumValue;
+	ScriptVariable locationIndex, locationValue;
+	ScriptVariable entityIndex, entityValue;
+
+	numArgs = ev->NumArgs();
+
+	if (numArgs < 2 || numArgs > 6)
+	{
+		throw ScriptException("Wrong arguments count for traced!\n");
+	}
+
+	vecStart = ev->GetVector(1);
+	vecEnd = ev->GetVector(2);
+
+	if (numArgs >= 3) {
+		pass_entity = ev->GetInteger(3);
+	}
+
+	if (numArgs >= 4) {
+		vecMins = ev->GetVector(4);
+	}
+
+	if (numArgs >= 5) {
+		vecMaxs = ev->GetVector(5);
+	}
+
+	if (numArgs == 6) {
+		mask = ev->GetInteger(6);
+	}
+
+	gi.Trace(&trace, vecStart, vecMins, vecMaxs, vecEnd, pass_entity, mask, 0, 0);
+
+	allSolidIndex.setStringValue("allSolid");
+	startSolidIndex.setStringValue("startSolid");
+	fractionIndex.setStringValue("fraction");
+	endPosIndex.setStringValue("endpos");
+	surfaceFlagsIndex.setStringValue("surfaceFlags");
+	shaderNumIndex.setStringValue("shaderNum");
+	contentsIndex.setStringValue("contents");
+	entityNumIndex.setStringValue("entityNum");
+	locationIndex.setStringValue("location");
+	entityIndex.setStringValue("entity");
+
+	allSolidValue.setIntValue(trace.allsolid);
+	startSolidValue.setIntValue(trace.startsolid);
+	fractionValue.setFloatValue(trace.fraction);
+	endPosValue.setVectorValue(trace.endpos);
+	surfaceFlagsValue.setIntValue(trace.surfaceFlags);
+	shaderNumValue.setIntValue(trace.shaderNum);
+	contentsValue.setIntValue(trace.contents);
+	entityNumValue.setIntValue(trace.entityNum);
+	locationValue.setIntValue(trace.location);
+
+	entity = G_GetEntity(trace.entityNum);
+
+	// Have to use G_GetEntity instead otherwise it won't work
+	if (entity != NULL) {
+		entityValue.setListenerValue(entity);
+	}
+
+	array.setArrayAtRef(allSolidIndex, allSolidValue);
+	array.setArrayAtRef(startSolidIndex, startSolidValue);
+	array.setArrayAtRef(fractionIndex, fractionValue);
+	array.setArrayAtRef(endPosIndex, endPosValue);
+	array.setArrayAtRef(surfaceFlagsIndex, surfaceFlagsValue);
+	array.setArrayAtRef(shaderNumIndex, shaderNumValue);
+	array.setArrayAtRef(contentsIndex, contentsValue);
+	array.setArrayAtRef(entityNumIndex, entityNumValue);
+	array.setArrayAtRef(locationIndex, locationValue);
+	array.setArrayAtRef(entityIndex, entityValue);
+
+	ev->AddValue(array);
+
 }

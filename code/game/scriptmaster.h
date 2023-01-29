@@ -70,10 +70,6 @@ public:
 	con_arrayset< str, str >	StringDict;		// const strings (improve performance)
 	int							iPaused;		// num times paused
 
-	// Context switch variables
-	bool									m_bAllowContextSwitch;
-	Container< SafePtr< ScriptThread > >	m_contextSwitches;		// Threads to be prepared for context switching
-
 protected:
 	static const char *ConstStrings[];
 
@@ -88,8 +84,6 @@ public:
 
 	virtual void			Archive( Archiver &arc );
 	void					ArchiveString( Archiver& arc, const_str& s );
-
-	void					AddContextSwitch( ScriptThread *thread );
 
 	const_str				AddString( const char *s );
 	const_str				AddString( str& s );
@@ -132,7 +126,6 @@ public:
 	void					CloseGameScript();
 	void					Reset( qboolean samemap = false );
 
-	void					Init();
 	void					ExecuteRunning();
 	void					SetTime( int time );
 

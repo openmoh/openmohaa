@@ -4294,12 +4294,6 @@ void Listener::ExecuteScriptInternal( Event *ev, ScriptVariable& returnValue )
 	thread->ScriptExecute( &ev->data[ 1 ], ev->dataSize - 1, returnValue );
 
 	currentThread = Director.m_CurrentThread;
-
-	// current thread should request a context switch because its waiting for the child's return value
-	if( Director.m_bAllowContextSwitch && currentThread && fReturn && thread )
-	{
-		currentThread->HandleContextSwitch( thread );
-	}
 }
 
 /*
@@ -4316,11 +4310,6 @@ void Listener::ExecuteThreadInternal( Event *ev, ScriptVariable& returnValue )
 	thread->ScriptExecute( &ev->data[ 1 ], ev->dataSize - 1, returnValue );
 
 	currentThread = Director.m_CurrentThread;
-
-	if( Director.m_bAllowContextSwitch && currentThread && fReturn && thread )
-	{
-		currentThread->HandleContextSwitch( thread );
-	}
 }
 
 /*
@@ -4457,27 +4446,9 @@ CreateThread
 */
 void Listener::CreateThread( Event *ev )
 {
-	if( !Director.m_bAllowContextSwitch )
-	{
-		ScriptVariable returnValue;
+	ScriptVariable returnValue;
 
-		ExecuteThreadInternal( ev, returnValue );
-	}
-	else
-	{
-		ScriptThread *pThread = CreateThreadInternal( ev->GetValue( 1 ) );
-		Event event;
-
-		for( int i = 2; i <= ev->NumArgs(); i++ )
-		{
-			event.AddValue( ev->GetValue( i ) );
-		}
-
-		if( pThread )
-		{
-			pThread->DelayExecute( event );
-		}
-	}
+	ExecuteThreadInternal(ev, returnValue);
 }
 
 /*
@@ -4503,27 +4474,9 @@ ExecuteScript
 */
 void Listener::ExecuteScript( Event *ev )
 {
-	if( !Director.m_bAllowContextSwitch )
-	{
-		ScriptVariable returnValue;
+	ScriptVariable returnValue;
 
-		ExecuteScriptInternal( ev, returnValue );
-	}
-	else
-	{
-		ScriptThread *pThread = CreateScriptInternal( ev->GetValue( 1 ) );
-		Event event;
-
-		for( int i = 2; i <= ev->NumArgs(); i++ )
-		{
-			event.AddValue( ev->GetValue( i ) );
-		}
-
-		if( pThread )
-		{
-			pThread->DelayExecute( event );
-		}
-	}
+	ExecuteScriptInternal(ev, returnValue);
 }
 
 /*
