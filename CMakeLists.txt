@@ -60,18 +60,26 @@ endif()
 
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 
-add_library(gamex64 SHARED ${SOURCES_SHARED} ${SOURCES_GAME})
-target_compile_definitions(gamex64 PRIVATE GAME_DLL ARCHIVE_SUPPORTED)
-target_compile_options(gamex64 PUBLIC "/showIncludes")
-target_include_directories(gamex64 PUBLIC "code/qcommon" "code/script" "code/game")
+IF(${CMAKE_C_COMPILER_ARCHITECTURE_ID} STREQUAL "x64") # for desktop
+	set(TARGET_SUFFIX "x64")
+ELSE(${CMAKE_C_COMPILER_ARCHITECTURE_ID} STREQUAL "x86") # for tx2
+	set(TARGET_SUFFIX "x86")
+ENDIF()
+
+add_library(fgame SHARED ${SOURCES_SHARED} ${SOURCES_GAME})
+target_compile_definitions(fgame PRIVATE GAME_DLL ARCHIVE_SUPPORTED)
+target_compile_options(fgame PUBLIC "/showIncludes")
+target_include_directories(fgame PUBLIC "code/qcommon" "code/script" "code/game")
+set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_SUFFIX}")
 
 add_executable(omohaaded ${SOURCES_SHARED} ${SOURCES_EXECUTABLE} ${SOURCES_SKEL} ${SOURCES_SERVER} ${SOURCES_PLATFORM_SPECIFIC} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c" "code/sys/sys_main.c" "code/sys/con_log.c")
 set_property(TARGET omohaaded PROPERTY CXX_STANDARD 11)
 target_compile_features(omohaaded PUBLIC cxx_constexpr)
 target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE DEDICATED)
 target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/server" "code/SDL2/include")
+set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_SUFFIX}")
 
 if(WIN32)
-target_link_libraries(omohaaded wsock32 ws2_32)
-target_link_libraries(omohaaded winmm)
+	target_link_libraries(omohaaded wsock32 ws2_32)
+	target_link_libraries(omohaaded winmm)
 endif()
