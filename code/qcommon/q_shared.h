@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 #define PRODUCT_NAME            "OpenMoHAA"
-#define PRODUCT_VERSION			"0.99"
+#define PRODUCT_VERSION			"0.49-alpha"
 
 #if TARGET_GAME_TYPE == 1
 
