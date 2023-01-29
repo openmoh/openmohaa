@@ -719,9 +719,9 @@ void Sys_ParseArgs( int argc, char **argv )
 		{
 			const char* date = __DATE__;
 #ifdef DEDICATED
-			fprintf( stdout, Q3_VERSION " dedicated server (%s)\n", date );
+			fprintf( stdout, PRODUCT_VERSION " dedicated server (%s)\n", date );
 #else
-			fprintf( stdout, Q3_VERSION " client (%s)\n", date );
+			fprintf( stdout, PRODUCT_VERSION " client (%s)\n", date );
 #endif
 			Sys_Exit(0);
 		}

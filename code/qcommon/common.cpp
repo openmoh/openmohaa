@@ -1261,7 +1261,7 @@ void Com_Init( char *commandLine ) {
 
 	iStart = Sys_Milliseconds();
 
-	Com_Printf( "%s %s %s\n", Q3_VERSION, PLATFORM_STRING, __DATE__ );
+	Com_Printf( "%s %s %s\n", PRODUCT_VERSION_FULL, PLATFORM_STRING, __DATE__ );
 
 	if ( setjmp (abortframe) ) {
 		SyScriptError ("Error during initialization");
@@ -1402,9 +1402,9 @@ void Com_Init( char *commandLine ) {
 		}
 	}
 
-	s = va( "%s %s %s", Q3_VERSION, PLATFORM_STRING, __DATE__ );
+	s = va( "%s %s %s", PRODUCT_VERSION_FULL, PLATFORM_STRING, __DATE__ );
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
-	com_shortversion = Cvar_Get( "shortversion",  PRODUCT_VERSION, CVAR_ROM );
+	com_shortversion = Cvar_Get( "shortversion", TARGET_GAME_VERSION, CVAR_ROM );
 
 	Sys_Init();
 	Netchan_Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random

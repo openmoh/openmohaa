@@ -31,19 +31,39 @@ extern "C" {
 #endif
 
 #define PRODUCT_NAME            "OpenMoHAA"
-#define PRODUCT_VERSION         "0.1"
+#define PRODUCT_VERSION			"0.99"
 
-#ifdef SVN_VERSION
-# define Q3_VERSION PRODUCT_NAME " " SVN_VERSION
+#if TARGET_GAME_TYPE == 1
+
+#define BASEGAME				"mainta"
+#define PRODUCT_EXTENSION		"Spearhead target"
+// The version string must be equal or above, otherwise it's not possible to connect to these servers
+#define TARGET_GAME_VERSION		"2.41"
+#define TARGET_GAME_PROTOCOL	17
+
+#elif TARGET_GAME_TYPE == 2
+
+#define BASEGAME				"maintt"
+#define PRODUCT_EXTENSION		"Breakthrough target"
+#define	TARGET_GAME_VERSION		"2.41"
+#define TARGET_GAME_PROTOCOL	17
+
 #else
-# define Q3_VERSION PRODUCT_NAME " " PRODUCT_VERSION
+
+// The default: the base game (no expansion)
+#define BASEGAME				"main"
+#define PRODUCT_EXTENSION		"Base"
+// The version string must be below 1.12, otherwise it's not possible to connect
+#define TARGET_GAME_VERSION		"1.12"
+#define TARGET_GAME_PROTOCOL	8
+
 #endif
+
+#define PRODUCT_NAME_FULL		PRODUCT_NAME ": " PRODUCT_EXTENSION
+#define PRODUCT_VERSION_FULL	PRODUCT_VERSION " (for " TARGET_GAME_VERSION ")"
 
 #define CLIENT_WINDOW_TITLE     "OpenMoHAA"
 #define CLIENT_WINDOW_MIN_TITLE "OpenMoHAA"
-// 1.32 released 7-10-2002
-
-#define BASEGAME              "main"
 
 #define MAX_TEAMNAME 32
 
