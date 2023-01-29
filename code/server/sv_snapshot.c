@@ -295,7 +295,7 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 SV_AddEntToSnapshot
 ===============
 */
-static void SV_AddEntToSnapshot( svEntity_t *svEnt, gentity_t *gEnt, snapshotEntityNumbers_t *eNums ) {
+static void SV_AddEntToSnapshot( svEntity_t *svEnt, gentity_t *gEnt, snapshotEntityNumbers_t *eNums, svEntity_t* portalEnt, qboolean portalsky) {
 	// if we have already added this entity to this snapshot, don't add again
 	if ( svEnt->snapshotCounter == sv.snapshotCounter ) {
 		return;
@@ -393,7 +393,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 
 		// broadcast entities are always sent
 		if ( ent->r.svFlags & SVF_BROADCAST ) {
-			SV_AddEntToSnapshot( svEnt, ent, eNums );
+			SV_AddEntToSnapshot( svEnt, ent, eNums, NULL, qfalse);
 			continue;
 		}
 
@@ -444,7 +444,7 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		}
 
 		// add it
-		SV_AddEntToSnapshot( svEnt, ent, eNums );
+		SV_AddEntToSnapshot( svEnt, ent, eNums, NULL, qfalse);
 
 		// if its a portal entity, add everything visible from its camera position
 		if ( ent->r.svFlags & SVF_PORTAL ) {
@@ -532,7 +532,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 		org[2] += ps->viewheight;
 	}
 
-	SV_AddEntToSnapshot(svEnt, SV_GentityNum(client - svs.clients), &entityNumbers.numSnapshotEntities, 0, 0);
+	SV_AddEntToSnapshot(svEnt, SV_GentityNum(client - svs.clients), &entityNumbers, NULL, qfalse);
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
