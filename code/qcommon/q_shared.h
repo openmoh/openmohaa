@@ -33,30 +33,27 @@ extern "C" {
 #define PRODUCT_VERSION			"0.49-alpha"
 
 #if TARGET_GAME_TYPE == 1
-
+	// Team Assault
 	#define BASEGAME				"mainta"
-	#define PRODUCT_EXTENSION		"Spearhead target"
+	#define PRODUCT_EXTENSION		"Spearhead"
 	// The version string must be equal or above 2.0 to be able to connect to spearhead servers
 	#define TARGET_GAME_VERSION		"2.41"
 	#define TARGET_GAME_PROTOCOL	17
-
 #elif TARGET_GAME_TYPE == 2
-
+	// Team Tactics
 	#define BASEGAME				"maintt"
-	#define PRODUCT_EXTENSION		"Breakthrough target"
+	#define PRODUCT_EXTENSION		"Breakthrough"
 		// The version string must be equal or above 2.0 to be able to connect to breakthrough servers
 	#define	TARGET_GAME_VERSION		"2.41"
 	#define TARGET_GAME_PROTOCOL	17
-
 #else
-
 	// The default: the base game (no expansion)
+
 	#define BASEGAME				"main"
 	#define PRODUCT_EXTENSION		"Base"
 	// The version string must be below 1.12, otherwise it's not possible to connect
 	#define TARGET_GAME_VERSION		"1.12"
 	#define TARGET_GAME_PROTOCOL	8
-
 #endif
 
 #define PRODUCT_NAME_FULL		PRODUCT_NAME ": " PRODUCT_EXTENSION
