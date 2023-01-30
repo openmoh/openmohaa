@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // lz77.h: LZ77 Compression Algorithm
 
-#ifndef __LZ77_H__
-#define __LZ77_H__
+#pragma once
 
 class cLZ77 {
 	static unsigned int m_pDictionary[];
@@ -49,5 +48,3 @@ private:
 };
 
 extern cLZ77 g_lz77;
-
-#endif /* __LZ77_H__ */

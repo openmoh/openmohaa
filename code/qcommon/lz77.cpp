@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // so we currently use an ugly decompile hack to do so
 
 #include "lz77.h"
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 
 unsigned int cLZ77::m_pDictionary[ 65535 ];
 
@@ -604,331 +604,337 @@ LABEL_6:
 *************************************************************************/
 int cLZ77::Decompress( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len )
 {
-	unsigned char v5; // al@1
-	int v6; // esi@2
-	int v7; // ebx@4
-	unsigned int v8; // esi@4
-	unsigned char *v9; // ecx@5
-	int v10; // edx@5
-	int v11; // edx@5
-	unsigned char *v12; // edx@5
-	unsigned char *v13; // esi@5
-	unsigned char *v14; // esi@6
-	unsigned char *v15; // ebx@6
-	int v16; // ecx@7
-	unsigned char v17; // dl@7
-	int v18; // eax@8
-	unsigned char *v19; // ebx@12
-	int v20; // esi@12
-	unsigned int v21; // esi@12
-	int v22; // ecx@12
-	int v23; // edx@12
-	int v24; // eax@12
-	int v25; // ecx@12
-	unsigned char *v26; // ecx@12
-	unsigned char *v27; // ebx@12
-	int v28; // esi@16
-	int v29; // ecx@17
-	int v30; // ebx@17
-	int v31; // edx@18
-	int v32; // ecx@18
-	int v33; // ebx@20
-	int v34; // ecx@21
-	int v35; // ebx@21
-	unsigned int v36; // edx@21
-	unsigned char *v37; // edx@23
-	int v38; // esi@24
-	unsigned char *v39; // ecx@29
-	unsigned char *v40; // ebx@29
-	int v41; // ebx@34
-	int v42; // ecx@35
-	int v43; // ebx@35
-	int v44; // edx@36
-	int v45; // ecx@36
-	int v46; // edx@38
-	int v47; // ecx@39
-	unsigned char *v48; // ecx@39
-	unsigned int v49; // edx@39
-	unsigned int v50; // eax@41
-	int result; // eax@42
-	unsigned char *v52; // ebx@45
-	int v53; // edx@45
-	int v54; // esi@45
-	int v55; // ecx@45
-	int v56; // edx@45
-	int v57; // ebx@49
-	int v58; // eax@50
-	int v59; // esi@51
-	unsigned char *v60; // [sp+0h] [bp-14h]@21
+	unsigned int v5; // eax
+	unsigned __int8* v6; // esi
+	unsigned int v7; // eax
+	unsigned __int8* v8; // esi
+	int v9; // edx
+	unsigned __int8* v10; // edx
+	unsigned __int8* v11; // ebp
+	unsigned int v12; // eax
+	unsigned __int8* v13; // esi
+	unsigned __int8* v14; // edi
+	unsigned __int8* v15; // esi
+	unsigned __int8* v16; // esi
+	unsigned __int8* v17; // esi
+	unsigned __int8* op; // edi
+	unsigned __int8* v19; // eax
+	unsigned __int8* v20; // eax
+	unsigned __int8* v21; // ebp
+	unsigned __int8* v22; // edi
+	unsigned __int8* v23; // edi
+	unsigned __int8* ip; // ebp
+	unsigned __int8* v25; // esi
+	unsigned __int8* v26; // esi
+	int v27; // ebp
+	unsigned __int8* v28; // edi
+	unsigned __int8* v29; // esi
+	unsigned __int8* v30; // edx
+	unsigned __int8* v31; // eax
+	unsigned __int8* v32; // edi
+	unsigned __int8* v33; // esi
+	unsigned int v34; // eax
+	unsigned __int8* v35; // edx
+	int v36; // edx
+	unsigned __int8* v37; // esi
+	unsigned __int8* v38; // edi
+	unsigned __int8* v39; // edx
+	unsigned __int8* v40; // edi
+	unsigned __int8* v41; // edx
+	int v42; // edx
+	unsigned __int8* v43; // ebp
+	unsigned __int8* v44; // ebp
+	unsigned __int8* v45; // edi
+	unsigned __int8* v46; // edx
+	unsigned int v47; // eax
+	unsigned __int8* v48; // ebp
+	unsigned __int8* v49; // esi
+	unsigned __int8* v50; // ebp
+	unsigned __int8* v51; // edi
+	unsigned __int8* v52; // esi
+	unsigned __int8* v53; // edx
+	unsigned __int8* v54; // ebp
+	unsigned __int8* v55; // edi
+	unsigned __int8* v56; // edi
+	unsigned __int8* v57; // eax
+	unsigned __int8* v58; // eax
+	unsigned __int8* v59; // edx
+	unsigned __int8* v60; // eax
+	unsigned __int8* v61; // edi
+	unsigned __int8* v62; // eax
+	unsigned __int8* ip_end; // ecx
 
-	ip_end = &in[ in_len ];
-	*( unsigned int * )out_len = 0;
-	ip = in;
-	op = ( unsigned char * )out;
-	v5 = *in;
-	if( *in <= 17u )
+	this->ip_end = in + in_len;
+	*out_len = 0;
+	this->op = out;
+	this->ip = in;
+	if (*in > 17u)
 	{
-		v16 = ( int )ip;
-		goto LABEL_46;
-	}
-	v6 = v5 - 17;
-	ip = in + 1;
-	if( ( unsigned int )v5 - 17 <= 3 )
-	{
-		v16 = ( int )( in + 1 );
-		goto LABEL_8;
-	}
-	do
-	{
-		*op++ = *ip++;
-		--v6;
-	} while( v6 );
-LABEL_4:
-	v7 = ( int )ip;
-	v8 = *ip++;
-	if( v8 <= 0xF )
-	{
-		v9 = op;
-		v10 = ( int )&v9[ -( v8 >> 2 ) - 2049 ];
-		m_pos = ( unsigned char * )v10;
-		v11 = v10 - 4 * *( unsigned char * )( v7 + 1 );
-		m_pos = ( unsigned char * )v11;
-		ip = ( unsigned char * )( v7 + 2 );
-		*v9 = *( unsigned char * )v11;
-		v12 = m_pos;
-		m_pos = v12 + 1;
-		v13 = op;
-		op = v13 + 1;
-		v13[ 1 ] = v12[ 1 ];
-LABEL_6:
-		v14 = m_pos;
-		m_pos = v14 + 1;
-		v15 = op;
-		op = v15 + 1;
-		v15[ 1 ] = v14[ 1 ];
-		++op;
-		goto LABEL_7;
-	}
-	while( 1 )
-	{
-		if( v8 > 0x3F )
+		v5 = *in - 17;
+		this->ip = in + 1;
+		if (v5 < 4)
+			goto LABEL_49;
+		do
 		{
-			v19 = op;
-			v21 = v8 >> 2;
-			v22 = ( int )&v19[ -( v21 & 7 ) - 1 ];
-			v23 = ( int )ip;
-			m_pos = ( unsigned char * )v22;
-			v24 = *( unsigned char * )v23;
-			ip = ( unsigned char * )( v23 + 1 );
-			v20 = ( v21 >> 3 ) - 1;
-			v25 = v22 - 8 * v24;
-			m_pos = ( unsigned char * )v25;
-			*v19 = *( unsigned char * )v25;
-			v26 = m_pos;
-			m_pos = v26 + 1;
-			v27 = op;
-			op = v27 + 1;
-			v27[ 1 ] = v26[ 1 ];
-			++m_pos;
-			++op;
-			do
-			{
-				*op++ = *m_pos++;
-				--v20;
-			} while( v20 );
-			goto LABEL_7;
-		}
-		if( v8 > 0x1F )
+			*this->op = *this->ip;
+			v6 = this->ip + 1;
+			--v5;
+			++this->op;
+			this->ip = v6;
+		} while (v5);
+		goto LABEL_17;
+	}
+LABEL_5:
+	v7 = *this->ip;
+	v8 = this->ip + 1;
+	this->ip = v8;
+	if (v7 < 16)
+	{
+		if (!v7)
 		{
-			v28 = v8 & 0x1F;
-			if( !v28 )
+			for (; !*v8; this->ip = v8)
 			{
-				v29 = ( int )ip;
-				v30 = ( int )ip;
-				if( !*ip )
-				{
-					do
-					{
-						v31 = v30 + 1;
-						v32 = v30;
-						v28 += 255;
-						ip = ( unsigned char * )( v30++ + 1 );
-					} while( !*( unsigned char * )( v32 + 1 ) );
-					v29 = v31;
-				}
-				v33 = *( unsigned char * )v29;
-				ip = ( unsigned char * )( v29 + 1 );
-				v28 += v33 + 31;
+				v7 += 255;
+				++v8;
 			}
-			v34 = ( int )( op - 1 );
-			v60 = op;
-			v35 = ( int )ip;
-			m_pos = ( unsigned char * )v34;
-			v36 = *( unsigned short * )v35;
-			ip = ( unsigned char * )( v35 + 2 );
-			m_pos = ( unsigned char * )( v34 - ( v36 >> 2 ) );
-			goto LABEL_22;
+			v9 = *v8;
+			this->ip = v8 + 1;
+			v7 += v9 + 15;
 		}
-		if( v8 <= 0xF )
+		*(int*)this->op = *(int*)this->ip;
+		v10 = this->op + 4;
+		v11 = this->ip + 4;
+		v12 = v7 - 1;
+		this->op = v10;
+		this->ip = v11;
+		v13 = v11;
+		if (v12)
 		{
-			v52 = op;
-			v53 = ( int )&v52[ -( v8 >> 2 ) - 1 ];
-			v54 = ( int )ip;
-			m_pos = ( unsigned char * )v53;
-			v55 = *( unsigned char * )v54;
-			ip = ( unsigned char * )( v54 + 1 );
-			v56 = v53 - 4 * v55;
-			m_pos = ( unsigned char * )v56;
-			*v52 = *( unsigned char * )v56;
-			goto LABEL_6;
-		}
-		v60 = op;
-		v41 = ( int )&v60[ -2048 * ( v8 & 8 ) ];
-		v28 = v8 & 7;
-		m_pos = ( unsigned char * )v41;
-		if( !v28 )
-		{
-			v42 = ( int )ip;
-			v43 = ( int )ip;
-			if( !*ip )
+			if (v12 < 4)
 			{
 				do
 				{
-					v44 = v43 + 1;
-					v45 = v43;
-					v28 += 255;
-					ip = ( unsigned char * )( v43++ + 1 );
-				} while( !*( unsigned char * )( v45 + 1 ) );
-				v42 = v44;
+					*this->op = *this->ip;
+					v16 = this->ip + 1;
+					--v12;
+					++this->op;
+					this->ip = v16;
+				} while (v12);
 			}
-			v46 = *( unsigned char * )v42;
-			ip = ( unsigned char * )( v42 + 1 );
-			v28 += v46 + 7;
+			else
+			{
+				do
+				{
+					v12 -= 4;
+					*(int*)v10 = *(int*)v13;
+					v14 = this->op + 4;
+					v13 = this->ip + 4;
+					this->op = v14;
+					v10 = v14;
+					this->ip = v13;
+				} while (v12 >= 4);
+				for (; v12; this->ip = v15)
+				{
+					*this->op = *this->ip;
+					v15 = this->ip + 1;
+					--v12;
+					++this->op;
+				}
+			}
 		}
-		v48 = m_pos;
-		v49 = *( unsigned short * )ip;
-		ip += 2;
-		v47 = ( int )&v48[ -( v49 >> 2 ) ];
-		m_pos = ( unsigned char * )v47;
-		if( ( unsigned char * )v47 == v60 )
-			break;
-		m_pos = ( unsigned char * )( v47 - 16384 );
-LABEL_22:
-		if( ( unsigned int )v28 <= 5 )
+	LABEL_17:
+		v7 = *this->ip;
+		v17 = this->ip + 1;
+		this->ip = v17;
+		if (v7 < 16)
 		{
-			v37 = m_pos;
-LABEL_29:
-			*v60 = *v37;
-			v39 = m_pos;
-			m_pos = v39 + 1;
-			v40 = op;
-			op = v40 + 1;
-			v40[ 1 ] = v39[ 1 ];
-			++m_pos;
-			++op;
+			op = this->op;
+			v19 = op - (v7 >> 2) - 2049;
+			this->m_pos = v19;
+			v20 = v19 - 4 * *v17;
+			this->m_pos = v20;
+			this->ip = v17 + 1;
+			*op = *v20;
+			v21 = this->op + 1;
+			v22 = this->m_pos + 1;
+			this->op = v21;
+			this->m_pos = v22;
+			*v21 = *v22;
+		LABEL_47:
+			v59 = this->m_pos + 1;
+			v60 = ++this->op;
+			this->m_pos = v59;
+			*v60 = *v59;
+			++this->op;
+			goto LABEL_48;
+		}
+	}
+	while (1)
+	{
+		if (v7 >= 64)
+		{
+			v23 = this->op;
+			ip = this->ip;
+			v25 = v23 - ((v7 >> 2) & 7) - 1;
+			this->m_pos = v25;
+			v26 = v25 - 8 * *ip;
+			this->ip = ip + 1;
+			v27 = (v7 >> 5) - 1;
+			this->m_pos = v26;
+			*v23 = *v26;
+			v28 = this->op + 1;
+			v29 = this->m_pos + 1;
+			this->op = v28;
+			this->m_pos = v29;
+			*v28 = *v29;
+			v30 = this->op + 1;
+			v31 = this->m_pos + 1;
+			this->op = v30;
+			this->m_pos = v31;
 			do
 			{
-				*op++ = *m_pos++;
-				--v28;
-			} while( v28 );
-			goto LABEL_7;
+				*v30 = *this->m_pos;
+				v32 = this->op + 1;
+				v33 = this->m_pos + 1;
+				--v27;
+				this->op = v32;
+				v30 = v32;
+				this->m_pos = v33;
+			} while (v27);
+			goto LABEL_48;
 		}
-		v37 = m_pos;
-		if( ( signed int )( v60 - v37 ) <= 3 )
-			goto LABEL_29;
-		v38 = v28 - 2;
-		*( unsigned int * )v60 = *( unsigned int * )v37;
-		op += 4;
-		m_pos += 4;
-		do
+		if (v7 >= 32)
 		{
-			v38 -= 4;
-			*( unsigned int * )op = *( unsigned int * )m_pos;
-			op += 4;
-			m_pos += 4;
-		} while( ( unsigned int )v38 > 3 );
-		for( ; v38; --v38 )
-			*op++ = *m_pos++;
-LABEL_7:
-		v16 = ( int )ip;
-		v17 = *( ip - 2 ) & 3;
-		v6 = v17;
-		if( v17 )
-		{
-LABEL_8:
-			while( 1 )
+			v34 = v7 & 31;
+			if (!v34)
 			{
-				*op = *( unsigned char * )v16;
-				v18 = ( int )ip;
-				++op;
-				--v6;
-				ip = ( unsigned char * )( v18 + 1 );
-				if( !v6 )
-					break;
-				v16 = v18 + 1;
+				if (!*this->ip)
+				{
+					do
+					{
+						v34 += 255;
+						v35 = this->ip + 1;
+						this->ip = v35;
+					} while (!*v35);
+				}
+				v36 = *this->ip++;
+				v34 += v36 + 31;
 			}
-			v8 = *( unsigned char * )( v18 + 1 );
-			ip = ( unsigned char * )( v18 + 2 );
+			v37 = this->op;
+			v38 = this->ip;
+			this->m_pos = v37 - 1;
+			v39 = v37 - (*(unsigned __int16*)v38 >> 2) - 1;
+			this->ip = v38 + 2;
+			goto LABEL_36;
+		}
+		v37 = this->op;
+		if (v7 < 0x10)
+		{
+			v56 = this->ip;
+			v57 = v37 - (v7 >> 2) - 1;
+			this->m_pos = v57;
+			v58 = v57 - 4 * *v56;
+			this->m_pos = v58;
+			this->ip = v56 + 1;
+			*v37 = *v58;
+			goto LABEL_47;
+		}
+		v40 = v37 - 2048 * (v7 & 8);
+		v34 = v7 & 7;
+		this->m_pos = v40;
+		if (!v34)
+		{
+			if (!*this->ip)
+			{
+				do
+				{
+					v34 += 255;
+					v41 = this->ip + 1;
+					this->ip = v41;
+				} while (!*v41);
+			}
+			v42 = *this->ip++;
+			v34 += v42 + 7;
+		}
+		this->m_pos -= *(unsigned short*)this->ip >> 2;
+		this->ip += 2;
+		if (this->m_pos == v37)
+			break;
+		v39 = this->m_pos - 0x4000;
+	LABEL_36:
+		this->m_pos = v39;
+		if (v34 < 6 || v37 - v39 < 4)
+		{
+			*v37 = *this->m_pos;
+			v50 = this->op + 1;
+			v51 = this->m_pos + 1;
+			this->op = v50;
+			this->m_pos = v51;
+			*v50 = *v51;
+			v52 = this->op + 1;
+			v53 = this->m_pos + 1;
+			this->op = v52;
+			this->m_pos = v53;
+			do
+			{
+				*v52 = *this->m_pos;
+				v54 = this->op + 1;
+				v55 = this->m_pos + 1;
+				--v34;
+				this->op = v54;
+				v52 = v54;
+				this->m_pos = v55;
+			} while (v34);
 		}
 		else
 		{
-LABEL_46:
-			v8 = *( unsigned char * )v16;
-			ip = ( unsigned char * )( v16 + 1 );
-			if( v8 <= 0xF )
+			*(int*)v37 = *(int*)v39;
+			v44 = this->op + 4;
+			v45 = this->m_pos + 4;
+			this->op = v44;
+			v46 = v44;
+			this->m_pos = v45;
+			v47 = v34 - 2;
+			do
 			{
-				if( !v8 )
-				{
-					if( !*( unsigned char * )( v16 + 1 ) )
-					{
-						do
-						{
-							v57 = ( int )ip;
-							v8 += 255;
-							++ip;
-						} while( !*( unsigned char * )( v57 + 1 ) );
-					}
-					v58 = *ip++;
-					v8 += v58 + 15;
-				}
-				*( unsigned int * )op = *( unsigned int * )ip;
-				op += 4;
-				ip += 4;
-				v59 = v8 - 1;
-				if( v59 )
-				{
-					if( ( unsigned int )v59 <= 3 )
-					{
-						do
-						{
-							*op++ = *ip++;
-							--v59;
-						} while( v59 );
-					}
-					else
-					{
-						do
-						{
-							v59 -= 4;
-							*( unsigned int * )op = *( unsigned int * )ip;
-							op += 4;
-							ip += 4;
-						} while( ( unsigned int )v59 > 3 );
-						for( ; v59; --v59 )
-							*op++ = *ip++;
-					}
-				}
-				goto LABEL_4;
+				v47 -= 4;
+				*(int*)v46 = *(int*)this->m_pos;
+				v46 = this->op + 4;
+				v48 = this->m_pos + 4;
+				this->op = v46;
+				this->m_pos = v48;
+			} while (v47 >= 4);
+			for (; v47; this->m_pos = v49)
+			{
+				*this->op = *this->m_pos;
+				v49 = this->m_pos + 1;
+				--v47;
+				++this->op;
 			}
 		}
+	LABEL_48:
+		v5 = *(this->ip - 2) & 3;
+		if ((*(this->ip - 2) & 3) == 0)
+			goto LABEL_5;
+		do
+		{
+		LABEL_49:
+			*this->op = *this->ip;
+			v61 = this->ip + 1;
+			--v5;
+			++this->op;
+			this->ip = v61;
+		} while (v5);
+		v7 = *v61;
+		this->ip = v61 + 1;
 	}
-	*out_len = v47 - ( unsigned int )out;
-	v50 = ( unsigned int )ip_end;
-	if( ip == ( unsigned char * )v50 )
-		result = 0;
+	*out_len = this->op - out;
+	v62 = this->ip;
+	ip_end = this->ip_end;
+	if (v62 == ip_end)
+		return 0;
 	else
-		result = -( ip < ( unsigned char * )v50 ) | 0xFFFFFFFE;
-	return result;
+		return (v62 < ip_end) - 2;
 }
 
 static unsigned char in[ 0x40000 ];
