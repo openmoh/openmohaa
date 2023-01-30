@@ -705,16 +705,14 @@ void Alias_ListFindRandomRange( AliasList_t *list, const char *alias, int *min_i
 
 	convalias[ length ] = 0;
 
-	r = 0;
-	l = list->num_in_list - 1;
-	if( l >= 0 )
+	l = 0;
+	r = list->num_in_list - 1;
+	if (r >= 0)
 	{
-		int __res;
-
 		do
 		{
-			__res = ( l + r ) >> 1;
-			diff = strncmp( convalias, list->sorted_list[ __res ]->alias_name, length );
+			index = (l + r) >> 1;
+			diff = strncmp( convalias, list->sorted_list[index]->alias_name, length );
 
 			if( diff == 0 )
 			{
@@ -722,49 +720,49 @@ void Alias_ListFindRandomRange( AliasList_t *list, const char *alias, int *min_i
 			}
 			else if( diff > 0 )
 			{
-				r = __res + 1;
+				l = index + 1;
 			}
 			else
 			{
-				l = __res - 1;
+				r = index - 1;
 			}
-		} while( l >= r );
+		} while (r >= l);
 
-		if( l >= r )
+		if(l >= r)
 		{
 			numfound = 0;
-			*min_index = __res;
-			*max_index = __res;
+			*min_index = index;
+			*max_index = index;
+			totalfoundweight = 0.f;
 
-			for( i = __res; i >= 0; i-- )
+			ptr = &list->sorted_list[index];
+			for(i = 0; i < index; i++, ptr--)
 			{
-				ptr = &list->sorted_list[ i ];
-
-				if( strncmp( convalias, ( *ptr )->alias_name, length ) )
+				if (strncmp(convalias, (*ptr)->alias_name, length)) {
 					break;
+				}
 
 				if( numfound <= 63 && ( *ptr )->alias_name[ length ] != '_' )
 				{
-					foundlist[ numfound++ ] = *ptr;
-					totalfoundweight += ( *ptr )->weight;
+					foundlist[numfound++] = *ptr;
+					totalfoundweight += (*ptr)->weight;
 					*min_index = i;
 				}
 			}
 
-			ptr = &list->sorted_list[ __res + 1 ];
+			ptr = &list->sorted_list[index + 1];
 
-			for( i = 0; i < list->num_in_list; i++ )
+			for(i = index + 1; i < list->num_in_list; i++, ptr++)
 			{
-				ptr = &list->sorted_list[ __res + i + 1 ];
-
-				if( strncmp( convalias, ( *ptr )->alias_name, length ) )
+				if (strncmp(convalias, (*ptr)->alias_name, length)) {
 					break;
+				}
 
 				if( numfound <= 63 && ( *ptr )->alias_name[ length ] != '_' )
 				{
 					foundlist[ numfound++ ] = *ptr;
 					totalfoundweight += ( *ptr )->weight;
-					*max_index = __res + i + 1;
+					*max_index = i;
 				}
 			}
 
