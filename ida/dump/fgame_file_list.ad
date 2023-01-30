@@ -93,9 +93,6 @@
 - /source/fgame/player_conditionals.cpp
 - /source/fgame/player_util.cpp
 - /source/fgame/portal.cpp
-- /source/fgame/scriptclass.cpp
-- /source/fgame/scriptcompiler.cpp
-- /source/fgame/scriptexception.cpp
 - /source/fgame/scriptmaster.cpp
 - /source/fgame/scriptslave.cpp
 - /source/fgame/scriptthread.cpp
