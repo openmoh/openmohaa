@@ -62,7 +62,7 @@ Event EV_Animate_IsLoopingAnim
 	EV_RETURN
 );
 
-MEM_BlockAlloc< AnimationEvent, MEM_BLOCKSIZE > AnimationEvent_allocator;
+MEM_BlockAlloc<AnimationEvent> AnimationEvent_allocator;
 
 void *AnimationEvent::operator new( size_t size )
 {

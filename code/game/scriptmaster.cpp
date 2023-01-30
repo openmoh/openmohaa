@@ -127,7 +127,7 @@ void ScriptMaster::Archive( Archiver& arc )
 		num = ScriptClass_allocator.Count();
 		arc.ArchiveInteger( &num );
 
-		MEM_BlockAlloc_enum< ScriptClass, MEM_BLOCKSIZE > en = ScriptClass_allocator;
+		MEM_BlockAlloc_enum<ScriptClass> en = ScriptClass_allocator;
 		for( scr = en.NextElement(); scr != NULL; scr = en.NextElement() )
 		{
 			scr->ArchiveInternal( arc );
@@ -608,7 +608,7 @@ GameScript *ScriptMaster::GetGameScript( str filename, qboolean recompile )
 		if( scr && recompile )
 		{
 			Container< ScriptClass * > list;
-			MEM_BlockAlloc_enum< ScriptClass, MEM_BLOCKSIZE > en = ScriptClass_allocator;
+			MEM_BlockAlloc_enum<ScriptClass> en = ScriptClass_allocator;
 			ScriptClass *scriptClass;
 			m_GameScripts[ s ] = NULL;
 
@@ -761,7 +761,7 @@ void ScriptMaster::PrintStatus( void )
 	int iThreadRunning = 0;
 	int iThreadWaiting = 0;
 	int iThreadSuspended = 0;
-	MEM_BlockAlloc_enum< ScriptClass, MEM_BLOCKSIZE > en = ScriptClass_allocator;
+	MEM_BlockAlloc_enum<ScriptClass> en = ScriptClass_allocator;
 	ScriptClass *scriptClass;
 	char szBuffer[ MAX_STRING_TOKENS ];
 
@@ -820,7 +820,7 @@ void ScriptMaster::PrintThread( int iThreadNum )
 	ScriptVM *vm;
 	bool bFoundThread = false;
 	str status;
-	MEM_BlockAlloc_enum< ScriptClass, MEM_BLOCKSIZE > en = ScriptClass_allocator;
+	MEM_BlockAlloc_enum<ScriptClass> en = ScriptClass_allocator;
 	ScriptClass *scriptClass;
 
 	for( scriptClass = en.NextElement(); scriptClass != NULL; scriptClass = en.NextElement() )

@@ -145,7 +145,7 @@ public:
 	void				StopAnimating( Event *ev );
 };
 
-extern MEM_BlockAlloc< AnimationEvent, MEM_BLOCKSIZE > AnimationEvent_allocator;
+extern MEM_BlockAlloc<AnimationEvent> AnimationEvent_allocator;
 
 inline int Animate::CurrentAnim( int slot )
 {

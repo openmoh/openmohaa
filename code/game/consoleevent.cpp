@@ -5,7 +5,7 @@
 // ConsoleEvent
 //===============================
 
-MEM_BlockAlloc< ConsoleEvent, MEM_BLOCKSIZE > ConsoleEvent_allocator;
+MEM_BlockAlloc<ConsoleEvent> ConsoleEvent_allocator;
 
 CLASS_DECLARATION(Event, ConsoleEvent, NULL)
 {

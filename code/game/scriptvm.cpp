@@ -53,7 +53,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // ScriptClass
 //====================
 
-MEM_BlockAlloc< ScriptClass, MEM_BLOCKSIZE > ScriptClass_allocator;
+MEM_BlockAlloc<ScriptClass> ScriptClass_allocator;
 
 CLASS_DECLARATION(Listener, ScriptClass, NULL)
 {
@@ -426,7 +426,7 @@ Listener* ScriptClass::GetSelf()
 //====================
 
 
-MEM_BlockAlloc< ScriptVM, char[256] > ScriptVM_allocator;
+MEM_BlockAlloc<ScriptVM> ScriptVM_allocator;
 
 /*
 ====================

@@ -24,4 +24,4 @@ public:
 	virtual void	ErrorInternal(Listener* l, str text);
 };
 
-extern MEM_BlockAlloc< ConsoleEvent, MEM_BLOCKSIZE > ConsoleEvent_allocator;
+extern MEM_BlockAlloc<ConsoleEvent> ConsoleEvent_allocator;

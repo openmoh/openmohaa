@@ -125,6 +125,13 @@ extern "C" {
 	if( node->next ) node->next->prev = node->prev;	\
 	}
 
+#define LL_SafeRemoveRoot(rootnode,node,next,prev)	\
+	{												\
+	if (rootnode == node) rootnode = (node->next);	\
+	if (node->prev) node->prev->next = node->next;	\
+	if (node->next) node->next->prev = node->prev;	\
+	}
+
 #define LL_SafeAdd(rootnode, newnode, next, prev)		\
 	{														\
 	(newnode)->next = NULL;									\

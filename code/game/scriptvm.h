@@ -325,6 +325,6 @@ public:
 	bool			CanScriptTracePrint( void );
 };
 
-extern MEM_BlockAlloc< ScriptClass, MEM_BLOCKSIZE > ScriptClass_allocator;
+extern MEM_BlockAlloc<ScriptClass> ScriptClass_allocator;
 
 #endif

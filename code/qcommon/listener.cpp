@@ -1149,7 +1149,7 @@ void EventDef::SetupDocumentation( void )
 // Event
 //====================================
 
-MEM_BlockAlloc< Event, MEM_BLOCKSIZE > Event_allocator;
+MEM_BlockAlloc<Event> Event_allocator;
 
 CLASS_DECLARATION( Class, Event, NULL )
 {

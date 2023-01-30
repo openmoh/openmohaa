@@ -608,7 +608,7 @@ extern cvar_t	*g_timeevents;
 extern cvar_t	*g_watch;
 extern cvar_t	*g_eventstats;
 
-extern MEM_BlockAlloc< Event, MEM_BLOCKSIZE > Event_allocator;
+extern MEM_BlockAlloc<Event> Event_allocator;
 
 #if defined( GAME_DLL )
 //

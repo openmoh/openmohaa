@@ -69,7 +69,7 @@ class con_set
 	friend class con_set_enum < k, v > ;
 
 public:
-	static MEM_BlockAlloc< Entry< k, v >, MEM_BLOCKSIZE > Entry_allocator;
+	static MEM_BlockAlloc<Entry<k, v >> Entry_allocator;
 
 protected:
 	Entry< k, v >				**table;			// hashtable
@@ -187,7 +187,7 @@ int HashCode( const str& key );
 */
 
 template< typename k, typename v >
-MEM_BlockAlloc< Entry< k, v >, MEM_BLOCKSIZE > con_set< k, v >::Entry_allocator;
+MEM_BlockAlloc<Entry< k, v >> con_set< k, v >::Entry_allocator;
 
 template< typename k >
 int HashCode( const k& key );

@@ -2289,7 +2289,7 @@ CLASS_DECLARATION( Listener, ScriptThread, NULL )
 	{ NULL, NULL }
 };
 
-MEM_BlockAlloc< ScriptThread, MEM_BLOCKSIZE > ScriptThread_allocator;
+MEM_BlockAlloc<ScriptThread> ScriptThread_allocator;
 
 void *ScriptThread::operator new( size_t size )
 {
