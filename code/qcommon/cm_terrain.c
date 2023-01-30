@@ -1003,14 +1003,17 @@ void CM_TracePointThroughTerrainCollide( void )
 	float fx, fy;
 	float dx, dy, dx2, dy2;
 
-	fx = ( g_trace.vStart[ 0 ] - g_trace.tc->vBounds[ 0 ][ 0 ] ) * ( SURFACE_CLIP_EPSILON / 8 );
-	fy = ( g_trace.vStart[ 1 ] - g_trace.tc->vBounds[ 0 ][ 1 ] ) * ( SURFACE_CLIP_EPSILON / 8 );
-	i0 = ( int )floor( fx );
-	j0 = ( int )floor( fy );
-	i1 = ( int )floor( ( g_trace.vEnd[ 0 ] - g_trace.tc->vBounds[ 0 ][ 0 ] ) * ( SURFACE_CLIP_EPSILON / 8 ) );
-	j1 = ( int )floor( ( g_trace.vEnd[ 1 ] - g_trace.tc->vBounds[ 0 ][ 1 ] ) * ( SURFACE_CLIP_EPSILON / 8 ) );
+	fx = (g_trace.vStart[0] - g_trace.tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8);
+	fy = (g_trace.vStart[1] - g_trace.tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8);
+	i0 = (int64_t)floor(fx);
+	j0 = (int64_t)floor(fy);
+	i1 = (int64_t)floor((g_trace.vEnd[0] - g_trace.tc->vBounds[0][0]) * (SURFACE_CLIP_EPSILON / 8));
+	j1 = (int64_t)floor((g_trace.vEnd[1] - g_trace.tc->vBounds[0][1]) * (SURFACE_CLIP_EPSILON / 8));
 
-	if( CM_CheckStartInsideTerrain( i0, j0, fx - i0, fy - j0 ) )
+	const float dfx = fx - i0;
+	const float dfy = fy - j0;
+
+	if (CM_CheckStartInsideTerrain(i0, j0, dfx, dfy))
 	{
 		g_trace.tw->trace.startsolid = qtrue;
 		g_trace.tw->trace.allsolid = qtrue;
@@ -1018,15 +1021,15 @@ void CM_TracePointThroughTerrainCollide( void )
 		return;
 	}
 
-	if( i0 == i1 )
+	if (i0 == i1)
 	{
-		if( i0 < 0 || i0 > 7 ) {
+		if (i0 < 0 || i0 > 7) {
 			return;
 		}
 
-		if( j0 == j1 )
+		if (j0 == j1)
 		{
-			if( j0 < 0 || j0 > 7 ) {
+			if (j0 < 0 || j0 > 7) {
 				return;
 			}
 
@@ -1034,65 +1037,65 @@ void CM_TracePointThroughTerrainCollide( void )
 			g_trace.j = j0;
 			CM_TestTerrainCollideSquare();
 		}
-		else if( j0 >= j1 )
+		else if (j0 >= j1)
 		{
-			if( j0 > 7 )
+			if (j0 > 7)
 				j0 = 7;
-			if( j1 < 0 )
+			if (j1 < 0)
 				j1 = 0;
 
 			g_trace.i = i0;
-			for( g_trace.j = j0; g_trace.j >= j1; g_trace.j-- ) {
-				if( CM_TestTerrainCollideSquare() ) {
+			for (g_trace.j = j0; g_trace.j >= j1; g_trace.j--) {
+				if (CM_TestTerrainCollideSquare()) {
 					return;
 				}
 			}
 		}
 		else
 		{
-			if( j0 < 0 )
+			if (j0 < 0)
 				j0 = 0;
-			if( j1 > 7 )
+			if (j1 > 7)
 				j1 = 7;
 
 			g_trace.i = i0;
-			for( g_trace.j = j0; g_trace.j <= j1; g_trace.j++ ) {
-				if( CM_TestTerrainCollideSquare() ) {
+			for (g_trace.j = j0; g_trace.j <= j1; g_trace.j++) {
+				if (CM_TestTerrainCollideSquare()) {
 					return;
 				}
 			}
 		}
 	}
-	else if( j0 == j1 )
+	else if (j0 == j1)
 	{
-		if( j0 < 0 || j0 > 7 ) {
+		if (j0 < 0 || j0 > 7) {
 			return;
 		}
 
-		if( i0 >= i1 )
+		if (i0 >= i1)
 		{
-			if( i0 > 7 )
+			if (i0 > 7)
 				i0 = 7;
-			if( i1 < 0 )
+			if (i1 < 0)
 				i1 = 0;
 
 			g_trace.j = j0;
-			for( g_trace.i = i0; g_trace.i >= i1; g_trace.i-- ) {
-				if( CM_TestTerrainCollideSquare() ) {
+			for (g_trace.i = i0; g_trace.i >= i1; g_trace.i--) {
+				if (CM_TestTerrainCollideSquare()) {
 					break;
 				}
 			}
 		}
 		else
 		{
-			if( i0 < 0 )
+			if (i0 < 0)
 				i0 = 0;
-			if( i1 > 7 )
+			if (i1 > 7)
 				i1 = 7;
 
 			g_trace.j = j0;
-			for( g_trace.i = i0; g_trace.i <= i1; g_trace.i++ ) {
-				if( CM_TestTerrainCollideSquare() ) {
+			for (g_trace.i = i0; g_trace.i <= i1; g_trace.i++) {
+				if (CM_TestTerrainCollideSquare()) {
 					break;
 				}
 			}
@@ -1100,56 +1103,63 @@ void CM_TracePointThroughTerrainCollide( void )
 	}
 	else
 	{
-		dx = g_trace.vEnd[ 0 ] - g_trace.vStart[ 0 ];
-		dy = g_trace.vEnd[ 1 ] - g_trace.vStart[ 1 ];
+		dx = g_trace.vEnd[0] - g_trace.vStart[0];
+		dy = g_trace.vEnd[1] - g_trace.vStart[1];
 
-		if( dx > 0 )
+		// Fix
+		//==
+		// The original compares if delta float is zero
+		// not only it's slower, but it can be problematic if those floats are NaN
+		//==
+		if (i1 > i0)
 		{
+			// dx positive
 			d1 = 1;
 			di = i1 - i0;
-			dx2 = ( i0 + 1 - fx ) * dy;
+			dx2 = (i0 + 1 - fx) * dy;
 		}
 		else
 		{
 			d1 = -1;
 			di = i0 - i1;
 			dx = -dx;
-			dx2 = ( fx - i0 ) * dy;
+			dx2 = dfx * dy;
 		}
 
-		if( dy > 0 )
+		if (j1 > j0)
 		{
+			// dy positive
 			d2 = 1;
 			dj = di + j1 - j0 + 1;
-			dy2 = ( j0 + 1 - fy ) * dx;
+			dy2 = (j0 + 1 - fy) * dx;
 		}
 		else
 		{
 			d2 = -1;
 			dy = -dy;
 			dj = di + j0 - j1 + 1;
-			dy2 = ( fy - j0 ) * dx;
+			dy2 = dfy * dx;
 			dx2 = -dx2;
 		}
 
 		g_trace.i = i0;
 		g_trace.j = j0;
 
-		while( 1 )
+		while (1)
 		{
-			if( g_trace.i >= 0 && g_trace.i <= 7 && g_trace.j >= 0 && g_trace.j <= 7 )
+			if (g_trace.i >= 0 && g_trace.i <= 7 && g_trace.j >= 0 && g_trace.j <= 7)
 			{
-				if( CM_TestTerrainCollideSquare() ) {
+				if (CM_TestTerrainCollideSquare()) {
 					return;
 				}
 			}
 
 			dj--;
-			if( !dj ) {
+			if (!dj) {
 				break;
 			}
 
-			if( dx2 < dy2 )
+			if (dx2 < dy2)
 			{
 				dy2 -= dx2;
 				dx2 = dy;
