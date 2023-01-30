@@ -152,7 +152,7 @@ TIKI_RegisterTikiFlags
 dtiki_t *TIKI_RegisterTikiFlags( const char *path, qboolean use )
 {
 	dtiki_t *tiki = NULL;
-	dtikianim_t *tikianim = NULL;
+	dtikianim_t* tikianim = NULL;
 	con_map< str, str > keyValues;
 	const char *next_path;
 	str key;
@@ -163,62 +163,57 @@ dtiki_t *TIKI_RegisterTikiFlags( const char *path, qboolean use )
 
 	full_filename[ 0 ] = 0;
 
-	next_path = path;
-	while( 1 )
+	name = path;
+	for(next_path = strstr(name, "|"); next_path; next_path = strstr(name, "|"))
 	{
-		next_path = strstr( next_path, "|" );
+		key = name;
+		key[next_path - name] = 0;
+
+		name = next_path + 1;
+		next_path = strstr(name, "|" );
 		if( !next_path ) {
 			break;
 		}
 
-		key = path;
-		key[ ( int )( next_path - path ) ] = 0;
-		path = next_path + 1;
-
-		next_path = strstr( next_path, "|" );
-		if( !next_path ) {
-			break;
-		}
-
-		value = path;
-		value[ ( int )( next_path - path ) ] = 0;
-		path = next_path + 1;
+		value = name;
+		value[next_path - name] = 0;
+		name = next_path + 1;
 
 		// add it to the entry
-		keyValues[ key ] = value;
+		keyValues[key] = value;
 
-		strcat( full_filename, key.c_str() );
-		strcat( full_filename, "|" );
-		strcat( full_filename, value.c_str() );
-		strcat( full_filename, "|" );
+		strcat(full_filename, key.c_str());
+		strcat(full_filename, "|");
+		strcat(full_filename, value.c_str());
+		strcat(full_filename, "|");
 	}
 
-	strcpy( filename, path );
-	FS_CanonicalFilename( filename );
-	strcat( full_filename, filename );
+	strcpy(filename, name);
+	FS_CanonicalFilename(filename);
+	strcat(full_filename, filename);
 
-	if( !tikicache )
+	if (!tikicache)
 	{
-		tikicache = new con_map < pchar, dtiki_t * > ;
+		tikicache = new con_map<pchar, dtiki_t*>;
 	}
 	else
 	{
 		dtiki_t **t;
 
-		t = tikicache->find( filename );
-		if( t ) {
+		t = tikicache->find(full_filename);
+		if (t) {
 			return *t;
 		}
 	}
 
-	tikianim = TIKI_RegisterTikiAnimFlags( filename, use );
-	if( tikianim )
+	tikianim = TIKI_RegisterTikiAnimFlags(filename, use);
+	if (tikianim)
 	{
-		tiki = TIKI_LoadTikiModel( tikianim, full_filename, &keyValues );
-		if( tiki )
+		tiki = TIKI_LoadTikiModel(tikianim, full_filename, &keyValues);
+		if (tiki)
 		{
-			name = tiki->name;
-			( *tikicache )[ name ] = tiki;
+			// cache the tiki
+			(*tikicache)[tiki->name] = tiki;
 		}
 	}
 
