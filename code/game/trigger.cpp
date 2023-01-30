@@ -1939,25 +1939,25 @@ Event EV_TriggerChangeLevel_SpawnSpot
 	);
 
 CLASS_DECLARATION( Trigger, TriggerChangeLevel, "trigger_changelevel" )
-	{
-		{ &EV_Trigger_Effect,				&TriggerChangeLevel::ChangeLevel },
-      { &EV_TriggerChangeLevel_Map,			&TriggerChangeLevel::SetMap },
-      { &EV_TriggerChangeLevel_SpawnSpot,	&TriggerChangeLevel::SetSpawnSpot },
-      { &EV_Trigger_SetThread,				&TriggerChangeLevel::SetThread },
-		{ NULL, NULL }
-	};
+{
+	{ &EV_Trigger_Effect,					&TriggerChangeLevel::ChangeLevel },
+	{ &EV_TriggerChangeLevel_Map,			&TriggerChangeLevel::SetMap },
+	{ &EV_TriggerChangeLevel_SpawnSpot,		&TriggerChangeLevel::SetSpawnSpot },
+	{ NULL, NULL }
+};
 
 TriggerChangeLevel::TriggerChangeLevel()
+{
+	if (LoadingSavegame)
 	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
-   // default level change thread
-   label.Set( "LevelComplete" );
-	respondto = spawnflags ^ TRIGGER_PLAYERS;
+		// Archive function will setup all necessary data
+		return;
 	}
+
+	// default level change thread
+	map = STRING_EMPTY;
+	spawnspot = STRING_EMPTY;
+}
 
 void TriggerChangeLevel::SetMap
 	(
@@ -1965,7 +1965,7 @@ void TriggerChangeLevel::SetMap
 	)
 
 	{
-   map = ev->GetString( 1 );
+   map = ev->GetConstString( 1 );
    }
 
 void TriggerChangeLevel::SetSpawnSpot
@@ -1973,79 +1973,92 @@ void TriggerChangeLevel::SetSpawnSpot
 	Event *ev
 	)
 
-	{
-	spawnspot = ev->GetString( 1 );
-   }
-
-void TriggerChangeLevel::SetThread
-	(
-	Event *ev
-	)
-
-	{
-   // We have to handle calling the thread ourselves, so clear out Trigger's thread variable
-	label.Set( "" );
-	change_label.SetThread( ev->GetValue( 1 ) );
-   }
+{
+	spawnspot = ev->GetConstString(1);
+}
 
 void TriggerChangeLevel::ChangeLevel
 	(
 	Event *ev
 	)
 
+{
+	SafePtr<Entity> safeThis = this;
+	Entity* other;
+
+	other = ev->GetEntity(1);
+
+	if (level.intermissiontime)
 	{
-	Entity *other;
-
-	other = ev->GetEntity( 1 );
-
-	if ( level.intermissiontime )
-		{
 		// already activated
 		return;
-		}
+	}
 
 	// if noexit, do a ton of damage to other
-   if ( DM_FLAG( DF_SAME_LEVEL ) && other != world )
-		{
-      other->Damage( this, other, 10 * other->max_health, other->origin, vec_zero, vec_zero, 1000, 0, MOD_CRUSH );
+	if (DM_FLAG(DF_SAME_LEVEL) && other != world)
+	{
+		other->Damage(this, other, 10 * other->max_health, other->origin, vec_zero, vec_zero, 1000, 0, MOD_CRUSH);
 		return;
-		}
-
-   //
-   // make sure we execute the thread before changing
-   //
-   if ( change_label.IsSet() )
-      {
-	   change_label.Execute();
-      }
-
-   if ( spawnspot.length() )
-      {
-	   G_BeginIntermission( ( map + "$" + spawnspot ).c_str(), TRANS_BSP );
-      }
-   else
-      {
-	   G_BeginIntermission( map.c_str(), TRANS_BSP );
-      }
 	}
 
-const char *TriggerChangeLevel::Map
-	(
-	void
-	)
+	parm.other.Clear();
+	parm.owner.Clear();
 
+	Unregister(STRING_TRIGGER);
+
+	// Scripts could potentially remove the trigger
+	// So make sure it's safe to continue here
+	if (!safeThis) {
+		return;
+	}
+
+	//
+	// make sure we execute the thread before changing
+	//
+	label.Execute();
+
+	if (g_gametype->integer)
 	{
-	return map.c_str();
+		G_BeginIntermission2();
+		return;
 	}
 
-const char *TriggerChangeLevel::SpawnSpot
-	(
-	void
-	)
-
+	if (spawnflags & VISIBLE)
 	{
-	return spawnspot.c_str();
+		level.intermissiontime = level.time;
+		G_FadeOut(1.0);
+		G_FadeSound(1.0);
+		// Set the next map
+		level.nextmap = Director.GetString(map);
 	}
+
+	if (spawnspot != STRING_EMPTY)
+	{
+		G_BeginIntermission(Director.GetString(map) + "$" + Director.GetString(spawnspot), TRANS_BSP);
+	}
+	else
+	{
+		G_BeginIntermission(Director.GetString(map));
+	}
+}
+
+const char *TriggerChangeLevel::Map(void)
+{
+	return Director.GetString(map).c_str();
+}
+
+const char *TriggerChangeLevel::SpawnSpot(void)
+{
+	return Director.GetString(spawnspot).c_str();
+}
+
+void TriggerChangeLevel::Archive(Archiver& arc)
+{
+	Trigger::Archive(arc);
+
+	Director.ArchiveString(arc, map);
+	Director.ArchiveString(arc, spawnspot);
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_use (1 0 0) ? VISIBLE x NOT_PLAYERS MONSTERS

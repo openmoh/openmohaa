@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "glb_local.h"
 #include "animate.h"
-#include <gamescript.h>
+#include "gamescript.h"
 
 class ScriptMaster;
 
@@ -430,35 +430,22 @@ inline void RandomSpeaker::Archive
    }
 
 class TriggerChangeLevel : public Trigger
-	{
-	protected:
-		str			map;
-		str			spawnspot;
-      ScriptThreadLabel         change_label;
+{
+protected:
+	const_str map;
+	const_str spawnspot;
 
-	public:
-      CLASS_PROTOTYPE( TriggerChangeLevel );
+public:
+	CLASS_PROTOTYPE(TriggerChangeLevel);
 
-						TriggerChangeLevel();
-      void        SetMap( Event *ev );
-      void        SetSpawnSpot( Event *ev );
-      void        SetThread( Event *ev );
-		void			ChangeLevel( Event *ev );
-		const char	*Map( void );
-		const char	*SpawnSpot( void );
-      virtual void Archive(	Archiver &arc );
-	};
-
-inline void TriggerChangeLevel::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Trigger::Archive( arc );
-
-   arc.ArchiveString( &map );
-   arc.ArchiveString( &spawnspot );
-   }
+	TriggerChangeLevel();
+	void        SetMap(Event* ev);
+	void        SetSpawnSpot(Event* ev);
+	void		ChangeLevel(Event* ev);
+	const char* Map(void);
+	const char* SpawnSpot(void);
+	virtual void Archive(Archiver& arc);
+};
 
 class TriggerExit : public Trigger
 	{
