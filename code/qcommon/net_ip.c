@@ -27,12 +27,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <winsock.h>
 
 typedef int socklen_t;
-#ifndef EAGAIN
-#define EAGAIN				WSAEWOULDBLOCK
-#define EADDRNOTAVAIL	WSAEADDRNOTAVAIL
-#define EAFNOSUPPORT	WSAEAFNOSUPPORT
-#define ECONNRESET		WSAECONNRESET
-#endif
+
+static const unsigned int PACKET_ERROR_AGAIN = WSAEWOULDBLOCK;
+static const unsigned int PACKET_ERROR_ADDRNOTAVAIL = WSAEADDRNOTAVAIL;
+static const unsigned int PACKET_ERROR_AFNOSUPPORT = WSAEWOULDBLOCK;
+static const unsigned int PACKET_ERROR_CONNRESET = WSAECONNRESET;
+
 #define socketError		WSAGetLastError( )
 
 static WSADATA	winsockdata;
@@ -590,7 +590,7 @@ qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
 	{
 		err = socketError;
 
-		if( err == EAGAIN || err == ECONNRESET ) {
+		if( err == PACKET_ERROR_AGAIN || err == PACKET_ERROR_CONNRESET) {
 			return qfalse;
 		}
 		Com_Printf( "NET_GetPacket: %s\n", NET_ErrorString() );
@@ -666,12 +666,12 @@ void Sys_SendPacket( size_t length, const void *data, netadr_t to ) {
 		int err = socketError;
 
 		// wouldblock is silent
-		if( err == EAGAIN ) {
+		if( err == PACKET_ERROR_AGAIN ) {
 			return;
 		}
 
 		// some PPP links do not allow broadcasts and return an error
-		if( ( err == EADDRNOTAVAIL ) && ( ( to.type == NA_BROADCAST ) ) ) {
+		if( ( err == PACKET_ERROR_AGAIN ) && ( ( to.type == NA_BROADCAST ) ) ) {
 			return;
 		}
 
@@ -787,7 +787,7 @@ int NET_IPSocket( char *net_interface, int port ) {
 
 	if( ( newsocket = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET ) {
 		err = socketError;
-		if( err != EAFNOSUPPORT ) {
+		if( err != PACKET_ERROR_AFNOSUPPORT) {
 			Com_Printf( "WARNING: UDP_OpenSocket: socket: %s\n", NET_ErrorString() );
 		}
 		return 0;
