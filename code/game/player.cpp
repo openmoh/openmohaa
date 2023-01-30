@@ -7086,8 +7086,6 @@ void Player::ClientThink
 	client->cmd_angles[ 1 ] = SHORT2ANGLE( current_ucmd->angles[ 1 ] );
 	client->cmd_angles[ 2 ] = SHORT2ANGLE( current_ucmd->angles[ 2 ] );
 
-	ClientInactivityTimer();
-
 	if( g_gametype->integer && g_smoothClients->integer && !IsSubclassOfBot() )
 	{
 		VectorCopy( client->ps.velocity, edict->s.pos.trDelta );
@@ -7098,6 +7096,8 @@ void Player::ClientThink
 		VectorClear( edict->s.pos.trDelta );
 		edict->s.pos.trTime = 0;
 	}
+
+	ClientInactivityTimer();
 }
 
 void Player::UpdateEnemies
