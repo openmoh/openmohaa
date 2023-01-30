@@ -116,20 +116,20 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
 
 void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to
-						   , qboolean force );
+						   , qboolean force, float frameTime);
 
 void MSG_ReadSounds (msg_t *msg, server_sound_t *sounds, int *snapshot_number_of_sounds);
 void MSG_WriteSounds (msg_t *msg, server_sound_t *sounds, int snapshot_number_of_sounds);
 
 void MSG_ReadDeltaEyeInfo(msg_t *msg, usereyes_t *from, usereyes_t *to);
 
-void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, 
-						 int number );
+void MSG_ReadDeltaEntity(msg_t* msg, entityState_t* from, entityState_t* to,
+	int number, float frameTime);
 
 void MSG_WriteDeltaEyeInfo (msg_t  *msg, usereyes_t *from, usereyes_t *to);
 
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
-void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
+void MSG_WriteDeltaPlayerstate(msg_t* msg, struct playerState_s* from, struct playerState_s* to, float frameTime);
+void MSG_ReadDeltaPlayerstate(msg_t* msg, struct playerState_s* from, struct playerState_s* to, float frameTime);
 
 void MSG_ReportChangeVectors_f( void );
 
@@ -145,6 +145,16 @@ int MSG_PackAlpha(float alpha, int bits);
 int MSG_PackCoord(float coord);
 int MSG_PackCoordExtra(float coord);
 qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits);
+
+void MSG_WritePackedAngle(msg_t* msg, float value, int bits);
+void MSG_WritePackedAnimTime(msg_t* msg, float fromValue, float toValue, float frameTime, int bits);
+void MSG_WritePackedAnimWeight(msg_t* msg, float value, int bits);
+void MSG_WritePackedScale(msg_t* msg, float value, int bits);
+void MSG_WritePackedAlpha(msg_t* msg, float value, int bits);
+void MSG_WritePackedCoord(msg_t* msg, float fromValue, float toValue, int bits);
+void MSG_WritePackedCoordExtra(msg_t* msg, float fromValue, float toValue, int bits);
+void MSG_WritePackedVelocity(msg_t* msg, float value, int bits);
+void MSG_WritePackedSimple(msg_t* msg, int value, int bits);
 
 float MSG_UnpackAngle(int value, int bits);
 float MSG_UnpackAnimTime(int packed);
