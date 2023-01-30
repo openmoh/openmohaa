@@ -26,7 +26,66 @@ huffman_t msgHuff;
 
 qboolean msgInit = qfalse;
 
-int pcount[256];
+int oldsize = 0;
+
+//===================
+// TA stuff
+//===================
+
+static constexpr unsigned int MAX_PACKED_COORD = 65536;
+static constexpr unsigned int MAX_PACKED_COORD_HALF = MAX_PACKED_COORD / 2;
+static constexpr unsigned int MAX_PACKED_COORD_EXTRA = 262144;
+static constexpr unsigned int MAX_PACKED_COORD_EXTRA_HALF = MAX_PACKED_COORD_EXTRA / 2;
+
+//===
+// Statistics for changes reporting
+//===
+int strstats[256];
+int huffstats[256];
+int weightstats[256];
+int scalestats[1024];
+int coordextrastats[MAX_PACKED_COORD_EXTRA];
+int iPlayerFieldChanges[256];
+int timestats[32768];
+int coordstats[MAX_PACKED_COORD];
+int iEntityFieldChanges[256];
+int alphastats[257];
+
+// Scrambled string conversion (write)
+const uint8_t StrCharToNetByte[256] =
+{
+	254, 120, 89, 13, 27, 73, 103, 78, 74, 102, 21, 117, 76, 86, 238, 96, 88, 62, 59, 60,
+	40, 84, 52, 119, 251, 51, 75, 121, 192, 85, 44, 54, 114, 87, 25, 53, 35, 224, 67, 31,
+	82, 41, 45, 99, 233, 112, 255, 11, 46, 115, 8, 32, 19, 100, 110, 95, 116, 48, 58, 107,
+	70, 91, 104, 81, 118, 109, 36, 24, 17, 39, 43, 65, 49, 83, 56, 57, 33, 64, 80, 28,
+	184, 160, 18, 105, 42, 20, 194, 38, 29, 26, 61, 50, 9, 90, 37, 128, 79, 2, 108, 34,
+	4, 0, 47, 12, 101, 10, 92, 15, 5, 7, 22, 55, 23, 14, 3, 1, 66, 16, 63, 30,
+	6, 97, 111, 248, 72, 197, 191, 122, 176, 245, 250, 68, 195, 77, 232, 106, 228, 93, 240, 98,
+	208, 69, 164, 144, 186, 222, 94, 246, 148, 170, 244, 190, 205, 234, 252, 202, 230, 239, 174, 225,
+	226, 209, 236, 216, 237, 151, 149, 231, 129, 188, 200, 172, 204, 154, 168, 71, 133, 217, 196, 223,
+	134, 253, 173, 177, 219, 235, 214, 182, 132, 227, 183, 175, 137, 152, 158, 221, 243, 150, 210, 136,
+	167, 211, 179, 193, 218, 124, 140, 178, 213, 249, 185, 113, 127, 220, 180, 145, 138, 198, 123, 162,
+	189, 203, 166, 126, 159, 156, 212, 207, 146, 181, 247, 139, 142, 169, 242, 241, 171, 187, 153, 135,
+	201, 155, 161, 125, 163, 130, 229, 206, 165, 157, 141, 147, 143, 199, 215, 131
+};
+
+// Scrambled string conversion (read)
+const uint8_t NetByteToStrChar[256] =
+{
+	101, 115, 97, 114, 100, 108, 120, 109, 50, 92, 105, 47, 103, 3, 113, 107, 117, 68, 82, 52,
+	85, 10, 110, 112, 67, 34, 89, 4, 79, 88, 119, 39, 51, 76, 99, 36, 66, 94, 87, 69,
+	20, 41, 84, 70, 30, 42, 48, 102, 57, 72, 91, 25, 22, 35, 31, 111, 74, 75, 58, 18,
+	19, 90, 17, 118, 77, 71, 116, 38, 131, 141, 60, 175, 124, 5, 8, 26, 12, 133, 7, 96,
+	78, 63, 40, 73, 21, 29, 13, 33, 16, 2, 93, 61, 106, 137, 146, 55, 15, 121, 139, 43,
+	53, 104, 9, 6, 62, 83, 135, 59, 98, 65, 54, 122, 45, 211, 32, 49, 56, 11, 64, 23,
+	1, 27, 127, 218, 205, 243, 223, 212, 95, 168, 245, 255, 188, 176, 180, 239, 199, 192, 216, 231,
+	206, 250, 232, 252, 143, 215, 228, 251, 148, 166, 197, 165, 193, 238, 173, 241, 225, 249, 194, 224,
+	81, 242, 219, 244, 142, 248, 222, 200, 174, 233, 149, 236, 171, 182, 158, 191, 128, 183, 207, 202,
+	214, 229, 187, 190, 80, 210, 144, 237, 169, 220, 151, 126, 28, 203, 86, 132, 178, 125, 217, 253,
+	170, 240, 155, 221, 172, 152, 247, 227, 140, 161, 198, 201, 226, 208, 186, 254, 163, 177, 204, 184,
+	213, 195, 145, 179, 37, 159, 160, 189, 136, 246, 156, 167, 134, 44, 153, 185, 162, 164, 14, 157,
+	138, 235, 234, 196, 150, 129, 147, 230, 123, 209, 130, 24, 154, 181, 0, 46
+};
 
 /*
 ==============================================================================
@@ -36,8 +95,6 @@ int pcount[256];
 Handles byte ordering and avoids alignment errors
 ==============================================================================
 */
-
-int oldsize = 0;
 
 void MSG_initHuffman( void );
 
@@ -65,7 +122,6 @@ void MSG_Clear( msg_t *buf ) {
 	buf->overflowed = qfalse;
 	buf->bit = 0;					//<- in bits
 }
-
 
 void MSG_Bitstream( msg_t *buf ) {
 	buf->oob = qfalse;
@@ -106,7 +162,6 @@ int	overflows;
 // negative bit values include signs
 void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 	int	i;
-//	FILE*	fp;
 
 	oldsize += bits;
 
@@ -138,6 +193,15 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 	}
 	if ( bits < 0 ) {
 		bits = -bits;
+
+#if TARGET_GAME_PROTOCOL >= 15
+		if (value >= 0) {
+			value <<= 1;
+		}
+		else {
+			value = (~value << 1) | 1;
+		}
+#endif
 	}
 	if (msg->oob) {
 		if (bits==8) {
@@ -158,7 +222,6 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 			Com_Error(ERR_DROP, "can't read %d bits\n", bits);
 		}
 	} else {
-//		fp = fopen("c:\\netchan.bin", "a");
 		value &= (0xffffffff>>(32-bits));
 		if (bits&7) {
 			int nbits;
@@ -171,13 +234,11 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 		}
 		if (bits) {
 			for(i=0;i<bits;i+=8) {
-//				fwrite(bp, 1, 1, fp);
 				Huff_offsetTransmit (&msgHuff.compressor, (value&0xff), msg->data, &msg->bit);
 				value = (value>>8);
 			}
 		}
 		msg->cursize = (msg->bit>>3)+1;
-//		fclose(fp);
 	}
 }
 
@@ -186,7 +247,6 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 	int			get;
 	qboolean	sgn;
 	int			i, nbits;
-//	FILE*	fp;
 
 	value = 0;
 
@@ -225,19 +285,16 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 			bits = bits - nbits;
 		}
 		if (bits) {
-//			fp = fopen("c:\\netchan.bin", "a");
 			for(i=0;i<bits;i+=8) {
 				Huff_offsetReceive (msgHuff.decompressor.tree, &get, msg->data, &msg->bit);
-//				fwrite(&get, 1, 1, fp);
 				value |= (get<<(i+nbits));
 			}
-//			fclose(fp);
 		}
 		msg->readcount = (msg->bit>>3)+1;
 	}
-	if ( sgn ) {
-		if ( value & ( 1 << ( bits - 1 ) ) ) {
-			value |= -1 ^ ( ( 1 << bits ) - 1 );
+	if (sgn) {
+		if (value & (1 << (bits - 1))) {
+			value |= -1 ^ ((1 << bits) - 1);
 		}
 	}
 
@@ -305,8 +362,8 @@ void MSG_WriteFloat( msg_t *sb, float f ) {
 }
 
 void MSG_WriteString( msg_t *sb, const char *s ) {
-	if ( !s ) {
-		MSG_WriteData (sb, "", 1);
+	if (!s) {
+		MSG_WriteByte(sb, 0);
 	} else {
 		size_t	l;
 		int		i;
@@ -320,20 +377,42 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 		}
 		Q_strncpyz( string, s, sizeof( string ) );
 
-		// get rid of 0xff chars, because old clients don't like them
 		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 ) {
-				string[i] = '.';
-			}
+			MSG_WriteByte(sb, string[i]);
 		}
+	}
+}
 
-		MSG_WriteData (sb, string, l+1);
+void MSG_WriteScrambledString(msg_t* sb, const char* s) {
+	if (!s) {
+		strstats[0]++;
+		MSG_WriteByte(sb, StrCharToNetByte[0]);
+	}
+	else {
+		size_t	l;
+		int		i;
+		char	string[MAX_STRING_CHARS];
+
+		l = strlen(s);
+		if (l >= MAX_STRING_CHARS) {
+			strstats[0]++;
+			Com_Printf("MSG_WriteString: MAX_STRING_CHARS");
+			MSG_WriteByte(sb, StrCharToNetByte[0]);
+			return;
+		}
+		Q_strncpyz(string, s, sizeof(string));
+
+		for (i = 0; i < l; i++) {
+			char c = string[i];
+			strstats[c++];
+			MSG_WriteByte(sb, StrCharToNetByte[c]);
+		}
 	}
 }
 
 void MSG_WriteBigString( msg_t *sb, const char *s ) {
 	if ( !s ) {
-		MSG_WriteData (sb, "", 1);
+		MSG_WriteByte(sb, 0);
 	} else {
 		size_t	l;
 		int		i;
@@ -349,12 +428,37 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 
 		// get rid of 0xff chars, because old clients don't like them
 		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 ) {
-				string[i] = '.';
-			}
+			MSG_WriteByte(sb, string[i]);
 		}
 
 		MSG_WriteData (sb, string, l+1);
+	}
+}
+
+void MSG_WriteScrambledBigString(msg_t* sb, const char* s) {
+	if (!s) {
+		strstats[0]++;
+		MSG_WriteByte(sb, StrCharToNetByte[0]);
+	}
+	else {
+		size_t	l;
+		int		i;
+		char	string[BIG_INFO_STRING];
+
+		l = strlen(s);
+		if (l >= BIG_INFO_STRING) {
+			strstats[0]++;
+			Com_Printf("MSG_WriteString: BIG_INFO_STRING");
+			MSG_WriteByte(sb, StrCharToNetByte[0]);
+			return;
+		}
+		Q_strncpyz(string, s, sizeof(string));
+
+		for (i = 0; i < l; i++) {
+			char c = string[i];
+			strstats[c++];
+			MSG_WriteByte(sb, StrCharToNetByte[c]);
+		}
 	}
 }
 
@@ -461,6 +565,37 @@ float MSG_ReadFloat( msg_t *msg ) {
 	}	
 	
 	return dat.f;	
+}
+
+char* MSG_ReadScrambledString(msg_t* msg) {
+	static char	string[MAX_STRING_CHARS];
+	int		l, c;
+
+	l = 0;
+	do {
+		c = MSG_ReadByte(msg);		// use ReadByte so -1 is out of bounds
+		if (c == -1) {
+			break;
+		}
+
+		c = NetByteToStrChar[c];
+		// translate all fmt spec to avoid crash bugs
+		if (c == '%') {
+			c = '.';
+		}
+		// don't allow higher ascii values
+		// (su44: this check is missing in MoHAA)
+		if (c > 127) {
+			c = '.';
+		}
+
+		string[l] = c;
+		l++;
+	} while (l < sizeof(string) - 1);
+
+	string[l] = 0;
+
+	return string;
 }
 
 char *MSG_ReadString( msg_t *msg ) {
@@ -715,6 +850,7 @@ void MSG_WriteDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 		MSG_WriteBits( msg, 0, 1 );
 		MSG_WriteBits( msg, to->serverTime, 32 );
 	}
+
 	MSG_WriteDelta( msg, from->angles[0], to->angles[0], 16 );
 	MSG_WriteDelta( msg, from->angles[1], to->angles[1], 16 );
 	MSG_WriteDelta( msg, from->angles[2], to->angles[2], 16 );
@@ -722,7 +858,6 @@ void MSG_WriteDeltaUsercmd( msg_t *msg, usercmd_t *from, usercmd_t *to ) {
 	MSG_WriteDelta( msg, from->rightmove, to->rightmove, 8 );
 	MSG_WriteDelta( msg, from->upmove, to->upmove, 8 );
 	MSG_WriteDelta( msg, from->buttons, to->buttons, 16 );
-//	MSG_WriteDelta( msg, from->weapon, to->weapon, 8 );
 }
 
 
@@ -766,12 +901,14 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 		from->forwardmove == to->forwardmove &&
 		from->rightmove == to->rightmove &&
 		from->upmove == to->upmove &&
-		from->buttons == to->buttons /*&&
-		from->weapon == to->weapon*/) {
-			MSG_WriteBits( msg, 0, 1 );				// no change
-			oldsize += 7;
-			return;
+		from->buttons == to->buttons)
+	{
+		// no change
+		MSG_WriteBits(msg, 0, 1);
+		oldsize += 7;
+		return;
 	}
+
 	key ^= to->serverTime;
 	MSG_WriteBits( msg, 1, 1 );
 	MSG_WriteDeltaKey( msg, key, from->angles[0], to->angles[0], 16 );
@@ -818,6 +955,144 @@ void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *t
 	}
 }
 
+void MSG_WriteDeltaEyeInfo(msg_t* msg, usereyes_t* from, usereyes_t* to) {
+
+	if (to->angles[0] != from->angles[0] || to->angles[1] != from->angles[1] || to->ofs[0] != from->ofs[0] || to->ofs[1] != from->ofs[1] || to->ofs[2] != from->ofs[2]) {
+		MSG_WriteBits(msg, 1, 1);
+		MSG_WriteDelta(msg, from->ofs[0], to->ofs[0], 8);
+		MSG_WriteDelta(msg, from->ofs[1], to->ofs[1], 8);
+		MSG_WriteDelta(msg, from->ofs[2], to->ofs[2], 8);
+
+		MSG_WriteDeltaFloat(msg, from->angles[0], to->angles[0]);
+		MSG_WriteDeltaFloat(msg, from->angles[1], to->angles[1]);
+	}
+	else {
+		MSG_WriteBits(msg, 0, 1);
+		oldsize += 7;
+	}
+}
+
+void MSG_ReadDeltaEyeInfo(msg_t* msg, usereyes_t* from, usereyes_t* to) {
+
+	if (MSG_ReadBits(msg, 1)) {
+		to->ofs[0] = MSG_ReadDelta(msg, from->ofs[0], 8);
+		to->ofs[1] = MSG_ReadDelta(msg, from->ofs[1], 8);
+		to->ofs[2] = MSG_ReadDelta(msg, from->ofs[2], 8);
+
+		to->angles[0] = MSG_ReadDeltaFloat(msg, from->angles[0]);
+		to->angles[1] = MSG_ReadDeltaFloat(msg, from->angles[1]);
+	}
+	else {
+		to->angles[0] = from->angles[0];
+		to->angles[1] = from->angles[1];
+
+		to->ofs[0] = from->ofs[0];
+		to->ofs[1] = from->ofs[1];
+		to->ofs[2] = from->ofs[2];
+	}
+
+}
+
+int compare_huffstats(const int* e1, const int* e2)
+{
+	return huffstats[*e2] - huffstats[*e1];
+}
+
+int compare_strstats(const int* e1, const int* e2)
+{
+	return strstats[*e2] - strstats[*e1];
+}
+
+void MSG_WriteDeltaCoord(msg_t* msg, int from, int to)
+{
+	int delta = to - from;
+	int deltaAbs = abs(deltaAbs);
+
+	if (deltaAbs <= 0 || deltaAbs > 128)
+	{
+		// high delta, direct value
+		MSG_WriteBits(msg, 0, 1);
+		MSG_WriteBits(msg, to, 16);
+	}
+	else
+	{
+		MSG_WriteBits(msg, 1, 1);
+
+		if (delta < 0) {
+			MSG_WriteBits(msg, 1 + ((deltaAbs - 1) << 1), 8);
+		}
+		else {
+			MSG_WriteBits(msg, (deltaAbs - 1) << 1, 8);
+		}
+	}
+}
+
+int MSG_ReadDeltaCoord(msg_t* msg, int from)
+{
+	int value;
+	int delta;
+
+	if (!MSG_ReadBits(msg, 1))
+	{
+		// no delta
+		return MSG_ReadBits(msg, 16);
+	}
+
+	value = MSG_ReadBits(msg, 8);
+	delta = (value >> 1) + 1;
+
+	if ((value & 1) != 0) {
+		delta = -delta;
+	}
+
+	return delta + from;
+}
+
+void MSG_WriteDeltaCoordExtra(msg_t* msg, int from, int to)
+{
+	int delta = to - from;
+	int deltaAbs = abs(deltaAbs);
+
+	if (deltaAbs <= 0 || deltaAbs > 512)
+	{
+		// high delta, direct value
+		MSG_WriteBits(msg, 0, 1);
+		MSG_WriteBits(msg, to, 18);
+	}
+	else
+	{
+		MSG_WriteBits(msg, 1, 1);
+
+		if (delta < 0) {
+			MSG_WriteBits(msg, 1 + ((deltaAbs - 1) << 1), 10);
+		}
+		else {
+			MSG_WriteBits(msg, (deltaAbs - 1) << 1, 10);
+		}
+	}
+}
+
+int MSG_ReadDeltaCoordExtra(msg_t* msg, int from)
+{
+	int value;
+	int delta;
+
+	if (!MSG_ReadBits(msg, 1))
+	{
+		// no delta
+		return MSG_ReadBits(msg, 18);
+	}
+
+	value = MSG_ReadBits(msg, 10);
+	delta = (value >> 1) + 1;
+
+	if ((value & 1) != 0) {
+		delta = -delta;
+	}
+
+	return delta + from;
+}
+
 /*
 =============================================================================
 
@@ -836,8 +1111,8 @@ Prints out a table from the current statistics for copying to code
 void MSG_ReportChangeVectors_f( void ) {
 	int i;
 	for(i=0;i<256;i++) {
-		if (pcount[i]) {
-			Com_Printf("%d used %d\n", i, pcount[i]);
+		if (iEntityFieldChanges[i]) {
+			Com_Printf("%d used %d\n", i, iEntityFieldChanges[i]);
 		}
 	}
 }
@@ -1005,55 +1280,189 @@ netField_t	entityStateFields[] =
 { NETF(surfaces[29]), 8, 0 },
 { NETF(surfaces[30]), 8, 0 },
 { NETF(surfaces[31]), 8, 0 }
-
-/*
-{ NETF(event), 10 },
-{ NETF(angles2[1]), 0 },
-
-{ NETF(torsoAnim), 8 },
-{ NETF(eventParm), 8 },
-{ NETF(legsAnim), 8 },
-
-{ NETF(pos.trType), 8 },
-
-{ NETF(otherEntityNum), GENTITYNUM_BITS },
-{ NETF(weapon), 8 },
-
-{ NETF(angles[1]), 0 },
-{ NETF(pos.trDuration), 32 },
-{ NETF(apos.trType), 8 },
-{ NETF(origin[0]), 0 },
-{ NETF(origin[1]), 0 },
-{ NETF(origin[2]), 0 },
-
-{ NETF(powerups), MAX_POWERUPS },
-
-{ NETF(otherEntityNum2), GENTITYNUM_BITS },
-
-{ NETF(generic1), 8 },
-
-{ NETF(modelindex2), 8 },
-{ NETF(angles[0]), 0 },
-{ NETF(time), 32 },
-{ NETF(apos.trTime), 32 },
-{ NETF(apos.trDuration), 32 },
-{ NETF(apos.trBase[2]), 0 },
-{ NETF(apos.trDelta[0]), 0 },
-{ NETF(apos.trDelta[1]), 0 },
-{ NETF(apos.trDelta[2]), 0 },
-{ NETF(time2), 32 },
-{ NETF(angles[2]), 0 },
-{ NETF(angles2[0]), 0 },
-{ NETF(angles2[2]), 0 },
-
-{ NETF(frame), 16 }*/
 };
-
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
 // the float will be sent with FLOAT_INT_BITS, otherwise all 32 bits will be sent
 #define	FLOAT_INT_BITS	13
 #define	FLOAT_INT_BIAS	(1<<(FLOAT_INT_BITS-1))
+
+#if TARGET_GAME_PROTOCOL >= 15
+
+void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
+{
+	if (bits == 0)
+	{
+		// float
+		if (!MSG_ReadBits(sb, 1)) {
+			// float
+			*(float*)toF = 0.0f;
+		}
+		else
+		{
+			if (!MSG_ReadBits(sb, 1))
+			{
+				// integral float
+				int32_t truncFloat = MSG_ReadBits(sb, -FLOAT_INT_BITS);
+				// bias to allow equal parts positive and negative
+				truncFloat -= FLOAT_INT_BIAS;
+				*(float*)toF = (float)truncFloat;
+			}
+			else
+			{
+				// full floating point value
+				*(float*)toF = MSG_ReadFloat(sb);
+			}
+		}
+	}
+	else
+	{
+		if (MSG_ReadBits(msg, 1)) {
+			*(int*)toF = MSG_ReadBits(msg, bits);
+		}
+		else {
+			*(int*)toF = 0;
+		}
+	}
+}
+
+void MSG_WriteRegular(msg_t* sb, int bits, const void* toF)
+{
+	float fullFloat;
+	int trunc;
+
+	if (bits == 0) {
+		// float
+		fullFloat = *(float*)toF;
+		trunc = (int)fullFloat;
+
+		if (fullFloat == 0.0f) {
+			MSG_WriteBits(sb, 0, 1);
+			oldsize += FLOAT_INT_BITS;
+		}
+		else {
+			MSG_WriteBits(sb, 1, 1);
+			if (trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 &&
+				trunc + FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS)) {
+				// send as small integer
+				MSG_WriteBits(sb, 0, 1);
+				MSG_WriteBits(sb, trunc + FLOAT_INT_BIAS, FLOAT_INT_BITS);
+			}
+			else {
+				// send as full floating point value
+				MSG_WriteBits(sb, 1, 1);
+				MSG_WriteBits(sb, *(int*)toF, 32);
+			}
+		}
+	}
+	else {
+		if (!*(int*)toF) {
+			MSG_WriteBits(sb, 0, 1);
+		}
+		else {
+			MSG_WriteBits(sb, 1, 1);
+			// integer
+			MSG_WriteBits(sb, *(int*)toF, bits);
+		}
+	}
+}
+
+void MSG_WriteEntityNum(msg_t* sb, short number)
+{
+	// protocols version 15 and above adds 1 to the entity number
+	MSG_WriteBits(sb, (number + 1) % MAX_GENTITIES, 10);
+}
+
+short MSG_ReadEntityNum(msg_t* sb)
+{
+	return (MSG_ReadBits(sb, 10) - 1) % MAX_GENTITIES;
+}
+
+#else
+
+void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
+{
+	if (bits == 0)
+	{
+		if (!MSG_ReadBits(sb, 1)) {
+			// float
+			*(float*)toF = 0.0f;
+		}
+		else
+		{
+			if (!MSG_ReadBits(sb, 1)) {
+				*(float*)toF = (float)MSG_ReadBits(sb, FLOAT_INT_BITS);
+			}
+			else
+			{
+				// full floating point value
+				*(float*)toF = MSG_ReadFloat(sb);
+			}
+		}
+	}
+	else
+	{
+		if (MSG_ReadBits(sb, 1)) {
+			*(int*)toF = MSG_ReadBits(sb, bits);
+		}
+		else {
+			*(int*)toF = 0;
+		}
+	}
+}
+
+void MSG_WriteRegular(msg_t* sb, int bits, const void* toF)
+{
+	float fullFloat;
+	int trunc;
+
+	if (bits == 0) {
+		// float
+		fullFloat = *(float*)toF;
+		trunc = (int)fullFloat;
+
+		if (fullFloat == 0.0f) {
+			MSG_WriteBits(sb, 0, 1);
+			oldsize += FLOAT_INT_BITS;
+		}
+		else {
+			MSG_WriteBits(sb, 1, 1);
+			if (trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 &&
+				trunc + FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS)) {
+				// send as small integer
+				MSG_WriteBits(sb, 0, 1);
+				MSG_WriteBits(sb, trunc + FLOAT_INT_BIAS, -FLOAT_INT_BITS);
+			}
+			else {
+				// send as full floating point value
+				MSG_WriteBits(sb, 1, 1);
+				MSG_WriteBits(sb, *(int*)toF, 32);
+			}
+		}
+	}
+	else {
+		if (!*(int*)toF) {
+			MSG_WriteBits(sb, 0, 1);
+		}
+		else {
+			MSG_WriteBits(sb, 1, 1);
+			// integer
+			MSG_WriteBits(sb, *(int*)toF, bits);
+		}
+	}
+}
+
+void MSG_WriteEntityNum(msg_t* sb, short number)
+{
+	MSG_WriteBits(sb, number % MAX_GENTITIES, 10);
+}
+
+short MSG_ReadEntityNum(msg_t* sb)
+{
+	return MSG_ReadBits(sb, 10) % MAX_GENTITIES;
+}
+
+#endif
 
 /*
 ==================
@@ -1075,6 +1484,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	float		fullFloat;
 	int			*fromF, *toF;
 	float tmp;
+	int packed;
 	int bits;
 
 	numFields = sizeof(entityStateFields)/sizeof(entityStateFields[0]);
@@ -1204,8 +1614,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 				else {
 					tmp = tmp * (1<<(byte)bits) / 360.0f;
 					MSG_WriteBits( msg, ((int)tmp) & ((1<<(byte)bits) -1), bits );
-				}
-				break;
+				}				break;
 			case 2: // time
 				tmp = *(float *)toF;
 				bits = tmp * 100.0f;
@@ -1273,157 +1682,212 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	}
 }
 
-/*
-==================
-MSG_ReadSounds
+int MSG_PackAngle(float angle, int bits)
+{
+	int bit;
+	float calc;
 
-read the sounds from the snapshot...
-1:1 translated from assembly code
-==================
-*/
-void MSG_ReadSounds (msg_t *msg, server_sound_t *sounds, int *snapshot_number_of_sounds) {
-
-	int		fubar;
-	int		i;
-
-	if ( MSG_ReadBits(msg, 1) ) {
-		fubar = MSG_ReadBits( msg, 7 );
-
-		if ( fubar <= 64 ) {
-			*snapshot_number_of_sounds = fubar;
-			for (i=0; i<fubar; i++ ) {
-				if ( MSG_ReadBits(msg, 1) == 1 ) {
-					sounds[i].entity_number = MSG_ReadBits(msg, 10 );
-					sounds[i].channel = MSG_ReadBits(msg, 7 );
-					sounds[i].stop_flag = qtrue; // su44 was here
-				} else {
-					sounds[i].stop_flag = qfalse;
-					sounds[i].streamed = (qboolean)MSG_ReadBits( msg, 1 );
-					if ( MSG_ReadBits(msg, 1) == 1 ) {
-						sounds[i].origin[0] = MSG_ReadFloat( msg );
-						sounds[i].origin[1] = MSG_ReadFloat( msg );
-						sounds[i].origin[2] = MSG_ReadFloat( msg );
-					} else {
-						sounds[i].origin[0] = 0;
-						sounds[i].origin[1] = 0;
-						sounds[i].origin[2] = 0;
-					}
-					sounds[i].entity_number = MSG_ReadBits(msg, 11 );
-					sounds[i].channel = MSG_ReadBits(msg, 7 );
-					sounds[i].sound_index = MSG_ReadBits(msg, 9 );
-
-					if ( MSG_ReadBits(msg, 1) == 1 ) {
-						sounds[i].volume = MSG_ReadFloat( msg );
-					} else {
-						sounds[i].volume = -1.0f;
-					}
-
-					if ( MSG_ReadBits(msg, 1) == 1 ) {
-						sounds[i].min_dist = MSG_ReadFloat( msg );
-					} else {
-						sounds[i].min_dist = -1.0f;
-					}
-
-					if ( MSG_ReadBits( msg, 1 ) == 1 ) {
-						sounds[i].pitch = MSG_ReadFloat( msg );
-					} else {
-						sounds[i].pitch = 1.0f; // su44 was here
-					}
-
-					sounds[i].maxDist = MSG_ReadFloat( msg );
-				}
-			}
-
+	bit = 0;
+	if (bits < 0)
+	{
+		bits = ~bits;
+		if (angle < 0.0)
+		{
+			angle = -angle;
+			bit = 1 << bits;
 		}
+	}
+
+	switch (bits)
+	{
+	case 8:
+		calc = angle * 256.f / 360.f;
+		return bit | ((int)calc & 0xFF);
+	case 12:
+		calc = angle * 4096.f / 360.f;
+		return bit | ((int)calc & 0xFFF);
+	case 16:
+		calc = angle * 65536.f / 360.f;
+		return bit | ((int)calc & 0xFFFF);
+	default:
+		calc = (1 << bits) * angle / 360.f;
+		return bit | ((int)calc & ((1 << bits) - 1));
 	}
 }
 
-/*
-==================
-MSG_WriteSounds
+int MSG_PackAnimTime(float time, int bits)
+{
+	int maxValue;
+	int packed;
 
-write the sounds to the snapshot...
-1:1 translated from assembly code
-==================
-*/
-void MSG_WriteSounds (msg_t *msg, server_sound_t *sounds, int snapshot_number_of_sounds) {
+	maxValue = (1 << bits) - 1;
+	packed = time * 100.f;
+	if (packed >= 0)
+	{
+		if (packed > maxValue) {
+			packed = maxValue;
+		}
+	}
+	else
+	{
+		packed = 0;
+	}
 
-	int		i;
+	timestats[packed]++;
 
-	if ( !snapshot_number_of_sounds ) {
-		MSG_WriteBits( msg, 0, 1 );
+	return packed;
+}
+
+int MSG_PackAnimWeight(float weight, int bits)
+{
+	int maxValue;
+	int packed;
+
+	maxValue = (1 << bits) - 1;
+	packed = maxValue * weight;
+	if (packed >= 0)
+	{
+		if (packed > maxValue) {
+			packed = maxValue;
+		}
+	}
+	else
+	{
+		packed = 0;
+	}
+
+	weightstats[packed]++;
+
+	return packed;
+}
+
+int MSG_PackScale(float scale, int bits)
+{
+	int maxValue;
+	int packed;
+
+	maxValue = (1 << bits) - 1;
+	packed = scale * 100.f;
+	if (packed >= 0)
+	{
+		if (packed > maxValue) {
+			packed = maxValue;
+		}
+	}
+	else
+	{
+		packed = 0;
+	}
+
+	scalestats[packed]++;
+
+	return packed;
+}
+
+int MSG_PackAlpha(float alpha, int bits)
+{
+	int maxValue;
+	int packed;
+
+	maxValue = (1 << bits) - 1;
+	packed = maxValue * alpha;
+	if (packed >= 0)
+	{
+		if (packed > maxValue) {
+			packed = maxValue;
+		}
+	}
+	else
+	{
+		packed = 0;
+	}
+
+	alphastats[packed]++;
+
+	return packed;
+}
+
+int MSG_PackCoord(float coord)
+{
+	int packed;
+	float rounded;
+
+	rounded = coord * 4.f + MAX_PACKED_COORD_HALF;
+	packed = (int)rounded;
+	coordstats[packed]++;
+
+	return packed;
+}
+
+int MSG_PackCoordExtra(float coord)
+{
+	unsigned int packed;
+	float rounded;
+
+	rounded = coord * 16.f + MAX_PACKED_COORD_EXTRA_HALF;
+	packed = (int)rounded;
+	if (packed >= MAX_PACKED_COORD_EXTRA) {
+		Com_DPrintf("Illegal XYZ coordinates for an entity, information lost in transmission\n");
 	}
 	else {
-		MSG_WriteBits( msg, 1, 1 );
-		MSG_WriteBits( msg, snapshot_number_of_sounds, 7 );
-
-		for ( i=0; i < snapshot_number_of_sounds; i++ ) {
-			if (!sounds[i].stop_flag) {
-				MSG_WriteBits( msg, 0, 1 );
-				MSG_WriteBits( msg, sounds[i].streamed, 1 );
-
-				if ( sounds[i].origin[0] == 0.0f && sounds[i].origin[1] == 0.0f && sounds[i].origin[2] == 0.0f )
-					MSG_WriteBits( msg, 0, 1 );
-				else {
-					MSG_WriteBits( msg, 1, 1 );
-					MSG_WriteFloat( msg, sounds[i].origin[0] );
-					MSG_WriteFloat( msg, sounds[i].origin[1] );
-					MSG_WriteFloat( msg, sounds[i].origin[2] );
-				}
-				MSG_WriteBits( msg, sounds[i].entity_number, 11 );
-				MSG_WriteBits( msg, sounds[i].channel, 7 );
-				MSG_WriteBits( msg, sounds[i].sound_index, 9 );
-
-				if( sounds[ i ].volume != -1.0f ) {
-					MSG_WriteBits( msg, 1, 1 );
-					MSG_WriteFloat( msg, sounds[i].volume );
-				} else {
-					MSG_WriteBits( msg, 0, 1 );
-				}
-
-				if ( sounds[i].min_dist != -1.0f ){
-					MSG_WriteBits( msg, 1, 1 );
-					MSG_WriteFloat( msg, sounds[i].min_dist );
-				} else {
-					MSG_WriteBits( msg, 0, 1 );
-				}
-
-				if ( sounds[i].pitch != -1.0f ){
-					MSG_WriteBits( msg, 1, 1 );
-					MSG_WriteFloat( msg, sounds[i].pitch );
-				} else {
-					MSG_WriteBits( msg, 0, 1 );
-				}
-
-				MSG_WriteFloat( msg, sounds[i].maxDist );
-			}
-			else {
-				MSG_WriteBits( msg, 1, 1 );
-				MSG_WriteBits( msg, sounds[i].entity_number, 10 );
-				MSG_WriteBits( msg, sounds[i].channel, 7 );
-			}
-		}
+		// This check wasn't added in >= 2.0
+		// which means a player could crash a server when out of bounds
+		++coordextrastats[packed];
 	}
+
+	return packed;
 }
 
-void MSG_ReadDeltaEyeInfo(msg_t *msg, usereyes_t *from, usereyes_t *to) {
+qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits)
+{
+	int packedFrom;
+	int packedTo;
+	int maxValue;
 
-	if ( MSG_ReadBits( msg, 1 ) ) {
-		to->ofs[0] = MSG_ReadDelta( msg, from->ofs[0], 8 );
-		to->ofs[1] = MSG_ReadDelta( msg, from->ofs[1], 8 );
-		to->ofs[2] = MSG_ReadDelta( msg, from->ofs[2], 8 );
-
-		to->angles[0] = MSG_ReadDeltaFloat( msg, from->angles[0] );
-		to->angles[1] = MSG_ReadDeltaFloat( msg, from->angles[1] );
-	} else {
-		to->angles[0] = from->angles[0];
-		to->angles[1] = from->angles[1];
-
-		to->ofs[0] = from->ofs[0];
-		to->ofs[1] = from->ofs[1];
-		to->ofs[2] = from->ofs[2];
+	if (*(int*)fromField == *(int*)toField) {
+		return 0;
 	}
 
+	switch (fieldType)
+	{
+	case 0:
+		if (!bits || bits == 32) {
+			return true;
+		}
+
+		maxValue = (1 << abs(bits)) - 1;
+		return ((*(int*)fromField ^ *(int*)toField) & maxValue) != 0;
+	case 1:
+		packedFrom = MSG_PackAngle(*(float*)fromField, bits);
+		packedTo = MSG_PackAngle(*(float*)toField, bits);
+		return packedFrom != packedTo;
+	case 2:
+		packedFrom = MSG_PackAnimTime(*(float*)fromField, bits);
+		packedTo = MSG_PackAnimTime(*(float*)toField, bits);
+		return packedFrom != packedTo;
+	case 3:
+		packedFrom = MSG_PackAnimWeight(*(float*)fromField, bits);
+		packedTo = MSG_PackAnimWeight(*(float*)toField, bits);
+		return packedFrom != packedTo;
+	case 4:
+		packedFrom = MSG_PackScale(*(float*)fromField, bits);
+		packedTo = MSG_PackScale(*(float*)toField, bits);
+		return packedFrom != packedTo;
+	case 5:
+		packedFrom = MSG_PackAlpha(*(float*)fromField, bits);
+		packedTo = MSG_PackAlpha(*(float*)toField, bits);
+		return packedFrom != packedTo;
+	case 6:
+		packedFrom = MSG_PackCoord(*(float*)fromField);
+		packedTo = MSG_PackCoord(*(float*)toField);
+		return packedFrom != packedTo;
+	case 7:
+		packedFrom = MSG_PackCoordExtra(*(float*)fromField);
+		packedTo = MSG_PackCoordExtra(*(float*)toField);
+		return packedFrom != packedTo;
+	default:
+		return true;
+	}
 }
 
 /*
@@ -1616,7 +2080,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 					break;
 			}
 
-//			pcount[i]++;
+			iEntityFieldChanges[i]++;
 		}
 	}
 	for ( i = lc, field = &entityStateFields[lc] ; i < numFields ; i++, field++ ) {
@@ -1648,6 +2112,205 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 	}
 }
 
+float MSG_UnpackAngle(int value, int bits)
+{
+	int maxValue;
+	float neg;
+	float calc;
+
+	neg = 1.f;
+	if (bits < 0)
+	{
+		bits = -1 - bits;
+		maxValue = 1 << bits;
+		if ((maxValue & value) != 0)
+		{
+			neg = -1.f;
+			value &= ~maxValue;
+		}
+	}
+
+	switch (bits)
+	{
+	case 8:
+		return neg * 360.f / 256.f;
+	case 12:
+		return neg * value * 360.f / 4096.f;
+	case 16:
+		calc = value * 360.f / 65536.f;
+		break;
+	default:
+		calc = 360.f / (1 << bits) * value;
+		break;
+	}
+	return neg * calc;
+}
+
+float MSG_UnpackAnimTime(int packed)
+{
+	return packed / 100.f;
+}
+
+float MSG_UnpackScale(int packed)
+{
+	return packed / 100.f;
+}
+
+float MSG_UnpackAlpha(int packed, int bits)
+{
+	return (float)packed / (float)((1 << bits) - 1);
+}
+
+float MSG_UnpackCoord(int packed, int bits)
+{
+	return (float)(packed - MAX_PACKED_COORD_HALF) / 4.f;
+}
+
+float MSG_UnpackCoordExtra(int packed, int bits)
+{
+	return (float)(packed - MAX_PACKED_COORD_EXTRA_HALF) / 16.f;
+}
+
+/*
+==================
+MSG_ReadSounds
+
+read the sounds from the snapshot...
+1:1 translated from assembly code
+==================
+*/
+void MSG_ReadSounds(msg_t* msg, server_sound_t* sounds, int* snapshot_number_of_sounds) {
+
+	int		fubar;
+	int		i;
+
+	if (MSG_ReadBits(msg, 1)) {
+		fubar = MSG_ReadBits(msg, 7);
+
+		if (fubar <= 64) {
+			*snapshot_number_of_sounds = fubar;
+			for (i = 0; i < fubar; i++) {
+				if (MSG_ReadBits(msg, 1) == 1) {
+					sounds[i].entity_number = MSG_ReadBits(msg, 10);
+					sounds[i].channel = MSG_ReadBits(msg, 7);
+					sounds[i].stop_flag = qtrue; // su44 was here
+				}
+				else {
+					sounds[i].stop_flag = qfalse;
+					sounds[i].streamed = (qboolean)MSG_ReadBits(msg, 1);
+					if (MSG_ReadBits(msg, 1) == 1) {
+						sounds[i].origin[0] = MSG_ReadFloat(msg);
+						sounds[i].origin[1] = MSG_ReadFloat(msg);
+						sounds[i].origin[2] = MSG_ReadFloat(msg);
+					}
+					else {
+						sounds[i].origin[0] = 0;
+						sounds[i].origin[1] = 0;
+						sounds[i].origin[2] = 0;
+					}
+					sounds[i].entity_number = MSG_ReadBits(msg, 11);
+					sounds[i].channel = MSG_ReadBits(msg, 7);
+					sounds[i].sound_index = MSG_ReadBits(msg, 9);
+
+					if (MSG_ReadBits(msg, 1) == 1) {
+						sounds[i].volume = MSG_ReadFloat(msg);
+					}
+					else {
+						sounds[i].volume = -1.0f;
+					}
+
+					if (MSG_ReadBits(msg, 1) == 1) {
+						sounds[i].min_dist = MSG_ReadFloat(msg);
+					}
+					else {
+						sounds[i].min_dist = -1.0f;
+					}
+
+					if (MSG_ReadBits(msg, 1) == 1) {
+						sounds[i].pitch = MSG_ReadFloat(msg);
+					}
+					else {
+						sounds[i].pitch = 1.0f; // su44 was here
+					}
+
+					sounds[i].maxDist = MSG_ReadFloat(msg);
+				}
+			}
+
+		}
+	}
+}
+
+/*
+==================
+MSG_WriteSounds
+
+write the sounds to the snapshot...
+1:1 translated from assembly code
+==================
+*/
+void MSG_WriteSounds(msg_t* msg, server_sound_t* sounds, int snapshot_number_of_sounds) {
+
+	int		i;
+
+	if (!snapshot_number_of_sounds) {
+		MSG_WriteBits(msg, 0, 1);
+	}
+	else {
+		MSG_WriteBits(msg, 1, 1);
+		MSG_WriteBits(msg, snapshot_number_of_sounds, 7);
+
+		for (i = 0; i < snapshot_number_of_sounds; i++) {
+			if (!sounds[i].stop_flag) {
+				MSG_WriteBits(msg, 0, 1);
+				MSG_WriteBits(msg, sounds[i].streamed, 1);
+
+				if (sounds[i].origin[0] == 0.0f && sounds[i].origin[1] == 0.0f && sounds[i].origin[2] == 0.0f)
+					MSG_WriteBits(msg, 0, 1);
+				else {
+					MSG_WriteBits(msg, 1, 1);
+					MSG_WriteFloat(msg, sounds[i].origin[0]);
+					MSG_WriteFloat(msg, sounds[i].origin[1]);
+					MSG_WriteFloat(msg, sounds[i].origin[2]);
+				}
+				MSG_WriteBits(msg, sounds[i].entity_number, 11);
+				MSG_WriteBits(msg, sounds[i].channel, 7);
+				MSG_WriteBits(msg, sounds[i].sound_index, 9);
+
+				if (sounds[i].volume != -1.0f) {
+					MSG_WriteBits(msg, 1, 1);
+					MSG_WriteFloat(msg, sounds[i].volume);
+				}
+				else {
+					MSG_WriteBits(msg, 0, 1);
+				}
+
+				if (sounds[i].min_dist != -1.0f) {
+					MSG_WriteBits(msg, 1, 1);
+					MSG_WriteFloat(msg, sounds[i].min_dist);
+				}
+				else {
+					MSG_WriteBits(msg, 0, 1);
+				}
+
+				if (sounds[i].pitch != -1.0f) {
+					MSG_WriteBits(msg, 1, 1);
+					MSG_WriteFloat(msg, sounds[i].pitch);
+				}
+				else {
+					MSG_WriteBits(msg, 0, 1);
+				}
+
+				MSG_WriteFloat(msg, sounds[i].maxDist);
+			}
+			else {
+				MSG_WriteBits(msg, 1, 1);
+				MSG_WriteBits(msg, sounds[i].entity_number, 10);
+				MSG_WriteBits(msg, sounds[i].channel, 7);
+			}
+		}
+	}
+}
 
 /*
 ============================================================================
@@ -1756,19 +2419,6 @@ netField_t	playerStateFields[] =
 { PSF(loopSound), 16 }*/
 };
 
-void MSG_WriteDeltaEyeInfo(msg_t  *msg, usereyes_t *from, usereyes_t *to) {
-
-	if ( to->angles[0] != from->angles[0] || to->angles[1] != from->angles[1] || to->ofs[0] != from->ofs[0] || to->ofs[1] != from->ofs[1] || to->ofs[2] != from->ofs[2] ) {
-		MSG_WriteBits( msg, 1, 1 );
-		MSG_WriteDelta( msg, from->ofs[0], to->ofs[0], 8 );
-		MSG_WriteDelta( msg, from->ofs[1], to->ofs[1], 8 );
-		MSG_WriteDelta( msg, from->ofs[2], to->ofs[2], 8 );
-
-		MSG_WriteDeltaFloat( msg, from->angles[0], to->angles[0] );
-		MSG_WriteDeltaFloat( msg, from->angles[1], to->angles[1] );
-	} else MSG_WriteBits( msg, 0, 1 );
-}
-
 /*
 =============
 MSG_WriteDeltaPlayerstate
@@ -1823,7 +2473,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		}
 
 		MSG_WriteBits( msg, 1, 1 );	// changed
-//		pcount[i]++;
+		iPlayerFieldChanges[i]++;
 
 		switch ( field->type ) {
 			case 0:

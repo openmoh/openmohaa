@@ -131,8 +131,27 @@ void MSG_WriteDeltaEyeInfo (msg_t  *msg, usereyes_t *from, usereyes_t *to);
 void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
 void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
 
-
 void MSG_ReportChangeVectors_f( void );
+
+//====================
+// TA features
+//====================
+
+int MSG_PackAngle(float angle, int bits);
+int MSG_PackAnimTime(float time, int bits);
+int MSG_PackAnimWeight(float weight, int bits);
+int MSG_PackScale(float scale, int bits);
+int MSG_PackAlpha(float alpha, int bits);
+int MSG_PackCoord(float coord);
+int MSG_PackCoordExtra(float coord);
+qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits);
+
+float MSG_UnpackAngle(int value, int bits);
+float MSG_UnpackAnimTime(int packed);
+float MSG_UnpackScale(int packed);
+float MSG_UnpackAlpha(int packed, int bits);
+float MSG_UnpackCoord(int packed, int bits);
+float MSG_UnpackCoordExtra(int packed, int bits);
 
 //============================================================================
 
