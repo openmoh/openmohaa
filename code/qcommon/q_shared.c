@@ -220,6 +220,30 @@ void COM_StripExtension( const char *in, char *out, int destsize ) {
 		out[length] = 0;
 }
 
+/*
+============
+COM_CompareExtension
+
+string compare the end of the strings and return qtrue if strings match
+============
+*/
+qboolean COM_CompareExtension(const char* in, const char* ext)
+{
+	int inlen, extlen;
+
+	inlen = strlen(in);
+	extlen = strlen(ext);
+
+	if (extlen <= inlen)
+	{
+		in += inlen - extlen;
+
+		if (!Q_stricmp(in, ext))
+			return qtrue;
+	}
+
+	return qfalse;
+}
 
 /*
 ==================
@@ -1040,33 +1064,85 @@ int Com_HexStrToInt( const char *str )
 ============================================================================
 */
 
-int Q_isprint( int c )
+int Q_isprint(int c)
 {
-	if ( c >= 0x20 && c <= 0x7E )
-		return ( 1 );
-	return ( 0 );
+	if (c >= 0x20 && c <= 0x7E)
+		return (1);
+	return (0);
 }
 
-int Q_islower( int c )
+int Q_islower(int c)
 {
 	if (c >= 'a' && c <= 'z')
-		return ( 1 );
-	return ( 0 );
+		return (1);
+	return (0);
 }
 
-int Q_isupper( int c )
+int Q_isupper(int c)
 {
 	if (c >= 'A' && c <= 'Z')
-		return ( 1 );
-	return ( 0 );
+		return (1);
+	return (0);
 }
 
-int Q_isalpha( int c )
+int Q_isalpha(int c)
 {
 	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
-		return ( 1 );
-	return ( 0 );
+		return (1);
+	return (0);
 }
+
+qboolean Q_isanumber(const char* s)
+{
+	char* p;
+	double d;
+
+	if (*s == '\0')
+		return qfalse;
+
+	d = strtod(s, &p);
+
+	return *p == '\0';
+}
+
+qboolean Q_isintegral(float f)
+{
+	return (int)f == f;
+}
+
+#ifdef _WIN32
+/*
+=============
+Q_vsnprintf
+
+Special wrapper function for Microsoft's broken _vsnprintf() function.
+MinGW comes with its own vsnprintf() which is not broken. mingw-w64
+however, uses Microsoft's broken _vsnprintf() function.
+=============
+*/
+
+int Q_vsnprintf(char* str, size_t size, const char* format, va_list ap)
+{
+	int retval;
+
+	retval = _vsnprintf(str, size, format, ap);
+
+	if (retval < 0 || retval == size)
+	{
+		// Microsoft doesn't adhere to the C99 standard of vsnprintf,
+		// which states that the return value must be the number of
+		// bytes written if the output string had sufficient length.
+		//
+		// Obviously we cannot determine that value from Microsoft's
+		// implementation, so we have no choice but to return size.
+
+		str[size - 1] = '\0';
+		return size;
+	}
+
+	return retval;
+}
+#endif
 
 char* Q_strrchr( const char* string, int c )
 {
@@ -1325,24 +1401,18 @@ char *Q_CleanStr( char *string ) {
 }
 
 
-void QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
-	size_t		len;
+int QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
+	int		len;
 	va_list		argptr;
-	char	bigbuffer[32000];	// big, but small enough to fit in PPC stack
 
-	va_start (argptr,fmt);
-	len = vsprintf (bigbuffer,fmt,argptr);
-	va_end (argptr);
-	if ( len >= sizeof( bigbuffer ) ) {
-		Com_Error( ERR_FATAL, "Com_sprintf: overflowed bigbuffer" );
-	}
-	if (len >= size) {
-		Com_Printf ("Com_sprintf: overflow of %i in %i\n", len, size);
-#ifdef	_DEBUG
-		__debugbreak();
-#endif
-	}
-	Q_strncpyz (dest, bigbuffer, size );
+	va_start(argptr, fmt);
+	len = Q_vsnprintf(dest, size, fmt, argptr);
+	va_end(argptr);
+
+	if (len >= size)
+		Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", size, len + 1);
+
+	return len;
 }
 
 void Com_BackslashToSlash( char *str )

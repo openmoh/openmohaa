@@ -36,19 +36,60 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <conio.h>
 #include <wincrypt.h>
 #include <shlobj.h>
+#include <psapi.h>
+#include <float.h>
+
+#ifndef KEY_WOW64_32KEY
+#define KEY_WOW64_32KEY 0x0200
+#endif
 
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
-static char programpath[ MAX_OSPATH ] = { 0 };
+
+// Used to store the Steam Quake 3 installation path
+static char steamPath[ MAX_OSPATH ] = { 0 };
+
+// Used to store the GOG Quake 3 installation path
+static char gogPath[ MAX_OSPATH ] = { 0 };
+
+// Used to store the Microsoft Store Quake 3 installation path
+static char microsoftStorePath[MAX_OSPATH] = { 0 };
+
+#ifndef DEDICATED
+static UINT timerResolution = 0;
+#endif
 
 /*
 ================
-RecoverLostAutodialData
+Sys_SetFPUCW
+Set FPU control word to default value
 ================
 */
-void RecoverLostAutodialData( void )
+
+#ifndef _RC_CHOP
+// mingw doesn't seem to have these defined :(
+
+  #define _MCW_EM	0x0008001fU
+  #define _MCW_RC	0x00000300U
+  #define _MCW_PC	0x00030000U
+  #define _RC_NEAR      0x00000000U
+  #define _PC_53	0x00010000U
+  
+  unsigned int _controlfp(unsigned int new, unsigned int mask);
+#endif
+
+#define FPUCWMASK1 (_MCW_RC | _MCW_EM)
+#define FPUCW (_RC_NEAR | _MCW_EM | _PC_53)
+
+#if idx64
+#define FPUCWMASK	(FPUCWMASK1)
+#else
+#define FPUCWMASK	(FPUCWMASK1 | _MCW_PC)
+#endif
+
+void Sys_SetFloatEnv(void)
 {
-	// FIXME: stub
+	_controlfp(FPUCW, FPUCWMASK);
 }
 
 /*
@@ -60,19 +101,16 @@ char *Sys_DefaultHomePath( void )
 {
 	TCHAR szPath[MAX_PATH];
 	FARPROC qSHGetFolderPath;
-	HMODULE shfolder;
+	HMODULE shfolder = LoadLibrary("shfolder.dll");
 
-	return NULL;
-	shfolder = LoadLibrary("shfolder.dll");
-
-	if( !*homePath )
+	if(shfolder == NULL)
 	{
-		if(shfolder == NULL)
-		{
-			Com_Printf("Unable to load SHFolder.dll\n");
-			return NULL;
-		}
+		Com_Printf("Unable to load SHFolder.dll\n");
+		return NULL;
+	}
 
+	if(!*homePath && com_homepath)
+	{
 		qSHGetFolderPath = GetProcAddress(shfolder, "SHGetFolderPathA");
 		if(qSHGetFolderPath == NULL)
 		{
@@ -88,70 +126,148 @@ char *Sys_DefaultHomePath( void )
 			FreeLibrary(shfolder);
 			return NULL;
 		}
-		Q_strncpyz( homePath, szPath, sizeof( homePath ) );
-		Q_strcat( homePath, sizeof( homePath ), "\\OpenMoHAA" );
-		FreeLibrary(shfolder);
-		if( !CreateDirectory( homePath, NULL ) )
-		{
-			if( GetLastError() != ERROR_ALREADY_EXISTS )
-			{
-				Com_Printf("Unable to create directory \"%s\"\n", homePath );
-				return NULL;
-			}
-		}
+		
+		Com_sprintf(homePath, sizeof(homePath), "%s%c", szPath, PATH_SEP);
+
+		if(com_homepath->string[0])
+			Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+		else
+			Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_WIN);
 	}
 
+	FreeLibrary(shfolder);
 	return homePath;
 }
 
 /*
 ================
-SetProgramPath
+Sys_SteamPath
 ================
 */
-void SetProgramPath( const char *path )
+char *Sys_SteamPath( void )
 {
-	char *p;
+#if defined(STEAMPATH_NAME) || defined(STEAMPATH_APPID)
+	HKEY steamRegKey;
+	DWORD pathLen = MAX_OSPATH;
+	qboolean finishPath = qfalse;
 
-	Q_strncpyz( programpath, path, sizeof( programpath ) );
+#ifdef STEAMPATH_APPID
+	// Assuming Steam is a 32-bit app
+	if (!steamPath[0] && !RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App " STEAMPATH_APPID, 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &steamRegKey))
+	{
+		pathLen = MAX_OSPATH;
+		if (RegQueryValueEx(steamRegKey, "InstallLocation", NULL, NULL, (LPBYTE)steamPath, &pathLen))
+			steamPath[0] = '\0';
 
-	p = strrchr( programpath, '/' );
-	if( p ) {
-		*p = 0;
+		RegCloseKey(steamRegKey);
 	}
+#endif
+
+#ifdef STEAMPATH_NAME
+	if (!steamPath[0] && !RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Valve\\Steam", 0, KEY_QUERY_VALUE, &steamRegKey))
+	{
+		pathLen = MAX_OSPATH;
+		if (RegQueryValueEx(steamRegKey, "SteamPath", NULL, NULL, (LPBYTE)steamPath, &pathLen))
+			if (RegQueryValueEx(steamRegKey, "InstallPath", NULL, NULL, (LPBYTE)steamPath, &pathLen))
+				steamPath[0] = '\0';
+
+		if (steamPath[0])
+			finishPath = qtrue;
+
+		RegCloseKey(steamRegKey);
+	}
+#endif
+
+	if (steamPath[0])
+	{
+		if (pathLen == MAX_OSPATH)
+			pathLen--;
+
+		steamPath[pathLen] = '\0';
+
+		if (finishPath)
+			Q_strcat(steamPath, MAX_OSPATH, "\\SteamApps\\common\\" STEAMPATH_NAME );
+	}
+#endif
+
+	return steamPath;
 }
 
 /*
 ================
-Sys_DefaultBasePath
+Sys_GogPath
 ================
 */
-char *Sys_DefaultBasePath( void )
+char *Sys_GogPath( void )
 {
-	static char basepath[ 256 ];
+#ifdef GOGPATH_ID
+	HKEY gogRegKey;
+	DWORD pathLen = MAX_OSPATH;
 
-	Q_strncpyz( basepath, programpath, sizeof( basepath ) );
-	return basepath;
+	if (!gogPath[0] && !RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\Games\\" GOGPATH_ID, 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &gogRegKey))
+	{
+		pathLen = MAX_OSPATH;
+		if (RegQueryValueEx(gogRegKey, "PATH", NULL, NULL, (LPBYTE)gogPath, &pathLen))
+			gogPath[0] = '\0';
+
+		RegCloseKey(gogRegKey);
+	}
+
+	if (gogPath[0])
+	{
+		if (pathLen == MAX_OSPATH)
+			pathLen--;
+
+		gogPath[pathLen] = '\0';
+	}
+#endif
+
+	return gogPath;
 }
 
 /*
 ================
-Sys_DefaultUserPath
+Sys_MicrosoftStorePath
 ================
 */
-char *Sys_DefaultUserPath( void )
+char* Sys_MicrosoftStorePath(void)
 {
-	return Sys_DefaultBasePath();
-}
+#ifdef MSSTORE_PATH
+	if (!microsoftStorePath[0]) 
+	{
+		TCHAR szPath[MAX_PATH];
+		FARPROC qSHGetFolderPath;
+		HMODULE shfolder = LoadLibrary("shfolder.dll");
 
-/*
-================
-Sys_DefaultUserPath
-================
-*/
-char *Sys_DefaultOutputPath( void )
-{
-	return Sys_DefaultUserPath();
+		if(shfolder == NULL)
+		{
+			Com_Printf("Unable to load SHFolder.dll\n");
+			return microsoftStorePath;
+		}
+
+		qSHGetFolderPath = GetProcAddress(shfolder, "SHGetFolderPathA");
+		if(qSHGetFolderPath == NULL)
+		{
+			Com_Printf("Unable to find SHGetFolderPath in SHFolder.dll\n");
+			FreeLibrary(shfolder);
+			return microsoftStorePath;
+		}
+
+		if( !SUCCEEDED( qSHGetFolderPath( NULL, CSIDL_PROGRAM_FILES,
+						NULL, 0, szPath ) ) )
+		{
+			Com_Printf("Unable to detect CSIDL_PROGRAM_FILES\n");
+			FreeLibrary(shfolder);
+			return microsoftStorePath;
+		}
+
+		FreeLibrary(shfolder);
+
+		// default: C:\Program Files\ModifiableWindowsApps\Quake 3\EN
+		Com_sprintf(microsoftStorePath, sizeof(microsoftStorePath), "%s%cModifiableWindowsApps%c%s%cEN", szPath, PATH_SEP, PATH_SEP, MSSTORE_PATH, PATH_SEP);
+	}
+#endif
+	return microsoftStorePath;
 }
 
 /*
@@ -173,40 +289,6 @@ int Sys_Milliseconds (void)
 
 	return sys_curtime;
 }
-
-#ifndef __GNUC__ //see snapvectora.s
-/*
-================
-Sys_SnapVector
-================
-*/
-void Sys_SnapVector( float *v )
-{
-#ifndef _WIN64
-	int i;
-	float f;
-
-	f = *v;
-	__asm	fld		f;
-	__asm	fistp	i;
-	*v = i;
-	v++;
-	f = *v;
-	__asm	fld		f;
-	__asm	fistp	i;
-	*v = i;
-	v++;
-	f = *v;
-	__asm	fld		f;
-	__asm	fistp	i;
-	*v = i;
-#else
-	v[ 0 ] = rint( v[ 0 ] );
-	v[ 1 ] = rint( v[ 1 ] );
-	v[ 2 ] = rint( v[ 2 ] );
-#endif
-}
-#endif
 
 /*
 ================
@@ -252,33 +334,6 @@ char *Sys_GetCurrentUser( void )
 	return s_userName;
 }
 
-/*
-================
-Sys_GetClipboardData
-================
-*/
-char *Sys_GetClipboardData( void )
-{
-	char *data = NULL;
-	char *cliptext;
-
-	if ( OpenClipboard( NULL ) != 0 ) {
-		HANDLE hClipboardData;
-
-		if ( ( hClipboardData = GetClipboardData( CF_TEXT ) ) != 0 ) {
-			if ( ( cliptext = GlobalLock( hClipboardData ) ) != 0 ) {
-				data = Z_Malloc( GlobalSize( hClipboardData ) + 1 );
-				Q_strncpyz( data, cliptext, GlobalSize( hClipboardData ) );
-				GlobalUnlock( hClipboardData );
-
-				strtok( data, "\n\r\b" );
-			}
-		}
-		CloseClipboard();
-	}
-	return data;
-}
-
 #define MEM_THRESHOLD 96*1024*1024
 
 /*
@@ -294,26 +349,6 @@ qboolean Sys_LowPhysicalMemory( void )
 }
 
 /*
-==================
-SetNormalThreadPriority
-==================
-*/
-void SetNormalThreadPriority( void )
-{
-	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_NORMAL );
-}
-
-/*
-==================
-SetBelowNormalThreadPriority
-==================
-*/
-void SetBelowNormalThreadPriority( void )
-{
-	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL );
-}
-
-/*
 ==============
 Sys_Basename
 ==============
@@ -321,7 +356,7 @@ Sys_Basename
 const char *Sys_Basename( char *path )
 {
 	static char base[ MAX_OSPATH ] = { 0 };
-	intptr_t length;
+	int length;
 
 	length = strlen( path ) - 1;
 
@@ -351,7 +386,7 @@ Sys_Dirname
 const char *Sys_Dirname( char *path )
 {
 	static char dir[ MAX_OSPATH ] = { 0 };
-	intptr_t length;
+	int length;
 
 	Q_strncpyz( dir, path, sizeof( dir ) );
 	length = strlen( dir ) - 1;
@@ -366,12 +401,46 @@ const char *Sys_Dirname( char *path )
 
 /*
 ==============
+Sys_FOpen
+==============
+*/
+FILE *Sys_FOpen( const char *ospath, const char *mode ) {
+	size_t length;
+
+	// Windows API ignores all trailing spaces and periods which can get around Quake 3 file system restrictions.
+	length = strlen( ospath );
+	if ( length == 0 || ospath[length-1] == ' ' || ospath[length-1] == '.' ) {
+		return NULL;
+	}
+
+	return fopen( ospath, mode );
+}
+
+/*
+==============
 Sys_Mkdir
 ==============
 */
-void Sys_Mkdir( const char *path )
+qboolean Sys_Mkdir( const char *path )
 {
-	_mkdir (path);
+	if( !CreateDirectory( path, NULL ) )
+	{
+		if( GetLastError( ) != ERROR_ALREADY_EXISTS )
+			return qfalse;
+	}
+
+	return qtrue;
+}
+
+/*
+==================
+Sys_Mkfifo
+Noop on windows because named pipes do not function the same way
+==================
+*/
+FILE *Sys_Mkfifo( const char *ospath )
+{
+	return NULL;
 }
 
 /*
@@ -403,7 +472,7 @@ DIRECTORY SCANNING
 Sys_ListFilteredFiles
 ==============
 */
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, const char **list, int *numfiles )
+void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
 {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char		filename[MAX_OSPATH];
@@ -490,9 +559,10 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	char		**listCopy;
 	char		*list[MAX_FOUND_FILES];
 	struct _finddata_t findinfo;
-	intptr_t	findhandle;
+	intptr_t		findhandle;
 	int			flag;
 	int			i;
+	int			extLen;
 
 	if (filter) {
 
@@ -526,6 +596,8 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		flag = _A_SUBDIR;
 	}
 
+	extLen = strlen( extension );
+
 	Com_sprintf( search, sizeof(search), "%s\\*%s", directory, extension );
 
 	// search
@@ -539,6 +611,14 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 
 	do {
 		if ( (!wantsubs && flag ^ ( findinfo.attrib & _A_SUBDIR )) || (wantsubs && findinfo.attrib & _A_SUBDIR) ) {
+			if (*extension) {
+				if ( strlen( findinfo.name ) < extLen ||
+					Q_stricmp(
+						findinfo.name + strlen( findinfo.name ) - extLen,
+						extension ) ) {
+					continue; // didn't match
+				}
+			}
 			if ( nfiles == MAX_FOUND_FILES - 1 ) {
 				break;
 			}
@@ -604,28 +684,39 @@ void Sys_FreeFileList( char **list )
 ==============
 Sys_Sleep
 
-Block execution for msec or until input is recieved.
+Block execution for msec or until input is received.
 ==============
 */
 void Sys_Sleep( int msec )
 {
+	if( msec == 0 )
+		return;
+
+#ifdef DEDICATED
 	if( msec < 0 )
 		WaitForSingleObject( GetStdHandle( STD_INPUT_HANDLE ), INFINITE );
 	else
 		WaitForSingleObject( GetStdHandle( STD_INPUT_HANDLE ), msec );
+#else
+	// Client Sys_Sleep doesn't support waiting on stdin
+	if( msec < 0 )
+		return;
+
+	Sleep( msec );
+#endif
 }
 
 /*
 ==============
-SyScriptErrorDialog
+Sys_ErrorDialog
 
 Display an error message
 ==============
 */
-void SyScriptErrorDialog( const char *error )
+void Sys_ErrorDialog( const char *error )
 {
-	if( MessageBox( NULL, va( "%s. Copy console log to clipboard?", error ),
-			NULL, MB_YESNO|MB_ICONERROR ) == IDYES )
+	if( Sys_Dialog( DT_YES_NO, va( "%s. Copy console log to clipboard?", error ),
+			"Error" ) == DR_YES )
 	{
 		HGLOBAL memoryHandle;
 		char *clipMemory;
@@ -637,7 +728,7 @@ void SyScriptErrorDialog( const char *error )
 		{
 			char *p = clipMemory;
 			char buffer[ 1024 ];
-			size_t size;
+			unsigned int size;
 
 			while( ( size = CON_LogRead( buffer, sizeof( buffer ) ) ) > 0 )
 			{
@@ -658,37 +749,8 @@ void SyScriptErrorDialog( const char *error )
 
 /*
 ==============
-Sys_CloseMutex
-==============
-*/
-void Sys_CloseMutex( void )
-{
-	// FIXME: stub
-}
-
-/*
-==============
-Sys_ShowConsole
-==============
-*/
-void Sys_ShowConsole( int visLevel, qboolean quitOnClose )
-{
-	// FIXME: stub
-}
-
-/*
-==============
-Sys_PumpMessageLoop
-==============
-*/
-void Sys_PumpMessageLoop( void )
-{
-	// FIXME: stub
-}
-
-/*
-==============
 Sys_Dialog
+
 Display a win32 dialog box
 ==============
 */
@@ -718,12 +780,183 @@ dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *t
 
 /*
 ==============
+Sys_GLimpSafeInit
+
+Windows specific "safe" GL implementation initialisation
+==============
+*/
+void Sys_GLimpSafeInit( void )
+{
+}
+
+/*
+==============
+Sys_GLimpInit
+
+Windows specific GL implementation initialisation
+==============
+*/
+void Sys_GLimpInit( void )
+{
+}
+
+/*
+==============
+Sys_PlatformInit
+
+Windows specific initialisation
+==============
+*/
+void Sys_PlatformInit( void )
+{
+#ifndef DEDICATED
+	TIMECAPS ptc;
+#endif
+
+	Sys_SetFloatEnv();
+
+#ifndef DEDICATED
+	if(timeGetDevCaps(&ptc, sizeof(ptc)) == MMSYSERR_NOERROR)
+	{
+		timerResolution = ptc.wPeriodMin;
+
+		if(timerResolution > 1)
+		{
+			Com_Printf("Warning: Minimum supported timer resolution is %ums "
+				"on this system, recommended resolution 1ms\n", timerResolution);
+		}
+		
+		timeBeginPeriod(timerResolution);				
+	}
+	else
+		timerResolution = 0;
+#endif
+}
+
+/*
+==============
+Sys_PlatformExit
+
+Windows specific initialisation
+==============
+*/
+void Sys_PlatformExit( void )
+{
+#ifndef DEDICATED
+	if(timerResolution)
+		timeEndPeriod(timerResolution);
+#endif
+}
+
+/*
+==============
+Sys_SetEnv
+
+set/unset environment variables (empty value removes it)
+==============
+*/
+void Sys_SetEnv(const char *name, const char *value)
+{
+	if(value)
+		_putenv(va("%s=%s", name, value));
+	else
+		_putenv(va("%s=", name));
+}
+
+/*
+==============
+Sys_PID
+==============
+*/
+int Sys_PID( void )
+{
+	return GetCurrentProcessId( );
+}
+
+/*
+==============
+Sys_PIDIsRunning
+==============
+*/
+qboolean Sys_PIDIsRunning( int pid )
+{
+	DWORD processes[ 1024 ];
+	DWORD numBytes, numProcesses;
+	int i;
+
+	if( !EnumProcesses( processes, sizeof( processes ), &numBytes ) )
+		return qfalse; // Assume it's not running
+
+	numProcesses = numBytes / sizeof( DWORD );
+
+	// Search for the pid
+	for( i = 0; i < numProcesses; i++ )
+	{
+		if( processes[ i ] == pid )
+			return qtrue;
+	}
+
+	return qfalse;
+}
+
+/*
+=================
+Sys_DllExtension
+
+Check if filename should be allowed to be loaded as a DLL.
+=================
+*/
+qboolean Sys_DllExtension( const char *name ) {
+	return COM_CompareExtension( name, DLL_EXT );
+}
+/*
+================
+RecoverLostAutodialData
+================
+*/
+void RecoverLostAutodialData(void)
+{
+	// FIXME: stub
+}
+
+/*
+==============
+Sys_CloseMutex
+==============
+*/
+void Sys_CloseMutex(void)
+{
+	// FIXME: stub
+}
+
+/*
+==============
+Sys_ShowConsole
+==============
+*/
+void Sys_ShowConsole(int visLevel, qboolean quitOnClose)
+{
+	// FIXME: stub
+}
+
+/*
+==============
+Sys_PumpMessageLoop
+==============
+*/
+void Sys_PumpMessageLoop(void)
+{
+	// FIXME: stub
+}
+
+/*
+==============
 SaveRegistryInfo
 ==============
 */
-qboolean SaveRegistryInfo( qboolean user, const char *pszName, void *pvBuf, long lSize )
+qboolean SaveRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long lSize)
 {
-	STUB_DESC( "not implemented" );
+	STUB_DESC("not implemented");
 	return qfalse;
 }
 
@@ -732,9 +965,9 @@ qboolean SaveRegistryInfo( qboolean user, const char *pszName, void *pvBuf, long
 LoadRegistryInfo
 ==============
 */
-qboolean LoadRegistryInfo( qboolean user, const char *pszName, void *pvBuf, long *plSize )
+qboolean LoadRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long* plSize)
 {
-	STUB_DESC( "not implemented" );
+	STUB_DESC("not implemented");
 	return qfalse;
 }
 
@@ -743,9 +976,9 @@ qboolean LoadRegistryInfo( qboolean user, const char *pszName, void *pvBuf, long
 IsFirstRun
 ==============
 */
-qboolean IsFirstRun( void )
+qboolean IsFirstRun(void)
 {
-	STUB_DESC( "wtf" );
+	STUB_DESC("wtf");
 	return qfalse;
 }
 
@@ -754,9 +987,9 @@ qboolean IsFirstRun( void )
 IsNewConfig
 ==============
 */
-qboolean IsNewConfig( void )
+qboolean IsNewConfig(void)
 {
-	STUB_DESC( "wtf" );
+	STUB_DESC("wtf");
 	return qfalse;
 }
 
@@ -765,9 +998,9 @@ qboolean IsNewConfig( void )
 IsSafeMode
 ==============
 */
-qboolean IsSafeMode( void )
+qboolean IsSafeMode(void)
 {
-	STUB_DESC( "wtf" );
+	STUB_DESC("wtf");
 	return qfalse;
 }
 
@@ -776,7 +1009,7 @@ qboolean IsSafeMode( void )
 ClearNewConfigFlag
 ==============
 */
-void ClearNewConfigFlag( void )
+void ClearNewConfigFlag(void)
 {
 }
 
@@ -785,7 +1018,7 @@ void ClearNewConfigFlag( void )
 Sys_GetWholeClipboard
 ==============
 */
-const char *Sys_GetWholeClipboard( void )
+const char* Sys_GetWholeClipboard(void)
 {
 	return NULL;
 }
@@ -795,6 +1028,26 @@ const char *Sys_GetWholeClipboard( void )
 Sys_SetClipboard
 ==============
 */
-void Sys_SetClipboard( const char *contents )
+void Sys_SetClipboard(const char* contents)
 {
+}
+
+/*
+==================
+SetNormalThreadPriority
+==================
+*/
+void SetNormalThreadPriority(void)
+{
+	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_NORMAL);
+}
+
+/*
+==================
+SetBelowNormalThreadPriority
+==================
+*/
+void SetBelowNormalThreadPriority(void)
+{
+	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
 }

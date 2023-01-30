@@ -106,6 +106,10 @@ set(SOURCES_COMMON
 	"code/qcommon/tiki_main.cpp"
 	"code/qcommon/tiki_script.cpp"
 	"code/qcommon/unzip.c"
+	# Main stuff
+	"code/sys/sys_main.c"
+	"code/sys/sys_autoupdater.c"
+	"code/sys/con_log.c"
 )
 
 file(GLOB_RECURSE SOURCES_SKEL "code/tiki/*.cpp" "code/skeletor/*.cpp")
@@ -124,7 +128,7 @@ set(SOURCES_APP ${SOURCES_SHARED} ${SOURCES_COMMON} ${SOURCES_SKEL})
 file(GLOB_RECURSE SOURCES_SERVER "code/server/*.c" "code/server/*.cpp")
 set(SOURCES_SERVER_APP ${SOURCES_APP} ${SOURCES_SERVER})
 
-add_executable(omohaaded ${SOURCES_SERVER_APP} ${SOURCES_PLATFORM_SPECIFIC} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c" "code/sys/sys_main.c" "code/sys/con_log.c")
+add_executable(omohaaded ${SOURCES_SERVER_APP} ${SOURCES_PLATFORM_SPECIFIC} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c")
 set_property(TARGET omohaaded PROPERTY CXX_STANDARD 11)
 target_compile_features(omohaaded PUBLIC cxx_constexpr)
 target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})

@@ -647,7 +647,7 @@ qboolean FS_FileExists( const char *file );
 
 char   *FS_BuildOSPath( const char *base, const char *game, const char *qpath );
 
-qboolean FS_CreatePath( char *OSPath );
+qboolean FS_CreatePath(char *OSPath);
 
 int		FS_LoadStack( void );
 
@@ -767,6 +767,7 @@ void FS_Remove( const char *osPath );
 void	FS_FilenameCompletion( const char *dir, const char *ext,
 		qboolean stripExt, void(*callback)(const char *s) );
 
+const char* FS_GetCurrentGameDir();
 void	FS_GetRelativeFilename( const char *currentDirectory, const char *absoluteFilename, char *out, size_t destlen );
 
 extern char fs_gamedir[];
@@ -1098,6 +1099,7 @@ extern	cvar_t	*com_cameraMode;
 extern	cvar_t	*com_ansiColor;
 extern	cvar_t	*com_unfocused;
 extern	cvar_t	*com_minimized;
+extern	cvar_t	*com_homepath;
 extern	cvar_t	*com_altivec;
 
 // both client and server must agree to pause
@@ -1116,6 +1118,7 @@ extern	int		com_frameTime;
 extern	int		com_frameMsec;
 
 extern	qboolean	com_errorEntered;
+extern	qboolean	com_fullyInitialized;
 
 extern	fileHandle_t	com_journalFile;
 extern	fileHandle_t	com_journalDataFile;
@@ -1299,6 +1302,14 @@ void SV_Frame( int msec );
 void SV_PacketEvent( netadr_t from, msg_t *msg );
 qboolean SV_GameCommand( void );
 
+//
+// input interface
+//
+void IN_Init(void* windowData);
+void IN_Frame(void);
+void IN_Shutdown(void);
+void IN_Restart(void);
+
 void Com_Pause();
 void Com_Unpause();
 void Com_FakePause();
@@ -1350,9 +1361,9 @@ sysEvent_t	Com_GetSystemEvent( void );
 void	Sys_Init (void);
 
 // general development dll loading for virtual machine testing
-void	* QDECL Sys_LoadDll( const char *name, char *fqpath , intptr_t (QDECL **entryPoint)(int, ...),
-				  intptr_t (QDECL *systemcalls)(intptr_t, ...) );
 void	Sys_UnloadDll( void *dllHandle );
+
+qboolean Sys_DllExtension(const char* name);
 
 void	Sys_UnloadGame( void );
 void	*Sys_GetGameAPI( void *parms );
@@ -1369,7 +1380,7 @@ void	*Sys_GetBotLibAPI( void *parms );
 
 char	*Sys_GetCurrentUser( void );
 
-void	QDECL SyScriptError( const char *error, ...) __attribute__ ((format (printf, 1, 2)));
+void	QDECL Sys_Error( const char *error, ...) __attribute__ ((format (printf, 1, 2)));
 void	Sys_Quit (void);
 char	*Sys_GetClipboardData( void );	// note that this isn't journaled...
 
@@ -1399,7 +1410,7 @@ qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
 qboolean	Sys_IsLANAddress (netadr_t adr);
 void		Sys_ShowIP(void);
 
-void	Sys_Mkdir( const char *path );
+qboolean	Sys_Mkdir( const char *path );
 char	*Sys_Cwd( void );
 void	Sys_SetDefaultInstallPath(const char *path);
 char	*Sys_DefaultInstallPath( void );

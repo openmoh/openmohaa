@@ -26,16 +26,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_LOG 32768
 
-static char				consoleLog[ MAX_LOG ];
-static size_t			writePos = 0;
-static size_t			readPos = 0;
+static char          consoleLog[ MAX_LOG ];
+static unsigned int  writePos = 0;
+static unsigned int  readPos = 0;
 
 /*
 ==================
 CON_LogSize
 ==================
 */
-size_t CON_LogSize( void )
+unsigned int CON_LogSize( void )
 {
 	if( readPos <= writePos )
 		return writePos - readPos;
@@ -48,7 +48,7 @@ size_t CON_LogSize( void )
 CON_LogFree
 ==================
 */
-static size_t CON_LogFree( void )
+static unsigned int CON_LogFree( void )
 {
 	return MAX_LOG - CON_LogSize( ) - 1;
 }
@@ -58,11 +58,11 @@ static size_t CON_LogFree( void )
 CON_LogWrite
 ==================
 */
-size_t CON_LogWrite( const char *in )
+unsigned int CON_LogWrite( const char *in )
 {
-	size_t length = strlen( in );
-	size_t firstChunk;
-	size_t secondChunk;
+	unsigned int length = (unsigned int)strlen( in );
+	unsigned int firstChunk;
+	unsigned int secondChunk;
 
 	while( CON_LogFree( ) < length && CON_LogSize( ) > 0 )
 	{
@@ -101,10 +101,10 @@ size_t CON_LogWrite( const char *in )
 CON_LogRead
 ==================
 */
-size_t CON_LogRead( char *out, size_t outSize )
+unsigned int CON_LogRead( char *out, unsigned int outSize )
 {
-	size_t firstChunk;
-	size_t secondChunk;
+	unsigned int firstChunk;
+	unsigned int secondChunk;
 
 	if( CON_LogSize( ) < outSize )
 		outSize = CON_LogSize( );
@@ -121,7 +121,7 @@ size_t CON_LogRead( char *out, size_t outSize )
 	}
 
 	Com_Memcpy( out, consoleLog + readPos, firstChunk );
-	Com_Memcpy( out + firstChunk, out, secondChunk );
+	Com_Memcpy( out + firstChunk, consoleLog, secondChunk );
 
 	readPos = ( readPos + outSize ) % MAX_LOG;
 

@@ -245,8 +245,7 @@ cvar_t					*fs_basepath;
 static	cvar_t			*fs_basegame;
 static	cvar_t			*fs_gamedirvar;
 static	cvar_t			*fs_restrict;
-static	cvar_t			*fs_userpath;
-static	cvar_t			*fs_outputpath;
+static	cvar_t			*fs_homepath;
 static	cvar_t			*fs_copyfiles;
 static	cvar_t			*fs_filedir;
 static	searchpath_t	*fs_searchpaths;
@@ -671,7 +670,7 @@ qboolean FS_FileExists( const char *file )
 	FILE *f;
 	char *testpath;
 
-	testpath = FS_BuildOSPath( fs_outputpath->string, fs_gamedir, file );
+	testpath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, file );
 
 	f = fopen( testpath, "rb" );
 	if (f) {
@@ -693,7 +692,7 @@ qboolean FS_SV_FileExists( const char *file )
 	FILE *f;
 	char *testpath;
 
-	testpath = FS_BuildOSPath( fs_outputpath->string, file, "");
+	testpath = FS_BuildOSPath( fs_homepath->string, file, "");
 	testpath[strlen(testpath)-1] = '\0';
 
 	f = fopen( testpath, "rb" );
@@ -718,7 +717,7 @@ fileHandle_t FS_SV_FOpenFileWrite( const char *filename ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
 
-	ospath = FS_BuildOSPath( fs_outputpath->string, filename, "" );
+	ospath = FS_BuildOSPath( fs_homepath->string, filename, "" );
 	ospath[strlen(ospath)-1] = '\0';
 
 	f = FS_HandleForFile();
@@ -769,20 +768,20 @@ int FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp ) {
 	S_ClearSoundBuffer();
 
 	// search homepath
-	ospath = FS_BuildOSPath( fs_outputpath->string, filename, "" );
+	ospath = FS_BuildOSPath( fs_homepath->string, filename, "" );
 	// remove trailing slash
 	ospath[strlen(ospath)-1] = '\0';
 
 	if ( fs_debug->integer ) {
-		Com_Printf( "FS_SV_FOpenFileRead (fs_outputpath): %s\n", ospath );
+		Com_Printf( "FS_SV_FOpenFileRead (fs_homepath): %s\n", ospath );
 	}
 
 	fsh[f].handleFiles.file.o = fopen( ospath, "rb" );
 	fsh[f].handleSync = qfalse;
 	if (!fsh[f].handleFiles.file.o)
 	{
-		// If fs_outputpath == fs_basepath, don't bother
-		if (Q_stricmp(fs_outputpath->string,fs_basepath->string))
+		// If fs_homepath == fs_basepath, don't bother
+		if (Q_stricmp(fs_homepath->string,fs_basepath->string))
 		{
 			// search basepath
 			ospath = FS_BuildOSPath( fs_basepath->string, filename, "" );
@@ -827,8 +826,8 @@ void FS_SV_Rename( const char *from, const char *to ) {
 	// don't let sound stutter
 	S_ClearSoundBuffer();
 
-	from_ospath = FS_BuildOSPath( fs_outputpath->string, from, "" );
-	to_ospath = FS_BuildOSPath( fs_outputpath->string, to, "" );
+	from_ospath = FS_BuildOSPath( fs_homepath->string, from, "" );
+	to_ospath = FS_BuildOSPath( fs_homepath->string, to, "" );
 	from_ospath[strlen(from_ospath)-1] = '\0';
 	to_ospath[strlen(to_ospath)-1] = '\0';
 
@@ -861,8 +860,8 @@ void FS_Rename( const char *from, const char *to ) {
 	// don't let sound stutter
 	S_ClearSoundBuffer();
 
-	from_ospath = FS_BuildOSPath( fs_outputpath->string, fs_gamedir, from );
-	to_ospath = FS_BuildOSPath( fs_outputpath->string, fs_gamedir, to );
+	from_ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, from );
+	to_ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, to );
 
 	if ( fs_debug->integer ) {
 		Com_Printf( "FS_Rename: %s --> %s\n", from_ospath, to_ospath );
@@ -923,7 +922,7 @@ fileHandle_t FS_FOpenFileWrite( const char *filename ) {
 	f = FS_HandleForFile();
 	fsh[f].zipFile = qfalse;
 
-	ospath = FS_BuildOSPath( fs_outputpath->string, fs_gamedir, filename );
+	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, filename );
 
 	if ( fs_debug->integer ) {
 		Com_Printf( "FS_FOpenFileWrite: %s\n", ospath );
@@ -962,7 +961,7 @@ fileHandle_t FS_FOpenTextFileWrite( const char *filename ) {
 
 	Q_strncpyz( fsh[f].name, filename, sizeof( fsh[f].name ) );
 
-	ospath = FS_BuildOSPath( fs_outputpath->string, fs_gamedir, filename );
+	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, filename );
 
 	if ( fs_debug->integer ) {
 		Com_Printf( "FS_FOpenFileWrite: %s\n", ospath );
@@ -1002,7 +1001,7 @@ fileHandle_t FS_FOpenFileAppend( const char *filename ) {
 	// don't let sound stutter
 	S_ClearSoundBuffer();
 
-	ospath = FS_BuildOSPath( fs_outputpath->string, fs_gamedir, filename );
+	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, filename );
 
 	if ( fs_debug->integer ) {
 		Com_Printf( "FS_FOpenFileAppend: %s\n", ospath );
@@ -1084,7 +1083,7 @@ void FS_DeleteFile( const char *filename )
 		Com_Error( 0, "Filesystem call made without initialization\n" );
 	}
 
-	ospath = FS_BuildOSPath( fs_outputpath->string, fs_gamedir, filename );
+	ospath = FS_BuildOSPath( fs_homepath->string, fs_gamedir, filename );
 
 	if( fs_debug->integer ) {
 		Com_Printf( "FS_DeleteFile: %s\n", ospath );
@@ -1130,7 +1129,6 @@ Used for streaming data out of either a
 separate file or a ZIP file.
 ===========
 */
-extern "C" qboolean		com_fullyInitialized;
 
 int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueFILE, qboolean quiet ) {
 	searchpath_t	*search;
@@ -1288,7 +1286,7 @@ int FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean uniqueF
 					continue;
 				}
 			}
-
+			
 			dir = search->dir;
 
 			netpath = FS_BuildOSPath( dir->path, dir->gamedir, filename );
@@ -2397,7 +2395,7 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
 	nMods = 0;
 	nPotential = nTotal = 0;
 
-	pFiles0 = Sys_ListFiles( fs_outputpath->string, NULL, NULL, &dummy, qtrue );
+	pFiles0 = Sys_ListFiles( fs_homepath->string, NULL, NULL, &dummy, qtrue );
 	pFiles1 = Sys_ListFiles( fs_basepath->string, NULL, NULL, &dummy, qtrue );
 	// we searched for mods in the three paths
 	// it is likely that we have duplicate names now, which we will cleanup below
@@ -2437,7 +2435,7 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
 			/* try on home path */
 			if ( nPaks <= 0 )
 			{
-				path = FS_BuildOSPath( fs_outputpath->string, name, "" );
+				path = FS_BuildOSPath( fs_homepath->string, name, "" );
 				nPaks = 0;
 				pPaks = Sys_ListFiles( path, ".pk3", NULL, &nPaks, qfalse );
 				Sys_FreeFileList( pPaks );
@@ -3072,13 +3070,20 @@ FS_Startup
 */
 static void FS_Startup( const char *gameName )
 {
+	const char* homePath;
+
 	if( !silentStart ) {
 		Com_Printf( "----- FS_Startup -----\n" );
 	}
 
 	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
 	fs_copyfiles = Cvar_Get( "fs_copyfiles", "0", CVAR_INIT );
-	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultBasePath(), CVAR_INIT );
+	fs_basepath = Cvar_Get("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT);
+	homePath = Sys_DefaultHomePath();
+	if (!homePath || !homePath[0]) {
+		homePath = fs_basepath->string;
+	}
+	fs_homepath = Cvar_Get("fs_homepath", homePath, CVAR_INIT | CVAR_ROM);
 	fs_gamedirvar = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
 	fs_restrict = Cvar_Get( "fs_restrict", "", CVAR_INIT );
 
@@ -3097,14 +3102,7 @@ static void FS_Startup( const char *gameName )
 	Cmd_AddCommand ("fdir", FS_NewDir_f );
 	Cmd_AddCommand ("touchFile", FS_TouchFile_f );
 
-	fs_userpath = Cvar_Get( "fs_userpath", Sys_DefaultUserPath(), CVAR_INIT );
-	fs_outputpath = Cvar_Get( "fs_outputpath", Sys_DefaultOutputPath(), CVAR_INIT );
-
-	Sys_Mkdir( fs_userpath->string );
-	Sys_Mkdir( fs_outputpath->string );
-
-	FS_AddGameDirectory( fs_userpath->string, gameName );
-
+	Sys_Mkdir(fs_homepath->string);
 
 	if( !silentStart ) {
 		// print the current search paths
@@ -3593,8 +3591,7 @@ void FS_InitFilesystem( void ) {
 	Com_StartupVariable( "fs_game" );
 	Com_StartupVariable( "fs_copyfiles" );
 	Com_StartupVariable( "fs_restrict" );
-	Com_StartupVariable( "fs_userpath" );
-	Com_StartupVariable( "fs_outputpath" );
+	Com_StartupVariable( "fs_homepath" );
 
 	// try to start up normally
 	FS_Startup( BASEGAME );
@@ -3892,4 +3889,9 @@ void FS_GetRelativeFilename( const char *currentDirectory, const char *absoluteF
 
 	// copy the rest of the filename into the result string
 	strcpy( &out[ rfMarker ], &absoluteFilename[ afMarker ] );
+}
+
+const char* FS_GetCurrentGameDir()
+{
+	return fs_gamedirvar->string;
 }

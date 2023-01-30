@@ -31,6 +31,7 @@ extern "C" {
 
 #define PRODUCT_NAME            "OpenMoHAA"
 #define PRODUCT_VERSION			"0.49-alpha"
+#define PRODUCT_DATE			__DATE__
 
 #if TARGET_GAME_TYPE == 1
 	// Team Assault
@@ -39,6 +40,10 @@ extern "C" {
 	// The version string must be equal or above 2.0 to be able to connect to spearhead servers
 	#define TARGET_GAME_VERSION		"2.41"
 	#define TARGET_GAME_PROTOCOL	17
+
+	#define HOMEPATH_NAME_UNIX		".mohta"
+	#define HOMEPATH_NAME_WIN		"mohta"
+	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 #elif TARGET_GAME_TYPE == 2
 	// Team Tactics
 	#define BASEGAME				"maintt"
@@ -46,6 +51,10 @@ extern "C" {
 		// The version string must be equal or above 2.0 to be able to connect to breakthrough servers
 	#define	TARGET_GAME_VERSION		"2.41"
 	#define TARGET_GAME_PROTOCOL	17
+
+	#define HOMEPATH_NAME_UNIX		".mohtt"
+	#define HOMEPATH_NAME_WIN		"mohtt"
+	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 #else
 	// The default: the base game (no expansion)
 
@@ -54,6 +63,10 @@ extern "C" {
 	// The version string must be below 1.12, otherwise it's not possible to connect
 	#define TARGET_GAME_VERSION		"1.12"
 	#define TARGET_GAME_PROTOCOL	8
+
+	#define HOMEPATH_NAME_UNIX		".moh"
+	#define HOMEPATH_NAME_WIN		"moh"
+	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 #endif
 
 #define PRODUCT_NAME_FULL		PRODUCT_NAME ": " PRODUCT_EXTENSION
@@ -141,28 +154,25 @@ extern "C" {
 #ifdef _MSC_VER
 #include <io.h>
 
-#ifndef _STDINT
-	typedef __int64 int64_t;
-	typedef __int32 int32_t;
-	typedef __int16 int16_t;
-	typedef __int8 int8_t;
-	typedef unsigned __int64 uint64_t;
-	typedef unsigned __int32 uint32_t;
-	typedef unsigned __int16 uint16_t;
-	typedef unsigned __int8 uint8_t;
-#endif
-
-	// vsnprintf is ISO/IEC 9899:1999
-	// abstracting this to make it portable
-	int Q_vsnprintf( char *str, size_t size, const char *format, va_list ap );
+typedef __int64 int64_t;
+typedef __int32 int32_t;
+typedef __int16 int16_t;
+typedef __int8 int8_t;
+typedef unsigned __int64 uint64_t;
+typedef unsigned __int32 uint32_t;
+typedef unsigned __int16 uint16_t;
+typedef unsigned __int8 uint8_t;
 #else
 #include <stdint.h>
-
-#define Q_vsnprintf vsnprintf
 #endif
 
-#define HAVE_STDINT_H
-#define _HAVE_STDINT_H 1
+#ifdef _WIN32
+ // vsnprintf is ISO/IEC 9899:1999
+ // abstracting this to make it portable
+int Q_vsnprintf(char* str, size_t size, const char* format, va_list ap);
+#else
+#define Q_vsnprintf vsnprintf
+#endif
 
 #endif
 
@@ -1097,6 +1107,7 @@ float Com_Clamp( float min, float max, float value );
 const char	*COM_SkipPath( const char *pathname );
 const char	*COM_GetExtension( const char *name );
 void	COM_StripExtension(const char *in, char *out, int destsize);
+qboolean COM_CompareExtension(const char* in, const char* ext);
 void	COM_DefaultExtension( char *path, int maxSize, const char *extension );
 
 void	COM_BeginParseSession( const char *name );
@@ -1147,7 +1158,7 @@ void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m);
 
 int Com_HexStrToInt( const char *str );
 
-void	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
+int	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
 char *Com_SkipTokens( char *s, int numTokens, char *sep );
 char *Com_SkipCharset( char *s, char *sep );

@@ -99,6 +99,7 @@ cvar_t	*com_cameraMode;
 cvar_t	*com_ansiColor;
 cvar_t	*com_unfocused;
 cvar_t	*com_minimized;
+cvar_t  *com_homepath;
 cvar_t	*precache;
 
 // com_speeds times
@@ -291,7 +292,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	lastErrorTime = currentTime;
 
 	if ( com_errorEntered ) {
-		SyScriptError( "recursive error after: %s", com_errorMessage );
+		Sys_Error( "recursive error after: %s", com_errorMessage );
 	}
 	com_errorEntered = qtrue;
 
@@ -336,7 +337,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 
 	Com_Shutdown ();
 
-	SyScriptError ("%s", com_errorMessage);
+	Sys_Error("%s", com_errorMessage);
 }
 
 
@@ -1266,7 +1267,7 @@ void Com_Init( char *commandLine ) {
 	Com_Printf( "%s %s %s\n", PRODUCT_VERSION_FULL, PLATFORM_STRING, __DATE__ );
 
 	if ( setjmp (abortframe) ) {
-		SyScriptError ("Error during initialization");
+		Sys_Error("Error during initialization");
 	}
 
 	// prepare enough of the subsystems to handle
@@ -1290,6 +1291,8 @@ void Com_Init( char *commandLine ) {
 
 	// done early so bind command exists
 	CL_InitKeyCommands();
+
+	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT|CVAR_ROM);
 
 	FS_InitFilesystem ();
 
@@ -1404,7 +1407,7 @@ void Com_Init( char *commandLine ) {
 		}
 	}
 
-	s = va( "%s %s %s", PRODUCT_VERSION_FULL, PLATFORM_STRING, __DATE__ );
+	s = va( "%s %s %s", PRODUCT_VERSION_FULL, PLATFORM_STRING, PRODUCT_DATE );
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
 	com_shortversion = Cvar_Get( "shortversion", TARGET_GAME_VERSION, CVAR_ROM );
 

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "sys_local.h"
 
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -34,9 +35,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sys/time.h>
 #include <pwd.h>
 #include <libgen.h>
+#include <fcntl.h>
+#include <fenv.h>
+#include <sys/wait.h>
+
+qboolean stdinIsATTY;
 
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
+
+// Used to store the Steam Quake 3 installation path
+static char steamPath[ MAX_OSPATH ] = { 0 };
+
+// Used to store the GOG Quake 3 installation path
+static char gogPath[ MAX_OSPATH ] = { 0 };
+
+// Used to store the Microsoft Store Quake 3 installation path
+static char microsoftStorePath[MAX_OSPATH] = { 0 };
 
 /*
 ==================
@@ -47,24 +62,25 @@ char *Sys_DefaultHomePath(void)
 {
 	char *p;
 
-	if( !*homePath )
+	if( !*homePath && com_homepath != NULL )
 	{
 		if( ( p = getenv( "HOME" ) ) != NULL )
 		{
-			Q_strncpyz( homePath, p, sizeof( homePath ) );
-#ifdef MACOS_X
-			Q_strcat( homePath, sizeof( homePath ), "/Library/Application Support/OpenMoHAA" );
+			Com_sprintf(homePath, sizeof(homePath), "%s%c", p, PATH_SEP);
+#ifdef __APPLE__
+			Q_strcat(homePath, sizeof(homePath),
+				"Library/Application Support/");
+
+			if(com_homepath->string[0])
+				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			else
+				Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_MACOSX);
 #else
-			Q_strcat( homePath, sizeof( homePath ), "/.openmohaa" );
+			if(com_homepath->string[0])
+				Q_strcat(homePath, sizeof(homePath), com_homepath->string);
+			else
+				Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_UNIX);
 #endif
-			if( mkdir( homePath, 0777 ) )
-			{
-				if( errno != EEXIST )
-				{
-					Com_Error( "Unable to create directory \"%s\", error is %s(%d)\n",
-							homePath, strerror( errno ), errno );
-				}
-			}
 		}
 	}
 
@@ -73,13 +89,60 @@ char *Sys_DefaultHomePath(void)
 
 /*
 ================
+Sys_SteamPath
+================
+*/
+char *Sys_SteamPath( void )
+{
+	// Disabled since Steam doesn't let you install Quake 3 on Mac/Linux
+#if 0 //#ifdef STEAMPATH_NAME
+	char *p;
+
+	if( ( p = getenv( "HOME" ) ) != NULL )
+	{
+#ifdef __APPLE__
+		char *steamPathEnd = "/Library/Application Support/Steam/SteamApps/common/" STEAMPATH_NAME;
+#else
+		char *steamPathEnd = "/.steam/steam/SteamApps/common/" STEAMPATH_NAME;
+#endif
+		Com_sprintf(steamPath, sizeof(steamPath), "%s%s", p, steamPathEnd);
+	}
+#endif
+
+	return steamPath;
+}
+
+/*
+================
+Sys_GogPath
+================
+*/
+char *Sys_GogPath( void )
+{
+	// GOG also doesn't let you install Quake 3 on Mac/Linux
+	return gogPath;
+}
+
+/*
+================
+Sys_MicrosoftStorePath
+================
+*/
+char* Sys_MicrosoftStorePath(void)
+{
+	// Microsoft Store doesn't exist on Mac/Linux
+	return microsoftStorePath;
+}
+
+
+/*
+================
 Sys_Milliseconds
 ================
 */
 /* base time in seconds, that's our origin
    timeval:tv_sec is an int:
-   assuming this wraps every 0x7fffffff - ~68 years since the Epoch (1970) - we're safe till 2038
-   using unsigned long data type to work right with Sys_XTimeToSysTime */
+   assuming this wraps every 0x7fffffff - ~68 years since the Epoch (1970) - we're safe till 2038 */
 unsigned long sys_timeBase = 0;
 /* current time in ms, using sys_timeBase as origin
    NOTE: sys_timeBase*1000 + curtime -> ms since the Epoch
@@ -104,31 +167,6 @@ int Sys_Milliseconds (void)
 	return curtime;
 }
 
-#if !id386
-/*
-==================
-fastftol
-==================
-*/
-long fastftol( float f )
-{
-	return (long)f;
-}
-
-/*
-==================
-Sys_SnapVector
-==================
-*/
-void Sys_SnapVector( float *v )
-{
-	v[0] = rint(v[0]);
-	v[1] = rint(v[1]);
-	v[2] = rint(v[2]);
-}
-#endif
-
-
 /*
 ==================
 Sys_RandomBytes
@@ -142,7 +180,9 @@ qboolean Sys_RandomBytes( byte *string, int len )
 	if( !fp )
 		return qfalse;
 
-	if( !fread( string, sizeof( byte ), len, fp ) )
+	setvbuf( fp, NULL, _IONBF, 0 ); // don't buffer reads from /dev/urandom
+
+	if( fread( string, sizeof( byte ), len, fp ) != len )
 	{
 		fclose( fp );
 		return qfalse;
@@ -165,16 +205,6 @@ char *Sys_GetCurrentUser( void )
 		return "player";
 	}
 	return p->pw_name;
-}
-
-/*
-==================
-Sys_GetClipboardData
-==================
-*/
-char *Sys_GetClipboardData(void)
-{
-	return NULL;
 }
 
 #define MEM_THRESHOLD 96*1024*1024
@@ -212,13 +242,63 @@ const char *Sys_Dirname( char *path )
 }
 
 /*
+==============
+Sys_FOpen
+==============
+*/
+FILE *Sys_FOpen( const char *ospath, const char *mode ) {
+	struct stat buf;
+
+	// check if path exists and is a directory
+	if ( !stat( ospath, &buf ) && S_ISDIR( buf.st_mode ) )
+		return NULL;
+
+	return fopen( ospath, mode );
+}
+
+/*
 ==================
 Sys_Mkdir
 ==================
 */
-void Sys_Mkdir( const char *path )
+qboolean Sys_Mkdir( const char *path )
 {
-	mkdir( path, 0777 );
+	int result = mkdir( path, 0750 );
+
+	if( result != 0 )
+		return errno == EEXIST;
+
+	return qtrue;
+}
+
+/*
+==================
+Sys_Mkfifo
+==================
+*/
+FILE *Sys_Mkfifo( const char *ospath )
+{
+	FILE	*fifo;
+	int	result;
+	int	fn;
+	struct	stat buf;
+
+	// if file already exists AND is a pipefile, remove it
+	if( !stat( ospath, &buf ) && S_ISFIFO( buf.st_mode ) )
+		FS_Remove( ospath );
+
+	result = mkfifo( ospath, 0600 );
+	if( result != 0 )
+		return NULL;
+
+	fifo = fopen( ospath, "w+" );
+	if( fifo )
+	{
+		fn = fileno( fifo );
+		fcntl( fn, F_SETFL, O_NONBLOCK );
+	}
+
+	return fifo;
 }
 
 /*
@@ -230,7 +310,10 @@ char *Sys_Cwd( void )
 {
 	static char cwd[MAX_OSPATH];
 
-	getcwd( cwd, sizeof( cwd ) - 1 );
+	char *result = getcwd( cwd, sizeof( cwd ) - 1 );
+	if( result != cwd )
+		return NULL;
+
 	cwd[MAX_OSPATH-1] = 0;
 
 	return cwd;
@@ -369,9 +452,9 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 			continue;
 
 		if (*extension) {
-			if ( strlen( d->d_name ) < strlen( extension ) ||
+			if ( strlen( d->d_name ) < extLen ||
 				Q_stricmp(
-					d->d_name + strlen( d->d_name ) - strlen( extension ),
+					d->d_name + strlen( d->d_name ) - extLen,
 					extension ) ) {
 				continue; // didn't match
 			}
@@ -423,59 +506,44 @@ void Sys_FreeFileList( char **list )
 	Z_Free( list );
 }
 
-#ifdef MACOS_X
-/*
-=================
-Sys_StripAppBundle
-
-Discovers if passed dir is suffixed with the directory structure of a Mac OS X
-.app bundle. If it is, the .app directory structure is stripped off the end and
-the result is returned. If not, dir is returned untouched.
-=================
-*/
-char *Sys_StripAppBundle( char *dir )
-{
-	static char cwd[MAX_OSPATH];
-
-	Q_strncpyz(cwd, dir, sizeof(cwd));
-	if(strcmp(Sys_Basename(cwd), "MacOS"))
-		return dir;
-	Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
-	if(strcmp(Sys_Basename(cwd), "Contents"))
-		return dir;
-	Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
-	if(!strstr(Sys_Basename(cwd), ".app"))
-		return dir;
-	Q_strncpyz(cwd, Sys_Dirname(cwd), sizeof(cwd));
-	return cwd;
-}
-#endif // MACOS_X
-
-
 /*
 ==================
 Sys_Sleep
 
-Block execution for msec or until input is recieved.
+Block execution for msec or until input is received.
 ==================
 */
 void Sys_Sleep( int msec )
 {
-	fd_set fdset;
+	if( msec == 0 )
+		return;
 
-	FD_ZERO(&fdset);
-	FD_SET(fileno(stdin), &fdset);
-	if( msec < 0 )
+	if( stdinIsATTY )
 	{
-		select((fileno(stdin) + 1), &fdset, NULL, NULL, NULL);
+		fd_set fdset;
+
+		FD_ZERO(&fdset);
+		FD_SET(STDIN_FILENO, &fdset);
+		if( msec < 0 )
+		{
+			select(STDIN_FILENO + 1, &fdset, NULL, NULL, NULL);
+		}
+		else
+		{
+			struct timeval timeout;
+
+			timeout.tv_sec = msec/1000;
+			timeout.tv_usec = (msec%1000)*1000;
+			select(STDIN_FILENO + 1, &fdset, NULL, NULL, &timeout);
+		}
 	}
 	else
 	{
-		struct timeval timeout;
+		// With nothing to select() on, we can't wait indefinitely
+		if( msec < 0 )
+			msec = 10;
 
-		timeout.tv_sec = msec/1000;
-		timeout.tv_usec = (msec%1000)*1000;
-		select((fileno(stdin) + 1), &fdset, NULL, NULL, &timeout);
+		usleep( msec * 1000 );
 	}
 }
 
@@ -490,21 +558,421 @@ void Sys_ErrorDialog( const char *error )
 {
 	char buffer[ 1024 ];
 	unsigned int size;
-	fileHandle_t f;
+	int f = -1;
+	const char *homepath = Cvar_VariableString( "fs_homepath" );
+	const char *gamedir = Cvar_VariableString( "fs_game" );
 	const char *fileName = "crashlog.txt";
+	char *dirpath = FS_BuildOSPath( homepath, gamedir, "");
+	char *ospath = FS_BuildOSPath( homepath, gamedir, fileName );
 
 	Sys_Print( va( "%s\n", error ) );
 
-	// Write console log to file
-	f = FS_FOpenFileWrite( fileName );
-	if( !f )
+#ifndef DEDICATED
+	Sys_Dialog( DT_ERROR, va( "%s. See \"%s\" for details.", error, ospath ), "Error" );
+#endif
+
+	// Make sure the write path for the crashlog exists...
+
+	if(!Sys_Mkdir(homepath))
+	{
+		Com_Printf("ERROR: couldn't create path '%s' for crash log.\n", homepath);
+		return;
+	}
+
+	if(!Sys_Mkdir(dirpath))
+	{
+		Com_Printf("ERROR: couldn't create path '%s' for crash log.\n", dirpath);
+		return;
+	}
+
+	// We might be crashing because we maxed out the Quake MAX_FILE_HANDLES,
+	// which will come through here, so we don't want to recurse forever by
+	// calling FS_FOpenFileWrite()...use the Unix system APIs instead.
+	f = open( ospath, O_CREAT | O_TRUNC | O_WRONLY, 0640 );
+	if( f == -1 )
 	{
 		Com_Printf( "ERROR: couldn't open %s\n", fileName );
 		return;
 	}
 
-	while( ( size = CON_LogRead( buffer, sizeof( buffer ) ) ) > 0 )
-		FS_Write( buffer, size, f );
+	// We're crashing, so we don't care much if write() or close() fails.
+	while( ( size = CON_LogRead( buffer, sizeof( buffer ) ) ) > 0 ) {
+		if( write( f, buffer, size ) != size ) {
+			Com_Printf( "ERROR: couldn't fully write to %s\n", fileName );
+			break;
+		}
+	}
 
-	FS_FCloseFile( f );
+	close( f );
+}
+
+#ifndef __APPLE__
+static char execBuffer[ 1024 ];
+static char *execBufferPointer;
+static char *execArgv[ 16 ];
+static int execArgc;
+
+/*
+==============
+Sys_ClearExecBuffer
+==============
+*/
+static void Sys_ClearExecBuffer( void )
+{
+	execBufferPointer = execBuffer;
+	Com_Memset( execArgv, 0, sizeof( execArgv ) );
+	execArgc = 0;
+}
+
+/*
+==============
+Sys_AppendToExecBuffer
+==============
+*/
+static void Sys_AppendToExecBuffer( const char *text )
+{
+	size_t size = sizeof( execBuffer ) - ( execBufferPointer - execBuffer );
+	int length = strlen( text ) + 1;
+
+	if( length > size || execArgc >= ARRAY_LEN( execArgv ) )
+		return;
+
+	Q_strncpyz( execBufferPointer, text, size );
+	execArgv[ execArgc++ ] = execBufferPointer;
+
+	execBufferPointer += length;
+}
+
+/*
+==============
+Sys_Exec
+==============
+*/
+static int Sys_Exec( void )
+{
+	pid_t pid = fork( );
+
+	if( pid < 0 )
+		return -1;
+
+	if( pid )
+	{
+		// Parent
+		int exitCode;
+
+		wait( &exitCode );
+
+		return WEXITSTATUS( exitCode );
+	}
+	else
+	{
+		// Child
+		execvp( execArgv[ 0 ], execArgv );
+
+		// Failed to execute
+		exit( -1 );
+
+		return -1;
+	}
+}
+
+/*
+==============
+Sys_ZenityCommand
+==============
+*/
+static void Sys_ZenityCommand( dialogType_t type, const char *message, const char *title )
+{
+	Sys_ClearExecBuffer( );
+	Sys_AppendToExecBuffer( "zenity" );
+
+	switch( type )
+	{
+		default:
+		case DT_INFO:      Sys_AppendToExecBuffer( "--info" ); break;
+		case DT_WARNING:   Sys_AppendToExecBuffer( "--warning" ); break;
+		case DT_ERROR:     Sys_AppendToExecBuffer( "--error" ); break;
+		case DT_YES_NO:
+			Sys_AppendToExecBuffer( "--question" );
+			Sys_AppendToExecBuffer( "--ok-label=Yes" );
+			Sys_AppendToExecBuffer( "--cancel-label=No" );
+			break;
+
+		case DT_OK_CANCEL:
+			Sys_AppendToExecBuffer( "--question" );
+			Sys_AppendToExecBuffer( "--ok-label=OK" );
+			Sys_AppendToExecBuffer( "--cancel-label=Cancel" );
+			break;
+	}
+
+	Sys_AppendToExecBuffer( va( "--text=%s", message ) );
+	Sys_AppendToExecBuffer( va( "--title=%s", title ) );
+}
+
+/*
+==============
+Sys_KdialogCommand
+==============
+*/
+static void Sys_KdialogCommand( dialogType_t type, const char *message, const char *title )
+{
+	Sys_ClearExecBuffer( );
+	Sys_AppendToExecBuffer( "kdialog" );
+
+	switch( type )
+	{
+		default:
+		case DT_INFO:      Sys_AppendToExecBuffer( "--msgbox" ); break;
+		case DT_WARNING:   Sys_AppendToExecBuffer( "--sorry" ); break;
+		case DT_ERROR:     Sys_AppendToExecBuffer( "--error" ); break;
+		case DT_YES_NO:    Sys_AppendToExecBuffer( "--warningyesno" ); break;
+		case DT_OK_CANCEL: Sys_AppendToExecBuffer( "--warningcontinuecancel" ); break;
+	}
+
+	Sys_AppendToExecBuffer( message );
+	Sys_AppendToExecBuffer( va( "--title=%s", title ) );
+}
+
+/*
+==============
+Sys_XmessageCommand
+==============
+*/
+static void Sys_XmessageCommand( dialogType_t type, const char *message, const char *title )
+{
+	Sys_ClearExecBuffer( );
+	Sys_AppendToExecBuffer( "xmessage" );
+	Sys_AppendToExecBuffer( "-buttons" );
+
+	switch( type )
+	{
+		default:           Sys_AppendToExecBuffer( "OK:0" ); break;
+		case DT_YES_NO:    Sys_AppendToExecBuffer( "Yes:0,No:1" ); break;
+		case DT_OK_CANCEL: Sys_AppendToExecBuffer( "OK:0,Cancel:1" ); break;
+	}
+
+	Sys_AppendToExecBuffer( "-center" );
+	Sys_AppendToExecBuffer( message );
+}
+
+/*
+==============
+Sys_Dialog
+
+Display a *nix dialog box
+==============
+*/
+dialogResult_t Sys_Dialog( dialogType_t type, const char *message, const char *title )
+{
+	typedef enum
+	{
+		NONE = 0,
+		ZENITY,
+		KDIALOG,
+		XMESSAGE,
+		NUM_DIALOG_PROGRAMS
+	} dialogCommandType_t;
+	typedef void (*dialogCommandBuilder_t)( dialogType_t, const char *, const char * );
+
+	const char              *session = getenv( "DESKTOP_SESSION" );
+	qboolean                tried[ NUM_DIALOG_PROGRAMS ] = { qfalse };
+	dialogCommandBuilder_t  commands[ NUM_DIALOG_PROGRAMS ] = { NULL };
+	dialogCommandType_t     preferredCommandType = NONE;
+	int                     i;
+
+	commands[ ZENITY ] = &Sys_ZenityCommand;
+	commands[ KDIALOG ] = &Sys_KdialogCommand;
+	commands[ XMESSAGE ] = &Sys_XmessageCommand;
+
+	// This may not be the best way
+	if( !Q_stricmp( session, "gnome" ) )
+		preferredCommandType = ZENITY;
+	else if( !Q_stricmp( session, "kde" ) )
+		preferredCommandType = KDIALOG;
+
+	for( i = NONE + 1; i < NUM_DIALOG_PROGRAMS; i++ )
+	{
+		if( preferredCommandType != NONE && preferredCommandType != i )
+			continue;
+
+		if( !tried[ i ] )
+		{
+			int exitCode;
+
+			commands[ i ]( type, message, title );
+			exitCode = Sys_Exec( );
+
+			if( exitCode >= 0 )
+			{
+				switch( type )
+				{
+					case DT_YES_NO:    return exitCode ? DR_NO : DR_YES;
+					case DT_OK_CANCEL: return exitCode ? DR_CANCEL : DR_OK;
+					default:           return DR_OK;
+				}
+			}
+
+			tried[ i ] = qtrue;
+
+			// The preference failed, so start again in order
+			if( preferredCommandType != NONE )
+			{
+				preferredCommandType = NONE;
+				i = NONE + 1;
+			}
+		}
+	}
+
+	Com_DPrintf( S_COLOR_YELLOW "WARNING: failed to show a dialog\n" );
+	return DR_OK;
+}
+#endif
+
+/*
+==============
+Sys_GLimpSafeInit
+
+Unix specific "safe" GL implementation initialisation
+==============
+*/
+void Sys_GLimpSafeInit( void )
+{
+	// NOP
+}
+
+/*
+==============
+Sys_GLimpInit
+
+Unix specific GL implementation initialisation
+==============
+*/
+void Sys_GLimpInit( void )
+{
+	// NOP
+}
+
+void Sys_SetFloatEnv(void)
+{
+	// rounding toward nearest
+	fesetround(FE_TONEAREST);
+}
+
+/*
+==============
+Sys_PlatformInit
+
+Unix specific initialisation
+==============
+*/
+void Sys_PlatformInit( void )
+{
+	const char* term = getenv( "TERM" );
+
+	signal( SIGHUP, Sys_SigHandler );
+	signal( SIGQUIT, Sys_SigHandler );
+	signal( SIGTRAP, Sys_SigHandler );
+	signal( SIGABRT, Sys_SigHandler );
+	signal( SIGBUS, Sys_SigHandler );
+
+	Sys_SetFloatEnv();
+
+	stdinIsATTY = isatty( STDIN_FILENO ) &&
+		!( term && ( !strcmp( term, "raw" ) || !strcmp( term, "dumb" ) ) );
+}
+
+/*
+==============
+Sys_PlatformExit
+
+Unix specific deinitialisation
+==============
+*/
+void Sys_PlatformExit( void )
+{
+}
+
+/*
+==============
+Sys_SetEnv
+
+set/unset environment variables (empty value removes it)
+==============
+*/
+
+void Sys_SetEnv(const char *name, const char *value)
+{
+	if(value && *value)
+		setenv(name, value, 1);
+	else
+		unsetenv(name);
+}
+
+/*
+==============
+Sys_PID
+==============
+*/
+int Sys_PID( void )
+{
+	return getpid( );
+}
+
+/*
+==============
+Sys_PIDIsRunning
+==============
+*/
+qboolean Sys_PIDIsRunning( size_t pid )
+{
+	return kill( pid, 0 ) == 0;
+}
+
+/*
+=================
+Sys_DllExtension
+
+Check if filename should be allowed to be loaded as a DLL.
+=================
+*/
+qboolean Sys_DllExtension( const char *name ) {
+	const char *p;
+	char c = 0;
+
+	if ( COM_CompareExtension( name, DLL_EXT ) ) {
+		return qtrue;
+	}
+
+#ifdef __APPLE__
+	// Allow system frameworks without dylib extensions
+	// i.e., /System/Library/Frameworks/OpenAL.framework/OpenAL
+	if ( strncmp( name, "/System/Library/Frameworks/", 27 ) == 0 ) {
+		return qtrue;
+	}
+#endif
+
+	// Check for format of filename.so.1.2.3
+	p = strstr( name, DLL_EXT "." );
+
+	if ( p ) {
+		p += strlen( DLL_EXT );
+
+		// Check if .so is only followed for periods and numbers.
+		while ( *p ) {
+			c = *p;
+
+			if ( !isdigit( c ) && c != '.' ) {
+				return qfalse;
+			}
+
+			p++;
+		}
+
+		// Don't allow filename to end in a period. file.so., file.so.0., etc
+		if ( c != '.' ) {
+			return qtrue;
+		}
+	}
+
+	return qfalse;
 }

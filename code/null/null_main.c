@@ -83,7 +83,8 @@ int		Sys_Milliseconds (void) {
 	return 0;
 }
 
-void	Sys_Mkdir (char *path) {
+qboolean	Sys_Mkdir (const char *path) {
+	return qfalse;
 }
 
 char	*Sys_FindFirst (char *path, unsigned musthave, unsigned canthave) {
