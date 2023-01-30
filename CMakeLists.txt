@@ -74,7 +74,9 @@ endif()
 
 set(TARGET_BASE_GAME "main${TARGET_BASE_SUFFIX}")
 
-add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+if(MSVC)
+	add_compile_definitions(_CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_DEPRECATE)
+endif()
 
 IF(${CMAKE_C_COMPILER_ARCHITECTURE_ID} STREQUAL "x64") # for desktop
 	set(TARGET_ARCH_SUFFIX "x64")
