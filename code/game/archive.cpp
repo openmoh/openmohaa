@@ -201,10 +201,10 @@ qboolean FileRead::Open
 	}
 	else
 	{
-		size_t new_len;
+		uint32_t new_len;
 		size_t iCSVGLength;
 
-		Read( &new_len, sizeof( unsigned int ) );
+		Read( &new_len, sizeof(uint32_t) );
 		tempbuf = ( byte * )glbs.Malloc( new_len );
 
 		if( g_lz77.Decompress( pos, length - 8, tempbuf, &iCSVGLength ) || iCSVGLength != new_len )
@@ -538,13 +538,13 @@ void
 	}
 }
 
-inline size_t Archiver::ReadSize
+inline fileSize_t Archiver::ReadSize
 (
 void
 )
 
 {
-	size_t s;
+	fileSize_t s;
 
 	s = 0;
 	if( !fileerror )
@@ -558,11 +558,11 @@ void
 inline void Archiver::CheckSize
 (
 int type,
-size_t size
+fileSize_t size
 )
 
 {
-	size_t s;
+	fileSize_t s;
 
 	if( !fileerror )
 	{
@@ -575,11 +575,7 @@ size_t size
 	}
 }
 
-inline void Archiver::WriteSize
-(
-size_t size
-)
-
+inline void Archiver::WriteSize(fileSize_t size)
 {
 	glbs.FS_Write( &size, sizeof( size ), file );
 }
@@ -964,7 +960,7 @@ str * string
 {
 	if( archivemode == ARCHIVE_READ )
 	{
-		size_t	s;
+		fileSize_t	s;
 		char		*data;
 
 #ifndef NDEBUG
@@ -1003,7 +999,7 @@ str * string
 #ifdef ARCHIVE_USE_TYPES
 		WriteType( ARC_String );
 #endif
-		WriteSize( string->length() );
+		WriteSize( (fileSize_t)string->length() );
 		glbs.FS_Write( ( void * )string->c_str(), string->length(), file );
 	}
 }
@@ -1125,7 +1121,7 @@ void Archiver::ArchiveObject
 {
 	str		classname;
 	int      index;
-	size_t	size;
+	fileSize_t	size;
 	qboolean isent;
 
 	if( archivemode == ARCHIVE_READ )

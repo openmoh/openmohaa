@@ -1651,7 +1651,7 @@ void PathSearch::ArchiveStaticLoad
 	arc.ArchiveInteger( &total_children );
 
 	size = total_nodes + total_children * ( sizeof( pathway_t ) * 2 ) + nodecount * ( sizeof( PathNode ) / 2 );
-	size *= 2;
+	size *= sizeof(void*) / 2;
 
 	gi.DPrintf( "%d memory allocated for navigation.\n", size );
 

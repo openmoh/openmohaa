@@ -51,6 +51,8 @@ typedef struct
 	int  type;
 } pointer_fixup_t;
 
+using fileSize_t = uint32_t;
+
 class FileRead : public Class
 {
 protected:
@@ -93,13 +95,13 @@ protected:
 	void				CheckRead( void );
 	void				CheckType( int type );
 	int            ReadType( void );
-	size_t			ReadSize( void );
-	void				CheckSize( int type, size_t size );
+	fileSize_t			ReadSize( void );
+	void				CheckSize( int type, fileSize_t size );
 	void				ArchiveData( int type, void *data, size_t size );
 
 	void				CheckWrite( void );
 	void				WriteType( int type );
-	void				WriteSize( size_t size );
+	void				WriteSize(fileSize_t size );
 
 public:
 	CLASS_PROTOTYPE( Archiver );
