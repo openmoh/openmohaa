@@ -1361,6 +1361,27 @@ typedef struct
 
 } huffman_t;
 
+typedef struct
+{
+	int			blocNode;
+	int			blocPtrs;
+	node_t*		tree;
+	node_t*		lhead;
+	node_t*		ltail;
+	node_t*		loc[HMAX+1];
+	node_t**	freelist;
+	node_t		nodeList[1024];
+	node_t*		nodePtrs[1024];
+
+} huff_bt_t;
+
+typedef struct
+{
+	huff_bt_t		compressor;
+	huff_bt_t		decompressor;
+
+} huffman_bt_t;
+
 typedef struct polyVert_s
 {
   float xyz[3];
@@ -2149,17 +2170,17 @@ typedef struct
 } rectDef_t;
 
 typedef struct {
-	char	*name;
-	int		offset;
-	int		bits;
-	int		type;
+	const char	*name;
+	int			offset;
+	int			bits;
+	int			type;
 } netField_t;
 
 typedef struct {
-	int		offset;
-	int		bits;
-	int		type;
-	char	*name;
+	int			offset;
+	int			bits;
+	int			type;
+	const char	*name;
 } netField_ver15_t;
 
 typedef rectDef_t Rectangles;
@@ -6004,7 +6025,6 @@ typedef struct serverStatic_sh_s
 
 } serverStatic_sh_t;
 
-
 typedef struct server_s
 {
 	serverState_t state;
@@ -6028,6 +6048,31 @@ typedef struct server_s
 	int gameClientSize;
 
 } server_t;
+
+typedef struct server_sh_s
+{
+	serverState_t state;
+	qboolean restarting;
+	int serverId;
+	int restartedServerId;
+	int checksumFeed;
+	int snapshotCounter;
+	int timeResidual;
+	int nextFrameTime;
+	float frameTime;
+	cStaticModel_t *models[1024];
+	char *configstrings[2736];
+	svEntity_t svEntities[1024];
+	int farplane;
+	qboolean skyportal;
+	char *entityParsePoint;
+	gentity_t *gentities;
+	int gentitySize;
+	int num_entities;
+	playerState_t *gameClients;
+	int gameClientSize;
+
+} server_sh_t;
 
 typedef struct {
 	cplane_t	*plane;
@@ -10002,6 +10047,24 @@ typedef struct {
   GQueryType querytype;
   HashTable keylist;
   GParseInfoState pistate;
+  char cryptBuf[326];
 } GServerListImplementation;
 
 typedef GServerListImplementation *GServerList;
+
+typedef struct qr_implementation_s { /* size 240 id 457 */
+  int querysock;
+  int hbsock;
+  char gamename[64];
+  char secret_key[128];
+  void (*qr_basic_callback) (/* unknown */);
+  void (*qr_info_callback) (/* unknown */);
+  void (*qr_rules_callback) (/* unknown */);
+  void (*qr_players_callback) (/* unknown */);
+  long unsigned int lastheartbeat;
+  int queryid;
+  int packetnumber;
+  int qport;
+  char no_query;
+  void *udata;
+} qr_t;
