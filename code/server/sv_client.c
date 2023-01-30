@@ -596,7 +596,7 @@ void SV_SendClientGameState( client_t *client ) {
 			continue;
 		}
 		MSG_WriteSVC( &msg, svc_baseline );
-		MSG_WriteDeltaEntity( &msg, &nullstate, base, qtrue );
+		MSG_WriteDeltaEntity(&msg, &nullstate, base, qtrue, sv.frameTime);
 	}
 
 	MSG_WriteByte( &msg, svc_EOF );
@@ -1348,12 +1348,22 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	// don't allow another command for one second
 	cl->nextReliableTime = svs.time + 1000;
 
+	// quick fix
+	//==
+	// When the client tries to spawn a non-precached model, TIKI stuff gets called, and use MSG_* functions to read string
+	// which mean s (pointing to static string) will be overwritten.
+	// So, it's better to copy the client command BEFORE the actual execution of the command.
+	// TA and TT doesn't have this problem because they both use MSG_ReadScrambledString to read client commands. TIKI uses MSG_ReadString.
+	// It's the reason why clients often get the 'bad command byte' error in multiplayer, after spawning a model or using 'give all'.
+	//==
+	cl->lastClientCommand = seq;
+	Com_sprintf(cl->lastClientCommandString, sizeof(cl->lastClientCommandString), "%s", s);
+
+	// Actual execution of the command
 	SV_ExecuteClientCommand( cl, s, clientOk );
 
-	cl->lastClientCommand = seq;
-	Com_sprintf( cl->lastClientCommandString, sizeof( cl->lastClientCommandString ), "%s", s );
-
-	return qtrue;		// continue procesing
+	// continue procesing
+	return qtrue;
 }
 
 
