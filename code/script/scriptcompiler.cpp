@@ -23,15 +23,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // compiler.cpp : Parse, then compile to op-codes.
 
 #include "glb_local.h"
-#include "compiler.h"
+#include "scriptcompiler.h"
 #include "scriptvm.h"
 #include "level.h"
 #include "parm.h"
 #include "scriptmaster.h"
 #include "scriptthread.h"
-#include "parser/parsetree.h"
-#include "parser/yyParser.h"
-#include "parser/yyLexer.h"
+#include "scriptclass.h"
+#include "parsetree.h"
+#include "yyParser.h"
+#include "yyLexer.h"
 
 ScriptCompiler Compiler;
 int ScriptCompiler::current_label;

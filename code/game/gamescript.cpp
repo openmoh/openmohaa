@@ -24,9 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "glb_local.h"
 #include "gamescript.h"
-#include "compiler.h"
+#include "scriptcompiler.h"
 #include "scriptmaster.h"
 #include "scriptthread.h"
+#include "scriptclass.h"
 #include "level.h"
 
 static unsigned char *current_progBuffer = NULL;

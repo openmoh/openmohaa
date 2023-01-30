@@ -25,12 +25,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "glb_local.h"
 #include "scriptmaster.h"
 #include "scriptthread.h"
+#include "scriptclass.h"
 #include "gamescript.h"
 #include "game.h"
 #include "g_spawn.h"
 #include "object.h"
-#include <world.h>
-#include <compiler.h>
+#include "world.h"
+#include "scriptcompiler.h"
 
 #ifdef WIN32
 #include <direct.h>

@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "navigate.h"
 #include "lodthing.h"
 #include "player.h"
-#include <compiler.h>
+#include <scriptcompiler.h>
 #include "playerbot.h"
 #include "consoleevent.h"
 

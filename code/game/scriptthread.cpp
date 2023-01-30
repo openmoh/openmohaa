@@ -1,5 +1,6 @@
 #include "scriptthread.h"
 #include "scriptmaster.h"
+#include "scriptclass.h"
 #include "scriptvariable.h"
 
 #include "level.h"

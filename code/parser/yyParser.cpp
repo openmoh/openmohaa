@@ -90,7 +90,7 @@
 * yyParser.*: BISON Parser for MoHScript.
 */
 
-#include "compiler.h"
+#include "scriptcompiler.h"
 #include "yyParser.h"
 #include "yyLexer.h"
 

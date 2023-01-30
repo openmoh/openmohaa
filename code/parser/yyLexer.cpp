@@ -875,7 +875,7 @@ char *yytext;
 * yyLexer.*: FLEX Lexical grammar for MoHScript.
 */
 
-#include "compiler.h"
+#include "scriptcompiler.h"
 #include "yyParser.h"
 
 #include <stdio.h>
