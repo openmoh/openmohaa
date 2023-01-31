@@ -40,7 +40,7 @@ public:
 	static void ResetHints( void );
 	static int GetClosestSet( GrenadeHint **ppHints, int nHints, Vector& vOrg, float fMaxRangeSquared );
 
-	virtual void Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline void GrenadeHint::Archive

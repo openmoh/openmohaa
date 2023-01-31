@@ -45,7 +45,7 @@ class Exploder : public Trigger
       CLASS_PROTOTYPE( Exploder );
 		
 		                  Exploder();
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void Exploder::Archive
@@ -78,7 +78,7 @@ class MultiExploder : public Trigger
       CLASS_PROTOTYPE( MultiExploder );
 
 		               MultiExploder();
-	   virtual void   Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void MultiExploder::Archive
@@ -122,7 +122,7 @@ class ExplodeObject : public MultiExploder
       CLASS_PROTOTYPE( ExplodeObject );
 
 		               ExplodeObject();
-	   virtual void   Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void ExplodeObject::Archive

@@ -82,7 +82,7 @@ public:
 
 	virtual	~ScriptMaster();
 
-	virtual void			Archive( Archiver &arc );
+	void Archive( Archiver &arc ) override;
 	void					ArchiveString( Archiver& arc, const_str& s );
 
 	const_str				AddString( const char *s );
@@ -180,7 +180,7 @@ public:
 public:
 	CLASS_PROTOTYPE( ScriptEvent );
 
-	virtual void Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 
 	bool		IsRegistered( void );
 	void		Trigger( Event *ev );

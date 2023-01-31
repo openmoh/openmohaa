@@ -89,10 +89,10 @@ public:
 	SafePtr<Entity> m_pOwnerPtr;
 
 	Projectile();
-	virtual void	Archive( Archiver &arc );
-	virtual void	Touch( Event *ev );
-	virtual void	Explode( Event *ev );
-	virtual void	DoDecal( void );
+	void Archive( Archiver &arc ) override;
+	virtual void Touch( Event *ev );
+	virtual void Explode( Event *ev );
+	virtual void DoDecal( void );
 
 	void			SetAvelocity( Event *ev );
 	void			SetAddVelocity( Event *ev );
@@ -210,7 +210,7 @@ class Explosion : public Projectile
 
 	   void				DamageAgain( Event *ev );
 
-	   virtual void		Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 };
 
 inline void Explosion::Archive

@@ -82,7 +82,7 @@ public:
 	TurretGun();
 	virtual ~TurretGun();
 
-	virtual void Think( void );
+	void Think( void ) override;
 
 	qboolean UserAim( usercmd_s *ucmd );
 	void PlaceTurret( Event *ev );
@@ -127,14 +127,14 @@ public:
 	void CreateViewModel( void );
 	void DeleteViewModel( void );
 
-	virtual qboolean SetWeaponAnim( const char *anim, Event *ev = NULL );
-	virtual void StopWeaponAnim( void );
+	qboolean SetWeaponAnim( const char *anim, Event *ev = NULL ) override;
+	void StopWeaponAnim( void ) override;
 
 	virtual bool CanTarget( float *pos );
 	virtual float FireDelay( firemode_t mode );
-	virtual void ShowInfo( float fDot, float fDist );
+	void ShowInfo( float fDot, float fDist ) override;
 
-	virtual void Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 #endif // __WEAPTURRET_H__

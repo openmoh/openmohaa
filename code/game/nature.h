@@ -34,7 +34,7 @@ class Emitter : public Entity
    public:
       CLASS_PROTOTYPE( Emitter );
       Emitter();
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
    };
 
 inline void Emitter::Archive
@@ -60,7 +60,7 @@ class Rain : public Emitter
    public:
       CLASS_PROTOTYPE( Rain );
       Rain();
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
    };
 
 inline void Rain::Archive

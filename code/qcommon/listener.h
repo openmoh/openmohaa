@@ -481,7 +481,7 @@ public:
 	Listener();
 	virtual ~Listener();
 
-	virtual void Archive( Archiver &arc );
+	void Archive( Archiver &arc ) override;
 
 	void					CancelEventsOfType( Event *ev );
 	void					CancelEventsOfType( Event &ev );

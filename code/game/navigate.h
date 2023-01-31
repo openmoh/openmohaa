@@ -181,7 +181,7 @@ class PathNode : public SimpleEntity
 		PathNode();
 		virtual ~PathNode();
 
-		virtual void Archive( Archiver& arc );
+		void Archive( Archiver& arc ) override;
 		void ArchiveDynamic( Archiver& arc );
 		void ArchiveStatic( Archiver& arc );
 
@@ -200,7 +200,7 @@ class PathNode : public SimpleEntity
 		const_str GetSpecialAttack( class Actor *pActor );
 		void IsTouching( Event *ev );
 		qboolean IsTouching( Entity *e1 );
-		void setOriginEvent( Vector org );
+		void setOriginEvent( Vector org ) override;
 
 	};
 
@@ -351,7 +351,7 @@ public:
 	void		SetTeam( Event *ev );
 	void		SetUse( Event *ev );
 
-	void Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 typedef SafePtr< AttractiveNode > AttractiveNodePtr;

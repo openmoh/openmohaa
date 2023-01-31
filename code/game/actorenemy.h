@@ -52,7 +52,7 @@ public:
 	int GetThreat( void ) const;
 	float GetRangeSquared( void ) const;
 
-	virtual void Archive( Archiver & );
+	void Archive( Archiver & ) override;
 
 protected:
 	float UpdateLMRF( Actor *pSelf, bool *pbInFovAndRange, bool *pbVisible );
@@ -102,7 +102,7 @@ public:
 	void ConfirmEnemyIfCanSeeSharerOrEnemy( Actor *pSelf, Actor *pSharer, Sentient *pEnemy );
 	bool CaresAboutPerfectInfo( Sentient *pEnemy );
 
-	virtual void Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline void ActorEnemySet::Archive

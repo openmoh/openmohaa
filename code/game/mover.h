@@ -49,7 +49,7 @@ class Mover : public Trigger
 		void					MoveDone( Event *ev );
 		void					MoveTo( Vector tdest, Vector angdest, float tspeed, Event &event );
 		void					LinearInterpolate( Vector tdest, Vector angdest, float time, Event &event );
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
    };
 
 inline void Mover::Archive

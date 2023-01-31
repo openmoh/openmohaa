@@ -34,7 +34,7 @@ class AmmoEntity : public Item
       CLASS_PROTOTYPE( AmmoEntity );
 
 	                  AmmoEntity();
-      virtual Item   *ItemPickup( Entity *other, qboolean add_to_inventory );
+      Item   *ItemPickup( Entity *other, qboolean add_to_inventory ) override;
 	};
 
 class Ammo : public Class
@@ -57,7 +57,7 @@ class Ammo : public Class
       void           setName( str name);
       str            getName( void );
       int            getIndex( void );
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void Ammo::Archive

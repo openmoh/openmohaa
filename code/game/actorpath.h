@@ -81,7 +81,7 @@ public:
 	bool				IsSide( void ) const;
 	void				ForceShortLookahead( void );
 
-	virtual void		Archive( Archiver& arc );
+	virtual void Archive( Archiver& arc );
 };
 
 inline void ActorPath::Archive

@@ -74,7 +74,7 @@ class SoundManager : public Listener
       void              Reset( void );
       void              Load( void );
       void              AddEntity( Entity * ent );
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
    };
 
 inline void SoundManager::Archive

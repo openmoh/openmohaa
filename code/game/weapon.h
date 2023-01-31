@@ -219,7 +219,7 @@ class Weapon : public Item
       qboolean		         CheckReload( firemode_t mode );
       void			         DoneReloading( Event *ev );
       void					SetAimAnim( Event *ev );
-      virtual void			Shoot( Event *ev );      
+	  virtual void Shoot( Event *ev );
       void					Secondary( Event *ev );
 	  void					SetFireType( Event *ev );
 	  void					SetAIRange( Event *ev );
@@ -270,8 +270,8 @@ class Weapon : public Item
                            Weapon( const char *file );
 				               ~Weapon();
 
-	virtual void				Delete( void );
-	virtual Listener			*GetScriptOwner( void );
+	void Delete( void ) override;
+	Listener			*GetScriptOwner( void ) override;
       int				      GetRank( void );
       int				      GetOrder( void );
 	  int					GetWeaponClass( void ) const { return weapon_class; };
@@ -286,12 +286,12 @@ class Weapon : public Item
       void				      SetMinRange( float val );
 	  qboolean				IsSecondaryWeapon( void );
       void					ForceIdle( void );
-	  virtual qboolean		SetWeaponAnim( const char *anim, Event *ev = NULL );
+	  virtual qboolean SetWeaponAnim( const char *anim, Event *ev = NULL );
 	  qboolean				SetWeaponAnim( const char *anim, Event& ev );
 	  void					SetWeaponAnimEvent( Event *ev );
 	  void					SetWeaponIdleAnim( void );
 	  void					SetWeaponIdleAnimEvent( Event *ev );
-	  virtual void			StopWeaponAnim( void );
+	  virtual void StopWeaponAnim( void );
 
 	  void                 SetAmmoRequired( Event *ev );
 	  void                 SetDMAmmoRequired( Event *ev );
@@ -309,7 +309,7 @@ class Weapon : public Item
 	  void                 SetAmmoInClip( Event *ev );
 	  void                 SetShareClip( Event *ev );
       void			         SetModels( const char *world, const char *view );
-      void			         SetOwner( Sentient *ent );
+      void			         SetOwner( Sentient *ent ) override;
 	  void					SetMaxChargeTime( Event *ev );
 	  void					SetMinChargeTime( Event *ev );
 	  float					GetMinChargeTime( firemode_t );
@@ -323,13 +323,13 @@ class Weapon : public Item
       qboolean		         ReadyToFire( firemode_t mode, qboolean playsound=qtrue );
       qboolean		         MuzzleClear( void );
       void			         PutAway( void );
-      qboolean		         Drop( void );
+      qboolean		         Drop( void ) override;
       void			         Fire( firemode_t mode );
       void                 Charge( firemode_t mode );
       void                 ReleaseFire( firemode_t mode, float chargetime );
       void			         ClientFireDone( void );
-      qboolean	            Removable( void );
-      qboolean             Pickupable( Entity *other );
+      qboolean	            Removable( void ) override;
+      qboolean             Pickupable( Entity *other ) override;
       void                 DetachFromOwner( void );
       void                 AttachToOwner( weaponhand_t hand );
       void			         WeaponSound( Event *ev );
@@ -375,7 +375,7 @@ class Weapon : public Item
       void                 WorldHitSpawn( firemode_t mode, Vector org, Vector angles, float life );
 	  void						MakeNoise( Event *ev );
 	  void						FallingAngleAdjust( Event *ev );
-      void                 Archive(	Archiver &arc );
+      void                 Archive(	Archiver &arc ) override;
       
    };
 inline void Weapon::Archive

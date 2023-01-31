@@ -42,8 +42,8 @@ public:
 
 	void			Start( void );
 	void			Stop( void );
-	virtual void	Think( void );
-	virtual void	Archive( Archiver& arc );
+	void Think( void ) override;
+	void Archive( Archiver& arc ) override;
 
 private:
 	void			EventPostSpawn( Event *ev );

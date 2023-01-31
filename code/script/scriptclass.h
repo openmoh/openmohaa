@@ -54,15 +54,15 @@ public:
 
 	ScriptClass(GameScript* gameScript, Listener* self);
 	ScriptClass();
-	virtual ~ScriptClass();
+	~ScriptClass();
 
-	virtual void	Archive(Archiver& arc);
+	void	Archive(Archiver& arc) override;
 	void			ArchiveInternal(Archiver& arc);
 	static void		ArchiveScript(Archiver& arc, ScriptClass** obj);
 	void			ArchiveCodePos(Archiver& arc, unsigned char** codePos);
 
-	virtual ScriptThread* CreateThreadInternal(const ScriptVariable& label);
-	virtual ScriptThread* CreateScriptInternal(const ScriptVariable& label);
+	ScriptThread* CreateThreadInternal(const ScriptVariable& label) override;
+	ScriptThread* CreateScriptInternal(const ScriptVariable& label) override;
 
 	void			AddThread(ScriptVM* m_ScriptVM);
 	void			KillThreads(void);

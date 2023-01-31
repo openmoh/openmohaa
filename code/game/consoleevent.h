@@ -21,7 +21,7 @@ public:
 	void			SetConsoleEdict(gentity_t* edict);
 	gentity_t* GetConsoleEdict(void);
 
-	virtual void	ErrorInternal(Listener* l, str text);
+	void ErrorInternal(Listener* l, str text) override;
 };
 
 extern MEM_BlockAlloc<ConsoleEvent> ConsoleEvent_allocator;

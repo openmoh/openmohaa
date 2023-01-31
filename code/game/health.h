@@ -37,7 +37,7 @@ public:
 	CLASS_PROTOTYPE( Health );
 
 	Health();
-	virtual void		PickupHealth( Event *ev );
+	virtual void PickupHealth( Event *ev );
 };
 
 #endif /* health.h */

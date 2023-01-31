@@ -52,7 +52,7 @@ class GravPathNode : public Entity
       float          Speed( void );
 		float          MaxSpeed( void );
       float          Radius( void ) { return radius; };
-	   virtual void   Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
    };
 
 inline void GravPathNode::Archive
@@ -99,7 +99,7 @@ class GravPath : public Listener
 		float			      Length(void);
 		GravPathNode		*Start(void);
 		GravPathNode		*End(void);
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 
       Vector                     mins;
       Vector                     maxs;
@@ -161,7 +161,7 @@ class GravPathManager : public Class
       void     RemovePath(GravPath *p);
       Vector   CalculateGravityPull(Entity &ent, Vector position, qboolean *force, float *max_speed);
       void     DrawGravPaths( void );
-	   virtual void Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
    };
 
 inline void GravPathManager::Archive

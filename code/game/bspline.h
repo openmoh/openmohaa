@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 #include "entity.h"
-#include "Vector.h"
+#include "vector.h"
 
 typedef enum
 	{
@@ -60,7 +60,7 @@ class BSplineControlPoint : public Class
       float          *GetRoll( void );
       float          *GetSpeed( void );
 		void		      operator=( BSplineControlPoint &point );
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void BSplineControlPoint::Archive
@@ -279,7 +279,7 @@ class BSpline : public Class
 		void           GetControlPoint( int id, Vector& pos, Vector& orient, float& speed );
 		void				SetControlPoint( int id, const Vector& new_control_point );
 		void				SetControlPoint( int id, const Vector& new_control_point, const Vector& new_control_orient, const float& speed );
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline BSpline::BSpline()
@@ -533,7 +533,7 @@ class SplinePath : public Entity
       float             GetFov( void );
 		void              SetNext( SplinePath *node );
 		void              SetPrev( SplinePath *node );
-      virtual void      Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 typedef SafePtr<SplinePath> SplinePathPtr;

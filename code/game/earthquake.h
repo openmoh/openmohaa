@@ -57,7 +57,7 @@ public:
 	void				EventSetTimeDecay( Event *ev );
 	void				EventSetDoneDeath( Event *ev );
 
-	virtual void		Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline void ViewJitter::Archive

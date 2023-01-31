@@ -56,7 +56,7 @@ class Gib : public Mover
       void     Stop( Event *ev );
 		void     Damage( Event *ev );
       void     ClipGibVelocity( void );
-	   virtual void Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void Gib::Archive

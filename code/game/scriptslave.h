@@ -98,7 +98,7 @@ class ScriptSlave : public Mover
 		void					SetAnglesEvent( Event *ev );
 		void					SetAngleEvent( Event *ev );
       void              SetModelEvent( Event *ev );
-		void					TriggerEvent( Event *ev );
+		void					TriggerEvent( Event *ev ) override;
 		void					GotoNextWaypoint( Event *ev );
 		void					JumpTo( Event *ev );
 		void					MoveToEvent( Event *ev );
@@ -155,7 +155,7 @@ class ScriptSlave : public Mover
 	  void				EventModifyFlyPath( Event *ev );
 	  void				SetupPath( cSpline< 4, 512 > *pPath, SimpleEntity *se );
 
-      virtual void      Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void ScriptSlave::Archive

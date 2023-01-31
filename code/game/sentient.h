@@ -156,12 +156,12 @@ class Sentient : public Animate
 		float m_fHelmetSpeed;
 		bool m_bDontDropWeapons;
 
-		virtual void      EventTake( Event *ev );
-		virtual void      EventFreeInventory( Event *ev );
-		virtual void		EventGiveAmmo( Event *ev );
-		virtual void		EventGiveItem( Event *ev );
-		void              SetBloodModel( Event *ev );
-		virtual void		EventGiveTargetname( Event *ev );
+		virtual void EventTake( Event *ev );
+		virtual void EventFreeInventory( Event *ev );
+		virtual void EventGiveAmmo( Event *ev );
+		virtual void EventGiveItem( Event *ev );
+		void SetBloodModel( Event *ev );
+		virtual void EventGiveTargetname( Event *ev );
 
 		void				EventGerman( Event *ev );
 		void				EventAmerican( Event *ev );
@@ -183,8 +183,8 @@ class Sentient : public Animate
 		void				DisbandSquadMate( Sentient *pExFriendly );
 		bool				IsSquadMate( Sentient *pFriendly );
 
-		virtual void      ArmorDamage( Event *ev );
-		virtual qboolean	CanBlock( int meansofdeath, qboolean full_block );
+		virtual void ArmorDamage( Event *ev );
+		virtual qboolean CanBlock( int meansofdeath, qboolean full_block );
 		void			      AddBloodSpurt( Vector direction );
 		qboolean				ShouldBleed( int meansofdeath, qboolean dead );
 		qboolean				ShouldGib( int meansofdeath, float damage );
@@ -192,9 +192,9 @@ class Sentient : public Animate
 		str					GetBloodSplatName( void );
 		float					GetBloodSplatSize( void );
 		str					GetGibName( void );
-		virtual void      TurnOffShadow( Event *ev );
-		virtual void      TurnOnShadow( Event *ev );
-		virtual void      WeaponKnockedFromHands( void );
+		virtual void TurnOffShadow( Event *ev );
+		virtual void TurnOnShadow( Event *ev );
+		virtual void WeaponKnockedFromHands( void );
 
 		void		         UpdateOffsetColor( Event *ev );
 
@@ -265,8 +265,8 @@ class Sentient : public Animate
 		virtual				~Sentient();
 		Vector				EyePosition( void );
 
-		virtual Vector			GunPosition( void );
-		virtual Vector			GunTarget( bool bNoCollision = false );
+		virtual Vector GunPosition( void );
+		virtual Vector GunTarget( bool bNoCollision = false );
 		void		         FireWeapon( Event *ev );
 		void		         FireWeapon( int number, firemode_t mode );
 		void		         StopFireWeapon( Event *ev );
@@ -280,8 +280,8 @@ class Sentient : public Animate
 		Weapon		      *WorstWeapon( Weapon *ignore = NULL, qboolean bGetItem = false, int iIgnoreClass = 0 );
 		Weapon		      *NextWeapon( Weapon *weapon );
 		Weapon		      *PreviousWeapon( Weapon *weapon );
-		virtual void      useWeapon( const char *weaponname, weaponhand_t hand );
-		virtual void      useWeapon( Weapon *weapon, weaponhand_t hand );
+		virtual void useWeapon( const char *weaponname, weaponhand_t hand );
+		virtual void useWeapon( Weapon *weapon, weaponhand_t hand );
 		qboolean          WeaponsOut( void );
 		void              Holster( qboolean putaway );
 		void              SafeHolster( qboolean putaway );
@@ -315,20 +315,20 @@ class Sentient : public Animate
 		int               NumInventoryItems( void );
 		Item              *NextItem( Item *item );
 		Item              *PrevItem( Item *item );
-		virtual void      DropInventoryItems( void );
+		virtual void DropInventoryItems( void );
 		void              ListInventory( void );
 
-		bool				CanSee( Entity *ent, float fov, float vision_distance );
-		virtual void		SetViewAngles( Vector angles );
-		virtual Vector		GetViewAngles( void );
+		bool				CanSee( Entity *ent, float fov, float vision_distance ) override;
+		virtual void SetViewAngles( Vector angles );
+		virtual Vector GetViewAngles( void );
 
 		qboolean          PowerupActive( void );
 
-		virtual void		setModel( const char *model );
-		virtual void      Archive( Archiver &arc );
+		void setModel( const char *model ) override;
+		void Archive( Archiver &arc ) override;
 		void              ArchivePersistantData( Archiver &arc );
 		void              DoubleArmor( void );
-		virtual qboolean  DoGib( int meansofdeath, Entity *inflictor );
+		virtual qboolean DoGib( int meansofdeath, Entity *inflictor );
 		void              JumpXY( Event *ev );
 		void              MeleeAttackStart( Event *ev );
 		void              MeleeAttackEnd( Event *ev );
@@ -338,9 +338,9 @@ class Sentient : public Animate
 		void              StunEnd( Event *ev );
 		void              SetAttackBlocked( bool blocked );
 		void		         SetOffsetColor( float r, float g, float b, float time );
-		virtual void      ReceivedItem( Item * item );
-		virtual void      RemovedItem( Item * item );
-		virtual void      AmmoAmountChanged( Ammo * ammo, int inclip = 0 );
+		virtual void ReceivedItem( Item * item );
+		virtual void RemovedItem( Item * item );
+		virtual void AmmoAmountChanged( Ammo * ammo, int inclip = 0 );
 		void              AmmoAmountInClipChanged( str ammo_type, int amount );
 
 		void				PutawayWeapon( Event *ev );
@@ -356,7 +356,7 @@ class Sentient : public Animate
 		void					StopOnFire( Event *ev );
 		void					SpawnBloodyGibs( Event *ev );
 		void					SetMaxGibs( Event *ev );
-		virtual void      GetStateAnims( Container<const char *> *c );
+		virtual void GetStateAnims( Container<const char *> *c );
 		void              SpawnEffect( str modelname, Vector pos );
    };
 

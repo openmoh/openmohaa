@@ -67,7 +67,7 @@ public:
 	Listener	   *Spawn( void );
 	Listener	   *SpawnInternal( void );
 
-	virtual void   Archive( Archiver &arc );
+	void Archive( Archiver &arc ) override;
 };
 
 extern Container< SafePtr< Listener > > g_spawnlist;

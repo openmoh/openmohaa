@@ -97,8 +97,8 @@ public:
 	void		Shoot( Event *ev );
 	void		SetIgnoreWalls( Event *ev );
 
-	virtual void setAngles( Vector ang );
-	virtual void Archive( Archiver &arc );
+	void setAngles( Vector ang ) override;
+	void Archive( Archiver &arc ) override;
 
 	friend FuncBeam *CreateBeam( const char *model, const char *shader, Vector start, Vector end, int numsegments = 4, float scale = 1.0f, float life = 1.0f, float damage = 0.0f, Entity *origin_target = NULL );
 };

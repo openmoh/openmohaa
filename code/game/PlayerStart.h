@@ -42,7 +42,7 @@ public:
 
 	PlayerStart();
 
-	virtual void	Archive( Archiver &arc );
+	void Archive( Archiver &arc ) override;
 
 	void			SetAngle( Event *ev );
 	void			EventEnableSpawn( Event *ev );

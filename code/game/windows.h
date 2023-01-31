@@ -42,7 +42,7 @@ public:
 
 	WindowObject();
 
-	virtual void		Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 
 	void				WindowSetup( Event *ev );
 	void				WindowDebrisType( Event *ev );

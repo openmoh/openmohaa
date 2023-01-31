@@ -53,7 +53,7 @@ class Fulcrum : public ScriptSlave
       void        Reset( Event *ev );
       void        Touched( Event *ev );
       void        Adjust( Event *ev );
-      virtual void Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void Fulcrum::Archive
@@ -95,7 +95,7 @@ class RunThrough : public Entity
       CLASS_PROTOTYPE( RunThrough );
                   RunThrough();
 
-      virtual void Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void RunThrough::Archive
@@ -150,7 +150,7 @@ class SinkObject : public ScriptSlave
       void        SetSinkSound( Event *ev );
       void        MakeActive( Event *ev );
       void        MakeNonActive( Event *ev );
-      virtual void Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void SinkObject::Archive

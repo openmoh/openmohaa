@@ -43,7 +43,7 @@ public:
 	void			DelayExecute(Event* ev = NULL);
 
 	ScriptClass* GetScriptClass(void);
-	str				ScriptThread::FileName(void);
+	str				FileName(void);
 	int				GetThreadState(void);
 
 	void			Pause(void);

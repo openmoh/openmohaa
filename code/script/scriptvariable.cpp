@@ -2389,11 +2389,6 @@ ScriptVariable ScriptVariable::operator--( int )
 	return *this;
 }
 
-CLASS_DECLARATION( Class, ScriptVariable, NULL )
-{
-	{ NULL, NULL }
-};
-
 #ifndef NO_SCRIPTENGINE
 
 ScriptVariableList::ScriptVariableList()

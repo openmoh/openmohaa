@@ -64,7 +64,7 @@ public:
 	void			BarrelDamaged( Event *ev );
 	void			BarrelKilled( Event *ev );
 
-	virtual void	Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline void BarrelObject::Archive

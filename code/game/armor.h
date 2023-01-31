@@ -30,15 +30,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class Armor : public Item
 	{
 	protected:
-		virtual void      Setup( const char *model, int amount );
-      virtual void      Add( int amount );
+		virtual void Setup( const char *model, int amount );
+      void Add( int amount ) override;
 
 	public:
       CLASS_PROTOTYPE( Armor );
 
                         Armor();
 
-      virtual qboolean  Pickupable( Entity *other );
+      qboolean Pickupable( Entity *other ) override;
    };
 
 #endif /* armor.h */

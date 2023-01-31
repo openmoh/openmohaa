@@ -40,7 +40,7 @@ public:
 	VehicleCollisionEntity( Entity *ent );
 	VehicleCollisionEntity();
 
-	virtual void Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 
 	void		Solid( void );
 	void		NotSolid( void );

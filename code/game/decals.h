@@ -41,7 +41,7 @@ class Decal : public Entity
       void           setShader( str shader );
       void           setOrientation( str deg );
       void           setRadius( float rad );
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void Decal::Archive

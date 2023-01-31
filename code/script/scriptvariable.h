@@ -142,8 +142,6 @@ private:
 	void					ClearPointerInternal();
 
 public:
-	CLASS_PROTOTYPE( ScriptVariable );
-
 	ScriptVariable();
 	ScriptVariable( const ScriptVariable& variable );
 
@@ -284,7 +282,7 @@ public:
 
 	ScriptVariableList();
 
-	virtual void	Archive( Archiver &arc );
+	void	Archive( Archiver &arc ) override;
 
 	void			ClearList( void );
 

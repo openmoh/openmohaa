@@ -63,7 +63,7 @@ public:
 	VehicleTurretGun();
 	virtual ~VehicleTurretGun();
 
-	virtual void		Think( void );
+	void Think( void ) override;
 	void				SetBaseOrientation( float( *borientation )[ 3 ], float *bangles );
 	void				SetBaseEntity( Entity *e );
 	void				SetVehicleOwner( Entity *e );
@@ -76,8 +76,8 @@ public:
 	void				SetBaseEntity( Event *ev );
 	void				PlaceTurret( Event *ev );
 	void				TurretBeginUsed( Sentient *pEnt );
-	virtual void		TurretEndUsed( void );
-	virtual void		TurretUsed( Sentient *pEnt );
+	void TurretEndUsed( void ) override;
+	void TurretUsed( Sentient *pEnt ) override;
 	void				TurretUsed( Event *ev );
 	void				EventKilled( Event *ev );
 	void				EventDamage( Event *ev );
@@ -93,7 +93,7 @@ public:
 	void				UnLock( void );
 	bool				UseRemoteControl( void );
 	Sentient			*GetRemoteOwner( void );
-	virtual void		Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline void VehicleTurretGun::Archive

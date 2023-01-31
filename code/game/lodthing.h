@@ -34,7 +34,7 @@ public:
 	void			Spawn( Event *ev );
 	void			PassEvent( Event *ev );
 
-	virtual void	Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline void LODMaster::Archive
@@ -62,7 +62,7 @@ public:
 	void			SetModelEvent( Event *ev );
 	void			Delete( Event *ev );
 
-	virtual void	Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline void LODSlave::Archive

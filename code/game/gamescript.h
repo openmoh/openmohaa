@@ -84,7 +84,7 @@ public:
 public:
 	StateScript();
 
-	virtual void		Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 
 	bool				AddLabel( str label, unsigned char *pos, bool private_section = false );
 	bool				AddLabel( const_str label, unsigned char *pos, bool private_section = false );
@@ -127,7 +127,7 @@ public:
 	GameScript( const char *filename );
 	~GameScript();
 
-	virtual void			Archive( Archiver& arc );
+	void Archive( Archiver& arc );
 	static void				Archive( Archiver& arc, GameScript *&scr );
 	void					ArchiveCodePos( Archiver& arc, unsigned char **codePos );
 

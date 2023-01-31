@@ -92,7 +92,7 @@ class CameraMoveState : public Class
       void           Evaluate( Camera * camera );
       void           Initialize( Camera * camera );
       void           DoNodeEvents( Camera * camera );
-	   virtual void   Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
    };
 
 inline void CameraMoveState::operator=
@@ -156,7 +156,7 @@ class CameraWatchState : public Class
 
       void              Evaluate( Camera * camera, CameraMoveState * move );
       void              Initialize( Camera * camera );
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
    };
 
 inline void CameraWatchState::Archive
@@ -179,7 +179,7 @@ class CameraState : public Class
 
       void              Evaluate( Camera * camera );
       void              Initialize( Camera * camera );
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
    };
 
 inline void CameraState::Archive
@@ -254,8 +254,8 @@ class Camera : public Entity
       Vector            CalculatePosition( void );
       Vector            CalculateOrientation( void	);
       float             CalculateFov( void );
-      virtual void      bind( Entity *master, qboolean use_my_angles = false );
-      virtual void      unbind( void );
+      virtual void bind( Entity *master, qboolean use_my_angles = false );
+      void unbind( void ) override;
 
 	public:
       CLASS_PROTOTYPE( Camera );
@@ -316,7 +316,7 @@ class Camera : public Entity
 	  Vector			GetPositionOffset( void );
 	  void				SetPositionOffset( Vector vNewOfs );
 
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline Vector Camera::GetPositionOffset
@@ -444,7 +444,7 @@ class CameraManager : public Listener
 
                         CameraManager();
       void              SetPath( str pathName );
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
    };
 
 inline void CameraManager::Archive

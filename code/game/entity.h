@@ -291,19 +291,19 @@ public:
 	void              SetKillTarget( const char *killtarget );
 	const char        *KillTarget( void );
 
-	virtual void			setLocalOrigin( Vector org );
+	virtual void setLocalOrigin( Vector org );
 
-	virtual void			setModel( const char *model );
+	virtual void setModel( const char *model );
 	void					setModel( str &mdl );
 	qboolean				setModel( void );
 	void					SetModelEvent( Event *ev );
 	void					GetBrushModelEvent( Event *ev );
 	void					GetModelEvent( Event *ev );
 	void              SetTeamEvent( Event *ev );
-	virtual void      TriggerEvent( Event *ev );
+	virtual void TriggerEvent( Event *ev );
 	void					hideModel( void );
 	void					EventHideModel( Event *ev );
-	virtual void		showModel( void );
+	virtual void showModel( void );
 	void					EventShowModel( Event *ev );
 	qboolean				hidden( void );
 	void              ProcessInitCommands( void );
@@ -317,17 +317,17 @@ public:
 	void					setSolidType( solid_t type );
 	int					getSolidType( void );
 
-	virtual void		setContentsSolid( void );
+	virtual void setContentsSolid( void );
 
-	virtual Vector		getParentVector( Vector vec );
+	virtual Vector getParentVector( Vector vec );
 	Vector				getLocalVector( Vector vec );
 
-	virtual void		setSize( Vector min, Vector max );
-	virtual void		setOrigin( Vector org );
-	virtual void		setOriginEvent( Vector org );
-	virtual void		setOrigin( void );
-	virtual void		addOrigin( Vector org );
-	virtual void		updateOrigin( void );
+	virtual void setSize( Vector min, Vector max );
+	void setOrigin( Vector org ) override;
+	void setOriginEvent( Vector org ) override;
+	virtual void setOrigin( void );
+	virtual void addOrigin( Vector org );
+	virtual void updateOrigin( void );
 
 	void              GetRawTag( int tagnum, orientation_t * orient );
 	qboolean          GetRawTag( const char * tagname, orientation_t * orient );
@@ -342,14 +342,14 @@ public:
 	void				GetTagAngles( Event *ev );
 	void				GetTagPosition( Event *ev );
 
-	virtual int			CurrentFrame( bodypart_t part = legs );
-	virtual int			CurrentAnim( bodypart_t part = legs );
+	virtual int CurrentFrame( bodypart_t part = legs );
+	virtual int CurrentAnim( bodypart_t part = legs );
 
-	virtual void		setAngles( Vector ang );
-	virtual void		setAngles( void );
+	void setAngles( Vector ang ) override;
+	virtual void setAngles( void );
 	void				SetOrigin( Event *ev );
 
-	virtual void		ShowInfo( float fDot, float fDist );
+	virtual void ShowInfo( float fDot, float fDist );
 
 	void				GetControllerAngles( Event *ev );
 	Vector				GetControllerAngles( int num );
@@ -367,8 +367,8 @@ public:
 	qboolean				droptofloor( float maxfall );
 	qboolean				isClient( void );
 
-	virtual void		SetDeltaAngles( void );
-	virtual void		DamageEvent( Event *event );
+	virtual void SetDeltaAngles( void );
+	virtual void DamageEvent( Event *event );
 	void              Damage( Entity *inflictor,
 		Entity *attacker,
 		float damage,
@@ -382,13 +382,13 @@ public:
 	void              Stun( float time );
 
 	void              DamageType( Event *ev );
-	virtual qboolean	CanDamage( Entity *target, Entity *skip_ent = NULL );
+	virtual qboolean CanDamage( Entity *target, Entity *skip_ent = NULL );
 
-	virtual void		AddImmunity( Event *ev );
-	virtual void		RemoveImmunity( Event *ev );
+	virtual void AddImmunity( Event *ev );
+	virtual void RemoveImmunity( Event *ev );
 	qboolean			Immune( int meansofdeath );
 
-	virtual void		Delete( void );
+	virtual void Delete( void );
 	void				Remove( Event *ev );
 	void				EventSoundDone( Event *ev );
 
@@ -397,10 +397,10 @@ public:
 	void				EventInPVS( Event *ev );
 
 	qboolean				FovCheck( float *delta, float fovdot );
-	virtual bool			CanSee( Entity *ent, float fov, float vision_distance );
+	virtual bool CanSee( Entity *ent, float fov, float vision_distance );
 	void					CanSee( Event *ev );
 
-	virtual qboolean		IsDead();
+	virtual qboolean IsDead();
 	qboolean				IsTouching( Entity *e1 );
 	void					IsTouching( Event *ev );
 
@@ -413,9 +413,9 @@ public:
 	void					FadeIn( Event *ev );
 	void					Fade( Event *ev );
 
-	virtual void		CheckGround( void );
-	virtual qboolean	HitSky( trace_t *trace );
-	virtual qboolean	HitSky( void );
+	virtual void CheckGround( void );
+	virtual qboolean HitSky( trace_t *trace );
+	virtual qboolean HitSky( void );
 
 	void					BecomeSolid( Event *ev );
 	void					BecomeNonSolid( Event *ev );
@@ -481,9 +481,9 @@ public:
 	void				SetShaderData( Event *ev );
 
 	void				DoForceActivate( void );
-	virtual void		ClientThink( void );
-	virtual void		Postthink( void );
-	virtual void		Think( void );
+	virtual void ClientThink( void );
+	virtual void Postthink( void );
+	virtual void Think( void );
 
 	void              DamageSkin( trace_t * trace, float damage );
 
@@ -516,10 +516,10 @@ public:
 	void					joinTeam( Entity *teammember );
 	void					quitTeam( void );
 	qboolean          isBoundTo( Entity *master );
-	virtual void		bind( Entity *master, qboolean use_my_angles = false, qboolean bBindChilds = false );
-	virtual void		unbind( void );
-	virtual void		glue( Entity *master, qboolean use_my_angles = true );
-	virtual void		unglue( void );
+	virtual void bind( Entity *master, qboolean use_my_angles = false, qboolean bBindChilds = false );
+	virtual void unbind( void );
+	virtual void glue( Entity *master, qboolean use_my_angles = true );
+	virtual void unglue( void );
 
 	void					JoinTeam( Event *ev );
 	void					EventQuitTeam( Event *ev );
@@ -530,7 +530,7 @@ public:
 	void					AddToSoundManager( Event *ev );
 	void              NoLerpThisFrame( void );
 
-	virtual void		addAngles( Vector add );
+	virtual void addAngles( Vector add );
 
 	void					DeathSinkStart( Event *ev );
 	void					DeathSink( Event *ev );
@@ -566,17 +566,17 @@ public:
 	void				EventSetRotatedBbox( Event *ev );
 	void				EventGetRotatedBbox( Event *ev );
 
-	virtual void		EndFrame( void );
-	virtual void		CalcBlend( void );
+	virtual void EndFrame( void );
+	virtual void CalcBlend( void );
 
-	virtual void		VelocityModified( void );
+	virtual void VelocityModified( void );
 
-	virtual void		PreAnimate( void );
-	virtual void		PostAnimate( void );
+	virtual void PreAnimate( void );
+	virtual void PostAnimate( void );
 
-	virtual void		Archive( Archiver &arc );
-	virtual bool		AutoArchiveModel( void );
-	virtual void		PathnodeClaimRevoked( class PathNode *node );
+	void Archive( Archiver &arc ) override;
+	virtual bool AutoArchiveModel( void );
+	virtual void PathnodeClaimRevoked( class PathNode *node );
 	virtual qboolean	BlocksAIMovement( void ) const;
 	virtual qboolean	AIDontFace( void ) const;
 

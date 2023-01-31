@@ -80,7 +80,7 @@ class Trigger : public Animate
 		virtual		      ~Trigger();
 
       // override this to allow objects other than players, projectiles, and monsters to activate the trigger
-      virtual qboolean  respondTo( Entity *other );
+		virtual qboolean respondTo( Entity *other );
 
       // override this to redirect messages to an entity other than the one who triggered it
       virtual Entity    *getActivator( Entity *other );
@@ -121,7 +121,7 @@ class Trigger : public Animate
       void              StartThread( Event *ev );
 		void			      TriggerStuff( Event *ev );
 		void			      ActivateTargets( Event *ev );
-      virtual void      Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void Trigger::Archive
@@ -160,7 +160,7 @@ class TriggerVehicle : public Trigger
 public:
 	CLASS_PROTOTYPE( TriggerVehicle );
 
-	virtual qboolean respondTo( Entity *other );
+	qboolean respondTo( Entity *other ) override;
 };
 
 class TriggerAllEntry
@@ -181,7 +181,7 @@ private:
 public:
 	CLASS_PROTOTYPE( TriggerAll );
 
-	virtual void	Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 
 	void		TriggerStuff( Event *ev );
 	bool		IsTriggerable( Entity *other );
@@ -209,9 +209,9 @@ class TouchField : public Trigger
       CLASS_PROTOTYPE( TouchField );
 
 		TouchField();
-		virtual void	Setup( Entity *ownerentity, Event &ontouch, Vector min, Vector max, int respondto );
+		virtual void Setup( Entity *ownerentity, Event &ontouch, Vector min, Vector max, int respondto );
 		void				SendEvent( Event *ev );
-      virtual void   Archive(	Archiver &arc );
+      void Archive(	Archiver &arc ) override;
 	};
 
 inline void TouchField::Archive
@@ -244,7 +244,7 @@ public:
 
 	void				SaveGame( Event *ev );
 	void				EventSaveName( Event *ev );
-	virtual void		Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline void TriggerSave::Archive
@@ -287,7 +287,7 @@ class TriggerPush : public Trigger
 		void		Push( Event *ev );
 		void		SetPushDir( Event *ev );
 		void		SetPushSpeed( Event *ev );
-      virtual void Archive(	Archiver &arc );
+      void Archive(	Archiver &arc ) override;
 	};
 
 inline void TriggerPush::Archive
@@ -311,7 +311,7 @@ class TriggerPushAny : public Trigger
 					      TriggerPushAny();
 		void		      Push( Event *ev );
 		void		      SetSpeed( Event *ev );
-      virtual void   Archive(	Archiver &arc );
+      void Archive(	Archiver &arc ) override;
 	};
 
 inline void TriggerPushAny::Archive
@@ -352,7 +352,7 @@ class TriggerPlaySound : public Trigger
       void           SetVolume( float vol );
       void           SetMinDist( float dist );
 
-      virtual void   Archive(	Archiver &arc );
+      void Archive(	Archiver &arc ) override;
 	};
 
 inline void TriggerPlaySound::Archive
@@ -414,7 +414,7 @@ class RandomSpeaker : public TriggerSpeaker
       void           SetChance( float value );
       void           ScheduleSound( void );
 
-      virtual void   Archive(	Archiver &arc );
+      void Archive(	Archiver &arc ) override;
 	};
 
 inline void RandomSpeaker::Archive
@@ -444,7 +444,7 @@ public:
 	void		ChangeLevel(Event* ev);
 	const char* Map(void);
 	const char* SpawnSpot(void);
-	virtual void Archive(Archiver& arc);
+	void Archive(Archiver& arc) override;
 };
 
 class TriggerExit : public Trigger
@@ -486,7 +486,7 @@ class TriggerHurt : public TriggerUse
       CLASS_PROTOTYPE( TriggerHurt );
 
 		             TriggerHurt();
-      virtual void Archive(	Archiver &arc );
+      void Archive(	Archiver &arc ) override;
 	};
 
 inline void TriggerHurt::Archive
@@ -512,7 +512,7 @@ class TriggerDamageTargets : public Trigger
 
 		             TriggerDamageTargets();
 		void	       PassDamage( Event *ev );
-      virtual void Archive(	Archiver &arc );
+      void Archive(	Archiver &arc ) override;
 	};
 
 inline void TriggerDamageTargets::Archive
@@ -569,7 +569,7 @@ class TriggerMusic : public Trigger
       void           SetAltMood( str crnt, str fback );
       void           SetOneShot( qboolean once );
 
-		virtual void Archive(	Archiver &arc );
+		void Archive(	Archiver &arc ) override;
 	};
 
 inline void TriggerMusic::Archive
@@ -613,7 +613,7 @@ class TriggerReverb : public Trigger
       void           SetAltReverb( int type, float level );
       void           SetOneShot( qboolean once );
 
-		virtual void Archive(	Archiver &arc );
+		void Archive(	Archiver &arc ) override;
 	};
 
 inline void TriggerReverb::Archive
@@ -641,10 +641,10 @@ class TriggerByPushObject : public TriggerOnce
 	public:
       CLASS_PROTOTYPE( TriggerByPushObject );
 
-      virtual qboolean  respondTo( Entity *other );
-      virtual Entity    *getActivator( Entity *other );
+      qboolean respondTo( Entity *other ) override;
+      Entity    *getActivator( Entity *other ) override;
 
-		virtual void      Archive(	Archiver &arc );
+		void Archive(	Archiver &arc ) override;
 	};
 
 inline void TriggerByPushObject::Archive
@@ -670,7 +670,7 @@ class TriggerGivePowerup : public Trigger
 		void				SetOneShot( Event *ev );
 		void				SetPowerupName( Event *ev );
 		void				GivePowerup( Event *ev );
-		virtual void   Archive(	Archiver &arc );
+		void Archive(	Archiver &arc ) override;
 	};
 
 inline void TriggerGivePowerup::Archive
@@ -693,7 +693,7 @@ public:
 	TriggerClickItem();
 
 	void		SetClickItemModelEvent( Event *ev );
-	void		Archive( Archiver& arc );
+	void		Archive( Archiver& arc ) override;
 };
 
 inline void TriggerClickItem::Archive

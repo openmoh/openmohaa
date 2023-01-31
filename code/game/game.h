@@ -39,7 +39,7 @@ public:
 public:
 	CLASS_PROTOTYPE( Game );
 
-	virtual void Archive( Archiver &arc );
+	void Archive( Archiver &arc ) override;
 
 	Game();
 	~Game();

@@ -70,48 +70,48 @@ public:
 
 	Item();
 	~Item();
-	virtual void		PlaceItem( void );
-	virtual void		SetOwner( Sentient *ent );
+	virtual void PlaceItem( void );
+	virtual void SetOwner( Sentient *ent );
 	virtual Sentient*	GetOwner( void );
-	virtual void		Delete( void );
+	void Delete( void ) override;
 	void				RemoveFromOwner( void );
 	void					SetNoRemove( Event *ev );
-	virtual void		DropToFloor( Event *ev );
+	virtual void DropToFloor( Event *ev );
 	virtual Item      *ItemPickup( Entity *other, qboolean add_to_inventory = qtrue );
-	virtual void		Respawn( Event *ev );
-	virtual void		setRespawn( qboolean flag );
+	virtual void Respawn( Event *ev );
+	virtual void setRespawn( qboolean flag );
 	void					setRespawn( Event *ev );
-	virtual qboolean	Respawnable( void );
-	virtual void		setRespawnTime( float time );
+	virtual qboolean Respawnable( void );
+	virtual void setRespawnTime( float time );
 	void					setRespawnTime( Event *ev );
-	virtual float		RespawnTime( void );
+	virtual float RespawnTime( void );
 	void					RespawnDone( Event *ev );
 	void					PickupDone( Event *ev );
 	virtual int       GetItemIndex( void ) { return item_index; };
-	virtual int       getAmount( void );
-	virtual void      setAmount( int startamount );
+	virtual int getAmount( void );
+	virtual void setAmount( int startamount );
 
-	virtual int       MaxAmount( void );
-	virtual qboolean  Pickupable( Entity *other );
+	virtual int MaxAmount( void );
+	virtual qboolean Pickupable( Entity *other );
 
-	virtual void      setName( const char *i );
-	virtual str       getName( void );
-	virtual int       getIndex( void );
-	virtual void      SetAmountEvent( Event *ev );
-	virtual void      SetDMAmountEvent(Event *ev);
-	virtual void      SetMaxAmount( Event *ev );
-	virtual void      SetItemName( Event *ev );
+	virtual void setName( const char *i );
+	virtual str getName( void );
+	virtual int getIndex( void );
+	virtual void SetAmountEvent( Event *ev );
+	virtual void SetDMAmountEvent(Event *ev);
+	virtual void SetMaxAmount( Event *ev );
+	virtual void SetItemName( Event *ev );
 
-	virtual void      SetMax( int maxamount );
-	virtual void		Add( int num );
-	virtual void      Remove( int num );
-	virtual qboolean	Use( int amount );
-	virtual qboolean	Removable( void );
-	virtual void      Pickup( Event *ev );
-	virtual qboolean	Drop( void );
-	virtual void      RespawnSound( Event *ev );
-	virtual void      DialogNeeded( Event *ev );
-	virtual str       GetDialogNeeded( void );
+	virtual void SetMax( int maxamount );
+	virtual void Add( int num );
+	virtual void Remove( int num );
+	virtual qboolean Use( int amount );
+	virtual qboolean Removable( void );
+	virtual void Pickup( Event *ev );
+	virtual qboolean Drop( void );
+	virtual void RespawnSound( Event *ev );
+	virtual void DialogNeeded( Event *ev );
+	virtual str GetDialogNeeded( void );
 	void					Landed( Event *ev );
 	void					CoolItemEvent( Event *ev );
 	void					ForceCoolItemEvent( Event *ev );
@@ -123,7 +123,7 @@ public:
 	void			EventViewModelPrefix( Event *ev );
 	void			updatePrefix( Event *ev );
 
-	virtual void      Archive( Archiver &arc );
+	void Archive( Archiver &arc ) override;
 };
 
 inline void Item::Archive

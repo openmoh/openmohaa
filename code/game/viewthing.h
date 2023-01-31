@@ -44,7 +44,7 @@ class ViewMaster : public Listener
 		void SetModelEvent( Event *ev );
 		void PassEvent( Event *ev );
 
-      virtual void Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void ViewMaster::Archive
@@ -96,7 +96,7 @@ class Viewthing : public Animate
       void              SaveSurfaces( Event *ev );
       void              SetAnim( Event *ev );
 
-      virtual void      Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void Viewthing::Archive

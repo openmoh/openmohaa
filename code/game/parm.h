@@ -43,7 +43,7 @@ public:
 public:
 	CLASS_PROTOTYPE( Parm );
 
-	virtual void		Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 
 	void				GetOther( Event *ev );
 	void				GetOwner( Event *ev );

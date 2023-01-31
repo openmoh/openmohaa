@@ -95,12 +95,12 @@ class ExplodingWall : public Trigger
       void           SetExplosions( Event *ev );
       void           SetupSecondStage( void );
 		void	         Explode( Event *ev );
-		void	         DamageEvent( Event *ev );
+		void	         DamageEvent( Event *ev ) override;
 		void	         GroundDamage( Event *ev );
 		void	         TouchFunc( Event *ev );
 		void	         StopRotating( Event *ev );
 		void	         CheckOnGround( Event *ev );
-	   void           Archive( Archiver &arc );
+	   void           Archive( Archiver &arc ) override;
 	};
 
 inline void ExplodingWall::Archive
@@ -134,11 +134,11 @@ class Teleporter : public Trigger
       CLASS_PROTOTYPE( Teleporter );
 		
 								Teleporter();
-		virtual void		StartTeleport( Event *ev );
-		virtual void		Teleport( Event *ev );
-		virtual void		StopTeleport( Event *ev );
-		void					SetThread( Event *ev );
-		virtual void      Archive( Archiver &arc );
+		virtual void StartTeleport( Event *ev );
+		virtual void Teleport( Event *ev );
+		virtual void StopTeleport( Event *ev );
+		void SetThread( Event *ev );
+		void Archive( Archiver &arc ) override;
 	};
 
 inline void Teleporter::Archive
@@ -160,7 +160,7 @@ class TeleporterDestination : public Entity
 
 						TeleporterDestination();
 		void	            SetMoveDir( Event *ev );
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void TeleporterDestination::Archive
@@ -191,7 +191,7 @@ class UseAnim : public Entity
       CLASS_PROTOTYPE( UseAnim );
 		
 								UseAnim();
-		virtual void		Touched( Event *ev );
+		virtual void Touched( Event *ev );
       void              Reset( Event *ev );
       void              SetThread( Event * ev );
       void              SetTriggerTarget( Event * ev );
@@ -205,7 +205,7 @@ class UseAnim : public Entity
       bool              canBeUsed( Entity *activator );
       bool              GetInformation( Entity *activator, Vector * org, Vector * angles, str * animatoin, int * loopcount, str * state, str * camera );
       void              TriggerTargets( Entity *activator );
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void UseAnim::Archive
@@ -253,7 +253,7 @@ class UseAnimDestination : public Entity
 		int	            GetNumLoops( void );
 		str               GetAnim( void );
 		str               GetState( void );
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void UseAnimDestination::Archive
@@ -313,7 +313,7 @@ class UseObject : public Animate
       void              ActivateEvent( Event *ev );
       void              DeactivateEvent( Event *ev );
       void              UseMaterialEvent( Event *ev );
-	   virtual void      Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void UseObject::Archive
@@ -357,7 +357,7 @@ public:
 	CLASS_PROTOTYPE( VehiclePoint );
 
 	void			SetSpawnFlags( Event *ev );
-	virtual void	Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline void VehiclePoint::Archive
@@ -381,7 +381,7 @@ class MonkeyBars : public Entity
                      MonkeyBars();
       void           SetAngleEvent( Event *ev );
 
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void MonkeyBars::Archive
@@ -405,7 +405,7 @@ class HorizontalPipe : public Entity
                      HorizontalPipe();
       void           SetAngleEvent( Event *ev );
 
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void HorizontalPipe::Archive
@@ -436,7 +436,7 @@ class TossObject : public Animate
       void           SetBounceSound( str bounce );
       void           SetBounceSoundChance( float chance );
       void           SetVelocity( float severity );
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
    };
 
 inline void TossObject::Archive
@@ -473,7 +473,7 @@ class PushObject : public Entity
 
       Entity         *getOwner( void );
 
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 	};
 
 inline void PushObject::Archive
@@ -517,7 +517,7 @@ class FallingRock : public Entity
       Entity         *SetNextBounceDir( void );
       void           SetBounceSound( str sound );
       void           SetBounceSound( Event *ev );
-      virtual void   Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
 
    public:
       CLASS_PROTOTYPE( FallingRock );
@@ -564,7 +564,7 @@ class SupplyWater : public Trigger
       void              Activate( Event *ev );
       void              MaxWater( Event *ev );
       void              ChargeOff( Event *ev );
-      virtual void      Archive( Archiver &arc );
+      void Archive( Archiver &arc ) override;
    };
 
 inline void SupplyWater::Archive

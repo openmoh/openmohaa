@@ -51,7 +51,7 @@ public:
 
 	virtual void NotSolid( void );
 	virtual void Solid( void );
-	virtual void Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline
@@ -80,9 +80,9 @@ class cTurretSlot : public cVehicleSlot {
 public:
 	cTurretSlot();
 
-	virtual void NotSolid( void );
-	virtual void Solid( void );
-	virtual void Archive( Archiver& arc );
+	void NotSolid( void ) override;
+	void Solid( void ) override;
+	void Archive( Archiver& arc ) override;
 };
 
 inline

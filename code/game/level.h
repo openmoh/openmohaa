@@ -276,7 +276,7 @@ public:
 
 	qboolean		Reborn( void );
 
-	virtual void	Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 extern Level level;

@@ -91,7 +91,7 @@ class Event;
 	static	ClassDefHook			_ClassInfo_;					\
 	static	void					*_newInstance( void );			\
 	static	ClassDef				*classinfostatic(void);			\
-	virtual	ClassDef				*classinfo(void) const;			\
+	ClassDef				*classinfo(void) const override;		\
 	static void						AddWaitTill( str s );			\
 	static void						AddWaitTill( const_str s );		\
 	static void						RemoveWaitTill( str s );		\
@@ -129,7 +129,7 @@ class Event;
 	static	ClassDefHook			_ClassInfo_;					\
 	static	void					*_newInstance( void );			\
 	static	ClassDef				*classinfostatic(void);			\
-	virtual	ClassDef				*classinfo(void) const;			\
+	ClassDef				*classinfo(void) const override;			\
 	static	ResponseDef<classname>	Responses[]
 
 #endif
@@ -250,8 +250,6 @@ private:
 	void			ClearSafePointers();
 
 public:
-	CLASS_PROTOTYPE( Class );
-
 #ifndef _DEBUG_MEM
 	void * operator	new( size_t );
 	void operator delete( void * );
@@ -261,6 +259,13 @@ public:
 	virtual ~Class();
 
 	virtual void	Archive( Archiver& arc );
+
+	static	ClassDef				ClassInfo;
+	static	ClassDefHook			_ClassInfo_;
+	static	void					*_newInstance( void );
+	static	ClassDef				*classinfostatic(void);
+	virtual	ClassDef				*classinfo(void) const;
+	static	ResponseDef<Class>	Responses[];
 
 	const char		*getClassID( void ) const;
 	const char		*getClassname( void ) const;

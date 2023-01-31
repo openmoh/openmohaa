@@ -115,7 +115,7 @@ private:
 public:
 	CLASS_PROTOTYPE( Hud );
 
-	virtual void Archive( Archiver &arc );
+	void Archive( Archiver &arc ) override;
 
 	static Hud		*Find( int index );
 	static Hud		*FindOrCreate( int index );

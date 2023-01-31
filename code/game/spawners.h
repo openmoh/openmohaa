@@ -50,14 +50,14 @@ class Spawn : public ScriptSlave
 
    protected:
       void           SetArgs( SpawnArgs &args );
-		virtual void	DoSpawn( Event *ev );
+      virtual void DoSpawn( Event *ev );
 
 	public:
       CLASS_PROTOTYPE( Spawn );
 
 
 							Spawn();
-	   virtual void   Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void Spawn::Archive
@@ -92,7 +92,7 @@ class RandomSpawn : public Spawn
 
 
 							RandomSpawn();
-	   virtual void   Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void RandomSpawn::Archive
@@ -109,7 +109,7 @@ inline void RandomSpawn::Archive
 class ReSpawn : public Spawn
 	{
    protected:
-		virtual void	DoSpawn( Event *ev );
+		void DoSpawn( Event *ev ) override;
  	public:
       CLASS_PROTOTYPE( ReSpawn );
 	};
@@ -117,7 +117,7 @@ class ReSpawn : public Spawn
 class SpawnOutOfSight : public Spawn
 	{
    protected:
-		virtual void	DoSpawn( Event *ev );
+		void DoSpawn( Event *ev ) override;
  	public:
       CLASS_PROTOTYPE( SpawnOutOfSight );
 	};
@@ -125,7 +125,7 @@ class SpawnOutOfSight : public Spawn
 class SpawnChain : public Spawn
 	{
    protected:
-		virtual void	DoSpawn( Event *ev );
+		void DoSpawn( Event *ev ) override;
  	public:
       CLASS_PROTOTYPE( SpawnChain );
 	};

@@ -53,7 +53,7 @@ public:
 	void			CrateDamaged( Event *ev );
 	void			CrateKilled( Event *ev );
 	void			CrateThink( Event *ev );
-	virtual void	Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 };
 
 inline void CrateObject::Archive

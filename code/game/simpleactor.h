@@ -135,12 +135,12 @@ public:
 
 	SimpleActor();
 
-	virtual void Archive( Archiver & arc );
-	virtual void SetMoveInfo( mmove_t *mm );
-	virtual void GetMoveInfo( mmove_t *mm );
-	bool CanSeeFrom( vec3_t pos, Entity *ent );
-	virtual bool CanTarget( void );
-	virtual bool IsImmortal( void );
+	void Archive( Archiver & arc ) override;
+	virtual void SetMoveInfo(mmove_t* mm);
+	virtual void GetMoveInfo(mmove_t* mm);
+	bool CanSeeFrom(vec3_t pos, Entity* ent);
+	virtual bool CanTarget(void);
+	virtual bool IsImmortal(void);
 	bool DoesTheoreticPathExist( Vector vDestPos, float fMaxPath );
 	void SetPath( Vector vDestPos, const char *description, int iMaxDirtyTime, float *vLeashHome, float fLeashDistSquared );
 	void SetPath( SimpleEntity *pDestNode, char *description, int iMaxDirtyTime );
@@ -188,7 +188,7 @@ public:
 	void ChangeActionAnim( void );
 	void ChangeSayAnim( void );
 	void StopAnimating( int slot );
-	void AnimFinished( int slot );
+	void AnimFinished( int slot ) override;
 	void UpdateAim( void );
 	void UpdateAimMotion( void );
 	void EventAIOn( Event *ev );

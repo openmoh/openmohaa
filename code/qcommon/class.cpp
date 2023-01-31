@@ -911,7 +911,24 @@ ClassDefHook::ClassDefHook()
 	this->classdef = NULL;
 }
 
-CLASS_DECLARATION( NULL, Class, NULL )
+ClassDef Class::ClassInfo("Class", NULL, NULL, (ResponseDef<Class>*)Class::Responses, Class::_newInstance, sizeof(Class));
+
+void* Class::_newInstance(void)
+{
+	return new Class();
+}
+
+ClassDef* Class::classinfo(void) const
+{
+	return &(Class::ClassInfo);
+}
+ClassDef* Class::classinfostatic(void)
+{
+	return &(Class::ClassInfo);
+}
+
+
+ResponseDef<Class> Class::Responses[] =
 {
 	{ NULL, NULL }
 };

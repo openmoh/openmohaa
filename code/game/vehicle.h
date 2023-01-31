@@ -91,7 +91,7 @@ public:
 	CLASS_PROTOTYPE( VehicleBase );
 
 	VehicleBase( void );
-	virtual void Archive( Archiver &arc );
+	void Archive( Archiver &arc ) override;
 };
 
 inline void VehicleBase::Archive
@@ -319,8 +319,8 @@ protected:
 		virtual void VehicleStart( Event *ev );
 		virtual void VehicleTouched( Event *ev );
 		virtual void VehicleBlocked( Event *ev );
-		virtual void Think( void );
-		virtual void Postthink( void );
+		void Think( void ) override;
+		void Postthink( void ) override;
 		virtual void Drivable( Event *ev );
 		virtual void UnDrivable( Event *ev );
 		virtual void Jumpable( Event *ev );
@@ -360,35 +360,35 @@ protected:
 		virtual void SpawnTurret( Event *ev );
 		void EventLockMovement( Event *ev );
 		void EventUnlockMovement( Event *ev );
-		virtual void QueryFreePassengerSlot( Event *ev );
-		virtual void QueryFreeDriverSlot( Event *ev );
-		virtual void QueryFreeTurretSlot( Event *ev );
-		virtual void QueryPassengerSlotPosition( Event *ev );
-		virtual void QueryDriverSlotPosition( Event *ev );
-		virtual void QueryTurretSlotPosition( Event *ev );
-		virtual void QueryPassengerSlotAngles( Event *ev );
-		virtual void QueryDriverSlotAngles( Event *ev );
-		virtual void QueryTurretSlotAngles( Event *ev );
-		virtual void QueryPassengerSlotStatus( Event *ev );
-		virtual void QueryDriverSlotStatus( Event *ev );
-		virtual void QueryTurretSlotStatus( Event *ev );
-		virtual void QueryPassengerSlotEntity( Event *ev );
-		virtual void QueryDriverSlotEntity( Event *ev );
-		virtual void QueryTurretSlotEntity( Event *ev );
-		virtual void AttachPassengerSlot( Event *ev );
-		virtual void AttachDriverSlot( Event *ev );
-		virtual void AttachTurretSlot( Event *ev );
-		virtual void DetachPassengerSlot( Event *ev );
-		virtual void DetachDriverSlot( Event *ev );
-		virtual void DetachTurretSlot( Event *ev );
-		virtual void SetWheelCorners( Event *ev );
-		virtual void EventDriveInternal( Event *ev, bool wait );
-		virtual void EventDrive( Event *ev );
-		virtual void EventDriveNoWait( Event *ev );
-		virtual void EventStop( Event *ev );
-		virtual void EventFullStop( Event *ev );
-		virtual void EventModifyDrive( Event *ev );
-		virtual void EventNextDrive( Event *ev );
+		virtual void QueryFreePassengerSlot(Event* ev);
+		virtual void QueryFreeDriverSlot(Event* ev);
+		virtual void QueryFreeTurretSlot(Event* ev);
+		virtual void QueryPassengerSlotPosition(Event* ev);
+		virtual void QueryDriverSlotPosition(Event* ev);
+		virtual void QueryTurretSlotPosition(Event* ev);
+		virtual void QueryPassengerSlotAngles(Event* ev);
+		virtual void QueryDriverSlotAngles(Event* ev);
+		virtual void QueryTurretSlotAngles(Event* ev);
+		virtual void QueryPassengerSlotStatus(Event* ev);
+		virtual void QueryDriverSlotStatus(Event* ev);
+		virtual void QueryTurretSlotStatus(Event* ev);
+		virtual void QueryPassengerSlotEntity(Event* ev);
+		virtual void QueryDriverSlotEntity(Event* ev);
+		virtual void QueryTurretSlotEntity(Event* ev);
+		virtual void AttachPassengerSlot(Event* ev);
+		virtual void AttachDriverSlot(Event* ev);
+		virtual void AttachTurretSlot(Event* ev);
+		virtual void DetachPassengerSlot(Event* ev);
+		virtual void DetachDriverSlot(Event* ev);
+		virtual void DetachTurretSlot(Event* ev);
+		virtual void SetWheelCorners(Event* ev);
+		virtual void EventDriveInternal(Event* ev, bool wait);
+		virtual void EventDrive(Event* ev);
+		virtual void EventDriveNoWait(Event* ev);
+		virtual void EventStop(Event* ev);
+		virtual void EventFullStop(Event* ev);
+		virtual void EventModifyDrive(Event* ev);
+		virtual void EventNextDrive(Event* ev);
 		void EventModel( Event *ev );
 		void EventRemoveOnDeath( Event *ev );
 		void EventSetExplosionModel( Event *ev );
@@ -449,7 +449,7 @@ protected:
 		virtual qboolean ShowWeapon( void );
 		Entity *Driver( void );
 		virtual qboolean IsDrivable( void );
-		virtual void Archive( Archiver& arc );
+		void Archive( Archiver& arc ) override;
 		str GetSoundSet( void );
 		virtual int QueryFreePassengerSlot( void );
 		virtual int QueryFreeDriverSlot( void );
@@ -853,8 +853,8 @@ public:
 	virtual void Think() override;
 	virtual void Postthink() override;
 	virtual void CalculateOriginOffset() override;
-	virtual void UpdateSound();
-	virtual void AttachDriverSlot(Event* ev);
+	void UpdateSound() override;
+	void AttachDriverSlot(Event* ev) override;
 };
 
 class VehicleHalfTrack : public DrivableVehicle

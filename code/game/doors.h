@@ -103,7 +103,7 @@ class Door : public ScriptSlave
 		void			EventDoorType( Event *ev );
 
 		qboolean		BlocksAIMovement( void ) const;
-		qboolean		AIDontFace( void ) const;
+		qboolean		AIDontFace( void ) const override;
 
 		void			UpdatePathConnection( void );
 		void			SetLocked( qboolean newLocked );
@@ -118,7 +118,7 @@ class Door : public ScriptSlave
 		qboolean		isOpen( void );
 		qboolean		isCompletelyClosed( void );
 		qboolean		CanBeOpenedBy( Entity *ent );
-	   virtual void Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 	};
 
 inline void Door::Archive
@@ -169,7 +169,7 @@ class RotatingDoor : public Door
       void           DoOpen( Event *ev );
       void           DoClose( Event *ev );
       void           OpenAngle( Event *ev );
-	   virtual void   Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 
 					RotatingDoor();
 	};
@@ -205,7 +205,7 @@ class SlidingDoor : public Door
       void     SetSpeed( Event *ev );
       void     DoOpen( Event *ev );
       void     DoClose( Event *ev );
-	   virtual void Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 
 					SlidingDoor();
 	};
@@ -246,7 +246,7 @@ class ScriptDoor : public Door
       void           SetOpenThread( Event *ev );
       void           SetCloseThread( Event *ev );
       void           SetInitThread( Event *ev );
-	   virtual void   Archive( Archiver &arc );
+	   void Archive( Archiver &arc ) override;
 					      ScriptDoor();
 	};
 

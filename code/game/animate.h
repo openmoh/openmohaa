@@ -111,7 +111,7 @@ public:
 	int					NumAnims( void );
 	const char			*AnimName( int slot = 0 );
 	float				AnimTime( int slot = 0 );
-	virtual void		AnimFinished( int slot = 0 );
+	virtual void AnimFinished( int slot = 0 );
 	void				SetTime( int slot = 0, float time = 0.0f );
 	void				SetNormalTime( int slot = 0, float normal = 1.0f );
 	float				GetTime( int slot = 0 );
@@ -128,15 +128,15 @@ public:
 	void				StopAnimating( int slot = 0 );
 	void				StopAnimatingAtEnd( int slot = 0 );
 	
-	virtual int			CurrentAnim( int slot = 0 );
-	virtual float		CurrentTime( int slot = 0 );
+	virtual int CurrentAnim( int slot = 0 );
+	virtual float CurrentTime( int slot = 0 );
 
-	virtual void		PreAnimate( void );
-	virtual void		PostAnimate( void );
+	void PreAnimate( void ) override;
+	void PostAnimate( void ) override;
 
-	virtual void		DumpAnimInfo( void );
+	virtual void DumpAnimInfo( void );
 	
-	virtual void		Archive( Archiver &arc );
+	void Archive( Archiver &arc ) override;
 
 	void				FrameDeltaEvent( Event *ev );
 	void				ForwardExec( Event *ev );

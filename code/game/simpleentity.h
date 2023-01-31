@@ -60,11 +60,11 @@ public:
 	virtual ~SimpleEntity();
 
 	void SimpleArchive( Archiver& arc );
-	virtual void Archive( Archiver& arc );
+	void Archive( Archiver& arc ) override;
 
-	virtual void setOrigin( Vector origin );
-	virtual void setOriginEvent( Vector origin );
-	virtual void setAngles( Vector angles );
+	virtual void setOrigin(Vector origin);
+	virtual void setOriginEvent(Vector origin);
+	virtual void setAngles(Vector angles);
 
 	void		SetTarget( str target );
 	void		SetTargetName( str targetname );

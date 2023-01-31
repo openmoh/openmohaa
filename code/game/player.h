@@ -491,9 +491,9 @@ public:
 	void		         EndLevel( Event *ev );
 	void		         Respawn( Event *ev );
 
-	virtual Vector		GunTarget( bool bNoCollision = false );
-	void		         SetDeltaAngles( void );
-	virtual void		setAngles( Vector ang );
+	Vector GunTarget( bool bNoCollision = false ) override;
+	void		         SetDeltaAngles( void ) override;
+	void setAngles( Vector ang ) override;
 
 	qboolean				canUse();
 	qboolean				canUse( Entity *entity, bool requiresLookAt );
@@ -503,7 +503,7 @@ public:
 	void		         Killed( Event *ev );
 	void		         KilledPlayerInDeathmatch( Player *killed );
 	void		         Dead( Event *ev );
-	void		         ArmorDamage( Event *ev );
+	void		         ArmorDamage( Event *ev ) override;
 	void		         Pain( Event *ev );
 	void				DeadBody( void );
 	void				DeadBody( Event *ev );
@@ -521,11 +521,11 @@ public:
 	//      void              CheckFeet( void );
 	void				CheckMoveFlags( void );
 	void				ClientInactivityTimer( void );
-	virtual void		ClientThink( void );
+	void ClientThink( void ) override;
 	void				UpdateEnemies( void );
 
-	virtual void			Think();
-	virtual void			Postthink();
+	void Think() override;
+	void Postthink() override;
 
 	void			InitLegsStateTable( void );
 	void			InitTorsoStateTable( void );
@@ -533,7 +533,7 @@ public:
 	void              ResetState( Event *ev );
 	void              EvaluateState( State *forceTorso = NULL, State *forceLegs = NULL );
 
-	void              CheckGround( void );
+	void              CheckGround( void ) override;
 	void              UpdateViewAngles( usercmd_t *cmd );
 	qboolean          AnimMove( Vector &move, Vector *endpos = NULL );
 	qboolean          TestMove( Vector &pos, Vector *endpos = NULL );
@@ -581,7 +581,7 @@ public:
 	float		         CalcRoll( void );
 	void		         WorldEffects( void );
 	void		         AddBlend( float r, float g, float b, float a );
-	void		         CalcBlend( void );
+	void		         CalcBlend( void ) override;
 	void		         DamageFeedback( void );
 
 	void				CopyStats( Player *player );
@@ -609,11 +609,11 @@ public:
 	void              SwingAngles( float destination, float swingTolerance, float clampTolerance, float speed, float *angle, qboolean *swinging );
 	void              PlayerAngles( void );
 	void		         FinishMove( void );
-	virtual void         EndFrame( void );
+	void EndFrame( void ) override;
 
 	void		         TestThread( Event *ev );
-	void              useWeapon( const char *weaponname, weaponhand_t hand = WEAPON_MAIN );
-	void              useWeapon( Weapon *weapon, weaponhand_t hand = WEAPON_MAIN );
+	void              useWeapon( const char *weaponname, weaponhand_t hand = WEAPON_MAIN ) override;
+	void              useWeapon( Weapon *weapon, weaponhand_t hand = WEAPON_MAIN ) override;
 
 	void		         GotKill( Event *ev );
 	void              SetPowerupTimer( Event *ev );
@@ -627,7 +627,7 @@ public:
 	void		         ChangeMusicVolume( float volume, float fade_time );
 	void		         RestoreMusicVolume( float fade_time );
 
-	void              Archive( Archiver &arc );
+	void              Archive( Archiver &arc ) override;
 	void              ArchivePersistantData( Archiver &arc );
 
 	void              GiveOxygen( float time );
@@ -640,12 +640,12 @@ public:
 	void              Jump( Event *ev );
 	void              JumpXY( Event *ev );
 
-	virtual Vector		EyePosition( void );
+	virtual Vector EyePosition( void );
 
 	void				GetViewangles( Event *ev );
 	void				SetViewangles( Event *ev );
-	virtual void		SetViewAngles( Vector angles );
-	virtual Vector		GetViewAngles( void );
+	void SetViewAngles( Vector angles ) override;
+	Vector GetViewAngles( void ) override;
 	void				SetFov( float newFov );
 	void				EventSetSelectedFov( Event *ev );
 	void				SetSelectedFov( float newFov );
@@ -744,13 +744,13 @@ public:
 	painDirection_t   Pain_string_to_int( str pain );
 	inline Vector     GetVAngles( void ){ return v_angle; }
 	void              SpawnDamageEffect( meansOfDeath_t mod );
-	virtual void      GetStateAnims( Container<const char *> *c );
-	virtual void      VelocityModified( void );
+	void GetStateAnims( Container<const char *> *c ) override;
+	void VelocityModified( void ) override;
 	int					GetKnockback( int original_knockback, qboolean blocked );
 	int					GetMoveResult( void );
-	virtual void      ReceivedItem( Item * item );
-	virtual void      RemovedItem( Item * item );
-	virtual void      AmmoAmountChanged( Ammo * ammo, int inclip = 0 );
+	void ReceivedItem( Item * item ) override;
+	void RemovedItem( Item * item ) override;
+	void AmmoAmountChanged( Ammo * ammo, int inclip = 0 ) override;
 
 	void PhysicsOn( Event *ev );
 	void PhysicsOff( Event *ev );
@@ -772,7 +772,7 @@ public:
 	void              WeaponsNotHolstered( void );
 	void              Loaded( void );
 	void					PlayerShowModel( Event *ev );
-	virtual void			showModel( void );
+	void showModel( void ) override;
 	void					ResetHaveItem( Event *ev );
 	void					Join_DM_Team( Event *ev );
 	void					Auto_Join_DM_Team( Event *ev );
@@ -794,7 +794,7 @@ public:
 	void					EventIPrint( Event *ev );
 	qboolean				ViewModelAnim( str anim, qboolean force_restart, qboolean bFullAnim );
 	void					FindAlias( str &output, str name, AliasListNode_t **node );
-	virtual void			Spawned( void );
+	virtual void Spawned( void );
 
 	bool					IsReady( void ) const;
 	void					EventGetReady( Event *ev );
