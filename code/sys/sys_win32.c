@@ -356,7 +356,7 @@ Sys_Basename
 const char *Sys_Basename( char *path )
 {
 	static char base[ MAX_OSPATH ] = { 0 };
-	int length;
+	size_t length;
 
 	length = strlen( path ) - 1;
 
@@ -386,7 +386,7 @@ Sys_Dirname
 const char *Sys_Dirname( char *path )
 {
 	static char dir[ MAX_OSPATH ] = { 0 };
-	int length;
+	size_t length;
 
 	Q_strncpyz( dir, path, sizeof( dir ) );
 	length = strlen( dir ) - 1;
@@ -562,7 +562,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	intptr_t		findhandle;
 	int			flag;
 	int			i;
-	int			extLen;
+	size_t		extLen;
 
 	if (filter) {
 
