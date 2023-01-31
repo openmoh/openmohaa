@@ -75,9 +75,9 @@ public:
 	void				UpdateOwner( Sentient *pOwner );
 	void				SetBaseEntity( Event *ev );
 	void				PlaceTurret( Event *ev );
-	void				TurretBeginUsed( Sentient *pEnt );
-	void TurretEndUsed( void ) override;
-	void TurretUsed( Sentient *pEnt ) override;
+	void				TurretBeginUsed( Sentient *pEnt ) override;
+	void				TurretEndUsed( void ) override;
+	void				TurretUsed( Sentient *pEnt ) override;
 	void				TurretUsed( Event *ev );
 	void				EventKilled( Event *ev );
 	void				EventDamage( Event *ev );

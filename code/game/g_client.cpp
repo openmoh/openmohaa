@@ -606,7 +606,7 @@ PlayerStart *SelectSpawnPoint( Player *player )
 		spot = player->GetDM_Team()->GetRandomObjectiveSpawnpoint( player );
 		break;
 	default:
-		Com_Printf( "SelectSpawnPoint: unknown game type '%i'\n" );
+		Com_Printf("SelectSpawnPoint: unknown game type '%i'\n", g_gametype->integer);
 		spot = player->GetDM_Team()->GetRandomFfaSpawnpoint( player );
 		break;
 	}
@@ -856,7 +856,7 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
-char *G_ClientConnect( int clientNum, qboolean firstTime ) {
+const char *G_ClientConnect( int clientNum, qboolean firstTime ) {
 	char		*ip, *port, *value;
 	gclient_t	*client;
 	gentity_t	*ent;

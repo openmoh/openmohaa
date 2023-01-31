@@ -358,7 +358,7 @@ void SimpleActor::SetPath
 void SimpleActor::SetPath
 	(
 	SimpleEntity *pDestNode,
-	char *description,
+	const char *description,
 	int iMaxDirtyTime
 	)
 
@@ -832,7 +832,7 @@ int SimpleActor::GetEmotionAnim
 	)
 
 {
-	char *emotionanim = NULL;
+	const char *emotionanim = NULL;
 	int anim;
 
 	if (m_eEmotionMode)

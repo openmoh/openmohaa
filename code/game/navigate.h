@@ -251,7 +251,7 @@ public:
 	static PathNode *pathnodes[ 4096 ];
 	static int nodecount;
 	static float total_dist;
-	static char *last_error;
+	static const char *last_error;
 
 private:
 	static void LoadAddToGrid( int x, int y );

@@ -22,12 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tiki_shared.h : Skeletor
 
-#ifndef __TIKI_SHARED_H__
-#define __TIKI_SHARED_H__
+#pragma once
 
 #ifdef __cplusplus
 #include "../skeletor/skeletor_name_lists.h"
 #endif
+
+#include "../skeletor/skeletor_model_file_format.h"
 
 // animation flags
 #define TAF_RANDOM					0x1		// random
@@ -253,7 +254,7 @@ typedef struct skelHeaderGame_s {
 
 typedef struct boneData_s {
 	short int channel;
-	enum boneType_e boneType;
+	boneType_t boneType;
 	short int parent;
 	short int numChannels;
 	short int numRefs;
@@ -412,5 +413,3 @@ typedef struct {
 	size_t size;
 	int numuses;
 } skelcache_t;
-
-#endif // __TIKI_SHARED_H__

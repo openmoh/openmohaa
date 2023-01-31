@@ -28,11 +28,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Archiver;
 class ScriptVM;
+class GameScript;
+class StateScript;
 
 class ScriptClass : public Listener
 {
-	friend class GameScript;
-	friend class StateScript;
+	friend GameScript;
+	friend StateScript;
 
 public:
 	// script variable

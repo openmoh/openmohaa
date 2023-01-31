@@ -1219,7 +1219,7 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 		FS_Read( &save, sizeof( savegamestruct_t ), f );
 		if( save.version != 3 )
 		{
-			Com_Printf( "Invalid or Old Server SaveGame Version\n", name );
+			Com_Printf("Invalid or Old Server SaveGame Version\n");
 			return qfalse;
 		}
 

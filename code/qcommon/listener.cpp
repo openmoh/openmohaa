@@ -751,7 +751,7 @@ void EV_Print( FILE *stream, const char *format, ... )
 	}
 	else
 	{
-		EVENT_DPrintf(buffer);
+		EVENT_DPrintf("%s", buffer);
 	}
 
 	va_end( va );
@@ -1287,7 +1287,7 @@ void Event::ListCommands
 		EVENT_Printf( "%4d : %s%s\n", eventnum, text.c_str(), command->command.c_str() );
 	}
 
-	EVENT_Printf( "\n* = console command.\nC = cheat command.\n% = cache command.\n\n"
+	EVENT_Printf( "\n* = console command.\nC = cheat command.\n%% = cache command.\n\n"
 		"Printed %d of %d total commands.\n", num, n - hidden );
 
 	if ( developer->integer && hidden )

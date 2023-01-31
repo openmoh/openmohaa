@@ -52,8 +52,6 @@ int demo_protocols[] =
 #define MIN_COMHUNKMEGS		56
 #define DEF_COMHUNKMEGS		96
 #define DEF_COMZONEMEGS		128
-#define XSTRING(x)				STRING(x)
-#define STRING(x)					#x
 #define DEF_COMHUNKMEGS_S	XSTRING(DEF_COMHUNKMEGS)
 #define DEF_COMZONEMEGS_S	XSTRING(DEF_COMZONEMEGS)
 
@@ -663,7 +661,7 @@ int Com_Filter(const char *filter, const char *name, int casesensitive)
 Com_FilterPath
 ============
 */
-int Com_FilterPath(char *filter, char *name, int casesensitive)
+int Com_FilterPath(const char *filter, const char *name, int casesensitive)
 {
 	int i;
 	char new_filter[MAX_QPATH];
@@ -1236,8 +1234,9 @@ Com_Crash_f
 A way to force a bus error for development reasons
 =================
 */
-static void Com_Crash_f( void ) {
-	* ( int * ) 0 = 0x12345678;
+static void Com_Crash_f(void) {
+	void* invalid_ptr = NULL;
+	*(int*)invalid_ptr = 0x12345678;
 }
 
 // TTimo: centralizing the cl_cdkey stuff after I discovered a buffer overflow problem with the dedicated server version

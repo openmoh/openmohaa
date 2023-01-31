@@ -72,8 +72,8 @@ cmodel_t	box_model;
 cplane_t	*box_planes;
 cbrush_t	*box_brush;
 
-static int numleafbrushes;
-static int g_iNumSideEquations;
+static unsigned int numleafbrushes;
+static unsigned int g_iNumSideEquations;
 
 
 
@@ -1243,6 +1243,6 @@ CM_PrintBSPFileSizes
 */
 void CM_PrintBSPFileSizes( void )
 {
-	Com_Printf( "%6i   sideequations         %7i\n", g_iNumSideEquations, g_iNumSideEquations * sizeof( dsideequation_t ) );
-	Com_Printf( "%6i   leafbrushes           %7i\n", numleafbrushes, numleafbrushes * sizeof( int ) );
+	Com_Printf("%6u   sideequations         %7zu\n", g_iNumSideEquations, g_iNumSideEquations * sizeof(dsideequation_t));
+	Com_Printf("%6u   leafbrushes           %7zu\n", numleafbrushes, numleafbrushes * sizeof(int));
 }

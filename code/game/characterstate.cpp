@@ -691,7 +691,7 @@ int State::addCondition
    cond = statemap.getCondition( name );
    if ( !cond )
       {
-      return NULL;
+      return 0;
       }
 
    condition = new Conditional( *cond );
@@ -982,7 +982,7 @@ int StateMap::findConditional
 	// Check for the one special case where we don't want to merge the conditionals 
 
 	if ( strcmp( condition->getName(), "CHANCE" ) == 0 )
-		return NULL;
+		return 0;
 
    for( i = 1; i <= current_conditionals->NumObjects(); i++ )
       {

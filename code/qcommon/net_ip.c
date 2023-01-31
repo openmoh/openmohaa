@@ -24,54 +24,71 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 
 #ifdef _WIN32
-#include <winsock.h>
+#	include <winsock2.h>
+#	include <ws2tcpip.h>
+#	if WINVER < 0x501
+#		ifdef __MINGW32__
+// wspiapi.h isn't available on MinGW, so if it's
+// present it's because the end user has added it
+// and we should look for it in our tree
+#			include "wspiapi.h"
+#		else
+#			include <wspiapi.h>
+#		endif
+#	else
+#		include <ws2spi.h>
+#	endif
 
 typedef int socklen_t;
+#	ifdef ADDRESS_FAMILY
+#		define sa_family_t	ADDRESS_FAMILY
+#	else
+typedef unsigned short sa_family_t;
+#	endif
 
-static const unsigned int PACKET_ERROR_AGAIN = WSAEWOULDBLOCK;
-static const unsigned int PACKET_ERROR_ADDRNOTAVAIL = WSAEADDRNOTAVAIL;
-static const unsigned int PACKET_ERROR_AFNOSUPPORT = WSAEWOULDBLOCK;
-static const unsigned int PACKET_ERROR_CONNRESET = WSAECONNRESET;
-
-#define socketError		WSAGetLastError( )
+#	define EAGAIN					WSAEWOULDBLOCK
+#	define EADDRNOTAVAIL	WSAEADDRNOTAVAIL
+#	define EAFNOSUPPORT		WSAEAFNOSUPPORT
+#	define ECONNRESET			WSAECONNRESET
+typedef u_long	ioctlarg_t;
+#	define socketError		WSAGetLastError( )
 
 static WSADATA	winsockdata;
 static qboolean	winsockInitialized = qfalse;
 
 #else
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
-	// needed for socklen_t on OSX 10.2
-#	define _BSD_SOCKLEN_T_
-#endif
+#	if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
+// needed for socklen_t on OSX 10.2
+#		define _BSD_SOCKLEN_T_
+#	endif
 
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <unistd.h>
+#	include <sys/socket.h>
+#	include <errno.h>
+#	include <netdb.h>
+#	include <netinet/in.h>
+#	include <arpa/inet.h>
+#	include <net/if.h>
+#	include <sys/ioctl.h>
+#	include <sys/types.h>
+#	include <sys/time.h>
+#	include <unistd.h>
+#	if !defined(__sun) && !defined(__sgi)
+#		include <ifaddrs.h>
+#	endif
 
-#ifdef MACOS_X
-#include <sys/sockio.h>
-#include <net/if.h>
-#include <net/if_types.h>
-#include <net/if_dl.h>         // for 'struct sockaddr_dl'
-#endif
+#	ifdef __sun
+#		include <sys/filio.h>
+#	endif
 
-#ifdef __sun
-#include <sys/filio.h>
-#endif
 
 typedef int SOCKET;
-#define INVALID_SOCKET		-1
-#define SOCKET_ERROR			-1
-#define closesocket				close
-#define ioctlsocket				ioctl
-#define socketError				errno
+#	define INVALID_SOCKET		-1
+#	define SOCKET_ERROR			-1
+#	define closesocket			close
+#	define ioctlsocket			ioctl
+typedef int	ioctlarg_t;
+#	define socketError			errno
 
 #endif
 
@@ -324,7 +341,7 @@ unsigned char gsvalfunc(int reg) {
 unsigned char *gsseckey(
   unsigned char *dst,
   unsigned char *src,
-  unsigned char *key,
+  const unsigned char *key,
   int           enctype) {
 
     int             i,
@@ -364,7 +381,7 @@ unsigned char *gsseckey(
 
         /* 2) buffer scrambled with key */
 
-    keysz = strlen(key);
+    keysz = strlen((char*)key);
     p = enctmp;
     for(i = num = 0; i < 256; i++) {
         num = (num + *p + key[i % keysz]) & 0xff;
@@ -485,7 +502,7 @@ qboolean	NETGS_SendMasterRequest( void ) {
 
 	Q_strncpyz( string2encode, ptr, sizeof(string2encode) );
 
-	gsseckey( encodedstring, string2encode, GS_MOHAAKEY, 0 );
+	gsseckey((unsigned char*)encodedstring, (unsigned char*)string2encode, (const unsigned char*)GS_MOHAAKEY, 0 );
 
 	Q_snprintf( requestString, sizeof(requestString), "\\gamename\\%s\\gamever\\%s\\location\\0\\validate\\%s\\final\\\\queryid\\1.1\\", GS_GAMENAME, GS_GAMEVER, encodedstring );
 	if (send(tcpsock, requestString, (int)strlen(requestString), 0) == -1 ) {
@@ -590,7 +607,7 @@ qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
 	{
 		err = socketError;
 
-		if( err == PACKET_ERROR_AGAIN || err == PACKET_ERROR_CONNRESET) {
+		if( err == EAGAIN || err == ECONNRESET) {
 			return qfalse;
 		}
 		Com_Printf( "NET_GetPacket: %s\n", NET_ErrorString() );
@@ -666,12 +683,12 @@ void Sys_SendPacket( size_t length, const void *data, netadr_t to ) {
 		int err = socketError;
 
 		// wouldblock is silent
-		if( err == PACKET_ERROR_AGAIN ) {
+		if( err == EAGAIN) {
 			return;
 		}
 
 		// some PPP links do not allow broadcasts and return an error
-		if( ( err == PACKET_ERROR_AGAIN ) && ( ( to.type == NA_BROADCAST ) ) ) {
+		if( ( err == EAGAIN) && ( ( to.type == NA_BROADCAST ) ) ) {
 			return;
 		}
 
@@ -787,7 +804,7 @@ int NET_IPSocket( char *net_interface, int port ) {
 
 	if( ( newsocket = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET ) {
 		err = socketError;
-		if( err != PACKET_ERROR_AFNOSUPPORT) {
+		if( err != EAFNOSUPPORT) {
 			Com_Printf( "WARNING: UDP_OpenSocket: socket: %s\n", NET_ErrorString() );
 		}
 		return 0;

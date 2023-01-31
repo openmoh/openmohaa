@@ -594,7 +594,6 @@ Sentient::Sentient()
 	edict->s.renderfx |= RF_SHADOW_PRECISE;
 
 	m_vViewVariation = "0 0 0";
-	memset( activeWeaponList, 0, sizeof( activeWeaponList ) );
 	in_melee_attack = false;
 	in_block = false;
 	in_stun = false;

@@ -340,7 +340,7 @@ void Archiver::Close
 		}
 
 		glbs.FS_FCloseFile( file );
-		file = NULL;
+		file = 0;
 
 		readfile.Close();
 		// Re-open and compress the file

@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cm_local.h"
 #include "../client/client.h"
-#include <intrin.h>
 
 byte cmf_dummy_trans_data;
 cfencemask_t cmf_dummy_trans;
@@ -382,7 +381,7 @@ void CM_SaveFCM( const char *szName, cfencemask_t **pMask )
 				b1 = ( j + ( *pMask )->iWidth * i ) & 7;
 				b2 = pData[ ( j + ( *pMask )->iWidth * i ) >> 3 ];
 
-				if( _bittest( &b2, b1 ) ) {
+				if(b2 & (1 << b1)) {
 					FS_Write( &solid, 1, h );
 				} else {
 					FS_Write( &clear, 1, h );

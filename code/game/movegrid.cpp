@@ -72,7 +72,7 @@ void cMoveGrid::CalculateBoxPoints
 	int rx, ry, rz;
 	int xdelta, ydelta, zdelta;
 
-	Vector vBoxSize = vBoxSize = Vector(v.maxs) - Vector(v.mins);
+	Vector vBoxSize = Vector(v.maxs) - Vector(v.mins);
 
 	rx = (int)(vBoxSize[0] / (float)m_iXRes);
 	ry = (int)(vBoxSize[1] / (float)m_iYRes);

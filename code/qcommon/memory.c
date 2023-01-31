@@ -146,7 +146,7 @@ void *Z_TagMalloc( size_t size, int tag )
 	if( size <= 0 )
 	{
 		//Z_Meminfo_f();
-		Com_DPrintf( "Z_TagMalloc, Negative or zero size %i tag %i\n", size );
+		Com_DPrintf( "Z_TagMalloc, Negative or zero size %zu tag %i\n", size, tag );
 		return NULL;
 	}
 
@@ -239,9 +239,9 @@ Z_Meminfo_f
 void Z_Meminfo_f( void )
 {
 	int k;
-	int totalBlocks;
+	size_t totalBlocks;
 	size_t totalBytes;
-	int numBlocks;
+	size_t numBlocks;
 	size_t numBytes;
 	memblock_t *block;
 
@@ -265,7 +265,7 @@ void Z_Meminfo_f( void )
 			}
 		}
 
-		Com_Printf( "%i bytes in %i blocks in ", numBytes, numBlocks );
+		Com_Printf( "%zu bytes in %zu blocks in ", numBytes, numBlocks );
 
 		switch( k )
 		{
@@ -320,7 +320,7 @@ void Z_Meminfo_f( void )
 		totalBytes += numBytes;
 	}
 
-	Com_Printf( "\n%.2f Kbytes in %i blocks in all memory pools\n", ( float )totalBytes / 1024.0f, totalBlocks );
+	Com_Printf( "\n%.2f Kbytes in %zu blocks in all memory pools\n", ( float )totalBytes / 1024.0f, totalBlocks );
 
 	// FIXME: Count texture memory
 	//Com_Printf( "\n%.2f megabytes in 'new' system memory\n", 1.024f );

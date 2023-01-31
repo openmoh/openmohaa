@@ -872,7 +872,7 @@ void SV_Frame( int msec ) {
 			if( err )
 			{
 				ge->errorMessage = NULL;
-				Com_Error( ERR_DROP, err );
+				Com_Error(ERR_DROP, "%s", err);
 			}
 		}
 	}

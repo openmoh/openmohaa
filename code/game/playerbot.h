@@ -162,10 +162,10 @@ public:
 
 	void			SendCommand( const char *text );
 
-	void			setAngles( Vector angles );
-	void			updateOrigin( void );
+	void			setAngles( Vector angles ) override;
+	void			updateOrigin( void ) override;
 
-	void			Spawned( void );
+	void			Spawned( void ) override;
 
 	void			Killed( Event *ev );
 	void			GotKill( Event *ev );

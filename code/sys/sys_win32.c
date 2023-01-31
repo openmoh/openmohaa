@@ -472,7 +472,7 @@ DIRECTORY SCANNING
 Sys_ListFilteredFiles
 ==============
 */
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
+void Sys_ListFilteredFiles( const char *basedir, char *subdirs, const char *filter, char **list, int *numfiles )
 {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char		filename[MAX_OSPATH];
@@ -552,7 +552,7 @@ static qboolean strgtr(const char *s0, const char *s1)
 Sys_ListFiles
 ==============
 */
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs )
 {
 	char		search[MAX_OSPATH];
 	int			nfiles;
@@ -909,6 +909,7 @@ Check if filename should be allowed to be loaded as a DLL.
 qboolean Sys_DllExtension( const char *name ) {
 	return COM_CompareExtension( name, DLL_EXT );
 }
+
 /*
 ================
 RecoverLostAutodialData

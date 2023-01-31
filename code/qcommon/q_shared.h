@@ -153,23 +153,17 @@ extern "C" {
 
 #ifdef _MSC_VER
 #include <io.h>
+#include <stdint.h>
 
-typedef __int64 int64_t;
-typedef __int32 int32_t;
-typedef __int16 int16_t;
-typedef __int8 int8_t;
-typedef unsigned __int64 uint64_t;
-typedef unsigned __int32 uint32_t;
-typedef unsigned __int16 uint16_t;
-typedef unsigned __int8 uint8_t;
 #else
+#include <unistd.h>
 #include <stdint.h>
 #endif
 
 #ifdef _WIN32
  // vsnprintf is ISO/IEC 9899:1999
  // abstracting this to make it portable
-int Q_vsnprintf(char* str, size_t size, const char* format, va_list ap);
+size_t Q_vsnprintf(char* str, size_t size, const char* format, va_list ap);
 #else
 #define Q_vsnprintf vsnprintf
 #endif
@@ -192,8 +186,6 @@ typedef int		qhandle_t;
 typedef int		sfxHandle_t;
 typedef int		fileHandle_t;
 typedef int		clipHandle_t;
-
-#define PAD(x,y) (((x)+(y)-1) & ~((y)-1))
 
 #ifdef __GNUC__
 #define ALIGN(x) __attribute__((aligned(x)))
@@ -1115,7 +1107,7 @@ int		COM_GetCurrentParseLine( void );
 const char	*COM_Parse( char **data_p );
 char	*COM_ParseExt( char **data_p, qboolean allowLineBreak );
 char	*COM_ParseExtIgnoreQuotes( char **data_p, qboolean allowLineBreak );
-const char *COM_GetToken( const char **data_p, qboolean crossline );
+const char *COM_GetToken( char **data_p, qboolean crossline );
 void	Com_SkipRestOfLine(char **data);
 void	Com_SkipBracedSection(char **program);
 void	Com_Parse1DMatrix(char **buf_p, int x, float *m, qboolean checkBrackets);
@@ -1158,10 +1150,10 @@ void Parse3DMatrix (char **buf_p, int z, int y, int x, float *m);
 
 int Com_HexStrToInt( const char *str );
 
-int	QDECL Com_sprintf (char *dest, int size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
+size_t	QDECL Com_sprintf (char *dest, size_t size, const char *fmt, ...) __attribute__ ((format (printf, 3, 4)));
 
-char *Com_SkipTokens( char *s, int numTokens, char *sep );
-char *Com_SkipCharset( char *s, char *sep );
+char *Com_SkipTokens( char *s, int numTokens, const char *sep );
+char *Com_SkipCharset( char *s, const char *sep );
 void Com_BackslashToSlash( char *str );
 
 void Com_RandomBytes( byte *string, int len );
@@ -2195,7 +2187,7 @@ typedef enum _flag_status {
 #define PKT_TO_BEAM_PARM( x ) UINT_TO_FLOAT( ( x ), 4 )
 
 #define STUB() printf( "STUB: function %s in %s line %d.\n", __FUNCTION__, __FILE__, __LINE__ )
-#define STUB_DESC( description ) printf( "STUB: %s in %s line %d.\n", ##description, __FILE__, __LINE__ )
+#define STUB_DESC( description ) printf( "STUB: %s in %s line %d.\n", description, __FILE__, __LINE__ )
 #define UNIMPLEMENTED() Com_Printf( "FIXME: (%s) is unimplemented (file %s:%d)\n", __FUNCTION__, __FILE__, __LINE__ )
 
 #if defined(__cplusplus)

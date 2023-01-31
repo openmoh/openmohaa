@@ -31,7 +31,7 @@ class SkelVec4 {
 public:
 	union {
 		float val[ 4 ];
-		typedef struct {
+		struct {
 			float x;
 			float y;
 			float z;

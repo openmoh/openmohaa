@@ -34,7 +34,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 AnimCompareFunc
 ===============
 */
-static int AnimCompareFunc(void *context, const void *a, const void *b )
+static void* context;
+static int AnimCompareFunc(const void *a, const void *b )
 {
 	dloaddef_t *ld = (dloaddef_t*)context;
 	return stricmp( ld->loadanims[ *( int * )a ]->alias, ld->loadanims[ *( int * )b ]->alias );
@@ -51,7 +52,8 @@ void TIKI_GetAnimOrder( dloaddef_t *ld, int *order )
 
 	for( i = 0; i < ld->numanims; i++ )
 		order[ i ] = i;
-	qsort_s( order, ld->numanims, sizeof( int ), AnimCompareFunc, (void*)ld );
+	context = ld;
+	qsort( order, ld->numanims, sizeof( int ), AnimCompareFunc);
 }
 
 /*

@@ -419,7 +419,7 @@ void MSG_WriteScrambledString(msg_t* sb, const char* s) {
 
 		for (i = 0; i <= l; i++) {
 			char c = string[i];
-			strstats[c++];
+			strstats[c]++;
 			MSG_WriteByte(sb, StrCharToNetByte[c]);
 		}
 	}
@@ -468,7 +468,7 @@ void MSG_WriteScrambledBigString(msg_t* sb, const char* s) {
 
 		for (i = 0; i <= l; i++) {
 			char c = string[i];
-			strstats[c++];
+			strstats[c]++;
 			MSG_WriteByte(sb, StrCharToNetByte[c]);
 		}
 	}
@@ -2139,7 +2139,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 		// su44: trying to find the cause of "unrecognized entity field type" error.
 		// It seems that "field" ptr got screwed somewhere
 		if(field->offset > sizeof(entityState_t)) {
-			Com_Error( ERR_DROP, "MSG_ReadDeltaEntity: field offset %i is larger than size of entityState (i %i)\n", field->offset, i );
+			Com_Error( ERR_DROP, "MSG_ReadDeltaEntity: field offset %zu is larger than size of entityState (i %i)\n", field->offset, i );
 		}
 #endif
 		if ( ! MSG_ReadBits( msg, 1 ) ) {

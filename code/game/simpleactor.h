@@ -143,7 +143,7 @@ public:
 	virtual bool IsImmortal(void);
 	bool DoesTheoreticPathExist( Vector vDestPos, float fMaxPath );
 	void SetPath( Vector vDestPos, const char *description, int iMaxDirtyTime, float *vLeashHome, float fLeashDistSquared );
-	void SetPath( SimpleEntity *pDestNode, char *description, int iMaxDirtyTime );
+	void SetPath( SimpleEntity *pDestNode, const char *description, int iMaxDirtyTime );
 	void SetPathWithinDistance( Vector vDestPos, char *description, float fMaxPath, int iMaxDirtyTime );
 	void FindPathAway( vec_t *vAwayFrom, vec_t *vDirPreferred, float fMinSafeDist );
 	void ClearPath( void );

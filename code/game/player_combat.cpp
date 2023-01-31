@@ -95,17 +95,6 @@ static Entity *FindClosestEntityInRadius
    return bestent;
    }
 
-static Entity *FindHeadTarget
-	(
-	Vector origin,
-	Vector forward,
-	float  fov,
-	float  maxdist
-	)
-
-{
-}
-
 Entity *Player::FindEnemyInFOVFromTagWithOffset
    (
    float fov,

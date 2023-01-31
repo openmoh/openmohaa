@@ -31,7 +31,7 @@ MEM_TempAlloc			parsetree_allocator;
 yyparsedata				parsedata;
 sval_u					node_none = { 0 };
 
-char *str_replace( char *orig, char *rep, char *with ) {
+char *str_replace( char *orig, const char *rep, const char *with ) {
 	char *result; // the return string
 	char *ins;    // the next insert point
 	char *tmp;    // varies
@@ -50,7 +50,7 @@ char *str_replace( char *orig, char *rep, char *with ) {
 	len_with = strlen( with );
 
 	ins = orig;
-	for( count = 0; tmp = strstr( ins, rep ); ++count ) {
+	for( count = 0; (tmp = strstr( ins, rep )) != nullptr; ++count ) {
 		ins = tmp + len_rep;
 	}
 

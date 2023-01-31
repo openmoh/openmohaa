@@ -2110,7 +2110,7 @@ Returns a uniqued list of files that match the given criteria
 from all search paths
 ===============
 */
-char **FS_ListFilteredFiles( const char *path, const char *extension, char *filter, qboolean wantSubs, int *numfiles ) {
+char **FS_ListFilteredFiles( const char *path, const char *extension, const char *filter, qboolean wantSubs, int *numfiles ) {
 	int				nfiles;
 	char			**listCopy;
 	char			*list[MAX_FOUND_FILES];
@@ -2494,7 +2494,7 @@ FS_Dir_f
 */
 void FS_Dir_f( void ) {
 	char	*path;
-	char	*extension;
+	const char	*extension;
 	char	**dirnames;
 	int		ndirs;
 	int		i;
@@ -2818,7 +2818,7 @@ void FS_AddGameDirectory2( const char *path, const char *dir, qboolean original_
 FS_idPak
 ================
 */
-qboolean FS_idPak( char *pak, char *base ) {
+qboolean FS_idPak(const char *pak, const char *base ) {
 	int i;
 
 	for (i = 0; i < NUM_ID_PAKS; i++) {

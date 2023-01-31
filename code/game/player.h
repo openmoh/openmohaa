@@ -813,7 +813,6 @@ public:
 	void		Dive( Event *ev );
 	void		EventEarthquake( Event *ev );
 	void		EventIsSpectator( Event *ev );
-	void		EventReplication( Event *ev );
 	void		EventSetTeam( Event *ev );
 	void		EventGetViewModelAnim( Event *ev );
 	void		EventGetViewModelAnimFinished( Event *ev );

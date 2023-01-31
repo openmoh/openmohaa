@@ -1072,10 +1072,10 @@ Vector *maxbounds
 
 bool G_SightTrace
 (
-Vector &start,
-Vector &mins,
-Vector &maxs,
-Vector &end,
+const Vector &start,
+const Vector &mins,
+const Vector &maxs,
+const Vector &end,
 gentity_t *passent,
 gentity_t *passent2,
 int contentmask,
@@ -1126,10 +1126,10 @@ const char *reason
 
 bool G_SightTrace
 	(
-	Vector &start,
-	Vector &mins,
-	Vector &maxs,
-	Vector &end,
+	const Vector &start,
+	const Vector &mins,
+	const Vector &maxs,
+	const Vector &end,
 	Entity *passent,
 	Entity *passent2,
 	int contentmask,
@@ -1237,10 +1237,10 @@ trace_t G_Trace
 
 trace_t G_Trace
 	(
-	Vector &start,
-	Vector &mins,
-	Vector &maxs,
-	Vector &end,
+	const Vector &start,
+	const Vector &mins,
+	const Vector &maxs,
+	const Vector &end,
 	Entity *passent,
 	int contentmask,
 	qboolean cylinder,
@@ -1686,7 +1686,7 @@ float delaytime
 
 	// Fade the screen out
 	time = delaytime * 1000;
-	gi.SendServerCommand( NULL, va( "fadesound %0.2f", time ) );
+	gi.SendServerCommand( 0, va( "fadesound %0.2f", time ) );
 }
 
 void G_MissionFailed

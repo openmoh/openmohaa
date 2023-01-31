@@ -3933,7 +3933,7 @@ void Entity::LoopSound
 
 void Entity::LoopSound( str sound_name, float volume, float min_dist, float max_dist, float pitch )
 {
-	str name = NULL;
+	str name;
 	str random_alias;
 	AliasListNode_t *ret = NULL;
 

@@ -528,7 +528,7 @@ void *Sys_LoadDll(const char *name, qboolean useSystemLib)
 	{
 		const char *topDir;
 		char libPath[MAX_OSPATH];
-		int len;
+		size_t len;
 
 		topDir = Sys_BinaryPath();
 

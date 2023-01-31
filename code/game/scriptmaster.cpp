@@ -125,7 +125,7 @@ void ScriptMaster::Archive( Archiver& arc )
 
 	if( arc.Saving() )
 	{
-		num = ScriptClass_allocator.Count();
+		num = (int)ScriptClass_allocator.Count();
 		arc.ArchiveInteger( &num );
 
 		MEM_BlockAlloc_enum<ScriptClass> en = ScriptClass_allocator;

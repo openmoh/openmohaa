@@ -27,6 +27,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __cplusplus
 
+#include "SkelVec3.h"
+#include "SkelVec4.h"
+#include "SkelMat3.h"
+#include "SkelMat4.h"
+
 class SkelQuat {
 public:
 	union {

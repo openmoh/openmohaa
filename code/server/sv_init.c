@@ -256,7 +256,7 @@ Creates and sends the server command necessary to update the CS index for the
 given client
 ===============
 */
-static void SV_SendConfigstring(client_t *client, int index)
+void SV_SendConfigstring(client_t *client, int index)
 {
 	int maxChunkSize = MAX_STRING_CHARS - 24;
 	size_t len;
@@ -740,7 +740,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		if( p )
 		{
 			ge->errorMessage = NULL;
-			Com_Error( ERR_DROP, p );
+			Com_Error(ERR_DROP, "%s", p);
 		}
 
 		// save persistant structures
@@ -767,7 +767,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 			if( p )
 			{
 				ge->errorMessage = NULL;
-				Com_Error( ERR_DROP, p );
+				Com_Error(ERR_DROP, "%s", p);
 			}
 		}
 
@@ -784,7 +784,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		for( i = 0; i < svs.iNumClients; i++ ) {
 			// send the new gamestate to all connected clients
 			if( svs.clients[ i ].state >= CS_CONNECTED ) {
-				char	*denied;
+				const char	*denied;
 
 				if( svs.clients[ i ].netchan.remoteAddress.type != NA_BOT
 					|| Cvar_VariableIntegerValue( "g_gametype" ) == 0 )
@@ -796,7 +796,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 					if( p )
 					{
 						ge->errorMessage = NULL;
-						Com_Error( ERR_DROP, p );
+						Com_Error(ERR_DROP, "%s", p);
 					}
 
 					if( denied ) {
@@ -855,7 +855,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		for( i = 0; i < svs.iNumClients; i++ )
 		{
 			if( svs.clients[ i ].state >= CS_CONNECTED ) {
-				char	*denied;
+				const char	*denied;
 
 				// connect the client again
 				denied = ge->ClientConnect( i, qfalse );
@@ -864,7 +864,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 				if( p )
 				{
 					ge->errorMessage = NULL;
-					Com_Error( ERR_DROP, p );
+					Com_Error(ERR_DROP, "%s", p);
 				}
 
 				if( denied ) {
@@ -928,7 +928,7 @@ void SV_ServerLoaded( void ) {
 	if( p )
 	{
 		ge->errorMessage = NULL;
-		Com_Error( ERR_DROP, p );
+		Com_Error(ERR_DROP, "%s", p);
 	}
 
 	if( svs.autosave )

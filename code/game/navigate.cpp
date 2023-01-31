@@ -69,7 +69,7 @@ int PathSearch::m_LoadIndex;
 PathNode *PathSearch::pathnodes[ MAX_PATHNODES ];
 int PathSearch::nodecount;
 float PathSearch::total_dist;
-char *PathSearch::last_error;
+const char *PathSearch::last_error;
 
 byte *bulkNavMemory = NULL;
 byte *startBulkNavMemory = NULL;
@@ -2501,14 +2501,14 @@ int PathSearch::FindPath
 	if( !Node )
 	{
 		last_error = "couldn't find start node";
-		return NULL;
+		return 0;
 	}
 
 	to = NearestEndNode( end );
 	if( !to )
 	{
 		last_error = "couldn't find end node";
-		return NULL;
+		return 0;
 	}
 
 	total_dist = 9e+11f;
@@ -2599,7 +2599,7 @@ int PathSearch::FindPath
 				if( f >= maxPath )
 				{
 					last_error = "specified path distance exceeded";
-					return NULL;
+					return 0;
 				}
 
 				if( pathway->fallheight <= fallheight )
@@ -2651,7 +2651,7 @@ int PathSearch::FindPath
 		if( !open )
 		{
 			last_error = "unreachable path";
-			return NULL;
+			return 0;
 		}
 	}
 
@@ -2841,7 +2841,7 @@ int PathSearch::FindPathAway
 		if( !open )
 		{
 			last_error = "unreachable path";
-			return NULL;
+			return 0;
 		}
 	}
 
@@ -2973,7 +2973,7 @@ int PathSearch::FindPathNear
 			if( f >= maxPath )
 			{
 				last_error = "specified path distance exceeded";
-				return NULL;
+				return 0;
 			}
 
 			if( pathway->fallheight <= fallheight )
@@ -3024,7 +3024,7 @@ int PathSearch::FindPathNear
 		if( !open )
 		{
 			last_error = "unreachable path";
-			return NULL;
+			return 0;
 		}
 	}
 

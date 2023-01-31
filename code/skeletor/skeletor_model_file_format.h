@@ -22,10 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // skeletor_model_file_format.h : Skeletor model file format
 
-#ifndef __SKELETOR_MODEL_FILE_FORMAT_H__
-#define __SKELETOR_MODEL_FILE_FORMAT_H__
+#pragma once
 
-static char *SKEL_BONENAME_WORLD = "worldbone";
+static const char *SKEL_BONENAME_WORLD = "worldbone";
 
 typedef enum boneType_e {
 	SKELBONE_ROTATION,
@@ -78,15 +77,22 @@ typedef struct {
 	int ofsMorphTargets;
 } skelBaseHeader_t;
 
+#if __cplusplus
+
+#include "SkelVec3.h"
+#include "SkelQuat.h"
+
+struct boneData_s;
+
 int CreateRotationBoneFileData( const char *newBoneName, const char *newBoneParentName, SkelVec3 basePos, boneFileData_t *fileData );
 int CreatePosRotBoneFileData( char *newBoneName, char *newBoneParentName, boneFileData_t *fileData );
-void CreatePosRotBoneData( const char *newBoneName, const char *newBoneParentName, boneData_t *boneData );
-int CreateIKShoulderBoneFileData( const char *newBoneName, const char *newBoneParentName, SkelQuat baseOrient, SkelVec3 basePos, boneData_t *boneData );
-int CreateIKElbowBoneFileData( const char *newBoneName, const char *newBoneParentName, SkelVec3 basePos, boneData_t *boneData );
+void CreatePosRotBoneData( const char *newBoneName, const char *newBoneParentName, boneData_s *boneData );
+int CreateIKShoulderBoneFileData( const char *newBoneName, const char *newBoneParentName, SkelQuat baseOrient, SkelVec3 basePos, boneData_s *boneData );
+int CreateIKElbowBoneFileData( const char *newBoneName, const char *newBoneParentName, SkelVec3 basePos, boneData_s *boneData );
 int CreateIKWristBoneFileData( const char *newBoneName, const char *newBoneParentName, const char *shoulderBoneName, SkelVec3 basePos, boneFileData_t *fileData );
 int CreateHoseRotBoneFileData( char *newBoneName, char *newBoneParentName, char *targetBoneName, float bendRatio, float bendMax, float spinRatio,
 	hoseRotType_t hoseRotType, SkelVec3 basePos, boneFileData_t *fileData );
 int CreateAvRotBoneFileData( char *newBoneName, char *newBoneParentName, char *baseBoneName, char *targetBoneName, float rotRatio,
 	SkelVec3 basePos, boneFileData_t *fileData );
 
-#endif // __SKELETOR_MODEL_FILE_FORMAT_H__
+#endif

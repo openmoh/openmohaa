@@ -470,7 +470,7 @@ void Actor::State_Cover_Shoot
 			return;
 		}
 	}
-	sizeof(SimpleEntity);
+
 	Anim_Shoot();
 	AimAtTargetPos();
 

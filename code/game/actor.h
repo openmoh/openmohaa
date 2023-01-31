@@ -390,7 +390,7 @@ public:
 	/* think state changed */
 	bool m_bDirtyThinkState;
 	/*  debug state for m_State */
-	char *m_pszDebugState;
+	const char *m_pszDebugState;
 	/* currently animating ( used in G_RunFrame ) */
 	bool m_bAnimating;
 	/* Am I a doggo ? */
@@ -794,18 +794,18 @@ public:
 	static void InitNoClip( GlobalFuncs_t *func );
 	bool IsNoClipState( int state );
 	void Think_NoClip( void );
-	bool ValidGrenadePath( Vector& vFrom, Vector& vTo, Vector& vVel );
-	static Vector CalcThrowVelocity( Vector& vFrom, Vector& vTo );
-	Vector CanThrowGrenade( Vector& vFrom, Vector& vTo );
-	static Vector CalcRollVelocity( Vector& vFrom, Vector& vTo );
-	Vector CanRollGrenade( Vector& vFrom, Vector& vTo );
-	bool CanTossGrenadeThroughHint( GrenadeHint *pHint, Vector& vFrom, Vector& vTo, bool bDesperate, Vector *pvVel, eGrenadeTossMode *peMode );
+	bool ValidGrenadePath( const Vector& vFrom, const Vector& vTo, Vector& vVel );
+	static Vector CalcThrowVelocity( const Vector& vFrom, const Vector& vTo );
+	Vector CanThrowGrenade( const Vector& vFrom, const Vector& vTo );
+	static Vector CalcRollVelocity( const Vector& vFrom, const Vector& vTo );
+	Vector CanRollGrenade( const Vector& vFrom, const Vector& vTo );
+	bool CanTossGrenadeThroughHint( GrenadeHint *pHint, const Vector& vFrom, const Vector& vTo, bool bDesperate, Vector *pvVel, eGrenadeTossMode *peMode );
 	static Vector GrenadeThrowPoint( const Vector& vFrom, const Vector& vDelta, const_str csAnim );
 	Vector CalcKickVelocity( Vector& vDelta, float fDist ) const;
 	bool CanKickGrenade( Vector &vFrom, Vector &vTo, Vector &vFace, Vector *pvVel );
-	bool GrenadeWillHurtTeamAt( Vector& vTo );
-	bool CanGetGrenadeFromAToB( Vector& vFrom, Vector& vTo, bool bDesperate, Vector *pvVel, eGrenadeTossMode *peMode );
-	bool DecideToThrowGrenade( Vector& vTo, Vector *pvVel, eGrenadeTossMode *peMode );
+	bool GrenadeWillHurtTeamAt( const Vector& vTo );
+	bool CanGetGrenadeFromAToB( const Vector& vFrom, const Vector& vTo, bool bDesperate, Vector *pvVel, eGrenadeTossMode *peMode );
+	bool DecideToThrowGrenade( const Vector& vTo, Vector *pvVel, eGrenadeTossMode *peMode );
 	void Grenade_EventFire( Event *ev );
 	void GenericGrenadeTossThink( void );
 	static void InitGrenade( GlobalFuncs_t *func );
@@ -1011,7 +1011,7 @@ public:
 	bool NoticeFootstep( Sentient *pPedestrian );
 	bool NoticeVoice( Sentient *pVocallist );
 	void ClearLookEntity( void );
-	void LookAt( Vector& vec );
+	void LookAt( const Vector& vec );
 	void LookAt( Listener *l );
 	void ForwardLook( void );
 	void LookAtLookEntity( void );
@@ -1024,11 +1024,11 @@ public:
 	void NoPoint( void );
 	void IdlePoint( void );
 	void ClearPointEntity( void );
-	void PointAt( Vector& vec );
+	void PointAt( const Vector& vec );
 	void PointAt( Listener* l );
 	void EventPointAt( Event *ev );
 	void ClearTurnEntity( void );
-	void TurnTo( Vector& vec );
+	void TurnTo( const Vector& vec );
 	void TurnTo( Listener *l  );
 	void IdleTurn( void );
 	void EventTurnTo( Event *ev );

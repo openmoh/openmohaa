@@ -67,7 +67,7 @@ consolecmd_t G_ConsoleCmds[] =
 #ifdef _DEBUG
 	  { "bot",				G_BotCommand,			qtrue },
 #endif
-      { NULL,				NULL,					NULL }
+      { NULL,				NULL,					qfalse }
    };
 
 
@@ -287,7 +287,7 @@ void G_Say
 
    if ( dedicated->integer )
 		{
-      gi.SendServerCommand( NULL, "print \"%s\"", text );
+      gi.SendServerCommand( 0, "print \"%s\"", text );
 		}
 
 	for( j = 0; j < game.maxclients; j++ )
@@ -298,7 +298,7 @@ void G_Say
 			continue;
 			}
 
-      gi.SendServerCommand( NULL, "print \"%s\"", text );
+      gi.SendServerCommand( 0, "print \"%s\"", text );
 		}
 	}
 

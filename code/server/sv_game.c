@@ -157,11 +157,11 @@ void SV_InitAllCGMessages ()
 static void MSG_WriteCGMBits (cgm_t *pCGM, int value, int bits)
 {
 	if(CGM_DATA_SIZE - pCGM->cursize <= 3) {
-		Com_DPrintf("CGM buffer for client %i overflowed\n", pCGM - g_CGMessages);
+		Com_DPrintf("CGM buffer for client %zu overflowed\n", pCGM - g_CGMessages);
 		return;
 	}
 	if(CGM_DATATYPES_SIZE - pCGM->dtindex <= 0) {
-		Com_DPrintf("CGM buffer for client %i overflowed number of datum\n", pCGM - g_CGMessages);
+		Com_DPrintf("CGM buffer for client %zu overflowed number of datum\n", pCGM - g_CGMessages);
 		return;
 	}
 
@@ -317,7 +317,7 @@ void PF_MSG_WriteCoord (float f)
 	int i;
 
 	// 19th bit is a sign
-	int write = abs(f * 16.f);
+	int write = abs((int)(f * 16.f));
 	if(f < 0) {
 		write |= 262144;
 	} else {
@@ -1664,7 +1664,7 @@ void SV_InitGameProgs( void ) {
 	if( err )
 	{
 		ge->errorMessage = NULL;
-		Com_Error( ERR_DROP, err );
+		Com_Error(ERR_DROP, "%s", err);
 	}
 
 	for( i = 0; i < svs.iNumClients; i++ )

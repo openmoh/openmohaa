@@ -92,7 +92,7 @@ static qboolean StringToFilter
 	   {
 		if ( *s < '0' || *s > '9' )
 		   {
-         gi.SendServerCommand( NULL, "print \"Bad filter address: %s\n\"", s );
+         gi.SendServerCommand( 0, "print \"Bad filter address: %s\n\"", s );
 			return false;
 		   }
 
@@ -187,7 +187,7 @@ void SVCmd_AddIP_f
 
 	if ( gi.Argc() < 3 )
       {
-      gi.SendServerCommand( NULL, "print \"Usage: addip <ip-mask>\n\"" );
+      gi.SendServerCommand( 0, "print \"Usage: addip <ip-mask>\n\"" );
 		return;
       }
 
@@ -204,7 +204,7 @@ void SVCmd_AddIP_f
 	   {
 		if ( numipfilters == MAX_IPFILTERS )
          {
-         gi.SendServerCommand( NULL, "print \"IP filter list is full\n\"" );
+         gi.SendServerCommand( 0, "print \"IP filter list is full\n\"" );
 			return;
 		   }
 		numipfilters++;
@@ -233,7 +233,7 @@ void SVCmd_RemoveIP_f
 
 	if ( gi.Argc() < 3 )
       {
-      gi.SendServerCommand( NULL, "print \"Usage: sv removeip <ip-mask>\n\"" );
+      gi.SendServerCommand( 0, "print \"Usage: sv removeip <ip-mask>\n\"" );
 		return;
 	   }
 
@@ -252,12 +252,12 @@ void SVCmd_RemoveIP_f
             }
 
 			numipfilters--;
-         gi.SendServerCommand( NULL, "print \"Removed.\n\"" );
+         gi.SendServerCommand( 0, "print \"Removed.\n\"" );
 			return;
 		   }
       }
 
-   gi.SendServerCommand( NULL, "print \"Didn't find %s.\n\"", gi.Argv( 2 ) );
+   gi.SendServerCommand( 0, "print \"Didn't find %s.\n\"", gi.Argv( 2 ) );
    }
 
 /*
@@ -274,11 +274,11 @@ void SVCmd_ListIP_f
 	int   i;
 	byte	b[ 4 ];
 
-   gi.SendServerCommand( NULL, "print \"Filter list:\n\"", gi.Argv( 2 ) );
+   gi.SendServerCommand( 0, "print \"Filter list:\n\"", gi.Argv( 2 ) );
 	for( i = 0; i < numipfilters; i++ )
    	{
 		*( unsigned * )b = ipfilters[ i ].compare;
-      gi.SendServerCommand( NULL, "print \"%3i.%3i.%3i.%3i\n\"", b[ 0 ], b[ 1 ], b[ 2 ], b[ 3 ] );
+      gi.SendServerCommand( 0, "print \"%3i.%3i.%3i.%3i\n\"", b[ 0 ], b[ 1 ], b[ 2 ], b[ 3 ] );
 	   }
    }
 
@@ -299,12 +299,12 @@ void SVCmd_WriteIP_f
 	int	 i;
 
 	sprintf( name, "%s/listip.cfg", GAMEVERSION );
-   gi.SendServerCommand( NULL, "print \"Writing %s.\n\"", name );
+   gi.SendServerCommand( 0, "print \"Writing %s.\n\"", name );
 
 	f = fopen( name, "wb" );
 	if ( !f )
 	   {
-      gi.SendServerCommand( NULL, "print \"Couldn't open %s.\n\"", name );
+      gi.SendServerCommand( 0, "print \"Couldn't open %s.\n\"", name );
       return;
 	   }
 
@@ -355,6 +355,6 @@ void G_ServerCommand
       }
 	else
       {
-      gi.SendServerCommand( NULL, "print \"Unknown server command %s.\n\"", cmd );
+      gi.SendServerCommand( 0, "print \"Unknown server command %s.\n\"", cmd );
       }
    }

@@ -102,10 +102,12 @@ public:
 inline
 SkelMat4::SkelMat4( const float mat[ 3 ][ 3 ] )
 {
-	memcpy( &val, mat, sizeof( mat ) );
-	val[ 3 ][ 0 ] = 0.0f;
-	val[ 3 ][ 1 ] = 0.0f;
-	val[ 3 ][ 2 ] = 0.0f;
+	VectorCopy(mat[0], val[0]);
+	VectorCopy(mat[1], val[1]);
+	VectorCopy(mat[2], val[2]);
+	val[3][0] = 0.0f;
+	val[3][1] = 0.0f;
+	val[3][2] = 0.0f;
 }
 
 inline

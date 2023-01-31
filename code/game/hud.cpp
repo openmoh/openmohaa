@@ -1641,36 +1641,38 @@ void Hud::SetVirtualSize( qboolean v )
 
 void Hud::EventGetAlignX( Event * ev )
 {
-	switch( alignX )
+	switch (alignX)
 	{
 	case HUD_LEFT:
-		return ev->AddString( "left" );
+		return ev->AddString("left");
 
 	case HUD_CENTER:
-		return ev->AddString( "center" );
+		return ev->AddString("center");
 
 	case HUD_RIGHT:
-		return ev->AddString( "right" );
-	}
+		return ev->AddString("right");
 
-	return ev->AddString( "none" );
+	default:
+		return ev->AddString("none");
+	}
 }
 
 void Hud::EventGetAlignY( Event * ev )
 {
-	switch( alignY )
+	switch (alignY)
 	{
 	case HUD_TOP:
-		return ev->AddString( "top" );
+		return ev->AddString("top");
 
 	case HUD_CENTER:
-		return ev->AddString( "center" );
+		return ev->AddString("center");
 
 	case HUD_BOTTOM:
-		return ev->AddString( "bottom" );
-	}
+		return ev->AddString("bottom");
 
-	return ev->AddString( "none" );
+	default:
+		return ev->AddString("none");
+	}
 }
 
 void Hud::EventGetAlpha( Event * ev )

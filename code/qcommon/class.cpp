@@ -89,7 +89,7 @@ ClassDef *getClassForID( const char *name )
 
 ClassDef *getClass( const char *name )
 {
-	if( name == NULL || name == "" ) {
+	if (name == NULL || !*name) {
 		return NULL;
 	}
 
@@ -213,9 +213,9 @@ void CLASS_Print( FILE *class_file, const char *fmt, ... )
 	va_end( argptr );
 
 	if( class_file )
-		fprintf( class_file, text );
+		fprintf( class_file, "%s", text);
 	else
-		CLASS_DPrintf( text );
+		CLASS_DPrintf("%s", text);
 }
 
 size_t totalmemallocated = 0;
@@ -228,8 +228,10 @@ void *Class::operator new( size_t s )
 {
 	size_t *p;
 
-	if ( s == 0 )
-		return 0;
+	if (s == 0) {
+		static void* empty_memory = nullptr;
+		return &empty_memory;
+	}
 
 	s += sizeof( size_t );
 

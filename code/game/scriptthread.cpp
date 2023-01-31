@@ -4593,7 +4593,7 @@ void ScriptThread::EventHudDrawShader
 
 {
 	int index = -1;
-	str shadername = NULL;
+	str shadername;
 
 	index = ev->GetInteger( 1 );
 
@@ -5297,7 +5297,7 @@ void ScriptThread::EventIHudDrawShader
 	int numArgs = -1;
 	int index = -1;
 	Entity* player = NULL;
-	str shadername = NULL;
+	str shadername;
 
 	numArgs = ev->NumArgs();
 
@@ -5761,8 +5761,8 @@ void ScriptThread::FileOpen
 
 {
 	int numArgs = -1;
-	str filename = NULL;
-	str accesstype = NULL;
+	str filename;
+	str accesstype;
 	FILE* f = NULL;
 	char buf[16] = { 0 };
 
@@ -6476,7 +6476,7 @@ void ScriptThread::FileList
 {
 	int i = 0, numArgs = 0;
 	const char* path = NULL;
-	str extension = NULL;
+	str extension;
 	int wantSubs = 0;
 	int numFiles = 0;
 	char** list = NULL;
@@ -6529,7 +6529,7 @@ void ScriptThread::FileNewDirectory
 )
 
 {
-	str path = NULL;
+	str path;
 	int numArgs = 0;
 	int ret = 0;
 
@@ -6563,7 +6563,7 @@ void ScriptThread::FileRemoveDirectory
 )
 
 {
-	str path = NULL;
+	str path;
 	int numArgs = 0;
 	int ret = 0;
 
@@ -7447,7 +7447,7 @@ int checkMD5(const char* filepath, char* md5Hash)
 	{
 		gi.Free(buff);
 		fclose(f);
-		Com_Printf("error1: %i\n", bytesread);
+		Com_Printf("error1: %zi\n", bytesread);
 		return -3;
 	}
 
@@ -7507,7 +7507,7 @@ void ScriptThread::Md5File
 
 {
 	char hash[64];
-	str filename = NULL;
+	str filename;
 	int ret = 0;
 
 	if (ev->NumArgs() != 1)
@@ -7555,7 +7555,7 @@ void ScriptThread::Md5String
 
 {
 	char hash[64];
-	str text = NULL;
+	str text;
 	int ret = 0;
 
 	if (ev->NumArgs() != 1)
@@ -7673,8 +7673,7 @@ void ScriptThread::UnregisterEvent
 )
 
 {
-	str eventname = NULL;
-	char* eventname_full = NULL;
+	str eventname;
 	int numArgs = 0;
 	scriptedEvType_t evType;
 

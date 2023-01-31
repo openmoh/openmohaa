@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
+#include <cstddef>
+
 class cLZ77 {
 	static unsigned int m_pDictionary[];
 

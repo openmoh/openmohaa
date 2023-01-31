@@ -215,7 +215,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
 
 	if ( showpackets->integer ) {
-		Com_Printf ("%s send %4i : s=%i fragment=%i,%i\n"
+		Com_Printf ("%s send %4zu : s=%i fragment=%zu,%zu\n"
 			, netsrcString[ chan->sock ]
 			, send.cursize
 			, chan->outgoingSequence
@@ -248,7 +248,7 @@ void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data ) {
 	byte		send_buf[MAX_PACKETLEN];
 
 	if ( length > MAX_MSGLEN ) {
-		Com_Error( ERR_DROP, "Netchan_Transmit: length = %i", length );
+		Com_Error( ERR_DROP, "Netchan_Transmit: length = %zu", length );
 	}
 	chan->unsentFragmentStart = 0;
 
@@ -281,7 +281,7 @@ void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data ) {
 	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
 
 	if ( showpackets->integer ) {
-		Com_Printf( "%s send %4i : s=%i ack=%i\n"
+		Com_Printf( "%s send %4zu : s=%i ack=%i\n"
 			, netsrcString[ chan->sock ]
 			, send.cursize
 			, chan->outgoingSequence - 1
@@ -338,13 +338,13 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 
 	if ( showpackets->integer ) {
 		if ( fragmented ) {
-			Com_Printf( "%s recv %4i : s=%i fragment=%i,%i\n"
+			Com_Printf( "%s recv %4zu : s=%u fragment=%i,%i\n"
 				, netsrcString[ chan->sock ]
 				, msg->cursize
 				, sequence
 				, fragmentStart, fragmentLength );
 		} else {
-			Com_Printf( "%s recv %4i : s=%i\n"
+			Com_Printf( "%s recv %4zu : s=%i\n"
 				, netsrcString[ chan->sock ]
 				, msg->cursize
 				, sequence );
@@ -656,7 +656,7 @@ void NET_SendPacket( netsrc_t sock, size_t length, const void *data, netadr_t to
 
 	// sequenced packets are shown in netchan, so just show oob
 	if ( showpackets->integer && *(int *)data == -1 )	{
-		Com_Printf( "%s send OOB packet %4i\n", netsrcString[ sock ], length );
+		Com_Printf( "%s send OOB packet %4zu\n", netsrcString[ sock ], length );
 	}
 
 	if ( to.type == NA_LOOPBACK ) {

@@ -131,7 +131,7 @@ void ChannelNameTable::SortIntoTable( int index )
 	CopyChannel( &m_Channels[ index ], &tempName );
 }
 
-static char *bogusNameTable[] =
+static const char *bogusNameTable[] =
 {
 	"Bip01 Spine pos",
 	"Bip01 Spine1 pos",

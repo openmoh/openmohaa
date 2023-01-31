@@ -490,11 +490,11 @@ CM_ReadPortalState
 void	CM_ReadPortalState( fileHandle_t f )
 {
 	int numareaportals;
-	FS_Read( &numareaportals, sizeof( int ), f );
-	if( cm.numAreas != cm.numAreas ) {
-		Com_Error( ERR_DROP, "numareaportals differs from save game" );
+	FS_Read(&numareaportals, sizeof(int), f);
+	if (numareaportals != cm.numAreas) {
+		Com_Error(ERR_DROP, "numareaportals differs from save game");
 	}
-	FS_Read( &cm.areaPortals, cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), f );
+	FS_Read(&cm.areaPortals, cm.numAreas * cm.numAreas * sizeof(*cm.areaPortals), f);
 	CM_FloodAreaConnections();
 }
 

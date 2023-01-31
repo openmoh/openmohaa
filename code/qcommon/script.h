@@ -84,7 +84,7 @@ class Script : public Class
       CLASS_PROTOTYPE( Script );
 
 #if defined(ARCHIVE_SUPPORTED)
-	  virtual void		Archive( Archiver &arc );
+	  void		Archive( Archiver &arc ) override;
 #endif
 
 		~Script();

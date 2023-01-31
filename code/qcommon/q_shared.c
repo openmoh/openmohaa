@@ -229,7 +229,7 @@ string compare the end of the strings and return qtrue if strings match
 */
 qboolean COM_CompareExtension(const char* in, const char* ext)
 {
-	int inlen, extlen;
+	size_t inlen, extlen;
 
 	inlen = strlen(in);
 	extlen = strlen(ext);
@@ -649,11 +649,11 @@ COM_GetToken
 Parse a token out of a string
 ==============
 */
-const char *COM_GetToken( const char **data_p, qboolean crossline )
+const char *COM_GetToken( char **data_p, qboolean crossline )
 {
 	int		c;
 	int		len;
-	const char *data;
+	char *data;
 
 	data = *data_p;
 	len = 0;
@@ -1121,7 +1121,7 @@ however, uses Microsoft's broken _vsnprintf() function.
 =============
 */
 
-int Q_vsnprintf(char* str, size_t size, const char* format, va_list ap)
+size_t Q_vsnprintf(char* str, size_t size, const char* format, va_list ap)
 {
 	int retval;
 
@@ -1401,8 +1401,8 @@ char *Q_CleanStr( char *string ) {
 }
 
 
-int QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
-	int		len;
+size_t QDECL Com_sprintf( char *dest, size_t size, const char *fmt, ...) {
+	size_t		len;
 	va_list		argptr;
 
 	va_start(argptr, fmt);
@@ -1410,7 +1410,7 @@ int QDECL Com_sprintf( char *dest, int size, const char *fmt, ...) {
 	va_end(argptr);
 
 	if (len >= size)
-		Com_Printf("Com_sprintf: Output length %d too short, require %d bytes.\n", size, len + 1);
+		Com_Printf("Com_sprintf: Output length %zd too short, require %zd bytes.\n", size, len + 1);
 
 	return len;
 }
@@ -1945,7 +1945,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 Com_CharIsOneOfCharset
 ==================
 */
-static qboolean Com_CharIsOneOfCharset( char c, char *set )
+static qboolean Com_CharIsOneOfCharset( char c, const char *set )
 {
 	int i;
 
@@ -1963,7 +1963,7 @@ static qboolean Com_CharIsOneOfCharset( char c, char *set )
 Com_SkipCharset
 ==================
 */
-char *Com_SkipCharset( char *s, char *sep )
+char *Com_SkipCharset( char *s, const char *sep )
 {
 	char	*p = s;
 
@@ -1983,7 +1983,7 @@ char *Com_SkipCharset( char *s, char *sep )
 Com_SkipTokens
 ==================
 */
-char *Com_SkipTokens( char *s, int numTokens, char *sep )
+char *Com_SkipTokens( char *s, int numTokens, const char *sep )
 {
 	int		sepCount = 0;
 	char	*p = s;

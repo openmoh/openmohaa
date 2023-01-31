@@ -536,7 +536,7 @@ void Player::GetStateAnims
    statemap_Torso->GetAllAnims( c );
    }
 
-static fileHandle_t logfile=NULL;
+static fileHandle_t logfile = 0;
 
 static void OpenPlayerLogFile
    (
@@ -610,7 +610,7 @@ void ClosePlayerLogFile
 	if( logfile )
 	{
 		gi.FS_FCloseFile( logfile );
-		logfile = NULL;
+		logfile = 0;
 	}
 }
 

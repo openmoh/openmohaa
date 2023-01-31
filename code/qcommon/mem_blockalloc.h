@@ -22,11 +22,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // mem_blockalloc.h: Fast block memory manager
 
-#ifndef __MEM_BLOCKALLOC_H__
-#define __MEM_BLOCKALLOC_H__
+#pragma once
 
 #include "linklist.h"
 #include "q_shared.h"
+
+#include <cstddef>
+#include <type_traits>
+#include <new>
 
 void *MEM_Alloc( int size );
 void MEM_Free( void *ptr );
@@ -400,8 +403,8 @@ void MEM_BlockAlloc<a, b>::Free(void* ptr) noexcept
 template<typename a, size_t b>
 void MEM_BlockAlloc<a, b>::FreeAll() noexcept
 {
-#if _DEBUG_MEMBLOCK
 	block_t* block;
+#if _DEBUG_MEMBLOCK
 	block_t* next = m_Block.Root();
 	for (block = next; block; block = next)
 	{
@@ -413,22 +416,22 @@ void MEM_BlockAlloc<a, b>::FreeAll() noexcept
 	}
 	m_Block.Reset();
 #else
-	while(block_t* b = m_StartFullBlock)
+	while((block = m_StartFullBlock) != nullptr)
 	{
-		if (b->usedDataAvailable())
+		if (block->usedDataAvailable())
 		{
-			a* ptr = (a*)b->data[b->used_data].data;
+			a* ptr = (a*)block->data[block->used_data].data;
 			ptr->~a();
 			Free(ptr);
-			b = m_StartFullBlock;
+			block = m_StartFullBlock;
 		}
 	}
 
-	while (block_t* b = m_StartUsedBlock)
+	while ((block = m_StartUsedBlock) != nullptr)
 	{
-		if (b->usedDataAvailable())
+		if (block->usedDataAvailable())
 		{
-			a* ptr = (a*)b->data[b->used_data].data;
+			a* ptr = (a*)block->data[block->used_data].data;
 			ptr->~a();
 			Free(ptr);
 		}
@@ -570,4 +573,14 @@ a* MEM_BlockAlloc_enum<a, b>::CurrentElement()
 	return m_CurrentBlock;
 }
 
-#endif // __MEM_BLOCKALLOC_H__
+template<typename a, size_t b>
+void* operator new(size_t, MEM_BlockAlloc<a, b>& allocator)
+{
+	return allocator.Alloc();
+}
+
+template<typename a, size_t b>
+void operator delete(void* ptr, MEM_BlockAlloc<a, b>& allocator) noexcept
+{
+	return allocator.Free(ptr);
+}

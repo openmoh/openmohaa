@@ -334,7 +334,7 @@ DIRECTORY SCANNING
 Sys_ListFilteredFiles
 ==================
 */
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
+void Sys_ListFilteredFiles( const char *basedir, char *subdirs, const char *filter, char **list, int *numfiles )
 {
 	char          search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char          filename[MAX_OSPATH];
@@ -391,7 +391,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 Sys_ListFiles
 ==================
 */
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs )
 {
 	struct dirent *d;
 	DIR           *fdir;
@@ -923,7 +923,7 @@ int Sys_PID( void )
 Sys_PIDIsRunning
 ==============
 */
-qboolean Sys_PIDIsRunning( size_t pid )
+qboolean Sys_PIDIsRunning( int pid )
 {
 	return kill( pid, 0 ) == 0;
 }
@@ -975,4 +975,147 @@ qboolean Sys_DllExtension( const char *name ) {
 	}
 
 	return qfalse;
+}
+
+/*
+================
+RecoverLostAutodialData
+================
+*/
+void RecoverLostAutodialData(void)
+{
+	// FIXME: stub
+}
+
+/*
+==============
+Sys_CloseMutex
+==============
+*/
+void Sys_CloseMutex(void)
+{
+	// FIXME: stub
+}
+
+/*
+==============
+Sys_ShowConsole
+==============
+*/
+void Sys_ShowConsole(int visLevel, qboolean quitOnClose)
+{
+	// FIXME: stub
+}
+
+/*
+==============
+Sys_PumpMessageLoop
+==============
+*/
+void Sys_PumpMessageLoop(void)
+{
+	// FIXME: stub
+}
+
+/*
+==============
+SaveRegistryInfo
+==============
+*/
+qboolean SaveRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long lSize)
+{
+	STUB_DESC("not implemented");
+	return qfalse;
+}
+
+/*
+==============
+LoadRegistryInfo
+==============
+*/
+qboolean LoadRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long* plSize)
+{
+	STUB_DESC("not implemented");
+	return qfalse;
+}
+
+/*
+==============
+IsFirstRun
+==============
+*/
+qboolean IsFirstRun(void)
+{
+	STUB_DESC("wtf");
+	return qfalse;
+}
+
+/*
+==============
+IsNewConfig
+==============
+*/
+qboolean IsNewConfig(void)
+{
+	STUB_DESC("wtf");
+	return qfalse;
+}
+
+/*
+==============
+IsSafeMode
+==============
+*/
+qboolean IsSafeMode(void)
+{
+	STUB_DESC("wtf");
+	return qfalse;
+}
+
+/*
+==============
+ClearNewConfigFlag
+==============
+*/
+void ClearNewConfigFlag(void)
+{
+}
+
+/*
+==============
+Sys_GetWholeClipboard
+==============
+*/
+const char* Sys_GetWholeClipboard(void)
+{
+	return NULL;
+}
+
+/*
+==============
+Sys_SetClipboard
+==============
+*/
+void Sys_SetClipboard(const char* contents)
+{
+}
+
+/*
+==================
+SetNormalThreadPriority
+==================
+*/
+void SetNormalThreadPriority(void)
+{
+	// FIXME: stub
+}
+
+/*
+==================
+SetBelowNormalThreadPriority
+==================
+*/
+void SetBelowNormalThreadPriority(void)
+{
+	// FIXME: stub
 }

@@ -924,8 +924,10 @@ float LerpAngle (float from, float to, float frac) {
 
 	return a;
 }
-static float fNoise1Arr[514];
-static int iNoise1Arr[256];
+static int p[514];
+static float g3[514][3];
+static float g2[514][2];
+static float g1[514];
 
 static void init(void)
 {
@@ -933,20 +935,20 @@ static void init(void)
 	int i;
 	for (i = 0; i < 256; i++)
 	{
-		iNoise1Arr[i] = i;
-		fNoise1Arr[i] = (rand() % 512 - 256) * 0.00390625;
+		p[i] = i;
+		g1[i] = (rand() % 512 - 256) * 0.00390625;
 	}
 	int v21, v22;
-	for (int j = i - 1; j; iNoise1Arr[v22 % 256] = v21)
+	for (int j = i - 1; j; p[v22 % 256] = v21)
 	{
-		v21 = iNoise1Arr[j];
+		v21 = p[j];
 		v22 = rand();
-		iNoise1Arr[j--] = iNoise1Arr[v22 % 256];
+		p[j--] = p[v22 % 256];
 	}
 
 	for (size_t k = 0; k < 258; k++)
 	{
-		fNoise1Arr[k + 256] = fNoise1Arr[k];
+		g1[k + 256] = g1[k];
 	}
 
 }
@@ -954,30 +956,26 @@ static int start = 1;
 
 float noise1(float arg)
 {
-	/*
-	 * This is an ugly func I wont bother variable naming.
-	 *vec_t vec;
-	float u, t, sx, rx1, rx0;
-	int bx0;*/
-
+	float rx0;
+	float rx1;
+	float u;
+	float sx;
+	float t;
+	int bx0;
 
 	if (start)
 	{
-		init();
 		start = 0;
+		init();
 	}
 
-	double v1; // st7
-	int v2; // eax
-	double v3; // st7
-	float v5; // [esp+4h] [ebp+4h]
-
-	v1 = arg + 4096.0;
-	v2 = (unsigned __int8)(signed __int64)v1;
-	v3 = v1 - (double)(signed int)(signed __int64)v1;
-	v5 = v3 * fNoise1Arr[iNoise1Arr[v2]];
-	return ((v3 - 1.0) * fNoise1Arr[iNoise1Arr[(unsigned __int8)(v2 + 1)]] - v5) * ((3.0 - (v3 + v3)) * (v3 * v3))
-		+ v5;
+	rx0 = arg + 4096.0;
+	bx0 = (int)rx0;
+	rx1 = rx0 - bx0;
+	sx = rx1 - 1.0;
+	t = rx1 * rx1 * (3.0 - (rx1 + rx1));
+	u = rx1 * g1[p[bx0]];
+	return u + t * (sx * g1[p[bx0 + 1]] - u);
 }
 
 /*

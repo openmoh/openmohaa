@@ -502,8 +502,8 @@ skelAnimDataGameHeader_t *SkeletorCacheFileCallback( const char *path )
 		Com_Printf( "+loadanim: %s\n", path );
 	}
 
-	sprintf_s( tempName, "g%s", path );
-	UI_LoadResource( tempName );
+	Com_sprintf(tempName, sizeof(tempName), "g%s", path);
+	UI_LoadResource(tempName);
 
 	return finishedHeader;
 }
@@ -640,7 +640,7 @@ void SkeletorCacheUnloadData( int index )
 
 	if( dumploadedanims && dumploadedanims->integer )
 	{
-		Com_Printf( "-loadanim: %s\n", m_cachedData[ m_cachedDataLookup[ index ] ] );
+		Com_Printf("-loadanim: %s\n", m_cachedData[m_cachedDataLookup[index]].path);
 	}
 
 	if( m_cachedData[ m_cachedDataLookup[ index ] ].data ) {
@@ -862,8 +862,8 @@ dtikianim_t *TIKI_InitTiki( dloaddef_t *ld, size_t defsize )
 		}
 	}
 
-	TIKI_GetAnimOrder( ld, order );
-	sprintf_s( tempName, "e%s", ld->path );
+	TIKI_GetAnimOrder(ld, order);
+	Com_sprintf(tempName, sizeof(tempName), "e%s", ld->path);
 	UI_LoadResource( tempName );
 
 	panim->m_aliases = temp_aliases;

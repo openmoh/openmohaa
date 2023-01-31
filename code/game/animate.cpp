@@ -485,7 +485,7 @@ void Animate::SetSyncTime( float s )
 {
 	if( s < 0.0f || s > 1.0f )
 	{
-		Com_Printf( "\nERROR SetSyncTime:  synctime must be 0 to 1 - attempt to set to %f\n" );
+		Com_Printf("\nERROR SetSyncTime:  synctime must be 0 to 1 - attempt to set to %f\n", s);
 		return;
 	}
 

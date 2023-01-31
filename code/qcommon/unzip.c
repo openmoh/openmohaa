@@ -1998,7 +1998,7 @@ extern int unzReadCurrentFile  (unzFile file, void *buf, unsigned len)
 		return UNZ_PARAMERROR;
 
 
-	if ((pfile_in_zip_read_info->read_buffer == NULL))
+	if (pfile_in_zip_read_info->read_buffer == NULL)
 		return UNZ_END_OF_LIST_OF_FILE;
 	if (len==0)
 		return 0;
@@ -4366,8 +4366,7 @@ void  zcfree (voidp opaque, voidp ptr)
 }
 
 /* Additions by RX '2004 */
-extern long unzGetOffset (file)
-    unzFile file;
+long unzGetOffset (unzFile file)
 {
     unz_s* s;
 
@@ -4382,9 +4381,7 @@ extern long unzGetOffset (file)
     return s->pos_in_central_dir;
 }
 
-extern int unzSetOffset (file, pos)
-        unzFile file;
-        long pos;
+int unzSetOffset (unzFile file, long pos)
 {
     unz_s* s;
     int err;

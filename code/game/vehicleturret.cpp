@@ -329,6 +329,10 @@ void VehicleTurretGun::UpdateSound
 		m_fNextSoundState = level.time;
 		LoopSound( m_sSoundSet + "snd_move" );
 		break;
+
+	default:
+		// FIXME: default sound?
+		break;
 	}
 }
 

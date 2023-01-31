@@ -1751,7 +1751,6 @@ CLASS_DECLARATION( Sentient, Player, "player" )
 	{ &EV_Player_MoveSpeedScale,			&Player::SetSpeed },
 	{ &EV_Player_MoveSpeedScaleGet,			&Player::GetMoveSpeedScale },
 	{ &EV_Player_PlayLocalSound,			&Player::PlayLocalSound },
-	{ &EV_Player_Replicate,					&Player::EventReplication },
 	{ &EV_Player_RunHeld,					&Player::RunHeld },
 	{ &EV_Player_SecFireHeld,				&Player::SecFireHeld },
 	{ &EV_Player_SetAnimSpeed,				&Player::SetAnimSpeed },
@@ -11757,7 +11756,7 @@ void Player::CallVote
 
 		if( i == game.maxclients )
 		{
-			HUDPrint( va("%s %s", gi.LV_ConvertString( "is not a valid player name to kick." ) ) );
+			HUDPrint(va("%s %s", gi.LV_ConvertString("is not a valid player name to kick.")));
 		}
 	}
 	else if( !Q_stricmp( arg1.c_str(), "map" ) && *sv_nextmap->string )
@@ -13846,62 +13845,6 @@ void Player::EventIsSpectator
 	ev->AddInteger( IsSpectator() );
 }
 
-void Player::EventReplication
-	(
-	Event *ev
-	)
-
-{
-	str variable;
-	ScriptVariable *pVar;
-
-	variable = ev->GetString( 1 );
-
-	pVar = vars->GetVariable( variable );
-
-	if( pVar == NULL ) {
-		ScriptError( "invalid variable '%s'.", variable.c_str() );
-	}
-
-	gi.MSG_SetClient( client->ps.clientNum );
-		gi.MSG_StartCGM( CGM_REPLICATION );
-		gi.MSG_WriteBits( pVar->GetType(), 4 );
-	gi.MSG_WriteString( variable );
-
-	Vector vec;
-
-	switch( pVar->GetType() )
-	{
-	case VARIABLE_CHAR:
-		gi.MSG_WriteChar( pVar->charValue() );
-		break;
-
-	case VARIABLE_CONSTSTRING:
-	case VARIABLE_STRING:
-		gi.MSG_WriteString( pVar->stringValue() );
-		break;
-
-	case VARIABLE_FLOAT:
-		gi.MSG_WriteFloat( pVar->floatValue() );
-		break;
-
-	case VARIABLE_INTEGER:
-		gi.MSG_WriteLong( pVar->intValue() );
-		break;
-
-	case VARIABLE_VECTOR:
-		vec = pVar->vectorValue();
-
-		gi.MSG_WriteCoord( vec[ 0 ] );
-		gi.MSG_WriteCoord( vec[ 1 ] );
-		gi.MSG_WriteCoord( vec[ 2 ] );
-
-		break;
-	}
-
-	gi.MSG_EndCGM();
-}
-
 void Player::EventSetTeam
 	(
 	Event *ev
@@ -14565,7 +14508,7 @@ void Player::SetStateFile
 {
 	int clientNum = G_GetClientNumber( this );
 	qboolean bRemove = false;
-	str string = NULL;
+	str string;
 
 	if( ev->NumArgs() <= 0 ) {
 		bRemove = true;

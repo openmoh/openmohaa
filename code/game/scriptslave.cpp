@@ -650,7 +650,7 @@ cvar_t *g_showflypath;
 
 ScriptSlave::ScriptSlave()
 {
-	g_showflypath = gi.Cvar_Get( "g_showflypath", "0", NULL );
+	g_showflypath = gi.Cvar_Get( "g_showflypath", "0", 0 );
 
 	AddWaitTill(STRING_TOUCH);
 	AddWaitTill(STRING_BLOCK);

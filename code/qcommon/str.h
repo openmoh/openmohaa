@@ -26,9 +26,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __STR_H__
 #define __STR_H__
 
-#include <assert.h>
-#include <string.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstring>
+#include <cstdio>
+#include <cstdint>
 
 #ifdef _WIN32
 #pragma warning(disable : 4710)     // function 'blah' not inlined

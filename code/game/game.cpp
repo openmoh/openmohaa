@@ -542,24 +542,6 @@ void G_TouchTriggers( Entity *ent )
 	}
 }
 
-trace_t G_Trace(
-	const vec3_t start,
-	const vec3_t bbox_mins,
-	const vec3_t bbox_maxs,
-	const vec3_t end,
-	Entity *entity,
-	int mask,
-	qboolean cliptoentities,
-	const char *description
-)
-{
-	trace_t results;
-
-	gi.Trace( &results, start, bbox_mins, bbox_maxs, end, entity->entnum, 0, 0, false );
-
-	return results;
-}
-
 Game::Game()
 {
 	clients = NULL;

@@ -22,8 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // mem_tempalloc.h: Fast temporary memory manager
 
-#ifndef __MEM_TEMPALLOC_H__
-#define __MEM_TEMPALLOC_H__
+#pragma once
+
+#include <cstddef>
 
 class MEM_TempAlloc {
 	unsigned char *m_CurrentMemoryBlock;
@@ -35,5 +36,3 @@ public:
 	void *Alloc( size_t len );
 	void FreeAll( void );
 };
-
-#endif // __MEM_TEMPALLOC_H__

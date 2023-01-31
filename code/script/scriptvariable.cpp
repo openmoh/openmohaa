@@ -702,7 +702,7 @@ qboolean ScriptVariable::IsVector( void )
 
 void ScriptVariable::PrintValue( void )
 {
-	switch( GetType() )
+	switch (GetType())
 	{
 	case VARIABLE_NONE:
 		printf( "" );
@@ -710,12 +710,12 @@ void ScriptVariable::PrintValue( void )
 
 #ifndef NO_SCRIPTENGINE
 	case VARIABLE_CONSTSTRING:
-		printf( Director.GetString( m_data.intValue ) );
+		printf("%s", Director.GetString(m_data.intValue).c_str());
 		break;
 #endif
 
 	case VARIABLE_STRING:
-		printf( m_data.stringValue->c_str() );
+		printf("%s", m_data.stringValue->c_str());
 		break;
 
 	case VARIABLE_INTEGER:
@@ -745,6 +745,9 @@ void ScriptVariable::PrintValue( void )
 
 	case VARIABLE_VECTOR:
 		printf( "( %f %f %f )", m_data.vectorValue[ 0 ], m_data.vectorValue[ 1 ], m_data.vectorValue[ 2 ] );
+		break;
+	default:
+		printf("unknown");
 		break;
 	}
 }
@@ -1204,7 +1207,7 @@ str ScriptVariable::stringValue() const
 		}
 
 	case VARIABLE_VECTOR:
-		return str( "( " ) + str( m_data.vectorValue[ 0 ] ) + str( " " ) + str( m_data.vectorValue[ 1 ] ) + str( " " ) + str( m_data.vectorValue[ 2 ] + str( " )" ) );
+		return str("( ") + str(m_data.vectorValue[0]) + str(" ") + str(m_data.vectorValue[1]) + str(" ") + str(m_data.vectorValue[2]) + str(" )");
 
 	default:
 		throw ScriptException( "Cannot cast '%s' to string", typenames[ GetType() ] );

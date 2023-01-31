@@ -245,7 +245,7 @@ typedef struct gameImport_s
 	fileHandle_t ( *FS_FOpenFileWrite )( const char *fileName );
 	fileHandle_t ( *FS_FOpenFileAppend )( const char *fileName );
 	const char *( *FS_PrepFileWrite )( const char *fileName );
-	size_t( *FS_Write )( void *buffer, size_t size, fileHandle_t fileHandle );
+	size_t( *FS_Write )( const void *buffer, size_t size, fileHandle_t fileHandle );
 	size_t( *FS_Read )( void *buffer, size_t len, fileHandle_t fileHandle );
 	void ( *FS_FCloseFile )( fileHandle_t fileHandle );
 	int ( *FS_Tell )( fileHandle_t fileHandle );
@@ -255,7 +255,7 @@ typedef struct gameImport_s
 	void ( *FS_CanonicalFilename )( char *fileName );
 	char **( *FS_ListFiles )( const char *qpath, const char *extension, qboolean wantSubs, int *numFiles );
 	void ( *FS_FreeFileList )( char **list );
-	const char *( *GetArchiveFileName )( char *fileName, char *extension );
+	const char *( *GetArchiveFileName )(const char *fileName, const char *extension );
 	void ( *SendConsoleCommand )( const char *text );
 	void ( *DebugGraph )( float value, int color );
 	void ( *SendServerCommand )( int client, const char *format, ... );
@@ -275,21 +275,21 @@ typedef struct gameImport_s
 	void ( *MSG_StartCGM )( int type );
 	void ( *MSG_EndCGM )( );
 	void ( *MSG_SetClient )( int client );
-	void ( *SetBroadcastVisible )( vec3_t pos, vec3_t posB );
-	void ( *SetBroadcastHearable )( vec3_t pos, vec3_t posB );
+	void ( *SetBroadcastVisible )( const vec3_t pos, const vec3_t posB );
+	void ( *SetBroadcastHearable )(const vec3_t pos, const vec3_t posB );
 	void ( *SetBroadcastAll )( );
 	void ( *SetConfigstring )( int index, const char *val );
 	char *( *GetConfigstring )( int index );
-	void ( *SetUserinfo )( int index, char *val );
+	void ( *SetUserinfo )( int index, const char *val );
 	void ( *GetUserinfo )( int index, char *buffer, int bufferSize );
 	void ( *SetBrushModel )( gentity_t *ent, const char *name );
-	void ( *ModelBoundsFromName )( char *name, vec3_t mins, vec3_t maxs );
-	qboolean ( *SightTraceEntity )( gentity_t *touch, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int contentMask, qboolean cylinder );
-	qboolean ( *SightTrace )( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passEntityNum, int passEntityNum2, int contentMask, qboolean cylinder );
+	void ( *ModelBoundsFromName )(const char *name, vec3_t mins, vec3_t maxs );
+	qboolean ( *SightTraceEntity )( gentity_t *touch, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int contentMask, qboolean cylinder );
+	qboolean ( *SightTrace )( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int passEntityNum2, int contentMask, qboolean cylinder );
 	void ( *Trace )( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask, qboolean cylinder, qboolean traceDeep );
 	baseshader_t * ( *GetShader )( int shaderNum );
 	int ( *PointContents )( const vec3_t p, int passEntityNum );
-	int ( *PointBrushnum )( vec3_t p, clipHandle_t model );
+	int ( *PointBrushnum )(const vec3_t p, clipHandle_t model );
 	void ( *AdjustAreaPortalState )( gentity_t *ent, qboolean open );
 	int ( *AreaForPoint )( vec3_t pos );
 	qboolean ( *AreasConnected )( int area1, int area2);
@@ -338,7 +338,7 @@ typedef struct gameImport_s
 	orientation_t ( *TIKI_OrientationInternal )( dtiki_t *tiki, int entNum, int tagNum, float scale );
 	void *( *TIKI_TransformInternal )( dtiki_t *tiki, int entNum, int tagNum );
 	qboolean ( *TIKI_IsOnGroundInternal )( dtiki_t *tiki, int entNum, int num, float threshold );
-	void ( *TIKI_SetPoseInternal )( dtiki_t *tiki, int entNum, frameInfo_t *frameInfo, int *boneTag, vec4_t *boneQuat, float actionWeight );
+	void ( *TIKI_SetPoseInternal )( dtiki_t *tiki, int entNum, const frameInfo_t *frameInfo, int *boneTag, vec4_t *boneQuat, float actionWeight );
 	const char *( *CM_GetHitLocationInfo )( int location, float *radius, float *offset );
 	const char *( *CM_GetHitLocationInfoSecondary )( int location, float *radius, float *offset );
 
@@ -364,9 +364,9 @@ typedef struct gameImport_s
 	int( *S_IsSoundPlaying )( int channel, const char *name );
 	short unsigned int ( *CalcCRC )( unsigned char *start, int count );
 
-	void **DebugLines;
+	debugline_t **DebugLines;
 	int *numDebugLines;
-	void **DebugStrings;
+	debugstring_t **DebugStrings;
 	int *numDebugStrings;
 
 	void ( *LocateGameData )( gentity_t *gEnts, int numGEntities, int sizeofGEntity, playerState_t *clients, int sizeofGameClient );
@@ -379,9 +379,9 @@ typedef struct gameImport_s
 	void ( *HideMouseCursor )( int client );
 	void ( *ShowMouseCursor )( int client );
 	const char * ( *MapTime )( );
-	void ( *LoadResource )( char *name );
+	void ( *LoadResource )( const char *name );
 	void ( *ClearResource )( );
-	int ( *Key_StringToKeynum )( char *str );
+	int ( *Key_StringToKeynum )( const char *str );
 	const char *( *Key_KeynumToBindString )( int keyNum );
 	void ( *Key_GetKeysForCommand )( const char *command, int *key1, int *key2 );
 	void ( *ArchiveLevel )( qboolean loading );
@@ -392,9 +392,9 @@ typedef struct gameImport_s
 	void ( *HudDrawVirtualSize )( int info, qboolean virtualScreen);
 	void ( *HudDrawColor )( int info, float *color );
 	void ( *HudDrawAlpha )( int info, float alpha );
-	void ( *HudDrawString )( int info, char *string );
-	void ( *HudDrawFont )( int info, char *fontName );
-	qboolean ( *SanitizeName )( char *oldName, char *newName );
+	void ( *HudDrawString )( int info, const char *string );
+	void ( *HudDrawFont )( int info, const char *fontName );
+	qboolean ( *SanitizeName )(const char *oldName, char *newName);
 
 	cvar_t *fsDebug;
 
@@ -717,10 +717,10 @@ typedef struct gameImport_s {
 	void	( *SetBroadcastVisible )( const vec_t *vPos, const vec_t *vPosB );
 	void	( *SetBroadcastHearable )( const vec_t *vPos, const vec_t *vPosB );
 
-	void **DebugLines;
-	int *numDebugLines;
-	void **DebugStrings;
-	int *numDebugStrings;
+	debugline_t** DebugLines;
+	int* numDebugLines;
+	debugstring_t** DebugStrings;
+	int* numDebugStrings;
 
 } gameImport_t;
 
@@ -746,7 +746,7 @@ typedef struct gameExport_s {
 
 	// return NULL if the client is allowed to connect, otherwise return
 	// a text string with the reason for denial
-	char		   *( *ClientConnect )( int clientNum, qboolean firstTime );
+	const char *	( *ClientConnect )( int clientNum, qboolean firstTime );
 
 	void			( *ClientBegin )( gentity_t *ent, usercmd_t *cmd );
 	void			( *ClientUserinfoChanged )( gentity_t *ent, const char *userinfo );

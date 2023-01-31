@@ -32,10 +32,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 template<>
 int HashCode< const char * >( const char * const& key )
 {
-	const char *p;
+	const char* p;
 	int hash = 0;
 
-	for( p = key; *p != NULL; p++ )
+	for (p = key; *p; p++)
 	{
 		hash = *p + 31 * hash;
 	}

@@ -102,7 +102,7 @@ class Door : public ScriptSlave
 		void			EventAlwaysAway( Event *ev );
 		void			EventDoorType( Event *ev );
 
-		qboolean		BlocksAIMovement( void ) const;
+		qboolean		BlocksAIMovement( void ) const override;
 		qboolean		AIDontFace( void ) const override;
 
 		void			UpdatePathConnection( void );

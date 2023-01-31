@@ -3444,7 +3444,7 @@ const char *Actor::DumpCallTrace
 	
 	va_start(va, pszFmt);
 	
-	sv_mapname = gi.Cvar_Get("mapname", "unknown", NULL);
+	sv_mapname = gi.Cvar_Get("mapname", "unknown", 0);
 
 	Player *p = (Player *)G_GetEntity(0);
 	if (p)
@@ -3542,7 +3542,7 @@ void Actor::Init
 	)
 
 {
-	g_showinfo = gi.Cvar_Get("g_showinfo", "0", NULL);
+	g_showinfo = gi.Cvar_Get("g_showinfo", "0", 0);
 
 	for (int i = 0; i < NUM_THINKS; i++)
 	{
@@ -3617,9 +3617,9 @@ void Actor::Init
 
 	if (developer->integer)
 	{
-		Com_Printf("sizeof(Actor) == %i\n", sizeof(Actor));
+		Com_Printf("sizeof(Actor) == %zi\n", sizeof(Actor));
 		//FIXME: magic ??
-		Com_Printf("Magic sizeof actor numer: %d\n", sizeof(Actor));
+		Com_Printf("Magic sizeof actor number: %zd\n", sizeof(Actor));
 	}
 }
 
@@ -3717,7 +3717,7 @@ void Actor::FixAIParameters
 				targetname.c_str(),
 				m_fMaxDistance,
 				world->farplane_distance * 0.828,
-				2);
+				2.0);
 			distmin2 = m_fMinDistance;
 			m_fMaxDistance = world->farplane_distance * 0.828;
 			m_fMaxDistanceSquared = m_fMaxDistance * m_fMaxDistance;
@@ -3770,7 +3770,7 @@ bool Actor::AttackEntryAnimation
 				{
 					if (m_pNextSquadMate != this)
 					{
-						for (auto pSquadMate = m_pNextSquadMate; true; pSquadMate->m_pNextSquadMate)
+						for (auto pSquadMate = m_pNextSquadMate; ; pSquadMate = pSquadMate->m_pNextSquadMate)
 						{
 							if (Square(m_fInterval) * Square(2) > (pSquadMate->origin - origin).lengthSquared())
 							{
@@ -4240,7 +4240,7 @@ void Actor::ChangeAnim
 		}
 		Com_Printf("ChangeAnim: m_pAnimThread aborted\n");
 	}
-	m_ThinkState = this->m_ThinkState;
+
 	if (m_ThinkState != 4)                                // THINKSTATE_ATTACK
 	{
 		if (m_ThinkState <= 4)                              // THINKSTATE_ATTACK
@@ -4657,8 +4657,8 @@ i.e grenade can get from vFrom to vTo with vVel with any obstacles.
 */
 bool Actor::ValidGrenadePath
 	(
-	Vector& vFrom,
-	Vector& vTo,
+	const Vector& vFrom,
+	const Vector& vTo,
 	Vector& vVel
 	)
 
@@ -4793,8 +4793,8 @@ Calculates required grenade throw velocity to get grenade from vFrom to vTo.
 */
 Vector Actor::CalcThrowVelocity
 	(
-	Vector& vFrom,
-	Vector& vTo
+	const Vector& vFrom,
+	const Vector& vTo
 	)
 
 {
@@ -4859,8 +4859,8 @@ Or vec_zero if it's not possible.
 */
 Vector Actor::CanThrowGrenade
 	(
-	Vector& vFrom,
-	Vector& vTo
+	const Vector& vFrom,
+	const Vector& vTo
 	)
 
 {
@@ -4887,8 +4887,8 @@ Roll here means a low toss.
 */
 Vector Actor::CalcRollVelocity
 	(
-	Vector& vFrom,
-	Vector& vTo
+	const Vector& vFrom,
+	const Vector& vTo
 	)
 
 {
@@ -4935,8 +4935,8 @@ Roll here means a low toss.
 */
 Vector Actor::CanRollGrenade
 	(
-	Vector& vFrom,
-	Vector& vTo
+	const Vector& vFrom,
+	const Vector& vTo
 	)
 
 {
@@ -4963,8 +4963,8 @@ pvVel and peMode are modified.
 bool Actor::CanTossGrenadeThroughHint
 	(
 	GrenadeHint *pHint,
-	Vector& vFrom,
-	Vector& vTo,
+	const Vector& vFrom,
+	const Vector& vTo,
 	bool bDesperate,
 	Vector *pvVel,
 	eGrenadeTossMode *peMode
@@ -5199,7 +5199,7 @@ Returns true if grenade will hurt team at vTo.
 */
 bool Actor::GrenadeWillHurtTeamAt
 	(
-	Vector& vTo
+	const Vector& vTo
 	)
 
 {
@@ -5229,8 +5229,8 @@ peMode is the possible toss mode.
 */
 bool Actor::CanGetGrenadeFromAToB
 	(
-	Vector& vFrom,
-	Vector& vTo,
+	const Vector& vFrom,
+	const Vector& vTo,
 	bool bDesperate,
 	Vector *pvVel,
 	eGrenadeTossMode *peMode
@@ -5338,7 +5338,7 @@ peMode is the toss mode.
 */
 bool Actor::DecideToThrowGrenade
 	(
-	Vector& vTo,
+	const Vector& vTo,
 	Vector *pvVel,
 	eGrenadeTossMode *peMode
 	)
@@ -5425,7 +5425,7 @@ void Actor::GenericGrenadeTossThink
 	{
 		if (CanGetGrenadeFromAToB(
 			origin,
-			m_Enemy->velocity-m_Enemy->origin,
+			m_Enemy->velocity - m_Enemy->origin,
 			false,
 			&vGrenadeVel,
 			&eGrenadeMode))
@@ -5789,10 +5789,10 @@ void Actor::GetMoveInfo
 				Vector end = m_Dest;
 				end.z -= 16384.0;
 				trace_t trace = G_Trace(
-					m_Dest,
-					PLAYER_BASE_MIN,
-					PLAYER_BASE_MAX,
-					end,
+					Vector(m_Dest),
+					Vector(PLAYER_BASE_MIN),
+					Vector(PLAYER_BASE_MAX),
+					Vector(end),
 					NULL,
 					1,
 					qfalse,
@@ -6347,7 +6347,7 @@ void Actor::DefaultReceiveAIEvent
 				char assertStr[16317] = { 0 };
 				strcpy(assertStr, "\"unknown ai_event type\"\n\tMessage: ");
 				Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("iType = %i", iType));
-				assert(!assertStr);
+				assert(false && assertStr);
 			}
 			break;
 		}
@@ -6469,7 +6469,7 @@ void Actor::CuriousSound
 					EndCurrentThinkState();
 					SetThinkState(THINKSTATE_CURIOUS, THINKLEVEL_NORMAL);
 
-					m_pszDebugState = (char *)G_AIEventStringFromType(iType);
+					m_pszDebugState = G_AIEventStringFromType(iType);
 				}
 			}
 		}
@@ -6506,7 +6506,7 @@ void Actor::WeaponSound
 			char assertStr[16317] = { 0 };
 			strcpy(assertStr, "\"Actor::WeaponSound: non-weapon made a weapon sound.\\n\"\n\tMessage: ");
 			Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("class = %s", originator->getClassname()));
-			assert(!assertStr);
+			assert(false && assertStr);
 			
 			return;
 		}
@@ -6609,7 +6609,7 @@ void Actor::FootstepSound
 		char assertStr[16317] = { 0 };
 		strcpy(assertStr, "\"'ai_event footstep' in a tiki used by something besides AI or player.\\n\"\n\tMessage: ");
 		Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
-		assert(!assertStr);
+		assert(false && assertStr);
 	}
 }
 
@@ -6849,7 +6849,7 @@ void Actor::RaiseAlertnessForEventType
 		char assertStr[16317] = { 0 };
 		strcpy(assertStr, "\"Actor::RaiseAlertnessForEventType: unknown event type\\n\"\n\tMessage: ");
 		Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
-		assert(!assertStr);
+		assert(false && assertStr);
 		return;
 		break;
 	}
@@ -7299,7 +7299,7 @@ void Actor::ShowInfo
 
 	if (!bEntinfoInit)
 	{
-		g_entinfo_max = gi.Cvar_Get("g_entinfo_max", "2048", NULL);
+		g_entinfo_max = gi.Cvar_Get("g_entinfo_max", "2048", 0);
 		bEntinfoInit = true;
 	}
 
@@ -7871,7 +7871,7 @@ Change current look entity.
 */
 void Actor::LookAt
 	(
-	Vector& vec
+	const Vector& vec
 	)
 
 {
@@ -8195,7 +8195,7 @@ Change point entity.
 */
 void Actor::PointAt
 	(
-	Vector& vec
+	const Vector& vec
 	)
 
 {
@@ -8294,7 +8294,7 @@ Change turn entity.
 */
 void Actor::TurnTo
 	(
-	Vector& vec
+	const Vector& vec
 	)
 
 {
@@ -10369,7 +10369,7 @@ void Actor::UpdateBoneControllers
 	long double v73; // fst4
 	long double v74; // tt
 	long double v75; // fst4
-	__int16 tagnum; // ax
+	int16_t tagnum; // ax
 	signed int v77; // ebx
 	long double v78; // fst7
 	long double v79; // fst6
@@ -10992,7 +10992,7 @@ ACTOR_UPDATEBONECONTROLLERS_8:
 	{
 		error = error - 360.0;
 	}
-	if (! ( ( (uint8_t)this->m_iLookFlags)  ^ 1) & 1 )
+	if (!((((uint8_t)this->m_iLookFlags) ^ 1) & 1))
 	{
 		fAng6 = error;
 		goto ACTOR_UPDATEBONECONTROLLERS_25;
@@ -13557,7 +13557,7 @@ Vector Actor::GunTarget
 				char assertStr[16317] = { 0 };
 				strcpy(assertStr, "\"ERROR Actor::GunTarget without a weapon\\n\"\n\tMessage: ");
 				Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
-				assert(!assertStr);
+				assert(false && assertStr);
 			}
 		}
 		else if (fabs(m_Enemy->origin[2] - origin[2]) >= 128)
@@ -14277,7 +14277,7 @@ void Actor::EventCalcGrenadeToss
 				char assertStr[16317] = { 0 };
 				strcpy(assertStr, "\"invalid return condition for Actor::EventCalcGrenadeToss\"\n\tMessage: ");
 				Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
-				assert(!assertStr);
+				assert(false && assertStr);
 			}
 
 		}
@@ -14589,7 +14589,7 @@ PathNode *Actor::FindSniperNodeAndSetPath
 
 	if( pSniperNode )
 	{
-		SetPathWithLeash( pSniperNode, NULL, NULL );
+		SetPathWithLeash( pSniperNode, NULL, 0 );
 
 		if( PathExists() && ( PathComplete() || PathAvoidsSquadMates() ) )
 		{
@@ -15009,10 +15009,10 @@ bool Actor::CalcFallPath
 
 		if (mm.hit_obstacle)
 		{
-			for (int j = 0.64999998; j < animTime; j = nextTime)
+			for (float j = 0.65f; j < animTime; j = nextTime)
 			{
 				nextTime = j + level.frametime;
-				if (nextTime >= animTime - 0.0099999998)
+				if (nextTime >= animTime - 0.01f)
 					nextTime = animTime;
 				startDeltaTime = j;
 				gi.Anim_DeltaOverTime(

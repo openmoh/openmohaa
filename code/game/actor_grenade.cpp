@@ -446,7 +446,6 @@ void Actor::Begin_Grenade
 	)
 
 {
-	m_pGrenade->enemy;
 	DoForceActivate();
 	m_csMood = STRING_ALERT;
 	m_csIdleMood = STRING_NERVOUS;

@@ -10,7 +10,7 @@ private:
 public:
 
 	void              SetLightStyle(int index, str style);
-	void              Archive(Archiver& arc);
+	void              Archive(Archiver& arc) override;
 };
 
 extern LightStyleClass lightStyles;

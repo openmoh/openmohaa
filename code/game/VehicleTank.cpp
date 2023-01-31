@@ -93,7 +93,7 @@ void VehicleTank::EventDamage(Event *ev)
 {
 	int mod;
 	mod = ev->GetInteger(9);
-	MOD_ELECTRIC;
+
 	if (mod > MOD_VEHICLE && mod != MOD_SHOTGUN && mod != MOD_GRENADE)
 	{
 		Vehicle::EventDamage(ev);

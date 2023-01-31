@@ -642,7 +642,7 @@ void ActorPath::Shorten
 	{
 		m_path->point[ 0 ] += m_path->dir[ 0 ] * -fDistRemove;
 		m_path->point[ 1 ] += m_path->dir[ 1 ] * -fDistRemove;
-		m_path->point[ 2 ] += m_path->dir[ 2 ] * -fDistRemove;
+		m_path->point[ 2 ] += m_path->point[ 2 ] * -fDistRemove;
 		m_path->dist -= fDistRemove;
 	}
 	else

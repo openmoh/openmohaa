@@ -233,7 +233,7 @@ void SV_DirectConnect( netadr_t from ) {
 	int			challenge;
 	char		*password;
 	int			startIndex;
-	char		*denied;
+	const char	*denied;
 	int			count;
 	char		*ip;
 
@@ -1393,7 +1393,7 @@ void SV_ClientThink( client_t *cl, usercmd_t *cmd )
 	if( err )
 	{
 		ge->errorMessage = NULL;
-		Com_Error( ERR_DROP, err );
+		Com_Error(ERR_DROP, "%s", err);
 	}
 }
 

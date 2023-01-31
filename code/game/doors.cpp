@@ -811,7 +811,7 @@ void Door::DoorUse
          {
          if ( health )
             {
-            gi.SendServerCommand( NULL, "print \"This door is jammed.\"" );
+            gi.SendServerCommand( 0, "print \"This door is jammed.\"" );
             }
          else if ( spawnflags & DOOR_TARGETED )
             {

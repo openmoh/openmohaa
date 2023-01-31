@@ -37,7 +37,7 @@ static qboolean SpotWouldTelefrag( float *origin )
 	static Vector maxs = Vector( 16, 16, 97 );
 	trace_t trace;
 
-	trace = G_Trace( origin, mins, maxs, origin, NULL, MASK_PLAYERSOLID, qfalse, "SpotWouldTelefrag" );
+	trace = G_Trace( Vector(origin), mins, maxs, Vector(origin), NULL, MASK_PLAYERSOLID, qfalse, "SpotWouldTelefrag" );
 
 	if( trace.startsolid || trace.allsolid )
 		return qtrue;

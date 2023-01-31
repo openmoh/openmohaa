@@ -66,9 +66,9 @@ void G_ReadSessionData( gclient_t *client )
 		return;
 	}
 
-	session = gi.Cvar_Get( va( "session%i", client - game.clients ), "", 0 );
+	session = gi.Cvar_Get(va("session%zi", client - game.clients), "", 0);
 	
-	sscanf( session->string, "%s %i %i", &client->pers.weapon, &client->pers.team, &client->pers.kills );
+	sscanf( session->string, "%s %i %i", client->pers.weapon, &client->pers.team, &client->pers.kills );
 	if( client->pers.weapon[ 0 ] == '-' )
 	{
 		client->pers.weapon[ 0 ] = 0;

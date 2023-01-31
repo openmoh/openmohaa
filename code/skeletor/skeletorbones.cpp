@@ -457,6 +457,10 @@ skelBone_Base::skelBone_Base()
 	m_controller = NULL;
 }
 
+skelBone_Base::~skelBone_Base()
+{
+}
+
 int skelBone_Base::GetNumChannels( boneType_t boneType )
 {
 	switch( boneType )

@@ -441,7 +441,7 @@ void SimpleEntity::MPrintf( const char *fmt, ... )
 {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
-	if (*g_monitor->string == NULL)
+	if (!*g_monitor->string)
 	{
 		return;
 	}

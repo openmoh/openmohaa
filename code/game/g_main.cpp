@@ -164,10 +164,10 @@ void G_AllocGameData( void )
 	// initialize all entities for this game
 	game.maxentities = maxentities->integer;
 
-	g_entities = ( gentity_t * )gi.Malloc( game.maxentities * sizeof( g_entities[ 0 ] ) );
+	g_entities = (gentity_t*)gi.Malloc(game.maxentities * sizeof(g_entities[0]));
 
 	// clear out the entities
-	memset( g_entities, 0, sizeof( g_entities ) );
+	memset(g_entities, 0, game.maxentities * sizeof(g_entities[0]));
 	globals.gentities = g_entities;
 	globals.max_entities = game.maxentities;
 
@@ -1474,13 +1474,11 @@ gameExport_t * GetGameAPI(gameImport_t * import)
 
 
 	globals.gentities				= g_entities;
-	globals.gentitySize				= sizeof( g_entities );
+	globals.gentitySize				= sizeof(g_entities[0]);
 
 	globals.Init					= G_InitGame;
 
 	globals.LevelArchiveValid		= G_LevelArchiveValid;
-	globals.max_entities			= sizeof( g_entities )/sizeof( g_entities[ 0 ] );
-	globals.num_entities			= 0;
 
 	globals.Precache				= G_Precache;
 	globals.SpawnEntities			= G_SpawnEntities;
@@ -1523,8 +1521,8 @@ gameExport_t * GetGameAPI(gameImport_t * import)
 
 struct sigaction origSignalActions[NSIG];
 
-int backtrace(void **buffer, int size) {}
-char **backtrace_symbols(void *const *buffer, int size) {}
+int backtrace(void **buffer, int size) { return 0; }
+char** backtrace_symbols(void* const* buffer, int size) { return nullptr; }
 void backtrace_symbols_fd(void *const *buffer, int size, int fd) {}
 
 void resetsighandlers( void ){
@@ -1592,7 +1590,7 @@ void initsighandlers( void ){
 	/* Install our signal handlers */
 	struct sigaction sa;
 
-	*( unsigned int* )&sa.sa_sigaction = ( unsigned int )sighandler;
+	sa.sa_sigaction = sighandler;
 	sigemptyset( &sa.sa_mask );
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
 

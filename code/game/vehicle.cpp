@@ -897,10 +897,10 @@ Vehicle::Vehicle()
 	v_angle = vec_zero;
 	m_pCurPath = NULL;
 	m_bThinkCalled = qfalse;
-	m_iCurNode = NULL;
+	m_iCurNode = 0;
 	m_pAlternatePath = NULL;
 	m_pNextPath = NULL;
-	m_iNextPathStartNode = NULL;
+	m_iNextPathStartNode = 0;
 	vs.hit_obstacle = qfalse;
 	m_iAlternateNode = 0;
 	m_fLookAhead = 0;
@@ -3806,7 +3806,8 @@ void Vehicle::OpenSlotsByModel
 
 	for( bonenum = 0; bonenum < MAX_PASSENGERS; bonenum++ )
 	{
-		bonename = "passenger" + bonenum;
+		str bonenumstr = bonenum;
+		bonename = "passenger" + bonenumstr;
 		boneindex = gi.Tag_NumForName( edict->tiki, bonename.c_str() );
 
 		if( boneindex >= 0 )
@@ -3814,7 +3815,7 @@ void Vehicle::OpenSlotsByModel
 			numPassengers++;
 
 			Passengers[ bonenum ].boneindex = boneindex;
-			Passengers[ bonenum ].enter_boneindex = gi.Tag_NumForName( edict->tiki, "passenger_enter" + bonenum );
+			Passengers[ bonenum ].enter_boneindex = gi.Tag_NumForName( edict->tiki, "passenger_enter" + bonenumstr);
 
 			if( Passengers[ bonenum ].flags & SLOT_UNUSED )
 			{
@@ -3828,7 +3829,8 @@ void Vehicle::OpenSlotsByModel
 
 	for( bonenum = 0; bonenum < MAX_TURRETS; bonenum++ )
 	{
-		bonename = "turret" + bonenum;
+		str bonenumstr = bonenum;
+		bonename = "turret" + bonenumstr;
 		boneindex = gi.Tag_NumForName( edict->tiki, bonename.c_str() );
 
 		if( boneindex >= 0 )
@@ -3836,7 +3838,7 @@ void Vehicle::OpenSlotsByModel
 			numTurrets++;
 
 			Turrets[ bonenum ].boneindex = boneindex;
-			Turrets[ bonenum ].enter_boneindex = gi.Tag_NumForName( edict->tiki, "turret_enter" + bonenum );
+			Turrets[ bonenum ].enter_boneindex = gi.Tag_NumForName( edict->tiki, "turret_enter" + bonenumstr);
 
 			if( Turrets[ bonenum ].flags & SLOT_UNUSED )
 			{
@@ -3875,6 +3877,7 @@ void Vehicle::MoveVehicle
 	int iContentsEntities[ MAX_SKIPPED_ENTITIES ];
 	solid_t solidEntities[ MAX_SKIPPED_ENTITIES ];
 	int iNumSkippedEntities = 0;
+	Event* event = nullptr;
 
 	if( m_bMovementLocked )
 	{
@@ -4059,7 +4062,7 @@ void Vehicle::MoveVehicle
 						}
 					}
 
-					Event *event = new Event( EV_Touch );
+					event = new Event( EV_Touch );
 					event->AddEntity( this );
 					tr.ent->entity->ProcessEvent( event );
 

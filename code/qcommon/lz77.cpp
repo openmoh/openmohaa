@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // so we currently use an ugly decompile hack to do so
 
 #include "lz77.h"
+#include "q_shared.h"
+
 #include <cstdio>
 #include <cstring>
 
@@ -149,369 +151,330 @@ cLZ77::cLZ77()
 
 unsigned int cLZ77::CompressData( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len )
 {
-	unsigned char *v5; // eax@1
-	unsigned char *v6; // ebx@2
-	unsigned int v7; // eax@3
-	int v8; // edx@3
-	unsigned int v9; // ecx@3
-	cLZ77 *v10; // edi@3
-	unsigned int v11; // esi@3
-	unsigned int v12; // eax@4
-	int v13; // ecx@5
-	unsigned int v14; // eax@7
-	cLZ77 *v15; // ecx@7
-	int v16; // esi@7
-	int v17; // ecx@8
-	int v18; // edi@9
-	int v19; // eax@12
-	int v20; // edx@13
-	char v21; // zf@15
-	char v22; // cf@17
-	unsigned int v24; // eax@20
-	unsigned char *v25; // ecx@20
-	unsigned char *v26; // ebx@20
-	unsigned char *v27; // ecx@21
-	unsigned char *v28; // eax@23
-	unsigned char *v29; // eax@23
-	unsigned char *v30; // edx@25
-	unsigned int v31; // eax@26
-	unsigned char *v32; // ebx@26
-	unsigned int v33; // eax@27
-	unsigned char *v34; // edx@27
-	char v35; // cl@27
-	cLZ77 *v36; // ebx@27
-	char v37; // cf@29
-	unsigned char *v38; // esi@32
-	char v39; // dl@32
-	unsigned char *v40; // edi@32
-	char v41; // dl@32
-	unsigned char *v42; // edi@32
-	unsigned int v43; // ecx@32
-	unsigned char *v44; // esi@33
-	char v45; // cl@33
-	unsigned char *v46; // edi@33
-	char v47; // dl@33
-	unsigned char *v48; // edi@33
-	unsigned int v49; // ecx@33
-	int v50; // esi@39
-	unsigned int v51; // eax@41
-	unsigned int v52; // edx@41
-	unsigned int v53; // eax@45
-	unsigned char *v54; // edi@45
-	unsigned char *v55; // edx@46
-	unsigned char *v56; // edx@47
-	cLZ77 *v57; // ecx@47
-	int v58; // ecx@49
-	unsigned int v59; // eax@51
-	unsigned char *v60; // ebx@51
-	unsigned char *v61; // edi@52
-	unsigned char *v62; // edx@54
-	unsigned char *v63; // edi@54
-	cLZ77 *v64; // edi@58
-	int v65; // edx@60
-	unsigned char *v66; // [sp+0h] [bp-10h]@39
+	uint8_t* ip; // eax
+	unsigned int v7; // edi
+	unsigned int v8; // edx
+	unsigned int v9; // edx
+	unsigned int v10; // esi
+	unsigned int m_off; // edx
+	uint8_t* v12; // ebp
+	unsigned int v13; // edx
+	unsigned int v14; // esi
+	unsigned int v15; // edx
+	unsigned int v16; // ebp
+	uint8_t* v17; // esi
+	unsigned int v18; // edx
+	uint8_t* v19; // esi
+	uint8_t* v20; // eax
+	int v22; // eax
+	uint8_t v23; // bl
+	uint8_t* v24; // esi
+	unsigned int v25; // edx
+	uint8_t* v26; // esi
+	uint8_t* m_pos; // eax
+	uint8_t* v28; // ebp
+	bool v29; // zf
+	uint8_t v30; // al
+	uint8_t v31; // dl
+	uint8_t v32; // dl
+	uint8_t v33; // al
+	uint8_t v34; // al
+	uint8_t v35; // dl
+	uint8_t v36; // dl
+	uint8_t v37; // al
+	uint8_t v38; // al
+	uint8_t v39; // dl
+	uint8_t* in_end; // edi
+	uint8_t* v41; // eax
+	uint8_t* v42; // esi
+	unsigned int v43; // edx
+	unsigned int v44; // eax
+	uint8_t* v45; // edi
+	uint8_t* i; // edx
+	uint8_t* v47; // edi
+	unsigned int v48; // edx
+	unsigned int v49; // edx
+	unsigned int m_len; // eax
+	uint8_t* v51; // edi
+	uint8_t* v52; // edi
+	uint8_t* ii; // esi
+	uint8_t* v54; // edi
+	unsigned int v55; // edx
+	char v56; // dl
+	uint8_t* v57; // eax
+	uint8_t v58; // dl
+	uint8_t* v59; // edi
 
+	this->in_end = &in[in_len];
+	this->ip_end = &in[in_len - 13];
 	this->op = out;
-	v5 = in + 4;
-	this->in_end = &in[ in_len ];
-	this->ip_end = &in[ in_len - 13 ];
 	this->ii = in;
 	this->ip = in + 4;
 	do
 	{
-		v6 = v5;
-		while( 1 )
+		ip = this->ip;
+		v7 = this->ip - in;
+		v8 = ((unsigned int)(33 * (*this->ip ^ (32 * (this->ip[1] ^ (32 * (this->ip[2] ^ (this->ip[3] << 6))))))) >> 5) & 0x3FFF;
+		this->dindex = v8;
+		v9 = m_pDictionary[v8];
+		this->m_off = v9;
+		if (v7 <= v9)
 		{
-			v8 = v6 - in;
-			v10 = this;
-			v11 = 33 * ( *v6 ^ 32 * ( v6[ 1 ] ^ 32 * ( v6[ 2 ] ^ ( ( unsigned int )v6[ 3 ] << 6 ) ) ) ) >> 5;
-			v9 = ( 33 * ( *v6 ^ 32 * ( v6[ 1 ] ^ 32 * ( v6[ 2 ] ^ ( ( unsigned int )v6[ 3 ] << 6 ) ) ) ) >> 5 ) & 0x3FFF;
-			this->dindex = v9;
-			v7 = m_pDictionary[ v9 ];
-			this->m_off = v7;
-			if( v6 - in <= v7 || ( v12 = v8 - v7, v10 = this, this->m_off = v12, v12 > 0xBFFF ) )
+		LABEL_19:
+			m_pDictionary[this->dindex] = v7;
+			goto LABEL_20;
+		}
+		v10 = ip - v9 - in;
+		this->m_off = v10;
+		if (v10 > 0xBFFF)
+		{
+			m_pDictionary[this->dindex] = v7;
+		LABEL_20:
+			v19 = this->ip + 1;
+			this->ip = v19;
+			v20 = v19;
+			continue;
+		}
+		m_off = this->m_off;
+		v12 = ip - v10;
+		this->m_pos = ip - v10;
+		if (m_off <= 0x800 || v12[3] == ip[3])
+		{
+			if (*v12 != *ip || v12[1] != ip[1] || v12[2] != ip[2])
+				goto LABEL_19;
+		}
+		else
+		{
+			v13 = this->dindex & 0x7FF ^ 0x201F;
+			this->dindex = v13;
+			v14 = m_pDictionary[v13];
+			this->m_off = v14;
+			if (v7 <= v14)
+				goto LABEL_19;
+			v15 = ip - v14 - in;
+			this->m_off = v15;
+			if (v15 > 0xBFFF)
 			{
-				m_pDictionary[ v9 ] = v8;
-				goto LABEL_64;
-			}
-			v13 = ( int )&v6[ -v12 ];
-			this->m_pos = &v6[ -v12 ];
-			if( v12 <= 0x800 || *( unsigned char * )( v13 + 3 ) == v6[ 3 ] )
-			{
-				if( *( unsigned char * )v13 != *v6 || *( unsigned char * )( v13 + 1 ) != v6[ 1 ] || *( unsigned char * )( v13 + 2 ) != v6[ 2 ] )
-				{
-LABEL_17:
-					m_pDictionary[ dindex ] = v6 - in;
-					v5 = this->ip + 1;
-					v22 = v5 < this->ip_end;
-					this->ip = v5;
-					goto LABEL_18;
-				}
+				m_pDictionary[this->dindex] = v7;
 				goto LABEL_20;
 			}
-			v15 = this;
-			v16 = v11 & 0x7FF ^ 0x201F;
-			this->dindex = v16;
-			v14 = m_pDictionary[ v16 ];
-			this->m_off = v14;
-			if( v8 <= v14 )
-				break;
-			v10 = this;
-			v17 = v8 - v14;
-			this->m_off = v8 - v14;
-			if( v8 - v14 > 0xBFFF )
-				goto LABEL_63;
-			v18 = ( int )&v6[ -v17 ];
-			this->m_pos = &v6[ -v17 ];
-			if( ( unsigned int )v17 <= 0x800 || *( unsigned char * )( v18 + 3 ) == v6[ 3 ] )
+			v16 = this->m_off;
+			v17 = &in[v14];
+			this->m_pos = ip - v15;
+			if (v16 > 0x800 && v17[3] != ip[3])
 			{
-				if( *( unsigned char * )v18 != *v6 || *( unsigned char * )( v18 + 1 ) != v6[ 1 ] )
-					goto LABEL_17;
-				v21 = *( unsigned char * )( v18 + 2 ) == v6[ 2 ];
-			}
-			else
-			{
-				if( v8 <= ( unsigned int )v17 )
+				if (v7 <= v16)
+					goto LABEL_19;
+				v18 = ip - v16 - in;
+				this->m_off = v18;
+				if (v18 > 0xBFFF)
 				{
-					m_pDictionary[ v16 ] = v8;
-					v15 = this;
-					goto LABEL_66;
+					m_pDictionary[this->dindex] = v7;
+					goto LABEL_20;
 				}
-				v10 = this;
-				v19 = v8 - v17;
-				this->m_off = v8 - v17;
-				if( ( unsigned int )( v8 - v17 ) > 0xBFFF )
-				{
-LABEL_63:
-					m_pDictionary[ v16 ] = v8;
-LABEL_64:
-					v5 = v10->ip + 1;
-					v22 = v5 < v10->ip_end;
-					v10->ip = v5;
-					goto LABEL_18;
-				}
-				v20 = ( int )&v6[ -v19 ];
-				this->m_pos = &v6[ -v19 ];
-				if( v6[ -v19 ] != *v6 || *( unsigned char * )( v20 + 1 ) != v6[ 1 ] )
-					goto LABEL_17;
-				v21 = *( unsigned char * )( v20 + 2 ) == v6[ 2 ];
+				v17 = &in[v16];
+				this->m_pos = &in[v16];
 			}
-			if( !v21 )
-				goto LABEL_17;
-LABEL_20:
-			m_pDictionary[ this->dindex ] = v6 - in;
-			v26 = this->ip;
-			v25 = this->ii;
-			v24 = ( unsigned int )&this->ip[ -( unsigned int )v25 ];
-			if( ( signed int )&this->ip[ -( unsigned int )v25 ] > 0 )
+			if (*v17 != *ip || v17[1] != ip[1] || v17[2] != ip[2])
+				goto LABEL_19;
+		}
+		m_pDictionary[this->dindex] = v7;
+		v22 = this->ip - this->ii;
+		if (v22 > 0)
+		{
+			if ((unsigned int)v22 > 3)
 			{
-				v27 = &this->ip[ -( unsigned int )v25 ];
-				if( v24 > 3 )
+				if ((unsigned int)v22 > 0x12)
 				{
-					if( v24 > 0x12 )
+					v23 = v22 - 18;
+					*this->op = 0;
+					v24 = this->op + 1;
+					this->op = v24;
+					if ((unsigned int)(v22 - 18) > 0xFF)
 					{
-						v65 = v24 - 18;
-						*this->op++ = 0;
-						if( v24 - 18 > 0xFF )
+						v25 = (v22 - 274) / 0xFFu + 1;
+						do
 						{
-							do
-							{
-								v65 -= 255;
-								*this->op++ = 0;
-							} while( ( unsigned int )v65 > 0xFF );
-						}
-						v64 = this;
-						*this->op = v65;
+							*v24 = 0;
+							++v23;
+							v24 = this->op + 1;
+							--v25;
+							this->op = v24;
+						} while (v25);
+						v22 = this->ip - this->ii;
 					}
-					else
-					{
-						v64 = this;
-						*this->op = v24 - 3;
-					}
-					++v64->op;
+					*v24 = v23;
 				}
 				else
 				{
-					*( this->op - 2 ) |= v24;
+					*this->op = v22 - 3;
 				}
-				do
-				{
-					*this->op = *this->ii;
-					v29 = this->ii;
-					++this->op;
-					v28 = v29 + 1;
-					--v27;
-					this->ii = v28;
-				} while( v27 );
-				v26 = this->ip;
-				v25 = v28;
+				++this->op;
 			}
-			v30 = this->m_pos;
-			this->ip = v26 + 4;
-			if( v30[ 3 ] == v26[ 3 ] )
+			else
 			{
-				this->ip = v26 + 5;
-				if( v30[ 4 ] == v26[ 4 ] )
+				*(this->op - 2) |= v22;
+			}
+			do
+			{
+				*this->op = *this->ii;
+				v26 = this->ii + 1;
+				--v22;
+				++this->op;
+				this->ii = v26;
+			} while (v22);
+		}
+		m_pos = this->m_pos;
+		v28 = this->ip + 3;
+		this->ip = v28;
+		v29 = m_pos[3] == *v28;
+		this->ip = v28 + 1;
+		if (v29)
+		{
+			v30 = this->m_pos[4];
+			v31 = v28[1];
+			this->ip = v28 + 2;
+			if (v30 == v31)
+			{
+				v32 = this->m_pos[5];
+				v33 = v28[2];
+				this->ip = v28 + 3;
+				if (v32 == v33)
 				{
-					this->ip = v26 + 6;
-					if( v30[ 5 ] == v26[ 5 ] )
+					v34 = this->m_pos[6];
+					v35 = v28[3];
+					this->ip = v28 + 4;
+					if (v34 == v35)
 					{
-						this->ip = v26 + 7;
-						if( v30[ 6 ] == v26[ 6 ] )
+						v36 = this->m_pos[7];
+						v37 = v28[4];
+						this->ip = v28 + 5;
+						if (v36 == v37)
 						{
-							this->ip = v26 + 8;
-							if( v30[ 7 ] == v26[ 7 ] )
+							v38 = this->m_pos[8];
+							v39 = v28[5];
+							this->ip = v28 + 6;
+							if (v38 == v39)
 							{
-								this->ip = v26 + 9;
-								if( v30[ 8 ] == v26[ 8 ] )
+								in_end = this->in_end;
+								v41 = this->m_pos + 9;
+								if (v28 + 6 < in_end)
 								{
-									v50 = ( int )( v30 + 9 );
-									v66 = this->in_end;
-									if( v26 + 9 < v66 )
+									do
 									{
-										if( v26[ 9 ] == v30[ 9 ] )
-										{
-											do
-											{
-												++v50;
-												v62 = this->ip;
-												v63 = this->ip + 1;
-												this->ip = v63;
-											} while( v63 < v66 && v62[ 1 ] == *( unsigned char * )v50 );
-										}
-									}
-									v51 = this->m_off;
-									v52 = ( unsigned int )&this->ip[ -( unsigned int )v25 ];
-									this->m_len = v52;
-									if( v51 > 0x4000 )
-									{
-										v58 = v51 - 16384;
-										this->m_off = v51 - 16384;
-										if( v52 <= 9 )
-										{
-											*this->op++ = ( ( v58 & 0x4000u ) >> 11 ) | ( unsigned char )( *( unsigned char * )&( this->m_len ) - 2 ) | 0x10;
-											goto LABEL_44;
-										}
-										v60 = this->op;
-										this->m_len = v52 - 9;
-										*v60 = ( ( v58 & 0x4000u ) >> 11 ) | 0x10;
-										v59 = this->m_len;
-										++this->op;
-										for( ; v59 > 0xFF; ++this->op )
-										{
-											v61 = this->op;
-											this->m_len = v59 - 255;
-											*v61 = 0;
-											v59 = this->m_len;
-										}
-										v56 = this->op;
-										v57 = this;
-									}
-									else
-									{
-										this->m_off = v51 - 1;
-										if( v52 <= 0x21 )
-										{
-											*this->op++ = ( *( unsigned char * )&( this->m_len ) - 2 ) | 0x20;
-LABEL_44:
-											v36 = this;
-											*this->op = 4 * ( this->m_off & 0x3F );
-											v34 = this->op;
-											v33 = this->m_off >> 6;
-											this->op = v34 + 1;
-											goto LABEL_28;
-										}
-										v54 = this->op;
-										this->m_len = v52 - 33;
-										*v54 = 32;
-										v53 = this->m_len;
-										++this->op;
-										for( ; v53 > 0xFF; ++this->op )
-										{
-											v55 = this->op;
-											this->m_len = v53 - 255;
-											*v55 = 0;
-											v53 = this->m_len;
-										}
-										v57 = this;
-										v56 = this->op;
-									}
-									*v56 = *( unsigned char * )&( v57->m_len );
-									++v57->op;
-									goto LABEL_44;
+										v42 = this->ip;
+										if (*v41 != *this->ip)
+											break;
+										++v41;
+										this->ip = v42 + 1;
+									} while (v42 + 1 < in_end);
 								}
+								v43 = this->m_off;
+								v44 = this->ip - this->ii;
+								this->m_len = v44;
+								if (v43 > 0x4000)
+								{
+									v48 = v43 - 0x4000;
+									this->m_off = v48;
+									if (v44 <= 9)
+									{
+										*this->op = (this->m_len - 2) | (v48 >> 11) & 8 | 0x10;
+									LABEL_65:
+										v57 = this->op + 1;
+										v58 = 4 * this->m_off;
+										this->op = v57;
+										*v57 = v58;
+										v55 = this->m_off >> 6;
+										goto LABEL_66;
+									}
+									v49 = this->m_off >> 11;
+									this->m_len = v44 - 9;
+									*this->op = v49 & 8 | 0x10;
+									m_len = this->m_len;
+									v51 = this->op + 1;
+									this->op = v51;
+									for (i = v51; m_len > 0xFF; i = v52)
+									{
+										this->m_len = m_len - 255;
+										*i = 0;
+										m_len = this->m_len;
+										v52 = this->op + 1;
+										this->op = v52;
+									}
+								}
+								else
+								{
+									this->m_off = v43 - 1;
+									if (v44 <= 0x21)
+									{
+										v44 = (v44 - 2) | 0x20;
+									LABEL_63:
+										i = this->op;
+										goto LABEL_64;
+									}
+									this->m_len = v44 - 33;
+									*this->op = 32;
+									v44 = this->m_len;
+									v45 = this->op + 1;
+									this->op = v45;
+									i = v45;
+									if (v44 > 0xFF)
+									{
+										do
+										{
+											this->m_len = v44 - 255;
+											*i = 0;
+											v44 = this->m_len;
+											v47 = this->op + 1;
+											this->op = v47;
+											i = v47;
+										} while (v44 > 0xFF);
+										goto LABEL_64;
+									}
+								}
+								v44 = this->m_len;
+							LABEL_64:
+								*i = v44;
+								goto LABEL_65;
 							}
 						}
 					}
 				}
 			}
-			v31 = this->m_off;
-			v32 = this->ip - 1;
-			this->ip = v32;
-			this->m_len = v32 - v25;
-			if( v31 > 0x800 )
-			{
-				if( v31 > 0x4000 )
-				{
-					v44 = this->op;
-					v45 = *( unsigned char * )&( this->m_len );
-					this->m_off = v31 - 16384;
-					*v44 = ( ( ( v31 - 16384 ) & 0x4000 ) >> 11 ) | ( unsigned char )( v45 - 2 ) | 0x10;
-					v46 = this->op;
-					v47 = *( unsigned char * )&( this->m_off );
-					this->op = v46 + 1;
-					v46[ 1 ] = 4 * ( v47 & 0x3F );
-					v48 = this->op;
-					v49 = this->m_off >> 6;
-					this->op = v48 + 1;
-					v48[ 1 ] = v49;
-					++this->op;
-				}
-				else
-				{
-					v38 = this->op;
-					v39 = *( unsigned char * )&( this->m_len );
-					this->m_off = v31 - 1;
-					*v38 = ( v39 - 2 ) | 0x20;
-					v40 = this->op;
-					v41 = *( unsigned char * )&( this->m_off );
-					this->op = v40 + 1;
-					v40[ 1 ] = 4 * ( v41 & 0x3F );
-					v42 = this->op;
-					v43 = this->m_off >> 6;
-					this->op = v42 + 1;
-					v42[ 1 ] = v43;
-					++this->op;
-				}
-				goto LABEL_29;
-			}
-			v35 = *( unsigned char * )&( this->m_len );
-			v36 = this;
-			this->m_off = v31 - 1;
-			*this->op = 4 * ( this->m_off & 7 ) | 32 * ( v35 - 1 );
-			v34 = this->op;
-			v33 = this->m_off >> 3;
-			this->op = v34 + 1;
-LABEL_28:
-			v34[ 1 ] = v33;
-			++v36->op;
-LABEL_29:
-			v37 = this->ip < this->ip_end;
-			v6 = this->ip;
-			this->ii = this->ip;
-			if( !v37 )
-				goto LABEL_19;
 		}
-		m_pDictionary[ v16 ] = v8;
-LABEL_66:
-		v5 = v15->ip + 1;
-		v22 = v5 < v15->ip_end;
-		v15->ip = v5;
-LABEL_18:
-		;
-	} while( v22 );
-LABEL_19:
-	*out_len = ( unsigned int )&this->op[ -( unsigned int )out ];
+		ii = this->ii;
+		v54 = this->ip - 1;
+		this->ip = v54;
+		this->m_len = v54 - ii;
+		v44 = this->m_off;
+		if (v44 > 0x800)
+		{
+			if (v44 > 0x4000)
+			{
+				v56 = this->m_len;
+				v44 -= 0x4000;
+				this->m_off = v44;
+				v44 = (v56 - 2) | (v44 >> 11) & 8 | 0x10;
+			}
+			else
+			{
+				this->m_off = v44 - 1;
+				v44 = (this->m_len - 2) | 0x20;
+			}
+			goto LABEL_63;
+		}
+		this->m_off = v44 - 1;
+		*this->op = (4 * (this->m_off & 7)) | (32 * (this->m_len - 1));
+		v55 = this->m_off >> 3;
+	LABEL_66:
+		v59 = this->op + 1;
+		this->op = v59;
+		*v59 = v55;
+		++this->op;
+		v20 = this->ip;
+		this->ii = this->ip;
+	} while (v20 < this->ip_end);
+	*out_len = this->op - out;
 	return this->in_end - this->ii;
 }
 
@@ -527,70 +490,86 @@ LABEL_19:
 
 int cLZ77::Compress( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len )
 {
-	unsigned char *v5; // edx@1
-	unsigned int v6; // ecx@1
-	unsigned char *v7; // ebx@3
-	unsigned char v8; // al@6
-	int result; // eax@7
-	int v10; // edx@7
-	int v11; // eax@9
+	uint8_t* v6;
+	size_t v7;
+	uint8_t* v8;
+	uint8_t v9;
+	unsigned int v10;
+	uint8_t* v11;
+	uint8_t v12;
+	byte* v13;
+	int result;
+	size_t in_lena;
+	char outa;
 
-	v5 = out;
-	v6 = in_len;
-	if( in_len > 0xD )
+	v6 = out;
+	if (in_len > 0xD)
 	{
-		v6 = CompressData( in, in_len, out, out_len );
-		v5 = &out[ *out_len ];
+		v7 = cLZ77::CompressData(in, in_len, out, out_len);
+		v6 = &out[*out_len];
 	}
-	if( v6 )
+	else
 	{
-		v7 = &in[ in_len ] - v6;
-		if( v5 != out || v6 > 0xEE )
+		v7 = in_len;
+	}
+	if (v7)
+	{
+		v8 = &in[in_len - v7];
+		in_lena = (size_t)v8;
+		if (v6 == out && v7 <= 0xEE)
 		{
-			if( v6 <= 3 )
-			{
-				*( v5 - 2 ) |= v6;
-				goto LABEL_6;
-			}
-			if( v6 > 0x12 )
-			{
-				*v5 = 0;
-				v11 = v6 - 18;
-				++v5;
-				if( v6 - 18 > 0xFF )
-				{
-					do
-					{
-						*v5 = 0;
-						v11 -= 255;
-						++v5;
-					} while( ( unsigned int )v11 > 0xFF );
-				}
-			}
-			else
-			{
-				*( unsigned char * )&v11 = v6 - 3;
-			}
+			v9 = v7 + 17;
 		}
 		else
 		{
-			*( unsigned char * )&v11 = v6 + 17;
+			if (v7 <= 3)
+			{
+				*(v6 - 2) |= v7;
+				goto LABEL_18;
+			}
+			if (v7 <= 0x12)
+			{
+				*v6 = v7 - 3;
+			LABEL_17:
+				++v6;
+				do
+				{
+				LABEL_18:
+					*v6++ = *v8++;
+					--v7;
+				} while (v7);
+				goto LABEL_19;
+			}
+			v9 = v7 - 18;
+			*v6++ = 0;
+			outa = v7 - 18;
+			if (v7 - 18 > 0xFF)
+			{
+				v10 = (v7 - 274) / 0xFF + 1;
+				memset(v6, 0, 4 * (v10 >> 2));
+				v11 = &v6[4 * (v10 >> 2)];
+				v6 += v10;
+				memset(v11, 0, v10 & 3);
+				do
+				{
+					v12 = outa + 1;
+					--v10;
+					++outa;
+				} while (v10);
+				v8 = (uint8_t*)in_lena;
+				v9 = v12;
+			}
 		}
-		*v5++ = v11;
-		do
-		{
-LABEL_6:
-			v8 = *v7++;
-			*v5++ = v8;
-			--v6;
-		} while( v6 );
+		*v6 = v9;
+		goto LABEL_17;
 	}
-	*v5 = 17;
-	v10 = ( int )( v5 + 1 );
+LABEL_19:
+	*v6 = 17;
+	v13 = v6 + 1;
+	*v13++ = 0;
 	result = 0;
-	*( unsigned char * )v10++ = 0;
-	*( unsigned char * )v10 = 0;
-	*out_len = v10 + 1 - ( unsigned int )out;
+	*v13 = 0;
+	*out_len = v13 - out + 1;
 	return result;
 }
 
@@ -605,64 +584,64 @@ LABEL_6:
 int cLZ77::Decompress( unsigned char *in, size_t in_len, unsigned char *out, size_t *out_len )
 {
 	unsigned int v5; // eax
-	unsigned __int8* v6; // esi
+	uint8_t* v6; // esi
 	unsigned int v7; // eax
-	unsigned __int8* v8; // esi
+	uint8_t* v8; // esi
 	int v9; // edx
-	unsigned __int8* v10; // edx
-	unsigned __int8* v11; // ebp
+	uint8_t* v10; // edx
+	uint8_t* v11; // ebp
 	unsigned int v12; // eax
-	unsigned __int8* v13; // esi
-	unsigned __int8* v14; // edi
-	unsigned __int8* v15; // esi
-	unsigned __int8* v16; // esi
-	unsigned __int8* v17; // esi
-	unsigned __int8* op; // edi
-	unsigned __int8* v19; // eax
-	unsigned __int8* v20; // eax
-	unsigned __int8* v21; // ebp
-	unsigned __int8* v22; // edi
-	unsigned __int8* v23; // edi
-	unsigned __int8* ip; // ebp
-	unsigned __int8* v25; // esi
-	unsigned __int8* v26; // esi
+	uint8_t* v13; // esi
+	uint8_t* v14; // edi
+	uint8_t* v15; // esi
+	uint8_t* v16; // esi
+	uint8_t* v17; // esi
+	uint8_t* op; // edi
+	uint8_t* v19; // eax
+	uint8_t* v20; // eax
+	uint8_t* v21; // ebp
+	uint8_t* v22; // edi
+	uint8_t* v23; // edi
+	uint8_t* ip; // ebp
+	uint8_t* v25; // esi
+	uint8_t* v26; // esi
 	int v27; // ebp
-	unsigned __int8* v28; // edi
-	unsigned __int8* v29; // esi
-	unsigned __int8* v30; // edx
-	unsigned __int8* v31; // eax
-	unsigned __int8* v32; // edi
-	unsigned __int8* v33; // esi
+	uint8_t* v28; // edi
+	uint8_t* v29; // esi
+	uint8_t* v30; // edx
+	uint8_t* v31; // eax
+	uint8_t* v32; // edi
+	uint8_t* v33; // esi
 	unsigned int v34; // eax
-	unsigned __int8* v35; // edx
+	uint8_t* v35; // edx
 	int v36; // edx
-	unsigned __int8* v37; // esi
-	unsigned __int8* v38; // edi
-	unsigned __int8* v39; // edx
-	unsigned __int8* v40; // edi
-	unsigned __int8* v41; // edx
+	uint8_t* v37; // esi
+	uint8_t* v38; // edi
+	uint8_t* v39; // edx
+	uint8_t* v40; // edi
+	uint8_t* v41; // edx
 	int v42; // edx
-	unsigned __int8* v43; // ebp
-	unsigned __int8* v44; // ebp
-	unsigned __int8* v45; // edi
-	unsigned __int8* v46; // edx
+	uint8_t* v43; // ebp
+	uint8_t* v44; // ebp
+	uint8_t* v45; // edi
+	uint8_t* v46; // edx
 	unsigned int v47; // eax
-	unsigned __int8* v48; // ebp
-	unsigned __int8* v49; // esi
-	unsigned __int8* v50; // ebp
-	unsigned __int8* v51; // edi
-	unsigned __int8* v52; // esi
-	unsigned __int8* v53; // edx
-	unsigned __int8* v54; // ebp
-	unsigned __int8* v55; // edi
-	unsigned __int8* v56; // edi
-	unsigned __int8* v57; // eax
-	unsigned __int8* v58; // eax
-	unsigned __int8* v59; // edx
-	unsigned __int8* v60; // eax
-	unsigned __int8* v61; // edi
-	unsigned __int8* v62; // eax
-	unsigned __int8* ip_end; // ecx
+	uint8_t* v48; // ebp
+	uint8_t* v49; // esi
+	uint8_t* v50; // ebp
+	uint8_t* v51; // edi
+	uint8_t* v52; // esi
+	uint8_t* v53; // edx
+	uint8_t* v54; // ebp
+	uint8_t* v55; // edi
+	uint8_t* v56; // edi
+	uint8_t* v57; // eax
+	uint8_t* v58; // eax
+	uint8_t* v59; // edx
+	uint8_t* v60; // eax
+	uint8_t* v61; // edi
+	uint8_t* v62; // eax
+	uint8_t* ip_end; // ecx
 
 	this->ip_end = in + in_len;
 	*out_len = 0;
@@ -823,7 +802,7 @@ LABEL_5:
 			v37 = this->op;
 			v38 = this->ip;
 			this->m_pos = v37 - 1;
-			v39 = v37 - (*(unsigned __int16*)v38 >> 2) - 1;
+			v39 = v37 - (*(uint16_t*)v38 >> 2) - 1;
 			this->ip = v38 + 2;
 			goto LABEL_36;
 		}
@@ -955,7 +934,7 @@ void test_compression()
 		return;
 	}
 
-	printf( "Compressed %i bytes into %i bytes\n", 0x40000, out_len );
+	printf( "Compressed %i bytes into %zi bytes\n", 0x40000, out_len );
 
 	if( lz77.Decompress( out, out_len, in, &in_len ) )
 	{
@@ -967,11 +946,11 @@ void test_compression()
 
 		if( in_len == 0x40000 )
 		{
-			printf( "Decompressed %i bytes into %i bytes\n", out_len, 0x40000 );
+			printf( "Decompressed %zi bytes into %i bytes\n", out_len, 0x40000 );
 			puts( "Compression Test: Passed" );
 			return;
 		}
 	}
 
-	printf( "Decompression got FuBar'd... %i != %i\n", 0x40000, new_len );
+	printf( "Decompression got FuBar'd... %i != %zi\n", 0x40000, new_len );
 }

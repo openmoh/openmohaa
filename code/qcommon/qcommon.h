@@ -635,7 +635,7 @@ void	FS_Restart( int checksumFeed );
 void FS_AddGameDirectory(const char *path, const char *dir);
 void FS_AddGameDirectory2(const char *path, const char *dir, qboolean original_paks_priority);
 
-char	**FS_ListFilteredFiles( const char *path, const char *extension, char *filter, qboolean wantSubs, int *numfiles );
+char	**FS_ListFilteredFiles( const char *path, const char *extension, const char *filter, qboolean wantSubs, int *numfiles );
 char	**FS_ListFiles( const char *directory, const char *extension, qboolean wantSubs, int *numfiles );
 // directory should not have either a leading or trailing /
 // if extension is "/", only subdirectories will be returned
@@ -757,7 +757,7 @@ void FS_PureServerSetLoadedPaks( const char *pakSums, const char *pakNames );
 // sole exception of .cfg files.
 
 qboolean FS_CheckDirTraversal(const char *checkdir);
-qboolean FS_idPak( char *pak, char *base );
+qboolean FS_idPak(const char *pak, const char *base);
 qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring );
 
 void FS_Rename( const char *from, const char *to );
@@ -1068,7 +1068,7 @@ unsigned	Com_BlockChecksum( const void *buffer, int length );
 char		*Com_MD5File(const char *filename, size_t length, const char *prefix, int prefix_len);
 int			Com_HashKey(char *string, int maxlen);
 int			Com_Filter(const char *filter, const char *name, int casesensitive);
-int			Com_FilterPath(char *filter, char *name, int casesensitive);
+int			Com_FilterPath(const char *filter, const char *name, int casesensitive);
 int			Com_RealTime(qtime_t *qtime);
 qboolean	Com_SafeMode( void );
 
@@ -1305,7 +1305,7 @@ qboolean SV_GameCommand( void );
 //
 // input interface
 //
-void IN_Init(void* windowData);
+void IN_Init();
 void IN_Frame(void);
 void IN_Shutdown(void);
 void IN_Restart(void);
@@ -1430,7 +1430,7 @@ char	*Sys_DefaultBasePath( void );
 char	*Sys_DefaultUserPath( void );
 char	*Sys_DefaultOutputPath( void );
 
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs );
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs );
 void	Sys_FreeFileList( char **list );
 void	Sys_Sleep(int msec);
 
