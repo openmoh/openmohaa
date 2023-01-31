@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2014 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2020 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -25,8 +25,8 @@
  *  Header file for SDL_rect definition and management functions.
  */
 
-#ifndef _SDL_rect_h
-#define _SDL_rect_h
+#ifndef SDL_rect_h_
+#define SDL_rect_h_
 
 #include "SDL_stdinc.h"
 #include "SDL_error.h"
@@ -40,9 +40,10 @@ extern "C" {
 #endif
 
 /**
- *  \brief  The structure that defines a point
+ *  \brief  The structure that defines a point (integer)
  *
  *  \sa SDL_EnclosePoints
+ *  \sa SDL_PointInRect
  */
 typedef struct SDL_Point
 {
@@ -51,7 +52,20 @@ typedef struct SDL_Point
 } SDL_Point;
 
 /**
- *  \brief A rectangle, with the origin at the upper left.
+ *  \brief  The structure that defines a point (floating point)
+ *
+ *  \sa SDL_EnclosePoints
+ *  \sa SDL_PointInRect
+ */
+typedef struct SDL_FPoint
+{
+    float x;
+    float y;
+} SDL_FPoint;
+
+
+/**
+ *  \brief A rectangle, with the origin at the upper left (integer).
  *
  *  \sa SDL_RectEmpty
  *  \sa SDL_RectEquals
@@ -65,6 +79,28 @@ typedef struct SDL_Rect
     int x, y;
     int w, h;
 } SDL_Rect;
+
+
+/**
+ *  \brief A rectangle, with the origin at the upper left (floating point).
+ */
+typedef struct SDL_FRect
+{
+    float x;
+    float y;
+    float w;
+    float h;
+} SDL_FRect;
+
+
+/**
+ *  \brief Returns true if point resides inside a rectangle.
+ */
+SDL_FORCE_INLINE SDL_bool SDL_PointInRect(const SDL_Point *p, const SDL_Rect *r)
+{
+    return ( (p->x >= r->x) && (p->x < (r->x + r->w)) &&
+             (p->y >= r->y) && (p->y < (r->y + r->h)) ) ? SDL_TRUE : SDL_FALSE;
+}
 
 /**
  *  \brief Returns true if the rectangle has no area.
@@ -133,6 +169,6 @@ extern DECLSPEC SDL_bool SDLCALL SDL_IntersectRectAndLine(const SDL_Rect *
 #endif
 #include "close_code.h"
 
-#endif /* _SDL_rect_h */
+#endif /* SDL_rect_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */
