@@ -72,6 +72,8 @@ if(WIN32)
 	set(SOURCES_PLATFORM_SPECIFIC
 		"code/sys/con_win32.c"
 		"code/sys/sys_win32.c"
+		"code/sys/win_bounds.cpp"
+		"code/sys/win_localization.cpp"
 	)
 else()
 	message(SEND_ERROR "This platform is not yet supported")
@@ -94,7 +96,6 @@ set(SOURCES_COMMON
 	"code/qcommon/cvar.c"
 	"code/qcommon/files.cpp"
 	"code/qcommon/huffman.cpp"
-	"code/qcommon/localization.cpp"
 	"code/qcommon/md4.c"
 	"code/qcommon/md5.c"
 	"code/qcommon/memory.c"
