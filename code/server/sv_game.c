@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 
-#include "../botlib/botlib.h"
 #include "../client/snd_public.h"
 #include "../client/client.h"
 #include <localization.h>
@@ -34,7 +33,6 @@ int numDebugLines;
 debugstring_t *DebugStrings;
 int numDebugStrings;
 
-botlib_export_t	*botlib_export;
 static int modelUserCount[ MAX_MODELS ];
 
 void SV_GameError( const char *string ) {
