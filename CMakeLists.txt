@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 project(omohaaded)
 
+include(TargetArch.cmake)
+
+target_architecture(TARGET_ARCH)
+
 if(TARGET_GAME_TYPE)
 	if(TARGET_GAME_TYPE EQUAL 1)
 		# Build for Team Assault (Spearhead)
@@ -21,12 +25,28 @@ set(TARGET_BASE_GAME "main${TARGET_BASE_SUFFIX}")
 
 if(MSVC)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_DEPRECATE)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	add_compile_options(-Wno-comment)
+	# Ignore warnings for code like 'assert("Assert string")'
+	add_compile_options(-Wno-pointer-bool-conversion)
 endif()
 
-IF(${CMAKE_C_COMPILER_ARCHITECTURE_ID} STREQUAL "x64")
+IF("${TARGET_ARCH}" STREQUAL "x86_64")
 	set(TARGET_ARCH_SUFFIX "x64")
-ELSE(${CMAKE_C_COMPILER_ARCHITECTURE_ID} STREQUAL "x86")
+ELSE("${TARGET_ARCH}" STREQUAL "i386")
 	set(TARGET_ARCH_SUFFIX "x86")
+ENDIF()
+
+message(STATUS "Architecture detected: ${TARGET_ARCH}")
+
+IF(WIN32)
+	set(TARGET_PLATFORM_PREFIX "")
+	message(STATUS "Using Win32 naming convention")
+ELSEIF(UNIX)
+	set(TARGET_PLATFORM_PREFIX "f")
+	message(STATUS "Using Unix naming convention")
+ELSE()
+	set(TARGET_PLATFORM_PREFIX "")
 ENDIF()
 
 set(SOURCES_SHARED
@@ -53,9 +73,11 @@ set(SOURCES_GAME_LIB ${SOURCES_SHARED} ${SOURCES_GAME})
 
 add_library(fgame SHARED ${SOURCES_GAME_LIB})
 target_compile_definitions(fgame PRIVATE GAME_DLL ARCHIVE_SUPPORTED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
-target_compile_options(fgame PUBLIC "/showIncludes")
 target_include_directories(fgame PUBLIC "code/qcommon" "code/parser" "code/script" "code/game")
+target_compile_features(fgame PUBLIC cxx_std_17)
+set_property(TARGET fgame PROPERTY CXX_STANDARD 17)
 
+set_target_properties(fgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
 set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_ARCH_SUFFIX}")
 set_target_properties(fgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TARGET_BASE_GAME})
 INSTALL(TARGETS fgame DESTINATION $<CONFIG>/bin/${TARGET_BASE_GAME})
@@ -76,7 +98,13 @@ if(WIN32)
 		"code/sys/win_localization.cpp"
 	)
 else()
-	message(SEND_ERROR "This platform is not yet supported")
+	set(SOURCES_PLATFORM_SPECIFIC
+		"code/sys/con_tty.c"
+		"code/sys/sys_unix.c"
+		# These are still used even they're prefixed 'win'
+		"code/sys/win_bounds.cpp"
+		"code/sys/win_localization.cpp"
+	)
 endif()
 
 ### Common executable code
@@ -133,6 +161,7 @@ add_executable(omohaaded ${SOURCES_SERVER_APP} ${SOURCES_PLATFORM_SPECIFIC} "cod
 set_property(TARGET omohaaded PROPERTY CXX_STANDARD 11)
 target_compile_features(omohaaded PUBLIC cxx_constexpr)
 target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+target_compile_features(omohaaded PUBLIC cxx_std_17)
 target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/server" "code/SDL2/include")
 set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}")
 
