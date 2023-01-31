@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 #include "../client/client.h"
-#include "localization.h"
 
 static char last_mapname[ MAX_QPATH ];
 static int g_iSvsTimeFixupCount;
