@@ -813,7 +813,9 @@ void Sys_PlatformInit( void )
 	TIMECAPS ptc;
 #endif
 
+#ifndef _DEBUG
 	Sys_SetFloatEnv();
+#endif
 
 #ifndef DEDICATED
 	if(timeGetDevCaps(&ptc, sizeof(ptc)) == MMSYSERR_NOERROR)
