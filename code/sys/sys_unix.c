@@ -437,7 +437,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 
 	// search
 	nfiles = 0;
-
+	
 	if ((fdir = opendir(directory)) == NULL) {
 		*numfiles = 0;
 		return NULL;

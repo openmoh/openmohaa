@@ -31,15 +31,23 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	add_compile_options(-Wno-pointer-bool-conversion)
 endif()
 
-set(TARGET_ARCH_SUFFIX ${TARGET_ARCH})
+IF("${TARGET_ARCH}" STREQUAL "x86_64")
+	set(TARGET_ARCH_SUFFIX "x64")
+ELSEIF("${TARGET_ARCH}" STREQUAL "i386")
+	set(TARGET_ARCH_SUFFIX "x86")
+ELSEIF("${TARGET_ARCH}" MATCHES "arm(.*)")
+	set(TARGET_ARCH_SUFFIX "arm")
+ELSE()
+	set(TARGET_ARCH_SUFFIX ${TARGET_ARCH})
+ENDIF()
 
-message(STATUS "Architecture detected: ${TARGET_ARCH}")
+message(STATUS "Architecture detected: ${TARGET_ARCH}, suffix set to ${TARGET_ARCH_SUFFIX}")
 
 IF(WIN32)
 	set(TARGET_PLATFORM_PREFIX "")
 	message(STATUS "Using Win32 naming convention")
 ELSEIF(UNIX)
-	set(TARGET_PLATFORM_PREFIX "f")
+	set(TARGET_PLATFORM_PREFIX "")
 	message(STATUS "Using Unix naming convention")
 ELSE()
 	set(TARGET_PLATFORM_PREFIX "")
@@ -76,7 +84,7 @@ set_property(TARGET fgame PROPERTY CXX_STANDARD 17)
 set_target_properties(fgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
 set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_ARCH_SUFFIX}")
 set_target_properties(fgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_BASE_GAME}")
-INSTALL(TARGETS fgame DESTINATION $<CONFIG>/bin/${TARGET_BASE_GAME})
+INSTALL(TARGETS fgame DESTINATION "${TARGET_BASE_GAME}")
 
 ## Client game library
 ## TODO! Build the cgame shared library
@@ -166,5 +174,5 @@ if(WIN32)
 	target_link_libraries(omohaaded winmm)
 endif()
 
-INSTALL(TARGETS omohaaded DESTINATION $<CONFIG>/bin)
+INSTALL(TARGETS omohaaded DESTINATION "./")
 
