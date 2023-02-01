@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dm_manager.h"
 #include <parm.h>
 #include "body.h"
-#include "PlayerStart.h"
+#include "playerstart.h"
 #include "weapturret.h"
 #include "vehicleturret.h"
 

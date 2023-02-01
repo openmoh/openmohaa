@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 #include "entity.h"
 #include "trigger.h"
-#include "PlayerStart.h"
+#include "playerstart.h"
 
 /*****************************************************************************/
 /*QUAKED info_player_start (0.75 0.75 0) (-16 -16 0) (16 16 96)

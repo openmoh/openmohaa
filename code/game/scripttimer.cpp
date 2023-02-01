@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // scripttimer.cpp: Scripted Timer & Fader
 //
 
-#include "ScriptTimer.h"
+#include "scripttimer.h"
 #include "level.h"
 
 #if defined(GAME_DLL)

@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 #include "g_local.h"
-#include "BSpline.h"
+#include "bspline.h"
 #include "game.h"
 
 void BSpline::Set

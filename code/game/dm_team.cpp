@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include "dm_team.h"
 #include "dm_manager.h"
-#include "PlayerStart.h"
+#include "playerstart.h"
 
 typedef struct spawnsort_s {
 	PlayerStart *spawnpoint;

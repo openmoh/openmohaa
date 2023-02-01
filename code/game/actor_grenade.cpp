@@ -611,8 +611,9 @@ void Actor::Think_Grenade
 	{
 		if (m_eGrenadeState && m_eGrenadeState != AI_GRENSTATE_FLEE_FAIL)
 		{
-			//weird ? no such thing as 8 ?
-			if (m_eGrenadeMode == 8)
+			// weird ? no such thing as 8 ?
+			// FIXME?
+			if (m_eGrenadeMode == (eGrenadeTossMode)8)
 				Anim_Attack();
 			else
 				Anim_Stand();

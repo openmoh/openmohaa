@@ -5015,7 +5015,7 @@ void ScriptThread::GetPlayerIP
 
 	ip = ent->client->pers.ip;
 
-	sprintf(ip_buff, "%s:%i\0", ip, ent->client->pers.port);
+	sprintf(ip_buff, "%s:%i", ip, ent->client->pers.port);
 
 	ev->AddString(ip_buff);
 }
@@ -7681,7 +7681,7 @@ void ScriptThread::UnregisterEvent
 
 	evType = EventNameToType(eventname, NULL);
 
-	if (evType == -1)
+	if (evType == scriptedEvType_t(~0u))
 	{
 		ev->AddInteger(0);
 		throw ScriptException("Wrong event type name for unregisterev!\n");

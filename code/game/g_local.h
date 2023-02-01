@@ -76,7 +76,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_main.h"
 
 #ifdef __cplusplus
-#include <linklist.h>
+#include <Linklist.h>
 #include <mem_blockalloc.h>
 #include <vector.h>
 #include <str.h>

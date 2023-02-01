@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __SAFEPTR_H__
 #define __SAFEPTR_H__
 
-#include "linklist.h"
+#include "Linklist.h"
 
 class SafePtrBase
 {

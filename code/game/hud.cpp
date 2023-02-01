@@ -1203,7 +1203,7 @@ void Hud::SetBroadcast( int clientNumber )
 		clientNumber = clientnum;
 	}
 
-	if( clientnum == -1 ) {
+	if(clientnum == uint8_t(~0u)) {
 		gi.SetBroadcastAll();
 	} else {
 		gi.MSG_SetClient( clientnum );

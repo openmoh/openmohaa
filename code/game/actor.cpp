@@ -9673,7 +9673,7 @@ void Actor::MovePath
 
 			VectorCopy2D(mm.obstacle_normal, m_PrevObstacleNormal);
 
-			if (m_WallDir == -1)
+			if (m_WallDir == uint8_t(~0u))
 			{
 				mm.desired_dir[0] = -mm.obstacle_normal[1];
 				mm.desired_dir[1] = mm.obstacle_normal[0];

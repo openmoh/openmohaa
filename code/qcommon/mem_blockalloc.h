@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-#include "linklist.h"
+#include "Linklist.h"
 #include "q_shared.h"
 
 #include <cstddef>
