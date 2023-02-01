@@ -138,46 +138,78 @@ void TIKI_SetupIndividualSurface( const char *filename, dtikisurface_t *surf, co
 TIKI_CalcAnimDefSize
 ===============
 */
-size_t TIKI_CalcAnimDefSize( dloaddef_t *ld )
+size_t TIKI_CalcAnimDefSize(dloaddef_t* ld)
 {
 	int i, j, k;
-	size_t defsize = ld->numclientinitcmds * sizeof( dtikicmd_t ) + ( ld->numserverinitcmds * 3 + ld->numanims ) + sizeof( dtikianimdef_t );
 
-	for( i = 0; i < ld->numserverinitcmds; i++ )
+	// initial cmds
+	size_t defsize = sizeof(dtikianimdef_t);
+	// other animations
+	defsize += sizeof(dtikianimdef_t) * ld->numanims;
+	defsize += ld->numclientinitcmds * sizeof(dtikicmd_t);
+	defsize += ld->numserverinitcmds * sizeof(dtikicmd_t);
+
+	for (i = 0; i < ld->numserverinitcmds; i++)
 	{
-		defsize += sizeof( char * );
+		const dloadinitcmd_t* initcmd = ld->loadserverinitcmds[i];
+		defsize += sizeof(char*) * initcmd->num_args;
 
-		for( j = 0; j < ld->loadserverinitcmds[ i ]->num_args; j++ )
+		for (j = 0; j < initcmd->num_args; j++)
 		{
-			defsize += strlen( ld->loadserverinitcmds[ i ]->args[ j ] ) + 1;
+			defsize += strlen(initcmd->args[j]) + 1;
 		}
+
+		defsize = PAD(defsize, sizeof(void*));
 	}
 
-	for( i = 0; i < ld->numclientinitcmds; i++ )
+	for (i = 0; i < ld->numclientinitcmds; i++)
 	{
-		defsize += sizeof( char * );
+		const dloadinitcmd_t* initcmd = ld->loadclientinitcmds[i];
+		defsize += sizeof(char*) * initcmd->num_args;
 
-		for( j = 0; j < ld->loadclientinitcmds[ i ]->num_args; j++ )
+		for (j = 0; j < initcmd->num_args; j++)
 		{
-			defsize += strlen( ld->loadclientinitcmds[ i ]->args[ j ] ) + 1;
+			defsize += strlen(initcmd->args[j]) + 1;
 		}
+
+		defsize = PAD(defsize, sizeof(void*));
 	}
 
-	for( i = 0; i < ld->numanims; i++ )
+	for (i = 0; i < ld->numanims; i++)
 	{
-		defsize += ld->loadanims[ i ]->num_server_cmds * sizeof( dtikicmd_t ) + sizeof( dtikianimdef_t );
+		const dloadanim_t* loadanim = ld->loadanims[i];
 
-		for( j = 0; j < ld->loadanims[ i ]->num_server_cmds; j++ )
+		defsize += sizeof(dtikianimdef_t);
+		defsize += loadanim->num_server_cmds * sizeof(dtikicmd_t);
+		defsize += loadanim->num_client_cmds * sizeof(dtikianimdef_t);
+
+		for (j = 0; j < loadanim->num_server_cmds; j++)
 		{
-			defsize += ld->loadanims[ i ]->loadservercmds[ j ]->num_args * sizeof( char * );
-			for( k = 0; k < ld->loadanims[ i ]->loadservercmds[ j ]->num_args; k++ )
+			const dloadframecmd_t* loadframecmd = loadanim->loadservercmds[j];
+			defsize += sizeof(char*) * loadframecmd->num_args;
+
+			for (k = 0; k < loadframecmd->num_args; k++)
 			{
-				defsize += strlen( ld->loadanims[ i ]->loadservercmds[ j ]->args[ k ] ) + 1;
+				defsize += strlen(loadframecmd->args[k]) + 1;
 			}
 		}
+
+		for (j = 0; j < loadanim->num_client_cmds; j++)
+		{
+			const dloadframecmd_t* loadframecmd = loadanim->loadclientcmds[j];
+			defsize += sizeof(char*) * loadframecmd->num_args;
+
+			for (k = 0; k < loadframecmd->num_args; k++)
+			{
+				defsize += strlen(loadframecmd->args[k]) + 1;
+			}
+		}
+
+		defsize = PAD(defsize, sizeof(void*));
 	}
 
-	defsize += ld->modelBuf->cursize + strlen( ld->headmodels ) + 1 + strlen( ld->headskins ) + 1;
+	defsize += ld->modelBuf->cursize + strlen(ld->headmodels) + 1 + strlen(ld->headskins) + 1;
+	defsize = PAD(defsize, sizeof(void*));
 	return defsize;
 }
 
@@ -191,9 +223,10 @@ dtikianim_t *TIKI_FillTIKIStructureSkel( dloaddef_t *ld )
 	size_t animdefsize;
 	size_t defsize;
 
-	animdefsize = TIKI_CalcAnimDefSize( ld );
-	defsize = strlen( ld->path );
+	animdefsize = TIKI_CalcAnimDefSize(ld);
+	defsize = sizeof(dtikianim_t);
+	// anim name
+	defsize += strlen(ld->path) + 1;
 
-	// FIXME: what is 477 ?
-	return TIKI_InitTiki( ld, animdefsize + defsize + sizeof( dloaddef_t ) + 477 );
+	return TIKI_InitTiki(ld, PAD(animdefsize + defsize, sizeof(void*)));
 }
