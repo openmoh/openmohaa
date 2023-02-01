@@ -31,11 +31,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	add_compile_options(-Wno-pointer-bool-conversion)
 endif()
 
-IF("${TARGET_ARCH}" STREQUAL "x86_64")
-	set(TARGET_ARCH_SUFFIX "x64")
-ELSE("${TARGET_ARCH}" STREQUAL "i386")
-	set(TARGET_ARCH_SUFFIX "x86")
-ENDIF()
+set(TARGET_ARCH_SUFFIX ${TARGET_ARCH})
 
 message(STATUS "Architecture detected: ${TARGET_ARCH}")
 
@@ -79,7 +75,7 @@ set_property(TARGET fgame PROPERTY CXX_STANDARD 17)
 
 set_target_properties(fgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
 set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_ARCH_SUFFIX}")
-set_target_properties(fgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TARGET_BASE_GAME})
+set_target_properties(fgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_BASE_GAME}")
 INSTALL(TARGETS fgame DESTINATION $<CONFIG>/bin/${TARGET_BASE_GAME})
 
 ## Client game library
