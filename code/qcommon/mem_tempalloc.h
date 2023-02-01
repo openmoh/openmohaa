@@ -26,13 +26,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstddef>
 
-class MEM_TempAlloc {
-	unsigned char *m_CurrentMemoryBlock;
-	size_t m_CurrentMemoryPos;
+class tempBlock_t;
 
+class MEM_TempAlloc {
 public:
 	MEM_TempAlloc();
 
-	void *Alloc( size_t len );
-	void FreeAll( void );
+	void* Alloc(size_t len);
+	void* Alloc(size_t len, size_t alignment);
+	void FreeAll(void);
+	// This was added to fix issues with alignment
+	void* CreateBlock(size_t len);
+
+private:
+	tempBlock_t* m_CurrentMemoryBlock;
+	size_t m_CurrentMemoryPos;
+	size_t m_BlockSize;
+	size_t m_LastPos;
 };
