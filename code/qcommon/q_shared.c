@@ -2097,14 +2097,3 @@ int Com_IndexForGrowListElement(const growList_t * list, const void *element)
 	}
 	return -1;
 }
-
-unsigned long long rdtsc( void )
-{
-#ifdef WIN32
-	return __rdtsc();
-#else
-	unsigned int low, high;
-	asm volatile ( "rdtsc" : "=a" ( low ), "=d" ( high ) );
-	return ( unsigned long long )high << 32 | low;
-#endif
-}

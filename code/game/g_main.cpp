@@ -400,9 +400,9 @@ void G_AddGEntity( gentity_t *edict, qboolean showentnums )
 
 	if( g_timeents->integer )
 	{
-		start = rdtsc();
+		start = clock();
 		G_RunEntity( ent );
-		end = rdtsc();
+		end = clock();
 
 		gi.DebugPrintf( "%d: <%s> '%s'(%d) : %d clocks, %.1f msec\n",
 			level.framenum, ent->getClassname(), ent->targetname.c_str(), end - start, g_fMsecPerClock );
@@ -577,7 +577,7 @@ void G_RunFrame( int levelTime, int frameTime )
 		if( g_timeents->integer )
 		{
 			g_fMsecPerClock = 1.0f / gi.Cvar_Get( "CPS", "1", 0 )->value;
-			start = rdtsc();
+			start = clock();
 		}
 
 		for( edict = active_edicts.next; edict != &active_edicts; edict = edict->next )
@@ -615,7 +615,7 @@ void G_RunFrame( int levelTime, int frameTime )
 		if( g_timeents->integer )
 		{
 			gi.Cvar_Set( "g_timeents", va( "%d", g_timeents->integer - 1 ) );
-			end = rdtsc();
+			end = clock();
 
 			gi.DebugPrintf( "\n%i total: %d (%.1f)\n-----------------------\n",
 				level.framenum, end - start, ( float )( end - start ) * g_fMsecPerClock );
@@ -627,7 +627,7 @@ void G_RunFrame( int levelTime, int frameTime )
 		// Process any pending events that got posted during the physics code.
 		L_ProcessPendingEvents();
 		level.DoEarthquakes();
-
+		
 		// build the playerstate_t structures for all players
 		G_ClientEndServerFrames();
 
