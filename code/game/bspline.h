@@ -284,7 +284,7 @@ class BSpline : public Class
 
 inline BSpline::BSpline()
 	{
-   has_orientation = false;
+   has_orientation = qfalse;
 	control_points = NULL;
 	num_control_points = 0;
    loop_control_point = 0;

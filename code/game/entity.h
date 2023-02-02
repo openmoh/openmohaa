@@ -516,9 +516,9 @@ public:
 	void					joinTeam( Entity *teammember );
 	void					quitTeam( void );
 	qboolean          isBoundTo( Entity *master );
-	virtual void bind( Entity *master, qboolean use_my_angles = false, qboolean bBindChilds = false );
+	virtual void bind( Entity *master, qboolean use_my_angles = qfalse, qboolean bBindChilds = qfalse );
 	virtual void unbind( void );
-	virtual void glue( Entity *master, qboolean use_my_angles = true );
+	virtual void glue( Entity *master, qboolean use_my_angles = qtrue );
 	virtual void unglue( void );
 
 	void					JoinTeam( Event *ev );
@@ -610,7 +610,7 @@ inline qboolean Entity::DistanceTo
 	Vector delta;
 
    delta = origin - pos;
-	return delta.length();
+	return delta.length() != 0 ? qtrue : qfalse;
 	}
 
 inline qboolean Entity::DistanceTo
@@ -618,20 +618,20 @@ inline qboolean Entity::DistanceTo
 	Entity *ent
 	)
 
-	{
+{
 	Vector delta;
 
-	assert( ent );
+	assert(ent);
 
-	if ( !ent )
-		{
+	if (!ent)
+	{
 		// "Infinite" distance
 		return 999999;
-		}
-
-   delta = origin - ent->origin;
-	return delta.length();
 	}
+
+	delta = origin - ent->origin;
+	return delta.length() != 0 ? qtrue : qfalse;
+}
 
 inline qboolean Entity::WithinDistance
 	(
@@ -639,14 +639,14 @@ inline qboolean Entity::WithinDistance
 	float dist
 	)
 
-	{
+{
 	Vector delta;
 
-   delta = origin - pos;
+	delta = origin - pos;
 
 	// check squared distance
-	return ( ( delta * delta ) < ( dist * dist ) );
-	}
+	return ((delta * delta) < (dist * dist)) ? qtrue : qfalse;
+}
 
 inline qboolean Entity::WithinDistance
 	(

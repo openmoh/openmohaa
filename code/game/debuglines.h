@@ -41,7 +41,7 @@ void G_Vertex( Vector v );
 void G_EndLine( void );
 void G_DebugBBox( Vector org, Vector mins, Vector maxs, float r, float g, float b, float alpha );
 void G_DrawDebugNumber( Vector org, float number, float scale, float r, float g, float b, int precision = 0 );
-void G_DebugCircle( float *org, float radius, float r, float g, float b, float alpha, qboolean horizontal = false );
+void G_DebugCircle( float *org, float radius, float r, float g, float b, float alpha, qboolean horizontal = qfalse );
 void G_DebugOrientedCircle( Vector org, float radius, float r, float g, float b, float alpha, Vector angles );
 void G_DebugPyramid( Vector org, float radius, float r, float g, float b, float alpha );
 void G_DrawCoordSystem( Vector pos, Vector f, Vector r, Vector u, int len );

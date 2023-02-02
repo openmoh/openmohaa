@@ -111,12 +111,12 @@ public:
 	void				FileError( const char *fmt, ... );
 	void				Close( void );
 
-	qboolean       Read( str &name, qboolean harderror = true );
-	qboolean       Read( const char *name, qboolean harderror = true );
+	qboolean       Read( str &name, qboolean harderror = qtrue );
+	qboolean       Read( const char *name, qboolean harderror = qtrue );
 	Class				*ReadObject( void );
 
-	qboolean       Create( str &name, qboolean harderror = true );
-	qboolean       Create( const char *name, qboolean harderror = true );
+	qboolean       Create( str &name, qboolean harderror = qtrue );
+	qboolean       Create( const char *name, qboolean harderror = qtrue );
 
 	qboolean       Loading( void );
 	qboolean       Saving( void );
@@ -181,7 +181,7 @@ inline qboolean Archiver::Loading
 void
 )
 {
-	return ( archivemode == ARCHIVE_READ );
+	return (archivemode == ARCHIVE_READ) ? qtrue : qfalse;
 }
 
 inline qboolean Archiver::Saving
@@ -189,7 +189,7 @@ inline qboolean Archiver::Saving
 void
 )
 {
-	return ( archivemode == ARCHIVE_WRITE );
+	return (archivemode == ARCHIVE_WRITE) ? qtrue : qfalse;
 }
 
 inline qboolean Archiver::NoErrors
@@ -197,7 +197,7 @@ inline qboolean Archiver::NoErrors
 void
 )
 {
-	return ( !fileerror );
+	return fileerror ? qfalse : qtrue;
 }
 
 template< class Type >
