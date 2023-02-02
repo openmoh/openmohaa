@@ -167,6 +167,22 @@ public:
 	void				Optimize( unsigned char *progBuffer );
 
 	static str			GetLine( str content, int line );
+
+private:
+	template<typename Value>
+	void EmitOpcodeValue(const Value& value, size_t size);
+
+	template<typename Value>
+	void EmitAt(unsigned char* location, const Value& value, size_t size);
+
+	template<typename Value>
+	void SetOpcodeValue(const Value& value);
+
+	template<typename Value>
+	Value GetOpcodeValue(size_t size) const;
+
+	template<typename Value>
+	Value GetOpcodeValue(size_t offset, size_t size) const;
 };
 
 extern ScriptCompiler Compiler;

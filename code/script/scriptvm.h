@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <gamescript.h>
 
 #include "scriptvariable.h"
+#include "scriptopcodes.h"
 #include "con_set.h"
 
 #define	MAX_STACK_DEPTH		20		// 9 in mohaa
@@ -74,6 +75,51 @@ public:
 	int					m_Count;
 };
 
+class ScriptVMStack
+{
+public:
+	ScriptVMStack();
+	ScriptVMStack(size_t stackSize);
+	~ScriptVMStack();
+
+	ScriptVMStack(const ScriptVMStack& other) = delete;
+	ScriptVMStack& operator=(const ScriptVMStack& other) = delete;
+	ScriptVMStack(ScriptVMStack&& other);
+	ScriptVMStack& operator=(ScriptVMStack&& other);
+
+	size_t GetStackSize() const;
+	ScriptVariable& SetTop(ScriptVariable& newTop);
+	ScriptVariable& GetTop() const;
+	ScriptVariable& GetTop(size_t offset) const;
+	ScriptVariable* GetTopPtr() const;
+	ScriptVariable* GetTopPtr(size_t offset) const;
+	ScriptVariable* GetTopArray(size_t offset = 0) const;
+	uintptr_t GetIndex() const;
+	void MoveTop(ScriptVariable&& other);
+	ScriptVariable* GetListenerVar(uintptr_t index);
+	void SetListenerVar(uintptr_t index, ScriptVariable* newVar);
+
+	/** Pop and return the previous value. */
+	ScriptVariable& Pop();
+	ScriptVariable& Pop(size_t offset);
+	ScriptVariable& PopAndGet();
+	ScriptVariable& PopAndGet(size_t offset);
+	/** Push and return the previous value. */
+	ScriptVariable& Push();
+	ScriptVariable& Push(size_t offset);
+	ScriptVariable& PushAndGet();
+	ScriptVariable& PushAndGet(size_t offset);
+
+private:
+	/** The VM's local stack. */
+	ScriptVariable* localStack;
+	/** The local stack size. */
+	ScriptVariable* stackBottom;
+	/** Variable from the top stack of the local stack. */
+	ScriptVariable* pTop;
+	ScriptVariable** listenerVarPtr;
+};
+
 class ScriptVM
 {
 	friend class ScriptThread;
@@ -88,6 +134,7 @@ public:
 public:
 	// return variables
 	ScriptStack		*m_Stack;		// Currently unused
+	ScriptVMStack	m_VMStack;
 	ScriptVariable	m_ReturnValue;	// VM return value
 
 	// opcode variables
@@ -101,9 +148,6 @@ public:
 
 	// stack variables
 	Container< ScriptCallStack * >	callStack;			// thread's call stack
-	ScriptVariable					*localStack;		// thread's local stack
-	int								localStackSize;		// dynamically allocated at initialization
-	ScriptVariable					*pTop;				// top stack from the local stack
 	ScriptVariable					*m_StackPos;		// marked stack position
 
 	// parameters variables
@@ -112,21 +156,50 @@ public:
 	bool			m_bMarkStack;		// changed by OP_MARK_STACK_POS and OP_RESTORE_STACK_POS
 	Event			fastEvent;			// parameter list, set when the VM is executed
 
-	// miscellaneous
-	bool m_bAllowContextSwitch;			// allow parallel VM executions [experimental feature]
-
 private:
 	void			error( const char *format, ... );
 
-	void			executeCommand( Listener *listener, int iParamCount, int eventnum, bool bReturn = false );
-	bool			executeGetter( Listener *listener, str& name );
-	bool			executeSetter( Listener *listener, str& name );
+	template<bool bMethod = false, bool bReturn = false>
+	void			executeCommand(Listener* listener, op_parmNum_t iParamCount, op_evName_t eventnum);
+	template<bool bReturn>
+	void			executeCommandInternal(Event& ev, Listener* listener, ScriptVariable* fromVar, op_parmNum_t iParamCount);
+	bool			executeGetter(Listener* listener, op_evName_t eventName);
+	bool			executeSetter(Listener* listener, op_evName_t eventName);
+	void			transferVarsToEvent(Event& ev, ScriptVariable* fromVar, op_parmNum_t count);
 
 	void			jump( int offset );
-	void			jumpBool( int offset, bool value );
+	void			jumpBool(int offset, bool value);
+	template<bool noTop = false> void loadTop(Listener* listener);
+	template<bool noTop = false> ScriptVariable* storeTop(Listener* listener);
 
-	void			loadTop( Listener *listener, bool noTop = false );
-	void			storeTop( Listener *listener, bool noTop = false );
+	void			fetchOpcodeValue(void* outValue, size_t size);
+	void			fetchActualOpcodeValue(void* outValue, size_t size);
+
+	template<typename T> T fetchOpcodeValue()
+	{
+		T value;
+		fetchOpcodeValue(&value, sizeof(T));
+		return value;
+	}
+
+	template<typename T> T fetchOpcodeValue(size_t offset)
+	{
+		T value;
+		fetchOpcodeValue(&value, sizeof(T));
+		return value;
+	}
+
+	template<typename T> T fetchActualOpcodeValue()
+	{
+		T value;
+		fetchActualOpcodeValue(&value, sizeof(T));
+		return value;
+	}
+
+	void execCmdCommon(op_parmNum_t param);
+	void execCmdMethodCommon(op_parmNum_t param);
+	void execMethodCommon(op_parmNum_t param);
+	void execFunction(ScriptMaster& Director);
 
 	void			SetFastData( ScriptVariable *data, int dataSize );
 
@@ -146,7 +219,7 @@ public:
 
 	void			Archive( Archiver& arc );
 
-	void			EnterFunction( Event *ev );
+	void			EnterFunction(Container<ScriptVariable>&&);
 	void			LeaveFunction();
 
 	void			End( const ScriptVariable& returnValue );

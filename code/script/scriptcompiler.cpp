@@ -130,7 +130,7 @@ void ScriptCompiler::AddJumpLocation( unsigned char *pos )
 {
 	unsigned int offset = code_pos - sizeof( unsigned int ) - pos;
 
-	*reinterpret_cast< unsigned int * >( pos ) = offset;
+	SetOpcodeValue(offset);
 	ClearPrevOpcode();
 }
 
@@ -138,9 +138,7 @@ void ScriptCompiler::AddJumpBackLocation( unsigned char *pos )
 {
 	int offset = ( code_pos - pos );
 
-	*reinterpret_cast< int * >( code_pos ) = offset;
-	code_pos += sizeof( unsigned int );
-
+	EmitOpcodeValue(offset, sizeof(unsigned int));
 	ClearPrevOpcode();
 }
 
@@ -148,9 +146,7 @@ void ScriptCompiler::AddJumpToLocation( unsigned char *pos )
 {
 	int offset = ( pos - code_pos - 1 );
 
-	*reinterpret_cast< unsigned int * >( code_pos ) = offset;
-	code_pos += sizeof( unsigned int );
-
+	EmitOpcodeValue(offset, sizeof(unsigned int));
 	ClearPrevOpcode();
 }
 
@@ -301,8 +297,7 @@ void ScriptCompiler::EmitAssignmentStatement( sval_t lhs, unsigned int sourcePos
 		EmitOpcode( OP_LOAD_GAME_VAR + listener_val.node[ 1 ].byteValue, sourcePos );
 	}
 
-	*reinterpret_cast< unsigned int * >( code_pos ) = index;
-	code_pos += sizeof( unsigned int );
+	EmitOpcodeValue(index, sizeof(unsigned int));
 }
 
 void ScriptCompiler::EmitBoolJumpFalse( unsigned int sourcePos )
@@ -420,43 +415,30 @@ void ScriptCompiler::EmitConstArray( sval_t lhs, sval_t rhs, unsigned int source
 {
 	int iCount = 1;
 
-	while( 1 )
+	while (1)
 	{
 		iCount++;
 
-		EmitValue( lhs );
+		EmitValue(lhs);
 
-		if( rhs.node[ 0 ].type != sval_constarray ) {
+		if (rhs.node[0].type != sval_constarray) {
 			break;
 		}
 
-		lhs = rhs.node[ 1 ];
-		rhs = rhs.node[ 2 ];
+		lhs = rhs.node[1];
+		rhs = rhs.node[2];
 	}
 
-	EmitValue( rhs );
-	EmitConstArrayOpcode( iCount );
+	EmitValue(rhs);
+	EmitConstArrayOpcode(iCount);
 }
 
 void ScriptCompiler::EmitConstArrayOpcode( int iCount )
 {
-	/*if( iCount > 255 )
-	{
-		CompileError( -1, "Max const array parameters exceeded" );
-	}
-	else
-	{
-		SetOpcodeVarStackOffset( OP_LOAD_CONST_ARRAY1, 1 - iCount );
-		EmitOpcode( OP_LOAD_CONST_ARRAY1, -1 );
-
-		*code_pos++ = iCount;
-	}*/
-
 	SetOpcodeVarStackOffset( OP_LOAD_CONST_ARRAY1, 1 - iCount );
 	EmitOpcode( OP_LOAD_CONST_ARRAY1, -1 );
 
-	*reinterpret_cast< short * >( code_pos ) = iCount;
-	code_pos += sizeof( short );
+	EmitOpcodeValue(iCount, sizeof(short));
 }
 
 void ScriptCompiler::EmitContinue( unsigned int sourcePos )
@@ -464,8 +446,8 @@ void ScriptCompiler::EmitContinue( unsigned int sourcePos )
 	if( bCanContinue )
 	{
 		EmitOpcode( OP_JUMP4, sourcePos );
-		unsigned char *pos = code_pos;
-		code_pos += sizeof( unsigned int );
+		unsigned char* pos = code_pos;
+		code_pos += sizeof(unsigned int);
 		ClearPrevOpcode();
 
 		AddContinueJumpLocation( pos );
@@ -561,28 +543,24 @@ void ScriptCompiler::EmitField( sval_t listener_val, sval_t field_val, unsigned 
 		}
 	}
 
-	prev_index = *reinterpret_cast< unsigned int * >( code_pos - sizeof( unsigned int ) );
+	prev_index = GetOpcodeValue<unsigned int>(sizeof(unsigned int), sizeof(unsigned int));
 
 	if( listener_val.node[ 0 ].type != sval_store_method || ( eventnum && BuiltinReadVariable( sourcePos, listener_val.node[ 1 ].byteValue , eventnum ) ) )
 	{
 		EmitValue( listener_val );
 		EmitOpcode( OP_STORE_FIELD, sourcePos );
-
-		*reinterpret_cast< unsigned int * >( code_pos ) = index;
+		EmitOpcodeValue(index, sizeof(unsigned int));
 	}
 	else if( PrevOpcode() != ( OP_LOAD_GAME_VAR + listener_val.node[ 1 ].byteValue ) || prev_index != index )
 	{
-		EmitOpcode( OP_STORE_GAME_VAR + listener_val.node[ 1 ].byteValue, sourcePos );
-
-		*reinterpret_cast< unsigned int * >( code_pos ) = index;
+		EmitOpcode(OP_STORE_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
+		EmitOpcodeValue(index, sizeof(unsigned int));
 	}
 	else
 	{
 		AbsorbPrevOpcode();
 		EmitOpcode( OP_LOAD_STORE_GAME_VAR + listener_val.node[ 1 ].byteValue, sourcePos );
 	}
-
-	code_pos += sizeof( unsigned int );
 }
 
 void ScriptCompiler::EmitFloat( float value, unsigned int sourcePos )
@@ -595,8 +573,7 @@ void ScriptCompiler::EmitFloat( float value, unsigned int sourcePos )
 
 	EmitOpcode( OP_STORE_FLOAT, sourcePos );
 
-	*reinterpret_cast< float * >( code_pos ) = value;
-	code_pos += sizeof( float );
+	EmitOpcodeValue(value, sizeof(float));
 }
 
 void ScriptCompiler::EmitFunc1( int opcode, unsigned int sourcePos )
@@ -649,20 +626,17 @@ void ScriptCompiler::EmitFunction( int iParamCount, sval_t val, unsigned int sou
 	{
 		label = val.stringValue;
 
-		*code_pos++ = false;
-		*reinterpret_cast< unsigned int * >( code_pos ) = Director.AddString( label );
+		EmitOpcodeValue(false, sizeof(bool));
+		EmitOpcodeValue(Director.AddString(label), sizeof(unsigned int));
 	}
 	else
 	{
-		*code_pos++ = true;
-		*reinterpret_cast< unsigned int * >( code_pos ) = Director.AddString( filename );
-		code_pos += sizeof( unsigned int );
-		*reinterpret_cast< unsigned int * >( code_pos ) = Director.AddString( label );
+		EmitOpcodeValue(true, sizeof(bool));
+		EmitOpcodeValue(Director.AddString(filename), sizeof(unsigned int));
+		EmitOpcodeValue(Director.AddString(label), sizeof(unsigned int));
 	}
 
-	code_pos += sizeof( unsigned int );
-
-	*code_pos++ = iParamCount;
+	EmitOpcodeValue(iParamCount, sizeof(uint8_t));
 }
 
 void ScriptCompiler::EmitIfElseJump( sval_t if_stmt, sval_t else_stmt, unsigned int sourcePos )
@@ -734,29 +708,22 @@ void ScriptCompiler::EmitInteger( unsigned int value, unsigned int sourcePos )
 	else if( value < 127 )
 	{
 		EmitOpcode( OP_STORE_INT1, sourcePos );
-
-		*code_pos++ = value;
+		EmitOpcodeValue(value, sizeof(byte));
 	}
 	else if( value < 32767 )
 	{
-		EmitOpcode( OP_STORE_INT2, sourcePos );
-
-		*reinterpret_cast< short * >( code_pos ) = value;
-		code_pos += sizeof( short );
+		EmitOpcode(OP_STORE_INT2, sourcePos);
+		EmitOpcodeValue(value, sizeof(short));
 	}
 	else if( value < 8388607 )
 	{
-		EmitOpcode( OP_STORE_INT3, sourcePos );
-
-		*reinterpret_cast< short3 * >( code_pos ) = value;
-		code_pos += sizeof( short3 );
+		EmitOpcode(OP_STORE_INT3, sourcePos);
+		EmitOpcodeValue(value, sizeof(short3));
 	}
 	else
 	{
-		EmitOpcode( OP_STORE_INT4, sourcePos );
-
-		*reinterpret_cast< int * >( code_pos ) = value;
-		code_pos += sizeof( int );
+		EmitOpcode(OP_STORE_INT4, sourcePos);
+		EmitOpcodeValue(value, sizeof(int));
 	}
 }
 
@@ -877,15 +844,14 @@ void ScriptCompiler::EmitMethodExpression( int iParamCount, int eventnum, unsign
 		SetOpcodeVarStackOffset( OP_EXEC_METHOD_COUNT1, -iParamCount );
 		EmitOpcode( OP_EXEC_METHOD_COUNT1, sourcePos );
 
-		*code_pos++ = iParamCount;
+		EmitOpcodeValue(iParamCount, sizeof(byte));
 	}
 	else
 	{
 		EmitOpcode( OP_EXEC_METHOD0 + iParamCount, sourcePos );
 	}
 
-	*reinterpret_cast< unsigned int * >( code_pos ) = eventnum;
-	code_pos += sizeof( unsigned int );
+	EmitOpcodeValue(eventnum, sizeof(unsigned int));
 }
 
 void ScriptCompiler::EmitNil( unsigned int sourcePos )
@@ -994,7 +960,7 @@ void ScriptCompiler::EmitOpcode( int opcode, unsigned int sourcePos )
 	prev_opcodes[ prev_opcode_pos ].VarStackOffset = iVarStackOffset;
 	prev_opcodes[ ( prev_opcode_pos + 1 ) % 100 ].opcode = OP_PREVIOUS;
 
-	*code_pos++ = opcode;
+	EmitOpcodeValue(opcode, sizeof(byte));
 }
 
 void ScriptCompiler::EmitParameter( sval_t lhs, unsigned int sourcePos )
@@ -1019,8 +985,7 @@ void ScriptCompiler::EmitParameter( sval_t lhs, unsigned int sourcePos )
 		EmitOpcode( OP_STORE_PARAM, sourcePos );
 		EmitOpcode( OP_LOAD_GAME_VAR + listener_val.node[ 1 ].byteValue, sourcePos );
 
-		*reinterpret_cast< unsigned int * >( code_pos ) = index;
-		code_pos += sizeof( unsigned int );
+		EmitOpcodeValue(index, sizeof(unsigned int));
 	}
 }
 
@@ -1068,10 +1033,8 @@ void ScriptCompiler::EmitRef( sval_t val, unsigned int sourcePos )
 	index = Director.AddString( val.node[ 2 ].stringValue );
 
 	EmitValue( val.node[ 1 ] );
-	EmitOpcode( OP_STORE_FIELD_REF, sourcePos );
-
-	*reinterpret_cast< unsigned int * >( code_pos ) = index;
-	code_pos += sizeof( unsigned int );
+	EmitOpcode(OP_STORE_FIELD_REF, sourcePos);
+	EmitOpcodeValue(index, sizeof(unsigned int));
 }
 
 void ScriptCompiler::EmitStatementList( sval_t val )
@@ -1093,9 +1056,7 @@ void ScriptCompiler::EmitString( str value, unsigned int sourcePos )
 	}
 
 	EmitOpcode( OP_STORE_STRING, sourcePos );
-
-	*reinterpret_cast< unsigned int * >( code_pos ) = index;
-	code_pos += sizeof( unsigned int );
+	EmitOpcodeValue(index, sizeof(unsigned int));
 }
 
 void ScriptCompiler::EmitSwitch( sval_t val, unsigned int sourcePos )
@@ -1108,9 +1069,7 @@ void ScriptCompiler::EmitSwitch( sval_t val, unsigned int sourcePos )
 	stateScript = script->CreateSwitchStateScript();
 
 	EmitOpcode( OP_SWITCH, sourcePos );
-
-	*reinterpret_cast< StateScript ** >( code_pos ) = stateScript;
-	code_pos += sizeof(StateScript*);
+	EmitOpcodeValue(stateScript, sizeof(StateScript*));
 
 	bStartCanBreak = bCanBreak;
 	iStartBreakJumpLocCount = iBreakJumpLocCount;
@@ -1240,15 +1199,14 @@ __emit:
 				SetOpcodeVarStackOffset( OP_EXEC_CMD_COUNT1, -iParamCount );
 				EmitOpcode( OP_EXEC_CMD_COUNT1, val.node[ 3 ].sourcePosValue );
 
-				*code_pos++ = iParamCount;
+				EmitOpcodeValue(iParamCount, sizeof(byte));
 			}
 			else
 			{
 				EmitOpcode( OP_EXEC_CMD0 + iParamCount, val.node[ 3 ].sourcePosValue );
 			}
 
-			*reinterpret_cast< unsigned int * >( code_pos ) = eventnum;
-			code_pos += sizeof( unsigned int );
+			EmitOpcodeValue(eventnum, sizeof(unsigned int));
 		}
 		break;
 	}
@@ -1300,15 +1258,14 @@ __emit:
 				SetOpcodeVarStackOffset( OP_EXEC_CMD_METHOD_COUNT1, -iParamCount - 1 );
 				EmitOpcode( OP_EXEC_CMD_METHOD_COUNT1, val.node[ 4 ].sourcePosValue );
 
-				*code_pos++ = iParamCount;
+				EmitOpcodeValue(iParamCount, sizeof(byte));
 			}
 			else
 			{
 				EmitOpcode( OP_EXEC_CMD_METHOD0 + iParamCount, val.node[ 4 ].sourcePosValue );
 			}
 
-			*reinterpret_cast< unsigned int * >( code_pos ) = eventnum;
-			code_pos += sizeof( unsigned int );
+			EmitOpcodeValue(eventnum, sizeof(unsigned int));
 		}
 		break;
 	}
@@ -1533,19 +1490,19 @@ bool ScriptCompiler::EvalPrevValue( ScriptVariable& var )
 		break;
 
 	case OP_STORE_INT2:
-		intValue = *reinterpret_cast< short * >( code_pos - sizeof( short ) );
+		intValue = GetOpcodeValue<short>(sizeof(short), sizeof(short));
 		break;
 
 	case OP_STORE_INT3:
-		intValue = *reinterpret_cast< short3 * >( code_pos - sizeof( short3 ) );
+		intValue = GetOpcodeValue<short3>(sizeof(short3), sizeof(short3));
 		break;
 
 	case OP_STORE_INT4:
-		intValue = *reinterpret_cast< int * >( code_pos - sizeof( int ) );
+		intValue = GetOpcodeValue<int>(sizeof(int), sizeof(int));
 		break;
 
 	case OP_STORE_FLOAT:
-		floatValue = *reinterpret_cast< float * >( code_pos - sizeof( float ) );
+		intValue = GetOpcodeValue<float>(sizeof(float), sizeof(float));
 		var.setFloatValue( floatValue );
 		return true;
 
@@ -1662,7 +1619,7 @@ void ScriptCompiler::ProcessBreakJumpLocations( int iStartBreakJumpLocCount )
 
 			unsigned int offset = code_pos - sizeof( unsigned int ) - apucBreakJumpLocations[ iBreakJumpLocCount ];
 
-			*reinterpret_cast< unsigned int * >( apucBreakJumpLocations[ iBreakJumpLocCount ] ) = offset;
+			EmitAt(apucBreakJumpLocations[iBreakJumpLocCount], offset, sizeof(unsigned int));
 		} while( iBreakJumpLocCount > iStartBreakJumpLocCount );
 
 		ClearPrevOpcode();
@@ -1679,7 +1636,7 @@ void ScriptCompiler::ProcessContinueJumpLocations( int iStartContinueJumpLocCoun
 
 			unsigned int offset = code_pos - sizeof( unsigned int ) - apucContinueJumpLocations[ iContinueJumpLocCount ];
 
-			*reinterpret_cast< unsigned int * >( apucContinueJumpLocations[ iContinueJumpLocCount ] ) = offset;
+			EmitAt(apucContinueJumpLocations[iContinueJumpLocCount], offset, sizeof(unsigned int));
 		} while( iContinueJumpLocCount > iStartContinueJumpLocCount );
 
 		ClearPrevOpcode();
@@ -1859,7 +1816,8 @@ void ScriptCompiler::Optimize( unsigned char *sourceBuffer )
 
 	while( code_pos < prog_end_ptr )
 	{
-		if( *code_pos >= OP_BIN_BITWISE_AND && *code_pos <= OP_BIN_PERCENTAGE )
+		byte opcode = GetOpcodeValue<byte>(sizeof(byte));
+		if(opcode >= OP_BIN_BITWISE_AND && opcode <= OP_BIN_PERCENTAGE)
 		{
 			assert( prevcodePos1 );
 			assert( prevcodePos2 );
@@ -1870,9 +1828,9 @@ void ScriptCompiler::Optimize( unsigned char *sourceBuffer )
 		prevcodePos2 = prevcodePos1;
 		prevcodePos1 = code_pos;
 
-		code_pos += OpcodeLength( *code_pos );
+		code_pos += OpcodeLength(opcode);
 
-		if( *code_pos == OP_DONE ) {
+		if (opcode == OP_DONE) {
 			break;
 		}
 	}
@@ -1903,6 +1861,41 @@ str ScriptCompiler::GetLine( str content, int line )
 	}
 
 	return found;
+}
+
+template<typename Value>
+void ScriptCompiler::EmitOpcodeValue(const Value& value, size_t size)
+{
+	Com_Memcpy(code_pos, &value, size);
+	code_pos += size;
+}
+
+template<typename Value>
+void ScriptCompiler::EmitAt(unsigned char* location, const Value& value, size_t size)
+{
+	Com_Memcpy(location, &value, size);
+}
+
+template<typename Value>
+void ScriptCompiler::SetOpcodeValue(const Value& value)
+{
+	Com_Memcpy(code_pos, &value, sizeof(value));
+}
+
+template<typename Value>
+Value ScriptCompiler::GetOpcodeValue(size_t size) const
+{
+	Value val{ 0 };
+	Com_Memcpy(&val, code_pos, size);
+	return val;
+}
+
+template<typename Value>
+Value ScriptCompiler::GetOpcodeValue(size_t offset, size_t size) const
+{
+	Value val{ 0 };
+	Com_Memcpy(&val, code_pos - offset, size);
+	return val;
 }
 
 void CompileAssemble( const char *filename, const char *outputfile )

@@ -50,6 +50,187 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #endif
 
+class ScriptCommandEvent : public Event
+{
+public:
+	ScriptCommandEvent(unsigned int eventNum);
+	ScriptCommandEvent(unsigned int eventNum, size_t numArgs);
+};
+
+ScriptCommandEvent::ScriptCommandEvent(unsigned int eventNum)
+	: Event(eventNum)
+{
+	fromScript = true;
+}
+
+ScriptCommandEvent::ScriptCommandEvent(unsigned int eventNum, size_t numArgs)
+	: Event(eventNum, numArgs)
+{
+	fromScript = true;
+}
+
+ScriptVMStack::ScriptVMStack()
+	: localStack(nullptr)
+	, stackBottom(nullptr)
+	, pTop(nullptr)
+{
+}
+
+ScriptVMStack::ScriptVMStack(size_t stackSize)
+{
+	if (!stackSize) {
+		stackSize = 1;
+	}
+
+	// allocate at once
+	uint8_t* data = (uint8_t*)gi.Malloc((sizeof(ScriptVariable) + sizeof(ScriptVariable*)) * stackSize);
+	localStack = new (data) ScriptVariable[stackSize];
+	data += sizeof(ScriptVariable) * stackSize;
+
+	listenerVarPtr = new (data) ScriptVariable * [stackSize]();
+
+	pTop = localStack;
+	stackBottom = localStack + stackSize;
+}
+
+ScriptVMStack::ScriptVMStack(ScriptVMStack&& other)
+	: localStack(other.localStack)
+	, stackBottom(other.stackBottom)
+	, pTop(other.pTop)
+	, listenerVarPtr(other.listenerVarPtr)
+{
+	other.localStack = other.stackBottom = nullptr;
+	other.pTop = nullptr;
+	other.listenerVarPtr = nullptr;
+}
+
+ScriptVMStack& ScriptVMStack::operator=(ScriptVMStack&& other)
+{
+	localStack = other.localStack;
+	stackBottom = other.stackBottom;
+	pTop = other.pTop;
+	listenerVarPtr = other.listenerVarPtr;
+	other.localStack = other.stackBottom = nullptr;
+	other.pTop = nullptr;
+	other.listenerVarPtr = nullptr;
+
+	return *this;
+}
+
+ScriptVMStack::~ScriptVMStack()
+{
+	const size_t localStackSize = GetStackSize();
+	for (uintptr_t i = 0; i < localStackSize; ++i) {
+		localStack[i].~ScriptVariable();
+	}
+
+	uint8_t* const data = (uint8_t*)localStack;
+	if (data) {
+		gi.Free(data);
+	}
+}
+
+size_t ScriptVMStack::GetStackSize() const
+{
+	return stackBottom - localStack;
+}
+
+ScriptVariable& ScriptVMStack::SetTop(ScriptVariable& newTop)
+{
+	return *(pTop = &newTop);
+}
+
+ScriptVariable& ScriptVMStack::GetTop() const
+{
+	return *pTop;
+}
+
+ScriptVariable& ScriptVMStack::GetTop(size_t offset) const
+{
+	return *(pTop + offset);
+}
+
+ScriptVariable* ScriptVMStack::GetTopPtr() const
+{
+	return pTop;
+}
+
+ScriptVariable* ScriptVMStack::GetTopPtr(size_t offset) const
+{
+	return pTop + offset;
+}
+
+ScriptVariable* ScriptVMStack::GetTopArray(size_t offset) const
+{
+	return pTop + offset;
+}
+
+uintptr_t ScriptVMStack::GetIndex() const
+{
+	return pTop - localStack;
+}
+
+ScriptVariable& ScriptVMStack::Pop()
+{
+	return *(pTop--);
+}
+
+ScriptVariable& ScriptVMStack::Pop(size_t offset)
+{
+	ScriptVariable& old = *pTop;
+	pTop -= offset;
+	return old;
+}
+
+ScriptVariable& ScriptVMStack::PopAndGet()
+{
+	return *--pTop;
+}
+
+ScriptVariable& ScriptVMStack::PopAndGet(size_t offset)
+{
+	pTop -= offset;
+	return *pTop;
+}
+
+ScriptVariable& ScriptVMStack::Push()
+{
+	return *(pTop++);
+}
+
+ScriptVariable& ScriptVMStack::Push(size_t offset)
+{
+	ScriptVariable& old = *pTop;
+	pTop += offset;
+	return old;
+}
+
+ScriptVariable& ScriptVMStack::PushAndGet()
+{
+	return *++pTop;
+}
+
+ScriptVariable& ScriptVMStack::PushAndGet(size_t offset)
+{
+	pTop += offset;
+	return *pTop;
+}
+
+void ScriptVMStack::MoveTop(ScriptVariable&& other)
+{
+	*pTop = std::move(other);
+}
+
+ScriptVariable* ScriptVMStack::GetListenerVar(uintptr_t index)
+{
+	return listenerVarPtr[index];
+}
+
+void ScriptVMStack::SetListenerVar(uintptr_t index, ScriptVariable* newVar)
+{
+	listenerVarPtr[index] = newVar;
+}
+
 //====================
 // ScriptVM
 //====================
@@ -83,6 +264,7 @@ ScriptVM
 ====================
 */
 ScriptVM::ScriptVM(ScriptClass* scriptClass, unsigned char* pCodePos, ScriptThread* thread)
+	: m_VMStack(scriptClass->GetScript()->GetRequiredStackSize())
 {
 	next = NULL;
 
@@ -103,18 +285,6 @@ ScriptVM::ScriptVM(ScriptClass* scriptClass, unsigned char* pCodePos, ScriptThre
 	m_bMarkStack = false;
 	m_StackPos = NULL;
 
-	m_bAllowContextSwitch = true;
-
-	localStackSize = m_ScriptClass->GetScript()->GetRequiredStackSize();
-
-	if (localStackSize <= 0) {
-		localStackSize = 1;
-	}
-
-	localStack = new ScriptVariable[localStackSize];
-
-	pTop = localStack;
-
 	m_ScriptClass->AddThread(this);
 }
 
@@ -133,8 +303,6 @@ ScriptVM::~ScriptVM()
 	{
 		LeaveFunction();
 	}
-
-	delete[] localStack;
 }
 
 /*
@@ -199,128 +367,6 @@ void ScriptVM::error(const char* format, ...)
 
 /*
 ====================
-executeCommand
-====================
-*/
-void ScriptVM::executeCommand(Listener* listener, int iParamCount, int eventnum, bool bReturn)
-{
-	Event ev;
-	ScriptVariable* var;
-
-	ev = Event(eventnum);
-
-	if (bReturn)
-	{
-		var = pTop;
-	}
-	else
-	{
-		var = pTop + 1;
-	}
-
-	ev.dataSize = iParamCount;
-	ev.data = new ScriptVariable[ev.dataSize];
-	ev.fromScript = true;
-
-	for (int i = 0; i < iParamCount; i++) {
-		ev.data[i] = var[i];
-	}
-
-	listener->ProcessScriptEvent(ev);
-
-	if (ev.NumArgs() > iParamCount) {
-		*pTop = ev.GetValue(ev.NumArgs());
-	}
-	else {
-		pTop->Clear();
-	}
-}
-
-/*
-====================
-executeGetter
-====================
-*/
-bool ScriptVM::executeGetter(Listener* listener, str& name)
-{
-	Event ev;
-	int eventnum = Event::FindGetterEventNum(name);
-
-	if (eventnum && listener->classinfo()->GetDef(eventnum))
-	{
-		ev = Event(eventnum);
-		ev.fromScript = true;
-
-		if (listener->ProcessScriptEvent(ev))
-		{
-
-			if (ev.NumArgs() > 0) {
-				*pTop = ev.GetValue(ev.NumArgs());
-			}
-			else {
-				pTop->Clear();
-			}
-
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else
-	{
-		eventnum = Event::FindSetterEventNum(name);
-		assert(!eventnum || !listener->classinfo()->GetDef(eventnum));
-		if (eventnum && listener->classinfo()->GetDef(eventnum))
-		{
-			ScriptError("Cannot get a write-only variable");
-		}
-	}
-
-	return false;
-}
-
-/*
-====================
-executeSetter
-====================
-*/
-bool ScriptVM::executeSetter(Listener* listener, str& name)
-{
-	Event ev;
-	int eventnum = Event::FindSetterEventNum(name);
-
-	if (eventnum && listener->classinfo()->GetDef(eventnum))
-	{
-		ev = Event(eventnum);
-		ev.fromScript = true;
-
-		ev.AddValue(*pTop);
-
-		if (listener->ProcessScriptEvent(ev))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else
-	{
-		eventnum = Event::FindGetterEventNum(name);
-		if (eventnum && listener->classinfo()->GetDef(eventnum))
-		{
-			ScriptError("Cannot set a read-only variable");
-		}
-	}
-
-	return false;
-}
-
-/*
-====================
 jump
 ====================
 */
@@ -346,58 +392,366 @@ void ScriptVM::jumpBool(int offset, bool booleanValue)
 	}
 }
 
-/*
-====================
-loadTop
-====================
-*/
-void ScriptVM::loadTop(Listener* listener, bool noTop)
+template<bool noTop>
+void ScriptVM::loadTop(Listener* listener)
 {
-	int index;
+	const const_str variable = fetchOpcodeValue<op_name_t>();
+	const op_evName_t eventName = fetchOpcodeValue<op_evName_t>();
 
-	index = *reinterpret_cast<int*>(m_CodePos);
-	m_CodePos += sizeof(unsigned int);
-
-	if (index != -1)
+	if (!eventName || !executeSetter(listener, eventName))
 	{
-		str& variable = Director.GetString(index);
-
-		if (!executeSetter(listener, variable))
+		// just set the variable
+		const uintptr_t varIndex = m_VMStack.GetIndex();
+		ScriptVariable& pTop = m_VMStack.GetTop();
+		if (varIndex < m_VMStack.GetStackSize())
 		{
-			listener->Vars()->SetVariable(variable, *pTop);
+			ScriptVariable* const listenerVar = m_VMStack.GetListenerVar(varIndex);
+			if (!listenerVar || listenerVar->GetKey() != short3(variable)) {
+				listener->Vars()->SetVariable(variable, std::move(pTop));
+			}
+			else {
+				*listenerVar = std::move(pTop);
+			}
+		}
+		else
+		{
+			listener->Vars()->SetVariable(variable, std::move(pTop));
 		}
 	}
 
-	if (!noTop) {
-		pTop--;
+	if constexpr (!noTop) m_VMStack.Pop();
+}
+
+template<bool noTop>
+ScriptVariable* ScriptVM::storeTop(Listener* listener)
+{
+	const const_str variable = fetchOpcodeValue<op_name_t>();
+	const op_evName_t eventName = fetchOpcodeValue<op_evName_t>();
+	ScriptVariable* listenerVar;
+
+	if constexpr (!noTop) m_VMStack.Push();
+
+	if (!eventName || !executeGetter(listener, eventName))
+	{
+		const uintptr_t varIndex = m_VMStack.GetIndex();
+		ScriptVariable& pTop = m_VMStack.GetTop();
+		listenerVar = m_VMStack.GetListenerVar(varIndex);
+		if (!listenerVar || listenerVar->GetKey() != short3(variable))
+		{
+			listenerVar = listener->Vars()->GetOrCreateVariable(variable);
+			m_VMStack.SetListenerVar(varIndex, listenerVar);
+		}
+
+		pTop = *listenerVar;
+	}
+	else {
+		listenerVar = nullptr;
+	}
+
+	return listenerVar;
+}
+
+template<>
+void ScriptVM::executeCommandInternal<false>(Event& ev, Listener* listener, ScriptVariable* fromVar, op_parmNum_t iParamCount)
+{
+	transferVarsToEvent(ev, fromVar, iParamCount);
+	listener->ProcessScriptEvent(ev);
+}
+
+template<>
+void ScriptVM::executeCommandInternal<true>(Event& ev, Listener* listener, ScriptVariable* fromVar, op_parmNum_t iParamCount)
+{
+	transferVarsToEvent(ev, fromVar, iParamCount);
+
+	try
+	{
+		listener->ProcessScriptEvent(ev);
+	}
+	catch (...)
+	{
+		m_VMStack.GetTop().Clear();
+		throw;
+	}
+
+	ScriptVariable& pTop = m_VMStack.GetTop();
+	if (ev.NumArgs() > iParamCount) {
+		pTop = std::move(ev.GetLastValue());
+	}
+	else {
+		pTop.Clear();
 	}
 }
 
-/*
-====================
-storeTop
-====================
-*/
-void ScriptVM::storeTop(Listener* listener, bool noTop)
+template<>
+void ScriptVM::executeCommand<false, false>(Listener* listener, op_parmNum_t iParamCount, op_evName_t eventnum)
 {
-	str variable;
-	int index;
+	ScriptCommandEvent ev = iParamCount ? ScriptCommandEvent(eventnum, iParamCount) : ScriptCommandEvent(eventnum);
+	return executeCommandInternal<false>(ev, listener, m_VMStack.GetTopArray(1), iParamCount);
+}
 
-	index = *reinterpret_cast<int*>(m_CodePos);
-	m_CodePos += sizeof(unsigned int);
+template<>
+void ScriptVM::executeCommand<true, false>(Listener* listener, op_parmNum_t iParamCount, op_evName_t eventnum)
+{
+	ScriptCommandEvent ev = iParamCount ? ScriptCommandEvent(eventnum, iParamCount) : ScriptCommandEvent(eventnum);
+	return executeCommandInternal<false>(ev, listener, m_VMStack.GetTopArray(1), iParamCount);
+}
 
-	if (index != -1)
+template<>
+void ScriptVM::executeCommand<false, true>(Listener* listener, op_parmNum_t iParamCount, op_evName_t eventnum)
+{
+	ScriptCommandEvent ev = iParamCount ? ScriptCommandEvent(eventnum, iParamCount + 1) : ScriptCommandEvent(eventnum, 1);
+	return executeCommandInternal<true>(ev, listener, m_VMStack.GetTopArray(), iParamCount);
+}
+
+template<>
+void ScriptVM::executeCommand<true, true>(Listener* listener, op_parmNum_t iParamCount, op_evName_t eventnum)
+{
+	ScriptCommandEvent ev = iParamCount ? ScriptCommandEvent(eventnum, iParamCount + 1) : ScriptCommandEvent(eventnum, 1);
+	return executeCommandInternal<true>(ev, listener, m_VMStack.GetTopArray(), iParamCount);
+}
+
+void ScriptVM::transferVarsToEvent(Event& ev, ScriptVariable* fromVar, op_parmNum_t count)
+{
+	for (uint16_t i = 0; i < count; i++)
 	{
-		variable = Director.GetString(index);
+		ev.AddValue(fromVar[i]);
+	}
+}
+
+bool ScriptVM::executeGetter(Listener* listener, op_evName_t eventName)
+{
+	int eventNum = Event::FindGetterEventNum(eventName);
+
+	if (eventNum && listener->classinfo()->GetDef(eventNum))
+	{
+		ScriptCommandEvent ev(eventNum);
+
+		listener->ProcessScriptEvent(ev);
+
+		ScriptVariable& pTop = m_VMStack.GetTop();
+		if (ev.NumArgs() > 0) {
+			pTop = std::move(ev.GetLastValue());
+		}
+		else {
+			pTop.Clear();
+		}
+
+		return true;
+	}
+	else
+	{
+		eventNum = Event::FindSetterEventNum(eventName);
+		assert(!eventNum || !listener->classinfo()->GetDef(eventNum));
+		if (eventNum && listener->classinfo()->GetDef(eventNum))
+		{
+			ScriptError("Cannot set a read-only variable");
+		}
 	}
 
-	if (!noTop) {
-		pTop++;
+	return false;
+}
+
+bool ScriptVM::executeSetter(Listener* listener, op_evName_t eventName)
+{
+	int eventNum = Event::FindSetterEventNum(eventName);
+
+	if (eventNum && listener->classinfo()->GetDef(eventNum))
+	{
+		ScriptCommandEvent ev(eventNum, 1);
+
+		ScriptVariable& pTop = m_VMStack.GetTop();
+		ev.AddValue(pTop);
+
+		listener->ProcessScriptEvent(ev);
+
+		return true;
+	}
+	else
+	{
+		eventNum = Event::FindSetterEventNum(eventName);
+		assert(!eventNum || !listener->classinfo()->GetDef(eventNum));
+		if (eventNum && listener->classinfo()->GetDef(eventNum))
+		{
+			ScriptError("Cannot get a write-only variable");
+		}
 	}
 
-	if (index != -1 && !executeGetter(listener, variable))
+	return false;
+}
+
+void ScriptVM::execCmdCommon(op_parmNum_t param)
+{
+	const op_ev_t eventNum = fetchOpcodeValue<op_ev_t>();
+
+	m_VMStack.Pop(param);
+
+	executeCommand(m_Thread, param, eventNum);
+}
+
+void ScriptVM::execCmdMethodCommon(op_parmNum_t param)
+{
+	const ScriptVariable& a = m_VMStack.Pop();
+	const op_ev_t eventNum = fetchOpcodeValue<op_ev_t>();
+
+	m_VMStack.Pop(param);
+
+	const size_t arraysize = a.arraysize();
+	if (arraysize == (size_t)-1)
 	{
-		*pTop = *listener->Vars()->GetOrCreateVariable(index);
+		throw ScriptException("command '%s' applied to NIL", Event::GetEventName(eventNum).c_str());
+	}
+
+	if (arraysize > 1)
+	{
+		if (a.IsConstArray())
+		{
+			for (uintptr_t i = 1; i <= arraysize; i++)
+			{
+				Listener* const listener = a.listenerAt(i);
+				// if the listener is NULL, don't throw an exception
+				// it would be unfair if the other listeners executed the command
+				if (listener) {
+					executeCommand<true>(listener, param, eventNum);
+				}
+			}
+		}
+		else
+		{
+			ScriptVariable array = a;
+			// must cast into a const array value
+			array.CastConstArrayValue();
+
+			for (uintptr_t i = array.arraysize(); i > 0; i--)
+			{
+				Listener* const listener = array[i]->listenerAt(i);
+				if (listener) {
+					executeCommand<true>(listener, param, eventNum);
+				}
+			}
+		}
+	}
+	else
+	{
+		// avoid useless allocations of const array
+		Listener* const listener = a.listenerValue();
+		if (!listener)
+		{
+			throw ScriptException("command '%s' applied to NULL listener", Event::GetEventName(eventNum).c_str());
+		}
+
+		executeCommand<true>(listener, param, eventNum);
+	}
+}
+
+void ScriptVM::execMethodCommon(op_parmNum_t param)
+{
+	const ScriptVariable& a = m_VMStack.Pop();
+	const op_ev_t eventNum = fetchOpcodeValue<op_ev_t>();
+
+	m_VMStack.Pop(param);
+	// push the return value
+	m_VMStack.Push();
+
+	Listener* const listener = a.listenerValue();
+	if (!listener)
+	{
+		throw ScriptException("command '%s' applied to NULL listener", Event::GetEventName(eventNum).c_str());
+	}
+
+	executeCommand<true, true>(listener, param, eventNum);
+}
+
+void ScriptVM::execFunction(ScriptMaster& Director)
+{
+	if (!fetchOpcodeValue<bool>())
+	{
+		const op_name_t label = fetchOpcodeValue<op_name_t>();
+		const op_parmNum_t params = fetchOpcodeValue<op_parmNum_t>();
+
+		Listener* listener;
+
+		try
+		{
+			listener = m_VMStack.GetTop().listenerValue();
+
+			if (!listener)
+			{
+				const str& labelName = Director.GetString(label);
+				throw ScriptException("function '" + labelName + "' applied to NULL listener");
+			}
+		}
+		catch (...)
+		{
+			m_VMStack.Pop(params);
+			throw;
+		}
+
+		m_VMStack.Pop();
+
+		Container<ScriptVariable> data;
+		data.Resize(params + 1);
+
+		ScriptVariable* labelVar = &data.ObjectAt(data.AddObject(ScriptVariable()));
+		labelVar->setConstStringValue(label);
+
+		const ScriptVariable* var = &m_VMStack.Pop(params);
+
+		for (int i = 0; i < params; var++, i++)
+		{
+			data.AddObject(*var);
+		}
+
+		m_VMStack.Push();
+		EnterFunction(std::move(data));
+
+		GetScriptClass()->m_Self = listener;
+	}
+	else
+	{
+		const op_name_t filename = fetchOpcodeValue<op_name_t>();
+		const op_name_t label = fetchOpcodeValue<op_name_t>();
+		const op_parmNum_t params = fetchOpcodeValue<op_parmNum_t>();
+
+		Listener* listener;
+		try
+		{
+			listener = m_VMStack.GetTop().listenerValue();
+
+			if (!listener)
+			{
+				const str& labelStr = Director.GetString(label);
+				const str& fileStr = Director.GetString(filename);
+				throw ScriptException("function '" + labelStr + "' in '" + fileStr + "' applied to NULL listener");
+			}
+		}
+		catch (...)
+		{
+			m_VMStack.Pop(params);
+			throw;
+		}
+
+		m_VMStack.Pop();
+
+		ScriptVariable constarray;
+		ScriptVariable* pVar = new ScriptVariable[2];
+
+		pVar[0].setConstStringValue(filename);
+		pVar[1].setConstStringValue(label);
+
+		constarray.setConstArrayValue(pVar, 2);
+
+		delete[] pVar;
+
+		Event ev(EV_Listener_WaitCreateReturnThread);
+
+		const ScriptVariable* var = &m_VMStack.Pop(params);
+
+		for (int i = 0; i < params; var++, i++) {
+			ev.AddValue(*var);
+		}
+
+		m_VMStack.Push();
+		m_VMStack.GetTop() = listener->ProcessEventReturn(&ev);
 	}
 }
 
@@ -420,8 +774,9 @@ EnterFunction
 Sets a new instruction pointer
 ====================
 */
-void ScriptVM::EnterFunction(Event* ev)
+void ScriptVM::EnterFunction(Container<ScriptVariable>&&)
 {
+#if 0
 	ScriptCallStack* stack;
 	str label = ev->GetString(1);
 
@@ -438,7 +793,7 @@ void ScriptVM::EnterFunction(Event* ev)
 
 	stack->codePos = m_CodePos;
 
-	stack->pTop = pTop;
+	stack->pTop = &m_VMStack.GetTop();
 	stack->returnValue = m_ReturnValue;
 	stack->localStack = localStack;
 	stack->m_Self = m_ScriptClass->GetSelf();
@@ -451,6 +806,7 @@ void ScriptVM::EnterFunction(Event* ev)
 
 	pTop = localStack;
 	m_ReturnValue.Clear();
+#endif
 }
 
 /*
@@ -462,6 +818,7 @@ Returns to the previous function
 */
 void ScriptVM::LeaveFunction()
 {
+#if 0
 	int num = callStack.NumObjects();
 
 	if (num)
@@ -487,6 +844,9 @@ void ScriptVM::LeaveFunction()
 	{
 		delete m_Thread;
 	}
+#else
+	delete m_Thread;
+#endif
 }
 
 /*
@@ -533,12 +893,11 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 	ScriptVariable* b;
 	ScriptVariable* c;
 
-	int					index, iParamCount;
+	int index;
 
 	Listener* listener;
 
 	Event				ev;
-	Event* ev2;
 	ScriptVariable* var = NULL;
 
 	static str			str_null = "";
@@ -611,6 +970,7 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 
 			if (!m_bMarkStack)
 			{
+				/*
 				assert(pTop >= localStack && pTop < localStack + localStackSize);
 				if (pTop < localStack)
 				{
@@ -628,6 +988,7 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 					error("VM stack error. Exceeded the maximum stack size %d.\n", localStackSize);
 					break;
 				}
+				*/
 			}
 
 			index = 0;
@@ -637,491 +998,339 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 			switch (*opcode)
 			{
 			case OP_BIN_BITWISE_AND:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				*b &= *a;
 				break;
 
 			case OP_BIN_BITWISE_OR:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				*b |= *a;
 				break;
 
 			case OP_BIN_BITWISE_EXCL_OR:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				*b ^= *a;
 				break;
 
 			case OP_BIN_EQUALITY:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				b->setIntValue(*b == *a);
 				break;
 
 			case OP_BIN_INEQUALITY:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				b->setIntValue(*b != *a);
 				break;
 
 			case OP_BIN_GREATER_THAN:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				b->greaterthan(*a);
 				break;
 
 			case OP_BIN_GREATER_THAN_OR_EQUAL:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				b->greaterthanorequal(*a);
 				break;
 
 			case OP_BIN_LESS_THAN:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				b->lessthan(*a);
 				break;
 
 			case OP_BIN_LESS_THAN_OR_EQUAL:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				b->lessthanorequal(*a);
 				break;
 
 			case OP_BIN_PLUS:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				*b += *a;
 				break;
 
 			case OP_BIN_MINUS:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				*b -= *a;
 				break;
 
 			case OP_BIN_MULTIPLY:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				*b *= *a;
 				break;
 
 			case OP_BIN_DIVIDE:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				*b /= *a;
 				break;
 
 			case OP_BIN_PERCENTAGE:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				*b %= *a;
 				break;
 
 			case OP_BIN_SHIFT_LEFT:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				*b <<= *a;
 				break;
 
 			case OP_BIN_SHIFT_RIGHT:
-				a = pTop--;
-				b = pTop;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.GetTop();
 
 				*b >>= *a;
 				break;
 
 			case OP_BOOL_JUMP_FALSE4:
-				jumpBool(*reinterpret_cast<unsigned int*>(m_CodePos) + sizeof(unsigned int), !pTop->m_data.intValue);
-
-				pTop--;
-
+				jumpBool(fetchOpcodeValue<unsigned int>() + sizeof(unsigned int), !m_VMStack.Pop().m_data.intValue);
 				break;
 
 			case OP_BOOL_JUMP_TRUE4:
-				jumpBool(*reinterpret_cast<unsigned int*>(m_CodePos) + sizeof(unsigned int), pTop->m_data.intValue ? true : false);
-
-				pTop--;
-
+				jumpBool(fetchOpcodeValue<unsigned int>() + sizeof(unsigned int), m_VMStack.Pop().m_data.intValue ? true : false);
 				break;
 
 			case OP_VAR_JUMP_FALSE4:
-				jumpBool(*reinterpret_cast<unsigned int*>(m_CodePos) + sizeof(unsigned int), !pTop->booleanValue());
-
-				pTop--;
-
+				jumpBool(fetchOpcodeValue<unsigned int>() + sizeof(unsigned int), !m_VMStack.Pop().booleanValue());
 				break;
 
 			case OP_VAR_JUMP_TRUE4:
-				jumpBool(*reinterpret_cast<unsigned int*>(m_CodePos) + sizeof(unsigned int), pTop->booleanValue());
-
-				pTop--;
-
+				jumpBool(fetchOpcodeValue<unsigned int>() + sizeof(unsigned int), m_VMStack.Pop().booleanValue());
 				break;
 
 			case OP_BOOL_LOGICAL_AND:
-				if (pTop->m_data.intValue)
+				if (m_VMStack.GetTop().m_data.intValue)
 				{
-					pTop--;
+					m_VMStack.Pop();
 					m_CodePos += sizeof(unsigned int);
 				}
 				else
 				{
-					m_CodePos += *reinterpret_cast<unsigned int*>(m_CodePos) + sizeof(unsigned int);
+					m_CodePos += fetchOpcodeValue<unsigned int>() + sizeof(unsigned int);
 				}
 
 				break;
 
 			case OP_BOOL_LOGICAL_OR:
-				if (!pTop->m_data.intValue)
+				if (!m_VMStack.GetTop().m_data.intValue)
 				{
-					pTop--;
+					m_VMStack.Pop();
 					m_CodePos += sizeof(unsigned int);
 				}
 				else
 				{
-					m_CodePos += *reinterpret_cast<unsigned int*>(m_CodePos) + sizeof(unsigned int);
+					m_CodePos += fetchOpcodeValue<unsigned int>() + sizeof(unsigned int);
 				}
 
 				break;
 
 			case OP_VAR_LOGICAL_AND:
-				if (pTop->booleanValue())
+				if (m_VMStack.GetTop().booleanValue())
 				{
-					pTop--;
+					m_VMStack.Pop();
 					m_CodePos += sizeof(unsigned int);
 				}
 				else
 				{
-					pTop->SetFalse();
-					m_CodePos += *reinterpret_cast<unsigned int*>(m_CodePos) + sizeof(unsigned int);
+					m_VMStack.GetTop().SetFalse();
+					m_CodePos += fetchOpcodeValue<unsigned int>() + sizeof(unsigned int);
 				}
 				break;
 
 			case OP_VAR_LOGICAL_OR:
-				if (!pTop->booleanValue())
+				if (!m_VMStack.GetTop().booleanValue())
 				{
-					pTop--;
+					m_VMStack.Pop();
 					m_CodePos += sizeof(unsigned int);
 				}
 				else
 				{
-					pTop->SetTrue();
-					m_CodePos += *reinterpret_cast<unsigned int*>(m_CodePos) + sizeof(unsigned int);
+					m_VMStack.GetTop().SetTrue();
+					m_CodePos += fetchOpcodeValue<unsigned int>() + sizeof(unsigned int);
 				}
 				break;
 
 			case OP_BOOL_STORE_FALSE:
-				pTop++;
-				pTop->SetFalse();
+				m_VMStack.PushAndGet().SetFalse();
 				break;
 
 			case OP_BOOL_STORE_TRUE:
-				pTop++;
-				pTop->SetTrue();
+				m_VMStack.PushAndGet().SetTrue();
 				break;
 
 			case OP_BOOL_UN_NOT:
-				pTop->m_data.intValue = (pTop->m_data.intValue == 0);
+				m_VMStack.GetTop().m_data.intValue = (m_VMStack.GetTop().m_data.intValue == 0);
 				break;
 
 			case OP_CALC_VECTOR:
-				c = pTop--;
-				b = pTop--;
-				a = pTop;
+				c = &m_VMStack.Pop();
+				b = &m_VMStack.Pop();
+				a = &m_VMStack.GetTop();
 
-				pTop->setVectorValue(Vector(a->floatValue(), b->floatValue(), c->floatValue()));
+				m_VMStack.GetTop().setVectorValue(Vector(a->floatValue(), b->floatValue(), c->floatValue()));
 				break;
 
 			case OP_EXEC_CMD0:
-				iParamCount = 0;
-				goto __execCmd;
+			{
+				execCmdCommon(0);
+				break;
+			}
 
 			case OP_EXEC_CMD1:
-				iParamCount = 1;
-				goto __execCmd;
+			{
+				execCmdCommon(1);
+				break;
+			}
 
 			case OP_EXEC_CMD2:
-				iParamCount = 2;
-				goto __execCmd;
+			{
+				execCmdCommon(2);
+				break;
+			}
 
 			case OP_EXEC_CMD3:
-				iParamCount = 3;
-				goto __execCmd;
+			{
+				execCmdCommon(3);
+				break;
+			}
 
 			case OP_EXEC_CMD4:
-				iParamCount = 4;
-				goto __execCmd;
+			{
+				execCmdCommon(4);
+				break;
+			}
 
 			case OP_EXEC_CMD5:
-				iParamCount = 5;
-				goto __execCmd;
+			{
+				execCmdCommon(5);
+				break;
+			}
 
 			case OP_EXEC_CMD_COUNT1:
-				iParamCount = *m_CodePos++;
-
-			__execCmd:
-				index = *reinterpret_cast<unsigned int*>(m_CodePos);
-
-				m_CodePos += sizeof(unsigned int);
-
-				pTop -= iParamCount;
-
-				try
-				{
-					executeCommand(m_Thread, iParamCount, index);
-				}
-				catch (ScriptException& exc)
-				{
-					throw exc;
-				}
-
+			{
+				const op_parmNum_t numParms = fetchOpcodeValue<op_parmNum_t>();
+				execCmdCommon(numParms);
 				break;
+			}
 
 			case OP_EXEC_CMD_METHOD0:
-				iParamCount = 0;
-				goto __execCmdMethod;
+			{
+				execCmdMethodCommon(0);
+				break;
+			}
 
 			case OP_EXEC_CMD_METHOD1:
-				iParamCount = 1;
-				goto __execCmdMethod;
+			{
+				execCmdMethodCommon(1);
+				break;
+			}
 
 			case OP_EXEC_CMD_METHOD2:
-				iParamCount = 2;
-				goto __execCmdMethod;
+			{
+				execCmdMethodCommon(2);
+				break;
+			}
 
 			case OP_EXEC_CMD_METHOD3:
-				iParamCount = 3;
-				goto __execCmdMethod;
+			{
+				execCmdMethodCommon(3);
+				break;
+			}
 
 			case OP_EXEC_CMD_METHOD4:
-				iParamCount = 4;
-				goto __execCmdMethod;
+			{
+				execCmdMethodCommon(4);
+				break;
+			}
 
 			case OP_EXEC_CMD_METHOD5:
-				iParamCount = 5;
-				goto __execCmdMethod;
-
-			__execCmdMethod:
-				m_CodePos--;
-				goto __execCmdMethodInternal;
+			{
+				execCmdMethodCommon(5);
+				break;
+			}
 
 			case OP_EXEC_CMD_METHOD_COUNT1:
-				iParamCount = *m_CodePos;
-
-			__execCmdMethodInternal:
-				a = pTop--;
-
-				try
-				{
-					index = *reinterpret_cast<unsigned int*>(m_CodePos + sizeof(byte));
-
-					pTop -= iParamCount;
-
-					if (a->arraysize() < 0)
-					{
-						ScriptError("command '%s' applied to NIL", Event::GetEventName(index).c_str());
-					}
-
-					ScriptVariable array = *a;
-					Listener* listener;
-
-					array.CastConstArrayValue();
-
-					for (int i = array.arraysize(); i > 0; i--)
-					{
-						if (!(listener = array[i]->listenerValue()))
-						{
-							ScriptError("command '%s' applied to NULL listener", Event::GetEventName(index).c_str());
-						}
-
-						executeCommand(listener, iParamCount, index);
-					}
-				}
-				catch (ScriptException& exc)
-				{
-					m_CodePos += sizeof(byte) + sizeof(unsigned int);
-
-					throw exc;
-				}
-
-				m_CodePos += sizeof(byte) + sizeof(unsigned int);
-
+			{
+				const op_parmNum_t numParms = fetchOpcodeValue<op_parmNum_t>();
+				execCmdMethodCommon(numParms);
 				break;
+			}
 
 			case OP_EXEC_METHOD0:
-				iParamCount = 0;
-				goto __execMethod;
+			{
+				execMethodCommon(0);
+				break;
+			}
 
 			case OP_EXEC_METHOD1:
-				iParamCount = 1;
-				goto __execMethod;
+			{
+				execMethodCommon(1);
+				break;
+			}
 
 			case OP_EXEC_METHOD2:
-				iParamCount = 2;
-				goto __execMethod;
+			{
+				execMethodCommon(2);
+				break;
+			}
 
 			case OP_EXEC_METHOD3:
-				iParamCount = 3;
-				goto __execMethod;
+			{
+				execMethodCommon(3);
+				break;
+			}
 
 			case OP_EXEC_METHOD4:
-				iParamCount = 4;
-				goto __execMethod;
+			{
+				execMethodCommon(4);
+				break;
+			}
 
 			case OP_EXEC_METHOD5:
-				iParamCount = 5;
-
-			__execMethod:
-				m_CodePos--;
-				goto __execMethodInternal;
+			{
+				execMethodCommon(5);
+				break;
+			}
 
 			case OP_EXEC_METHOD_COUNT1:
-				iParamCount = *m_CodePos;
-
-			__execMethodInternal:
-				a = pTop--;
-
-				try
-				{
-					index = *reinterpret_cast<unsigned int*>(m_CodePos + sizeof(byte));
-
-					pTop -= iParamCount;
-					pTop++; // push the return value
-
-					Listener* listener = a->listenerValue();
-
-					if (!listener)
-					{
-						ScriptError("command '%s' applied to NULL listener", Event::GetEventName(index).c_str());
-					}
-
-					executeCommand(listener, iParamCount, index, true);
-				}
-				catch (ScriptException& exc)
-				{
-					m_CodePos += sizeof(byte) + sizeof(unsigned int);
-
-					throw exc;
-				}
-
-				m_CodePos += sizeof(byte) + sizeof(unsigned int);
-
+			{
+				const op_parmNum_t numParms = fetchOpcodeValue<op_parmNum_t>();
+				execMethodCommon(numParms);
 				break;
+			}
 
 			case OP_FUNC:
-				ev.Clear();
-
-				if (!*m_CodePos++)
-				{
-					str& label = Director.GetString(*reinterpret_cast<unsigned int*>(m_CodePos));
-
-					m_CodePos += sizeof(unsigned int);
-
-					try
-					{
-						listener = pTop->listenerValue();
-
-						if (!listener)
-						{
-							ScriptError("function '%s' applied to NULL listener", label.c_str());
-						}
-					}
-					catch (ScriptException& exc)
-					{
-						pTop -= *m_CodePos++;
-
-						throw exc;
-					}
-
-					pTop--;
-
-					ev.AddString(label);
-
-					int params = *m_CodePos++;
-
-					var = pTop;
-					pTop -= params;
-
-					for (int i = 0; i < params; var++, i++) {
-						ev.AddValue(*var);
-					}
-
-					pTop++;
-					EnterFunction(&ev);
-
-					m_ScriptClass->m_Self = listener;
-				}
-				else
-				{
-					str filename, label;
-
-					filename = Director.GetString(*reinterpret_cast<unsigned int*>(m_CodePos));
-					m_CodePos += sizeof(unsigned int);
-					label = Director.GetString(*reinterpret_cast<unsigned int*>(m_CodePos));
-					m_CodePos += sizeof(unsigned int);
-
-					try
-					{
-						listener = pTop->listenerValue();
-
-						if (!listener)
-						{
-							ScriptError("function '%s' in '%s' applied to NULL listener", label.c_str(), filename.c_str());
-						}
-					}
-					catch (ScriptException& exc)
-					{
-						pTop -= *m_CodePos++;
-
-						throw exc;
-					}
-
-					pTop--;
-
-					ScriptVariable constarray;
-					ScriptVariable* pVar = new ScriptVariable[2];
-
-					pVar[0].setStringValue(filename);
-					pVar[1].setStringValue(label);
-
-					constarray.setConstArrayValue(pVar, 2);
-
-					delete[] pVar;
-
-					ev2 = new Event(EV_Listener_WaitCreateReturnThread);
-					ev2->AddValue(constarray);
-
-					int params = *m_CodePos++;
-
-					var = pTop;
-					pTop -= params;
-
-					for (int i = 0; i < params; var++, i++) {
-						ev2->AddValue(*var);
-					}
-
-					pTop++;
-					*pTop = listener->ProcessEventReturn(ev2);
-				}
+			{
+				execFunction(Director);
 				break;
+			}
 
 			case OP_JUMP4:
 				m_CodePos += *reinterpret_cast<int*>(m_CodePos) + sizeof(unsigned int);
@@ -1132,15 +1341,15 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 				break;
 
 			case OP_LOAD_ARRAY_VAR:
-				a = pTop--;
-				b = pTop--;
-				c = pTop--;
+				a = &m_VMStack.Pop();
+				b = &m_VMStack.Pop();
+				c = &m_VMStack.Pop();
 
 				b->setArrayAt(*a, *c);
 				break;
 
 			case OP_LOAD_FIELD_VAR:
-				a = pTop--;
+				a = &m_VMStack.Pop();
 
 				try
 				{
@@ -1159,7 +1368,7 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 				}
 				catch (ScriptException& exc)
 				{
-					pTop--;
+					m_VMStack.Pop();
 
 					if (!eventCalled) {
 						m_CodePos += sizeof(unsigned int);
@@ -1171,12 +1380,13 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 				break;
 
 			case OP_LOAD_CONST_ARRAY1:
-				index = *reinterpret_cast<short*>(m_CodePos);
-				m_CodePos += sizeof(short);
+			{
+				op_arrayParmNum_t numParms = fetchOpcodeValue<op_arrayParmNum_t>();
 
-				pTop -= index - 1;
-				pTop->setConstArrayValue(pTop, index);
+				ScriptVariable& pTop = m_VMStack.PopAndGet(numParms - 1);
+				pTop.setConstArrayValue(&pTop, numParms);
 				break;
+			}
 
 			case OP_LOAD_GAME_VAR:
 				loadTop(&game);
@@ -1197,14 +1407,14 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 			case OP_LOAD_OWNER_VAR:
 				if (!m_ScriptClass->m_Self)
 				{
-					pTop--;
+					m_VMStack.Pop();
 					m_CodePos += sizeof(unsigned int);
 					ScriptError("self is NULL");
 				}
 
 				if (!m_ScriptClass->m_Self->GetScriptOwner())
 				{
-					pTop--;
+					m_VMStack.Pop();
 					m_CodePos += sizeof(unsigned int);
 					ScriptError("self.owner is NULL");
 				}
@@ -1219,7 +1429,7 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 			case OP_LOAD_SELF_VAR:
 				if (!m_ScriptClass->m_Self)
 				{
-					pTop--;
+					m_VMStack.Pop();
 					m_CodePos += sizeof(unsigned int);
 					ScriptError("self is NULL");
 				}
@@ -1228,19 +1438,19 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 				break;
 
 			case OP_LOAD_STORE_GAME_VAR:
-				loadTop(&game, true);
+				loadTop<true>(&game);
 				break;
 
 			case OP_LOAD_STORE_GROUP_VAR:
-				loadTop(m_ScriptClass, true);
+				loadTop<true>(m_ScriptClass);
 				break;
 
 			case OP_LOAD_STORE_LEVEL_VAR:
-				loadTop(&level, true);
+				loadTop<true>(&level);
 				break;
 
 			case OP_LOAD_STORE_LOCAL_VAR:
-				loadTop(m_Thread, true);
+				loadTop<true>(m_Thread);
 				break;
 
 			case OP_LOAD_STORE_OWNER_VAR:
@@ -1256,11 +1466,11 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 					ScriptError("self.owner is NULL");
 				}
 
-				loadTop(m_ScriptClass->m_Self->GetScriptOwner(), true);
+				loadTop<true>(m_ScriptClass->m_Self->GetScriptOwner());
 				break;
 
 			case OP_LOAD_STORE_PARM_VAR:
-				loadTop(&parm, true);
+				loadTop<true>(&parm);
 				break;
 
 			case OP_LOAD_STORE_SELF_VAR:
@@ -1269,40 +1479,40 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 					ScriptError("self is NULL");
 				}
 
-				loadTop(m_ScriptClass->m_Self, true);
+				loadTop<true>(m_ScriptClass->m_Self);
 				break;
 
 			case OP_MARK_STACK_POS:
-				m_StackPos = pTop;
+				m_StackPos = &m_VMStack.GetTop();
 				m_bMarkStack = true;
 				break;
 
 			case OP_STORE_PARAM:
 				if (fastEvent.dataSize)
 				{
-					pTop = fastEvent.data++;
+					m_VMStack.SetTop(*(fastEvent.data++));
 					fastEvent.dataSize--;
 				}
 				else
 				{
-					pTop = m_StackPos + 1;
-					pTop->Clear();
+					m_VMStack.SetTop(*(m_StackPos + 1));
+					m_VMStack.GetTop().Clear();
 				}
 				break;
 
 			case OP_RESTORE_STACK_POS:
-				pTop = m_StackPos;
+				m_VMStack.SetTop(*m_StackPos);
 				m_bMarkStack = false;
 				break;
 
 			case OP_STORE_ARRAY:
-				pTop--;
-				pTop->evalArrayAt(*(pTop + 1));
+				m_VMStack.Pop();
+				m_VMStack.GetTop().evalArrayAt(*(m_VMStack.GetTopPtr() + 1));
 				break;
 
 			case OP_STORE_ARRAY_REF:
-				pTop--;
-				pTop->setArrayRefValue(*(pTop + 1));
+				m_VMStack.Pop();
+				m_VMStack.GetTop().setArrayRefValue(*(m_VMStack.GetTopPtr() + 1));
 				break;
 
 			case OP_STORE_FIELD_REF:
@@ -1311,7 +1521,7 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 				{
 					value = Director.GetString(*reinterpret_cast<int*>(m_CodePos));
 
-					listener = pTop->listenerValue();
+					listener = m_VMStack.GetTop().listenerValue();
 
 					if (listener == NULL)
 					{
@@ -1320,19 +1530,19 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 					else
 					{
 						eventCalled = true;
-						storeTop(listener, true);
+						storeTop<true>(listener);
 					}
 
 					if (*opcode == OP_STORE_FIELD_REF)
 					{
-						pTop->setRefValue(listener->vars->GetOrCreateVariable(value));
+						m_VMStack.GetTop().setRefValue(listener->vars->GetOrCreateVariable(value));
 					}
 				}
 				catch (ScriptException& exc)
 				{
 					if (*opcode == OP_STORE_FIELD_REF)
 					{
-						pTop->setRefValue(pTop);
+						m_VMStack.GetTop().setRefValue(m_VMStack.GetTopPtr());
 					}
 
 					if (!eventCalled) {
@@ -1344,43 +1554,43 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 				break;
 
 			case OP_STORE_FLOAT:
-				pTop++;
-				pTop->setFloatValue(*reinterpret_cast<float*>(m_CodePos));
+				m_VMStack.Push();
+				m_VMStack.GetTop().setFloatValue(*reinterpret_cast<float*>(m_CodePos));
 
 				m_CodePos += sizeof(float);
 
 				break;
 
 			case OP_STORE_INT0:
-				pTop++;
-				pTop->setIntValue(0);
+				m_VMStack.Push();
+				m_VMStack.GetTop().setIntValue(0);
 
 				break;
 
 			case OP_STORE_INT1:
-				pTop++;
-				pTop->setIntValue(*m_CodePos++);
+				m_VMStack.Push();
+				m_VMStack.GetTop().setIntValue(*m_CodePos++);
 
 				break;
 
 			case OP_STORE_INT2:
-				pTop++;
-				pTop->setIntValue(*reinterpret_cast<short*>(m_CodePos));
+				m_VMStack.Push();
+				m_VMStack.GetTop().setIntValue(*reinterpret_cast<short*>(m_CodePos));
 
 				m_CodePos += sizeof(short);
 
 				break;
 
 			case OP_STORE_INT3:
-				pTop++;
-				pTop->setIntValue(*reinterpret_cast<short3*>(m_CodePos));
+				m_VMStack.Push();
+				m_VMStack.GetTop().setIntValue(*reinterpret_cast<short3*>(m_CodePos));
 
 				m_CodePos += sizeof(short3);
 				break;
 
 			case OP_STORE_INT4:
-				pTop++;
-				pTop->setIntValue(*reinterpret_cast<int*>(m_CodePos));
+				m_VMStack.Push();
+				m_VMStack.GetTop().setIntValue(*reinterpret_cast<int*>(m_CodePos));
 
 				m_CodePos += sizeof(int);
 
@@ -1405,14 +1615,14 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 			case OP_STORE_OWNER_VAR:
 				if (!m_ScriptClass->m_Self)
 				{
-					pTop++;
+					m_VMStack.Push();
 					m_CodePos += sizeof(unsigned int);
 					ScriptError("self is NULL");
 				}
 
 				if (!m_ScriptClass->m_Self->GetScriptOwner())
 				{
-					pTop++;
+					m_VMStack.Push();
 					m_CodePos += sizeof(unsigned int);
 					ScriptError("self.owner is NULL");
 				}
@@ -1427,7 +1637,7 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 			case OP_STORE_SELF_VAR:
 				if (!m_ScriptClass->m_Self)
 				{
-					pTop++;
+					m_VMStack.Push();
 					m_CodePos += sizeof(unsigned int);
 					ScriptError("self is NULL");
 				}
@@ -1436,114 +1646,112 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 				break;
 
 			case OP_STORE_GAME:
-				pTop++;
-				pTop->setListenerValue(&game);
+				m_VMStack.Push();
+				m_VMStack.GetTop().setListenerValue(&game);
 				break;
 
 			case OP_STORE_GROUP:
-				pTop++;
-				pTop->setListenerValue(m_ScriptClass);
+				m_VMStack.Push();
+				m_VMStack.GetTop().setListenerValue(m_ScriptClass);
 				break;
 
 			case OP_STORE_LEVEL:
-				pTop++;
-				pTop->setListenerValue(&level);
+				m_VMStack.Push();
+				m_VMStack.GetTop().setListenerValue(&level);
 				break;
 
 			case OP_STORE_LOCAL:
-				pTop++;
-				pTop->setListenerValue(m_Thread);
+				m_VMStack.Push();
+				m_VMStack.GetTop().setListenerValue(m_Thread);
 				break;
 
 			case OP_STORE_OWNER:
-				pTop++;
+				m_VMStack.Push();
 
 				if (!m_ScriptClass->m_Self)
 				{
-					pTop++;
+					m_VMStack.Push();
 					ScriptError("self is NULL");
 				}
 
-				pTop->setListenerValue(m_ScriptClass->m_Self->GetScriptOwner());
+				m_VMStack.GetTop().setListenerValue(m_ScriptClass->m_Self->GetScriptOwner());
 				break;
 
 			case OP_STORE_PARM:
-				pTop++;
-				pTop->setListenerValue(&parm);
+				m_VMStack.Push();
+				m_VMStack.GetTop().setListenerValue(&parm);
 				break;
 
 			case OP_STORE_SELF:
-				pTop++;
-				pTop->setListenerValue(m_ScriptClass->m_Self);
+				m_VMStack.Push();
+				m_VMStack.GetTop().setListenerValue(m_ScriptClass->m_Self);
 				break;
 
 			case OP_STORE_NIL:
-				pTop++;
-				pTop->Clear();
+				m_VMStack.Push();
+				m_VMStack.GetTop().Clear();
 				break;
 
 			case OP_STORE_NULL:
-				pTop++;
-				pTop->setListenerValue(NULL);
+				m_VMStack.Push();
+				m_VMStack.GetTop().setListenerValue(NULL);
 				break;
 
 			case OP_STORE_STRING:
-				pTop++;
-				pTop->setConstStringValue(*reinterpret_cast<unsigned int*>(m_CodePos));
+				m_VMStack.Push();
+				m_VMStack.GetTop().setConstStringValue(fetchOpcodeValue<unsigned int>());
 
 				m_CodePos += sizeof(unsigned int);
 
 				break;
 
 			case OP_STORE_VECTOR:
-				pTop++;
-				pTop->setVectorValue(*reinterpret_cast<Vector*>(m_CodePos));
+				m_VMStack.Push();
+				m_VMStack.GetTop().setVectorValue(fetchOpcodeValue<Vector>());
 
 				m_CodePos += sizeof(Vector);
 
 				break;
 
 			case OP_SWITCH:
-				if (!Switch(*reinterpret_cast<StateScript**>(m_CodePos), *pTop))
+				if (!Switch(fetchOpcodeValue<StateScript*>(), m_VMStack.Pop()))
 				{
 					m_CodePos += sizeof(StateScript*);
 				}
-
-				pTop--;
 				break;
 
 			case OP_UN_CAST_BOOLEAN:
-				pTop->CastBoolean();
+				m_VMStack.GetTop().CastBoolean();
 				break;
 
 			case OP_UN_COMPLEMENT:
-				pTop->complement();
+				m_VMStack.GetTop().complement();
 				break;
 
 			case OP_UN_MINUS:
-				pTop->minus();
+				m_VMStack.GetTop().minus();
 				break;
 
 			case OP_UN_DEC:
-				(*pTop)--;
+				m_VMStack.GetTop()--;
 				break;
 
 			case OP_UN_INC:
-				(*pTop)++;
+				m_VMStack.GetTop()++;
 				break;
 
 			case OP_UN_SIZE:
-				pTop->setIntValue((int)pTop->size());
+				m_VMStack.GetTop().setIntValue((int)m_VMStack.GetTop().size());
 				break;
 
 			case OP_UN_TARGETNAME:
-				targetList = world->GetExistingTargetList(pTop->stringValue());
+				targetList = world->GetExistingTargetList(m_VMStack.GetTop().stringValue());
 
 				if (!targetList)
 				{
-					value = pTop->stringValue();
+					value = m_VMStack.GetTop().stringValue();
 
-					pTop->setListenerValue(NULL);
+					m_VMStack.GetTop().setListenerValue(NULL);
 
 					if (*m_CodePos >= OP_BIN_EQUALITY && *m_CodePos <= OP_BIN_GREATER_THAN_OR_EQUAL || *m_CodePos >= OP_BOOL_UN_NOT && *m_CodePos <= OP_UN_CAST_BOOLEAN) {
 						ScriptError("Targetname '%s' does not exist.", value.c_str());
@@ -1554,17 +1762,17 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 
 				if (targetList->NumObjects() == 1)
 				{
-					pTop->setListenerValue(targetList->ObjectAt(1));
+					m_VMStack.GetTop().setListenerValue(targetList->ObjectAt(1));
 				}
 				else if (targetList->NumObjects() > 1)
 				{
-					pTop->setContainerValue((Container< SafePtr< Listener > > *)targetList);
+					m_VMStack.GetTop().setContainerValue((Container< SafePtr< Listener > > *)targetList);
 				}
 				else
 				{
-					value = pTop->stringValue();
+					value = m_VMStack.GetTop().stringValue();
 
-					pTop->setListenerValue(NULL);
+					m_VMStack.GetTop().setListenerValue(NULL);
 
 					if (*m_CodePos >= OP_BIN_EQUALITY && *m_CodePos <= OP_BIN_GREATER_THAN_OR_EQUAL || *m_CodePos >= OP_BOOL_UN_NOT && *m_CodePos <= OP_UN_CAST_BOOLEAN) {
 						ScriptError("Targetname '%s' does not exist.", value.c_str());
@@ -1576,7 +1784,7 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 				break;
 
 			case OP_VAR_UN_NOT:
-				pTop->setIntValue(pTop->booleanValue());
+				m_VMStack.GetTop().setIntValue(m_VMStack.GetTop().booleanValue());
 				break;
 
 			case OP_DONE:
@@ -1949,4 +2157,15 @@ bool ScriptVM::CanScriptTracePrint
 	}
 	return true;
 
+}
+
+void ScriptVM::fetchOpcodeValue(void* outValue, size_t size)
+{
+	Com_Memcpy(outValue, m_CodePos, size);
+	m_CodePos += size;
+}
+
+void ScriptVM::fetchActualOpcodeValue(void* outValue, size_t size)
+{
+	Com_Memcpy(outValue, m_CodePos, size);
 }
