@@ -285,6 +285,56 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #error "DLL_EXT not defined"
 #endif
 
+//endianness
+void CopyShortSwap(void* dest, void* src);
+void CopyLongSwap(void* dest, void* src);
+short ShortSwap(short l);
+int LongSwap(int l);
+float FloatSwap(const float* f);
+short ShortSwapPtr(const void* l);
+int LongSwapPtr(const void* l);
+short ShortNoSwapPtr(const void* l);
+int LongNoSwapPtr(const void* l);
+
+#if defined( Q3_BIG_ENDIAN ) && defined( Q3_LITTLE_ENDIAN )
+#error "Endianness defined as both big and little"
+#elif defined( Q3_BIG_ENDIAN )
+
+#define CopyLittleShort(dest, src) CopyShortSwap(dest, src)
+#define CopyLittleLong(dest, src) CopyLongSwap(dest, src)
+
+#define LittleShort(x) ShortSwap(x)
+#define LittleLong(x) LongSwap(x)
+#define LittleFloat(x) FloatSwap(&x)
+#define LittleShortPtr(x) ShortSwapPtr(&x)
+#define LittleLongPtr(x) LongSwapPtr(&x)
+
+#define BigShort
+#define BigLong
+#define BigFloat
+#define BigShortPtr(x) ShortNoSwapPtr(&x)
+#define BigLongPtr(x) LongNoSwapPtr(&x)
+
+#elif defined( Q3_LITTLE_ENDIAN )
+
+#define CopyLittleShort(dest, src) Com_Memcpy(dest, src, 2)
+#define CopyLittleLong(dest, src) Com_Memcpy(dest, src, 4)
+
+#define LittleShort
+#define LittleLong
+#define LittleFloat
+#define LittleShortPtr(x) ShortNoSwapPtr(&x)
+#define LittleLongPtr(x) LongNoSwapPtr(&x)
+
+#define BigShort(x) ShortSwap(x)
+#define BigLong(x) LongSwap(x)
+#define BigFloat(x) FloatSwap(&x)
+#define BigShortPtr(x) ShortSwapPtr(&x)
+#define BigLongPtr(x) LongSwapPtr(&x)
+
+#else
+#error "Endianness not defined"
+#endif
 
 //platform string
 #ifdef NDEBUG

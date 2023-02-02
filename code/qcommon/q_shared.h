@@ -177,8 +177,13 @@ size_t Q_vsnprintf(char* str, size_t size, const char* format, va_list ap);
 typedef unsigned char 		byte;
 typedef unsigned char		uchar;
 
-#define qfalse 0
-#define qtrue 1
+enum { qfalse, qtrue };
+
+typedef union {
+	float f;
+	int i;
+	unsigned int ui;
+} floatint_t;
 
 typedef int	qboolean;
 
@@ -1198,20 +1203,7 @@ char *Q_CleanStr( char *string );
 
 //=============================================
 
-extern qboolean bigendian;
-
-short	BigShort( short l );
-short	LittleShort( short l );
-int	BigLong( int l );
-int	LittleLong( int l );
-float	BigFloat( float l );
-float	LittleFloat( float l );
-unsigned short	LittleUnsignedShort( unsigned short l );
-unsigned short	BigUnsignedShort( unsigned short l );
-
-void	Swap_Init( void );
-
-//=============================================
+void	Swap_Init(void);
 
 // 64-bit integers for global rankings interface
 // implemented as a struct for qvm compatibility

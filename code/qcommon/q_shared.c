@@ -1430,141 +1430,129 @@ void Com_BackslashToSlash( char *str )
 	}
 }
 
+
 /*
 ============================================================================
-
-BYTE ORDER FUNCTIONS
-
+					BYTE ORDER FUNCTIONS
 ============================================================================
 */
 
-qboolean	bigendian;
+void CopyShortSwap(void* dest, void* src)
+{
+	byte* to = dest, * from = src;
 
-// can't just use function pointers, or dll linkage can
-// mess up when qcommon is included in multiple places
-short( *_BigShort ) ( short l );
-short( *_LittleShort ) ( short l );
-int( *_BigLong ) ( int l );
-int( *_LittleLong ) ( int l );
-float( *_BigFloat ) ( float l );
-float( *_LittleFloat ) ( float l );
-unsigned short( *_BigUnsignedShort ) ( unsigned short l );
-unsigned short( *_LittleUnsignedShort ) ( unsigned short l );
+	to[0] = from[1];
+	to[1] = from[0];
+}
 
-short	BigShort( short l ){ return _BigShort( l ); }
-short	LittleShort( short l ) { return _LittleShort( l ); }
-int		BigLong( int l ) { return _BigLong( l ); }
-int		LittleLong( int l ) { return _LittleLong( l ); }
-float	BigFloat( float l ) { return _BigFloat( l ); }
-float	LittleFloat( float l ) { return _LittleFloat( l ); }
-unsigned short	BigUnsignedShort( unsigned short l ){ return _BigUnsignedShort( l ); }
-unsigned short	LittleUnsignedShort( unsigned short l ) { return _LittleUnsignedShort( l ); }
+void CopyLongSwap(void* dest, void* src)
+{
+	byte* to = dest, * from = src;
 
-short   ShortSwap( short l )
+	to[0] = from[3];
+	to[1] = from[2];
+	to[2] = from[1];
+	to[3] = from[0];
+}
+
+short   ShortSwap(short l)
 {
 	byte    b1, b2;
 
 	b1 = l & 255;
-	b2 = ( l >> 8 ) & 255;
+	b2 = (l >> 8) & 255;
 
-	return ( b1 << 8 ) + b2;
+	return (b1 << 8) + b2;
 }
 
-short	ShortNoSwap( short l )
+short	ShortNoSwap(short l)
 {
 	return l;
 }
 
-
-unsigned short   UnsignedShortSwap( unsigned short l )
-{
-	byte    b1, b2;
-
-	b1 = l & 255;
-	b2 = ( l >> 8 ) & 255;
-
-	return ( b1 << 8 ) + b2;
-}
-
-unsigned short	UnsignedShortNoSwap( unsigned short l )
-{
-	return l;
-}
-
-
-int    LongSwap( int l )
+int    LongSwap(int l)
 {
 	byte    b1, b2, b3, b4;
 
 	b1 = l & 255;
-	b2 = ( l >> 8 ) & 255;
-	b3 = ( l >> 16 ) & 255;
-	b4 = ( l >> 24 ) & 255;
+	b2 = (l >> 8) & 255;
+	b3 = (l >> 16) & 255;
+	b4 = (l >> 24) & 255;
 
-	return ( ( int )b1 << 24 ) + ( ( int )b2 << 16 ) + ( ( int )b3 << 8 ) + b4;
+	return ((int)b1 << 24) + ((int)b2 << 16) + ((int)b3 << 8) + b4;
 }
 
-int	LongNoSwap( int l )
+int	LongNoSwap(int l)
 {
 	return l;
 }
 
-float FloatSwap( float f )
+qint64 Long64Swap(qint64 ll)
 {
-	union
-	{
-		float	f;
-		byte	b[ 4 ];
-	} dat1, dat2;
+	qint64	result;
 
+	result.b0 = ll.b7;
+	result.b1 = ll.b6;
+	result.b2 = ll.b5;
+	result.b3 = ll.b4;
+	result.b4 = ll.b3;
+	result.b5 = ll.b2;
+	result.b6 = ll.b1;
+	result.b7 = ll.b0;
 
-	dat1.f = f;
-	dat2.b[ 0 ] = dat1.b[ 3 ];
-	dat2.b[ 1 ] = dat1.b[ 2 ];
-	dat2.b[ 2 ] = dat1.b[ 1 ];
-	dat2.b[ 3 ] = dat1.b[ 0 ];
-	return dat2.f;
+	return result;
 }
 
-float FloatNoSwap( float f )
+qint64 Long64NoSwap(qint64 ll)
 {
-	return f;
+	return ll;
 }
 
-/*
-================
-Swap_Init
-================
-*/
-void Swap_Init( void )
-{
-	byte	swaptest[ 2 ] = { 1, 0 };
+float FloatSwap(const float* f) {
+	floatint_t out;
 
-	// set the byte swapping variables in a portable manner	
-	if( *( short * )swaptest == 1 )
-	{
-		bigendian = qfalse;
-		_BigShort = ShortSwap;
-		_LittleShort = ShortNoSwap;
-		_BigUnsignedShort = UnsignedShortSwap;
-		_LittleUnsignedShort = UnsignedShortNoSwap;
-		_BigLong = LongSwap;
-		_LittleLong = LongNoSwap;
-		_BigFloat = FloatSwap;
-		_LittleFloat = FloatNoSwap;
-	}
-	else
-	{
-		bigendian = qtrue;
-		_BigShort = ShortNoSwap;
-		_LittleShort = ShortSwap;
-		_BigUnsignedShort = UnsignedShortNoSwap;
-		_LittleUnsignedShort = UnsignedShortSwap;
-		_BigLong = LongNoSwap;
-		_LittleLong = LongSwap;
-		_BigFloat = FloatNoSwap;
-		_LittleFloat = FloatSwap;
-	}
+	out.f = *f;
+	out.ui = LongSwap(out.ui);
+
+	return out.f;
+}
+
+float FloatNoSwap(const float* f)
+{
+	return *f;
+}
+
+short ShortSwapPtr(const void* l)
+{
+	short out;
+	CopyLittleShort(&out, l);
+	return out;
+}
+
+int LongSwapPtr(const void* l)
+{
+	int out;
+	CopyLittleLong(&out, l);
+	return out;
+}
+
+short ShortNoSwapPtr(const void* l)
+{
+	short out;
+	Com_Memcpy(&out, l, sizeof(short));
+	return out;
+}
+
+int LongNoSwapPtr(const void* l)
+{
+	int out;
+	Com_Memcpy(&out, l, sizeof(int));
+	return out;
+}
+
+void Swap_Init(void)
+{
+	// Endianness is now computed at compile time
 }
 
 /*
