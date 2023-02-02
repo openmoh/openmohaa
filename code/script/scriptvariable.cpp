@@ -671,6 +671,13 @@ qboolean ScriptVariable::IsNumeric( void )
 	return type == VARIABLE_INTEGER || type == VARIABLE_FLOAT;
 }
 
+qboolean ScriptVariable::IsConstArray() const
+{
+	return type == VARIABLE_CONSTARRAY
+		|| type == VARIABLE_CONTAINER
+		|| type == VARIABLE_SAFECONTAINER;
+}
+
 #ifndef NO_SCRIPTENGINE
 
 qboolean ScriptVariable::IsSimpleEntity( void )
@@ -1137,6 +1144,25 @@ Listener *ScriptVariable::listenerValue( void ) const
 	}
 
 	return NULL;
+}
+
+Listener* ScriptVariable::listenerAt(uintptr_t index) const
+{
+	switch (type)
+	{
+	case VARIABLE_CONSTARRAY:
+		return m_data.constArrayValue->constArrayValue[index].listenerValue();
+
+	case VARIABLE_CONTAINER:
+		return m_data.containerValue->ObjectAt(index);
+
+	case VARIABLE_SAFECONTAINER:
+		assert(*m_data.safeContainerValue);
+		return (*m_data.safeContainerValue)->ObjectAt(index);
+
+	default:
+		throw ScriptException("Cannot cast '%s' to listener", typenames[type]);
+	}
 }
 
 void ScriptVariable::newPointer( void )
@@ -2497,6 +2523,16 @@ ScriptVariable *ScriptVariableList::SetVariable( unsigned int name, ScriptVariab
 
 	*variable = value;
 	variable->SetKey( name );
+
+	return variable;
+}
+
+ScriptVariable* ScriptVariableList::SetVariable(unsigned int name, ScriptVariable&& value)
+{
+	ScriptVariable* variable = GetOrCreateVariable(name);
+
+	*variable = std::move(value);
+	variable->SetKey(name);
 
 	return variable;
 }

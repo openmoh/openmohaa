@@ -167,6 +167,7 @@ public:
 	qboolean				IsEntity( void );
 	qboolean				IsListener( void );
 	qboolean				IsNumeric( void );
+	qboolean				IsConstArray() const;
 #ifndef NO_SCRIPTENGINE
 	qboolean				IsSimpleEntity( void );
 #endif
@@ -220,6 +221,7 @@ public:
 	void					setIntValue( int newvalue );
 
 	Listener				*listenerValue( void ) const;
+	Listener*				listenerAt(uintptr_t index) const;
 	void					setListenerValue( Listener * newvalue );
 
 	void					newPointer( void );
@@ -298,8 +300,9 @@ public:
 	ScriptVariable *SetVariable( const char *name, Entity *value );
 	ScriptVariable *SetVariable( const char *name, Listener *value );
 	ScriptVariable *SetVariable( const char *name, Vector &value );
-	ScriptVariable *SetVariable( const char *name, ScriptVariable& value );
-	ScriptVariable *SetVariable( unsigned int name, ScriptVariable& value );
+	ScriptVariable* SetVariable(const char* name, ScriptVariable& value);
+	ScriptVariable* SetVariable(unsigned int name, ScriptVariable& value);
+	ScriptVariable* SetVariable(unsigned int name, ScriptVariable&& value);
 };
 
 #endif
