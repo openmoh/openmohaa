@@ -46,12 +46,9 @@ qboolean CM_LoadFTX( const char *name, byte **pic, int *width, int *height )
 
 	FS_Read( &header, sizeof( ftx_t ), h );
 
-	if( bigendian )
-	{
-		header.has_alpha = LittleLong( header.has_alpha );
-		header.height = LittleLong( header.height );
-		header.width = LittleLong( header.width );
-	}
+	header.has_alpha = LittleLong(header.has_alpha);
+	header.height = LittleLong(header.height);
+	header.width = LittleLong(header.width);
 
 	if( !header.has_alpha ) {
 		FS_FCloseFile( h );
