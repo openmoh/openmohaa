@@ -22,6 +22,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // scriptopcodes.h
 
+#pragma once
+
+/** Should stay a 8-byte value. */
+using opval_t = uint8_t;
+/** Store an index in the string table. */
+using op_name_t = uint32_t;
+/** Event number. */
+using op_ev_t = uint32_t;
+/** Index in the event name table. */
+using op_evName_t = uint32_t;
+/** Jump offset. */
+using op_offset_t = uint32_t;
+/** Parameter count. */
+using op_parmNum_t = uint8_t;
+/** Parameter count of const array. */
+using op_arrayParmNum_t = uint16_t;
+
 typedef struct {
 	const char		*opcodename;
 	int				opcodelength;
