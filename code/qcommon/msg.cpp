@@ -219,22 +219,30 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 		value = MSG_NegateValue(value);
 	}
 	if (msg->oob) {
-		if (bits==8) {
+		if (msg->cursize + (bits >> 3) > msg->maxsize) {
+			msg->overflowed = qtrue;
+			return;
+		}
+
+		if (bits == 8) {
 			msg->data[msg->cursize] = value;
 			msg->cursize += 1;
 			msg->bit += 8;
-		} else if (bits==16) {
-			unsigned short *sp = (unsigned short *)&msg->data[msg->cursize];
-			*sp = LittleShort(value);
+		}
+		else if (bits == 16) {
+			short temp = value;
+
+			CopyLittleShort(&msg->data[msg->cursize], &temp);
 			msg->cursize += 2;
 			msg->bit += 16;
-		} else if (bits==32) {
-			unsigned int *ip = (unsigned int *)&msg->data[msg->cursize];
-			*ip = LittleLong(value);
+		}
+		else if (bits == 32) {
+			CopyLittleLong(&msg->data[msg->cursize], &value);
 			msg->cursize += 4;
 			msg->bit += 32;
-		} else {
-			Com_Error(ERR_DROP, "can't read %d bits\n", bits);
+		}
+		else {
+			Com_Error(ERR_DROP, "can't write %d bits", bits);
 		}
 	} else {
 		value &= (0xffffffff>>(32-bits));
@@ -273,23 +281,34 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 	}
 
 	if (msg->oob) {
-		if (bits==8) {
+		if (msg->readcount + (bits >> 3) > msg->cursize) {
+			msg->readcount = msg->cursize + 1;
+			return 0;
+		}
+
+		if (bits == 8)
+		{
 			value = msg->data[msg->readcount];
 			msg->readcount += 1;
 			msg->bit += 8;
-		} else if (bits==16) {
-			unsigned short *sp = (unsigned short *)&msg->data[msg->readcount];
-			value = LittleShort(*sp);
+		}
+		else if (bits == 16)
+		{
+			short temp;
+
+			CopyLittleShort(&temp, &msg->data[msg->readcount]);
+			value = temp;
 			msg->readcount += 2;
 			msg->bit += 16;
-		} else if (bits==32) {
-			unsigned int *ip = (unsigned int *)&msg->data[msg->readcount];
-			value = LittleLong(*ip);
+		}
+		else if (bits == 32)
+		{
+			CopyLittleLong(&value, &msg->data[msg->readcount]);
 			msg->readcount += 4;
 			msg->bit += 32;
-		} else {
-			Com_Error(ERR_DROP, "can't read %d bits\n", bits);
 		}
+		else
+			Com_Error(ERR_DROP, "can't read %d bits", bits);
 	} else {
 		nbits = 0;
 		if (bits&7) {
