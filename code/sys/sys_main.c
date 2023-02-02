@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "sys_local.h"
 #include "sys_loadlib.h"
+#include "win_localization.h"
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
@@ -1002,6 +1003,7 @@ int main( int argc, char **argv )
 
 	CON_Init( );
 	Com_Init( commandLine );
+	Sys_InitLocalization();
 	NET_Init( );
 
 	signal( SIGILL, Sys_SigHandler );
