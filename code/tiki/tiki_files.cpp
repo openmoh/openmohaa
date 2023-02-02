@@ -266,6 +266,7 @@ dtiki_t* TIKI_LoadTikiModel(dtikianim_t* tikianim, const char* name, con_map<str
 	skelSurfaceGame_t* surf;
 	int surfOffset;
 	qboolean found;
+	byte* start_ptr, *max_ptr, *ptr;
 
 	TIKI_LoadSetup(&temp.tiki, tikianim->name, loadsurfaces, &numSurfacesSetUp, tikianim->modelData, tikianim->modelDataSize, keyValues);
 	if (!temp.tiki.numMeshes)
@@ -274,9 +275,20 @@ dtiki_t* TIKI_LoadTikiModel(dtikianim_t* tikianim, const char* name, con_map<str
 		return NULL;
 	}
 
-	defsize = sizeof(dtiki_t) + strlen(name) + 1 + temp.tiki.num_surfaces * sizeof(dtikisurface_t) + temp.tiki.numMeshes * sizeof(short);
+	defsize = sizeof(dtiki_t);
+	defsize += strlen(name) + 1;
+	defsize = PAD(defsize, sizeof(void*));
+	defsize += temp.tiki.num_surfaces * sizeof(dtikisurface_t);
+	defsize = PAD(defsize, sizeof(short));
+	defsize += temp.tiki.numMeshes * sizeof(short);
+
 	tiki = (dtiki_t*)TIKI_Alloc(defsize);
 	memset(tiki, 0, defsize);
+
+	start_ptr = (byte*)tiki;
+	max_ptr = start_ptr + defsize;
+	ptr = start_ptr + sizeof(dtiki_t) - sizeof(tiki->mesh) + (temp.tiki.numMeshes) * sizeof(tiki->mesh[0]);
+
 	tiki->a = tikianim;
 	tiki->m_boneList.InitChannels();
 	tiki->skeletor = NULL;
@@ -286,9 +298,11 @@ dtiki_t* TIKI_LoadTikiModel(dtikianim_t* tikianim, const char* name, con_map<str
 	tiki->num_surfaces = temp.tiki.num_surfaces;
 	tiki->numMeshes = temp.tiki.numMeshes;
 	tiki->radius = temp.tiki.radius;
-	tiki->name = (char*)((char*)tiki + sizeof(dtiki_t) + (temp.tiki.numMeshes - 1) * sizeof(short));
+	tiki->name = (char*)ptr;
 	strcpy(tiki->name, name);
-	tikiSurf = (dtikisurface_t*)((byte*)tiki->name + strlen(tiki->name) + 1);
+	ptr += strlen(tiki->name) + 1;
+	ptr = (byte*)PADP(ptr, sizeof(void*));
+	tikiSurf = (dtikisurface_t*)ptr;
 	tiki->m_boneList.ZeroChannels();
 
 	for (i = 0; i < temp.tiki.numMeshes; i++)
