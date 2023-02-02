@@ -215,7 +215,7 @@ int			NETGS_ReceiveMasterResponse( char *buffer, int size );
 
 void		NET_Init( void );
 void		NET_Shutdown( void );
-void		NET_Restart( void );
+void		NET_Restart_f( void );
 void		NET_Config( qboolean enableNetworking );
 void		NET_FlushPacketQueue(void);
 void		NET_SendPacket (netsrc_t sock, size_t length, const void *data, netadr_t to);

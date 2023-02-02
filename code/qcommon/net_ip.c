@@ -1354,7 +1354,9 @@ void NET_Init( void ) {
 	// this is really just to get the cvars registered
 	NET_GetCvars();
 
-	NET_Config( qtrue );
+	NET_Config(qtrue);
+
+	Cmd_AddCommand("net_restart", NET_Restart_f);
 }
 
 
@@ -1410,6 +1412,6 @@ void NET_Sleep( int msec ) {
 NET_Restart_f
 ====================
 */
-void NET_Restart( void ) {
-	NET_Config( networkingEnabled );
+void NET_Restart_f( void ) {
+	NET_Config(qtrue);
 }
