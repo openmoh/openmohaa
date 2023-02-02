@@ -2366,6 +2366,11 @@ ScriptVariable& Event::GetValue( void )
 	return data[ dataSize - 1 ];
 }
 
+ScriptVariable& Event::GetLastValue()
+{
+	return GetValue(NumArgs());
+}
+
 /*
 =======================
 GetVector

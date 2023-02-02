@@ -134,7 +134,7 @@ public:
 	{
 		type = IS_INTEGER;
 		//name        = "undefined";
-		optional = false;
+		optional = qfalse;
 	};
 	void              Setup( const char * eventName, const char *argName, const char *argType, const char *argRange );
 	void              PrintArgument( FILE *event_file = NULL );
@@ -154,7 +154,7 @@ public:
 	{
 		if( index < 3 )
 			return minRangeDefault[ index ];
-		return false;
+		return qfalse;
 	}
 
 	float GetMaxRange( int index )
@@ -168,7 +168,7 @@ public:
 	{
 		if( index < 3 )
 			return maxRangeDefault[ index ];
-		return false;
+		return qfalse;
 	}
 };
 
@@ -379,7 +379,8 @@ public:
 	str				GetString( int pos );
 	str				GetToken( int pos );
 	ScriptVariable&	GetValue( int pos );
-	ScriptVariable&	GetValue( void );
+	ScriptVariable& GetValue(void);
+	ScriptVariable& GetLastValue();
 	Vector			GetVector( int pos );
 
 	class Waypoint	*GetWaypoint( int pos );
