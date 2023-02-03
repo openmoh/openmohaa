@@ -1439,7 +1439,8 @@ void Com_BackslashToSlash( char *str )
 
 void CopyShortSwap(void* dest, const void* src)
 {
-	byte* to = dest, * from = src;
+	const byte* from = src;
+	byte* to = dest;
 
 	to[0] = from[1];
 	to[1] = from[0];
@@ -1447,7 +1448,8 @@ void CopyShortSwap(void* dest, const void* src)
 
 void CopyLongSwap(void* dest, const void* src)
 {
-	byte* to = dest, * from = src;
+	const byte* from = src;
+	byte* to = dest;
 
 	to[0] = from[3];
 	to[1] = from[2];
@@ -1457,7 +1459,7 @@ void CopyLongSwap(void* dest, const void* src)
 
 short ShortSwap(short l)
 {
-	byte    b1, b2;
+	byte b1, b2;
 
 	b1 = l & 255;
 	b2 = (l >> 8) & 255;
@@ -1472,7 +1474,7 @@ short ShortNoSwap(short l)
 
 int LongSwap(int l)
 {
-	byte    b1, b2, b3, b4;
+	byte b1, b2, b3, b4;
 
 	b1 = l & 255;
 	b2 = (l >> 8) & 255;
@@ -1489,7 +1491,7 @@ int LongNoSwap(int l)
 
 qint64 Long64Swap(qint64 ll)
 {
-	qint64	result;
+	qint64 result;
 
 	result.b0 = ll.b7;
 	result.b1 = ll.b6;
