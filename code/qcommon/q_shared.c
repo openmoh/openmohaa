@@ -1437,7 +1437,7 @@ void Com_BackslashToSlash( char *str )
 ============================================================================
 */
 
-void CopyShortSwap(void* dest, void* src)
+void CopyShortSwap(void* dest, const void* src)
 {
 	byte* to = dest, * from = src;
 
@@ -1445,7 +1445,7 @@ void CopyShortSwap(void* dest, void* src)
 	to[1] = from[0];
 }
 
-void CopyLongSwap(void* dest, void* src)
+void CopyLongSwap(void* dest, const void* src)
 {
 	byte* to = dest, * from = src;
 
@@ -1455,7 +1455,7 @@ void CopyLongSwap(void* dest, void* src)
 	to[3] = from[0];
 }
 
-short   ShortSwap(short l)
+short ShortSwap(short l)
 {
 	byte    b1, b2;
 
@@ -1465,12 +1465,12 @@ short   ShortSwap(short l)
 	return (b1 << 8) + b2;
 }
 
-short	ShortNoSwap(short l)
+short ShortNoSwap(short l)
 {
 	return l;
 }
 
-int    LongSwap(int l)
+int LongSwap(int l)
 {
 	byte    b1, b2, b3, b4;
 
@@ -1482,7 +1482,7 @@ int    LongSwap(int l)
 	return ((int)b1 << 24) + ((int)b2 << 16) + ((int)b3 << 8) + b4;
 }
 
-int	LongNoSwap(int l)
+int LongNoSwap(int l)
 {
 	return l;
 }
