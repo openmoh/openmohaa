@@ -1,1 +1,0 @@
-https://sourceforge.net/p/winflexbison/wiki/Visual%20Studio%20custom%20build%20rules/
