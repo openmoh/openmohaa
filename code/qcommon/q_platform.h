@@ -24,11 +24,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __Q_PLATFORM_H
 
 // this is for determining if we have an asm version of a C function
+#define idx64 0
+
 #ifdef Q3_VM
 
 #define id386 0
 #define idppc 0
 #define idppc_altivec 0
+#define idsparc 0
 
 #else
 
@@ -43,7 +46,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define idppc 1
 #if defined(__VEC__)
 #define idppc_altivec 1
-#ifdef MACOS_X  // Apple's GCC does this differently than the FSF.
+#ifdef __APPLE__  // Apple's GCC does this differently than the FSF.
 #define VECCONST_UINT8(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p) \
 	(vector unsigned char) (a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p)
 #else
@@ -58,19 +61,59 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define idppc_altivec 0
 #endif
 
+#if defined(__sparc__) && !defined(C_ONLY)
+#define idsparc 1
+#else
+#define idsparc 0
+#endif
+
 #endif
 
 #ifndef __ASM_I386__ // don't include the C bits if included from qasm.h
 
 // for windows fastcall option
 #define QDECL
+#define QCALL
 
-//================================================================= WIN32 ===
+//================================================================= WIN64/32 ===
 
-#ifdef _WIN32
+#if defined(_WIN64) || defined(__WIN64__)
+
+#undef idx64
+#define idx64 1
 
 #undef QDECL
 #define QDECL __cdecl
+
+#undef QCALL
+#define QCALL __stdcall
+
+#if defined( _MSC_VER )
+#define OS_STRING "win_msvc64"
+#elif defined __MINGW64__
+#define OS_STRING "win_mingw64"
+#endif
+
+#define ID_INLINE __inline
+#define PATH_SEP '\\'
+
+#if defined(_WIN64) || defined( __WIN64__ ) 
+#define ARCH_STRING "x86_64"
+#elif defined _M_ALPHA
+#define ARCH_STRING "AXP"
+#endif
+
+#define Q3_LITTLE_ENDIAN
+
+#define DLL_EXT ".dll"
+
+#elif defined(_WIN32) || defined(__WIN32__)
+
+#undef QDECL
+#define QDECL __cdecl
+
+#undef QCALL
+#define QCALL __stdcall
 
 #if defined( _MSC_VER )
 #define OS_STRING "win_msvc"
@@ -83,8 +126,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined( _M_IX86 ) || defined( __i386__ )
 #define ARCH_STRING "x86"
-#elif defined _M_X64
-#define ARCH_STRING "x64"
 #elif defined _M_ALPHA
 #define ARCH_STRING "AXP"
 #endif
