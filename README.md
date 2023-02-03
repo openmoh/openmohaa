@@ -13,7 +13,6 @@
 [![Discord Banner 1](https://discordapp.com/api/guilds/596049712579215361/widget.png?style=banner2)](https://discord.gg/NYtH58R)
 
 ## Current State
----
 
 ### Server
 
@@ -32,7 +31,6 @@ There is currently no client build because the client code is currently unusable
 - UI
 
 ## Running
----
 
 Backup the existing **gamex86.dll** (rename it to **gamex86.bak**).
 
@@ -51,7 +49,6 @@ https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=ms
 You can now start a local OpenMOHAA server or play on a server.
 
 ## Compiling
----
 
 These are the tools required for all platforms :
 - CMake
@@ -71,7 +68,6 @@ The installation directory can be set to MOHAA directory.
 Visual Studio (2019 or 2022) is generally preferred.
 
 ## Third party
----
 
 ### SDL
 
@@ -108,7 +104,6 @@ https://xiph.org/vorbis/
 https://opus-codec.org/
 
 ## URL
----
 
 - https://openmohaa.sourceforge.net/
 - https://x-null.net/
