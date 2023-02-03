@@ -1,4 +1,5 @@
-    <<<<<<< HEAD
+# OpenMoHAA
+
      / _ \ _ __   ___ _ __ |  \/  |/ _ \| | | |  / \      / \
     | | | | '_ \ / _ \ '_ \| |\/| | | | | |_| | / _ \    / _ \
     | |_| | |_) |  __/ | | | |  | | |_| |  _  |/ ___ \  / ___ \
@@ -7,133 +8,108 @@
       
 
 
-Discord
-=======================
+## Discord
+
 [![Discord Banner 1](https://discordapp.com/api/guilds/596049712579215361/widget.png?style=banner2)](https://discord.gg/NYtH58R)
 
-Alert
-=======================
-The OpenMoHAA client build is currently unusable due to the UI being reimplemented, please don't use it.
-Currently only the server version is working.
+## Current State
+---
 
-Running
-=======================
-Backup gamex86.dll (rename it to gamex86.bak).
-Rename cgamex86.dll to cgamex86mohaa.dll.
+### Server
+
+The server version can successfully be built. There are few unimplemented stuff from the game library :
+
+- Actor
+- Vehicle
+
+### Client
+
+There is currently no client build because the client code is currently unusable. Here is what's missing or unimplemented :
+
+- cgame (using F.A.K.K build)
+- rendering (mostly advanced)
+- sound (must be reworked)
+- UI
+
+## Running
+---
+
+Backup the existing **gamex86.dll** (rename it to **gamex86.bak**).
 
 a) extract archive to your MOHAA installation directory.
 
 -or-
 
-b) Copy all pak*.pk3 files and the sound/ directory from your MOHAA/main
-
-directory into openmohaa's 'main' directory.
+b) Copy all pak*.pk3 files and the sound/ directory from your **MOHAA/main** directory into openmohaa's 'main' directory.
 
 If you have problems running the game :
 
-You may need to install Microsoft Visual C++ 2010 Redistributable from
+You may need to install Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from
 
-http://www.microsoft.com/download/en/details.aspx?id=5555
+https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
-or you may need to install Microsoft Visual C++ Redistributable Packages for Visual Studio 2013 from
+You can now start a local OpenMOHAA server or play on a server.
 
-http://www.microsoft.com/en-us/download/details.aspx?id=40784
+## Compiling
+---
 
-You can now start a local MOHAA/OpenMOHAA server or play on a server.
+These are the tools required for all platforms :
+- CMake
+- Flex and Bison
+- Clang (at least version 11)
 
-Compiling
-=======================
-\*NIX:
-make sure you have compiler + libraries installed
+At least C++17 is required. Avoid GCC/G++ because it uses nonstandard extensions.
 
-Required extra libaries: libopenal-dev libsdl-dev libmad-dev
+The installation directory can be set to MOHAA directory.
 
-OpenGL: sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+### Linux
 
-OpenAL: sudo apt-get install libopenal1 libopenal-dev
+1 line install command with latest clang version : `sudo apt-get install -y ninja-build cmake make clang-15 lld-15 flex bison`
 
-ALUT:   sudo apt-get install libalut0 libalut-dev
+### Windows
 
-Download and install Eclipse with your NIX OS version
+Visual Studio (2019 or 2022) is generally preferred.
 
-http://www.eclipse.org/downloads/packages/eclipse-ide-cc-developers/marsr
+## Third party
+---
 
-Start Eclipse and set the workspace path to misc/nix.
-
-Then import an existing workspace using the path to misc/nix.
-
-Clean and compile by using Eclipse
-
-WIN:
-
-Visual Studio 2008 -> Open misc/msvc8/openmohaa/openmohaa.sln.
-
-Visual Studio 2012 -> Open misc/msvc12_13/openmohaa/openmohaa.sln and set all projects platform toolset to v110 if you get the compilation error.
-
-Visual Studio 2013 -> Open misc/msvc12_13/openmohaa/openmohaa.sln
-
-OpenGL32.lib should be shipped with any Visual Studio versions.
-
-GENERAL:
-
-You don't need anything else as everything needed is in the repository.
-
-Now you can compile the solution.
-
-
-=====
-
-SDL
+### SDL
 
 http://www.libsdl.org/
 
 download Source code, compile
 
-=====
+### OpenAL
 
-OpenAL
-
-http://connect.creativelabs.com/openal/default.aspx download OpenAL soft source
-
-download CMake at http://www.cmake.org/cmake/resources/software.html
+https://www.openal.org/ download OpenAL soft source
 
 run cmake on OpenAL, compile
 
-=====
-
-LibMAD
+### LibMAD
 
 http://www.underbit.com/products/mad/
 
 download source code, compile
 
-=====
+### cURL
 
-Miscellaneous
-=======================
+https://curl.se/
 
-Output files :
+### Libogg
 
-build/testutils_x** --> can be placed anywhere, it's just a test tool for scripts.
+https://github.com/gcp/libogg
 
-build/openmohaa_x** --> MOHAA/
+### Libvorbis
 
-build/omohaaded_x** --> MOHAA/
+https://xiph.org/vorbis/
 
-build/main/cgamex \*\*opm --> MOHAA/main
+### Libopus
 
-build/main/gamex\*\* --> MOHAA/main (BACKUP MOHAA/main/gamex86.dll FIRST)
+https://opus-codec.org/
 
-build/main/uix\*\*opm --> MOHAA/main
+## URL
+---
 
-build/main/cgamex86 --> MOHAA/main (RENAME MOHAA/main/cgamex86.dll to cgamex86mohaa.dll FIRST)
+- https://openmohaa.sourceforge.net/
+- https://x-null.net/
 
-That's all, now run MOHAA or OpenMOHAA and start a local server.
-
-URL
-=======================
-http://openmohaa.sf.net/
-
-http://www.x-null.net/
-
-http://sfxmodding.net/
