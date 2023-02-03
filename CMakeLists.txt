@@ -172,6 +172,8 @@ set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_S
 if(WIN32)
 	target_link_libraries(omohaaded wsock32 ws2_32)
 	target_link_libraries(omohaaded winmm)
+elseif(UNIX)
+	target_link_libraries(omohaaded ${CMAKE_DL_LIBS})
 endif()
 
 INSTALL(TARGETS omohaaded DESTINATION "./")
