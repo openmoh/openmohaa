@@ -27,145 +27,152 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef GAME_DLL
 #ifdef WIN32
-#define glbprintf( text ) gi.Printf( text )
+#define glbprintf(text) gi.Printf(text)
 #else
-#define glbprintf( text )
+#define glbprintf(text)
 #endif
 #elif defined CGAME_DLL
-#define glbprintf( text ) cgi.Printf( text )
+#define glbprintf(text) cgi.Printf(text)
 #else
-#define glbprintf( text ) printf( text )
+#define glbprintf(text) printf(text)
 #endif
 
 #ifdef _DEBUG
-#define CONTAINER_Error( id, text ) glbprintf( text ); assert( 0 );
+#define CONTAINER_Error(id, text) \
+    glbprintf(text);              \
+    assert(0);
 #else
-#define CONTAINER_Error( id, text ) throw( text ) //gi.Error
+#define CONTAINER_Error(id, text) throw(text) // gi.Error
 #endif
-#define CONTAINER_DPrintf( text ) glbprintf( text )
-#define CONTAINER_WDPrintf( text ) glbprintf( text )
+#define CONTAINER_DPrintf(text)  glbprintf(text)
+#define CONTAINER_WDPrintf(text) glbprintf(text)
 
 class Archiver;
 
-template< class Type >
+template<class Type>
 class Container
 {
 private:
-	Type	*objlist;
-	int		numobjects;
-	int		maxobjects;
+    Type* objlist;
+    int numobjects;
+    int maxobjects;
 
 private:
-	void				Copy( const Container<Type>& container );
+    void Copy(const Container<Type>& container);
 
 public:
-	Container();
-	Container( const Container<Type>& container );
-	~Container();
+    Container();
+    Container(const Container<Type>& container);
+    ~Container();
 
-	void				Archive( Archiver& arc );
-	void				Archive( Archiver& arc, void( *ArchiveFunc )( Archiver &arc, Type *obj ) );
+    void Archive(Archiver& arc);
+    void Archive(Archiver& arc, void (*ArchiveFunc)(Archiver& arc, Type* obj));
 
-	int					AddObject( const Type& obj );
-	int					AddUniqueObject( const Type& obj );
-	void				AddObjectAt( int index, const Type& obj );
-	Type				*AddressOfObjectAt( int index );
-//	void				Archive( Archiver &arc );
-	void				ClearObjectList( void );
-	void				Fix( void );
-	void				FreeObjectList( void );
-	int					IndexOfObject( const Type& obj );
-	void				InsertObjectAt( int index, const Type& obj );
-	int					MaxObjects( void ) const;
-	int					NumObjects( void ) const;
-	Type&				ObjectAt( const size_t index ) const;
-	bool				ObjectInList( const Type& obj );
-	void				RemoveObjectAt( int index );
-	void				RemoveObject( const Type& obj );
-	void				Reset( void );
-	void				Resize( int maxelements );
-	void				SetObjectAt( int index, const Type& obj );
-	void				Sort( int( *compare )( const void *elem1, const void *elem2 ) );
-	Type&				operator[]( const int index ) const;
-	Container<Type>&	operator=( const Container<Type>& container );
+    int AddObject(const Type& obj);
+    int AddUniqueObject(const Type& obj);
+    void AddObjectAt(int index, const Type& obj);
+    Type* AddressOfObjectAt(int index);
+    //	void				Archive( Archiver &arc );
+    void ClearObjectList(void);
+    void Fix(void);
+    void FreeObjectList(void);
+    int IndexOfObject(const Type& obj);
+    void InsertObjectAt(int index, const Type& obj);
+    int MaxObjects(void) const;
+    int NumObjects(void) const;
+    Type& ObjectAt(const size_t index) const;
+    bool ObjectInList(const Type& obj);
+    void RemoveObjectAt(int index);
+    void RemoveObject(const Type& obj);
+    void Reset(void);
+    void Resize(int maxelements);
+    void SetObjectAt(int index, const Type& obj);
+    void Sort(int (*compare)(const void* elem1, const void* elem2));
+    Type& operator[](const int index) const;
+    Container<Type>& operator=(const Container<Type>& container);
 };
 
-template< class Type >
+template<class Type>
 Container<Type>::Container()
 {
-	objlist = NULL;
-	numobjects = 0;
-	maxobjects = 0;
+    objlist = NULL;
+    numobjects = 0;
+    maxobjects = 0;
 }
 
-template< class Type >
-Container<Type>::Container( const Container<Type>& container )
+template<class Type>
+Container<Type>::Container(const Container<Type>& container)
 {
-	objlist = NULL;
+    objlist = NULL;
 
-	Copy( container );
+    Copy(container);
 }
 
-template< class Type >
+template<class Type>
 Container<Type>::~Container()
 {
-	FreeObjectList();
+    FreeObjectList();
 }
 
-template< class Type >
-int Container<Type>::AddObject( const Type& obj )
+template<class Type>
+int Container<Type>::AddObject(const Type& obj)
 {
-	if ( !objlist )
-		Resize( 10 );
+    if (!objlist) {
+        Resize(10);
+    }
 
-	if ( numobjects >= maxobjects ) {
-		Resize( numobjects * 2 );
-	}
+    if (numobjects >= maxobjects) {
+        Resize(numobjects * 2);
+    }
 
-	objlist[numobjects] = obj;
-	numobjects++;
+    objlist[numobjects] = obj;
+    numobjects++;
 
-	return numobjects;
+    return numobjects;
 }
 
-template< class Type >
-int Container<Type>::AddUniqueObject( const Type& obj )
+template<class Type>
+int Container<Type>::AddUniqueObject(const Type& obj)
 {
-	int index;
+    int index;
 
-	index = IndexOfObject( obj );
+    index = IndexOfObject(obj);
 
-	if ( !index ) {
-		index = AddObject( obj );
-	}
+    if (!index) {
+        index = AddObject(obj);
+    }
 
-	return index;
+    return index;
 }
 
-template< class Type >
-void Container<Type>::AddObjectAt( int index, const Type& obj )
+template<class Type>
+void Container<Type>::AddObjectAt(int index, const Type& obj)
 {
-	if ( index > maxobjects )
-		Resize( index );
+    if (index > maxobjects) {
+        Resize(index);
+    }
 
-	if ( index > numobjects )
-		numobjects = index;
+    if (index > numobjects) {
+        numobjects = index;
+    }
 
-	SetObjectAt( index, obj );
+    SetObjectAt(index, obj);
 }
 
-template< class Type >
-Type *Container<Type>::AddressOfObjectAt( int index )
+template<class Type>
+Type* Container<Type>::AddressOfObjectAt(int index)
 {
-	if ( index > maxobjects ) {
-		CONTAINER_Error( ERR_DROP, "Container::AddressOfObjectAt : index is greater than maxobjects" );
-	}
+    if (index > maxobjects) {
+        CONTAINER_Error(
+            ERR_DROP,
+            "Container::AddressOfObjectAt : index is greater than maxobjects");
+    }
 
-	if ( index > numobjects ) {
-		numobjects = index;
-	}
+    if (index > numobjects) {
+        numobjects = index;
+    }
 
-	return &objlist[index - 1];
+    return &objlist[index - 1];
 }
 
 /*template< class Type >
@@ -174,318 +181,307 @@ void Container<Type>::Archive( Archiver &arc )
 
 }*/
 
-template< class Type >
-void Container<Type>::ClearObjectList( void )
+template<class Type>
+void Container<Type>::ClearObjectList(void)
 {
-	if ( objlist && numobjects )
-	{
-		delete[] objlist;
+    if (objlist && numobjects) {
+        delete[] objlist;
 
-		if ( maxobjects == 0 )
-		{
-			objlist = NULL;
-			return;
-		}
+        if (maxobjects == 0) {
+            objlist = NULL;
+            return;
+        }
 
-		objlist = new Type[maxobjects];
-		numobjects = 0;
-	}
+        objlist = new Type[maxobjects];
+        numobjects = 0;
+    }
 }
 
-template< class Type >
-void Container<Type>::Fix( void )
+template<class Type>
+void Container<Type>::Fix(void)
 {
-	if( !objlist || !numobjects ) {
-		return;
-	}
+    if (!objlist || !numobjects) {
+        return;
+    }
 
-	Type *newlist = new Type[ numobjects ];
-	int j = 0;
+    Type* newlist = new Type[numobjects];
+    int j = 0;
 
-	for( int i = 0; i < numobjects; i++ )
-	{
-		if( objlist[ i ] == NULL ) {
-			continue;
-		}
+    for (int i = 0; i < numobjects; i++) {
+        if (objlist[i] == NULL) {
+            continue;
+        }
 
-		newlist[ j ] = objlist[ i ];
-		j++;
-	}
+        newlist[j] = objlist[i];
+        j++;
+    }
 
-	numobjects = j;
+    numobjects = j;
 
-	delete[] objlist;
-	objlist = newlist;
+    delete[] objlist;
+    objlist = newlist;
 
-	if( !numobjects ) {
-		ClearObjectList();
-	}
+    if (!numobjects) {
+        ClearObjectList();
+    }
 }
 
-template< class Type >
-void Container<Type>::FreeObjectList( void )
+template<class Type>
+void Container<Type>::FreeObjectList(void)
 {
-	if( objlist ) {
-		delete[] objlist;
-	}
+    if (objlist) {
+        delete[] objlist;
+    }
 
-	objlist = NULL;
-	numobjects = 0;
-	maxobjects = 0;
+    objlist = NULL;
+    numobjects = 0;
+    maxobjects = 0;
 }
 
-template< class Type >
-int Container<Type>::IndexOfObject( const Type& obj )
+template<class Type>
+int Container<Type>::IndexOfObject(const Type& obj)
 {
-	int i;
+    int i;
 
-	if ( !objlist ) {
-		return 0;
-	}
+    if (!objlist) {
+        return 0;
+    }
 
-	for ( i = 0; i < numobjects; i++ )
-	{
-		if ( objlist[i] == obj )
-		{
-			return i + 1;
-		}
-	}
+    for (i = 0; i < numobjects; i++) {
+        if (objlist[i] == obj) {
+            return i + 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
-template< class Type >
-void Container<Type>::InsertObjectAt( int index, const Type& obj )
+template<class Type>
+void Container<Type>::InsertObjectAt(int index, const Type& obj)
 {
-	if ( ( index <= 0 ) || ( index > numobjects + 1 ) )
-	{
-		CONTAINER_Error( ERR_DROP, "Container::InsertObjectAt : index out of range" );
-		return;
-	}
+    if ((index <= 0) || (index > numobjects + 1)) {
+        CONTAINER_Error(ERR_DROP,
+                        "Container::InsertObjectAt : index out of range");
+        return;
+    }
 
-	numobjects++;
-	int arrayIndex = index - 1;
+    numobjects++;
+    int arrayIndex = index - 1;
 
-	if ( numobjects > maxobjects )
-	{
-		maxobjects = numobjects;
-		if ( !objlist ) {
-			objlist = new Type[maxobjects];
-			objlist[arrayIndex] = obj;
-			return;
-		}
-		else
-		{
-			Type *temp = objlist;
-			if ( maxobjects < numobjects )
-			{
-				maxobjects = numobjects;
-			}
+    if (numobjects > maxobjects) {
+        maxobjects = numobjects;
+        if (!objlist) {
+            objlist = new Type[maxobjects];
+            objlist[arrayIndex] = obj;
+            return;
+        } else {
+            Type* temp = objlist;
+            if (maxobjects < numobjects) {
+                maxobjects = numobjects;
+            }
 
-			objlist = new Type[maxobjects];
+            objlist = new Type[maxobjects];
 
-			int i;
-			for ( i = arrayIndex - 1; i >= 0; i-- ) {
-				objlist[i] = temp[i];
-			}
+            int i;
+            for (i = arrayIndex - 1; i >= 0; i--) {
+                objlist[i] = temp[i];
+            }
 
-			objlist[arrayIndex] = obj;
-			for ( i = numobjects - 1; i > arrayIndex; i-- ) {
-				objlist[i] = temp[i - 1];
-			}
+            objlist[arrayIndex] = obj;
+            for (i = numobjects - 1; i > arrayIndex; i--) {
+                objlist[i] = temp[i - 1];
+            }
 
-			delete[] temp;
-		}
-	}
-	else
-	{
-		for ( int i = numobjects - 1; i > arrayIndex; i-- ) {
-			objlist[i] = objlist[i - 1];
-		}
-		objlist[arrayIndex] = obj;
-	}
+            delete[] temp;
+        }
+    } else {
+        for (int i = numobjects - 1; i > arrayIndex; i--) {
+            objlist[i] = objlist[i - 1];
+        }
+        objlist[arrayIndex] = obj;
+    }
 }
 
-template< class Type >
-int Container<Type>::MaxObjects( void ) const
+template<class Type>
+int Container<Type>::MaxObjects(void) const
 {
-	return maxobjects;
+    return maxobjects;
 }
 
-template< class Type >
-int Container<Type>::NumObjects( void ) const
+template<class Type>
+int Container<Type>::NumObjects(void) const
 {
-	return numobjects;
+    return numobjects;
 }
 
-template< class Type >
-Type& Container<Type>::ObjectAt( const size_t index ) const
+template<class Type>
+Type& Container<Type>::ObjectAt(const size_t index) const
 {
-	if( ( index <= 0 ) || ( index > numobjects ) ) {
-		CONTAINER_Error( ERR_DROP, "Container::ObjectAt : index out of range" );
-	}
+    if ((index <= 0) || (index > numobjects)) {
+        CONTAINER_Error(ERR_DROP, "Container::ObjectAt : index out of range");
+    }
 
-	return objlist[index - 1];
+    return objlist[index - 1];
 }
 
-template< class Type >
-bool Container<Type>::ObjectInList( const Type& obj )
+template<class Type>
+bool Container<Type>::ObjectInList(const Type& obj)
 {
-	if ( !IndexOfObject( obj ) ) {
-		return false;
-	}
+    if (!IndexOfObject(obj)) {
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
-template< class Type >
-void Container<Type>::RemoveObjectAt( int index )
+template<class Type>
+void Container<Type>::RemoveObjectAt(int index)
 {
-	int i;
+    int i;
 
-	if ( !objlist )
-		return;
+    if (!objlist) {
+        return;
+    }
 
-	if ( ( index <= 0 ) || ( index > numobjects ) )
-		return;
+    if ((index <= 0) || (index > numobjects)) {
+        return;
+    }
 
-	i = index - 1;
-	numobjects--;
+    i = index - 1;
+    numobjects--;
 
-	for ( i = index - 1; i < numobjects; i++ )
-		objlist[i] = objlist[i + 1];
+    for (i = index - 1; i < numobjects; i++) {
+        objlist[i] = objlist[i + 1];
+    }
 }
 
-template< class Type >
-void Container<Type>::RemoveObject( const Type& obj )
+template<class Type>
+void Container<Type>::RemoveObject(const Type& obj)
 {
-	int index;
+    int index;
 
-	index = IndexOfObject( obj );
+    index = IndexOfObject(obj);
 
-	assert( index );
-	if ( !index )
-	{
-		CONTAINER_WDPrintf( "Container::RemoveObject : Object not in list\n" );
-		return;
-	}
+    assert(index);
+    if (!index) {
+        CONTAINER_WDPrintf("Container::RemoveObject : Object not in list\n");
+        return;
+    }
 
-	RemoveObjectAt( index );
+    RemoveObjectAt(index);
 }
 
-template< class Type >
+template<class Type>
 void Container<Type>::Reset()
 {
-	objlist = NULL;
-	numobjects = 0;
-	maxobjects = 0;
+    objlist = NULL;
+    numobjects = 0;
+    maxobjects = 0;
 }
 
-template< class Type >
-void Container<Type>::Resize( int maxelements )
+template<class Type>
+void Container<Type>::Resize(int maxelements)
 {
-	Type* temp;
-	int i;
+    Type* temp;
+    int i;
 
-	if ( maxelements <= 0 )
-	{
-		FreeObjectList();
-		return;
-	}
+    if (maxelements <= 0) {
+        FreeObjectList();
+        return;
+    }
 
-	if ( !objlist )
-	{
-		maxobjects = maxelements;
-		objlist = new Type[maxobjects];
-	}
-	else
-	{
-		temp = objlist;
+    if (!objlist) {
+        maxobjects = maxelements;
+        objlist = new Type[maxobjects];
+    } else {
+        temp = objlist;
 
-		maxobjects = maxelements;
+        maxobjects = maxelements;
 
-		if ( maxobjects < numobjects ) {
-			maxobjects = numobjects;
-		}
+        if (maxobjects < numobjects) {
+            maxobjects = numobjects;
+        }
 
-		objlist = new Type[maxobjects];
+        objlist = new Type[maxobjects];
 
-		for ( i = 0; i < numobjects; i++ ) {
-			objlist[i] = temp[i];
-		}
+        for (i = 0; i < numobjects; i++) {
+            objlist[i] = temp[i];
+        }
 
-		delete[] temp;
-	}
+        delete[] temp;
+    }
 }
 
-template< class Type >
-void Container<Type>::SetObjectAt( int index, const Type& obj )
+template<class Type>
+void Container<Type>::SetObjectAt(int index, const Type& obj)
 {
-	if ( !objlist )
-		return;
+    if (!objlist) {
+        return;
+    }
 
-	if( ( index <= 0 ) || ( index > numobjects ) ) {
-		CONTAINER_Error( ERR_DROP, "Container::SetObjectAt : index out of range" );
-	}
+    if ((index <= 0) || (index > numobjects)) {
+        CONTAINER_Error(ERR_DROP,
+                        "Container::SetObjectAt : index out of range");
+    }
 
-	objlist[index - 1] = obj;
+    objlist[index - 1] = obj;
 }
 
-template< class Type >
-void Container<Type>::Sort( int( *compare )( const void *elem1, const void *elem2 ) )
+template<class Type>
+void Container<Type>::Sort(int (*compare)(const void* elem1, const void* elem2))
 
 {
-	if ( !objlist ) {
-		return;
-	}
+    if (!objlist) {
+        return;
+    }
 
-	qsort( ( void * )objlist, ( size_t )numobjects, sizeof( Type ), compare );
+    qsort((void*)objlist, (size_t)numobjects, sizeof(Type), compare);
 }
 
-template< class Type >
-Type& Container<Type>::operator[]( const int index ) const
+template<class Type>
+Type& Container<Type>::operator[](const int index) const
 {
-	return ObjectAt( index + 1 );
+    return ObjectAt(index + 1);
 }
 
-template< class Type >
-void Container<Type>::Copy( const Container<Type>& container )
+template<class Type>
+void Container<Type>::Copy(const Container<Type>& container)
 {
-	int i;
+    int i;
 
-	if( &container == this ) {
-		return;
-	}
+    if (&container == this) {
+        return;
+    }
 
-	FreeObjectList();
+    FreeObjectList();
 
-	numobjects = container.numobjects;
-	maxobjects = container.maxobjects;
-	objlist = NULL;
+    numobjects = container.numobjects;
+    maxobjects = container.maxobjects;
+    objlist = NULL;
 
-	if( container.objlist == NULL || !container.maxobjects ) {
-		return;
-	}
+    if (container.objlist == NULL || !container.maxobjects) {
+        return;
+    }
 
-	Resize( maxobjects );
+    Resize(maxobjects);
 
-	if( !container.numobjects ) {
-		return;
-	}
+    if (!container.numobjects) {
+        return;
+    }
 
-	for( i = 0; i < container.numobjects; i++ ) {
-		objlist[ i ] = container.objlist[ i ];
-	}
+    for (i = 0; i < container.numobjects; i++) {
+        objlist[i] = container.objlist[i];
+    }
 
-	return;
+    return;
 }
 
-template< class Type >
-Container<Type>& Container<Type>::operator=( const Container<Type>& container )
+template<class Type>
+Container<Type>& Container<Type>::operator=(const Container<Type>& container)
 {
-	Copy( container );
+    Copy(container);
 
-	return *this;
+    return *this;
 }
 
 #endif /* __CONTAINER_H__ */

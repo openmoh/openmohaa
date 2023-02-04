@@ -27,84 +27,88 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <listener.h>
 
-#define MAX_CONFIGURATOR_ARRAY_SIZE				2048
+#define MAX_CONFIGURATOR_ARRAY_SIZE 2048
 
 typedef struct configValue_s {
-	bool	m_bNeedWrite;
-	str		value;
+    bool m_bNeedWrite;
+    str value;
 } configValue_t;
 
 typedef struct configKey_s {
-	bool			m_bNeedWrite;
-	str				name;
-	Container< configValue_t > value;
-	bool			m_bArray;
+    bool m_bNeedWrite;
+    str name;
+    Container<configValue_t> value;
+    bool m_bArray;
 } configKey_t;
 
 typedef struct configSection_s {
-	bool			m_bNeedWrite;
-	str				name;
-	Container< configKey_t * > key;
+    bool m_bNeedWrite;
+    str name;
+    Container<configKey_t*> key;
 } configSection_t;
 
-enum {
-	LINE_EMPTY,
-	LINE_COMMENT,
-	LINE_SECTION,
-	LINE_VALUE,
-	LINE_ERROR
-};
+enum { LINE_EMPTY, LINE_COMMENT, LINE_SECTION, LINE_VALUE, LINE_ERROR };
 
-class Configurator : public Class {
+class Configurator : public Class
+{
 private:
-	str		m_filename;
-	bool	m_bNoWrite;
-	bool	m_bNeedWrite;
+    str m_filename;
+    bool m_bNoWrite;
+    bool m_bNeedWrite;
 
-	con_set< str, configSection_t > m_sections;
-	Container< configSection_t * > m_reverseSections;
+    con_set<str, configSection_t> m_sections;
+    Container<configSection_t*> m_reverseSections;
 
 private:
-	size_t		GetLine( char *dest, const char *data, size_t size );
-	str			GetValue( const char *section, const char *key, str defaultValue, int index = -1 );
-	configKey_t	*GetKey( const char *section, const char *key, int index = -1 );
+    size_t GetLine(char* dest, const char* data, size_t size);
+    str GetValue(const char* section, const char* key, str defaultValue,
+                 int index = -1);
+    configKey_t* GetKey(const char* section, const char* key, int index = -1);
 
-	int		CutLine( char *data );
-	bool	SetupLine( char *line, int& lineno, size_t& len, size_t& last );
-	bool	FindData( int type, const char *section, const char *key, size_t *offset, const char *data, size_t size );
-	void	ParseData( const char *data, size_t size );
-	void	WriteData( char **data, size_t *size );
-	void	WriteData2( char **data, size_t *size );
-	int		ParseLine( char *line, char *section, char *key, char *value );
+    int CutLine(char* data);
+    bool SetupLine(char* line, int& lineno, size_t& len, size_t& last);
+    bool FindData(int type, const char* section, const char* key,
+                  size_t* offset, const char* data, size_t size);
+    void ParseData(const char* data, size_t size);
+    void WriteData(char** data, size_t* size);
+    void WriteData2(char** data, size_t* size);
+    int ParseLine(char* line, char* section, char* key, char* value);
 
-	configSection_t		*CreateSection( const char *section );
-	configSection_t		*FindSection( const char *section );
-	int					GetKeyArray( char *key );
-	int					GetKeyArray( str& key );
-	configKey_t			*CreateKey( configSection_t *section, const char *key, unsigned int *index );
-	configKey_t			*FindKey( configSection_t *section, const char *key );
-	void				RemoveSection( configSection_t *section );
-	void				RemoveKey( configSection_t *section, configKey_t *key );
+    configSection_t* CreateSection(const char* section);
+    configSection_t* FindSection(const char* section);
+    int GetKeyArray(char* key);
+    int GetKeyArray(str& key);
+    configKey_t* CreateKey(configSection_t* section, const char* key,
+                           unsigned int* index);
+    configKey_t* FindKey(configSection_t* section, const char* key);
+    void RemoveSection(configSection_t* section);
+    void RemoveKey(configSection_t* section, configKey_t* key);
 
 public:
-	CLASS_PROTOTYPE( Configurator );
+    CLASS_PROTOTYPE(Configurator);
 
-	Configurator( const char *filename );
-	Configurator();
-	~Configurator();
+    Configurator(const char* filename);
+    Configurator();
+    ~Configurator();
 
-	void		Parse( const char *filename );
-	void		Close();
-	void		SetWrite( bool bWrite );
+    void Parse(const char* filename);
+    void Close();
+    void SetWrite(bool bWrite);
 
-	str			GetString( const char *section, const char *key, str defaultValue, int index = -1 );
-	int			GetInteger( const char *section, const char *key, int defaultValue, int index = -1 );
-	float		GetFloat( const char *section, const char *key, float defaultValue, int index = -1 );
-	void		SetString( const char *section, const char *key, str value, int index = -1 );
-	void		SetInteger( const char *section, const char *key, int value, int index = -1 );
-	void		SetFloat( const char *section, const char *key, float value, int index = -1 );
+    str GetString(const char* section, const char* key, str defaultValue,
+                  int index = -1);
+    int GetInteger(const char* section, const char* key, int defaultValue,
+                   int index = -1);
+    float GetFloat(const char* section, const char* key, float defaultValue,
+                   int index = -1);
+    void SetString(const char* section, const char* key, str value,
+                   int index = -1);
+    void SetInteger(const char* section, const char* key, int value,
+                    int index = -1);
+    void SetFloat(const char* section, const char* key, float value,
+                  int index = -1);
 };
 
-void test_config( void );
+void test_config(void);
 
 #endif /* __CONFIGURATOR_H__ */

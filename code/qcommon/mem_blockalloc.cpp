@@ -26,28 +26,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-void *MEM_Alloc( int size )
-{
-	return gi.Malloc( size );
-}
+void* MEM_Alloc(int size) { return gi.Malloc(size); }
 
-void MEM_Free( void *ptr )
-{
-	return gi.Free( ptr );
-}
+void MEM_Free(void* ptr) { return gi.Free(ptr); }
 
 #else
 
 #include "qcommon.h"
 
-void* MEM_Alloc(int size)
-{
-	return Z_Malloc(size);
-}
+void* MEM_Alloc(int size) { return Z_Malloc(size); }
 
-void MEM_Free(void* ptr)
-{
-	return Z_Free(ptr);
-}
+void MEM_Free(void* ptr) { return Z_Free(ptr); }
 
 #endif
