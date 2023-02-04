@@ -153,6 +153,8 @@ set(SOURCES_APP ${SOURCES_SHARED} ${SOURCES_COMMON} ${SOURCES_SKEL})
 
 ## Executables
 
+include("code/gamespy/gcd.cmake")
+
 ### Client version
 ### TODO! Build the executable client (without the server part)
 
@@ -166,7 +168,8 @@ set(SOURCES_SERVER_APP ${SOURCES_APP} ${SOURCES_SERVER})
 add_executable(omohaaded ${SOURCES_SERVER_APP} ${SOURCES_PLATFORM_SPECIFIC} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c")
 target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
 target_compile_features(omohaaded PUBLIC cxx_std_17)
-target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/server" "code/SDL2/include")
+target_link_libraries(omohaaded gcd)
+target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/SDL2/include")
 set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}")
 
 if(WIN32)
