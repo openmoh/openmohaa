@@ -441,9 +441,26 @@ void SV_Startup( void ) {
 	svs.initialized = qtrue;
 	memset( last_mapname, 0, sizeof( last_mapname ) );
 
-	// FIXME: use another master network ?
-	//SV_InitGamespy();
+	SV_InitGamespy();
 	Cvar_Set( "sv_running", "1" );
+}
+
+/*
+==================
+SV_NumClients
+==================
+*/
+int SV_NumClients(void) {
+	int i;
+	int numClients = 0;
+
+	for (i = 0; i < svs.iNumClients; i++) {
+		if (svs.clients[i].state > CS_FREE) {
+			++numClients;
+		}
+	}
+
+	return numClients;
 }
 
 /*
@@ -1062,6 +1079,7 @@ void SV_Shutdown( const char *finalmsg ) {
 	}
 
 	SV_RemoveOperatorCommands();
+	SV_ShutdownGamespy();
 	SV_MasterShutdown();
 	SV_ShutdownGameProgs();
 
