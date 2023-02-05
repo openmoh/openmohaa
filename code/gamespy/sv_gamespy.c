@@ -18,6 +18,8 @@ static const char SECRET_GS_KEY[] = { 'M', '5', 'F', 'd', 'w', 'c' };
 static const unsigned int GCD_GAME_ID = 0;
 #endif
 
+static const unsigned int GAMESPY_DEFAULT_PORT = 12300;
+
 void qr_send_statechanged(qr_t qrec);
 void qr_shutdown(qr_t qrec);
 void qr_process_queries(qr_t qrec);
@@ -132,7 +134,7 @@ static void players_callback(char* outbuf, int maxlen, void* userdata)
 			i,
 			ps->stats[STAT_DEATHS],
 			i,
-			svs.clients[i].rate
+			svs.clients[i].ping
 		);
 
 		infolen = strlen(infostring);
@@ -203,7 +205,7 @@ qboolean SV_InitGamespy()
 	strcpy(secret_key, SECRET_GS_KEY);
 
 	net_ip = Cvar_Get("net_ip", "localhost", CVAR_LATCH);
-	net_gamespy_port = Cvar_Get("net_gamespy_port", "12300", CVAR_LATCH);
+	net_gamespy_port = Cvar_Get("net_gamespy_port", va("%i", GAMESPY_DEFAULT_PORT), CVAR_LATCH);
 
 	if (qr_init(
 		NULL,
@@ -237,4 +239,3 @@ qboolean SV_InitGamespy()
 
 	return qtrue;
 }
-
