@@ -55,6 +55,12 @@ ELSE()
 	set(TARGET_PLATFORM_PREFIX "")
 ENDIF()
 
+IF(CMAKE_BUILD_TYPE MATCHES Debug)
+	set(TARGET_CONFIG_SUFFIX "-dbg")
+ELSE()
+	set(TARGET_CONFIG_SUFFIX "")
+ENDIF()
+
 set(SOURCES_SHARED
 	"code/qcommon/class.cpp"
 	"code/qcommon/con_set.cpp"
@@ -84,7 +90,7 @@ target_include_directories(fgame PRIVATE "code/parser")
 target_compile_features(fgame PUBLIC cxx_std_17)
 
 set_target_properties(fgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
-set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_ARCH_SUFFIX}")
+set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
 set_target_properties(fgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_BASE_GAME}")
 INSTALL(TARGETS fgame DESTINATION "${TARGET_BASE_GAME}")
 
@@ -176,7 +182,7 @@ target_compile_features(omohaaded PUBLIC cxx_std_17)
 add_dependencies(omohaaded gcd)
 target_link_libraries(omohaaded PRIVATE gcd)
 target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/SDL2/include")
-set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}")
+set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
 
 if(WIN32)
 	if (MSVC)

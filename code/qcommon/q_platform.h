@@ -77,6 +77,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //================================================================= WIN64/32 ===
 
+#if defined(_DEBUG)
+#define DLL_SUFFIX "-dbg"
+#else
+#define DLL_SUFFIX
+#endif
+
 #if defined(_WIN64) || defined(__WIN64__)
 
 #undef idx64

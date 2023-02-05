@@ -714,7 +714,7 @@ void* Sys_GetGameAPI(void* parms)
 	const char* apppath;
 #endif
 	const char* fn;
-	const char* gamename = "game" ARCH_STRING DLL_EXT;
+	const char* gamename = "game" ARCH_STRING DLL_SUFFIX DLL_EXT;
 
 	if (game_library)
 		Com_Error(ERR_FATAL, "Sys_GetGameAPI without calling Sys_UnloadGame");
