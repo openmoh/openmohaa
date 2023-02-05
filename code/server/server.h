@@ -315,6 +315,8 @@ extern cvar_t	*g_gametypestring;
 extern cvar_t	*sv_chatter;
 extern cvar_t	*sv_gamename;
 extern cvar_t	*sv_location;
+extern cvar_t	*sv_debug_gamespy;
+extern cvar_t	*sv_gamespy;
 extern cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
 extern cvar_t	*sv_strictAuth;
 
@@ -385,6 +387,7 @@ void SV_UpdateConfigstrings( client_t *client );
 void SV_SetUserinfo( int index, const char *val );
 void SV_GetUserinfo( int index, char *buffer, int bufferSize );
 
+int SV_NumClients(void);
 void SV_ChangeMaxClients( void );
 void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qboolean bTransition );
 
@@ -510,6 +513,13 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 void SV_Netchan_Transmit( client_t *client, msg_t *msg);
 void SV_Netchan_TransmitNextFragment( client_t *client );
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
+
+//
+// sv_gamespy.c
+//
+void SV_GamespyHeartbeat();
+qboolean SV_InitGamespy();
+void SV_ShutdownGamespy();
 
 #ifdef __cplusplus
 }
