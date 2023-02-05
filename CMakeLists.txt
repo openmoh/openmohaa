@@ -179,6 +179,9 @@ target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/g
 set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}")
 
 if(WIN32)
+	if (MSVC)
+		target_link_options(omohaaded PRIVATE "/MANIFEST:NO")
+	endif()
 	target_link_libraries(omohaaded PRIVATE wsock32 ws2_32)
 	target_link_libraries(omohaaded PRIVATE winmm)
 elseif(UNIX)
