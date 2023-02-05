@@ -478,16 +478,18 @@ skelAnimDataGameHeader_t* SkeletorCacheFileCallback(const char* path)
 			return NULL;
 		}
 
-		if (pHeader->ident != TIKI_SKC_HEADER_IDENT || (pHeader->version != TIKI_SKC_HEADER_OLD_VERSION && pHeader->version != TIKI_SKC_HEADER_VERSION))
+		int ident = LittleLong(pHeader->ident);
+		int version = LittleLong(pHeader->version);
+		if (LittleLong(ident) != TIKI_SKC_HEADER_IDENT || (version != TIKI_SKC_HEADER_OLD_VERSION && version != TIKI_SKC_HEADER_VERSION))
 		{
 			Com_Printf("Skeletor CacheAnimSkel: anim %s has wrong header ([ident,version] = [%i,%i] should be [%i,%i])\n", path,
-				pHeader->ident, pHeader->version,
+				ident, version,
 				TIKI_SKC_HEADER_IDENT, TIKI_SKC_HEADER_VERSION);
 			TIKI_FreeFile(pHeader);
 			return NULL;
 		}
 
-		if (pHeader->version == TIKI_SKC_HEADER_OLD_VERSION)
+		if (version == TIKI_SKC_HEADER_OLD_VERSION)
 		{
 			Com_Printf("WARNING- DOWNGRADING TO OLD ANIMATION FORMAT FOR FILE: %s\n", path);
 			finishedHeader = skeletor_c::ConvertSkelFileToGame(pHeader, iBuffLength, path);
