@@ -153,6 +153,7 @@ set(SOURCES_COMMON
 file(GLOB_RECURSE SOURCES_SKEL "code/tiki/*.cpp" "code/skeletor/*.cpp")
 
 set(SOURCES_APP ${SOURCES_SHARED} ${SOURCES_COMMON} ${SOURCES_SKEL})
+set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/misc/openmohaa.rc")
 
 ## Executables
 
@@ -168,7 +169,7 @@ include("code/gamespy/gcd.cmake")
 file(GLOB_RECURSE SOURCES_SERVER "code/server/*.c" "code/server/*.cpp")
 set(SOURCES_SERVER_APP ${SOURCES_APP} ${SOURCES_SERVER})
 
-add_executable(omohaaded ${SOURCES_SERVER_APP} ${SOURCES_PLATFORM_SPECIFIC} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c")
+add_executable(omohaaded ${SOURCES_SERVER_APP} ${APP_ICON_RESOURCE_WINDOWS} ${SOURCES_PLATFORM_SPECIFIC} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c")
 target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
 target_compile_features(omohaaded PUBLIC cxx_std_17)
 # Gamespy dependency
