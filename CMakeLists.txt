@@ -102,6 +102,7 @@ if(WIN32)
 		"code/sys/sys_win32.c"
 		"code/sys/win_bounds.cpp"
 		"code/sys/win_localization.cpp"
+		"code/sys/win_resource.rc"
 	)
 else()
 	set(SOURCES_PLATFORM_SPECIFIC
