@@ -38,8 +38,9 @@ extern "C" {
 	#define BASEGAME				"mainta"
 	#define PRODUCT_EXTENSION		"Spearhead"
 	// The version string must be equal or above 2.0 to be able to connect to spearhead servers
-	#define TARGET_GAME_VERSION		"2.41"
+	#define TARGET_GAME_VERSION		"2.16"
 	#define TARGET_GAME_PROTOCOL	17
+	#define TARGET_GAME_NAME		"mohaas"
 
 	#define HOMEPATH_NAME_UNIX		".mohta"
 	#define HOMEPATH_NAME_WIN		"mohta"
@@ -51,6 +52,7 @@ extern "C" {
 		// The version string must be equal or above 2.0 to be able to connect to breakthrough servers
 	#define	TARGET_GAME_VERSION		"2.41"
 	#define TARGET_GAME_PROTOCOL	17
+	#define TARGET_GAME_NAME		"mohaab"
 
 	#define HOMEPATH_NAME_UNIX		".mohtt"
 	#define HOMEPATH_NAME_WIN		"mohtt"
@@ -63,6 +65,7 @@ extern "C" {
 	// The version string must be below 1.12, otherwise it's not possible to connect
 	#define TARGET_GAME_VERSION		"1.12"
 	#define TARGET_GAME_PROTOCOL	8
+	#define TARGET_GAME_NAME		"mohaa"
 
 	#define HOMEPATH_NAME_UNIX		".moh"
 	#define HOMEPATH_NAME_WIN		"moh"
