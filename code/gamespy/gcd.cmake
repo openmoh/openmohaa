@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.10)
 
 project(gcd)
 
@@ -8,19 +8,12 @@ include_directories("${CURRENT_DIR}/common")
 include_directories("${CURRENT_DIR}/gcdkey")
 
 file(GLOB SRCS_common
-"${CURRENT_DIR}/*.c"
-"${CURRENT_DIR}/common/*.c"
+	"${CURRENT_DIR}/common/*.c"
+    "${CURRENT_DIR}/darray.c"
+	"${CURRENT_DIR}/hashtable.c"
+	"${CURRENT_DIR}/md5c.c"
+	"${CURRENT_DIR}/gutil.c"
 )
-
-if(UNIX)
-	file(GLOB SRCS_platform "${CURRENT_DIR}/common/linux/*.c")
-elseif(WIN32)
-	file(GLOB SRCS_platform "${CURRENT_DIR}/common/win32/*.c")
-elseif(APPLE)
-	file(GLOB SRCS_platform "${CURRENT_DIR}/common/macosx/*.c")
-endif()
-
-SET(SRCS_common ${SRCS_common} ${SRCS_platform})
 
 file(GLOB SRCS_gcdkey
 "${CURRENT_DIR}/gcdkey/*.c"
@@ -91,7 +84,6 @@ if(UNIX)
 endif(UNIX)
 
 set(DEPENDENT_LIBS
-	gcd_common
 	gcd_key
 	gcd_gp
 	gcd_gstats
@@ -108,8 +100,10 @@ set(DEPENDENT_LIBS
 target_link_libraries(gcd INTERFACE ${DEPENDENT_LIBS})
 
 foreach(LIB ${DEPENDENT_LIBS})
-	target_link_libraries(${LIB} PUBLIC gcd)
+	target_link_libraries(${LIB} PUBLIC gcd_common)
 endforeach()
+
+target_link_libraries(gcd_qr2 PRIVATE gcd_natneg)
 
 #target_compile_definitions(gcd PRIVATE _CRT_SECURE_NO_WARNINGS)
 #set_property(TARGET gcd PROPERTY POSITION_INDEPENDENT_CODE ON)

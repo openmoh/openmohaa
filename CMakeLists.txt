@@ -145,6 +145,9 @@ set(SOURCES_COMMON
 	"code/sys/sys_main.c"
 	"code/sys/sys_autoupdater.c"
 	"code/sys/con_log.c"
+	# Gamespy
+	"code/gamespy/sv_gamespy.c"
+	"code/gamespy/sv_gqueryreporting.c"
 )
 
 file(GLOB_RECURSE SOURCES_SKEL "code/tiki/*.cpp" "code/skeletor/*.cpp")
@@ -168,15 +171,17 @@ set(SOURCES_SERVER_APP ${SOURCES_APP} ${SOURCES_SERVER})
 add_executable(omohaaded ${SOURCES_SERVER_APP} ${SOURCES_PLATFORM_SPECIFIC} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c")
 target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
 target_compile_features(omohaaded PUBLIC cxx_std_17)
-target_link_libraries(omohaaded gcd)
+# Gamespy dependency
+add_dependencies(omohaaded gcd)
+target_link_libraries(omohaaded PRIVATE gcd)
 target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/SDL2/include")
 set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}")
 
 if(WIN32)
-	target_link_libraries(omohaaded wsock32 ws2_32)
-	target_link_libraries(omohaaded winmm)
+	target_link_libraries(omohaaded PRIVATE wsock32 ws2_32)
+	target_link_libraries(omohaaded PRIVATE winmm)
 elseif(UNIX)
-	target_link_libraries(omohaaded ${CMAKE_DL_LIBS})
+	target_link_libraries(omohaaded PRIVATE ${CMAKE_DL_LIBS})
 endif()
 
 INSTALL(TARGETS omohaaded DESTINATION "./")
