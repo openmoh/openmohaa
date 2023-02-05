@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptvm.h"
 #include "level.h"
 #include "parm.h"
+#include "game.h"
 #include "scriptmaster.h"
 #include "scriptthread.h"
 #include "scriptclass.h"
@@ -158,23 +159,23 @@ bool ScriptCompiler::BuiltinReadVariable( unsigned int sourcePos, int type, int 
 	switch( type )
 	{
 	case method_game:
-		c = NULL;
+		c = Game::classinfostatic();
 		break;
 
 	case method_level:
-		c = &Level::ClassInfo;
+		c = Level::classinfostatic();
 		break;
 
 	case method_local:
-		c = &ScriptThread::ClassInfo;
+		c = ScriptThread::classinfostatic();
 		break;
 
 	case method_parm:
-		c = &Parm::ClassInfo;
+		c = Parm::classinfostatic();
 		break;
 
 	case method_group:
-		c = &ScriptClass::ClassInfo;
+		c = ScriptClass::classinfostatic();
 		break;
 
 	default:
@@ -209,23 +210,23 @@ bool ScriptCompiler::BuiltinWriteVariable( unsigned int sourcePos, int type, int
 	switch( type )
 	{
 	case method_game:
-		c = NULL;
+		c = Game::classinfostatic();
 		break;
 
 	case method_level:
-		c = &Level::ClassInfo;
+		c = Level::classinfostatic();
 		break;
 
 	case method_local:
-		c = &ScriptThread::ClassInfo;
+		c = ScriptThread::classinfostatic();
 		break;
 
 	case method_parm:
-		c = &Parm::ClassInfo;
+		c = Parm::classinfostatic();
 		break;
 
 	case method_group:
-		c = &ScriptClass::ClassInfo;
+		c = ScriptClass::classinfostatic();
 		break;
 
 	default:
