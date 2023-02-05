@@ -147,9 +147,6 @@ public:
 
 	bool				EvalPrevValue( ScriptVariable& var );
 
-	void				OptimizeInstructions( unsigned char *code, unsigned char *op1, unsigned char *op2 );
-	int					OptimizeValue( int val1, int val2, unsigned char opcode );
-
 	void				ProcessBreakJumpLocations( int iStartBreakJumpLocCount );
 	void				ProcessContinueJumpLocations( int iStartContinueJumpLocCount );
 
@@ -164,7 +161,6 @@ public:
 	void				Preclean( char *processedBuffer );
 	size_t				Parse( GameScript *m_GameScript, char *sourceBuffer );
 	size_t				Compile( GameScript *m_GameScript, unsigned char *progBuffer );
-	void				Optimize( unsigned char *progBuffer );
 
 	static str			GetLine( str content, int line );
 

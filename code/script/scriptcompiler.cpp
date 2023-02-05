@@ -1487,7 +1487,7 @@ bool ScriptCompiler::EvalPrevValue( ScriptVariable& var )
 		break;
 
 	case OP_STORE_INT1:
-		intValue = *( code_pos - sizeof( char ) );
+		intValue = GetOpcodeValue<byte>(sizeof(byte), sizeof(byte));
 		break;
 
 	case OP_STORE_INT2:
@@ -1514,100 +1514,6 @@ bool ScriptCompiler::EvalPrevValue( ScriptVariable& var )
 	var.setIntValue( intValue );
 
 	return true;
-}
-
-void ScriptCompiler::OptimizeInstructions( unsigned char *code, unsigned char *op1, unsigned char *op2 )
-{
-	int intValue1 = 0, intValue2 = 0, intValue3 = 0;
-	float floatValue1 = 0.0f, floatValue2 = 0.0f, floatValue3 = 0.0f;
-	int type1, type2;
-
-	if( !( *op1 >= OP_STORE_INT0 && *op1 <= OP_STORE_FLOAT &&
-		*op2 >= OP_STORE_INT0 && *op2 <= OP_STORE_FLOAT
-		) )
-	{
-		return;
-	}
-
-	if( *op1 >= OP_STORE_INT0 && *op1 <= OP_STORE_INT4 )
-	{
-		memcpy( &intValue1, op1 + 1, *op1 - OP_STORE_INT0 );
-		type1 = OP_STORE_INT4;
-	}
-	else
-	{
-		type1 = *op1;
-	}
-
-	if( *op2 >= OP_STORE_INT0 && *op2 <= OP_STORE_INT4 )
-	{
-		memcpy( &intValue2, op2 + 1, *op2 - OP_STORE_INT0 );
-		type2 = OP_STORE_INT4;
-	}
-	else
-	{
-		type2 = *op2;
-	}
-
-	if( *op1 == OP_STORE_FLOAT )
-	{
-		memcpy( &floatValue1, op1 + 1, sizeof( float ) );
-	}
-
-	if( *op2 == OP_STORE_FLOAT )
-	{
-		memcpy( &floatValue2, op2 + 1, sizeof( float ) );
-	}
-
-	*op1 = OP_NOP;
-	*op2 = OP_NOP;
-
-	switch( type1 + type2 * OP_MAX )
-	{
-	case OP_STORE_INT4 + OP_STORE_INT4 * OP_MAX:
-		*op1 = OP_STORE_INT4;
-		*( unsigned int * )( op1 + 1 ) = OptimizeValue( intValue1, intValue2, *code );
-		break;
-	}
-
-	*code = OP_NOP;
-}
-
-int ScriptCompiler::OptimizeValue( int val1, int val2, unsigned char opcode )
-{
-	switch( opcode )
-	{
-	case OP_BIN_BITWISE_AND:
-		return val1 & val2;
-	case OP_BIN_BITWISE_OR:
-		return val1 | val2;
-	case OP_BIN_BITWISE_EXCL_OR:
-		return val1 ^ val2;
-	case OP_BIN_EQUALITY:
-		return val1 == val2;
-	case OP_BIN_INEQUALITY:
-		return val1 != val2;
-	case OP_BIN_LESS_THAN:
-		return val1 > val2;
-	case OP_BIN_GREATER_THAN:
-		return val1 < val2;
-	case OP_BIN_LESS_THAN_OR_EQUAL:
-		return val1 >= val2;
-	case OP_BIN_GREATER_THAN_OR_EQUAL:
-		return val1 <= val2;
-	case OP_BIN_PLUS:
-		return val1 + val2;
-	case OP_BIN_MINUS:
-		return val1 - val2;
-	case OP_BIN_MULTIPLY:
-		return val1 * val2;
-	case OP_BIN_DIVIDE:
-		return val1 / val2;
-	case OP_BIN_PERCENTAGE:
-		return val1 % val2;
-	default:
-		return 0;
-	}
 }
 
 void ScriptCompiler::ProcessBreakJumpLocations( int iStartBreakJumpLocCount )
@@ -1792,49 +1698,9 @@ size_t ScriptCompiler::Compile( GameScript *gameScript, unsigned char *progBuffe
 		prog_end_ptr = code_pos;
 	}
 
-	// FIXME (ley0k): optimization can be worked
-
-	//if( compileSuccess ) {
-	//	Optimize( code_ptr );
-	//}
-
 	parsetree_freeall();
 
 	return length;
-}
-
-void ScriptCompiler::Optimize( unsigned char *sourceBuffer )
-{
-	int length = code_pos - code_ptr;
-	unsigned char *prevcodePos1 = NULL;
-	unsigned char *prevcodePos2 = NULL;
-
-	code_pos = sourceBuffer;
-
-	if( !length ) {
-		return;
-	}
-
-	while( code_pos < prog_end_ptr )
-	{
-		byte opcode = GetOpcodeValue<byte>(sizeof(byte));
-		if(opcode >= OP_BIN_BITWISE_AND && opcode <= OP_BIN_PERCENTAGE)
-		{
-			assert( prevcodePos1 );
-			assert( prevcodePos2 );
-
-			OptimizeInstructions( code_pos, prevcodePos1, prevcodePos2 );
-		}
-
-		prevcodePos2 = prevcodePos1;
-		prevcodePos1 = code_pos;
-
-		code_pos += OpcodeLength(opcode);
-
-		if (opcode == OP_DONE) {
-			break;
-		}
-	}
 }
 
 str ScriptCompiler::GetLine( str content, int line )
