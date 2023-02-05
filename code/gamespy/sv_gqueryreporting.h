@@ -1,3 +1,5 @@
+#include <common/gsPlatformSocket.h>
+
 typedef void (*qr_querycallback_t) (char* outbuf, int maxlen, void* userdata);
 typedef void (*qr_custom_handler_t) (const char* query, struct sockaddr* sender);
 
@@ -27,7 +29,7 @@ typedef struct qr_implementation_s {
 	int packetnumber;
 	int qport;
 	char no_query;
-	int unk1;
+	struct sockaddr_in master_saddr;
 	int unk2;
 	int unk3;
 	int unk4;

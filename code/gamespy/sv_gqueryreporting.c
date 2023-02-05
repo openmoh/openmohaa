@@ -384,15 +384,15 @@ static void send_heartbeat(qr_t qrec, int statechanged)
 	sprintf(buf, "\\heartbeat\\%d\\gamename\\%s", qrec->qport, qrec->gamename);
 
 	if (statechanged)
-		sprintf(&buf[strlen(buf)], "\\statechanged\\%d", statechanged);
+		sprintf(buf + strlen(buf), "\\statechanged\\%d", statechanged);
 
-	sendto((SOCKET)qrec->hbsock, buf, (int)strlen(buf), 0, (const struct sockaddr*)&qrec->unk1, 16);
+	sendto((SOCKET)qrec->hbsock, buf, (int)strlen(buf), 0, (const struct sockaddr*)&qrec->master_saddr, 16);
 	qrec->lastheartbeat = current_time();
 }
 
-static int do_connect(void* sock, char* addr, int port)
+static int do_connect(void* sock, char* addr, int port, struct sockaddr_in* master_saddr)
 {
-	get_sockaddrin(addr, port, &hbaddr, NULL);
+	get_sockaddrin(addr, port, master_saddr, NULL);
 	return 0;
 }
 
@@ -518,5 +518,5 @@ int qr_init(
 	if (!qrec)
 		qrec = &current_rec;
 
-	return do_connect((void*)hbsock, "master.x-null.net", 27900);
+	return do_connect((void*)hbsock, "master.x-null.net", 27900, &(*qrec)->master_saddr);
 }
