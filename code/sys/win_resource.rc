@@ -67,8 +67,14 @@ IDI_ICON1               ICON    DISCARDABLE     "misc/openmohaa.ico"
 
 STRINGTABLE DISCARDABLE 
 BEGIN
-    IDS_STRING1             "OpenMOHAA"
+    IDS_STRING1             "OpenMoHAA"
 END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Application Manifest
+//
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "win_manifest.xml"
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
