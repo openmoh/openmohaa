@@ -4885,7 +4885,7 @@ typedef struct client_sh_s
 typedef struct client_bt_s
 {
 	clientState_t state;
-	char userinfo[MAX_INFOSTRING];
+	char userinfo[MAX_INFOSTRING + 4];
 	int reliableSequence;
 	int reliableAcknowledge;
 	char reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRINGCHARS];
@@ -6024,6 +6024,37 @@ typedef struct serverStatic_sh_s
 	sgSoundSystem_t soundSystem;
 
 } serverStatic_sh_t;
+
+typedef struct serverStatic_bt_s
+{
+	qboolean initialized;
+	int snapFlagServerBit;
+	int time;
+	int startTime;
+	int lastTime;
+	int serverLagTime;
+	qboolean autosave;
+	int mapTime;
+	client_bt_t *clients;
+	int iNumClients;
+	int numSnapshotEntities;
+	int nextSnapshotEntities;
+	entityState_t *snapshotEntities;
+	int nextHeartbeatTime;
+	challenge_t challenges[1024];
+	netAdr_t redirectAddress;
+	netAdr_t authorizeAddress;
+	char gameName[64];
+	char mapName[64];
+	char rawServerName[64];
+	int areaBitsWarningTime;
+	qboolean soundsNeedLoad;
+	char tmFileName[64];
+	int tmMoopcount;
+	int tmOffset;
+	sgSoundSystem_t soundSystem;
+
+} serverStatic_bt_t;
 
 typedef struct server_s
 {
@@ -10052,19 +10083,55 @@ typedef struct {
 
 typedef GServerListImplementation *GServerList;
 
-typedef struct qr_implementation_s { /* size 240 id 457 */
-  int querysock;
-  int hbsock;
-  char gamename[64];
-  char secret_key[128];
-  void (*qr_basic_callback) (/* unknown */);
-  void (*qr_info_callback) (/* unknown */);
-  void (*qr_rules_callback) (/* unknown */);
-  void (*qr_players_callback) (/* unknown */);
-  long unsigned int lastheartbeat;
-  int queryid;
-  int packetnumber;
-  int qport;
-  char no_query;
-  void *udata;
-} qr_t;
+typedef void (*qr_querycallback_t) (char* outbuf, int maxlen, void* userdata);
+
+typedef enum {
+	qtunknown,
+	qtbasic,
+	qtinfo,
+	qtrules,
+	qtplayers,
+	qtstatus,
+	qtpackets,
+	qtecho,
+	qtsecure
+} query_t;
+
+typedef struct qr_implementation_s {
+	int querysock;
+	int hbsock;
+	char gamename[64];
+	char secret_key[128];
+	qr_querycallback_t qr_basic_callback;
+	qr_querycallback_t qr_info_callback;
+	qr_querycallback_t qr_rules_callback;
+	qr_querycallback_t qr_players_callback;
+	long unsigned int lastheartbeat;
+	int queryid;
+	int packetnumber;
+	int qport;
+	char no_query;
+	void* udata;
+} qr_implementation_t, *qr_t;
+
+typedef struct qr_implementation_sh_s {
+	int querysock;
+	int hbsock;
+	char gamename[64];
+	char secret_key[128];
+	qr_querycallback_t qr_basic_callback;
+	qr_querycallback_t qr_info_callback;
+	qr_querycallback_t qr_rules_callback;
+	qr_querycallback_t qr_players_callback;
+	long unsigned int lastheartbeat;
+	int queryid;
+	int packetnumber;
+	int qport;
+	char no_query;
+	int unk1;
+	int unk2;
+	int unk3;
+	int unk4;
+	int unk5;
+	void* udata;
+} qr_implementation_sh_t, *qr_sh_t;
