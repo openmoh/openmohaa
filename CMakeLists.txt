@@ -57,6 +57,7 @@ ENDIF()
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
 	set(TARGET_CONFIG_SUFFIX "-dbg")
+	add_compile_definitions(_DEBUG)
 ELSE()
 	set(TARGET_CONFIG_SUFFIX "")
 ENDIF()
