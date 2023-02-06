@@ -377,7 +377,8 @@ ScriptConstArrayHolder::~ScriptConstArrayHolder()
 {
 	if (constArrayValue)
 	{
-		delete[](constArrayValue + 1);
+		ScriptVariable* const offset = constArrayValue + 1;
+		delete[] offset;
 	}
 }
 
@@ -712,7 +713,7 @@ void ScriptVariable::PrintValue( void )
 	switch (GetType())
 	{
 	case VARIABLE_NONE:
-		printf( "" );
+		printf("None");
 		break;
 
 #ifndef NO_SCRIPTENGINE

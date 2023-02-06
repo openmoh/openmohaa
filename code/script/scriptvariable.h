@@ -70,46 +70,9 @@ static const char *typenames[] =
 	"double"
 };
 
-class ScriptArrayHolder {
-public:
-	con_map< ScriptVariable, ScriptVariable > arrayValue;
-	unsigned int	refCount;
-
-public:
-	void			Archive( Archiver& arc );
-	static void		Archive( Archiver& arc, ScriptArrayHolder *& arrayValue );
-};
-
-class ScriptConstArrayHolder {
-public:
-	ScriptVariable			*constArrayValue;
-	unsigned int			refCount;
-	unsigned int			size;
-
-public:
-	void			Archive( Archiver& arc );
-	static void		Archive( Archiver& arc, ScriptConstArrayHolder *& constArrayValue );
-
-	ScriptConstArrayHolder( ScriptVariable *pVar, unsigned int size );
-	ScriptConstArrayHolder( unsigned int size );
-	ScriptConstArrayHolder();
-	~ScriptConstArrayHolder();
-};
-
-class ScriptPointer {
-public:
-	Container< ScriptVariable * > list;
-
-public:
-	void			Archive( Archiver& arc );
-	static void		Archive( Archiver& arc, ScriptPointer *& pointerValue );
-
-	void		Clear();
-
-	void		add( ScriptVariable *var );
-	void		remove( ScriptVariable *var );
-	void		setValue( const ScriptVariable& var );
-};
+class ScriptArrayHolder;
+class ScriptConstArrayHolder;
+class ScriptPointer;
 
 class ScriptVariable {
 public:
@@ -270,6 +233,47 @@ public:
 
 	ScriptVariable			operator++( int );
 	ScriptVariable			operator--( int );
+};
+
+class ScriptArrayHolder {
+public:
+	con_map< ScriptVariable, ScriptVariable > arrayValue;
+	unsigned int	refCount;
+
+public:
+	void			Archive( Archiver& arc );
+	static void		Archive( Archiver& arc, ScriptArrayHolder *& arrayValue );
+};
+
+class ScriptConstArrayHolder {
+public:
+	ScriptVariable			*constArrayValue;
+	unsigned int			refCount;
+	unsigned int			size;
+
+public:
+	void			Archive( Archiver& arc );
+	static void		Archive( Archiver& arc, ScriptConstArrayHolder *& constArrayValue );
+
+	ScriptConstArrayHolder( ScriptVariable *pVar, unsigned int size );
+	ScriptConstArrayHolder( unsigned int size );
+	ScriptConstArrayHolder();
+	~ScriptConstArrayHolder();
+};
+
+class ScriptPointer {
+public:
+	Container< ScriptVariable * > list;
+
+public:
+	void			Archive( Archiver& arc );
+	static void		Archive( Archiver& arc, ScriptPointer *& pointerValue );
+
+	void		Clear();
+
+	void		add( ScriptVariable *var );
+	void		remove( ScriptVariable *var );
+	void		setValue( const ScriptVariable& var );
 };
 
 #ifndef NO_SCRIPTENGINE

@@ -55,7 +55,7 @@ These are the tools required for all platforms :
 - Flex and Bison
 - Clang (at least version 11)
 
-At least C++17 is required. Avoid GCC/G++ because it uses nonstandard extensions.
+At least a C++17 compiler is required, clang is preferred over GCC.
 
 The installation directory can be set to MOHAA directory.
 

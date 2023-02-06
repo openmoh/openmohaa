@@ -80,7 +80,7 @@ void con_arrayset<key, value>::resize( int count )
 
 	if( oldTableLength > 1 )
 	{
-		oldReverseTable++;
+		++oldReverseTable;
 		delete[] oldReverseTable;
 	}
 }

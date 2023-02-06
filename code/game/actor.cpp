@@ -14523,7 +14523,8 @@ void Actor::ResolveVoiceType
 					return;
 				}
 			}
-			sprintf(validVoice, "");
+
+			validVoice[0] = '\0';
 			for (int i = 0; i < 3; i++)
 			{
 				strcat(validVoice, gAmericanVoices[i]);
@@ -14545,7 +14546,8 @@ void Actor::ResolveVoiceType
 					return;
 				}
 			}
-			sprintf(validVoice, "");
+
+			validVoice[0] = '\0';
 			for (int i = 0; i < 3; i++)
 			{
 				strcat(validVoice, gGermanVoices[i]);

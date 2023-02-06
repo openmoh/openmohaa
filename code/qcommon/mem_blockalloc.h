@@ -41,6 +41,26 @@ enum class alloc_source_e { SourceBlock = 174, SourceMalloc };
 template<typename aclass, size_t blocksize>
 class MEM_BlockAlloc_enum;
 
+template<size_t bits>
+struct block_selectType_t;
+
+template<>
+struct block_selectType_t<8> {
+	using type = uint8_t;
+};
+template<>
+struct block_selectType_t<16> {
+	using type = uint16_t;
+};
+template<>
+struct block_selectType_t<32> {
+	using type = uint32_t;
+};
+template<>
+struct block_selectType_t<64> {
+	using type = uint64_t;
+};
+
 template<typename aclass, size_t blocksize>
 class block_s
 {
@@ -59,27 +79,7 @@ public:
 #endif
 
 public:
-    template<size_t bits>
-    struct selectType_t;
-
-    template<>
-    struct selectType_t<8> {
-        using type = uint8_t;
-    };
-    template<>
-    struct selectType_t<16> {
-        using type = uint16_t;
-    };
-    template<>
-    struct selectType_t<32> {
-        using type = uint32_t;
-    };
-    template<>
-    struct selectType_t<64> {
-        using type = uint64_t;
-    };
-
-    using offset_t = typename selectType_t<bitsNeeded>::type;
+    using offset_t = typename block_selectType_t<bitsNeeded>::type;
 
     struct info_t {
         offset_t index;
