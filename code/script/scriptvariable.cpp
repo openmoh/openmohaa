@@ -42,6 +42,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "simpleentity.h"
 #endif
 
+#include <utility>
+
 template<>
 int HashCode< ScriptVariable >( const ScriptVariable& key )
 {
@@ -433,12 +435,24 @@ ScriptVariable::ScriptVariable()
 	m_data.pointerValue = NULL;
 }
 
-ScriptVariable::ScriptVariable( const ScriptVariable& variable )
+ScriptVariable::ScriptVariable(const ScriptVariable& variable)
 {
 	type = 0;
 	m_data.pointerValue = NULL;
 
 	*this = variable;
+}
+
+
+ScriptVariable::ScriptVariable(ScriptVariable&& variable)
+{
+#if defined(GAME_DLL)
+	key = variable.GetKey();
+	variable.key = 0;
+#endif
+	type = variable.GetType();
+	m_data = variable.m_data;
+	variable.type = VARIABLE_NONE;
 }
 
 ScriptVariable::~ScriptVariable()
@@ -2091,7 +2105,7 @@ bool ScriptVariable::operator==( const ScriptVariable &value )
 	}
 }
 
-bool ScriptVariable::operator=( const ScriptVariable &variable )
+ScriptVariable& ScriptVariable::operator=( const ScriptVariable &variable )
 {
 	ClearInternal();
 
@@ -2100,62 +2114,78 @@ bool ScriptVariable::operator=( const ScriptVariable &variable )
 	switch( type )
 	{
 	case VARIABLE_NONE:
-		return false;
+		break;
 
 	case VARIABLE_CONSTSTRING:
 		m_data.intValue = variable.m_data.intValue;
-		return true;
+		break;
 
 	case VARIABLE_STRING:
-		m_data.stringValue = new str( variable.stringValue() );
-		return true;
+		m_data.stringValue = new str(variable.stringValue());
+		break;
 
 	case VARIABLE_FLOAT:
 		m_data.floatValue = variable.m_data.floatValue;
-		return true;
+		break;
 
 	case VARIABLE_CHAR:
 		m_data.charValue = variable.m_data.charValue;
-		return true;
+		break;
 
 	case VARIABLE_INTEGER:
 		m_data.intValue = variable.m_data.intValue;
-		return true;
+		break;
 
 	case VARIABLE_LISTENER:
-		m_data.listenerValue = new SafePtr< Listener >( *variable.m_data.listenerValue );
-		return true;
+		m_data.listenerValue = new SafePtr< Listener >(*variable.m_data.listenerValue);
+		break;
 
 	case VARIABLE_ARRAY:
 		m_data.arrayValue = variable.m_data.arrayValue;
 		m_data.arrayValue->refCount++;
-		return true;
+		break;
 
 	case VARIABLE_CONSTARRAY:
 		m_data.constArrayValue = variable.m_data.constArrayValue;
 		m_data.constArrayValue->refCount++;
-		return true;
+		break;
 
 	case VARIABLE_CONTAINER:
-		m_data.containerValue = new Container< SafePtr< Listener > >( *variable.m_data.containerValue );
-		return true;
+		m_data.containerValue = new Container< SafePtr< Listener > >(*variable.m_data.containerValue);
+		break;
 
 	case VARIABLE_SAFECONTAINER:
-		m_data.safeContainerValue = new SafePtr< ConList >( *variable.m_data.safeContainerValue );
-		return true;
+		m_data.safeContainerValue = new SafePtr< ConList >(*variable.m_data.safeContainerValue);
+		break;
 
 	case VARIABLE_POINTER:
 		m_data.pointerValue = variable.m_data.pointerValue;
-		m_data.pointerValue->add( this );
-		return true;
+		m_data.pointerValue->add(this);
+		break;
 
 	case VARIABLE_VECTOR:
 		m_data.vectorValue = ( float * )new float[ 3 ];
-		VectorCopy( variable.m_data.vectorValue, m_data.vectorValue );
-		return true;
+		VectorCopy(variable.m_data.vectorValue, m_data.vectorValue);
+		break;
 	}
 
-	return true;
+	return *this;
+}
+
+ScriptVariable& ScriptVariable::operator=(ScriptVariable&& variable)
+{
+	ClearInternal();
+
+#if defined(GAME_DLL)
+	key = variable.GetKey();
+	variable.key = 0;
+#endif
+
+	type = variable.GetType();
+	m_data = variable.m_data;
+	variable.type = VARIABLE_NONE;
+
+	return *this;
 }
 
 ScriptVariable &ScriptVariable::operator[]( ScriptVariable& index )

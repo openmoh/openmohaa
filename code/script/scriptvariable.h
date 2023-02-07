@@ -106,7 +106,8 @@ private:
 
 public:
 	ScriptVariable();
-	ScriptVariable( const ScriptVariable& variable );
+	ScriptVariable(const ScriptVariable& variable);
+	ScriptVariable(ScriptVariable&& variable);
 
 	~ScriptVariable();
 
@@ -213,7 +214,8 @@ public:
 
 	void					complement( void );
 	void					minus( void );
-	bool					operator=( const ScriptVariable& variable );
+	ScriptVariable&			operator=(const ScriptVariable& variable);
+	ScriptVariable&			operator=(ScriptVariable&& variable);
 	ScriptVariable			&operator[]( ScriptVariable& index );
 	ScriptVariable			*operator[]( unsigned index ) const;
 	ScriptVariable			*operator*( );
