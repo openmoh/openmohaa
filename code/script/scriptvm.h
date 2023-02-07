@@ -169,6 +169,8 @@ private:
 
 	void			jump( int offset );
 	void			jumpBool(int offset, bool value);
+	void			loadTopInternal(Listener* listener);
+	ScriptVariable* storeTopInternal(Listener* listener);
 	template<bool noTop = false> void loadTop(Listener* listener);
 	template<bool noTop = false> ScriptVariable* storeTop(Listener* listener);
 

@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "parm.h"
 #include "world.h"
 
+#include <utility>
+
 #ifdef CGAME_DLL
 
 #define VM_Printf cgi.Printf
@@ -392,8 +394,8 @@ void ScriptVM::jumpBool(int offset, bool booleanValue)
 	}
 }
 
-template<bool noTop>
-void ScriptVM::loadTop(Listener* listener)
+
+void ScriptVM::loadTopInternal(Listener* listener)
 {
 	const const_str variable = fetchOpcodeValue<op_name_t>();
 	const op_evName_t eventName = fetchOpcodeValue<op_evName_t>();
@@ -418,18 +420,13 @@ void ScriptVM::loadTop(Listener* listener)
 			listener->Vars()->SetVariable(variable, std::move(pTop));
 		}
 	}
-
-	if constexpr (!noTop) m_VMStack.Pop();
 }
 
-template<bool noTop>
-ScriptVariable* ScriptVM::storeTop(Listener* listener)
+ScriptVariable* ScriptVM::storeTopInternal(Listener* listener)
 {
 	const const_str variable = fetchOpcodeValue<op_name_t>();
 	const op_evName_t eventName = fetchOpcodeValue<op_evName_t>();
 	ScriptVariable* listenerVar;
-
-	if constexpr (!noTop) m_VMStack.Push();
 
 	if (!eventName || !executeGetter(listener, eventName))
 	{
@@ -449,6 +446,35 @@ ScriptVariable* ScriptVM::storeTop(Listener* listener)
 	}
 
 	return listenerVar;
+}
+
+template<>
+void ScriptVM::loadTop<false>(Listener* listener)
+{
+	loadTopInternal(listener);
+	m_VMStack.Pop();
+}
+
+template<>
+void ScriptVM::loadTop<true>(Listener* listener)
+{
+	loadTopInternal(listener);
+}
+
+template<>
+ScriptVariable* ScriptVM::storeTop<false>(Listener* listener)
+{
+	m_VMStack.Push();
+
+	return storeTopInternal(listener);
+}
+
+template<>
+ScriptVariable* ScriptVM::storeTop<true>(Listener* listener)
+{
+	m_VMStack.Push();
+
+	return storeTopInternal(listener);
 }
 
 template<>
@@ -1753,7 +1779,8 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 
 					m_VMStack.GetTop().setListenerValue(NULL);
 
-					if (*m_CodePos >= OP_BIN_EQUALITY && *m_CodePos <= OP_BIN_GREATER_THAN_OR_EQUAL || *m_CodePos >= OP_BOOL_UN_NOT && *m_CodePos <= OP_UN_CAST_BOOLEAN) {
+					if ((*m_CodePos >= OP_BIN_EQUALITY && *m_CodePos <= OP_BIN_GREATER_THAN_OR_EQUAL)
+						|| (*m_CodePos >= OP_BOOL_UN_NOT && *m_CodePos <= OP_UN_CAST_BOOLEAN)) {
 						ScriptError("Targetname '%s' does not exist.", value.c_str());
 					}
 
@@ -1774,7 +1801,8 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 
 					m_VMStack.GetTop().setListenerValue(NULL);
 
-					if (*m_CodePos >= OP_BIN_EQUALITY && *m_CodePos <= OP_BIN_GREATER_THAN_OR_EQUAL || *m_CodePos >= OP_BOOL_UN_NOT && *m_CodePos <= OP_UN_CAST_BOOLEAN) {
+					if ((*m_CodePos >= OP_BIN_EQUALITY && *m_CodePos <= OP_BIN_GREATER_THAN_OR_EQUAL)
+						|| (*m_CodePos >= OP_BOOL_UN_NOT && *m_CodePos <= OP_UN_CAST_BOOLEAN)) {
 						ScriptError("Targetname '%s' does not exist.", value.c_str());
 					}
 
