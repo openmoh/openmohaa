@@ -80,7 +80,7 @@ class str
 								str();
 								str( const char *text );
 								str( const str& string );
-								str( const str string, size_t start, size_t end );
+								str( const str& string, size_t start, size_t end );
 								str( const char ch );
 								str( const int num );
 								str( const float num );
@@ -245,42 +245,45 @@ inline str::str
 }
 
 inline str::str
-	(
-	const str text, 
+(
+	const str& text,
 	size_t start,
 	size_t end
-   ) : m_data ( NULL )
+) : m_data(NULL)
 
-	{
+{
 	size_t i;
-   size_t len;
+	size_t len;
 
-	if ( end > text.length() )
-		{
+	if (end > text.length())
+	{
 		end = text.length();
-		}
-
-	if ( start > text.length() )
-		{
-		start = text.length();
-		}
-
-	len = end - start;
-	if ( len < 0 )
-		{
-		len = 0;
-		}
-
-   EnsureAlloced ( len + 1 );
-
-	for( i = 0; i < len; i++ )
-		{
-		m_data->data[ i ] = text[ start + i ];
-		}
-
-	m_data->data[ len ] = 0;
-   m_data->len = len;
 	}
+
+	if (start > text.length())
+	{
+		start = text.length();
+	}
+
+	if (end >= start)
+	{
+		len = end - start;
+	}
+	else
+	{
+		len = 0;
+	}
+
+	EnsureAlloced(len + 1);
+
+	for (i = 0; i < len; i++)
+	{
+		m_data->data[i] = text[start + i];
+	}
+
+	m_data->data[len] = 0;
+	m_data->len = len;
+}
 
 inline str::str
    (
