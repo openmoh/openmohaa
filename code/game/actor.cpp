@@ -6632,7 +6632,7 @@ void Actor::VoiceSound
 {
 	bool bFriendly;
 	//FIXME: macros
-	if (m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_IDLE && m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_CURIOUS || !m_bEnableEnemy)
+	if ((m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_IDLE && m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_CURIOUS) || !m_bEnableEnemy)
 		return;
 
 	bFriendly = m_Team == TEAM_GERMAN;
@@ -9673,7 +9673,7 @@ void Actor::MovePath
 
 			VectorCopy2D(mm.obstacle_normal, m_PrevObstacleNormal);
 
-			if (m_WallDir == uint8_t(~0u))
+			if (m_WallDir == char(-1))
 			{
 				mm.desired_dir[0] = -mm.obstacle_normal[1];
 				mm.desired_dir[1] = mm.obstacle_normal[0];

@@ -566,7 +566,7 @@ void ActorEnemySet::CheckEnemies
 			{
 				pActorEnemy = &m_Enemies[i-1];
 				pActorEnemy->UpdateThreat(pSelf);
-				if (m_iCurrentThreat < pActorEnemy->m_iThreat || m_iCheckCount == pActorEnemy->m_iThreat && fRangeSquared > pActorEnemy->m_fCurrentRangeSquared)
+				if (m_iCurrentThreat < pActorEnemy->m_iThreat || (m_iCheckCount == pActorEnemy->m_iThreat && fRangeSquared > pActorEnemy->m_fCurrentRangeSquared))
 				{
 					m_iCurrentThreat = pActorEnemy->m_iThreat;
 					m_pCurrentEnemy = pActorEnemy->m_pEnemy;

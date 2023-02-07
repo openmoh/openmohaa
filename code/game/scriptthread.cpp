@@ -4837,8 +4837,8 @@ void ScriptThread::FadeSound
 
 	time = delaytime * 1000.0f;
 
-	gi.SendServerCommand( player != NULL ? player->edict - g_entities : NULL,
-		"fadesound2 %0.2f %f", time, min_vol );
+	gi.SendServerCommand(player != nullptr ? player->edict - g_entities : 0,
+		"fadesound2 %0.2f %f", time, min_vol);
 }
 
 void ScriptThread::RestoreSound

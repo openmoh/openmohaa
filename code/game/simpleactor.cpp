@@ -327,8 +327,8 @@ void SimpleActor::SetPath
 			{
 				if (description)
 				{
-					int thinkState = ((Actor *)this)->m_ThinkState;
-					if (g_patherror->integer == 1 || g_patherror->integer == 2 && (thinkState == THINKSTATE_IDLE || thinkState == THINKSTATE_CURIOUS))
+					int thinkState = ((Actor*)this)->m_ThinkState;
+					if (g_patherror->integer == 1 || (g_patherror->integer == 2 && (thinkState == THINKSTATE_IDLE || thinkState == THINKSTATE_CURIOUS)))
 					{
 						if (m_bPathErrorTime + 5000 < level.inttime)
 						{

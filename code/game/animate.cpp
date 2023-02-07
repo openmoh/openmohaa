@@ -579,7 +579,8 @@ void Animate::PostAnimate( void )
 
 		if( animtimes[ i ] == 0.0f )
 		{
-			animFlags[ i ] = animFlags[ i ] & ~ANIM_NODELTA | ANIM_FINISHED;
+			animFlags[i] &= ~ANIM_NODELTA;
+			animFlags[i] |= ANIM_FINISHED;
 			edict->s.frameInfo[ i ].time = 0.0f;
 		}
 		else

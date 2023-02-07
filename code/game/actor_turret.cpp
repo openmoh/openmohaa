@@ -634,13 +634,13 @@ void Actor::Turret_SideStep
 	AimAtEnemyBehavior();
 	//v3 = iStepSize;
 	StrafeToAttack(iStepSize, vDir);
-	if (PathExists()
-		&& !PathComplete()
-		&& PathAvoidsSquadMates()
-		|| (StrafeToAttack(-iStepSize, vDir),
-			PathExists())
+	if ((PathExists()
 		&& !PathComplete()
 		&& PathAvoidsSquadMates())
+		|| ((StrafeToAttack(-iStepSize, vDir),
+			PathExists())
+			&& !PathComplete()
+			&& PathAvoidsSquadMates()))
 	{
 		TransitionState(101, 0);
 	}
@@ -1055,11 +1055,11 @@ void Actor::State_Turret_Retarget_Step_Side_Small
 	iRand = (rand() & 64) - 32;
 	AimAtEnemyBehavior();
 	StrafeToAttack(iRand, orientation[1]);
-	if (PathExists() && !PathComplete() && PathAvoidsSquadMates()
-		|| (Actor::StrafeToAttack(-iRand, orientation[1]),
+	if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
+		|| ((Actor::StrafeToAttack(-iRand, orientation[1]),
 			PathExists())
 		&& !PathComplete()
-		&& PathAvoidsSquadMates())
+		&& PathAvoidsSquadMates()))
 	{
 		TransitionState(101, 0);
 	}
@@ -1080,11 +1080,11 @@ void Actor::State_Turret_Retarget_Step_Side_Medium
 	iRand = (rand() & 256) - 128;
 	AimAtEnemyBehavior();
 	StrafeToAttack(iRand, orientation[1]);
-	if (PathExists() && !PathComplete() && PathAvoidsSquadMates()
-		|| (Actor::StrafeToAttack(-iRand, orientation[1]),
+	if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
+		|| ((Actor::StrafeToAttack(-iRand, orientation[1]),
 			PathExists())
 		&& !PathComplete()
-		&& PathAvoidsSquadMates())
+		&& PathAvoidsSquadMates()))
 	{
 		TransitionState(101, 0);
 	}
@@ -1105,11 +1105,11 @@ void Actor::State_Turret_Retarget_Step_Side_Large
 	iRand = (rand() & 512) - 256;
 	AimAtEnemyBehavior();
 	StrafeToAttack(iRand, orientation[1]);
-	if (PathExists() && !PathComplete() && PathAvoidsSquadMates()
-		|| (Actor::StrafeToAttack(-iRand, orientation[1]),
+	if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
+		|| ((Actor::StrafeToAttack(-iRand, orientation[1]),
 			PathExists())
 		&& !PathComplete()
-		&& PathAvoidsSquadMates())
+		&& PathAvoidsSquadMates()))
 	{
 		TransitionState(101, 0);
 	}
@@ -1130,11 +1130,11 @@ void Actor::State_Turret_Retarget_Step_Face_Medium
 	iRand = (rand() & 256) - 128;
 	AimAtEnemyBehavior();
 	StrafeToAttack(iRand, orientation[0]);
-	if (PathExists() && !PathComplete() && PathAvoidsSquadMates()
-		|| (Actor::StrafeToAttack(-iRand, orientation[0]),
+	if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
+		|| ((Actor::StrafeToAttack(-iRand, orientation[0]),
 			PathExists())
 		&& !PathComplete()
-		&& PathAvoidsSquadMates())
+		&& PathAvoidsSquadMates()))
 	{
 		TransitionState(101, 0);
 	}
@@ -1155,11 +1155,11 @@ void Actor::State_Turret_Retarget_Step_Face_Large
 	iRand = (rand() & 512) - 256;
 	AimAtEnemyBehavior();
 	StrafeToAttack(iRand, orientation[0]);
-	if (PathExists() && !PathComplete() && PathAvoidsSquadMates()
-		|| (Actor::StrafeToAttack(-iRand, orientation[0]),
+	if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
+		|| ((Actor::StrafeToAttack(-iRand, orientation[0]),
 			PathExists())
 		&& !PathComplete()
-		&& PathAvoidsSquadMates())
+		&& PathAvoidsSquadMates()))
 	{
 		TransitionState(101, 0);
 	}

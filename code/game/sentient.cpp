@@ -2278,14 +2278,14 @@ void Sentient::ArmorDamage
 		return;
 	}
 
-	if( ( takedamage == DAMAGE_NO ) || ( movetype == MOVETYPE_NOCLIP ) )
+	if ((takedamage == DAMAGE_NO) || (movetype == MOVETYPE_NOCLIP))
 	{
 		return;
 	}
 
-	if( client && !g_gametype->integer || location < 0 || location > 18 )
+	if ((client && !g_gametype->integer) || (location < 0 || location > 18))
 	{
-		if( attacker && attacker->IsSubclassOfActor() )
+		if (attacker && attacker->IsSubclassOfActor())
 		{
 			damage *= AIDamageMult->value;
 		}

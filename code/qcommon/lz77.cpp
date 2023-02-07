@@ -245,7 +245,7 @@ unsigned int cLZ77::CompressData( unsigned char *in, size_t in_len, unsigned cha
 		}
 		else
 		{
-			v13 = this->dindex & 0x7FF ^ 0x201F;
+			v13 = (this->dindex & 0x7FF) ^ 0x201F;
 			this->dindex = v13;
 			v14 = m_pDictionary[v13];
 			this->m_off = v14;
@@ -378,7 +378,7 @@ unsigned int cLZ77::CompressData( unsigned char *in, size_t in_len, unsigned cha
 									this->m_off = v48;
 									if (v44 <= 9)
 									{
-										*this->op = (this->m_len - 2) | (v48 >> 11) & 8 | 0x10;
+										*this->op = (this->m_len - 2) | ((v48 >> 11) & 8) | 0x10;
 									LABEL_65:
 										v57 = this->op + 1;
 										v58 = 4 * this->m_off;
@@ -389,7 +389,7 @@ unsigned int cLZ77::CompressData( unsigned char *in, size_t in_len, unsigned cha
 									}
 									v49 = this->m_off >> 11;
 									this->m_len = v44 - 9;
-									*this->op = v49 & 8 | 0x10;
+									*this->op = (v49 & 8) | 0x10;
 									m_len = this->m_len;
 									v51 = this->op + 1;
 									this->op = v51;
@@ -454,7 +454,7 @@ unsigned int cLZ77::CompressData( unsigned char *in, size_t in_len, unsigned cha
 				v56 = this->m_len;
 				v44 -= 0x4000;
 				this->m_off = v44;
-				v44 = (v56 - 2) | (v44 >> 11) & 8 | 0x10;
+				v44 = (v56 - 2) | ((v44 >> 11) & 8) | 0x10;
 			}
 			else
 			{

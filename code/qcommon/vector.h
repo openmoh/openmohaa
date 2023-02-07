@@ -1180,7 +1180,7 @@ inline int operator==( const Quat &a, const Quat &b	)
 
 inline int operator!=( const Quat &a, const Quat &b )
 {
-	return ( ( a.x != b.x ) || ( a.y != b.y ) || ( a.z != b.z ) && ( a.w != b.w ) );
+	return (((a.x != b.x) || (a.y != b.y)) || ((a.z != b.z) && (a.w != b.w)));
 }
 
 inline float Quat::length( void	) const

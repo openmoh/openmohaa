@@ -7268,7 +7268,7 @@ void Player::Think
 			if (dmManager.AllowRespawn())
 			{
 				if (((server_new_buttons & BUTTON_ATTACK) || (server_new_buttons & BUTTON_ATTACK2)) ||
-					g_forcerespawn->integer > 0 && level.time > g_forcerespawn->integer + respawn_time)
+					(g_forcerespawn->integer > 0 && level.time > g_forcerespawn->integer + respawn_time))
 				{
 					m_bSpectator = false;
 					m_bTempSpectator = false;
@@ -10365,8 +10365,9 @@ void Player::UpdateStats
 			{
 				if( iItem <= 3 )
 				{
-					client->ps.activeItems[ iItem + 2 ] = weapon->getIndex();
-					weapon->weapon_class = ( 256 << iItem ) & WEAPON_CLASS_ITEMINDEX | weapon->weapon_class & ~WEAPON_CLASS_ITEMINDEX;
+					client->ps.activeItems[iItem + 2] = weapon->getIndex();
+					weapon->weapon_class = (256 << iItem) & WEAPON_CLASS_ITEMINDEX;
+					weapon->weapon_class |= weapon->weapon_class & ~WEAPON_CLASS_ITEMINDEX;
 
 					if( activeweap && weapon == activeweap )
 					{
@@ -10425,9 +10426,9 @@ void Player::UpdateStats
 		client->ps.stats[ STAT_INZOOM ] = 0;
 	}
 
-	client->ps.stats[ STAT_CROSSHAIR ] = ( !client->ps.stats[ STAT_INZOOM ] || client->ps.stats[ STAT_INZOOM ] > 30 ) &&
-		( activeweap && !activeweap->IsSubclassOfInventoryItem() && activeweap->HasCrosshair() ) ||
-		pTurret || ( m_pVehicle && m_pVehicle->IsSubclassOfVehicleTank() );
+	client->ps.stats[STAT_CROSSHAIR] = ((!client->ps.stats[STAT_INZOOM] || client->ps.stats[STAT_INZOOM] > 30) &&
+		(activeweap && !activeweap->IsSubclassOfInventoryItem() && activeweap->HasCrosshair())) ||
+		pTurret || (m_pVehicle && m_pVehicle->IsSubclassOfVehicleTank());
 
 
 	client->ps.stats[ STAT_COMPASSNORTH ] = ANGLE2SHORT( world->m_fNorth );
@@ -11487,7 +11488,8 @@ void Player::SetPlayerSpectate( void )
 			if( !pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer( pPlayer ) )
 			{
 				m_iPlayerSpectating = i + 1;
-				client->ps.camera_flags = client->ps.camera_flags & ~CF_CAMERA_CUT_BIT | client->ps.camera_flags & CF_CAMERA_CUT_BIT ^ CF_CAMERA_CUT_BIT;
+				client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
+				client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
 				return;
 			}
 		}
@@ -11754,9 +11756,9 @@ void Player::CallVote
 			}
 		}
 
-		if( i == game.maxclients )
+		if (i == game.maxclients)
 		{
-			HUDPrint(va("%s %s", gi.LV_ConvertString("is not a valid player name to kick.")));
+			HUDPrint(va("%s %s", ent->client->pers.netname, gi.LV_ConvertString("is not a valid player name to kick.")));
 		}
 	}
 	else if( !Q_stricmp( arg1.c_str(), "map" ) && *sv_nextmap->string )

@@ -1428,17 +1428,17 @@ PathNode *PathSearch::NearestStartNode
 		}
 	}
 
-	if (ent->m_NearestNode &&
+	if ((ent->m_NearestNode &&
 		(G_SightTrace(
 			Vector(start),
 			vMins,
 			vMaxs,
 			ent->m_vNearestNodePos,
-			(gentity_t *)ent,
-			(gentity_t *)NULL,
+			(gentity_t*)ent,
+			(gentity_t*)NULL,
 			1073883393, //FIXME: macro
 			qtrue,
-			"PathSearch::NearestStartNode 2"))
+			"PathSearch::NearestStartNode 2")))
 		|| node_count <= 0
 		)
 	{

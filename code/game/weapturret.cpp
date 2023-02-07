@@ -737,7 +737,7 @@ void TurretGun::Think
 	)
 
 {
-	if( owner || !m_bHadOwner && aim_target )
+	if (owner || (!m_bHadOwner && aim_target))
 	{
 		ThinkActive();
 	}

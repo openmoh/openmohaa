@@ -3935,8 +3935,8 @@ void Vehicle::MoveVehicle
 
 					tr.ent->entity->CheckGround();
 
-					if( !tr.ent->entity->groundentity || tr.ent->entity->groundentity == edict &&
-						( !m_pCollisionEntity || tr.ent->entity != m_pCollisionEntity ) )
+					if (!tr.ent->entity->groundentity || (tr.ent->entity->groundentity == edict &&
+						(!m_pCollisionEntity || tr.ent->entity != m_pCollisionEntity)))
 					{
 						Event *event = new Event( EV_Touch );
 						event->AddEntity( this );
@@ -4131,8 +4131,8 @@ _label1:
 
 				tr.ent->entity->CheckGround();
 
-				if( !tr.ent->entity->groundentity || tr.ent->entity->groundentity == edict &&
-					( !m_pCollisionEntity || tr.ent->entity != m_pCollisionEntity ) )
+				if (!tr.ent->entity->groundentity || (tr.ent->entity->groundentity == edict &&
+					(!m_pCollisionEntity || tr.ent->entity != m_pCollisionEntity)))
 				{
 					Event *event = new Event( EV_Touch );
 					event->AddEntity( this );
