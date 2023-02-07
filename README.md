@@ -51,7 +51,7 @@ You can now start a local OpenMOHAA server or play on a server.
 ## Compiling
 
 These are the tools required for all platforms :
-- CMake >= 3.12
+- CMake >= 3.5
 - Flex and Bison (currently not used)
 
 The installation directory can be set to MOHAA directory.
@@ -61,7 +61,7 @@ The installation directory can be set to MOHAA directory.
 These are the tools required on Unix :
 - Clang or GCC
 
-A C++11 compiler is required. At least **clang-7** or **gcc-7** should work (tested on Ubuntu 20.04).
+A C++11 compiler is required. At least **clang-5.0** or **gcc-5** should work (tested on Ubuntu 18.04).
 
 1 line install command with latest clang version : `sudo apt-get install -y ninja-build cmake make clang-15 lld-15 flex bison`
 
