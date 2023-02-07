@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.5)
 
 project(gcd)
 
@@ -80,7 +80,7 @@ add_library(gcd INTERFACE)
 set_property(TARGET gcd_common gcd_key PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if(UNIX)
-	add_compile_definitions(_LINUX=1)
+	add_definitions(-D_LINUX=1)
 endif(UNIX)
 
 set(DEPENDENT_LIBS
