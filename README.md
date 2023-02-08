@@ -61,7 +61,7 @@ The installation directory can be set to MOHAA directory.
 These are the tools required on Unix :
 - Clang or GCC
 
-A C++11 compiler is required. At least **clang-5.0** or **gcc-5** should work (tested on Ubuntu 18.04).
+A C++11 compiler is required. At least **clang-5.0** or **gcc-5** should work (tested on Ubuntu 16.04).
 
 1 line install command with latest clang version : `sudo apt-get install -y ninja-build cmake make clang-15 lld-15 flex bison`
 
