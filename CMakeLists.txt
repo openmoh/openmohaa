@@ -88,7 +88,7 @@ add_library(fgame SHARED ${SOURCES_GAME_LIB})
 target_compile_definitions(fgame PRIVATE GAME_DLL ARCHIVE_SUPPORTED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
 target_include_directories(fgame PUBLIC "code/qcommon" "code/script" "code/game")
 target_include_directories(fgame PRIVATE "code/parser")
-target_compile_features(fgame PUBLIC cxx_std_11)
+target_compile_features(fgame PUBLIC cxx_nullptr)
 
 set_target_properties(fgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
 set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
@@ -178,7 +178,7 @@ set(SOURCES_SERVER_APP ${SOURCES_APP} ${SOURCES_SERVER})
 
 add_executable(omohaaded ${SOURCES_SERVER_APP} ${SOURCES_PLATFORM_SPECIFIC} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c")
 target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
-target_compile_features(omohaaded PUBLIC cxx_std_11)
+target_compile_features(omohaaded PUBLIC cxx_nullptr)
 # Gamespy dependency
 add_dependencies(omohaaded gcd)
 target_link_libraries(omohaaded PRIVATE gcd)
