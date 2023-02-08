@@ -104,6 +104,3 @@ foreach(LIB ${DEPENDENT_LIBS})
 endforeach()
 
 target_link_libraries(gcd_qr2 PRIVATE gcd_natneg)
-
-#target_compile_definitions(gcd PRIVATE _CRT_SECURE_NO_WARNINGS)
-#set_property(TARGET gcd PROPERTY POSITION_INDEPENDENT_CODE ON)
