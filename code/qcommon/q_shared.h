@@ -830,6 +830,7 @@ void	R_ConcatTransforms( float in1[ 3 ][ 4 ], float in2[ 3 ][ 4 ], float out[ 3 
 
 void	MatrixToEulerAngles( const float mat[ 3 ][ 3 ], vec3_t ang );
 void	QuatToMat( const float q[ 4 ], float m[ 3 ][ 3 ] );
+void SlerpQuaternion(float from[4], float to[4], float t, float res[4]);
 void	EulerToQuat( float ang[ 3 ], float q[ 4 ] );
 void	MatToQuat( float srcMatrix[ 3 ][ 3 ], float destQuat[ 4 ] );
 

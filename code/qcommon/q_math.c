@@ -1887,6 +1887,71 @@ void MatToQuat
 	}
 }
 
+#define DELTA 1e-6
+
+void SlerpQuaternion
+(
+    float from[4],
+    float to[4],
+    float t,
+    float res[4]
+)
+
+{
+    float		to1[4];
+    double	omega, cosom, sinom, scale0, scale1;
+
+    cosom = from[X] * to[X] + from[Y] * to[Y] + from[Z] * to[Z] + from[W] * to[W];
+    if (cosom < 0.0)
+    {
+        cosom = -cosom;
+        to1[X] = -to[X];
+        to1[Y] = -to[Y];
+        to1[Z] = -to[Z];
+        to1[W] = -to[W];
+    }
+    else if
+        (
+            (from[X] == to[X]) &&
+            (from[Y] == to[Y]) &&
+            (from[Z] == to[Z]) &&
+            (from[W] == to[W])
+            )
+    {
+        // equal case, early exit
+        res[X] = to[X];
+        res[Y] = to[Y];
+        res[Z] = to[Z];
+        res[W] = to[W];
+        return;
+    }
+    else
+    {
+        to1[X] = to[X];
+        to1[Y] = to[Y];
+        to1[Z] = to[Z];
+        to1[W] = to[W];
+    }
+
+    if ((1.0 - cosom) > DELTA)
+    {
+        omega = acos(cosom);
+        sinom = sin(omega);
+        scale0 = sin((1.0 - t) * omega) / sinom;
+        scale1 = sin(t * omega) / sinom;
+    }
+    else
+    {
+        scale0 = 1.0 - t;
+        scale1 = t;
+    }
+
+    res[X] = scale0 * from[X] + scale1 * to1[X];
+    res[Y] = scale0 * from[Y] + scale1 * to1[Y];
+    res[Z] = scale0 * from[Z] + scale1 * to1[Z];
+    res[W] = scale0 * from[W] + scale1 * to1[W];
+}
+
 void EulerToQuat
 	(
 	float ang[ 3 ],
