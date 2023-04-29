@@ -68,6 +68,7 @@ typedef struct AliasList_s
 	AliasListNode_t* data_list;
 } AliasList_t;
 
+#if defined(APP_MODULE)
 const char* Alias_Find(const char* alias);
 qboolean Alias_Add(const char* alias, const char* name, const char* parameters);
 qboolean Alias_Delete(const char* alias);
@@ -78,6 +79,7 @@ AliasList_t* Alias_GetGlobalList();
 
 int S_ChannelNameToNum( const char *pszName );
 const char *S_ChannelNumToName( int iChannel );
+#endif
 
 //
 // private implementation
