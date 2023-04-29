@@ -23,11 +23,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // vehicleturret.cpp: Vehicle Turret.
 //
 
+#include "g_phys.h"
 #include "vehicleturret.h"
 #include "player.h"
 #include "explosion.h"
 #include "gibs.h"
-
+#include "scriptexception.h"
 
 Event EV_VehicleTurretGun_SetBaseEntity
 	(

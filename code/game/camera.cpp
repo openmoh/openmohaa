@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bspline.h"
 #include "player.h"
 #include "camera.h"
+#include "debuglines.h"
+#include "scriptexception.h"
+#include "g_phys.h"
 
 #define CAMERA_PATHFILE_VERSION 1
 

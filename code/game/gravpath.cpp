@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "navigate.h"
 #include "misc.h"
 #include "player.h"
+#include "g_phys.h"
+#include "debuglines.h"
 
 GravPathManager gravPathManager;
 

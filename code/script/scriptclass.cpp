@@ -1,6 +1,7 @@
 #include "scriptclass.h"
 #include "scriptmaster.h"
 #include "scriptthread.h"
+#include "scriptexception.h"
 
 //====================
 // ScriptClass

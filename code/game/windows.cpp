@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // windows.cpp: Window class
 //
 
+#include "g_phys.h"
 #include "windows.h"
 #include "game.h"
 

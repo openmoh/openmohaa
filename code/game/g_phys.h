@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __G_PHYS_H__
 
 #include "g_local.h"
+#include "vector.h"
 
 class Entity;
 

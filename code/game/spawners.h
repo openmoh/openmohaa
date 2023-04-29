@@ -22,11 +22,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // spawners.h: Various spawning entities
 
-#ifndef __SPAWNWERS_H__
-#define __SPAWNWERS_H__
+#pragma once
 
 #include "g_local.h"
 #include "scriptslave.h"
+
+class SpawnArgs;
 
 class Spawn : public ScriptSlave
 	{
@@ -129,5 +130,3 @@ class SpawnChain : public Spawn
  	public:
       CLASS_PROTOTYPE( SpawnChain );
 	};
-
-#endif //__SPAWNWERS_H__

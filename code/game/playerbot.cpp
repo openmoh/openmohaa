@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "actor.h"
 #include "playerbot.h"
 #include "consoleevent.h"
+#include "debuglines.h"
+#include "scriptexception.h"
 
 // We assume that we have limited access to the server-side
 // and that most logic come from the playerstate_s structure

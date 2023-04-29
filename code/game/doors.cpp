@@ -25,12 +25,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 #include "g_local.h"
+#include "g_phys.h"
 #include "entity.h"
 #include "trigger.h"
 #include "mover.h"
 #include "doors.h"
 #include "sentient.h"
 #include "scriptmaster.h"
+#include "scriptexception.h"
 #include "item.h"
 #include "actor.h"
 #include "player.h"

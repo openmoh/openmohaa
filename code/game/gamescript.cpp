@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptmaster.h"
 #include "scriptthread.h"
 #include "scriptclass.h"
+#include "scriptexception.h"
 #include "level.h"
 
 static unsigned char *current_progBuffer = NULL;

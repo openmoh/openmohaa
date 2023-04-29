@@ -22,12 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // scriptvm.cpp : Script virtual machine, interprets and execute scripts
 
-#include "glb_local.h"
+#include "g_local.h"
 #include "scriptmaster.h"
 #include "scriptthread.h"
 #include "scriptclass.h"
 #include "scriptvm.h"
 #include "scriptcompiler.h"
+#include "scriptexception.h"
 #include "game.h"
 #include "level.h"
 #include "parm.h"

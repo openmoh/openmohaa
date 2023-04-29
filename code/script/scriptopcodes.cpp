@@ -22,8 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // scriptopcodes.cpp
 
-#include "glb_local.h"
 #include "scriptopcodes.h"
+#include "short3.h"
+#include "vector.h"
 
 static opcode_t OpcodeInfo[] =
 {

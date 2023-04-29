@@ -2,7 +2,9 @@
 #include "scriptmaster.h"
 #include "scriptclass.h"
 #include "scriptvariable.h"
+#include "scriptexception.h"
 
+#include "g_spawn.h"
 #include "level.h"
 #include "game.h"
 #include "camera.h"

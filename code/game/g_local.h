@@ -75,15 +75,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_main.h"
 
-#ifdef __cplusplus
-#include <Linklist.h>
-#include <mem_blockalloc.h>
-#include <vector.h>
-#include <str.h>
-#include <container.h>
-#endif
-
+class str;
+class Vector;
+class Archiver;
 class Entity;
+template<typename T>
+class Container;
 
 typedef enum {
 	SPECTATOR_NOT,
@@ -576,21 +573,5 @@ void BotTestAAS(vec3_t origin);
 
 extern gentity_t *g_entities;
 #define	FOFS(x) ((size_t)&(((gentity_t *)0)->x))
-
-#ifdef __cplusplus
-#include "const_str.h"
-#include <short3.h>
-#include <con_set.h>
-#include <con_arrayset.h>
-#include <scriptexception.h>
-#include <class.h>
-#include <containerclass.h>
-#include <listener.h>
-#include <g_spawn.h>
-#include "archive.h"
-#include "debuglines.h"
-#endif
-
-#include "g_phys.h"
 
 #endif /* g_local.h */

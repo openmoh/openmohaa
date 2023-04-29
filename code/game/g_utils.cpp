@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "actor.h"
 #include "player.h"
 #include "playerbot.h"
+#include "debuglines.h"
 #include <tiki.h>
 
 typedef struct {

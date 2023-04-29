@@ -1792,6 +1792,7 @@ int MSG_PackCoord(float coord)
 {
 	unsigned int packed = (unsigned int)round(coord * 4.0 + MAX_PACKED_COORD_HALF);
 	coordstats[packed]++;
+
 	return packed;
 }
 

@@ -1,6 +1,7 @@
 #include "lightstyleclass.h"
 
 #include "g_local.h"
+#include "archive.h"
 
 ////////////////////////
 //

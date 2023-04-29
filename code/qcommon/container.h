@@ -22,30 +22,37 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // container.h: C++ Container
 
-#ifndef __CONTAINER_H__
-#define __CONTAINER_H__
+#pragma once
 
-#ifdef GAME_DLL
-#ifdef WIN32
-#define glbprintf(text) gi.Printf(text)
-#else
-#define glbprintf(text)
-#endif
-#elif defined CGAME_DLL
-#define glbprintf(text) cgi.Printf(text)
-#else
-#define glbprintf(text) printf(text)
-#endif
+#if defined(GAME_DLL)
+//
+// game dll specific defines
+//
+#include "g_local.h"
 
-#ifdef _DEBUG
-#define CONTAINER_Error(id, text) \
-    glbprintf(text);              \
-    assert(0);
+#define CONTAINER_Error          gi.Error
+#define CONTAINER_DPrintf        gi.DPrintf
+#define CONTAINER_WDPrintf(text) gi.DPrintf(text)
+
+#elif defined(CGAME_DLL)
+//
+// cgame dll specific defines
+//
+#include "cg_local.h"
+
+#define CONTAINER_Error             cgi.Error
+#define CONTAINER_DPrintf           cgi.DPrintf
+#define CONTAINER_WDPrintf(text)    cgi.DPrintf(text)
+
 #else
-#define CONTAINER_Error(id, text) throw(text) // gi.Error
+
+//
+// client specific defines
+//
+#define CONTAINER_Error             Com_Error
+#define CONTAINER_DPrintf           Com_DPrintf
+#define CONTAINER_WDPrintf(text)    Com_DPrintf(text)
 #endif
-#define CONTAINER_DPrintf(text)  glbprintf(text)
-#define CONTAINER_WDPrintf(text) glbprintf(text)
 
 class Archiver;
 
@@ -483,5 +490,3 @@ Container<Type>& Container<Type>::operator=(const Container<Type>& container)
 
     return *this;
 }
-
-#endif /* __CONTAINER_H__ */

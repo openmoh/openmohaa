@@ -22,9 +22,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // world.cpp : Holds the target list, and general info (fog and such).
 
+#include "g_phys.h"
 #include "world.h"
 #include "level.h"
-#include <scriptmaster.h>
+#include "scriptmaster.h"
+#include "scriptexception.h"
 
 #ifdef GAME_DLL
 #include "../game/soundman.h"

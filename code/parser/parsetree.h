@@ -22,8 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // parsetree.h: Abstract Syntax Layer for Lexer/Parser
 
-#ifndef __PARSETREE_H__
-#define __PARSETREE_H__
+#pragma once
+
+#include "str.h"
 
 #if defined ( GAME_DLL )
 #define showopcodes g_showopcodes
@@ -143,5 +144,3 @@ struct yyparsedata {
 };
 
 extern yyparsedata parsedata;
-
-#endif

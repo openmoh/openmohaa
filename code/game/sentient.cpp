@@ -24,11 +24,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 #include "g_local.h"
+#include "g_phys.h"
 #include "entity.h"
 #include "sentient.h"
 #include "weapon.h"
 #include "weaputils.h"
 #include "scriptmaster.h"
+#include "scriptexception.h"
 #include "ammo.h"
 #include "armor.h"
 #include "misc.h"
@@ -36,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include "actor.h"
 #include "decals.h"
-#include <g_spawn.h>
+#include "g_spawn.h"
 
 // FIXME
 // remove this when actor gets checked back in

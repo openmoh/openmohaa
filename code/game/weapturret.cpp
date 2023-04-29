@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110EV_DEFAULT301  U
 // weapturret.cpp: MOH Turret. Usable by sentients and monsters.
 //
 
+#include "g_phys.h"
 #include "weapturret.h"
 #include "player.h"
 

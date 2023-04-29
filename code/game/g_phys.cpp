@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // g_phys.cpp
 //
 
-#include "g_local.h"
+#include "g_phys.h"
 #include "animate.h"
 #include "sentient.h"
 #include "actor.h"

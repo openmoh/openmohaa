@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "object.h"
 #include "world.h"
 #include "scriptcompiler.h"
+#include "scriptexception.h"
 
 #ifdef WIN32
 #include <direct.h>

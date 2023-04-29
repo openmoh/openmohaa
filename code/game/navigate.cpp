@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "doors.h"
 #include "actor.h"
 #include "player.h"
+#include "debuglines.h"
+#include "scriptexception.h"
 
 #define PATHFILE_VERSION 103
 

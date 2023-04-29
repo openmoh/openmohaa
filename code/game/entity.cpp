@@ -52,8 +52,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include "weaputils.h"
 #include "soundman.h"
-#include "../qcommon/qfiles.h"
+#include "scriptexception.h"
+#include "qfiles.h"
 #include "g_spawn.h"
+#include "g_phys.h"
+#include "debuglines.h"
 #include <tiki.h>
 
 // Generic entity events

@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __ACTORENEMY_H__
 
 #include "g_local.h"
+#include "class.h"
+#include "archive.h"
 
 class Actor;
 class Sentient;

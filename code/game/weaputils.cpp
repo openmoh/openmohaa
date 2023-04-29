@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // weaputils.cpp: General Weapon Utility Functions
 
+#include "g_phys.h"
+#include "g_spawn.h"
 #include "weaputils.h"
 #include "specialfx.h"
 #include "sentient.h"
@@ -33,7 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "weapturret.h"
 #include "vehicleturret.h"
 #include "earthquake.h"
-#include <trigger.h>
+#include "trigger.h"
+#include "debuglines.h"
 
 static void FlashPlayers
    (

@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // VehicleCollisionEntity.cpp : MOHAA Vehicle Collision
 
 #include "VehicleCollisionEntity.h"
+#include "g_phys.h"
 
 CLASS_DECLARATION( Entity, VehicleCollisionEntity, NULL )
 {

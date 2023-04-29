@@ -22,10 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_spawn.h : spawner for scripts.
 
-#ifndef __G_SPAWN_H__
-#define __G_SPAWN_H__
+#pragma once
 
-#include "glb_local.h"
+#include "class.h"
+#include "container.h"
 
 // spawnflags
 // these are set with checkboxes on each entity in the map editor
@@ -76,6 +76,4 @@ ClassDef			*FindClass( const char *name, qboolean *isModel );
 
 #ifdef GAME_DLL
 void				G_InitClientPersistant( gclient_t *client );
-#endif
-
 #endif

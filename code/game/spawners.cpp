@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "spawners.h"
 #include "game.h"
+#include "g_phys.h"
+#include "g_spawn.h"
 
 Event EV_Spawn_ModelName
 	( 

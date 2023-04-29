@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define THREAD_SUSPENDED				2		// Suspended
 #define THREAD_CONTEXT_SWITCH			3		// Resume from context switch
 
+class ScriptException;
 class ScriptThread;
 class ScriptVM;
 

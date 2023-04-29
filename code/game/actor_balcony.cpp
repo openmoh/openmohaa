@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // actor_balcony.cpp
 
 #include "actor.h"
+#include "scriptexception.h"
 
 void Actor::InitBalconyIdle
 	(

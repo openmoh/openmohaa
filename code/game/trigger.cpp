@@ -23,20 +23,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // trigger.cpp: Environment based triggers.
 //
 
-#include "glb_local.h"
-
-#if defined ( GAME_DLL )
-#include "../game/entity.h"
-#include "../game/misc.h"
-#include "../game/specialfx.h"
-#include "../game/sentient.h"
-#include "../game/item.h"
-#include "../game/player.h"
-#include "../game/camera.h"
-#include "../game/actor.h"
-#include "../game/weaputils.h"
-#include "../game/VehicleCollisionEntity.h"
-#endif
+#include "g_local.h"
+#include "g_phys.h"
+#include "g_spawn.h"
+#include "entity.h"
+#include "misc.h"
+#include "specialfx.h"
+#include "sentient.h"
+#include "item.h"
+#include "player.h"
+#include "camera.h"
+#include "actor.h"
+#include "weaputils.h"
+#include "VehicleCollisionEntity.h"
+#include "scriptexception.h"
 
 #include "trigger.h"
 #include "scriptmaster.h"

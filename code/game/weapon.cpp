@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 #include "g_local.h"
+#include "g_phys.h"
 #include "entity.h"
 #include "item.h"
 #include "weapon.h"
@@ -37,6 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "weaputils.h"
 #include "player.h"
 #include "vehicleturret.h"
+#include "debuglines.h"
 
 Event EV_Weapon_Shoot
    (

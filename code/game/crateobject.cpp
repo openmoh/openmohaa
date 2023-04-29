@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "crateobject.h"
 #include "player.h"
+#include "g_phys.h"
 
 /*****************************************************************************
 /*QUAKED func_crate (0 0.25 0.5) ? INDESTRUCTABLE NOTSTACKEDON

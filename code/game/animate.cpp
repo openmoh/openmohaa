@@ -22,8 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // animate.cpp : Animate Class
 
 #include "animate.h"
-#include "../game/player.h"
-#include "../qcommon/qfiles.h"
+#include "player.h"
+#include "qfiles.h"
+#include "scriptexception.h"
 #include <tiki.h>
 
 // Leg Animation events

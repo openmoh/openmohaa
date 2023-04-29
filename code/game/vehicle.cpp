@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 #include "g_local.h"
+#include "g_phys.h"
 #include "scriptslave.h"
 #include "vehicle.h"
 #include "player.h"
@@ -32,6 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "earthquake.h"
 #include "gibs.h"
 #include "vehicleturret.h"
+#include "scriptexception.h"
+#include "debuglines.h"
 
 Event EV_Vehicle_Start
 	(

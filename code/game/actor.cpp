@@ -41,6 +41,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bg_local.h"
 #include "weapturret.h"
 #include "sentient.h"
+#include "g_phys.h"
+#include "debuglines.h"
+#include "scriptexception.h"
 #include <parm.h>
 #include <tiki.h>
 

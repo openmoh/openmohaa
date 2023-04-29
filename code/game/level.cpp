@@ -22,21 +22,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // level.cpp : Global Level Info.
 
-#include "glb_local.h"
+#include "g_local.h"
+#include "g_spawn.h"
 #include "level.h"
 #include "parm.h"
-#include "../game/navigate.h"
-#include "../game/gravpath.h"
-
-#if defined( GAME_DLL )
-#include "../game/entity.h"
-#include "../game/dm_manager.h"
-#include "../game/player.h"
-#endif
+#include "navigate.h"
+#include "gravpath.h"
+#include "entity.h"
+#include "dm_manager.h"
+#include "player.h"
 
 #include "scriptmaster.h"
 #include "scriptthread.h"
 #include "scriptvariable.h"
+#include "scriptexception.h"
 
 Level level;
 

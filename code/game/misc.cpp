@@ -36,7 +36,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "specialfx.h"
 #include "player.h"
 #include "weaputils.h"
-#include <g_spawn.h>
+#include "g_spawn.h"
+#include "g_phys.h"
 
 /*****************************************************************************/
 /*QUAKED detail (0.5 0 1.0) ?

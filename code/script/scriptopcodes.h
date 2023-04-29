@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
+#include "q_shared.h"
+
 /** Should stay a 8-byte value. */
 using opval_t = uint8_t;
 /** Store an index in the string table. */

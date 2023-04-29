@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dm_manager.h"
 #include "dm_team.h"
 #include "playerstart.h"
+#include "scriptexception.h"
 
 cvar_t *g_tempaxisscore;
 cvar_t *g_tempaxiswinsinrow;
