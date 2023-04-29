@@ -36,10 +36,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "skeletor_name_lists.h"
 #include "skeletor_internal.h"
 
-#ifdef __cplusplus
-#include "container.h"
-#endif
-
 typedef struct skelAnimFrame_s {
 	float radius;
 	SkelVec3 bounds[ 2 ];
@@ -63,6 +59,11 @@ typedef struct {
 } skanBlendInfo;
 
 #ifdef __cplusplus
+
+template<typename T>
+class Container;
+
+#include "container.h"
 
 class skelAnimStoreFrameList_c {
 public:
