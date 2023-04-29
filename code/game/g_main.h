@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 #include "gamecvars.h"
 
+class Player;
+
 extern qboolean			LoadingSavegame;
 extern qboolean			LoadingServer;
 extern gameImport_t		gi;
@@ -44,7 +46,7 @@ extern int				sv_numpmtraces;
 
 extern usercmd_t		*current_ucmd;
 extern usereyes_t		*current_eyeinfo;
-extern class Player		*g_pPlayer;
+extern Player		    *g_pPlayer;
 
 void G_ExitWithError( const char *error );
 void G_AllocGameData( void );
