@@ -657,11 +657,10 @@ qboolean ScriptVariable::IsEntity( void )
 {
 	if( type == VARIABLE_LISTENER )
 	{
-		if( !m_data.listenerValue->Pointer() ||
-#if defined ( CGAME_DLL )
+        if (!m_data.listenerValue->Pointer()
+#if defined ( GAME_DLL )
+			||
 			checkInheritance( Entity::classinfostatic(), m_data.listenerValue->Pointer()->classinfo() )
-#else
-			0
 #endif
 			)
 		{
