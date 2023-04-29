@@ -21,22 +21,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // DESCRIPTION:
-// 
-// this file acts on changes in a new playerState_t.
-// With normal play, this will be done after local prediction, but when
-// following another player or playing back a demo, it will be checked
-// when the snapshot transitions like all the other entities
+// Sound function
 
 #include "cg_local.h"
 
-/*
-===============
-CG_TransitionPlayerState
-
-===============
-*/
-void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops )
-   {
-
-   }
-
+void CG_ProcessSound( server_sound_t *sound )
+	{
+	if ( sound->stop_flag )
+		{
+		cgi.S_StopSound( sound->entity_number, sound->channel );
+		}
+	else
+		{
+		cgi.S_StartSound( sound->origin, sound->entity_number, sound->channel, cgs.sound_precache[sound->sound_index], 
+				sound->volume, sound->min_dist );
+		}
+	}
