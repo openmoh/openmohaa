@@ -62,6 +62,10 @@ ELSE()
 	set(TARGET_CONFIG_SUFFIX "")
 ENDIF()
 
+# Common stuff
+
+## For modules
+
 set(SOURCES_SHARED
 	"code/qcommon/class.cpp"
 	"code/qcommon/con_set.cpp"
@@ -78,30 +82,7 @@ set(SOURCES_SHARED
 	"code/script/scriptvariable.cpp"
 )
 
-# Shared libraries
-
-## Server game library
-file(GLOB_RECURSE SOURCES_GAME "code/game/*.c" "code/game/*.cpp" "code/parser/*.cpp" "code/script/*.cpp")
-set(SOURCES_GAME_LIB ${SOURCES_SHARED} ${SOURCES_GAME})
-
-add_library(fgame SHARED ${SOURCES_GAME_LIB})
-target_compile_definitions(fgame PRIVATE GAME_DLL ARCHIVE_SUPPORTED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
-target_include_directories(fgame PUBLIC "code/qcommon" "code/script" "code/game")
-target_include_directories(fgame PRIVATE "code/parser")
-target_compile_features(fgame PUBLIC cxx_nullptr)
-target_compile_features(fgame PUBLIC c_variadic_macros)
-
-set_target_properties(fgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
-set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
-set_target_properties(fgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_BASE_GAME}")
-INSTALL(TARGETS fgame DESTINATION "${TARGET_BASE_GAME}")
-
-## Client game library
-## TODO! Build the cgame shared library
-
-# Applications
-
-## Code for all executables
+## For executable
 
 ### Platform-specific code
 if(WIN32)
@@ -163,22 +144,34 @@ file(GLOB_RECURSE SOURCES_SKEL "code/tiki/*.cpp" "code/skeletor/*.cpp")
 
 set(SOURCES_APP ${SOURCES_SHARED} ${SOURCES_COMMON} ${SOURCES_SKEL})
 
-## Executables
+# Targets
+
+## Server
+
+### Server game library
+file(GLOB_RECURSE SOURCES_GAME "code/game/*.c" "code/game/*.cpp" "code/parser/*.cpp" "code/script/*.cpp")
+set(SOURCES_GAME_LIB ${SOURCES_SHARED} ${SOURCES_GAME})
+
+add_library(fgame SHARED ${SOURCES_GAME_LIB})
+target_compile_definitions(fgame PRIVATE GAME_DLL ARCHIVE_SUPPORTED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+target_include_directories(fgame PUBLIC "code/qcommon" "code/script" "code/game")
+target_include_directories(fgame PRIVATE "code/parser")
+target_compile_features(fgame PUBLIC cxx_nullptr)
+target_compile_features(fgame PUBLIC c_variadic_macros)
+
+set_target_properties(fgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
+set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
+set_target_properties(fgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_BASE_GAME}")
+INSTALL(TARGETS fgame DESTINATION "${TARGET_BASE_GAME}")
 
 include("code/gamespy/gcd.cmake")
 
-### Client version
-### TODO! Build the executable client (without the server part)
-
-### Listen version
-### TODO! Build the executable, full version (both client and server)
-
-### Dedicated version
+### Server executable
 file(GLOB_RECURSE SOURCES_SERVER "code/server/*.c" "code/server/*.cpp")
 set(SOURCES_SERVER_APP ${SOURCES_APP} ${SOURCES_SERVER})
 
 add_executable(omohaaded ${SOURCES_SERVER_APP} ${SOURCES_PLATFORM_SPECIFIC} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c")
-target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE APP_MODULE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
 target_compile_features(omohaaded PUBLIC cxx_nullptr)
 target_compile_features(omohaaded PUBLIC c_variadic_macros)
 # Gamespy dependency
@@ -202,3 +195,50 @@ endif()
 
 INSTALL(TARGETS omohaaded DESTINATION "./")
 
+if (WITH_CLIENT)
+	## Client
+
+	### Client game library
+	file(GLOB_RECURSE SOURCES_CGAME "code/cgame/*.c" "code/cgame/*.cpp")
+	set(SOURCES_CGAME_LIB ${SOURCES_SHARED} ${SOURCES_CGAME})
+
+	add_library(cgame SHARED ${SOURCES_CGAME_LIB})
+	target_compile_definitions(cgame PRIVATE CGAME_DLL NO_SCRIPTENGINE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+	target_include_directories(cgame PUBLIC "code/qcommon" "code/cgame" "code/script")
+	target_compile_features(cgame PUBLIC cxx_nullptr)
+	target_compile_features(cgame PUBLIC c_variadic_macros)
+
+	set_target_properties(cgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
+	set_target_properties(cgame PROPERTIES OUTPUT_NAME "cgame${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
+	set_target_properties(cgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_BASE_GAME}")
+	INSTALL(TARGETS cgame DESTINATION "${TARGET_BASE_GAME}")
+
+	### Executable
+	file(GLOB_RECURSE SOURCES_CLIENT "code/client/*.c" "code/client/*.cpp")
+	set(SOURCES_CLIENT_APP ${SOURCES_APP} ${SOURCES_SERVER} ${SOURCES_CLIENT})
+
+	add_executable(openmohaa ${SOURCES_CLIENT_APP} ${SOURCES_PLATFORM_SPECIFIC})
+	target_compile_definitions(openmohaa PRIVATE NO_SCRIPTENGINE APP_MODULE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+	target_compile_features(openmohaa PUBLIC cxx_nullptr)
+	target_compile_features(openmohaa PUBLIC c_variadic_macros)
+	# Gamespy dependency
+	add_dependencies(openmohaa gcd)
+	target_link_libraries(openmohaa PRIVATE gcd)
+	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/SDL2/include")
+	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa{TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
+
+	if(WIN32)
+		if (MSVC)
+			target_link_options(openmohaa PRIVATE "/MANIFEST:NO")
+		endif()
+		target_link_libraries(openmohaa PRIVATE wsock32 ws2_32)
+		target_link_libraries(openmohaa PRIVATE winmm)
+	elseif(UNIX)
+		find_package(Threads)
+		target_link_libraries(openmohaa PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+		target_link_libraries(openmohaa PRIVATE m)
+		target_link_libraries(openmohaa PRIVATE stdc++)
+	endif()
+
+	INSTALL(TARGETS openmohaa DESTINATION "./")
+endif()
