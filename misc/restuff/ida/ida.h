@@ -4885,7 +4885,7 @@ typedef struct client_sh_s
 typedef struct client_bt_s
 {
 	clientState_t state;
-	char userinfo[MAX_INFOSTRING + 4];
+	char userinfo[MAX_INFOSTRING];
 	int reliableSequence;
 	int reliableAcknowledge;
 	char reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRINGCHARS];
@@ -4893,6 +4893,7 @@ typedef struct client_bt_s
 	int messageAcknowledge;
 	int gamestateMessageNum;
 	int challenge;
+	int unknown1;
 	struct usercmd_s lastUsercmd;
 	struct userEyes_s lastEyeinfo;
 	int lastMessageNum;
@@ -4923,10 +4924,10 @@ typedef struct client_bt_s
 	int rate;
 	int snapshotMsec;
 	netChan_t netchan;
-    int unknown1_0;
-    int unknown1_1;
+    int unknown2;
+    int unknown3;
     int netprofile;
-    int unknown2_0[417];
+    int unknown4[417];
 	server_sound_t sounds[64];
 	int numberOfSounds;
 	qboolean locprint;
@@ -4936,10 +4937,16 @@ typedef struct client_bt_s
     int radarInfo;
     int lastRadarTime[128];
     int gcdNum;
-    int unknown3_0;
     qboolean isPure;
 
 } client_bt_t;
+
+typedef struct cgm_s {
+  byte *data;
+  int cursize;
+  byte *datatypes;
+  int dtindex;
+} cgm_t;
 
 typedef struct {
 	byte	ip[4];
