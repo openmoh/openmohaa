@@ -141,7 +141,9 @@ void CG_ImpactMark
    float radius,
    qboolean temporary,
    int lightstyle, 
-   qboolean fadein
+   qboolean fadein,
+   float fSCenter,
+   float fTCenter
    )
    
    {
@@ -199,7 +201,7 @@ void CG_ImpactMark
 	// get the fragments
 	VectorScale( dir, -32, projection );
 
-	numFragments = cgi.CM_MarkFragments( 4, (void *)originalPoints,
+	numFragments = cgi.R_MarkFragments( 4, (void *)originalPoints,
 					                          projection, MAX_MARK_POINTS, markPoints[0],
 					                          MAX_MARK_FRAGMENTS, markFragments );
 

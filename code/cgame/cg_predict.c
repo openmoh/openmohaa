@@ -236,7 +236,8 @@ void CG_PlayerTrace
    const vec3_t end, 
    int skipNumber,
    int mask,
-   qboolean cylinder
+   qboolean cylinder,
+   qboolean tracedeep
    )
    
    {
@@ -457,7 +458,7 @@ void CG_PredictPlayerState( void ) {
 	// non-predicting local movement will grab the latest angles
    //FIXME
    // Noclip is jittery for some reason, so I'm disabling prediction while noclipping
-	if ( cg_nopredict->integer || cg_syncronousClients->integer || (cg.snap->ps.pm_type == PM_NOCLIP) ) {
+	if ( cg_nopredict->integer || cg_synchronousClients->integer || (cg.snap->ps.pm_type == PM_NOCLIP) ) {
 		CG_InterpolatePlayerState( qtrue );
 		return;
 	}
@@ -466,7 +467,6 @@ void CG_PredictPlayerState( void ) {
 	cg_pmove.ps             = &cg.predicted_player_state;
 	cg_pmove.trace          = CG_PlayerTrace;
 	cg_pmove.pointcontents  = CG_PointContents;
-	cg_pmove.trypush			= NULL;
 
 	if ( cg_pmove.ps->pm_type == PM_DEAD )
       {

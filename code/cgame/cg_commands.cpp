@@ -28,13 +28,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 Container <int> cachedModelList;
 
-Vector vec_zero = "0 0 0";
-
 refEntity_t    *current_entity = NULL;
 int            current_entity_number = -1;
 centity_t      *current_centity = NULL;
 float          current_scale = -1;
-int            current_tiki = -1;
+dtiki_t*       current_tiki = -1;
 cvar_t         *cg_showtempmodels;
 cvar_t         *cg_showemitters;
 cvar_t         *cg_physics_fps;
@@ -961,110 +959,110 @@ Event EV_Client_Print
 
 CLASS_DECLARATION( Listener, ClientGameCommandManager, NULL )
    {
-      { &EV_Client_StartBlock,                              StartBlock },
-      { &EV_Client_EndBlock,                                EndBlock },
-      { &EV_Client_EmitterStartOff,                         EmitterStartOff },
-      { &EV_Client_OriginSpawn,                             BeginOriginSpawn },
-      { &EV_Client_OriginBeamSpawn,                         BeginOriginBeamSpawn },
-      { &EV_Client_OriginBeamEmitter,                       BeginOriginBeamEmitter },
-      { &EV_Client_TagSpawn,                                BeginTagSpawn },
-      { &EV_Client_TagEmitter,                              BeginTagEmitter },
-      { &EV_Client_BeginTagBeamEmitter,                     BeginTagBeamEmitter },
-      { &EV_Client_BeginTagBeamSpawn,                       BeginTagBeamSpawn },
-      { &EV_Client_OriginEmitter,                           BeginOriginEmitter },
-      { &EV_Client_EmitterOn,                               EmitterOn },
-      { &EV_Client_EmitterOff,                              EmitterOff },
-      { &EV_Client_SetAlpha,                                SetAlpha },
-      { &EV_Client_SetDieTouch,                             SetDieTouch },
-      { &EV_Client_SetBounceFactor,                         SetBounceFactor },
-      { &EV_Client_SetBounceSound,                          SetBounceSound },
-      { &EV_Client_SetBounceSoundOnce,                      SetBounceSoundOnce },
-      { &EV_Client_SetScale,                                SetScale },
-      { &EV_Client_SetScaleUpDown,                          SetScaleUpDown },
-      { &EV_Client_SetScaleMin,                             SetScaleMin },
-      { &EV_Client_SetScaleMax,                             SetScaleMax },
-      { &EV_Client_SetModel,                                SetModel },
-      { &EV_Client_SetLife,                                 SetLife },
-      { &EV_Client_SetColor,                                SetColor },
-      { &EV_Client_SetVelocity,                             SetVelocity },
-      { &EV_Client_SetAngularVelocity,                      SetAngularVelocity },
-      { &EV_Client_SetRandomVelocity,                       SetRandomVelocity },
-      { &EV_Client_SetRandomVelocityAlongAxis,              SetRandomVelocityAlongAxis },
-      { &EV_Client_SetAccel,                                SetAccel },
-      { &EV_Client_SetCount,                                SetCount },
-      { &EV_Client_SetTraceCount,                           SetTraceCount },
-      { &EV_Client_SetFade,                                 SetFade },
-      { &EV_Client_SetFadeDelay,                            SetFadeDelay },
-      { &EV_Client_SetFadeIn,                               SetFadeIn },
-      { &EV_Client_SetTwinkle,                              SetTwinkle },
-      { &EV_Client_SetTrail,                                SetTrail },
-      { &EV_Client_SetSpawnRate,                            SetSpawnRate },
-      { &EV_Client_SetScaleRate,                            SetScaleRate },
-      { &EV_Client_SetOriginOffset,                         SetOriginOffset },
-      { &EV_Client_SetSphere,                               SetSphere },
-      { &EV_Client_SetCircle,                               SetCircle },
-      { &EV_Client_SetInwardSphere,                         SetInwardSphere },
-      { &EV_Client_SetRadius,                               SetRadius },
-      { &EV_Client_SetWavy,                                 SetWavy },
-      { &EV_Client_SetSwarm,                                SetSwarm },
-      { &EV_Client_SetAlign,                                SetAlign },
-      { &EV_Client_SetAlignOnce,                            SetAlignOnce },
-      { &EV_Client_SetCollision,                            SetCollision },
-      { &EV_Client_SetFlickerAlpha,                         SetFlickerAlpha },
-		{ &EV_Client_Sound,				                        Sound },
-		{ &EV_Client_StopSound,											StopSound },
-		{ &EV_Client_LoopSound,				                     LoopSound },
-		{ &EV_Client_Cache,				                        Cache },
-		{ &EV_Client_AliasCache,		                        AliasCache },
-		{ &EV_Client_Alias,			                           Alias },
-		{ &EV_Client_Footstep,  	                           Footstep },
-		{ &EV_Client_Client,			                           Client },
-      { &EV_Client_TagDynamicLight,                         TagDynamicLight },
-      { &EV_Client_OriginDynamicLight,                      OriginDynamicLight },
-      { &EV_Client_DynamicLight,                            DynamicLight },
-      { &EV_Client_SetEntityColor,                          SetEntityColor },
-      { &EV_Client_SetGlobalFade,                           SetGlobalFade },
-      { &EV_Client_SetParentLink,                           SetParentLink },
-      { &EV_Client_SetHardLink,                             SetHardLink },
-      { &EV_Client_SetRandomRoll,                           SetRandomRoll },
-      { &EV_Client_SetAngles,                               SetAngles },
-      { &EV_Client_ParentAngles,                            ParentAngles },
-      { &EV_Client_Swipe,                                   Swipe },
-      { &EV_Client_SwipeOn,                                 SwipeOn },
-      { &EV_Client_SwipeOff,                                SwipeOff },
-      { &EV_Client_SetAnim,                                 SetAnim },
-      { &EV_Client_AnimateOnce,                             AnimateOnce },
-      { &EV_Client_SetSubdivisions,                         SetSubdivisions },
-      { &EV_Client_SetMinOffset,                            SetMinOffset },
-      { &EV_Client_SetMaxOffset,                            SetMaxOffset },
-      { &EV_Client_SetBeamShader,                           SetShader },
-      { &EV_Client_SetBeamLength,                           SetLength },
-      { &EV_Client_SetDecalShader,                          SetShader },
-      { &EV_Client_SetTraceLength,                          SetLength },
-      { &EV_Client_SetBeamDelay,                            SetBeamDelay },
-      { &EV_Client_SetBeamToggleDelay,                      SetBeamToggleDelay },
-      { &EV_Client_SetBeamPersist,                          SetBeamPersist },
-      { &EV_Client_SetBeamOffsetEndpoints,                  SetBeamOffsetEndpoints },
-      { &EV_Client_BeamSphere,                              SetBeamSphere },
-      { &EV_Client_Spread,                                  SetSpread },
-		{ &EV_Client_UseLastTraceEnd,                         SetUseLastTraceEnd },
-      { &EV_Client_OffsetAlongAxis,                         SetOffsetAlongAxis },
-      { &EV_Client_SetEndAlpha,                             SetEndAlpha },
-      { &EV_Client_RandomChance,                            RandomChance },
-      { &EV_Client_CommandDelay,                            CommandDelay },
-      { &EV_Client_TagTraceImpactMark,                      BeginTagTraceImpactMark },
-      { &EV_Client_BounceDecal,                             SetBounceDecal },
-      { &EV_Client_SetDecalRadius,                          SetDecalRadius },
-      { &EV_Client_SetDecalOrientation,                     SetDecalOrientation },
-      { &EV_Client_TagTraceImpactSpawn,                     BeginTagTraceImpactSpawn },
-      { &EV_Client_TagTraceImpactSound,                     TagTraceImpactSound },
-      { &EV_Client_TagList,                                 TagList },
-      { &EV_Client_Lightstyle,                              SetLightstyle },
-      { &EV_Client_DuplicateCount,                          SetDuplicateCount },
-      { &EV_Client_PhysicsRate,                             SetPhysicsRate },
-      { &EV_Client_Parallel,                                SetParallel },
-      { &EV_Client_Detail,                                  SetDetail },
-      { &EV_Client_Print,                                   Print },
+      { &EV_Client_StartBlock,                              &ClientGameCommandManager::StartBlock },
+      { &EV_Client_EndBlock,                                &ClientGameCommandManager::EndBlock },
+      { &EV_Client_EmitterStartOff,                         &ClientGameCommandManager::EmitterStartOff },
+      { &EV_Client_OriginSpawn,                             &ClientGameCommandManager::BeginOriginSpawn },
+      { &EV_Client_OriginBeamSpawn,                         &ClientGameCommandManager::BeginOriginBeamSpawn },
+      { &EV_Client_OriginBeamEmitter,                       &ClientGameCommandManager::BeginOriginBeamEmitter },
+      { &EV_Client_TagSpawn,                                &ClientGameCommandManager::BeginTagSpawn },
+      { &EV_Client_TagEmitter,                              &ClientGameCommandManager::BeginTagEmitter },
+      { &EV_Client_BeginTagBeamEmitter,                     &ClientGameCommandManager::BeginTagBeamEmitter },
+      { &EV_Client_BeginTagBeamSpawn,                       &ClientGameCommandManager::BeginTagBeamSpawn },
+      { &EV_Client_OriginEmitter,                           &ClientGameCommandManager::BeginOriginEmitter },
+      { &EV_Client_EmitterOn,                               &ClientGameCommandManager::EmitterOn },
+      { &EV_Client_EmitterOff,                              &ClientGameCommandManager::EmitterOff },
+      { &EV_Client_SetAlpha,                                &ClientGameCommandManager::SetAlpha },
+      { &EV_Client_SetDieTouch,                             &ClientGameCommandManager::SetDieTouch },
+      { &EV_Client_SetBounceFactor,                         &ClientGameCommandManager::SetBounceFactor },
+      { &EV_Client_SetBounceSound,                          &ClientGameCommandManager::SetBounceSound },
+      { &EV_Client_SetBounceSoundOnce,                      &ClientGameCommandManager::SetBounceSoundOnce },
+      { &EV_Client_SetScale,                                &ClientGameCommandManager::SetScale },
+      { &EV_Client_SetScaleUpDown,                          &ClientGameCommandManager::SetScaleUpDown },
+      { &EV_Client_SetScaleMin,                             &ClientGameCommandManager::SetScaleMin },
+      { &EV_Client_SetScaleMax,                             &ClientGameCommandManager::SetScaleMax },
+      { &EV_Client_SetModel,                                &ClientGameCommandManager::SetModel },
+      { &EV_Client_SetLife,                                 &ClientGameCommandManager::SetLife },
+      { &EV_Client_SetColor,                                &ClientGameCommandManager::SetColor },
+      { &EV_Client_SetVelocity,                             &ClientGameCommandManager::SetVelocity },
+      { &EV_Client_SetAngularVelocity,                      &ClientGameCommandManager::SetAngularVelocity },
+      { &EV_Client_SetRandomVelocity,                       &ClientGameCommandManager::SetRandomVelocity },
+      { &EV_Client_SetRandomVelocityAlongAxis,              &ClientGameCommandManager::SetRandomVelocityAlongAxis },
+      { &EV_Client_SetAccel,                                &ClientGameCommandManager::SetAccel },
+      { &EV_Client_SetCount,                                &ClientGameCommandManager::SetCount },
+      { &EV_Client_SetTraceCount,                           &ClientGameCommandManager::SetTraceCount },
+      { &EV_Client_SetFade,                                 &ClientGameCommandManager::SetFade },
+      { &EV_Client_SetFadeDelay,                            &ClientGameCommandManager::SetFadeDelay },
+      { &EV_Client_SetFadeIn,                               &ClientGameCommandManager::SetFadeIn },
+      { &EV_Client_SetTwinkle,                              &ClientGameCommandManager::SetTwinkle },
+      { &EV_Client_SetTrail,                                &ClientGameCommandManager::SetTrail },
+      { &EV_Client_SetSpawnRate,                            &ClientGameCommandManager::SetSpawnRate },
+      { &EV_Client_SetScaleRate,                            &ClientGameCommandManager::SetScaleRate },
+      { &EV_Client_SetOriginOffset,                         &ClientGameCommandManager::SetOriginOffset },
+      { &EV_Client_SetSphere,                               &ClientGameCommandManager::SetSphere },
+      { &EV_Client_SetCircle,                               &ClientGameCommandManager::SetCircle },
+      { &EV_Client_SetInwardSphere,                         &ClientGameCommandManager::SetInwardSphere },
+      { &EV_Client_SetRadius,                               &ClientGameCommandManager::SetRadius },
+      { &EV_Client_SetWavy,                                 &ClientGameCommandManager::SetWavy },
+      { &EV_Client_SetSwarm,                                &ClientGameCommandManager::SetSwarm },
+      { &EV_Client_SetAlign,                                &ClientGameCommandManager::SetAlign },
+      { &EV_Client_SetAlignOnce,                            &ClientGameCommandManager::SetAlignOnce },
+      { &EV_Client_SetCollision,                            &ClientGameCommandManager::SetCollision },
+      { &EV_Client_SetFlickerAlpha,                         &ClientGameCommandManager::SetFlickerAlpha },
+		{ &EV_Client_Sound,				                    &ClientGameCommandManager::Sound },
+		{ &EV_Client_StopSound,								&ClientGameCommandManager::StopSound },
+		{ &EV_Client_LoopSound,				                &ClientGameCommandManager::LoopSound },
+		{ &EV_Client_Cache,				                    &ClientGameCommandManager::Cache },
+		{ &EV_Client_AliasCache,		                    &ClientGameCommandManager::AliasCache },
+		{ &EV_Client_Alias,			                        &ClientGameCommandManager::Alias },
+		{ &EV_Client_Footstep,  	                        &ClientGameCommandManager::Footstep },
+		{ &EV_Client_Client,			                    &ClientGameCommandManager::Client },
+      { &EV_Client_TagDynamicLight,                         &ClientGameCommandManager::TagDynamicLight },
+      { &EV_Client_OriginDynamicLight,                      &ClientGameCommandManager::OriginDynamicLight },
+      { &EV_Client_DynamicLight,                            &ClientGameCommandManager::DynamicLight },
+      { &EV_Client_SetEntityColor,                          &ClientGameCommandManager::SetEntityColor },
+      { &EV_Client_SetGlobalFade,                           &ClientGameCommandManager::SetGlobalFade },
+      { &EV_Client_SetParentLink,                           &ClientGameCommandManager::SetParentLink },
+      { &EV_Client_SetHardLink,                             &ClientGameCommandManager::SetHardLink },
+      { &EV_Client_SetRandomRoll,                           &ClientGameCommandManager::SetRandomRoll },
+      { &EV_Client_SetAngles,                               &ClientGameCommandManager::SetAngles },
+      { &EV_Client_ParentAngles,                            &ClientGameCommandManager::ParentAngles },
+      { &EV_Client_Swipe,                                   &ClientGameCommandManager::Swipe },
+      { &EV_Client_SwipeOn,                                 &ClientGameCommandManager::SwipeOn },
+      { &EV_Client_SwipeOff,                                &ClientGameCommandManager::SwipeOff },
+      { &EV_Client_SetAnim,                                 &ClientGameCommandManager::SetAnim },
+      { &EV_Client_AnimateOnce,                             &ClientGameCommandManager::AnimateOnce },
+      { &EV_Client_SetSubdivisions,                         &ClientGameCommandManager::SetSubdivisions },
+      { &EV_Client_SetMinOffset,                            &ClientGameCommandManager::SetMinOffset },
+      { &EV_Client_SetMaxOffset,                            &ClientGameCommandManager::SetMaxOffset },
+      { &EV_Client_SetBeamShader,                           &ClientGameCommandManager::SetShader },
+      { &EV_Client_SetBeamLength,                           &ClientGameCommandManager::SetLength },
+      { &EV_Client_SetDecalShader,                          &ClientGameCommandManager::SetShader },
+      { &EV_Client_SetTraceLength,                          &ClientGameCommandManager::SetLength },
+      { &EV_Client_SetBeamDelay,                            &ClientGameCommandManager::SetBeamDelay },
+      { &EV_Client_SetBeamToggleDelay,                      &ClientGameCommandManager::SetBeamToggleDelay },
+      { &EV_Client_SetBeamPersist,                          &ClientGameCommandManager::SetBeamPersist },
+      { &EV_Client_SetBeamOffsetEndpoints,                  &ClientGameCommandManager::SetBeamOffsetEndpoints },
+      { &EV_Client_BeamSphere,                              &ClientGameCommandManager::SetBeamSphere },
+      { &EV_Client_Spread,                                  &ClientGameCommandManager::SetSpread },
+		{ &EV_Client_UseLastTraceEnd,                       &ClientGameCommandManager::SetUseLastTraceEnd },
+      { &EV_Client_OffsetAlongAxis,                         &ClientGameCommandManager::SetOffsetAlongAxis },
+      { &EV_Client_SetEndAlpha,                             &ClientGameCommandManager::SetEndAlpha },
+      { &EV_Client_RandomChance,                            &ClientGameCommandManager::RandomChance },
+      { &EV_Client_CommandDelay,                            &ClientGameCommandManager::CommandDelay },
+      { &EV_Client_TagTraceImpactMark,                      &ClientGameCommandManager::BeginTagTraceImpactMark },
+      { &EV_Client_BounceDecal,                             &ClientGameCommandManager::SetBounceDecal },
+      { &EV_Client_SetDecalRadius,                          &ClientGameCommandManager::SetDecalRadius },
+      { &EV_Client_SetDecalOrientation,                     &ClientGameCommandManager::SetDecalOrientation },
+      { &EV_Client_TagTraceImpactSpawn,                     &ClientGameCommandManager::BeginTagTraceImpactSpawn },
+      { &EV_Client_TagTraceImpactSound,                     &ClientGameCommandManager::TagTraceImpactSound },
+      { &EV_Client_TagList,                                 &ClientGameCommandManager::TagList },
+      { &EV_Client_Lightstyle,                              &ClientGameCommandManager::SetLightstyle },
+      { &EV_Client_DuplicateCount,                          &ClientGameCommandManager::SetDuplicateCount },
+      { &EV_Client_PhysicsRate,                             &ClientGameCommandManager::SetPhysicsRate },
+      { &EV_Client_Parallel,                                &ClientGameCommandManager::SetParallel },
+      { &EV_Client_Detail,                                  &ClientGameCommandManager::SetDetail },
+      { &EV_Client_Print,                                   &ClientGameCommandManager::Print },
       { NULL, NULL }
    };
 
@@ -1272,7 +1270,7 @@ void ClientGameCommandManager::BeginTagTraceImpactMark
    )
    {
    // Setup ending function
-   endblockfcn    = EndTagTraceImpactMark;
+   endblockfcn    = &ClientGameCommandManager::EndTagTraceImpactMark;
    m_spawnthing   = InitializeSpawnthing( &m_localemitter );
 
    // Get the tagname and orientation
@@ -1348,7 +1346,7 @@ void ClientGameCommandManager::BeginTagTraceImpactSpawn
    )
    {
    // Setup ending function
-   endblockfcn    = EndTagTraceImpactSpawn;
+   endblockfcn    = &ClientGameCommandManager::EndTagTraceImpactSpawn;
    m_spawnthing   = InitializeSpawnthing( &m_localemitter );
 
    // Get the tagname and orientation
@@ -2725,7 +2723,7 @@ void ClientGameCommandManager::BeginOriginSpawn
       }
 
    // Setup ending function
-   endblockfcn = EndOriginSpawn;
+   endblockfcn = &ClientGameCommandManager::EndOriginSpawn;
 
    // Init the thing we are going to spawn
    m_spawnthing = InitializeSpawnthing( &m_localemitter );
@@ -2789,7 +2787,7 @@ void ClientGameCommandManager::BeginTagEmitter
 
    {
    // Setup ending function
-   endblockfcn   = EndTagEmitter;
+   endblockfcn   = &ClientGameCommandManager::EndTagEmitter;
 
    // Init the emitter
    m_spawnthing = CreateNewEmitter();
@@ -2833,7 +2831,7 @@ void ClientGameCommandManager::BeginTagBeamEmitter
 
    { 
    // Setup ending function
-   endblockfcn   = EndTagBeamEmitter;
+   endblockfcn   = &ClientGameCommandManager::EndTagBeamEmitter;
 
    // Init the emitter
    m_spawnthing = CreateNewEmitter();
@@ -2891,7 +2889,7 @@ void ClientGameCommandManager::BeginOriginEmitter
 
    { 
    // Setup ending function
-   endblockfcn   = EndOriginEmitter;
+   endblockfcn   = &ClientGameCommandManager::EndOriginEmitter;
 
    // Init the emitter
    m_spawnthing = CreateNewEmitter();
@@ -2932,7 +2930,7 @@ void ClientGameCommandManager::BeginOriginBeamEmitter
 
    { 
    // Setup ending function
-   endblockfcn   = EndOriginBeamEmitter;
+   endblockfcn   = &ClientGameCommandManager::EndOriginBeamEmitter;
 
    // Init the emitter
    m_spawnthing = CreateNewEmitter();
@@ -3028,7 +3026,7 @@ void ClientGameCommandManager::BeginTagSpawn
    str            tagname;
 
    // Setup ending function
-   endblockfcn = EndTagSpawn;
+   endblockfcn = &ClientGameCommandManager::EndTagSpawn;
    
    // Init the thing we are going to spawn
    m_spawnthing = InitializeSpawnthing( &m_localemitter );
@@ -3063,7 +3061,7 @@ void ClientGameCommandManager::BeginTagBeamSpawn
    str            tagname;
 
    // Setup ending function
-   endblockfcn = EndTagBeamSpawn;
+   endblockfcn = &ClientGameCommandManager::EndTagBeamSpawn;
    
    // Init the thing we are going to spawn
    m_spawnthing = InitializeSpawnthing( &m_localemitter );
@@ -3161,7 +3159,7 @@ void ClientGameCommandManager::BeginOriginBeamSpawn
 
    { 
    // Setup ending function
-   endblockfcn   = EndOriginBeamSpawn;
+   endblockfcn   = &ClientGameCommandManager::EndOriginBeamSpawn;
 
    // Init the emitter
    m_spawnthing = CreateNewEmitter();
@@ -5236,7 +5234,7 @@ void ClientGameCommandManager::UpdateBeam
 //===============
 void ClientGameCommandManager::UpdateEmitter
    (
-   int          tikihandle,
+    dtiki_t*    tiki,
    vec3_t       axis[3],
    int          entity_number,
    int          parent_number,
@@ -5628,27 +5626,36 @@ void CG_ProcessInitCommands
 //=================
 //CG_UpdateEntity
 //=================
-void CG_UpdateEntity
+void CG_UpdateEntityEmitters
    (
-   int            tikihandle,
+       int entnum,
    refEntity_t		*ent,
    centity_t      *cent
    )
    {
+    refEntity_t* old_entity = current_entity;
+    dtiki_t* old_tiki = current_tiki;
+    int oldnum = current_entity_number;
+    centity_t* oldcent = current_centity;
+
    // Check to see if this model has any emitters
    current_entity = ent;
-   current_tiki = tikihandle;
+   current_tiki = ent->tiki;
+   current_centity = cent;
+   current_entity_number = entnum;
    
    if ( cent->currentState.parent != ENTITYNUM_NONE )
       {
-      commandManager.UpdateEmitter( tikihandle, ent->axis, cent->currentState.number, cent->currentState.parent, ent->origin );
+      commandManager.UpdateEmitter(ent->tiki, ent->axis, cent->currentState.number, cent->currentState.parent, ent->origin );
       }
    else
       {
-      commandManager.UpdateEmitter( tikihandle, ent->axis, cent->currentState.number, cent->currentState.parent, cent->lerpOrigin );
+      commandManager.UpdateEmitter(ent->tiki, ent->axis, cent->currentState.number, cent->currentState.parent, cent->lerpOrigin );
       }
-   current_entity = NULL;
-   current_tiki = -1;
+   current_entity = old_entity;
+   current_tiki = old_tiki;
+   current_centity = oldcent;
+   current_entity_number = oldnum;
    }
 
 extern "C"

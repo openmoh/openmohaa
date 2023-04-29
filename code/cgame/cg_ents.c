@@ -153,18 +153,18 @@ CG_General
 void CG_General( centity_t *cent ) {
 	refEntity_t			ent;
 	entityState_t		*s1;
-   int               i;
-   int               tikihandle;
+   int i;
+   vec3_t vMins, vMaxs, vTmp;
 
 	s1 = &cent->currentState;
 
    // add loop sound
    if ( s1->loopSound )
       {
-      cgi.S_AddLoopingSound( cent->lerpOrigin, vec3_origin, cgs.sound_precache[s1->loopSound], s1->loopSoundVolume, s1->loopSoundMinDist );
+      cgi.S_AddLoopingSound( cent->lerpOrigin, vec3_origin, cgs.sound_precache[s1->loopSound], s1->loopSoundVolume, s1->loopSoundMinDist, s1->loopSoundMaxDist, s1->loopSoundPitch, s1->loopSoundFlags );
       }
    if ( cent->tikiLoopSound )
-      cgi.S_AddLoopingSound( cent->lerpOrigin, vec3_origin, cent->tikiLoopSound, cent->tikiLoopSoundVolume, cent->tikiLoopSoundMinDist );
+      cgi.S_AddLoopingSound( cent->lerpOrigin, vec3_origin, cent->tikiLoopSound, cent->tikiLoopSoundVolume, cent->tikiLoopSoundMinDist, cent->tikiLoopSoundMaxDist, cent->tikiLoopSoundPitch, cent->tikiLoopSoundFlags );
 
 	// if set to invisible, skip
 	if (!s1->modelindex) {
@@ -175,17 +175,20 @@ void CG_General( centity_t *cent ) {
 
 	// set frame
 
-	ent.frame = s1->frame;
-	ent.oldframe = ent.frame;
-	ent.backlerp = 0;
-   ent.uselegs = qtrue;
+	ent.wasframe = s1->wasframe;
 
 	VectorCopy( cent->lerpOrigin, ent.origin);
 	VectorCopy( cent->lerpOrigin, ent.oldorigin);
 
    // set skin
-   ent.skinNum = s1->skinNum;
-   ent.customSkin = 0;
+	IntegerToBoundingBox(s1->solid, vMins, vMaxs);
+	VectorSubtract(vMins, vMaxs, vTmp);
+    ent.lightingOrigin[0] = ent.origin[0] + (vMins[0] + vMaxs[0]) * 0.5;
+    ent.lightingOrigin[1] = ent.origin[1] + (vMins[1] + vMaxs[1]) * 0.5;
+    ent.lightingOrigin[2] = ent.origin[2] + (vMins[2] + vMaxs[2]) * 0.5;
+	ent.radius = VectorLength(vTmp) * 0.5;
+
+	ent.skinNum = s1->skinNum;
 
 	ent.hModel = cgs.model_draw[s1->modelindex];
 
@@ -232,21 +235,20 @@ void CG_General( centity_t *cent ) {
       VectorCopy( ent.origin, cg.sky_origin );
       }
 
-   tikihandle = cgs.model_tiki[ s1->modelindex ]; 
-   if ( tikihandle >= 0 )
-      {
-      // update any emitter's...
-      CG_UpdateEntity( tikihandle, &ent, cent );
-      }
-
-   if ( s1->eFlags & ( EF_LEFT_TARGETED | EF_RIGHT_TARGETED ) )
-      {
-      CG_EntityTargeted( tikihandle, cent, &ent );
-      }
+   ent.tiki = cgi.R_Model_GetHandle(cgs.model_draw[s1->modelindex]);
+   ent.frameInfo[0].index = s1->frameInfo[0].index;
+   ent.frameInfo[0].time = s1->frameInfo[0].time;
+   ent.frameInfo[0].weight = s1->frameInfo[0].weight;
+   ent.actionWeight = 1.0;
 
 	// add to refresh list
-	if ( !( ent.renderfx & RF_DONTDRAW ) )
    	cgi.R_AddRefEntityToScene (&ent);
+
+    if (ent.tiki >= 0)
+    {
+        // update any emitter's...
+        CG_UpdateEntityEmitters(s1->number, &ent, cent);
+    }
 }
 
 /*
@@ -273,7 +275,7 @@ void CG_Speaker( centity_t *cent )
 
 	//	ent->s.frame = ent->wait * 10;
 	//	ent->s.clientNum = ent->random * 10;
-	cent->miscTime = cg.time + cent->currentState.frame * 100 + cent->currentState.clientNum * 100 * crandom();
+	cent->miscTime = cg.time + cent->currentState.wasframe * 100 + cent->currentState.clientNum * 100 * crandom();
    }
 
 
@@ -309,75 +311,6 @@ void CG_Mover( centity_t *cent ) {
 	// add to refresh list
 	cgi.R_AddRefEntityToScene(&ent);
 }
-
-/*
-===============
-CG_Sprite
-===============
-*/
-void CG_Sprite( centity_t *cent )
-   {
-   refEntity_t    ent;
-	entityState_t	*s1;
-   int            i;   
-
-   s1 = &cent->currentState;
-
-   memset( &ent, 0, sizeof( refEntity_t ) );
-
-   if ( s1->parent != ENTITYNUM_NONE )
-      {
-      refEntity_t *parent;
-      int         tikihandle;
-
-      parent = cgi.R_GetRenderEntity( s1->parent );
-
-      if ( !parent )
-         {
-         cgi.DPrintf( "CG_Sprite: Could not find parent entity\n" );
-         return;
-         }
-
-      tikihandle = cgi.TIKI_GetHandle( parent->hModel );
-      CG_AttachEntity( &ent, parent, tikihandle, s1->tag_num & TAG_MASK, s1->attach_use_angles, s1->attach_offset );
-      }
-   else
-      {
-   	VectorCopy( cent->lerpOrigin, ent.origin);
-	   VectorCopy( cent->lerpOrigin, ent.oldorigin);
-      }
-
-	ent.hModel = cgs.model_draw[s1->modelindex];
-
-   // Modulation based off the color
-   for( i=0; i<3; i++ )
-      ent.shaderRGBA[ i ] = cent->color[ i ] * 255;
-
-   // take the alpha from the entity if less than 1, else grab it from the client commands version
-   if ( s1->alpha < 1 )
-      ent.shaderRGBA[ 3 ] = s1->alpha * 255;
-   else
-      ent.shaderRGBA[ 3 ] = cent->color[ 3 ] * 255;
-
-   ent.renderfx |= s1->renderfx;
-
-   // convert angles to axis
-	AnglesToAxis( cent->lerpAngles, ent.axis );
-
-   // Interpolated state variables
-   if ( cent->interpolate )
-      {
-      ent.scale = s1->scale + cg.frameInterpolation * ( cent->nextState.scale - cent->currentState.scale );
-      }
-   else
-      {
-      ent.scale = s1->scale;
-      }
-
-	// add to refresh list
-	if ( !( cent->currentState.renderfx & RF_DONTDRAW ) )
-   	cgi.R_AddRefSpriteToScene( &ent );
-   }
 
 /*
 ==================
@@ -530,10 +463,10 @@ void CG_Beam( centity_t *cent ) {
    for ( i=0;i<4;i++ )
       modulate[i] = cent->color[i] * 255;
 
-   if ( s1->torso_anim != ENTITYNUM_NONE )
+   if ( s1->beam_entnum != ENTITYNUM_NONE )
       {
       refEntity_t *parent;
-      parent = cgi.R_GetRenderEntity( s1->torso_anim );
+      parent = cgi.R_GetRenderEntity( s1->beam_entnum);
 
       if ( !parent )
          {
@@ -610,87 +543,9 @@ void CG_Decal
 CG_Portal
 ===============
 */
-void CG_Portal( centity_t *cent )
-   {
-	refEntity_t			ent;
-	entityState_t		*s1;
-
-	s1 = &cent->currentState;
-
-	// create the render entity
-	memset (&ent, 0, sizeof(ent));
-	VectorCopy( cent->lerpOrigin, ent.origin );
-	VectorCopy( s1->origin2, ent.oldorigin );
-	AnglesToAxis( cent->currentState.angles, ent.axis );
-
-	// negating this tends to get the directions like they want
-	// we really should have a camera roll value
-	VectorSubtract( vec3_origin, ent.axis[1], ent.axis[1] );
-   VectorSubtract( vec3_origin, ent.axis[2], ent.axis[2] );
-	
-	ent.reType  = RT_PORTALSURFACE;
-	ent.frame   = s1->frame;		// rotation speed
-	ent.skinNum = s1->clientNum/256.0 * 360;	// roll offset
-
-	// add to refresh list
-	cgi.R_AddRefEntityToScene(&ent);
-   }
-
-
-/*
-=========================
-CG_AdjustPositionForMover
-=========================
-*/
-void CG_AdjustPositionForMover( const vec3_t in, int moverNum, int fromTime, int toTime, vec3_t out ) {
-	centity_t	*cent;
-	vec3_t	oldOrigin, origin, deltaOrigin;
-	vec3_t	oldAngles, angles;
-
-	if ( moverNum == ENTITYNUM_NONE ) {
-		VectorCopy( in, out );
-		return;
-	}
-
-	cent = &cg_entities[ moverNum ];
-
-   if ( cent->currentState.pos.trType == TR_LERP ) {
-      int i;
-
-      if ( cent->interpolate )
-         {
-         // we calculate lerpOrigin so we have always have the latest info.  It is possible to call this before lerpOrigin
-         // is updated by AddEntities
-         for ( i=0; i<3; i++ ) 
-            {
-            cent->lerpOrigin[i] = cent->currentState.origin[i] + 
-               cg.frameInterpolation * ( cent->nextState.origin[i] - cent->currentState.origin[i] );
-            }
-         }
-      for ( i=0; i<3; i++ ) 
-         {
-         out[ i ] = in[ i ] + ( cent->lerpOrigin[i] - cent->currentState.origin[i] );
-         }
-      return;
-
-   } else if ( cent->currentState.eType != ET_MOVER ) {
-		VectorCopy( in, out );
-		return;
-	}
-
-	EvaluateTrajectory( &cent->currentState.pos, fromTime, oldOrigin );
-	EvaluateTrajectory( &cent->currentState.apos, fromTime, oldAngles );
-
-	EvaluateTrajectory( &cent->currentState.pos, toTime, origin );
-	EvaluateTrajectory( &cent->currentState.apos, toTime, angles );
-
-	VectorSubtract( origin, oldOrigin, deltaOrigin );
-
-	VectorAdd( in, deltaOrigin, out );
-
-	// FIXME: origin change when on a rotating object
+void CG_Portal(centity_t* cent)
+{
 }
-
 
 /*
 ===============
@@ -698,92 +553,92 @@ CG_CalcEntityLerpPositions
 
 ===============
 */
-void CG_CalcEntityLerpPositions( centity_t *cent ) {
-   int   i;
-   float	f;
+void CG_CalcEntityLerpPositions( centity_t *cent )
+{
+    int   i;
+    float	f;
 
-   f = cg.frameInterpolation;
+    f = cg.frameInterpolation;
 
-   if ( cg.snap->ps.pm_type < PM_DEAD )
-      {
-	   if ( cent->currentState.number == cg.snap->ps.clientNum ) 
-         {
-		   // if the player, take position from prediction
-		   VectorCopy( cg.predicted_player_state.origin, cent->lerpOrigin );
-         for ( i=0; i<3; i++ ) {
-            cent->lerpAngles[i] = LerpAngle( cent->currentState.angles[i], cent->nextState.angles[i], f );
-         }
+    if (cent->currentState.eType == ET_PLAYER)
+    {
+        if (cent->currentState.number == cg.snap->ps.clientNum)
+        {
+            // if the player, take position from prediction
+            VectorCopy(cg.predicted_player_state.origin, cent->lerpOrigin);
+            for (i = 0; i < 3; i++) {
+                cent->lerpAngles[i] = LerpAngle(cent->currentState.angles[i], cent->nextState.angles[i], f);
+            }
 
-         return;
-	      }
-      }
+            return;
+        }
+    }
 
-   if ( cent->currentState.pos.trType == TR_LERP ) {
-      float quat[ 4 ];
-      float mat[ 3 ][ 3 ];
+    if (cent->currentState.eType != ET_PLAYER || !cg_smoothClients->integer) {
+        float quat[4];
+        float mat[3][3];
 
-      if ( !cent->interpolate ) {
-         VectorCopy( cent->currentState.angles, cent->lerpAngles );
-         VectorCopy( cent->currentState.origin, cent->lerpOrigin );
-         return;
-      }
+        if (!cent->interpolate) {
+            VectorCopy(cent->currentState.angles, cent->lerpAngles);
+            VectorCopy(cent->currentState.origin, cent->lerpOrigin);
+            return;
+        }
 
-		// it would be an internal error to find an entity that interpolates without
-		// a snapshot ahead of the current one
-		if ( cg.nextSnap == NULL ) {
-			cgi.Error( ERR_DROP, "CG_AddCEntity: cg.nextSnap == NULL" );
-		}
+        for (i = 0; i < 3; i++) {
+            cent->lerpOrigin[i] = cent->currentState.origin[i] +
+                f * (cent->nextState.origin[i] - cent->currentState.origin[i]);
+        }
 
-      for ( i=0; i<3; i++ ) {
-         cent->lerpOrigin[i] = cent->currentState.origin[i] + 
-            f * ( cent->nextState.origin[i] - cent->currentState.origin[i] );
-      }
+        if (!memcmp(cent->currentState.angles, cent->nextState.angles, sizeof(vec3_t))) {
+            VectorCopy(cent->currentState.angles, cent->lerpAngles);
+        }
+        else {
+            // use spherical interpolation using quaternions so that bound objects
+            // rotate properly without gimble lock.
+            SlerpQuaternion(cent->currentState.quat, cent->nextState.quat, f, quat);
+            QuatToMat(quat, mat);
+            MatrixToEulerAngles(mat, cent->lerpAngles);
+        }
+    }
+    else if (cent->interpolate) {
+        float quat[4];
+        float mat[3][3];
 
-      if ( !memcmp( cent->currentState.angles, cent->nextState.angles, sizeof( vec3_t ) ) ) {
-         VectorCopy( cent->currentState.angles, cent->lerpAngles );
-      } else {
-         // use spherical interpolation using quaternions so that bound objects
-         // rotate properly without gimble lock.
-	      SlerpQuaternion( cent->currentState.quat, cent->nextState.quat, f, quat );
-	      QuatToMat( quat, mat );
-	      MatrixToEulerAngles( mat, cent->lerpAngles );
-      }
-   } else if ( cent->interpolate && cent->currentState.pos.trType == TR_INTERPOLATE ) {
-		// if the entity has a valid next state, interpolate a value between the frames
-		// unless it is a mover with a known start and stop
-		vec3_t	current, next;
+        // if the entity has a valid next state, interpolate a value between the frames
+        // unless it is a mover with a known start and stop
+        vec3_t	current, next;
 
-		// it would be an internal error to find an entity that interpolates without
-		// a snapshot ahead of the current one
-		if ( cg.nextSnap == NULL ) {
-			cgi.Error( ERR_DROP, "CG_AddCEntity: cg.nextSnap == NULL" );
-		}
+        // this will linearize a sine or parabolic curve, but it is important
+        // to not extrapolate player positions if more recent data is available
+        BG_EvaluateTrajectory(&cent->currentState.pos, cg.snap->serverTime, current);
+        BG_EvaluateTrajectory(&cent->nextState.pos, cg.nextSnap->serverTime, next);
 
-		// this will linearize a sine or parabolic curve, but it is important
-		// to not extrapolate player positions if more recent data is available
-		EvaluateTrajectory( &cent->currentState.pos, cg.snap->serverTime, current );
-		EvaluateTrajectory( &cent->nextState.pos, cg.nextSnap->serverTime, next );
+        cent->lerpOrigin[0] = current[0] + f * (next[0] - current[0]);
+        cent->lerpOrigin[1] = current[1] + f * (next[1] - current[1]);
+        cent->lerpOrigin[2] = current[2] + f * (next[2] - current[2]);
 
-		cent->lerpOrigin[0] = current[0] + f * ( next[0] - current[0] );
-		cent->lerpOrigin[1] = current[1] + f * ( next[1] - current[1] );
-		cent->lerpOrigin[2] = current[2] + f * ( next[2] - current[2] );
+        if (!memcmp(cent->currentState.angles, cent->nextState.angles, sizeof(vec3_t))) {
+            VectorCopy(cent->currentState.angles, cent->lerpAngles);
+        }
+        else {
+            // use spherical interpolation using quaternions so that bound objects
+            // rotate properly without gimble lock.
+            SlerpQuaternion(cent->currentState.quat, cent->nextState.quat, f, quat);
+            QuatToMat(quat, mat);
+            MatrixToEulerAngles(mat, cent->lerpAngles);
+        }
 
-		EvaluateTrajectory( &cent->currentState.apos, cg.snap->serverTime, current );
-		EvaluateTrajectory( &cent->nextState.apos, cg.nextSnap->serverTime, next );
-
-      // Lerp legs, torso, and head angles
-      for ( i=0; i<3; i++ ) {
-         cent->lerpAngles[i]       = LerpAngle( current[i], next[i], f );
-      }
-   } else {
-	   // just use the current frame and evaluate as best we can
-	   EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
-	   EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
-
-	   // adjust for riding a mover
-	   CG_AdjustPositionForMover( cent->lerpOrigin, cent->currentState.groundEntityNum, 
-		   cg.snap->serverTime, cg.time, cent->lerpOrigin );
-   } 
+        // Lerp legs, torso, and head angles
+        for (i = 0; i < 3; i++) {
+            cent->lerpAngles[i] = LerpAngle(current[i], next[i], f);
+        }
+    }
+    else {
+        // just use the current frame and evaluate as best we can
+        BG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
+        VectorCopy(cent->currentState.angles, cent->lerpAngles);
+        //BG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);
+    }
 }
 
 /*
@@ -816,11 +671,11 @@ void CG_AddCEntity( centity_t *cent )
       // intentional fallthrough
    case ET_MODELANIM:
 		CG_Splash( cent );
-      CG_ModelAnim( cent );
+      CG_ModelAnim( cent, qfalse );
       break;
    case ET_ITEM:
       CG_Item( cent );
-      CG_ModelAnim( cent );
+      CG_ModelAnim( cent, qfalse);
       break;
 	case ET_GENERAL:
 		CG_General( cent );
@@ -836,9 +691,6 @@ void CG_AddCEntity( centity_t *cent )
 		break;
 	case ET_MULTIBEAM: // skip
 		break;
-   case ET_SPRITE:
-      CG_Sprite( cent );
-      break;
 	case ET_PORTAL:
 		CG_Portal( cent );
 		break;
@@ -900,48 +752,34 @@ void CG_AddPacketEntities( void ) {
 
 }
 
-void CG_GetOrigin( centity_t *cent, vec3_t origin )
-	{
-	if ( cent->currentState.parent == ENTITYNUM_NONE )
-		{
-		VectorCopy( cent->lerpOrigin, origin );
-		}
-	else
-		{
-		int i;
-		orientation_t or;
-      refEntity_t *parent;
-      int tikihandle;
+void CG_GetOrigin(centity_t* cent, vec3_t origin)
+{
+    if (cent->currentState.parent == ENTITYNUM_NONE)
+    {
+        VectorCopy(cent->lerpOrigin, origin);
+    }
+    else
+    {
+        int i;
+        orientation_t or;
+        refEntity_t* parent;
 
-      parent = cgi.R_GetRenderEntity( cent->currentState.parent );
+        parent = cgi.R_GetRenderEntity(cent->currentState.parent);
 
-      if ( !parent )
-         {
-         cgi.DPrintf( "CG_GetOrigin: Could not find parent entity\n" );
-         return;
-         }
+        if (!parent)
+        {
+            cgi.DPrintf("CG_GetOrigin: Could not find parent entity\n");
+            return;
+        }
 
-      tikihandle = cgi.TIKI_GetHandle( parent->hModel );
+        cgi.R_Model_GetHandle(parent->hModel);
+        or = cgi.TIKI_Orientation(parent, cent->currentState.tag_num);
 
-		// lerp the tag
-		if ( r_lerpmodels->integer )
-			{
-			or = cgi.Tag_LerpedOrientation( tikihandle, parent, cent->currentState.tag_num );
-			}
-		else
-			{
-         //FIXME
-         // doesn't handle torso animations
-			or = cgi.Tag_Orientation( tikihandle, 	parent->anim, parent->frame, cent->currentState.tag_num, parent->scale, 
-					parent->bone_tag, parent->bone_quat );
-			}
+        VectorCopy(parent->origin, origin);
 
-		VectorCopy( parent->origin, origin );
-
-		for ( i = 0 ; i < 3 ; i++ ) 
-			{
-			VectorMA( origin, or.origin[i], parent->axis[i], origin );
-			}
-		}
-	}
-
+        for (i = 0; i < 3; i++)
+        {
+            VectorMA(origin, or .origin[i], parent->axis[i], origin);
+        }
+    }
+}

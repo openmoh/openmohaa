@@ -386,8 +386,9 @@ void createLightstyleFromTGA( int num, const char *filename )
 
 void CG_SetLightStyle( int num, const char *s )
 	{
-	char	*r, *g, *b, *a;
-	int	j, k, n, len;
+	const char	*r, *g, *b, *a;
+	int	j, k, n;
+	size_t len;
 	float	t;
 
    if ( ( num < 0 ) || ( num >= ( MAX_LIGHTSTYLES * 2 ) ) )

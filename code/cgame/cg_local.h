@@ -26,15 +26,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // If you absolutely need something stored, it can either be kept
 // by the server in the server stored userinfos, or stashed in a cvar.
 
+#pragma once
 
 #include "q_shared.h"
 #include "tr_types.h"
 #include "../game/bg_public.h"
 #include "cm_public.h"
 #include "cg_public.h"
-
-#ifndef __CG_LOCAL_H__
-#define __CG_LOCAL_H__
 
 #ifdef __cplusplus
 extern "C"
@@ -97,9 +95,7 @@ typedef struct centity_s {
 	qboolean		   currentValid;	   // true if cg.frame holds this entity
 
 	int				miscTime;
-
-   animstate_t    am;               // this holds the animation information for this model
-   animstate_t    torso_am;         // this holds the torso animation information for this model
+	int				snapShotTime;
 
 	int				errorTime;		   // decay the error from this time
 	vec3_t			errorOrigin;
@@ -117,7 +113,10 @@ typedef struct centity_s {
 
 	sfxHandle_t		tikiLoopSound;
 	float				tikiLoopSoundVolume;
-	float				tikiLoopSoundMinDist;
+    float				tikiLoopSoundMinDist;
+    float				tikiLoopSoundMaxDist;
+    float				tikiLoopSoundPitch;
+	int					tikiLoopSoundFlags;
 
    float          color[4];
    float          client_color[4];  // the color set by client commands
@@ -125,6 +124,15 @@ typedef struct centity_s {
 
 	int				splash_last_spawn_time;
 	int				splash_still_count;
+
+	quat_t			bone_quat[NUM_BONE_CONTROLLERS];
+	float			animLastTimes[MAX_FRAMEINFOS];
+	int				animLast[MAX_FRAMEINFOS];
+	int				animLastWeight;
+	int				usageIndexLast;
+	qboolean		bFootOnGround_Right;
+	qboolean		bFootOnGround_Left;
+	int				iNextLandTime;
 } centity_t;
 
 
@@ -411,35 +419,79 @@ typedef struct {
 
 //==============================================================================
 
+extern cvar_t* paused;
+extern cvar_t* developer;
+
 extern	cgs_t			         cgs;
 extern	cg_t			         cg;
 extern	clientGameImport_t	cgi;
 extern	centity_t		      cg_entities[MAX_GENTITIES];
 extern	markPoly_t		      cg_markPolys[MAX_MARK_POLYS];
 
-extern cvar_t *cg_animSpeed;
-extern cvar_t *cg_debugAnim;
-extern cvar_t *cg_debugAnimWatch;
-extern cvar_t *cg_errorDecay;
-extern cvar_t *cg_nopredict;
-extern cvar_t *cg_showmiss;
-extern cvar_t *cg_addMarks;
-extern cvar_t *cg_viewsize;
-extern cvar_t *cg_3rd_person;
-extern cvar_t *cg_syncronousClients;
-extern cvar_t *cg_stereoSeparation;
-extern cvar_t *cg_stats;
-extern cvar_t *cg_lagometer;
-extern cvar_t *paused;
-extern cvar_t *r_lerpmodels;
-extern cvar_t *cg_cameraheight;
-extern cvar_t *cg_cameradist;
-extern cvar_t *cg_cameraverticaldisplacement;
-extern cvar_t *cg_camerascale;
-extern cvar_t *cg_shadows;
-extern cvar_t *cg_hidetempmodels;
-extern cvar_t *cg_traceinfo;
-extern cvar_t *cg_debugFootsteps;
+extern cvar_t* cg_animSpeed;
+extern cvar_t* cg_debugAnim;
+extern cvar_t* cg_debugAnimWatch;
+extern cvar_t* cg_errorDecay;
+extern cvar_t* cg_nopredict;
+extern cvar_t* cg_showmiss;
+extern cvar_t* cg_addMarks;
+extern cvar_t* cg_maxMarks;
+extern cvar_t* cg_viewsize;
+extern cvar_t* cg_3rd_person;
+extern cvar_t* cg_drawviewmodel;
+extern cvar_t* cg_synchronousClients;
+extern cvar_t* cg_stereoSeparation;
+extern cvar_t* cg_stats;
+extern cvar_t* cg_lagometer;
+extern cvar_t* r_lerpmodels;
+extern cvar_t* cg_cameraheight;
+extern cvar_t* cg_cameradist;
+extern cvar_t* cg_cameraverticaldisplacement;
+extern cvar_t* cg_camerascale;
+extern cvar_t* cg_shadows;
+extern cvar_t* cg_hidetempmodels;
+extern cvar_t* cg_traceinfo;
+extern cvar_t* cg_debugFootsteps;
+extern cvar_t* cg_smoothClients;
+extern cvar_t* cg_smoothClientsTime;
+extern cvar_t* pmove_fixed;
+extern cvar_t* pmove_msec;
+extern cvar_t* cg_pmove_msec;
+extern cvar_t* dm_playermodel;
+extern cvar_t* dm_playergermanmodel;
+extern cvar_t* cg_forceModel;
+extern cvar_t* cg_animationviewmodel;
+extern cvar_t* cg_hitmessages;
+extern cvar_t* cg_acidtrip;
+extern cvar_t* cg_hud;
+extern cvar_t* cg_huddraw_force;
+extern cvar_t* cg_drawsvlag;
+extern cvar_t* vm_offset_max;
+extern cvar_t* vm_offset_speed;
+extern cvar_t* vm_sway_front;
+extern cvar_t* vm_sway_side;
+extern cvar_t* vm_sway_up;
+extern cvar_t* vm_offset_air_front;
+extern cvar_t* vm_offset_air_side;
+extern cvar_t* vm_offset_air_up;
+extern cvar_t* vm_offset_crouch_front;
+extern cvar_t* vm_offset_crouch_side;
+extern cvar_t* vm_offset_crouch_up;
+extern cvar_t* vm_offset_rocketcrouch_front;
+extern cvar_t* vm_offset_rocketcrouch_side;
+extern cvar_t* vm_offset_rocketcrouch_up;
+extern cvar_t* vm_offset_shotguncrouch_front;
+extern cvar_t* vm_offset_shotguncrouch_side;
+extern cvar_t* vm_offset_shotguncrouch_up;
+extern cvar_t* vm_offset_vel_base;
+extern cvar_t* vm_offset_vel_front;
+extern cvar_t* vm_offset_vel_side;
+extern cvar_t* vm_offset_vel_up;
+extern cvar_t* vm_offset_upvel;
+extern cvar_t* vm_lean_lower;
+extern cvar_t* voiceChat;
+extern cvar_t* cg_shadowscount;
+extern cvar_t* cg_shadowdebug;
 
 //
 // cg_main.c
@@ -458,16 +510,15 @@ void        CG_ServerRestarted( void );
 //
 // cg_modelanim.cpp
 //
-void CG_ModelAnim( centity_t *cent );
-void CG_EntityTargeted( int tikihandle, centity_t *cent, refEntity_t *model );
+void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime);
 void CG_ClearModelAnimation( int tikihandle, animstate_t * state, int animationNumber, int time, vec3_t origin, int entnum );
-void CG_AttachEntity( refEntity_t *entity, refEntity_t *parent, int tikihandle, int tagnum, qboolean use_angles, vec3_t attach_offset );
+void CG_AttachEntity( refEntity_t *entity, refEntity_t *parent, dtiki_t* tiki, int tagnum, qboolean use_angles, vec3_t attach_offset );
 
 //
 // cg_commands.cpp
 //
 void     CG_Event( centity_t *cent );
-void     CG_UpdateEntity( int tikihandle, refEntity_t *ent, centity_t *cent );
+void     CG_UpdateEntityEmitters(int entnum, refEntity_t *ent, centity_t *cent );
 void     CG_RemoveClientEntity( int number, int tikihandle, centity_t *cent );
 void     CG_UpdateTestEmitter( void );
 void     CG_AddTempModels( void );
@@ -714,6 +765,3 @@ void CG_ClearSwipes( void );
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __CG_LOCAL_H__
-

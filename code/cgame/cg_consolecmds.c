@@ -202,33 +202,6 @@ void CG_AddTestModel (void) {
 
 #endif
 
-/*
-=================
-CG_FlushModels_f
-=================
-*/
-void CG_FlushModels_f( void )
-   {
-   int i;
-
-   // clear any tiki handles to bad values
-   memset( &cgs.model_tiki, -1, sizeof( cgs.model_tiki ) );
-
-   // reset all emitters
-   CG_FlushCommandManager();
-
-   // flush all the tikis
-   cgi.FlushAll();
-
-   // go through all the models and process them
-	for ( i = CS_MODELS ; i < MAX_MODELS ; i++ ) 
-      {
-      CG_ProcessConfigString( i );
-		}
-   }
-
-
-
 typedef struct {
 	char	*cmd;
 	void	(*function)(void);
@@ -258,7 +231,6 @@ static consoleCommand_t	commands[] = {
    { "cg_dumpallclasses", CG_DumpAllClasses_f },
    { "testemitter", CG_TestEmitter_f },
    { "dumpemitter", CG_DumpEmitter_f },
-   { "flushtikis", CG_FlushModels_f }
 };
 
 

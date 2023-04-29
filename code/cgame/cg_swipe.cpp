@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 swipething_t m_swipes[MAX_SWIPES];
 extern int current_entity_number;
 extern refEntity_t *current_entity;
-extern int current_tiki;
+extern dtiki_t* current_tiki;
 extern centity_t *current_centity;
 
 void ClientGameCommandManager::SwipeOn

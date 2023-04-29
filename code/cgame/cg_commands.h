@@ -794,7 +794,7 @@ class ClientGameCommandManager : public Listener
       
       ClientGameCommandManager();
       void AddTempModels( void );
-      void UpdateEmitter( int tikihandle, vec3_t axis[3], int entity_number, int parent_number, Vector entity_origin );
+      void UpdateEmitter( dtiki_t* tiki, vec3_t axis[3], int entity_number, int parent_number, Vector entity_origin );
       void UpdateBeam( int tikihandle, int entity_number, spawnthing_t *beamthing );
       void PlaySound( str sound_name, vec3_t *origin=NULL, int channel = CHAN_AUTO, float volume = -1, float min_distance = -1 );
 
