@@ -22,7 +22,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __TR_PUBLIC_H
 #define __TR_PUBLIC_H
 
-#include "tr_types.h"
+#include "../cgame/tr_types.h"
+#include "q_shared.h"
 
 #ifdef __cplusplus
 extern "C" {
