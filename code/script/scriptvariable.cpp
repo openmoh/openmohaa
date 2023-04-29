@@ -26,10 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptexception.h"
 #include "str.h"
 
-#ifdef CGAME_DLL
-#include "../cgame_hook/script/centity.h"
-#endif
-
 #ifdef GAME_DLL
 #include "archive.h"
 #include "g_local.h"
@@ -60,11 +56,11 @@ int HashCode< ScriptVariable >( const ScriptVariable& key )
 	case VARIABLE_INTEGER:
 		return key.m_data.intValue;
 
+#if defined (GAME_DLL)
 	case VARIABLE_LISTENER:
-#if defined ( GAME_DLL ) || defined ( CGAME_DLL )
-		e = ( Entity * )key.listenerValue();
+		e = (Entity*)key.listenerValue();
 
-		if( checkInheritance( &Entity::ClassInfo, e->classinfo() ) )
+		if (checkInheritance(&Entity::ClassInfo, e->classinfo()))
 		{
 			return e->entnum;
 		}
@@ -662,7 +658,7 @@ qboolean ScriptVariable::IsEntity( void )
 	if( type == VARIABLE_LISTENER )
 	{
 		if( !m_data.listenerValue->Pointer() ||
-#if defined ( CGAME_DLL ) || defined ( GAME_DLL )
+#if defined ( CGAME_DLL )
 			checkInheritance( Entity::classinfostatic(), m_data.listenerValue->Pointer()->classinfo() )
 #else
 			0
