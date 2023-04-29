@@ -1846,6 +1846,12 @@ typedef struct usercmd_s {
 #define BEAM_TILESHADER         (1<<10)
 #define BEAM_OFFSET_ENDPOINTS   (1<<11)
 
+typedef struct frameInfo_s {
+    int index;
+    float time;
+    float weight;
+} frameInfo_t;
+
 typedef enum {
 	TR_STATIONARY,
 	TR_INTERPOLATE,				// non-parametric, but interpolate between snapshots
@@ -1860,12 +1866,6 @@ typedef struct {
 	int trTime;
 	vec3_t trDelta;
 } trajectory_t;
-
-typedef struct frameInfo_s {
-	int index;
-	float time;
-	float weight;
-} frameInfo_t;
 
 #define NUM_BONE_CONTROLLERS 5
 
@@ -1995,24 +1995,7 @@ typedef struct {
 	float	color[ 4 ];
 } debugstring_t;
 
-// font support
-
-typedef struct {
-	float pos[ 2 ];
-	float size[ 2 ];
-} letterloc_t;
-
-typedef struct {
-	int				indirection[ 256 ];
-	letterloc_t		locations[ 256 ];
-	char			name[ 64 ];
-	float			height;
-	float			aspectRatio;
-	void			*shader;
-	int				trhandle;
-} fontheader_t;
-
-/*typedef struct hdelement_s {
+typedef struct hdelement_s {
 	qhandle_t		hShader;
 	char			shaderName[ 64 ];
 
@@ -2030,11 +2013,11 @@ typedef struct {
 	char			string[ 2048 ];
 	char			fontName[ 64 ];
 
-	fontheader_t	*pFont;
-} hdelement_t;*/
+	struct fontheader_s *pFont;
+} hdelement_t;
 
-/*typedef struct {
-	frameInfo_t	g_VMFrameInfo[ 16 ];
+typedef struct {
+	frameInfo_t	g_VMFrameInfo[MAX_FRAMEINFOS];
 
 	int			g_iLastVMAnim;
 	int			g_iLastVMAnimChanged;
@@ -2048,7 +2031,7 @@ typedef struct {
 	int			g_iLastAnimPrefixIndex;
 
 	float		g_vCurrentVMPosOffset[ 3 ];
-} clientAnim_t;*/
+} clientAnim_t;
 
 #define GLYPH_START 0
 #define GLYPH_END 255
