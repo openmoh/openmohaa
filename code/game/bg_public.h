@@ -584,8 +584,7 @@ typedef enum {
 	ET_EMITTER,
 	ET_ROPE,
 	ET_EVENTS,
-	ET_EXEC_COMMANDS,
-	ET_SPRITE
+	ET_EXEC_COMMANDS
 } entityType_t;
 
 // su44; yes, I know there is no q3 trajectory_t in MoHAA,
