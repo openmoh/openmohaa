@@ -173,6 +173,7 @@ demo through a file.
 */
 
 #define MAX_TIMEDEMO_DURATIONS	4096
+#define MAX_HUDDRAW_ELEMENTS 256
 
 typedef struct {
 
@@ -347,7 +348,7 @@ typedef struct {
 	int character_lights;
 	hdelement_t HudDrawElements[ MAX_HUDDRAW_ELEMENTS ];
 	clientAnim_t anim;
-	stopwatch_t stopwatch;
+	stopWatch_t stopwatch;
 	qhandle_t	charSetShader;
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;
