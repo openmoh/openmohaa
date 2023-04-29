@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../client/snd_public.h"
 #include "../client/client.h"
+#include "tiki.h"
 #include <localization.h>
 #include <crc.h>
 

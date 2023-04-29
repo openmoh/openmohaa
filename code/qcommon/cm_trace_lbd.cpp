@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cm_local.h"
 #include "server.h"
 #include "../client/client.h"
+#include "tiki.h"
 
 #define LOCATION_FAIL			-2
 #define MAX_HITLOCATIONS		19
