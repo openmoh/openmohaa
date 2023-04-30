@@ -38,6 +38,8 @@ markPoly_t	cg_activeMarkPolys;			// double linked list
 markPoly_t	*cg_freeMarkPolys;			// single linked list
 markPoly_t	cg_markPolys[MAX_MARK_POLYS];
 
+vec3_t vec_upwards;
+
 /*
 ===================
 CG_InitMarkPolys
@@ -45,17 +47,18 @@ CG_InitMarkPolys
 This is called at startup and for tournement restarts
 ===================
 */
-void	CG_InitMarks( void ) {
-	int		i;
+void CG_InitMarks(void)
+{
+    int i;
 
-	memset( cg_markPolys, 0, sizeof(cg_markPolys) );
+    memset(cg_markPolys, 0, sizeof(cg_markPolys));
 
-	cg_activeMarkPolys.nextMark = &cg_activeMarkPolys;
-	cg_activeMarkPolys.prevMark = &cg_activeMarkPolys;
-	cg_freeMarkPolys = cg_markPolys;
-	for ( i = 0 ; i < MAX_MARK_POLYS - 1 ; i++ ) {
-		cg_markPolys[i].nextMark = &cg_markPolys[i+1];
-	}
+    cg_activeMarkPolys.nextMark = &cg_activeMarkPolys;
+    cg_activeMarkPolys.prevMark = &cg_activeMarkPolys;
+    cg_freeMarkPolys = cg_markPolys;
+    for (i = 0; i < MAX_MARK_POLYS - 1; i++) {
+        cg_markPolys[i].nextMark = &cg_markPolys[i + 1];
+    }
 }
 
 
@@ -64,18 +67,19 @@ void	CG_InitMarks( void ) {
 CG_FreeMarkPoly
 ==================
 */
-void CG_FreeMarkPoly( markPoly_t *le ) {
-	if ( !le->prevMark ) {
-		cgi.Error( ERR_DROP, "CG_FreeLocalEntity: not active" );
-	}
+void CG_FreeMarkPoly(markPoly_t* le)
+{
+    if (!le->prevMark) {
+        cgi.Error(ERR_DROP, "CG_FreeLocalEntity: not active");
+    }
 
-	// remove from the doubly linked active list
-	le->prevMark->nextMark = le->nextMark;
-	le->nextMark->prevMark = le->prevMark;
+    // remove from the doubly linked active list
+    le->prevMark->nextMark = le->nextMark;
+    le->nextMark->prevMark = le->prevMark;
 
-	// the free list is only singly linked
-	le->nextMark = cg_freeMarkPolys;
-	cg_freeMarkPolys = le;
+    // the free list is only singly linked
+    le->nextMark = cg_freeMarkPolys;
+    cg_freeMarkPolys = le;
 }
 
 /*
@@ -85,33 +89,33 @@ CG_AllocMark
 Will allways succeed, even if it requires freeing an old active mark
 ===================
 */
-markPoly_t	*CG_AllocMark( void ) {
-	markPoly_t	*le;
+markPoly_t* CG_AllocMark(void)
+{
+    markPoly_t* le;
 
-	if ( !cg_freeMarkPolys ) {
-      int time;
-		// no free entities, so free the one at the end of the chain
-		// remove the oldest active entity
-		time = cg_activeMarkPolys.prevMark->time;
-		while (cg_activeMarkPolys.prevMark && time == cg_activeMarkPolys.prevMark->time) {
-			CG_FreeMarkPoly( cg_activeMarkPolys.prevMark );
-		}
-	}
+    if (!cg_freeMarkPolys) {
+        int time;
+        // no free entities, so free the one at the end of the chain
+        // remove the oldest active entity
+        time = cg_activeMarkPolys.prevMark->time;
+        while (cg_activeMarkPolys.prevMark &&
+               time == cg_activeMarkPolys.prevMark->time) {
+            CG_FreeMarkPoly(cg_activeMarkPolys.prevMark);
+        }
+    }
 
-	le = cg_freeMarkPolys;
-	cg_freeMarkPolys = cg_freeMarkPolys->nextMark;
+    le = cg_freeMarkPolys;
+    cg_freeMarkPolys = cg_freeMarkPolys->nextMark;
 
-	memset( le, 0, sizeof( *le ) );
+    memset(le, 0, sizeof(*le));
 
-	// link into the active list
-	le->nextMark = cg_activeMarkPolys.nextMark;
-	le->prevMark = &cg_activeMarkPolys;
-	cg_activeMarkPolys.nextMark->prevMark = le;
-	cg_activeMarkPolys.nextMark = le;
-	return le;
+    // link into the active list
+    le->nextMark = cg_activeMarkPolys.nextMark;
+    le->prevMark = &cg_activeMarkPolys;
+    cg_activeMarkPolys.nextMark->prevMark = le;
+    cg_activeMarkPolys.nextMark = le;
+    return le;
 }
-
-
 
 /*
 =================
@@ -145,125 +149,142 @@ void CG_ImpactMark
    float fSCenter,
    float fTCenter
    )
-   
-   {
-	vec3_t	   	axis[3];
-	float		   	texCoordScale;
-	vec3_t	   	originalPoints[4];
-	byte		   	colors[4];
-	int		   	i, j;
-	int				numFragments;
-	markFragment_t	markFragments[MAX_MARK_FRAGMENTS], *mf;
-	vec3_t			markPoints[MAX_MARK_POINTS];
-	vec3_t			projection;
 
-	if ( !cg_addMarks->integer ) {
-		return;
-	}
+{
+    vec3_t axis[3];
+    float texCoordScale;
+    vec3_t originalPoints[4];
+    byte colors[4];
+    int i, j;
+    int numFragments;
+    markFragment_t markFragments[MAX_MARK_FRAGMENTS], *mf;
+    vec3_t markPoints[MAX_MARK_POINTS];
+    vec3_t projection;
 
-	if ( radius <= 0 ) {
-		cgi.Error( ERR_DROP, "CG_ImpactMark called with <= 0 radius" );
-	}
+    if (!cg_addMarks->integer) {
+        return;
+    }
 
-	// create the texture axis
+    if (radius <= 0) {
+        cgi.Error(ERR_DROP, "CG_ImpactMark called with <= 0 radius");
+    }
 
-   if ( orientation )
-      {
-   	VectorNormalize2( dir, axis[0] );
-	   PerpendicularVector( axis[1], axis[0] );
-	   RotatePointAroundVector( axis[2], axis[0], axis[1], orientation );
-	   CrossProduct( axis[0], axis[2], axis[1] );
-      }
-   else
-      {
-      vec3_t angles;
-      vec3_t tmp;
+    // create the texture axis
 
-   	VectorNormalize2( dir, axis[0] );
-      VectorCopy( dir, tmp );
-      tmp[0] = -tmp[0];
-      tmp[1] = -tmp[1];
-      vectoangles( tmp, angles );
-      AnglesToMat( angles, axis );
-      VectorScale( axis[2], -1, axis[2] );
-      }
+    if (orientation) {
+        VectorNormalize2(dir, axis[0]);
+        PerpendicularVector(axis[1], axis[0]);
+        RotatePointAroundVector(axis[2], axis[0], axis[1], orientation);
+        CrossProduct(axis[0], axis[2], axis[1]);
+    } else {
+        vec3_t angles;
+        vec3_t tmp;
 
-	texCoordScale = 0.5 * 1.0 / radius;
+        VectorNormalize2(dir, axis[0]);
+        VectorCopy(dir, tmp);
+        tmp[0] = -tmp[0];
+        tmp[1] = -tmp[1];
+        vectoangles(tmp, angles);
+        AnglesToMat(angles, axis);
+        VectorScale(axis[2], -1, axis[2]);
+    }
 
-	// create the full polygon
-	for ( i = 0 ; i < 3 ; i++ ) {
-		originalPoints[0][i] = origin[i] - radius * axis[1][i] - radius * axis[2][i];
-		originalPoints[1][i] = origin[i] + radius * axis[1][i] - radius * axis[2][i];
-		originalPoints[2][i] = origin[i] + radius * axis[1][i] + radius * axis[2][i];
-		originalPoints[3][i] = origin[i] - radius * axis[1][i] + radius * axis[2][i];
-	}
+    texCoordScale = 0.5 * 1.0 / radius;
 
-	// get the fragments
-	VectorScale( dir, -32, projection );
+    // create the full polygon
+    for (i = 0; i < 3; i++) {
+        originalPoints[0][i] =
+            origin[i] - radius * axis[1][i] - radius * axis[2][i];
+        originalPoints[1][i] =
+            origin[i] + radius * axis[1][i] - radius * axis[2][i];
+        originalPoints[2][i] =
+            origin[i] + radius * axis[1][i] + radius * axis[2][i];
+        originalPoints[3][i] =
+            origin[i] - radius * axis[1][i] + radius * axis[2][i];
+    }
 
-	// FIXME: fRadiusSquared
-	numFragments = cgi.R_MarkFragments( 4, (void *)originalPoints,
-					                          projection, MAX_MARK_POINTS, markPoints[0],
-					                          MAX_MARK_FRAGMENTS, markFragments, 0.f );
+    // get the fragments
+    VectorScale(dir, -32, projection);
 
-   if ( fadein )
-      {
-	   colors[0] = 0;
-	   colors[1] = 0;
-	   colors[2] = 0;
-	   colors[3] = 0;
-      }
-   else
-      {
-	   colors[0] = red   * 255;
-	   colors[1] = green * 255;
-	   colors[2] = blue  * 255;
-	   colors[3] = alpha * 255;
-      }
+    // FIXME: fRadiusSquared
+    numFragments = cgi.R_MarkFragments(4, (void*)originalPoints, projection,
+                                       MAX_MARK_POINTS, markPoints[0],
+                                       MAX_MARK_FRAGMENTS, markFragments, 0.f);
 
-	for ( i = 0, mf = markFragments ; i < numFragments ; i++, mf++ ) {
-		polyVert_t	*v;
-		polyVert_t	verts[MAX_VERTS_ON_POLY];
-		markPoly_t	*mark;
+    if (fadein) {
+        colors[0] = 0;
+        colors[1] = 0;
+        colors[2] = 0;
+        colors[3] = 0;
+    } else {
+        colors[0] = red * 255;
+        colors[1] = green * 255;
+        colors[2] = blue * 255;
+        colors[3] = alpha * 255;
+    }
 
-		// we have an upper limit on the complexity of polygons
-		// that we store persistantly
-		if ( mf->numPoints > MAX_VERTS_ON_POLY ) {
-			mf->numPoints = MAX_VERTS_ON_POLY;
-		}
-		for ( j = 0, v = verts ; j < mf->numPoints ; j++, v++ ) {
-			vec3_t		delta;
+    for (i = 0, mf = markFragments; i < numFragments; i++, mf++) {
+        polyVert_t* v;
+        polyVert_t verts[MAX_VERTS_ON_POLY];
+        markPoly_t* mark;
 
-			VectorCopy( markPoints[mf->firstPoint + j], v->xyz );
+        // we have an upper limit on the complexity of polygons
+        // that we store persistantly
+        if (mf->numPoints > MAX_VERTS_ON_POLY) {
+            mf->numPoints = MAX_VERTS_ON_POLY;
+        }
+        for (j = 0, v = verts; j < mf->numPoints; j++, v++) {
+            vec3_t delta;
 
-			VectorSubtract( v->xyz, origin, delta );
-			v->st[0] = 0.5 + DotProduct( delta, axis[1] ) * texCoordScale;
-			v->st[1] = 0.5 + DotProduct( delta, axis[2] ) * texCoordScale;
-			*(int *)v->modulate = *(int *)colors;
-		}
+            VectorCopy(markPoints[mf->firstPoint + j], v->xyz);
 
-		// if it is a temporary (shadow) mark, add it immediately and forget about it
-		if ( temporary ) {
-			cgi.R_AddPolyToScene( markShader, mf->numPoints, verts, 0 );
-			continue;
-		}
+            VectorSubtract(v->xyz, origin, delta);
+            v->st[0] = 0.5 + DotProduct(delta, axis[1]) * texCoordScale;
+            v->st[1] = 0.5 + DotProduct(delta, axis[2]) * texCoordScale;
+            *(int*)v->modulate = *(int*)colors;
+        }
 
-		// otherwise save it persistantly
-		mark = CG_AllocMark();
-		mark->time = cg.time;
-		mark->alphaFade = alphaFade;
-		mark->markShader = markShader;
-		mark->poly.numVerts = mf->numPoints;
-		mark->color[0] = red;
-		mark->color[1] = green;
-		mark->color[2] = blue;
-		mark->color[3] = alpha;
-      mark->fadein   = fadein;
-      mark->lightstyle = lightstyle;
-		memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) );
-	}
+        // if it is a temporary (shadow) mark, add it immediately and forget
+        // about it
+        if (temporary) {
+            cgi.R_AddPolyToScene(markShader, mf->numPoints, verts, 0);
+            continue;
+        }
+
+        // otherwise save it persistantly
+        mark = CG_AllocMark();
+        mark->time = cg.time;
+        mark->alphaFade = alphaFade;
+        mark->markShader = markShader;
+        mark->poly.numVerts = mf->numPoints;
+        mark->color[0] = red;
+        mark->color[1] = green;
+        mark->color[2] = blue;
+        mark->color[3] = alpha;
+        mark->fadein = fadein;
+        mark->lightstyle = lightstyle;
+        memcpy(mark->verts, verts, mf->numPoints * sizeof(verts[0]));
+    }
 }
 
+void CG_ImpactMarkSimple(
+	qhandle_t markShader,
+	vec_t* origin,
+	vec_t* dir,
+	float orientation,
+	float fRadius,
+	float red,
+	float green,
+	float blue,
+	float alpha,
+	qboolean alphaFade,
+	qboolean temporary,
+	qboolean dolighting,
+	qboolean fadein
+)
+{
+	// FIXME: unimplemented
+}
 
 /*
 ===============
@@ -273,99 +294,197 @@ CG_AddMarks
 #define	MARK_TOTAL_TIME		10000
 #define	MARK_FADE_TIME		   1000
 
-void CG_AddMarks( void ) {
-	int			j;
-	markPoly_t	*mp, *next;
-	int			t;
-	int			fade;
+void CG_AddMarks(void)
+{
+    int j;
+    markPoly_t *mp, *next;
+    int t;
+    int fade;
 
-	if ( !cg_addMarks->integer ) {
-		return;
-	}
+    if (!cg_addMarks->integer) {
+        return;
+    }
 
-	mp = cg_activeMarkPolys.nextMark;
-	for ( ; mp != &cg_activeMarkPolys ; mp = next ) {
-		// grab next now, so if the local entity is freed we
-		// still have it
-		next = mp->nextMark;
+    mp = cg_activeMarkPolys.nextMark;
+    for (; mp != &cg_activeMarkPolys; mp = next) {
+        // grab next now, so if the local entity is freed we
+        // still have it
+        next = mp->nextMark;
 
-		// see if it is time to completely remove it
-		if ( cg.time > mp->time + MARK_TOTAL_TIME ) {
-			CG_FreeMarkPoly( mp );
-			continue;
-		}
+        // see if it is time to completely remove it
+        if (cg.time > mp->time + MARK_TOTAL_TIME) {
+            CG_FreeMarkPoly(mp);
+            continue;
+        }
 
-		// fade all marks out with time
-		t = mp->time + MARK_TOTAL_TIME - cg.time;
+        // fade all marks out with time
+        t = mp->time + MARK_TOTAL_TIME - cg.time;
 
-      if ( mp->lightstyle > 0 )
-         {
-         CG_LightStyleColor( mp->lightstyle, t, mp->color, qtrue );
-		   
-         if ( mp->color[3] <= 0 )
-            {
-			   CG_FreeMarkPoly( mp );
-			   continue;
-		      }
+        if (mp->lightstyle > 0) {
+            CG_LightStyleColor(mp->lightstyle, t, mp->color, qtrue);
 
-			for ( j = 0 ; j < mp->poly.numVerts ; j++ )
-            {
-				mp->verts[j].modulate[0] = mp->color[0] * 255;
-				mp->verts[j].modulate[1] = mp->color[1] * 255;
-				mp->verts[j].modulate[2] = mp->color[2] * 255;
-				mp->verts[j].modulate[3] = mp->color[3] * 255;
-				}
-         }
+            if (mp->color[3] <= 0) {
+                CG_FreeMarkPoly(mp);
+                continue;
+            }
 
-      // Fade in marks
-      if ( mp->fadein )
-         {        
-         fade = 255 * ( cg.time - mp->time ) / MARK_FADE_TIME;
+            for (j = 0; j < mp->poly.numVerts; j++) {
+                mp->verts[j].modulate[0] = mp->color[0] * 255;
+                mp->verts[j].modulate[1] = mp->color[1] * 255;
+                mp->verts[j].modulate[2] = mp->color[2] * 255;
+                mp->verts[j].modulate[3] = mp->color[3] * 255;
+            }
+        }
 
-         if ( fade > 255 )
-            fade = 255;
+        // Fade in marks
+        if (mp->fadein) {
+            fade = 255 * (cg.time - mp->time) / MARK_FADE_TIME;
 
-         if ( mp->alphaFade )
-            {
-	         for ( j = 0 ; j < mp->poly.numVerts ; j++ ) 
-               {
-		         mp->verts[j].modulate[3] = fade;
-		         }
-	         }
-         else 
-            {
-	         for ( j = 0 ; j < mp->poly.numVerts ; j++ )
-               {
-		         mp->verts[j].modulate[0] = mp->color[0] * fade;
-		         mp->verts[j].modulate[1] = mp->color[1] * fade;
-		         mp->verts[j].modulate[2] = mp->color[2] * fade;
-		         }
-	         }
-         }
+            if (fade > 255) {
+                fade = 255;
+            }
 
-      // Fade out marks
-      if ( t < MARK_FADE_TIME ) 
-         {
-			fade = 255 * t / MARK_FADE_TIME;
-			if ( mp->alphaFade )
-            {
-				for ( j = 0 ; j < mp->poly.numVerts ; j++ ) 
-               {
-					mp->verts[j].modulate[3] = fade;
-				   }
-			   }
-         else 
-            {
-				for ( j = 0 ; j < mp->poly.numVerts ; j++ )
-               {
-					mp->verts[j].modulate[0] = mp->color[0] * fade;
-					mp->verts[j].modulate[1] = mp->color[1] * fade;
-					mp->verts[j].modulate[2] = mp->color[2] * fade;
-				   }
-			   }
-		   }
+            if (mp->alphaFade) {
+                for (j = 0; j < mp->poly.numVerts; j++) {
+                    mp->verts[j].modulate[3] = fade;
+                }
+            } else {
+                for (j = 0; j < mp->poly.numVerts; j++) {
+                    mp->verts[j].modulate[0] = mp->color[0] * fade;
+                    mp->verts[j].modulate[1] = mp->color[1] * fade;
+                    mp->verts[j].modulate[2] = mp->color[2] * fade;
+                }
+            }
+        }
 
-		cgi.R_AddPolyToScene( mp->markShader, mp->poly.numVerts, mp->verts, 0 );
-	}
+        // Fade out marks
+        if (t < MARK_FADE_TIME) {
+            fade = 255 * t / MARK_FADE_TIME;
+            if (mp->alphaFade) {
+                for (j = 0; j < mp->poly.numVerts; j++) {
+                    mp->verts[j].modulate[3] = fade;
+                }
+            } else {
+                for (j = 0; j < mp->poly.numVerts; j++) {
+                    mp->verts[j].modulate[0] = mp->color[0] * fade;
+                    mp->verts[j].modulate[1] = mp->color[1] * fade;
+                    mp->verts[j].modulate[2] = mp->color[2] * fade;
+                }
+            }
+        }
+
+        cgi.R_AddPolyToScene(mp->markShader, mp->poly.numVerts, mp->verts, 0);
+    }
 }
 
+qboolean CG_CheckMakeMarkOnEntity(int iEntIndex)
+{
+    // FIXME: unimplemented
+    return qfalse;
+}
+
+void CG_InitTestTreadMark()
+{
+	// FIXME: unimplemented
+}
+
+int CG_StartTreadMark(
+	int iReference,
+	qhandle_t treadShader,
+	vec_t* vStartPos,
+	float fWidth,
+	float fAlpha)
+{
+	// FIXME: unimplemented
+	return 0;
+}
+
+qboolean CG_MakeTreadMarkDecal_PerPolyCallback(
+    vec3_t* markPoints,
+    markFragment_t* mf,
+    polyVert_t* verts,
+    void* pCustom
+)
+{
+    // FIXME: unimplemented
+    return qfalse;
+}
+
+int CG_MakeTreadMarkDecal_GetLeafCallback(
+    markFragment_t* mf,
+    void* pCustom
+)
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
+void CG_MakeTreadMarkDecal(
+    treadMark_t* pTread,
+    qboolean bStartSegment,
+    qboolean bTemporary
+)
+{
+    // FIXME: unimplemented
+}
+
+int CG_UpdateTreadMark(
+    int iReference,
+    vec_t* vNewPos,
+    float fAlpha
+)
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
+void CG_AddTreadMarks()
+{
+    // FIXME: unimplemented
+}
+
+int CG_PermanentMark(
+    vec_t* origin,
+    vec_t* dir,
+    float orientation,
+    float fSScale,
+    float fTScale,
+    float red,
+    float green,
+    float blue,
+    float alpha,
+    qboolean dolighting,
+    float fSCenter,
+    float fTCenter,
+    markFragment_t* pMarkFragments,
+    void* pVoidPolyVerts
+)
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
+int CG_PermanentTreadMarkDecal(
+    treadMark_t* pTread,
+    qboolean bStartSegment,
+    qboolean dolighting,
+    markFragment_t* pMarkFragments,
+    void* pVoidPolyVerts
+)
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
+int CG_PermanentUpdateTreadMark(
+    treadMark_t* pTread,
+    float fAlpha,
+    float fMinSegment,
+    float fMaxSegment,
+    float fMaxOffset,
+    float fTexScale
+)
+{
+    // FIXME: unimplemented
+    return 0;
+}
