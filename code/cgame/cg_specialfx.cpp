@@ -25,10 +25,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 #include "cg_commands.h"
-#include "../game/surfaceflags.h"
+#include "surfaceflags.h"
 
 extern refEntity_t *current_entity;
 extern dtiki_t* current_tiki;
+
+void CG_InitializeSpecialEffectsManager() {
+	// FIXME: UNIMPLEMENTED
+}
 
 /*
 ==============================================================
