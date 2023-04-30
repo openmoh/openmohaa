@@ -133,13 +133,13 @@ void ClientGameCommandManager::Swipe
    qboolean       add_cnt_point = qfalse;
    vec3_t         tmp;
 
-   assert( current_entity );
-   assert( current_tiki != -1 );
+   assert(current_entity);
+   assert(current_tiki);
 
-   if ( !current_entity || ( current_tiki == -1 ) )
-      {
-      return;
-      }
+   if (!current_entity || !current_tiki)
+   {
+       return;
+   }
 
    // Let's find us a new (or current) swipe
    for ( swipenum=0; swipenum < MAX_SWIPES; swipenum++ )
@@ -178,7 +178,7 @@ void ClientGameCommandManager::Swipe
          VectorCopy ( current_entity->origin, swipe.cntPoint.points[0] );
 
          tagnum_start = cgi.Tag_NumForName( current_tiki, swipe.tagname_start.c_str() );
-         or = cgi.Tag_LerpedOrientation( current_tiki, current_entity, tagnum_start );
+         or = cgi.TIKI_Orientation(current_entity, tagnum_start);
 
          // Clear out the points
          VectorClear ( tmp );
@@ -200,7 +200,7 @@ void ClientGameCommandManager::Swipe
          VectorCopy ( tmp, swipe.cntPoint.points[0] );
 
          tagnum_end = cgi.Tag_NumForName( current_tiki, swipe.tagname_end.c_str() );
-         or = cgi.Tag_LerpedOrientation( current_tiki, current_entity, tagnum_end );
+         or = cgi.TIKI_Orientation(current_entity, tagnum_end);
 
          if ( ev->NumArgs() > 0 )
             VectorCopy( ev->GetVector( 1 ), tmp );
