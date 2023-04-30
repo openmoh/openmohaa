@@ -25,64 +25,85 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // single frame
 
 #include "cg_local.h"
+#include "tiki.h"
 
 /*
 ==================
 CG_ResetEntity
 ==================
 */
-static void CG_ResetEntity( centity_t *cent ) {
+static void CG_ResetEntity( centity_t *cent )
+{
+	dtiki_t* tiki;
+	int i;
 
-	VectorCopy (cent->currentState.origin, cent->lerpOrigin);
+    VectorCopy(cent->currentState.origin, cent->lerpOrigin);
 
-	VectorCopy (cent->currentState.angles, cent->lerpAngles);
+    VectorCopy(cent->currentState.angles, cent->lerpAngles);
 
-   // if we just teleported, all we care about is the position and orientation information
-   if ( cent->teleported )
-      {
-		cent->teleported = qfalse;
-      return;
-      }
+    // if we just teleported, all we care about is the position and orientation information
+    if (cent->teleported)
+    {
+        cent->teleported = qfalse;
+        return;
+    }
 
-   // reset local color
-   cent->client_color[ 0 ] = 1;
-   cent->client_color[ 1 ] = 1;
-   cent->client_color[ 2 ] = 1;
-   cent->client_color[ 3 ] = 1;
+    // reset local color
+    cent->client_color[0] = 1;
+    cent->client_color[1] = 1;
+    cent->client_color[2] = 1;
+    cent->client_color[3] = 1;
 
-	// Make sure entity starts with no loop sound
-	cent->tikiLoopSound = 0;
-   
-   // Reset client flags
-   cent->clientFlags = 0;
+    // Make sure entity starts with no loop sound
+    cent->tikiLoopSound = 0;
 
-	// Reset splash info
-	cent->splash_last_spawn_time = 0;
-	cent->splash_still_count     = -1;
+    // Reset client flags
+    cent->clientFlags = 0;
 
-   // reset client command 
-   CG_RemoveClientEntity( cent->currentState.number, cgs.model_tiki[ cent->currentState.modelindex ], cent );
+    // Reset splash info
+    cent->splash_last_spawn_time = 0;
+    cent->splash_still_count = -1;
 
-   // reset the animation for the entities
-	if ( cent->currentState.eType < ET_GENERAL )
-      {
-      CG_ClearModelAnimation( cgs.model_tiki[ cent->currentState.modelindex ], 
-                              &cent->am, cent->currentState.anim,
-                              cg.snap->serverTime,
-                              cent->lerpOrigin,
-                              cent->currentState.number
-                            );
-      CG_ClearModelAnimation( cgs.model_tiki[ cent->currentState.modelindex ],
-                              &cent->torso_am, cent->currentState.torso_anim,
-                              cg.snap->serverTime,
-                              cent->lerpOrigin,
-                              cent->currentState.number
-                            );
-      }
+	tiki = cgi.R_Model_GetHandle(cgs.model_draw[cent->currentState.modelindex]);
+    // reset client command 
+    CG_RemoveClientEntity(cent->currentState.number, tiki, cent);
 
-	if ( cent->currentState.eType == ET_PLAYER ) {
-		CG_ResetPlayerEntity( cent );
+    // reset the animation for the entities
+    if (tiki && tiki->a->bIsCharacter)
+    {
+		for (i = 0; i < MAX_FRAMEINFOS; i++)
+		{
+			cent->animLast[i] = cent->currentState.frameInfo[i].index;
+			cent->animLastTimes[i] = cent->currentState.frameInfo[i].time;
+			if (cent->currentState.frameInfo[i].weight) {
+				cent->animLastWeight |= 1 << i;
+			}
+			else
+			{
+				// zero-weight shouldn't count
+				cent->animLastWeight &= ~(1 << i);
+			}
+
+		}
+    }
+	else
+    {
+		// clear all the last animations
+		for (i = 0; i < MAX_FRAMEINFOS; i++)
+		{
+			cent->animLast[i] = -1;
+		}
+
+		cent->animLastWeight = 0;
 	}
+
+	cent->usageIndexLast = 0;
+	cent->bFootOnGround_Left = qtrue;
+	cent->bFootOnGround_Right = qtrue;
+
+    if (cent->currentState.eType == ET_PLAYER) {
+        CG_ResetPlayerEntity(cent);
+    }
 }
 
 /*
@@ -159,100 +180,101 @@ CG_TransitionSnapshot
 The transition point from snap to nextSnap has passed
 ===================
 */
-static void CG_TransitionSnapshot( void ) {
-	centity_t			*cent;
-	snapshot_t			*oldFrame;
-   qboolean          differentServer;
-	int					i;
+static void CG_TransitionSnapshot( void )
+{
+    centity_t* cent;
+    snapshot_t* oldFrame;
+    qboolean          differentServer;
+    int					i;
 
 
-	if ( !cg.snap ) {
-		cgi.Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap" );
-	}
-	if ( !cg.nextSnap ) {
-		cgi.Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap" );
-	}
+    if (!cg.snap) {
+        cgi.Error(ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap");
+    }
+    if (!cg.nextSnap) {
+        cgi.Error(ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap");
+    }
 
-	// execute any server string commands before transitioning entities
-	CG_ExecuteNewServerCommands( cg.nextSnap->serverCommandSequence );
+    // execute any server string commands before transitioning entities
+    CG_ExecuteNewServerCommands(cg.nextSnap->serverCommandSequence);
 
-	// clear the currentValid flag for all entities in the existing snapshot
-	for ( i = 0 ; i < cg.snap->numEntities ; i++ ) {
-		cent = &cg_entities[ cg.snap->entities[ i ].number ];
-   	cent->currentValid = qfalse;
-      }	
+    // clear the currentValid flag for all entities in the existing snapshot
+    for (i = 0; i < cg.snap->numEntities; i++) {
+        cent = &cg_entities[cg.snap->entities[i].number];
+        cent->currentValid = qfalse;
+    }
 
-	// move nextSnap to snap and do the transitions
-	oldFrame = cg.snap;
-	cg.snap = cg.nextSnap;
+    // move nextSnap to snap and do the transitions
+    oldFrame = cg.snap;
+    cg.snap = cg.nextSnap;
 
-   // if restarted, teleport and no camera lerp
-   if ( ( oldFrame->snapFlags ^ cg.snap->snapFlags ) & SNAPFLAG_SERVERCOUNT )
-      {
-      CG_ServerRestarted();
-      differentServer = qtrue;
-      }
-   else
-      {
-      differentServer = qfalse;
-      }
+    // if restarted, teleport and no camera lerp
+    if ((oldFrame->snapFlags ^ cg.snap->snapFlags) & SNAPFLAG_SERVERCOUNT)
+    {
+        CG_ServerRestarted();
+        differentServer = qtrue;
+    }
+    else
+    {
+        differentServer = qfalse;
+    }
 
-	//FAKK: Commented out to make our stuff work 
+    //FAKK: Commented out to make our stuff work 
    //cg_entities[ cg.snap->ps.clientNum ].interpolate = qfalse;
 
-	for ( i = 0 ; i < cg.snap->numEntities ; i++ ) {
-		cent = &cg_entities[ cg.snap->entities[ i ].number ];
-      if ( differentServer ) 
-         {
-         cent->interpolate = qfalse;
-         cent->teleported = qfalse;
-         }
-		CG_TransitionEntity( cent );
-	}
+    for (i = 0; i < cg.snap->numEntities; i++) {
+        cent = &cg_entities[cg.snap->entities[i].number];
+        if (differentServer)
+        {
+            cent->interpolate = qfalse;
+            cent->teleported = qfalse;
+        }
+        CG_TransitionEntity(cent);
+    }
 
-	for ( i = 0 ; i < cg.snap->number_of_sounds ; i++ ) 
-		{
-		CG_ProcessSound( &cg.snap->sounds[ i ] );	
-		}
+    for (i = 0; i < cg.snap->number_of_sounds; i++)
+    {
+        CG_ProcessSound(&cg.snap->sounds[i]);
+    }
 
-	cg.nextSnap = NULL;
+    cg.nextSnap = NULL;
 
-	// check for playerstate transition events
+    // check for playerstate transition events
 
-	if ( oldFrame ) 
-      {
-		playerState_t	*ops, *ps;
+    if (oldFrame)
+    {
+        playerState_t* ops, * ps;
 
-		ops = &oldFrame->ps;
-		ps = &cg.snap->ps;
+        ops = &oldFrame->ps;
+        ps = &cg.snap->ps;
 
-		// teleporting checks are irrespective of prediction
-		if ( ps->pm_flags & PMF_TIME_TELEPORT ) {
-			cg.thisFrameTeleport = qtrue;
-		}
+        // teleporting checks are irrespective of prediction
+        if (ps->pm_flags & PMF_RESPAWNED) {
+            cg.thisFrameTeleport = qtrue;
+        }
 
-		if ( ( ops->current_music_mood != ps->current_music_mood ) || ( ops->fallback_music_mood != ps->fallback_music_mood ) )
-			cgi.MUSIC_UpdateMood( ps->current_music_mood, ps->fallback_music_mood );
+        if ((ops->current_music_mood != ps->current_music_mood) || (ops->fallback_music_mood != ps->fallback_music_mood))
+            cgi.MUSIC_UpdateMood(ps->current_music_mood, ps->fallback_music_mood);
 
-		if ( ( ops->music_volume != ps->music_volume ) || ( ops->music_volume_fade_time != ps->music_volume_fade_time ) )
-			cgi.MUSIC_UpdateVolume( ps->music_volume, ps->music_volume_fade_time );
+        if ((ops->music_volume != ps->music_volume) || (ops->music_volume_fade_time != ps->music_volume_fade_time))
+            cgi.MUSIC_UpdateVolume(ps->music_volume, ps->music_volume_fade_time);
 
-		if ( ( ops->reverb_type != ps->reverb_type ) || ( ops->reverb_level != ps->reverb_level ) )
-			cgi.S_SetReverb( ps->reverb_type, ps->reverb_level );
+        if ((ops->reverb_type != ps->reverb_type) || (ops->reverb_level != ps->reverb_level))
+            cgi.S_SetReverb(ps->reverb_type, ps->reverb_level);
 
-		// if we are not doing client side movement prediction for any
-		// reason, then the client events and view changes will be issued now
-		if 
-         ( 
-         cg.demoPlayback || 
-         ( cg.snap->ps.pm_flags & PMF_NO_PREDICTION ) || 
-         cg_nopredict->integer || 
-         cg_syncronousClients->integer 
-         ) 
-         {
-			CG_TransitionPlayerState( ps, ops );
-		   }
-	   }
+        // if we are not doing client side movement prediction for any
+        // reason, then the client events and view changes will be issued now
+        if
+            (
+                cg.demoPlayback ||
+                (cg.snap->ps.pm_flags & PMF_NO_PREDICTION) ||
+                cg_nopredict->integer ||
+                cg_synchronousClients->integer
+                )
+        {
+            CG_TransitionPlayerState(ps, ops);
+        }
+    }
 }
 
 
@@ -263,75 +285,76 @@ CG_SetNextSnap
 A new snapshot has just been read in from the client system.
 ===================
 */
-static void CG_SetNextSnap( snapshot_t *snap ) {
-	int					num;
-	entityState_t		*es;
-	centity_t			*cent;
+static void CG_SetNextSnap(snapshot_t* snap)
+{
+    int					num;
+    entityState_t* es;
+    centity_t* cent;
 
-	cg.nextSnap = snap;
+    cg.nextSnap = snap;
 
-	cg_entities[ cg.snap->ps.clientNum ].interpolate = qtrue;
+    cg_entities[cg.snap->ps.clientNum].interpolate = qtrue;
 
-	// check for extrapolation errors
-	for ( num = 0 ; num < snap->numEntities ; num++ ) {
-		es = &snap->entities[num];
-		cent = &cg_entities[ es->number ];
+    // check for extrapolation errors
+    for (num = 0; num < snap->numEntities; num++) {
+        es = &snap->entities[num];
+        cent = &cg_entities[es->number];
 
-		cent->nextState = *es;
+        cent->nextState = *es;
 
-		// if this frame is a teleport, or the entity wasn't in the
-		// previous frame, don't interpolate
-		if ( 
-            !cent->currentValid || 
-            ( ( cent->currentState.eFlags ^ es->eFlags ) & EF_TELEPORT_BIT )  ||
-            ( cent->currentState.parent != es->parent ) ||
-            ( cent->currentState.modelindex != es->modelindex )
-         ) {
-			cent->interpolate = qfalse;
-         // if this isn't the first frame and we have valid data, set the teleport flag
-         if ( cent->currentValid )
+        // if this frame is a teleport, or the entity wasn't in the
+        // previous frame, don't interpolate
+        if (
+            !cent->currentValid ||
+            ((cent->currentState.eFlags ^ es->eFlags) & EF_TELEPORT_BIT) ||
+            (cent->currentState.parent != es->parent) ||
+            (cent->currentState.modelindex != es->modelindex)
+            ) {
+            cent->interpolate = qfalse;
+            // if this isn't the first frame and we have valid data, set the teleport flag
+            if (cent->currentValid)
             {
-            cent->teleported = qtrue;
+                cent->teleported = qtrue;
             }
-		} else {
-			cent->interpolate = qtrue;
-		}
-	}
+        }
+        else {
+            cent->interpolate = qtrue;
+        }
+    }
 
-	// if the next frame is a teleport for the playerstate, we
-	// can't interpolate during demos
-	if ( cg.snap && ( snap->ps.pm_flags & PMF_TIME_TELEPORT ) ) {
-		cg.nextFrameTeleport = qtrue;
-	} else {
-		cg.nextFrameTeleport = qfalse;
-	}
+    // if the next frame is a teleport for the playerstate, we
+    // can't interpolate during demos
+    if (cg.snap && (snap->ps.pm_flags & PMF_RESPAWNED)) {
+        cg.nextFrameTeleport = qtrue;
+    }
+    else {
+        cg.nextFrameTeleport = qfalse;
+    }
 
-	// if changing follow mode, don't interpolate
-	if ( cg.nextSnap->ps.clientNum != cg.snap->ps.clientNum ) {
-		cg.nextFrameTeleport = qtrue;
-	}
+    // if changing follow mode, don't interpolate
+    if (cg.nextSnap->ps.clientNum != cg.snap->ps.clientNum) {
+        cg.nextFrameTeleport = qtrue;
+    }
 
-	// if the camera cut bit changed, than the next frame is a camera cut
-	if ( 
-         ( cg.nextSnap->ps.camera_flags & CF_CAMERA_CUT_BIT ) != 
-         ( cg.snap->ps.camera_flags & CF_CAMERA_CUT_BIT ) 
-      ) {
-		cg.nextFrameCameraCut = qtrue;
-	} else {
-      cg.nextFrameCameraCut = qfalse;
-   }
+    // if the camera cut bit changed, than the next frame is a camera cut
+    if (
+        (cg.nextSnap->ps.camera_flags & CF_CAMERA_CUT_BIT) !=
+        (cg.snap->ps.camera_flags & CF_CAMERA_CUT_BIT)
+        ) {
+        cg.nextFrameCameraCut = qtrue;
+    }
+    else {
+        cg.nextFrameCameraCut = qfalse;
+    }
 
-	// if changing server restarts, don't interpolate
-	if ( ( cg.nextSnap->snapFlags ^ cg.snap->snapFlags ) & SNAPFLAG_SERVERCOUNT ) {
-      // reset the camera
-      cg.lastCameraTime = -1;
-		cg.nextFrameTeleport = qtrue;
-	}
+    // if changing server restarts, don't interpolate
+    if (snap->serverTime < cgi.GetServerStartTime()) {
+        // reset the camera
+        cg.nextFrameTeleport = qtrue;
+    }
 
-
-
-	// sort out solid entities
-	CG_BuildSolidList();
+    // sort out solid entities
+    CG_BuildSolidList();
 }
 
 
