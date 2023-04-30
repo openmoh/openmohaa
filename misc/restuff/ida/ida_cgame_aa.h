@@ -239,7 +239,7 @@ typedef struct specialeffect_s {
 } specialeffect_t;
 
 typedef struct ClientGameCommandManager_s {
-	Listener_t base_Listener;
+	Listener2_t base_Listener;
 	spawnthing_t m_localemitter;
 	ctempmodel_t m_active_tempmodels;
 	ctempmodel_t *m_free_tempmodels;
