@@ -7316,7 +7316,7 @@ typedef struct clientGameImport_s
 	dtiki_t * ( *R_Model_GetHandle )( qhandle_t handle );
 	int ( *TIKI_NumAnims )( dtiki_t *pmdl );
 	void ( *TIKI_CalculateBounds )( dtiki_t *pmdl, float scale, vec3_t mins, vec3_t maxs );
-	char * ( *TIKI_Name )( dtiki_t *tiki, int entNum );
+	char * ( *TIKI_Name )( dtiki_t *tiki );
 	void * ( *TIKI_GetSkeletor )( dtiki_t *tiki, int entNum );
 	void ( *TIKI_SetEyeTargetPos )( dtiki_t *tiki, int entNum, vec3_t pos );
 	char * ( *Anim_NameForNum )( dtiki_t *tiki, int animNum );
@@ -7498,7 +7498,7 @@ typedef struct clientGameImport_sh_s
 	float (*GetFontHeight)(fontheader_t* font);
 	int (*TIKI_NumAnims)(dtiki_t* pmdl);
 	void (*TIKI_CalculateBounds)(dtiki_t* pmdl, float scale, vec3_t mins, vec3_t maxs);
-	char* (*TIKI_Name)(dtiki_t* tiki, int entNum);
+	char* (*TIKI_Name)(dtiki_t* tiki);
 	void* (*TIKI_GetSkeletor)(dtiki_t* tiki, int entNum);
 	void (*TIKI_SetEyeTargetPos)(dtiki_t* tiki, int entNum, vec3_t pos);
 	char* (*Anim_NameForNum)(dtiki_t* tiki, int animNum);
