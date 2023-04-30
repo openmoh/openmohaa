@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Init functions for the cgame
 
 #include "cg_local.h"
+#include "cg_parsemsg.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -149,20 +150,41 @@ CG_RegisterSounds
 called during a precache command
 =================
 */
-void CG_RegisterSounds( void ) {
-	int		i;
+void CG_RegisterSounds( void )
+{
+    int startTime;     // esi MAPDST
+    int endTime;       // eax MAPDST
+    char filename[64]; // [esp+28h] [ebp-40h] BYREF
 
-   // process the global defs  
-   for ( i = 0; i < 10; i++ )
-      {
-      char filename[ MAX_QPATH ];
+    Com_Printf("\n\n-----------PARSING UBERSOUND------------\n");
+    Com_Printf(
+        "Any SetCurrentTiki errors means that tiki wasn't prefetched and "
+        "tiki-specific sounds for it won't work. To fix prefe"
+        "tch the tiki. Ignore if you don't use that tiki on this level.\n");
+    Com_sprintf(filename, 64, "ubersound/ubersound.scr");
 
-      Com_sprintf( filename, sizeof( filename ), "global/global%i.scr", i );
-      if ( !CG_Command_ProcessFile( filename, qtrue ) )
-         {
-         break;
-         }
-      }
+    startTime = cgi.Milliseconds();
+    CG_Command_ProcessFile(filename, 0, 0);
+    endTime = cgi.Milliseconds();
+
+    Com_Printf("Parse/Load time: %f seconds.\n",
+               (double)((long double)(endTime - startTime) / 1000.0));
+
+    Com_Printf("-------------UBERSOUND DONE---------------\n\n");
+    Com_Printf("\n\n-----------PARSING UBERDIALOG------------\n");
+    Com_Printf(
+        "Any SetCurrentTiki errors means that tiki wasn't prefetched and "
+        "tiki-specific sounds for it won't work. To fix prefe"
+        "tch the tiki. Ignore if you don't use that tiki on this level.\n");
+    Com_sprintf(filename, 64, "ubersound/uberdialog.scr");
+
+    startTime = cgi.Milliseconds();
+    CG_Command_ProcessFile(filename, 0, 0);
+    endTime = cgi.Milliseconds() - startTime;
+
+    Com_Printf("Parse/Load time: %f seconds.\n",
+               (double)((long double)endTime / 1000.0));
+    Com_Printf("-------------UBERDIALOG DONE---------------\n\n");
 }
 
 /*
@@ -288,7 +310,7 @@ void CG_ProcessConfigString(int num)
 			}
 			tiki = cgi.R_Model_GetHandle(hModel);
             if (tiki) {
-                CG_ProcessInitCommands(tiki);
+                CG_ProcessCacheInitCommands(tiki);
             }
         }
 		else
@@ -537,6 +559,15 @@ void CG_Shutdown( void )
 	// like closing files or archiving session data
    }
 
+int CG_GetParent(int entnum)
+{
+   return cg_entities[entnum].currentState.parent;
+}
+
+float CG_GetObjectiveAlpha()
+{
+    return cg.ObjectivesCurrentAlpha;
+}
 
 /*
 ================
@@ -555,6 +586,32 @@ clientGameExport_t *GetCGameAPI(void)
    cge.CG_ConsoleCommand = CG_ConsoleCommand;
    cge.CG_GetRendererConfig = CG_GetRendererConfig;
    cge.CG_Draw2D = CG_Draw2D;
+   cge.CG_EyePosition = CG_EyePosition;
+   cge.CG_EyeOffset = CG_EyeOffset;
+   cge.CG_EyeAngles = CG_EyeAngles;
+   cge.CG_SensitivityScale = CG_SensitivityScale;
+   cge.CG_ParseCGMessage = CG_ParseCGMessage;
+   cge.CG_RefreshHudDrawElements = CG_RefreshHudDrawElements;
+   cge.CG_HudDrawShader = CG_HudDrawShader;
+   cge.CG_HudDrawFont = CG_HudDrawFont;
+   cge.CG_PermanentMark = CG_PermanentMark;
+   cge.CG_PermanentTreadMarkDecal = CG_PermanentTreadMarkDecal;
+   cge.CG_PermanentUpdateTreadMark = CG_PermanentUpdateTreadMark;
+   cge.CG_Command_ProcessFile = CG_Command_ProcessFile;
+   cge.CG_ProcessInitCommands = CG_ProcessInitCommands;
+   cge.CG_EndTiki = CG_EndTiki;
+   cge.CG_GetParent = CG_GetParent;
+   cge.CG_GetObjectiveAlpha = CG_GetObjectiveAlpha;
+   cge.CG_GetColumnName = CG_GetColumnName;
+   cge.CG_GetScoreBoardColor = CG_GetScoreBoardColor;
+   cge.CG_GetScoreBoardFontColor = CG_GetScoreBoardFontColor;
+   cge.CG_GetScoreBoardPosition = CG_GetScoreBoardPosition;
+   cge.CG_GetScoreBoardDrawHeader = CG_GetScoreBoardDrawHeader;
+   cge.CG_WeaponCommandButtonBits = CG_WeaponCommandButtonBits;
+   cge.CG_CheckCaptureKey = CG_CheckCaptureKey;
+
+   // FIXME
+   //cge.profStruct = NULL;
 
    return &cge;
 }
