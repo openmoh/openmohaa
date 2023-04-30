@@ -82,6 +82,8 @@ set(SOURCES_SHARED
 	"code/script/scriptvariable.cpp"
 )
 
+file(GLOB_RECURSE SOURCES_BG "code/game/bg_*.cpp")
+
 ## For executable
 
 ### Platform-specific code
@@ -200,7 +202,7 @@ if (WITH_CLIENT)
 
 	### Client game library
 	file(GLOB_RECURSE SOURCES_CGAME "code/cgame/*.c" "code/cgame/*.cpp")
-	set(SOURCES_CGAME_LIB ${SOURCES_SHARED} ${SOURCES_CGAME})
+	set(SOURCES_CGAME_LIB ${SOURCES_SHARED} ${SOURCES_CGAME} ${SOURCES_BG})
 
 	add_library(cgame SHARED ${SOURCES_CGAME_LIB})
 	target_compile_definitions(cgame PRIVATE CGAME_DLL NO_SCRIPTENGINE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
@@ -214,31 +216,31 @@ if (WITH_CLIENT)
 	INSTALL(TARGETS cgame DESTINATION "${TARGET_BASE_GAME}")
 
 	### Executable
-	file(GLOB_RECURSE SOURCES_CLIENT "code/client/*.c" "code/client/*.cpp")
-	set(SOURCES_CLIENT_APP ${SOURCES_APP} ${SOURCES_SERVER} ${SOURCES_CLIENT})
-
-	add_executable(openmohaa ${SOURCES_CLIENT_APP} ${SOURCES_PLATFORM_SPECIFIC})
-	target_compile_definitions(openmohaa PRIVATE NO_SCRIPTENGINE APP_MODULE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
-	target_compile_features(openmohaa PUBLIC cxx_nullptr)
-	target_compile_features(openmohaa PUBLIC c_variadic_macros)
-	# Gamespy dependency
-	add_dependencies(openmohaa gcd)
-	target_link_libraries(openmohaa PRIVATE gcd)
-	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/SDL2/include")
-	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa{TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
-
-	if(WIN32)
-		if (MSVC)
-			target_link_options(openmohaa PRIVATE "/MANIFEST:NO")
-		endif()
-		target_link_libraries(openmohaa PRIVATE wsock32 ws2_32)
-		target_link_libraries(openmohaa PRIVATE winmm)
-	elseif(UNIX)
-		find_package(Threads)
-		target_link_libraries(openmohaa PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
-		target_link_libraries(openmohaa PRIVATE m)
-		target_link_libraries(openmohaa PRIVATE stdc++)
-	endif()
-
-	INSTALL(TARGETS openmohaa DESTINATION "./")
+#	file(GLOB_RECURSE SOURCES_CLIENT "code/client/*.c" "code/client/*.cpp")
+#	set(SOURCES_CLIENT_APP ${SOURCES_APP} ${SOURCES_SERVER} ${SOURCES_CLIENT})
+#
+#	add_executable(openmohaa ${SOURCES_CLIENT_APP} ${SOURCES_PLATFORM_SPECIFIC})
+#	target_compile_definitions(openmohaa PRIVATE NO_SCRIPTENGINE APP_MODULE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+#	target_compile_features(openmohaa PUBLIC cxx_nullptr)
+#	target_compile_features(openmohaa PUBLIC c_variadic_macros)
+#	# Gamespy dependency
+#	add_dependencies(openmohaa gcd)
+#	target_link_libraries(openmohaa PRIVATE gcd)
+#	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/SDL2/include")
+#	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa{TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
+#
+#	if(WIN32)
+#		if (MSVC)
+#			target_link_options(openmohaa PRIVATE "/MANIFEST:NO")
+#		endif()
+#		target_link_libraries(openmohaa PRIVATE wsock32 ws2_32)
+#		target_link_libraries(openmohaa PRIVATE winmm)
+#	elseif(UNIX)
+#		find_package(Threads)
+#		target_link_libraries(openmohaa PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+#		target_link_libraries(openmohaa PRIVATE m)
+#		target_link_libraries(openmohaa PRIVATE stdc++)
+#	endif()
+#
+#	INSTALL(TARGETS openmohaa DESTINATION "./")
 endif()
