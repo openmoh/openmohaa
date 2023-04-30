@@ -806,7 +806,7 @@ class ClientGameCommandManager : public Listener
 
       void InitializeTempModels( void );
       void InitializeEmitters( void );
-      void RemoveClientEntity( int number, int tikihandle, centity_t *cent, ctempmodel_t *p=NULL );
+      void RemoveClientEntity( int number, dtiki_t* tiki, centity_t *cent, ctempmodel_t *p=NULL );
       void TestEmitter( void );
       void UpdateTestEmitter( void );
       void SetTestEmitterValues( void );

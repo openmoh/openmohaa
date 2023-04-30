@@ -32,7 +32,7 @@ refEntity_t    *current_entity = NULL;
 int            current_entity_number = -1;
 centity_t      *current_centity = NULL;
 float          current_scale = -1;
-dtiki_t*       current_tiki = -1;
+dtiki_t*       current_tiki = nullptr;
 cvar_t         *cg_showtempmodels;
 cvar_t         *cg_showemitters;
 cvar_t         *cg_physics_fps;
@@ -5439,7 +5439,7 @@ void ClientGameCommandManager::UpdateEmitter
 void ClientGameCommandManager::RemoveClientEntity
    (
    int            number,
-   int            tikihandle,
+   dtiki_t        *tiki,
    centity_t      *cent,
    ctempmodel_t   *p
    )
@@ -5601,27 +5601,23 @@ void ProcessInitCommands
 //=================
 //CG_ProcessInitCommands
 //=================
-void CG_ProcessInitCommands
-   (
-   int tikihandle
-   )
+void CG_ProcessInitCommands(dtiki_t* tiki)
+{
+    int i;
 
-   {
-   int i;
+    ProcessInitCommands(tikihandle);
+    // If any models were cached in this TIKI, then we have to Process their INIT commands too
 
-   ProcessInitCommands( tikihandle );
-   // If any models were cached in this TIKI, then we have to Process their INIT commands too
+    for (i = 1; i <= cachedModelList.NumObjects(); i++)
+    {
+        int tikihandle;
+        int hModel = cachedModelList.ObjectAt(i);
+        tikihandle = cgi.TIKI_GetHandle(hModel);
+        ProcessInitCommands(tikihandle);
+    }
 
-   for( i=1; i<=cachedModelList.NumObjects(); i++ )
-      {
-      int tikihandle;
-      int hModel  = cachedModelList.ObjectAt( i );
-      tikihandle  = cgi.TIKI_GetHandle( hModel );
-      ProcessInitCommands( tikihandle );
-      }
-
-   cachedModelList.ClearObjectList();
-   }
+    cachedModelList.ClearObjectList();
+}
 
 //=================
 //CG_UpdateEntity
@@ -5973,12 +5969,12 @@ void CG_ResetTempModels
 void CG_RemoveClientEntity
    (
    int number,
-   int tikihandle,
+   dtiki_t* tiki,
    centity_t *cent
    )
 
    {
-   commandManager.RemoveClientEntity( number, tikihandle, cent );
+   commandManager.RemoveClientEntity( number, tiki, cent );
    
    // Remove the beam list associated with this entity
    RemoveBeamList( number );
