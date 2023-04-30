@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 template<>
 int HashCode< ScriptVariable >( const ScriptVariable& key )
 {
-#if defined ( GAME_DLL ) || defined ( CGAME_DLL )
+#if defined (GAME_DLL)
 	Entity *e;
 #endif
 
@@ -976,8 +976,8 @@ void ScriptVariable::SetKey( const short3& key )
 
 Entity *ScriptVariable::entityValue( void )
 {
-#if defined ( GAME_DLL ) || defined ( CGAME_DLL )
-	return ( Entity * )listenerValue();
+#if defined (GAME_DLL)
+	return (Entity *)listenerValue();
 #else
 	return NULL;
 #endif
@@ -2503,7 +2503,7 @@ ScriptVariable * ScriptVariableList::SetVariable( const char *name, const char *
 	return variable;
 }
 
-#if defined ( GAME_DLL ) || defined ( CGAME_DLL )
+#if defined (GAME_DLL)
 
 ScriptVariable *ScriptVariableList::SetVariable( const char *name, Entity *value )
 {
