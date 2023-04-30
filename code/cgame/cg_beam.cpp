@@ -865,125 +865,125 @@ void CG_CreateModelBeam
    vec3_t   up
    )
 
-   {
-   int         tikihandle;
-   vec3_t      mins,maxs;
-   int         single_beam_length;
-   refEntity_t ent;
-   int         count;
-   int         j;
-   float       factor[3];
-   float       t;
-   vec3_t      angles;
-   int         i;
+{
+    dtiki_t* tiki;
+    vec3_t      mins, maxs;
+    int         single_beam_length;
+    refEntity_t ent;
+    int         count;
+    int         j;
+    float       factor[3];
+    float       t;
+    vec3_t      angles;
+    int         i;
 
-   // Find the length of a single beam
-   tikihandle = cgi.TIKI_GetHandle( b->hModel );
-   
-   // Calculate the bounds of the model to get it's length
-   cgi.CalculateBounds( tikihandle, 1.0, mins, maxs);
-   single_beam_length = maxs[0] - mins[0];
+    // Find the length of a single beam
+    tiki = cgi.R_Model_GetHandle(b->hModel);
 
-   // Create the beam entity
-	memset (&ent, 0, sizeof(ent));
-   count = 0;
+    // Calculate the bounds of the model to get it's length
+    cgi.TIKI_CalculateBounds(tiki, 1.0, mins, maxs);
+    single_beam_length = maxs[0] - mins[0];
 
-   // Initialize the factors
-   for ( j=0; j<3; j++)
-      factor[j] = 0.3f * crandom();
-   
-   t = 0;
+    // Create the beam entity
+    memset(&ent, 0, sizeof(ent));
+    count = 0;
 
-   while ( t >= 0 && t < 1 )
-		{
-      float       dot;
-      vec3_t      pdir;
-      float       delta;
-      vec3_t      distance_point;
+    // Initialize the factors
+    for (j = 0; j < 3; j++)
+        factor[j] = 0.3f * crandom();
 
-      count++;
-    
-      // Set the origin of the current beam using the last calculated org
-      VectorCopy( org, ent.origin );  
+    t = 0;
 
-      // Advance the org one beam length in the new direction ( dist is the newly calculated direction )
-      for ( j=0 ; j<3 ; j++ )
-			org[j] += dist[j] * ( single_beam_length - b->overlap );
+    while (t >= 0 && t < 1)
+    {
+        float       dot;
+        vec3_t      pdir;
+        float       delta;
+        vec3_t      distance_point;
 
-      // Offset the org by a random amount to simulate lightning
-      
-      VectorMA( org, single_beam_length * factor[2], up, org ); 
-      VectorMA( org, single_beam_length * factor[1], left, org );
+        count++;
 
-      // Calculate (t) - how far this new point is along the overall distance
-      VectorSubtract( org, b->start, pdir );
-      dot = DotProduct( pdir, ndir );
-      t = dot/total_length;
-      
-      // Calculate point at current distance along center beam
-      VectorMA( b->start, total_length * t, ndir, distance_point );
+        // Set the origin of the current beam using the last calculated org
+        VectorCopy(org, ent.origin);
 
-      // Allow any variations
-      if ( t > 0.1 && t < 0.9 )
-         {
-         for ( j=0; j<3; j++ )
+        // Advance the org one beam length in the new direction ( dist is the newly calculated direction )
+        for (j = 0; j < 3; j++)
+            org[j] += dist[j] * (single_beam_length - b->overlap);
+
+        // Offset the org by a random amount to simulate lightning
+
+        VectorMA(org, single_beam_length * factor[2], up, org);
+        VectorMA(org, single_beam_length * factor[1], left, org);
+
+        // Calculate (t) - how far this new point is along the overall distance
+        VectorSubtract(org, b->start, pdir);
+        dot = DotProduct(pdir, ndir);
+        t = dot / total_length;
+
+        // Calculate point at current distance along center beam
+        VectorMA(b->start, total_length * t, ndir, distance_point);
+
+        // Allow any variations
+        if (t > 0.1 && t < 0.9)
+        {
+            for (j = 0; j < 3; j++)
             {
-            delta = org[j] - distance_point[j];
-            if ( delta > b->max_offset )
-               {
-               org[j] = distance_point[j] + b->max_offset;
-               factor[j] = -0.3 * crandom();
-               }
-            else if ( delta < -b->max_offset )
-               {
-               org[j] = distance_point[j] - b->max_offset;
-               factor[j] = 0.3 * crandom();
-               }
-            else
-               factor[j] = 0.3 * crandom();
+                delta = org[j] - distance_point[j];
+                if (delta > b->max_offset)
+                {
+                    org[j] = distance_point[j] + b->max_offset;
+                    factor[j] = -0.3 * crandom();
+                }
+                else if (delta < -b->max_offset)
+                {
+                    org[j] = distance_point[j] - b->max_offset;
+                    factor[j] = 0.3 * crandom();
+                }
+                else
+                    factor[j] = 0.3 * crandom();
             }
-         }
-      else // Clamp to mins 
-         {
-         for ( j=0; j<3; j++ )
+        }
+        else // Clamp to mins 
+        {
+            for (j = 0; j < 3; j++)
             {
-            delta = org[j] - distance_point[j];
-            if ( delta > b->min_offset )
-               {
-               org[j] -= 0.4 * single_beam_length;
-               factor[j] = -0.2;
-               }
-            else if ( delta < -b->min_offset )
-               {
-               org[j] += 0.4 * single_beam_length;
-               factor[j] = 0.2;
-               }
-            else
-               factor[j] = 0;
+                delta = org[j] - distance_point[j];
+                if (delta > b->min_offset)
+                {
+                    org[j] -= 0.4 * single_beam_length;
+                    factor[j] = -0.2;
+                }
+                else if (delta < -b->min_offset)
+                {
+                    org[j] += 0.4 * single_beam_length;
+                    factor[j] = 0.2;
+                }
+                else
+                    factor[j] = 0;
             }
-         }
+        }
 
-      // Calculate the new dist vector so we can get pitch and yaw for this beam
-   	VectorSubtract (org, ent.origin, dist);
-      
-      // Set the pitch and the yaw based off this new vector
-      vectoangles( dist, angles );
-      
-      // Fill in the ent fields
-      ent.hModel              = b->hModel;
-      ent.scale               = b->scale;
-      ent.renderfx            = b->renderfx;
+        // Calculate the new dist vector so we can get pitch and yaw for this beam
+        VectorSubtract(org, ent.origin, dist);
 
-      for( i=0; i<4; i++ )
-         ent.shaderRGBA[i] = b->shaderRGBA[i];
+        // Set the pitch and the yaw based off this new vector
+        vectoangles(dist, angles);
 
-      VectorCopy(ent.origin, ent.oldorigin);
-      AnglesToAxis( angles, ent.axis );
+        // Fill in the ent fields
+        ent.hModel = b->hModel;
+        ent.scale = b->scale;
+        ent.renderfx = b->renderfx;
 
-      // Add in this beam to the ref
-      cgi.R_AddRefEntityToScene( &ent );
-		}
-   }
+        for (i = 0; i < 4; i++)
+            ent.shaderRGBA[i] = b->shaderRGBA[i];
+
+        VectorCopy(ent.origin, ent.oldorigin);
+        AnglesToAxis(angles, ent.axis);
+
+        // Add in this beam to the ref
+        cgi.R_AddRefEntityToScene(&ent);
+    }
+}
 
 void CG_AddBeams
    (
