@@ -340,6 +340,84 @@ void CG_DrawIcons( void )
    cgi.R_DrawStretchPic( x, y, w, h, 0, 0, 1, 1, handle );
    }
 
+void CG_DrawOverlayTopBottom(qhandle_t handleTop, qhandle_t handleBottom, float fAlpha)
+{
+	int iHalfWidth;
+	int iWidthOffset;
+	vec4_t color;
+
+	// FIXME: UNIMPLEMENTED
+}
+
+void CG_DrawOverlayMiddle(qhandle_t handle, float fAlpha)
+{
+    int iHalfWidth;
+    int iWidthOffset;
+    vec4_t color;
+
+    // FIXME: UNIMPLEMENTED
+}
+
+void CG_DrawOverlayFullScreen(qhandle_t handle, float fAlpha)
+{
+    int iHalfWidth;
+    int iWidthOffset;
+    vec4_t color;
+
+    // FIXME: UNIMPLEMENTED
+}
+
+void CG_DrawZoomOverlay()
+{
+    static int zoomType;
+    static float fAlpha;
+	const char* weaponstring;
+    qboolean bDrawOverlay;
+
+    // FIXME: UNIMPLEMENTED
+}
+
+void CG_HudDrawShader(int iInfo)
+{
+    // FIXME: UNIMPLEMENTED
+}
+
+void CG_HudDrawFont(int iInfo)
+{
+    // FIXME: UNIMPLEMENTED
+}
+
+void CG_RefreshHudDrawElements()
+{
+    // FIXME: UNIMPLEMENTED
+}
+
+void CG_HudDrawElements()
+{
+    // FIXME: UNIMPLEMENTED
+}
+
+void CG_InitializeObjectives()
+{
+	int i;
+
+    cg.ObjectivesAlphaTime = 0.0;
+    cg.ObjectivesBaseAlpha = 0.0;
+    cg.ObjectivesDesiredAlpha = 0.0;
+    cg.ObjectivesCurrentAlpha = 0.0;
+
+	for (i = 0; i < MAX_OBJECTIVES; i++)
+	{
+        cg.Objectives[i].flags = 0;
+        cg.Objectives[i].text[0] = 0;
+	}
+}
+
+void CG_DrawObjectives()
+{
+    // FIXME: UNIMPLEMENTED
+}
+
 /*
 ==============
 CG_Draw2D
