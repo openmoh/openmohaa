@@ -170,80 +170,157 @@ void CG_RegisterSounds( void ) {
 CG_ProcessConfigString
 ================
 */
-void CG_ProcessConfigString( int num ) 
-   {
-	const char	*str;
+void CG_ProcessConfigString(int num)
+{
+    const char* str = CG_ConfigString(num);
+	int i;
 
-	if ( num == CS_SOUNDTRACK ) 
-      {
-      cgi.UpdateLoadingScreen();
-	   str = CG_ConfigString( num );
-		cgi.MUSIC_NewSoundtrack( str );
-      }
-	if ( num == CS_FOGINFO ) 
-      {
-	   str = CG_ConfigString( num );
-      sscanf
-         ( 
-         str, 
-         "%d %f %f %f %f",
-         &cg.farplane_cull, 
-         &cg.farplane_distance,
-         &cg.farplane_color[ 0 ],
-         &cg.farplane_color[ 1 ],
-         &cg.farplane_color[ 2 ]
-         );
-      }
-	else if ( num == CS_SKYINFO ) 
-      {
-	   str = CG_ConfigString( num );
-      sscanf
-         ( 
-         str, 
-         "%f %d",
-         &cg.sky_alpha,
-         &cg.sky_portal
-         );
-      }
-	else if ( num == CS_SERVERINFO ) 
-      {
-		CG_ParseServerinfo();
-      }
-	else if ( num == CS_LEVEL_START_TIME ) 
-      {
-	   str = CG_ConfigString( num );
-		cgs.levelStartTime = atoi( str );
-      }
-	else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) 
-      {
-	   str = CG_ConfigString( num );
-      if ( str && str[ 0 ] )
-         {
-		   cgs.model_draw[ num-CS_MODELS ] = cgi.R_RegisterModel( str );
-         if ( strstr( str, ".tik" ) )
+	switch (num)
+	{
+	case CS_RAIN_DENSITY:
+		cg.rain.density = atoi(str);
+		return;
+    case CS_RAIN_SPEED:
+        cg.rain.speed = atoi(str);
+		return;
+    case CS_RAIN_SPEEDVARY:
+        cg.rain.speed_vary = atoi(str);
+		return;
+    case CS_RAIN_SLANT:
+        cg.rain.slant = atoi(str);
+		return;
+    case CS_RAIN_LENGTH:
+        cg.rain.length = atoi(str);
+		return;
+    case CS_RAIN_MINDIST:
+        cg.rain.min_dist = atoi(str);
+		return;
+    case CS_RAIN_WIDTH:
+        cg.rain.width = atoi(str);
+		return;
+	case CS_RAIN_SHADER:
+		if (cg.rain.numshaders)
+		{
+			for (i = 0; i < cg.rain.numshaders; i++)
+			{
+				sprintf(cg.rain.shader[i], "%s%i", str, i);
+			}
+		}
+		else {
+			strcpy(cg.rain.shader[0], str);
+		}
+		return;
+	case CS_RAIN_NUMSHADERS:
+        cg.rain.numshaders = atoi(str);
+        if (cg.rain.numshaders)
+        {
+            for (i = 0; i < cg.rain.numshaders; i++)
             {
-            cgs.model_tiki[ num-CS_MODELS ] = cgi.TIKI_GetHandle( cgs.model_draw[ num-CS_MODELS ] );
-            if ( cgs.model_tiki[ num-CS_MODELS ] >= 0 )
-               CG_ProcessInitCommands( cgs.model_tiki[ num-CS_MODELS ] );
+                sprintf(cg.rain.shader[i], "%s%i", str, i);
             }
-         cgi.UpdateLoadingScreen();
-         }
-	   } 
-   else if ( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_SOUNDS ) 
-      {
-	   str = CG_ConfigString( num );
-		if ( str && str[ 0 ] && ( str[0] != '*' ) ) 
-         {
-			cgs.sound_precache[ num-CS_SOUNDS] = cgi.S_RegisterSound( str );
-         cgi.UpdateLoadingScreen();
-		   }
-      }
-   else if ( num >= CS_LIGHTSTYLES && num < CS_LIGHTSTYLES+MAX_LIGHTSTYLES ) 
-      {
-	   str = CG_ConfigString( num );
-      CG_SetLightStyle( num - CS_LIGHTSTYLES, str );
-      }
-   }
+        }
+		return;
+	}
+
+	if (num >= CS_OBJECTIVES && num < CS_OBJECTIVES + MAX_OBJECTIVES)
+	{
+		cobjective_t* objective = &cg.Objectives[num - CS_OBJECTIVES];
+		objective->flags = atoi(Info_ValueForKey(str, "flags"));
+		strcpy(objective->text, Info_ValueForKey(str, "text"));
+	}
+
+	switch (num)
+	{
+    case CS_MUSIC:
+        cgi.MUSIC_NewSoundtrack(str);
+		return;
+	case CS_WARMUP:
+		cg.matchStartTime = atoi(str);
+		return;
+    case CS_FOGINFO:
+        sscanf
+        (
+            str,
+            "%d %f %f %f %f",
+            &cg.farplane_cull,
+            &cg.farplane_distance,
+            &cg.farplane_color[0],
+            &cg.farplane_color[1],
+            &cg.farplane_color[2]
+        );
+		return;
+    case CS_SKYINFO:
+        sscanf
+        (
+            str,
+            "%f %d",
+            &cg.sky_alpha,
+            &cg.sky_portal
+        );
+		return;
+	case CS_SERVERINFO:
+        CG_ParseServerinfo();
+		return;
+    case CS_LEVEL_START_TIME:
+        cgs.levelStartTime = atoi(str);
+		return;
+    case CS_MATCHEND:
+        cgs.matchEndTime = atoi(str);
+		return;
+	}
+
+    if (num >= CS_MODELS && num < CS_MODELS + MAX_MODELS)
+    {
+        qhandle_t hOldModel = cgs.model_draw[num - CS_MODELS];
+
+        if (str && str[0])
+        {
+			qhandle_t hModel = cgi.R_RegisterServerModel(str);
+			dtiki_t* tiki;
+
+			if (hModel != hOldModel)
+			{
+				if (hOldModel) {
+					cgi.R_UnregisterServerModel(hOldModel);
+				}
+
+				cgs.model_draw[num - CS_MODELS] = hModel;
+			}
+			tiki = cgi.R_Model_GetHandle(hModel);
+            if (tiki) {
+                CG_ProcessInitCommands(tiki);
+            }
+        }
+		else
+		{
+			// clear out the model
+			if (hOldModel) {
+				cgi.R_UnregisterServerModel(hOldModel);
+			}
+			cgs.model_draw[num - CS_MODELS] = 0;
+		}
+    }
+    else if (num >= CS_SOUNDS && num < CS_SOUNDS + MAX_SOUNDS)
+    {
+		int len = strlen(str);
+		if (len)
+		{
+			qboolean streamed;
+			char buf[1024];
+			strcpy(buf, str);
+
+			streamed = buf[len - 1] != '0';
+			buf[len - 1] = 0;
+            if (buf[0] != '*') {
+                cgs.sound_precache[num - CS_SOUNDS] = cgi.S_RegisterSound(buf, streamed);
+			}
+		}
+    }
+    else if (num >= CS_LIGHTSTYLES && num < CS_LIGHTSTYLES + MAX_LIGHTSTYLES)
+    {
+        CG_SetLightStyle(num - CS_LIGHTSTYLES, str);
+    }
+}
 
 //===================================================================================
 
@@ -256,55 +333,56 @@ This function may execute for a couple of minutes with a slow disk.
 =================
 */
 void CG_PrepRefresh( void )
-   {
-	int i;
+{
+    int i;
 
-	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
+    memset(&cg.refdef, 0, sizeof(cg.refdef));
 
-   cgi.R_ClearScene();
+    cgi.R_LoadWorldMap(cgs.mapname);
 
-   // clear any tiki handles to bad values
-   memset( &cgs.model_tiki, -1, sizeof( cgs.model_tiki ) );
+    // register the inline models
+    cgs.numInlineModels = cgi.CM_NumInlineModels();
 
-	cgi.R_LoadWorldMap( cgs.mapname );
+    for (i = 1; i < cgs.numInlineModels; i++)
+    {
+        char	         name[10];
+        vec3_t			mins, maxs;
+        int				j;
 
-	// register the inline models
-	cgs.numInlineModels = cgi.CM_NumInlineModels();
+        Com_sprintf(name, sizeof(name), "*%i", i);
+        cgs.inlineDrawModel[i] = cgi.R_RegisterModel(name);
+        cgi.R_ModelBounds(cgs.inlineDrawModel[i], mins, maxs);
 
-	for ( i=1; i<cgs.numInlineModels; i++ )
-      {
-		char	         name[10];
-		vec3_t			mins, maxs;
-		int				j;
+        for (j = 0; j < 3; j++)
+        {
+            cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * (maxs[j] - mins[j]);
+        }
+    }
+    // register media shaders
+    cgs.media.shadowMarkShader = cgi.R_RegisterShader("markShadow");
+    cgs.media.footShadowMarkShader = cgi.R_RegisterShader("footShadow");
+    cgs.media.wakeMarkShader = cgi.R_RegisterShader("ripple.spr");
+    cgs.media.lagometerShader = cgi.R_RegisterShaderNoMip("gfx/2d/blank");
+    cgs.media.levelExitShader = cgi.R_RegisterShaderNoMip("textures/menu/exit");
+    cgs.media.pausedShader = cgi.R_RegisterShaderNoMip("textures/menu/paused");
+    cgs.media.backTileShader = cgi.R_RegisterShader("gfx/2d/backtile");
+    cgs.media.zoomOverlayShader = cgi.R_RegisterShaderNoMip("textures/hud/zoomoverlay");
+    cgs.media.kar98TopOverlayShader = cgi.R_RegisterShaderNoMip("textures/hud/kartop.tga");
+    cgs.media.kar98BottomOverlayShader = cgi.R_RegisterShaderNoMip("textures/hud/karbottom.tga");
+    cgs.media.binocularsOverlayShader = cgi.R_RegisterShaderNoMip("textures/hud/binocularsoverlay");
+    cgs.media.hudDrawFont = cgi.R_LoadFont("verdana-14");
+    cgs.media.attackerFont = cgi.R_LoadFont("facfont-20");
+    cgs.media.objectiveFont = cgi.R_LoadFont("courier-16");
+    cgs.media.objectivesBackShader = cgi.R_RegisterShaderNoMip("textures/hud/objectives_backdrop");
+    cgs.media.checkedBoxShader = cgi.R_RegisterShaderNoMip("textures/objectives/filledbox");
+    cgs.media.uncheckedBoxShader = cgi.R_RegisterShaderNoMip("textures/objectives/emptybox");
 
-		Com_sprintf( name, sizeof(name), "*%i", i );
-		cgs.inlineDrawModel[i] = cgi.R_RegisterModel( name );
-      cgi.R_ModelBounds( cgs.inlineDrawModel[i], mins, maxs );
-		
-      for ( j = 0 ; j < 3 ; j++ )
-         {
-			cgs.inlineModelMidpoints[i][j] = mins[j] + 0.5 * ( maxs[j] - mins[j] );
-		   }
-	   }
-   // register media shaders
-   cgs.media.shadowMarkShader    = cgi.R_RegisterShader( "markShadow" );
-   cgs.media.wakeMarkShader      = cgi.R_RegisterShader( "ripple.spr" );
-   cgs.media.itemRingShader      = cgi.R_RegisterShader( "item_ring" );
-   cgs.media.leftTargetShader    = cgi.R_RegisterShader( "left_targeted" );
-   cgs.media.rightTargetShader   = cgi.R_RegisterShader( "right_targeted" );
-   cgs.media.leftTargetModel     = cgi.R_RegisterModel( "left_targeted.spr" );
-   cgs.media.rightTargetModel    = cgi.R_RegisterModel( "right_targeted.spr" );
-   cgs.media.lagometerShader     = cgi.R_RegisterShaderNoMip("gfx/2d/blank" );
-   cgs.media.levelExitShader     = cgi.R_RegisterShaderNoMip( "textures/menu/exit" );
-   cgs.media.pausedShader        = cgi.R_RegisterShaderNoMip( "textures/menu/paused" );
-   cgs.media.backTileShader      = cgi.R_RegisterShader( "gfx/2d/backtile" );
-
-   // go through all the configstrings and process them
-	for ( i = CS_SYSTEMINFO + 1 ; i < MAX_CONFIGSTRINGS ; i++ ) 
-      {
-      CG_ProcessConfigString( i );
-		}
-   }
+    // go through all the configstrings and process them
+    for (i = CS_SYSTEMINFO + 1; i < MAX_CONFIGSTRINGS; i++)
+    {
+        CG_ProcessConfigString(i);
+    }
+}
 
 //===========================================================================
 
@@ -339,45 +417,46 @@ Displays the info screen while loading media
 ======================
 */
 void CG_GameStateReceived( void )
-   {	
-   const char *s;
+{
+    const char* s;
 
-   // clear everything
-	memset( &cg,         0, sizeof( cg ) );
-	memset( cg_entities, 0, sizeof(cg_entities) );
+    // clear everything
+    memset(&cg, 0, sizeof(cg));
+    memset(cg_entities, 0, sizeof(cg_entities));
 
-   // clear the light styles
-   CG_ClearLightStyles();
+    // clear the light styles
+    CG_ClearLightStyles();
 
-	// get the rendering configuration from the client system
-   CG_GetRendererConfig();
+    // get the rendering configuration from the client system
+    CG_GetRendererConfig();
 
-	// get the gamestate from the client system
-	cgi.GetGameState( &cgs.gameState );
+    // get the gamestate from the client system
+    cgi.GetGameState(&cgs.gameState);
 
-	// check version
-	s = CG_ConfigString( CS_GAME_VERSION );
-	if ( strcmp( s, GAME_VERSION ) ) {
-		cgi.Error( ERR_DROP, "Client/Server game mismatch: %s/%s", GAME_VERSION, s );
-	}
+    // check version
+    s = CG_ConfigString(CS_GAME_VERSION);
+    if (strcmp(s, GAME_VERSION)) {
+        cgi.Error(ERR_DROP, "Client/Server game mismatch: %s/%s", GAME_VERSION, s);
+    }
 
-	s = CG_ConfigString( CS_LEVEL_START_TIME );
-	cgs.levelStartTime = atoi( s );
+    s = CG_ConfigString(CS_LEVEL_START_TIME);
+    cgs.levelStartTime = atoi(s);
 
-	CG_ParseServerinfo();
+    CG_ParseServerinfo();
 
-	// load the new map
-	cgi.CM_LoadMap( cgs.mapname );
+    // load the new map
+    cgi.CM_LoadMap(cgs.mapname);
 
-	CG_InitMarkPolys();
+    CG_InitMarks();
 
-   CG_RegisterSounds();
-   
-	CG_PrepRefresh();
+    CG_RegisterSounds();
 
-	// remove the last loading update
-	cg.infoScreenText[0] = 0;
-   }  
+    CG_PrepRefresh();
+
+    CG_InitializeSpecialEffectsManager();
+
+    CG_InitializeObjectives();
+}
 
 
 /*
@@ -388,29 +467,30 @@ The server has beeen restarted, adjust our cgame data accordingly
 ======================
 */
 void CG_ServerRestarted( void )
-   {	
-   int timedelta;
-   const char * s;
+{
+    int timedelta;
+    const char* s;
 
-	s = CG_ConfigString( CS_LEVEL_START_TIME );
-	cgs.levelStartTime = atoi( s );
+    s = CG_ConfigString(CS_LEVEL_START_TIME);
+    cgs.levelStartTime = atoi(s);
 
-	CG_ParseServerinfo();
+    CG_ParseServerinfo();
 
-	cg.thisFrameTeleport = qtrue;
-	cg.lastCameraTime = -1;
-   timedelta = cg.oldTime - cg.time;
-   // free up any temp models currently spawned
-   CG_RestartCommandManager( timedelta );
-   // restart beams
-   CG_RestartBeams( timedelta );
-   // get rid of left over decals from the last game
-	CG_InitMarkPolys();
-   // clear all the swipes
-   CG_ClearSwipes();
-   // Reset tempmodels
-   CG_ResetTempModels();
-   }  
+    cg.thisFrameTeleport = qtrue;
+    timedelta = cg.oldTime - cg.time;
+    // free up any temp models currently spawned
+    CG_RestartCommandManager(timedelta);
+    // get rid of left over decals from the last game
+    CG_InitMarks();
+    // clear all the swipes
+    CG_ClearSwipes();
+    // Reset tempmodels
+    CG_ResetTempModels();
+    // Reset resources
+    CG_ResetVSSSources();
+    // Reset objectives
+    CG_InitializeObjectives();
+}
 
 /*
 =================
