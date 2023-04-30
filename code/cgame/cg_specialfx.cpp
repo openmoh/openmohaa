@@ -161,8 +161,8 @@ void CG_Footstep
 				current_tiki = new_tiki;
 
 				// Process new entity
-
-				CG_ProcessInitCommands( current_tiki );
+				
+				CG_ProcessInitCommands( current_tiki, current_entity );
 
 				// Put the old stuff back
 

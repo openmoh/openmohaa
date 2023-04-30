@@ -3072,7 +3072,9 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
                           (float)p->cgd.color[2] / 255.0f, p->cgd.alpha,
                           p->cgd.flags & T_FADE, p->cgd.decal_radius,
                           p->cgd.flags2 & T2_TEMPORARY_DECAL, p->cgd.lightstyle,
-                          p->cgd.flags & T_FADEIN);
+                          p->cgd.flags & T_FADEIN,
+                          0.f,
+                          0.f);
 
             p->cgd.bouncecount++;
         }
@@ -4689,9 +4691,22 @@ void CG_FlushCommandManager(void)
 //=================
 // CG_ProcessInitCommands
 //=================
-void CG_ProcessInitCommands(dtiki_t* tiki)
+void CG_ProcessInitCommands(dtiki_t* tiki, refEntity_t* ent)
 {
-    // FIXME: UNIMPLEMENTED
+    // FIXME: unimplemented
+}
+
+//=================
+// CG_ProcessCacheInitCommands
+//=================
+void CG_ProcessCacheInitCommands(dtiki_t* tiki)
+{
+    // FIXME: unimplemented
+}
+
+void CG_EndTiki(dtiki_t* tiki)
+{
+    // FIXME: unimplemented
 }
 
 //=================
@@ -4998,7 +5013,7 @@ void CG_RemoveClientEntity(int number, dtiki_t* tiki, centity_t* cent)
 //=================
 // CG_Command_ProcessFile
 //=================
-qboolean CG_Command_ProcessFile(const char* filename, qboolean quiet)
+qboolean CG_Command_ProcessFile(const char* filename, qboolean quiet, dtiki_t *curTiki)
 {
     char* buffer;
     const char* bufstart;

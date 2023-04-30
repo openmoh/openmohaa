@@ -95,8 +95,9 @@ qboolean CG_EntityShadow( centity_t *cent, refEntity_t *model ) {
 
    // add the mark as a temporary, so it goes directly to the renderer
    // without taking a spot in the cg_marks array
-   CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal, 
-      cent->lerpAngles[ YAW ], alpha,alpha,alpha,1, qfalse, radius, qtrue, -1, qfalse );
+   CG_ImpactMark(cgs.media.shadowMarkShader, trace.endpos,
+                 trace.plane.normal, cent->lerpAngles[YAW], alpha, alpha,
+                 alpha, 1, qfalse, radius, qtrue, -1, qfalse, 0.f, 0.f);
 
    return qtrue;
 }
