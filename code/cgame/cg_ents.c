@@ -512,62 +512,61 @@ CG_AddCEntity
 
 ===============
 */
-void CG_AddCEntity( centity_t *cent ) 
+void CG_AddCEntity(centity_t* cent)
 {
-	// event-only entities will have been dealt with already
-	if ( cent->currentState.eType >= ET_EVENTS ) {
-		return;
-	}
+    // event-only entities will have been dealt with already
+    if (cent->currentState.eType >= ET_EVENTS) {
+        return;
+    }
 
-	// calculate the current origin
-	CG_CalcEntityLerpPositions( cent );
+    // calculate the current origin
+    CG_CalcEntityLerpPositions(cent);
 
-	// add automatic effects
-	CG_EntityEffects( cent );
+    // add automatic effects
+    CG_EntityEffects(cent);
 
-	CG_SetEntitySoundPosition( cent );
+    CG_SetEntitySoundPosition(cent);
 
-	switch ( cent->currentState.eType ) {
-	default:
-		cgi.Error( ERR_DROP, "Bad entity type: %i\n", cent->currentState.eType );
-		break;
-	case ET_PLAYER:
-		CG_Player( cent );
-      // intentional fallthrough
-   case ET_MODELANIM:
-		CG_Splash( cent );
-      CG_ModelAnim( cent, qfalse );
-      break;
-   case ET_ITEM:
-      CG_Item( cent );
-      CG_ModelAnim( cent, qfalse);
-      break;
-	case ET_GENERAL:
-		CG_General( cent );
-		break;
-	case ET_MOVER:
-		CG_Mover( cent );
-		break;
-	case ET_BEAM:
-		CG_Beam( cent );
-		break;
-	case ET_ROPE: // skip
-      CG_Rope( cent );
-		break;
-	case ET_MULTIBEAM: // skip
-		break;
-	case ET_PORTAL:
-		CG_Portal( cent );
-		break;
-   case ET_RAIN:
-   case ET_EMITTER:
-      CG_Emitter( cent );
-      break;
-   case ET_DECAL:
-      CG_Decal( cent );
-      break;
-	}
-   }
+    switch (cent->currentState.eType) {
+    default:
+        cgi.Error(ERR_DROP, "Bad entity type: %i\n", cent->currentState.eType);
+        break;
+    case ET_PLAYER:
+        CG_Player(cent);
+        // intentional fallthrough
+    case ET_MODELANIM:
+        CG_Splash(cent);
+        CG_ModelAnim(cent, qfalse);
+        break;
+    case ET_ITEM:
+        CG_ModelAnim(cent, qfalse);
+        break;
+    case ET_GENERAL:
+        CG_General(cent);
+        break;
+    case ET_MOVER:
+        CG_Mover(cent);
+        break;
+    case ET_BEAM:
+        CG_Beam(cent);
+        break;
+    case ET_ROPE: // skip
+        CG_Rope(cent);
+        break;
+    case ET_MULTIBEAM: // skip
+        break;
+    case ET_PORTAL:
+        CG_Portal(cent);
+        break;
+    case ET_RAIN:
+    case ET_EMITTER:
+        CG_Emitter(cent);
+        break;
+    case ET_DECAL:
+        CG_Decal(cent);
+        break;
+    }
+}
 
 /*
 ===============
