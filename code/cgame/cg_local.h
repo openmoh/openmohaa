@@ -496,8 +496,7 @@ void     CG_ProcessInitCommands(dtiki_t* tiki);
 qboolean CG_Command_ProcessFile( const char * filename, qboolean quiet );
 void     CG_RestartCommandManager( int timedelta );
 void     CG_FlushCommandManager( void );
-void     CG_ProcessEntityCommands( int            tikihandle,
-                                   int            frame,
+void     CG_ProcessEntityCommands( int            frame,
                                    int            anim,
                                    int            entnum,
                                    refEntity_t		*ent,
