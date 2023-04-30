@@ -278,9 +278,9 @@ typedef struct
 
    // ALIAS STUFF
    qboolean            (*Alias_Add)( const char * alias, const char * name, const char *parameters );
-   qboolean         (*Alias_ListAdd)(AliasList_t* list, char* alias, char* name, char* parameters);
-   const char*      (*Alias_FindRandom)(const char* alias);
-   char*            (*Alias_ListFindRandom)(AliasList_t* list, char* alias, AliasListNode_t** ret);
+   qboolean         (*Alias_ListAdd)(AliasList_t* list, const char* alias, const char* name, const char* parameters);
+   const char*      (*Alias_FindRandom)(const char* alias, AliasListNode_t **ret);
+   char*            (*Alias_ListFindRandom)(AliasList_t* list, const char* alias, AliasListNode_t** ret);
    void                (*Alias_Dump)( void );
    void                (*Alias_Clear)( void );
    AliasList_t*     (*AliasList_New)(char* name);
