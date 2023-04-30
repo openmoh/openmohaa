@@ -5004,7 +5004,7 @@ qboolean CG_Command_ProcessFile(const char* filename, qboolean quiet)
     const char* bufstart;
     char com_token[MAX_STRING_CHARS];
 
-    if (cgi.FS_ReadFile(filename, (void**)&buffer, quiet) == -1) {
+    if (cgi.FS_ReadFile(filename, (void**)&buffer) == -1) {
         return qfalse;
     }
 

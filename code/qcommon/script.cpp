@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #elif defined(CGAME_DLL)
 
 #define FILE_FS_FreeFile       cgi.FS_FreeFile
-#define FILE_FS_ReadFile(a, b) cgi.FS_ReadFile(a, b, true)
+#define FILE_FS_ReadFile(a, b) cgi.FS_ReadFile(a, b)
 #define FILE_Malloc            cgi.Malloc
 #define FILE_Free              cgi.Free
 #define FILE_Error             cgi.Error
