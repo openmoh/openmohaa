@@ -26,17 +26,35 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "listener.h"
 #include <q_shared.h>
 
-#ifdef GAME_DLL
-#include "level.h"
-#include <scriptmaster.h>
+#if defined (GAME_DLL)
 
-#define CLASS_Printf if( level.current_map ) glbs.Printf
-#define CLASS_DPrintf if( level.current_map ) glbs.DPrintf
-#define CLASS_Error if( level.current_map ) glbs.Error
+#include "g_local.h"
+
+#define CLASS_Printf gi.Printf
+#define CLASS_DPrintf gi.DPrintf
+#define CLASS_Error gi.Error
+
+#elif defined(CGAME_DLL)
+
+#include "cg_local.h"
+
+#define CLASS_Printf cgi.Printf
+#define CLASS_DPrintf cgi.DPrintf
+#define CLASS_Error cgi.Error
+
+
 #else
+
 #define CLASS_Printf Com_Printf
 #define CLASS_DPrintf Com_DPrintf
 #define CLASS_Error Com_Error
+
+#endif
+
+#ifndef NO_SCRIPTENGINE
+
+#include "scriptmaster.h"
+
 #endif
 
 ClassDef *ClassDef::classlist;

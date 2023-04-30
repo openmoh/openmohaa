@@ -29,6 +29,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MEM_TempAllocate(x) gi.Malloc(x)
 #define MEM_TempFree(x)     gi.Free(x)
+
+#elif defined(CGAME_DLL)
+
+#include "cg_local.h"
+
+#define MEM_TempAllocate(x) cgi.Malloc(x)
+#define MEM_TempFree(x)     cgi.Free(x)
+
 #else
 #include "qcommon.h"
 

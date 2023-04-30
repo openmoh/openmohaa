@@ -30,6 +30,14 @@ void* MEM_Alloc(int size) { return gi.Malloc(size); }
 
 void MEM_Free(void* ptr) { return gi.Free(ptr); }
 
+#elif defined(CGAME_DLL)
+
+#include "cg_local.h"
+
+void* MEM_Alloc(int size) { return cgi.Malloc(size); }
+
+void MEM_Free(void* ptr) { return cgi.Free(ptr); }
+
 #else
 
 #include "qcommon.h"
