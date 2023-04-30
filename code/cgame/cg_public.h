@@ -118,6 +118,9 @@ typedef struct
     // for anything game related.  Get time from CG_ReadyToBuildScene.
     int              (*Milliseconds)( void );
 
+    // localization
+    const char* (*LV_ConvertString)(const char* string);
+
     // console variable interaction
     cvar_t *       (*Cvar_Get)( const char *var_name, const char *value, int flags );
     void           (*Cvar_Set)( const char *var_name, const char *value );
@@ -127,10 +130,13 @@ typedef struct
     char *         (*Argv)( int n );
     char *         (*Args)( void );    // concatenation of all argv >= 1
    void           (*AddCommand)( const char *cmd );
+    void          (*Cmd_Stuff)(const char* text);
+    void          (*Cmd_Execute)(cbufExec_t execWhen, const char* text);
+    void          (*Cmd_TokenizeString)(const char* textIn);
 
     // a -1 return means the file does not exist
     // NULL can be passed for buf to just determine existance
-    int              (*FS_ReadFile)( const char *name, void **buf, qboolean quiet );
+    int              (*FS_ReadFile)( const char *name, void **buf );
     void             (*FS_FreeFile)( void *buf );
     void             (*FS_WriteFile)( const char *qpath, const void *buffer, int size );
    void           (*FS_WriteTextFile)( const char *qpath, const void *buffer, int size );
@@ -140,7 +146,6 @@ typedef struct
     // are processed
     void             (*SendConsoleCommand)( const char *text );
 
-   void           (*UpdateLoadingScreen)( void );
     // =========== client specific functions ===============
 
     // send a string to the server over the network
@@ -338,12 +343,17 @@ typedef struct
    // MISCELLANEOUS SPECIFIC STUFF
    void (*UI_ShowScoreBoard)(const char* menuName);
    void (*UI_HideScoreBoard)();
-   void (*UI_SetScoreBoardItem)(int itemNumber, char* data1, char* data2, char* data3, char* data4, char* data5, char* data6, char* data7, char* data8, float* textColor, float* backColor, qboolean isHeader);
+   void (*UI_SetScoreBoardItem)(int itemNumber, const char* data1,
+                                const char* data2, const char* data3,
+                                const char* data4, const char* data5,
+                                const char* data6, const char* data7,
+                                const char* data8, const float* textColor,
+                                const float* backColor, qboolean isHeader);
    void (*UI_DeleteScoreBoardItems)(int maxIndex);
    void (*UI_ToggleDMMessageConsole)(int consoleMode);
-   dtiki_t* (*TIKI_FindTiki)(char* path);
-   void (*LoadResource)(char* name);
-   void (*FS_CanonicalFilename)(char* name);
+   dtiki_t* (*TIKI_FindTiki)(const char* path);
+   void (*LoadResource)(const char* name);
+   void (*FS_CanonicalFilename)(const char* name);
 
    cvar_t* fsDebug;
    hdelement_t* hudDrawElements;
