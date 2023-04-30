@@ -231,180 +231,23 @@ CG_OffsetFirstPersonView
 
 ===============
 */
-static void CG_OffsetFirstPersonView( void )
-   {
-	float			*origin;
-	float			*angles;
-#if 0
-	float			delta;
-	float			f;
-#endif
+static void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
+{
+	float* origin;
+	centity_t* pCent;
+	dtiki_t* tiki;
+	int iTag;
+	int i;
+	int iMask;
+	vec3_t vDelta;
+	float mat[3][3];
+	vec3_t vOldOrigin;
+	vec3_t vStart, vEnd, vMins, vMaxs;
+	trace_t trace;
 
-   // FIXME, rewrite this to just use what we need
-
-	origin = cg.refdef.vieworg;
-	angles = cg.refdefViewAngles;
-
-	// if dead, fix the angle and don't add any kick
-	if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
-		angles[ROLL] = 40;
-		angles[PITCH] = -15;
-		angles[YAW] = cg.snap->ps.stats[STAT_DEAD_YAW];
-		origin[2] += cg.predicted_player_state.viewheight;
-		return;
-	}
-
-   //===================================
-
-
-#if 0
-	// smooth out duck height changes
-	delta = cg.time - cg.duckTime;
-	if (delta < DUCK_TIME) {
-		cg.refdef.vieworg[2] -= cg.duckChange
-			* (DUCK_TIME - delta) / DUCK_TIME;
-	}
-
-	// add fall height
-	delta = cg.time - cg.landTime;
-	if ( delta < LAND_DEFLECT_TIME ) {
-		f = delta / LAND_DEFLECT_TIME;
-		cg.refdef.vieworg[2] += cg.landChange * f;
-	} else if ( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME ) {
-		delta -= LAND_DEFLECT_TIME;
-		f = 1.0 - ( delta / LAND_RETURN_TIME );
-		cg.refdef.vieworg[2] += cg.landChange * f;
-	}
-#endif
-
-	// add kick offset
-	VectorAdd (origin, cg.kick_origin, origin);
-   }
-
-/*
-===============
-CG_InterpolateView
-
-===============
-*/
-static void CG_InterpolateView( void )
-   {
-   float timedelta;
-   float scale;
-   vec3_t target_angles;
-   vec3_t target_position;
-   vec3_t delta_angles;
-   vec3_t delta_position;
-
-   // if we just started out, or there is a camera cut, cut!
-   if ( 
-         ( cg.lastCameraTime == -1 ) || 
-   	   ( 
-            ( cg.predicted_player_state.camera_flags & CF_CAMERA_CUT_BIT ) != 
-            ( cg.lastCameraFlags & CF_CAMERA_CUT_BIT ) 
-         )
-      )
-      {
-      // if we reset just set scale to 1
-      timedelta = 0;
-      scale = 1;
-      }
-   else
-      {
-      timedelta = ( cg.time - cg.lastCameraTime ) / 1000.0f;
-      if ( paused->integer )
-         {
-         scale = cg_camerascale->value;
-         }
-      else
-         {
-         scale = timedelta * cg_camerascale->value * 30.0f;
-         if ( scale > 1.0f )
-            scale = 1.0f;
-         if ( scale < 0 )
-            scale = 0;
-         }
-      }
-
-   // save off cameraFlags
-   cg.lastCameraFlags = cg.predicted_player_state.camera_flags;
-
-   // save off cameraTime
-   cg.lastCameraTime = cg.time;
-
-	if ( cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW )
-      {
-      if ( !cg.inCameraView )
-         {
-         // we just entered camera view
-         cg.inCameraView = qtrue;
-         cg.lerpCameraTime = cg.predicted_player_state.camera_time;
-         }
-      // copy off target_angles and target_origin
-	   VectorCopy( cg.camera_origin, target_position );
-	   VectorCopy( cg.camera_angles, target_angles );
-      }
-   else
-      {
-      if ( cg.inCameraView )
-         {
-         // we just left camera view
-         cg.inCameraView = qfalse;
-         cg.lerpCameraTime = cg.predicted_player_state.camera_time;
-         }
-      // copy off target_angles and target_origin
-      VectorCopy( cg.refdefViewAngles, target_angles );
-      VectorCopy( cg.refdef.vieworg, target_position );
-      }
-
-   if ( cg.lerpCameraTime )
-      {
-      scale = cg.lerpCameraTime / cg.snap->ps.camera_time;
-      cg.lerpCameraTime -= timedelta;
-      if ( cg.lerpCameraTime < 0 )
-         cg.lerpCameraTime = 0;
-      if ( scale > 1.0f )
-         scale = 1.0f;
-      scale = 1.0f - scale;
-      }
-
-   if ( cg.lerpCameraTime || ( !( cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW ) ) )
-      {
-      // interpolate the camera
-      AnglesSubtract( target_angles, cg.currentViewAngles, delta_angles );
-      VectorSubtract( target_position, cg.currentViewPos, delta_position );
-
-      VectorMA( cg.currentViewAngles, scale, delta_angles, cg.refdefViewAngles );
-      VectorMA( cg.currentViewPos, scale, delta_position, cg.refdef.vieworg );
-
-#if 0
-      // if we are in the normal 3rd person camera make sure we are looking at the player
-      if ( !cg.lerpCameraTime )
-         {
-         VectorSubtract( cg.playerHeadPos, cg.refdef.vieworg, delta_position );
-         vectoangles( delta_position, cg.refdefViewAngles );
-         }
-#endif
-
-      cg.refdefViewAngles[ 0 ] = AngleMod( cg.refdefViewAngles[ 0 ] );
-      cg.refdefViewAngles[ 1 ] = AngleMod( cg.refdefViewAngles[ 1 ] );
-      cg.refdefViewAngles[ 2 ] = AngleMod( cg.refdefViewAngles[ 2 ] );
-      }
-   else
-      {
-      // just a normal camera view
-	   VectorCopy( cg.camera_origin, cg.refdef.vieworg );
-	   VectorCopy( cg.camera_angles, cg.refdefViewAngles );
-      }
-
-   if ( !cg.lerpCameraTime )
-      {
-      // save off the current position and view
-	   VectorCopy( cg.refdef.vieworg, cg.currentViewPos );
-	   VectorCopy( cg.refdefViewAngles, cg.currentViewAngles );
-      }
-   }
-
+	// FIXME: UNIMPLEMENTED
+	assert(qfalse);
+}
 
 /*
 ====================
@@ -417,44 +260,39 @@ Fixed fov at intermissions, otherwise account for fov variable and zooms.
 #define	WAVE_FREQUENCY	0.4
 
 static int CG_CalcFov( void )
-   {
-	float	x;
-	float	phase;
-	float	v;
-	int		contents;
-	float	fov_x, fov_y;
-	int		inwater;
+{
+    float	x;
+    float	phase;
+    float	v;
+    int		contents;
+    float	fov_x, fov_y;
+    int		inwater;
 
-   fov_x = cg.camera_fov;
-	x = cg.refdef.width / tan( fov_x / 360 * M_PI );
-	fov_y = atan2( cg.refdef.height, x );
-	fov_y = fov_y * 360 / M_PI;
+    fov_x = cg.camera_fov;
+    x = cg.refdef.width / tan(fov_x / 360 * M_PI);
+    fov_y = atan2(cg.refdef.height, x);
+    fov_y = fov_y * 360 / M_PI;
 
-	// warp if underwater
-	contents = CG_PointContents( cg.refdef.vieworg, -1 );
-	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ){
-		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-		v = WAVE_AMPLITUDE * sin( phase );
-		fov_x += v;
-		fov_y -= v;
-		inwater = qtrue;
-	}
-	else {
-		inwater = qfalse;
-	}
+    // warp if underwater
+    contents = CG_PointContents(cg.refdef.vieworg, -1);
+    if (contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)) {
+        phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
+        v = WAVE_AMPLITUDE * sin(phase);
+        fov_x += v;
+        fov_y -= v;
+        inwater = qtrue;
+    }
+    else {
+        inwater = qfalse;
+    }
 
 
-	// set it
-	cg.refdef.fov_x = fov_x;
-	cg.refdef.fov_y = fov_y;
-
-	if ( !cg.zoomed ) {
-		cg.zoomSensitivity = 1;
-	} else {
-		cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
-	}
-	return inwater;
-   }
+    // set it
+    cg.refdef.fov_x = fov_x;
+    cg.refdef.fov_y = fov_y;
+    cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
+    return inwater;
+}
 
 
 /*
@@ -464,111 +302,111 @@ CG_CalcViewValues
 Sets cg.refdef view values
 ===============
 */
-static int CG_CalcViewValues( void ) {
-	playerState_t	*ps;
-	float SoundAngles[3];
+static int CG_CalcViewValues(void)
+{
+    playerState_t* ps;
+    float SoundAngles[3];
 
-	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
+    memset(&cg.refdef, 0, sizeof(cg.refdef));
 
-	// calculate size of 3D view
-	CG_CalcVrect();
+    // calculate size of 3D view
+    CG_CalcVrect();
 
-   // setup fog and far clipping plane
-   cg.refdef.farplane_distance = cg.farplane_distance;
-   VectorCopy( cg.farplane_color, cg.refdef.farplane_color );
-   cg.refdef.farplane_cull = cg.farplane_cull;
+    // setup fog and far clipping plane
+    cg.refdef.farplane_distance = cg.farplane_distance;
+    VectorCopy(cg.farplane_color, cg.refdef.farplane_color);
+    cg.refdef.farplane_cull = cg.farplane_cull;
 
-   // setup portal sky
-   cg.refdef.sky_alpha = cg.sky_alpha;
-   cg.refdef.sky_portal = cg.sky_portal;
-   memcpy( cg.refdef.sky_axis, cg.sky_axis, sizeof( cg.sky_axis ) );
-   VectorCopy( cg.sky_origin, cg.refdef.sky_origin );
+    // setup portal sky
+    cg.refdef.sky_alpha = cg.sky_alpha;
+    cg.refdef.sky_portal = cg.sky_portal;
+    memcpy(cg.refdef.sky_axis, cg.sky_axis, sizeof(cg.sky_axis));
+    VectorCopy(cg.sky_origin, cg.refdef.sky_origin);
 
-	ps = &cg.predicted_player_state;
+    ps = &cg.predicted_player_state;
 
-	cg.bobcycle = ( ps->bobCycle & 128 ) >> 7;
-	cg.bobfracsin = fabs( sin( ( ps->bobCycle & 127 ) / 127.0 * M_PI ) );
-	cg.xyspeed = sqrt( ps->velocity[0] * ps->velocity[0] +
-		ps->velocity[1] * ps->velocity[1] );
+    VectorCopy(ps->origin, cg.refdef.vieworg);
+    VectorCopy(ps->viewangles, cg.refdefViewAngles);
 
-	VectorCopy( ps->origin, cg.refdef.vieworg );
-	VectorCopy( ps->viewangles, cg.refdefViewAngles );
+    if (cg.snap->ps.stats[STAT_HEALTH] > 0)
+    {
+        // FIXME
+        // TODO: damage Angles
+        // TODO: viewkick
+    }
 
-	// add error decay
-	if ( cg_errorDecay->value > 0 ) 
-      {
-		int		t;
-		float	f;
+    // add error decay
+    if (cg_errorDecay->value > 0)
+    {
+        int		t;
+        float	f;
 
-		t = cg.time - cg.predictedErrorTime;
-		f = ( cg_errorDecay->value - t ) / cg_errorDecay->value;
-		if ( f > 0 && f < 1 ) 
-         {
-			VectorMA( cg.refdef.vieworg, f, cg.predictedError, cg.refdef.vieworg );
-		   } 
-      else 
-         {
-			cg.predictedErrorTime = 0;
-		   }
-	   }
-   
-   // calculate position of player's head
-   cg.refdef.vieworg[ 2 ] += cg.predicted_player_state.viewheight;
-   // save off the position of the player's head
-   VectorCopy( cg.refdef.vieworg, cg.playerHeadPos );
+        t = cg.time - cg.predictedErrorTime;
+        f = (cg_errorDecay->value - t) / cg_errorDecay->value;
+        if (f > 0 && f < 1)
+        {
+            VectorMA(cg.refdef.vieworg, f, cg.predictedError, cg.refdef.vieworg);
+        }
+        else
+        {
+            cg.predictedErrorTime = 0;
+        }
+    }
 
-	// Set the aural position of the player
-	VectorCopy( cg.playerHeadPos, cg.SoundOrg );
+    // calculate position of player's head
+    cg.refdef.vieworg[2] += cg.predicted_player_state.viewheight;
+    // save off the position of the player's head
+    VectorCopy(cg.refdef.vieworg, cg.playerHeadPos);
 
-	// Set the aural axis of the player
-	VectorCopy( cg.refdefViewAngles, SoundAngles );
-   // yaw is purposely inverted because of the miles sound system
-	SoundAngles[YAW] = -SoundAngles[YAW];
-	AnglesToAxis( SoundAngles, cg.SoundAxis );
+    // Set the aural position of the player
+    VectorCopy(cg.playerHeadPos, cg.SoundOrg);
 
-   // decide on third person view
-   cg.renderingThirdPerson = cg_3rd_person->integer || (cg.snap->ps.stats[STAT_HEALTH] <= 0);
+    // Set the aural axis of the player
+    VectorCopy(cg.refdefViewAngles, SoundAngles);
+    // yaw is purposely inverted because of the miles sound system
+    SoundAngles[YAW] = -SoundAngles[YAW];
+    AnglesToAxis(SoundAngles, cg.SoundAxis);
 
-	if ( cg.renderingThirdPerson ) 
-      {
-		// back away from character
-		CG_OffsetThirdPersonView();
-	   } 
-   else
-      {
-      CG_OffsetFirstPersonView();
-	   // offset for local bobbing and kicks
-      cg.crosshair_offset = 0.0f;
-      }
+    // decide on third person view
+    cg.renderingThirdPerson = cg_3rd_person->integer;
 
-   // interpolate the view as necessary
-   CG_InterpolateView();
+    if (cg.renderingThirdPerson)
+    {
+        // back away from character
+        CG_OffsetThirdPersonView();
+    }
 
-   // if we are in a camera view, we take our audio cues directly from the camera
-   if ( cg.inCameraView )
-      {
-	   // Set the aural position to that of the camera
-	   VectorCopy( cg.refdef.vieworg, cg.SoundOrg );
+    // if we are in a camera view, we take our audio cues directly from the camera
+    if (ps->pm_flags & PMF_CAMERA_VIEW)
+    {
+        // Set the aural position to that of the camera
+        VectorCopy(cg.camera_origin, cg.refdef.vieworg);
 
-	   // Set the aural axis to the camera's angles
-	   VectorCopy( cg.refdefViewAngles, SoundAngles );
-      // yaw is purposely inverted because of the miles sound system
-	   SoundAngles[YAW] = -SoundAngles[YAW];
-	   AnglesToAxis( SoundAngles, cg.SoundAxis );
-      }
+        // Set the aural axis to the camera's angles
+        VectorCopy(cg.camera_angles, cg.refdefViewAngles);
 
-   // offset the current angles by the damage angles
-   VectorSubtract( cg.refdefViewAngles, cg.predicted_player_state.damage_angles, cg.refdefViewAngles );
+        if (ps->camera_posofs[0] || ps->camera_posofs[1] || ps->camera_posofs[2])
+        {
+            vec3_t vAxis, vOrg;
+            AnglesToAxis(cg.refdefViewAngles, vAxis);
+            MatrixTransformVector(ps->camera_posofs, vAxis, vOrg);
+            VectorAdd(cg.refdef.vieworg, vOrg, cg.refdef.vieworg);
+        }
 
-	// position eye reletive to origin
-	AnglesToAxis( cg.refdefViewAngles, cg.refdef.viewaxis );
+        // copy view values
+        VectorCopy(cg.refdef.vieworg, cg.currentViewPos);
+        VectorCopy(cg.refdefViewAngles, cg.currentViewAngles);
+    }
 
-	if ( cg.hyperspace ) {
-		cg.refdef.rdflags |= RDF_NOWORLDMODEL | RDF_HYPERSPACE;
-	}
+    // position eye reletive to origin
+    AnglesToAxis(cg.refdefViewAngles, cg.refdef.viewaxis);
 
-	// field of view
-	return CG_CalcFov();
+    if (cg.hyperspace) {
+        cg.refdef.rdflags |= RDF_NOWORLDMODEL | RDF_HYPERSPACE;
+    }
+
+    // field of view
+    return CG_CalcFov();
 }
 
 //=========================================================================
@@ -580,105 +418,101 @@ CG_DrawActiveFrame
 Generates and draws a game scene and status information at the given time.
 =================
 */
-void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback )
-   {
-	cg.time        = serverTime;
-	cg.demoPlayback = demoPlayback;
+void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback )
+{
+    cg.time = serverTime;
+    cg.frametime = frameTime;
+    cg.demoPlayback = demoPlayback;
 
-	// if we are only updating the screen as a loading
-	// pacifier, don't even try to read snapshots
-	if ( cg.infoScreenText[0] != 0 )
-      {
-		return;
-	   }
+    // any looped sounds will be respecified as entities
+    // are added to the render list
+    cgi.S_ClearLoopingSounds();
 
-	// any looped sounds will be respecified as entities
-	// are added to the render list
-	cgi.S_ClearLoopingSounds();
+    // clear all the render lists
+    cgi.R_ClearScene();
 
-	// clear all the render lists
-	cgi.R_ClearScene();
+    // set up cg.snap and possibly cg.nextSnap
+    CG_ProcessSnapshots();
 
-	// set up cg.snap and possibly cg.nextSnap
-	CG_ProcessSnapshots();
+    // if we haven't received any snapshots yet, all
+    // we can draw is the information screen
+    if (!cg.snap || (cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE))
+    {
+        return;
+    }
 
-	// if we haven't received any snapshots yet, all
-	// we can draw is the information screen
-	if ( !cg.snap || ( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) )
-      {
-		return;
-	   }
+    // this counter will be bumped for every valid scene we generate
+    cg.clientFrame++;
 
-	// this counter will be bumped for every valid scene we generate
-	cg.clientFrame++;
+    // set cg.frameInterpolation
+    if (cg.nextSnap && r_lerpmodels->integer) {
+        int		delta;
 
-	// set cg.frameInterpolation
-	if ( cg.nextSnap && r_lerpmodels->integer ) {
-		int		delta;
+        delta = (cg.nextSnap->serverTime - cg.snap->serverTime);
+        if (delta == 0) {
+            cg.frameInterpolation = 0;
+        }
+        else {
+            cg.frameInterpolation = (float)(cg.time - cg.snap->serverTime) / delta;
+        }
+    }
+    else {
+        cg.frameInterpolation = 0;	// actually, it should never be used, because 
+        // no entities should be marked as interpolating
+    }
 
-		delta = (cg.nextSnap->serverTime - cg.snap->serverTime);
-		if ( delta == 0 ) {
-			cg.frameInterpolation = 0;
-		} else {
-			cg.frameInterpolation = (float)( cg.time - cg.snap->serverTime ) / delta;
-		}
-	} else {
-		cg.frameInterpolation = 0;	// actually, it should never be used, because 
-									// no entities should be marked as interpolating
-	}
+    // update cg.predicted_player_state
+    CG_PredictPlayerState();
 
-	// update cg.predicted_player_state
-	CG_PredictPlayerState();
+    // build cg.refdef
+    CG_CalcViewValues();
 
-	// build cg.refdef
-	CG_CalcViewValues();
+    // build the render lists
+    if (!cg.hyperspace)
+    {
+        CG_AddPacketEntities();	// after calcViewValues, so predicted player state is correct
+        CG_AddMarks();
+    }
 
-	// build the render lists
-	if ( !cg.hyperspace )
-      {
-		CG_AddPacketEntities();	// after calcViewValues, so predicted player state is correct
-		CG_AddMarks();
-	   }
-
-	// finish up the rest of the refdef
+    // finish up the rest of the refdef
 #if 0
-	if ( cg.testModelEntity.hModel )
-      {
-		CG_AddTestModel();
-	   }
+    if (cg.testModelEntity.hModel)
+    {
+        CG_AddTestModel();
+    }
 #endif
 
-	cg.refdef.time = cg.time;
-	memcpy( cg.refdef.areamask, cg.snap->areamask, sizeof( cg.refdef.areamask ) );
+    cg.refdef.time = cg.time;
+    memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
 
-	// update audio positions
-	cgi.S_Respatialize( cg.snap->ps.clientNum, cg.SoundOrg,	cg.SoundAxis );
+    // update audio positions
+    cgi.S_Respatialize(cg.snap->ps.clientNum, cg.SoundOrg, cg.SoundAxis);
 
-	// make sure the lagometerSample and frame timing isn't done twice when in stereo
-	if ( stereoView != STEREO_RIGHT )
-      {
-		cg.frametime = cg.time - cg.oldTime;
-		if ( cg.frametime < 0 ) 
-         {
-			cg.frametime = 0;
-		   }
-		cg.oldTime = cg.time;
-		CG_AddLagometerFrameInfo();
-	   }
+    // make sure the lagometerSample and frame timing isn't done twice when in stereo
+    if (stereoView != STEREO_RIGHT)
+    {
+        cg.frametime = cg.time - cg.oldTime;
+        if (cg.frametime < 0)
+        {
+            cg.frametime = 0;
+        }
+        cg.oldTime = cg.time;
+        CG_AddLagometerFrameInfo();
+    }
 
-   CG_UpdateTestEmitter();
-   
-   if ( !cg_hidetempmodels->integer )
-      CG_AddTempModels();
+    CG_UpdateTestEmitter();
 
-   CG_AddBeams();
+    if (!cg_hidetempmodels->integer)
+        CG_AddTempModels();
 
-	// actually issue the rendering calls
-   CG_DrawActive( stereoView );
+    CG_AddBeams();
 
-	if ( cg_stats->integer )
-      {
-		cgi.Printf( "cg.clientFrame:%i\n", cg.clientFrame );
-	   }
-   }
+    // actually issue the rendering calls
+    CG_DrawActive(stereoView);
+
+    if (cg_stats->integer)
+    {
+        cgi.Printf("cg.clientFrame:%i\n", cg.clientFrame);
+    }
+}
 
