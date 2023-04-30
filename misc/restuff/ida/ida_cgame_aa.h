@@ -259,7 +259,7 @@ typedef struct ClientGameCommandManager_s {
 		short index;
 		short delta;
 		union {
-			void (*__pfn) (ClientGameCommandManager* this);
+			void (*__pfn) ();
 			short int __delta2;
 		} __pfn_or_delta2;
 	} endblockfcn;
