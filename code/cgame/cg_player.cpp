@@ -43,33 +43,27 @@ A player just came into view or teleported, so reset all animation info
 ===============
 */
 void CG_ResetPlayerEntity( centity_t *cent )
-   {
-	cent->errorTime = -99999;		// guarantee no error decay added
-	cent->extrapolated = qfalse;
+{
+    cent->errorTime = -99999;		// guarantee no error decay added
+    cent->extrapolated = qfalse;
 
-	VectorCopy( cent->currentState.origin, cent->lerpOrigin );
-	VectorCopy( cent->lerpOrigin, cent->rawOrigin );
+    VectorCopy(cent->currentState.origin, cent->lerpOrigin);
+    VectorCopy(cent->lerpOrigin, cent->rawOrigin);
 
-	VectorCopy( cent->currentState.angles, cent->lerpAngles );
-	VectorCopy( cent->lerpAngles, cent->rawAngles );
+    VectorCopy(cent->currentState.angles, cent->lerpAngles);
+    VectorCopy(cent->lerpAngles, cent->rawAngles);
 
-	if ( cent->currentState.number == cg.snap->ps.clientNum ) 
-      {
-      // initialize the camera position
-      VectorCopy( cent->lerpOrigin, cg.currentViewPos );
-      // initialize the camera angles
-      VectorCopy( cent->lerpAngles, cg.currentViewAngles );
-      // setup the lastCameraTime
-      cg.lastCameraTime = -1;
-      // setup the lerpCameraTime
-      cg.lerpCameraTime = 0;
-      // clear the cameraView flag
-      cg.inCameraView = qfalse;
-      }
+    if (cent->currentState.number == cg.snap->ps.clientNum)
+    {
+        // initialize the camera position
+        VectorCopy(cent->lerpOrigin, cg.currentViewPos);
+        // initialize the camera angles
+        VectorCopy(cent->lerpAngles, cg.currentViewAngles);
+    }
 
-	// Reset splash info
-	cent->splash_still_count = 0;
-   }
+    // Reset splash info
+    cent->splash_still_count = 0;
+}
 
 /*
 ===============
