@@ -159,263 +159,232 @@ typedef struct markPoly_s
 
 #define	MAX_CUSTOM_SOUNDS	32
 typedef struct {
-	char			   name[MAX_QPATH];
-	char			   data[MAX_QPATH];
-
-	qhandle_t		legsModel;
-	qhandle_t		legsSkin;
-
-	qhandle_t		torsoModel;
-	qhandle_t		torsoSkin;
-
-	qhandle_t		headModel;
-	qhandle_t		headSkin;
-
-	struct sfx_s	*sounds[MAX_CUSTOM_SOUNDS];
-
-	vec3_t			color;
-	vec3_t			color2;
+	int team;
 } clientInfo_t;
 
+typedef struct cobjective_s {
+	char text[MAX_STRING_CHARS];
+	int flags;
+} cobjective_t;
+
+#define MAX_RAIN_SHADERS 16
+
+typedef struct crain_s {
+    float density;
+    float speed;
+    int speed_vary;
+    int slant;
+    float length;
+    float min_dist;
+    float width;
+    char shader[MAX_RAIN_SHADERS][MAX_STRING_CHARS];
+    int numshaders;
+} crain_t;
 
 //======================================================================
 
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
- 
+
 typedef struct {
-	int			clientFrame;		   // incremented each frame
-	
-	qboolean	   demoPlayback;
-	qboolean	   levelShot;		      // taking a level menu screenshot
+    int			clientFrame;		   // incremented each frame
 
-	// there are only one or two snapshot_t that are relevent at a time
-	int			latestSnapshotNum;	// the number of snapshots the client system has received
-	int			latestSnapshotTime;	// the time from latestSnapshotNum, so we don't need to read the snapshot yet
-	snapshot_t	*snap;				   // cg.snap->serverTime <= cg.time
-	snapshot_t	*nextSnap;			   // cg.nextSnap->serverTime > cg.time, or NULL
-	snapshot_t	activeSnapshots[2];
+    qboolean	   demoPlayback;
+    qboolean	   levelShot;		      // taking a level menu screenshot
 
-	float		   frameInterpolation;	// (float)( cg.time - cg.frame->serverTime ) / (cg.nextFrame->serverTime - cg.frame->serverTime)
+    // there are only one or two snapshot_t that are relevent at a time
+    int			latestSnapshotNum;	// the number of snapshots the client system has received
+    int			latestSnapshotTime;	// the time from latestSnapshotNum, so we don't need to read the snapshot yet
+    snapshot_t* snap;				   // cg.snap->serverTime <= cg.time
+    snapshot_t* nextSnap;			   // cg.nextSnap->serverTime > cg.time, or NULL
+    snapshot_t	activeSnapshots[2];
 
-	qboolean	   thisFrameTeleport;
-	qboolean	   nextFrameTeleport;
-	qboolean	   nextFrameCameraCut;
+    float		   frameInterpolation;	// (float)( cg.time - cg.frame->serverTime ) / (cg.nextFrame->serverTime - cg.frame->serverTime)
 
-	int			frametime;		      // cg.time - cg.oldTime
+    qboolean	   thisFrameTeleport;
+    qboolean	   nextFrameTeleport;
+    qboolean	   nextFrameCameraCut;
 
-	int			time;			         // this is the time value that the client
-								            // is rendering at.
-	int			oldTime;		         // time at last frame, used for missile trails and prediction checking
+    int			frametime;		      // cg.time - cg.oldTime
 
-	int			physicsTime;	      // either cg.snap->time or cg.nextSnap->time
+    int			time;			         // this is the time value that the client
+    // is rendering at.
+    int			oldTime;		         // time at last frame, used for missile trails and prediction checking
 
-	int			timelimitWarnings;	// 5 min, 1 min, overtime
+    int			physicsTime;	      // either cg.snap->time or cg.nextSnap->time
 
-	qboolean	renderingThirdPerson;	// during deaths, chasecams, etc
+    qboolean	renderingThirdPerson;	// during deaths, chasecams, etc
 
-	// prediction state
-	qboolean	hyperspace;				   // true if prediction has hit a trigger_teleport
-	playerState_t	predicted_player_state;
-	qboolean	validPPS;				   // clear until the first call to CG_PredictPlayerState
-	int			predictedErrorTime;
-	vec3_t		predictedError;
+    // prediction state
+    qboolean	hyperspace;				   // true if prediction has hit a trigger_teleport
+    playerState_t	predicted_player_state;
+    qboolean	validPPS;				   // clear until the first call to CG_PredictPlayerState
+    int			predictedErrorTime;
+    vec3_t		predictedError;
 
-	float		   stepChange;			   // for stair up smoothing
-	int			stepTime;
+    // input state sent to server
+    int         iWeaponCommand;
+    int         iWeaponCommandSend;
 
-	float		   duckChange;			   // for duck viewheight smoothing
-	int			duckTime;
+    // auto rotating items
+    vec3_t		autoAngles;
+    vec3_t		autoAxis[3];
+    vec3_t		autoAnglesSlow;
+    vec3_t		autoAxisSlow[3];
+    vec3_t		autoAnglesFast;
+    vec3_t		autoAxisFast[3];
 
-	float		   landChange;			   // for landing hard
-	int			landTime;
+    // view rendering
+    refdef_t	refdef;
+    vec3_t      playerHeadPos;       // position of the players head
+    vec3_t		refdefViewAngles;		// will be converted to refdef.viewaxis
+    vec3_t      currentViewPos;      // current position of the camera
+    vec3_t      currentViewAngles;   // current angles of the camera
+    float       fCurrentViewHeight;
+    float       fCurrentViewBobPhase;
+    float       fCurrentViewBobAmp;
 
-	// input state sent to server
-	int			weaponSelect;
+    // player model
+    dtiki_t*    pLastPlayerWorldModel;
+    dtiki_t*    pPlayerFPSModel;
+    qhandle_t   hPlayerFPSModelHandle;
+    qboolean    bFPSModelLastFrame;
+    qboolean    bFPSOnGround;
+    dtiki_t*    pAlliedPlayerModel;
+    qhandle_t   hAlliedPlayerModelHandle;
+    dtiki_t*    pAxisPlayerModel;
+    qhandle_t   hAxisPlayerModelHandle;
 
-	// auto rotating items
-	vec3_t		autoAngles;
-	vec3_t		autoAxis[3];
-	vec3_t		autoAnglesSlow;
-	vec3_t		autoAxisSlow[3];
-	vec3_t		autoAnglesFast;
-	vec3_t		autoAxisFast[3];
+    // view eyes
+    vec3_t      vOffsetViewAngles;
+    vec3_t      vLastHeadAngles;
+    vec3_t      vLastViewAngles;
+    vec3_t      vEyeOffsetMax;
+    float       fEyeOffsetFrac;
 
-	// view rendering
-	refdef_t	   refdef;
-   vec3_t      playerHeadPos;       // position of the players head
-	vec3_t		refdefViewAngles;		// will be converted to refdef.viewaxis
-   vec3_t      currentViewPos;      // current position of the camera
-   vec3_t      currentViewAngles;   // current angles of the camera
+    float       SoundOrg[3];		   // position from where sound should be played
+    vec3_t      SoundAxis[3];		   // axis from where sound should be played
 
-	float			SoundOrg[3];		   // position from where sound should be played
-	vec3_t		SoundAxis[3];		   // axis from where sound should be played
+    vec3_t      camera_origin;       // lerped camera_origin
+    vec3_t      camera_angles;       // lerped camera_angles
+    float       camera_fov;          // lerped camera_fov
 
-   int         lastCameraTime;      // last time the camera moved
-   float       lerpCameraTime;      // is the camera currently lerping from camera to view or vice versa
-   qboolean    inCameraView;        // are we currently in a camera view
-   vec3_t      camera_origin;       // lerped camera_origin
-   vec3_t      camera_angles;       // lerped camera_angles
-   float       camera_fov;          // lerped camera_fov
-   int         lastCameraFlags;     // last Camera flags for interpolation testing
+    // zoom key
+    float	   	zoomSensitivity;
 
-	// zoom key
-	qboolean	   zoomed;
-	int		   zoomTime;
-	float	   	zoomSensitivity;
+    // information screen text during loading
+    qboolean	bIntermissionDisplay;
 
-	// information screen text during loading
-	char		infoScreenText[MAX_STRING_CHARS];
-	qboolean	showInformation;
+    // scoreboard
+    int			scoresRequestTime;
+    qboolean	showScores;
+    char		scoresMenuName[MAX_QPATH];
+    int         iInstaMessageMenu;
 
-	// scoreboard
-	int			scoresRequestTime;
-	int			numScores;
-	int			teamScores[2];
-	qboolean	   showScores;
-	int			scoreFadeTime;
-	char		   killerName[MAX_NAME_LENGTH];
+    // centerprinting
+    int			centerPrintTime;
+    int			centerPrintCharWidth;
+    int			centerPrintY;
+    char		   centerPrint[1024];
+    int			centerPrintLines;
 
-	// centerprinting
-	int			centerPrintTime;
-	int			centerPrintCharWidth;
-	int			centerPrintY;
-	char		   centerPrint[1024];
-	int			centerPrintLines;
+    // gameplay
+    int         matchStartTime;
 
-	// low ammo warning state
-	qboolean	lowAmmoWarning;		// 1 = low, 2 = empty
+    // development tool
+    refEntity_t		testModelEntity;
+    char			testModelName[MAX_QPATH];
+    qboolean		testGun;
 
-	// kill timers for carnage reward
-	int			lastKillTime;
+    // farplane parameters
+    float       farplane_distance;
+    vec3_t      farplane_color;
+    qboolean    farplane_cull;
 
-	// crosshair client ID
-	int			crosshairClientNum;
-	int			crosshairClientTime;
+    // portal sky parameters
+    qboolean    sky_portal;
+    float       sky_alpha;
+    vec3_t      sky_origin;
+    vec3_t		sky_axis[3];			// rotation vectors
 
-   float			crosshair_offset;
+    // weapon viewkick recoil
+    float      viewkick[2];
+    float      viewkickRecenter;
+    float      viewkickMinDecay;
+    float      viewkickMaxDecay;
 
-	// powerup active flashing
-	int			powerupActive;
-	int			powerupTime;
+    // objectives
+    cobjective_t  Objectives[20];
+    float         ObjectivesAlphaTime;
+    float         ObjectivesBaseAlpha;
+    float         ObjectivesDesiredAlpha;
+    float         ObjectivesCurrentAlpha;
 
-	// attacking player
-	int			attackerTime;
-
-	// warmup countdown
-	int			warmupCount;
-
-	//==========================
-
-	int			itemPickup;
-	int			itemPickupTime;
-	int			itemPickupBlendTime;	// the pulse around the crosshair is timed seperately
-
-	int			weaponSelectTime;
-	int			weaponAnimation;
-	int			weaponAnimationTime;
-
-	// blend blobs
-	float		   damageTime;
-	float		   damageX, damageY, damageValue;
-
-	// status bar head
-	float		   headYaw;
-	float		   headEndPitch;
-	float		   headEndYaw;
-	int			headEndTime;
-	float		   headStartPitch;
-	float		   headStartYaw;
-	int			headStartTime;
-
-	// view movement
-	float		v_dmg_time;
-	float		v_dmg_pitch;
-	float		v_dmg_roll;
-
-	vec3_t		kick_angles;	// weapon kicks
-	vec3_t		kick_origin;
-
-	// temp working variables for player view
-	float		bobfracsin;
-	int			bobcycle;
-	float		xyspeed;
-
-	// development tool
-	refEntity_t		testModelEntity;
-	char			testModelName[MAX_QPATH];
-	qboolean		testGun;
-
-   // farplane parameters
-   float       farplane_distance;
-   vec3_t      farplane_color;
-   qboolean    farplane_cull;
-
-   // portal sky parameters
-   qboolean    sky_portal;
-   float       sky_alpha;
-   vec3_t      sky_origin;
-	vec3_t		sky_axis[3];			// rotation vectors
+    // misc
+    crain_t rain;
+    clientInfo_t clientinfo[MAX_CLIENTS];
 } cg_t;
 
-
 typedef struct {
-   qhandle_t   backTileShader;
-   qhandle_t   lagometerShader;
-   qhandle_t   shadowMarkShader;
-   qhandle_t   wakeMarkShader;
-   qhandle_t   leftTargetShader;
-   qhandle_t   rightTargetShader;
-   qhandle_t   itemRingShader;
-   qhandle_t   leftTargetModel;
-   qhandle_t   rightTargetModel;
-   qhandle_t   pausedShader;
-   qhandle_t   levelExitShader;
-   } media_t;
+    qhandle_t     backTileShader;
+    qhandle_t     lagometerShader;
+    qhandle_t     shadowMarkShader;
+    qhandle_t     footShadowMarkShader;
+    qhandle_t     wakeMarkShader;
+    qhandle_t     pausedShader;
+    qhandle_t     levelExitShader;
+    qhandle_t     zoomOverlayShader;
+    qhandle_t     kar98TopOverlayShader;
+    qhandle_t     kar98BottomOverlayShader;
+    qhandle_t     binocularsOverlayShader;
+    fontheader_t* hudDrawFont;
+    fontheader_t* attackerFont;
+    fontheader_t* objectiveFont;
+    qhandle_t     objectivesBackShader;
+    qhandle_t     checkedBoxShader;
+    qhandle_t     uncheckedBoxShader;
+} media_t;
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournement restart is done, allowing
 // all clients to begin playing instantly
 typedef struct {
-	gameState_t		gameState;			// gamestate from server
-	glconfig_t		glconfig;			// rendering configuration
-	float			   screenXScale;		// derived from glconfig
-	float			   screenYScale;
-	float			   screenXBias;
+    gameState_t		gameState;			// gamestate from server
+    glconfig_t		glconfig;			// rendering configuration
+    float			   screenXScale;		// derived from glconfig
+    float			   screenYScale;
+    float			   screenXBias;
 
-	int				serverCommandSequence;	// reliable command stream counter
-	int				processedSnapshotNum;// the number of snapshots cgame has requested
+    int				serverCommandSequence;	// reliable command stream counter
+    int				processedSnapshotNum;// the number of snapshots cgame has requested
 
-	qboolean		   localServer;		// detected on startup by checking sv_running
-	int				levelStartTime;   // time that game was started
+    qboolean		   localServer;		// detected on startup by checking sv_running
+    int				levelStartTime;   // time that game was started
 
-	// parsed from serverinfo
-	gametype_t		gametype;
-	int				dmflags;
-	int				teamflags;
-	int				fraglimit;
-	int				timelimit;
-	int				maxclients;
-   int            cinematic;
-	char			   mapname[MAX_QPATH];
+    // parsed from serverinfo
+    int             matchEndTime;
+    int             serverLagTime;
+    gametype_t		gametype;
+    int				dmflags;
+    int				teamflags;
+    int				fraglimit;
+    int				timelimit;
+    int				maxclients;
+    int            cinematic;
+    char			   mapname[MAX_QPATH];
 
-	//
-	// locally derived information from gamestate
-	//
-	qhandle_t		model_draw[MAX_MODELS];
-   sfxHandle_t		sound_precache[MAX_SOUNDS];
-	int				numInlineModels;
-	qhandle_t		inlineDrawModel[MAX_MODELS];
-	vec3_t			inlineModelMidpoints[MAX_MODELS];
+    //
+    // locally derived information from gamestate
+    //
+    qhandle_t		model_draw[MAX_MODELS];
+    sfxHandle_t		sound_precache[MAX_SOUNDS];
+    int				numInlineModels;
+    qhandle_t		inlineDrawModel[MAX_MODELS];
+    vec3_t			inlineModelMidpoints[MAX_MODELS];
 
-   // TIKI handles for all models
-   int            model_tiki[ MAX_MODELS ];
-
-	clientInfo_t	clientinfo[MAX_CLIENTS];
-
-   media_t        media;
-   } cgs_t;
+    media_t        media;
+} cgs_t;
 
 //==============================================================================
 
@@ -511,7 +480,6 @@ void        CG_ServerRestarted( void );
 // cg_modelanim.cpp
 //
 void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime);
-void CG_ClearModelAnimation( int tikihandle, animstate_t * state, int animationNumber, int time, vec3_t origin, int entnum );
 void CG_AttachEntity( refEntity_t *entity, refEntity_t *parent, dtiki_t* tiki, int tagnum, qboolean use_angles, vec3_t attach_offset );
 
 //
@@ -519,12 +487,12 @@ void CG_AttachEntity( refEntity_t *entity, refEntity_t *parent, dtiki_t* tiki, i
 //
 void     CG_Event( centity_t *cent );
 void     CG_UpdateEntityEmitters(int entnum, refEntity_t *ent, centity_t *cent );
-void     CG_RemoveClientEntity( int number, int tikihandle, centity_t *cent );
+void     CG_RemoveClientEntity( int number, dtiki_t* tiki, centity_t *cent );
 void     CG_UpdateTestEmitter( void );
 void     CG_AddTempModels( void );
 void     CG_ResetTempModels( void );
 void     CG_InitializeCommandManager( void );
-void     CG_ProcessInitCommands( int tikihandle );
+void     CG_ProcessInitCommands(dtiki_t* tiki);
 qboolean CG_Command_ProcessFile( const char * filename, qboolean quiet );
 void     CG_RestartCommandManager( int timedelta );
 void     CG_FlushCommandManager( void );
@@ -574,7 +542,7 @@ void CG_TestModelPrevSkin_f (void);
 void CG_ZoomDown_f( void );
 void CG_ZoomUp_f( void );
 
-void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
+void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback );
 
 
 //
@@ -582,6 +550,16 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 //
 void CG_AdjustFrom640( float *x, float *y, float *w, float *h );
 void CG_TileClear( void );
+void CG_DrawOverlayTopBottom(qhandle_t handleTop, qhandle_t handleBottom, float fAlpha);
+void CG_DrawOverlayMiddle(qhandle_t handle, float fAlpha);
+void CG_DrawOverlayFullScreen(qhandle_t handle, float fAlpha);
+void CG_DrawZoomOverlay();
+void CG_HudDrawShader(int iInfo);
+void CG_HudDrawFont(int iInfo);
+void CG_RefreshHudDrawElements();
+void CG_HudDrawElements();
+void CG_InitializeObjectives();
+void CG_DrawObjectives();
 void CG_Draw2D( void );
 
 //
@@ -623,7 +601,7 @@ void CG_EntityEffects( centity_t *cent );
 //
 // cg_marks.c
 //
-void	CG_InitMarkPolys( void );
+void	CG_InitMarks( void );
 void	CG_AddMarks( void );
 void	CG_ImpactMark( qhandle_t markShader, 
 				    const vec3_t origin, const vec3_t dir, 
@@ -760,6 +738,10 @@ void CG_Footstep( centity_t * ent, float volume );
 //
 // cg_swipe.cpp
 void CG_ClearSwipes( void );
+
+//
+// cg_volumetricsmoke.cpp
+void CG_ResetVSSSources();
 
 
 #ifdef __cplusplus
