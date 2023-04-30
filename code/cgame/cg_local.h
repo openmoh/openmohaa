@@ -492,8 +492,10 @@ void     CG_UpdateTestEmitter( void );
 void     CG_AddTempModels( void );
 void     CG_ResetTempModels( void );
 void     CG_InitializeCommandManager( void );
-void     CG_ProcessInitCommands(dtiki_t* tiki);
-qboolean CG_Command_ProcessFile( const char * filename, qboolean quiet );
+void     CG_ProcessInitCommands(dtiki_t* tiki, refEntity_t* ent);
+void     CG_ProcessCacheInitCommands(dtiki_t* tiki);
+void     CG_EndTiki(dtiki_t* tiki);
+qboolean CG_Command_ProcessFile( const char * filename, qboolean quiet, dtiki_t *curTiki );
 void     CG_RestartCommandManager( int timedelta );
 void     CG_FlushCommandManager( void );
 void     CG_ProcessEntityCommands( int            frame,
@@ -541,6 +543,11 @@ void CG_TestModelPrevSkin_f (void);
 void CG_ZoomDown_f( void );
 void CG_ZoomUp_f( void );
 
+void CG_EyePosition(vec3_t* o_vPos);
+void CG_EyeOffset(vec3_t* o_vOfs);
+void CG_EyeAngles(vec3_t* o_vAngles);
+float CG_SensitivityScale();
+void CG_AddLightShow();
 void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback );
 
 
@@ -608,7 +615,42 @@ void	CG_ImpactMark( qhandle_t markShader,
 				    float r, float g, float b, float a, 
 					qboolean alphaFade, 
 					float radius, qboolean temporary,
-               int lightstyle, qboolean fadein );
+                    int lightstyle, qboolean fadein,
+                    float fSCenter, float fTCenter );
+
+int CG_PermanentMark(
+    vec_t* origin,
+    vec_t* dir,
+    float orientation,
+    float fSScale,
+    float fTScale,
+    float red,
+    float green,
+    float blue,
+    float alpha,
+    qboolean dolighting,
+    float fSCenter,
+    float fTCenter,
+    markFragment_t* pMarkFragments,
+    void* pVoidPolyVerts
+);
+
+int CG_PermanentTreadMarkDecal(
+    treadMark_t* pTread,
+    qboolean bStartSegment,
+    qboolean dolighting,
+    markFragment_t* pMarkFragments,
+    void* pVoidPolyVerts
+);
+
+int CG_PermanentUpdateTreadMark(
+    treadMark_t* pTread,
+    float fAlpha,
+    float fMinSegment,
+    float fMaxSegment,
+    float fMaxOffset,
+    float fTexScale
+);
 
 //
 // cg_snapshot.c
@@ -621,6 +663,17 @@ void CG_ProcessSnapshots( void );
 qboolean CG_ConsoleCommand( void );
 void CG_InitConsoleCommands( void );
 void CG_AddTestModel( void );
+void CG_Mapinfo_f();
+void CG_PushMenuTeamSelect_f();
+void CG_PushMenuWeaponSelect_f();
+void CG_UseWeaponClass_f();
+void CG_NextWeapon_f();
+void CG_PrevWeapon_f();
+void CG_UseLastWeapon_f();
+void CG_HolsterWeapon_f();
+void CG_DropWeapon_f();
+void CG_ToggleItem_f();
+int CG_WeaponCommandButtonBits();
 
 //
 // cg_servercmds.c
@@ -731,6 +784,14 @@ void CG_ClearLightStyles( void );
 int  CG_RegisterLightStyle( const char * name );
 
 //
+// cg_scoreboard.cpp
+void CG_GetScoreBoardColor(float* fR, float* fG, float* fB, float* fA);
+void CG_GetScoreBoardFontColor(float* fR, float* fG, float* fB, float* fA);
+void CG_GetScoreBoardPosition(float* fX, float* fY, float* fW, float* fH);
+int CG_GetScoreBoardDrawHeader();
+const char* CG_GetColumnName(int iColumnNum, int* iColumnWidth);
+
+//
 // cg_specialfx.cpp
 void CG_Footstep(centity_t* ent, float volume);
 void CG_InitializeSpecialEffectsManager();
@@ -738,6 +799,10 @@ void CG_InitializeSpecialEffectsManager();
 //
 // cg_swipe.cpp
 void CG_ClearSwipes( void );
+
+//
+// cg_ui.cpp
+int CG_CheckCaptureKey(int key, qboolean down, unsigned int time);
 
 //
 // cg_volumetricsmoke.cpp
