@@ -320,13 +320,13 @@ CG_Beam
 void CG_Beam( centity_t *cent ) {
 	entityState_t  *s1;
    vec3_t         vz={0,0,0},origin={0,0,0};
-   byte           modulate[4];
+   float           modulate[4];
    int            i;
 
 	s1 = &cent->currentState;
 
    for ( i=0;i<4;i++ )
-      modulate[i] = cent->color[i] * 255;
+      modulate[i] = cent->color[i];
 
    if ( s1->beam_entnum != ENTITYNUM_NONE )
       {
@@ -400,7 +400,9 @@ void CG_Decal
                   s1->scale,
                   qfalse,
                   -1,
-                  qfalse);
+                  qfalse,
+                  0.f,
+                  0.f);
    }
 
 /*
