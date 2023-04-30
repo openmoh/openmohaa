@@ -393,7 +393,7 @@ typedef struct {
    int      (*CG_PermanentUpdateTreadMark)(treadMark_t* treadMark, float alpha, float minSegment, float maxSegment, float maxOffset, float texScale);
    void     (*CG_ProcessInitCommands)(dtiki_t* tiki, refEntity_t* ent);
    void     (*CG_EndTiki)(dtiki_t* tiki);
-   char*    (*CG_GetColumnName)(int columnNum, int* columnWidth);
+   const char*    (*CG_GetColumnName)(int columnNum, int* columnWidth);
    void     (*CG_GetScoreBoardColor)(float* red, float* green, float* blue, float* alpha);
    void     (*CG_GetScoreBoardFontColor)(float* red, float* green, float* blue, float* alpha);
    int      (*CG_GetScoreBoardDrawHeader)();
