@@ -229,8 +229,8 @@ typedef struct
    int              (*MapVersion)();
    int              (*R_MapVersion)();
    qhandle_t    (*R_RegisterModel)( const char *name );
-   qhandle_t    (*R_SpawnEffectModel)(char* name, vec3_t pos, vec3_t axis[3]);
-   qhandle_t    (*R_RegisterServerModel)(char* name);
+   qhandle_t    (*R_SpawnEffectModel)(const char* name, vec3_t pos, vec3_t axis[3]);
+   qhandle_t    (*R_RegisterServerModel)(const char* name);
    void         (*R_UnregisterServerModel)(qhandle_t hModel);
     qhandle_t      (*R_RegisterSkin)( const char *name );
     qhandle_t      (*R_RegisterShader)( const char *name );
@@ -364,7 +364,7 @@ functions exported to the main executable
 typedef struct {
     void     (*CG_Init)( clientGameImport_t *imported, int serverMessageNum, int serverCommandSequence );
    void     (*CG_Shutdown)( void );
-   void     (*CG_DrawActiveFrame)( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
+   void     (*CG_DrawActiveFrame)( int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback );
    qboolean (*CG_ConsoleCommand)( void );
    void     (*CG_GetRendererConfig)( void );
    void     (*CG_Draw2D)( void );
