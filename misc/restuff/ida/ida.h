@@ -3913,6 +3913,12 @@ typedef struct str_s
 
 } str;
 
+typedef struct Container_str_s {
+	str		*objlist;
+	int		numobjects;
+	int		maxobjects;
+} Container_str;
+
 typedef vec3_t Vector;
 
 typedef struct spawnsort_s {
@@ -10142,3 +10148,5 @@ typedef struct qr_implementation_sh_s {
 	int unk5;
 	void* udata;
 } qr_implementation_sh_t, *qr_sh_t;
+
+#include "ida_cgame_aa.h"
