@@ -409,6 +409,31 @@ static int CG_CalcViewValues(void)
     return CG_CalcFov();
 }
 
+void CG_EyePosition(vec3_t* o_vPos)
+{
+    // FIXME: unimplemented
+}
+
+void CG_EyeOffset(vec3_t* o_vOfs)
+{
+    // FIXME: unimplemented
+}
+
+void CG_EyeAngles(vec3_t* o_vAngles)
+{
+    // FIXME: unimplemented
+}
+
+float CG_SensitivityScale()
+{
+    // FIXME: unimplemented
+}
+
+void CG_AddLightShow()
+{
+    // FIXME: unimplemented
+}
+
 //=========================================================================
 
 /*
