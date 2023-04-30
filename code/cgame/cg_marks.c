@@ -45,7 +45,7 @@ CG_InitMarkPolys
 This is called at startup and for tournement restarts
 ===================
 */
-void	CG_InitMarkPolys( void ) {
+void	CG_InitMarks( void ) {
 	int		i;
 
 	memset( cg_markPolys, 0, sizeof(cg_markPolys) );
@@ -201,9 +201,10 @@ void CG_ImpactMark
 	// get the fragments
 	VectorScale( dir, -32, projection );
 
+	// FIXME: fRadiusSquared
 	numFragments = cgi.R_MarkFragments( 4, (void *)originalPoints,
 					                          projection, MAX_MARK_POINTS, markPoints[0],
-					                          MAX_MARK_FRAGMENTS, markFragments );
+					                          MAX_MARK_FRAGMENTS, markFragments, 0.f );
 
    if ( fadein )
       {
