@@ -7568,7 +7568,7 @@ typedef struct clientGameExport_s
 	int ( *CG_GetScoreBoardDrawHeader )( );
 	void ( *CG_GetScoreBoardPosition )( float *x, float *y, float *width, float *height );
 	int ( *CG_WeaponCommandButtonBits )( );
-	int ( *CG_CheckCaptureKey )( keyNum_t key, qboolean down, unsigned int time );
+	int ( *CG_CheckCaptureKey )( int key, qboolean down, unsigned int time );
 
 	profCGame_t *profStruct;
 
