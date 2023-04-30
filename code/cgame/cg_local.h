@@ -732,7 +732,8 @@ int  CG_RegisterLightStyle( const char * name );
 
 //
 // cg_specialfx.cpp
-void CG_Footstep( centity_t * ent, float volume );
+void CG_Footstep(centity_t* ent, float volume);
+void CG_InitializeSpecialEffectsManager();
 
 //
 // cg_swipe.cpp
