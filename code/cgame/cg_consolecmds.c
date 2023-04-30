@@ -274,3 +274,59 @@ void CG_InitConsoleCommands( void ) {
 		cgi.AddCommand( commands[i].cmd );
 	}
 }
+
+void CG_Mapinfo_f()
+{
+	// FIXME: unimplemented
+}
+
+void CG_PushMenuTeamSelect_f()
+{
+	// FIXME: unimplemented
+}
+
+void CG_PushMenuWeaponSelect_f()
+{
+	// FIXME: unimplemented
+}
+
+void CG_UseWeaponClass_f()
+{
+	// FIXME: unimplemented
+}
+
+void CG_NextWeapon_f()
+{
+	// FIXME: unimplemented
+}
+
+void CG_PrevWeapon_f()
+{
+	// FIXME: unimplemented
+}
+
+void CG_UseLastWeapon_f()
+{
+	// FIXME: unimplemented
+}
+
+void CG_HolsterWeapon_f()
+{
+	// FIXME: unimplemented
+}
+
+void CG_DropWeapon_f()
+{
+	// FIXME: unimplemented
+}
+
+void CG_ToggleItem_f()
+{
+	// FIXME: unimplemented
+}
+
+int CG_WeaponCommandButtonBits()
+{
+	// FIXME: unimplemented
+	return 0;
+}
