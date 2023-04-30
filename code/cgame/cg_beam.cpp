@@ -1145,7 +1145,7 @@ void CG_CreateBeam
    int            numSubdivisions,
    int            delay,
    const char     *beamshadername,
-   byte           modulate[4],
+   float          modulate[4],
    int            numspherebeams,
    float          sphereradius,
    int            toggledelay,
