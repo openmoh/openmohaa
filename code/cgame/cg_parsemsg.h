@@ -22,3 +22,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // DESCRIPTION:
 // CGM buffer parser
+
+#pragma once
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void CG_ParseCGMessage();
+
+#ifdef __cplusplus
+}
+#endif
