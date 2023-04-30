@@ -57,9 +57,9 @@ void CG_Footstep
    int      contents, surftype;
 	spawnthing_t   effect;
 	refEntity_t    *old_entity;
-	int            old_tiki;
+	dtiki_t        *old_tiki;
 	refEntity_t    new_entity;
-	int            new_tiki;
+	dtiki_t        *new_tiki;
 	qhandle_t      hModel;
 
    // send a trace down from the player to the ground
@@ -109,28 +109,28 @@ void CG_Footstep
       surftype = trace.surfaceFlags & MASK_SURF_TYPE;
 		switch ( surftype )
 			{
-         case SURF_TYPE_WOOD:
+         case SURF_WOOD:
             commandManager.PlaySound( "footstep_wood", NULL, CHAN_AUTO, volume );
             if ( cg_debugFootsteps->integer )
                {
                cgi.DPrintf( "Footstep: wood    volume: %.2f\n", volume ); 
                }
             break;
-         case SURF_TYPE_METAL:
+         case SURF_METAL:
             commandManager.PlaySound( "footstep_metal", NULL, CHAN_AUTO, volume );
             if ( cg_debugFootsteps->integer )
                {
                cgi.DPrintf( "Footstep: metal   volume: %.2f\n", volume ); 
                }
             break;
-         case SURF_TYPE_ROCK:
+         case SURF_ROCK:
             commandManager.PlaySound( "footstep_rock", NULL, CHAN_AUTO, volume );
             if ( cg_debugFootsteps->integer )
                {
                cgi.DPrintf( "Footstep: rock    volume: %.2f\n", volume ); 
                }
             break;
-         case SURF_TYPE_DIRT:
+         case SURF_DIRT:
             memset( &new_entity, 0, sizeof( refEntity_t ) );
             
             commandManager.PlaySound( "footstep_dirt", NULL, CHAN_AUTO, volume );
@@ -157,7 +157,7 @@ void CG_Footstep
 				// Setup the new tiki
 
 				hModel = cgi.R_RegisterModel( "models/fx_dirtstep.tik" );
-				new_tiki = cgi.TIKI_GetHandle( hModel );
+				new_tiki = cgi.R_Model_GetHandle( hModel );
 				current_tiki = new_tiki;
 
 				// Process new entity
@@ -197,25 +197,11 @@ void CG_Footstep
 				commandManager.SpawnTempModel( 1, &effect ); */
 
             break;
-         case SURF_TYPE_GRILL:
+         case SURF_GRILL:
             commandManager.PlaySound( "footstep_grill", NULL, CHAN_AUTO, volume );
             if ( cg_debugFootsteps->integer )
                {
                cgi.DPrintf( "Footstep: grill   volume: %.2f\n", volume ); 
-               }
-            break;
-         case SURF_TYPE_ORGANIC:
-            commandManager.PlaySound( "footstep_organic", NULL, CHAN_AUTO, volume );
-            if ( cg_debugFootsteps->integer )
-               {
-               cgi.DPrintf( "Footstep: organic volume: %.2f\n", volume ); 
-               }
-            break;
-         case SURF_TYPE_SQUISHY:
-            commandManager.PlaySound( "footstep_squishy", NULL, CHAN_AUTO, volume );
-            if ( cg_debugFootsteps->integer )
-               {
-               cgi.DPrintf( "Footstep: squishy volume: %.2f\n", volume ); 
                }
             break;
          }
@@ -305,41 +291,6 @@ void CG_Splash( centity_t *cent ) {
 		return;
 	}
 
-	// Add a ripple to the scene
-
-	commandManager.InitializeSpawnthing( &m_ripple );
-
-   m_ripple.SetModel( "ripple.spr" );
-
-   m_ripple.cgd.origin[0]					= trace.endpos[0];
-   m_ripple.cgd.origin[1]					= trace.endpos[1];
-   m_ripple.cgd.origin[2]					= trace.endpos[2];   
-   
-   m_ripple.cgd.scale = 0.33 + dist / 100;
-
-	if ( m_ripple.cgd.scale > 1 )
-		m_ripple.cgd.scale = 1;
-
-	m_ripple.cgd.scaleRate = 1 + dist / 250;
-
-	if ( m_ripple.cgd.scaleRate > 1.4 )
-		m_ripple.cgd.scaleRate = 1.4;
-
-	m_ripple.cgd.life = 2000 - dist * 10;
-
-	if ( m_ripple.cgd.life < 1000 )
-		m_ripple.cgd.life = 1000;
-
-	m_ripple.cgd.flags |= T_FADE;
-
-	m_ripple.cgd.flags |= T_ANGLES;
-
-	m_ripple.randangles[ 0 ] = NOT_RANDOM;
-   m_ripple.cgd.angles[ 0 ] = 90;
-	m_ripple.randangles[ 1 ] = NOT_RANDOM;
-   m_ripple.cgd.angles[ 1 ] = 0;
-	m_ripple.randangles[ 2 ] = NOT_RANDOM;
-   m_ripple.cgd.angles[ 2 ] = 0;
-
-   commandManager.SpawnTempModel( 1, &m_ripple );
+	// FIXME
+	// TODO: Make effect
 }
