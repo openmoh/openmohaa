@@ -398,6 +398,14 @@ typedef struct {
 
 } clientGameExport_t;
 
+#ifdef CGAME_DLL
+#ifdef WIN32
+__declspec(dllexport)
+#else
+__attribute__((visibility("default")))
+#endif
+#endif
+clientGameExport_t* GetCGameAPI(void);
 
 #ifdef __cplusplus
 }

@@ -545,19 +545,19 @@ GetCGameAPI
 The only exported function from this module
 ================
 */
-clientGameExport_t	*GetCGameAPI( void )
-   {
-	static clientGameExport_t	cge;
+clientGameExport_t *GetCGameAPI(void)
+{
+   static clientGameExport_t cge;
 
-	cge.CG_Init             = CG_Init;
-   cge.CG_DrawActiveFrame  = CG_DrawActiveFrame;
-   cge.CG_Shutdown         = CG_Shutdown;
-   cge.CG_ConsoleCommand   = CG_ConsoleCommand;
+   cge.CG_Init = CG_Init;
+   cge.CG_DrawActiveFrame = CG_DrawActiveFrame;
+   cge.CG_Shutdown = CG_Shutdown;
+   cge.CG_ConsoleCommand = CG_ConsoleCommand;
    cge.CG_GetRendererConfig = CG_GetRendererConfig;
-   cge.CG_Draw2D           = CG_Draw2D;
+   cge.CG_Draw2D = CG_Draw2D;
 
-	return &cge;
-   }
+   return &cge;
+}
 
 /*
 =====================
