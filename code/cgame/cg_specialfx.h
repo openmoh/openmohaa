@@ -72,3 +72,5 @@ public:
     void MakeEffect_Axis(int iEffect, Vector vPos, float axis[3][3]);
     specialeffect_t* GetTestEffectPointer();
 };
+
+extern ClientSpecialEffectsManager sfxManager;
