@@ -242,7 +242,7 @@ void CG_General( centity_t *cent ) {
    ent.actionWeight = 1.0;
 
 	// add to refresh list
-   	cgi.R_AddRefEntityToScene (&ent);
+   	cgi.R_AddRefEntityToScene (&ent, ENTITYNUM_NONE);
 
     if (ent.tiki >= 0)
     {
@@ -309,7 +309,7 @@ void CG_Mover( centity_t *cent ) {
 	}
 
 	// add to refresh list
-	cgi.R_AddRefEntityToScene(&ent);
+	cgi.R_AddRefEntityToScene(&ent, ENTITYNUM_NONE);
 }
 
 /*
@@ -537,6 +537,7 @@ void CG_AddCEntity(centity_t* cent)
         CG_Player(cent);
         // intentional fallthrough
     case ET_MODELANIM:
+    case ET_MODELANIM_SKEL:
         CG_Splash(cent);
         CG_ModelAnim(cent, qfalse);
         break;
