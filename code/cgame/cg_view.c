@@ -231,7 +231,7 @@ CG_OffsetFirstPersonView
 
 ===============
 */
-static void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
+void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 {
 	float* origin;
 	centity_t* pCent;

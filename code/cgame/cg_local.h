@@ -548,6 +548,7 @@ void CG_EyeOffset(vec3_t* o_vOfs);
 void CG_EyeAngles(vec3_t* o_vAngles);
 float CG_SensitivityScale();
 void CG_AddLightShow();
+void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition);
 void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback );
 
 
@@ -796,7 +797,8 @@ void CG_ParseScores();
 
 //
 // cg_specialfx.cpp
-void CG_Footstep(centity_t* ent, float volume);
+void CG_Footstep(char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunning, int iEquipment);
+void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEquipment);
 void CG_InitializeSpecialEffectsManager();
 void CG_AddPendingEffects();
 
