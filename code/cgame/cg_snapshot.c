@@ -172,18 +172,14 @@ CG_TransitionSnapshot
 The transition point from snap to nextSnap has passed
 ===================
 */
-static void CG_TransitionSnapshot(void)
+static void CG_TransitionSnapshot(qboolean differentServer)
 {
     centity_t* cent;
     snapshot_t* oldFrame;
-    qboolean differentServer;
     int i;
 
-    if (!cg.snap) {
-        cgi.Error(ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap");
-    }
-    if (!cg.nextSnap) {
-        cgi.Error(ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap");
+    if (differentServer) {
+        CG_ServerRestarted();
     }
 
     // execute any server string commands before transitioning entities
@@ -198,14 +194,6 @@ static void CG_TransitionSnapshot(void)
     // move nextSnap to snap and do the transitions
     oldFrame = cg.snap;
     cg.snap = cg.nextSnap;
-
-    // if restarted, teleport and no camera lerp
-    if ((oldFrame->snapFlags ^ cg.snap->snapFlags) & SNAPFLAG_SERVERCOUNT) {
-        CG_ServerRestarted();
-        differentServer = qtrue;
-    } else {
-        differentServer = qfalse;
-    }
 
     // FAKK: Commented out to make our stuff work
     // cg_entities[ cg.snap->ps.clientNum ].interpolate = qfalse;
@@ -223,6 +211,7 @@ static void CG_TransitionSnapshot(void)
         CG_ProcessSound(&cg.snap->sounds[i]);
     }
 
+    cgi.MUSIC_UpdateMood(cg.snap->ps.current_music_mood, cg.snap->ps.fallback_music_mood);
     cg.nextSnap = NULL;
 
     // check for playerstate transition events
@@ -236,12 +225,6 @@ static void CG_TransitionSnapshot(void)
         // teleporting checks are irrespective of prediction
         if (ps->pm_flags & PMF_RESPAWNED) {
             cg.thisFrameTeleport = qtrue;
-        }
-
-        if ((ops->current_music_mood != ps->current_music_mood) ||
-            (ops->fallback_music_mood != ps->fallback_music_mood)) {
-            cgi.MUSIC_UpdateMood(ps->current_music_mood,
-                                 ps->fallback_music_mood);
         }
 
         if ((ops->music_volume != ps->music_volume) ||
@@ -413,6 +396,7 @@ void CG_ProcessSnapshots(void)
 {
     snapshot_t* snap;
     int n;
+    qboolean differentServer;
 
     // see what the latest snapshot the client system has is
     cgi.GetCurrentSnapshotNumber(&n, &cg.latestSnapshotTime);
@@ -470,6 +454,8 @@ void CG_ProcessSnapshots(void)
             }
         }
 
+        differentServer = cg.snap->serverTime <= cgi.GetServerStartTime();
+
         // if our time is < nextFrame's, we have a nice interpolating state
         if (cg.time >= cg.snap->serverTime &&
             cg.time < cg.nextSnap->serverTime) {
@@ -477,7 +463,7 @@ void CG_ProcessSnapshots(void)
         }
 
         // we have passed the transition from nextFrame to frame
-        CG_TransitionSnapshot();
+        CG_TransitionSnapshot(differentServer);
     } while (1);
 
     // assert our valid conditions upon exiting
