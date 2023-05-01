@@ -1,3 +1,32 @@
+typedef struct beam_s {
+	Class_t baseClass;
+	int entity;
+	int hModel;
+	int endtime;
+	Vector start;
+	Vector end;
+	float scale;
+	float alpha;
+	int flags;
+	int parent;
+	float max_offset;
+	float min_offset;
+	int numSubdivisions;
+	int overlap;
+	int beamshader;
+	unsigned char shaderRGBA[4];
+	int update_time;
+	int delay;
+	float life;
+	int numspherebeams;
+	float sphereradius;
+	int toggletime;
+	int toggledelay;
+	int active;
+	float alphastep;
+	int renderfx;
+} beam_t;
+
 typedef struct cg_common_data_s {
 	Class_t baseClass;
 

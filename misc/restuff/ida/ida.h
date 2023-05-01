@@ -3919,7 +3919,11 @@ typedef struct Container_str_s {
 	int		maxobjects;
 } Container_str;
 
-typedef vec3_t Vector;
+typedef struct Vector_s {
+	float x;
+	float y;
+	float z;
+} Vector;
 
 typedef struct spawnsort_s {
 	void *spawnpoint;
