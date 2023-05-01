@@ -379,17 +379,30 @@ void CG_DrawZoomOverlay()
 
 void CG_HudDrawShader(int iInfo)
 {
-    // FIXME: UNIMPLEMENTED
+    if (cgi.HudDrawElements[iInfo].shaderName[0]) {
+         cgi.HudDrawElements[iInfo].hShader = cgi.R_RegisterShaderNoMip(cgi.HudDrawElements[iInfo].shaderName);
+    } else {
+         cgi.HudDrawElements[iInfo].hShader = 0;
+    }
 }
 
 void CG_HudDrawFont(int iInfo)
 {
-    // FIXME: UNIMPLEMENTED
+    if (cgi.HudDrawElements[iInfo].fontName[0]) {
+         cgi.HudDrawElements[iInfo].pFont = cgi.R_LoadFont(cgi.HudDrawElements[iInfo].fontName);
+    } else {
+         cgi.HudDrawElements[iInfo].pFont = nullptr;
+    }
 }
 
 void CG_RefreshHudDrawElements()
 {
-    // FIXME: UNIMPLEMENTED
+    int i;
+
+    for (i = 0; i < MAX_HUDDRAW_ELEMENTS; ++i) {
+         CG_HudDrawShader(i);
+         CG_HudDrawFont(i);
+    }
 }
 
 void CG_HudDrawElements()
@@ -415,7 +428,42 @@ void CG_InitializeObjectives()
 
 void CG_DrawObjectives()
 {
-    // FIXME: UNIMPLEMENTED
+    // FIXME: unimplemented
+}
+
+void CG_DrawPlayerTeam()
+{
+    // FIXME: unimplemented
+}
+
+void CG_DrawPlayerEntInfo()
+{
+    // FIXME: unimplemented
+}
+
+void CG_UpdateAttackerDisplay()
+{
+    // FIXME: unimplemented
+}
+
+void CG_UpdateCountdown()
+{
+    // FIXME: unimplemented
+}
+
+void CG_DrawStopwatch()
+{
+    // FIXME: unimplemented
+}
+
+void CG_DrawInstantMessageMenu()
+{
+    // FIXME: unimplemented
+}
+
+void CG_DrawSpectatorView()
+{
+    // FIXME: unimplemented
 }
 
 /*
@@ -423,8 +471,18 @@ void CG_DrawObjectives()
 CG_Draw2D
 ==============
 */
-void CG_Draw2D( void ) 
-   {
-   CG_DrawIcons();
- 	CG_DrawLagometer();
-   }
+void CG_Draw2D(void)
+{
+	CG_UpdateCountdown();
+	CG_DrawZoomOverlay();
+	CG_DrawLagometer();
+	CG_HudDrawElements();
+	CG_DrawObjectives();
+	CG_DrawIcons();
+	CG_DrawStopwatch();
+	CG_DrawSpectatorView();
+	CG_DrawPlayerTeam();
+	CG_DrawPlayerEntInfo();
+	CG_UpdateAttackerDisplay();
+	CG_DrawInstantMessageMenu();
+}
