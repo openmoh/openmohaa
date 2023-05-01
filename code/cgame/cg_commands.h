@@ -833,7 +833,6 @@ public:
     spawnthing_t* InitializeSpawnthing(spawnthing_t* ep);
     void SpawnTempModel(int count, class spawnthing_t* sp);
     void FreeAllTempModels(void);
-    void RestartAllEmitters(int timedelta);
     void FreeAllEmitters(void);
 
     void InitializeTempModels(void);
@@ -846,6 +845,7 @@ public:
     spawnthing_t* CreateNewEmitter(str emittername);
     spawnthing_t* CreateNewEmitter(void);
     spawnthing_t* GetEmitterByName(str emittername);
+    void DeleteEmitters(dtiki_t* tiki);
     void CGEvent(centity_t* cent);
 };
 

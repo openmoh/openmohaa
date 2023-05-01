@@ -2164,6 +2164,16 @@ spawnthing_t* ClientGameCommandManager::CreateNewEmitter(str name)
     return st;
 }
 
+void ClientGameCommandManager::DeleteEmitters(dtiki_t* tiki)
+{
+    // FIXME: unimpleme,nted
+}
+
+void CG_DeleteEmitters(dtiki_t* tiki)
+{
+    // FIXME: unimplemented
+}
+
 //==================
 // CreateNewEmitter
 //==================
@@ -4642,24 +4652,6 @@ void ClientGameCommandManager::FreeAllTempModels(void)
 }
 
 //===============
-// RestartAllEmitters
-//===============
-void ClientGameCommandManager::RestartAllEmitters(int timedelta)
-
-{
-    int i;
-
-    for (i = 1; i <= m_emitters.NumObjects(); i++) {
-        spawnthing_t* st = m_emitters.ObjectAt(i);
-
-        if (st->cgd.createTime > cg.time) {
-            st->cgd.createTime -= timedelta;
-            st->lastTime -= timedelta;
-        }
-    }
-}
-
-//===============
 // FreeAllEmitters
 //===============
 void ClientGameCommandManager::FreeAllEmitters(void)
@@ -4671,11 +4663,10 @@ void ClientGameCommandManager::FreeAllEmitters(void)
 //===============
 // CG_RestartCommandManager
 //===============
-void CG_RestartCommandManager(int timedelta)
+void CG_RestartCommandManager()
 
 {
     commandManager.FreeAllTempModels();
-    commandManager.RestartAllEmitters(timedelta);
 }
 
 //===============
@@ -4706,7 +4697,7 @@ void CG_ProcessCacheInitCommands(dtiki_t* tiki)
 
 void CG_EndTiki(dtiki_t* tiki)
 {
-    // FIXME: unimplemented
+    CG_DeleteEmitters(tiki);
 }
 
 //=================
@@ -4988,11 +4979,10 @@ void CG_InitializeCommandManager(void)
     commandManager.InitializeTempModels();
     commandManager.InitializeEmitters();
     CG_InitTestEmitter();
-    CG_InitializeClientEmitters();
+    CG_InitTestTreadMark();
 }
 
 void CG_ResetTempModels(void)
-
 {
     commandManager.ResetTempModels();
     lastTempModelFrameTime = cg.time;
@@ -5238,16 +5228,6 @@ bool EmitterLoader::Load(Script& script)
     }
 
     return true;
-}
-
-void CG_InitializeClientEmitters(void)
-
-{
-    Script script;
-
-    Com_Printf("Loading client emitters...\n");
-    script.LoadFile("global/emitters.scr");
-    emitterLoader.Load(script);
 }
 
 void CG_Emitter(centity_t* cent)
