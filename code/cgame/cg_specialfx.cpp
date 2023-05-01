@@ -145,14 +145,118 @@ FOOTSTEP CODE
 ==============================================================
 */
 
-#define GROUND_DISTANCE 32
-#define WATER_NO_SPLASH_HEIGHT 16
+static void CG_FootstepMain(trace_t* trace, int iRunning, int iEquipment)
+{
+	// FIXME: unimplemented
+}
 
+#define GROUND_DISTANCE 8
+#define WATER_NO_SPLASH_HEIGHT 16
+void CG_Footstep(char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunning, int iEquipment)
+{
+	int i;
+	int iTagNum;
+	vec3_t vStart, vEnd;
+	vec3_t midlegs;
+	vec3_t vMins, vMaxs;
+	str sSoundName;
+	trace_t trace;
+	orientation_t oTag;
+
+	// send a trace down from the player to the ground
+	VectorCopy(ent->lerpOrigin, vStart);
+	vStart[2] += GROUND_DISTANCE;
+
+	if (szTagName)
+	{
+		iTagNum = cgi.Tag_NumForName(pREnt->tiki, szTagName);;
+		if (iTagNum != -1)
+		{
+			oTag = cgi.TIKI_Orientation(pREnt, iTagNum);
+
+			for (i = 0; i < 2; i++)
+			{
+                vStart[0] += pREnt->axis[i][0] * oTag.origin[0];
+                vStart[0] += pREnt->axis[i][1] * oTag.origin[1];
+                vStart[0] += pREnt->axis[i][2] * oTag.origin[2];
+			}
+		}
+	}
+
+	if (iRunning == -1)
+    {
+        AngleVectors(ent->lerpAngles, midlegs, NULL, NULL);
+
+        VectorSet(vMins, -2, -2, -8);
+        VectorSet(vMaxs, 2, 2, 8);
+
+        vStart[0] += midlegs[0] * -16.0;
+        vStart[1] += midlegs[1] * -16.0;
+        vStart[2] += midlegs[2] * -16.0;
+
+        vEnd[0] = vStart[0] + midlegs[0] * 64.0;
+        vEnd[1] = vStart[1] + midlegs[1] * 64.0;
+        vEnd[2] = vStart[2] + midlegs[2] * 64.0;
+	}
+	else
+    {
+        VectorSet(vMins, -4, -4, 0);
+        VectorSet(vMaxs, 4, 4, 2);
+
+		// add 16 units above feets
+        vStart[2] += 16.0;
+		VectorCopy(vStart, vEnd);
+		vEnd[2] -= 64.0;
+	}
+
+	if (ent->currentState.eType == ET_PLAYER)
+	{
+		CG_Trace(
+			&trace,
+			vStart,
+			vMins,
+			vMaxs,
+			vEnd,
+			ent->currentState.number,
+			MASK_PLAYERSOLID,
+			qtrue,
+			qtrue,
+			"Player Footsteps"
+		);
+	}
+	else
+	{
+		CG_Trace(
+			&trace,
+			vStart,
+			vMins,
+			vMaxs,
+			vEnd,
+			ent->currentState.number,
+			MASK_MONSTERSOLID,
+			qfalse,
+			qfalse,
+			"Monster Footsteps"
+		);
+	}
+
+	if (trace.fraction == 1.0f)
+    {
+        if (cg_debugFootsteps->integer) {
+            cgi.DPrintf("Footstep: missed floor\n");
+        }
+
+		return;
+	}
+
+	CG_FootstepMain(&trace, iRunning, iEquipment);
+}
+
+#if 0
 void CG_Footstep(char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunning, int iEquipment)
 {
 	// FIXME: unimplemented
 
-#if 0
 	vec3_t   end, midlegs;
 	trace_t	trace;
 	int      contents, surftype;
@@ -307,8 +411,8 @@ void CG_Footstep(char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunni
 			break;
 		}
 	}
-#endif
 }
+#endif
 
 void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEquipment)
 {
