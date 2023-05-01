@@ -173,7 +173,6 @@ demo through a file.
 */
 
 #define MAX_TIMEDEMO_DURATIONS	4096
-#define MAX_HUDDRAW_ELEMENTS 256
 
 typedef struct {
 
