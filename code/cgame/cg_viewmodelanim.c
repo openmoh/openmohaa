@@ -22,3 +22,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // DESCRIPTION:
 // FPS view model animation
+
+#include "cg_local.h"
+
+int CG_GetVMAnimPrefixIndex()
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
+void CG_ViewModelAnimation(refEntity_t* pModel)
+{
+    // FIXME: unimplemented
+}
+
+void CG_CalcViewModelMovement(float fViewBobPhase, float fViewBobAmp, vec_t* vVelocity, vec_t* vMovement)
+{
+    // FIXME: unimplemented
+}

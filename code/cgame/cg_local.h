@@ -551,6 +551,12 @@ void CG_AddLightShow();
 void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition);
 void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback );
 
+//
+// cg_viewmodelanim.c
+//
+int CG_GetVMAnimPrefixIndex();
+void CG_ViewModelAnimation(refEntity_t* pModel);
+void CG_CalcViewModelMovement(float fViewBobPhase, float fViewBobAmp, vec_t* vVelocity, vec_t* vMovement);
 
 //
 // cg_drawtools.c
