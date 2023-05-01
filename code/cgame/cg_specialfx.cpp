@@ -26,12 +26,78 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "cg_commands.h"
 #include "surfaceflags.h"
+#include "cg_specialfx.h"
 
 extern refEntity_t *current_entity;
 extern dtiki_t* current_tiki;
 
+static vec3_t g_vFootstepMins;
+static vec3_t g_vFootstepMaxs;
+static vec3_t g_vLadderstepMins;
+static vec3_t g_vLadderstepMaxs;
+
+ClientSpecialEffectsManager sfxManager;
+
+Event EV_SFX_EffectDelay
+(
+	"effectdelay",
+	EV_DEFAULT,
+	"iivvvvv",
+	"iEffect iCurrEmitter vPos vAngles vAxisA vAxisB vAxisC",
+	"Resumes the execution of iEffect effect from its iCurrEmitter emitter."
+);
+
+CLASS_DECLARATION(Listener, ClientSpecialEffectsManager, NULL)
+{
+	{ &EV_SFX_EffectDelay, &ClientSpecialEffectsManager::ContinueEffectExecution },
+	{ NULL, NULL }
+};
+
+ClientSpecialEffectsManager::ClientSpecialEffectsManager()
+{
+    m_bEffectsLoaded = 0;
+    m_iNumPendingEvents = 0;
+}
+
+void ClientSpecialEffectsManager::LoadEffects()
+{
+    // FIXME: unimplemented
+}
+
 void CG_InitializeSpecialEffectsManager() {
 	// FIXME: UNIMPLEMENTED
+}
+
+void CG_AddPendingEffects()
+{
+	if (sfxManager.EffectsPending()) {
+		sfxManager.ProcessPendingEvents();
+	}
+}
+
+void ClientSpecialEffectsManager::ContinueEffectExecution(Event* ev)
+{
+	// FIXME: unimplemented
+}
+
+void ClientSpecialEffectsManager::ExecuteEffect(int iEffect, int iStartCommand, Vector vPos, Vector vAngles, float axis[3][3])
+{
+    // FIXME: unimplemented
+}
+
+void ClientSpecialEffectsManager::MakeEffect_Normal(int iEffect, Vector vPos, Vector vNormal)
+{
+    // FIXME: unimplemented
+}
+
+void ClientSpecialEffectsManager::MakeEffect_Angles(int iEffect, Vector vPos, Vector vAngles)
+{
+    // FIXME: unimplemented
+}
+
+void ClientSpecialEffectsManager::MakeEffect_Axis(int iEffect, Vector vPos, float axis[3][3])
+{
+    // FIXME: unimplemented
 }
 
 /*
@@ -293,4 +359,14 @@ void CG_Splash( centity_t *cent ) {
 
 	// FIXME
 	// TODO: Make effect
+}
+
+qboolean ClientSpecialEffectsManager::EffectsPending()
+{
+	return sfxManager.m_iNumPendingEvents > 0;
+}
+
+specialeffect_t* ClientSpecialEffectsManager::GetTestEffectPointer()
+{
+    return &m_effects[SPECIAL_EFFECT_TEST];
 }

@@ -40,3 +40,29 @@ public:
     int m_iCommandCount;
     specialeffectcommand_t* m_commands[32];
 };
+
+#define MAX_SPECIAL_EFFECTS 99
+#define SPECIAL_EFFECT_TEST MAX_SPECIAL_EFFECTS - 1
+
+class ClientSpecialEffectsManager : public Listener {
+    specialeffect_t m_effects[99];
+    qboolean m_bEffectsLoaded;
+    int m_iNumPendingEvents;
+
+public:
+    CLASS_PROTOTYPE(ClientSpecialEffectsManager);
+
+private:
+    void ContinueEffectExecution(Event* ev);
+    void ExecuteEffect(int iEffect, int iStartCommand, Vector vPos, Vector vAngles, float axis[3][3]);
+
+public:
+    ClientSpecialEffectsManager();
+
+    void LoadEffects();
+    qboolean EffectsPending();
+    void MakeEffect_Normal(int iEffect, Vector vPos, Vector vNormal);
+    void MakeEffect_Angles(int iEffect, Vector vPos, Vector vAngles);
+    void MakeEffect_Axis(int iEffect, Vector vPos, float axis[3][3]);
+    specialeffect_t* GetTestEffectPointer();
+};
