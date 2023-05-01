@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-void CG_TargetCommand_f( void );
+void CG_TargetCommand_f(void);
 
 /*
 =================
@@ -35,10 +35,10 @@ CG_SizeUp_f
 Keybinding command
 =================
 */
-static void CG_SizeUp_f (void) {
-	cgi.Cvar_Set("viewsize", va("%i",(int)(cg_viewsize->integer+10)));
+static void CG_SizeUp_f(void)
+{
+    cgi.Cvar_Set("viewsize", va("%i", (int)(cg_viewsize->integer + 10)));
 }
-
 
 /*
 =================
@@ -47,10 +47,10 @@ CG_SizeDown_f
 Keybinding command
 =================
 */
-static void CG_SizeDown_f (void) {
-	cgi.Cvar_Set("viewsize", va("%i",(int)(cg_viewsize->integer-10)));
+static void CG_SizeDown_f(void)
+{
+    cgi.Cvar_Set("viewsize", va("%i", (int)(cg_viewsize->integer - 10)));
 }
-
 
 /*
 =============
@@ -59,40 +59,68 @@ CG_Viewpos_f
 Debugging command to print the current position
 =============
 */
-static void CG_Viewpos_f (void) {
-	cgi.Printf("(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
-		(int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2], 
-		(int)cg.refdefViewAngles[YAW]);
+static void CG_Viewpos_f(void)
+{
+    cgi.Printf("(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
+               (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2],
+               (int)cg.refdefViewAngles[YAW]);
 }
 
-#if 0
-static void CG_ScoresDown_f( void ) {
+void CG_SetDesiredObjectiveAlpha(float fAlpha)
+{
+    cg.ObjectivesDesiredAlpha = fAlpha;
+    cg.ObjectivesAlphaTime = (float)(cg.time + 250);
+    cg.ObjectivesBaseAlpha = cg.ObjectivesCurrentAlpha;
+}
+
+void CG_ScoresDown_f( void )
+{
+    if (cgs.gametype != GT_SINGLE_PLAYER)
+    {
+        if (!cg.scoresRequestTime) {
+            cg.scoresRequestTime = cg.time;
+            CG_SetDesiredObjectiveAlpha(1.0f);
+        }
+
+        return;
+    }
 	// don't constantly send requests, or we would overflow
 	if ( cg.showScores && cg.scoresRequestTime + 2000 > cg.time ) {
 		return;
 	}
-	cg.scoresRequestTime = cg.time;
+    
+    cg.scoresRequestTime = cg.time;
 	cgi.SendClientCommand( "score" );
 
 	if ( !cg.showScores ) {
 		// don't display anything until first score returns
 		cg.showScores = qtrue;
-		cg.numScores = 0;
+        CG_PrepScoreBoardInfo();
+        cgi.UI_ShowScoreBoard(cg.scoresMenuName);
 	}
 }
 
-static void CG_ScoresUp_f( void ) {
-	cg.showScores = qfalse;
-	cg.scoreFadeTime = cg.time;
+void CG_ScoresUp_f( void )
+{
+    if (cgs.gametype != GT_SINGLE_PLAYER)
+    {
+        if (!cg.scoresRequestTime) {
+            cg.scoresRequestTime = cg.time;
+            CG_SetDesiredObjectiveAlpha(0.0f);
+        }
+
+        return;
+    }
+
+    if (!cg.showScores) {
+        return;
+    }
+
+    cg.showScores = qfalse;
+    cgi.UI_HideScoreBoard(cg.scoresMenuName);
 }
 
-static void CG_InfoDown_f( void ) {
-	cg.showInformation = qtrue;
-}
-
-static void CG_InfoUp_f( void ) {
-	cg.showInformation = qfalse;
-}
+#if 0
 
 
 /*
@@ -199,40 +227,38 @@ void CG_AddTestModel (void) {
 	cgi.R_AddRefEntityToScene( &cg.testModelEntity );
 }
 
-
 #endif
 
 typedef struct {
-	char	*cmd;
-	void	(*function)(void);
+    char* cmd;
+    void (*function)(void);
 } consoleCommand_t;
 
-static consoleCommand_t	commands[] = {
-//	{ "testmodel", CG_TestModel_f },
-//	{ "nextframe", CG_TestModelNextFrame_f },
-//	{ "prevframe", CG_TestModelPrevFrame_f },
-//	{ "nextskin", CG_TestModelNextSkin_f },
-//	{ "prevskin", CG_TestModelPrevSkin_f },
-	{ "viewpos", CG_Viewpos_f },
-//	{ "+scores", CG_ScoresDown_f },
-//	{ "-scores", CG_ScoresUp_f },
-//	{ "+info", CG_InfoDown_f },
-//	{ "-info", CG_InfoUp_f },
-	{ "sizeup", CG_SizeUp_f },
-	{ "sizedown", CG_SizeDown_f },
-	{ "cg_eventlist", CG_EventList_f },
-	{ "cg_eventhelp", CG_EventHelp_f },
-	{ "cg_dumpevents", CG_DumpEventHelp_f },
-	{ "cg_pendingevents", CG_PendingEvents_f },
-	{ "cg_classlist", CG_ClassList_f },
-	{ "cg_classtree", CG_ClassTree_f },
-   { "cg_classevents", CG_ClassEvents_f },
-   { "cg_dumpclassevents", CG_DumpClassEvents_f },
-   { "cg_dumpallclasses", CG_DumpAllClasses_f },
-   { "testemitter", CG_TestEmitter_f },
-   { "dumpemitter", CG_DumpEmitter_f },
+static consoleCommand_t commands[] = {
+  //	{ "testmodel", CG_TestModel_f },
+  //	{ "nextframe", CG_TestModelNextFrame_f },
+  //	{ "prevframe", CG_TestModelPrevFrame_f },
+  //	{ "nextskin", CG_TestModelNextSkin_f },
+  //	{ "prevskin", CG_TestModelPrevSkin_f },
+    {"viewpos",            CG_Viewpos_f        },
+ //	{ "+scores", CG_ScoresDown_f },
+  //	{ "-scores", CG_ScoresUp_f },
+  //	{ "+info", CG_InfoDown_f },
+  //	{ "-info", CG_InfoUp_f },
+    {"sizeup",             CG_SizeUp_f         },
+    {"sizedown",           CG_SizeDown_f       },
+    {"cg_eventlist",       CG_EventList_f      },
+    {"cg_eventhelp",       CG_EventHelp_f      },
+    {"cg_dumpevents",      CG_DumpEventHelp_f  },
+    {"cg_pendingevents",   CG_PendingEvents_f  },
+    {"cg_classlist",       CG_ClassList_f      },
+    {"cg_classtree",       CG_ClassTree_f      },
+    {"cg_classevents",     CG_ClassEvents_f    },
+    {"cg_dumpclassevents", CG_DumpClassEvents_f},
+    {"cg_dumpallclasses",  CG_DumpAllClasses_f },
+    {"testemitter",        CG_TestEmitter_f    },
+    {"dumpemitter",        CG_DumpEmitter_f    },
 };
-
 
 /*
 =================
@@ -242,22 +268,22 @@ The string has been tokenized and can be retrieved with
 Cmd_Argc() / Cmd_Argv()
 =================
 */
-qboolean CG_ConsoleCommand( void ) {
-	const char	*cmd;
-	int		i;
+qboolean CG_ConsoleCommand(void)
+{
+    const char* cmd;
+    int i;
 
-	cmd = cgi.Argv(0);
+    cmd = cgi.Argv(0);
 
-	for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
-		if ( !Q_stricmp( cmd, commands[i].cmd ) ) {
-			commands[i].function();
-			return qtrue;
-		}
-	}
+    for (i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
+        if (!Q_stricmp(cmd, commands[i].cmd)) {
+            commands[i].function();
+            return qtrue;
+        }
+    }
 
-	return qfalse;
+    return qfalse;
 }
-
 
 /*
 =================
@@ -267,66 +293,135 @@ Let the client system know about all of our commands
 so it can perform tab completion
 =================
 */
-void CG_InitConsoleCommands( void ) {
-	int		i;
+void CG_InitConsoleCommands(void)
+{
+    int i;
 
-	for ( i = 0 ; i < sizeof( commands ) / sizeof( commands[0] ) ; i++ ) {
-		cgi.AddCommand( commands[i].cmd );
-	}
+    for (i = 0; i < sizeof(commands) / sizeof(commands[0]); i++) {
+        cgi.AddCommand(commands[i].cmd);
+    }
+
+    cgi.AddCommand("callvote");
+    cgi.AddCommand("vote");
 }
 
 void CG_Mapinfo_f()
 {
-	// FIXME: unimplemented
+    cgi.Printf("---------------------\n");
+    cgi.R_PrintBSPFileSizes();
+    cgi.CM_PrintBSPFileSizes();
+    cgi.Printf("---------------------\n");
 }
 
 void CG_PushMenuTeamSelect_f()
 {
-	// FIXME: unimplemented
+    if (cgs.gametype == GT_SINGLE_PLAYER) {
+        return;
+    }
+
+    cgi.Cmd_Execute(EXEC_NOW, "ui_getplayermodel\n");
+    switch (cgs.gametype) {
+    case GT_FFA:
+        cgi.Cmd_Execute(EXEC_NOW, "pushmenu SelectFFAModel\n");
+        break;
+    case GT_OBJECTIVE:
+        cgi.Cmd_Execute(EXEC_NOW, "pushmenu ObjSelectTeam\n");
+        break;
+    default:
+        cgi.Cmd_Execute(EXEC_NOW, "pushmenu SelectTeam\n");
+        break;
+	}
 }
 
 void CG_PushMenuWeaponSelect_f()
 {
-	// FIXME: unimplemented
+    if (cgs.gametype == GT_SINGLE_PLAYER) {
+        return;
+    }
+
+    cgi.Cmd_Execute(EXEC_NOW, "pushmenu SelectPrimaryWeapon\n");
 }
 
 void CG_UseWeaponClass_f()
 {
-	// FIXME: unimplemented
+    const char* cmd;
+
+    cmd = cgi.Argv(1);
+
+    if (!Q_stricmp(cmd, "pistol")) {
+        cg.iWeaponCommand = WEAPON_COMMAND_USE_PISTOL;
+    } else if (!Q_stricmp(cmd, "rifle")) {
+        cg.iWeaponCommand = WEAPON_COMMAND_USE_RIFLE;
+    } else if (!Q_stricmp(cmd, "smg")) {
+        cg.iWeaponCommand = WEAPON_COMMAND_USE_SMG;
+    } else if (!Q_stricmp(cmd, "mg")) {
+        cg.iWeaponCommand = WEAPON_COMMAND_USE_MG;
+    } else if (!Q_stricmp(cmd, "grenade")) {
+        cg.iWeaponCommand = WEAPON_COMMAND_USE_GRENADE;
+    } else if (!Q_stricmp(cmd, "heavy")) {
+        cg.iWeaponCommand = WEAPON_COMMAND_USE_HEAVY;
+    } else if (!Q_stricmp(cmd, "item1") || !Q_stricmp(cmd, "item")) {
+        cg.iWeaponCommand = WEAPON_COMMAND_USE_ITEM1;
+    } else if (!Q_stricmp(cmd, "item2")) {
+        cg.iWeaponCommand = WEAPON_COMMAND_USE_ITEM2;
+    } else if (!Q_stricmp(cmd, "item3")) {
+        cg.iWeaponCommand = WEAPON_COMMAND_USE_ITEM3;
+    } else if (!Q_stricmp(cmd, "item4")) {
+        cg.iWeaponCommand = WEAPON_COMMAND_USE_ITEM4;
+    }
+
+    cg.iWeaponCommandSend = 0;
 }
 
 void CG_NextWeapon_f()
 {
-	// FIXME: unimplemented
+    cg.iWeaponCommand = WEAPON_COMMAND_USE_NEXT_WEAPON;
+    cg.iWeaponCommandSend = 0;
 }
 
 void CG_PrevWeapon_f()
 {
-	// FIXME: unimplemented
+    cg.iWeaponCommand = WEAPON_COMMAND_USE_PREV_WEAPON;
+    cg.iWeaponCommandSend = 0;
 }
 
 void CG_UseLastWeapon_f()
 {
-	// FIXME: unimplemented
+    cg.iWeaponCommand = WEAPON_COMMAND_USE_LAST_WEAPON;
+    cg.iWeaponCommandSend = 0;
 }
 
 void CG_HolsterWeapon_f()
 {
-	// FIXME: unimplemented
+    cg.iWeaponCommand = WEAPON_COMMAND_HOLSTER;
+    cg.iWeaponCommandSend = 0;
 }
 
 void CG_DropWeapon_f()
 {
-	// FIXME: unimplemented
+    cg.iWeaponCommand = WEAPON_COMMAND_DROP;
+    cg.iWeaponCommandSend = 0;
 }
 
 void CG_ToggleItem_f()
 {
-	// FIXME: unimplemented
+    cg.iWeaponCommand = WEAPON_COMMAND_USE_ITEM1;
+    cg.iWeaponCommandSend = 0;
 }
 
 int CG_WeaponCommandButtonBits()
 {
-	// FIXME: unimplemented
-	return 0;
+    int iShiftedWeaponCommand;
+
+    iShiftedWeaponCommand = cg.iWeaponCommand;
+    if (!iShiftedWeaponCommand) {
+        return 0;
+    }
+
+    cg.iWeaponCommandSend++;
+    if (cg.iWeaponCommandSend > 2) {
+        cg.iWeaponCommand = 0;
+    }
+
+    return (iShiftedWeaponCommand << 7) & WEAPON_COMMAND_MASK;
 }
