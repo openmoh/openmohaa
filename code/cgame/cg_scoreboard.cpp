@@ -27,22 +27,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void CG_GetScoreBoardColor(float* fR, float* fG, float* fB, float* fA)
 {
-    // FIXME: unimplemented
+    *fR = 0.0f;
+    *fG = 0.0f;
+    *fB = 0.0f;
+    *fA = 0.7f;
 }
 
 void CG_GetScoreBoardFontColor(float* fR, float* fG, float* fB, float* fA)
 {
-    // FIXME: unimplemented
+    *fR = 1.0f;
+    *fG = 1.0f;
+    *fB = 1.0f;
+    *fA = 1.0f;
 }
 
 void CG_GetScoreBoardPosition(float* fX, float* fY, float* fW, float* fH)
 {
-    // FIXME: unimplemented
+    *fX = 32.0;
+    *fY = 56.0;
+    *fW = 384.0;
+    *fH = 392.0;
 }
 
 int CG_GetScoreBoardDrawHeader()
 {
-    // FIXME: unimplemented
     return 0;
 }
 
@@ -86,4 +94,24 @@ const char* CG_GetColumnName(int iColumnNum, int* iColumnWidth)
     }
 
     return pszReturnString;
+}
+
+void CG_PrepScoreBoardInfo()
+{
+    switch (cgs.gametype) {
+    case GT_OBJECTIVE:
+        strcpy(cg.scoresMenuName, "Obj_Scoreboard");
+        break;
+    case GT_TEAM_ROUNDS:
+        strcpy(cg.scoresMenuName, "DM_Round_Scoreboard");
+        break;
+    default:
+        strcpy(cg.scoresMenuName, "DM_Scoreboard");
+        break;
+    }
+}
+
+void CG_ParseScores()
+{
+    // FIXME: stub
 }
