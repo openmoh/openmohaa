@@ -25,6 +25,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
+void CG_HudPrint_f()
+{
+    cgi.Printf("\x1%s", cgi.Argv(0));
+}
+
 int CG_CheckCaptureKey(int key, qboolean down, unsigned int time)
 {
     // FIXME: unimplemented
