@@ -43,7 +43,30 @@ const char* cg_vsstypes[] =
 
 static int lastVSSFrameTime;
 
+cvar_t *vss_draw;
+cvar_t *vss_physics_fps;
+cvar_t *vss_repulsion_fps;
+cvar_t *vss_maxcount;
+cvar_t *vss_color;
+cvar_t *vss_showsources;
+cvar_t *vss_wind_x;
+cvar_t *vss_wind_y;
+cvar_t *vss_wind_z;
+cvar_t *vss_wind_strength;
+cvar_t *vss_movement_dampen;
+cvar_t *vss_maxvisible;
+cvar_t *vss_gridsize;
+cvar_t *vss_default_r;
+cvar_t *vss_default_g;
+cvar_t *vss_default_b;
+cvar_t *vss_lighting_fps;
+
 void CG_ResetVSSSources()
 {
-    // FIXME: UNIMPLEMENTED
+    // FIXME: unimplemented
+}
+
+void CG_AddVSSSources()
+{
+    // FIXME: unimplemented
 }
