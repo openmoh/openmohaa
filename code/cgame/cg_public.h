@@ -240,7 +240,7 @@ typedef struct
     qhandle_t      (*R_RegisterSkin)( const char *name );
     qhandle_t      (*R_RegisterShader)( const char *name );
     qhandle_t      (*R_RegisterShaderNoMip)( const char *name );
-   void           (*R_AddRefEntityToScene)( refEntity_t *ent );
+   void           (*R_AddRefEntityToScene)( refEntity_t *ent, int parentEntityNumber );
    void           (*R_AddRefSpriteToScene)( refEntity_t *ent );
    void           (*R_AddLightToScene)( vec3_t origin, float intensity, float r, float g, float b, int type );
    void             (*R_AddPolyToScene)(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);

@@ -3451,7 +3451,7 @@ void ClientGameCommandManager::AddTempModels(void)
             cgi.R_AddRefSpriteToScene(&newEnt); // Sprite
             MatrixToEulerAngles(newEnt.axis, vTestAngles);
         } else {
-            cgi.R_AddRefEntityToScene(&newEnt); // Model
+            cgi.R_AddRefEntityToScene(&newEnt, ENTITYNUM_NONE); // Model
         }
 
         // Set the added once flag so we can delete it later

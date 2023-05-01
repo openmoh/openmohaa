@@ -981,7 +981,7 @@ void CG_CreateModelBeam
         AnglesToAxis(angles, ent.axis);
 
         // Add in this beam to the ref
-        cgi.R_AddRefEntityToScene(&ent);
+        cgi.R_AddRefEntityToScene(&ent, ENTITYNUM_NONE);
     }
 }
 
