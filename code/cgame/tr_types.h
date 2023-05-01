@@ -118,10 +118,10 @@ typedef struct {
    int         entityNumber;              // the real entity number
 
    byte        surfaces[MAX_MODEL_SURFACES]; // the surface state of the entity
-   short       shader_data[ 2 ];          // data passed in from shader manipulation
+   float       shader_data[ 2 ];          // data passed in from shader manipulation
 
-   int         bone_tag[ NUM_BONE_CONTROLLERS ];
-   vec4_t      bone_quat[ NUM_BONE_CONTROLLERS ];
+   int         *bone_tag;
+   vec4_t      *bone_quat;
 
    // renderer use only
    struct tikiFrame_s   *of,
@@ -132,7 +132,7 @@ typedef struct {
    qboolean    hasMorph;
 
 	// extra sprite information
-	float		   radius;
+	float		   radius;		
 	float		   rotation;
 
 } refEntity_t;
