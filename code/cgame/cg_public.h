@@ -39,7 +39,7 @@ extern "C"
 // needs to be larger than PACKET_BACKUP
 
 
-#define    MAX_ENTITIES_IN_SNAPSHOT    256
+#define    MAX_ENTITIES_IN_SNAPSHOT    1024
 
 // snapshots are a view of the server at a given time
 
