@@ -22,3 +22,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // DESCRIPTION:
 // Nature effects
+
+#include "cg_local.h"
+#include "cg_commands.h"
+
+cvar_t* cg_rain;
+cvar_t* cg_rain_drawcoverage;
+
+void ClientGameCommandManager::InitializeRainCvars()
+{
+    int i;
+
+    cg_rain = cgi.Cvar_Get("cg_rain", "0", CVAR_ARCHIVE);
+    cg_rain_drawcoverage = cgi.Cvar_Get("cg_rain_drawcoverage", "0", CVAR_SAVEGAME | CVAR_SERVER_CREATED | CVAR_SYSTEMINFO);
+
+    cg.rain.density = 0.0;
+    cg.rain.speed = 2048.0f;
+    cg.rain.length = 90.0f;
+    cg.rain.min_dist = 512.0f;
+    cg.rain.width = 1.0f;
+    cg.rain.speed_vary = 512;
+    cg.rain.slant = 50;
+
+    for (i = 0; i < MAX_RAIN_SHADERS; i++) {
+        cg.rain.shader[i][0] = 0;
+    }
+
+    cg.rain.numshaders = 0;
+}
