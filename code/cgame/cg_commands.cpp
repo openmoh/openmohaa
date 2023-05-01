@@ -1089,6 +1089,17 @@ float RandomizeRange(float start, float end)
     return t;
 }
 
+void ClientGameCommandManager::ProcessPendingEventsForEntity()
+{
+    // FIXME: unimplemented
+}
+
+qboolean ClientGameCommandManager::PostEventForEntity(Event* ev, float fWait)
+{
+    // FIXME: unimplemented
+    return qfalse;
+}
+
 void ClientGameCommandManager::SetBaseAndAmplitude(Event* ev, Vector& base, Vector& amplitude)
 {
     int i = 1;
@@ -1168,6 +1179,16 @@ void ClientGameCommandManager::CommandDelay(Event* ev)
         ev1->AddToken(ev->GetToken(i));
     }
     ProcessEvent(ev1);
+}
+
+void ClientGameCommandManager::SetCurrentSFX(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::ClearCurrentSFX()
+{
+    // FIXME: unimplemented
 }
 
 //===============
@@ -2217,6 +2238,11 @@ void ClientGameCommandManager::EndOriginSpawn(void)
 {
     // Okay we should have a valid spawnthing, let's create a render entity
     SpawnTempModel(m_spawnthing->count);
+}
+
+void ClientGameCommandManager::TestEffectEndFunc()
+{
+    // FIXME: unimplemented
 }
 
 //===============
@@ -5309,6 +5335,47 @@ void ClientGameCommandManager::CGEvent(centity_t* cent)
     ProcessEvent(ev);
 
     SpawnTempModel(1);
+}
+
+qboolean ClientGameCommandManager::SelectProcessEvent(Event* ev)
+{
+    // FIXME: unimplemented
+    return qfalse;
+}
+
+void ClientGameCommandManager::AddTreadMarkSources()
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::InitializeTreadMarkCvars()
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::InitializeTreadMarkSources()
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::ResetTreadMarkSources()
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::ResetTreadMarkSources(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::InitializeRainCvars()
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::InitializeBeams()
+{
+    // FIXME: unimplemented
 }
 
 void CG_Event(centity_t* cent) { commandManager.CGEvent(cent); }

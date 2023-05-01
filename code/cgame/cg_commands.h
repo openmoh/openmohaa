@@ -847,6 +847,26 @@ public:
     spawnthing_t* GetEmitterByName(str emittername);
     void DeleteEmitters(dtiki_t* tiki);
     void CGEvent(centity_t* cent);
+
+    void ProcessPendingEventsForEntity();
+    qboolean PostEventForEntity(Event *ev, float fWait);
+    qboolean SelectProcessEvent(Event *ev);
+
+    void TestEffectEndFunc();
+    void AddVSSSources();
+    void InitializeVSSCvars();
+    void InitializeVSSSources();
+    void ResetVSSSources();
+    void ResetVSSSources(Event* ev);
+    void SetCurrentSFX(Event* ev);
+    void ClearCurrentSFX();
+    void AddTreadMarkSources();
+    void InitializeTreadMarkCvars();
+    void InitializeTreadMarkSources();
+    void ResetTreadMarkSources();
+    void ResetTreadMarkSources(Event* ev);
+    void InitializeRainCvars();
+    void InitializeBeams();
 };
 
 class EmitterLoader : public Listener

@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // Volumetric smoke A.K.A VSS sources
 
 #include "cg_local.h"
+#include "cg_commands.h"
 
 const char* cg_vsstypes[] =
 {
@@ -61,12 +62,33 @@ cvar_t *vss_default_g;
 cvar_t *vss_default_b;
 cvar_t *vss_lighting_fps;
 
+void ClientGameCommandManager::ResetVSSSources()
+{
+    // FIXME: unimplemented
+}
+
 void CG_ResetVSSSources()
+{
+    commandManager.ResetVSSSources();
+    lastVSSFrameTime = cg.time;
+}
+
+void ClientGameCommandManager::InitializeVSSSources()
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::InitializeVSSCvars()
 {
     // FIXME: unimplemented
 }
 
 void CG_AddVSSSources()
+{
+    commandManager.AddVSSSources();
+}
+
+void ClientGameCommandManager::AddVSSSources()
 {
     // FIXME: unimplemented
 }
