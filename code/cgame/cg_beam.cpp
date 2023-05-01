@@ -951,12 +951,12 @@ void CG_CreateModelBeam
                 if (delta > b->min_offset)
                 {
                     org[j] -= 0.4 * single_beam_length;
-                    factor[j] = -0.2;
+                    factor[j] = -0.2f;
                 }
                 else if (delta < -b->min_offset)
                 {
                     org[j] += 0.4 * single_beam_length;
-                    factor[j] = 0.2;
+                    factor[j] = 0.2f;
                 }
                 else
                     factor[j] = 0;
