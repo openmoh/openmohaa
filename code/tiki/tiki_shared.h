@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TAF_AUTOSTEPS_WALK			( TAF_NOTIMECHECK | TAF_AUTOSTEPS_DOG )	// walk
 #define TAF_AUTOSTEPS_RUN			( TAF_NOTIMECHECK | TAF_AUTOSTEPS_DOG | TAF_DEFAULT_ANGLES )	// run
 #define TAF_DELTADRIVEN				0x20	// animation is based on skeletor animation's delta
+#define TAF_AUTOFOOTSTEPS			0x400
 
 // skeletor animation flags
 #define TAF_HASDELTA			0x40
