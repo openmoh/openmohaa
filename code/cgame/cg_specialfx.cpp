@@ -148,169 +148,172 @@ FOOTSTEP CODE
 #define GROUND_DISTANCE 32
 #define WATER_NO_SPLASH_HEIGHT 16
 
-void CG_Footstep
-	(
-	centity_t * ent,
-   float volume
-	)
+void CG_Footstep(char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunning, int iEquipment)
+{
+	// FIXME: unimplemented
 
-	{
-   vec3_t   end, midlegs;
+#if 0
+	vec3_t   end, midlegs;
 	trace_t	trace;
-   int      contents, surftype;
+	int      contents, surftype;
 	spawnthing_t   effect;
-	refEntity_t    *old_entity;
-	dtiki_t        *old_tiki;
+	refEntity_t* old_entity;
+	dtiki_t* old_tiki;
 	refEntity_t    new_entity;
-	dtiki_t        *new_tiki;
+	dtiki_t* new_tiki;
 	qhandle_t      hModel;
 
-   // send a trace down from the player to the ground
-   VectorCopy( ent->lerpOrigin, end );
-   end[2] -= GROUND_DISTANCE;
+	// send a trace down from the player to the ground
+	VectorCopy(ent->lerpOrigin, end);
+	end[2] -= GROUND_DISTANCE;
 
-	if ( ent->currentState.eType == ET_PLAYER )
-      {
-      CG_Trace( &trace, ent->lerpOrigin, NULL, NULL, end, ent->currentState.number, MASK_PLAYERSOLID, qtrue, qtrue, "Player Footsteps" );
-      }
-   else
-      {
-      CG_Trace( &trace, ent->lerpOrigin, NULL, NULL, end, ent->currentState.number, MASK_MONSTERSOLID, qfalse, qfalse, "Monster Footsteps" );
-      }
-
-   if ( trace.fraction == 1.0f )
-      {
-      return;
-      }
-
-	contents = CG_PointContents( trace.endpos, -1 );
-   if ( contents & MASK_WATER )
-      {
-      // take our ground position and trace upwards 
-      VectorCopy( trace.endpos, midlegs );
-      midlegs[ 2 ] += WATER_NO_SPLASH_HEIGHT;
-	   contents = CG_PointContents( midlegs, -1 );
-      if ( contents & MASK_WATER )
-         {
-         commandManager.PlaySound( "footstep_wade", NULL, CHAN_AUTO, volume );
-         if ( cg_debugFootsteps->integer )
-            {
-            cgi.DPrintf( "Footstep: wade    volume: %.2f\n", volume ); 
-            }
-         }
-      else
-         {
-         commandManager.PlaySound( "footstep_splash", NULL, CHAN_AUTO, volume );
-         if ( cg_debugFootsteps->integer )
-            {
-            cgi.DPrintf( "Footstep: splash  volume: %.2f\n", volume ); 
-            }
-         }
-      }
-   else
-      {
-      surftype = trace.surfaceFlags & MASK_SURF_TYPE;
-		switch ( surftype )
-			{
-         case SURF_WOOD:
-            commandManager.PlaySound( "footstep_wood", NULL, CHAN_AUTO, volume );
-            if ( cg_debugFootsteps->integer )
-               {
-               cgi.DPrintf( "Footstep: wood    volume: %.2f\n", volume ); 
-               }
-            break;
-         case SURF_METAL:
-            commandManager.PlaySound( "footstep_metal", NULL, CHAN_AUTO, volume );
-            if ( cg_debugFootsteps->integer )
-               {
-               cgi.DPrintf( "Footstep: metal   volume: %.2f\n", volume ); 
-               }
-            break;
-         case SURF_ROCK:
-            commandManager.PlaySound( "footstep_rock", NULL, CHAN_AUTO, volume );
-            if ( cg_debugFootsteps->integer )
-               {
-               cgi.DPrintf( "Footstep: rock    volume: %.2f\n", volume ); 
-               }
-            break;
-         case SURF_DIRT:
-            memset( &new_entity, 0, sizeof( refEntity_t ) );
-            
-            commandManager.PlaySound( "footstep_dirt", NULL, CHAN_AUTO, volume );
-
-            if ( cg_debugFootsteps->integer )
-               {
-               cgi.DPrintf( "Footstep: dirt    volume: %.2f\n", volume ); 
-               }
-
-				// Save the old stuff
-
-				old_entity = current_entity;
-				old_tiki   = current_tiki;
-
-				// Setup the new entity
-            memset( &new_entity.shaderRGBA, 0xff, sizeof( new_entity.shaderRGBA ) );
-				new_entity.origin[0] = trace.endpos[0];
-				new_entity.origin[1] = trace.endpos[1];
-				new_entity.origin[2] = trace.endpos[2] + 5;
-            new_entity.scale     = 1;
-
-				current_entity = &new_entity;
-
-				// Setup the new tiki
-
-				hModel = cgi.R_RegisterModel( "models/fx_dirtstep.tik" );
-				new_tiki = cgi.R_Model_GetHandle( hModel );
-				current_tiki = new_tiki;
-
-				// Process new entity
-				
-				CG_ProcessInitCommands( current_tiki, current_entity );
-
-				// Put the old stuff back
-
-				current_entity = old_entity;
-				current_tiki   = old_tiki;
-
-				/* commandManager.InitializeSpawnthing( &effect );
-
-				effect.SetModel( "models/fx_dirtstep.tik" );
-
-				effect.cgd.origin[0]	= trace.endpos[0];
-				effect.cgd.origin[1]	= trace.endpos[1];
-				effect.cgd.origin[2]	= trace.endpos[2] + 5;   
-   
-				effect.cgd.scale = 1;
-
-				//effect.cgd.scaleRate = 1;
-
-				effect.cgd.life = 2000;
-
-				effect.cgd.flags |= T_FADE;
-
-				effect.cgd.flags |= T_ANGLES;
-
-				effect.randangles[ 0 ] = NOT_RANDOM;
-				effect.cgd.angles[ 0 ] = 0;
-				effect.randangles[ 1 ] = NOT_RANDOM;
-				effect.cgd.angles[ 1 ] = 0;
-				effect.randangles[ 2 ] = NOT_RANDOM;
-				effect.cgd.angles[ 2 ] = 0;
-
-				commandManager.SpawnTempModel( 1, &effect ); */
-
-            break;
-         case SURF_GRILL:
-            commandManager.PlaySound( "footstep_grill", NULL, CHAN_AUTO, volume );
-            if ( cg_debugFootsteps->integer )
-               {
-               cgi.DPrintf( "Footstep: grill   volume: %.2f\n", volume ); 
-               }
-            break;
-         }
-      }
+	if (ent->currentState.eType == ET_PLAYER)
+	{
+		CG_Trace(&trace, ent->lerpOrigin, NULL, NULL, end, ent->currentState.number, MASK_PLAYERSOLID, qtrue, qtrue, "Player Footsteps");
+	}
+	else
+	{
+		CG_Trace(&trace, ent->lerpOrigin, NULL, NULL, end, ent->currentState.number, MASK_MONSTERSOLID, qfalse, qfalse, "Monster Footsteps");
 	}
 
+	if (trace.fraction == 1.0f)
+	{
+		return;
+	}
+
+	contents = CG_PointContents(trace.endpos, -1);
+	if (contents & MASK_WATER)
+	{
+		// take our ground position and trace upwards 
+		VectorCopy(trace.endpos, midlegs);
+		midlegs[2] += WATER_NO_SPLASH_HEIGHT;
+		contents = CG_PointContents(midlegs, -1);
+		if (contents & MASK_WATER)
+		{
+			commandManager.PlaySound("footstep_wade", NULL, CHAN_AUTO, volume);
+			if (cg_debugFootsteps->integer)
+			{
+				cgi.DPrintf("Footstep: wade    volume: %.2f\n", volume);
+			}
+		}
+		else
+		{
+			commandManager.PlaySound("footstep_splash", NULL, CHAN_AUTO, volume);
+			if (cg_debugFootsteps->integer)
+			{
+				cgi.DPrintf("Footstep: splash  volume: %.2f\n", volume);
+			}
+		}
+	}
+	else
+	{
+		surftype = trace.surfaceFlags & MASK_SURF_TYPE;
+		switch (surftype)
+		{
+		case SURF_WOOD:
+			commandManager.PlaySound("footstep_wood", NULL, CHAN_AUTO, volume);
+			if (cg_debugFootsteps->integer)
+			{
+				cgi.DPrintf("Footstep: wood    volume: %.2f\n", volume);
+			}
+			break;
+		case SURF_METAL:
+			commandManager.PlaySound("footstep_metal", NULL, CHAN_AUTO, volume);
+			if (cg_debugFootsteps->integer)
+			{
+				cgi.DPrintf("Footstep: metal   volume: %.2f\n", volume);
+			}
+			break;
+		case SURF_ROCK:
+			commandManager.PlaySound("footstep_rock", NULL, CHAN_AUTO, volume);
+			if (cg_debugFootsteps->integer)
+			{
+				cgi.DPrintf("Footstep: rock    volume: %.2f\n", volume);
+			}
+			break;
+		case SURF_DIRT:
+			memset(&new_entity, 0, sizeof(refEntity_t));
+
+			commandManager.PlaySound("footstep_dirt", NULL, CHAN_AUTO, volume);
+
+			if (cg_debugFootsteps->integer)
+			{
+				cgi.DPrintf("Footstep: dirt    volume: %.2f\n", volume);
+			}
+
+			// Save the old stuff
+
+			old_entity = current_entity;
+			old_tiki = current_tiki;
+
+			// Setup the new entity
+			memset(&new_entity.shaderRGBA, 0xff, sizeof(new_entity.shaderRGBA));
+			new_entity.origin[0] = trace.endpos[0];
+			new_entity.origin[1] = trace.endpos[1];
+			new_entity.origin[2] = trace.endpos[2] + 5;
+			new_entity.scale = 1;
+
+			current_entity = &new_entity;
+
+			// Setup the new tiki
+
+			hModel = cgi.R_RegisterModel("models/fx_dirtstep.tik");
+			new_tiki = cgi.R_Model_GetHandle(hModel);
+			current_tiki = new_tiki;
+
+			// Process new entity
+
+			CG_ProcessInitCommands(current_tiki, current_entity);
+
+			// Put the old stuff back
+
+			current_entity = old_entity;
+			current_tiki = old_tiki;
+
+			/* commandManager.InitializeSpawnthing( &effect );
+
+			effect.SetModel( "models/fx_dirtstep.tik" );
+
+			effect.cgd.origin[0]	= trace.endpos[0];
+			effect.cgd.origin[1]	= trace.endpos[1];
+			effect.cgd.origin[2]	= trace.endpos[2] + 5;
+
+			effect.cgd.scale = 1;
+
+			//effect.cgd.scaleRate = 1;
+
+			effect.cgd.life = 2000;
+
+			effect.cgd.flags |= T_FADE;
+
+			effect.cgd.flags |= T_ANGLES;
+
+			effect.randangles[ 0 ] = NOT_RANDOM;
+			effect.cgd.angles[ 0 ] = 0;
+			effect.randangles[ 1 ] = NOT_RANDOM;
+			effect.cgd.angles[ 1 ] = 0;
+			effect.randangles[ 2 ] = NOT_RANDOM;
+			effect.cgd.angles[ 2 ] = 0;
+
+			commandManager.SpawnTempModel( 1, &effect ); */
+
+			break;
+		case SURF_GRILL:
+			commandManager.PlaySound("footstep_grill", NULL, CHAN_AUTO, volume);
+			if (cg_debugFootsteps->integer)
+			{
+				cgi.DPrintf("Footstep: grill   volume: %.2f\n", volume);
+			}
+			break;
+		}
+	}
+#endif
+}
+
+void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEquipment)
+{
+	// FIXME: unimplemented
+}
 /*
 ===============
 CG_Splash
