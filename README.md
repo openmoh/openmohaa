@@ -25,10 +25,11 @@ The server version can successfully be built. There are few unimplemented stuff 
 
 There is currently no client build because the client code is currently unusable. Here is what's missing or unimplemented :
 
-- cgame (using F.A.K.K build)
 - rendering (mostly advanced)
 - sound (must be reworked)
 - UI
+
+The client game module (cgame) is partially implemented, and is compatible with the original MOH:AA module.
 
 ## Running
 
