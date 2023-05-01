@@ -188,6 +188,7 @@ typedef struct crain_s {
 
 typedef struct {
     int			clientFrame;		   // incremented each frame
+    int         clientNum;
 
     qboolean	   demoPlayback;
     qboolean	   levelShot;		      // taking a level menu screenshot
@@ -209,7 +210,6 @@ typedef struct {
 
     int			time;			         // this is the time value that the client
     // is rendering at.
-    int			oldTime;		         // time at last frame, used for missile trails and prediction checking
 
     int			physicsTime;	      // either cg.snap->time or cg.nextSnap->time
 
@@ -278,7 +278,7 @@ typedef struct {
     // scoreboard
     int			scoresRequestTime;
     qboolean	showScores;
-    char		scoresMenuName[MAX_QPATH];
+    char		scoresMenuName[MAX_STRING_TOKENS];
     int         iInstaMessageMenu;
 
     // centerprinting
@@ -472,7 +472,7 @@ void        CG_NewClientinfo( int clientNum );
 sfxHandle_t	CG_CustomSound( int entityNum, const char *soundName );
 int         CG_CrosshairPlayer( void );
 int         CG_LastAttacker( void );
-void        CG_Init( clientGameImport_t *imported, int serverMessageNum, int serverCommandSequence );
+void        CG_Init( clientGameImport_t *imported, int serverMessageNum, int serverCommandSequence, int clientNum );
 void        CG_Shutdown( void );
 void        CG_ServerRestarted( void );
 
@@ -496,7 +496,7 @@ void     CG_ProcessInitCommands(dtiki_t* tiki, refEntity_t* ent);
 void     CG_ProcessCacheInitCommands(dtiki_t* tiki);
 void     CG_EndTiki(dtiki_t* tiki);
 qboolean CG_Command_ProcessFile( const char * filename, qboolean quiet, dtiki_t *curTiki );
-void     CG_RestartCommandManager( int timedelta );
+void     CG_RestartCommandManager();
 void     CG_FlushCommandManager( void );
 void     CG_ProcessEntityCommands( int            frame,
                                    int            anim,
@@ -617,7 +617,7 @@ void	CG_ImpactMark( qhandle_t markShader,
 					float radius, qboolean temporary,
                     int lightstyle, qboolean fadein,
                     float fSCenter, float fTCenter );
-
+void CG_InitTestTreadMark();
 int CG_PermanentMark(
     vec_t* origin,
     vec_t* dir,
@@ -674,6 +674,8 @@ void CG_HolsterWeapon_f();
 void CG_DropWeapon_f();
 void CG_ToggleItem_f();
 int CG_WeaponCommandButtonBits();
+void CG_ScoresDown_f(void);
+void CG_ScoresUp_f(void);
 
 //
 // cg_servercmds.c
@@ -765,7 +767,6 @@ void CG_Emitter( centity_t *cent );
 void CG_InitTestEmitter( void );
 void CG_TestEmitter_f( void );
 void CG_DumpEmitter_f( void );
-void CG_InitializeClientEmitters( void );
 
 //
 // cg_beam.cpp
@@ -790,11 +791,14 @@ void CG_GetScoreBoardFontColor(float* fR, float* fG, float* fB, float* fA);
 void CG_GetScoreBoardPosition(float* fX, float* fY, float* fW, float* fH);
 int CG_GetScoreBoardDrawHeader();
 const char* CG_GetColumnName(int iColumnNum, int* iColumnWidth);
+void CG_PrepScoreBoardInfo();
+void CG_ParseScores();
 
 //
 // cg_specialfx.cpp
 void CG_Footstep(centity_t* ent, float volume);
 void CG_InitializeSpecialEffectsManager();
+void CG_AddPendingEffects();
 
 //
 // cg_swipe.cpp
@@ -802,11 +806,31 @@ void CG_ClearSwipes( void );
 
 //
 // cg_ui.cpp
+void CG_HudPrint_f();
 int CG_CheckCaptureKey(int key, qboolean down, unsigned int time);
 
 //
 // cg_volumetricsmoke.cpp
 void CG_ResetVSSSources();
+void CG_AddVSSSources();
+
+extern cvar_t* vss_draw;
+extern cvar_t* vss_physics_fps;
+extern cvar_t* vss_repulsion_fps;
+extern cvar_t* vss_maxcount;
+extern cvar_t* vss_color;
+extern cvar_t* vss_showsources;
+extern cvar_t* vss_wind_x;
+extern cvar_t* vss_wind_y;
+extern cvar_t* vss_wind_z;
+extern cvar_t* vss_wind_strength;
+extern cvar_t* vss_movement_dampen;
+extern cvar_t* vss_maxvisible;
+extern cvar_t* vss_gridsize;
+extern cvar_t* vss_default_r;
+extern cvar_t* vss_default_g;
+extern cvar_t* vss_default_b;
+extern cvar_t* vss_lighting_fps;
 
 
 #ifdef __cplusplus
