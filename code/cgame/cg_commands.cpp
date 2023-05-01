@@ -4176,7 +4176,6 @@ void ClientGameCommandManager::Alias(Event* ev)
 // Footstep
 //===============
 void ClientGameCommandManager::Footstep(Event* ev)
-
 {
     float volume;
 
@@ -4186,8 +4185,9 @@ void ClientGameCommandManager::Footstep(Event* ev)
         volume = 1.0f;
     }
 
-    if (current_centity) {
-        CG_Footstep(current_centity, volume);
+    if (current_centity && current_entity) {
+        // FIXME: unimplemented
+        //CG_Footstep(current_centity, current_entity, volume);
     }
 }
 
