@@ -80,7 +80,23 @@ void ClientGameCommandManager::InitializeVSSSources()
 
 void ClientGameCommandManager::InitializeVSSCvars()
 {
-    // FIXME: unimplemented
+    vss_draw = cgi.Cvar_Get("vss_draw", "0", CVAR_ARCHIVE);
+    vss_physics_fps = cgi.Cvar_Get("vss_physics_fps", "8", 0);
+    vss_repulsion_fps = cgi.Cvar_Get("vss_repulsion_fps", "4", 0);
+    vss_maxcount = cgi.Cvar_Get("vss_maxcount", "22", CVAR_ARCHIVE);
+    vss_color = cgi.Cvar_Get("vss_color", "1", 0);
+    vss_showsources = cgi.Cvar_Get("vss_showsources", "1", 0);
+    vss_wind_x = cgi.Cvar_Get("vss_wind_x", "8", 0);
+    vss_wind_y = cgi.Cvar_Get("vss_wind_y", "4", 0);
+    vss_wind_z = cgi.Cvar_Get("vss_wind_z", "2", 0);
+    vss_wind_strength = cgi.Cvar_Get("vss_wind_strength", "8", 0);
+    vss_movement_dampen = cgi.Cvar_Get("vss_movement_dampen", "4", 0);
+    vss_maxvisible = cgi.Cvar_Get("vss_maxvisible", "1024", 33);
+    vss_gridsize = cgi.Cvar_Get("vss_gridsize", "12", 0);
+    vss_default_r = cgi.Cvar_Get("vss_default_r", "0.5", 0);
+    vss_default_g = cgi.Cvar_Get("vss_default_g", "0.45", 0);
+    vss_default_b = cgi.Cvar_Get("vss_default_b", "0.4", 0);
+    vss_lighting_fps = cgi.Cvar_Get("vss_lighting_fps", "15", 0);
 }
 
 void CG_AddVSSSources()
