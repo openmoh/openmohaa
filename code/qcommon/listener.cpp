@@ -34,12 +34,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #if defined( GAME_DLL )
+
 #include "../game/player.h"
 #include "../game/consoleevent.h"
 #include "animate.h"
-#elif defined ( CGAME_DLL )
+
+#define LISTENER_Cvar_Get gi.Cvar_Get
+
+#elif defined(CGAME_DLL)
+
+#define LISTENER_Cvar_Get cgi.Cvar_Get
+
 #elif defined ( UI_LIB )
 #else
+
+#define LISTENER_Cvar_Get Cvar_Get
+
 #include "../client/client.h"
 #endif
 
@@ -532,13 +542,11 @@ bool L_EventSystemStarted( void )
 
 void L_InitEvents( void )
 {
-#if defined ( GAME_DLL )
-	g_showevents	= gi.Cvar_Get( "g_showevents", "0", 0 );
-	g_eventlimit	= gi.Cvar_Get( "g_eventlimit", "5000", 0 );
-	g_timeevents	= gi.Cvar_Get( "g_timeevents", "0", 0 );
-	g_watch			= gi.Cvar_Get( "g_watch", "0", 0 );
-	g_eventstats	= gi.Cvar_Get( "g_eventstats", "0", 0 );
-#endif
+	g_showevents	= LISTENER_Cvar_Get( "g_showevents", "0", 0 );
+	g_eventlimit	= LISTENER_Cvar_Get( "g_eventlimit", "5000", 0 );
+	g_timeevents	= LISTENER_Cvar_Get( "g_timeevents", "0", 0 );
+	g_watch			= LISTENER_Cvar_Get( "g_watch", "0", 0 );
+	g_eventstats	= LISTENER_Cvar_Get( "g_eventstats", "0", 0 );
 
 	Event::LoadEvents();
 	ClassDef::BuildEventResponses();
