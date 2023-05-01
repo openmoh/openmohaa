@@ -53,6 +53,18 @@ CLASS_DECLARATION(Listener, ClientSpecialEffectsManager, NULL)
 	{ NULL, NULL }
 };
 
+specialeffectcommand_t::specialeffectcommand_t()
+{
+	emitter = NULL;
+	fCommandTime = 0.0f;
+	endfcn = NULL;
+}
+
+specialeffect_t::specialeffect_t()
+{
+	m_iCommandCount = 0;
+}
+
 ClientSpecialEffectsManager::ClientSpecialEffectsManager()
 {
     m_bEffectsLoaded = 0;
@@ -64,8 +76,9 @@ void ClientSpecialEffectsManager::LoadEffects()
     // FIXME: unimplemented
 }
 
-void CG_InitializeSpecialEffectsManager() {
-	// FIXME: UNIMPLEMENTED
+void CG_InitializeSpecialEffectsManager()
+{
+	sfxManager.LoadEffects();
 }
 
 void CG_AddPendingEffects()
@@ -77,7 +90,25 @@ void CG_AddPendingEffects()
 
 void ClientSpecialEffectsManager::ContinueEffectExecution(Event* ev)
 {
-	// FIXME: unimplemented
+	Vector norm;
+	float axis[3][3];
+
+	norm = ev->GetVector(5);
+    VectorCopy(norm, axis[0]);
+
+	norm = ev->GetVector(6);
+    VectorCopy(norm, axis[1]);
+
+	norm = ev->GetVector(7);
+    VectorCopy(norm, axis[2]);
+
+	ExecuteEffect(
+		ev->GetInteger(1),
+		ev->GetInteger(2),
+		ev->GetVector(3),
+		ev->GetVector(4),
+		axis
+	);
 }
 
 void ClientSpecialEffectsManager::ExecuteEffect(int iEffect, int iStartCommand, Vector vPos, Vector vAngles, float axis[3][3])
@@ -92,12 +123,18 @@ void ClientSpecialEffectsManager::MakeEffect_Normal(int iEffect, Vector vPos, Ve
 
 void ClientSpecialEffectsManager::MakeEffect_Angles(int iEffect, Vector vPos, Vector vAngles)
 {
-    // FIXME: unimplemented
+    float axis[3][3];
+
+    AnglesToAxis((const float*)vAngles, axis);
+    ClientSpecialEffectsManager::ExecuteEffect(iEffect, 0, vPos, vAngles, axis);
 }
 
 void ClientSpecialEffectsManager::MakeEffect_Axis(int iEffect, Vector vPos, float axis[3][3])
 {
-    // FIXME: unimplemented
+    Vector vAngles;
+
+    MatrixToEulerAngles(axis, (float*)vAngles);
+    ClientSpecialEffectsManager::ExecuteEffect(iEffect, 0, vPos, vAngles, axis);
 }
 
 /*
