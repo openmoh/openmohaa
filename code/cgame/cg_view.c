@@ -411,22 +411,28 @@ static int CG_CalcViewValues(void)
 
 void CG_EyePosition(vec3_t* o_vPos)
 {
-    // FIXME: unimplemented
+    (*o_vPos)[0] = cg.playerHeadPos[0];
+    (*o_vPos)[1] = cg.playerHeadPos[1];
+    (*o_vPos)[2] = cg.playerHeadPos[2];
 }
 
 void CG_EyeOffset(vec3_t* o_vOfs)
 {
-    // FIXME: unimplemented
+    (*o_vOfs)[0] = cg.playerHeadPos[0] - cg.predicted_player_state.origin[0];
+    (*o_vOfs)[1] = cg.playerHeadPos[1] - cg.predicted_player_state.origin[1];
+    (*o_vOfs)[2] = cg.playerHeadPos[2] - cg.predicted_player_state.origin[2];
 }
 
 void CG_EyeAngles(vec3_t* o_vAngles)
 {
-    // FIXME: unimplemented
+    (*o_vAngles)[0] = cg.refdefViewAngles[0];
+    (*o_vAngles)[1] = cg.refdefViewAngles[1];
+    (*o_vAngles)[2] = cg.refdefViewAngles[2];
 }
 
 float CG_SensitivityScale()
 {
-    // FIXME: unimplemented
+    return cg.zoomSensitivity;
 }
 
 void CG_AddLightShow()
@@ -492,6 +498,45 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
     // build cg.refdef
     CG_CalcViewValues();
 
+    // display the intermission
+    if (cg.snap->ps.pm_flags & PMF_INTERMISSION)
+    {
+        if (cgs.gametype != GT_SINGLE_PLAYER) {
+            CG_ScoresDown_f();
+        }
+        else if (cg.bIntermissionDisplay)
+        {
+            if (cg.nextSnap)
+            {
+                if (cgi.Cvar_Get("g_success", "", 0)->integer) {
+                   cgi.UI_ShowMenu("StatsScreen_Success", qfalse);
+                } else {
+                   cgi.UI_ShowMenu("StatsScreen_Failed", qfalse);
+                }
+            }
+        } else {
+            cgi.SendClientCommand("stats");
+        }
+
+        cg.bIntermissionDisplay = qfalse;
+    }
+    else if (cg.bIntermissionDisplay)
+    {
+        if (cgs.gametype != GT_SINGLE_PLAYER) {
+            CG_ScoresUp_f();
+        }
+        else
+        {
+            if (cgi.Cvar_Get("g_success", "", 0)->integer) {
+                cgi.UI_ShowMenu("StatsScreen_Success", qfalse);
+            } else {
+                cgi.UI_ShowMenu("StatsScreen_Failed", qfalse);
+            }
+        }
+
+        cg.bIntermissionDisplay = qfalse;
+    }
+
     // build the render lists
     if (!cg.hyperspace)
     {
@@ -500,12 +545,6 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
     }
 
     // finish up the rest of the refdef
-#if 0
-    if (cg.testModelEntity.hModel)
-    {
-        CG_AddTestModel();
-    }
-#endif
 
     cg.refdef.time = cg.time;
     memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
@@ -514,23 +553,28 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
     cgi.S_Respatialize(cg.snap->ps.clientNum, cg.SoundOrg, cg.SoundAxis);
 
     // make sure the lagometerSample and frame timing isn't done twice when in stereo
-    if (stereoView != STEREO_RIGHT)
-    {
-        cg.frametime = cg.time - cg.oldTime;
-        if (cg.frametime < 0)
-        {
-            cg.frametime = 0;
-        }
-        cg.oldTime = cg.time;
+    if (stereoView != STEREO_RIGHT) {
         CG_AddLagometerFrameInfo();
     }
 
     CG_UpdateTestEmitter();
+    CG_AddPendingEffects();
 
     if (!cg_hidetempmodels->integer)
         CG_AddTempModels();
 
+    if (vss_draw->integer) {
+        CG_AddVSSSources();
+    }
+
+    CG_AddBulletTracers();
+    CG_AddBulletImpacts();
     CG_AddBeams();
+
+    if (cg_acidtrip->integer) {
+        // lol disco
+        CG_AddLightShow();
+    }
 
     // actually issue the rendering calls
     CG_DrawActive(stereoView);
