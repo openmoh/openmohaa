@@ -356,7 +356,7 @@ typedef struct
    void (*FS_CanonicalFilename)(const char* name);
 
    cvar_t* fsDebug;
-   hdelement_t* hudDrawElements;
+   hdelement_t* HudDrawElements;
    clientAnim_t* anim;
    stopWatch_t* stopWatch;
 
@@ -372,7 +372,7 @@ functions exported to the main executable
 */
 
 typedef struct {
-    void     (*CG_Init)( clientGameImport_t *imported, int serverMessageNum, int serverCommandSequence );
+    void     (*CG_Init)( clientGameImport_t *imported, int serverMessageNum, int serverCommandSequence, int clientNum );
    void     (*CG_Shutdown)( void );
    void     (*CG_DrawActiveFrame)( int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback );
    qboolean (*CG_ConsoleCommand)( void );
