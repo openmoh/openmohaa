@@ -32,6 +32,9 @@ public:
     spawnthing_t* emitter;
     float fCommandTime;
     void (*endfcn)();
+
+public:
+    specialeffectcommand_t();
 };
 
 class specialeffect_t : public Class
@@ -39,6 +42,9 @@ class specialeffect_t : public Class
 public:
     int m_iCommandCount;
     specialeffectcommand_t* m_commands[32];
+
+public:
+    specialeffect_t();
 };
 
 #define MAX_SPECIAL_EFFECTS 99
