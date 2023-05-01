@@ -7099,7 +7099,7 @@ typedef struct refImport_s
 	debugString_t **debugStrings;
 	int *numDebugStrings;
 
-	orientation_t ( *TIKI_OrientationInternal )( dtiki_t *tiki, int entNum, int tagNum, float scale );
+	orientation_t* ( *TIKI_OrientationInternal )(orientation_t* or, dtiki_t *tiki, int entNum, int tagNum, float scale );
 	qboolean ( *TIKI_IsOnGroundInternal )( dtiki_t *tiki, int entNum, int tagNum, float thresHold );
 	void ( *TIKI_SetPoseInternal )( void *skeletor, frameInfo_t *frameInfo, int *boneTag, vec4_t boneQuat[4], float actionWeight );
 	void * ( *TIKI_Alloc )( int size );
@@ -7340,7 +7340,7 @@ typedef struct clientGameImport_s
 	int ( *Tag_NumForName )( dtiki_t *pmdl, char *name );
 	char * ( *Tag_NameForNum )( dtiki_t *pmdl, int animNum );
 	void ( *ForceUpdatePose )( refEntity_t *model );
-	orientation_t ( *TIKI_Orientation )( orientation_t *orientation, refEntity_t *model, int tagNum );
+	void ( *TIKI_Orientation )( orientation_t *orientation, refEntity_t *model, int tagNum );
 	qboolean ( *TIKI_IsOnGround )( refEntity_t *model, int tagNum, float threshold );
 	void ( *UI_ShowScoreBoard )( const char *menuName );
 	void ( *UI_HideScoreBoard )( );
