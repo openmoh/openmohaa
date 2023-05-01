@@ -264,3 +264,10 @@ typedef struct ClientGameCommandManager_s {
 		} __pfn_or_delta2;
 	} endblockfcn;
 } ClientGameCommandManager;
+
+typedef struct ClientSpecialEffectsManager_s {
+	Listener2_t base_Listener;
+	specialeffect_t m_effects[99];
+	qboolean m_bEffectsLoaded;
+	int m_iNumPendingEvents;
+} ClientSpecialEffectsManager;

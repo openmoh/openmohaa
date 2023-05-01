@@ -104,14 +104,14 @@ typedef uint32_t size_t;
 #define MAX_CLIENTS				64
 #define MAX_LOCATIONS			64
 #define MAX_SERVERSOUNDS		64
-#define	MAX_STRINGTOKENS		256
+#define	MAX_STRING_TOKENS		256
 #define	MAX_OSPATH				256
 #define MAX_SOUNDS				512
 #define MAX_RELIABLECOMMANDS	512
 #define MAX_MODELS				1024
 #define MAX_ENTITIESINSNAPSHOT	1024
 #define MAX_INFOSTRING			1350
-#define MAX_STRINGCHARS			2048
+#define MAX_STRING_CHARS			2048
 #define MAX_CONFIGSTRINGS		2736
 #define MAX_EXTSTRINGCHARS		4096
 #define MAX_GAMESTATECHARS		32000
@@ -856,7 +856,7 @@ typedef enum
 
 } netAdrType_t;
 
-typedef enum gameType_e
+typedef enum gametype_e
 {
 	GT_SINGLEPLAYER,
 	GT_FREEFORALL,
@@ -864,7 +864,7 @@ typedef enum gameType_e
 	GT_TEAMROUNDS,
 	GT_OBJECTIVE,
 
-} gameType_t;
+} gametype_t;
 
 typedef enum refEntityType_e
 {
@@ -2452,23 +2452,23 @@ typedef struct fontHeader_s
 
 } fontheader_t;
 
-typedef struct hdElement_s
+typedef struct hdelement_s
 {
-	qhandle_t shader;
-	char shaderName[MAX_QPATH];
-	int x;
-	int y;
-	int width;
-	int height;
-	vec4_t color;
-	int horizontalAlign;
-	int verticalAlign;
-	qboolean virtualScreen;
-	char string[MAX_STRINGCHARS];
-	char fontName[MAX_QPATH];
-	fontheader_t *font;
+	qhandle_t hShader;
+	char shaderName[ MAX_QPATH ];
+	int iX;
+	int iY;
+	int iWidth;
+	int iHeight;
+	float vColor[ 4 ];
+	int iHorizontalAlign;
+	int iVerticalAlign;
+	qboolean bVirtualScreen;
+	char string[ MAX_STRING_CHARS ];
+	char fontName[ MAX_QPATH ];
+	fontheader_t *pFont;
 
-} hdElement_t;
+} hdelement_t;
 
 typedef struct clientAnim_s
 {
@@ -2572,11 +2572,11 @@ typedef struct media_s
 
 } media_t;
 
-typedef struct glConfig_s
+typedef struct glconfig_s
 {
-	char rendererString[MAX_STRINGCHARS];
-	char vendorString[MAX_STRINGCHARS];
-	char versionString[MAX_STRINGCHARS];
+	char rendererString[MAX_STRING_CHARS];
+	char vendorString[MAX_STRING_CHARS];
+	char versionString[MAX_STRING_CHARS];
 	char extensionsString[MAX_EXTSTRINGCHARS];
 	int maxTextureSize;
 	int maxActiveTextures;
@@ -2600,15 +2600,15 @@ typedef struct glConfig_s
 	qboolean var;
 	qboolean fence;
 
-} glConfig_t;
+} glconfig_t;
 
 typedef struct glConfig_bt_s
 {
-	char rendererString[MAX_STRINGCHARS];
-	char vendorString[MAX_STRINGCHARS];
-	char versionString[MAX_STRINGCHARS];
-	char unknownString1[MAX_STRINGCHARS];
-	char unknownString2[MAX_STRINGCHARS];
+	char rendererString[MAX_STRING_CHARS];
+	char vendorString[MAX_STRING_CHARS];
+	char versionString[MAX_STRING_CHARS];
+	char unknownString1[MAX_STRING_CHARS];
+	char unknownString2[MAX_STRING_CHARS];
 	char extensionsString[MAX_EXTSTRINGCHARS];
 	int maxTextureSize;
 	int maxActiveTextures;
@@ -4217,14 +4217,14 @@ typedef struct clientInfo_bt_s
 
 } clientInfo_bt_t;
 
-typedef struct objective_s
+typedef struct cobjective_s
 {
-	char text[MAX_STRINGCHARS];
+	char text[MAX_STRING_CHARS];
 	int flags;
 
-} objective_t;
+} cobjective_t;
 
-typedef struct rain_s
+typedef struct crain_s
 {
 	float density;
 	float speed;
@@ -4233,10 +4233,10 @@ typedef struct rain_s
 	float length;
 	float minDist;
 	float width;
-	char shader[16][MAX_STRINGCHARS];
+	char shader[16][MAX_STRING_CHARS];
 	int numShaders;
 
-} rain_t;
+} crain_t;
 
 typedef struct serverSound_s
 {
@@ -4359,7 +4359,7 @@ typedef struct refEntity_s
 
 } refEntity_t;
 
-typedef struct refDef_s
+typedef struct refdef_s
 {
 	int x;
 	int y;
@@ -4380,7 +4380,7 @@ typedef struct refDef_s
 	vec3_t skyOrigin;
 	vec3_t skyAxis[3];
 
-} refDef_t;
+} refdef_t;
 
 typedef struct refDef_bt_s
 {
@@ -4486,32 +4486,31 @@ typedef struct centity_s
 
 typedef struct cgs_s
 {
-	gameState_t gameState;
-	glConfig_t glConfig;
-	float screenXScale;
-	float screenYScale;
-	float screenXBias;
-	int serverCommandSequence;
-	int processedSnapshotNum;
-	qboolean localServer;
-	int levelStartTime;
-	int matchEndTime;
-	int serverLagTime;
-	int gameType;
-	int dmFlags;
-	int teamFlags;
-	int fragLimit;
-	int timeLimit;
-	int maxClients;
-	int cinematic;
-	char mapName[MAX_QPATH];
-	int modelDraw[MAX_MODELS];
-	int soundPrecache[MAX_SOUNDS];
-	int numInlineModels;
-	int inlineDrawModel[MAX_MODELS];
-	vec3_t inlineModelMidpoints[MAX_MODELS];
-	media_t media;
-
+    gameState_t gameState;
+    glconfig_t glconfig;
+    float screenXScale;
+    float screenYScale;
+    float screenXBias;
+    int serverCommandSequence;
+    int processedSnapshotNum;
+    qboolean localServer;
+    int levelStartTime;
+    int matchEndTime;
+    int serverLagTime;
+    gametype_t gametype;
+    int dmflags;
+    int teamflags;
+    int fraglimit;
+    int timelimit;
+    int maxclients;
+    int cinematic;
+    char mapname[MAX_QPATH];
+    qhandle_t model_draw[MAX_MODELS];
+    sfxHandle_t sound_precache[MAX_SOUNDS];
+    int numInlineModels;
+    qhandle_t inlineDrawModel[MAX_MODELS];
+    vec3_t inlineModelMidpoints[MAX_MODELS];
+    media_t media;
 } cgs_t;
 
 typedef struct cgs_sh_s
@@ -4554,96 +4553,97 @@ typedef struct cgs_sh_s
 
 typedef struct cg_s
 {
-	int clientFrame;
-	int clientNum;
-	int demoPlayback;
-	int levelShot;
-	int latestSnapshotNum;
-	int latestSnapshotTime;
-	snapshot_t *snap;
-	snapshot_t *nextSnap;
-	snapshot_t activeSnapshots[MAX_ACTIVESNAPSHOTS];
-	float frameInterpolation;
-	int thisFrameTeleport;
-	int nextFrameTeleport;
-	int nextFrameCameraCut;
-	int frametime;
-	int time;
-	int physicsTime;
-	int renderingThirdPerson;
-	int hyperSpace;
-	playerState_t predictedPlayerState;
-	int validPPS;
-	int predictedErrorTime;
-	vec3_t predictedError;
-	int weaponCommand;
-	int weaponCommandSend;
-	vec3_t autoAngles;
-	vec3_t autoAxis[3];
-	vec3_t autoAnglesSlow;
-	vec3_t autoAxisSlow[3];
-	vec3_t autoAnglesFast;
-	vec3_t autoAxisFast[3];
-	refDef_t refdef;
-	vec3_t playerHeadPos;
-	vec3_t refdefViewAngles;
-	vec3_t currentViewPos;
-	vec3_t currentViewAngles;
-	float currentViewHeight;
-	float currentViewBobPhase;
-	float currentViewBobAmp;
-	dtiki_t *lastPlayerWorldModel;
-	dtiki_t *playerFPSModel;
-	int playerFPSModelHandle;
-	int fpsModelLastFrame;
-	int fpsOnGround;
-	dtiki_t *alliedPlayerModel;
-	int alliedPlayerModelHandle;
-	dtiki_t *axisPlayerModel;
-	int axisPlayerModelHandle;
-	vec3_t offsetViewAngles;
-	vec3_t lastHeadAngles;
-	vec3_t lastViewAngles;
-	vec3_t eyeOffsetMax;
-	float eyeOffsetFrac;
-	vec3_t soundOrg;
-	vec3_t soundAxis[3];
-	vec3_t cameraOrigin;
-	vec3_t cameraAngles;
-	float cameraFov;
-	float zoomSensitivity;
-	int intermissionDisplay;
-	int scoresRequestTime;
-	int showScores;
-	char scoresMenuName[256];
-	int instaMessageMenu;
-	int centerPrintTime;
-	int centerPrintCharWidth;
-	int centerPrintY;
-	char centerPrint[1024];
-	int centerPrintLines;
-	int matchStartTime;
-	refEntity_t testModelEntity;
-	char testModelName[MAX_QPATH];
-	int testGun;
-	float farplaneDistance;
-	float farplaneColor[3];
-	int farplaneCull;
-	int skyPortal;
-	float skyAlpha;
-	vec3_t skyOrigin;
-	vec3_t skyAxis[3];
-	vec2_t viewKick;
-	float viewKickRecenter;
-	float viewKickMinDecay;
-	float viewKickMaxDecay;
-	objective_t objectives[MAX_OBJECTIVES];
-	float objectivesAlphaTime;
-	float objectivesBaseAlpha;
-	float objectivesDesiredAlpha;
-	float objectivesCurrentAlpha;
-	rain_t rain;
-	clientInfo_t clientinfo[MAX_CLIENTS];
+    int			clientFrame;
+	int         clientNum;
+    qboolean	   demoPlayback;
+    qboolean	   levelShot;
+    int			latestSnapshotNum;
+    int			latestSnapshotTime;
+    snapshot_t* snap;
+    snapshot_t* nextSnap;
+    snapshot_t	activeSnapshots[2];
+
+    float		   frameInterpolation;
+    qboolean	   thisFrameTeleport;
+    qboolean	   nextFrameTeleport;
+    qboolean	   nextFrameCameraCut;
+    int			frametime;
+    int			time;
+    int			physicsTime;
+    qboolean	renderingThirdPerson;
+    qboolean	hyperspace;
+    playerState_t	predicted_player_state;
+    qboolean	validPPS;
+    int			predictedErrorTime;
+    vec3_t		predictedError;
+    int         iWeaponCommand;
+    int         iWeaponCommandSend;
+    vec3_t		autoAngles;
+    vec3_t		autoAxis[3];
+    vec3_t		autoAnglesSlow;
+    vec3_t		autoAxisSlow[3];
+    vec3_t		autoAnglesFast;
+    vec3_t		autoAxisFast[3];
+    refdef_t	refdef;
+    vec3_t      playerHeadPos;
+    vec3_t		refdefViewAngles;
+    vec3_t      currentViewPos;
+    vec3_t      currentViewAngles;
+    float       fCurrentViewHeight;
+    float       fCurrentViewBobPhase;
+    float       fCurrentViewBobAmp;
+    dtiki_t*    pLastPlayerWorldModel;
+    dtiki_t*    pPlayerFPSModel;
+    qhandle_t   hPlayerFPSModelHandle;
+    qboolean    bFPSModelLastFrame;
+    qboolean    bFPSOnGround;
+    dtiki_t*    pAlliedPlayerModel;
+    qhandle_t   hAlliedPlayerModelHandle;
+    dtiki_t*    pAxisPlayerModel;
+    qhandle_t   hAxisPlayerModelHandle;
+    vec3_t      vOffsetViewAngles;
+    vec3_t      vLastHeadAngles;
+    vec3_t      vLastViewAngles;
+    vec3_t      vEyeOffsetMax;
+    float       fEyeOffsetFrac;
+    float       SoundOrg[3];
+    vec3_t      SoundAxis[3];
+    vec3_t      camera_origin;
+    vec3_t      camera_angles;
+    float       camera_fov;
+    float	   	zoomSensitivity;
+    qboolean	bIntermissionDisplay;
+    int			scoresRequestTime;
+    qboolean	showScores;
+    char		scoresMenuName[MAX_STRING_TOKENS];
+    int         iInstaMessageMenu;
+    int			centerPrintTime;
+    int			centerPrintCharWidth;
+    int			centerPrintY;
+    char		   centerPrint[1024];
+    int			centerPrintLines;
+    int         matchStartTime;
+    refEntity_t		testModelEntity;
+    char			testModelName[MAX_QPATH];
+    qboolean		testGun;
+    float       farplane_distance;
+    vec3_t      farplane_color;
+    qboolean    farplane_cull;
+    qboolean    sky_portal;
+    float       sky_alpha;
+    vec3_t      sky_origin;
+    vec3_t		sky_axis[3];
+    float      viewkick[2];
+    float      viewkickRecenter;
+    float      viewkickMinDecay;
+    float      viewkickMaxDecay;
+    cobjective_t  Objectives[20];
+    float         ObjectivesAlphaTime;
+    float         ObjectivesBaseAlpha;
+    float         ObjectivesDesiredAlpha;
+    float         ObjectivesCurrentAlpha;
+    crain_t rain;
+    clientInfo_t clientinfo[MAX_CLIENTS];
 
 } cg_t;
 
@@ -4740,13 +4740,13 @@ typedef struct cg_sh_s
 	float viewKickRecenter;
 	float viewKickMinDecay;
 	float viewKickMaxDecay;
-	objective_t objectives[MAX_OBJECTIVES];
+	cobjective_t objectives[MAX_OBJECTIVES];
 	float objectivesAlphaTime;
 	float objectivesBaseAlpha;
 	float objectivesDesiredAlpha;
 	float objectivesCurrentAlpha;
 	int currentObjective;
-	rain_t rain;
+	crain_t rain;
 	int unk14[18];
 	clientInfo_bt_t clientinfo[MAX_CLIENTS];
 
@@ -4784,7 +4784,7 @@ typedef struct client_s
 	char userinfo[MAX_INFOSTRING];
 	int reliableSequence;
 	int reliableAcknowledge;
-	char reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRINGCHARS];
+	char reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRING_CHARS];
 	int reliableSent;
 	int messageAcknowledge;
 	int gamestateMessageNum;
@@ -4793,7 +4793,7 @@ typedef struct client_s
 	struct userEyes_s lastEyeinfo;
 	int lastMessageNum;
 	int lastClientCommand;
-	char  lastClientCommandString[MAX_STRINGCHARS];
+	char  lastClientCommandString[MAX_STRING_CHARS];
 	struct gentity_s *gentity;
 	char name[MAX_NAMELENGTH];
 	char downloadName[MAX_QPATH];
@@ -4834,7 +4834,7 @@ typedef struct client_sh_s
 	char userinfo[MAX_INFOSTRING];
 	int reliableSequence;
 	int reliableAcknowledge;
-	char reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRINGCHARS];
+	char reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRING_CHARS];
 	int reliableSent;
 	int messageAcknowledge;
 	int gamestateMessageNum;
@@ -4843,7 +4843,7 @@ typedef struct client_sh_s
 	struct userEyes_s lastEyeinfo;
 	int lastMessageNum;
 	int lastClientCommand;
-	char  lastClientCommandString[MAX_STRINGCHARS];
+	char  lastClientCommandString[MAX_STRING_CHARS];
 	struct gentity_s *gentity;
 	char name[MAX_NAMELENGTH];
 	char downloadName[MAX_QPATH];
@@ -4894,7 +4894,7 @@ typedef struct client_bt_s
 	char userinfo[MAX_INFOSTRING];
 	int reliableSequence;
 	int reliableAcknowledge;
-	char reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRINGCHARS];
+	char reliableCommands[MAX_RELIABLECOMMANDS][MAX_STRING_CHARS];
 	int reliableSent;
 	int messageAcknowledge;
 	int gamestateMessageNum;
@@ -4904,7 +4904,7 @@ typedef struct client_bt_s
 	struct userEyes_s lastEyeinfo;
 	int lastMessageNum;
 	int lastClientCommand;
-	char  lastClientCommandString[MAX_STRINGCHARS];
+	char  lastClientCommandString[MAX_STRING_CHARS];
 	struct gentity_s *gentity;
 	char name[MAX_NAMELENGTH];
 	char downloadName[MAX_QPATH];
@@ -5026,14 +5026,14 @@ typedef struct clientStatic_s {
 	char updateChallenge[1024];
 	char updateInfoString[1350];
 	netAdr_t authorizeServer;
-	glConfig_t glconfig;
+	glconfig_t glconfig;
 	int total_tris;
 	int total_verts;
 	int total_texels;
 	int world_tris;
 	int world_verts;
 	int character_lights;
-	hdElement_t HudDrawElements[256];
+	hdelement_t HudDrawElements[256];
 	clientAnim_t anim;
 	stopWatch_t stopwatch;
 } clientStatic_t;
@@ -5074,7 +5074,7 @@ typedef struct clientStatic_sh_s {
 	char updateInfoString[1350];
 	netAdr_t authorizeServer;
     int unknown1_0[1024];
-	glConfig_t glconfig;
+	glconfig_t glconfig;
 	int total_tris;
 	int total_verts;
 	int total_texels;
@@ -5082,7 +5082,7 @@ typedef struct clientStatic_sh_s {
 	int world_verts;
 	int character_lights;
     int unknown2_0;
-	hdElement_t HudDrawElements[256];
+	hdelement_t HudDrawElements[256];
 	clientAnim_t anim;
 	stopWatch_sh_t stopwatch;
     void* savedCgameState;
@@ -5128,7 +5128,7 @@ typedef struct clientStatic_bt_s {
 	char updateInfoString[1350];
 	netAdr_t authorizeServer;
     int unknown1_0[1024];
-	glConfig_t glconfig;
+	glconfig_t glconfig;
 	int total_tris;
 	int total_verts;
 	int total_texels;
@@ -5136,7 +5136,7 @@ typedef struct clientStatic_bt_s {
 	int world_verts;
 	int character_lights;
     int unknown2_0;
-	hdElement_t HudDrawElements[256];
+	hdelement_t HudDrawElements[256];
 	clientAnim_t anim;
 	stopWatch_sh_t stopwatch;
     void* savedCgameState;
@@ -6810,7 +6810,7 @@ typedef struct {
   float sky_alpha;
   float sky_origin[3];
   float sky_axis[3][3];
-} trRefdef_t;
+} trrefdef_t;
 
 typedef struct {
   int c_sphere_cull_patch_in;
@@ -6863,7 +6863,7 @@ typedef struct {
 
 typedef struct {
   int smpFrame;
-  trRefdef_t refdef;
+  trrefdef_t refdef;
   viewParms_t viewParms;
   orientationr_t or; 
   backEndCounters_t pc;
@@ -6929,7 +6929,7 @@ typedef struct {
   portalsky_t portalsky;
   qboolean skyRendered;
   qboolean portalRendered;
-  trRefdef_t refdef;
+  trrefdef_t refdef;
   int viewCluster;
   float sunLight[3];
   float sunDirection[3];
@@ -7108,7 +7108,7 @@ typedef struct refImport_s
 typedef struct refExport_s
 {
 	void ( *Shutdown )( );
-	void ( *BeginRegistration )( glConfig_t *glConfigOut );
+	void ( *BeginRegistration )( glconfig_t *glConfigOut );
 	qhandle_t ( *RegisterModel )( char *name );
 	qhandle_t ( *SpawnEffectModel )( char *name, vec3_t pos, vec3_t axis[3] );
 	qhandle_t ( *RegisterServerModel )( char *name );
@@ -7128,7 +7128,7 @@ typedef struct refExport_s
 	qboolean ( *AddPolyToScene )( qhandle_t hShader, int numVerts, polyVert_t *verts, int renderFx );
 	void ( *AddTerrainMarkToScene )( int terrainIndex, qhandle_t hShader, int numVerts, polyVert_t *verts, int renderfx );
 	void ( *AddLightToScene )( vec3_t org, float intensity, float r, float g, float b, dlighttype_t type );
-	void ( *RenderScene )( refDef_t *fd );
+	void ( *RenderScene )( refdef_t *fd );
 	refEntity_t * ( *GetRenderEntity )( int entityNumber );
 	void ( *SavePerformanceCounters )( );
 	void ( *SetColor )( vec4_t color );
@@ -7164,7 +7164,7 @@ typedef struct refExport_s
 	void ( *SwipeEnd )( );
 	void ( *SetRenderTime )( int t );
 	float ( *Noise )( vec3_t vec, int len );
-	qboolean ( *SetMode )( int mode, glConfig_t *glConfig );
+	qboolean ( *SetMode )( int mode, glconfig_t *glConfig );
 	void ( *SetFullscreen )( qboolean fullScreen );
 	int ( *GetShaderWidth )( qhandle_t hShader );
 	int ( *GetShaderHeight )( qhandle_t hShader );
@@ -7193,7 +7193,7 @@ typedef struct clientGameImport_s
 	int ( *Argc )( );
 	char * ( *Argv )( int arg );
 	char * ( *Args )( );
-	void ( *AddCommand )( char *cmdName, xcommand_t cmdFunction );
+	void ( *AddCommand )( const char *cmdName );
 	void ( *Cmd_Stuff )( const char *text );
 	void ( *Cmd_Execute )( cbufExec_t execWhen, char *text );
 	void ( *Cmd_TokenizeString )( char *textIn );
@@ -7255,7 +7255,7 @@ typedef struct clientGameImport_s
 	void ( *MUSIC_UpdateVolume )( float volume, float fadeTime );
 	float * ( *get_camera_offset )( qboolean *lookActive, qboolean *resetView );
 	void ( *R_ClearScene )( );
-	void ( *R_RenderScene )( refDef_t *fd );
+	void ( *R_RenderScene )( refdef_t *fd );
 	void ( *R_LoadWorldMap )( char *name );
 	void ( *R_PrintBSPFileSizes )( );
 	int ( *MapVersion )( );
@@ -7293,7 +7293,7 @@ typedef struct clientGameImport_s
 	int ( *GetServerStartTime )( );
 	void ( *SetTime )( float time );
 	void ( *GetCurrentSnapshotNumber )( int *snapshotNumber, int *serverTime );
-	void ( *GetGlconfig )( glConfig_t *glConfig );
+	void ( *GetGlconfig )( glconfig_t *glConfig );
 	qboolean ( *GetParseEntityState )( int parseEntityNumber, entityState_t *state );
 	int ( *GetCurrentCmdNumber )( );
 	qboolean ( *GetUserCmd )( int cmdNumber, userCmd_t *userCmd );
@@ -7348,7 +7348,7 @@ typedef struct clientGameImport_s
 	void ( *FS_CanonicalFilename )( char *name );
 
 	cvar_t *fsDebug;
-	hdElement_t *hudDrawElements;
+	hdelement_t *HudDrawElements;
 	clientAnim_t *anim;
 	stopWatch_t *stopWatch;
 
@@ -7435,7 +7435,7 @@ typedef struct clientGameImport_sh_s
 	void (*MUSIC_UpdateVolume)(float volume, float fadeTime);
 	float* (*get_camera_offset)(qboolean* lookActive, qboolean* resetView);
 	void (*R_ClearScene)();
-	void (*R_RenderScene)(refDef_t* fd);
+	void (*R_RenderScene)(refdef_t* fd);
 	void (*R_LoadWorldMap)(char* name);
 	void (*R_PrintBSPFileSizes)();
 	int (*MapVersion)();
@@ -7474,7 +7474,7 @@ typedef struct clientGameImport_sh_s
 	int (*GetServerStartTime)();
 	void (*SetTime)(float time);
 	void (*GetCurrentSnapshotNumber)(int* snapshotNumber, int* serverTime);
-	void (*GetGlconfig)(glConfig_t* glConfig);
+	void (*GetGlconfig)(glconfig_t* glConfig);
 	qboolean(*GetParseEntityState)(int parseEntityNumber, entityState_t* state);
 	int (*GetCurrentCmdNumber)();
 	qboolean(*GetUserCmd)(int cmdNumber, userCmd_t* userCmd);
@@ -7533,7 +7533,7 @@ typedef struct clientGameImport_sh_s
 	void (*CL_ClearSavedCgameState)();
 
 	cvar_t* fsDebug;
-	hdElement_t* hudDrawElements;
+	hdelement_t* hudDrawElements;
 	clientAnim_t* anim;
 	stopWatch_t* stopWatch;
 
