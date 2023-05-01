@@ -38,6 +38,7 @@ cvar_t         *cg_showemitters;
 cvar_t         *cg_physics_fps;
 cvar_t         *cg_detail;
 cvar_t         *cg_effectdetail;
+cvar_t         *cg_effect_physicsrate;
 
 Vector			last_trace_end;
 
@@ -2732,6 +2733,14 @@ void ClientGameCommandManager::InitializeTempModels(void)
     m_tempmodels[numtempmodels - 1].next = NULL;
 }
 
+void ClientGameCommandManager::InitializeTempModelCvars(void)
+{
+    cg_showtempmodels = cgi.Cvar_Get("cg_showtempmodels", "0", 0);
+    cg_detail = cgi.Cvar_Get("detail", "1", 1);
+    cg_effectdetail = cgi.Cvar_Get("cg_effectdetail", "0.2", 1);
+    cg_effect_physicsrate = cgi.Cvar_Get("cg_effect_physicsrate", "10", 1);
+}
+
 //=============
 // InitializeEmitters
 //=============
@@ -4994,16 +5003,15 @@ void CG_AddTempModels(void) { commandManager.AddTempModels(); }
 // CG_InitializeCommandManager
 //===============
 void CG_InitializeCommandManager(void)
-
 {
-    cg_showtempmodels = cgi.Cvar_Get("cg_showtempmodels", "0", 0);
     cg_showemitters = cgi.Cvar_Get("cg_showemitters", "0", 0);
-    cg_physics_fps = cgi.Cvar_Get("cg_physics_fps", "10", CVAR_ARCHIVE);
-    cg_detail = cgi.Cvar_Get("detail", "1", CVAR_ARCHIVE);
-    cg_effectdetail = cgi.Cvar_Get("cg_effectdetail", "1", CVAR_ARCHIVE);
-
+    commandManager.InitializeTempModelCvars();
+    commandManager.InitializeVSSCvars();
     commandManager.InitializeTempModels();
+    commandManager.InitializeVSSSources();
     commandManager.InitializeEmitters();
+    commandManager.InitializeRainCvars();
+    commandManager.InitializeBeams();
     CG_InitTestEmitter();
     CG_InitTestTreadMark();
 }
@@ -5364,11 +5372,6 @@ void ClientGameCommandManager::ResetTreadMarkSources()
 }
 
 void ClientGameCommandManager::ResetTreadMarkSources(Event* ev)
-{
-    // FIXME: unimplemented
-}
-
-void ClientGameCommandManager::InitializeRainCvars()
 {
     // FIXME: unimplemented
 }
