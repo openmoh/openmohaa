@@ -108,40 +108,82 @@ cvar_t* cg_shadowdebug;
 CG_RegisterCvars
 =================
 */
-void CG_RegisterCvars( void ) 
-   {
-   cvar_t * temp;
+void CG_RegisterCvars(void)
+{
+    cvar_t* temp;
 
-	cg_viewsize          = cgi.Cvar_Get( "viewsize",            "100", CVAR_ARCHIVE );
-	cg_addMarks          = cgi.Cvar_Get( "cg_marks",            "1", CVAR_ARCHIVE );
-	cg_animSpeed         = cgi.Cvar_Get( "cg_animspeed",        "1", CVAR_CHEAT );
-	cg_debugAnim         = cgi.Cvar_Get( "cg_debuganim",        "0", CVAR_CHEAT );
-   cg_debugAnimWatch    = cgi.Cvar_Get( "cg_debuganimwatch",   "0", CVAR_CHEAT );
-	cg_errorDecay        = cgi.Cvar_Get( "cg_errordecay",       "100", 0 );
-	cg_nopredict         = cgi.Cvar_Get( "cg_nopredict",        "0", 0 );
-	cg_showmiss          = cgi.Cvar_Get( "cg_showmiss",         "0", 0 );
-	cg_stats             = cgi.Cvar_Get( "cg_stats",            "0", 0 );
-	cg_hidetempmodels    = cgi.Cvar_Get( "cg_hidetempmodels",   "0", 0 );
-	cg_synchronousClients = cgi.Cvar_Get( "g_syncronousClients", "0", 0 );
-   cg_stereoSeparation  = cgi.Cvar_Get( "cg_stereosep",        "0.4", CVAR_ARCHIVE ); 
-   cg_lagometer         = cgi.Cvar_Get( "cg_lagometer",        "0", 0 ); 
-   paused               = cgi.Cvar_Get( "paused",              "0", 0 );
-   r_lerpmodels         = cgi.Cvar_Get( "r_lerpmodels",        "1", 0 );
-	cg_3rd_person        = cgi.Cvar_Get( "cg_3rd_person",       "1", 0 );
-   cg_cameraheight      = cgi.Cvar_Get ("cg_cameraheight", "18", CVAR_ARCHIVE);
-	cg_cameradist        = cgi.Cvar_Get ("cg_cameradist" , "120", CVAR_ARCHIVE);
-	cg_cameraverticaldisplacement = cgi.Cvar_Get ("cg_cameraverticaldisplacement" , "-2", CVAR_ARCHIVE);
-	cg_camerascale       = cgi.Cvar_Get ("cg_camerascale" , "0.3", CVAR_ARCHIVE);
-	cg_traceinfo         = cgi.Cvar_Get ("cg_traceinfo" , "0", CVAR_ARCHIVE);
-	cg_debugFootsteps    = cgi.Cvar_Get( "cg_debugfootsteps",   "0", CVAR_CHEAT );
+    cgi.Cvar_Get("g_subtitle", "0", CVAR_ARCHIVE);
+    cg_viewsize = cgi.Cvar_Get("viewsize", "100", CVAR_ARCHIVE);
+    cg_addMarks = cgi.Cvar_Get("cg_marks_add", "0", CVAR_ARCHIVE);
+    cg_maxMarks = cgi.Cvar_Get("cg_marks_max", "256", CVAR_ARCHIVE | CVAR_LATCH);
+    cg_animSpeed = cgi.Cvar_Get("cg_animspeed", "1", CVAR_CHEAT);
+    cg_debugAnim = cgi.Cvar_Get("cg_debuganim", "0", CVAR_CHEAT);
+    cg_debugAnimWatch = cgi.Cvar_Get("cg_debuganimwatch", "0", CVAR_CHEAT);
+    cg_errorDecay = cgi.Cvar_Get("cg_errordecay", "100", 0);
+    cg_nopredict = cgi.Cvar_Get("cg_nopredict", "0", 0);
+    cg_showmiss = cgi.Cvar_Get("cg_showmiss", "0", 0);
+    cg_stats = cgi.Cvar_Get("cg_stats", "0", 0);
+    cg_hidetempmodels = cgi.Cvar_Get("cg_hidetempmodels", "0", 0);
+    cg_synchronousClients = cgi.Cvar_Get("g_synchronousClients", "0", 0);
+    cg_stereoSeparation = cgi.Cvar_Get("cg_stereosep", "0.4", CVAR_ARCHIVE);
+    cg_lagometer = cgi.Cvar_Get("cg_lagometer", "0", 0);
+    paused = cgi.Cvar_Get("paused", "0", 0);
+    r_lerpmodels = cgi.Cvar_Get("r_lerpmodels", "1", 0);
+    cg_3rd_person = cgi.Cvar_Get("cg_3rd_person", "0", CVAR_CHEAT);
+    cg_drawviewmodel = cgi.Cvar_Get("cg_drawviewmodel", "2", CVAR_ARCHIVE);
+    cg_cameraheight = cgi.Cvar_Get("cg_cameraheight", "18", CVAR_ARCHIVE);
+    cg_cameradist = cgi.Cvar_Get("cg_cameradist", "120", CVAR_ARCHIVE);
+    cg_cameraverticaldisplacement = cgi.Cvar_Get("cg_cameraverticaldisplacement", "-2", CVAR_ARCHIVE);
+    cg_camerascale = cgi.Cvar_Get("cg_camerascale", "0.3", CVAR_ARCHIVE);
+    cg_traceinfo = cgi.Cvar_Get("cg_traceinfo", "0", CVAR_ARCHIVE);
+    cg_debugFootsteps = cgi.Cvar_Get("cg_debugfootsteps", "0", CVAR_CHEAT);
+    cg_smoothClients = cgi.Cvar_Get("cg_smoothClients", "1", CVAR_ARCHIVE);
+    cg_smoothClientsTime = cgi.Cvar_Get("cg_smoothClientsTime", "100", CVAR_ARCHIVE);
+    pmove_fixed = cgi.Cvar_Get("pmove_fixed", "0", 0);
+    pmove_msec = cgi.Cvar_Get("pmove_msec", "8", 0);
+    cg_pmove_msec = cgi.Cvar_Get("cg_pmove_msec", "8", 0);
+    cg_shadows = cgi.Cvar_Get("cg_shadows", "0", CVAR_ARCHIVE);
+    cg_shadowscount = cgi.Cvar_Get("cg_shadowscount", "8", 0);
+    cg_shadowdebug = cgi.Cvar_Get("cg_shadowdebug", "0", 0);
+    developer = cgi.Cvar_Get("developer", "0", 0);
+    dm_playermodel = cgi.Cvar_Get("dm_playermodel", "american_army", 3);
+    dm_playergermanmodel = cgi.Cvar_Get("dm_playergermanmodel", "german_wehrmacht_soldier", 3);
+    cg_forceModel = cgi.Cvar_Get("cg_forceModel", "0", CVAR_ARCHIVE);
+    cg_animationviewmodel = cgi.Cvar_Get("cg_animationviewmodel", "0", 8);
+    cg_hitmessages = cgi.Cvar_Get("cg_hitmessages", "1", CVAR_ARCHIVE);
+    cg_acidtrip = cgi.Cvar_Get("cg_acidtrip", "0", CVAR_CHEAT);
+    cg_hud = cgi.Cvar_Get("cg_hud", "0", 0);
+    cg_huddraw_force = cgi.Cvar_Get("cg_huddraw_force", "0", CVAR_SAVEGAME);
+    cg_drawsvlag = cgi.Cvar_Get("cg_drawsvlag", "1", CVAR_ARCHIVE);
+    vm_offset_max = cgi.Cvar_Get("vm_offset_max", "8.0", 0);
+    vm_offset_speed = cgi.Cvar_Get("vm_offset_speed", "8.0", 0);
+    vm_sway_front = cgi.Cvar_Get("vm_sway_front", "0.1", 0);
+    vm_sway_side = cgi.Cvar_Get("vm_sway_side", "0.005", 0);
+    vm_sway_up = cgi.Cvar_Get("vm_sway_up", "0.003", 0);
+    vm_offset_air_front = cgi.Cvar_Get("vm_offset_air_front", "-3.0", 0);
+    vm_offset_air_side = cgi.Cvar_Get("vm_offset_air_side", "1.5", 0);
+    vm_offset_air_up = cgi.Cvar_Get("vm_offset_air_up", "-6.0", 0);
+    vm_offset_crouch_front = cgi.Cvar_Get("vm_offset_crouch_front", "-0.5", 0);
+    vm_offset_crouch_side = cgi.Cvar_Get("vm_offset_crouch_side", "2.25", 0);
+    vm_offset_crouch_up = cgi.Cvar_Get("vm_offset_crouch_up", "0.2", 0);
+    vm_offset_rocketcrouch_front = cgi.Cvar_Get("vm_offset_rocketcrouch_front", "0", 0);
+    vm_offset_rocketcrouch_side = cgi.Cvar_Get("vm_offset_rocketcrouch_side", "0", 0);
+    vm_offset_rocketcrouch_up = cgi.Cvar_Get("vm_offset_rocketcrouch_up", "0", 0);
+    vm_offset_shotguncrouch_front = cgi.Cvar_Get("vm_offset_shotguncrouch_front", "-1", 0);
+    vm_offset_shotguncrouch_side = cgi.Cvar_Get("vm_offset_shotguncrouch_side", "2.5", 0);
+    vm_offset_shotguncrouch_up = cgi.Cvar_Get("vm_offset_shotguncrouch_up", "-1.1", 0);
+    vm_offset_vel_base = cgi.Cvar_Get("vm_offset_vel_base", "100", 0);
+    vm_offset_vel_front = cgi.Cvar_Get("vm_offset_vel_front", "-2.0", 0);
+    vm_offset_vel_side = cgi.Cvar_Get("vm_offset_vel_side", "1.5", 0);
+    vm_offset_vel_up = cgi.Cvar_Get("vm_offset_vel_up", "-4.0", 0);
+    vm_offset_upvel = cgi.Cvar_Get("vm_offset_upvel", "0.0025", 0);
+    vm_lean_lower = cgi.Cvar_Get("vm_lean_lower", "0.1", 0);
+    voiceChat = cgi.Cvar_Get("cg_voicechat", "1", 0);
 
-	cg_shadows           = cgi.Cvar_Get( "cg_shadows", "1", 0 );
-	developer			   = cgi.Cvar_Get( "developer", "0", 0 );
-
-	// see if we are also running the server on this machine
-	temp                 = cgi.Cvar_Get( "sv_running", "0", 0 );
-	cgs.localServer      = temp->integer;
-   }
+    // see if we are also running the server on this machine
+    temp = cgi.Cvar_Get("sv_running", "0", 0);
+    cgs.localServer = temp->integer;
+}
 
 /*
 =================
@@ -423,13 +465,13 @@ const char *CG_ConfigString( int index ) {
 //==================================================================
 
 
-void CG_GetRendererConfig( void )
-   {
-	// get the rendering configuration from the client system
-  	cgi.GetGlconfig( &cgs.glconfig );
-	cgs.screenXScale = cgs.glconfig.vidWidth  / 640.0;
-	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
-   }
+void CG_GetRendererConfig(void)
+{
+    // get the rendering configuration from the client system
+    cgi.GetGlconfig(&cgs.glconfig);
+    cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
+    cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
+}
 
 /*
 ======================
@@ -480,7 +522,6 @@ void CG_GameStateReceived( void )
     CG_InitializeObjectives();
 }
 
-
 /*
 ======================
 CG_ServerRestarted
@@ -490,7 +531,6 @@ The server has beeen restarted, adjust our cgame data accordingly
 */
 void CG_ServerRestarted( void )
 {
-    int timedelta;
     const char* s;
 
     s = CG_ConfigString(CS_LEVEL_START_TIME);
@@ -499,9 +539,8 @@ void CG_ServerRestarted( void )
     CG_ParseServerinfo();
 
     cg.thisFrameTeleport = qtrue;
-    timedelta = cg.oldTime - cg.time;
     // free up any temp models currently spawned
-    CG_RestartCommandManager(timedelta);
+    CG_RestartCommandManager();
     // get rid of left over decals from the last game
     CG_InitMarks();
     // clear all the swipes
@@ -521,29 +560,58 @@ CG_Init
 Called after every level change or subsystem restart
 =================
 */
-void CG_Init( clientGameImport_t *imported, int serverMessageNum, int serverCommandSequence ) {
+void CG_Init(clientGameImport_t* imported, int serverMessageNum,
+             int serverCommandSequence, int clientNum)
+{
+    cgi = *imported;
 
- 	cgi = *imported;
+    memset(&cg, 0, sizeof(cg));
+    memset(&cgs, 0, sizeof(cgs));
 
-	memset( &cg, 0, sizeof( cg ) );
-	memset( &cgs, 0, sizeof( cgs ) );
+    cg.clientNum = clientNum;
+    cgs.processedSnapshotNum = serverMessageNum;
+    cgs.serverCommandSequence = serverCommandSequence;
 
-	cgs.processedSnapshotNum = serverMessageNum;
-	cgs.serverCommandSequence = serverCommandSequence;
+    CG_RegisterCvars();
 
-	CG_RegisterCvars();
+    L_InitEvents();
 
-   L_InitEvents();
+    // init swapping for endian conversion
+    Swap_Init();
 
-   // init swapping for endian conversion
-	Swap_Init ();
+    CG_InitializeCommandManager();
 
-	CG_InitializeCommandManager();
+    CG_GameStateReceived();
 
-	CG_GameStateReceived();
+    CG_InitConsoleCommands();
 
-	CG_InitConsoleCommands();
-   }
+    cg.vEyeOffsetMax[0] = 40.0f;
+    cg.vEyeOffsetMax[1] = 45.0f;
+    cg.vEyeOffsetMax[2] = 60.0f;
+    cg.fEyeOffsetFrac = 0.1f;
+    cg.fCurrentViewHeight = 0.0f;
+    cg.fCurrentViewBobPhase = 0.0f;
+    cg.fCurrentViewBobAmp = 0.0f;
+    cg.pLastPlayerWorldModel = NULL;
+    cg.pPlayerFPSModel = NULL;
+    cg.hPlayerFPSModelHandle = 0;
+    cg.pAlliedPlayerModel = NULL;
+    cg.hAlliedPlayerModelHandle = 0;
+    cg.pAxisPlayerModel = NULL;
+    cg.hAxisPlayerModelHandle = 0;
+    cg.bFPSOnGround = qtrue;
+
+    // Pop the stats UI screen menu
+    cgi.UI_HideMenu("StatsScreen", 1);
+
+    // Scoreboard setup
+    CG_PrepScoreBoardInfo();
+    cgi.UI_HideScoreBoard();
+
+    // HUD setup
+    CG_RefreshHudDrawElements();
+    cgi.Cmd_Execute(EXEC_NOW, "ui_hud 1\n");
+}
 
 /*
 =================
@@ -552,12 +620,19 @@ CG_Shutdown
 Called before every level change or subsystem restart
 =================
 */
-void CG_Shutdown( void ) 
-   {
-   L_ShutdownEvents();
-	// some mods may need to do cleanup work here,
-	// like closing files or archiving session data
-   }
+void CG_Shutdown(void)
+{
+    L_ShutdownEvents();
+    // some mods may need to do cleanup work here,
+    // like closing files or archiving session data
+
+    // hide the stats screen
+    cgi.UI_HideMenu("StatsScreen", 1);
+
+    // reset the scoreboard
+    CG_PrepScoreBoardInfo();
+    cgi.UI_HideScoreBoard();
+}
 
 int CG_GetParent(int entnum)
 {
@@ -623,46 +698,44 @@ CG_DrawActive
 Perform all drawing needed to completely fill the screen
 =====================
 */
-void CG_DrawActive( stereoFrame_t stereoView )
-   {
-	float		separation;
-	vec3_t		baseOrg;
+void CG_DrawActive(stereoFrame_t stereoView)
+{
+    float separation;
+    vec3_t baseOrg;
 
-	switch ( stereoView )
-      {
-	   case STEREO_CENTER:
-		   separation = 0;
-		   break;
-	   case STEREO_LEFT:
-		   separation = -cg_stereoSeparation->value / 2;
-		   break;
-	   case STEREO_RIGHT:
-		   separation = cg_stereoSeparation->value / 2;
-		   break;
-	   default:
-		   separation = 0;
-		   cgi.Error( ERR_DROP, "CG_DrawActive: Undefined stereoView" );
-   	}
+    switch (stereoView) {
+    case STEREO_CENTER:
+        separation = 0;
+        break;
+    case STEREO_LEFT:
+        separation = -cg_stereoSeparation->value / 2;
+        break;
+    case STEREO_RIGHT:
+        separation = cg_stereoSeparation->value / 2;
+        break;
+    default:
+        separation = 0;
+        cgi.Error(ERR_DROP, "CG_DrawActive: Undefined stereoView");
+    }
 
-	// clear around the rendered view if sized down
-	CG_TileClear();
+    // clear around the rendered view if sized down
+    CG_TileClear();
 
-	// offset vieworg appropriately if we're doing stereo separation
-	VectorCopy( cg.refdef.vieworg, baseOrg );
-	if ( separation != 0 )
-      {
-		VectorMA( cg.refdef.vieworg, -separation, cg.refdef.viewaxis[1], cg.refdef.vieworg );
-	   }
+    // offset vieworg appropriately if we're doing stereo separation
+    VectorCopy(cg.refdef.vieworg, baseOrg);
+    if (separation != 0) {
+        VectorMA(cg.refdef.vieworg, -separation, cg.refdef.viewaxis[1],
+            cg.refdef.vieworg);
+    }
 
-	// draw 3D view
-   cgi.R_RenderScene( &cg.refdef );
-	
-	// restore original viewpoint if running stereo
-	if ( separation != 0 )
-      {
-		VectorCopy( baseOrg, cg.refdef.vieworg );
-	   }
-   }
+    // draw 3D view
+    cgi.R_RenderScene(&cg.refdef);
+
+    // restore original viewpoint if running stereo
+    if (separation != 0) {
+        VectorCopy(baseOrg, cg.refdef.vieworg);
+    }
+}
 
 #ifndef CGAME_HARD_LINKED
 // this is only here so the functions in q_shared.c and bg_*.c can link (FIXME)
