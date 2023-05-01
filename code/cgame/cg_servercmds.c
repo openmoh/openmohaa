@@ -20,11 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// DESCRIPTION: 
+// DESCRIPTION:
 // cg_servercmds.c -- text commands sent by the server
 
 #include "cg_local.h"
-
 
 /*
 ================
@@ -34,35 +33,32 @@ This is called explicitly when the gamestate is first received,
 and whenever the server updates any serverinfo flagged cvars
 ================
 */
-void CG_ParseServerinfo( void ) {
-	const char	*info;
-	const char	*mapname;
-   char        map[ MAX_QPATH ];
-   char        *spawnpos;
+void CG_ParseServerinfo(void)
+{
+    const char* info;
+    const char* mapname;
+    char map[MAX_QPATH];
+    char* spawnpos;
 
-	info = CG_ConfigString( CS_SERVERINFO );
-	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
-	cgs.dmflags = atoi( Info_ValueForKey( info, "dmflags" ) );
-	cgs.teamflags = atoi( Info_ValueForKey( info, "teamflags" ) );
-	cgs.fraglimit = atoi( Info_ValueForKey( info, "fraglimit" ) );
-	cgs.timelimit = atoi( Info_ValueForKey( info, "timelimit" ) );
-	cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
+    info = CG_ConfigString(CS_SERVERINFO);
+    cgs.gametype = atoi(Info_ValueForKey(info, "g_gametype"));
+    cgs.dmflags = atoi(Info_ValueForKey(info, "dmflags"));
+    cgs.teamflags = atoi(Info_ValueForKey(info, "teamflags"));
+    cgs.fraglimit = atoi(Info_ValueForKey(info, "fraglimit"));
+    cgs.timelimit = atoi(Info_ValueForKey(info, "timelimit"));
+    cgs.maxclients = atoi(Info_ValueForKey(info, "sv_maxclients"));
 
-	mapname = Info_ValueForKey( info, "mapname" );
+    mapname = Info_ValueForKey(info, "mapname");
 
-   spawnpos = strchr( mapname, '$' );
-   if ( spawnpos )
-      {
-      Q_strncpyz( map, mapname, spawnpos - mapname + 1 );
-      }
-   else
-      {
-      strcpy( map, mapname );
-      }
+    spawnpos = strchr(mapname, '$');
+    if (spawnpos) {
+        Q_strncpyz(map, mapname, spawnpos - mapname + 1);
+    } else {
+        strcpy(map, mapname);
+    }
 
-	Com_sprintf( cgs.mapname, sizeof( cgs.mapname ), "maps/%s.bsp", map );
+    Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", map);
 }
-
 
 /*
 ================
@@ -70,30 +66,74 @@ CG_ConfigStringModified
 
 ================
 */
-static void CG_ConfigStringModified( void )
-   {	
-	int		num;
+static void CG_ConfigStringModified(void)
+{
+    int num;
 
-	num = atoi( cgi.Argv( 1 ) );
+    num = atoi(cgi.Argv(1));
 
-	// get the gamestate from the client system, which will have the
-	// new configstring already integrated
-	cgi.GetGameState( &cgs.gameState );
+    // get the gamestate from the client system, which will have the
+    // new configstring already integrated
+    cgi.GetGameState(&cgs.gameState);
 
-   CG_ProcessConfigString( num );
-   }
+    CG_ProcessConfigString(num);
+}
 
 /*
-===============
-CG_MapRestart
-===============
+================
+CG_ParseStats
+
+================
 */
-static void CG_MapRestart( void ) {
-	if ( cg_showmiss->integer ) {
-		cgi.Printf( "CG_MapRestart\n" );
-	}
-   CG_Shutdown();
-   CG_Init( &cgi, cgs.processedSnapshotNum, cgs.serverCommandSequence );
+static void CG_ParseStats()
+{
+    cgi.Cvar_Set("ui_NumObjectives", cgi.Argv(1));
+    cgi.Cvar_Set("ui_NumComplete", cgi.Argv(2));
+    cgi.Cvar_Set("ui_NumShotsFired", cgi.Argv(3));
+    cgi.Cvar_Set("ui_NumHits", cgi.Argv(4));
+    cgi.Cvar_Set("ui_Accuracy", cgi.Argv(5));
+    cgi.Cvar_Set("ui_PreferredWeapon", cgi.Argv(6));
+    cgi.Cvar_Set("ui_NumHitsTaken", cgi.Argv(7));
+    cgi.Cvar_Set("ui_NumObjectsDestroyed", cgi.Argv(8));
+    cgi.Cvar_Set("ui_NumEnemysKilled", cgi.Argv(9));
+    cgi.Cvar_Set("ui_HeadShots", cgi.Argv(10));
+    cgi.Cvar_Set("ui_TorsoShots", cgi.Argv(11));
+    cgi.Cvar_Set("ui_LeftLegShots", cgi.Argv(12));
+    cgi.Cvar_Set("ui_RightLegShots", cgi.Argv(13));
+    cgi.Cvar_Set("ui_GroinShots", cgi.Argv(14));
+    cgi.Cvar_Set("ui_LeftArmShots", cgi.Argv(15));
+    cgi.Cvar_Set("ui_RightArmShots", cgi.Argv(16));
+    cgi.Cvar_Set("ui_GunneryEvaluation", cgi.Argv(17));
+    cgi.Cvar_Set("ui_gotmedal", cgi.Argv(18));
+    cgi.Cvar_Set("ui_success", cgi.Argv(19));
+    cgi.Cvar_Set("ui_failed", cgi.Argv(20));
+}
+
+/*
+================
+CG_Stopwatch_f
+
+================
+*/
+static void CG_Stopwatch_f()
+{
+    if (cgi.Argc() != 3) {
+        Com_Error(1, "stopwatch didn't have 2 parameters");
+    }
+
+    cgi.stopWatch->startTime = 1000 * atoi(cgi.Argv(1));
+    cgi.stopWatch->endTime = cgi.stopWatch->startTime + 1000 * atoi(cgi.Argv(2));
+}
+
+/*
+================
+CG_ServerLag_f
+
+================
+*/
+static void CG_ServerLag_f()
+{
+    cgs.serverLagTime = cg.time;
 }
 
 /*
@@ -104,39 +144,58 @@ The string has been tokenized and can be retrieved with
 Cmd_Argc() / Cmd_Argv()
 =================
 */
-static void CG_ServerCommand( void )
-   {
-	const char	*cmd;
+static void CG_ServerCommand(void)
+{
+    const char* cmd;
 
-	cmd = cgi.Argv(0);
+    cmd = cgi.Argv(0);
 
-	if ( !cmd[0] ) 
-      {
-		// server claimed the command
-		return;
-	   }
+    if (!cmd[0]) {
+        // server claimed the command
+        return;
+    }
 
-	if ( !strcmp( cmd, "cs" ) )
-      {
-		CG_ConfigStringModified();
-		return;
-	   }
+    if (!strcmp(cmd, "cs")) {
+        CG_ConfigStringModified();
+        return;
+    }
 
-	if ( !strcmp( cmd, "print" ) )
-      {
-		cgi.Printf( "%s", cgi.Argv(1) );
-		return;
-	   }
+    if (!strcmp(cmd, "print") || !strcmp(cmd, "hudprint")) {
+        cgi.Printf("%s", cgi.Argv(1));
+        if (!strcmp(cmd, "hudprint")) {
+            CG_HudPrint_f();
+        }
+        return;
+    }
+    
+    if (!strcmp(cmd, "stufftext")) {
+        cgi.Cmd_Stuff(cgi.Argv(1));
+        cgi.Cmd_Stuff("\n");
+        return;
+    }
 
-	if ( !strcmp( cmd, "map_restart" ) ) 
-      {
-		CG_MapRestart();
-		return;
-	   }
+    if (!strcmp(cmd, "scores")) {
+        CG_ParseScores();
+        return;
+    }
 
-	cgi.Printf( "Unknown client game command: %s\n", cmd );
-   }
+    if (!strcmp(cmd, "stats")) {
+        CG_ParseStats();
+        return;
+    }
 
+    if (!strcmp(cmd, "stopwatch")) {
+        CG_Stopwatch_f();
+        return;
+    }
+
+    if (!strcmp(cmd, "svlag")) {
+        CG_ServerLag_f();
+        return;
+    }
+
+    cgi.Printf("Unknown client game command: %s\n", cmd);
+}
 
 /*
 ====================
@@ -146,10 +205,11 @@ Execute all of the server commands that were received along
 with this this snapshot.
 ====================
 */
-void CG_ExecuteNewServerCommands( int latestSequence ) {
-	while ( cgs.serverCommandSequence < latestSequence ) {
-		if ( cgi.GetServerCommand( ++cgs.serverCommandSequence ) ) {
-			CG_ServerCommand();
-		}
-	}
+void CG_ExecuteNewServerCommands(int latestSequence)
+{
+    while (cgs.serverCommandSequence < latestSequence) {
+        if (cgi.GetServerCommand(++cgs.serverCommandSequence)) {
+            CG_ServerCommand();
+        }
+    }
 }
