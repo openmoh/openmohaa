@@ -3911,7 +3911,7 @@ void ClientGameCommandManager::PlaySound(str sound_name, vec3_t* origin,
     // TODO: Alias enhancement
 
     // Get the real sound to play
-    if (current_tiki) {
+    if (current_tiki && current_tiki->a->alias_list) {
         name = cgi.Alias_ListFindRandom((AliasList_t*)current_tiki->a->alias_list,
                                         sound_name.c_str(), &soundAlias);
     }
