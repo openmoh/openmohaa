@@ -4773,8 +4773,7 @@ void CG_AnimationDebugMessage(int number, const char* fmt, ...);
 //=================
 // CG_ProcessEntityCommands
 //=================
-void CG_ProcessEntityCommands(int frame, int anim, int entnum,
-                              refEntity_t* ent, centity_t* cent)
+qboolean CG_ProcessEntityCommands(int frame, int anim, int entnum, refEntity_t* ent, centity_t* cent)
 {
     int i, j;
     int num_args;
@@ -4813,6 +4812,8 @@ void CG_ProcessEntityCommands(int frame, int anim, int entnum,
         current_entity = NULL;
         current_centity = NULL;
     }
+
+    return qtrue;
 }
 
 //=================
@@ -4844,10 +4845,9 @@ void CG_ClientCommandDebugMessage(centity_t* cent, const char* fmt, ...)
 //=================
 // CG_ClientCommands
 //=================
-void CG_ClientCommands(dtiki_t *tiki, int new_frame, int new_anim,
-                       animstate_t* state, refEntity_t* ent, centity_t* cent)
-
+void CG_ClientCommands(refEntity_t* ent, centity_t* cent, int slot)
 {
+#if 0
     int anim;
     int frame;
 
@@ -4992,6 +4992,7 @@ void CG_ClientCommands(dtiki_t *tiki, int new_frame, int new_anim,
 
     state->last_cmd_anim = new_anim + 1;
     state->last_cmd_frame = new_frame + 1;
+#endif
 }
 
 //===============

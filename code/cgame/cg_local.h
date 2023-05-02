@@ -498,21 +498,8 @@ void     CG_EndTiki(dtiki_t* tiki);
 qboolean CG_Command_ProcessFile( const char * filename, qboolean quiet, dtiki_t *curTiki );
 void     CG_RestartCommandManager();
 void     CG_FlushCommandManager( void );
-void     CG_ProcessEntityCommands( int            frame,
-                                   int            anim,
-                                   int            entnum,
-                                   refEntity_t		*ent,
-                                   centity_t      *cent
-                                 );
-void CG_ClientCommands
-   (
-   int            tikihandle,
-   int            frame,
-   int            anim,
-   animstate_t    *state,
-   refEntity_t		*ent,
-   centity_t      *cent
-   );
+qboolean CG_ProcessEntityCommands(int frame, int anim, int entnum, refEntity_t* ent, centity_t* cent);
+void CG_ClientCommands(refEntity_t* ent, centity_t* cent, int slot);
 
 void CG_Splash( centity_t *cent );
 
