@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static const char* AnimPrefixList[] =
 {
+    "",
     "papers",
     "colt45",
     "p38",
@@ -50,6 +51,7 @@ static const char* AnimPrefixList[] =
 
 enum animPrefix_e
 {
+    WPREFIX_NONE,
     WPREFIX_PAPERS,
     WPREFIX_COLT45,
     WPREFIX_P38,
@@ -347,5 +349,94 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
 
 void CG_CalcViewModelMovement(float fViewBobPhase, float fViewBobAmp, vec_t* vVelocity, vec_t* vMovement)
 {
-    // FIXME: unimplemented
+    int i;
+    float fPhase, fDelta;
+    vec3_t vTargOfs;
+    vec3_t vNorm;
+
+    fPhase = sin(fViewBobPhase + M_PI) * fViewBobAmp * vm_sway_side->value;
+    vMovement[0] = fPhase * vm_sway_front->value;
+    vMovement[1] = fPhase;
+
+    fPhase = sin(fViewBobPhase - 0.94 + fViewBobPhase - 0.94 + M_PI);
+    vMovement[2] = (sin((fViewBobPhase - 0.94) * 4.0 + M_PI / 2) * 0.125 + fPhase) * fViewBobAmp * vm_sway_up->value;
+
+    if (cg.predicted_player_state.walking)
+    {
+        if (cg.predicted_player_state.viewheight == STAND_EYE_HEIGHT)
+        {
+            if (cgi.anim->g_iLastAnimPrefixIndex == WPREFIX_BAZOOKA || cgi.anim->g_iLastAnimPrefixIndex == WPREFIX_PANZERSCHRECK)
+            {
+                vTargOfs[0] = vm_offset_rocketcrouch_front->value;
+                vTargOfs[1] = vm_offset_rocketcrouch_side->value;
+                vTargOfs[2] = vm_offset_rocketcrouch_up->value;
+            }
+            else if (cgi.anim->g_iLastAnimPrefixIndex == WPREFIX_SHOTGUN)
+            {
+                vTargOfs[0] = vm_offset_shotguncrouch_front->value;
+                vTargOfs[1] = vm_offset_shotguncrouch_side->value;
+                vTargOfs[2] = vm_offset_shotguncrouch_up->value;
+            }
+            else
+            {
+                vTargOfs[0] = vm_offset_crouch_front->value;
+                vTargOfs[1] = vm_offset_crouch_side->value;
+                vTargOfs[2] = vm_offset_crouch_up->value;
+            }
+        }
+        else
+        {
+            memset(vTargOfs, 0, sizeof(vTargOfs));
+        }
+    }
+    else
+    {
+        vTargOfs[0] = vm_offset_air_front->value;
+        vTargOfs[1] = vm_offset_air_side->value;
+        vTargOfs[2] = vm_offset_air_up->value;
+    }
+
+    if (cg.predicted_player_state.walking)
+    {
+        fDelta = VectorLength(vVelocity) - vm_offset_vel_base->value;
+        if (fDelta > 0.0)
+        {
+            if (fDelta > 250.0 - vm_offset_vel_base->value) {
+                fDelta = 250.0 - vm_offset_vel_base->value;
+            }
+
+            fPhase = fDelta / (250.0 - vm_offset_vel_base->value);
+            vTargOfs[0] += fPhase * vm_offset_vel_front->value;
+            vTargOfs[1] += fPhase * vm_offset_vel_side->value;
+            vTargOfs[2] += fPhase * vm_offset_vel_up->value;
+        }
+    }
+    else if (vVelocity[2]) {
+        vTargOfs[2] -= vVelocity[2] * vm_offset_upvel->value;
+    }
+
+    for (i = 0; i < 3; i++)
+    {
+        fDelta = vTargOfs[i] - cgi.anim->g_vCurrentVMPosOffset[i];
+        cgi.anim->g_vCurrentVMPosOffset[i] += cg.frametime / 1000.0 * fDelta * vm_offset_speed->value;
+
+        if (fDelta >= 0.0)
+        {
+            if (cgi.anim->g_vCurrentVMPosOffset[0] < vTargOfs[i]) {
+                cgi.anim->g_vCurrentVMPosOffset[i] = vTargOfs[i];
+            }
+        }
+        else if (cgi.anim->g_vCurrentVMPosOffset[i] < vTargOfs[i]) {
+            cgi.anim->g_vCurrentVMPosOffset[i] = vTargOfs[i];
+        }
+    }
+
+    VectorAdd(vMovement, cgi.anim->g_vCurrentVMPosOffset, vMovement);
+    if (cg.predicted_player_state.fLeanAngle) {
+        vMovement[2] -= fabs(cg.predicted_player_state.fLeanAngle) * vm_lean_lower->value;
+    }
+
+    if (VectorNormalize2(vMovement, vNorm) > vm_offset_max->value) {
+        VectorScale(vNorm, vm_offset_max->value, vMovement);
+    }
 }
