@@ -160,36 +160,42 @@ tag location
 void CG_AttachEntity( refEntity_t *entity, refEntity_t *parent, dtiki_t* tiki, int tagnum, qboolean use_angles, vec3_t attach_offset )
 {
     int				i;
-    orientation_t or ;
+    orientation_t   or;
     vec3_t			tempAxis[3];
+    vec3_t          vOrigin;
 
-    // lerp the tag
-      //FIXME
-      // doesn't handle torso animations
-    or = cgi.TIKI_Orientation(entity, tagnum);
+    or = cgi.TIKI_Orientation(parent, tagnum);
     //cgi.Printf( "th = %d %.2f %.2f %.2f\n", tikihandle, or.origin[ 0 ], or.origin[ 1 ], or.origin[ 2 ] );
 
     VectorCopy(parent->origin, entity->origin);
 
     for (i = 0; i < 3; i++)
     {
-        VectorMA(entity->origin, or .origin[i], parent->axis[i], entity->origin);
+        VectorMA(entity->origin, or.origin[i], parent->axis[i], entity->origin);
+    }
+
+    if (attach_offset[0] || attach_offset[1] || attach_offset[2])
+    {
+        MatrixMultiply(or.axis, parent->axis, tempAxis);
+
+        for (i = 0; i < 3; i++) {
+            VectorMA(entity->origin, attach_offset[i], tempAxis[i], entity->origin);
+        }
     }
 
     VectorCopy(entity->origin, entity->oldorigin);
 
-    VectorAdd(entity->origin, attach_offset, entity->origin);
-
     if (use_angles)
     {
         MatrixMultiply(entity->axis, parent->axis, tempAxis);
-        MatrixMultiply(or .axis, tempAxis, entity->axis);
+        MatrixMultiply(or.axis, tempAxis, entity->axis);
     }
 
     entity->scale *= parent->scale;
     entity->renderfx |= (parent->renderfx & ~(RF_FLAGS_NOT_INHERITED | RF_LIGHTING_ORIGIN));
-    // FIXME: lightningOrigin
-    VectorCopy(parent->lightingOrigin, entity->lightingOrigin);
+
+    MatrixTransformVectorRight(entity->axis, entity->lightingOrigin, vOrigin);
+    VectorAdd(entity->lightingOrigin, vOrigin, entity->lightingOrigin);
 }
 
 void CG_AttachEyeEntity(refEntity_t* entity, refEntity_t* parent, dtiki_t* tiki, int tagnum, qboolean use_angles, vec_t* attach_offset)
