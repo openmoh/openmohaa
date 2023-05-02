@@ -2472,16 +2472,16 @@ typedef struct hdelement_s
 
 typedef struct clientAnim_s
 {
-	frameInfo_t vmFrameInfo[MAX_FRAMEINFOS];
-	int lastVMAnim;
-	int lastVMAnimChanged;
-	int currentVMAnimSlot;
-	int currentVMDuration;
-	qboolean crossBlending;
-	int lastEquippedWeaponStat;
-	char lastActiveItem[80];
-	int lastAnimPrefixIndex;
-	vec3_t currentVMPosOffset;
+	frameInfo_t g_VMFrameInfo[MAX_FRAMEINFOS];
+	int g_iLastVMAnim;
+	int g_iLastVMAnimChanged;
+	int g_iCurrentVMAnimSlot;
+	int g_iCurrentVMDuration;
+	qboolean g_bCrossblending;
+	int g_iLastEquippedWeaponStat;
+	char g_szLastActiveItem[80];
+	int g_iLastAnimPrefixIndex;
+	float g_vCurrentVMPosOffset[3];
 
 } clientAnim_t;
 
