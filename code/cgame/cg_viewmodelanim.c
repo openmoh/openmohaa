@@ -164,7 +164,7 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
         cgi.anim->g_iLastEquippedWeaponStat = cg.snap->ps.stats[STAT_EQUIPPED_WEAPON];
         strcpy(cgi.anim->g_szLastActiveItem, CG_ConfigString(CS_WEAPONS + cg.snap->ps.activeItems[1]));
         cgi.anim->g_iLastAnimPrefixIndex = iAnimPrefixIndex;
-        bAnimChanged = 1;
+        bAnimChanged = qtrue;
     }
 
     if (cgi.anim->g_iLastVMAnim == -1)
@@ -263,7 +263,8 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
         cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].weight = 1.0;
         cgi.anim->g_iCurrentVMDuration = 0;
 
-        if (cgi.Anim_CrossblendTime(pTiki, cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].index) == 0.0)
+        fCrossblendTime = cgi.Anim_CrossblendTime(pTiki, cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].index);
+        if (!fCrossblendTime)
         {
             for (i = 0; i < MAX_FRAMEINFOS; ++i)
             {
@@ -299,7 +300,7 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
         }
     }
 
-    for (i = 0; i < 16; ++i)
+    for (i = 0; i < MAX_FRAMEINFOS; ++i)
     {
         if (cgi.anim->g_VMFrameInfo[i].weight == 0.0)
         {
@@ -327,10 +328,12 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
 
             if (cgi.anim->g_bCrossblending)
             {
-                if (i == cgi.anim->g_iCurrentVMAnimSlot)
+                if (i == cgi.anim->g_iCurrentVMAnimSlot) {
                     pModel->frameInfo[i].weight = fCrossblendFrac;
-                else
+                }
+                else {
                     pModel->frameInfo[i].weight = (1.0 - fCrossblendFrac) * cgi.anim->g_VMFrameInfo[i].weight;
+                }
             }
             else
             {

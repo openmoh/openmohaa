@@ -448,10 +448,11 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
             if (sNext->frameInfo[i].weight)
             {
                 model.frameInfo[i].index = sNext->frameInfo[i].index;
-                if (sNext->frameInfo[i].index == s1->frameInfo[i].index && s1->frameInfo[i].weight != 0.0)
+                if (sNext->frameInfo[i].index == s1->frameInfo[i].index && s1->frameInfo[i].weight)
                 {
                     model.frameInfo[i].weight = (sNext->frameInfo[i].weight - s1->frameInfo[i].weight) * t
                         + s1->frameInfo[i].weight;
+
                     if (sNext->frameInfo[i].time >= s1->frameInfo[i].time)
                     {
                         model.frameInfo[i].time = (sNext->frameInfo[i].time - s1->frameInfo[i].time) * t
