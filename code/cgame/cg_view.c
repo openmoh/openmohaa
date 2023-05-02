@@ -246,7 +246,6 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 	trace_t trace;
 
 	// FIXME: UNIMPLEMENTED
-	assert(qfalse);
 }
 
 /*
