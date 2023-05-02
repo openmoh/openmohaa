@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "cg_local.h"
+#include "cg_parsemsg.h"
 
 //============================================================================
 
@@ -245,7 +246,246 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 	vec3_t vStart, vEnd, vMins, vMaxs;
 	trace_t trace;
 
-	// FIXME: UNIMPLEMENTED
+    VectorSet(vMins, -6, -6, -6);
+    VectorSet(vMaxs, 6, 6, 6);
+    
+    //
+    //
+    //
+    //
+    origin = cg.refdef.vieworg;
+
+    pCent = &cg_entities[cg.predicted_player_state.clientNum];
+
+    tiki = cgi.R_Model_GetHandle(cgs.model_draw[pCent->currentState.modelindex]);
+    iTag = cgi.Tag_NumForName(tiki, "eyes bone");
+    if (iTag != -1)
+    {
+        if (bUseWorldPosition)
+        {
+            orientation_t oHead;
+            float mat3[3][3];
+            vec3_t vHeadAng, vDelta;
+
+            VectorCopy(pCent->lerpOrigin, origin);
+            AxisCopy(pREnt->axis, mat);
+            oHead = cgi.TIKI_Orientation(pREnt, iTag);
+
+            for (i = 0; i < 3; i++ ) {
+                VectorMA(origin, oHead.origin[i], mat[i], origin);
+            }
+            
+            R_ConcatRotations(oHead.axis, mat, mat3);
+            MatrixToEulerAngles(mat3, vHeadAng);
+            AnglesSubtract(vHeadAng, cg.refdefViewAngles, vDelta);
+            VectorMA(cg.refdefViewAngles, cg.fEyeOffsetFrac, vDelta, cg.refdefViewAngles);
+            VectorCopy(vHeadAng, cg.refdefViewAngles);
+        }
+        else
+        {
+            orientation_t oHead;
+            vec3_t vHeadAng;
+
+            VectorCopy(pCent->lerpOrigin, origin);
+            AxisCopy(pREnt->axis, mat);
+            MatrixToEulerAngles(mat, vHeadAng);
+            oHead = cgi.TIKI_Orientation(pREnt, iTag);
+
+            for (i = 0; i < 3; i++) {
+                VectorMA(origin, oHead.origin[i], mat[i], origin);
+            }
+
+            cg.refdefViewAngles[2] = cg.predicted_player_state.fLeanAngle * 0.3 + cg.refdefViewAngles[2];
+        }
+    }
+    else
+    {
+        cgi.DPrintf("CG_OffsetFirstPersonView warning: Couldn't find 'eyes bone' for player\n");
+    }
+
+    VectorCopy(origin, vOldOrigin);
+
+    if (bUseWorldPosition)
+    {
+        iMask = MASK_VIEWSOLID;
+    }
+    else
+    {
+        float fTargHeight;
+        float fHeightDelta, fHeightChange;
+        float fPhase, fVel;
+        vec3_t vDelta;
+        vec3_t vPivotPoint;
+        vec3_t vForward, vLeft;
+
+        origin[0] = cg.predicted_player_state.origin[0];
+        origin[1] = cg.predicted_player_state.origin[1];
+        fTargHeight = cg.predicted_player_state.origin[2] + cg.predicted_player_state.viewheight;
+        fHeightDelta = fTargHeight - cg.fCurrentViewHeight;
+
+        if (fabs(fHeightDelta < 0.1) || !cg.fCurrentViewHeight)
+        {
+            cg.fCurrentViewHeight = fTargHeight;
+        }
+        else
+        {
+            if (fHeightDelta > 32.f) {
+                fHeightDelta = 32.f;
+                cg.fCurrentViewHeight = fTargHeight - 32.0;
+            }
+            else if (fHeightDelta < -32.f) {
+                fHeightDelta = -32.f;
+                cg.fCurrentViewHeight = fTargHeight + 32.0;
+            }
+
+            fHeightChange = cg.frametime / 1000.0 * fHeightDelta * 12.5;
+            if (!cg.predicted_player_state.walking) {
+                fHeightChange += fHeightChange;
+            }
+
+            if (fabs(fHeightDelta) < fabs(fHeightChange)) {
+                fHeightChange = fHeightDelta;
+            }
+
+            cg.fCurrentViewHeight += fHeightChange;
+        }
+
+        origin[2] = cg.fCurrentViewHeight;
+        vPivotPoint[0] = cg.refdefViewAngles[0];
+        vPivotPoint[1] = cg.refdefViewAngles[1];
+        vPivotPoint[2] = 0.0;
+        AngleVectorsLeft(vPivotPoint, vForward, vLeft, NULL);
+
+        VectorCopy(origin, vStart);
+
+        if (cg.predicted_player_state.pm_type != PM_CLIMBWALL)
+        {
+            if (cg.refdefViewAngles[0] >= 0.0) {
+                vStart[2] -= (cg.fCurrentViewHeight - cg.predicted_player_state.origin[2]) * 0.4;
+            }
+            else {
+                vStart[2] -= (cg.fCurrentViewHeight - cg.predicted_player_state.origin[2]) * 0.2;
+            }
+        }
+        else {
+            vStart[2] -= (cg.fCurrentViewHeight - cg.predicted_player_state.origin[2]) * 0.15;
+        }
+
+        VectorSubtract(origin, vStart, vDelta);
+        RotatePointAroundVector(vEnd, vLeft, vDelta, cg.refdefViewAngles[0] * 0.4);
+        VectorAdd(vStart, vEnd, origin);
+
+        if (cg.predicted_player_state.fLeanAngle) {
+            VectorCopy(origin, vStart);
+            vStart[2] -= 28.7;
+
+            VectorSubtract(origin, vStart, vDelta);
+            RotatePointAroundVector(vEnd, vForward, vDelta, cg.predicted_player_state.fLeanAngle);
+            VectorAdd(vStart, vEnd, origin);
+        }
+
+        if (cg.predicted_player_state.walking)
+        {
+            fVel = VectorLength(cg.predicted_player_state.velocity);
+            fPhase = fVel * 0.0015 + 0.9;
+            cg.fCurrentViewBobPhase = (cg.frametime / 1000.0 + cg.frametime * 0.001) * M_PI * fPhase
+                + cg.fCurrentViewBobPhase;
+
+            if (cg.fCurrentViewBobAmp) {
+                cg.fCurrentViewBobAmp = fVel;
+            }
+            else {
+                cg.fCurrentViewBobAmp = fVel * 0.5;
+            }
+
+            if (cg.predicted_player_state.fLeanAngle != 0.0) {
+                cg.fCurrentViewBobAmp *= 0.75;
+            }
+
+            cg.fCurrentViewBobAmp *= (1.0 - fabs(cg.refdefViewAngles[0]) * (1.0 / 90.0) * 0.5) * 0.5;
+        }
+        else
+        {
+            if (cg.fCurrentViewBobAmp > 0.0)
+            {
+                cg.fCurrentViewBobAmp -= cg.frametime / 1000.0 * cg.fCurrentViewBobAmp
+                    + cg.frametime / 1000.0 * cg.fCurrentViewBobAmp;
+
+                if (cg.fCurrentViewBobAmp < 0.1) {
+                    cg.fCurrentViewBobAmp = 0.0;
+                }
+            }
+        }
+
+        if (cg.fCurrentViewBobAmp > 0.0)
+        {
+            fPhase = sin(cg.fCurrentViewBobPhase) * cg.fCurrentViewBobAmp * 0.03;
+            
+            if (fPhase > 16.0) {
+                fPhase = 16.0;
+            }
+            else if (fPhase < -16.0) {
+                fPhase = -16.0;
+            }
+
+            VectorMA(origin, fPhase, vLeft, origin);
+
+            fPhase = sin(cg.fCurrentViewBobPhase - 0.94);
+            fPhase = (fabs(fPhase) - 0.5) * cg.fCurrentViewBobAmp * 0.06;
+
+            if (fPhase > 16.0) {
+                fPhase = 16.0;
+            }
+            else if (fPhase < -16.0) {
+                fPhase = -16.0;
+            }
+
+            origin[2] += fPhase;
+        }
+
+        iMask = MASK_PLAYERSOLID;
+    }
+
+    vStart[0] = cg.predicted_player_state.origin[0];
+    vStart[1] = cg.predicted_player_state.origin[1];
+    vStart[2] = cg.predicted_player_state.origin[2] + cg.predicted_player_state.viewheight;
+    vEnd[0] = cg.predicted_player_state.origin[0];
+    vEnd[1] = cg.predicted_player_state.origin[1];
+    vEnd[2] = origin[2];
+
+    CG_Trace(&trace, vStart, vMins, vMaxs, vEnd, cg.snap->ps.clientNum, iMask, qfalse, qtrue, "FirstPerson Height Check");
+
+    VectorCopy(trace.endpos, vStart);
+    vEnd[0] = origin[0];
+    vEnd[1] = origin[1];
+    vEnd[2] = trace.endpos[2];
+    CG_Trace(&trace, vStart, vMins, vMaxs, vEnd, cg.snap->ps.clientNum, iMask, 0, 1, "FirstPerson Lateral Check");
+
+    VectorCopy(trace.endpos, origin);
+    VectorSubtract(origin, vOldOrigin, vDelta);
+    VectorAdd(vDelta, pREnt->origin, pREnt->origin);
+
+    if (!bUseWorldPosition)
+    {
+        VectorCopy(cg.refdefViewAngles, vDelta);
+        vDelta[0] *= 0.5;
+        vDelta[2] *= 0.75;
+
+        AngleVectorsLeft(vDelta, mat[0], mat[1], mat[2]);
+
+        CG_CalcViewModelMovement(
+            cg.fCurrentViewBobPhase,
+            cg.fCurrentViewBobAmp,
+            cg.predicted_player_state.velocity,
+            vDelta
+        );
+
+        VectorMA(pREnt->origin, vDelta[0], mat[0], pREnt->origin);
+        VectorMA(pREnt->origin, vDelta[1], mat[1], pREnt->origin);
+        VectorMA(pREnt->origin, vDelta[2], mat[2], pREnt->origin);
+    }
+
+    VectorCopy(origin, cg.playerHeadPos);
 }
 
 /*
@@ -386,7 +626,7 @@ static int CG_CalcViewValues(void)
 
         if (ps->camera_posofs[0] || ps->camera_posofs[1] || ps->camera_posofs[2])
         {
-            vec3_t vAxis, vOrg;
+            vec3_t vAxis[3], vOrg;
             AnglesToAxis(cg.refdefViewAngles, vAxis);
             MatrixTransformVector(ps->camera_posofs, vAxis, vOrg);
             VectorAdd(cg.refdef.vieworg, vOrg, cg.refdef.vieworg);
