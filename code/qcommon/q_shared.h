@@ -2038,6 +2038,20 @@ typedef struct hdelement_s {
 	struct fontheader_s *pFont;
 } hdelement_t;
 
+enum vmAnim_e {
+    VM_ANIM_IDLE,
+    VM_ANIM_CHARGE,
+    VM_ANIM_FIRE,
+    VM_ANIM_FIRE_SECONDARY,
+    VM_ANIM_RECHAMBER,
+    VM_ANIM_RELOAD,
+    VM_ANIM_RELOAD_SINGLE,
+    VM_ANIM_RELOAD_END,
+    VM_ANIM_PULLOUT,
+    VM_ANIM_PUTAWAY,
+    VM_ANIM_LADDERSTEP
+};
+
 typedef struct {
 	frameInfo_t	g_VMFrameInfo[MAX_FRAMEINFOS];
 
