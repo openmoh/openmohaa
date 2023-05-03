@@ -861,7 +861,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
             if ((cent->currentState.eFlags & EF_UNARMED)
                 || cg_drawviewmodel->integer <= 1
                 || cg.snap->ps.stats[STAT_INZOOM]
-                || cg.snap->ps.stats[STAT_HEALTH])
+                || cg.snap->ps.stats[STAT_HEALTH] <= 0)
             {
                 // unarmed or zooming, hide the arms
                 for (i = 0; i < MAX_MODEL_SURFACES; i++)
