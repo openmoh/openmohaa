@@ -458,7 +458,8 @@ void CG_ProcessSnapshots(void)
 
         // if our time is < nextFrame's, we have a nice interpolating state
         if (cg.time >= cg.snap->serverTime &&
-            cg.time < cg.nextSnap->serverTime) {
+            cg.time < cg.nextSnap->serverTime &&
+            !differentServer) {
             break;
         }
 
@@ -473,6 +474,7 @@ void CG_ProcessSnapshots(void)
     if (cg.time < cg.snap->serverTime) {
         // this can happen right after a vid_restart
         cg.time = cg.snap->serverTime;
+        cgi.SetTime(cg.time);
     }
     if (cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time) {
         cgi.Error(ERR_DROP,
