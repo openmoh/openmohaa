@@ -1905,9 +1905,9 @@ typedef struct {
 #define  MDL_SURFACE_SKIN_NO_DAMAGE   ( 1 << 7 )
 
 #define CROUCH_HEIGHT		36
-#define CROUCH_EYE_HEIGHT	30
+#define CROUCH_EYE_HEIGHT	48
 #define STAND_HEIGHT			72
-#define STAND_EYE_HEIGHT	66
+#define STAND_EYE_HEIGHT	82
 
 #define MAX_FRAMEINFOS			16
 #define FRAMEINFO_BLEND			( MAX_FRAMEINFOS >> 1 )

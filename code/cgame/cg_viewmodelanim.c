@@ -368,7 +368,7 @@ void CG_CalcViewModelMovement(float fViewBobPhase, float fViewBobAmp, vec_t* vVe
 
     if (cg.predicted_player_state.walking)
     {
-        if (cg.predicted_player_state.viewheight == STAND_EYE_HEIGHT)
+        if (cg.predicted_player_state.viewheight == CROUCH_EYE_HEIGHT)
         {
             if (cgi.anim->g_iLastAnimPrefixIndex == WPREFIX_BAZOOKA || cgi.anim->g_iLastAnimPrefixIndex == WPREFIX_PANZERSCHRECK)
             {
@@ -425,14 +425,16 @@ void CG_CalcViewModelMovement(float fViewBobPhase, float fViewBobAmp, vec_t* vVe
         fDelta = vTargOfs[i] - cgi.anim->g_vCurrentVMPosOffset[i];
         cgi.anim->g_vCurrentVMPosOffset[i] += cg.frametime / 1000.0 * fDelta * vm_offset_speed->value;
 
-        if (fDelta >= 0.0)
+        if (fDelta > 0.0)
         {
-            if (cgi.anim->g_vCurrentVMPosOffset[0] < vTargOfs[i]) {
+            if (cgi.anim->g_vCurrentVMPosOffset[i] > vTargOfs[i]) {
                 cgi.anim->g_vCurrentVMPosOffset[i] = vTargOfs[i];
             }
         }
-        else if (cgi.anim->g_vCurrentVMPosOffset[i] < vTargOfs[i]) {
-            cgi.anim->g_vCurrentVMPosOffset[i] = vTargOfs[i];
+        else if (fDelta < 0.0) {
+            if (cgi.anim->g_vCurrentVMPosOffset[i] < vTargOfs[i]) {
+                cgi.anim->g_vCurrentVMPosOffset[i] = vTargOfs[i];
+            }
         }
     }
 
