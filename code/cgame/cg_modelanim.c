@@ -195,7 +195,7 @@ void CG_AttachEntity( refEntity_t *entity, refEntity_t *parent, dtiki_t* tiki, i
     entity->renderfx |= (parent->renderfx & ~(RF_FLAGS_NOT_INHERITED | RF_LIGHTING_ORIGIN));
 
     MatrixTransformVectorRight(entity->axis, entity->lightingOrigin, vOrigin);
-    VectorAdd(entity->lightingOrigin, vOrigin, entity->lightingOrigin);
+    VectorAdd(entity->origin, vOrigin, entity->lightingOrigin);
 }
 
 void CG_AttachEyeEntity(refEntity_t* entity, refEntity_t* parent, dtiki_t* tiki, int tagnum, qboolean use_angles, vec_t* attach_offset)
