@@ -320,7 +320,7 @@ typedef struct
    void                (*Anim_Delta) (dtiki_t* tiki, int animnum, vec3_t delta );
    int                (*Anim_Flags) (dtiki_t* tiki, int animnum);
    int                (*Anim_FlagsSkel) (dtiki_t* tiki, int animnum);
-   int                (*Anim_CrossblendTime) (dtiki_t* tiki, int animnum );
+   float                (*Anim_CrossblendTime) (dtiki_t* tiki, int animnum );
    qboolean            (*Anim_HasCommands) (dtiki_t* tiki, int animnum );
 
    // FRAME SPECIFIC STUFF
