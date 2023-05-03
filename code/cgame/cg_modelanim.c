@@ -440,7 +440,9 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         float animLength;
         float t1, t2;
 
-        t = (cg.time - cg.snap->serverTime) / (cg.nextSnap->serverTime - cg.snap->serverTime);
+        t1 = cg.time - cg.snap->serverTime;
+        t2 = cg.nextSnap->serverTime - cg.snap->serverTime;
+        t = t1 / t2;
         model.actionWeight = (sNext->actionWeight - s1->actionWeight) * t + s1->actionWeight;
 
         for (i = 0; i < MAX_FRAMEINFOS; i++)
@@ -505,7 +507,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
                 }
 
                 t2 = t1;
-                if (t2 > animLength) {
+                if (t2 < animLength) {
                     t2 = animLength;
                 }
 
