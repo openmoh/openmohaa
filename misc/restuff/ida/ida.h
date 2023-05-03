@@ -1761,7 +1761,7 @@ typedef struct usercmd_s
 	signed char rightmove;
 	signed char upmove;
 
-} userCmd_t;
+} usercmd_t, userCmd_t;
 
 typedef struct usercmd_sh_s
 {
@@ -7295,7 +7295,7 @@ typedef struct clientGameImport_s
 	void ( *GetGameState )( gameState_t *gameState );
 	int ( *GetSnapshot )( int snapshotNumber, snapshot_t *snapshot );
 	int ( *GetServerStartTime )( );
-	void ( *SetTime )( float time );
+	void ( *SetTime )( int time );
 	void ( *GetCurrentSnapshotNumber )( int *snapshotNumber, int *serverTime );
 	void ( *GetGlconfig )( glconfig_t *glConfig );
 	qboolean ( *GetParseEntityState )( int parseEntityNumber, entityState_t *state );
