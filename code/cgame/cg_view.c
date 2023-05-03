@@ -295,7 +295,7 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
                 VectorMA(origin, oHead.origin[i], mat[i], origin);
             }
 
-            cg.refdefViewAngles[2] = cg.predicted_player_state.fLeanAngle * 0.3 + cg.refdefViewAngles[2];
+            cg.refdefViewAngles[2] += cg.predicted_player_state.fLeanAngle * 0.3;
         }
     }
     else
@@ -323,7 +323,7 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
         fTargHeight = cg.predicted_player_state.origin[2] + cg.predicted_player_state.viewheight;
         fHeightDelta = fTargHeight - cg.fCurrentViewHeight;
 
-        if (fabs(fHeightDelta < 0.1) || !cg.fCurrentViewHeight)
+        if (fabs(fHeightDelta) < 0.1 || !cg.fCurrentViewHeight)
         {
             cg.fCurrentViewHeight = fTargHeight;
         }
@@ -360,7 +360,7 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 
         if (cg.predicted_player_state.pm_type != PM_CLIMBWALL)
         {
-            if (cg.refdefViewAngles[0] >= 0.0) {
+            if (cg.refdefViewAngles[0] > 0.0) {
                 vStart[2] -= (cg.fCurrentViewHeight - cg.predicted_player_state.origin[2]) * 0.4;
             }
             else {
@@ -377,7 +377,7 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 
         if (cg.predicted_player_state.fLeanAngle) {
             VectorCopy(origin, vStart);
-            vStart[2] -= 28.7;
+            vStart[2] -= 28.7f;
 
             VectorSubtract(origin, vStart, vDelta);
             RotatePointAroundVector(vEnd, vForward, vDelta, cg.predicted_player_state.fLeanAngle);
@@ -388,8 +388,7 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
         {
             fVel = VectorLength(cg.predicted_player_state.velocity);
             fPhase = fVel * 0.0015 + 0.9;
-            cg.fCurrentViewBobPhase = (cg.frametime / 1000.0 + cg.frametime * 0.001) * M_PI * fPhase
-                + cg.fCurrentViewBobPhase;
+            cg.fCurrentViewBobPhase += (cg.frametime / 1000.0 + cg.frametime / 1000.0) * M_PI * fPhase;
 
             if (cg.fCurrentViewBobAmp) {
                 cg.fCurrentViewBobAmp = fVel;
@@ -404,16 +403,13 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 
             cg.fCurrentViewBobAmp *= (1.0 - fabs(cg.refdefViewAngles[0]) * (1.0 / 90.0) * 0.5) * 0.5;
         }
-        else
+        else if (cg.fCurrentViewBobAmp > 0.0)
         {
-            if (cg.fCurrentViewBobAmp > 0.0)
-            {
-                cg.fCurrentViewBobAmp -= cg.frametime / 1000.0 * cg.fCurrentViewBobAmp
-                    + cg.frametime / 1000.0 * cg.fCurrentViewBobAmp;
+            cg.fCurrentViewBobAmp -= (cg.frametime / 1000.0 * cg.fCurrentViewBobAmp)
+                + (cg.frametime / 1000.0 * cg.fCurrentViewBobAmp);
 
-                if (cg.fCurrentViewBobAmp < 0.1) {
-                    cg.fCurrentViewBobAmp = 0.0;
-                }
+            if (cg.fCurrentViewBobAmp < 0.1) {
+                cg.fCurrentViewBobAmp = 0.0;
             }
         }
 
@@ -463,7 +459,7 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 
     VectorCopy(trace.endpos, origin);
     VectorSubtract(origin, vOldOrigin, vDelta);
-    VectorAdd(vDelta, pREnt->origin, pREnt->origin);
+    VectorAdd(pREnt->origin, vDelta, pREnt->origin);
 
     if (!bUseWorldPosition)
     {
