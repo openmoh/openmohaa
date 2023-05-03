@@ -187,7 +187,7 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
 
     if (cg.snap->ps.iViewModelAnimChanged != cgi.anim->g_iLastVMAnimChanged)
     {
-        bAnimChanged = 1;
+        bAnimChanged = qtrue;
         cgi.anim->g_iLastVMAnim = cg.snap->ps.iViewModelAnim;
         cgi.anim->g_iLastVMAnimChanged = cg.snap->ps.iViewModelAnimChanged;
     }
@@ -196,36 +196,37 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
     {
         switch (cgi.anim->g_iLastVMAnim)
         {
-        case 1:
+        case VM_ANIM_CHARGE:
             pszAnimSuffix = "charge";
             break;
-        case 2:
+        case VM_ANIM_FIRE:
             pszAnimSuffix = "fire";
             break;
-        case 3:
+        case VM_ANIM_FIRE_SECONDARY:
             pszAnimSuffix = "fire_secondary";
             break;
-        case 4:
+        case VM_ANIM_RECHAMBER:
             pszAnimSuffix = "rechamber";
             break;
-        case 5:
+        case VM_ANIM_RELOAD:
             pszAnimSuffix = "reload";
             break;
-        case 6:
+        case VM_ANIM_RELOAD_SINGLE:
             pszAnimSuffix = "reload_single";
             break;
-        case 7:
+        case VM_ANIM_RELOAD_END:
             pszAnimSuffix = "reload_end";
             break;
-        case 8:
+        case VM_ANIM_PULLOUT:
             pszAnimSuffix = "pullout";
             break;
-        case 9:
+        case VM_ANIM_PUTAWAY:
             pszAnimSuffix = "putaway";
             break;
-        case 0xA:
+        case VM_ANIM_LADDERSTEP:
             pszAnimSuffix = "ladderstep";
             break;
+        case VM_ANIM_IDLE:
         default:
             pszAnimSuffix = "idle";
             break;
@@ -246,7 +247,7 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
                         cgi.anim->g_VMFrameInfo[i].weight = fCrossblendFrac;
                     }
                     else {
-                        cgi.anim->g_VMFrameInfo[i].weight = (1.0 - fCrossblendFrac) * cgi.anim->g_VMFrameInfo[i].weight;
+                        cgi.anim->g_VMFrameInfo[i].weight *= (1.0 - fCrossblendFrac);
                     }
                 }
             }
@@ -288,14 +289,17 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
     {
         fCrossblendTime = cgi.Anim_CrossblendTime(pTiki, cgi.anim->g_VMFrameInfo[cgi.anim->g_iCurrentVMAnimSlot].index);
         fCrossblendAmount = cgi.anim->g_iCurrentVMDuration / 1000.0;
-        if (fCrossblendAmount >= fCrossblendTime || fCrossblendAmount < 0.0) {
+        if (fCrossblendAmount >= fCrossblendTime || fCrossblendAmount <= 0.0)
+        {
+            // clear crossblend values
             for (i = 0; i < MAX_FRAMEINFOS; ++i)
             {
                 if (i != cgi.anim->g_iCurrentVMAnimSlot) {
                     cgi.anim->g_VMFrameInfo[i].weight = 0.0;
                 }
             }
-            cgi.anim->g_bCrossblending = 0;
+
+            cgi.anim->g_bCrossblending = qfalse;
         }
         else {
             fCrossblendFrac = fCrossblendAmount / fCrossblendTime;
@@ -304,8 +308,9 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
 
     for (i = 0; i < MAX_FRAMEINFOS; ++i)
     {
-        if (cgi.anim->g_VMFrameInfo[i].weight == 0.0)
+        if (!cgi.anim->g_VMFrameInfo[i].weight)
         {
+            // clear the weight values of the ref entity
             pModel->frameInfo[i].index = 0;
             pModel->frameInfo[i].time = 0.0;
             pModel->frameInfo[i].weight = 0.0;
@@ -313,12 +318,12 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
         else
         {
             fAnimLength = cgi.Anim_Time(pTiki, cgi.anim->g_VMFrameInfo[i].index);
-            cgi.anim->g_VMFrameInfo[i].time = cg.frametime / 1000.0 + cgi.anim->g_VMFrameInfo[i].time;
+            cgi.anim->g_VMFrameInfo[i].time += cg.frametime / 1000.0;
 
-            if (cgi.anim->g_VMFrameInfo[i].time < fAnimLength)
+            if (cgi.anim->g_VMFrameInfo[i].time > fAnimLength)
             {
                 if (cgi.Anim_Flags(pTiki, cgi.anim->g_VMFrameInfo[i].index) & TAF_DELTADRIVEN) {
-                    cgi.anim->g_VMFrameInfo[i].time = cgi.anim->g_VMFrameInfo[i].time - fAnimLength;
+                    cgi.anim->g_VMFrameInfo[i].time -= fAnimLength;
                 }
                 else {
                     cgi.anim->g_VMFrameInfo[i].time = fAnimLength;
@@ -334,7 +339,7 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
                     pModel->frameInfo[i].weight = fCrossblendFrac;
                 }
                 else {
-                    pModel->frameInfo[i].weight = (1.0 - fCrossblendFrac) * cgi.anim->g_VMFrameInfo[i].weight;
+                    pModel->frameInfo[i].weight *= (1.0 - fCrossblendFrac);
                 }
             }
             else
