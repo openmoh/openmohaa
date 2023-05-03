@@ -451,7 +451,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
                 if (sNext->frameInfo[i].index == s1->frameInfo[i].index && s1->frameInfo[i].weight)
                 {
                     model.frameInfo[i].weight = (sNext->frameInfo[i].weight - s1->frameInfo[i].weight) * t
-                        + s1->frameInfo[i].weight;
+                            + s1->frameInfo[i].weight;
 
                     if (sNext->frameInfo[i].time >= s1->frameInfo[i].time)
                     {
@@ -465,7 +465,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
                             t1 = 0.0;
                         }
                         else {
-                            t1 = (animLength + sNext->frameInfo[i].time - s1->frameInfo[i].time) * t + cg.time;
+                            t1 = (animLength + sNext->frameInfo[i].time - s1->frameInfo[i].time) * t + s1->frameInfo[i].time;
                         }
 
                         t2 = t1;
@@ -947,9 +947,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         cgi.R_Model_GetHandle(model.hModel);
         if (VectorCompare(model.origin, vec3_origin))
         {
-            model.origin[0] = s1->origin[0];
-            model.origin[1] = s1->origin[1];
-            model.origin[2] = s1->origin[2];
+            VectorCopy(s1->origin, model.origin);
             AngleVectors(s1->angles, model.axis[0], model.axis[1], model.axis[2]);
         }
 
