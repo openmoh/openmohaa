@@ -32,7 +32,7 @@ extern "C"
 #endif
 
 #define  MAGIC_UNUSED_NUMBER 7777
-#define    CMD_BACKUP            64    
+#define    CMD_BACKUP            128    
 #define    CMD_MASK            (CMD_BACKUP - 1)
 // allow a lot of command backups for very fast systems
 // multiple commands may be combined into a single packet, so this
@@ -269,7 +269,7 @@ typedef struct
     void             (*GetGameState)( gameState_t *gamestate );
     int             (*GetSnapshot)( int snapshotNumber, snapshot_t *snapshot );
     int             (*GetServerStartTime)();
-    void            (*SetTime)(float time);
+    void            (*SetTime)(int time);
    void              (*GetCurrentSnapshotNumber)( int *snapshotNumber, int *serverTime );
    void              (*GetGlconfig)( glconfig_t *glconfig );
 
