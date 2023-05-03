@@ -1792,6 +1792,8 @@ void PmoveAdjustAngleSettings( vec_t *vViewAngles, vec_t *vAngles, playerState_t
 	QuatSet( pEntState->bone_quat[ PELVIS_TAG ], 0, 0, 0, 1 );
 }
 
+// Used to set arms angles accordingly, calculated client-side
+// Without it, the arms will look like it has latency
 void PmoveAdjustAngleSettings_Client( vec_t *vViewAngles, vec_t *vAngles, playerState_t *pPlayerState, entityState_t *pEntState )
 {
     vec3_t torsoAngles;
