@@ -1794,8 +1794,62 @@ void PmoveAdjustAngleSettings( vec_t *vViewAngles, vec_t *vAngles, playerState_t
 
 void PmoveAdjustAngleSettings_Client( vec_t *vViewAngles, vec_t *vAngles, playerState_t *pPlayerState, entityState_t *pEntState )
 {
-	//vec3_t torsoAngles, headAngles;
+    vec3_t torsoAngles;
+    int i;
 
-	// called by cgame
-	// FIXME
+	if (pPlayerState->pm_type == PM_DEAD)
+	{
+		for (i = 0; i < NUM_BONE_CONTROLLERS; i++) {
+            VectorClear(pEntState->bone_angles[i]);
+            QuatClear(pEntState->bone_quat[i]);
+		}
+	}
+	else if (pPlayerState->pm_type == PM_CLIMBWALL)
+    {
+		vec3_t headAngles;
+
+        PmoveAdjustViewAngleSettings_OnLadder(vViewAngles, vAngles, pPlayerState, pEntState);
+		VectorSet(torsoAngles, AngleMod(vViewAngles[0]), 0.0, pPlayerState->fLeanAngle * 0.7);
+
+		if (torsoAngles[0] > 180.0) {
+			torsoAngles[0] -= 180.0;
+		}
+
+		torsoAngles[0] += 8.0;
+
+        VectorClear(pEntState->bone_angles[TORSO_TAG]);
+        QuatClear(pEntState->bone_quat[TORSO_TAG]);
+        VectorClear(pEntState->bone_angles[PELVIS_TAG]);
+        QuatClear(pEntState->bone_quat[PELVIS_TAG]);
+
+		VectorCopy(torsoAngles, pEntState->bone_angles[ARMS_TAG]);
+		EulerToQuat(pEntState->bone_angles[ARMS_TAG], pEntState->bone_quat[ARMS_TAG]);
+
+		// head angles
+        AnglesSubtract(vViewAngles, vAngles, headAngles);
+        headAngles[0] *= 0.5;
+		AnglesSubtract(headAngles, torsoAngles, headAngles);
+        VectorCopy(headAngles, pEntState->bone_angles[HEAD_TAG]);
+        EulerToQuat(pEntState->bone_angles[HEAD_TAG], pEntState->bone_quat[HEAD_TAG]);
+	}
+    else {
+		// Clear the head, torso and pelvis
+        VectorClear(pEntState->bone_angles[HEAD_TAG]);
+        QuatClear(pEntState->bone_quat[HEAD_TAG]);
+        VectorClear(pEntState->bone_angles[TORSO_TAG]);
+        QuatClear(pEntState->bone_quat[TORSO_TAG]);
+        VectorClear(pEntState->bone_angles[PELVIS_TAG]);
+        QuatClear(pEntState->bone_quat[PELVIS_TAG]);
+
+		VectorSet(vAngles, 0, AngleMod(vViewAngles[1]), 0);
+		VectorSet(torsoAngles, AngleMod(vViewAngles[0]), 0, pPlayerState->fLeanAngle * 0.7);
+
+        if (torsoAngles[0] > 180.0) {
+            torsoAngles[0] -= 180.0;
+        }
+
+        torsoAngles[0] += 8.0;
+        VectorCopy(torsoAngles, pEntState->bone_angles[ARMS_TAG]);
+        EulerToQuat(pEntState->bone_angles[ARMS_TAG], pEntState->bone_quat[ARMS_TAG]);
+	}
 }
