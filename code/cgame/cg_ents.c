@@ -580,7 +580,9 @@ CG_AddPacketEntities
 void CG_AddPacketEntities( void ) {
 	int					num;
 	centity_t			*cent;
-//	playerState_t		*ps;
+    int child, parent;
+    qboolean processed[MAX_ENTITIES];
+    int i;
 
 	// the auto-rotating items will all have the same axis
 	cg.autoAngles[0] = 0;
@@ -599,16 +601,35 @@ void CG_AddPacketEntities( void ) {
 	AnglesToAxis( cg.autoAnglesSlow, cg.autoAxisSlow );
 	AnglesToAxis( cg.autoAnglesFast, cg.autoAxisFast );
 
-	// generate and add the entity from the playerstate
-	//ps = &cg.predicted_player_state;
-	//PlayerStateToEntityState( ps, &cg_entities[ ps->clientNum ].currentState );
-	//CG_AddCEntity( &cg_entities[ ps->clientNum ] );
+    for (i = 0; i < MAX_ENTITIES; i++) {
+        processed[i] = qtrue;
+    }
 
-	// add each entity sent over by the server
-	for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
-		cent = &cg_entities[ cg.snap->entities[ num ].number ];
-		CG_AddCEntity( cent );
-	}
+    for (num = 0; num < cg.snap->numEntities; ++num) {
+        processed[cg.snap->entities[num].number] = qfalse;
+    }
+
+    // add each entity sent over by the server
+    for (num = 0; num < cg.snap->numEntities; num++) {
+        child = cg.snap->entities[num].number;
+        cent = &cg_entities[child];
+        // add the parent first
+        // so attachments are consistent
+        for (parent = cent->currentState.parent;
+            parent != ENTITYNUM_NONE && !processed[parent];
+            parent = cg_entities[parent].currentState.parent)
+        {
+            processed[parent] = qtrue;
+            CG_AddCEntity(&cg_entities[parent]);
+        }
+
+        if (!processed[child])
+        {
+            // now add the children if not processed
+            processed[child] = qtrue;
+            CG_AddCEntity(cent);
+        }
+    }
 
    // Add in the multibeams at the end
    for ( num = 0 ; num < cg.snap->numEntities ; num++ ) {
