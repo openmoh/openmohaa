@@ -344,12 +344,6 @@ static void CG_InterpolatePlayerState(qboolean grabAngles)
 
     f = cg.frameInterpolation;
 
-    i = next->ps.bobCycle;
-    if (i < prev->ps.bobCycle) {
-        i += 256; // handle wraparound
-    }
-    out->bobCycle = prev->ps.bobCycle + f * (i - prev->ps.bobCycle);
-
     for (i = 0; i < 3; i++) {
         out->origin[i] =
             prev->ps.origin[i] + f * (next->ps.origin[i] - prev->ps.origin[i]);
@@ -393,7 +387,6 @@ void CG_PredictPlayerState(void)
     int cmdNum, current;
     playerState_t oldPlayerState;
     qboolean moved;
-    usercmd_t oldestCmd;
     usercmd_t latestCmd;
 
     cg.hyperspace = qfalse; // will be set if touching a trigger_teleport
@@ -434,34 +427,12 @@ void CG_PredictPlayerState(void)
         cg_pmove.tracemask = MASK_PLAYERSOLID;
     }
 
-    /* FIXME
-         if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR )
-       {
-                 cg_pmove.tracemask &= ~CONTENTS_BODY;	// spectators can fly
-       through bodies
-            }
-    */
-
     cg_pmove.noFootsteps = (cgs.dmflags & DF_NO_FOOTSTEPS) > 0;
 
     // save the state before the pmove so we can detect transitions
     oldPlayerState = cg.predicted_player_state;
 
     current = cgi.GetCurrentCmdNumber();
-
-    // if we don't have the commands right after the snapshot, we
-    // can't accurately predict a current position, so just freeze at
-    // the last good position we had
-    cmdNum = current - CMD_BACKUP + 1;
-    cgi.GetUserCmd(cmdNum, &oldestCmd);
-    if (oldestCmd.serverTime > cg.snap->ps.commandTime &&
-        oldestCmd.serverTime < cg.time) { // special check for map_restart
-        if (cg_showmiss->integer) {
-            cgi.Printf("exceeded PACKET_BACKUP on commands\n");
-        }
-
-        return;
-    }
 
     // get the latest command so we can know which commands are from previous
     // map_restarts
@@ -479,11 +450,28 @@ void CG_PredictPlayerState(void)
         cg.physicsTime = cg.snap->serverTime;
     }
 
+    if (pmove_msec->integer >= 8)
+    {
+        if (pmove_msec->integer > 33)
+            cgi.Cvar_Set("pmove_msec", "33");
+    }
+    else
+    {
+        cgi.Cvar_Set("pmove_msec", "8");
+    }
+
+    cg_pmove.pmove_fixed = pmove_fixed->integer;
+    cg_pmove.pmove_msec = pmove_msec->integer;
+
     // run cmds
     moved = qfalse;
     for (cmdNum = current - CMD_BACKUP + 1; cmdNum <= current; cmdNum++) {
         // get the command
         cgi.GetUserCmd(cmdNum, &cg_pmove.cmd);
+
+        if (cg_pmove.pmove_fixed) {
+            PM_UpdateViewAngles(cg_pmove.ps, &cg_pmove.cmd);
+        }
 
         // don't do anything if the time is before the snapshot player time
         if (cg_pmove.cmd.serverTime <= cg.predicted_player_state.commandTime) {
@@ -517,6 +505,12 @@ void CG_PredictPlayerState(void)
         if (cg_pmove.ps->feetfalling && (cg_pmove.waterlevel < 2)) {
             cg_pmove.cmd.forwardmove = 0;
             cg_pmove.cmd.rightmove = 0;
+        }
+
+        if (cg_pmove.pmove_fixed) {
+            cg_pmove.cmd.serverTime = pmove_msec->integer
+                * ((cg_pmove.cmd.serverTime + pmove_msec->integer - 1)
+                    / pmove_msec->integer);
         }
 
         Pmove(&cg_pmove);
