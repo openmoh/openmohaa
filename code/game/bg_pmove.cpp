@@ -1847,7 +1847,7 @@ void PmoveAdjustAngleSettings_Client( vec_t *vViewAngles, vec_t *vAngles, player
 		VectorSet(torsoAngles, AngleMod(vViewAngles[0]), 0, pPlayerState->fLeanAngle * 0.7);
 
         if (torsoAngles[0] > 180.0) {
-            torsoAngles[0] -= 180.0;
+            torsoAngles[0] -= 360.0;
         }
 
         torsoAngles[0] += 8.0;
