@@ -2831,7 +2831,7 @@ void ClientGameCommandManager::AnimateTempModel(ctempmodel_t* p, Vector origin,
     // This code is for animating tempmodels that are spawned from the client
     // side
 
-    if (p->cgd.tiki < 0) {
+    if (!p->cgd.tiki) {
         return;
     }
 
@@ -3078,7 +3078,7 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
     // Only do real collision if necessary
     if (p->cgd.flags & T_COLLISION) {
         // trace a line from previous position to new position
-        CG_Trace(&trace, p->cgd.oldorigin, NULL, NULL, p->cgd.origin, -1,
+        CG_Trace(&trace, p->cgd.oldorigin, vec3_origin, vec3_origin, p->cgd.origin, -1,
                  p->cgd.collisionmask, qfalse, qfalse, "Collision");
     } else {
         // Fake it out so it never collides
