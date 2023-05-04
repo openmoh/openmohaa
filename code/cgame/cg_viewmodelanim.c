@@ -359,7 +359,7 @@ void CG_CalcViewModelMovement(float fViewBobPhase, float fViewBobAmp, vec_t* vVe
     vec3_t vTargOfs;
     vec3_t vNorm;
 
-    fPhase = sin(fViewBobPhase + M_PI) * fViewBobAmp * vm_sway_side->value;
+    fPhase = sin(fViewBobPhase + M_PI / 10) * fViewBobAmp * vm_sway_side->value;
     vMovement[0] = fPhase * vm_sway_front->value;
     vMovement[1] = fPhase;
 
