@@ -3902,9 +3902,15 @@ void ClientGameCommandManager::PlaySound(str sound_name, vec3_t origin,
                                          float pitch, int argstype)
 
 {
+    int aliaschannel;
+    float aliasvolume;
+    float aliasmin_distance;
+    float aliaspitch;
     const char* name = NULL;
-    str random_alias;
-    AliasListNode_t* soundAlias;
+    static cvar_t* g_subtitle = cgi.Cvar_Get("g_subtitle", "0", CVAR_ARCHIVE);
+    static cvar_t* debugSound = cgi.Cvar_Get("debugSound", "0", 0);
+    float maxDist;
+    AliasListNode_t* soundAlias = NULL;
 
     // FIXME
     // TODO: Pitch modulation
@@ -3920,19 +3926,109 @@ void ClientGameCommandManager::PlaySound(str sound_name, vec3_t origin,
         name = cgi.Alias_FindRandom(sound_name.c_str(), &soundAlias);
     }
 
-    if (!name) {
-        name = sound_name.c_str();
+    if (!name || !soundAlias) {
+        Com_Printf("\nERROR PlaySound: %s needs an alias in ubersound.scr or uberdialog.scr - Please fix.\n", sound_name.c_str());
+        return;
     }
 
-    if (origin) {
-        cgi.S_StartSound(origin, current_entity_number, channel,
+    aliasvolume = soundAlias->volumeMod * random() + soundAlias->volume;
+    aliaspitch = soundAlias->pitchMod * random() + soundAlias->pitch;
+    aliasmin_distance = soundAlias->dist;
+    aliaschannel = soundAlias->channel;
+    maxDist = soundAlias->maxDist;
+
+    if (soundAlias->subtitle)
+    {
+        if (g_subtitle->integer
+            || !sound_name.icmpn("den", 3)
+            || !sound_name.icmpn("snd_den", 6))
+        {
+            // show subtitles if near the sound
+            if (origin
+                && (g_subtitle->integer == 2 || DistanceSquared(origin, cg.refdef.vieworg) < (maxDist * maxDist)))
+            {
+                int curSub;
+
+                // also put subtitles if it's from a german dialogue
+                curSub = cgi.Cvar_Get("curSubtitle", "0", 0)->integer;
+                cgi.Cvar_Set(va("subtitle%d", curSub), va("%s", soundAlias->subtitle));
+                // increment the subtitle
+                cgi.Cvar_Set("curSubtitle", va("%d", (curSub + 1) % 4));
+            }
+        }
+    }
+
+    if (argstype)
+    {
+        if (argstype == 1)
+        {
+            if (debugSound->integer) {
+                Com_Printf("WARNING: Sound %s had its parm modified by code.\n", sound_name.c_str());
+            }
+
+            if (volume >= 0.0) {
+                volume = volume * aliasvolume;
+            }
+            else {
+                volume = aliasvolume;
+            }
+
+            if (pitch >= 0.0) {
+                pitch = pitch * aliaspitch;
+            }
+            else {
+                pitch = aliaspitch;
+            }
+
+            if (min_distance < 0.0) {
+                min_distance = aliasmin_distance;
+            }
+
+            if (channel < 0) {
+                channel = aliaschannel;
+            }
+        }
+        else
+        {
+            if (debugSound->integer) {
+                Com_Printf("\nWARNING: OVERRIDE OVERRIDE OVERRIDESound %s had all its parm overriden by code.\n\n", sound_name.c_str());
+            }
+
+            if (volume < 0.0) {
+                volume = aliasvolume;
+            }
+
+            if (pitch < 0.0) {
+                pitch = aliaspitch;
+            }
+
+            if (min_distance < 0.0) {
+                min_distance = aliasmin_distance;
+            }
+
+            if (channel < 0) {
+                channel = aliaschannel;
+            }
+        }
+    }
+    else {
+        volume = aliasvolume;
+        pitch = aliaspitch;
+        min_distance = aliasmin_distance;
+        channel = aliaschannel;
+    }
+
+    if (current_entity_number == -1) {
+        cgi.S_StartSound(origin, ENTITYNUM_NONE, channel,
                          cgi.S_RegisterSound(name, soundAlias->streamed),
                          volume, min_distance, pitch, soundAlias->maxDist,
                          soundAlias->streamed);
-    } else {
-        cgi.S_StartSound(NULL, current_entity_number, channel,
-                         cgi.S_RegisterSound(name, soundAlias->streamed), volume,
-                         min_distance, pitch, soundAlias->maxDist, soundAlias->streamed);
+    }
+    else {
+        cgi.S_StartSound(origin, current_entity_number, channel,
+            cgi.S_RegisterSound(name, soundAlias->streamed),
+            volume, min_distance, pitch, soundAlias->maxDist,
+            soundAlias->streamed);
     }
 }
 
