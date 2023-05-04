@@ -85,10 +85,10 @@ typedef struct cg_s
 	vec3_t refdefViewAngles;
 	vec3_t currentViewPos;
 	vec3_t currentViewAngles;
+	int unkab[4];
     float fCurrentViewHeight;
     float fCurrentViewBobPhase;
     float fCurrentViewBobAmp;
-	int unk1[10];
     dtiki_t*    pLastPlayerWorldModel;
     dtiki_t*    pPlayerFPSModel;
     qhandle_t   hPlayerFPSModelHandle;
@@ -123,7 +123,6 @@ typedef struct cg_s
 	refEntity_t testModelEntity;
 	char testModelName[MAX_QPATH];
 	int testGun;
-	float unk12;
     float farplane_distance;
 	float farplane_bias;
     vec3_t farplane_color;
@@ -147,6 +146,7 @@ typedef struct cg_s
     float         ObjectivesDesiredAlpha;
     float         ObjectivesCurrentAlpha;
     crain_t rain;
+	float unk12;
 	int unk14[18];
 	clientInfo_t clientinfo[MAX_CLIENTS];
 
