@@ -1,3 +1,8 @@
+#pragma once
+
+#include "ida_cgame.h"
+#include "ida_common_aa.h"
+
 typedef struct beam_s {
 	Class_t baseClass;
 	int entity;
