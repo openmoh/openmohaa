@@ -252,6 +252,10 @@ void CG_Footstep(char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunni
 	CG_FootstepMain(&trace, iRunning, iEquipment);
 }
 
+void CG_MeleeImpact(vec3_t vStart, vec3_t vEnd) {
+	// FIXME: unimplemented
+}
+
 #if 0
 void CG_Footstep(char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunning, int iEquipment)
 {
