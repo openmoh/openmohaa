@@ -721,7 +721,13 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
             {
                 if (cgi.TIKI_IsOnGround(&model, iTagNum, 13.461539f))
                 {
-                    CG_Footstep("Bip01 R Foot", cent, &model, (iAnimFlags >> 11) & 1, (iAnimFlags >> 12) & 1);
+                    CG_Footstep(
+                        "Bip01 R Foot",
+                        cent,
+                        &model,
+                        (iAnimFlags & TAF_AUTOFOOTSTEPS_RUNNING),
+                        (iAnimFlags & TAF_AUTOFOOTSTEPS_EQUIPMENT)
+                    );
                     cent->bFootOnGround_Right = qtrue;
                 }
             }
@@ -732,7 +738,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
 
         if (cent->bFootOnGround_Left)
         {
-            iTagNum = cgi.Tag_NumForName(model.tiki, "Bip01 R Foot");
+            iTagNum = cgi.Tag_NumForName(model.tiki, "Bip01 L Foot");
             if (iTagNum >= 0)
             {
                 cent->bFootOnGround_Left = cgi.TIKI_IsOnGround(&model, iTagNum, 13.653847f);
@@ -743,12 +749,19 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         }
         else
         {
-            iTagNum = cgi.Tag_NumForName(model.tiki, "Bip01 R Foot");
+            iTagNum = cgi.Tag_NumForName(model.tiki, "Bip01 L Foot");
             if (iTagNum >= 0)
             {
                 if (cgi.TIKI_IsOnGround(&model, iTagNum, 13.461539f))
                 {
-                    CG_Footstep("Bip01 L Foot", cent, &model, (iAnimFlags >> 11) & 1, (iAnimFlags >> 12) & 1);
+                    CG_Footstep(
+                        "Bip01 L Foot",
+                        cent,
+                        &model,
+                        (iAnimFlags & TAF_AUTOFOOTSTEPS_RUNNING),
+                        (iAnimFlags & TAF_AUTOFOOTSTEPS_EQUIPMENT)
+                    );
+
                     cent->bFootOnGround_Left = qtrue;
                 }
             }
