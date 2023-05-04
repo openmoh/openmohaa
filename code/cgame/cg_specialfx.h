@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 
 #include "cg_local.h"
+#include "cg_commands.h"
+#include "class.h"
 
 class specialeffectcommand_t : public Class {
 public:
