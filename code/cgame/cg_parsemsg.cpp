@@ -41,16 +41,16 @@ typedef struct {
     qboolean bIgnoreEntities;
 } bullet_tracer_t;
 
-#define MAX_TRACERS 32
-#define MAX_BULLETS 1024
+#define MAX_BULLET_TRACERS 32
+#define MAX_BULLET_TRACE_BULLETS 1024
 #define MAX_IMPACTS 64
 
 static int bullet_tracers_count;
 static int bullet_tracer_bullets_count;
 static int wall_impact_count;
 static int flesh_impact_count;
-static bullet_tracer_t bullet_tracers[MAX_TRACERS];
-static vec3_t bullet_tracer_bullets[MAX_BULLETS];
+static bullet_tracer_t bullet_tracers[MAX_BULLET_TRACERS];
+static vec3_t bullet_tracer_bullets[MAX_BULLET_TRACE_BULLETS];
 static vec3_t wall_impact_pos[MAX_IMPACTS];
 static vec3_t wall_impact_norm[MAX_IMPACTS];
 static int wall_impact_large[MAX_IMPACTS];
@@ -60,7 +60,35 @@ static vec3_t flesh_impact_norm[MAX_IMPACTS];
 static int flesh_impact_large[MAX_IMPACTS];
 
 static void CG_MakeBulletTracer(vec3_t i_vBarrel, vec3_t i_vStart, vec3_t* i_vEnd, int i_iNumBullets, qboolean iLarge, int iTracerVisible, qboolean bIgnoreEntities) {
-    // FIXME: unimplemented
+    bullet_tracer_t* bullet_tracer;
+    int i;
+
+    if (bullet_tracer_bullets_count > MAX_BULLET_TRACERS) {
+        Com_Printf("CG_MakeBulletTracer: MAX_BULLET_TRACERS exceeded\n");
+        return;
+    }
+
+    if (i_iNumBullets + bullet_tracers_count >= MAX_BULLET_TRACE_BULLETS) {
+        Com_Printf("CG_MakeBulletTracerInternal: MAX_BULLET_TRACE_BULLETS exceeded\n");
+        return;
+    }
+
+    bullet_tracer = &bullet_tracers[bullet_tracer_bullets_count++];
+    VectorCopy(i_vBarrel, bullet_tracer->i_vBarrel);
+    VectorCopy(i_vStart, bullet_tracer->i_vStart);
+    bullet_tracer->i_vEnd = &bullet_tracer_bullets[bullet_tracers_count];
+    bullet_tracer->i_iNumBullets = i_iNumBullets;
+
+    for (i = 0; i < i_iNumBullets; ++i)
+    {
+        bullet_tracer_bullets[bullet_tracers_count][0] = (*i_vEnd)[i];
+        bullet_tracer_bullets[bullet_tracers_count][1] = (*i_vEnd)[i + 1];
+        bullet_tracer_bullets[bullet_tracers_count++][2] = (*i_vEnd)[i + 2];
+    }
+
+    bullet_tracer->iLarge = iLarge;
+    bullet_tracer->iTracerVisible = iTracerVisible;
+    bullet_tracer->bIgnoreEntities = bIgnoreEntities;
 }
 
 static void CG_MakeBubbleTrail(vec3_t i_vStart, vec3_t i_vEnd, int iLarge) {
@@ -276,6 +304,7 @@ void CG_ParseCGMessage()
             vStart[0] = cgi.MSG_ReadCoord();
             vStart[1] = cgi.MSG_ReadCoord();
             vStart[2] = cgi.MSG_ReadCoord();
+            iLarge = cgi.MSG_ReadByte();
             // get the integer as string
             itoa(iLarge, cTmp, 10);
 
@@ -459,6 +488,8 @@ void CG_ParseCGMessage()
         }
             break;
         }
+
+        bMoreCGameMessages = cgi.MSG_ReadBits(1);
     }
 
     // FIXME: unimplemented
