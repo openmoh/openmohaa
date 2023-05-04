@@ -63,7 +63,7 @@ static void CG_MakeBulletTracer(vec3_t i_vBarrel, vec3_t i_vStart, vec3_t* i_vEn
     bullet_tracer_t* bullet_tracer;
     int i;
 
-    if (bullet_tracer_bullets_count > MAX_BULLET_TRACERS) {
+    if (bullet_tracer_bullets_count >= MAX_BULLET_TRACERS) {
         Com_Printf("CG_MakeBulletTracer: MAX_BULLET_TRACERS exceeded\n");
         return;
     }
@@ -307,8 +307,6 @@ void CG_ParseCGMessage()
             iLarge = cgi.MSG_ReadByte();
             // get the integer as string
             itoa(iLarge, cTmp, 10);
-
-            iLarge = cgi.MSG_ReadByte();
 
             if (iType == 23) {
                 sEffect = "models/fx/crates/debris_";
