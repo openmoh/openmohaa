@@ -3146,13 +3146,13 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
             if (p->cgd.flags & T_BOUNCESOUNDONCE) {
                 vec3_t org;
                 VectorCopy(p->cgd.origin, org);
-                PlaySound(p->cgd.bouncesound, &org);
+                PlaySound(p->cgd.bouncesound, org);
                 p->cgd.flags &= ~(T_BOUNCESOUNDONCE | T_BOUNCESOUND);
             } else if ((p->cgd.flags & T_BOUNCESOUND) &&
                        (p->next_bouncesound_time < cg.time)) {
                 vec3_t org;
                 VectorCopy(p->cgd.origin, org);
-                PlaySound(p->cgd.bouncesound, &org);
+                PlaySound(p->cgd.bouncesound, org);
                 p->next_bouncesound_time = cg.time + p->cgd.bouncesound_delay;
             }
         }
@@ -3896,7 +3896,7 @@ void ClientGameCommandManager::EmitterOff(Event* ev)
 //===============
 // Sound
 //===============
-void ClientGameCommandManager::PlaySound(str sound_name, vec3_t* origin,
+void ClientGameCommandManager::PlaySound(str sound_name, vec3_t origin,
                                          int channel, float volume,
                                          float min_distance,
                                          float pitch, int argstype)
@@ -3925,7 +3925,7 @@ void ClientGameCommandManager::PlaySound(str sound_name, vec3_t* origin,
     }
 
     if (origin) {
-        cgi.S_StartSound(*origin, current_entity_number, channel,
+        cgi.S_StartSound(origin, current_entity_number, channel,
                          cgi.S_RegisterSound(name, soundAlias->streamed),
                          volume, min_distance, pitch, soundAlias->maxDist,
                          soundAlias->streamed);
@@ -3969,7 +3969,7 @@ void ClientGameCommandManager::Sound(Event* ev)
 
     // play the sound
     if (current_entity) {
-        PlaySound(sound_name, &current_entity->origin, channel, volume,
+        PlaySound(sound_name, current_entity->origin, channel, volume,
                   min_distance);
     } else {
         PlaySound(sound_name, NULL, channel, volume, min_distance);
