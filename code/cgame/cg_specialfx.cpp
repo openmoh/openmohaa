@@ -31,8 +31,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern refEntity_t *current_entity;
 extern dtiki_t* current_tiki;
 
-static vec3_t g_vFootstepMins;
-static vec3_t g_vFootstepMaxs;
+static vec3_t g_vFootstepMins = { -4, -4, 0 };
+static vec3_t g_vFootstepMaxs = { 4, 4, 2 };
 static vec3_t g_vLadderstepMins;
 static vec3_t g_vLadderstepMaxs;
 
@@ -405,7 +405,187 @@ void CG_MeleeImpact(vec3_t vStart, vec3_t vEnd) {
 
 void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEquipment)
 {
-	// FIXME: unimplemented
+	int contents;
+	int surftype;
+	int iEffectNum;
+	vec3_t vStart, vEnd;
+	vec3_t midlegs;
+	str sSoundName;
+	trace_t trace;
+
+	if (ent->iNextLandTime > cg.time) {
+		ent->iNextLandTime = cg.time + 200;
+		return;
+	}
+
+	ent->iNextLandTime = cg.time + 200;
+	VectorCopy(ent->lerpOrigin, vStart);
+	vStart[2] += GROUND_DISTANCE;
+
+	VectorCopy(vStart, vEnd);
+	vEnd[2] -= 64.0;
+
+    if (ent->currentState.eType == ET_PLAYER)
+    {
+        CG_Trace(
+            &trace,
+            vStart,
+            g_vFootstepMins,
+			g_vFootstepMaxs,
+            vEnd,
+            ent->currentState.number,
+            MASK_PLAYERSOLID,
+            qtrue,
+            qtrue,
+            "Player Footsteps"
+        );
+    }
+    else
+    {
+        CG_Trace(
+            &trace,
+            vStart,
+			g_vFootstepMins,
+			g_vFootstepMaxs,
+            vEnd,
+            ent->currentState.number,
+            MASK_MONSTERSOLID,
+            qfalse,
+            qfalse,
+            "Monster Footsteps"
+        );
+    }
+
+	if (trace.fraction == 1.0) {
+		return;
+	}
+
+	sSoundName += "snd_landing_";
+
+    contents = CG_PointContents(trace.endpos, -1);
+    if (contents & MASK_WATER)
+    {
+        // take our ground position and trace upwards 
+        VectorCopy(trace.endpos, midlegs);
+        midlegs[2] += WATER_NO_SPLASH_HEIGHT;
+        contents = CG_PointContents(midlegs, -1);
+        if (contents & MASK_WATER)
+        {
+            sSoundName += "wade";
+        }
+        else
+        {
+            sSoundName += "puddle";
+            iEffectNum = 95;
+        }
+    }
+    else
+    {
+        surftype = trace.surfaceFlags & MASK_SURF_TYPE;
+        switch (surftype)
+        {
+        case SURF_FOLIAGE:
+            sSoundName += "foliage";
+            iEffectNum = 93;
+            break;
+        case SURF_SNOW:
+            sSoundName += "snow";
+            iEffectNum = 97;
+            break;
+        case SURF_CARPET:
+            sSoundName += "carpet";
+            iEffectNum = 90;
+            break;
+        case SURF_SAND:
+            sSoundName += "sand";
+            iEffectNum = 96;
+            break;
+        case SURF_PUDDLE:
+            sSoundName += "puddle";
+            iEffectNum = 95;
+            break;
+        case SURF_GLASS:
+            sSoundName += "glass";
+            iEffectNum = 90;
+            break;
+        case SURF_GRAVEL:
+            sSoundName += "gravel";
+            iEffectNum = 91;
+            break;
+        case SURF_MUD:
+            sSoundName += "mud";
+            iEffectNum = 94;
+            break;
+        case SURF_DIRT:
+            sSoundName += "dirt";
+            iEffectNum = 92;
+            break;
+        case SURF_GRILL:
+            sSoundName += "grill";
+            iEffectNum = 90;
+            break;
+        case SURF_GRASS:
+            sSoundName += "grass";
+            iEffectNum = 93;
+            break;
+        case SURF_ROCK:
+            sSoundName += "stone";
+            iEffectNum = 91;
+            break;
+        case SURF_PAPER:
+            sSoundName += "paper";
+            iEffectNum = 90;
+            break;
+        case SURF_WOOD:
+            sSoundName += "wood";
+            iEffectNum = 90;
+            break;
+        case SURF_METAL:
+            sSoundName += "metal";
+            iEffectNum = 90;
+            break;
+        default:
+            sSoundName += "stone";
+            iEffectNum = 91;
+            break;
+        }
+    }
+
+    if (cg_debugFootsteps->integer) {
+        cgi.DPrintf("Landing: %s    volume: %.2f   effect = %i\n", sSoundName.c_str(), volume, contents);
+	}
+
+    commandManager.PlaySound(
+        sSoundName,
+        trace.endpos,
+        -1,
+        volume,
+        -1,
+        -1,
+        1
+    );
+
+    if (iEquipment && random() < 0.5) {
+
+        commandManager.PlaySound(
+            "snd_step_equipment",
+            ent->lerpOrigin,
+            -1,
+            volume,
+            -1,
+            -1,
+            1
+        );
+	}
+
+	if (iEffectNum != -1)
+	{
+		sfxManager.MakeEffect_Angles(
+			iEffectNum,
+			trace.endpos,
+			Vector(270, 0, 0)
+		);
+	}
 }
 /*
 ===============
