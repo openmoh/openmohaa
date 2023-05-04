@@ -31,16 +31,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../skeletor/skeletor_model_file_format.h"
 
 // animation flags
-#define TAF_RANDOM					0x1		// random
-#define TAF_NOREPEAT				0x2		// no loop
-#define TAF_DONTREPEAT				( TAF_RANDOM | TAF_NOREPEAT )	// don't repeat
-#define TAF_AUTOSTEPS_DOG			0x4		// footsteps for dogs
-#define TAF_DEFAULT_ANGLES			0x8		// ?
-#define TAF_NOTIMECHECK				0x10	// don't check for timing
-#define TAF_AUTOSTEPS_WALK			( TAF_NOTIMECHECK | TAF_AUTOSTEPS_DOG )	// walk
-#define TAF_AUTOSTEPS_RUN			( TAF_NOTIMECHECK | TAF_AUTOSTEPS_DOG | TAF_DEFAULT_ANGLES )	// run
-#define TAF_DELTADRIVEN				0x20	// animation is based on skeletor animation's delta
-#define TAF_AUTOFOOTSTEPS			0x400
+#define TAF_RANDOM						0x1		// random
+#define TAF_NOREPEAT					0x2		// no loop
+#define TAF_DONTREPEAT					( TAF_RANDOM | TAF_NOREPEAT )	// don't repeat
+#define TAF_AUTOSTEPS_DOG				0x4		// footsteps for dogs
+#define TAF_DEFAULT_ANGLES				0x8		// ?
+#define TAF_NOTIMECHECK					0x10	// don't check for timing
+#define TAF_AUTOSTEPS_WALK				( TAF_NOTIMECHECK | TAF_AUTOSTEPS_DOG )	// walk
+#define TAF_AUTOSTEPS_RUN				( TAF_NOTIMECHECK | TAF_AUTOSTEPS_DOG | TAF_DEFAULT_ANGLES )	// run
+#define TAF_DELTADRIVEN					0x20	// animation is based on skeletor animation's delta
+#define TAF_AUTOFOOTSTEPS				0x400
+#define TAF_AUTOFOOTSTEPS_RUNNING		0x800
+#define TAF_AUTOFOOTSTEPS_EQUIPMENT		0x1000
 
 // skeletor animation flags
 #define TAF_HASDELTA			0x40
