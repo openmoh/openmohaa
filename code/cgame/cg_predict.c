@@ -115,15 +115,19 @@ static void CG_ClipMoveToEntities(const vec3_t start, const vec3_t mins,
             if (!cmodel) {
                 continue;
             }
-            VectorCopy(cent->lerpAngles, angles);
-            VectorCopy(cent->lerpOrigin, origin);
         } else {
             IntegerToBoundingBox(ent->solid, bmins, bmaxs);
             cmodel = cgi.CM_TempBoxModel(
                 bmins, bmaxs,
-                CONTENTS_BODY); // CONTENTS_SOLID | CONTENTS_BODY );
-            VectorCopy(vec3_origin, angles);
-            VectorCopy(cent->lerpOrigin, origin);
+                CONTENTS_BBOX);
+        }
+
+        VectorCopy(cent->lerpOrigin, origin);
+        if (ent->eFlags & EF_LINKANGLES) {
+            VectorCopy(cent->lerpAngles, angles);
+        }
+        else {
+            VectorClear(angles);
         }
 
         cgi.CM_TransformedBoxTrace(&trace, start, end, mins, maxs, cmodel, mask,
