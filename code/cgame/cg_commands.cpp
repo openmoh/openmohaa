@@ -1182,14 +1182,14 @@ void ClientGameCommandManager::CommandDelay(Event* ev)
     ProcessEvent(ev1);
 }
 
-void ClientGameCommandManager::SetCurrentSFX(Event* ev)
+void ClientGameCommandManager::SetCurrentSFX(specialeffect_t* pSFX)
 {
-    // FIXME: unimplemented
+    m_pCurrentSfx = pSFX;
 }
 
 void ClientGameCommandManager::ClearCurrentSFX()
 {
-    // FIXME: unimplemented
+    m_pCurrentSfx = NULL;
 }
 
 //===============

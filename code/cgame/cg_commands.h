@@ -859,7 +859,7 @@ public:
     void InitializeVSSSources();
     void ResetVSSSources();
     void ResetVSSSources(Event* ev);
-    void SetCurrentSFX(Event* ev);
+    void SetCurrentSFX(specialeffect_t* pSFX);
     void ClearCurrentSFX();
     void AddTreadMarkSources();
     void InitializeTreadMarkCvars();
