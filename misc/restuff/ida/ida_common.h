@@ -1421,10 +1421,10 @@ typedef struct outPacket_s
 
 typedef struct trace_s
 {
-	qboolean allSolid;
-	qboolean startSolid;
+	qboolean allsolid;
+	qboolean startsolid;
 	float fraction;
-	vec3_t endPos;
+	vec3_t endpos;
 	cplane_t plane;
 	int surfaceFlags;
 	int shaderNum;

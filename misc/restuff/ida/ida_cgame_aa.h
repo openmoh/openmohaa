@@ -263,7 +263,15 @@ typedef struct specialeffectcommand_s {
 	Class_t baseClass;
 	spawnthing_t* emitter;
 	float fCommandTime;
-	void (*endfcn)();
+	struct {
+		short index;
+		short delta;
+		union {
+			void (*__pfn) ();
+			short int __delta2;
+		} __pfn_or_delta2;
+	} endfcn;
+    Event2 *pEvent;
 } specialeffectcommand_t;
 
 typedef struct specialeffect_s {
