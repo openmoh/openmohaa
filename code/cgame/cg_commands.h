@@ -762,6 +762,7 @@ private:
     void BeginOriginBeamEmitter(Event* ev);
     void EndOriginBeamEmitter(void);
     void BeginTagSpawn(Event* ev);
+    void BeginTagSpawnLinked(Event* ev);
     void EndTagSpawn(void);
     void BeginTagBeamSpawn(Event* ev);
     void EndTagBeamSpawn(void);
@@ -803,7 +804,7 @@ private:
     void SetParallel(Event* ev);
     void Footstep(Event* ev);
     void LandingSound(Event* ev);
-    void BodyFallSOund(Event* ev);
+    void BodyFallSound(Event* ev);
     void SetAlwaysDraw(Event* ev);
     void SetDetail(Event* ev);
     void SetWindAffect(Event* ev);
