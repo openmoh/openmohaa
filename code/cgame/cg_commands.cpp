@@ -168,6 +168,15 @@ Event EV_Client_SetColor
    "red green blue alpha",
    "Set the color (modulate) of the spawned tempmodel."
    );
+Event EV_Client_SetRadialVelocity
+   (
+   "radialvelocity",
+   EV_DEFAULT,
+   "fff",
+   "scale min_additional max_additional",
+   "Subtracts the particle origin from origin and multiplies by scale, then adds additional velocity\n"
+   "between min and max... negative values bring toward origin\n"
+   );
 Event EV_Client_SetVelocity
    (
    "velocity",
@@ -184,30 +193,43 @@ Event EV_Client_SetAngularVelocity
    "yawVel pitchVel rollVel",
    "Set the angular velocity of the spawned tempmodel"
    );
+Event EV_Client_SetColorVelocity
+   (
+   "colorvelocity",
+   EV_DEFAULT,
+   "fff",
+   "rVel gVel bVel",
+   "Set the color velocity of the spawned dlight tempmodel"
+   );
 Event EV_Client_SetRandomVelocity
    (
    "randvel",
    EV_DEFAULT,
-   "SFSFSF",
-   "[random|crandom] xVel [random|crandom] yVel [random|crandom] zVel",
+   "SfFSfFSfF",
+   "[random|crandom|range] xVel [xVel2] [random|crandom|range] yVel [yVel2] [random|crandom|range] zVel [zVel2]",
    "Add a random component to the regular velocity.\n"
    "If random is specified, the component will range from 0 to specified velocity.\n"
    "If crandom is specified, the component will range from -specified to +specified velocity.\n"
-   "If neither random or crandom is specified, then the component will just be added on\n"
-	"without randomness.\n"
+   "If range is specified, the component needs two values; it will randomly pick a number in the range\n"
+   "from the first number to the first number plus the second number.\n"
+   "If no keyword is explicitly specified, then the component will just be added on\n"
+   "without randomness.\n"
    "This velocity is applied using the world axis"
    );
 Event EV_Client_SetRandomVelocityAlongAxis
    (
    "randvelaxis",
    EV_DEFAULT,
-   "SFSFSF",
-   "[random|crandom] forwardVel [random|crandom] rightVel [random|crandom] upVel",
+   "SfFSfFSfF",
+   "[random|crandom|range] forwardVel [forwardVel2] [random|crandom|range] rightVel [rightVel2] [random|crandom|rang"
+   "e] upVel [upVel2]",
    "Add a random component to the regular velocity.\n"
    "If random is specified, the component will range from 0 to specified velocity.\n"
    "If crandom is specified, the component will range from -specified to +specified velocity.\n"
-   "If neither random or crandom is specified, then the component will just be added on\n"
-	"without randomness.\n"
+   "If range is specified, the component needs two values; it will randomly pick a number in the range\n"
+   "from the first number to the first number plus the second number.\n"
+   "If no keyword is explicitly specified, then the component will just be added on\n"
+   "without randomness.\n"
    "This velocity is applied using the parent axis"
    );
 Event EV_Client_SetAccel
@@ -219,6 +241,31 @@ Event EV_Client_SetAccel
    "Set the acceleration of the spawned tempmodel.\n"
    "This acceleration is applied using the world axis"
    );
+Event EV_Client_SetFriction
+   (
+   "friction",
+   EV_DEFAULT,
+   "f",
+   "friction",
+   "Set the friction as a fraction of velocity per second... exact effect depends on physics rate:\n"
+   "slowdown per second = [1 - (friction / physicsrate)] ^ physicsrate; physicsrate defaults to 10"
+   );
+Event EV_Client_SetVaryColor
+   (
+   "varycolor",
+   EV_DEFAULT,
+   NULL,
+   NULL,
+   "Sets the color to vary by 0 to -20% of specified color"
+   );
+Event EV_Client_SetSmokeParms
+   (
+   "smokeparms",
+   EV_DEFAULT,
+   "fff",
+   "typeinfo fademult scalemult",
+   "Sets some misc parms for smoke"
+   );
 Event EV_Client_SetCount
    (
    "count",
@@ -228,14 +275,6 @@ Event EV_Client_SetCount
    "Set the number of tempmodels that are spawned\n"
    "This is only used for the originspawn and tagspawn commands,\n"
    "and not for emitters, use spawnrate instead"
-   );
-Event EV_Client_SetTraceCount
-   (
-   "tracecount",
-   EV_DEFAULT,
-   "i",
-   "count",
-   "Set the number of traces that are done\n"
    );
 Event EV_Client_SetFade
    (
@@ -277,6 +316,15 @@ Event EV_Client_SetTrail
    "shader startTag endTag life",
    "Set the tempmodel to have a swipe that follows it"
    );
+Event EV_Client_SetSpawnRange
+   (
+   "spawnrange",
+   EV_DEFAULT,
+   "iI",
+   "range1 range2",
+   "Sets the range in which this effect will spawn tempmodels.  If one number is specified, it is the max range\n"
+   "and 0 is the min range; if two numbers are specified, the larger is the max range.\n"
+   );
 Event EV_Client_SetSpawnRate
    (
    "spawnrate",
@@ -290,12 +338,14 @@ Event EV_Client_SetOriginOffset
    (
    "offset",
    EV_DEFAULT,
-   "SFSFSF",
-   "[random|crandom] offsetX [random|crandom] offsetY [random|crandom] offsetZ",
+   "SfFSfFSfF",
+   "[random|crandom|range] offsetX [offsetX2] [random|crandom|range] offsetY [offsetY2] [random|crandom|range] offsetZ [offsetZ2]",
    "If random is specified, the component will range from 0 to +specified offset.\n"
    "If crandom is specified, the component will range from -specified to +specified offset.\n"
-   "If neither random or crandom is specified, then the component will just be added on\n"
-	"without randomness.\n"
+   "If range is specified, the component needs two values; it will randomly pick a number in the range\n"
+   "from the first number to the first number plus the second number.\n"
+   "If no keyword is explicitly specified, then the component will just be added on\n"
+   "without randomness.\n"
    "This offset is applied using the world axis."
    );
 Event EV_Client_SetScaleRate
@@ -409,6 +459,15 @@ Event EV_Client_TagSpawn
    "Spawn tempmodels from the specified tag.\n"
    "This command is followed by a ( to specify a block of commands that modify the tempmodels"
    );
+Event EV_Client_TagSpawnLinked
+   (
+   "tagspawnlinked",
+   EV_DEFAULT,
+   "s",
+   "tagName",
+   "Spawn tempmodels from the specified tag, linked to the entity at the tag.\n"
+   "This command is followed by a ( to specify a block of commands that modify the tempmodels"
+   );
 Event EV_Client_OriginSpawn
    (
    "originspawn",
@@ -474,9 +533,17 @@ Event EV_Client_Sound
    (
    "sound",
    EV_DEFAULT,
-   "sIFF",
-   "soundName channel volume min_distance",
+   "sSFFFFS",
+   "soundName channelName volume min_distance pitch randompitch randomvolume argstype",
    "Play the specified sound"
+   );
+Event EV_Set_Current_Tiki
+   (
+   "sound",
+   EV_DEFAULT,
+   "s",
+   "settiki tikiname - all subsequent events are applied to this tiki",
+   "sets the tiki the aliases should be on in the sound uberfile"
    );
 Event EV_Client_StopSound
    (
@@ -486,18 +553,42 @@ Event EV_Client_StopSound
    "channel",
    "Stops the sound on the specified channel."
    );
+Event EV_Client_StopAliasChannel
+   (
+   "stopaliaschannel",
+   EV_DEFAULT,
+   "s",
+   "alias",
+   "Stops the sound channel used by the specified alias."
+   );
 Event EV_Client_LoopSound
    (
    "loopsound",
    EV_DEFAULT,
-   "sFF",
-   "soundName volume min_distance",
+   "sFFf",
+   "soundName volume min_distance pitch",
    "Play the specifed sound as a looping sound"
    );
 Event EV_Client_Cache
    (
    "cache",
-   EV_DEFAULT,
+   EV_CACHE,
+   "s",
+   "resourceName",
+   "Cache the specified resource"
+   );
+Event EV_Client_CacheImage
+   (
+   "cacheimage",
+   EV_CACHE,
+   "s",
+   "imageName",
+   "Cache the specified image (For menu graphics that should never be picmiped)"
+   );
+Event EV_Client_CacheFont
+   (
+   "cachefont",
+   EV_CACHE,
    "s",
    "resourceName",
    "Cache the specified resource"
@@ -518,13 +609,38 @@ Event EV_Client_Alias
    "alias realPath arg1 arg2 arg3 arg4 arg5 arg6",
    "Create an alias to the specified path"
    );
+Event EV_Client_CacheAlias
+   (
+   "cachefromalias",
+   EV_DEFAULT,
+   "s",
+   "alias",
+   "Caches all data matching a previously specified alias"
+   );
 Event EV_Client_Footstep
    (
    "footstep",
    EV_DEFAULT,
-   NULL,
-   NULL,
-   "Play a footstep sound that is appropriate to the surface we are currently stepping on"
+   "ssI",
+   "tag sRunning iEquipment",
+   "Play a footstep sound that is appropriate to the surface we are currently stepping on\n"
+   "sRunning should be set to run, walk, or ladder"
+   );
+Event EV_Client_Landing
+   (
+   "footstep",
+   EV_DEFAULT,
+   "FI",
+   "fVolume iEquipment",
+   "Play a landing sound that is appropriate to the surface we are landing on\n"
+   );
+Event EV_Client_BodyFall
+   (
+   "bodyfall",
+   EV_DEFAULT,
+   "F",
+   "fVolume",
+   "Play a body fall sound that is appropriate to the surface we are falling on\n"
    );
 Event EV_Client_Client
    (
@@ -564,6 +680,17 @@ Event EV_Client_DynamicLight
    "red green blue intensity type1 type2",
    "This makes the emitter itself a dynamic light"
    "The red,green,blue parms are the color of the light\n"
+   "The intensity is the radius of the light\n"
+   "type is the type of light to create (lensflare,viewlensflare,additive)"
+   );
+Event EV_Client_BlockDynamicLight
+   (
+   "blockdlight",
+   EV_DEFAULT,
+   "ffSS",
+   "intensity life type1 type2",
+   "Spawn a dynamic light from the origin of the model\n"
+   "An additional commands block allows the specification of moving & varying dlights\n"
    "The intensity is the radius of the light\n"
    "type is the type of light to create (lensflare,viewlensflare,additive)"
    );
@@ -623,16 +750,26 @@ Event EV_Client_ParentAngles
    NULL,
    "Set the tempmodels angles to that of its parent"
    );
+Event EV_Client_EmitterAngles
+   (
+   "emitterangles",
+   EV_DEFAULT,
+   "FFF",
+   "pitchofs yawofs rollofs",
+   "Set the tempmodels angles to that of the emitter\n"
+   "The three optional parameters are for setting an angle offset from the emitter"
+   );
 Event EV_Client_SetAngles
    (
    "angles",
    EV_DEFAULT,
-   "SFSFSF",
-   "[random|crandom] pitch [random|crandom] yaw [random|crandom] roll",
+   "SfFSfFSfF",
+   "[random|crandom|range] pitch [pitch2] [random|crandom|range] yaw [yaw2] [random|crandom|range] roll [roll2]",
    "If random is specified, the component will range from 0 to +specified value.\n"
    "If crandom is specified, the component will range from -specified to +specified value.\n"
-   "If neither random or crandom is specified, then the component will be just set\n"
-	"without randomness."
+   "If range is specified, the component needs two values; it will randomly pick a number in the range\n"
+   "from the first number to the first number plus the second number.\n"
+   "If no keyword is explicitly specified, then the component will be just set\n"
    );
 Event EV_Client_Swipe
    (
@@ -792,13 +929,23 @@ Event EV_Client_OffsetAlongAxis
    (
    "offsetalongaxis",
    EV_DEFAULT,
-   "SfSfSf",
-   "[crandom|random] offsetx [crandom|random] offsety [crandom|random] offsetz",
+   "SfFSfFSfF",
+   "[crandom|random|range] offsetx [offsetx2] [crandom|random|range] offsety [offsety2] [crandom|random|range] offsetz [offsetz2]",
    "If random is specified, the component will range from 0 to specified offset.\n"
    "If crandom is specified, the component will range from -specified to +specified offset.\n"
-   "If neither random or crandom is specified, then the component will just be added on\n"
-	"without randomness.\n"
+   "If range is specified, the component needs two values; it will randomly pick a number in the range\n"
+   "from the first number to the first number plus the second number.\n"
+   "If no keyword is explicitly specified, then the component will just be added on\n"
+   "without randomness.\n"
    "This offset is applied using the model's local axis"
+   );
+Event EV_Client_Cone
+   (
+   "cone",
+   EV_DEFAULT,
+   "ff",
+   "height radius",
+   "Randomly spawns the particle somewhere inside a cone along the model's local x axis"
    );
 Event EV_Client_SetEndAlpha
    (
@@ -816,6 +963,16 @@ Event EV_Client_RandomChance
    "percentage [arg1] [arg2] [arg3] [arg4] [arg5] [arg6]",
    "Set the percentage chance that command will occur"
    );
+Event EV_Client_DelayedRepeat
+   (
+   "delayedrepeat",
+   EV_DEFAULT,
+   "fiSSSSSS",
+   "time commandnumber [arg1] [arg2] [arg3] [arg4] [arg5] [arg6]",
+   "Set the time delay between this command getting executed.  This requires a command number to be assigned here.\n"
+   "This is internally used to keep track of the commands this entity executes and will resolve naming conflicts.\n"
+   "This is only useful if the command gets called continuously but must execute at regular intervals.\n"
+   );
 Event EV_Client_CommandDelay
    (
    "commanddelay",
@@ -824,31 +981,6 @@ Event EV_Client_CommandDelay
    "time commandnumber [arg1] [arg2] [arg3] [arg4] [arg5] [arg6]",
    "Set the time delay between this command getting executed.  This requires a command number to be assigned here.\n"
    "This is internally used to keep track of the commands this entity executes and will resolve naming conflicts."
-   );
-Event EV_Client_TagTraceImpactSound
-   (
-   "tagtraceimpactsound",
-   EV_DEFAULT,
-   "si",
-   "tagname maxlength",
-   "Perform a trace from the specified tag to the maxlength and play a sound at that position"
-   );
-Event EV_Client_TagTraceImpactSpawn
-   (
-   "tagtraceimpactspawn",
-   EV_DEFAULT,
-   "s",
-   "tagname",
-   "Perform a trace from the specified tag to the maxlength and spawn the specified model there."
-   );
-Event EV_Client_TagTraceImpactMark
-   (
-   "tagtraceimpactmark",
-   EV_DEFAULT,
-   "sI",
-   "tagname temporary",
-   "Perform a trace from the specified tag to the maxlength and put the shader as a decal on the surface it hits\n"
-   "temporary = specify 1 for a temporary mark that only appears for a short time, 0 for a decal that stays aroung longer (default is 0)\n"
    );
 Event EV_Client_BounceDecal
    (
@@ -917,14 +1049,6 @@ Event EV_Client_Lightstyle
    "Set a lightstyle to determine the color of this tempmodel, the image\n"
    "specified is used to determine the look of the light style"
    );
-Event EV_Client_DuplicateCount
-   (
-   "duplicatecount",
-   EV_DEFAULT,
-   "i",
-   "num",
-   "Set a duplication number for the tempmodels"
-   );
 Event EV_Client_PhysicsRate
    (
    "physicsrate",
@@ -941,6 +1065,14 @@ Event EV_Client_Parallel
    NULL,
    "Set tempmodel to be parallel to the viewer"
    );
+Event EV_Client_AlwaysDraw
+   (
+   "alwaysdraw",
+   EV_DEFAULT,
+   NULL,
+   NULL,
+       "Set emitter/tempmodel to be alwaysdraw. Which can be turned off by alwaysdraw"
+   );
 Event EV_Client_Detail
    (
    "detail",
@@ -950,13 +1082,125 @@ Event EV_Client_Detail
    "Set emitter/tempmodel to be detail. Which can be turned off by detail"
    );
 Event EV_Client_Print
-	(
-	"print",
-	EV_DEFAULT,
-	"s",
-	"string",
-	"Prints a string."
-	);
+   (
+   "print",
+   EV_DEFAULT,
+   "s",
+   "string",
+   "Prints a string."
+   );
+Event EV_Client_SetVolumetric
+   (
+   "volumetric",
+   EV_DEFAULT,
+   NULL,
+   NULL,
+   "Set the effect to spawn volumetric sources rather than tempmodels"
+   );
+Event EV_Client_Wind
+   (
+   "wind",
+   EV_DEFAULT,
+   NULL,
+   NULL,
+   "Makes the temp model be affected by wind"
+   );
+Event EV_Client_SpriteGridLighting
+   (
+   "spritegridlighting",
+   EV_DEFAULT,
+   NULL,
+   NULL,
+   "Calculates grid lighting for a sprite"
+   );
+Event EV_Client_WaterOnly
+   (
+   "wateronly",
+   EV_DEFAULT,
+   NULL,
+   NULL,
+   "makes the temp model remove itself if it leaves water"
+   );
+Event EV_Client_SetAlignStretch
+   (
+   "alignstretch",
+   EV_DEFAULT,
+   "F",
+   "scaleMultiplier",
+   "Aligns the temp model to the direction of travel, and stretches it betwen the last and current positions.\n"
+   );
+Event EV_Client_SetClampVelocity
+   (
+   "clampvel",
+   EV_DEFAULT,
+   "ffffff",
+   "minX maxX minY maxY minZ maxZ",
+   "sets the valid range for velocities along global axes.  Cannot be used with clampvelaxis."
+   );
+Event EV_Client_SetClampVelocityAxis
+   (
+   "clampvelaxis",
+   EV_DEFAULT,
+   "ffffff",
+   "minX maxX minY maxY minZ maxZ",
+   "sets the valid range for velocities along oriented axes.  Cannot be used with clampvel."
+   );
+Event EV_Client_Treads
+   (
+   "treads",
+   EV_DEFAULT,
+   "ssi",
+   "tagName shader localrefnumber",
+   "Spawn treads from the specified tag using the specified tread type."
+   );
+Event EV_Client_Treads_Off
+   (
+   "treadsoff",
+   EV_DEFAULT,
+   "si",
+   "tagName localrefnumber",
+   "Stops spawning treads from the specified tag."
+   );
+Event EV_Client_ViewKick
+   (
+   "viewkick",
+   EV_DEFAULT,
+   "fffffsff",
+   "pitchmin pitchmax yawmin yawmax recenterspeed patters pitchmax yawmax scatterpitchmax",
+   "Adds kick to the view of the owner when fired."
+   );
+Event EV_Client_EyeLimits
+   (
+   "eyelimits",
+   EV_DEFAULT,
+   "fff",
+   "fPitchmax fYawmax fRollmax",
+   "Set the max angle offsets for the eyes from the model's head"
+   );
+Event EV_Client_EyeMovement
+   (
+   "eyemovement",
+   EV_DEFAULT,
+   "f",
+   "fMovement",
+   "Sets the amount of the head's movement to apply to the players view. 1 is full, 0 is none"
+   );
+Event EV_Client_SFXStart
+   (
+   "sfx",
+   EV_DEFAULT,
+   "sSSSSSSSS",
+   "sCommand arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8",
+   "Used for adding commands to a special effect"
+   );
+Event EV_Client_SFXStartDelayed
+   (
+   "delayedsfx",
+   EV_DEFAULT,
+   "fsSSSSSSSS",
+   "fDelay sCommand arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8",
+   "Used for adding commands to a special effect with a time delay"
+   );
 
 CLASS_DECLARATION( Listener, ClientGameCommandManager, NULL )
    {
@@ -967,6 +1211,7 @@ CLASS_DECLARATION( Listener, ClientGameCommandManager, NULL )
       { &EV_Client_OriginBeamSpawn,                         &ClientGameCommandManager::BeginOriginBeamSpawn },
       { &EV_Client_OriginBeamEmitter,                       &ClientGameCommandManager::BeginOriginBeamEmitter },
       { &EV_Client_TagSpawn,                                &ClientGameCommandManager::BeginTagSpawn },
+      { &EV_Client_TagSpawnLinked,                          &ClientGameCommandManager::BeginTagSpawnLinked },
       { &EV_Client_TagEmitter,                              &ClientGameCommandManager::BeginTagEmitter },
       { &EV_Client_BeginTagBeamEmitter,                     &ClientGameCommandManager::BeginTagBeamEmitter },
       { &EV_Client_BeginTagBeamSpawn,                       &ClientGameCommandManager::BeginTagBeamSpawn },
@@ -985,17 +1230,21 @@ CLASS_DECLARATION( Listener, ClientGameCommandManager, NULL )
       { &EV_Client_SetModel,                                &ClientGameCommandManager::SetModel },
       { &EV_Client_SetLife,                                 &ClientGameCommandManager::SetLife },
       { &EV_Client_SetColor,                                &ClientGameCommandManager::SetColor },
+      { &EV_Client_SetRadialVelocity,                       &ClientGameCommandManager::SetRadialVelocity },
       { &EV_Client_SetVelocity,                             &ClientGameCommandManager::SetVelocity },
       { &EV_Client_SetAngularVelocity,                      &ClientGameCommandManager::SetAngularVelocity },
+      { &EV_Client_SetColorVelocity,                        &ClientGameCommandManager::SetAngularVelocity },
       { &EV_Client_SetRandomVelocity,                       &ClientGameCommandManager::SetRandomVelocity },
       { &EV_Client_SetRandomVelocityAlongAxis,              &ClientGameCommandManager::SetRandomVelocityAlongAxis },
       { &EV_Client_SetAccel,                                &ClientGameCommandManager::SetAccel },
+      { &EV_Client_SetFriction,                             &ClientGameCommandManager::SetFriction },
       { &EV_Client_SetCount,                                &ClientGameCommandManager::SetCount },
       { &EV_Client_SetFade,                                 &ClientGameCommandManager::SetFade },
       { &EV_Client_SetFadeDelay,                            &ClientGameCommandManager::SetFadeDelay },
       { &EV_Client_SetFadeIn,                               &ClientGameCommandManager::SetFadeIn },
       { &EV_Client_SetTwinkle,                              &ClientGameCommandManager::SetTwinkle },
       { &EV_Client_SetTrail,                                &ClientGameCommandManager::SetTrail },
+      { &EV_Client_SetSpawnRange,                           &ClientGameCommandManager::SetSpawnRange },
       { &EV_Client_SetSpawnRate,                            &ClientGameCommandManager::SetSpawnRate },
       { &EV_Client_SetScaleRate,                            &ClientGameCommandManager::SetScaleRate },
       { &EV_Client_SetOriginOffset,                         &ClientGameCommandManager::SetOriginOffset },
@@ -1008,22 +1257,31 @@ CLASS_DECLARATION( Listener, ClientGameCommandManager, NULL )
       { &EV_Client_SetAlignOnce,                            &ClientGameCommandManager::SetAlignOnce },
       { &EV_Client_SetCollision,                            &ClientGameCommandManager::SetCollision },
       { &EV_Client_SetFlickerAlpha,                         &ClientGameCommandManager::SetFlickerAlpha },
-		{ &EV_Client_Sound,				                    &ClientGameCommandManager::Sound },
-		{ &EV_Client_StopSound,								&ClientGameCommandManager::StopSound },
-		{ &EV_Client_LoopSound,				                &ClientGameCommandManager::LoopSound },
-		{ &EV_Client_Cache,				                    &ClientGameCommandManager::Cache },
-		{ &EV_Client_AliasCache,		                    &ClientGameCommandManager::AliasCache },
-		{ &EV_Client_Alias,			                        &ClientGameCommandManager::Alias },
-		{ &EV_Client_Footstep,  	                        &ClientGameCommandManager::Footstep },
-		{ &EV_Client_Client,			                    &ClientGameCommandManager::Client },
+      { &EV_Client_Sound,				                    &ClientGameCommandManager::Sound },
+      { &EV_Set_Current_Tiki,								&ClientGameCommandManager::SetCurrentTiki },
+      { &EV_Client_StopSound,                               &ClientGameCommandManager::StopSound },
+      { &EV_Client_StopAliasChannel,                        &ClientGameCommandManager::StopAliasChannel },
+      { &EV_Client_LoopSound,                               &ClientGameCommandManager::LoopSound },
+      { &EV_Client_Cache,				                    &ClientGameCommandManager::Cache },
+      { &EV_Client_CacheImage,                              &ClientGameCommandManager::CacheImage },
+      { &EV_Client_CacheFont,                               &ClientGameCommandManager::CacheFont },
+      { &EV_Client_AliasCache,                              &ClientGameCommandManager::AliasCache },
+      { &EV_Client_Alias,                                   &ClientGameCommandManager::Alias },
+      { &EV_Client_CacheAlias,                              &ClientGameCommandManager::CacheAlias },
+      { &EV_Client_Footstep,                                &ClientGameCommandManager::Footstep },
+      { &EV_Client_Landing,                                 &ClientGameCommandManager::LandingSound },
+      { &EV_Client_BodyFall,			                    &ClientGameCommandManager::BodyFallSound },
+      { &EV_Client_Client,			                        &ClientGameCommandManager::Client },
       { &EV_Client_TagDynamicLight,                         &ClientGameCommandManager::TagDynamicLight },
       { &EV_Client_OriginDynamicLight,                      &ClientGameCommandManager::OriginDynamicLight },
       { &EV_Client_DynamicLight,                            &ClientGameCommandManager::DynamicLight },
+      { &EV_Client_BlockDynamicLight,                       &ClientGameCommandManager::BlockDynamicLight },
       { &EV_Client_SetEntityColor,                          &ClientGameCommandManager::SetEntityColor },
       { &EV_Client_SetGlobalFade,                           &ClientGameCommandManager::SetGlobalFade },
       { &EV_Client_SetParentLink,                           &ClientGameCommandManager::SetParentLink },
       { &EV_Client_SetHardLink,                             &ClientGameCommandManager::SetHardLink },
       { &EV_Client_SetRandomRoll,                           &ClientGameCommandManager::SetRandomRoll },
+      { &EV_Client_SetVolumetric,                           &ClientGameCommandManager::SetVolumetric },
       { &EV_Client_SetAngles,                               &ClientGameCommandManager::SetAngles },
       { &EV_Client_ParentAngles,                            &ClientGameCommandManager::ParentAngles },
       { &EV_Client_Swipe,                                   &ClientGameCommandManager::Swipe },
@@ -1044,8 +1302,9 @@ CLASS_DECLARATION( Listener, ClientGameCommandManager, NULL )
       { &EV_Client_SetBeamOffsetEndpoints,                  &ClientGameCommandManager::SetBeamOffsetEndpoints },
       { &EV_Client_BeamSphere,                              &ClientGameCommandManager::SetBeamSphere },
       { &EV_Client_Spread,                                  &ClientGameCommandManager::SetSpread },
-		{ &EV_Client_UseLastTraceEnd,                       &ClientGameCommandManager::SetUseLastTraceEnd },
+      { &EV_Client_UseLastTraceEnd,                         &ClientGameCommandManager::SetUseLastTraceEnd },
       { &EV_Client_OffsetAlongAxis,                         &ClientGameCommandManager::SetOffsetAlongAxis },
+      { &EV_Client_Cone,                                    &ClientGameCommandManager::SetCone },
       { &EV_Client_SetEndAlpha,                             &ClientGameCommandManager::SetEndAlpha },
       { &EV_Client_RandomChance,                            &ClientGameCommandManager::RandomChance },
       { &EV_Client_CommandDelay,                            &ClientGameCommandManager::CommandDelay },
@@ -1057,7 +1316,20 @@ CLASS_DECLARATION( Listener, ClientGameCommandManager, NULL )
       { &EV_Client_PhysicsRate,                             &ClientGameCommandManager::SetPhysicsRate },
       { &EV_Client_Parallel,                                &ClientGameCommandManager::SetParallel },
       { &EV_Client_Detail,                                  &ClientGameCommandManager::SetDetail },
+      { &EV_Client_Wind,                                    &ClientGameCommandManager::SetWindAffect },
+      { &EV_Client_SpriteGridLighting,                      &ClientGameCommandManager::SpriteGridLighting },
+      { &EV_Client_WaterOnly,                               &ClientGameCommandManager::SetWaterOnly },
+      { &EV_Client_SetAlignStretch,                         &ClientGameCommandManager::SetAlignStretch },
+      { &EV_Client_SetClampVelocity,                        &ClientGameCommandManager::SetClampVel },
+      { &EV_Client_SetClampVelocityAxis,                    &ClientGameCommandManager::SetClampVelAxis },
       { &EV_Client_Print,                                   &ClientGameCommandManager::Print },
+      { &EV_Client_EyeLimits,                               &ClientGameCommandManager::SetEyeLimits },
+      { &EV_Client_EyeMovement,                             &ClientGameCommandManager::SetEyeMovement },
+      { &EV_Client_SFXStart,                                &ClientGameCommandManager::StartSFX },
+      { &EV_Client_SFXStartDelayed,                         &ClientGameCommandManager::StartSFXDelayed },
+      { &EV_Client_Treads,                                  &ClientGameCommandManager::SpawnTreads },
+      { &EV_Client_Treads_Off,                              &ClientGameCommandManager::TreadsOff },
+      { &EV_Client_ViewKick,                                &ClientGameCommandManager::EventViewKick },
       { NULL, NULL }
    };
 
@@ -2565,6 +2837,11 @@ void ClientGameCommandManager::GetOrientation(int tagnum, spawnthing_t* sp)
     }
 
     AxisCopy(sp->axis, sp->tag_axis);
+}
+
+void ClientGameCommandManager::BeginTagSpawnLinked(Event* ev)
+{
+
 }
 
 //===============
@@ -4438,7 +4715,7 @@ void ClientGameCommandManager::LandingSound(Event* ev)
     // FIXME: unimplemented
 }
 
-void ClientGameCommandManager::BodyFallSOund(Event* ev)
+void ClientGameCommandManager::BodyFallSound(Event* ev)
 {
     // FIXME: unimplemented
 }
