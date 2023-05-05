@@ -34,6 +34,7 @@ public:
     spawnthing_t* emitter;
     float fCommandTime;
     void (*endfcn)();
+    Event *pEvent;
 
 public:
     specialeffectcommand_t();
