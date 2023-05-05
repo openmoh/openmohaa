@@ -131,7 +131,6 @@ typedef struct Container_commandtime_s {
 typedef struct commandthing_s {
 	enttracker_t base_enttracker_t;
 	Container_commandtime_t  m_commandtimes;
-	qboolean startoff;
 } commandthing_t;
 
 typedef struct spawnthing_s {
