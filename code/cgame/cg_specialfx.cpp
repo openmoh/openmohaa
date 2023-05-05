@@ -113,12 +113,88 @@ void ClientSpecialEffectsManager::ContinueEffectExecution(Event* ev)
 
 void ClientSpecialEffectsManager::ExecuteEffect(int iEffect, int iStartCommand, Vector vPos, Vector vAngles, float axis[3][3])
 {
-    // FIXME: unimplemented
+	int i;
+	int iCommandCount;
+	float fStartCommandTime;
+	specialeffect_t* pEffect;
+	specialeffectcommand_t* pCommand;
+	refEntity_t* old_entity;
+	dtiki_t* old_tiki;
+	refEntity_t tmpEntity;
+
+	memset(&tmpEntity, 0, sizeof(tmpEntity));
+	VectorCopy(((const float*)vPos), tmpEntity.origin);
+	tmpEntity.scale = 1.0;
+	tmpEntity.renderfx = 0;
+	tmpEntity.shaderRGBA[3] = -1;
+
+	pEffect = &this->m_effects[iEffect];
+	iCommandCount = pEffect->m_iCommandCount;
+	if (pEffect->m_iCommandCount)
+	{
+		old_entity = current_entity;
+		old_tiki = current_tiki;
+		current_entity = NULL;
+		current_tiki = NULL;
+		pCommand = pEffect->m_commands[iStartCommand];
+
+        fStartCommandTime = pCommand->fCommandTime;
+		for (i = iStartCommand; i < pEffect->m_iCommandCount; i++)
+		{
+			pCommand = pEffect->m_commands[i];
+			if (pCommand->fCommandTime > fStartCommandTime)
+			{
+				Event ev1(EV_SFX_EffectDelay);
+				ev1.AddInteger(iEffect);
+				ev1.AddInteger(i);
+				ev1.AddVector(vPos);
+				ev1.AddVector(vAngles);
+                ev1.AddVector(axis[0]);
+                ev1.AddVector(axis[1]);
+                ev1.AddVector(axis[2]);
+
+				PostEvent(ev1, pCommand->fCommandTime - fStartCommandTime);
+				++m_iNumPendingEvents;
+
+				break;
+			}
+
+			if (pCommand->pEvent)
+			{
+				current_entity = &tmpEntity;
+				current_tiki = tmpEntity.tiki;
+				commandManager.ProcessEvent(pCommand->pEvent);
+			}
+			else if (pCommand->emitter && pCommand->endfcn)
+            {
+				current_entity = NULL;
+                current_tiki = NULL;
+
+				pCommand->emitter->cgd.origin = vPos;
+				if (pCommand->emitter->cgd.flags & T_ANGLES) {
+                    pCommand->emitter->cgd.angles = vAngles;
+				}
+
+				AxisCopy(axis, pCommand->emitter->axis);
+				AxisCopy(axis, pCommand->emitter->tag_axis);
+				pCommand->emitter->cgd.createTime = cg.time;
+				commandManager.SetSpawnthing(pCommand->emitter);
+			}
+		}
+
+		current_entity = old_entity;
+		current_tiki = old_tiki;
+	}
 }
 
 void ClientSpecialEffectsManager::MakeEffect_Normal(int iEffect, Vector vPos, Vector vNormal)
 {
-    // FIXME: unimplemented
+	Vector vAngles;
+	float axis[3][3];
+
+	vAngles = vNormal.toAngles();
+    AnglesToAxis(vAngles, axis);
+    ClientSpecialEffectsManager::ExecuteEffect(iEffect, 0, vPos, vAngles, axis);
 }
 
 void ClientSpecialEffectsManager::MakeEffect_Angles(int iEffect, Vector vPos, Vector vAngles)
