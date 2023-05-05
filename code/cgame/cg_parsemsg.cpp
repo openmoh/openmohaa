@@ -105,8 +105,174 @@ void CG_AddBulletImpacts()
     // FIXME: unimplemented
 }
 
-void CG_MakeExplosionEffect(float* vPos, int iType) {
-    // FIXME: unimplemented
+void CG_MakeExplosionEffect(vec3_t vPos, int iType) {
+    int iSurfType;
+    int iBaseEffect;
+    int iSurfEffect;
+    float fRadius;
+    vec3_t vEnd;
+    str sMark;
+    trace_t trace;
+    qhandle_t shader;
+
+    vEnd[0] = vPos[0];
+    vEnd[1] = vPos[1];
+    vEnd[2] = vPos[2] - 64.0;
+    fRadius = 64.0;
+
+    if ((CG_PointContents(vPos, 0)) & MASK_WATER)
+    {
+        iBaseEffect = 73;
+        sfxManager.MakeEffect_Normal(iBaseEffect, vPos, Vector(0, 0, 1));
+        return;
+    }
+
+    switch (iType)
+    {
+    case 12:
+        iBaseEffect = 63;
+        break;
+    case 13:
+        iBaseEffect = 64;
+        break;
+    default:
+        iBaseEffect = 63;
+        break;
+    }
+
+    CG_Trace(
+        &trace,
+        vPos,
+        vec_zero,
+        vec_zero,
+        vEnd,
+        ENTITYNUM_NONE,
+        MASK_EXPLOSION,
+        qfalse,
+        qtrue,
+        "CG_MakeExplosionEffect"
+    );
+
+    if (trace.fraction == 1.0 || trace.startsolid)
+    {
+        // exploded in the air
+        sfxManager.MakeEffect_Normal(iBaseEffect, vPos, Vector(0, 0, 1));
+        return;
+    }
+
+    VectorMA(trace.endpos, 32.0, trace.plane.normal, vPos);
+
+    iSurfType = trace.surfaceFlags & MASK_SURF_TYPE;
+    switch (iSurfType)
+    {
+    case SURF_FOLIAGE:
+        iSurfEffect = 77;
+        fRadius = 0;
+        break;
+    case SURF_SNOW:
+        iSurfEffect = 78;
+        fRadius = 0;
+        break;
+    case SURF_CARPET:
+        iSurfEffect = 79;
+        break;
+    case SURF_SAND:
+        iSurfEffect = 76;
+        fRadius = 0;
+        break;
+    case SURF_PUDDLE:
+        iSurfEffect = -1;
+        fRadius = 0;
+        break;
+    case SURF_GLASS:
+        iSurfEffect = -1;
+        fRadius = 0;
+        break;
+    case SURF_GRAVEL:
+        iSurfEffect = 75;
+        break;
+    case SURF_MUD:
+        iSurfEffect = 72;
+        fRadius = 0;
+        break;
+    case SURF_DIRT:
+        iSurfEffect = 69;
+        fRadius = 0;
+        break;
+    case SURF_GRILL:
+        iSurfEffect = 70;
+        fRadius = 0;
+        break;
+    case SURF_GRASS:
+        iSurfEffect = 71;
+        break;
+    case SURF_ROCK:
+        iSurfEffect = 68;
+        break;
+    case SURF_PAPER:
+        iSurfEffect = 65;
+        break;
+    case SURF_WOOD:
+        iSurfEffect = 66;
+        break;
+    case SURF_METAL:
+        iSurfEffect = 67;
+        break;
+    default:
+        iSurfEffect = -1;
+        break;
+    }
+
+    sMark = "blastmark";
+    if (fRadius)
+    {
+        float value = (rand() & 0x7FFF) / 32767.0 - 0.5;
+        fRadius *= (value + value) * 0.1 + 1.0;
+        shader = cgi.R_RegisterShader(sMark.c_str());
+
+        CG_ImpactMarkSimple(
+            shader,
+            trace.endpos,
+            trace.plane.normal,
+            random() * 360.0,
+            fRadius,
+            1, 1, 1, 1,
+            qfalse,
+            qfalse,
+            qtrue,
+            qfalse
+        );
+    }
+
+    VectorMA(vPos, 1.0, trace.plane.normal, vPos);
+
+    if (iSurfEffect != -1)
+    {
+        sfxManager.MakeEffect_Normal(
+            iSurfEffect,
+            Vector(trace.endpos) + Vector(trace.plane.normal),
+            trace.plane.normal
+        );
+    }
+
+    sfxManager.MakeEffect_Normal(
+        iSurfEffect,
+        vPos,
+        trace.plane.normal
+    );
+}
+
+void CG_MakeVehicleEffect(vec3_t i_vStart, vec3_t i_vEnd , vec3_t i_vDir) {
+    vec3_t vDir, vFrom, vDest;
+    trace_t trace;
+
+    VectorSubtract(i_vEnd, i_vStart, vDir);
+    VectorNormalizeFast(vDir);
+    VectorMA(i_vEnd, -16.0, vDir, vFrom);
+    VectorMA(i_vEnd, 16.0, vDir, vDest);
+
+    CG_Trace(&trace, vFrom, vec_zero, vec_zero, vDest, ENTITYNUM_NONE, MASK_PLAYERSOLID, qfalse, qtrue, "CG_MakeBulletHole");
+    cgi.R_DebugLine(vFrom, trace.endpos, 1.0, 1.0, 1.0, 1.0);
 }
 
 void CG_ParseCGMessage()
