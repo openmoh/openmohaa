@@ -611,6 +611,21 @@ void	CG_ImpactMark( qhandle_t markShader,
 					float radius, qboolean temporary,
                     int lightstyle, qboolean fadein,
                     float fSCenter, float fTCenter );
+void CG_ImpactMarkSimple(
+    qhandle_t markShader,
+    vec_t* origin,
+    vec_t* dir,
+    float orientation,
+    float fRadius,
+    float red,
+    float green,
+    float blue,
+    float alpha,
+    qboolean alphaFade,
+    qboolean temporary,
+    qboolean dolighting,
+    qboolean fadein
+);
 void CG_InitTestTreadMark();
 int CG_PermanentMark(
     vec_t* origin,
