@@ -1144,11 +1144,20 @@ void ClientGameCommandManager::Print(Event* ev)
     }
 }
 
+qboolean ClientGameCommandManager::IsBlockCommand(const str& name)
+{
+    return qfalse;
+}
+
+void ClientGameCommandManager::DelayedRepeat(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
 //===============
 // CommandDelay
 //===============
 void ClientGameCommandManager::CommandDelay(Event* ev)
-
 {
     int i;
     int delay;
@@ -1182,6 +1191,26 @@ void ClientGameCommandManager::CommandDelay(Event* ev)
     ProcessEvent(ev1);
 }
 
+void ClientGameCommandManager::StartSFX(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::StartSFXDelayed(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::StartSFXCommand(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::EndIgnoreSfxBlock()
+{
+    // FIXME: unimplemented
+}
+
 void ClientGameCommandManager::SetCurrentSFX(specialeffect_t* pSFX)
 {
     m_pCurrentSfx = pSFX;
@@ -1212,6 +1241,7 @@ void ClientGameCommandManager::RandomChance(Event* ev)
         ProcessEvent(ev1);
     }
 }
+
 //===============
 // SetDetail
 //===============
@@ -1219,6 +1249,36 @@ void ClientGameCommandManager::SetDetail(Event* ev)
 
 {
     m_spawnthing->cgd.flags |= T_DETAIL;
+}
+
+void ClientGameCommandManager::SetWindAffect(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::SpriteGridLighting(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::SetWaterOnly(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::SetClampVel(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::SetClampVelAxis(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::SetAlignStretch(Event* ev)
+{
+    // FIXME: unimplemented
 }
 
 //===============
@@ -1564,6 +1624,11 @@ void ClientGameCommandManager::SetRandomRoll(Event* ev)
     m_spawnthing->cgd.flags |= T_RANDOMROLL;
 }
 
+void ClientGameCommandManager::SetVolumetric(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
 //=============
 // SetCollision
 //=============
@@ -1609,6 +1674,11 @@ void ClientGameCommandManager::SetOffsetAlongAxis(Event* ev)
     if (m_spawnthing) {
         SetBaseAndAmplitude(ev, m_spawnthing->axis_offset_base, m_spawnthing->axis_offset_amplitude);
     }
+}
+
+void ClientGameCommandManager::SetCone(Event* ev)
+{
+    // FIXME: unimplemented
 }
 
 //=============
@@ -1742,6 +1812,11 @@ void ClientGameCommandManager::SetFadeDelay(Event* ev)
     m_spawnthing->cgd.flags |= T_FADE;
 }
 
+void ClientGameCommandManager::SetSpawnRange(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
 //=============
 // SetFadeIn
 //=============
@@ -1830,6 +1905,11 @@ void ClientGameCommandManager::SetColor(Event* ev)
     }
 }
 
+void ClientGameCommandManager::SetColorRange(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
 //=============
 // SetEntityColor
 //=============
@@ -1897,6 +1977,11 @@ void ClientGameCommandManager::SetRandomVelocityAlongAxis(Event* ev)
 {
     m_spawnthing->cgd.flags |= T_RANDVELAXIS;
     SetRandomVelocity(ev);
+}
+
+void ClientGameCommandManager::SetRadialVelocity(Event* ev)
+{
+    // FIXME: unimplemented
 }
 
 //=============
@@ -1973,6 +2058,11 @@ void ClientGameCommandManager::ParentAngles(Event* ev)
     m_spawnthing->cgd.flags |= T_ANGLES;
 }
 
+void ClientGameCommandManager::EmitterAngles(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
 //=============
 // SetAccel
 //=============
@@ -1984,6 +2074,16 @@ void ClientGameCommandManager::SetAccel(Event* ev)
     m_spawnthing->cgd.accel[2] = ev->GetFloat(3);
 
     m_spawnthing->cgd.flags2 |= T2_ACCEL;
+}
+
+void ClientGameCommandManager::SetFriction(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::SetVaryColor(Event* ev)
+{
+    // FIXME: unimplemented
 }
 
 //=============
@@ -2047,6 +2147,16 @@ void ClientGameCommandManager::TagList(Event* ev)
         str s_arg(ev->GetString(i));
         m_spawnthing->m_taglist.AddObject(s_arg);
     }
+}
+
+void ClientGameCommandManager::SetEyeLimits(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::SetEyeMovement(Event* ev)
+{
+    // FIXME: unimplemented
 }
 
 //=============
@@ -2146,6 +2256,11 @@ spawnthing_t* ClientGameCommandManager::InitializeSpawnthing(spawnthing_t* sp)
     sp->cgd.color[3] = 1.0;
 
     return sp;
+}
+
+void ClientGameCommandManager::SpawnEffect(int count, spawnthing_t* sp)
+{
+    // FIXME: unimplemented
 }
 
 //==================
@@ -4089,6 +4204,11 @@ void ClientGameCommandManager::StopSound(Event* ev)
     cgi.S_StopSound(current_entity_number, channel);
 }
 
+void ClientGameCommandManager::StopAliasChannel(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
 //===============
 // LoopSound
 //===============
@@ -4194,6 +4314,16 @@ void ClientGameCommandManager::Cache(Event* ev)
     CacheResource(ev->GetString(1));
 }
 
+void ClientGameCommandManager::CacheImage(Event* ev)
+{
+    // FIXME: stub
+}
+
+void ClientGameCommandManager::CacheFont(Event* ev)
+{
+    // FIXME: stub
+}
+
 //===============
 // AliasResource
 //===============
@@ -4209,6 +4339,12 @@ void AliasResource(dtiki_t* pmdl, const char* alias, const char* realname,
     } else {
         cgi.Alias_Add(alias, realname, parameters);
     }
+}
+
+int bLoadForMap__FPCcT0(char* psMapsBuffer, char* name)
+{
+    // FIXME: stub
+    return 0;
 }
 
 //===============
@@ -4268,6 +4404,16 @@ void ClientGameCommandManager::Alias(Event* ev)
     AliasResource(current_tiki, ev->GetString(1), ev->GetString(2), parmbuffer);
 }
 
+void CacheAliasList(AliasList_t* alias_list, str & name)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::CacheAlias(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
 //===============
 // Footstep
 //===============
@@ -4285,6 +4431,21 @@ void ClientGameCommandManager::Footstep(Event* ev)
         // FIXME: unimplemented
         //CG_Footstep(current_centity, current_entity, volume);
     }
+}
+
+void ClientGameCommandManager::LandingSound(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::BodyFallSOund(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::SetAlwaysDraw(Event* ev)
+{
+    // FIXME: unimplemented
 }
 
 //===============
@@ -4406,6 +4567,16 @@ void ClientGameCommandManager::DynamicLight(Event* ev)
     } else {
         m_spawnthing->cgd.lightType = 0;
     }
+}
+
+void ClientGameCommandManager::BlockDynamicLight(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::EndBlockDynamicLight(Event* ev)
+{
+    // FIXME: unimplemented
 }
 
 static int emittercount = 0;
@@ -4764,6 +4935,18 @@ void ClientGameCommandManager::RemoveClientEntity(int number, dtiki_t* tiki,
     }
 }
 
+bool ClientGameCommandManager::GetTagPositionAndOrientation(int tagnum, orientation_t* new_or)
+{
+    // FIXME: unimplemented
+    return false;
+}
+
+bool ClientGameCommandManager::GetTagPositionAndOrientation(str tagname, orientation_t* new_or)
+{
+    // FIXME: unimplemented
+    return false;
+}
+
 //===============
 // FreeAllTempModels
 //===============
@@ -4785,29 +4968,17 @@ void ClientGameCommandManager::FreeAllTempModels(void)
 //===============
 // FreeAllEmitters
 //===============
-void ClientGameCommandManager::FreeAllEmitters(void)
-
+void ClientGameCommandManager::RestartAllEmitters(void)
 {
-    m_emitters.ClearObjectList();
+    // FIXME: stub??
 }
 
 //===============
 // CG_RestartCommandManager
 //===============
 void CG_RestartCommandManager()
-
 {
     commandManager.FreeAllTempModels();
-}
-
-//===============
-// CG_FlushCommandManager
-//===============
-void CG_FlushCommandManager(void)
-
-{
-    commandManager.FreeAllTempModels();
-    commandManager.FreeAllEmitters();
 }
 
 //=================
@@ -5478,4 +5649,28 @@ void ClientGameCommandManager::InitializeBeams()
     // FIXME: unimplemented
 }
 
-void CG_Event(centity_t* cent) { commandManager.CGEvent(cent); }
+void CG_Event(centity_t* cent)
+{
+    commandManager.CGEvent(cent);
+}
+
+
+void ClientGameCommandManager::SetCurrentTiki(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::EventViewKick(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::SpawnTreads(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::TreadsOff(Event* ev)
+{
+    // FIXME: unimplemented
+}

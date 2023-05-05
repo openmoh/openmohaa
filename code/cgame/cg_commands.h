@@ -691,12 +691,10 @@ private:
     float m_fEventWait;
 
     void (ClientGameCommandManager::*endblockfcn)(void);
-    ctempmodel_t* AllocateTempModel(void);
-    qboolean TempModelPhysics(ctempmodel_t* p, float ftime, float time2,
-                              float scale);
-    qboolean TempModelRealtimeEffects(ctempmodel_t* p, float ftime, float time2,
-                                      float scale);
-    qboolean LerpTempModel(refEntity_t* newEnt, ctempmodel_t* p, float frac);
+    cvssource_t* AllocateVSSSource();
+    void FreeVSSSource(cvssource_t *p);
+    void SpawnVSSSource(int count, int timealive);
+    void EventViewKick(Event* ev);
     void Print(Event* ev);
     void StartBlock(Event* ev);
     void EndBlock(Event* ev);
@@ -712,6 +710,7 @@ private:
     void SetColor(Event* ev);
     void SetColorRange(Event* ev);
     void SetLightstyle(Event* ev);
+    void SetRadialVelocity(Event* ev);
     void SetVelocity(Event* ev);
     void SetAngularVelocity(Event* ev);
     void SetCount(Event* ev);
@@ -723,15 +722,20 @@ private:
     void SetRandomVelocity(Event* ev);
     void SetRandomVelocityAlongAxis(Event* ev);
     void SetAccel(Event* ev);
+    void SetFriction(Event* ev);
+    void SetVaryColor(Event* ev);
     void SetFade(Event* ev);
     void SetFadeDelay(Event* ev);
+    void SetSpawnRange(Event* ev);
     void SetSpawnRate(Event* ev);
     void SetOriginOffset(Event* ev);
     void SetOffsetAlongAxis(Event* ev);
+    void SetCone(Event* ev);
     void SetCircle(Event* ev);
     void SetSphere(Event* ev);
     void SetInwardSphere(Event* ev);
     void SetRandomRoll(Event* ev);
+    void SetVolumetric(Event* ev);
     void SetSwarm(Event* ev);
     void SetAlign(Event* ev);
     void SetAlignOnce(Event* ev);
@@ -745,13 +749,12 @@ private:
     void SetHardLink(Event* ev);
     void SetAngles(Event* ev);
     void ParentAngles(Event* ev);
+    void EmitterAngles(Event* ev);
     void SetTwinkle(Event* ev);
     void SetTrail(Event* ev);
     void SetPhysicsRate(Event* ev);
     void SetBounceDecal(Event* ev);
     void UpdateSwarm(ctempmodel_t* p);
-    void SpawnTempModel(int count, int timealive = 0);
-    void FreeTempModel(ctempmodel_t* le);
     void BeginOriginSpawn(Event* ev);
     void EndOriginSpawn(void);
     void BeginOriginBeamSpawn(Event* ev);
@@ -772,22 +775,23 @@ private:
     void EmitterOff(Event* ev);
     void RainTouch(Event* ev);
     void Sound(Event* ev);
+    void SetCurrentTiki(Event* ev);
     void StopSound(Event* ev);
+    void StopAliasChannel(Event* ev);
     void LoopSound(Event* ev);
     void Cache(Event* ev);
+    void CacheImage(Event* ev);
+    void CacheFont(Event* ev);
     void AliasCache(Event* ev);
     void Alias(Event* ev);
+    void CacheAlias(Event* ev);
     void Client(Event* ev);
     void TagDynamicLight(Event* ev);
     void OriginDynamicLight(Event* ev);
     void DynamicLight(Event* ev);
+    void BlockDynamicLight(Event* ev);
+    void EndBlockDynamicLight(Event* ev);
     void GetOrientation(int tagnum, spawnthing_t* sp);
-    void AnimateTempModel(ctempmodel_t* ent, Vector origin,
-                          refEntity_t* newEnt);
-    void OtherTempModelEffects(ctempmodel_t* p, Vector origin,
-                               refEntity_t* newEnt);
-    qboolean IsBlockCommand(const str& name);
-    void SetBaseAndAmplitude(Event* ev, Vector& base, Vector& amplitude);
     void Swipe(Event* ev);
     void SwipeOn(Event* ev);
     void SwipeOff(Event* ev);
@@ -798,7 +802,30 @@ private:
     void TagList(Event* ev);
     void SetParallel(Event* ev);
     void Footstep(Event* ev);
+    void LandingSound(Event* ev);
+    void BodyFallSOund(Event* ev);
+    void SetAlwaysDraw(Event* ev);
     void SetDetail(Event* ev);
+    void SetWindAffect(Event* ev);
+    void SpriteGridLighting(Event* ev);
+    void SetWaterOnly(Event* ev);
+    void SetAlignStretch(Event* ev);
+    void SetClampVel(Event* ev);
+    void SetClampVelAxis(Event* ev);
+    ctempmodel_t* AllocateTempModel(void);
+    qboolean TempModelPhysics(ctempmodel_t* p, float ftime, float time2,
+        float scale);
+    qboolean TempModelRealtimeEffects(ctempmodel_t* p, float ftime, float time2,
+        float scale);
+    qboolean LerpTempModel(refEntity_t* newEnt, ctempmodel_t* p, float frac);
+    void SpawnTempModel(int count, int timealive = 0);
+    void FreeTempModel(ctempmodel_t* le);
+    void AnimateTempModel(ctempmodel_t* ent, Vector origin,
+                          refEntity_t* newEnt);
+    void OtherTempModelEffects(ctempmodel_t* p, Vector origin,
+                               refEntity_t* newEnt);
+    qboolean IsBlockCommand(const str& name);
+    void SetBaseAndAmplitude(Event* ev, Vector& base, Vector& amplitude);
 
     // Beam stuff
     void SetSubdivisions(Event* ev);
@@ -814,9 +841,19 @@ private:
     void SetSpread(Event* ev);
     void SetUseLastTraceEnd(Event* ev);
     void SetEndAlpha(Event* ev);
-
+    void SetEyeLimits(Event* ev);
+    void SetEyeMovement(Event* ev);
+    void StartSFX(Event* ev);
+    void StartSFXDelayed(Event* ev);
+    void StartSFXCommand(Event* ev);
+    void EndIgnoreSfxBlock();
     void RandomChance(Event* ev);
+    void DelayedRepeat(Event* ev);
     void CommandDelay(Event* ev);
+    void SpawnTreads(Event* ev);
+    void TreadsOff(Event* ev);
+    bool GetTagPositionAndOrientation(int tagnum, orientation_t* new_or);
+    bool GetTagPositionAndOrientation(str tagname, orientation_t* new_or);
 
 public:
     CLASS_PROTOTYPE(ClientGameCommandManager);
@@ -831,9 +868,9 @@ public:
                    float min_distance = -1, float pitch = -1, int argstype = 0);
 
     spawnthing_t* InitializeSpawnthing(spawnthing_t* ep);
-    void SpawnTempModel(int count, class spawnthing_t* sp);
+    void SpawnEffect(int count, spawnthing_t* sp);
     void FreeAllTempModels(void);
-    void FreeAllEmitters(void);
+    void RestartAllEmitters(void);
 
     void InitializeTempModels(void);
     void InitializeTempModelCvars(void);
@@ -842,6 +879,7 @@ public:
                             ctempmodel_t* p = NULL);
     void ClearSwipes(void);
     void ResetTempModels(void);
+    void SpawnTempModel(int count, spawnthing_t* sp);
     inline void SetSpawnthing(spawnthing_t* st) { m_spawnthing = st; };
     spawnthing_t* CreateNewEmitter(str emittername);
     spawnthing_t* CreateNewEmitter(void);

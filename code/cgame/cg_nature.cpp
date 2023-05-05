@@ -29,6 +29,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 cvar_t* cg_rain;
 cvar_t* cg_rain_drawcoverage;
 
+void RainTouch(ctempmodel_t* ct, trace_t* trace)
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::RainTouch(Event* ev)
+{
+    // FIXME: stub??
+}
+
 void ClientGameCommandManager::InitializeRainCvars()
 {
     int i;
@@ -49,4 +59,9 @@ void ClientGameCommandManager::InitializeRainCvars()
     }
 
     cg.rain.numshaders = 0;
+}
+
+void CG_Rain(centity_t* cent)
+{
+    // FIXME: unimplemented
 }

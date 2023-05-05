@@ -60,9 +60,25 @@ cvar_t *vss_gridsize;
 cvar_t *vss_default_r;
 cvar_t *vss_default_g;
 cvar_t *vss_default_b;
-cvar_t *vss_lighting_fps;
+cvar_t* vss_lighting_fps;
+
+cvssource_t* ClientGameCommandManager::AllocateVSSSource()
+{
+    // FIXME: unimplemented
+    return nullptr;
+}
+
+void ClientGameCommandManager::FreeVSSSource(cvssource_t* p)
+{
+    // FIXME: unimplemented
+}
 
 void ClientGameCommandManager::ResetVSSSources()
+{
+    // FIXME: unimplemented
+}
+
+void ClientGameCommandManager::ResetVSSSources(Event* ev)
 {
     // FIXME: unimplemented
 }
@@ -97,6 +113,11 @@ void ClientGameCommandManager::InitializeVSSCvars()
     vss_default_g = cgi.Cvar_Get("vss_default_g", "0.45", 0);
     vss_default_b = cgi.Cvar_Get("vss_default_b", "0.4", 0);
     vss_lighting_fps = cgi.Cvar_Get("vss_lighting_fps", "15", 0);
+}
+
+void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
+{
+    // FIXME: unimplemented
 }
 
 void CG_AddVSSSources()
