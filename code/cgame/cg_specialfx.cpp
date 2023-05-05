@@ -73,7 +73,282 @@ ClientSpecialEffectsManager::ClientSpecialEffectsManager()
 
 void ClientSpecialEffectsManager::LoadEffects()
 {
-    // FIXME: unimplemented
+	int i, j, k;
+	const char* szEffectModel;
+	float axis[3][3];
+	specialeffect_t* pEffect;
+
+	if (m_bEffectsLoaded) {
+		return;
+	}
+
+	cgi.DPrintf("Loading Special Effects...\n");
+	AxisClear(axis);
+
+	for (i = 0; i < MAX_SPECIAL_EFFECTS; i++)
+	{
+		switch (i)
+        {
+        case 0:
+            szEffectModel = "models/fx/bh_paper_lite.tik";
+            break;
+        case 1:
+            szEffectModel = "models/fx/bh_paper_hard.tik";
+            break;
+        case 2:
+            szEffectModel = "models/fx/bh_wood_lite.tik";
+            break;
+        case 3:
+            szEffectModel = "models/fx/bh_wood_hard.tik";
+            break;
+        case 4:
+            szEffectModel = "models/fx/bh_metal_lite.tik";
+            break;
+        case 5:
+            szEffectModel = "models/fx/bh_metal_hard.tik";
+            break;
+        case 6:
+            szEffectModel = "models/fx/bh_stone_lite.tik";
+            break;
+        case 7:
+            szEffectModel = "models/fx/bh_stone_hard.tik";
+            break;
+        case 8:
+            szEffectModel = "models/fx/bh_dirt_lite.tik";
+            break;
+        case 9:
+            szEffectModel = "models/fx/bh_dirt_hard.tik";
+            break;
+        case 10:
+            szEffectModel = "models/fx/bh_metal_lite.tik";
+            break;
+        case 11:
+            szEffectModel = "models/fx/bh_metal_hard.tik";
+            break;
+        case 12:
+            szEffectModel = "models/fx/bh_grass_lite.tik";
+            break;
+        case 13:
+            szEffectModel = "models/fx/bh_grass_hard.tik";
+            break;
+        case 14:
+            szEffectModel = "models/fx/bh_mud_lite.tik";
+            break;
+        case 15:
+            szEffectModel = "models/fx/bh_mud_hard.tik";
+            break;
+        case 16:
+            szEffectModel = "models/fx/bh_water_lite.tik";
+            break;
+        case 17:
+            szEffectModel = "models/fx/bh_water_hard.tik";
+            break;
+        case 18:
+            szEffectModel = "models/fx/bh_glass_lite.tik";
+            break;
+        case 19:
+            szEffectModel = "models/fx/bh_glass_hard.tik";
+            break;
+        case 20:
+            szEffectModel = "models/fx/bh_stone_lite.tik";
+            break;
+        case 21:
+            szEffectModel = "models/fx/bh_stone_hard.tik";
+            break;
+        case 22:
+            szEffectModel = "models/fx/bh_sand_lite.tik";
+            break;
+        case 23:
+            szEffectModel = "models/fx/bh_sand_hard.tik";
+            break;
+        case 24:
+            szEffectModel = "models/fx/bh_foliage_lite.tik";
+            break;
+        case 25:
+            szEffectModel = "models/fx/bh_foliage_hard.tik";
+            break;
+        case 26:
+            szEffectModel = "models/fx/bh_snow_lite.tik";
+            break;
+        case 27:
+            szEffectModel = "models/fx/bh_snow_hard.tik";
+            break;
+        case 28:
+            szEffectModel = "models/fx/bh_carpet_lite.tik";
+            break;
+        case 29:
+            szEffectModel = "models/fx/bh_carpet_hard.tik";
+            break;
+        case 30:
+            szEffectModel = "models/fx/bh_human_uniform_lite.tik";
+            break;
+        case 31:
+            szEffectModel = "models/fx/bh_human_uniform_hard.tik";
+            break;
+        case 32:
+            szEffectModel = "models/fx/water_trail_bubble.tik";
+            break;
+        case 33:
+        case 34:
+        case 35:
+        case 36:
+        case 37:
+        case 38:
+        case 39:
+        case 40:
+        case 41:
+        case 42:
+        case 43:
+        case 44:
+        case 45:
+        case 46:
+        case 47:
+        case 48:
+        case 49:
+        case 50:
+        case 51:
+        case 52:
+        case 53:
+        case 54:
+        case 55:
+        case 56:
+        case 57:
+        case 58:
+        case 59:
+        case 60:
+        case 61:
+        case 62:
+            szEffectModel = "models/fx/bh_stone_hard.tik";
+            break;
+        case 63:
+            szEffectModel = "models/fx/grenexp_base.tik";
+            break;
+        case 64:
+            szEffectModel = "models/fx/bazookaexp_base.tik";
+            break;
+        case 65:
+            szEffectModel = "models/fx/grenexp_paper.tik";
+            break;
+        case 66:
+            szEffectModel = "models/fx/grenexp_wood.tik";
+            break;
+        case 67:
+            szEffectModel = "models/fx/grenexp_metal.tik";
+            break;
+        case 68:
+            szEffectModel = "models/fx/grenexp_stone.tik";
+            break;
+        case 69:
+            szEffectModel = "models/fx/grenexp_dirt.tik";
+            break;
+        case 70:
+            szEffectModel = "models/fx/grenexp_metal.tik";
+            break;
+        case 71:
+            szEffectModel = "models/fx/grenexp_grass.tik";
+            break;
+        case 72:
+            szEffectModel = "models/fx/grenexp_mud.tik";
+            break;
+        case 73:
+            szEffectModel = "models/fx/grenexp_water.tik";
+            break;
+        case 74:
+        case 98:
+            continue;
+        case 75:
+            szEffectModel = "models/fx/grenexp_gravel.tik";
+            break;
+        case 76:
+            szEffectModel = "models/fx/grenexp_sand.tik";
+            break;
+        case 77:
+            szEffectModel = "models/fx/grenexp_foliage.tik";
+            break;
+        case 78:
+            szEffectModel = "models/fx/grenexp_snow.tik";
+            break;
+        case 79:
+            szEffectModel = "models/fx/grenexp_carpet.tik";
+            break;
+        case 80:
+            szEffectModel = "models/fx/water_ripple_still.tik";
+            break;
+        case 81:
+            szEffectModel = "models/fx/water_ripple_moving.tik";
+            break;
+        case 82:
+            szEffectModel = "models/fx/barrel_oil_leak_big.tik";
+            break;
+        case 83:
+            szEffectModel = "models/fx/barrel_oil_leak_medium.tik";
+            break;
+        case 84:
+            szEffectModel = "models/fx/barrel_oil_leak_small.tik";
+            break;
+        case 85:
+            szEffectModel = "models/fx/barrel_oil_leak_splat.tik";
+            break;
+        case 86:
+            szEffectModel = "models/fx/barrel_water_leak_big.tik";
+            break;
+        case 87:
+            szEffectModel = "models/fx/barrel_water_leak_medium.tik";
+            break;
+        case 88:
+            szEffectModel = "models/fx/barrel_water_leak_small.tik";
+            break;
+        case 89:
+            szEffectModel = "models/fx/barrel_water_leak_splat.tik";
+            break;
+        case 90:
+            szEffectModel = "models/fx/fs_light_dust.tik";
+            break;
+        case 91:
+            szEffectModel = "models/fx/fs_heavy_dust.tik";
+            break;
+        case 92:
+            szEffectModel = "models/fx/fs_dirt.tik";
+            break;
+        case 93:
+            szEffectModel = "models/fx/fs_grass.tik";
+            break;
+        case 94:
+            szEffectModel = "models/fx/fs_mud.tik";
+            break;
+        case 95:
+            szEffectModel = "models/fx/fs_puddle.tik";
+            break;
+        case 96:
+            szEffectModel = "models/fx/fs_sand.tik";
+            break;
+        case 97:
+            szEffectModel = "models/fx/fs_snow.tik";
+            break;
+        default:
+            szEffectModel = "models/fx/bh_stone_hard.tik";
+		}
+
+        pEffect = &m_effects[i];
+        commandManager.SetCurrentSFX(pEffect);
+        cgi.R_SpawnEffectModel(szEffectModel, vec_zero, axis);
+        commandManager.ClearCurrentSFX();
+
+        for (j = 0; j < pEffect->m_iCommandCount - 1; j++)
+        {
+            for (k = 0; k < j; k++)
+            {
+                if (pEffect->m_commands[k]->fCommandTime > pEffect->m_commands[k + 1]->fCommandTime)
+                {
+                    specialeffectcommand_t* pCur = pEffect->m_commands[k];
+                    pEffect->m_commands[k] = pEffect->m_commands[k + 1];
+                    pEffect->m_commands[k + 1] = pCur;
+                }
+            }
+        }
+	}
+
+    m_bEffectsLoaded = qtrue;
 }
 
 void CG_InitializeSpecialEffectsManager()
@@ -139,7 +414,7 @@ void ClientSpecialEffectsManager::ExecuteEffect(int iEffect, int iStartCommand, 
 		pCommand = pEffect->m_commands[iStartCommand];
 
         fStartCommandTime = pCommand->fCommandTime;
-		for (i = iStartCommand; i < pEffect->m_iCommandCount; i++)
+		for (i = iStartCommand; i < iCommandCount; i++)
 		{
 			pCommand = pEffect->m_commands[i];
 			if (pCommand->fCommandTime > fStartCommandTime)
