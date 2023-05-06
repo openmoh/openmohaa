@@ -48,6 +48,19 @@ void CG_ParseServerinfo(void)
     cgs.timelimit = atoi(Info_ValueForKey(info, "timelimit"));
     cgs.maxclients = atoi(Info_ValueForKey(info, "sv_maxclients"));
 
+    cgi.Cvar_Set("cg_gametype", Info_ValueForKey(info, "g_gametype"));
+    cgi.Cvar_Set("cg_fraglimit", Info_ValueForKey(info, "fraglimit"));
+    cgi.Cvar_Set("cg_timelimit", Info_ValueForKey(info, "timelimit"));
+    cgi.Cvar_Set("cg_maxclients", Info_ValueForKey(info, "sv_gametype"));
+    cgi.Cvar_Set("cg_obj_alliedtext1", Info_ValueForKey(info, "g_obj_alliedtext1"));
+    cgi.Cvar_Set("cg_obj_alliedtext2", Info_ValueForKey(info, "g_obj_alliedtext2"));
+    cgi.Cvar_Set("cg_obj_alliedtext3", Info_ValueForKey(info, "g_obj_alliedtext3"));
+    cgi.Cvar_Set("cg_obj_axistext1", Info_ValueForKey(info, "cg_obj_axistext1"));
+    cgi.Cvar_Set("cg_obj_axistext2", Info_ValueForKey(info, "cg_obj_axistext2"));
+    cgi.Cvar_Set("cg_obj_axistext3", Info_ValueForKey(info, "cg_obj_axistext3"));
+    cgi.Cvar_Set("cg_scoreboardpic", Info_ValueForKey(info, "g_scoreboardpic"));
+    cgi.Cvar_Set("cg_scoreboardpicover", Info_ValueForKey(info, "g_scoreboardpicover"));
+
     mapname = Info_ValueForKey(info, "mapname");
 
     spawnpos = strchr(mapname, '$');
@@ -58,6 +71,28 @@ void CG_ParseServerinfo(void)
     }
 
     Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", map);
+
+    // hide/show huds
+    if (cgs.gametype)
+    {
+        cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_timelimit\n");
+        if (cgs.fraglimit)
+        {
+            cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_fraglimit\n");
+            cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_score\n");
+        }
+        else
+        {
+            cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_score\n");
+            cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_fraglimit\n");
+        }
+    }
+    else
+    {
+        cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_timelimit\n");
+        cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_fraglimit\n");
+        cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_score\n");
+    }
 }
 
 /*
