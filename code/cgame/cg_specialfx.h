@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_commands.h"
 #include "class.h"
 
+#define MAX_SPECIAL_EFFECT_COMMANDS 32
+
 class specialeffectcommand_t : public Class {
 public:
     spawnthing_t* emitter;
@@ -44,10 +46,12 @@ class specialeffect_t : public Class
 {
 public:
     int m_iCommandCount;
-    specialeffectcommand_t* m_commands[32];
+    specialeffectcommand_t* m_commands[MAX_SPECIAL_EFFECT_COMMANDS];
 
 public:
     specialeffect_t();
+
+    specialeffectcommand_t* AddNewCommand();
 };
 
 #define MAX_SPECIAL_EFFECTS 99

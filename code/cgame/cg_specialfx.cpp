@@ -65,6 +65,16 @@ specialeffect_t::specialeffect_t()
 	m_iCommandCount = 0;
 }
 
+specialeffectcommand_t* specialeffect_t::AddNewCommand()
+{
+    if (m_iCommandCount == MAX_SPECIAL_EFFECT_COMMANDS - 1) {
+        return NULL;
+    }
+
+    m_commands[m_iCommandCount] = new specialeffectcommand_t;
+    return m_commands[m_iCommandCount++];
+}
+
 ClientSpecialEffectsManager::ClientSpecialEffectsManager()
 {
     m_bEffectsLoaded = 0;
