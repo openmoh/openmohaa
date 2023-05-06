@@ -39,6 +39,9 @@ typedef struct beam_s {
 	int active;
 	float alphastep;
 	int renderfx;
+	str name;
+	struct beam_s *next;
+	struct beam_s *prev;
 } beam_t;
 
 typedef struct cg_common_data_s {
