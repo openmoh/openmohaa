@@ -808,6 +808,7 @@ void CG_ParseScores();
 void CG_Footstep(const char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunning, int iEquipment);
 void CG_MeleeImpact(vec3_t vStart, vec3_t vEnd);
 void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEquipment);
+void CG_BodyFallSound(centity_t* ent, refEntity_t* pREnt, float volume);
 void CG_InitializeSpecialEffectsManager();
 void CG_AddPendingEffects();
 

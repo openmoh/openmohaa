@@ -938,6 +938,12 @@ void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEqui
 		);
 	}
 }
+
+void CG_BodyFallSound(centity_t* ent, refEntity_t* pREnt, float volume)
+{
+    // FIXME: unimplemented
+}
+
 /*
 ===============
 CG_Splash
