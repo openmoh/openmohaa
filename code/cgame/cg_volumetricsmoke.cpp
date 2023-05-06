@@ -62,15 +62,37 @@ cvar_t *vss_default_g;
 cvar_t *vss_default_b;
 cvar_t* vss_lighting_fps;
 
-cvssource_t* ClientGameCommandManager::AllocateVSSSource()
+void VSS_AddRepulsion(cvssource_t* pA, cvssource_t* pB)
 {
     // FIXME: unimplemented
-    return nullptr;
+}
+
+cvssource_t* ClientGameCommandManager::AllocateVSSSource()
+{
+    m_free_vsssources = m_free_vsssources;
+
+    m_free_vsssources = m_free_vsssources->next;
+    memset(m_free_vsssources, 0, sizeof(cvssource_t));
+
+    m_free_vsssources->next = m_active_vsssources.next;
+    m_free_vsssources->prev = &m_active_vsssources;
+
+    m_active_vsssources.next->prev = m_free_vsssources;
+    m_active_vsssources.next = m_free_vsssources;
+
+    return m_free_vsssources;
 }
 
 void ClientGameCommandManager::FreeVSSSource(cvssource_t* p)
 {
-    // FIXME: unimplemented
+    if (!p->prev) {
+        cgi.Error(ERR_DROP, "CCM::FreeVSSSource: not active");
+    }
+
+    p->prev->next = p->next;
+    p->next->prev = p->prev;
+    p->next = m_free_vsssources;
+    m_free_vsssources = p;
 }
 
 void ClientGameCommandManager::ResetVSSSources()
@@ -115,7 +137,24 @@ void ClientGameCommandManager::InitializeVSSCvars()
     vss_lighting_fps = cgi.Cvar_Get("vss_lighting_fps", "15", 0);
 }
 
+qboolean VSS_SourcePhysics(cvssource_t* pSource, float ftime)
+{
+    // FIXME: unimplemented
+    return qfalse;
+}
+
+qboolean VSS_LerpSource(cvssource_t* pCurrent, cvssourcestate_t* pState, float fLerpFrac, float fLightingFrac)
+{
+    // FIXME: unimplemented
+    return qfalse;
+}
+
 void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
+{
+    // FIXME: unimplemented
+}
+
+void VSS_CalcRepulsionForces(cvssource_t* pActiveSources)
 {
     // FIXME: unimplemented
 }
@@ -128,4 +167,17 @@ void CG_AddVSSSources()
 void ClientGameCommandManager::AddVSSSources()
 {
     // FIXME: unimplemented
+}
+
+void VSS_ClampAlphaLife(cvssource_t* pSource, int maxlife)
+{
+    if (pSource->lifeTime >= maxlife)
+    {
+        pSource->smokeType = -pSource->smokeType;
+        pSource->newDensity = pSource->startAlpha;
+    }
+    else
+    {
+        pSource->newDensity = (float)pSource->lifeTime / (float)maxlife * pSource->startAlpha;
+    }
 }
