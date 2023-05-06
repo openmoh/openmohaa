@@ -302,19 +302,74 @@ void CG_SaveEffectCommandCvars(int iCommand)
     cg_te_tagG[iCommand] = cg_te_tag->string;
 }
 
-void CG_TestEmitter_f(void)
+void CG_ResetEffectCommandCvars()
 {
-    // FIXME: TODO
+    // FIXME: unimplemented
 }
 
-void CG_DumpEmitter_f(void)
+void CG_SetTestEmitterValues()
 {
-    // FIXME: TODO
+    // FIXME: unimplemented
 }
 
 void CG_UpdateTestEmitter(void)
 {
-    // FIXME: TODO
+    // FIXME: unimplemented
+}
+
+void CG_SortEffectCommands()
+{
+    // FIXME: unimplemented
+}
+
+void CG_TriggerTestEmitter_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_DumpBaseAndAmplitude(str* buff, char* prefix, Vector* base, Vector* amplitude)
+{
+    // FIXME: unimplemented
+}
+
+void CG_DumpEmitter_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_LoadBaseAndAmplitude(char** pBufer, char* szCvarX, char* szCvarY, char* szCvarZ, char* szCvarXAmp, char* szCvarYAmp, char* szCvarZAmp)
+{
+    // FIXME: unimplemented
+}
+
+void CG_LoadEmitter_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_TestEmitter_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_PrevEmitterCommand_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_NextEmitterCommand_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_NewEmitterCommand_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_DeleteEmitterCommand_f(void)
+{
+    // FIXME: unimplemented
 }
 
 void CG_InitTestEmitter(void)

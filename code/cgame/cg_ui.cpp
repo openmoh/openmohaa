@@ -25,7 +25,72 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-void CG_HudPrint_f()
+void CG_MessageMode_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_MessageMode_All_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_MessageMode_Team_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_MessageMode_Private_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_MessageSingleAll_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_MessageSingleTeam_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_MessageSingleClient_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_InstaMessageMain_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_InstaMessageGroupA_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_InstaMessageGroupB_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_InstaMessageGroupC_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_InstaMessageGroupD_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_InstaMessageGroupE_f(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_HudPrint_f(void)
 {
     cgi.Printf("\x1%s", cgi.Argv(0));
 }

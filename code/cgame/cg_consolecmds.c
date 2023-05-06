@@ -120,6 +120,31 @@ void CG_ScoresUp_f( void )
     cgi.UI_HideScoreBoard(cg.scoresMenuName);
 }
 
+static void CG_PrintContentTypes(int iContentFlags)
+{
+    // FIXME: unimplemented
+}
+
+static void CG_PrintSurfaceProperties(int iSurfaceFlags)
+{
+    // FIXME: unimplemented
+}
+
+static void CG_PrintSurfaceType(int iSurfType)
+{
+    // FIXME: unimplemented
+}
+
+void CG_GetCHShader(void)
+{
+    // FIXME: unimplemented
+}
+
+void CG_EditCHShader(void)
+{
+    // FIXME: unimplemented
+}
+
 #if 0
 
 
@@ -235,29 +260,56 @@ typedef struct {
 } consoleCommand_t;
 
 static consoleCommand_t commands[] = {
-  //	{ "testmodel", CG_TestModel_f },
-  //	{ "nextframe", CG_TestModelNextFrame_f },
-  //	{ "prevframe", CG_TestModelPrevFrame_f },
-  //	{ "nextskin", CG_TestModelNextSkin_f },
-  //	{ "prevskin", CG_TestModelPrevSkin_f },
-    {"viewpos",            CG_Viewpos_f        },
- //	{ "+scores", CG_ScoresDown_f },
-  //	{ "-scores", CG_ScoresUp_f },
-  //	{ "+info", CG_InfoDown_f },
-  //	{ "-info", CG_InfoUp_f },
-    {"sizeup",             CG_SizeUp_f         },
-    {"sizedown",           CG_SizeDown_f       },
-    {"cg_eventlist",       CG_EventList_f      },
-    {"cg_eventhelp",       CG_EventHelp_f      },
-    {"cg_dumpevents",      CG_DumpEventHelp_f  },
-    {"cg_pendingevents",   CG_PendingEvents_f  },
-    {"cg_classlist",       CG_ClassList_f      },
-    {"cg_classtree",       CG_ClassTree_f      },
-    {"cg_classevents",     CG_ClassEvents_f    },
-    {"cg_dumpclassevents", CG_DumpClassEvents_f},
-    {"cg_dumpallclasses",  CG_DumpAllClasses_f },
-    {"testemitter",        CG_TestEmitter_f    },
-    {"dumpemitter",        CG_DumpEmitter_f    },
+    { "useweaponclass",         &CG_UseWeaponClass_f },
+    { "weapnext",               &CG_NextWeapon_f },
+    { "weapprev",               &CG_PrevWeapon_f },
+    { "uselast",                &CG_UseLastWeapon_f },
+    { "holster",                &CG_HolsterWeapon_f },
+    { "weapdrop",               &CG_DropWeapon_f },
+    { "toggleitem",             &CG_ToggleItem_f },
+    { "+scores",                &CG_ScoresDown_f },
+    { "-scores",                &CG_ScoresUp_f },
+    { "viewpos",                &CG_Viewpos_f },
+    { "sizeup",                 &CG_SizeUp_f },
+    { "sizedown",               &CG_SizeDown_f },
+    { "cg_eventlist",           &CG_EventList_f },
+    { "cg_eventhelp",           &CG_EventHelp_f },
+    { "cg_dumpevents",          &CG_DumpEventHelp_f },
+    { "cg_pendingevents",       &CG_PendingEvents_f },
+    { "cg_classlist",           &CG_ClassList_f },
+    { "cg_classtree",           &CG_ClassTree_f },
+    { "cg_classevents",         &CG_ClassEvents_f },
+    { "cg_dumpclassevents",     &CG_DumpClassEvents_f },
+    { "cg_dumpallclasses",      &CG_DumpAllClasses_f },
+    { "testemitter",            &CG_TestEmitter_f },
+    { "triggertestemitter",     &CG_TriggerTestEmitter_f },
+    { "prevemittercommand",     &CG_PrevEmitterCommand_f },
+    { "nextemittercommand",     &CG_NextEmitterCommand_f },
+    { "newemittercommand",      &CG_NewEmitterCommand_f },
+    { "deleteemittercommand",   &CG_DeleteEmitterCommand_f },
+    { "dumpemitter",            &CG_DumpEmitter_f },
+    { "loademitter",            &CG_LoadEmitter_f },
+    { "resetvss",               &CG_ResetVSSSources },
+    { "getchshader",            &CG_GetCHShader },
+    { "editchshader",           &CG_EditCHShader },
+    { "messagemode",            &CG_MessageMode_f },
+    { "messagemode_all",        &CG_MessageMode_All_f },
+    { "messagemode_team",       &CG_MessageMode_Team_f },
+    { "messagemode_private",    &CG_MessageMode_Private_f },
+    { "say",                    &CG_MessageSingleAll_f },
+    { "sayteam",                &CG_MessageSingleTeam_f },
+    { "teamsay",                &CG_MessageSingleTeam_f },
+    { "sayprivate",             &CG_MessageSingleClient_f },
+    { "sayone",                 &CG_MessageSingleClient_f },
+    { "wisper",                 &CG_MessageSingleClient_f },
+    { "instamsg_main",          &CG_InstaMessageMain_f },
+    { "instamsg_group_a",       &CG_InstaMessageGroupA_f },
+    { "instamsg_group_b",       &CG_InstaMessageGroupB_f },
+    { "instamsg_group_c",       &CG_InstaMessageGroupC_f },
+    { "instamsg_group_d",       &CG_InstaMessageGroupD_f },
+    { "instamsg_group_e",       &CG_InstaMessageGroupE_f },
+    { "pushmenu_teamselect",    &CG_PushMenuTeamSelect_f },
+    { "pushmenu_weaponselect",  &CG_PushMenuWeaponSelect_f },
 };
 
 /*
@@ -305,7 +357,7 @@ void CG_InitConsoleCommands(void)
     cgi.AddCommand("vote");
 }
 
-void CG_Mapinfo_f()
+void CG_Mapinfo_f(void)
 {
     cgi.Printf("---------------------\n");
     cgi.R_PrintBSPFileSizes();
@@ -313,7 +365,7 @@ void CG_Mapinfo_f()
     cgi.Printf("---------------------\n");
 }
 
-void CG_PushMenuTeamSelect_f()
+void CG_PushMenuTeamSelect_f(void)
 {
     if (cgs.gametype == GT_SINGLE_PLAYER) {
         return;
@@ -333,7 +385,7 @@ void CG_PushMenuTeamSelect_f()
 	}
 }
 
-void CG_PushMenuWeaponSelect_f()
+void CG_PushMenuWeaponSelect_f(void)
 {
     if (cgs.gametype == GT_SINGLE_PLAYER) {
         return;
@@ -342,7 +394,7 @@ void CG_PushMenuWeaponSelect_f()
     cgi.Cmd_Execute(EXEC_NOW, "pushmenu SelectPrimaryWeapon\n");
 }
 
-void CG_UseWeaponClass_f()
+void CG_UseWeaponClass_f(void)
 {
     const char* cmd;
 
@@ -373,43 +425,43 @@ void CG_UseWeaponClass_f()
     cg.iWeaponCommandSend = 0;
 }
 
-void CG_NextWeapon_f()
+void CG_NextWeapon_f(void)
 {
     cg.iWeaponCommand = WEAPON_COMMAND_USE_NEXT_WEAPON;
     cg.iWeaponCommandSend = 0;
 }
 
-void CG_PrevWeapon_f()
+void CG_PrevWeapon_f(void)
 {
     cg.iWeaponCommand = WEAPON_COMMAND_USE_PREV_WEAPON;
     cg.iWeaponCommandSend = 0;
 }
 
-void CG_UseLastWeapon_f()
+void CG_UseLastWeapon_f(void)
 {
     cg.iWeaponCommand = WEAPON_COMMAND_USE_LAST_WEAPON;
     cg.iWeaponCommandSend = 0;
 }
 
-void CG_HolsterWeapon_f()
+void CG_HolsterWeapon_f(void)
 {
     cg.iWeaponCommand = WEAPON_COMMAND_HOLSTER;
     cg.iWeaponCommandSend = 0;
 }
 
-void CG_DropWeapon_f()
+void CG_DropWeapon_f(void)
 {
     cg.iWeaponCommand = WEAPON_COMMAND_DROP;
     cg.iWeaponCommandSend = 0;
 }
 
-void CG_ToggleItem_f()
+void CG_ToggleItem_f(void)
 {
     cg.iWeaponCommand = WEAPON_COMMAND_USE_ITEM1;
     cg.iWeaponCommandSend = 0;
 }
 
-int CG_WeaponCommandButtonBits()
+int CG_WeaponCommandButtonBits(void)
 {
     int iShiftedWeaponCommand;
 

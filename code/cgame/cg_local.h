@@ -673,16 +673,16 @@ qboolean CG_ConsoleCommand( void );
 void CG_InitConsoleCommands( void );
 void CG_AddTestModel( void );
 void CG_Mapinfo_f();
-void CG_PushMenuTeamSelect_f();
-void CG_PushMenuWeaponSelect_f();
-void CG_UseWeaponClass_f();
-void CG_NextWeapon_f();
-void CG_PrevWeapon_f();
-void CG_UseLastWeapon_f();
-void CG_HolsterWeapon_f();
-void CG_DropWeapon_f();
-void CG_ToggleItem_f();
-int CG_WeaponCommandButtonBits();
+void CG_PushMenuTeamSelect_f(void);
+void CG_PushMenuWeaponSelect_f(void);
+void CG_UseWeaponClass_f(void);
+void CG_NextWeapon_f(void);
+void CG_PrevWeapon_f(void);
+void CG_UseLastWeapon_f(void);
+void CG_HolsterWeapon_f(void);
+void CG_DropWeapon_f(void);
+void CG_ToggleItem_f(void);
+int CG_WeaponCommandButtonBits(void);
 void CG_ScoresDown_f(void);
 void CG_ScoresUp_f(void);
 
@@ -773,6 +773,15 @@ void CG_Emitter( centity_t *cent );
 
 //
 // cg_testemitter.cpp
+void CG_UpdateTestEmitter(void);
+void CG_SortEffectCommands();
+void CG_TriggerTestEmitter_f(void);
+void CG_DumpEmitter_f(void);
+void CG_LoadEmitter_f(void);
+void CG_PrevEmitterCommand_f(void);
+void CG_NextEmitterCommand_f(void);
+void CG_NewEmitterCommand_f(void);
+void CG_DeleteEmitterCommand_f(void);
 void CG_InitTestEmitter( void );
 void CG_TestEmitter_f( void );
 void CG_DumpEmitter_f( void );
@@ -818,13 +827,26 @@ void CG_ClearSwipes( void );
 
 //
 // cg_ui.cpp
-void CG_HudPrint_f();
+void CG_MessageMode_f(void);
+void CG_MessageMode_All_f(void);
+void CG_MessageMode_Team_f(void);
+void CG_MessageMode_Private_f(void);
+void CG_MessageSingleAll_f(void);
+void CG_MessageSingleTeam_f(void);
+void CG_MessageSingleClient_f(void);
+void CG_InstaMessageMain_f(void);
+void CG_InstaMessageGroupA_f(void);
+void CG_InstaMessageGroupB_f(void);
+void CG_InstaMessageGroupC_f(void);
+void CG_InstaMessageGroupD_f(void);
+void CG_InstaMessageGroupE_f(void);
+void CG_HudPrint_f(void);
 int CG_CheckCaptureKey(int key, qboolean down, unsigned int time);
 
 //
 // cg_volumetricsmoke.cpp
-void CG_ResetVSSSources();
-void CG_AddVSSSources();
+void CG_ResetVSSSources(void);
+void CG_AddVSSSources(void);
 
 extern cvar_t* vss_draw;
 extern cvar_t* vss_physics_fps;
