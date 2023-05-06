@@ -923,4 +923,30 @@ public:
     void Emitter(Event* ev);
 };
 
+class EffectsEventQueueNode {
+public:
+    Event* event;
+    int	inttime;
+    int flags;
+    int entity_num;
+
+    EffectsEventQueueNode* prev;
+    EffectsEventQueueNode* next;
+
+#ifdef _DEBUG
+    str name;
+#endif
+
+    EffectsEventQueueNode() { prev = this; next = this; }
+    EffectsEventQueueNode(Event* event, int inttime, int flags, int entity_num)
+    {
+        this->event = event;
+        this->inttime = inttime;
+        this->flags = flags;
+        this->entity_num = entity_num;
+    }
+
+    int GetEntityNum() { return entity_num; }
+};
+
 extern ClientGameCommandManager commandManager;
