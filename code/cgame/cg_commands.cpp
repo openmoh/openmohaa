@@ -5939,7 +5939,80 @@ void ClientGameCommandManager::SetCurrentTiki(Event* ev)
 
 void ClientGameCommandManager::EventViewKick(Event* ev)
 {
-    // FIXME: unimplemented
+    float vkmin[2], vkmax[2];
+    float fPitchMax, fYawMax, fScatterPitchMax;
+    str sPattern;
+
+    if (current_centity->currentState.parent != cg.snap->ps.clientNum) {
+        return;
+    }
+
+    if (ev->NumArgs() < 9) {
+        throw ScriptException("Wrong number of arguments for viewkick, should be 9\n");
+    }
+
+    vkmin[0] = ev->GetFloat(1);
+    vkmax[0] = ev->GetFloat(2);
+    vkmin[1] = ev->GetFloat(3);
+    vkmax[1] = ev->GetFloat(4);
+
+    cg.viewkickRecenter = ev->GetFloat(5);
+    sPattern = ev->GetString(6);
+
+    fPitchMax = ev->GetFloat(7);
+    fYawMax = ev->GetFloat(8);
+    fScatterPitchMax = ev->GetFloat(9);
+
+    if (ev->NumArgs() > 9) {
+        cg.viewkickMinDecay = ev->GetFloat(10);
+    }
+    else {
+        cg.viewkickMinDecay = 12.0;
+    }
+
+    if (ev->NumArgs() > 10) {
+        cg.viewkickMaxDecay = ev->GetFloat(11);
+    }
+    else {
+        cg.viewkickMaxDecay = 12.0;
+    }
+
+    cg.viewkick[0] += vkmin[0] + random() * (vkmax[0] - vkmin[0]);
+    if (sPattern == "T")
+    {
+        cg.viewkick[1] += vkmin[1] + random() * (vkmax[1] - vkmin[1]);
+    }
+    else if (sPattern == "V")
+    {
+        cg.viewkick[1] += cg.viewkick[0] * (vkmin[1] + random() * (vkmax[1] - vkmin[1]));
+    }
+
+    if (cg.viewkick[0] < fScatterPitchMax)
+    {
+        if (cg.viewkick[0] <= -fScatterPitchMax)
+        {
+            cg.viewkick[0] += crandom() * 0.25;
+            cg.viewkick[1] += crandom() * 0.25;
+        }
+    }
+    else
+    {
+        cg.viewkick[0] -= crandom() * 0.25;
+        cg.viewkick[1] += crandom() * 3.5;
+    }
+
+    if (cg.viewkick[0] > fPitchMax) {
+        cg.viewkick[0] = fPitchMax;
+    } else if (cg.viewkick[0] < -fPitchMax) {
+        cg.viewkick[0] = -fPitchMax;
+    }
+
+    if (cg.viewkick[1] > fYawMax) {
+        cg.viewkick[1] = fYawMax;
+    }
+    else if (cg.viewkick[1] < -fYawMax) {
+        cg.viewkick[1] = -fYawMax;
+    }
 }
 
 void ClientGameCommandManager::SpawnTreads(Event* ev)

@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //============================================================================
 
+
 /*
 =================
 CG_CalcVrect
@@ -565,10 +566,53 @@ static int CG_CalcViewValues(void)
 
     if (cg.snap->ps.stats[STAT_HEALTH] > 0)
     {
-        // FIXME
-        // TODO: damage Angles
-        // TODO: viewkick
+        VectorSubtract(cg.refdefViewAngles, cg.predicted_player_state.damage_angles, cg.refdefViewAngles);
+        cg.refdefViewAngles[0] += cg.viewkick[0];
+        cg.refdefViewAngles[1] += cg.viewkick[1];
+
+        if (cg.viewkick[0] || cg.viewkick[1])
+        {
+            int i;
+            float fDecay;
+
+            for (i = 0; i < 2; i++)
+            {
+                fDecay = cg.viewkick[i] * cg.viewkickRecenter;
+                if (fDecay > cg.viewkickMaxDecay)
+                {
+                    fDecay = cg.viewkickMaxDecay;
+                }
+                else if (fDecay < -cg.viewkickMaxDecay) {
+                    fDecay = -cg.viewkickMaxDecay;
+                }
+
+                if (fDecay < cg.viewkickMinDecay)
+                {
+                    fDecay = cg.viewkickMinDecay;
+                }
+                else if (fDecay > -cg.viewkickMinDecay) {
+                    fDecay = -cg.viewkickMinDecay;
+                }
+
+                if (cg.viewkick[i] > 0.0)
+                {
+                    cg.viewkick[i] -= fDecay * (float)cg.frametime / 1000.0;
+                    if (cg.viewkick[i] < 0.0) {
+                        cg.viewkick[i] = 0.0;
+                    }
+                }
+                else
+                {
+                    cg.viewkick[i] -= fDecay * (float)cg.frametime / 1000.0;
+                    if (cg.viewkick[i] > 0.0) {
+                        cg.viewkick[i] = 0.0;
+                    }
+                }
+            }
+        }
     }
+
+    // FIXME: fffx screen shake on win32 builds?
 
     // add error decay
     if (cg_errorDecay->value > 0)
