@@ -45,6 +45,9 @@ const char* cg_vsstypes[] =
 cvssource_t* vss_sorttable[16384];
 
 static int lastVSSFrameTime;
+static constexpr float MAX_VSS_COORDS = 8096.0;
+static constexpr float MAX_VSS_WIND_DIST = 512;
+static constexpr float MAX_VSS_WIND_DIST_SQUARED = MAX_VSS_WIND_DIST * MAX_VSS_WIND_DIST;
 
 extern cvar_t* cg_detail;
 extern cvar_t* cg_effectdetail;
@@ -65,6 +68,8 @@ cvar_t *vss_default_r;
 cvar_t *vss_default_g;
 cvar_t *vss_default_b;
 cvar_t* vss_lighting_fps;
+
+void VSS_ClampAlphaLife(cvssource_t* pSource, int maxlife);
 
 void VSS_AddRepulsion(cvssource_t* pA, cvssource_t* pB)
 {
@@ -278,8 +283,382 @@ void ClientGameCommandManager::InitializeVSSCvars()
 
 qboolean VSS_SourcePhysics(cvssource_t* pSource, float ftime)
 {
-    // FIXME: unimplemented
-    return qfalse;
+    int i;
+    int iSmokeType;
+    float fWind;
+    vec3_t vVel, vDelta;
+    trace_t trace;
+    entityState_t* pEntState;
+
+    fWind = 0.0;
+
+    if ((pSource->flags2 & 5) != 0)
+    {
+        VectorMA(pSource->velocity, ftime, pSource->repulsion, pSource->velocity);
+    }
+
+    pSource->lastOrigin = pSource->newOrigin;
+
+    if (pSource->flags & 0x800)
+    {
+        CG_ClipMoveToEntities(
+            pSource->newOrigin,
+            vec3_origin,
+            vec3_origin,
+            pSource->newOrigin,
+            -1,
+            MASK_VOLUMETRIC_SMOKE,
+            &trace,
+            qfalse);
+
+        if (trace.allsolid)
+        {
+            vec3_t vMins, vMaxs;
+            pEntState = &cg_entities[trace.entityNum].currentState;
+
+            IntegerToBoundingBox(pEntState->solid, vMins, vMaxs);
+            for (i = 0; i < 3; i++) {
+                vDelta[i] = pSource->newOrigin[i] - ((vMins[i] + vMaxs[i]) * 0.5 + pEntState->origin[i]);
+            }
+            VectorNormalizeFast(vDelta);
+
+            pSource->velocity = Vector(vDelta) * 16.0;
+        }
+    }
+
+    if (pSource->flags2 & 5) {
+        VectorMA(pSource->newOrigin, ftime, pSource->velocity, pSource->newOrigin);
+    }
+
+    if (pSource->flags & 0x800)
+    {
+        CG_Trace(
+            &trace,
+            pSource->lastOrigin,
+            vec3_origin,
+            vec3_origin,
+            pSource->newOrigin,
+            -1,
+            MASK_VOLUMETRIC_SMOKE,
+            qfalse,
+            qfalse,
+            "Collision"
+        );
+
+        if (trace.fraction != 1.0)
+        {
+            float fDot;
+            vec3_t vNorm;
+
+            VectorAdd(trace.endpos, trace.plane.normal, pSource->newOrigin);
+            fDot = DotProduct(vNorm, pSource->velocity);
+            VectorMA(pSource->velocity, fDot, vNorm, pSource->velocity);
+
+            if (vNorm[2] > 0.7) {
+                VectorMA(pSource->velocity, ftime * -0.2, pSource->velocity, pSource->velocity);
+            }
+
+            iSmokeType = abs(pSource->smokeType);
+            if (iSmokeType >= 3 && iSmokeType <= 4)
+            {
+                if (vNorm[2] > 0.7) {
+                    pSource->newDensity -= ftime * 0.08;
+                }
+            }
+        }
+    }
+
+    if (pSource->newOrigin[0] < -MAX_VSS_COORDS || pSource->newOrigin[0] > MAX_VSS_COORDS
+        || pSource->newOrigin[1] < -MAX_VSS_COORDS || pSource->newOrigin[1] > MAX_VSS_COORDS
+        || pSource->newOrigin[2] < -MAX_VSS_COORDS || pSource->newOrigin[2] > MAX_VSS_COORDS) {
+        return qfalse;
+    }
+
+    iSmokeType = abs(pSource->smokeType);
+    if (pSource->flags2 & 5)
+    {
+        VectorCopy(pSource->velocity, vVel);
+
+        for (i = 0; i < 3; i++)
+        {
+            switch (i)
+            {
+            case 0:
+                fWind = vss_wind_x->value;
+                break;
+            case 1:
+                fWind = vss_wind_y->value;
+                break;
+            case 2:
+                fWind = vss_wind_z->value;
+                break;
+            }
+
+            if (fWind < 0.0)
+            {
+                if (vVel[i] > fWind)
+                {
+                    vVel[i] -= ftime * vss_wind_strength->value;
+                    if (vVel[i] > fWind) {
+                        vVel[i] = fWind;
+                    }
+                }
+                else
+                {
+                    vVel[i] += ftime * vss_movement_dampen->value;
+                    if (vVel[i] < fWind) {
+                        vVel[i] = fWind;
+                    }
+                }
+            }
+            else if (vVel[i] > fWind)
+            {
+                vVel[i] -= ftime * vss_movement_dampen->value;
+                if (vVel[i] < fWind) {
+                    vVel[i] = fWind;
+                }
+            }
+            else
+            {
+                vVel[i] += ftime * vss_movement_dampen->value;
+                if (vVel[i] > fWind) {
+                    vVel[i] = fWind;
+                }
+            }
+        }
+
+        switch (iSmokeType)
+        {
+        case 3:
+            if (vVel[2] > -8.0) {
+                vVel[2] -= ftime * 8.0;
+            }
+            break;
+        case 4:
+            if (vVel[2] > -5.0) {
+                vVel[2] -= ftime * 3.0;
+            }
+            break;
+        case 5:
+            if (vVel[2] < 256.0) {
+                vVel[2] += ftime * 40.0;
+            }
+            break;
+        case 6:
+            if (vVel[2] > -25.0) {
+                vVel[2] -= ftime * 10.0;
+            }
+            break;
+        case 7:
+            if (vVel[2] > -10.0) {
+                vVel[2] -= ftime * 4.0;
+            }
+            break;
+        case 9:
+        case 10:
+            if (pSource->typeInfo > 8.0)
+            {
+                if (vVel[2] < pSource->typeInfo) {
+                    vVel[2] += ftime * pSource->typeInfo;
+                }
+
+                pSource->typeInfo -= ftime * pSource->typeInfo * 0.04;
+                if (pSource->typeInfo < 10.0) {
+                    pSource->typeInfo = 10.0;
+                }
+            }
+            break;
+        case 11:
+            if (vVel[2] > -800.0) {
+                vVel[2] -= ftime * 300.0;
+            }
+            break;
+        }
+
+        fWind = VectorLengthSquared(vVel);
+        if (fWind > MAX_VSS_WIND_DIST_SQUARED)
+        {
+            VectorNormalizeFast(vVel);
+            VectorScale(vVel, MAX_VSS_WIND_DIST, vVel);
+        }
+
+        pSource->velocity = vVel;
+    }
+
+    pSource->lastRadius = pSource->newRadius;
+    switch (iSmokeType)
+    {
+    case 1:
+        pSource->newRadius += ftime * 1.2 * pSource->scaleMult;
+        break;
+    case 2:
+        pSource->newRadius += ftime * 0.7 * pSource->scaleMult;
+        break;
+    case 3:
+        if ((double)pSource->lifeTime >= 1.0) {
+            pSource->newRadius += ftime * 0.7 * pSource->scaleMult;
+        } else {
+            pSource->newRadius += ftime * 1.2 * pSource->scaleMult;
+        }
+        break;
+    case 4:
+        pSource->newRadius += ftime * 1.2 * pSource->scaleMult;
+        break;
+    case 5:
+        pSource->newRadius += ftime * 5.0 * pSource->scaleMult;
+        break;
+    case 6:
+        pSource->newRadius += ftime * 0.8 * pSource->scaleMult;
+        break;
+    case 7:
+        if (pSource->newRadius >= 24.0) {
+            pSource->newRadius += ftime * 0.4 * pSource->scaleMult;
+        } else {
+            pSource->newRadius += ftime * 1.6 * pSource->scaleMult;
+        }
+        break;
+    case 8:
+        if (pSource->newRadius >= 24.0) {
+            pSource->newRadius += ftime * 0.4 * pSource->scaleMult;
+        } else {
+            pSource->newRadius += ftime * 1.6 * pSource->scaleMult;
+        }
+        break;
+    case 9:
+    case 10:
+        if (pSource->newRadius >= 16.0) {
+            pSource->newRadius += ftime * 0.4 * pSource->scaleMult;
+        } else {
+            pSource->newRadius += ftime * 0.8 * pSource->scaleMult;
+        }
+        break;
+    case 11:
+        pSource->newRadius += ftime * 0.8 * pSource->scaleMult;
+        break;
+    default:
+        pSource->newRadius += ftime * 1.2 * pSource->scaleMult;
+        break;
+    }
+
+    if (pSource->newRadius < 1.0) {
+        pSource->newRadius = 1.0;
+    }
+    else if (pSource->newRadius > 32.0) {
+        pSource->newRadius = 32.0;
+    }
+
+    pSource->ooRadius = 1.0 / pSource->newRadius;
+    pSource->lastDensity = pSource->newDensity;
+    if (pSource->smokeType >= 0)
+    {
+        switch (iSmokeType)
+        {
+        case 1:
+            pSource->newDensity -= ftime * 0.07 * pSource->fadeMult;
+            break;
+        case 2:
+            pSource->newDensity -= ftime * 0.075 * pSource->fadeMult;
+            break;
+        case 3:
+            if (pSource->newDensity > 0.6) {
+                pSource->newDensity -= ftime * 0.05 * pSource->fadeMult;
+            }
+            else {
+                pSource->newDensity -= ftime * 0.4 * pSource->fadeMult;
+            }
+            break;
+        case 4:
+            pSource->newDensity -= ftime * 0.0080000004 * pSource->fadeMult;
+            break;
+        case 5:
+            pSource->newDensity -= ftime * 0.75 * pSource->fadeMult;
+            break;
+        case 6:
+            pSource->newDensity -= ftime * 0.016000001 * pSource->fadeMult;
+            break;
+        case 7:
+            pSource->newDensity -= ftime * 0.0049999999 * pSource->fadeMult;
+            break;
+        case 8:
+            if (pSource->newDensity > 0.7) {
+                pSource->newDensity -= ftime * 0.025 * pSource->fadeMult;
+            }
+            else {
+                pSource->newDensity -= ftime * 0.38 * pSource->fadeMult;
+            }
+            break;
+        case 11:
+            pSource->newDensity = pSource->newDensity - ftime * 0.125 * pSource->fadeMult;
+            break;
+        default:
+            if (pSource->newDensity > 0.4) {
+                pSource->newDensity -= ftime * 0.01 * pSource->fadeMult;
+            }
+            else {
+                pSource->newDensity -= ftime * 0.0075 * pSource->fadeMult;
+            }
+            break;
+        }
+        if (pSource->newDensity <= 0.06)
+            return 0;
+    }
+    else
+    {
+        switch (iSmokeType)
+        {
+        case 3:
+            VSS_ClampAlphaLife(pSource, 150);
+            break;
+        case 4:
+            VSS_ClampAlphaLife(pSource, 200);
+            break;
+        case 5:
+        case 11:
+            VSS_ClampAlphaLife(pSource, 50);
+            break;
+        case 6:
+        case 8:
+            VSS_ClampAlphaLife(pSource, 600);
+            break;
+        case 7:
+            VSS_ClampAlphaLife(pSource, 800);
+            break;
+        case 9:
+        case 10:
+            VSS_ClampAlphaLife(pSource, 1500);
+            break;
+        default:
+            VSS_ClampAlphaLife(pSource, 100);
+            break;
+        }
+    }
+
+    VectorCopy(pSource->newColor, pSource->lastColor);
+    if (iSmokeType == 1)
+    {
+        for (i = 0; i < 3; ++i)
+        {
+            pSource->newColor[i] -= ftime * 0.05 * pSource->fadeMult;
+            if (pSource->newColor[i] < 0.0) {
+                pSource->newColor[i] = 0.0;
+            }
+        }
+    }
+    else if (iSmokeType == 9)
+    {
+        for (i = 0; i < 3; ++i)
+        {
+            if (pSource->newColor[i] < 0.9)
+            {
+                pSource->newColor[i] += ftime * 0.02 * pSource->fadeMult;
+                if (pSource->newColor[i] > 0.9) {
+                    pSource->newColor[i] = 0.9;
+                }
+            }
+        }
+    }
+
+    return qtrue;
 }
 
 qboolean VSS_LerpSource(cvssource_t* pCurrent, cvssourcestate_t* pState, float fLerpFrac, float fLightingFrac)
