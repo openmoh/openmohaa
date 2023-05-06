@@ -107,6 +107,9 @@ TIKI file, similar to ScriptMaster in the server game dll.
 #define T2_CLAMP_VEL            (1 << 15)
 #define T2_CLAMP_VEL_AXIS       (1 << 16)
 #define T2_CONE                 (1 << 17)
+#define T2_RADIALVELOCITY       (1 << 18)
+#define T2_FRICTION             (1 << 19)
+#define T2_VARYCOLOR            (1 << 20)
 
 class spawnthing_t;
 class specialeffect_t;
@@ -677,7 +680,7 @@ public:
 };
 
 #define MAX_TEMPMODELS 1024
-#define MAX_BEAMS      128
+#define MAX_BEAMS      4096
 
 class ClientGameCommandManager : public Listener
 {
@@ -800,7 +803,7 @@ private:
     void OriginDynamicLight(Event* ev);
     void DynamicLight(Event* ev);
     void BlockDynamicLight(Event* ev);
-    void EndBlockDynamicLight(Event* ev);
+    void EndBlockDynamicLight();
     void GetOrientation(int tagnum, spawnthing_t* sp);
     void Swipe(Event* ev);
     void SwipeOn(Event* ev);
