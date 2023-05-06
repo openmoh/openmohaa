@@ -1779,7 +1779,7 @@ typedef struct entityState_s
 	int solid;
 	float scale;
 	float alpha;
-	int renderFx;
+	int renderfx;
 	float shaderData[2];
 	float shaderTime;
 	vec4_t quat;
@@ -4010,36 +4010,36 @@ typedef struct profCGame_s
 
 typedef struct refEntity_s
 {
-	entityType_t reType;
-	int renderFx;
-	int model;
-	int oldModel;
-	vec3_t lightingOrigin;
+	refEntityType_t reType;
+	int renderfx;
+	qhandle_t hModel;
+	qhandle_t hOldModel;
+	float lightingOrigin[3];
 	int parentEntity;
-	vec3_t axis[3];
-	int nonNormalizedAxes;
-	vec3_t origin;
-	frameInfo_t frameInfo[MAX_FRAMEINFOS];
+	float axis[3][3];
+	qboolean nonNormalizedAxes;
+	float origin[3];
+	frameInfo_t frameInfo[16];
 	float actionWeight;
 	short int wasframe;
 	float scale;
-	vec3_t oldOrigin;
+	float oldorigin[3];
 	int skinNum;
-	int customShader;
+	qhandle_t customShader;
 	unsigned char shaderRGBA[4];
 	float shaderTexCoord[2];
 	float shaderTime;
 	int entityNumber;
-	unsigned char surfaces[MAX_SURFACES];
-	float shaderData[2];
-	int *boneTag;
-	vec4_t *boneQuat;
-	tikiFrame_t *of;
-	tikiFrame_t *nf;
-	dtiki_t *tiki;
-	int boneStart;
-	int morphStart;
-	int hasMorph;
+	unsigned char surfaces[32];
+	float shader_data[2];
+	int *bone_tag;
+	float (*bone_quat)[4];
+	struct tikiFrame_s /* id 22 */ *of;
+	struct tikiFrame_s /* id 22 */ *nf;
+	struct dtiki_s /* id 19 */ *tiki;
+	int bonestart;
+	int morphstart;
+	qboolean hasMorph;
 	float radius;
 	float rotation;
 
@@ -6278,7 +6278,7 @@ typedef struct refExport_s
 	void ( *ClearScene )( );
 	void ( *AddRefEntityToScene )( refEntity_t *ent, int parentEntityNumber );
 	void ( *AddRefSpriteToScene )( refEntity_t *ent );
-	qboolean ( *AddPolyToScene )( qhandle_t hShader, int numVerts, polyVert_t *verts, int renderFx );
+	qboolean ( *AddPolyToScene )( qhandle_t hShader, int numVerts, polyVert_t *verts, int renderfx );
 	void ( *AddTerrainMarkToScene )( int terrainIndex, qhandle_t hShader, int numVerts, polyVert_t *verts, int renderfx );
 	void ( *AddLightToScene )( vec3_t org, float intensity, float r, float g, float b, dlighttype_t type );
 	void ( *RenderScene )( refdef_t *fd );
@@ -6423,8 +6423,8 @@ typedef struct clientGameImport_s
 	void ( *R_AddRefEntityToScene )( refEntity_t *ent, int parentEntityNumber );
 	void ( *R_AddRefSpriteToScene )( refEntity_t *ent );
 	void ( *R_AddLightToScene )( vec3_t org, float intensity, float r, float g, float b, dlighttype_t type );
-	qboolean ( *R_AddPolyToScene )( qhandle_t hShader, int numVerts, polyVert_t *verts, int renderFx );
-	void ( *R_AddTerrainMarkToScene )( int terrainIndex, qhandle_t hShader, int numVerts, polyVert_t *verts, int renderFx );
+	qboolean ( *R_AddPolyToScene )( qhandle_t hShader, int numVerts, polyVert_t *verts, int renderfx );
+	void ( *R_AddTerrainMarkToScene )( int terrainIndex, qhandle_t hShader, int numVerts, polyVert_t *verts, int renderfx );
 	void ( *R_SetColor )( vec4_t rgba );
 	void ( *R_DrawStretchPic )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 	fontheader_t * ( *R_LoadFont )( const char *name );
