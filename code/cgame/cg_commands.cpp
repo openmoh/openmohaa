@@ -2643,12 +2643,23 @@ spawnthing_t* ClientGameCommandManager::CreateNewEmitter(str name)
 
 void ClientGameCommandManager::DeleteEmitters(dtiki_t* tiki)
 {
-    // FIXME: unimpleme,nted
+    int i;
+    spawnthing_t* spawnthing;
+
+    for (i = m_emitters.NumObjects(); i > 0; i--)
+    {
+        spawnthing = m_emitters.ObjectAt(i);
+        if (spawnthing->cgd.tiki == tiki)
+        {
+            m_emitters.RemoveObjectAt(i);
+            delete spawnthing;
+        }
+    }
 }
 
 void CG_DeleteEmitters(dtiki_t* tiki)
 {
-    // FIXME: unimplemented
+    commandManager.DeleteEmitters(tiki);
 }
 
 //==================
@@ -4810,12 +4821,42 @@ void ClientGameCommandManager::Footstep(Event* ev)
 
 void ClientGameCommandManager::LandingSound(Event* ev)
 {
-    // FIXME: unimplemented
+    int iEquipment;
+    float fVolume;
+
+    if (ev->NumArgs() <= 0) {
+        fVolume = 1.0;
+    }
+    else {
+        fVolume = ev->GetFloat(1);
+    }
+
+    if (ev->NumArgs() <= 1) {
+        iEquipment = 1;
+    }
+    else {
+        iEquipment = ev->GetInteger(2);
+    }
+
+    if (current_centity && current_entity) {
+        CG_LandingSound(current_centity, current_entity, fVolume, iEquipment);
+    }
 }
 
 void ClientGameCommandManager::BodyFallSound(Event* ev)
 {
-    // FIXME: unimplemented
+    float fVolume;
+
+    if (ev->NumArgs() <= 0) {
+        fVolume = 1.0;
+    }
+    else {
+        fVolume = ev->GetFloat(1);
+    }
+
+    if (current_centity && current_entity) {
+        CG_BodyFallSound(current_centity, current_entity, fVolume);
+    }
 }
 
 void ClientGameCommandManager::SetAlwaysDraw(Event* ev)
@@ -5312,14 +5353,43 @@ void ClientGameCommandManager::RemoveClientEntity(int number, dtiki_t* tiki,
 
 bool ClientGameCommandManager::GetTagPositionAndOrientation(int tagnum, orientation_t* new_or)
 {
-    // FIXME: unimplemented
-    return false;
+    int i;
+    orientation_t tag_or;
+
+    if (!current_tiki || !current_entity) {
+        return 0;
+    }
+
+    tag_or = cgi.TIKI_Orientation(current_entity, tagnum & TAG_MASK);
+
+    new_or->origin[0] = current_entity->origin[0];
+    new_or->origin[1] = current_entity->origin[1];
+    new_or->origin[2] = current_entity->origin[2];
+
+    for (i = 0; i < 3; ++i) {
+        VectorMA(new_or->origin, tag_or.origin[i], current_entity->axis[i], new_or->origin);
+    }
+    MatrixMultiply(tag_or.axis, current_entity->axis, new_or->axis);
+
+    return true;
 }
 
 bool ClientGameCommandManager::GetTagPositionAndOrientation(str tagname, orientation_t* new_or)
 {
-    // FIXME: unimplemented
-    return false;
+    int tagnum;
+
+    tagnum = cgi.Tag_NumForName(current_tiki, tagname.c_str());
+    if (tagnum < 0)
+    {
+        Class::warning(
+            "ClientGameCommandManager::GetTagPositionAndOrientation",
+            "Could not find tag \"%s\"",
+            tagname.c_str());
+
+        return false;
+    }
+
+    return ClientGameCommandManager::GetTagPositionAndOrientation(tagnum, new_or);
 }
 
 //===============
@@ -5361,7 +5431,46 @@ void CG_RestartCommandManager()
 //=================
 void CG_ProcessInitCommands(dtiki_t* tiki, refEntity_t* ent)
 {
-    // FIXME: unimplemented
+    int i, j;
+    int num_args;
+    refEntity_t* old_entity;
+    dtiki_t* old_tiki;
+    dtikicmd_t* pcmd;
+
+    if (!tiki) {
+        return;
+    }
+
+    old_entity = current_entity;
+    old_tiki = current_tiki;
+    current_entity = ent;
+    current_tiki = tiki;
+
+    for (i = 0; i < tiki->a->num_client_initcmds; i++)
+    {
+        Event* ev;
+
+        pcmd = &tiki->a->client_initcmds[i];
+        num_args = pcmd->num_args;
+
+        // Create the event and Process it.
+        ev = new Event(pcmd->args[0]);
+
+        for (j = 1; j < num_args; j++) {
+            ev->AddToken(pcmd->args[j]);
+        }
+
+        if (!commandManager.SelectProcessEvent(ev))
+        {
+            Com_Printf(
+                "^~^~^ CG_ProcessInitCommands: Bad init client command '%s' in '%s'\n",
+                pcmd->args[0],
+                tiki->name);
+        }
+    }
+
+    current_entity = old_entity;
+    current_tiki = old_tiki;
 }
 
 //=================
@@ -5369,7 +5478,55 @@ void CG_ProcessInitCommands(dtiki_t* tiki, refEntity_t* ent)
 //=================
 void CG_ProcessCacheInitCommands(dtiki_t* tiki)
 {
-    // FIXME: unimplemented
+    int i, j;
+    int num_args;
+    refEntity_t* old_entity;
+    dtiki_t* old_tiki;
+    dtikicmd_t* pcmd;
+
+    if (!tiki) {
+        return;
+    }
+
+    old_entity = current_entity;
+    old_tiki = current_tiki;
+    current_entity = NULL;
+    current_tiki = tiki;
+
+    for (i = 0; i < tiki->a->num_client_initcmds; i++)
+    {
+        Event* ev;
+
+        pcmd = &tiki->a->client_initcmds[i];
+        num_args = pcmd->num_args;
+
+        // Create the event and Process it.
+        ev = new Event(pcmd->args[0]);
+        if (commandManager.GetFlags(ev) & EV_CACHE)
+        {
+            // only process even in which the cache flag is set
+
+            for (j = 1; j < num_args; j++) {
+                ev->AddToken(pcmd->args[j]);
+            }
+
+            if (!commandManager.SelectProcessEvent(ev))
+            {
+                Com_Printf(
+                    "^~^~^ CG_ProcessInitCommands: Bad init client command '%s' in '%s'\n",
+                    pcmd->args[0],
+                    tiki->name);
+            }
+        }
+        else
+        {
+            // no cache flags
+            delete ev;
+        }
+    }
+
+    current_entity = old_entity;
+    current_tiki = old_tiki;
 }
 
 void CG_EndTiki(dtiki_t* tiki)
