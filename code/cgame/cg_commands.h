@@ -90,14 +90,21 @@ TIKI file, similar to ScriptMaster in the server game dll.
 #define T_ASSIGNED_NUMBER     (1 << 30)
 #define T_DETAIL              (1 << 31)
 
-#define T2_MOVE               (1 << 0)
-#define T2_AMOVE              (1 << 1)
-#define T2_ACCEL              (1 << 2)
-#define T2_TRAIL              (1 << 3)
-#define T2_PHYSICS_EVERYFRAME (1 << 4)
-#define T2_TEMPORARY_DECAL    (1 << 5)
-#define T2_BOUNCE_DECAL       (1 << 6)
-#define T2_PARALLEL           (1 << 7)
+#define T2_MOVE                 (1 << 0)
+#define T2_AMOVE                (1 << 1)
+#define T2_ACCEL                (1 << 2)
+#define T2_TRAIL                (1 << 3)
+#define T2_PHYSICS_EVERYFRAME   (1 << 4)
+#define T2_TEMPORARY_DECAL      (1 << 5)
+#define T2_BOUNCE_DECAL         (1 << 6)
+#define T2_PARALLEL             (1 << 7)
+#define T2_WIND_AFFECT          (1 << 10)
+#define T2_SPRITEGRIDLIGHTING   (1 << 11)
+#define T2_WATERONLY            (1 << 12)
+#define T2_ALIGNSTRETCH         (1 << 13)
+#define T2_ALWAYSDRAW           (1 << 14)
+#define T2_CLAMP_VEL            (1 << 15)
+#define T2_CLAMP_VEL_AXIS       (1 << 16)
 
 class spawnthing_t;
 class specialeffect_t;
@@ -846,7 +853,7 @@ private:
     void SetEyeMovement(Event* ev);
     void StartSFX(Event* ev);
     void StartSFXDelayed(Event* ev);
-    void StartSFXCommand(Event* ev);
+    void StartSFXCommand(Event* ev, qboolean bDelayed);
     void EndIgnoreSfxBlock();
     void RandomChance(Event* ev);
     void DelayedRepeat(Event* ev);

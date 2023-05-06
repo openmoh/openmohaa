@@ -1533,22 +1533,22 @@ void ClientGameCommandManager::CommandDelay(Event* ev)
 
 void ClientGameCommandManager::StartSFX(Event* ev)
 {
-    // FIXME: unimplemented
+    StartSFXCommand(ev, qfalse);
 }
 
 void ClientGameCommandManager::StartSFXDelayed(Event* ev)
 {
-    // FIXME: unimplemented
+    StartSFXCommand(ev, qtrue);
 }
 
-void ClientGameCommandManager::StartSFXCommand(Event* ev)
+void ClientGameCommandManager::StartSFXCommand(Event* ev, qboolean bDelayed)
 {
     // FIXME: unimplemented
 }
 
 void ClientGameCommandManager::EndIgnoreSfxBlock()
 {
-    // FIXME: unimplemented
+    endblockfcn = NULL;
 }
 
 void ClientGameCommandManager::SetCurrentSFX(specialeffect_t* pSFX)
@@ -1582,6 +1582,15 @@ void ClientGameCommandManager::RandomChance(Event* ev)
     }
 }
 
+void ClientGameCommandManager::SetAlwaysDraw(Event* ev)
+{
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_ALWAYSDRAW;
+}
+
 //===============
 // SetDetail
 //===============
@@ -1593,32 +1602,92 @@ void ClientGameCommandManager::SetDetail(Event* ev)
 
 void ClientGameCommandManager::SetWindAffect(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_WIND_AFFECT;
 }
 
 void ClientGameCommandManager::SpriteGridLighting(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_SPRITEGRIDLIGHTING;
 }
 
 void ClientGameCommandManager::SetWaterOnly(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_WATERONLY;
 }
 
 void ClientGameCommandManager::SetClampVel(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    if (ev->NumArgs() != 6) {
+        cgi.Printf("clampvel has 6 arguments\n");
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_CLAMP_VEL;
+    // cannot be both clamp vel and clamp vel axis
+    m_spawnthing->cgd.flags2 &= ~T2_CLAMP_VEL_AXIS;
+
+    m_spawnthing->cgd.minVel[0] = ev->GetFloat(1);
+    m_spawnthing->cgd.maxVel[0] = ev->GetFloat(2);
+    m_spawnthing->cgd.minVel[1] = ev->GetFloat(3);
+    m_spawnthing->cgd.maxVel[1] = ev->GetFloat(4);
+    m_spawnthing->cgd.minVel[2] = ev->GetFloat(5);
+    m_spawnthing->cgd.maxVel[2] = ev->GetFloat(6);
 }
 
 void ClientGameCommandManager::SetClampVelAxis(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    if (ev->NumArgs() != 6) {
+        cgi.Printf("clampvel has 6 arguments\n");
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_CLAMP_VEL_AXIS;
+    // cannot be both clamp vel and clamp vel axis
+    m_spawnthing->cgd.flags2 &= ~T2_CLAMP_VEL;
+
+    m_spawnthing->cgd.minVel[0] = ev->GetFloat(1);
+    m_spawnthing->cgd.maxVel[0] = ev->GetFloat(2);
+    m_spawnthing->cgd.minVel[1] = ev->GetFloat(3);
+    m_spawnthing->cgd.maxVel[1] = ev->GetFloat(4);
+    m_spawnthing->cgd.minVel[2] = ev->GetFloat(5);
+    m_spawnthing->cgd.maxVel[2] = ev->GetFloat(6);
 }
 
 void ClientGameCommandManager::SetAlignStretch(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.flags |= T_ALIGN;
+    m_spawnthing->cgd.flags2 |= T2_ALIGNSTRETCH;
+
+    if (ev->NumArgs() > 0) {
+        m_spawnthing->cgd.scale2 = ev->GetFloat(1);
+    }
+    else {
+        m_spawnthing->cgd.scale2 = 1.0;
+    }
 }
 
 //===============
@@ -4857,11 +4926,6 @@ void ClientGameCommandManager::BodyFallSound(Event* ev)
     if (current_centity && current_entity) {
         CG_BodyFallSound(current_centity, current_entity, fVolume);
     }
-}
-
-void ClientGameCommandManager::SetAlwaysDraw(Event* ev)
-{
-    // FIXME: unimplemented
 }
 
 //===============
