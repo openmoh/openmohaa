@@ -244,7 +244,7 @@ void CG_General( centity_t *cent ) {
 	// add to refresh list
    	cgi.R_AddRefEntityToScene (&ent, ENTITYNUM_NONE);
 
-    if (ent.tiki >= 0)
+    if (ent.tiki)
     {
         // update any emitter's...
         CG_UpdateEntityEmitters(s1->number, &ent, cent);
