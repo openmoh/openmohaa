@@ -87,10 +87,10 @@ CG_ClipMoveToEntities
 
 ====================
 */
-static void CG_ClipMoveToEntities(const vec3_t start, const vec3_t mins,
-                                  const vec3_t maxs, const vec3_t end,
-                                  int skipNumber, int mask, trace_t* tr,
-                                  qboolean cylinder)
+void CG_ClipMoveToEntities(const vec3_t start, const vec3_t mins,
+                           const vec3_t maxs, const vec3_t end,
+                           int skipNumber, int mask, trace_t* tr,
+                           qboolean cylinder)
 
 {
     int i;

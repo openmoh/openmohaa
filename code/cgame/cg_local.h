@@ -577,6 +577,10 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team );
 //
 void     CG_BuildSolidList( void );
 int      CG_PointContents( const vec3_t point, int passEntityNum );
+void CG_ClipMoveToEntities(const vec3_t start, const vec3_t mins,
+                           const vec3_t maxs, const vec3_t end,
+                           int skipNumber, int mask, trace_t* tr,
+                           qboolean cylinder);
 void     CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, 
                    const vec3_t maxs, const vec3_t end, int skipNumber,
                    int mask, qboolean cylinder, qboolean cliptoentities, const char * description );
