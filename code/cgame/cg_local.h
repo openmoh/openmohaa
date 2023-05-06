@@ -499,6 +499,7 @@ qboolean CG_Command_ProcessFile( const char * filename, qboolean quiet, dtiki_t 
 void     CG_RestartCommandManager();
 qboolean CG_ProcessEntityCommands(int frame, int anim, int entnum, refEntity_t* ent, centity_t* cent);
 void CG_ClientCommands(refEntity_t* ent, centity_t* cent, int slot);
+float RandomizeRange(float start, float end);
 
 void CG_Splash( centity_t *cent );
 
