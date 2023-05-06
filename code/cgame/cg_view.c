@@ -586,12 +586,14 @@ static int CG_CalcViewValues(void)
                     fDecay = -cg.viewkickMaxDecay;
                 }
 
-                if (fDecay < cg.viewkickMinDecay)
+                if (fabs(fDecay) < cg.viewkickMinDecay)
                 {
-                    fDecay = cg.viewkickMinDecay;
-                }
-                else if (fDecay > -cg.viewkickMinDecay) {
-                    fDecay = -cg.viewkickMinDecay;
+                    if (fDecay > 0.0) {
+                        fDecay = cg.viewkickMinDecay;
+                    }
+                    else {
+                        fDecay = -cg.viewkickMinDecay;
+                    }
                 }
 
                 if (cg.viewkick[i] > 0.0)

@@ -6232,7 +6232,7 @@ void ClientGameCommandManager::EventViewKick(Event* ev)
         cg.viewkickMaxDecay = ev->GetFloat(11);
     }
     else {
-        cg.viewkickMaxDecay = 12.0;
+        cg.viewkickMaxDecay = 25.0;
     }
 
     cg.viewkick[0] += vkmin[0] + random() * (vkmax[0] - vkmin[0]);
