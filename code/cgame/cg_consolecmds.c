@@ -122,8 +122,38 @@ void CG_ScoresUp_f( void )
 
 baseshader_t* CG_GetShaderUnderCrosshair(qboolean bVerbose, trace_t* pRetTrace)
 {
-    // FIXME: unimplemented
-    return NULL;
+    vec3_t vPos, vEnd;
+    vec3_t axis[3];
+    baseshader_t* pShader;
+    trace_t trace;
+
+    AnglesToAxis(cg.refdefViewAngles, axis);
+    vPos[0] = cg.refdef.vieworg[0];
+    vPos[1] = cg.refdef.vieworg[1];
+    vPos[2] = cg.refdef.vieworg[2];
+    VectorMA(vPos, 4096.0, axis[0], vEnd);
+
+    CG_Trace(&trace, vPos, vec3_origin, vec3_origin, vEnd, 0, MASK_SHOT, 0, 0, "CG_GetShaderUnderCrosshair");
+    
+    if (trace.startsolid || trace.fraction == 1.0) {
+        return NULL;
+    }
+
+    if (bVerbose)
+    {
+        cgi.Printf(
+            "Surface hit at (%i %i %i)\n",
+            (int)trace.endpos[0],
+            (int)trace.endpos[1],
+            (int)trace.endpos[2]);
+    }
+
+    pShader = cgi.GetShader(trace.shaderNum);
+    if (pRetTrace) {
+        *pRetTrace = trace;
+    }
+
+    return pShader;
 }
 
 static void CG_PrintContentTypes(int iContentFlags)
