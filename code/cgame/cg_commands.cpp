@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // are processed when the animation specifies it to.
 
 #include "cg_commands.h"
+#include "cg_specialfx.h"
 #include "scriptexception.h"
 #include "tiki.h"
 
@@ -1491,20 +1492,12 @@ qboolean ClientGameCommandManager::IsBlockCommand(const str& name)
 
 void ClientGameCommandManager::DelayedRepeat(Event* ev)
 {
-    // FIXME: unimplemented
-}
-
-//===============
-// CommandDelay
-//===============
-void ClientGameCommandManager::CommandDelay(Event* ev)
-{
     int i;
-    int delay;
-    Event* ev1;
+    float delay;
 
-    delay = ev->GetFloat(1) * 1000;
-    if (current_entity) {
+    delay = ev->GetFloat(1) * 1000.0;
+    if (current_entity)
+    {
         commandtime_t* ct = m_command_time_manager.GetLastCommandTime(
             current_entity->entityNumber, ev->GetInteger(2));
 
@@ -1515,20 +1508,65 @@ void ClientGameCommandManager::CommandDelay(Event* ev)
 
         if (ct->last_command_time > cg.time) {
             return;
-        } else {
+        }
+        else {
             ct->last_command_time = cg.time + delay;
         }
-    } else {
-        warning("CCM:CommandDelay",
-                "Cannot perform command delay on spawned tempmodels");
+    }
+    else
+    {
+        Class::warning("CCM:DelayedRepeat", "Cannot perform delayed repeat on spawned tempmodels");
+        
+        Event ev1(ev->GetString(3));
+
+        for (i = 4; i <= ev->NumArgs(); i++)
+        {
+            ev1.AddToken(ev->GetToken(i));
+        }
+
+        ProcessEvent(ev1);
+        return;
     }
 
-    ev1 = new Event(ev->GetString(3));
+    Event ev1(ev->GetString(3));
 
     for (i = 4; i <= ev->NumArgs(); i++) {
-        ev1->AddToken(ev->GetToken(i));
+        ev1.AddToken(ev->GetToken(i));
     }
     ProcessEvent(ev1);
+}
+
+//===============
+// CommandDelay
+//===============
+void ClientGameCommandManager::CommandDelay(Event* ev)
+{
+    int i;
+    int num;
+    float fWait;
+    str eventName;
+    int delay;
+    Event* ev1;
+
+    fWait = ev->GetFloat(1);
+    eventName = ev->GetString(2);
+
+    ev1 = new Event(eventName);
+
+    num = ev->NumArgs();
+    for (i = 3; i <= num; i++) {
+        ev1->AddValue(ev->GetValue(i));
+    }
+    ProcessEvent(ev1);
+
+    delay = ev->GetFloat(1) * 1000;
+    if (current_entity_number != -1) {
+        PostEventForEntity(ev1, fWait);
+    } else {
+        warning("CCM:CommandDelay",
+            "Can't use commanddelay in temp models. Found illegal commanddelay in '%s'\n",
+            current_tiki->name);
+    }
 }
 
 void ClientGameCommandManager::StartSFX(Event* ev)
@@ -1543,7 +1581,64 @@ void ClientGameCommandManager::StartSFXDelayed(Event* ev)
 
 void ClientGameCommandManager::StartSFXCommand(Event* ev, qboolean bDelayed)
 {
-    // FIXME: unimplemented
+    qboolean bBlockCommand;
+    int i;
+    int iArgOfs;
+    float delay;
+    str sCommandName;
+    specialeffectcommand_t* pCommand;
+
+    if (bDelayed)
+    {
+        delay = ev->GetFloat(1);
+        iArgOfs = 1;
+    }
+    else
+    {
+        delay = 0.0;
+        iArgOfs = 0;
+    }
+
+    sCommandName = ev->GetString(iArgOfs + 1);
+    bBlockCommand = IsBlockCommand(sCommandName);
+    if (!m_pCurrentSfx)
+    {
+        if (bBlockCommand)
+        {
+            m_spawnthing = &m_localemitter;
+            endblockfcn = &ClientGameCommandManager::EndIgnoreSfxBlock;
+        }
+
+        return;
+    }
+
+    if (!current_entity) {
+        return;
+    }
+
+    pCommand = m_pCurrentSfx->AddNewCommand();
+    if (!pCommand) {
+        return;
+    }
+
+    if (bBlockCommand)
+    {
+        m_spawnthing = new spawnthing_t;
+        pCommand->emitter = m_spawnthing;
+    }
+    pCommand->fCommandTime = delay;
+
+    Event* ev1 = new Event(sCommandName);
+    for (i = iArgOfs + 2; i <= ev->NumArgs(); i++) {
+        ev1->AddToken(ev->GetToken(i));
+    }
+
+    if (bBlockCommand) {
+        ProcessEvent(ev1);
+    }
+    else {
+        pCommand->pEvent = ev1;
+    }
 }
 
 void ClientGameCommandManager::EndIgnoreSfxBlock()
@@ -2269,7 +2364,33 @@ void ClientGameCommandManager::SetFadeDelay(Event* ev)
 
 void ClientGameCommandManager::SetSpawnRange(Event* ev)
 {
-    // FIXME: unimplemented
+    float fVal1, fVal2;
+
+    if (!m_spawnthing) {
+        return;
+    }
+
+    if (ev->NumArgs() < 1)
+    {
+        cgi.DPrintf("too few arguments to spawnrange");
+        return;
+    }
+
+    fVal1 = ev->GetFloat(1);
+    if (ev->NumArgs() > 1) {
+        fVal2 = ev->GetFloat(2);
+    }
+
+    if (fVal1 * fVal1 > fVal2 * fVal2)
+    {
+        m_spawnthing->fMinRangeSquared = fVal2 * fVal2;
+        m_spawnthing->fMaxRangeSquared = fVal1 * fVal1;
+    }
+    else
+    {
+        m_spawnthing->fMinRangeSquared = fVal1 * fVal1;
+        m_spawnthing->fMaxRangeSquared = fVal2 * fVal2;
+    }
 }
 
 //=============
@@ -2362,7 +2483,7 @@ void ClientGameCommandManager::SetColor(Event* ev)
 
 void ClientGameCommandManager::SetColorRange(Event* ev)
 {
-    // FIXME: unimplemented
+    // FIXME: unused stub??
 }
 
 //=============
@@ -2436,7 +2557,19 @@ void ClientGameCommandManager::SetRandomVelocityAlongAxis(Event* ev)
 
 void ClientGameCommandManager::SetRadialVelocity(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    if (ev->NumArgs() < 3) {
+        warning("ClientGameCommandManager::SetRadialVelocity", "Missing parameters for command radialvelocity");
+    }
+
+    m_spawnthing->cgd.velocity[0] = ev->GetFloat(1);
+    m_spawnthing->cgd.velocity[1] = ev->GetFloat(2);
+    m_spawnthing->cgd.velocity[2] = ev->GetFloat(3);
+    m_spawnthing->cgd.velocity[2] -= m_spawnthing->cgd.velocity[1];
+    m_spawnthing->cgd.flags2 |= T2_RADIALVELOCITY | T2_MOVE;
 }
 
 //=============
@@ -2505,7 +2638,6 @@ void ClientGameCommandManager::SetAngles(Event* ev)
 // ParentAngles
 //=============
 void ClientGameCommandManager::ParentAngles(Event* ev)
-
 {
     if (current_centity) {
         m_spawnthing->cgd.angles = Vector(current_centity->currentState.angles);
@@ -2515,7 +2647,16 @@ void ClientGameCommandManager::ParentAngles(Event* ev)
 
 void ClientGameCommandManager::EmitterAngles(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    MatrixToEulerAngles(m_spawnthing->tag_axis, m_spawnthing->cgd.angles);
+    if (ev->NumArgs() > 0) m_spawnthing->cgd.angles[0] = ev->GetFloat(1);
+    if (ev->NumArgs() > 1) m_spawnthing->cgd.angles[1] = ev->GetFloat(2);
+    if (ev->NumArgs() > 2) m_spawnthing->cgd.angles[2] = ev->GetFloat(3);
+
+    m_spawnthing->cgd.flags |= T_ANGLES;
 }
 
 //=============
@@ -2533,19 +2674,27 @@ void ClientGameCommandManager::SetAccel(Event* ev)
 
 void ClientGameCommandManager::SetFriction(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.friction = ev->GetFloat(1);
+    m_spawnthing->cgd.flags2 |= T2_FRICTION;
 }
 
 void ClientGameCommandManager::SetVaryColor(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_VARYCOLOR;
 }
 
 //=============
 // SetCount
 //=============
 void ClientGameCommandManager::SetCount(Event* ev)
-
 {
     m_spawnthing->count = ev->GetInteger(1);
 }
@@ -2606,12 +2755,26 @@ void ClientGameCommandManager::TagList(Event* ev)
 
 void ClientGameCommandManager::SetEyeLimits(Event* ev)
 {
-    // FIXME: unimplemented
+    if (ev->NumArgs() < 3)
+    {
+        warning("CCG::SetEyeLimits", "Invalid number of parameters.\n");
+        return;
+    }
+
+    cg.vEyeOffsetMax[0] = ev->GetFloat(1);
+    cg.vEyeOffsetMax[2] = ev->GetFloat(2);
+    cg.fEyeOffsetFrac = ev->GetFloat(3);
 }
 
 void ClientGameCommandManager::SetEyeMovement(Event* ev)
 {
-    // FIXME: unimplemented
+    if (ev->NumArgs() < 1)
+    {
+        warning("CCG::SetEyeMovement", "No parameters specified.\n");
+        return;
+    }
+
+    cg.fEyeOffsetFrac = ev->GetFloat(1);
 }
 
 //=============
@@ -4705,7 +4868,33 @@ void ClientGameCommandManager::StopSound(Event* ev)
 
 void ClientGameCommandManager::StopAliasChannel(Event* ev)
 {
-    // FIXME: unimplemented
+    str sound_name;
+    const char* name;
+    AliasListNode_t* soundAlias;
+
+    if (ev->NumArgs() < 1) {
+        return;
+    }
+
+    sound_name = ev->GetString(1);
+    if (current_tiki)
+    {
+        if (current_tiki->a->alias_list) {
+            name = cgi.Alias_ListFindRandom((AliasList_t*)current_tiki->a->alias_list, sound_name.c_str(), &soundAlias);
+        }
+    }
+
+    if (!name) {
+        name = cgi.Alias_FindRandom(sound_name.c_str(), &soundAlias);
+    }
+
+    if (!name || !soundAlias)
+    {
+        Com_Printf("\nERROR stopaliaschannel: couldn't find alias %s\n", sound_name.c_str());
+        return;
+    }
+
+    cgi.S_StopSound(current_entity_number, soundAlias->channel);
 }
 
 //===============
@@ -4903,14 +5092,38 @@ void ClientGameCommandManager::Alias(Event* ev)
     AliasResource(current_tiki, ev->GetString(1), ev->GetString(2), parmbuffer);
 }
 
-void CacheAliasList(AliasList_t* alias_list, str & name)
+void CacheAliasList(AliasList_t* alias_list, str& name)
 {
-    // FIXME: unimplemented
+    if (!alias_list) {
+        return;
+    }
+
+    int i;
+    int iFirst, iLast;
+    float fTotalWeight;
+
+    cgi.Alias_ListFindRandomRange((AliasList_t*)alias_list, name.c_str(), &iFirst, &iLast, &fTotalWeight);
+    if (iFirst >= 0 && iLast >= iFirst)
+    {
+        for (i = iFirst; i <= iLast; ++i) {
+            CacheResource(alias_list->sorted_list[i]->real_name);
+        }
+    }
 }
 
 void ClientGameCommandManager::CacheAlias(Event* ev)
 {
-    // FIXME: unimplemented
+    if (ev->NumArgs() < 1) {
+        return;
+    }
+
+    str name = ev->GetString(1);
+
+    if (current_tiki) {
+        CacheAliasList((AliasList_t*)current_tiki->a->alias_list, name);
+    }
+
+    CacheAliasList(cgi.Alias_GetGlobalList(), name);
 }
 
 //===============
@@ -5125,12 +5338,45 @@ void ClientGameCommandManager::DynamicLight(Event* ev)
 
 void ClientGameCommandManager::BlockDynamicLight(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!current_entity)
+    {
+        m_spawnthing = NULL;
+        return;
+    }
+
+    endblockfcn = &ClientGameCommandManager::EndBlockDynamicLight;
+
+    if (!m_pCurrentSfx) {
+        m_spawnthing = &m_localemitter;
+    }
+
+    InitializeSpawnthing(m_spawnthing);
+    m_spawnthing->cgd.origin = current_entity->origin;
+    m_spawnthing->cgd.flags |= T_DLIGHT;
+    m_spawnthing->cgd.lightIntensity = ev->GetFloat(1);
+    m_spawnthing->cgd.life = ev->GetFloat(2);
+
+    if (ev->NumArgs() > 2) {
+        m_spawnthing->cgd.lightType |= DLightNameToNum(ev->GetString(3));
+        if (ev->NumArgs() > 3) {
+            m_spawnthing->cgd.lightType |= DLightNameToNum(ev->GetString(4));
+        }
+    }
+    else {
+        m_spawnthing->cgd.lightType = 0;
+    }
+
+    AxisCopy(current_entity->axis, m_spawnthing->axis);
+    AxisCopy(current_entity->axis, m_spawnthing->tag_axis);
 }
 
-void ClientGameCommandManager::EndBlockDynamicLight(Event* ev)
+void ClientGameCommandManager::EndBlockDynamicLight()
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    SpawnEffect(m_spawnthing->count, 0);
 }
 
 static int emittercount = 0;
@@ -6295,32 +6541,27 @@ qboolean ClientGameCommandManager::SelectProcessEvent(Event* ev)
 
 void ClientGameCommandManager::AddTreadMarkSources()
 {
-    // FIXME: unimplemented
+    // stub
 }
 
 void ClientGameCommandManager::InitializeTreadMarkCvars()
 {
-    // FIXME: unimplemented
+    // stub
 }
 
 void ClientGameCommandManager::InitializeTreadMarkSources()
 {
-    // FIXME: unimplemented
+    // stub
 }
 
 void ClientGameCommandManager::ResetTreadMarkSources()
 {
-    // FIXME: unimplemented
+    // stub
 }
 
 void ClientGameCommandManager::ResetTreadMarkSources(Event* ev)
 {
-    // FIXME: unimplemented
-}
-
-void ClientGameCommandManager::InitializeBeams()
-{
-    // FIXME: unimplemented
+    // stub
 }
 
 void CG_Event(centity_t* cent)
@@ -6427,10 +6668,10 @@ void ClientGameCommandManager::EventViewKick(Event* ev)
 
 void ClientGameCommandManager::SpawnTreads(Event* ev)
 {
-    // FIXME: unimplemented
+    // stub
 }
 
 void ClientGameCommandManager::TreadsOff(Event* ev)
 {
-    // FIXME: unimplemented
+    // stub
 }
