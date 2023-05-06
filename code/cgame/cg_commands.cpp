@@ -1202,6 +1202,8 @@ Event EV_Client_SFXStartDelayed
    "Used for adding commands to a special effect with a time delay"
    );
 
+EffectsEventQueueNode EffectsEventQueue;
+
 CLASS_DECLARATION( Listener, ClientGameCommandManager, NULL )
    {
       { &EV_Client_StartBlock,                              &ClientGameCommandManager::StartBlock },
@@ -1364,13 +1366,79 @@ float RandomizeRange(float start, float end)
 
 void ClientGameCommandManager::ProcessPendingEventsForEntity()
 {
-    // FIXME: unimplemented
+    EffectsEventQueueNode* event;
+    int t;
+
+    t = cg.time;
+    event = EffectsEventQueue.next;
+    while (event != &EffectsEventQueue && event->inttime <= t)
+    {
+        if (event->GetEntityNum() == current_entity_number)
+        {
+            // the event is removed from its list and temporarily added to the active list
+            LL_Remove(event, next, prev);
+
+            // ProcessEvent will dispose of this event when it is done
+            ProcessEvent(event->event);
+
+            // free up the node
+            delete event;
+
+            // start over, since can't guarantee that we didn't process any previous or following events
+            event = EffectsEventQueue.next;
+        }
+        else
+        {
+            event = event->next;
+        }
+    }
 }
 
 qboolean ClientGameCommandManager::PostEventForEntity(Event* ev, float fWait)
 {
-    // FIXME: unimplemented
-    return qfalse;
+    unsigned short evnum;
+    ClassDef* c;
+    EffectsEventQueueNode* event;
+    EffectsEventQueueNode* node;
+    int inttime;
+
+    if (!m_fEventWait || current_entity_number < 0)
+    {
+        if (!str::icmp(ev->getName(), ")")) {
+            m_fEventWait = 0.0;
+        }
+
+        delete ev;
+        return qfalse;
+    }
+
+    evnum = ev->eventnum;
+    c = classinfo();
+    if (!c->responseLookup[evnum])
+    {
+        delete ev;
+        return qfalse;
+    }
+
+    event = EffectsEventQueue.next;
+    inttime = EVENT_msec + (fWait * 1000.0f + 0.5f);
+
+    while (event != &EffectsEventQueue && inttime > event->inttime)
+    {
+        event = event->next;
+    }
+
+    if (m_fEventWait != 0.0)
+    {
+        if (!str::icmp(ev->getName(), ")")) {
+            m_fEventWait = 0.0;
+        }
+    }
+
+    node = new EffectsEventQueueNode(ev, inttime, 0, current_entity_number);
+    LL_Add(event, node, next, prev);
+
+    return qtrue;
 }
 
 void ClientGameCommandManager::SetBaseAndAmplitude(Event* ev, Vector& base, Vector& amplitude)
@@ -4696,17 +4764,47 @@ void ClientGameCommandManager::CacheAlias(Event* ev)
 //===============
 void ClientGameCommandManager::Footstep(Event* ev)
 {
-    float volume;
+    int iRunning, iEquipment;
+    str sTagName;
 
-    if (ev->NumArgs() > 0) {
-        volume = ev->GetFloat(1);
-    } else {
-        volume = 1.0f;
+    sTagName = ev->GetString(1);
+
+    iRunning = 1;
+    if (ev->NumArgs() > 1)
+    {
+        str sType = ev->GetString(2);
+        if (!str::icmp(sType, "walk"))
+        {
+            // walking
+            iRunning = 0;
+        }
+        else if (!str::icmp(sType, "ladder"))
+        {
+            // on ladder
+            iRunning = -1;
+        }
+        else
+        {
+            // running
+            iRunning = 1;
+        }
+    }
+
+    if (ev->NumArgs() > 2) {
+        iEquipment = ev->GetInteger(3);
+    }
+    else {
+        iEquipment = 1;
     }
 
     if (current_centity && current_entity) {
-        // FIXME: unimplemented
-        //CG_Footstep(current_centity, current_entity, volume);
+        CG_Footstep(
+            sTagName.c_str(),
+            current_centity,
+            current_entity,
+            iRunning,
+            iEquipment
+        );
     }
 }
 
@@ -5347,7 +5445,7 @@ qboolean CG_ProcessEntityCommands(int frame, int anim, int entnum, refEntity_t* 
                     ev->AddToken(tikicmds.cmds[i].args[j]);
                 }
 
-                commandManager.ProcessEvent(ev);
+                commandManager.SelectProcessEvent(ev);
             }
         }
 
@@ -5892,8 +5990,12 @@ void ClientGameCommandManager::CGEvent(centity_t* cent)
 
 qboolean ClientGameCommandManager::SelectProcessEvent(Event* ev)
 {
-    // FIXME: unimplemented
-    return qfalse;
+    if (!m_fEventWait) {
+        return ProcessEvent(ev);
+    }
+    else {
+        return PostEventForEntity(ev, m_fEventWait);
+    }
 }
 
 void ClientGameCommandManager::AddTreadMarkSources()
@@ -5930,7 +6032,6 @@ void CG_Event(centity_t* cent)
 {
     commandManager.CGEvent(cent);
 }
-
 
 void ClientGameCommandManager::SetCurrentTiki(Event* ev)
 {
