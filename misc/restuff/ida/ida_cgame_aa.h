@@ -3,6 +3,15 @@
 #include "ida_cgame.h"
 #include "ida_common_aa.h"
 
+typedef struct EffectsEventQueueNode_s {
+	Event_t *event;
+	int inttime;
+	int flags;
+	int entity_num;
+    struct EffectsEventQueueNode_s* prev;
+    struct EffectsEventQueueNode_s* next;
+} EffectsEventQueueNode_t, EffectsEventQueueNode;
+
 typedef struct beam_s {
 	Class_t baseClass;
 	int entity;

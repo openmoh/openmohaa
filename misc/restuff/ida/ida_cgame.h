@@ -12,6 +12,8 @@ typedef struct {
   qboolean bIgnoreEntities;
 } bullet_tracer_t;
 
+typedef struct Event2_s Event_CGAMEDLL;
+
 #define MAX_TRACERS 32
 #define MAX_BULLETS 1024
 #define MAX_IMPACTS 64
