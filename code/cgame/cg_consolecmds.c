@@ -120,6 +120,12 @@ void CG_ScoresUp_f( void )
     cgi.UI_HideScoreBoard(cg.scoresMenuName);
 }
 
+baseshader_t* CG_GetShaderUnderCrosshair(qboolean bVerbose, trace_t* pRetTrace)
+{
+    // FIXME: unimplemented
+    return NULL;
+}
+
 static void CG_PrintContentTypes(int iContentFlags)
 {
     // FIXME: unimplemented
@@ -137,12 +143,63 @@ static void CG_PrintSurfaceType(int iSurfType)
 
 void CG_GetCHShader(void)
 {
-    // FIXME: unimplemented
+    trace_t trace;
+    baseshader_t* pShader;
+
+    pShader = CG_GetShaderUnderCrosshair(qtrue, &trace);
+    cgi.Printf("\n");
+    if (pShader)
+    {
+        if (pShader->surfaceFlags & SURF_SKY)
+        {
+            cgi.Printf("Hit the sky\n");
+        }
+        else
+        {
+            cgi.Printf("Shader: %s\n", pShader->shader);
+            cgi.Printf("Shader Contents:");
+            CG_PrintContentTypes(pShader->contentFlags);
+            cgi.Printf("\n");
+            cgi.Printf("Shader Surface Properties:");
+            CG_PrintSurfaceProperties(pShader->surfaceFlags);
+            cgi.Printf("\n");
+            cgi.Printf("Shader Surfacetype: ");
+            CG_PrintSurfaceType(pShader->surfaceFlags);
+            cgi.Printf("\n");
+            cgi.Printf("Trace Contents:");
+            CG_PrintContentTypes(trace.contents);
+            cgi.Printf("\n");
+            cgi.Printf("Trace Surface Properties:");
+            CG_PrintSurfaceProperties(trace.surfaceFlags);
+            cgi.Printf("\n");
+            cgi.Printf("Trace Surfacetype: ");
+            CG_PrintSurfaceType(trace.surfaceFlags);
+            cgi.Printf("\n\n");
+        }
+    }
+    else
+    {
+        cgi.Printf("No surface selected\n");
+    }
 }
 
 void CG_EditCHShader(void)
 {
-    // FIXME: unimplemented
+    char name[1024];
+    baseshader_t* pShader;
+
+    pShader = CG_GetShaderUnderCrosshair(qfalse, NULL);
+    if (pShader)
+    {
+        strcpy(name, "editspecificshader ");
+        strcat(name, pShader->shader);
+        strcat(name, "\n");
+        cgi.AddCommand(name);
+    }
+    else
+    {
+        cgi.Printf("No surface selected\n");
+    }
 }
 
 #if 0
