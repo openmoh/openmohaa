@@ -650,7 +650,7 @@ static void CG_FootstepMain(trace_t* trace, int iRunning, int iEquipment)
 	}
 }
 
-void CG_Footstep(char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunning, int iEquipment)
+void CG_Footstep(const char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunning, int iEquipment)
 {
 	int i;
 	int iTagNum;
