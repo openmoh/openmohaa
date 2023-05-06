@@ -98,6 +98,7 @@ TIKI file, similar to ScriptMaster in the server game dll.
 #define T2_TEMPORARY_DECAL      (1 << 5)
 #define T2_BOUNCE_DECAL         (1 << 6)
 #define T2_PARALLEL             (1 << 7)
+#define T2_VOLUMETRIC           (1 << 8)
 #define T2_WIND_AFFECT          (1 << 10)
 #define T2_SPRITEGRIDLIGHTING   (1 << 11)
 #define T2_WATERONLY            (1 << 12)
@@ -105,6 +106,7 @@ TIKI file, similar to ScriptMaster in the server game dll.
 #define T2_ALWAYSDRAW           (1 << 14)
 #define T2_CLAMP_VEL            (1 << 15)
 #define T2_CLAMP_VEL_AXIS       (1 << 16)
+#define T2_CONE                 (1 << 17)
 
 class spawnthing_t;
 class specialeffect_t;
@@ -826,6 +828,7 @@ private:
     qboolean TempModelRealtimeEffects(ctempmodel_t* p, float ftime, float time2,
         float scale);
     qboolean LerpTempModel(refEntity_t* newEnt, ctempmodel_t* p, float frac);
+    void SpawnEffect(int count, int timealive);
     void SpawnTempModel(int count, int timealive = 0);
     void FreeTempModel(ctempmodel_t* le);
     void AnimateTempModel(ctempmodel_t* ent, Vector origin,
