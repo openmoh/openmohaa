@@ -289,7 +289,7 @@ typedef struct
    void                (*Alias_Dump)( void );
    void                (*Alias_Clear)( void );
    AliasList_t*     (*AliasList_New)(char* name);
-   void             (*Alias_ListFindRandomRange)(AliasList_t* list, char* alias, int* minIndex, int* maxIndex, float* totalWeight);
+   void             (*Alias_ListFindRandomRange)(AliasList_t* list, const char* alias, int* minIndex, int* maxIndex, float* totalWeight);
    AliasList_t*     (*Alias_GetGlobalList)();
 
    // ==================== UI STUFF ==========================
