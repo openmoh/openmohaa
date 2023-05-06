@@ -1963,6 +1963,10 @@ void ClientGameCommandManager::EndBlock(Event* ev)
 void ClientGameCommandManager::SetSwarm(Event* ev)
 
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.swarmfreq = ev->GetInteger(1);
     m_spawnthing->cgd.swarmmaxspeed = ev->GetFloat(2);
     m_spawnthing->cgd.swarmdelta = ev->GetFloat(3);
@@ -1975,6 +1979,10 @@ void ClientGameCommandManager::SetSwarm(Event* ev)
 void ClientGameCommandManager::SetCircle(Event* ev)
 
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_CIRCLE;
 }
 
@@ -1984,6 +1992,10 @@ void ClientGameCommandManager::SetCircle(Event* ev)
 void ClientGameCommandManager::SetSphere(Event* ev)
 
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_SPHERE;
 }
 
@@ -1993,6 +2005,10 @@ void ClientGameCommandManager::SetSphere(Event* ev)
 void ClientGameCommandManager::SetRadius(Event* ev)
 
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->sphereRadius = ev->GetFloat(1);
 }
 
@@ -2002,6 +2018,10 @@ void ClientGameCommandManager::SetRadius(Event* ev)
 void ClientGameCommandManager::SetInwardSphere(Event* ev)
 
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_INWARDSPHERE;
     m_spawnthing->sphereRadius = ev->GetFloat(1);
 }
@@ -2012,6 +2032,10 @@ void ClientGameCommandManager::SetInwardSphere(Event* ev)
 void ClientGameCommandManager::SetAlign(Event* ev)
 
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_ALIGN;
 }
 
@@ -2021,6 +2045,10 @@ void ClientGameCommandManager::SetAlign(Event* ev)
 void ClientGameCommandManager::SetAlignOnce(Event* ev)
 
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_ALIGNONCE;
 }
 
@@ -2030,12 +2058,20 @@ void ClientGameCommandManager::SetAlignOnce(Event* ev)
 void ClientGameCommandManager::SetRandomRoll(Event* ev)
 
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_RANDOMROLL;
 }
 
 void ClientGameCommandManager::SetVolumetric(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_VOLUMETRIC;
 }
 
 //=============
@@ -2064,6 +2100,10 @@ void ClientGameCommandManager::SetCollision(Event* ev)
 void ClientGameCommandManager::SetFlickerAlpha(Event* ev)
 
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_FLICKERALPHA;
 }
 
@@ -2087,7 +2127,13 @@ void ClientGameCommandManager::SetOffsetAlongAxis(Event* ev)
 
 void ClientGameCommandManager::SetCone(Event* ev)
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_CONE;
+    m_spawnthing->coneHeight = ev->GetFloat(1);
+    m_spawnthing->sphereRadius = ev->GetFloat(2);
 }
 
 //=============
@@ -2669,7 +2715,31 @@ spawnthing_t* ClientGameCommandManager::InitializeSpawnthing(spawnthing_t* sp)
 
 void ClientGameCommandManager::SpawnEffect(int count, spawnthing_t* sp)
 {
-    // FIXME: unimplemented
+    m_spawnthing = sp;
+    if (m_spawnthing->cgd.flags2 & T2_VOLUMETRIC)
+    {
+        // volumetric smoke
+        SpawnVSSSource(count, 0);
+    }
+    else {
+        SpawnTempModel(count);
+    }
+}
+
+void ClientGameCommandManager::SpawnEffect(int count, int timealive)
+{
+    if (!m_spawnthing) {
+        return;
+    }
+
+    if (m_spawnthing->cgd.flags2 & T2_VOLUMETRIC)
+    {
+        // volumetric smoke
+        SpawnVSSSource(count, 0);
+    }
+    else {
+        SpawnTempModel(count);
+    }
 }
 
 //==================
@@ -2778,7 +2848,11 @@ void ClientGameCommandManager::EndOriginSpawn(void)
 
 void ClientGameCommandManager::TestEffectEndFunc()
 {
-    // FIXME: unimplemented
+    if (!m_spawnthing) {
+        return;
+    }
+
+    SpawnEffect(m_spawnthing->count, 0);
 }
 
 //===============
@@ -6256,7 +6330,21 @@ void CG_Event(centity_t* cent)
 
 void ClientGameCommandManager::SetCurrentTiki(Event* ev)
 {
-    // FIXME: unimplemented
+    str tikiName;
+
+    if (ev->NumArgs() != 1)
+    {
+        Com_Printf("ERROR: settiki command takes 1 parameter.\n");
+        return;
+    }
+
+    tikiName = ev->GetString(1);
+    if (!str::icmp(tikiName.c_str(), "none")) {
+        current_tiki = cgi.TIKI_FindTiki(tikiName.c_str());
+    }
+    else {
+        current_tiki = NULL;
+    }
 }
 
 void ClientGameCommandManager::EventViewKick(Event* ev)
