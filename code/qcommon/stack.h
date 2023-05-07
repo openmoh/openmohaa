@@ -25,6 +25,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __STACK_H__
 #define __STACK_H__
 
+#if defined(GAME_DLL)
+//
+// game dll specific defines
+//
+#include "g_local.h"
+
+#define STACK_Error          gi.Error
+#define STACK_DPrintf        gi.DPrintf
+#define STACK_WDPrintf(text) gi.DPrintf(text)
+
+#elif defined(CGAME_DLL)
+//
+// cgame dll specific defines
+//
+#include "cg_local.h"
+
+#define STACK_Error             cgi.Error
+#define STACK_DPrintf           cgi.DPrintf
+#define STACK_WDPrintf(text)    cgi.DPrintf(text)
+
+#else
+
+//
+// client specific defines
+//
+#define STACK_Error             Com_Error
+#define STACK_DPrintf           Com_DPrintf
+#define STACK_WDPrintf(text)    Com_DPrintf(text)
+#endif
+
 template <class Type>
 class StackNode
 {
@@ -109,7 +139,7 @@ inline void Stack<Type>::Push
 	if( !tmp )
 	{
 		assert( NULL );
-		glbs.Error( ERR_DROP, "Stack::Push : Out of memory" );
+		STACK_Error( ERR_DROP, "Stack::Push : Out of memory" );
 	}
 
 	tmp->next = head;

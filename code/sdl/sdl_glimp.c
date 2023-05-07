@@ -619,7 +619,7 @@ static int GLimp_SetMode(int mode, qboolean fullscreen, qboolean noborder, qbool
 
 			mode.w = glConfig.vidWidth;
 			mode.h = glConfig.vidHeight;
-			mode.refresh_rate = glConfig.displayFrequency = ri.Cvar_VariableIntegerValue( "r_displayRefresh" );
+			mode.refresh_rate = glConfig.displayFrequency = ri.Cvar_Get( "r_displayRefresh", "", 0)->integer;
 			mode.driverdata = NULL;
 
 			if( SDL_SetWindowDisplayMode( SDL_window, &mode ) < 0 )
@@ -771,7 +771,7 @@ static qboolean GLimp_StartDriverAndSetMode(int mode, qboolean fullscreen, qbool
 		ri.Cvar_Set( "r_sdlDriver", driverName );
 	}
 
-	if (fullscreen && ri.Cvar_VariableIntegerValue( "in_nograb" ) )
+	if (fullscreen && ri.Cvar_Get( "in_nograb", "", 0)->integer )
 	{
 		ri.Printf( PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
 		ri.Cvar_Set( "r_fullscreen", "0" );
@@ -997,7 +997,7 @@ void GLimp_Init( qboolean fixedFunction )
 	r_allowResize = ri.Cvar_Get( "r_allowResize", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_centerWindow = ri.Cvar_Get( "r_centerWindow", "0", CVAR_ARCHIVE | CVAR_LATCH );
 
-	if( ri.Cvar_VariableIntegerValue( "com_abnormalExit" ) )
+	if( ri.Cvar_Get( "com_abnormalExit", "", 0))
 	{
 		ri.Cvar_Set( "r_mode", va( "%d", R_MODE_FALLBACK ) );
 		ri.Cvar_Set( "r_fullscreen", "0" );
@@ -1111,7 +1111,7 @@ void GLimp_EndFrame( void )
 		// Find out the current state
 		fullscreen = !!( SDL_GetWindowFlags( SDL_window ) & SDL_WINDOW_FULLSCREEN );
 
-		if( r_fullscreen->integer && ri.Cvar_VariableIntegerValue( "in_nograb" ) )
+		if( r_fullscreen->integer && ri.Cvar_Get( "in_nograb", "", 0))
 		{
 			ri.Printf( PRINT_ALL, "Fullscreen not allowed with in_nograb 1\n");
 			ri.Cvar_Set( "r_fullscreen", "0" );

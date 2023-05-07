@@ -131,7 +131,6 @@ S_ReadRIFFHeader
 static qboolean S_ReadRIFFHeader(fileHandle_t file, snd_info_t *info)
 {
 	char dump[16];
-	int wav_format;
 	int bits;
 	int fmtlen = 0;
 
@@ -146,7 +145,7 @@ static qboolean S_ReadRIFFHeader(fileHandle_t file, snd_info_t *info)
 	}
 
 	// Save the parameters
-	wav_format = FGetLittleShort(file);
+	FGetLittleShort(file); // wav_format
 	info->channels = FGetLittleShort(file);
 	info->rate = FGetLittleLong(file);
 	FGetLittleLong(file);
@@ -183,7 +182,7 @@ static qboolean S_ReadRIFFHeader(fileHandle_t file, snd_info_t *info)
 // WAV codec
 snd_codec_t wav_codec =
 {
-	".wav",
+	"wav",
 	S_WAV_CodecLoad,
 	S_WAV_CodecOpenStream,
 	S_WAV_CodecReadStream,
@@ -205,8 +204,6 @@ void *S_WAV_CodecLoad(const char *filename, snd_info_t *info)
 	FS_FOpenFileRead(filename, &file, qtrue, qtrue);
 	if(!file)
 	{
-		Com_Printf( S_COLOR_RED "ERROR: Could not open \"%s\"\n",
-				filename);
 		return NULL;
 	}
 
@@ -220,9 +217,7 @@ void *S_WAV_CodecLoad(const char *filename, snd_info_t *info)
 	}
 
 	// Allocate some memory
-//	buffer = Z_Malloc(info->size);
 	buffer = Hunk_AllocateTempMemory(info->size);
-
 	if(!buffer)
 	{
 		FS_FCloseFile(file);

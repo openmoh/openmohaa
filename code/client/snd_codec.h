@@ -27,10 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef struct snd_info_s
 {
 	int rate;
@@ -99,17 +95,13 @@ void S_OGG_CodecCloseStream(snd_stream_t *stream);
 int S_OGG_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer);
 #endif // USE_CODEC_VORBIS
 
-#if USE_CODEC_MP3
-// MP3 codec
-extern snd_codec_t mp3_codec;
-void *S_MP3_CodecLoad(const char *filename, snd_info_t *info);
-snd_stream_t *S_MP3_CodecOpenStream(const char *filename);
-void S_MP3_CodecCloseStream(snd_stream_t *stream);
-int S_MP3_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer);
-#endif
-
-#ifdef __cplusplus
-}
-#endif
+// Ogg Opus codec
+#ifdef USE_CODEC_OPUS
+extern snd_codec_t opus_codec;
+void *S_OggOpus_CodecLoad(const char *filename, snd_info_t *info);
+snd_stream_t *S_OggOpus_CodecOpenStream(const char *filename);
+void S_OggOpus_CodecCloseStream(snd_stream_t *stream);
+int S_OggOpus_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer);
+#endif // USE_CODEC_OPUS
 
 #endif // !_SND_CODEC_H_

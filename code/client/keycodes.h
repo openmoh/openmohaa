@@ -260,6 +260,43 @@ typedef enum {
 	K_EURO,
 	K_UNDO,
 
+	// Gamepad controls
+	// Ordered to match SDL2 game controller buttons and axes
+	// Do not change this order without also changing IN_GamepadMove() in SDL_input.c
+	K_PAD0_A,
+	K_PAD0_B,
+	K_PAD0_X,
+	K_PAD0_Y,
+	K_PAD0_BACK,
+	K_PAD0_GUIDE,
+	K_PAD0_START,
+	K_PAD0_LEFTSTICK_CLICK,
+	K_PAD0_RIGHTSTICK_CLICK,
+	K_PAD0_LEFTSHOULDER,
+	K_PAD0_RIGHTSHOULDER,
+	K_PAD0_DPAD_UP,
+	K_PAD0_DPAD_DOWN,
+	K_PAD0_DPAD_LEFT,
+	K_PAD0_DPAD_RIGHT,
+
+	K_PAD0_LEFTSTICK_LEFT,
+	K_PAD0_LEFTSTICK_RIGHT,
+	K_PAD0_LEFTSTICK_UP,
+	K_PAD0_LEFTSTICK_DOWN,
+	K_PAD0_RIGHTSTICK_LEFT,
+	K_PAD0_RIGHTSTICK_RIGHT,
+	K_PAD0_RIGHTSTICK_UP,
+	K_PAD0_RIGHTSTICK_DOWN,
+	K_PAD0_LEFTTRIGGER,
+	K_PAD0_RIGHTTRIGGER,
+
+	K_PAD0_MISC1,    /* Xbox Series X share button, PS5 microphone button, Nintendo Switch Pro capture button, Amazon Luna microphone button */
+	K_PAD0_PADDLE1,  /* Xbox Elite paddle P1 */
+	K_PAD0_PADDLE2,  /* Xbox Elite paddle P3 */
+	K_PAD0_PADDLE3,  /* Xbox Elite paddle P2 */
+	K_PAD0_PADDLE4,  /* Xbox Elite paddle P4 */
+	K_PAD0_TOUCHPAD, /* PS4/PS5 touchpad button */
+
 	// Pseudo-key that brings the console down
 	K_CONSOLE,
 

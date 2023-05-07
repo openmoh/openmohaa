@@ -281,7 +281,13 @@ typedef struct {
 	// input event handling
 	void	(*IN_Init)(void *windowData);
 	void	(*IN_Shutdown)(void);
-	void	(*IN_Restart)(void);
+    void	(*IN_Restart)(void);
+
+    // system stuff
+    void	(*Sys_SetEnv)(const char* name, const char* value);
+    void	(*Sys_GLimpSafeInit)(void);
+    void	(*Sys_GLimpInit)(void);
+    qboolean(*Sys_LowPhysicalMemory)(void);
 } refimport_t;
 
 

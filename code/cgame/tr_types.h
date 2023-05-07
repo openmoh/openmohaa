@@ -255,6 +255,8 @@ typedef struct {
     qboolean				secondaryColorAvailable;
     qboolean				VAR;
     qboolean				fence;
+    // ioq3
+    int                     numTextureUnits;
 } glconfig_t;
 
 #if !defined _WIN32
