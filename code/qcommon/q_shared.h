@@ -1867,6 +1867,8 @@ typedef struct usercmd_s {
 #define BEAM_PARENT             (1<<9)
 #define BEAM_TILESHADER         (1<<10)
 #define BEAM_OFFSET_ENDPOINTS   (1<<11)
+#define BEAM_INVERTED           (1<<13)
+#define BEAM_INVERTED_FAST      (1<<14)
 
 typedef struct frameInfo_s {
     int index;
@@ -2016,6 +2018,16 @@ typedef struct {
 	float	scale;
 	float	color[ 4 ];
 } debugstring_t;
+
+enum hdalign_e
+{
+    HUD_ALIGN_X_LEFT = 0,
+    HUD_ALIGN_X_CENTER = 1,
+    HUD_ALIGN_X_RIGHT = 2,
+    HUD_ALIGN_Y_TOP = 0,
+    HUD_ALIGN_Y_CENTER = 1,
+    HUD_ALIGN_Y_BOTTOM = 2,
+};
 
 typedef struct hdelement_s {
 	qhandle_t		hShader;
