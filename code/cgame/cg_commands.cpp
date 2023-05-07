@@ -6672,13 +6672,3 @@ void ClientGameCommandManager::EventViewKick(Event* ev)
         cg.viewkick[1] = -fYawMax;
     }
 }
-
-void ClientGameCommandManager::SpawnTreads(Event* ev)
-{
-    // stub
-}
-
-void ClientGameCommandManager::TreadsOff(Event* ev)
-{
-    // stub
-}
