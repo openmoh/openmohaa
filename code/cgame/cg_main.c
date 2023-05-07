@@ -553,6 +553,16 @@ void CG_ServerRestarted( void )
     CG_InitializeObjectives();
 }
 
+void* CG_Malloc(int size)
+{
+    return malloc(size);
+}
+
+void CG_Free(void *ptr)
+{
+    free(ptr);
+}
+
 /*
 =================
 CG_Init
@@ -564,6 +574,10 @@ void CG_Init(clientGameImport_t* imported, int serverMessageNum,
              int serverCommandSequence, int clientNum)
 {
     cgi = *imported;
+#if _DEBUG
+    cgi.Malloc = &CG_Malloc;
+    cgi.Free = &CG_Free;
+#endif
 
     memset(&cg, 0, sizeof(cg));
     memset(&cgs, 0, sizeof(cgs));
