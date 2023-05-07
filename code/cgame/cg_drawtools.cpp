@@ -170,27 +170,32 @@ CG_DrawDisconnect
 ==============
 */
 void CG_DrawDisconnect( void ) {
-	float		x, y;
-	int			cmdNum;
-	usercmd_t	cmd;
+	float x, y;
+    float w, h;
+    int cmdNum;
+	qhandle_t handle;
+    usercmd_t cmd;
 
-	// draw the phone jack if we are completely past our buffers
-	cmdNum = cgi.GetCurrentCmdNumber() - CMD_BACKUP + 1;
-	cgi.GetUserCmd( cmdNum, &cmd );
-	if ( !cg.snap || cmd.serverTime <= cg.snap->ps.commandTime
-		|| cmd.serverTime > cg.time ) {	// special check for map_restart
-		return;
-	}
+    // draw the phone jack if we are completely past our buffers
+    cmdNum = cgi.GetCurrentCmdNumber() - CMD_BACKUP + 1;
+    cgi.GetUserCmd(cmdNum, &cmd);
+    if (!cg.snap || cmd.serverTime <= cg.snap->ps.commandTime
+        || cmd.serverTime > cg.time) {	// special check for map_restart
+        return;
+    }
 
-	// blink it
-	if ( ( cg.time >> 9 ) & 1 ) {
-		return;
-	}
+    // blink it
+    if ((cg.time >> 9) & 1) {
+        return;
+    }
 
-	x = 640 - 48;
-	y = 480 - 48;
+	handle = cgi.R_RegisterShader("gfx/2d/net.tga");
+    w = cgi.R_GetShaderWidth(handle);
+    h = cgi.R_GetShaderHeight(handle);
+    x = ((float)cgs.glconfig.vidWidth - w) * 0.5;
+    y = (float)cgs.glconfig.vidHeight - h;
 
-	cgi.R_DrawStretchPic( x, y, 48, 48, 0, 0, 1, 1, cgi.R_RegisterShader("gfx/2d/net.tga" ) );
+    cgi.R_DrawStretchPic(x, y, w, h, 0, 0, 1, 1, handle);
 }
 
 
@@ -203,32 +208,28 @@ CG_DrawLagometer
 ==============
 */
 void CG_DrawLagometer( void ) {
-	int		a, x, y, i;
+	int		a, i;
 	float	v;
 	float	ax, ay, aw, ah, mid, range;
 	int		color;
 	float	vscale;
 
 	if ( !cg_lagometer->integer ) {
-      // don't draw the disconnect icon in single player
-		//CG_DrawDisconnect();
+		CG_DrawDisconnect();
 		return;
 	}
 
 	//
 	// draw the graph
-	//
-	x = 640 - 48;
-	y = 480 - 48;
+    //
+    ax = 272.0;
+    ay = 432.0;
+    aw = 96.0;
+    ah = 48.0;
+    CG_AdjustFrom640(&ax, &ay, &aw, &ah);
 
-	cgi.R_SetColor( NULL );
-	cgi.R_DrawStretchPic( x, y, 48, 48, 0, 0, 1, 1, cgs.media.lagometerShader );
-
-	ax = x;
-	ay = y;
-	aw = 48;
-	ah = 48;
-	CG_AdjustFrom640( &ax, &ay, &aw, &ah );
+    cgi.R_SetColor(NULL);
+    cgi.R_DrawStretchPic(ax, ay, aw, ah, 0, 0, 1, 1, cgs.media.lagometerShader);
 
 	color = -1;
 	range = ah / 3;
@@ -301,44 +302,89 @@ void CG_DrawLagometer( void ) {
 	CG_DrawDisconnect();
 }
 
+static void CG_DrawPauseIcon()
+{
+    qhandle_t handle;
+    float x, y, w, h;
+
+    if (paused->integer)
+    {
+        handle = cgs.media.pausedShader;
+    }
+    else
+    {
+        if (cg.predicted_player_state.pm_flags & PMF_LEVELEXIT)
+        {
+            // blink it
+            if ((cg.time >> 9) & 1)
+            {
+                return;
+            }
+            handle = cgs.media.levelExitShader;
+        }
+        else
+        {
+            return;
+        }
+    }
+    w = cgi.R_GetShaderWidth(handle);
+    h = cgi.R_GetShaderHeight(handle);
+    x = w / 4;
+    y = cgs.glconfig.vidHeight - (1.25f * h);
+
+    cgi.R_SetColor(colorWhite);
+    cgi.R_DrawStretchPic(x, y, w, h, 0, 0, 1, 1, handle);
+}
+
+static void CG_DrawServerLag()
+{
+    float x, y;
+    float w, h;
+    qhandle_t handle;
+
+    if (!cg_drawsvlag->integer) {
+        return;
+    }
+
+    if (!developer->integer && !cgs.gametype) {
+        return;
+    }
+
+    if (!cgs.serverLagTime) {
+        return;
+    }
+
+    if (cg.time - cgs.serverLagTime > 3000) {
+        return;
+    }
+
+    // blink it
+    if ((cg.time >> 9) & 1) {
+        return;
+    }
+
+    handle = cgi.R_RegisterShader("gfx/2d/slowserver");
+    w = (float)cgi.R_GetShaderWidth(handle) / 4;
+    h = (float)cgi.R_GetShaderHeight(handle) / 4;
+    x = ((float)cgs.glconfig.vidWidth - w) / 2;
+    y = (float)cgs.glconfig.vidHeight - h;
+    cgi.R_DrawStretchPic(x, y, w, h, 0.0, 0.0, 1.0, 1.0, handle);
+}
+
 /*
 ==============
 CG_DrawIcons
 ==============
 */
-void CG_DrawIcons( void ) 
-   {
-   qhandle_t handle;
-   float x,y,w,h;
+void CG_DrawIcons(void)
+{
+    if (!cg_hud->integer) {
+        return;
+    }
 
-   if ( paused->integer )
-      {
-      handle = cgs.media.pausedShader;
-      }
-   else
-      {
-      if ( cg.predicted_player_state.pm_flags & PMF_LEVELEXIT )
-         {
-	      // blink it
-	      if ( ( cg.time >> 9 ) & 1 ) 
-            {
-		      return;
-	         }
-         handle = cgs.media.levelExitShader;
-         }
-      else
-         {
-         return;
-         }
-      }
-   w = cgi.R_GetShaderWidth( handle );
-   h = cgi.R_GetShaderHeight( handle );
-   x = w / 4;
-   y = cgs.glconfig.vidHeight - ( 1.25f * h );
-
-	cgi.R_SetColor( colorWhite );
-   cgi.R_DrawStretchPic( x, y, w, h, 0, 0, 1, 1, handle );
-   }
+    CG_DrawPauseIcon();
+    CG_DrawServerLag();
+}
 
 void CG_DrawOverlayTopBottom(qhandle_t handleTop, qhandle_t handleBottom, float fAlpha)
 {
@@ -346,7 +392,27 @@ void CG_DrawOverlayTopBottom(qhandle_t handleTop, qhandle_t handleBottom, float 
 	int iWidthOffset;
 	vec4_t color;
 
-	// FIXME: UNIMPLEMENTED
+    color[0] = 1.0;
+    color[1] = 1.0;
+    color[2] = 1.0;
+    color[3] = fAlpha;
+    cgi.R_SetColor(color);
+
+    iHalfWidth = cgs.glconfig.vidHeight >> 1;
+    iWidthOffset = (cgs.glconfig.vidWidth - cgs.glconfig.vidHeight) >> 1;
+
+    cgi.R_DrawStretchPic(iWidthOffset, 0.0, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, 1.0, 0.0, 0.0, 1.0, handleTop);
+    cgi.R_DrawStretchPic(iWidthOffset + iHalfWidth, 0.0, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, 0.0, 0.0, 1.0, 1.0, handleTop);
+    cgi.R_DrawStretchPic(iWidthOffset, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, 1.0, 0.0, 0.0, 1.0, handleBottom);
+    cgi.R_DrawStretchPic(iWidthOffset + iHalfWidth, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, 0.0, 0.0, 1.0, 1.0, handleBottom);
+
+    color[0] = 0.0;
+    color[1] = 0.0;
+    color[2] = 0.0;
+    cgi.R_SetColor(color);
+
+    cgi.R_DrawStretchPic(0.0, 0.0, iWidthOffset, cgs.glconfig.vidHeight, 0.0, 0.0, 1.0, 1.0, cgs.media.lagometerShader);
+    cgi.R_DrawStretchPic(cgs.glconfig.vidWidth - iWidthOffset, 0.0, iWidthOffset, cgs.glconfig.vidHeight, 0.0, 0.0, 1.0, 1.0, cgs.media.lagometerShader);
 }
 
 void CG_DrawOverlayMiddle(qhandle_t handle, float fAlpha)
@@ -355,16 +421,47 @@ void CG_DrawOverlayMiddle(qhandle_t handle, float fAlpha)
     int iWidthOffset;
     vec4_t color;
 
-    // FIXME: UNIMPLEMENTED
+    color[0] = 1.0;
+    color[1] = 1.0;
+    color[2] = 1.0;
+    color[3] = fAlpha;
+	cgi.R_SetColor(color);
+
+	iHalfWidth = cgs.glconfig.vidHeight >> 1;
+	iWidthOffset = (cgs.glconfig.vidWidth - cgs.glconfig.vidHeight) >> 1;
+
+	cgi.R_DrawStretchPic(iWidthOffset, 0.0, iHalfWidth, iHalfWidth, 0.0, 0.0, 1.0, 1.0, handle);
+    cgi.R_DrawStretchPic(iWidthOffset + iHalfWidth, 0.0, iHalfWidth, iHalfWidth, 1.0, 0.0, 0.0, 1.0, handle);
+    cgi.R_DrawStretchPic(iWidthOffset, iHalfWidth, iHalfWidth, iHalfWidth, 0.0, 1.0, 1.0, 0.0, handle);
+    cgi.R_DrawStretchPic(iWidthOffset + iHalfWidth, iHalfWidth, iHalfWidth, iHalfWidth, 1.0, 1.0, 0.0, 0.0, handle);
+
+    color[0] = 0.0;
+    color[1] = 0.0;
+    color[2] = 0.0;
+	cgi.R_SetColor(color);
+
+	cgi.R_DrawStretchPic(0.0, 0.0, iWidthOffset, cgs.glconfig.vidHeight, 0.0, 0.0, 1.0, 1.0, cgs.media.lagometerShader);
+    cgi.R_DrawStretchPic(cgs.glconfig.vidWidth - iWidthOffset, 0.0, iWidthOffset, cgs.glconfig.vidHeight, .0, 0.0, 1.0, 1.0, cgs.media.lagometerShader);
 }
 
 void CG_DrawOverlayFullScreen(qhandle_t handle, float fAlpha)
 {
-    int iHalfWidth;
-    int iWidthOffset;
+    int iHalfWidth, iHalfHeight;
     vec4_t color;
 
-    // FIXME: UNIMPLEMENTED
+    color[0] = 1.0;
+    color[1] = 1.0;
+    color[2] = 1.0;
+    color[3] = fAlpha;
+    cgi.R_SetColor(color);
+
+    iHalfHeight = cgs.glconfig.vidHeight >> 1;
+    iHalfWidth = cgs.glconfig.vidWidth >> 1;
+
+    cgi.R_DrawStretchPic(0.0, 0.0, iHalfWidth, iHalfHeight, 0.0, 0.0, 1.0, 1.0, handle);
+    cgi.R_DrawStretchPic(iHalfWidth, 0.0, iHalfWidth, iHalfHeight, 1.0, 0.0, 0.0, 1.0, handle);
+    cgi.R_DrawStretchPic(0.0, iHalfHeight, iHalfWidth, iHalfHeight, 0.0, 1.0, 1.0, 0.0, handle);
+    cgi.R_DrawStretchPic(iHalfWidth, iHalfHeight, iHalfWidth, iHalfHeight, 1.0, 1.0, 0.0, 0.0, handle);
 }
 
 void CG_DrawZoomOverlay()
@@ -374,7 +471,69 @@ void CG_DrawZoomOverlay()
 	const char* weaponstring;
     qboolean bDrawOverlay;
 
-    // FIXME: UNIMPLEMENTED
+	weaponstring = "";
+	bDrawOverlay = qtrue;
+
+	if (!cg.snap) {
+		return;
+	}
+
+	if (cg.snap->ps.activeItems[1] >= 0) {
+		weaponstring = CG_ConfigString(CS_WEAPONS + cg.snap->ps.activeItems[1]);
+	}
+
+	if (!Q_stricmp(weaponstring, "Spy Camera")) {
+		zoomType = 2;
+	} else if (!Q_stricmp(weaponstring, "Binoculars")) {
+		zoomType = 3;
+	}
+	else
+	{
+		if (cg.snap->ps.stats[STAT_INZOOM] && cg.snap->ps.stats[STAT_INZOOM] <= 30)
+		{
+			if (!Q_stricmp(weaponstring, "KAR98 - Sniper")) {
+				zoomType = 1;
+			}
+			else {
+				zoomType = 0;
+			}
+		}
+		else {
+			bDrawOverlay = qfalse;
+		}
+	}
+
+	if (bDrawOverlay)
+	{
+		fAlpha += cg.frametime * 0.015;
+		if (fAlpha > 1.0) {
+			fAlpha = 1.0;
+		}
+	}
+	else
+	{
+		fAlpha -= cg.frametime * 0.015;
+		if (fAlpha < 0.0) {
+			fAlpha = 0.0;
+		}
+
+		if (!fAlpha) {
+			return;
+		}
+    }
+
+    switch (zoomType)
+    {
+    case 1:
+        CG_DrawOverlayTopBottom(cgs.media.kar98TopOverlayShader, cgs.media.kar98BottomOverlayShader, fAlpha);
+        break;
+    case 3:
+        CG_DrawOverlayFullScreen(cgs.media.binocularsOverlayShader, fAlpha);
+        break;
+    default:
+        CG_DrawOverlayMiddle(cgs.media.zoomOverlayShader, fAlpha);
+        break;
+    }
 }
 
 void CG_HudDrawShader(int iInfo)
@@ -407,7 +566,92 @@ void CG_RefreshHudDrawElements()
 
 void CG_HudDrawElements()
 {
-    // FIXME: UNIMPLEMENTED
+	int i;
+	float fX, fY;
+	float fWidth, fHeight;
+
+	if (!cg_huddraw_force->integer && !cg_hud->integer) {
+		return;
+	}
+
+	for (i = 0; i < MAX_HUDDRAW_ELEMENTS; i++)
+	{
+		if ((!cgi.HudDrawElements[i].hShader && !cgi.HudDrawElements[i].string[0])
+			|| !cgi.HudDrawElements[i].vColor[3])
+		{
+			// skip invisible elements
+			continue;
+		}
+
+        fX = cgi.HudDrawElements[i].iX;
+        fY = cgi.HudDrawElements[i].iY;
+        fWidth = cgi.HudDrawElements[i].iWidth;
+        fHeight = cgi.HudDrawElements[i].iHeight;
+
+        if (cgi.HudDrawElements[i].iHorizontalAlign == HUD_ALIGN_X_CENTER)
+        {
+            if (cgi.HudDrawElements[i].bVirtualScreen)
+                fX += 320.0 - fWidth * 0.5;
+            else
+                fX += cgs.glconfig.vidWidth * 0.5 - fWidth * 0.5;
+        }
+        else if (cgi.HudDrawElements[i].iHorizontalAlign == HUD_ALIGN_X_RIGHT)
+        {
+            if (cgi.HudDrawElements[i].bVirtualScreen)
+                fX += 640.0;
+            else
+                fX += cgs.glconfig.vidWidth;
+        }
+
+        if (cgi.HudDrawElements[i].iVerticalAlign == HUD_ALIGN_Y_CENTER)
+        {
+            if (cgi.HudDrawElements[i].bVirtualScreen)
+                fY += 240.0 - fHeight * 0.5;
+            else
+                fY += cgs.glconfig.vidHeight * 0.5 - fHeight * 0.5;
+        }
+        else if (cgi.HudDrawElements[i].iVerticalAlign == HUD_ALIGN_Y_BOTTOM)
+        {
+            if (cgi.HudDrawElements[i].bVirtualScreen)
+                fY += 480.0;
+            else
+                fY += cgs.glconfig.vidHeight;
+        }
+
+        cgi.R_SetColor(cgi.HudDrawElements[i].vColor);
+        if (cgi.HudDrawElements[i].string[0])
+        {
+            if (cgi.HudDrawElements[i].pFont)
+            {
+                cgi.R_DrawString(
+					cgi.HudDrawElements[i].pFont,
+                    cgi.LV_ConvertString(cgi.HudDrawElements[i].string),
+                    fX,
+					fY,
+					-1,
+					cgi.HudDrawElements[i].bVirtualScreen
+				);
+            }
+            else
+            {
+                cgi.R_DrawString(
+					cgs.media.hudDrawFont,
+					cgi.LV_ConvertString(cgi.HudDrawElements[i].string),
+					fX,
+					fY,
+					-1,
+					cgi.HudDrawElements[i].bVirtualScreen
+				);
+            }
+        }
+        else
+        {
+            if (cgi.HudDrawElements[i].bVirtualScreen)
+                CG_AdjustFrom640(&fX, &fY, &fWidth, &fHeight);
+
+            cgi.R_DrawStretchPic(fX, fY, fWidth, fHeight, 0.0, 0.0, 1.0, 1.0, cgi.HudDrawElements[i].hShader);
+        }
+	}
 }
 
 void CG_InitializeObjectives()
@@ -428,42 +672,415 @@ void CG_InitializeObjectives()
 
 void CG_DrawObjectives()
 {
-    // FIXME: unimplemented
+	float vColor[4];
+	float fX, fY;
+	static float fWidth;
+	float fHeight;
+	int iNumLines[20];
+	int iTotalNumLines;
+	int i;
+	int ii;
+    int iCurrentObjective;
+	float fTimeDelta;
+
+    iTotalNumLines = 0;
+	for (i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; ++i) {
+		CG_ProcessConfigString(i);
+	}
+
+    iCurrentObjective = atoi(CG_ConfigString(CS_CURRENT_OBJECTIVE));
+	fTimeDelta = cg.ObjectivesAlphaTime - cg.time;
+	if (fTimeDelta > 0.0)
+	{
+        cg.ObjectivesCurrentAlpha = (cg.ObjectivesBaseAlpha - cg.ObjectivesDesiredAlpha)
+			* sin(fTimeDelta * 0.0062831854)
+			+ cg.ObjectivesCurrentAlpha;
+	}
+
+	if (cg.ObjectivesCurrentAlpha < 0.02) {
+		return;
+	}
+
+    for (i = 0; i < MAX_OBJECTIVES; i++)
+    {
+        if ((cg.Objectives[i].flags & 0xFFFFFFFE))
+        {
+            iNumLines[i] = 0;
+
+            for (ii = 0; ii < MAX_STRING_CHARS; ii++)
+            {
+                if (cg.Objectives[i].text[ii] == 10)
+                {
+                    iTotalNumLines++;
+                    iNumLines[ii]++;
+                }
+                else if (!cg.Objectives[i].text[ii])
+                {
+                    iTotalNumLines++;
+                    iNumLines[ii]++;
+                    break;
+                }
+            }
+        }
+    }
+
+    fX = 25.0;
+    fY = 125.0;
+    fWidth = (float)(25 * iTotalNumLines + 155) + 5.0 - 130.0;
+    vColor[2] = 0.2f;
+    vColor[1] = 0.2f;
+    vColor[0] = 0.2f;
+    vColor[3] = cg.ObjectivesCurrentAlpha * 0.75;
+    cgi.R_SetColor(vColor);
+    cgi.R_DrawStretchPic(fX, fY, 450.0, fWidth, 0.0, 0.0, 1.0, 1.0, cgs.media.objectivesBackShader);
+    
+	fX = 30.0;
+    fY = 130.0;
+    vColor[0] = 1.0;
+    vColor[1] = 1.0;
+    vColor[2] = 1.0;
+    vColor[3] = cg.ObjectivesCurrentAlpha;
+    cgi.R_SetColor(vColor);
+    cgi.R_DrawString(cgs.media.objectiveFont, cgi.LV_ConvertString("Mission Objectives:"), fX, fY, -1, 0);
+    fY = fY + 5.0;
+
+    cgi.R_DrawString(cgs.media.objectiveFont, "_______________________________________________________", fX, fY, -1, 0);
+    fHeight = 155.0;
+
+    for (i = 0; i < MAX_OBJECTIVES; ++i)
+    {
+        qhandle_t hBoxShader;
+
+        if ((cg.Objectives[i].flags & 1) || !cg.Objectives[i].flags) {
+            continue;
+        }
+
+        if ((cg.Objectives[i].flags & 2) != 0)
+        {
+            vColor[0] = 1.0;
+            vColor[1] = 1.0;
+            vColor[2] = 1.0;
+            vColor[3] = cg.ObjectivesCurrentAlpha;
+            hBoxShader = cgs.media.uncheckedBoxShader;
+        }
+        else if ((cg.Objectives[i].flags & 4) != 0)
+        {
+            vColor[0] = 0.75;
+            vColor[1] = 0.75;
+            vColor[2] = 0.75;
+            vColor[3] = cg.ObjectivesCurrentAlpha;
+            hBoxShader = cgs.media.checkedBoxShader;
+        }
+        else
+        {
+            vColor[0] = 1.0;
+            vColor[1] = 1.0;
+            vColor[2] = 1.0;
+            vColor[3] = cg.ObjectivesCurrentAlpha;
+            hBoxShader = cgs.media.uncheckedBoxShader;
+        }
+        if (i == iCurrentObjective && (cg.Objectives[i].flags & 4) == 0)
+        {
+            vColor[0] = 1.0;
+            vColor[1] = 1.0;
+            vColor[2] = 0.0;
+            vColor[3] = cg.ObjectivesCurrentAlpha;
+        }
+
+        cgi.R_SetColor(vColor);
+        fX = 55.0;
+        fY = fHeight;
+        cgi.R_DrawString(cgs.media.objectiveFont, cgi.LV_ConvertString(cg.Objectives[i].text), 55.0, fHeight, -1, 0);
+
+        fX = 30.0;
+        fY = fHeight;
+        vColor[0] = 1.0;
+        vColor[1] = 1.0;
+        vColor[2] = 1.0;
+        vColor[3] = cg.ObjectivesCurrentAlpha;
+        cgi.R_SetColor(vColor);
+        cgi.R_DrawStretchPic(fX, fY, 16.0, 16.0, 0.0, 0.0, 1.0, 1.0, hBoxShader);
+
+        fHeight += 25 * iNumLines[i];
+    }
 }
 
 void CG_DrawPlayerTeam()
 {
-    // FIXME: unimplemented
+    qhandle_t handle;
+    if (!cg_hud->integer) {
+        return;
+    }
+
+    if (!cg.snap || cgs.gametype <= GT_FFA) {
+        return;
+    }
+
+    handle = NULL;
+    if (cg.snap->ps.stats[STAT_TEAM] == 3)
+    {
+        handle = cgi.R_RegisterShader("textures/hud/allies");
+    }
+    else if (cg.snap->ps.stats[STAT_TEAM] == 4)
+    {
+        handle = cgi.R_RegisterShader("textures/hud/axis");
+    }
+
+    if (handle)
+    {
+        cgi.R_SetColor(NULL);
+        cgi.R_DrawStretchPic(96.0, cgs.glconfig.vidHeight - 46, 24.0, 24.0, 0.0, 0.0, 1.0, 1.0, handle);
+    }
 }
 
 void CG_DrawPlayerEntInfo()
 {
-    // FIXME: unimplemented
+    int iClientNum;
+    const char* pszClientInfo;
+    const char* pszName;
+    float fX, fY;
+    float color[4];
+    qhandle_t handle;
+
+    if (!cg_hud->integer) {
+        return;
+    }
+
+    if (!cg.snap || cg.snap->ps.stats[STAT_INFOCLIENT] == -1) {
+        return;
+    }
+
+    iClientNum = cg.snap->ps.stats[STAT_INFOCLIENT];
+    handle = NULL;
+    pszClientInfo = CG_ConfigString(iClientNum + CS_PLAYERS);
+    pszName = Info_ValueForKey(pszClientInfo, "name");
+
+    color[0] = 0.5;
+    color[1] = 1.0;
+    color[2] = 0.5;
+    color[3] = 1.0;
+
+    fX = 56.0;
+    fY = (float)cgs.glconfig.vidHeight * 0.5;
+
+    if (cg.clientinfo[iClientNum].team == TEAM_ALLIES) {
+        handle = cgi.R_RegisterShader("textures/hud/allies");
+    } else if (cg.clientinfo[iClientNum].team == TEAM_AXIS) {
+        handle = cgi.R_RegisterShader("textures/hud/axis");
+    }
+
+    if (handle)
+    {
+        cgi.R_SetColor(0);
+        cgi.R_DrawStretchPic(56.0, fY, 16.0, 16.0, 0.0, 0.0, 1.0, 1.0, handle);
+        fX = 56.0 + 24.0;
+    }
+
+    cgi.R_SetColor(color);
+    cgi.R_DrawString(cgs.media.hudDrawFont, (char*)pszName, fX, fY, -1, 0);
+    cgi.R_DrawString(cgs.media.hudDrawFont, va("%i", cg.snap->ps.stats[STAT_INFOCLIENT_HEALTH]), fX, fY + 20.0, -1, 0);
 }
 
 void CG_UpdateAttackerDisplay()
 {
-    // FIXME: unimplemented
+    int iClientNum;
+    const char* pszClientInfo;
+    const char* pszName;
+    float fX, fY;
+    float color[4];
+
+    if (!cg_hud->integer) {
+        return;
+    }
+
+    if (!cg.snap || cg.snap->ps.stats[STAT_ATTACKERCLIENT] == -1) {
+        return;
+    }
+
+    iClientNum = cg.snap->ps.stats[STAT_ATTACKERCLIENT];
+    pszClientInfo = CG_ConfigString(CS_PLAYERS + iClientNum);
+    pszName = Info_ValueForKey(pszClientInfo, "name");
+
+    color[3] = 1.0;
+    fY = (float)(cgs.glconfig.vidHeight - 90);
+    fX = 56.0;
+
+    if (cgs.gametype > GT_FFA)
+    {
+        qhandle_t handle;
+
+        handle = 0;
+        if (cg.clientinfo[iClientNum].team == TEAM_ALLIES) {
+            handle = cgi.R_RegisterShader("textures/hud/allies");
+        }
+        else if (cg.clientinfo[iClientNum].team == TEAM_AXIS) {
+            handle = cgi.R_RegisterShader("textures/hud/axis");
+        }
+
+        if (handle)
+        {
+            cgi.R_SetColor(0);
+            cgi.R_DrawStretchPic(56.0, fY, 24.0, 24.0, 0.0, 0.0, 1.0, 1.0, handle);
+        }
+
+        if ((cg.snap->ps.stats[STAT_TEAM] == TEAM_ALLIES || cg.snap->ps.stats[STAT_TEAM] == TEAM_AXIS)
+            && cg.clientinfo[iClientNum].team == cg.snap->ps.stats[STAT_TEAM])
+        {
+            color[0] = 0.5;
+            color[1] = 1.0;
+            color[2] = 0.5;
+        }
+        else
+        {
+            color[0] = 1.0;
+            color[1] = 0.5;
+            color[2] = 0.5;
+        }
+
+        fX = 56.0 + 32.0;
+    }
+    else
+    {
+        color[0] = 1.0;
+        color[1] = 0.5;
+        color[2] = 0.5;
+    }
+
+    cgi.R_SetColor(color);
+    cgi.R_DrawString(cgs.media.attackerFont, pszName, fX, fY, -1, 0);
 }
 
 void CG_UpdateCountdown()
 {
-    // FIXME: unimplemented
+	if (!cg.snap) {
+		return;
+	}
+
+    if (cg.matchStartTime != -1)
+    {
+		int iSecondsLeft, iMinutesLeft;
+
+		iSecondsLeft = (cgs.matchEndTime - cg.time) / 1000;
+        if (iSecondsLeft >= 0)
+        {
+			iMinutesLeft = iSecondsLeft / 60;
+            cgi.Cvar_Set("ui_timemessage", va("%s %2i:%02i", cgi.LV_ConvertString("Time Left:"), iMinutesLeft, iSecondsLeft % 60));
+        }
+        else if (!cgs.matchEndTime)
+        {
+            cgi.Cvar_Set("ui_timemessage", "");
+        }
+    }
+    else
+    {
+		// The match has not started yet
+        cgi.Cvar_Set("ui_timemessage", "Waiting For Players");
+    }
 }
 
 void CG_DrawStopwatch()
 {
-    // FIXME: unimplemented
+	int iFraction;
+
+	if (!cg_hud->integer || !cgi.stopWatch->startTime
+		|| cgi.stopWatch->startTime >= cgi.stopWatch->endTime
+        || cgi.stopWatch->endTime <= cg.time
+        // don't draw the stopwatch with the objective menu
+        || cg.ObjectivesCurrentAlpha >= 0.02
+        // the player isn't alive
+		|| cg.snap && cg.snap->ps.stats[STAT_HEALTH] <= 0)
+	{
+		cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+		return;
+	}
+
+	iFraction = cgi.stopWatch->endTime - cg.time;
+    cgi.Cvar_Set("ui_stopwatch", va("%i", iFraction));
+    cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_stopwatch\n");
 }
 
 void CG_DrawInstantMessageMenu()
 {
-    // FIXME: unimplemented
+	float w, h;
+	float x, y;
+	qhandle_t handle;
+
+	if (!cg.iInstaMessageMenu) {
+		return;
+    }
+
+    if (cg.iInstaMessageMenu > 0) {
+        handle = cgi.R_RegisterShader(va("textures/hud/instamsg_group_%c", cg.iInstaMessageMenu + 96));
+    } else {
+        handle = cgi.R_RegisterShader("textures/hud/instamsg_main");
+    }
+
+    w = cgi.R_GetShaderWidth(handle);
+    h = cgi.R_GetShaderHeight(handle);
+    x = 8.0;
+    y = ((float)cgs.glconfig.vidHeight - h) * 0.5;
+    cgi.R_SetColor(0);
+    cgi.R_DrawStretchPic(x, y, w, h, 0.0, 0.0, 1.0, 1.0, handle);
 }
 
 void CG_DrawSpectatorView()
 {
-    // FIXME: unimplemented
+	const char* pszString;
+	int iKey1, iKey2;
+	int iKey1b, iKey2b;
+	float fX, fY;
+	qboolean bOnTeam;
+
+	if (!(cg.predicted_player_state.pm_flags & PMF_SPECTATING)) {
+		return;
+	}
+
+	bOnTeam = qfalse;
+	if (cg.snap->ps.stats[STAT_TEAM] == TEAM_ALLIES || cg.snap->ps.stats[STAT_TEAM] == TEAM_AXIS) {
+		bOnTeam = 1;
+	}
+
+	// retrieve keys for +use
+	cgi.Key_GetKeysForCommand("+use", &iKey1, &iKey2);
+
+    if (cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW) {
+		pszString = cgi.LV_ConvertString(
+			va(
+				"Press Use(%s) to follow a different player.",
+				cgi.Key_KeynumToBindString(iKey1)
+			)
+		);
+    } else {
+		pszString = cgi.LV_ConvertString(
+			va(
+				"Press Use(%s) to follow a player.",
+				cgi.Key_KeynumToBindString(iKey1)
+			)
+		);
+    }
+
+    fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
+    fY = (float)cgs.glconfig.vidHeight - 40.0;
+    cgi.R_SetColor(0);
+    cgi.R_DrawString(cgs.media.attackerFont, pszString, fX, fY, -1, 0);
+
+    if (!bOnTeam && (cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW))
+    {
+        cgi.Key_GetKeysForCommand("+moveup", &iKey1, &iKey2);
+        cgi.Key_GetKeysForCommand("+movedown", &iKey1b, &iKey2b);
+        pszString = cgi.LV_ConvertString(
+			va(
+				"Press Jump(%s) or Duck(%s) to free spectate.",
+				cgi.Key_KeynumToBindString(iKey1),
+				cgi.Key_KeynumToBindString(iKey1b)
+			)
+		);
+
+        fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1)) * 0.5;
+        fY = (float)cgs.glconfig.vidHeight - 24.0;
+        cgi.R_SetColor(0);
+        cgi.R_DrawString(cgs.media.attackerFont, pszString, fX, fY, -1, 0);
+    }
 }
 
 /*
