@@ -75,7 +75,7 @@ void CG_SetDesiredObjectiveAlpha(float fAlpha)
 
 void CG_ScoresDown_f( void )
 {
-    if (cgs.gametype != GT_SINGLE_PLAYER)
+    if (cgs.gametype == GT_SINGLE_PLAYER)
     {
         if (!cg.scoresRequestTime) {
             cg.scoresRequestTime = cg.time;
@@ -102,7 +102,7 @@ void CG_ScoresDown_f( void )
 
 void CG_ScoresUp_f( void )
 {
-    if (cgs.gametype != GT_SINGLE_PLAYER)
+    if (cgs.gametype == GT_SINGLE_PLAYER)
     {
         if (!cg.scoresRequestTime) {
             cg.scoresRequestTime = cg.time;
