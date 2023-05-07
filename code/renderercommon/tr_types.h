@@ -34,27 +34,5 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MAX_REFSPRITES		((1<<REFSPRITE_BITS) - 1)
 #define	REFENTITYNUM_WORLD	((1<<REFENTITYNUM_BITS) - 1)
 
-// refdef flags
-#define RDF_NOWORLDMODEL	0x0001		// used for player configuration screen
-#define RDF_HYPERSPACE		0x0004		// teleportation effect
-
-typedef struct {
-	vec3_t		xyz;
-	float		st[2];
-	byte		modulate[4];
-} polyVert_t;
-
-typedef struct poly_s {
-	qhandle_t			hShader;
-	int					numVerts;
-	polyVert_t			*verts;
-} poly_t;
-
 #define	MAX_RENDER_STRINGS			8
 #define	MAX_RENDER_STRING_LENGTH	32
-
-typedef enum {
-	STEREO_CENTER,
-	STEREO_LEFT,
-	STEREO_RIGHT
-} stereoFrame_t;

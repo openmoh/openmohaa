@@ -381,7 +381,7 @@ void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, flo
 
 void RE_BeginScene(const refdef_t *fd)
 {
-	Com_Memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
+	//Com_Memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
 
 	tr.refdef.x = fd->x;
 	tr.refdef.y = fd->y;

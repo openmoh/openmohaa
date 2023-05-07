@@ -85,6 +85,7 @@ static float ProjectRadius( float r, vec3_t location )
 	return pr;
 }
 
+#if 0
 /*
 =============
 R_CullModel
@@ -171,7 +172,6 @@ static int R_CullModel( mdvModel_t *model, trRefEntity_t *ent ) {
 	}
 }
 
-#if 0
 /*
 =================
 R_ComputeLOD
@@ -253,6 +253,7 @@ int R_ComputeLOD( trRefEntity_t *ent ) {
 }
 #endif
 
+#if 0
 /*
 =================
 R_ComputeFogNum
@@ -286,11 +287,9 @@ int R_ComputeFogNum( mdvModel_t *model, trRefEntity_t *ent ) {
 			return i;
 		}
 	}
-
 	return 0;
 }
 
-#if 0
 
 /*
 =================

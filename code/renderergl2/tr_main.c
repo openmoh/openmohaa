@@ -1455,25 +1455,7 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 		VectorSubtract( vec3_origin, camera->axis[0], camera->axis[0] );
 		VectorSubtract( vec3_origin, camera->axis[1], camera->axis[1] );
 
-		// optionally rotate
-		if ( e->e.oldframe ) {
-			// if a speed is specified
-			if ( e->e.frame ) {
-				// continuous rotate
-				d = (tr.refdef.time/1000.0f) * e->e.frame;
-				VectorCopy( camera->axis[1], transformed );
-				RotatePointAroundVector( camera->axis[1], camera->axis[0], transformed, d );
-				CrossProduct( camera->axis[0], camera->axis[1], camera->axis[2] );
-			} else {
-				// bobbing rotate, with skinNum being the rotation offset
-				d = sin( tr.refdef.time * 0.003f );
-				d = e->e.skinNum + d * 4;
-				VectorCopy( camera->axis[1], transformed );
-				RotatePointAroundVector( camera->axis[1], camera->axis[0], transformed, d );
-				CrossProduct( camera->axis[0], camera->axis[1], camera->axis[2] );
-			}
-		}
-		else if ( e->e.skinNum ) {
+		if ( e->e.skinNum ) {
 			d = e->e.skinNum;
 			VectorCopy( camera->axis[1], transformed );
 			RotatePointAroundVector( camera->axis[1], camera->axis[0], transformed, d );
@@ -1941,9 +1923,6 @@ static void R_AddEntitySurface (int entityNum)
 		ri.Error( ERR_DROP, "R_AddEntitySurfaces: Sprite being added to entities, should be added to sprite list" );
 		break;
 	case RT_BEAM:
-	case RT_LIGHTNING:
-	case RT_RAIL_CORE:
-	case RT_RAIL_RINGS:
 		// self blood sprites, talk balloons, etc should not be drawn in the primary
 		// view.  We can't just do this check for all entities, because md3
 		// entities may still want to cast shadows from them

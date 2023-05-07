@@ -285,6 +285,8 @@ RB_ProjectionShadowDeform
 =================
 */
 void RB_ProjectionShadowDeform( void ) {
+	// FIXME: unimplemented
+#if 0
 	float	*xyz;
 	int		i;
 	float	h;
@@ -322,4 +324,5 @@ void RB_ProjectionShadowDeform( void ) {
 		xyz[1] -= light[1] * h;
 		xyz[2] -= light[2] * h;
 	}
+#endif
 }

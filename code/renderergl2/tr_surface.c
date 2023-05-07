@@ -1135,7 +1135,6 @@ static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
 		}
     	VectorArrayNormalize((vec4_t *)tess.normal[tess.numVertexes], numVerts);
    	}
-#endif
 	float *outXyz;
 	uint32_t *outNormal;
 	mdvVertex_t *newVerts;
@@ -1191,8 +1190,8 @@ static void LerpMeshVertexes_scalar(mdvSurface_t *surf, float backlerp)
 			outXyz += 4;
 			outNormal++;
 		}
-	}
-
+    }
+#endif
 }
 
 static void LerpMeshVertexes(mdvSurface_t *surf, float backlerp)
@@ -1216,6 +1215,7 @@ RB_SurfaceMesh
 =============
 */
 static void RB_SurfaceMesh(mdvSurface_t *surface) {
+#if 0
 	int				j;
 	float			backlerp;
 	mdvSt_t			*texCoords;
@@ -1251,7 +1251,8 @@ static void RB_SurfaceMesh(mdvSurface_t *surface) {
 	}
 
 	tess.numVertexes += surface->numVerts;
-
+#endif
+	// FIXME
 }
 
 
@@ -1552,15 +1553,6 @@ static void RB_SurfaceEntity( surfaceType_t *surfType ) {
 	case RT_BEAM:
 		RB_SurfaceBeam();
 		break;
-	case RT_RAIL_CORE:
-		RB_SurfaceRailCore();
-		break;
-	case RT_RAIL_RINGS:
-		RB_SurfaceRailRings();
-		break;
-	case RT_LIGHTNING:
-		RB_SurfaceLightningBolt();
-		break;
 	default:
 		RB_SurfaceAxis();
 		break;
@@ -1577,6 +1569,7 @@ static void RB_SurfaceFlare(srfFlare_t *surf)
 		RB_AddFlare(surf, tess.fogNum, surf->origin, surf->color, surf->normal);
 }
 
+#if 0
 static void RB_SurfaceVaoMesh(srfBspSurface_t * srf)
 {
 	RB_SurfaceVao (srf->vao, srf->numVerts, srf->numIndexes, srf->firstIndex,
@@ -1668,6 +1661,7 @@ void RB_SurfaceVaoMdvMesh(srfVaoMdvMesh_t * surface)
 	// So we don't lerp surfaces that shouldn't be lerped
 	glState.vertexAnimation = qfalse;
 }
+#endif
 
 static void RB_SurfaceSkip( void *surf ) {
 }
@@ -1690,6 +1684,4 @@ void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {
 	(void(*)(void*))RB_StaticMesh,			// SF_TIKI_STATIC
 	(void(*)(void*))RB_DrawSprite,			// SF_SPRITE
 	(void(*)(void*))RB_DrawTerrainTris,		// SF_TERRAIN_PATCH
-	(void(*)(void*))RB_SurfaceVaoMesh,	    // SF_VAO_MESH,
-	(void(*)(void*))RB_SurfaceVaoMdvMesh,   // SF_VAO_MDVMESH
 };

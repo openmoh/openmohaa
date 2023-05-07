@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_models.c -- model loading and caching
 
 #include "tr_local.h"
+#include "../renderercommon/qgl.h"
 #include <vector.h>
 
 #define	LL(x) x=LittleLong(x)
@@ -602,8 +603,8 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 		orientation_t parent_or;
 		int iParentBone;
 
-		qglLineWidth( 3 );
-		qglBegin( GL_LINES );
+		glLineWidth( 3 );
+		glBegin( GL_LINES );
 
 
 		for( i = 0; i < tiki->m_boneList.NumChannels(); i++ ) { // draw a skeleton
@@ -618,58 +619,58 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 				AxisCopy( ent->e.axis, parent_or.axis );
 			}
 
-			qglColor3f( 1, 1, 1 );
-			qglVertex3fv( parent_or.origin );
-			qglVertex3fv( or.origin );
+			glColor3f( 1, 1, 1 );
+			glVertex3fv( parent_or.origin );
+			glVertex3fv( or.origin );
 
 			// draw bone axis
-			/*qglColor3f( 1, 0, 0 );
-			qglVertex3fv( parent_or.origin );
+			/*glColor3f( 1, 0, 0 );
+			glVertex3fv( parent_or.origin );
 			VectorAdd( parent_or.origin, parent_or.axis[ 0 ], vForward );
-			qglVertex3fv( vForward );
-			qglVertex3fv( vForward );
-			qglVertex3fv( or.origin );
+			glVertex3fv( vForward );
+			glVertex3fv( vForward );
+			glVertex3fv( or.origin );
 
-			qglColor3f( 0, 1, 0 );
-			qglVertex3fv( parent_or.origin );
+			glColor3f( 0, 1, 0 );
+			glVertex3fv( parent_or.origin );
 			VectorAdd( parent_or.origin, parent_or.axis[ 1 ], vRight );
-			qglVertex3fv( vRight );
-			qglVertex3fv( vRight );
-			qglVertex3fv( or.origin );
+			glVertex3fv( vRight );
+			glVertex3fv( vRight );
+			glVertex3fv( or.origin );
 
-			qglColor3f( 0, 0, 1 );
-			qglVertex3fv( parent_or.origin );
+			glColor3f( 0, 0, 1 );
+			glVertex3fv( parent_or.origin );
 			VectorAdd( parent_or.origin, parent_or.axis[ 2 ], vUp );
-			qglVertex3fv( vUp );
-			qglVertex3fv( vUp );
-			qglVertex3fv( or.origin );*/
+			glVertex3fv( vUp );
+			glVertex3fv( vUp );
+			glVertex3fv( or.origin );*/
 
 		}
-		qglEnd();
-		qglLineWidth( 1 );
+		glEnd();
+		glLineWidth( 1 );
 	}
 	else if( r_showSkeleton->integer == 2 ) { // draw skeleton with bones
 		orientation_t or;
 		orientation_t parent_or;
 		int iParentBone;
 
-		qglLineWidth( 3 );
-		qglBegin( GL_LINES );
+		glLineWidth( 3 );
+		glBegin( GL_LINES );
 		for( i = 0; i < tiki->m_boneList.NumChannels(); i++ ) {
 			iParentBone = skeletor->GetBoneParent( i );
 
 			if( iParentBone > 0 )	{
 				or = R_GetTagPositionAndOrientation( &ent->e, i );
 				parent_or = R_GetTagPositionAndOrientation( &ent->e, iParentBone );
-				qglColor3f( 1, 1, 1 );
-				qglVertex3fv( parent_or.origin );
-				qglVertex3fv( or.origin );
+				glColor3f( 1, 1, 1 );
+				glVertex3fv( parent_or.origin );
+				glVertex3fv( or.origin );
 			}
 
 		}
-		qglEnd();
+		glEnd();
 
-		qglBegin( GL_LINES );
+		glBegin( GL_LINES );
 		for( i = 0; i < tiki->m_boneList.NumChannels(); i++ ) {
 			vec3_t up, down, front;
 			or = R_GetTagPositionAndOrientation( &ent->e, i );
@@ -681,17 +682,17 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 			VectorCopy( or.origin, front );
 			front[ 0 ] += 5;
 
-			qglColor3f( 1, 0, 1 );
-			qglVertex3fv( front );
-			qglVertex3fv( or.origin );
-			qglVertex3fv( down );
-			qglVertex3fv( or.origin );
-			qglVertex3fv( up );
-			qglVertex3fv( or.origin );
+			glColor3f( 1, 0, 1 );
+			glVertex3fv( front );
+			glVertex3fv( or.origin );
+			glVertex3fv( down );
+			glVertex3fv( or.origin );
+			glVertex3fv( up );
+			glVertex3fv( or.origin );
 		}
 
-		qglEnd();
-		qglLineWidth( 1 );
+		glEnd();
+		glLineWidth( 1 );
 	}
 }
 /*
@@ -700,6 +701,7 @@ R_CullTIKI
 =============
 */
 static int R_CullTIKI( dtiki_t *tiki, trRefEntity_t *ent ) {
+#if 0
 	//// cull bounding sphere ONLY if this is not an upscaled entity
 	if( !ent->e.nonNormalizedAxes )
 	{
@@ -732,6 +734,9 @@ static int R_CullTIKI( dtiki_t *tiki, trRefEntity_t *ent ) {
 		tr.pc.c_box_cull_tiki_out++;
 		return CULL_OUT;
 	}
+#endif
+	// FIXME: unimplemented
+	return 0;
 }
 
 surfaceType_t	skelSurface = SF_TIKI_SKEL;
@@ -1425,8 +1430,8 @@ void R_DebugSkeleton( void ) {
 	GL_Bind( tr.whiteImage );
 	GL_State( 0x200 );
 
-	qglDisableClientState( GL_COLOR_ARRAY );
-	qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState( GL_COLOR_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 
 	for( i = 0; i < tr.refdef.num_entities; i++ ) {
 		ent = &tr.refdef.entities[ i ];
