@@ -74,7 +74,8 @@ void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t 
 	if ( unchanged ) {
 		*state = *old;
 	} else {
-		MSG_ReadDeltaEntity( msg, old, state, newnum );
+		// FIXME: frametime
+		MSG_ReadDeltaEntity( msg, old, state, newnum, 0.0);
 	}
 
 	if ( state->number == (MAX_GENTITIES-1) ) {
@@ -271,11 +272,12 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	MSG_ReadData( msg, &newSnap.areamask, len);
 
 	// read playerinfo
-	SHOWNET( msg, "playerstate" );
+    SHOWNET(msg, "playerstate");
+    // FIXME: frametime
 	if ( old ) {
-		MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps );
+		MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps, 0.0 );
 	} else {
-		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps );
+		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps, 0.0);
 	}
 
 	// read packet entities
@@ -500,7 +502,8 @@ void CL_ParseGamestate( msg_t *msg ) {
 			//Com_Memset (&nullstate, 0, sizeof(nullstate));
 			MSG_GetNullEntityState(&nullstate);
 			es = &cl.entityBaselines[ newnum ];
-			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum );
+			// FIXME: frametime
+			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum, 0.0);
 		} else {
 			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command byte %i", cmd );
 		}

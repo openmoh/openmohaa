@@ -431,7 +431,7 @@ void Cbuf_Init (void);
 void Cbuf_AddText( const char *text );
 // Adds command text at the end of the buffer, does NOT add a final \n
 
-void Cbuf_ExecuteText( int exec_when, const char *text );
+void Cbuf_ExecuteText(cbufExec_t exec_when, const char *text );
 // this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 
 void Cbuf_Execute (int msec);
@@ -704,10 +704,10 @@ void	FS_FreeFile( void *buffer );
 const char	*FS_PrepFileWrite( const char *filename );
 // prepares the file to be written
 
-size_t	FS_WriteFile( const char *qpath, const void *buffer, size_t size );
+int     FS_WriteFile( const char *qpath, const void *buffer, int size );
 // writes a complete file, creating any subdirectories needed
 
-void	FS_WriteTextFile( const char *qpath, const void *buffer, size_t size );
+void	FS_WriteTextFile( const char *qpath, const void *buffer, int size );
 // writes a complete text file, creating any subdirectories needed
 
 int		FS_filelength( fileHandle_t f );
@@ -1088,7 +1088,7 @@ qboolean SV_GameCommand( void );
 //
 // input interface
 //
-void IN_Init();
+void IN_Init(void *windowData);
 void IN_Frame(void);
 void IN_Shutdown(void);
 void IN_Restart(void);

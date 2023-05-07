@@ -22,14 +22,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 
-#include "../botlib/botlib.h"
 #include "../server/server.h"
 #include "../renderercommon/tr_common.h"
+#include "tiki.h"
 #include <localization.h>
 
 #include "cl_ui.h"
-
-extern	botlib_export_t	*botlib_export;
 
 typedef struct {
 	float fadetime;
@@ -4557,7 +4555,7 @@ UI_SetScoreBoardItem
 void UI_SetScoreBoardItem( int iItemNumber,
 	const char *pszData1, const char *pszData2, const char *pszData3, const char *pszData4,
 	const char *pszData5, const char *pszData6, const char *pszData7, const char *pszData8,
-	vec4_t pTextColor, vec4_t pBackColor, qboolean bIsHeader )
+	const vec4_t pTextColor, const vec4_t pBackColor, qboolean bIsHeader )
 {
 	int i;
 	float x, y, w, h;
@@ -5420,7 +5418,7 @@ UI_BeginLoadResource
 ====================
 */
 void UI_BeginLoadResource( void ) {
-	uint64_t time = rdtsc();
+	uint64_t time = __rdtsc();
 
 	startCountHigh = time >> 32;
 	startCountLow = time;

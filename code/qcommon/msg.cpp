@@ -2083,7 +2083,7 @@ Can go from either a baseline or a previous packet_entity
 extern	cvar_t	*cl_shownet;
 
 void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, 
-						 int number) {
+						 int number, float frameTime) {
 	int			i, lc;
 	int			numFields;
 	netField_t	*field;

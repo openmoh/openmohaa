@@ -21,7 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "cl_ui.h"
-#include "cl_screen.h"
 
 CLASS_DECLARATION( UIWidget, View3D, NULL )
 {

@@ -156,8 +156,8 @@ static void CG_Stopwatch_f()
         Com_Error(1, "stopwatch didn't have 2 parameters");
     }
 
-    cgi.stopWatch->startTime = 1000 * atoi(cgi.Argv(1));
-    cgi.stopWatch->endTime = cgi.stopWatch->startTime + 1000 * atoi(cgi.Argv(2));
+    cgi.stopWatch->iStartTime = 1000 * atoi(cgi.Argv(1));
+    cgi.stopWatch->iEndTime = cgi.stopWatch->iStartTime + 1000 * atoi(cgi.Argv(2));
 }
 
 /*
@@ -240,10 +240,10 @@ Execute all of the server commands that were received along
 with this this snapshot.
 ====================
 */
-void CG_ExecuteNewServerCommands(int latestSequence)
+void CG_ExecuteNewServerCommands(int latestSequence, qboolean differentServer)
 {
     while (cgs.serverCommandSequence < latestSequence) {
-        if (cgi.GetServerCommand(++cgs.serverCommandSequence)) {
+        if (cgi.GetServerCommand(++cgs.serverCommandSequence, differentServer)) {
             CG_ServerCommand();
         }
     }

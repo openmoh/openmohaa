@@ -134,7 +134,7 @@ static qboolean LoadTGA(const char * name, byte ** pic, int *width, int *height,
 	//
 	// load the file
 	//
-	cgi.FS_ReadFile(name, (void **)&buffer);
+	cgi.FS_ReadFile(name, (void **)&buffer, qtrue);
 	if (!buffer)
 	{
 	   cgi.DPrintf( "TGA File not found: %s\n", name );

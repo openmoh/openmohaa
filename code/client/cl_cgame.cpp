@@ -23,10 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 #include "cl_ui.h"
-#include "../botlib/botlib.h"
+#include "tiki.h"
 #include <localization.h>
-
-extern	botlib_export_t	*botlib_export;
 
 extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);
@@ -47,33 +45,30 @@ CL_GetGlconfig
 ====================
 */
 void CL_GetGlconfig( glconfig_t *glconfig ) {
-	glconfig_ver19_t *pgl = ( glconfig_ver19_t * )glconfig;
-
-	strncpy( pgl->renderer_string, cls.glconfig.renderer_string, sizeof( pgl->renderer_string ) );
-	strncpy( pgl->vendor_string, cls.glconfig.vendor_string, sizeof( pgl->vendor_string ) );
-	strncpy( pgl->version_string, cls.glconfig.version_string, sizeof( pgl->version_string ) );
-	strncpy( pgl->extensions_string, cls.glconfig.extensions_string, sizeof( pgl->extensions_string ) );
-	pgl->maxTextureSize = cls.glconfig.maxTextureSize;
-	pgl->numTextureUnits = cls.glconfig.numTextureUnits;
-	pgl->colorBits = cls.glconfig.colorBits;
-	pgl->depthBits = cls.glconfig.depthBits;
-	pgl->stencilBits = cls.glconfig.stencilBits;
-	pgl->driverType = cls.glconfig.driverType;
-	pgl->hardwareType = cls.glconfig.hardwareType;
-	pgl->deviceSupportsGamma = cls.glconfig.deviceSupportsGamma;
-	pgl->textureCompression = cls.glconfig.textureCompression;
-	pgl->textureEnvAddAvailable = cls.glconfig.textureEnvAddAvailable;
-	pgl->vidWidth = cls.glconfig.vidWidth;
-	pgl->vidHeight = cls.glconfig.vidHeight;
-	pgl->windowAspect = cls.glconfig.windowAspect;
-	pgl->displayFrequency = cls.glconfig.displayFrequency;
-	pgl->isFullscreen = cls.glconfig.isFullscreen;
-	pgl->stereoEnabled = cls.glconfig.stereoEnabled;
-	pgl->smpActive = cls.glconfig.smpActive;
-	pgl->registerCombinerAvailable = cls.glconfig.registerCombinerAvailable;
-	pgl->secondaryColorAvailable = cls.glconfig.secondaryColorAvailable;
-	pgl->VAR = cls.glconfig.VAR;
-	pgl->fence = cls.glconfig.fence;
+	strncpy( glconfig->renderer_string, cls.glconfig.renderer_string, sizeof( glconfig->renderer_string ) );
+	strncpy( glconfig->vendor_string, cls.glconfig.vendor_string, sizeof( glconfig->vendor_string ) );
+	strncpy( glconfig->version_string, cls.glconfig.version_string, sizeof( glconfig->version_string ) );
+	strncpy( glconfig->extensions_string, cls.glconfig.extensions_string, sizeof( glconfig->extensions_string ) );
+	glconfig->maxTextureSize = cls.glconfig.maxTextureSize;
+	glconfig->colorBits = cls.glconfig.colorBits;
+	glconfig->depthBits = cls.glconfig.depthBits;
+	glconfig->stencilBits = cls.glconfig.stencilBits;
+	glconfig->driverType = cls.glconfig.driverType;
+	glconfig->hardwareType = cls.glconfig.hardwareType;
+	glconfig->deviceSupportsGamma = cls.glconfig.deviceSupportsGamma;
+	glconfig->textureCompression = cls.glconfig.textureCompression;
+	glconfig->textureEnvAddAvailable = cls.glconfig.textureEnvAddAvailable;
+	glconfig->vidWidth = cls.glconfig.vidWidth;
+	glconfig->vidHeight = cls.glconfig.vidHeight;
+	glconfig->windowAspect = cls.glconfig.windowAspect;
+	glconfig->displayFrequency = cls.glconfig.displayFrequency;
+	glconfig->isFullscreen = cls.glconfig.isFullscreen;
+	glconfig->stereoEnabled = cls.glconfig.stereoEnabled;
+	glconfig->smpActive = cls.glconfig.smpActive;
+	glconfig->registerCombinerAvailable = cls.glconfig.registerCombinerAvailable;
+	glconfig->secondaryColorAvailable = cls.glconfig.secondaryColorAvailable;
+	glconfig->VAR = cls.glconfig.VAR;
+	glconfig->fence = cls.glconfig.fence;
 }
 
 
@@ -205,9 +200,9 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 
 	// wombat: sounds
 	count = clSnap->number_of_sounds;
-	if ( snapshot->number_of_sounds > MAX_SOUNDS_IN_SNAPSHOT ) {
-		Com_DPrintf( "CL_GetSnapshot: truncated %i sounds to %i\n", count, MAX_SOUNDS_IN_SNAPSHOT );
-		count = MAX_SOUNDS_IN_SNAPSHOT;
+	if ( snapshot->number_of_sounds > MAX_SERVER_SOUNDS) {
+		Com_DPrintf( "CL_GetSnapshot: truncated %i sounds to %i\n", count, MAX_SERVER_SOUNDS);
+		count = MAX_SERVER_SOUNDS;
 	}
 	snapshot->number_of_sounds = count;
 	Com_Memcpy( snapshot->sounds, clSnap->sounds, sizeof(snapshot->sounds[0])*count );
@@ -441,7 +436,7 @@ void CL_CM_LoadMap( const char *mapname ) {
 CL_CG_Malloc
 ====================
 */
-void *CL_CG_Malloc( int size )
+void *CL_CG_Malloc(int size )
 {
 	return Z_TagMalloc( size, TAG_CGAME );
 }
@@ -523,8 +518,8 @@ sfxHandle_t CL_RegisterSound( const char *sample, qboolean streamed ) {
 CL_StartLocalSound
 ====================
 */
-void CL_StartLocalSound( const char *sound_name ) {
-	S_StartLocalSound( sound_name, qfalse );
+void CL_StartLocalSound(const char* soundName, qboolean forceLoad) {
+	S_StartLocalSound(soundName, qfalse );
 }
 
 /*
@@ -739,10 +734,11 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->FS_CanonicalFilename		= FS_CanonicalFilename;
 
 	cgi->fsDebug					= fs_debug;
-	cgi->hudDrawElements			= cls.HudDrawElements;
+	cgi->HudDrawElements			= cls.HudDrawElements;
 	cgi->anim						= &cls.anim;
 	cgi->stopWatch					= &cls.stopwatch;
-	cgi->pUnknownVar				= NULL;
+	// FIXME
+	//cgi->pUnknownVar				= NULL;
 
 	cls.cgameStarted = qtrue;
 }
@@ -756,20 +752,20 @@ static void CL_ViewModelAnimation_Init() {
 	int i;
 
 	for( i = 0; i < MAX_FRAMEINFOS; i++ ) {
-		cls.anim.vmFrameInfo[ i ].index = 0;
-		cls.anim.vmFrameInfo[ i ].time = 0.0;
-		cls.anim.vmFrameInfo[ i ].weight = 0.0;
+		cls.anim.g_VMFrameInfo[ i ].index = 0;
+		cls.anim.g_VMFrameInfo[ i ].time = 0.0;
+		cls.anim.g_VMFrameInfo[ i ].weight = 0.0;
 	}
 
-	VectorClear( cls.anim.currentVMPosOffset );
-	cls.anim.lastVMAnim = -1;
-	cls.anim.lastVMAnimChanged = -1;
-	cls.anim.currentVMAnimSlot = 0;
-	cls.anim.currentVMDuration = 9999;
-	cls.anim.crossBlending = qfalse;
-	cls.anim.lastEquippedWeaponStat = -1;
-	cls.anim.lastActiveItem[ 0 ] = 0;
-	cls.anim.lastAnimPrefixIndex = 0;
+	VectorClear( cls.anim.g_vCurrentVMPosOffset );
+	cls.anim.g_iLastVMAnim = -1;
+	cls.anim.g_iLastVMAnimChanged = -1;
+	cls.anim.g_iCurrentVMAnimSlot = 0;
+	cls.anim.g_iCurrentVMDuration = 9999;
+	cls.anim.g_bCrossblending = qfalse;
+	cls.anim.g_iLastEquippedWeaponStat = -1;
+	cls.anim.g_szLastActiveItem[ 0 ] = 0;
+	cls.anim.g_iLastAnimPrefixIndex = 0;
 }
 
 /*

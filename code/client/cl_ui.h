@@ -72,7 +72,7 @@ void UI_HideScoreboard_f( void );
 void UI_SetScoreBoardItem( int iItemNumber,
 	const char *pszData1, const char *pszData2, const char *pszData3, const char *pszData4,
 	const char *pszData5, const char *pszData6, const char *pszData7, const char *pszData8,
-	vec4_t pTextColor, vec4_t pBackColor, qboolean bIsHeader );
+	const vec4_t pTextColor, const vec4_t pBackColor, qboolean bIsHeader );
 void UI_DeleteScoreBoardItems( int iMaxIndex );
 
 //

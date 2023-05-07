@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 #include "server.h"
 #include "cl_ui.h"
+#include "tiki.h"
 #include <cm_terrain.h>
 #include "../sys/sys_local.h"
 #include <limits.h>
@@ -407,7 +408,8 @@ void CL_Record_f( void ) {
 			continue;
 		}
 		MSG_WriteByte (&buf, svc_baseline);
-		MSG_WriteDeltaEntity (&buf, &nullstate, ent, qtrue );
+		// FIXME
+		MSG_WriteDeltaEntity (&buf, &nullstate, ent, qtrue, 0.0 );
 	}
 
 	MSG_WriteByte( &buf, svc_EOF );
@@ -2588,7 +2590,7 @@ void CL_StartHunkUsers( void ) {
 CL_RefMalloc
 ============
 */
-void *CL_RefMalloc( int size ) {
+void *CL_RefMalloc(size_t size ) {
 	return Z_TagMalloc( size, TAG_RENDERER );
 }
 

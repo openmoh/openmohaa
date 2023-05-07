@@ -207,13 +207,13 @@ void S_ChannelSetup( void ) {
 	Com_Memset( s_channels, 0, sizeof( s_channels ) );
 
 	p = s_channels;;
-	q = p + MAX_CHANNELS;
+	q = p + MAX_SOUNDCHANNELS;
 	while( --q > p ) {
 		*( channel_t ** )q = q - 1;
 	}
 
 	*( channel_t ** )q = NULL;
-	freelist = p + MAX_CHANNELS - 1;
+	freelist = p + MAX_SOUNDCHANNELS - 1;
 	Com_DPrintf( "Channel memory manager started\n" );
 }
 
@@ -599,7 +599,7 @@ static void S_Base_StartSoundEx( const vec3_t origin, int entityNum, int entchan
 
 	ch = s_channels;
 	inplay = 0;
-	for( i = 0; i < MAX_CHANNELS; i++, ch++ ) {
+	for( i = 0; i < MAX_SOUNDCHANNELS; i++, ch++ ) {
 		if( ch->entnum == entityNum && ch->thesfx == sfx ) {
 			if( time - ch->allocTime < 50 ) {
 				//				if (Cvar_VariableValue( "cg_showmiss" )) {
@@ -623,7 +623,7 @@ static void S_Base_StartSoundEx( const vec3_t origin, int entityNum, int entchan
 
 		oldest = sfx->lastTimeUsed;
 		chosen = -1;
-		for( i = 0; i < MAX_CHANNELS; i++, ch++ ) {
+		for( i = 0; i < MAX_SOUNDCHANNELS; i++, ch++ ) {
 			if( ch->entnum != listener_number && ch->entnum == entityNum && ch->allocTime<oldest && ch->entchannel != CHAN_ANNOUNCER ) {
 				oldest = ch->allocTime;
 				chosen = i;
@@ -631,7 +631,7 @@ static void S_Base_StartSoundEx( const vec3_t origin, int entityNum, int entchan
 		}
 		if( chosen == -1 ) {
 			ch = s_channels;
-			for( i = 0; i < MAX_CHANNELS; i++, ch++ ) {
+			for( i = 0; i < MAX_SOUNDCHANNELS; i++, ch++ ) {
 				if( ch->entnum != listener_number && ch->allocTime<oldest && ch->entchannel != CHAN_ANNOUNCER ) {
 					oldest = ch->allocTime;
 					chosen = i;
@@ -640,7 +640,7 @@ static void S_Base_StartSoundEx( const vec3_t origin, int entityNum, int entchan
 			if( chosen == -1 ) {
 				ch = s_channels;
 				if( ch->entnum == listener_number ) {
-					for( i = 0; i < MAX_CHANNELS; i++, ch++ ) {
+					for( i = 0; i < MAX_SOUNDCHANNELS; i++, ch++ ) {
 						if( ch->allocTime<oldest ) {
 							oldest = ch->allocTime;
 							chosen = i;
@@ -726,7 +726,7 @@ void S_Base_ClearSoundBuffer( void ) {
 
 	// stop looping sounds
 	Com_Memset( loopSounds, 0, MAX_GENTITIES*sizeof( loopSound_t ) );
-	Com_Memset( loop_channels, 0, MAX_CHANNELS*sizeof( channel_t ) );
+	Com_Memset( loop_channels, 0, MAX_SOUNDCHANNELS*sizeof( channel_t ) );
 	numLoopChannels = 0;
 
 	S_ChannelSetup();
@@ -972,7 +972,7 @@ void S_AddLoopSounds( void ) {
 		ch->oldDopplerScale = loop->oldDopplerScale;
 		ch->fullVolume = qfalse;
 		numLoopChannels++;
-		if( numLoopChannels == MAX_CHANNELS ) {
+		if( numLoopChannels == MAX_SOUNDCHANNELS ) {
 			return;
 		}
 	}
@@ -1176,7 +1176,7 @@ void S_Base_Respatialize( int entityNum, const vec3_t head, vec3_t axis[ 3 ], in
 
 	// update spatialization for dynamic sounds	
 	ch = s_channels;
-	for( i = 0; i < MAX_CHANNELS; i++, ch++ ) {
+	for( i = 0; i < MAX_SOUNDCHANNELS; i++, ch++ ) {
 		if( !ch->thesfx ) {
 			continue;
 		}
@@ -1217,7 +1217,7 @@ qboolean S_ScanChannelStarts( void ) {
 	newSamples = qfalse;
 	ch = s_channels;
 
-	for( i = 0; i<MAX_CHANNELS; i++, ch++ ) {
+	for( i = 0; i<MAX_SOUNDCHANNELS; i++, ch++ ) {
 		if( !ch->thesfx ) {
 			continue;
 		}
@@ -1262,7 +1262,7 @@ void S_Base_Update( void ) {
 	if( s_show->integer == 2 ) {
 		total = 0;
 		ch = s_channels;
-		for( i = 0; i<MAX_CHANNELS; i++, ch++ ) {
+		for( i = 0; i<MAX_SOUNDCHANNELS; i++, ch++ ) {
 			if( ch->thesfx && ( ch->leftvol || ch->rightvol ) ) {
 				Com_Printf( "%d %d %s\n", ch->leftvol, ch->rightvol, ch->thesfx->soundName );
 				total++;

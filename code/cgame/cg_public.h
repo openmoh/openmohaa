@@ -68,8 +68,8 @@ typedef struct {
 
 typedef struct stopWatch_s
 {
-    int startTime;
-    int endTime;
+    int iStartTime;
+    int iEndTime;
 
 } stopWatch_t;
 
@@ -136,9 +136,9 @@ typedef struct
 
     // a -1 return means the file does not exist
     // NULL can be passed for buf to just determine existance
-    int              (*FS_ReadFile)( const char *name, void **buf );
+    int              (*FS_ReadFile)( const char *name, void **buf, qboolean quiet );
     void             (*FS_FreeFile)( void *buf );
-    void             (*FS_WriteFile)( const char *qpath, const void *buffer, int size );
+    int              (*FS_WriteFile)( const char *qpath, const void *buffer, int size );
    void           (*FS_WriteTextFile)( const char *qpath, const void *buffer, int size );
     // add commands to the local console as if they were typed in
     // for map changing, etc.  The command is not executed immediately,
@@ -170,7 +170,7 @@ typedef struct
     clipHandle_t   (*CM_InlineModel)( int index );        // 0 = world, 1+ = bmodels
     int               (*CM_NumInlineModels)( void );
     int               (*CM_PointContents)( const vec3_t p, int headnode );
-    int               (*CM_TransformedPointContents)( const vec3_t p, int headnode, vec3_t origin, vec3_t angles );
+    int               (*CM_TransformedPointContents)(const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles);
     void            (*CM_BoxTrace)( trace_t *results, const vec3_t start, const vec3_t end,
                                           const vec3_t mins, const vec3_t maxs,
                                           int headnode, int brushmask, qboolean cylinder );
@@ -183,7 +183,7 @@ typedef struct
    clipHandle_t   (*CM_TempBoxModel)( const vec3_t mins, const vec3_t maxs, int contents );
    void         (*CM_PrintBSPFileSizes)();
    qboolean     (*CM_LeafInPVS)(int leaf1, int leaf2);
-   int          (*CM_PointLeafnum)(vec3_t p);
+   int          (*CM_PointLeafnum)(const vec3_t p);
    int          (*R_MarkFragments)( int numPoints, const vec3_t *points, const vec3_t projection, 
                                        int maxPoints, vec3_t pointBuffer,
                                        int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared );
@@ -199,12 +199,12 @@ typedef struct
 
     // =========== sound function calls ===============
 
-    void             (*S_StartSound)(vec3_t origin, int entNum, int entChannel, sfxHandle_t sfxHandle, float volume, float minDist, float pitch, float maxDist, int streamed);
-    void             (*S_StartLocalSound)(char* soundName, qboolean forceLoad);
+    void             (*S_StartSound)(const vec3_t origin, int entNum, int entChannel, sfxHandle_t sfxHandle, float volume, float minDist, float pitch, float maxDist, int streamed);
+    void             (*S_StartLocalSound)(const char* soundName, qboolean forceLoad);
     void             (*S_StopSound)( int entnum, int channel );
     void             (*S_ClearLoopingSounds)(void);
-    void             (*S_AddLoopingSound)(vec3_t origin, vec3_t velocity, sfxHandle_t sfxHandle, float volume, float minDist, float maxDist, float pitch, int flags);
-    void             (*S_Respatialize)( int entityNum, vec3_t origin, vec3_t axis[3] );
+    void             (*S_AddLoopingSound)(const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle, float volume, float minDist, float maxDist, float pitch, int flags);
+    void             (*S_Respatialize)( int entityNum, const vec3_t origin, vec3_t axis[3] );
     void             (*S_BeginRegistration)( void );
     sfxHandle_t        (*S_RegisterSound)( const char *sample, int streamed );
     void             (*S_EndRegistration)( void );
@@ -212,9 +212,9 @@ typedef struct
     void                (*S_SetReverb)( int reverb_type, float reverb_level );
    void           (*S_SetGlobalAmbientVolumeLevel)( float volume );
    float        (*S_GetSoundTime)(sfxHandle_t handle);
-   int          (*S_ChannelNameToNum)(char* name);
-   char*        (*S_ChannelNumToName)(int channel);
-   int          (*S_IsSoundPlaying)(int channelNumber, char* name);
+   int          (*S_ChannelNameToNum)(const char* name);
+   const char*  (*S_ChannelNumToName)(int channel);
+   int          (*S_IsSoundPlaying)(int channelNumber, const char* name);
 
     // =========== music function calls ===============
 
@@ -240,10 +240,10 @@ typedef struct
     qhandle_t      (*R_RegisterSkin)( const char *name );
     qhandle_t      (*R_RegisterShader)( const char *name );
     qhandle_t      (*R_RegisterShaderNoMip)( const char *name );
-   void           (*R_AddRefEntityToScene)( refEntity_t *ent, int parentEntityNumber );
-   void           (*R_AddRefSpriteToScene)( refEntity_t *ent );
-   void           (*R_AddLightToScene)( vec3_t origin, float intensity, float r, float g, float b, int type );
-   void             (*R_AddPolyToScene)(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
+   void           (*R_AddRefEntityToScene)(const refEntity_t *ent, int parentEntityNumber );
+   void           (*R_AddRefSpriteToScene)(const refEntity_t *ent );
+   void           (*R_AddLightToScene)(const vec3_t origin, float intensity, float r, float g, float b, int type );
+   qboolean       (*R_AddPolyToScene)(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
    void             (*R_AddTerrainMarkToScene)(int terrainIndex, qhandle_t hShader, int numVerts, polyVert_t* verts, int renderFx);
     void             (*R_SetColor)( const vec4_t rgba );    // NULL = 1,1,1,1
     void             (*R_DrawStretchPic) ( float x, float y, float w, float h, 
@@ -279,34 +279,34 @@ typedef struct
                                                                   // which is the local predicted command for
                                                                   // the following frame
     qboolean          (*GetUserCmd)( int cmdNumber, usercmd_t *ucmd );
-   qboolean          (*GetServerCommand)( int serverCommandNumber );
+    qboolean          (*GetServerCommand)(int serverCommandNumber, qboolean differentServer);
 
    // ALIAS STUFF
    qboolean            (*Alias_Add)( const char * alias, const char * name, const char *parameters );
    qboolean         (*Alias_ListAdd)(AliasList_t* list, const char* alias, const char* name, const char* parameters);
    const char*      (*Alias_FindRandom)(const char* alias, AliasListNode_t **ret);
-   char*            (*Alias_ListFindRandom)(AliasList_t* list, const char* alias, AliasListNode_t** ret);
+   const char*      (*Alias_ListFindRandom)(AliasList_t* list, const char* alias, AliasListNode_t** ret);
    void                (*Alias_Dump)( void );
    void                (*Alias_Clear)( void );
-   AliasList_t*     (*AliasList_New)(char* name);
+   AliasList_t*     (*AliasList_New)(const char* name);
    void             (*Alias_ListFindRandomRange)(AliasList_t* list, const char* alias, int* minIndex, int* maxIndex, float* totalWeight);
    AliasList_t*     (*Alias_GetGlobalList)();
 
    // ==================== UI STUFF ==========================
-   void             (*UI_ShowMenu)(char* name, qboolean bForce);
-   void             (*UI_HideMenu)(char* name, qboolean bForce);
+   void             (*UI_ShowMenu)(const char* name, qboolean bForce);
+   void             (*UI_HideMenu)(const char* name, qboolean bForce);
    int              (*UI_FontStringWidth)(fontheader_t* font, const char* string, int maxLen);
 
-   int              (*Key_StringToKeynum)(char* str);
-   char*            (*Key_KeynumToBindString)(int keyNum);
-   void             (*Key_GetKeysForCommand)(char* command, int* key1, int* key2);
+   int              (*Key_StringToKeynum)(const char* str);
+   const char*      (*Key_KeynumToBindString)(int keyNum);
+   void             (*Key_GetKeysForCommand)(const char* command, int* key1, int* key2);
 
    // ==================== TIKI STUFF ==========================
    // TIKI SPECIFIC STUFF
    dtiki_t*         (*R_Model_GetHandle)(qhandle_t handle);
    int              (*TIKI_NumAnims)(dtiki_t* pmdl);
    void             (*TIKI_CalculateBounds)(dtiki_t* pmdl, float scale, vec3_t mins, vec3_t maxs);
-   char*            (*TIKI_Name)(dtiki_t* tiki);
+   const char*      (*TIKI_Name)(dtiki_t* tiki);
    void*            (*TIKI_GetSkeletor)(dtiki_t* tiki, int entNum);
    void             (*TIKI_SetEyeTargetPos)(dtiki_t* tiki, int entNum, vec3_t pos);
 
@@ -347,13 +347,13 @@ typedef struct
                                 const char* data2, const char* data3,
                                 const char* data4, const char* data5,
                                 const char* data6, const char* data7,
-                                const char* data8, const float* textColor,
-                                const float* backColor, qboolean isHeader);
+                                const char* data8, const vec4_t textColor,
+                                const vec4_t backColor, qboolean isHeader);
    void (*UI_DeleteScoreBoardItems)(int maxIndex);
    void (*UI_ToggleDMMessageConsole)(int consoleMode);
    dtiki_t* (*TIKI_FindTiki)(const char* path);
    void (*LoadResource)(const char* name);
-   void (*FS_CanonicalFilename)(const char* name);
+   void (*FS_CanonicalFilename)(char* name);
 
    cvar_t* fsDebug;
    hdelement_t* HudDrawElements;

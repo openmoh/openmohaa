@@ -148,7 +148,7 @@ void Cbuf_InsertText( const char *text ) {
 Cbuf_ExecuteText
 ============
 */
-void Cbuf_ExecuteText (int exec_when, const char *text)
+void Cbuf_ExecuteText (cbufExec_t exec_when, const char *text)
 {
 	switch (exec_when)
 	{

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../client/client.h"
 
-void IN_Init( void ) {
+void IN_Init( void *windowData ) {
 }
 
 void IN_Restart( void ) {

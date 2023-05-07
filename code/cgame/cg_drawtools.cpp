@@ -982,9 +982,9 @@ void CG_DrawStopwatch()
 {
 	int iFraction;
 
-	if (!cg_hud->integer || !cgi.stopWatch->startTime
-		|| cgi.stopWatch->startTime >= cgi.stopWatch->endTime
-        || cgi.stopWatch->endTime <= cg.time
+	if (!cg_hud->integer || !cgi.stopWatch->iStartTime
+		|| cgi.stopWatch->iStartTime >= cgi.stopWatch->iEndTime
+        || cgi.stopWatch->iEndTime <= cg.time
         // don't draw the stopwatch with the objective menu
         || cg.ObjectivesCurrentAlpha >= 0.02
         // the player isn't alive
@@ -994,7 +994,7 @@ void CG_DrawStopwatch()
 		return;
 	}
 
-	iFraction = cgi.stopWatch->endTime - cg.time;
+	iFraction = cgi.stopWatch->iEndTime - cg.time;
     cgi.Cvar_Set("ui_stopwatch", va("%i", iFraction));
     cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_stopwatch\n");
 }
