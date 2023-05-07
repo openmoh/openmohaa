@@ -1557,7 +1557,6 @@ void ClientGameCommandManager::CommandDelay(Event* ev)
     for (i = 3; i <= num; i++) {
         ev1->AddValue(ev->GetValue(i));
     }
-    ProcessEvent(ev1);
 
     delay = ev->GetFloat(1) * 1000;
     if (current_entity_number != -1) {
@@ -2379,6 +2378,9 @@ void ClientGameCommandManager::SetSpawnRange(Event* ev)
     fVal1 = ev->GetFloat(1);
     if (ev->NumArgs() > 1) {
         fVal2 = ev->GetFloat(2);
+    }
+    else {
+        fVal2 = 0.0;
     }
 
     if (fVal1 * fVal1 > fVal2 * fVal2)
@@ -4871,6 +4873,9 @@ void ClientGameCommandManager::StopAliasChannel(Event* ev)
     str sound_name;
     const char* name;
     AliasListNode_t* soundAlias;
+
+    name = NULL;
+    soundAlias = NULL;
 
     if (ev->NumArgs() < 1) {
         return;

@@ -448,7 +448,8 @@ void ClientSpecialEffectsManager::ExecuteEffect(int iEffect, int iStartCommand, 
 			{
 				current_entity = &tmpEntity;
 				current_tiki = tmpEntity.tiki;
-				commandManager.ProcessEvent(pCommand->pEvent);
+                // give a reference to it so the event doesn't get deleted
+				commandManager.ProcessEvent(*pCommand->pEvent);
 			}
 			else if (pCommand->emitter && pCommand->endfcn)
             {
