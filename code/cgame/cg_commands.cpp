@@ -1447,7 +1447,7 @@ void ClientGameCommandManager::SetBaseAndAmplitude(Event* ev, Vector& base, Vect
     int i = 1;
     int j = 0;
 
-    while (j < 3) {
+    for(j = 0; j < 3; j++) {
         str org;
 
         org = ev->GetString(i++);
@@ -1461,6 +1461,9 @@ void ClientGameCommandManager::SetBaseAndAmplitude(Event* ev, Vector& base, Vect
         } else if (org == "range") {
             base[j] = ev->GetFloat(i++);
             amplitude[j] = ev->GetFloat(i++);
+        } else {
+            base[j] = 0.0;
+            amplitude[j] = atof(org.c_str());
         }
     }
 }
@@ -2473,12 +2476,12 @@ void ClientGameCommandManager::SetHardLink(Event* ev)
 void ClientGameCommandManager::SetColor(Event* ev)
 
 {
-    m_spawnthing->cgd.color[0] = ev->GetFloat(1) * 0xff;
-    m_spawnthing->cgd.color[1] = ev->GetFloat(2) * 0xff;
-    m_spawnthing->cgd.color[2] = ev->GetFloat(3) * 0xff;
+    m_spawnthing->cgd.color[0] = ev->GetFloat(1);
+    m_spawnthing->cgd.color[1] = ev->GetFloat(2);
+    m_spawnthing->cgd.color[2] = ev->GetFloat(3);
 
     if (ev->NumArgs() == 4) {
-        m_spawnthing->cgd.color[3] = ev->GetFloat(4) * 0xff;
+        m_spawnthing->cgd.color[3] = ev->GetFloat(4);
         m_spawnthing->cgd.alpha = ev->GetFloat(4);
     }
 }
@@ -3646,7 +3649,7 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
 
 {
     float fade, fadein;
-    byte tempColor[4];
+    float tempColor[4];
 
     if (p->cgd.flags & (T_FADE | T_SCALEUPDOWN)) {
         fade = 1.0f - (float)(p->aliveTime - p->cgd.fadedelay) /
@@ -3696,10 +3699,10 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
         float color[4];
         CG_LightStyleColor(p->cgd.lightstyle, dtime * 1000, color);
         for (i = 0; i < 4; i++) {
-            tempColor[i] = color[i] * 255;
+            tempColor[i] = color[i];
         }
     } else {
-        memcpy(tempColor, p->cgd.color, 4);
+        memcpy(tempColor, p->cgd.color, sizeof(tempColor));
     }
 
     if (p->cgd.flags & T_TWINKLE) {
@@ -3718,27 +3721,27 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
         }
 
         if (p->cgd.flags & T_TWINKLE_OFF) {
-            memset(tempColor, 0, 4);
+            memset(tempColor, 0, sizeof(tempColor));
         }
     }
 
     if (p->cgd.flags & T_FADEIN && (fadein < 1)) // Do the fadein effect
     {
-        p->ent.shaderRGBA[0] = (int)(tempColor[0] * (fadein * p->cgd.alpha));
-        p->ent.shaderRGBA[1] = (int)(tempColor[1] * (fadein * p->cgd.alpha));
-        p->ent.shaderRGBA[2] = (int)(tempColor[2] * (fadein * p->cgd.alpha));
-        p->ent.shaderRGBA[3] = (int)(tempColor[3] * (fadein * p->cgd.alpha));
+        p->ent.shaderRGBA[0] = (int)(tempColor[0] * (fadein * p->cgd.alpha) * 255.0);
+        p->ent.shaderRGBA[1] = (int)(tempColor[1] * (fadein * p->cgd.alpha) * 255.0);
+        p->ent.shaderRGBA[2] = (int)(tempColor[2] * (fadein * p->cgd.alpha) * 255.0);
+        p->ent.shaderRGBA[3] = (int)(tempColor[3] * (fadein * p->cgd.alpha) * 255.0);
     } else if (p->cgd.flags & T_FADE) // Do a fadeout effect
     {
-        p->ent.shaderRGBA[0] = (tempColor[0] * (fade * p->cgd.alpha));
-        p->ent.shaderRGBA[1] = (tempColor[1] * (fade * p->cgd.alpha));
-        p->ent.shaderRGBA[2] = (tempColor[2] * (fade * p->cgd.alpha));
-        p->ent.shaderRGBA[3] = (tempColor[3] * (fade * p->cgd.alpha));
+        p->ent.shaderRGBA[0] = (int)(tempColor[0] * (fade * p->cgd.alpha) * 255.0);
+        p->ent.shaderRGBA[1] = (int)(tempColor[1] * (fade * p->cgd.alpha) * 255.0);
+        p->ent.shaderRGBA[2] = (int)(tempColor[2] * (fade * p->cgd.alpha) * 255.0);
+        p->ent.shaderRGBA[3] = (int)(tempColor[3] * (fade * p->cgd.alpha) * 255.0);
     } else {
-        p->ent.shaderRGBA[0] = tempColor[0] * p->cgd.alpha;
-        p->ent.shaderRGBA[1] = tempColor[1] * p->cgd.alpha;
-        p->ent.shaderRGBA[2] = tempColor[2] * p->cgd.alpha;
-        p->ent.shaderRGBA[3] = tempColor[3] * p->cgd.alpha;
+        p->ent.shaderRGBA[0] = (int)(tempColor[0] * p->cgd.alpha * 255.0);
+        p->ent.shaderRGBA[1] = (int)(tempColor[1] * p->cgd.alpha * 255.0);
+        p->ent.shaderRGBA[2] = (int)(tempColor[2] * p->cgd.alpha * 255.0);
+        p->ent.shaderRGBA[3] = (int)(tempColor[3] * p->cgd.alpha * 255.0);
     }
 
     if (p->cgd.flags & T_FLICKERALPHA) {
@@ -3891,9 +3894,9 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
 
             CG_ImpactMark(shader, trace.endpos, trace.plane.normal,
                           p->cgd.decal_orientation,
-                          (float)p->cgd.color[0] / 255.0f,
-                          (float)p->cgd.color[1] / 255.0f,
-                          (float)p->cgd.color[2] / 255.0f, p->cgd.alpha,
+                          p->cgd.color[0],
+                          p->cgd.color[1],
+                          p->cgd.color[2], p->cgd.alpha,
                           p->cgd.flags & T_FADE, p->cgd.decal_radius,
                           p->cgd.flags2 & T2_TEMPORARY_DECAL, p->cgd.lightstyle,
                           p->cgd.flags & T_FADEIN,
@@ -4221,9 +4224,9 @@ void ClientGameCommandManager::AddTempModels(void)
         if (p->cgd.flags & T_DLIGHT) {
             // Tempmodel is a Dynamic Light
             cgi.R_AddLightToScene(p->cgd.origin, p->cgd.lightIntensity * scale,
-                                  (float)p->cgd.color[0] / 255.0f,
-                                  (float)p->cgd.color[1] / 255.0f,
-                                  (float)p->cgd.color[2] / 255.0f,
+                                  p->cgd.color[0],
+                                  p->cgd.color[1],
+                                  p->cgd.color[2],
                                   p->cgd.lightType);
         } else if (p->ent.reType == RT_SPRITE) {
             vec3_t vTestAngles;
@@ -4431,21 +4434,20 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         }
 
         // Set up modulation for constant color
-        for (i = 0; i < 4; i++) {
-            p->cgd.color[i] = ent.shaderRGBA[i] = m_spawnthing->cgd.color[i];
+        for (i = 0; i < 4; i++)
+        {
+            p->cgd.color[i] = m_spawnthing->cgd.color[i];
+            ent.shaderRGBA[i] = (byte)(p->cgd.color[i] * 255.0);
         }
 
         // Apply the alpha from the current_entity to the tempmodel
         if (current_entity) {
-            float ealpha;
-
-            ealpha = (float)current_entity->shaderRGBA[3] / 255.0f;
-
-            if (ealpha != 1.0) {
+            if (current_entity->shaderRGBA[3] != 255) {
                 // pre-multiply the alpha from the entity
-                for (i = 0; i < 4; i++) {
-                    p->cgd.color[i] = ent.shaderRGBA[i] =
-                        ent.shaderRGBA[i] * ealpha;
+                for (i = 0; i < 4; i++)
+                {
+                    p->cgd.color[3] *= current_entity->shaderRGBA[3] / 255.0;
+                    ent.shaderRGBA[3] = current_entity->shaderRGBA[3];
                 }
             }
         }
@@ -5264,10 +5266,10 @@ void ClientGameCommandManager::TagDynamicLight(Event* ev)
     GetOrientation(tagnum, m_spawnthing);
 
     m_spawnthing->cgd.flags |= T_DLIGHT;
-    m_spawnthing->cgd.color[0] = ev->GetFloat(2) * 255;
-    m_spawnthing->cgd.color[1] = ev->GetFloat(3) * 255;
-    m_spawnthing->cgd.color[2] = ev->GetFloat(4) * 255;
-    m_spawnthing->cgd.color[3] = 255;
+    m_spawnthing->cgd.color[0] = ev->GetFloat(2);
+    m_spawnthing->cgd.color[1] = ev->GetFloat(3);
+    m_spawnthing->cgd.color[2] = ev->GetFloat(4);
+    m_spawnthing->cgd.color[3] = 1.0;
     m_spawnthing->cgd.lightIntensity = ev->GetFloat(5);
     m_spawnthing->cgd.life = ev->GetFloat(6) * 1000;
     if (ev->NumArgs() > 6) {
@@ -5300,10 +5302,10 @@ void ClientGameCommandManager::OriginDynamicLight(Event* ev)
 
     m_spawnthing->cgd.origin = current_entity->origin;
     m_spawnthing->cgd.flags |= T_DLIGHT;
-    m_spawnthing->cgd.color[0] = ev->GetFloat(1) * 255;
-    m_spawnthing->cgd.color[1] = ev->GetFloat(2) * 255;
-    m_spawnthing->cgd.color[2] = ev->GetFloat(3) * 255;
-    m_spawnthing->cgd.color[3] = 255;
+    m_spawnthing->cgd.color[0] = ev->GetFloat(1);
+    m_spawnthing->cgd.color[1] = ev->GetFloat(2);
+    m_spawnthing->cgd.color[2] = ev->GetFloat(3);
+    m_spawnthing->cgd.color[3] = 1.0;
     m_spawnthing->cgd.lightIntensity = ev->GetFloat(4);
     m_spawnthing->cgd.life = ev->GetFloat(5) * 1000;
     if (ev->NumArgs() > 5) {
@@ -5477,10 +5479,10 @@ void ClientGameCommandManager::UpdateBeam(dtiki_t* tiki, int entity_number,
 
         byte newcolor[4];
 
-        newcolor[0] = beamthing->cgd.color[0] * alpha;
-        newcolor[1] = beamthing->cgd.color[1] * alpha;
-        newcolor[2] = beamthing->cgd.color[2] * alpha;
-        newcolor[3] = beamthing->cgd.color[3] * alpha;
+        newcolor[0] = (byte)(beamthing->cgd.color[0] * alpha * 255.0);
+        newcolor[1] = (byte)(beamthing->cgd.color[1] * alpha * 255.0);
+        newcolor[2] = (byte)(beamthing->cgd.color[2] * alpha * 255.0);
+        newcolor[3] = (byte)(beamthing->cgd.color[3] * alpha * 255.0);
 
         CG_MultiBeamEnd(
             beamthing->cgd.scale * scale, renderfx, beamthing->cgd.shadername,
@@ -5580,7 +5582,7 @@ void ClientGameCommandManager::UpdateEmitter(dtiki_t* tiki, vec3_t axis[3],
             UpdateBeam(tiki, entity_number, m_spawnthing);
             continue;
         }
-        if (m_spawnthing->tagnum == -1) {
+        if (m_spawnthing->tagnum != -1) {
             // Set the axis and origin based on the tag's axis and origin
             GetOrientation(m_spawnthing->tagnum, m_spawnthing);
         } else if (axis) {
@@ -6517,10 +6519,10 @@ void ClientGameCommandManager::CGEvent(centity_t* cent)
     m_spawnthing->cgd.scale = cent->currentState.scale;
     m_spawnthing->cgd.alpha = cent->currentState.alpha;
 
-    m_spawnthing->cgd.color[0] = cent->color[0] * 255;
-    m_spawnthing->cgd.color[1] = cent->color[1] * 255;
-    m_spawnthing->cgd.color[2] = cent->color[2] * 255;
-    m_spawnthing->cgd.color[3] = cent->color[3] * 255;
+    m_spawnthing->cgd.color[0] = cent->color[0];
+    m_spawnthing->cgd.color[1] = cent->color[1];
+    m_spawnthing->cgd.color[2] = cent->color[2];
+    m_spawnthing->cgd.color[3] = cent->color[3];
 
     Event* ev;
     ev = new Event("model");
