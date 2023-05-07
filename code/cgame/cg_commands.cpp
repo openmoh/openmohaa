@@ -5396,6 +5396,7 @@ void ClientGameCommandManager::UpdateBeam(dtiki_t* tiki, int entity_number,
 {
     Vector start, end;
     int renderfx;
+    int iLife;
     qboolean addstartpoint;
     float scale, alpha;
     emittertime_t* et;
@@ -5415,6 +5416,11 @@ void ClientGameCommandManager::UpdateBeam(dtiki_t* tiki, int entity_number,
         renderfx = 0;
         scale = 1.0f;
         alpha = 1.0f;
+    }
+
+    iLife = m_spawnthing->cgd.life;
+    if (m_spawnthing->life_random != 0.0) {
+        iLife = (int)(random() * m_spawnthing->life_random + (float)iLife);
     }
 
     if (beamthing->startTag == "USE_TAGLIST") {
@@ -5520,7 +5526,7 @@ void ClientGameCommandManager::UpdateBeam(dtiki_t* tiki, int entity_number,
                       beamthing->cgd.alpha * alpha,
                       beamthing->cgd.scale * scale,
                       (beamthing->beamflags | BEAM_LIGHTNING_EFFECT),
-                      beamthing->length, beamthing->cgd.life, qfalse, end,
+                      beamthing->length, iLife, qfalse, end,
                       beamthing->min_offset, beamthing->max_offset,
                       beamthing->overlap, beamthing->numSubdivisions,
                       beamthing->delay, beamthing->cgd.shadername,

@@ -883,6 +883,80 @@ void CG_BuildRendererBeam
     }
 }
 
+void CG_BuildRendererBeam_Fast
+(
+    Vector start,
+    Vector end,
+    float  angleVar,
+    int    numSubdivisions,
+    byte   color[4],
+    int    beamshader,
+    float  scale,
+    float  overlap,
+    int    owner,
+    float  life,
+    int    flags,
+    float  startalpha,
+    float  alphastep,
+    int    renderfx
+)
+{
+    int ii, jj;
+    polyVert_t points[4];
+    int beamnum;
+    float alphafactor;
+
+    // Create or increment the number of beams for this owner and check to 
+    // see if we should add a new beam
+    if (flags & BEAM_PERSIST_EFFECT)
+    {
+        beamnum = CreateNewBeamEntity(owner, life);
+        if (beamnum < 0)
+            return;
+    }
+
+    VectorMA(end, scale, cg.refdef.viewaxis[1], points[0].xyz);
+    VectorMA(start, scale, cg.refdef.viewaxis[1], points[1].xyz);
+    VectorMA(start, -scale, cg.refdef.viewaxis[1], points[2].xyz);
+    VectorMA(end, -scale, cg.refdef.viewaxis[1], points[3].xyz);
+
+    points[0].st[0] = 1.0;
+    points[0].st[1] = 1.0;
+    points[1].st[0] = 0.0;
+    points[1].st[1] = 1.0;
+    points[2].st[0] = 0.0;
+    points[2].st[1] = 0.0;
+    points[3].st[0] = 1.0;
+    points[3].st[1] = 0.0;
+
+    if (!alphastep)
+    {
+        for (ii = 0; ii < 4; ++ii)
+        {
+            for (jj = 0; jj < 4; ++jj) {
+                points[ii].modulate[jj] = color[jj];
+            }
+        }
+    }
+    else
+    {
+        alphafactor = startalpha + alphastep;
+        for (ii = 0; ii < 4; ++ii)
+        {
+            for (jj = 0; jj < 4; ++jj) {
+                points[ii].modulate[jj] = (int)((float)color[jj] * alphafactor);
+            }
+        }
+    }
+
+    if (flags & BEAM_PERSIST_EFFECT) {
+        AddBeamSegmentToList(owner, points, beamnum, 0, renderfx);
+    }
+    else {
+        cgi.R_AddPolyToScene(beamshader, 4, points, renderfx);
+    }
+}
+
 void CG_CreateModelBeam
 (
     beam_t* b,
@@ -1018,6 +1092,7 @@ void CG_AddBeams(void)
 {
     int      i, ii;
     beam_t* b;
+    beam_t* bNext;
     vec3_t   delta;
     vec3_t   angles;
     vec3_t   forward, left, up;
@@ -1025,8 +1100,9 @@ void CG_AddBeams(void)
     byte     color[4];
     float    fade;
 
-    for (i = 0, b = cl_active_beams; b; i++, b = b->next)
+    for (i = 0, b = cl_active_beams; b; i++, b = bNext)
     {
+        bNext = b->next;
         // If no model is set or the endtime < current time remove the whole beam entity
         if (!b->hModel || b->endtime < cg.time)
         {
@@ -1141,6 +1217,63 @@ void CG_AddBeams(void)
 
                 }
             }
+            else if (b->flags & BEAM_INVERT_LIFE)
+            {
+                vec3_t vCurrStart, vCurrEnd;
+                vec3_t vDir;
+                float fLength;
+
+                // Calculate the direction
+                VectorSubtract(b->start, b->end, vDir);
+
+                VectorMA(b->start, 1.0 - fade, vDir, vCurrEnd);
+                fLength = VectorNormalize(vDir);
+                VectorMA(vCurrEnd, -b->toggledelay, vDir, vCurrStart);
+
+                CG_BuildRendererBeam(vCurrStart,
+                    vCurrEnd,
+                    b->max_offset,
+                    b->numSubdivisions,
+                    color,
+                    b->beamshader,
+                    b->scale,
+                    b->overlap,
+                    b->entity,
+                    b->life,
+                    b->flags,
+                    b->alpha,
+                    b->alphastep,
+                    b->renderfx
+                );
+            }
+            else if (b->flags & BEAM_FAST_UPDATE)
+            {
+                vec3_t vCurrStart, vCurrEnd;
+                vec3_t vDir;
+
+                // Calculate the direction
+                VectorSubtract(b->start, b->end, vDir);
+
+                VectorMA(b->start, 1.0 - fade, vDir, vCurrEnd);
+                VectorNormalizeFast(vDir);
+                VectorMA(vCurrEnd, -b->toggledelay, vDir, vCurrStart);
+
+                CG_BuildRendererBeam_Fast(vCurrStart,
+                    vCurrEnd,
+                    b->max_offset,
+                    b->numSubdivisions,
+                    color,
+                    b->beamshader,
+                    b->scale,
+                    b->overlap,
+                    b->entity,
+                    b->life,
+                    b->flags,
+                    b->alpha,
+                    b->alphastep,
+                    b->renderfx
+                );
+            }
             else
             {
                 //cgi.DPrintf( "%2f %2f %2f\n", b->start[0],b->start[1],b->start[2] );
@@ -1242,11 +1375,11 @@ void CG_CreateBeam
                     if (alpha < 1)
                         b->shaderRGBA[3] = alpha * 255;
                     else
-                        b->shaderRGBA[3] = modulate[3];
+                        b->shaderRGBA[3] = modulate[3] * 255;
 
                     // Modulation based off the color
                     for (i = 0; i < 3; i++)
-                        b->shaderRGBA[i] = modulate[i] * ((float)b->shaderRGBA[3] / 255.0f);
+                        b->shaderRGBA[i] = modulate[i] * (float)b->shaderRGBA[3];
 
                     b->alphastep = ((float)(endalpha - alpha) / (float)b->numSubdivisions);
 
