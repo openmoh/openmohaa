@@ -1217,14 +1217,14 @@ void CG_AddBeams(void)
 
                 }
             }
-            else if (b->flags & BEAM_INVERT_LIFE)
+            else if (b->flags & BEAM_INVERTED)
             {
                 vec3_t vCurrStart, vCurrEnd;
                 vec3_t vDir;
                 float fLength;
 
                 // Calculate the direction
-                VectorSubtract(b->start, b->end, vDir);
+                VectorSubtract(b->end, b->start, vDir);
 
                 VectorMA(b->start, 1.0 - fade, vDir, vCurrEnd);
                 fLength = VectorNormalize(vDir);
@@ -1246,13 +1246,13 @@ void CG_AddBeams(void)
                     b->renderfx
                 );
             }
-            else if (b->flags & BEAM_FAST_UPDATE)
+            else if (b->flags & BEAM_INVERTED_FAST)
             {
                 vec3_t vCurrStart, vCurrEnd;
                 vec3_t vDir;
 
                 // Calculate the direction
-                VectorSubtract(b->start, b->end, vDir);
+                VectorSubtract(b->end, b->start, vDir);
 
                 VectorMA(b->start, 1.0 - fade, vDir, vCurrEnd);
                 VectorNormalizeFast(vDir);

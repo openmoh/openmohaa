@@ -206,7 +206,7 @@ void CG_Rain(centity_t* cent)
             1,
             1.0,
             cg.rain.width,
-            BEAM_TILESHADER,
+            BEAM_INVERTED_FAST,
             1000.0,
             iLife,
             qtrue,
