@@ -773,7 +773,8 @@ void CG_RestartBeams( int timedelta );
 //
 // cg_nature.cpp
 //
-void CG_Emitter( centity_t *cent );
+void CG_Emitter(centity_t* cent);
+void CG_Rain(centity_t* cent);
 
 //
 // cg_testemitter.cpp
@@ -846,6 +847,10 @@ void CG_InstaMessageGroupD_f(void);
 void CG_InstaMessageGroupE_f(void);
 void CG_HudPrint_f(void);
 int CG_CheckCaptureKey(int key, qboolean down, unsigned int time);
+
+//
+// cg_vehicle.cpp
+void CG_Vehicle(centity_t* cent);
 
 //
 // cg_volumetricsmoke.cpp

@@ -533,15 +533,21 @@ void CG_AddCEntity(centity_t* cent)
     default:
         cgi.Error(ERR_DROP, "Bad entity type: %i\n", cent->currentState.eType);
         break;
-    case ET_PLAYER:
-        CG_Player(cent);
         // intentional fallthrough
-    case ET_MODELANIM:
     case ET_MODELANIM_SKEL:
+    case ET_MODELANIM:
         CG_Splash(cent);
         CG_ModelAnim(cent, qfalse);
         break;
+    case ET_VEHICLE:
+        CG_Vehicle(cent);
+        CG_Splash(cent);
+        CG_ModelAnim(cent, qtrue);
+        break;
+    case ET_PLAYER:
+        CG_Player(cent);
     case ET_ITEM:
+    case ET_EXEC_COMMANDS:
         CG_ModelAnim(cent, qfalse);
         break;
     case ET_GENERAL:
@@ -553,20 +559,22 @@ void CG_AddCEntity(centity_t* cent)
     case ET_BEAM:
         CG_Beam(cent);
         break;
-    case ET_ROPE: // skip
-        CG_Rope(cent);
-        break;
     case ET_MULTIBEAM: // skip
         break;
     case ET_PORTAL:
         CG_Portal(cent);
         break;
     case ET_RAIN:
-    case ET_EMITTER:
-        CG_Emitter(cent);
+        CG_Rain(cent);
         break;
     case ET_DECAL:
         CG_Decal(cent);
+        break;
+    case ET_EMITTER:
+        CG_Emitter(cent);
+        break;
+    case ET_ROPE: // skip
+        CG_Rope(cent);
         break;
     }
 }
