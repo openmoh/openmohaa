@@ -464,7 +464,6 @@ inline void emitterthing_t::RemoveEntity(int entnum)
         et = &m_emittertimes.ObjectAt(num);
         if (et->entity_number == entnum) {
             m_emittertimes.RemoveObjectAt(num);
-            delete et;
         }
     }
 
