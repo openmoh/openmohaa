@@ -189,7 +189,7 @@ void CG_Rain(centity_t* cent)
             vLength[0] = cg.snap->ps.origin[0] - vStart[0];
             vLength[1] = cg.snap->ps.origin[1] - vStart[1];
             vLength[2] = 0.0;
-            if (cg.rain.min_dist * cg.rain.min_dist < vLength[0] * vLength[0] + vLength[1] * vLength[1] + 0.0 * 0.0) {
+            if (cg.rain.min_dist * cg.rain.min_dist < VectorLengthSquared(vLength)) {
                 continue;
             }
         }
@@ -226,6 +226,4 @@ void CG_Rain(centity_t* cent)
             "raineffect"
         );
     }
-
-    // FIXME: unimplemented
 }

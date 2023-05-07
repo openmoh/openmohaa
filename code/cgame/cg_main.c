@@ -242,10 +242,10 @@ void CG_ProcessConfigString(int num)
 	switch (num)
 	{
 	case CS_RAIN_DENSITY:
-		cg.rain.density = atoi(str);
+		cg.rain.density = atof(str);
 		return;
     case CS_RAIN_SPEED:
-        cg.rain.speed = atoi(str);
+        cg.rain.speed = atof(str);
 		return;
     case CS_RAIN_SPEEDVARY:
         cg.rain.speed_vary = atoi(str);
@@ -254,13 +254,13 @@ void CG_ProcessConfigString(int num)
         cg.rain.slant = atoi(str);
 		return;
     case CS_RAIN_LENGTH:
-        cg.rain.length = atoi(str);
+        cg.rain.length = atof(str);
 		return;
     case CS_RAIN_MINDIST:
-        cg.rain.min_dist = atoi(str);
+        cg.rain.min_dist = atof(str);
 		return;
     case CS_RAIN_WIDTH:
-        cg.rain.width = atoi(str);
+        cg.rain.width = atof(str);
 		return;
 	case CS_RAIN_SHADER:
 		if (cg.rain.numshaders)
