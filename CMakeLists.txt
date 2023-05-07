@@ -219,6 +219,7 @@ if (WITH_CLIENT)
 	file(GLOB_RECURSE SOURCES_CLIENT "code/client/*.c" "code/client/*.cpp")
 	file(GLOB_RECURSE SOURCES_UILIB "code/uilib/*.c" "code/uilib/*.cpp")
 	file(GLOB_RECURSE SOURCES_LIBS "code/sdl/*.c")
+	file(GLOB_RECURSE SOURCES_RENDERER "code/renderercommon/*.c" "code/renderergl2/*.c" "code/renderergl2/*.cpp")
 	set(SOURCES_CLIENT_APP ${SOURCES_APP} ${SOURCES_SERVER} ${SOURCES_CLIENT} ${SOURCES_UILIB} ${SOURCES_LIBS})
 
 	add_executable(openmohaa ${SOURCES_CLIENT_APP} ${SOURCES_PLATFORM_SPECIFIC})

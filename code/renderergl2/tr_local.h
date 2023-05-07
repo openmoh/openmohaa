@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_postprocess.h"
 #include "../renderercommon/iqm.h"
 #include "../renderercommon/qgl.h"
+#include "../renderercommon/tr_types.h"
+#include "../qcommon/tiki.h"
 
 #ifdef __cplusplus
 extern "C" {
