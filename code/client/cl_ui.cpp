@@ -3823,7 +3823,6 @@ CL_BeginRegistration
 void CL_BeginRegistration( void )
 {
 	// init console stuff
-	CL_InitRenderer();
 	re.BeginRegistration( &cls.glconfig );
 	uWinMan.CleanupShadersFromList();
 }

@@ -352,62 +352,10 @@ rescan:
 			Com_Error( ERR_SERVERDISCONNECT, "Server disconnected\n" );
 	}
 
-	if ( !strcmp( cmd, "bcs0" ) ) {
-		Com_sprintf( bigConfigString, BIG_INFO_STRING, "cs %s \"%s", Cmd_Argv(1), Cmd_Argv(2) );
-		return qfalse;
-	}
-
-	if ( !strcmp( cmd, "bcs1" ) ) {
-		s = Cmd_Argv(2);
-		if( strlen(bigConfigString) + strlen(s) >= BIG_INFO_STRING ) {
-			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
-		}
-		strcat( bigConfigString, s );
-		return qfalse;
-	}
-
-	if ( !strcmp( cmd, "bcs2" ) ) {
-		s = Cmd_Argv(2);
-		if( strlen(bigConfigString) + strlen(s) + 1 >= BIG_INFO_STRING ) {
-			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
-		}
-		strcat( bigConfigString, s );
-		strcat( bigConfigString, "\"" );
-		s = bigConfigString;
-		goto rescan;
-	}
-
 	if ( !strcmp( cmd, "cs" ) ) {
 		CL_ConfigstringModified();
 		// reparse the string, because CL_ConfigstringModified may have done another Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
-		return qtrue;
-	}
-
-	if ( !strcmp( cmd, "map_restart" ) ) {
-		// clear notify lines and outgoing commands before passing
-		// the restart to the cgame
-		Con_ClearNotify();
-		Com_Memset( cl.cmds, 0, sizeof( cl.cmds ) );
-		return qtrue;
-	}
-
-	// the clientLevelShot command is used during development
-	// to generate 128*128 screenshots from the intermission
-	// point of levels for the menu system to use
-	// we pass it along to the cgame to make apropriate adjustments,
-	// but we also clear the console and notify lines here
-	if ( !strcmp( cmd, "clientLevelShot" ) ) {
-		// don't do it if we aren't running the server locally,
-		// otherwise malicious remote servers could overwrite
-		// the existing thumbnails
-		if ( !com_sv_running->integer ) {
-			return qfalse;
-		}
-		// close the console
-		Con_Close();
-		// take a special screenshot next frame
-		Cbuf_AddText( "wait ; wait ; wait ; wait ; screenshot levelshot\n" );
 		return qtrue;
 	}
 
@@ -829,9 +777,6 @@ void CL_InitCGame( void ) {
 
 	t1 = Sys_Milliseconds();
 
-	// put away the console
-	Con_Close();
-
 	// find the current mapname
 	info = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
 	mapname = Info_ValueForKey( info, "mapname" );
@@ -869,9 +814,6 @@ void CL_InitCGame( void ) {
 	CL_EndRegistration();
 
 	t2 = Sys_Milliseconds();
-
-	// clear anything that got printed
-	Con_ClearNotify();
 
 	Com_Printf( "CL_InitCGame: %5.2f seconds\n", ( t2 - t1 ) / 1000.0 );
 }

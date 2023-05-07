@@ -33,6 +33,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <tiki.h>
 
+qboolean CL_FinishedIntro(void);
+void UI_PrintConsole(const char* msg);
+
 extern "C" {
 
 cvar_t *sv_scriptfiles;
@@ -115,7 +118,7 @@ qboolean	com_fullyInitialized;
 char	com_errorMessage[MAXPRINTMSG];
 
 void Com_WriteConfig_f( void );
-void CIN_CloseAllVideos( void );
+void CIN_CloseAllVideos(void);
 
 //============================================================================
 
@@ -180,7 +183,9 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 	}
 
 #ifndef DEDICATED
-	CL_ConsolePrint( msg );
+	if (com_dedicated && !com_dedicated->integer) {
+		UI_PrintConsole(msg);
+	}
 #endif
 
 	// echo to dedicated console and early console
@@ -1581,8 +1586,6 @@ int Com_ModifyMsec( int msec ) {
 	return msec;
 }
 
-qboolean CL_FinishedIntro( void );
-
 /*
 =================
 Com_Frame
@@ -1644,10 +1647,12 @@ void Com_Frame( void ) {
 		msec = com_frameTime - lastTime;
 	} while ( msec < minMsec );
 
+#ifndef DEDICATED
 	if( com_dedicated->integer || CL_FinishedIntro() )
 	{
 		Cbuf_Execute( 0 );
 	}
+#endif
 
 	lastTime = com_frameTime;
 

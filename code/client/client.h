@@ -574,7 +574,6 @@ void Con_PageUp( void );
 void Con_PageDown( void );
 void Con_Top( void );
 void Con_Bottom( void );
-void Con_Close( void );
 
 void CL_LoadConsoleHistory( void );
 void CL_SaveConsoleHistory( void );

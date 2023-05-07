@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cl_parse.c  -- parse a message received from the server
 
 #include "client.h"
+#include "cl_ui.h"
 
 char *svc_strings[256] = {
 	"svc_bad",
@@ -458,7 +459,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	int				cmd;
 	char			*s;
 
-	Con_Close();
+	UI_CloseConsole();
 
 	clc.connectPacketCount = 0;
 

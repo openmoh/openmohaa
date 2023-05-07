@@ -1031,8 +1031,6 @@ void CL_JoystickEvent( int axis, int value, int time );
 
 void CL_PacketEvent( netadr_t from, msg_t *msg );
 
-void CL_ConsolePrint( char *text );
-
 void CL_MapLoading( qboolean flush, const char *pszMapName );
 // do a screen update before starting to load a map
 // when the server is going to load a new map, the entire hunk
@@ -1052,9 +1050,6 @@ void CL_ShutdownAll( void );
 
 void CL_FlushMemory( void );
 // dump all memory on an error
-
-// console stuff
-void CL_InitRenderer( void );
 
 void CL_StartHunkUsers( void );
 // start all the client stuff using the hunk

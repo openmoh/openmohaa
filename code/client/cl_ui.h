@@ -46,7 +46,7 @@ extern bind_t client_bind;
 const char *CvarGetForUI( const char *name, const char *defval );
 void UI_ClearState( void );
 void CL_BeginRegistration( void );
-void CL_EndRegistration( void );
+void CL_EndRegistration(void);
 
 //
 // menu
@@ -107,6 +107,7 @@ void UI_CloseDMConsole( void );
 void UI_ToggleDMConsole( int iMode );
 void UI_OpenDeveloperConsole( void );
 void UI_CloseDeveloperConsole( void );
+void UI_PrintConsole(const char* msg);
 
 //
 // callbacks

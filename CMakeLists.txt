@@ -216,11 +216,11 @@ if (WITH_CLIENT)
 	INSTALL(TARGETS cgame DESTINATION "${TARGET_BASE_GAME}")
 
 	### Executable
-	file(GLOB_RECURSE SOURCES_CLIENT "code/client/*.c" "code/client/*.cpp")
+	file(GLOB_RECURSE SOURCES_CLIENT "code/client/*.c" "code/client/*.cpp" "code/qcommon/puff.c")
 	file(GLOB_RECURSE SOURCES_UILIB "code/uilib/*.c" "code/uilib/*.cpp")
 	file(GLOB_RECURSE SOURCES_LIBS "code/sdl/*.c")
-	file(GLOB_RECURSE SOURCES_RENDERER "code/renderercommon/*.c" "code/renderergl2/*.c" "code/renderergl2/*.cpp")
-	set(SOURCES_CLIENT_APP ${SOURCES_APP} ${SOURCES_SERVER} ${SOURCES_CLIENT} ${SOURCES_UILIB} ${SOURCES_LIBS})
+	file(GLOB_RECURSE SOURCES_RENDERER "code/renderercommon/*.c" "code/renderergl2/*.c" "code/renderergl2/*.cpp" "code/jpeg-8c/*.c")
+	set(SOURCES_CLIENT_APP ${SOURCES_APP} ${SOURCES_SERVER} ${SOURCES_CLIENT} ${SOURCES_UILIB} ${SOURCES_LIBS} ${SOURCES_RENDERER})
 
 	add_executable(openmohaa ${SOURCES_CLIENT_APP} ${SOURCES_PLATFORM_SPECIFIC})
 	target_compile_definitions(openmohaa PRIVATE NO_SCRIPTENGINE APP_MODULE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
@@ -241,7 +241,17 @@ if (WITH_CLIENT)
 			  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2.lib"
 			)
 
-			target_link_libraries(openmohaa PRIVATE sdl2)
+			add_library(sdl2main SHARED IMPORTED)
+			set_target_properties(sdl2main PROPERTIES
+			  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2main.lib"
+			)
+
+			add_library(glew32 SHARED IMPORTED)
+			set_target_properties(glew32 PROPERTIES
+			  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/glew32.lib"
+			)
+
+			target_link_libraries(openmohaa PRIVATE sdl2 sdl2main glew32 opengl32)
 		endif()
 
 		target_link_libraries(openmohaa PRIVATE wsock32 ws2_32)

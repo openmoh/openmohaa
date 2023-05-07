@@ -133,7 +133,7 @@ static cin_cache		cinTable[MAX_VIDEO_HANDLES];
 static int				currentHandle = -1;
 static int				CL_handle = -1;
 
-extern int				s_soundtime;		// sample PAIRS
+extern "C" int				s_soundtime;		// sample PAIRS
 
 
 void CIN_CloseAllVideos(void) {
@@ -1467,8 +1467,6 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 		if (cinTable[currentHandle].alterGameState) {
 			cls.state = CA_CINEMATIC;
 		}
-		
-		Con_Close();
 
 		if (!cinTable[currentHandle].silent) {
 			s_rawend[0] = s_soundtime;

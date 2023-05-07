@@ -98,6 +98,17 @@ cvar_t	*cl_r_fullscreen;
 
 cvar_t	*cl_consoleKeys;
 
+cvar_t* j_pitch;
+cvar_t* j_yaw;
+cvar_t* j_forward;
+cvar_t* j_side;
+cvar_t* j_up;
+cvar_t* j_pitch_axis;
+cvar_t* j_yaw_axis;
+cvar_t* j_forward_axis;
+cvar_t* j_side_axis;
+cvar_t* j_up_axis;
+
 clientActive_t		cl;
 clientConnection_t	clc;
 clientStatic_t		cls;
@@ -677,7 +688,7 @@ void CL_PlayDemo_f( void ) {
 	}
 	Q_strncpyz( clc.demoName, Cmd_Argv(1), sizeof( clc.demoName ) );
 
-	Con_Close();
+    UI_CloseConsole();
 
 	cls.state = CA_CONNECTED;
 	clc.demoplaying = qtrue;
@@ -801,7 +812,7 @@ void CL_MapLoading( qboolean flush, const char *pszMapName ) {
 		return;
 	}
 
-	Con_Close();
+	UI_ClearState();
 	Key_SetCatcher( 0 );
 
 	// if we are already connected to the local host, stay connected
@@ -1207,7 +1218,7 @@ void CL_Connect( const char *server ) {
 	SV_Frame( 0 );
 
 	CL_Disconnect( qtrue );
-	Con_Close();
+	UI_CloseConsole();
 
 	/* MrE: 2000-09-13: now called in CL_DownloadsComplete
 	CL_FlushMemory( );
@@ -2348,7 +2359,6 @@ void CL_Frame ( int msec ) {
 			cls.realtime += cls.frametime;
 			SCR_UpdateScreen();
 			S_Update();
-			Con_RunConsole();
 			cls.framecount++;
 			return;
 		}
@@ -2463,8 +2473,6 @@ void CL_Frame ( int msec ) {
 	// advance local effects for next frame
 	SCR_RunCinematic();
 
-	Con_RunConsole();
-
 	cls.framecount++;
 }
 
@@ -2528,27 +2536,6 @@ void CL_ShutdownRef( void ) {
 		rendererLib = NULL;
 	}
 #endif
-}
-
-/*
-============
-CL_InitRenderer
-============
-*/
-void CL_InitRenderer( void ) {
-	// this sets up the renderer and calls R_Init
-	re.BeginRegistration( &cls.glconfig );
-
-	// load character sets
-	cls.charSetShader = re.RegisterShader( "gfx/2d/bigchars" );
-	cls.whiteShader = re.RegisterShader( "*white" );
-//	cls.consoleShader = re.RegisterShader( "console" );
-	re.RegisterFont("courier-16", 0, &cls.consoleFont);
-	g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
-	g_consoleField.widthInChars = g_console_field_width;
-	// IneQuation
-	g_console_charWidth = re.Text_Width(&cls.consoleFont, "=", 0, qfalse);
-	g_console_charHeight = re.Text_Height(&cls.consoleFont, "|", 0, qfalse);
 }
 
 /*
@@ -3044,8 +3031,6 @@ void CL_Init( void ) {
 	Com_Printf( "----- Client Initialization -----\n" );
 
 	start = Sys_Milliseconds();
-
-	Con_Init ();
 
 	CL_ClearState ();
 	S_StopAllSounds( qtrue );

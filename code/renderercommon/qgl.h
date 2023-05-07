@@ -335,4 +335,10 @@ extern int qglesMajorVersion, qglesMinorVersion;
 #define QGL_VERSION_ATLEAST( major, minor ) ( qglMajorVersion > major || ( qglMajorVersion == major && qglMinorVersion >= minor ) )
 #define QGLES_VERSION_ATLEAST( major, minor ) ( qglesMajorVersion > major || ( qglesMajorVersion == major && qglesMinorVersion >= minor ) )
 
+#define qglCopyTexImage2D glCopyTexImage2D
+#define qglColor4fv glColor4fv
+#define qglLineStipple glLineStipple
+#define qglVertex2i glVertex2i
+#define qglReadBuffer glReadBuffer
+
 #endif
