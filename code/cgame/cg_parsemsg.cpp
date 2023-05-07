@@ -59,6 +59,26 @@ static vec3_t flesh_impact_pos[MAX_IMPACTS];
 static vec3_t flesh_impact_norm[MAX_IMPACTS];
 static int flesh_impact_large[MAX_IMPACTS];
 
+static void CG_MakeBulletHole(vec3_t i_vPos, vec3_t i_vNorm, int iLarge, trace_t* pPreTrace, qboolean bMakeSound)
+{
+    // FIXME: unimplemented
+}
+
+static void CG_MakeBubbleTrail(vec3_t i_vStart, vec3_t i_vEnd, int iLarge)
+{
+    // FIXME: unimplemented
+}
+
+static void CG_BulletTracerEffect(vec3_t i_vStart, vec3_t i_vEnd)
+{
+    // FIXME: unimplemented
+}
+
+static void CG_MakeBulletTracerInternal(vec3_t i_vBarrel, vec3_t i_vStart, vec3_t *i_vEnd, int i_iNumBullets, qboolean iLarge, int iTracerVisible, qboolean bIgnoreEntities)
+{
+    // FIXME: unimplemented
+}
+
 static void CG_MakeBulletTracer(vec3_t i_vBarrel, vec3_t i_vStart, vec3_t* i_vEnd, int i_iNumBullets, qboolean iLarge, int iTracerVisible, qboolean bIgnoreEntities) {
     bullet_tracer_t* bullet_tracer;
     int i;
@@ -91,13 +111,24 @@ static void CG_MakeBulletTracer(vec3_t i_vBarrel, vec3_t i_vStart, vec3_t* i_vEn
     bullet_tracer->bIgnoreEntities = bIgnoreEntities;
 }
 
-static void CG_MakeBubbleTrail(vec3_t i_vStart, vec3_t i_vEnd, int iLarge) {
-    // FIXME: unimplemented
-}
-
 void CG_AddBulletTracers()
 {
-    // FIXME: unimplemented
+    int i;
+
+    for (i = 0; i < bullet_tracer_bullets_count; ++i) {
+        CG_MakeBulletTracerInternal(
+            bullet_tracers[i].i_vBarrel,
+            bullet_tracers[i].i_vStart,
+            bullet_tracers[i].i_vEnd,
+            bullet_tracers[i].i_iNumBullets,
+            bullet_tracers[i].iLarge,
+            bullet_tracers[i].iTracerVisible,
+            bullet_tracers[i].bIgnoreEntities
+        );
+    }
+
+    bullet_tracer_bullets_count = 0;
+    bullet_tracers_count = 0;
 }
 
 void CG_AddBulletImpacts()
