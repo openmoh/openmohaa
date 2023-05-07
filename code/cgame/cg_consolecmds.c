@@ -84,8 +84,13 @@ void CG_ScoresDown_f( void )
 
         return;
     }
-	// don't constantly send requests, or we would overflow
-	if ( cg.showScores && cg.scoresRequestTime + 2000 > cg.time ) {
+
+	if ( cg.scoresRequestTime + 2000 >= cg.time )
+    {
+        // send another request
+        cg.showScores = qtrue;
+        CG_PrepScoreBoardInfo();
+        cgi.UI_ShowScoreBoard(cg.scoresMenuName);
 		return;
 	}
     
@@ -104,7 +109,8 @@ void CG_ScoresUp_f( void )
 {
     if (cgs.gametype == GT_SINGLE_PLAYER)
     {
-        if (!cg.scoresRequestTime) {
+        if (!cg.scoresRequestTime)
+        {
             cg.scoresRequestTime = cg.time;
             CG_SetDesiredObjectiveAlpha(0.0f);
         }
