@@ -15,43 +15,37 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
+along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#include "../client/client.h"
+#ifndef _WIN32
+#  error You should not be including this file on this platform
+#endif
 
-/*
-static cvar_t in_mouse_real;
-cvar_t* in_mouse = NULL;
-*/
+#ifndef __GLW_WIN_H__
+#define __GLW_WIN_H__
 
-void IN_Init( void *windowData ) {
-    /*
-    memset(&in_mouse_real, 0, sizeof(in_mouse_real));
-    in_mouse_real.integer = 0;
-    in_mouse = &in_mouse_real;
-    */
-}
+typedef struct
+{
+	WNDPROC		wndproc;
 
-void IN_Restart( void ) {
-}
+	HDC     hDC;			// handle to device context
+	HGLRC   hGLRC;			// handle to GL rendering context
 
-void IN_Frame (void) {
-}
+	HINSTANCE hinstOpenGL;	// HINSTANCE for the OpenGL library
 
-void IN_Shutdown( void ) {
-}
+	qboolean allowdisplaydepthchange;
+	qboolean pixelFormatSet;
 
-void Sys_SendKeyEvents (void) {
-}
+	int		 desktopBitsPixel;
+	int		 desktopWidth, desktopHeight;
 
-void Key_KeynameCompletion( void( *callback )( const char *s ) ) {
-}
+	qboolean	cdsFullscreen;
 
-void IN_Activate(qboolean active) {
-}
+	FILE *log_fp;
+} glwstate_t;
 
-void IN_MouseEvent(int mstate) {
+extern glwstate_t glw_state;
 
-}
+#endif

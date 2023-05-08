@@ -15,43 +15,35 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
+along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#include "../client/client.h"
+// linux_local.h: Linux-specific Quake3 header file
 
-/*
-static cvar_t in_mouse_real;
-cvar_t* in_mouse = NULL;
-*/
+void Sys_QueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr );
+qboolean Sys_GetPacket ( netadr_t *net_from, msg_t *net_message );
+void Sys_SendKeyEvents (void);
 
-void IN_Init( void *windowData ) {
-    /*
-    memset(&in_mouse_real, 0, sizeof(in_mouse_real));
-    in_mouse_real.integer = 0;
-    in_mouse = &in_mouse_real;
-    */
-}
+// Input subsystem
 
-void IN_Restart( void ) {
-}
+void IN_Init (void);
+void IN_Frame (void);
+void IN_Shutdown (void);
 
-void IN_Frame (void) {
-}
 
-void IN_Shutdown( void ) {
-}
+void IN_JoyMove( void );
+void IN_StartupJoystick( void );
 
-void Sys_SendKeyEvents (void) {
-}
+// GL subsystem
+qboolean QGL_Init( const char *dllname );
+void QGL_EnableLogging( qboolean enable );
+void QGL_Shutdown( void );
 
-void Key_KeynameCompletion( void( *callback )( const char *s ) ) {
-}
+// bk001130 - win32
+// void IN_JoystickCommands (void);
 
-void IN_Activate(qboolean active) {
-}
+char *strlwr (char *s);
 
-void IN_MouseEvent(int mstate) {
-
-}
+// signals.c
+void InitSig(void);

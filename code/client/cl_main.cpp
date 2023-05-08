@@ -2960,6 +2960,8 @@ it by filling it with 2048 bytes of random data.
 */
 static void CL_GenerateQKey(void)
 {
+	// FIXME: unimplemented
+	/*
 	int len = 0;
 	unsigned char buff[ QKEY_SIZE ];
 	fileHandle_t f;
@@ -2989,6 +2991,7 @@ static void CL_GenerateQKey(void)
 		FS_FCloseFile( f );
 		Com_Printf( "QKEY generated\n" );
 	}
+	*/
 }
 
 /*

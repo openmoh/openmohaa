@@ -1157,8 +1157,6 @@ char *Com_SkipTokens( char *s, int numTokens, const char *sep );
 char *Com_SkipCharset( char *s, const char *sep );
 void Com_BackslashToSlash( char *str );
 
-void Com_RandomBytes( byte *string, int len );
-
 // mode parm for FS_FOpenFile
 typedef enum {
 	FS_READ,

@@ -957,7 +957,7 @@ sysEvent_t	Com_GetRealEvent( void ) {
 			}
 		}
 	} else {
-		ev = Com_GetSystemEvent();
+		ev = Sys_GetEvent();
 
 		// write the journal value out if needed
 		if ( com_journal->integer == 1 ) {
@@ -1421,6 +1421,7 @@ void Com_Init( char *commandLine ) {
 
 	com_dedicated->modified = qfalse;
 
+#ifndef DEDICATED
 	if( com_dedicated->integer )
 	{
 		Sys_CloseMutex();
@@ -1431,6 +1432,10 @@ void Com_Init( char *commandLine ) {
 		CL_Init();
 		Sys_ShowConsole( com_viewlog->integer, qfalse );
 	}
+#else
+    Sys_CloseMutex();
+    NET_Init();
+#endif
 
 	// set com_frameTime so that if a map is started on the
 	// command line it will still be able to count on com_frameTime
@@ -1652,6 +1657,8 @@ void Com_Frame( void ) {
 	{
 		Cbuf_Execute( 0 );
 	}
+#else
+	Cbuf_Execute(0);
 #endif
 
 	lastTime = com_frameTime;
@@ -2242,26 +2249,6 @@ void Field_AutoComplete( field_t *field )
 	completionField = field;
 
 	Field_CompleteCommand( completionField->buffer, qtrue, qtrue );
-}
-
-/*
-==================
-Com_RandomBytes
-
-fills string array with len radom bytes, peferably from the OS randomizer
-==================
-*/
-void Com_RandomBytes( byte *string, int len )
-{
-	int i;
-
-	if( Sys_RandomBytes( string, len ) )
-		return;
-
-	Com_Printf( "Com_RandomBytes: using weak randomization\n" );
-	srand( time( 0 ) );
-	for( i = 0; i < len; i++ )
-		string[i] = (unsigned char)( rand() % 255 );
 }
 
 }

@@ -778,6 +778,26 @@ extern cvar_t *fs_basepath;
 /*
 ==============================================================
 
+MISC
+
+==============================================================
+*/
+
+// returnbed by Sys_GetProcessorId
+#define CPUID_GENERIC			0			// any unrecognized processor
+
+#define CPUID_AXP				0x10
+
+#define CPUID_INTEL_UNSUPPORTED	0x20			// Intel 386/486
+#define CPUID_INTEL_PENTIUM		0x21			// Intel Pentium or PPro
+#define CPUID_INTEL_MMX			0x22			// Intel Pentium/MMX or P2/MMX
+#define CPUID_INTEL_KATMAI		0x23			// Intel Katmai
+
+#define CPUID_AMD_3DNOW			0x30			// AMD K6 3DNOW!
+
+/*
+==============================================================
+
 Edit fields and command line history/completion
 
 ==============================================================
@@ -871,6 +891,7 @@ extern	cvar_t	*com_speeds;
 extern	cvar_t	*com_timescale;
 extern	cvar_t	*com_sv_running;
 extern	cvar_t	*com_cl_running;
+extern	cvar_t	*com_viewlog;			// 0 = hidden, 1 = visible, 2 = minimized
 extern	cvar_t	*com_shortversion;
 extern	cvar_t	*com_version;
 extern	cvar_t	*autopaused;
@@ -1133,6 +1154,8 @@ typedef struct {
 	void			*evPtr;			// this must be manually freed if not NULL
 } sysEvent_t;
 
+sysEvent_t	Sys_GetEvent(void);
+
 void		Com_QueueEvent( int time, sysEventType_t type, int value, int value2, size_t ptrLength, void *ptr );
 int			Com_EventLoop( void );
 sysEvent_t	Com_GetSystemEvent( void );
@@ -1189,7 +1212,7 @@ qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
 qboolean	Sys_IsLANAddress (netadr_t adr);
 void		Sys_ShowIP(void);
 
-qboolean	Sys_Mkdir( const char *path );
+void	Sys_Mkdir( const char *path );
 char	*Sys_Cwd( void );
 void	Sys_SetDefaultInstallPath(const char *path);
 char	*Sys_DefaultInstallPath( void );
