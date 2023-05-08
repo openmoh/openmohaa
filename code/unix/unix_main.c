@@ -1457,7 +1457,8 @@ int main ( int argc, char* argv[] )
   memset( &sys_packetReceived[0], 0, MAX_MSGLEN*sizeof(byte) );
 
   Com_Init(cmdline);
-  NET_Init();
+  // Already called inside Com_Init
+  //NET_Init();
 
   Sys_ConsoleInputInit();
 
