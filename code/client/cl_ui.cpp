@@ -23,11 +23,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 
 #include "../server/server.h"
-#include "../renderercommon/tr_common.h"
+#include "../renderer/tr_public.h"
 #include "tiki.h"
 #include <localization.h>
 
 #include "cl_ui.h"
+
+#if _MSC_VER
+#include <intrin.h>
+#endif
 
 typedef struct {
 	float fadetime;

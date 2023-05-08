@@ -966,11 +966,12 @@ int Z_AvailableMemory( void );
 void Z_LogHeap( void );
 void Z_Meminfo_f( void );
 
-#ifndef _DEBUG_MEM
-void *Hunk_Alloc( size_t size );
-void *Hunk_AllocateTempMemory( size_t size );
-void Hunk_FreeTempMemory( void *buf );
+#ifdef HUNK_DEBUG
+void* Hunk_AllocDebug(size_t size, const char* label, const char* file, int line);
 #endif
+void *Hunk_Alloc( size_t size );
+void *Hunk_AllocateTempMemory(size_t size );
+void Hunk_FreeTempMemory( void *buf );
 
 void Hunk_Clear( void );
 void Hunk_ClearToMark( void );

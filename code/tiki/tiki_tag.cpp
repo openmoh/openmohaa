@@ -94,7 +94,7 @@ orientation_t TIKI_OrientationInternal(dtiki_t* tiki, int entnum, int tagnum, fl
 TIKI_SetPoseInternal
 ===============
 */
-void TIKI_SetPoseInternal(void* skeletor, const frameInfo_t* frameInfo, int* bone_tag, vec4_t* bone_quat, float actionWeight)
+void TIKI_SetPoseInternal(void* skeletor, const frameInfo_t* frameInfo, const int* bone_tag, const vec4_t* bone_quat, float actionWeight)
 {
 	skeletor_c* skel = (skeletor_c*)skeletor;
 	skel->SetPose(frameInfo, bone_tag, bone_quat, actionWeight);

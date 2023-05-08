@@ -115,6 +115,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #elif defined(_WIN32) || defined(__WIN32__)
 
+#define	MAC_STATIC
+
 #undef QDECL
 #define QDECL __cdecl
 

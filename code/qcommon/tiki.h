@@ -157,5 +157,6 @@ typedef struct dloaddef_s {
 #include "../tiki/tiki_utility.h"
 #include "../tiki/tiki_frame.h"
 #include "../tiki/tiki_surface.h"
+#include "../tiki/tiki_mesh.h"
 
 #endif // __TIKI_H__

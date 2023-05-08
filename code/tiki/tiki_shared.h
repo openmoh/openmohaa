@@ -338,7 +338,7 @@ typedef struct skeletorVertexGame_s {
 	int numMorphs;
 } skeletorVertexGame_t;
 
-typedef struct {
+typedef struct staticSurface_s {
 	int ident;
 	int ofsStaticData;
 	skelSurfaceGame_t *surface;

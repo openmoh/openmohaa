@@ -593,7 +593,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 
 	if( svs.initialized )
 	{
-		if( ge && !stricmp( last_mapname, mapname ) && ( restart || loadgame ) ) {
+		if( ge && !Q_stricmp( last_mapname, mapname ) && ( restart || loadgame ) ) {
 			differentmap = qfalse;
 		}
 
@@ -951,7 +951,7 @@ void SV_ServerLoaded( void ) {
 
 	if( svs.autosave )
 	{
-		if( stricmp( svs.rawServerName, "credits" ) ) {
+		if(Q_stricmp( svs.rawServerName, "credits" ) ) {
 			SV_Autosavegame_f();
 		}
 		svs.autosave = qfalse;

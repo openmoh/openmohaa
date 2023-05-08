@@ -2577,7 +2577,7 @@ void CL_StartHunkUsers( void ) {
 CL_RefMalloc
 ============
 */
-void *CL_RefMalloc(size_t size ) {
+void *CL_RefMalloc(size_t size) {
 	return Z_TagMalloc( size, TAG_RENDERER );
 }
 
@@ -2616,7 +2616,7 @@ void CL_RefStaticClear( void ) {
 CL_CG_PermanentMark
 ============
 */
-int CL_CG_PermanentMark( vec3_t origin, vec3_t dir, float orientation,
+int CL_CG_PermanentMark(const vec3_t origin, const vec3_t dir, float orientation,
 	float fSScale, float fTScale, float red, float green, float blue, float alpha,
 	qboolean dolighting, float fSCenter, float fTCenter,
 	markFragment_t *pMarkFragments, void *pPolyVerts )
@@ -2709,14 +2709,17 @@ void CL_InitRef( void ) {
 	ri.Malloc = CL_RefMalloc;
 	ri.Free = Z_Free;
 	ri.Clear = CL_RefClear;
-	ri.Hunk_Clear = CL_RefStaticClear;
-	ri.Hunk_Alloc = Hunk_Alloc;
+    ri.Hunk_Clear = CL_RefStaticClear;
+#ifdef HUNK_DEBUG
+    ri.Hunk_AllocDebug = Hunk_AllocDebug;
+#else
+    ri.Hunk_Alloc = Hunk_Alloc;
+#endif
 	ri.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
 	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
 	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
-	ri.CM_ClusterPVS = CM_ClusterPVS;
 
-	ri.FS_FOpenFile = FS_FOpenFileRead;
+	ri.FS_OpenFile = FS_FOpenFileRead;
 	ri.FS_CloseFile = FS_FCloseFile;
 	ri.FS_Read = FS_Read;
 	ri.FS_Seek = FS_Seek;
@@ -2755,18 +2758,6 @@ void CL_InitRef( void ) {
 	ri.GetRadiusInternal = TIKI_GetRadiusInternal;
 	ri.GetCentroidRadiusInternal = TIKI_GetCentroidRadiusInternal;
 	ri.GetFrameInternal = TIKI_GetFrameInternal;
-
-	// cinematic stuff
-
-	ri.CIN_UploadCinematic = CIN_UploadCinematic;
-	ri.CIN_PlayCinematic = CIN_PlayCinematic;
-	ri.CIN_RunCinematic = CIN_RunCinematic;
-
-	ri.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
-
-	ri.IN_Init = IN_Init;
-	ri.IN_Shutdown = IN_Shutdown;
-	//ri.IN_Restart = IN_Restart;
 
 #ifdef USE_RENDERER_DLL
 	// su44: load renderer dll
@@ -2836,24 +2827,10 @@ qboolean CL_SetVidMode( int mode ) {
 }
 
 void CL_SetFullscreen( qboolean fullscreen ) {
-	re.SetFullscreen( fullscreen, &cls.glconfig );
+	re.SetFullscreen( fullscreen );
 
 	if( cge ) {
 		cge->CG_GetRendererConfig();
-	}
-}
-
-void CL_SetModel_f( void ) {
-	char	*arg;
-	char	name[256];
-
-	arg = Cmd_Argv( 1 );
-	if (arg[0]) {
-		Cvar_Set( "model", arg );
-		Cvar_Set( "headmodel", arg );
-	} else {
-		Cvar_VariableStringBuffer( "model", name, sizeof(name) );
-		Com_Printf("model is set to %s\n", name);
 	}
 }
 
@@ -3195,7 +3172,6 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("showip", CL_ShowIP_f );
 	Cmd_AddCommand ("fs_openedList", CL_OpenedPK3List_f );
 	Cmd_AddCommand ("fs_referencedList", CL_ReferencedPK3List_f );
-	Cmd_AddCommand ("model", CL_SetModel_f );
 	Cmd_AddCommand ("video", CL_Video_f );
 	Cmd_AddCommand ("stopvideo", CL_StopVideo_f );
 	CL_InitConsoleCommands();

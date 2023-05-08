@@ -362,7 +362,25 @@ void Z_Shutdown( void ) {
 	}
 }
 
-#ifndef _DEBUG_MEM
+#ifdef HUNK_DEBUG
+
+/*
+=================
+Hunk_Alloc
+
+Allocate permanent (until the hunk is cleared) memory
+=================
+*/
+void* Hunk_AllocDebug(size_t size, const char* label, const char* file, int line) {
+    void* ptr;
+
+    ptr = Z_TagMalloc(size, TAG_STATIC);
+    memset(ptr, 0, size);
+
+    return ptr;
+}
+
+#endif
 
 /*
 =================
@@ -380,8 +398,6 @@ void *Hunk_Alloc( size_t size ) {
 	return ptr;
 }
 
-#endif
-
 /*
 =================
 Hunk_Clear
@@ -392,8 +408,6 @@ The server calls this before shutting down or loading a new map
 void Hunk_Clear( void ) {
 	Z_FreeTags( TAG_STATIC );
 }
-
-#ifndef _DEBUG_MEM
 
 /*
 =================
@@ -416,8 +430,6 @@ Hunk_FreeTempMemory
 void Hunk_FreeTempMemory( void *ptr ) {
 	Z_Free( ptr );
 }
-
-#endif
 
 /*
 =================

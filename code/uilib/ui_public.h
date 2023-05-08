@@ -67,7 +67,7 @@ typedef struct uiimport_s {
 	void( *Rend_DrawPicStretched )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 	void( *Rend_DrawPicTiled )( float x, float y, float w, float h, qhandle_t hShader );
 	fontheader_t *( *Rend_LoadFont )( const char *name );
-	void( *Rend_DrawString )( fontheader_t *font, const char *text, float x, float y, int maxlen, qboolean bVirtualScreen );
+	void( *Rend_DrawString )( const fontheader_t *font, const char *text, float x, float y, int maxlen, qboolean bVirtualScreen );
 	void( *Rend_DrawBox )( float x, float y, float w, float h );
 	int( *Rend_GetShaderWidth )( qhandle_t hShader );
 	int( *Rend_GetShaderHeight )( qhandle_t hShader );

@@ -187,7 +187,7 @@ typedef struct
    int          (*R_MarkFragments)( int numPoints, const vec3_t *points, const vec3_t projection, 
                                        int maxPoints, vec3_t pointBuffer,
                                        int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared );
-   int          (*R_MarkFragmentsForInlineModel)(clipHandle_t bmodel, vec3_t vAngles, vec3_t vOrigin,
+   int          (*R_MarkFragmentsForInlineModel)(clipHandle_t bmodel, const vec3_t vAngles, const vec3_t vOrigin,
                                         int numPoints, const vec3_t *points, const vec3_t projection, 
                                         int maxPoints, vec3_t pointBuffer,
                                         int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared );
@@ -244,18 +244,18 @@ typedef struct
    void           (*R_AddRefSpriteToScene)(const refEntity_t *ent );
    void           (*R_AddLightToScene)(const vec3_t origin, float intensity, float r, float g, float b, int type );
    qboolean       (*R_AddPolyToScene)(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
-   void             (*R_AddTerrainMarkToScene)(int terrainIndex, qhandle_t hShader, int numVerts, polyVert_t* verts, int renderFx);
+   void             (*R_AddTerrainMarkToScene)(int terrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderFx);
     void             (*R_SetColor)( const vec4_t rgba );    // NULL = 1,1,1,1
     void             (*R_DrawStretchPic) ( float x, float y, float w, float h, 
                                           float s1, float t1, float s2, float t2, 
                                         qhandle_t hShader );    // 0 = white
     fontheader_t* (*R_LoadFont)(const char* name);
-    void            (*R_DrawString)(fontheader_t* font, const char* text, float x, float y, int maxLen, qboolean virtualScreen);
+    void            (*R_DrawString)(const fontheader_t* font, const char* text, float x, float y, int maxLen, qboolean virtualScreen);
    refEntity_t *  (*R_GetRenderEntity)( int entityNumber );
    void              (*R_ModelBounds)( clipHandle_t model, vec3_t mins, vec3_t maxs );
    float           (*R_ModelRadius)( clipHandle_t model );
    float          (*R_Noise)( float x, float y, float z, float t );
-   void           (*R_DebugLine)(vec3_t start, vec3_t end, float r, float g, float b, float alpha);
+   void           (*R_DebugLine)(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha);
    baseshader_t* (*GetShader)(int shaderNum);
    // =========== Swipes =============
    void           (*R_SwipeBegin) ( float thistime, float life, qhandle_t shader );
@@ -388,7 +388,7 @@ typedef struct {
    void     (*CG_HudDrawFont)(int info);
    int      (*CG_GetParent)(int entNum);
    float    (*CG_GetObjectiveAlpha)();
-   int      (*CG_PermanentMark)(vec3_t origin, vec3_t dir, float orientation, float sScale, float tScale, float red, float green, float blue, float alpha, qboolean doLighting, float sCenter, float tCenter, markFragment_t* markFragments, void* polyVerts);
+   int      (*CG_PermanentMark)(const vec3_t origin, const vec3_t dir, float orientation, float sScale, float tScale, float red, float green, float blue, float alpha, qboolean doLighting, float sCenter, float tCenter, markFragment_t* markFragments, void* polyVerts);
    int      (*CG_PermanentTreadMarkDecal)(treadMark_t* treadMark, qboolean startSegment, qboolean doLighting, markFragment_t* markFragments, void* polyVerts);
    int      (*CG_PermanentUpdateTreadMark)(treadMark_t* treadMark, float alpha, float minSegment, float maxSegment, float maxOffset, float texScale);
    void     (*CG_ProcessInitCommands)(dtiki_t* tiki, refEntity_t* ent);

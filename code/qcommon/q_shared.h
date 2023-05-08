@@ -139,9 +139,6 @@ extern "C" {
 #define Z_Malloc malloc
 #define Z_TagMalloc(size, tag) malloc( size )
 #define Z_Free(ptr) free(ptr)
-#define Hunk_Alloc(size) malloc(size)
-#define Hunk_AllocateTempMemory(size) malloc(size)
-#define Hunk_FreeTempMemory(ptr) free(ptr)
 #endif
 
 #include <assert.h>
@@ -344,10 +341,6 @@ typedef enum {
 #define UI_BLINK		0x00001000
 #define UI_INVERSE		0x00002000
 #define UI_PULSE		0x00004000
-
-#if defined(_DEBUG) && !defined(BSPC)
-	#define HUNK_DEBUG
-#endif
 
 #define Com_Memset memset
 #define Com_Memcpy memcpy

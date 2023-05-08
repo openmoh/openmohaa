@@ -34,7 +34,7 @@ const char *TIKI_Tag_NumToName( dtiki_t *pmdl, int iTagNum );
 SkelMat4 *TIKI_TransformInternal( dtiki_t *tiki, int entnum, int tagnum );
 qboolean TIKI_IsOnGroundInternal( dtiki_t *tiki, int entnum, int tagnum, float threshold );
 orientation_t TIKI_OrientationInternal( dtiki_t *tiki, int entnum, int tagnum, float scale );
-void TIKI_SetPoseInternal( void *skeletor, const frameInfo_t *frameInfo, int *bone_tag, vec4_t *bone_quat, float actionWeight );
+void TIKI_SetPoseInternal( void *skeletor, const frameInfo_t *frameInfo, const int *bone_tag, const vec4_t *bone_quat, float actionWeight );
 float TIKI_GetRadiusInternal( dtiki_t *tiki, int entnum, float scale );
 float TIKI_GetCentroidRadiusInternal( dtiki_t *tiki, int entnum, float scale, float *centroid );
 void TIKI_GetFrameInternal( dtiki_t *tiki, int entnum, skelAnimFrame_t *newFrame );
