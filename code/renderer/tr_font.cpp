@@ -48,3 +48,19 @@ fontheader_t* R_LoadFont(const char* name)
     // FIXME: unimplemented
     return NULL;
 }
+
+void R_DrawString(const fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen) {
+    // FIXME: unimplemented
+}
+
+float R_GetFontHeight(const fontheader_t* font)
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
+float R_GetFontStringWidth(const fontheader_t* font, const char* s)
+{
+    // FIXME: unimplemented
+    return 0;
+}

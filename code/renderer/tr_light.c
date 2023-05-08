@@ -104,6 +104,31 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 	}
 }
 
+static byte* R_GetLightGridPalettedColor(int iColor)
+{
+	// FIXME: unimplemented
+}
+
+void R_GetLightingGridValue(vec3_t vPos, vec3_t vLight)
+{
+	// FIXME: unimplemented
+}
+
+void R_GetLightingGridValueFast(vec3_t vPos, vec3_t vLight)
+{
+    // FIXME: unimplemented
+}
+
+void R_GetLightingForDecal(vec3_t vLight, vec3_t vFacing, vec3_t vOrigin)
+{
+    // FIXME: unimplemented
+}
+
+void R_GetLightingForSmoke(vec3_t vLight, vec3_t vOrigin)
+{
+    // FIXME: unimplemented
+}
+
 
 /*
 =============================================================================

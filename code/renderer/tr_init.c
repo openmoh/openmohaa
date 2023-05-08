@@ -749,6 +749,10 @@ void GL_SetDefaultState( void )
 	qglDisable( GL_BLEND );
 }
 
+const char* RE_GetGraphicsInfo() {
+	// FIXME: unimplemented
+	return NULL;
+}
 
 /*
 ================
@@ -845,6 +849,16 @@ void GfxInfo_f( void )
 	if ( r_finish->integer ) {
 		ri.Printf( PRINT_ALL, "Forcing glFinish\n" );
 	}
+}
+
+qboolean R_SetMode(int mode) {
+	// FIXME: unimplemented
+	return qfalse;
+}
+
+void R_SetFullscreen(qboolean fullscreen, glconfig_t* config) {
+	// FIXME: unimplemented
+	return qfalse;
 }
 
 /*
@@ -1155,6 +1169,9 @@ void RE_EndRegistration( void ) {
 	}
 }
 
+void RE_SetRenderTime(int t) {
+	// FIXME: unimplemented
+}
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -1212,7 +1229,6 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
     re.AddPolyToScene = RE_AddPolyToScene;
     re.AddTerrainMarkToScene = RE_AddTerrainMarkToScene;
     re.AddLightToScene = RE_AddLightToScene;
-    re.AddAdditiveLightToScene = RE_AddAdditiveLightToScene;
     re.RenderScene = RE_RenderScene;
     re.GetRenderEntity = RE_GetRenderEntity;
 

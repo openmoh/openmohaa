@@ -114,7 +114,7 @@ typedef struct {
     void (*GetInlineModelBounds)(int index, vec3_t mins, vec3_t maxs);
     void (*GetLightingForDecal)(vec3_t light, vec3_t facing, vec3_t origin);
     void (*GetLightingForSmoke)(vec3_t light, vec3_t origin);
-    int (*R_GatherLightSources)(vec3_t pos, vec3_t* lightPos, vec3_t* lightIntensity, int maxLights);
+    int (*R_GatherLightSources)(const vec3_t pos, vec3_t* lightPos, vec3_t* lightIntensity, int maxLights);
 
 	void	(*ModelBounds)( qhandle_t model, vec3_t mins, vec3_t maxs );
 	float   (*ModelRadius)(qhandle_t handle);

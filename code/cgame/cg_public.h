@@ -195,7 +195,7 @@ typedef struct
    void     (*R_GetInlineModelBounds)(int index, vec3_t mins, vec3_t maxs);
    void     (*R_GetLightingForDecal)(vec3_t light, vec3_t facing, vec3_t origin);
    void     (*R_GetLightingForSmoke)(vec3_t light, vec3_t origin);
-   int      (*R_GatherLightSources)(vec3_t pos, vec3_t* lightPos, vec3_t* lightIntensity, int maxLights);
+   int      (*R_GatherLightSources)(const vec3_t pos, vec3_t* lightPos, vec3_t* lightIntensity, int maxLights);
 
     // =========== sound function calls ===============
 

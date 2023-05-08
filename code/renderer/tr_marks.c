@@ -441,3 +441,9 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 	return returnedFragments;
 }
 
+void R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t angles, const vec3_t origin, int numPoints,
+	const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
+	int maxFragments, markFragment_t* fragmentBuffer, float radiusSquared)
+{
+	// FIXME: unimplemented
+}

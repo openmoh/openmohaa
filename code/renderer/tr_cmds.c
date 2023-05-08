@@ -25,6 +25,16 @@ volatile renderCommandList_t	*renderCommandList;
 
 volatile qboolean	renderThreadActive;
 
+static backEndCounters_t pc_save;
+
+/*
+=====================
+R_PerformanceCounters
+=====================
+*/
+void R_SavePerformanceCounters(void) {
+    memcpy(&pc_save, &backEnd.pc, sizeof(pc_save));
+}
 
 /*
 =====================

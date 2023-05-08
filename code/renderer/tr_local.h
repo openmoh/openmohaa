@@ -1011,7 +1011,6 @@ void		R_ModelInit (void);
 model_t		*R_GetModelByHandle( qhandle_t hModel );
 int			R_LerpTag( orientation_t *tag, qhandle_t handle, int startFrame, int endFrame, 
 					 float frac, const char *tagName );
-void		R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs );
 
 void		R_Modellist_f (void);
 
@@ -1396,6 +1395,8 @@ extern  cvar_t* lod_position;
 extern  cvar_t* lod_save;
 extern  cvar_t* lod_tool;
 
+extern  cvar_t* r_numdebuglines;
+
 extern  cvar_t* r_showSkeleton;
 
 //====================================================================
@@ -1405,6 +1406,8 @@ void  R_NoiseInit( void );
 
 void R_SwapBuffers( int );
 
+void R_DebugCircle(const vec3_t org, float radius, float r, float g, float b, float alpha, qboolean horizontal);
+void R_DebugLine(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha);
 void R_RenderView( viewParms_t *parms );
 
 void R_AddMD3Surfaces( trRefEntity_t *e );
@@ -1480,12 +1483,24 @@ void	GL_Cull( int cullType );
 
 #define GLS_DEFAULT			GLS_DEPTHMASK_TRUE
 
+void Draw_SetColor(const vec4_t rgba);
+void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);
+void Draw_TilePic(float x, float y, float w, float h, qhandle_t hShader);
+void Draw_TilePicOffset(float x, float y, float w, float h, qhandle_t hShader, int offsetX, int offsetY);
+void Draw_TrianglePic(const vec2_t vPoints[3], const vec2_t vTexCoords[3], qhandle_t hShader);
+void DrawBox(float x, float y, float w, float h);
+void AddBox(float x, float y, float w, float h);
+void Set2DWindow(int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f);
+void RE_Scissor(int x, int y, int width, int height);
+void DrawLineLoop(const vec2_t* points, int count, int stipple_factor, int stipple_mask);
 void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
 void	RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
 
 void		RE_BeginFrame( stereoFrame_t stereoFrame );
 void		RE_BeginRegistration( glconfig_t *glconfig );
 void		RE_LoadWorldMap( const char *mapname );
+void		RE_PrintBSPFileSizes(void);
+int			RE_MapVersion(void);
 void		RE_SetWorldVisData( const byte *vis );
 qhandle_t	RE_RegisterModel( const char *name );
 qhandle_t	RE_RegisterSkin( const char *name );
@@ -1638,6 +1653,7 @@ WORLD MAP
 */
 
 void R_AddBrushModelSurfaces( trRefEntity_t *e );
+void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs);
 void R_AddWorldSurfaces( void );
 qboolean R_inPVS( const vec3_t p1, const vec3_t p2 );
 
@@ -1665,9 +1681,12 @@ LIGHTS
 */
 
 void R_DlightBmodel( bmodel_t *bmodel );
+void R_GetLightingForDecal(vec3_t vLight, vec3_t vFacing, vec3_t vOrigin);
+void R_GetLightingForSmoke(vec3_t vLight, vec3_t vOrigin);
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
 void R_TransformDlights( int count, dlight_t *dl, orientationr_t *or );
 int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
+int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights);
 
 
 /*
@@ -1723,6 +1742,10 @@ MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
 int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection,
 				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
 
+void R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t angles, const vec3_t origin, int numPoints,
+	const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
+	int maxFragments, markFragment_t* fragmentBuffer, float radiusSquared);
+
 
 /*
 ============================================================
@@ -1736,6 +1759,9 @@ void R_ToggleSmpFrame( void );
 
 void RE_ClearScene( void );
 void RE_AddRefEntityToScene( const refEntity_t *ent );
+void RE_AddRefSpriteToScene(const refEntity_t* ent);
+void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
+refEntity_t* RE_GetRenderEntity(int entityNumber);
 void RE_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts, int num );
 void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
@@ -1769,13 +1795,35 @@ TIKI
 
 =============================================================
 */
+void RE_FreeModels(void);
+qhandle_t RE_SpawnEffectModel(const char* szModel, vec3_t vPos, vec3_t* axis);
+qhandle_t RE_RegisterServerModel(const char* name);
+void RE_UnregisterServerModel(qhandle_t hModel);
 orientation_t RE_TIKI_Orientation(refEntity_t* model, int tagnum);
 qboolean RE_TIKI_IsOnGround(refEntity_t* model, int tagnum, float threshold);
+float R_ModelRadius(qhandle_t handle);
+void R_ModelBounds(qhandle_t handle, vec3_t mins, vec3_t maxs);
+dtiki_t* R_Model_GetHandle(qhandle_t handle);
+
 float R_GetRadius(refEntity_t* model);
 void R_GetFrame(refEntity_t* model, struct skelAnimFrame_s* newFrame);
+void RE_ForceUpdatePose(refEntity_t* model);
+void RE_SetFrameNumber(int frameNumber);
 void R_UpdatePoseInternal(refEntity_t* model);
 void RB_SkelMesh(skelSurfaceGame_t* sf);
 void RB_StaticMesh(staticSurface_t* staticSurf);
+
+/*
+=============================================================
+
+FONT
+
+=============================================================
+*/
+fontheader_t* R_LoadFont(const char* name);
+void R_DrawString(const fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen);
+float R_GetFontHeight(const fontheader_t* font);
+float R_GetFontStringWidth(const fontheader_t* font, const char* s);
 
 /*
 =============================================================
@@ -1785,6 +1833,18 @@ SWIPE
 =============================================================
 */
 void RB_DrawSwipeSurface(surfaceType_t* pswipe);
+void RE_SwipeBegin(float thistime, float life, qhandle_t shader);
+void RE_SwipeEnd();
+
+/*
+=============================================================
+
+UTIL
+
+=============================================================
+*/
+int RE_GetShaderHeight(qhandle_t hShader);
+int RE_GetShaderWidth(qhandle_t hShader);
 
 /*
 =============================================================
@@ -1948,6 +2008,7 @@ extern	volatile qboolean	renderThreadActive;
 void *R_GetCommandBuffer( int bytes );
 void RB_ExecuteRenderCommands( const void *data );
 
+void R_SavePerformanceCounters(void);
 void R_InitCommandBuffers( void );
 void R_ShutdownCommandBuffers( void );
 

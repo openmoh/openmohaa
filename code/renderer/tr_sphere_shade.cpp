@@ -20,25 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// tr_swipe.cpp -- swipe rendering
+// tr_sphere_shade.cpp -- sphere shade
 
 #include "tr_local.h"
 
-void RB_DrawSwipeSurface(surfaceType_t* pswipe) {
-    // FIXME: unimplemented
-}
-
-void RE_SwipeBegin(float thistime, float life, qhandle_t shader)
+int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights)
 {
     // FIXME: unimplemented
-}
-
-void RE_SwipePoint(vec3_t point1, vec3_t point2, float time)
-{
-    // FIXME: unimplemented
-}
-
-void RE_SwipeEnd()
-{
-    // FIXME: unimplemented
+    return 0;
 }

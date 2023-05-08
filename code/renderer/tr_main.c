@@ -1485,6 +1485,104 @@ void R_DebugGraphics( void ) {
 	ri.CM_DrawDebugSurface( R_DebugPolygon );
 }
 
+#define CIRCLE_LENGTH		25
+
+/*
+================
+R_DebugCircle
+================
+*/
+void R_DebugCircle(const vec3_t org, float radius, float r, float g, float b, float alpha, qboolean horizontal) {
+    int				i;
+    float			ang;
+    debugline_t* line;
+    vec3_t			forward, right;
+    vec3_t			pos, lastpos;
+
+    if (!ri.DebugLines || !ri.numDebugLines) {
+        return;
+    }
+
+    if (horizontal)
+    {
+        VectorSet(forward, 1, 0, 0);
+        VectorSet(right, 0, 1, 0);
+    }
+    else
+    {
+        VectorCopy(tr.refdef.viewaxis[1], right);
+        VectorCopy(tr.refdef.viewaxis[2], forward);
+    }
+
+    VectorClear(pos);
+    VectorClear(lastpos);
+
+    for (i = 0; i < CIRCLE_LENGTH; i++) {
+        VectorCopy(pos, lastpos);
+
+        ang = (float)i * 0.0174532925199433f;
+        pos[0] = (org[0] + sin(ang) * radius * forward[0]) +
+            cos(ang) * radius * right[0];
+        pos[1] = (org[1] + sin(ang) * radius * forward[1]) +
+            cos(ang) * radius * right[1];
+        pos[2] = (org[2] + sin(ang) * radius * forward[2]) +
+            cos(ang) * radius * right[2];
+
+        if (i > 0)
+        {
+            if (*ri.numDebugLines >= r_numdebuglines->integer) {
+                ri.Printf(PRINT_ALL, "R_DebugCircle: Exceeded MAX_DEBUG_LINES\n");
+                return;
+            }
+
+            line = &(*ri.DebugLines)[*ri.numDebugLines];
+            (*ri.numDebugLines)++;
+            VectorCopy(lastpos, line->start);
+            VectorCopy(pos, line->end);
+            VectorSet(line->color, r, g, b);
+            line->alpha = alpha;
+            line->width = 1.0;
+            line->factor = 1;
+            line->pattern = -1;
+        }
+    }
+}
+
+/*
+================
+R_DebugLine
+================
+*/
+void R_DebugLine(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha) {
+    debugline_t* line;
+
+    if (!ri.DebugLines || !ri.numDebugLines) {
+        return;
+    }
+
+    if (*ri.numDebugLines >= r_numdebuglines->integer) {
+        ri.Printf(PRINT_ALL, "R_DebugLine: Exceeded MAX_DEBUG_LINES\n");
+    }
+
+    line = &(*ri.DebugLines)[*ri.numDebugLines];
+    (*ri.numDebugLines)++;
+    VectorCopy(start, line->start);
+    VectorCopy(end, line->end);
+    VectorSet(line->color, r, g, b);
+    line->alpha = alpha;
+    line->width = 1.0;
+    line->factor = 1;
+    line->pattern = -1;
+}
+
+/*
+================
+R_DrawDebugLines
+================
+*/
+void R_DrawDebugLines(void) {
+    // FIXME: stub
+}
 
 /*
 ================

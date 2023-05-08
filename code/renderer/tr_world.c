@@ -347,6 +347,11 @@ void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 =============================================================
 */
 
+void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs)
+{
+	// FIXME: unimplemented
+}
+
 
 /*
 ================

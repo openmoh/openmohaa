@@ -194,9 +194,42 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	}
 }
 
+/*
+=====================
+R_AddTerrainMarkSurfaces
+=====================
+*/
+void R_AddTerrainMarkSurfaces(void) {
+    // FIXME: unimplemented
+}
+
+/*
+=====================
+RE_AddTerrainMarkToScene
+=====================
+*/
+void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx) {
+    // FIXME: unimplemented
+}
 
 //=================================================================================
 
+/*
+=====================
+RE_GetRenderEntity
+=====================
+*/
+refEntity_t* RE_GetRenderEntity(int entityNumber) {
+    int i;
+
+    for (i = 0; i < r_numentities; i++) {
+        if (backEndData[0]->entities[i].e.entityNumber == entityNumber) {
+            return &backEndData[0]->entities[i].e;
+        }
+    }
+
+    return NULL;
+}
 
 /*
 =====================
@@ -222,6 +255,9 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	r_numentities++;
 }
 
+void RE_AddRefSpriteToScene(const refEntity_t* ent) {
+	// FIXME: unimplemented
+}
 
 /*
 =====================
