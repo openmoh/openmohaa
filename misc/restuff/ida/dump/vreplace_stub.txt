@@ -1,1 +1,0 @@
-\r\n\t(\r\n\tPARAMETERS\r\n\t)\r\n\r\n{\r\n\t// FIXME: stub\r\n\tSTUB();\r\n}\r\n
