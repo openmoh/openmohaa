@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_models.c -- model loading and caching
 
 #include "tr_local.h"
+#include "tiki.h"
 #include <vector.h>
 
 #define	LL(x) x=LittleLong(x)
@@ -34,10 +35,10 @@ model_t	*R_GetModelByHandle( qhandle_t hModel ) {
 
 	// out of range gets the default model
 	if( hModel < 1 || hModel >= tr.numModels ) {
-		return &tr.models[0];
+		return tr.models[0];
 	}
 
-	mod = &tr.models[hModel];
+	mod = tr.models[hModel];
 
 	return mod;
 }
@@ -76,7 +77,7 @@ model_t *R_AllocModel( void ) {
 
 	for( i = 0; i < tr.numModels; i++ )
 	{
-		if( !tr.models[ i ].name[ 0 ] ) {
+		if( !tr.models[ i ]->name[ 0 ] ) {
 			break;
 		}
 	}
@@ -88,9 +89,9 @@ model_t *R_AllocModel( void ) {
 		tr.numModels++;
 	}
 
-	tr.models[ i ].index = i;
+	tr.models[ i ]->index = i;
 
-	return &tr.models[ i ];
+	return tr.models[ i ];
 }
 
 /*
@@ -101,11 +102,11 @@ void RE_FreeModels( void ) {
 
 	for( hModel = 0; hModel < tr.numModels; hModel++ )
 	{
-		if( !tr.models[ hModel ].name[ 0 ] ) {
+		if( !tr.models[ hModel ]->name[ 0 ] ) {
 			continue;
 		}
 
-		R_FreeModel( &tr.models[ hModel ] );
+		R_FreeModel( tr.models[ hModel ] );
 	}
 }
 
@@ -145,8 +146,8 @@ void RE_UnregisterServerModel( qhandle_t hModel ) {
 		return;
 	}
 
-	if( tr.models[ hModel ].serveronly ) {
-		R_FreeModel( &tr.models[ hModel ] );
+	if( tr.models[ hModel ]->serveronly ) {
+		R_FreeModel( tr.models[ hModel ] );
 	}
 }
 
@@ -174,7 +175,7 @@ static qhandle_t R_RegisterModelInternal( const char *name, qboolean bBeginTiki,
 	// search the currently loaded models
 	//
 	for( hModel = 1; hModel < tr.numModels; hModel++ ) {
-		mod = &tr.models[ hModel ];
+		mod = tr.models[ hModel ];
 		if( !strcmp( mod->name, name ) ) {
 			if( mod->type == MOD_BAD ) {
 				return 0;
@@ -195,7 +196,6 @@ static qhandle_t R_RegisterModelInternal( const char *name, qboolean bBeginTiki,
 
 
 	// make sure the render thread is stopped
-	//R_SyncRenderThread();
 	R_IssuePendingRenderCommands();
 
 	mod->serveronly = qtrue;
@@ -272,8 +272,8 @@ qhandle_t RE_SpawnEffectModel( const char *szModel, vec3_t vPos, vec3_t *axis ) 
 
 	if( new_entity.hModel )
 	{
-		tr.models[ new_entity.hModel ].serveronly = qfalse;
-		ri.CG_ProcessInitCommands( tr.models[ new_entity.hModel ].d.tiki, &new_entity );
+		tr.models[ new_entity.hModel ]->serveronly = qfalse;
+		ri.CG_ProcessInitCommands( tr.models[ new_entity.hModel ]->d.tiki, &new_entity );
 	}
 
 	return new_entity.hModel;
@@ -288,7 +288,7 @@ qhandle_t RE_RegisterModel( const char *name ) {
 	handle = R_RegisterModelInternal( name, qtrue, qtrue );
 
 	if( handle ) {
-		tr.models[ handle ].serveronly = qfalse;
+		tr.models[ handle ]->serveronly = qfalse;
 	}
 	return handle;
 }
@@ -323,7 +323,7 @@ void R_Modellist_f( void ) {
 	int		i;
 
 	for( i = 1; i < tr.numModels; i++ ) {
-		ri.Printf( PRINT_ALL, "%s\n", tr.models[ i ].name );
+		ri.Printf( PRINT_ALL, "%s\n", tr.models[ i ]->name );
 	}
 }
 
@@ -773,7 +773,6 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 	int mesh;
 	int iRadiusCull = 0;
 	int num_tags;
-	int cubemapIndex;
 
 	tiki = ent->e.tiki;
 
@@ -873,8 +872,6 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 		R_SetupEntityLighting( &tr.refdef, ent );
 	}
 
-	cubemapIndex = R_CubemapForPoint( ent->e.origin );
-
 	//
 	// draw all meshes
 	//
@@ -932,16 +929,16 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 				if( ( *bsurf & 0x40 ) && ( dsurf->numskins > 1 ) ) {
 					int iShaderNum = ent->e.skinNum + ( *bsurf & 2 );
 
-					R_AddDrawSurf( ( surfaceType_t * )surface, tr.shaders[ dsurf->hShader[ iShaderNum ] ], 0, qfalse, qfalse, cubemapIndex );
-					R_AddDrawSurf( ( surfaceType_t * )surface, tr.shaders[ dsurf->hShader[ iShaderNum + 1 ] ], 0, qfalse, qfalse, cubemapIndex );
+					R_AddDrawSurf( ( surfaceType_t * )surface, tr.shaders[ dsurf->hShader[ iShaderNum ] ], 0, 0, 0, 0 );
+					R_AddDrawSurf( ( surfaceType_t * )surface, tr.shaders[ dsurf->hShader[ iShaderNum + 1 ] ], 0, 0, 0, 0);
 				} else {
-					R_AddDrawSurf( ( surfaceType_t * )surface, shader, 0, qfalse, qtrue, cubemapIndex );
+					R_AddDrawSurf( ( surfaceType_t * )surface, shader, 0, 0, 0, 0);
 				}
 			}
 
 			if( ( ent->e.customShader ) && ( ent->e.renderfx & RF_CUSTOMSHADERPASS ) ) {
 				shader = R_GetShaderByHandle( ent->e.customShader );
-				R_AddDrawSurf( ( surfaceType_t * )surface, shader, 0, qfalse, qfalse, cubemapIndex );
+				R_AddDrawSurf( ( surfaceType_t * )surface, shader, 0, 0, 0, 0);
 			}
 		}
 	}
@@ -1042,7 +1039,7 @@ LerpSkelMesh
 */
 static void LerpSkelMesh( skelSurfaceGame_t *sf ) {
 	float *outXyz;
-	uint32_t *outNormal;
+	int16_t *outNormal;
 	skeletorVertex_t *newVerts;
 	skeletorMorph_t *morph;
 	skelWeight_t *weight;
@@ -1065,7 +1062,7 @@ static void LerpSkelMesh( skelSurfaceGame_t *sf ) {
 	newVerts = sf->pVerts;
 
 	outXyz = tess.xyz[ tess.numVertexes ];
-	outNormal = &tess.normal[ tess.numVertexes ];
+	outNormal = &tess.normal[ tess.numVertexes ][0];
 
 	bones = &TIKI_Skel_Bones[ backEnd.currentEntity->e.bonestart ];
 	morphs = &skeletorMorphCache[ backEnd.currentEntity->e.morphstart ];
@@ -1224,7 +1221,7 @@ static void LerpSkelMesh( skelSurfaceGame_t *sf ) {
 			}
 		}
 
-		R_VaoPackNormal( ( byte * )outNormal, normal );
+		R_VaoPackNormal(outNormal, normal);
 
 		VectorScale( out, scale, outXyz );
 
@@ -1246,8 +1243,6 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 	int					numVerts;
 	int					numIndexes;
 
-	RB_CheckVao( tess.vao );
-
 	numIndexes = sf->numTriangles * 3;
 
 	RB_CHECKOVERFLOW( sf->numVerts, numIndexes );
@@ -1264,8 +1259,8 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 	numVerts = sf->numVerts;
 	vert = sf->pVerts;
 	for( j = 0; j < numVerts; j++ ) {
-		tess.texCoords[ baseVertex + j ][ 0 ][ 0 ] = vert->texCoords[ 0 ];
-		tess.texCoords[ baseVertex + j ][ 0 ][ 1 ] = vert->texCoords[ 1 ];
+		tess.texCoords[ baseVertex + j ][ 0 ] = vert->texCoords[ 0 ];
+		tess.texCoords[ baseVertex + j ][ 1 ] = vert->texCoords[ 1 ];
 		vert = ( skeletorVertex_t * )( ( byte * )vert + sizeof( skeletorVertex_t ) + sizeof( skeletorMorph_t ) * vert->numMorphs + sizeof( skelWeight_t ) * vert->numWeights );
 		// FIXME: fill in lightmapST for completeness?
 	}
@@ -1426,7 +1421,7 @@ void R_DebugSkeleton( void ) {
 
 	R_IssuePendingRenderCommands();
 
-	GL_Bind( tr.whiteImage );
+	GL_BindToTMU(tr.whiteImage, TB_COLORMAP);
 	GL_State( 0x200 );
 
 	glDisableClientState( GL_COLOR_ARRAY );

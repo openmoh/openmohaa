@@ -43,8 +43,8 @@ typedef struct {
 
 static	edgeDef_t	edgeDefs[SHADER_MAX_VERTEXES][MAX_EDGE_DEFS];
 static	int			numEdgeDefs[SHADER_MAX_VERTEXES];
-static	int			facing[SHADER_MAX_INDEXES/3];
-static	vec3_t		shadowXyz[SHADER_MAX_VERTEXES];
+//static	int			facing[SHADER_MAX_INDEXES/3];
+//static	vec3_t		shadowXyz[SHADER_MAX_VERTEXES];
 
 void R_AddEdgeDef( int i1, int i2, int facing ) {
 	int		c;
@@ -60,6 +60,8 @@ void R_AddEdgeDef( int i1, int i2, int facing ) {
 }
 
 void R_RenderShadowEdges( void ) {
+	// FIXME: implement this
+#if 0
 	int		i;
 
 #if 0
@@ -138,6 +140,7 @@ void R_RenderShadowEdges( void ) {
 		}
 	}
 #endif
+#endif
 }
 
 /*
@@ -153,6 +156,8 @@ triangleFromEdge[ v1 ][ v2 ]
 =================
 */
 void RB_ShadowTessEnd( void ) {
+	// FIXME: implement this
+#if 0
 	int		i;
 	int		numTris;
 	vec3_t	lightDir;
@@ -162,7 +167,7 @@ void RB_ShadowTessEnd( void ) {
 		return;
 	}
 
-	VectorCopy( backEnd.currentEntity->lightDir, lightDir );
+	VectorCopy( backEnd.currentEntity->modelLightDir, lightDir );
 
 	// project vertexes away from light direction
 	for ( i = 0 ; i < tess.numVertexes ; i++ ) {
@@ -206,7 +211,7 @@ void RB_ShadowTessEnd( void ) {
 
 	// draw the silhouette edges
 
-	GL_Bind( tr.whiteImage );
+	GL_BindToTMU( tr.whiteImage, TB_COLORMAP );
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
 	qglColor3f( 0.2f, 0.2f, 0.2f );
 
@@ -230,6 +235,7 @@ void RB_ShadowTessEnd( void ) {
 
 	// reenable writing to the color buffer
 	qglColorMask(rgba[0], rgba[1], rgba[2], rgba[3]);
+#endif
 }
 
 
@@ -244,6 +250,8 @@ overlap and double darken.
 =================
 */
 void RB_ShadowFinish( void ) {
+	// FIXME: implement this
+#if 0
 	if ( r_shadows->integer != 2 ) {
 		return;
 	}
@@ -253,10 +261,9 @@ void RB_ShadowFinish( void ) {
 	qglEnable( GL_STENCIL_TEST );
 	qglStencilFunc( GL_NOTEQUAL, 0, 255 );
 
-	qglDisable (GL_CLIP_PLANE0);
 	GL_Cull( CT_TWO_SIDED );
 
-	GL_Bind( tr.whiteImage );
+	GL_BindToTMU( tr.whiteImage, TB_COLORMAP );
 
     qglLoadIdentity ();
 
@@ -275,54 +282,5 @@ void RB_ShadowFinish( void ) {
 
 	qglColor4f(1,1,1,1);
 	qglDisable( GL_STENCIL_TEST );
-}
-
-
-/*
-=================
-RB_ProjectionShadowDeform
-
-=================
-*/
-void RB_ProjectionShadowDeform( void ) {
-	// FIXME: unimplemented
-#if 0
-	float	*xyz;
-	int		i;
-	float	h;
-	vec3_t	ground;
-	vec3_t	light;
-	float	groundDist;
-	float	d;
-	vec3_t	lightDir;
-
-	xyz = ( float * ) tess.xyz;
-
-	ground[0] = backEnd.or.axis[0][2];
-	ground[1] = backEnd.or.axis[1][2];
-	ground[2] = backEnd.or.axis[2][2];
-
-	groundDist = backEnd.or.origin[2] - backEnd.currentEntity->e.shadowPlane;
-
-	VectorCopy( backEnd.currentEntity->lightDir, lightDir );
-	d = DotProduct( lightDir, ground );
-	// don't let the shadows get too long or go negative
-	if ( d < 0.5 ) {
-		VectorMA( lightDir, (0.5 - d), ground, lightDir );
-		d = DotProduct( lightDir, ground );
-	}
-	d = 1.0 / d;
-
-	light[0] = lightDir[0] * d;
-	light[1] = lightDir[1] * d;
-	light[2] = lightDir[2] * d;
-
-	for ( i = 0; i < tess.numVertexes; i++, xyz += 4 ) {
-		h = DotProduct( xyz, ground ) + groundDist;
-
-		xyz[0] -= light[0] * h;
-		xyz[1] -= light[1] * h;
-		xyz[2] -= light[2] * h;
-	}
 #endif
 }

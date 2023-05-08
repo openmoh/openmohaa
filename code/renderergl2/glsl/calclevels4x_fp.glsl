@@ -14,8 +14,8 @@ vec3 GetValues(vec2 offset, vec3 current)
 
 #ifdef FIRST_PASS
 
-  #if defined(r_framebufferGamma)
-	minAvgMax = pow(minAvgMax, vec3(r_framebufferGamma));
+  #if defined(USE_PBR)
+	minAvgMax *= minAvgMax;
   #endif
 
 	float lumi = max(dot(LUMINANCE_VECTOR, minAvgMax), 0.000001);
@@ -56,5 +56,5 @@ void main()
 	current.y *= 0.0625;
 #endif
 
-	gl_FragColor = vec4(current, 1.0f);
+	gl_FragColor = vec4(current, 1.0);
 }

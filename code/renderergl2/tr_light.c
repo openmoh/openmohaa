@@ -99,7 +99,6 @@ void R_DlightBmodel( bmodel_t *bmodel ) {
 			case SF_FACE:
 			case SF_GRID:
 			case SF_TRIANGLES:
-			case SF_VAO_MESH:
 				((srfBspSurface_t *)surf->data)->dlightBits = mask;
 				break;
 
@@ -139,7 +138,7 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, world_t *world ) {
 	float	totalFactor;
 
 	if ( ent->e.renderfx & RF_LIGHTING_ORIGIN ) {
-		// seperate lightOrigins are needed so an object that is
+		// separate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
 		// multi-part models can be lit identically
 		VectorCopy( ent->e.lightingOrigin, lightOrigin );
@@ -201,10 +200,10 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, world_t *world ) {
 			continue;
 		}
 
-		if (world->hdrLightGrid)
+		if (world->lightGrid16)
 		{
-			float *hdrData = world->hdrLightGrid + (int)(data - world->lightGridData) / 8 * 6;
-			if (!(hdrData[0]+hdrData[1]+hdrData[2]+hdrData[3]+hdrData[4]+hdrData[5]) ) {
+			uint16_t *data16 = world->lightGrid16 + (int)(data - world->lightGridData) / 8 * 6;
+			if (!(data16[0]+data16[1]+data16[2]+data16[3]+data16[4]+data16[5])) {
 				continue;	// ignore samples in walls
 			}
 		}
@@ -227,18 +226,18 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent, world_t *world ) {
 		ent->directedLight[1] += factor * d4;
 		ent->directedLight[2] += factor * d5;
 		#else
-		if (world->hdrLightGrid)
+		if (world->lightGrid16)
 		{
 			// FIXME: this is hideous
-			float *hdrData = world->hdrLightGrid + (int)(data - world->lightGridData) / 8 * 6;
+			uint16_t *data16 = world->lightGrid16 + (int)(data - world->lightGridData) / 8 * 6;
 
-			ent->ambientLight[0] += factor * hdrData[0];
-			ent->ambientLight[1] += factor * hdrData[1];
-			ent->ambientLight[2] += factor * hdrData[2];
+			ent->ambientLight[0] += factor * data16[0] / 257.0f;
+			ent->ambientLight[1] += factor * data16[1] / 257.0f;
+			ent->ambientLight[2] += factor * data16[2] / 257.0f;
 
-			ent->directedLight[0] += factor * hdrData[3];
-			ent->directedLight[1] += factor * hdrData[4];
-			ent->directedLight[2] += factor * hdrData[5];
+			ent->directedLight[0] += factor * data16[3] / 257.0f;
+			ent->directedLight[1] += factor * data16[4] / 257.0f;
+			ent->directedLight[2] += factor * data16[5] / 257.0f;
 		}
 		else
 		{
@@ -336,7 +335,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	// trace a sample point down to find ambient light
 	//
 	if ( ent->e.renderfx & RF_LIGHTING_ORIGIN ) {
-		// seperate lightOrigins are needed so an object that is
+		// separate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
 		// multi-part models can be lit identically
 		VectorCopy( ent->e.lightingOrigin, lightOrigin );
@@ -357,7 +356,7 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 
 	// bonus items and view weapons have a fixed minimum add
-	if ( !r_hdr->integer /* ent->e.renderfx & RF_MINLIGHT */ ) {
+	if ( 1 /* ent->e.renderfx & RF_MINLIGHT */ ) {
 		// give everything a minimum light add
 		ent->ambientLight[0] += tr.identityLight * 32;
 		ent->ambientLight[1] += tr.identityLight * 32;
@@ -385,15 +384,41 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 		VectorMA( lightDir, d, dir, lightDir );
 	}
 
-	// clamp ambient
-	if ( !r_hdr->integer )
+	// clamp lights
+	// FIXME: old renderer clamps (ambient + NL * directed) per vertex
+	//        check if that's worth implementing
 	{
-		for ( i = 0 ; i < 3 ; i++ ) {
-			if ( ent->ambientLight[i] > tr.identityLightByte ) {
-				ent->ambientLight[i] = tr.identityLightByte;
-			}
+		float r, g, b, max;
+
+		r = ent->ambientLight[0];
+		g = ent->ambientLight[1];
+		b = ent->ambientLight[2];
+
+		max = MAX(MAX(r, g), b);
+
+		if (max > 255.0f)
+		{
+			max = 255.0f / max;
+			ent->ambientLight[0] *= max;
+			ent->ambientLight[1] *= max;
+			ent->ambientLight[2] *= max;
+		}
+
+		r = ent->directedLight[0];
+		g = ent->directedLight[1];
+		b = ent->directedLight[2];
+
+		max = MAX(MAX(r, g), b);
+
+		if (max > 255.0f)
+		{
+			max = 255.0f / max;
+			ent->directedLight[0] *= max;
+			ent->directedLight[1] *= max;
+			ent->directedLight[2] *= max;
 		}
 	}
+
 
 	if ( r_debugLight->integer ) {
 		LogLight( ent );
@@ -471,7 +496,7 @@ int R_CubemapForPoint( vec3_t point )
 			vec3_t diff;
 			vec_t length;
 
-			VectorSubtract(point, tr.cubemapOrigins[i], diff);
+			VectorSubtract(point, tr.cubemaps[i].origin, diff);
 			length = DotProduct(diff, diff);
 
 			if (shortest > length)
@@ -483,35 +508,4 @@ int R_CubemapForPoint( vec3_t point )
 	}
 
 	return cubemapIndex + 1;
-}
-
-/*
-=================
-R_GetLightingForDecal
-=================
-*/
-void R_GetLightingForDecal( vec3_t vLight, vec3_t vFacing, vec3_t vOrigin ) {
-	// FIXME: stub
-}
-
-/*
-=================
-R_GetLightingForSmoke
-=================
-*/
-void R_GetLightingForSmoke( vec3_t vLight, vec3_t vOrigin ) {
-	// FIXME: stub
-}
-
-/*
-=================
-R_GatherLightSources
-=================
-*/
-int R_GatherLightSources( const vec3_t vPos, vec3_t *pvLightPos, vec3_t *pvLightIntensity, int iMaxLights ) {
-	// FIXME: stub
-
-	// i don't think this is useful because renderer_gl2 handles light differently
-	// thus, R_GatherLightSources is mainly used to create fake shadow
-	return 0;
 }

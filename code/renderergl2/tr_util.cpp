@@ -100,13 +100,12 @@ addTriangle
 ===============
 */
 static void addTriangle( void ) {
-	tess.texCoords[ tess.numVertexes ][ 0 ][ 0 ] = cntSt[ 0 ];
-	tess.texCoords[ tess.numVertexes ][ 0 ][ 1 ] = cntSt[ 1 ];
-	tess.vertexColors[ tess.numVertexes ][ 0 ] = cntColor[ 0 ];
-	tess.vertexColors[ tess.numVertexes ][ 1 ] = cntColor[ 1 ];
-	tess.vertexColors[ tess.numVertexes ][ 2 ] = cntColor[ 2 ];
-	tess.vertexColors[ tess.numVertexes ][ 3 ] = cntColor[ 3 ];
-	tess.vertexColorValid = qtrue;
+	tess.texCoords[ tess.numVertexes ][ 0 ] = cntSt[ 0 ];
+	tess.texCoords[ tess.numVertexes ][ 1 ] = cntSt[ 1 ];
+	tess.color[ tess.numVertexes ][ 0 ] = cntColor[ 0 ];
+	tess.color[ tess.numVertexes ][ 1 ] = cntColor[ 1 ];
+	tess.color[ tess.numVertexes ][ 2 ] = cntColor[ 2 ];
+	tess.color[ tess.numVertexes ][ 3 ] = cntColor[ 3 ];
 	tess.numVertexes++;
 }
 
@@ -222,27 +221,6 @@ R_DebugRotatedBBox
 */
 void R_DebugRotatedBBox( const vec3_t org, vec3_t ang, vec3_t mins, vec3_t maxs, float r, float g, float b, float alpha ) {
 
-}
-
-/*
-===============
-RB_Prepare2D
-===============
-*/
-void RB_Prepare2D( void ) {
-	if( glRefConfig.framebufferObject )
-	{
-		if( !tr.renderFbo || backEnd.framePostProcessed )
-		{
-			FBO_Bind( NULL );
-		}
-		else
-		{
-			FBO_Bind( tr.renderFbo );
-		}
-	}
-
-	RB_SetGL2D();
 }
 
 /*

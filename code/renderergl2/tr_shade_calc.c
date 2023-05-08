@@ -22,12 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_shade_calc.c
 
 #include "tr_local.h"
-#if idppc_altivec && !defined(MACOS_X)
-#include <altivec.h>
-#endif
 
 
-#define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ ftol( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
+#define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ ( (int64_t) ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
 
 static float *TableForFunc( genFunc_t func ) 
 {
@@ -116,16 +113,16 @@ void RB_CalcDeformVertexes( deformStage_t *ds )
 	vec3_t	offset;
 	float	scale;
 	float	*xyz = ( float * ) tess.xyz;
-	uint32_t	*normal = tess.normal;
+	int16_t	*normal = tess.normal[0];
 	float	*table;
 
 	if ( ds->deformationWave.frequency == 0 )
 	{
 		scale = EvalWaveForm( &ds->deformationWave );
 
-		for ( i = 0; i < tess.numVertexes; i++, xyz += 4, normal++ )
+		for ( i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4 )
 		{
-			R_VaoUnpackNormal(offset, *normal);
+			R_VaoUnpackNormal(offset, normal);
 			
 			xyz[0] += offset[0] * scale;
 			xyz[1] += offset[1] * scale;
@@ -136,7 +133,7 @@ void RB_CalcDeformVertexes( deformStage_t *ds )
 	{
 		table = TableForFunc( ds->deformationWave.func );
 
-		for ( i = 0; i < tess.numVertexes; i++, xyz += 4, normal++ )
+		for ( i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4 )
 		{
 			float off = ( xyz[0] + xyz[1] + xyz[2] ) * ds->deformationSpread;
 
@@ -145,7 +142,7 @@ void RB_CalcDeformVertexes( deformStage_t *ds )
 				ds->deformationWave.phase + off,
 				ds->deformationWave.frequency );
 
-			R_VaoUnpackNormal(offset, *normal);
+			R_VaoUnpackNormal(offset, normal);
 
 			xyz[0] += offset[0] * scale;
 			xyz[1] += offset[1] * scale;
@@ -165,12 +162,12 @@ void RB_CalcDeformNormals( deformStage_t *ds ) {
 	int i;
 	float	scale;
 	float	*xyz = ( float * ) tess.xyz;
-	uint32_t *normal = tess.normal;
+	int16_t *normal = tess.normal[0];
 
-	for ( i = 0; i < tess.numVertexes; i++, xyz += 4, normal++ ) {
+	for ( i = 0; i < tess.numVertexes; i++, xyz += 4, normal += 4 ) {
 		vec3_t fNormal;
 
-		R_VaoUnpackNormal(fNormal, *normal);
+		R_VaoUnpackNormal(fNormal, normal);
 
 		scale = 0.98f;
 		scale = R_NoiseGet4f( xyz[0] * scale, xyz[1] * scale, xyz[2] * scale,
@@ -189,7 +186,7 @@ void RB_CalcDeformNormals( deformStage_t *ds ) {
 
 		VectorNormalizeFast( fNormal );
 
-		R_VaoPackNormal((byte *)normal, fNormal);
+		R_VaoPackNormal(normal, fNormal);
 	}
 }
 
@@ -203,17 +200,17 @@ void RB_CalcBulgeVertexes( deformStage_t *ds ) {
 	int i;
 	const float *st = ( const float * ) tess.texCoords[0];
 	float		*xyz = ( float * ) tess.xyz;
-	uint32_t		*normal = tess.normal;
-	float		now;
+	int16_t	*normal = tess.normal[0];
+	double		now;
 
-	now = backEnd.refdef.time * ds->bulgeSpeed * 0.001f;
+	now = backEnd.refdef.time * 0.001 * ds->bulgeSpeed;
 
-	for ( i = 0; i < tess.numVertexes; i++, xyz += 4, st += 4, normal++ ) {
-		int		off;
+	for ( i = 0; i < tess.numVertexes; i++, xyz += 4, st += 2, normal += 4 ) {
+		int64_t off;
 		float scale;
 		vec3_t fNormal;
 
-		R_VaoUnpackNormal(fNormal, *normal);
+		R_VaoUnpackNormal(fNormal, normal);
 
 		off = (float)( FUNCTABLE_SIZE / (M_PI*2) ) * ( st[0] * ds->bulgeWidth + now );
 
@@ -350,7 +347,7 @@ static void GlobalVectorToLocal( const vec3_t in, vec3_t out ) {
 =====================
 AutospriteDeform
 
-Assuming all the triangles for this shader are independant
+Assuming all the triangles for this shader are independent
 quads, rebuild them as forward facing sprites
 =====================
 */
@@ -384,6 +381,7 @@ static void AutospriteDeform( void ) {
 	}
 
 	for ( i = 0 ; i < oldVerts ; i+=4 ) {
+		vec4_t color;
 		// find the midpoint
 		xyz = tess.xyz[i];
 
@@ -414,7 +412,8 @@ static void AutospriteDeform( void ) {
       VectorScale(up, axisLength, up);
     }
 
-		RB_AddQuadStamp( mid, left, up, tess.vertexColors[i] );
+		VectorScale4(tess.color[i], 1.0f / 65535.0f, color);
+		RB_AddQuadStamp( mid, left, up, color );
 	}
 }
 
@@ -774,8 +773,8 @@ void RB_CalcScaleTexMatrix( const float scale[2], float *matrix )
 */
 void RB_CalcScrollTexMatrix( const float scrollSpeed[2], float *matrix )
 {
-	float timeScale = tess.shaderTime;
-	float adjustedScrollS, adjustedScrollT;
+	double timeScale = tess.shaderTime;
+	double adjustedScrollS, adjustedScrollT;
 
 	adjustedScrollS = scrollSpeed[0] * timeScale;
 	adjustedScrollT = scrollSpeed[1] * timeScale;
@@ -803,9 +802,9 @@ void RB_CalcTransformTexMatrix( const texModInfo_t *tmi, float *matrix  )
 */
 void RB_CalcRotateTexMatrix( float degsPerSecond, float *matrix )
 {
-	float timeScale = tess.shaderTime;
-	float degs;
-	int index;
+	double timeScale = tess.shaderTime;
+	double degs;
+	int64_t index;
 	float sinValue, cosValue;
 
 	degs = -degsPerSecond * timeScale;
@@ -816,215 +815,4 @@ void RB_CalcRotateTexMatrix( float degsPerSecond, float *matrix )
 
 	matrix[0] = cosValue; matrix[2] = -sinValue; matrix[4] = 0.5 - 0.5 * cosValue + 0.5 * sinValue;
 	matrix[1] = sinValue; matrix[3] = cosValue;  matrix[5] = 0.5 - 0.5 * sinValue - 0.5 * cosValue;
-}
-
-/*
-** RB_CalcLightGridColor
-*/
-float RB_CalcLightGridColor( void )
-{
-	if( backEnd.currentEntity )
-	{
-		if( backEnd.currentEntity == &tr.worldEntity )
-		{
-			Com_Printf( "#### shader '%s' incorrectly uses rgbGen ligthingGrid or ligthingSpherical; was rgbGen vertex intended?\n", tess.shader->name );
-			return -1;
-		}
-		else
-		{
-			return backEnd.currentEntity->iGridLighting;
-		}
-	}
-	else
-	{
-		return backEnd.currentStaticModel->iGridLighting;
-	}
-}
-
-/*
-** RB_CalcRGBFromTexCoords
-*/
-float RB_CalcRGBFromTexCoords( float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float *st )
-{
-	float f = sWeight * tess.texCoords[ 0 ][ 0 ][ 0 ] + tWeight * tess.texCoords[ 0 ][ 0 ][ 1 ];
-	float _ff_;
-
-	f = ( ( alphaMax - alphaMin ) * f + alphaMin ) * 255.0;
-
-	_ff_ = f - ( float )( ~( ( int )( f - ( float )( unsigned char )alphaCap ) >> 31 ) & ( int )( f - ( float )( unsigned char )alphaCap ) );
-	_ff_ = ( float )( ( ~( ( int )( _ff_ - ( float )( unsigned char )alphaMinCap ) >> 31 ) & ( int )( _ff_ - ( float )( unsigned char )alphaMinCap ) ) + ( unsigned char )alphaMinCap );
-
-	return _ff_ / 255.0;
-}
-
-/*
-** RB_CalcRGBFromDot
-*/
-float RB_CalcRGBFromDot( float alphaMin, float alphaMax )
-{
-	vec3_t viewInModel;
-	float f;
-	float _ff_;
-	int fl;
-
-	VectorSubtract( backEnd.or.viewOrigin, tess.xyz[ 0 ], viewInModel );
-	VectorNormalizeFast( viewInModel );
-
-	f = DotProduct( tess.normal, viewInModel );
-	f = f * f;
-
-	_ff_ = ( ( alphaMax - alphaMin ) * f + alphaMin ) * 255.0;
-	_ff_ = _ff_ - ( ~( ( int )( _ff_ - 255.0 ) >> 31 ) & ( int )( _ff_ - 255.0 ) );
-	fl = ( ~( *( int * )&_ff_ >> 31 ) & *( int * )&_ff_ );
-
-	return *( float * )fl / 255.0;
-}
-
-/*
-** RB_CalcRGBFromOneMinusDot
-*/
-float RB_CalcRGBFromOneMinusDot( float alphaMin, float alphaMax )
-{
-	vec3_t viewInModel;
-	float f;
-	float _ff_;
-	int fl;
-
-	VectorSubtract( backEnd.or.viewOrigin, tess.xyz[ 0 ], viewInModel );
-	VectorNormalizeFast( viewInModel );
-
-	f = DotProduct( tess.normal, viewInModel );
-	f = 1.0 - f * f;
-
-	_ff_ = ( ( alphaMax - alphaMin ) * f + alphaMin ) * 255.0;
-	_ff_ = _ff_ - ( ~( ( int )( _ff_ - 255.0 ) >> 31 ) & ( int )( _ff_ - 255.0 ) );
-	fl = ( ~( *( int * )&_ff_ >> 31 ) & *( int * )&_ff_ );
-
-	return *( float * )fl / 255.0;
-}
-
-/*
-** RB_CalcAlphaFromDot
-*/
-float RB_CalcAlphaFromDot( float alphaMin, float alphaMax )
-{
-	vec3_t viewInModel;
-	float f;
-	float _ff_;
-	int fl;
-
-	VectorSubtract( backEnd.or.viewOrigin, tess.xyz[ 0 ], viewInModel );
-	VectorNormalizeFast( viewInModel );
-
-	f = DotProduct( tess.normal, viewInModel );
-	f = f * f;
-
-	_ff_ = ( ( alphaMax - alphaMin ) * f + alphaMin ) * 255.0;
-	_ff_ = _ff_ - ( ~( ( int )( _ff_ - 255.0 ) >> 31 ) & ( int )( _ff_ - 255.0 ) );
-	fl = ( ~( *( int * )&_ff_ >> 31 ) & *( int * )&_ff_ );
-
-	return *( float * )fl / 255.0;
-}
-
-/*
-** RB_CalcAlphaFromOneMinusDot
-*/
-float RB_CalcAlphaFromOneMinusDot( float alphaMin, float alphaMax )
-{
-	vec3_t viewInModel;
-	float f;
-	float _ff_;
-	int fl;
-
-	VectorSubtract( backEnd.or.viewOrigin, tess.xyz[ 0 ], viewInModel );
-	VectorNormalizeFast( viewInModel );
-
-	f = DotProduct( tess.normal, viewInModel );
-	f = 1.0 - f * f;
-
-	_ff_ = ( ( alphaMax - alphaMin ) * f + alphaMin ) * 255.0;
-	_ff_ = _ff_ - ( ~( ( int )( _ff_ - 255.0 ) >> 31 ) & ( int )( _ff_ - 255.0 ) );
-	fl = ( ~( *( int * )&_ff_ >> 31 ) & *( int * )&_ff_ );
-
-	return *( float * )fl / 255.0;
-}
-
-/*
-** RB_CalcAlphaFromDotView
-*/
-float RB_CalcAlphaFromDotView( float alphaMin, float alphaMax )
-{
-	vec3_t viewInModel;
-	vec3_t normal;
-	float f;
-	float _ff_;
-	int fl;
-
-	VectorCopy( tr.refdef.viewaxis[ 0 ], viewInModel );
-	VectorNormalizeFast( viewInModel );
-
-	f = DotProduct( tess.normal, viewInModel );
-	f = f * f;
-
-	R_VaoUnpackNormal( normal, tess.normal[ 0 ] );
-
-	Com_Printf( "normal: %f %f %f  dot: %f  i %d\n", normal[ 0 ], normal[ 1 ], normal[ 2 ], f, 0 );
-
-	_ff_ = ( ( alphaMax - alphaMin ) * f + alphaMin ) * 255.0;
-	_ff_ = _ff_ - ( ~( ( int )( _ff_ - 255.0 ) >> 31 ) & ( int )( _ff_ - 255.0 ) );
-	fl = ( ~( *( int * )&_ff_ >> 31 ) & *( int * )&_ff_ );
-
-	return *( float * )fl / 255.0;
-}
-
-/*
-** RB_CalcAlphaFromOneMinusDotView
-*/
-float RB_CalcAlphaFromOneMinusDotView( float alphaMin, float alphaMax )
-{
-	vec3_t viewInModel;
-	vec3_t normal;
-	float f;
-	float _ff_;
-	int fl;
-
-	VectorCopy( tr.refdef.viewaxis[ 0 ], viewInModel );
-	VectorNormalizeFast( viewInModel );
-
-	f = DotProduct( tess.normal, viewInModel );
-	f = 1.0 - f * f;
-
-	R_VaoUnpackNormal( normal, tess.normal[ 0 ] );
-
-	Com_Printf( "normal: %f %f %f  dot: %f  i %d\n", normal[ 0 ], normal[ 1 ], normal[ 2 ], f, 0 );
-
-	_ff_ = ( ( alphaMax - alphaMin ) * f + alphaMin ) * 255.0;
-	_ff_ = _ff_ - ( ~( ( int )( _ff_ - 255.0 ) >> 31 ) & ( int )( _ff_ - 255.0 ) );
-	fl = ( ~( *( int * )&_ff_ >> 31 ) & *( int * )&_ff_ );
-
-	return *( float * )fl / 255.0;
-}
-
-/*
-** RB_CalcAlphaFromConstant
-*/
-float RB_CalcAlphaFromConstant( float alphaMin, float alphaMax )
-{
-	return alphaMin;
-}
-
-/*
-** RB_CalcAlphaFromTexCoords
-*/
-float RB_CalcAlphaFromTexCoords( float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float *st )
-{
-	float f = sWeight * tess.texCoords[ 0 ][ 0 ][ 0 ] + tWeight * tess.texCoords[ 0 ][ 0 ][ 1 ];
-	float _ff_;
-
-	f = ( ( alphaMax - alphaMin ) * f + alphaMin ) * 255.0;
-
-	_ff_ = f - ( float )( ~( ( int )( f - ( float )( unsigned char )alphaCap ) >> 31 ) & ( int )( f - ( float )( unsigned char )alphaCap ) );
-	_ff_ = ( float )( ( ~( ( int )( _ff_ - ( float )( unsigned char )alphaMinCap ) >> 31 ) & ( int )( _ff_ - ( float )( unsigned char )alphaMinCap ) ) + ( unsigned char )alphaMinCap );
-
-	return _ff_ / 255.0;
 }

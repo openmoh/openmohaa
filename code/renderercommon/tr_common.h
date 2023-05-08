@@ -23,13 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TR_COMMON_H
 
 #include "../qcommon/q_shared.h"
-#include "../qcommon/qcommon.h"
 #include "../renderercommon/tr_public.h"
 #include "qgl.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef enum
 {
@@ -48,8 +43,7 @@ typedef enum
 	IMGFLAG_NO_COMPRESSION = 0x0010,
 	IMGFLAG_NOLIGHTSCALE   = 0x0020,
 	IMGFLAG_CLAMPTOEDGE    = 0x0040,
-	IMGFLAG_SRGB           = 0x0080,
-	IMGFLAG_GENNORMALMAP   = 0x0100,
+	IMGFLAG_GENNORMALMAP   = 0x0080,
 } imgFlags_t;
 
 typedef struct image_s {
@@ -123,12 +117,11 @@ extern	cvar_t	*r_saveFontData;
 
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
-float R_NoiseGet4f( float x, float y, float z, float t );
+float R_NoiseGet4f( float x, float y, float z, double t );
 void  R_NoiseInit( void );
 
 image_t     *R_FindImageFile( const char *name, imgType_t type, imgFlags_t flags );
 image_t *R_CreateImage( const char *name, byte *pic, int width, int height, imgType_t type, imgFlags_t flags, int internalFormat );
-qboolean R_ImageExists( const char *name );
 
 void R_IssuePendingRenderCommands( void );
 qhandle_t		 RE_RegisterShaderLightMap( const char *name, int lightmapIndex );
@@ -140,16 +133,6 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_
 void R_InitFreeType( void );
 void R_DoneFreeType( void );
 void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font);
-fontheader_t *R_LoadFont( const char *name );
-void R_LoadFontShader( fontheader_t *font );
-void R_DrawString( fontheader_t *font, const char *text, float x, float y, int maxlen, qboolean bVirtualScreen );
-void R_DrawFloatingString( fontheader_t *font, const char *text, const vec3_t org, float *color, float scale, int maxlen );
-float R_GetFontHeight( fontheader_t *font );
-float R_GetFontStringWidth( fontheader_t *font, const char *s );
-int RE_Text_Width( fontInfo_t *font, const char *text, int limit, qboolean useColourCodes );
-int RE_Text_Height( fontInfo_t *font, const char *text, int limit, qboolean useColourCodes );
-void RE_Text_PaintChar( fontInfo_t *font, float x, float y, float scale, int c, qboolean is640 );
-void RE_Text_Paint( fontInfo_t *font, float x, float y, float scale, float alpha, const char *text, float adjust, int limit, qboolean useColourCodes, qboolean is640 );
 
 /*
 =============================================================
@@ -173,19 +156,16 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 ====================================================================
 */
 
-void		GLimp_Init( void );
+void		GLimp_Init( qboolean fixedFunction );
 void		GLimp_Shutdown( void );
 void		GLimp_EndFrame( void );
 
-void		GLimp_LogComment( const char *comment );
+void		GLimp_LogComment( char *comment );
 void		GLimp_Minimize(void);
 
 void		GLimp_SetGamma( unsigned char red[256],
 		unsigned char green[256],
 		unsigned char blue[256] );
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif

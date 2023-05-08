@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -20,15 +20,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// tr_terrain.c : Terrain rendering
+// tr_sphere_shade.cpp -- sphere shade
 
 #include "tr_local.h"
 
-/*
-=============
-R_AddTerrainSurfaces
-=============
-*/
-void R_AddTerrainSurfaces( void ) {
-	// FIXME
+int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights)
+{
+    // FIXME: unimplemented
+    return 0;
 }

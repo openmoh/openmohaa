@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_staticmodels.cpp -- static model rendering
 
 #include "tr_local.h"
+#include "tiki.h"
 
 #define MAX_STATIC_MODELS_SURFS		8192
 
@@ -363,8 +364,6 @@ void R_AddStaticModelSurfaces( void ) {
 		}
 	}
 
-	tr.currentEntityNum = REFENTITYNUM_WORLD;
-	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;
 	tr.shiftedIsStatic = 0;
 }
 /*
@@ -385,89 +384,85 @@ void RB_StaticMesh( staticSurface_t *staticSurf ) {
 	int					baseIndex, baseVertex;
 	short				collapse[ 1000 ];
 
-	RB_CheckVao( tess.vao );
+    tiki = backEnd.currentStaticModel->tiki;
+    surf = staticSurf->surface;
 
-	tiki = backEnd.currentStaticModel->tiki;
-	surf = staticSurf->surface;
+    assert(surf->pStaticXyz);
 
-	assert( surf->pStaticXyz );
+    meshNum = staticSurf->meshNum;
+    skelmodel = TIKI_GetSkel(tiki->mesh[meshNum]);
 
-	meshNum = staticSurf->meshNum;
-	skelmodel = TIKI_GetSkel( tiki->mesh[ meshNum ] );
+    // FIXME: LOD
+    render_count = surf->numVerts;
 
-	// FIXME: LOD
-	render_count = surf->numVerts;
+    if (tess.numVertexes + render_count >= TIKI_MAX_VERTEXES ||
+        tess.numIndexes + surf->numTriangles >= TIKI_MAX_TRIANGLES * 3) {
+        RB_CHECKOVERFLOW(render_count, surf->numTriangles);
+    }
 
-	if( tess.numVertexes + render_count >= TIKI_MAX_VERTEXES ||
-		tess.numIndexes + surf->numTriangles >= TIKI_MAX_TRIANGLES * 3 ) {
-		RB_CHECKOVERFLOW( render_count, surf->numTriangles );
-	}
+    collapse_map = surf->pCollapse;
+    triangles = surf->pTriangles;
+    indexes = surf->numTriangles * 3;
+    baseIndex = tess.numIndexes;
+    baseVertex = tess.numVertexes;
+    tess.numVertexes += render_count;
 
-	collapse_map = surf->pCollapse;
-	triangles = surf->pTriangles;
-	indexes = surf->numTriangles * 3;
-	baseIndex = tess.numIndexes;
-	baseVertex = tess.numVertexes;
-	tess.numVertexes += render_count;
+    if (render_count == surf->numVerts)
+    {
+        for (j = 0; j < indexes; j++) {
+            tess.indexes[baseIndex + j] = baseVertex + triangles[j];
+        }
+        tess.numIndexes += indexes;
+    }
+    else
+    {
+        for (i = 0; i < render_count; i++) {
+            collapse[i] = i;
+        }
+        for (i = 0; i < surf->numVerts; i++) {
+            collapse[i] = collapse[collapse_map[i]];
+        }
 
-	if( render_count == surf->numVerts )
-	{
-		for( j = 0; j < indexes; j++ ) {
-			tess.indexes[ baseIndex + j ] = baseVertex + triangles[ j ];
-		}
-		tess.numIndexes += indexes;
-	}
-	else
-	{
-		for( i = 0; i < render_count; i++ ) {
-			collapse[ i ] = i;
-		}
-		for( i = 0; i < surf->numVerts; i++ ) {
-			collapse[ i ] = collapse[ collapse_map[ i ] ];
-		}
+        for (j = 0; j < indexes; j += 3)
+        {
+            if (collapse[triangles[j]] == collapse[triangles[j + 1]] ||
+                collapse[triangles[j + 1]] == collapse[triangles[j + 2]] ||
+                collapse[triangles[j + 2]] == collapse[triangles[j]])
+            {
+                break;
+            }
 
-		for( j = 0; j < indexes; j += 3 )
-		{
-			if( collapse[ triangles[ j ] ] == collapse[ triangles[ j + 1 ] ] ||
-				collapse[ triangles[ j + 1 ] ] == collapse[ triangles[ j + 2 ] ] ||
-				collapse[ triangles[ j + 2 ] ] == collapse[ triangles[ j ] ] )
-			{
-				break;
-			}
+            tess.indexes[baseIndex + j] = baseVertex + collapse[triangles[j]];
+            tess.indexes[baseIndex + j + 1] = baseVertex + collapse[triangles[j + 1]];
+            tess.indexes[baseIndex + j + 2] = baseVertex + collapse[triangles[j + 2]];
+        }
+        tess.numIndexes += j;
+    }
 
-			tess.indexes[ baseIndex + j ] = baseVertex + collapse[ triangles[ j ] ];
-			tess.indexes[ baseIndex + j + 1 ] = baseVertex + collapse[ triangles[ j + 1 ] ];
-			tess.indexes[ baseIndex + j + 2 ] = baseVertex + collapse[ triangles[ j + 2 ] ];
-		}
-		tess.numIndexes += j;
-	}
+    for (j = 0; j < render_count; j++) {
+        Vector4Copy(surf->pStaticXyz[j], tess.xyz[baseVertex + j]);
+        Vector4Copy(surf->pStaticNormal[j], tess.normal[baseVertex + j]);
+        tess.texCoords[baseVertex + j][0] = surf->pStaticTexCoords[j][0][0];
+        tess.texCoords[baseVertex + j][1] = surf->pStaticTexCoords[j][0][1];
+    }
 
-	for( j = 0; j < render_count; j++ ) {
-		Vector4Copy( surf->pStaticXyz[ j ], tess.xyz[ baseVertex + j ] );
-		R_VaoPackNormal( ( byte * )&tess.normal[ baseVertex + j ], surf->pStaticNormal[ j ] );
-		tess.texCoords[ baseVertex + j ][ 0 ][ 0 ] = surf->pStaticTexCoords[ j ][ 0 ][ 0 ];
-		tess.texCoords[ baseVertex + j ][ 0 ][ 1 ] = surf->pStaticTexCoords[ j ][ 0 ][ 1 ];
-	}
+    if (backEndData->staticModels) {
+        color4ub_t* in = (color4ub_t*)&backEndData->staticModelData[backEnd.currentStaticModel->firstVertexData + staticSurf->ofsStaticData];
 
-	if( backEndData->staticModels ) {
-		color4ub_t *in = ( color4ub_t * )&backEndData->staticModelData[ backEnd.currentStaticModel->firstVertexData + staticSurf->ofsStaticData ];
-		vec4_t *out = &tess.vertexColors[ baseVertex ];
-
-		for( i = 0; i < render_count; i++, in++, out++ )
-		{
-			( *out )[ 0 ] = ( float )( *in )[ i ] / 255.0;
-			( *out )[ 1 ] = ( float )( *in )[ i + 1 ] / 255.0;
-			( *out )[ 2 ] = ( float )( *in )[ i + 2 ] / 255.0;
-			( *out )[ 3 ] = 1.0;
-		}
-	} else {
-		for( i = 0; i < render_count; i++ ) {
-			tess.vertexColors[ baseVertex + i ][ 0 ] = 1.0;
-			tess.vertexColors[ baseVertex + i ][ 1 ] = 1.0;
-			tess.vertexColors[ baseVertex + i ][ 2 ] = 1.0;
-			tess.vertexColors[ baseVertex + i ][ 3 ] = 1.0;
-		}
-	}
-
-	tess.vertexColorValid = qtrue;
+        for (i = 0; i < render_count; i++, in++)
+        {
+            tess.color[baseVertex + i][0] = (*in)[0] * 257;
+            tess.color[baseVertex + i][0] = (*in)[1] * 257;
+            tess.color[baseVertex + i][0] = (*in)[2] * 257;
+            tess.color[baseVertex + i][0] = 65535;
+        }
+    }
+    else {
+        for (i = 0; i < render_count; i++) {
+            tess.color[baseVertex + i][0] = 65535;
+            tess.color[baseVertex + i][1] = 65535;
+            tess.color[baseVertex + i][2] = 65535;
+            tess.color[baseVertex + i][3] = 65535;
+        }
+    }
 }

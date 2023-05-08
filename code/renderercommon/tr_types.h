@@ -20,19 +20,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-
 #pragma once
+
+#include "../cgame/tr_types.h"
+
 
 #define	MAX_DLIGHTS		32		// can't be increased, because bit flags are used on surfaces
 
 #define	REFENTITYNUM_BITS	10		// can't be increased without changing drawsurf bit packing
-#define	REFSPRITE_BITS	10			// can't be increased without changing drawsurf bit packing
 #define	REFENTITYNUM_MASK	((1<<REFENTITYNUM_BITS) - 1)
 // the last N-bit number (2^REFENTITYNUM_BITS - 1) is reserved for the special world refentity,
 //  and this is reflected by the value of MAX_REFENTITIES (which therefore is not a power-of-2)
 #define	MAX_REFENTITIES		((1<<REFENTITYNUM_BITS) - 1)
-#define	MAX_REFSPRITES		((1<<REFSPRITE_BITS) - 1)
 #define	REFENTITYNUM_WORLD	((1<<REFENTITYNUM_BITS) - 1)
-
-#define	MAX_RENDER_STRINGS			8
-#define	MAX_RENDER_STRING_LENGTH	32

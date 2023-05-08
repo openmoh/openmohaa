@@ -21,17 +21,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 
-static backEndCounters_t pc_save;
-
-/*
-=====================
-R_PerformanceCounters
-=====================
-*/
-void R_SavePerformanceCounters( void ) {
-	memcpy( &pc_save, &backEnd.pc, sizeof( pc_save ) );
-}
-
 /*
 =====================
 R_PerformanceCounters
@@ -77,8 +66,8 @@ void R_PerformanceCounters( void ) {
 	}
 	else if (r_speeds->integer == 7 )
 	{
-		ri.Printf( PRINT_ALL, "VAO draws: static %i dynamic %i\nMultidraws: %i merged %i\n",
-			backEnd.pc.c_staticVaoDraws, backEnd.pc.c_dynamicVaoDraws, backEnd.pc.c_multidraws, backEnd.pc.c_multidrawsMerged );
+		ri.Printf( PRINT_ALL, "VAO draws: static %i dynamic %i\n",
+			backEnd.pc.c_staticVaoDraws, backEnd.pc.c_dynamicVaoDraws);
 		ri.Printf( PRINT_ALL, "GLSL binds: %i  draws: gen %i light %i fog %i dlight %i\n",
 			backEnd.pc.c_glslShaderBinds, backEnd.pc.c_genericDraws, backEnd.pc.c_lightallDraws, backEnd.pc.c_fogDraws, backEnd.pc.c_dlightDraws);
 	}
@@ -214,11 +203,11 @@ void	R_AddCapShadowmapCmd( int map, int cubeSide ) {
 
 /*
 =============
-R_PostProcessingCmd
+R_AddPostProcessCmd
 
 =============
 */
-void	R_AddPostProcessCmd( ) {
+void	R_AddPostProcessCmd( void ) {
 	postProcessCommand_t	*cmd;
 
 	cmd = R_GetCommandBuffer( sizeof( *cmd ) );
@@ -353,7 +342,6 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 
 	tr.frameCount++;
 	tr.frameSceneNum = 0;
-	g_nStaticSurfaces = 0;
 
 	//
 	// do overdraw measurement
