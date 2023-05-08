@@ -226,6 +226,13 @@ typedef struct {
     float (*GetCentroidRadiusInternal)(dtiki_t* tiki, int entNum, float scale, vec3_t centroid);
     void (*GetFrameInternal)(dtiki_t* tiki, int entNum, skelAnimFrame_t* newFrame);
 
+    // SDL/ioq3 stuff
+
+    // input event handling
+    void	(*IN_Init)(void* windowData);
+    void	(*IN_Shutdown)(void);
+    void	(*IN_Restart)(void);
+
     // system stuff
     void	(*Sys_SetEnv)(const char* name, const char* value);
     void	(*Sys_GLimpSafeInit)(void);

@@ -236,6 +236,46 @@ int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
+cvar_t* r_staticlod;
+cvar_t* r_lodscale;
+cvar_t* r_lodcap;
+cvar_t* r_lodviewmodelcap;
+
+cvar_t* r_uselod;
+cvar_t* lod_LOD;
+cvar_t* lod_minLOD;
+cvar_t* lod_maxLOD;
+cvar_t* lod_LOD_slider;
+cvar_t* lod_curve_0_val;
+cvar_t* lod_curve_1_val;
+cvar_t* lod_curve_2_val;
+cvar_t* lod_curve_3_val;
+cvar_t* lod_curve_4_val;
+cvar_t* lod_edit_0;
+cvar_t* lod_edit_1;
+cvar_t* lod_edit_2;
+cvar_t* lod_edit_3;
+cvar_t* lod_edit_4;
+cvar_t* lod_curve_0_slider;
+cvar_t* lod_curve_1_slider;
+cvar_t* lod_curve_2_slider;
+cvar_t* lod_curve_3_slider;
+cvar_t* lod_curve_4_slider;
+cvar_t* lod_pitch_val;
+cvar_t* lod_zee_val;
+cvar_t* lod_mesh;
+cvar_t* lod_meshname;
+cvar_t* lod_tikiname;
+cvar_t* lod_metric;
+cvar_t* lod_tris;
+cvar_t* lod_position;
+cvar_t* lod_save;
+cvar_t* lod_tool;
+
+cvar_t* r_numdebuglines;
+
+cvar_t* r_showSkeleton;
+
 /*
 ** InitOpenGL
 **

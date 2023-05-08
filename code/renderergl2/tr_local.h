@@ -20,9 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-
-#ifndef TR_LOCAL_H
-#define TR_LOCAL_H
+#pragma once
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qfiles.h"
@@ -1536,7 +1534,6 @@ void		R_ModelInit (void);
 model_t		*R_GetModelByHandle( qhandle_t hModel );
 int			R_LerpTag( orientation_t *tag, qhandle_t handle, int startFrame, int endFrame, 
 					 float frac, const char *tagName );
-void		R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs );
 
 void		R_Modellist_f (void);
 
@@ -1921,6 +1918,10 @@ typedef struct {
     int skel_index[1024];
     fontheader_t* pFontDebugStrings;
 } trGlobals_t;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern backEndState_t	backEnd;
 extern trGlobals_t	tr;
@@ -2716,6 +2717,10 @@ RENDERER BACK END FUNCTIONS
 
 void RB_ExecuteRenderCommands( const void *data );
 
+#ifdef __cplusplus
+}
+#endif
+
 /*
 =============================================================
 
@@ -2879,7 +2884,6 @@ void R_AddPostProcessCmd (void);
 void RE_SetColor( const float *rgba );
 void RE_StretchPic ( float x, float y, float w, float h, 
 					  float s1, float t1, float s2, float t2, qhandle_t hShader );
-void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
 void RE_SaveJPG(char * filename, int quality, int image_width, int image_height,
                 unsigned char *image_buffer, int padding);
@@ -2888,5 +2892,3 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 void RE_TakeVideoFrame( int width, int height,
 		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
-
-#endif //TR_LOCAL_H
