@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sys/time.h>
 #include <pwd.h>
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
 //=============================================================================
@@ -179,7 +179,7 @@ char *strlwr (char *s) {
 #define	MAX_FOUND_FILES	0x1000
 
 // bk001129 - new in 1.26
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles ) {
+void Sys_ListFilteredFiles( const char *basedir, char *subdirs, const char *filter, char **list, int *numfiles ) {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char		filename[MAX_OSPATH];
 	DIR			*fdir;
@@ -232,7 +232,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 
 // bk001129 - in 1.17 this used to be
 // char **Sys_ListFiles( const char *directory, const char *extension, int *numfiles, qboolean wantsubs )
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs )
 {
 	struct dirent *d;
 	// char *p; // bk001204 - unused

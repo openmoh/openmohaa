@@ -21,17 +21,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "../client/client.h"
 
-/*
 static cvar_t in_mouse_real;
 cvar_t* in_mouse = NULL;
-*/
 
-void IN_Init( void *windowData ) {
-    /*
+void IN_Init() {
     memset(&in_mouse_real, 0, sizeof(in_mouse_real));
     in_mouse_real.integer = 0;
     in_mouse = &in_mouse_real;
-    */
 }
 
 void IN_Restart( void ) {

@@ -812,6 +812,7 @@ typedef struct {
 } field_t;
 
 void Field_Clear( field_t *edit );
+void Field_CompleteCommand( field_t *edit );
 void Field_AutoComplete( field_t *edit );
 
 /*
@@ -1105,7 +1106,7 @@ qboolean SV_GameCommand( void );
 //
 // input interface
 //
-void IN_Init(void *windowData);
+void IN_Init(void);
 void IN_Frame(void);
 void IN_Shutdown(void);
 void IN_Restart(void);

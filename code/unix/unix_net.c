@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // unix_net.c
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
 #include <unistd.h>
@@ -208,7 +208,7 @@ qboolean	Sys_GetPacket (netadr_t *net_from, msg_t *net_message)
 
 //=============================================================================
 
-void	Sys_SendPacket( int length, const void *data, netadr_t to )
+void	Sys_SendPacket( size_t length, const void *data, netadr_t to )
 {
 	int		ret;
 	struct sockaddr_in	addr;

@@ -315,7 +315,7 @@ static char socksBuf[4096];
 Sys_SendPacket
 ==================
 */
-void Sys_SendPacket( int length, const void *data, netadr_t to ) {
+void Sys_SendPacket( size_t length, const void *data, netadr_t to ) {
 	int				ret;
 	struct sockaddr	addr;
 	SOCKET			net_socket;

@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // FIXME TTimo should we gard this? most *nix system should comply?
 #include <termios.h>
 
-#include "../game/q_shared.h"
+#include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../renderer/tr_public.h"
 
@@ -91,6 +91,8 @@ static field_t tty_con;
 #define TTY_HISTORY 32
 static field_t ttyEditLines[TTY_HISTORY];
 static int hist_current = -1, hist_count = 0;
+static void* game_library = NULL;
+static void* cgame_library = NULL;
 
 // =======================================================================
 // General routines
@@ -686,6 +688,207 @@ void Sys_UnloadDll( void *dllHandle ) {
     Com_Printf ( "Sys_UnloadGame failed on dlclose: \"%s\"!\n", err );
 }
 
+/*
+=================
+Sys_UnloadGame
+=================
+*/
+void Sys_UnloadGame(void)
+{
+    Com_Printf("------ Unloading Game ------\n");
+
+    if (game_library) {
+        dlclose(game_library);
+    }
+
+    game_library = NULL;
+}
+
+/*
+=================
+Sys_GetGameAPI
+=================
+*/
+void* Sys_GetGameAPI(void* parms)
+{
+    void* (*GetGameAPI) (void*);
+    const char* basepath;
+    const char* cdpath;
+    const char* gamedir;
+    const char* homepath;
+    const char* fn;
+    const char* gamename = "game" ARCH_STRING DLL_SUFFIX DLL_EXT;
+
+    if (game_library)
+        Com_Error(ERR_FATAL, "Sys_GetGameAPI without calling Sys_UnloadGame");
+
+    // check the current debug directory first for development purposes
+    homepath = Cvar_VariableString("fs_homepath");
+    basepath = Cvar_VariableString("fs_basepath");
+    cdpath = Cvar_VariableString("fs_cdpath");
+    gamedir = Cvar_VariableString("fs_game");
+
+    fn = FS_BuildOSPath(basepath, gamedir, gamename);
+
+#define Q_RTLD    RTLD_NOW
+    game_library = dlopen(fn, Q_RTLD);
+
+    //First try in mod directories. basepath -> homepath -> cdpath
+    if (!game_library) {
+        if (homepath[0]) {
+            Com_Printf("Sys_GetGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+            fn = FS_BuildOSPath(homepath, gamedir, gamename);
+            game_library = dlopen(fn, Q_RTLD);
+        }
+    }
+    if (!game_library) {
+        if (cdpath[0]) {
+            Com_Printf("Sys_GetGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+            fn = FS_BuildOSPath(cdpath, gamedir, gamename);
+            game_library = dlopen(fn, Q_RTLD);
+        }
+    }
+
+    //Now try in base. basepath -> homepath -> cdpath
+    if (!game_library) {
+        Com_Printf("Sys_GetGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+        fn = FS_BuildOSPath(basepath, PRODUCT_NAME, gamename);
+        game_library = dlopen(fn, Q_RTLD);
+    }
+
+    if (!game_library) {
+        if (homepath[0]) {
+            Com_Printf("Sys_GetGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+            fn = FS_BuildOSPath(homepath, PRODUCT_NAME, gamename);
+            game_library = dlopen(fn, Q_RTLD);
+        }
+    }
+    if (!game_library) {
+        if (cdpath[0]) {
+            Com_Printf("Sys_GetGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+            fn = FS_BuildOSPath(cdpath, PRODUCT_NAME, gamename);
+            game_library = dlopen(fn, Q_RTLD);
+        }
+    }
+
+    //Still couldn't find it.
+    if (!game_library) {
+        Com_Printf("Sys_GetGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+        Com_Error(ERR_FATAL, "Couldn't load game");
+    }
+
+    Com_Printf("Sys_GetGameAPI(%s): succeeded ...\n", fn);
+    GetGameAPI = (void* (*)(void*))dlsym(game_library, "GetGameAPI");
+
+    if (!GetGameAPI)
+    {
+        Sys_UnloadGame();
+        return NULL;
+    }
+
+    return GetGameAPI(parms);
+}
+
+/*
+=================
+Sys_UnloadCGame
+=================
+*/
+void Sys_UnloadCGame(void)
+{
+    Com_Printf("------ Unloading ClientGame ------\n");
+
+    if (cgame_library) {
+        dlclose(cgame_library);
+    }
+
+    cgame_library = NULL;
+}
+
+/*
+=================
+Sys_GetCGameAPI
+=================
+*/
+void* Sys_GetCGameAPI(void* parms)
+{
+    void* (*GetCGameAPI) (void*);
+    const char* basepath;
+    const char* cdpath;
+    const char* gamedir;
+    const char* homepath;
+    const char* fn;
+    const char* gamename = "cgame" ARCH_STRING DLL_EXT;
+
+    if (cgame_library)
+        Com_Error(ERR_FATAL, "Sys_GetCGameAPI without calling Sys_UnloadCGame");
+
+    // check the current debug directory first for development purposes
+    homepath = Cvar_VariableString("fs_homepath");
+    basepath = Cvar_VariableString("fs_basepath");
+    cdpath = Cvar_VariableString("fs_cdpath");
+    gamedir = Cvar_VariableString("fs_game");
+
+    fn = FS_BuildOSPath(basepath, gamedir, gamename);
+
+#define Q_RTLD    RTLD_NOW
+    cgame_library = dlopen(fn, Q_RTLD);
+
+    //First try in mod directories. basepath -> homepath -> cdpath
+    if (!cgame_library) {
+        if (homepath[0]) {
+            Com_Printf("Sys_GetCGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+            fn = FS_BuildOSPath(homepath, gamedir, gamename);
+            cgame_library = dlopen(fn, Q_RTLD);
+        }
+    }
+    if (!cgame_library) {
+        if (cdpath[0]) {
+            Com_Printf("Sys_GetCGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+            fn = FS_BuildOSPath(cdpath, gamedir, gamename);
+            cgame_library = dlopen(fn, Q_RTLD);
+        }
+    }
+
+    //Now try in base. basepath -> homepath -> cdpath
+    if (!cgame_library) {
+        Com_Printf("Sys_GetCGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+        fn = FS_BuildOSPath(basepath, PRODUCT_NAME, gamename);
+        cgame_library = dlopen(fn, Q_RTLD);
+    }
+
+    if (!cgame_library) {
+        if (homepath[0]) {
+            Com_Printf("Sys_GetCGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+            fn = FS_BuildOSPath(homepath, PRODUCT_NAME, gamename);
+            cgame_library = dlopen(fn, Q_RTLD);
+        }
+    }
+    if (!cgame_library) {
+        if (cdpath[0]) {
+            Com_Printf("Sys_GetCGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+            fn = FS_BuildOSPath(cdpath, PRODUCT_NAME, gamename);
+            cgame_library = dlopen(fn, Q_RTLD);
+        }
+    }
+
+    //Still couldn't find it.
+    if (!cgame_library) {
+        Com_Printf("Sys_GetCGameAPI(%s) failed: \"%s\"\n", fn, dlerror());
+        Com_Error(ERR_FATAL, "Couldn't load game");
+    }
+
+    Com_Printf("Sys_GetCGameAPI(%s): succeeded ...\n", fn);
+    GetCGameAPI = (void* (*)(void*))dlsym(cgame_library, "GetCGameAPI");
+
+    if (!GetCGameAPI)
+    {
+        Sys_UnloadCGame();
+        return NULL;
+    }
+
+    return GetCGameAPI(parms);
+}
 
 /*
 =================
@@ -730,6 +933,8 @@ void *Sys_LoadDll( const char *name, char *fqpath ,
   snprintf (fname, sizeof(fname), "%saxp.so", name);
 #elif defined __mips__
   snprintf (fname, sizeof(fname), "%smips.so", name);
+#elif defined __x86_64__
+  snprintf(fname, sizeof(fname), "%sx86_64.so", name);
 #else
 #error Unknown arch
 #endif
@@ -1271,3 +1476,138 @@ int main ( int argc, char* argv[] )
     Com_Frame ();
   }
 }
+
+/*
+================
+RecoverLostAutodialData
+================
+*/
+void RecoverLostAutodialData(void)
+{
+    // FIXME: stub
+}
+
+/*
+==============
+Sys_CloseMutex
+==============
+*/
+void Sys_CloseMutex(void)
+{
+    // FIXME: stub
+}
+
+
+/*
+==============
+Sys_PumpMessageLoop
+==============
+*/
+void Sys_PumpMessageLoop(void)
+{
+    // FIXME: stub
+}
+
+/*
+==============
+SaveRegistryInfo
+==============
+*/
+qboolean SaveRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long lSize)
+{
+    STUB_DESC("not implemented");
+    return qfalse;
+}
+
+/*
+==============
+LoadRegistryInfo
+==============
+*/
+qboolean LoadRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long* plSize)
+{
+    STUB_DESC("not implemented");
+    return qfalse;
+}
+
+/*
+==============
+IsFirstRun
+==============
+*/
+qboolean IsFirstRun(void)
+{
+    STUB_DESC("wtf");
+    return qfalse;
+}
+
+/*
+==============
+IsNewConfig
+==============
+*/
+qboolean IsNewConfig(void)
+{
+    STUB_DESC("wtf");
+    return qfalse;
+}
+
+/*
+==============
+IsSafeMode
+==============
+*/
+qboolean IsSafeMode(void)
+{
+    STUB_DESC("wtf");
+    return qfalse;
+}
+
+/*
+==============
+ClearNewConfigFlag
+==============
+*/
+void ClearNewConfigFlag(void)
+{
+}
+
+/*
+==============
+Sys_GetWholeClipboard
+==============
+*/
+const char* Sys_GetWholeClipboard(void)
+{
+    return NULL;
+}
+
+/*
+==============
+Sys_SetClipboard
+==============
+*/
+void Sys_SetClipboard(const char* contents)
+{
+}
+
+/*
+==================
+SetNormalThreadPriority
+==================
+*/
+void SetNormalThreadPriority(void)
+{
+    // FIXME: stub
+}
+
+/*
+==================
+SetBelowNormalThreadPriority
+==================
+*/
+void SetBelowNormalThreadPriority(void)
+{
+    // FIXME: stub
+}
+

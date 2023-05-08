@@ -91,7 +91,6 @@ if(WIN32)
 	set(SOURCES_PLATFORM_SPECIFIC
 		WIN32
 		"code/win32/win_bounds.cpp"
-		"code/win32/win_input.c"
 		"code/win32/win_localization.cpp"
 		"code/win32/win_main.c"
 		"code/win32/win_net.c"
@@ -104,11 +103,13 @@ if(WIN32)
 	set(SOURCES_CLIENT_PLATFORM_SPECIFIC
 		"code/win32/win_gamma.c"
 		"code/win32/win_glimp.c"
+		"code/win32/win_input.c"
 		"code/win32/win_qgl.c"
 		"code/win32/win_snd.c"
 	)
 else()
 	set(SOURCES_PLATFORM_SPECIFIC
+		"code/unix/linux_signals.c"
 		"code/unix/unix_main.c"
 		"code/unix/unix_net.c"
 		"code/unix/unix_shared.c"
@@ -180,7 +181,7 @@ include("code/gamespy/gcd.cmake")
 file(GLOB_RECURSE SOURCES_SERVER "code/server/*.c" "code/server/*.cpp")
 set(SOURCES_SERVER_APP ${SOURCES_APP} ${SOURCES_SERVER})
 
-add_executable(omohaaded ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_SERVER_APP} "code/null/null_client.c" "code/null/null_snddma.c")
+add_executable(omohaaded ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_SERVER_APP} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c")
 target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE APP_MODULE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
 target_compile_features(omohaaded PUBLIC cxx_nullptr)
 target_compile_features(omohaaded PUBLIC c_variadic_macros)
@@ -196,6 +197,8 @@ if(WIN32)
 	endif()
 	target_link_libraries(omohaaded PRIVATE wsock32 ws2_32)
 	target_link_libraries(omohaaded PRIVATE winmm)
+
+	INSTALL(FILES $<TARGET_PDB_FILE:omohaaded> DESTINATION "./" OPTIONAL)
 elseif(UNIX)
 	find_package(Threads)
 	target_link_libraries(omohaaded PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
@@ -204,7 +207,6 @@ elseif(UNIX)
 endif()
 
 INSTALL(TARGETS omohaaded DESTINATION "./")
-INSTALL(FILES $<TARGET_PDB_FILE:omohaaded> DESTINATION "./" OPTIONAL)
 
 if (WITH_CLIENT)
 	## Client
