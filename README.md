@@ -23,11 +23,13 @@ The server version can successfully be built. There are few unimplemented stuff 
 
 ### Client
 
-There is currently no client build because the client code is currently unusable. Here is what's missing or unimplemented :
+There is currently no client build because the UI code is currently unimplemented. Here is what's missing or unimplemented :
 
 - rendering (mostly advanced)
 - sound (must be reworked)
 - UI
+
+Using CMake, the client build and successfully be built by adding `-DWITH_CLIENT=1`
 
 The client game module (cgame) is partially implemented, and is compatible with the original MOH:AA module.
 
