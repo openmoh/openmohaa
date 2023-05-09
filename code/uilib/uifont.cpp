@@ -241,8 +241,7 @@ int UIFont::getHeight
 
 	height = getHeight( bVirtual );
 
-	i = 0;
-	while( text[ i ] )
+	for(i = 0; text[i]; i++)
 	{
 		if( maxlen != -1 && i > maxlen ) {
 			break;
