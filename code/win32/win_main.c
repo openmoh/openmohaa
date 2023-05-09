@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/client.h"
 #include "../qcommon/qcommon.h"
 #include "win_local.h"
+#include "win_localization.h"
 #include "resource.h"
 #include <errno.h>
 #include <float.h>
@@ -1544,6 +1545,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	Sys_InitStreamThread();
 
 	Com_Init( sys_cmdline );
+	Sys_InitLocalization();
 	// Already called inside Com_Init
 	//NET_Init();
 

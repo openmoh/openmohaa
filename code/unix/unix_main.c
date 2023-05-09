@@ -52,6 +52,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "../renderer/tr_public.h"
+#include "../win32/win_localization.h"
 
 #include "linux_local.h" // bk001204
 
@@ -1457,6 +1458,7 @@ int main ( int argc, char* argv[] )
   memset( &sys_packetReceived[0], 0, MAX_MSGLEN*sizeof(byte) );
 
   Com_Init(cmdline);
+  Sys_InitLocalization();
   // Already called inside Com_Init
   //NET_Init();
 
