@@ -28,3 +28,13 @@ void R_LevelMarksLoad(const char* szBSPName)
 {
     // FIXME: unimplemented
 }
+
+void R_LevelMarksInit()
+{
+    // FIXME: unimplemented
+}
+
+void R_LevelMarksFree()
+{
+    // FIXME: unimplemented
+}

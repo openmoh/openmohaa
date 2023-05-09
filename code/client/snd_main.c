@@ -332,11 +332,14 @@ S_RegisterSound
 */
 sfxHandle_t	S_RegisterSound(const char *sample, qboolean compressed, qboolean streamed)
 {
+	/*
 	if( si.RegisterSound ) {
 		return si.RegisterSound( sample, compressed );
 	} else {
 		return 0;
 	}
+	*/
+	// FIXME: infinite loop
 }
 
 /*

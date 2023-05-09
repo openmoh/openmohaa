@@ -366,6 +366,8 @@ extern	clientGameExport_t	*cge;
 extern	refexport_t		re;		// interface to refresh .dll
 
 
+extern qboolean	scr_initialized;
+
 //
 // cvars
 //

@@ -1203,28 +1203,35 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	tr.registered = qfalse;
 }
 
+extern qboolean scr_initialized;
+
 /*
 ** RE_BeginRegistration
 */
 void RE_BeginRegistration(glconfig_t* glconfigOut) {
 
-    // FIXME: redo
-    R_Init();
-
-    *glconfigOut = glConfig;
+    UI_LoadResource("*123");
+    scr_initialized = 0;
 
     R_SyncRenderThread();
 
+    R_LevelMarksFree();
+    ri.Hunk_Clear();
+
+    *glconfigOut = glConfig;
+
+    r_sequencenumber++;
     tr.viewCluster = -1;		// force markleafs to regenerate
     R_ClearFlares();
     RE_ClearScene();
+    R_SetupShaders();
+    R_InitLensFlare();
+    R_LevelMarksInit();
 
     tr.registered = qtrue;
 
-    // NOTE: this sucks, for some reason the first stretch pic is never drawn
-    // without this we'd see a white flash on a level load because the very
-    // first time the level shot would not be drawn
-    RE_StretchPic(0, 0, 0, 0, 0, 0, 1, 1, 0);
+    scr_initialized = 1;
+    UI_LoadResource("*124");
 }
 
 /*
@@ -1263,6 +1270,8 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 			REF_API_VERSION, apiVersion );
 		return NULL;
 	}
+
+	R_Init();
 
 	// the RE_ functions are Renderer Entry points
 

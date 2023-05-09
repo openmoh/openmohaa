@@ -2280,7 +2280,6 @@ void R_FreeLump(gamelump_t* lump)
     }
 }
 
-void UI_LoadResource(const char* name);
 #define _R( id ) UI_LoadResource( "*" #id )
 
 /*

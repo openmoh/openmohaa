@@ -23,6 +23,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tr_shader.c -- this file deals with the parsing and definition of shaders
 
+
+typedef struct shadertext_s {
+    char name[64];
+    char* text;
+    shader_t* shader;
+    struct shadertext_s* next;
+} shadertext_t;
+
 static char *s_shaderText;
 
 // the shader is parsed into these global variables, then copied into
@@ -37,6 +45,12 @@ static	shader_t*		hashTable[FILE_HASH_SIZE];
 
 #define MAX_SHADERTEXT_HASH		2048
 static char **shaderTextHashTable[MAX_SHADERTEXT_HASH];
+
+static qboolean shader_noPicMip;
+static qboolean shader_noMipMaps;
+static qboolean shader_force32bit;
+static shadertext_t* currentShader;
+//static shadertext_t* hashTable[8192];
 
 /*
 ================
@@ -2866,7 +2880,8 @@ static void ScanAndLoadShaderFiles( void )
 	}
 
 	// build single large buffer
-	s_shaderText = ri.Hunk_Alloc( sum + numShaders*2 );
+	s_shaderText = ri.Malloc( sum + numShaders*2 );
+	memset(s_shaderText, 0, sum + numShaders * 2);
 
 	// free in reverse order, so the temp files are all dumped
 	for ( i = numShaders - 1; i >= 0 ; i-- ) {
@@ -2909,7 +2924,8 @@ static void ScanAndLoadShaderFiles( void )
 
 	size += MAX_SHADERTEXT_HASH;
 
-	hashMem = ri.Hunk_Alloc( size * sizeof(char *) );
+	hashMem = ri.Malloc( size * sizeof(char *) );
+	memset(hashMem, 0, size + sizeof(char*));
 
 	for (i = 0; i < MAX_SHADERTEXT_HASH; i++) {
 		shaderTextHashTable[i] = (char **) hashMem;
@@ -2977,6 +2993,21 @@ static void CreateExternalShaders( void ) {
 	tr.projectionShadowShader = R_FindShader( "projectionShadow", LIGHTMAP_NONE, qtrue, qtrue, qtrue, qtrue);
 	tr.flareShader = R_FindShader( "flareShader", LIGHTMAP_NONE, qtrue, qtrue, qtrue, qtrue);
 	tr.sunShader = R_FindShader( "sun", LIGHTMAP_NONE, qtrue, qtrue, qtrue, qtrue);
+}
+
+void R_StartupShaders()
+{
+    // FIXME: unimplemented
+}
+
+void R_ShutdownShaders()
+{
+	// FIXME: unimplemented
+}
+
+void R_SetupShaders()
+{
+    // FIXME: unimplemented
 }
 
 /*

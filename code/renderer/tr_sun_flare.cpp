@@ -23,3 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_sun_flare.cpp: Sun flares
 
 #include "tr_local.h"
+
+void R_InitLensFlare()
+{
+    // FIXME: unimplemented
+}

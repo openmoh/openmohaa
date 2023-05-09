@@ -1587,6 +1587,9 @@ shader_t	*R_GetShaderByHandle( qhandle_t hShader );
 shader_t	*R_GetShaderByState( int index, long *cycleTime );
 shader_t *R_FindShaderByName( const char *name );
 void		R_InitShaders( void );
+void R_StartupShaders();
+void R_ShutdownShaders();
+void R_SetupShaders();
 void		R_ShaderList_f( void );
 void    R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
@@ -1835,6 +1838,8 @@ MARKS
 =============================================================
 */
 void R_LevelMarksLoad(const char* szBSPName);
+void R_LevelMarksInit();
+void R_LevelMarksFree();
 
 /*
 =============================================================
@@ -1845,6 +1850,16 @@ SPRITE
 */
 sprite_t* SPR_RegisterSprite(const char* name);
 void RB_DrawSprite(const refSprite_t* spr);
+
+
+/*
+=============================================================
+
+SUN FLARE
+
+=============================================================
+*/
+void R_InitLensFlare();
 
 /*
 =============================================================
@@ -2095,6 +2110,8 @@ void RE_StretchPic ( float x, float y, float w, float h,
 void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
 void SaveJPG(char * filename, int quality, int image_width, int image_height, unsigned char *image_buffer);
+
+void UI_LoadResource(const char* name);
 
 #ifdef __cplusplus
 }
