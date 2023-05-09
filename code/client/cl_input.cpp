@@ -889,6 +889,13 @@ void CL_WritePacket( void ) {
 			oldcmd = cmd;
 		}
 	}
+	else {
+        eyeInfo.ofs[0] = 0;
+        eyeInfo.ofs[1] = 0;
+        eyeInfo.ofs[2] = 0;
+        eyeInfo.angles[0] = cl.viewangles[0];
+        eyeInfo.angles[1] = cl.viewangles[1];
+	}
 
 	//
 	// deliver the message
