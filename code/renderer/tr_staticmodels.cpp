@@ -112,7 +112,7 @@ void R_InitStaticModels( void ) {
 			for( k = 0; k < surf->numskins; k++ )
 			{
 				if( surf->shader[ k ][ 0 ] ) {
-					shader_t *sh = R_FindShader( surf->shader[ k ], -1, ( surf->flags & TIKI_SURF_SKIN1 ) );
+					shader_t *sh = R_FindShader( surf->shader[ k ], -1, !( surf->flags & TIKI_SURF_NOMIPMAPS ), !(surf->flags & TIKI_SURF_NOPICMIP), qtrue, qtrue);
 					surf->hShader[ k ] = sh->index;
 				} else {
 					surf->hShader[ k ] = NULL;

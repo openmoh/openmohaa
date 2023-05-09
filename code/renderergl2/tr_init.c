@@ -33,6 +33,7 @@ float       displayAspect = 0.0f;
 qboolean    haveClampToEdge = qfalse;
 
 glstate_t	glState;
+int r_sequencenumber;
 
 static void GfxInfo_f( void );
 static void GfxMemInfo_f( void );

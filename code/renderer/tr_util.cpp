@@ -238,7 +238,7 @@ int RE_GetShaderWidth( qhandle_t hShader ) {
 		shader = tr.defaultShader;
 	}
 
-	return shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadWidth;
+	return shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadWidth;
 }
 
 /*
@@ -256,5 +256,5 @@ int RE_GetShaderHeight( qhandle_t hShader ) {
 		shader = tr.defaultShader;
 	}
 
-	return shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadHeight;
+	return shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadHeight;
 }

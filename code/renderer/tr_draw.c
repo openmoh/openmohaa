@@ -64,8 +64,8 @@ void Draw_StretchPic( float x, float y, float w, float h, float s1, float t1, fl
 	}
 
 	if( w <= 0 ) {
-		w = shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->width;
-		h = shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->height;
+		w = shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->width;
+		h = shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->height;
 	}
 
 	// draw the pic
@@ -109,12 +109,12 @@ void Draw_TilePic( float x, float y, float w, float h , qhandle_t hShader ) {
 	}
 
 	if( w <= 0 ) {
-		w = shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->width;
-		h = shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->height;
+		w = shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->width;
+		h = shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->height;
 	}
 
-	picw = shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadWidth;
-	pich = shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadHeight;
+	picw = shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadWidth;
+	pich = shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadHeight;
 
 	// draw the pic
 	RB_Color4f( backEnd.color2D[ 0 ], backEnd.color2D[ 1 ], backEnd.color2D[ 2 ], backEnd.color2D[ 3 ] );
@@ -154,12 +154,12 @@ void Draw_TilePicOffset( float x, float y, float w, float h, qhandle_t hShader, 
 	}
 
 	if( w <= 0 ) {
-		w = shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->width;
-		h = shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->height;
+		w = shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->width;
+		h = shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->height;
 	}
 
-	picw = shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadWidth;
-	pich = shader->stages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadHeight;
+	picw = shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadWidth;
+	pich = shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadHeight;
 
 	// draw the pic
 	RB_Color4f( backEnd.color2D[ 0 ], backEnd.color2D[ 1 ], backEnd.color2D[ 2 ], backEnd.color2D[ 3 ] );

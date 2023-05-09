@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 glconfig_t	glConfig;
 glstate_t	glState;
+int r_sequencenumber;
 
 static void GfxInfo_f( void );
 

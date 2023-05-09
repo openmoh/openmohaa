@@ -314,7 +314,7 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 	tess.shader = state;
 	tess.fogNum = fogNum;
 	tess.dlightBits = 0;		// will be OR'd in by surface functions
-	tess.xstages = state->stages;
+	tess.xstages = state->unfoggedStages;
 	tess.numPasses = state->numUnfoggedPasses;
 	tess.currentStageIteratorFunc = state->optimalStageIteratorFunc;
 
@@ -746,7 +746,7 @@ static void ComputeColors( shaderStage_t *pStage )
 			}
 		}
 		break;
-	case AGEN_CONST:
+	case AGEN_CONSTANT:
 		if ( pStage->rgbGen != CGEN_CONST ) {
 			for ( i = 0; i < tess.numVertexes; i++ ) {
 				tess.svars.colors[i][3] = pStage->constantColor[3];

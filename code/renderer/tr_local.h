@@ -289,7 +289,19 @@ typedef enum {
 	AGEN_LIGHTING_SPECULAR,
 	AGEN_WAVEFORM,
 	AGEN_PORTAL,
-	AGEN_CONST
+	AGEN_NOISE,
+	AGEN_DOT,
+	AGEN_ONE_MINUS_DOT,
+	AGEN_CONSTANT,
+	AGEN_GLOBAL_ALPHA,
+	AGEN_SKYALPHA,
+	AGEN_ONE_MINUS_SKYALPHA,
+	AGEN_SCOORD,
+	AGEN_TCOORD,
+	AGEN_DIST_FADE,
+	AGEN_ONE_MINUS_DIST_FADE,
+	AGEN_DOT_VIEW,
+	AGEN_ONE_MINUS_DOT_VIEW,
 } alphaGen_t;
 
 typedef enum {
@@ -302,6 +314,17 @@ typedef enum {
 	CGEN_VERTEX,			// tess.vertexColors * tr.identityLight
 	CGEN_ONE_MINUS_VERTEX,
 	CGEN_WAVEFORM,			// programmatically generated
+	CGEN_MULTIPLY_BY_WAVEFORM,
+	CGEN_LIGHTING_GRID,
+	CGEN_LIGHTING_SPHERICAL,
+	CGEN_CONSTANT,
+	CGEN_NOISE,
+	CGEN_GLOBAL_COLOR,
+	CGEN_STATIC,
+	CGEN_SCOORD,
+	CGEN_TCOORD,
+	CGEN_DOT,
+	CGEN_ONE_MINUS_DOT,
 	CGEN_LIGHTING_DIFFUSE,
 	CGEN_FOG,				// standard fog
 	CGEN_CONST				// fixed color
@@ -313,8 +336,10 @@ typedef enum {
 	TCGEN_LIGHTMAP,
 	TCGEN_TEXTURE,
 	TCGEN_ENVIRONMENT_MAPPED,
-	TCGEN_FOG,
-	TCGEN_VECTOR			// S and T from world coordinates
+	TCGEN_VECTOR,			// S and T from world coordinates
+	TCGEN_ENVIRONMENT_MAPPED2,
+	TCGEN_SUN_REFLECTION,
+	TCGEN_FOG
 } texCoordGen_t;
 
 typedef enum {
@@ -515,7 +540,7 @@ typedef struct shader_s {
 	deformStage_t	deforms[MAX_SHADER_DEFORMS];
 
 	int			numUnfoggedPasses;
-	shaderStage_t	*stages[MAX_SHADER_STAGES];		
+	shaderStage_t	* unfoggedStages[MAX_SHADER_STAGES];
 
 	void		(*optimalStageIteratorFunc)( void );
 
@@ -1241,6 +1266,7 @@ extern backEndState_t	backEnd;
 extern trGlobals_t	tr;
 extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
+extern int r_sequencenumber;
 
 
 //
@@ -1547,7 +1573,7 @@ qhandle_t		 RE_RegisterShader( const char *name );
 qhandle_t		 RE_RegisterShaderNoMip( const char *name );
 qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t *image, qboolean mipRawImage);
 
-shader_t	*R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImage );
+shader_t* R_FindShader(const char* name, int lightmapIndex, qboolean mipRawImage, qboolean picmip, qboolean wrapx, qboolean wrapy);
 shader_t	*R_GetShaderByHandle( qhandle_t hShader );
 shader_t	*R_GetShaderByState( int index, long *cycleTime );
 shader_t *R_FindShaderByName( const char *name );
@@ -1822,6 +1848,7 @@ FONT
 =============================================================
 */
 fontheader_t* R_LoadFont(const char* name);
+void R_LoadFontShader(fontheader_t* font);
 void R_DrawString(const fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen);
 float R_GetFontHeight(const fontheader_t* font);
 float R_GetFontStringWidth(const fontheader_t* font, const char* s);

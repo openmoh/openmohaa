@@ -35,11 +35,11 @@ sprite_t *SPR_RegisterSprite(const char *name)
 	sprite_t *spr;
 	char shadername[256];
 	COM_StripExtension(name,shadername,sizeof(shadername));
-	shader = R_FindShader(shadername,-1,qfalse);
+	shader = R_FindShader(shadername,-1,qfalse,qfalse,qfalse,qfalse);
 	if(shader) {
 		spriteImage = 0;
-		if(shader->stages[0])
-			spriteImage = shader->stages[0]->bundle[0].image[0];
+		if(shader->unfoggedStages[0])
+			spriteImage = shader->unfoggedStages[0]->bundle[0].image[0];
 		if ( !spriteImage ) {
 			ri.Printf(1, "Could not find image for sprite in shader %s\n", name);
 			return 0;
