@@ -1156,7 +1156,7 @@ void R_Init( void ) {
 
 	R_InitImages();
 
-	R_InitShaders();
+	R_StartupShaders();
 
 	R_InitSkins();
 
