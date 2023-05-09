@@ -148,6 +148,8 @@ cvar_t	*r_maxpolys;
 int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
+cvar_t* r_maxtermarks;
+int		max_termarks;
 
 cvar_t* r_staticlod;
 cvar_t* r_lodscale;
@@ -892,14 +894,13 @@ void GfxInfo_f( void )
 	}
 }
 
-qboolean R_SetMode(int mode) {
+qboolean R_SetMode(int mode, const glconfig_t* glConfig) {
 	// FIXME: unimplemented
 	return qfalse;
 }
 
-void R_SetFullscreen(qboolean fullscreen, glconfig_t* config) {
+void R_SetFullscreen(qboolean fullscreen) {
 	// FIXME: unimplemented
-	return qfalse;
 }
 
 /*
@@ -1047,6 +1048,7 @@ void R_Register( void )
 
 	r_maxpolys = ri.Cvar_Get( "r_maxpolys", va("%d", MAX_POLYS), 0);
 	r_maxpolyverts = ri.Cvar_Get( "r_maxpolyverts", va("%d", MAX_POLYVERTS), 0);
+	r_maxtermarks = ri.Cvar_Get("r_maxtermarks", va("%d", MAX_TERMARKS), 0);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown
@@ -1123,20 +1125,31 @@ void R_Init( void ) {
 
 	max_polyverts = r_maxpolyverts->integer;
 	if (max_polyverts < MAX_POLYVERTS)
-		max_polyverts = MAX_POLYVERTS;
+        max_polyverts = MAX_POLYVERTS;
 
-	ptr = ri.Hunk_Alloc( sizeof( *backEndData[0] ) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts);
-	backEndData[0] = (backEndData_t *) ptr;
-	backEndData[0]->polys = (srfPoly_t *) ((char *) ptr + sizeof( *backEndData[0] ));
-	backEndData[0]->polyVerts = (polyVert_t *) ((char *) ptr + sizeof( *backEndData[0] ) + sizeof(srfPoly_t) * max_polys);
-	if ( r_smp->integer ) {
-		ptr = ri.Hunk_Alloc( sizeof( *backEndData[1] ) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts);
-		backEndData[1] = (backEndData_t *) ptr;
-		backEndData[1]->polys = (srfPoly_t *) ((char *) ptr + sizeof( *backEndData[1] ));
-		backEndData[1]->polyVerts = (polyVert_t *) ((char *) ptr + sizeof( *backEndData[1] ) + sizeof(srfPoly_t) * max_polys);
-	} else {
-		backEndData[1] = NULL;
-	}
+	max_termarks = r_maxtermarks->integer;
+    if (max_termarks < MAX_TERMARKS)
+		max_termarks = MAX_TERMARKS;
+
+    ptr = ri.Malloc(sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts + sizeof(srfMarkFragment_t) * max_termarks);
+    backEndData[0] = (backEndData_t*)ptr;
+    backEndData[0]->polys = (srfPoly_t*)((char*)ptr + sizeof(*backEndData[0]));
+    backEndData[0]->polyVerts = (polyVert_t*)((char*)ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys);
+    backEndData[0]->terMarks = (srfMarkFragment_t*)((char*)ptr + sizeof(*backEndData[0]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts);
+    backEndData[0]->staticModels = NULL;
+    backEndData[0]->staticModelData = NULL;
+    if (r_smp->integer) {
+        ptr = ri.Malloc(sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts);
+        backEndData[1] = (backEndData_t*)ptr;
+        backEndData[1]->polys = (srfPoly_t*)((char*)ptr + sizeof(*backEndData[1]));
+        backEndData[1]->polyVerts = (polyVert_t*)((char*)ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys);
+        backEndData[1]->terMarks = (srfMarkFragment_t*)((char*)ptr + sizeof(*backEndData[1]) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts);
+        backEndData[1]->staticModels = NULL;
+		backEndData[1]->staticModelData = NULL;
+    }
+    else {
+        backEndData[1] = NULL;
+    }
 	R_ToggleSmpFrame();
 
 	InitOpenGL();
