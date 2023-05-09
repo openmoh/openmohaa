@@ -2596,7 +2596,7 @@ void CL_RefClear( void )
 CL_RefStaticMalloc
 ============
 */
-void *CL_RefStaticMalloc( int size ) {
+void *CL_RefStaticMalloc( size_t size ) {
 	void *ptr = Z_TagMalloc( size, TAG_STATIC_RENDERER );
 	Com_Memset( ptr, 0, size );
 	return ptr;
@@ -2713,7 +2713,7 @@ void CL_InitRef( void ) {
 #ifdef HUNK_DEBUG
     ri.Hunk_AllocDebug = Hunk_AllocDebug;
 #else
-    ri.Hunk_Alloc = Hunk_Alloc;
+    ri.Hunk_Alloc = CL_RefStaticMalloc;
 #endif
 	ri.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
 	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
