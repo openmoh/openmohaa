@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_STATIC_MODELS_SURFS		8192
 
 int g_nStaticSurfaces;
-staticSurface_t g_staticSurfaces[ MAX_STATIC_MODELS_SURFS ];
+staticSurface_t g_staticSurfaces[MAX_STATIC_MODELS_SURFS];
 qboolean g_bInfostaticmodels;
 
 /*
@@ -36,186 +36,189 @@ qboolean g_bInfostaticmodels;
 R_InitStaticModels
 ==============
 */
-void R_InitStaticModels( void ) {
-	cStaticModelUnpacked_t	*pSM;
-	char	szTemp[ 1024 ];
-	bool	exists;
-	skelBoneCache_t		bones[ 128 ];
-	float	radius;
-	int		i, j, k, l;
+void R_InitStaticModels(void) {
+    cStaticModelUnpacked_t* pSM;
+    char	szTemp[1024];
+    bool	exists;
+    skelBoneCache_t		bones[128];
+    float	radius;
+    int		i, j, k, l;
 
-	g_bInfostaticmodels = qfalse;
+    g_bInfostaticmodels = qfalse;
 
-	if( tr.overbrightShift )
-	{
-		for( i = 0; i < tr.world->numStaticModelData; i++ )
-		{
-			int		r, g, b;
+    if (tr.overbrightShift)
+    {
+        for (i = 0; i < tr.world->numStaticModelData; i++)
+        {
+            int		r, g, b;
 
-			r = ( int )( ( float )tr.world->staticModelData[ i * 4 ] * tr.overbrightMult );
-			g = ( int )( ( float )tr.world->staticModelData[ i * 4 + 1 ] * tr.overbrightMult );
-			b = ( int )( ( float )tr.world->staticModelData[ i * 4 + 2 ] * tr.overbrightMult );
+            r = (int)((float)tr.world->staticModelData[i * 4] * tr.overbrightMult);
+            g = (int)((float)tr.world->staticModelData[i * 4 + 1] * tr.overbrightMult);
+            b = (int)((float)tr.world->staticModelData[i * 4 + 2] * tr.overbrightMult);
 
-			if( ( r | g | b ) & 0xFFFFFF00 )
-			{
-				float t;
-				unsigned long long rgb;
+            if ((r | g | b) & 0xFFFFFF00)
+            {
+                float t;
+                unsigned long long rgb;
 
-				rgb = ( g + ( ~( ( unsigned long long )( r - g ) >> 32 ) & ( r - g ) ) - b );
+                rgb = (g + (~((unsigned long long)(r - g) >> 32) & (r - g)) - b);
 
-				t = 255.0 / ( float )( b + ( ~( rgb & 0x00000000FFFFFFFF ) & rgb ) );
+                t = 255.0 / (float)(b + (~(rgb & 0x00000000FFFFFFFF) & rgb));
 
-				r = ( int )( ( float )r * t );
-				g = ( int )( ( float )g * t );
-				b = ( int )( ( float )b * t );
-			}
+                r = (int)((float)r * t);
+                g = (int)((float)g * t);
+                b = (int)((float)b * t);
+            }
 
-			tr.world->staticModelData[ i * 4 ] = r;
-			tr.world->staticModelData[ i * 4 + 1 ] = g;
-			tr.world->staticModelData[ i * 4 + 2 ] = b;
-		}
-	}
+            tr.world->staticModelData[i * 4] = r;
+            tr.world->staticModelData[i * 4 + 1] = g;
+            tr.world->staticModelData[i * 4 + 2] = b;
+        }
+    }
 
-	for( i = 0; i < tr.world->numStaticModels; i++ )
-	{
-		vec3_t mins, maxs;
+    for (i = 0; i < tr.world->numStaticModels; i++)
+    {
+        vec3_t mins, maxs;
 
-		pSM = &tr.world->staticModels[ i ];
+        pSM = &tr.world->staticModels[i];
 
-		pSM->bRendered = qfalse;
-		AngleVectorsLeft( pSM->angles, pSM->axis[ 0 ], pSM->axis[ 1 ], pSM->axis[ 2 ] );
+        pSM->bRendered = qfalse;
+        AngleVectorsLeft(pSM->angles, pSM->axis[0], pSM->axis[1], pSM->axis[2]);
 
-		if( !strnicmp( pSM->model, "models", 6 ) ) {
-			strcpy( szTemp, pSM->model );
-		} else {
-			sprintf( szTemp, "models/%s", pSM->model );
-		}
+        if (!strnicmp(pSM->model, "models", 6)) {
+            strcpy(szTemp, pSM->model);
+        }
+        else {
+            sprintf(szTemp, "models/%s", pSM->model);
+        }
 
-		FS_CanonicalFilename( szTemp );
-		exists = TIKI_FindTiki( szTemp ) != NULL;
-		pSM->tiki = TIKI_RegisterTiki( szTemp );
+        FS_CanonicalFilename(szTemp);
+        exists = TIKI_FindTiki(szTemp) != NULL;
+        pSM->tiki = TIKI_RegisterTiki(szTemp);
 
-		if( !pSM->tiki ) {
-			ri.Printf( PRINT_WARNING, "^~^~^: Warning: Cannot Load Static Model %s\n", szTemp );
-			continue;
-		}
+        if (!pSM->tiki) {
+            ri.Printf(PRINT_WARNING, "^~^~^: Warning: Cannot Load Static Model %s\n", szTemp);
+            continue;
+        }
 
-		pSM->radius = TIKI_GlobalRadius( pSM->tiki );
+        pSM->radius = TIKI_GlobalRadius(pSM->tiki);
 
-		//
-		// register shaders
-		//
-		for( j = 0; j < pSM->tiki->num_surfaces; j++ )
-		{
-			dtikisurface_t *surf = &pSM->tiki->surfaces[ j ];
+        //
+        // register shaders
+        //
+        for (j = 0; j < pSM->tiki->num_surfaces; j++)
+        {
+            dtikisurface_t* surf = &pSM->tiki->surfaces[j];
 
-			for( k = 0; k < surf->numskins; k++ )
-			{
-				if( surf->shader[ k ][ 0 ] ) {
-					shader_t *sh = R_FindShader( surf->shader[ k ], -1, !( surf->flags & TIKI_SURF_NOMIPMAPS ), !(surf->flags & TIKI_SURF_NOPICMIP), qtrue, qtrue);
-					surf->hShader[ k ] = sh->index;
-				} else {
-					surf->hShader[ k ] = NULL;
-				}
-			}
-		}
+            for (k = 0; k < surf->numskins; k++)
+            {
+                if (surf->shader[k][0]) {
+                    shader_t* sh = R_FindShader(surf->shader[k], -1, !(surf->flags & TIKI_SURF_NOMIPMAPS), !(surf->flags & TIKI_SURF_NOPICMIP), qtrue, qtrue);
+                    surf->hShader[k] = sh->index;
+                }
+                else {
+                    surf->hShader[k] = NULL;
+                }
+            }
+        }
 
-		// prepare the skeleton frame for the static model
-		TIKI_GetSkelAnimFrame( pSM->tiki, bones, &radius, &mins, &maxs );
-		pSM->cull_radius = radius * pSM->tiki->load_scale * pSM->scale;
+        // prepare the skeleton frame for the static model
+        TIKI_GetSkelAnimFrame(pSM->tiki, bones, &radius, &mins, &maxs);
+        pSM->cull_radius = radius * pSM->tiki->load_scale * pSM->scale;
 
-		// Suggestion:
-		// It would be cool to have animated static model in the future
+        // Suggestion:
+        // It would be cool to have animated static model in the future
 
-		if( !exists )
-		{
-			for( j = 0; j < pSM->tiki->numMeshes; j++ )
-			{
-				skelHeaderGame_t *skelmodel = TIKI_GetSkel( pSM->tiki->mesh[ j ] );
-				skelSurfaceGame_t *surf;
+        if (!exists)
+        {
+            for (j = 0; j < pSM->tiki->numMeshes; j++)
+            {
+                skelHeaderGame_t* skelmodel = TIKI_GetSkel(pSM->tiki->mesh[j]);
+                skelSurfaceGame_t* surf;
 
-				if( !skelmodel ) {
-					ri.Printf( PRINT_WARNING, "^~^~^: Warning: Missing mesh in Static Model %s\n", skelmodel->name );
-					continue;
-				}
+                if (!skelmodel) {
+                    ri.Printf(PRINT_WARNING, "^~^~^: Warning: Missing mesh in Static Model %s\n", skelmodel->name);
+                    continue;
+                }
 
-				surf = skelmodel->pSurfaces;
+                surf = skelmodel->pSurfaces;
 
-				for( k = 0; k < skelmodel->numSurfaces; k++, surf = surf->pNext )
-				{
-					byte *buf;
-					byte *p;
-					skelWeight_t *weight;
-					skeletorVertex_t *vert;
+                for (k = 0; k < skelmodel->numSurfaces; k++, surf = surf->pNext)
+                {
+                    byte* buf;
+                    byte* p;
+                    skelWeight_t* weight;
+                    skeletorVertex_t* vert;
 
-					if( surf->pStaticXyz ) {
-						continue;
-					}
+                    if (surf->pStaticXyz) {
+                        continue;
+                    }
 
-					// allocate static vectors
-					p = buf = ( byte * )ri.TIKI_Alloc( ( sizeof( vec4_t ) + sizeof( vec4_t ) + sizeof( vec2_t ) * 2 ) * surf->numVerts );
-					surf->pStaticXyz = ( vec4_t * )p;
-					p += sizeof( vec4_t ) * surf->numVerts;
-					surf->pStaticNormal = ( vec4_t * )p;
-					p += sizeof( vec4_t ) * surf->numVerts;
-					surf->pStaticTexCoords = ( vec2_t ( * )[ 2 ] )p;
+                    // allocate static vectors
+                    p = buf = (byte*)ri.TIKI_Alloc((sizeof(vec4_t) + sizeof(vec4_t) + sizeof(vec2_t) * 2) * surf->numVerts);
+                    surf->pStaticXyz = (vec4_t*)p;
+                    p += sizeof(vec4_t) * surf->numVerts;
+                    surf->pStaticNormal = (vec4_t*)p;
+                    p += sizeof(vec4_t) * surf->numVerts;
+                    surf->pStaticTexCoords = (vec2_t(*)[2])p;
 
-					vert = surf->pVerts;
+                    vert = surf->pVerts;
 
-					for( l = 0; l < surf->numVerts; l++ )
-					{
-						int channel;
-						skelBoneCache_t *bone;
+                    for (l = 0; l < surf->numVerts; l++)
+                    {
+                        int channel;
+                        skelBoneCache_t* bone;
 
-						weight = ( skelWeight_t * )( ( byte * )vert + sizeof( skeletorVertex_t ) );
+                        weight = (skelWeight_t*)((byte*)vert + sizeof(skeletorVertex_t));
 
-						if( j > 0 ) {
-							channel = pSM->tiki->m_boneList.GetLocalFromGlobal( skelmodel->pBones[ weight->boneIndex ].channel );
-						} else {
-							channel = weight->boneIndex;
-						}
+                        if (j > 0) {
+                            channel = pSM->tiki->m_boneList.GetLocalFromGlobal(skelmodel->pBones[weight->boneIndex].channel);
+                        }
+                        else {
+                            channel = weight->boneIndex;
+                        }
 
-						bone = &bones[ channel ];
+                        bone = &bones[channel];
 
-						surf->pStaticXyz[ l ][ 0 ] = ( ( weight->offset[ 0 ] * bone->matrix[ 0 ][ 0 ]
-							+ weight->offset[ 1 ] * bone->matrix[ 1 ][ 0 ]
-							+ weight->offset[ 2 ] * bone->matrix[ 2 ][ 0 ] )
-							+ bone->offset[ 0 ] ) * weight->boneWeight;
-						surf->pStaticXyz[ l ][ 1 ] = ( ( weight->offset[ 0 ] * bone->matrix[ 0 ][ 1 ]
-							+ weight->offset[ 1 ] * bone->matrix[ 1 ][ 1 ]
-							+ weight->offset[ 2 ] * bone->matrix[ 2 ][ 1 ] )
-							+ bone->offset[ 1 ] ) * weight->boneWeight;
-						surf->pStaticXyz[ l ][ 2 ] = ( ( weight->offset[ 0 ] * bone->matrix[ 0 ][ 2 ]
-							+ weight->offset[ 1 ] * bone->matrix[ 1 ][ 2 ]
-							+ weight->offset[ 2 ] * bone->matrix[ 2 ][ 2 ] )
-							+ bone->offset[ 2 ] ) * weight->boneWeight;
+                        surf->pStaticXyz[l][0] = ((weight->offset[0] * bone->matrix[0][0]
+                            + weight->offset[1] * bone->matrix[1][0]
+                            + weight->offset[2] * bone->matrix[2][0])
+                            + bone->offset[0]) * weight->boneWeight;
+                        surf->pStaticXyz[l][1] = ((weight->offset[0] * bone->matrix[0][1]
+                            + weight->offset[1] * bone->matrix[1][1]
+                            + weight->offset[2] * bone->matrix[2][1])
+                            + bone->offset[1]) * weight->boneWeight;
+                        surf->pStaticXyz[l][2] = ((weight->offset[0] * bone->matrix[0][2]
+                            + weight->offset[1] * bone->matrix[1][2]
+                            + weight->offset[2] * bone->matrix[2][2])
+                            + bone->offset[2]) * weight->boneWeight;
 
-						surf->pStaticNormal[ l ][ 0 ] = vert->normal[ 0 ] * bone->matrix[ 0 ][ 0 ]
-							+ vert->normal[ 1 ] * bone->matrix[ 1 ][ 0 ]
-							+ vert->normal[ 2 ] * bone->matrix[ 2 ][ 0 ];
-						surf->pStaticNormal[ l ][ 1 ] = vert->normal[ 0 ] * bone->matrix[ 0 ][ 1 ]
-							+ vert->normal[ 1 ] * bone->matrix[ 1 ][ 1 ]
-							+ vert->normal[ 2 ] * bone->matrix[ 2 ][ 1 ];
-						surf->pStaticNormal[ l ][ 2 ] = vert->normal[ 0 ] * bone->matrix[ 0 ][ 2 ]
-							+ vert->normal[ 1 ] * bone->matrix[ 1 ][ 2 ]
-							+ vert->normal[ 2 ] * bone->matrix[ 2 ][ 2 ];
+                        surf->pStaticNormal[l][0] = vert->normal[0] * bone->matrix[0][0]
+                            + vert->normal[1] * bone->matrix[1][0]
+                            + vert->normal[2] * bone->matrix[2][0];
+                        surf->pStaticNormal[l][1] = vert->normal[0] * bone->matrix[0][1]
+                            + vert->normal[1] * bone->matrix[1][1]
+                            + vert->normal[2] * bone->matrix[2][1];
+                        surf->pStaticNormal[l][2] = vert->normal[0] * bone->matrix[0][2]
+                            + vert->normal[1] * bone->matrix[1][2]
+                            + vert->normal[2] * bone->matrix[2][2];
 
-						surf->pStaticTexCoords[ l ][ 0 ][ 0 ] = vert->texCoords[ 0 ];
-						surf->pStaticTexCoords[ l ][ 0 ][ 1 ] = vert->texCoords[ 1 ];
-						surf->pStaticTexCoords[ l ][ 1 ][ 0 ] = vert->texCoords[ 0 ];
-						surf->pStaticTexCoords[ l ][ 1 ][ 1 ] = vert->texCoords[ 1 ];
+                        surf->pStaticTexCoords[l][0][0] = vert->texCoords[0];
+                        surf->pStaticTexCoords[l][0][1] = vert->texCoords[1];
+                        surf->pStaticTexCoords[l][1][0] = vert->texCoords[0];
+                        surf->pStaticTexCoords[l][1][1] = vert->texCoords[1];
 
-						vert = ( skeletorVertex_t * )( ( byte * )vert + sizeof( skeletorVertex_t ) + sizeof( skeletorMorph_t ) * vert->numMorphs + sizeof( skelWeight_t ) * vert->numWeights );
-					}
-				}
-			}
-		}
-	}
+                        vert = (skeletorVertex_t*)((byte*)vert + sizeof(skeletorVertex_t) + sizeof(skeletorMorph_t) * vert->numMorphs + sizeof(skelWeight_t) * vert->numWeights);
+                    }
+                }
+            }
+        }
+    }
 
-	tr.refdef.numStaticModels = tr.world->numStaticModels;
-	tr.refdef.staticModels = tr.world->staticModels;
-	tr.refdef.numStaticModelData = tr.world->numStaticModelData;
-	tr.refdef.staticModelData = tr.world->staticModelData;
+    tr.refdef.numStaticModels = tr.world->numStaticModels;
+    tr.refdef.staticModels = tr.world->staticModels;
+    tr.refdef.numStaticModelData = tr.world->numStaticModelData;
+    tr.refdef.staticModelData = tr.world->staticModelData;
 }
 
 /*
@@ -223,35 +226,35 @@ void R_InitStaticModels( void ) {
 R_CullStaticModel
 ==============
 */
-static int R_CullStaticModel( dtiki_t *tiki, float fScale, const vec3_t vLocalOrg ) {
-	vec3_t	bounds[ 2 ];
-	int		i;
-	int		cull;
+static int R_CullStaticModel(dtiki_t* tiki, float fScale, const vec3_t vLocalOrg) {
+    vec3_t	bounds[2];
+    int		i;
+    int		cull;
 
-	for( i = 0; i < 3; i++ )
-	{
-		bounds[ 0 ][ i ] = vLocalOrg[ i ] + tiki->a->mins[ i ] * fScale;
-		bounds[ 1 ][ i ] = vLocalOrg[ i ] + tiki->a->maxs[ i ] * fScale;
-	}
+    for (i = 0; i < 3; i++)
+    {
+        bounds[0][i] = vLocalOrg[i] + tiki->a->mins[i] * fScale;
+        bounds[1][i] = vLocalOrg[i] + tiki->a->maxs[i] * fScale;
+    }
 
-	cull = R_CullLocalBox( bounds );
+    cull = R_CullLocalBox(bounds);
 
-	// FIXME: r_showcull
+    // FIXME: r_showcull
 
-	switch( cull )
-	{
-	case CULL_CLIP:
-		tr.pc.c_box_cull_md3_clip++;
-		break;
-	case CULL_IN:
-		tr.pc.c_box_cull_md3_in++;
-		break;
-	case CULL_OUT:
-		tr.pc.c_box_cull_md3_out++;
-		break;
-	}
+    switch (cull)
+    {
+    case CULL_CLIP:
+        tr.pc.c_box_cull_md3_clip++;
+        break;
+    case CULL_IN:
+        tr.pc.c_box_cull_md3_in++;
+        break;
+    case CULL_OUT:
+        tr.pc.c_box_cull_md3_out++;
+        break;
+    }
 
-	return cull;
+    return cull;
 }
 
 /*
@@ -259,130 +262,130 @@ static int R_CullStaticModel( dtiki_t *tiki, float fScale, const vec3_t vLocalOr
 R_AddStaticModelSurfaces
 ==============
 */
-void R_AddStaticModelSurfaces( void ) {
-	cStaticModelUnpacked_t *SM;
-	int i, j;
-	int ofsStaticData;
-	int iRadiusCull;
-	dtiki_t *tiki;
-	float tiki_scale;
-	vec3_t tiki_localorigin;
-	vec3_t tiki_worldorigin;
+void R_AddStaticModelSurfaces(void) {
+    cStaticModelUnpacked_t* SM;
+    int i, j;
+    int ofsStaticData;
+    int iRadiusCull;
+    dtiki_t* tiki;
+    float tiki_scale;
+    vec3_t tiki_localorigin;
+    vec3_t tiki_worldorigin;
 
-	if( !tr.world->numStaticModels ) {
-		return;
-	}
+    if (!tr.world->numStaticModels) {
+        return;
+    }
 
-	tr.shiftedIsStatic = 1;
+    tr.shiftedIsStatic = 1;
 
-	for( i = 0; i < tr.world->numStaticModels; i++ )
-	{
-		SM = &tr.world->staticModels[ i ];
+    for (i = 0; i < tr.world->numStaticModels; i++)
+    {
+        SM = &tr.world->staticModels[i];
 
-		//if( SM->visCount != tr.visCounts[ tr.visIndex ] ) {
-		//	continue;
-		//}
+        //if( SM->visCount != tr.visCounts[ tr.visIndex ] ) {
+        //	continue;
+        //}
 
-		tiki = SM->tiki;
+        tiki = SM->tiki;
 
-		if( !tiki ) {
-			continue;
-		}
+        if (!tiki) {
+            continue;
+        }
 
-		tr.currentEntityNum = i;
-		tr.shiftedEntityNum = i << QSORT_REFENTITYNUM_SHIFT;
+        tr.currentEntityNum = i;
+        tr.shiftedEntityNum = i << QSORT_REFENTITYNUM_SHIFT;
 
-		R_RotateForStaticModel( SM, &tr.viewParms, &tr.or );
+        R_RotateForStaticModel(SM, &tr.viewParms, &tr. or );
 
-		ofsStaticData = 0;
+        ofsStaticData = 0;
 
-		// get the world position
-		tiki_scale = tiki->load_scale * SM->scale;
-		VectorScale( tiki->load_origin, tiki_scale, tiki_localorigin );
-		R_LocalPointToWorld( tiki_localorigin, tiki_worldorigin );
+        // get the world position
+        tiki_scale = tiki->load_scale * SM->scale;
+        VectorScale(tiki->load_origin, tiki_scale, tiki_localorigin);
+        R_LocalPointToWorld(tiki_localorigin, tiki_worldorigin);
 
-		iRadiusCull = R_CullPointAndRadius( tiki_worldorigin, SM->cull_radius );
+        iRadiusCull = R_CullPointAndRadius(tiki_worldorigin, SM->cull_radius);
 
-		// FIXME: r_showcull
+        // FIXME: r_showcull
 
-		if( iRadiusCull != 2 && ( iRadiusCull != 1 || R_CullStaticModel( SM->tiki, tiki_scale, tiki_localorigin ) ) )
-		{
-			dtikisurface_t *dsurf;
+        if (iRadiusCull != 2 && (iRadiusCull != 1 || R_CullStaticModel(SM->tiki, tiki_scale, tiki_localorigin)))
+        {
+            dtikisurface_t* dsurf;
 
-			// FIXME: Calc LOD
-			if( tr.viewParms.isPortal )
-			{
-				//R_CalcLod( tiki_worldorigin, SM->cull_radius / SM->scale );
-				SM->lodpercentage[ 1 ] = SM->cull_radius / SM->scale;
-			}
-			else
-			{
-				//R_CalcLod( tiki_worldorigin, SM->cull_radius / SM->scale );
-				SM->lodpercentage[ 0 ] = SM->cull_radius / SM->scale;
-			}
+            // FIXME: Calc LOD
+            if (tr.viewParms.isPortal)
+            {
+                //R_CalcLod( tiki_worldorigin, SM->cull_radius / SM->scale );
+                SM->lodpercentage[1] = SM->cull_radius / SM->scale;
+            }
+            else
+            {
+                //R_CalcLod( tiki_worldorigin, SM->cull_radius / SM->scale );
+                SM->lodpercentage[0] = SM->cull_radius / SM->scale;
+            }
 
-			//
-			// draw all meshes
-			//
-			dsurf = tiki->surfaces;
-			for( int mesh = 0; mesh < tiki->numMeshes; mesh++ )
-			{
-				skelHeaderGame_t *skelmodel = TIKI_GetSkel( tiki->mesh[ mesh ] );
-				skelSurfaceGame_t *surface;
-				shader_t *shader;
+            //
+            // draw all meshes
+            //
+            dsurf = tiki->surfaces;
+            for (int mesh = 0; mesh < tiki->numMeshes; mesh++)
+            {
+                skelHeaderGame_t* skelmodel = TIKI_GetSkel(tiki->mesh[mesh]);
+                skelSurfaceGame_t* surface;
+                shader_t* shader;
 
-				if( !skelmodel ) {
-					continue;
-				}
+                if (!skelmodel) {
+                    continue;
+                }
 
-				//
-				// draw all surfaces
-				//
-				surface = skelmodel->pSurfaces;
-				for( j = 0; j < skelmodel->numSurfaces; j++, surface = surface->pNext, dsurf++ )
-				{
-					if( g_nStaticSurfaces >= MAX_STATIC_MODELS_SURFS )
-					{
-						ri.Printf( PRINT_DEVELOPER, "^~^~^ ERROR: MAX_STATIC_MODELS_SURFS exceeded - surface of '%s' skipped\n", tiki->a->name );
-						continue;
-					}
+                //
+                // draw all surfaces
+                //
+                surface = skelmodel->pSurfaces;
+                for (j = 0; j < skelmodel->numSurfaces; j++, surface = surface->pNext, dsurf++)
+                {
+                    if (g_nStaticSurfaces >= MAX_STATIC_MODELS_SURFS)
+                    {
+                        ri.Printf(PRINT_DEVELOPER, "^~^~^ ERROR: MAX_STATIC_MODELS_SURFS exceeded - surface of '%s' skipped\n", tiki->a->name);
+                        continue;
+                    }
 
-					g_staticSurfaces[ g_nStaticSurfaces ].ident = SF_TIKI_STATIC;
-					g_staticSurfaces[ g_nStaticSurfaces ].ofsStaticData = ofsStaticData;
-					g_staticSurfaces[ g_nStaticSurfaces ].surface = surface;
-					g_staticSurfaces[ g_nStaticSurfaces ].meshNum = mesh;
+                    g_staticSurfaces[g_nStaticSurfaces].ident = SF_TIKI_STATIC;
+                    g_staticSurfaces[g_nStaticSurfaces].ofsStaticData = ofsStaticData;
+                    g_staticSurfaces[g_nStaticSurfaces].surface = surface;
+                    g_staticSurfaces[g_nStaticSurfaces].meshNum = mesh;
 
-					shader = tr.shaders[ dsurf->hShader[ 0 ] ];
+                    shader = tr.shaders[dsurf->hShader[0]];
 
-					SM->bRendered = qtrue;
-					R_AddDrawSurf( ( surfaceType_t * )&g_staticSurfaces[ g_nStaticSurfaces ], shader, 0, 0 );
+                    SM->bRendered = qtrue;
+                    R_AddDrawSurf((surfaceType_t*)&g_staticSurfaces[g_nStaticSurfaces], shader, 0, 0);
 
-					g_nStaticSurfaces++;
-					ofsStaticData += surface->numVerts;
-				}
-			}
-		}
-	}
+                    g_nStaticSurfaces++;
+                    ofsStaticData += surface->numVerts;
+                }
+            }
+        }
+    }
 
-	tr.shiftedIsStatic = 0;
+    tr.shiftedIsStatic = 0;
 }
 /*
 =============
 RB_StaticMesh
 =============
 */
-void RB_StaticMesh( staticSurface_t *staticSurf ) {
-	int					i, j;
-	dtiki_t				*tiki;
-	skelSurfaceGame_t	*surf;
-	int					meshNum;
-	skelHeaderGame_t	*skelmodel;
-	int					render_count;
-	skelIndex_t			*collapse_map;
-	skelIndex_t			*triangles;
-	int					indexes;
-	int					baseIndex, baseVertex;
-	short				collapse[ 1000 ];
+void RB_StaticMesh(staticSurface_t* staticSurf) {
+    int					i, j;
+    dtiki_t* tiki;
+    skelSurfaceGame_t* surf;
+    int					meshNum;
+    skelHeaderGame_t* skelmodel;
+    int					render_count;
+    skelIndex_t* collapse_map;
+    skelIndex_t* triangles;
+    int					indexes;
+    int					baseIndex, baseVertex;
+    short				collapse[1000];
 
     tiki = backEnd.currentStaticModel->tiki;
     surf = staticSurf->surface;
@@ -448,7 +451,7 @@ void RB_StaticMesh( staticSurface_t *staticSurf ) {
 
     if (backEndData[0]->staticModels) {
         color4ub_t* in = (color4ub_t*)&backEndData[0]->staticModelData[backEnd.currentStaticModel->firstVertexData + staticSurf->ofsStaticData];
-		color4ub_t* out = &tess.vertexColors[baseVertex];
+        color4ub_t* out = &tess.vertexColors[baseVertex];
 
         for (i = 0; i < render_count; i++, in++, out++)
         {

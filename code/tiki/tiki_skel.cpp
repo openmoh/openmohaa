@@ -156,14 +156,13 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 	skelHeaderGame_t* pSkel;
 	skelSurfaceGame_t* pGameSurf;
 	skelSurface_t* pSurf;
-	int i;
+	int i, j, k;
 	size_t nSurfBytes;
 	size_t nBoneBytes;
 	size_t nBoxBytes;
 	size_t nMorphBytes;
-	size_t nVertBytes;
-	size_t nTriBytes;
-	int j;
+    size_t nVertBytes;
+    size_t nTriBytes;
 
 	pSurf = (skelSurface_t*)((byte*)pHeader + LittleLong(pHeader->ofsSurfaces));
 	nSurfBytes = 0;
@@ -357,7 +356,8 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 		}
 
 		if (pGameSurf->numVerts)
-		{
+        {
+			skeletorVertex_t* skelVert = pGameSurf->pVerts;
 			pVert = (skeletorVertex_t*)((char*)pSurf + LittleLongPtr(pSurf->ofsVerts));
 
 			for (j = 0; j < pGameSurf->numVerts; j++)
@@ -369,12 +369,30 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 				iOffset += sizeof(skelWeight_t) * numWeights;
 				iOffset += sizeof(skeletorVertex_t);
 
-				skeletorVertex_t* skelVert = &pGameSurf->pVerts[j];
-				skelVert->normal[0] = LittleLongPtr(pVert->normal[0]);
-				skelVert->normal[1] = LittleLongPtr(pVert->normal[1]);
-				skelVert->normal[2] = LittleLongPtr(pVert->normal[2]);
-				pVert = (skeletorVertex_t*)((byte*)pVert + iOffset);
+				skelVert->normal[0] = LittleFloat(pVert->normal[0]);
+				skelVert->normal[1] = LittleFloat(pVert->normal[1]);
+				skelVert->normal[2] = LittleFloat(pVert->normal[2]);
+                skelVert->texCoords[0] = LittleFloat(pVert->texCoords[0]);
+                skelVert->texCoords[1] = LittleFloat(pVert->texCoords[1]);
+				skelVert->numWeights = numWeights;
+				skelVert->numMorphs = numMorphs;
+
+				skelWeight_t* pWeight = (skelWeight_t * )((byte*)pVert + sizeof(skeletorVertex_t));
+				skelWeight_t* skelWeight = (skelWeight_t*)((byte*)skelVert + sizeof(skeletorVertex_t));
+				for (k = 0; k < pVert->numWeights; k++)
+				{
+					skelWeight->boneIndex = LittleLong(pWeight->boneIndex);
+					skelWeight->boneWeight = LittleLong(pWeight->boneWeight);
+                    skelWeight->offset[0] = LittleFloat(pWeight->offset[0]);
+                    skelWeight->offset[1] = LittleFloat(pWeight->offset[1]);
+                    skelWeight->offset[2] = LittleFloat(pWeight->offset[2]);
+				}
+
+                pVert = (skeletorVertex_t*)((byte*)pVert + iOffset);
+				skelVert = (skeletorVertex_t*)((byte*)skelVert + iOffset);
 			}
+
+			assert((byte*)skelVert - (byte*)pGameSurf <= (byte*)pGameSurf->pCollapse - (byte*)pGameSurf);
 
 			const int* pCollapse = (const int*)((byte*)pSurf + LittleLongPtr(pSurf->ofsCollapse));
 			for (j = 0; j < numVerts; j++)
