@@ -1481,7 +1481,6 @@ ClientGameCommandManager::ClientGameCommandManager()
 }
 
 void ClientGameCommandManager::Print(Event* ev)
-
 {
     if (current_entity) {
         cgi.DPrintf("%d:%s\n", current_entity->entityNumber, ev->GetString(1));
@@ -1692,8 +1691,11 @@ void ClientGameCommandManager::SetAlwaysDraw(Event* ev)
 // SetDetail
 //===============
 void ClientGameCommandManager::SetDetail(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_DETAIL;
 }
 
@@ -2179,6 +2181,10 @@ void ClientGameCommandManager::SetCollision(Event* ev)
 {
     str mask;
 
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_COLLISION;
     m_spawnthing->cgd.collisionmask = (CONTENTS_SOLID);
 
@@ -2195,7 +2201,6 @@ void ClientGameCommandManager::SetCollision(Event* ev)
 // SetFlickerAlpha
 //=============
 void ClientGameCommandManager::SetFlickerAlpha(Event* ev)
-
 {
     if (!m_spawnthing) {
         return;
@@ -2209,6 +2214,10 @@ void ClientGameCommandManager::SetFlickerAlpha(Event* ev)
 //=============
 void ClientGameCommandManager::SetEndAlpha(Event* ev)
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->endalpha = ev->GetFloat(1);
 }
 
@@ -2217,9 +2226,11 @@ void ClientGameCommandManager::SetEndAlpha(Event* ev)
 //=============
 void ClientGameCommandManager::SetOffsetAlongAxis(Event* ev)
 {
-    if (m_spawnthing) {
-        SetBaseAndAmplitude(ev, m_spawnthing->axis_offset_base, m_spawnthing->axis_offset_amplitude);
+    if (!m_spawnthing) {
+        return;
     }
+
+    SetBaseAndAmplitude(ev, m_spawnthing->axis_offset_base, m_spawnthing->axis_offset_amplitude);
 }
 
 void ClientGameCommandManager::SetCone(Event* ev)
@@ -2238,18 +2249,23 @@ void ClientGameCommandManager::SetCone(Event* ev)
 //=============
 void ClientGameCommandManager::SetOriginOffset(Event* ev)
 {
-    if (m_spawnthing) {
-        SetBaseAndAmplitude(ev, m_spawnthing->origin_offset_base,
-                            m_spawnthing->origin_offset_amplitude);
+    if (!m_spawnthing) {
+        return;
     }
+
+    SetBaseAndAmplitude(ev, m_spawnthing->origin_offset_base,
+        m_spawnthing->origin_offset_amplitude);
 }
 
 //=============
 // SetAlpha
 //=============
 void ClientGameCommandManager::SetAlpha(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.alpha = ev->GetFloat(1);
 }
 
@@ -2257,8 +2273,11 @@ void ClientGameCommandManager::SetAlpha(Event* ev)
 // SetDieTouch
 //=============
 void ClientGameCommandManager::SetDieTouch(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_DIETOUCH;
 }
 
@@ -2266,8 +2285,11 @@ void ClientGameCommandManager::SetDieTouch(Event* ev)
 // SetBounceFactor
 //=============
 void ClientGameCommandManager::SetBounceFactor(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.bouncefactor = ev->GetFloat(1);
     m_spawnthing->cgd.flags |= T_COLLISION;
     m_spawnthing->cgd.collisionmask = (CONTENTS_SOLID);
@@ -2277,8 +2299,11 @@ void ClientGameCommandManager::SetBounceFactor(Event* ev)
 // SetBounceSound
 //=============
 void ClientGameCommandManager::SetBounceSound(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.bouncesound = ev->GetString(1);
 
     if (ev->NumArgs() == 2) {
@@ -2292,8 +2317,11 @@ void ClientGameCommandManager::SetBounceSound(Event* ev)
 // SetBounceSoundOnce
 //=============
 void ClientGameCommandManager::SetBounceSoundOnce(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_BOUNCESOUNDONCE;
     SetBounceSound(ev);
 }
@@ -2302,8 +2330,11 @@ void ClientGameCommandManager::SetBounceSoundOnce(Event* ev)
 // SetScale
 //=============
 void ClientGameCommandManager::SetScale(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.scale = ev->GetFloat(1);
 }
 
@@ -2311,8 +2342,11 @@ void ClientGameCommandManager::SetScale(Event* ev)
 // SetScaleUpDown
 //=============
 void ClientGameCommandManager::SetScaleUpDown(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_SCALEUPDOWN;
 }
 
@@ -2320,8 +2354,11 @@ void ClientGameCommandManager::SetScaleUpDown(Event* ev)
 // SetScaleMin
 //=============
 void ClientGameCommandManager::SetScaleMin(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_RANDSCALE;
     m_spawnthing->cgd.scalemin = ev->GetFloat(1);
 }
@@ -2330,8 +2367,11 @@ void ClientGameCommandManager::SetScaleMin(Event* ev)
 // SetScaleMax
 //=============
 void ClientGameCommandManager::SetScaleMax(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_RANDSCALE;
     m_spawnthing->cgd.scalemax = ev->GetFloat(1);
 }
@@ -2340,8 +2380,11 @@ void ClientGameCommandManager::SetScaleMax(Event* ev)
 // SetScaleRate
 //=============
 void ClientGameCommandManager::SetScaleRate(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.scaleRate = ev->GetFloat(1);
 }
 
@@ -2349,8 +2392,11 @@ void ClientGameCommandManager::SetScaleRate(Event* ev)
 // SetFade
 //=============
 void ClientGameCommandManager::SetFade(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_FADE;
 }
 
@@ -2358,8 +2404,11 @@ void ClientGameCommandManager::SetFade(Event* ev)
 // SetFadeDelay
 //=============
 void ClientGameCommandManager::SetFadeDelay(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.fadedelay = ev->GetFloat(1) * 1000;
     m_spawnthing->cgd.flags |= T_FADE;
 }
@@ -2402,8 +2451,11 @@ void ClientGameCommandManager::SetSpawnRange(Event* ev)
 // SetFadeIn
 //=============
 void ClientGameCommandManager::SetFadeIn(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_FADEIN;
 
     if (ev->NumArgs() > 0) {
@@ -2415,8 +2467,11 @@ void ClientGameCommandManager::SetFadeIn(Event* ev)
 // SetTwinkle
 //=============
 void ClientGameCommandManager::SetTwinkle(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_TWINKLE;
     m_spawnthing->cgd.min_twinkletimeoff = ev->GetFloat(1) * 1000;
     m_spawnthing->cgd.max_twinkletimeoff = ev->GetFloat(2) * 1000;
@@ -2428,8 +2483,11 @@ void ClientGameCommandManager::SetTwinkle(Event* ev)
 // SetSwipe
 //=============
 void ClientGameCommandManager::SetTrail(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags2 |= T2_TRAIL;
     m_spawnthing->cgd.swipe_shader = ev->GetString(1);
     m_spawnthing->cgd.swipe_tag_start = ev->GetString(2);
@@ -2441,8 +2499,11 @@ void ClientGameCommandManager::SetTrail(Event* ev)
 // SetSpawnRate
 //=============
 void ClientGameCommandManager::SetSpawnRate(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->spawnRate = (1.0f / ev->GetFloat(1)) * 1000;
 }
 
@@ -2450,8 +2511,11 @@ void ClientGameCommandManager::SetSpawnRate(Event* ev)
 // SetParentLink
 //=============
 void ClientGameCommandManager::SetParentLink(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_PARENTLINK;
 }
 
@@ -2459,8 +2523,11 @@ void ClientGameCommandManager::SetParentLink(Event* ev)
 // SetHardLink
 //=============
 void ClientGameCommandManager::SetHardLink(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_HARDLINK;
     m_spawnthing->cgd.parent = current_entity_number;
 
@@ -2474,8 +2541,11 @@ void ClientGameCommandManager::SetHardLink(Event* ev)
 // SetColor
 //=============
 void ClientGameCommandManager::SetColor(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.color[0] = ev->GetFloat(1);
     m_spawnthing->cgd.color[1] = ev->GetFloat(2);
     m_spawnthing->cgd.color[2] = ev->GetFloat(3);
@@ -2488,6 +2558,10 @@ void ClientGameCommandManager::SetColor(Event* ev)
 
 void ClientGameCommandManager::SetColorRange(Event* ev)
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     // FIXME: unused stub??
 }
 
@@ -2495,8 +2569,11 @@ void ClientGameCommandManager::SetColorRange(Event* ev)
 // SetEntityColor
 //=============
 void ClientGameCommandManager::SetEntityColor(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     if (current_centity) {
         current_centity->client_color[0] = ev->GetFloat(1);
         current_centity->client_color[1] = ev->GetFloat(2);
@@ -2511,9 +2588,12 @@ void ClientGameCommandManager::SetEntityColor(Event* ev)
 // SetGlobalFade
 //=============
 void ClientGameCommandManager::SetGlobalFade(Event* ev)
-
 {
     str mode;
+
+    if (!m_spawnthing) {
+        return;
+    }
 
     mode = ev->GetString(1);
 
@@ -2556,6 +2636,10 @@ void ClientGameCommandManager::SetRandomVelocity(Event* ev)
 //=============
 void ClientGameCommandManager::SetRandomVelocityAlongAxis(Event* ev)
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.flags |= T_RANDVELAXIS;
     SetRandomVelocity(ev);
 }
@@ -2581,8 +2665,11 @@ void ClientGameCommandManager::SetRadialVelocity(Event* ev)
 // SetVelocity
 //=============
 void ClientGameCommandManager::SetVelocity(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->forwardVelocity = ev->GetFloat(1);
     m_spawnthing->cgd.flags2 |= T2_MOVE;
 }
@@ -2644,6 +2731,10 @@ void ClientGameCommandManager::SetAngles(Event* ev)
 //=============
 void ClientGameCommandManager::ParentAngles(Event* ev)
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     if (current_centity) {
         m_spawnthing->cgd.angles = Vector(current_centity->currentState.angles);
     }
@@ -2668,8 +2759,11 @@ void ClientGameCommandManager::EmitterAngles(Event* ev)
 // SetAccel
 //=============
 void ClientGameCommandManager::SetAccel(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->cgd.accel[0] = ev->GetFloat(1);
     m_spawnthing->cgd.accel[1] = ev->GetFloat(2);
     m_spawnthing->cgd.accel[2] = ev->GetFloat(3);
@@ -2701,6 +2795,10 @@ void ClientGameCommandManager::SetVaryColor(Event* ev)
 //=============
 void ClientGameCommandManager::SetCount(Event* ev)
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     m_spawnthing->count = ev->GetInteger(1);
 }
 
@@ -2708,9 +2806,12 @@ void ClientGameCommandManager::SetCount(Event* ev)
 // SetLife
 //=============
 void ClientGameCommandManager::SetLife(Event* ev)
-
 {
     str life;
+
+    if (!m_spawnthing) {
+        return;
+    }
 
     life = ev->GetString(1);
 
@@ -2725,8 +2826,11 @@ void ClientGameCommandManager::SetLife(Event* ev)
 // SetModel
 //=============
 void ClientGameCommandManager::SetModel(Event* ev)
-
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     int i;
     int num = ev->NumArgs();
 
@@ -2741,10 +2845,13 @@ void ClientGameCommandManager::SetModel(Event* ev)
 // TagList
 //=============
 void ClientGameCommandManager::TagList(Event* ev)
-
 {
     int i;
     int num = ev->NumArgs();
+
+    if (!m_spawnthing) {
+        return;
+    }
 
     if (num < 2) {
         warning("CCG::TagList", "Invalid number of tags specified in taglist.  "
@@ -2760,6 +2867,10 @@ void ClientGameCommandManager::TagList(Event* ev)
 
 void ClientGameCommandManager::SetEyeLimits(Event* ev)
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     if (ev->NumArgs() < 3)
     {
         warning("CCG::SetEyeLimits", "Invalid number of parameters.\n");
@@ -2773,6 +2884,10 @@ void ClientGameCommandManager::SetEyeLimits(Event* ev)
 
 void ClientGameCommandManager::SetEyeMovement(Event* ev)
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     if (ev->NumArgs() < 1)
     {
         warning("CCG::SetEyeMovement", "No parameters specified.\n");
