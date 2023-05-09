@@ -137,7 +137,7 @@ typedef struct {
     void (*SetFullscreen)(qboolean fullScreen);
     int (*GetShaderWidth)(qhandle_t hShader);
     int (*GetShaderHeight)(qhandle_t hShader);
-    char* (*GetGraphicsInfo)();
+    const char* (*GetGraphicsInfo)();
     void (*ForceUpdatePose)(refEntity_t* model);
     orientation_t (*TIKI_Orientation)(refEntity_t* model, int tagNum);
     qboolean (*TIKI_IsOnGround)(refEntity_t* model, int tagNum, float threshold);

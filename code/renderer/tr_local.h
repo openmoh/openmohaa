@@ -1766,7 +1766,7 @@ MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
 */
 
 int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection,
-				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
+				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared);
 
 void R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t angles, const vec3_t origin, int numPoints,
 	const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
@@ -1784,12 +1784,12 @@ SCENE GENERATION
 void R_ToggleSmpFrame( void );
 
 void RE_ClearScene( void );
-void RE_AddRefEntityToScene( const refEntity_t *ent );
+void RE_AddRefEntityToScene( const refEntity_t *ent, int parentEntityNumber);
 void RE_AddRefSpriteToScene(const refEntity_t* ent);
 void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
 refEntity_t* RE_GetRenderEntity(int entityNumber);
-void RE_AddPolyToScene( qhandle_t hShader , int numVerts, const polyVert_t *verts, int num );
-void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b );
+qboolean RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts, int numPolys);
+void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int type );
 void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void RE_RenderScene( const refdef_t *fd );
 
@@ -2018,6 +2018,7 @@ typedef enum {
 // the main view, all the 3D icons, etc
 #define	MAX_POLYS		600
 #define	MAX_POLYVERTS	3000
+#define	MAX_TERMARKS	1024
 
 // all of the information needed by the back end must be
 // contained in a backEndData_t.  This entire structure is

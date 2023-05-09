@@ -115,7 +115,7 @@ RE_AddPolyToScene
 
 =====================
 */
-void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys ) {
+qboolean RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys ) {
 	srfPoly_t	*poly;
 	int			i, j;
 	int			fogIndex;
@@ -237,7 +237,7 @@ RE_AddRefEntityToScene
 
 =====================
 */
-void RE_AddRefEntityToScene( const refEntity_t *ent ) {
+void RE_AddRefEntityToScene( const refEntity_t *ent, int parentEntityNumber) {
 	if ( !tr.registered ) {
 		return;
 	}
@@ -296,7 +296,7 @@ RE_AddLightToScene
 
 =====================
 */
-void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b ) {
+void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int type ) {
 	RE_AddDynamicLightToScene( org, intensity, r, g, b, qfalse );
 }
 
