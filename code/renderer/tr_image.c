@@ -130,7 +130,7 @@ void GL_TextureMode( const char *string ) {
 
 	// change all the existing mipmap texture objects
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
-		glt = tr.images[ i ];
+		glt = &tr.images[ i ];
 		if ( glt->mipmap ) {
 			GL_Bind (glt);
 			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
@@ -150,8 +150,8 @@ int R_SumOfUsedImages( void ) {
 
 	total = 0;
 	for ( i = 0; i < tr.numImages; i++ ) {
-		if ( tr.images[i]->frameUsed == tr.frameCount ) {
-			total += tr.images[i]->uploadWidth * tr.images[i]->uploadHeight;
+		if ( tr.images[i].frameUsed == tr.frameCount ) {
+			total += tr.images[i].uploadWidth * tr.images[i].uploadHeight;
 		}
 	}
 
@@ -175,7 +175,7 @@ void R_ImageList_f( void ) {
 	texels = 0;
 
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
-		image = tr.images[ i ];
+		image = &tr.images[ i ];
 
 		texels += image->uploadWidth*image->uploadHeight;
 		ri.Printf (PRINT_ALL,  "%4i: %4i %4i  %s   %d   ",
@@ -730,6 +730,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
 	image_t		*image;
 	qboolean	isLightmap = qfalse;
+	int i;
 	long		hash;
 
 	if (strlen(name) >= MAX_QPATH ) {
@@ -737,15 +738,28 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	}
 	if ( !strncmp( name, "*lightmap", 9 ) ) {
 		isLightmap = qtrue;
+    }
+
+	for (i = 0; i < tr.numImages; i++)
+	{
+		if (!tr.images[i].imgName[0])
+		{
+			// found a free image
+			break;
+		}
 	}
 
-	if ( tr.numImages == MAX_DRAWIMAGES ) {
-		ri.Error( ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n");
+	if (i == tr.numImages)
+    {
+        if (tr.numImages == MAX_DRAWIMAGES) {
+            ri.Error(ERR_DROP, "R_CreateImage: MAX_DRAWIMAGES hit\n");
+		} else {
+			tr.numImages++;
+		}
 	}
 
-	image = tr.images[tr.numImages] = ri.Hunk_Alloc( sizeof( image_t ) );
+	image = &tr.images[i];
 	image->texnum = 1024 + tr.numImages;
-	tr.numImages++;
 
 	image->mipmap = mipmap;
 	image->allowPicmip = allowPicmip;
@@ -2304,7 +2318,7 @@ void R_DeleteTextures( void ) {
 	int		i;
 
 	for ( i=0; i<tr.numImages ; i++ ) {
-		qglDeleteTextures( 1, &tr.images[i]->texnum );
+		qglDeleteTextures( 1, &tr.images[i].texnum );
 	}
 	Com_Memset( tr.images, 0, sizeof( tr.images ) );
 
