@@ -5632,6 +5632,7 @@ bool UI_ParseLoadMapinfo( Script *scr ) {
 		token = scr->GetToken( true );
 		newPos = &pos[ strlen( token ) + 1 ];
 		strcpy( newPos, token );
+		loadStrings[index] = newPos;
 
 		time = scr->GetInteger( true );
 
@@ -5702,6 +5703,9 @@ UI_BeginLoad
 ====================
 */
 void UI_BeginLoad( const char *pszMapName ) {
+	// FIXME: broken memory crash
+	return;
+
 	str mapfile;
 
 	if( cls.loading )
