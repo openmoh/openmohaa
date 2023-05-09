@@ -2381,20 +2381,24 @@ shader_t* R_FindShader(const char* name, int lightmapIndex, qboolean mipRawImage
 	// see if the shader is already loaded
 	//
 	for (currentShader = hashTable[hash]; currentShader; currentShader = currentShader->next) {
-		if (!currentShader) {
-			break;
-		}
 		// NOTE: if there was no shader or image available with the name strippedName
 		// then a default shader is created with lightmapIndex == LIGHTMAP_NONE, so we
 		// have to check all default shaders otherwise for every call to R_FindShader
 		// with that same strippedName a new default shader is created.
-		if (!Q_stricmp(currentShader->name, strippedName)) {
-			// match found
-			return currentShader->shader;
+        if (!Q_stricmp(currentShader->name, strippedName))
+		{
+			if (currentShader->shader && (currentShader->shader->lightmapIndex == lightmapIndex || currentShader->shader->defaultShader))
+            {
+                // match found
+                return currentShader->shader;
+			}
+			// shader text found, but it has no shared assigned
+			break;
 		}
 	}
 
 	if (!currentShader) {
+		// create a new shader text
 		currentShader = AddShaderTextToHash(strippedName, hash);
 	}
 
