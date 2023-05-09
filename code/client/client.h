@@ -182,6 +182,7 @@ typedef struct {
 
 	netadr_t	serverAddress;
 	int			connectTime;				// for connection retransmits
+	int			connectStartTime;
 	int			connectPacketCount;			// for display on connection dialog
 	char		serverMessage[MAX_STRING_TOKENS];	// for display on connection dialog
 

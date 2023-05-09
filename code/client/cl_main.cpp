@@ -802,40 +802,38 @@ memory on the hunk from cgame, ui, and renderer
 =====================
 */
 void CL_MapLoading( qboolean flush, const char *pszMapName ) {
-	if ( com_dedicated->integer ) {
-		cls.state = CA_DISCONNECTED;
-		Key_SetCatcher( KEYCATCH_CONSOLE );
-		return;
-	}
-
 	if ( !com_cl_running->integer ) {
 		return;
 	}
 
 	UI_ClearState();
-	Key_SetCatcher( 0 );
+	UI_ForceMenuOff(false);
 
-	// if we are already connected to the local host, stay connected
-	if ( cls.state >= CA_CONNECTED && !Q_stricmp( cls.servername, "localhost" ) ) {
-		cls.state = CA_CONNECTED;		// so the connect screen is drawn
-		Com_Memset( cls.updateInfoString, 0, sizeof( cls.updateInfoString ) );
-		Com_Memset( clc.serverMessage, 0, sizeof( clc.serverMessage ) );
-		Com_Memset( &cl.gameState, 0, sizeof( cl.gameState ) );
-		clc.lastPacketSentTime = -9999;
-		SCR_UpdateScreen();
-	} else {
-		// clear nextmap so the cinematic shutdown doesn't execute it
-		Cvar_Set( "nextmap", "" );
-		CL_Disconnect( qtrue );
-		Q_strncpyz( cls.servername, "localhost", sizeof(cls.servername) );
-		cls.state = CA_CHALLENGING;		// so the connect screen is drawn
-		Key_SetCatcher( 0 );
-		SCR_UpdateScreen();
-		clc.connectTime = -RETRANSMIT_TIMEOUT;
-		NET_StringToAdr( cls.servername, &clc.serverAddress);
-		// we don't need a challenge on the localhost
+	if (pszMapName) {
+		// if we are already connected to the local host, stay connected
+		if (cls.state >= CA_CONNECTED && !Q_stricmp(cls.servername, "localhost")) {
+			cls.state = CA_CONNECTED;		// so the connect screen is drawn
+			Com_Memset(cls.updateInfoString, 0, sizeof(cls.updateInfoString));
+			Com_Memset(clc.serverMessage, 0, sizeof(clc.serverMessage));
+			Com_Memset(&cl.gameState, 0, sizeof(cl.gameState));
+			clc.lastPacketSentTime = -9999;
+		}
+		else {
+			// clear nextmap so the cinematic shutdown doesn't execute it
+			Cvar_Set("nextmap", "");
+			CL_Disconnect(qtrue);
+			Q_strncpyz(cls.servername, "localhost", sizeof(cls.servername));
+			cls.state = CA_CHALLENGING;		// so the connect screen is drawn
+            clc.connectStartTime = cls.realtime;
+			clc.connectTime = -RETRANSMIT_TIMEOUT;
+			NET_StringToAdr(cls.servername, &clc.serverAddress);
+			// we don't need a challenge on the localhost
 
-		CL_CheckForResend();
+			CL_CheckForResend();
+		}
+
+		CL_FlushMemory();
+		UI_BeginLoad(pszMapName);
 	}
 }
 
