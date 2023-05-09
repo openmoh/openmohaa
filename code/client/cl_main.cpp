@@ -3654,6 +3654,8 @@ CL_GamespyServers_f
 #define MAX_GAMESPYSERVERS	16
 
 void CL_GamespyServers_f( void ) {
+	// FIXME: unimplemented
+#if 0
 	char buffer[10240];
 	int bytesRead;
 
@@ -3759,6 +3761,7 @@ void CL_GamespyServers_f( void ) {
 	Com_Printf("%d servers parsed (total %d)\n", numservers, total);
 	Cvar_Set( "dm_serverstatus", "Server List Received.");
 	Cvar_SetValue( "dm_servercount", total );
+#endif
 }
 
 

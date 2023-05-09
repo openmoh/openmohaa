@@ -24,6 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../cgame/tr_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define	REF_API_VERSION		14
 
 typedef struct dtiki_s dtiki_t;
@@ -235,5 +239,9 @@ typedef struct {
 refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
 
 qboolean R_ImageExists(const char* name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	// __TR_PUBLIC_H

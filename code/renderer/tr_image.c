@@ -1403,7 +1403,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
   cinfo.err = jpeg_std_error(&jerr);
 
   /* Now we can initialize the JPEG decompression object. */
-  jpeg_create_decompress(&cinfo);
+  jpeg_CreateDecompress(&cinfo);
 
   /* Step 2: specify data source (eg, a file) */
 
@@ -1728,7 +1728,7 @@ void SaveJPG(char * filename, int quality, int image_width, int image_height, un
    */
   cinfo.err = jpeg_std_error(&jerr);
   /* Now we can initialize the JPEG compression object. */
-  jpeg_create_compress(&cinfo);
+  jpeg_CreateDecompress(&cinfo);
 
   /* Step 2: specify data destination (eg, a file) */
   /* Note: steps 2 and 3 can be done in either order. */

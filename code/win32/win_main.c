@@ -33,10 +33,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <io.h>
 #include <conio.h>
 
-#define	CD_BASEDIR	"quake3"
-#define	CD_EXE		"quake3.exe"
+#define	CD_BASEDIR	"openmohaa"
+#define	CD_EXE		"openmohaa.exe"
 #define	CD_BASEDIR_LINUX	"bin\\x86\\glibc-2.1"
-#define	CD_EXE_LINUX "quake3"
+#define	CD_EXE_LINUX "openmohaa"
 #define MEM_THRESHOLD 96*1024*1024
 
 static char		sys_cmdline[MAX_STRING_CHARS];

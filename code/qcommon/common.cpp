@@ -1321,7 +1321,7 @@ void Com_Init( char *commandLine ) {
 	// override anything from the config files with command line args
 	Com_StartupVariable( "config" );
 
-	config = Cvar_Get( "config", "openmohaa.cfg", 0 );
+	config = Cvar_Get( "config", "omconfig.cfg", 0 );
 
 	if( strlen( config->string ) <= 1 )
 	{

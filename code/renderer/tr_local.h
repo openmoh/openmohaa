@@ -30,6 +30,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_public.h"
 #include "qgl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
 
@@ -1624,10 +1628,6 @@ typedef struct shaderCommands_s
 
 extern	shaderCommands_t	tess;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void RB_BeginSurface(shader_t *shader, int fogNum );
 void RB_EndSurface(void);
 void RB_CheckOverflow( int verts, int indexes );
@@ -1812,6 +1812,7 @@ void RE_SetFrameNumber(int frameNumber);
 void R_UpdatePoseInternal(refEntity_t* model);
 void RB_SkelMesh(skelSurfaceGame_t* sf);
 void RB_StaticMesh(staticSurface_t* staticSurf);
+void R_AddSkelSurfaces(trRefEntity_t* ent);
 
 /*
 =============================================================
@@ -1845,6 +1846,24 @@ UTIL
 */
 int RE_GetShaderHeight(qhandle_t hShader);
 int RE_GetShaderWidth(qhandle_t hShader);
+void RB_StreamBegin(shader_t* shader);
+void RB_StreamEnd(void);
+void RB_StreamBeginDrawSurf(void);
+void RB_StreamEndDrawSurf(void);
+static void addTriangle(void);
+void RB_Vertex3fv(vec3_t v);
+void RB_Vertex3f(vec_t x, vec_t y, vec_t z);
+void RB_Vertex2f(vec_t x, vec_t y);
+void RB_Color4f(vec_t r, vec_t g, vec_t b, vec_t a);
+void RB_Color3f(vec_t r, vec_t g, vec_t b);
+void RB_Color3fv(vec3_t col);
+void RB_Color4bv(unsigned char* colors);
+void RB_Texcoord2f(float s, float t);
+void RB_Texcoord2fv(vec2_t st);
+void R_DrawDebugNumber(const vec3_t org, float number, float scale, float r, float g, float b, int precision);
+void R_DebugRotatedBBox(const vec3_t org, vec3_t ang, vec3_t mins, vec3_t maxs, float r, float g, float b, float alpha);
+int RE_GetShaderWidth(qhandle_t hShader);
+int RE_GetShaderHeight(qhandle_t hShader);
 
 /*
 =============================================================
@@ -1894,10 +1913,6 @@ RENDERER BACK END COMMAND QUEUE
 
 =============================================================
 */
-
-#ifdef __cplusplus
-}
-#endif
 
 #define	MAX_RENDER_COMMANDS	0x40000
 
@@ -2023,10 +2038,9 @@ void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
 void SaveJPG(char * filename, int quality, int image_width, int image_height, unsigned char *image_buffer);
 
-// font stuff
-void R_InitFreeType();
-void R_DoneFreeType();
-void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font);
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif //TR_LOCAL_H

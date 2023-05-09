@@ -1860,3 +1860,13 @@ void RE_LoadWorldMap( const char *name ) {
     ri.FS_FreeFile( buffer );
 }
 
+int RE_MapVersion(void)
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
+void RE_PrintBSPFileSizes(void)
+{
+    // FIXME: unimplemented
+}

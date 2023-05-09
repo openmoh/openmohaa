@@ -320,33 +320,14 @@ void Message_Key( int key ) {
 
 	if (key == K_ESCAPE) {
 		Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_MESSAGE );
-		Field_Clear( &chatField );
 		return;
 	}
 
 	if ( key == K_ENTER || key == K_KP_ENTER )
 	{
-		if ( chatField.buffer[0] && cls.state == CA_ACTIVE ) {
-			if (chat_playerNum != -1 )
-
-				Com_sprintf( buffer, sizeof( buffer ), "tell %i \"%s\"\n", chat_playerNum, chatField.buffer );
-
-			else if (chat_team)
-
-				Com_sprintf( buffer, sizeof( buffer ), "say_team \"%s\"\n", chatField.buffer );
-			else
-				Com_sprintf( buffer, sizeof( buffer ), "say \"%s\"\n", chatField.buffer );
-
-
-
-			CL_AddReliableCommand( buffer );
-		}
 		Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_MESSAGE );
-		Field_Clear( &chatField );
 		return;
 	}
-
-	Field_KeyDownEvent( &chatField, key );
 }
 
 //============================================================================
@@ -1320,10 +1301,6 @@ Key_SetCatcher
 ====================
 */
 void Key_SetCatcher( int catcher ) {
-	// If the catcher state is changing, clear all key states
-	if( catcher != keyCatchers )
-		Key_ClearStates( );
-
 	keyCatchers = catcher;
 }
 

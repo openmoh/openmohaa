@@ -148,6 +148,46 @@ int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
 
+cvar_t* r_staticlod;
+cvar_t* r_lodscale;
+cvar_t* r_lodcap;
+cvar_t* r_lodviewmodelcap;
+
+cvar_t* r_uselod;
+cvar_t* lod_LOD;
+cvar_t* lod_minLOD;
+cvar_t* lod_maxLOD;
+cvar_t* lod_LOD_slider;
+cvar_t* lod_curve_0_val;
+cvar_t* lod_curve_1_val;
+cvar_t* lod_curve_2_val;
+cvar_t* lod_curve_3_val;
+cvar_t* lod_curve_4_val;
+cvar_t* lod_edit_0;
+cvar_t* lod_edit_1;
+cvar_t* lod_edit_2;
+cvar_t* lod_edit_3;
+cvar_t* lod_edit_4;
+cvar_t* lod_curve_0_slider;
+cvar_t* lod_curve_1_slider;
+cvar_t* lod_curve_2_slider;
+cvar_t* lod_curve_3_slider;
+cvar_t* lod_curve_4_slider;
+cvar_t* lod_pitch_val;
+cvar_t* lod_zee_val;
+cvar_t* lod_mesh;
+cvar_t* lod_meshname;
+cvar_t* lod_tikiname;
+cvar_t* lod_metric;
+cvar_t* lod_tris;
+cvar_t* lod_position;
+cvar_t* lod_save;
+cvar_t* lod_tool;
+
+cvar_t* r_numdebuglines;
+
+cvar_t* r_showSkeleton;
+
 void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
 void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
 void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
@@ -1108,9 +1148,6 @@ void R_Init( void ) {
 
 	R_ModelInit();
 
-	R_InitFreeType();
-
-
 	err = qglGetError();
 	if ( err != GL_NO_ERROR )
 		ri.Printf (PRINT_ALL, "glGetError() = 0x%x\n", err);
@@ -1144,8 +1181,6 @@ void RE_Shutdown( qboolean destroyWindow ) {
 		R_DeleteTextures();
 	}
 
-	R_DoneFreeType();
-
 	// shut down platform specific OpenGL stuff
 	if ( destroyWindow ) {
 		GLimp_Shutdown();
@@ -1154,6 +1189,29 @@ void RE_Shutdown( qboolean destroyWindow ) {
 	tr.registered = qfalse;
 }
 
+/*
+** RE_BeginRegistration
+*/
+void RE_BeginRegistration(glconfig_t* glconfigOut) {
+
+    // FIXME: redo
+    R_Init();
+
+    *glconfigOut = glConfig;
+
+    R_SyncRenderThread();
+
+    tr.viewCluster = -1;		// force markleafs to regenerate
+    R_ClearFlares();
+    RE_ClearScene();
+
+    tr.registered = qtrue;
+
+    // NOTE: this sucks, for some reason the first stretch pic is never drawn
+    // without this we'd see a white flash on a level load because the very
+    // first time the level shot would not be drawn
+    RE_StretchPic(0, 0, 0, 0, 0, 0, 1, 1, 0);
+}
 
 /*
 =============
