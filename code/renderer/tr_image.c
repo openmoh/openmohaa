@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #define JPEG_INTERNALS
-#include "../jpeg-6/jpeglib.h"
+#include "../jpeg-8c/jpeglib.h"
 
 
 static void LoadBMP( const char *name, byte **pic, int *width, int *height );
@@ -1428,9 +1428,12 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
   /* More stuff */
   JSAMPARRAY buffer;		/* Output row buffer */
   int row_stride;		/* physical row width in output buffer */
+  unsigned int pixelcount, memcount;
+  unsigned int sindex, dindex;
   unsigned char *out;
-  byte	*fbuffer;
-  byte  *bbuf;
+  byte* fbuffer;
+  byte* buf;
+  int len;
 
   /* In this example we want to open the input file before doing anything else,
    * so that the setjmp() error recovery below can assume the file is open.
@@ -1438,7 +1441,7 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
    * requires it in order to read binary files.
    */
 
-  ri.FS_ReadFile ( ( char * ) filename, (void **)&fbuffer);
+  len = ri.FS_ReadFile ( ( char * ) filename, (void **)&fbuffer);
   if (!fbuffer) {
 	return;
   }
@@ -1469,11 +1472,11 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
   }
 
   /* Now we can initialize the JPEG decompression object. */
-  jpeg_CreateDecompress(&cinfo);
+  jpeg_create_decompress(&cinfo);
 
   /* Step 2: specify data source (eg, a file) */
 
-  jpeg_stdio_src(&cinfo, fbuffer);
+  jpeg_mem_src(&cinfo, fbuffer, len);
 
   /* Step 3: read file parameters with jpeg_read_header() */
 
@@ -1485,6 +1488,12 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
    */
 
   /* Step 4: set parameters for decompression */
+
+  /*
+   * Make sure it always converts images to RGB color space. This will
+   * automatically convert 8-bit greyscale images to RGB as well.
+   */
+  cinfo.out_color_space = JCS_RGB;
 
   /* In this example, we don't need to change any of the defaults set by
    * jpeg_read_header(), so we do nothing here.
@@ -1504,11 +1513,26 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
    * In this example, we need to make an output work buffer of the right size.
    */ 
   /* JSAMPLEs per row in output buffer */
+  pixelcount = cinfo.output_width * cinfo.output_height;
+
+  if (!cinfo.output_width || !cinfo.output_height
+      || ((pixelcount * 4) / cinfo.output_width) / 4 != cinfo.output_height
+      || pixelcount > 0x1FFFFFFF || cinfo.output_components != 3
+      )
+  {
+      // Free the memory to make sure we don't leak memory
+      ri.FS_FreeFile(fbuffer);
+      jpeg_destroy_decompress(&cinfo);
+
+      ri.Error(ERR_DROP, "LoadJPG: %s has an invalid image format: %dx%d*4=%d, components: %d", filename,
+          cinfo.output_width, cinfo.output_height, pixelcount * 4, cinfo.output_components);
+  }
+
+  memcount = pixelcount * 4;
   row_stride = cinfo.output_width * cinfo.output_components;
 
-  out = ri.Malloc(cinfo.output_width*cinfo.output_height*cinfo.output_components);
+  out = ri.Malloc(memcount);
 
-  *pic = out;
   *width = cinfo.output_width;
   *height = cinfo.output_height;
 
@@ -1519,27 +1543,30 @@ static void LoadJPG( const char *filename, unsigned char **pic, int *width, int 
    * loop counter, so that we don't have to keep track ourselves.
    */
   while (cinfo.output_scanline < cinfo.output_height) {
-    /* jpeg_read_scanlines expects an array of pointers to scanlines.
-     * Here the array is only one element long, but you could ask for
-     * more than one scanline at a time if that's more convenient.
-     */
-	bbuf = ((out+(row_stride*cinfo.output_scanline)));
-	buffer = &bbuf;
-    (void) jpeg_read_scanlines(&cinfo, buffer, 1);
+	  /* jpeg_read_scanlines expects an array of pointers to scanlines.
+	   * Here the array is only one element long, but you could ask for
+	   * more than one scanline at a time if that's more convenient.
+	   */
+	  buf = ((out + (row_stride * cinfo.output_scanline)));
+	  buffer = &buf;
+	  (void)jpeg_read_scanlines(&cinfo, buffer, 1);
   }
 
-  // clear all the alphas to 255
+  buf = out;
+
+  // Expand from RGB to RGBA
+  sindex = pixelcount * cinfo.output_components;
+  dindex = memcount;
+
+  do
   {
-	  int	i, j;
-		byte	*buf;
+      buf[--dindex] = 255;
+      buf[--dindex] = buf[--sindex];
+      buf[--dindex] = buf[--sindex];
+      buf[--dindex] = buf[--sindex];
+  } while (sindex);
 
-		buf = *pic;
-
-	  j = cinfo.output_width * cinfo.output_height * 4;
-	  for ( i = 3 ; i < j ; i+=4 ) {
-		  buf[i] = 255;
-	  }
-  }
+  *pic = out;
 
   /* Step 7: Finish decompression */
 
@@ -1622,7 +1649,7 @@ boolean empty_output_buffer (j_compress_ptr cinfo)
   return TRUE;
 }
 
-
+#if 0
 /*
  * Compression initialization.
  * Before calling this, all parameters and a data destination must be set up.
@@ -1660,7 +1687,6 @@ jpeg_start_compress (j_compress_ptr cinfo, boolean write_all_tables)
   cinfo->next_scanline = 0;
   cinfo->global_state = (cinfo->raw_data_in ? CSTATE_RAW_OK : CSTATE_SCANNING);
 }
-
 
 /*
  * Write some scanlines of data to the JPEG compressor.
@@ -1867,6 +1893,7 @@ void SaveJPG(char * filename, int quality, int image_width, int image_height, un
 
   /* And we're done! */
 }
+#endif
 
 //===================================================================
 

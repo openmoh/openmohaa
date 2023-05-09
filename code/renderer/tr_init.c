@@ -453,6 +453,8 @@ RB_TakeScreenshotJPEG
 ================== 
 */  
 void RB_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName ) {
+	// FIXME: unimplemented
+#if 0
 	byte		*buffer;
 
 	buffer = ri.Hunk_AllocateTempMemory(glConfig.vidWidth*glConfig.vidHeight*4);
@@ -468,6 +470,7 @@ void RB_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName 
 	SaveJPG( fileName, 95, glConfig.vidWidth, glConfig.vidHeight, buffer);
 
 	ri.Hunk_FreeTempMemory( buffer );
+#endif
 }
 
 /*
