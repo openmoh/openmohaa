@@ -1691,31 +1691,33 @@ void Com_Frame( void ) {
 	}
 
 #ifndef DEDICATED
-	//
-	// client system
-	//
-	//
-	// run event loop a second time to get server to client packets
-	// without a frame of latency
-	//
-	if ( com_speeds->integer ) {
-		timeBeforeEvents = Sys_Milliseconds ();
-	}
-	Com_EventLoop();
-	Cbuf_Execute (msec);
+	if (!com_dedicated->integer) {
+		//
+		// client system
+		//
+		//
+		// run event loop a second time to get server to client packets
+		// without a frame of latency
+		//
+		if (com_speeds->integer) {
+			timeBeforeEvents = Sys_Milliseconds();
+		}
+		Com_EventLoop();
+		Cbuf_Execute(msec);
 
 
-	//
-	// client side
-	//
-	if ( com_speeds->integer ) {
-		timeBeforeClient = Sys_Milliseconds ();
-	}
+		//
+		// client side
+		//
+		if (com_speeds->integer) {
+			timeBeforeClient = Sys_Milliseconds();
+		}
 
-	CL_Frame( msec );
+		CL_Frame(msec);
 
-	if ( com_speeds->integer ) {
-		timeAfter = Sys_Milliseconds ();
+		if (com_speeds->integer) {
+			timeAfter = Sys_Milliseconds();
+		}
 	}
 #endif
 
