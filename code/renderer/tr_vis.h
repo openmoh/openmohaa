@@ -21,3 +21,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #pragma once
+
+#include "tr_local.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void R_VisDebugLoad(const char* szBSPName);
+
+#ifdef __cplusplus
+}
+#endif

@@ -24,3 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 #include "tr_vis.h"
+
+void R_VisDebugLoad(const char* szBSPName) {
+    // FIXME: unimplemented
+}

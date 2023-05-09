@@ -30,5 +30,14 @@ R_AddTerrainSurfaces
 =============
 */
 void R_AddTerrainSurfaces( void ) {
-	// FIXME
+	// FIXME: unimplemented
+}
+
+/*
+=============
+R_InitTerrain
+=============
+*/
+void R_InitTerrain() {
+    // FIXME: unimplemented
 }

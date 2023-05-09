@@ -926,10 +926,19 @@ typedef struct mnode_s {
 
 	// leaf specific
 	int			cluster;
-	int			area;
+    int			area;
+    spherel_t**	lights;
+    int			numlights;
 
 	msurface_t	**firstmarksurface;
-	int			nummarksurfaces;
+    int			nummarksurfaces;
+
+    int			firstTerraPatch;
+    int			numTerraPatches;
+    int			firstStaticModel;
+    int			numStaticModels;
+    void**		pFirstMarkFragment;
+    int			iNumMarkFragment;
 } mnode_t;
 
 typedef struct {
@@ -1712,6 +1721,7 @@ void R_GetLightingForSmoke(vec3_t vLight, vec3_t vOrigin);
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
 void R_TransformDlights( int count, dlight_t *dl, orientationr_t *or );
 int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
+void R_Sphere_InitLights();
 int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights);
 
 
@@ -1807,6 +1817,28 @@ void R_AddAnimSurfaces(trRefEntity_t* ent);
 /*
 =============================================================
 
+FONT
+
+=============================================================
+*/
+fontheader_t* R_LoadFont(const char* name);
+void R_LoadFontShader(fontheader_t* font);
+void R_DrawString(const fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen);
+float R_GetFontHeight(const fontheader_t* font);
+float R_GetFontStringWidth(const fontheader_t* font, const char* s);
+
+/*
+=============================================================
+
+MARKS
+
+=============================================================
+*/
+void R_LevelMarksLoad(const char* szBSPName);
+
+/*
+=============================================================
+
 SPRITE
 
 =============================================================
@@ -1817,10 +1849,31 @@ void RB_DrawSprite(const refSprite_t* spr);
 /*
 =============================================================
 
+SWIPE
+
+=============================================================
+*/
+void RB_DrawSwipeSurface(surfaceType_t* pswipe);
+void RE_SwipeBegin(float thistime, float life, qhandle_t shader);
+void RE_SwipeEnd();
+
+/*
+=============================================================
+
+TERRAIN
+
+=============================================================
+*/
+void R_InitTerrain();
+
+/*
+=============================================================
+
 TIKI
 
 =============================================================
 */
+void R_InitStaticModels(void);
 void RE_FreeModels(void);
 qhandle_t RE_SpawnEffectModel(const char* szModel, vec3_t vPos, vec3_t* axis);
 qhandle_t RE_RegisterServerModel(const char* name);
@@ -1839,30 +1892,7 @@ void R_UpdatePoseInternal(refEntity_t* model);
 void RB_SkelMesh(skelSurfaceGame_t* sf);
 void RB_StaticMesh(staticSurface_t* staticSurf);
 void R_AddSkelSurfaces(trRefEntity_t* ent);
-
-/*
-=============================================================
-
-FONT
-
-=============================================================
-*/
-fontheader_t* R_LoadFont(const char* name);
-void R_LoadFontShader(fontheader_t* font);
-void R_DrawString(const fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen);
-float R_GetFontHeight(const fontheader_t* font);
-float R_GetFontStringWidth(const fontheader_t* font, const char* s);
-
-/*
-=============================================================
-
-SWIPE
-
-=============================================================
-*/
-void RB_DrawSwipeSurface(surfaceType_t* pswipe);
-void RE_SwipeBegin(float thistime, float life, qhandle_t shader);
-void RE_SwipeEnd();
+void R_AddStaticModelSurfaces(void);
 
 /*
 =============================================================
