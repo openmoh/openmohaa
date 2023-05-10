@@ -1606,34 +1606,11 @@ void CL_DownloadsComplete( void ) {
 	// let the client game init and load data
 	cls.state = CA_LOADING;
 
-	// Pump the loop, this may change gamestate!
-	Com_EventLoop();
+    CL_StartHunkUsers();
+    // Pump the loop, this may change gamestate!
+    Com_EventLoop();
 
-	// if the gamestate was changed by calling Com_EventLoop
-	// then we loaded everything already and we don't want to do it again.
-	if ( cls.state != CA_LOADING ) {
-		return;
-	}
-
-	// starting to load a map so we get out of full screen ui mode
-	Cvar_Set("r_uiFullScreen", "0");
-
-	// flush client memory and start loading stuff
-	// this will also (re)load the UI
-	// if this is a local client then only the client part of the hunk
-	// will be cleared, note that this is done after the hunk mark has been set
-	CL_FlushMemory();
-
-	// initialize the CGame
-	cls.cgameStarted = qtrue;
-	CL_InitCGame();
-
-	// set pure checksums
-	CL_SendPureChecksums();
-
-	CL_WritePacket();
-	CL_WritePacket();
-	CL_WritePacket();
+    CL_StartHunkUsers();
 }
 
 /*

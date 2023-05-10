@@ -462,6 +462,9 @@ void CL_ParseGamestate( msg_t *msg ) {
 	UI_CloseConsole();
 
 	clc.connectPacketCount = 0;
+	if (cls.cgameStarted) {
+		CL_FlushMemory();
+	}
 
 	// wipe local client state
 	CL_ClearState();
@@ -514,9 +517,6 @@ void CL_ParseGamestate( msg_t *msg ) {
 	// read the checksum feed
 	clc.checksumFeed = MSG_ReadLong( msg );
 
-	// parse useful values out of CS_SERVERINFO
-	CL_ParseServerInfo();
-
 	// parse serverId and other cvars
 	CL_SystemInfoChanged();
 
@@ -526,6 +526,13 @@ void CL_ParseGamestate( msg_t *msg ) {
 	
 	// reinitialize the filesystem if the game directory has changed
 	FS_ConditionalRestart( clc.checksumFeed );
+
+    if (!com_sv_running->integer)
+    {
+        const char *info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];
+        UI_ClearState();
+        UI_BeginLoad(Info_ValueForKey(info, "mapname"));
+    }
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
 	// cgame

@@ -535,7 +535,7 @@ void SCR_UpdateScreen( void ) {
 		return;
 	}
 	recursive = 1;
-
+	
 	CL_StartHunkUsers();
 	SCR_SimpleUpdateScreen();
 

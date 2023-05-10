@@ -511,7 +511,7 @@ static mnode_t *R_PointInLeaf( const vec3_t p ) {
 	if ( !tr.world ) {
 		ri.Error (ERR_DROP, "R_PointInLeaf: bad model");
 	}
-
+	
 	node = tr.world->nodes;
 	while( 1 ) {
 		if (node->contents != -1) {
