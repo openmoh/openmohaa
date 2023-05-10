@@ -5081,10 +5081,10 @@ void CL_ShutdownUI( void ) {
 		delete dm_console;
 		dm_console = NULL;
 	}
-	if( developer )
+	if( developer_console )
 	{
-		delete developer;
-		developer = NULL;
+		delete developer_console;
+		developer_console = NULL;
 	}
 	if( mini_console )
 	{
