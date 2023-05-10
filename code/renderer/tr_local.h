@@ -1284,10 +1284,6 @@ extern int r_sequencenumber;
 extern cvar_t	*r_flareSize;
 extern cvar_t	*r_flareFade;
 
-extern cvar_t	*r_railWidth;
-extern cvar_t	*r_railCoreWidth;
-extern cvar_t	*r_railSegmentLength;
-
 extern cvar_t	*r_ignore;				// used for debugging anything
 extern cvar_t	*r_verbose;				// used for verbose debug spew
 extern cvar_t	*r_ignoreFastPath;		// allows us to ignore our Tess fast paths
@@ -1298,6 +1294,7 @@ extern cvar_t	*r_stencilbits;			// number of desired stencil bits
 extern cvar_t	*r_depthbits;			// number of desired depth bits
 extern cvar_t	*r_colorbits;			// number of desired color bits, only relevant for fullscreen
 extern cvar_t	*r_stereo;				// desired pixelformat stereo flag
+extern cvar_t	*r_textureDetails;
 extern cvar_t	*r_texturebits;			// number of desired texture bits
 										// 0 = use framebuffer depth
 										// 16 = use 16-bit textures
@@ -1306,7 +1303,6 @@ extern cvar_t	*r_texturebits;			// number of desired texture bits
 
 extern cvar_t	*r_measureOverdraw;		// enables stencil buffer overdraw measurement
 
-extern cvar_t	*r_lodbias;				// push/pull LOD transitions
 extern cvar_t	*r_lodscale;
 
 extern cvar_t	*r_primitives;			// "0" = based on compiled vertex array existance
@@ -1316,17 +1312,28 @@ extern cvar_t	*r_primitives;			// "0" = based on compiled vertex array existance
 
 extern cvar_t	*r_inGameVideo;				// controls whether in game video should be draw
 extern cvar_t	*r_fastsky;				// controls whether sky should be cleared or drawn
+extern cvar_t	*r_fastdlights;
 extern cvar_t	*r_drawSun;				// controls drawing of sun quad
 extern cvar_t	*r_dynamiclight;		// dynamic lights enabled/disabled
 extern cvar_t	*r_dlightBacks;			// dlight non-facing surfaces for continuity
 
 extern	cvar_t	*r_norefresh;			// bypasses the ref rendering
 extern	cvar_t	*r_drawentities;		// disable/enable entity rendering
+extern	cvar_t	*r_drawentitypoly;
+extern	cvar_t	*r_drawstaticmodels;
+extern	cvar_t	*r_drawstaticmodelpoly;
+extern	cvar_t	*r_drawbrushes;
+extern	cvar_t	*r_drawbrushmodels;
+extern	cvar_t	*r_drawstaticdecals;
+extern	cvar_t	*r_drawterrain;
+extern	cvar_t	*r_drawsprites;
+extern	cvar_t	*r_drawspherelights;
 extern	cvar_t	*r_drawworld;			// disable/enable world rendering
 extern	cvar_t	*r_speeds;				// various levels of information display
 extern  cvar_t	*r_detailTextures;		// enables/disables detail texturing stages
 extern	cvar_t	*r_novis;				// disable/enable usage of PVS
 extern	cvar_t	*r_nocull;
+extern	cvar_t	*r_showcull;
 extern	cvar_t	*r_facePlaneCull;		// enables culling of planar surfaces with back side test
 extern	cvar_t	*r_nocurves;
 extern	cvar_t	*r_showcluster;
@@ -1344,9 +1351,15 @@ extern cvar_t	*r_ext_texenv_op;
 extern cvar_t	*r_ext_multitexture;
 extern cvar_t	*r_ext_compiled_vertex_array;
 extern cvar_t	*r_ext_texture_env_add;
+extern cvar_t	*r_ext_texture_env_combine;
+extern cvar_t	*r_ext_aniso_filter;
+extern cvar_t	*r_forceClampToEdge;
+extern cvar_t	*r_geForce3WorkAround;
+extern cvar_t	*r_reset_tc_array;
 
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
+extern	cvar_t	*r_lerpmodels;
 extern	cvar_t	*r_roundImagesDown;
 extern	cvar_t	*r_colorMipLevels;				// development aid to see texture mip usage
 extern	cvar_t	*r_picmip;						// controls picmip values
@@ -1361,21 +1374,29 @@ extern	cvar_t	*r_offsetUnits;
 extern	cvar_t	*r_fullbright;					// avoid lightmap pass
 extern	cvar_t	*r_lightmap;					// render lightmaps only
 extern	cvar_t	*r_vertexLight;					// vertex lighting mode for better performance
-extern	cvar_t	*r_uiFullScreen;				// ui is running fullscreen
 
 extern	cvar_t	*r_logFile;						// number of frames to emit GL logs
 extern	cvar_t	*r_showtris;					// enables wireframe rendering of the world
 extern	cvar_t	*r_showsky;						// forces sky in front of all surfaces
 extern	cvar_t	*r_shownormals;					// draws wireframe normals
+extern	cvar_t	*r_showhbox;
+extern	cvar_t	*r_showstaticbboxes;
 extern	cvar_t	*r_clear;						// force screen clear every frame
 
 extern	cvar_t	*r_shadows;						// controls shadows: 0 = none, 1 = blur, 2 = stencil, 3 = black planar projection
+extern	cvar_t	*r_entlight_scale;
+extern	cvar_t	*r_entlight_errbound;
+extern	cvar_t	*r_entlight_cubelevel;
+extern	cvar_t	*r_entlight_cubefraction;
+extern	cvar_t	*r_entlight_maxcalc;
 extern	cvar_t	*r_flares;						// light flares
 
 extern	cvar_t	*r_intensity;
 
 extern	cvar_t	*r_lockpvs;
 extern	cvar_t	*r_noportals;
+extern	cvar_t	*r_entlightmap;
+extern	cvar_t	*r_fastentlight;
 extern	cvar_t	*r_portalOnly;
 
 extern	cvar_t	*r_subdivisions;
@@ -1390,9 +1411,10 @@ extern	cvar_t	*r_overBrightBits;
 extern	cvar_t	*r_mapOverBrightBits;
 
 extern	cvar_t	*r_debugSurface;
-extern	cvar_t	*r_simpleMipMaps;
 
 extern	cvar_t	*r_showImages;
+extern	cvar_t	*r_showlod;
+extern	cvar_t	*r_showstaticlod;
 extern	cvar_t	*r_debugSort;
 
 extern	cvar_t	*r_printShaders;
@@ -1433,8 +1455,41 @@ extern  cvar_t* lod_tris;
 extern  cvar_t* lod_position;
 extern  cvar_t* lod_save;
 extern  cvar_t* lod_tool;
+extern	cvar_t* sys_cpuid;
+extern	cvar_t* r_sse;
+extern	cvar_t* r_static_shaderdata0;
+extern	cvar_t* r_static_shaderdata1;
+extern	cvar_t* r_static_shaderdata2;
+extern	cvar_t* r_static_shaderdata3;
+extern	cvar_t* r_static_shadermultiplier0;
+extern	cvar_t* r_static_shadermultiplier1;
+extern	cvar_t* r_static_shadermultiplier2;
+extern	cvar_t* r_static_shadermultiplier3;
 
 extern  cvar_t* r_numdebuglines;
+
+extern	cvar_t* r_stipplelines;
+extern	cvar_t* r_light_lines;
+extern	cvar_t* r_light_sun_line;
+extern	cvar_t* r_light_int_scale;
+extern	cvar_t* r_light_nolight;
+extern	cvar_t* r_light_showgrid;
+extern	cvar_t* r_skyportal;
+extern	cvar_t* r_skyportal_origin;
+extern	cvar_t* r_farplane;
+extern	cvar_t* r_farplane_color;
+extern	cvar_t* r_farplane_nocull;
+extern	cvar_t* r_farplane_nofog;
+extern	cvar_t* r_lightcoronasize;
+extern	cvar_t* r_useglfog;
+extern	cvar_t* r_debuglines_depthmask;
+extern	cvar_t* r_smoothsmokelight;
+extern	cvar_t* r_showportal;
+extern	cvar_t* ter_minMarkRadius;
+extern	cvar_t* ter_fastMarks;
+extern	cvar_t* r_bumpmap;
+extern	cvar_t* r_loadjpg;
+extern	cvar_t* r_loadftx;
 
 extern  cvar_t* r_showSkeleton;
 

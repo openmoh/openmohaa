@@ -345,63 +345,6 @@ void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only
 	}
 }
 
-
-/*
-================
-R_MipMap2
-
-Operates in place, quartering the size of the texture
-Proper linear filter
-================
-*/
-static void R_MipMap2( unsigned *in, int inWidth, int inHeight ) {
-	int			i, j, k;
-	byte		*outpix;
-	int			inWidthMask, inHeightMask;
-	int			total;
-	int			outWidth, outHeight;
-	unsigned	*temp;
-
-	outWidth = inWidth >> 1;
-	outHeight = inHeight >> 1;
-	temp = ri.Hunk_AllocateTempMemory( outWidth * outHeight * 4 );
-
-	inWidthMask = inWidth - 1;
-	inHeightMask = inHeight - 1;
-
-	for ( i = 0 ; i < outHeight ; i++ ) {
-		for ( j = 0 ; j < outWidth ; j++ ) {
-			outpix = (byte *) ( temp + i * outWidth + j );
-			for ( k = 0 ; k < 4 ; k++ ) {
-				total = 
-					1 * ((byte *)&in[ ((i*2-1)&inHeightMask)*inWidth + ((j*2-1)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2-1)&inHeightMask)*inWidth + ((j*2)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2-1)&inHeightMask)*inWidth + ((j*2+1)&inWidthMask) ])[k] +
-					1 * ((byte *)&in[ ((i*2-1)&inHeightMask)*inWidth + ((j*2+2)&inWidthMask) ])[k] +
-
-					2 * ((byte *)&in[ ((i*2)&inHeightMask)*inWidth + ((j*2-1)&inWidthMask) ])[k] +
-					4 * ((byte *)&in[ ((i*2)&inHeightMask)*inWidth + ((j*2)&inWidthMask) ])[k] +
-					4 * ((byte *)&in[ ((i*2)&inHeightMask)*inWidth + ((j*2+1)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2)&inHeightMask)*inWidth + ((j*2+2)&inWidthMask) ])[k] +
-
-					2 * ((byte *)&in[ ((i*2+1)&inHeightMask)*inWidth + ((j*2-1)&inWidthMask) ])[k] +
-					4 * ((byte *)&in[ ((i*2+1)&inHeightMask)*inWidth + ((j*2)&inWidthMask) ])[k] +
-					4 * ((byte *)&in[ ((i*2+1)&inHeightMask)*inWidth + ((j*2+1)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2+1)&inHeightMask)*inWidth + ((j*2+2)&inWidthMask) ])[k] +
-
-					1 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2-1)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2)&inWidthMask) ])[k] +
-					2 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2+1)&inWidthMask) ])[k] +
-					1 * ((byte *)&in[ ((i*2+2)&inHeightMask)*inWidth + ((j*2+2)&inWidthMask) ])[k];
-				outpix[k] = total / 36;
-			}
-		}
-	}
-
-	Com_Memcpy( in, temp, outWidth * outHeight * 4 );
-	ri.Hunk_FreeTempMemory( temp );
-}
-
 /*
 ================
 R_MipMap
@@ -413,11 +356,6 @@ static void R_MipMap (byte *in, int width, int height) {
 	int		i, j;
 	byte	*out;
 	int		row;
-
-	if ( !r_simpleMipMaps->integer ) {
-		R_MipMap2( (unsigned *)in, width, height );
-		return;
-	}
 
 	if ( width == 1 && height == 1 ) {
 		return;
