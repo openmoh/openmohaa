@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "tr_local.h"
+#include "tr_vis.h"
+#include "tiki.h"
 
 int			r_firstSceneDrawSurf;
 
@@ -123,12 +125,12 @@ qboolean RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *v
 	vec3_t		bounds[2];
 
 	if ( !tr.registered ) {
-		return;
+		return qfalse;
 	}
 
 	if ( !hShader ) {
 		ri.Printf( PRINT_WARNING, "WARNING: RE_AddPolyToScene: NULL poly shader\n");
-		return;
+		return qfalse;
 	}
 
 	for ( j = 0; j < numPolys; j++ ) {
@@ -140,7 +142,7 @@ qboolean RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *v
       simply cut this message to developer only
       */
 			ri.Printf( PRINT_DEVELOPER, "WARNING: RE_AddPolyToScene: r_max_polys or r_max_polyverts reached\n");
-			return;
+			return qfalse;
 		}
 
 		poly = &backEndData[tr.smpFrame]->polys[r_numpolys];
@@ -192,6 +194,8 @@ qboolean RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *v
 		}
 		poly->fogIndex = fogIndex;
 	}
+
+	return qtrue;
 }
 
 /*
@@ -300,6 +304,10 @@ void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, fl
 	RE_AddDynamicLightToScene( org, intensity, r, g, b, type );
 }
 
+void R_AddLightGridSurfacesToScene() {
+	// FIXME: unimplemented
+}
+
 /*
 =====================
 RE_AddAdditiveLightToScene
@@ -339,6 +347,13 @@ void RE_RenderScene( const refdef_t *fd ) {
 	if (!tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
 		ri.Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
 	}
+
+	if (r_light_showgrid->integer) {
+		R_AddLightGridSurfacesToScene();
+	}
+
+	R_VisDebug();
+	TIKI_Reset_Caches();
 
 	tr.refdef.x = fd->x;
 	tr.refdef.y = fd->y;
