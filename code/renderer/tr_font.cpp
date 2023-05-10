@@ -30,7 +30,7 @@ static fontheader_t s_loadedFonts[MAX_LOADED_FONTS];
 static int s_numLoadedFonts = 0;
 static float s_fontHeightScale = 1.0;
 static float s_fontGeneralScale = 1.0;
-static float s_fontZ = 0.0;;
+static float s_fontZ = 0.0;
 
 void R_SetFontHeightScale(float scale)
 {
@@ -255,12 +255,243 @@ void R_LoadFontShader(fontheader_t* font)
     }
 }
 
-void R_DrawString(const fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen) {
-    // FIXME: unimplemented
+void R_DrawString(fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen) {
+    float charHeight;
+    float startx, starty;
+    int i;
+    float fWidthScale, fHeightScale;
+
+    i = 0;
+    startx = x;
+    starty = y;
+    fWidthScale = (double)glConfig.vidWidth / 640.0;
+    fHeightScale = (double)glConfig.vidHeight / 480.0;
+
+    if (!font) {
+        return;
+    }
+
+    R_SyncRenderThread();
+
+    if (font->trhandle != r_sequencenumber) {
+        font->shader = NULL;
+    }
+
+    if (!font->shader) {
+        R_LoadFontShader(font);
+    }
+
+    charHeight = s_fontHeightScale * font->height * s_fontGeneralScale;
+    RB_BeginSurface((shader_t*)font->shader);
+
+    for (i = 0; text[i]; i++) {
+        unsigned char c;
+        int indirected;
+        letterloc_t* loc;
+
+        c = text[i];
+
+        if (maxlen != -1 && i >= maxlen) {
+            break;
+        }
+
+        switch (c)
+        {
+        case '\t':
+            indirected = font->indirection[32];
+            if (indirected == -1) {
+                Com_DPrintf("R_DrawString: no space-character in font!\n");
+            } else {
+                x = s_fontGeneralScale * font->locations[indirected].size[0] * 256.0 * 3.0 + x;
+            }
+            break;
+
+        case '\n':
+            starty = charHeight + starty;
+            x = startx;
+            y = starty;
+            break;
+
+        case '\r':
+            x = startx;
+            break;
+
+        default:
+            indirected = font->indirection[c];
+            if (indirected == -1)
+            {
+                Com_DPrintf("R_DrawString: no 0x%02x-character in font!\n", c);
+                indirected = font->indirection['?'];
+                if (indirected == -1) {
+                    Com_DPrintf("R_DrawString: no '?' character in font!\n");
+                    break;
+                }
+            }
+
+            font->indirection[c] = indirected;
+
+            if (tess.numVertexes + 4 >= SHADER_MAX_VERTEXES || tess.numIndexes + 6 >= SHADER_MAX_INDEXES) {
+                RB_CheckOverflow(4, 6);
+            }
+
+            loc = &font->locations[indirected];
+
+            // texture coordinates
+            tess.texCoords[tess.numVertexes][0][0] = loc->pos[0];
+            tess.texCoords[tess.numVertexes][0][1] = loc->pos[1];
+            tess.texCoords[tess.numVertexes + 1][0][0] = loc->size[0] + loc->pos[0];
+            tess.texCoords[tess.numVertexes + 1][0][1] = loc->pos[1];
+            tess.texCoords[tess.numVertexes + 2][0][0] = loc->pos[0];
+            tess.texCoords[tess.numVertexes + 2][0][1] = loc->size[1] + loc->pos[1];
+            tess.texCoords[tess.numVertexes + 3][0][0] = loc->size[0] + loc->pos[0];
+            tess.texCoords[tess.numVertexes + 3][0][1] = loc->size[1] + loc->pos[1];
+
+            // vertices position
+            tess.xyz[tess.numVertexes][0] = x;
+            tess.xyz[tess.numVertexes][1] = y;
+            tess.xyz[tess.numVertexes][2] = s_fontZ;
+            tess.xyz[tess.numVertexes + 1][0] = s_fontGeneralScale * loc->size[0] * 256.0 + x;
+            tess.xyz[tess.numVertexes + 1][1] = y;
+            tess.xyz[tess.numVertexes + 1][2] = s_fontZ;
+            tess.xyz[tess.numVertexes + 2][0] = x;
+            tess.xyz[tess.numVertexes + 2][1] = charHeight + y;
+            tess.xyz[tess.numVertexes + 2][2] = s_fontZ;
+            tess.xyz[tess.numVertexes + 3][0] = s_fontGeneralScale * loc->size[0] * 256.0 + x;
+            tess.xyz[tess.numVertexes + 3][1] = charHeight + y;
+            tess.xyz[tess.numVertexes + 3][2] = s_fontZ;
+
+            // indices
+            tess.indexes[tess.numIndexes] = tess.numVertexes;
+            tess.indexes[tess.numIndexes + 1] = tess.numVertexes + 1;
+            tess.indexes[tess.numIndexes + 2] = tess.numVertexes + 2;
+            tess.indexes[tess.numIndexes + 3] = tess.numVertexes + 1;
+            tess.indexes[tess.numIndexes + 4] = tess.numVertexes + 3;
+            tess.indexes[tess.numIndexes + 5] = tess.numVertexes + 2;
+
+            if (bVirtualScreen)
+            {
+                // scale the string properly if virtual screen
+                tess.xyz[tess.numVertexes][0] *= fWidthScale;
+                tess.xyz[tess.numVertexes][1] *= fHeightScale;
+                tess.xyz[tess.numVertexes + 1][0] *= fWidthScale;
+                tess.xyz[tess.numVertexes + 1][1] *= fHeightScale;
+                tess.xyz[tess.numVertexes + 2][0] *= fWidthScale;
+                tess.xyz[tess.numVertexes + 2][1] *= fHeightScale;
+                tess.xyz[tess.numVertexes + 3][0] *= fWidthScale;
+                tess.xyz[tess.numVertexes + 3][1] *= fHeightScale;
+            }
+
+            tess.numVertexes += 4;
+            tess.numIndexes += 6;
+            break;
+        }
+    }
+
+    RB_EndSurface();
 }
 
-void R_DrawFloatingString(const fontheader_t* font, const char* text, const vec3_t org, const vec4_t color, float scale, int maxlen) {
-    // FIXME: unimplemented
+void R_DrawFloatingString(fontheader_t* font, const char* text, const vec3_t org, const vec4_t color, float scale, int maxlen) {
+    shader_t* fontshader;
+    qhandle_t fsh;
+    float charWidth, charHeight;
+    int i;
+    vec3_t pos;
+    polyVert_t verts[4];
+
+    if (!font) {
+        return;
+    }
+
+
+    R_SyncRenderThread();
+    if (font->trhandle != r_sequencenumber) {
+        font->shader = NULL;
+    }
+
+    if (!font->shader) {
+        R_LoadFontShader(font);
+    }
+
+    i = 0;
+    fontshader = (shader_t*)font->shader;
+    fsh = 0;
+
+    for (i = 0; i < tr.numShaders; i++)
+    {
+        if (fontshader == tr.shaders[i])
+        {
+            fsh = i;
+            break;
+        }
+    }
+
+    i = 0;
+    charHeight = font->height * s_fontHeightScale * s_fontGeneralScale * scale;
+    VectorCopy(org, pos);
+
+    for (i = 0; text[i]; i++) {
+        unsigned char c;
+        int indirected;
+        letterloc_t* loc;
+        
+        c = text[i];
+        indirected = font->indirection[c];
+        if (indirected == -1)
+        {
+            Com_Printf("R_DrawFloatingString: no 0x%02x-character in font!\n", c);
+            continue;
+        }
+
+        loc = &font->locations[indirected];
+
+        // vertices color
+        verts[0].modulate[0] = (int)(color[0] * 255.0);
+        verts[0].modulate[1] = (int)(color[1] * 255.0);
+        verts[0].modulate[2] = (int)(color[2] * 255.0);
+        verts[0].modulate[3] = (int)(color[3] * 255.0);
+        verts[1].modulate[0] = verts[0].modulate[0];
+        verts[1].modulate[1] = verts[0].modulate[1];
+        verts[1].modulate[2] = verts[0].modulate[2];
+        verts[1].modulate[3] = verts[0].modulate[3];
+        verts[2].modulate[0] = verts[0].modulate[0];
+        verts[2].modulate[1] = verts[0].modulate[1];
+        verts[2].modulate[2] = verts[0].modulate[2];
+        verts[2].modulate[3] = verts[0].modulate[3];
+        verts[3].modulate[0] = verts[0].modulate[0];
+        verts[3].modulate[1] = verts[0].modulate[1];
+        verts[3].modulate[2] = verts[0].modulate[2];
+        verts[3].modulate[3] = verts[0].modulate[3];
+
+        // texture coordinates
+        verts[0].st[0] = loc->pos[0];
+        verts[0].st[1] = loc->pos[1];
+        verts[1].st[0] = loc->pos[0] + font->locations[indirected].size[0];
+        verts[1].st[1] = loc->pos[1];
+        verts[2].st[0] = verts[1].st[0];
+        verts[2].st[1] = loc->pos[1] + loc->size[1];
+        verts[3].st[0] = loc->pos[0];
+        verts[3].st[1] = verts[2].st[1];
+        VectorCopy(pos, verts[3].xyz);
+
+        charWidth = font->locations[indirected].size[0] * 256.0 * s_fontGeneralScale * scale;
+        verts[2].xyz[0] = pos[0] + tr.refdef.viewaxis[1][0] * -charWidth;
+        verts[2].xyz[1] = pos[1] + tr.refdef.viewaxis[1][1] * -charWidth;
+        verts[2].xyz[2] = pos[2] + tr.refdef.viewaxis[1][2] * -charWidth;
+        verts[1].xyz[0] = verts[2].xyz[0] + charHeight * tr.refdef.viewaxis[2][0];
+        verts[1].xyz[1] = verts[2].xyz[1] + charHeight * tr.refdef.viewaxis[2][1];
+        verts[1].xyz[2] = verts[2].xyz[2] + charHeight * tr.refdef.viewaxis[2][2];
+        verts[0].xyz[1] = verts[1].xyz[1] + tr.refdef.viewaxis[1][1] * charWidth;
+        verts[0].xyz[2] = verts[1].xyz[2] + tr.refdef.viewaxis[1][2] * charWidth;
+        verts[0].xyz[0] = verts[1].xyz[0] + tr.refdef.viewaxis[1][0] * charWidth;
+    
+        if (RE_AddPolyToScene(fsh, 4, verts, 0)) {
+            ++tr.refdef.numPolys;
+        }
+
+        pos[0] = verts[2].xyz[0];
+        pos[1] = verts[2].xyz[1];
+        pos[2] = verts[2].xyz[2];
+    }
 }
 
 float R_GetFontHeight(const fontheader_t* font)

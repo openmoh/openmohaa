@@ -1899,7 +1899,7 @@ FONT
 */
 fontheader_t* R_LoadFont(const char* name);
 void R_LoadFontShader(fontheader_t* font);
-void R_DrawString(const fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen);
+void R_DrawString(fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen);
 float R_GetFontHeight(const fontheader_t* font);
 float R_GetFontStringWidth(const fontheader_t* font, const char* s);
 
