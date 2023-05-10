@@ -29,6 +29,7 @@ extern "C" {
 #endif
 
 void R_VisDebugLoad(const char* szBSPName);
+void R_VisDebug();
 
 #ifdef __cplusplus
 }
