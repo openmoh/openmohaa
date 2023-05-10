@@ -246,7 +246,8 @@ void View3D::Pressed
 	)
 
 {
-	// FIXME: stub
+	IN_MouseOff();
+	OnActivate(ev);
 }
 
 CLASS_DECLARATION( UIWidget, ConsoleView, NULL )
