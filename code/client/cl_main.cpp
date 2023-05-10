@@ -2986,7 +2986,7 @@ void CL_Init( void ) {
 	S_StopAllSounds( qtrue );
 
 	cls.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
-	cls.keyCatchers = 2;
+	Key_SetCatcher(KEYCATCH_UI);
 	cls.realtime = 0;
 
 	CL_InitInput ();
@@ -3228,10 +3228,9 @@ void CL_Shutdown( void ) {
 
 	recursive = qfalse;
 
-	Com_Memset( &cls, 0, sizeof( cls ) );
-	Key_SetCatcher( 0 );
-
 	Com_Printf( "-----------------------\n" );
+	Z_FreeTags(TAG_CLIENT);
+	cl_bCLSystemStarted = qfalse;
 
 }
 
