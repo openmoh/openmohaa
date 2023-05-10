@@ -143,7 +143,25 @@ void View3D::OnActivate
 	)
 
 {
-	// FIXME: stub
+	UIWidget* wid;
+    UList<UIWidget*> widgets;
+
+    UI_CloseInventory();
+    cls.keyCatchers &= ~KEYCATCH_UI;
+
+	for (wid = getParent()->getFirstChild(); wid; wid = getParent()->getNextChild(wid))
+	{
+		if (wid->getAlwaysOnBottom() && wid != this) {
+			widgets.AddTail(wid);
+		}
+	}
+
+	widgets.IterateFromHead();
+	while (widgets.getCurrent())
+	{
+		widgets.getCurrent()->BringToFrontPropogated();
+		widgets.IterateNext();
+	}
 }
 
 void View3D::OnDeactivate
@@ -152,7 +170,7 @@ void View3D::OnDeactivate
 	)
 
 {
-	// FIXME: stub
+	cls.keyCatchers |= KEYCATCH_UI;
 }
 
 void View3D::DrawSubtitleOverlay
