@@ -23,3 +23,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_sky_portal.cpp: sky portal
 
 #include "tr_local.h"
+
+void R_Sky_Init()
+{
+    // FIXME: unimplemented
+}
+
+void R_Sky_Reset()
+{
+    // FIXME: unimplemented
+}
+
+void R_Sky_AddSurf(msurface_t* surf)
+{
+    // FIXME: unimplemented
+}
