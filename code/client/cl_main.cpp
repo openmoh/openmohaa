@@ -1239,11 +1239,6 @@ void CL_Connect( const char *server ) {
 
 	Com_Printf( "%s resolved to %s\n", cls.servername, serverString );
 
-	if( cl_guidServerUniq->integer )
-		CL_UpdateGUID( serverString, strlen( serverString ) );
-	else
-		CL_UpdateGUID( NULL, 0 );
-
 	// if we aren't playing on a lan, we need to authenticate
 	// with the cd key
 	// wombat: no authorization in mohaa. need to send challenge to server though
@@ -1254,9 +1249,9 @@ void CL_Connect( const char *server ) {
 		cls.state = CA_CONNECTING;
 	}
 
-	Key_SetCatcher( 0 );
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
 	clc.connectPacketCount = 0;
+	clc.connectStartTime = 0;
 
 	// server connection string
 	Cvar_Set( "cl_currentServerAddress", server );
@@ -1276,7 +1271,7 @@ void CL_Connect_f( void ) {
 		Com_Printf( "usage: connect [server]\n");
 		return;
 	}
-
+	
 	server = Cmd_Argv (1);
 
 	CL_Connect( server );
