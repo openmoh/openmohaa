@@ -169,7 +169,7 @@ void R_InitStaticModels(void) {
                         int channel;
                         skelBoneCache_t* bone;
 
-                        weight = (skelWeight_t*)((byte*)vert + sizeof(skeletorVertex_t));
+                        weight = (skelWeight_t*)((byte*)vert + sizeof(skeletorVertex_t) + vert->numMorphs * sizeof(skeletorMorph_t));
 
                         if (j > 0) {
                             channel = pSM->tiki->m_boneList.GetLocalFromGlobal(skelmodel->pBones[weight->boneIndex].channel);

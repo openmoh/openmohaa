@@ -375,14 +375,25 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
                 skelVert->texCoords[0] = LittleFloat(pVert->texCoords[0]);
                 skelVert->texCoords[1] = LittleFloat(pVert->texCoords[1]);
 				skelVert->numWeights = numWeights;
-				skelVert->numMorphs = numMorphs;
+                skelVert->numMorphs = numMorphs;
 
-				skelWeight_t* pWeight = (skelWeight_t * )((byte*)pVert + sizeof(skeletorVertex_t));
-				skelWeight_t* skelWeight = (skelWeight_t*)((byte*)skelVert + sizeof(skeletorVertex_t));
-				for (k = 0; k < pVert->numWeights; k++)
+				// copy morphs
+                skeletorMorph_t* pMorph = (skeletorMorph_t*)((byte*)pVert + sizeof(skeletorVertex_t));
+                skeletorMorph_t* skelMorph = (skeletorMorph_t*)((byte*)skelVert + sizeof(skeletorVertex_t));
+                for (k = 0; k < pVert->numMorphs; k++, pMorph++, skelMorph++)
+                {
+					skelMorph->morphIndex = pMorph->morphIndex;
+                    skelMorph->offset[0] = LittleFloat(pMorph->offset[0]);
+                    skelMorph->offset[1] = LittleFloat(pMorph->offset[1]);
+                    skelMorph->offset[2] = LittleFloat(pMorph->offset[2]);
+                }
+
+				skelWeight_t* pWeight = (skelWeight_t * )((byte*)pMorph + sizeof(skeletorMorph_t) * pVert->numMorphs);
+				skelWeight_t* skelWeight = (skelWeight_t*)((byte*)skelMorph + sizeof(skeletorMorph_t) * pVert->numMorphs);
+				for (k = 0; k < pVert->numWeights; k++, skelWeight++, pWeight++)
 				{
-					skelWeight->boneIndex = LittleLong(pWeight->boneIndex);
-					skelWeight->boneWeight = LittleLong(pWeight->boneWeight);
+                    skelWeight->boneIndex = LittleLong(pWeight->boneIndex);
+                    skelWeight->boneWeight = LittleLong(pWeight->boneWeight);
                     skelWeight->offset[0] = LittleFloat(pWeight->offset[0]);
                     skelWeight->offset[1] = LittleFloat(pWeight->offset[1]);
                     skelWeight->offset[2] = LittleFloat(pWeight->offset[2]);
