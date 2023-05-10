@@ -2199,16 +2199,15 @@ void RE_LoadWorldMap( const char *name ) {
 	vec3_t			vDefSundir;
     gamelump_t		lump, lump2, lump3;
 
-	if ( tr.worldMapLoaded ) {
-		ri.Error( ERR_DROP, "ERROR: attempted to redundantly load world map\n" );
-	}
+    vDefSundir[0] = 0.45f;
+    vDefSundir[1] = 0.3f;
+    vDefSundir[2] = 0.9f;
+
+	_R(52);
 
 	// set default sun direction to be used if it isn't
 	// overridden by a shader
-	tr.sunDirection[0] = 0.45f;
-	tr.sunDirection[1] = 0.3f;
-	tr.sunDirection[2] = 0.9f;
-
+	VectorCopy(vDefSundir, tr.sunDirection);
 	VectorNormalize( tr.sunDirection );
 
 	tr.worldMapLoaded = qtrue;
