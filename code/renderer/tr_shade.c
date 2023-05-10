@@ -305,18 +305,15 @@ because a surface may be forced to perform a RB_End due
 to overflow.
 ==============
 */
-void RB_BeginSurface( shader_t *shader, int fogNum ) {
-
-	shader_t *state = (shader->remappedShader) ? shader->remappedShader : shader;
+void RB_BeginSurface( shader_t *shader ) {
 
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
-	tess.shader = state;
-	tess.fogNum = fogNum;
+	tess.shader = shader;
 	tess.dlightBits = 0;		// will be OR'd in by surface functions
-	tess.xstages = state->unfoggedStages;
-	tess.numPasses = state->numUnfoggedPasses;
-	tess.currentStageIteratorFunc = state->optimalStageIteratorFunc;
+	tess.xstages = shader->unfoggedStages;
+	tess.numPasses = shader->numUnfoggedPasses;
+	tess.currentStageIteratorFunc = shader->optimalStageIteratorFunc;
 
 	tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 	if (tess.shader->clampTime && tess.shaderTime >= tess.shader->clampTime) {
@@ -452,8 +449,8 @@ static void ProjectDlightTexture( void ) {
 #else
 		VectorCopy( dl->transformed, origin );
 #endif
-		radius = dl->radius;
-		scale = 1.0f / radius;
+		radius = dl->radius * 1.75f;
+		scale = 1.75f / radius;
 
 		floatColor[0] = dl->color[0] * 255.0f;
 		floatColor[1] = dl->color[1] * 255.0f;
@@ -590,7 +587,7 @@ static void ProjectDlightTexture( void ) {
 		GL_Bind( tr.dlightImage );
 		// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light
 		// where they aren't rendered
-		if ( dl->additive ) {
+		if ( dl->type & additive) {
 			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHFUNC_EQUAL );
 		}
 		else {

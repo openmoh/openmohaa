@@ -274,6 +274,39 @@ static int R_DlightSurface( msurface_t *surf, int dlightBits ) {
 	return dlightBits;
 }
 
+int R_DlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits)
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
+static int R_CheckDlightSurface(msurface_t* surf, int dlightBits)
+{
+    if (dlightBits && surf->frameCount != tr.frameCount)
+    {
+        surf->frameCount = tr.frameCount;
+        return R_DlightSurface(surf, dlightBits);
+    }
+
+    if (*surf->data == SF_FACE)
+    {
+        ((srfSurfaceFace_t*)surf->data)->dlightMap[tr.smpFrame] = 0;
+        ((srfSurfaceFace_t*)surf->data)->dlightBits[tr.smpFrame] = 0;
+    }
+    else if (*surf->data == SF_GRID)
+    {
+        ((srfGridMesh_t*)surf->data)->dlightMap[tr.smpFrame] = 0;
+        ((srfGridMesh_t*)surf->data)->dlightBits[tr.smpFrame] = 0;
+    }
+
+    return 0;
+}
+
+int R_CheckDlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits)
+{
+	// FIXME: unimplemented
+	return 0;
+}
 
 
 /*
@@ -295,9 +328,11 @@ static void R_AddWorldSurface( msurface_t *surf, int dlightBits ) {
 	}
 
 	// check for dlighting
-	if ( dlightBits ) {
-		dlightBits = R_DlightSurface( surf, dlightBits );
-		dlightBits = ( dlightBits != 0 );
+	dlightBits = R_CheckDlightSurface(surf, dlightBits);
+	if (surf->shader && surf->shader->isPortalSky) {
+		// Sky portal
+		R_Sky_AddSurf(surf);
+		return;
 	}
 
 	R_AddDrawSurf( surf->data, surf->shader, surf->fogIndex, dlightBits );

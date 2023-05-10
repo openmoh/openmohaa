@@ -265,7 +265,7 @@ RE_AddDynamicLightToScene
 
 =====================
 */
-void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, float g, float b, int additive ) {
+void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, float g, float b, int type ) {
 	dlight_t	*dl;
 
 	if ( !tr.registered ) {
@@ -287,7 +287,7 @@ void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, floa
 	dl->color[0] = r;
 	dl->color[1] = g;
 	dl->color[2] = b;
-	dl->additive = additive;
+	dl->type = type;
 }
 
 /*
@@ -297,7 +297,7 @@ RE_AddLightToScene
 =====================
 */
 void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int type ) {
-	RE_AddDynamicLightToScene( org, intensity, r, g, b, qfalse );
+	RE_AddDynamicLightToScene( org, intensity, r, g, b, type );
 }
 
 /*

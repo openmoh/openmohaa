@@ -852,8 +852,8 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 	int entityNum;
 	int numTriangles;
 	shader_t *shader;
-	int		fogNum;
 	int dlighted;
+	qboolean bStaticModel;
 	vec4_t clip, eye;
 	int i;
 	unsigned int pointOr = 0;
@@ -865,8 +865,8 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 
 	R_RotateForViewer();
 
-	R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted );
-	RB_BeginSurface( shader, fogNum );
+	R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &dlighted, &bStaticModel );
+	RB_BeginSurface( shader );
 	rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
 
 	assert( tess.numVertexes < 128 );
@@ -1253,7 +1253,7 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 	// the sort data is packed into a single 32 bit value so it can be
 	// compared quickly during the qsorting process
 	tr.refdef.drawSurfs[index].sort = (shader->sortedIndex << QSORT_SHADERNUM_SHIFT) 
-		| tr.shiftedEntityNum | ( fogIndex << QSORT_FOGNUM_SHIFT ) | (int)dlightMap;
+		| tr.shiftedEntityNum | tr.shiftedIsStatic | ((int)dlightMap & 15);
 	tr.refdef.drawSurfs[index].surface = surface;
 	tr.refdef.numDrawSurfs++;
 }
@@ -1263,12 +1263,11 @@ void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
 R_DecomposeSort
 =================
 */
-void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader, 
-					 int *fogNum, int *dlightMap ) {
-	*fogNum = ( sort >> QSORT_FOGNUM_SHIFT ) & 31;
+void R_DecomposeSort(unsigned int sort, int* entityNum, shader_t** shader, int* dlightMap, qboolean* bStaticModel) {
 	*shader = tr.sortedShaders[ ( sort >> QSORT_SHADERNUM_SHIFT ) & (MAX_SHADERS-1) ];
 	*entityNum = ( sort >> QSORT_ENTITYNUM_SHIFT ) & 1023;
-	*dlightMap = sort & 3;
+	*dlightMap = sort & 15;
+	*bStaticModel = sort & (1 << QSORT_STATICMODEL_SHIFT);
 }
 
 /*
@@ -1278,10 +1277,10 @@ R_SortDrawSurfs
 */
 void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	shader_t		*shader;
-	int				fogNum;
 	int				entityNum;
 	int				dlighted;
 	int				i;
+	qboolean		bStaticModel;
 
 	// it is possible for some views to not have any surfaces
 	if ( numDrawSurfs < 1 ) {
@@ -1302,8 +1301,8 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	// check for any pass through drawing, which
 	// may cause another view to be rendered first
-	for ( i = 0 ; i < numDrawSurfs ; i++ ) {
-		R_DecomposeSort( (drawSurfs+i)->sort, &entityNum, &shader, &fogNum, &dlighted );
+    for (i = 0; i < numDrawSurfs; i++) {
+        R_DecomposeSort((drawSurfs + i)->sort, &entityNum, &shader, &dlighted, &bStaticModel);
 
 		if ( shader->sort > SS_PORTAL ) {
 			break;

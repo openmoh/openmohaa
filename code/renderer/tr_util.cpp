@@ -32,7 +32,7 @@ RB_StreamBegin
 ===============
 */
 void RB_StreamBegin( shader_t *shader ) {
-	RB_BeginSurface( shader, 0 );
+	RB_BeginSurface( shader );
 }
 
 /*

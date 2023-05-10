@@ -157,8 +157,8 @@ typedef struct dlight_s {
 	vec3_t	color;				// range from 0.0 to 1.0, should be color normalized
 	float	radius;
 
+	dlighttype_t type;
 	vec3_t	transformed;		// origin in local coordinate system
-	int		additive;			// texture detail is lost tho when the lightmap is dark
 } dlight_t;
 
 
@@ -518,6 +518,7 @@ typedef struct shader_s {
 	qboolean	isSky;
 	skyParms_t	sky;
 	spriteParms_t sprite;
+	qboolean	isPortalSky;
 	fogParms_t	fogParms;
 
 	float		portalRange;			// distance to fog out at
@@ -713,12 +714,21 @@ typedef struct srfGridMesh_s {
 	surfaceType_t	surfaceType;
 
 	// dynamic lighting information
-	int				dlightBits[SMP_FRAMES];
+    int				dlightBits[SMP_FRAMES];
+    int				dlightMap[SMP_FRAMES];
 
 	// culling information
 	vec3_t			meshBounds[2];
 	vec3_t			localOrigin;
 	float			meshRadius;
+
+	// lightmap data
+    float			lightmapOffset[2];
+    int				lmX;
+    int				lmY;
+    int				lmWidth;
+    int				lmHeight;
+    unsigned char	*lmData;
 
 	// lod information, which may be different
 	// than the culling information to allow for
@@ -743,7 +753,17 @@ typedef struct {
 	cplane_t	plane;
 
 	// dynamic lighting information
-	int			dlightBits[SMP_FRAMES];
+    int			dlightBits[SMP_FRAMES];
+    int			dlightMap[SMP_FRAMES];
+    float		lightmapOffset[2];
+    int			lmWidth;
+    int			lmHeight;
+    int			lmX;
+    int			lmY;
+    byte*		lmData;
+    vec3_t		lmOrigin;
+    vec3_t		lmVecs[2];
+    vec3_t		lmInverseVecs[2];
 
 	// triangle definitions (no normals at points)
 	int			numPoints;
@@ -904,6 +924,7 @@ BRUSH MODELS
 
 typedef struct msurface_s {
 	int					viewCount;		// if == tr.viewCount, already added
+	int					frameCount;
 	struct shader_s		*shader;
 	int					fogIndex;
 
@@ -1083,10 +1104,11 @@ the bits are allocated as follows:
 2-6   : fog index
 0-1   : dlightmap index
 */
-#define	QSORT_SHADERNUM_SHIFT	17
-#define	QSORT_ENTITYNUM_SHIFT	7
+#define	QSORT_SHADERNUM_SHIFT	22
+#define	QSORT_ENTITYNUM_SHIFT	8
 #define	QSORT_FOGNUM_SHIFT		2
 #define	QSORT_REFENTITYNUM_SHIFT	7
+#define	QSORT_STATICMODEL_SHIFT	21
 
 extern	int			gl_filter_min, gl_filter_max;
 
@@ -1511,8 +1533,7 @@ void R_AddLightningBoltSurfaces( trRefEntity_t *e );
 
 void R_AddPolygonSurfaces( void );
 
-void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader, 
-					 int *fogNum, int *dlightMap );
+void R_DecomposeSort(unsigned int sort, int* entityNum, shader_t** shader, int* dlightMap, qboolean* bStaticModel);
 
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogIndex, int dlightMap );
 
@@ -1718,7 +1739,7 @@ typedef struct shaderCommands_s
 
 extern	shaderCommands_t	tess;
 
-void RB_BeginSurface(shader_t *shader, int fogNum );
+void RB_BeginSurface(shader_t *shader );
 void RB_EndSurface(void);
 void RB_CheckOverflow( int verts, int indexes );
 #define RB_CHECKOVERFLOW(v,i) if (tess.numVertexes + (v) >= SHADER_MAX_VERTEXES || tess.numIndexes + (i) >= SHADER_MAX_INDEXES ) {RB_CheckOverflow(v,i);}
@@ -1892,6 +1913,17 @@ MARKS
 void R_LevelMarksLoad(const char* szBSPName);
 void R_LevelMarksInit();
 void R_LevelMarksFree();
+
+/*
+=============================================================
+
+SKY PORTALS
+
+=============================================================
+*/
+void R_Sky_Init();
+void R_Sky_Reset();
+void R_Sky_AddSurf(msurface_t* surf);
 
 /*
 =============================================================
