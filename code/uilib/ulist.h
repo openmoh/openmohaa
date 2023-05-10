@@ -119,7 +119,7 @@ bool UList< type >::IterateFromHead
 	)
 
 {
-	if( m_top.next == this )
+	if( m_top.item == m_top.next->item )
 	{
 		m_at = NULL;
 		return false;
@@ -159,7 +159,7 @@ bool UList< type >::IterateNext
 {
 	m_at = m_at->next;
 
-	if( m_at == this )
+	if( m_at == &m_top )
 	{
 		m_at = NULL;
 		return false;
@@ -197,7 +197,7 @@ type& UList< type >::getCurrent
 	)
 
 {
-	return m_at;
+	return m_at->item;
 }
 
 template< typename type >
