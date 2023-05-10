@@ -140,7 +140,6 @@ LIGHT SAMPLING
 
 extern	cvar_t	*r_ambientScale;
 extern	cvar_t	*r_directedScale;
-extern	cvar_t	*r_debugLight;
 
 /*
 =================
@@ -377,10 +376,6 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 		if ( ent->ambientLight[i] > tr.identityLightByte ) {
 			ent->ambientLight[i] = tr.identityLightByte;
 		}
-	}
-
-	if ( r_debugLight->integer ) {
-		LogLight( ent );
 	}
 
 	// save out the byte packet version

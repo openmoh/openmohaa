@@ -54,7 +54,6 @@ cvar_t	*r_inGameVideo;
 cvar_t	*r_fastsky;
 cvar_t	*r_fastdlights;
 cvar_t	*r_drawSun;
-cvar_t	*r_dynamiclight;
 cvar_t	*r_dlightBacks;
 
 cvar_t	*r_lodscale;
@@ -162,7 +161,6 @@ cvar_t	*r_showstaticlod;
 
 cvar_t	*r_ambientScale;
 cvar_t	*r_directedScale;
-cvar_t	*r_debugLight;
 cvar_t	*r_debugSort;
 cvar_t	*r_printShaders;
 cvar_t	*r_saveFontData;
