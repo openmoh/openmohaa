@@ -983,8 +983,19 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 
 			if ( !Q_stricmp( token, "environment" ) )
 			{
+				shader.needsNormal = qtrue;
 				stage->bundle[0].tcGen = TCGEN_ENVIRONMENT_MAPPED;
-			}
+            }
+            else if (!Q_stricmp(token, "environmentmodel"))
+            {
+                shader.needsNormal = qtrue;
+                stage->bundle[0].tcGen = TCGEN_ENVIRONMENT_MAPPED2;
+            }
+            else if (!Q_stricmp(token, "sunreflection"))
+            {
+                shader.needsNormal = qtrue;
+                stage->bundle[0].tcGen = TCGEN_SUN_REFLECTION;
+            }
 			else if ( !Q_stricmp( token, "lightmap" ) )
 			{
 				stage->bundle[0].tcGen = TCGEN_LIGHTMAP;
@@ -1028,13 +1039,23 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 		//
 		// depthmask
 		//
-		else if ( !Q_stricmp( token, "depthwrite" ) )
+		else if ( !Q_stricmp( token, "depthwrite" ) || !Q_stricmp(token, "depthmask"))
 		{
 			depthMaskBits = GLS_DEPTHMASK_TRUE;
 			depthMaskExplicit = qtrue;
 
 			continue;
 		}
+		else if (!Q_stricmp(token, "noDepthTest"))
+		{
+			// FIXME: unimplemented
+			continue;
+        }
+        else if (!Q_stricmp(token, "nextBundle"))
+        {
+            // FIXME: unimplemented
+            continue;
+        }
 		else
 		{
 			ri.Printf( PRINT_WARNING, "WARNING: unknown parameter '%s' in shader '%s'\n", token, shader.name );
