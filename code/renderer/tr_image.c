@@ -2525,25 +2525,6 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	return hSkin;
 }
 
-
-/*
-===============
-R_InitSkins
-===============
-*/
-void	R_InitSkins( void ) {
-	skin_t		*skin;
-
-	tr.numSkins = 1;
-
-	// make the default skin have all default shaders
-	skin = tr.skins[0] = ri.Hunk_Alloc( sizeof( skin_t ) );
-	Q_strncpyz( skin->name, "<default skin>", sizeof( skin->name )  );
-	skin->numSurfaces = 1;
-	skin->surfaces[0] = ri.Hunk_Alloc( sizeof( *skin->surfaces ) );
-	skin->surfaces[0]->shader = tr.defaultShader;
-}
-
 /*
 ===============
 R_GetSkinByHandle

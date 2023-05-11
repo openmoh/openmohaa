@@ -1296,8 +1296,6 @@ void R_Init( void ) {
 
 	R_StartupShaders();
 
-	R_InitSkins();
-
 	R_ModelInit();
 
 	err = qglGetError();
