@@ -203,13 +203,19 @@ typedef struct image_s {
 	GLuint		texnum;					// gl texture binding
 
 	int			frameUsed;			// for texture usage in frame statistics
+	int			bytesUsed;
 
 	int			internalFormat;
 	int			TMU;				// only needed for voodoo2
+	int			numMipmaps;
 
-	qboolean	mipmap;
+	qboolean	dynamicallyUpdated;
 	qboolean	allowPicmip;
-	int			wrapClampMode;		// GL_CLAMP or GL_REPEAT
+	qboolean	force32bit;
+    int			wrapClampModeX;
+    int			wrapClampModeY;
+	int			r_sequence;
+	int			UseCount;
 
 	struct image_s*	next;
 } image_t;
@@ -435,20 +441,28 @@ typedef struct {
 	qboolean		active;
 	
 	textureBundle_t	bundle[NUM_TEXTURE_BUNDLES];
+	int				multitextureEnv;
 
 	waveForm_t		rgbWave;
 	colorGen_t		rgbGen;
 
 	waveForm_t		alphaWave;
-	alphaGen_t		alphaGen;
+    alphaGen_t		alphaGen;
 
-	byte			constantColor[4];			// for CGEN_CONST and AGEN_CONST
+    unsigned		stateBits;					// GLS_xxxx mask
 
-	unsigned		stateBits;					// GLS_xxxx mask
 
-	acff_t			adjustColorsForFog;
+	qboolean		noMipMaps;
+    qboolean		noPicMip;
+    qboolean		force32bit;
 
-	qboolean		isDetail;
+	float			alphaMin;
+	float			alphaMax;
+	vec3_t			specOrigin;
+
+    byte			colorConst[4];			// for CGEN_CONST and AGEN_CONST
+	byte			alphaConst;
+	byte			alphaConstMin;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -1607,7 +1621,7 @@ void AddBox(float x, float y, float w, float h);
 void Set2DWindow(int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f);
 void RE_Scissor(int x, int y, int width, int height);
 void DrawLineLoop(const vec2_t* points, int count, int stipple_factor, int stipple_mask);
-void	RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
+void RE_StretchRaw(int x, int y, int w, int h, int cols, int rows, int components, const byte* data);
 void	RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
 
 void		RE_BeginFrame( stereoFrame_t stereoFrame );
@@ -1625,7 +1639,7 @@ qboolean	R_GetEntityToken( char *buffer, int size );
 model_t		*R_AllocModel( void );
 
 void    	R_Init( void );
-image_t		*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode );
+image_t		*R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
 
 image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
 					, qboolean allowPicmip, int wrapClampMode );
@@ -1652,7 +1666,6 @@ skin_t	*R_GetSkinByHandle( qhandle_t hSkin );
 //
 // tr_shader.c
 //
-qhandle_t		 RE_RegisterShaderLightMap( const char *name, int lightmapIndex );
 qhandle_t		 RE_RegisterShader( const char *name );
 qhandle_t		 RE_RegisterShaderNoMip( const char *name );
 qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_t *image, qboolean mipRawImage);
@@ -1854,7 +1867,7 @@ MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
 int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection,
 				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared);
 
-void R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t angles, const vec3_t origin, int numPoints,
+int R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t angles, const vec3_t origin, int numPoints,
 	const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
 	int maxFragments, markFragment_t* fragmentBuffer, float radiusSquared);
 

@@ -665,7 +665,7 @@ static void ComputeColors( shaderStage_t *pStage )
 			break;
 		case CGEN_CONST:
 			for ( i = 0; i < tess.numVertexes; i++ ) {
-				*(int *)tess.svars.colors[i] = *(int *)pStage->constantColor;
+				*(int *)tess.svars.colors[i] = *(int *)pStage->colorConst;
 			}
 			break;
 		case CGEN_VERTEX:
@@ -746,7 +746,7 @@ static void ComputeColors( shaderStage_t *pStage )
 	case AGEN_CONSTANT:
 		if ( pStage->rgbGen != CGEN_CONST ) {
 			for ( i = 0; i < tess.numVertexes; i++ ) {
-				tess.svars.colors[i][3] = pStage->constantColor[3];
+				tess.svars.colors[i][3] = pStage->colorConst[3];
 			}
 		}
 		break;
@@ -806,27 +806,6 @@ static void ComputeColors( shaderStage_t *pStage )
 			}
 		}
 		break;
-	}
-
-	//
-	// fog adjustment for colors to fade out as fog increases
-	//
-	if ( tess.fogNum )
-	{
-		switch ( pStage->adjustColorsForFog )
-		{
-		case ACFF_MODULATE_RGB:
-			RB_CalcModulateColorsByFog( ( unsigned char * ) tess.svars.colors );
-			break;
-		case ACFF_MODULATE_ALPHA:
-			RB_CalcModulateAlphasByFog( ( unsigned char * ) tess.svars.colors );
-			break;
-		case ACFF_MODULATE_RGBA:
-			RB_CalcModulateRGBAsByFog( ( unsigned char * ) tess.svars.colors );
-			break;
-		case ACFF_NONE:
-			break;
-		}
 	}
 }
 

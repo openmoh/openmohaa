@@ -39,8 +39,6 @@ cvar_t	*r_ignore;
 
 cvar_t	*r_displayRefresh;
 
-cvar_t	*r_detailTextures;
-
 cvar_t	*r_znear;
 
 cvar_t	*r_smp;

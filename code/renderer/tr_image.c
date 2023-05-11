@@ -131,7 +131,7 @@ void GL_TextureMode( const char *string ) {
 	// change all the existing mipmap texture objects
 	for ( i = 0 ; i < tr.numImages ; i++ ) {
 		glt = &tr.images[ i ];
-		if ( glt->mipmap ) {
+		if ( glt->numMipmaps && glt->texnum ) {
 			GL_Bind (glt);
 			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
 			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
@@ -179,7 +179,7 @@ void R_ImageList_f( void ) {
 
 		texels += image->uploadWidth*image->uploadHeight;
 		ri.Printf (PRINT_ALL,  "%4i: %4i %4i  %s   %d   ",
-			i, image->uploadWidth, image->uploadHeight, yesno[image->mipmap], image->TMU );
+			i, image->uploadWidth, image->uploadHeight, yesno[image->numMipmaps], image->TMU );
 		switch ( image->internalFormat ) {
 		case 1:
 			ri.Printf( PRINT_ALL, "I    " );
@@ -212,7 +212,7 @@ void R_ImageList_f( void ) {
 			ri.Printf( PRINT_ALL, "???? " );
 		}
 
-		switch ( image->wrapClampMode ) {
+		switch ( image->wrapClampModeX ) {
 		case GL_REPEAT:
 			ri.Printf( PRINT_ALL, "rept " );
 			break;
@@ -220,7 +220,7 @@ void R_ImageList_f( void ) {
 			ri.Printf( PRINT_ALL, "clmp " );
 			break;
 		default:
-			ri.Printf( PRINT_ALL, "%4i ", image->wrapClampMode );
+			ri.Printf( PRINT_ALL, "%4i ", image->wrapClampModeX );
 			break;
 		}
 		
@@ -699,14 +699,14 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	image = &tr.images[i];
 	image->texnum = 1024 + tr.numImages;
 
-	image->mipmap = mipmap;
+	image->numMipmaps = mipmap;
 	image->allowPicmip = allowPicmip;
 
 	strcpy (image->imgName, name);
 
 	image->width = width;
 	image->height = height;
-	image->wrapClampMode = glWrapClampMode;
+	image->wrapClampModeX = glWrapClampMode;
 
 	// lightmaps are always allocated on TMU 1
 	if ( qglActiveTextureARB && isLightmap ) {
@@ -722,7 +722,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	GL_Bind(image);
 
 	Upload32( (unsigned *)pic, image->width, image->height, 
-								image->mipmap,
+								image->numMipmaps,
 								allowPicmip,
 								isLightmap,
 								&image->internalFormat,
@@ -1884,7 +1884,7 @@ Finds or loads the given image.
 Returns NULL if it fails, not a default image.
 ==============
 */
-image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
+image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY) {
 	image_t	*image;
 	int		width, height;
 	byte	*pic;
@@ -1903,15 +1903,18 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 		if ( !strcmp( name, image->imgName ) ) {
 			// the white image can be used with any set of parms, but other mismatches are errors
 			if ( strcmp( name, "*white" ) ) {
-				if ( image->mipmap != mipmap ) {
+				if ( image->numMipmaps != mipmap ) {
 					ri.Printf( PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n", name );
 				}
 				if ( image->allowPicmip != allowPicmip ) {
 					ri.Printf( PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name );
 				}
-				if ( image->wrapClampMode != glWrapClampMode ) {
+				if ( image->wrapClampModeX != glWrapClampModeX || image != glWrapClampModeY ) {
 					ri.Printf( PRINT_ALL, "WARNING: reused image %s with mixed glWrapClampMode parm\n", name );
 				}
+			}
+			if (image->r_sequence != -1) {
+				image->r_sequence = r_sequencenumber;
 			}
 			return image;
 		}
@@ -1936,7 +1939,7 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
     }
 	}
 
-	image = R_CreateImage( ( char * ) name, pic, width, height, mipmap, allowPicmip, glWrapClampMode );
+	image = R_CreateImage( ( char * ) name, pic, width, height, mipmap, allowPicmip, glWrapClampModeX );
 	ri.Free( pic );
 	return image;
 }
