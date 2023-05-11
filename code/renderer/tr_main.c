@@ -1043,13 +1043,19 @@ DRAWSURF SORTING
 ==========================================================================================
 */
 
+static void SwapDrawSurf(drawSurf_t* a, drawSurf_t* b) {
+	drawSurf_t temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
 /*
 =================
 qsort replacement
 
 =================
 */
-#define	SWAP_DRAW_SURF(a,b) temp=((int *)a)[0];((int *)a)[0]=((int *)b)[0];((int *)b)[0]=temp; temp=((int *)a)[1];((int *)a)[1]=((int *)b)[1];((int *)b)[1]=temp;
+//#define	SWAP_DRAW_SURF(a,b) temp=((int *)a)[0];((int *)a)[0]=((int *)b)[0];((int *)b)[0]=temp; temp=((int *)a)[1];((int *)a)[1]=((int *)b)[1];((int *)b)[1]=temp;
 
 /* this parameter defines the cutoff between using quick sort and
    insertion sort for arrays; arrays with lengths shorter or equal to the
@@ -1068,7 +1074,7 @@ static void shortsort( drawSurf_t *lo, drawSurf_t *hi ) {
                 max = p;
             }
         }
-        SWAP_DRAW_SURF(max, hi);
+		SwapDrawSurf(max, hi);
         hi--;
     }
 }
@@ -1091,10 +1097,6 @@ void qsortFast (
     char *lostk[30], *histk[30];
     int stkptr;                 /* stack for saving sub-array to be processed */
 	int	temp;
-
-	if ( sizeof(drawSurf_t) != 8 ) {
-		ri.Error( ERR_DROP, "change SWAP_DRAW_SURF macro" );
-	}
 
     /* Note: the number of stack entries required is no more than
        1 + log2(size), so 30 is sufficient for any array */
@@ -1129,7 +1131,7 @@ recurse:
            performance. */
 
         mid = lo + (size / 2) * width;      /* find middle element */
-        SWAP_DRAW_SURF(mid, lo);               /* swap it to beginning of array */
+		SwapDrawSurf(mid, lo);               /* swap it to beginning of array */
 
         /* We now wish to partition the array into three pieces, one
            consisiting of elements <= partition element, one of elements
@@ -1170,7 +1172,7 @@ recurse:
                A[loguy] > A[lo], A[higuy] < A[lo],
                loguy < hi, highy > lo */
 
-            SWAP_DRAW_SURF(loguy, higuy);
+			SwapDrawSurf(loguy, higuy);
 
             /* A[loguy] < A[lo], A[higuy] > A[lo]; so condition at top
                of loop is re-established */
@@ -1184,7 +1186,7 @@ recurse:
                A[i] <= A[lo] for lo <= i <= higuy,
                A[i] = A[lo] for higuy < i < loguy */
 
-        SWAP_DRAW_SURF(lo, higuy);     /* put partition element in place */
+		SwapDrawSurf(lo, higuy);     /* put partition element in place */
 
         /* OK, now we have the following:
               A[i] >= A[higuy] for loguy <= i <= hi,

@@ -99,9 +99,11 @@ void Z_Free( void *ptr )
 	}
 
 	// check the memory trash tester
+#ifndef _DEBUG
 	if( *( int * )( ( byte * )block + block->size - sizeof( int ) ) != ZONEID ) {
 		Com_Error( ERR_FATAL, "Z_Free: memory block wrote past end" );
 	}
+#endif
 
 	block->next->prev = block->prev;
 	block->prev->next = block->next;
@@ -157,7 +159,9 @@ void *Z_TagMalloc( size_t size, int tag )
 	}
 
 	size += sizeof( memblock_t );				// account for size of block header
+#ifndef _DEBUG
 	size += sizeof( int );						// space for memory trash tester
+#endif
 	size = PAD( size, sizeof( intptr_t ) );		// align to 32/64 bit boundary
 
 	block = ( memblock_t * )malloc( size );
@@ -168,8 +172,10 @@ void *Z_TagMalloc( size_t size, int tag )
 	block->prev->next = block;
 	mem_blocks[ tag ].prev = block;
 
+#ifndef _DEBUG
 	// marker for memory trash testing
 	*( int * )( ( byte * )block + block->size - sizeof( int ) ) = ZONEID;
+#endif
 
 	return ( void * )( ( byte * )block + sizeof( memblock_t ) );
 }
@@ -183,6 +189,7 @@ Z_CheckHeap
 */
 void Z_CheckHeap( void )
 {
+#ifndef _DEBUG
 	int k;
 	memblock_t *block;
 
@@ -195,6 +202,7 @@ void Z_CheckHeap( void )
 			}
 		}
 	}
+#endif
 }
 
 /*
