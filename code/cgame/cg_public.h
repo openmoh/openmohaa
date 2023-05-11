@@ -250,7 +250,7 @@ typedef struct
                                           float s1, float t1, float s2, float t2, 
                                         qhandle_t hShader );    // 0 = white
     fontheader_t* (*R_LoadFont)(const char* name);
-    void            (*R_DrawString)(const fontheader_t* font, const char* text, float x, float y, int maxLen, qboolean virtualScreen);
+    void            (*R_DrawString)(fontheader_t* font, const char* text, float x, float y, int maxLen, qboolean virtualScreen);
    refEntity_t *  (*R_GetRenderEntity)( int entityNumber );
    void              (*R_ModelBounds)( clipHandle_t model, vec3_t mins, vec3_t maxs );
    float           (*R_ModelRadius)( clipHandle_t model );
