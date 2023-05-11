@@ -117,6 +117,14 @@ else()
 		"code/win32/win_bounds.cpp"
 		"code/win32/win_localization.cpp"
 	)
+
+	set(SOURCES_CLIENT_PLATFORM_SPECIFIC
+		"code/unix/linux_common.c"
+		"code/unix/linux_glimp.c"
+		"code/unix/linux_joystick.c"
+		"code/unix/linux_qgl.c"
+		"code/unix/linux_snd.c"
+	)
 endif()
 
 ### Common executable code
@@ -252,31 +260,37 @@ if (WITH_CLIENT)
 		if (MSVC)
 			target_link_options(openmohaa PRIVATE "/MANIFEST:NO")
 
-			add_library(sdl2 SHARED IMPORTED)
-			set_target_properties(sdl2 PROPERTIES
-			  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2.lib"
-			)
+			#add_library(sdl2 SHARED IMPORTED)
+			#set_target_properties(sdl2 PROPERTIES
+			#  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2.lib"
+			#)
+			#
+			#add_library(sdl2main SHARED IMPORTED)
+			#set_target_properties(sdl2main PROPERTIES
+			#  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2main.lib"
+			#)
+			#
+			#add_library(glew32 SHARED IMPORTED)
+			#set_target_properties(glew32 PROPERTIES
+			#  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/glew32.lib"
+			#)
 
-			add_library(sdl2main SHARED IMPORTED)
-			set_target_properties(sdl2main PROPERTIES
-			  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2main.lib"
-			)
-
-			add_library(glew32 SHARED IMPORTED)
-			set_target_properties(glew32 PROPERTIES
-			  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/glew32.lib"
-			)
-
-			target_link_libraries(openmohaa PRIVATE sdl2 sdl2main glew32 opengl32)
+			target_link_libraries(openmohaa PRIVATE opengl32)
 		endif()
 
 		target_link_libraries(openmohaa PRIVATE wsock32 ws2_32)
 		target_link_libraries(openmohaa PRIVATE winmm)
 	elseif(UNIX)
+		find_package(OpenGL REQUIRED)
+		find_package(GLUT REQUIRED)
+		find_package(X11 REQUIRED)
 		find_package(Threads)
-		target_link_libraries(openmohaa PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+
+		target_include_directories(openmohaa PRIVATE ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
+		target_link_libraries(openmohaa PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 		target_link_libraries(openmohaa PRIVATE m)
 		target_link_libraries(openmohaa PRIVATE stdc++)
+		target_link_libraries(openmohaa PRIVATE ${X11_LIBRARIES} ${X11_Xxf86vm_LIB} ${X11_Xext_LIB} Xxf86dga)
 	endif()
 
 	INSTALL(TARGETS openmohaa DESTINATION "./")
