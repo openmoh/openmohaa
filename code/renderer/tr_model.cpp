@@ -599,7 +599,7 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 
 	if( r_showSkeleton->integer == 1 ) {
 		//vec3_t vForward, vRight, vUp;
-		orientation_t or;
+		orientation_t ori;
 		orientation_t parent_or;
 		int iParentBone;
 
@@ -609,7 +609,7 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 
 		for( i = 0; i < tiki->m_boneList.NumChannels(); i++ ) { // draw a skeleton
 
-			or = R_GetTagPositionAndOrientation( &ent->e, i );
+			ori = R_GetTagPositionAndOrientation( &ent->e, i );
 			iParentBone = skeletor->GetBoneParent( i );
 
 			if( iParentBone != -1 ) {
@@ -621,7 +621,7 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 
 			glColor3f( 1, 1, 1 );
 			glVertex3fv( parent_or.origin );
-			glVertex3fv( or.origin );
+			glVertex3fv( ori.origin );
 
 			// draw bone axis
 			/*glColor3f( 1, 0, 0 );
@@ -629,28 +629,28 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 			VectorAdd( parent_or.origin, parent_or.axis[ 0 ], vForward );
 			glVertex3fv( vForward );
 			glVertex3fv( vForward );
-			glVertex3fv( or.origin );
+			glVertex3fv( ori.origin );
 
 			glColor3f( 0, 1, 0 );
 			glVertex3fv( parent_or.origin );
 			VectorAdd( parent_or.origin, parent_or.axis[ 1 ], vRight );
 			glVertex3fv( vRight );
 			glVertex3fv( vRight );
-			glVertex3fv( or.origin );
+			glVertex3fv( ori.origin );
 
 			glColor3f( 0, 0, 1 );
 			glVertex3fv( parent_or.origin );
 			VectorAdd( parent_or.origin, parent_or.axis[ 2 ], vUp );
 			glVertex3fv( vUp );
 			glVertex3fv( vUp );
-			glVertex3fv( or.origin );*/
+			glVertex3fv( ori.origin );*/
 
 		}
 		glEnd();
 		glLineWidth( 1 );
 	}
 	else if( r_showSkeleton->integer == 2 ) { // draw skeleton with bones
-		orientation_t or;
+		orientation_t ori;
 		orientation_t parent_or;
 		int iParentBone;
 
@@ -660,11 +660,11 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 			iParentBone = skeletor->GetBoneParent( i );
 
 			if( iParentBone > 0 )	{
-				or = R_GetTagPositionAndOrientation( &ent->e, i );
+				ori = R_GetTagPositionAndOrientation( &ent->e, i );
 				parent_or = R_GetTagPositionAndOrientation( &ent->e, iParentBone );
 				glColor3f( 1, 1, 1 );
 				glVertex3fv( parent_or.origin );
-				glVertex3fv( or.origin );
+				glVertex3fv( ori.origin );
 			}
 
 		}
@@ -673,22 +673,22 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 		glBegin( GL_LINES );
 		for( i = 0; i < tiki->m_boneList.NumChannels(); i++ ) {
 			vec3_t up, down, front;
-			or = R_GetTagPositionAndOrientation( &ent->e, i );
+			ori = R_GetTagPositionAndOrientation( &ent->e, i );
 
-			VectorCopy( or.origin, up );
+			VectorCopy( ori.origin, up );
 			up[ 1 ] += 5;
-			VectorCopy( or.origin, down );
+			VectorCopy( ori.origin, down );
 			down[ 1 ] += 5;
-			VectorCopy( or.origin, front );
+			VectorCopy( ori.origin, front );
 			front[ 0 ] += 5;
 
 			glColor3f( 1, 0, 1 );
 			glVertex3fv( front );
-			glVertex3fv( or.origin );
+			glVertex3fv( ori.origin );
 			glVertex3fv( down );
-			glVertex3fv( or.origin );
+			glVertex3fv( ori.origin );
 			glVertex3fv( up );
-			glVertex3fv( or.origin );
+			glVertex3fv( ori.origin );
 		}
 
 		glEnd();

@@ -333,9 +333,9 @@ GlobalVectorToLocal
 ==================
 */
 static void GlobalVectorToLocal( const vec3_t in, vec3_t out ) {
-	out[0] = DotProduct( in, backEnd.or.axis[0] );
-	out[1] = DotProduct( in, backEnd.or.axis[1] );
-	out[2] = DotProduct( in, backEnd.or.axis[2] );
+	out[0] = DotProduct( in, backEnd.ori.axis[0] );
+	out[1] = DotProduct( in, backEnd.ori.axis[1] );
+	out[2] = DotProduct( in, backEnd.ori.axis[2] );
 }
 
 /*
@@ -367,11 +367,11 @@ static void AutospriteDeform( void ) {
 	tess.numIndexes = 0;
 
 	if ( backEnd.currentEntity != &tr.worldEntity ) {
-		GlobalVectorToLocal( backEnd.viewParms.or.axis[1], leftDir );
-		GlobalVectorToLocal( backEnd.viewParms.or.axis[2], upDir );
+		GlobalVectorToLocal( backEnd.viewParms.ori.axis[1], leftDir );
+		GlobalVectorToLocal( backEnd.viewParms.ori.axis[2], upDir );
 	} else {
-		VectorCopy( backEnd.viewParms.or.axis[1], leftDir );
-		VectorCopy( backEnd.viewParms.or.axis[2], upDir );
+		VectorCopy( backEnd.viewParms.ori.axis[1], leftDir );
+		VectorCopy( backEnd.viewParms.ori.axis[2], upDir );
 	}
 
 	for ( i = 0 ; i < oldVerts ; i+=4 ) {
@@ -440,9 +440,9 @@ static void Autosprite2Deform( void ) {
 	}
 
 	if ( backEnd.currentEntity != &tr.worldEntity ) {
-		GlobalVectorToLocal( backEnd.viewParms.or.axis[0], forward );
+		GlobalVectorToLocal( backEnd.viewParms.ori.axis[0], forward );
 	} else {
-		VectorCopy( backEnd.viewParms.or.axis[0], forward );
+		VectorCopy( backEnd.viewParms.ori.axis[0], forward );
 	}
 
 	// this is a lot of work for two triangles...
@@ -812,11 +812,11 @@ void RB_CalcFogTexCoords( float *st ) {
 	fog = tr.world->fogs + tess.fogNum;
 
 	// all fogging distance is based on world Z units
-	VectorSubtract( backEnd.or.origin, backEnd.viewParms.or.origin, local );
-	fogDistanceVector[0] = -backEnd.or.modelMatrix[2];
-	fogDistanceVector[1] = -backEnd.or.modelMatrix[6];
-	fogDistanceVector[2] = -backEnd.or.modelMatrix[10];
-	fogDistanceVector[3] = DotProduct( local, backEnd.viewParms.or.axis[0] );
+	VectorSubtract( backEnd.ori.origin, backEnd.viewParms.ori.origin, local );
+	fogDistanceVector[0] = -backEnd.ori.modelMatrix[2];
+	fogDistanceVector[1] = -backEnd.ori.modelMatrix[6];
+	fogDistanceVector[2] = -backEnd.ori.modelMatrix[10];
+	fogDistanceVector[3] = DotProduct( local, backEnd.viewParms.ori.axis[0] );
 
 	// scale the fog vectors based on the fog's thickness
 	fogDistanceVector[0] *= fog->tcScale;
@@ -826,15 +826,15 @@ void RB_CalcFogTexCoords( float *st ) {
 
 	// rotate the gradient vector for this orientation
 	if ( fog->hasSurface ) {
-		fogDepthVector[0] = fog->surface[0] * backEnd.or.axis[0][0] + 
-			fog->surface[1] * backEnd.or.axis[0][1] + fog->surface[2] * backEnd.or.axis[0][2];
-		fogDepthVector[1] = fog->surface[0] * backEnd.or.axis[1][0] + 
-			fog->surface[1] * backEnd.or.axis[1][1] + fog->surface[2] * backEnd.or.axis[1][2];
-		fogDepthVector[2] = fog->surface[0] * backEnd.or.axis[2][0] + 
-			fog->surface[1] * backEnd.or.axis[2][1] + fog->surface[2] * backEnd.or.axis[2][2];
-		fogDepthVector[3] = -fog->surface[3] + DotProduct( backEnd.or.origin, fog->surface );
+		fogDepthVector[0] = fog->surface[0] * backEnd.ori.axis[0][0] + 
+			fog->surface[1] * backEnd.ori.axis[0][1] + fog->surface[2] * backEnd.ori.axis[0][2];
+		fogDepthVector[1] = fog->surface[0] * backEnd.ori.axis[1][0] + 
+			fog->surface[1] * backEnd.ori.axis[1][1] + fog->surface[2] * backEnd.ori.axis[1][2];
+		fogDepthVector[2] = fog->surface[0] * backEnd.ori.axis[2][0] + 
+			fog->surface[1] * backEnd.ori.axis[2][1] + fog->surface[2] * backEnd.ori.axis[2][2];
+		fogDepthVector[3] = -fog->surface[3] + DotProduct( backEnd.ori.origin, fog->surface );
 
-		eyeT = DotProduct( backEnd.or.viewOrigin, fogDepthVector ) + fogDepthVector[3];
+		eyeT = DotProduct( backEnd.ori.viewOrigin, fogDepthVector ) + fogDepthVector[3];
 	} else {
 		eyeT = 1;	// non-surface fog always has eye inside
 	}
@@ -894,7 +894,7 @@ void RB_CalcEnvironmentTexCoords( float *st )
 
 	for (i = 0 ; i < tess.numVertexes ; i++, v += 4, normal += 4, st += 2 ) 
 	{
-		VectorSubtract (backEnd.or.viewOrigin, v, viewer);
+		VectorSubtract (backEnd.ori.viewOrigin, v, viewer);
 		VectorNormalizeFast (viewer);
 
 		d = DotProduct (normal, viewer);
@@ -1066,7 +1066,7 @@ void RB_CalcSpecularAlpha( unsigned char *alphas ) {
 		reflected[1] = normal[1]*2*d - lightDir[1];
 		reflected[2] = normal[2]*2*d - lightDir[2];
 
-		VectorSubtract (backEnd.or.viewOrigin, v, viewer);
+		VectorSubtract (backEnd.ori.viewOrigin, v, viewer);
 		ilength = Q_rsqrt( DotProduct( viewer, viewer ) );
 		l = DotProduct (reflected, viewer);
 		l *= ilength;

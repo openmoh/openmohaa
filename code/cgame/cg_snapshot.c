@@ -145,7 +145,7 @@ void CG_SetInitialSnapshot(snapshot_t* snap)
     // sort out solid entities
     CG_BuildSolidList();
 
-    CG_ExecuteNewServerCommands(snap->serverCommandSequence);
+    CG_ExecuteNewServerCommands(snap->serverCommandSequence, qfalse);
 
     for (i = 0; i < cg.snap->numEntities; i++) {
         state = &cg.snap->entities[i];
@@ -183,7 +183,7 @@ static void CG_TransitionSnapshot(qboolean differentServer)
     }
 
     // execute any server string commands before transitioning entities
-    CG_ExecuteNewServerCommands(cg.nextSnap->serverCommandSequence);
+    CG_ExecuteNewServerCommands(cg.nextSnap->serverCommandSequence, differentServer);
 
     // clear the currentValid flag for all entities in the existing snapshot
     for (i = 0; i < cg.snap->numEntities; i++) {

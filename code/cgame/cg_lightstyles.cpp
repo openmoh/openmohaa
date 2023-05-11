@@ -399,7 +399,7 @@ void CG_SetLightStyle( int num, const char *s )
 
    len = strlen( s );
 
-   if ( !strcmpi( &s[ len - 4 ], ".tga" ) )
+   if ( !Q_stricmp( &s[ len - 4 ], ".tga" ) )
       {
       createLightstyleFromTGA( num, s );
       return;
@@ -563,7 +563,7 @@ int CG_GetLightStyle( const char * name )
 
    for( i = MAX_LIGHTSTYLES; i < MAX_LIGHTSTYLES * 2; i++ )
       {
-      if ( !strcmpi( cg_lightstyle[ i ].name, name ) )
+      if ( !Q_stricmp( cg_lightstyle[ i ].name, name ) )
          {
          return i;
          }

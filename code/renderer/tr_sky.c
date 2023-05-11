@@ -269,7 +269,7 @@ void RB_ClipSkyPolygons( shaderCommands_t *input )
 		for (j = 0 ; j < 3 ; j++) 
 		{
 			VectorSubtract( input->xyz[input->indexes[i+j]],
-							backEnd.viewParms.or.origin, 
+							backEnd.viewParms.ori.origin, 
 							p[j] );
 		}
 		ClipSkyPolygon( 3, p[0], 0 );
@@ -467,7 +467,7 @@ static void FillCloudySkySide( const int mins[2], const int maxs[2], qboolean ad
 	{
 		for ( s = mins[0]+HALF_SKY_SUBDIVISIONS; s <= maxs[0]+HALF_SKY_SUBDIVISIONS; s++ )
 		{
-			VectorAdd( s_skyPoints[t][s], backEnd.viewParms.or.origin, tess.xyz[tess.numVertexes] );
+			VectorAdd( s_skyPoints[t][s], backEnd.viewParms.ori.origin, tess.xyz[tess.numVertexes] );
 			tess.texCoords[tess.numVertexes][0][0] = s_skyTexCoords[t][s][0];
 			tess.texCoords[tess.numVertexes][0][1] = s_skyTexCoords[t][s][1];
 
@@ -709,7 +709,7 @@ void RB_DrawSun( void ) {
 		return;
 	}
 	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
-	qglTranslatef (backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+	qglTranslatef (backEnd.viewParms.ori.origin[0], backEnd.viewParms.ori.origin[1], backEnd.viewParms.ori.origin[2]);
 
 	dist = 	backEnd.viewParms.zFar / 1.75;		// div sqrt(3)
 	size = dist * 0.4;
@@ -725,7 +725,7 @@ void RB_DrawSun( void ) {
 	qglDepthRange( 1.0, 1.0 );
 
 	// FIXME: use quad stamp
-	RB_BeginSurface( tr.sunShader, tess.fogNum );
+	RB_BeginSurface( tr.sunShader );
 		VectorCopy( origin, temp );
 		VectorSubtract( temp, vec1, temp );
 		VectorSubtract( temp, vec2, temp );
@@ -820,7 +820,7 @@ void RB_StageIteratorSky( void ) {
 		
 		qglPushMatrix ();
 		GL_State( 0 );
-		qglTranslatef (backEnd.viewParms.or.origin[0], backEnd.viewParms.or.origin[1], backEnd.viewParms.or.origin[2]);
+		qglTranslatef (backEnd.viewParms.ori.origin[0], backEnd.viewParms.ori.origin[1], backEnd.viewParms.ori.origin[2]);
 
 		DrawSkyBox( tess.shader );
 

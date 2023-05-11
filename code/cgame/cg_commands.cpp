@@ -1483,7 +1483,7 @@ ClientGameCommandManager::ClientGameCommandManager()
 void ClientGameCommandManager::Print(Event* ev)
 {
     if (current_entity) {
-        cgi.DPrintf("%d:%s\n", current_entity->entityNumber, ev->GetString(1));
+        cgi.DPrintf("%d:%s\n", current_entity->entityNumber, ev->GetString(1).c_str());
     }
 }
 
@@ -3316,7 +3316,7 @@ void ClientGameCommandManager::EndOriginBeamEmitter(void)
 void ClientGameCommandManager::GetOrientation(int tagnum, spawnthing_t* sp)
 {
     int i;
-    orientation_t or;
+    orientation_t _or;
 
     assert(current_entity);
     assert(current_tiki);
@@ -3325,16 +3325,16 @@ void ClientGameCommandManager::GetOrientation(int tagnum, spawnthing_t* sp)
         return;
     }
 
-    or = cgi.TIKI_Orientation(current_entity, tagnum);
+    _or = cgi.TIKI_Orientation(current_entity, tagnum);
 
     VectorCopy(current_entity->origin, sp->cgd.origin);
 
     for (i = 0; i < 3; i++) {
-        VectorMA(sp->cgd.origin, or.origin[i], current_entity->axis[i],
+        VectorMA(sp->cgd.origin, _or.origin[i], current_entity->axis[i],
                  sp->cgd.origin);
     }
 
-    MatrixMultiply(or.axis, current_entity->axis, sp->axis);
+    MatrixMultiply(_or.axis, current_entity->axis, sp->axis);
 
     // If angles are not set, then use the angles from the tag
     if (!(sp->cgd.flags & T_ANGLES)) {
@@ -4519,10 +4519,10 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         }
 
         // Set the animation
-        if (m_spawnthing->animName.length() && (p->cgd.tiki > 0)) {
+        if (m_spawnthing->animName.length() && p->cgd.tiki) {
             ent.frameInfo[0].index =
                 cgi.Anim_NumForName(p->cgd.tiki, m_spawnthing->animName);
-        } else if (ent.reType == RT_MODEL && (p->cgd.tiki > 0)) {
+        } else if (ent.reType == RT_MODEL && p->cgd.tiki) {
             ent.frameInfo[0].index = cgi.Anim_NumForName(p->cgd.tiki, "idle");
         }
 
@@ -6377,7 +6377,7 @@ qboolean CG_Command_ProcessFile(const char* filename, qboolean quiet, dtiki_t *c
             break;
         }
 
-        if (!strcmpi(com_token, "end") || !strcmpi(com_token, "server")) {
+        if (!Q_stricmp(com_token, "end") || !Q_stricmp(com_token, "server")) {
             // skip the line
             while (1) {
                 strcpy(com_token, COM_ParseExt(&buffer, qfalse));
@@ -6538,7 +6538,7 @@ void EmitterLoader::ProcessEmitter(Script& script)
     }
 
     commandManager.SetSpawnthing(NULL);
-    emitterActive = NULL;
+    emitterActive = false;
 }
 
 bool EmitterLoader::Load(Script& script)

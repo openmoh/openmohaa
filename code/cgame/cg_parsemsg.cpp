@@ -503,7 +503,7 @@ void CG_ParseCGMessage()
             vStart[2] = cgi.MSG_ReadCoord();
             iLarge = cgi.MSG_ReadByte();
             // get the integer as string
-            itoa(iLarge, cTmp, 10);
+            snprintf(cTmp, sizeof(cTmp), "%d", iLarge);
 
             if (iType == 23) {
                 sEffect = "models/fx/crates/debris_";

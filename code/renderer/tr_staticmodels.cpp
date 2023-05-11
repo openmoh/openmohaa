@@ -295,7 +295,7 @@ void R_AddStaticModelSurfaces(void) {
         tr.currentEntityNum = i;
         tr.shiftedEntityNum = i << QSORT_REFENTITYNUM_SHIFT;
 
-        R_RotateForStaticModel(SM, &tr.viewParms, &tr. or );
+        R_RotateForStaticModel(SM, &tr.viewParms, &tr.ori );
 
         ofsStaticData = 0;
 

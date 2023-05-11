@@ -693,7 +693,7 @@ void CG_ScoresUp_f(void);
 //
 // cg_servercmds.c
 //
-void CG_ExecuteNewServerCommands( int latestSequence );
+void CG_ExecuteNewServerCommands(int latestSequence, qboolean differentServer);
 void CG_ParseServerinfo( void );
 
 //

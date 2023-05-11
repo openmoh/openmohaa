@@ -66,7 +66,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <X11/keysym.h>
 #include <X11/cursorfont.h>
 
-#include <X11/extensions/xf86dga.h>
+#include <X11/extensions/xf86dgaconst.h>
 #include <X11/extensions/xf86vmode.h>
 
 #define	WINDOW_CLASS_NAME	"Quake III: Arena"
@@ -134,40 +134,6 @@ static qboolean vidmode_active = qfalse;
 static int mouse_accel_numerator;
 static int mouse_accel_denominator;
 static int mouse_threshold;    
-
-/*
-* Find the first occurrence of find in s.
-*/
-// bk001130 - from cvs1.17 (mkv), const
-// bk001130 - made first argument const
-static const char *Q_stristr( const char *s, const char *find)
-{
-  register char c, sc;
-  register size_t len;
-
-  if ((c = *find++) != 0)
-  {
-    if (c >= 'a' && c <= 'z')
-    {
-      c -= ('a' - 'A');
-    }
-    len = strlen(find);
-    do
-    {
-      do
-      {
-        if ((sc = *s++) == 0)
-          return NULL;
-        if (sc >= 'a' && sc <= 'z')
-        {
-          sc -= ('a' - 'A');
-        }
-      } while (sc != c);
-    } while (Q_stricmpn(s, find, len) != 0);
-    s--;
-  }
-  return s;
-}
 
 /*****************************************************************************
 ** KEYBOARD
@@ -318,7 +284,7 @@ static char *XLateKey(XKeyEvent *ev, int *key)
   default:
     if (XLookupRet == 0)
     {
-      if (com_developer->value)
+      if (developer->value)
       {
         ri.Printf(PRINT_ALL, "Warning: XLookupString failed on KeySym %d\n", keysym);
       }
@@ -427,7 +393,7 @@ static void uninstall_grabs(void)
 {
   if (in_dgamouse->value)
   {
-		if (com_developer->value)
+		if (developer->value)
 			ri.Printf( PRINT_ALL, "DGA Mouse - Disabling DGA DirectVideo\n" );
     XF86DGADirectVideo(dpy, DefaultScreen(dpy), 0);
   }

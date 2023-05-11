@@ -70,7 +70,7 @@ void Draw_StretchPic( float x, float y, float w, float h, float s1, float t1, fl
 
 	// draw the pic
 	RB_Color4f( backEnd.color2D[ 0 ], backEnd.color2D[ 1 ], backEnd.color2D[ 2 ], backEnd.color2D[ 3 ] );
-	RB_BeginSurface( shader, 0, 0 );
+	RB_BeginSurface( shader );
 
 	RB_Texcoord2f( s1, t1 );
 	RB_Vertex2f( x, y );
@@ -201,7 +201,7 @@ void Draw_TrianglePic( const vec2_t vPoints[ 3 ], const vec2_t vTexCoords[ 3 ], 
 	// draw the pic
 	RB_Color4f( backEnd.color2D[ 0 ], backEnd.color2D[ 1 ], backEnd.color2D[ 2 ], backEnd.color2D[ 3 ] );
 
-	RB_BeginSurface( shader, 0, 0 );
+	RB_BeginSurface( shader );
 
 	for( i = 0; i < 3; i++ ) {
 		RB_Texcoord2f( vTexCoords[ i ][ 0 ], vTexCoords[ i ][ 1 ] );

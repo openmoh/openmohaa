@@ -75,6 +75,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define QDECL
 #define QCALL
 
+#define	MAC_STATIC
+
 //================================================================= WIN64/32 ===
 
 #if defined(_DEBUG)
@@ -114,8 +116,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define DLL_EXT ".dll"
 
 #elif defined(_WIN32) || defined(__WIN32__)
-
-#define	MAC_STATIC
 
 #undef QDECL
 #define QDECL __cdecl

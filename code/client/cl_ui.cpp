@@ -149,6 +149,9 @@ static Container<Menu *> hudList;
 
 #define HUD_WINDOW_COLOR	0.15f, 0.195f, 0.278f, 1
 
+void UI_MultiplayerMenuWidgetsUpdate(void);
+void UI_MainMenuWidgetsUpdate(void);
+
 class ConsoleHider : public Listener {
 public:
 	CLASS_PROTOTYPE( ConsoleHider );
@@ -1664,8 +1667,6 @@ qboolean UI_FullscreenMenuUp()
 	return qfalse;
 }
 
-void UI_MainMenuWidgetsUpdate( void );
-
 /*
 ====================
 UI_Update
@@ -2436,7 +2437,7 @@ void UI_Update( void ) {
 UI_MultiplayerMenuWidgetsUpdate
 ====================
 */
-static void UI_MultiplayerMenuWidgetsUpdate( void ) {
+void UI_MultiplayerMenuWidgetsUpdate( void ) {
 	Event *event;
 
 	// allow the map change widget when running in-game
@@ -2501,7 +2502,7 @@ static void UI_MultiplayerMenuWidgetsUpdate( void ) {
 UI_MainMenuWidgetsUpdate
 ====================
 */
-static void UI_MainMenuWidgetsUpdate( void ) {
+void UI_MainMenuWidgetsUpdate( void ) {
 	if( cls.state > CA_PRIMED )
 	{
 		Event *event = new Event( EV_Widget_Enable );

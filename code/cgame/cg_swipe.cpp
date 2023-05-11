@@ -128,7 +128,7 @@ void ClientGameCommandManager::Swipe
    {
    // This does a swipe effect on the entity
    int            i,swipenum;
-   orientation_t  or;
+   orientation_t  _or;
    int            tagnum_start,tagnum_end;
    qboolean       add_cnt_point = qfalse;
    vec3_t         tmp;
@@ -178,7 +178,7 @@ void ClientGameCommandManager::Swipe
          VectorCopy ( current_entity->origin, swipe.cntPoint.points[0] );
 
          tagnum_start = cgi.Tag_NumForName( current_tiki, swipe.tagname_start.c_str() );
-         or = cgi.TIKI_Orientation(current_entity, tagnum_start);
+         _or = cgi.TIKI_Orientation(current_entity, tagnum_start);
 
          // Clear out the points
          VectorClear ( tmp );
@@ -193,14 +193,14 @@ void ClientGameCommandManager::Swipe
          // Transform the origin of the tag by the axis of the entity and add it to the origin of the entity
          for ( i = 0; i < 3; i++ )
             {
-            VectorMA ( tmp, or.origin[i], current_entity->axis[i], tmp );
+            VectorMA ( tmp, _or.origin[i], current_entity->axis[i], tmp );
             }
 
          // Copy tmp into the startpoint
          VectorCopy ( tmp, swipe.cntPoint.points[0] );
 
          tagnum_end = cgi.Tag_NumForName( current_tiki, swipe.tagname_end.c_str() );
-         or = cgi.TIKI_Orientation(current_entity, tagnum_end);
+         _or = cgi.TIKI_Orientation(current_entity, tagnum_end);
 
          if ( ev->NumArgs() > 0 )
             VectorCopy( ev->GetVector( 1 ), tmp );
@@ -210,7 +210,7 @@ void ClientGameCommandManager::Swipe
          // Transform the origin of the tag by the axis of the entity and add it to the origin of the entity
          for ( i = 0; i < 3; i++ )
             {
-            VectorMA ( tmp, or.origin[i], current_entity->axis[i], tmp );
+            VectorMA ( tmp, _or.origin[i], current_entity->axis[i], tmp );
             }
 
          // Copy tmp into the startpoint
