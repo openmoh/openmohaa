@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <direct.h>
 #include <io.h>
 #include <conio.h>
+#include <intrin.h>
 
 /*
 ================
@@ -54,47 +55,6 @@ int Sys_Milliseconds (void)
 }
 
 /*
-================
-Sys_SnapVector
-================
-*/
-long fastftol( float f ) {
-	static int tmp;
-	__asm fld f
-	__asm fistp tmp
-	__asm mov eax, tmp
-}
-
-void Sys_SnapVector( float *v )
-{
-	int i;
-	float f;
-
-	f = *v;
-	__asm	fld		f;
-	__asm	fistp	i;
-	*v = i;
-	v++;
-	f = *v;
-	__asm	fld		f;
-	__asm	fistp	i;
-	*v = i;
-	v++;
-	f = *v;
-	__asm	fld		f;
-	__asm	fistp	i;
-	*v = i;
-	/*
-	*v = fastftol(*v);
-	v++;
-	*v = fastftol(*v);
-	v++;
-	*v = fastftol(*v);
-	*/
-}
-
-
-/*
 **
 ** Disable all optimizations temporarily so this code works correctly!
 **
@@ -110,6 +70,8 @@ void Sys_SnapVector( float *v )
 */
 static void CPUID( int func, unsigned regs[4] )
 {
+	__cpuid(regs, func);
+	/*
 	unsigned regEAX, regEBX, regECX, regEDX;
 
 #ifndef __VECTORC
@@ -131,10 +93,12 @@ static void CPUID( int func, unsigned regs[4] )
 	regs[2] = 0;
 	regs[3] = 0;
 #endif
+*/
 }
 
 static int IsPentium( void )
 {
+#ifndef _WIN64
 	__asm 
 	{
 		pushfd						// save eflags
@@ -164,6 +128,9 @@ err:
 	return qfalse;
 good:
 	return qtrue;
+#else
+	return qtrue;
+#endif
 }
 
 static int Is3DNOW( void )

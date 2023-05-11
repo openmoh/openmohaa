@@ -222,7 +222,7 @@ DIRECTORY SCANNING
 void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles ) {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char		filename[MAX_OSPATH];
-	int			findhandle;
+	intptr_t	findhandle;
 	struct _finddata_t findinfo;
 
 	if ( *numfiles >= MAX_FOUND_FILES - 1 ) {
@@ -267,7 +267,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 }
 
 static qboolean strgtr(const char *s0, const char *s1) {
-	int l0, l1, i;
+	size_t l0, l1, i;
 
 	l0 = strlen(s0);
 	l1 = strlen(s1);
@@ -293,7 +293,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	char		**listCopy;
 	char		*list[MAX_FOUND_FILES];
 	struct _finddata_t findinfo;
-	int			findhandle;
+	intptr_t	findhandle;
 	int			flag;
 	int			i;
 
@@ -1092,8 +1092,8 @@ void Sys_Init( void ) {
 	}
 
 	// save out a couple things in rom cvars for the renderer to access
-	Cvar_Get( "win_hinstance", va("%i", (int)g_wv.hInstance), CVAR_ROM );
-	Cvar_Get( "win_wndproc", va("%i", (int)MainWndProc), CVAR_ROM );
+	Cvar_Get( "win_hinstance", va("%zu", (uintptr_t)g_wv.hInstance), CVAR_ROM );
+	Cvar_Get( "win_wndproc", va("%zu", (uintptr_t)MainWndProc), CVAR_ROM );
 
 	//
 	// figure out our CPU
