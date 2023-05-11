@@ -52,14 +52,14 @@ public:
 	CLASS_PROTOTYPE( UIButton );
 
 private:
-	void				Draw( void );
+	void				Draw( void ) override;
 	virtual void		DrawPressed( void );
 	virtual void		DrawUnpressed( void );
 
 public:
 	UIButton();
 
-	qboolean KeyEvent( int key, unsigned int time );
+	qboolean KeyEvent( int key, unsigned int time ) override;
 };
 
 class ToggleCVar : public USignal {

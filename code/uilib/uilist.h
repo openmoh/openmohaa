@@ -47,7 +47,7 @@ public:
 	CLASS_PROTOTYPE( UIList );
 
 protected:
-	void		Draw( void );
+	void		Draw( void ) override;
 	qboolean	KeyEvent( int key, unsigned int time );
 	void		CharEvent( int ch );
 	void		Pressed( Event *ev );

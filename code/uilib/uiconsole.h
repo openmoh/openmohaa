@@ -87,10 +87,10 @@ public:
 	void		AddText( const char *text, UColor *pColor );
 	void		CalcLineBreaks( item& theItem );
 	void		Clear( void );
-	void		FrameInitialized( void );
-	void		Draw( void );
-	void		CharEvent( int ch );
-	qboolean	KeyEvent( int key, unsigned int time );
+	void		FrameInitialized( void ) override;
+	void		Draw( void ) override;
+	void		CharEvent( int ch ) override;
+	qboolean	KeyEvent( int key, unsigned int time ) override;
 	void		OnSizeChanged( Event *ev );
 };
 
@@ -108,7 +108,7 @@ public:
 
 	UIFloatingConsole();
 
-	void		FrameInitialized( void );
+	void		FrameInitialized( void ) override;
 	void		OnChildSizeChanged( Event *ev );
 	void		AddText( const char *text, UColor *pColor );
 	void		setConsoleHandler( consoleHandler_t handler );
@@ -126,14 +126,14 @@ public:
 	CLASS_PROTOTYPE( UIDMConsole );
 
 private:
-	void	KeyEnter( void );
+	void	KeyEnter( void ) override;
 
 public:
 	UIDMConsole();
 
 	void			AddDMMessageText( const char *text, UColor *pColor );
-	void			Draw( void );
-	qboolean		KeyEvent( int key, unsigned int time );
+	void			Draw( void ) override;
+	qboolean		KeyEvent( int key, unsigned int time ) override;
 	qboolean		GetQuickMessageMode( void );
 	void			SetQuickMessageMode( qboolean bQuickMessage );
 	int				GetMessageMode( void );
@@ -154,7 +154,7 @@ public:
 
 	UIFloatingDMConsole();
 
-	void			FrameInitialized( void );
+	void			FrameInitialized( void ) override;
 	void			OnChildSizeChanged( Event *ev );
 	void			AddText( const char *text, UColor *pColor );
 	void			AddDMMessageText( const char *text, UColor *pColor );

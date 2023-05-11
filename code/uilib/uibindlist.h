@@ -44,7 +44,7 @@ private:
 	void		DrawPressKey( UIRect2D frame );
 
 protected:
-	void		FrameInitialized( void );
+	void		FrameInitialized( void ) override;
 	void		Filename( Event *ev );
 	void		StopBind( Event *ev );
 
@@ -52,13 +52,13 @@ public:
 	UIFakkBindList();
 
 	void		setBind( bind_t *b );
-	void		Draw( void );
+	void		Draw( void ) override;
 	bool		isDying( void );
-	qboolean	KeyEvent( int key, unsigned int time );
+	qboolean	KeyEvent( int key, unsigned int time ) override;
 	void		Highlight( UIWidget *wid );
 	void		PlayEnterSound( void );
 	qboolean	SetActiveRow( UIWidget *w );
-	void		Realign( void );
+	void		Realign( void ) override;
 };
 
 class UIFakkBindListLabel : public UILabel {
@@ -72,7 +72,7 @@ public:
 	UIFakkBindListLabel( UIFakkBindList *list );
 
 	void	Pressed( Event *ev );
-	void	Draw( void );
+	void	Draw( void ) override;
 };
 
 extern Event EV_UIFakkBindList_Filename;

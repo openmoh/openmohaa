@@ -34,8 +34,8 @@ public:
 
 	UIDialog();
 
-	void	FrameInitialized( void );
-	void	LinkCvar( str cvarname );
+	void	FrameInitialized( void ) override;
+	void	LinkCvar( str cvarname ) override;
 	void	SetOKCommand( str command );
 	void	SetCancelCommand( str command );
 	void	SetLabelMaterial( UIReggedMaterial *mat );

@@ -75,7 +75,7 @@ protected:
 	static int				StringCompareFunction( const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname );
 	static int				StringNumberCompareFunction( const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname );
 	static int				QsortCompare( const void *e1, const void *e2 );
-	void 					Draw( void );
+	void 					Draw( void ) override;
 	int						getHeaderHeight( void );
 	void					MousePressed( Event *ev );
 	void					MouseDragged( Event *ev );

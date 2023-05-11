@@ -96,7 +96,7 @@ public:
 	void	OnCut( Event *ev );
 	bool	ProcessControlEvents( int ch );
 	bool	ProcessCharEvent( int ch );
-	void	Draw( void );
+	void	Draw( void ) override;
 	void	setFileName( const char *filename );
 };
 

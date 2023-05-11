@@ -99,7 +99,7 @@ public:
 	void	setPulldownShader( const char *title, UIReggedMaterial *mat );
 	void	setSelectedPulldownShader( const char *title, UIReggedMaterial *mat );
 	void	Realign( void );
-	void	Draw( void );
+	void	Draw( void ) override;
 };
 
 #endif

@@ -52,7 +52,7 @@ protected:
 public:
 	UIVertScroll();
 
-	void			Draw( void );
+	void			Draw( void ) override;
 	void			DrawArrow( float top, const char *text, bool pressed );
 	void			DrawThumb( void );
 	void			MouseDown( Event *ev );

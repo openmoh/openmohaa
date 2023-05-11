@@ -66,7 +66,7 @@ protected:
 public:
 	UIMultiLineEdit();
 
-	void		Draw( void );
+	void		Draw( void ) override;
 	qboolean	KeyEvent( int key, unsigned int time );
 	void		CharEvent( int ch );
 	UIPoint2D	getEndSelPoint( void );

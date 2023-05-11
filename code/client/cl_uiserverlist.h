@@ -39,8 +39,8 @@ public:
 protected:
 	void			SelectServer( Event *ev );
 	void			ConnectServer( Event *ev );
-	qboolean		KeyEvent( int key, unsigned int time );
-	void			UpdateUIElement( void );
+	qboolean		KeyEvent( int key, unsigned int time ) override;
+	void			UpdateUIElement( void ) override;
 	void			RefreshServerList( Event *ev );
 	void			RefreshLANServerList( Event *ev );
 	void			CancelRefresh( Event *ev );
@@ -51,8 +51,8 @@ protected:
 public:
 	UIFAKKServerList();
 
-	void		Draw( void );
-	void		SortByColumn( int column );
+	void		Draw( void ) override;
+	void		SortByColumn( int column ) override;
 };
 
 #endif /* __CL_UISERVERLIST_H__ */

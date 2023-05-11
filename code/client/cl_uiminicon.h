@@ -50,7 +50,7 @@ public:
 	void			Print( const char *text );
 	void			Create( const UISize2D& size, const UColor& fore, const UColor& back, float alpha );
 	void			MoveInEvent( Event *ev );
-	void			Draw( void );
+	void			Draw( void ) override;
 	void			setRealShow( bool b );
 };
 

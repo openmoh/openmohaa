@@ -54,7 +54,7 @@ private:
 	virtual void		UpdateServers( void );
 
 protected:
-	void	FrameInitialized( void );
+	void	FrameInitialized( void ) override;
 	void	EventScanNetwork( Event *ev );
 	void	EventScaningNetwork( Event *ev );
 
@@ -62,8 +62,8 @@ public:
 	UILanGameList();
 
 	bool		isDying( void );
-	void		Draw();
-	qboolean	KeyEvent( int key, unsigned int time );
+	void		Draw() override;
+	qboolean	KeyEvent( int key, unsigned int time ) override;
 	void		Highlight( UIWidget *wid );
 	void		Connect( void );
 	void		EventConnect( Event *ev );

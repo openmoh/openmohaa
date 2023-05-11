@@ -293,13 +293,13 @@ public:
 	CLASS_PROTOTYPE( UIWidgetContainer );
 
 private:
-	void		AlignPosition( void );
-	void		Draw( void );
+	void		AlignPosition( void ) override;
+	void		Draw( void ) override;
 
 public:
 	UIWidgetContainer();
 
-	void		Realign( void );
+	void		Realign( void ) override;
 	void		SetBGFill( Event *ev );
 	void		SetFullscreen( Event *ev );
 	void		SetVidMode( Event *ev );

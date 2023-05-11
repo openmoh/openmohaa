@@ -35,11 +35,11 @@ private:
 	void		SetupServers( void );
 
 protected:
-	void		Draw( void );
+	void		Draw( void ) override;
 	void		SelectServer( Event *ev );
 	void		JoinServer( Event *ev );
-	qboolean	KeyEvent( int key, unsigned int time );
-	void		UpdateUIElement( void );
+	qboolean	KeyEvent( int key, unsigned int time ) override;
+	void		UpdateUIElement( void ) override;
 
 public:
 	UILANGameClass();

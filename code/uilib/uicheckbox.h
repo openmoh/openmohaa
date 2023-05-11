@@ -37,8 +37,8 @@ public:
 	CLASS_PROTOTYPE( UICheckBox );
 
 private:
-	void		Draw( void );
-	void		CharEvent( int ch );
+	void		Draw( void ) override;
+	void		CharEvent( int ch ) override;
 	void		Pressed( Event *ev );
 	void		Released( Event *ev );
 	void		UpdateCvar( void );
@@ -52,7 +52,7 @@ private:
 public:
 	UICheckBox( void );
 
-	void		UpdateData( void );
+	void		UpdateData( void ) override;
 	bool		isChecked( void );
 };
 

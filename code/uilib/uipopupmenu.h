@@ -91,7 +91,7 @@ public:
 	void				Create( Container<uipopup_describe*> *describe, Listener *listener, const UIPoint2D& where );
 	void				Create( Container<uipopup_describe*> *describe, Listener *listener, const UIRect2D& createRect, uipopup_where where, qboolean bVirtualSize, float width );
 	void				YouAreASubmenu( UIPopupMenu *me );
-	void				Draw( void );
+	void				Draw( void ) override;
 	void				MouseReleased( Event *ev );
 	void				MouseMoved( Event *ev );
 	void				MouseExited( Event *ev );

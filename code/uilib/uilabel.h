@@ -65,7 +65,7 @@ public:
 	UILabel();
 
 	void		SetLabel( str lab );
-	void		Draw( void );
+	void		Draw( void ) override;
 };
 
 #endif

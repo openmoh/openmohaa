@@ -97,7 +97,7 @@ public:
 	void		DrawStatSpinner( float frac );
 	void		StatCircleTexCoord( float fAng, vec3_t vTexCoord );
 
-	void		Draw( void );
+	void		Draw( void ) override;
 };
 
 #endif

@@ -31,14 +31,14 @@ public:
 	CLASS_PROTOTYPE( UIField );
 
 private:
-	void		Draw( void );
-	qboolean	KeyEvent( int key, unsigned int time );
-	void		CharEvent( int ch );
+	void		Draw( void ) override;
+	qboolean	KeyEvent( int key, unsigned int time ) override;
+	void		CharEvent( int ch ) override;
 
 public:
 	UIField();
 
-	void		UpdateData( void );
+	void		UpdateData( void ) override;
 	void		Pressed( Event *ev );
 };
 

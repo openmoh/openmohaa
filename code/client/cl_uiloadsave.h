@@ -36,8 +36,8 @@ protected:
 	void		RemoveGame( Event *ev );
 	void		DeleteGame( Event *ev );
 	void		NoDeleteGame( Event *ev );
-	qboolean	KeyEvent( int key, unsigned int time );
-	void		UpdateUIElement( void );
+	qboolean	KeyEvent( int key, unsigned int time ) override;
+	void		UpdateUIElement( void ) override;
 public:
 	UIFAKKLoadGameClass();
 

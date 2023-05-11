@@ -59,7 +59,7 @@ public:
 	void		Create( const UIRect2D& rect, const UColor& fore, const UColor& back, float alpha );
 	void		MoveInEvent( Event *ev );
 	void		DecayEvent( Event *ev );
-	void		Draw( void );
+	void		Draw( void ) override;
 	void		setRealShow( bool b );
 	void		Clear( void );
 };

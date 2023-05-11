@@ -55,7 +55,7 @@ public:
 	static Event W_MinimizePressed;
 
 protected:
-	void		FrameInitialized( void );
+	void		FrameInitialized( void ) override;
 	void		FrameInitialized( bool bHasDragBar );
 
 public:
@@ -71,7 +71,7 @@ public:
 	void				OnActivated( Event *ev );
 	void				OnDeactivated( Event *ev );
 	void				Create( UIWidget *parent, const UIRect2D& rect, const char *title, const UColor& bgColor, const UColor& fgColor );
-	void				Draw( void );
+	void				Draw( void ) override;
 	UIChildSpaceWidget	*getChildSpace( void );
 	bool				IsMinimized( void );
 };

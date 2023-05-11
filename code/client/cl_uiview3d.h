@@ -37,7 +37,7 @@ public:
 	CLASS_PROTOTYPE( View3D );
 
 protected:
-	void		Draw( void );
+	void		Draw( void ) override;
 	void		DrawLetterbox( void );
 	void		DrawFades( void );
 	void		Draw2D( void );
@@ -68,7 +68,7 @@ public:
 	CLASS_PROTOTYPE( ConsoleView );
 
 protected:
-	void Draw( void );
+	void Draw( void ) override;
 };
 
 #endif /* __CL_UIVIEW3D__ */

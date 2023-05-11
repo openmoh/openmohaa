@@ -65,8 +65,8 @@ private:
 	void	MouseExited( Event *ev );
 	void	MouseDragged( Event *ev );
 	void	MouseEntered( Event *ev );
-	void	UpdateData( void );
-	void	UpdateUIElement();
+	void	UpdateData( void ) override;
+	void	UpdateUIElement() override;
 	void	LayoutSetRange( Event *ev );
 	void	LayoutSetType( Event *ev );
 	void	LayoutSetStep( Event *ev );
@@ -78,10 +78,10 @@ private:
 public:
 	UISlider();
 
-	void		FrameInitialized( void );
-	void		Draw( void );
+	void		FrameInitialized( void ) override;
+	void		Draw( void ) override;
 	void		setType( slidertype_t type );
-	qboolean	KeyEvent( int key, unsigned int time );
+	qboolean	KeyEvent( int key, unsigned int time ) override;
 	void		setRange( float min, float max );
 	void		setStep( float value );
 };

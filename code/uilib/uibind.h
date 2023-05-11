@@ -47,7 +47,7 @@ public:
 	void		DrawUnpressed( void );
 	void		DrawPressed( void );
 	void		Clear( void );
-	qboolean	KeyEvent( int key, unsigned int time );
+	qboolean	KeyEvent( int key, unsigned int time ) override;
 	void		SetAlternate( qboolean a );
 };
 

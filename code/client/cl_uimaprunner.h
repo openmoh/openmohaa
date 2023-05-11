@@ -27,21 +27,21 @@ class MapRunnerClass : public FilePickerClass {
 public:
 	CLASS_PROTOTYPE( MapRunnerClass );
 
-	void	FileChosen( str &currentDirectory, str &partialName, str &fullname );
+	void	FileChosen( str &currentDirectory, str &partialName, str &fullname ) override;
 };
 
 class ViewSpawnerClass : public FilePickerClass {
 public:
 	CLASS_PROTOTYPE( ViewSpawnerClass );
 
-	void	FileChosen( str &currentDirectory, str &partialName, str &fullname );
+	void	FileChosen( str &currentDirectory, str &partialName, str &fullname ) override;
 };
 
 class LODSpawnerClass : public FilePickerClass {
 public:
 	CLASS_PROTOTYPE( LODSpawnerClass );
 
-	void	FileChosen( str &currentDirectory, str &partialName, str &fullname );
+	void	FileChosen( str &currentDirectory, str &partialName, str &fullname ) override;
 };
 
 class UIPickFileClass : public FilePickerClass {
@@ -51,7 +51,7 @@ public:
 
 	CLASS_PROTOTYPE( UIPickFileClass );
 
-	void	FileChosen( str &currentDirectory, str &partialName, str &fullname );
+	void	FileChosen( str &currentDirectory, str &partialName, str &fullname ) override;
 };
 
 void PickFile( const char *name, Listener *obj, Event& event );

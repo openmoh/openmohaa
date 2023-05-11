@@ -45,7 +45,7 @@ public:
 	void	setType( inventory_type_t *t );
 	void	Create( float x, float y, FakkInventory *parent );
 	bool	HasAnyItems( void );
-	void	Draw( void );
+	void	Draw( void ) override;
 	void	OnLeftMouseDown( Event *ev );
 	void	OnRightMouseDown( Event *ev );
 	void	OnLeftMouseUp( Event *ev );
@@ -75,7 +75,7 @@ public:
 	~FakkInventory();
 
 	void		setInventory( inventory_t *i );
-	void		Draw( void );
+	void		Draw( void ) override;
 	void		OnMouseMove( Event *ev );
 	void		OnMouseLeave( Event *ev );
 	void		OnMouseEnter( Event *ev );
@@ -85,7 +85,7 @@ public:
 	void		NextItem( void );
 	void		PrevItem( void );
 	qboolean	isDying( void );
-	qboolean	KeyEvent( int key, unsigned int time );
+	qboolean	KeyEvent( int key, unsigned int time ) override;
 	void		PlaySound( invsound_t type );
 	void		Timeout( Event *ev );
 	void		ChangeItem( int sign );

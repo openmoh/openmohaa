@@ -36,8 +36,8 @@ public:
 
 	UIWindowSizer();
 
-	void			Draw( void );
-	void			FrameInitialized( void );
+	void			Draw( void ) override;
+	void			FrameInitialized( void ) override;
 	void			MouseDown( Event *ev );
 	void			MouseUp( Event *ev );
 	void			MouseDragged( Event *ev );
@@ -64,13 +64,13 @@ public:
 	CLASS_PROTOTYPE( UIStatusBar );
 
 protected:
-	void		FrameInitialized( void );
+	void		FrameInitialized( void ) override;
 
 public:
 	UIStatusBar();
 	UIStatusBar( alignment_t align, float height );
 
-	void				Draw( void );
+	void				Draw( void ) override;
 	void				AlignBar( alignment_t align, float height );
 	void				DontAlignBar( void );
 	void				EnableSizeBox( UIWidget *which );

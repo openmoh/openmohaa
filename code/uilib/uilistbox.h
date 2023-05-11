@@ -71,7 +71,7 @@ public:
 	CLASS_PROTOTYPE( UIListBox );
 
 protected:
-	void			Draw( void );
+	void			Draw( void ) override;
 	void			MousePressed( Event *ev );
 	void			MouseReleased( Event *ev );
 	void			DeleteAllItems( Event *ev );

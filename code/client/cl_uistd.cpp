@@ -271,7 +271,7 @@ void UIFakkLabel::ClearInvItemReference( Event *ev )
 
 void UIFakkLabel::LayoutStatbar( Event *ev )
 {
-	str or = ev->GetString( 1 );
+	str _or = ev->GetString( 1 );
 
 	if( ev->NumArgs() > 1 )
 	{
@@ -279,27 +279,27 @@ void UIFakkLabel::LayoutStatbar( Event *ev )
 		m_statbar_max = ev->GetFloat( 3 );
 	}
 
-	if( !str::icmp( or, "horizontal" ) )
+	if( !str::icmp( _or, "horizontal" ) )
 	{
 		m_statbar_or = L_STATBAR_HORIZONTAL;
 	}
-	else if( !str::icmp( or, "vertical_stagger_even" ) )
+	else if( !str::icmp( _or, "vertical_stagger_even" ) )
 	{
 		m_statbar_or = L_STATBAR_VERTICAL_STAGGER_EVEN;
 	}
-	else if( !str::icmp( or, "vertical_stagger_odd" ) )
+	else if( !str::icmp( _or, "vertical_stagger_odd" ) )
 	{
 		m_statbar_or = L_STATBAR_VERTICAL_STAGGER_ODD;
 	}
-	else if( !str::icmp( or, "vertical" ) )
+	else if( !str::icmp( _or, "vertical" ) )
 	{
 		m_statbar_or = L_STATBAR_VERTICAL;
 	}
-	else if( !str::icmp( or, "vertical_reverse" ) )
+	else if( !str::icmp( _or, "vertical_reverse" ) )
 	{
 		m_statbar_or = L_STATBAR_VERTICAL_REVERSE;
 	}
-	else if( !str::icmp( or, "circular" ) )
+	else if( !str::icmp( _or, "circular" ) )
 	{
 		m_statbar_or = L_STATBAR_CIRCULAR;
 
@@ -308,7 +308,7 @@ void UIFakkLabel::LayoutStatbar( Event *ev )
 			m_statbar_material = uWinMan.RegisterShader( "blank" );
 		}
 	}
-	else if( !str::icmp( or, "needle" ) )
+	else if( !str::icmp( _or, "needle" ) )
 	{
 		m_statbar_or = L_STATBAR_NEEDLE;
 
@@ -317,7 +317,7 @@ void UIFakkLabel::LayoutStatbar( Event *ev )
 			m_statbar_material = uWinMan.RegisterShader( "blank" );
 		}
 	}
-	else if( !str::icmp( or, "rotator" ) )
+	else if( !str::icmp( _or, "rotator" ) )
 	{
 		m_statbar_or = L_STATBAR_ROTATOR;
 
@@ -326,7 +326,7 @@ void UIFakkLabel::LayoutStatbar( Event *ev )
 			m_statbar_material = uWinMan.RegisterShader( "blank" );
 		}
 	}
-	else if( !str::icmp( or, "compass" ) )
+	else if( !str::icmp( _or, "compass" ) )
 	{
 		m_statbar_or = L_STATBAR_COMPASS;
 
@@ -335,7 +335,7 @@ void UIFakkLabel::LayoutStatbar( Event *ev )
 			m_statbar_material = uWinMan.RegisterShader( "blank" );
 		}
 	}
-	else if( !str::icmp( or, "spinner" ) )
+	else if( !str::icmp( _or, "spinner" ) )
 	{
 		m_statbar_or = L_STATBAR_SPINNER;
 
@@ -344,7 +344,7 @@ void UIFakkLabel::LayoutStatbar( Event *ev )
 			m_statbar_material = uWinMan.RegisterShader( "blank" );
 		}
 	}
-	else if( !str::icmp( or, "headingspinner" ) )
+	else if( !str::icmp( _or, "headingspinner" ) )
 	{
 		m_statbar_or = L_STATBAR_HEADING_SPINNER;
 
@@ -355,7 +355,7 @@ void UIFakkLabel::LayoutStatbar( Event *ev )
 	}
 	else
 	{
-		warning( "LayoutPlayerStat", "Invalid statbar orientation: \"%s\"", or.c_str() );
+		warning( "LayoutPlayerStat", "Invalid statbar orientation: \"%s\"", _or.c_str() );
 	}
 }
 
