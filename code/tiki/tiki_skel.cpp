@@ -163,6 +163,9 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 	size_t nMorphBytes;
     size_t nVertBytes;
     size_t nTriBytes;
+	byte* start_gs_ptr;
+	byte* max_gs_ptr;
+	byte* gs_ptr = NULL;
 
 	pSurf = (skelSurface_t*)((byte*)pHeader + LittleLong(pHeader->ofsSurfaces));
 	nSurfBytes = 0;
@@ -320,9 +323,9 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 		nBytesUsed = PAD(nBytesUsed, sizeof(void*));
 		nBytesUsed += nSurfBytes;
 
-		byte* start_gs_ptr = (byte*)pGameSurf;
-		byte* max_gs_ptr = (byte*)pGameSurf + nBytesUsed;
-		byte* gs_ptr = start_gs_ptr + sizeof(skelSurfaceGame_t);
+		start_gs_ptr = (byte*)pGameSurf;
+		max_gs_ptr = (byte*)pGameSurf + nBytesUsed;
+		gs_ptr = start_gs_ptr + sizeof(skelSurfaceGame_t);
 
 		pGameSurf->ident = LittleLongPtr(pSurf->ident);
 		pGameSurf->numTriangles = numTriangles;
@@ -439,7 +442,9 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 		}
 	}
 
-	pGameSurf->pNext = NULL;
+    pGameSurf->pNext = NULL;
+
+    assert(((byte*)pGameSurf - (byte*)pSkel) <= cache->size);
 
 	if (nBoneBytes)
 	{

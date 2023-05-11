@@ -852,7 +852,7 @@ dtikianim_t* TIKI_InitTiki(dloaddef_t* ld, size_t defsize)
 		pcmds->num_args = ld->loadserverinitcmds[i]->num_args;
 		pcmds->args = (char**)ptr;
 
-		ptr += sizeof(char*) * pcmds->num_args;
+		ptr += sizeof(*pcmds->args) * pcmds->num_args;
 
 		for (j = 0; j < ld->loadserverinitcmds[i]->num_args; j++)
 		{
@@ -877,7 +877,7 @@ dtikianim_t* TIKI_InitTiki(dloaddef_t* ld, size_t defsize)
 		pcmds->num_args = ld->loadclientinitcmds[i]->num_args;
 		pcmds->args = (char**)ptr;
 
-		ptr += sizeof(char*) * pcmds->num_args;
+		ptr += sizeof(*pcmds->args) * pcmds->num_args;
 
 		for (j = 0; j < ld->loadclientinitcmds[i]->num_args; j++)
 		{
@@ -982,7 +982,7 @@ dtikianim_t* TIKI_InitTiki(dloaddef_t* ld, size_t defsize)
 			pcmds->frame_num = anim->loadservercmds[j]->frame_num;
 			pcmds->args = (char**)ptr;
 
-			ptr += pcmds->num_args * sizeof(char*);
+			ptr += pcmds->num_args * sizeof(*pcmds->args);
 
 			for (k = 0; k < anim->loadservercmds[j]->num_args; k++)
 			{
@@ -1007,7 +1007,7 @@ dtikianim_t* TIKI_InitTiki(dloaddef_t* ld, size_t defsize)
 			pcmds->frame_num = anim->loadclientcmds[j]->frame_num;
 			pcmds->args = (char**)ptr;
 
-			ptr += pcmds->num_args * sizeof(char*);
+			ptr += pcmds->num_args * sizeof(*pcmds->args);
 
 			for (k = 0; k < anim->loadclientcmds[j]->num_args; k++)
 			{

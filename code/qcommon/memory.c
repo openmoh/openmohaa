@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	ZONEID			0x7331
 #define ZONEID_CONST	0xC057
 
+void Z_CheckHeap(void);
+
 typedef struct memblock_s {
 	size_t	size;			// including the header and possibly tiny fragments
 	struct memblock_s		*next, *prev;

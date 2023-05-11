@@ -152,7 +152,7 @@ size_t TIKI_CalcAnimDefSize(dloaddef_t* ld)
 	for (i = 0; i < ld->numserverinitcmds; i++)
 	{
 		const dloadinitcmd_t* initcmd = ld->loadserverinitcmds[i];
-		defsize += sizeof(char*) * initcmd->num_args;
+		defsize += sizeof(*initcmd->args) * initcmd->num_args;
 
 		for (j = 0; j < initcmd->num_args; j++)
 		{
@@ -165,7 +165,7 @@ size_t TIKI_CalcAnimDefSize(dloaddef_t* ld)
 	for (i = 0; i < ld->numclientinitcmds; i++)
 	{
 		const dloadinitcmd_t* initcmd = ld->loadclientinitcmds[i];
-		defsize += sizeof(char*) * initcmd->num_args;
+		defsize += sizeof(*initcmd->args) * initcmd->num_args;
 
 		for (j = 0; j < initcmd->num_args; j++)
 		{
@@ -186,7 +186,7 @@ size_t TIKI_CalcAnimDefSize(dloaddef_t* ld)
 		for (j = 0; j < loadanim->num_server_cmds; j++)
 		{
 			const dloadframecmd_t* loadframecmd = loadanim->loadservercmds[j];
-			defsize += sizeof(char*) * loadframecmd->num_args;
+			defsize += sizeof(*loadframecmd->args) * loadframecmd->num_args;
 
 			for (k = 0; k < loadframecmd->num_args; k++)
 			{
@@ -197,7 +197,7 @@ size_t TIKI_CalcAnimDefSize(dloaddef_t* ld)
 		for (j = 0; j < loadanim->num_client_cmds; j++)
 		{
 			const dloadframecmd_t* loadframecmd = loadanim->loadclientcmds[j];
-			defsize += sizeof(char*) * loadframecmd->num_args;
+			defsize += sizeof(*loadframecmd->args) * loadframecmd->num_args;
 
 			for (k = 0; k < loadframecmd->num_args; k++)
 			{
