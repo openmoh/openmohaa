@@ -325,10 +325,10 @@ void R_DrawString(fontheader_t* font, const char* text, float x, float y, int ma
                 if (indirected == -1) {
                     Com_DPrintf("R_DrawString: no '?' character in font!\n");
                     break;
-                }
+				}
+                // set the indirection for the next time
+				font->indirection[c] = indirected;
             }
-
-            font->indirection[c] = indirected;
 
             if (tess.numVertexes + 4 >= SHADER_MAX_VERTEXES || tess.numIndexes + 6 >= SHADER_MAX_INDEXES) {
                 RB_CheckOverflow(4, 6);
@@ -381,6 +381,7 @@ void R_DrawString(fontheader_t* font, const char* text, float x, float y, int ma
                 tess.xyz[tess.numVertexes + 3][1] *= fHeightScale;
             }
 
+            x += s_fontGeneralScale * loc->size[0] * 256.0;
             tess.numVertexes += 4;
             tess.numIndexes += 6;
             break;
