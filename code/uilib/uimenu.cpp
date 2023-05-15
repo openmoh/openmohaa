@@ -833,8 +833,92 @@ bool MenuManager::ClearMenus
 	)
 
 {
-	// FIXME: stub
-	return false;
+	int i, num;
+	Menu* top;
+	Menu* menu;
+	float maxtime;
+	float newmaxtime;
+
+	maxtime = 0.0;
+	if (m_lock) {
+		return false;
+	}
+
+	if (!m_showmenustack.Head() &&!m_menustack.Head()) {
+		return true;
+	}
+
+	top = m_showmenustack.Head();
+	while (!m_showmenustack.Empty())
+	{
+		menu = m_showmenustack.Pop();
+		newmaxtime = top->GetMaxMotionTime();
+		if (maxtime < newmaxtime) {
+			maxtime = newmaxtime;
+		}
+
+		if (force)
+		{
+			// force the menu to hide
+			menu->ForceHide();
+			continue;
+		}
+
+		// otherwise send the "hidemenu" event
+		// the menu will process it or not
+		menu->ProcessEvent(new Event("hidemenu"));
+	}
+
+	top = m_menustack.Head();
+	while (!m_menustack.Empty())
+	{
+		menu = m_menustack.Pop();
+		newmaxtime = top->GetMaxMotionTime();
+		if (maxtime < newmaxtime) {
+			maxtime = newmaxtime;
+		}
+
+		if (force)
+		{
+			// force the menu to hide
+			menu->ForceHide();
+			continue;
+		}
+
+		// otherwise send the "hidemenu" event
+		// the menu will process it or not
+		menu->ProcessEvent(new Event("hidemenu"));
+	}
+
+	num = m_menulist.NumObjects();
+	for (i = 1; i <= num; i++)
+	{
+		menu = m_menulist.ObjectAt(i);
+		if (!menu->isVisible()) {
+			continue;
+		}
+
+		newmaxtime = top->GetMaxMotionTime();
+		if (maxtime < newmaxtime) {
+			maxtime = newmaxtime;
+		}
+
+		if (force)
+		{
+			menu->ForceHide();
+			continue;
+		}
+
+		menu->ProcessEvent(new Event("hidemenu"));
+	}
+
+	if (!force)
+	{
+		Lock(NULL);
+		PostEvent(EV_UnlockMenus, maxtime);
+	}
+
+	return true;
 }
 
 void MenuManager::ListMenus
@@ -981,6 +1065,8 @@ bool MenuManager::ForceMenu
 	}
 
 	m->ProcessEvent( Event( "showmenu" ) );
+	// add the new menu to the stack
+	m_menustack.Push(m);
 
 	return true;
 }
