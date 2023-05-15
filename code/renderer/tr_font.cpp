@@ -350,14 +350,14 @@ void R_DrawString(fontheader_t* font, const char* text, float x, float y, int ma
             tess.xyz[tess.numVertexes][0] = x;
             tess.xyz[tess.numVertexes][1] = y;
             tess.xyz[tess.numVertexes][2] = s_fontZ;
-            tess.xyz[tess.numVertexes + 1][0] = s_fontGeneralScale * loc->size[0] * 256.0 + x;
+            tess.xyz[tess.numVertexes + 1][0] = x + s_fontGeneralScale * loc->size[0] * 256.0;
             tess.xyz[tess.numVertexes + 1][1] = y;
             tess.xyz[tess.numVertexes + 1][2] = s_fontZ;
             tess.xyz[tess.numVertexes + 2][0] = x;
-            tess.xyz[tess.numVertexes + 2][1] = charHeight + y;
+            tess.xyz[tess.numVertexes + 2][1] = y + charHeight;
             tess.xyz[tess.numVertexes + 2][2] = s_fontZ;
-            tess.xyz[tess.numVertexes + 3][0] = s_fontGeneralScale * loc->size[0] * 256.0 + x;
-            tess.xyz[tess.numVertexes + 3][1] = charHeight + y;
+            tess.xyz[tess.numVertexes + 3][0] = x + s_fontGeneralScale * loc->size[0] * 256.0;
+            tess.xyz[tess.numVertexes + 3][1] = y + charHeight;
             tess.xyz[tess.numVertexes + 3][2] = s_fontZ;
 
             // indices
