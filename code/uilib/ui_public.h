@@ -62,7 +62,7 @@ typedef struct uiimport_s {
 	uihandle_t( *Rend_RegisterMaterial )( const char *name );
 	uihandle_t( *Rend_RefreshMaterial )( const char *name );
 	void( *Rend_Set2D )( int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f );
-	void( *Rend_SetColor )( const float *rgba );
+	void( *Rend_SetColor )( const vec4_t rgba );
 	void( *Rend_Scissor )( int x, int y, int width, int height );
 	void( *Rend_DrawPicStretched )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
 	void( *Rend_DrawPicTiled )( float x, float y, float w, float h, qhandle_t hShader );
