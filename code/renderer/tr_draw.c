@@ -292,7 +292,7 @@ void AddBox(float x, float y, float w, float h) {
 
 	qglColor4ubv(backEnd.color2D);
 	qglDisable(GL_TEXTURE_2D);
-	GL_State(GLS_SET2D | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE);
 
 	qglBegin(GL_QUADS);
 
@@ -316,7 +316,7 @@ void DrawBox(float x, float y, float w, float h) {
 
 	qglColor4ubv(backEnd.color2D);
 	qglDisable(GL_TEXTURE_2D);
-	GL_State(GLS_SET2D | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
 
 	qglBegin(GL_QUADS);
 
@@ -377,7 +377,7 @@ void Set2DWindow(int x, int y, int w, int h, float left, float right, float bott
 	qglMatrixMode(GL_MODELVIEW);
 
 	qglLoadIdentity();
-	GL_State(GLS_SET2D | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
+	GL_State(GLS_DEPTHTEST_DISABLE | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
 	qglEnable(GL_BLEND);
 	qglDisable(GL_CULL_FACE);
 	qglDisable(GL_CLIP_PLANE0);
