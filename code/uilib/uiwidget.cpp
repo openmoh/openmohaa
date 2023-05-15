@@ -480,7 +480,14 @@ CLASS_DECLARATION( USignal, UIWidget, NULL )
 
 void SetColor( const UColor& color, float alpha )
 {
-	uii.Rend_SetColor( color );
+	const vec4_t col = {
+		color.r,
+		color.g,
+		color.b,
+		color.a * alpha
+	};
+
+	uii.Rend_SetColor( col );
 }
 
 void DrawBox( const UIRect2D& rect, const UColor& color, float alpha )
@@ -2973,6 +2980,7 @@ CLASS_DECLARATION( UIWidget, UIWidgetContainer, NULL )
 
 UIWidgetContainer::UIWidgetContainer()
 {
+	m_bgfill = UColor(0, 0, 0, 0);
 	m_fullscreen = false;
 	m_vidmode = -1;
 	m_currentwidnum = 0;
