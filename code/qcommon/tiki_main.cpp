@@ -143,7 +143,7 @@ size_t TIKI_CalcAnimDefSize(dloaddef_t* ld)
 	int i, j, k;
 
 	// initial cmds
-	size_t defsize = sizeof(dtikianimdef_t);
+	size_t defsize = 0;
 	// other animations
 	defsize += sizeof(dtikianimdef_t) * ld->numanims;
 	defsize += ld->numclientinitcmds * sizeof(dtikicmd_t);
@@ -192,6 +192,8 @@ size_t TIKI_CalcAnimDefSize(dloaddef_t* ld)
 			{
 				defsize += strlen(loadframecmd->args[k]) + 1;
 			}
+
+			defsize = PAD(defsize, sizeof(void*));
 		}
 
 		for (j = 0; j < loadanim->num_client_cmds; j++)
@@ -203,6 +205,8 @@ size_t TIKI_CalcAnimDefSize(dloaddef_t* ld)
 			{
 				defsize += strlen(loadframecmd->args[k]) + 1;
 			}
+
+			defsize = PAD(defsize, sizeof(void*));
 		}
 
 		defsize = PAD(defsize, sizeof(void*));
