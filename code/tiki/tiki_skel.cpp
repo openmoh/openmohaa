@@ -286,7 +286,6 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 	pSurf = (skelSurface_t*)((byte*)pHeader + LittleLongPtr(pHeader->ofsSurfaces));
 	pGameSurf = pSkel->pSurfaces;
 
-	i = 0;
 	for(i = 0; i < numSurfaces; i++)
 	{
 		size_t nBytesUsed;
@@ -391,8 +390,8 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
                     skelMorph->offset[2] = LittleFloat(pMorph->offset[2]);
                 }
 
-				skelWeight_t* pWeight = (skelWeight_t * )((byte*)pMorph + sizeof(skeletorMorph_t) * pVert->numMorphs);
-				skelWeight_t* skelWeight = (skelWeight_t*)((byte*)skelMorph + sizeof(skeletorMorph_t) * pVert->numMorphs);
+				skelWeight_t* pWeight = (skelWeight_t * )((byte*)pMorph);
+				skelWeight_t* skelWeight = (skelWeight_t*)((byte*)skelMorph);
 				for (k = 0; k < pVert->numWeights; k++, skelWeight++, pWeight++)
 				{
                     skelWeight->boneIndex = LittleLong(pWeight->boneIndex);
