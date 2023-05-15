@@ -759,7 +759,7 @@ static void ComputeColors( shaderStage_t *pStage )
 			RB_CalcWaveColor(&pStage->rgbWave, (unsigned char*)tess.svars.colors, pStage->colorConst);
 			break;
 		case CGEN_LIGHTING_GRID:
-			RB_CalcLightGridColor((unsigned int*)tess.svars.colors);
+			RB_CalcLightGridColor((unsigned char*)tess.svars.colors);
 			break;
 		case CGEN_LIGHTING_SPHERICAL:
 		case CGEN_STATIC:
@@ -1072,6 +1072,12 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 		}
 		else
 		{
+			if (backEnd.in2D) {
+				GL_State(pStage->stateBits | GLS_DEPTHTEST_DISABLE);
+			} else {
+				GL_State(pStage->stateBits);
+			}
+
 			if ( !setArraysOnce )
 			{
 				qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
@@ -1080,14 +1086,16 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			//
 			// set state
 			//
-			if ( pStage->bundle[0].vertexLightmap && ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) && r_lightmap->integer )
+			if ( pStage->bundle[0].vertexLightmap && r_vertexLight->integer && r_lightmap->integer )
 			{
 				GL_Bind( tr.whiteImage );
+			} else {
+				if (input->dlightMap && tess.xstages[stage]->bundle[0].isLightmap) {
+					GL_Bind(&tr.identityLightImage[input->dlightMap]);
+				} else {
+					R_BindAnimatedImage(&pStage->bundle[0]);
+				}
 			}
-			else 
-				R_BindAnimatedImage( &pStage->bundle[0] );
-
-			GL_State( pStage->stateBits );
 
 			//
 			// draw
@@ -1111,6 +1119,11 @@ void RB_StageIteratorGeneric( void )
 	shaderCommands_t *input;
 
 	input = &tess;
+
+	input->shaderTime = backEnd.refdef.floatTime;
+	if ((input->shader->flags & 1) != 0) {
+		input->shaderTime = backEnd.refdef.floatTime - backEnd.shaderStartTime;
+	}
 
 	RB_DeformTessGeometry();
 
@@ -1186,16 +1199,8 @@ void RB_StageIteratorGeneric( void )
 	// 
 	// now do any dynamic lighting needed
 	//
-	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE
-		&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
+	if (tess.dlightBits && !tess.dlightMap && tess.shader->sort <= SS_OPAQUE) {
 		ProjectDlightTexture();
-	}
-
-	//
-	// now do fog
-	//
-	if ( tess.fogNum && tess.shader->fogPass ) {
-		RB_FogPass();
 	}
 
 	// 
