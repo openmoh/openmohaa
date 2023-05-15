@@ -822,7 +822,7 @@ void UIWidget::set2D
 
 {
 	uii.Rend_Set2D( m_screenframe.pos.x,
-		uid.vidHeight - m_screenframe.size.height + m_screenframe.pos.y,
+		uid.vidHeight - (int)(m_screenframe.size.height + m_screenframe.pos.y),
 		m_screenframe.size.width,
 		m_screenframe.size.height,
 		m_clippedorigin.x,
@@ -832,7 +832,7 @@ void UIWidget::set2D
 		-1.0, 1.0 );
 
 	uii.Rend_Scissor( m_clippedframe.pos.x,
-		uid.vidHeight - m_clippedframe.size.height + m_clippedframe.pos.y,
+		uid.vidHeight - (int)(m_clippedframe.size.height + m_clippedframe.pos.y),
 		m_clippedframe.size.width,
 		m_clippedframe.size.height );
 }
@@ -2316,8 +2316,9 @@ void UIWidget::Display
 		if( !m_enabledCvar.length() && !IsVisible() )
 			return;
 
-		if( m_direction || m_fadetime >= 0.0 )
+		if (m_direction || m_fadetime > 0.0) {
 			Motion();
+		}
 
 		m_local_alpha = m_alpha * parent_alpha;
 		set2D();
@@ -2560,9 +2561,6 @@ void UIWidget::ResetMotion
 	)
 
 {
-	float nx;
-	float ny;
-
 	AlignPosition();
 
 	m_direction = m_direction_orig;
@@ -2572,31 +2570,29 @@ void UIWidget::ResetMotion
 	{
 		if( m_direction == D_FROM_BOTTOM )
 		{
-			nx = m_frame.pos.x;
-			ny = uid.vidHeight;
+			UIPoint2D point(m_frame.pos.x, uid.vidHeight);
+			setFrame(UIRect2D(point, m_frame.size));
 		}
 		else if( m_direction == D_FROM_TOP )
 		{
-			nx = m_frame.pos.x;
-			ny = -m_frame.size.height - m_parent->m_screenorigin.y;
+			UIPoint2D point(m_frame.pos.x, -m_frame.size.height - m_parent->m_screenorigin.y);
+			setFrame(UIRect2D(point, m_frame.size));
 		}
 		else if( m_direction == D_FROM_LEFT )
 		{
-			nx = -m_frame.size.width - m_parent->m_screenorigin.x;
-			ny = m_frame.pos.y;
+			UIPoint2D point(-m_frame.size.width - m_parent->m_screenorigin.x, m_frame.pos.y);
+			setFrame(UIRect2D(point, m_frame.size));
 		}
 		else if( m_direction == D_FROM_RIGHT )
 		{
-			nx = uid.vidWidth;
-			ny = m_frame.pos.y;
+			UIPoint2D point(uid.vidWidth, m_frame.pos.y);
+			setFrame(UIRect2D(point, m_frame.size));
 		}
 		else
 		{
-			nx = m_frame.pos.x;
-			ny = m_frame.pos.y;
+			setFrame(m_frame);
+			FrameInitialized();
 		}
-
-		setFrame( UIRect2D( nx, ny, m_frame.size.width, m_frame.size.height ) );
 	}
 
 	m_starttime = uid.time / 1000.0;
