@@ -1032,7 +1032,7 @@ void CG_Splash( centity_t *cent ) {
 	}
 
 	// trace down to find the surface
-	cgi.CM_BoxTrace( &trace, start, end, NULL, NULL, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), qfalse );
+	cgi.CM_BoxTrace( &trace, start, end, vec3_origin, vec3_origin, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), qfalse );
 
 	if ( trace.fraction == 1.0 ) {
 		return;
