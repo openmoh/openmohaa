@@ -69,41 +69,41 @@ void UIFont::PrintJustified
 	float newx, newy;
 	int textwidth, textheight;
 	UIRect2D sizedRect;
-	const char *source;
-	char *dest;
-	char string[ 2048 ];
+	const char* source;
+	char* dest;
+	char string[2048];
 
-	if( vVirtualScale )
+	if (vVirtualScale)
 	{
-		sizedRect.pos.x = rect.pos.x / vVirtualScale[ 0 ];
-		sizedRect.pos.y = rect.pos.y / vVirtualScale[ 1 ];
-		sizedRect.size.width = rect.size.width / vVirtualScale[ 2 ];
-		sizedRect.size.height = rect.size.height / vVirtualScale[ 3 ];
+		sizedRect.pos.x = rect.pos.x / vVirtualScale[0];
+		sizedRect.pos.y = rect.pos.y / vVirtualScale[1];
+		sizedRect.size.width = rect.size.width / vVirtualScale[2];
+		sizedRect.size.height = rect.size.height / vVirtualScale[3];
 	}
 	else
 	{
 		sizedRect = rect;
 	}
 
-	if( horz == FONT_JUSTHORZ_LEFT && vert == FONT_JUSTVERT_TOP )
+	if (horz == FONT_JUSTHORZ_LEFT && vert == FONT_JUSTVERT_TOP)
 	{
 		// no need to justify
-		Print( sizedRect.pos.x, sizedRect.pos.y, text, -1, vVirtualScale != NULL );
+		Print(sizedRect.pos.x, sizedRect.pos.y, text, -1, vVirtualScale != NULL);
 		return;
 	}
 
-	textheight = getHeight( text, -1, qfalse );
+	textheight = getHeight(text, -1, qfalse);
 
-	switch( vert )
+	switch (vert)
 	{
 	case FONT_JUSTVERT_TOP:
 		newy = sizedRect.pos.y;
 		break;
 	case FONT_JUSTVERT_CENTER:
-		newy = ( sizedRect.size.height - textheight ) * 0.5 + sizedRect.pos.y;
+		newy = sizedRect.pos.y + (sizedRect.size.height - textheight) * 0.5;
 		break;
 	case FONT_JUSTVERT_BOTTOM:
-		newy = sizedRect.pos.y - textheight;
+		newy = sizedRect.pos.y + sizedRect.size.height - textheight;
 		break;
 	default:
 		newy = 0;
@@ -111,28 +111,32 @@ void UIFont::PrintJustified
 	}
 
 	source = text;
-	while( *source )
+	while (*source)
 	{
-		while( *source == '\n' )
+		// skip new lines
+		while (*source == '\n') {
 			source++;
+		}
 
-		if( !*source )
+		if (!*source) {
+			// don't print an empty string
 			return;
+		}
 
 		dest = string;
 
 		do
 			*dest++ = *source++;
-		while( *source && *source != '\n' );
+		while (*source && *source != '\n');
 
 		*dest = 0;
 
-		textwidth = getWidth( string, -1 );
+		textwidth = getWidth(string, -1);
 
-		switch( horz )
+		switch (horz)
 		{
 		case FONT_JUSTHORZ_CENTER:
-			newx = ( sizedRect.size.width - textwidth ) * 0.5 + sizedRect.pos.x;
+			newx = sizedRect.pos.x + (sizedRect.size.width - textwidth) * 0.5;
 			break;
 		case FONT_JUSTHORZ_LEFT:
 			newx = sizedRect.pos.x;
@@ -145,10 +149,10 @@ void UIFont::PrintJustified
 			break;
 		}
 
-		Print( newx, newy, string, -1, vVirtualScale != NULL );
+		Print(newx, newy, string, -1, vVirtualScale != NULL);
 
 		// expand for newline
-		newy += getHeight( " ", -1, qfalse );
+		newy += getHeight(" ", -1, qfalse);
 	}
 }
 
