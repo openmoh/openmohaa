@@ -389,7 +389,7 @@ void Set2DWindow(int x, int y, int w, int h, float left, float right, float bott
 	if (!backEnd.in2D)
 	{
 		backEnd.refdef.time = ri.Milliseconds();
-		backEnd.in2D = 1;
+		backEnd.in2D = qtrue;
 		backEnd.refdef.floatTime = backEnd.refdef.time / 1000.0;
 	}
 }
