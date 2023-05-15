@@ -128,16 +128,43 @@ R_ColorShiftLightingBytes
 
 ===============
 */
-static	void R_ColorShiftLightingBytes( byte in[4], byte out[4] ) {
-	int		shift, r, g, b;
-
-	// shift the color data based on overbright range
-	shift = r_mapOverBrightBits->integer - tr.overbrightBits;
+static	void R_ColorShiftLightingBytes( byte in[3], byte out[3] ) {
+	int		r, g, b;
 
 	// shift the data based on overbright range
-	r = in[0] << shift;
-	g = in[1] << shift;
-	b = in[2] << shift;
+	r = in[0] << tr.overbrightBits;
+	g = in[1] << tr.overbrightBits;
+	b = in[2] << tr.overbrightBits;
+	
+	// normalize by color instead of saturating to white
+	if ( ( r | g | b ) > 255 ) {
+		int		max;
+
+		max = r > g ? r : g;
+		max = max > b ? max : b;
+		r = r * 255 / max;
+		g = g * 255 / max;
+		b = b * 255 / max;
+	}
+
+	out[0] = r;
+	out[1] = g;
+	out[2] = b;
+}
+
+/*
+===============
+R_ColorShiftLightingBytesAlpha
+
+===============
+*/
+static	void R_ColorShiftLightingBytesAlpha( byte in[4], byte out[4] ) {
+	int		r, g, b;
+
+	// shift the data based on overbright range
+	r = in[0] << tr.overbrightBits;
+	g = in[1] << tr.overbrightBits;
+	b = in[2] << tr.overbrightBits;
 	
 	// normalize by color instead of saturating to white
 	if ( ( r | g | b ) > 255 ) {
@@ -163,7 +190,7 @@ R_LoadLightmaps
 ===============
 */
 #define	LIGHTMAP_SIZE	128
-static	void R_LoadLightmaps(gamelump_t* l, gamelump_t* surfs) {
+static	void R_LoadLightmaps(gamelump_t* l) {
 	byte		*buf, *buf_p;
 	int			len;
 	MAC_STATIC byte		image[LIGHTMAP_SIZE*LIGHTMAP_SIZE*4];
@@ -182,14 +209,9 @@ static	void R_LoadLightmaps(gamelump_t* l, gamelump_t* surfs) {
 
 	// create all the lightmaps
 	tr.numLightmaps = len / (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3);
-	if ( tr.numLightmaps == 1 ) {
-		//FIXME: HACK: maps with only one lightmap turn up fullbright for some reason.
-		//this avoids this, but isn't the correct solution.
-		tr.numLightmaps++;
-	}
 
 	// if we are in r_vertexLight mode, we don't need the lightmaps at all
-	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+	if ( r_vertexLight->integer ) {
 		return;
 	}
 
@@ -606,7 +628,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 			cv->points[i][3+j] = LittleFloat( verts[i].st[j] );
 			cv->points[i][5+j] = LittleFloat( verts[i].lightmap[j] );
 		}
-		R_ColorShiftLightingBytes( verts[i].color, (byte *)&cv->points[i][7] );
+		R_ColorShiftLightingBytesAlpha( verts[i].color, (byte *)&cv->points[i][7] );
 	}
 
 	indexes += LittleLong( ds->firstIndex );
@@ -673,7 +695,7 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 			points[i].st[j] = LittleFloat( verts[i].st[j] );
 			points[i].lightmap[j] = LittleFloat( verts[i].lightmap[j] );
 		}
-		R_ColorShiftLightingBytes( verts[i].color, points[i].color );
+		R_ColorShiftLightingBytesAlpha( verts[i].color, points[i].color );
 	}
 
 	// pre-tesseleate
@@ -739,7 +761,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 			tri->verts[i].lightmap[j] = LittleFloat( verts[i].lightmap[j] );
 		}
 
-		R_ColorShiftLightingBytes( verts[i].color, tri->verts[i].color );
+		R_ColorShiftLightingBytesAlpha( verts[i].color, tri->verts[i].color );
 	}
 
 	// copy indexes
@@ -2021,8 +2043,8 @@ void R_LoadLightGrid(gamelump_t* l) {
 
 	// deal with overbright bits
 	for ( i = 0 ; i < numGridPoints ; i++ ) {
-		R_ColorShiftLightingBytes( &w->lightGridData[i*8], &w->lightGridData[i*8] );
-		R_ColorShiftLightingBytes( &w->lightGridData[i*8+3], &w->lightGridData[i*8+3] );
+		R_ColorShiftLightingBytesAlpha( &w->lightGridData[i*8], &w->lightGridData[i*8] );
+		R_ColorShiftLightingBytesAlpha( &w->lightGridData[i*8+3], &w->lightGridData[i*8+3] );
 	}
 }
 
@@ -2256,13 +2278,13 @@ void RE_LoadWorldMap( const char *name ) {
     _R(57);
     R_FreeLump(&lump);
     _R(58);
-    numLightBytes = R_LoadLump(h, &header.lumps[LUMP_LIGHTMAPS], &lump2, sizeof(byte));
+    numLightBytes = R_LoadLump(h, &header.lumps[LUMP_LIGHTMAPS], &lump, sizeof(byte));
     _R(59);
-    numDrawSurfaces = R_LoadLump(h, &header.lumps[LUMP_SURFACES], &lump, sizeof(dsurface_t));
+    R_LoadLightmaps(&lump);
     _R(60);
-    R_LoadLightmaps(&lump2, &lump);
-    _R(61);
-    R_FreeLump(&lump2);
+	R_FreeLump(&lump);
+	_R(61);
+	numDrawSurfaces = R_LoadLump(h, &header.lumps[LUMP_SURFACES], &lump, sizeof(dsurface_t));
     _R(62);
     numDrawVerts = R_LoadLump(h, &header.lumps[LUMP_DRAWVERTS], &lump2, sizeof(drawVert_t));
     _R(63);
