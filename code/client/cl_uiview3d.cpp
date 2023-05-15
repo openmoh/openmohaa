@@ -29,7 +29,15 @@ CLASS_DECLARATION( UIWidget, View3D, NULL )
 
 View3D::View3D()
 {
-	// FIXME: stub
+	// set as transparent
+	setBackgroundColor(UClear, true);
+	// no border
+	setBorderStyle(border_none);
+	AllowActivate(true);
+
+	m_printfadetime = 0.0;
+	m_print_mat = NULL;
+	m_locationprint = qfalse;
 }
 
 void View3D::Draw
