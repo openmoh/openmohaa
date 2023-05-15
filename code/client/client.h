@@ -376,6 +376,7 @@ extern	cvar_t	*cl_nodelta;
 extern	cvar_t	*cl_debugMove;
 extern	cvar_t	*cl_noprint;
 extern	cvar_t	*cl_timegraph;
+extern	cvar_t	*cl_debuggraph;
 extern	cvar_t	*cl_timeout;
 extern	cvar_t	*cl_connect_timeout;
 extern	cvar_t	*cl_maxpackets;
@@ -585,6 +586,7 @@ void CL_SaveConsoleHistory( void );
 // cl_scrn.c
 //
 void	SCR_Init (void);
+void	SCR_DrawDebugGraph(void);
 void	SCR_DrawScreenField(void);
 void	SCR_UpdateScreen (void);
 

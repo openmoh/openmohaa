@@ -38,15 +38,14 @@ void View3D::Draw
 	)
 
 {
-	// FIXME: stub
-	if (cls.state != CA_DISCONNECTED)
-	{
+	if (cls.state != CA_DISCONNECTED) {
 		SCR_DrawScreenField();
 	}
-	
-	//dword_893691C(v1, v2, v3, v4);
 
 	set2D();
+
+	re.SavePerformanceCounters();
+
 	Draw2D();
 }
 
@@ -74,7 +73,40 @@ void View3D::Draw2D
 	)
 
 {
-	// FIXME: stub
+	if (!cls.no_menus) {
+		DrawFades();
+	}
+
+	DrawLetterbox();
+
+	if ((cl_debuggraph->integer || cl_timegraph->integer) && !cls.no_menus)
+	{
+		SCR_DrawDebugGraph();
+	}
+	else if (!cls.no_menus)
+	{
+		if (cge) {
+			cge->CG_Draw2D();
+		}
+
+		if (m_locationprint) {
+			LocationPrint();
+		} else {
+			CenterPrint();
+		}
+
+		if (!cls.no_menus)
+		{
+			DrawSoundOverlay();
+			DrawSubtitleOverlay();
+		}
+	}
+
+	if (fps->integer && !cls.no_menus)
+	{
+		DrawFPS();
+		DrawProf();
+	}
 }
 
 void View3D::DrawFPS
