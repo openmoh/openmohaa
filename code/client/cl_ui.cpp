@@ -5609,57 +5609,59 @@ void UI_DeleteLoadInfo() {
 UI_ParseLoadMapinfo
 ====================
 */
-bool UI_ParseLoadMapinfo( Script *scr ) {
+bool UI_ParseLoadMapinfo(Script* scr) {
 	int size, index;
-	char *pos;
-	const char *token;
-	char *newPos;
+	int allocLen;
+	char* pos;
+	const char* token;
+	char* newPos;
 	int time;
 
-	loadNumber = scr->GetInteger( false );
-	size = scr->GetInteger( false );
-	scr->SkipWhiteSpace( true );
+	loadNumber = scr->GetInteger(false);
+	size = scr->GetInteger(false);
+	scr->SkipWhiteSpace(true);
 
-	loadStrings = ( char ** )Z_Malloc( size + ( sizeof( char * ) + sizeof( unsigned int ) ) * loadNumber );
-	loadTimes = ( unsigned int * )( loadStrings + loadNumber );
-	loadStringsBuffer = ( char * )( loadTimes + loadNumber );
-	pos = ( char * )( loadTimes + loadNumber );
+	allocLen = size + sizeof(loadStrings[0]) * loadNumber + sizeof(loadTimes[0]) * loadNumber;
+	loadStrings = (char**)Z_Malloc(allocLen);
+	loadTimes = (unsigned int*)(loadStrings + loadNumber);
+	loadStringsBuffer = (char*)(loadTimes + loadNumber);
+	pos = loadStringsBuffer;
 
 	totalLoadTime = 0;
 	index = 0;
 
 	do
 	{
-		token = scr->GetToken( true );
-		newPos = &pos[ strlen( token ) + 1 ];
-		strcpy( newPos, token );
-		loadStrings[index] = newPos;
+		token = scr->GetToken(true);
+		newPos = &pos[strlen(token) + 1];
+		strcpy(pos, token);
+		loadStrings[index] = pos;
 
-		time = scr->GetInteger( true );
+		time = scr->GetInteger(true);
 
-		if( UI_IsResourceLoaded( newPos ) )
+		if (UI_IsResourceLoaded(pos))
 		{
-			loadTimes[ index ] = 0;
+			loadTimes[index] = 0;
 		}
 		else
 		{
-			loadTimes[ index ] = time;
+			loadTimes[index] = time;
 			totalLoadTime += time;
 		}
 
 		pos = newPos;
 		index++;
-	} while( index != loadNumber );
+	} while (index != loadNumber);
 
-	if( newPos == loadStringsBuffer + size )
-	{
-		return true;
-	}
-	else
+	assert(pos <= (char*)loadStrings + allocLen);
+
+	if (newPos != loadStringsBuffer + size)
 	{
 		UI_FreeLoadStrings();
 		return false;
 	}
+
+	return true;
 }
 
 /*
@@ -5704,9 +5706,6 @@ UI_BeginLoad
 ====================
 */
 void UI_BeginLoad( const char *pszMapName ) {
-	// FIXME: broken memory crash
-	return;
-
 	str mapfile;
 
 	if( cls.loading )
