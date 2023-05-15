@@ -640,10 +640,10 @@ void RB_CalcColorFromConstant(unsigned char* dstColors, unsigned char* constantC
 	int i;
 
 	for (i = 0; i < tess.numVertexes; i++) {
-		dstColors[i * 4] = constantColor[i * 4];
-		dstColors[i * 4 + 1] = constantColor[i * 4 + 1];
-		dstColors[i * 4 + 2] = constantColor[i * 4 + 2];
-		dstColors[i * 4 + 3] = constantColor[i * 4 + 3];
+		dstColors[i * 4] = constantColor[0];
+		dstColors[i * 4 + 1] = constantColor[1];
+		dstColors[i * 4 + 2] = constantColor[2];
+		dstColors[i * 4 + 3] = constantColor[3];
 	}
 }
 
