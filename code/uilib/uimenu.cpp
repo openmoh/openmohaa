@@ -587,7 +587,7 @@ CLASS_DECLARATION( Listener, MenuManager, NULL )
 
 MenuManager::MenuManager()
 {
-	// FIXME: stub
+	m_lock = false;
 }
 
 void MenuManager::RealignMenus
