@@ -2718,7 +2718,8 @@ UIRect2D UIWidget::getClientFrame
 	)
 
 {
-	return m_frame;
+	// don't return the position
+	return UIRect2D(UIPoint2D(0, 0), m_frame.size);
 }
 
 void UIWidget::setAlwaysOnBottom
