@@ -852,8 +852,11 @@ void UIWindowManager::DeactivateCurrentSmart
 	UIWidget *toset;
 	UIWidget *checking;
 
-	if( !m_activeControl )
+	toset = NULL;
+
+	if (!m_activeControl) {
 		return;
+	}
 
 	checking = m_activeControl;
 	while( 1 )
