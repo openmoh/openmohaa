@@ -277,7 +277,8 @@ void View3D::FrameInitialized
 	)
 
 {
-	// FIXME: stub
+	Connect(this, W_Activated, W_Activated);
+	Connect(this, W_Deactivated, W_Deactivated);
 }
 
 void View3D::Pressed
