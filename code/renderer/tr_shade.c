@@ -693,25 +693,37 @@ static void ComputeColors( shaderStage_t *pStage )
 		case CGEN_IDENTITY_LIGHTING:
 			Com_Memset( tess.svars.colors, tr.identityLightByte, tess.numVertexes * 4 );
 			break;
-		case CGEN_LIGHTING_DIFFUSE:
-			RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
+		case CGEN_ENTITY:
+			RB_CalcColorFromEntity((unsigned char*)tess.svars.colors);
+			break;
+		case CGEN_ONE_MINUS_ENTITY:
+			RB_CalcColorFromOneMinusEntity((unsigned char*)tess.svars.colors);
 			break;
 		case CGEN_EXACT_VERTEX:
+			if (!tess.vertexColorValid) {
+				ri.Printf(
+					PRINT_WARNING,
+					"Vertex color specified for shader '%s', but vertex colors are not valid for this model\n",
+					tess.shader->name);
+				break;
+			}
 			Com_Memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0] ) );
 			break;
-		case CGEN_CONST:
-			for ( i = 0; i < tess.numVertexes; i++ ) {
-				*(int *)tess.svars.colors[i] = *(int *)pStage->colorConst;
-			}
-			break;
 		case CGEN_VERTEX:
-			if ( tr.identityLight == 1 )
+			if (!tess.vertexColorValid) {
+				ri.Printf(
+					PRINT_WARNING,
+					"Vertex color specified for shader '%s', but vertex colors are not valid for this model\n",
+					tess.shader->name);
+				break;
+			}
+			if (tr.identityLight == 1)
 			{
-				Com_Memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0] ) );
+				Com_Memcpy(tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof(tess.vertexColors[0]));
 			}
 			else
 			{
-				for ( i = 0; i < tess.numVertexes; i++ )
+				for (i = 0; i < tess.numVertexes; i++)
 				{
 					tess.svars.colors[i][0] = tess.vertexColors[i][0] * tr.identityLight;
 					tess.svars.colors[i][1] = tess.vertexColors[i][1] * tr.identityLight;
@@ -740,25 +752,56 @@ static void ComputeColors( shaderStage_t *pStage )
 				}
 			}
 			break;
-		case CGEN_FOG:
-			{
-				fog_t		*fog;
-
-				fog = tr.world->fogs + tess.fogNum;
-
-				for ( i = 0; i < tess.numVertexes; i++ ) {
-					* ( int * )&tess.svars.colors[i] = fog->colorInt;
-				}
-			}
-			break;
 		case CGEN_WAVEFORM:
-			RB_CalcWaveColor( &pStage->rgbWave, ( unsigned char * ) tess.svars.colors );
+			RB_CalcWaveColor(&pStage->rgbWave, (unsigned char*)tess.svars.colors, NULL);
 			break;
-		case CGEN_ENTITY:
-			RB_CalcColorFromEntity( ( unsigned char * ) tess.svars.colors );
+		case CGEN_MULTIPLY_BY_WAVEFORM:
+			RB_CalcWaveColor(&pStage->rgbWave, (unsigned char*)tess.svars.colors, pStage->colorConst);
 			break;
-		case CGEN_ONE_MINUS_ENTITY:
-			RB_CalcColorFromOneMinusEntity( ( unsigned char * ) tess.svars.colors );
+		case CGEN_LIGHTING_GRID:
+			RB_CalcLightGridColor((unsigned int*)tess.svars.colors);
+			break;
+		case CGEN_LIGHTING_SPHERICAL:
+		case CGEN_STATIC:
+			if (!r_drawspherelights->integer)
+				break;
+			// FIXME: unimplemented
+			break;
+		case CGEN_CONSTANT:
+			RB_CalcColorFromConstant((unsigned char*)tess.svars.colors, pStage->colorConst);
+			break;
+		case CGEN_GLOBAL_COLOR:
+			RB_CalcColorFromConstant((unsigned char*)tess.svars.colors, backEnd.color2D);
+			break;
+		case CGEN_SCOORD:
+			RB_CalcRGBFromTexCoords(
+				(unsigned char*)tess.svars.colors,
+				pStage->alphaMin,
+				pStage->alphaMax,
+				pStage->alphaConstMin,
+				pStage->alphaConst,
+				1.0,
+				0.0,
+				tess.svars.texcoords[0][0]
+			);
+			break;
+		case CGEN_TCOORD:
+			RB_CalcRGBFromTexCoords(
+				(unsigned char*)tess.svars.colors,
+				pStage->alphaMin,
+				pStage->alphaMax,
+				pStage->alphaConstMin,
+				pStage->alphaConst,
+				0.0,
+				1.0,
+				tess.svars.texcoords[0][0]
+			);
+			break;
+		case CGEN_DOT:
+			RB_CalcRGBFromDot((unsigned char*)tess.svars.colors, pStage->alphaMin, pStage->alphaMax);
+			break;
+		case CGEN_ONE_MINUS_DOT:
+			RB_CalcRGBFromOneMinusDot((unsigned char*)tess.svars.colors, pStage->alphaMin, pStage->alphaMax);
 			break;
 	}
 
@@ -779,38 +822,31 @@ static void ComputeColors( shaderStage_t *pStage )
 			}
 		}
 		break;
-	case AGEN_CONSTANT:
-		if ( pStage->rgbGen != CGEN_CONST ) {
-			for ( i = 0; i < tess.numVertexes; i++ ) {
-				tess.svars.colors[i][3] = pStage->colorConst[3];
-			}
-		}
-		break;
-	case AGEN_WAVEFORM:
-		RB_CalcWaveAlpha( &pStage->alphaWave, ( unsigned char * ) tess.svars.colors );
-		break;
-	case AGEN_LIGHTING_SPECULAR:
-		RB_CalcSpecularAlpha( ( unsigned char * ) tess.svars.colors );
-		break;
 	case AGEN_ENTITY:
-		RB_CalcAlphaFromEntity( ( unsigned char * ) tess.svars.colors );
+		RB_CalcAlphaFromEntity((unsigned char*)tess.svars.colors);
 		break;
 	case AGEN_ONE_MINUS_ENTITY:
-		RB_CalcAlphaFromOneMinusEntity( ( unsigned char * ) tess.svars.colors );
+		RB_CalcAlphaFromOneMinusEntity((unsigned char*)tess.svars.colors);
 		break;
-    case AGEN_VERTEX:
-		if ( pStage->rgbGen != CGEN_VERTEX ) {
-			for ( i = 0; i < tess.numVertexes; i++ ) {
+	case AGEN_VERTEX:
+		if (pStage->rgbGen != CGEN_VERTEX) {
+			for (i = 0; i < tess.numVertexes; i++) {
 				tess.svars.colors[i][3] = tess.vertexColors[i][3];
 			}
 		}
-        break;
-    case AGEN_ONE_MINUS_VERTEX:
-        for ( i = 0; i < tess.numVertexes; i++ )
-        {
+		break;
+	case AGEN_ONE_MINUS_VERTEX:
+		for (i = 0; i < tess.numVertexes; i++)
+		{
 			tess.svars.colors[i][3] = 255 - tess.vertexColors[i][3];
-        }
-        break;
+		}
+		break;
+	case AGEN_LIGHTING_SPECULAR:
+		RB_CalcSpecularAlpha((unsigned char*)tess.svars.colors, pStage->alphaMax, pStage->specOrigin);
+		break;
+	case AGEN_WAVEFORM:
+		RB_CalcWaveAlpha(&pStage->alphaWave, (unsigned char*)tess.svars.colors);
+		break;
 	case AGEN_PORTAL:
 		{
 			unsigned char alpha;
@@ -841,6 +877,62 @@ static void ComputeColors( shaderStage_t *pStage )
 				tess.svars.colors[i][3] = alpha;
 			}
 		}
+		break;
+	case AGEN_DOT:
+		RB_CalcAlphaFromDot((unsigned char*)tess.svars.colors, pStage->alphaMin, pStage->alphaMax);
+		return;
+	case AGEN_ONE_MINUS_DOT:
+		RB_CalcAlphaFromOneMinusDot((unsigned char*)tess.svars.colors, pStage->alphaMin, pStage->alphaMax);
+		return;
+	case AGEN_CONSTANT:
+		RB_CalcAlphaFromConstant((unsigned char*)tess.svars.colors, pStage->colorConst[3]);
+		break;
+	case AGEN_GLOBAL_ALPHA:
+		RB_CalcAlphaFromConstant((unsigned char*)tess.svars.colors, backEnd.color2D[3]);
+		break;
+	case AGEN_SKYALPHA:
+		RB_CalcAlphaFromConstant((unsigned char*)tess.svars.colors, tr.refdef.sky_alpha * 255.0);
+		break;
+	case AGEN_ONE_MINUS_SKYALPHA:
+		RB_CalcAlphaFromConstant((unsigned char*)tess.svars.colors, (1.0 - tr.refdef.sky_alpha) * 255.0);
+		break;
+	case AGEN_SCOORD:
+		RB_CalcAlphaFromTexCoords(
+			(unsigned char*)tess.svars.colors,
+			pStage->alphaMin,
+			pStage->alphaMax,
+			pStage->alphaConstMin,
+			pStage->alphaConst,
+			1.0,
+			0.0,
+			tess.svars.texcoords[0][0]
+		);
+		break;
+	case AGEN_TCOORD:
+		RB_CalcAlphaFromTexCoords(
+			(unsigned char*)tess.svars.colors,
+			pStage->alphaMin,
+			pStage->alphaMax,
+			pStage->alphaConstMin,
+			pStage->alphaConst,
+			0.0,
+			1.0,
+			tess.svars.texcoords[0][0]
+		);
+		break;
+	case AGEN_DIST_FADE:
+		// FIXME: unimplemented
+		break;
+	case AGEN_ONE_MINUS_DIST_FADE:
+		// FIXME: unimplemented
+		break;
+	case AGEN_DOT_VIEW:
+		RB_CalcAlphaFromDotView((unsigned char*)tess.svars.colors, pStage->alphaMin, pStage->alphaMax);
+		break;
+	case AGEN_ONE_MINUS_DOT_VIEW:
+		RB_CalcAlphaFromOneMinusDotView((unsigned char*)tess.svars.colors, pStage->alphaMin, pStage->alphaMax);
+		break;
+	default:
 		break;
 	}
 }

@@ -853,7 +853,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				stage->colorConst[1] = 255 * color[1];
 				stage->colorConst[2] = 255 * color[2];
 
-				stage->rgbGen = CGEN_CONST;
+				stage->rgbGen = CGEN_CONSTANT;
 			}
 			else if ( !Q_stricmp( token, "identity" ) )
 			{
@@ -882,9 +882,13 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			{
 				stage->rgbGen = CGEN_EXACT_VERTEX;
 			}
-			else if ( !Q_stricmp( token, "lightingDiffuse" ) )
+			else if ( !Q_stricmp( token, "lightingGrid" ) )
 			{
-				stage->rgbGen = CGEN_LIGHTING_DIFFUSE;
+				stage->rgbGen = CGEN_LIGHTING_GRID;
+			}
+			else if ( !Q_stricmp( token, "lightingSpherical" ) )
+			{
+				stage->rgbGen = CGEN_LIGHTING_SPHERICAL;
 			}
 			else if ( !Q_stricmp( token, "oneMinusVertex" ) )
 			{
@@ -1084,7 +1088,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 	// decide which agens we can skip
 	if ( stage->alphaGen == CGEN_IDENTITY ) {
 		if ( stage->rgbGen == CGEN_IDENTITY
-			|| stage->rgbGen == CGEN_LIGHTING_DIFFUSE ) {
+			|| stage->rgbGen == CGEN_LIGHTING_GRID
+			|| stage->rgbGen == CGEN_LIGHTING_SPHERICAL ) {
 			stage->alphaGen = AGEN_SKIP;
 		}
 	}
@@ -1695,11 +1700,11 @@ static void ComputeStageIteratorFunc( void )
 	//
 	if ( shader.numUnfoggedPasses == 1 )
 	{
-		if ( unfoggedStages[0].rgbGen == CGEN_LIGHTING_DIFFUSE )
+		if ( unfoggedStages[0].rgbGen == CGEN_LIGHTING_GRID || unfoggedStages[0].rgbGen == CGEN_LIGHTING_SPHERICAL )
 		{
-			if ( unfoggedStages[0].alphaGen == AGEN_IDENTITY )
+			if ( unfoggedStages[0].alphaGen == AGEN_IDENTITY || unfoggedStages[0].alphaGen == AGEN_SKIP)
 			{
-				if ( unfoggedStages[0].bundle[0].tcGen == TCGEN_TEXTURE )
+				if ( unfoggedStages[0].bundle[0].tcGen == TCGEN_TEXTURE && unfoggedStages[0].bundle[1].tcGen == TCGEN_LIGHTMAP)
 				{
 					if ( !shader.polygonOffset )
 					{
@@ -1722,7 +1727,7 @@ static void ComputeStageIteratorFunc( void )
 	//
 	if ( shader.numUnfoggedPasses == 1 )
 	{
-		if ( ( unfoggedStages[0].rgbGen == CGEN_IDENTITY ) && ( unfoggedStages[0].alphaGen == AGEN_IDENTITY ) )
+		if ( ( unfoggedStages[0].rgbGen == CGEN_IDENTITY ) && ( unfoggedStages[0].alphaGen == AGEN_IDENTITY || unfoggedStages[0].alphaGen == AGEN_SKIP ) )
 		{
 			if ( unfoggedStages[0].bundle[0].tcGen == TCGEN_TEXTURE && 
 				unfoggedStages[0].bundle[1].tcGen == TCGEN_LIGHTMAP )
@@ -2120,7 +2125,7 @@ static void VertexLightingCollapse( void ) {
 		unfoggedStages[0].stateBits &= ~( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
 		unfoggedStages[0].stateBits |= GLS_DEPTHMASK_TRUE;
 		if ( shader.lightmapIndex == LIGHTMAP_NONE ) {
-			unfoggedStages[0].rgbGen = CGEN_LIGHTING_DIFFUSE;
+			unfoggedStages[0].rgbGen = CGEN_LIGHTING_GRID;
 		} else {
 			unfoggedStages[0].rgbGen = CGEN_EXACT_VERTEX;
 		}
@@ -2203,15 +2208,17 @@ static shader_t *FinishShader( void ) {
 	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ ) {
 		shaderStage_t *pStage = &unfoggedStages[stage];
 
-		if ( !pStage->active ) {
-			break;
-		}
-
     // check for a missing texture
 		if ( !pStage->bundle[0].image[0] ) {
 			ri.Printf( PRINT_WARNING, "Shader %s has a stage with no image\n", shader.name );
 			pStage->active = qfalse;
 			continue;
+		}
+
+		if (pStage->rgbGen == CGEN_LIGHTING_GRID) {
+			shader.needsLGrid = 1;
+		} else if (pStage->rgbGen == CGEN_LIGHTING_SPHERICAL || pStage->rgbGen == CGEN_STATIC) {
+			shader.needsLSpherical = 1;
 		}
 
 		//
@@ -2266,7 +2273,7 @@ static shader_t *FinishShader( void ) {
 	//
 	// if we are in r_vertexLight mode, never use a lightmap texture
 	//
-	if ( stage > 1 && ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) ) {
+	if ( stage > 1 && r_vertexLight->integer ) {
 		VertexLightingCollapse();
 		stage = 1;
 		hasLightmapStage = qfalse;
@@ -2275,28 +2282,31 @@ static shader_t *FinishShader( void ) {
 	//
 	// look for multitexture potential
 	//
-	if ( stage > 1 && CollapseMultitexture() ) {
-		stage--;
+	if (stage > 1 && qglActiveTextureARB) {
+		CollapseMultitexture();
+	};
+
+	// FIXME: fog shader
+
+	// fogonly shaders don't have any normal passes
+	if (stage == 0) {
+		shader.sort = SS_OPAQUE;
 	}
 
-	if ( shader.lightmapIndex >= 0 && !hasLightmapStage ) {
-		if (vertexLightmap) {
-			ri.Printf( PRINT_DEVELOPER, "WARNING: shader '%s' has VERTEX forced lightmap!\n", shader.name );
-		} else {
-			ri.Printf( PRINT_DEVELOPER, "WARNING: shader '%s' has lightmap but no lightmap stage!\n", shader.name );
-  			shader.lightmapIndex = LIGHTMAP_NONE;
-		}
+	if (shader.lightmapIndex >= 0 && !hasLightmapStage) {
+		ri.Printf(PRINT_DEVELOPER, "WARNING: shader '%s' has lightmap but no lightmap stage!\n", shader.name);
+		shader.lightmapIndex = LIGHTMAP_NONE;
 	}
-
 
 	//
 	// compute number of passes
 	//
-	shader.numUnfoggedPasses = stage;
-
-	// fogonly shaders don't have any normal passes
-	if ( stage == 0 ) {
-		shader.sort = SS_FOG;
+	shader.numUnfoggedPasses = 0;
+	for (stage = 0; stage < MAX_SHADER_STAGES; stage++) {
+		shaderStage_t* pStage = &unfoggedStages[stage];
+		if (pStage->active) {
+			shader.numUnfoggedPasses++;
+		}
 	}
 
 	// determine which stage iterator function is appropriate

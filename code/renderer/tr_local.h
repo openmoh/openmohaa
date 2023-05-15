@@ -231,6 +231,7 @@ typedef struct image_s {
 typedef enum {
 	SS_BAD,
 	SS_PORTAL,			// mirrors, portals, viewscreens
+	SS_PORTALSKY,
 	SS_ENVIRONMENT,		// sky box
 	SS_OPAQUE,			// opaque
 
@@ -238,8 +239,6 @@ typedef enum {
 	SS_SEE_THROUGH,		// ladders, grates, grills that may have small blended edges
 						// in addition to alpha test
 	SS_BANNER,
-
-	SS_FOG,
 
 	SS_UNDERWATER,		// for items that should be drawn in front of the water plane
 
@@ -336,10 +335,7 @@ typedef enum {
 	CGEN_SCOORD,
 	CGEN_TCOORD,
 	CGEN_DOT,
-	CGEN_ONE_MINUS_DOT,
-	CGEN_LIGHTING_DIFFUSE,
-	CGEN_FOG,				// standard fog
-	CGEN_CONST				// fixed color
+	CGEN_ONE_MINUS_DOT
 } colorGen_t;
 
 typedef enum {
@@ -2079,13 +2075,21 @@ void	RB_CalcModulateColorsByFog( unsigned char *dstColors );
 void	RB_CalcModulateAlphasByFog( unsigned char *dstColors );
 void	RB_CalcModulateRGBAsByFog( unsigned char *dstColors );
 void	RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors );
-void	RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors );
+void	RB_CalcWaveColor(const waveForm_t* wf, unsigned char* dstColors, unsigned char* constantColor);
 void	RB_CalcAlphaFromEntity( unsigned char *dstColors );
 void	RB_CalcAlphaFromOneMinusEntity( unsigned char *dstColors );
 void	RB_CalcStretchTexCoords( const waveForm_t *wf, float *texCoords );
 void	RB_CalcColorFromEntity( unsigned char *dstColors );
 void	RB_CalcColorFromOneMinusEntity( unsigned char *dstColors );
-void	RB_CalcSpecularAlpha( unsigned char *alphas );
+void	RB_CalcColorFromConstant(unsigned char* dstColors, unsigned char* constantColor);
+void	RB_CalcRGBFromDot(unsigned char* colors, float alphaMin, float alphaMax);
+void	RB_CalcRGBFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax);
+void	RB_CalcAlphaFromConstant(unsigned char* dstColors, int constantAlpha);
+void	RB_CalcAlphaFromDot(unsigned char* colors, float alphaMin, float alphaMax);
+void	RB_CalcAlphaFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax);
+void	RB_CalcAlphaFromTexCoords(unsigned char* colors, float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float* st);
+void	RB_CalcRGBFromTexCoords(unsigned char* colors, float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float* st);
+void	RB_CalcSpecularAlpha(unsigned char* alphas, float alphaMax, vec3_t lightOrigin);
 void	RB_CalcLightGridColor(unsigned char* colors);
 void	RB_CalcAlphaFromDotView(unsigned char* colors, float alphaMin, float alphaMax);
 void	RB_CalcAlphaFromOneMinusDotView(unsigned char* colors, float alphaMin, float alphaMax);

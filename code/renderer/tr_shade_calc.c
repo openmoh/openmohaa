@@ -262,7 +262,7 @@ Change a polygon into a bunch of text polygons
 void DeformText( const char *text ) {
 	int		i;
 	vec3_t	origin, width, height;
-	int		len;
+	size_t	len;
 	int		ch;
 	byte	color[4];
 	float	bottom, top;
@@ -633,6 +633,60 @@ void RB_CalcColorFromOneMinusEntity( unsigned char *dstColors )
 }
 
 /*
+** RB_CalcColorFromConstant
+*/
+void RB_CalcColorFromConstant(unsigned char* dstColors, unsigned char* constantColor)
+{
+	int i;
+
+	for (i = 0; i < tess.numVertexes; i++) {
+		dstColors[i * 4] = constantColor[i * 4];
+		dstColors[i * 4 + 1] = constantColor[i * 4 + 1];
+		dstColors[i * 4 + 2] = constantColor[i * 4 + 2];
+		dstColors[i * 4 + 3] = constantColor[i * 4 + 3];
+	}
+}
+
+void RB_CalcRGBFromDot(unsigned char* colors, float alphaMin, float alphaMax)
+{
+	// FIXME: unimplemented
+}
+
+void RB_CalcRGBFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax)
+{
+	// FIXME: unimplemented
+}
+
+void RB_CalcAlphaFromConstant(unsigned char* dstColors, int constantAlpha)
+{
+	int i;
+
+	for (i = 0; i < tess.numVertexes; i++) {
+		dstColors[i * 4 + 3] = constantAlpha;
+	}
+}
+
+void RB_CalcAlphaFromDot(unsigned char* colors, float alphaMin, float alphaMax)
+{
+	// FIXME: unimplemented
+}
+
+void RB_CalcAlphaFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax)
+{
+	// FIXME: unimplemented
+}
+
+void RB_CalcAlphaFromTexCoords(unsigned char* colors, float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float* st)
+{
+	// FIXME: unimplemented
+}
+
+void RB_CalcRGBFromTexCoords(unsigned char* colors, float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float* st)
+{
+	// FIXME: unimplemented
+}
+
+/*
 ** RB_CalcAlphaFromEntity
 */
 void RB_CalcAlphaFromEntity( unsigned char *dstColors )
@@ -671,7 +725,7 @@ void RB_CalcAlphaFromOneMinusEntity( unsigned char *dstColors )
 /*
 ** RB_CalcWaveColor
 */
-void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
+void RB_CalcWaveColor(const waveForm_t* wf, unsigned char* dstColors, unsigned char* constantColor)
 {
 	int i;
 	int v;
@@ -693,10 +747,20 @@ void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
 		glow = 1;
 	}
 
-	v = myftol( 255 * glow );
-	color[0] = color[1] = color[2] = v;
+	if (constantColor)
+	{
+		color[0] = constantColor[0] * glow;
+		color[1] = constantColor[1] * glow;
+		color[2] = constantColor[2] * glow;
+	}
+	else
+	{
+		v = myftol(255 * glow);
+		color[0] = color[1] = color[2] = v;
+	}
+
 	color[3] = 255;
-	v = *(int *)color;
+	v = *(int*)color;
 	
 	for ( i = 0; i < tess.numVertexes; i++, colors++ ) {
 		*colors = v;
@@ -1034,7 +1098,7 @@ long myftol( float f ) {
 */
 vec3_t lightOrigin = { -960, 1980, 96 };		// FIXME: track dynamically
 
-void RB_CalcSpecularAlpha( unsigned char *alphas ) {
+void RB_CalcSpecularAlpha(unsigned char* alphas, float alphaMax, vec3_t lightOrigin) {
 	int			i;
 	float		*v, *normal;
 	vec3_t		viewer,  reflected;
