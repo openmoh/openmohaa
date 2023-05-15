@@ -406,6 +406,7 @@ static void ProjectDlightTexture( void ) {
 							   0x00, 0x00, 0x00, 0xff);
 #else
 	vec3_t	origin;
+	vec3_t	normal;
 #endif
 	float	*texCoords;
 	byte	*colors;
@@ -414,6 +415,7 @@ static void ProjectDlightTexture( void ) {
 	byte	colorArray[SHADER_MAX_VERTEXES][4];
 	unsigned	hitIndexes[SHADER_MAX_INDEXES];
 	int		numIndexes;
+	int		planetype;
 	float	scale;
 	float	radius;
 	vec3_t	floatColor;
@@ -466,6 +468,7 @@ static void ProjectDlightTexture( void ) {
 #else
 			vec3_t	dist;
 #endif
+			float	vertdist;
 			int		clip;
 
 			backEnd.pc.c_dlightVertexes++;
@@ -518,10 +521,41 @@ static void ProjectDlightTexture( void ) {
 			colorChar = vec_sel(colorChar,vSel,vSel);		// RGBARGBARGBARGBA replace alpha with 255
 			vec_ste((vector unsigned int)colorChar,0,(unsigned int *)colors);	// store color
 #else
-			VectorSubtract( origin, tess.xyz[i], dist );
-			texCoords[0] = 0.5f + dist[0] * scale;
-			texCoords[1] = 0.5f + dist[1] * scale;
+			VectorCopy(tess.normal[i], normal);
 
+			if (fabs(normal[0]) > fabs(normal[1])) {
+				if (fabs(normal[2]) < fabs(normal[0])) {
+					planetype = 0;
+				} else {
+					planetype = 1;
+				}
+			} else {
+				if (fabs(normal[2]) < fabs(normal[1])) {
+					planetype = 1;
+				}
+				else {
+					planetype = 2;
+				}
+			}
+
+			VectorSubtract( origin, tess.xyz[i], dist );
+			if (planetype == 0)
+			{
+				texCoords[0] = 0.5f + dist[1] * scale;
+				texCoords[1] = 0.5f + dist[2] * scale;
+			}
+			else if (planetype == 1)
+			{
+				texCoords[0] = 0.5f + dist[0] * scale;
+				texCoords[1] = 0.5f + dist[2] * scale;
+			}
+			else
+			{
+				texCoords[0] = 0.5f + dist[0] * scale;
+				texCoords[1] = 0.5f + dist[1] * scale;
+			}
+
+			vertdist = DotProduct(dist, normal);
 			clip = 0;
 			if ( texCoords[0] < 0.0f ) {
 				clip |= 1;
@@ -534,17 +568,20 @@ static void ProjectDlightTexture( void ) {
 				clip |= 8;
 			}
 			// modulate the strength based on the height and color
-			if ( dist[2] > radius ) {
+			if (vertdist > radius) {
 				clip |= 16;
 				modulate = 0.0f;
-			} else if ( dist[2] < -radius ) {
+			}
+			else if (vertdist < -radius) {
 				clip |= 32;
 				modulate = 0.0f;
-			} else {
+			}
+			else {
 				dist[2] = Q_fabs(dist[2]);
-				if ( dist[2] < radius * 0.5f ) {
+				if (dist[2] < radius * 0.5f) {
 					modulate = 1.0f;
-				} else {
+				}
+				else {
 					modulate = 2.0f * (radius - dist[2]) * scale;
 				}
 			}
@@ -578,11 +615,10 @@ static void ProjectDlightTexture( void ) {
 			continue;
 		}
 
-		qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		qglTexCoordPointer( 2, GL_FLOAT, 0, texCoordsArray[0] );
-
-		qglEnableClientState( GL_COLOR_ARRAY );
-		qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, colorArray );
+		qglEnableClientState(GL_COLOR_ARRAY);
+		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		qglColorPointer(4, GL_UNSIGNED_BYTE, 0, colorArray);
+		qglTexCoordPointer(2, GL_FLOAT, 0, texCoordsArray[0]);
 
 		GL_Bind( tr.dlightImage );
 		// include GLS_DEPTHFUNC_EQUAL so alpha tested surfaces don't add light

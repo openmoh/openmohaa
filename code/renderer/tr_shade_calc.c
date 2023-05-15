@@ -1086,6 +1086,21 @@ void RB_CalcSpecularAlpha( unsigned char *alphas ) {
 	}
 }
 
+void RB_CalcLightGridColor(unsigned char* colors)
+{
+	// FIXME/ unimplemented
+}
+
+void RB_CalcAlphaFromDotView(unsigned char* colors, float alphaMin, float alphaMax)
+{
+	// FIXME/ unimplemented
+}
+
+void RB_CalcAlphaFromOneMinusDotView(unsigned char* colors, float alphaMin, float alphaMax)
+{
+	// FIXME/ unimplemented
+}
+
 /*
 ** RB_CalcDiffuseColor
 **

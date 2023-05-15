@@ -38,3 +38,8 @@ void R_LevelMarksFree()
 {
     // FIXME: unimplemented
 }
+
+void R_UpdateLevelMarksSystem()
+{
+    // FIXME: unimplemented
+}

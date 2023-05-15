@@ -1245,8 +1245,7 @@ recurse:
 R_AddDrawSurf
 =================
 */
-void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, 
-				   int fogIndex, int dlightMap ) {
+void R_AddDrawSurf(surfaceType_t* surface, shader_t* shader, int dlightMap) {
 	int			index;
 
 	// instead of checking for overflow, we just mask the index
@@ -1373,7 +1372,7 @@ void R_AddEntitySurfaces (void) {
 				continue;
 			}
 			shader = R_GetShaderByHandle( ent->e.customShader );
-			R_AddDrawSurf( &entitySurface, shader, R_SpriteFogNum( ent ), 0 );
+			R_AddDrawSurf( &entitySurface, shader, 0 );
 			break;
 
 		case RT_MODEL:
@@ -1382,7 +1381,7 @@ void R_AddEntitySurfaces (void) {
 
 			tr.currentModel = R_GetModelByHandle( ent->e.hModel );
 			if (!tr.currentModel) {
-				R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0 );
+				R_AddDrawSurf( &entitySurface, tr.defaultShader, 0 );
 			} else {
 				switch ( tr.currentModel->type ) {
 				case MOD_SPRITE:
@@ -1399,7 +1398,7 @@ void R_AddEntitySurfaces (void) {
 						break;
 					}
 					shader = R_GetShaderByHandle( ent->e.customShader );
-					R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0 );
+					R_AddDrawSurf( &entitySurface, tr.defaultShader, 0 );
 					break;
 				default:
 					ri.Error( ERR_DROP, "R_AddEntitySurfaces: Bad modeltype" );

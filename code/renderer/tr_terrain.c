@@ -41,3 +41,13 @@ R_InitTerrain
 void R_InitTerrain() {
     // FIXME: unimplemented
 }
+
+
+/*
+=============
+R_TerrainPrepareFrame
+=============
+*/
+void R_TerrainPrepareFrame() {
+	// FIXME: unimplemented
+}

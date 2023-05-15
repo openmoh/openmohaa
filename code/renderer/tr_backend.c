@@ -518,10 +518,10 @@ RB_RenderDrawSurfList
 */
 void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	shader_t		*shader, *oldShader;
-	int				fogNum, oldFogNum;
 	int				entityNum, oldEntityNum;
-	int				dlighted, oldDlighted;
+	int				dlightMap, oldDlightMap;
 	qboolean		depthRange, oldDepthRange;
+	qboolean		bStaticModel, oldbStaticModel;
 	int				i;
 	drawSurf_t		*drawSurf;
 	int				oldSort;
@@ -546,10 +546,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	oldEntityNum = -1;
 	backEnd.currentEntity = &tr.worldEntity;
 	oldShader = NULL;
-	oldFogNum = -1;
 	oldDepthRange = qfalse;
-	oldDlighted = qfalse;
+	oldDlightMap = 0;
 	oldSort = -1;
+	oldbStaticModel = -1;
 	depthRange = qfalse;
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
@@ -561,14 +561,15 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			continue;
 		}
 		oldSort = drawSurf->sort;
-		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted );
+		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &dlightMap, &bStaticModel );
 
 		//
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
 		// entities merged into a single batch, like smoke and blood puff sprites
-		if (shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted 
-			|| ( entityNum != oldEntityNum && !shader->entityMergable ) ) {
+		if (shader != oldShader || dlightMap != oldDlightMap || (oldShader->flags & 1)
+			|| ( entityNum != oldEntityNum && !shader->entityMergable )
+			|| ( bStaticModel != oldbStaticModel && !shader->entityMergable )) {
 			if (oldShader != NULL) {
 #ifdef __MACOS__	// crutch up the mac's limited buffer queue size
 				int		t;
@@ -583,17 +584,23 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			}
 			RB_BeginSurface( shader );
 			oldShader = shader;
-			oldFogNum = fogNum;
-			oldDlighted = dlighted;
+			oldDlightMap = dlightMap;
 		}
 
 		//
 		// change the modelview matrix if needed
 		//
-		if ( entityNum != oldEntityNum ) {
+		if ( entityNum != oldEntityNum || bStaticModel != oldbStaticModel ) {
 			depthRange = qfalse;
 
-			if ( entityNum != ENTITYNUM_WORLD ) {
+			if (bStaticModel) {
+				backEnd.shaderStartTime = 0.0;
+				backEnd.currentEntity = 0;
+				backEnd.spareSphere.TessFunction = 0;
+				backEnd.currentStaticModel = &backEnd.refdef.staticModels[entityNum];
+				R_RotateForStaticModel(&backEnd.refdef.staticModels[entityNum], &backEnd.viewParms, &backEnd.ori );
+			}
+			else if ( entityNum != ENTITYNUM_WORLD ) {
 				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
 				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
 				// we have to reset the shaderTime as well otherwise image animations start
@@ -616,6 +623,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				backEnd.currentEntity = &tr.worldEntity;
 				backEnd.refdef.floatTime = originalTime;
 				backEnd.ori = backEnd.viewParms.world;
+				backEnd.shaderStartTime = 0.0;
 				// we have to reset the shaderTime as well otherwise image animations on
 				// the world (like water) continue with the wrong frame
 				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
@@ -637,6 +645,63 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			}
 
 			oldEntityNum = entityNum;
+			oldbStaticModel = bStaticModel;
+		}
+
+		tess.dlightMap = dlightMap;
+		if (r_fastdlights->integer) {
+			tess.dlightMap = 0;
+		}
+
+		if (bStaticModel)
+		{
+			if (r_drawspherelights->integer) {
+				RB_Static_BuildDLights();
+			}
+
+			if (!backEnd.currentStaticModel->bLightGridCalculated) {
+				RB_Grid_SetupStaticModel();
+			}
+		}
+		else if (backEnd.currentEntity->e.tiki)
+		{
+			if (shader->needsLGrid
+				|| shader->needsLSpherical && r_fastentlight->integer
+				|| !r_drawspherelights->integer)
+			{
+				backEnd.currentSphere->TessFunction = RB_CalcLightGridColor;
+				RB_Grid_SetupEntity();
+			}
+			else if (shader->needsLSpherical)
+			{
+				if ((tr.refdef.rdflags & 2) != 0)
+				{
+					backEnd.currentSphere = &backEnd.hudSphere;
+					backEnd.hudSphere.TessFunction = 0;
+					RB_Sphere_SetupEntity();
+				}
+				else if (backEnd.currentEntity->sphereCalculated)
+				{
+					backEnd.currentSphere = &backEnd.spheres[backEnd.currentEntity->lightingSphere];
+				}
+				else
+				{
+					if (backEnd.numSpheresUsed == 128)
+					{
+						ri.Printf(PRINT_DEVELOPER, "Spherical lighting: Ran out of space in the sphere array!\n");
+						backEnd.currentSphere = &backEnd.spareSphere;
+					}
+					else
+					{
+						backEnd.currentSphere = &backEnd.spheres[backEnd.currentEntity->lightingSphere];
+						backEnd.currentEntity->lightingSphere = backEnd.numSpheresUsed++;
+						backEnd.currentEntity->sphereCalculated = 1;
+					}
+
+					backEnd.currentSphere->TessFunction = NULL;
+					RB_Sphere_SetupEntity();
+				}
+			}
 		}
 
 		// add the triangles for this surface

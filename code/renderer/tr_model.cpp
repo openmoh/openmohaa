@@ -930,16 +930,16 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 				if( ( *bsurf & 0x40 ) && ( dsurf->numskins > 1 ) ) {
 					int iShaderNum = ent->e.skinNum + ( *bsurf & 2 );
 
-					R_AddDrawSurf( ( surfaceType_t * )surface, tr.shaders[ dsurf->hShader[ iShaderNum ] ], 0, 0 );
-					R_AddDrawSurf( ( surfaceType_t * )surface, tr.shaders[ dsurf->hShader[ iShaderNum + 1 ] ], 0, 0);
+					R_AddDrawSurf( ( surfaceType_t * )surface, tr.shaders[ dsurf->hShader[ iShaderNum ] ], 0 );
+					R_AddDrawSurf( ( surfaceType_t * )surface, tr.shaders[ dsurf->hShader[ iShaderNum + 1 ] ], 0);
 				} else {
-					R_AddDrawSurf( ( surfaceType_t * )surface, shader, 0, 0);
+					R_AddDrawSurf( ( surfaceType_t * )surface, shader, 0);
 				}
 			}
 
 			if( ( ent->e.customShader ) && ( ent->e.renderfx & RF_CUSTOMSHADERPASS ) ) {
 				shader = R_GetShaderByHandle( ent->e.customShader );
-				R_AddDrawSurf( ( surfaceType_t * )surface, shader, 0, 0);
+				R_AddDrawSurf( ( surfaceType_t * )surface, shader, 0);
 			}
 		}
 	}

@@ -107,7 +107,7 @@ void R_AddPolygonSurfaces( void ) {
 
 	for ( i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys ; i++, poly++ ) {
 		sh = R_GetShaderByHandle( poly->hShader );
-		R_AddDrawSurf( ( void * )poly, sh, poly->fogIndex, qfalse );
+		R_AddDrawSurf( ( void * )poly, sh, qfalse );
 	}
 }
 
@@ -279,10 +279,6 @@ void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, floa
 		return;
 	}
 	if ( intensity <= 0 ) {
-		return;
-	}
-	// these cards don't have the correct blend mode
-	if ( glConfig.hardwareType == GLHW_RIVA128 || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
 		return;
 	}
 	dl = &backEndData[tr.smpFrame]->dlights[r_numdlights++];

@@ -170,7 +170,7 @@ static int R_DlightFace( srfSurfaceFace_t *face, int dlightBits ) {
 			continue;
 		}
 		dl = &tr.refdef.dlights[i];
-		d = DotProduct( dl->origin, face->plane.normal ) - face->plane.dist;
+		d = DotProduct( dl->transformed, face->plane.normal ) - face->plane.dist;
 		if ( d < -dl->radius || d > dl->radius ) {
 			// dlight doesn't reach the plane
 			dlightBits &= ~( 1 << i );
@@ -335,7 +335,7 @@ static void R_AddWorldSurface( msurface_t *surf, int dlightBits ) {
 		return;
 	}
 
-	R_AddDrawSurf( surf->data, surf->shader, surf->fogIndex, dlightBits );
+	R_AddDrawSurf( surf->data, surf->shader, dlightBits );
 }
 
 /*
@@ -396,8 +396,6 @@ R_RecursiveWorldNode
 static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits ) {
 
 	do {
-		int			newDlights[2];
-
 		// if the node wasn't marked as potentially visible, exit
 		if (node->visframe != tr.visCount) {
 			return;
@@ -455,39 +453,11 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 			break;
 		}
 
-		// node is just a decision point, so go down both sides
-		// since we don't care about sort orders, just go positive to negative
-
-		// determine which dlights are needed
-		newDlights[0] = 0;
-		newDlights[1] = 0;
-		if ( dlightBits ) {
-			int	i;
-
-			for ( i = 0 ; i < tr.refdef.num_dlights ; i++ ) {
-				dlight_t	*dl;
-				float		dist;
-
-				if ( dlightBits & ( 1 << i ) ) {
-					dl = &tr.refdef.dlights[i];
-					dist = DotProduct( dl->origin, node->plane->normal ) - node->plane->dist;
-					
-					if ( dist > -dl->radius ) {
-						newDlights[0] |= ( 1 << i );
-					}
-					if ( dist < dl->radius ) {
-						newDlights[1] |= ( 1 << i );
-					}
-				}
-			}
-		}
-
 		// recurse down the children, front side first
-		R_RecursiveWorldNode (node->children[0], planeBits, newDlights[0] );
+		R_RecursiveWorldNode (node->children[0], planeBits, dlightBits);
 
 		// tail recurse
 		node = node->children[1];
-		dlightBits = newDlights[1];
 	} while ( 1 );
 
 	{
@@ -518,16 +488,22 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 			tr.viewParms.visBounds[1][2] = node->maxs[2];
 		}
 
-		// add the individual surfaces
-		mark = node->firstmarksurface;
-		c = node->nummarksurfaces;
-		while (c--) {
-			// the surface may have already been added if it
-			// spans multiple leafs
-			surf = *mark;
-			R_AddWorldSurface( surf, dlightBits );
-			mark++;
+		if (r_drawbrushes->integer) {
+			// add the individual surfaces
+			mark = node->firstmarksurface;
+			c = node->nummarksurfaces;
+			while (c--) {
+				// the surface may have already been added if it
+				// spans multiple leafs
+				surf = *mark;
+				R_AddWorldSurface(surf, dlightBits);
+				mark++;
+			}
 		}
+
+		// FIXME: terrain
+		// FIXME: static decals
+		// FIXME: static models
 	}
 
 }
@@ -683,26 +659,45 @@ R_AddWorldSurfaces
 =============
 */
 void R_AddWorldSurfaces (void) {
-	if ( !r_drawworld->integer ) {
+	if (!r_drawworld->integer) {
 		return;
 	}
 
-	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
+	if (tr.refdef.rdflags & RDF_NOWORLDMODEL) {
 		return;
 	}
 
 	tr.currentEntityNum = ENTITYNUM_WORLD;
 	tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
 
+	if (r_drawterrain->integer) {
+		R_TerrainPrepareFrame();
+	}
+
 	// determine which leaves are in the PVS / areamask
-	R_MarkLeaves ();
+	R_MarkLeaves();
 
 	// clear out the visible min/max
-	ClearBounds( tr.viewParms.visBounds[0], tr.viewParms.visBounds[1] );
+	ClearBounds(tr.viewParms.visBounds[0], tr.viewParms.visBounds[1]);
 
 	// perform frustum culling and add all the potentially visible surfaces
-	if ( tr.refdef.num_dlights > 32 ) {
-		tr.refdef.num_dlights = 32 ;
+	if (tr.refdef.num_dlights > 32) {
+		tr.refdef.num_dlights = 32;
 	}
-	R_RecursiveWorldNode( tr.world->nodes, 15, ( 1 << tr.refdef.num_dlights ) - 1 );
+	R_TransformDlights(tr.refdef.num_dlights, tr.refdef.dlights, &tr.viewParms.world);
+	R_RecursiveWorldNode(tr.world->nodes, 15, (1 << tr.refdef.num_dlights) - 1);
+
+	if (r_drawterrain->integer) {
+		R_AddTerrainSurfaces();
+	}
+	if (r_drawstaticmodels->integer) {
+		R_AddStaticModelSurfaces();
+	}
+
+	if (g_bInfostaticmodels) {
+		g_bInfostaticmodels = 0;
+		R_PrintInfoStaticModels();
+	}
+
+	R_UpdateLevelMarksSystem();
 }

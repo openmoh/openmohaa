@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 int g_nStaticSurfaces;
 staticSurface_t g_staticSurfaces[MAX_STATIC_MODELS_SURFS];
-qboolean g_bInfostaticmodels;
+qboolean g_bInfostaticmodels = qfalse;
 
 /*
 ==============
@@ -358,7 +358,7 @@ void R_AddStaticModelSurfaces(void) {
                     shader = tr.shaders[dsurf->hShader[0]];
 
                     SM->bRendered = qtrue;
-                    R_AddDrawSurf((surfaceType_t*)&g_staticSurfaces[g_nStaticSurfaces], shader, 0, 0);
+                    R_AddDrawSurf((surfaceType_t*)&g_staticSurfaces[g_nStaticSurfaces], shader, 0);
 
                     g_nStaticSurfaces++;
                     ofsStaticData += surface->numVerts;
@@ -369,6 +369,17 @@ void R_AddStaticModelSurfaces(void) {
 
     tr.shiftedIsStatic = 0;
 }
+
+void RB_Static_BuildDLights()
+{
+    // FIXME: unimplemented
+}
+
+void R_InfoStaticModels_f()
+{
+    // FIXME: unimplemented
+}
+
 /*
 =============
 RB_StaticMesh
@@ -471,4 +482,9 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
     }
 
     tess.vertexColorValid = qtrue;
+}
+
+void R_PrintInfoStaticModels()
+{
+    // FIXME: unimplemented
 }

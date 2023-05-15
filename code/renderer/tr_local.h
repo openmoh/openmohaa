@@ -175,6 +175,12 @@ typedef struct {
 	vec3_t		ambientLight;	// color normalized to 0-255
 	int			ambientLightInt;	// 32 bit rgba packed
 	vec3_t		directedLight;
+
+	qboolean	bLightGridCalculated;
+	int			iGridLighting;
+	float		lodpercentage[2];
+	qboolean	sphereCalculated;
+	int			lightingSphere;
 } trRefEntity_t;
 
 typedef struct refSprite_s {
@@ -556,6 +562,11 @@ typedef struct shader_s {
 
 	int			numUnfoggedPasses;
 	shaderStage_t	* unfoggedStages[MAX_SHADER_STAGES];
+
+	int			needsLGrid;
+	int			needsLSpherical;
+	int			stagesWithAlphaFog;
+	int			flags;
 
 	void		(*optimalStageIteratorFunc)( void );
 
@@ -1549,7 +1560,7 @@ void R_AddPolygonSurfaces( void );
 
 void R_DecomposeSort(unsigned int sort, int* entityNum, shader_t** shader, int* dlightMap, qboolean* bStaticModel);
 
-void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogIndex, int dlightMap );
+void R_AddDrawSurf(surfaceType_t* surface, shader_t* shader, int dlightMap);
 
 
 #define	CULL_IN		0		// completely unclipped
@@ -1737,6 +1748,7 @@ typedef struct shaderCommands_s
 	int			fogNum;
 
 	int			dlightBits;	// or together of all vertexDlightBits
+	int			dlightMap;
 
 	int			numIndexes;
 	int			numVertexes;
@@ -1809,6 +1821,12 @@ void R_GetLightingForSmoke(vec3_t vLight, vec3_t vOrigin);
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
 void R_TransformDlights( int count, dlight_t *dl, orientationr_t *ori );
 int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
+void RB_Light_Real(const color4ub_t colors);
+void RB_Sphere_BuildDLights();
+void RB_Sphere_SetupEntity();
+void RB_Grid_SetupEntity();
+void RB_Grid_SetupStaticModel();
+void RB_Light_Fullbright(const color4ub_t colors);
 void R_Sphere_InitLights();
 int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights);
 
@@ -1925,6 +1943,7 @@ MARKS
 void R_LevelMarksLoad(const char* szBSPName);
 void R_LevelMarksInit();
 void R_LevelMarksFree();
+void R_UpdateLevelMarksSystem();
 
 /*
 =============================================================
@@ -1975,7 +1994,9 @@ TERRAIN
 
 =============================================================
 */
+void R_AddTerrainSurfaces();
 void R_InitTerrain();
+void R_TerrainPrepareFrame();
 
 /*
 =============================================================
@@ -2002,8 +2023,12 @@ void RE_SetFrameNumber(int frameNumber);
 void R_UpdatePoseInternal(refEntity_t* model);
 void RB_SkelMesh(skelSurfaceGame_t* sf);
 void RB_StaticMesh(staticSurface_t* staticSurf);
+void RB_Static_BuildDLights();
+void R_PrintInfoStaticModels();
 void R_AddSkelSurfaces(trRefEntity_t* ent);
 void R_AddStaticModelSurfaces(void);
+
+extern qboolean g_bInfostaticmodels;
 
 /*
 =============================================================
@@ -2061,6 +2086,9 @@ void	RB_CalcStretchTexCoords( const waveForm_t *wf, float *texCoords );
 void	RB_CalcColorFromEntity( unsigned char *dstColors );
 void	RB_CalcColorFromOneMinusEntity( unsigned char *dstColors );
 void	RB_CalcSpecularAlpha( unsigned char *alphas );
+void	RB_CalcLightGridColor(unsigned char* colors);
+void	RB_CalcAlphaFromDotView(unsigned char* colors, float alphaMin, float alphaMax);
+void	RB_CalcAlphaFromOneMinusDotView(unsigned char* colors, float alphaMin, float alphaMax);
 void	RB_CalcDiffuseColor( unsigned char *colors );
 
 /*

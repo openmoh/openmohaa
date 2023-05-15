@@ -24,6 +24,81 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
+static void RB_Light_CubeMap(const color4ub_t colors)
+{
+	// FIXME: unimplemented
+}
+
+void RB_Light_Real(const color4ub_t colors)
+{
+	// FIXME: unimplemented
+}
+
+static void RB_Sphere_Light_Sun()
+{
+	// FIXME: unimplemented
+}
+
+static qboolean RB_Sphere_CalculateSphereOrigin()
+{
+	// FIXME: unimplemented
+}
+
+static bool RB_Sphere_SetupGlobals()
+{
+	// FIXME: unimplemented
+}
+
+static bool RB_Sphere_ResetPointColors()
+{
+	// FIXME: unimplemented
+}
+
+static void RB_Sphere_DrawDebugLine(const spherel_t* thislight, float falloff, const vec3_t origin)
+{
+	// FIXME: unimplemented
+}
+
+static void RB_Sphere_AddSpotLight(const spherel_t* thislight)
+{
+	// FIXME: unimplemented
+}
+
+static void RB_Sphere_AddLight(const spherel_t* thislight)
+{
+	// FIXME: unimplemented
+}
+
+static void RB_Sphere_BuildStaticLights()
+{
+	// FIXME: unimplemented
+}
+
+void RB_Sphere_BuildDLights()
+{
+	// FIXME: unimplemented
+}
+
+void RB_Sphere_SetupEntity()
+{
+	// FIXME: unimplemented
+}
+
+void RB_Grid_SetupEntity()
+{
+	// FIXME: unimplemented
+}
+
+void RB_Grid_SetupStaticModel()
+{
+	// FIXME: unimplemented
+}
+
+void RB_Light_Fullbright(const color4ub_t colors)
+{
+	// FIXME: unimplemented
+}
+
 void R_Sphere_InitLights()
 {
     // FIXME: unimplemented

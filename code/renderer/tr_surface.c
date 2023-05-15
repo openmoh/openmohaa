@@ -372,7 +372,7 @@ void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
 
 	numPoints = surf->numPoints;
 
-	if ( tess.shader->needsNormal ) {
+	if ( tess.shader->needsNormal || tess.shader->needsLSpherical || tr.refdef.num_dlights ) {
 		normal = surf->plane.normal;
 		for ( i = 0, ndx = tess.numVertexes; i < numPoints; i++, ndx++ ) {
 			VectorCopy( normal, tess.normal[ndx] );
@@ -529,7 +529,7 @@ void RB_SurfaceGrid( srfGridMesh_t *cv ) {
 				texCoords[1] = dv->st[1];
 				texCoords[2] = dv->lightmap[0];
 				texCoords[3] = dv->lightmap[1];
-				if ( needsNormal ) {
+				if ( needsNormal || tess.shader->needsLSpherical || tr.refdef.num_dlights ) {
 					normal[0] = dv->normal[0];
 					normal[1] = dv->normal[1];
 					normal[2] = dv->normal[2];
