@@ -443,7 +443,7 @@ void RB_BeginDrawingView (void) {
 
 	// we will need to change the projection matrix before drawing
 	// 2D images again
-	backEnd.projection2D = qfalse;
+	backEnd.in2D = qfalse;
 
 	//
 	// set the modelview matrix for the viewer
@@ -751,7 +751,7 @@ RB_SetGL2D
 ================
 */
 void	RB_SetGL2D (void) {
-	backEnd.projection2D = qtrue;
+	backEnd.in2D = qtrue;
 
 	// set 2D virtual screen size
 	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
@@ -902,7 +902,7 @@ const void *RB_StretchPic ( const void *data ) {
 
 	cmd = (const stretchPicCommand_t *)data;
 
-	if ( !backEnd.projection2D ) {
+	if ( !backEnd.in2D ) {
 		RB_SetGL2D();
 	}
 
@@ -1029,7 +1029,7 @@ void RB_ShowImages( void ) {
 	float	x, y, w, h;
 	int		start, end;
 
-	if ( !backEnd.projection2D ) {
+	if ( !backEnd.in2D ) {
 		RB_SetGL2D();
 	}
 
@@ -1122,7 +1122,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 
 	GLimp_EndFrame();
 
-	backEnd.projection2D = qfalse;
+	backEnd.in2D = qfalse;
 
 	return (const void *)(cmd + 1);
 }

@@ -1200,8 +1200,7 @@ typedef struct {
     sphereor_t hudSphere;
     cStaticModelUnpacked_t* currentStaticModel;
     int dsStreamVert;
-
-	qboolean projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
+	qboolean in2D;	// if qtrue, drawstretchpic doesn't need to change modes
 	byte color2D[4];
 	qboolean vertexes2D;		// shader needs to be finished
 	trRefEntity_t entity2D;	// currentEntity will point at this when doing 2D rendering
@@ -1609,6 +1608,7 @@ void	GL_Cull( int cullType );
 #define		GLS_DSTBLEND_BITS					0x000000f0
 
 #define GLS_DEPTHMASK_TRUE						0x00000100
+#define GLS_SET2D								0x00000400
 
 #define GLS_POLYMODE_LINE						0x00001000
 

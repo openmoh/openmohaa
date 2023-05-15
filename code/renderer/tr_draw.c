@@ -364,7 +364,30 @@ Set2DWindow
 ================
 */
 void Set2DWindow( int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f ) {
-	// FIXME: unimplemented
+	R_SyncRenderThread();
+	qglViewport(x, y, w, h);
+	qglScissor(x, y, w, h);
+	qglMatrixMode(GL_PROJECTION);
+	qglLoadIdentity();
+	qglOrtho(left, right, bottom, top, n, f);
+	qglMatrixMode(GL_MODELVIEW);
+
+	qglLoadIdentity();
+	GL_State(GLS_SET2D | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_SRCBLEND_SRC_ALPHA);
+	qglEnable(GL_BLEND);
+	qglDisable(GL_CULL_FACE);
+	qglDisable(GL_CLIP_PLANE0);
+
+	if (r_reset_tc_array->integer) {
+		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
+
+	if (!backEnd.in2D)
+	{
+		backEnd.refdef.time = ri.Milliseconds();
+		backEnd.in2D = 1;
+		backEnd.refdef.floatTime = backEnd.refdef.time / 1000.0;
+	}
 }
 
 /*
