@@ -351,6 +351,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	R_VisDebug();
 	TIKI_Reset_Caches();
 
+	backEnd.in2D = qfalse;
 	tr.refdef.x = fd->x;
 	tr.refdef.y = fd->y;
 	tr.refdef.width = fd->width;
