@@ -2215,7 +2215,9 @@ void R_SetColorMappings( void ) {
 		tr.overbrightBits = 0;
 	}
 
-	tr.identityLight = 1.0f / ( 1 << tr.overbrightBits );
+	tr.overbrightShift = r_mapOverBrightBits->integer - tr.overbrightBits;
+	tr.overbrightMult = (float)(1 << tr.overbrightShift);
+	tr.identityLight = 1.0f / (1 << tr.overbrightBits);
 	tr.identityLightByte = 255 * tr.identityLight;
 
 
