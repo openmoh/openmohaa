@@ -592,7 +592,7 @@ void UIReggedMaterial::ReregisterMaterial
 	if( !isGot )
 	{
 		isGot = true;
-		this->hMat = uii.Rend_RegisterMaterial( name );
+		this->hMat = uii.Rend_RegisterMaterial( name.c_str() );
 	}
 }
 
@@ -623,7 +623,7 @@ void UIReggedMaterial::RefreshMaterial
 	if( !isGot )
 	{
 		isGot = true;
-		this->hMat = uii.Rend_RegisterMaterial( name );
+		this->hMat = uii.Rend_RefreshMaterial( name.c_str() );
 	}
 }
 
