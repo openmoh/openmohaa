@@ -64,7 +64,7 @@ qboolean server_loading;
 static qboolean server_loading_waiting;
 static str *s_intermediateconsole;
 static int ui_lastWeapHudState_Owned;
-static int ui_lastWeapHudState_Equipped;
+static int ui_lastWeapHudState_Equipped = 0xFFFF;
 static int ui_weapHudTime;
 static int ui_itemHudTime;
 Menu *ui_pLoadingMenu;
@@ -1966,7 +1966,7 @@ void UI_Update(void) {
 							hud_weapons->PassEventToWidget("pistol_empty", event);
 						}
 					}
-					else if (iOwnedDiff & 2)
+					if (iOwnedDiff & 2)
 					{
 						if (cl.snap.ps.stats[STAT_WEAPONS] & 2)
 						{
@@ -1979,7 +1979,7 @@ void UI_Update(void) {
 							hud_weapons->PassEventToWidget("rifle_empty", event);
 						}
 					}
-					else if (iOwnedDiff & 4)
+					if (iOwnedDiff & 4)
 					{
 						if (cl.snap.ps.stats[STAT_WEAPONS] & 4)
 						{
@@ -1992,7 +1992,7 @@ void UI_Update(void) {
 							hud_weapons->PassEventToWidget("smg_empty", event);
 						}
 					}
-					else if (iOwnedDiff & 8)
+					if (iOwnedDiff & 8)
 					{
 						if (cl.snap.ps.stats[STAT_WEAPONS] & 8)
 						{
@@ -2005,7 +2005,7 @@ void UI_Update(void) {
 							hud_weapons->PassEventToWidget("mg_empty", event);
 						}
 					}
-					else if (iOwnedDiff & 16)
+					if (iOwnedDiff & 16)
 					{
 						if (cl.snap.ps.stats[STAT_WEAPONS] & 16)
 						{
@@ -2018,7 +2018,7 @@ void UI_Update(void) {
 							hud_weapons->PassEventToWidget("grenade_empty", event);
 						}
 					}
-					else if (iOwnedDiff & 32)
+					if (iOwnedDiff & 32)
 					{
 						if (cl.snap.ps.stats[STAT_WEAPONS] & 32)
 						{
@@ -2039,90 +2039,87 @@ void UI_Update(void) {
 				//
 				// highlight currently equipped weapons
 				//
-				else if (iEquippedDiff)
+				if (iEquippedDiff)
 				{
 					if (iEquippedDiff & 1)
 					{
 						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 1)
 						{
-							Event* event = new Event(EV_Widget_Disable);
+							Event* event = new Event(EV_Widget_Enable);
 							hud_weapons->PassEventToWidget("pistol_equipped", event);
 						}
 						else
 						{
-							Event* event = new Event(EV_Widget_Enable);
+							Event* event = new Event(EV_Widget_Disable);
 							hud_weapons->PassEventToWidget("pistol_equipped", event);
 						}
 					}
-					else if (iEquippedDiff & 2)
+					if (iEquippedDiff & 2)
 					{
 						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 2)
 						{
-							Event* event = new Event(EV_Widget_Disable);
+							Event* event = new Event(EV_Widget_Enable);
 							hud_weapons->PassEventToWidget("rifle_equipped", event);
 						}
 						else
 						{
-							Event* event = new Event(EV_Widget_Enable);
+							Event* event = new Event(EV_Widget_Disable);
 							hud_weapons->PassEventToWidget("rifle_equipped", event);
 						}
 					}
-					else if (iEquippedDiff & 4)
+					if (iEquippedDiff & 4)
 					{
 						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 4)
 						{
-							Event* event = new Event(EV_Widget_Disable);
+							Event* event = new Event(EV_Widget_Enable);
 							hud_weapons->PassEventToWidget("smg_equipped", event);
 						}
 						else
 						{
-							Event* event = new Event(EV_Widget_Enable);
+							Event* event = new Event(EV_Widget_Disable);
 							hud_weapons->PassEventToWidget("smg_equipped", event);
 						}
 					}
-					else if (iEquippedDiff & 8)
+					if (iEquippedDiff & 8)
 					{
 						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 8)
 						{
-							Event* event = new Event(EV_Widget_Disable);
+							Event* event = new Event(EV_Widget_Enable);
 							hud_weapons->PassEventToWidget("mg_equipped", event);
 						}
 						else
 						{
-							Event* event = new Event(EV_Widget_Enable);
+							Event* event = new Event(EV_Widget_Disable);
 							hud_weapons->PassEventToWidget("mg_equipped", event);
 						}
 					}
-					else if (iEquippedDiff & 16)
+					if (iEquippedDiff & 16)
 					{
 						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 16)
 						{
-							Event* event = new Event(EV_Widget_Disable);
+							Event* event = new Event(EV_Widget_Enable);
 							hud_weapons->PassEventToWidget("grenade_equipped", event);
 						}
 						else
 						{
-							Event* event = new Event(EV_Widget_Enable);
+							Event* event = new Event(EV_Widget_Disable);
 							hud_weapons->PassEventToWidget("grenade_equipped", event);
 						}
 					}
-					else if (iEquippedDiff & 32)
+					if (iEquippedDiff & 32)
 					{
 						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 32)
 						{
-							Event* event = new Event(EV_Widget_Disable);
+							Event* event = new Event(EV_Widget_Enable);
 							hud_weapons->PassEventToWidget("heavy_equipped", event);
 						}
 						else
 						{
-							Event* event = new Event(EV_Widget_Enable);
+							Event* event = new Event(EV_Widget_Disable);
 							hud_weapons->PassEventToWidget("heavy_equipped", event);
 						}
 					}
-					else
-					{
-						ui_lastWeapHudState_Equipped = cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 0x3F | ui_lastWeapHudState_Equipped & -0x40;
-					}
+					ui_lastWeapHudState_Equipped = cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 0x3F | ui_lastWeapHudState_Equipped & ~0x3F;
 				}
 
 				if (!ui_weapHudTime)
