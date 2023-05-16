@@ -521,8 +521,7 @@ void Key_GetKeysForCommand( const char *command, int *key1, int *key2 );
 int Key_GetCatcher( void );
 void Key_SetCatcher( int catcher );
 
-void CL_GetEyeInfo(usereyes_t *info); //su44
-void CL_SetEyeInfo(vec3_t origin, vec3_t angles); //su44
+void CL_EyeInfo(usereyes_t *info);
 
 //
 // cl_parse.c

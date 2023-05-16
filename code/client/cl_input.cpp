@@ -696,27 +696,43 @@ void CL_CreateNewCommands( void ) {
 	cmd = &cl.cmds[cmdNum];
 }
 
-
 /*
 =================
-CL_GetEyeInfo
+CL_EyeInfo
 
-Create a new usereyes_t structure for this frame
+Gather eyes data from client game module
 =================
 */
-void CL_GetEyeInfo(usereyes_t *info) {
-	info->angles[0] = cl.eyeAngles[0];
-	info->angles[1] = cl.eyeAngles[1];
-	VectorCopy(cl.eyeOrigin,info->ofs);
-}
-/*
-=================
-CL_SetEyeInfo
-=================
-*/
-void CL_SetEyeInfo(vec3_t origin, vec3_t angles) {
-	VectorCopy(angles,cl.eyeAngles);
-	VectorCopy(origin,cl.eyeOrigin);
+void CL_EyeInfo(usereyes_t* info) {
+	int i;
+	vec3_t vAngles, vOfs;
+
+	if (cge) {
+		// copy the eye offset
+		cge->CG_EyeOffset(&vOfs);
+
+		for (i = 0; i < 3; i++) {
+			vOfs[i] += 0.5;
+			if (vOfs[i] < -127.0) {
+				vOfs[i] = -127.0;
+			} else if (vOfs[i] > 128.0) {
+				vOfs[i] = 128.0;
+			}
+
+			info->ofs[i] = vOfs[i];
+		}
+
+		cge->CG_EyeAngles(&vAngles);
+		info->angles[0] = vAngles[0];
+		info->angles[1] = vAngles[1];
+	} else {
+		// clear the eye offset
+		for (i = 0; i < 3; i++) {
+			info->ofs[i] = 0;
+		}
+
+		info->angles[0] = info->angles[1] = 0.0;
+	}
 }
 
 /*
@@ -872,7 +888,7 @@ void CL_WritePacket( void ) {
 		// write the command count
 		MSG_WriteByte( &buf, count );
 
-		CL_GetEyeInfo( &eyeInfo );
+		CL_EyeInfo( &eyeInfo );
 		MSG_WriteDeltaEyeInfo( &buf, &cl.outPackets[ oldPacketNum ].p_eyeinfo, &eyeInfo );
 		// use the checksum feed in the key
 		key = clc.checksumFeed;
