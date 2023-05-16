@@ -21,15 +21,51 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ui_local.h"
+#include "localization.h"
+
+Event W_Button_Pressed
+(
+	"button_pressed",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Signal that the button was pressed"
+);
+
+Event W_Button_HoverSound
+(
+	"hoversound",
+	EV_DEFAULT,
+	"s",
+	"soundName",
+	"Set the sound to play when this button is hovered over"
+);
+
+Event W_Button_HoverCommand
+(
+	"hovercommand",
+	EV_DEFAULT,
+	"s",
+	"string",
+	"Set the command to execute when this button is hovered over"
+);
 
 CLASS_DECLARATION( UIWidget, UIButtonBase, NULL )
 {
+	{ &W_LeftMouseDown,				&UIButtonBase::Pressed },
+	{ &W_LeftMouseUp,				&UIButtonBase::Released },
+	{ &W_LeftMouseDragged,			&UIButtonBase::Dragged },
+	{ &W_MouseEntered,				&UIButtonBase::MouseEntered },
+	{ &W_MouseExited,				&UIButtonBase::MouseExited },
+	{ &W_Button_HoverSound,			&UIButtonBase::SetHoverSound },
+	{ &W_Button_HoverCommand,		&UIButtonBase::SetHoverCommand },
 	{ NULL, NULL }
 };
 
 UIButtonBase::UIButtonBase()
 {
-	// FIXME: stub
+	m_mouseState = M_NONE;
+	AllowActivate(true);
 }
 
 void UIButtonBase::Pressed
@@ -38,7 +74,10 @@ void UIButtonBase::Pressed
 	)
 
 {
-	// FIXME: stub
+	m_mouseState = M_DRAGGING;
+	m_hovermaterial_active = qtrue;
+	m_pressedmaterial_active = qtrue;
+	uWinMan.setFirstResponder(this);
 }
 
 void UIButtonBase::Released
@@ -47,7 +86,40 @@ void UIButtonBase::Released
 	)
 
 {
-	// FIXME: stub
+	if (m_mouseState != M_DRAGGING)
+	{
+		m_mouseState = M_NONE;
+		return;
+	}
+
+	if (uWinMan.getFirstResponder() == this) {
+		// make sure to not respond multiple times
+		uWinMan.setFirstResponder(NULL);
+	}
+
+	m_mouseState = M_NONE;
+
+	if (ev)
+	{
+		if (!getClientFrame().contains(MouseEventToClientPoint(ev)))
+		{
+			// not in the frame anymore
+			m_hovermaterial_active = false;
+			m_pressedmaterial_active = false;
+			return;
+		}
+	}
+
+	Action();
+
+	if (ev)
+	{
+		if (getClientFrame().contains(MouseEventToClientPoint(ev)))
+		{
+			// handle the button click
+			SendSignal(W_Button_Pressed);
+		}
+	}
 }
 
 void UIButtonBase::MouseEntered
@@ -56,7 +128,17 @@ void UIButtonBase::MouseEntered
 	)
 
 {
-	// FIXME: stub
+	m_hovermaterial_active = qtrue;
+	uWinMan.ActivateControl(this);
+
+	if (m_hoverSound.length()) {
+		uii.Snd_PlaySound(m_hoverSound.c_str());
+	}
+
+	if (m_hoverCommand.length()) {
+		str stuff = m_hoverCommand + "\n";
+		uii.Cmd_Stuff(stuff.c_str());
+	}
 }
 
 void UIButtonBase::MouseExited
@@ -65,7 +147,7 @@ void UIButtonBase::MouseExited
 	)
 
 {
-	// FIXME: stub
+	// Does nothing
 }
 
 void UIButtonBase::Dragged
@@ -74,7 +156,7 @@ void UIButtonBase::Dragged
 	)
 
 {
-	// FIXME: stub
+	m_hovermaterial_active = getClientFrame().contains(MouseEventToClientPoint(ev));
 }
 
 void UIButtonBase::SetHoverSound
@@ -83,7 +165,7 @@ void UIButtonBase::SetHoverSound
 	)
 
 {
-	// FIXME: stub
+	m_hoverSound = ev->GetString(1);
 }
 
 void UIButtonBase::SetHoverCommand
@@ -92,7 +174,7 @@ void UIButtonBase::SetHoverCommand
 	)
 
 {
-	// FIXME: stub
+	m_hoverCommand = ev->GetString(1);
 }
 
 void UIButtonBase::Action
@@ -101,7 +183,14 @@ void UIButtonBase::Action
 	)
 
 {
-	// FIXME: stub
+	if (m_clicksound.length()) {
+		uii.Snd_PlaySound(m_clicksound.c_str());
+	}
+
+	if (m_command.length()) {
+		str stuff = m_command + "\n";
+		uii.Cmd_Stuff(stuff.c_str());
+	}
 }
 
 CLASS_DECLARATION( UIButtonBase, UIButton, NULL )
@@ -111,7 +200,7 @@ CLASS_DECLARATION( UIButtonBase, UIButton, NULL )
 
 UIButton::UIButton()
 {
-	// FIXME: stub
+	setBorderStyle(border_none);
 }
 
 void UIButton::Draw
@@ -120,7 +209,11 @@ void UIButton::Draw
 	)
 
 {
-	// FIXME: stub
+	if (m_mouseState == M_DRAGGING && m_screenframe.contains(uid.mouseX, uid.mouseY)) {
+		DrawPressed();
+	} else {
+		DrawUnpressed();
+	}
 }
 
 void UIButton::DrawPressed
@@ -129,7 +222,37 @@ void UIButton::DrawPressed
 	)
 
 {
-	// FIXME: stub
+	UIRect2D clientFrame = getClientFrame();
+
+	if (m_borderStyle != border_none) {
+		Draw3DBox(clientFrame, true, m_border_color, m_local_alpha);
+	}
+
+	m_font->setColor(m_foreground_color);
+
+	clientFrame.pos.x += 1;
+	clientFrame.pos.y += 1;
+
+	if (m_bVirtual)
+	{
+		m_font->PrintJustified(
+			clientFrame,
+			m_iFontAlignmentHorizontal,
+			m_iFontAlignmentVertical,
+			Sys_LV_CL_ConvertString(m_title.c_str()),
+			NULL
+		);
+	}
+	else
+	{
+		m_font->PrintJustified(
+			clientFrame,
+			m_iFontAlignmentHorizontal,
+			m_iFontAlignmentVertical,
+			Sys_LV_CL_ConvertString(m_title.c_str()),
+			m_vVirtualScale
+		);
+	}
 }
 
 void UIButton::DrawUnpressed
@@ -138,7 +261,31 @@ void UIButton::DrawUnpressed
 	)
 
 {
-	// FIXME: stub
+	m_font->setColor(m_foreground_color);
+	m_font->setAlpha(m_local_alpha);
+
+	UIRect2D clientFrame = getClientFrame();
+
+	if (m_bVirtual)
+	{
+		m_font->PrintJustified(
+			clientFrame,
+			m_iFontAlignmentHorizontal,
+			m_iFontAlignmentVertical,
+			Sys_LV_CL_ConvertString(m_title.c_str()),
+			NULL
+		);
+	}
+	else
+	{
+		m_font->PrintJustified(
+			clientFrame,
+			m_iFontAlignmentHorizontal,
+			m_iFontAlignmentVertical,
+			Sys_LV_CL_ConvertString(m_title.c_str()),
+			m_vVirtualScale
+		);
+	}
 }
 
 qboolean UIButton::KeyEvent
@@ -148,8 +295,12 @@ qboolean UIButton::KeyEvent
 	)
 
 {
-	// FIXME: stub
-	return qfalse;
+	if (key != K_ENTER && key != K_KP_ENTER) {
+		return false;
+	}
+
+	UIButtonBase::Action();
+	return true;
 }
 
 CLASS_DECLARATION( USignal, ToggleCVar, NULL )
@@ -159,17 +310,21 @@ CLASS_DECLARATION( USignal, ToggleCVar, NULL )
 
 ToggleCVar::ToggleCVar()
 {
-	// FIXME: stub
+	m_button = 0;
 }
 
 ToggleCVar::ToggleCVar
 	(
 	UIButton *button,
 	const char *cvar
-	)
+	) : ToggleCVar()
 
 {
-	// FIXME: stub
+	setButton(button);
+
+	if (cvar) {
+		setCVar(cvar);
+	}
 }
 
 void ToggleCVar::Press
@@ -178,7 +333,10 @@ void ToggleCVar::Press
 	)
 
 {
-	// FIXME: stub
+	if (m_cvarname.length())
+	{
+		UI_SetCvarInt(m_cvarname.c_str(), UI_GetCvarInt(m_cvarname.c_str(), 0));
+	}
 }
 
 void ToggleCVar::setCVar
@@ -187,7 +345,7 @@ void ToggleCVar::setCVar
 	)
 
 {
-	// FIXME: stub
+	m_cvarname = cvar;
 }
 
 void ToggleCVar::setButton
@@ -196,7 +354,14 @@ void ToggleCVar::setButton
 	)
 
 {
-	// FIXME: stub
+	if (m_button) {
+		m_button->Disconnect(this, W_Button_Pressed);
+	}
+
+	m_button = button;
+	if (m_button) {
+		m_button->Connect(this, W_Button_Pressed, W_Button_Pressed);
+	}
 }
 
 CLASS_DECLARATION( USignal, ExecCmd, NULL )
@@ -206,17 +371,18 @@ CLASS_DECLARATION( USignal, ExecCmd, NULL )
 
 ExecCmd::ExecCmd()
 {
-	// FIXME: stub
+	m_button = NULL;
 }
 
 ExecCmd::ExecCmd
 	(
 	UIButton *button,
 	const char *cmd
-	)
+	) : ExecCmd()
 
 {
-	// FIXME: stub
+	setButton(button);
+	setCommand(cmd);
 }
 
 void ExecCmd::Press
@@ -225,7 +391,10 @@ void ExecCmd::Press
 	)
 
 {
-	// FIXME: stub
+	if (m_cmd.length()) {
+		str stuff = m_cmd + "\n";
+		uii.Cmd_Stuff(stuff.c_str());
+	}
 }
 
 void ExecCmd::setCommand
@@ -234,7 +403,7 @@ void ExecCmd::setCommand
 	)
 
 {
-	// FIXME: stub
+	m_cmd = cmd;
 }
 
 void ExecCmd::setButton
@@ -243,5 +412,12 @@ void ExecCmd::setButton
 	)
 
 {
-	// FIXME: stub
+	if (m_button) {
+		m_button->Disconnect(this, W_Button_Pressed);
+	}
+
+	m_button = button;
+	if (m_button) {
+		m_button->Connect(this, W_Button_Pressed, W_Button_Pressed);
+	}
 }
