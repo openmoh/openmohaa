@@ -184,7 +184,7 @@ void UILayout::ProcessCommands
 				{
 					widget->InitFrame( m_currentcontainer, 0, 0, 128, 64, -1, "verdana-12" );
 
-					if( widget->m_bVirtual )
+					if( m_currentcontainer->m_bVirtual )
 					{
 						ev = new Event( EV_Layout_VirtualRes );
 						ev->AddInteger( 1 );
