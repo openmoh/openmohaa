@@ -707,17 +707,18 @@ bool UIWidget::addChild
 	)
 
 {
-	if( m_children.ObjectInList( widget ) )
+	if (m_children.ObjectInList(widget))
 	{
 		return false;
 	}
 
-	m_children.AddObject( widget );
-	if( m_children.NumObjects() != 1 )
+	m_children.AddObject(widget);
+	if (m_children.NumObjects() != 1)
 	{
-		if( ( m_children.ObjectAt( m_children.NumObjects() - 1 )->m_flags & 0x30 ) != ( widget->m_flags & 0x30 ) )
+		UIWidget* child = m_children.ObjectAt(m_children.NumObjects() - 1);
+		if ((child->m_flags & (WF_ALWAYS_TOP | WF_ALWAYS_BOTTOM)) != (widget->m_flags & (WF_ALWAYS_TOP | WF_ALWAYS_BOTTOM)))
 		{
-			ArrangeWidgetList( m_children );
+			ArrangeWidgetList(m_children);
 		}
 	}
 
@@ -749,7 +750,7 @@ void UIWidget::PropogateCoordinateSystem
 	int n;
 	UIWidget *subview;
 
-	if( !m_parent || m_flags & WF_NOPARENTADJUST )
+	if( !m_parent || (m_flags & WF_NOPARENTADJUST) )
 	{
 		m_screenorigin = m_origin;
 		m_clippedorigin = m_origin;
@@ -758,8 +759,8 @@ void UIWidget::PropogateCoordinateSystem
 	}
 	else
 	{
-		m_screenframe.pos.x = m_frame.pos.x + m_screenorigin.x;
-		m_screenframe.pos.y = m_frame.pos.y + m_screenorigin.y;
+		m_screenframe.pos.x = m_frame.pos.x + m_parent->m_screenorigin.x;
+		m_screenframe.pos.y = m_frame.pos.y + m_parent->m_screenorigin.y;
 		m_screenframe.size = m_frame.size;
 		m_screenorigin.x = m_screenframe.pos.x - m_origin.x;
 		m_screenorigin.y = m_screenframe.pos.y - m_origin.y;
@@ -985,61 +986,64 @@ void UIWidget::AlignPosition
 	)
 
 {
-	if( m_bVirtual )
+	if (m_bVirtual)
 	{
 		vec2_t vNewVirtualScale;
 
-		vNewVirtualScale[ 0 ] = uid.vidWidth / 640.0;
-		vNewVirtualScale[ 1 ] = uid.vidWidth / 480.0;
+		vNewVirtualScale[0] = uid.vidWidth / 640.0;
+		vNewVirtualScale[1] = uid.vidHeight / 480.0;
 
-		if( !VectorCompare2D( m_vVirtualScale, vNewVirtualScale ) )
+		if (!VectorCompare2D(m_vVirtualScale, vNewVirtualScale))
 		{
-			m_frame.pos.x = m_frame.pos.x / m_vVirtualScale[ 0 ] * vNewVirtualScale[ 0 ];
-			m_frame.pos.y = m_frame.pos.y / m_vVirtualScale[ 1 ] * vNewVirtualScale[ 1 ];
-			m_frame.size.width = m_frame.size.width / m_vVirtualScale[ 0 ] * vNewVirtualScale[ 0 ];
-			m_frame.size.height = m_frame.size.height / m_vVirtualScale[ 1 ] * vNewVirtualScale[ 1 ];
-			m_vVirtualScale[ 0 ] = vNewVirtualScale[ 0 ];
-			m_vVirtualScale[ 1 ] = vNewVirtualScale[ 1 ];
+			m_frame.pos.x = m_frame.pos.x / m_vVirtualScale[0] * vNewVirtualScale[0];
+			m_frame.pos.y = m_frame.pos.y / m_vVirtualScale[1] * vNewVirtualScale[1];
+			m_frame.size.width = m_frame.size.width / m_vVirtualScale[0] * vNewVirtualScale[0];
+			m_frame.size.height = m_frame.size.height / m_vVirtualScale[1] * vNewVirtualScale[1];
+			m_vVirtualScale[0] = vNewVirtualScale[0];
+			m_vVirtualScale[1] = vNewVirtualScale[1];
 		}
 	}
 
-	if( m_flags & WF_STRETCH_VERTICAL )
+	if (m_flags & WF_STRETCH_VERTICAL)
 	{
 		m_frame.pos.y = 0;
 		m_frame.size.height = uid.vidHeight;
 	}
-	if( m_flags & WF_STRETCH_HORIZONTAL )
+	if (m_flags & WF_STRETCH_HORIZONTAL)
 	{
 		m_frame.pos.x = 0;
 		m_frame.size.width = uid.vidWidth;
 	}
 
-	if( m_align & WA_CENTERX )
+	if (m_align & WA_CENTERX)
 	{
-		m_frame.pos.x = uid.vidWidth * 0.5 - 0.5 * m_frame.size.width;
+		m_frame.pos.x = uid.vidWidth * 0.5 - m_frame.size.width * 0.5;
 	}
-	if( m_align & WA_RIGHT )
+
+	if (m_align & WA_RIGHT)
 	{
 		m_frame.pos.x = uid.vidWidth - m_frame.size.width;
 	}
-	else if( m_align & WA_LEFT )
+	else if (m_align & WA_LEFT)
 	{
 		m_frame.pos.x = 0;
 	}
-	if( m_align & WA_CENTERY )
+
+	if (m_align & WA_CENTERY)
+	{
+		m_frame.pos.y = uid.vidHeight * 0.5 - m_frame.size.height * 0.5;
+	}
+
+	if (m_align & WA_BOTTOM)
 	{
 		m_frame.pos.y = uid.vidHeight - m_frame.size.height;
 	}
-	if( m_align & WA_BOTTOM )
-	{
-		m_frame.pos.y = uid.vidHeight - m_frame.size.height;
-	}
-	else if( m_align & WA_TOP )
+	else if (m_align & WA_TOP)
 	{
 		m_frame.pos.y = 0;
 	}
 
-	setFrame( m_frame );
+	setFrame(m_frame);
 }
 
 void UIWidget::Hide
@@ -1535,7 +1539,7 @@ void UIWidget::LayoutAlign
 
 	if( !isSubclassOf( UIWidgetContainer ) )
 	{
-		m_flags |= 0x44;
+		m_flags |= WF_NOPARENTADJUST | WF_DIRECTED;
 	}
 }
 
@@ -2604,62 +2608,66 @@ void UIWidget::Realign
 	)
 
 {
-	if( m_bVirtual )
+	if (m_bVirtual)
 	{
 		vec2_t vNewVirtualScale;
 
-		vNewVirtualScale[ 0 ] = uid.vidWidth / 640.0;
-		vNewVirtualScale[ 1 ] = uid.vidWidth / 480.0;
+		vNewVirtualScale[0] = uid.vidWidth / 640.0;
+		vNewVirtualScale[1] = uid.vidHeight / 480.0;
 
-		if( !VectorCompare2D( m_vVirtualScale, vNewVirtualScale ) )
+		if (!VectorCompare2D(m_vVirtualScale, vNewVirtualScale))
 		{
-			m_frame.pos.x = m_frame.pos.x / m_vVirtualScale[ 0 ] * vNewVirtualScale[ 0 ];
-			m_frame.pos.y = m_frame.pos.y / m_vVirtualScale[ 1 ] * vNewVirtualScale[ 1 ];
-			m_frame.size.width = m_frame.size.width / m_vVirtualScale[ 0 ] * vNewVirtualScale[ 0 ];
-			m_frame.size.height = m_frame.size.height / m_vVirtualScale[ 1 ] * vNewVirtualScale[ 1 ];
-			m_vVirtualScale[ 0 ] = vNewVirtualScale[ 0 ];
-			m_vVirtualScale[ 1 ] = vNewVirtualScale[ 1 ];
+			m_frame.pos.x = m_frame.pos.x / m_vVirtualScale[0] * vNewVirtualScale[0];
+			m_frame.pos.y = m_frame.pos.y / m_vVirtualScale[1] * vNewVirtualScale[1];
+			m_frame.size.width = m_frame.size.width / m_vVirtualScale[0] * vNewVirtualScale[0];
+			m_frame.size.height = m_frame.size.height / m_vVirtualScale[1] * vNewVirtualScale[1];
+			m_vVirtualScale[0] = vNewVirtualScale[0];
+			m_vVirtualScale[1] = vNewVirtualScale[1];
 		}
 	}
 
-	if( m_flags & WF_STRETCH_VERTICAL )
+	if (m_flags & WF_STRETCH_VERTICAL)
 	{
 		m_frame.pos.y = 0;
 		m_frame.size.height = uid.vidHeight;
 	}
-	if( m_flags & WF_STRETCH_HORIZONTAL )
+	if (m_flags & WF_STRETCH_HORIZONTAL)
 	{
 		m_frame.pos.x = 0;
-		m_frame.size.width = uid.vidWidth;	
+		m_frame.size.width = uid.vidWidth;
 	}
 
-	if( m_align & WA_CENTERX )
+	if (m_align & WA_CENTERX)
 	{
-		m_frame.pos.x = uid.vidWidth * 0.5 - 0.5 * m_frame.size.width;	
+		m_frame.pos.x = uid.vidWidth * 0.5 - m_frame.size.width * 0.5;
 	}
-	if( m_align & WA_RIGHT )
+
+	if (m_align & WA_RIGHT)
 	{
 		m_frame.pos.x = uid.vidWidth - m_frame.size.width;
 	}
-	else if( m_align & WA_LEFT )
+	else if (m_align & WA_LEFT)
 	{
 		m_frame.pos.x = 0;
 	}
-	if( m_align & WA_CENTERY )
+
+	if (m_align & WA_CENTERY)
 	{
 		m_frame.pos.y = uid.vidHeight - m_frame.size.height;
 	}
-	if( m_align & WA_BOTTOM )
+
+	if (m_align & WA_BOTTOM)
 	{
 		m_frame.pos.y = uid.vidHeight - m_frame.size.height;
 	}
-	else if( m_align & WA_TOP )
+	else if (m_align & WA_TOP)
 	{
 		m_frame.pos.y = 0;
 	}
-	if( ( m_align & WA_FULL ) || ( m_flags & ( WF_STRETCH_HORIZONTAL | WF_STRETCH_VERTICAL ) ) || ( m_bVirtual ) )
+
+	if ((m_align & WA_FULL) || (m_flags & (WF_STRETCH_HORIZONTAL | WF_STRETCH_VERTICAL)) || (m_bVirtual))
 	{
-		setFrame( m_frame );
+		setFrame(m_frame);
 		m_startingpos = m_frame.pos;
 	}
 }
@@ -2682,10 +2690,16 @@ UIWidget *UIWidget::IsThisOrChildActive
 	)
 
 {
+	UIWidget* child = this;
+
+	if (child->IsActive()) {
+		return child;
+	}
+
 	for( int i = 1; i <= m_children.NumObjects(); i++ )
 	{
-		UIWidget *child = m_children.ObjectAt( i );
-		if( child )
+		child = m_children.ObjectAt( i );
+		if( child->IsThisOrChildActive() )
 		{
 			return child;
 		}
@@ -2992,61 +3006,53 @@ void UIWidgetContainer::AlignPosition
 	)
 
 {
-	if( m_bVirtual )
+	if (m_bVirtual)
 	{
 		vec2_t vNewVirtualScale;
 
-		vNewVirtualScale[ 0 ] = uid.vidWidth / 640.0;
-		vNewVirtualScale[ 1 ] = uid.vidWidth / 480.0;
+		vNewVirtualScale[0] = uid.vidWidth / 640.0;
+		vNewVirtualScale[1] = uid.vidHeight / 480.0;
 
-		if( !VectorCompare2D( m_vVirtualScale, vNewVirtualScale ) )
+		if (!VectorCompare2D(m_vVirtualScale, vNewVirtualScale))
 		{
-			m_frame.pos.x = m_frame.pos.x / m_vVirtualScale[ 0 ] * vNewVirtualScale[ 0 ];
-			m_frame.pos.y = m_frame.pos.y / m_vVirtualScale[ 1 ] * vNewVirtualScale[ 1 ];
-			m_frame.size.width = m_frame.size.width / m_vVirtualScale[ 0 ] * vNewVirtualScale[ 0 ];
-			m_frame.size.height = m_frame.size.height / m_vVirtualScale[ 1 ] * vNewVirtualScale[ 1 ];
-			m_vVirtualScale[ 0 ] = vNewVirtualScale[ 0 ];
-			m_vVirtualScale[ 1 ] = vNewVirtualScale[ 1 ];
+			m_frame.pos.x = m_frame.pos.x / m_vVirtualScale[0] * vNewVirtualScale[0];
+			m_frame.pos.y = m_frame.pos.y / m_vVirtualScale[1] * vNewVirtualScale[1];
+			m_frame.size.width = m_frame.size.width / m_vVirtualScale[0] * vNewVirtualScale[0];
+			m_frame.size.height = m_frame.size.height / m_vVirtualScale[1] * vNewVirtualScale[1];
+			m_vVirtualScale[0] = vNewVirtualScale[0];
+			m_vVirtualScale[1] = vNewVirtualScale[1];
 		}
 	}
 
-	if( m_flags & WF_STRETCH_VERTICAL )
-	{
-		m_frame.pos.y = 0;
-		m_frame.size.height = uid.vidHeight;
-	}
-	if( m_flags & WF_STRETCH_HORIZONTAL )
+	if (m_align & WA_LEFT)
 	{
 		m_frame.pos.x = 0;
-		m_frame.size.width = uid.vidWidth;
 	}
-
-	if( m_align & WA_CENTERX )
-	{
-		m_frame.pos.x = uid.vidWidth * 0.5 - 0.5 * m_frame.size.width;
-	}
-	if( m_align & WA_RIGHT )
+	else if (m_align & WA_RIGHT)
 	{
 		m_frame.pos.x = uid.vidWidth - m_frame.size.width;
 	}
-	else if( m_align & WA_LEFT )
+	else
 	{
-		m_frame.pos.x = 0;
+		// default to center
+		m_frame.pos.x = (uid.vidWidth - m_frame.size.width) * 0.5;
 	}
-	if( m_align & WA_CENTERY )
-	{
-		m_frame.pos.y = uid.vidHeight - m_frame.size.height;
-	}
-	if( m_align & WA_BOTTOM )
+
+	if (m_align & WA_BOTTOM)
 	{
 		m_frame.pos.y = uid.vidHeight - m_frame.size.height;
 	}
-	else if( m_align & WA_TOP )
+	else if (m_align & WA_TOP)
 	{
 		m_frame.pos.y = 0;
 	}
+	else
+	{
+		// default to center
+		m_frame.pos.y = (uid.vidHeight - m_frame.size.height) * 0.5;
+	}
 
-	setFrame( m_frame );
+	setFrame(m_frame);
 	m_startingpos = m_frame.pos;
 }
 
