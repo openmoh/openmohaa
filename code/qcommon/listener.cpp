@@ -561,6 +561,7 @@ void L_ProcessPendingEvents()
 {
 	EventQueueNode *node;
 
+	int t = EVENT_msec;
 	while( !LL_Empty( &Event::EventQueue, next, prev ) )
 	{
 		Listener *obj;
@@ -573,7 +574,7 @@ void L_ProcessPendingEvents()
 
 		assert( obj );
 
-		if( node->inttime > EVENT_msec)
+		if( node->inttime > t)
 		{
 			break;
 		}
