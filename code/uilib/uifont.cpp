@@ -77,8 +77,8 @@ void UIFont::PrintJustified
 	{
 		sizedRect.pos.x = rect.pos.x / vVirtualScale[0];
 		sizedRect.pos.y = rect.pos.y / vVirtualScale[1];
-		sizedRect.size.width = rect.size.width / vVirtualScale[2];
-		sizedRect.size.height = rect.size.height / vVirtualScale[3];
+		sizedRect.size.width = rect.size.width / vVirtualScale[0];
+		sizedRect.size.height = rect.size.height / vVirtualScale[1];
 	}
 	else
 	{
