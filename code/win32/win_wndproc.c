@@ -115,27 +115,27 @@ static void VID_AppActivate(BOOL fActive, BOOL minimize)
 
 //==========================================================================
 
-static byte s_scantokey[128] = 
-					{ 
-//  0           1       2       3       4       5       6       7 
-//  8           9       A       B       C       D       E       F 
-	0  ,    27,     '1',    '2',    '3',    '4',    '5',    '6', 
-	'7',    '8',    '9',    '0',    '-',    '=',    K_BACKSPACE, 9, // 0 
-	'q',    'w',    'e',    'r',    't',    'y',    'u',    'i', 
-	'o',    'p',    '[',    ']',    13 ,    K_CTRL,'a',  's',      // 1 
-	'd',    'f',    'g',    'h',    'j',    'k',    'l',    ';', 
-	'\'' ,    '`',    K_SHIFT,'\\',  'z',    'x',    'c',    'v',      // 2 
-	'b',    'n',    'm',    ',',    '.',    '/',    K_SHIFT,'*', 
-	K_ALT,' ',   K_CAPSLOCK  ,    K_F1, K_F2, K_F3, K_F4, K_F5,   // 3 
-	K_F6, K_F7, K_F8, K_F9, K_F10,  K_PAUSE,    0  , K_HOME, 
-	K_UPARROW,K_PGUP,K_KP_MINUS,K_LEFTARROW,K_KP_5,K_RIGHTARROW, K_KP_PLUS,K_END, //4 
-	K_DOWNARROW,K_PGDN,K_INS,K_DEL,0,0,             0,              K_F11, 
-	K_F12,0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 5
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0, 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 6 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0, 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0         // 7 
-}; 
+static byte s_scantokey[128] =
+{
+	//  0           1       2       3       4       5       6       7 
+	//  8           9       A       B       C       D       E       F 
+		0  ,    27,     '1',    '2',    '3',    '4',    '5',    '6',
+		'7',    '8',    '9',    '0',    '-',    '=',    K_BACKSPACE, 9, // 0 
+		'q',    'w',    'e',    'r',    't',    'y',    'u',    'i',
+		'o',    'p',    '[',    ']',    13 ,    K_LCTRL,'a',  's',      // 1 
+		'd',    'f',    'g',    'h',    'j',    'k',    'l',    ';',
+		'\'' ,    '`',    K_LSHIFT,'\\',  'z',    'x',    'c',    'v',      // 2 
+		'b',    'n',    'm',    ',',    '.',    '/',    K_RSHIFT,'*',
+		K_LALT,' ',   K_CAPSLOCK  ,    K_F1, K_F2, K_F3, K_F4, K_F5,   // 3 
+		K_F6, K_F7, K_F8, K_F9, K_F10,  K_PAUSE,    0  , K_HOME,
+		K_UPARROW,K_PGUP,K_KP_MINUS,K_LEFTARROW,K_KP_5,K_RIGHTARROW, K_KP_PLUS,K_END, //4 
+		K_DOWNARROW,K_PGDN,K_INS,K_DEL,0,0,             0,              K_F11,
+		K_F12,0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 5
+		0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,
+		0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 6 
+		0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,
+		0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0         // 7 
+};
 
 /*
 =======

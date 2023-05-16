@@ -45,11 +45,11 @@ int			chat_playerNum;
 qboolean	key_overstrikeMode;
 
 int				anykeydown;
-qkey_t		keys[MAX_KEYS];
-qkey_t		altkeys[MAX_KEYS];
-qkey_t		ctrlkeys[MAX_KEYS];
+qkey_t		keys[K_LASTKEY];
+qkey_t		altkeys[K_LASTKEY];
+qkey_t		ctrlkeys[K_LASTKEY];
 
-qboolean menubound[MAX_KEYS];
+qboolean menubound[K_LASTKEY];
 
 qboolean alt_down;
 qboolean ctrl_down;
@@ -73,15 +73,16 @@ keyname_t keynames[] =
 	{"LEFTARROW", K_LEFTARROW},
 	{"RIGHTARROW", K_RIGHTARROW},
 
-	{"ALT", K_ALT},
+	{"LALT", K_LALT},
+	{"ALT", K_LALT},
 	// wombat: mohaa knows LCTRL and RCTRL, LSHIFT, RSHIFT
-	{"CTRL", K_CTRL},
-	{"LCTRL", K_CTRL},
-	{"RCTRL", K_CTRL},
-
-	{"SHIFT", K_SHIFT},
-	{"LSHIFT", K_SHIFT},
-	{"RSHIFT", K_SHIFT},
+	{"LCTRL", K_LCTRL},
+	{"CTRL", K_LCTRL},
+	{"LSHIFT", K_LSHIFT},
+	{"SHIFT", K_LSHIFT},
+	{"RALT", K_RALT},
+	{"RCTRL", K_RCTRL},
+	{"RSHIFT", K_RSHIFT},
 
 	{"COMMAND", K_COMMAND},
 
@@ -193,115 +194,9 @@ keyname_t keynames[] =
 
 	{"SEMICOLON", ';'},	// because a raw semicolon seperates commands
 
-	{"WORLD_0", K_WORLD_0},
-	{"WORLD_1", K_WORLD_1},
-	{"WORLD_2", K_WORLD_2},
-	{"WORLD_3", K_WORLD_3},
-	{"WORLD_4", K_WORLD_4},
-	{"WORLD_5", K_WORLD_5},
-	{"WORLD_6", K_WORLD_6},
-	{"WORLD_7", K_WORLD_7},
-	{"WORLD_8", K_WORLD_8},
-	{"WORLD_9", K_WORLD_9},
-	{"WORLD_10", K_WORLD_10},
-	{"WORLD_11", K_WORLD_11},
-	{"WORLD_12", K_WORLD_12},
-	{"WORLD_13", K_WORLD_13},
-	{"WORLD_14", K_WORLD_14},
-	{"WORLD_15", K_WORLD_15},
-	{"WORLD_16", K_WORLD_16},
-	{"WORLD_17", K_WORLD_17},
-	{"WORLD_18", K_WORLD_18},
-	{"WORLD_19", K_WORLD_19},
-	{"WORLD_20", K_WORLD_20},
-	{"WORLD_21", K_WORLD_21},
-	{"WORLD_22", K_WORLD_22},
-	{"WORLD_23", K_WORLD_23},
-	{"WORLD_24", K_WORLD_24},
-	{"WORLD_25", K_WORLD_25},
-	{"WORLD_26", K_WORLD_26},
-	{"WORLD_27", K_WORLD_27},
-	{"WORLD_28", K_WORLD_28},
-	{"WORLD_29", K_WORLD_29},
-	{"WORLD_30", K_WORLD_30},
-	{"WORLD_31", K_WORLD_31},
-	{"WORLD_32", K_WORLD_32},
-	{"WORLD_33", K_WORLD_33},
-	{"WORLD_34", K_WORLD_34},
-	{"WORLD_35", K_WORLD_35},
-	{"WORLD_36", K_WORLD_36},
-	{"WORLD_37", K_WORLD_37},
-	{"WORLD_38", K_WORLD_38},
-	{"WORLD_39", K_WORLD_39},
-	{"WORLD_40", K_WORLD_40},
-	{"WORLD_41", K_WORLD_41},
-	{"WORLD_42", K_WORLD_42},
-	{"WORLD_43", K_WORLD_43},
-	{"WORLD_44", K_WORLD_44},
-	{"WORLD_45", K_WORLD_45},
-	{"WORLD_46", K_WORLD_46},
-	{"WORLD_47", K_WORLD_47},
-	{"WORLD_48", K_WORLD_48},
-	{"WORLD_49", K_WORLD_49},
-	{"WORLD_50", K_WORLD_50},
-	{"WORLD_51", K_WORLD_51},
-	{"WORLD_52", K_WORLD_52},
-	{"WORLD_53", K_WORLD_53},
-	{"WORLD_54", K_WORLD_54},
-	{"WORLD_55", K_WORLD_55},
-	{"WORLD_56", K_WORLD_56},
-	{"WORLD_57", K_WORLD_57},
-	{"WORLD_58", K_WORLD_58},
-	{"WORLD_59", K_WORLD_59},
-	{"WORLD_60", K_WORLD_60},
-	{"WORLD_61", K_WORLD_61},
-	{"WORLD_62", K_WORLD_62},
-	{"WORLD_63", K_WORLD_63},
-	{"WORLD_64", K_WORLD_64},
-	{"WORLD_65", K_WORLD_65},
-	{"WORLD_66", K_WORLD_66},
-	{"WORLD_67", K_WORLD_67},
-	{"WORLD_68", K_WORLD_68},
-	{"WORLD_69", K_WORLD_69},
-	{"WORLD_70", K_WORLD_70},
-	{"WORLD_71", K_WORLD_71},
-	{"WORLD_72", K_WORLD_72},
-	{"WORLD_73", K_WORLD_73},
-	{"WORLD_74", K_WORLD_74},
-	{"WORLD_75", K_WORLD_75},
-	{"WORLD_76", K_WORLD_76},
-	{"WORLD_77", K_WORLD_77},
-	{"WORLD_78", K_WORLD_78},
-	{"WORLD_79", K_WORLD_79},
-	{"WORLD_80", K_WORLD_80},
-	{"WORLD_81", K_WORLD_81},
-	{"WORLD_82", K_WORLD_82},
-	{"WORLD_83", K_WORLD_83},
-	{"WORLD_84", K_WORLD_84},
-	{"WORLD_85", K_WORLD_85},
-	{"WORLD_86", K_WORLD_86},
-	{"WORLD_87", K_WORLD_87},
-	{"WORLD_88", K_WORLD_88},
-	{"WORLD_89", K_WORLD_89},
-	{"WORLD_90", K_WORLD_90},
-	{"WORLD_91", K_WORLD_91},
-	{"WORLD_92", K_WORLD_92},
-	{"WORLD_93", K_WORLD_93},
-	{"WORLD_94", K_WORLD_94},
-	{"WORLD_95", K_WORLD_95},
-
-	{"WINDOWS", K_SUPER},
-	{"COMPOSE", K_COMPOSE},
-	{"MODE", K_MODE},
-	{"HELP", K_HELP},
-	{"PRINT", K_PRINT},
-	{"SYSREQ", K_SYSREQ},
-	{"SCROLLOCK", K_SCROLLOCK },
-	{"BREAK", K_BREAK},
-	{"MENU", K_MENU},
-	{"POWER", K_POWER},
-	{"EURO", K_EURO},
-	{"UNDO", K_UNDO},
+	{ "LWINKEY", K_LWINKEY },
+	{ "RWINKEY", K_RWINKEY },
+	{ "MENUKEY", K_MENUKEY },
 
 	{NULL,0}
 };
@@ -349,7 +244,7 @@ Key_IsDown
 ===================
 */
 qboolean Key_IsDown( int keynum ) {
-	if ( keynum < 0 || keynum >= MAX_KEYS ) {
+	if ( keynum < 0 || keynum >= K_LASTKEY ) {
 		return qfalse;
 	}
 
@@ -431,7 +326,7 @@ const char *Key_KeynumToString( int keynum ) {
 		return "<KEY NOT FOUND>";
 	}
 
-	if ( keynum < 0 || keynum >= MAX_KEYS ) {
+	if ( keynum < 0 || keynum >= K_LASTKEY ) {
 		return "<OUT OF RANGE>";
 	}
 
@@ -478,7 +373,7 @@ const char *Key_KeynumToBindString( int keynum ) {
 		return "Not Bound";
 	}
 
-	if ( keynum < 0 || keynum >= MAX_KEYS ) {
+	if ( keynum < 0 || keynum >= K_LASTKEY ) {
 		return "Out of Range";
 	}
 
@@ -506,7 +401,7 @@ Key_SetBinding
 ===================
 */
 void Key_SetBinding( int keynum, const char *binding ) {
-	if ( keynum < 0 || keynum >= MAX_KEYS ) {
+	if ( keynum < 0 || keynum >= K_LASTKEY ) {
 		return;
 	}
 
@@ -529,7 +424,7 @@ Key_SetAltBinding
 ===================
 */
 void Key_SetAltBinding( int keynum, const char *binding ) {
-	if ( keynum < 0 || keynum >= MAX_KEYS ) {
+	if ( keynum < 0 || keynum >= K_LASTKEY ) {
 		return;
 	}
 
@@ -552,7 +447,7 @@ Key_SetCtrlBinding
 ===================
 */
 void Key_SetCtrlBinding( int keynum, const char *binding ) {
-	if ( keynum < 0 || keynum >= MAX_KEYS ) {
+	if ( keynum < 0 || keynum >= K_LASTKEY ) {
 		return;
 	}
 
@@ -576,7 +471,7 @@ Key_GetBinding
 ===================
 */
 char *Key_GetBinding( int keynum ) {
-	if ( keynum < 0 || keynum >= MAX_KEYS ) {
+	if ( keynum < 0 || keynum >= K_LASTKEY ) {
 		return "";
 	}
 
@@ -593,7 +488,7 @@ int Key_GetKey(const char *binding) {
   int i;
 
   if (binding) {
-  	for (i=0 ; i < MAX_KEYS ; i++) {
+  	for (i=0 ; i < K_LASTKEY ; i++) {
       if (keys[i].binding && Q_stricmp(binding, keys[i].binding) == 0) {
         return i;
       }
@@ -610,7 +505,7 @@ Key_GetKeynameForCommand
 const char *Key_GetKeynameForCommand( const char *command ) {
 	int		i;
 
-	for( i = 0; i < MAX_KEYS; i++ ) {
+	for( i = 0; i < K_LASTKEY; i++ ) {
 		if( !keys[ i ].binding ) {
 			continue;
 		}
@@ -632,7 +527,7 @@ void Key_GetKeysForCommand( const char *command, int *key1, int *key2 ) {
 
 	*key1 = *key2 = 0;
 
-	for( i = 0; i < MAX_KEYS; i++ ) {
+	for( i = 0; i < K_LASTKEY; i++ ) {
 		if( !keys[ i ].binding ) {
 			continue;
 		}
@@ -731,7 +626,7 @@ void Key_Unbindall_f (void)
 {
 	int		i;
 
-	for (i=0 ; i < MAX_KEYS; i++)
+	for (i=0 ; i < K_LASTKEY; i++)
 		if (keys[i].binding)
 			Key_SetBinding (i, "");
 }
@@ -884,7 +779,7 @@ void Key_WriteBindings( fileHandle_t f ) {
 
 	FS_Printf (f, "unbindall\n" );
 
-	for (i=0 ; i<MAX_KEYS ; i++) {
+	for (i=0 ; i<K_LASTKEY ; i++) {
 		if (keys[i].binding && keys[i].binding[0] ) {
 			FS_Printf (f, "bind %s \"%s\"\n", Key_KeynumToString(i), keys[i].binding);
 
@@ -903,7 +798,7 @@ Key_Bindlist_f
 void Key_Bindlist_f( void ) {
 	int		i;
 
-	for ( i = 0 ; i < MAX_KEYS ; i++ ) {
+	for ( i = 0 ; i < K_LASTKEY ; i++ ) {
 		if ( keys[i].binding && keys[i].binding[0] ) {
 			Com_Printf( "%s \"%s\"\n", Key_KeynumToString(i), keys[i].binding );
 		}
@@ -919,7 +814,7 @@ Key_AltBindlist_f
 void Key_AltBindlist_f( void ) {
 	int		i;
 
-	for ( i = 0 ; i < MAX_KEYS ; i++ ) {
+	for ( i = 0 ; i < K_LASTKEY ; i++ ) {
 		if ( altkeys[i].binding && altkeys[i].binding[0] ) {
 			Com_Printf( "%s \"%s\"\n", Key_KeynumToString(i), altkeys[i].binding );
 		}
@@ -935,7 +830,7 @@ Key_CtrlBindlist_f
 void Key_CtrlBindlist_f( void ) {
 	int		i;
 
-	for ( i = 0 ; i < MAX_KEYS ; i++ ) {
+	for ( i = 0 ; i < K_LASTKEY ; i++ ) {
 		if ( ctrlkeys[i].binding && ctrlkeys[i].binding[0] ) {
 			Com_Printf( "%s \"%s\"\n", Key_KeynumToString(i), ctrlkeys[i].binding );
 		}
@@ -1048,11 +943,11 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 		}
 	}
 
-	if( ( key == K_ALT || key == K_INS ) && cl_altbindings->integer ) {
+	if( ( key == K_LALT || key == K_INS ) && cl_altbindings->integer ) {
 		alt_down = down;
 	}
 
-	if( ( key == K_CTRL || key == K_DEL ) && cl_ctrlbindings->integer ) {
+	if( ( key == K_LCTRL || key == K_DEL ) && cl_ctrlbindings->integer ) {
 		ctrl_down = down;
 	}
 
@@ -1082,10 +977,10 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 
 	if( down )
 	{
-		if( alt_down && key != K_ALT && key != K_INS ) {
+		if( alt_down && key != K_LALT && key != K_INS ) {
 			altkeys[ key ].down = down;
 		}
-		if( down && ctrl_down && key != K_CTRL ) {
+		if( down && ctrl_down && key != K_LCTRL ) {
 			ctrlkeys[ key ].down = down;
 		}
 	}
@@ -1098,7 +993,7 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 	{
 		if (down)
 		{
-			if (keys[K_ALT].down)
+			if (keys[K_LALT].down)
 			{
 				Key_ClearStates();
 				Cvar_SetValue( "r_fullscreen",
@@ -1274,7 +1169,7 @@ void Key_ClearStates (void)
 
 	anykeydown = 0;
 
-	for ( i=0 ; i < MAX_KEYS ; i++ ) {
+	for ( i=0 ; i < K_LASTKEY ; i++ ) {
 		if ( keys[i].down ) {
 			CL_KeyEvent( i, qfalse, 0 );
 

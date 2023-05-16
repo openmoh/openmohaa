@@ -1127,8 +1127,8 @@ static void IN_StartupMIDI( void )
 	//
 	if ( midiInOpen( &s_midiInfo.hMidiIn, 
 		             in_mididevice->integer,
-					 ( unsigned long ) MidiInProc,
-					 ( unsigned long ) NULL,
+					 ( DWORD_PTR ) MidiInProc,
+					 ( DWORD_PTR ) NULL,
 					 CALLBACK_FUNCTION ) != MMSYSERR_NOERROR )
 	{
 		Com_Printf( "WARNING: could not open MIDI device %d: '%s'\n", in_mididevice->integer , s_midiInfo.caps[( int ) in_mididevice->value] );
