@@ -439,13 +439,21 @@ Upload32
 ===============
 */
 extern qboolean charSet;
-static void Upload32( unsigned *data, 
-						  int width, int height, 
-						  qboolean mipmap, 
-						  qboolean picmip, 
-							qboolean lightMap,
-						  int *format, 
-						  int *pUploadWidth, int *pUploadHeight )
+static void Upload32(
+	unsigned int* data,
+	int width,
+	int height,
+	int numMipmaps,
+	qboolean picmip, 
+	qboolean dynamicallyUpdated,
+	qboolean force32bit,
+	qboolean hasAlpha,
+	int* format,
+	int* pUploadWidth,
+	int* pUploadHeight,
+	int* bytesUsed,
+	qboolean bIsLightmap
+)
 {
 	int			samples;
 	unsigned	*scaledBuffer = NULL;
@@ -514,7 +522,7 @@ static void Upload32( unsigned *data,
 	c = width*height;
 	scan = ((byte *)data);
 	samples = 3;
-	if (!lightMap) {
+	if (!bIsLightmap) {
 		for ( i = 0; i < c; i++ )
 		{
 			if ( scan[i*4+0] > rMax )
@@ -576,7 +584,7 @@ static void Upload32( unsigned *data,
 	// copy or resample data as appropriate for first MIP level
 	if ( ( scaled_width == width ) && 
 		( scaled_height == height ) ) {
-		if (!mipmap)
+		if (!numMipmaps)
 		{
 			qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			*pUploadWidth = scaled_width;
@@ -604,7 +612,7 @@ static void Upload32( unsigned *data,
 		Com_Memcpy( scaledBuffer, data, width * height * 4 );
 	}
 
-	R_LightScaleTexture (scaledBuffer, scaled_width, scaled_height, !mipmap );
+	R_LightScaleTexture (scaledBuffer, scaled_width, scaled_height, !numMipmaps);
 
 	*pUploadWidth = scaled_width;
 	*pUploadHeight = scaled_height;
@@ -612,7 +620,7 @@ static void Upload32( unsigned *data,
 
 	qglTexImage2D (GL_TEXTURE_2D, 0, internalFormat, scaled_width, scaled_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, scaledBuffer );
 
-	if (mipmap)
+	if (numMipmaps)
 	{
 		int		miplevel;
 
@@ -637,7 +645,7 @@ static void Upload32( unsigned *data,
 	}
 done:
 
-	if (mipmap)
+	if (numMipmaps)
 	{
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
@@ -664,19 +672,35 @@ R_CreateImage
 This is the only way any image_t are created
 ================
 */
-image_t *R_CreateImage( const char *name, const byte *pic, int width, int height, 
-					   qboolean mipmap, qboolean allowPicmip, int glWrapClampMode ) {
+image_t* R_CreateImage(
+	const char* name,
+	byte* pic,
+	int width,
+	int height,
+	int numMipmaps,
+	int iMipmapsAvailable,
+	qboolean allowPicmip,
+	qboolean force32bit,
+	qboolean hasAlpha,
+	int glCompressMode,
+	int glWrapClampModeX,
+	int glWrapClampModeY
+) {
 	image_t		*image;
 	qboolean	isLightmap = qfalse;
+	qboolean	dynamicallyUpdated = qfalse;
 	int i;
 	long		hash;
 
 	if (strlen(name) >= MAX_QPATH ) {
 		ri.Error (ERR_DROP, "R_CreateImage: \"%s\" is too long\n", name);
 	}
-	if ( !strncmp( name, "*lightmap", 9 ) ) {
+	if (!strncmp(name, "*lightmap", 9)) {
 		isLightmap = qtrue;
-    }
+	}
+	else if (!strncmp(name, "*lightmapD", 10)) {
+		dynamicallyUpdated = qtrue;
+	}
 
 	for (i = 0; i < tr.numImages; i++)
 	{
@@ -699,14 +723,17 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	image = &tr.images[i];
 	image->texnum = 1024 + tr.numImages;
 
-	image->numMipmaps = mipmap;
+	image->numMipmaps = numMipmaps;
 	image->allowPicmip = allowPicmip;
+	image->dynamicallyUpdated = dynamicallyUpdated;
+	image->force32bit = force32bit;
 
 	strcpy (image->imgName, name);
 
 	image->width = width;
 	image->height = height;
-	image->wrapClampModeX = glWrapClampMode;
+	image->wrapClampModeX = glWrapClampModeX;
+	image->wrapClampModeY = glWrapClampModeY;
 
 	// lightmaps are always allocated on TMU 1
 	if ( qglActiveTextureARB && isLightmap ) {
@@ -721,19 +748,28 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 
 	GL_Bind(image);
 
-	Upload32( (unsigned *)pic, image->width, image->height, 
-								image->numMipmaps,
-								allowPicmip,
-								isLightmap,
-								&image->internalFormat,
-								&image->uploadWidth,
-								&image->uploadHeight );
+	Upload32(
+		(unsigned*)pic,
+		image->width,
+		image->height,
+		image->numMipmaps,
+		allowPicmip,
+		image->dynamicallyUpdated,
+		force32bit,
+		hasAlpha,
+		&image->internalFormat,
+		&image->uploadWidth,
+		&image->uploadHeight,
+		&image->bytesUsed,
+		isLightmap
+	);
 
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampMode );
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampMode );
+	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampModeX );
+	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampModeY );
 
 	qglBindTexture( GL_TEXTURE_2D, 0 );
 
+	glState.currenttextures[image->TMU] = -1;
 	if ( image->TMU == 1 ) {
 		GL_SelectTexture( 0 );
 	}
@@ -1843,35 +1879,44 @@ Loads any of the supported image types into a cannonical
 32 bit format.
 =================
 */
-void R_LoadImage( const char *name, byte **pic, int *width, int *height ) {
+static void R_LoadImage(const char* name, byte** pic, int* width, int* height, qboolean* hasAlpha, int* glCompressMode, int* numMipmaps, int* piMipmapsAvailable) {
 	int		len;
 
+	*hasAlpha = qfalse;
+	*glCompressMode = 0;
 	*pic = NULL;
 	*width = 0;
 	*height = 0;
 
 	len = strlen(name);
-	if (len<5) {
+	if (len < 5) {
 		return;
 	}
 
-	if ( !Q_stricmp( name+len-4, ".tga" ) ) {
-	  LoadTGA( name, pic, width, height );            // try tga first
-    if (!*pic) {                                    //
-		  char altname[MAX_QPATH];                      // try jpg in place of tga 
-      strcpy( altname, name );                      
-      len = strlen( altname );                  
-      altname[len-3] = 'j';
-      altname[len-2] = 'p';
-      altname[len-1] = 'g';
-			LoadJPG( altname, pic, width, height );
+	if (!Q_stricmp(name + len - 4, ".tga")) {
+		LoadTGA(name, pic, width, height);            // try tga first
+		if (!*pic) {                                    //
+			char altname[MAX_QPATH];                      // try jpg in place of tga 
+			strcpy(altname, name);
+			len = strlen(altname);
+			altname[len - 3] = 'j';
+			altname[len - 2] = 'p';
+			altname[len - 1] = 'g';
+			LoadJPG(altname, pic, width, height);
 		}
-  } else if ( !Q_stricmp(name+len-4, ".pcx") ) {
-    LoadPCX32( name, pic, width, height );
-	} else if ( !Q_stricmp( name+len-4, ".bmp" ) ) {
-		LoadBMP( name, pic, width, height );
-	} else if ( !Q_stricmp( name+len-4, ".jpg" ) ) {
-		LoadJPG( name, pic, width, height );
+		*piMipmapsAvailable = 1;
+	}
+	else if (!Q_stricmp(name + len - 4, ".pcx")) {
+		LoadPCX32(name, pic, width, height);
+		*piMipmapsAvailable = 1;
+	}
+	else if (!Q_stricmp(name + len - 4, ".bmp")) {
+		LoadBMP(name, pic, width, height);
+		*piMipmapsAvailable = 1;
+	}
+	else if (!Q_stricmp(name + len - 4, ".jpg")) {
+		LoadJPG(name, pic, width, height);
+		*piMipmapsAvailable = 1;
 	}
 }
 
@@ -1888,6 +1933,11 @@ image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip
 	image_t	*image;
 	int		width, height;
 	byte	*pic;
+	int		len;
+	qboolean	hasAlpha;
+	int			glCompressMode;
+	int			numMipmaps;
+	int			iMipmapsAvailable;
 	long	hash;
 
 	if (!name) {
@@ -1899,18 +1949,18 @@ image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip
 	//
 	// see if the image is already loaded
 	//
-	for (image=hashTable[hash]; image; image=image->next) {
-		if ( !strcmp( name, image->imgName ) ) {
+	for (image = hashTable[hash]; image; image = image->next) {
+		if (!strcmp(name, image->imgName)) {
 			// the white image can be used with any set of parms, but other mismatches are errors
-			if ( strcmp( name, "*white" ) ) {
-				if ( image->numMipmaps != mipmap ) {
-					ri.Printf( PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n", name );
+			if (strcmp(name, "*white")) {
+				if (image->numMipmaps != mipmap) {
+					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n", name);
 				}
-				if ( image->allowPicmip != allowPicmip ) {
-					ri.Printf( PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name );
+				if (image->allowPicmip != allowPicmip) {
+					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name);
 				}
-				if ( image->wrapClampModeX != glWrapClampModeX || image != glWrapClampModeY ) {
-					ri.Printf( PRINT_ALL, "WARNING: reused image %s with mixed glWrapClampMode parm\n", name );
+				if (image->wrapClampModeX != glWrapClampModeX || image != glWrapClampModeY) {
+					ri.Printf(PRINT_ALL, "WARNING: reused image %s with mixed glWrapClampMode parm\n", name);
 				}
 			}
 			if (image->r_sequence != -1) {
@@ -1923,24 +1973,26 @@ image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip
 	//
 	// load the pic from disk
 	//
-	R_LoadImage( name, &pic, &width, &height );
-	if ( pic == NULL ) {                                    // if we dont get a successful load
-	  char altname[MAX_QPATH];                              // copy the name
-    int len;                                              //  
-    strcpy( altname, name );                              //
-    len = strlen( altname );                              // 
-    altname[len-3] = toupper(altname[len-3]);             // and try upper case extension for unix systems
-    altname[len-2] = toupper(altname[len-2]);             //
-    altname[len-1] = toupper(altname[len-1]);             //
-		ri.Printf( PRINT_ALL, "trying %s...\n", altname );    // 
-	  R_LoadImage( altname, &pic, &width, &height );        //
-    if (pic == NULL) {                                    // if that fails
-      return NULL;                                        // bail
-    }
+	R_LoadImage(name, &pic, &width, &height, &hasAlpha, &glCompressMode, &numMipmaps, &iMipmapsAvailable);
+	if (pic == NULL) {
+		return NULL;
 	}
 
-	image = R_CreateImage( ( char * ) name, pic, width, height, mipmap, allowPicmip, glWrapClampModeX );
-	ri.Free( pic );
+	image = R_CreateImage(
+		name,
+		pic,
+		width,
+		height,
+		numMipmaps,
+		iMipmapsAvailable,
+		allowPicmip,
+		force32bit,
+		hasAlpha,
+		glCompressMode,
+		glWrapClampModeX,
+		glWrapClampModeY);
+
+	ri.Free(pic);
 	return image;
 }
 
@@ -2002,7 +2054,7 @@ static void R_CreateDlightImage( void ) {
 			data[y][x][3] = 255;			
 		}
 	}
-	tr.dlightImage = R_CreateImage("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, qfalse, qfalse, GL_CLAMP );
+	tr.dlightImage = R_CreateImage("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
 }
 
 
@@ -2061,49 +2113,6 @@ float	R_FogFactor( float s, float t ) {
 }
 
 /*
-================
-R_CreateFogImage
-================
-*/
-#define	FOG_S	256
-#define	FOG_T	32
-static void R_CreateFogImage( void ) {
-	int		x,y;
-	byte	*data;
-	float	g;
-	float	d;
-	float	borderColor[4];
-
-	data = ri.Hunk_AllocateTempMemory( FOG_S * FOG_T * 4 );
-
-	g = 2.0;
-
-	// S is distance, T is depth
-	for (x=0 ; x<FOG_S ; x++) {
-		for (y=0 ; y<FOG_T ; y++) {
-			d = R_FogFactor( ( x + 0.5f ) / FOG_S, ( y + 0.5f ) / FOG_T );
-
-			data[(y*FOG_S+x)*4+0] = 
-			data[(y*FOG_S+x)*4+1] = 
-			data[(y*FOG_S+x)*4+2] = 255;
-			data[(y*FOG_S+x)*4+3] = 255*d;
-		}
-	}
-	// standard openGL clamping doesn't really do what we want -- it includes
-	// the border color at the edges.  OpenGL 1.2 has clamp-to-edge, which does
-	// what we want.
-	tr.fogImage = R_CreateImage("*fog", (byte *)data, FOG_S, FOG_T, qfalse, qfalse, GL_CLAMP );
-	ri.Hunk_FreeTempMemory( data );
-
-	borderColor[0] = 1.0;
-	borderColor[1] = 1.0;
-	borderColor[2] = 1.0;
-	borderColor[3] = 1;
-
-	qglTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
-}
-
-/*
 ==================
 R_CreateDefaultImage
 ==================
@@ -2136,7 +2145,7 @@ static void R_CreateDefaultImage( void ) {
 		data[x][DEFAULT_SIZE-1][2] =
 		data[x][DEFAULT_SIZE-1][3] = 255;
 	}
-	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qtrue, qfalse, GL_REPEAT );
+	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, 1, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
 }
 
 /*
@@ -2152,7 +2161,7 @@ void R_CreateBuiltinImages( void ) {
 
 	// we use a solid white image instead of disabling texturing
 	Com_Memset( data, 255, sizeof( data ) );
-	tr.whiteImage = R_CreateImage("*white", (byte *)data, 8, 8, qfalse, qfalse, GL_REPEAT );
+	tr.whiteImage = R_CreateImage("*white", (byte *)data, 8, 8, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc
@@ -2165,16 +2174,15 @@ void R_CreateBuiltinImages( void ) {
 		}
 	}
 
-	tr.identityLightImage = R_CreateImage("*identityLight", (byte *)data, 8, 8, qfalse, qfalse, GL_REPEAT );
+	tr.identityLightImage = R_CreateImage("*identityLight", (byte *)data, 8, 8, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
 
 
 	for(x=0;x<32;x++) {
 		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] = R_CreateImage("*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, qfalse, qtrue, GL_CLAMP );
+		tr.scratchImage[x] = R_CreateImage("*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, 0, 1, qtrue, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
 	}
 
 	R_CreateDlightImage();
-	R_CreateFogImage();
 }
 
 

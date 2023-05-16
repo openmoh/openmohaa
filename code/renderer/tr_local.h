@@ -1659,8 +1659,20 @@ model_t		*R_AllocModel( void );
 void    	R_Init( void );
 image_t		*R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
 
-image_t		*R_CreateImage( const char *name, const byte *pic, int width, int height, qboolean mipmap
-					, qboolean allowPicmip, int wrapClampMode );
+image_t* R_CreateImage(
+	const char* name,
+	byte* pic,
+	int width,
+	int height,
+	int numMipmaps,
+	int iMipmapsAvailable,
+	qboolean allowPicmip,
+	qboolean force32bit,
+	qboolean hasAlpha,
+	int glCompressMode,
+	int glWrapClampModeX,
+	int glWrapClampModeY
+);
 qboolean	R_GetModeInfo( int *width, int *height, float *windowAspect, int mode );
 
 void		R_SetColorMappings( void );
