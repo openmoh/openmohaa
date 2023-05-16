@@ -132,7 +132,7 @@ int R_CullPointAndRadius( vec3_t pt, float radius )
 	}
 
 	// check against frustum planes
-	for (i = 0 ; i < 4 ; i++) 
+	for (i = 0 ; i < tr.viewParms.fog.extrafrustums + 4; i++)
 	{
 		frust = &tr.viewParms.frustum[i];
 
@@ -349,35 +349,25 @@ void R_RotateForStaticModel( cStaticModelUnpacked_t *SM, const viewParms_t *view
 	VectorCopy( SM->axis[1], ori->axis[1] );
 	VectorCopy( SM->axis[2], ori->axis[2] );
 
-	glMatrix[0] = ori->axis[0][0] * tiki_scale;
-	glMatrix[4] = ori->axis[1][0] * tiki_scale;
-	glMatrix[8] = ori->axis[2][0] * tiki_scale;
+	glMatrix[0]  = ori->axis[0][0] * tiki_scale;
+	glMatrix[4]  = ori->axis[1][0] * tiki_scale;
+	glMatrix[8]  = ori->axis[2][0] * tiki_scale;
 	glMatrix[12] = ori->origin[0];
 
-	glMatrix[1] = ori->axis[0][1] * tiki_scale;
-	glMatrix[5] = ori->axis[1][1] * tiki_scale;
-	glMatrix[9] = ori->axis[2][1] * tiki_scale;
+	glMatrix[1]  = ori->axis[0][1] * tiki_scale;
+	glMatrix[5]  = ori->axis[1][1] * tiki_scale;
+	glMatrix[9]  = ori->axis[2][1] * tiki_scale;
 	glMatrix[13] = ori->origin[1];
 
-	glMatrix[2] = ori->axis[0][2] * tiki_scale;
-	glMatrix[6] = ori->axis[1][2] * tiki_scale;
+	glMatrix[2]  = ori->axis[0][2] * tiki_scale;
+	glMatrix[6]  = ori->axis[1][2] * tiki_scale;
 	glMatrix[10] = ori->axis[2][2] * tiki_scale;
 	glMatrix[14] = ori->origin[2];
 
-	glMatrix[3] = 0;
-	glMatrix[7] = 0;
+	glMatrix[3]  = 0;
+	glMatrix[7]  = 0;
 	glMatrix[11] = 0;
 	glMatrix[15] = 1;
-
-    glMatrix[0] = SM->axis[0][0] * tiki_scale;
-    glMatrix[1] = SM->axis[0][1] * tiki_scale;
-    glMatrix[2] = SM->axis[0][2] * tiki_scale;
-    glMatrix[4] = SM->axis[1][0] * tiki_scale;
-    glMatrix[5] = SM->axis[1][1] * tiki_scale;
-    glMatrix[6] = SM->axis[1][2] * tiki_scale;
-    glMatrix[8] = SM->axis[2][0] * tiki_scale;
-    glMatrix[9] = SM->axis[2][1] * tiki_scale;
-    glMatrix[10] = SM->axis[2][2] * tiki_scale;
 
 	myGlMultMatrix( glMatrix, viewParms->world.modelMatrix, ori->modelMatrix );
 
@@ -1336,9 +1326,7 @@ void R_AddEntitySurfaces (void) {
 	trRefEntity_t	*ent;
 	shader_t		*shader;
 
-	if ( !r_drawentities->integer ) {
-		return;
-	}
+	tr.shiftedIsStatic = 0;
 
 	for ( tr.currentEntityNum = 0; 
 	      tr.currentEntityNum < tr.refdef.num_entities; 

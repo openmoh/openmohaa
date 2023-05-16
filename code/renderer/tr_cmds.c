@@ -322,6 +322,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 
 	tr.frameCount++;
 	tr.frameSceneNum = 0;
+	g_nStaticSurfaces = 0;
 
 	//
 	// do overdraw measurement

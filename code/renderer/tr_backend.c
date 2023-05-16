@@ -598,36 +598,40 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				backEnd.currentEntity = 0;
 				backEnd.spareSphere.TessFunction = 0;
 				backEnd.currentStaticModel = &backEnd.refdef.staticModels[entityNum];
-				R_RotateForStaticModel(&backEnd.refdef.staticModels[entityNum], &backEnd.viewParms, &backEnd.ori );
+				R_RotateForStaticModel(backEnd.currentStaticModel, &backEnd.viewParms, &backEnd.ori );
 			}
-			else if ( entityNum != ENTITYNUM_WORLD ) {
-				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-				// we have to reset the shaderTime as well otherwise image animations start
-				// from the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+			else {
+				backEnd.currentStaticModel = NULL;
+				if (entityNum != ENTITYNUM_WORLD) {
+					backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
+					backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+					// we have to reset the shaderTime as well otherwise image animations start
+					// from the wrong frame
+					tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
 
-				// set up the transformation matrix
-				R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.ori );
+					// set up the transformation matrix
+					R_RotateForEntity(backEnd.currentEntity, &backEnd.viewParms, &backEnd.ori);
 
-				// set up the dynamic lighting if needed
-				if ( backEnd.currentEntity->needDlights ) {
-					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
+					// set up the dynamic lighting if needed
+					if (backEnd.currentEntity->needDlights) {
+						R_TransformDlights(backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori);
+					}
+
+					if (backEnd.currentEntity->e.renderfx & RF_DEPTHHACK) {
+						// hack the depth range to prevent view model from poking into walls
+						depthRange = qtrue;
+					}
 				}
-
-				if ( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) {
-					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
+				else {
+					backEnd.currentEntity = &tr.worldEntity;
+					backEnd.refdef.floatTime = originalTime;
+					backEnd.ori = backEnd.viewParms.world;
+					backEnd.shaderStartTime = 0.0;
+					// we have to reset the shaderTime as well otherwise image animations on
+					// the world (like water) continue with the wrong frame
+					tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
+					R_TransformDlights(backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori);
 				}
-			} else {
-				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.refdef.floatTime = originalTime;
-				backEnd.ori = backEnd.viewParms.world;
-				backEnd.shaderStartTime = 0.0;
-				// we have to reset the shaderTime as well otherwise image animations on
-				// the world (like water) continue with the wrong frame
-				tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
-				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
 			}
 
 			qglLoadMatrixf( backEnd.ori.modelMatrix );

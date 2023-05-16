@@ -130,10 +130,10 @@ typedef struct {
     float radius;
     struct mnode_s* leaves[8];
     void(*TessFunction) ();
-    union ambient {
+    union {
         unsigned char level[4];
         int value;
-    };
+    } ambient;
     int numRealLights;
     reallightinfo_t light[32];
     int bUsesCubeMap;
@@ -666,6 +666,13 @@ typedef struct {
 	float		surface[4];
 } fog_t;
 
+typedef struct depthfog_s {
+	float len;
+	float oolen;
+	int enabled;
+	int extrafrustums;
+} depthfog_t;
+
 typedef struct {
 	orientationr_t	ori;
 	orientationr_t	world;
@@ -681,6 +688,10 @@ typedef struct {
 	cplane_t	frustum[4];
 	vec3_t		visBounds[2];
 	float		zFar;
+	depthfog_t	fog;
+	float		farplane_distance;
+	float		farplane_color[3];
+	qboolean	farplane_cull;
 } viewParms_t;
 
 
@@ -2023,7 +2034,9 @@ void RB_Static_BuildDLights();
 void R_PrintInfoStaticModels();
 void R_AddSkelSurfaces(trRefEntity_t* ent);
 void R_AddStaticModelSurfaces(void);
+float R_CalcLod(const vec3_t origin, float radius);
 
+extern int g_nStaticSurfaces;
 extern qboolean g_bInfostaticmodels;
 
 /*
