@@ -270,6 +270,10 @@ typedef enum {
 
 } genFunc_t;
 
+typedef enum {
+	USE_S_COORDS,
+	USE_T_COORDS
+} texDirection_t;
 
 typedef enum {
 	DEFORM_NONE,
@@ -277,17 +281,11 @@ typedef enum {
 	DEFORM_NORMALS,
 	DEFORM_BULGE,
 	DEFORM_MOVE,
-	DEFORM_PROJECTION_SHADOW,
 	DEFORM_AUTOSPRITE,
 	DEFORM_AUTOSPRITE2,
-	DEFORM_TEXT0,
-	DEFORM_TEXT1,
-	DEFORM_TEXT2,
-	DEFORM_TEXT3,
-	DEFORM_TEXT4,
-	DEFORM_TEXT5,
-	DEFORM_TEXT6,
-	DEFORM_TEXT7
+	DEFORM_LIGHTGLOW,
+	DEFORM_FLAP_S,
+	DEFORM_FLAP_T
 } deform_t;
 
 typedef enum {
@@ -535,6 +533,9 @@ typedef struct shader_s {
 	skyParms_t	sky;
 	spriteParms_t sprite;
 	qboolean	isPortalSky;
+	float subdivisions;
+	float fDistRange;
+	float fDistNear;
 	fogParms_t	fogParms;
 
 	float		portalRange;			// distance to fog out at

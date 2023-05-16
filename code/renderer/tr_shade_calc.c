@@ -159,6 +159,10 @@ void RB_CalcDeformVertexes( deformStage_t *ds )
 	}
 }
 
+void RB_CalcFlapVertexes(deformStage_t* ds, texDirection_t coordsToUse) {
+	// FIXME: unimplemented
+}
+
 /*
 =========================
 RB_CalcDeformNormals
@@ -528,6 +532,9 @@ static void Autosprite2Deform( void ) {
 	}
 }
 
+static void LightGlowDeform() {
+	// FIXME: unimplemented
+}
 
 /*
 =====================
@@ -563,15 +570,14 @@ void RB_DeformTessGeometry( void ) {
 		case DEFORM_AUTOSPRITE2:
 			Autosprite2Deform();
 			break;
-		case DEFORM_TEXT0:
-		case DEFORM_TEXT1:
-		case DEFORM_TEXT2:
-		case DEFORM_TEXT3:
-		case DEFORM_TEXT4:
-		case DEFORM_TEXT5:
-		case DEFORM_TEXT6:
-		case DEFORM_TEXT7:
-			DeformText( backEnd.refdef.text[ds->deformation - DEFORM_TEXT0] );
+		case DEFORM_LIGHTGLOW:
+			LightGlowDeform();
+			break;
+		case DEFORM_FLAP_S:
+			RB_CalcFlapVertexes(ds, USE_S_COORDS);
+			break;
+		case DEFORM_FLAP_T:
+			RB_CalcFlapVertexes(ds, USE_T_COORDS);
 			break;
 		}
 	}

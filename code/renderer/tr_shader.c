@@ -642,6 +642,9 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 	qboolean depthMaskExplicit = qfalse;
 
 	stage->active = qtrue;
+	stage->noMipMaps = shader_noMipMaps;
+	stage->noPicMip = shader_noPicMip;
+	stage->force32bit = shader_force32bit;
 
 	while ( 1 )
 	{
@@ -808,6 +811,9 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			} else if ( !Q_stricmp( token, "blend" ) ) {
 				blendSrcBits = GLS_SRCBLEND_SRC_ALPHA;
 				blendDstBits = GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
+			} else if ( !Q_stricmp( token, "alphaadd" ) ) {
+				blendSrcBits = GLS_SRCBLEND_SRC_ALPHA;
+				blendDstBits = GLS_DSTBLEND_ONE;
 			} else {
 				// complex double blends
 				blendSrcBits = NameToSrcBlendMode( token );
@@ -917,17 +923,11 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				ParseWaveForm( text, &stage->alphaWave );
 				stage->alphaGen = AGEN_WAVEFORM;
 			}
-			else if ( !Q_stricmp( token, "const" ) )
+			else if (!Q_stricmp(token, "global"))
 			{
-				token = COM_ParseExt( text, qfalse );
-				stage->colorConst[3] = 255 * atof( token );
-				stage->alphaGen = AGEN_CONSTANT;
+				stage->alphaGen = AGEN_GLOBAL_ALPHA;
 			}
-			else if ( !Q_stricmp( token, "identity" ) )
-			{
-				stage->alphaGen = AGEN_IDENTITY;
-			}
-			else if ( !Q_stricmp( token, "entity" ) )
+			else if ( !Q_stricmp( token, "entity" ) || !Q_stricmp(token, "fromentity"))
 			{
 				stage->alphaGen = AGEN_ENTITY;
 			}
@@ -935,17 +935,181 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			{
 				stage->alphaGen = AGEN_ONE_MINUS_ENTITY;
 			}
-			else if ( !Q_stricmp( token, "vertex" ) )
+			else if ( !Q_stricmp( token, "vertex" ) || !Q_stricmp(token, "fromclient"))
 			{
 				stage->alphaGen = AGEN_VERTEX;
 			}
-			else if ( !Q_stricmp( token, "lightingSpecular" ) )
+			else if ( !Q_stricmp( token, "oneMinusVertex" ) || !Q_stricmp(token, "oneMinusFromClient"))
+			{
+				stage->alphaGen = AGEN_ONE_MINUS_VERTEX;
+			}
+			else if (!Q_stricmp(token, "lightingSpecular"))
 			{
 				stage->alphaGen = AGEN_LIGHTING_SPECULAR;
 			}
-			else if ( !Q_stricmp( token, "oneMinusVertex" ) )
+			else if (!Q_stricmp(token, "distFade"))
 			{
-				stage->alphaGen = AGEN_ONE_MINUS_VERTEX;
+				stage->alphaGen = AGEN_DIST_FADE;
+				shader.fDistNear = 256.0;
+				shader.fDistRange = 256.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				shader.fDistNear = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				shader.fDistRange = atof(token);
+			}
+			else if (!Q_stricmp(token, "oneMinusDistFade"))
+			{
+				stage->alphaGen = AGEN_ONE_MINUS_DIST_FADE;
+				shader.fDistNear = 256.0;
+				shader.fDistRange = 256.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				shader.fDistNear = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				shader.fDistRange = atof(token);
+			}
+			else if (!Q_stricmp(token, "dot"))
+			{
+				shader.needsNormal = qtrue;
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaGen = AGEN_DOT;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "oneMinusDot"))
+			{
+				shader.needsNormal = qtrue;
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaGen = AGEN_ONE_MINUS_DOT;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "dotView"))
+			{
+				shader.needsNormal = qtrue;
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaGen = AGEN_DOT_VIEW;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "oneMinusDotView"))
+			{
+				shader.needsNormal = qtrue;
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaGen = AGEN_ONE_MINUS_DOT_VIEW;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "const") || !Q_stricmp(token, "constant"))
+			{
+				token = COM_ParseExt(text, qfalse);
+				stage->colorConst[3] = 255 * atof(token);
+				stage->alphaGen = AGEN_CONSTANT;
+			}
+			else if (!Q_stricmp(token, "skyAlpha"))
+			{
+				stage->alphaGen = AGEN_SKYALPHA;
+			}
+			else if (!Q_stricmp(token, "oneMinusSkyAlpha"))
+			{
+				stage->alphaGen = AGEN_ONE_MINUS_SKYALPHA;
+			}
+			else if (!Q_stricmp(token, "sCoord") || !Q_stricmp(token, "tCoord"))
+			{
+				if (!Q_stricmp(token, "sCoord")) {
+					stage->alphaGen = AGEN_SCOORD;
+				} else {
+					stage->alphaGen = AGEN_TCOORD;
+				}
+
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaConstMin = 0;
+				stage->alphaConst = -1;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaConstMin = atof(token) * 255.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					ri.Printf(PRINT_WARNING, "WARNING: missing alphaGen s or tCoord parm 'max' in shader '%s'\n", shader.name);
+					continue;
+				}
+				stage->alphaConst = atof(token) * 255.0;
 			}
 			else if ( !Q_stricmp( token, "portal" ) )
 			{
@@ -1046,11 +1210,19 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 		}
 		else if (!Q_stricmp(token, "noDepthTest"))
 		{
-			// FIXME: unimplemented
+			depthFuncBits = GLS_DEPTHTEST_DISABLE;
 			continue;
         }
         else if (!Q_stricmp(token, "nextBundle"))
         {
+			if (!qglActiveTextureARB) {
+				continue;
+			}
+
+			token = COM_ParseExt(text, qfalse);
+			if (token[0] == 0) {
+			}
+
             // FIXME: unimplemented
             continue;
         }
@@ -1083,6 +1255,10 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 	{
 		blendDstBits = blendSrcBits = 0;
 		depthMaskBits = GLS_DEPTHMASK_TRUE;
+	}
+
+	if (depthFuncBits == GLS_DEPTHTEST_DISABLE) {
+		depthMaskBits = 0;
 	}
 
 	// decide which agens we can skip
@@ -1138,11 +1314,6 @@ static void ParseDeform( char **text ) {
 	ds = &shader.deforms[ shader.numDeforms ];
 	shader.numDeforms++;
 
-	if ( !Q_stricmp( token, "projectionShadow" ) ) {
-		ds->deformation = DEFORM_PROJECTION_SHADOW;
-		return;
-	}
-
 	if ( !Q_stricmp( token, "autosprite" ) ) {
 		ds->deformation = DEFORM_AUTOSPRITE;
 		return;
@@ -1153,14 +1324,8 @@ static void ParseDeform( char **text ) {
 		return;
 	}
 
-	if ( !Q_stricmpn( token, "text", 4 ) ) {
-		int		n;
-		
-		n = token[4] - '0';
-		if ( n < 0 || n > 7 ) {
-			n = 0;
-		}
-		ds->deformation = DEFORM_TEXT0 + n;
+	if (!Q_stricmp(token, "lightglow")) {
+		ds->deformation = DEFORM_LIGHTGLOW;
 		return;
 	}
 
@@ -1253,6 +1418,65 @@ static void ParseDeform( char **text ) {
 
 		ParseWaveForm( text, &ds->deformationWave );
 		ds->deformation = DEFORM_MOVE;
+		return;
+	}
+
+	if (!Q_stricmp(token, "flap")) {
+		texDirection_t coordDirection;
+
+		token = COM_ParseExt(text, qfalse);
+		if (token[0] == 's') {
+			coordDirection = USE_S_COORDS;
+		}
+		else if (token[0] == 't') {
+			coordDirection = USE_T_COORDS;
+		}
+		else {
+			ri.Printf(PRINT_WARNING, "WARNING: deformVertexes flap requires 's' or 't' in shader '%s'\n", shader.name);
+			return;
+		}
+
+		token = COM_ParseExt(text, qfalse);
+		if (token[0] == 0) {
+			ri.Printf(PRINT_WARNING, "WARNING: missing deformVertexes flap parm in shader '%s'\n", shader.name);
+			return;
+		}
+
+		if (!atof(token)) {
+			ds->deformationSpread = 100.0;
+			ri.Printf(PRINT_WARNING, "WARNING: illegal div value of 0 in deformVertexes command for shader '%s'\n", shader.name);
+		}
+		else {
+			ds->deformationSpread = 1.0 / atof(token);
+		}
+
+		ParseWaveForm(text, &ds->deformationWave);
+
+		if (coordDirection == USE_T_COORDS) {
+			ds->deformation = DEFORM_FLAP_T;
+		}
+		else {
+			ds->deformation = DEFORM_FLAP_S;
+		}
+
+		shader.needsNormal = qtrue;
+
+		token = COM_ParseExt(text, qfalse);
+		if (token[0] == 0)
+		{
+			ds->bulgeWidth = 0.0;
+			ds->bulgeHeight = 1.0;
+			return;
+		}
+		ds->bulgeWidth = atof(token);
+
+		token = COM_ParseExt(text, qfalse);
+		if (token[0] == 0)
+		{
+			ri.Printf(PRINT_WARNING, "WARNING: missing deformVertexes parm 'max' in shader '%s'\n\n", shader.name);
+			return;
+		}
+		ds->bulgeHeight = atof(token);
 		return;
 	}
 
@@ -1550,14 +1774,19 @@ static qboolean ParseShader( char **text )
 		// no mip maps
 		else if ( !Q_stricmp( token, "nomipmaps" ) )
 		{
-			shader.noMipMaps = qtrue;
-			shader.noPicMip = qtrue;
+			shader_noMipMaps = qtrue;
 			continue;
 		}
 		// no picmip adjustment
 		else if ( !Q_stricmp( token, "nopicmip" ) )
 		{
-			shader.noPicMip = qtrue;
+			shader_noPicMip = qtrue;
+			continue;
+		}
+		// no picmip adjustment
+		else if (!Q_stricmp(token, "force32bit"))
+		{
+			shader_force32bit = qtrue;
 			continue;
 		}
 		// polygonOffset
@@ -1574,24 +1803,10 @@ static qboolean ParseShader( char **text )
 		{
 			shader.entityMergable = qtrue;
 			continue;
-		}
-		// fogParms
-		else if ( !Q_stricmp( token, "fogParms" ) ) 
+			}
+		else if (!Q_stricmp(token, "noMerge"))
 		{
-			if ( !ParseVector( text, 3, shader.fogParms.color ) ) {
-				return qfalse;
-			}
-
-			token = COM_ParseExt( text, qfalse );
-			if ( !token[0] ) 
-			{
-				ri.Printf( PRINT_WARNING, "WARNING: missing parm for 'fogParms' keyword in shader '%s'\n", shader.name );
-				continue;
-			}
-			shader.fogParms.depthForOpaque = atof( token );
-
-			// skip any old gradient directions
-			SkipRestOfLine( text );
+			shader.flags |= 1;
 			continue;
 		}
 		// portal
@@ -1606,10 +1821,49 @@ static qboolean ParseShader( char **text )
 			ParseSkyParms( text );
 			continue;
 		}
+		// portal
+		else if (!Q_stricmp(token, "portalsky"))
+		{
+			shader.sort = SS_PORTALSKY;
+			shader.isPortalSky = qtrue;
+			continue;
+		}
 		// light <value> determines flaring in q3map, not needed here
 		else if ( !Q_stricmp(token, "light") ) 
 		{
 			token = COM_ParseExt( text, qfalse );
+			continue;
+		}
+		else if (!Q_stricmp(token, "spritegen"))
+		{
+			token = COM_ParseExt(text, qfalse);
+			if (token[0] == 0) {
+				ri.Printf(PRINT_WARNING, "WARNING: missing spritegen parm in shader '%s'\n", shader.name);
+				continue;
+			}
+
+			if (!Q_stricmp(token, "parallel")) {
+				shader.sprite.type = SPRITE_PARALLEL;
+			} else if (!Q_stricmp(token, "parallel_oriented")) {
+				shader.sprite.type = SPRITE_PARALLEL_ORIENTED;
+			} else if (!Q_stricmp(token, "parallel_upright")) {
+				shader.sprite.type = SPRITE_PARALLEL_UPRIGHT;
+			} else if (!Q_stricmp(token, "oriented")) {
+				shader.sprite.type = SPRITE_ORIENTED;
+			}
+
+			shader.sprite.scale = 1.0;
+			continue;
+			}
+		else if (!Q_stricmp(token, "spritescale"))
+		{
+			token = COM_ParseExt(text, qfalse);
+			if (token[0] == 0) {
+				ri.Printf(PRINT_WARNING, "WARNING: missing spritescale parm in shader '%s'\n", shader.name);
+				continue;
+			}
+
+			shader.sprite.scale = atof(token);
 			continue;
 		}
 		// cull <face>
