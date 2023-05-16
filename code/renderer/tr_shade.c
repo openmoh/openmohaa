@@ -311,6 +311,7 @@ void RB_BeginSurface( shader_t *shader ) {
 	tess.numVertexes = 0;
 	tess.shader = shader;
 	tess.dlightBits = 0;		// will be OR'd in by surface functions
+	tess.vertexColorValid = r_vertexLight->integer != 0;
 	tess.xstages = shader->unfoggedStages;
 	tess.numPasses = shader->numUnfoggedPasses;
 	tess.currentStageIteratorFunc = shader->optimalStageIteratorFunc;
@@ -813,9 +814,11 @@ static void ComputeColors( shaderStage_t *pStage )
 	case AGEN_SKIP:
 		break;
 	case AGEN_IDENTITY:
-		if ( pStage->rgbGen != CGEN_IDENTITY ) {
-			if ( ( pStage->rgbGen == CGEN_VERTEX && tr.identityLight != 1 ) ||
-				 pStage->rgbGen != CGEN_VERTEX ) {
+		if ( pStage->rgbGen != CGEN_IDENTITY
+			&& pStage->rgbGen != CGEN_LIGHTING_GRID
+			&& pStage->rgbGen != CGEN_LIGHTING_SPHERICAL)
+		{
+			if ( pStage->rgbGen != CGEN_VERTEX || tr.identityLight != 1 ) {
 				for ( i = 0; i < tess.numVertexes; i++ ) {
 					tess.svars.colors[i][3] = 0xff;
 				}
