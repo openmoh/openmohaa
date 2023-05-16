@@ -170,16 +170,21 @@ void UIWindowManager::ViewEvent
 	)
 
 {
-	if( !view ) view = this;
+	if (!view) {
+		// use the first responder instead
+		view = m_firstResponder;
+	}
 
-	if( !view->isEnabled() )
+	if (!view->isEnabled()) {
 		return;
+	}
 
 	Event *ev = new Event( event );
 	ev->AddFloat( pos.x );
 	ev->AddFloat( pos.y );
 	ev->AddInteger( buttons );
-	ProcessEvent( ev );
+	// send the event to the view
+	view->ProcessEvent( ev );
 }
 
 UIWidget *UIWindowManager::getResponder
@@ -321,7 +326,6 @@ void UIWindowManager::ServiceEvents
 	}
 
 	SafePtr<UIWidget> b = m_oldview;
-	m_oldview = NULL;
 
 	if( b != view )
 	{
@@ -474,11 +478,11 @@ void UIWindowManager::ActivateControl
 
 					if( !m_activeControl )
 					{
-						m_activeControl = this;
-						m_activeControl->SetHovermaterialActive( true );
-						m_activeControl->ActivateOrder();
-						m_activeControl->BringToFrontPropogated();
-						m_activeControl->SendSignal( W_Activated );
+						m_activeControl = control;
+						control->SetHovermaterialActive( true );
+						control->ActivateOrder();
+						control->BringToFrontPropogated();
+						control->SendSignal( W_Activated );
 					}
 				}
 			}
@@ -652,7 +656,7 @@ qboolean UIWindowManager::KeyEvent
 {
 	UIWidget *selwidget = NULL;
 
-	if( key == K_TAB && ( uii.Sys_IsKeyDown( K_CTRL ) || uii.Sys_IsKeyDown( K_DEL ) ) )
+	if( key == K_TAB && ( uii.Sys_IsKeyDown( K_LCTRL ) || uii.Sys_IsKeyDown( K_DEL ) ) )
 	{
 		UIWidget *wid;
 
