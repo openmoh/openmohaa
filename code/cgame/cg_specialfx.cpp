@@ -775,6 +775,8 @@ void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEqui
 	str sSoundName;
 	trace_t trace;
 
+    iEffectNum = -1;
+
 	if (ent->iNextLandTime > cg.time) {
 		ent->iNextLandTime = cg.time + 200;
 		return;
