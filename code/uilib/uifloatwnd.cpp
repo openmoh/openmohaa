@@ -48,8 +48,22 @@ CLASS_DECLARATION( UIWidget, UIFloatingWindow, NULL )
 	{ NULL, NULL }
 };
 
-Event UIFloatingWindow::W_ClosePressed;
-Event UIFloatingWindow::W_MinimizePressed;
+Event UIFloatingWindow::W_ClosePressed
+(
+	"floatingwindow_close_pressed",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Signal that the window was closed"
+);
+Event UIFloatingWindow::W_MinimizePressed
+(
+	"floatingwindow_minimize_pressed",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Signal that the window was minimized"
+);
 
 UIFloatingWindow::UIFloatingWindow()
 {
