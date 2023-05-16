@@ -205,7 +205,7 @@ void Menu::HideMenu
 			if( !force )
 			{
 				Event *event = new Event( "hide" );
-				PostEvent( event, maxtime );
+				wid->PostEvent( event, maxtime );
 			}
 		}
 		else
@@ -584,6 +584,9 @@ void Menu::CheckRestart
 
 CLASS_DECLARATION( Listener, MenuManager, NULL )
 {
+	{ &EV_PushMenu,			&MenuManager::PushMenu },
+	{ &EV_LockMenus,		&MenuManager::Lock },
+	{ &EV_UnlockMenus,		&MenuManager::Unlock },
 	{ NULL, NULL }
 };
 
@@ -765,7 +768,7 @@ void MenuManager::PopMenu
 {
 	Menu *top;
 	Menu *head;
-	float maxtime;
+	float maxtime = 0.0;
 
 	if( m_lock )
 	{
@@ -799,10 +802,10 @@ void MenuManager::PopMenu
 			{
 				head->PostEvent( Event( "showmenu" ), maxtime );
 			}
-
-			Lock( NULL );
-			PostEvent( EV_UnlockMenus, maxtime );
 		}
+
+		Lock(NULL);
+		PostEvent(EV_UnlockMenus, maxtime);
 	}
 }
 
