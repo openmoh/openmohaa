@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
-static vec4_t cntColor;
+static byte cntColor[4];
 static float cntSt[ 2 ];
 
 /*
@@ -147,10 +147,10 @@ RB_Color4f
 ===============
 */
 void RB_Color4f( vec_t r, vec_t g, vec_t b, vec_t a ) {
-	cntColor[ 0 ] = r;
-	cntColor[ 1 ] = g;
-	cntColor[ 2 ] = b;
-	cntColor[ 3 ] = a;
+	cntColor[ 0 ] = r * tr.identityLightByte;
+	cntColor[ 1 ] = g * tr.identityLightByte;
+	cntColor[ 2 ] = b * tr.identityLightByte;
+	cntColor[ 3 ] = a * 255.0;
 }
 
 /*
@@ -177,10 +177,10 @@ RB_Color4bv
 ===============
 */
 void RB_Color4bv( unsigned char *colors ) {
-	cntColor[ 0 ] = colors[ 0 ] * 255.0;
-	cntColor[ 1 ] = colors[ 1 ] * 255.0;
-	cntColor[ 2 ] = colors[ 2 ] * 255.0;
-	cntColor[ 3 ] = colors[ 3 ] * 255.0;
+	cntColor[ 0 ] = colors[ 0 ];
+	cntColor[ 1 ] = colors[ 1 ];
+	cntColor[ 2 ] = colors[ 2 ];
+	cntColor[ 3 ] = colors[ 3 ];
 }
 
 /*
