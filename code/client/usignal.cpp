@@ -22,6 +22,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
+UConnection::UConnection()
+{
+}
+
+UConnection::UConnection(const Event& inevent, const Event& outevent)
+	: m_inevent(inevent)
+	, m_outevent(outevent)
+{
+}
+
 bool UConnection::TypeIs
 	(
 	Event& ev
@@ -183,7 +193,7 @@ bool USignal::Connect
 		}
 	}
 
-	c = new UConnection;
+	c = new UConnection(inevent, outevent);
 	m_connections.AddObject( c );
 
 	return c->AddListener( object, outevent );

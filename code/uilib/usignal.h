@@ -30,6 +30,8 @@ class UConnection {
 	Container<Event *> m_events;
 
 public:
+	UConnection();
+	UConnection(const Event& inevent, const Event& outevent);
 	bool		TypeIs( Event& ev );
 	bool		AddListener( Listener *object, Event& ev );
 	bool		RemoveListener( Listener *object );
