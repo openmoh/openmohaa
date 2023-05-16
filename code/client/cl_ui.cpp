@@ -1674,75 +1674,76 @@ UI_Update
 Updates the UI.
 ====================
 */
-void UI_Update( void ) {
-	Menu		*currentMenu;
+void UI_Update(void) {
+	Menu* currentMenu;
 	UIRect2D	frame;
 
-	re.SetRenderTime( cls.realtime );
+	re.SetRenderTime(cls.realtime);
 	CL_FillUIDef();
 	uWinMan.ServiceEvents();
 
 	//
 	// draw the base HUD when in-game
 	//
-	if( cls.no_menus && cls.state == CA_ACTIVE )
+	if (cls.no_menus && cls.state == CA_ACTIVE)
 	{
-		view3d->setShow( true );
+		view3d->setShow(true);
 		frame = uWinMan.getFrame();
-		view3d->Display( frame, 1.0 );
+		view3d->Display(frame, 1.0);
 
-		if( ui_hud && !view3d->LetterboxActive() )
+		if (ui_hud && !view3d->LetterboxActive())
 		{
 			// draw the health hud
-			if( hud_health )
+			if (hud_health)
 			{
 				hud_health->ForceShow();
 				frame = uWinMan.getFrame();
-				hud_health->GetContainerWidget()->Display( frame, 1.0 );
+				hud_health->GetContainerWidget()->Display(frame, 1.0);
 			}
 
 			// draw the ammo hud
-			if( hud_ammo )
+			if (hud_ammo)
 			{
 				hud_ammo->ForceShow();
 				frame = uWinMan.getFrame();
-				hud_ammo->GetContainerWidget()->Display( frame, 1.0 );
+				hud_ammo->GetContainerWidget()->Display(frame, 1.0);
 			}
 
 			// draw the compass hud
-			if( hud_compass )
+			if (hud_compass)
 			{
 				hud_compass->ForceShow();
 				frame = uWinMan.getFrame();
-				hud_compass->GetContainerWidget()->Display( frame, 1.0 );
+				hud_compass->GetContainerWidget()->Display(frame, 1.0);
 			}
 		}
 	}
 
-	if( fakk_console )
+	if (fakk_console)
 	{
-		if( ui_minicon->integer )
+		if (ui_minicon->integer)
 		{
 			// toggle the mini-console
-			if( mini_console ) {
-				mini_console->setRealShow( fakk_console->getShow() ^ 1 );
+			if (mini_console) {
+				mini_console->setRealShow(fakk_console->getShow() ^ 1);
 			}
-		} else if( mini_console ) {
-			mini_console->setRealShow( false );
+		}
+		else if (mini_console) {
+			mini_console->setRealShow(false);
 		}
 	}
 
-	if( gmbox ) {
-		gmbox->setRealShow( true );
+	if (gmbox) {
+		gmbox->setRealShow(true);
 	}
 
-	if( dmbox ) {
-		dmbox->setRealShow( true );
+	if (dmbox) {
+		dmbox->setRealShow(true);
 	}
 
 	currentMenu = menuManager.CurrentMenu();
 
-	if( currentMenu == menuManager.FindMenu( "main" ) ) {
+	if (currentMenu == menuManager.FindMenu("main")) {
 		UI_MainMenuWidgetsUpdate();
 	}
 
@@ -1757,679 +1758,683 @@ void UI_Update( void ) {
 	}
 	*/
 
-	if( !server_loading && ( cls.state == CA_CONNECTING || cls.state == CA_CHALLENGING ) && ui_pConnectingMenu )
+	if (!server_loading && (cls.state == CA_CONNECTING || cls.state == CA_CHALLENGING) && ui_pConnectingMenu)
 	{
-		view3d->setShow( false );
+		view3d->setShow(false);
 		UI_ClearBackground();
 
-		if( UI_BindActive() )
+		if (UI_BindActive())
 		{
-			Menu *bindMenu = menuManager.FindMenu( "controls" );
+			Menu* bindMenu = menuManager.FindMenu("controls");
 
-			if( bindMenu )
+			if (bindMenu)
 			{
-				Event *event = new Event( EV_UIFakkBindList_StopBind );
-				bindMenu->PassEventToWidget( "bindlist", event );
+				Event* event = new Event(EV_UIFakkBindList_StopBind);
+				bindMenu->PassEventToWidget("bindlist", event);
 			}
 			else
 			{
-				uWinMan.SetBindActive( NULL );
+				uWinMan.SetBindActive(NULL);
 			}
 		}
 
-		if( clc.connectTime >= cls.realtime - 1000 * cl_connect_timeout->integer )
+		if (clc.connectTime >= cls.realtime - 1000 * cl_connect_timeout->integer)
 		{
-			if( currentMenu != ui_pConnectingMenu )
+			if (currentMenu != ui_pConnectingMenu)
 			{
-				UI_ForceMenuOff( true );
+				UI_ForceMenuOff(true);
 				UI_DeactiveFloatingWindows();
-				UI_ForceMenu( "connecting" );
-				uWinMan.showCursor( true );
+				UI_ForceMenu("connecting");
+				uWinMan.showCursor(true);
 			}
 		}
 		else
 		{
-			Com_Printf( "\nConnect to server timed out\n" );
-			UI_ForceMenuOff( true );
-			Cbuf_AddText( "disconnect;pushmenu servertimeout" );
+			Com_Printf("\nConnect to server timed out\n");
+			UI_ForceMenuOff(true);
+			Cbuf_AddText("disconnect;pushmenu servertimeout");
 		}
 	}
 	else
 	{
-		if( currentMenu && currentMenu->isFullscreen() && ( !server_loading || !ui_pLoadingMenu ) )
+		if (currentMenu && currentMenu->isFullscreen() && (!server_loading || !ui_pLoadingMenu))
 		{
-			if( com_sv_running->integer && cls.state == CA_ACTIVE ) {
+			if (com_sv_running->integer && cls.state == CA_ACTIVE) {
 				Com_FakePause();
 			}
 
-			view3d->setShow( false );
+			view3d->setShow(false);
 		}
-		else if( !server_loading )
+		else if (!server_loading)
 		{
-			if( cls.state <= CA_PRIMED )
+			if (cls.state <= CA_PRIMED)
 			{
-				view3d->setShow( false );
+				view3d->setShow(false);
 				UI_ClearBackground();
 			}
-			else if( cls.state == CA_PRIMED || cls.state == CA_ACTIVE )
+			else if (cls.state == CA_PRIMED || cls.state == CA_ACTIVE)
 			{
 				Com_FakeUnpause();
-				view3d->setShow( true );
+				view3d->setShow(true);
 			}
 			else
 			{
 				UI_ClearBackground();
-				view3d->setShow( false );
+				view3d->setShow(false);
 			}
 		}
 		else
 		{
-			view3d->setShow( false );
+			view3d->setShow(false);
 			UI_ClearBackground();
 
-			if( UI_BindActive() )
+			if (UI_BindActive())
 			{
-				Menu *bindMenu = menuManager.FindMenu( "controls" );
+				Menu* bindMenu = menuManager.FindMenu("controls");
 
-				if( bindMenu )
+				if (bindMenu)
 				{
-					Event *event = new Event( EV_UIFakkBindList_StopBind );
-					bindMenu->PassEventToWidget( "bindlist", event );
+					Event* event = new Event(EV_UIFakkBindList_StopBind);
+					bindMenu->PassEventToWidget("bindlist", event);
 				}
 			}
 			else
 			{
-				uWinMan.SetBindActive( NULL );
+				uWinMan.SetBindActive(NULL);
 			}
 
-			if( ui_pLoadingMenu )
+			if (ui_pLoadingMenu)
 			{
-				if( currentMenu != ui_pLoadingMenu )
+				if (currentMenu != ui_pLoadingMenu)
 				{
-					UI_ForceMenuOff( true );
+					UI_ForceMenuOff(true);
 					UI_DeactiveFloatingWindows();
-					UI_ForceMenu( "" );
-					uWinMan.showCursor( false );
+					UI_ForceMenu("");
+					uWinMan.showCursor(false);
 				}
 
-				if( !developer->integer && UI_ConsoleIsVisible() ) {
+				if (!developer->integer && UI_ConsoleIsVisible()) {
 					UI_CloseConsole();
 				}
 			}
-			else if( ui_static_materials.loading )
+			else if (ui_static_materials.loading)
 			{
 				ui_static_materials.loading->ReregisterMaterial();
 			}
 		}
+	}
 
-		// Hide the HUD when necessary
-		if( !ui_hud || cls.state != CA_ACTIVE || view3d->LetterboxActive()
-			|| ( currentMenu && currentMenu->isFullscreen() )
-			|| server_loading
-			|| ( ( cl.snap.ps.pm_flags & PMF_NO_HUD ) || ( cl.snap.ps.pm_flags & PMF_SPECTATE_FOLLOW ) ) )
+	// Hide the HUD when necessary
+	if (!ui_hud || cls.state != CA_ACTIVE || view3d->LetterboxActive()
+		|| (currentMenu && currentMenu->isFullscreen())
+		|| server_loading
+		|| ((cl.snap.ps.pm_flags & PMF_NO_HUD) || (cl.snap.ps.pm_flags & PMF_SPECTATE_FOLLOW)))
+	{
+		if (crosshairhud)
 		{
-			if( crosshairhud )
-			{
+			crosshairhud->ForceHide();
+		}
+		if (hud_weapons)
+		{
+			hud_weapons->ForceHide();
+			ui_weapHudTime = 0;
+		}
+		if (hud_items)
+		{
+			hud_items->ForceHide();
+			ui_itemHudTime = 0;
+		}
+		if (hud_health)
+		{
+			hud_health->ForceHide();
+		}
+		if (hud_ammo)
+		{
+			hud_ammo->ForceHide();
+		}
+		if (hud_compass)
+		{
+			hud_compass->ForceHide();
+		}
+		if (hud_boss)
+		{
+			hud_boss->ForceHide();
+		}
+
+		UI_HideHudList();
+	}
+	else
+	{
+		if (crosshairhud)
+		{
+			if (ui_crosshair->integer && cl.snap.ps.stats[STAT_CROSSHAIR]) {
+				crosshairhud->ForceShow();
+			}
+			else {
 				crosshairhud->ForceHide();
 			}
-			if( hud_weapons )
+		}
+
+		//
+		// show and highlight all weapons that the player holds
+		//
+
+		//
+		// try to show the weapons bar
+		//
+		if (hud_weapons)
+		{
+			if (ui_weaponsbar->integer)
+			{
+				int iEquippedDiff = 0;
+				int iOwnedDiff = 0;
+
+				if (ui_weaponsbar->integer == 2) {
+					ui_weapHudTime = cls.realtime + ui_weaponsbartime->value;
+				}
+				else if (ui_weaponsbar->integer != 3 && ui_itemHudTime && hud_items->isVisible()) {
+					ui_weapHudTime = 0;
+				}
+
+				if (ui_lastWeapHudState_Owned != cl.snap.ps.stats[STAT_WEAPONS]
+					|| ui_lastWeapHudState_Equipped != cl.snap.ps.stats[STAT_EQUIPPED_WEAPON])
+				{
+					iOwnedDiff = cl.snap.ps.stats[STAT_WEAPONS] ^ ui_lastWeapHudState_Owned & 0x3F;
+					iEquippedDiff = (ui_lastWeapHudState_Equipped ^ cl.snap.ps.stats[STAT_EQUIPPED_WEAPON]) & 0x3F;
+
+					// if we have different equipment, reset the weapons hud time
+					if (iOwnedDiff || iEquippedDiff) {
+						ui_weapHudTime = cls.realtime + ui_weaponsbartime->integer;
+					}
+				}
+
+				//
+				// show weapons that the player holds
+				//
+				if (iOwnedDiff)
+				{
+					if (iOwnedDiff & 1)
+					{
+						if (cl.snap.ps.stats[STAT_WEAPONS] & 1)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("pistol_empty", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("pistol_empty", event);
+						}
+					}
+					else if (iOwnedDiff & 2)
+					{
+						if (cl.snap.ps.stats[STAT_WEAPONS] & 2)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("rifle_empty", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("rifle_empty", event);
+						}
+					}
+					else if (iOwnedDiff & 4)
+					{
+						if (cl.snap.ps.stats[STAT_WEAPONS] & 4)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("smg_empty", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("smg_empty", event);
+						}
+					}
+					else if (iOwnedDiff & 8)
+					{
+						if (cl.snap.ps.stats[STAT_WEAPONS] & 8)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("mg_empty", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("mg_empty", event);
+						}
+					}
+					else if (iOwnedDiff & 16)
+					{
+						if (cl.snap.ps.stats[STAT_WEAPONS] & 16)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("grenade_empty", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("grenade_empty", event);
+						}
+					}
+					else if (iOwnedDiff & 32)
+					{
+						if (cl.snap.ps.stats[STAT_WEAPONS] & 32)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("heavy_empty", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("heavy_empty", event);
+						}
+					}
+					else
+					{
+						ui_lastWeapHudState_Owned = cl.snap.ps.stats[STAT_WEAPONS] & 0x3F | ui_lastWeapHudState_Owned & -0x40;
+					}
+				}
+				//
+				// highlight currently equipped weapons
+				//
+				else if (iEquippedDiff)
+				{
+					if (iEquippedDiff & 1)
+					{
+						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 1)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("pistol_equipped", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("pistol_equipped", event);
+						}
+					}
+					else if (iEquippedDiff & 2)
+					{
+						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 2)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("rifle_equipped", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("rifle_equipped", event);
+						}
+					}
+					else if (iEquippedDiff & 4)
+					{
+						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 4)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("smg_equipped", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("smg_equipped", event);
+						}
+					}
+					else if (iEquippedDiff & 8)
+					{
+						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 8)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("mg_equipped", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("mg_equipped", event);
+						}
+					}
+					else if (iEquippedDiff & 16)
+					{
+						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 16)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("grenade_equipped", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("grenade_equipped", event);
+						}
+					}
+					else if (iEquippedDiff & 32)
+					{
+						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 32)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("heavy_equipped", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("heavy_equipped", event);
+						}
+					}
+					else
+					{
+						ui_lastWeapHudState_Equipped = cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 0x3F | ui_lastWeapHudState_Equipped & -0x40;
+					}
+				}
+
+				if (!ui_weapHudTime)
+				{
+					if (hud_weapons->isVisible()) {
+						hud_weapons->ProcessEvent(EV_HideMenu);
+					}
+				}
+				else if (ui_weapHudTime < cls.realtime || ui_itemHudTime > ui_weapHudTime)
+				{
+					ui_weapHudTime = 0;
+
+					if (hud_weapons->isVisible()) {
+						hud_weapons->ProcessEvent(EV_HideMenu);
+					}
+				}
+				else if (!hud_weapons->isVisible())
+				{
+					Event* event = new Event(EV_ShowMenu);
+					event->AddInteger(false);
+					hud_weapons->ProcessEvent(event);
+
+					if (hud_items->isVisible()) {
+						hud_items->ProcessEvent(EV_HideMenu);
+					}
+				}
+			}
+			else
 			{
 				hud_weapons->ForceHide();
 				ui_weapHudTime = 0;
 			}
-			if( hud_items )
+		}
+
+		//
+		// try to show the item bar
+		//
+		if (hud_items)
+		{
+			if (ui_weaponsbar->integer && ui_itemsbar->integer)
+			{
+				int iEquippedDiff = 0;
+				int iOwnedDiff = 0;
+
+				if (ui_weaponsbar->integer == 3)
+				{
+					ui_itemHudTime = cls.realtime + ui_weaponsbartime->integer;
+
+					if (ui_weapHudTime && hud_weapons->isVisible()) {
+						ui_itemHudTime = 0;
+					}
+				}
+
+				if (ui_lastWeapHudState_Owned != cl.snap.ps.stats[STAT_WEAPONS]
+					|| ui_lastWeapHudState_Equipped != cl.snap.ps.stats[STAT_EQUIPPED_WEAPON])
+				{
+					iOwnedDiff = cl.snap.ps.stats[STAT_WEAPONS] ^ ui_lastWeapHudState_Owned & 0xF00;
+					iEquippedDiff = (ui_lastWeapHudState_Equipped ^ cl.snap.ps.stats[STAT_EQUIPPED_WEAPON]) & 0xF00;
+
+					// if we have different equipment, reset the weapons hud time
+					if (iOwnedDiff || iEquippedDiff) {
+						ui_weapHudTime = cls.realtime + ui_weaponsbartime->integer;
+					}
+				}
+
+				//
+				// show items that the player holds
+				//
+				if (iOwnedDiff)
+				{
+					if (iOwnedDiff & 0x100)
+					{
+						if (cl.snap.ps.stats[STAT_WEAPONS] & 1)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("slot1_icon", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("slot1_icon", event);
+						}
+					}
+					else if (iOwnedDiff & 0x200)
+					{
+						if (cl.snap.ps.stats[STAT_WEAPONS] & 2)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("slot2_icon", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("slot2_icon", event);
+						}
+					}
+					else if (iOwnedDiff & 0x400)
+					{
+						if (cl.snap.ps.stats[STAT_WEAPONS] & 4)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("slot3_icon", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("slot3_icon", event);
+						}
+					}
+					else if (iOwnedDiff & 0x800)
+					{
+						if (cl.snap.ps.stats[STAT_WEAPONS] & 8)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("slot4_icon", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("slot4_icon", event);
+						}
+					}
+					else
+					{
+						ui_lastWeapHudState_Owned = cl.snap.ps.stats[STAT_WEAPONS] & 0xF00 | (ui_lastWeapHudState_Owned & 0xF0);
+					}
+				}
+				//
+				// highlight currently equipped weapons
+				//
+				else if (iEquippedDiff)
+				{
+					if (iEquippedDiff & 0x100)
+					{
+						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 1)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("slot1_highlight", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("slot1_highlight", event);
+						}
+					}
+					else if (iEquippedDiff & 0x200)
+					{
+						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 2)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("slot2_highlight", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("slot2_highlight", event);
+						}
+					}
+					else if (iEquippedDiff & 0x400)
+					{
+						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 4)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("slot3_highlight", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("slot3_highlight", event);
+						}
+					}
+					else if (iEquippedDiff & 0x800)
+					{
+						if (cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 8)
+						{
+							Event* event = new Event(EV_Widget_Disable);
+							hud_weapons->PassEventToWidget("slot4_highlight", event);
+						}
+						else
+						{
+							Event* event = new Event(EV_Widget_Enable);
+							hud_weapons->PassEventToWidget("slot4_highlight", event);
+						}
+					}
+					else
+					{
+						ui_lastWeapHudState_Equipped = cl.snap.ps.stats[STAT_EQUIPPED_WEAPON] & 0xF00 | (ui_lastWeapHudState_Equipped & 0xF0);
+					}
+				}
+
+				if (!ui_itemHudTime)
+				{
+					if (hud_items->isVisible()) {
+						hud_items->ProcessEvent(EV_HideMenu);
+					}
+				}
+				else if (ui_itemHudTime < cls.realtime || ui_weapHudTime > ui_itemHudTime)
+				{
+					ui_itemHudTime = 0;
+
+					if (hud_items->isVisible()) {
+						hud_items->ProcessEvent(EV_HideMenu);
+					}
+				}
+				else if (!hud_items->isVisible())
+				{
+					Event* event = new Event(EV_ShowMenu);
+					event->AddInteger(false);
+					hud_items->ProcessEvent(event);
+
+					if (hud_weapons->isVisible()) {
+						hud_weapons->ProcessEvent(EV_HideMenu);
+					}
+				}
+			}
+			else
 			{
 				hud_items->ForceHide();
 				ui_itemHudTime = 0;
 			}
-			if( hud_health )
-			{
-				hud_health->ForceHide();
-			}
-			if( hud_ammo )
-			{
-				hud_ammo->ForceHide();
-			}
-			if( hud_compass )
-			{
-				hud_compass->ForceHide();
-			}
-			if( hud_boss )
-			{
-				hud_boss->ForceHide();
-			}
-
-			UI_HideHudList();
 		}
-		else
+
+		if (hud_health) {
+			hud_health->ForceShow();
+		}
+
+		//
+		// show the ammo hud
+		//
+		str ammo = "hud_ammo_";
+		ammo += CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[ITEM_WEAPON]);
+
+		if (!hud_ammo || hud_ammo->m_name.icmp(ammo))
 		{
-			if( crosshairhud )
+			Menu* ammoMenu = menuManager.FindMenu(ammo);
+			if (ammoMenu)
 			{
-				if( ui_crosshair->integer && cl.snap.ps.stats[ STAT_CROSSHAIR ] ) {
-					crosshairhud->ForceShow();
-				} else {
-					crosshairhud->ForceHide();
+				if (ammoMenu != hud_ammo)
+				{
+					if (hud_ammo) {
+						hud_ammo->ForceHide();
+					}
+					hud_ammo = ammoMenu;
 				}
 			}
-
-			//
-			// show and highlight all weapons that the player holds
-			//
-
-			//
-			// try to show the weapons bar
-			//
-			if( hud_weapons )
+			else
 			{
-				if( ui_weaponsbar->integer )
+				ammoMenu = menuManager.FindMenu("hud_ammo_");
+				if (ammoMenu)
 				{
-					int iEquippedDiff = 0;
-					int iOwnedDiff = 0;
-
-					if( ui_weaponsbar->integer == 2 ) {
-						ui_weapHudTime = cls.realtime + ui_weaponsbartime->value;
-					} else if( ui_weaponsbar->integer != 3 && ui_itemHudTime && hud_items->isVisible() ) {
-						ui_weapHudTime = 0;
-					}
-
-					if( ui_lastWeapHudState_Owned != cl.snap.ps.stats[ STAT_WEAPONS ]
-						|| ui_lastWeapHudState_Equipped != cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] )
+					if (ammoMenu != hud_ammo)
 					{
-						iOwnedDiff = cl.snap.ps.stats[ STAT_WEAPONS ] ^ ui_lastWeapHudState_Owned & 0x3F;
-						iEquippedDiff = ( ui_lastWeapHudState_Equipped ^ cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] ) & 0x3F;
-
-						// if we have different equipment, reset the weapons hud time
-						if( iOwnedDiff || iEquippedDiff ) {
-							ui_weapHudTime = cls.realtime + ui_weaponsbartime->integer;
-						}
-					}
-
-					//
-					// show weapons that the player holds
-					//
-					if( iOwnedDiff )
-					{
-						if( iOwnedDiff & 1 )
-						{
-							if( cl.snap.ps.stats[ STAT_WEAPONS ] & 1 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "pistol_empty", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "pistol_empty", event );
-							}
-						}
-						else if( iOwnedDiff & 2 )
-						{
-							if( cl.snap.ps.stats[ STAT_WEAPONS ] & 2 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "rifle_empty", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "rifle_empty", event );
-							}
-						}
-						else if( iOwnedDiff & 4 )
-						{
-							if( cl.snap.ps.stats[ STAT_WEAPONS ] & 4 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "smg_empty", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "smg_empty", event );
-							}
-						}
-						else if( iOwnedDiff & 8 )
-						{
-							if( cl.snap.ps.stats[ STAT_WEAPONS ] & 8 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "mg_empty", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "mg_empty", event );
-							}
-						}
-						else if( iOwnedDiff & 16 )
-						{
-							if( cl.snap.ps.stats[ STAT_WEAPONS ] & 16 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "grenade_empty", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "grenade_empty", event );
-							}
-						}
-						else if( iOwnedDiff & 32 )
-						{
-							if( cl.snap.ps.stats[ STAT_WEAPONS ] & 32 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "heavy_empty", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "heavy_empty", event );
-							}
-						}
-						else
-						{
-							ui_lastWeapHudState_Owned = cl.snap.ps.stats[ STAT_WEAPONS ] & 0x3F | ui_lastWeapHudState_Owned & -0x40;
-						}
-					}
-					//
-					// highlight currently equipped weapons
-					//
-					else if( iEquippedDiff )
-					{
-						if( iEquippedDiff & 1 )
-						{
-							if( cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 1 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "pistol_equipped", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "pistol_equipped", event );
-							}
-						}
-						else if( iEquippedDiff & 2 )
-						{
-							if( cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 2 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "rifle_equipped", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "rifle_equipped", event );
-							}
-						}
-						else if( iEquippedDiff & 4 )
-						{
-							if( cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 4 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "smg_equipped", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "smg_equipped", event );
-							}
-						}
-						else if( iEquippedDiff & 8 )
-						{
-							if( cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 8 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "mg_equipped", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "mg_equipped", event );
-							}
-						}
-						else if( iEquippedDiff & 16 )
-						{
-							if( cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 16 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "grenade_equipped", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "grenade_equipped", event );
-							}
-						}
-						else if( iEquippedDiff & 32 )
-						{
-							if( cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 32 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "heavy_equipped", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "heavy_equipped", event );
-							}
-						}
-						else
-						{
-							ui_lastWeapHudState_Equipped = cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 0x3F | ui_lastWeapHudState_Equipped & -0x40;
-						}
-					}
-
-					if( !ui_weapHudTime )
-					{
-						if( hud_weapons->isVisible() ) {
-							hud_weapons->ProcessEvent( EV_HideMenu );
-						}
-					}
-					else if( ui_weapHudTime < cls.realtime || ui_itemHudTime > ui_weapHudTime )
-					{
-						ui_weapHudTime = 0;
-
-						if( hud_weapons->isVisible() ) {
-							hud_weapons->ProcessEvent( EV_HideMenu );
-						}
-					}
-					else if( !hud_weapons->isVisible() )
-					{
-						Event *event = new Event( EV_ShowMenu );
-						event->AddInteger( false );
-						hud_weapons->ProcessEvent( event );
-
-						if( hud_items->isVisible() ) {
-							hud_items->ProcessEvent( EV_HideMenu );
-						}
-					}
-				}
-				else
-				{
-					hud_weapons->ForceHide();
-					ui_weapHudTime = 0;
-				}
-			}
-
-			//
-			// try to show the item bar
-			//
-			if( hud_items )
-			{
-				if( ui_weaponsbar->integer && ui_itemsbar->integer )
-				{
-					int iEquippedDiff = 0;
-					int iOwnedDiff = 0;
-
-					if( ui_weaponsbar->integer == 3 )
-					{
-						ui_itemHudTime = cls.realtime + ui_weaponsbartime->integer;
-
-						if( ui_weapHudTime && hud_weapons->isVisible() ) {
-							ui_itemHudTime = 0;
-						}
-					}
-
-					if( ui_lastWeapHudState_Owned != cl.snap.ps.stats[ STAT_WEAPONS ]
-						|| ui_lastWeapHudState_Equipped != cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] )
-					{
-						iOwnedDiff = cl.snap.ps.stats[ STAT_WEAPONS ] ^ ui_lastWeapHudState_Owned & 0xF00;
-						iEquippedDiff = ( ui_lastWeapHudState_Equipped ^ cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] ) & 0xF00;
-
-						// if we have different equipment, reset the weapons hud time
-						if( iOwnedDiff || iEquippedDiff ) {
-							ui_weapHudTime = cls.realtime + ui_weaponsbartime->integer;
-						}
-					}
-
-					//
-					// show items that the player holds
-					//
-					if( iOwnedDiff )
-					{
-						if( iOwnedDiff & 0x100 )
-						{
-							if( cl.snap.ps.stats[ STAT_WEAPONS ] & 1 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "slot1_icon", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "slot1_icon", event );
-							}
-						}
-						else if( iOwnedDiff & 0x200 )
-						{
-							if( cl.snap.ps.stats[ STAT_WEAPONS ] & 2 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "slot2_icon", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "slot2_icon", event );
-							}
-						}
-						else if( iOwnedDiff & 0x400 )
-						{
-							if( cl.snap.ps.stats[ STAT_WEAPONS ] & 4 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "slot3_icon", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "slot3_icon", event );
-							}
-						}
-						else if( iOwnedDiff & 0x800 )
-						{
-							if( cl.snap.ps.stats[ STAT_WEAPONS ] & 8 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "slot4_icon", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "slot4_icon", event );
-							}
-						}
-						else
-						{
-							ui_lastWeapHudState_Owned = cl.snap.ps.stats[ STAT_WEAPONS ] & 0xF00 | ( ui_lastWeapHudState_Owned & 0xF0 );
-						}
-					}
-					//
-					// highlight currently equipped weapons
-					//
-					else if( iEquippedDiff )
-					{
-						if( iEquippedDiff & 0x100 )
-						{
-							if( cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 1 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "slot1_highlight", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "slot1_highlight", event );
-							}
-						}
-						else if( iEquippedDiff & 0x200 )
-						{
-							if( cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 2 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "slot2_highlight", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "slot2_highlight", event );
-							}
-						}
-						else if( iEquippedDiff & 0x400 )
-						{
-							if( cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 4 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "slot3_highlight", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "slot3_highlight", event );
-							}
-						}
-						else if( iEquippedDiff & 0x800 )
-						{
-							if( cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 8 )
-							{
-								Event *event = new Event( EV_Widget_Disable );
-								hud_weapons->PassEventToWidget( "slot4_highlight", event );
-							}
-							else
-							{
-								Event *event = new Event( EV_Widget_Enable );
-								hud_weapons->PassEventToWidget( "slot4_highlight", event );
-							}
-						}
-						else
-						{
-							ui_lastWeapHudState_Equipped = cl.snap.ps.stats[ STAT_EQUIPPED_WEAPON ] & 0xF00 | ( ui_lastWeapHudState_Equipped & 0xF0 );
-						}
-					}
-
-					if( !ui_itemHudTime )
-					{
-						if( hud_items->isVisible() ) {
-							hud_items->ProcessEvent( EV_HideMenu );
-						}
-					}
-					else if( ui_itemHudTime < cls.realtime || ui_weapHudTime > ui_itemHudTime )
-					{
-						ui_itemHudTime = 0;
-
-						if( hud_items->isVisible() ) {
-							hud_items->ProcessEvent( EV_HideMenu );
-						}
-					}
-					else if( !hud_items->isVisible() )
-					{
-						Event *event = new Event( EV_ShowMenu );
-						event->AddInteger( false );
-						hud_items->ProcessEvent( event );
-
-						if( hud_weapons->isVisible() ) {
-							hud_weapons->ProcessEvent( EV_HideMenu );
-						}
-					}
-				}
-				else
-				{
-					hud_items->ForceHide();
-					ui_itemHudTime = 0;
-				}
-			}
-
-			if( hud_health ) {
-				hud_health->ForceShow();
-			}
-
-			//
-			// show the ammo hud
-			//
-			str ammo = "hud_ammo_";
-			ammo += CL_ConfigString( CS_WEAPONS + cl.snap.ps.activeItems[ ITEM_WEAPON ] );
-
-			if( !hud_ammo || hud_ammo->m_name.icmp( ammo ) )
-			{
-				Menu *ammoMenu = menuManager.FindMenu( ammo );
-				if( ammoMenu )
-				{
-					if( ammoMenu != hud_ammo )
-					{
-						if( hud_ammo ) {
+						if (hud_ammo) {
 							hud_ammo->ForceHide();
 						}
 						hud_ammo = ammoMenu;
 					}
 				}
-				else
-				{
-					ammoMenu = menuManager.FindMenu( "hud_ammo_" );
-					if( ammoMenu )
-					{
-						if( ammoMenu != hud_ammo )
-						{
-							if( hud_ammo ) {
-								hud_ammo->ForceHide();
-							}
-							hud_ammo = ammoMenu;
-						}
-					}
-				}
 			}
+		}
 
-			if( hud_ammo ) {
-				hud_ammo->ForceShow();
-			}
-
-			//
-			// show the compass
-			//
-			if( hud_compass )
-			{
-				if( ui_compass->integer ) {
-					hud_compass->ForceShow();
-				} else {
-					hud_compass->ForceHide();
-				}
-			}
-
-			//
-			// show the boss health
-			//
-			if( hud_boss )
-			{
-				if( cl.snap.ps.stats[ STAT_BOSSHEALTH ] > 0 && !hud_boss->isVisible() )
-				{
-					Event *event = new Event( EV_ShowMenu );
-					event->AddInteger( false );
-					hud_boss->ProcessEvent( event );
-				}
-				else if( hud_boss->isVisible() )
-				{
-					hud_boss->ProcessEvent( EV_HideMenu );
-				}
-			}
-
-			UI_ShowHudList();
+		if (hud_ammo) {
+			hud_ammo->ForceShow();
 		}
 
 		//
-		// show the scoreboard
+		// show the compass
 		//
-		if( scoreboard_menu )
+		if (hud_compass)
 		{
-			if( scoreboardlist && scoreboardlist->IsVisible() ) {
-				scoreboard_menu->ForceShow();
-			} else {
-				scoreboard_menu->ForceHide();
+			if (ui_compass->integer) {
+				hud_compass->ForceShow();
+			}
+			else {
+				hud_compass->ForceHide();
 			}
 		}
 
-		uWinMan.UpdateViews();
+		//
+		// show the boss health
+		//
+		if (hud_boss)
+		{
+			if (cl.snap.ps.stats[STAT_BOSSHEALTH] > 0 && !hud_boss->isVisible())
+			{
+				Event* event = new Event(EV_ShowMenu);
+				event->AddInteger(false);
+				hud_boss->ProcessEvent(event);
+			}
+			else if (hud_boss->isVisible())
+			{
+				hud_boss->ProcessEvent(EV_HideMenu);
+			}
+		}
+
+		UI_ShowHudList();
 	}
+
+	//
+	// show the scoreboard
+	//
+	if (scoreboard_menu)
+	{
+		if (scoreboardlist && scoreboardlist->IsVisible()) {
+			scoreboard_menu->ForceShow();
+		}
+		else {
+			scoreboard_menu->ForceHide();
+		}
+	}
+
+	uWinMan.UpdateViews();
 }
 
 /*
