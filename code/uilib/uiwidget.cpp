@@ -1507,7 +1507,7 @@ void UIWidget::LayoutAlign
 	)
 
 {
-	for( int i = 1; i < ev->NumArgs(); i++ )
+	for( int i = 1; i <= ev->NumArgs(); i++ )
 	{
 		str align = ev->GetString( i );
 
@@ -1895,7 +1895,7 @@ UIWidget *UIWidget::FindResponder
 		return NULL;
 	}
 
-	for( i = 1; i <= m_children.NumObjects(); i++ )
+	for( i = m_children.NumObjects(); i >= 1; i-- )
 	{
 		subview = m_children.ObjectAt( i );
 		responder = subview->FindResponder( pos );
