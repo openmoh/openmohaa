@@ -207,10 +207,9 @@ void Menu::HideMenu
 				Event *event = new Event( "hide" );
 				wid->PostEvent( event, maxtime );
 			}
-		}
-		else
-		{
-			wid->setShow( false );
+			else {
+				wid->setShow(false);
+			}
 		}
 	}
 }

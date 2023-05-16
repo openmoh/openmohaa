@@ -894,15 +894,28 @@ void UIWidget::Motion
 	{
 		frac = ( t - m_starttime ) / m_motiontime;
 
-		if( m_motiontime != MOTION_OUT )
+		if( m_motiontype == MOTION_OUT )
 		{
-			if( frac >= 1.0 )
+			frac = 1.0 - frac;
+			if (frac <= 0.0)
 			{
-				setFrame( UIRect2D( m_startingpos, m_frame.size ) );
-
-				for( i = 1; i <= m_children.NumObjects(); i++ )
+				switch (m_direction)
 				{
-					m_children.ObjectAt( i )->FrameInitialized();
+				case D_FROM_BOTTOM:
+					setFrame(UIRect2D(m_frame.pos.x, uid.vidHeight, m_frame.size.width, m_frame.size.height));
+					break;
+				case D_FROM_TOP:
+					setFrame(UIRect2D(m_frame.pos.x, -m_frame.size.height - m_parent->m_screenorigin.y, m_frame.size.width, m_frame.size.height));
+					break;
+				case D_FROM_LEFT:
+					setFrame(UIRect2D(-m_frame.size.width - m_parent->m_screenorigin.x, m_frame.pos.y, m_frame.size.width, m_frame.size.height));
+					break;
+				case D_FROM_RIGHT:
+					setFrame(UIRect2D(uid.vidWidth, m_frame.pos.y, m_frame.size.width, m_frame.size.height));
+					break;
+				default:
+					setFrame(UIRect2D(m_frame.pos.x, m_frame.pos.y, m_frame.size.width, m_frame.size.height));
+					break;
 				}
 
 				m_direction = D_NONE;
@@ -910,36 +923,16 @@ void UIWidget::Motion
 		}
 		else
 		{
-			frac = 1.0 - frac;
-			if( frac <= 0.0 )
+			if (frac >= 1.0)
 			{
-				if( m_direction == D_FROM_BOTTOM )
-				{
-					nx = m_frame.pos.x;
-					ny = uid.vidHeight;
-				}
-				else if( m_direction == D_FROM_TOP )
-				{
-					nx = m_frame.pos.x;
-					ny = -m_frame.size.height - m_parent->m_screenorigin.y;
-				}
-				else if( m_direction == D_FROM_LEFT )
-				{
-					nx = -m_frame.size.width - m_parent->m_screenorigin.x;
-					ny = m_frame.pos.y;
-				}
-				else if( m_direction == D_FROM_RIGHT )
-				{
-					nx = uid.vidWidth;
-					ny = m_frame.pos.y;
-				}
-				else
-				{
-					nx = m_frame.pos.x;
-					ny = m_frame.pos.y;
-				}
+				// done moving
+				setFrame(UIRect2D(m_startingpos, m_frame.size));
+				FrameInitialized();
 
-				setFrame( UIRect2D( nx, ny, m_frame.size.width, m_frame.size.height ) );
+				for (i = 1; i <= m_children.NumObjects(); i++)
+				{
+					m_children.ObjectAt(i)->FrameInitialized();
+				}
 
 				m_direction = D_NONE;
 			}
@@ -954,30 +947,42 @@ void UIWidget::Motion
 			nx = m_frame.size.width + m_parent->m_screenorigin.x;
 		nx = ( m_startingpos.x + nx ) * frac - nx;
 		ny = m_frame.pos.y;
+
+		setFrame(UIRect2D(nx, ny, m_frame.size.width, m_frame.size.height));
 		break;
 	case D_FROM_RIGHT:
 		nx = uid.vidWidth - ( uid.vidWidth - m_startingpos.x ) * frac;
 		ny = m_frame.pos.y;
+
+		setFrame(UIRect2D(nx, ny, m_frame.size.width, m_frame.size.height));
 		break;
 	case D_FROM_BOTTOM:
 		nx = m_frame.pos.x;
 		ny = uid.vidHeight - ( uid.vidHeight - m_startingpos.y ) * frac;
+
+		setFrame(UIRect2D(nx, ny, m_frame.size.width, m_frame.size.height));
 		break;
 	case D_FROM_TOP:
 		nx = m_frame.pos.y;
 		ny = 0;
 		if( m_parent )
 			ny = m_frame.size.height + m_parent->m_screenorigin.y;
-		ny = ( m_startingpos.y + ny ) * frac - ny;
+		ny = (m_startingpos.y + ny) * frac - ny;
+
+		setFrame(UIRect2D(nx, ny, m_frame.size.width, m_frame.size.height));
 		break;
-	case D_NONE:
-		if( m_stopsound.length() )
-			uii.Snd_PlaySound( m_stopsound );
 	default:
-		return;
+		break;
 	}
 
-	setFrame( UIRect2D( nx, ny, m_frame.size.width, m_frame.size.height ) );
+	if (m_direction == D_NONE)
+	{
+		//
+		// play a sound to indicate the motion has finished
+		if (m_stopsound.length()) {
+			uii.Snd_PlaySound(m_stopsound);
+		}
+	}
 }
 
 void UIWidget::AlignPosition
