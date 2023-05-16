@@ -2031,10 +2031,7 @@ void UI_Update(void) {
 							hud_weapons->PassEventToWidget("heavy_empty", event);
 						}
 					}
-					else
-					{
-						ui_lastWeapHudState_Owned = cl.snap.ps.stats[STAT_WEAPONS] & 0x3F | ui_lastWeapHudState_Owned & -0x40;
-					}
+					ui_lastWeapHudState_Owned = cl.snap.ps.stats[STAT_WEAPONS] & 0x3F | ui_lastWeapHudState_Owned & ~0x3F;
 				}
 				//
 				// highlight currently equipped weapons
@@ -2203,7 +2200,7 @@ void UI_Update(void) {
 							hud_weapons->PassEventToWidget("slot1_icon", event);
 						}
 					}
-					else if (iOwnedDiff & 0x200)
+					if (iOwnedDiff & 0x200)
 					{
 						if (cl.snap.ps.stats[STAT_WEAPONS] & 2)
 						{
@@ -2216,7 +2213,7 @@ void UI_Update(void) {
 							hud_weapons->PassEventToWidget("slot2_icon", event);
 						}
 					}
-					else if (iOwnedDiff & 0x400)
+					if (iOwnedDiff & 0x400)
 					{
 						if (cl.snap.ps.stats[STAT_WEAPONS] & 4)
 						{
@@ -2229,7 +2226,7 @@ void UI_Update(void) {
 							hud_weapons->PassEventToWidget("slot3_icon", event);
 						}
 					}
-					else if (iOwnedDiff & 0x800)
+					if (iOwnedDiff & 0x800)
 					{
 						if (cl.snap.ps.stats[STAT_WEAPONS] & 8)
 						{
@@ -2242,10 +2239,7 @@ void UI_Update(void) {
 							hud_weapons->PassEventToWidget("slot4_icon", event);
 						}
 					}
-					else
-					{
-						ui_lastWeapHudState_Owned = cl.snap.ps.stats[STAT_WEAPONS] & 0xF00 | (ui_lastWeapHudState_Owned & 0xF0);
-					}
+					ui_lastWeapHudState_Owned = cl.snap.ps.stats[STAT_WEAPONS] & 0xF00 | (ui_lastWeapHudState_Owned & 0xF0);
 				}
 				//
 				// highlight currently equipped weapons
