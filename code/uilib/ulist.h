@@ -106,8 +106,8 @@ void UList< type >::AddTail
 	item->item = tail;
 	item->next = &m_top;
 	item->prev = m_top.prev;
-	m_top.prev = item;
 	m_top.prev->next = item;
+	m_top.prev = item;
 
 	m_count++;
 }
@@ -119,7 +119,7 @@ bool UList< type >::IterateFromHead
 	)
 
 {
-	if( m_top.item == m_top.next->item )
+	if( m_top.next == &m_top )
 	{
 		m_at = NULL;
 		return false;
@@ -247,7 +247,7 @@ bool UList< type >::IsCurrentValid
 	)
 
 {
-	// FIXME: stub
+	return m_at != NULL;
 }
 
 template< typename type >
@@ -257,8 +257,7 @@ bool UList< type >::IsCurrentHead
 	)
 
 {
-	// FIXME: stub
-	return false;
+	return m_at == &m_top;
 }
 
 template< typename type >
