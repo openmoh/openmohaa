@@ -976,7 +976,7 @@ void TIKI_GetSkelAnimFrame2( dtiki_t *tiki, skelBoneCache_t *bones, int anim, in
 
 	animData = SkeletorCacheGetData( aliases[ anim ] );
 
-	TIKI_GetSkelAnimFrameInternal( tiki, bones, animData, frame, NULL, NULL, NULL );
+	TIKI_GetSkelAnimFrameInternal( tiki, bones, animData, frame, radius, mins, maxes);
 }
 
 void TIKI_GetSkelAnimFrame( dtiki_t *tiki, skelBoneCache_t *bones, float *radius, vec3_t *mins, vec3_t *maxes )
