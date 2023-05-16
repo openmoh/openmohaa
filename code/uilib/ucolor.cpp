@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ucolor.h"
+#include <cmath>
 
 UColor UClear( 0, 0, 0, 0 );
 UColor UWhite( 1, 1, 1, 1 );
@@ -67,7 +68,9 @@ UColor::UColor
 	float	hh, p, q, t, ff;
 	int		i;
 
-	if( hsv.s <= 0.0 ) {
+	a = hsv.a;
+
+	if(fabs(hsv.s) <= 0.035f ) {
 		r = hsv.v;
 		g = hsv.v;
 		b = hsv.v;
@@ -116,8 +119,6 @@ UColor::UColor
 		b = q;
 		break;
 	}
-
-	a = hsv.a;
 }
 
 UColor::operator float *( )
@@ -180,6 +181,8 @@ UColorHSV::UColorHSV
 	float max;
 	float delta;
 
+	a = rgb.a;
+
 	min = rgb.r < rgb.g ? rgb.r : rgb.g;
 	min = min  < rgb.b ? min : rgb.b;
 
@@ -188,12 +191,6 @@ UColorHSV::UColorHSV
 
 	v = max;
 	delta = max - min;
-	if( delta < 0.00001 )
-	{
-		s = 0;
-		h = 0; // undefined, maybe NaN?
-		return;
-	}
 
 	// NOTE: if Max is == 0, this divide would cause a crash
 	if( max > 0.0 ) {
@@ -202,7 +199,11 @@ UColorHSV::UColorHSV
 		// if max is 0, then r = g = b = 0              
 		// s = 0, v is undefined
 		s = 0.0;
-		h = 0/s; // (NAN), its now undefined
+	}
+
+
+	if (fabs(s) <= 0.035f) {
+		h = -1.0;
 		return;
 	}
 
@@ -224,8 +225,6 @@ UColorHSV::UColorHSV
 
 	if( h < 0.0 )
 		h += 360.0;
-
-	a = rgb.a;
 }
 
 UColorHSV::UColorHSV
@@ -288,7 +287,7 @@ UBorderColor::UBorderColor
 	reallydark.r = color.r * 0.3f;
 	reallydark.g = color.g * 0.3f;
 	reallydark.b = color.b * 0.3f;
-	reallydark.b = color.a;
+	reallydark.a = color.a;
 	lighttemp = color;
 	lighttemp.s *= 0.75f;
 	lighttemp.v *= 1.3f;
@@ -303,5 +302,28 @@ void UBorderColor::CreateSolidBorder
 	)
 
 {
-	// FIXME: stub
+	switch (type)
+	{
+	case colorType_t::DARK:
+		dark.r = color.r * 0.666f;
+		dark.g = color.g * 0.666f;
+		dark.b = color.b * 0.666f;
+		dark.a = 1.0;
+		break;
+	case colorType_t::REALLYDARK:
+		reallydark.r = color.r * 0.333f;
+		reallydark.g = color.g * 0.333f;
+		reallydark.b = color.b * 0.333f;
+		reallydark.a = 1.0;
+		break;
+	case colorType_t::LIGHT:
+		light.r = color.r;
+		light.g = color.g;
+		light.b = color.b;
+		light.a = 1.0;
+		break;
+	case colorType_t::NORMAL:
+		original = color;
+		break;
+	}
 }

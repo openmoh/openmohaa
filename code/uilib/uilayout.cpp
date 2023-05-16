@@ -105,6 +105,10 @@ void UILayout::CreateWidgetContainer
 	{
 		m_currentcontainer->setDirection( D_FROM_RIGHT );
 	}
+	else
+	{
+		m_currentcontainer->setDirection(D_NONE);
+	}
 
 	if( ev->NumArgs() > 4 )
 	{

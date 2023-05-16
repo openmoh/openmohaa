@@ -641,9 +641,8 @@ UIWidget::UIWidget()
 	VectorSet2D( m_vVirtualScale, 1.0f, 1.0f );
 	m_parent = NULL;
 	m_background_color.set( 0.075f, 0.09f, 0.14f, 1.0f );
-	m_foreground_color = UColor( UHudColor );
-	UColor border;
-	m_border_color.CreateSolidBorder( border, DARK );
+	m_foreground_color = UColor(UHudColor);
+	m_border_color = UColor(0.15f, 0.195f, 0.278f, 1.0f);
 	m_indent = 10.0f;
 	m_bottomindent = 5.0f;
 	m_borderStyle = border_indent;
