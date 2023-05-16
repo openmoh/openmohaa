@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 CLASS_DECLARATION( UIWidget, View3D, NULL )
 {
+	{ &W_Activated,			&View3D::OnActivate },
+	{ &W_Deactivated,		&View3D::OnDeactivate },
+	{ &W_LeftMouseDown,		&View3D::Pressed },
 	{ NULL, NULL }
 };
 
@@ -197,7 +200,7 @@ void View3D::OnActivate
 	}
 
 	widgets.IterateFromHead();
-	while (widgets.getCurrent())
+	while (widgets.IsCurrentValid())
 	{
 		widgets.getCurrent()->BringToFrontPropogated();
 		widgets.IterateNext();
