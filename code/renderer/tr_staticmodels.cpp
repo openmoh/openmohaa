@@ -276,7 +276,7 @@ void R_AddStaticModelSurfaces(void) {
         return;
     }
 
-    tr.shiftedIsStatic = 1;
+    tr.shiftedIsStatic = (1 << QSORT_STATICMODEL_SHIFT);
 
     for (i = 0; i < tr.world->numStaticModels; i++)
     {
@@ -293,7 +293,7 @@ void R_AddStaticModelSurfaces(void) {
         }
 
         tr.currentEntityNum = i;
-        tr.shiftedEntityNum = i << QSORT_REFENTITYNUM_SHIFT;
+        tr.shiftedEntityNum = i << QSORT_ENTITYNUM_SHIFT;
 
         R_RotateForStaticModel(SM, &tr.viewParms, &tr.ori );
 
@@ -308,21 +308,15 @@ void R_AddStaticModelSurfaces(void) {
 
         // FIXME: r_showcull
 
-        if (iRadiusCull != 2 && (iRadiusCull != 1 || R_CullStaticModel(SM->tiki, tiki_scale, tiki_localorigin)))
+        if (iRadiusCull != CULL_OUT && (iRadiusCull != CULL_IN || R_CullStaticModel(SM->tiki, tiki_scale, tiki_localorigin) != CULL_OUT))
         {
             dtikisurface_t* dsurf;
 
-            // FIXME: Calc LOD
-            if (tr.viewParms.isPortal)
-            {
-                //R_CalcLod( tiki_worldorigin, SM->cull_radius / SM->scale );
-                SM->lodpercentage[1] = SM->cull_radius / SM->scale;
-            }
-            else
-            {
-                //R_CalcLod( tiki_worldorigin, SM->cull_radius / SM->scale );
-                SM->lodpercentage[0] = SM->cull_radius / SM->scale;
-            }
+			if (tr.viewParms.isPortal) {
+				SM->lodpercentage[1] = R_CalcLod(tiki_worldorigin, SM->cull_radius / SM->scale);
+			} else {
+				SM->lodpercentage[0] = R_CalcLod(tiki_worldorigin, SM->cull_radius / SM->scale);
+			}
 
             //
             // draw all meshes
@@ -398,6 +392,7 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
     int					baseIndex, baseVertex;
     short				collapse[1000];
 
+    assert(backEnd.currentStaticModel);
     tiki = backEnd.currentStaticModel->tiki;
     surf = staticSurf->surface;
 
@@ -460,8 +455,8 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
         tess.texCoords[baseVertex + j][0][1] = surf->pStaticTexCoords[j][0][1];
     }
 
-    if (backEndData[0]->staticModels) {
-        color4ub_t* in = (color4ub_t*)&backEndData[0]->staticModelData[backEnd.currentStaticModel->firstVertexData + staticSurf->ofsStaticData];
+    if (backEndData[backEnd.smpFrame]->staticModelData) {
+        color4ub_t* in = (color4ub_t*)&backEndData[backEnd.smpFrame]->staticModelData[backEnd.currentStaticModel->firstVertexData + staticSurf->ofsStaticData];
         color4ub_t* out = &tess.vertexColors[baseVertex];
 
         for (i = 0; i < render_count; i++, in++, out++)
@@ -469,15 +464,15 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
             (*out)[0] = (*in)[0];
             (*out)[1] = (*in)[1];
             (*out)[2] = (*in)[2];
-            (*out)[3] = 255;
+            (*out)[3] = (*in)[3];
         }
     }
     else {
         for (i = 0; i < render_count; i++) {
-            tess.vertexColors[baseVertex + i][0] = 1.0;
-            tess.vertexColors[baseVertex + i][1] = 1.0;
-            tess.vertexColors[baseVertex + i][2] = 1.0;
-            tess.vertexColors[baseVertex + i][3] = 1.0;
+            tess.vertexColors[baseVertex + i][0] = 0xFF;
+            tess.vertexColors[baseVertex + i][1] = 0xFF;
+            tess.vertexColors[baseVertex + i][2] = 0xFF;
+            tess.vertexColors[baseVertex + i][3] = 0xFF;
         }
     }
 

@@ -1441,3 +1441,19 @@ void R_DebugSkeleton( void ) {
 		}
 	}
 }
+static float ProjectRadius(float r, const vec3_t location)
+{
+	Vector separation;
+	float projectedRadius;
+
+	separation = Vector(tr.viewParms.ori.origin) - Vector(location);
+	projectedRadius = separation.length();
+
+	return fabs(r) * (100.0 / tr.viewParms.fovX) / projectedRadius;
+}
+
+float R_CalcLod(const vec3_t origin, float radius)
+{
+	return ProjectRadius(radius, origin);
+}
+
