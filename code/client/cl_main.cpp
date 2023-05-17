@@ -2460,16 +2460,18 @@ void QDECL CL_RefPrintf( int print_level, const char *fmt, ...) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
 
-	va_start (argptr,fmt);
-	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
-	va_end (argptr);
+	va_start(argptr, fmt);
+	Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
+	va_end(argptr);
 
-	if ( print_level == PRINT_ALL ) {
-		Com_Printf ("%s", msg);
-	} else if ( print_level == PRINT_WARNING ) {
-		Com_Printf (HUD_MESSAGE_YELLOW "%s", msg);		// yellow
-	} else if ( print_level == PRINT_DEVELOPER ) {
-		Com_DPrintf (HUD_MESSAGE_CHAT_RED "%s", msg);		// red
+	if (print_level == PRINT_ALL) {
+		Com_Printf("%s", msg);
+	}
+	else if (print_level == PRINT_WARNING || print_level == PRINT_DEVELOPER) {
+		Com_DPrintf("%s", msg);
+	}
+	else if (print_level == PRINT_DEVELOPER_2 && developer->integer) {
+		Com_DPrintf("%s", msg);
 	}
 }
 
