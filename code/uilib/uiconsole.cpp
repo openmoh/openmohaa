@@ -114,7 +114,7 @@ int UIConsole::getLastItem
 	int item = m_firstitem + m_numitems;
 
 	if (item - 1 >= MAX_CONSOLE_ITEMS) {
-		return item - MAX_CONSOLE_ITEMS - 1;
+		return item - (MAX_CONSOLE_ITEMS + 1);
 	}
 
 	return item - 1;
@@ -132,7 +132,7 @@ int UIConsole::AddLine
 		line = 0;
 	}
 
-	if (m_numitems <= MAX_CONSOLE_ITEMS)
+	if (m_numitems < MAX_CONSOLE_ITEMS)
 	{
 		m_numitems++;
 	}
@@ -143,6 +143,8 @@ int UIConsole::AddLine
 			m_firstitem = 0;
 		}
 	}
+
+	assert(line < MAX_CONSOLE_ITEMS);
 	return line;
 }
 
@@ -336,8 +338,9 @@ void UIConsole::AddText
 
 			int line = AddLine();
 			curitem = &m_items[line];
-			newtop -= m_items[line].lines;
-			m_items[line].lines = 0;
+			newtop -= curitem->lines;
+			curitem->lines = 0;
+			curitem->string = "";
 		}
 		else
 		{
@@ -385,6 +388,7 @@ void UIConsole::CalcLineBreaks
 	lensofar = 0;
 	lenchecking = 0;
 	len_of_space = m_font->getCharWidth(' ');
+	theItem.lines = 0;
 	remaining = theItem.string.c_str();
 
 	for (i = 0; remaining[i]; i++)
@@ -419,7 +423,7 @@ void UIConsole::CalcLineBreaks
 
 				theItem.lines++;
 
-				if (theItem.lines == 9) {
+				if (theItem.lines == 8) {
 					break;
 				}
 			}
@@ -598,7 +602,7 @@ void UIConsole::CharEvent
 	}
 	else if (m_caret)
 	{
-		m_currentline = str(m_currentline, 0, m_caret) + str(char(ch)) + m_currentline.c_str()[m_caret];
+		m_currentline = str(m_currentline, 0, m_caret) + str(char(ch)) + (m_currentline.c_str() + m_caret);
 		m_caret++;
 	}
 	else
@@ -634,6 +638,24 @@ qboolean UIConsole::KeyEvent
 		break;
 
 	case K_BACKSPACE:
+		if (!m_caret) {
+			break;
+		}
+
+		if (m_refreshcompletionbuffer)
+		{
+			m_currentline = str(m_currentline, 0, m_caret - 1) + (m_currentline.c_str() + m_caret);
+			m_caret--;
+		}
+		else
+		{
+			m_currentline = m_completionbuffer;
+			m_cntcvarnumber = 0;
+			m_cntcmdnumber = 0;
+			m_refreshcompletionbuffer = true;
+
+			m_caret = m_currentline.length();
+		}
 		break;
 
 	case K_UPARROW:
@@ -655,6 +677,11 @@ qboolean UIConsole::KeyEvent
 		break;
 
 	case K_DEL:
+		if (m_caret >= m_currentline.length()) {
+			break;
+		}
+
+		m_currentline = str(m_currentline, 0, m_caret) + (m_currentline.c_str() + m_caret + 1);
 		break;
 
 	case K_PGDN:
