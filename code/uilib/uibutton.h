@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __UIBUTTON_H__
 #define __UIBUTTON_H__
 
+extern Event W_Button_Pressed;
+
 class UIButtonBase : public UIWidget {
 protected:
 	mouseState_t m_mouseState;
