@@ -91,6 +91,10 @@ UIFloatingWindow::UIFloatingWindow()
 	m_childspace = new UIChildSpaceWidget();
 }
 
+UIFloatingWindow::~UIFloatingWindow()
+{
+}
+
 void UIFloatingWindow::FrameInitialized
 	(
 	void

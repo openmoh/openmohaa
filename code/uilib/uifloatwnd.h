@@ -61,6 +61,7 @@ protected:
 public:
 
 	UIFloatingWindow();
+	~UIFloatingWindow();
 
 	void				ClosePressed( Event *ev );
 	void				MinimizePressed( Event *ev );
