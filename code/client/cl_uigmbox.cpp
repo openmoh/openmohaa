@@ -64,9 +64,9 @@ UIGMBox::UIGMBox()
 void UIGMBox::VerifyBoxOut( void )
 {
 	PostMoveinEvent();
-	if (m_boxstate != box_moving_out && m_boxstate != box_out)
+	if (m_boxstate != boxstate_t::box_moving_out && m_boxstate != boxstate_t::box_out)
 	{
-		ChangeBoxState(box_moving_out);
+		ChangeBoxState(boxstate_t::box_moving_out);
 	}
 }
 
