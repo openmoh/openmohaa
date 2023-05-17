@@ -22,14 +22,49 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
+Event W_Scrollbar_Positioned
+(
+	"scrollbar_positioned",
+	EV_DEFAULT,
+	"i",
+	"new_position",
+	"Signaled when the user scrolls the view"
+);
+
+Event EV_Scrollbar_Scroll
+(
+	"_scrollbar_scroll",
+	EV_DEFAULT,
+	"ii",
+	"scrollrate autorepeat",
+	"scroll the scrollbar, at the specified rate.\n"
+	"The autorepeat is used for autoscrolling with the mouse button held down"
+);
+
 CLASS_DECLARATION( UIWidget, UIVertScroll, NULL )
 {
+	{ &W_LeftMouseDown,			&UIVertScroll::MouseDown },
+	{ &W_LeftMouseUp,			&UIVertScroll::MouseUp },
+	{ &W_LeftMouseDragged,		&UIVertScroll::MouseDragged },
+	{ &W_MouseEntered,			&UIVertScroll::MouseEnter },
+	{ &W_MouseExited,			&UIVertScroll::MouseLeave },
+	{ &EV_Scrollbar_Scroll,		&UIVertScroll::Scroll },
 	{ NULL, NULL }
 };
 
 UIVertScroll::UIVertScroll()
+	: m_numitems(0)
+	, m_pageheight(0)
+	, m_topitem(0)
+	, m_marlett("marlett")
+	, thumbRect(0, 0, 0, 0)
+	, m_thumbcolor(0.15, 0.196, 0.278, 1.0)
+	, m_solidbordercolor(0.075, 0.098, 0.139, 1.0)
+	, m_pressed(VS_NONE)
+	, m_frameinitted(false)
 {
-	// FIXME: stub
+	m_background_color = UColor(0.15, 0.196, 0.278, 1.0);
+	m_foreground_color = UHudColor;
 }
 
 int UIVertScroll::getItemFromHeight
@@ -38,8 +73,7 @@ int UIVertScroll::getItemFromHeight
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	return (int)((height - 16.0) * (float)this->m_numitems / (m_frame.size.height - 32.0));
 }
 
 bool UIVertScroll::isEnoughItems
@@ -48,8 +82,7 @@ bool UIVertScroll::isEnoughItems
 	)
 
 {
-	// FIXME: stub
-	return false;
+	return m_numitems > m_pageheight;
 }
 
 void UIVertScroll::Draw
@@ -96,6 +129,12 @@ void UIVertScroll::MouseUp
 	)
 
 {
+	CancelEventsOfType(EV_Scrollbar_Scroll);
+	if (uWinMan.getFirstResponder() == this) {
+		uWinMan.setFirstResponder(NULL);
+	}
+
+	m_pressed = VS_NONE;
 	// FIXME: stub
 }
 
@@ -114,7 +153,7 @@ void UIVertScroll::MouseEnter
 	)
 
 {
-	// FIXME: stub
+	uWinMan.ActivateControl(this);
 }
 
 void UIVertScroll::MouseLeave
@@ -123,7 +162,6 @@ void UIVertScroll::MouseLeave
 	)
 
 {
-	// FIXME: stub
 }
 
 void UIVertScroll::Scroll
@@ -141,8 +179,32 @@ bool UIVertScroll::AttemptScrollTo
 	)
 
 {
-	// FIXME: stub
-	return false;
+	int besttopitem;
+
+	if (to < 0) {
+		to = 0;
+	}
+
+	besttopitem = m_numitems - m_pageheight;
+	if (besttopitem < 0) {
+		besttopitem = 0;
+	}
+
+	if (to > besttopitem) {
+		to = besttopitem;
+	}
+
+	if (to == m_topitem) {
+		return false;
+	}
+
+	m_topitem = to;
+
+	Event ev(W_Scrollbar_Positioned);
+	ev.AddInteger(m_topitem);
+	SendSignal(ev);
+
+	return true;
 }
 
 void UIVertScroll::setNumItems
@@ -151,7 +213,7 @@ void UIVertScroll::setNumItems
 	)
 
 {
-	// FIXME: stub
+	m_numitems = 0;
 }
 
 void UIVertScroll::setPageHeight
@@ -160,7 +222,7 @@ void UIVertScroll::setPageHeight
 	)
 
 {
-	// FIXME: stub
+	m_pageheight = i;
 }
 
 void UIVertScroll::setTopItem
@@ -169,7 +231,7 @@ void UIVertScroll::setTopItem
 	)
 
 {
-	// FIXME: stub
+	m_topitem = i;
 }
 
 int UIVertScroll::getTopItem
@@ -178,8 +240,7 @@ int UIVertScroll::getTopItem
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	return m_topitem;
 }
 
 int UIVertScroll::getPageHeight
@@ -188,8 +249,7 @@ int UIVertScroll::getPageHeight
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	return m_pageheight;
 }
 
 int UIVertScroll::getNumItems
@@ -198,8 +258,7 @@ int UIVertScroll::getNumItems
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	return m_numitems;
 }
 
 void UIVertScroll::setThumbColor
@@ -208,7 +267,7 @@ void UIVertScroll::setThumbColor
 	)
 
 {
-	// FIXME: stub
+	m_thumbcolor = thumb;
 }
 
 void UIVertScroll::setSolidBorderColor
@@ -217,7 +276,7 @@ void UIVertScroll::setSolidBorderColor
 	)
 
 {
-	// FIXME: stub
+	m_solidbordercolor = col;
 }
 
 void UIVertScroll::InitFrameAlignRight
@@ -228,5 +287,20 @@ void UIVertScroll::InitFrameAlignRight
 	)
 
 {
-	// FIXME: stub
+	UIRect2D frame, frameOut;
+
+	frame = parent->getClientFrame();
+	frameOut.pos.x = frame.pos.x + frame.size.width - (fWidthPadding + 16.0) * m_vVirtualScale[0];
+	frameOut.pos.y = fHeightPadding * m_vVirtualScale[1];
+	frameOut.size.width = m_vVirtualScale[0] * 16.0;
+	frameOut.size.height = frame.size.height - (fHeightPadding * 2) * m_vVirtualScale[1];
+
+	if (!m_frameinitted)
+	{
+		InitFrame(parent, frameOut, -1, "verdana-12");
+		m_frameinitted = true;
+	}
+	else {
+		setFrame(frameOut);
+	}
 }
