@@ -303,6 +303,7 @@ R_ModelInit
 */
 void R_ModelInit( void ) {
 	model_t		*mod;
+	int			i;
 
 	// leave a space for NULL model
 	tr.numModels = 0;
@@ -311,7 +312,9 @@ void R_ModelInit( void ) {
 	strcpy( mod->name, "** BAD MODEL **" );
 	mod->type = MOD_BAD;
 
-	memset( tr.skel_index, 255, sizeof( tr.skel_index ) );
+	for (i = 0; i < sizeof(tr.skel_index) / sizeof(tr.skel_index[0]); i++) {
+		tr.skel_index[i] = -1;
+	}
 }
 
 
