@@ -957,7 +957,88 @@ void UIDMConsole::KeyEnter
 	)
 
 {
-	// FIXME: stub
+	if (!str::icmp(m_currentline, "exit") || !str::icmp(m_currentline, "quit") || !str::icmp(m_currentline, "close"))
+	{
+		m_currentline = "";
+		uii.UI_CloseDMConsole();
+		return;
+	}
+
+	AddHistory();
+
+	if (!GetQuickMessageMode())
+	{
+		if (!str::icmp(m_currentline, "say") || !str::icmp(m_currentline, "all"))
+		{
+			if (GetMessageMode() != 100) {
+				uii.Cmd_Stuff("messagemode_all;wait 1;messagemode_all\n");
+			}
+
+			m_currentline = "";
+			m_caret = 0;
+			return;
+		}
+		else if (!str::icmp(m_currentline, "sayteam") || !str::icmp(m_currentline, "team") || !str::icmp(m_currentline, "teamsay"))
+		{
+			if (GetMessageMode() != 200) {
+				uii.Cmd_Stuff("messagemode_team;wait 1;messagemode_team\n");
+			}
+
+			m_currentline = "";
+			m_caret = 0;
+			return;
+		}
+		else if (strstr(m_currentline, "wisper")
+			|| strstr(m_currentline, "private")
+			// This one is opm-exclusive
+			|| strstr(m_currentline, "whisper"))
+		{
+			char szString[128];
+			const char* pszToken;
+
+			strncpy(szString, m_currentline.c_str(), sizeof(szString) / sizeof(szString[0]));
+			szString[127] = 0;
+
+			pszToken = strtok(szString, " ");
+			if (pszToken)
+			{
+				if (!Q_stricmp(pszToken, "wisper") || !Q_stricmp(pszToken, "private"))
+				{
+					pszToken = strtok(0, " ");
+					if (!pszToken)
+					{
+						AddText("Mode Change Error: You need to specify a client number (private #)\n", NULL);
+						m_currentline = "";
+						m_caret = 0;
+						return;
+					}
+
+					int mode = atoi(pszToken);
+					if (mode && mode != GetMessageMode())
+					{
+						uii.Cmd_Stuff(va("messagemode_private %i;wait 1;messagemode_private %i\n", mode, mode));
+						m_currentline = "";
+						m_caret = 0;
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	if (m_consolehandler) {
+		m_consolehandler((m_currentline + "\n").c_str());
+	}
+	else {
+		AddText(">" + m_currentline + "\n", NULL);
+	}
+
+	m_currentline = "";
+	m_caret = 0;
+
+	if (GetQuickMessageMode()) {
+		uii.UI_CloseDMConsole();
+	}
 }
 
 void UIDMConsole::AddDMMessageText
@@ -997,8 +1078,91 @@ qboolean UIDMConsole::KeyEvent
 	)
 
 {
-	// FIXME: stub
-	return qfalse;
+	// FIXME: Partially implemented
+
+	if (key != K_TAB && key != K_BACKSPACE) {
+		m_refreshcompletionbuffer = true;
+	}
+
+	switch (key)
+	{
+	case K_TAB:
+		break;
+
+	case K_ENTER:
+	case K_KP_ENTER:
+		if (m_currentline.length()) {
+			KeyEnter();
+		}
+		break;
+
+	case K_BACKSPACE:
+		if (!m_caret) {
+			break;
+		}
+
+		if (m_refreshcompletionbuffer)
+		{
+			m_currentline = str(m_currentline, 0, m_caret - 1) + (m_currentline.c_str() + m_caret);
+			m_caret--;
+		}
+		else
+		{
+			m_currentline = m_completionbuffer;
+			m_cntcvarnumber = 0;
+			m_cntcmdnumber = 0;
+			m_refreshcompletionbuffer = true;
+
+			m_caret = m_currentline.length();
+		}
+		break;
+
+	case K_UPARROW:
+		break;
+
+	case K_DOWNARROW:
+		break;
+
+	case K_LEFTARROW:
+		if (m_caret > 0) {
+			m_caret--;
+		}
+		break;
+
+	case K_RIGHTARROW:
+		if (m_caret < m_currentline.length()) {
+			m_caret++;
+		}
+		break;
+
+	case K_DEL:
+		if (m_caret >= m_currentline.length()) {
+			break;
+		}
+
+		m_currentline = str(m_currentline, 0, m_caret) + (m_currentline.c_str() + m_caret + 1);
+		break;
+
+	case K_PGDN:
+		break;
+
+	case K_PGUP:
+		break;
+
+	case K_HOME:
+		break;
+
+	case K_END:
+		break;
+
+	case K_MWHEELDOWN:
+		break;
+
+	case K_MWHEELUP:
+		break;
+	}
+
+	return true;
 }
 
 qboolean UIDMConsole::GetQuickMessageMode
