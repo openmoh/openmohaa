@@ -84,6 +84,7 @@ UIFloatingWindow::UIFloatingWindow()
 	m_isPressed = false;
 	m_minimized = false;
 	m_canactivate = true;
+	m_clicktime = -20000;
 	// create buttons that compose a window
 	m_closeButton = new UIButton();
 	m_minimizeButton = new UIButton();
@@ -382,7 +383,7 @@ void UIFloatingWindow::Draw
 		titleBorder.light = newColor;
 	}
 
-	UColor newColor(0.1125, 0.147, 0.2085, 1.0);
+	UColor newColor(0.15, 0.196, 0.278, 1.0);
 	newColor.ScaleColor(0.666f);
 
 	windowBorder.dark = newColor;
@@ -411,7 +412,7 @@ void UIFloatingWindow::Draw
 		0.0,
 		0.0,
 		m_frame.size.width,
-		m_frame.size.height > 20.0 ? m_frame.size.height : 20.0,
+		m_frame.size.height > 20.0 ? 20.0 : m_frame.size.height,
 		titleBar,
 		1.0
 	);
@@ -420,7 +421,7 @@ void UIFloatingWindow::Draw
 		0.0,
 		0.0,
 		m_frame.size.width,
-		m_frame.size.height > 20.0 ? m_frame.size.height : 20.0,
+		m_frame.size.height > 20.0 ? 20.0 : m_frame.size.height,
 		false,
 		titleBorder,
 		1.0
