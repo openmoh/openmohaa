@@ -1619,7 +1619,13 @@ void Com_Frame( void ) {
 	SV_SetFrameNumber(com_frameNumber);
 
 #ifndef DEDICATED
-	if (com_dedicated && com_dedicated->integer) {
+	if (!com_dedicated || !com_dedicated->integer)
+	{
+		//
+		// Update the client frame number
+		// So stuff like TIKI caches can get refreshed
+		// And TIKI models can get rendered correctly
+		//
 		CL_SetFrameNumber(com_frameNumber);
 	}
 #endif
