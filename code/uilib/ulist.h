@@ -138,7 +138,7 @@ bool UList< type >::IterateFromTail
 	)
 
 {
-	if( m_top.prev == this )
+	if (m_top.prev == &m_top)
 	{
 		m_at = NULL;
 		return false;
