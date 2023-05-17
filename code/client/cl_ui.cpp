@@ -1115,6 +1115,25 @@ static void DMConsoleCommandHandler( const char *txt ) {
 
 /*
 ====================
+getNewConsole
+====================
+*/
+UIFloatingConsole* getNewConsole() {
+	static constexpr char CONSOLE_NAME[] = PRODUCT_NAME_FULL " - " PRODUCT_VERSION_FULL;
+
+	UIFloatingConsole* console = new UIFloatingConsole;
+	console->Create(NULL, getDefaultConsoleRectangle(), CONSOLE_NAME, UWindowColor, UHudColor);
+	console->setConsoleHandler(ConsoleCommandHandler);
+	console->setConsoleBackground(UBlack, 0.8f);
+	console->setShow(false);
+	console->Connect(&s_consolehider, UIFloatingWindow::W_ClosePressed, UIFloatingWindow::W_ClosePressed);
+	console->Connect(&s_consolehider, W_Destroyed, W_Destroyed);
+
+	return console;
+}
+
+/*
+====================
 getNewDMConsole
 ====================
 */
@@ -4179,21 +4198,8 @@ UI_CheckRestart
 ====================
 */
 void UI_CheckRestart( void ) {
-	if( ui_console->integer && !fakk_console )
-	{
-		UIRect2D frame;
-		UColor bgColor;
-
-		fakk_console = new UIFloatingConsole;
-		frame = getDefaultConsoleRectangle();
-
-		bgColor = UWindowColor;
-
-		fakk_console->Create( NULL, frame, "MOHAA Console", bgColor, UHudColor );
-		fakk_console->setConsoleBackground( UBlack, 0.8f );
-		fakk_console->setShow( false );
-		fakk_console->Connect( &s_consolehider, UIFloatingWindow::W_ClosePressed, UIFloatingWindow::W_ClosePressed );
-		fakk_console->Connect( &s_consolehider, W_Destroyed, W_Destroyed );
+	if( ui_console->integer && !fakk_console ) {
+		fakk_console = getNewConsole();
 	}
 
 	if( !dm_console ) {
@@ -5313,13 +5319,7 @@ void CL_InitializeUI( void ) {
 		UColor bgColor = UWindowColor;
 
 		// Create the console
-		fakk_console = new UIFloatingConsole;
-		fakk_console->Create( NULL, getDefaultConsoleRectangle(), "MOHAA Console", bgColor, UHudColor );
-		fakk_console->setConsoleHandler( ConsoleCommandHandler );
-		fakk_console->setConsoleBackground( UBlack, 0.8f );
-		fakk_console->setShow( false );
-		fakk_console->Connect( &s_consolehider, UIFloatingWindow::W_ClosePressed, UIFloatingWindow::W_ClosePressed );
-		fakk_console->Connect( &s_consolehider, W_Destroyed, W_Destroyed );
+		fakk_console = getNewConsole();
 
 		bgColor = UColor( 0.0, 0.5, 1.0, 1.0 );
 
