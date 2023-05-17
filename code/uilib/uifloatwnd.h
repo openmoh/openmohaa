@@ -76,4 +76,6 @@ public:
 	bool				IsMinimized( void );
 };
 
+static UColor UWindowColor(0.15f, 0.195f, 0.278f, 1);
+
 #endif

@@ -147,8 +147,6 @@ static str scoreboard_menuname;
 static str ui_sCurrentLoadingMenu;
 static Container<Menu *> hudList;
 
-#define HUD_WINDOW_COLOR	0.15f, 0.195f, 0.278f, 1
-
 void UI_MultiplayerMenuWidgetsUpdate(void);
 void UI_MainMenuWidgetsUpdate(void);
 
@@ -1118,7 +1116,7 @@ UIFloatingDMConsole *getNewDMConsole() {
 
 	console->Create( NULL, getDefaultDMConsoleRectangle(),
 		"Chat Window (Enter to send/close) (all|team|private to change message mode) : Messaging to All",
-		UColor( HUD_WINDOW_COLOR ), UHudColor );
+		UWindowColor, UHudColor );
 
 	console->setConsoleHandler( DMConsoleCommandHandler );
 	console->setConsoleBackground( UBlack, 0.8f );
@@ -3860,7 +3858,7 @@ UI_CreateDialog
 void UI_CreateDialog( const char *title, char *cvarname, const char *command, const char *cancelCommand, int width, int height, const char *shader, const char *okshader, const char *cancelshader ) {
 	UIDialog *dlg = new UIDialog;
 	UIRect2D rect = UIRect2D( ( cls.glconfig.vidWidth - width ) >> 1, ( cls.glconfig.vidHeight - height ) >> 1, width, height );
-	UColor bgColor = UColor( HUD_WINDOW_COLOR );
+	UColor bgColor = UWindowColor;
 
 	dlg->Create( NULL, rect, title, bgColor, UHudColor );
 	dlg->LinkCvar( cvarname );
@@ -4175,7 +4173,7 @@ void UI_CheckRestart( void ) {
 		fakk_console = new UIFloatingConsole;
 		frame = getDefaultConsoleRectangle();
 
-		bgColor = UColor( HUD_WINDOW_COLOR );
+		bgColor = UWindowColor;
 
 		fakk_console->Create( NULL, frame, "MOHAA Console", bgColor, UHudColor );
 		fakk_console->setConsoleBackground( UBlack, 0.8f );
@@ -4304,7 +4302,7 @@ void UI_TestListCtrl_f( void ) {
 	UIRect2D frame = UIRect2D( 20, 20, 400, 300 );
 	TestListItem *i1, *i2, *i3;
 
-	wnd->Create( NULL, frame, "Test list control", UColor( HUD_WINDOW_COLOR ), UHudColor );
+	wnd->Create( NULL, frame, "Test list control", UWindowColor, UHudColor );
 
 	control = new UIListCtrl;
 	control->InitFrame( wnd->getChildSpace(), frame.pos.x, frame.pos.y, frame.size.width, frame.size.height, border_none, "verdana-12" );
@@ -5274,7 +5272,7 @@ void CL_InitializeUI( void ) {
 
 		developer_console = new UIFloatingConsole;
 
-		bgColor = UColor( HUD_WINDOW_COLOR );
+		bgColor = UWindowColor;
 
 		developer_console->Create( NULL, getDefaultConsoleRectangle(), "Developer Console", bgColor, UHudColor );
 		developer_console->setConsoleHandler( ConsoleCommandHandler );
@@ -5298,7 +5296,7 @@ void CL_InitializeUI( void ) {
 
 	if( ui_console->integer || developer->integer > 0 )
 	{
-		UColor bgColor = UColor( HUD_WINDOW_COLOR );
+		UColor bgColor = UWindowColor;
 
 		// Create the console
 		fakk_console = new UIFloatingConsole;
