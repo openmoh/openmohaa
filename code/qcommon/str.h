@@ -274,15 +274,18 @@ inline str::str
 		len = 0;
 	}
 
-	EnsureAlloced(len + 1);
-
-	for (i = 0; i < len; i++)
+	if (len > 0)
 	{
-		m_data->data[i] = text[start + i];
-	}
+		EnsureAlloced(len + 1);
 
-	m_data->data[len] = 0;
-	m_data->len = len;
+		for (i = 0; i < len; i++)
+		{
+			m_data->data[i] = text[start + i];
+		}
+
+		m_data->data[len] = 0;
+		m_data->len = len;
+	}
 }
 
 inline str::str
@@ -363,37 +366,37 @@ inline void str::append
 	const char *text
 	)
 
+{
+	size_t len;
+
+	assert(text);
+
+	if (*text)
 	{
-   size_t len;
-
-	assert( text );
-
-	if ( text )
-		{
 		len = length();
-		len += strlen( text );
-		EnsureAlloced( len + 1 );
+		len += strlen(text);
+		EnsureAlloced(len + 1);
 
-      strcat( m_data->data, text );
-      m_data->len = len;
-		}
+		strcat(m_data->data, text);
+		m_data->len = len;
 	}
+}
 
 inline void str::append
 	(
 	const str& text
 	)
 
-	{
-   size_t len;
+{
+	size_t len;
 
-   len = length();
-   len += text.length();
-   EnsureAlloced ( len + 1 );
+	len = length();
+	len += text.length();
+	EnsureAlloced(len + 1);
 
-   strcat ( m_data->data, text.c_str () );
-   m_data->len = len;
-	}
+	strcat(m_data->data, text.c_str());
+	m_data->len = len;
+}
 
 
 inline char& str::operator[]
