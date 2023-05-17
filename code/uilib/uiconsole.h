@@ -50,11 +50,13 @@ item::item()
 	pColor = NULL;
 }
 
+#define MAX_CONSOLE_ITEMS 300
+
 class UIConsole : public UIWidget {
 protected:
 	UList<str> m_history;
 	void *m_historyposition;
-	item m_items[ 300 ];
+	item m_items[MAX_CONSOLE_ITEMS];
 	str m_currentline;
 	UIVertScroll *m_scroll;
 	int m_firstitem;
