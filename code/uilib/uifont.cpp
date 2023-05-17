@@ -47,7 +47,7 @@ void UIFont::Print
 	float x,
 	float y,
 	const char *text,
-	int maxlen,
+	size_t maxlen,
 	qboolean bVirtualScreen
 	)
 

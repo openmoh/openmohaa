@@ -38,7 +38,7 @@ public:
 	UIFont();
 	UIFont( const char *fn );
 
-	void		Print( float x, float y, const char *text, int maxlen, qboolean bVirtualScreen );
+	void		Print( float x, float y, const char *text, size_t maxlen, qboolean bVirtualScreen );
 	void		PrintJustified( const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, float *vVirtualScale );
 	void		setColor( UColor col );
 	void		setAlpha( float alpha );
