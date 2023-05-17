@@ -240,7 +240,24 @@ void UIConsole::AddHistory
 	)
 
 {
-	// FIXME: stub
+	if (m_history.IterateFromTail())
+	{
+		if (m_history.getCurrent() != m_currentline) {
+			m_history.AddTail(m_currentline);
+		}
+	}
+	else
+	{
+		m_history.AddTail(m_currentline);
+	}
+
+	while (m_history.getCount() > 20)
+	{
+		m_history.IterateFromHead();
+		m_history.RemoveCurrentSetNext();
+	}
+
+	m_historyposition = 0;
 }
 
 void UIConsole::Print
@@ -301,8 +318,8 @@ void UIConsole::AddText
 	{
 		m_numitems = 1;
 		m_items[m_firstitem].string = "";
-		m_items[this->m_firstitem].lines = 0;
-		m_items[this->m_firstitem].pColor = &m_foreground_color;
+		m_items[m_firstitem].lines = 0;
+		m_items[m_firstitem].pColor = &m_foreground_color;
 	}
 
 	curitem = &m_items[getLastItem()];
@@ -424,8 +441,6 @@ void UIConsole::CalcLineBreaks
 			lensofar += theItem.breaks[i];
 		}
 	}
-
-	// FIXME: stub
 }
 
 void UIConsole::Clear
@@ -600,6 +615,8 @@ qboolean UIConsole::KeyEvent
 	)
 
 {
+	// FIXME: Partially implemented
+
 	if (key != K_TAB && key != K_BACKSPACE) {
 		m_refreshcompletionbuffer = true;
 	}
@@ -668,7 +685,79 @@ void UIConsole::OnSizeChanged
 	)
 
 {
-	// FIXME: stub
+	int linesperpage;
+	int numscroll;
+	int item;
+	int topitem;
+	int topline;
+	int atscroll;
+	bool attop;
+	bool atbottom;
+
+	numscroll = 0;
+	topitem = -1;
+	topline = 0;
+	atscroll = 0;
+	attop = false;
+	atbottom = false;
+
+	linesperpage = (m_frame.size.height / (float)m_font->getHeight(qfalse));
+	m_scroll->InitFrameAlignRight(this, 0, 0);
+
+	if (ev)
+	{
+		attop = m_scroll->getTopItem() == 0;
+		atbottom = m_scroll->getPageHeight() + m_scroll->getTopItem() >= m_scroll->getNumItems();
+	}
+
+	m_scroll->setPageHeight(linesperpage - 1);
+	if (m_scroll->getPageHeight() < 1) {
+		m_scroll->setPageHeight(1);
+	}
+
+	for (item = m_firstitem; item != -1; item = getNextItem(item))
+	{
+		atscroll += m_items[item].lines;
+		if (atscroll >= m_scroll->getTopItem() && topitem == -1) {
+			topitem = item;
+		}
+
+		CalcLineBreaks(m_items[item]);
+
+		numscroll += m_items[item].lines;
+		if (topitem == -1 || topitem == item) {
+			topline += m_items[item].lines;
+		}
+	}
+
+	m_scroll->setNumItems(numscroll);
+
+	if (topitem != -1)
+	{
+		if (topline > m_scroll->getNumItems() - m_scroll->getPageHeight()) {
+			atbottom = true;
+		}
+
+		if (!atbottom)
+		{
+			if (attop) {
+				m_scroll->setTopItem(0);
+			}
+			else
+			{
+				if (topline < 0) {
+					topline = 0;
+				}
+
+				m_scroll->setTopItem(topline);
+			}
+		}
+	}
+
+	m_scroll->setTopItem(m_scroll->getNumItems() - m_scroll->getPageHeight());
+	if (m_scroll->getTopItem() < 0) {
+		m_scroll->setTopItem(0);
+	}
 }
 
 CLASS_DECLARATION( UIFloatingWindow, UIFloatingConsole, NULL )
