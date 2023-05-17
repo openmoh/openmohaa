@@ -26,6 +26,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef enum { box_moving_out, box_moving_in, box_out, box_in } boxstate_t;
 
 class UIDMBox : public UIWidget {
+	struct item_t {
+		str string;
+		UColor color;
+		UIFont* font;
+		int flags;
+	};
+
 protected:
 	item_t m_items[ 10 ];
 	int m_numitems;
