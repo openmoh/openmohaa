@@ -802,6 +802,16 @@ UIFloatingConsole::UIFloatingConsole()
 	setConsoleBackground(UBlack, 1.0);
 }
 
+UIFloatingConsole::~UIFloatingConsole()
+{
+	if (m_console) {
+		delete m_console;
+	}
+	if (m_status) {
+		delete m_status;
+	}
+}
+
 void UIFloatingConsole::FrameInitialized
 	(
 	void
@@ -820,6 +830,7 @@ void UIFloatingConsole::FrameInitialized
 	m_console->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0, 20.0), 0, "verdana-12");
 	setConsoleColor(m_consoleColor);
 	setConsoleBackground(m_consoleBackground, m_consoleAlpha);
+	m_console->setConsoleHandler(m_handler);
 
 	Connect(this, W_SizeChanged, W_Console_ChildSizeChanged);
 	getChildSpace()->AllowActivate(false);
@@ -936,7 +947,8 @@ CLASS_DECLARATION( UIConsole, UIDMConsole, NULL )
 
 UIDMConsole::UIDMConsole()
 {
-	// FIXME: stub
+	m_bQuickMessageMode = qfalse;
+	m_iMessageMode = 100;
 }
 
 void UIDMConsole::KeyEnter
@@ -955,7 +967,8 @@ void UIDMConsole::AddDMMessageText
 	)
 
 {
-	// FIXME: stub
+	AddText(text, NULL);
+	uii.Snd_PlaySound("objective_text");
 }
 
 void UIDMConsole::Draw
@@ -964,7 +977,17 @@ void UIDMConsole::Draw
 	)
 
 {
-	// FIXME: stub
+	if (!IsThisOrChildActive()) {
+		SendSignal(W_Deactivated);
+	}
+
+	if (GetQuickMessageMode()) {
+		m_scroll->ProcessEvent(EV_Widget_Disable);
+	} else {
+		m_scroll->ProcessEvent(EV_Widget_Enable);
+	}
+
+	UIConsole::Draw();
 }
 
 qboolean UIDMConsole::KeyEvent
@@ -984,8 +1007,7 @@ qboolean UIDMConsole::GetQuickMessageMode
 	)
 
 {
-	// FIXME: stub
-	return qfalse;
+	return m_bQuickMessageMode;
 }
 
 void UIDMConsole::SetQuickMessageMode
@@ -994,7 +1016,7 @@ void UIDMConsole::SetQuickMessageMode
 	)
 
 {
-	// FIXME: stub
+	m_bQuickMessageMode = bQuickMessage;
 }
 
 int UIDMConsole::GetMessageMode
@@ -1003,8 +1025,7 @@ int UIDMConsole::GetMessageMode
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	return m_iMessageMode;
 }
 
 void UIDMConsole::SetMessageMode
@@ -1013,17 +1034,35 @@ void UIDMConsole::SetMessageMode
 	)
 
 {
-	// FIXME: stub
+	m_iMessageMode = iMode;
 }
 
 CLASS_DECLARATION( UIFloatingConsole, UIFloatingDMConsole, NULL )
 {
+	{ &W_Console_ChildSizeChanged,			&UIFloatingDMConsole::OnChildSizeChanged },
+	{ &UIFloatingConsole::W_ClosePressed,	&UIFloatingDMConsole::OnClosePressed },
+	{ &W_Deactivated,						&UIFloatingDMConsole::OnClosePressed },
 	{ NULL, NULL }
 };
 
 UIFloatingDMConsole::UIFloatingDMConsole()
+	: m_status(NULL)
+	, m_handler(NULL)
+	, m_consoleColor(0, 0, 0, 1)
+	, m_consoleBackground(0, 0, 0, 1)
 {
-	// FIXME: stub
+	setConsoleColor(UWhite);
+	setConsoleBackground(UBlack, 1);
+}
+
+UIFloatingDMConsole::~UIFloatingDMConsole()
+{
+	if (m_console) {
+		delete m_console;
+	}
+	if (m_status) {
+		delete m_status;
+	}
 }
 
 void UIFloatingDMConsole::FrameInitialized
@@ -1032,7 +1071,25 @@ void UIFloatingDMConsole::FrameInitialized
 	)
 
 {
-	// FIXME: stub
+	// call the parent initialisation
+	UIFloatingWindow::FrameInitialized();
+
+	m_console = new UIDMConsole();
+	m_console->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0, 20.0), 0, "verdana-12");
+
+	m_console->Connect(this, W_Deactivated, W_Deactivated);
+	setConsoleColor(m_consoleColor);
+	setConsoleBackground(m_consoleBackground, m_consoleAlpha);
+	getChildSpace()->Connect(this, W_SizeChanged, W_Console_ChildSizeChanged);
+	m_console->setConsoleHandler(m_handler);
+
+	getChildSpace()->AllowActivate(false);
+	OnChildSizeChanged(NULL);
+
+	m_background_color.a = 1.0;
+	m_alpha = 1.0;
+
+	getChildSpace()->setBackgroundAlpha(1.0);
 }
 
 void UIFloatingDMConsole::OnChildSizeChanged
@@ -1041,7 +1098,19 @@ void UIFloatingDMConsole::OnChildSizeChanged
 	)
 
 {
-	// FIXME: stub
+	const UISize2D childSpaceSize = getChildSpace()->getSize();
+	if (m_status)
+	{
+		const UISize2D statusSize = m_status->getSize();
+		const UISize2D newSize(childSpaceSize.width, childSpaceSize.height - statusSize.height);
+
+		m_console->setFrame(UIRect2D(UIPoint2D(0, 0), newSize));
+	}
+	else
+	{
+
+		m_console->setFrame(UIRect2D(UIPoint2D(0, 0), childSpaceSize));
+	}
 }
 
 void UIFloatingDMConsole::AddText
@@ -1051,7 +1120,9 @@ void UIFloatingDMConsole::AddText
 	)
 
 {
-	// FIXME: stub
+	if (m_console) {
+		m_console->AddText(text, pColor);
+	}
 }
 
 void UIFloatingDMConsole::AddDMMessageText
@@ -1061,7 +1132,9 @@ void UIFloatingDMConsole::AddDMMessageText
 	)
 
 {
-	// FIXME: stub
+	if (m_console) {
+		m_console->AddDMMessageText(text, pColor);
+	}
 }
 
 void UIFloatingDMConsole::setConsoleHandler
@@ -1070,7 +1143,9 @@ void UIFloatingDMConsole::setConsoleHandler
 	)
 
 {
-	// FIXME: stub
+	if (m_console) {
+		m_console->setConsoleHandler(handler);
+	}
 }
 
 void UIFloatingDMConsole::Clear
@@ -1079,7 +1154,9 @@ void UIFloatingDMConsole::Clear
 	)
 
 {
-	// FIXME: stub
+	if (m_console) {
+		m_console->Clear();
+	}
 }
 
 void UIFloatingDMConsole::OnClosePressed
@@ -1088,7 +1165,7 @@ void UIFloatingDMConsole::OnClosePressed
 	)
 
 {
-	// FIXME: stub
+	SendSignal(UIFloatingWindow::W_ClosePressed);
 }
 
 void UIFloatingDMConsole::setConsoleBackground
@@ -1098,7 +1175,20 @@ void UIFloatingDMConsole::setConsoleBackground
 	)
 
 {
-	// FIXME: stub
+	m_consoleBackground = color;
+	m_consoleAlpha = alpha;
+
+	if (m_console)
+	{
+		m_console->setBackgroundAlpha(alpha);
+		m_console->setBackgroundColor(color, true);
+	}
+
+	if (m_status)
+	{
+		m_status->setBackgroundAlpha(alpha);
+		m_status->setBackgroundColor(color, true);
+	}
 }
 
 void UIFloatingDMConsole::setConsoleColor
@@ -1107,7 +1197,15 @@ void UIFloatingDMConsole::setConsoleColor
 	)
 
 {
-	// FIXME: stub
+	m_consoleColor = color;
+
+	if (m_console) {
+		m_console->setForegroundColor(color);
+	}
+
+	if (m_status) {
+		m_status->setForegroundColor(color);
+	}
 }
 
 qboolean UIFloatingDMConsole::GetQuickMessageMode
@@ -1116,7 +1214,10 @@ qboolean UIFloatingDMConsole::GetQuickMessageMode
 	)
 
 {
-	// FIXME: stub
+	if (m_console) {
+		return m_console->GetQuickMessageMode();
+	}
+
 	return qfalse;
 }
 
@@ -1126,7 +1227,9 @@ void UIFloatingDMConsole::SetQuickMessageMode
 	)
 
 {
-	// FIXME: stub
+	if (m_console) {
+		return m_console->SetQuickMessageMode(bQuickMessage);
+	}
 }
 
 int UIFloatingDMConsole::GetMessageMode
@@ -1135,8 +1238,11 @@ int UIFloatingDMConsole::GetMessageMode
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	if (m_console) {
+		return m_console->GetMessageMode();
+	}
+
+	return qfalse;
 }
 
 void UIFloatingDMConsole::SetMessageMode
@@ -1145,5 +1251,7 @@ void UIFloatingDMConsole::SetMessageMode
 	)
 
 {
-	// FIXME: stub
+	if (m_console) {
+		return m_console->SetMessageMode(iMode);
+	}
 }

@@ -109,6 +109,7 @@ public:
 	CLASS_PROTOTYPE( UIFloatingConsole );
 
 	UIFloatingConsole();
+	~UIFloatingConsole();
 
 	void		FrameInitialized( void ) override;
 	void		OnChildSizeChanged( Event *ev );
@@ -155,6 +156,7 @@ public:
 	CLASS_PROTOTYPE( UIFloatingDMConsole );
 
 	UIFloatingDMConsole();
+	~UIFloatingDMConsole();
 
 	void			FrameInitialized( void ) override;
 	void			OnChildSizeChanged( Event *ev );
