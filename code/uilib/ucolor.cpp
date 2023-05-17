@@ -218,10 +218,10 @@ UColorHSV::UColorHSV
 			// between magenta & cyan
 			h = 4.0f + ( rgb.r - rgb.g ) / delta;
 		}
-
-		// degrees
-		h *= 60.0;
 	}
+
+	// degrees
+	h *= 60.0;
 
 	if( h < 0.0 )
 		h += 360.0;
