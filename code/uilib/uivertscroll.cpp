@@ -287,6 +287,11 @@ void UIVertScroll::MouseDown
 			scrollrate = 1;
 		}
 	}
+	else
+	{
+		m_pressed = VS_UP_ARROW;
+		scrollrate = -1;
+	}
 
 	Event* newev = new Event(EV_Scrollbar_Scroll);
 	newev->AddInteger(scrollrate);
