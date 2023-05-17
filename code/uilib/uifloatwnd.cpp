@@ -232,7 +232,7 @@ void UIFloatingWindow::Pressed
 	}
 
 	m_clickpoint = m_clickOffset;
-	if (m_clickOffset.y >= 18.0)
+	if (m_clickOffset.y < 18.0)
 	{
 		uWinMan.setFirstResponder(this);
 		m_isPressed = true;
