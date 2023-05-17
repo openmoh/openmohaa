@@ -726,6 +726,17 @@ qboolean SV_CheckPaused( void ) {
 
 /*
 ==================
+SV_SetFrameNumber
+==================
+*/
+void SV_SetFrameNumber(int frameNumber) {
+	if (ge) {
+		ge->SetFrameNumber(frameNumber);
+	}
+}
+
+/*
+==================
 SV_Frame
 
 Player movement occurs as a result of packet events, which

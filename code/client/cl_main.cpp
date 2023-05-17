@@ -2305,6 +2305,10 @@ void CL_CheckUserinfo( void ) {
 	}
 }
 
+void CL_SetFrameNumber(int frameNumber) {
+	re.SetFrameNumber(frameNumber);
+}
+
 /*
 ==================
 CL_Frame

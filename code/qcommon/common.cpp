@@ -1616,6 +1616,14 @@ void Com_Frame( void ) {
 		return;			// an ERR_DROP was thrown
 	}
 
+	SV_SetFrameNumber(com_frameNumber);
+
+#ifndef DEDICATED
+	if (com_dedicated && com_dedicated->integer) {
+		CL_SetFrameNumber(com_frameNumber);
+	}
+#endif
+
 	timeBeforeFirstEvents =0;
 	timeBeforeServer =0;
 	timeBeforeEvents =0;
