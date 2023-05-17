@@ -161,6 +161,8 @@ public:
 
 CLASS_DECLARATION( Listener, ConsoleHider, NULL )
 {
+	{ &UIFloatingWindow::W_ClosePressed,	&ConsoleHider::HideConsole },
+	{ &W_Destroyed,							&ConsoleHider::DeadConsole },
 	{ NULL, NULL }
 };
 
@@ -177,6 +179,8 @@ void ConsoleHider::DeadConsole( Event *ev )
 		fakk_console = NULL;
 	}
 }
+
+static ConsoleHider s_consolehider;
 
 /*
 ====================
@@ -219,8 +223,6 @@ static UIRect2D getDefaultConsoleRectangle( void ) {
 	return rect;
 }
 
-static ConsoleHider s_consolehider;
-
 class DMConsoleHider : public Listener {
 public:
 	CLASS_PROTOTYPE( DMConsoleHider );
@@ -231,6 +233,9 @@ public:
 
 CLASS_DECLARATION( Listener, DMConsoleHider, NULL )
 {
+	{ &UIFloatingWindow::W_ClosePressed,	&DMConsoleHider::HideDMConsole },
+	{ &W_Deactivated,						&DMConsoleHider::HideDMConsole },
+	{ &W_Destroyed,							&DMConsoleHider::DeadDMConsole },
 	{ NULL, NULL }
 };
 
