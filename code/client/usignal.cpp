@@ -57,12 +57,12 @@ bool UConnection::AddListener
 	ptr = object;
 
 	// don't add the same listener
-	if( m_listeners.ObjectInList( ptr ) )
+	if (m_listeners.ObjectInList(ptr))
 	{
 		return false;
 	}
 
-	m_listeners.AddUniqueObject( ptr );
+	m_listeners.AddObject( ptr );
 
 	e = new Event( ev );
 	m_events.AddObject( e );
