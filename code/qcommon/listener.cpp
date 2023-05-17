@@ -2796,7 +2796,7 @@ qboolean Listener::EventPending( Event &ev )
 
 	while( event != &Event::EventQueue )
 	{
-		if( ( event->GetSourceObject() == this ) && ( event->event->eventnum ) )
+		if( ( event->GetSourceObject() == this ) && ( event->event->eventnum == ev.eventnum ) )
 		{
 			return true;
 		}
