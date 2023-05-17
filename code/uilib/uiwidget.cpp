@@ -694,8 +694,11 @@ UIWidget::~UIWidget()
 		m_parent->removeChild( this );
 
 	// delete font
-	if( m_font )
+	if (m_font)
+	{
 		delete m_font;
+		m_font = NULL;
+	}
 
 	SendSignal( W_Destroyed );
 }
@@ -2806,7 +2809,7 @@ bool UIWidget::SendSignal
 	)
 
 {
-	if( uWinMan.BindActive() )
+	if( uWinMan.IsDead() )
 	{
 		return false;
 	}
