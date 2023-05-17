@@ -214,7 +214,10 @@ UIWidget *UIWindowManager::getResponder
 		subview = m_children.ObjectAt( i );
 		if( subview != m_backgroundwidget )
 		{
-			return subview->FindResponder( pos );
+			responder = subview->FindResponder( pos );
+			if (responder) {
+				return responder;
+			}
 		}
 	}
 
@@ -455,39 +458,41 @@ void UIWindowManager::ActivateControl
 	)
 
 {
-	for( ; control && control != this; control = control->getParent() )
+	UIWidget* wid;
+
+	for(wid = control; wid && wid != this; wid = wid->getParent() )
 	{
-		if( control->CanActivate() && control->isEnabled() )
+		if(wid->CanActivate() && wid->isEnabled() ) {
+			break;
+		}
+	}
+
+	if (!wid || wid == this) {
+		return;
+	}
+
+	if (wid->CanActivate() && wid->isEnabled())
+	{
+		UIWidget* active = ActiveControl();
+
+		if (wid != active)
 		{
-			if( control != this
-				&& control->CanActivate()
-				&& control->isEnabled()
-				&& control != ActiveControl() )
+			if (active)
 			{
-				UIWidget *wid = m_activeControl;
-
-				if( control != wid )
-				{
-					if( wid )
-					{
-						m_activeControl = NULL;
-						wid->SendSignal( W_Deactivated );
-						wid->SetHovermaterialActive( false );
-						wid->SetPressedmaterialActive( false );
-					}
-
-					if( !m_activeControl )
-					{
-						m_activeControl = control;
-						control->SetHovermaterialActive( true );
-						control->ActivateOrder();
-						control->BringToFrontPropogated();
-						control->SendSignal( W_Activated );
-					}
-				}
+				m_activeControl = NULL;
+				active->SendSignal(W_Deactivated);
+				active->SetHovermaterialActive(false);
+				active->SetPressedmaterialActive(false);
 			}
 
-			break;
+			if (!active || !ActiveControl())
+			{
+				m_activeControl = wid;
+				wid->SetHovermaterialActive(true);
+				wid->ActivateOrder();
+				wid->BringToFrontPropogated();
+				wid->SendSignal(W_Activated);
+			}
 		}
 	}
 }
@@ -892,14 +897,10 @@ void UIWindowManager::DeactivateCurrentSmart
 		}
 
 		checking = checking->getParent();
-		if( !checking || toset )
+		if( !checking )
 		{
-			if( !toset )
-			{
-				uWinMan.DeactivateCurrentControl();
-				return;
-			}
-			break;
+			uWinMan.DeactivateCurrentControl();
+			return;
 		}
 	}
 
