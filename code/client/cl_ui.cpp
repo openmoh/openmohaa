@@ -1095,19 +1095,22 @@ static void UI_SetDMConsoleMode( int iMode ) {
 
 static void DMConsoleCommandHandler( const char *txt ) {
 	int iMode;
-	char szStringOut[ 1024 ];
+	char szStringOut[1024];
 
-	if( dm_console->GetMessageMode() != 100 )
+	iMode = 0;
+
+	if (dm_console->GetMessageMode() != 100)
 	{
-		if( dm_console->GetMessageMode() == 200 ) {
+		if (dm_console->GetMessageMode() == 200) {
 			iMode = -1;
-		} else {
+		}
+		else {
 			iMode = dm_console->GetMessageMode();
 		}
 	}
 
-	Com_sprintf( szStringOut, sizeof( szStringOut ), "dmmessage %i %s\n", iMode );
-	CL_AddReliableCommand( szStringOut );
+	Com_sprintf(szStringOut, sizeof(szStringOut), "dmmessage %i %s\n", iMode, txt);
+	CL_AddReliableCommand(szStringOut);
 }
 
 /*
@@ -1219,18 +1222,24 @@ void UI_PrintConsole( const char *msg )
 		switch( *szString )
 		{
 		case MESSAGE_YELLOW:
+			bNormalMessage = qtrue;
 			pColor = &UHudColor;
 			break;
 		case MESSAGE_CHAT_WHITE:
+			bDMMessage = qtrue;
 			pColor = &UGrey;
 			break;
 		case MESSAGE_WHITE:
+			bBold = qtrue;
 			pColor = &UWhite;
 			break;
 		case MESSAGE_CHAT_RED:
+			bDeathMessage = qtrue;
 			pColor = &ULightRed;
 			break;
 		}
+
+		msg++;
 
 		//
 		// print to the deathmatch console
