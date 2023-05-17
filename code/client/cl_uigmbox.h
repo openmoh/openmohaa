@@ -23,7 +23,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __CL_UIGMBOX_H__
 #define __CL_UIGMBOX_H__
 
+static constexpr unsigned int GMBOX_ITEM_FLAG_BOLD = 1u;
+
 class UIGMBox : public UIWidget {
+	struct item_t {
+		str string;
+		UColor color;
+		UIFont* font;
+		int flags;
+	};
+
 protected:
 	item_t m_items[ 5 ];
 	int m_numitems;
