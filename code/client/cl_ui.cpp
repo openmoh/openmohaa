@@ -1290,6 +1290,7 @@ void UI_PrintConsole( const char *msg )
 
 	if( *msg == 7 )
 	{
+		msg++;
 		if( mini_console )
 		{
 			mini_console->Print( msg + 1 );
@@ -1306,10 +1307,10 @@ void UI_PrintConsole( const char *msg )
 			s_intermediateconsole = NULL;
 		}
 
-		fakk_console->AddText( msg + 1, pColor );
+		fakk_console->AddText( msg, pColor );
 
 		if( mini_console ) {
-			mini_console->Print( msg + 1 );
+			mini_console->Print( msg );
 		}
 	}
 	else
@@ -1318,7 +1319,7 @@ void UI_PrintConsole( const char *msg )
 			s_intermediateconsole = new str;
 		}
 
-		*s_intermediateconsole = ( msg + 1 );
+		*s_intermediateconsole = msg;
 	}
 }
 
