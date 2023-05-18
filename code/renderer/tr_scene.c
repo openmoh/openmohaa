@@ -387,6 +387,14 @@ void RE_RenderScene( const refdef_t *fd ) {
 		}
 	}
 
+	// copy the sky data
+	tr.refdef.sky_alpha = fd->sky_alpha;
+	tr.refdef.sky_portal = fd->sky_portal;
+
+	VectorCopy(fd->sky_origin, tr.refdef.sky_origin);
+	VectorCopy(fd->sky_axis[0], tr.refdef.sky_axis[0]);
+	VectorCopy(fd->sky_axis[1], tr.refdef.sky_axis[1]);
+	VectorCopy(fd->sky_axis[2], tr.refdef.sky_axis[2]);
 
 	// derived info
 
@@ -403,6 +411,8 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
+
+	backEndData[tr.smpFrame]->staticModelData = tr.refdef.staticModelData;
 
 	// turn off dynamic lighting globally by clearing all the
 	// dlights if it needs to be disabled or if vertex lighting is enabled
@@ -424,6 +434,8 @@ void RE_RenderScene( const refdef_t *fd ) {
 	// The refdef takes 0-at-the-top y coordinates, so
 	// convert to GL's 0-at-the-bottom space
 	//
+	tr.skyRendered = qfalse;
+	tr.portalRendered = qfalse;
 	Com_Memset( &parms, 0, sizeof( parms ) );
 	parms.viewportX = tr.refdef.x;
 	parms.viewportY = glConfig.vidHeight - ( tr.refdef.y + tr.refdef.height );
@@ -440,6 +452,13 @@ void RE_RenderScene( const refdef_t *fd ) {
 	VectorCopy( fd->viewaxis[2], parms.ori.axis[2] );
 
 	VectorCopy( fd->vieworg, parms.pvsOrigin );
+
+	// copy the farplane data
+	parms.farplane_distance = fd->farplane_distance;
+	parms.farplane_color[0] = fd->farplane_color[0];
+	parms.farplane_color[1] = fd->farplane_color[1];
+	parms.farplane_color[2] = fd->farplane_color[2];
+	parms.farplane_cull = fd->farplane_cull;
 
 	R_RenderView( &parms );
 

@@ -581,6 +581,70 @@ void R_SetupFrustum (void) {
 		tr.viewParms.frustum[i].dist = DotProduct (tr.viewParms.ori.origin, tr.viewParms.frustum[i].normal);
 		SetPlaneSignbits( &tr.viewParms.frustum[i] );
 	}
+
+	if (tr.portalsky.inUse) {
+		tr.viewParms.farplane_distance = 0.0;
+	}
+	else if (r_farplane->integer)
+	{
+		tr.viewParms.farplane_distance = r_farplane->value;
+
+		sscanf(
+			r_farplane_color->string,
+			"%f %f %f",
+			&tr.viewParms.farplane_color[0],
+			&tr.viewParms.farplane_color[1],
+			&tr.viewParms.farplane_color[2]);
+
+		tr.viewParms.farplane_cull = !r_farplane_nocull->integer;
+	}
+
+	if (tr.viewParms.farplane_distance)
+	{
+		vec3_t farPoint;
+		float realPlaneLen;
+		float tmp;
+		vec4_t fogColor;
+
+		tr.viewParms.fog.len = tr.viewParms.farplane_distance;
+		tr.viewParms.fog.oolen = 1.0 / tr.viewParms.farplane_distance;
+
+		farPoint[0] = tr.viewParms.ori.origin[0] + tr.viewParms.ori.axis[0][0] * tr.viewParms.farplane_distance;
+		farPoint[1] = tr.viewParms.ori.origin[1] + tr.viewParms.ori.axis[0][1] * tr.viewParms.farplane_distance;
+		farPoint[2] = tr.viewParms.ori.origin[2] + tr.viewParms.ori.axis[0][2] * tr.viewParms.farplane_distance;
+
+		VectorNegate(tr.viewParms.ori.axis[0], tr.viewParms.frustum[4].normal);
+		tr.viewParms.frustum[4].type = 3;
+		tr.viewParms.frustum[4].dist = DotProduct(farPoint, tr.viewParms.frustum[4].normal);
+		SetPlaneSignbits(&tr.viewParms.frustum[4]);
+
+		tr.viewParms.fog.enabled = r_farplane_nofog->integer == 0;
+		tr.viewParms.fog.extrafrustums = tr.viewParms.farplane_cull;
+
+		if (!r_farplane_nofog->integer)
+		{
+			qglFogf(GL_FOG_END, tr.viewParms.farplane_distance);
+
+			fogColor[0] = tr.viewParms.farplane_color[0] * tr.identityLight;
+			fogColor[1] = tr.viewParms.farplane_color[1] * tr.identityLight;
+			fogColor[2] = tr.viewParms.farplane_color[2] * tr.identityLight;
+			fogColor[3] = 1.0;
+
+			GL_SetFogColor(fogColor);
+			glState.externalSetState |= GLS_FOG;
+		}
+		else
+		{
+			glState.externalSetState &= ~GLS_FOG;
+		}
+	}
+	else
+	{
+		tr.viewParms.fog.enabled = 0;
+		tr.viewParms.fog.extrafrustums = 0;
+
+		glState.externalSetState &= ~GLS_FOG;
+	}
 }
 
 
@@ -837,27 +901,26 @@ static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum )
 **
 ** Determines if a surface is completely offscreen.
 */
-static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128] ) {
+qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int entityNum) {
 	float shortest = 100000000;
-	int entityNum;
 	int numTriangles;
-	shader_t *shader;
-	int dlighted;
-	qboolean bStaticModel;
+	qboolean doRange;
+	orientationr_t surfOr;
+	unsigned int* indices;
 	vec4_t clip, eye;
 	int i;
 	unsigned int pointOr = 0;
 	unsigned int pointAnd = (unsigned int)~0;
-
+	
 	if ( glConfig.smpActive ) {		// FIXME!  we can't do RB_BeginSurface/RB_EndSurface stuff with smp!
 		return qfalse;
 	}
 
-	R_RotateForViewer();
-
-	R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &dlighted, &bStaticModel );
-	RB_BeginSurface( shader );
-	rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
+	if (entityNum == ENTITYNUM_WORLD) {
+		surfOr = tr.viewParms.world;
+	} else {
+		R_RotateForEntity(&tr.refdef.entities[entityNum], &tr.viewParms, &surfOr);
+	}
 
 	assert( tess.numVertexes < 128 );
 
@@ -920,19 +983,25 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 		return qtrue;
 	}
 
-	// mirrors can early out at this point, since we don't do a fade over distance
-	// with them (although we could)
-	if ( IsMirror( drawSurf, entityNum ) )
+	if (shader->fDistRange > 0.0)
 	{
-		return qfalse;
-	}
-
-	if ( shortest > (tess.shader->portalRange*tess.shader->portalRange) )
-	{
-		return qtrue;
+		if (shortest > (tess.shader->portalRange * tess.shader->portalRange))
+		{
+			return qtrue;
+		}
 	}
 
 	return qfalse;
+}
+
+static qboolean DrawSurfIsOffscreen(drawSurf_t* drawSurf) {
+	int entityNum;
+	shader_t* shader;
+	int dlighted;
+	qboolean bStaticModel;
+
+	R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &dlighted, &bStaticModel);
+	return SurfIsOffscreen((srfSurfaceFace_t*)drawSurf->surface, shader, entityNum);
 }
 
 /*
@@ -943,7 +1012,6 @@ Returns qtrue if another view has been rendered
 ========================
 */
 qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
-	vec4_t			clipDest[128];
 	viewParms_t		newParms;
 	viewParms_t		oldParms;
 	orientation_t	surface, camera;
@@ -959,7 +1027,7 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	}
 
 	// trivially reject portal/mirror
-	if ( SurfIsOffscreen( drawSurf, clipDest ) ) {
+	if (DrawSurfIsOffscreen( drawSurf ) ) {
 		return qfalse;
 	}
 
@@ -1601,6 +1669,8 @@ void R_RenderView (viewParms_t *parms) {
 	R_RotateForViewer ();
 
 	R_SetupFrustum ();
+
+	R_Sky_Reset();
 
 	R_GenerateDrawSurfs();
 

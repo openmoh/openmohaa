@@ -683,7 +683,7 @@ typedef struct {
 	int			viewportX, viewportY, viewportWidth, viewportHeight;
 	float		fovX, fovY;
 	float		projectionMatrix[16];
-	cplane_t	frustum[4];
+	cplane_t	frustum[5];
 	vec3_t		visBounds[2];
 	float		zFar;
 	depthfog_t	fog;
@@ -1281,6 +1281,9 @@ typedef struct {
 
 	orientationr_t			ori;				// for current entity
 
+	portalsky_t				portalsky;
+	qboolean				skyRendered;
+	qboolean				portalRendered;
 	trRefdef_t				refdef;
 
 	int						viewCluster;
@@ -1560,6 +1563,8 @@ void R_DebugCircle(const vec3_t org, float radius, float r, float g, float b, fl
 void R_DebugLine(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha);
 void R_RenderView( viewParms_t *parms );
 
+qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int entityNum);
+
 void R_AddMD3Surfaces( trRefEntity_t *e );
 void R_AddNullModelSurfaces( trRefEntity_t *e );
 void R_AddBeamSurfaces( trRefEntity_t *e );
@@ -1584,10 +1589,13 @@ int R_CullLocalPointAndRadius( vec3_t origin, float radius );
 
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *ori );
 void R_RotateForStaticModel(cStaticModelUnpacked_t* SM, const viewParms_t* viewParms, orientationr_t* ori );
+void R_RotateForViewer(void);
+void R_SetupFrustum(void);
 
 /*
 ** GL wrapper/helper functions
 */
+void	GL_SetFogColor(const vec4_t fColor);
 void	GL_Bind( image_t *image );
 void	GL_SetDefaultState (void);
 void	GL_SelectTexture( int unit );
@@ -1619,12 +1627,19 @@ void	GL_Cull( int cullType );
 #define		GLS_DSTBLEND_BITS					0x000000f0
 
 #define GLS_DEPTHMASK_TRUE						0x00000100
+#define GLS_POLYMODE_LINE						0x00000200
 #define GLS_DEPTHTEST_DISABLE					0x00000400
+#define GLS_DEPTHFUNC_EQUAL						0x00000800
 
-#define GLS_POLYMODE_LINE						0x00001000
+#define GLS_CLAMP_EDGE							0x00001000
+#define GLS_MULTITEXTURE						0x00002000
 #define GLS_MULTITEXTURE_ENV					0x00004000
+#define GLS_FOG									0x00008000
 
-#define GLS_DEPTHFUNC_EQUAL						0x00020000
+#define GLS_FOG_ENABLED							0x00010000
+#define GLS_FOG_BLACK							0x00020000
+#define GLS_FOG_WHITE							0x00040000
+#define GLS_FOG_COLOR							(GLS_FOG_BLACK | GLS_FOG_WHITE)
 
 #define GLS_ATEST_GT_0							0x10000000
 #define GLS_ATEST_LT_80							0x20000000
@@ -1815,6 +1830,7 @@ extern terrainVert_t* g_pVert;
 
 void R_AddBrushModelSurfaces( trRefEntity_t *e );
 void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs);
+mnode_t* R_PointInLeaf(const vec3_t p);
 int R_DlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits);
 int R_CheckDlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits);
 void R_AddWorldSurfaces( void );
@@ -1857,6 +1873,7 @@ void RB_Grid_SetupStaticModel();
 void RB_Light_Fullbright(const color4ub_t colors);
 void R_Sphere_InitLights();
 int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights);
+void R_UploadDlights();
 
 
 /*

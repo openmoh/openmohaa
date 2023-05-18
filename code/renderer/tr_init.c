@@ -841,6 +841,13 @@ void GL_SetDefaultState( void )
 	qglEnable( GL_SCISSOR_TEST );
 	qglDisable( GL_CULL_FACE );
 	qglDisable( GL_BLEND );
+
+	qglFogf(GL_FOG_MODE, 9729.0);
+
+	glState.fFogColor[0] = 0.0;
+	glState.fFogColor[1] = 0.0;
+	glState.fFogColor[2] = 0.0;
+	glState.fFogColor[3] = 1.0;
 }
 
 const char* RE_GetGraphicsInfo() {

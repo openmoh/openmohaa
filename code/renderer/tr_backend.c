@@ -34,6 +34,16 @@ static float	s_flipMatrix[16] = {
 	0, 0, 0, 1
 };
 
+void GL_SetFogColor(const vec4_t fColor) {
+	glState.fFogColor[0] = fColor[0];
+	glState.fFogColor[1] = fColor[1];
+	glState.fFogColor[2] = fColor[2];
+	glState.fFogColor[3] = fColor[3];
+
+	if (!(glState.glStateBits & GLS_FOG_COLOR)) {
+		qglFogfv(GL_FOG_COLOR, glState.fFogColor);
+	}
+}
 
 /*
 ** GL_Bind
@@ -206,7 +216,7 @@ void GL_TexEnv( int env )
 */
 void GL_State( unsigned long stateBits )
 {
-	unsigned long diff = stateBits ^ glState.glStateBits;
+	unsigned long diff = glState.glStateBits ^ (glState.externalSetState | stateBits);
 
 	if ( !diff )
 	{
@@ -358,6 +368,35 @@ void GL_State( unsigned long stateBits )
 		}
 	}
 
+	if ((diff & GLS_MULTITEXTURE_ENV) || (diff & GLS_MULTITEXTURE))
+	{
+		if (stateBits & GLS_MULTITEXTURE_ENV)
+		{
+			GL_TexEnv(GL_COMBINE4_NV);
+		}
+		else if (stateBits & GLS_MULTITEXTURE)
+		{
+			if (glState.cntTexEnvExt != GLS_MULTITEXTURE)
+			{
+				qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, 34165.0);
+				qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, 8448.0);
+				qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, 0x47057700);
+				qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, 0x44400000);
+				qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, 5890.0);
+				qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, 0x44400000);
+				qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, 0x47057700);
+				qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, 770.0);
+				glState.cntTexEnvExt = GLS_MULTITEXTURE;
+			}
+
+			GL_TexEnv(GL_COMBINE);
+		}
+		else
+		{
+			GL_TexEnv(GL_MODULATE);
+		}
+	}
+
 	//
 	// alpha test
 	//
@@ -386,7 +425,105 @@ void GL_State( unsigned long stateBits )
 		}
 	}
 
-	glState.glStateBits = stateBits;
+
+
+	if (diff & GLS_CLAMP_EDGE)
+	{
+		float clampValue;
+
+		if (r_forceClampToEdge->value)
+		{
+			if (stateBits & GLS_CLAMP_EDGE) {
+				clampValue = 33071.0;
+			}
+			else {
+				clampValue = 10497.0;
+			}
+		}
+		else
+		{
+			if (stateBits & GLS_CLAMP_EDGE) {
+				clampValue = 10496.0;
+			}
+			else {
+				clampValue = 10497.0;
+			}
+		}
+
+		if (qglActiveTextureARB)
+		{
+			int currenttmu = glState.currenttmu;
+
+			GL_SelectTexture(0);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clampValue);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clampValue);
+
+			GL_SelectTexture(1);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clampValue);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clampValue);
+
+			GL_SelectTexture(currenttmu);
+		}
+		else
+		{
+			GL_SelectTexture(0);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clampValue);
+			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clampValue);
+		}
+	}
+
+	if (diff & GLS_FOG)
+	{
+		if (glState.externalSetState & GLS_FOG)
+		{
+			qglEnable(GL_FOG);
+
+			if (stateBits & GLS_FOG_BLACK)
+			{
+				vec4_t fBlackFogColor = { 0, 0, 0, 1 };
+				qglFogfv(GL_FOG_COLOR, fBlackFogColor);
+			}
+			else if (stateBits & GLS_FOG_WHITE)
+			{
+				vec4_t fWhiteFogColor = { 1, 1, 1, 1 };
+				qglFogfv(GL_FOG_COLOR, fWhiteFogColor);
+			}
+		}
+		else
+		{
+			qglDisable(GL_FOG);
+		}
+	}
+	else
+	{
+		if (glState.externalSetState & GLS_FOG)
+		{
+			if (diff & GLS_FOG_ENABLED)
+			{
+				if (stateBits & GLS_FOG_ENABLED) {
+					qglEnable(GL_FOG);
+				} else {
+					qglDisable(GL_FOG);
+				}
+			}
+
+			if (diff & GLS_FOG_COLOR)
+			{
+				if (stateBits & GLS_FOG_BLACK)
+				{
+					vec4_t fBlackFogColor = { 0, 0, 0, 1 };
+					qglFogfv(GL_FOG_COLOR, fBlackFogColor);
+				}
+				else if (stateBits & GLS_FOG_WHITE)
+				{
+					vec4_t fWhiteFogColor = { 1, 1, 1, 1 };
+					qglFogfv(GL_FOG_COLOR, fWhiteFogColor);
+				}
+			}
+		}
+	}
+
+	glState.glStateBits = stateBits | glState.externalSetState;
 }
 
 
@@ -454,23 +591,33 @@ void RB_BeginDrawingView (void) {
 	//
 	SetViewportAndScissor();
 
+	R_UploadDlights();
+
 	// ensures that depth writes are enabled for the depth clear
 	GL_State( GLS_DEFAULT );
 	// clear relevant buffers
 	clearBits = GL_DEPTH_BUFFER_BIT;
 
-	if ( r_measureOverdraw->integer || r_shadows->integer == 2 )
+	if ( r_measureOverdraw->integer || r_shadows->integer == 3 )
 	{
 		clearBits |= GL_STENCIL_BUFFER_BIT;
 	}
-	if ( r_fastsky->integer && !( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) )
+
+	if (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
-		clearBits |= GL_COLOR_BUFFER_BIT;	// FIXME: only if sky shaders have been used
-#ifdef _DEBUG
-		qglClearColor( 0.8f, 0.7f, 0.4f, 1.0f );	// FIXME: get color of sky
-#else
-		qglClearColor( 0.0f, 0.0f, 0.0f, 1.0f );	// FIXME: get color of sky
-#endif
+		if (backEnd.viewParms.farplane_distance && tr.skyRendered && tr.portalRendered)
+		{
+			clearBits |= GL_COLOR_BUFFER_BIT;
+			qglClearColor(glState.fFogColor[0], glState.fFogColor[1], glState.fFogColor[2], glState.fFogColor[3]);
+		}
+		else
+		{
+			if (r_fastsky->integer)
+			{
+				clearBits |= GL_COLOR_BUFFER_BIT;
+				qglClearColor(0.5, 0.5, 1.0, 1.0);
+			}
+		}
 	}
 	qglClear( clearBits );
 
@@ -971,6 +1118,10 @@ const void *RB_StretchPic ( const void *data ) {
 	tess.texCoords[ numVerts + 3 ][0][1] = cmd->t2;
 
 	return (const void *)(cmd + 1);
+}
+
+void RB_SetupFog() {
+	// FIXME: unimplemented
 }
 
 
