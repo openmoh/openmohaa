@@ -457,7 +457,7 @@ R_UnpackTerraPatch
 ================
 */
 void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked) {
-	int i;
+	int i, j;
 	union {
 		int16_t v;
 		uint8_t b[2];
@@ -472,8 +472,8 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
         Com_Error(ERR_DROP, "invalid map: terrain has lmapScale <= 0");
     }
 
-    pUnpacked->drawinfo.lmapStep = (pPacked->lmapScale / 64);
-    pUnpacked->drawinfo.lmapSize = (pPacked->lmapScale * 8) | 1;
+    pUnpacked->drawinfo.lmapStep = (float)(pPacked->lmapScale / 64);
+    pUnpacked->drawinfo.lmapSize = (float)((pPacked->lmapScale * 8) + 1);
     pUnpacked->s = ((float)pPacked->s + 0.5) * 0.0078125;
     pUnpacked->t = ((float)pPacked->t + 0.5) * 0.0078125;
 
@@ -483,15 +483,21 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
     	pUnpacked->drawinfo.lmData = NULL;
     }
 
-    memcpy(pUnpacked->texCoord, pPacked->texCoord, sizeof(pUnpacked->texCoord));
-    pUnpacked->x0 = ((int)pPacked->x << 6);
-    pUnpacked->y0 = ((int)pPacked->y << 6);
-    pUnpacked->z0 = pPacked->iBaseHeight;
-    pUnpacked->shader = ShaderForShaderNum(pPacked->iShader, pPacked->iLightMap);
-    pUnpacked->iNorth = pPacked->iNorth;
-    pUnpacked->iEast = pPacked->iEast;
-    pUnpacked->iSouth = pPacked->iSouth;
-    pUnpacked->iWest = pPacked->iWest;
+	for (i = 0; i < 2; i++) {
+		for (j = 0; j < 2; j++) {
+			pUnpacked->texCoord[i][j][0] = LittleFloat(pPacked->texCoord[i][j][0]);
+			pUnpacked->texCoord[i][j][1] = LittleFloat(pPacked->texCoord[i][j][1]);
+		}
+	}
+
+	pUnpacked->x0 = ((int)pPacked->x << 6);
+	pUnpacked->y0 = ((int)pPacked->y << 6);
+    pUnpacked->z0 = LittleShort(pPacked->iBaseHeight);
+    pUnpacked->shader = ShaderForShaderNum(LittleShort(pPacked->iShader), LittleShort(pPacked->iLightMap));
+    pUnpacked->iNorth = LittleShort(pPacked->iNorth);
+    pUnpacked->iEast = LittleShort(pPacked->iEast);
+    pUnpacked->iSouth = LittleShort(pPacked->iSouth);
+    pUnpacked->iWest = LittleShort(pPacked->iWest);
 
     for (i = 0; i < 63; i++)
 	{
@@ -506,11 +512,14 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
 		pUnpacked->varTree[1][i].s.flags = LittleShort(pPacked->varTree[1][i].flags) >> 12;
     }
 
-    memcpy(pUnpacked->heightmap, pPacked->heightmap, sizeof(pUnpacked->heightmap));
+	for (i = 0; i < sizeof(pUnpacked->heightmap) / sizeof(pUnpacked->heightmap[0]); i++) {
+		pUnpacked->heightmap[i] = pPacked->heightmap[i];
+	}
+
     pUnpacked->zmax = 0;
     pUnpacked->flags = pPacked->flags;
 
-    for (i = 0; i < sizeof(pUnpacked->heightmap); i++)
+    for (i = 0; i < sizeof(pUnpacked->heightmap) / sizeof(pUnpacked->heightmap[0]); i++)
     {
         if (pUnpacked->zmax < pUnpacked->heightmap[i]) {
             pUnpacked->zmax = pUnpacked->heightmap[i];

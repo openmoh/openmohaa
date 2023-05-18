@@ -535,7 +535,7 @@ typedef struct cTerraPatch_s {
 	byte	s;
 	byte	t;
 
-	float	texCoord[ 2 ][ 2 ][ 2 ];
+	vec2_t	texCoord[ 2 ][ 2 ];
 
 	char	x;
 	char	y;
