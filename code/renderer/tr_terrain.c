@@ -74,6 +74,18 @@ terrainVert_t* g_pVert;
 poolInfo_t g_tri;
 poolInfo_t g_vert;
 
+static void R_ValidateHeightmapForVertex(terraTri_t* pTri)
+{
+	for (terraInt i = 0; i < 3; i++)
+	{
+		terrainVert_t* pVert = &g_pVert[pTri->iPt[i]];
+		if (pVert->pHgt < pTri->patch->heightmap || pVert->pHgt > &pTri->patch->heightmap[80])
+		{
+			pVert->pHgt = pTri->patch->heightmap;
+		}
+	}
+}
+
 static int R_AllocateVert(cTerraPatchUnpacked_t* patch)
 {
 	terraInt iVert = g_vert.iFreeHead;
@@ -160,14 +172,14 @@ terraInt R_AllocateTri(cTerraPatchUnpacked_t* patch, qboolean check)
 	patch->drawinfo.nTris++;
 	g_tri.nFree--;
 
-	g_pTris[iTri].byConstChecks = ~((-check | check) >> 31) & 4;
+	g_pTris[iTri].byConstChecks = check ? 0 : 4;
 	g_pTris[iTri].uiDistRecalc = 0;
 	patch->uiDistRecalc = 0;
 
 	return iTri;
 }
 
-static void R_ReleaseTri(cTerraPatchUnpacked_t* patch, int iTri)
+static void R_ReleaseTri(cTerraPatchUnpacked_t* patch, terraInt iTri)
 {
 	terraTri_t* pTri = &g_pTris[iTri];
 
@@ -207,21 +219,8 @@ static void R_ReleaseTri(cTerraPatchUnpacked_t* patch, int iTri)
 		terraInt ptNum = pTri->iPt[i];
 
 		g_pVert[ptNum].nRef--;
-		if (g_pVert[ptNum].nRef-- == 1)
-		{
+		if (!g_pVert[ptNum].nRef) {
 			R_ReleaseVert(patch, ptNum);
-		}
-	}
-}
-
-void R_FixTriHeight(terraTri_t* pTri)
-{
-	for (terraInt i = 0; i < 3; i++)
-	{
-		terrainVert_t* pVert = &g_pVert[pTri->iPt[i]];
-		if (pVert->pHgt < pTri->patch->heightmap || pVert->pHgt > &pTri->patch->heightmap[80])
-		{
-			pVert->pHgt = pTri->patch->heightmap;
 		}
 	}
 }
@@ -240,14 +239,14 @@ static int R_ConstChecksForTri(terraTri_t* pTri)
 		return 2;
 	} else if (pTri->varnode->s.flags & 8) {
 		return 3;
-	} else if ((pTri->byConstChecks & 4) && (pTri->varnode->s.flags & 4) && pTri->lod < ter_maxlod->integer) {
+	} else if ((pTri->byConstChecks & 4) && !(pTri->varnode->s.flags & 4) && pTri->lod < ter_maxlod->integer) {
 		return 0;
 	}
 
 	return 2;
 }
 
-static void R_DemoteInAncestry(cTerraPatchUnpacked_t* patch, int iTri)
+static void R_DemoteInAncestry(cTerraPatchUnpacked_t* patch, terraInt iTri)
 {
 	terraInt iPrev = g_pTris[iTri].iPrev;
 	terraInt iNext = g_pTris[iTri].iNext;
@@ -326,22 +325,16 @@ void R_SplitTri(terraInt iSplit, terraInt iNewPt, terraInt iLeft, terraInt iRigh
 	terraTri_t* pSplit = &g_pTris[iSplit];
 
 	terraTri_t* pLeft;
-	if (iRight)
-	{
+	if (iLeft) {
 		pLeft = &g_pTris[iLeft];
-	}
-	else
-	{
+	} else {
 		pLeft = NULL;
 	}
 
 	terraTri_t* pRight;
-	if (iRight)
-	{
+	if (iRight) {
 		pRight = &g_pTris[iRight];
-	}
-	else
-	{
+	} else {
 		pRight = NULL;
 	}
 
@@ -362,7 +355,7 @@ void R_SplitTri(terraInt iSplit, terraInt iNewPt, terraInt iLeft, terraInt iRigh
 		pLeft->iPt[1] = pSplit->iPt[2];
 		pLeft->iPt[2] = iNewPt;
 
-		R_FixTriHeight(pLeft);
+		R_ValidateHeightmapForVertex(pLeft);
 		pLeft->byConstChecks |= R_ConstChecksForTri(pLeft);
 
 		g_pVert[pLeft->iPt[0]].nRef++;
@@ -397,7 +390,7 @@ void R_SplitTri(terraInt iSplit, terraInt iNewPt, terraInt iLeft, terraInt iRigh
 		pRight->iPt[1] = pSplit->iPt[0];
 		pRight->iPt[2] = iNewPt;
 
-		R_FixTriHeight(pRight);
+		R_ValidateHeightmapForVertex(pRight);
 		pRight->byConstChecks |= R_ConstChecksForTri(pRight);
 
 		g_pVert[pRight->iPt[0]].nRef++;
@@ -418,18 +411,13 @@ void R_SplitTri(terraInt iSplit, terraInt iNewPt, terraInt iLeft, terraInt iRigh
 			g_pTris[pSplit->iRight].iLeft = iRight;
 		}
 	}
-
-	pSplit->iLeftChild = iLeft;
-	pSplit->iRightChild = iRight;
-	g_pTris[iLeft].iParent = iSplit;
-	g_pTris[iRight].iParent = iSplit;
-
-	R_DemoteInAncestry(pSplit->patch, iSplit);
 }
 
-static void R_ForceSplit(int iTri)
+static void R_ForceSplit(terraInt iTri)
 {
 	terraTri_t* pTri = &g_pTris[iTri];
+
+	g_nSplit++;
 
 	terraInt iBase = pTri->iBase;
 	terraTri_t* pBase = &g_pTris[iBase];
@@ -442,8 +430,8 @@ static void R_ForceSplit(int iTri)
 
 	uint8_t flags = pTri->varnode->s.flags;
 
-	terraInt iTriLeft = R_AllocateTri(pTri->patch, flags & 2);
-	terraInt iTriRight = R_AllocateTri(pTri->patch, flags & 1);
+	terraInt iTriLeft = R_AllocateTri(pTri->patch, (flags & 2));
+	terraInt iTriRight = R_AllocateTri(pTri->patch, (flags & 1));
 
 	terraInt iNewPt = R_AllocateVert(pTri->patch);
 	R_InterpolateVert(pTri, &g_pVert[iNewPt]);
@@ -458,8 +446,8 @@ static void R_ForceSplit(int iTri)
 		uint8_t flags2 = pBase->varnode->s.flags;
 		flags |= flags2;
 
-		iBaseLeft = R_AllocateTri(pBase->patch, flags2 & 2);
-		iBaseRight = R_AllocateTri(pBase->patch, flags2 & 1);
+		iBaseLeft = R_AllocateTri(pBase->patch, (flags2 & 2));
+		iBaseRight = R_AllocateTri(pBase->patch, (flags2 & 1));
 
 		terraInt iNewBasePt = iNewPt;
 		if (pBase->patch != pTri->patch)
@@ -479,6 +467,12 @@ static void R_ForceSplit(int iTri)
 		}
 
 		R_SplitTri(iBase, iNewBasePt, iBaseLeft, iBaseRight, iTriRight, iTriLeft);
+
+		pBase->iLeftChild = iBaseLeft;
+		pBase->iRightChild = iBaseRight;
+		g_pTris[iBaseLeft].iParent = iBase;
+		g_pTris[iBaseRight].iParent = iBase;
+		R_DemoteInAncestry(pBase->patch, iBase);
 	}
 
 	if (flags & 8)
@@ -491,9 +485,15 @@ static void R_ForceSplit(int iTri)
 	}
 
 	R_SplitTri(iTri, iNewPt, iTriLeft, iTriRight, iBaseRight, iBaseLeft);
+
+	pTri->iLeftChild = iTriLeft;
+	pTri->iRightChild = iTriRight;
+	g_pTris[iTriLeft].iParent = iTri;
+	g_pTris[iTriRight].iParent = iTri;
+	R_DemoteInAncestry(pTri->patch, iTri);
 }
 
-static void R_ForceMerge(int iTri)
+static void R_ForceMerge(terraInt iTri)
 {
 	terraTri_t* pTri = &g_pTris[iTri];
 	cTerraPatchUnpacked_t* patch = pTri->patch;
@@ -543,7 +543,7 @@ static void R_ForceMerge(int iTri)
 
 		R_ReleaseTri(pTri->patch, pTri->iRightChild);
 
-		pTri->iRightChild = 0;
+		pTri->iLeftChild = 0;
 		g_pTris[pTri->iParent].nSplit--;
 	}
 
@@ -750,8 +750,8 @@ static void R_PreTessellateTerrain()
 		const float ls = patch->s * lmapSize;
 		const float lt = patch->t * lmapSize;
 
-		terraInt iTri0 = R_AllocateTri(patch, 0);
-		terraInt iTri1 = R_AllocateTri(patch, 0);
+		terraInt iTri0 = R_AllocateTri(patch, qfalse);
+		terraInt iTri1 = R_AllocateTri(patch, qfalse);
 		terraInt i00 = R_AllocateVert(patch);
 		terraInt i01 = R_AllocateVert(patch);
 		terraInt i10 = R_AllocateVert(patch);
@@ -851,7 +851,7 @@ static void R_PreTessellateTerrain()
 			pTri->iPt[2] = i11;
 		}
 
-		R_FixTriHeight(pTri);
+		R_ValidateHeightmapForVertex(pTri);
 
 		pTri = &g_pTris[iTri1];
 		pTri->patch = patch;
@@ -894,7 +894,7 @@ static void R_PreTessellateTerrain()
 			pTri->iPt[2] = i00;
 		}
 
-		R_FixTriHeight(pTri);
+		R_ValidateHeightmapForVertex(pTri);
 	}
 }
 
@@ -913,15 +913,48 @@ static qboolean R_NeedSplitTri(terraTri_t * pTri)
 		+ (g_pVert[pTri->iPt[0]].xyz[1] + g_pVert[pTri->iPt[1]].xyz[1]) * g_vViewVector[1])
 		* 0.5
 		+ g_vViewVector[2]
-		- *(float *)pTri->varnode * g_fCheck;
+		- pTri->varnode->fVariance * g_fCheck;
 
-	if (fRatio <= 0)
+	if (fRatio > 0)
 	{
-		return qtrue;
+		pTri->uiDistRecalc = floor(fRatio) + g_uiTerDist;
+		return qfalse;
 	}
-	pTri->uiDistRecalc = floor(fRatio) + g_uiTerDist;
 
 	return qtrue;
+}
+
+static void R_CalcVertMorphHeight(terrainVert_t* pVert)
+{
+	float dot;
+
+	pVert->xyz[2] = pVert->fHgtAvg;
+	pVert->uiDistRecalc = g_uiTerDist + 1;
+	dot = (pVert->fVariance * g_fCheck) - (g_vViewVector[0] * pVert->xyz[0] + g_vViewVector[1] * pVert->xyz[1] + g_vViewVector[2]);
+
+	if (dot > 0.0)
+	{
+		float calc = dot / 400.0;
+
+		if (calc > 1.0)
+		{
+			pVert->uiDistRecalc = (unsigned int)((g_uiTerDist - 400) + floor(dot));
+			calc = 1.0;
+		}
+
+		pVert->xyz[2] += pVert->fHgtAdd * calc;
+	}
+	else
+	{
+		pVert->uiDistRecalc = g_uiTerDist - (int)ceil(dot);
+	}
+}
+
+static void R_UpdateVertMorphHeight(terrainVert_t* pVert)
+{
+	if (pVert->uiDistRecalc <= g_uiTerDist) {
+		R_CalcVertMorphHeight(pVert);
+	}
 }
 
 static void R_DoTriSplitting()
@@ -945,7 +978,7 @@ static void R_DoTriSplitting()
 				//
 				// make sure there are sufficient number of tris
 				//
-				if (g_tri.nFree <= 13 || g_vert.nFree <= 13) {
+				if (g_tri.nFree < 14 || g_vert.nFree < 14) {
 					Com_DPrintf("WARNING: aborting terrain tessellation -- insufficient tris\n");
 					return;
 				}
@@ -989,26 +1022,7 @@ static void R_DoGeomorphs()
 				while (g_vert.iCur)
 				{
 					terrainVert_t* pVert = &g_pVert[g_vert.iCur];
-					float dot;
-
-					pVert->xyz[2] = pVert->fHgtAvg;
-					pVert->uiDistRecalc = g_uiTerDist + 1;
-					dot = (pVert->fVariance * g_fCheck) - (g_vViewVector[0] * pVert->xyz[0] + g_vViewVector[1] * pVert->xyz[1] + g_vViewVector[2]);
-
-					if (dot > 0.0)
-					{
-						if (dot / 400.0 < 1.0) {
-							pVert->uiDistRecalc = (g_uiTerDist - 400) + (int)dot;
-							pVert->xyz[2] += pVert->fHgtAdd * 1.0;
-						} else {
-							pVert->xyz[2] += pVert->fHgtAdd * (dot / 400.0);
-						}
-					}
-					else
-					{
-						pVert->uiDistRecalc = g_uiTerDist - (int)dot;
-					}
-
+					R_CalcVertMorphHeight(pVert);
 					g_vert.iCur = pVert->iNext;
 				}
 
@@ -1019,27 +1033,7 @@ static void R_DoGeomorphs()
 				while (g_vert.iCur)
 				{
 					terrainVert_t* pVert = &g_pVert[g_vert.iCur];
-					float dot;
-
-					pVert->xyz[2] = pVert->fHgtAvg;
-					pVert->uiDistRecalc = g_uiTerDist + 1;
-					dot = (pVert->fVariance * g_fCheck) - (g_vViewVector[0] * pVert->xyz[0] + g_vViewVector[1] * pVert->xyz[1] + g_vViewVector[2]);
-
-					if (dot > 0.0)
-					{
-						if (dot / 400.0 < 1.0) {
-							pVert->uiDistRecalc = (g_uiTerDist - 400) + (int)dot;
-							pVert->xyz[2] += pVert->fHgtAdd * 1.0;
-						}
-						else {
-							pVert->xyz[2] += pVert->fHgtAdd * (dot / 400.0);
-						}
-					}
-					else
-					{
-						pVert->uiDistRecalc = g_uiTerDist - (int)dot;
-					}
-
+					R_UpdateVertMorphHeight(pVert);
 					g_vert.iCur = pVert->iNext;
 				}
 			}
@@ -1063,24 +1057,28 @@ static void R_DoGeomorphs()
 static qboolean R_MergeInternalAggressive()
 {
 	terraTri_t* pTri = &g_pTris[g_tri.iCur];
-	if (!pTri->nSplit
-		&& g_pVert[g_pTris[pTri->iLeftChild].iPt[2]].xyz[2] == g_pVert[g_pTris[pTri->iLeftChild].iPt[2]].fHgtAvg)
-	{
-		if (!pTri->iBase)
-		{
-			R_ForceMerge(g_tri.iCur);
-			return qtrue;
-		}
+	terraTri_t* pBase;
 
-		if (!g_pTris[pTri->iBase].nSplit)
-		{
-			R_ForceMerge(pTri->iBase);
-			R_ForceMerge(g_tri.iCur);
-			return qtrue;
-		}
+	if (pTri->nSplit) {
+		return qfalse;
 	}
 
-	return qfalse;
+	if (g_pVert[g_pTris[pTri->iLeftChild].iPt[2]].xyz[2] != g_pVert[g_pTris[pTri->iLeftChild].iPt[2]].fHgtAvg) {
+		return qfalse;
+	}
+
+	if (pTri->iBase)
+	{
+		pBase = &g_pTris[pTri->iBase];
+		if (pBase->nSplit) {
+			return qfalse;
+		}
+
+		R_ForceMerge(pTri->iBase);
+	}
+
+	R_ForceMerge(g_tri.iCur);
+	return qtrue;
 }
 
 static qboolean R_MergeInternalCautious()
@@ -1090,26 +1088,30 @@ static qboolean R_MergeInternalCautious()
 
 	pTri = &g_pTris[g_tri.iCur];
 
-	if (!pTri->nSplit
-		&& !(pTri->varnode->s.flags & 8)
-		&& g_pVert[g_pTris[pTri->iLeftChild].iPt[2]].xyz[2] == g_pVert[g_pTris[pTri->iLeftChild].iPt[2]].fHgtAvg)
-	{
-		if (!pTri->iBase)
-		{
-			R_ForceMerge(g_tri.iCur);
-			return qtrue;
-		}
-
-		pBase = &g_pTris[pTri->iBase];
-		if (!pBase->nSplit && !(pBase->varnode->s.flags & 8))
-		{
-			R_ForceMerge(pTri->iBase);
-			R_ForceMerge(g_tri.iCur);
-			return qtrue;
-		}
+	if (pTri->nSplit) {
+		return qfalse;
 	}
 
-	return qfalse;
+	if (pTri->varnode->s.flags & 8) {
+		return qfalse;
+	}
+
+	if (g_pVert[g_pTris[pTri->iLeftChild].iPt[2]].xyz[2] != g_pVert[g_pTris[pTri->iLeftChild].iPt[2]].fHgtAvg) {
+		return qfalse;
+	}
+
+	if (pTri->iBase)
+	{
+		pBase = &g_pTris[pTri->iBase];
+		if (pBase->nSplit || (pBase->varnode->s.flags & 8)) {
+			return qfalse;
+		}
+
+		R_ForceMerge(pTri->iBase);
+	}
+
+	R_ForceMerge(g_tri.iCur);
+	return qtrue;
 }
 
 static void R_DoTriMerging()
@@ -1169,8 +1171,12 @@ void R_TerrainPrepareFrame()
 		return;
 	}
 
-	++g_terVisCount;
+	g_terVisCount++;
 	tr.world->activeTerraPatches = NULL;
+
+	if (ter_error->value < 0.1) {
+		ri.Cvar_Set("ter_error", "0.1");
+	}
 
 	distance = 1.0;
 	fFov = tr.refdef.fov_x;
@@ -1178,11 +1184,11 @@ void R_TerrainPrepareFrame()
 		fFov = 1.0;
 	}
 
-	fCheck = 1.0 / (tan(fFov / 114) * ter_error->value / 320.0);
+	fCheck = 1.0 / (tan(fFov / 114.0) * ter_error->value / 320.0);
 	if (g_terVisCount)
 	{
 		float fFarPlane = tr.viewParms.farplane_distance;
-		if (fFarPlane > 4096.0) {
+		if (fFarPlane == 0.0) {
 			fFarPlane = 4096.0;
 		}
 
@@ -1191,8 +1197,6 @@ void R_TerrainPrepareFrame()
 			+ fabs((tr.refdef.vieworg[1] - g_vTerOrg[1]) * g_vTerFwd[1])
 			+ fabs((tr.refdef.viewaxis[0][0] - g_vTerFwd[0]) * fFarPlane)
 			+ fabs((tr.refdef.viewaxis[0][1] - g_vTerFwd[1]) * fFarPlane);
-
-		distance = fDistBound;
 
 		g_uiTerDist = (ceil(fDistBound) + (float)g_uiTerDist);
 		if (g_uiTerDist > 0xF0000000)
@@ -1214,6 +1218,7 @@ void R_TerrainPrepareFrame()
 	}
 	else
 	{
+		fDistBound = 0.0;
 		g_uiTerDist = 0;
 	}
 
@@ -1222,15 +1227,17 @@ void R_TerrainPrepareFrame()
 	VectorCopy(tr.refdef.viewaxis[0], g_vTerFwd);
 	g_fCheck = fCheck;
 
-	if (distance != 0.0)
+	if (fDistBound != 0.0)
 	{
 		index = (int)tr.refdef.fov_x;
+		distance = g_fDistanceTable[index];
+
 		g_fClipDotSquared = g_fClipDotSquaredTable[index];
 		g_fClipDotProduct = g_fClipDotProductTable[index];
 		VectorCopy(tr.refdef.viewaxis[0], g_vClipVector);
-		g_vClipOrigin[0] = tr.refdef.vieworg[0] - g_fDistanceTable[index] * tr.refdef.viewaxis[0][0] - 256.0;
-		g_vClipOrigin[1] = tr.refdef.vieworg[1] - g_fDistanceTable[index] * tr.refdef.viewaxis[0][1] - 256.0;
-		g_vClipOrigin[2] = tr.refdef.vieworg[2] - g_fDistanceTable[index] * tr.refdef.viewaxis[0][2] - 255.0;
+		g_vClipOrigin[0] = tr.refdef.vieworg[0] - distance * tr.refdef.viewaxis[0][0] - 256.0;
+		g_vClipOrigin[1] = tr.refdef.vieworg[1] - distance * tr.refdef.viewaxis[0][1] - 256.0;
+		g_vClipOrigin[2] = tr.refdef.vieworg[2] - distance * tr.refdef.viewaxis[0][2] - 255.0;
 		g_vViewVector[0] = tr.refdef.viewaxis[0][0];
 		g_vViewVector[1] = tr.refdef.viewaxis[0][1];
 		g_vViewVector[2] = -(tr.refdef.viewaxis[0][0] * tr.refdef.vieworg[0] + tr.refdef.viewaxis[0][1] * tr.refdef.vieworg[1]);
