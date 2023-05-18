@@ -506,7 +506,7 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 			int i;
 
 			for (i = 0; i < node->numTerraPatches; i++) {
-				R_MarkTerrainPatch(&tr.world->visTerraPatches[node->firstTerraPatch][i]);
+				R_MarkTerrainPatch(tr.world->visTerraPatches[node->firstTerraPatch + i]);
 			}
 		}
 		// FIXME: static decals
