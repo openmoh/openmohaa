@@ -457,7 +457,11 @@ R_UnpackTerraPatch
 ================
 */
 void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked) {
-    int			i;
+	int i;
+	union {
+		int16_t v;
+		uint8_t b[2];
+	} flags;
 
     pUnpacked->byDirty = qfalse;
     pUnpacked->visCountCheck = 0;
@@ -473,14 +477,11 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
     pUnpacked->s = ((float)pPacked->s + 0.5) * 0.0078125;
     pUnpacked->t = ((float)pPacked->t + 0.5) * 0.0078125;
 
-    //if( s_worldData.lighting ) {
-    //	pUnpacked->drawinfo.lmData = &s_worldData.lighting[ 3 * ( ( pPacked->t << 7 ) + pPacked->s + ( pPacked->iLightMap << 14 ) ) ];
-    //} else {
-    //	pUnpacked->drawinfo.lmData = NULL;
-    //}
-
-    // fixme: is it important to have a lightmap data?
-    pUnpacked->drawinfo.lmData = NULL;
+    if( s_worldData.lighting ) {
+    	pUnpacked->drawinfo.lmData = &s_worldData.lighting[ 3 * ( ( pPacked->t << 7 ) + pPacked->s + ( pPacked->iLightMap << 14 ) ) ];
+    } else {
+    	pUnpacked->drawinfo.lmData = NULL;
+    }
 
     memcpy(pUnpacked->texCoord, pPacked->texCoord, sizeof(pUnpacked->texCoord));
     pUnpacked->x0 = ((int)pPacked->x << 6);
@@ -493,9 +494,16 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
     pUnpacked->iWest = pPacked->iWest;
 
     for (i = 0; i < 63; i++)
-    {
-        pUnpacked->varTree[0][i / 4].fVariance = pPacked->varTree[0][i].flags >> 12;
-        pUnpacked->varTree[1][i / 4].fVariance = pPacked->varTree[1][i].flags >> 12;
+	{
+		flags.v = pPacked->varTree[0][i].flags;
+		flags.b[1] &= 7;
+		pUnpacked->varTree[0][i].fVariance = LittleShort(flags.v);
+		pUnpacked->varTree[0][i].s.flags = LittleShort(pPacked->varTree[0][i].flags) >> 12;
+
+		flags.v = pPacked->varTree[1][i].flags;
+		flags.b[1] &= 7;
+		pUnpacked->varTree[1][i].fVariance = LittleShort(flags.v);
+		pUnpacked->varTree[1][i].s.flags = LittleShort(pPacked->varTree[1][i].flags) >> 12;
     }
 
     memcpy(pUnpacked->heightmap, pPacked->heightmap, sizeof(pUnpacked->heightmap));
