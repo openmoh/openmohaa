@@ -14,28 +14,36 @@
 
 ## Current State
 
+OpenMoHAA is still in its early days.
+
 ### Server
 
-The server version can successfully be built. There are few unimplemented stuff from the game library :
+The server version can successfully be built.
+Some stuff are not working as intended, such as Actor or Vehicle. These systems are both almost fully implemented, but not really in stable state.
 
-- Actor
-- Vehicle
+Overall the server part and the game module are almost fully implemented, but the stability may vary, there may be some minor bugs and crashes.
 
 ### Client
 
-There is currently no client build because the UI code is currently unimplemented. Here is what's missing or unimplemented :
+The client version of OpenMoHAA is partially implemented and not stable currently. The cgame module is partially implemented as well, but is compatible with the original MOH:AA game. Credits to **Heavy Metal: F.A.K.K. 2**'s SDK for the cgame module.
 
-- rendering (mostly advanced)
-- sound (must be reworked)
-- UI
+Here is the current working state for each part of the engine:
 
-Using CMake, the client build and successfully be built by adding `-DWITH_CLIENT=1`
-
-The client game module (cgame) is partially implemented, and is compatible with the original MOH:AA module.
+| Part name               | Full | Almost | Half | Early | Bad | Not working | Comment                                                           |
+|-------------------------|------|--------|------|-------|-----|-------------|-------------------------------------------------------------------|
+| Audio                   |      |        |      |       | x   |             | Very basic implementation from Quake III                          |
+| CG Module               |      | x      |      |       |     |             | Missing FX, Marks and decals                                      |
+| Client                  |      |        | x    |       |     |             | Missing GameSpy, server list, binds, map picker, ...              |
+| Collision               | x    |        |      |       |     |             |                                                                   |
+| Model/TIKI/Skeletor     | x    |        |      |       |     |             |                                                                   |
+| Renderer                |      |        |      | x     |     |             | Missing ghost, marks, sphere lights, sky portal, sun flare, swipe |
+| Server                  |      | x      |      |       |     |             | Probably a few bugs remaining                                     |
+| Server module (fgame)   |      | x      |      |       |     |             | Actor, vehicle, and few gameplay bugs                             |
+| UI                      |      |        |      | x     |     |             | Has core features only (menu, widgets, console, hud, urc loading) |
 
 ## Running
 
-Backup the existing **gamex86.dll** (rename it to **gamex86.bak**).
+Backup existing mohaa files, **cgamex86.dll** and **gamex86.dll** (set their extension to **.bak**)
 
 a) extract archive to your MOHAA installation directory.
 
@@ -53,12 +61,16 @@ You can now start a local OpenMOHAA server or play on a server.
 
 ## Compiling
 
+OpenMoHAA supports both x86 and x64 architectures, and although the target platform is Windows, it still can be compiled for other platforms, and even other architectures.
+
 These are the tools required for all platforms :
 - CMake >= 3.5
 - Flex and Bison (currently not used)
 - A C++11 compiler is required.
 
 The installation directory can be set to MOHAA directory.
+
+The client build and successfully be built by adding `-DWITH_CLIENT=1` to the CMake command line.
 
 ### Linux
 
