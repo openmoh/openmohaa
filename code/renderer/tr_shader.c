@@ -674,23 +674,23 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 
 			if ( !Q_stricmp( token, "$whiteimage" ) )
 			{
-				stage->bundle[0].image[0] = tr.whiteImage;
+				stage->bundle[cntBundle].image[0] = tr.whiteImage;
 				continue;
 			}
 			else if ( !Q_stricmp( token, "$lightmap" ) )
 			{
-				stage->bundle[0].isLightmap = qtrue;
+				stage->bundle[cntBundle].isLightmap = qtrue;
 				if ( shader.lightmapIndex < 0 ) {
-					stage->bundle[0].image[0] = tr.whiteImage;
+					stage->bundle[cntBundle].image[0] = tr.whiteImage;
 				} else {
-					stage->bundle[0].image[0] = tr.lightmaps[shader.lightmapIndex];
+					stage->bundle[cntBundle].image[0] = tr.lightmaps[shader.lightmapIndex];
 				}
 				continue;
 			}
 			else
 			{
-				stage->bundle[0].image[0] = R_FindImageFile( token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT );
-				if ( !stage->bundle[0].image[0] )
+				stage->bundle[cntBundle].image[0] = R_FindImageFile( token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT );
+				if ( !stage->bundle[cntBundle].image[0] )
 				{
 					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
 					return qfalse;
@@ -709,8 +709,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				return qfalse;
 			}
 
-			stage->bundle[0].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, r_forceClampToEdge->value ? GL_CLAMP_TO_EDGE : GL_CLAMP, r_forceClampToEdge->value ? GL_CLAMP_TO_EDGE : GL_CLAMP);
-			if ( !stage->bundle[0].image[0] )
+			stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, r_forceClampToEdge->value ? GL_CLAMP_TO_EDGE : GL_CLAMP, r_forceClampToEdge->value ? GL_CLAMP_TO_EDGE : GL_CLAMP);
+			if ( !stage->bundle[cntBundle].image[0] )
 			{
 				ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
 				return qfalse;
@@ -727,7 +727,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for 'animMmap' keyword in shader '%s'\n", shader.name );
 				return qfalse;
 			}
-			stage->bundle[0].imageAnimationSpeed = atof( token );
+			stage->bundle[cntBundle].imageAnimationSpeed = atof( token );
 
 			// parse up to MAX_IMAGE_ANIMATIONS animations
 			while ( 1 ) {
@@ -737,15 +737,15 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				if ( !token[0] ) {
 					break;
 				}
-				num = stage->bundle[0].numImageAnimations;
+				num = stage->bundle[cntBundle].numImageAnimations;
 				if ( num < MAX_IMAGE_ANIMATIONS ) {
-                    stage->bundle[0].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT );
-					if ( !stage->bundle[0].image[num] )
+                    stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT );
+					if ( !stage->bundle[cntBundle].image[num] )
 					{
 						ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
 						return qfalse;
 					}
-					stage->bundle[0].numImageAnimations++;
+					stage->bundle[cntBundle].numImageAnimations++;
 				}
 			}
 		}
@@ -1147,32 +1147,32 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 			if ( !Q_stricmp( token, "environment" ) )
 			{
 				shader.needsNormal = qtrue;
-				stage->bundle[0].tcGen = TCGEN_ENVIRONMENT_MAPPED;
+				stage->bundle[cntBundle].tcGen = TCGEN_ENVIRONMENT_MAPPED;
             }
             else if (!Q_stricmp(token, "environmentmodel"))
             {
                 shader.needsNormal = qtrue;
-                stage->bundle[0].tcGen = TCGEN_ENVIRONMENT_MAPPED2;
+                stage->bundle[cntBundle].tcGen = TCGEN_ENVIRONMENT_MAPPED2;
             }
             else if (!Q_stricmp(token, "sunreflection"))
             {
                 shader.needsNormal = qtrue;
-                stage->bundle[0].tcGen = TCGEN_SUN_REFLECTION;
+                stage->bundle[cntBundle].tcGen = TCGEN_SUN_REFLECTION;
             }
 			else if ( !Q_stricmp( token, "lightmap" ) )
 			{
-				stage->bundle[0].tcGen = TCGEN_LIGHTMAP;
+				stage->bundle[cntBundle].tcGen = TCGEN_LIGHTMAP;
 			}
 			else if ( !Q_stricmp( token, "texture" ) || !Q_stricmp( token, "base" ) )
 			{
-				stage->bundle[0].tcGen = TCGEN_TEXTURE;
+				stage->bundle[cntBundle].tcGen = TCGEN_TEXTURE;
 			}
 			else if ( !Q_stricmp( token, "vector" ) )
 			{
-				ParseVector( text, 3, stage->bundle[0].tcGenVectors[0] );
-				ParseVector( text, 3, stage->bundle[0].tcGenVectors[1] );
+				ParseVector( text, 3, stage->bundle[cntBundle].tcGenVectors[0] );
+				ParseVector( text, 3, stage->bundle[cntBundle].tcGenVectors[1] );
 
-				stage->bundle[0].tcGen = TCGEN_VECTOR;
+				stage->bundle[cntBundle].tcGen = TCGEN_VECTOR;
 			}
 			else 
 			{
@@ -1972,7 +1972,7 @@ static void ComputeStageIteratorFunc( void )
 				{
 					if ( !shader.polygonOffset )
 					{
-						if ( !shader.multitextureEnv )
+						if ( !unfoggedStages[0].multitextureEnv )
 						{
 							if ( !shader.numDeforms )
 							{
@@ -2000,7 +2000,7 @@ static void ComputeStageIteratorFunc( void )
 				{
 					if ( !shader.numDeforms )
 					{
-						if ( shader.multitextureEnv )
+						if (unfoggedStages[0].multitextureEnv )
 						{
 							shader.optimalStageIteratorFunc = RB_StageIteratorLightmappedMultitexture;
 							goto done;
@@ -2074,6 +2074,10 @@ static void CollapseMultitexture(int *stagecounter) {
 
 		// make sure both unfoggedStages are active
 		if (!stage->active || !unfoggedStages[stagenum + 1].active) {
+			continue;
+		}
+
+		if (stage->multitextureEnv) {
 			continue;
 		}
 
@@ -2159,7 +2163,7 @@ static void CollapseMultitexture(int *stagecounter) {
 		}
 
 		// set the new blend state bits
-		shader.multitextureEnv = collapse[iUseCollapse].multitextureEnv;
+		stage->multitextureEnv = collapse[iUseCollapse].multitextureEnv;
 		stage->stateBits &= ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
 		stage->stateBits |= collapse[iUseCollapse].multitextureBlend;
 
@@ -2439,6 +2443,7 @@ from the current global working shader
 */
 static shader_t *FinishShader( void ) {
 	int stage;
+	int bundle;
 	qboolean		hasLightmapStage;
 	qboolean		vertexLightmap;
 
@@ -2492,25 +2497,34 @@ static shader_t *FinishShader( void ) {
 		//
 		// default texture coordinate generation
 		//
-		if ( pStage->bundle[0].isLightmap ) {
-			if ( pStage->bundle[0].tcGen == TCGEN_BAD ) {
-				pStage->bundle[0].tcGen = TCGEN_LIGHTMAP;
+		for (bundle = 2; bundle > 0; bundle--) {
+			if (pStage->bundle[bundle - 1].isLightmap) {
+				if (pStage->bundle[bundle - 1].tcGen == TCGEN_BAD) {
+					pStage->bundle[bundle - 1].tcGen = TCGEN_LIGHTMAP;
+				}
+				hasLightmapStage = qtrue;
 			}
-			hasLightmapStage = qtrue;
-		} else {
-			if ( pStage->bundle[0].tcGen == TCGEN_BAD ) {
-				pStage->bundle[0].tcGen = TCGEN_TEXTURE;
+			else {
+				if (pStage->bundle[bundle - 1].tcGen == TCGEN_BAD) {
+					pStage->bundle[bundle - 1].tcGen = TCGEN_TEXTURE;
+				}
 			}
 		}
 
+		// not a true lightmap but we want to leave existing 
+		// behaviour in place and not print out a warning
+		//if (pStage->rgbGen == CGEN_VERTEX) {
+		//  vertexLightmap = qtrue;
+		//}
 
-    // not a true lightmap but we want to leave existing 
-    // behaviour in place and not print out a warning
-    //if (pStage->rgbGen == CGEN_VERTEX) {
-    //  vertexLightmap = qtrue;
-    //}
-
-
+		if (pStage->multitextureEnv && pStage->bundle[0].isLightmap) {
+			//
+			// exchange bundle
+			//
+			textureBundle_t tmp = pStage->bundle[0];
+			pStage->bundle[0] = pStage->bundle[1];
+			pStage->bundle[1] = tmp;
+		}
 
 		//
 		// determine sort order and fog color adjustment
@@ -2888,6 +2902,8 @@ void	R_ShaderList_f (void) {
 
 	count = 0;
 	for ( i = 0 ; i < tr.numShaders ; i++ ) {
+		int stage;
+
 		if ( ri.Cmd_Argc() > 1 ) {
 			shader = tr.sortedShaders[i];
 		} else {
@@ -2901,15 +2917,19 @@ void	R_ShaderList_f (void) {
 		} else {
 			ri.Printf (PRINT_ALL, "  ");
 		}
-		if ( shader->multitextureEnv == GL_ADD ) {
-			ri.Printf( PRINT_ALL, "MT(a) " );
-		} else if ( shader->multitextureEnv == GL_MODULATE ) {
-			ri.Printf( PRINT_ALL, "MT(m) " );
-		} else if ( shader->multitextureEnv == GL_DECAL ) {
-			ri.Printf( PRINT_ALL, "MT(d) " );
-		} else {
-			ri.Printf( PRINT_ALL, "      " );
+
+		for (stage = 0; shader->unfoggedStages[stage] && shader->unfoggedStages[stage]->active; stage++) {
+			if (shader->unfoggedStages[stage]->multitextureEnv == GL_ADD ) {
+				ri.Printf( PRINT_ALL, "MT(a) " );
+			} else if (shader->unfoggedStages[stage]->multitextureEnv == GL_MODULATE ) {
+				ri.Printf( PRINT_ALL, "MT(m) " );
+			} else if (shader->unfoggedStages[stage]->multitextureEnv == GL_DECAL ) {
+				ri.Printf( PRINT_ALL, "MT(d) " );
+			} else {
+				ri.Printf( PRINT_ALL, "      " );
+			}
 		}
+
 		if ( shader->explicitlyDefined ) {
 			ri.Printf( PRINT_ALL, "E " );
 		} else {

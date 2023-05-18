@@ -90,6 +90,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define GL_TEXTURE2_ARB                     0x84C2
 #define GL_TEXTURE3_ARB                     0x84C3
 
+#define GL_COMBINE                          0x8570
+#define GL_COMBINE4_NV                      0x8503
+
 // NOTE: some Linux platforms would need those prototypes
 #if defined(MACOS_X)
 typedef void (APIENTRY * PFNGLMULTITEXCOORD1DARBPROC) (GLenum target, GLdouble s);

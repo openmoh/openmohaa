@@ -1200,6 +1200,10 @@ void R_Register( void )
 	ri.Cmd_AddCommand( "gfxinfo", GfxInfo_f );
 }
 
+void R_InitExtensions() {
+	// FIXME: unimplemented
+}
+
 /*
 ===============
 R_Init
@@ -1291,6 +1295,8 @@ void R_Init( void ) {
 	R_ToggleSmpFrame();
 
 	InitOpenGL();
+
+	R_InitExtensions();
 
 	R_InitImages();
 

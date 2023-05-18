@@ -356,7 +356,33 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 
 	if (pStage->stateBits & GLS_MULTITEXTURE_ENV)
 	{
-		// FIXME: unimplemented
+		glState.cntnvblendmode = pStage->multitextureEnv;
+		glState.cntTexEnvExt = GLS_MULTITEXTURE_ENV;
+
+		if (pStage->multitextureEnv == GL_ADD)
+		{
+			qglTexEnvf(8960, 34161, 260.0);
+			qglTexEnvf(8960, 34176, 33984.0);
+			qglTexEnvf(8960, 34192, 1145044992);
+			qglTexEnvf(8960, 34177, 0);
+			qglTexEnvf(8960, 34193, 1145061376);
+			qglTexEnvf(8960, 34178, 33985.0);
+			qglTexEnvf(8960, 34194, 1145044992);
+			qglTexEnvf(8960, 34179, 0);
+			qglTexEnvf(8960, 34195, 1145061376);
+		}
+		else if (pStage->multitextureEnv == GL_MODULATE)
+		{
+			qglTexEnvf(8960, 34161, 8448.0);
+			qglTexEnvf(8960, 34176, 33984.0);
+			qglTexEnvf(8960, 34192, 1145044992);
+			qglTexEnvf(8960, 34177, 33985.0);
+			qglTexEnvf(8960, 34193, 1145044992);
+		}
+		else
+		{
+			ri.Printf(3, "Unknown MT mode for: %s\n", input->shader);
+		}
 	}
 
 	//
@@ -366,12 +392,21 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	qglEnable( GL_TEXTURE_2D );
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-	if ( r_lightmap->integer ) {
+	if ( r_lightmap->integer && pStage->bundle[1].isLightmap ) {
 		GL_TexEnv( GL_REPLACE );
 	} else if (pStage->stateBits & GLS_MULTITEXTURE_ENV) {
-		// FIXME: unimplemented
+		glState.cntTexEnvExt = GLS_MULTITEXTURE_ENV;
+
+		GL_TexEnv(GL_COMBINE);
+		qglTexEnvf(GL_TEXTURE_ENV, 34161, 34165.0);
+		qglTexEnvf(GL_TEXTURE_ENV, 34176, 0x47057700);
+		qglTexEnvf(GL_TEXTURE_ENV, 34192, 0x44400000);
+		qglTexEnvf(GL_TEXTURE_ENV, 34177, 34168.0);
+		qglTexEnvf(GL_TEXTURE_ENV, 34193, 0x44400000);
+		qglTexEnvf(GL_TEXTURE_ENV, 34178, 0x47057700);
+		qglTexEnvf(GL_TEXTURE_ENV, 34194, 770.0);
 	} else {
-		GL_TexEnv( tess.shader->multitextureEnv );
+		GL_TexEnv( pStage->multitextureEnv );
 	}
 
 	qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[1] );
@@ -1169,21 +1204,21 @@ void RB_StageIteratorGeneric( void )
 	// to avoid compiling those arrays since they will change
 	// during multipass rendering
 	//
-	if ( tess.numPasses > 1 || input->shader->multitextureEnv )
+	if (tess.numPasses > 1 || (tess.xstages[0] && tess.xstages[0]->multitextureEnv))
 	{
 		setArraysOnce = qfalse;
-		qglDisableClientState (GL_COLOR_ARRAY);
-		qglDisableClientState (GL_TEXTURE_COORD_ARRAY);
+		qglDisableClientState(GL_COLOR_ARRAY);
+		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	else
 	{
 		setArraysOnce = qtrue;
 
-		qglEnableClientState( GL_COLOR_ARRAY);
-		qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
+		qglEnableClientState(GL_COLOR_ARRAY);
+		qglColorPointer(4, GL_UNSIGNED_BYTE, 0, tess.svars.colors);
 
-		qglEnableClientState( GL_TEXTURE_COORD_ARRAY);
-		qglTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
+		qglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		qglTexCoordPointer(2, GL_FLOAT, 0, tess.svars.texcoords[0]);
 	}
 
 	//

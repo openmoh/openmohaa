@@ -441,7 +441,7 @@ typedef struct {
 	qboolean		active;
 	
 	textureBundle_t	bundle[NUM_TEXTURE_BUNDLES];
-	int				multitextureEnv;
+	int				multitextureEnv;		// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
 
 	waveForm_t		rgbWave;
 	colorGen_t		rgbGen;
@@ -539,8 +539,6 @@ typedef struct shader_s {
 	fogParms_t	fogParms;
 
 	float		portalRange;			// distance to fog out at
-
-	int			multitextureEnv;		// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
 
 	cullType_t	cullType;				// CT_FRONT_SIDED, CT_BACK_SIDED, or CT_TWO_SIDED
 	qboolean	polygonOffset;			// set for decals and other items that must be offset 
@@ -896,7 +894,7 @@ typedef struct cTerraPatchUnpacked_s {
     unsigned int uiDistRecalc;
     float s;
     float t;
-    float texCoord[2][2][2];
+    vec2_t texCoord[2][2];
     float x0;
     float y0;
     float z0;
@@ -1173,7 +1171,11 @@ typedef struct {
 	qboolean	finishCalled;
 	int			texEnv[2];
 	int			faceCulling;
-	unsigned long	glStateBits;
+	int			cntTexEnvExt;
+	int			cntnvblendmode;
+	long unsigned int glStateBits;
+	long unsigned int externalSetState;
+	vec4_t fFogColor;
 } glstate_t;
 
 

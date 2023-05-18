@@ -188,6 +188,10 @@ void GL_TexEnv( int env )
 	case GL_ADD:
 		qglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD );
 		break;
+	case GL_COMBINE4_NV:
+	case GL_COMBINE:
+		qglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, env);
+		break;
 	default:
 		ri.Error( ERR_DROP, "GL_TexEnv: invalid env '%d' passed\n", env );
 		break;
