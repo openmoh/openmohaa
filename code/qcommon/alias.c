@@ -728,7 +728,7 @@ void Alias_ListFindRandomRange(AliasList_t* list, const char* alias, int* min_in
 			}
 		} while (r >= l);
 
-		if (l >= r)
+		if (r >= l)
 		{
 			numfound = 0;
 			*min_index = index;
@@ -736,7 +736,7 @@ void Alias_ListFindRandomRange(AliasList_t* list, const char* alias, int* min_in
 			totalfoundweight = 0.f;
 
 			ptr = &list->sorted_list[index];
-			for (i = 0; i < index; i++, ptr--)
+			for (i = index + 1; i > 0; i--, ptr--)
 			{
 				if (strncmp(convalias, (*ptr)->alias_name, length)) {
 					break;
@@ -746,7 +746,7 @@ void Alias_ListFindRandomRange(AliasList_t* list, const char* alias, int* min_in
 				{
 					foundlist[numfound++] = *ptr;
 					totalfoundweight += (*ptr)->weight;
-					*min_index = i;
+					*min_index = i - 1;
 				}
 			}
 
