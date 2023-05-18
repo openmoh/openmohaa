@@ -718,7 +718,79 @@ void RB_SurfaceSkip( void *surf ) {
 }
 
 void RB_DrawTerrainTris(srfTerrain_t* p) {
-	// FIXME: unimplemented
+	int i;
+	terraInt numv;
+	int dlightBits;
+
+	if (tess.numVertexes + p->nVerts >= SHADER_MAX_VERTEXES || tess.numIndexes + p->nTris * 3 >= SHADER_MAX_INDEXES) {
+		RB_CheckOverflow(p->nVerts, 3 * p->nTris);
+	}
+
+	dlightBits = p->dlightBits[backEnd.smpFrame];
+	tess.dlightBits |= dlightBits;
+	if (p->dlightMap[backEnd.smpFrame])
+	{
+		float lmScale = (1 / 128.0) / p->lmapStep;
+
+		for (i = p->iVertHead; i; i = g_pVert[i].iNext) {
+			assert(tess.numVertexes < SHADER_MAX_VERTEXES);
+
+			VectorCopy(g_pVert[i].xyz, tess.xyz[tess.numVertexes]);
+			tess.texCoords[tess.numVertexes][0][0] = g_pVert[i].texCoords[0][0];
+			tess.texCoords[tess.numVertexes][0][1] = g_pVert[i].texCoords[0][1];
+			tess.texCoords[tess.numVertexes][1][0] = g_pVert[i].texCoords[1][0] * lmScale + p->lmapX;
+			tess.texCoords[tess.numVertexes][1][1] = g_pVert[i].texCoords[1][1] * lmScale + p->lmapY;
+			tess.normal[tess.numVertexes][0] = 0;
+			tess.normal[tess.numVertexes][1] = 0;
+			tess.normal[tess.numVertexes][2] = 1.0;
+			tess.vertexColors[tess.numVertexes][0] = -1;
+			tess.vertexColors[tess.numVertexes][1] = -1;
+			tess.vertexColors[tess.numVertexes][2] = -1;
+			tess.vertexColors[tess.numVertexes][3] = -1;
+
+			g_pVert[i].iVertArray = tess.numVertexes;
+			tess.numVertexes++;
+		}
+	}
+	else
+	{
+		for (i = p->iVertHead; i; i = g_pVert[i].iNext) {
+			assert(tess.numVertexes < SHADER_MAX_VERTEXES);
+
+			VectorCopy(g_pVert[i].xyz, tess.xyz[tess.numVertexes]);
+			tess.texCoords[tess.numVertexes][0][0] = g_pVert[i].texCoords[0][0];
+			tess.texCoords[tess.numVertexes][0][1] = g_pVert[i].texCoords[0][1];
+			tess.texCoords[tess.numVertexes][1][0] = g_pVert[i].texCoords[1][0];
+			tess.texCoords[tess.numVertexes][1][1] = g_pVert[i].texCoords[1][1];
+			tess.vertexDlightBits[tess.numVertexes] = dlightBits;
+			tess.normal[tess.numVertexes][0] = 0;
+			tess.normal[tess.numVertexes][1] = 0;
+			tess.normal[tess.numVertexes][2] = 1.0;
+			tess.vertexColors[tess.numVertexes][0] = -1;
+			tess.vertexColors[tess.numVertexes][1] = -1;
+			tess.vertexColors[tess.numVertexes][2] = -1;
+			tess.vertexColors[tess.numVertexes][3] = -1;
+
+			g_pVert[i].iVertArray = tess.numVertexes;
+			tess.numVertexes++;
+		}
+	}
+
+	for (i = p->iTriHead; i; i = g_pTris[i].iNext)
+	{
+		assert(tess.numVertexes < SHADER_MAX_INDEXES);
+
+		//
+		// Make sure these can be drawn
+		//
+		if (g_pTris[i].byConstChecks & 4)
+		{
+			tess.indexes[tess.numIndexes] = g_pVert[g_pTris[i].iPt[0]].iVertArray;
+			tess.indexes[tess.numIndexes + 1] = g_pVert[g_pTris[i].iPt[1]].iVertArray;
+			tess.indexes[tess.numIndexes + 2] = g_pVert[g_pTris[i].iPt[2]].iVertArray;
+			tess.numIndexes += 3;
+		}
+	}
 }
 
 void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {

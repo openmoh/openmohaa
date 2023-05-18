@@ -501,7 +501,14 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 			}
 		}
 
-		// FIXME: terrain
+		if (r_drawterrain->integer)
+		{
+			int i;
+
+			for (i = 0; i < node->numTerraPatches; i++) {
+				R_MarkTerrainPatch(&tr.world->visTerraPatches[node->firstTerraPatch][i]);
+			}
+		}
 		// FIXME: static decals
 		// FIXME: static models
 	}

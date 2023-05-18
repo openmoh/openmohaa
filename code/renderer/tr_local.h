@@ -829,7 +829,10 @@ typedef struct {
 
 typedef union varnodeUnpacked_u {
     float fVariance;
-    byte flags;
+	struct {
+		byte flags;
+		unsigned char unused[3];
+	} s;
 } varnodeUnpacked_t;
 
 typedef unsigned short terraInt;
@@ -1806,8 +1809,13 @@ WORLD MAP
 ============================================================
 */
 
+extern terraTri_t* g_pTris;
+extern terrainVert_t* g_pVert;
+
 void R_AddBrushModelSurfaces( trRefEntity_t *e );
 void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs);
+int R_DlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits);
+int R_CheckDlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits);
 void R_AddWorldSurfaces( void );
 qboolean R_inPVS( const vec3_t p1, const vec3_t p2 );
 
@@ -2013,6 +2021,7 @@ TERRAIN
 
 =============================================================
 */
+void R_MarkTerrainPatch(cTerraPatchUnpacked_t* pPatch);
 void R_AddTerrainSurfaces();
 void R_InitTerrain();
 void R_TerrainPrepareFrame();
