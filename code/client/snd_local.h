@@ -15,23 +15,20 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
+along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 // snd_local.h -- private sound definations
 
 
-#include "../qcommon/q_shared.h"
+#include "q_shared.h"
 #include "../qcommon/qcommon.h"
 #include "snd_public.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 #define	PAINTBUFFER_SIZE		4096					// this is in samples
 
@@ -63,7 +60,6 @@ typedef struct sfx_s {
 	qboolean		soundCompressed;		// not in Memory
 	int				soundCompressionMethod;	
 	int 			soundLength;
-	int			soundChannels;
 	char 			soundName[MAX_QPATH];
 	int				lastTimeUsed;
 	struct sfx_s	*next;
@@ -72,19 +68,13 @@ typedef struct sfx_s {
 typedef struct {
 	int			channels;
 	int			samples;				// mono samples in buffer
-	int			fullsamples;			// samples with all channels in buffer (samples divided by channels)
 	int			submission_chunk;		// don't mix less than this #
 	int			samplebits;
-	int			isfloat;
 	int			speed;
 	byte		*buffer;
 } dma_t;
 
 #define START_SAMPLE_IMMEDIATE	0x7fffffff
-
-#define MAX_DOPPLER_SCALE 50.0f //arbitrary
-
-#define THIRD_PERSON_THRESHOLD_SQ (48.0f*48.0f)
 
 typedef struct loopSound_s {
 	vec3_t		origin;
@@ -114,7 +104,6 @@ typedef struct
 	qboolean	fixed_origin;	// use origin instead of fetching entnum's origin
 	sfx_t		*thesfx;		// sfx structure
 	qboolean	doppler;
-	qboolean	fullVolume;
 } channel_t;
 
 
@@ -129,38 +118,6 @@ typedef struct {
 	int			samples;
 	int			dataofs;		// chunk starts this many bytes from file start
 } wavinfo_t;
-
-// Interface between Q3 sound "api" and the sound backend
-typedef struct
-{
-	void (*Shutdown)(void);
-	void (*StartSound)(const vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx );
-	void (*StartLocalSound)( sfxHandle_t sfx, int channelNum );
-	void (*StartBackgroundTrack)( const char *intro, const char *loop );
-	void (*StopBackgroundTrack)( void );
-	void (*RawSamples)(int stream, int samples, int rate, int width, int channels, const byte *data, float volume, int entityNum);
-	void (*StopAllSounds)( void );
-	void (*ClearLoopingSounds)( qboolean killall );
-	void (*AddLoopingSound)( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
-	void (*AddRealLoopingSound)( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
-	void (*StopLoopingSound)(int entityNum );
-	void (*Respatialize)( int entityNum, const vec3_t origin, vec3_t axis[3], int inwater );
-	void (*UpdateEntityPosition)( int entityNum, const vec3_t origin );
-	void (*Update)( void );
-	void (*DisableSounds)( void );
-	void (*BeginRegistration)( void );
-	sfxHandle_t (*RegisterSound)( const char *sample, qboolean compressed );
-	void (*ClearSoundBuffer)( void );
-	void (*SoundInfo)( void );
-	void (*SoundList)( void );
-#ifdef USE_VOIP
-	void (*StartCapture)( void );
-	int (*AvailableCaptureSamples)( void );
-	void (*Capture)( int samples, byte *data );
-	void (*StopCapture)( void );
-	void (*MasterGain)( float gain );
-#endif
-} soundInterface_t;
 
 
 /*
@@ -184,51 +141,43 @@ void	SNDDMA_BeginPainting (void);
 
 void	SNDDMA_Submit(void);
 
-#ifdef USE_VOIP
-void SNDDMA_StartCapture(void);
-int SNDDMA_AvailableCaptureSamples(void);
-void SNDDMA_Capture(int samples, byte *data);
-void SNDDMA_StopCapture(void);
-void SNDDMA_MasterGain(float val);
-#endif
-
-
 //====================================================================
 
-#define	MAX_SOUNDCHANNELS			96
+#define	MAX_CHANNELS			96
 
-extern	channel_t   s_channels[MAX_SOUNDCHANNELS];
-extern	channel_t   loop_channels[MAX_SOUNDCHANNELS];
+extern	channel_t   s_channels[MAX_CHANNELS];
+extern	channel_t   loop_channels[MAX_CHANNELS];
 extern	int		numLoopChannels;
 
 extern	int		s_paintedtime;
+extern	int		s_rawend;
 extern	vec3_t	listener_forward;
 extern	vec3_t	listener_right;
 extern	vec3_t	listener_up;
 extern	dma_t	dma;
 
 #define	MAX_RAW_SAMPLES	16384
-#define MAX_RAW_STREAMS (MAX_CLIENTS * 2 + 1)
-extern	portable_samplepair_t s_rawsamples[MAX_RAW_STREAMS][MAX_RAW_SAMPLES];
-extern	int		s_rawend[MAX_RAW_STREAMS];
+extern	portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
 
-extern cvar_t *s_volume;
-extern cvar_t *s_musicVolume;
-extern cvar_t *s_muted;
-extern cvar_t *s_doppler;
+extern cvar_t	*s_volume;
+extern cvar_t	*s_nosound;
+extern cvar_t	*s_khz;
+extern cvar_t	*s_show;
+extern cvar_t	*s_mixahead;
 
-extern cvar_t *s_testsound;
+extern cvar_t	*s_testsound;
+extern cvar_t	*s_separation;
 
 qboolean S_LoadSound( sfx_t *sfx );
 
 void		SND_free(sndBuffer *v);
-sndBuffer*	SND_malloc( void );
-void		SND_setup( void );
-void		SND_shutdown(void);
+sndBuffer*	SND_malloc();
+void		SND_setup();
 
 void S_PaintChannels(int endtime);
 
 void S_memoryLoad(sfx_t *sfx);
+portable_samplepair_t *S_GetRawSamplePointer();
 
 // spatializes a channel
 void S_Spatialize(channel_t *ch);
@@ -243,7 +192,7 @@ void S_AdpcmGetSamples(sndBuffer *chunk, short *to);
 #define SENTINEL_MULAW_ZERO_RUN 127
 #define SENTINEL_MULAW_FOUR_BIT_RUN 126
 
-void S_FreeOldestSound( void );
+void S_FreeOldestSound();
 
 #define	NXStream byte
 
@@ -257,24 +206,12 @@ extern short *sfxScratchBuffer;
 extern sfx_t *sfxScratchPointer;
 extern int	   sfxScratchIndex;
 
-qboolean S_Base_Init( soundInterface_t *si );
-
-// OpenAL stuff
-typedef enum
-{
-	SRCPRI_AMBIENT = 0,	// Ambient sound effects
-	SRCPRI_ENTITY,			// Entity sound effects
-	SRCPRI_ONESHOT,			// One-shot sounds
-	SRCPRI_LOCAL,				// Local sounds
-	SRCPRI_STREAM				// Streams (music, cutscenes)
-} alSrcPriority_t;
-
-typedef int srcHandle_t;
-
-qboolean S_AL_Init( soundInterface_t *si );
-
-#ifdef idppc_altivec
-void S_PaintChannelFrom16_altivec( portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE], int snd_vol, channel_t *ch, const sfx_t *sc, int count, int sampleOffset, int bufferOffset );
+#ifdef __linux__
+// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=371
+// custom Snd_Memset implementation for glibc memset bug workaround
+void Snd_Memset(void* dest, const int val, const size_t count);
+#else
+#define Snd_Memset Com_Memset
 #endif
 
 #ifdef __cplusplus

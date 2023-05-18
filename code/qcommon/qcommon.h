@@ -1237,6 +1237,13 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 void	Sys_FreeFileList( char **list );
 void	Sys_Sleep(int msec);
 
+void Sys_InitStreamThread(void);
+void Sys_ShutdownStreamThread(void);
+void Sys_BeginStreamedFile(fileHandle_t f, int readAhead);
+void Sys_EndStreamedFile(fileHandle_t f);
+int Sys_StreamedRead(void* buffer, int size, int count, fileHandle_t f);
+void Sys_StreamSeek(fileHandle_t f, int offset, int origin);
+
 qboolean Sys_LowPhysicalMemory( void );
 
 void SetNormalThreadPriority( void );
