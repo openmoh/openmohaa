@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(gcd)
-
 set(CURRENT_DIR "code/gamespy")
 
 include_directories("${CURRENT_DIR}/common")
