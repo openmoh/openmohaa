@@ -205,7 +205,8 @@ if(WIN32)
 	endif()
 	target_link_libraries(omohaaded PRIVATE wsock32 ws2_32)
 	target_link_libraries(omohaaded PRIVATE winmm)
-
+	
+	INSTALL(FILES $<TARGET_PDB_FILE:fgame> DESTINATION "${TARGET_BASE_GAME}" OPTIONAL)
 	INSTALL(FILES $<TARGET_PDB_FILE:omohaaded> DESTINATION "./" OPTIONAL)
 elseif(UNIX)
 	find_package(Threads)
@@ -280,6 +281,9 @@ if (WITH_CLIENT)
 
 		target_link_libraries(openmohaa PRIVATE wsock32 ws2_32)
 		target_link_libraries(openmohaa PRIVATE winmm)
+		
+		INSTALL(FILES $<TARGET_PDB_FILE:cgame> DESTINATION "${TARGET_BASE_GAME}" OPTIONAL)
+		INSTALL(FILES $<TARGET_PDB_FILE:openmohaa> DESTINATION "./" OPTIONAL)
 	elseif(UNIX)
 		find_package(OpenGL REQUIRED)
 		find_package(GLUT REQUIRED)
