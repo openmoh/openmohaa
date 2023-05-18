@@ -237,16 +237,16 @@ static char *XLateKey(XKeyEvent *ev, int *key)
   case XK_Pause:  *key = K_PAUSE;    break;
 
   case XK_Shift_L:
-  case XK_Shift_R:  *key = K_SHIFT;   break;
+  case XK_Shift_R:  *key = K_LSHIFT;   break;
 
   case XK_Execute: 
   case XK_Control_L: 
-  case XK_Control_R:  *key = K_CTRL;  break;
+  case XK_Control_R:  *key = K_LCTRL;  break;
 
   case XK_Alt_L:  
   case XK_Meta_L: 
   case XK_Alt_R:  
-  case XK_Meta_R: *key = K_ALT;     break;
+  case XK_Meta_R: *key = K_LALT;     break;
 
   case XK_KP_Begin: *key = K_KP_5;  break;
 

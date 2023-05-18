@@ -25,15 +25,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_local.h"
 #include "snd_public.h"
 
-cvar_t *s_volume;
 cvar_t *s_muted;
-cvar_t *s_musicVolume;
-cvar_t *s_doppler;
 cvar_t *s_backend;
 cvar_t *s_muteWhenMinimized;
 cvar_t *s_muteWhenUnfocused;
 
 #if 0
+cvar_t* s_volume;
+cvar_t* s_musicVolume;
+cvar_t* s_doppler;
 
 static soundInterface_t si;
 
