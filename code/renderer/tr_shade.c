@@ -354,6 +354,11 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
 	R_BindAnimatedImage( &pStage->bundle[0] );
 
+	if (pStage->stateBits & GLS_MULTITEXTURE_ENV)
+	{
+		// FIXME: unimplemented
+	}
+
 	//
 	// lightmap/secondary pass
 	//
@@ -363,21 +368,27 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 
 	if ( r_lightmap->integer ) {
 		GL_TexEnv( GL_REPLACE );
+	} else if (pStage->stateBits & GLS_MULTITEXTURE_ENV) {
+		// FIXME: unimplemented
 	} else {
 		GL_TexEnv( tess.shader->multitextureEnv );
 	}
 
 	qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[1] );
 
-	R_BindAnimatedImage( &pStage->bundle[1] );
+	if (!input->dlightMap || !pStage->bundle[1].isLightmap) {
+		R_BindAnimatedImage(&pStage->bundle[1]);
+	} else {
+		GL_Bind(&tr.identityLightImage[input->dlightMap]);
+	}
 
 	R_DrawElements( input->numIndexes, input->indexes );
 
+	qglDisable(GL_TEXTURE_2D);
 	//
 	// disable texturing on TEXTURE1, then select TEXTURE0
 	//
-	//qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
-	qglDisable( GL_TEXTURE_2D );
+	qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	GL_SelectTexture( 0 );
 }

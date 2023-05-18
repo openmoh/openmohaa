@@ -405,19 +405,19 @@ static void ParseWaveForm( char **text, waveForm_t *wave )
 ParseTexMod
 ===================
 */
-static void ParseTexMod( char *_text, shaderStage_t *stage )
+static void ParseTexMod( char *_text, shaderStage_t *stage, int cntBundle )
 {
 	const char *token;
 	char **text = &_text;
 	texModInfo_t *tmi;
 
-	if ( stage->bundle[0].numTexMods == TR_MAX_TEXMODS ) {
+	if ( stage->bundle[cntBundle].numTexMods == TR_MAX_TEXMODS ) {
 		ri.Error( ERR_DROP, "ERROR: too many tcMod unfoggedStages in shader '%s'\n", shader.name );
 		return;
 	}
 
-	tmi = &stage->bundle[0].texMods[stage->bundle[0].numTexMods];
-	stage->bundle[0].numTexMods++;
+	tmi = &stage->bundle[cntBundle].texMods[stage->bundle[cntBundle].numTexMods];
+	stage->bundle[cntBundle].numTexMods++;
 
 	token = COM_ParseExt( text, qfalse );
 
@@ -640,6 +640,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 	char *token;
 	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
 	qboolean depthMaskExplicit = qfalse;
+	int cntBundle = 0;
 
 	stage->active = qtrue;
 	stage->noMipMaps = shader_noMipMaps;
@@ -1194,7 +1195,7 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				strcat( buffer, " " );
 			}
 
-			ParseTexMod( buffer, stage );
+			ParseTexMod( buffer, stage, cntBundle );
 
 			continue;
 		}
@@ -1216,14 +1217,22 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
         else if (!Q_stricmp(token, "nextBundle"))
         {
 			if (!qglActiveTextureARB) {
-				continue;
+				ri.Printf(PRINT_ALL, "WARNING: " PRODUCT_NAME " requires a video card with multitexturing capability\n");
+				return qfalse;
 			}
 
 			token = COM_ParseExt(text, qfalse);
-			if (token[0] == 0) {
+			if (token[0] && !Q_stricmp(token, "add")) {
+				stage->multitextureEnv = GL_ADD;
+			} else {
+				stage->multitextureEnv = GL_MODULATE;
 			}
 
-            // FIXME: unimplemented
+			cntBundle++;
+			if (cntBundle > NUM_TEXTURE_BUNDLES) {
+				ri.Printf(PRINT_WARNING, "WARNING: too many nextBundle commands in shader '%s'\n", shader.name);
+				return qfalse;
+			}
             continue;
         }
 		else
@@ -1237,7 +1246,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 	// if cgen isn't explicitly specified, use either identity or identitylighting
 	//
 	if ( stage->rgbGen == CGEN_BAD ) {
-		if ( blendSrcBits == 0 ||
+		if ( (!cntBundle && !stage->bundle[0].isLightmap) ||
+			blendSrcBits == 0 ||
 			blendSrcBits == GLS_SRCBLEND_ONE || 
 			blendSrcBits == GLS_SRCBLEND_SRC_ALPHA ) {
 			stage->rgbGen = CGEN_IDENTITY_LIGHTING;
@@ -2052,113 +2062,117 @@ Attempt to combine two unfoggedStages into a single multitexture stage
 FIXME: I think modulated add + modulated add collapses incorrectly
 =================
 */
-static qboolean CollapseMultitexture( void ) {
+static void CollapseMultitexture(int *stagecounter) {
+	int iUseCollapse;
+	int stagenum;
 	int abits, bbits;
-	int i;
+	shaderStage_t* stage;
 	textureBundle_t tmpBundle;
 
-	if ( !qglActiveTextureARB ) {
-		return qfalse;
-	}
+	for (stagenum = 0; stagenum < *stagecounter - 1; stagenum++) {
+		stage = &unfoggedStages[stagenum];
 
-	// make sure both unfoggedStages are active
-	if ( !unfoggedStages[0].active || !unfoggedStages[1].active ) {
-		return qfalse;
-	}
-
-	// on voodoo2, don't combine different tmus
-	if ( glConfig.driverType == GLDRV_VOODOO ) {
-		if ( unfoggedStages[0].bundle[0].image[0]->TMU ==
-			 unfoggedStages[1].bundle[0].image[0]->TMU ) {
-			return qfalse;
+		// make sure both unfoggedStages are active
+		if (!stage->active || !unfoggedStages[stagenum + 1].active) {
+			continue;
 		}
-	}
 
-	abits = unfoggedStages[0].stateBits;
-	bbits = unfoggedStages[1].stateBits;
-
-	// make sure that both unfoggedStages have identical state other than blend modes
-	if ( ( abits & ~( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE ) ) !=
-		( bbits & ~( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE ) ) ) {
-		return qfalse;
-	}
-
-	abits &= ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
-	bbits &= ( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
-
-	// search for a valid multitexture blend function
-	for ( i = 0; collapse[i].blendA != -1 ; i++ ) {
-		if ( abits == collapse[i].blendA
-			&& bbits == collapse[i].blendB ) {
-			break;
+		// on voodoo2, don't combine different tmus
+		if (glConfig.driverType == GLDRV_VOODOO) {
+			if (stage->bundle[0].image[0]->TMU ==
+				unfoggedStages[stagenum + 1].bundle[0].image[0]->TMU) {
+				continue;
+			}
 		}
-	}
 
-	// nothing found
-	if ( collapse[i].blendA == -1 ) {
-		return qfalse;
-	}
+		abits = stage->stateBits;
+		bbits = unfoggedStages[stagenum + 1].stateBits;
 
-	// GL_ADD is a separate extension
-	if ( collapse[i].multitextureEnv == GL_ADD && !glConfig.textureEnvAddAvailable ) {
-		return qfalse;
-	}
+		// make sure that both unfoggedStages have identical state other than blend modes
+		if ((abits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE)) !=
+			(bbits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE))) {
+			continue;
+		}
 
-	// make sure waveforms have identical parameters
-	if ( ( unfoggedStages[0].rgbGen != unfoggedStages[1].rgbGen ) ||
-		( unfoggedStages[0].alphaGen != unfoggedStages[1].alphaGen ) )  {
-		return qfalse;
-	}
+		abits &= (GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
+		bbits &= (GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
 
-	// an add collapse can only have identity colors
-	if ( collapse[i].multitextureEnv == GL_ADD && unfoggedStages[0].rgbGen != CGEN_IDENTITY ) {
-		return qfalse;
-	}
+		// search for a valid multitexture blend function
+		for (iUseCollapse = 0; collapse[iUseCollapse].blendA != -1; iUseCollapse++) {
+			if (abits == collapse[iUseCollapse].blendA
+				&& bbits == collapse[iUseCollapse].blendB) {
+				break;
+			}
+		}
 
-	if ( unfoggedStages[0].rgbGen == CGEN_WAVEFORM )
-	{
-		if ( memcmp( &unfoggedStages[0].rgbWave,
-					 &unfoggedStages[1].rgbWave,
-					 sizeof( unfoggedStages[0].rgbWave ) ) )
+		// nothing found
+		if (collapse[iUseCollapse].blendA == -1) {
+			continue;
+		}
+
+		// GL_ADD is a separate extension
+		if (collapse[iUseCollapse].multitextureEnv == GL_ADD && !glConfig.textureEnvAddAvailable) {
+			continue;
+		}
+
+		// make sure waveforms have identical parameters
+		if ((stage->rgbGen != unfoggedStages[stagenum + 1].rgbGen) ||
+			(stage->alphaGen != unfoggedStages[stagenum + 1].alphaGen)) {
+			continue;
+		}
+
+		// an add collapse can only have identity colors
+		if (collapse[iUseCollapse].multitextureEnv == GL_ADD && stage->rgbGen != CGEN_IDENTITY) {
+			continue;
+		}
+
+		if (stage->rgbGen == CGEN_WAVEFORM)
 		{
-			return qfalse;
+			if (memcmp(&stage->rgbWave,
+				&unfoggedStages[stagenum + 1].rgbWave,
+				sizeof(stage->rgbWave)))
+			{
+				continue;
+			}
 		}
-	}
-	if ( unfoggedStages[0].alphaGen == CGEN_WAVEFORM )
-	{
-		if ( memcmp( &unfoggedStages[0].alphaWave,
-					 &unfoggedStages[1].alphaWave,
-					 sizeof( unfoggedStages[0].alphaWave ) ) )
+		if (stage->alphaGen == CGEN_WAVEFORM)
 		{
-			return qfalse;
+			if (memcmp(&stage->alphaWave,
+				&unfoggedStages[stagenum + 1].alphaWave,
+				sizeof(stage->alphaWave)))
+			{
+				continue;
+			}
 		}
+
+
+		// make sure that lightmaps are in bundle 1 for 3dfx
+		if (stage->bundle[0].isLightmap)
+		{
+			tmpBundle = stage->bundle[0];
+			stage->bundle[0] = unfoggedStages[stagenum + 1].bundle[0];
+			stage->bundle[1] = tmpBundle;
+		}
+		else
+		{
+			stage->bundle[1] = unfoggedStages[stagenum + 1].bundle[0];
+		}
+
+		// set the new blend state bits
+		shader.multitextureEnv = collapse[iUseCollapse].multitextureEnv;
+		stage->stateBits &= ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS);
+		stage->stateBits |= collapse[iUseCollapse].multitextureBlend;
+
+		//
+		// move down subsequent shaders
+		//
+		if (stagenum + 2 < MAX_SHADER_STAGES) {
+			memmove(&unfoggedStages[stagenum + 1], &unfoggedStages[stagenum + 2], sizeof(unfoggedStages[0]) * (MAX_SHADER_STAGES - 2 - stagenum));
+		}
+
+		Com_Memset(&unfoggedStages[MAX_SHADER_STAGES - 1], 0, sizeof(unfoggedStages[0]));
+		(*stagecounter)--;
 	}
-
-
-	// make sure that lightmaps are in bundle 1 for 3dfx
-	if ( unfoggedStages[0].bundle[0].isLightmap )
-	{
-		tmpBundle = unfoggedStages[0].bundle[0];
-		unfoggedStages[0].bundle[0] = unfoggedStages[1].bundle[0];
-		unfoggedStages[0].bundle[1] = tmpBundle;
-	}
-	else
-	{
-		unfoggedStages[0].bundle[1] = unfoggedStages[1].bundle[0];
-	}
-
-	// set the new blend state bits
-	shader.multitextureEnv = collapse[i].multitextureEnv;
-	unfoggedStages[0].stateBits &= ~( GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS );
-	unfoggedStages[0].stateBits |= collapse[i].multitextureBlend;
-
-	//
-	// move down subsequent shaders
-	//
-	memmove( &unfoggedStages[1], &unfoggedStages[2], sizeof( unfoggedStages[0] ) * ( MAX_SHADER_STAGES - 2 ) );
-	Com_Memset( &unfoggedStages[MAX_SHADER_STAGES-1], 0, sizeof( unfoggedStages[0] ) );
-
-	return qtrue;
 }
 
 /*
@@ -2537,7 +2551,7 @@ static shader_t *FinishShader( void ) {
 	// look for multitexture potential
 	//
 	if (stage > 1 && qglActiveTextureARB) {
-		CollapseMultitexture();
+		CollapseMultitexture(&stage);
 	};
 
 	// FIXME: fog shader
