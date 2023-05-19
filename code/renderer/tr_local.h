@@ -1592,12 +1592,14 @@ void R_AddDrawSurf(surfaceType_t* surface, shader_t* shader, int dlightMap);
 #define	CULL_IN		0		// completely unclipped
 #define	CULL_CLIP	1		// clipped by one or more planes
 #define	CULL_OUT	2		// completely outside the clipping planes
-void R_LocalNormalToWorld (vec3_t local, vec3_t world);
-void R_LocalPointToWorld (vec3_t local, vec3_t world);
+void R_LocalNormalToWorld (const vec3_t local, vec3_t world);
+void R_LocalPointToWorld (const vec3_t local, vec3_t world);
 int R_CullLocalBoxOffset(const vec3_t offset, vec3_t bounds[2]);
 int R_CullLocalBox (vec3_t bounds[2]);
 int R_CullPointAndRadius( vec3_t origin, float radius );
 int R_CullLocalPointAndRadius( vec3_t origin, float radius );
+int R_DistanceCullLocalPointAndRadius(float fDist, const vec3_t pt, float radius);
+int R_DistanceCullPointAndRadius(float fDist, const vec3_t pt, float radius);
 
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *ori );
 void R_RotateForStaticModel(cStaticModelUnpacked_t* SM, const viewParms_t* viewParms, orientationr_t* ori );

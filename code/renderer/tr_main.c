@@ -160,6 +160,35 @@ int R_CullPointAndRadius( vec3_t pt, float radius )
 	return CULL_IN;		// completely inside frustum
 }
 
+int R_DistanceCullLocalPointAndRadius(float fDist, const vec3_t pt, float radius) {
+	vec3_t transformed;
+
+	R_LocalPointToWorld(pt, transformed);
+
+	return R_DistanceCullPointAndRadius(fDist, transformed, radius);
+}
+
+int R_DistanceCullPointAndRadius(float fDist, const vec3_t pt, float radius) {
+	if (!r_nocull->integer)
+	{
+		vec3_t vDelta;
+		float fLengthSquared;
+		float fTotalDistSquared;
+
+		VectorSubtract(pt, tr.viewParms.ori.origin, vDelta);
+		fLengthSquared = VectorLengthSquared(vDelta);
+		fTotalDistSquared = (fDist + radius) * (fDist + radius);
+
+		if ((fDist + radius) * (fDist + radius) < vDelta[2] + fLengthSquared) {
+			return CULL_OUT;
+		} else if ((fDist - radius) * (fDist - radius) > vDelta[2] + fLengthSquared) {
+			return CULL_IN;
+		}
+	}
+
+	return CULL_CLIP;
+	// FIXME: unimplemented
+}
 
 /*
 =================
@@ -167,7 +196,7 @@ R_LocalNormalToWorld
 
 =================
 */
-void R_LocalNormalToWorld (vec3_t local, vec3_t world) {
+void R_LocalNormalToWorld (const vec3_t local, vec3_t world) {
 	world[0] = local[0] * tr.ori.axis[0][0] + local[1] * tr.ori.axis[1][0] + local[2] * tr.ori.axis[2][0];
 	world[1] = local[0] * tr.ori.axis[0][1] + local[1] * tr.ori.axis[1][1] + local[2] * tr.ori.axis[2][1];
 	world[2] = local[0] * tr.ori.axis[0][2] + local[1] * tr.ori.axis[1][2] + local[2] * tr.ori.axis[2][2];
@@ -179,7 +208,7 @@ R_LocalPointToWorld
 
 =================
 */
-void R_LocalPointToWorld (vec3_t local, vec3_t world) {
+void R_LocalPointToWorld (const vec3_t local, vec3_t world) {
 	world[0] = local[0] * tr.ori.axis[0][0] + local[1] * tr.ori.axis[1][0] + local[2] * tr.ori.axis[2][0] + tr.ori.origin[0];
 	world[1] = local[0] * tr.ori.axis[0][1] + local[1] * tr.ori.axis[1][1] + local[2] * tr.ori.axis[2][1] + tr.ori.origin[1];
 	world[2] = local[0] * tr.ori.axis[0][2] + local[1] * tr.ori.axis[1][2] + local[2] * tr.ori.axis[2][2] + tr.ori.origin[2];
