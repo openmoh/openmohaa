@@ -624,7 +624,212 @@ void UIFakkLabel::DrawStatRotator( float frac )
 
 void UIFakkLabel::DrawStatCompass( float frac )
 {
-	// FIXME: stub
+	vec4_t col;
+	float fTargAng;
+	float fSinVal, fCosVal;
+	vec2_t vCenter;
+	vec2_t vVerts[3];
+	vec2_t vTexCoords[3];
+	vec2_t vCompassDir;
+	vec2_t vSideDir;
+
+	col[0] = col[1] = col[2] = col[3] = 1.0;
+
+	if (!cge) {
+		return;
+	}
+
+	static int iLastCompassTime = -9999, iLastTimeDelta = 0;
+	static float fLastPitch = 0, fLastYaw = 0, fLastYawDelta = 0;
+	static float fYawOffset = 0, fYawSpeed = 0;
+	static float fNeedleOffset = 0, fNeedleSpeed = 0;
+	int iTimeCount, iTimeDelta;
+	float fYawDelta, fYawDeltaDiff;
+	vec3_t vViewAngles;
+
+	cge->CG_EyeAngles(&vViewAngles);
+
+	vViewAngles[1] -= cl.snap.ps.stats[STAT_COMPASSNORTH] / 182.0f;
+
+	iTimeCount = uid.time - iLastCompassTime;
+	if (iTimeCount <= 1000)
+	{
+		fYawDelta = AngleSubtract(vViewAngles[1], fLastYaw);
+		if (fYawDelta > 0.1)
+		{
+			if ((fYawDelta > 0.0 && fLastYawDelta < fYawDelta)
+				|| (fYawDelta < 0.0 && fLastYawDelta > fYawDelta))
+			{
+
+				fYawSpeed += (fYawDelta - fLastYawDelta) * 0.75;
+				fYawOffset += (fYawDelta - fLastYawDelta) * 0.75;
+			}
+
+			if (fYawSpeed > 90.0) {
+				fYawSpeed = 90.0;
+			}
+			else if (fYawSpeed < 0.05) {
+				fYawSpeed = 0.05;
+			}
+
+		}
+
+		while (iTimeCount > 0)
+		{
+			iTimeDelta = iTimeCount;
+			if (iTimeCount > 15) {
+				iTimeDelta = 15;
+			}
+			iTimeCount -= iTimeDelta;
+
+			if (fabs(fYawOffset) >= 0.1 || fabs(fYawSpeed) >= 0.01)
+			{
+				fYawOffset += fYawSpeed * iTimeDelta;
+				if (fYawOffset > 0.0) {
+					fYawSpeed -= iTimeDelta * 0.00175;
+				}
+				else if (fYawOffset < 0.0) {
+					fYawSpeed += iTimeDelta * 0.00175;
+				}
+
+				if (fYawOffset > 40.0) {
+					fYawOffset = 40.0;
+					fYawSpeed = 0.0;
+				}
+				else if (fYawOffset < -40.0) {
+					fYawOffset = -40.0;
+					fYawSpeed = 0.0;
+				}
+
+				fYawSpeed -= iTimeDelta * 0.003;
+				if (fYawSpeed > 0.0) {
+					fYawSpeed -= iTimeDelta * 0.0004;
+				}
+				else {
+					fYawSpeed += iTimeDelta * 0.0004;
+					if (fYawSpeed > 0.0) {
+						fYawSpeed = 0.0;
+					}
+				}
+			}
+			else
+			{
+				iTimeCount = 0;
+				fYawOffset = 0.0;
+				fYawSpeed = 0.0;
+			}
+		}
+
+		fLastYawDelta = fYawDelta;
+		iLastTimeDelta = uid.time - iLastCompassTime;
+	}
+	else
+	{
+		fLastYawDelta = 0;
+		fYawOffset = 0;
+		fYawSpeed = 0;
+		iLastTimeDelta = 0;
+	}
+
+	fLastPitch = vViewAngles[0];
+	fLastYaw = vViewAngles[1];
+	iLastCompassTime = uid.time;
+
+	if (iLastTimeDelta)
+	{
+		if (fabs(fLastYawDelta) > 0.1) {
+			fNeedleOffset -= fLastYawDelta;
+		}
+
+		iTimeCount = iLastTimeDelta;
+		while (iTimeCount > 0)
+		{
+			iTimeDelta = iTimeCount;
+			if (iTimeCount > 15) {
+				iTimeDelta = 15;
+			}
+			iTimeCount -= iTimeDelta;
+
+			if (fabs(fNeedleOffset) >= 0.1 || fabs(fNeedleSpeed) >= 0.01) {
+
+				fNeedleOffset += iTimeDelta * fNeedleSpeed;
+				if (fNeedleOffset > 180.0) {
+					fNeedleOffset -= 360.0;
+				}
+				else if (fNeedleOffset < -180.0) {
+					fNeedleOffset += 360.0;
+				}
+
+				if (fNeedleOffset > 0.0) {
+					fNeedleSpeed -= iTimeDelta * 0.00175;
+				}
+				else if (fNeedleOffset < 0.0) {
+					fNeedleSpeed += iTimeDelta * 0.00175;
+				}
+
+				fNeedleSpeed -= fNeedleSpeed * 0.0025 * iTimeDelta;
+				if (fNeedleSpeed > 0.0) {
+					fNeedleSpeed -= iTimeDelta * 0.00035;
+					if (fNeedleSpeed < 0.0) {
+						fNeedleSpeed = 0.0;
+					}
+				}
+				else {
+					fNeedleSpeed += iTimeDelta * 0.00035;
+					if (fNeedleSpeed > 0.0) {
+						fNeedleSpeed = 0.0;
+					}
+				}
+			} else {
+				iTimeCount = 0;
+				fNeedleOffset = 0.0;
+				fNeedleSpeed = 0.0;
+			}
+		}
+	}
+	else
+	{
+		fNeedleOffset = 0.0;
+		fNeedleSpeed = 0.0;
+	}
+
+	fSinVal = sin(anglemod(fNeedleOffset + fLastYaw) / (180 / M_PI));
+	fCosVal = cos(anglemod(fNeedleOffset + fLastYaw) / (180 / M_PI));
+
+	vCompassDir[0] = fSinVal;
+	vCompassDir[1] = -fCosVal;
+
+	vCenter[0] = m_frame.size.width * 0.5;
+	vCenter[1] = m_frame.size.height * 0.5;
+	vTexCoords[0][0] = 0.0;
+	vTexCoords[0][1] = 0.0;
+	vTexCoords[1][0] = 1.0;
+	vTexCoords[1][1] = 0.0;
+	vTexCoords[2][0] = 0.0;
+	vTexCoords[2][1] = 1.0;
+
+	vVerts[0][0] = vCenter[0] + vCompassDir[0] * vCenter[0] - fCosVal * vCenter[1];
+	vVerts[1][0] = vCenter[0] + vCompassDir[0] * vCenter[0] + fCosVal * vCenter[1];
+	vVerts[2][0] = vCenter[0] - vCompassDir[0] * vCenter[0] - fCosVal * vCenter[1];
+	vVerts[0][1] = vCenter[1] + vCompassDir[1] * vCenter[1] - fSinVal * vCenter[0];
+	vVerts[1][1] = vCenter[1] + vCompassDir[1] * vCenter[1] + fSinVal * vCenter[0];
+	vVerts[2][1] = vCenter[1] - vCompassDir[1] * vCenter[1] - fSinVal * vCenter[0];
+
+	m_statbar_material->ReregisterMaterial();
+	re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+
+	vVerts[0][0] = vVerts[2][0];
+	vVerts[0][1] = vVerts[2][1];
+	vTexCoords[0][0] = vTexCoords[2][0];
+	vTexCoords[0][1] = vTexCoords[2][1];
+	vTexCoords[2][0] = 1.0;
+	vTexCoords[2][1] = 1.0;
+
+	vVerts[2][0] = vCenter[0] + fCosVal * vCenter[1] - vCompassDir[0] * vCenter[0];
+	vVerts[2][1] = vCenter[1] * fSinVal + vCenter[0] - vCompassDir[1] * vCenter[1];
+
+	m_statbar_material->ReregisterMaterial();
+	re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 }
 
 void UIFakkLabel::DrawStatSpinner( float frac )
