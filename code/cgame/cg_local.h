@@ -633,8 +633,8 @@ void CG_ImpactMarkSimple(
 );
 void CG_InitTestTreadMark();
 int CG_PermanentMark(
-    vec_t* origin,
-    vec_t* dir,
+    const vec3_t origin,
+    const vec3_t dir,
     float orientation,
     float fSScale,
     float fTScale,
