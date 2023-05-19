@@ -500,31 +500,29 @@ void GL_State( unsigned long stateBits )
 			qglDisable(GL_FOG);
 		}
 	}
-	else
+	else if (glState.externalSetState & GLS_FOG)
 	{
-		if (glState.externalSetState & GLS_FOG)
+		if (diff & GLS_FOG_ENABLED)
 		{
-			if (diff & GLS_FOG_ENABLED)
-			{
-				if (stateBits & GLS_FOG_ENABLED) {
-					qglEnable(GL_FOG);
-				} else {
-					qglDisable(GL_FOG);
-				}
+			if (stateBits & GLS_FOG_ENABLED) {
+				qglEnable(GL_FOG);
 			}
+			else {
+				qglDisable(GL_FOG);
+			}
+		}
 
-			if (diff & GLS_FOG_COLOR)
+		if (diff & GLS_FOG_COLOR)
+		{
+			if (stateBits & GLS_FOG_BLACK)
 			{
-				if (stateBits & GLS_FOG_BLACK)
-				{
-					vec4_t fBlackFogColor = { 0, 0, 0, 1 };
-					qglFogfv(GL_FOG_COLOR, fBlackFogColor);
-				}
-				else if (stateBits & GLS_FOG_WHITE)
-				{
-					vec4_t fWhiteFogColor = { 1, 1, 1, 1 };
-					qglFogfv(GL_FOG_COLOR, fWhiteFogColor);
-				}
+				vec4_t fBlackFogColor = { 0, 0, 0, 1 };
+				qglFogfv(GL_FOG_COLOR, fBlackFogColor);
+			}
+			else if (stateBits & GLS_FOG_WHITE)
+			{
+				vec4_t fWhiteFogColor = { 1, 1, 1, 1 };
+				qglFogfv(GL_FOG_COLOR, fWhiteFogColor);
 			}
 		}
 	}
