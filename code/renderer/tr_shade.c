@@ -361,23 +361,23 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 
 		if (pStage->multitextureEnv == GL_ADD)
 		{
-			qglTexEnvf(8960, 34161, 260.0);
-			qglTexEnvf(8960, 34176, 33984.0);
-			qglTexEnvf(8960, 34192, 1145044992);
-			qglTexEnvf(8960, 34177, 0);
-			qglTexEnvf(8960, 34193, 1145061376);
-			qglTexEnvf(8960, 34178, 33985.0);
-			qglTexEnvf(8960, 34194, 1145044992);
-			qglTexEnvf(8960, 34179, 0);
-			qglTexEnvf(8960, 34195, 1145061376);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, 260.0);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, 33984.0);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, 0x44400000);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, 0);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, 33985.0);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, 0x44400000);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, 0x44400000);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE3_RGB, 0);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND3_RGB, 0x44404000);
 		}
 		else if (pStage->multitextureEnv == GL_MODULATE)
 		{
-			qglTexEnvf(8960, 34161, 8448.0);
-			qglTexEnvf(8960, 34176, 33984.0);
-			qglTexEnvf(8960, 34192, 1145044992);
-			qglTexEnvf(8960, 34177, 33985.0);
-			qglTexEnvf(8960, 34193, 1145044992);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, 33984.0);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, 0x44400000);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, 33985.0);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, 0x44400000);
 		}
 		else
 		{
@@ -398,13 +398,13 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 		glState.cntTexEnvExt = GLS_MULTITEXTURE_ENV;
 
 		GL_TexEnv(GL_COMBINE);
-		qglTexEnvf(GL_TEXTURE_ENV, 34161, 34165.0);
-		qglTexEnvf(GL_TEXTURE_ENV, 34176, 0x47057700);
-		qglTexEnvf(GL_TEXTURE_ENV, 34192, 0x44400000);
-		qglTexEnvf(GL_TEXTURE_ENV, 34177, 34168.0);
-		qglTexEnvf(GL_TEXTURE_ENV, 34193, 0x44400000);
-		qglTexEnvf(GL_TEXTURE_ENV, 34178, 0x47057700);
-		qglTexEnvf(GL_TEXTURE_ENV, 34194, 770.0);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, 34165);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, 0x47057700);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, 0x44400000);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, 34168);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, 0x44400000);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, 0x47057700);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, 0x44407700000);
 	} else {
 		GL_TexEnv( pStage->multitextureEnv );
 	}
@@ -1094,54 +1094,64 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 {
 	int stage;
 
-	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ )
+	for (stage = 0; stage < MAX_SHADER_STAGES; stage++)
 	{
-		shaderStage_t *pStage = tess.xstages[stage];
+		shaderStage_t* pStage = tess.xstages[stage];
 
-		if ( !pStage )
+		if (!pStage)
 		{
 			break;
 		}
 
-		ComputeColors( pStage );
-		ComputeTexCoords( pStage );
+		if (pStage->alphaGen == AGEN_SKYALPHA && tr.refdef.sky_alpha < 0.01) {
+			continue;
+		}
+		else if (pStage->alphaGen == AGEN_ONE_MINUS_SKYALPHA && tr.refdef.sky_alpha > 0.99) {
+			continue;
+		}
 
-		if ( !setArraysOnce )
+		ComputeTexCoords(pStage);
+		ComputeColors(pStage);
+
+		if (!setArraysOnce)
 		{
-			qglEnableClientState( GL_COLOR_ARRAY );
-			qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, input->svars.colors );
+			qglEnableClientState(GL_COLOR_ARRAY);
+			qglColorPointer(4, GL_UNSIGNED_BYTE, 0, input->svars.colors);
 		}
 
 		//
 		// do multitexture
 		//
-		if ( pStage->bundle[1].image[0] != 0 )
+		if (pStage->bundle[1].image[0] != 0)
 		{
-			DrawMultitextured( input, stage );
+			DrawMultitextured(input, stage);
 		}
 		else
 		{
 			if (backEnd.in2D) {
 				GL_State(pStage->stateBits | GLS_DEPTHTEST_DISABLE);
-			} else {
+			}
+			else {
 				GL_State(pStage->stateBits);
 			}
 
-			if ( !setArraysOnce )
+			if (!setArraysOnce)
 			{
-				qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
+				qglTexCoordPointer(2, GL_FLOAT, 0, input->svars.texcoords[0]);
 			}
 
 			//
 			// set state
 			//
-			if ( pStage->bundle[0].vertexLightmap && r_vertexLight->integer && r_lightmap->integer )
+			if (pStage->bundle[0].vertexLightmap && r_vertexLight->integer && r_lightmap->integer)
 			{
-				GL_Bind( tr.whiteImage );
-			} else {
+				GL_Bind(tr.whiteImage);
+			}
+			else {
 				if (input->dlightMap && tess.xstages[stage]->bundle[0].isLightmap) {
 					GL_Bind(&tr.identityLightImage[input->dlightMap]);
-				} else {
+				}
+				else {
 					R_BindAnimatedImage(&pStage->bundle[0]);
 				}
 			}
@@ -1149,10 +1159,10 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			//
 			// draw
 			//
-			R_DrawElements( input->numIndexes, input->indexes );
+			R_DrawElements(input->numIndexes, input->indexes);
 		}
 		// allow skipping out to show just lightmaps during development
-		if ( r_lightmap->integer && ( pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap || pStage->bundle[0].vertexLightmap ) )
+		if (r_lightmap->integer && (pStage->bundle[0].isLightmap || pStage->bundle[1].isLightmap || pStage->bundle[0].vertexLightmap))
 		{
 			break;
 		}
@@ -1465,7 +1475,6 @@ void RB_EndSurface( void ) {
 	if (input->numIndexes == 0) {
 		return;
 	}
-
 	if (input->indexes[SHADER_MAX_INDEXES-1] != 0) {
 		ri.Error (ERR_DROP, "RB_EndSurface() - SHADER_MAX_INDEXES hit");
 	}	
@@ -1473,8 +1482,12 @@ void RB_EndSurface( void ) {
 		ri.Error (ERR_DROP, "RB_EndSurface() - SHADER_MAX_VERTEXES hit");
 	}
 
+	if (tess.xyz[SHADER_MAX_VERTEXES - 1][0] && r_shadows->integer != 3) {
+		tess.xyz[SHADER_MAX_VERTEXES - 1][0] = 0;
+	}
+
 	if ( tess.shader == tr.shadowShader ) {
-		RB_ShadowTessEnd();
+		RB_ComputeShadowVolume();
 		return;
 	}
 
@@ -1496,15 +1509,19 @@ void RB_EndSurface( void ) {
 	//
 	tess.currentStageIteratorFunc();
 
-	//
-	// draw debugging stuff
-	//
-	if ( r_showtris->integer ) {
-		DrawTris (input);
+	if (!(tr.refdef.rdflags & RDF_NOWORLDMODEL) && !backEnd.in2D)
+	{
+		//
+		// draw debugging stuff
+		//
+		if (r_showtris->integer && developer->integer) {
+			DrawTris(input);
+		}
+		if (r_shownormals->integer && developer->integer) {
+			DrawNormals(input);
+		}
 	}
-	if ( r_shownormals->integer ) {
-		DrawNormals (input);
-	}
+
 	// clear shader so we can tell we don't have any unclosed surfaces
 	tess.numIndexes = 0;
 

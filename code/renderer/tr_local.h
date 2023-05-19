@@ -613,8 +613,14 @@ typedef struct {
 	int			num_entities;
 	trRefEntity_t	*entities;
 
+    int			num_sprites;
+    refSprite_t	*sprites;
+
 	int			num_dlights;
 	struct dlight_s	*dlights;
+
+	int			numTerMarks;
+	struct srfMarkFragment_s *terMarks;
 
 	int			numPolys;
 	struct srfPoly_s	*polys;
@@ -622,12 +628,14 @@ typedef struct {
 	int			numDrawSurfs;
 	struct drawSurf_s	*drawSurfs;
 
-    int numSpriteSurfs;
-    struct drawSurf_s* spriteSurfs;
-    int numStaticModels;
-    struct cStaticModelUnpacked_s* staticModels;
-    int numStaticModelData;
-    unsigned char* staticModelData;
+	int			numSpriteSurfs;
+	struct drawSurf_s	*spriteSurfs;
+
+    int			numStaticModels;
+    struct cStaticModelUnpacked_s *staticModels;
+
+    int			numStaticModelData;
+    unsigned char		*staticModelData;
     qboolean sky_portal;
     float sky_alpha;
     vec3_t sky_origin;
@@ -1024,6 +1032,7 @@ typedef struct {
 	int			numShaders;
 	dshader_t	*shaders;
 
+	int			numBmodels;
 	bmodel_t	*bmodels;
 
 	int			numplanes;
@@ -1156,6 +1165,8 @@ typedef struct {
 	int		c_leafs;
 	int		c_dlightSurfaces;
 	int		c_dlightSurfacesCulled;
+	int		c_dlightMaps;
+	int		c_dlightTexels;
 } frontEndCounters_t;
 
 #define	FOG_TABLE_SIZE		256
@@ -1180,7 +1191,7 @@ typedef struct {
 
 
 typedef struct {
-	int		c_surfaces, c_shaders, c_vertexes, c_indexes, c_totalIndexes;
+	int		c_surfaces, c_shaders, c_vertexes, c_indexes, c_totalIndexes, c_characterlights;
 	float	c_overDraw;
 	
 	int		c_dlightVertexes;
@@ -1252,6 +1263,7 @@ typedef struct {
 	image_t					*flareImage;
 	image_t					*whiteImage;			// full of 0xff
 	image_t					*identityLightImage;	// full of tr.identityLightByte
+	image_t					*dlightImages[15];
 
 	shader_t				*defaultShader;
 	shader_t				*shadowShader;
@@ -1319,7 +1331,6 @@ typedef struct {
 	float					triangleTable[FUNCTABLE_SIZE];
 	float					sawToothTable[FUNCTABLE_SIZE];
 	float					inverseSawToothTable[FUNCTABLE_SIZE];
-	float					fogTable[FOG_TABLE_SIZE];
 
     spherel_t sSunLight;
     spherel_t sLights[1532];
@@ -1583,6 +1594,7 @@ void R_AddDrawSurf(surfaceType_t* surface, shader_t* shader, int dlightMap);
 #define	CULL_OUT	2		// completely outside the clipping planes
 void R_LocalNormalToWorld (vec3_t local, vec3_t world);
 void R_LocalPointToWorld (vec3_t local, vec3_t world);
+int R_CullLocalBoxOffset(const vec3_t offset, vec3_t bounds[2]);
 int R_CullLocalBox (vec3_t bounds[2]);
 int R_CullPointAndRadius( vec3_t origin, float radius );
 int R_CullLocalPointAndRadius( vec3_t origin, float radius );
@@ -1703,8 +1715,6 @@ void	R_SkinList_f( void );
 const void *RB_TakeScreenshotCmd( const void *data );
 void	R_ScreenShot_f( void );
 
-void	R_InitFogTable( void );
-float	R_FogFactor( float s, float t );
 void	R_InitImages( void );
 void	R_DeleteTextures( void );
 int		R_SumOfUsedImages( void );
@@ -1885,6 +1895,7 @@ SHADOWS
 */
 
 void RB_ShadowTessEnd( void );
+void RB_ComputeShadowVolume();
 void RB_ShadowFinish( void );
 void RB_ProjectionShadowDeform( void );
 
@@ -2077,6 +2088,7 @@ float R_CalcLod(const vec3_t origin, float radius);
 
 extern int g_nStaticSurfaces;
 extern qboolean g_bInfostaticmodels;
+extern qboolean g_bInfoworldtris;
 
 /*
 =============================================================
@@ -2123,9 +2135,6 @@ void	RB_CalcRotateTexCoords( float rotSpeed, float *dstTexCoords );
 void	RB_CalcScaleTexCoords( const float scale[2], float *dstTexCoords );
 void	RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *dstTexCoords );
 void	RB_CalcTransformTexCoords( const texModInfo_t *tmi, float *dstTexCoords );
-void	RB_CalcModulateColorsByFog( unsigned char *dstColors );
-void	RB_CalcModulateAlphasByFog( unsigned char *dstColors );
-void	RB_CalcModulateRGBAsByFog( unsigned char *dstColors );
 void	RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors );
 void	RB_CalcWaveColor(const waveForm_t* wf, unsigned char* dstColors, unsigned char* constantColor);
 void	RB_CalcAlphaFromEntity( unsigned char *dstColors );
