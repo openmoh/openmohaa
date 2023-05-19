@@ -1201,7 +1201,19 @@ Sys_PumpMessageLoop
 */
 void Sys_PumpMessageLoop(void)
 {
-    // FIXME: stub
+	MSG msg;
+
+	while (PeekMessageA(&msg, 0, 0, 0, 0))
+	{
+		if (!GetMessageA(&msg, 0, 0, 0)) {
+			Com_Quit_f();
+		}
+
+		g_wv.sysMsgTime = msg.time;
+
+		TranslateMessage(&msg);
+		DispatchMessageA(&msg);
+	}
 }
 
 /*
