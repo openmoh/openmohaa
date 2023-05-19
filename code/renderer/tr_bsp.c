@@ -2087,17 +2087,16 @@ void R_LoadStaticModelData(gamelump_t* lump) {
     }
 
     s_worldData.numStaticModelData = lump->length / (sizeof(byte) * 3);
-    s_worldData.staticModelData = ri.Hunk_Alloc(s_worldData.numStaticModelData * (sizeof(byte) * 4));
+    s_worldData.staticModelData = (byte*)ri.Hunk_Alloc(s_worldData.numStaticModelData * sizeof(color4ub_t));
 
     pSrcColors = lump->buffer;
     pDstColors = s_worldData.staticModelData;
 
-    for (i = 0; i < lump->length; i += 3)
-    {
-        pDstColors[0] = pSrcColors[0];
-        pDstColors[1] = pSrcColors[1];
-        pDstColors[2] = pSrcColors[2];
-        pDstColors[3] = -1;
+    for (i = 0; i < lump->length; i += sizeof(byte) * 3)
+    { 
+		// Colors are stored as integers
+		*(unsigned int*)pDstColors = LittleLong(*(unsigned int*)pSrcColors);
+        pDstColors[3] = 0xFF;
 
         pSrcColors += sizeof(byte) * 3;
         pDstColors += sizeof(byte) * 4;
@@ -2111,11 +2110,15 @@ R_CopyStaticModel
 */
 void R_CopyStaticModel(cStaticModel_t* pSM, cStaticModelUnpacked_t* pUnpackedSM) {
     pUnpackedSM->visCount = 0;
-    VectorCopy(pSM->angles, pUnpackedSM->angles);
-    VectorCopy(pSM->origin, pUnpackedSM->origin);
-    pUnpackedSM->scale = pSM->scale;
-    pUnpackedSM->firstVertexData = pSM->firstVertexData * 4 / 3;
-    pUnpackedSM->numVertexData = pSM->numVertexData;
+	pUnpackedSM->angles[0] = LittleFloat(pSM->angles[0]);
+	pUnpackedSM->angles[1] = LittleFloat(pSM->angles[1]);
+	pUnpackedSM->angles[2] = LittleFloat(pSM->angles[2]);
+	pUnpackedSM->origin[0] = LittleFloat(pSM->origin[0]);
+	pUnpackedSM->origin[1] = LittleFloat(pSM->origin[1]);
+	pUnpackedSM->origin[2] = LittleFloat(pSM->origin[2]);
+    pUnpackedSM->scale = LittleFloat(pSM->scale);
+    pUnpackedSM->firstVertexData = LittleLong(pSM->firstVertexData) * sizeof(color4ub_t) / (sizeof(byte) * 3);
+    pUnpackedSM->numVertexData = LittleLong(pSM->numVertexData);
     memcpy(pUnpackedSM->model, pSM->model, sizeof(pUnpackedSM->model));
 }
 

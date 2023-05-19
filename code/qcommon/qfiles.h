@@ -555,9 +555,9 @@ typedef struct cTerraPatch_s {
 } cTerraPatch_t;
 
 typedef struct cStaticModel_s {
-	char model[ 128 ];
-	float origin[ 3 ];
-	float angles[ 3 ];
+	char model[128];
+	vec3_t origin;
+	vec3_t angles;
 	float scale;
 	int firstVertexData;
 	int numVertexData;
