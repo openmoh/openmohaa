@@ -45,19 +45,6 @@ static	edgeDef_t	edgeDefs[SHADER_MAX_VERTEXES][MAX_EDGE_DEFS];
 static	int			numEdgeDefs[SHADER_MAX_VERTEXES];
 static	int			facing[SHADER_MAX_INDEXES/3];
 
-void R_AddEdgeDef( int i1, int i2, int facing ) {
-	int		c;
-
-	c = numEdgeDefs[ i1 ];
-	if ( c == MAX_EDGE_DEFS ) {
-		return;		// overflow
-	}
-	edgeDefs[ i1 ][ c ].i2 = i2;
-	edgeDefs[ i1 ][ c ].facing = facing;
-
-	numEdgeDefs[ i1 ]++;
-}
-
 void R_RenderShadowEdges( void ) {
 	int		i;
 
@@ -137,6 +124,19 @@ void R_RenderShadowEdges( void ) {
 		}
 	}
 #endif
+}
+
+void R_AddEdgeDef(int i1, int i2, int facing) {
+	int		c;
+
+	c = numEdgeDefs[i1];
+	if (c == MAX_EDGE_DEFS) {
+		return;		// overflow
+	}
+	edgeDefs[i1][c].i2 = i2;
+	edgeDefs[i1][c].facing = facing;
+
+	numEdgeDefs[i1]++;
 }
 
 /*
@@ -248,6 +248,9 @@ void RB_ShadowTessEnd( void ) {
 	qglColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
 }
 
+void RB_ComputeShadowVolume() {
+	// FIXME: unimplemented
+}
 
 /*
 =================
