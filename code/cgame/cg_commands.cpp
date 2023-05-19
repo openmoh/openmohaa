@@ -6363,6 +6363,7 @@ qboolean CG_Command_ProcessFile(const char* filename, qboolean quiet, dtiki_t *c
     char* buffer;
     const char* bufstart;
     char com_token[MAX_STRING_CHARS];
+    char tempName[MAX_QPATH + 1];
 
     if (cgi.FS_ReadFile(filename, (void**)&buffer, quiet) == -1) {
         return qfalse;
@@ -6374,6 +6375,10 @@ qboolean CG_Command_ProcessFile(const char* filename, qboolean quiet, dtiki_t *c
 
     // we are not setting up for a tiki
     current_tiki = NULL;
+
+    // Update the loading screen
+	sprintf(tempName, "m%s", filename);
+	cgi.LoadResource(tempName);
 
     bufstart = buffer;
 
@@ -6412,6 +6417,10 @@ qboolean CG_Command_ProcessFile(const char* filename, qboolean quiet, dtiki_t *c
         commandManager.ProcessEvent(ev);
     }
     cgi.FS_FreeFile((void*)bufstart);
+
+	// Update the loading screen
+	sprintf(tempName, "o%s", filename);
+	cgi.LoadResource(tempName);
 
     return qtrue;
 }
