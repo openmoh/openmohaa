@@ -438,7 +438,173 @@ void UIFakkLabel::LayoutRenderModelAnim( Event *ev )
 
 void UIFakkLabel::DrawStatbar( float frac )
 {
-	// FIXME: stub
+	vec4_t col;
+	float alpha;
+
+	col[0] = col[1] = col[2] = col[3] = 1.0;
+
+	switch (m_statbar_or)
+	{
+	case L_STATBAR_CIRCULAR:
+		DrawStatCircle(frac);
+		return;
+	case L_STATBAR_NEEDLE:
+		DrawStatNeedle(frac);
+		return;
+	case L_STATBAR_ROTATOR:
+		DrawStatRotator(frac);
+		return;
+	case L_STATBAR_COMPASS:
+		DrawStatCompass(frac);
+		return;
+	case L_STATBAR_SPINNER:
+	case L_STATBAR_HEADING_SPINNER:
+		DrawStatSpinner(frac);
+		return;
+	default:
+		break;
+	}
+
+	if (!frac) {
+		return;
+	}
+
+	if (frac != m_lastfrac) {
+		m_flashtime = uid.time;
+	}
+	m_lastfrac = frac;
+
+	alpha = 1.0 - ((float)uid.time - m_flashtime) / 1500.0;
+	if (alpha < 0.0) alpha = 0.0;
+	else if (alpha > 1.0) alpha = 1.0;
+
+	col[3] = alpha;
+
+	if (m_statbar_material)
+	{
+		if (m_flags & WF_TILESHADER)
+		{
+			switch (m_statbar_or)
+			{
+			case L_STATBAR_HORIZONTAL:
+			{
+				float width = frac * m_frame.size.width;
+
+				m_statbar_material->ReregisterMaterial();
+				re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material->GetMaterial());
+
+				if (alpha != 0.0 && m_statbar_material_flash)
+				{
+					re.SetColor(col);
+					m_statbar_material_flash->ReregisterMaterial();
+					re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
+				}
+				break;
+			}
+			case L_STATBAR_VERTICAL:
+			case L_STATBAR_VERTICAL_REVERSE:
+			case L_STATBAR_VERTICAL_STAGGER_EVEN:
+			case L_STATBAR_VERTICAL_STAGGER_ODD:
+			{
+				float y = m_frame.size.height * (1.0 - frac);
+
+				m_statbar_material->ReregisterMaterial();
+				re.DrawTilePic(0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material->GetMaterial());
+
+				if (alpha != 0.0 && m_statbar_material_flash)
+				{
+					re.SetColor(col);
+					m_statbar_material_flash->ReregisterMaterial();
+					re.DrawTilePic(0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
+				}
+				break;
+			}
+
+			}
+		}
+		else
+		{
+			switch (m_statbar_or)
+			{
+			case L_STATBAR_HORIZONTAL:
+			{
+				float width = frac * m_frame.size.width;
+
+				m_statbar_material->ReregisterMaterial();
+				re.DrawStretchPic(0.0, 0.0, width, m_frame.size.height, 0.0, 0.0, 1.0, 1.0, m_statbar_material->GetMaterial());
+
+				if(alpha != 0.0 && m_statbar_material_flash)
+				{
+					re.SetColor(col);
+					m_statbar_material_flash->ReregisterMaterial();
+					re.DrawStretchPic(0.0, 0.0, width, m_frame.size.height, 0.0, 0.0, 1.0, 1.0, m_statbar_material_flash->GetMaterial());
+				}
+				break;
+			}
+			case L_STATBAR_VERTICAL:
+			case L_STATBAR_VERTICAL_STAGGER_EVEN:
+			case L_STATBAR_VERTICAL_STAGGER_ODD:
+			{
+				float y = m_frame.size.height * (1.0 - frac);
+				float height = m_frame.size.height * frac;
+
+				m_statbar_material->ReregisterMaterial();
+				re.DrawStretchPic(0.0, y, m_frame.size.width, height, 0.0, 1.0 - frac, 1.0, 1.0, m_statbar_material->GetMaterial());
+
+				if (alpha != 0.0 && m_statbar_material_flash)
+				{
+					re.SetColor(col);
+					m_statbar_material_flash->ReregisterMaterial();
+					re.DrawStretchPic(0.0, y, m_frame.size.width, height, 0.0, 1.0 - frac, 1.0, 1.0, m_statbar_material_flash->GetMaterial());
+				}
+				break;
+			}
+			case L_STATBAR_VERTICAL_REVERSE:
+			{
+				float height = m_frame.size.height * frac;
+
+				m_statbar_material->ReregisterMaterial();
+				re.DrawStretchPic(0.0, 0.0, m_frame.size.width, height, 0.0, 0.0, 1.0, frac, m_statbar_material->GetMaterial());
+
+				if (alpha != 0.0 && m_statbar_material_flash)
+				{
+					re.SetColor(col);
+					m_statbar_material_flash->ReregisterMaterial();
+					re.DrawStretchPic(0.0, 0.0, m_frame.size.width, height, 0.0, 0.0, 1.0, frac, m_statbar_material_flash->GetMaterial());
+				}
+				break;
+			}
+			}
+		}
+	}
+	else
+	{
+		switch (m_statbar_or)
+		{
+		case L_STATBAR_VERTICAL:
+		case L_STATBAR_VERTICAL_STAGGER_EVEN:
+		case L_STATBAR_VERTICAL_STAGGER_ODD:
+			DrawBox(
+				0.0,
+				m_frame.size.height * (1.0 - frac),
+				m_frame.size.width,
+				m_frame.size.height,
+				m_foreground_color,
+				1.0
+			);
+			break;
+		case L_STATBAR_HORIZONTAL:
+			DrawBox(
+				0.0,
+				0.0,
+				frac * m_frame.size.width,
+				m_frame.size.height,
+				m_foreground_color,
+				1.0
+			);
+			break;
+		}
+	}
 }
 
 void UIFakkLabel::DrawStatCircle( float frac )
@@ -516,7 +682,7 @@ void UIFakkLabel::Draw( void )
 		vec3_t angles;
 		vec3_t offset;
 		vec3_t rotateoffset;
-		vec3_t color;
+		vec4_t color;
 		str sAnimName;
 		float height;
 
@@ -686,23 +852,20 @@ _shitlabel01:
 
 		float frac;
 
-		if( m_maxstat )
+		if( m_maxstat >= 0 )
 		{
-			frac = delta / ( m_statbar_max - m_statbar_min );
+			frac = (float)delta / (float)cl.snap.ps.stats[m_maxstat];
 		}
 		else
 		{
-			frac = delta / cl.snap.ps.stats[ m_maxstat ];
+			frac = (float)delta / (float)(m_statbar_max - m_statbar_min);
 		}
 
-		if( frac > 1.0 )
-			frac = 1.0;
-		if( frac < 0.0 )
-			frac = 0.0;
+		if( frac > 1.0 ) frac = 1.0;
+		else if( frac < 0.0 ) frac = 0.0;
 
 		DrawStatbar( frac );
 		
-	
 		return;
 	}
 
