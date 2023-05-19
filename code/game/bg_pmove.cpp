@@ -1423,7 +1423,7 @@ void PmoveSingle( pmove_t *pmove )
 	if( pm->ps->pm_type == PM_CLIMBWALL )
 	{
 		pm->ps->fLeanAngle = 0.0f;
-		pm->cmd.buttons &= ~( BUTTON_LEANLEFT | BUTTON_LEANRIGHT );
+		pm->cmd.buttons &= ~( BUTTON_LEAN_LEFT | BUTTON_LEAN_RIGHT );
 	}
 
 	// clear all pmove local vars
@@ -1447,10 +1447,10 @@ void PmoveSingle( pmove_t *pmove )
 
 	pml.frametime = pml.msec * 0.001;
 
-	if( ( pm->cmd.buttons & ( BUTTON_LEANLEFT | BUTTON_LEANRIGHT ) &&
-		( pm->cmd.buttons & ( BUTTON_LEANLEFT | BUTTON_LEANRIGHT ) ) != ( BUTTON_LEANLEFT | BUTTON_LEANRIGHT ) ) )
+	if( ( pm->cmd.buttons & ( BUTTON_LEAN_LEFT | BUTTON_LEAN_RIGHT ) &&
+		( pm->cmd.buttons & ( BUTTON_LEAN_LEFT | BUTTON_LEAN_RIGHT ) ) != ( BUTTON_LEAN_LEFT | BUTTON_LEAN_RIGHT ) ) )
 	{
-		if( pm->cmd.buttons & BUTTON_LEANLEFT )
+		if( pm->cmd.buttons & BUTTON_LEAN_LEFT )
 		{
 			if( pm->ps->fLeanAngle <= -40.0f )
 			{

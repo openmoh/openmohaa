@@ -1907,11 +1907,11 @@ qboolean Player::checkattackleft
 		return false;
 	}
 
-	if( last_ucmd.buttons & BUTTON_ATTACK )
+	if( last_ucmd.buttons & BUTTON_ATTACKLEFT )
 	{
 		Weapon *weapon;
 
-		last_attack_button = BUTTON_ATTACK;
+		last_attack_button = BUTTON_ATTACKLEFT;
 
 		weapon = GetActiveWeapon( WEAPON_MAIN );
 		if( weapon )
@@ -1939,7 +1939,7 @@ qboolean Player::checkattackbuttonleft
 		return false;
 	}
 
-	return ( last_ucmd.buttons & BUTTON_ATTACK );
+	return ( last_ucmd.buttons & BUTTON_ATTACKLEFT );
 }
 
 
@@ -1954,11 +1954,11 @@ qboolean Player::checkattackright
 		return false;
 	}
 
-	if( last_ucmd.buttons & BUTTON_ATTACK2 )
+	if( last_ucmd.buttons & BUTTON_ATTACKRIGHT )
 	{
 		Weapon *weapon;
 
-		last_attack_button = BUTTON_ATTACK2;
+		last_attack_button = BUTTON_ATTACKRIGHT;
 
 		weapon = GetActiveWeapon( WEAPON_MAIN );
 		if( weapon )
@@ -1986,7 +1986,7 @@ qboolean Player::checkattackbuttonright
 		return false;
 	}
 
-	return ( last_ucmd.buttons & BUTTON_ATTACK2 );
+	return ( last_ucmd.buttons & BUTTON_ATTACKRIGHT );
 }
 
 qboolean Player::checksneak
@@ -6957,7 +6957,7 @@ void Player::ClientThink
 			client->ps.pm_flags |= PMF_FROZEN;
 			client->ps.pm_flags |= PMF_INTERMISSION;
 
-			if( level.time - level.intermissiontime > 5.0f && ( new_buttons & ( BUTTON_ATTACK | BUTTON_ATTACK2 ) ) )
+			if( level.time - level.intermissiontime > 5.0f && ( new_buttons & ( BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT ) ) )
 			{
 				level.exitintermission = true;
 			}
@@ -6998,7 +6998,7 @@ void Player::ClientThink
 			{
 				if( level.intermissiontype )
 				{
-					if( ( new_buttons & BUTTON_ATTACK ) || ( new_buttons & BUTTON_ATTACK2 ) )
+					if( ( new_buttons & BUTTON_ATTACKLEFT ) || ( new_buttons & BUTTON_ATTACKRIGHT ) )
 					{
 						if( level.intermissiontype == TRANS_MISSION_FAILED )
 						{
@@ -7044,7 +7044,7 @@ void Player::ClientThink
 		return;
 	}
 
-	if( new_buttons & BUTTON_ATTACK2 )
+	if( new_buttons & BUTTON_ATTACKRIGHT )
 	{
 		Weapon *weapon = GetActiveWeapon( WEAPON_MAIN );
 
@@ -7252,7 +7252,7 @@ void Player::Think
 	if (g_gametype->integer == GT_SINGLE_PLAYER)
 	{
 
-		if (((server_new_buttons & BUTTON_ATTACK) || (server_new_buttons & BUTTON_ATTACK2)) &&
+		if (((server_new_buttons & BUTTON_ATTACKLEFT) || (server_new_buttons & BUTTON_ATTACKRIGHT)) &&
 			(!GetActiveWeapon(WEAPON_MAIN)) &&
 			(!IsDead()) &&
 			(!IsNewActiveWeapon()) &&
@@ -7270,7 +7270,7 @@ void Player::Think
 		{
 			if (dmManager.AllowRespawn())
 			{
-				if (((server_new_buttons & BUTTON_ATTACK) || (server_new_buttons & BUTTON_ATTACK2)) ||
+				if (((server_new_buttons & BUTTON_ATTACKLEFT) || (server_new_buttons & BUTTON_ATTACKRIGHT)) ||
 					(g_forcerespawn->integer > 0 && level.time > g_forcerespawn->integer + respawn_time))
 				{
 					m_bSpectator = false;
@@ -7288,7 +7288,7 @@ void Player::Think
 
 		if (IsSpectator() && !m_bTempSpectator)
 		{
-			if (level.time <= respawn_time || !((server_new_buttons & BUTTON_ATTACK) || (server_new_buttons & BUTTON_ATTACK2)))
+			if (level.time <= respawn_time || !((server_new_buttons & BUTTON_ATTACKLEFT) || (server_new_buttons & BUTTON_ATTACKRIGHT)))
 			{
 				if (level.time - 10.0f > m_fWeapSelectTime)
 				{
@@ -11544,7 +11544,7 @@ void Player::EventGetFireHeld
 	)
 
 {
-	ev->AddInteger( buttons & ( BUTTON_ATTACK | BUTTON_ATTACK2 ) ? qtrue : qfalse );
+	ev->AddInteger( buttons & ( BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT ) ? qtrue : qfalse );
 }
 
 void Player::Score
@@ -14202,7 +14202,7 @@ void Player::LeanLeftHeld
 
 	player = ( Player * )this;
 
-	buttonheld = !!( player->buttons & BUTTON_LEANLEFT );
+	buttonheld = !!( player->buttons & BUTTON_LEAN_LEFT );
 
 	ev->AddInteger( buttonheld );
 }
@@ -14218,7 +14218,7 @@ void Player::LeanRightHeld
 
 	player = ( Player * )this;
 
-	buttonheld = !!( player->buttons & BUTTON_LEANRIGHT );
+	buttonheld = !!( player->buttons & BUTTON_LEAN_RIGHT );
 
 	ev->AddInteger( buttonheld );
 }
@@ -14362,7 +14362,7 @@ void Player::SecFireHeld
 
 	player = ( Player * )this;
 
-	buttonheld = !!( player->buttons & BUTTON_ATTACK2 );
+	buttonheld = !!( player->buttons & BUTTON_ATTACKRIGHT );
 
 	ev->AddInteger( buttonheld );
 }

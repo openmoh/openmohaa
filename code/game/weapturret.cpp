@@ -772,7 +772,7 @@ qboolean TurretGun::UserAim
 
 	m_vUserLastCmdAng = vNewCmdAng;
 
-	if( ( ucmd->buttons & BUTTON_ATTACK ) || ( ucmd->buttons & BUTTON_ATTACK2 ) )
+	if( ( ucmd->buttons & BUTTON_ATTACKLEFT ) || ( ucmd->buttons & BUTTON_ATTACKRIGHT ) )
 	{
 		if( !m_iFiring ) {
 			m_iFiring = 1;

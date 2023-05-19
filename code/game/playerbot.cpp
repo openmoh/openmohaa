@@ -503,7 +503,7 @@ void PlayerBot::UpdateBotStates
 	if( IsDead() )
 	{
 		// The bot should respawn
-		m_botCmd.buttons ^= BUTTON_ATTACK;
+		m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
 		return;
 	}
 
@@ -1419,7 +1419,7 @@ void PlayerBot::State_EndAttack
 	)
 
 {
-	m_botCmd.buttons &= ~( BUTTON_ATTACK | BUTTON_ATTACK2 );
+	m_botCmd.buttons &= ~( BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT );
 }
 
 void PlayerBot::State_Attack
@@ -1470,16 +1470,16 @@ void PlayerBot::State_Attack
 			{
 				if( pWeap->IsSemiAuto() )
 				{
-					m_botCmd.buttons ^= BUTTON_ATTACK;
+					m_botCmd.buttons ^= BUTTON_ATTACKLEFT;
 				}
 				else
 				{
-					m_botCmd.buttons |= BUTTON_ATTACK;
+					m_botCmd.buttons |= BUTTON_ATTACKLEFT;
 				}
 			}
 			else
 			{
-				m_botCmd.buttons &= ~BUTTON_ATTACK;
+				m_botCmd.buttons &= ~BUTTON_ATTACKLEFT;
 			}
 		}
 		else if( pWeap->GetFireType( FIRE_SECONDARY ) == FT_MELEE )
@@ -1488,21 +1488,21 @@ void PlayerBot::State_Attack
 
 			if( fDistanceSquared <= fSecondaryBulletRangeSquared )
 			{
-				m_botCmd.buttons ^= BUTTON_ATTACK2;
+				m_botCmd.buttons ^= BUTTON_ATTACKRIGHT;
 			}
 			else
 			{
-				m_botCmd.buttons &= ~BUTTON_ATTACK2;
+				m_botCmd.buttons &= ~BUTTON_ATTACKRIGHT;
 			}
 		}
 		else
 		{
-			m_botCmd.buttons &= ~( BUTTON_ATTACK | BUTTON_ATTACK2 );
+			m_botCmd.buttons &= ~( BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT );
 		}
 	}
 	else
 	{
-		m_botCmd.buttons &= ~( BUTTON_ATTACK | BUTTON_ATTACK2 );
+		m_botCmd.buttons &= ~( BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT );
 		fMinDistanceSquared = 0;
 	}
 
@@ -1634,10 +1634,10 @@ void PlayerBot::Killed
 	Player::Killed( ev );
 
 	// send the respawn buttons
-	if( !( m_botCmd.buttons & BUTTON_ATTACK ) )
-		m_botCmd.buttons |= BUTTON_ATTACK;
+	if( !( m_botCmd.buttons & BUTTON_ATTACKLEFT ) )
+		m_botCmd.buttons |= BUTTON_ATTACKLEFT;
 	else
-		m_botCmd.buttons &= ~BUTTON_ATTACK;
+		m_botCmd.buttons &= ~BUTTON_ATTACKLEFT;
 
 	m_botEyes.ofs[ 0 ] = 0;
 	m_botEyes.ofs[ 1 ] = 0;
