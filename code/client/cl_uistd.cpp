@@ -506,7 +506,7 @@ void UIFakkLabel::Draw( void )
 		return;
 	}
 
-	if( m_stat != -1 )
+	if( m_stat == -1 )
 	{
 		float scale;
 		qhandle_t handle;
