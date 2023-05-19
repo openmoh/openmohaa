@@ -1208,7 +1208,18 @@ void R_Register( void )
 }
 
 void R_InitExtensions() {
-	// FIXME: unimplemented
+	// FIXME: qglTextureEnvCombineExists
+	glState.cntTexEnvExt = 0;
+	glState.cntnvblendmode = 0;
+
+	qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, 34165.0);
+	qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, 8448.0);
+	qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, 0x47057700);
+	qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, 0x44400000);
+	qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, 5890.0);
+	qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, 0x44400000);
+	qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, 0x47057700);
+	qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, 770.0);
 }
 
 /*
@@ -1234,6 +1245,11 @@ void R_Init( void ) {
 		Com_Printf( "WARNING: tess.xyz not 16 byte aligned\n" );
 	}
 	Com_Memset( tess.constantColor255, 255, sizeof( tess.constantColor255 ) );
+
+	tr.worldEntity.e.shaderRGBA[0] = -1;
+	tr.worldEntity.e.shaderRGBA[1] = 0;
+	tr.worldEntity.e.shaderRGBA[2] = -1;
+	tr.worldEntity.e.shaderRGBA[3] = -1;
 
 	//
 	// init function tables
@@ -1262,9 +1278,15 @@ void R_Init( void ) {
 		}
 	}
 
-	R_InitFogTable();
+	tr.rendererhandle = ri.Milliseconds();
+
+	if (!tr.rendererhandle) {
+		tr.rendererhandle = -1;
+	}
 
 	R_NoiseInit();
+
+	R_Sky_Init();
 
 	R_Register();
 
@@ -1310,6 +1332,11 @@ void R_Init( void ) {
 	R_StartupShaders();
 
 	R_ModelInit();
+
+	R_LevelMarksInit();
+
+	tr.pFontDebugStrings = R_LoadFont("verdana-14");
+	g_bInfoworldtris = qfalse;
 
 	err = qglGetError();
 	if ( err != GL_NO_ERROR )
