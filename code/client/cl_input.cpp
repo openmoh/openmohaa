@@ -566,7 +566,7 @@ CL_CmdButtons
 */
 void CL_CmdButtons( usercmd_t *cmd ) {
 	int		i;
-
+	
 	//
 	// figure button bits
 	// send a button bit even if the key was pressed and released in
@@ -579,18 +579,28 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 		in_buttons[i].wasPressed = qfalse;
 	}
 
-//	if ( Key_GetCatcher( ) ) {
-//		cmd->buttons |= BUTTON_TALK; // su44: is there a TALK button in MoHAA?
-//	}
+	if (UI_MenuActive() || UI_ConsoleIsOpen()) {
+		cmd->buttons |= BUTTON_TALK;
+	}
+
+	if (in_speed.active == !cl_run->integer) {
+		cmd->buttons |= BUTTON_RUN;
+	}
+
+	if (cge) {
+		// send weapon commands from cg
+		cmd->buttons |= cge->CG_WeaponCommandButtonBits();
+	}
 
 	// allow the game to know if any key at all is
 	// currently pressed, even if it isn't bound to anything
-	if ( anykeydown && Key_GetCatcher( ) == 0 ) {
+	if ( anykeydown && Key_GetCatcher() == 0) {
 		cmd->buttons |= BUTTON_ANY;
 	}
 
-	// su44: add weapon command bits
-	cmd->buttons |= cl.cgameUserCmdValue;
+	if (anykeydown) {
+		cmd->buttons |= BUTTON_ANY2;
+	}
 }
 
 
