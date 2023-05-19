@@ -87,7 +87,8 @@ Visual Studio (2019 or 2022) is generally preferred.
 
 ## Screenshots
 
-![](docs/images/opm_1.png)
+![](docs/images/opm_50b_1.png)
+![](docs/images/opm_50b_2.png)
 
 ## Third party
 
