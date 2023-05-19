@@ -126,10 +126,6 @@ typedef struct {
 
 	int			joystickAxis[MAX_JOYSTICK_AXIS];	// set by joystick events
 
-	// cgame communicates a few values to the client system
-	int			cgameUserCmdValue;	// current weapon to add to usercmd_t
-	float		cgameSensitivity;
-
 	// cmds[cmdNumber] is the predicted command, [cmdNumber-1] is the last
 	// properly generated command
 	usercmd_t	cmds[CMD_BACKUP];	// each mesage will send several old cmds
@@ -144,9 +140,6 @@ typedef struct {
 	// tracked view angles to account for standing on rotating objects,
 	// and teleport direction changes
 	vec3_t		viewangles;
-
-	vec3_t		eyeAngles;
-	vec3_t		eyeOrigin;
 
 	int			serverId;			// included in each client message so the server
 												// can tell if it is for a prior map_restart
