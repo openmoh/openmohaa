@@ -32,6 +32,12 @@ int			r_firstSceneDlight;
 int			r_numentities;
 int			r_firstSceneEntity;
 
+int			r_numsprites;
+int			r_firstSceneSprite;
+
+int			r_numtermarks;
+int			r_firstSceneTerMark;
+
 int			r_numpolys;
 int			r_firstScenePoly;
 
@@ -63,6 +69,12 @@ void R_ToggleSmpFrame( void ) {
 	r_numentities = 0;
 	r_firstSceneEntity = 0;
 
+	r_numsprites = 0;
+	r_firstSceneSprite = 0;
+
+	r_numtermarks = 0;
+	r_firstSceneTerMark = 0;
+
 	r_numpolys = 0;
 	r_firstScenePoly = 0;
 
@@ -79,6 +91,8 @@ RE_ClearScene
 void RE_ClearScene( void ) {
 	r_firstSceneDlight = r_numdlights;
 	r_firstSceneEntity = r_numentities;
+	r_firstSceneSprite = r_numsprites;
+	r_firstSceneTerMark = r_numtermarks;
 	r_firstScenePoly = r_numpolys;
 }
 
@@ -406,8 +420,14 @@ void RE_RenderScene( const refdef_t *fd ) {
 	tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
 	tr.refdef.entities = &backEndData[tr.smpFrame]->entities[r_firstSceneEntity];
 
+	tr.refdef.num_sprites = r_numsprites - r_firstSceneSprite;
+	tr.refdef.sprites = &backEndData[tr.smpFrame]->sprites[r_firstSceneSprite];
+
 	tr.refdef.num_dlights = r_numdlights - r_firstSceneDlight;
 	tr.refdef.dlights = &backEndData[tr.smpFrame]->dlights[r_firstSceneDlight];
+
+	tr.refdef.numTerMarks = r_numtermarks - r_firstSceneTerMark;
+	tr.refdef.terMarks = &backEndData[tr.smpFrame]->terMarks[r_firstSceneTerMark];
 
 	tr.refdef.numPolys = r_numpolys - r_firstScenePoly;
 	tr.refdef.polys = &backEndData[tr.smpFrame]->polys[r_firstScenePoly];
@@ -460,12 +480,15 @@ void RE_RenderScene( const refdef_t *fd ) {
 	parms.farplane_color[2] = fd->farplane_color[2];
 	parms.farplane_cull = fd->farplane_cull;
 
+	R_ClearRealDlights();
 	R_RenderView( &parms );
 
 	// the next scene rendered in this frame will tack on after this one
 	r_firstSceneDrawSurf = tr.refdef.numDrawSurfs;
 	r_firstSceneEntity = r_numentities;
+	r_firstSceneSprite = r_numsprites;
 	r_firstSceneDlight = r_numdlights;
+	r_firstSceneTerMark = r_numtermarks;
 	r_firstScenePoly = r_numpolys;
 
 	tr.frontEndMsec += ri.Milliseconds() - startTime;
