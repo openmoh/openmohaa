@@ -49,7 +49,7 @@ R_CullLocalBox
 Returns CULL_IN, CULL_CLIP, or CULL_OUT
 =================
 */
-int R_CullLocalBox (vec3_t bounds[2]) {
+int R_CullLocalBoxOffset(const vec3_t offset, vec3_t bounds[2]) {
 	int		i, j;
 	vec3_t	transformed[8];
 	float	dists[8];
@@ -69,6 +69,7 @@ int R_CullLocalBox (vec3_t bounds[2]) {
 		v[2] = bounds[(i>>2)&1][2];
 
 		VectorCopy( tr.ori.origin, transformed[i] );
+		VectorAdd(transformed[i], offset, transformed[i]);
 		VectorMA( transformed[i], v[0], tr.ori.axis[0], transformed[i] );
 		VectorMA( transformed[i], v[1], tr.ori.axis[1], transformed[i] );
 		VectorMA( transformed[i], v[2], tr.ori.axis[2], transformed[i] );
@@ -76,7 +77,7 @@ int R_CullLocalBox (vec3_t bounds[2]) {
 
 	// check against frustum planes
 	anyBack = 0;
-	for (i = 0 ; i < 4 ; i++) {
+	for (i = 0 ; i < tr.viewParms.fog.extrafrustums + 4 ; i++) {
 		frust = &tr.viewParms.frustum[i];
 
 		front = back = 0;
@@ -103,6 +104,10 @@ int R_CullLocalBox (vec3_t bounds[2]) {
 	}
 
 	return CULL_CLIP;		// partially clipped
+}
+
+int R_CullLocalBox(vec3_t bounds[2]) {
+	return R_CullLocalBoxOffset(vec3_origin, bounds);
 }
 
 /*
