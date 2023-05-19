@@ -1601,7 +1601,7 @@ void UIWidget::TextAlignment
 	)
 
 {
-	for( int i = 1; i < ev->NumArgs(); i++ )
+	for( int i = 1; i <= ev->NumArgs(); i++ )
 	{
 		str align = ev->GetString( 1 );
 

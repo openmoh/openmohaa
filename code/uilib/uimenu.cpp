@@ -600,7 +600,14 @@ void MenuManager::RealignMenus
 	)
 
 {
-	// FIXME: stub
+	int i;
+	int num;
+
+	num = m_menulist.NumObjects();
+	for (i = 1; i <= num; i++)
+	{
+		m_menulist.ObjectAt(i)->RealignWidgets();
+	}
 }
 
 void MenuManager::AddMenu
