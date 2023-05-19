@@ -407,43 +407,53 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 		if ( !r_nocull->integer ) {
 			int		r;
 
-			if ( planeBits & 1 ) {
+			if (planeBits & 1) {
 				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[0]);
 				if (r == 2) {
 					return;						// culled
 				}
-				if ( r == 1 ) {
+				if (r == 1) {
 					planeBits &= ~1;			// all descendants will also be in front
 				}
 			}
 
-			if ( planeBits & 2 ) {
+			if (planeBits & 2) {
 				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[1]);
 				if (r == 2) {
 					return;						// culled
 				}
-				if ( r == 1 ) {
+				if (r == 1) {
 					planeBits &= ~2;			// all descendants will also be in front
 				}
 			}
 
-			if ( planeBits & 4 ) {
+			if (planeBits & 4) {
 				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[2]);
 				if (r == 2) {
 					return;						// culled
 				}
-				if ( r == 1 ) {
+				if (r == 1) {
 					planeBits &= ~4;			// all descendants will also be in front
 				}
 			}
 
-			if ( planeBits & 8 ) {
+			if (planeBits & 8) {
 				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[3]);
 				if (r == 2) {
 					return;						// culled
 				}
-				if ( r == 1 ) {
+				if (r == 1) {
 					planeBits &= ~8;			// all descendants will also be in front
+				}
+			}
+
+			if (planeBits & 16) {
+				r = BoxOnPlaneSide(node->mins, node->maxs, &tr.viewParms.frustum[4]);
+				if (r == 2) {
+					return;						// culled
+				}
+				if (r == 1) {
+					planeBits &= ~16;			// all descendants will also be in front
 				}
 			}
 
@@ -488,6 +498,8 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 			tr.viewParms.visBounds[1][2] = node->maxs[2];
 		}
 
+		tr.portalsky.cntNode = node;
+
 		if (r_drawbrushes->integer) {
 			// add the individual surfaces
 			mark = node->firstmarksurface;
@@ -509,8 +521,20 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 				R_MarkTerrainPatch(tr.world->visTerraPatches[node->firstTerraPatch + i]);
 			}
 		}
-		// FIXME: static decals
-		// FIXME: static models
+
+		if (r_drawstaticdecals->integer) {
+			if (node->pFirstMarkFragment) {
+				R_AddPermanentMarkFragmentSurfaces(node->pFirstMarkFragment, node->iNumMarkFragment);
+			}
+		}
+
+		if (r_drawstaticmodels->integer) {
+			int i;
+
+			for (i = 0; i < node->numStaticModels; i++) {
+				tr.world->visStaticModels[node->firstStaticModel + i]->visCount = tr.visCount;
+			}
+		}
 	}
 
 }
