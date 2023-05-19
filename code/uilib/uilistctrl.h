@@ -27,11 +27,11 @@ typedef enum { TYPE_STRING, TYPE_OWNERDRAW } griditemtype_t;
 
 class UIListCtrlItem {
 public:
-	virtual griditemtype_t		getListItemType( int which ) const;
-	virtual str					getListItemString( int which ) const;
-	virtual int					getListItemValue( int which ) const;
-	virtual void				DrawListItem( int iColumn, const UIRect2D &drawRect, bool bSelected, UIFont *pFont );
-	virtual qboolean			IsHeaderEntry( void ) const;
+	virtual griditemtype_t		getListItemType( int which ) const = 0;
+	virtual str					getListItemString( int which ) const = 0;
+	virtual int					getListItemValue( int which ) const = 0;
+	virtual void				DrawListItem( int iColumn, const UIRect2D &drawRect, bool bSelected, UIFont *pFont ) = 0;
+	virtual qboolean			IsHeaderEntry( void ) const = 0;
 };
 
 typedef struct m_clickState_s {
@@ -66,7 +66,7 @@ protected:
 	} m_sizestate;
 	m_clickState_s m_clickState;
 
-	int( *m_comparefunction ) (/* unknown */ );
+	int (*m_comparefunction) (const UIListCtrlItem* i1, const UIListCtrlItem* i2, int columnname);
 
 public:
 	CLASS_PROTOTYPE( UIListCtrl );

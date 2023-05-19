@@ -29,7 +29,10 @@ CLASS_DECLARATION( UIWidget, UIListBase, NULL )
 
 UIListBase::UIListBase()
 {
-	// FIXME: stub
+	m_currentItem = 0;
+	m_vertscroll = 0;
+	m_bUseVertScroll = 1;
+	AllowActivate(true);
 }
 
 void UIListBase::TrySelectItem
@@ -58,6 +61,13 @@ void UIListBase::FrameInitialized
 	)
 
 {
+	if (m_vertscroll) {
+		delete m_vertscroll;
+	}
+
+	m_vertscroll = new UIVertScroll();
+	m_vertscroll->InitFrame(this, m_frame.size.width - 16.0, 0.0, 16.0, m_frame.size.height, -1);
+	m_vertscroll->setTopItem(0);
 	// FIXME: stub
 }
 
@@ -67,8 +77,7 @@ int UIListBase::getCurrentItem
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	return m_currentItem;
 }
 
 int UIListBase::getNumItems
@@ -77,8 +86,7 @@ int UIListBase::getNumItems
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	return -1;
 }
 
 void  UIListBase::DeleteAllItems
@@ -87,7 +95,6 @@ void  UIListBase::DeleteAllItems
 	)
 
 {
-	// FIXME: stub
 }
 
 void UIListBase::DeleteItem
@@ -96,7 +103,6 @@ void UIListBase::DeleteItem
 	)
 
 {
-	// FIXME: stub
 }
 
 UIVertScroll *UIListBase::GetScrollBar
@@ -105,8 +111,7 @@ UIVertScroll *UIListBase::GetScrollBar
 	)
 
 {
-	// FIXME: stub
-	return NULL;
+	return m_vertscroll;
 }
 
 void UIListBase::SetUseScrollBar
@@ -115,12 +120,28 @@ void UIListBase::SetUseScrollBar
 	)
 
 {
-	// FIXME: stub
+	m_bUseVertScroll = bUse;
+
+	if (bUse)
+	{
+		if (!m_vertscroll) {
+			m_vertscroll = new UIVertScroll();
+		}
+
+		m_vertscroll->InitFrame(this, m_frame.size.width - 16.0, 0.0, 16.0, m_frame.size.height, -1);
+	}
+	else
+	{
+		if (m_vertscroll) {
+			delete m_vertscroll;
+			m_vertscroll = NULL;
+		}
+	}
 }
 
 ListItem::ListItem()
 {
-	// FIXME: stub
+	index = -1;
 }
 
 ListItem::ListItem
@@ -131,7 +152,9 @@ ListItem::ListItem
 	)
 
 {
-	// FIXME: stub
+	this->string = string;
+	this->index = index;
+	this->command = command;
 }
 
 CLASS_DECLARATION( UIListBase, UIListBox, NULL )
@@ -205,7 +228,27 @@ void UIListBox::AddItem
 	)
 
 {
-	// FIXME: stub
+	ListItem* li;
+
+	li = new ListItem();
+	if (!li) {
+		uii.Sys_Error(ERR_DROP, "Couldn't create list item\n");
+	}
+
+	li->string = item;
+	if (command) {
+		li->command = command;
+	}
+
+	m_itemlist.AddObject(li);
+
+	if (!m_currentItem) {
+		m_currentItem = 1;
+	}
+
+	if (m_vertscroll) {
+		m_vertscroll->setNumItems(m_itemlist.NumObjects());
+	}
 }
 
 void UIListBox::AddItem
@@ -215,7 +258,27 @@ void UIListBox::AddItem
 	)
 
 {
-	// FIXME: stub
+	ListItem* li;
+
+	li = new ListItem();
+	if (!li) {
+		uii.Sys_Error(ERR_DROP, "Couldn't create list item\n");
+	}
+
+	li->index = index;
+	if (command) {
+		li->command = command;
+	}
+
+	m_itemlist.AddObject(li);
+
+	if (!m_currentItem) {
+		m_currentItem = 1;
+	}
+
+	if (m_vertscroll) {
+		m_vertscroll->setNumItems(m_itemlist.NumObjects());
+	}
 }
 
 void UIListBox::FrameInitialized
@@ -224,7 +287,12 @@ void UIListBox::FrameInitialized
 	)
 
 {
-	// FIXME: stub
+	UIListBase::FrameInitialized();
+
+	if (m_vertscroll) {
+		m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(m_bVirtual));
+		m_vertscroll->setNumItems(m_itemlist.NumObjects());
+	}
 }
 
 void UIListBox::LayoutAddListItem
@@ -251,8 +319,7 @@ str UIListBox::getItemText
 	)
 
 {
-	// FIXME: stub
-	return "";
+	return m_itemlist.ObjectAt(which)->string;
 }
 
 int UIListBox::getNumItems
@@ -261,8 +328,7 @@ int UIListBox::getNumItems
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	return m_itemlist.NumObjects();
 }
 
 void UIListBox::DeleteAllItems
@@ -271,7 +337,14 @@ void UIListBox::DeleteAllItems
 	)
 
 {
-	// FIXME: stub
+	m_itemlist.ClearObjectList();
+	m_currentItem = 0;
+
+	if (m_vertscroll)
+	{
+		m_vertscroll->setNumItems(0);
+		m_vertscroll->setTopItem(0);
+	}
 }
 
 void UIListBox::DeleteItem
@@ -280,5 +353,13 @@ void UIListBox::DeleteItem
 	)
 
 {
-	// FIXME: stub
+	m_itemlist.RemoveObjectAt(which);
+
+	if (m_vertscroll) {
+		m_vertscroll->setNumItems(m_itemlist.NumObjects());
+	}
+
+	if (m_currentItem > getNumItems()) {
+		TrySelectItem(getNumItems());
+	}
 }
