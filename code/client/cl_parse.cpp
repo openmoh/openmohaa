@@ -527,6 +527,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	// reinitialize the filesystem if the game directory has changed
 	FS_ConditionalRestart( clc.checksumFeed );
 
+	cls.state = CA_LOADING;
     if (!com_sv_running->integer)
     {
         const char *info = cl.gameState.stringData + cl.gameState.stringOffsets[CS_SERVERINFO];

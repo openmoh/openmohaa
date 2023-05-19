@@ -1881,7 +1881,7 @@ void UI_Update(void) {
 				{
 					UI_ForceMenuOff(true);
 					UI_DeactiveFloatingWindows();
-					UI_ForceMenu("");
+					UI_ForceMenu(ui_sCurrentLoadingMenu);
 					uWinMan.showCursor(false);
 				}
 
@@ -5565,23 +5565,23 @@ UI_LoadResource
 ====================
 */
 void UI_LoadResource( const char *name ) {
-	if( cls.loading == SS_DEAD ) {
+	if (cls.loading == SS_DEAD) {
 		return;
 	}
 
-	if( cls.loading == 3 )
+	if (cls.loading == SS_GAME)
 	{
 		UI_EndLoadResource();
-		UI_EndLoadResource( name );
+		UI_EndLoadResource(name);
 		UI_BeginLoadResource();
 	}
-	else if( cls.loading == 2 )
+	else if (cls.loading == SS_LOADING2)
 	{
-		UI_RegisterLoadResource( name );
-		Cvar_SetValue( "loadingbar", currentLoadTime / totalLoadTime );
+		UI_RegisterLoadResource(name);
+		Cvar_SetValue("loadingbar", (float)currentLoadTime / (float)totalLoadTime);
 	}
 
-	UI_TestUpdateScreen( 333u );
+	UI_TestUpdateScreen(333u);
 }
 
 /*
@@ -5746,7 +5746,65 @@ void UI_BeginLoad( const char *pszMapName ) {
 	UI_ForceMenuOff( true );
 	UI_DeactiveFloatingWindows();
 
-	if( !ui_pLoadingMenu )
+	if (ui_pLoadingMenu)
+	{
+		if (!developer->integer && UI_ConsoleIsVisible()) {
+			UI_CloseConsole();
+		}
+
+		ui_pLoadingMenu->PassEventToWidget("continuebutton", new Event(EV_Widget_Disable));
+
+		loadName = "maps/";
+		loadName += pszMapName;
+		loadName += ".min";
+		mapfile = loadName + ".bsp";
+
+		if (UI_ArchiveLoadMapinfo(mapfile)) {
+			cls.loading = SS_LOADING2;
+		}
+		else {
+			cls.loading = SS_GAME;
+		}
+
+		if (cls.loading == SS_LOADING2)
+		{
+			ui_pLoadingMenu->PassEventToWidget("loadingflasher", new Event(EV_Widget_Disable));
+			ui_pLoadingMenu->PassEventToWidget("loadingbar", new Event(EV_Widget_Enable));
+			ui_pLoadingMenu->PassEventToWidget("loadingbar_border", new Event(EV_Widget_Enable));
+
+			currentLoadTime = 0;
+			Cvar_SetValue("loadingbar", 0);
+
+			L_ProcessPendingEvents();
+
+			lastTime = Sys_Milliseconds();
+			if (com_sv_running->integer) {
+				SCR_UpdateScreen();
+			}
+		}
+		else
+		{
+			ui_pLoadingMenu->PassEventToWidget("loadingflasher", new Event(EV_Widget_Enable));
+			ui_pLoadingMenu->PassEventToWidget("loadingbar", new Event(EV_Widget_Disable));
+			ui_pLoadingMenu->PassEventToWidget("loadingbar_border", new Event(EV_Widget_Disable));
+
+			UI_BeginLoadResource();
+			loadCountLow = 0;
+			loadCountHigh = 0;
+			loadHead = NULL;
+			loadNumber = 0;
+
+			cls.loading = SS_LOADING;
+
+			L_ProcessPendingEvents();
+			lastTime = Sys_Milliseconds();
+
+			if (com_sv_running->integer) {
+				SCR_UpdateScreen();
+			}
+		}
+	}
+	else
 	{
 		cls.loading = SS_LOADING;
 
@@ -5755,56 +5813,9 @@ void UI_BeginLoad( const char *pszMapName ) {
 
 		lastTime = Sys_Milliseconds();
 
-		if( com_sv_running->integer ) {
+		if (com_sv_running->integer) {
 			SCR_UpdateScreen();
 		}
-		return;
-	}
-
-	if( !developer->integer && UI_ConsoleIsVisible() ) {
-		UI_CloseConsole();
-	}
-
-	ui_pLoadingMenu->PassEventToWidget( "continuebutton", new Event( EV_Widget_Disable ) );
-
-	loadName = "maps/";
-	loadName += pszMapName;
-	loadName += ".min";
-	mapfile = loadName + ".bsp";
-
-	if( UI_ArchiveLoadMapinfo( mapfile ) ) {
-		cls.loading = SS_LOADING2;
-	} else {
-		cls.loading = SS_GAME;
-	}
-
-	if( cls.loading != SS_LOADING2 )
-	{
-		ui_pLoadingMenu->PassEventToWidget( "loadingflasher", new Event( EV_Widget_Enable ) );
-		ui_pLoadingMenu->PassEventToWidget( "loadingbar", new Event( EV_Widget_Disable ) );
-		ui_pLoadingMenu->PassEventToWidget( "loadingbar_border", new Event( EV_Widget_Disable ) );
-
-		UI_BeginLoadResource();
-		loadCountLow = 0;
-		loadCountHigh = 0;
-		loadHead = NULL;
-		loadNumber = 0;
-	}
-	else
-	{
-		ui_pLoadingMenu->PassEventToWidget( "loadingflasher", new Event( EV_Widget_Disable ) );
-		ui_pLoadingMenu->PassEventToWidget( "loadingbar", new Event( EV_Widget_Enable ) );
-		ui_pLoadingMenu->PassEventToWidget( "loadingbar_border", new Event( EV_Widget_Enable ) );
-
-		currentLoadTime = 0;
-		Cvar_SetValue( "loadingbar", 0 );
-	}
-
-	L_ProcessPendingEvents();
-	lastTime = Sys_Milliseconds();
-
-	if( com_sv_running->integer ) {
-		SCR_UpdateScreen();
 	}
 }
 
