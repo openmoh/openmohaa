@@ -956,7 +956,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         VectorCopy(model.origin, cg.sky_origin);
     }
 
-    model.reType = ET_MODELANIM_SKEL;
+    model.reType = RT_MODEL;
     if (!(s1->renderfx & RF_DONTDRAW))
     {
         cgi.R_Model_GetHandle(model.hModel);
