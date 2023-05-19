@@ -342,3 +342,7 @@ void R_UpdateLevelMarksSystem()
 {
     // FIXME: unimplemented
 }
+
+void R_AddPermanentMarkFragmentSurfaces(void** pFirstMarkFragment, int iNumMarkFragment) {
+	// FIXME: unimplemented
+}

@@ -2000,6 +2000,7 @@ void R_LevelMarksLoad(const char* szBSPName);
 void R_LevelMarksInit();
 void R_LevelMarksFree();
 void R_UpdateLevelMarksSystem();
+void R_AddPermanentMarkFragmentSurfaces(void** pFirstMarkFragment, int iNumMarkFragment);
 
 /*
 =============================================================
