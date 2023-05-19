@@ -726,9 +726,9 @@ typedef struct drawSurf_s {
 typedef struct srfPoly_s {
 	surfaceType_t	surfaceType;
 	qhandle_t		hShader;
-	int				fogIndex;
 	int				numVerts;
 	polyVert_t		*verts;
+	int				renderfx;
 } srfPoly_t;
 
 typedef struct srfMarkFragment_s {
@@ -1964,7 +1964,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent, int parentEntityNumber);
 void RE_AddRefSpriteToScene(const refEntity_t* ent);
 void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
 refEntity_t* RE_GetRenderEntity(int entityNumber);
-qboolean RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts, int numPolys);
+qboolean RE_AddPolyToScene(qhandle_t hShader, int numVerts, polyVert_t* verts, int renderfx);
 void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int type );
 void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void RE_RenderScene( const refdef_t *fd );
@@ -2255,8 +2255,8 @@ typedef enum {
 // these are sort of arbitrary limits.
 // the limits apply to the sum of all scenes in a frame --
 // the main view, all the 3D icons, etc
-#define	MAX_POLYS		600
-#define	MAX_POLYVERTS	3000
+#define	MAX_POLYS		4096
+#define	MAX_POLYVERTS	16384
 #define	MAX_TERMARKS	1024
 
 // all of the information needed by the back end must be
