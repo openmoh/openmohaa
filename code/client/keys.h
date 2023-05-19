@@ -34,17 +34,6 @@ typedef struct {
 extern	qboolean	key_overstrikeMode;
 extern	qkey_t		keys[K_LASTKEY];
 
-// NOTE TTimo the declaration of field_t and Field_Clear is now in qcommon/qcommon.h
-void Field_KeyDownEvent( field_t *edit, int key );
-void Field_CharEvent( field_t *edit, int ch );
-void Field_Draw(fontInfo_t *font, field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape );
-void Field_BigDraw(fontInfo_t *font, field_t *edit, int x, int y, int width, qboolean showCursor, qboolean noColorEscape );
-
-#define		COMMAND_HISTORY		32
-extern	field_t	historyEditLines[COMMAND_HISTORY];
-
-extern	field_t	g_consoleField;
-extern	field_t	chatField;
 extern	int				anykeydown;
 extern	qboolean	chat_team;
 extern	int			chat_playerNum;

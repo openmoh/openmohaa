@@ -578,9 +578,6 @@ void Con_PageDown( void );
 void Con_Top( void );
 void Con_Bottom( void );
 
-void CL_LoadConsoleHistory( void );
-void CL_SaveConsoleHistory( void );
-
 //
 // cl_scrn.c
 //

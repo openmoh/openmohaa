@@ -31,6 +31,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <winsock.h>
 #endif
 
+// FPS
+#include <chrono>
+
 #include <tiki.h>
 
 qboolean CL_FinishedIntro(void);
@@ -72,7 +75,6 @@ fileHandle_t	com_journalDataFile;		// config files are written here
 cvar_t	*paused;
 cvar_t	*config;
 cvar_t	*fps;
-float	currentfps;
 cvar_t	*com_speeds;
 cvar_t	*developer;
 cvar_t	*com_dedicated;
@@ -125,6 +127,18 @@ void CIN_CloseAllVideos(void);
 static char	*rd_buffer;
 static int	rd_buffersize;
 static void	(*rd_flush)( char *buffer );
+
+#define MAX_FPS_TIMES 16
+
+using fps_clock_t = std::chrono::high_resolution_clock;
+using fps_time_t = fps_clock_t::time_point;
+using fps_delta_t = fps_clock_t::duration;
+
+static int fpsindex;
+static fps_delta_t fpstimes[MAX_FPS_TIMES];
+static fps_delta_t fpstotal;
+static fps_time_t fpslasttime;
+float currentfps;
 
 void Com_BeginRedirect (char *buffer, int buffersize, void (*flush)( char *) )
 {
@@ -1752,6 +1766,22 @@ void Com_Frame( void ) {
 					 com_frameNumber, all, sv, ev, cl, time_game, time_frontend, time_backend );
 	}
 
+	if (fps->integer) {
+		fps_time_t fpstime = fps_clock_t::now();
+		fps_delta_t delta = fpstime - fpslasttime;
+
+		fpstotal = (fpstime - fpslasttime) + (fpstotal - fpstimes[fpsindex]);
+		fpstimes[fpsindex] = fpstime - fpslasttime;
+		fpsindex = (fpsindex + 1) % MAX_FPS_TIMES;
+		fpslasttime = fpstime;
+
+		if (fpstotal.count()) {
+			currentfps = 16.0 / std::chrono::duration<long double>(fpstotal).count();
+		} else {
+			currentfps = 0.0;
+		}
+	}
+
 	//
 	// trace optimization tracking
 	//
@@ -1893,23 +1923,10 @@ command line completion
 ===========================================
 */
 
-/*
-==================
-Field_Clear
-==================
-*/
-void Field_Clear( field_t *edit ) {
-  memset(edit->buffer, 0, MAX_EDIT_LINE);
-	edit->cursor = 0;
-	edit->scroll = 0;
-}
 
 static const char *completionString;
 static char shortestMatch[MAX_TOKEN_CHARS];
 static int	matchCount;
-// field we are working on, passed to Field_AutoComplete(&g_consoleCommand for instance)
-static field_t *completionField;
-
 /*
 ===============
 FindMatches
@@ -1966,202 +1983,6 @@ static void PrintCvarMatches( const char *s ) {
 		Com_TruncateLongString( value, Cvar_VariableString( s ) );
 		Com_Printf( "    %s = \"%s\"\n", s, value );
 	}
-}
-
-/*
-===============
-Field_FindFirstSeparator
-===============
-*/
-static char *Field_FindFirstSeparator( char *s )
-{
-	int i;
-
-	for( i = 0; i < strlen( s ); i++ )
-	{
-		if( s[ i ] == ';' )
-			return &s[ i ];
-	}
-
-	return NULL;
-}
-
-#ifndef DEDICATED
-/*
-===============
-Field_CompleteKeyname
-===============
-*/
-static void Field_CompleteKeyname( void )
-{
-	matchCount = 0;
-	shortestMatch[ 0 ] = 0;
-
-	Key_KeynameCompletion( FindMatches );
-
-	if( matchCount == 0 )
-		return;
-
-	Q_strncpyz( &completionField->buffer[ strlen( completionField->buffer ) -
-		strlen( completionString ) ], shortestMatch,
-		sizeof( completionField->buffer ) );
-	completionField->cursor = ( int )strlen( completionField->buffer );
-
-	if( matchCount == 1 )
-	{
-		Q_strcat( completionField->buffer, sizeof( completionField->buffer ), " " );
-		completionField->cursor++;
-		return;
-	}
-
-	Com_Printf( "]%s\n", completionField->buffer );
-
-	Key_KeynameCompletion( PrintMatches );
-}
-#endif
-
-/*
-===============
-Field_CompleteFilename
-===============
-*/
-static void Field_CompleteFilename( const char *dir,
-		const char *ext, qboolean stripExt )
-{
-	size_t pos;
-
-	matchCount = 0;
-	shortestMatch[ 0 ] = 0;
-
-	FS_FilenameCompletion( dir, ext, stripExt, FindMatches );
-
-	if( matchCount == 0 )
-		return;
-
-	pos = strlen( completionField->buffer ) - strlen( completionString );
-	Q_strncpyz( &completionField->buffer[ pos ], shortestMatch,
-		sizeof( completionField->buffer ) - pos );
-	completionField->cursor = ( int )strlen( completionField->buffer );
-
-	if( matchCount == 1 )
-	{
-		Q_strcat( completionField->buffer, sizeof( completionField->buffer ), " " );
-		completionField->cursor++;
-		return;
-	}
-
-	Com_Printf( "]%s\n", completionField->buffer );
-
-	FS_FilenameCompletion( dir, ext, stripExt, PrintMatches );
-}
-
-static void keyConcatArgs(void) {
-    int		i;
-    char* arg;
-
-    for (i = 1; i < Cmd_Argc(); i++) {
-        Q_strcat(completionField->buffer, sizeof(completionField->buffer), " ");
-        arg = Cmd_Argv(i);
-        while (*arg) {
-            if (*arg == ' ') {
-                Q_strcat(completionField->buffer, sizeof(completionField->buffer), "\"");
-                break;
-            }
-            arg++;
-        }
-        Q_strcat(completionField->buffer, sizeof(completionField->buffer), Cmd_Argv(i));
-        if (*arg == ' ') {
-            Q_strcat(completionField->buffer, sizeof(completionField->buffer), "\"");
-        }
-    }
-}
-
-static void ConcatRemaining(const char* src, const char* start) {
-    const char* str;
-
-    str = strstr(src, start);
-    if (!str) {
-        keyConcatArgs();
-        return;
-    }
-
-    str += strlen(start);
-    Q_strcat(completionField->buffer, sizeof(completionField->buffer), str);
-}
-
-/*
-===============
-Field_CompleteCommand
-
-perform Tab expansion
-NOTE TTimo this was originally client code only
-  moved to common code when writing tty console for *nix dedicated server
-===============
-*/
-void Field_CompleteCommand(field_t* field) {
-	field_t		temp;
-
-	completionField = field;
-
-	// only look at the first token for completion purposes
-	Cmd_TokenizeString(completionField->buffer);
-
-	completionString = Cmd_Argv(0);
-	if (completionString[0] == '\\' || completionString[0] == '/') {
-		completionString++;
-	}
-	matchCount = 0;
-	shortestMatch[0] = 0;
-
-	if (strlen(completionString) == 0) {
-		return;
-	}
-
-	Cmd_CommandCompletion(FindMatches);
-	Cvar_CommandCompletion(FindMatches);
-
-	if (matchCount == 0) {
-		return;	// no matches
-	}
-
-	Com_Memcpy(&temp, completionField, sizeof(field_t));
-
-	if (matchCount == 1) {
-		Com_sprintf(completionField->buffer, sizeof(completionField->buffer), "\\%s", shortestMatch);
-		if (Cmd_Argc() == 1) {
-			Q_strcat(completionField->buffer, sizeof(completionField->buffer), " ");
-		}
-		else {
-			ConcatRemaining(temp.buffer, completionString);
-		}
-		completionField->cursor = strlen(completionField->buffer);
-		return;
-	}
-
-	// multiple matches, complete to shortest
-	Com_sprintf(completionField->buffer, sizeof(completionField->buffer), "\\%s", shortestMatch);
-	completionField->cursor = strlen(completionField->buffer);
-	ConcatRemaining(temp.buffer, completionString);
-
-	Com_Printf("]%s\n", completionField->buffer);
-
-	// run through again, printing matches
-	Cmd_CommandCompletion(PrintMatches);
-	Cvar_CommandCompletion(PrintMatches);
-}
-
-/*
-===============
-Field_AutoComplete
-
-Perform Tab expansion
-===============
-*/
-void Field_AutoComplete( field_t *field )
-{
-	completionField = field;
-
-	Field_CompleteCommand(field);
 }
 
 }

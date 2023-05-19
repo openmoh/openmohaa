@@ -42,6 +42,7 @@ void CL_ShutdownUI( void );
 //
 extern inventory_t client_inv;
 extern bind_t client_bind;
+extern cvar_t* cl_greenfps;
 
 const char *CvarGetForUI( const char *name, const char *defval );
 void UI_ClearState( void );

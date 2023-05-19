@@ -798,26 +798,6 @@ MISC
 /*
 ==============================================================
 
-Edit fields and command line history/completion
-
-==============================================================
-*/
-
-#define	MAX_EDIT_LINE	256
-typedef struct {
-	int		cursor;
-	int		scroll;
-	int		widthInChars;
-	char	buffer[MAX_EDIT_LINE];
-} field_t;
-
-void Field_Clear( field_t *edit );
-void Field_CompleteCommand( field_t *edit );
-void Field_AutoComplete( field_t *edit );
-
-/*
-==============================================================
-
 MISC
 
 ==============================================================
@@ -882,10 +862,10 @@ void		Com_StartupVariable( const char *match );
 // only a set with the exact name.  Only used during startup.
 
 
+extern	float currentfps;
 extern	cvar_t	*paused;
 extern	cvar_t	*config;
 extern	cvar_t	*fps;
-extern	float	currentfps;
 extern	cvar_t	*developer;
 extern	cvar_t	*com_dedicated;
 extern	cvar_t	*com_speeds;
