@@ -947,7 +947,13 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 		ctrl_down = down;
 	}
 
-	if( cls.state > CA_DISCONNECTED && cge && !cls.keyCatchers && cge->CG_CheckCaptureKey( key, down, time ) && key != K_ESCAPE )
+	if (down && !CL_FinishedIntro())
+	{
+		UI_StartStageKeyEvent();
+		return;
+	}
+
+	if( cls.state > CA_DISCONNECTED && cge && !Key_GetCatcher() && cge->CG_CheckCaptureKey( key, down, time ) && key != K_ESCAPE )
 	{
 		if( key != '`' && key != '~' )
 			return;
@@ -958,6 +964,7 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 		if( !down ) {
 			return;
 		}
+
 		if( Cvar_VariableIntegerValue( "ui_console" ) )
 		{
 			UI_ToggleConsole();
@@ -1011,10 +1018,10 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 		}
 	}
 
-	if( in_guimouse || key <= K_MOUSE3 || key > K_JOY1 )
+	if (!in_guimouse || key <= K_MOUSE3 || key > K_JOY1)
 	{
 		// keys can still be used for bound actions
-		if( down && ( key < 128 || key == K_MOUSE4 ) &&
+		if (down && (key <= K_BACKSPACE || key == K_MOUSE4) &&
 			( clc.demoplaying || cls.state == CA_CINEMATIC ) && Key_GetCatcher() == 0 ) {
 			Cvar_Set( "nextdemo", "" );
 			key = K_ESCAPE;
@@ -1057,7 +1064,7 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 				UI_KeyEvent( key, time );
 			} else if( cls.loading & KEYCATCH_MESSAGE ) {
 				Message_Key( key );
-			} else if( cls.state != CA_DISCONNECTED ) {
+			} else if( cls.state != CA_DISCONNECTED || menubound[key]) {
 				// send the bound action
 				kb = altkeys[ key ].binding;
 				if( !kb || !altkeys[ key ].down ) {
