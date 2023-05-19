@@ -85,6 +85,10 @@ These are the tools required on Unix :
 
 Visual Studio (2019 or 2022) is generally preferred.
 
+## Screenshots
+
+![](docs/images/opm_1.png)
+
 ## Third party
 
 ### SDL
