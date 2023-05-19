@@ -49,6 +49,8 @@ int		gl_filter_max = GL_LINEAR;
 #define FILE_HASH_SIZE		1024
 static	image_t*		hashTable[FILE_HASH_SIZE];
 
+extern qboolean scr_initialized;
+
 /*
 ** R_GammaCorrect
 */
@@ -1881,6 +1883,7 @@ Loads any of the supported image types into a cannonical
 */
 static void R_LoadImage(const char* name, byte** pic, int* width, int* height, qboolean* hasAlpha, int* glCompressMode, int* numMipmaps, int* piMipmapsAvailable) {
 	int		len;
+	char	tempName[MAX_STRING_TOKENS + 1];
 
 	*hasAlpha = qfalse;
 	*glCompressMode = 0;
@@ -1917,6 +1920,12 @@ static void R_LoadImage(const char* name, byte** pic, int* width, int* height, q
 	else if (!Q_stricmp(name + len - 4, ".jpg")) {
 		LoadJPG(name, pic, width, height);
 		*piMipmapsAvailable = 1;
+	}
+
+	if (scr_initialized)
+	{
+		sprintf(tempName, "n%s", name);
+		UI_LoadResource(tempName);
 	}
 }
 

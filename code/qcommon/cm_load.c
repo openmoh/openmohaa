@@ -609,6 +609,7 @@ void CMod_LoadPatches( gamelump_t *surfs, gamelump_t *verts, int *shaderSubdivis
 	vec3_t		points[MAX_PATCH_VERTS];
 	int			width, height;
 	int			shaderNum;
+	char		tempName[MAX_QPATH + 1];
 
 	in = ( dsurface_t * )surfs->buffer;
 	if( surfs->length % sizeof( *in ) )
@@ -668,6 +669,9 @@ void CMod_LoadPatches( gamelump_t *surfs, gamelump_t *verts, int *shaderSubdivis
 
 		// create the internal facet structure
 		patch->pc = CM_GeneratePatchCollide( width, height, points, patch->subdivisions );
+
+		sprintf(tempName, "s%d", i);
+		UI_LoadResource(tempName);
 	}
 
 	Hunk_FreeTempMemory( shaderSubdivisions );
