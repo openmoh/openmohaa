@@ -641,6 +641,8 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
 	qboolean depthMaskExplicit = qfalse;
 	int cntBundle = 0;
+	int depthTestBits = 0;
+	int fogBits = 0;
 
 	stage->active = qtrue;
 	stage->noMipMaps = shader_noMipMaps;
@@ -659,6 +661,24 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 		if ( token[0] == '}' )
 		{
 			break;
+		}
+		// no picmip adjustment
+		else if ( !Q_stricmp( token, "nomipmaps" ) )
+		{
+			stage->noMipMaps = qtrue;
+			continue;
+		}
+		// no picmip adjustment
+		else if ( !Q_stricmp( token, "nopicmip" ) )
+		{
+			stage->noPicMip = qtrue;
+			continue;
+		}
+		// no picmip adjustment
+		else if ( !Q_stricmp( token, "nofog" ) )
+		{
+			fogBits = GLS_FOG;
+			continue;
 		}
 		//
 		// map <name>
@@ -778,11 +798,11 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 
 			if ( !Q_stricmp( token, "lequal" ) )
 			{
-				depthFuncBits = 0;
+				depthTestBits = 0;
 			}
 			else if ( !Q_stricmp( token, "equal" ) )
 			{
-				depthFuncBits = GLS_DEPTHFUNC_EQUAL;
+				depthTestBits = GLS_DEPTHFUNC_EQUAL;
 			}
 			else
 			{
@@ -1286,7 +1306,9 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 	stage->stateBits = depthMaskBits | 
 		               blendSrcBits | blendDstBits | 
 					   atestBits | 
-					   depthFuncBits;
+					   depthFuncBits |
+					   depthTestBits |
+					   fogBits;
 
 	return qtrue;
 }
@@ -2443,9 +2465,9 @@ from the current global working shader
 */
 static shader_t *FinishShader( void ) {
 	int stage;
+	int i;
 	int bundle;
-	qboolean		hasLightmapStage;
-	qboolean		vertexLightmap;
+	qboolean hasLightmapStage;
 
 	if (!currentShader) {
 		currentShader = FindShaderText(shader.name);
@@ -2459,11 +2481,13 @@ static shader_t *FinishShader( void ) {
     }
 
 	hasLightmapStage = qfalse;
-	vertexLightmap = qfalse;
 
 	//
 	// set sky stuff appropriate
 	//
+	if ( shader.isPortalSky ) {
+		shader.sort = SS_PORTALSKY;
+	}
 	if ( shader.isSky ) {
 		shader.sort = SS_ENVIRONMENT;
 	}
@@ -2475,13 +2499,15 @@ static shader_t *FinishShader( void ) {
 		shader.sort = SS_DECAL;
 	}
 
+	shader.needsLGrid = qfalse;
+	shader.needsLSpherical = qfalse;
+
 	//
 	// set appropriate stage information
 	//
-	for ( stage = 0; stage < MAX_SHADER_STAGES; stage++ ) {
-		shaderStage_t *pStage = &unfoggedStages[stage];
-
-    // check for a missing texture
+	stage = 0;
+	for (shaderStage_t* pStage = &unfoggedStages[0]; pStage->active; pStage++, stage++) {
+		// check for a missing texture
 		if ( !pStage->bundle[0].image[0] ) {
 			ri.Printf( PRINT_WARNING, "Shader %s has a stage with no image\n", shader.name );
 			pStage->active = qfalse;
@@ -2511,19 +2537,13 @@ static shader_t *FinishShader( void ) {
 			}
 		}
 
-		// not a true lightmap but we want to leave existing 
-		// behaviour in place and not print out a warning
-		//if (pStage->rgbGen == CGEN_VERTEX) {
-		//  vertexLightmap = qtrue;
-		//}
-
 		if (pStage->multitextureEnv && pStage->bundle[0].isLightmap) {
 			//
 			// exchange bundle
 			//
-			textureBundle_t tmp = pStage->bundle[0];
+			textureBundle_t tmpBundle = pStage->bundle[0];
 			pStage->bundle[0] = pStage->bundle[1];
-			pStage->bundle[1] = tmp;
+			pStage->bundle[1] = tmpBundle;
 		}
 
 		//
@@ -2555,23 +2575,70 @@ static shader_t *FinishShader( void ) {
 	//
 	// if we are in r_vertexLight mode, never use a lightmap texture
 	//
-	if ( stage > 1 && r_vertexLight->integer ) {
-		VertexLightingCollapse();
-		stage = 1;
-		hasLightmapStage = qfalse;
+	if (stage > 1)
+	{
+		if (r_vertexLight->integer) {
+			VertexLightingCollapse();
+			stage = 1;
+			hasLightmapStage = qfalse;
+		}
+
+		//
+		// look for multitexture potential
+		//
+		if (qglActiveTextureARB) {
+			CollapseMultitexture(&stage);
+		};
 	}
 
-	//
-	// look for multitexture potential
-	//
-	if (stage > 1 && qglActiveTextureARB) {
-		CollapseMultitexture(&stage);
-	};
+	for (i = 0; i < stage; i++) {
+		int blendSrcBits, blendDstBits;
 
-	// FIXME: fog shader
+		shaderStage_t* pStage = &unfoggedStages[i];
+		if (pStage->stateBits & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS))
+		{
+			blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
+			blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
+			if (blendSrcBits == GLS_SRCBLEND_ONE && blendDstBits == GLS_DSTBLEND_ONE
+				|| blendSrcBits == GLS_SRCBLEND_ZERO && blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_COLOR
+				|| blendSrcBits == GLS_SRCBLEND_SRC_ALPHA && blendDstBits == GLS_DSTBLEND_ONE
+				|| blendSrcBits == GLS_SRCBLEND_DST_COLOR && blendDstBits == GLS_DSTBLEND_ONE
+				|| blendSrcBits == GLS_SRCBLEND_ONE_MINUS_DST_COLOR && blendDstBits == GLS_DSTBLEND_ONE)
+			{
+				pStage->stateBits |= GLS_FOG_ENABLED | GLS_FOG_BLACK;
+			}
+			else if (blendSrcBits == GLS_SRCBLEND_DST_COLOR && blendDstBits == GLS_DSTBLEND_ZERO
+					|| blendSrcBits == GLS_SRCBLEND_ZERO && blendDstBits == GLS_DSTBLEND_SRC_COLOR)
+			{
+				pStage->stateBits |= GLS_FOG_ENABLED | GLS_FOG_WHITE;
+			}
+			else if (blendSrcBits == GLS_SRCBLEND_SRC_ALPHA && blendDstBits == GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA
+					|| blendSrcBits == GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA && blendDstBits == GLS_DSTBLEND_SRC_ALPHA
+					|| blendSrcBits == GLS_SRCBLEND_SRC_ALPHA && blendDstBits == GLS_DSTBLEND_ONE)
+			{
+				pStage->stateBits |= GLS_FOG_ENABLED;
+			}
+			else {
+				ri.Printf(PRINT_WARNING, "Shader '%s' stage# %i is unfoggable\n", shader.name, i + 1);
+			}
+
+			if (shader.sort == SS_BAD)
+			{
+				if (pStage->stateBits & GLS_DEPTHMASK_TRUE) {
+					shader.sort = SS_SEE_THROUGH;
+				}
+				else {
+					shader.sort = SS_BLEND0;
+				}
+			}
+		}
+		else {
+			pStage->stateBits |= GLS_FOG_ENABLED;
+		}
+	}
 
 	// fogonly shaders don't have any normal passes
-	if (stage == 0) {
+	if (shader.sort == SS_BAD) {
 		shader.sort = SS_OPAQUE;
 	}
 
@@ -2586,9 +2653,11 @@ static shader_t *FinishShader( void ) {
 	shader.numUnfoggedPasses = 0;
 	for (stage = 0; stage < MAX_SHADER_STAGES; stage++) {
 		shaderStage_t* pStage = &unfoggedStages[stage];
-		if (pStage->active) {
-			shader.numUnfoggedPasses++;
+		if (!pStage->active) {
+			break;
 		}
+
+		shader.numUnfoggedPasses++;
 	}
 
 	// determine which stage iterator function is appropriate
