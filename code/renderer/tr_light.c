@@ -29,6 +29,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	DLIGHT_MINIMUM_RADIUS	16		
 // never calculate a range less than this to prevent huge light numbers
 
+typedef struct {
+  dlight_t *dl;
+  float power;
+  vec3_t origin;
+} incidentLight_t;
+
+typedef struct {
+  int dlightMap;
+  int allocated[128];
+  byte lightmap_buffer[65536];
+  byte* srcBase;
+  byte* dstBase;
+  incidentLight_t lights[32];
+  int numLights;
+} dlightInfo_t;
+
+dlightInfo_t dli;
 
 /*
 ===============
@@ -414,6 +431,77 @@ int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, ve
 	return qtrue;
 }
 
+void R_ClearRealDlights() {
+	memset(dli.allocated, 0, sizeof(dli.allocated));
+	dli.dlightMap = 0;
+}
+
 void R_UploadDlights() {
-	// FIXME: unimplemented
+	int i, h;
+
+	if (!tr.pc.c_dlightSurfaces) {
+		return;
+	}
+
+	h = 0;
+	for (i = 0; i < 128; ++i)
+	{
+		if (h < dli.allocated[i]) {
+			h = dli.allocated[i];
+		}
+	}
+
+	if (h)
+	{
+		if (h > 128) {
+			ri.Error(ERR_DROP, "R_UploadDlights: bad allocated height");
+		}
+
+		GL_Bind(tr.dlightImages[dli.dlightMap]);
+		qglTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 128, h, GL_RGBA, GL_UNSIGNED_BYTE, dli.lightmap_buffer);
+
+		tr.pc.c_dlightMaps++;
+		memset(dli.allocated, 0, sizeof(dli.allocated));
+	}
+}
+
+qboolean R_AllocLMBlock(int w, int h, int* x, int* y) {
+	int i, j;
+	int best, best2;
+
+	for (;;)
+	{
+		best = 128;
+		for (i = 0; i < 128 - w; i++)
+		{
+			best2 = 0;
+
+			for (j = 0; j < w && dli.allocated[i] < best; j++)
+			{
+				if (best2 < dli.allocated[i]) {
+					best2 = dli.allocated[i];
+				}
+			}
+
+			if (j == w)
+			{
+				*x = i;
+				*y = best2;
+				best = best2;
+			}
+		}
+
+		if (h + best <= 128) {
+			break;
+		}
+
+		if (dli.dlightMap == 14) {
+			return qfalse;
+		}
+
+		R_UploadDlights();
+		dli.dlightMap++;
+	}
+
+	return qtrue;
 }
