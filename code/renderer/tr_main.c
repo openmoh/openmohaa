@@ -619,7 +619,7 @@ void R_SetupFrustum (void) {
 		farPoint[2] = tr.viewParms.ori.origin[2] + tr.viewParms.ori.axis[0][2] * tr.viewParms.farplane_distance;
 
 		VectorNegate(tr.viewParms.ori.axis[0], tr.viewParms.frustum[4].normal);
-		tr.viewParms.frustum[4].type = 3;
+		tr.viewParms.frustum[4].type = PLANE_NON_AXIAL;
 		tr.viewParms.frustum[4].dist = DotProduct(farPoint, tr.viewParms.frustum[4].normal);
 		SetPlaneSignbits(&tr.viewParms.frustum[4]);
 
