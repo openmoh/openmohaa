@@ -98,15 +98,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define GL_SOURCE0_RGB                      0x8580
 #define GL_SOURCE1_RGB                      0x8581
 #define GL_SOURCE2_RGB                      0x8582
+#define GL_SOURCE3_RGB                      0x8583
 #define GL_SOURCE0_ALPHA                    0x8588
 #define GL_SOURCE1_ALPHA                    0x8589
 #define GL_SOURCE2_ALPHA                    0x858A
+#define GL_SOURCE3_ALPHA                    0x858B
 #define GL_OPERAND0_RGB                     0x8590
 #define GL_OPERAND1_RGB                     0x8591
 #define GL_OPERAND2_RGB                     0x8592
+#define GL_OPERAND3_RGB                     0x8593
 #define GL_OPERAND0_ALPHA                   0x8598
 #define GL_OPERAND1_ALPHA                   0x8599
 #define GL_OPERAND2_ALPHA                   0x859A
+#define GL_OPERAND3_ALPHA                   0x859B
 
 // NOTE: some Linux platforms would need those prototypes
 #if defined(MACOS_X)
