@@ -268,7 +268,33 @@ void RE_AddRefEntityToScene( const refEntity_t *ent, int parentEntityNumber) {
 	}
 
 	backEndData[tr.smpFrame]->entities[r_numentities].e = *ent;
-	backEndData[tr.smpFrame]->entities[r_numentities].lightingCalculated = qfalse;
+	backEndData[tr.smpFrame]->entities[r_numentities].bLightGridCalculated = qfalse;
+	backEndData[tr.smpFrame]->entities[r_numentities].sphereCalculated = qfalse;
+
+	if (parentEntityNumber != ENTITYNUM_NONE)
+	{
+		int i;
+
+		//
+		// Find the parent entity to attach to
+		//
+		for (i = r_firstSceneEntity; i < r_numentities; i++)
+		{
+			if (backEndData[tr.smpFrame]->entities[i].e.entityNumber == parentEntityNumber)
+			{
+				backEndData[tr.smpFrame]->entities[r_numentities].e.parentEntity = i - r_firstSceneEntity;
+				break;
+			}
+		}
+
+		if (i == r_numentities) {
+			backEndData[tr.smpFrame]->entities[i].e.parentEntity = ENTITYNUM_NONE;
+		}
+	}
+	else
+	{
+		backEndData[tr.smpFrame]->entities[r_numentities].e.parentEntity = ENTITYNUM_NONE;
+	}
 
 	r_numentities++;
 }
