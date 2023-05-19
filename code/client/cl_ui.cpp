@@ -4485,8 +4485,14 @@ ScoreboardListItem::ScoreboardListItem()
 void ScoreboardListItem::DrawListItem( int iColumn, const UIRect2D& drawRect, bool bSelected, UIFont *pFont )
 {
 	DrawBox( drawRect, backColor, 1.0 );
-	pFont->setColor( textColor );
-	pFont->Print( drawRect.pos.x + 1, drawRect.pos.y, Sys_LV_CL_ConvertString( getListItemString( iColumn ) ), iColumn, -1 );
+	pFont->setColor(textColor);
+	pFont->Print(
+		drawRect.pos.x + 1,
+		drawRect.pos.y,
+		Sys_LV_CL_ConvertString(getListItemString(iColumn)),
+		-1,
+		qfalse
+	);
 
 	if( bTitleItem )
 	{
@@ -4588,10 +4594,11 @@ void UI_SetScoreBoardItem( int iItemNumber,
 	{
 		cge->CG_GetScoreBoardPosition( &x, &y, &w, &h );
 
-		if( scoreboard_x == x
-			|| scoreboard_y == y
-			|| scoreboard_w == w
-			|| scoreboard_h == h
+		// Recreate the scoreboard if it has different rect
+		if( scoreboard_x != x
+			|| scoreboard_y != y
+			|| scoreboard_w != w
+			|| scoreboard_h != h
 			|| scoreboard_header != cge->CG_GetScoreBoardDrawHeader() )
 		{
 			delete scoreboardlist;
@@ -4606,11 +4613,12 @@ void UI_SetScoreBoardItem( int iItemNumber,
 
 	if( scoreboardlist )
 	{
-		if( iItemNumber + 1 > scoreboardlist->getNumItems() ) {
+		if (iItemNumber + 1 > scoreboardlist->getNumItems()) {
 			pItem = new ScoreboardListItem;
-			scoreboardlist->AddItem( pItem );
-		} else {
-			pItem = ( ScoreboardListItem * )scoreboardlist->GetItem( iItemNumber );
+			scoreboardlist->AddItem(pItem);
+		}
+		else {
+			pItem = (ScoreboardListItem*)scoreboardlist->GetItem(iItemNumber + 1);
 		}
 
 		if( pItem )
