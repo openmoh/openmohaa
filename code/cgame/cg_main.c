@@ -194,23 +194,22 @@ called during a precache command
 */
 void CG_RegisterSounds( void )
 {
-    int startTime;     // esi MAPDST
-    int endTime;       // eax MAPDST
-    char filename[64]; // [esp+28h] [ebp-40h] BYREF
+    int startTime;
+    int endTime;
+    char filename[MAX_QPATH];
 
     Com_Printf("\n\n-----------PARSING UBERSOUND------------\n");
     Com_Printf(
         "Any SetCurrentTiki errors means that tiki wasn't prefetched and "
         "tiki-specific sounds for it won't work. To fix prefe"
         "tch the tiki. Ignore if you don't use that tiki on this level.\n");
-    Com_sprintf(filename, 64, "ubersound/ubersound.scr");
+    Com_sprintf(filename, sizeof(filename), "ubersound/ubersound.scr");
 
     startTime = cgi.Milliseconds();
     CG_Command_ProcessFile(filename, 0, 0);
     endTime = cgi.Milliseconds();
 
-    Com_Printf("Parse/Load time: %f seconds.\n",
-               (double)((long double)(endTime - startTime) / 1000.0));
+    Com_Printf("Parse/Load time: %f seconds.\n", (endTime - startTime) / 1000.0f);
 
     Com_Printf("-------------UBERSOUND DONE---------------\n\n");
     Com_Printf("\n\n-----------PARSING UBERDIALOG------------\n");
@@ -218,14 +217,13 @@ void CG_RegisterSounds( void )
         "Any SetCurrentTiki errors means that tiki wasn't prefetched and "
         "tiki-specific sounds for it won't work. To fix prefe"
         "tch the tiki. Ignore if you don't use that tiki on this level.\n");
-    Com_sprintf(filename, 64, "ubersound/uberdialog.scr");
+    Com_sprintf(filename, sizeof(filename), "ubersound/uberdialog.scr");
 
     startTime = cgi.Milliseconds();
     CG_Command_ProcessFile(filename, 0, 0);
     endTime = cgi.Milliseconds() - startTime;
 
-    Com_Printf("Parse/Load time: %f seconds.\n",
-               (double)((long double)endTime / 1000.0));
+    Com_Printf("Parse/Load time: %f seconds.\n", endTime / 1000.0f);
     Com_Printf("-------------UBERDIALOG DONE---------------\n\n");
 }
 
@@ -366,7 +364,7 @@ void CG_ProcessConfigString(int num)
     }
     else if (num >= CS_SOUNDS && num < CS_SOUNDS + MAX_SOUNDS)
     {
-		int len = strlen(str);
+		size_t len = strlen(str);
 		if (len)
 		{
 			qboolean streamed;
