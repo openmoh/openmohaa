@@ -1633,8 +1633,11 @@ infoParm_t	infoParms[] = {
 	{"lava",		1,	0,	CONTENTS_LAVA },		// very damaging
 	{"playerclip",	1,	0,	CONTENTS_PLAYERCLIP },
 	{"monsterclip",	1,	0,	CONTENTS_MONSTERCLIP },
+	{"fence",		1,	0,	CONTENTS_FENCE },
+	{"weaponclip",	1,	0,	CONTENTS_WEAPONCLIP },
+	{"vehicleclip",	1,	0,	CONTENTS_VEHICLECLIP },
 	{"nodrop",		1,	0,	CONTENTS_NODROP },		// don't drop items or leave bodies (death fog, lava, etc)
-	{"nonsolid",	1,	SURF_NONSOLID,	0},						// clears the solid flag
+	{"nonsolid",	1,	SURF_NONSOLID,	0 },		// clears the solid flag
 
 	// utility relevant attributes
 	{"origin",		1,	0,	CONTENTS_ORIGIN },		// center of rotating brushes
@@ -1642,14 +1645,9 @@ infoParm_t	infoParms[] = {
 	{"detail",		0,	0,	CONTENTS_DETAIL },		// don't include in structural bsp
 	{"structural",	0,	0,	CONTENTS_STRUCTURAL },	// force into structural bsp even if trnas
 	{"areaportal",	1,	0,	CONTENTS_AREAPORTAL },	// divides areas
-	{"clusterportal", 1,0,  CONTENTS_CLUSTERPORTAL },	// for bots
-	{"donotenter",  1,  0,  CONTENTS_DONOTENTER },		// for bots
-
 	{"fog",			1,	0,	CONTENTS_FOG},			// carves surfaces entering
-	{"sky",			0,	SURF_SKY,		0 },		// emit light from an environment map
-	{"lightfilter",	0,	SURF_LIGHTFILTER, 0 },		// filter light going through it
-	{"alphashadow",	0,	SURF_ALPHASHADOW, 0 },		// test light on a per-pixel basis
-	{"hint",		0,	SURF_HINT,		0 },		// use as a primary splitter
+	{"sky",			0,	SURF_SKY,			0 },	// emit light from an environment map
+	{"alphashadow",	1,	SURF_ALPHASHADOW,	0 },	// carves surfaces entering
 
 	// server attributes
 	{"slick",		0,	SURF_SLICK,		0 },
@@ -1657,16 +1655,29 @@ infoParm_t	infoParms[] = {
 	{"nomarks",		0,	SURF_NOMARKS,	0 },		// don't make impact marks, but still explode
 	{"ladder",		0,	SURF_LADDER,	0 },
 	{"nodamage",	0,	SURF_NODAMAGE,	0 },
-	{"metalsteps",	0,	SURF_METALSTEPS,0 },
-	{"flesh",		0,	SURF_FLESH,		0 },
 	{"nosteps",		0,	SURF_NOSTEPS,	0 },
+	{"paper",		0,	SURF_PAPER,		0 },
+	{"wood",		0,	SURF_WOOD,		0 },
+	{"metal",		0,	SURF_METAL,		0 },
+	{"rock",		0,	SURF_ROCK,		0 },
+	{"dirt",		0,	SURF_DIRT,		0 },
+	{"grill",		0,	SURF_GRILL,		0 },
+	{"grass",		0,	SURF_GRASS,		0 },
+	{"mud",			0,	SURF_MUD,		0 },
+	{"puddle",		0,	SURF_PUDDLE,	0 },
+	{"glass",		0,	SURF_GLASS,		0 },
+	{"gravel",		0,	SURF_GRAVEL,	0 },
+	{"sand",		0,	SURF_SAND,		0 },
+	{"foliage",		0,	SURF_FOLIAGE,	0 },
+	{"snow",		0,	SURF_SNOW,		0 },
+	{"carpet",		0,	SURF_CARPET,	0 },
 
 	// drawsurf attributes
-	{"nodraw",		0,	SURF_NODRAW,	0 },	// don't generate a drawsurface (or a lightmap)
-	{"pointlight",	0,	SURF_POINTLIGHT, 0 },	// sample lighting at vertexes
-	{"nolightmap",	0,	SURF_NOLIGHTMAP,0 },	// don't generate a lightmap
-	{"nodlight",	0,	SURF_NODLIGHT, 0 },		// don't ever add dynamic lights
-	{"dust",		0,	SURF_DUST, 0}			// leave a dust trail when walking on this surface
+	{"nodraw",		0,	SURF_NODRAW,		0 },	// don't generate a drawsurface (or a lightmap)
+	{"castshadow",	0,	SURF_CASTSHADOW,	0 },	// sample lighting at vertexes
+	{"nolightmap",	0,	SURF_NOLIGHTMAP,	0 },	// don't generate a lightmap
+	{"nodlight",	0,	SURF_NODLIGHT,		0 },	// don't ever add dynamic lights
+	{"hint",		0,	SURF_HINT,		0}			// leave a dust trail when walking on this surface
 };
 
 
@@ -2330,12 +2341,6 @@ static shader_t *GeneratePermanentShader( void ) {
 	*newShader = shader;
 	newShader->next = currentShader->shader;
 	currentShader->shader = newShader;
-
-	if ( shader.sort <= SS_OPAQUE ) {
-		newShader->fogPass = FP_EQUAL;
-	} else if ( shader.contentFlags & CONTENTS_FOG ) {
-		newShader->fogPass = FP_LE;
-	}
 
 	tr.shaders[ tr.numShaders ] = newShader;
 	newShader->index = tr.numShaders;
