@@ -244,6 +244,38 @@ void R_AddMarkFragments(int numClipPoints, vec3_t clipPoints[2][MAX_VERTS_ON_POL
 	(*returnedFragments)++;
 }
 
+void R_AddMarkFragmentsToTerrain(
+	cTerraPatchUnpacked_t* pTerPatch,
+	int numPlanes,
+	vec3_t* normals,
+	float* dists,
+	int maxPoints,
+	const vec3_t pointBuffer,
+	markFragment_t* fragmentBuffer,
+	int* returnedPoints,
+	int* returnedFragments
+)
+{
+	// FIXME: unimplemented
+}
+
+void R_TessellateMarkFragments(
+	int* pReturnedPoints,
+	int* pReturnedFragments,
+	int numsurfaces, surfaceType_t** surfaces,
+	const vec3_t projectionDir, int numPlanes,
+	vec3_t* normals,
+	float* dists,
+	int maxPoints,
+	const vec3_t pointBuffer,
+	int maxFragments,
+	markFragment_t* fragmentBuffer,
+	float fRadiusSquared
+)
+{
+	// FIXME: unimplemented
+}
+
 /*
 =================
 R_MarkFragments
@@ -439,6 +471,11 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 		}
 	}
 	return returnedFragments;
+}
+
+void R_BoxSurfacesForBModel_r(bmodel_t* pBmodel, const vec3_t mins, const vec3_t maxs, surfaceType_t** list, int listsize, int* listlength, const vec3_t dir)
+{
+	// FIXME: unimplemented
 }
 
 int R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t angles, const vec3_t origin, int numPoints,
