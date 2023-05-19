@@ -4307,4 +4307,12 @@ qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
 	return qfalse;
 }
 
+void TIKI_CG_Command_ProcessFile(char* filename, qboolean quiet, dtiki_t* curTiki)
+{
+	if (cge) {
+		cge->CG_Command_ProcessFile(filename, quiet, curTiki);
+		return;
+	}
 
+	Com_Printf("NO CGE \n");
+}
