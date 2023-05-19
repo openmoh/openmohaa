@@ -1608,7 +1608,7 @@ typedef struct {
 
 // maybe this is better put somewhere else...
 typedef struct server_sound_s {
-	float origin[3];
+	vec3_t origin;
 	int entity_number;
 	int channel;
 	short int sound_index;

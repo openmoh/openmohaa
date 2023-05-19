@@ -158,6 +158,10 @@ CL_GetSnapshot
 qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	clSnapshot_t	*clSnap;
 	int				i, count;
+	int				pnum;
+	int				parents[MAX_ENTITIES_IN_SNAPSHOT];
+	entityState_t	*s1;
+	int				pcount = 0;
 
 	if ( snapshotNumber > cl.snap.messageNum ) {
 		Com_Error( ERR_DROP, "CL_GetSnapshot: snapshotNumber > cl.snapshot.messageNum" );
@@ -187,39 +191,79 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	snapshot->serverTime = clSnap->serverTime;
 	Com_Memcpy( snapshot->areamask, clSnap->areamask, sizeof( snapshot->areamask ) );
 	snapshot->ps = clSnap->ps;
+
+	// wombat: sounds
+	count = clSnap->number_of_sounds;
+	if (snapshot->number_of_sounds > MAX_SERVER_SOUNDS) {
+		Com_DPrintf("CL_GetSnapshot: truncated %i sounds to %i\n", count, MAX_SERVER_SOUNDS);
+		count = MAX_SERVER_SOUNDS;
+	}
+
+	snapshot->number_of_sounds = count;
+	Com_Memcpy(snapshot->sounds, clSnap->sounds, sizeof(snapshot->sounds[0])* count);
+
 	count = clSnap->numEntities;
 	if ( count > MAX_ENTITIES_IN_SNAPSHOT ) {
 		Com_DPrintf( "CL_GetSnapshot: truncated %i visible entities to %i\n", count, MAX_ENTITIES_IN_SNAPSHOT );
 		count = MAX_ENTITIES_IN_SNAPSHOT;
 	}
-	snapshot->numEntities = count;
+
+	snapshot->numEntities = 0;
 	for ( i = 0 ; i < count ; i++ ) {
-		snapshot->entities[i] =
-			cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ];
+		s1 = &cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
+		pnum = s1->parent;
+
+		if (pnum == ENTITYNUM_NONE) {
+			parents[s1->number] = -2;
+		}
+		else
+		{
+			if (parents[pnum] == -2) {
+				parents[s1->number] = -2;
+			}
+			else
+			{
+				// add it later
+				parents[s1->number] = pnum;
+				continue;
+			}
+		}
+
+		snapshot->entities[snapshot->numEntities++] = *s1;
 	}
 
-	// wombat: sounds
-	count = clSnap->number_of_sounds;
-	if ( snapshot->number_of_sounds > MAX_SERVER_SOUNDS) {
-		Com_DPrintf( "CL_GetSnapshot: truncated %i sounds to %i\n", count, MAX_SERVER_SOUNDS);
-		count = MAX_SERVER_SOUNDS;
+	for(pcount = 0; pcount < 8 && snapshot->numEntities != count; pcount++)
+	{
+		for (i = 0; i < count; i++)
+		{
+			s1 = &cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
+			pnum = parents[s1->number];
+			if (pnum >= 0 && parents[pnum] == -2) {
+				snapshot->entities[snapshot->numEntities++] = *s1;
+			}
+		}
 	}
-	snapshot->number_of_sounds = count;
-	Com_Memcpy( snapshot->sounds, clSnap->sounds, sizeof(snapshot->sounds[0])*count );
 
-	// FIXME: configstring changes and server commands!!!
+	if (pcount >= 8)
+	{
+		for (i = count; i < snapshot->numEntities; i++)
+		{
+			s1 = &cl.parseEntities[(clSnap->parseEntitiesNum + i) & (MAX_PARSE_ENTITIES - 1)];
+			if (parents[s1->number] >= 0) {
+				Com_DPrintf(
+					"CL_GetSnapshot: entity %d with parent %d and model '%s' at %.2f %.2f %.2f, could not find parent.\n",
+					s1->number,
+					s1->parent,
+					CL_ConfigString(CS_MODELS + s1->modelindex),
+					s1->origin[0],
+					s1->origin[1],
+					s1->origin[2]
+				);
+			}
+		}
+	}
 
 	return qtrue;
-}
-
-/*
-=====================
-CL_SetUserCmdValue
-=====================
-*/
-void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale ) {
-	cl.cgameUserCmdValue = userCmdValue;
-	cl.cgameSensitivity = sensitivityScale;
 }
 
 /*
