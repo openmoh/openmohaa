@@ -415,6 +415,25 @@ void CG_Portal(centity_t* cent)
 }
 
 /*
+================
+BG_EvaluateTrajectory
+================
+*/
+void BG_EvaluateTrajectory(const trajectory_t* tr, int atTime, const vec3_t base, vec3_t result) {
+	float deltaTime;
+
+	if (atTime > cg_smoothClientsTime->integer + tr->trTime) {
+		atTime = cg_smoothClientsTime->integer + tr->trTime;
+	}
+
+	deltaTime = (float)(atTime - tr->trTime) / 1000.0;
+
+	result[0] = tr->trDelta[0] * deltaTime + base[0];
+	result[1] = tr->trDelta[1] * deltaTime + base[1];
+	result[2] = tr->trDelta[2] * deltaTime + base[2];
+}
+
+/*
 ===============
 CG_CalcEntityLerpPositions
 
@@ -477,8 +496,8 @@ void CG_CalcEntityLerpPositions( centity_t *cent )
 
         // this will linearize a sine or parabolic curve, but it is important
         // to not extrapolate player positions if more recent data is available
-        BG_EvaluateTrajectory(&cent->currentState.pos, cg.snap->serverTime, current);
-        BG_EvaluateTrajectory(&cent->nextState.pos, cg.nextSnap->serverTime, next);
+        BG_EvaluateTrajectory(&cent->currentState.pos, cg.snap->serverTime, cent->currentState.origin, current);
+        BG_EvaluateTrajectory(&cent->nextState.pos, cg.nextSnap->serverTime, cent->nextState.origin, next);
 
         cent->lerpOrigin[0] = current[0] + f * (next[0] - current[0]);
         cent->lerpOrigin[1] = current[1] + f * (next[1] - current[1]);
@@ -494,17 +513,11 @@ void CG_CalcEntityLerpPositions( centity_t *cent )
             QuatToMat(quat, mat);
             MatrixToEulerAngles(mat, cent->lerpAngles);
         }
-
-        // Lerp legs, torso, and head angles
-        for (i = 0; i < 3; i++) {
-            cent->lerpAngles[i] = LerpAngle(current[i], next[i], f);
-        }
     }
     else {
         // just use the current frame and evaluate as best we can
-        BG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
+        BG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->currentState.origin, cent->lerpOrigin);
         VectorCopy(cent->currentState.angles, cent->lerpAngles);
-        //BG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);
     }
 }
 
@@ -545,10 +558,10 @@ void CG_AddCEntity(centity_t* cent)
         CG_ModelAnim(cent, qtrue);
         break;
     case ET_PLAYER:
-        CG_Player(cent);
-    case ET_ITEM:
-    case ET_EXEC_COMMANDS:
-        CG_ModelAnim(cent, qfalse);
+		CG_Player(cent);
+		CG_Splash(cent);
+	case ET_ITEM:
+		CG_ModelAnim(cent, qfalse);
         break;
     case ET_GENERAL:
         CG_General(cent);
@@ -575,7 +588,10 @@ void CG_AddCEntity(centity_t* cent)
         break;
     case ET_ROPE: // skip
         CG_Rope(cent);
-        break;
+		break;
+	case ET_EXEC_COMMANDS:
+		CG_ModelAnim(cent, qfalse);
+		break;
     }
 }
 

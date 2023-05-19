@@ -27,15 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 ================
-BG_EvaluateTrajectory
-================
-*/
-void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) {
-
-}
-
-/*
-================
 BG_EvaluateTrajectoryDelta
 For determining velocity at a given time
 ================

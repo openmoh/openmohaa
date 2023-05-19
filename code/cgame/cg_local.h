@@ -590,6 +590,7 @@ void     CG_PredictPlayerState( void );
 //
 // cg_ents.c
 //
+void BG_EvaluateTrajectory(const trajectory_t* tr, int atTime, const vec3_t base, vec3_t result);
 void CG_SetEntitySoundPosition( centity_t *cent );
 void CG_AddPacketEntities( void );
 void CG_Beam( centity_t *cent );

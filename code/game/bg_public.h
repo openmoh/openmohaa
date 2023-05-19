@@ -609,9 +609,6 @@ typedef enum {
 	ET_EXEC_COMMANDS
 } entityType_t;
 
-// su44; yes, I know there is no q3 trajectory_t in MoHAA,
-// but I need it for fgame rotating doors code.
-void	BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result );
 void	BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 
 void	BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap );
