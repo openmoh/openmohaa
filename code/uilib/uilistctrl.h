@@ -54,6 +54,7 @@ protected:
 	static bool s_qsortreverse;
 	static int s_qsortcolumn;
 	static class UIListCtrl *s_qsortobject;
+
 	int m_iLastSortColumn;
 	class UIFont *m_headerfont;
 	Container<UIListCtrlItem *> m_itemlist;

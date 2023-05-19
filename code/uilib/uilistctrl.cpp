@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static UISize2D s_columnpadding;
 
+bool UIListCtrl::s_qsortreverse;
+int UIListCtrl::s_qsortcolumn;
+class UIListCtrl* UIListCtrl::s_qsortobject;
+
 CLASS_DECLARATION( UIListBase, UIListCtrl, NULL )
 {
 	{ &W_SizeChanged,		&UIListCtrl::OnSizeChanged },
@@ -56,8 +60,34 @@ int UIListCtrl::StringCompareFunction
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	if (i1->getListItemType(columnname) != TYPE_STRING || i2->getListItemType(columnname) != TYPE_STRING) {
+		return 0;
+	}
+
+	const char* s1 = i1->getListItemString(columnname);
+	const char* s2 = i2->getListItemString(columnname);
+
+	if (*s1 == '.')
+	{
+		if (*s2 != '.') {
+			return -1;
+		}
+	}
+	else if (*s2 == '.') {
+		return 1;
+	}
+
+	if (*s1 == '[')
+	{
+		if (*s2 != '[') {
+			return -1;
+		}
+	}
+	else if (*s2 == '[') {
+		return 1;
+	}
+
+	return Q_stricmp(s1, s2);
 }
 
 int UIListCtrl::StringNumberCompareFunction
@@ -68,8 +98,18 @@ int UIListCtrl::StringNumberCompareFunction
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	int val1, val2;
+
+	val1 = i1->getListItemValue(columnname);
+	val2 = i2->getListItemValue(columnname);
+
+	if (val1 > val2) {
+		return 1;
+	} else if (val1 < val2) {
+		return -1;
+	} else {
+		return 0;
+	}
 }
 
 int UIListCtrl::QsortCompare
@@ -79,8 +119,8 @@ int UIListCtrl::QsortCompare
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	int val = s_qsortobject->m_comparefunction((const UIListCtrlItem*)e1, (const UIListCtrlItem*)e2, s_qsortcolumn);
+	return s_qsortreverse ? -val : val;
 }
 
 void UIListCtrl::Draw
@@ -123,7 +163,73 @@ void UIListCtrl::MousePressed
 	)
 
 {
-	// FIXME: stub
+	UIPoint2D p;
+
+	p = MouseEventToClientPoint(ev);
+
+	if (m_clicksound.length()) {
+		uii.Snd_PlaySound(m_clicksound.c_str());
+	}
+
+	if (getHeaderHeight() > p.y)
+	{
+		int closesep = 0;
+		int atleft = 0;
+		int closeatleft = 0;
+		int insep = 0;
+
+		for (int i = 1; i <= m_columnlist.NumObjects(); i++) {
+			const columndef_t& column = m_columnlist.ObjectAt(i);
+			atleft += column.width;
+
+			if (abs(atleft - p.x) > 2)
+			{
+				if (atleft - column.width < p.x && atleft > p.x) {
+					insep = i;
+				}
+			}
+			else
+			{
+				closesep = i;
+				closeatleft = atleft;
+			}
+		}
+
+		if (closesep)
+		{
+			m_sizestate.column = closesep;
+			m_sizestate.min = closeatleft - m_columnlist.ObjectAt(closesep).width;
+			uWinMan.setFirstResponder(this);
+		} else {
+			SortByColumn(m_columnlist.ObjectAt(insep).name);
+		}
+	}
+	else
+	{
+		if (m_vertscroll) {
+			TrySelectItem((m_vertscroll->getTopItem() + 1) + (p.y - getHeaderHeight()) / m_font->getHeight(m_bVirtual));
+		} else {
+			TrySelectItem(1.0 + (p.y - getHeaderHeight()) / m_font->getHeight(m_bVirtual));
+		}
+
+		if (m_clickState.time + 500 > uid.time
+			&& m_currentItem == m_clickState.selected
+			&& fabs(m_clickState.point.x - p.x) <= 2.0
+			&& fabs(m_clickState.point.y - p.y) <= 2.0)
+		{
+			Event newev;
+			newev.AddInteger(m_currentItem);
+			SendSignal(newev);
+			m_clickState.time = 0;
+		}
+		else
+		{
+			m_clickState.time = uid.time;
+			m_clickState.selected = m_currentItem;
+			m_clickState.point.x = p.x;
+			m_clickState.point.y = p.y;
+		}
+	}
 }
 
 void UIListCtrl::MouseDragged
@@ -132,7 +238,23 @@ void UIListCtrl::MouseDragged
 	)
 
 {
-	// FIXME: stub
+	UIPoint2D p;
+	int newwidth;
+
+	p = MouseEventToClientPoint(ev);
+	if (m_sizestate.column)
+	{
+		columndef_t& column = m_columnlist.ObjectAt(m_sizestate.column);
+
+		newwidth = p.x - m_sizestate.min;
+		if (newwidth > 600) {
+			newwidth = 600;
+		} else if (newwidth < 0) {
+			newwidth = 0;
+		}
+
+		column.width = newwidth;
+	}
 }
 
 void UIListCtrl::MouseReleased
@@ -498,7 +620,81 @@ void UIListCtrl::SortByColumn
 	)
 
 {
-	// FIXME: stub
+	int i;
+	bool exists;
+	bool numeric;
+	bool reverse;
+	UIListCtrlItem* selected;
+	bool selvisible;
+
+	exists = 0;
+	numeric = 0;
+	reverse = 0;
+	selected = NULL;
+	selvisible = 0;
+
+	for (i = 1; i <= m_columnlist.NumObjects(); i++) {
+		columndef_t& def = m_columnlist.ObjectAt(i);
+
+		if (def.name == i) {
+			numeric = def.numeric;
+			reverse = def.reverse_sort;
+			exists = true;
+			break;
+		}
+	}
+
+	if (exists)
+	{
+		m_iLastSortColumn = column;
+		s_qsortcolumn = column;
+		s_qsortobject = this;
+		s_qsortreverse = reverse;
+
+		if (m_currentItem)
+		{
+			selected = m_itemlist.ObjectAt(m_currentItem);
+			if (m_vertscroll)
+			{
+				selvisible = false;
+				if (m_currentItem >= m_vertscroll->getTopItem() + 1) {
+					selvisible = m_currentItem <= m_vertscroll->getPageHeight() + m_vertscroll->getTopItem();
+				}
+			}
+			else
+			{
+				selvisible = false;
+				// FIXME: selvisible when there is no vertical scroll?
+				//
+				//if (m_currentItem > 0) {
+				//	selvisible = m_currentItem <= m_vertscroll->m_pageheight + m_vertscroll->getTopItem();
+				//}
+			}
+		}
+
+		if (numeric) {
+			m_comparefunction = &UIListCtrl::StringNumberCompareFunction;
+		} else {
+			m_comparefunction = &UIListCtrl::StringCompareFunction;
+		}
+
+		if (m_itemlist.NumObjects()) {
+			m_itemlist.Sort(&UIListCtrl::QsortCompare);
+		}
+
+		if (selected)
+		{
+			if (selvisible) {
+				TrySelectItem(FindItem(selected));
+			} else {
+				m_currentItem = FindItem(selected);
+			}
+		}
+	}
+	else
+	{
+		m_iLastSortColumn = 0;
+	}
 }
 
 void UIListCtrl::SortByLastSortColumn
