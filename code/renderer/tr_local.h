@@ -129,7 +129,7 @@ typedef struct {
     vec3_t traceOrigin;
     float radius;
     struct mnode_s* leaves[8];
-    void(*TessFunction) ();
+    void(*TessFunction) (unsigned char* dstColors);
     union {
         unsigned char level[4];
         int value;
@@ -170,17 +170,19 @@ typedef struct {
 	float		axisLength;		// compensate for non-normalized axis
 
 	qboolean	needDlights;	// true for bmodels that touch a dlight
-	qboolean	lightingCalculated;
-	vec3_t		lightDir;		// normalized direction towards light
-	vec3_t		ambientLight;	// color normalized to 0-255
-	int			ambientLightInt;	// 32 bit rgba packed
-	vec3_t		directedLight;
-
 	qboolean	bLightGridCalculated;
 	int			iGridLighting;
 	float		lodpercentage[2];
 	qboolean	sphereCalculated;
 	int			lightingSphere;
+
+	//
+	// old lighting variables
+	//
+	vec3_t		lightDir;		// normalized direction towards light
+	vec3_t		ambientLight;	// color normalized to 0-255
+	int			ambientLightInt;	// 32 bit rgba packed
+	vec3_t		directedLight;
 } trRefEntity_t;
 
 typedef struct refSprite_s {

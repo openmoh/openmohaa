@@ -810,9 +810,98 @@ static void ComputeColors( shaderStage_t *pStage )
 			break;
 		case CGEN_LIGHTING_SPHERICAL:
 		case CGEN_STATIC:
-			if (!r_drawspherelights->integer)
+			if (!r_drawspherelights->integer) {
 				break;
-			// FIXME: unimplemented
+			}
+
+			if (!backEnd.currentStaticModel) {
+				if (backEnd.currentSphere->TessFunction) {
+					backEnd.currentSphere->TessFunction((unsigned char*)tess.svars.colors);
+				}
+				break;
+			}
+
+			if (!tess.vertexColorValid) {
+				ri.Printf(PRINT_WARNING, "Vertex color specified for shader '%s', but vertex colors are not valid for this model\n", tess.shader->name);
+			}
+
+			if (backEnd.currentStaticModel->useSpecialLighting)
+			{
+				for (i = 0; i < tess.numVertexes; i++)
+				{
+					int j;
+					vec3_t colorout;
+					int r, g, b;
+
+					colorout[0] = tess.vertexColors[i][0];
+					colorout[1] = tess.vertexColors[i][1];
+					colorout[2] = tess.vertexColors[i][2];
+
+					for (j = 0; j < backEnd.currentStaticModel->numdlights; j++)
+					{
+						float ooLightDistSquared;
+						float dot;
+						vec3_t diff;
+						dlight_t* dl;
+
+						dl = &backEnd.refdef.dlights[backEnd.currentStaticModel->dlights[j].index];
+						VectorSubtract(backEnd.currentStaticModel->dlights[j].transformed, tess.xyz[i], diff);
+
+						dot = DotProduct(diff, tess.normal[i]);
+						if (dot >= 0)
+						{
+							float ooLen;
+
+							ooLen = 1.0 / VectorLengthSquared(diff);
+							ooLightDistSquared = dot * (7500.0 * dl->radius * ooLen * sqrt(ooLen));
+							colorout[0] = dl->color[0] * ooLightDistSquared + colorout[0];
+							colorout[1] = dl->color[1] * ooLightDistSquared + colorout[1];
+							colorout[2] = dl->color[2] * ooLightDistSquared + colorout[2];
+						}
+					}
+
+					r = colorout[0];
+					g = colorout[1];
+					b = colorout[2];
+
+					if (tr.overbrightShift)
+					{
+						r = (int)((float)r * tr.overbrightMult);
+						g = (int)((float)g * tr.overbrightMult);
+						b = (int)((float)b * tr.overbrightMult);
+					}
+
+					if (r > 0xFF || g > 0xFF || b > 0xFF)
+					{
+						float t;
+
+						t = 255.0 / (float)max(r, max(g, b));
+
+						r = (int)((float)r * t);
+						g = (int)((float)g * t);
+						b = (int)((float)b * t);
+					}
+
+					tess.svars.colors[i][0] = r;
+					tess.svars.colors[i][1] = g;
+					tess.svars.colors[i][2] = b;
+				}
+			}
+			else
+			{
+				if (tr.identityLight == 1.0)
+				{
+					Com_Memcpy(tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof(tess.vertexColors[0]));
+				}
+				else
+				{
+					for (i = 0; i < tess.numVertexes; i++) {
+						tess.svars.colors[i][0] = tess.vertexColors[i][0] * tr.identityLight;
+						tess.svars.colors[i][1] = tess.vertexColors[i][1] * tr.identityLight;
+						tess.svars.colors[i][2] = tess.vertexColors[i][2] * tr.identityLight;
+					}
+				}
+			}
 			break;
 		case CGEN_CONSTANT:
 			RB_CalcColorFromConstant((unsigned char*)tess.svars.colors, pStage->colorConst);

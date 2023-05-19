@@ -330,10 +330,10 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	vec3_t			lightOrigin;
 
 	// lighting calculations 
-	if ( ent->lightingCalculated ) {
+	if ( ent->bLightGridCalculated ) {
 		return;
 	}
-	ent->lightingCalculated = qtrue;
+	ent->bLightGridCalculated = qtrue;
 
 	//
 	// trace a sample point down to find ambient light
