@@ -692,7 +692,7 @@ void R_AddWorldSurfaces (void) {
 		tr.refdef.num_dlights = 32;
 	}
 	R_TransformDlights(tr.refdef.num_dlights, tr.refdef.dlights, &tr.viewParms.world);
-	R_RecursiveWorldNode(tr.world->nodes, 15, (1 << tr.refdef.num_dlights) - 1);
+	R_RecursiveWorldNode(tr.world->nodes, tr.viewParms.fog.extrafrustums ? 31 : 15, (1 << tr.refdef.num_dlights) - 1);
 
 	if (r_drawterrain->integer) {
 		R_AddTerrainSurfaces();
