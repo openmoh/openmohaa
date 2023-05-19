@@ -708,6 +708,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	depthRange = qfalse;
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
+	backEnd.numSpheresUsed = 0;
 
 	for (i = 0, drawSurf = drawSurfs ; i < numDrawSurfs ; i++, drawSurf++) {
 		if ( drawSurf->sort == oldSort ) {
@@ -852,7 +853,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					}
 					else
 					{
-						backEnd.currentSphere = &backEnd.spheres[backEnd.currentEntity->lightingSphere];
+						backEnd.currentSphere = &backEnd.spheres[backEnd.numSpheresUsed];
 						backEnd.currentEntity->lightingSphere = backEnd.numSpheresUsed++;
 						backEnd.currentEntity->sphereCalculated = 1;
 					}
