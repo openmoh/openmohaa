@@ -842,7 +842,7 @@ void GL_SetDefaultState( void )
 	qglDisable( GL_CULL_FACE );
 	qglDisable( GL_BLEND );
 
-	qglFogf(GL_FOG_MODE, 9729.0);
+	qglFogi(GL_FOG_MODE, GL_LINEAR);
 
 	glState.fFogColor[0] = 0.0;
 	glState.fFogColor[1] = 0.0;
