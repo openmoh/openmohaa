@@ -56,14 +56,11 @@ void R_InitStaticModels(void) {
             g = (int)((float)tr.world->staticModelData[i * 4 + 1] * tr.overbrightMult);
             b = (int)((float)tr.world->staticModelData[i * 4 + 2] * tr.overbrightMult);
 
-            if ((r | g | b) & 0xFFFFFF00)
+            if (r > 0xFF || g > 0xFF || b > 0xFF)
             {
                 float t;
-                unsigned long long rgb;
 
-                rgb = (g + (~((unsigned long long)(r - g) >> 32) & (r - g)) - b);
-
-                t = 255.0 / (float)(b + (~(rgb & 0x00000000FFFFFFFF) & rgb));
+                t = 255.0 / (float)max(r, max(g, b));
 
                 r = (int)((float)r * t);
                 g = (int)((float)g * t);
@@ -326,6 +323,7 @@ void R_AddStaticModelSurfaces(void) {
             {
                 skelHeaderGame_t* skelmodel = TIKI_GetSkel(tiki->mesh[mesh]);
                 skelSurfaceGame_t* surface;
+                staticSurface_t* s_surface;
                 shader_t* shader;
 
                 if (!skelmodel) {
@@ -336,7 +334,7 @@ void R_AddStaticModelSurfaces(void) {
                 // draw all surfaces
                 //
                 surface = skelmodel->pSurfaces;
-                for (j = 0; j < skelmodel->numSurfaces; j++, surface = surface->pNext, dsurf++)
+                for (j = 0; j < skelmodel->numSurfaces; j++, ofsStaticData += surface->numVerts, surface = surface->pNext, dsurf++)
                 {
                     if (g_nStaticSurfaces >= MAX_STATIC_MODELS_SURFS)
                     {
@@ -344,18 +342,44 @@ void R_AddStaticModelSurfaces(void) {
                         continue;
                     }
 
-                    g_staticSurfaces[g_nStaticSurfaces].ident = SF_TIKI_STATIC;
-                    g_staticSurfaces[g_nStaticSurfaces].ofsStaticData = ofsStaticData;
-                    g_staticSurfaces[g_nStaticSurfaces].surface = surface;
-                    g_staticSurfaces[g_nStaticSurfaces].meshNum = mesh;
+                    s_surface = &g_staticSurfaces[g_nStaticSurfaces++];
+					s_surface->ident = SF_TIKI_STATIC;
+					s_surface->ofsStaticData = ofsStaticData;
+					s_surface->surface = surface;
+					s_surface->meshNum = mesh;
 
                     shader = tr.shaders[dsurf->hShader[0]];
 
-                    SM->bRendered = qtrue;
-                    R_AddDrawSurf((surfaceType_t*)&g_staticSurfaces[g_nStaticSurfaces], shader, 0);
+                    if (shader->numUnfoggedPasses == 1)
+                    {
+                        if (shader->unfoggedStages[0]->alphaGen == AGEN_DIST_FADE)
+                        {
+                            if (R_DistanceCullPointAndRadius(shader->fDistNear + shader->fDistRange, tiki_worldorigin, SM->cull_radius) == CULL_OUT) {
+                                continue;
+                            }
+						}
+						else if (shader->unfoggedStages[0]->alphaGen == AGEN_ONE_MINUS_DIST_FADE)
+						{
+							if (R_DistanceCullPointAndRadius(shader->fDistNear, tiki_worldorigin, SM->cull_radius) == CULL_IN) {
+								continue;
+							}
+						}
+                    }
 
-                    g_nStaticSurfaces++;
-                    ofsStaticData += surface->numVerts;
+                    SM->bRendered = qtrue;
+                    R_AddDrawSurf((surfaceType_t*)s_surface, shader, 0);
+
+                    if (r_showstaticlod->integer) {
+                        //
+                        // FIXME: draw debug lods
+                        //
+                    }
+
+                    if (r_showstaticbboxes->integer) {
+                        //
+                        // FIXME: draw debug bbox
+                        //
+                    }
                 }
             }
         }
@@ -456,15 +480,18 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
     }
 
     if (backEndData[backEnd.smpFrame]->staticModelData) {
-        color4ub_t* in = (color4ub_t*)&backEndData[backEnd.smpFrame]->staticModelData[backEnd.currentStaticModel->firstVertexData + staticSurf->ofsStaticData];
-        color4ub_t* out = &tess.vertexColors[baseVertex];
+        const size_t offset = backEnd.currentStaticModel->firstVertexData + staticSurf->ofsStaticData * sizeof(color4ub_t);
+		assert(offset < tr.world->numStaticModelData * sizeof(color4ub_t));
+		assert(offset + render_count * sizeof(color4ub_t) <= tr.world->numStaticModelData * sizeof(color4ub_t));
 
-        for (i = 0; i < render_count; i++, in++, out++)
+        const color4ub_t* in = (const color4ub_t*)&backEndData[backEnd.smpFrame]->staticModelData[offset];
+
+        for (i = 0; i < render_count; i++)
         {
-            (*out)[0] = (*in)[0];
-            (*out)[1] = (*in)[1];
-            (*out)[2] = (*in)[2];
-            (*out)[3] = (*in)[3];
+			tess.vertexColors[baseVertex + i][0] = in[i][0];
+			tess.vertexColors[baseVertex + i][1] = in[i][1];
+			tess.vertexColors[baseVertex + i][2] = in[i][2];
+			tess.vertexColors[baseVertex + i][3] = in[i][3];
         }
     }
     else {
