@@ -216,7 +216,11 @@ extern uidef_t uid;
 extern uiexport_t uie;
 extern uiimport_t uii;
 
-
+void UI_Init(void);
+void UI_Shutdown(void);
+void UI_InitExports();
+qboolean CL_FinishedIntro(void);
+void UI_StartStageKeyEvent(void);
 void UI_GetMouseState( int *mouseX, int *mouseY, int *flags );
 int UI_GetCvarInt( const char *name, int def );
 float UI_GetCvarFloat( const char *name, float def );
@@ -226,8 +230,5 @@ void UI_SetCvarInt( const char *cvar, int value );
 void UI_SetCvarFloat( const char *cvar, float value );
 void UI_ListFiles( const char *filespec );
 const char *UI_ConfigString( int index );
-void UI_Init( void );
-void UI_Shutdown( void );
-void UI_InitExports();
 
 #endif
