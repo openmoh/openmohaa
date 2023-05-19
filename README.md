@@ -126,8 +126,8 @@ https://xiph.org/vorbis/
 
 https://opus-codec.org/
 
-## URL
+## URLs and communities
 
-- https://openmohaa.sourceforge.net/
+- https://github.com/openmoh/openmohaa/
+- https://mohaaaa.co.uk/AAAAMOHAA/index.php
 - https://x-null.net/
-
