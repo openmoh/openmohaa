@@ -1421,6 +1421,10 @@ void CL_ResetPureClientAtServer( void ) {
 	CL_AddReliableCommand( va("vdr") );
 }
 
+qboolean CL_Allowed_Vid_Restart() {
+	return cls.state == CA_DISCONNECTED || cls.state == CA_ACTIVE;
+}
+
 /*
 =================
 CL_Vid_Restart_f
@@ -1432,29 +1436,28 @@ because the renderer doesn't know what graphics to reload
 =================
 */
 void CL_Vid_Restart_f( void ) {
-
-	// Settings may have changed so stop recording now
-	if( CL_VideoRecording( ) ) {
-		CL_CloseAVI( );
+	if (!CL_Allowed_Vid_Restart()) {
+		return;
 	}
 
-	if(clc.demorecording)
-		CL_StopRecord_f();
+	Com_Printf("-------- CL_Vid_Restart_f --------\n");
+	cls.vid_restart = qtrue;
 
 	// don't let them loop during the restart
-	S_StopAllSounds( qtrue );
+	S_StopAllSounds(qtrue);
+
+	SV_ClearSvsTimeFixups();
+
+	S_BeginRegistration();
+
 	// shutdown the renderer and clear the renderer interface
 	CL_ShutdownRef();
 	// shutdown the CGame
 	CL_ShutdownCGame();
 	// initialize the renderer interface
 	CL_InitRef();
-	// client is no longer pure untill new checksums are sent
-	CL_ResetPureClientAtServer();
-	// clear pak references
-	FS_ClearPakReferences( FS_UI_REF | FS_CGAME_REF );
-	// reinitialize the filesystem if the game directory or checksum has changed
-	FS_ConditionalRestart( clc.checksumFeed );
+	// initialize the ui library
+	UI_ResolutionChange();
 
 	cls.rendererRegistered = qfalse;
 	cls.uiStarted = qfalse;
@@ -1469,6 +1472,8 @@ void CL_Vid_Restart_f( void ) {
 
 	S_Init();
 
+	cls.vid_restart = qfalse;
+	Com_Printf("----- finished CL_Vid_Restart_f ----\n");
 }
 
 /*
