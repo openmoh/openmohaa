@@ -871,6 +871,60 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 				ParseWaveForm( text, &stage->rgbWave );
 				stage->rgbGen = CGEN_WAVEFORM;
 			}
+			else if (!Q_stricmp(token, "colorwave"))
+			{
+				vec3_t v;
+
+				ParseVector(text, 3, v);
+				stage->colorConst[0] = v[0] * 255.0;
+				stage->colorConst[1] = v[1] * 255.0;
+				stage->colorConst[2] = v[2] * 255.0;
+				stage->rgbGen = CGEN_MULTIPLY_BY_WAVEFORM;
+				shader.flags |= 2;
+			}
+			else if (!Q_stricmp(token, "identity"))
+			{
+				stage->rgbGen = CGEN_IDENTITY;
+			}
+			else if (!Q_stricmp(token, "identityLighting"))
+			{
+				stage->rgbGen = CGEN_IDENTITY_LIGHTING;
+			}
+			else if (!Q_stricmp(token, "global"))
+			{
+				stage->rgbGen = CGEN_GLOBAL_COLOR;
+			}
+			else if (!Q_stricmp(token, "entity") || !Q_stricmp(token, "fromentity"))
+			{
+				stage->rgbGen = CGEN_ENTITY;
+			}
+			else if (!Q_stricmp(token, "oneMinusEntity"))
+			{
+				stage->rgbGen = CGEN_ONE_MINUS_ENTITY;
+			}
+			else if (!Q_stricmp(token, "vertex") || !Q_stricmp(token, "fromclient"))
+			{
+				stage->rgbGen = CGEN_VERTEX;
+				if (stage->alphaGen == 0) {
+					stage->alphaGen = AGEN_VERTEX;
+				}
+			}
+			else if (!Q_stricmp(token, "exactVertex"))
+			{
+				stage->rgbGen = CGEN_EXACT_VERTEX;
+			}
+			else if (!Q_stricmp(token, "lightingGrid"))
+			{
+				stage->rgbGen = CGEN_LIGHTING_GRID;
+			}
+			else if (!Q_stricmp(token, "lightingSpherical"))
+			{
+				stage->rgbGen = CGEN_LIGHTING_SPHERICAL;
+			}
+			else if (!Q_stricmp(token, "oneMinusVertex"))
+			{
+				stage->rgbGen = CGEN_ONE_MINUS_VERTEX;
+			}
 			else if ( !Q_stricmp( token, "const" ) || !Q_stricmp(token, "constant"))
 			{
 				vec3_t	color;
@@ -882,44 +936,91 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 
 				stage->rgbGen = CGEN_CONSTANT;
 			}
-			else if ( !Q_stricmp( token, "identity" ) )
+			else if (!Q_stricmp(token, "static"))
 			{
-				stage->rgbGen = CGEN_IDENTITY;
-			}
-			else if ( !Q_stricmp( token, "identityLighting" ) )
-			{
-				stage->rgbGen = CGEN_IDENTITY_LIGHTING;
-			}
-			else if ( !Q_stricmp( token, "entity" ) )
-			{
-				stage->rgbGen = CGEN_ENTITY;
-			}
-			else if ( !Q_stricmp( token, "oneMinusEntity" ) )
-			{
-				stage->rgbGen = CGEN_ONE_MINUS_ENTITY;
-			}
-			else if ( !Q_stricmp( token, "vertex" ) )
-			{
-				stage->rgbGen = CGEN_VERTEX;
-				if ( stage->alphaGen == 0 ) {
+				stage->rgbGen = CGEN_STATIC;
+				if (stage->alphaGen == AGEN_IDENTITY) {
 					stage->alphaGen = AGEN_VERTEX;
 				}
 			}
-			else if ( !Q_stricmp( token, "exactVertex" ) )
+			else if (!Q_stricmp(token, "sCoord") || !Q_stricmp(token, "tCoord"))
 			{
-				stage->rgbGen = CGEN_EXACT_VERTEX;
+				if (!Q_stricmp(token, "sCoord")) {
+					stage->rgbGen = CGEN_SCOORD;
+				}
+				else {
+					stage->rgbGen = CGEN_TCOORD;
+				}
+
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+				stage->alphaConstMin = 0;
+				stage->alphaConst = -1;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+
+				stage->alphaMax = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+
+				stage->alphaConstMin = atof(token) * 255.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					ri.Printf(PRINT_WARNING, "WARNING: missing rgbGen sCoord or tCoord parm 'max' in shader '%s'\n", shader.name);
+					continue;
+				}
+
+				stage->alphaConst = atof(token) * 255.0;
 			}
-			else if ( !Q_stricmp( token, "lightingGrid" ) )
+			else if (!Q_stricmp(token, "dot"))
 			{
-				stage->rgbGen = CGEN_LIGHTING_GRID;
-			}
-			else if ( !Q_stricmp( token, "lightingSpherical" ) )
+				stage->rgbGen = CGEN_DOT;
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
+				}
+			else if (!Q_stricmp(token, "oneminusdot"))
 			{
-				stage->rgbGen = CGEN_LIGHTING_SPHERICAL;
-			}
-			else if ( !Q_stricmp( token, "oneMinusVertex" ) )
-			{
-				stage->rgbGen = CGEN_ONE_MINUS_VERTEX;
+				stage->rgbGen = CGEN_ONE_MINUS_DOT;
+				stage->alphaMin = 0.0;
+				stage->alphaMax = 1.0;
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMin = atof(token);
+
+				token = COM_ParseExt(text, qfalse);
+				if (token[0] == 0) {
+					continue;
+				}
+				stage->alphaMax = atof(token);
 			}
 			else
 			{
