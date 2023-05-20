@@ -1119,7 +1119,7 @@ getNewConsole
 ====================
 */
 UIFloatingConsole* getNewConsole() {
-	static constexpr char CONSOLE_NAME[] = PRODUCT_NAME_FULL " - " PRODUCT_VERSION_FULL;
+	static constexpr char CONSOLE_NAME[] = PRODUCT_NAME " console version " PRODUCT_VERSION;
 
 	UIFloatingConsole* console = new UIFloatingConsole;
 	console->Create(NULL, getDefaultConsoleRectangle(), CONSOLE_NAME, UWindowColor, UHudColor);

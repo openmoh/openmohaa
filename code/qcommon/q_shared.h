@@ -29,16 +29,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #endif
 
-#define PRODUCT_NAME            "OpenMoHAA"
-#define PRODUCT_VERSION_NUMBER	"0.51"
-#define PRODUCT_VERSION_STAGE	"alpha"
-#define PRODUCT_VERSION			PRODUCT_VERSION_NUMBER "-" PRODUCT_VERSION_STAGE
-#define PRODUCT_DATE			__DATE__
+#define PRODUCT_NAME					"OpenMoHAA"
 
+//
+// Version
+// 
+// These values are the only one that must be set for the version
+#define PRODUCT_VERSION_MAJOR			0
+#define PRODUCT_VERSION_MINOR			51
+#define PRODUCT_VERSION_PATCH			1
+#define PRODUCT_VERSION_STAGE			"alpha"
+
+//
+// Version display
+//
+#define PRODUCT_VERSION_NUMBER_STRING	XSTRING(PRODUCT_VERSION_MAJOR) "." XSTRING(PRODUCT_VERSION_MINOR) "." XSTRING(PRODUCT_VERSION_PATCH)
+#define PRODUCT_VERSION					PRODUCT_VERSION_NUMBER_STRING "-" PRODUCT_VERSION_STAGE
+#define PRODUCT_DATE					__DATE__
+
+//
+// The target type specifies which content pack the engine targets.
+// 
+// Note: An universal client is not currently possible without refactoring the network and the file system.
+//       Pak files must be reloaded on-the-fly depending on the server the client is connecting to.
+//
 #if TARGET_GAME_TYPE == 1
+	//
 	// Team Assault
+	//
 	#define BASEGAME				"mainta"
-	#define PRODUCT_EXTENSION		"Spearhead"
+	#define PRODUCT_EXTENSION		"spearhead"
 	// The version string must be equal or above 2.0 to be able to connect to spearhead servers
 	#define TARGET_GAME_VERSION		"2.16"
 	#define TARGET_GAME_PROTOCOL	17
@@ -48,10 +68,12 @@ extern "C" {
 	#define HOMEPATH_NAME_WIN		"mohta"
 	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 #elif TARGET_GAME_TYPE == 2
+	//
 	// Team Tactics
+	//
 	#define BASEGAME				"maintt"
-	#define PRODUCT_EXTENSION		"Breakthrough"
-		// The version string must be equal or above 2.0 to be able to connect to breakthrough servers
+	#define PRODUCT_EXTENSION		"breakthrough"
+	// The version string must be equal or above 2.0 to be able to connect to breakthrough servers
 	#define	TARGET_GAME_VERSION		"2.41"
 	#define TARGET_GAME_PROTOCOL	17
 	#define TARGET_GAME_NAME		"mohaab"
@@ -60,11 +82,13 @@ extern "C" {
 	#define HOMEPATH_NAME_WIN		"mohtt"
 	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 #else
-	// The default: the base game (no expansion)
+	//
+	// Base game
+	//
 
 	#define BASEGAME				"main"
-	#define PRODUCT_EXTENSION		"Base"
-	// The version string must be below 1.12, otherwise it's not possible to connect
+	#define PRODUCT_EXTENSION		"base"
+	// The version string must be 1.1x or below, otherwise it's not possible to connect
 	#define TARGET_GAME_VERSION		"1.12"
 	#define TARGET_GAME_PROTOCOL	8
 	#define TARGET_GAME_NAME		"mohaa"
@@ -74,11 +98,11 @@ extern "C" {
 	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 #endif
 
-#define PRODUCT_NAME_FULL		PRODUCT_NAME ": " PRODUCT_EXTENSION
-#define PRODUCT_VERSION_FULL	PRODUCT_VERSION " (for " TARGET_GAME_VERSION ")"
+#define PRODUCT_NAME_FULL		PRODUCT_NAME " - v" PRODUCT_VERSION " - ext-" PRODUCT_EXTENSION
+#define PRODUCT_VERSION_FULL	PRODUCT_NAME_FULL
 
-#define CLIENT_WINDOW_TITLE     "OpenMoHAA"
-#define CLIENT_WINDOW_MIN_TITLE "OpenMoHAA"
+#define CLIENT_WINDOW_TITLE		PRODUCT_NAME
+#define CLIENT_WINDOW_MIN_TITLE PRODUCT_NAME
 
 #define MAX_TEAMNAME 32
 
