@@ -86,7 +86,7 @@ static void R_ValidateHeightmapForVertex(terraTri_t* pTri)
 	}
 }
 
-static int R_AllocateVert(cTerraPatchUnpacked_t* patch)
+static terraInt R_AllocateVert(cTerraPatchUnpacked_t* patch)
 {
 	terraInt iVert = g_vert.iFreeHead;
 
@@ -227,12 +227,13 @@ static void R_ReleaseTri(cTerraPatchUnpacked_t* patch, terraInt iTri)
 
 static int R_ConstChecksForTri(terraTri_t* pTri)
 {
-	varnodeUnpacked_t vn = *pTri->varnode;
+	varnodeUnpacked_t vn;
 
 	if (pTri->lod == MAX_TERRAIN_LOD) {
 		return 2;
 	}
 
+	vn = *pTri->varnode;
 	vn.s.flags &= 0xF0u;
 
 	if (vn.fVariance == 0.0 && !(pTri->varnode->s.flags & 8)) {
@@ -340,7 +341,7 @@ void R_SplitTri(terraInt iSplit, terraInt iNewPt, terraInt iLeft, terraInt iRigh
 
 	int iNextLod = pSplit->lod + 1;
 	int index = pSplit->index;
-	varnodeUnpacked_t* varnode = pSplit->varnode + index;
+	varnodeUnpacked_t* varnode = &pSplit->varnode[index];
 
 	if (pLeft)
 	{
