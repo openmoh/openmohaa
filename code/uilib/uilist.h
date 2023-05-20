@@ -59,6 +59,7 @@ protected:
 	void		AddItem( str item, str alias );
 public:
 	UIList();
+	~UIList();
 
 	void	UpdateUIElement( void );
 	void	UpdateData( void );

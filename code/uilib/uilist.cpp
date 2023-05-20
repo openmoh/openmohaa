@@ -55,6 +55,19 @@ UIList::UIList()
 	}
 }
 
+UIList::~UIList()
+{
+	for (int i = m_itemlist.NumObjects(); i > 0; i--)
+	{
+		UIListItem* item = m_itemlist.ObjectAt(i);
+		m_itemlist.RemoveObjectAt(i);
+		delete item;
+	}
+
+	if (m_prev_arrow_region) delete m_prev_arrow_region;
+	if (m_next_arrow_region) delete m_next_arrow_region;
+}
+
 void UIList::Draw
 	(
 	void

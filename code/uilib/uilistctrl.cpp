@@ -52,6 +52,14 @@ UIListCtrl::UIListCtrl()
 	m_foreground_color = UHudColor;
 }
 
+UIListCtrl::~UIListCtrl()
+{
+	if (m_headerfont) {
+		delete m_headerfont;
+		m_headerfont = NULL;
+	}
+}
+
 int UIListCtrl::StringCompareFunction
 	(
 	const UIListCtrlItem *i1,

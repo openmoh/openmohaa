@@ -87,6 +87,7 @@ protected:
 	void					DrawContent( void );
 public:
 	UIListCtrl();
+	~UIListCtrl();
 
 	void				FrameInitialized( void );
 	void				SetDrawHeader( qboolean bDrawHeader );
