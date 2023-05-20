@@ -199,7 +199,7 @@ void UIFloatingWindow::MinimizePressed
 		// so the window can be restored later
 		m_restoredHeight = size.height;
 		size.height = 20.0;
-		m_minimizeButton->setTitle(1);
+		m_minimizeButton->setTitle("1");
 	}
 	else
 	{
@@ -296,9 +296,9 @@ void UIFloatingWindow::SizeChanged
 		return;
 	}
 
-	setFrame(childRect);
-	setFrame(UIRect2D(m_frame.size.width - 18.0, 2.0, 16.0, 16.0));
-	setFrame(UIRect2D(m_frame.size.width - 36.0, 2.0, 16.0, 16.0));
+	m_childspace->setFrame(childRect);
+	m_closeButton->setFrame(UIRect2D(m_frame.size.width - 18.0, 2.0, 16.0, 16.0));
+	m_minimizeButton->setFrame(UIRect2D(m_frame.size.width - 36.0, 2.0, 16.0, 16.0));
 }
 
 void UIFloatingWindow::OnActivated
@@ -368,6 +368,8 @@ void UIFloatingWindow::Draw
 		textColor = m_textColor;
 
 		UColorHSV tmp(titleBar);
+		tmp.s *= 0.75;
+		tmp.v *= 1.333;
 		newColor = tmp;
 
 		titleBorder.dark = newColor;
@@ -379,7 +381,7 @@ void UIFloatingWindow::Draw
 	{
 		UColor newColor(0.1125, 0.147, 0.2085, 1.0);
 
-		titleBar = titleBar;
+		titleBar = newColor;
 		textColor = UBlack;
 
 		titleBorder.CreateSolidBorder(newColor, DARK);
