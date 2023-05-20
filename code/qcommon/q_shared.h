@@ -1758,7 +1758,7 @@ typedef struct playerState_s {
 #define WEAPON_COMMAND_HOLSTER                  14
 #define WEAPON_COMMAND_DROP                     15
 #define WEAPON_COMMAND_MAX						15
-#define WEAPON_COMMAND_MASK						WEAPON_COMMAND_MAX << 7
+#define WEAPON_COMMAND_MASK						(WEAPON_COMMAND_MAX << 7)
 
 
 #define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,

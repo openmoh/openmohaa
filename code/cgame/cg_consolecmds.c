@@ -558,8 +558,7 @@ int CG_WeaponCommandButtonBits(void)
 {
     int iShiftedWeaponCommand;
 
-    iShiftedWeaponCommand = cg.iWeaponCommand;
-    if (!iShiftedWeaponCommand) {
+    if (!cg.iWeaponCommand) {
         return 0;
     }
 
@@ -568,5 +567,6 @@ int CG_WeaponCommandButtonBits(void)
         cg.iWeaponCommand = 0;
     }
 
-    return (iShiftedWeaponCommand << 7) & WEAPON_COMMAND_MASK;
+    iShiftedWeaponCommand = cg.iWeaponCommand << 7;
+    return iShiftedWeaponCommand & WEAPON_COMMAND_MASK;
 }
