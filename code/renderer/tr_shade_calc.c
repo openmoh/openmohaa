@@ -802,95 +802,6 @@ TEX COORDS
 */
 
 /*
-========================
-RB_CalcFogTexCoords
-
-To do the clipped fog plane really correctly, we should use
-projected textures, but I don't trust the drivers and it
-doesn't fit our shader data.
-========================
-*/
-void RB_CalcFogTexCoords( float *st ) {
-	int			i;
-	float		*v;
-	float		s, t;
-	float		eyeT;
-	qboolean	eyeOutside;
-	fog_t		*fog;
-	vec3_t		local;
-	vec4_t		fogDistanceVector, fogDepthVector;
-
-	fog = tr.world->fogs + tess.fogNum;
-
-	// all fogging distance is based on world Z units
-	VectorSubtract( backEnd.ori.origin, backEnd.viewParms.ori.origin, local );
-	fogDistanceVector[0] = -backEnd.ori.modelMatrix[2];
-	fogDistanceVector[1] = -backEnd.ori.modelMatrix[6];
-	fogDistanceVector[2] = -backEnd.ori.modelMatrix[10];
-	fogDistanceVector[3] = DotProduct( local, backEnd.viewParms.ori.axis[0] );
-
-	// scale the fog vectors based on the fog's thickness
-	fogDistanceVector[0] *= fog->tcScale;
-	fogDistanceVector[1] *= fog->tcScale;
-	fogDistanceVector[2] *= fog->tcScale;
-	fogDistanceVector[3] *= fog->tcScale;
-
-	// rotate the gradient vector for this orientation
-	if ( fog->hasSurface ) {
-		fogDepthVector[0] = fog->surface[0] * backEnd.ori.axis[0][0] + 
-			fog->surface[1] * backEnd.ori.axis[0][1] + fog->surface[2] * backEnd.ori.axis[0][2];
-		fogDepthVector[1] = fog->surface[0] * backEnd.ori.axis[1][0] + 
-			fog->surface[1] * backEnd.ori.axis[1][1] + fog->surface[2] * backEnd.ori.axis[1][2];
-		fogDepthVector[2] = fog->surface[0] * backEnd.ori.axis[2][0] + 
-			fog->surface[1] * backEnd.ori.axis[2][1] + fog->surface[2] * backEnd.ori.axis[2][2];
-		fogDepthVector[3] = -fog->surface[3] + DotProduct( backEnd.ori.origin, fog->surface );
-
-		eyeT = DotProduct( backEnd.ori.viewOrigin, fogDepthVector ) + fogDepthVector[3];
-	} else {
-		eyeT = 1;	// non-surface fog always has eye inside
-	}
-
-	// see if the viewpoint is outside
-	// this is needed for clipping distance even for constant fog
-
-	if ( eyeT < 0 ) {
-		eyeOutside = qtrue;
-	} else {
-		eyeOutside = qfalse;
-	}
-
-	fogDistanceVector[3] += 1.0/512;
-
-	// calculate density for each point
-	for (i = 0, v = tess.xyz[0] ; i < tess.numVertexes ; i++, v += 4) {
-		// calculate the length in fog
-		s = DotProduct( v, fogDistanceVector ) + fogDistanceVector[3];
-		t = DotProduct( v, fogDepthVector ) + fogDepthVector[3];
-
-		// partially clipped fogs use the T axis		
-		if ( eyeOutside ) {
-			if ( t < 1.0 ) {
-				t = 1.0/32;	// point is outside, so no fogging
-			} else {
-				t = 1.0/32 + 30.0/32 * t / ( t - eyeT );	// cut the distance at the fog plane
-			}
-		} else {
-			if ( t < 0 ) {
-				t = 1.0/32;	// point is outside, so no fogging
-			} else {
-				t = 31.0/32;
-			}
-		}
-
-		st[0] = s;
-		st[1] = t;
-		st += 2;
-	}
-}
-
-
-
-/*
 ** RB_CalcEnvironmentTexCoords
 */
 void RB_CalcEnvironmentTexCoords( float *st ) 
@@ -1099,7 +1010,36 @@ void RB_CalcSpecularAlpha(unsigned char* alphas, float alphaMax, vec3_t lightOri
 
 void RB_CalcLightGridColor(unsigned char* colors)
 {
-	// FIXME/ unimplemented
+	int i;
+
+	if (!backEnd.currentEntity) {
+		for (i = 0; i < tess.numVertexes; i++) {
+			colors[i * 4] = backEnd.currentStaticModel->iGridLighting;
+			colors[i * 4 + 1] = backEnd.currentStaticModel->iGridLighting;
+			colors[i * 4 + 2] = backEnd.currentStaticModel->iGridLighting;
+			colors[i * 4 + 3] = backEnd.currentStaticModel->iGridLighting;
+		}
+	}
+	else if (backEnd.currentEntity != &tr.worldEntity) {
+		for (i = 0; i < tess.numVertexes; i++) {
+			colors[i * 4] = backEnd.currentEntity->iGridLighting;
+			colors[i * 4 + 1] = backEnd.currentEntity->iGridLighting;
+			colors[i * 4 + 2] = backEnd.currentEntity->iGridLighting;
+			colors[i * 4 + 3] = backEnd.currentEntity->iGridLighting;
+		}
+	}
+	else {
+		Com_Printf(
+			"##### shader '%s' incorrectly uses rgbGen lightingGrid or lightingSpherical; was rgbGen vertex intended?\n",
+			tess.shader->name);
+
+		for (i = 0; i < tess.numVertexes; i++) {
+			colors[i * 4] = 0xFF;
+			colors[i * 4 + 1] = 0xFF;
+			colors[i * 4 + 2] = 0xFF;
+			colors[i * 4 + 3] = 0xFF;
+		}
+	}
 }
 
 void RB_CalcAlphaFromDotView(unsigned char* colors, float alphaMin, float alphaMax)

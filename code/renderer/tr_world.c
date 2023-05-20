@@ -539,7 +539,10 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 
 }
 
-
+int R_SphereInLeafs(vec_t* p, float r, mnode_t** nodes, int nMaxNodes) {
+	// FIXME: unimplemented
+	return 0;
+}
 /*
 ===============
 R_PointInLeaf

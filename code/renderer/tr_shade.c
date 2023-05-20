@@ -682,43 +682,6 @@ static void ProjectDlightTexture( void ) {
 	}
 }
 
-
-/*
-===================
-RB_FogPass
-
-Blends a fog texture on top of everything else
-===================
-*/
-static void RB_FogPass( void ) {
-	fog_t		*fog;
-	int			i;
-
-	qglEnableClientState( GL_COLOR_ARRAY );
-	qglColorPointer( 4, GL_UNSIGNED_BYTE, 0, tess.svars.colors );
-
-	qglEnableClientState( GL_TEXTURE_COORD_ARRAY);
-	qglTexCoordPointer( 2, GL_FLOAT, 0, tess.svars.texcoords[0] );
-
-	fog = tr.world->fogs + tess.fogNum;
-
-	for ( i = 0; i < tess.numVertexes; i++ ) {
-		* ( int * )&tess.svars.colors[i] = fog->colorInt;
-	}
-
-	RB_CalcFogTexCoords( ( float * ) tess.svars.texcoords[0] );
-
-	GL_Bind( tr.fogImage );
-
-	if ( tess.shader->fogPass == FP_EQUAL ) {
-		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL );
-	} else {
-		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
-	}
-
-	R_DrawElements( tess.numIndexes, tess.indexes );
-}
-
 /*
 ===============
 ComputeColors
@@ -875,7 +838,7 @@ static void ComputeColors( shaderStage_t *pStage )
 					{
 						float t;
 
-						t = 255.0 / (float)max(r, max(g, b));
+						t = 255.0 / (float)Q_max(r, Q_max(g, b));
 
 						r = (int)((float)r * t);
 						g = (int)((float)g * t);
@@ -1112,9 +1075,6 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 				tess.svars.texcoords[b][i][0] = DotProduct( tess.xyz[i], pStage->bundle[b].tcGenVectors[0] );
 				tess.svars.texcoords[b][i][1] = DotProduct( tess.xyz[i], pStage->bundle[b].tcGenVectors[1] );
 			}
-			break;
-		case TCGEN_FOG:
-			RB_CalcFogTexCoords( ( float * ) tess.svars.texcoords[b] );
 			break;
 		case TCGEN_ENVIRONMENT_MAPPED:
 			RB_CalcEnvironmentTexCoords( ( float * ) tess.svars.texcoords[b] );
@@ -1373,7 +1333,7 @@ void RB_StageIteratorGeneric( void )
 /*
 ** RB_StageIteratorVertexLitTexture
 */
-void RB_StageIteratorVertexLitTexture( void )
+void RB_StageIteratorVertexLitTextureUnfogged( void )
 {
 	shaderCommands_t *input;
 	shader_t		*shader;
@@ -1382,10 +1342,16 @@ void RB_StageIteratorVertexLitTexture( void )
 
 	shader = input->shader;
 
-	//
-	// compute colors
-	//
-	RB_CalcDiffuseColor( ( unsigned char * ) tess.svars.colors );
+	if (backEnd.currentSphere->TessFunction && r_drawspherelights->integer) {
+		backEnd.currentSphere->TessFunction((unsigned char*)tess.svars.colors);
+	}
+	else
+	{
+		//
+		// compute colors
+		//
+		RB_CalcLightGridColor((unsigned char*)tess.svars.colors);
+	}
 
 	//
 	// log this call
@@ -1432,13 +1398,6 @@ void RB_StageIteratorVertexLitTexture( void )
 		ProjectDlightTexture();
 	}
 
-	//
-	// now do fog
-	//
-	if ( tess.fogNum && tess.shader->fogPass ) {
-		RB_FogPass();
-	}
-
 	// 
 	// unlock arrays
 	//
@@ -1451,7 +1410,7 @@ void RB_StageIteratorVertexLitTexture( void )
 
 //define	REPLACE_MODE
 
-void RB_StageIteratorLightmappedMultitexture( void ) {
+void RB_StageIteratorLightmappedMultitextureUnfogged( void ) {
 	shaderCommands_t *input;
 
 	input = &tess;
@@ -1535,13 +1494,6 @@ void RB_StageIteratorLightmappedMultitexture( void ) {
 	//
 	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE ) {
 		ProjectDlightTexture();
-	}
-
-	//
-	// now do fog
-	//
-	if ( tess.fogNum && tess.shader->fogPass ) {
-		RB_FogPass();
 	}
 
 	//

@@ -717,7 +717,14 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			continue;
 		}
 		oldSort = drawSurf->sort;
-		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &dlightMap, &bStaticModel );
+		if (drawSurf->surface != SF_SPRITE) {
+			R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &dlightMap, &bStaticModel);
+		} else {
+			shader = tr.sortedShaders[((refSprite_t*)drawSurf->surface)->shaderNum];
+			entityNum = ENTITYNUM_WORLD;
+			dlightMap = 0;
+			bStaticModel = qfalse;
+		}
 
 		//
 		// change the tess parameters if needed
@@ -743,6 +750,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			oldDlightMap = dlightMap;
 		}
 
+		backEnd.currentSphere = &backEnd.spareSphere;
 		//
 		// change the modelview matrix if needed
 		//

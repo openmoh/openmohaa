@@ -2009,7 +2009,7 @@ static void ComputeStageIteratorFunc( void )
 						{
 							if ( !shader.numDeforms )
 							{
-								shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTexture;
+								shader.optimalStageIteratorFunc = RB_StageIteratorVertexLitTextureUnfogged;
 								goto done;
 							}
 						}
@@ -2035,7 +2035,7 @@ static void ComputeStageIteratorFunc( void )
 					{
 						if (unfoggedStages[0].multitextureEnv )
 						{
-							shader.optimalStageIteratorFunc = RB_StageIteratorLightmappedMultitexture;
+							shader.optimalStageIteratorFunc = RB_StageIteratorLightmappedMultitextureUnfogged;
 							goto done;
 						}
 					}
@@ -3016,9 +3016,9 @@ void	R_ShaderList_f (void) {
 			ri.Printf( PRINT_ALL, "gen " );
 		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorSky ) {
 			ri.Printf( PRINT_ALL, "sky " );
-		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorLightmappedMultitexture ) {
+		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorLightmappedMultitextureUnfogged ) {
 			ri.Printf( PRINT_ALL, "lmmt" );
-		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorVertexLitTexture ) {
+		} else if ( shader->optimalStageIteratorFunc == RB_StageIteratorVertexLitTextureUnfogged ) {
 			ri.Printf( PRINT_ALL, "vlt " );
 		} else {
 			ri.Printf( PRINT_ALL, "    " );

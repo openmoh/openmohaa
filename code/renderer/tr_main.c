@@ -1095,39 +1095,6 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 }
 
 /*
-=================
-R_SpriteFogNum
-
-See if a sprite is inside a fog volume
-=================
-*/
-int R_SpriteFogNum( trRefEntity_t *ent ) {
-	int				i, j;
-	fog_t			*fog;
-
-	if ( tr.refdef.rdflags & RDF_NOWORLDMODEL ) {
-		return 0;
-	}
-
-	for ( i = 1 ; i < tr.world->numfogs ; i++ ) {
-		fog = &tr.world->fogs[i];
-		for ( j = 0 ; j < 3 ; j++ ) {
-			if ( ent->e.origin[j] - ent->e.radius >= fog->bounds[1][j] ) {
-				break;
-			}
-			if ( ent->e.origin[j] + ent->e.radius <= fog->bounds[0][j] ) {
-				break;
-			}
-		}
-		if ( j == 3 ) {
-			return i;
-		}
-	}
-
-	return 0;
-}
-
-/*
 ==========================================================================================
 
 DRAWSURF SORTING

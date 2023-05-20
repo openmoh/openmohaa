@@ -872,13 +872,6 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 	}
 
 	//
-	// set up lighting now that we know we aren't culled
-	//
-	if( !personalModel || r_shadows->integer > 1 ) {
-		R_SetupEntityLighting( &tr.refdef, ent );
-	}
-
-	//
 	// draw all meshes
 	//
 	dsurf = tiki->surfaces;

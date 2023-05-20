@@ -1904,128 +1904,12 @@ static	void R_LoadPlanes(gamelump_t* l) {
 }
 
 /*
-=================
-R_LoadFogs
-
-=================
-*/
-static	void R_LoadFogs(gamelump_t* l, gamelump_t* brushesLump, gamelump_t* sidesLump) {
-    int			i;
-    fog_t* out;
-    dfog_t* fogs;
-    dbrush_t* brushes, * brush;
-    dbrushside_t* sides;
-    int			count, brushesCount, sidesCount;
-    int			sideNum;
-    int			planeNum;
-    shader_t* shader;
-    float		d;
-    int			firstSide;
-
-    fogs = l->buffer;
-    if (l->length % sizeof(*fogs)) {
-        ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
-    }
-    count = l->length / sizeof(*fogs);
-
-    // create fog strucutres for them
-    s_worldData.numfogs = count + 1;
-    s_worldData.fogs = ri.Hunk_Alloc(s_worldData.numfogs * sizeof(*out));
-    out = s_worldData.fogs + 1;
-
-    if (!count) {
-        return;
-    }
-
-    brushes = brushesLump->buffer;
-    if (brushesLump->length % sizeof(*brushes)) {
-        ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
-    }
-    brushesCount = brushesLump->length / sizeof(*brushes);
-
-    sides = sidesLump->buffer;
-    if (sidesLump->length % sizeof(*sides)) {
-        ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
-    }
-    sidesCount = sidesLump->length / sizeof(*sides);
-
-    for (i = 0; i < count; i++, fogs++) {
-        out->originalBrushNumber = LittleLong(fogs->brushNum);
-
-        if ((unsigned)out->originalBrushNumber >= brushesCount) {
-            ri.Error(ERR_DROP, "fog brushNumber out of range");
-        }
-        brush = brushes + out->originalBrushNumber;
-
-        firstSide = LittleLong(brush->firstSide);
-
-        if ((unsigned)firstSide > sidesCount - 6) {
-            ri.Error(ERR_DROP, "fog brush sideNumber out of range");
-        }
-
-        // brushes are always sorted with the axial sides first
-        sideNum = firstSide + 0;
-        planeNum = LittleLong(sides[sideNum].planeNum);
-        out->bounds[0][0] = -s_worldData.planes[planeNum].dist;
-
-        sideNum = firstSide + 1;
-        planeNum = LittleLong(sides[sideNum].planeNum);
-        out->bounds[1][0] = s_worldData.planes[planeNum].dist;
-
-        sideNum = firstSide + 2;
-        planeNum = LittleLong(sides[sideNum].planeNum);
-        out->bounds[0][1] = -s_worldData.planes[planeNum].dist;
-
-        sideNum = firstSide + 3;
-        planeNum = LittleLong(sides[sideNum].planeNum);
-        out->bounds[1][1] = s_worldData.planes[planeNum].dist;
-
-        sideNum = firstSide + 4;
-        planeNum = LittleLong(sides[sideNum].planeNum);
-        out->bounds[0][2] = -s_worldData.planes[planeNum].dist;
-
-        sideNum = firstSide + 5;
-        planeNum = LittleLong(sides[sideNum].planeNum);
-        out->bounds[1][2] = s_worldData.planes[planeNum].dist;
-
-        // get information from the shader for fog parameters
-        shader = R_FindShader(fogs->shader, LIGHTMAP_NONE, qtrue, qtrue, qtrue, qtrue);
-
-        out->parms = shader->fogParms;
-
-        out->colorInt = ColorBytes4(shader->fogParms.color[0] * tr.identityLight,
-            shader->fogParms.color[1] * tr.identityLight,
-            shader->fogParms.color[2] * tr.identityLight, 1.0);
-
-        d = shader->fogParms.depthForOpaque < 1 ? 1 : shader->fogParms.depthForOpaque;
-        out->tcScale = 1.0f / (d * 8);
-
-        // set the gradient vector
-        sideNum = LittleLong(fogs->visibleSide);
-
-        if (sideNum == -1) {
-            out->hasSurface = qfalse;
-        }
-        else {
-            out->hasSurface = qtrue;
-            planeNum = LittleLong(sides[firstSide + sideNum].planeNum);
-            VectorSubtract(vec3_origin, s_worldData.planes[planeNum].normal, out->surface);
-            out->surface[3] = -s_worldData.planes[planeNum].dist;
-        }
-
-        out++;
-    }
-
-}
-
-
-/*
 ================
 R_LoadLightGrid
 
 ================
 */
-void R_LoadLightGrid(gamelump_t* l) {
+void R_LoadLightGrid(gamelump_t* plPal, gamelump_t* plOffsets, gamelump_t* plData) {
 	int		i;
 	vec3_t	maxs;
 	int		numGridPoints;
@@ -2034,35 +1918,51 @@ void R_LoadLightGrid(gamelump_t* l) {
 
 	w = &s_worldData;
 
-	w->lightGridInverseSize[0] = 1.0f / w->lightGridSize[0];
-	w->lightGridInverseSize[1] = 1.0f / w->lightGridSize[1];
-	w->lightGridInverseSize[2] = 1.0f / w->lightGridSize[2];
+	if (!plPal->buffer || !plOffsets->buffer || !plData->buffer) {
+		ri.Printf(PRINT_WARNING, "WARNING: No light grid data present\n");
+		w->lightGridOffsets = 0;
+		w->lightGridData = 0;
+		return;
+	}
+
+	w->lightGridSize[0] = 32.0;
+	w->lightGridSize[1] = 32.0;
+	w->lightGridSize[2] = 32.0;
+	w->lightGridOOSize[0] = 1.0f / w->lightGridSize[0];
+	w->lightGridOOSize[1] = 1.0f / w->lightGridSize[1];
+	w->lightGridOOSize[2] = 1.0f / w->lightGridSize[2];
 
 	wMins = w->bmodels[0].bounds[0];
 	wMaxs = w->bmodels[0].bounds[1];
 
 	for ( i = 0 ; i < 3 ; i++ ) {
-		w->lightGridOrigin[i] = w->lightGridSize[i] * ceil( wMins[i] / w->lightGridSize[i] );
+		w->lightGridMins[i] = w->lightGridSize[i] * ceil( wMins[i] / w->lightGridSize[i] );
 		maxs[i] = w->lightGridSize[i] * floor( wMaxs[i] / w->lightGridSize[i] );
-		w->lightGridBounds[i] = (maxs[i] - w->lightGridOrigin[i])/w->lightGridSize[i] + 1;
+		w->lightGridBounds[i] = (maxs[i] - w->lightGridMins[i])/w->lightGridSize[i] + 1;
 	}
 
-	numGridPoints = w->lightGridBounds[0] * w->lightGridBounds[1] * w->lightGridBounds[2];
+	numGridPoints = w->lightGridBounds[0] * w->lightGridBounds[1] + w->lightGridBounds[0];
 
-    if (l->length != numGridPoints * 8) {
-        ri.Printf(PRINT_WARNING, "WARNING: light grid mismatch\n");
+    if (plOffsets->length != numGridPoints * 2) {
+		ri.Printf(PRINT_WARNING, "WARNING: light grid offset size mismatch\n");
+		w->lightGridOffsets = NULL;
         w->lightGridData = NULL;
         return;
     }
 
-    w->lightGridData = ri.Hunk_Alloc(l->length);
-    Com_Memcpy(w->lightGridData, (void*)l->buffer, l->length);
-
-	// deal with overbright bits
-	for ( i = 0 ; i < numGridPoints ; i++ ) {
-		R_ColorShiftLightingBytesAlpha( &w->lightGridData[i*8], &w->lightGridData[i*8] );
-		R_ColorShiftLightingBytesAlpha( &w->lightGridData[i*8+3], &w->lightGridData[i*8+3] );
+	if (plPal->length != 768) {
+		ri.Printf(PRINT_WARNING, "WARNING: light grid palette size mismatch\n");
+		w->lightGridOffsets = NULL;
+		w->lightGridData = NULL;
+		return;
 	}
+
+	w->lightGridOffsets = ri.Hunk_Alloc(plOffsets->length);
+	Com_Memcpy(w->lightGridOffsets, plOffsets->buffer, plOffsets->length);
+	Com_Memcpy(w->lightGridPalette, plPal->buffer, sizeof(s_worldData.lightGridPalette));
+
+    w->lightGridData = ri.Hunk_Alloc(plData->length);
+    Com_Memcpy(w->lightGridData, plData->buffer, plData->length);
 }
 
 /*
@@ -2339,13 +2239,7 @@ void RE_LoadWorldMap( const char *name ) {
     _R(75);
     R_FreeLump(&lump2);
     _R(76);
-    numbrushsides = R_LoadLump(h, &header.lumps[LUMP_BRUSHSIDES], &lump2, sizeof(dbrushside_t));
-    numbrushes = R_LoadLump(h, &header.lumps[LUMP_BRUSHES], &lump, sizeof(dbrush_t));
-    numFogs = R_LoadLump(h, &header.lumps[LUMP_DUMMY10], &lump3, sizeof(dfog_t));
-    R_LoadFogs(&lump3, &lump, &lump2);
-    R_FreeLump(&lump);
-    R_FreeLump(&lump2);
-    R_FreeLump(&lump3);
+	numFogs = 0;
     nummodels = R_LoadLump(h, &header.lumps[LUMP_MODELS], &lump, sizeof(bmodel_t));
     _R(77);
     R_LoadSubmodels(&lump);
@@ -2364,8 +2258,7 @@ void RE_LoadWorldMap( const char *name ) {
     _R(84);
     g_iGridDataSize = R_LoadLump(h, &header.lumps[LUMP_LIGHTGRIDDATA], &lump3, sizeof(byte));
     _R(85);
-    //R_LoadLightGrid( &lump, &lump2, &lump3 );
-    R_LoadLightGrid(&lump3);
+    R_LoadLightGrid( &lump, &lump2, &lump3 );
     _R(86);
     R_FreeLump(&lump);
     _R(87);

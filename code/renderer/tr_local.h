@@ -1050,13 +1050,11 @@ typedef struct {
 	int			nummarksurfaces;
 	msurface_t	**marksurfaces;
 
-	int			numfogs;
-	fog_t		*fogs;
-
-	vec3_t		lightGridOrigin;
+	vec3_t		lightGridMins;
 	vec3_t		lightGridSize;
-	vec3_t		lightGridInverseSize;
+	vec3_t		lightGridOOSize;
 	int			lightGridBounds[3];
+	unsigned short* lightGridOffsets;
 	byte		*lightGridData;
 	byte        lightGridPalette[768];
 
@@ -1822,8 +1820,8 @@ void RB_CheckOverflow( int verts, int indexes );
 
 void RB_StageIteratorGeneric( void );
 void RB_StageIteratorSky( void );
-void RB_StageIteratorVertexLitTexture( void );
-void RB_StageIteratorLightmappedMultitexture( void );
+void RB_StageIteratorVertexLitTextureUnfogged( void );
+void RB_StageIteratorLightmappedMultitextureUnfogged( void );
 
 void RB_AddQuadStamp( vec3_t origin, vec3_t left, vec3_t up, byte *color );
 void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, float s1, float t1, float s2, float t2 );
@@ -1844,6 +1842,7 @@ extern terrainVert_t* g_pVert;
 
 void R_AddBrushModelSurfaces( trRefEntity_t *e );
 void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs);
+int R_SphereInLeafs(vec_t* p, float r, mnode_t** nodes, int nMaxNodes);
 mnode_t* R_PointInLeaf(const vec3_t p);
 int R_DlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits);
 int R_CheckDlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits);
@@ -1874,17 +1873,18 @@ LIGHTS
 */
 
 void R_DlightBmodel( bmodel_t *bmodel );
+void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight);
 void R_GetLightingForDecal(vec3_t vLight, vec3_t vFacing, vec3_t vOrigin);
 void R_GetLightingForSmoke(vec3_t vLight, vec3_t vOrigin);
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
+void RB_SetupEntityGridLighting();
 void R_TransformDlights( int count, dlight_t *dl, orientationr_t *ori );
-int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
-void RB_Light_Real(const color4ub_t colors);
+void RB_Light_Real(unsigned char* colors);
 void RB_Sphere_BuildDLights();
 void RB_Sphere_SetupEntity();
 void RB_Grid_SetupEntity();
 void RB_Grid_SetupStaticModel();
-void RB_Light_Fullbright(const color4ub_t colors);
+void RB_Light_Fullbright(unsigned char* colors);
 void R_Sphere_InitLights();
 int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights);
 void R_UploadDlights();
@@ -2134,7 +2134,6 @@ void	R_TransformClipToWindow( const vec4_t clip, const viewParms_t *view, vec4_t
 void	RB_DeformTessGeometry( void );
 
 void	RB_CalcEnvironmentTexCoords( float *dstTexCoords );
-void	RB_CalcFogTexCoords( float *dstTexCoords );
 void	RB_CalcScrollTexCoords( const float scroll[2], float *dstTexCoords );
 void	RB_CalcRotateTexCoords( float rotSpeed, float *dstTexCoords );
 void	RB_CalcScaleTexCoords( const float scale[2], float *dstTexCoords );
@@ -2181,6 +2180,14 @@ RENDERER BACK END COMMAND QUEUE
 */
 
 #define	MAX_RENDER_COMMANDS	0x40000
+
+typedef struct suninfo_s {
+	vec3_t color;
+	vec3_t direction;
+	vec3_t flaredirection;
+	char szFlareName[64];
+	qboolean exists;
+} suninfo_t;
 
 typedef struct {
 	byte	cmds[MAX_RENDER_COMMANDS];
