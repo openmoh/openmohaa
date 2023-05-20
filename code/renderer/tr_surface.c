@@ -343,6 +343,7 @@ RB_SurfaceFace
 */
 void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
 	int			i;
+	qboolean	needsNormal;
 	unsigned	*indices, *tessIndexes;
 	float		*v;
 	float		*normal;
@@ -366,27 +367,48 @@ void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
 
 	tess.numIndexes += surf->numIndices;
 
+	numPoints = surf->numPoints;
+
+	needsNormal = qfalse;
+	if (tess.shader->needsNormal || tess.shader->needsLSpherical || tr.refdef.num_dlights) {
+		needsNormal = qtrue;
+	}
+
 	v = surf->points[0];
 
 	ndx = tess.numVertexes;
 
-	numPoints = surf->numPoints;
-
-	if ( tess.shader->needsNormal || tess.shader->needsLSpherical || tr.refdef.num_dlights ) {
+	if (needsNormal) {
 		normal = surf->plane.normal;
 		for ( i = 0, ndx = tess.numVertexes; i < numPoints; i++, ndx++ ) {
 			VectorCopy( normal, tess.normal[ndx] );
 		}
 	}
 
-	for ( i = 0, v = surf->points[0], ndx = tess.numVertexes; i < numPoints; i++, v += VERTEXSIZE, ndx++ ) {
-		VectorCopy( v, tess.xyz[ndx]);
-		tess.texCoords[ndx][0][0] = v[3];
-		tess.texCoords[ndx][0][1] = v[4];
-		tess.texCoords[ndx][1][0] = v[5];
-		tess.texCoords[ndx][1][1] = v[6];
-		* ( unsigned int * ) &tess.vertexColors[ndx] = * ( unsigned int * ) &v[7];
-		tess.vertexDlightBits[ndx] = dlightBits;
+	if (tess.dlightMap)
+	{
+
+		for (i = 0, v = surf->points[0], ndx = tess.numVertexes; i < numPoints; i++, v += VERTEXSIZE, ndx++) {
+			VectorCopy(v, tess.xyz[ndx]);
+			tess.texCoords[ndx][0][0] = v[3];
+			tess.texCoords[ndx][0][1] = v[4];
+			tess.texCoords[ndx][1][0] = v[5] + surf->lightmapOffset[0];
+			tess.texCoords[ndx][1][1] = v[6] + surf->lightmapOffset[1];
+			*(unsigned int*)&tess.vertexColors[ndx] = *(unsigned int*)&v[7];
+			tess.vertexDlightBits[ndx] = dlightBits;
+		}
+	}
+	else
+	{
+		for (i = 0, v = surf->points[0], ndx = tess.numVertexes; i < numPoints; i++, v += VERTEXSIZE, ndx++) {
+			VectorCopy(v, tess.xyz[ndx]);
+			tess.texCoords[ndx][0][0] = v[3];
+			tess.texCoords[ndx][0][1] = v[4];
+			tess.texCoords[ndx][1][0] = v[5];
+			tess.texCoords[ndx][1][1] = v[6];
+			*(unsigned int*)&tess.vertexColors[ndx] = *(unsigned int*)&v[7];
+			tess.vertexDlightBits[ndx] = dlightBits;
+		}
 	}
 
 
