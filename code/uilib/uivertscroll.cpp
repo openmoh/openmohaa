@@ -212,7 +212,7 @@ void UIVertScroll::DrawThumb
 			m_local_alpha
 		);
 	}
-	else
+	else if (m_pressed == VS_PAGE_DOWN)
 	{
 		DrawBox(
 			0.0,
