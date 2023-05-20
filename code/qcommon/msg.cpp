@@ -2202,15 +2202,22 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 					}
 					else bits = field->bits;
 
-					result = MSG_ReadBits( msg, bits );
-					if ( bits == 12 )
-						*(float *)toF = result * 0.087890625f * tmp;
-					else if ( bits == 8 )
-						*(float *)toF = result * 1.411764705882353f * tmp;
-					else if ( bits == 16 )
-						*(float *)toF = result * 0.0054931640625f * tmp;
-					else
-						*(float *)toF = result * (1 << bits) * tmp / 360.0f;
+					result = MSG_ReadBits(msg, bits);
+					switch (bits)
+					{
+					case 8:
+						*(float*)toF = tmp * 360.f / 256.f;
+						break;
+					case 12:
+						*(float*)toF = tmp * result * 360.f / 4096.f;
+						break;
+					case 16:
+						*(float*)toF = tmp * result * 360.f / 65536.f;
+						break;
+					default:
+						*(float*)toF = tmp * 360.f / (1 << bits) * result;
+						break;
+					}
 					break;
 				case netFieldType_e::animTime: // time
 					*(float *)toF = MSG_ReadBits( msg, 15 ) * 0.0099999998f;
@@ -2842,15 +2849,23 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 					}
 					else bits = field->bits;
 
-					result = MSG_ReadBits( msg, bits );
-					if ( field->bits == 12 )
-						*(float *)toF = result * 0.087890625f * tmp;
-					else if ( field->bits == 8 )
-						*(float *)toF = result * 1.411764705882353f * tmp;
-					else if ( field->bits == 16 )
-						*(float *)toF = result * 0.0054931640625f * tmp;
-					else
-						*(float *)toF = result * (1 << bits) * tmp / 360.0f;
+					result = MSG_ReadBits(msg, bits);
+
+					switch (bits)
+					{
+					case 8:
+						*(float*)toF = tmp * 360.f / 256.f;
+						break;
+					case 12:
+						*(float*)toF = tmp * result * 360.f / 4096.f;
+						break;
+					case 16:
+						*(float*)toF = tmp * result * 360.f / 65536.f;
+						break;
+					default:
+						*(float*)toF = tmp * 360.f / (1 << bits) * result;
+						break;
+					}
 					break;
 				case netFieldType_e::coord:
 					tmp = 1.0f;
