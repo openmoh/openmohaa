@@ -236,17 +236,17 @@ void RE_DrawBackground_TexSubImage(int cols, int rows, int bgr, byte* data) {
 		format = GL_RGB;
 	}
 
-	GL_Bind(tr.scratchImage[0]);
+	GL_Bind(tr.scratchImage);
 
-	if (cols == tr.scratchImage[0]->width && rows == tr.scratchImage[0]->height && format == tr.scratchImage[0]->internalFormat)
+	if (cols == tr.scratchImage->width && rows == tr.scratchImage->height && format == tr.scratchImage->internalFormat)
 	{
 		qglTexSubImage2D(3553, 0, 0, 0, cols, rows, format, 5121, data);
 	}
 	else
 	{
-		tr.scratchImage[0]->uploadWidth = cols;
-		tr.scratchImage[0]->uploadHeight = rows;
-		tr.scratchImage[0]->internalFormat = format;
+		tr.scratchImage->uploadWidth = cols;
+		tr.scratchImage->uploadHeight = rows;
+		tr.scratchImage->internalFormat = format;
 		qglTexImage2D(GL_TEXTURE_2D, 0, 3, cols, rows, 0, format, 5121, data);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, 9729.0);
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, 9729.0);
