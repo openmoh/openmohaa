@@ -261,6 +261,14 @@ static	void R_LoadLightmaps(gamelump_t* l) {
 	if ( r_lightmap->integer == 2 )	{
 		ri.Printf( PRINT_ALL, "Brightest lightmap value: %d\n", ( int ) ( maxIntensity * 255 ) );
 	}
+
+	if (r_fastdlights->integer) {
+		s_worldData.lighting = NULL;
+	}
+	else {
+		s_worldData.lighting = ri.Hunk_Alloc(l->length);
+		Com_Memcpy(s_worldData.lighting, l->buffer, l->length);
+	}
 }
 
 
@@ -478,7 +486,7 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
     pUnpacked->t = ((float)pPacked->t + 0.5) * 0.0078125;
 
     if( s_worldData.lighting ) {
-    	pUnpacked->drawinfo.lmData = &s_worldData.lighting[ 3 * ( ( pPacked->t << 7 ) + pPacked->s + ( pPacked->iLightMap << 14 ) ) ];
+    	pUnpacked->drawinfo.lmData = &s_worldData.lighting[pPacked->iLightMap * (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3) + 3 * pPacked->s + 3 * 128 * pPacked->t];
     } else {
     	pUnpacked->drawinfo.lmData = NULL;
     }
@@ -607,9 +615,6 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 
 	lightmapNum = LittleLong( ds->lightmapNum );
 
-	// get fog volume
-	surf->fogIndex = LittleLong( ds->fogNum ) + 1;
-
 	// get shader value
 	surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum );
 	if ( r_singleShader->integer && !surf->shader->isSky ) {
@@ -661,6 +666,42 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	SetPlaneSignbits( &cv->plane );
 	cv->plane.type = PlaneTypeForNormal( cv->plane.normal );
 
+	if (tr.numLightmaps && lightmapNum != -1 && surf->shader->lightmapIndex >= 0)
+	{
+		float inv;
+
+		cv->lmX = LittleLong(ds->lightmapX);
+		cv->lmY = LittleLong(ds->lightmapY);
+		cv->lmWidth = LittleLong(ds->lightmapWidth);
+		cv->lmHeight = LittleLong(ds->lightmapHeight);
+
+		if (s_worldData.lighting) {
+			cv->lmData = &s_worldData.lighting[lightmapNum * (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3) + 3 * cv->lmX + 3 * 128 * cv->lmY];
+		} else {
+			cv->lmData = NULL;
+		}
+
+		for (i = 0; i < 3; i++)
+		{
+			cv->lmOrigin[j] = LittleFloat(ds->lightmapOrigin[j]);
+			cv->lmVecs[0][j] = LittleFloat(ds->lightmapVecs[0][j]);
+			cv->lmVecs[1][j] = LittleFloat(ds->lightmapVecs[1][j]);
+		}
+
+		inv = VectorNormalize2(cv->lmVecs[0], cv->lmInverseVecs[0]);
+		cv->lmInverseVecs[0][0] *= 1.0 / inv;
+		cv->lmInverseVecs[0][1] *= 1.0 / inv;
+		cv->lmInverseVecs[0][2] *= 1.0 / inv;
+
+		inv = VectorNormalize2(cv->lmVecs[1], cv->lmInverseVecs[1]);
+		cv->lmInverseVecs[1][0] *= 1.0 / inv;
+		cv->lmInverseVecs[1][1] *= 1.0 / inv;
+		cv->lmInverseVecs[1][2] *= 1.0 / inv;
+	}
+	else
+	{
+		cv->lmData = NULL;
+	}
 	surf->data = (surfaceType_t *)cv;
 }
 
@@ -718,6 +759,19 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 	// pre-tesseleate
 	grid = R_SubdividePatchToGrid( width, height, points );
 	surf->data = (surfaceType_t *)grid;
+
+	if (tr.numLightmaps && lightmapNum != -1 && surf->shader->lightmapIndex >= 0)
+	{
+		grid->lmX = LittleLong(ds->lightmapX);
+		grid->lmY = LittleLong(ds->lightmapY);
+		grid->lmWidth = LittleLong(ds->lightmapWidth);
+		grid->lmHeight = LittleLong(ds->lightmapHeight);
+		if (s_worldData.lighting) {
+			grid->lmData = &s_worldData.lighting[lightmapNum * (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3) + 3 * grid->lmX + 3 * 128 * grid->lmY];
+		} else {
+			grid->lmData = NULL;
+		}
+	}
 
 	// copy the level of detail origin, which is the center
 	// of the group of all curves that must subdivide the same
