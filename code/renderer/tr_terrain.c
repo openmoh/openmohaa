@@ -748,8 +748,8 @@ static void R_PreTessellateTerrain()
 		const float t11 = patch->texCoord[1][1][1] - tMin;
 
 		const float lmapSize = (float)(patch->drawinfo.lmapSize - 1) / TERRAIN_LIGHTMAP_SIZE;
-		const float ls = patch->s * lmapSize;
-		const float lt = patch->t * lmapSize;
+		const float ls = patch->s + lmapSize;
+		const float lt = patch->t + lmapSize;
 
 		terraInt iTri0 = R_AllocateTri(patch, qfalse);
 		terraInt iTri1 = R_AllocateTri(patch, qfalse);
