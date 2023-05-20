@@ -5226,10 +5226,37 @@ void AliasResource(dtiki_t* pmdl, const char* alias, const char* realname,
     }
 }
 
-int bLoadForMap__FPCcT0(char* psMapsBuffer, char* name)
+qboolean bLoadForMap(const char* psMapsBuffer, const char* name)
 {
-    // FIXME: stub
-    return 0;
+    const char* token;
+    const char* mapname;
+    const char* override;
+
+    mapname = cgs.mapname;
+    if (!strncmp("test", mapname, strlen("test"))) {
+        return qtrue;
+    }
+
+    token = COM_GetToken((char**)&psMapsBuffer, qtrue);
+    override = token;
+    if (token && *token)
+    {
+        while (1)
+        {
+            if (!Q_stricmpn(token, mapname, strlen(token)))
+            {
+                return true;
+            }
+
+            token = COM_GetToken((char**)&psMapsBuffer, qtrue);
+            if (!token || !token[0]) {
+                return false;
+            }
+        }
+    }
+
+	Com_Printf("ERROR bLoadForMap: %s alias with empty maps specification.\n", name);
+	return false;
 }
 
 //===============
@@ -5239,8 +5266,9 @@ void ClientGameCommandManager::AliasCache(Event* ev)
 
 {
     int i;
-    char parmbuffer[512]; // this holds the parameters to be passed into the
+    char parmbuffer[2048]; // this holds the parameters to be passed into the
                           // alias command
+    const char* psMapsBuffer;
 
     if (ev->NumArgs() < 2) {
         return;
@@ -5251,14 +5279,23 @@ void ClientGameCommandManager::AliasCache(Event* ev)
     // any additional parameters are in arguments 3-n
 
     parmbuffer[0] = 0;
+    psMapsBuffer = NULL;
 
     for (i = 3; i <= ev->NumArgs(); i++) {
-        strcat(parmbuffer, ev->GetToken(i));
-        strcat(parmbuffer, " ");
+		if (strcmp(ev->GetToken(i).c_str(), "maps")) {
+			strcat(parmbuffer, ev->GetToken(i));
+			strcat(parmbuffer, " ");
+        }
+        else {
+            psMapsBuffer = ev->GetToken(i++);
+        }
     }
 
-    AliasResource(current_tiki, ev->GetString(1), ev->GetString(2), parmbuffer);
-    CacheResource(ev->GetString(2));
+    if (bLoadForMap(psMapsBuffer, ev->GetString(1)))
+    {
+        AliasResource(current_tiki, ev->GetString(1), ev->GetString(2), parmbuffer);
+        CacheResource(ev->GetString(2));
+    }
 }
 
 //===============
@@ -5268,8 +5305,10 @@ void ClientGameCommandManager::Alias(Event* ev)
 
 {
     int i;
-    char parmbuffer[512]; // this holds the parameters to be passed into the
+    char parmbuffer[2048]; // this holds the parameters to be passed into the
                           // alias command
+    qboolean subtitle;
+    const char* psMapsBuffer;
 
     if (ev->NumArgs() < 2) {
         return;
@@ -5279,14 +5318,43 @@ void ClientGameCommandManager::Alias(Event* ev)
     // real path is argument 2
     // any additional parameters are in arguments 3-n
 
-    parmbuffer[0] = 0;
+	parmbuffer[0] = 0;
+    subtitle = qfalse;
+	psMapsBuffer = NULL;
 
-    for (i = 3; i <= ev->NumArgs(); i++) {
-        strcat(parmbuffer, ev->GetToken(i));
-        strcat(parmbuffer, " ");
-    }
+	for (i = 3; i <= ev->NumArgs(); i++)
+    {
+		if (strcmp(ev->GetToken(i).c_str(), "maps"))
+        {
+            if (!subtitle)
+            {
+                if (!Q_stricmp(ev->GetToken(i), "subtitle")) {
+					subtitle = qtrue;
+					strcat(parmbuffer, ev->GetToken(i));
+                }
+				else {
+					strcat(parmbuffer, ev->GetToken(i));
+                }
+            }
+            else
+            {
+				strcat(parmbuffer, "\"");
+				strcat(parmbuffer, ev->GetToken(i));
+                strcat(parmbuffer, "\"");
+                subtitle = qfalse;
+			}
 
-    AliasResource(current_tiki, ev->GetString(1), ev->GetString(2), parmbuffer);
+			strcat(parmbuffer, " ");
+		}
+		else {
+			psMapsBuffer = ev->GetToken(i++);
+		}
+	}
+
+	if (bLoadForMap(psMapsBuffer, ev->GetString(1)))
+	{
+		AliasResource(current_tiki, ev->GetString(1), ev->GetString(2), parmbuffer);
+	}
 }
 
 void CacheAliasList(AliasList_t* alias_list, str& name)
@@ -6480,7 +6548,7 @@ qboolean CG_Command_ProcessFile(const char* filename, qboolean quiet, dtiki_t *c
 
             ev->AddToken(com_token);
         }
-        commandManager.ProcessEvent(ev);
+        commandManager.SelectProcessEvent(ev);
     }
     cgi.FS_FreeFile((void*)bufstart);
 
