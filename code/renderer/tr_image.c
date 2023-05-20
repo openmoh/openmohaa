@@ -299,6 +299,10 @@ lighting range
 */
 void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only_gamma )
 {
+	if (!tr.needsLightScale) {
+		return;
+	}
+
 	if ( only_gamma )
 	{
 		if ( !glConfig.deviceSupportsGamma )
@@ -2100,6 +2104,7 @@ static void R_CreateDefaultImage( void ) {
 		data[x][DEFAULT_SIZE-1][3] = 255;
 	}
 	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, 1, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
+	tr.defaultImage->r_sequence = -1;
 }
 
 /*
@@ -2109,6 +2114,8 @@ R_CreateBuiltinImages
 */
 void R_CreateBuiltinImages( void ) {
 	int		x,y;
+	int		i;
+	byte	lightmap_buffer[128 * 128 * 4];
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 
 	R_CreateDefaultImage();
@@ -2116,6 +2123,7 @@ void R_CreateBuiltinImages( void ) {
 	// we use a solid white image instead of disabling texturing
 	Com_Memset( data, 255, sizeof( data ) );
 	tr.whiteImage = R_CreateImage("*white", (byte *)data, 8, 8, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
+	tr.whiteImage->r_sequence = -1;
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc
@@ -2128,13 +2136,17 @@ void R_CreateBuiltinImages( void ) {
 		}
 	}
 
-	tr.identityLightImage = R_CreateImage("*identityLight", (byte *)data, 8, 8, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
-
-
-	for(x=0;x<32;x++) {
-		// scratchimage is usually used for cinematic drawing
-		tr.scratchImage[x] = R_CreateImage("*scratch", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, 0, 1, qtrue, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
+	Com_Memset(lightmap_buffer, 0xFFFFFFFF, sizeof(lightmap_buffer));
+	for (i = 0; i < 15; i++) {
+		tr.dlightImages[i] = R_CreateImage("*lightmapD%i", lightmap_buffer, LIGHTMAP_SIZE, LIGHTMAP_SIZE, 0, 1, qfalse, qfalse, qfalse, 0, GL_CLAMP, GL_CLAMP);
+		tr.dlightImages[i]->r_sequence = -1;
 	}
+
+	tr.identityLightImage = R_CreateImage("*identityLight", (byte *)data, 8, 8, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_REPEAT, GL_REPEAT);
+	tr.identityLightImage->r_sequence = -1;
+
+	tr.scratchImage = R_CreateImage("*scratch", (byte*)data, DEFAULT_SIZE, DEFAULT_SIZE, 0, 1, qtrue, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
+	tr.scratchImage->r_sequence = -1;
 
 	R_CreateDlightImage();
 }
@@ -2182,7 +2194,6 @@ void R_SetColorMappings( void ) {
 	tr.identityLight = 1.0f / (1 << tr.overbrightBits);
 	tr.identityLightByte = 255 * tr.identityLight;
 
-
 	if ( r_intensity->value <= 1 ) {
 		ri.Cvar_Set( "r_intensity", "1" );
 	}
@@ -2194,6 +2205,15 @@ void R_SetColorMappings( void ) {
 	}
 
 	g = r_gamma->value;
+	if (!glConfig.deviceSupportsGamma && g != 1.0) {
+		tr.needsLightScale = qtrue;
+	}
+	else if (r_intensity->value != 1.0) {
+		tr.needsLightScale = qtrue;
+	}
+	else {
+		tr.needsLightScale = qfalse;
+	}
 
 	shift = tr.overbrightBits;
 
@@ -2234,6 +2254,10 @@ R_InitImages
 */
 void	R_InitImages( void ) {
 	Com_Memset(hashTable, 0, sizeof(hashTable));
+	// clear images
+	Com_Memset(tr.images, 0, sizeof(tr.images));
+	tr.numImages = 0;
+
 	// build brightness translation tables
 	R_SetColorMappings();
 
