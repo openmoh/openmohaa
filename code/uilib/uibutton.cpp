@@ -233,26 +233,13 @@ void UIButton::DrawPressed
 	clientFrame.pos.x += 1;
 	clientFrame.pos.y += 1;
 
-	if (m_bVirtual)
-	{
-		m_font->PrintJustified(
-			clientFrame,
-			m_iFontAlignmentHorizontal,
-			m_iFontAlignmentVertical,
-			Sys_LV_CL_ConvertString(m_title.c_str()),
-			NULL
-		);
-	}
-	else
-	{
-		m_font->PrintJustified(
-			clientFrame,
-			m_iFontAlignmentHorizontal,
-			m_iFontAlignmentVertical,
-			Sys_LV_CL_ConvertString(m_title.c_str()),
-			m_vVirtualScale
-		);
-	}
+	m_font->PrintJustified(
+		clientFrame,
+		m_iFontAlignmentHorizontal,
+		m_iFontAlignmentVertical,
+		Sys_LV_CL_ConvertString(m_title.c_str()),
+		m_bVirtual ? m_vVirtualScale : NULL
+	);
 }
 
 void UIButton::DrawUnpressed
@@ -266,26 +253,13 @@ void UIButton::DrawUnpressed
 
 	UIRect2D clientFrame = getClientFrame();
 
-	if (m_bVirtual)
-	{
-		m_font->PrintJustified(
-			clientFrame,
-			m_iFontAlignmentHorizontal,
-			m_iFontAlignmentVertical,
-			Sys_LV_CL_ConvertString(m_title.c_str()),
-			NULL
-		);
-	}
-	else
-	{
-		m_font->PrintJustified(
-			clientFrame,
-			m_iFontAlignmentHorizontal,
-			m_iFontAlignmentVertical,
-			Sys_LV_CL_ConvertString(m_title.c_str()),
-			m_vVirtualScale
-		);
-	}
+	m_font->PrintJustified(
+		clientFrame,
+		m_iFontAlignmentHorizontal,
+		m_iFontAlignmentVertical,
+		Sys_LV_CL_ConvertString(m_title.c_str()),
+		m_bVirtual ? m_vVirtualScale : NULL
+	);
 }
 
 qboolean UIButton::KeyEvent
