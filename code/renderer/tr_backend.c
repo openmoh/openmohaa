@@ -717,7 +717,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			continue;
 		}
 		oldSort = drawSurf->sort;
-		if (drawSurf->surface != SF_SPRITE) {
+		if (*drawSurf->surface != SF_SPRITE) {
 			R_DecomposeSort(drawSurf->sort, &entityNum, &shader, &dlightMap, &bStaticModel);
 		} else {
 			shader = tr.sortedShaders[((refSprite_t*)drawSurf->surface)->shaderNum];
@@ -978,12 +978,12 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, int componen
 		ri.Error (ERR_DROP, "Draw_StretchRaw: size not a power of 2: %i by %i", cols, rows);
 	}
 
-	GL_Bind( tr.scratchImage[0] );
+	GL_Bind( tr.scratchImage );
 
 	// if the scratchImage isn't in the format we want, specify it as a new texture
-	if ( cols != tr.scratchImage[0]->width || rows != tr.scratchImage[0]->height ) {
-		tr.scratchImage[0]->width = tr.scratchImage[0]->uploadWidth = cols;
-		tr.scratchImage[0]->height = tr.scratchImage[0]->uploadHeight = rows;
+	if ( cols != tr.scratchImage->width || rows != tr.scratchImage->height ) {
+		tr.scratchImage->width = tr.scratchImage->uploadWidth = cols;
+		tr.scratchImage->height = tr.scratchImage->uploadHeight = rows;
 		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -1015,29 +1015,6 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, int componen
 	qglVertex2f (x, y+h);
 	qglEnd ();
 }
-
-void RE_UploadCinematic (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty) {
-
-	GL_Bind( tr.scratchImage[client] );
-
-	// if the scratchImage isn't in the format we want, specify it as a new texture
-	if ( cols != tr.scratchImage[client]->width || rows != tr.scratchImage[client]->height ) {
-		tr.scratchImage[client]->width = tr.scratchImage[client]->uploadWidth = cols;
-		tr.scratchImage[client]->height = tr.scratchImage[client]->uploadHeight = rows;
-		qglTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, data );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP );
-		qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP );	
-	} else {
-		if (dirty) {
-			// otherwise, just subimage upload it so that drivers can tell we are going to be changing
-			// it and don't try and do a texture compression
-			qglTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, cols, rows, GL_RGBA, GL_UNSIGNED_BYTE, data );
-		}
-	}
-}
-
 
 /*
 =============
