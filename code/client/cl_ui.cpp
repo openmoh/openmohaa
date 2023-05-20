@@ -877,7 +877,7 @@ Key_GetBindingBuf
 ====================
 */
 static void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
-	char	*value;
+	const char	*value;
 
 	value = Key_GetBinding( keynum );
 	if ( value ) {
@@ -3638,8 +3638,8 @@ void UI_WantsKeyboard() {
 }
 
 struct widgettrans_s {
-	char *src;
-	char *dst;
+	const char *src;
+	const char *dst;
 };
 
 static widgettrans_s s_widgettrans[ 2 ] =
@@ -4885,7 +4885,7 @@ static void SaveConsoleRectangle( void ) {
 	if( !fakk_console->IsMinimized() ) {
 		r = fakk_console->getFrame();
 
-		Cvar_Set( "ui_consoleposition", va( "%d %d %d %d", r.pos.x, r.pos.y, r.size.width, r.size.height ) );
+		Cvar_Set( "ui_consoleposition", va( "%d %d %d %d", (int)r.pos.x, (int)r.pos.y, (int)r.size.width, (int)r.size.height ) );
 		
 		if( wasMinimized ) {
 			fakk_console->ProcessEvent( UIFloatingWindow::W_MinimizePressed );
@@ -5492,7 +5492,7 @@ qboolean UI_IsResourceLoaded( const char *name ) {
 	case 104:
 		return TIKI_FindTikiAnim( name + 1 ) != NULL;
 	case 103:
-		return SkeletorCacheFindFilename( name + 1, NULL ) != NULL;
+		return SkeletorCacheFindFilename( name + 1, NULL );
 	case 107:
 		return S_IsSoundRegistered( name + 1 );
 	case 110:

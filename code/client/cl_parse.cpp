@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 #include "cl_ui.h"
 
-char *svc_strings[256] = {
+const char *svc_strings[256] = {
 	"svc_bad",
 
 	"svc_nop",
@@ -41,7 +41,7 @@ char *svc_strings[256] = {
 
 msg_t *cl_currentMSG;
 
-void SHOWNET( msg_t *msg, char *s) {
+void SHOWNET( msg_t *msg, const char *s) {
 	if ( cl_shownet->integer >= 2) {
 		Com_Printf ("%3i:%s\n", msg->readcount-1, s);
 	}
@@ -793,7 +793,7 @@ void CL_ParseServerMessage( msg_t *msg ) {
 	int			cmd;
 //Com_Printf( "ParseServerMessage: %i\n", msg->cursize );
 	if ( cl_shownet->integer == 1 ) {
-		Com_Printf ("%i ",msg->cursize);
+		Com_Printf ("%zu ",msg->cursize);
 	} else if ( cl_shownet->integer >= 2 ) {
 		Com_Printf ("------------------\n");
 	}

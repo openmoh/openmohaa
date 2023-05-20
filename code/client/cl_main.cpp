@@ -3299,7 +3299,7 @@ CL_ServerInfoPacket
 void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	int		i, type;
 	char	info[MAX_INFO_STRING];
-	char*	str;
+	const char*	str;
 	char	*infoString;
 	int		prot;
 
@@ -3495,7 +3495,7 @@ CL_ServerStatusResponse
 ===================
 */
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
-	char	*s;
+	const char	*s;
 	char	info[MAX_INFO_STRING];
 	int		i, l, score, ping;
 	int		len;
@@ -3588,7 +3588,7 @@ CL_LocalServers_f
 ==================
 */
 void CL_LocalServers_f( void ) {
-	char		*message;
+	const char		*message;
 	int			i, j;
 	netadr_t	to;
 

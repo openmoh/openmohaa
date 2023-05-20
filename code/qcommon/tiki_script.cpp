@@ -388,7 +388,7 @@ void TikiScript::AddMacro( const char *name, const char *expansion )
 			return;
 	}
 
-	if( nummacros >= MAXMACROS )
+	if( nummacros >= TIKI_MAXMACROS )
 	{
 		TIKI_DPrintf( "Too many %cdefine in file %s\n", TOKENSPECIAL, Filename() );
 	}
@@ -420,7 +420,7 @@ qboolean TikiScript::ProcessCommand( qboolean crossline )
 	char argument1[ 256 ];
 	char argument2[ 256 ];
 
-	sscanf( script_p, "%c%s %s %s\n", &dummy, &command, &argument1, &argument2 );
+	sscanf( script_p, "%c%s %s %s\n", &dummy, command, argument1, argument2 );
 
 	if( !stricmp( command, "define" ) )
 	{
@@ -760,7 +760,7 @@ const char *TikiScript::GetToken( qboolean crossline )
 			*token_p++ = *i->script_p++;
 		}
 
-		if( token_p == &i->token[ MAXTOKEN ] )
+		if( token_p == &i->token[ TIKI_MAXTOKEN ] )
 		{
 			TIKI_DPrintf( "Token too large on line %i in file %s\n", i->line, i->Filename() );
 			break;
@@ -869,7 +869,7 @@ const char *TikiScript::GetLine( qboolean crossline )
 	start = i->script_p;
 	SkipToEOL();
 	size = i->script_p - start;
-	if( size < ( MAXTOKEN - 1 ) )
+	if( size < ( TIKI_MAXTOKEN - 1 ) )
 	{
 		memcpy( i->token, start, size );
 		i->token[ size ] = '\0';
@@ -928,7 +928,7 @@ const char *TikiScript::GetAndIgnoreLine( qboolean crossline )
 	start = script_p;
 	SkipToEOL();
 	size = script_p - start;
-	if( size < ( MAXTOKEN - 1 ) )
+	if( size < ( TIKI_MAXTOKEN - 1 ) )
 	{
 		memcpy( token, start, size );
 		token[ size ] = '\0';
@@ -981,7 +981,7 @@ const char *TikiScript::GetRaw( void )
 	start = script_p;
 	SkipToEOL();
 	size = script_p - start;
-	if( size < ( MAXTOKEN - 1 ) )
+	if( size < ( TIKI_MAXTOKEN - 1 ) )
 	{
 		memset( token, 0, sizeof( token ) );
 		memcpy( token, start, size );
@@ -1086,7 +1086,7 @@ const char *TikiScript::GetString( qboolean crossline )
 				"line %d in file %s\n", startline, i->filename );
 		}
 
-		if( token_p == &i->token[ MAXTOKEN ] )
+		if( token_p == &i->token[ TIKI_MAXTOKEN ] )
 		{
 			TIKI_DPrintf( "String too large on line %i in file %s\n", i->line, i->filename );
 		}
@@ -1192,7 +1192,7 @@ int TikiScript::LinesInFile( void )
 	qboolean		temp_tokenready;
 	const char		*temp_script_p;
 	int				temp_line;
-	char			temp_token[ MAXTOKEN ];
+	char			temp_token[ TIKI_MAXTOKEN ];
 	int				numentries;
 
 	temp_tokenready		= tokenready;
@@ -1232,7 +1232,7 @@ void TikiScript::Parse( char *data, int length, const char *name )
 	Reset();
 	this->length = length;
 	end_p = script_p + length;
-	strncpy( filename, name, MAXTOKEN );
+	strncpy( filename, name, TIKI_MAXTOKEN );
 }
 
 /*

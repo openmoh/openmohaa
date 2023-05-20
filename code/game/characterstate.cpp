@@ -422,7 +422,7 @@ void State::ParseAndProcessCommand
    {
    int      argc;
 	const    char *argv[ MAX_COMMANDS ];
-	char     args[ MAX_COMMANDS ][ MAXTOKEN ];
+	char     args[ MAX_COMMANDS ][ SCRIPT_MAXTOKEN ];
    Script   script;
    Event    *event;
 

@@ -35,7 +35,7 @@ public:
 public:
 	UINotepadEdit();
 
-	void		CharEvent( int ch );
+	void		CharEvent( int ch ) override;
 	void		setNotepad( UINotepad *notepad );
 	bool		GotoLine( int line );
 	bool		FindText( const char *text, int offsetFromSel );

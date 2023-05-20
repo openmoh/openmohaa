@@ -934,7 +934,7 @@ void CL_WritePacket( void ) {
 	clc.lastPacketSentTime = cls.realtime;
 
 	if ( cl_showSend->integer ) {
-		Com_Printf( "%i ", buf.cursize );
+		Com_Printf( "%zu ", buf.cursize );
 	}
 
 	CL_Netchan_Transmit (&clc.netchan, &buf);

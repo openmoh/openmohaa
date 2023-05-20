@@ -69,7 +69,7 @@ public:
 	void		EventConnect( Event *ev );
 	void		PlayEnterSound( void );
 	qboolean	SetActiveRow( UIWidget *w );
-	void		Realign( void );
+	void		Realign( void ) override;
 };
 
 class UILanGameListLabel : public UILabel {

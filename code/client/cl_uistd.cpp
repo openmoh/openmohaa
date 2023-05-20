@@ -519,7 +519,8 @@ void UIFakkLabel::DrawStatbar( float frac )
 				}
 				break;
 			}
-
+			default:
+				break;
 			}
 		}
 		else
@@ -574,6 +575,8 @@ void UIFakkLabel::DrawStatbar( float frac )
 				}
 				break;
 			}
+			default:
+				break;
 			}
 		}
 	}
@@ -602,6 +605,8 @@ void UIFakkLabel::DrawStatbar( float frac )
 				m_foreground_color,
 				1.0
 			);
+			break;
+		default:
 			break;
 		}
 	}

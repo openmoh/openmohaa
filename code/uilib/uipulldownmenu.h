@@ -98,7 +98,7 @@ public:
 	void	setPopupBGColor( str menu, UColor c );
 	void	setPulldownShader( const char *title, UIReggedMaterial *mat );
 	void	setSelectedPulldownShader( const char *title, UIReggedMaterial *mat );
-	void	Realign( void );
+	void	Realign( void ) override;
 	void	Draw( void ) override;
 };
 

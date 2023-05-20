@@ -582,7 +582,7 @@ const char* Script::GrabNextToken(qboolean crossline)
             *token_p++ = *script_p++;
         }
 
-        if (token_p == &token[MAXTOKEN]) {
+        if (token_p == &token[SCRIPT_MAXTOKEN]) {
             FILE_Error(ERR_DROP, "Token too large on line %i in file %s\n",
                        line, filename.c_str());
         }
@@ -824,7 +824,7 @@ const char* Script::GetLine(qboolean crossline)
     start = script_p;
     SkipToEOL();
     size = script_p - start;
-    if (size < (MAXTOKEN - 1)) {
+    if (size < (SCRIPT_MAXTOKEN - 1)) {
         memcpy(token, start, size);
         token[size] = '\0';
     } else {
@@ -859,7 +859,7 @@ const char* Script::GetRaw(void)
     start = script_p;
     SkipToEOL();
     size = script_p - start;
-    if (size < (MAXTOKEN - 1)) {
+    if (size < (SCRIPT_MAXTOKEN - 1)) {
         memset(token, 0, sizeof(token));
         memcpy(token, start, size);
     } else {
@@ -946,7 +946,7 @@ const char* Script::GetString(qboolean crossline)
                        startline, filename.c_str());
         }
 
-        if (token_p == &token[MAXTOKEN]) {
+        if (token_p == &token[SCRIPT_MAXTOKEN]) {
             FILE_Error(ERR_DROP, "String too large on line %i in file %s\n",
                        line, filename.c_str());
         }
@@ -1075,7 +1075,7 @@ int Script::LinesInFile(void)
     qboolean temp_tokenready;
     const char* temp_script_p;
     int temp_line;
-    char temp_token[MAXTOKEN];
+    char temp_token[SCRIPT_MAXTOKEN];
     int numentries;
 
     temp_tokenready = tokenready;

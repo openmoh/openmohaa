@@ -35,10 +35,10 @@ public:
 	UIPulldownMenuContainer();
 
 protected:
-	void	FrameInitialized( void );
-	void	setBackgroundAlpha( float f );
-	void	setBackgroundColor( const UColor& color, bool setbordercolor );
-	void	setForegroundColor( const UColor& color );
+	void	FrameInitialized( void ) override;
+	void	setBackgroundAlpha( float f ) override;
+	void	setBackgroundColor( const UColor& color, bool setbordercolor ) override;
+	void	setForegroundColor( const UColor& color ) override;
 	void	SetPopupHighlightFGColor( Event *ev );
 	void	SetPopupHighlightBGColor( Event *ev );
 	void	SetPopupFGColor( Event *ev );
@@ -47,7 +47,7 @@ protected:
 	void	SetHighlightBGColor( Event *ev );
 	void	SetMenuShader( Event *ev );
 	void	SetSelectedMenuShader( Event *ev );
-	void	Realign( void );
+	void	Realign( void ) override;
 	void	PulldownVirtualRes( Event *ev );
 
 public:

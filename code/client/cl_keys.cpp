@@ -51,8 +51,8 @@ qboolean alt_down;
 qboolean ctrl_down;
 
 typedef struct {
-	char	*name;
-	int		keynum;
+	const char	*name;
+	int			keynum;
 } keyname_t;
 
 
@@ -466,7 +466,7 @@ void Key_SetCtrlBinding( int keynum, const char *binding ) {
 Key_GetBinding
 ===================
 */
-char *Key_GetBinding( int keynum ) {
+const char *Key_GetBinding( int keynum ) {
 	if ( keynum < 0 || keynum >= K_LASTKEY ) {
 		return "";
 	}

@@ -89,7 +89,7 @@ public:
 	UIListCtrl();
 	~UIListCtrl();
 
-	void				FrameInitialized( void );
+	void				FrameInitialized( void ) override;
 	void				SetDrawHeader( qboolean bDrawHeader );
 	void				AddItem( UIListCtrlItem *item );
 	void				InsertItem( UIListCtrlItem *item, int where );
@@ -97,9 +97,9 @@ public:
 	UIListCtrlItem		*GetItem( int item );
 	void				AddColumn( str title, int name, int width, bool numeric, bool reverse_sort );
 	void				RemoveAllColumns( void );
-	int					getNumItems( void );
-	void				DeleteAllItems( void );
-	void				DeleteItem( int which );
+	int					getNumItems( void ) override;
+	void				DeleteAllItems( void ) override;
+	void				DeleteItem( int which ) override;
 	virtual void		SortByColumn( int column );
 	void				SortByLastSortColumn( void );
 	void				setCompareFunction( int( *func ) ( const UIListCtrlItem *i1, const UIListCtrlItem *i2, int columnname ) );

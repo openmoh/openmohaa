@@ -149,7 +149,7 @@ CLASS_DECLARATION( UIWidget, UIStatusBar, NULL )
 
 UIStatusBar::UIStatusBar()
 {
-	m_sizeenabled = false;
+	m_sizeenabled = NULL;
 	m_created = false;
 	m_sizer = NULL;
 	m_align.alignment = WND_ALIGN_NONE;

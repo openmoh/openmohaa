@@ -32,21 +32,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TOKENSPACE			(' ')
 #define TOKENSPECIAL		('$')
 
-#ifndef MAXTOKEN
-#define	MAXTOKEN	256
-#endif
+#define	TIKI_MAXTOKEN	256
 
-#define MAXMACROS	48
+#define TIKI_MAXMACROS	48
 
 typedef struct {
-	char name[ MAXTOKEN ];
-	char macro[ MAXTOKEN ];
+	char name[TIKI_MAXTOKEN];
+	char macro[TIKI_MAXTOKEN];
 } tiki_macro_t;
 
 typedef struct {
 	const char *mark_script_p;
 	qboolean mark_tokenready;
-	char mark_token[ MAXTOKEN ];
+	char mark_token[TIKI_MAXTOKEN];
 } tiki_mark_t;
 
 #ifdef __cplusplus
@@ -57,13 +55,13 @@ protected:
 	qboolean tokenready;
 	class TikiScript *include;
 	class TikiScript *parent;
-	char filename[ MAXTOKEN ];
+	char filename[TIKI_MAXTOKEN];
 	const char *script_p;
 	const char *end_p;
-	tiki_macro_t macros[ MAXMACROS ];
+	tiki_macro_t macros[TIKI_MAXMACROS];
 	int nummacros;
 	int line;
-	char token[ MAXTOKEN ];
+	char token[TIKI_MAXTOKEN];
 	qboolean releaseBuffer;
 	tiki_mark_t mark[ 64 ];
 	int mark_pos;

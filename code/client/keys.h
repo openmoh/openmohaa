@@ -42,7 +42,7 @@ extern	int			chat_playerNum;
 int Key_StringToKeynum( const char *str );
 void Key_WriteBindings( fileHandle_t f );
 void Key_SetBinding( int keynum, const char *binding );
-char *Key_GetBinding( int keynum );
+const char *Key_GetBinding( int keynum );
 qboolean Key_IsDown( int keynum );
 qboolean Key_GetOverstrikeMode( void );
 void Key_SetOverstrikeMode( qboolean state );

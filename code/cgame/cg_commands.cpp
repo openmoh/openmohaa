@@ -4801,7 +4801,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
 
         // Make sure to not spawn the world model as a tempmodel
         // Of course it would become extremely confusing...
-        if (!(p->cgd.flags & T_DLIGHT) && p->ent.reType == ET_MODELANIM_SKEL && !p->ent.hModel)
+        if (!(p->cgd.flags & T_DLIGHT) && p->ent.reType == RT_MODEL && !p->ent.hModel)
         {
             Com_Printf("^~^~^ not spawning tempmodel because it is using the world as a brush model\n");
             FreeTempModel(p);

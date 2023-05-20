@@ -59,7 +59,7 @@ public:
 	void			UpdateLocationPrint( int x, int y, const char *s, float alpha );
 	qboolean		LetterboxActive( void );
 	void			InitSubtitle( void );
-	void			FrameInitialized( void );
+	void			FrameInitialized( void ) override;
 	virtual void	Pressed( Event *ev );
 };
 

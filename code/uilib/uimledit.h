@@ -53,7 +53,7 @@ public:
 	CLASS_PROTOTYPE( UIMultiLineEdit );
 
 protected:
-	void	FrameInitialized( void );
+	void	FrameInitialized( void ) override;
 	void	PointToSelectionPoint( UIPoint2D& p, selectionpoint_t& sel );
 	str&	LineFromLineNumber( int num, bool resetpos );
 	void	EnsureSelectionPointVisible( selectionpoint_t& point );
@@ -67,8 +67,8 @@ public:
 	UIMultiLineEdit();
 
 	void		Draw( void ) override;
-	qboolean	KeyEvent( int key, unsigned int time );
-	void		CharEvent( int ch );
+	qboolean	KeyEvent( int key, unsigned int time ) override;
+	void		CharEvent( int ch ) override;
 	UIPoint2D	getEndSelPoint( void );
 	void		MouseDown( Event *ev );
 	void		MouseUp( Event *ev );

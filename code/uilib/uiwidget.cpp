@@ -2969,7 +2969,7 @@ bool UIWidget::PassEventToWidget
 
 	if( m_enabledCvar.length() )
 	{
-		if( !UI_GetCvarInt( m_cvarname, NULL ) )
+		if( !UI_GetCvarInt( m_cvarname, 0 ) )
 			return false;
 	}
 

@@ -77,8 +77,6 @@ int UIConsole::getNextItem
 		return -1;
 	}
 
-	m_numitems = m_numitems;
-	m_firstitem = m_firstitem;
 	prev = prev + 1;
 
 	if (m_numitems < MAX_CONSOLE_ITEMS)

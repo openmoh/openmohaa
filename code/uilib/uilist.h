@@ -48,28 +48,28 @@ public:
 
 protected:
 	void		Draw( void ) override;
-	qboolean	KeyEvent( int key, unsigned int time );
-	void		CharEvent( int ch );
+	qboolean	KeyEvent( int key, unsigned int time ) override;
+	void		CharEvent( int ch ) override;
 	void		Pressed( Event *ev );
 	void		Released( Event *ev );
 	void		ScrollNext( void );
 	void		ScrollPrev( void );
-	void		FrameInitialized( void );
+	void		FrameInitialized( void ) override;
 	void		LayoutAddListItem( Event *ev );
 	void		AddItem( str item, str alias );
 public:
 	UIList();
 	~UIList();
 
-	void	UpdateUIElement( void );
-	void	UpdateData( void );
+	void	UpdateUIElement( void ) override;
+	void	UpdateData( void ) override;
 };
 
 class UIListIndex : public UIList {
 public:
 	CLASS_PROTOTYPE( UIListIndex );
 
-	qboolean	KeyEvent( int key, unsigned int time );
+	qboolean	KeyEvent( int key, unsigned int time ) override;
 };
 
 #endif /* __UILIST_H__ */

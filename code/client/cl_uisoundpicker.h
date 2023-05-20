@@ -29,8 +29,8 @@ public:
 
 	SoundPickerClass();
 
-	void	FileSelected( str &currentDirectory, str &partialName, str &fullname );
-	void	FileChosen( str &currentDirectory, str &partialName, str &fullname );
+	void	FileSelected( str &currentDirectory, str &partialName, str &fullname ) override;
+	void	FileChosen( str &currentDirectory, str &partialName, str &fullname ) override;
 };
 
 #endif /* __CL_UISOUNDPICKER_H__ */

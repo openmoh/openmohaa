@@ -69,8 +69,8 @@ public:
 	UIWidget			*FindPrevControl( UIWidget *control );
 	void				setCursor( const char *string );
 	void				showCursor( bool show );
-	virtual void		CharEvent( int ch );
-	virtual qboolean	KeyEvent( int key, unsigned int time );
+	virtual void		CharEvent( int ch ) override;
+	virtual qboolean	KeyEvent( int key, unsigned int time ) override;
 	void				CreateMenus( void );
 	UIReggedMaterial	*RegisterShader( const str& name );
 	UIReggedMaterial	*RefreshShader( const str& name );
@@ -83,7 +83,7 @@ public:
 	void				BindKeyToCommand( str command, int key, int index, qboolean alternate );
 	UIWidget			*BindActive( void );
 	void				SetBindActive( UIWidget *w );
-	virtual void		Shutdown( void );
+	virtual void		Shutdown( void ) override;
 	void				DeactiveFloatingWindows( void );
 	bool				DialogExists( void );
 	void				RemoveAllDialogBoxes( void );

@@ -273,7 +273,7 @@ enum class vsstypes_t : unsigned char {
     NUM_VSS_TYPES
 };
 
-class cvssource_t : public Class
+class cvssource_t
 {
 public:
     cvssource_t* next;
@@ -309,7 +309,7 @@ public:
     qboolean lastValid;
 };
 
-class cvssourcestate_t : public Class
+class cvssourcestate_t
 {
 public:
     Vector origin;

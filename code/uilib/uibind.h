@@ -44,8 +44,8 @@ public:
 	void		Pressed( void );
 	void		SetCommand( Event *ev );
 	void		SetCommand( str s );
-	void		DrawUnpressed( void );
-	void		DrawPressed( void );
+	void		DrawUnpressed( void ) override;
+	void		DrawPressed( void ) override;
 	void		Clear( void );
 	qboolean	KeyEvent( int key, unsigned int time ) override;
 	void		SetAlternate( qboolean a );

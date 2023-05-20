@@ -30,7 +30,7 @@ public:
 	CLASS_PROTOTYPE( UIGlobalGameList );
 
 public:
-	virtual void UpdateServers();
+	virtual void UpdateServers() override;
 };
 
 #endif

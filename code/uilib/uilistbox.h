@@ -35,12 +35,12 @@ public:
 
 protected:
 	virtual void		TrySelectItem( int which );
-	qboolean			KeyEvent( int key, unsigned int time );
+	qboolean			KeyEvent( int key, unsigned int time ) override;
 
 public:
 	UIListBase();
 
-	void			FrameInitialized( void );
+	void			FrameInitialized( void ) override;
 	int				getCurrentItem( void );
 	virtual int		getNumItems( void );
 	virtual void	DeleteAllItems( void );
@@ -78,20 +78,20 @@ protected:
 	void			MouseReleased( Event *ev );
 	void			DeleteAllItems( Event *ev );
 	void			SetListFont( Event *ev );
-	void			TrySelectItem( int which );
+	void			TrySelectItem( int which ) override;
 
 public:
 	UIListBox();
 
 	void			AddItem( const char *item, const char *command );
 	void			AddItem( int index, const char *command );
-	void			FrameInitialized( void );
+	void			FrameInitialized( void ) override;
 	void			LayoutAddListItem( Event *ev );
 	void			LayoutAddConfigstringListItem( Event *ev );
 	str				getItemText( int which );
-	int				getNumItems( void );
-	void			DeleteAllItems( void );
-	void			DeleteItem( int which );
+	int				getNumItems( void ) override;
+	void			DeleteAllItems( void ) override;
+	void			DeleteItem( int which ) override;
 };
 
 #endif /* __UILISTBOX_H__ */

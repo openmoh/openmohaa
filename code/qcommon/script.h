@@ -40,13 +40,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TOKENSPACE   (' ')
 #define TOKENSPECIAL ('$')
 
-#define MAXTOKEN     512
+#define SCRIPT_MAXTOKEN     512
 
 typedef struct {
     qboolean tokenready;
     int offset;
     int line;
-    char token[MAXTOKEN];
+    char token[SCRIPT_MAXTOKEN];
 } scriptmarker_t;
 
 typedef struct {
@@ -67,7 +67,7 @@ protected:
     Container<macro*> macrolist;
 
     int line;
-    char token[MAXTOKEN];
+    char token[SCRIPT_MAXTOKEN];
 
     qboolean releaseBuffer;
     qboolean hasError;

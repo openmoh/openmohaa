@@ -30,7 +30,7 @@ public:
 public:
 	UIChildSpaceWidget();
 
-	qboolean	KeyEvent( int key, unsigned int time );
+	qboolean	KeyEvent( int key, unsigned int time ) override;
 };
 
 class UIFloatingWindow : public UIWidget {
