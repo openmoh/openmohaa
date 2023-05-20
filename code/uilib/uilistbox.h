@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __UILISTBOX_H__
 #define __UILISTBOX_H__
 
+extern Event EV_Layout_AddListItem;
+
 class UIListBase : public UIWidget {
 protected:
 	int m_currentItem;

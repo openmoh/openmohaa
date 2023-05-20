@@ -24,12 +24,35 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 CLASS_DECLARATION( UIWidget, UIList, NULL )
 {
+	{ &W_LeftMouseDown,			&UIList::Pressed },
+	{ &W_LeftMouseUp,			&UIList::Released },
+	{ &EV_Layout_AddListItem,	&UIList::LayoutAddListItem },
 	{ NULL, NULL }
 };
 
 UIList::UIList()
 {
-	// FIXME: stub
+	m_arrow_width = 15.0;
+	m_arrow_width = 0.0;
+	m_currentItem = 0;
+	m_next_arrow_region = 0;
+	m_prev_arrow_region = 0;
+	m_prev_arrow_depressed = 0;
+	m_next_arrow_depressed = 0;
+
+	AllowActivate(true);
+
+	m_prev_arrow = uWinMan.RegisterShader("gfx/2d/arrow_left.tga");
+	if (!m_prev_arrow) {
+		uii.Sys_Printf("UIList::Ulist : Could not register shader gfx/2d/arrow_left.tga");
+	}
+
+
+
+	m_next_arrow = uWinMan.RegisterShader("gfx/2d/arrow_right.tga");
+	if (!m_next_arrow) {
+		uii.Sys_Printf("UIList::Ulist : Could not register shader gfx/2d/arrow_right.tga");
+	}
 }
 
 void UIList::Draw
@@ -48,8 +71,26 @@ qboolean UIList::KeyEvent
 	)
 
 {
-	// FIXME: stub
-	return qfalse;
+	switch (key)
+	{
+	case K_RIGHTARROW:
+		ScrollNext();
+		UpdateData();
+		if (m_commandhandler) {
+			m_commandhandler(m_itemlist.ObjectAt(m_currentItem)->itemname.c_str(), NULL);
+		}
+		return qtrue;
+	case K_LEFTARROW:
+		ScrollPrev();
+		UpdateData();
+		if (m_commandhandler) {
+			m_commandhandler(m_itemlist.ObjectAt(m_currentItem)->itemname.c_str(), NULL);
+		}
+		return qtrue;
+	default:
+		return qfalse;
+	}
+
 }
 
 void UIList::CharEvent
@@ -58,7 +99,6 @@ void UIList::CharEvent
 	)
 
 {
-	// FIXME: stub
 }
 
 void UIList::Pressed
@@ -85,7 +125,10 @@ void UIList::ScrollNext
 	)
 
 {
-	// FIXME: stub
+	m_currentItem++;
+	if (m_currentItem > m_itemlist.NumObjects()) {
+		m_currentItem = m_itemlist.NumObjects();
+	}
 }
 
 void UIList::ScrollPrev
@@ -94,7 +137,10 @@ void UIList::ScrollPrev
 	)
 
 {
-	// FIXME: stub
+	m_currentItem--;
+	if (m_currentItem < 1) {
+		m_currentItem = 1;
+	}
 }
 
 void UIList::FrameInitialized
@@ -103,7 +149,8 @@ void UIList::FrameInitialized
 	)
 
 {
-	// FIXME: stub
+	m_prev_arrow_region = new UIRect2D(m_clippedframe.pos.x, m_clippedframe.pos.y, m_arrow_width, m_frame.size.height);
+	m_next_arrow_region = new UIRect2D(m_clippedframe.size.width - m_arrow_width + m_clippedframe.pos.x, m_clippedframe.pos.y, m_arrow_width, m_frame.size.height);
 }
 
 void UIList::LayoutAddListItem
@@ -155,6 +202,17 @@ qboolean UIListIndex::KeyEvent
 	)
 
 {
-	// FIXME: stub
-	return qfalse;
+	switch (key)
+	{
+	case K_RIGHTARROW:
+		ScrollNext();
+		UpdateData();
+		return qtrue;
+	case K_LEFTARROW:
+		ScrollPrev();
+		UpdateData();
+		return qtrue;
+	default:
+		return qfalse;
+	}
 }

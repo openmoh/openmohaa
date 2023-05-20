@@ -68,7 +68,6 @@ void UIListBase::FrameInitialized
 	m_vertscroll = new UIVertScroll();
 	m_vertscroll->InitFrame(this, m_frame.size.width - 16.0, 0.0, 16.0, m_frame.size.height, -1);
 	m_vertscroll->setTopItem(0);
-	// FIXME: stub
 }
 
 int UIListBase::getCurrentItem
@@ -157,14 +156,66 @@ ListItem::ListItem
 	this->command = command;
 }
 
+Event EV_UIListBase_ItemSelected
+(
+	"listbase_item_selected",
+	EV_DEFAULT,
+	"i",
+	"index",
+	"Signaled when an item is selected"
+);
+
+Event EV_UIListBase_ItemDoubleClicked
+(
+	"listbase_item_doubleclicked",
+	EV_DEFAULT,
+	"i",
+	"index",
+	"Signaled when an item is double clicked"
+);
+
+Event EV_Layout_AddListItem
+(
+	"additem",
+	EV_DEFAULT,
+	"sS",
+	"itemname command",
+	"Add an item to the list"
+);
+
+Event EV_Layout_AddConfigstringListItem
+(
+	"addconfigstringitem",
+	EV_DEFAULT,
+	"iS",
+	"index command",
+	"Add an item to the list that uses a configstring"
+);
+
+Event EV_UIListBox_DeleteAllItems
+(
+	"deleteallitems",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Delete all the items from the widget"
+);
+
 CLASS_DECLARATION( UIListBase, UIListBox, NULL )
 {
+	{ &W_LeftMouseDown,							&UIListBox::MousePressed },
+	{ &W_LeftMouseUp,							&UIListBox::MouseReleased },
+	{ &EV_Layout_AddListItem,					&UIListBox::LayoutAddListItem },
+	{ &EV_Layout_AddConfigstringListItem,		&UIListBox::LayoutAddConfigstringListItem },
+	{ &EV_UIListBox_DeleteAllItems,				&UIListBox::DeleteAllItems },
+	{ &EV_Layout_Font,							&UIListBox::SetListFont },
 	{ NULL, NULL }
 };
 
 UIListBox::UIListBox()
 {
-	// FIXME: stub
+	m_clickState.point.x = 0.0;
+	m_clickState.point.y = 0.0;
 }
 
 void UIListBox::Draw
@@ -191,7 +242,6 @@ void UIListBox::MouseReleased
 	)
 
 {
-	// FIXME: stub
 }
 
 void UIListBox::DeleteAllItems
@@ -200,7 +250,14 @@ void UIListBox::DeleteAllItems
 	)
 
 {
-	// FIXME: stub
+	m_itemlist.ClearObjectList();
+	m_currentItem = 0;
+
+	if (m_vertscroll)
+	{
+		m_vertscroll->setNumItems(0);
+		m_vertscroll->setTopItem(0);
+	}
 }
 
 void UIListBox::SetListFont
@@ -209,7 +266,13 @@ void UIListBox::SetListFont
 	)
 
 {
-	// FIXME: stub
+	LayoutFont(ev);
+
+	if (m_vertscroll) {
+		m_vertscroll->setPageHeight(m_frame.size.height / m_font->getHeight(m_bVirtual));
+	}
+
+	FrameInitialized();
 }
 
 void UIListBox::TrySelectItem
@@ -218,7 +281,16 @@ void UIListBox::TrySelectItem
 	)
 
 {
-	// FIXME: stub
+	UIListBase::TrySelectItem(which);
+
+	if (!getNumItems()) {
+		return;
+	}
+
+	if (m_cvarname.length())
+	{
+		uii.Cvar_Set(m_cvarname.c_str(), m_itemlist.ObjectAt(m_currentItem)->string.c_str());
+	}
 }
 
 void UIListBox::AddItem
@@ -301,7 +373,12 @@ void UIListBox::LayoutAddListItem
 	)
 
 {
-	// FIXME: stub
+	if (ev->NumArgs() != 2) {
+		AddItem(ev->GetString(1), NULL);
+		return;
+	}
+
+	AddItem(ev->GetString(1), ev->GetString(2).c_str());
 }
 
 void UIListBox::LayoutAddConfigstringListItem
@@ -310,7 +387,12 @@ void UIListBox::LayoutAddConfigstringListItem
 	)
 
 {
-	// FIXME: stub
+	if (ev->NumArgs() != 2) {
+		AddItem(ev->GetInteger(1), NULL);
+		return;
+	}
+
+	AddItem(ev->GetInteger(1), ev->GetString(2).c_str());
 }
 
 str UIListBox::getItemText
