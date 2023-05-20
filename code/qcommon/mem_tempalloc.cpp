@@ -108,7 +108,7 @@ void* MEM_TempAlloc::CreateBlock(size_t len)
     // allocate a new block
     tempBlock_t* prev_block = m_CurrentMemoryBlock;
     m_CurrentMemoryBlock = (tempBlock_t*)MEM_TempAllocate(
-        sizeof(tempBlock_t) + max(m_BlockSize, len));
+        sizeof(tempBlock_t) + Q_max(m_BlockSize, len));
     m_CurrentMemoryBlock->prev = prev_block;
     return m_CurrentMemoryBlock->GetData();
 }

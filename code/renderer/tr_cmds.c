@@ -46,7 +46,7 @@ void R_PerformanceCounters( void ) {
 		ri.SetPerformanceCounters(
 			backEnd.pc.c_totalIndexes / 3,
 			backEnd.pc.c_vertexes,
-			R_SumOfUsedImages(pc_save.c_totalIndexes / 3, pc_save.c_vertexes),
+			R_SumOfUsedImages(),
 			pc_save.c_totalIndexes / 3,
 			pc_save.c_vertexes,
 			backEnd.pc.c_characterlights

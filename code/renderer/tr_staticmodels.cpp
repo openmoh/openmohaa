@@ -60,7 +60,7 @@ void R_InitStaticModels(void) {
             {
                 float t;
 
-                t = 255.0 / (float)max(r, max(g, b));
+                t = 255.0 / (float)Q_max(r, Q_max(g, b));
 
                 r = (int)((float)r * t);
                 g = (int)((float)g * t);
@@ -114,7 +114,7 @@ void R_InitStaticModels(void) {
                     surf->hShader[k] = sh->index;
                 }
                 else {
-                    surf->hShader[k] = NULL;
+                    surf->hShader[k] = 0;
                 }
             }
         }

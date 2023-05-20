@@ -495,7 +495,7 @@ void CG_SetLightStyle( int num, const char *s )
 				cg_lightstyle[ num ].map[ k ][ 1 ] = t / 255.0f;
 				k++;
 				}
-			n = max( n, k );
+			n = Q_max( n, k );
 			}
 		while( k < MAX_LIGHTSTYLE_LENGTH )
 			{
@@ -518,7 +518,7 @@ void CG_SetLightStyle( int num, const char *s )
 				cg_lightstyle[ num ].map[ k ][ 2 ] = t / 255.0f;
 				k++;
 				}
-			n = max( n, k );
+			n = Q_max( n, k );
 			}
 		while( k < MAX_LIGHTSTYLE_LENGTH )
 			{
@@ -541,7 +541,7 @@ void CG_SetLightStyle( int num, const char *s )
 				cg_lightstyle[ num ].map[ k ][ 3 ] = t / 255.0f;
 				k++;
 				}
-			n = max( n, k );
+			n = Q_max( n, k );
 			}
 		while( k < MAX_LIGHTSTYLE_LENGTH )
 			{
