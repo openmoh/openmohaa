@@ -35,6 +35,7 @@ public:
 	CLASS_PROTOTYPE( UIWindowSizer );
 
 	UIWindowSizer();
+	UIWindowSizer(UIWidget* w);
 
 	void			Draw( void ) override;
 	void			FrameInitialized( void ) override;
@@ -60,6 +61,7 @@ protected:
 	bool m_created;
 
 	UIWindowSizer *m_sizer;
+
 public:
 	CLASS_PROTOTYPE( UIStatusBar );
 
