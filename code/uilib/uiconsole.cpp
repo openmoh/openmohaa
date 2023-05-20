@@ -827,16 +827,16 @@ void UIFloatingConsole::FrameInitialized
 	m_status->setTitle(str());
 
 	m_console = new UIConsole();
-	m_console->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0, 20.0), 0, "verdana-12");
+	m_console->InitFrame(getChildSpace(), UIRect2D(0, 0, 20.0, 20.0), 0, "verdana-14");
 	setConsoleColor(m_consoleColor);
 	setConsoleBackground(m_consoleBackground, m_consoleAlpha);
 	m_console->setConsoleHandler(m_handler);
 
-	Connect(this, W_SizeChanged, W_Console_ChildSizeChanged);
+	getChildSpace()->Connect(this, W_SizeChanged, W_Console_ChildSizeChanged);
 	getChildSpace()->AllowActivate(false);
 	OnChildSizeChanged(NULL);
 
-	m_background_color.a = 1.0;
+	m_background_color.a = 0.0;
 	m_alpha = 1.0;
 
 	getChildSpace()->setBackgroundAlpha(1.0);
@@ -907,6 +907,7 @@ void UIFloatingConsole::setConsoleBackground
 	)
 
 {
+	m_alpha = alpha;
 	m_consoleBackground = color;
 	m_consoleAlpha = alpha;
 
