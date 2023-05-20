@@ -70,7 +70,7 @@ These are the tools required for all platforms :
 
 The installation directory can be set to MOHAA directory.
 
-The client build and successfully be built by adding `-DWITH_CLIENT=1` to the CMake command line.
+The client build can be built by adding `-DWITH_CLIENT=1` to the CMake command line. This will compile the cgame module and the full app with rendering, ui and sound suppport, alongside the dedicated server version.
 
 ### Linux
 
