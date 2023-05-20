@@ -200,168 +200,109 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 		return;
 	}
 
-	while (1)
+	for (;;)
 	{
-		while (1)
+		token = nptr = COM_GetToken((char**)&parameters, qtrue);
+		if (!token || !token[0])
 		{
-			while (1)
+			break;
+		}
+
+		if (!Q_stricmp(token, "stop"))
+		{
+			node->stop_flag = 1;
+		}
+		else if (!Q_stricmp(token, "soundparms"))
+		{
+			node->volume = getTokenFloat(&parameters, "volume", node);
+			node->volumeMod = getTokenFloat(&parameters, "volumeMod", node);
+			node->pitch = getTokenFloat(&parameters, "pitch", node);
+			node->pitchMod = getTokenFloat(&parameters, "pitchMod", node);
+			node->dist = getTokenFloat(&parameters, "dist", node);
+			node->maxDist = getTokenFloat(&parameters, "maxDist", node);
+
+			token = COM_GetToken((char**)&parameters, qtrue);
+			if (!token || !*token)
 			{
-				while (1)
-				{
-					while (1)
-					{
-						while (1)
-						{
-							while (1)
-							{
-								while (1)
-								{
-									token = nptr = COM_GetToken((char**)&parameters, qtrue);
-									if (!token || !*token)
-									{
-										return;
-									}
-
-									if (Q_stricmp(nptr, "weight"))
-									{
-										break;
-									}
-
-									node->stop_flag = 1;
-								}
-
-								if (Q_stricmp(nptr, "weight"))
-								{
-									break;
-								}
-
-								token = COM_GetToken((char**)&parameters, 1);
-								if (!token || !*token)
-								{
-									return;
-								}
-
-								temp_float = atof(token);
-
-								if (temp_float < 0.0f)
-								{
-									Com_Printf("Weight value out of range in %s alias\n", node->alias_name);
-									continue;
-								}
-
-								node->weight = temp_float;
-							}
-
-							if (Q_stricmp(nptr, "soundparms"))
-							{
-								break;
-							}
-
-							node->volume = getTokenFloat(&parameters, "volume", node);
-							node->volumeMod = getTokenFloat(&parameters, "volumeMod", node);
-							node->pitch = getTokenFloat(&parameters, "pitch", node);
-							node->pitchMod = getTokenFloat(&parameters, "pitchMod", node);
-							node->dist = getTokenFloat(&parameters, "dist", node);
-							node->maxDist = getTokenFloat(&parameters, "maxDist", node);
-
-							token = COM_GetToken((char**)&parameters, 1);
-							if (!token || !*token)
-							{
-								return;
-							}
-
-							node->channel = S_ChannelNameToNum(token);
-							if (node->channel == -1)
-							{
-								Com_Printf("%s is not avalid channel on %s alias.\n", token, node->alias_name);
-								node->channel = 0;
-							}
-
-							token = COM_GetToken((char**)&parameters, 1);
-							if (!token || !*token)
-							{
-								Com_Printf("ERROR: defaulting %s to not streamed - please setup alias properly.\n", node->alias_name);
-								return;
-							}
-
-							if (!Q_stricmp(token, "streamed"))
-							{
-								node->streamed = 1;
-							}
-							else if (!Q_stricmp(token, "loaded"))
-							{
-								node->streamed = 0;
-							}
-							else
-							{
-								Com_Printf("ERROR: Expecting streamed or loaded in ubersound and got %s on alias %s\n", token, node->alias_name);
-								continue;
-							}
-						}
-
-						if (Q_stricmp(nptr, "subtitle"))
-						{
-							break;
-						}
-
-						token = COM_GetToken((char**)&parameters, qtrue);
-						if (!token || !*token)
-						{
-							Com_Printf("NULL subtitle on %s alias.\n", node->alias_name);
-							return;
-						}
-
-						node->subtitle = Z_TagMalloc(strlen(token) + 1, TAG_TIKI);
-						strcpy(node->subtitle, token);
-					}
-
-					if (Q_stricmp(nptr, "pitch"))
-					{
-						break;
-					}
-
-					token = COM_GetToken((char**)&parameters, qtrue);
-					if (!token || !*token)
-					{
-						return;
-					}
-
-					temp_float = atof(token);
-					if (temp_float < 0.0f)
-					{
-						Com_Printf("Pitch value out of range in %s alias\n", node->alias_name);
-						continue;
-					}
-
-					node->pitch = temp_float;
-				}
-
-				if (Q_stricmp(nptr, "pitchmod"))
-				{
-					break;
-				}
-
-				token = COM_GetToken((char**)&parameters, qtrue);
-				if (!token || !*token)
-				{
-					return;
-				}
-
-				temp_float = atof(token);
-				if (temp_float < 0.0f)
-				{
-					Com_Printf("PitchMod value out of range in %s alias\n", node->alias_name);
-					continue;
-				}
-
-				node->pitchMod = temp_float;
+				return;
 			}
 
-			if (Q_stricmp(nptr, "volumemod"))
+			node->channel = S_ChannelNameToNum(token);
+			if (node->channel == -1)
 			{
-				break;
+				Com_Printf("%s is not avalid channel on %s alias.\n", token, node->alias_name);
+				node->channel = 0;
 			}
 
+			token = COM_GetToken((char**)&parameters, qtrue);
+			if (!token || !*token)
+			{
+				Com_Printf("ERROR: defaulting %s to not streamed - please setup alias properly.\n", node->alias_name);
+				return;
+			}
+
+			if (!Q_stricmp(token, "streamed"))
+			{
+				node->streamed = qtrue;
+			}
+			else if (!Q_stricmp(token, "loaded"))
+			{
+				node->streamed = qfalse;
+			}
+			else
+			{
+				Com_Printf("ERROR: Expecting streamed or loaded in ubersound and got %s on alias %s\n", token, node->alias_name);
+				continue;
+			}
+		}
+		else if (!Q_stricmp(token, "subtitle"))
+		{
+			token = COM_GetToken((char**)&parameters, qtrue);
+			if (!token || !*token)
+			{
+				Com_Printf("NULL subtitle on %s alias.\n", node->alias_name);
+				return;
+			}
+
+			node->subtitle = Z_TagMalloc(strlen(token) + 1, TAG_TIKI);
+			strcpy(node->subtitle, token);
+		}
+		else if (!Q_stricmp(token, "pitch"))
+		{
+			token = COM_GetToken((char**)&parameters, qtrue);
+			if (!token || !*token)
+			{
+				return;
+			}
+
+			temp_float = atof(token);
+			if (temp_float < 0.0f)
+			{
+				Com_Printf("Pitch value out of range in %s alias\n", node->alias_name);
+				continue;
+			}
+
+			node->pitch = temp_float;
+		}
+		else if (!Q_stricmp(token, "pitchmod"))
+		{
+			token = COM_GetToken((char**)&parameters, qtrue);
+			if (!token || !*token)
+			{
+				return;
+			}
+
+			temp_float = atof(token);
+			if (temp_float < 0.0f)
+			{
+				Com_Printf("PitchMod value out of range in %s alias\n", node->alias_name);
+				continue;
+			}
+
+			node->pitchMod = temp_float;
+		}
+		else if (!Q_stricmp(token, "volumemod"))
+		{
 			token = COM_GetToken((char**)&parameters, qtrue);
 			if (!token || !*token)
 			{
@@ -377,8 +318,7 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 
 			node->volumeMod = temp_float;
 		}
-
-		if (!Q_stricmp(nptr, "dist"))
+		else if (!Q_stricmp(token, "dist"))
 		{
 			token = COM_GetToken((char**)&parameters, qtrue);
 			if (!token || !*token)
@@ -396,7 +336,7 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 
 			node->dist = temp_float;
 		}
-		else if (!Q_stricmp(nptr, "channel"))
+		else if (!Q_stricmp(token, "channel"))
 		{
 			token = COM_GetToken((char**)&parameters, qtrue);
 			if (!token || !*token)
@@ -418,8 +358,6 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 			continue;
 		}
 	}
-
-	// FIXME: stub
 }
 
 qboolean Alias_ListAdd(AliasList_t* list, const char* alias, const char* name, const char* parameters)
