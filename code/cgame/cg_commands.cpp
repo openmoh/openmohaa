@@ -1795,6 +1795,10 @@ void ClientGameCommandManager::SetAlignStretch(Event* ev)
 void ClientGameCommandManager::SetDecalRadius(Event* ev)
 
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->cgd.decal_radius = ev->GetFloat(1);
 }
 
@@ -1805,6 +1809,10 @@ void ClientGameCommandManager::SetDecalOrientation(Event* ev)
 
 {
     str deg;
+
+	if (!m_spawnthing) {
+		return;
+	}
 
     deg = ev->GetString(1);
 
@@ -1820,6 +1828,10 @@ void ClientGameCommandManager::SetDecalOrientation(Event* ev)
 //===============
 void ClientGameCommandManager::SetBounceDecal(Event* ev)
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->cgd.flags2 |= T2_BOUNCE_DECAL;
     if (ev->NumArgs() > 1) {
         m_spawnthing->cgd.maxbouncecount = ev->GetInteger(1);
@@ -1837,8 +1849,11 @@ void ClientGameCommandManager::SetBounceDecal(Event* ev)
 // SetParallel
 //===============
 void ClientGameCommandManager::SetParallel(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->cgd.flags2 |= T2_PARALLEL;
 }
 
@@ -1846,9 +1861,12 @@ void ClientGameCommandManager::SetParallel(Event* ev)
 // PhysicsRate
 //===============
 void ClientGameCommandManager::SetPhysicsRate(Event* ev)
-
 {
     str rate;
+
+	if (!m_spawnthing) {
+		return;
+	}
 
     rate = ev->GetString(1);
 
@@ -1863,8 +1881,11 @@ void ClientGameCommandManager::SetPhysicsRate(Event* ev)
 // SetLightstyle
 //===============
 void ClientGameCommandManager::SetLightstyle(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->cgd.lightstyle = CG_RegisterLightStyle(ev->GetString(1));
 }
 
@@ -1872,8 +1893,11 @@ void ClientGameCommandManager::SetLightstyle(Event* ev)
 // SetBeamSphere
 //===============
 void ClientGameCommandManager::SetBeamSphere(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->numspherebeams = ev->GetInteger(1);
     m_spawnthing->beamflags = BEAM_SPHERE_EFFECT;
 }
@@ -1882,8 +1906,11 @@ void ClientGameCommandManager::SetBeamSphere(Event* ev)
 // SetBeamSpread
 //===============
 void ClientGameCommandManager::SetSpread(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->spreadx = ev->GetFloat(1);
     m_spawnthing->spready = ev->GetFloat(2);
 }
@@ -1892,8 +1919,11 @@ void ClientGameCommandManager::SetSpread(Event* ev)
 // SetUseLastTraceEnd
 //===============
 void ClientGameCommandManager::SetUseLastTraceEnd(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->use_last_trace_end = qtrue;
 }
 
@@ -1901,8 +1931,11 @@ void ClientGameCommandManager::SetUseLastTraceEnd(Event* ev)
 // SetSubdivisions
 //===============
 void ClientGameCommandManager::SetSubdivisions(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->numSubdivisions = ev->GetInteger(1);
 }
 
@@ -1910,8 +1943,11 @@ void ClientGameCommandManager::SetSubdivisions(Event* ev)
 // SetBeamPersist
 //===============
 void ClientGameCommandManager::SetBeamPersist(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->beamflags |= BEAM_PERSIST_EFFECT;
 }
 
@@ -1919,8 +1955,11 @@ void ClientGameCommandManager::SetBeamPersist(Event* ev)
 // SetBeamOffsetEndponts
 //===============
 void ClientGameCommandManager::SetBeamOffsetEndpoints(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->beamflags |= BEAM_OFFSET_ENDPOINTS;
 }
 
@@ -1928,8 +1967,11 @@ void ClientGameCommandManager::SetBeamOffsetEndpoints(Event* ev)
 // SetBeamDelay
 //===============
 void ClientGameCommandManager::SetBeamDelay(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     if (ev->NumArgs() > 1) {
         str r = ev->GetString(1);
         if (r.icmp("random")) {
@@ -1945,8 +1987,11 @@ void ClientGameCommandManager::SetBeamDelay(Event* ev)
 // SetBeamToggleDelay
 //===============
 void ClientGameCommandManager::SetBeamToggleDelay(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->beamflags |= BEAM_TOGGLE;
     if (ev->NumArgs() > 1) {
         str r = ev->GetString(1);
@@ -1964,8 +2009,11 @@ void ClientGameCommandManager::SetBeamToggleDelay(Event* ev)
 // SetBeamLength
 //===============
 void ClientGameCommandManager::SetLength(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->length = ev->GetFloat(1);
 }
 
@@ -1973,8 +2021,11 @@ void ClientGameCommandManager::SetLength(Event* ev)
 // SetShader
 //===============
 void ClientGameCommandManager::SetShader(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->cgd.shadername = ev->GetString(1);
 }
 
@@ -1982,8 +2033,11 @@ void ClientGameCommandManager::SetShader(Event* ev)
 // SetMinOffset
 //===============
 void ClientGameCommandManager::SetMinOffset(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->min_offset = ev->GetInteger(1);
 }
 
@@ -1991,8 +2045,11 @@ void ClientGameCommandManager::SetMinOffset(Event* ev)
 // SetSubdivisions
 //===============
 void ClientGameCommandManager::SetMaxOffset(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->max_offset = ev->GetInteger(1);
 }
 
@@ -2000,8 +2057,11 @@ void ClientGameCommandManager::SetMaxOffset(Event* ev)
 // SetAnim
 //===============
 void ClientGameCommandManager::SetAnim(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->animName = ev->GetString(1);
 }
 
@@ -2009,8 +2069,11 @@ void ClientGameCommandManager::SetAnim(Event* ev)
 // AnimateOnce
 //===============
 void ClientGameCommandManager::AnimateOnce(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->cgd.flags |= T_ANIMATEONCE;
 }
 
@@ -2018,8 +2081,11 @@ void ClientGameCommandManager::AnimateOnce(Event* ev)
 // EmitterStartOff
 //===============
 void ClientGameCommandManager::EmitterStartOff(Event* ev)
-
 {
+	if (!m_spawnthing) {
+		return;
+	}
+
     m_spawnthing->startoff = qtrue;
 }
 
