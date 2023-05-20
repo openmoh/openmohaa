@@ -145,18 +145,23 @@ void VSS_AddRepulsion(cvssource_t* pA, cvssource_t* pB)
 
 cvssource_t* ClientGameCommandManager::AllocateVSSSource()
 {
-    m_free_vsssources = m_free_vsssources;
+    cvssource_t* pNew;
 
+    if (!m_free_vsssources) {
+        FreeVSSSource(m_active_vsssources.prev);
+    }
+
+    pNew = m_free_vsssources;
     m_free_vsssources = m_free_vsssources->next;
-    memset(m_free_vsssources, 0, sizeof(cvssource_t));
+    memset(pNew, 0, sizeof(cvssource_t));
 
-    m_free_vsssources->next = m_active_vsssources.next;
-    m_free_vsssources->prev = &m_active_vsssources;
+    pNew->next = m_active_vsssources.next;
+    pNew->prev = &m_active_vsssources;
 
-    m_active_vsssources.next->prev = m_free_vsssources;
-    m_active_vsssources.next = m_free_vsssources;
+    m_active_vsssources.next->prev = pNew;
+    m_active_vsssources.next = pNew;
 
-    return m_free_vsssources;
+    return pNew;
 }
 
 void ClientGameCommandManager::FreeVSSSource(cvssource_t* p)
@@ -201,7 +206,7 @@ void ClientGameCommandManager::ResetVSSSources()
     }
 
     m_vsssources = (cvssource_t*)cgi.Malloc(sizeof(cvssource_t) * m_iAllocatedvsssources);
-    memset(m_vsssources, 0, sizeof(sizeof(cvssource_t) * m_iAllocatedvsssources));
+    memset(m_vsssources, 0, sizeof(cvssource_t) * m_iAllocatedvsssources);
 
     m_active_vsssources.next = &m_active_vsssources;
     m_active_vsssources.prev = &m_active_vsssources;
