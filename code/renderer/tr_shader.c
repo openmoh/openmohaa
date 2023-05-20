@@ -625,7 +625,7 @@ static void ParseTexMod( char *_text, shaderStage_t *stage, int cntBundle )
 	}
 	else
 	{
-		ri.Printf( PRINT_WARNING, "WARNING: unknown tcMod '%s' in shader '%s'\n", token, shader.name );
+		ri.Printf(PRINT_WARNING, "WARNING: unknown tcMod '%s' in shader '%s'\n", token, shader.name);
 	}
 }
 
@@ -635,9 +635,9 @@ static void ParseTexMod( char *_text, shaderStage_t *stage, int cntBundle )
 ParseStage
 ===================
 */
-static qboolean ParseStage( shaderStage_t *stage, char **text )
+static qboolean ParseStage(shaderStage_t* stage, char** text)
 {
-	char *token;
+	char* token;
 	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
 	qboolean depthMaskExplicit = qfalse;
 	int cntBundle = 0;
@@ -649,33 +649,33 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 	stage->noPicMip = shader_noPicMip;
 	stage->force32bit = shader_force32bit;
 
-	while ( 1 )
+	while (1)
 	{
-		token = COM_ParseExt( text, qtrue );
-		if ( !token[0] )
+		token = COM_ParseExt(text, qtrue);
+		if (!token[0])
 		{
-			ri.Printf( PRINT_WARNING, "WARNING: no matching '}' found\n" );
+			ri.Printf(PRINT_WARNING, "WARNING: no matching '}' found\n");
 			return qfalse;
 		}
 
-		if ( token[0] == '}' )
+		if (token[0] == '}')
 		{
 			break;
 		}
 		// no picmip adjustment
-		else if ( !Q_stricmp( token, "nomipmaps" ) )
+		else if (!Q_stricmp(token, "nomipmaps"))
 		{
 			stage->noMipMaps = qtrue;
 			continue;
 		}
 		// no picmip adjustment
-		else if ( !Q_stricmp( token, "nopicmip" ) )
+		else if (!Q_stricmp(token, "nopicmip"))
 		{
 			stage->noPicMip = qtrue;
 			continue;
 		}
 		// no picmip adjustment
-		else if ( !Q_stricmp( token, "nofog" ) )
+		else if (!Q_stricmp(token, "nofog"))
 		{
 			fogBits = GLS_FOG;
 			continue;
@@ -683,36 +683,37 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 		//
 		// map <name>
 		//
-		else if ( !Q_stricmp( token, "map" ) )
+		else if (!Q_stricmp(token, "map"))
 		{
-			token = COM_ParseExt( text, qfalse );
-			if ( !token[0] )
+			token = COM_ParseExt(text, qfalse);
+			if (!token[0])
 			{
-				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for 'map' keyword in shader '%s'\n", shader.name );
+				ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'map' keyword in shader '%s'\n", shader.name);
 				return qfalse;
 			}
 
-			if ( !Q_stricmp( token, "$whiteimage" ) )
+			if (!Q_stricmp(token, "$whiteimage"))
 			{
 				stage->bundle[cntBundle].image[0] = tr.whiteImage;
 				continue;
 			}
-			else if ( !Q_stricmp( token, "$lightmap" ) )
+			else if (!Q_stricmp(token, "$lightmap"))
 			{
 				stage->bundle[cntBundle].isLightmap = qtrue;
-				if ( shader.lightmapIndex < 0 ) {
+				if (shader.lightmapIndex < 0) {
 					stage->bundle[cntBundle].image[0] = tr.whiteImage;
-				} else {
+				}
+				else {
 					stage->bundle[cntBundle].image[0] = tr.lightmaps[shader.lightmapIndex];
 				}
 				continue;
 			}
 			else
 			{
-				stage->bundle[cntBundle].image[0] = R_FindImageFile( token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT );
-				if ( !stage->bundle[cntBundle].image[0] )
+				stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT);
+				if (!stage->bundle[cntBundle].image[0])
 				{
-					ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
+					ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name);
 					return qfalse;
 				}
 			}
@@ -720,19 +721,58 @@ static qboolean ParseStage( shaderStage_t *stage, char **text )
 		//
 		// clampmap <name>
 		//
-		else if ( !Q_stricmp( token, "clampmap" ) )
+		else if (!Q_stricmpn(token, "clampmap", 8))
 		{
-			token = COM_ParseExt( text, qfalse );
-			if ( !token[0] )
+			int clampx, clampy;
+
+			if (!token[8]) {
+				if (!r_forceClampToEdge->value) {
+					clampx = GL_CLAMP;
+					clampy = GL_CLAMP;
+				}
+				else {
+					clampx = GL_CLAMP_TO_EDGE;
+					clampy = GL_CLAMP_TO_EDGE;
+				}
+			}
+			else {
+				if (token[8] == 'x')
+				{
+					if (!r_forceClampToEdge->value) {
+						clampx = GL_CLAMP;
+					}
+					else {
+						clampx = GL_CLAMP_TO_EDGE;
+					}
+					clampy = GL_CLAMP;
+				}
+				else if (token[8] == 'y')
+				{
+					clampx = GL_CLAMP;
+					if (!r_forceClampToEdge->value) {
+						clampy = GL_CLAMP;
+					}
+					else {
+						clampy = GL_CLAMP_TO_EDGE;
+					}
+				}
+				else {
+					ri.Printf(PRINT_WARNING, "WARNING: Converting unknown clampmap type to clampmap\n");
+					continue;
+				}
+			}
+
+			token = COM_ParseExt(text, qfalse);
+			if (!token[0])
 			{
-				ri.Printf( PRINT_WARNING, "WARNING: missing parameter for 'clampmap' keyword in shader '%s'\n", shader.name );
+				ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'clampmap' keyword in shader '%s'\n", shader.name);
 				return qfalse;
 			}
 
-			stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, r_forceClampToEdge->value ? GL_CLAMP_TO_EDGE : GL_CLAMP, r_forceClampToEdge->value ? GL_CLAMP_TO_EDGE : GL_CLAMP);
-			if ( !stage->bundle[cntBundle].image[0] )
+			stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, clampx, clampy);
+			if (!stage->bundle[cntBundle].image[0])
 			{
-				ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
+				ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name);
 				return qfalse;
 			}
 		}
@@ -2054,6 +2094,14 @@ static qboolean ParseShader( char **text )
 		return qfalse;
 	}
 
+	if (!(shader.flags & 2)) {
+		shader.flags &= ~1;
+	}
+
+	if ((shader.contentFlags & CONTENTS_FENCE) != 0 && shader.cullType == CT_TWO_SIDED) {
+		shader.cullType = CT_FRONT_SIDED;
+	}
+
 	shader.explicitlyDefined = qtrue;
 
 	return qtrue;
@@ -2631,16 +2679,16 @@ static shader_t *FinishShader( void ) {
 		//
 		// default texture coordinate generation
 		//
-		for (bundle = 2; bundle > 0; bundle--) {
-			if (pStage->bundle[bundle - 1].isLightmap) {
-				if (pStage->bundle[bundle - 1].tcGen == TCGEN_BAD) {
-					pStage->bundle[bundle - 1].tcGen = TCGEN_LIGHTMAP;
+		for (bundle = 0; bundle < 2; bundle++) {
+			if (pStage->bundle[bundle].isLightmap) {
+				if (pStage->bundle[bundle].tcGen == TCGEN_BAD) {
+					pStage->bundle[bundle].tcGen = TCGEN_LIGHTMAP;
 				}
 				hasLightmapStage = qtrue;
 			}
 			else {
-				if (pStage->bundle[bundle - 1].tcGen == TCGEN_BAD) {
-					pStage->bundle[bundle - 1].tcGen = TCGEN_TEXTURE;
+				if (pStage->bundle[bundle].tcGen == TCGEN_BAD) {
+					pStage->bundle[bundle].tcGen = TCGEN_TEXTURE;
 				}
 			}
 		}
@@ -2653,31 +2701,6 @@ static shader_t *FinishShader( void ) {
 			pStage->bundle[0] = pStage->bundle[1];
 			pStage->bundle[1] = tmpBundle;
 		}
-
-		//
-		// determine sort order and fog color adjustment
-		//
-		if ( ( pStage->stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) &&
-			 ( unfoggedStages[0].stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) ) {
-			int blendSrcBits = pStage->stateBits & GLS_SRCBLEND_BITS;
-			int blendDstBits = pStage->stateBits & GLS_DSTBLEND_BITS;
-
-			// don't screw with sort order if this is a portal or environment
-			if ( !shader.sort ) {
-				// see through item, like a grill or grate
-				if ( pStage->stateBits & GLS_DEPTHMASK_TRUE ) {
-					shader.sort = SS_SEE_THROUGH;
-				} else {
-					shader.sort = SS_BLEND0;
-				}
-			}
-		}
-	}
-
-	// there are times when you will need to manually apply a sort to
-	// opaque alpha tested shaders that have later blend passes
-	if ( !shader.sort ) {
-		shader.sort = SS_OPAQUE;
 	}
 
 	//
@@ -2746,7 +2769,7 @@ static shader_t *FinishShader( void ) {
 	}
 
 	// fogonly shaders don't have any normal passes
-	if (shader.sort == SS_BAD) {
+	if (!shader.sort) {
 		shader.sort = SS_OPAQUE;
 	}
 
@@ -2836,17 +2859,22 @@ shader_t* R_FindShader(const char* name, int lightmapIndex, qboolean mipRawImage
 		// with that same strippedName a new default shader is created.
         if (!Q_stricmp(currentShader->name, strippedName))
 		{
-			if (currentShader->shader && (currentShader->shader->lightmapIndex == lightmapIndex || currentShader->shader->defaultShader))
-            {
-                // match found
-                return currentShader->shader;
-			}
 			// shader text found, but it has no shared assigned
 			break;
 		}
 	}
 
-	if (!currentShader) {
+	if (currentShader)
+	{
+		for (sh = currentShader->shader; sh; sh = sh->next)
+		{
+			if (sh->lightmapIndex == lightmapIndex || sh == tr.defaultShader) {
+				return sh;
+			}
+		}
+	}
+	else
+	{
 		// create a new shader text
 		currentShader = AddShaderTextToHash(strippedName, hash);
 	}
