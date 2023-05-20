@@ -580,13 +580,15 @@ void CG_ParseCGMessage()
             cgi.HudDrawElements[iInfo].bVirtualScreen = cgi.MSG_ReadBits(1);
             break;
 
-        case 31:
+		case 31:
+			iInfo = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].vColor[0] = cgi.MSG_ReadByte() / 255.0;
             cgi.HudDrawElements[iInfo].vColor[1] = cgi.MSG_ReadByte() / 255.0;
             cgi.HudDrawElements[iInfo].vColor[2] = cgi.MSG_ReadByte() / 255.0;
             break;
 
-        case 32:
+		case 32:
+			iInfo = cgi.MSG_ReadByte();
             cgi.HudDrawElements[iInfo].vColor[3] = cgi.MSG_ReadByte() / 255.0;
             break;
 
