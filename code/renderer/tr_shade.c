@@ -1387,7 +1387,7 @@ void RB_StageIteratorVertexLitTextureUnfogged( void )
 	// 
 	// now do any dynamic lighting needed
 	//
-	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE ) {
+	if ( tess.dlightBits && !tess.dlightMap && tess.shader->sort <= SS_OPAQUE ) {
 		ProjectDlightTexture();
 	}
 
@@ -1456,7 +1456,11 @@ void RB_StageIteratorLightmappedMultitextureUnfogged( void ) {
 	} else {
 		GL_TexEnv( GL_MODULATE );
 	}
-	R_BindAnimatedImage( &tess.xstages[0]->bundle[1] );
+	if (tess.dlightMap && tess.xstages[0]->bundle[1].isLightmap) {
+		GL_Bind(&tr.identityLightImage[tess.dlightMap]);
+	} else {
+		R_BindAnimatedImage(&tess.xstages[0]->bundle[1]);
+	}
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
 	qglTexCoordPointer( 2, GL_FLOAT, 16, tess.texCoords[0][1] );
 
@@ -1485,7 +1489,7 @@ void RB_StageIteratorLightmappedMultitextureUnfogged( void ) {
 	// 
 	// now do any dynamic lighting needed
 	//
-	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE ) {
+	if ( tess.dlightBits && !tess.dlightMap && tess.shader->sort <= SS_OPAQUE ) {
 		ProjectDlightTexture();
 	}
 
