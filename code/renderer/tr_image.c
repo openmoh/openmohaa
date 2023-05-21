@@ -552,36 +552,62 @@ static void Upload32(
 		// select proper internal format
 		if ( samples == 3 )
 		{
-			if ( glConfig.textureCompression == TC_S3TC )
+			if (!force32bit)
 			{
-				internalFormat = GL_RGB4_S3TC;
-			}
-			else if ( r_texturebits->integer == 16 )
-			{
-				internalFormat = GL_RGB5;
-			}
-			else if ( r_texturebits->integer == 32 )
-			{
-				internalFormat = GL_RGB8;
+				if (r_texturebits->integer == 16)
+				{
+					internalFormat = GL_RGB5;
+				}
+				else if (r_texturebits->integer == 32)
+				{
+					internalFormat = GL_RGB8;
+				}
+				else if (r_colorbits->integer == 16)
+				{
+					internalFormat = GL_RGBA4;
+				}
+				else if (r_colorbits->integer == 32)
+				{
+					internalFormat = GL_RGBA8;
+				}
+				else
+				{
+					internalFormat = 3;
+				}
 			}
 			else
 			{
-				internalFormat = 3;
+				internalFormat = GL_RGB8;
 			}
 		}
 		else if ( samples == 4 )
 		{
-			if ( r_texturebits->integer == 16 )
+			if (!force32bit)
 			{
-				internalFormat = GL_RGBA4;
-			}
-			else if ( r_texturebits->integer == 32 )
-			{
-				internalFormat = GL_RGBA8;
+				if (r_texturebits->integer == 16)
+				{
+					internalFormat = GL_RGBA4;
+				}
+				else if (r_texturebits->integer == 32)
+				{
+					internalFormat = GL_RGBA8;
+				}
+				else if (r_colorbits->integer == 16)
+				{
+					internalFormat = GL_RGBA4;
+				}
+				else if (r_colorbits->integer == 32)
+				{
+					internalFormat = GL_RGBA8;
+				}
+				else
+				{
+					internalFormat = 4;
+				}
 			}
 			else
 			{
-				internalFormat = 4;
+				internalFormat = GL_RGB8;
 			}
 		}
 	} else {
@@ -670,6 +696,161 @@ done:
 		ri.Hunk_FreeTempMemory( resampledBuffer );
 }
 
+static void UploadCompressed(
+	byte* data,
+	int width,
+	int height,
+	int numMipmaps,
+	int iMipmapsAvailable,
+	qboolean picmip,
+	int glCompressMode,
+	int* format,
+	int* pUploadWidth,
+	int* pUploadHeight,
+	int* pBytesUsed
+) {
+	byte* offset;
+	int i;
+	int iStartImage;
+	int size;
+	int blockSize;
+	int scaled_width, scaled_height;
+
+	offset = data;
+	iStartImage = 0;
+	if (picmip) {
+		iStartImage = r_picmip->integer;
+	}
+
+	if (iStartImage > 0 && iStartImage >= iMipmapsAvailable) {
+		iStartImage = iMipmapsAvailable - 1;
+	}
+
+	scaled_width = width;
+	scaled_height = height;
+	if (iStartImage)
+	{
+		scaled_width = width >> iStartImage;
+		scaled_height = height >> iStartImage;
+	}
+	while (scaled_width > glConfig.maxTextureSize || scaled_height > glConfig.maxTextureSize)
+	{
+		scaled_width >>= 1;
+		scaled_height >>= 1;
+		++iStartImage;
+	}
+	if (iStartImage > 0 && iStartImage >= iMipmapsAvailable)
+	{
+		iStartImage = iMipmapsAvailable - 1;
+		scaled_width = width >> (iMipmapsAvailable - 1);
+		scaled_height = height >> (iMipmapsAvailable - 1);
+	}
+
+	*pUploadWidth = scaled_width;
+	*pUploadHeight = scaled_height;
+	*format = glCompressMode;
+	blockSize = 16;
+
+	if (glCompressMode == GL_COMPRESSED_RGB_S3TC_DXT1_EXT || glCompressMode == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) {
+		blockSize = 8;
+	}
+
+	scaled_width = width;
+	scaled_height = height;
+
+	for (i = iStartImage; i; i--) {
+		int w, h;
+
+		w = scaled_width + 3;
+		if (scaled_width + 3 < 0) {
+			w = scaled_width + 6;
+		}
+		w >>= 2;
+
+		if (w > 1) {
+			h = scaled_height + 3;
+			if (scaled_height + 3 < 0) {
+				h = scaled_height + 6;
+			}
+
+			h >>= 2;
+			if (h > 1) {
+				offset += blockSize * w * h;
+			}
+		}
+
+		scaled_width >>= 1;
+		scaled_height >>= 1;
+		if (!scaled_width) scaled_width = 1;
+		if (!scaled_height) scaled_height = 1;
+	}
+
+	*pBytesUsed = 0;
+
+	for (;;)
+	{
+		while (scaled_width)
+		{
+			int w, h;
+
+			if (!scaled_height) scaled_height = 1;
+			w = scaled_width + 3;
+			if (scaled_width + 3 < 0) w = scaled_width + 6;
+			w >>= 2;
+
+			h = scaled_height + 3;
+			if (scaled_height + 3 < 0) h = scaled_height + 6;
+			h >>= 2;
+
+			size = blockSize * w * h;
+			if (w > 1 && h > 1) *pBytesUsed += size;
+			
+			qglCompressedTexImage2DARB(3553, i - iStartImage, glCompressMode, scaled_width, scaled_height, 0, size, data);
+			GL_CheckErrors();
+
+			if (i < iMipmapsAvailable)
+			{
+				w = scaled_width + 3;
+				if (scaled_width + 3 < 0) {
+					w = scaled_width + 6;
+				}
+
+				if (w >> 2 > 1)
+				{
+					h = scaled_height + 3;
+					if (scaled_height + 3 < 0) {
+						h = scaled_height + 6;
+					}
+
+					if (h >> 2 > 1)
+						data += size;
+				}
+			}
+			scaled_width >>= 1;
+			scaled_height >>= 1;
+			++i;
+		}
+
+		if (!scaled_height) {
+			break;
+		}
+
+		scaled_width = 1;
+	}
+
+	if (numMipmaps > 1) {
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+	}
+	else
+	{
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	}
+
+	GL_CheckErrors();
+}
+
 
 /*
 ================
@@ -733,6 +914,7 @@ image_t* R_CreateImage(
 	image->allowPicmip = allowPicmip;
 	image->dynamicallyUpdated = dynamicallyUpdated;
 	image->force32bit = force32bit;
+	image->UseCount = 0;
 
 	strcpy (image->imgName, name);
 
@@ -753,6 +935,22 @@ image_t* R_CreateImage(
 	}
 
 	GL_Bind(image);
+
+	if (glCompressMode) {
+		UploadCompressed(
+			pic,
+			image->width,
+			image->height,
+			image->numMipmaps,
+			iMipmapsAvailable,
+			allowPicmip,
+			glCompressMode,
+			&image->internalFormat,
+			&image->uploadWidth,
+			&image->uploadHeight,
+			&image->bytesUsed
+		);
+	}
 
 	Upload32(
 		(unsigned*)pic,
@@ -783,6 +981,7 @@ image_t* R_CreateImage(
 	hash = generateHashValue(name);
 	image->next = hashTable[hash];
 	hashTable[hash] = image;
+	image->r_sequence = r_sequencenumber;
 
 	return image;
 }
