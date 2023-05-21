@@ -28,6 +28,183 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void CG_PlayerTeamUpdate(refEntity_t* pModel, entityState_t* pPlayerState)
 {
+    qboolean bInArtillery, bInTeam, bSpecialIcon;
+
+#if TARGET_GAME_PROTOCOL < 15
+    if (pPlayerState->eFlags & EF_ALLIES)
+    {
+        cg.clientinfo[pPlayerState->number].team = TEAM_ALLIES;
+    } else if (pPlayerState->eFlags & EF_AXIS) {
+        cg.clientinfo[pPlayerState->number].team = TEAM_AXIS;
+    } else {
+		cg.clientinfo[pPlayerState->number].team = TEAM_NONE;
+    }
+#endif
+
+    if (pPlayerState->number == cg.snap->ps.clientNum) {
+        return;
+    }
+
+    bInTeam = qfalse;
+    bSpecialIcon = qfalse;
+	if (cgs.gametype > GT_FFA
+		&& (cg.snap->ps.stats[STAT_TEAM] == TEAM_ALLIES && (pPlayerState->eFlags & EF_ALLIES)
+			|| cg.snap->ps.stats[STAT_TEAM] == TEAM_AXIS && (pPlayerState->eFlags & EF_AXIS)
+			|| cg.snap->ps.stats[STAT_TEAM] != TEAM_AXIS && cg.snap->ps.stats[STAT_TEAM] != TEAM_ALLIES && (pPlayerState->eFlags & EF_ANY_TEAM) != 0))
+	{
+		bInTeam = qtrue;
+	}
+
+    if (cgs.gametype <= GT_FFA) {
+        return;
+    }
+
+    bInArtillery = qfalse;
+    if (pPlayerState->eFlags & EF_PLAYER_ARTILLERY) {
+        bInArtillery = qtrue;
+    }
+
+    if (bInTeam || (pPlayerState->eFlags & (EF_PLAYER_IN_MENU | EF_PLAYER_TALKING)) || bInArtillery)
+    {
+        int i;
+        int iTag;
+        float fAlpha;
+        float fDist;
+        vec3_t vTmp;
+        refEntity_t iconEnt;
+
+		memset(&iconEnt, 0, sizeof(iconEnt));
+		if ((pPlayerState->eFlags & EF_PLAYER_TALKING) != 0 && ((cg.time >> 8) & 1) != 0)
+		{
+			iconEnt.hModel = cgi.R_RegisterModel("textures/hud/talking_headicon.spr");
+			bSpecialIcon = 1;
+		}
+		else if ((pPlayerState->eFlags & EF_PLAYER_IN_MENU) != 0)
+		{
+			iconEnt.hModel = cgi.R_RegisterModel("textures/hud/inmenu_headicon.spr");
+			bSpecialIcon = 1;
+		}
+		else
+		{
+            if (!bInTeam) {
+                return;
+            }
+
+			if (bInArtillery)
+			{
+				iconEnt.hModel = cgi.R_RegisterModel("textures/hud/inmenu_artilleryicon.spr");
+				bSpecialIcon = qtrue;
+			}
+			else if ((pPlayerState->eFlags & 0x80) != 0)
+			{
+				iconEnt.hModel = cgi.R_RegisterModel("textures/hud/allies_headicon.spr");
+			}
+			else
+			{
+				iconEnt.hModel = cgi.R_RegisterModel("textures/hud/axis_headicon.spr");
+			}
+		}
+
+		memset(vTmp, 0, sizeof(vTmp));
+		AnglesToAxis(vTmp, iconEnt.axis);
+
+		iconEnt.scale = 0.5;
+		iconEnt.renderfx = 0;
+		iconEnt.reType = RT_SPRITE;
+		iconEnt.shaderTime = 0.0;
+		iconEnt.frameInfo[0].index = 0;
+		iconEnt.shaderRGBA[0] = -1;
+		iconEnt.shaderRGBA[1] = -1;
+		iconEnt.shaderRGBA[2] = -1;
+        VectorCopy(pModel->origin, iconEnt.origin);
+
+		iTag = cgi.Tag_NumForName(pModel->tiki, "eyes bone");
+		if (iTag == -1)
+		{
+			iconEnt.origin[2] = iconEnt.origin[2] + 96.0;
+		}
+		else
+		{
+            orientation_t oEyes = cgi.TIKI_Orientation(pModel, iTag);
+
+            for (i = 0; i < 3; ++i) {
+                VectorMA(iconEnt.origin, oEyes.origin[i], pModel->axis[i], iconEnt.origin);
+            }
+
+			iconEnt.origin[2] = iconEnt.origin[2] + 20.0;
+		}
+
+        VectorSubtract(iconEnt.origin, cg.refdef.vieworg, vTmp);
+        fDist = VectorLength(vTmp);
+
+        if (fDist >= 256)
+        {
+            if (fDist > 512.0) {
+                iconEnt.scale = (fDist - 512.0) / 2560.0 + 0.5;
+            }
+        }
+        else
+		{
+			iconEnt.scale = fDist / 853.0 + 0.2;
+		}
+
+        if (iconEnt.scale > 1.0) {
+            iconEnt.scale = 1.0;
+        }
+
+        if (fDist > 256.0) {
+            fAlpha = 1.0;
+        }
+        else if (fDist >= 72.0) {
+            fAlpha = (fDist - 72.0) / 184.0;
+        }
+        else {
+            fAlpha = 0.0;
+        }
+
+        if (cg.snap->ps.stats[STAT_TEAM] == 4 || cg.snap->ps.stats[STAT_TEAM] == 3) {
+            fAlpha = fAlpha * 0.65;
+        }
+        else {
+            fAlpha = fAlpha * 0.4;
+        }
+
+		if (bSpecialIcon)
+		{
+			int value = (int)((fAlpha + 0.60000002) * 255.0);
+			if (value > 255) value = 255;
+			iconEnt.shaderRGBA[3] = value;
+		}
+		else
+		{
+			iconEnt.shaderRGBA[3] = (int)(fAlpha * 255.0);
+		}
+
+        if (fAlpha > 0.0 || bSpecialIcon)
+		{
+			if (bSpecialIcon)
+			{
+				VectorMA(iconEnt.origin, -2.0, cg.refdef.viewaxis[0], iconEnt.origin);
+				iconEnt.scale = iconEnt.scale + 0.05;
+			}
+
+            cgi.R_AddRefSpriteToScene(&iconEnt);
+
+            if (bSpecialIcon && bInTeam && fAlpha > 0.0)
+			{
+                if (pPlayerState->eFlags & EF_ALLIES) {
+                    iconEnt.hModel = cgi.R_RegisterModel("textures/hud/allies_headicon.spr");
+                }
+                else {
+                    iconEnt.hModel = cgi.R_RegisterModel("textures/hud/axis_headicon.spr");
+                }
+				VectorMA(iconEnt.origin, 4.0, cg.refdef.viewaxis[0], iconEnt.origin);
+				iconEnt.scale = iconEnt.scale - 0.1;
+				iconEnt.shaderRGBA[3] = (int)(fAlpha * 255.0);
+				cgi.R_AddRefSpriteToScene(&iconEnt);
+            }
+        }
+    }
     // FIXME: unimplemented
 }
 
