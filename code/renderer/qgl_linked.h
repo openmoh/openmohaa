@@ -355,3 +355,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define qglVertexPointer glVertexPointer
 #define qglViewport glViewport
 
+#define qglCompressedTexImage3DARB glCompressedTexImage3D
+#define qglCompressedTexImage2DARB glCompressedTexImage2D
+#define qglCompressedTexSubImage3DARB glCompressedTexSubImage3D
+#define qglCompressedTexSubImage2DARB glCompressedTexSubImage2D
+#define qglGetCompressedTexImageARB glGetCompressedTexImage

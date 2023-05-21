@@ -404,6 +404,12 @@ void ( APIENTRY * qglVertex4sv )(const GLshort *v);
 void ( APIENTRY * qglVertexPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 void ( APIENTRY * qglViewport )(GLint x, GLint y, GLsizei width, GLsizei height);
 
+void (APIENTRY* qglCompressedTexImage3DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const void* data);
+void (APIENTRY* qglCompressedTexImage2DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data);
+void (APIENTRY* qglCompressedTexSubImage3DARB)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const void* data);
+void (APIENTRY* qglCompressedTexSubImage2DARB)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data);
+void (APIENTRY* qglGetCompressedTexImageARB)(GLenum target, GLint lod, void* img);
+
 void ( APIENTRY * qglMultiTexCoord2fARB )( GLenum texture, GLfloat s, GLfloat t );
 void ( APIENTRY * qglActiveTextureARB )( GLenum texture );
 void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
@@ -754,6 +760,12 @@ static void ( APIENTRY * dllVertex4s )(GLshort x, GLshort y, GLshort z, GLshort 
 static void ( APIENTRY * dllVertex4sv )(const GLshort *v);
 static void ( APIENTRY * dllVertexPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 static void ( APIENTRY * dllViewport )(GLint x, GLint y, GLsizei width, GLsizei height);
+
+void (APIENTRY* dllCompressedTexImage3DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const void* data);
+void (APIENTRY* dllCompressedTexImage2DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data);
+void (APIENTRY* dllCompressedTexSubImage3DARB)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const void* data);
+void (APIENTRY* dllCompressedTexSubImage2DARB)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data);
+void (APIENTRY* dllGetCompressedTexImageARB)(GLenum target, GLint lod, void* img);
 
 static void APIENTRY logAccum(GLenum op, GLfloat value)
 {
@@ -2994,6 +3006,12 @@ void QGL_Shutdown( void )
 	qglVertexPointer             = NULL;
 	qglViewport                  = NULL;
 
+	qglCompressedTexImage3DARB    = NULL;
+	qglCompressedTexImage2DARB    = NULL;
+	qglCompressedTexSubImage3DARB = NULL;
+	qglCompressedTexSubImage2DARB = NULL;
+	qglGetCompressedTexImageARB   = NULL;
+
 // bk001129 - from cvs1.17 (mkv)
 #if defined(__FX__)
 	qfxMesaCreateContext         = NULL;
@@ -3390,6 +3408,12 @@ qboolean QGL_Init( const char *dllname )
 	qglVertex4sv                 = 	dllVertex4sv                 = GPA( "glVertex4sv" );
 	qglVertexPointer             = 	dllVertexPointer             = GPA( "glVertexPointer" );
 	qglViewport                  = 	dllViewport                  = GPA( "glViewport" );
+
+    qglCompressedTexImage3DARB    = dllCompressedTexImage3DARB		= GPA("glCompressedTexImage3DARB");
+    qglCompressedTexImage2DARB    = dllCompressedTexImage2DARB      = GPA("qglCompressedTexImage2DARB");
+    qglCompressedTexSubImage3DARB = dllCompressedTexSubImage3DARB   = GPA("qglCompressedTexSubImage3DARB");
+    qglCompressedTexSubImage2DARB = dllCompressedTexSubImage2DARB   = GPA("qglCompressedTexSubImage2DARB");
+    qglGetCompressedTexImageARB   = dllGetCompressedTexImageARB     = GPA("qglGetCompressedTexImageARB");
 
 // bk001129 - from cvs1.17 (mkv)
 #if defined(__FX__)
@@ -4141,6 +4165,12 @@ void QGL_EnableLogging( qboolean enable ) {
 		qglVertex4sv                 = 	dllVertex4sv                 ;
 		qglVertexPointer             = 	dllVertexPointer             ;
 		qglViewport                  = 	dllViewport                  ;
+
+        qglCompressedTexImage3DARB     = dllCompressedTexImage3DARB;
+        qglCompressedTexImage2DARB     = dllCompressedTexImage2DARB;
+        qglCompressedTexSubImage3DARB  = dllCompressedTexSubImage3DARB;
+        qglCompressedTexSubImage2DARB  = dllCompressedTexSubImage2DARB;
+        qglGetCompressedTexImageARB    = dllGetCompressedTexImageARB;
 	}
 }
 

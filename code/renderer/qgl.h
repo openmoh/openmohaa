@@ -528,6 +528,34 @@ extern  void ( APIENTRY * qglVertex4sv )(const GLshort *v);
 extern  void ( APIENTRY * qglVertexPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 extern  void ( APIENTRY * qglViewport )(GLint x, GLint y, GLsizei width, GLsizei height);
 
+// GL_ARB_texture_compression
+extern void (APIENTRY* qglCompressedTexImage3DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const void* data);
+extern void (APIENTRY* qglCompressedTexImage2DARB)(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data);
+extern void (APIENTRY* qglCompressedTexSubImage3DARB)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const void* data);
+extern void (APIENTRY* qglCompressedTexSubImage2DARB)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data);
+extern void (APIENTRY* qglGetCompressedTexImageARB)(GLenum target, GLint lod, void* img);
+#ifndef GL_COMPRESSED_RGB_ARB
+#define GL_COMPRESSED_ALPHA_ARB						0x84E9
+#define GL_COMPRESSED_LUMINANCE_ARB					0x84EA
+#define GL_COMPRESSED_LUMINANCE_ALPHA_ARB			0x84EB
+#define GL_COMPRESSED_INTENSITY_ARB					0x84EC
+#define GL_COMPRESSED_RGB_ARB						0x84ED
+#define GL_COMPRESSED_RGBA_ARB						0x84EE
+#define GL_TEXTURE_COMPRESSION_HINT_ARB				0x84EF
+#define GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB		0x86A0
+#define GL_TEXTURE_COMPRESSED_ARB					0x86A1
+#define GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB		0x86A2
+#define GL_COMPRESSED_TEXTURE_FORMATS_ARB			0x86A3
+#endif
+
+// GL_EXT_texture_compression_s3tc
+#ifndef GL_COMPRESSED_RGB_S3TC_DXT1_EXT
+#define GL_COMPRESSED_RGB_S3TC_DXT1_EXT                   0x83F0
+#define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT                  0x83F1
+#define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT                  0x83F2
+#define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
+#endif
+
 #if defined( _WIN32 )
 
 extern  int   ( WINAPI * qwglChoosePixelFormat )(HDC, CONST PIXELFORMATDESCRIPTOR *);
