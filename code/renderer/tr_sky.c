@@ -811,7 +811,7 @@ void RB_StageIteratorSky( void ) {
 	if ( r_showsky->integer ) {
 		qglDepthRange( 0.0, 0.0 );
 	} else {
-		qglDepthRange( 1.0, 1.0 );
+		qglDepthRange( 1.875, 1.875 );
 	}
 
 	// draw the outer skybox
