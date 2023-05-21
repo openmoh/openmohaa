@@ -373,6 +373,25 @@ void CG_ProcessConfigString(int num)
     {
         CG_SetLightStyle(num - CS_LIGHTSTYLES, str);
     }
+    else if (num >= CS_PLAYERS && num < CS_PLAYERS + MAX_CLIENTS)
+    {
+		const char* value;
+
+		value = Info_ValueForKey(str, "name");
+		if (value) {
+            strncpy(cg.clientinfo[num - CS_PLAYERS].name, value, sizeof(cg.clientinfo[num - CS_PLAYERS].name));
+		}
+		else {
+			strncpy(cg.clientinfo[num - CS_PLAYERS].name, "UnnamedSoldier", sizeof(cg.clientinfo[num - CS_PLAYERS].name));
+        }
+        
+        value = Info_ValueForKey(str, "team");
+        if (value) {
+            cg.clientinfo[num - CS_PLAYERS].team = atoi(value);
+        } else {
+            cg.clientinfo[num - CS_PLAYERS].team = TEAM_NONE;
+        }
+    }
 }
 
 //===================================================================================

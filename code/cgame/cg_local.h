@@ -160,6 +160,7 @@ typedef struct markPoly_s
 #define	MAX_CUSTOM_SOUNDS	32
 typedef struct {
 	int team;
+    char name[64];
 } clientInfo_t;
 
 typedef struct cobjective_s {
