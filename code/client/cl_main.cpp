@@ -99,6 +99,7 @@ cvar_t	*wombat;
 cvar_t	*cl_r_fullscreen;
 
 cvar_t	*cl_consoleKeys;
+cvar_t	*name;
 
 cvar_t* j_pitch;
 cvar_t* j_yaw;
@@ -220,7 +221,7 @@ CL_ChangeReliableCommand
 ======================
 */
 void CL_ChangeReliableCommand( void ) {
-	int r, index, l;
+	size_t r, index, l;
 
 	r = clc.reliableSequence - (random() * 5);
 	index = clc.reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
@@ -248,7 +249,7 @@ Dumps the current net message, prefixed by the length
 ====================
 */
 void CL_WriteDemoMessage ( msg_t *msg, int headerBytes ) {
-	int		len, swlen;
+	size_t		len, swlen;
 
 	// write the packet sequence
 	len = clc.serverMessageSequence;
@@ -327,7 +328,7 @@ void CL_Record_f( void ) {
 	byte		bufData[MAX_MSGLEN];
 	msg_t	buf;
 	int			i;
-	int			len;
+	size_t			len;
 	entityState_t	*ent;
 	entityState_t	nullstate;
 	char		*s;
@@ -559,7 +560,7 @@ CL_ReadDemoMessage
 =================
 */
 void CL_ReadDemoMessage( void ) {
-	int			r;
+	size_t		r;
 	msg_t		buf;
 	byte		bufData[ MAX_MSGLEN ];
 	int			s;
@@ -1060,7 +1061,8 @@ in anyway.
 */
 void CL_RequestAuthorization( void ) {
 	char	nums[64];
-	int		i, j, l;
+	int		i, j;
+	size_t	l;
 	cvar_t	*fs;
 
 	if ( !cls.authorizeServer.port ) {
@@ -1781,7 +1783,6 @@ void CL_CheckForResend( void ) {
 	int		port, i;
 	char	info[MAX_INFO_STRING];
 	char	data[MAX_INFO_STRING];
-	char buf[1024];
 
 	// don't send anything if playing back a demo
 	if ( clc.demoplaying ) {
@@ -2156,8 +2157,6 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// cd check
 	if ( !Q_stricmp(c, "getKey") ) {
-		char buf[1024];
-
 		cls.state = CA_AUTHORIZING;
 		gcd_compute_response(cl_cdkey, Cmd_Argv(1), cls.gcdResponse, CDResponseMethod_NEWAUTH);
 		NET_OutOfBandPrint(NS_CLIENT, from, "authorizeThis %s", cls.gcdResponse);
@@ -2292,7 +2291,7 @@ qboolean CL_CheckPaused(void)
 	// if paused->modified is set, the cvar has only been changed in
 	// this frame. Keep paused in this frame to ensure the server doesn't
 	// lag behind.
-	if(paused->integer || paused->modified)
+	if(paused->integer)
 		return qtrue;
 
 	return qfalse;
@@ -2307,6 +2306,8 @@ CL_CheckUserinfo
 ==================
 */
 void CL_CheckUserinfo( void ) {
+	char szSanitizedName[MAX_NAME_LENGTH];
+
 	// don't add reliable commands when not yet connected
 	if(cls.state < CA_CHALLENGING)
 		return;
@@ -2318,6 +2319,10 @@ void CL_CheckUserinfo( void ) {
 	// send a reliable userinfo update if needed
 	if(cvar_modifiedFlags & CVAR_USERINFO)
 	{
+		if (Com_SanitizeName(name->string, szSanitizedName)) {
+			Cvar_Set("name", szSanitizedName);
+		}
+
 		cvar_modifiedFlags &= ~CVAR_USERINFO;
 		CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( CVAR_USERINFO ) ) );
 	}
@@ -3119,7 +3124,7 @@ void CL_Init( void ) {
 	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE );
 
 	// userinfo
-	Cvar_Get ("name", "UnnamedSoldier", CVAR_USERINFO | CVAR_ARCHIVE );
+	name = Cvar_Get ("name", "UnnamedSoldier", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("rate", "5000", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("snaps", "20", CVAR_USERINFO | CVAR_ARCHIVE );
 	Cvar_Get ("password", "", CVAR_USERINFO);
@@ -3511,7 +3516,7 @@ void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 	const char	*s;
 	char	info[MAX_INFO_STRING];
 	int		i, l, score, ping;
-	int		len;
+	size_t	len;
 	serverStatus_t *serverStatus;
 
 	serverStatus = NULL;
@@ -4270,7 +4275,8 @@ qboolean CL_CDKeyValidate( const char *key, const char *checksum ) {
 	char	ch;
 	byte	sum;
 	char	chs[3];
-	int i, len;
+	int i;
+	size_t len;
 
 	len = strlen(key);
 	if( len != CDKEY_LEN ) {
