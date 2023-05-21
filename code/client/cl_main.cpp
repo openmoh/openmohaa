@@ -1820,7 +1820,11 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
 		Info_SetValueForKey( info, "protocol", va("%i", PROTOCOL_VERSION ) );
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
-		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
+		Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
+		Info_SetValueForKey(info, "version", TARGET_GAME_VERSION);
+#if TARGET_GAME_TYPE == 2
+		Info_SetValueForKey(info, "clientType", "Breakthrough");
+#endif
 
 		strcpy(data, "connect ");
     // TTimo adding " " around the userinfo string to avoid truncated userinfo on the server

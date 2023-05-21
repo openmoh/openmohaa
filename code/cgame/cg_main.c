@@ -300,16 +300,7 @@ void CG_ProcessConfigString(int num)
 		cg.matchStartTime = atoi(str);
 		return;
     case CS_FOGINFO:
-        sscanf
-        (
-            str,
-            "%d %f %f %f %f",
-            &cg.farplane_cull,
-            &cg.farplane_distance,
-            &cg.farplane_color[0],
-            &cg.farplane_color[1],
-            &cg.farplane_color[2]
-        );
+        CG_ParseFogInfo(str);
 		return;
     case CS_SKYINFO:
         sscanf
@@ -776,4 +767,45 @@ void Com_Printf( const char *msg, ... ) {
 
 #endif
 
+#if TARGET_GAME_PROTOCOL >= 15
 
+void CG_ParseFogInfo(const char* str) {
+	sscanf(
+        str,
+		"%d %f %f %f %f %f %f %f %d %f %f %f %f",
+		&cg.farplane_cull,
+		&cg.farplane_distance,
+		&cg.farplane_bias,
+		&cg.skyboxFarplane,
+		&cg.skyboxSpeed,
+		&cg.farplane_color[0],
+		&cg.farplane_color[1],
+		&cg.farplane_color[2],
+		&cg.renderTerrain,
+		&cg.farclipOverride,
+		&cg.farplaneColorOverride[0],
+		&cg.farplaneColorOverride[1],
+		&cg.farplaneColorOverride[2]
+    );
+}
+
+#else
+
+void CG_ParseFogInfo(const char* str) {
+	cg.farclipOverride = 0.0;
+	cg.farplaneColorOverride[0] = -1.0;
+	cg.farplaneColorOverride[1] = -1.0;
+	cg.farplaneColorOverride[2] = -1.0;
+	sscanf
+	(
+		str,
+		"%d %f %f %f %f",
+		&cg.farplane_cull,
+		&cg.farplane_distance,
+		&cg.farplane_color[0],
+		&cg.farplane_color[1],
+		&cg.farplane_color[2]
+	);
+}
+
+#endif

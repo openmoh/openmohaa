@@ -75,8 +75,7 @@ void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t 
 	if ( unchanged ) {
 		*state = *old;
 	} else {
-		// FIXME: frametime
-		MSG_ReadDeltaEntity( msg, old, state, newnum, 0.0);
+		MSG_ReadDeltaEntity( msg, old, state, newnum, cls.serverFrameTime);
 	}
 
 	if ( state->number == (MAX_GENTITIES-1) ) {
@@ -117,7 +116,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 
 	while ( 1 ) {
 		// read the entity index number
-		newnum = MSG_ReadBits( msg, GENTITYNUM_BITS );
+		newnum = MSG_ReadEntityNum(msg);
 
 		if ( newnum == (MAX_GENTITIES-1) ) {
 			break;
@@ -274,11 +273,10 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 	// read playerinfo
     SHOWNET(msg, "playerstate");
-    // FIXME: frametime
 	if ( old ) {
-		MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps, 0.0 );
+		MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps, cls.serverFrameTime );
 	} else {
-		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps, 0.0);
+		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps, cls.serverFrameTime);
 	}
 
 	// read packet entities
@@ -446,6 +444,28 @@ static void CL_ParseServerInfo(void)
 		sizeof(clc.sv_dlURL));
 }
 
+#if TARGET_GAME_PROTOCOL >= 15
+
+char* MSG_ReadGameStateChar(msg_t* msg) {
+	return MSG_ReadScrambledBigString(msg);
+}
+
+float MSG_ReadServerFrameTime(msg_t* msg) {
+	return MSG_ReadFloat(msg);
+}
+
+#else
+
+char* MSG_ReadGameStateChar(msg_t* msg) {
+	return MSG_ReadString(msg);
+}
+
+float MSG_ReadServerFrameTime(msg_t* msg) {
+	return 1.f / atof(Info_ValueForKey(cl.gameState.stringData + cl.gameState.stringOffsets[CS_SYSTEMINFO], "sv_fps"));
+}
+
+#endif
+
 /*
 ==================
 CL_ParseGamestate
@@ -488,7 +508,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 			if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
 				Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 			}
-			s = MSG_ReadString( msg );
+			s = MSG_ReadGameStateChar( msg );
 			len = strlen( s );
 
 			if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
@@ -499,7 +519,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 			Com_Memcpy( cl.gameState.stringData + cl.gameState.dataCount, s, len + 1 );
 			cl.gameState.dataCount += len + 1;
 		} else if ( cmd == svc_baseline ) {
-			newnum = MSG_ReadBits( msg, GENTITYNUM_BITS );
+			newnum = MSG_ReadEntityNum(msg);
 			if ( newnum < 0 || newnum >= MAX_GENTITIES ) {
 				Com_Error( ERR_DROP, "Baseline number out of range: %i", newnum );
 			}
@@ -516,6 +536,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	clc.clientNum = MSG_ReadLong(msg);
 	// read the checksum feed
 	clc.checksumFeed = MSG_ReadLong( msg );
+	cls.serverFrameTime = MSG_ReadServerFrameTime(msg);
 
 	// parse serverId and other cvars
 	CL_SystemInfoChanged();
@@ -727,7 +748,7 @@ void CL_ParseCommandString( msg_t *msg ) {
 	int		index;
 
 	seq = MSG_ReadLong( msg );
-	s = MSG_ReadString( msg );
+	s = MSG_ReadScrambledString( msg );
 
 	// see if we have already executed stored it off
 	if ( clc.serverCommandSequence >= seq ) {
@@ -764,10 +785,9 @@ void CL_ParseLocationprint( msg_t *msg ) {
 
 	x = MSG_ReadShort( msg );
 	y = MSG_ReadShort( msg );
-	string = MSG_ReadString(msg);
+	string = MSG_ReadScrambledString(msg);
 
-	// FIXME
-	//UI_UpdateLocationPrint( x, y, string, 1.0 );
+	UI_UpdateLocationPrint( x, y, string, 1.0 );
 }
 
 /*
@@ -778,10 +798,10 @@ CL_ParseCenterprint
 void CL_ParseCenterprint( msg_t *msg ) {
 	char *string;
 
-	string = MSG_ReadString( msg );
+	string = MSG_ReadScrambledString( msg );
 
 	// FIXME
-	//UI_UpdateCenterPrintf( string, 1.0 );
+	UI_UpdateCenterPrint( string, 1.0 );
 }
 
 /*

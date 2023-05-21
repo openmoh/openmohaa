@@ -32,10 +32,10 @@ int oldsize = 0;
 // TA stuff
 //===================
 
-static constexpr unsigned int MAX_PACKED_COORD = 65536;
-static constexpr unsigned int MAX_PACKED_COORD_HALF = MAX_PACKED_COORD / 2;
-static constexpr unsigned int MAX_PACKED_COORD_EXTRA = 262144;
-static constexpr unsigned int MAX_PACKED_COORD_EXTRA_HALF = MAX_PACKED_COORD_EXTRA / 2;
+static constexpr int MAX_PACKED_COORD = 65536;
+static constexpr int MAX_PACKED_COORD_HALF = MAX_PACKED_COORD / 2;
+static constexpr int MAX_PACKED_COORD_EXTRA = 262144;
+static constexpr int MAX_PACKED_COORD_EXTRA_HALF = MAX_PACKED_COORD_EXTRA / 2;
 
 //===
 // Statistics for changes reporting
@@ -327,8 +327,10 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 		msg->readcount = (msg->bit>>3)+1;
 	}
 	if (sgn) {
-		if (value & (1 << (bits - 1))) {
-			value |= -1 ^ ((1 << bits) - 1);
+		if (value & 1) {
+			value = ~(value >> 1);
+		} else {
+			value >>= 1;
 		}
 	}
 
@@ -417,6 +419,32 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 	}
 }
 
+void MSG_WriteBigString( msg_t *sb, const char *s ) {
+	if ( !s ) {
+		MSG_WriteByte(sb, 0);
+	} else {
+		size_t	l;
+		int		i;
+		char	string[BIG_INFO_STRING];
+
+		l = strlen( s );
+		if ( l >= BIG_INFO_STRING ) {
+			Com_Printf("MSG_WriteString: BIG_INFO_STRING");
+			MSG_WriteByte(sb, 0);
+			return;
+		}
+		Q_strncpyz( string, s, sizeof( string ) );
+
+		for ( i = 0 ; i <= l ; i++ ) {
+			MSG_WriteByte(sb, string[i]);
+		}
+	}
+}
+
+
+
+#if TARGET_GAME_PROTOCOL >= 15
+
 void MSG_WriteScrambledString(msg_t* sb, const char* s) {
 	if (!s) {
 		strstats[0]++;
@@ -440,28 +468,6 @@ void MSG_WriteScrambledString(msg_t* sb, const char* s) {
 			char c = string[i];
 			strstats[c]++;
 			MSG_WriteByte(sb, StrCharToNetByte[c]);
-		}
-	}
-}
-
-void MSG_WriteBigString( msg_t *sb, const char *s ) {
-	if ( !s ) {
-		MSG_WriteByte(sb, 0);
-	} else {
-		size_t	l;
-		int		i;
-		char	string[BIG_INFO_STRING];
-
-		l = strlen( s );
-		if ( l >= BIG_INFO_STRING ) {
-			Com_Printf("MSG_WriteString: BIG_INFO_STRING");
-			MSG_WriteByte(sb, 0);
-			return;
-		}
-		Q_strncpyz( string, s, sizeof( string ) );
-
-		for ( i = 0 ; i <= l ; i++ ) {
-			MSG_WriteByte(sb, string[i]);
 		}
 	}
 }
@@ -492,6 +498,18 @@ void MSG_WriteScrambledBigString(msg_t* sb, const char* s) {
 		}
 	}
 }
+
+#else
+
+void MSG_WriteScrambledString(msg_t* sb, const char* s) {
+	return MSG_WriteString(sb, s);
+}
+
+void MSG_WriteScrambledBigString(msg_t* sb, const char* s) {
+	return MSG_WriteBigString(sb, s);
+}
+
+#endif
 
 void MSG_WriteAngle( msg_t *sb, float f ) {
 	MSG_WriteByte (sb, (int)(f*256/360) & 255);
@@ -598,6 +616,8 @@ float MSG_ReadFloat( msg_t *msg ) {
 	return dat.f;	
 }
 
+#if TARGET_GAME_PROTOCOL >= 15
+
 char* MSG_ReadScrambledString(msg_t* msg) {
 	static char	string[MAX_STRING_CHARS];
 	int		l, c;
@@ -610,6 +630,9 @@ char* MSG_ReadScrambledString(msg_t* msg) {
 		}
 
 		c = NetByteToStrChar[c];
+		if (!c) {
+			break;
+		}
 		// translate all fmt spec to avoid crash bugs
 		if (c == '%') {
 			c = '.';
@@ -628,6 +651,52 @@ char* MSG_ReadScrambledString(msg_t* msg) {
 
 	return string;
 }
+
+char* MSG_ReadScrambledBigString(msg_t* msg) {
+	static char	string[BIG_INFO_STRING];
+	int		l, c;
+
+	l = 0;
+	do {
+		c = MSG_ReadByte(msg);		// use ReadByte so -1 is out of bounds
+		if (c == -1) {
+			break;
+		}
+
+		c = NetByteToStrChar[c];
+		if (!c) {
+			break;
+		}
+		// translate all fmt spec to avoid crash bugs
+		if (c == '%') {
+			c = '.';
+		}
+		// don't allow higher ascii values
+		// (su44: this check is missing in MoHAA)
+		if (c > 127) {
+			c = '.';
+		}
+
+		string[l] = c;
+		l++;
+	} while (l < sizeof(string) - 1);
+
+	string[l] = 0;
+
+	return string;
+}
+
+#else
+
+char* MSG_ReadScrambledString(msg_t* msg) {
+	return MSG_ReadString(msg);
+}
+
+char* MSG_ReadScrambledBigString(msg_t* msg) {
+	return MSG_ReadBigString(msg);
+}
+
+#endif
 
 char *MSG_ReadString( msg_t *msg ) {
 	static char	string[MAX_STRING_CHARS];
@@ -1171,6 +1240,157 @@ typedef struct {
 // using the stringizing operator to save typing...
 #define	NETF(x) #x,(size_t)&((entityState_t*)0)->x
 
+#if TARGET_GAME_PROTOCOL >= 15
+netField_t	entityStateFields[] =
+{
+{ NETF(netorigin[0]), 0, netFieldType_t::coord },
+{ NETF(netorigin[1]), 0, netFieldType_t::coord },
+{ NETF(netangles[1]), 12, netFieldType_t::angle },
+{ NETF(frameInfo[0].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[1].time), 15, netFieldType_t::animTime },
+{ NETF(bone_angles[0][0]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[3][0]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[1][0]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[2][0]), -13, netFieldType_t::angle },
+{ NETF(netorigin[2]), 0, netFieldType_t::coord },
+{ NETF(frameInfo[0].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[1].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[2].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[3].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[0].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[1].index), 12, netFieldType_t::regular },
+{ NETF(actionWeight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[2].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[3].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[2].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[3].index), 12, netFieldType_t::regular },
+{ NETF(eType), 8, netFieldType_t::regular },
+{ NETF(modelindex), 16, netFieldType_t::regular },
+{ NETF(parent), 16, netFieldType_t::regular },
+{ NETF(constantLight), 32, netFieldType_t::regular },
+{ NETF(renderfx), 32, netFieldType_t::regular },
+{ NETF(bone_tag[0]), -8, netFieldType_t::regular },
+{ NETF(bone_tag[1]), -8, netFieldType_t::regular },
+{ NETF(bone_tag[2]), -8, netFieldType_t::regular },
+{ NETF(bone_tag[3]), -8, netFieldType_t::regular },
+{ NETF(bone_tag[4]), -8, netFieldType_t::regular },
+{ NETF(scale), 10, netFieldType_t::scale },
+{ NETF(alpha), 8, netFieldType_t::alpha },
+{ NETF(usageIndex), 16, netFieldType_t::regular },
+{ NETF(eFlags), 16, netFieldType_t::regular },
+{ NETF(solid), 32, netFieldType_t::regular },
+{ NETF(netangles[2]), 12, netFieldType_t::angle },
+{ NETF(netangles[0]), 12, netFieldType_t::angle },
+{ NETF(tag_num), 10, netFieldType_t::regular },
+{ NETF(bone_angles[1][2]), -13, netFieldType_t::angle },
+{ NETF(attach_use_angles), 1, netFieldType_t::regular },
+{ NETF(origin2[1]), 0, netFieldType_t::coord },
+{ NETF(origin2[0]), 0, netFieldType_t::coord },
+{ NETF(origin2[2]), 0, netFieldType_t::coord },
+{ NETF(bone_angles[0][2]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[2][2]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[3][2]), -13, netFieldType_t::angle },
+{ NETF(surfaces[0]), 8, netFieldType_t::regular },
+{ NETF(surfaces[1]), 8, netFieldType_t::regular },
+{ NETF(surfaces[2]), 8, netFieldType_t::regular },
+{ NETF(surfaces[3]), 8, netFieldType_t::regular },
+{ NETF(bone_angles[0][1]), -13, netFieldType_t::angle },
+{ NETF(surfaces[4]), 8, netFieldType_t::regular },
+{ NETF(surfaces[5]), 8, netFieldType_t::regular },
+{ NETF(pos.trTime), 32, netFieldType_t::regular },
+{ NETF(pos.trDelta[0]), 0, netFieldType_t::velocity },
+{ NETF(pos.trDelta[1]), 0, netFieldType_t::velocity },
+{ NETF(pos.trDelta[2]), 0, netFieldType_t::velocity },
+{ NETF(loopSound), 16, netFieldType_t::regular },
+{ NETF(loopSoundVolume), 0, netFieldType_t::regular },
+{ NETF(loopSoundMinDist), 0, netFieldType_t::regular },
+{ NETF(loopSoundMaxDist), 0, netFieldType_t::regular },
+{ NETF(loopSoundPitch), 0, netFieldType_t::regular },
+{ NETF(loopSoundFlags), 8, netFieldType_t::regular },
+{ NETF(attach_offset[0]), 0, netFieldType_t::regular },
+{ NETF(attach_offset[1]), 0, netFieldType_t::regular },
+{ NETF(attach_offset[2]), 0, netFieldType_t::regular },
+{ NETF(beam_entnum), 16, netFieldType_t::regular },
+{ NETF(skinNum), 16, netFieldType_t::regular },
+{ NETF(wasframe), 10, netFieldType_t::regular },
+{ NETF(frameInfo[4].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[5].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[6].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[7].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[8].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[9].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[10].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[11].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[12].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[13].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[14].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[15].index), 12, netFieldType_t::regular },
+{ NETF(frameInfo[4].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[5].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[6].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[7].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[8].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[9].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[10].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[11].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[12].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[13].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[14].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[15].time), 15, netFieldType_t::animTime },
+{ NETF(frameInfo[4].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[5].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[6].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[7].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[8].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[9].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[10].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[11].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[12].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[13].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[14].weight), 8, netFieldType_t::animWeight },
+{ NETF(frameInfo[15].weight), 8, netFieldType_t::animWeight },
+{ NETF(bone_angles[1][1]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[2][1]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[3][1]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[4][0]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[4][1]), -13, netFieldType_t::angle },
+{ NETF(bone_angles[4][2]), -13, netFieldType_t::angle },
+{ NETF(clientNum), 8, netFieldType_t::regular },
+{ NETF(groundEntityNum), GENTITYNUM_BITS, netFieldType_t::regular },
+{ NETF(shader_data[0]), 0, netFieldType_t::regular },
+{ NETF(shader_data[1]), 0, netFieldType_t::regular },
+{ NETF(shader_time), 0, netFieldType_t::regular },
+{ NETF(eyeVector[0]), 0, netFieldType_t::regular },
+{ NETF(eyeVector[1]), 0, netFieldType_t::regular },
+{ NETF(eyeVector[2]), 0, netFieldType_t::regular },
+{ NETF(surfaces[6]), 8, netFieldType_t::regular },
+{ NETF(surfaces[7]), 8, netFieldType_t::regular },
+{ NETF(surfaces[8]), 8, netFieldType_t::regular },
+{ NETF(surfaces[9]), 8, netFieldType_t::regular },
+{ NETF(surfaces[10]), 8, netFieldType_t::regular },
+{ NETF(surfaces[11]), 8, netFieldType_t::regular },
+{ NETF(surfaces[12]), 8, netFieldType_t::regular },
+{ NETF(surfaces[13]), 8, netFieldType_t::regular },
+{ NETF(surfaces[14]), 8, netFieldType_t::regular },
+{ NETF(surfaces[15]), 8, netFieldType_t::regular },
+{ NETF(surfaces[16]), 8, netFieldType_t::regular },
+{ NETF(surfaces[17]), 8, netFieldType_t::regular },
+{ NETF(surfaces[18]), 8, netFieldType_t::regular },
+{ NETF(surfaces[19]), 8, netFieldType_t::regular },
+{ NETF(surfaces[20]), 8, netFieldType_t::regular },
+{ NETF(surfaces[21]), 8, netFieldType_t::regular },
+{ NETF(surfaces[22]), 8, netFieldType_t::regular },
+{ NETF(surfaces[23]), 8, netFieldType_t::regular },
+{ NETF(surfaces[24]), 8, netFieldType_t::regular },
+{ NETF(surfaces[25]), 8, netFieldType_t::regular },
+{ NETF(surfaces[26]), 8, netFieldType_t::regular },
+{ NETF(surfaces[27]), 8, netFieldType_t::regular },
+{ NETF(surfaces[28]), 8, netFieldType_t::regular },
+{ NETF(surfaces[29]), 8, netFieldType_t::regular },
+{ NETF(surfaces[30]), 8, netFieldType_t::regular },
+{ NETF(surfaces[31]), 8, netFieldType_t::regular }
+};
+#else
 netField_t	entityStateFields[] = 
 {
 { NETF(netorigin[0]), 0, netFieldType_t::coord },
@@ -1320,6 +1540,7 @@ netField_t	entityStateFields[] =
 { NETF(surfaces[30]), 8, netFieldType_t::regular },
 { NETF(surfaces[31]), 8, netFieldType_t::regular }
 };
+#endif
 static constexpr unsigned long numEntityFields = sizeof(entityStateFields) / sizeof(entityStateFields[0]);
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
@@ -1343,27 +1564,35 @@ void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
 			if (!MSG_ReadBits(sb, 1))
 			{
 				// integral float
-				int32_t truncFloat = MSG_ReadBits(sb, -FLOAT_INT_BITS);
-				// bias to allow equal parts positive and negative
-				truncFloat -= FLOAT_INT_BIAS;
-				*(float*)toF = (float)truncFloat;
+				*(float*)toF = MSG_ReadBits(sb, -FLOAT_INT_BITS);
 			}
 			else
 			{
 				// full floating point value
-				*(float*)toF = MSG_ReadFloat(sb);
+				unsigned int v = MSG_ReadBits(sb, 32);
+				if (v & 1) {
+					*(int*)toF = ((v + 0x7A000000) >> 1) | 0x80000000;
+				}
+				else {
+					*(int*)toF = (v + 0x7A000000) >> 1;
+				}
 			}
 		}
 	}
 	else
 	{
-		if (MSG_ReadBits(msg, 1)) {
-			*(int*)toF = MSG_ReadBits(msg, bits);
+		if (MSG_ReadBits(sb, 1)) {
+			*(int*)toF = MSG_ReadBits(sb, bits);
 		}
 		else {
 			*(int*)toF = 0;
 		}
 	}
+}
+
+void MSG_ReadRegularSimple(msg_t* sb, int bits, void* toF)
+{
+	MSG_ReadRegular(sb, bits, toF);
 }
 
 void MSG_WriteRegular(msg_t* sb, int bits, const void* toF)
@@ -1418,9 +1647,9 @@ void MSG_WriteEntityNum(msg_t* sb, short number)
 	MSG_WriteBits(sb, (number + 1) % MAX_GENTITIES, GENTITYNUM_BITS);
 }
 
-short MSG_ReadEntityNum(msg_t* sb)
+unsigned short MSG_ReadEntityNum(msg_t* sb)
 {
-	return (MSG_ReadBits(sb, GENTITYNUM_BITS) - 1) % MAX_GENTITIES;
+	return (unsigned short)(MSG_ReadBits(sb, GENTITYNUM_BITS) - 1) % MAX_GENTITIES;
 }
 
 #else
@@ -1436,7 +1665,7 @@ void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
 		else
 		{
 			if (!MSG_ReadBits(sb, 1)) {
-				*(float*)toF = (float)MSG_ReadBits(sb, FLOAT_INT_BITS);
+				*(float*)toF = (int)MSG_ReadBits(sb, FLOAT_INT_BITS) - FLOAT_INT_BIAS;
 			}
 			else
 			{
@@ -1453,6 +1682,28 @@ void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
 		else {
 			*(int*)toF = 0;
 		}
+	}
+}
+
+void MSG_ReadRegularSimple(msg_t* sb, int bits, void* toF)
+{
+	if (bits == 0) {
+		// float
+		if (MSG_ReadBits(sb, 1) == 0) {
+			// integral float
+			int trunc = MSG_ReadBits(sb, FLOAT_INT_BITS);
+			// bias to allow equal parts positive and negative
+			trunc -= FLOAT_INT_BIAS;
+			*(float*)toF = trunc;
+		}
+		else {
+			// full floating point value
+			*(int*)toF = MSG_ReadBits(sb, 32);
+		}
+	}
+	else {
+		// integer
+		*(int*)toF = MSG_ReadBits(sb, bits);
 	}
 }
 
@@ -1530,7 +1781,7 @@ void MSG_WriteEntityNum(msg_t* sb, short number)
 	MSG_WriteBits(sb, number % MAX_GENTITIES, GENTITYNUM_BITS);
 }
 
-short MSG_ReadEntityNum(msg_t* sb)
+unsigned short MSG_ReadEntityNum(msg_t* sb)
 {
 	return MSG_ReadBits(sb, GENTITYNUM_BITS) % MAX_GENTITIES;
 }
@@ -1568,7 +1819,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		if ( from == NULL ) {
 			return;
 		}
-		MSG_WriteBits( msg, from->number, GENTITYNUM_BITS );
+		MSG_WriteEntityNum(msg, to->number);
 		MSG_WriteBits( msg, 1, 1 );
 		return;
 	}
@@ -1813,6 +2064,55 @@ int MSG_PackCoordExtra(float coord)
 
 #if TARGET_GAME_PROTOCOL >= 15
 
+float MSG_ReadPackedAngle(msg_t* msg, int bits)
+{
+	int packed = MSG_ReadBits(msg, bits);
+	return MSG_UnpackAngle(packed, bits);
+}
+
+float MSG_ReadPackedAnimTime(msg_t* msg, int bits, float fromValue, float frameTime)
+{
+	int packed;
+	if (!MSG_ReadBits(msg, 1)) {
+		return fromValue + frameTime;
+	}
+
+	packed = MSG_ReadBits(msg, bits);
+	return MSG_UnpackAnimTime(packed);
+}
+
+float MSG_ReadPackedAnimWeight(msg_t* msg, int bits)
+{
+	int packed = MSG_ReadBits(msg, bits);
+	return MSG_UnpackAnimWeight(packed, bits);
+}
+
+float MSG_ReadPackedScale(msg_t* msg, int bits)
+{
+	int packed = MSG_ReadBits(msg, bits);
+	return MSG_UnpackScale(packed);
+}
+
+float MSG_ReadPackedAlpha(msg_t* msg, int bits)
+{
+	int packed = MSG_ReadBits(msg, bits);
+	return MSG_UnpackAlpha(packed, bits);
+}
+
+float MSG_ReadPackedCoord(msg_t* msg, float fromValue, int bits)
+{
+	int packedFrom = MSG_PackCoord(fromValue);
+	int packedTo = MSG_ReadDeltaCoord(msg, packedFrom);
+	return MSG_UnpackCoord(packedTo, bits);
+}
+
+float MSG_ReadPackedCoordExtra(msg_t* msg, float fromValue, int bits)
+{
+	int packedFrom = MSG_PackCoordExtra(fromValue);
+	int packedTo = MSG_ReadDeltaCoordExtra(msg, packedFrom);
+	return MSG_UnpackCoordExtra(packedTo, bits);
+}
+
 void MSG_WritePackedAngle(msg_t* msg, float value, int bits)
 {
 	int packed = MSG_PackAngle(value, bits);
@@ -1823,7 +2123,7 @@ void MSG_WritePackedAnimTime(msg_t* msg, float fromValue, float toValue, float f
 {
 	int packed;
 
-	if (abs(fromValue - toValue) < frameTime) {
+	if (fabs(fromValue - toValue) < frameTime) {
 		// below the frame time, don't send
 		MSG_WriteBits(msg, 0, 1);
 	}
@@ -1922,6 +2222,80 @@ qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldTy
 }
 
 #else
+
+float MSG_ReadPackedAngle(msg_t* msg, int bits)
+{
+	int result;
+	float tmp = 1.0f;
+	if (bits < 0) {
+		if (MSG_ReadBits(msg, 1))
+			tmp = -1.0f;
+		bits = ~bits;
+	}
+
+	result = MSG_ReadBits(msg, bits);
+	switch (bits)
+	{
+	case 8:
+		return tmp * 360.f / 256.f;
+	case 12:
+		return tmp * result * 360.f / 4096.f;
+	case 16:
+		return tmp * result * 360.f / 65536.f;
+	default:
+		return tmp * 360.f / (1 << bits) * result;
+	}
+}
+
+float MSG_ReadPackedAnimTime(msg_t* msg, int bits, float fromValue, float frameTime)
+{
+	return MSG_ReadBits(msg, 15) / 100.0f;
+}
+
+float MSG_ReadPackedAnimWeight(msg_t* msg, int bits)
+{
+	float tmp = MSG_ReadBits(msg, 8) / 255.0f;
+	if (tmp < 0.0f)
+		return 0.0f;
+	else if (tmp > 1.0f)
+		return 1.0f;
+	else
+		return tmp;
+}
+
+float MSG_ReadPackedScale(msg_t* msg, int bits)
+{
+	return MSG_ReadBits(msg, 10) / 100.0f;
+}
+
+float MSG_ReadPackedAlpha(msg_t* msg, int bits)
+{
+	float tmp = MSG_ReadBits(msg, 8) / 255.0f;
+	if (tmp < 0.0f)
+		return 0.0f;
+	else if (tmp > 1.0f)
+		return 1.0f;
+	else
+		return tmp;
+}
+
+float MSG_ReadPackedCoord(msg_t* msg, float fromValue, int bits)
+{
+	float tmp = 1.0f;
+	int value = MSG_ReadBits(msg, 19);
+	if (value & 262144) // test for 19th bit
+		tmp = -1.0f;
+	value &= ~262144;	// remove that bit
+	return tmp * value / 16.0f;
+}
+
+float MSG_ReadPackedCoordExtra(msg_t* msg, float fromValue, int bits)
+{
+	int packedFrom = MSG_PackCoordExtra(fromValue);
+	int packedTo = MSG_ReadDeltaCoordExtra(msg, packedFrom);
+	return MSG_UnpackCoordExtra(packedTo, bits);
+}
+
 
 void MSG_WritePackedAngle(msg_t* msg, float value, int bits)
 {
@@ -2044,6 +2418,25 @@ qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldTy
 
 #endif
 
+float MSG_ReadPackedVelocity(msg_t* msg, int bits)
+{
+	float tmp = 1.0f;
+	int value = MSG_ReadBits(msg, 17);
+	if (value & 65536) // test for 17th bit
+		tmp = -1.0f;
+	value &= ~65536; // remove that bit
+	return tmp * value / 8.0f;
+}
+
+int MSG_ReadPackedSimple(msg_t* msg, int fromValue, int bits)
+{
+	if (!MSG_ReadBits(msg, 1)) {
+		return fromValue;
+	}
+
+	return MSG_ReadBits(msg, bits);
+}
+
 void MSG_WritePackedVelocity(msg_t* msg, float value, int bits)
 {
 	int32_t packed = (uint32_t)(value * 8.0f);
@@ -2159,106 +2552,34 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 		} else {
 			switch (field->type) {
 				case netFieldType_e::regular:
-					if ( field->bits == 0 ) {
-						// float
-						if ( MSG_ReadBits( msg, 1 ) == 0 ) {
-								*(float *)toF = 0.0f; 
-						} else {
-							if ( MSG_ReadBits( msg, 1 ) == 0 ) {
-								// integral float
-								trunc = MSG_ReadBits( msg, FLOAT_INT_BITS );
-								// bias to allow equal parts positive and negative
-								trunc -= FLOAT_INT_BIAS;
-								*(float *)toF = trunc; 
-								if ( print ) {
-									Com_Printf( "%s:%i ", field->name, trunc );
-								}
-							} else {
-								// full floating point value
-								*toF = MSG_ReadBits( msg, 32 );
-								if ( print ) {
-									Com_Printf( "%s:%f ", field->name, *(float *)toF );
-								}
-							}
-						}
-					} else {
-						if ( MSG_ReadBits( msg, 1 ) == 0 ) {
-							*toF = 0;
-						} else {
-							// integer
-							*toF = MSG_ReadBits( msg, field->bits );
-							if ( print ) {
-								Com_Printf( "%s:%i ", field->name, *toF );
-							}
-						}
-					}
+					MSG_ReadRegular(msg, field->bits, toF);
 					break;
 				case netFieldType_e::angle: // angles, what a mess! it wouldnt surprise me if something goes wrong here ;)
-					tmp = 1.0f;
-					if ( field->bits < 0 ) {
-						if ( MSG_ReadBits( msg, 1 ) )
-							tmp = -1.0f;
-						bits = ~field->bits;
-					}
-					else bits = field->bits;
-
-					result = MSG_ReadBits(msg, bits);
-					switch (bits)
-					{
-					case 8:
-						*(float*)toF = tmp * 360.f / 256.f;
-						break;
-					case 12:
-						*(float*)toF = tmp * result * 360.f / 4096.f;
-						break;
-					case 16:
-						*(float*)toF = tmp * result * 360.f / 65536.f;
-						break;
-					default:
-						*(float*)toF = tmp * 360.f / (1 << bits) * result;
-						break;
-					}
+					*(float*)toF = MSG_ReadPackedAngle(msg, field->bits);
 					break;
 				case netFieldType_e::animTime: // time
-					*(float *)toF = MSG_ReadBits( msg, 15 ) * 0.0099999998f;
+					*(float*)toF = MSG_ReadPackedAnimTime(msg, field->bits, *(float*)fromF, frameTime);
 					break;
 				case netFieldType_e::animWeight: // nasty!
-					tmp = MSG_ReadBits( msg, 8 ) / 255.0f;
-					if ( tmp < 0.0f )
-						*(float *)toF = 0.0f;
-					else if ( tmp > 1.0f )
-						*(float *)toF = 1.0f;
-					else
-						*(float *)toF = tmp;
-					// FPU instructions yay
+					*(float*)toF = MSG_ReadPackedAnimWeight(msg, field->bits);
 					break;
 				case netFieldType_e::scale:
-					*(float *)toF = MSG_ReadBits( msg, 10 ) *0.0099999998f;
+					*(float*)toF = MSG_ReadPackedScale(msg, field->bits);
 					break;
 				case netFieldType_e::alpha:
-					tmp = MSG_ReadBits( msg, 8 ) / 255.0f;
-					if ( tmp < 0.0f )
-						*(float *)toF = 0.0f;
-					else if ( tmp > 1.0f )
-						*(float *)toF = 1.0f;
-					else
-						*(float *)toF = tmp;
+					*(float*)toF = MSG_ReadPackedAlpha(msg, field->bits);
 					break;
 				case netFieldType_e::coord:
-					tmp = 1.0f;
-					bits = MSG_ReadBits( msg, 19 );
-					if ( bits & 262144 ) // test for 19th bit
-						tmp = -1.0f;
-					bits &= ~262144;	// remove that bit
-					*(float *)toF = tmp * bits / 16.0f;
+					*(float*)toF = MSG_ReadPackedCoord(msg, *(float*)fromF, field->bits);
+					break;
+				case netFieldType_e::coordExtra:
+					*(float*)toF = MSG_ReadPackedCoordExtra(msg, *(float*)fromF, field->bits);
 					break;
 				case netFieldType_e::velocity:
-					tmp = 1.0f;
-					bits = MSG_ReadBits( msg, 17 );
-					if ( bits & 65536 ) // test for 17th bit
-						tmp = -1.0f;
-					bits &= ~65536; // remove that bit
-					*(float *)toF = tmp * bits / 8.0f;
+					*(float*)toF = MSG_ReadPackedVelocity(msg, field->bits);
+					break;
+				case netFieldType_e::simple:
+					*(int*)toF = MSG_ReadPackedSimple(msg, *(int*)fromF, field->bits);
 					break;
 				default:
 					Com_Error( ERR_DROP, "MSG_ReadDeltaEntity: unrecognized entity field type %i for field\n", i );
@@ -2334,6 +2655,16 @@ float MSG_UnpackAngle(int value, int bits)
 float MSG_UnpackAnimTime(int packed)
 {
 	return packed / 100.f;
+}
+
+float MSG_UnpackAnimWeight(int result, int bits)
+{
+	const int32_t max = (1 << bits) - 1;
+	const float tmp = (float)result / (float)max;
+
+	if (tmp < 0.0f) return 0.f;
+	else if (tmp > 1.0f) return 1.f;
+	else return tmp;
 }
 
 float MSG_UnpackScale(int packed)
@@ -2508,6 +2839,66 @@ plyer_state_t communication
 // using the stringizing operator to save typing...
 #define	PSF(x) #x,(size_t)&((playerState_t*)0)->x
 
+#if TARGET_GAME_PROTOCOL >= 15
+netField_t	playerStateFields[] =
+{
+{ PSF(commandTime), 32, netFieldType_t::regular },
+{ PSF(origin[0]), 0, netFieldType_t::coordExtra },
+{ PSF(origin[1]), 0, netFieldType_t::coordExtra },
+{ PSF(viewangles[1]), 0, netFieldType_t::regular },
+{ PSF(velocity[1]), 0, netFieldType_t::velocity },
+{ PSF(velocity[0]), 0, netFieldType_t::velocity },
+{ PSF(viewangles[0]), 0, netFieldType_t::regular },
+{ PSF(origin[2]), 0, netFieldType_t::coordExtra },
+{ PSF(velocity[2]), 0, netFieldType_t::velocity },
+{ PSF(iViewModelAnimChanged), 2, netFieldType_t::regular },
+{ PSF(damage_angles[0]), -13, netFieldType_t::angle },
+{ PSF(damage_angles[1]), -13, netFieldType_t::angle },
+{ PSF(damage_angles[2]), -13, netFieldType_t::angle },
+{ PSF(speed), 16, netFieldType_t::regular },
+{ PSF(delta_angles[1]), 16, netFieldType_t::regular },
+{ PSF(viewheight), -8, netFieldType_t::regular },
+{ PSF(groundEntityNum), GENTITYNUM_BITS, netFieldType_t::regular },
+{ PSF(delta_angles[0]), 16, netFieldType_t::regular },
+{ PSF(iViewModelAnim), 4, netFieldType_t::regular },
+{ PSF(fov), 0, netFieldType_t::regular },
+{ PSF(current_music_mood), 8, netFieldType_t::regular },
+{ PSF(gravity), 16, netFieldType_t::regular },
+{ PSF(fallback_music_mood), 8, netFieldType_t::regular },
+{ PSF(music_volume), 0, netFieldType_t::regular },
+{ PSF(pm_flags), 16, netFieldType_t::regular },
+{ PSF(clientNum), 8, netFieldType_t::regular },
+{ PSF(fLeanAngle), 0, netFieldType_t::regular },
+{ PSF(blend[3]), 0, netFieldType_t::regular },
+{ PSF(blend[0]), 0, netFieldType_t::regular },
+{ PSF(pm_type), 8, netFieldType_t::regular },
+{ PSF(feetfalling), 8, netFieldType_t::regular },
+{ PSF(radarInfo), 26, netFieldType_t::regular },
+{ PSF(camera_angles[0]), 16, netFieldType_t::angle },
+{ PSF(camera_angles[1]), 16, netFieldType_t::angle },
+{ PSF(camera_angles[2]), 16, netFieldType_t::angle },
+{ PSF(camera_origin[0]), 0, netFieldType_t::coordExtra },
+{ PSF(camera_origin[1]), 0, netFieldType_t::coordExtra },
+{ PSF(camera_origin[2]), 0, netFieldType_t::coordExtra },
+{ PSF(camera_posofs[0]), 0, netFieldType_t::coordExtra },
+{ PSF(camera_posofs[2]), 0, netFieldType_t::coordExtra },
+{ PSF(camera_time), 0, netFieldType_t::regular },
+{ PSF(voted), 1, netFieldType_t::regular },
+{ PSF(bobCycle), 8, netFieldType_t::regular },
+{ PSF(delta_angles[2]), 16, netFieldType_t::regular },
+{ PSF(viewangles[2]), 0, netFieldType_t::regular },
+{ PSF(music_volume_fade_time), 0, netFieldType_t::regular },
+{ PSF(reverb_type), 6, netFieldType_t::regular },
+{ PSF(reverb_level), 0, netFieldType_t::regular },
+{ PSF(blend[1]), 0, netFieldType_t::regular },
+{ PSF(blend[2]), 0, netFieldType_t::regular },
+{ PSF(camera_offset[0]), 0, netFieldType_t::regular },
+{ PSF(camera_offset[1]), 0, netFieldType_t::regular },
+{ PSF(camera_offset[2]), 0, netFieldType_t::regular },
+{ PSF(camera_posofs[1]), 0, netFieldType_t::coordExtra },
+{ PSF(camera_flags), 16, netFieldType_t::regular }
+};
+#else
 netField_t	playerStateFields[] = 
 {
 { PSF(commandTime), 32, netFieldType_t::regular },				
@@ -2566,6 +2957,7 @@ netField_t	playerStateFields[] =
 { PSF(camera_posofs[1]), 0, netFieldType_t::coord },
 { PSF(camera_flags), 16, netFieldType_t::regular }
 };
+#endif
 
 /*
 =============
@@ -2800,88 +3192,29 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 
 	numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
 	lc = MSG_ReadByte(msg);
-//Com_DPrintf( "===\nMSG_ReadDeltaPlayerstate: count %i\n===\n", lc );
+	assert(lc <= numFields);
 	for ( i = 0, field = playerStateFields ; i < lc ; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
-//Com_DPrintf( "field %s ", field->name );
 		if ( ! MSG_ReadBits( msg, 1 ) ) {
 			// no change
 			*toF = *fromF;
-//Com_DPrintf( "NO CHANGE " );
-//Com_DPrintf( "value int %i, float %f\n", *toF, *(float *)toF );
 		} else {
-//Com_DPrintf( "type %i, ", field->type );
 			switch ( field->type ) {
 				case netFieldType_e::regular:
-					if ( field->bits == 0 ) {
-						// float
-						if ( MSG_ReadBits( msg, 1 ) == 0 ) {
-							// integral float
-							trunc = MSG_ReadBits( msg, FLOAT_INT_BITS );
-							// bias to allow equal parts positive and negative
-							trunc -= FLOAT_INT_BIAS;
-							*(float *)toF = trunc; 
-							if ( print ) {
-								Com_Printf( "%s:%i ", field->name, trunc );
-							}
-						} else {
-							// full floating point value
-							*toF = MSG_ReadBits( msg, 32 );
-							if ( print ) {
-								Com_Printf( "%s:%f ", field->name, *(float *)toF );
-							}
-						}
-					} else {
-						// integer
-						*toF = MSG_ReadBits( msg, field->bits );
-						if ( print ) {
-							Com_Printf( "%s:%i ", field->name, *toF );
-						}
-					}
+					MSG_ReadRegularSimple(msg, field->bits, toF);
 					break;
 				case netFieldType_e::angle:
-					tmp = 1.0f;
-					if ( field->bits < 0 ) {
-						if ( MSG_ReadBits( msg, 1 ) )
-							tmp = -1.0f;
-						bits = - field->bits -1;
-					}
-					else bits = field->bits;
-
-					result = MSG_ReadBits(msg, bits);
-
-					switch (bits)
-					{
-					case 8:
-						*(float*)toF = tmp * 360.f / 256.f;
-						break;
-					case 12:
-						*(float*)toF = tmp * result * 360.f / 4096.f;
-						break;
-					case 16:
-						*(float*)toF = tmp * result * 360.f / 65536.f;
-						break;
-					default:
-						*(float*)toF = tmp * 360.f / (1 << bits) * result;
-						break;
-					}
+					*(float*)toF = MSG_ReadPackedAngle(msg, field->bits);
 					break;
 				case netFieldType_e::coord:
-					tmp = 1.0f;
-					bits = MSG_ReadBits( msg, 19 );
-					if ( bits & 262144 ) // test for 19th bit
-						tmp = -1.0f;
-					bits &= ~262144; // 4294705151;	// remove that bit
-					*(float *)toF = tmp * bits / 16.0f;
+					*(float*)toF = MSG_ReadPackedCoord(msg, *(float*)fromF, field->bits);
+					break;
+				case netFieldType_e::coordExtra:
+					*(float*)toF = MSG_ReadPackedCoordExtra(msg, *(float*)fromF, field->bits);
 					break;
 				case netFieldType_e::velocity:
-					tmp = 1.0f;
-					bits = MSG_ReadBits( msg, 17 );
-					if ( bits & 65536 ) // test for 17th bit
-						tmp = -1.0f;
-					bits &= ~65536; // 4294901759;	// remove that bit
-					*(float *)toF = tmp * bits / 8.0f;
+					*(float*)toF = MSG_ReadPackedVelocity(msg, field->bits);
 					break;
 				default:
 					break;

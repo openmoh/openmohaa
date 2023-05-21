@@ -25,6 +25,58 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
+static const char* IsWeaponAllowed(int dmFlags, int flags) {
+    return (dmFlags & flags) ? "0" : "1";
+}
+
+static qboolean QueryLandminesAllowed2(const char* mapname, int dmflags) {
+    if (dmflags & DF_WEAPON_NO_LANDMINE) {
+        return qfalse;
+    }
+
+    if (dmflags & DF_WEAPON_LANDMINE_ALWAYS) {
+        return qtrue;
+    }
+
+	if (!Q_stricmpn(mapname, "obj/obj_", 8u))
+		return qfalse;
+	if (!Q_stricmpn(mapname, "dm/mohdm", 8u))
+		return qfalse;
+	if (!Q_stricmp(mapname, "DM/MP_Bahnhof_DM"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "obj/MP_Ardennes_TOW"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "DM/MP_Bazaar_DM"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "obj/MP_Berlin_TOW"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "DM/MP_Brest_DM"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "obj/MP_Druckkammern_TOW"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "DM/MP_Gewitter_DM"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "obj/MP_Flughafen_TOW"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "DM/MP_Holland_DM"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "DM/MP_Malta_DM"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "DM/MP_Stadt_DM"))
+		return qfalse;
+	if (!Q_stricmp(mapname, "DM/MP_Unterseite_DM"))
+		return qfalse;
+    if (!Q_stricmp(mapname, "DM/MP_Verschneit_DM"))
+        return qfalse;
+    if (!Q_stricmp(mapname, "lib/mp_ship_lib"))
+        return qfalse;
+    if (!Q_stricmp(mapname, "DM/MP_Verschneit_DM"))
+        return qfalse;
+    if (!Q_stricmp(mapname, "lib/mp_ship_lib"))
+        return qfalse;
+	return qtrue;
+}
+
 /*
 ================
 CG_ParseServerinfo
@@ -39,6 +91,7 @@ void CG_ParseServerinfo(void)
     const char* mapname;
     char map[MAX_QPATH];
     char* spawnpos;
+    const char* version;
 
     info = CG_ConfigString(CS_SERVERINFO);
     cgs.gametype = atoi(Info_ValueForKey(info, "g_gametype"));
@@ -47,6 +100,13 @@ void CG_ParseServerinfo(void)
     cgs.fraglimit = atoi(Info_ValueForKey(info, "fraglimit"));
     cgs.timelimit = atoi(Info_ValueForKey(info, "timelimit"));
     cgs.maxclients = atoi(Info_ValueForKey(info, "sv_maxclients"));
+
+    version = Info_ValueForKey(info, "version");
+    if (strstr(version, "Spearhead")) {
+        cgi.Cvar_Set("g_servertype", "1");
+    } else {
+		cgi.Cvar_Set("g_servertype", "2");
+    }
 
     cgi.Cvar_Set("cg_gametype", Info_ValueForKey(info, "g_gametype"));
     cgi.Cvar_Set("cg_fraglimit", Info_ValueForKey(info, "fraglimit"));
@@ -60,8 +120,17 @@ void CG_ParseServerinfo(void)
     cgi.Cvar_Set("cg_obj_axistext3", Info_ValueForKey(info, "cg_obj_axistext3"));
     cgi.Cvar_Set("cg_scoreboardpic", Info_ValueForKey(info, "g_scoreboardpic"));
     cgi.Cvar_Set("cg_scoreboardpicover", Info_ValueForKey(info, "g_scoreboardpicover"));
+    cgs.mapChecksum = Info_ValueForKey(info, "sv_mapChecksum");
 
     mapname = Info_ValueForKey(info, "mapname");
+
+    cgi.Cvar_Set("cg_weapon_rifle", IsWeaponAllowed(cgs.dmflags, DF_WEAPON_NO_RIFLE));
+    cgi.Cvar_Set("cg_weapon_sniper", IsWeaponAllowed(cgs.dmflags, DF_WEAPON_NO_SNIPER));
+    cgi.Cvar_Set("cg_weapon_mg", IsWeaponAllowed(cgs.dmflags, DF_WEAPON_NO_MG));
+    cgi.Cvar_Set("cg_weapon_smg", IsWeaponAllowed(cgs.dmflags, DF_WEAPON_NO_SMG));
+    cgi.Cvar_Set("cg_weapon_rocket", IsWeaponAllowed(cgs.dmflags, DF_WEAPON_NO_ROCKET));
+    cgi.Cvar_Set("cg_weapon_shotgun", IsWeaponAllowed(cgs.dmflags, DF_WEAPON_NO_SHOTGUN));
+    cgi.Cvar_Set("cg_weapon_landmine", QueryLandminesAllowed2(mapname, cgs.dmflags) ? "1" : "0");
 
     spawnpos = strchr(mapname, '$');
     if (spawnpos) {
@@ -152,7 +221,7 @@ CG_Stopwatch_f
 */
 static void CG_Stopwatch_f()
 {
-    if (cgi.Argc() != 3) {
+    if (cgi.Argc() < 3) {
         Com_Error(1, "stopwatch didn't have 2 parameters");
     }
 

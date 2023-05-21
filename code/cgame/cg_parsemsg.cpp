@@ -64,7 +64,7 @@ static void CG_MakeBulletHole(vec3_t i_vPos, vec3_t i_vNorm, int iLarge, trace_t
     // FIXME: unimplemented
 }
 
-static void CG_MakeBubbleTrail(vec3_t i_vStart, vec3_t i_vEnd, int iLarge)
+static void CG_MakeBubbleTrail(vec3_t i_vStart, vec3_t i_vEnd, int iLarge, float alpha = 1.0f)
 {
     // FIXME: unimplemented
 }
@@ -79,7 +79,7 @@ static void CG_MakeBulletTracerInternal(vec3_t i_vBarrel, vec3_t i_vStart, vec3_
     // FIXME: unimplemented
 }
 
-static void CG_MakeBulletTracer(vec3_t i_vBarrel, vec3_t i_vStart, vec3_t* i_vEnd, int i_iNumBullets, qboolean iLarge, int iTracerVisible, qboolean bIgnoreEntities) {
+static void CG_MakeBulletTracer(vec3_t i_vBarrel, vec3_t i_vStart, vec3_t* i_vEnd, int i_iNumBullets, qboolean iLarge, int iTracerVisible, qboolean bIgnoreEntities, float alpha) {
     bullet_tracer_t* bullet_tracer;
     int i;
 
@@ -305,6 +305,463 @@ void CG_MakeVehicleEffect(vec3_t i_vStart, vec3_t i_vEnd , vec3_t i_vDir) {
     CG_Trace(&trace, vFrom, vec_zero, vec_zero, vDest, ENTITYNUM_NONE, MASK_PLAYERSOLID, qfalse, qtrue, "CG_MakeBulletHole");
     cgi.R_DebugLine(vFrom, trace.endpos, 1.0, 1.0, 1.0, 1.0);
 }
+
+#if TARGET_GAME_PROTOCOL >= 15
+
+void CG_ParseCGMessage()
+{
+	int i;
+	int iType;
+	int iLarge;
+	int iInfo;
+	int iCount;
+	char* szTmp;
+	vec3_t vStart, vEnd, vTmp;
+	vec3_t vEndArray[MAX_IMPACTS];
+    float alpha;
+    int value;
+
+	qboolean bMoreCGameMessages = qtrue;
+	while (bMoreCGameMessages) {
+		iType = cgi.MSG_ReadBits(6);
+
+		switch (iType)
+		{
+		case 1:
+		case 2:
+		case 5:
+			if (iType == 1)
+			{
+				vTmp[0] = cgi.MSG_ReadCoord();
+				vTmp[1] = cgi.MSG_ReadCoord();
+				vTmp[2] = cgi.MSG_ReadCoord();
+			}
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+
+			if (iType != 1)
+			{
+				vTmp[0] = vStart[0];
+				vTmp[1] = vStart[1];
+				vTmp[2] = vStart[2];
+			}
+
+			vEndArray[0][0] = cgi.MSG_ReadCoord();
+			vEndArray[0][1] = cgi.MSG_ReadCoord();
+			vEndArray[0][2] = cgi.MSG_ReadCoord();
+            iLarge = cgi.MSG_ReadBits(2);
+            if (cgi.MSG_ReadBits(1)) {
+                int iAlpha = cgi.MSG_ReadBits(10);
+                alpha = (float)iAlpha / 512.0;
+                if (alpha < 0.002) {
+                    alpha = 0.002;
+                }
+			} else {
+				alpha = 1.0f;
+			}
+
+			if (iType == 1) {
+				CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue, alpha);
+			}
+			else if (iType == 2) {
+				CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue, alpha);
+			}
+			else {
+				CG_MakeBubbleTrail(vStart, vEndArray[0], iLarge, alpha);
+			}
+
+			break;
+		case 3:
+		case 4:
+			if (iType == 3)
+			{
+				vTmp[0] = cgi.MSG_ReadCoord();
+				vTmp[1] = cgi.MSG_ReadCoord();
+				vTmp[2] = cgi.MSG_ReadCoord();
+				iInfo = cgi.MSG_ReadBits(6);
+			}
+			else
+			{
+				iInfo = 0;
+			}
+
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+			iLarge = cgi.MSG_ReadBits(2);
+			if (cgi.MSG_ReadBits(1)) {
+				int iAlpha = cgi.MSG_ReadBits(10);
+				alpha = (float)iAlpha / 512.0;
+				if (alpha < 0.002) {
+					alpha = 0.002;
+				}
+            } else {
+                alpha = 1.0f;
+            }
+
+			iCount = cgi.MSG_ReadBits(6);
+			for (i = 0; i < iCount; ++i)
+			{
+				vEndArray[i][0] = cgi.MSG_ReadCoord();
+				vEndArray[i][1] = cgi.MSG_ReadCoord();
+				vEndArray[i][2] = cgi.MSG_ReadCoord();
+			}
+
+			if (iCount) {
+				CG_MakeBulletTracer(vTmp, vStart, vEndArray, iCount, iLarge, iInfo, qtrue, alpha);
+			}
+			break;
+		case 6:
+		case 7:
+		case 8:
+		case 9:
+		case 10:
+        case 11:
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+			cgi.MSG_ReadDir(vEnd);
+			iLarge = cgi.MSG_ReadBits(2);
+
+			switch (iType)
+			{
+			case 6:
+				if (wall_impact_count < MAX_IMPACTS)
+				{
+					VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
+					VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
+					wall_impact_large[wall_impact_count] = iLarge;
+					wall_impact_type[wall_impact_count] = -1;
+					wall_impact_count++;
+				}
+				break;
+			case 7:
+				if (wall_impact_count < MAX_IMPACTS)
+				{
+					VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
+					VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
+					wall_impact_large[wall_impact_count] = iLarge;
+					wall_impact_type[wall_impact_count] = 6;
+					wall_impact_count++;
+				}
+				break;
+			case 8:
+				if (flesh_impact_count < MAX_IMPACTS)
+				{
+					// negative
+					VectorNegate(vEnd, vEnd);
+					VectorCopy(vStart, flesh_impact_pos[flesh_impact_count]);
+					VectorCopy(vEnd, flesh_impact_norm[flesh_impact_count]);
+					flesh_impact_large[flesh_impact_count] = iLarge;
+					flesh_impact_count++;
+				}
+				break;
+			case 9:
+				if (flesh_impact_count < MAX_IMPACTS)
+				{
+					// negative
+					VectorNegate(vEnd, vEnd);
+					VectorCopy(vStart, flesh_impact_pos[flesh_impact_count]);
+					VectorCopy(vEnd, flesh_impact_norm[flesh_impact_count]);
+					flesh_impact_large[flesh_impact_count] = iLarge;
+					flesh_impact_count++;
+				}
+				break;
+			case 10:
+				if (wall_impact_count < MAX_IMPACTS)
+				{
+					VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
+					VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
+					wall_impact_large[wall_impact_count] = iLarge;
+					wall_impact_type[wall_impact_count] = 2;
+					wall_impact_count++;
+				}
+				break;
+			case 11:
+				if (wall_impact_count < MAX_IMPACTS)
+				{
+					VectorCopy(vStart, wall_impact_pos[wall_impact_count]);
+					VectorCopy(vEnd, wall_impact_norm[wall_impact_count]);
+					wall_impact_large[wall_impact_count] = iLarge;
+					wall_impact_type[wall_impact_count] = 4;
+					wall_impact_count++;
+				}
+				break;
+			default:
+				continue;
+			}
+			break;
+
+		case 12:
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+			vEnd[0] = cgi.MSG_ReadCoord();
+			vEnd[1] = cgi.MSG_ReadCoord();
+			vEnd[2] = cgi.MSG_ReadCoord();
+			CG_MeleeImpact(vStart, vEnd);
+			break;
+		case 13:
+		case 14:
+		case 15:
+		case 16:
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+			CG_MakeExplosionEffect(vStart, iType);
+			break;
+		case 18:
+		case 19:
+		case 20:
+		case 21:
+		case 22:
+		case 23:
+		case 24:
+		case 25:
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+			cgi.MSG_ReadDir(vEnd);
+
+			sfxManager.MakeEffect_Normal(iType + 67, vStart, vEnd);
+			break;
+
+		case 26:
+		case 27:
+		{
+			str sEffect;
+			char cTmp[8];
+			vec3_t axis[3];
+
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+			iLarge = cgi.MSG_ReadByte();
+			// get the integer as string
+			snprintf(cTmp, sizeof(cTmp), "%d", iLarge);
+
+			if (iType == 23) {
+				sEffect = "models/fx/crates/debris_";
+			}
+			else {
+				sEffect = "models/fx/windows/debris_";
+			}
+
+			sEffect += cTmp;
+			sEffect += ".tik";
+
+			VectorSet(axis[0], 0, 0, 1);
+			VectorSet(axis[1], 0, 1, 0);
+			VectorSet(axis[2], 1, 0, 0);
+
+			cgi.R_SpawnEffectModel(sEffect.c_str(), vStart, axis);
+		}
+		break;
+
+		case 28:
+			vTmp[0] = cgi.MSG_ReadCoord();
+			vTmp[1] = cgi.MSG_ReadCoord();
+			vTmp[2] = cgi.MSG_ReadCoord();
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+			vEndArray[0][0] = cgi.MSG_ReadCoord();
+			vEndArray[0][1] = cgi.MSG_ReadCoord();
+			vEndArray[0][2] = cgi.MSG_ReadCoord();
+			iLarge = cgi.MSG_ReadBits(2);
+			if (cgi.MSG_ReadBits(1)) {
+				int iAlpha = cgi.MSG_ReadBits(10);
+				alpha = (float)iAlpha / 512.0;
+				if (alpha < 0.002) {
+					alpha = 0.002;
+				}
+            } else {
+                alpha = 1.0f;
+            }
+
+			CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qtrue, qtrue, alpha);
+			break;
+
+		case 29:
+			memset(vTmp, 0, sizeof(vTmp));
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+			vEndArray[0][0] = cgi.MSG_ReadCoord();
+			vEndArray[0][1] = cgi.MSG_ReadCoord();
+			vEndArray[0][2] = cgi.MSG_ReadCoord();
+			iLarge = cgi.MSG_ReadBits(1);
+			if (cgi.MSG_ReadBits(1)) {
+				int iAlpha = cgi.MSG_ReadBits(10);
+				alpha = (float)iAlpha / 512.0;
+				if (alpha < 0.002) {
+					alpha = 0.002;
+				}
+            } else {
+                alpha = 1.0f;
+            }
+
+			CG_MakeBulletTracer(vTmp, vStart, vEndArray, 1, iLarge, qfalse, qtrue, alpha);
+			break;
+
+		case 30:
+			iInfo = cgi.MSG_ReadByte();
+			strcpy(cgi.HudDrawElements[iInfo].shaderName, cgi.MSG_ReadString());
+			cgi.HudDrawElements[iInfo].string[0] = 0;
+			cgi.HudDrawElements[iInfo].pFont = NULL;
+			cgi.HudDrawElements[iInfo].fontName[0] = 0;
+			// set the shader
+			CG_HudDrawShader(iInfo);
+			break;
+
+		case 31:
+			iInfo = cgi.MSG_ReadByte();
+			cgi.HudDrawElements[iInfo].iHorizontalAlign = cgi.MSG_ReadBits(2);
+			cgi.HudDrawElements[iInfo].iVerticalAlign = cgi.MSG_ReadBits(2);
+			break;
+
+		case 32:
+			iInfo = cgi.MSG_ReadByte();
+			cgi.HudDrawElements[iInfo].iX = cgi.MSG_ReadShort();
+			cgi.HudDrawElements[iInfo].iY = cgi.MSG_ReadShort();
+			cgi.HudDrawElements[iInfo].iWidth = cgi.MSG_ReadShort();
+			cgi.HudDrawElements[iInfo].iHeight = cgi.MSG_ReadShort();
+			break;
+
+		case 33:
+			iInfo = cgi.MSG_ReadByte();
+			cgi.HudDrawElements[iInfo].bVirtualScreen = cgi.MSG_ReadBits(1);
+			break;
+
+		case 34:
+			iInfo = cgi.MSG_ReadByte();
+			cgi.HudDrawElements[iInfo].vColor[0] = cgi.MSG_ReadByte() / 255.0;
+			cgi.HudDrawElements[iInfo].vColor[1] = cgi.MSG_ReadByte() / 255.0;
+			cgi.HudDrawElements[iInfo].vColor[2] = cgi.MSG_ReadByte() / 255.0;
+			break;
+
+		case 35:
+			iInfo = cgi.MSG_ReadByte();
+			cgi.HudDrawElements[iInfo].vColor[3] = cgi.MSG_ReadByte() / 255.0;
+			break;
+
+		case 36:
+			iInfo = cgi.MSG_ReadByte();
+			cgi.HudDrawElements[iInfo].hShader = 0;
+			strcpy(cgi.HudDrawElements[iInfo].string, cgi.MSG_ReadString());
+			break;
+
+		case 37:
+			iInfo = cgi.MSG_ReadByte();
+			strcpy(cgi.HudDrawElements[iInfo].fontName, cgi.MSG_ReadString());
+			cgi.HudDrawElements[iInfo].hShader = 0;
+			cgi.HudDrawElements[iInfo].shaderName[0] = 0;
+			// load the font
+			CG_HudDrawFont(iInfo);
+			break;
+
+		case 38:
+		case 39:
+		{
+			int iOldEnt;
+
+			iOldEnt = current_entity_number;
+			current_entity_number = cg.snap->ps.clientNum;
+			if (iType == 36) {
+				commandManager.PlaySound(
+					"dm_kill_notify",
+					NULL,
+					CHAN_LOCAL,
+					2.0,
+					-1,
+					-1,
+					1
+				);
+			}
+			else {
+				commandManager.PlaySound(
+					"dm_hit_notify",
+					NULL,
+					CHAN_LOCAL,
+					2.0,
+					-1,
+					-1,
+					1
+				);
+			}
+
+			current_entity_number = iOldEnt;
+		}
+		break;
+
+		case 40:
+		{
+			int iOldEnt;
+
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+			iLarge = cgi.MSG_ReadBits(1);
+			iInfo = cgi.MSG_ReadBits(6);
+			szTmp = cgi.MSG_ReadString();
+
+			iOldEnt = current_entity_number;
+
+			if (iLarge) {
+				current_entity_number = iInfo;
+
+				commandManager.PlaySound(
+					szTmp,
+					vStart,
+					CHAN_LOCAL,
+					-1,
+					-1,
+					-1,
+					0
+				);
+			}
+			else {
+				current_entity_number = cg.snap->ps.clientNum;
+
+				commandManager.PlaySound(
+					szTmp,
+					vStart,
+					CHAN_AUTO,
+					-1,
+					-1,
+					-1,
+					1
+				);
+			}
+
+			current_entity_number = iOldEnt;
+		}
+		break;
+        case 41:
+			vStart[0] = cgi.MSG_ReadCoord();
+			vStart[1] = cgi.MSG_ReadCoord();
+			vStart[2] = cgi.MSG_ReadCoord();
+			vEnd[0] = cgi.MSG_ReadCoord();
+			vEnd[1] = cgi.MSG_ReadCoord();
+			vEnd[2] = cgi.MSG_ReadCoord();
+            cgi.MSG_ReadByte();
+            cgi.MSG_ReadByte();
+            VectorSubtract(vEnd, vStart, vTmp);
+
+            // FIXME: unimplemented
+            // ?? can't figure out what is this
+			break;
+		default:
+			cgi.Error(ERR_DROP, "CG_ParseCGMessage: Unknown CGM message type");
+			break;
+		}
+
+		bMoreCGameMessages = cgi.MSG_ReadBits(1);
+	}
+}
+
+#else
 
 void CG_ParseCGMessage()
 {
@@ -684,10 +1141,12 @@ void CG_ParseCGMessage()
             current_entity_number = iOldEnt;
         }
             break;
+        default:
+            cgi.Error(ERR_DROP, "CG_ParseCGMessage: Unknown CGM message type");
+            break;
         }
 
         bMoreCGameMessages = cgi.MSG_ReadBits(1);
     }
-
-    // FIXME: unimplemented
 }
+#endif

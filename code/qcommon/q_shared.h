@@ -47,6 +47,8 @@ extern "C" {
 #define PRODUCT_VERSION					PRODUCT_VERSION_NUMBER_STRING "-" PRODUCT_VERSION_STAGE
 #define PRODUCT_DATE					__DATE__
 
+#define BASEGAME				"main"
+
 //
 // The target type specifies which content pack the engine targets.
 // 
@@ -57,7 +59,7 @@ extern "C" {
 	//
 	// Team Assault
 	//
-	#define BASEGAME				"mainta"
+	#define GAME_EXTENSION_BASE		"mainta"
 	#define PRODUCT_EXTENSION		"spearhead"
 	// The version string must be equal or above 2.0 to be able to connect to spearhead servers
 	#define TARGET_GAME_VERSION		"2.16"
@@ -71,7 +73,7 @@ extern "C" {
 	//
 	// Team Tactics
 	//
-	#define BASEGAME				"maintt"
+	#define GAME_EXTENSION_BASE		"maintt"
 	#define PRODUCT_EXTENSION		"breakthrough"
 	// The version string must be equal or above 2.0 to be able to connect to breakthrough servers
 	#define	TARGET_GAME_VERSION		"2.41"
@@ -85,8 +87,8 @@ extern "C" {
 	//
 	// Base game
 	//
-
-	#define BASEGAME				"main"
+	
+	#define GAME_EXTENSION_BASE		"main"
 	#define PRODUCT_EXTENSION		"base"
 	// The version string must be 1.1x or below, otherwise it's not possible to connect
 	#define TARGET_GAME_VERSION		"1.12"
@@ -1729,6 +1731,11 @@ typedef struct playerState_s {
 	float		camera_posofs[3];
 	int			camera_flags;
 	float		damage_angles[3];
+	// --
+	// Team Assault
+	int			radarInfo;
+	qboolean	voted;
+	// --
 
 	// not communicated over the net at all
 	int			ping;			// server to game info for scoreboard
@@ -2055,20 +2062,6 @@ typedef struct hdelement_s {
 
 	struct fontheader_s *pFont;
 } hdelement_t;
-
-enum vmAnim_e {
-    VM_ANIM_IDLE,
-    VM_ANIM_CHARGE,
-    VM_ANIM_FIRE,
-    VM_ANIM_FIRE_SECONDARY,
-    VM_ANIM_RECHAMBER,
-    VM_ANIM_RELOAD,
-    VM_ANIM_RELOAD_SINGLE,
-    VM_ANIM_RELOAD_END,
-    VM_ANIM_PULLOUT,
-    VM_ANIM_PUTAWAY,
-    VM_ANIM_LADDERSTEP
-};
 
 typedef struct {
 	frameInfo_t	g_VMFrameInfo[MAX_FRAMEINFOS];

@@ -882,9 +882,9 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 		((int *)&header)[i] = LittleLong ( ((int *)&header)[i]);
 	}
 
-	if ( header.version != BSP_VERSION ) {
-		Com_Error (ERR_DROP, "CM_LoadMap: %s has wrong version number (%i should be %i)"
-		, name, header.version, BSP_VERSION );
+	if ( header.version < BSP_MIN_VERSION || header.version > BSP_MAX_VERSION ) {
+		Com_Error (ERR_DROP, "CM_LoadMap: %s has wrong version number (%i should be between %i and %i)"
+		, name, header.version, BSP_MIN_VERSION, BSP_MAX_VERSION );
 	}
 
 	cmod_base = ( byte * )&header;

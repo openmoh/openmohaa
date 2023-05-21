@@ -3068,7 +3068,7 @@ static void FS_ReorderPurePaks( void )
 FS_Startup
 ================
 */
-static void FS_Startup( const char *gameName )
+static void FS_Startup(const char* gameName, const char* extensionName)
 {
 	const char* homePath;
 
@@ -3087,10 +3087,16 @@ static void FS_Startup( const char *gameName )
 	fs_gamedirvar = Cvar_Get( "fs_game", "", CVAR_INIT | CVAR_SYSTEMINFO );
 	fs_restrict = Cvar_Get( "fs_restrict", "", CVAR_INIT );
 
-	FS_AddGameDirectory( fs_basepath->string, gameName );
+	if (gameName) {
+		FS_AddGameDirectory(fs_basepath->string, gameName);
+	}
 
-	if( *fs_gamedirvar->string && !Q_stricmp( gameName, "main" ) && Q_stricmp( fs_gamedirvar->string, gameName ) ) {
-		FS_AddGameDirectory( fs_basepath->string, fs_gamedirvar->string );
+	if (Q_stricmp(gameName, extensionName)) {
+		FS_AddGameDirectory(fs_basepath->string, extensionName);
+	}
+
+	if (*fs_gamedirvar->string && !Q_stricmp(gameName, GAME_EXTENSION_BASE) && Q_stricmp(fs_gamedirvar->string, gameName)) {
+		FS_AddGameDirectory(fs_basepath->string, fs_gamedirvar->string);
 	}
 
 	fs_mapdir = Cvar_Get( "mapdir", "", 0 );
@@ -3594,7 +3600,7 @@ void FS_InitFilesystem( void ) {
 	Com_StartupVariable( "fs_homepath" );
 
 	// try to start up normally
-	FS_Startup( BASEGAME );
+	FS_Startup( BASEGAME, GAME_EXTENSION_BASE);
 	FS_SetRestrictions();
 
 	if( !silentStart ) {
@@ -3640,7 +3646,7 @@ void FS_Restart( int checksumFeed ) {
 	FS_ClearPakReferences(0);
 
 	// try to start up normally
-	FS_Startup( BASEGAME );
+	FS_Startup(BASEGAME, GAME_EXTENSION_BASE);
 
 	FS_CheckPak0( );
 

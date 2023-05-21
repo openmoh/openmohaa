@@ -46,7 +46,40 @@ static const char* AnimPrefixList[] =
     "bazooka",
     "panzerschreck",
     "shotgun",
-    "unarmed"
+    "unarmed",
+    //
+    // Team Assault and Team Tactics weapons
+    "mg42portable",
+    "webley",
+    "nagantrev",
+    "beretta",
+    "enfield",
+    "svt",
+    "mosin",
+    "g43",
+    "enfieldl42a1",
+    "carcano",
+    "delisle",
+    "thompson",
+    "sten",
+    "ppsh",
+    "moschetto",
+    "fg42",
+    "vickers",
+    "breda",
+    "f1grenade",
+    "millsgrenade",
+    "nebelhandgranate",
+    "m18smokegrenade",
+    "rdg1smokegrenade",
+    "bomba",
+    "bombabreda",
+    "mine",
+    "minedetector",
+    "minedetectoraxis",
+    "detonator",
+    "kar98mortar",
+    "PIAT"
 };
 
 enum animPrefix_e
@@ -69,7 +102,39 @@ enum animPrefix_e
     WPREFIX_BAZOOKA,
     WPREFIX_PANZERSCHRECK,
     WPREFIX_SHOTGUN,
-    WPREFIX_UNARMED
+	WPREFIX_UNARMED,
+	//
+	// Team Assault and Team Tactics weapons
+	WPREFIX_MG42_PORTABLE,
+	WPREFIX_WEBLEY,
+	WPREFIX_NAGANTREV,
+	WPREFIX_BERETTA,
+	WPREFIX_ENFIELD,
+	WPREFIX_SVT,
+	WPREFIX_MOSIN,
+	WPREFIX_G43,
+	WPREFIX_ENFIELDL42A,
+	WPREFIX_CARCANO,
+	WPREFIX_DELISLE,
+	WPREFIX_STEN,
+	WPREFIX_PPSH,
+	WPREFIX_MOSCHETTO,
+	WPREFIX_FG42,
+	WPREFIX_VICKERS,
+	WPREFIX_BREDA,
+	WPREFIX_F1_GRENADE,
+	WPREFIX_MILLS_GRENADE,
+	WPREFIX_NEBELHANDGRANATE,
+	WPREFIX_M18_SMOKE_GRENADE,
+	WPREFIX_RDG1_SMOKE_GRENADE,
+    WPREFIX_BOMBA,
+	WPREFIX_BOMBA_BREDA,
+	WPREFIX_MINE,
+	WPREFIX_MINE_DETECTOR,
+	WPREFIX_MINE_DETECTOR_AXIS,
+	WPREFIX_DETONATOR,
+	WPREFIX_KAR98_MORTAR,
+	WPREFIX_PIAT
 };
 
 int CG_GetVMAnimPrefixIndex()
@@ -83,7 +148,9 @@ int CG_GetVMAnimPrefixIndex()
     if (iWeaponClass & WEAPON_CLASS_ANY_ITEM)
     {
         if (!Q_stricmp(szWeaponName, "Papers"))
-            return WPREFIX_PAPERS;
+			return WPREFIX_PAPERS;
+		if (!Q_stricmp(szWeaponName, "Packed MG42 Turret"))
+			return WPREFIX_MG42_PORTABLE;
     }
     else if (iWeaponClass & WEAPON_CLASS_PISTOL)
     {
@@ -92,7 +159,19 @@ int CG_GetVMAnimPrefixIndex()
         if (!Q_stricmp(szWeaponName, "Walther P38"))
             return WPREFIX_P38;
         if (!Q_stricmp(szWeaponName, "Hi-Standard Silenced"))
-            return WPREFIX_HISTANDARD;
+			return WPREFIX_HISTANDARD;
+
+		//
+		// Team Assault and Team Tactics
+		//
+		if (!Q_stricmp(szWeaponName, "Webley Revolver"))
+			return WPREFIX_WEBLEY;
+		if (!Q_stricmp(szWeaponName, "Nagant Revolver"))
+			return WPREFIX_NAGANTREV;
+		if (!Q_stricmp(szWeaponName, "Beretta"))
+			return WPREFIX_BERETTA;
+
+        return WPREFIX_COLT45;
     }
     else if (iWeaponClass & WEAPON_CLASS_RIFLE)
     {
@@ -103,28 +182,97 @@ int CG_GetVMAnimPrefixIndex()
         if (!Q_stricmp(szWeaponName, "KAR98 - Sniper"))
             return WPREFIX_KAR98SNIPER;
         if (!Q_stricmp(szWeaponName, "Springfield '03 Sniper"))
-            return WPREFIX_SPRINGFIELD;
+			return WPREFIX_SPRINGFIELD;
+
+        //
+        // Team Assault and Team Tactics
+        //
+		if (!Q_stricmp(szWeaponName, "Lee-Enfield"))
+			return WPREFIX_SPRINGFIELD;
+		if (!Q_stricmp(szWeaponName, "SVT 40"))
+			return WPREFIX_SVT;
+		if (!Q_stricmp(szWeaponName, "Mosin Nagant Rifle"))
+			return WPREFIX_MOSIN;
+		if (!Q_stricmp(szWeaponName, "G 43"))
+			return WPREFIX_G43;
+		if (!Q_stricmp(szWeaponName, "Enfield L42A1"))
+			return WPREFIX_ENFIELD;
+		if (!Q_stricmp(szWeaponName, "Carcano"))
+			return WPREFIX_CARCANO;
+		if (!Q_stricmp(szWeaponName, "DeLisle"))
+			return WPREFIX_DELISLE;
+
+        return WPREFIX_GARAND;
     }
     else if (iWeaponClass & WEAPON_CLASS_SMG)
     {
         if (!Q_stricmp(szWeaponName, "Thompson"))
             return WPREFIX_THOMPSON;
         if (!Q_stricmp(szWeaponName, "MP40"))
-            return WPREFIX_MP40;
+			return WPREFIX_MP40;
+		//
+		// Team Assault and Team Tactics
+		//
+		if (!Q_stricmp(szWeaponName, "Sten Mark II"))
+			return WPREFIX_STEN;
+		if (!Q_stricmp(szWeaponName, "PPSH SMG"))
+			return WPREFIX_PPSH;
+		if (!Q_stricmp(szWeaponName, "Moschetto"))
+			return WPREFIX_MOSCHETTO;
+
+        return WPREFIX_THOMPSON;
     }
     else if (iWeaponClass & WEAPON_CLASS_MG)
     {
         if (!Q_stricmp(szWeaponName, "BAR"))
             return WPREFIX_BAR;
         if (!Q_stricmp(szWeaponName, "StG 44"))
-            return WPREFIX_MP44;
+			return WPREFIX_MP44;
+		//
+		// Team Assault and Team Tactics
+		//
+		if (!Q_stricmp(szWeaponName, "FG 42"))
+			return WPREFIX_MP44;
+		if (!Q_stricmp(szWeaponName, "Vickers-Berthier"))
+			return WPREFIX_MP44;
+		if (!Q_stricmp(szWeaponName, "Breda"))
+			return WPREFIX_MP44;
+
+        return WPREFIX_BAR;
     }
     else if (iWeaponClass & WEAPON_CLASS_GRENADE)
     {
         if (!Q_stricmp(szWeaponName, "Frag Grenade"))
             return WPREFIX_FRAGGRENADE;
         if (!Q_stricmp(szWeaponName, "Stielhandgranate"))
-            return WPREFIX_STIELHANDGRANATE;
+			return WPREFIX_STIELHANDGRANATE;
+		//
+		// Team Assault and Team Tactics
+		//
+		if (!Q_stricmp(szWeaponName, "F1 Grenade"))
+			return WPREFIX_F1_GRENADE;
+		if (!Q_stricmp(szWeaponName, "Mills Grenade"))
+			return WPREFIX_MILLS_GRENADE;
+        if (!Q_stricmp(szWeaponName, "Nebelhandgranate"))
+            return WPREFIX_NEBELHANDGRANATE;
+		if (!Q_stricmp(szWeaponName, "M18 Smoke Grenade"))
+			return WPREFIX_M18_SMOKE_GRENADE;
+		if (!Q_stricmp(szWeaponName, "RDG-1 Smoke Grenade"))
+			return WPREFIX_RDG1_SMOKE_GRENADE;
+        if (!Q_stricmp(szWeaponName, "Bomba A Mano"))
+            return WPREFIX_BOMBA;
+		if (!Q_stricmp(szWeaponName, "Bomba A Mano Breda"))
+			return WPREFIX_BOMBA_BREDA;
+		if (!Q_stricmp(szWeaponName, "LandmineAllies"))
+			return WPREFIX_MINE;
+		if (!Q_stricmp(szWeaponName, "LandmineAxis"))
+			return WPREFIX_MINE;
+		if (!Q_stricmp(szWeaponName, "Minensuchgerat"))
+			return WPREFIX_MINE_DETECTOR_AXIS;
+		if (!Q_stricmp(szWeaponName, "Minedetector"))
+			return WPREFIX_MINE_DETECTOR;
+
+        return WPREFIX_FRAGGRENADE;
     }
     else if (iWeaponClass & WEAPON_CLASS_HEAVY)
     {
@@ -133,7 +281,14 @@ int CG_GetVMAnimPrefixIndex()
         if (!Q_stricmp(szWeaponName, "Panzerschreck"))
             return WPREFIX_PANZERSCHRECK;
         if (!Q_stricmp(szWeaponName, "Shotgun"))
-            return WPREFIX_SHOTGUN;
+			return WPREFIX_SHOTGUN;
+		//
+		// Team Assault and Team Tactics
+		//
+		if (!Q_stricmp(szWeaponName, "PIAT"))
+			return WPREFIX_PIAT;
+
+        return WPREFIX_BAZOOKA;
     }
 
     return WPREFIX_UNARMED;
@@ -226,10 +381,22 @@ void CG_ViewModelAnimation(refEntity_t* pModel)
         case VM_ANIM_LADDERSTEP:
             pszAnimSuffix = "ladderstep";
             break;
-        case VM_ANIM_IDLE:
+		case VM_ANIM_IDLE_0:
+			pszAnimSuffix = "idle0";
+			break;
+		case VM_ANIM_IDLE_1:
+			pszAnimSuffix = "idle1";
+			break;
+		case VM_ANIM_IDLE_2:
+			pszAnimSuffix = "idle2";
+			break;
+		case VM_ANIM_DISABLED:
+			pszAnimSuffix = "disabled";
+			break;
         default:
-            pszAnimSuffix = "idle";
-            break;
+		case VM_ANIM_IDLE:
+			pszAnimSuffix = "idle";
+			break;
         }
 
         sprintf(szAnimName, "%s_%s", AnimPrefixList[iAnimPrefixIndex], pszAnimSuffix);

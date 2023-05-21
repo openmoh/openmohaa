@@ -83,6 +83,8 @@ void MSG_WriteLong (msg_t *sb, int c);
 void MSG_WriteFloat (msg_t *sb, float f);
 void MSG_WriteString (msg_t *sb, const char *s);
 void MSG_WriteBigString (msg_t *sb, const char *s);
+void MSG_WriteScrambledString(msg_t* sb, const char* s);
+void MSG_WriteScrambledBigString(msg_t* sb, const char* s);
 void MSG_WriteAngle16 (msg_t *sb, float f);
 
 void	MSG_BeginReading (msg_t *sb);
@@ -104,9 +106,12 @@ float	MSG_ReadFloat (msg_t *sb);
 char	*MSG_ReadString (msg_t *sb);
 char	*MSG_ReadBigString (msg_t *sb);
 char	*MSG_ReadStringLine( msg_t *sb );
+char* MSG_ReadScrambledString(msg_t* msg);
+char* MSG_ReadScrambledBigString(msg_t* msg);
 float	MSG_ReadAngle8( msg_t *sb );
 float	MSG_ReadAngle16 (msg_t *sb);
 void	MSG_ReadData (msg_t *sb, void *buffer, int size);
+unsigned short MSG_ReadEntityNum(msg_t* sb);
 
 
 void MSG_WriteDeltaUsercmd( msg_t *msg, struct usercmd_s *from, struct usercmd_s *to );
@@ -158,6 +163,7 @@ void MSG_WritePackedSimple(msg_t* msg, int value, int bits);
 
 float MSG_UnpackAngle(int value, int bits);
 float MSG_UnpackAnimTime(int packed);
+float MSG_UnpackAnimWeight(int result, int bits);
 float MSG_UnpackScale(int packed);
 float MSG_UnpackAlpha(int packed, int bits);
 float MSG_UnpackCoord(int packed, int bits);
