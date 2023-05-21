@@ -230,5 +230,7 @@ void UI_SetCvarInt( const char *cvar, int value );
 void UI_SetCvarFloat( const char *cvar, float value );
 void UI_ListFiles( const char *filespec );
 const char *UI_ConfigString( int index );
+void UI_UpdateCenterPrint(const char* s, float alpha);
+void UI_UpdateLocationPrint(int x, int y, const char* s, float alpha);
 
 #endif
