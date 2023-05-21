@@ -521,7 +521,7 @@ Key_GetKeysForCommand
 void Key_GetKeysForCommand( const char *command, int *key1, int *key2 ) {
 	int i;
 
-	*key1 = *key2 = 0;
+	*key1 = *key2 = -1;
 
 	for( i = 0; i < K_LASTKEY; i++ ) {
 		if( !keys[ i ].binding ) {
