@@ -328,13 +328,24 @@ TIKI_ParseIncludes
 */
 qboolean TIKI_ParseIncludes( dloaddef_t *ld )
 {
-	const char *token;
+	const char* token;
 	qboolean b_incl = false;
-	const char *mapname;
+	const char* mapname;
+	const char* servertype;
 	int depth = 0;
 
-	token = ld->tikiFile.GetToken( true );
-	if( sv_mapname )
+	static cvar_t* pServerType = Cvar_Get("g_servertype", "2", 0);
+	static cvar_t* pGameType = Cvar_Get("cg_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH);
+
+	if (pGameType->integer && pServerType->integer == 1) {
+		servertype = "spearheadserver";
+	}
+	else {
+		servertype = "breakthroughserver";
+	}
+
+	token = ld->tikiFile.GetToken(true);
+	if (sv_mapname)
 	{
 		mapname = sv_mapname->string;
 	}
@@ -343,38 +354,37 @@ qboolean TIKI_ParseIncludes( dloaddef_t *ld )
 		mapname = "utils";
 	}
 
-	while( 1 )
+	while (1)
 	{
-		if( !strncmp( token, mapname, strlen( token ) )
-			|| !strncmp( token, "spearheadserver", strlen( token ) )
-			|| !strncmp( token, "breakthroughserver", strlen( token ) ) )
+		if (!strncmp(token, mapname, strlen(token))
+			|| !strncmp(token, servertype, strlen(token)))
 		{
 			b_incl = true;
 		}
-		else if( ( !stricmp( token, "{" ) || !ld->tikiFile.TokenAvailable( true ) ) )
+		else if ((!stricmp(token, "{") || !ld->tikiFile.TokenAvailable(true)))
 		{
 			break;
 		}
 
-		token = ld->tikiFile.GetToken( true );
+		token = ld->tikiFile.GetToken(true);
 	}
 
-	if( b_incl )
+	if (b_incl)
 	{
 		return true;
 	}
 
-	while( ld->tikiFile.TokenAvailable( true ) )
+	while (ld->tikiFile.TokenAvailable(true))
 	{
-		token = ld->tikiFile.GetAndIgnoreLine( false );
-		if( strstr( token, "{" ) )
+		token = ld->tikiFile.GetAndIgnoreLine(false);
+		if (strstr(token, "{"))
 		{
 			depth++;
 		}
 
-		if( strstr( token, "}" ) )
+		if (strstr(token, "}"))
 		{
-			if( !depth )
+			if (!depth)
 			{
 				break;
 			}
