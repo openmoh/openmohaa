@@ -79,7 +79,7 @@ static void CG_MakeBulletTracerInternal(vec3_t i_vBarrel, vec3_t i_vStart, vec3_
     // FIXME: unimplemented
 }
 
-static void CG_MakeBulletTracer(vec3_t i_vBarrel, vec3_t i_vStart, vec3_t* i_vEnd, int i_iNumBullets, qboolean iLarge, int iTracerVisible, qboolean bIgnoreEntities, float alpha) {
+static void CG_MakeBulletTracer(vec3_t i_vBarrel, vec3_t i_vStart, vec3_t* i_vEnd, int i_iNumBullets, qboolean iLarge, int iTracerVisible, qboolean bIgnoreEntities, float alpha = 1.0f) {
     bullet_tracer_t* bullet_tracer;
     int i;
 
