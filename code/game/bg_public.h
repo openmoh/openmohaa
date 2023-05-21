@@ -66,6 +66,34 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CS_MOTD					4		// g_motd string for server message of the day
 #define	CS_WARMUP				5		// server time when the match will be restarted
 
+#if TARGET_GAME_PROTOCOL >= 15
+#define	CS_MUSIC				6		// MUSIC_NewSoundtrack(cs)
+#define CS_FOGINFO				7		// cg.farplane_cull cg.farplane_distance cg.farplane_color[3]
+#define CS_SKYINFO				8		// cg.sky_alpha cg.sky_portal
+
+#define	CS_GAME_VERSION			9
+#define	CS_LEVEL_START_TIME		10		// so the timer only shows the current level cgs.levelStartTime
+
+#define CS_CURRENT_OBJECTIVE	11
+
+#define CS_RAIN_DENSITY			12		// cg.rain
+#define CS_RAIN_SPEED			13
+#define CS_RAIN_SPEEDVARY		14
+#define CS_RAIN_SLANT			15
+#define CS_RAIN_LENGTH			16
+#define CS_RAIN_MINDIST			17
+#define CS_RAIN_WIDTH			18
+#define CS_RAIN_SHADER			19
+#define CS_RAIN_NUMSHADERS		20
+
+#define CS_VOTE_TIME			21
+#define CS_VOTE_STRING			22
+#define CS_VOTE_YES				23
+#define CS_VOTE_NO				24
+#define CS_VOTE_UNDECIDED		25
+
+#else
+
 #define	CS_MUSIC				8		// MUSIC_NewSoundtrack(cs)
 #define CS_FOGINFO				9		// cg.farplane_cull cg.farplane_distance cg.farplane_color[3]
 #define CS_SKYINFO				10		// cg.sky_alpha cg.sky_portal
@@ -85,6 +113,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_RAIN_SHADER			21
 #define CS_RAIN_NUMSHADERS		22
 
+#endif
+
 #define CS_MATCHEND				26		// cgs.matchEndTime
 
 #define	CS_MODELS				32
@@ -98,11 +128,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_PLAYERS				(CS_LIGHTSTYLES+MAX_LIGHTSTYLES) // 1684
 
 #define CS_WEAPONS				(CS_PLAYERS+MAX_CLIENTS) // su44 was here
-#define CS_TEAMS				1876
-#define CS_GENERAL_STRINGS		1877
-#define CS_SPECTATORS			1878
-#define CS_ALLIES				1879
-#define CS_AXIS					1880
+#define CS_TEAMS				1892
+#define CS_GENERAL_STRINGS		1893
+#define CS_SPECTATORS			1894
+#define CS_ALLIES				1895
+#define CS_AXIS					1896
 #define CS_SOUNDTRACK			1881
 
 #define CS_TEAMINFO				1
@@ -528,6 +558,15 @@ extern const char *means_of_death_strings[];
 #define DF_NO_DROP_WEAPONS    (1<<16)
 #define DF_NO_FOOTSTEPS			(1<<17)
 
+#define DF_WEAPON_LANDMINE_ALWAYS		(1<<21)
+#define DF_WEAPON_NO_RIFLE				(1<<22)
+#define DF_WEAPON_NO_SNIPER				(1<<23)
+#define DF_WEAPON_NO_SMG				(1<<24)
+#define DF_WEAPON_NO_MG					(1<<25)
+#define DF_WEAPON_NO_ROCKET				(1<<26)
+#define DF_WEAPON_NO_SHOTGUN			(1<<27)
+#define DF_WEAPON_NO_LANDMINE			(1<<28)
+
 #define DM_FLAG( flag ) ( g_gametype->integer && ( ( int )dmflags->integer & ( flag ) ) )
 
 // content masks
@@ -612,7 +651,49 @@ typedef enum {
 void	BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 
 void	BG_PlayerStateToEntityState( playerState_t *ps, entityState_t *s, qboolean snap );
-void	BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s, int time, qboolean snap );
+void	BG_PlayerStateToEntityStateExtraPolate(playerState_t* ps, entityState_t* s, int time, qboolean snap);
+
+#if TARGET_GAME_PROTOCOL >= 15
+
+enum vmAnim_e {
+	VM_ANIM_DISABLED,
+	VM_ANIM_IDLE,
+	VM_ANIM_CHARGE,
+	VM_ANIM_FIRE,
+	VM_ANIM_FIRE_SECONDARY,
+	VM_ANIM_RECHAMBER,
+	VM_ANIM_RELOAD,
+	VM_ANIM_RELOAD_SINGLE,
+	VM_ANIM_RELOAD_END,
+	VM_ANIM_PULLOUT,
+	VM_ANIM_PUTAWAY,
+	VM_ANIM_LADDERSTEP,
+	VM_ANIM_IDLE_0,
+	VM_ANIM_IDLE_1,
+	VM_ANIM_IDLE_2,
+};
+
+#else
+
+enum vmAnim_e {
+	VM_ANIM_IDLE,
+	VM_ANIM_CHARGE,
+	VM_ANIM_FIRE,
+	VM_ANIM_FIRE_SECONDARY,
+	VM_ANIM_RECHAMBER,
+	VM_ANIM_RELOAD,
+	VM_ANIM_RELOAD_SINGLE,
+	VM_ANIM_RELOAD_END,
+	VM_ANIM_PULLOUT,
+	VM_ANIM_PUTAWAY,
+	VM_ANIM_LADDERSTEP
+	VM_ANIM_IDLE_0,
+	VM_ANIM_IDLE_1,
+	VM_ANIM_IDLE_2,
+	VM_ANIM_DISABLED,
+};
+
+#endif
 
 #ifdef __cplusplus
 }

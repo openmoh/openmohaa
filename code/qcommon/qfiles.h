@@ -468,8 +468,8 @@ typedef struct {
 		// little-endian "2015"
 
 #define BSP_BETA_VERSION	18	// Beta Allied Assault
-#define BSP_BASE_VERSION	19	// vanilla Allied Assault
-#define BSP_VERSION			19	// current Allied Assault
+#define BSP_MIN_VERSION		18	// Beta Allied Assault
+#define BSP_MAX_VERSION		21	// Breakthrough
 
 
 // there shouldn't be any problem with increasing these values at the

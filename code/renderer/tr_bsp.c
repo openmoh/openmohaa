@@ -2233,9 +2233,9 @@ void RE_LoadWorldMap( const char *name ) {
 	c_gridVerts = 0;
 
     i = LittleLong(header.version);
-    if (i < BSP_BASE_VERSION || i > BSP_VERSION) {
+    if (i < BSP_MIN_VERSION || i > BSP_MAX_VERSION) {
         ri.Error(ERR_DROP, "RE_LoadWorldMap: %s has wrong version number (%i should be between %i and %i)",
-            name, i, BSP_BASE_VERSION, BSP_VERSION);
+            name, i, BSP_MIN_VERSION, BSP_MAX_VERSION);
     }
 
 	// load into heap

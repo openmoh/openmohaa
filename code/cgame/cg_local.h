@@ -297,15 +297,21 @@ typedef struct {
     qboolean		testGun;
 
     // farplane parameters
-    float       farplane_distance;
+	float       farplane_distance;
+	float       farplane_bias;
     vec3_t      farplane_color;
-    qboolean    farplane_cull;
+	qboolean    farplane_cull;
+	int         skyboxFarplane;
+	qboolean    renderTerrain;
+	float       farclipOverride;
+	vec3_t      farplaneColorOverride;
 
     // portal sky parameters
     qboolean    sky_portal;
     float       sky_alpha;
     vec3_t      sky_origin;
-    vec3_t		sky_axis[3];			// rotation vectors
+	vec3_t		sky_axis[3];			// rotation vectors
+	int         skyboxSpeed;
 
     // weapon viewkick recoil
     float      viewkick[2];
@@ -371,8 +377,9 @@ typedef struct {
     int				fraglimit;
     int				timelimit;
     int				maxclients;
-    int            cinematic;
-    char			   mapname[MAX_QPATH];
+	int             cinematic;
+	int             mapChecksum;
+    char            mapname[MAX_QPATH];
 
     //
     // locally derived information from gamestate
@@ -475,6 +482,7 @@ int         CG_LastAttacker( void );
 void        CG_Init( clientGameImport_t *imported, int serverMessageNum, int serverCommandSequence, int clientNum );
 void        CG_Shutdown( void );
 void        CG_ServerRestarted( void );
+void        CG_ParseFogInfo(const char* str);
 
 //
 // cg_modelanim.cpp

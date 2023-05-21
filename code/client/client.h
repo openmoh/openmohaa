@@ -303,6 +303,7 @@ typedef struct {
 
 	int			framecount;
 	int			frametime;			// msec since last frame
+	float		serverFrameTime;
 
 	int			realtime;			// ignores pause
 	int			realFrametime;		// ignoring pause, so console always works
