@@ -28,3 +28,8 @@ void R_InitLensFlare()
 {
     // FIXME: unimplemented
 }
+
+void R_DrawLensFlares()
+{
+	// FIXME: unimplemented
+}

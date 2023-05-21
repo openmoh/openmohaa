@@ -807,7 +807,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				if ( depthRange ) {
 					qglDepthRange (0, 0.3);
 				} else {
-					qglDepthRange (0, 1);
+					qglDepthRange (0, 1.875);
 				}
 				oldDepthRange = depthRange;
 			}
@@ -872,6 +872,10 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			}
 		}
 
+		if (*drawSurf->surface == SF_SPRITE) {
+			backEnd.shaderStartTime = ((refSprite_t*)drawSurf->surface)->shaderTime;
+		}
+
 		// add the triangles for this surface
 		rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
 	}
@@ -886,7 +890,16 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	// go back to the world modelview matrix
 	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
 	if ( depthRange ) {
-		qglDepthRange (0, 1);
+		qglDepthRange (0, 1.875);
+	}
+
+	RB_ShadowFinish();
+	RB_RenderFlares();
+	R_DrawLensFlares();
+	if (g_bInfoworldtris)
+	{
+		g_bInfoworldtris = 0;
+		R_PrintInfoWorldtris();
 	}
 
 #if 0
