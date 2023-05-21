@@ -186,11 +186,13 @@ void UIGMBox::RemoveTopItem( void )
 {
 	int i;
 
-	for (i = 0; i < m_numitems - 1; i++) {
-		m_items[i] = m_items[i + 1];
-	}
+	if (m_numitems > 0) {
+		for (i = 0; i < m_numitems - 1; i++) {
+			m_items[i] = m_items[i + 1];
+		}
 
-	m_numitems--;
+		m_numitems--;
+	}
 }
 
 str UIGMBox::CalculateBreaks( UIFont *font, str text, float max_width )
