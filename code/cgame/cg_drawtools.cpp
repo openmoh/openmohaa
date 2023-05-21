@@ -1116,7 +1116,7 @@ void CG_DrawSpectatorView()
 		fX = (float)(cgs.glconfig.vidWidth - cgi.UI_FontStringWidth(cgs.media.attackerFont, pszString, -1) - 16) * 0.5;
 		fY = (float)cgs.glconfig.vidHeight - 80.0;
 		cgi.R_SetColor(color);
-		cgi.R_DrawString(cgs.media.attackerFont, pszString, fX, fY, -1, 0);
+		cgi.R_DrawString(cgs.media.attackerFont, buf, fX, fY, -1, 0);
 
 		if (cg.clientinfo[iClientNum].team == TEAM_ALLIES) {
 			hShader = cgi.R_RegisterShader("textures/hud/allies");
