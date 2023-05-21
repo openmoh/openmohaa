@@ -1812,7 +1812,6 @@ void CL_CheckForResend( void ) {
 		break;
 	case CA_AUTHORIZING:
 		// resend the cd key authorization
-		cls.state = CA_AUTHORIZING;
 		gcd_compute_response(cl_cdkey, Cmd_Argv(1), cls.gcdResponse, CDResponseMethod_REAUTH);
 		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "authorizeThis %s", cls.gcdResponse);
 		break;
@@ -1830,7 +1829,7 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
 		Info_SetValueForKey(info, "version", TARGET_GAME_VERSION);
-#if TARGET_GAME_TYPE == 2
+#if TARGET_GAME_PROTOCOL >= 15
 		Info_SetValueForKey(info, "clientType", "Breakthrough");
 #endif
 
@@ -2091,7 +2090,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// challenge from the server we are connecting to
 	if ( !Q_stricmp(c, "challengeResponse") ) {
-		if ( cls.state != CA_CONNECTING ) {
+		if ( cls.state != CA_CONNECTING && cls.state != CA_AUTHORIZING ) {
 			Com_Printf( "Unwanted challenge response received.  Ignored.\n" );
 		} else {
 			// start sending challenge repsonse instead of challenge request packets
