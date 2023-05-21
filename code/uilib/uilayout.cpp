@@ -174,7 +174,6 @@ void UILayout::ProcessCommands
 				cl = "UI";
 				cl += newname;
 				cls = getClass( cl );
-				assert( cls );
 				if( !cls )
 				{
 					Com_Printf( "Failed to find resource type '%s'\n", token );
