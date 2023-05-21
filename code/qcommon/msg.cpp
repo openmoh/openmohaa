@@ -798,7 +798,6 @@ void MSG_GetNullEntityState(entityState_t *nullState) {
 	nullState->alpha = 1.0f;
 	nullState->scale = 1.0f;
 	nullState->parent = ENTITYNUM_NONE;
-	nullState->tag_num = -1; // su44
 	nullState->constantLight = 0xffffff;
 	nullState->renderfx = 16;
 	nullState->bone_tag[4] = -1;
@@ -2077,7 +2076,7 @@ int MSG_PackCoordExtra(float coord)
 
 float MSG_ReadPackedAngle(msg_t* msg, int bits)
 {
-	int packed = MSG_ReadBits(msg, bits);
+	int packed = MSG_ReadBits(msg, abs(bits));
 	return MSG_UnpackAngle(packed, bits);
 }
 
