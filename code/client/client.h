@@ -346,6 +346,11 @@ typedef struct {
 	hdelement_t HudDrawElements[ MAX_HUDDRAW_ELEMENTS ];
 	clientAnim_t anim;
 	stopWatch_t stopwatch;
+	void* savedCgameState;
+	int savedCgameStateSize;
+	char gcdResponse[73];
+	int unknown3_0;
+	int currentRate;
 	qhandle_t	charSetShader;
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;

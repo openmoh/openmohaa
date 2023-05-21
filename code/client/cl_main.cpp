@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../sys/sys_loadlib.h"
 #endif
 
+#include "gcdkeyc.h"
+
 cvar_t	*cl_nodelta;
 cvar_t	*cl_debugMove;
 
@@ -1779,6 +1781,7 @@ void CL_CheckForResend( void ) {
 	int		port, i;
 	char	info[MAX_INFO_STRING];
 	char	data[MAX_INFO_STRING];
+	char buf[1024];
 
 	// don't send anything if playing back a demo
 	if ( clc.demoplaying ) {
@@ -1807,7 +1810,12 @@ void CL_CheckForResend( void ) {
 //		}
 		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "getchallenge");
 		break;
-
+	case CA_AUTHORIZING:
+		// resend the cd key authorization
+		cls.state = CA_AUTHORIZING;
+		gcd_compute_response(cl_cdkey, Cmd_Argv(1), cls.gcdResponse, CDResponseMethod_REAUTH);
+		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, "authorizeThis %s", cls.gcdResponse);
+		break;
 	case CA_CHALLENGING:
 /*
 wombat: sending conect here: an example connect string from MOHAA looks like this:
@@ -2148,8 +2156,12 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	}
 
 	// cd check
-	if ( !Q_stricmp(c, "keyAuthorize") ) {
-		// we don't use these now, so dump them on the floor
+	if ( !Q_stricmp(c, "getKey") ) {
+		char buf[1024];
+
+		cls.state = CA_AUTHORIZING;
+		gcd_compute_response(cl_cdkey, Cmd_Argv(1), cls.gcdResponse, CDResponseMethod_NEWAUTH);
+		NET_OutOfBandPrint(NS_CLIENT, from, "authorizeThis %s", cls.gcdResponse);
 		return;
 	}
 
