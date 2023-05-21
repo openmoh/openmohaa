@@ -5139,7 +5139,7 @@ void ClientGameCommandManager::LoopSound(Event* ev)
 
     // Get the real sound to play
 
-    if (current_tiki) {
+    if (current_tiki && current_tiki->a->alias_list) {
         name = cgi.Alias_ListFindRandom((AliasList_t*)current_tiki->a->alias_list,
                                         sound_name.c_str(), &soundAlias);
     }
@@ -5168,7 +5168,7 @@ void CacheResource(const char* stuff)
 {
     str real_stuff;
 
-    if (!stuff) {
+    if (!stuff || !stuff[0]) {
         return;
     }
 
