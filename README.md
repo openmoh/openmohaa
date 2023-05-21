@@ -41,7 +41,7 @@ Here is the current working state for each part of the engine:
 | Server module (fgame)   |      | x      |      |       |     |             | Actor, vehicle, and few gameplay bugs                             |
 | UI                      |      |        |      | x     |     |             | Has core features only (menu, widgets, console, hud, urc loading) |
 
-NOTE: Both client and server version can be compiled to target **Medal of Honor: Spearhead* and **Medal of Honor: Breakthrough**.
+NOTE: Both client and server version can be compiled to target **Medal of Honor: Spearhead** and **Medal of Honor: Breakthrough**.
 
 ## Running
 
