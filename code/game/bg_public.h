@@ -152,6 +152,10 @@ typedef enum {
 	GT_TEAM,			// team deathmatch
 	GT_TEAM_ROUNDS,
 	GT_OBJECTIVE,
+	// Team Assault game mode
+	GT_TOW,
+	// Team Tactics game mode
+	GT_LIBERATION,
 	GT_MAX_GAME_TYPE
 } gametype_t;
 
@@ -261,6 +265,28 @@ typedef enum {
 #define	PMF_LEVELEXIT			(1<<20)		// use camera view instead of ps view
 #endif
 
+#if TARGET_GAME_PROTOCOL >= 15
+
+// moh pm_flags
+#define	PMF_DUCKED				(1<<0)
+#define	PMF_VIEW_PRONE			(1<<1)
+#define PMF_SPECTATING			(1<<2)
+#define	PMF_RESPAWNED			(1<<3)
+#define	PMF_NO_PREDICTION		(1<<4)
+#define	PMF_FROZEN				(1<<5)
+#define	PMF_INTERMISSION		(1<<6)
+#define PMF_SPECTATE_FOLLOW		(1<<7)
+#define	PMF_CAMERA_VIEW			(1<<7)		// use camera view instead of ps view
+#define	PMF_NO_MOVE				(1<<8)
+#define PMF_VIEW_DUCK_RUN		(1<<9)
+#define	PMF_VIEW_JUMP_START		(1<<10)
+#define	PMF_LEVELEXIT			(1<<11)
+#define	PMF_NO_GRAVITY			(1<<12)
+#define	PMF_NO_HUD				(1<<13)
+#define	PMF_UNKNOWN				(1<<14)
+
+#else
+
 // moh pm_flags
 #define	PMF_DUCKED				(1<<0)
 #define	PMF_VIEW_PRONE			(1<<1)
@@ -278,6 +304,8 @@ typedef enum {
 #define	PMF_NO_GRAVITY			(1<<14)
 #define	PMF_NO_HUD				(1<<15)
 #define	PMF_UNKNOWN				(1<<16)
+
+#endif
 
 // moveposflags
 #define MPF_POSITION_STANDING	(1<<0)
@@ -425,6 +453,12 @@ typedef enum {
 #define EF_AXIS				0x00000100		// su44: this player is in axis team
 #define EF_ANY_TEAM			(EF_ALLIES | EF_AXIS)
 #define EF_DEAD				0x00000200		// don't draw a foe marker over players with EF_DEAD
+//
+// Team assault flags
+//
+#define EF_PLAYER_IN_MENU		0x00000400		// Player is in menu
+#define EF_PLAYER_TALKING		0x00000800		// Player is talking
+#define EF_PLAYER_ARTILLERY		0x00002000		// Player is using an artillery
 
 
 // su44: q3 remnants
