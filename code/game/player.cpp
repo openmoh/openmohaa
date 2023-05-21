@@ -3666,6 +3666,49 @@ qboolean Player::checkimmediateswitch( Conditional &condition )
 	return ( g_gametype->integer && g_immediateswitch->integer );
 }
 
+
+qboolean Player::checkmovementspeed(Conditional& condition)
+{
+	int speed = atoi(condition.getParm(1));
+	return client->ps.speed >= speed;
+}
+
+qboolean Player::checkabletodefuse(Conditional& condition)
+{
+	// FIXME: unimplemented
+	return true;
+}
+
+qboolean Player::checkonlandmine(Conditional& condition)
+{
+	// FIXME: unimplemented
+	return false;
+}
+
+qboolean Player::checknearlandmine(Conditional& condition)
+{
+	// FIXME: unimplemented
+	return false;
+}
+
+qboolean Player::CondCanPlaceLandmine(Conditional& condition)
+{
+	// FIXME: unimplemented
+	return false;
+}
+
+qboolean Player::CondWeaponCurrentFireAnim(Conditional& condition)
+{
+	// FIXME: unimplemented
+	return false;
+}
+
+qboolean Player::CondVehicleType(Conditional& condition)
+{
+	// FIXME: unimplemented
+	return false;
+}
+
 qboolean Player::CondAnimDoneVM( Conditional &condition )
 {
 	return animDoneVM;
@@ -4024,6 +4067,13 @@ Condition<Player> Player::Conditions[] =
 	{ "MIN_CHARGE_TIME_MET",				&Player::checkminchargetimemet },
 	{ "MAX_CHARGE_TIME_MET",				&Player::checkmaxchargetimemet },
 	{ "IMMEDIATE_SWITCH",					&Player::checkimmediateswitch },
+	{ "CHECK_MOVEMENT_SPEED",				&Player::checkmovementspeed },
+	{ "ABLE_TO_DEFUSE",						&Player::checkabletodefuse },
+	{ "ON_LANDMINE",						&Player::checkonlandmine },
+	{ "NEAR_LANDMINE",						&Player::checknearlandmine },
+	{ "CAN_PLACE_LANDMINE",					&Player::CondCanPlaceLandmine },
+	{ "WEAPON_CURRENT_FIRE_ANIM",			&Player::CondWeaponCurrentFireAnim },
+	{ "VEHICLE_TYPE",						&Player::CondVehicleType },
 	{ "ANIMDONE_VM",						&Player::CondAnimDoneVM },
 	{ "CLIENT_COMMAND",						&Player::CondClientCommand },
 	{ "IS_VM_ANIM",							&Player::CondVMAnim },

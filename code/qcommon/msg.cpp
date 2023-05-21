@@ -326,6 +326,7 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 		}
 		msg->readcount = (msg->bit>>3)+1;
 	}
+#if TARGET_GAME_PROTOCOL >= 15
 	if (sgn) {
 		if (value & 1) {
 			value = ~(value >> 1);
@@ -333,6 +334,13 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 			value >>= 1;
 		}
 	}
+#else
+	if (sgn) {
+		if (value & (1 << (bits - 1))) {
+			value |= -1 ^ ((1 << bits) - 1);
+		}
+	}
+#endif
 
 	return value;
 }
@@ -1611,16 +1619,19 @@ void MSG_WriteRegular(msg_t* sb, int bits, const void* toF)
 		}
 		else {
 			MSG_WriteBits(sb, 1, 1);
-			if (trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 &&
-				trunc + FLOAT_INT_BIAS < (1 << FLOAT_INT_BITS)) {
+			if (trunc == fullFloat && trunc >= -4096 && trunc < 4096) {
 				// send as small integer
 				MSG_WriteBits(sb, 0, 1);
-				MSG_WriteBits(sb, trunc + FLOAT_INT_BIAS, FLOAT_INT_BITS);
+				MSG_WriteBits(sb, trunc, -FLOAT_INT_BITS);
 			}
 			else {
-				// send as full floating point value
+				int newvalue = *(int*)toF * 2 - 0x7A000000;
+				if (*(int*)toF < 0) {
+					newvalue |= 1;
+				}
 				MSG_WriteBits(sb, 1, 1);
-				MSG_WriteBits(sb, *(int*)toF, 32);
+				// send as full floating point value
+				MSG_WriteBits(sb, newvalue, 32);
 			}
 		}
 	}
@@ -1819,7 +1830,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		if ( from == NULL ) {
 			return;
 		}
-		MSG_WriteEntityNum(msg, to->number);
+		MSG_WriteEntityNum(msg, from->number);
 		MSG_WriteBits( msg, 1, 1 );
 		return;
 	}
@@ -2126,6 +2137,7 @@ void MSG_WritePackedAnimTime(msg_t* msg, float fromValue, float toValue, float f
 	if (fabs(fromValue - toValue) < frameTime) {
 		// below the frame time, don't send
 		MSG_WriteBits(msg, 0, 1);
+		return;
 	}
 
 	MSG_WriteBits(msg, 1, 1);

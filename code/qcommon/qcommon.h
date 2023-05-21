@@ -86,6 +86,7 @@ void MSG_WriteBigString (msg_t *sb, const char *s);
 void MSG_WriteScrambledString(msg_t* sb, const char* s);
 void MSG_WriteScrambledBigString(msg_t* sb, const char* s);
 void MSG_WriteAngle16 (msg_t *sb, float f);
+void MSG_WriteEntityNum(msg_t* sb, short number);
 
 void	MSG_BeginReading (msg_t *sb);
 void	MSG_BeginReadingOOB(msg_t *sb);

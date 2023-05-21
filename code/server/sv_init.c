@@ -521,6 +521,7 @@ void SV_ClearServer(void) {
 		}
 	}
 	Com_Memset (&sv, 0, sizeof(sv));
+	sv.frameTime = 1.0 / sv_fps->value;
 }
 
 /*
@@ -1012,7 +1013,7 @@ void SV_Init( void ) {
 	sv_showloss = Cvar_Get ("sv_showloss", "0", 0);
 	sv_padPackets = Cvar_Get ("sv_padPackets", "0", 0);
 	sv_killserver = Cvar_Get ("sv_killserver", "0", 0);
-	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", CVAR_ROM);
+	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", CVAR_ROM | CVAR_SERVERINFO);
 	sv_drawentities = Cvar_Get( "sv_drawentities", "1", 0 );
 	sv_deeptracedebug = Cvar_Get( "sv_deeptracedebug", "0", 0 );
 	sv_chatter = Cvar_Get( "sv_chatter", "0", 0 );

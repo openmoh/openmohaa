@@ -443,6 +443,13 @@ public:
 	qboolean			checkminchargetimemet( Conditional &condition );
 	qboolean			checkmaxchargetimemet( Conditional &condition );
 	qboolean			checkimmediateswitch( Conditional &condition );
+	qboolean			checkmovementspeed( Conditional &condition );
+	qboolean			checkabletodefuse( Conditional &condition );
+	qboolean			checkonlandmine( Conditional &condition );
+	qboolean			checknearlandmine( Conditional &condition );
+	qboolean			CondCanPlaceLandmine( Conditional &condition );
+	qboolean			CondWeaponCurrentFireAnim( Conditional &condition );
+	qboolean			CondVehicleType( Conditional &condition );
 	qboolean			CondAnimDoneVM( Conditional &condition );
 	qboolean			CondClientCommand( Conditional &condition );
 	qboolean			CondVMAnim( Conditional &condition );

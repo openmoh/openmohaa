@@ -439,9 +439,15 @@ gotnewcl:
 	Com_DPrintf( "Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name );
 
 	newcl->state = CS_CONNECTED;
-	newcl->nextSnapshotTime = svs.time;
-	newcl->lastPacketTime = svs.time;
-	newcl->lastConnectTime = svs.time;
+	if (sv_maxclients->integer > 1) {
+		newcl->nextSnapshotTime = svs.time + 800;
+		newcl->lastPacketTime = svs.time + 800;
+		newcl->lastConnectTime = svs.time + 800;
+	} else {
+		newcl->nextSnapshotTime = svs.time + 300;
+		newcl->lastPacketTime = svs.time + 300;
+		newcl->lastConnectTime = svs.time + 300;
+	}
 	
 	// when we receive the first packet from the client, we will
 	// notice that it is from a different serverid and that the
@@ -530,6 +536,19 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	}
 }
 
+#if TARGET_GAME_PROTOCOL >= 15
+
+void MSG_WriteServerFrameTime(msg_t* msg, float f) {
+	MSG_WriteFloat(msg, f);
+}
+
+#else
+
+void MSG_WriteServerFrameTime(msg_t* msg, float f) {
+}
+
+#endif
+
 /*
 ================
 SV_SendClientGameState
@@ -583,7 +602,7 @@ void SV_SendClientGameState( client_t *client ) {
 		if (sv.configstrings[start][0]) {
 			MSG_WriteSVC( &msg, svc_configstring );
 			MSG_WriteShort( &msg, start );
-			MSG_WriteString( &msg, sv.configstrings[start] );
+			MSG_WriteScrambledBigString( &msg, sv.configstrings[start] );
 		}
 	}
 
@@ -604,7 +623,10 @@ void SV_SendClientGameState( client_t *client ) {
 	MSG_WriteLong( &msg, client - svs.clients);
 
 	// write the checksum feed
-	MSG_WriteLong( &msg, sv.checksumFeed);
+	MSG_WriteLong( &msg, 0);
+
+	// write the server frametime to the client (only on TA/TT)
+	MSG_WriteServerFrameTime(&msg, sv.frameTime);
 
 	// deliver this to the client
 	SV_SendMessageToClient( &msg, client );
@@ -1310,7 +1332,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	qboolean clientOk = qtrue;
 
 	seq = MSG_ReadLong( msg );
-	s = MSG_ReadString( msg );
+	s = MSG_ReadScrambledString( msg );
 
 	// see if we have already executed it
 	if ( cl->lastClientCommand >= seq ) {

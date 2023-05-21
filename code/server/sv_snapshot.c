@@ -109,7 +109,7 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 		}
 	}
 
-	MSG_WriteBits( msg, (MAX_GENTITIES-1), GENTITYNUM_BITS );	// end of packetentities
+	MSG_WriteEntityNum(msg, (MAX_GENTITIES - 1));	// end of packetentities
 }
 
 
@@ -217,11 +217,11 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 			MSG_WriteSVC( msg, svc_locprint );
 			MSG_WriteShort( msg, client->XOffset );
 			MSG_WriteShort( msg, client->YOffset );
-			MSG_WriteString( msg, client->centerprint );
+			MSG_WriteScrambledString( msg, client->centerprint );
 		}
 		else {
 			MSG_WriteSVC( msg, svc_centerprint );
-			MSG_WriteString( msg, client->centerprint );
+			MSG_WriteScrambledString( msg, client->centerprint );
 		}
 	}
 
@@ -248,7 +248,7 @@ void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 	for ( i = client->reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
 		MSG_WriteSVC( msg, svc_serverCommand );
 		MSG_WriteLong( msg, i );
-		MSG_WriteString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
+		MSG_WriteScrambledString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 	}
 	client->reliableSent = client->reliableSequence;
 }
