@@ -1879,6 +1879,7 @@ void R_GetLightingForDecal(vec3_t vLight, vec3_t vFacing, vec3_t vOrigin);
 void R_GetLightingForSmoke(vec3_t vLight, vec3_t vOrigin);
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
 void RB_SetupEntityGridLighting();
+void RB_SetupStaticModelGridLighting(trRefdef_t* refdef, cStaticModelUnpacked_t* ent, const vec3_t lightOrigin);
 void R_TransformDlights( int count, dlight_t *dl, orientationr_t *ori );
 void RB_Light_Real(unsigned char* colors);
 void RB_Sphere_BuildDLights();
@@ -2037,6 +2038,7 @@ SUN FLARE
 =============================================================
 */
 void R_InitLensFlare();
+void R_DrawLensFlares();
 
 /*
 =============================================================

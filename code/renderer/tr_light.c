@@ -350,7 +350,63 @@ void RB_SetupEntityGridLighting()
 
 void RB_SetupStaticModelGridLighting(trRefdef_t* refdef, cStaticModelUnpacked_t* ent, const vec3_t lightOrigin)
 {
-	// FIXME: unimplemented
+	int iColor;
+	int i;
+	dlight_t* dl;
+	float power;
+	vec3_t vLight;
+	vec3_t dir;
+	float d;
+
+	if (ent->bLightGridCalculated) {
+		return;
+	}
+	ent->bLightGridCalculated = qtrue;
+
+	if (!(refdef->rdflags & RDF_NOWORLDMODEL) && tr.world->lightGridData) {
+		R_GetLightingGridValue(backEnd.currentSphere->traceOrigin, vLight);
+	}
+	else {
+		vLight[0] = vLight[1] = vLight[2] = tr.identityLight * 150.0;
+	}
+
+	for (i = 0; i < refdef->num_dlights; i++) {
+		dl = &refdef->dlights[i];
+		VectorSubtract(dl->origin, lightOrigin, dir);
+		d = VectorLengthSquared(dir);
+
+		power = dl->radius * dl->radius;
+		if (power >= d) {
+			d = dl->radius * 7500.0 / d;
+			VectorMA(vLight, d, dl->color, vLight);
+		}
+	}
+
+	if (tr.overbrightShift)
+	{
+		vLight[0] = tr.overbrightMult * vLight[0];
+		vLight[1] = tr.overbrightMult * vLight[1];
+		vLight[2] = tr.overbrightMult * vLight[2];
+	}
+
+	// normalize
+	if (vLight[0] < 255.0 || vLight[1] < 255.0 || vLight[2] < 255.0) {
+		float scale = 255.0 / fmin(vLight[0], fmin(vLight[1], vLight[2]));
+		VectorScale(vLight, scale, vLight);
+	}
+
+	// clamp ambient
+	for (i = 0; i < 3; i++) {
+		if (vLight[i] > tr.identityLightByte) {
+			vLight[i] = tr.identityLightByte;
+		}
+	}
+
+	// save out the byte packet version
+	((byte*)&ent->iGridLighting)[0] = myftol(vLight[0]);
+	((byte*)&ent->iGridLighting)[1] = myftol(vLight[1]);
+	((byte*)&ent->iGridLighting)[2] = myftol(vLight[2]);
+	((byte*)&ent->iGridLighting)[3] = 0xff;
 }
 
 /*

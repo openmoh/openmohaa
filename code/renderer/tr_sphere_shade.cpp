@@ -204,7 +204,7 @@ void RB_Grid_SetupEntity()
 
 void RB_Grid_SetupStaticModel()
 {
-	// FIXME: unimplemented
+	RB_SetupStaticModelGridLighting(&tr.refdef, backEnd.currentStaticModel, backEnd.currentStaticModel->origin);
 }
 
 void RB_Light_Fullbright(unsigned char* colors)
