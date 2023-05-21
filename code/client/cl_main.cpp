@@ -1460,8 +1460,6 @@ void CL_Vid_Restart_f( void ) {
 	UI_ResolutionChange();
 
 	cls.rendererRegistered = qfalse;
-	cls.uiStarted = qfalse;
-	cls.cgameStarted = qfalse;
 
 	// unpause so the cgame definately gets a snapshot and renders a frame
 	Com_Unpause();
