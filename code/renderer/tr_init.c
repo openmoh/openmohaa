@@ -1462,6 +1462,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
     re.UnregisterServerModel = RE_UnregisterServerModel;
     re.RegisterShader = RE_RegisterShader;
     re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
+	re.RefreshShaderNoMip = RE_RefreshShaderNoMip;
     re.LoadWorld = RE_LoadWorldMap;
     re.PrintBSPFileSizes = RE_PrintBSPFileSizes;
     re.MapVersion = RE_MapVersion;
