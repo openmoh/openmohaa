@@ -503,7 +503,9 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
         Vector4Copy(surf->pStaticXyz[j], tess.xyz[baseVertex + j]);
         Vector4Copy(surf->pStaticNormal[j], tess.normal[baseVertex + j]);
         tess.texCoords[baseVertex + j][0][0] = surf->pStaticTexCoords[j][0][0];
-        tess.texCoords[baseVertex + j][0][1] = surf->pStaticTexCoords[j][0][1];
+		tess.texCoords[baseVertex + j][0][1] = surf->pStaticTexCoords[j][0][1];
+		tess.texCoords[baseVertex + j][1][0] = surf->pStaticTexCoords[j][1][0];
+		tess.texCoords[baseVertex + j][1][1] = surf->pStaticTexCoords[j][1][1];
     }
 
     if (backEndData[backEnd.smpFrame]->staticModelData) {
