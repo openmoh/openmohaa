@@ -2093,6 +2093,7 @@ void R_PrintInfoStaticModels();
 void R_AddSkelSurfaces(trRefEntity_t* ent);
 void R_AddStaticModelSurfaces(void);
 float R_CalcLod(const vec3_t origin, float radius);
+void R_PrintInfoWorldtris(void);
 
 extern int g_nStaticSurfaces;
 extern qboolean g_bInfostaticmodels;
