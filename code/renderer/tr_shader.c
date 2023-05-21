@@ -1680,7 +1680,12 @@ static void ParseSkyParms( char **text ) {
 		for (i=0 ; i<6 ; i++) {
 			Com_sprintf( pathname, sizeof(pathname), "%s_%s.tga"
 				, token, suf[i] );
-			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, qfalse, GL_CLAMP, GL_CLAMP );
+			if (!r_forceClampToEdge->integer) {
+				shader.sky.outerbox[i] = R_FindImageFile((char*)pathname, qtrue, qtrue, shader_force32bit, GL_CLAMP, GL_CLAMP);
+			}
+			else {
+				shader.sky.outerbox[i] = R_FindImageFile((char*)pathname, qtrue, qtrue, shader_force32bit, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+			}
 			if ( !shader.sky.outerbox[i] ) {
 				shader.sky.outerbox[i] = tr.defaultImage;
 			}
@@ -1710,7 +1715,7 @@ static void ParseSkyParms( char **text ) {
 		for (i=0 ; i<6 ; i++) {
 			Com_sprintf( pathname, sizeof(pathname), "%s_%s.tga"
 				, token, suf[i] );
-			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, qfalse, GL_REPEAT, GL_REPEAT );
+			shader.sky.outerbox[i] = R_FindImageFile( ( char * ) pathname, qtrue, qtrue, shader_force32bit, GL_REPEAT, GL_REPEAT );
 			if ( !shader.sky.innerbox[i] ) {
 				shader.sky.innerbox[i] = tr.defaultImage;
 			}
@@ -3069,6 +3074,11 @@ qhandle_t RE_RegisterShaderNoMip( const char *name ) {
 	return sh->index;
 }
 
+qhandle_t RE_RefreshShaderNoMip(const char* name) {
+	// FIXME: unimplemented
+	// Workaround
+	return RE_RegisterShaderNoMip(name);
+}
 
 /*
 ====================
