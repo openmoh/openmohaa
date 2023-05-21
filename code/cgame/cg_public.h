@@ -404,7 +404,7 @@ typedef struct {
    // FIXME
    //prof_cgame_t* profStruct;
 
-   qboolean (*CG_Command_ProcessFile)(char* name, qboolean quiet, dtiki_t* curTiki);
+   qboolean (*CG_Command_ProcessFile)(const char* name, qboolean quiet, dtiki_t* curTiki);
 
 } clientGameExport_t;
 

@@ -120,7 +120,7 @@ void CG_ParseServerinfo(void)
     cgi.Cvar_Set("cg_obj_axistext3", Info_ValueForKey(info, "cg_obj_axistext3"));
     cgi.Cvar_Set("cg_scoreboardpic", Info_ValueForKey(info, "g_scoreboardpic"));
     cgi.Cvar_Set("cg_scoreboardpicover", Info_ValueForKey(info, "g_scoreboardpicover"));
-    cgs.mapChecksum = Info_ValueForKey(info, "sv_mapChecksum");
+    cgs.mapChecksum = atoi(Info_ValueForKey(info, "sv_mapChecksum"));
 
     mapname = Info_ValueForKey(info, "mapname");
 
