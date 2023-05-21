@@ -306,7 +306,6 @@ to overflow.
 ==============
 */
 void RB_BeginSurface( shader_t *shader ) {
-
 	tess.numIndexes = 0;
 	tess.numVertexes = 0;
 	tess.shader = shader;
@@ -315,12 +314,6 @@ void RB_BeginSurface( shader_t *shader ) {
 	tess.xstages = shader->unfoggedStages;
 	tess.numPasses = shader->numUnfoggedPasses;
 	tess.currentStageIteratorFunc = shader->optimalStageIteratorFunc;
-
-	tess.shaderTime = backEnd.refdef.floatTime - tess.shader->timeOffset;
-	if (tess.shader->clampTime && tess.shaderTime >= tess.shader->clampTime) {
-		tess.shaderTime = tess.shader->clampTime;
-	}
-
 
 }
 
