@@ -25,9 +25,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "win_localization.h"
 #include <tiki.h>
 
+#define MAX_BUFFERS				3
+#define MAX_LOCALIZATION_LENGTH 1024
+
 cLocalization *g_localization;
-static char buf[ 1024 ];
+static char global_buf[MAX_BUFFERS][MAX_LOCALIZATION_LENGTH];
 static char szTemp[ 100 ];
+static size_t buf_index = 0;
 
 void Sys_InitLocalization()
 {
@@ -342,6 +346,7 @@ const char *cLocalization::ConvertString( const char *var )
 		n++;
 	}
 
+	char* buf = global_buf[(buf_index++) % MAX_BUFFERS];
 	for( i = 1; i <= m_entries.NumObjects(); i++ )
 	{
 		entry = &m_entries.ObjectAt( i );
@@ -354,12 +359,12 @@ const char *cLocalization::ConvertString( const char *var )
 
 			if( !( m + n ) )
 			{
-				strncpy( buf, entry->m_locName, sizeof( buf ) );
-				bjb_rebreak( var, buf, sizeof( buf ) );
+				strncpy( buf, entry->m_locName, MAX_LOCALIZATION_LENGTH );
+				bjb_rebreak( var, buf, MAX_LOCALIZATION_LENGTH );
 				return buf;
 			}
 
-			if( entry->m_l1_rep + m + n < sizeof( buf ) )
+			if( entry->m_l1_rep + m + n < MAX_LOCALIZATION_LENGTH )
 			{
 				memcpy( buf, var, n );
 				memcpy( &buf[ n ], entry->m_locName.c_str(), entry->m_l1_rep );
