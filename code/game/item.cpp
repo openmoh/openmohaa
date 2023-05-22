@@ -1149,6 +1149,8 @@ void Item::updatePrefix
 		return;
 	}
 
+	// FIXME: delete
+	/*
 	Entity *ent = ev->GetEntity( 1 );
 
 	gi.MSG_SetClient( ent->edict - g_entities );
@@ -1157,6 +1159,7 @@ void Item::updatePrefix
 		gi.MSG_WriteString( item_name.c_str() );
 		gi.MSG_WriteString( m_sVMprefix.c_str() );
 	gi.MSG_EndCGM();
+	*/
 }
 
 qboolean Item::IsItemCool

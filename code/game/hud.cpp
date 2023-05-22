@@ -503,6 +503,7 @@ Hud::~Hud()
 		SetNon3D();
 	}
 
+	/*
 #ifdef GAME_DLL
 	SetBroadcast();
 
@@ -510,6 +511,7 @@ Hud::~Hud()
 		WriteNumber();
 	gi.MSG_EndCGM();
 #endif
+*/
 
 	hudElements.RemoveObject( this );
 }
@@ -952,7 +954,9 @@ void Hud::FadeOverTime( float time )
 
 	fade_alpha_start = alpha;
 	fade_alpha_target = alpha;
-
+	
+	// FIXME: delete
+	/*
 #ifdef GAME_DLL
 	SetBroadcast();
 
@@ -961,6 +965,7 @@ void Hud::FadeOverTime( float time )
 		gi.MSG_WriteFloat( time );
 	gi.MSG_EndCGM();
 #endif
+*/
 }
 
 void Hud::MoveOverTime( float time )
@@ -982,6 +987,7 @@ void Hud::MoveOverTime( float time )
 	fade_move_x_target = x;
 	fade_move_y_target = y;
 
+	/*
 #ifdef GAME_DLL
 	SetBroadcast();
 
@@ -990,6 +996,7 @@ void Hud::MoveOverTime( float time )
 		gi.MSG_WriteFloat( time );
 	gi.MSG_EndCGM();
 #endif
+*/
 }
 
 void Hud::Refresh( int clientNumber )
@@ -1092,6 +1099,7 @@ void Hud::Refresh( int clientNumber )
 		{
 			SetBroadcast();
 
+			/*
 			gi.MSG_StartCGM( CGM_HUDDRAW_3D );
 				WriteNumber();
 				gi.MSG_WriteCoord( org[ 0 ] );
@@ -1103,16 +1111,19 @@ void Hud::Refresh( int clientNumber )
 				gi.MSG_WriteBits( !!always_show, 1 );
 				gi.MSG_WriteBits( !!depth, 1 );
 			gi.MSG_EndCGM();
+			*/
 		}
 
 		if( fade_alpha )
 		{
 			SetBroadcast();
 
+			/*
 			gi.MSG_StartCGM( CGM_HUDDRAW_FADE );
 				WriteNumber();
 				gi.MSG_WriteFloat( fade_alpha_current );
 			gi.MSG_EndCGM();
+			*/
 
 			SetBroadcast();
 
@@ -1126,6 +1137,7 @@ void Hud::Refresh( int clientNumber )
 		{
 			SetBroadcast();
 
+			/*
 			gi.MSG_StartCGM( CGM_HUDDRAW_MOVE );
 				WriteNumber();
 				gi.MSG_WriteFloat( fade_move_current );
@@ -1138,10 +1150,12 @@ void Hud::Refresh( int clientNumber )
 				gi.MSG_WriteShort( ( short )fade_move_x_target );
 				gi.MSG_WriteShort( ( short )fade_move_y_target );
 			gi.MSG_EndCGM();
+			*/
 		}
 
 		if( fade_timer_flags & TIMER_ACTIVE )
 		{
+			/*
 			SetBroadcast();
 
 			gi.MSG_StartCGM( CGM_HUDDRAW_TIMER );
@@ -1156,6 +1170,7 @@ void Hud::Refresh( int clientNumber )
 				}
 
 			gi.MSG_EndCGM();
+			*/
 		}
 	}
 #endif
@@ -1182,7 +1197,8 @@ void Hud::ScaleOverTime( float time, short w, short h )
 	fade_scale_w_target = w;
 	fade_scale_h_target = h;
 
-#ifdef GAME_DLL
+	// FIXME: delete
+/*
 	width = w;
 	height = h;
 
@@ -1194,7 +1210,7 @@ void Hud::ScaleOverTime( float time, short w, short h )
 		gi.MSG_WriteShort( w );
 		gi.MSG_WriteShort( h );
 	gi.MSG_EndCGM();
-#endif
+*/
 }
 
 #ifdef GAME_DLL
@@ -1235,6 +1251,7 @@ void Hud::Set3D( Vector vector_or_offset, qboolean alwaysOnScreen, qboolean hasD
 
 	isDimensional = true;
 
+	/*
 #ifdef GAME_DLL
 	SetBroadcast();
 
@@ -1250,19 +1267,20 @@ void Hud::Set3D( Vector vector_or_offset, qboolean alwaysOnScreen, qboolean hasD
 		gi.MSG_WriteBits( !!hasDepth, 1 );
 	gi.MSG_EndCGM();
 #endif
+*/
 }
-
 void Hud::SetNon3D()
 {
 	isDimensional = false;
 
-#ifdef GAME_DLL
+	// FIXME?
+/*
 	SetBroadcast();
 
 	gi.MSG_StartCGM( CGM_HUDDRAW_BREAK3D );
 		WriteNumber();
 	gi.MSG_EndCGM();
-#endif
+*/
 }
 
 void Hud::SetAlignX( hudAlign_t align )
@@ -1418,29 +1436,18 @@ void Hud::SetRectX( short value )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	if( sv_reborn->integer )
-	{
-		gi.MSG_StartCGM( CGM_HUDDRAW_RECTX );
-			WriteNumber();
-			gi.MSG_WriteShort( ( short )value );
-		gi.MSG_EndCGM();
-	}
-	else
-	{
-		gi.MSG_StartCGM( CGM_HUDDRAW_RECT );
-			WriteNumber();
-			gi.MSG_WriteShort( ( short )fade_move_x_target );
-			gi.MSG_WriteShort( ( short )fade_move_y_target );
-			gi.MSG_WriteShort( ( short )width );
-			gi.MSG_WriteShort( ( short )height );
-		gi.MSG_EndCGM();
-	}
+	gi.MSG_StartCGM(CGM_HUDDRAW_RECT);
+		WriteNumber();
+		gi.MSG_WriteShort((short)fade_move_x_target);
+		gi.MSG_WriteShort((short)fade_move_y_target);
+		gi.MSG_WriteShort((short)width);
+		gi.MSG_WriteShort((short)height);
+	gi.MSG_EndCGM();
 #endif
 }
 
 void Hud::SetRectY( short value )
 {
-//#ifdef CGAME_DLL
 	if( fade_move_y_first )
 	{
 		fade_move_y_target = value;
@@ -1451,30 +1458,17 @@ void Hud::SetRectY( short value )
 		y = value;
 		fade_move = false;
 	}
-//#else
-//	y = value;
-//#endif
 
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	if( sv_reborn->integer )
-	{
-		gi.MSG_StartCGM( CGM_HUDDRAW_RECTY );
-			WriteNumber();
-			gi.MSG_WriteShort( ( short )value );
-		gi.MSG_EndCGM();
-	}
-	else
-	{
-		gi.MSG_StartCGM( CGM_HUDDRAW_RECT );
-			WriteNumber();
-			gi.MSG_WriteShort( ( short )fade_move_x_target );
-			gi.MSG_WriteShort( ( short )fade_move_y_target );
-			gi.MSG_WriteShort( ( short )width );
-			gi.MSG_WriteShort( ( short )height );
-		gi.MSG_EndCGM();
-	}
+	gi.MSG_StartCGM(CGM_HUDDRAW_RECT);
+		WriteNumber();
+		gi.MSG_WriteShort((short)fade_move_x_target);
+		gi.MSG_WriteShort((short)fade_move_y_target);
+		gi.MSG_WriteShort((short)width);
+		gi.MSG_WriteShort((short)height);
+	gi.MSG_EndCGM();
 #endif
 }
 
@@ -1519,24 +1513,13 @@ void Hud::SetShader( const char * s, float w, float h )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	if( sv_reborn->integer )
-	{
-		gi.MSG_StartCGM( CGM_HUDDRAW_RECTWH );
-			WriteNumber();
-			gi.MSG_WriteShort( ( short )width );
-			gi.MSG_WriteShort( ( short )height );
-		gi.MSG_EndCGM();
-	}
-	else
-	{
-		gi.MSG_StartCGM( CGM_HUDDRAW_RECT );
-			WriteNumber();
-			gi.MSG_WriteShort( ( short )x );
-			gi.MSG_WriteShort( ( short )y );
-			gi.MSG_WriteShort( ( short )width );
-			gi.MSG_WriteShort( ( short )height );
-		gi.MSG_EndCGM();
-	}
+	gi.MSG_StartCGM(CGM_HUDDRAW_RECT);
+	WriteNumber();
+	gi.MSG_WriteShort((short)x);
+	gi.MSG_WriteShort((short)y);
+	gi.MSG_WriteShort((short)width);
+	gi.MSG_WriteShort((short)height);
+	gi.MSG_EndCGM();
 
 	SetBroadcast();
 
@@ -1586,7 +1569,8 @@ void Hud::SetTimer( float time, float fade_at_time )
 
 	fade_timer_flags = TIMER_ACTIVE;
 
-#ifdef GAME_DLL
+	// FIXME...
+/*
 	SetBroadcast();
 
 	gi.MSG_StartCGM( CGM_HUDDRAW_TIMER );
@@ -1595,7 +1579,7 @@ void Hud::SetTimer( float time, float fade_at_time )
 		gi.MSG_WriteFloat( fade_at_time );
 		gi.MSG_WriteBits( 0, 1 );
 	gi.MSG_EndCGM();
-#endif
+*/
 }
 
 void Hud::SetTimerUp( float time, float fade_at_time )
@@ -1612,6 +1596,7 @@ void Hud::SetTimerUp( float time, float fade_at_time )
 
 	fade_timer_flags = TIMER_ACTIVE | TIMER_UP;
 
+	/*
 #ifdef GAME_DLL
 	SetBroadcast();
 
@@ -1622,6 +1607,7 @@ void Hud::SetTimerUp( float time, float fade_at_time )
 		gi.MSG_WriteBits( 1, 1 );
 	gi.MSG_EndCGM();
 #endif
+*/
 }
 
 void Hud::SetVirtualSize( qboolean v )

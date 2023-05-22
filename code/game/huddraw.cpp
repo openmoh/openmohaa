@@ -38,7 +38,7 @@ void HudWriteNumber( int num )
 void HudDrawShader( int info, const char *name )
 {
 	gi.SetBroadcastAll();
-	gi.MSG_StartCGM(0x1B);
+	gi.MSG_StartCGM(CGM_HUDDRAW_SHADER);
 	HudWriteNumber( info );		// c = info
 	gi.MSG_WriteString(name);		// s = name (shader_name)
 	gi.MSG_EndCGM();
@@ -47,7 +47,7 @@ void HudDrawShader( int info, const char *name )
 void HudDrawAlign( int info, int horizontalAlign, int verticalAlign )
 {
 	gi.SetBroadcastAll();
-	gi.MSG_StartCGM(0x1C);
+	gi.MSG_StartCGM(CGM_HUDDRAW_ALIGN);
 	HudWriteNumber( info );					// c = probably "info"
 	gi.MSG_WriteBits(horizontalAlign, 2);	// value = 0,1,2	bits = 2
 											// 0 - left		\
@@ -66,7 +66,7 @@ void HudDrawAlign( int info, int horizontalAlign, int verticalAlign )
 void HudDrawRect(int info, int x, int y, int width, int height)
 {
 	gi.SetBroadcastAll();
-	gi.MSG_StartCGM(0x1D);
+	gi.MSG_StartCGM(CGM_HUDDRAW_RECT);
 	HudWriteNumber( info );			// c = probably "info"
 	gi.MSG_WriteShort(x);			// c = probably "x"
 	gi.MSG_WriteShort(y);			// c = probably "y"
@@ -79,7 +79,7 @@ void HudDrawRect(int info, int x, int y, int width, int height)
 void HudDrawVirtualSize(int info, int virtualScreen)
 {
 	gi.SetBroadcastAll();
-	gi.MSG_StartCGM(0x1E);
+	gi.MSG_StartCGM(CGM_HUDDRAW_VIRTUALSIZE);
 	HudWriteNumber( info );					// c = info
 	
 	/*__asm
@@ -116,7 +116,7 @@ void HudDrawColor(int info, float *color)
 	
 	
 	gi.SetBroadcastAll();
-	gi.MSG_StartCGM(0x1F);
+	gi.MSG_StartCGM(CGM_HUDDRAW_COLOR);
 	HudWriteNumber( info );			// c = info
 	gi.MSG_WriteByte(temp[0]);		// c = color[2]		
 	gi.MSG_WriteByte(temp[1]);		// c = color[1]		 - Values can be messed up. To be tested.
@@ -132,7 +132,7 @@ void HudDrawAlpha(int info, float alpha)
 	temp = (long int)(alpha*255.0f);
 	
 	gi.SetBroadcastAll();
-	gi.MSG_StartCGM(0x20);
+	gi.MSG_StartCGM(CGM_HUDDRAW_ALPHA);
 	HudWriteNumber( info );		// c = info
 	gi.MSG_WriteByte(temp);		// c = alpha
 	gi.MSG_EndCGM();
@@ -144,7 +144,7 @@ void HudDrawAlpha(int info, float alpha)
 void HudDrawString(int info, const char *string)
 {
 	gi.SetBroadcastAll();
-	gi.MSG_StartCGM(0x21);
+	gi.MSG_StartCGM(CGM_HUDDRAW_STRING);
 	HudWriteNumber( info );		// c = info
 	gi.MSG_WriteString(string);	// s = string (to show)
 	gi.MSG_EndCGM();
@@ -154,7 +154,7 @@ void HudDrawString(int info, const char *string)
 void HudDrawFont(int info, const char *fontName)
 {
 	gi.SetBroadcastAll();
-	gi.MSG_StartCGM(0x22);
+	gi.MSG_StartCGM(CGM_HUDDRAW_FONT);
 	HudWriteNumber( info );			// c = info
 	gi.MSG_WriteString(fontName);	// s = fontName (to use)
 	gi.MSG_EndCGM();
@@ -163,6 +163,8 @@ void HudDrawFont(int info, const char *fontName)
 
 void HudDraw3d( int index, vec3_t vector, int ent_num, qboolean bAlwaysShow, qboolean depth )
 {
+	// FIXME...
+	/*
 	gi.SetBroadcastAll();
 
 	gi.MSG_StartCGM( CGM_HUDDRAW_3D );
@@ -176,10 +178,12 @@ void HudDraw3d( int index, vec3_t vector, int ent_num, qboolean bAlwaysShow, qbo
 		gi.MSG_WriteByte( bAlwaysShow );
 		gi.MSG_WriteByte( depth );
 	gi.MSG_EndCGM();
+	*/
 }
 
 void HudDrawTimer( int index, float duration, float fade_out_time )
 {
+/*
 	gi.SetBroadcastAll();
 
 	gi.MSG_StartCGM( CGM_HUDDRAW_TIMER );
@@ -187,12 +191,13 @@ void HudDrawTimer( int index, float duration, float fade_out_time )
 		gi.MSG_WriteFloat( duration );
 		gi.MSG_WriteFloat( fade_out_time );
 	gi.MSG_EndCGM();
+*/
 }
 
 void iHudDrawShader( int cl_num, int info, const char *name )
 {
 	gi.MSG_SetClient(cl_num);
-	gi.MSG_StartCGM(0x1B);
+	gi.MSG_StartCGM(CGM_HUDDRAW_SHADER);
 	HudWriteNumber( info );		// c = info
 	gi.MSG_WriteString(name);		// s = name (shader_name)
 	gi.MSG_EndCGM();
@@ -202,7 +207,7 @@ void iHudDrawShader( int cl_num, int info, const char *name )
 void iHudDrawAlign(int cl_num, int info, int horizontalAlign, int verticalAlign )
 {
 	gi.MSG_SetClient(cl_num);
-	gi.MSG_StartCGM(0x1C);
+	gi.MSG_StartCGM(CGM_HUDDRAW_ALIGN);
 	HudWriteNumber( info );					// c = probably "info"
 	gi.MSG_WriteBits(horizontalAlign, 2);	// value = 0,1,2	bits = 2
 											// 0 - left		\
@@ -221,7 +226,7 @@ void iHudDrawAlign(int cl_num, int info, int horizontalAlign, int verticalAlign 
 void iHudDrawRect(int cl_num, int info, int x, int y, int width, int height)
 {
 	gi.MSG_SetClient(cl_num);
-	gi.MSG_StartCGM(0x1D);
+	gi.MSG_StartCGM(CGM_HUDDRAW_RECT);
 	HudWriteNumber( info );		// c = probably "info"
 	gi.MSG_WriteShort(x);			// c = probably "x"
 	gi.MSG_WriteShort(y);			// c = probably "y"
@@ -232,6 +237,7 @@ void iHudDrawRect(int cl_num, int info, int x, int y, int width, int height)
 
 void iHudDraw3d( int cl_num, int index, vec3_t vector, int ent_num, qboolean bAlwaysShow, qboolean depth )
 {
+	/*
 	gi.MSG_SetClient( cl_num );
 
 	gi.MSG_StartCGM( CGM_HUDDRAW_3D );
@@ -245,10 +251,12 @@ void iHudDraw3d( int cl_num, int index, vec3_t vector, int ent_num, qboolean bAl
 		gi.MSG_WriteByte( bAlwaysShow );
 		gi.MSG_WriteByte( depth );
 	gi.MSG_EndCGM();
+	*/
 }
 
 void iHudDrawTimer( int cl_num, int index, float duration, float fade_out_time )
 {
+/*
 	gi.MSG_SetClient( cl_num );
 
 	gi.MSG_StartCGM( CGM_HUDDRAW_TIMER );
@@ -256,12 +264,13 @@ void iHudDrawTimer( int cl_num, int index, float duration, float fade_out_time )
 		gi.MSG_WriteFloat( duration );
 		gi.MSG_WriteFloat( fade_out_time );
 	gi.MSG_EndCGM();
+*/
 }
 
 void iHudDrawVirtualSize(int cl_num, int info, int virtualScreen)
 {
 	gi.MSG_SetClient(cl_num);
-	gi.MSG_StartCGM(0x1E);
+	gi.MSG_StartCGM(CGM_HUDDRAW_VIRTUALSIZE);
 	HudWriteNumber( info );					// c = info
 
 	gi.MSG_WriteBits(!!virtualScreen, 1);	// value = ?	bits = 1
@@ -285,7 +294,7 @@ void iHudDrawColor(int cl_num, int info, float *color)
 	temp[2] = (long int)(color[2]*255.0f);
 
 	gi.MSG_SetClient(cl_num);
-	gi.MSG_StartCGM(0x1F);
+	gi.MSG_StartCGM(CGM_HUDDRAW_COLOR);
 	HudWriteNumber( info );			// c = info
 	gi.MSG_WriteByte(temp[0]);		// c = color[2]		
 	gi.MSG_WriteByte(temp[1]);		// c = color[1]		 - Values can be messed up. To be tested.
@@ -301,7 +310,7 @@ void iHudDrawAlpha(int cl_num, int info, float alpha)
 	temp = (long int)(alpha*255.0f);
 
 	gi.MSG_SetClient(cl_num);
-	gi.MSG_StartCGM(0x20);
+	gi.MSG_StartCGM(CGM_HUDDRAW_ALPHA);
 	HudWriteNumber( info );			// c = info
 	gi.MSG_WriteByte(temp);		// c = alpha
 	gi.MSG_EndCGM();
@@ -313,7 +322,7 @@ void iHudDrawAlpha(int cl_num, int info, float alpha)
 void iHudDrawString( int cl_num, int info, const char *string )
 {
 	gi.MSG_SetClient(cl_num);
-	gi.MSG_StartCGM(0x21);
+	gi.MSG_StartCGM(CGM_HUDDRAW_STRING);
 	HudWriteNumber( info );		// c = info
 	gi.MSG_WriteString(string);	// s = string (to show)
 	gi.MSG_EndCGM();
@@ -323,7 +332,7 @@ void iHudDrawString( int cl_num, int info, const char *string )
 void iHudDrawFont( int cl_num, int info, const char *fontName )
 {
 	gi.MSG_SetClient(cl_num);
-	gi.MSG_StartCGM(0x22);
+	gi.MSG_StartCGM(CGM_HUDDRAW_FONT);
 	HudWriteNumber( info );			// c = info
 	gi.MSG_WriteString(fontName);	// s = fontName (to use)
 	gi.MSG_EndCGM();

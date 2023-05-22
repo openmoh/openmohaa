@@ -541,7 +541,7 @@ void CG_ParseCGMessage()
 			// get the integer as string
 			snprintf(cTmp, sizeof(cTmp), "%d", iLarge);
 
-			if (iType == 23) {
+			if (iType == 26) {
 				sEffect = "models/fx/crates/debris_";
 			}
 			else {

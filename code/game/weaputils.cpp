@@ -1785,11 +1785,11 @@ void Explosion::MakeExplosionEffect
 
 	if( !sEffect.icmp( "grenade" ) )
 	{
-		gi.MSG_StartCGM( 12 );
+		gi.MSG_StartCGM(CGM_EXPLOSION_EFFECT_1);
 	}
 	else
 	{
-		gi.MSG_StartCGM( 13 );
+		gi.MSG_StartCGM(CGM_EXPLOSION_EFFECT_2);
 	}
 
 	gi.MSG_WriteCoord( origin[ 0 ] );
@@ -2034,7 +2034,7 @@ float BulletAttack
 						if( ent->edict->solid == 3 && trace.shaderNum >= 0 )
 						{
 							gi.SetBroadcastVisible( trace.endpos, 0 );
-							gi.MSG_StartCGM( 6 );
+							gi.MSG_StartCGM(CGM_BULLET_6);
 							gi.MSG_WriteCoord( trace.endpos[ 0 ] );
 							gi.MSG_WriteCoord( trace.endpos[ 1 ] );
 							gi.MSG_WriteCoord( trace.endpos[ 2 ] );
@@ -2192,7 +2192,7 @@ float BulletAttack
 			if( trace.contents > 0 && trace.surfaceFlags & 0xFFFE000 )
 			{
 				gi.SetBroadcastVisible( trace.endpos, NULL );
-				gi.MSG_StartCGM( 6 );
+				gi.MSG_StartCGM(CGM_BULLET_6);
 				gi.MSG_WriteCoord( trace.endpos[ 0 ] );
 				gi.MSG_WriteCoord( trace.endpos[ 1 ] );
 				gi.MSG_WriteCoord( trace.endpos[ 2 ] );
@@ -2203,7 +2203,7 @@ float BulletAttack
 			else if( trace.location >= 0 && ent->IsSubclassOfPlayer() )
 			{
 				gi.SetBroadcastVisible( trace.endpos, NULL );
-				gi.MSG_StartCGM( 7 );
+				gi.MSG_StartCGM(CGM_BULLET_7);
 				gi.MSG_WriteCoord( trace.endpos[ 0 ] );
 				gi.MSG_WriteCoord( trace.endpos[ 1 ] );
 				gi.MSG_WriteCoord( trace.endpos[ 2 ] );
@@ -2250,7 +2250,7 @@ float BulletAttack
 	{
 		if( iTracerCount )
 		{
-			gi.MSG_StartCGM( 1 );
+			gi.MSG_StartCGM(CGM_BULLET_1);
 
 			gi.MSG_WriteCoord( vBarrel[ 0 ] );
 			gi.MSG_WriteCoord( vBarrel[ 1 ] );
@@ -2258,7 +2258,7 @@ float BulletAttack
 		}
 		else
 		{
-			gi.MSG_StartCGM( 2 );
+			gi.MSG_StartCGM(CGM_BULLET_2);
 		}
 
 		gi.MSG_WriteCoord( start[ 0 ] );
@@ -2273,7 +2273,7 @@ float BulletAttack
 	{
 		if( iTracerCount )
 		{
-			gi.MSG_StartCGM( 3 );
+			gi.MSG_StartCGM(CGM_BULLET_3);
 
 			gi.MSG_WriteCoord( vBarrel[ 0 ] );
 			gi.MSG_WriteCoord( vBarrel[ 1 ] );
@@ -2286,7 +2286,7 @@ float BulletAttack
 		}
 		else
 		{
-			gi.MSG_StartCGM( 4 );
+			gi.MSG_StartCGM(CGM_BULLET_4);
 		}
 
 		gi.MSG_WriteCoord( start[ 0 ] );
@@ -2349,7 +2349,7 @@ void FakeBulletAttack
 			( *piTracerCount )++;
 			if( *piTracerCount == iTracerFrequency )
 			{
-				gi.MSG_StartCGM( 25 );
+				gi.MSG_StartCGM(CGM_BULLET_NO_BARREL_1);
 				gi.MSG_WriteCoord( vBarrel[ 0 ] );
 				gi.MSG_WriteCoord( vBarrel[ 1 ] );
 				gi.MSG_WriteCoord( vBarrel[ 2 ] );
@@ -2357,12 +2357,12 @@ void FakeBulletAttack
 			}
 			else
 			{
-				gi.MSG_StartCGM( 26 );
+				gi.MSG_StartCGM(CGM_BULLET_NO_BARREL_2);
 			}
 		}
 		else
 		{
-			gi.MSG_StartCGM( 26 );
+			gi.MSG_StartCGM(CGM_BULLET_NO_BARREL_2);
 		}
 
 		gi.MSG_WriteCoord( start[ 0 ] );

@@ -5790,9 +5790,9 @@ void Player::Pain
 	{
 		gi.MSG_SetClient( attacker->edict - g_entities );
 		if( IsDead() )
-			gi.MSG_StartCGM( 36 );
+			gi.MSG_StartCGM(CGM_NOTIFY_KILL);
 		else
-			gi.MSG_StartCGM( 35 );
+			gi.MSG_StartCGM(CGM_NOTIFY_HIT);
 		gi.MSG_EndCGM();
 	}
 
@@ -6528,6 +6528,8 @@ void Player::ClientMove
 	{
 		m_bShowingHint = false;
 
+		// FIXME: delete
+		/*
 		if (sv_reborn->integer)
 		{
 			gi.MSG_SetClient(edict - g_entities);
@@ -6537,6 +6539,7 @@ void Player::ClientMove
 				gi.MSG_WriteString("");
 			gi.MSG_EndCGM();
 		}
+		*/
 	}
 
 	oldorigin = origin;
@@ -13221,7 +13224,7 @@ void Player::EventDMMessage
 				if( bInstaMessage )
 				{
 					gi.MSG_SetClient( i );
-					gi.MSG_StartCGM( 37 );
+					gi.MSG_StartCGM(CGM_VOICE_CHAT);
 					gi.MSG_WriteCoord( m_vViewPos[ 0 ] );
 					gi.MSG_WriteCoord( m_vViewPos[ 1 ] );
 					gi.MSG_WriteCoord( m_vViewPos[ 2 ] );
@@ -14288,15 +14291,15 @@ void Player::ModifyHeightFloat
 
 	client->ps.pm_flags &= ~( PMF_DUCKED | PMF_VIEW_PRONE | PMF_VIEW_DUCK_RUN | PMF_VIEW_JUMP_START );
 
-	if( sv_reborn->integer )
-	{
-		gi.MSG_SetClient( edict - g_entities);
+	// FIXME...
+	/*
+	gi.MSG_SetClient(edict - g_entities);
 
-		gi.MSG_StartCGM( CGM_MODHEIGHTFLOAT );
-			gi.MSG_WriteLong( height );
-			gi.MSG_WriteFloat( max_z );
-		gi.MSG_EndCGM();
-	}
+	gi.MSG_StartCGM(CGM_MODHEIGHTFLOAT);
+	gi.MSG_WriteLong(height);
+	gi.MSG_WriteFloat(max_z);
+	gi.MSG_EndCGM();
+	*/
 }
 
 void Player::PlayLocalSound
@@ -14330,8 +14333,8 @@ void Player::PlayLocalSound
 		return;
 	}
 
-	if( sv_reborn->integer )
-	{
+	// FIXME...
+	/*
 		gi.MSG_SetClient( client->ps.clientNum );
 
 		gi.MSG_StartCGM( CGM_PLAYLOCALSOUND );
@@ -14342,7 +14345,7 @@ void Player::PlayLocalSound
 		gi.MSG_EndCGM();
 
 		return;
-	}
+	*/
 
 	if( loop )
 	{
@@ -14499,11 +14502,14 @@ void Player::SetLocalSoundRate
 
 	gi.MSG_SetClient( client->ps.clientNum );
 
+	// FIXME...
+	/*
 	gi.MSG_StartCGM( CGM_SETLOCALSOUNDRATE );
 		gi.MSG_WriteString( found );
 		gi.MSG_WriteFloat( rate );
 		gi.MSG_WriteFloat( time );
 	gi.MSG_EndCGM();
+	*/
 }
 
 void Player::SetSpeed
@@ -14588,12 +14594,15 @@ void Player::SetVMASpeed
 	vma->name = name;
 	vma->speed = speed;
 
+	// FIXME...
+	/*
 	gi.MSG_SetClient( edict - g_entities );
 
 	gi.MSG_StartCGM( CGM_SETVMASPEED );
 		gi.MSG_WriteString( name );
 		gi.MSG_WriteFloat( speed );
 	gi.MSG_EndCGM();
+	*/
 }
 
 void Player::StopLocalSound
@@ -14621,20 +14630,8 @@ void Player::StopLocalSound
 		return;
 	}
 
-	if( level.reborn )
-	{
-		gi.MSG_SetClient( client->ps.clientNum );
-
-		gi.MSG_StartCGM( CGM_STOPLOCALSOUND );
-			gi.MSG_WriteString( found );
-			gi.MSG_WriteFloat( time );
-		gi.MSG_EndCGM();
-	}
-	else
-	{
-		edict->s.loopSound = 0;
-		gi.StopSound( entnum, CHAN_LOCAL );
-	}
+	edict->s.loopSound = 0;
+	gi.StopSound(entnum, CHAN_LOCAL);
 }
 
 void Player::UseHeld

@@ -6912,12 +6912,15 @@ void Entity::ProcessHint(gentity_t* client, bool bShow)
 		{
 			if (sv_reborn->integer)
 			{
+				// FIXME: delete
+				/*
 				gi.MSG_SetClient(client - g_entities);
 
 				// Send the hint string once
 				gi.MSG_StartCGM(CGM_HINTSTRING);
 					gi.MSG_WriteString(m_HintString);
 				gi.MSG_EndCGM();
+				*/
 			}
 		}
 		else
