@@ -37,7 +37,7 @@ extern "C" {
 // These values are the only one that must be set for the version
 #define PRODUCT_VERSION_MAJOR			0
 #define PRODUCT_VERSION_MINOR			53
-#define PRODUCT_VERSION_PATCH			1
+#define PRODUCT_VERSION_PATCH			2
 #define PRODUCT_VERSION_STAGE			"alpha"
 
 //
