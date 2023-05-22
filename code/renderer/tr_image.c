@@ -950,23 +950,23 @@ image_t* R_CreateImage(
 			&image->uploadHeight,
 			&image->bytesUsed
 		);
+	} else {
+		Upload32(
+			(unsigned*)pic,
+			image->width,
+			image->height,
+			image->numMipmaps,
+			allowPicmip,
+			image->dynamicallyUpdated,
+			force32bit,
+			hasAlpha,
+			&image->internalFormat,
+			&image->uploadWidth,
+			&image->uploadHeight,
+			&image->bytesUsed,
+			isLightmap
+		);
 	}
-
-	Upload32(
-		(unsigned*)pic,
-		image->width,
-		image->height,
-		image->numMipmaps,
-		allowPicmip,
-		image->dynamicallyUpdated,
-		force32bit,
-		hasAlpha,
-		&image->internalFormat,
-		&image->uploadWidth,
-		&image->uploadHeight,
-		&image->bytesUsed,
-		isLightmap
-	);
 
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampModeX );
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampModeY );
@@ -1298,6 +1298,342 @@ static void LoadPCX32 ( const char *filename, byte **pic, int *width, int *heigh
 
 	ri.Free (pic8);
 	ri.Free (palette);
+}
+
+//==========================
+//
+// DDS Loading
+//
+//==========================
+
+typedef unsigned int   ui32_t;
+
+typedef struct ddsHeader_s
+{
+	ui32_t headerSize;
+	ui32_t flags;
+	ui32_t height;
+	ui32_t width;
+	ui32_t pitchOrFirstMipSize;
+	ui32_t volumeDepth;
+	ui32_t numMips;
+	ui32_t reserved1[11];
+	ui32_t always_0x00000020;
+	ui32_t pixelFormatFlags;
+	ui32_t fourCC;
+	ui32_t rgbBitCount;
+	ui32_t rBitMask;
+	ui32_t gBitMask;
+	ui32_t bBitMask;
+	ui32_t aBitMask;
+	ui32_t caps;
+	ui32_t caps2;
+	ui32_t caps3;
+	ui32_t caps4;
+	ui32_t reserved2;
+}
+ddsHeader_t;
+
+// flags:
+#define _DDSFLAGS_REQUIRED     0x001007
+#define _DDSFLAGS_PITCH        0x8
+#define _DDSFLAGS_MIPMAPCOUNT  0x20000
+#define _DDSFLAGS_FIRSTMIPSIZE 0x80000
+#define _DDSFLAGS_VOLUMEDEPTH  0x800000
+
+// pixelFormatFlags:
+#define DDSPF_ALPHAPIXELS 0x1
+#define DDSPF_ALPHA       0x2
+#define DDSPF_FOURCC      0x4
+#define DDSPF_RGB         0x40
+#define DDSPF_YUV         0x200
+#define DDSPF_LUMINANCE   0x20000
+
+// caps:
+#define DDSCAPS_COMPLEX  0x8
+#define DDSCAPS_MIPMAP   0x400000
+#define DDSCAPS_REQUIRED 0x1000
+
+// caps2:
+#define DDSCAPS2_CUBEMAP 0xFE00
+#define DDSCAPS2_VOLUME  0x200000
+
+typedef struct ddsHeaderDxt10_s
+{
+	ui32_t dxgiFormat;
+	ui32_t dimensions;
+	ui32_t miscFlags;
+	ui32_t arraySize;
+	ui32_t miscFlags2;
+}
+ddsHeaderDxt10_t;
+
+// dxgiFormat
+// from http://msdn.microsoft.com/en-us/library/windows/desktop/bb173059%28v=vs.85%29.aspx
+typedef enum DXGI_FORMAT {
+	DXGI_FORMAT_UNKNOWN = 0,
+	DXGI_FORMAT_R32G32B32A32_TYPELESS = 1,
+	DXGI_FORMAT_R32G32B32A32_FLOAT = 2,
+	DXGI_FORMAT_R32G32B32A32_UINT = 3,
+	DXGI_FORMAT_R32G32B32A32_SINT = 4,
+	DXGI_FORMAT_R32G32B32_TYPELESS = 5,
+	DXGI_FORMAT_R32G32B32_FLOAT = 6,
+	DXGI_FORMAT_R32G32B32_UINT = 7,
+	DXGI_FORMAT_R32G32B32_SINT = 8,
+	DXGI_FORMAT_R16G16B16A16_TYPELESS = 9,
+	DXGI_FORMAT_R16G16B16A16_FLOAT = 10,
+	DXGI_FORMAT_R16G16B16A16_UNORM = 11,
+	DXGI_FORMAT_R16G16B16A16_UINT = 12,
+	DXGI_FORMAT_R16G16B16A16_SNORM = 13,
+	DXGI_FORMAT_R16G16B16A16_SINT = 14,
+	DXGI_FORMAT_R32G32_TYPELESS = 15,
+	DXGI_FORMAT_R32G32_FLOAT = 16,
+	DXGI_FORMAT_R32G32_UINT = 17,
+	DXGI_FORMAT_R32G32_SINT = 18,
+	DXGI_FORMAT_R32G8X24_TYPELESS = 19,
+	DXGI_FORMAT_D32_FLOAT_S8X24_UINT = 20,
+	DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS = 21,
+	DXGI_FORMAT_X32_TYPELESS_G8X24_UINT = 22,
+	DXGI_FORMAT_R10G10B10A2_TYPELESS = 23,
+	DXGI_FORMAT_R10G10B10A2_UNORM = 24,
+	DXGI_FORMAT_R10G10B10A2_UINT = 25,
+	DXGI_FORMAT_R11G11B10_FLOAT = 26,
+	DXGI_FORMAT_R8G8B8A8_TYPELESS = 27,
+	DXGI_FORMAT_R8G8B8A8_UNORM = 28,
+	DXGI_FORMAT_R8G8B8A8_UNORM_SRGB = 29,
+	DXGI_FORMAT_R8G8B8A8_UINT = 30,
+	DXGI_FORMAT_R8G8B8A8_SNORM = 31,
+	DXGI_FORMAT_R8G8B8A8_SINT = 32,
+	DXGI_FORMAT_R16G16_TYPELESS = 33,
+	DXGI_FORMAT_R16G16_FLOAT = 34,
+	DXGI_FORMAT_R16G16_UNORM = 35,
+	DXGI_FORMAT_R16G16_UINT = 36,
+	DXGI_FORMAT_R16G16_SNORM = 37,
+	DXGI_FORMAT_R16G16_SINT = 38,
+	DXGI_FORMAT_R32_TYPELESS = 39,
+	DXGI_FORMAT_D32_FLOAT = 40,
+	DXGI_FORMAT_R32_FLOAT = 41,
+	DXGI_FORMAT_R32_UINT = 42,
+	DXGI_FORMAT_R32_SINT = 43,
+	DXGI_FORMAT_R24G8_TYPELESS = 44,
+	DXGI_FORMAT_D24_UNORM_S8_UINT = 45,
+	DXGI_FORMAT_R24_UNORM_X8_TYPELESS = 46,
+	DXGI_FORMAT_X24_TYPELESS_G8_UINT = 47,
+	DXGI_FORMAT_R8G8_TYPELESS = 48,
+	DXGI_FORMAT_R8G8_UNORM = 49,
+	DXGI_FORMAT_R8G8_UINT = 50,
+	DXGI_FORMAT_R8G8_SNORM = 51,
+	DXGI_FORMAT_R8G8_SINT = 52,
+	DXGI_FORMAT_R16_TYPELESS = 53,
+	DXGI_FORMAT_R16_FLOAT = 54,
+	DXGI_FORMAT_D16_UNORM = 55,
+	DXGI_FORMAT_R16_UNORM = 56,
+	DXGI_FORMAT_R16_UINT = 57,
+	DXGI_FORMAT_R16_SNORM = 58,
+	DXGI_FORMAT_R16_SINT = 59,
+	DXGI_FORMAT_R8_TYPELESS = 60,
+	DXGI_FORMAT_R8_UNORM = 61,
+	DXGI_FORMAT_R8_UINT = 62,
+	DXGI_FORMAT_R8_SNORM = 63,
+	DXGI_FORMAT_R8_SINT = 64,
+	DXGI_FORMAT_A8_UNORM = 65,
+	DXGI_FORMAT_R1_UNORM = 66,
+	DXGI_FORMAT_R9G9B9E5_SHAREDEXP = 67,
+	DXGI_FORMAT_R8G8_B8G8_UNORM = 68,
+	DXGI_FORMAT_G8R8_G8B8_UNORM = 69,
+	DXGI_FORMAT_BC1_TYPELESS = 70,
+	DXGI_FORMAT_BC1_UNORM = 71,
+	DXGI_FORMAT_BC1_UNORM_SRGB = 72,
+	DXGI_FORMAT_BC2_TYPELESS = 73,
+	DXGI_FORMAT_BC2_UNORM = 74,
+	DXGI_FORMAT_BC2_UNORM_SRGB = 75,
+	DXGI_FORMAT_BC3_TYPELESS = 76,
+	DXGI_FORMAT_BC3_UNORM = 77,
+	DXGI_FORMAT_BC3_UNORM_SRGB = 78,
+	DXGI_FORMAT_BC4_TYPELESS = 79,
+	DXGI_FORMAT_BC4_UNORM = 80,
+	DXGI_FORMAT_BC4_SNORM = 81,
+	DXGI_FORMAT_BC5_TYPELESS = 82,
+	DXGI_FORMAT_BC5_UNORM = 83,
+	DXGI_FORMAT_BC5_SNORM = 84,
+	DXGI_FORMAT_B5G6R5_UNORM = 85,
+	DXGI_FORMAT_B5G5R5A1_UNORM = 86,
+	DXGI_FORMAT_B8G8R8A8_UNORM = 87,
+	DXGI_FORMAT_B8G8R8X8_UNORM = 88,
+	DXGI_FORMAT_R10G10B10_XR_BIAS_A2_UNORM = 89,
+	DXGI_FORMAT_B8G8R8A8_TYPELESS = 90,
+	DXGI_FORMAT_B8G8R8A8_UNORM_SRGB = 91,
+	DXGI_FORMAT_B8G8R8X8_TYPELESS = 92,
+	DXGI_FORMAT_B8G8R8X8_UNORM_SRGB = 93,
+	DXGI_FORMAT_BC6H_TYPELESS = 94,
+	DXGI_FORMAT_BC6H_UF16 = 95,
+	DXGI_FORMAT_BC6H_SF16 = 96,
+	DXGI_FORMAT_BC7_TYPELESS = 97,
+	DXGI_FORMAT_BC7_UNORM = 98,
+	DXGI_FORMAT_BC7_UNORM_SRGB = 99,
+	DXGI_FORMAT_AYUV = 100,
+	DXGI_FORMAT_Y410 = 101,
+	DXGI_FORMAT_Y416 = 102,
+	DXGI_FORMAT_NV12 = 103,
+	DXGI_FORMAT_P010 = 104,
+	DXGI_FORMAT_P016 = 105,
+	DXGI_FORMAT_420_OPAQUE = 106,
+	DXGI_FORMAT_YUY2 = 107,
+	DXGI_FORMAT_Y210 = 108,
+	DXGI_FORMAT_Y216 = 109,
+	DXGI_FORMAT_NV11 = 110,
+	DXGI_FORMAT_AI44 = 111,
+	DXGI_FORMAT_IA44 = 112,
+	DXGI_FORMAT_P8 = 113,
+	DXGI_FORMAT_A8P8 = 114,
+	DXGI_FORMAT_B4G4R4A4_UNORM = 115,
+	DXGI_FORMAT_FORCE_UINT = 0xffffffffUL
+} DXGI_FORMAT;
+
+#define EncodeFourCC(x) ((((ui32_t)((x)[0]))      ) | \
+                         (((ui32_t)((x)[1])) << 8 ) | \
+                         (((ui32_t)((x)[2])) << 16) | \
+                         (((ui32_t)((x)[3])) << 24) )
+
+
+static void LoadDDS(const char* name, byte** pic, int* width, int* height, qboolean* hasAlpha, int* glCompressMode, int* numMipmaps, int* piMipmapsAvailable) {
+	union {
+		byte* b;
+		void* v;
+	} buffer;
+	int len;
+	ddsHeader_t* ddsHeader = NULL;
+	ddsHeaderDxt10_t* ddsHeaderDxt10 = NULL;
+	byte* data;
+
+	*pic = 0;
+	*piMipmapsAvailable = 0;
+
+	if (width)
+		*width = 0;
+	if (height)
+		*height = 0;
+
+	*pic = NULL;
+
+	//
+	// load the file
+	//
+	len = ri.FS_ReadFile((char*)name, &buffer.v);
+	if (!buffer.b || len < 0) {
+		return;
+	}
+
+	//
+	// reject files that are too small to hold even a header
+	//
+	if (len < 4 + sizeof(*ddsHeader))
+	{
+		ri.Printf(PRINT_ALL, "File %s is too small to be a DDS file.\n", name);
+		ri.FS_FreeFile(buffer.v);
+		return;
+	}
+
+	//
+	// reject files that don't start with "DDS "
+	//
+	if (*((ui32_t*)(buffer.b)) != EncodeFourCC("DDS "))
+	{
+		ri.Printf(PRINT_ALL, "File %s is not a DDS file.\n", name);
+		ri.FS_FreeFile(buffer.v);
+		return;
+	}
+
+	//
+	// parse header and dx10 header if available
+	//
+	ddsHeader = (ddsHeader_t*)(buffer.b + 4);
+	if ((ddsHeader->pixelFormatFlags & DDSPF_FOURCC) && ddsHeader->fourCC == EncodeFourCC("DX10"))
+	{
+		if (len < 4 + sizeof(*ddsHeader) + sizeof(*ddsHeaderDxt10))
+		{
+			ri.Printf(PRINT_ALL, "File %s indicates a DX10 header it is too small to contain.\n", name);
+			ri.FS_FreeFile(buffer.v);
+			return;
+		}
+
+		ddsHeaderDxt10 = (ddsHeaderDxt10_t*)(buffer.b + 4 + sizeof(ddsHeader_t));
+		data = buffer.b + 4 + sizeof(*ddsHeader) + sizeof(*ddsHeaderDxt10);
+		len -= 4 + sizeof(*ddsHeader) + sizeof(*ddsHeaderDxt10);
+	}
+	else
+	{
+		data = buffer.b + 4 + sizeof(*ddsHeader);
+		len -= 4 + sizeof(*ddsHeader);
+	}
+
+	if (width)
+		*width = ddsHeader->width;
+	if (height)
+		*height = ddsHeader->height;
+
+	if (piMipmapsAvailable)
+	{
+		if (ddsHeader->flags & _DDSFLAGS_MIPMAPCOUNT)
+			*piMipmapsAvailable = ddsHeader->numMips;
+		else
+			*piMipmapsAvailable = 1;
+	}
+
+	// FIXME: handle cube map
+	//if ((ddsHeader->caps2 & DDSCAPS2_CUBEMAP) == DDSCAPS2_CUBEMAP)
+
+	//
+	// Convert DXGI format/FourCC into OpenGL format
+	//
+	if (ddsHeaderDxt10)
+	{
+		ri.Printf(PRINT_ALL, "DDS File %s has unsupported DXGI format %d.", name, ddsHeaderDxt10->dxgiFormat);
+		ri.FS_FreeFile(buffer.v);
+		return;
+	}
+	else
+	{
+		if (ddsHeader->pixelFormatFlags & DDSPF_FOURCC)
+		{
+			if (ddsHeader->fourCC == EncodeFourCC("DXT1"))
+				*glCompressMode = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+			else if (ddsHeader->fourCC == EncodeFourCC("DXT2"))
+				*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+			else if (ddsHeader->fourCC == EncodeFourCC("DXT3"))
+				*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+			else if (ddsHeader->fourCC == EncodeFourCC("DXT4"))
+				*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			else if (ddsHeader->fourCC == EncodeFourCC("DXT5"))
+				*glCompressMode = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			else
+			{
+				ri.Printf(PRINT_ALL, "DDS File %s has unsupported FourCC.", name);
+				ri.FS_FreeFile(buffer.v);
+				return;
+			}
+		}
+		else if (ddsHeader->pixelFormatFlags == (DDSPF_RGB | DDSPF_ALPHAPIXELS)
+			&& ddsHeader->rgbBitCount == 32
+			&& ddsHeader->rBitMask == 0x000000ff
+			&& ddsHeader->gBitMask == 0x0000ff00
+			&& ddsHeader->bBitMask == 0x00ff0000
+			&& ddsHeader->aBitMask == 0xff000000)
+		{
+			*glCompressMode = GL_RGBA8;
+		}
+		else
+		{
+			ri.Printf(PRINT_ALL, "DDS File %s has unsupported RGBA format.", name);
+			ri.FS_FreeFile(buffer.v);
+			return;
+		}
+	}
+
+	*pic = ri.Malloc(len);
+	Com_Memcpy(*pic, data, len);
+
+	ri.FS_FreeFile(buffer.v);
 }
 
 /*
@@ -2087,6 +2423,8 @@ Loads any of the supported image types into a cannonical
 static void R_LoadImage(const char* name, byte** pic, int* width, int* height, qboolean* hasAlpha, int* glCompressMode, int* numMipmaps, int* piMipmapsAvailable) {
 	size_t	len;
 	char	tempName[MAX_STRING_TOKENS + 1];
+	char altname[MAX_QPATH];
+
 
 	*hasAlpha = qfalse;
 	*glCompressMode = 0;
@@ -2099,36 +2437,48 @@ static void R_LoadImage(const char* name, byte** pic, int* width, int* height, q
 		return;
 	}
 
-	if (!Q_stricmp(name + len - 4, ".tga") || !Q_stricmp(name + len - 4, ".jpg")) {
-		char altname[MAX_QPATH];
-		strcpy(altname, name);
-		if (r_loadjpg->integer) {
-			len = strlen(altname);
-			altname[len - 3] = 'j';
-			altname[len - 2] = 'p';
-			altname[len - 1] = 'g';
-			// try jpg first
-			LoadJPG(altname, pic, width, height);
+	strcpy(altname, name);
+	len = strlen(altname);
+	if (glConfig.textureCompression == 1)
+	{
+		len = strlen(altname);
+		altname[len - 3] = 'd';
+		altname[len - 2] = 'd';
+		altname[len - 1] = 's';
+		LoadDDS(altname, pic, width, height, hasAlpha, glCompressMode, numMipmaps, piMipmapsAvailable);
+	}
+
+	if (!*pic)
+	{
+		if (!Q_stricmp(name + len - 4, ".tga") || !Q_stricmp(name + len - 4, ".jpg")) {
+			if (r_loadjpg->integer) {
+				len = strlen(altname);
+				altname[len - 3] = 'j';
+				altname[len - 2] = 'p';
+				altname[len - 1] = 'g';
+				// try jpg first
+				LoadJPG(altname, pic, width, height);
+			}
+			if (!*pic) {
+				altname[len - 3] = 't';
+				altname[len - 2] = 'g';
+				altname[len - 1] = 'a';
+				LoadTGA(name, pic, width, height);
+			}
+			*piMipmapsAvailable = 1;
 		}
-		if (!*pic) {
-			altname[len - 3] = 't';
-			altname[len - 2] = 'g';
-			altname[len - 1] = 'a';
-			LoadTGA(name, pic, width, height);
+		else if (!Q_stricmp(name + len - 4, ".pcx")) {
+			LoadPCX32(name, pic, width, height);
+			*piMipmapsAvailable = 1;
 		}
-		*piMipmapsAvailable = 1;
-	}
-	else if (!Q_stricmp(name + len - 4, ".pcx")) {
-		LoadPCX32(name, pic, width, height);
-		*piMipmapsAvailable = 1;
-	}
-	else if (!Q_stricmp(name + len - 4, ".bmp")) {
-		LoadBMP(name, pic, width, height);
-		*piMipmapsAvailable = 1;
-	}
-	else if (!Q_stricmp(name + len - 4, ".jpg")) {
-		LoadJPG(name, pic, width, height);
-		*piMipmapsAvailable = 1;
+		else if (!Q_stricmp(name + len - 4, ".bmp")) {
+			LoadBMP(name, pic, width, height);
+			*piMipmapsAvailable = 1;
+		}
+		else if (!Q_stricmp(name + len - 4, ".jpg")) {
+			LoadJPG(name, pic, width, height);
+			*piMipmapsAvailable = 1;
+		}
 	}
 
 	if (scr_initialized)
