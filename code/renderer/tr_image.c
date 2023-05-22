@@ -2085,7 +2085,7 @@ Loads any of the supported image types into a cannonical
 =================
 */
 static void R_LoadImage(const char* name, byte** pic, int* width, int* height, qboolean* hasAlpha, int* glCompressMode, int* numMipmaps, int* piMipmapsAvailable) {
-	int		len;
+	size_t	len;
 	char	tempName[MAX_STRING_TOKENS + 1];
 
 	*hasAlpha = qfalse;
@@ -2099,16 +2099,22 @@ static void R_LoadImage(const char* name, byte** pic, int* width, int* height, q
 		return;
 	}
 
-	if (!Q_stricmp(name + len - 4, ".tga")) {
-		LoadTGA(name, pic, width, height);            // try tga first
-		if (!*pic) {                                    //
-			char altname[MAX_QPATH];                      // try jpg in place of tga 
-			strcpy(altname, name);
+	if (!Q_stricmp(name + len - 4, ".tga") || !Q_stricmp(name + len - 4, ".jpg")) {
+		char altname[MAX_QPATH];
+		strcpy(altname, name);
+		if (r_loadjpg->integer) {
 			len = strlen(altname);
 			altname[len - 3] = 'j';
 			altname[len - 2] = 'p';
 			altname[len - 1] = 'g';
+			// try jpg first
 			LoadJPG(altname, pic, width, height);
+		}
+		if (!*pic) {
+			altname[len - 3] = 't';
+			altname[len - 2] = 'g';
+			altname[len - 1] = 'a';
+			LoadTGA(name, pic, width, height);
 		}
 		*piMipmapsAvailable = 1;
 	}
@@ -2171,7 +2177,7 @@ image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip
 				if (image->allowPicmip != allowPicmip) {
 					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed allowPicmip parm\n", name);
 				}
-				if (image->wrapClampModeX != glWrapClampModeX || image != glWrapClampModeY) {
+				if (image->wrapClampModeX != glWrapClampModeX || image->wrapClampModeY != glWrapClampModeY) {
 					ri.Printf(PRINT_ALL, "WARNING: reused image %s with mixed glWrapClampMode parm\n", name);
 				}
 			}
