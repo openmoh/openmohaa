@@ -562,11 +562,12 @@ int CG_WeaponCommandButtonBits(void)
         return 0;
     }
 
+	iShiftedWeaponCommand = cg.iWeaponCommand << 7;
+
     cg.iWeaponCommandSend++;
     if (cg.iWeaponCommandSend > 2) {
         cg.iWeaponCommand = 0;
     }
 
-    iShiftedWeaponCommand = cg.iWeaponCommand << 7;
     return iShiftedWeaponCommand & WEAPON_COMMAND_MASK;
 }
