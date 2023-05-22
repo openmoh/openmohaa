@@ -799,7 +799,7 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
             cgi.SendClientCommand("stats");
         }
 
-        cg.bIntermissionDisplay = qfalse;
+        cg.bIntermissionDisplay = qtrue;
     }
     else if (cg.bIntermissionDisplay)
     {
