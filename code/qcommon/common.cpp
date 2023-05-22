@@ -284,7 +284,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	static int	errorCount;
 	int			currentTime;
 
-#ifdef _DEBUG
+#ifdef COM_ERROR_ASSERT
 	*( int * )0 = 0;
 	assert( 0 );
 #endif
