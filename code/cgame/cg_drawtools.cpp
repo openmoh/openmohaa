@@ -982,14 +982,32 @@ void CG_DrawStopwatch()
 {
 	int iFraction;
 
-	if (!cg_hud->integer || !cgi.stopWatch->iStartTime
-		|| cgi.stopWatch->iStartTime >= cgi.stopWatch->iEndTime
-        || cgi.stopWatch->iEndTime <= cg.time
-        // don't draw the stopwatch with the objective menu
-        || cg.ObjectivesCurrentAlpha >= 0.02
-        // the player isn't alive
-		|| cg.snap && cg.snap->ps.stats[STAT_HEALTH] <= 0)
-	{
+	if (!cg_hud->integer) {
+		cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+		return;
+	}
+
+	if (!cgi.stopWatch->iStartTime) {
+		cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+		return;
+	}
+
+	if (cgi.stopWatch->iStartTime >= cgi.stopWatch->iEndTime) {
+		cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+		return;
+	}
+
+	if (cgi.stopWatch->iEndTime <= cg.time) {
+		cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+		return;
+	}
+
+	if (cg.ObjectivesCurrentAlpha >= 0.02) {
+		cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
+		return;
+	}
+
+	if (cg.snap && cg.snap->ps.stats[STAT_HEALTH] <= 0) {
 		cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_stopwatch\n");
 		return;
 	}
