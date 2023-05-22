@@ -2463,7 +2463,7 @@ static void R_LoadImage(const char* name, byte** pic, int* width, int* height, q
 				altname[len - 3] = 't';
 				altname[len - 2] = 'g';
 				altname[len - 1] = 'a';
-				LoadTGA(name, pic, width, height);
+				LoadTGA(altname, pic, width, height);
 			}
 			*piMipmapsAvailable = 1;
 		}
