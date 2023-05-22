@@ -293,19 +293,27 @@ void UIDMBox::Print( const char *text )
 
 	m_items[m_numitems].flags = 0;
 
-	if (*text == 2)
+	if (*text == MESSAGE_CHAT_WHITE)
 	{
 		m_items[m_numitems].color = UGrey;
 		m_items[m_numitems].font = m_fontbold;
-		m_items[m_numitems].flags |= GMBOX_ITEM_FLAG_BOLD;
+		m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_BOLD;
 
 		text1 = text + 1;
 	}
-	else if (*text == 4)
+	else if (*text == MESSAGE_CHAT_RED)
 	{
 		m_items[m_numitems].color = ULightRed;
 		m_items[m_numitems].font = m_fontbold;
-		m_items[m_numitems].flags |= GMBOX_ITEM_FLAG_BOLD;
+		m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_BOLD;
+
+		text1 = text + 1;
+	}
+	else if (*text == MESSAGE_CHAT_GREEN)
+	{
+		m_items[m_numitems].color = UGreen;
+		m_items[m_numitems].font = m_fontbold;
+		m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_BOLD;
 
 		text1 = text + 1;
 	}

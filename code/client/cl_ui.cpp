@@ -1256,6 +1256,10 @@ void UI_PrintConsole( const char *msg )
 			bDeathMessage = qtrue;
 			pColor = &ULightRed;
 			break;
+		case MESSAGE_CHAT_GREEN:
+			bDeathMessage = qtrue;
+			pColor = &UGreen;
+			break;
 		}
 
 		msg++;
