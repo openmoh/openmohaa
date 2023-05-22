@@ -225,7 +225,8 @@ void SV_DirectConnect( netadr_t from ) {
 	char		userinfo[MAX_INFO_STRING];
 	int			i;
 	client_t	*cl, *newcl;
-	client_t	temp;
+	// Make this a temp variable to avoid stack overflow issues
+	static client_t temp;
 	gentity_t	*ent;
 	int			clientNum;
 	int			version;
