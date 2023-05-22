@@ -1729,10 +1729,8 @@ typedef struct playerState_s {
 #define BUTTON_LEAN_LEFT_BITINDEX		4
 #define BUTTON_LEAN_RIGHT_BITINDEX		5
 #define BUTTON_TALK_BITINDEX			6			// displays talk balloon and disables actions
-#define BUTTON_ANY_BITINDEX				10			// any key whatsoever
-#define BUTTON_ANY2_BITINDEX			11			// any key whatsoever (regardless of keycatcher)
-#define BUTTON_MOUSE_BITINDEX			14			// mouse move
-#define BUTTON_HOLSTER_BITINDEX			15
+#define BUTTON_ANY_BITINDEX				14			// any key whatsoever
+#define BUTTON_MOUSE_BITINDEX			15			// mouse move
 
 #define	BUTTON_ATTACKLEFT  	   (1 << BUTTON_ATTACKLEFT_BITINDEX)
 #define	BUTTON_ATTACKRIGHT 	   (1 << BUTTON_ATTACKRIGHT_BITINDEX)
@@ -1742,9 +1740,7 @@ typedef struct playerState_s {
 #define BUTTON_LEAN_RIGHT      (1 << BUTTON_LEAN_RIGHT_BITINDEX)
 #define	BUTTON_TALK			   (1 << BUTTON_TALK_BITINDEX)			// displays talk balloon and disables actions
 #define	BUTTON_ANY			   (1 << BUTTON_ANY_BITINDEX)		   // any key whatsoever
-#define	BUTTON_ANY2            (1 << BUTTON_ANY_BITINDEX)		   // any key whatsoever (regardless of keycatcher)
 #define BUTTON_MOUSE           (1 << BUTTON_MOUSE_BITINDEX)
-#define BUTTON_HOLSTER         (1 << BUTTON_HOLSTER_BITINDEX)
 
 #define WEAPON_COMMAND_USE_PISTOL               1
 #define WEAPON_COMMAND_USE_RIFLE                2
@@ -1761,7 +1757,13 @@ typedef struct playerState_s {
 #define WEAPON_COMMAND_USE_LAST_WEAPON          13
 #define WEAPON_COMMAND_HOLSTER                  14
 #define WEAPON_COMMAND_DROP                     15
+
+#if TARGET_GAME_PROTOCOL >= 15
+#define WEAPON_COMMAND_MAX						31
+#else
 #define WEAPON_COMMAND_MAX						15
+#endif
+
 #define WEAPON_COMMAND_MASK						(WEAPON_COMMAND_MAX << 7)
 
 
