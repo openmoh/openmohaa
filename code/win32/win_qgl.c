@@ -3628,12 +3628,6 @@ qboolean QGL_Init( const char *dllname )
 	qglVertexPointer             = 	dllVertexPointer             = GPA( "glVertexPointer" );
 	qglViewport                  = 	dllViewport                  = GPA( "glViewport" );
 
-	qglCompressedTexImage3DARB    = dllCompressedTexImage3DARB		= GPA("glCompressedTexImage3D");
-	qglCompressedTexImage2DARB    = dllCompressedTexImage2DARB      = GPA("glCompressedTexImage2D");
-	qglCompressedTexSubImage3DARB = dllCompressedTexSubImage3DARB   = GPA("glCompressedTexSubImage3D");
-	qglCompressedTexSubImage2DARB = dllCompressedTexSubImage2DARB   = GPA("glCompressedTexSubImage2D");
-	qglGetCompressedTexImageARB   = dllGetCompressedTexImageARB     = GPA("glGetCompressedTexImage");
-
 	qwglCopyContext              = GPA( "wglCopyContext" );
 	qwglCreateContext            = GPA( "wglCreateContext" );
 	qwglCreateLayerContext       = GPA( "wglCreateLayerContext" );
@@ -4393,12 +4387,6 @@ void QGL_EnableLogging( qboolean enable )
 		qglVertex4sv                 = 	dllVertex4sv                 ;
 		qglVertexPointer             = 	dllVertexPointer             ;
 		qglViewport                  = 	dllViewport                  ;
-
-		qglCompressedTexImage3DARB     = dllCompressedTexImage3DARB;
-		qglCompressedTexImage2DARB     = dllCompressedTexImage2DARB;
-		qglCompressedTexSubImage3DARB  = dllCompressedTexSubImage3DARB;
-		qglCompressedTexSubImage2DARB  = dllCompressedTexSubImage2DARB;
-		qglGetCompressedTexImageARB    = dllGetCompressedTexImageARB;
 	}
 }
 

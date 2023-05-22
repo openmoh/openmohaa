@@ -1160,23 +1160,33 @@ static void GLW_InitExtensions( void )
   ri.Printf( PRINT_ALL, "Initializing OpenGL extensions\n" );
 
   // GL_S3_s3tc
-  if ( Q_stristr( glConfig.extensions_string, "GL_S3_s3tc" ) )
+  if (strstr(glConfig.extensions_string, "GL_EXT_texture_compression_s3tc") && strstr(glConfig.extensions_string, "GL_ARB_texture_compression"))
   {
-    if ( r_ext_compressed_textures->value )
-    {
-      glConfig.textureCompression = TC_S3TC;
-      ri.Printf( PRINT_ALL, "...using GL_S3_s3tc\n" );
-    } else
-    {
-      glConfig.textureCompression = TC_NONE;
-      ri.Printf( PRINT_ALL, "...ignoring GL_S3_s3tc\n" );
-    }
-  } else
-  {
-    glConfig.textureCompression = TC_NONE;
-    ri.Printf( PRINT_ALL, "...GL_S3_s3tc not found\n" );
+	  if (r_ext_compressed_textures->integer)
+	  {
+		  qglCompressedTexImage2DARB = dlsym(glw_state.OpenGLLib, "glCompressedTexImage2DARB");
+		  glConfig.textureCompression = TC_S3TC;
+		  ri.Printf(PRINT_ALL, "...using GL_S3_s3tc\n");
+	  }
+	  else
+	  {
+		  glConfig.textureCompression = TC_NONE;
+		  ri.Printf(PRINT_ALL, "...ignoring GL_S3_s3tc\n");
+	  }
   }
-
+  else if (!strstr(glConfig.extensions_string, "GL_EXT_texture_compression_s3tc"))
+  {
+	  ri.Printf(PRINT_ALL, "...GL_ARB_texture_compression not found\n");
+  }
+  else if (strstr(glConfig.extensions_string, "GL_ARB_texture_compression"))
+  {
+	  ri.Printf(PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n");
+  }
+  else
+  {
+	  ri.Printf(PRINT_ALL, "...GL_EXT_texture_compression_s3tc not found\n");
+	  ri.Printf(PRINT_ALL, "...GL_ARB_texture_compression not found\n");
+  }
   // GL_EXT_texture_env_add
   glConfig.textureEnvAddAvailable = qfalse;
   if ( Q_stristr( glConfig.extensions_string, "EXT_texture_env_add" ) )

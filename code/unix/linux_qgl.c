@@ -3006,12 +3006,6 @@ void QGL_Shutdown( void )
 	qglVertexPointer             = NULL;
 	qglViewport                  = NULL;
 
-	qglCompressedTexImage3DARB    = NULL;
-	qglCompressedTexImage2DARB    = NULL;
-	qglCompressedTexSubImage3DARB = NULL;
-	qglCompressedTexSubImage2DARB = NULL;
-	qglGetCompressedTexImageARB   = NULL;
-
 // bk001129 - from cvs1.17 (mkv)
 #if defined(__FX__)
 	qfxMesaCreateContext         = NULL;
@@ -3408,12 +3402,6 @@ qboolean QGL_Init( const char *dllname )
 	qglVertex4sv                 = 	dllVertex4sv                 = GPA( "glVertex4sv" );
 	qglVertexPointer             = 	dllVertexPointer             = GPA( "glVertexPointer" );
 	qglViewport                  = 	dllViewport                  = GPA( "glViewport" );
-
-    qglCompressedTexImage3DARB    = dllCompressedTexImage3DARB		= GPA("glCompressedTexImage3DARB");
-    qglCompressedTexImage2DARB    = dllCompressedTexImage2DARB      = GPA("qglCompressedTexImage2DARB");
-    qglCompressedTexSubImage3DARB = dllCompressedTexSubImage3DARB   = GPA("qglCompressedTexSubImage3DARB");
-    qglCompressedTexSubImage2DARB = dllCompressedTexSubImage2DARB   = GPA("qglCompressedTexSubImage2DARB");
-    qglGetCompressedTexImageARB   = dllGetCompressedTexImageARB     = GPA("qglGetCompressedTexImageARB");
 
 // bk001129 - from cvs1.17 (mkv)
 #if defined(__FX__)
@@ -4165,12 +4153,6 @@ void QGL_EnableLogging( qboolean enable ) {
 		qglVertex4sv                 = 	dllVertex4sv                 ;
 		qglVertexPointer             = 	dllVertexPointer             ;
 		qglViewport                  = 	dllViewport                  ;
-
-        qglCompressedTexImage3DARB     = dllCompressedTexImage3DARB;
-        qglCompressedTexImage2DARB     = dllCompressedTexImage2DARB;
-        qglCompressedTexSubImage3DARB  = dllCompressedTexSubImage3DARB;
-        qglCompressedTexSubImage2DARB  = dllCompressedTexSubImage2DARB;
-        qglGetCompressedTexImageARB    = dllGetCompressedTexImageARB;
 	}
 }
 
