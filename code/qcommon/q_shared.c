@@ -1552,6 +1552,20 @@ int LongNoSwapPtr(const void* l)
 	return out;
 }
 
+float FloatSwapPtr(const void* l)
+{
+	float out;
+	CopyLittleLong((int*)&out, l);
+	return out;
+}
+
+float FloatNoSwapPtr(const void* l)
+{
+	float out;
+	Com_Memcpy(&out, l, sizeof(float));
+	return out;
+}
+
 void Swap_Init(void)
 {
 	// Endianness is now computed at compile time

@@ -29,9 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_ui.h"
 
-#if _MSC_VER
-#include <intrin.h>
-#endif
+#include <ctime>
 
 typedef struct {
 	float fadetime;
@@ -5443,7 +5441,7 @@ UI_BeginLoadResource
 ====================
 */
 void UI_BeginLoadResource( void ) {
-	uint64_t time = __rdtsc();
+	clock_t time = clock();
 
 	startCountHigh = time >> 32;
 	startCountLow = time;

@@ -981,7 +981,7 @@ void* Sys_GetCGameAPI(void* parms)
     const char* gamedir;
     const char* homepath;
     const char* fn;
-    const char* gamename = "cgame" ARCH_STRING DLL_EXT;
+    const char* gamename = "cgame" ARCH_STRING DLL_SUFFIX DLL_EXT;
 
     if (cgame_library)
         Com_Error(ERR_FATAL, "Sys_GetCGameAPI without calling Sys_UnloadCGame");
@@ -1098,7 +1098,10 @@ void *Sys_LoadDll( const char *name, char *fqpath ,
   snprintf (fname, sizeof(fname), "%smips.so", name);
 #elif defined __x86_64__
   snprintf(fname, sizeof(fname), "%sx86_64.so", name);
-#else
+#elif defined __arm__
+  snprintf(fname, sizeof(fname), "%sarm.so", name);
+#elif defined __aarch64__
+  snprintf(fname, sizeof(fname), "%saarch64.so", name);
 #error Unknown arch
 #endif
 

@@ -371,11 +371,11 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 				iOffset += sizeof(skelWeight_t) * numWeights;
 				iOffset += sizeof(skeletorVertex_t);
 
-				skelVert->normal[0] = LittleFloat(pVert->normal[0]);
-				skelVert->normal[1] = LittleFloat(pVert->normal[1]);
-				skelVert->normal[2] = LittleFloat(pVert->normal[2]);
-                skelVert->texCoords[0] = LittleFloat(pVert->texCoords[0]);
-                skelVert->texCoords[1] = LittleFloat(pVert->texCoords[1]);
+				skelVert->normal[0] = LittleFloatPtr(pVert->normal[0]);
+				skelVert->normal[1] = LittleFloatPtr(pVert->normal[1]);
+				skelVert->normal[2] = LittleFloatPtr(pVert->normal[2]);
+                skelVert->texCoords[0] = LittleFloatPtr(pVert->texCoords[0]);
+                skelVert->texCoords[1] = LittleFloatPtr(pVert->texCoords[1]);
 				skelVert->numWeights = numWeights;
                 skelVert->numMorphs = numMorphs;
 
@@ -385,20 +385,20 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
                 for (k = 0; k < pVert->numMorphs; k++, pMorph++, skelMorph++)
                 {
 					skelMorph->morphIndex = pMorph->morphIndex;
-                    skelMorph->offset[0] = LittleFloat(pMorph->offset[0]);
-                    skelMorph->offset[1] = LittleFloat(pMorph->offset[1]);
-                    skelMorph->offset[2] = LittleFloat(pMorph->offset[2]);
+					skelMorph->offset[0] = LittleFloatPtr(pMorph->offset[0]);
+					skelMorph->offset[1] = LittleFloatPtr(pMorph->offset[1]);
+					skelMorph->offset[2] = LittleFloatPtr(pMorph->offset[2]);
                 }
 
 				skelWeight_t* pWeight = (skelWeight_t * )((byte*)pMorph);
 				skelWeight_t* skelWeight = (skelWeight_t*)((byte*)skelMorph);
 				for (k = 0; k < pVert->numWeights; k++, skelWeight++, pWeight++)
 				{
-                    skelWeight->boneIndex = LittleLong(pWeight->boneIndex);
-                    skelWeight->boneWeight = LittleLong(pWeight->boneWeight);
-                    skelWeight->offset[0] = LittleFloat(pWeight->offset[0]);
-                    skelWeight->offset[1] = LittleFloat(pWeight->offset[1]);
-                    skelWeight->offset[2] = LittleFloat(pWeight->offset[2]);
+                    skelWeight->boneIndex = LittleLongPtr(pWeight->boneIndex);
+                    skelWeight->boneWeight = LittleLongPtr(pWeight->boneWeight);
+                    skelWeight->offset[0] = LittleFloatPtr(pWeight->offset[0]);
+                    skelWeight->offset[1] = LittleFloatPtr(pWeight->offset[1]);
+                    skelWeight->offset[2] = LittleFloatPtr(pWeight->offset[2]);
 				}
 
                 pVert = (skeletorVertex_t*)((byte*)pVert + iOffset);

@@ -114,7 +114,7 @@ void Z_Free( void *ptr )
 	block->prev = block;
 	block->next = block;
 
-#if !defined(_DEBUG) && !defined(WIN32)
+#if !defined(_DEBUG) || !defined(WIN32)
 	// free the block
 	free( block );
 #else
@@ -172,7 +172,7 @@ void *Z_TagMalloc( size_t size, int tag )
 #endif
 	size = PAD( size, sizeof( intptr_t ) );		// align to 32/64 bit boundary
 
-#if !defined(_DEBUG) && !defined(WIN32)
+#if !defined(_DEBUG) || !defined(WIN32)
 	block = ( memblock_t * )malloc( size );
 #else
 	block = HeapAlloc(GetProcessHeap(), 0, size);

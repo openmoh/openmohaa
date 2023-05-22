@@ -1,4 +1,6 @@
 build
+mohaa-re
+out
 Makefile.local
 *.swp
 *tags
