@@ -384,7 +384,7 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
                 skeletorMorph_t* skelMorph = (skeletorMorph_t*)((byte*)skelVert + sizeof(skeletorVertex_t));
                 for (k = 0; k < pVert->numMorphs; k++, pMorph++, skelMorph++)
                 {
-					skelMorph->morphIndex = pMorph->morphIndex;
+					skelMorph->morphIndex = LittleLongPtr(pMorph->morphIndex);
 					skelMorph->offset[0] = LittleFloatPtr(pMorph->offset[0]);
 					skelMorph->offset[1] = LittleFloatPtr(pMorph->offset[1]);
 					skelMorph->offset[2] = LittleFloatPtr(pMorph->offset[2]);
@@ -395,7 +395,7 @@ void TIKI_CacheFileSkel( skelHeader_t *pHeader, skelcache_t *cache, int length )
 				for (k = 0; k < pVert->numWeights; k++, skelWeight++, pWeight++)
 				{
                     skelWeight->boneIndex = LittleLongPtr(pWeight->boneIndex);
-                    skelWeight->boneWeight = LittleLongPtr(pWeight->boneWeight);
+                    skelWeight->boneWeight = LittleFloatPtr(pWeight->boneWeight);
                     skelWeight->offset[0] = LittleFloatPtr(pWeight->offset[0]);
                     skelWeight->offset[1] = LittleFloatPtr(pWeight->offset[1]);
                     skelWeight->offset[2] = LittleFloatPtr(pWeight->offset[2]);
