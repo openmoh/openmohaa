@@ -4948,7 +4948,7 @@ void UI_RemoveHud_f( void ) {
 
 	if( hud && hudList.ObjectInList( hud ) )
 	{
-		hud->ShowMenu( NULL );
+		hud->ForceHide();
 		hudList.RemoveObject( hud );
 	}
 }
