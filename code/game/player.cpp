@@ -13313,35 +13313,27 @@ qboolean Player::ViewModelAnim( str anim, qboolean force_restart, qboolean bFull
 	}
 
 	if ( Q_stricmp( anim, "charge" ) == 0 ) {
-		viewModelAnim = VMA_CHARGE;
+		viewModelAnim = VM_ANIM_CHARGE;
 	} else if ( Q_stricmp( anim, "fire" ) == 0 ) {
-		viewModelAnim = VMA_FIRE;
+		viewModelAnim = VM_ANIM_FIRE;
 	} else if ( Q_stricmp( anim, "fire_secondary" ) == 0 ) {
-		viewModelAnim = VMA_FIRE_SECONDARY;
+		viewModelAnim = VM_ANIM_FIRE_SECONDARY;
 	} else if ( Q_stricmp( anim, "rechamber" ) == 0 ) {
-		viewModelAnim = VMA_RECHAMBER;
+		viewModelAnim = VM_ANIM_RECHAMBER;
 	} else if ( Q_stricmp( anim, "reload" ) == 0 ) {
-		viewModelAnim = VMA_RELOAD;
+		viewModelAnim = VM_ANIM_RELOAD;
 	} else if ( Q_stricmp( anim, "reload_single" ) == 0 ) {
-		viewModelAnim = VMA_RELOAD_SINGLE;
+		viewModelAnim = VM_ANIM_RELOAD_SINGLE;
 	} else if ( Q_stricmp( anim, "reload_end" ) == 0 ) {
-		viewModelAnim = VMA_RELOAD_END;
+		viewModelAnim = VM_ANIM_RELOAD_END;
 	} else if ( Q_stricmp( anim, "pullout" ) == 0 ) {
-		viewModelAnim = VMA_PULLOUT;
+		viewModelAnim = VM_ANIM_PULLOUT;
 	} else if ( Q_stricmp( anim, "putaway" ) == 0 ) {
-		viewModelAnim = VMA_PUTAWAY;
+		viewModelAnim = VM_ANIM_PUTAWAY;
 	} else if ( Q_stricmp( anim, "ladderstep" ) == 0 ) {
-		viewModelAnim = VMA_LADDERSTEP;
+		viewModelAnim = VM_ANIM_LADDERSTEP;
 	} else if ( Q_stricmp( anim, "idle" ) == 0 ) {
-		viewModelAnim = VMA_IDLE;
-	}
-	else if ( level.reborn )
-	{
-		if ( !anim.icmp( "enable" ) ) {
-			viewModelAnim = VMA_ENABLE;
-		} else {
-			viewModelAnim = VMA_CUSTOMANIMATION;
-		}
+		viewModelAnim = VM_ANIM_IDLE;
 	}
 	else
 	{
@@ -13368,16 +13360,6 @@ qboolean Player::ViewModelAnim( str anim, qboolean force_restart, qboolean bFull
 	}
 
 	m_sVMcurrent = anim;
-
-	if ( level.reborn && viewModelAnim == VMA_CUSTOMANIMATION )
-	{
-		gi.MSG_SetClient( edict - g_entities );
-
-		gi.MSG_StartCGM( CGM_VIEWMODELANIM );
-			gi.MSG_WriteString( anim.c_str() );
-			gi.MSG_WriteByte( bFullAnim );
-		gi.MSG_EndCGM();
-	}
 
 	if ( viewModelAnim != playerState->iViewModelAnim || force_restart ) {
 		playerState->iViewModelAnimChanged = ( playerState->iViewModelAnimChanged + 1 ) & 3;
