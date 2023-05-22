@@ -354,7 +354,6 @@ public:
 	qboolean			checkattackbuttonright( Conditional &condition );
 	qboolean			checksneak( Conditional &condition );
 	qboolean			checkrun( Conditional &condition );
-	qboolean			checkholsterweapon( Conditional &condition );
 	qboolean			checkuse( Conditional &condition );
 	qboolean			checkcanturn( Conditional &condition );
 	qboolean			checkcanmoveright( Conditional &condition );

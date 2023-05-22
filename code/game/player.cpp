@@ -2007,15 +2007,6 @@ qboolean Player::checkrun
 	return ( last_ucmd.buttons & BUTTON_RUN ) != 0;
 }
 
-qboolean Player::checkholsterweapon
-   (
-   Conditional &condition
-   )
-
-   {
-	return ( last_ucmd.buttons & BUTTON_HOLSTER ) != 0;
-   }
-
 qboolean Player::checkuse
    (
    Conditional &condition
@@ -3964,7 +3955,6 @@ Condition<Player> Player::Conditions[] =
 	{ "default",							&Player::returntrue },
 	{ "SNEAK",								&Player::checksneak },
 	{ "RUN",								&Player::checkrun },
-	{ "HOLSTERWEAPON",						&Player::checkholsterweapon },
 	{ "USE",								&Player::checkuse },
 	{ "LEFT",								&Player::checkturnleft },
 	{ "RIGHT",								&Player::checkturnright },
