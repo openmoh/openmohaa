@@ -161,7 +161,7 @@ int	overflows;
 
 #if TARGET_GAME_PROTOCOL >= 15
 
-int MSG_NegateValue(int value)
+int MSG_WriteNegateValue(int value, int bits)
 {
 	if (value >= 0) {
 		value <<= 1;
@@ -173,10 +173,31 @@ int MSG_NegateValue(int value)
 	return value;
 }
 
+int MSG_ReadNegateValue(int value, int bits)
+{
+	if (value & 1) {
+		value = ~(value >> 1);
+	}
+	else {
+		value >>= 1;
+	}
+
+	return value;
+}
+
 #else
 
-int MSG_NegateValue(int value)
+int MSG_WriteNegateValue(int value, int bits)
 {
+	return value;
+}
+
+int MSG_ReadNegateValue(int value, int bits)
+{
+	if (value & (1 << (bits - 1))) {
+		value |= -1 ^ ((1 << bits) - 1);
+	}
+
 	return value;
 }
 
@@ -216,8 +237,9 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 	}
 	if ( bits < 0 ) {
 		bits = -bits;
-		value = MSG_NegateValue(value);
+		value = MSG_WriteNegateValue(value, bits);
 	}
+
 	if (msg->oob) {
 		if (msg->cursize + (bits >> 3) > msg->maxsize) {
 			msg->overflowed = qtrue;
@@ -326,21 +348,10 @@ int MSG_ReadBits( msg_t *msg, int bits ) {
 		}
 		msg->readcount = (msg->bit>>3)+1;
 	}
-#if TARGET_GAME_PROTOCOL >= 15
+
 	if (sgn) {
-		if (value & 1) {
-			value = ~(value >> 1);
-		} else {
-			value >>= 1;
-		}
+		value = MSG_ReadNegateValue(value, bits);
 	}
-#else
-	if (sgn) {
-		if (value & (1 << (bits - 1))) {
-			value |= -1 ^ ((1 << bits) - 1);
-		}
-	}
-#endif
 
 	return value;
 }
@@ -2126,7 +2137,7 @@ float MSG_ReadPackedCoordExtra(msg_t* msg, float fromValue, int bits)
 void MSG_WritePackedAngle(msg_t* msg, float value, int bits)
 {
 	int packed = MSG_PackAngle(value, bits);
-	MSG_WriteBits(msg, packed, bits);
+	MSG_WriteBits(msg, packed, abs(bits));
 }
 
 void MSG_WritePackedAnimTime(msg_t* msg, float fromValue, float toValue, float frameTime, int bits)
