@@ -219,15 +219,31 @@ CG_Stopwatch_f
 
 ================
 */
+#if TARGET_GAME_PROTOCOL >= 15
+
 static void CG_Stopwatch_f()
 {
-    if (cgi.Argc() < 3) {
-        Com_Error(1, "stopwatch didn't have 2 parameters");
-    }
+	if (cgi.Argc() < 3) {
+		Com_Error(ERR_DROP, "stopwatch didn't have 2 parameters");
+	}
 
-    cgi.stopWatch->iStartTime = 1000 * atoi(cgi.Argv(1));
-    cgi.stopWatch->iEndTime = cgi.stopWatch->iStartTime + 1000 * atoi(cgi.Argv(2));
+	cgi.stopWatch->iStartTime = atoi(cgi.Argv(1));
+	cgi.stopWatch->iEndTime = cgi.stopWatch->iStartTime + 1000 * atoi(cgi.Argv(2));
 }
+
+#else
+
+static void CG_Stopwatch_f()
+{
+	if (cgi.Argc() < 3) {
+		Com_Error(ERR_DROP, "stopwatch didn't have 2 parameters");
+	}
+
+	cgi.stopWatch->iStartTime = 1000 * atoi(cgi.Argv(1));
+	cgi.stopWatch->iEndTime = cgi.stopWatch->iStartTime + 1000 * atoi(cgi.Argv(2));
+}
+
+#endif
 
 /*
 ================
