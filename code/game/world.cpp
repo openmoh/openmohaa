@@ -391,9 +391,6 @@ ConSimple *World::GetTargetList( const_str targetname )
 	return &m_targetList.addKeyValue( targetname );
 }
 
-
-#ifdef GAME_DLL
-
 World::World()
 {
 	world = this;
@@ -424,11 +421,30 @@ World::World()
 
 	// set the default farplane parameters
 	farplane_distance = 0;
-	farplane_color = "0 0 0";
+	farplane_bias = 0.0;
+	farplane_color = vec_zero;
 	farplane_cull = qtrue;
+	skybox_farplane = 0.0;
+	render_terrain = qtrue;
+	skybox_speed = 0.0;
+	farclip_override = 0.f;
+	farplane_color_override = Vector(-1, -1, -1);
+	animated_farplane_start = 0.0;
+	animated_farplane_end = 0.0;
+	animated_farplane_start_z = 8192.0;
+	animated_farplane_end_z = 0.0;
+	animated_farplane_bias_start = 0.0;
+	animated_farplane_bias_end = 0.0;
+	animated_farplane_bias_start_z = 8192.0;
+	animated_farplane_bias_end_z = 0.0;
+	animated_farplane_color_start = vec_zero;
+	animated_farplane_color_end = vec_zero;
+	animated_farplane_color_start_z = 8192.0;
+	animated_farplane_color_end_z = 0.0;
 
 	UpdateFog();
 
+	sky_alpha = 1.0f;
 	sky_portal = qtrue;
 	UpdateSky();
 
@@ -472,18 +488,11 @@ void World::UpdateConfigStrings( void )
 	gi.SetConfigstring( CS_MESSAGE, level.level_name.c_str() );
 };
 
-void World::UpdateFog( void )
-{
-	gi.SetFarPlane( farplane_distance );
-	gi.SetConfigstring( CS_FOGINFO, va( "%d %.0f %.4f %.4f %.4f", farplane_cull, farplane_distance, farplane_color.x, farplane_color.y, farplane_color.z ) );
-}
-
 void World::UpdateSky( void )
 {
 	gi.SetSkyPortal( sky_portal );
 	gi.SetConfigstring( CS_SKYINFO, va( "%.4f %d", sky_alpha, sky_portal ) );
 }
-
 
 void World::SetSoundtrack( Event *ev )
 {
@@ -566,6 +575,41 @@ void World::SetNorthYaw( Event *ev )
 	m_fNorth = anglemod( ev->GetFloat( 1 ) );
 }
 
+#if TARGET_GAME_PROTOCOL >= 15
+
+void World::UpdateFog(void)
+{
+	gi.SetFarPlane(farplane_distance);
+	gi.SetConfigstring(CS_FOGINFO, va(
+		"%d %.0f %.0f %.0f %.6f %.4f %.4f %.4f %d %.0f %.2f %.2f %.2f",
+		farplane_cull,
+		farplane_distance,
+		farplane_bias,
+		skybox_farplane,
+		skybox_speed,
+		farplane_color.x,
+		farplane_color.y,
+		farplane_color.z,
+		render_terrain,
+		farclip_override,
+		farplane_color_override.x,
+		farplane_color_override.y,
+		farplane_color_override.z
+		)
+	);
+}
+
+#else
+
+void World::UpdateFog(void)
+{
+	gi.SetFarPlane(farplane_distance);
+	gi.SetConfigstring(CS_FOGINFO, va("%d %.0f %.4f %.4f %.4f", farplane_cull, farplane_distance, farplane_color.x, farplane_color.y, farplane_color.z));
+}
+
+#endif
+
+
 CLASS_DECLARATION( Entity, World, "worldspawn" )
 {
 	{ &EV_World_SetSoundtrack,			&World::SetSoundtrack },
@@ -594,18 +638,3 @@ CLASS_DECLARATION( Entity, World, "worldspawn" )
 	{ &EV_World_SetSunDiffuseColor,		NULL },
 	{ NULL,								NULL }
 };
-
-#else
-
-World::World()
-{
-	world = this;
-	world_dying = qfalse;
-}
-
-CLASS_DECLARATION( SimpleEntity, World, "worldspawn" )
-{
-	{ NULL, NULL }
-};
-
-#endif

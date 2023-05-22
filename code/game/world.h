@@ -51,8 +51,26 @@ class World : public SimpleEntity {
 public:
 	// farplane variables
 	float		farplane_distance;
+	float		farplane_bias;
 	Vector		farplane_color;
 	qboolean	farplane_cull;
+	float		skybox_farplane;
+	qboolean	render_terrain;
+	float		skybox_speed;
+	float		farclip_override;
+	Vector		farplane_color_override;
+	float		animated_farplane_start;
+	float		animated_farplane_end;
+	float		animated_farplane_start_z;
+	float		animated_farplane_end_z;
+	float		animated_farplane_bias_start;
+	float		animated_farplane_bias_end;
+	float		animated_farplane_bias_start_z;
+	float		animated_farplane_bias_end_z;
+	Vector		animated_farplane_color_start;
+	Vector		animated_farplane_color_end;
+	float		animated_farplane_color_start_z;
+	float		animated_farplane_color_end_z;
 
 	// sky variables
 	float		sky_alpha;
