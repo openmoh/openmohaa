@@ -1317,8 +1317,8 @@ void R_AddTerrainSurfaces()
 				{
 					Com_DPrintf(
 						"%5d tris / %5d verts / %4d splits / %4d merges\n",
-						g_nTris + ~g_tri.nFree,
-						g_nVerts + ~g_vert.nFree,
+						g_nTris - g_tri.nFree,
+						g_nVerts - g_vert.nFree,
 						g_nSplit,
 						g_nMerge);
 				}

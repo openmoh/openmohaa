@@ -126,7 +126,7 @@ typedef struct {
     dtiki_t* (*R_Model_GetHandle)(qhandle_t handle);
     void (*DrawString)(fontheader_t* font, const char* text, float x, float y, int maxLen, qboolean virtualScreen);
     float (*GetFontHeight)(const fontheader_t* font);
-    float (*GetFontStringWidth)(const fontheader_t* font, char* string);
+    float (*GetFontStringWidth)(const fontheader_t* font, const char* string);
     fontheader_t* (*LoadFont)(const char* name);
     void (*SwipeBegin)(float thisTime, float life, qhandle_t hShader);
     void (*SwipePoint)(vec3_t point1, vec3_t point2, float time);

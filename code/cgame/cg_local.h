@@ -302,7 +302,7 @@ typedef struct {
 	float       farplane_bias;
     vec3_t      farplane_color;
 	qboolean    farplane_cull;
-	int         skyboxFarplane;
+	float       skyboxFarplane;
 	qboolean    renderTerrain;
 	float       farclipOverride;
 	vec3_t      farplaneColorOverride;
@@ -312,7 +312,7 @@ typedef struct {
     float       sky_alpha;
     vec3_t      sky_origin;
 	vec3_t		sky_axis[3];			// rotation vectors
-	int         skyboxSpeed;
+    float       skyboxSpeed;
 
     // weapon viewkick recoil
     float      viewkick[2];
@@ -810,9 +810,9 @@ void CG_MultiBeam( centity_t *cent );
 // cg_lightstyles.cpp
 void CG_SetLightStyle( int num, const char *s );
 #ifdef __cplusplus
-qboolean CG_LightStyleColor( int style, int realtime, float color[4], qboolean clamp = qfalse );
+qboolean CG_LightStyleColor( int style, int realtime, vec4_t color, qboolean clamp = qfalse );
 #else
-qboolean CG_LightStyleColor( int style, int realtime, float color[4], qboolean clamp );
+qboolean CG_LightStyleColor( int style, int realtime, vec4_t color, qboolean clamp );
 #endif
 void CG_ClearLightStyles( void );
 int  CG_RegisterLightStyle( const char * name );

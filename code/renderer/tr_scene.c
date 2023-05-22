@@ -131,7 +131,7 @@ RE_AddPolyToScene
 
 =====================
 */
-qboolean RE_AddPolyToScene(qhandle_t hShader, int numVerts, polyVert_t* verts, int renderfx) {
+qboolean RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx) {
 	srfPoly_t	*poly;
 
 	if ( !tr.registered ) {

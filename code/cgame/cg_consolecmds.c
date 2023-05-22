@@ -123,7 +123,7 @@ void CG_ScoresUp_f( void )
     }
 
     cg.showScores = qfalse;
-    cgi.UI_HideScoreBoard(cg.scoresMenuName);
+    cgi.UI_HideScoreBoard();
 }
 
 baseshader_t* CG_GetShaderUnderCrosshair(qboolean bVerbose, trace_t* pRetTrace)

@@ -229,22 +229,22 @@ void CG_ParseScores()
 
 	if (cgs.gametype == GT_TOW)
 	{
-		cgi.Cvar_Set("tow_allied_obj1", va("%i", cgi.Argv(iCurrentEntry++)));
-		cgi.Cvar_Set("tow_allied_obj2", va("%i", cgi.Argv(iCurrentEntry++)));
-		cgi.Cvar_Set("tow_allied_obj3", va("%i", cgi.Argv(iCurrentEntry++)));
-		cgi.Cvar_Set("tow_allied_obj4", va("%i", cgi.Argv(iCurrentEntry++)));
-		cgi.Cvar_Set("tow_allied_obj5", va("%i", cgi.Argv(iCurrentEntry++)));
-		cgi.Cvar_Set("tow_axis_obj1", va("%i", cgi.Argv(iCurrentEntry++)));
-		cgi.Cvar_Set("tow_axis_obj2", va("%i", cgi.Argv(iCurrentEntry++)));
-		cgi.Cvar_Set("tow_axis_obj3", va("%i", cgi.Argv(iCurrentEntry++)));
-		cgi.Cvar_Set("tow_axis_obj4", va("%i", cgi.Argv(iCurrentEntry++)));
-		cgi.Cvar_Set("tow_axis_obj5", va("%i", cgi.Argv(iCurrentEntry++)));
+		cgi.Cvar_Set("tow_allied_obj1", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
+		cgi.Cvar_Set("tow_allied_obj2", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
+		cgi.Cvar_Set("tow_allied_obj3", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
+		cgi.Cvar_Set("tow_allied_obj4", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
+		cgi.Cvar_Set("tow_allied_obj5", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
+		cgi.Cvar_Set("tow_axis_obj1", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
+		cgi.Cvar_Set("tow_axis_obj2", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
+		cgi.Cvar_Set("tow_axis_obj3", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
+		cgi.Cvar_Set("tow_axis_obj4", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
+		cgi.Cvar_Set("tow_axis_obj5", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
 	}
 
 	if (cgs.gametype == GT_LIBERATION)
 	{
-		cgi.Cvar_Set("scoreboard_toggle1", va("%i", cgi.Argv(iCurrentEntry++)));
-		cgi.Cvar_Set("scoreboard_toggle2", va("%i", cgi.Argv(iCurrentEntry++)));
+		cgi.Cvar_Set("scoreboard_toggle1", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
+		cgi.Cvar_Set("scoreboard_toggle2", va("%i", (int)atof(cgi.Argv(iCurrentEntry++))));
 	}
 
 	for (i = 0; i < iEntryCount; ++i)

@@ -51,7 +51,7 @@ clightstyle_t	cg_lightstyle[ MAX_LIGHTSTYLES * 2 ];
 CG_LightStyleColor
 ================
 */
-qboolean CG_LightStyleColor( int style, int realtime, float color[4], qboolean clamp )
+qboolean CG_LightStyleColor( int style, int realtime, vec4_t color, qboolean clamp )
    {
 	clightstyle_t	*ls;
    int            i, time;

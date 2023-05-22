@@ -1966,7 +1966,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent, int parentEntityNumber);
 void RE_AddRefSpriteToScene(const refEntity_t* ent);
 void RE_AddTerrainMarkToScene(int iTerrainIndex, qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
 refEntity_t* RE_GetRenderEntity(int entityNumber);
-qboolean RE_AddPolyToScene(qhandle_t hShader, int numVerts, polyVert_t* verts, int renderfx);
+qboolean RE_AddPolyToScene(qhandle_t hShader, int numVerts, const polyVert_t* verts, int renderfx);
 void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b, int type );
 void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void RE_RenderScene( const refdef_t *fd );

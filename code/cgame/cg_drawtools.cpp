@@ -816,7 +816,7 @@ void CG_DrawPlayerTeam()
         return;
     }
 
-    handle = NULL;
+    handle = 0;
     if (cg.snap->ps.stats[STAT_TEAM] == 3)
     {
         handle = cgi.R_RegisterShader("textures/hud/allies");
@@ -851,7 +851,7 @@ void CG_DrawPlayerEntInfo()
     }
 
     iClientNum = cg.snap->ps.stats[STAT_INFOCLIENT];
-    handle = NULL;
+    handle = 0;
     pszClientInfo = CG_ConfigString(iClientNum + CS_PLAYERS);
     pszName = Info_ValueForKey(pszClientInfo, "name");
 
