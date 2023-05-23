@@ -180,13 +180,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ID_INLINE inline
 #define PATH_SEP '/'
 
-#if defined __i386__
+#if defined(__i386) || defined(__i386__) || defined(_M_IX86)
 #define ARCH_STRING "x86"
-#elif defined __x86_64__
+#elif defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(_M_X64)
 #define ARCH_STRING "x86_64"
-#elif defined __powerpc64__
+#elif defined(__ppc64__) || defined(__powerpc64__)
 #define ARCH_STRING "ppc64"
-#elif defined __powerpc__
+#elif defined(__ppc__) || defined(__ppc) || defined(__powerpc__)
 #define ARCH_STRING "ppc"
 #elif defined __s390__
 #define ARCH_STRING "s390"
@@ -201,7 +201,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #elif defined __arm__
 #define ARCH_STRING "arm"
 #elif defined(__aarch64__) || defined(__ARM64__)
-#define ARCH_STRING "arm64"
+#define ARCH_STRING "aarch64"
 #elif defined __cris__
 #define ARCH_STRING "cris"
 #elif defined __hppa__

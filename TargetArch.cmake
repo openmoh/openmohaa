@@ -1,58 +1,38 @@
 set(archdetect_c_code "
-#if defined(__arm__) || defined(__TARGET_ARCH_ARM) || defined(_M_ARM) || defined(__aarch64__) || defined(__ARM64__)
-    #if defined(__aarch64__) || defined(__ARM64__)
-        #if defined(__ARM64_ARCH_8__)
-            || defined(__aarch64__)
-	        || defined(__ARMv8__) 
-	        || defined(__ARMv8_A__)
-            #error cmake_ARCH arm64v8
-        #else
-            #error cmake_ARCH arm64
-        #endif
-    #else
-        #if defined(__ARM_ARCH_7__) \\
-            || defined(__ARM_ARCH_7A__) \\
-            || defined(__ARM_ARCH_7R__) \\
-            || defined(__ARM_ARCH_7M__) \\
-            || (defined(__TARGET_ARCH_ARM) && __TARGET_ARCH_ARM-0 >= 7)
-            #error cmake_ARCH armv7
-        #elif defined(__ARM_ARCH_6__) \\
-            || defined(__ARM_ARCH_6J__) \\
-            || defined(__ARM_ARCH_6T2__) \\
-            || defined(__ARM_ARCH_6Z__) \\
-            || defined(__ARM_ARCH_6K__) \\
-            || defined(__ARM_ARCH_6ZK__) \\
-            || defined(__ARM_ARCH_6M__) \\
-            || (defined(__TARGET_ARCH_ARM) && __TARGET_ARCH_ARM-0 >= 6)
-            #error cmake_ARCH armv6
-        #elif defined(__ARM_ARCH_5TEJ__) \\
-            || (defined(__TARGET_ARCH_ARM) && __TARGET_ARCH_ARM-0 >= 5)
-            #error cmake_ARCH armv5
-        #else
-            #error cmake_ARCH arm
-        #endif
-    #endif
-#elif defined(__i386) || defined(__i386__) || defined(_M_IX86)
-    #error cmake_ARCH i386
+#if defined(__i386) || defined(__i386__) || defined(_M_IX86)
+#error cmake_ARCH x86
 #elif defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(_M_X64)
-    #error cmake_ARCH x86_64
-#elif defined(__ia64) || defined(__ia64__) || defined(_M_IA64)
-    #error cmake_ARCH ia64
-#elif defined(__ppc__) || defined(__ppc) || defined(__powerpc__) \\
-      || defined(_ARCH_COM) || defined(_ARCH_PWR) || defined(_ARCH_PPC)  \\
-      || defined(_M_MPPC) || defined(_M_PPC)
-    #if defined(__ppc64__) || defined(__powerpc64__) || defined(__64BIT__)
-        #error cmake_ARCH ppc64
-    #else
-        #error cmake_ARCH ppc
-    #endif
+#error cmake_ARCH x86_64
+#elif defined(__ppc64__) || defined(__powerpc64__)
+#error cmake_ARCH ppc64
+#elif defined(__ppc__) || defined(__ppc) || defined(__powerpc__)
+#error cmake_ARCH ppc
 #elif defined __s390__
-    #error cmake_ARCH s390
+#error cmake_ARCH s390
 #elif defined __s390x__
-    #error cmake_ARCH s390x
+#error cmake_ARCH s390x
+#elif defined __ia64__
+#error cmake_ARCH ia64
+#elif defined __alpha__
+#error cmake_ARCH alpha
+#elif defined __sparc__
+#error cmake_ARCH sparc
+#elif defined __arm__
+#error cmake_ARCH arm
+#elif defined(__aarch64__) || defined(__ARM64__)
+#error cmake_ARCH aarch64
+#elif defined __cris__
+#error cmake_ARCH cris
+#elif defined __hppa__
+#error cmake_ARCH hppa
+#elif defined __mips__
+#error cmake_ARCH mips
+#elif defined __sh__
+#error cmake_ARCH sh
+#else
+#error cmake_ARCH unknown
 #endif
 
-#error cmake_ARCH unknown
 ")
 
 # Set ppc_support to TRUE before including this file or ppc and ppc64
