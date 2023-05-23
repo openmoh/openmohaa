@@ -263,6 +263,14 @@ TIKI_Anim_NumFrames
 */
 int TIKI_Anim_NumFrames( dtiki_t *pmdl, int animnum )
 {
+    if (!pmdl) {
+		return 0;
+    }
+
+    if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        return 0;
+    }
+
 	skelAnimDataGameHeader_t *animData = SkeletorCacheGetData( pmdl->a->m_aliases[ animnum ] );
 	return animData->numFrames;
 }
@@ -274,6 +282,14 @@ TIKI_Anim_Time
 */
 float TIKI_Anim_Time( dtiki_t *pmdl, int animnum )
 {
+	if (!pmdl) {
+		return 0.0;
+	}
+
+	if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+		return 0.0;
+	}
+
 	skelAnimDataGameHeader_t *animData = SkeletorCacheGetData( pmdl->a->m_aliases[ animnum ] );
 
 	return animData->flags & TAF_DELTADRIVEN
@@ -288,6 +304,14 @@ TIKI_Anim_Frametime
 */
 float TIKI_Anim_Frametime( dtiki_t *pmdl, int animnum )
 {
+    if (!pmdl) {
+		return 0.0;
+    }
+
+    if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        return 0.0;
+    }
+
 	skelAnimDataGameHeader_t *animData = SkeletorCacheGetData( pmdl->a->m_aliases[ animnum ] );
 	return animData->frameTime;
 }
@@ -299,6 +323,14 @@ TIKI_Anim_Delta
 */
 void TIKI_Anim_Delta( dtiki_t *pmdl, int animnum, float *delta )
 {
+    if (!pmdl) {
+		return;
+    }
+
+    if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        return;
+    }
+
 	skelAnimDataGameHeader_t *animData = SkeletorCacheGetData( pmdl->a->m_aliases[ animnum ] );
 	VectorScale( animData->totalDelta, pmdl->load_scale, delta );
 }
@@ -310,6 +342,14 @@ TIKI_Anim_HasDelta
 */
 qboolean TIKI_Anim_HasDelta( dtiki_t *pmdl, int animnum )
 {
+    if (!pmdl) {
+		return qfalse;
+    }
+
+    if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        return qfalse;
+    }
+
 	skelAnimDataGameHeader_t *animData = SkeletorCacheGetData( pmdl->a->m_aliases[ animnum ] );
 	return animData->bHasDelta;
 }
@@ -346,6 +386,14 @@ TIKI_Anim_Flags
 */
 int TIKI_Anim_Flags( dtiki_t *pmdl, int animnum )
 {
+    if (!pmdl) {
+		return 0;
+    }
+
+    if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        return 0;
+    }
+
 	dtikianimdef_t *panimdef = pmdl->a->animdefs[ animnum ];
 	return panimdef->flags;
 }
@@ -357,6 +405,14 @@ TIKI_Anim_FlagsSkel
 */
 int TIKI_Anim_FlagsSkel( dtiki_t *pmdl, int animnum )
 {
+    if (!pmdl) {
+		return 0;
+    }
+
+    if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        return 0;
+    }
+
 	skelAnimDataGameHeader_t *animData;
 	int flags;
 
@@ -382,6 +438,14 @@ TIKI_Anim_HasServerCommands
 */
 qboolean TIKI_Anim_HasServerCommands( dtiki_t *pmdl, int animnum )
 {
+    if (!pmdl) {
+		return qfalse;
+    }
+
+    if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        return qfalse;
+    }
+
 	dtikianimdef_t *panimdef = pmdl->a->animdefs[ animnum ];
 	return panimdef->num_server_cmds > 0;
 }
@@ -393,6 +457,14 @@ TIKI_Anim_HasClientCommands
 */
 qboolean TIKI_Anim_HasClientCommands( dtiki_t *pmdl, int animnum )
 {
+    if (!pmdl) {
+		return qfalse;
+    }
+
+    if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        return qfalse;
+    }
+
 	dtikianimdef_t *panimdef = pmdl->a->animdefs[ animnum ];
 	return panimdef->num_client_cmds > 0;
 }
@@ -404,6 +476,14 @@ TIKI_Anim_CrossblendTime
 */
 float TIKI_Anim_CrossblendTime( dtiki_t *pmdl, int animnum )
 {
+    if (!pmdl) {
+		return 0.0;
+    }
+
+    if (!pmdl->a || animnum < 0 || animnum >= pmdl->a->num_anims) {
+        return 0.0;
+    }
+
 	dtikianimdef_t *panimdef = pmdl->a->animdefs[ animnum ];
 	return panimdef->blendtime;
 }
