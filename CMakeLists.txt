@@ -58,6 +58,12 @@ ENDIF()
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
 	set(TARGET_CONFIG_SUFFIX "-dbg")
 	add_definitions(-D_DEBUG)
+
+	if(UNIX)
+		# Enable all exports so all functions name can be seen during executable crash
+		set(CMAKE_ENABLE_EXPORTS ON)
+		message(STATUS "Enabling exports on Unix for backtrace")
+	endif()
 ELSE()
 	set(TARGET_CONFIG_SUFFIX "")
 ENDIF()
