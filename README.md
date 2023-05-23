@@ -81,9 +81,15 @@ To compile for either Spearhead or Breakthrough, append `-DTARGET_GAME_TYPE=x` w
 These are the tools required on Unix :
 - Clang >= 3.3 or GCC >= 4.8.1
 
-**clang-3.5** and **gcc-4.8.5** should work (tested on Ubuntu 16.04).
+**clang-3.5** and **gcc-4.8.5** should work (tested on Ubuntu 16.04). Use the latest possible version of those compilers.
 
 1 line install command with latest clang version : `sudo apt-get install -y ninja-build cmake make clang-15 lld-15 flex bison`
+
+Example with **CMake**, **clang-15** and **ninja-build** installed:
+```sh
+mkdir .cmake && cd .cmake
+cmake -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DWITH_CLIENT=1 -G Ninja
+```
 
 ### Windows
 
