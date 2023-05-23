@@ -659,7 +659,7 @@ void Sys_ConsoleInputInit()
               characters  EOF,  EOL,  EOL2, ERASE, KILL, REPRINT,
               STATUS, and WERASE, and buffers by lines.
      ISIG: when any of the characters  INTR,  QUIT,  SUSP,  or
-              DSUSP are received, generate the corresponding sig­
+              DSUSP are received, generate the corresponding sigÂ­
               nal
     */              
     tc.c_lflag &= ~(ECHO | ICANON);
@@ -1100,8 +1100,8 @@ void *Sys_LoadDll( const char *name, char *fqpath ,
   snprintf(fname, sizeof(fname), "%sx86_64.so", name);
 #elif defined __arm__
   snprintf(fname, sizeof(fname), "%sarm.so", name);
-#elif defined __aarch64__
-  snprintf(fname, sizeof(fname), "%saarch64.so", name);
+#elif defined __arm64__
+  snprintf(fname, sizeof(fname), "%sarm64.so", name);
 #error Unknown arch
 #endif
 
