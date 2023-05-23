@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 #include <signal.h>
+#include <execinfo.h>
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
@@ -33,29 +34,36 @@ void Sys_Exit(int); // bk010104 - abstraction
 
 static void signal_handler(int sig) // bk010104 - replace this... (NOTE TTimo huh?)
 {
-  if (signalcaught)
-  {
-    printf("DOUBLE SIGNAL FAULT: Received signal %d, exiting...\n", sig);
-    Sys_Exit(1); // bk010104 - abstraction
-  }
+	void* arr[20];
+	size_t size;
 
-  signalcaught = qtrue;
-  printf("Received signal %d, exiting...\n", sig);
+	// get void*'s for all entries on the stack
+	size = backtrace(arr, sizeof(arr) / sizeof(arr[0]));
+
+	if (signalcaught)
+	{
+		printf("DOUBLE SIGNAL FAULT: Received signal %d, exiting...\n", sig);
+		Sys_Exit(1); // bk010104 - abstraction
+	}
+
+	signalcaught = qtrue;
+	printf("Received signal %d, exiting...\n", sig);
+	backtrace_symbols_fd(arr, size, STDERR_FILENO);
 #ifndef DEDICATED
-  GLimp_Shutdown(); // bk010104 - shouldn't this be CL_Shutdown
+	GLimp_Shutdown(); // bk010104 - shouldn't this be CL_Shutdown
 #endif
-  Sys_Exit(0); // bk010104 - abstraction NOTE TTimo send a 0 to avoid DOUBLE SIGNAL FAULT
+	Sys_Exit(0); // bk010104 - abstraction NOTE TTimo send a 0 to avoid DOUBLE SIGNAL FAULT
 }
 
 void InitSig(void)
 {
-  signal(SIGHUP, signal_handler);
-  signal(SIGQUIT, signal_handler);
-  signal(SIGILL, signal_handler);
-  signal(SIGTRAP, signal_handler);
-  signal(SIGIOT, signal_handler);
-  signal(SIGBUS, signal_handler);
-  signal(SIGFPE, signal_handler);
-  signal(SIGSEGV, signal_handler);
-  signal(SIGTERM, signal_handler);
+	signal(SIGHUP, signal_handler);
+	signal(SIGQUIT, signal_handler);
+	signal(SIGILL, signal_handler);
+	signal(SIGTRAP, signal_handler);
+	signal(SIGIOT, signal_handler);
+	signal(SIGBUS, signal_handler);
+	signal(SIGFPE, signal_handler);
+	signal(SIGSEGV, signal_handler);
+	signal(SIGTERM, signal_handler);
 }
