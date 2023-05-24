@@ -24,7 +24,7 @@ enum toktype { END, UNCLASS, NAME, NUMBER, STRING, CCON, NL, WS, DSHARP,
 		DSHARP1, NAME1, DEFINED, UMINUS };
 
 enum kwtype { KIF, KIFDEF, KIFNDEF, KELIF, KELSE, KENDIF, KINCLUDE, KDEFINE,
-		KUNDEF, KLINE, KERROR, KPRAGMA, KDEFINED,
+		KUNDEF, KLINE, KWARNING, KERROR, KPRAGMA, KDEFINED,
 		KLINENO, KFILE, KDATE, KTIME, KSTDC, KEVAL };
 
 #define	ISDEFINED	01	/* has #defined value */
@@ -143,7 +143,7 @@ void	setobjname(char *);
 
 char *basepath( char *fname );
 
-extern	char *outp;
+extern	char *outbufp;
 extern	Token	nltoken;
 extern	Source *cursource;
 extern	char *curtime;

@@ -267,7 +267,7 @@ peektokens(Tokenrow *trp, char *str)
 	if (str)
 		fprintf(stderr, "%s ", str);
 	if (tp<trp->bp || tp>trp->lp)
-		fprintf(stderr, "(tp offset %d) ", tp-trp->bp);
+		fprintf(stderr, "(tp offset %ld) ", (long int) (tp - trp->bp));
 	for (tp=trp->bp; tp<trp->lp && tp<trp->bp+32; tp++) {
 		if (tp->type!=NL) {
 			int c = tp->t[tp->len];
@@ -315,7 +315,7 @@ puttokens(Tokenrow *trp)
 		if (wbp >= &wbuf[OBS]) {
 			write(1, wbuf, OBS);
 			if (wbp > &wbuf[OBS])
-				memcpy(wbuf, wbuf+OBS, wbp - &wbuf[OBS]);
+				memmove(wbuf, wbuf+OBS, wbp - &wbuf[OBS]);
 			wbp -= OBS;
 		}
 	}

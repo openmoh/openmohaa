@@ -24,27 +24,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __QCURL_H__
 #define __QCURL_H__
 
-extern cvar_t *cl_cURLLib;
-
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
-#ifdef WIN32
-#define DEFAULT_CURL_LIB "libcurl-3.dll"
-#elif defined(MACOS_X)
-#define DEFAULT_CURL_LIB "libcurl.dylib"
-#else
-#define DEFAULT_CURL_LIB "libcurl.so.3"
-#endif
-
 #ifdef USE_LOCAL_HEADERS
-  #include "../libcurl/curl/curl.h"
+  #include "../curl-7.54.0/include/curl/curl.h"
 #else
   #include <curl/curl.h>
 #endif
 
-
 #ifdef USE_CURL_DLOPEN
+#ifdef WIN32
+  #define DEFAULT_CURL_LIB "libcurl-4.dll"
+  #define ALTERNATE_CURL_LIB "libcurl-3.dll"
+#elif defined(__APPLE__)
+  #define DEFAULT_CURL_LIB "libcurl.dylib"
+#else
+  #define DEFAULT_CURL_LIB "libcurl.so.4"
+  #define ALTERNATE_CURL_LIB "libcurl.so.3"
+#endif
+
+extern cvar_t *cl_cURLLib;
+
 extern char* (*qcurl_version)(void);
 
 extern CURL* (*qcurl_easy_init)(void);

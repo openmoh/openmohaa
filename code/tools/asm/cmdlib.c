@@ -63,7 +63,7 @@ char	*ex_argv[MAX_EX_ARGC];
 void ExpandWildcards( int *argc, char ***argv )
 {
 	struct _finddata_t fileinfo;
-	int		handle;
+	intptr_t	handle;
 	int		i;
 	char	filename[1024];
 	char	filebase[1024];
@@ -185,7 +185,7 @@ void _printf( const char *format, ... ) {
 	vsprintf (text, format, argptr);
 	va_end (argptr);
 
-  printf(text);
+  printf("%s", text);
 
 #ifdef WIN32
   if (!lookedForServer) {
@@ -396,10 +396,12 @@ void Q_getwd (char *out)
 	int i = 0;
 
 #ifdef WIN32
-   _getcwd (out, 256);
+   if (_getcwd (out, 256) == NULL)
+     strcpy(out, ".");  /* shrug */
    strcat (out, "\\");
 #else
-   getcwd (out, 256);
+   if (getcwd (out, 256) == NULL)
+     strcpy(out, ".");  /* shrug */
    strcat (out, "/");
 #endif
 
@@ -732,7 +734,7 @@ int    LoadFile( const char *filename, void **bufferptr )
 ==============
 LoadFileBlock
 -
-rounds up memory allocation to 4K boundry
+rounds up memory allocation to 4K boundary
 -
 ==============
 */
@@ -808,7 +810,7 @@ void DefaultExtension (char *path, const char *extension)
 {
 	char    *src;
 //
-// if path doesnt have a .EXT, append extension
+// if path doesn't have a .EXT, append extension
 // (extension should include the .)
 //
 	src = path + strlen(path) - 1;

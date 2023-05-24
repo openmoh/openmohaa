@@ -130,7 +130,7 @@ vao_t *R_CreateVao(const char *name, byte *vertexes, int vertexesSize, byte *ind
 
 	R_IssuePendingRenderCommands();
 
-	vao = tr.vaos[tr.numVaos] = ri.Hunk_Alloc(sizeof(*vao));
+	vao = tr.vaos[tr.numVaos] = ri.Hunk_Alloc(sizeof(*vao), h_low);
 	tr.numVaos++;
 
 	memset(vao, 0, sizeof(*vao));
@@ -198,7 +198,7 @@ vao_t *R_CreateVao2(const char *name, int numVertexes, srfVert_t *verts, int num
 
 	R_IssuePendingRenderCommands();
 
-	vao = tr.vaos[tr.numVaos] = ri.Hunk_Alloc(sizeof(*vao));
+	vao = tr.vaos[tr.numVaos] = ri.Hunk_Alloc(sizeof(*vao), h_low);
 	tr.numVaos++;
 
 	memset(vao, 0, sizeof(*vao));

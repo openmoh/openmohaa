@@ -98,6 +98,12 @@ typedef struct {
 	void *xt;
 } Xtype;
 
+typedef union {
+	float f;
+	int i;
+	unsigned int ui;
+} floatint_t;
+
 #include "config.h"
 typedef struct metrics {
 	unsigned char size, align, outofline;
@@ -571,6 +577,7 @@ extern Tree cnsttree(Type, ...);
 extern Tree consttree(unsigned int, Type);
 extern Tree eqtree(int, Tree, Tree);
 extern int iscallb(Tree);
+extern int isnullptr(Tree);
 extern Tree shtree(int, Tree, Tree);
 extern void typeerror(int, Tree, Tree);
 

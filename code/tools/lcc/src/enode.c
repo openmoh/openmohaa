@@ -5,7 +5,6 @@ static Tree addtree(int, Tree, Tree);
 static Tree andtree(int, Tree, Tree);
 static Tree cmptree(int, Tree, Tree);
 static int compatible(Type, Type);
-static int isnullptr(Tree e);
 static Tree multree(int, Tree, Tree);
 static Tree subtree(int, Tree, Tree);
 #define isvoidptr(ty) \
@@ -220,7 +219,7 @@ static int compatible(Type ty1, Type ty2) {
 	    && isptr(ty2) && !isfunc(ty2->type)
 	    && eqtype(unqual(ty1->type), unqual(ty2->type), 0);
 }
-static int isnullptr(Tree e) {
+int isnullptr(Tree e) {
 	Type ty = unqual(e->type);
 
 	return generic(e->op) == CNST
@@ -402,7 +401,7 @@ Tree addrof(Tree p) {
 			Symbol t1 = q->u.sym;
 			q->u.sym = 0;
 			q = idtree(t1);
-			/* fall thru */
+			/* fall through */
 			}
 		case INDIR:
 			if (p == q)

@@ -356,7 +356,7 @@ Sys_Basename
 const char *Sys_Basename( char *path )
 {
 	static char base[ MAX_OSPATH ] = { 0 };
-	size_t length;
+	int length;
 
 	length = strlen( path ) - 1;
 
@@ -386,7 +386,7 @@ Sys_Dirname
 const char *Sys_Dirname( char *path )
 {
 	static char dir[ MAX_OSPATH ] = { 0 };
-	size_t length;
+	int length;
 
 	Q_strncpyz( dir, path, sizeof( dir ) );
 	length = strlen( dir ) - 1;
@@ -472,7 +472,7 @@ DIRECTORY SCANNING
 Sys_ListFilteredFiles
 ==============
 */
-void Sys_ListFilteredFiles( const char *basedir, char *subdirs, const char *filter, char **list, int *numfiles )
+void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **list, int *numfiles )
 {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
 	char		filename[MAX_OSPATH];
@@ -527,7 +527,7 @@ strgtr
 */
 static qboolean strgtr(const char *s0, const char *s1)
 {
-	size_t l0, l1, i;
+	int l0, l1, i;
 
 	l0 = strlen(s0);
 	l1 = strlen(s1);
@@ -552,7 +552,7 @@ static qboolean strgtr(const char *s0, const char *s1)
 Sys_ListFiles
 ==============
 */
-char **Sys_ListFiles( const char *directory, const char *extension, const char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
 {
 	char		search[MAX_OSPATH];
 	int			nfiles;
@@ -562,7 +562,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, const char *
 	intptr_t		findhandle;
 	int			flag;
 	int			i;
-	size_t		extLen;
+	int			extLen;
 
 	if (filter) {
 
@@ -813,9 +813,7 @@ void Sys_PlatformInit( void )
 	TIMECAPS ptc;
 #endif
 
-#ifndef _DEBUG
 	Sys_SetFloatEnv();
-#endif
 
 #ifndef DEDICATED
 	if(timeGetDevCaps(&ptc, sizeof(ptc)) == MMSYSERR_NOERROR)
@@ -910,147 +908,4 @@ Check if filename should be allowed to be loaded as a DLL.
 */
 qboolean Sys_DllExtension( const char *name ) {
 	return COM_CompareExtension( name, DLL_EXT );
-}
-
-/*
-================
-RecoverLostAutodialData
-================
-*/
-void RecoverLostAutodialData(void)
-{
-	// FIXME: stub
-}
-
-/*
-==============
-Sys_CloseMutex
-==============
-*/
-void Sys_CloseMutex(void)
-{
-	// FIXME: stub
-}
-
-/*
-==============
-Sys_ShowConsole
-==============
-*/
-void Sys_ShowConsole(int visLevel, qboolean quitOnClose)
-{
-	// FIXME: stub
-}
-
-/*
-==============
-Sys_PumpMessageLoop
-==============
-*/
-void Sys_PumpMessageLoop(void)
-{
-	// FIXME: stub
-}
-
-/*
-==============
-SaveRegistryInfo
-==============
-*/
-qboolean SaveRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long lSize)
-{
-	STUB_DESC("not implemented");
-	return qfalse;
-}
-
-/*
-==============
-LoadRegistryInfo
-==============
-*/
-qboolean LoadRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long* plSize)
-{
-	STUB_DESC("not implemented");
-	return qfalse;
-}
-
-/*
-==============
-IsFirstRun
-==============
-*/
-qboolean IsFirstRun(void)
-{
-	STUB_DESC("wtf");
-	return qfalse;
-}
-
-/*
-==============
-IsNewConfig
-==============
-*/
-qboolean IsNewConfig(void)
-{
-	STUB_DESC("wtf");
-	return qfalse;
-}
-
-/*
-==============
-IsSafeMode
-==============
-*/
-qboolean IsSafeMode(void)
-{
-	STUB_DESC("wtf");
-	return qfalse;
-}
-
-/*
-==============
-ClearNewConfigFlag
-==============
-*/
-void ClearNewConfigFlag(void)
-{
-}
-
-/*
-==============
-Sys_GetWholeClipboard
-==============
-*/
-const char* Sys_GetWholeClipboard(void)
-{
-	return NULL;
-}
-
-/*
-==============
-Sys_SetClipboard
-==============
-*/
-void Sys_SetClipboard(const char* contents)
-{
-}
-
-/*
-==================
-SetNormalThreadPriority
-==================
-*/
-void SetNormalThreadPriority(void)
-{
-	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_NORMAL);
-}
-
-/*
-==================
-SetBelowNormalThreadPriority
-==================
-*/
-void SetBelowNormalThreadPriority(void)
-{
-	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
 }

@@ -33,7 +33,6 @@ float       displayAspect = 0.0f;
 qboolean    haveClampToEdge = qfalse;
 
 glstate_t	glState;
-int r_sequencenumber;
 
 static void GfxInfo_f( void );
 static void GfxMemInfo_f( void );
@@ -236,46 +235,6 @@ cvar_t	*r_maxpolys;
 int		max_polys;
 cvar_t	*r_maxpolyverts;
 int		max_polyverts;
-
-cvar_t* r_staticlod;
-cvar_t* r_lodscale;
-cvar_t* r_lodcap;
-cvar_t* r_lodviewmodelcap;
-
-cvar_t* r_uselod;
-cvar_t* lod_LOD;
-cvar_t* lod_minLOD;
-cvar_t* lod_maxLOD;
-cvar_t* lod_LOD_slider;
-cvar_t* lod_curve_0_val;
-cvar_t* lod_curve_1_val;
-cvar_t* lod_curve_2_val;
-cvar_t* lod_curve_3_val;
-cvar_t* lod_curve_4_val;
-cvar_t* lod_edit_0;
-cvar_t* lod_edit_1;
-cvar_t* lod_edit_2;
-cvar_t* lod_edit_3;
-cvar_t* lod_edit_4;
-cvar_t* lod_curve_0_slider;
-cvar_t* lod_curve_1_slider;
-cvar_t* lod_curve_2_slider;
-cvar_t* lod_curve_3_slider;
-cvar_t* lod_curve_4_slider;
-cvar_t* lod_pitch_val;
-cvar_t* lod_zee_val;
-cvar_t* lod_mesh;
-cvar_t* lod_meshname;
-cvar_t* lod_tikiname;
-cvar_t* lod_metric;
-cvar_t* lod_tris;
-cvar_t* lod_position;
-cvar_t* lod_save;
-cvar_t* lod_tool;
-
-cvar_t* r_numdebuglines;
-
-cvar_t* r_showSkeleton;
 
 /*
 ** InitOpenGL
@@ -909,6 +868,87 @@ void R_ExportCubemaps_f(void)
 
 //============================================================================
 
+/*
+==================
+RB_TakeVideoFrameCmd
+==================
+*/
+const void *RB_TakeVideoFrameCmd( const void *data )
+{
+	const videoFrameCommand_t	*cmd;
+	byte				*cBuf;
+	size_t				memcount, linelen;
+	int				padwidth, avipadwidth, padlen, avipadlen;
+	GLint packAlign;
+
+	// finish any 2D drawing if needed
+	if(tess.numIndexes)
+		RB_EndSurface();
+
+	cmd = (const videoFrameCommand_t *)data;
+	
+	qglGetIntegerv(GL_PACK_ALIGNMENT, &packAlign);
+
+	linelen = cmd->width * 3;
+
+	// Alignment stuff for glReadPixels
+	padwidth = PAD(linelen, packAlign);
+	padlen = padwidth - linelen;
+	// AVI line padding
+	avipadwidth = PAD(linelen, AVI_LINE_PADDING);
+	avipadlen = avipadwidth - linelen;
+
+	cBuf = PADP(cmd->captureBuffer, packAlign);
+		
+	qglReadPixels(0, 0, cmd->width, cmd->height, GL_RGB,
+		GL_UNSIGNED_BYTE, cBuf);
+
+	memcount = padwidth * cmd->height;
+
+	// gamma correct
+	if(glConfig.deviceSupportsGamma)
+		R_GammaCorrect(cBuf, memcount);
+
+	if(cmd->motionJpeg)
+	{
+		memcount = RE_SaveJPGToBuffer(cmd->encodeBuffer, linelen * cmd->height,
+			r_aviMotionJpegQuality->integer,
+			cmd->width, cmd->height, cBuf, padlen);
+		ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, memcount);
+	}
+	else
+	{
+		byte *lineend, *memend;
+		byte *srcptr, *destptr;
+	
+		srcptr = cBuf;
+		destptr = cmd->encodeBuffer;
+		memend = srcptr + memcount;
+		
+		// swap R and B and remove line paddings
+		while(srcptr < memend)
+		{
+			lineend = srcptr + linelen;
+			while(srcptr < lineend)
+			{
+				*destptr++ = srcptr[2];
+				*destptr++ = srcptr[1];
+				*destptr++ = srcptr[0];
+				srcptr += 3;
+			}
+			
+			Com_Memset(destptr, '\0', avipadlen);
+			destptr += avipadlen;
+			
+			srcptr += padlen;
+		}
+		
+		ri.CL_WriteAVIVideoFrame(cmd->encodeBuffer, avipadwidth * cmd->height);
+	}
+
+	return (const void *)(cmd + 1);	
+}
+
 //============================================================================
 
 /*
@@ -984,11 +1024,6 @@ void R_PrintLongString(const char *string) {
 		p += 1023;
 		size -= 1023;
 	}
-}
-
-const char* RE_GetGraphicsInfo() {
-    // FIXME: unimplemented
-    return NULL;
 }
 
 /*
@@ -1072,16 +1107,6 @@ void GfxInfo_f( void )
 	if ( r_finish->integer ) {
 		ri.Printf( PRINT_ALL, "Forcing glFinish\n" );
 	}
-}
-
-qboolean R_SetMode(int mode) {
-    // FIXME: unimplemented
-    return qfalse;
-}
-
-void R_SetFullscreen(qboolean fullscreen, glconfig_t* config) {
-    // FIXME: unimplemented
-    return qfalse;
 }
 
 /*
@@ -1170,12 +1195,14 @@ void R_Register( void )
 	r_picmip = ri.Cvar_Get ("r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_roundImagesDown = ri.Cvar_Get ("r_roundImagesDown", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_colorMipLevels = ri.Cvar_Get ("r_colorMipLevels", "0", CVAR_LATCH );
+	ri.Cvar_CheckRange( r_picmip, 0, 16, qtrue );
 	r_detailTextures = ri.Cvar_Get( "r_detailtextures", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_texturebits = ri.Cvar_Get( "r_texturebits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_colorbits = ri.Cvar_Get( "r_colorbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "8", CVAR_ARCHIVE | CVAR_LATCH );
 	r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ext_multisample = ri.Cvar_Get( "r_ext_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	ri.Cvar_CheckRange( r_ext_multisample, 0, 4, qtrue );
 	r_overBrightBits = ri.Cvar_Get ("r_overBrightBits", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_mode = ri.Cvar_Get( "r_mode", "-2", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1190,6 +1217,7 @@ void R_Register( void )
 	r_subdivisions = ri.Cvar_Get ("r_subdivisions", "4", CVAR_ARCHIVE | CVAR_LATCH);
 	r_stereoEnabled = ri.Cvar_Get( "r_stereoEnabled", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_greyscale = ri.Cvar_Get("r_greyscale", "0", CVAR_ARCHIVE | CVAR_LATCH);
+	ri.Cvar_CheckRange(r_greyscale, 0, 1, qfalse);
 
 	r_externalGLSL = ri.Cvar_Get( "r_externalGLSL", "0", CVAR_LATCH );
 
@@ -1256,6 +1284,7 @@ void R_Register( void )
 	// temporary latched variables that can only change over a restart
 	//
 	r_displayRefresh = ri.Cvar_Get( "r_displayRefresh", "0", CVAR_LATCH );
+	ri.Cvar_CheckRange( r_displayRefresh, 0, 200, qtrue );
 	r_fullbright = ri.Cvar_Get ("r_fullbright", "0", CVAR_LATCH|CVAR_CHEAT );
 	r_mapOverBrightBits = ri.Cvar_Get ("r_mapOverBrightBits", "2", CVAR_LATCH );
 	r_intensity = ri.Cvar_Get ("r_intensity", "1", CVAR_LATCH );
@@ -1268,6 +1297,7 @@ void R_Register( void )
 	r_lodbias = ri.Cvar_Get( "r_lodbias", "0", CVAR_ARCHIVE );
 	r_flares = ri.Cvar_Get ("r_flares", "0", CVAR_ARCHIVE );
 	r_znear = ri.Cvar_Get( "r_znear", "4", CVAR_CHEAT );
+	ri.Cvar_CheckRange( r_znear, 0.001f, 200, qfalse );
 	r_zproj = ri.Cvar_Get( "r_zproj", "64", CVAR_ARCHIVE );
 	r_stereoSeparation = ri.Cvar_Get( "r_stereoSeparation", "64", CVAR_ARCHIVE );
 	r_ignoreGLErrors = ri.Cvar_Get( "r_ignoreGLErrors", "1", CVAR_ARCHIVE );
@@ -1446,7 +1476,7 @@ void R_Init( void ) {
 	if (max_polyverts < MAX_POLYVERTS)
 		max_polyverts = MAX_POLYVERTS;
 
-	ptr = ri.Hunk_Alloc( sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts);
+	ptr = ri.Hunk_Alloc( sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys + sizeof(polyVert_t) * max_polyverts, h_low);
 	backEndData = (backEndData_t *) ptr;
 	backEndData->polys = (srfPoly_t *) ((char *) ptr + sizeof( *backEndData ));
 	backEndData->polyVerts = (polyVert_t *) ((char *) ptr + sizeof( *backEndData ) + sizeof(srfPoly_t) * max_polys);
@@ -1549,9 +1579,6 @@ void RE_EndRegistration( void ) {
 	}
 }
 
-void RE_SetRenderTime(int t) {
-    // FIXME: unimplemented
-}
 
 /*
 @@@@@@@@@@@@@@@@@@@@@
@@ -1579,77 +1606,43 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 
 	// the RE_ functions are Renderer Entry points
 
-    re.Shutdown = RE_Shutdown;
+	re.Shutdown = RE_Shutdown;
 
-    re.FreeModels = RE_FreeModels;
-    re.BeginRegistration = RE_BeginRegistration;
-    re.EndRegistration = RE_EndRegistration;
-    re.RegisterModel = RE_RegisterModel;
-    re.SpawnEffectModel = RE_SpawnEffectModel;
-    re.RegisterServerModel = RE_RegisterServerModel;
-    re.UnregisterServerModel = RE_UnregisterServerModel;
-    re.RegisterShader = RE_RegisterShader;
-    re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
-    re.LoadWorld = RE_LoadWorldMap;
-    re.PrintBSPFileSizes = RE_PrintBSPFileSizes;
-    re.MapVersion = RE_MapVersion;
-    re.LoadFont = R_LoadFont;
-    re.SetWorldVisData = RE_SetWorldVisData;
+	re.BeginRegistration = RE_BeginRegistration;
+	re.RegisterModel = RE_RegisterModel;
+	re.RegisterSkin = RE_RegisterSkin;
+	re.RegisterShader = RE_RegisterShader;
+	re.RegisterShaderNoMip = RE_RegisterShaderNoMip;
+	re.LoadWorld = RE_LoadWorldMap;
+	re.SetWorldVisData = RE_SetWorldVisData;
+	re.EndRegistration = RE_EndRegistration;
 
-    re.BeginFrame = RE_BeginFrame;
-    re.EndFrame = RE_EndFrame;
+	re.BeginFrame = RE_BeginFrame;
+	re.EndFrame = RE_EndFrame;
 
-    re.MarkFragments = R_MarkFragments;
-    re.MarkFragmentsForInlineModel = R_MarkFragmentsForInlineModel;
-    re.GetInlineModelBounds = R_GetInlineModelBounds;
-    re.GetLightingForDecal = R_GetLightingForDecal;
-    re.GetLightingForSmoke = R_GetLightingForSmoke;
-    re.R_GatherLightSources = R_GatherLightSources;
-    re.ModelBounds = R_ModelBounds;
-    re.ModelRadius = R_ModelRadius;
+	re.MarkFragments = R_MarkFragments;
+	re.LerpTag = R_LerpTag;
+	re.ModelBounds = R_ModelBounds;
 
-    re.ClearScene = RE_ClearScene;
-    re.AddRefEntityToScene = RE_AddRefEntityToScene;
-    re.AddRefSpriteToScene = RE_AddRefSpriteToScene;
-    re.AddPolyToScene = RE_AddPolyToScene;
-    re.AddTerrainMarkToScene = RE_AddTerrainMarkToScene;
-    re.AddLightToScene = RE_AddLightToScene;
-    re.RenderScene = RE_RenderScene;
-    re.GetRenderEntity = RE_GetRenderEntity;
+	re.ClearScene = RE_ClearScene;
+	re.AddRefEntityToScene = RE_AddRefEntityToScene;
+	re.AddPolyToScene = RE_AddPolyToScene;
+	re.LightForPoint = R_LightForPoint;
+	re.AddLightToScene = RE_AddLightToScene;
+	re.AddAdditiveLightToScene = RE_AddAdditiveLightToScene;
+	re.RenderScene = RE_RenderScene;
 
-    re.SavePerformanceCounters = R_SavePerformanceCounters;
+	re.SetColor = RE_SetColor;
+	re.DrawStretchPic = RE_StretchPic;
+	re.DrawStretchRaw = RE_StretchRaw;
+	re.UploadCinematic = RE_UploadCinematic;
 
-    re.R_Model_GetHandle = R_Model_GetHandle;
-    re.SetColor = Draw_SetColor;
-    re.DrawStretchPic = Draw_StretchPic;
-    re.DrawStretchRaw = RE_StretchRaw;
-    re.DebugLine = R_DebugLine;
-    re.DrawTilePic = Draw_TilePic;
-    re.DrawTilePicOffset = Draw_TilePicOffset;
-    re.DrawTrianglePic = Draw_TrianglePic;
-    re.DrawBox = DrawBox;
-    re.AddBox = AddBox;
-    re.Set2DWindow = Set2DWindow;
-    re.Scissor = RE_Scissor;
-    re.DrawLineLoop = DrawLineLoop;
-    re.DrawString = R_DrawString;
-    re.GetFontHeight = R_GetFontHeight;
-    re.GetFontStringWidth = R_GetFontStringWidth;
-    re.SwipeBegin = RE_SwipeBegin;
-    re.SwipeEnd = RE_SwipeEnd;
-    re.SetRenderTime = RE_SetRenderTime;
-    re.Noise = R_NoiseGet4f;
+	re.RegisterFont = RE_RegisterFont;
+	re.RemapShader = R_RemapShader;
+	re.GetEntityToken = R_GetEntityToken;
+	re.inPVS = R_inPVS;
 
-    re.SetMode = R_SetMode;
-    re.SetFullscreen = R_SetFullscreen;
-
-    re.GetShaderHeight = RE_GetShaderHeight;
-    re.GetShaderWidth = RE_GetShaderWidth;
-    re.GetGraphicsInfo = RE_GetGraphicsInfo;
-    re.ForceUpdatePose = RE_ForceUpdatePose;
-    re.TIKI_Orientation = RE_TIKI_Orientation;
-    re.TIKI_IsOnGround = RE_TIKI_IsOnGround;
-    re.SetFrameNumber = RE_SetFrameNumber;
+	re.TakeVideoFrame = RE_TakeVideoFrame;
 
 	return &re;
 }

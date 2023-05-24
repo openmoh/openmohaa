@@ -64,6 +64,13 @@ R_BindAnimatedImageToTMU
 static void R_BindAnimatedImageToTMU( textureBundle_t *bundle, int tmu ) {
 	int64_t index;
 
+	if ( bundle->isVideoMap ) {
+		ri.CIN_RunCinematic(bundle->videoMapHandle);
+		ri.CIN_UploadCinematic(bundle->videoMapHandle);
+		GL_BindToTMU(tr.scratchImage[bundle->videoMapHandle], tmu);
+		return;
+	}
+
 	if ( bundle->numImageAnimations <= 1 ) {
 		GL_BindToTMU( bundle->image[0], tmu);
 		return;

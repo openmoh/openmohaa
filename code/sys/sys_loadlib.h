@@ -20,8 +20,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#pragma once
-
 #ifdef DEDICATED
 #	ifdef _WIN32
 #		include <windows.h>

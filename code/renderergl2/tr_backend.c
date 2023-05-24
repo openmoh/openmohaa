@@ -517,6 +517,9 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				{
 					// hack the depth range to prevent view model from poking into walls
 					depthRange = qtrue;
+					
+					if(backEnd.currentEntity->e.renderfx & RF_CROSSHAIR)
+						isCrosshair = qtrue;
 				}
 			} else {
 				backEnd.currentEntity = &tr.worldEntity;

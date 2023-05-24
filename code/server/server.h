@@ -203,9 +203,11 @@ typedef struct client_s {
 typedef struct {
 	netadr_t	adr;
 	int			challenge;
+	int			clientChallenge;		// challenge number coming from the client
 	int			time;				// time the last packet was sent to the autherize server
 	int			pingTime;			// time the challenge response was sent to client
 	int			firstTime;			// time the adr was first used, for authorize timeout checks
+	qboolean	wasrefused;
 	qboolean	connected;
 } challenge_t;
 
@@ -330,6 +332,28 @@ extern int numDebugStrings;
 //
 // sv_main.c
 //
+typedef struct leakyBucket_s leakyBucket_t;
+struct leakyBucket_s {
+	netadrtype_t	type;
+
+	union {
+		byte	_4[4];
+		byte	_6[16];
+	} ipv;
+
+	int						lastTime;
+	signed char		burst;
+
+	long					hash;
+
+	leakyBucket_t *prev, *next;
+};
+
+extern leakyBucket_t outboundLeakyBucket;
+
+qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period );
+qboolean SVC_RateLimitAddress( netadr_t from, int burst, int period );
+
 void SV_FinalMessage( const char *message );
 void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ...);
 
@@ -340,6 +364,7 @@ void SV_RemoveOperatorCommands (void);
 
 void SV_MasterHeartbeat (void);
 void SV_MasterShutdown (void);
+int SV_RateMsec(client_t *client);
 
 void SV_ArchiveHudDrawElements( qboolean loading );
 void SV_HudDrawShader( int iInfo, char *name );
@@ -412,6 +437,8 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK );
 void SV_ClientThink( client_t *cl, usercmd_t *cmd );
 
 void SV_WriteDownloadToClient( client_t *cl , msg_t *msg );
+int SV_SendDownloadMessages(void);
+int SV_SendQueuedMessages(void);
 
 //
 // sv_ccmds.c

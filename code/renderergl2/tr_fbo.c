@@ -101,7 +101,7 @@ FBO_t          *FBO_Create(const char *name, int width, int height)
 		ri.Error(ERR_DROP, "FBO_Create: MAX_FBOS hit");
 	}
 
-	fbo = tr.fbos[tr.numFBOs] = ri.Hunk_Alloc(sizeof(*fbo));
+	fbo = tr.fbos[tr.numFBOs] = ri.Hunk_Alloc(sizeof(*fbo), h_low);
 	Q_strncpyz(fbo->name, name, sizeof(fbo->name));
 	fbo->index = tr.numFBOs++;
 	fbo->width = width;
@@ -273,10 +273,8 @@ void FBO_Init(void)
 	if (multisample < 2 || !glRefConfig.framebufferBlit)
 		multisample = 0;
 
-	if (multisample != r_ext_framebuffer_multisample->integer) {
-		char buf[10];
-		ri.Cvar_Set("r_ext_framebuffer_multisample", itoa(multisample, buf, 10));
-	}
+	if (multisample != r_ext_framebuffer_multisample->integer)
+		ri.Cvar_SetValue("r_ext_framebuffer_multisample", (float)multisample);
 	
 	// only create a render FBO if we need to resolve MSAA or do HDR
 	// otherwise just render straight to the screen (tr.renderFbo = NULL)

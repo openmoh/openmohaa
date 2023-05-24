@@ -34,9 +34,14 @@ void UpdatePaths( const char *lccBinary )
 {
 	char basepath[ 1024 ];
 	char *p;
+	size_t basepathsz = sizeof( basepath ) - 1;
 
-	strncpy( basepath, lccBinary, 1024 );
-	p = strrchr( basepath, PATH_SEP );
+	strncpy( basepath, lccBinary, basepathsz );
+	basepath[basepathsz] = 0;
+	p = strrchr( basepath, '/' );
+
+	if( !p )
+		p = strrchr( basepath, '\\' );
 
 	if( p )
 	{
@@ -52,6 +57,10 @@ int option(char *arg) {
 		cpp[0] = concat(&arg[8], "/q3cpp" BINEXT);
 		include[0] = concat("-I", concat(&arg[8], "/include"));
 		com[0] = concat(&arg[8], "/q3rcc" BINEXT);
+	} else if (strncmp(arg, "-lcppdir=", 9) == 0) {
+		cpp[0] = concat(&arg[9], "/q3cpp" BINEXT);
+	} else if (strncmp(arg, "-lrccdir=", 9) == 0) {
+		com[0] = concat(&arg[9], "/q3rcc" BINEXT);
 	} else if (strcmp(arg, "-p") == 0 || strcmp(arg, "-pg") == 0) {
 		fprintf( stderr, "no profiling supported, %s ignored.\n", arg);
 	} else if (strcmp(arg, "-b") == 0)

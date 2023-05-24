@@ -46,6 +46,7 @@ void Mat4SimpleInverse( const mat4_t in, mat4_t out);
 
 #define VectorCopy4(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3])
 #define VectorSet4(v,x,y,z,w)	((v)[0]=(x),(v)[1]=(y),(v)[2]=(z),(v)[3]=(w))
+#define DotProduct4(a,b)        ((a)[0]*(b)[0] + (a)[1]*(b)[1] + (a)[2]*(b)[2] + (a)[3]*(b)[3])
 #define VectorScale4(a,b,c)     ((c)[0]=(a)[0]*(b),(c)[1]=(a)[1]*(b),(c)[2]=(a)[2]*(b),(c)[3]=(a)[3]*(b))
 
 #define VectorCopy5(a,b)		((b)[0]=(a)[0],(b)[1]=(a)[1],(b)[2]=(a)[2],(b)[3]=(a)[3],(b)[4]=(a)[4])
@@ -54,6 +55,26 @@ void Mat4SimpleInverse( const mat4_t in, mat4_t out);
 #define FloatToOffsetByte(a)    (byte)((a) * 127.5f + 128.0f)
 #define ByteToFloat(a)          ((float)(a) * 1.0f/255.0f)
 #define FloatToByte(a)          (byte)((a) * 255.0f)
+
+static ID_INLINE int VectorCompare4(const vec4_t v1, const vec4_t v2)
+{
+	if(v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2] || v1[3] != v2[3])
+	{
+		return 0;
+	}
+	return 1;
+}
+
+static ID_INLINE int VectorCompare5(const vec5_t v1, const vec5_t v2)
+{
+	if(v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2] || v1[3] != v2[3] || v1[4] != v2[4])
+	{
+		return 0;
+	}
+	return 1;
+}
+
+void VectorLerp( vec3_t a, vec3_t b, float lerp, vec3_t c);
 
 
 qboolean SpheresIntersect(vec3_t origin1, float radius1, vec3_t origin2, float radius2);

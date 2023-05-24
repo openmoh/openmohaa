@@ -1094,7 +1094,24 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 		VectorSubtract( vec3_origin, camera->axis[1], camera->axis[1] );
 
 		// optionally rotate
-		if ( e->e.skinNum ) {
+		if ( e->e.oldframe ) {
+			// if a speed is specified
+			if ( e->e.frame ) {
+				// continuous rotate
+				d = (tr.refdef.time/1000.0f) * e->e.frame;
+				VectorCopy( camera->axis[1], transformed );
+				RotatePointAroundVector( camera->axis[1], camera->axis[0], transformed, d );
+				CrossProduct( camera->axis[0], camera->axis[1], camera->axis[2] );
+			} else {
+				// bobbing rotate, with skinNum being the rotation offset
+				d = sin( tr.refdef.time * 0.003f );
+				d = e->e.skinNum + d * 4;
+				VectorCopy( camera->axis[1], transformed );
+				RotatePointAroundVector( camera->axis[1], camera->axis[0], transformed, d );
+				CrossProduct( camera->axis[0], camera->axis[1], camera->axis[2] );
+			}
+		}
+		else if ( e->e.skinNum ) {
 			d = e->e.skinNum;
 			VectorCopy( camera->axis[1], transformed );
 			RotatePointAroundVector( camera->axis[1], camera->axis[0], transformed, d );
@@ -1353,6 +1370,10 @@ int R_SpriteFogNum( trRefEntity_t *ent ) {
 		return 0;
 	}
 
+	if ( ent->e.renderfx & RF_CROSSHAIR ) {
+		return 0;
+	}
+
 	for ( i = 1 ; i < tr.world->numfogs ; i++ ) {
 		fog = &tr.world->fogs[i];
 		for ( j = 0 ; j < 3 ; j++ ) {
@@ -1556,6 +1577,9 @@ static void R_AddEntitySurface (int entityNum)
 		break;		// don't draw anything
 	case RT_SPRITE:
 	case RT_BEAM:
+	case RT_LIGHTNING:
+	case RT_RAIL_CORE:
+	case RT_RAIL_RINGS:
 		// self blood sprites, talk balloons, etc should not be drawn in the primary
 		// view.  We can't just do this check for all entities, because md3
 		// entities may still want to cast shadows from them
@@ -1575,6 +1599,15 @@ static void R_AddEntitySurface (int entityNum)
 			R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, 0, 0, 0 /*cubeMap*/  );
 		} else {
 			switch ( tr.currentModel->type ) {
+			case MOD_MESH:
+				R_AddMD3Surfaces( ent );
+				break;
+			case MOD_MDR:
+				R_MDRAddAnimSurfaces( ent );
+				break;
+			case MOD_IQM:
+				R_AddIQMSurfaces( ent );
+				break;
 			case MOD_BRUSH:
 				R_AddBrushModelSurfaces( ent );
 				break;
@@ -1834,7 +1867,7 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 	{
 		trRefEntity_t *ent = &tr.refdef.entities[i];
 
-		if((ent->e.renderfx & (RF_FIRST_PERSON)))
+		if((ent->e.renderfx & (RF_FIRST_PERSON | RF_NOSHADOW)))
 			continue;
 
 		//if((ent->e.renderfx & RF_THIRD_PERSON))
@@ -1859,6 +1892,37 @@ void R_RenderPshadowMaps(const refdef_t *fd)
 
 			switch (model->type)
 			{
+				case MOD_MESH:
+				{
+					mdvFrame_t *frame = &model->mdv[0]->frames[ent->e.frame];
+
+					radius = frame->radius * scale;
+				}
+				break;
+
+				case MOD_MDR:
+				{
+					// FIXME: never actually tested this
+					mdrHeader_t *header = model->modelData;
+					int frameSize = (size_t)( &((mdrFrame_t *)0)->bones[ header->numBones ] );
+					mdrFrame_t *frame = ( mdrFrame_t * ) ( ( byte * ) header + header->ofsFrames + frameSize * ent->e.frame);
+
+					radius = frame->radius;
+				}
+				break;
+				case MOD_IQM:
+				{
+					// FIXME: never actually tested this
+					iqmData_t *data = model->modelData;
+					vec3_t diag;
+					float *framebounds;
+
+					framebounds = data->bounds + 6*ent->e.frame;
+					VectorSubtract( framebounds+3, framebounds, diag );
+					radius = 0.5f * VectorLength( diag );
+				}
+				break;
+
 				default:
 					break;
 			}

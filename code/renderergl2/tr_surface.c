@@ -447,9 +447,6 @@ static qboolean RB_SurfaceVaoCached(int numVerts, srfVert_t *verts, int numIndex
 	return qtrue;
 }
 
-void RB_SurfaceMarkFragment(srfMarkFragment_t* p) {
-    // FIXME: unimplemented
-}
 
 /*
 =============
@@ -554,6 +551,337 @@ static void RB_SurfaceBeam( void )
 	tess.numVertexes = 0;
 	tess.firstIndex = 0;
 }
+
+//================================================================================
+
+static void DoRailCore( const vec3_t start, const vec3_t end, const vec3_t up, float len, float spanWidth )
+{
+	float		spanWidth2;
+	int			vbase;
+	float		t = len / 256.0f;
+
+	RB_CheckVao(tess.vao);
+
+	RB_CHECKOVERFLOW( 4, 6 );
+
+	vbase = tess.numVertexes;
+
+	spanWidth2 = -spanWidth;
+
+	// FIXME: use quad stamp?
+	VectorMA( start, spanWidth, up, tess.xyz[tess.numVertexes] );
+	tess.texCoords[tess.numVertexes][0] = 0;
+	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.color[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0] * 0.25f * 257.0f;
+	tess.color[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1] * 0.25f * 257.0f;
+	tess.color[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2] * 0.25f * 257.0f;
+	tess.numVertexes++;
+
+	VectorMA( start, spanWidth2, up, tess.xyz[tess.numVertexes] );
+	tess.texCoords[tess.numVertexes][0] = 0;
+	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.color[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0] * 257;
+	tess.color[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1] * 257;
+	tess.color[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2] * 257;
+	tess.numVertexes++;
+
+	VectorMA( end, spanWidth, up, tess.xyz[tess.numVertexes] );
+
+	tess.texCoords[tess.numVertexes][0] = t;
+	tess.texCoords[tess.numVertexes][1] = 0;
+	tess.color[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0] * 257;
+	tess.color[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1] * 257;
+	tess.color[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2] * 257;
+	tess.numVertexes++;
+
+	VectorMA( end, spanWidth2, up, tess.xyz[tess.numVertexes] );
+	tess.texCoords[tess.numVertexes][0] = t;
+	tess.texCoords[tess.numVertexes][1] = 1;
+	tess.color[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0] * 257;
+	tess.color[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1] * 257;
+	tess.color[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2] * 257;
+	tess.numVertexes++;
+
+	tess.indexes[tess.numIndexes++] = vbase;
+	tess.indexes[tess.numIndexes++] = vbase + 1;
+	tess.indexes[tess.numIndexes++] = vbase + 2;
+
+	tess.indexes[tess.numIndexes++] = vbase + 2;
+	tess.indexes[tess.numIndexes++] = vbase + 1;
+	tess.indexes[tess.numIndexes++] = vbase + 3;
+}
+
+static void DoRailDiscs( int numSegs, const vec3_t start, const vec3_t dir, const vec3_t right, const vec3_t up )
+{
+	int i;
+	vec3_t	pos[4];
+	vec3_t	v;
+	int		spanWidth = r_railWidth->integer;
+	float c, s;
+	float		scale;
+
+	if ( numSegs > 1 )
+		numSegs--;
+	if ( !numSegs )
+		return;
+
+	scale = 0.25;
+
+	for ( i = 0; i < 4; i++ )
+	{
+		c = cos( DEG2RAD( 45 + i * 90 ) );
+		s = sin( DEG2RAD( 45 + i * 90 ) );
+		v[0] = ( right[0] * c + up[0] * s ) * scale * spanWidth;
+		v[1] = ( right[1] * c + up[1] * s ) * scale * spanWidth;
+		v[2] = ( right[2] * c + up[2] * s ) * scale * spanWidth;
+		VectorAdd( start, v, pos[i] );
+
+		if ( numSegs > 1 )
+		{
+			// offset by 1 segment if we're doing a long distance shot
+			VectorAdd( pos[i], dir, pos[i] );
+		}
+	}
+
+	RB_CheckVao(tess.vao);
+
+	for ( i = 0; i < numSegs; i++ )
+	{
+		int j;
+
+		RB_CHECKOVERFLOW( 4, 6 );
+
+		for ( j = 0; j < 4; j++ )
+		{
+			VectorCopy( pos[j], tess.xyz[tess.numVertexes] );
+			tess.texCoords[tess.numVertexes][0] = (j < 2);
+			tess.texCoords[tess.numVertexes][1] = (j && j != 3);
+			tess.color[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0] * 257;
+			tess.color[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1] * 257;
+			tess.color[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2] * 257;
+			tess.numVertexes++;
+
+			VectorAdd( pos[j], dir, pos[j] );
+		}
+
+		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 0;
+		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 1;
+		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 3;
+		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 3;
+		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 1;
+		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 2;
+	}
+}
+
+/*
+** RB_SurfaceRailRinges
+*/
+static void RB_SurfaceRailRings( void ) {
+	refEntity_t *e;
+	int			numSegs;
+	int			len;
+	vec3_t		vec;
+	vec3_t		right, up;
+	vec3_t		start, end;
+
+	e = &backEnd.currentEntity->e;
+
+	VectorCopy( e->oldorigin, start );
+	VectorCopy( e->origin, end );
+
+	// compute variables
+	VectorSubtract( end, start, vec );
+	len = VectorNormalize( vec );
+	MakeNormalVectors( vec, right, up );
+	numSegs = ( len ) / r_railSegmentLength->value;
+	if ( numSegs <= 0 ) {
+		numSegs = 1;
+	}
+
+	VectorScale( vec, r_railSegmentLength->value, vec );
+
+	DoRailDiscs( numSegs, start, vec, right, up );
+}
+
+/*
+** RB_SurfaceRailCore
+*/
+static void RB_SurfaceRailCore( void ) {
+	refEntity_t *e;
+	int			len;
+	vec3_t		right;
+	vec3_t		vec;
+	vec3_t		start, end;
+	vec3_t		v1, v2;
+
+	e = &backEnd.currentEntity->e;
+
+	VectorCopy( e->oldorigin, start );
+	VectorCopy( e->origin, end );
+
+	VectorSubtract( end, start, vec );
+	len = VectorNormalize( vec );
+
+	// compute side vector
+	VectorSubtract( start, backEnd.viewParms.or.origin, v1 );
+	VectorNormalize( v1 );
+	VectorSubtract( end, backEnd.viewParms.or.origin, v2 );
+	VectorNormalize( v2 );
+	CrossProduct( v1, v2, right );
+	VectorNormalize( right );
+
+	DoRailCore( start, end, right, len, r_railCoreWidth->integer );
+}
+
+/*
+** RB_SurfaceLightningBolt
+*/
+static void RB_SurfaceLightningBolt( void ) {
+	refEntity_t *e;
+	int			len;
+	vec3_t		right;
+	vec3_t		vec;
+	vec3_t		start, end;
+	vec3_t		v1, v2;
+	int			i;
+
+	e = &backEnd.currentEntity->e;
+
+	VectorCopy( e->oldorigin, end );
+	VectorCopy( e->origin, start );
+
+	// compute variables
+	VectorSubtract( end, start, vec );
+	len = VectorNormalize( vec );
+
+	// compute side vector
+	VectorSubtract( start, backEnd.viewParms.or.origin, v1 );
+	VectorNormalize( v1 );
+	VectorSubtract( end, backEnd.viewParms.or.origin, v2 );
+	VectorNormalize( v2 );
+	CrossProduct( v1, v2, right );
+	VectorNormalize( right );
+
+	for ( i = 0 ; i < 4 ; i++ ) {
+		vec3_t	temp;
+
+		DoRailCore( start, end, right, len, 8 );
+		RotatePointAroundVector( temp, vec, right, 45 );
+		VectorCopy( temp, right );
+	}
+}
+
+
+static void LerpMeshVertexes(mdvSurface_t *surf, float backlerp)
+{
+	float *outXyz;
+	int16_t *outNormal, *outTangent;
+	mdvVertex_t *newVerts;
+	int		vertNum;
+
+	newVerts = surf->verts + backEnd.currentEntity->e.frame * surf->numVerts;
+
+	outXyz =     tess.xyz[tess.numVertexes];
+	outNormal =  tess.normal[tess.numVertexes];
+	outTangent = tess.tangent[tess.numVertexes];
+
+	if (backlerp == 0)
+	{
+		//
+		// just copy the vertexes
+		//
+
+		for (vertNum=0 ; vertNum < surf->numVerts ; vertNum++)
+		{
+			VectorCopy(newVerts->xyz,    outXyz);
+			VectorCopy4(newVerts->normal, outNormal);
+			VectorCopy4(newVerts->tangent, outTangent);
+
+			newVerts++;
+			outXyz += 4;
+			outNormal += 4;
+			outTangent += 4;
+		}
+	}
+	else
+	{
+		//
+		// interpolate and copy the vertex and normal
+		//
+
+		mdvVertex_t *oldVerts;
+
+		oldVerts = surf->verts + backEnd.currentEntity->e.oldframe * surf->numVerts;
+
+		for (vertNum=0 ; vertNum < surf->numVerts ; vertNum++)
+		{
+			VectorLerp(newVerts->xyz,    oldVerts->xyz,    backlerp, outXyz);
+
+			outNormal[0] = (int16_t)(newVerts->normal[0] * (1.0f - backlerp) + oldVerts->normal[0] * backlerp);
+			outNormal[1] = (int16_t)(newVerts->normal[1] * (1.0f - backlerp) + oldVerts->normal[1] * backlerp);
+			outNormal[2] = (int16_t)(newVerts->normal[2] * (1.0f - backlerp) + oldVerts->normal[2] * backlerp);
+			outNormal[3] = 0;
+
+			outTangent[0] = (int16_t)(newVerts->tangent[0] * (1.0f - backlerp) + oldVerts->tangent[0] * backlerp);
+			outTangent[1] = (int16_t)(newVerts->tangent[1] * (1.0f - backlerp) + oldVerts->tangent[1] * backlerp);
+			outTangent[2] = (int16_t)(newVerts->tangent[2] * (1.0f - backlerp) + oldVerts->tangent[2] * backlerp);
+			outTangent[3] = newVerts->tangent[3];
+
+			newVerts++;
+			oldVerts++;
+			outXyz += 4;
+			outNormal += 4;
+			outTangent += 4;
+		}
+	}
+
+}
+
+
+/*
+=============
+RB_SurfaceMesh
+=============
+*/
+static void RB_SurfaceMesh(mdvSurface_t *surface) {
+	int				j;
+	float			backlerp;
+	mdvSt_t			*texCoords;
+	int				Bob, Doug;
+	int				numVerts;
+
+	if (  backEnd.currentEntity->e.oldframe == backEnd.currentEntity->e.frame ) {
+		backlerp = 0;
+	} else  {
+		backlerp = backEnd.currentEntity->e.backlerp;
+	}
+
+	RB_CheckVao(tess.vao);
+
+	RB_CHECKOVERFLOW( surface->numVerts, surface->numIndexes );
+
+	LerpMeshVertexes (surface, backlerp);
+
+	Bob = tess.numIndexes;
+	Doug = tess.numVertexes;
+	for (j = 0 ; j < surface->numIndexes ; j++) {
+		tess.indexes[Bob + j] = Doug + surface->indexes[j];
+	}
+	tess.numIndexes += surface->numIndexes;
+
+	texCoords = surface->st;
+
+	numVerts = surface->numVerts;
+	for ( j = 0; j < numVerts; j++ ) {
+		tess.texCoords[Doug + j][0] = texCoords[j].st[0];
+		tess.texCoords[Doug + j][1] = texCoords[j].st[1];
+		// FIXME: fill in lightmapST for completeness?
+	}
+
+	tess.numVertexes += surface->numVerts;
+
+}
+
 
 /*
 ==============
@@ -853,6 +1181,15 @@ static void RB_SurfaceEntity( surfaceType_t *surfType ) {
 	case RT_BEAM:
 		RB_SurfaceBeam();
 		break;
+	case RT_RAIL_CORE:
+		RB_SurfaceRailCore();
+		break;
+	case RT_RAIL_RINGS:
+		RB_SurfaceRailRings();
+		break;
+	case RT_LIGHTNING:
+		RB_SurfaceLightningBolt();
+		break;
 	default:
 		RB_SurfaceAxis();
 		break;
@@ -902,7 +1239,7 @@ void RB_SurfaceVaoMdvMesh(srfVaoMdvMesh_t * surface)
 
 	refEnt = &backEnd.currentEntity->e;
 
-	glState.vertexAttribsInterpolation = (refEnt->wasframe == refEnt->frameInfo[0].index) ? 0.0f : refEnt->actionWeight;
+	glState.vertexAttribsInterpolation = (refEnt->oldframe == refEnt->frame) ? 0.0f : refEnt->backlerp;
 
 	if (surface->mdvModel->numFrames > 1)
 	{
@@ -916,7 +1253,7 @@ void RB_SurfaceVaoMdvMesh(srfVaoMdvMesh_t * surface)
 			qglBindBuffer(GL_ARRAY_BUFFER, surface->vao->vertexesVBO);
 		}
 
-		frameOffset    = refEnt->wasframe * surface->vao->frameSize;
+		frameOffset    = refEnt->frame * surface->vao->frameSize;
 
 		attribIndex = ATTR_INDEX_POSITION;
 		vAtb = &surface->vao->attribs[attribIndex];
@@ -930,7 +1267,7 @@ void RB_SurfaceVaoMdvMesh(srfVaoMdvMesh_t * surface)
 		vAtb = &surface->vao->attribs[attribIndex];
 		qglVertexAttribPointer(attribIndex, vAtb->count, vAtb->type, vAtb->normalized, vAtb->stride, BUFFER_OFFSET(vAtb->offset + frameOffset));
 
-		frameOffset = refEnt->wasframe * surface->vao->frameSize;
+		frameOffset = refEnt->oldframe * surface->vao->frameSize;
 
 		attribIndex = ATTR_INDEX_POSITION2;
 		vAtb = &surface->vao->attribs[attribIndex];
@@ -962,29 +1299,19 @@ void RB_SurfaceVaoMdvMesh(srfVaoMdvMesh_t * surface)
 static void RB_SurfaceSkip( void *surf ) {
 }
 
-void RB_DrawTerrainTris(srfTerrain_t* p) {
-    // FIXME: unimplemented
-}
 
-void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void*) = {
-    (void(*)(void*))RB_SurfaceBad,			// SF_BAD, 
-    (void(*)(void*))RB_SurfaceSkip,			// SF_SKIP, 
-    (void(*)(void*))RB_SurfaceFace,			// SF_FACE,
-    (void(*)(void*))RB_SurfaceGrid,			// SF_GRID,
-    (void(*)(void*))RB_SurfacePolychain,	// SF_POLY,
-    (void(*)(void*))RB_SurfaceMarkFragment, // SF_MARK_FRAG
-    (void(*)(void*))RB_SurfaceFlare,		// SF_FLARE
-    (void(*)(void*))RB_SurfaceEntity,		// SF_ENTITY
-    (void(*)(void*))NULL,					// SF_DISPLAY_LIST
-    (void(*)(void*))RB_SkelMesh,			// SF_TIKI_SKEL
-    (void(*)(void*))RB_StaticMesh,			// SF_TIKI_STATIC
-    (void(*)(void*))RB_DrawSwipeSurface,	// SF_SWIPE
-    (void(*)(void*))RB_DrawSprite,			// SF_SPRITE
-    (void(*)(void*))RB_DrawTerrainTris,		// SF_TERRAIN_PATCH
-    (void(*)(void*))RB_SurfaceTriangles,	// SF_TRIANGLES,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL
+void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])( void *) = {
+	(void(*)(void*))RB_SurfaceBad,			// SF_BAD, 
+	(void(*)(void*))RB_SurfaceSkip,			// SF_SKIP, 
+	(void(*)(void*))RB_SurfaceFace,			// SF_FACE,
+	(void(*)(void*))RB_SurfaceGrid,			// SF_GRID,
+	(void(*)(void*))RB_SurfaceTriangles,		// SF_TRIANGLES,
+	(void(*)(void*))RB_SurfacePolychain,		// SF_POLY,
+	(void(*)(void*))RB_SurfaceMesh,			// SF_MDV,
+	(void(*)(void*))RB_MDRSurfaceAnim,		// SF_MDR,
+	(void(*)(void*))RB_IQMSurfaceAnim,		// SF_IQM,
+	(void(*)(void*))RB_SurfaceFlare,		// SF_FLARE,
+	(void(*)(void*))RB_SurfaceEntity,		// SF_ENTITY
+	(void(*)(void*))RB_SurfaceVaoMdvMesh,   // SF_VAO_MDVMESH
+	(void(*)(void*))RB_IQMSurfaceAnimVao,   // SF_VAO_IQM
 };
