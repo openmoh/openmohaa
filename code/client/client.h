@@ -585,7 +585,7 @@ void	SCR_DrawDebugGraph(void);
 void	SCR_DrawScreenField(void);
 void	SCR_UpdateScreen (void);
 
-void	SCR_DebugGraph (float value, int color);
+void	SCR_DebugGraph (float value);
 
 int		SCR_GetBigStringWidth( const char *str );	// returns in virtual 640x480 coordinates
 

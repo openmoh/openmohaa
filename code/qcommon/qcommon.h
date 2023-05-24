@@ -1074,8 +1074,6 @@ void Key_WriteBindings( fileHandle_t f );
 void S_ClearSoundBuffer( void );
 // call before filesystem access
 
-void SCR_DebugGraph (float value, int color);	// FIXME: move logging to common?
-
 float *get_camera_offset( qboolean *lookactive, qboolean *resetview );
 
 // AVI files have the start of pixel lines 4 byte-aligned

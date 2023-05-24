@@ -118,7 +118,7 @@ const char *Key_KeynumToBindString( int keynum ) {
 void Key_GetKeysForCommand( const char *command, int *key1, int *key2 ) {
 }
 
-void SCR_DebugGraph( float value, int color ) {
+void SCR_DebugGraph( float value ) {
 }
 
 qboolean CL_FinishedIntro( void ) {
