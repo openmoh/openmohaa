@@ -3187,7 +3187,7 @@ void CL_Init( void ) {
 	Cvar_Set( "cl_running", "1" );
 
 	NET_Init();
-	S_Init();
+	S_Init2();
 
 	// fixme: should we leave it?
 	CL_GenerateQKey();

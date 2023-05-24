@@ -55,7 +55,7 @@ sfxHandle_t S_RegisterSound( const char *sample, qboolean compressed, qboolean f
 	return 0;
 }
 
-void S_StartLocalSoundByName( const char *sound_name, qboolean force_load ) {
+void S_StartLocalSound( const char *sound_name, qboolean force_load ) {
 }
 
 void S_ClearSoundBuffer( void ) {

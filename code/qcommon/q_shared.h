@@ -887,6 +887,14 @@ float           pointToLineDistance(const vec3_t point, const vec3_t p1, const v
 float           VectorMinComponent(vec3_t v);
 float           VectorMaxComponent(vec3_t v);
 
+#ifndef MAX
+#define MAX(x,y) ((x)>(y)?(x):(y))
+#endif
+
+#ifndef MIN
+#define MIN(x,y) ((x)<(y)?(x):(y))
+#endif
+
 static ID_INLINE void VectorLerp(const vec3_t from, const vec3_t to, float frac, vec3_t out)
 {
 	out[0] = from[0] + ((to[0] - from[0]) * frac);

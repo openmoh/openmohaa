@@ -1,5 +1,90 @@
 #include "../snd_local.h"
 
+void S_Init2()
+{
+    S_Init();
+    SND_setup();
+}
+
+/*
+=================
+S_StartSound
+=================
+*/
+void S_StartSound(const vec3_t origin, int entNum, int entChannel, sfxHandle_t sfxHandle, float volume, float minDist, float pitch, float maxDist, qboolean streamed)
+{
+    S_StartSound((float*)origin, entNum, entChannel, sfxHandle);
+    // FIXME: partially implemented
+}
+
+/*
+=================
+S_AddLoopingSound
+=================
+*/
+void S_AddLoopingSound(const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle, float volume, float minDist, float maxDist, float pitch, int flags)
+{
+    // FIXME: unimplemented
+    S_AddLoopingSound(ENTITYNUM_WORLD, origin, velocity, sfxHandle);
+}
+
+/*
+=================
+S_StopAllSounds
+=================
+*/
+void S_StopAllSounds(qboolean stop_music)
+{
+    // Call the original function
+    S_StopAllSounds();
+    // FIXME: stop music
+}
+
+
+/*
+=================
+S_ClearLoopingSounds
+=================
+*/
+void S_ClearLoopingSounds(void)
+{
+    S_ClearLoopingSounds(qtrue);
+}
+
+/*
+=================
+S_Respatialize
+=================
+*/
+void S_Respatialize(int entityNum, const vec3_t origin,
+    vec3_t axis[3])
+{
+    S_Respatialize(entityNum, origin, axis, 0);
+}
+/*
+=================
+S_StartLocalSound
+=================
+*/
+void S_StartLocalSound(const char* sound_name, qboolean force_load)
+{
+    // FIXME: unimplemented
+}
+
+sfxHandle_t	S_RegisterSound(const char* sample, qboolean compressed, qboolean streamed) {
+    return S_RegisterSound(sample, compressed);
+}
+
+/*
+=================
+S_StopSound
+=================
+*/
+void S_StopSound(int entnum, int channel)
+{
+    // FIXME: unimplemented
+}
+
 /*
 =================
 S_IsSoundPlaying
@@ -9,6 +94,7 @@ int S_IsSoundPlaying(int channelNumber, const char* name)
 {
     // FIXME: stub
     STUB();
+    return 0;
 }
 
 /*

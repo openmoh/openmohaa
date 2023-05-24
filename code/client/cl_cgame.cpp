@@ -510,7 +510,7 @@ CL_StartLocalSound
 ====================
 */
 void CL_StartLocalSound(const char* soundName, qboolean forceLoad) {
-	S_StartLocalSoundByName(soundName, qfalse );
+	S_StartLocalSound(soundName, qfalse );
 }
 
 /*
@@ -597,8 +597,8 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->S_StartLocalSound				= CL_StartLocalSound;
 	cgi->S_StopSound					= S_StopSound;
 	cgi->S_AddLoopingSound				= S_AddLoopingSound;
-	cgi->S_ClearLoopingSounds			= S_ClearLoopingSoundsNoParam;
-	cgi->S_Respatialize					= S_RespatializeOld;
+	cgi->S_ClearLoopingSounds			= S_ClearLoopingSounds;
+	cgi->S_Respatialize					= S_Respatialize;
 	cgi->S_BeginRegistration			= S_BeginRegistration;
 	cgi->S_EndRegistration				= S_EndRegistration;
 	cgi->S_UpdateEntity					= S_UpdateEntity;

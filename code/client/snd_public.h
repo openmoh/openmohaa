@@ -20,6 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void S_Init( void );
 void S_Shutdown( void );
@@ -78,6 +81,11 @@ int S_AvailableCaptureSamples(void);
 void S_Capture(int samples, byte* data);
 void S_StopCapture(void);
 void S_MasterGain(float gain);
+#endif
+
+
+#ifdef __cplusplus
+}
 #endif
 
 #include "new/snd_public_new.h"

@@ -1,6 +1,22 @@
 #pragma once
 
 #ifdef __cplusplus
+
+void S_EndRegistration(void);
+
+void S_Respatialize(int entityNum, const vec3_t origin, vec3_t axis[3]);
+sfxHandle_t	S_RegisterSound(const char* sample, qboolean compressed, qboolean streamed);
+void S_AddLoopingSound(const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle, float volume, float minDist, float maxDist, float pitch, int flags);
+void S_StartLocalSound(const char* name, qboolean force_load);
+void S_StartSound(const vec3_t origin, int entNum, int entChannel, sfxHandle_t sfxHandle, float volume, float minDist, float pitch, float maxDist, qboolean streamed);
+void S_StopAllSounds(qboolean stop_music);
+void S_ClearLoopingSounds(void);
+qboolean S_IsSoundRegistered(const char* name);
+void S_Init2();
+
+#endif
+
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -26,12 +42,12 @@ qboolean MUSIC_PlaySong(const char* alias);
 void MUSIC_UpdateMusicVolumes(void);
 void MUSIC_CheckForStoppedSongs(void);
 
+void S_StopSound(int entnum, int channel);
 float S_GetSoundTime(sfxHandle_t handle);
 void S_SetGlobalAmbientVolumeLevel(float volume);
 void S_SetReverb(int reverb_type, float reverb_level);
 int S_IsSoundPlaying(int channelNumber, const char* name);
 
-void S_RespatializeOld(int entityNum, const vec3_t origin, vec3_t axis[3]);
 void S_UpdateEntity(int entityNum, const vec3_t origin, const vec3_t velocity, qboolean use_listener);
 void S_FadeSound(float fTime);
 

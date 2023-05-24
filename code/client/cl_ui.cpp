@@ -3695,7 +3695,7 @@ sfxHandle_t UI_RegisterSound( const char *sample, qboolean streamed ) {
 }
 
 void UI_StartLocalSound( const char *sound_name ) {
-	S_StartLocalSoundByName( sound_name, qtrue );
+	S_StartLocalSound( sound_name, qtrue );
 }
 
 /*
