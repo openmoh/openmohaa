@@ -257,7 +257,7 @@ typedef struct gameImport_s
 	void ( *FS_FreeFileList )( char **list );
 	const char *( *GetArchiveFileName )(const char *fileName, const char *extension );
 	void ( *SendConsoleCommand )( const char *text );
-	void ( *DebugGraph )( float value, int color );
+	void ( *DebugGraph )( float value );
 	void ( *SendServerCommand )( int client, const char *format, ... );
 	void ( *DropClient )( int client, const char *reason );
 	void ( *MSG_WriteBits )( int value, int bits );
