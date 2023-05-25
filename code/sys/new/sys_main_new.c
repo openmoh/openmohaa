@@ -275,6 +275,12 @@ void* Sys_GetCGameAPI(void* parms)
     return GetCGameAPI(parms);
 }
 
+void VM_Forced_Unload_Start(void) {
+}
+
+void VM_Forced_Unload_Done(void) {
+}
+
 void Sys_InitEx()
 {
     Sys_InitLocalization();

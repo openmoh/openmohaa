@@ -385,8 +385,6 @@ typedef enum {
 	TRAP_TESTPRINTFLOAT
 } sharedTraps_t;
 
-typedef intptr_t (QDECL *vmMainProc)(int callNum, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11);
-
 void	VM_Init( void );
 vm_t	*VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *), 
 				   vmInterpret_t interpret );
@@ -473,6 +471,17 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function );
 
 void	Cmd_RemoveCommand( const char *cmd_name );
 
+typedef void (*completionFunc_t)( char *args, int argNum );
+
+// don't allow VMs to remove system commands
+void	Cmd_RemoveCommandSafe( const char *cmd_name );
+
+void	Cmd_CommandCompletion( void(*callback)(const char *s) );
+// callback with each valid string
+void Cmd_SetCommandCompletionFunc( const char *command,
+	completionFunc_t complete );
+void Cmd_CompleteArgument( const char *command, char *args, int argNum );
+void Cmd_CompleteCfgName( char *args, int argNum );
 void	Cmd_CommandCompletion( void(*callback)(const char *s) );
 // callback with each valid string
 
@@ -483,6 +492,7 @@ char	*Cmd_Args (void);
 char	*Cmd_ArgsFrom( int arg );
 void	Cmd_ArgsBuffer( char *buffer, int bufferLength );
 char	*Cmd_Cmd (void);
+void	Cmd_Args_Sanitize( void );
 // The functions that execute commands get their parameters with these
 // functions. Cmd_Argv () will return an empty string, not a NULL
 // if arg > argc, so string operations are allways safe.
@@ -492,9 +502,7 @@ void	Cmd_TokenizeStringIgnoreQuotes( const char *text_in );
 // Takes a null terminated string.  Does not need to be /n terminated.
 // breaks the string up into arg tokens.
 
-const char	*Cmd_CompleteCommand( const char *partial );
-const char	*Cmd_CompleteCommandByNumber( const char *partial, int number );
-void		Cmd_ExecuteString( const char *text );
+void	Cmd_ExecuteString( const char *text );
 // Parses a single line of text into arguments and tries to execute it
 // as if it was typed at the console
 
@@ -774,7 +782,7 @@ void FS_Rename( const char *from, const char *to );
 void FS_Remove( const char *osPath );
 
 void	FS_FilenameCompletion( const char *dir, const char *ext,
-		qboolean stripExt, void(*callback)(const char *s) );
+		qboolean stripExt, void(*callback)(const char *s), qboolean allowNonPureFilesOnDisk );
 
 const char* FS_GetCurrentGameDir();
 void	FS_GetRelativeFilename( const char *currentDirectory, const char *absoluteFilename, char *out, size_t destlen );
@@ -792,13 +800,6 @@ MISC
 ==============================================================
 */
 
-#define	MAX_EDIT_LINE	256
-typedef struct {
-	int		cursor;
-	int		scroll;
-	int		widthInChars;
-	char	buffer[MAX_EDIT_LINE];
-} field_t;
 // returnbed by Sys_GetProcessorId
 #define CPUID_GENERIC			0			// any unrecognized processor
 
@@ -1207,7 +1208,7 @@ qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
 qboolean	Sys_IsLANAddress (netadr_t adr);
 void		Sys_ShowIP(void);
 
-qboolean	Sys_Mkdir( const char *path );
+void	Sys_Mkdir( const char *path );
 char	*Sys_Cwd( void );
 void	Sys_SetDefaultInstallPath(const char *path);
 char	*Sys_DefaultInstallPath( void );

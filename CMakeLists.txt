@@ -141,6 +141,7 @@ set(SOURCES_COMMON
 	"code/qcommon/memory.c"
 	"code/qcommon/msg.cpp"
 	"code/qcommon/net_chan.c"
+	"code/qcommon/net_ip.c"
 	"code/qcommon/q_math.c"
 	"code/qcommon/q_shared.c"
 	"code/qcommon/tiki_main.cpp"
