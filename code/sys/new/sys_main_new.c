@@ -21,7 +21,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "../sys_local.h"
-#include "win_localization.h"
+#include "../win_localization.h"
+#include "../sys_loadlib.h"
 
 static void* game_library = NULL;
 static void* cgame_library = NULL;

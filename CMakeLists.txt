@@ -90,41 +90,33 @@ file(GLOB_RECURSE SOURCES_BG "code/game/bg_*.cpp")
 if(WIN32)
 	set(SOURCES_PLATFORM_SPECIFIC
 		WIN32
-		"code/win32/win_bounds.cpp"
-		"code/win32/win_localization.cpp"
-		"code/win32/win_main.c"
-		"code/win32/win_net.c"
-		"code/win32/win_shared.c"
-		"code/win32/win_syscon.c"
-		"code/win32/win_wndproc.c"
-		"code/win32/win_resource.rc"
+		"code/sys/con_log.c"
+		"code/sys/sys_autoupdater.c"
+		"code/sys/sys_main.c"
+		"code/sys/new/sys_main_new.c"
+		"code/sys/con_win32.c"
+		"code/sys/sys_win32.c"
+		"code/sys/win_resource.rc"
+		# These are still used even they're prefixed 'win'
+		"code/sys/win_bounds.cpp"
+		"code/sys/win_localization.cpp"
 	)
 
-	set(SOURCES_CLIENT_PLATFORM_SPECIFIC
-		"code/win32/win_gamma.c"
-		"code/win32/win_glimp.c"
-		"code/win32/win_input.c"
-		"code/win32/win_qgl.c"
-		"code/win32/win_snd.c"
-	)
+	set(SOURCES_CLIENT_PLATFORM_SPECIFIC "")
 else()
 	set(SOURCES_PLATFORM_SPECIFIC
-		"code/unix/linux_signals.c"
-		"code/unix/unix_main.c"
-		"code/unix/unix_net.c"
-		"code/unix/unix_shared.c"
+		"code/sys/con_log.c"
+		"code/sys/sys_autoupdater.c"
+		"code/sys/sys_main.c"
+		"code/sys/new/sys_main_new.c"
+		"code/sys/con_tty.c"
+		"code/sys/sys_unix.c"
 		# These are still used even they're prefixed 'win'
-		"code/win32/win_bounds.cpp"
-		"code/win32/win_localization.cpp"
+		"code/sys/win_bounds.cpp"
+		"code/sys/win_localization.cpp"
 	)
 
-	set(SOURCES_CLIENT_PLATFORM_SPECIFIC
-		"code/unix/linux_common.c"
-		"code/unix/linux_glimp.c"
-		"code/unix/linux_joystick.c"
-		"code/unix/linux_qgl.c"
-		"code/unix/linux_snd.c"
-	)
+	set(SOURCES_CLIENT_PLATFORM_SPECIFIC "")
 endif()
 
 ### Common executable code
