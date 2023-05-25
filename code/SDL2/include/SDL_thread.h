@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2022 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -35,7 +35,7 @@
 #include "SDL_atomic.h"
 #include "SDL_mutex.h"
 
-#if defined(__WIN32__) || defined(__GDK__)
+#if defined(__WIN32__)
 #include <process.h> /* _beginthreadex() and _endthreadex() */
 #endif
 #if defined(__OS2__) /* for _beginthread() and _endthread() */
@@ -88,7 +88,7 @@ typedef enum {
 typedef int (SDLCALL * SDL_ThreadFunction) (void *data);
 
 
-#if defined(__WIN32__) || defined(__GDK__)
+#if defined(__WIN32__)
 /**
  *  \file SDL_thread.h
  *
@@ -123,18 +123,24 @@ typedef void (__cdecl * pfnSDL_CurrentEndThread) (unsigned code);
 #define SDL_endthread _endthreadex
 #endif
 
+/**
+ *  Create a thread.
+ */
 extern DECLSPEC SDL_Thread *SDLCALL
 SDL_CreateThread(SDL_ThreadFunction fn, const char *name, void *data,
                  pfnSDL_CurrentBeginThread pfnBeginThread,
                  pfnSDL_CurrentEndThread pfnEndThread);
 
 extern DECLSPEC SDL_Thread *SDLCALL
-SDL_CreateThreadWithStackSize(SDL_ThreadFunction fn,
+SDL_CreateThreadWithStackSize(int (SDLCALL * fn) (void *),
                  const char *name, const size_t stacksize, void *data,
                  pfnSDL_CurrentBeginThread pfnBeginThread,
                  pfnSDL_CurrentEndThread pfnEndThread);
 
 
+/**
+ *  Create a thread.
+ */
 #if defined(SDL_CreateThread) && SDL_DYNAMIC_API
 #undef SDL_CreateThread
 #define SDL_CreateThread(fn, name, data) SDL_CreateThread_REAL(fn, name, data, (pfnSDL_CurrentBeginThread)SDL_beginthread, (pfnSDL_CurrentEndThread)SDL_endthread)
@@ -199,8 +205,6 @@ SDL_CreateThreadWithStackSize(SDL_ThreadFunction fn, const char *name, const siz
  *          new thread could not be created; call SDL_GetError() for more
  *          information.
  *
- * \since This function is available since SDL 2.0.0.
- *
  * \sa SDL_CreateThreadWithStackSize
  * \sa SDL_WaitThread
  */
@@ -246,8 +250,6 @@ SDL_CreateThread(SDL_ThreadFunction fn, const char *name, void *data);
  *          new thread could not be created; call SDL_GetError() for more
  *          information.
  *
- * \since This function is available since SDL 2.0.9.
- *
  * \sa SDL_WaitThread
  */
 extern DECLSPEC SDL_Thread *SDLCALL
@@ -265,8 +267,6 @@ SDL_CreateThreadWithStackSize(SDL_ThreadFunction fn, const char *name, const siz
  * \returns a pointer to a UTF-8 string that names the specified thread, or
  *          NULL if it doesn't have a name.
  *
- * \since This function is available since SDL 2.0.0.
- *
  * \sa SDL_CreateThread
  */
 extern DECLSPEC const char *SDLCALL SDL_GetThreadName(SDL_Thread *thread);
@@ -283,8 +283,6 @@ extern DECLSPEC const char *SDLCALL SDL_GetThreadName(SDL_Thread *thread);
  *
  * \returns the ID of the current thread.
  *
- * \since This function is available since SDL 2.0.0.
- *
  * \sa SDL_GetThreadID
  */
 extern DECLSPEC SDL_threadID SDLCALL SDL_ThreadID(void);
@@ -300,8 +298,6 @@ extern DECLSPEC SDL_threadID SDLCALL SDL_ThreadID(void);
  * \returns the ID of the specified thread, or the ID of the current thread if
  *          `thread` is NULL.
  *
- * \since This function is available since SDL 2.0.0.
- *
  * \sa SDL_ThreadID
  */
 extern DECLSPEC SDL_threadID SDLCALL SDL_GetThreadID(SDL_Thread * thread);
@@ -316,8 +312,6 @@ extern DECLSPEC SDL_threadID SDLCALL SDL_GetThreadID(SDL_Thread * thread);
  * \param priority the SDL_ThreadPriority to set
  * \returns 0 on success or a negative error code on failure; call
  *          SDL_GetError() for more information.
- *
- * \since This function is available since SDL 2.0.0.
  */
 extern DECLSPEC int SDLCALL SDL_SetThreadPriority(SDL_ThreadPriority priority);
 
@@ -348,8 +342,6 @@ extern DECLSPEC int SDLCALL SDL_SetThreadPriority(SDL_ThreadPriority priority);
  * \param status pointer to an integer that will receive the value returned
  *               from the thread function by its 'return', or NULL to not
  *               receive such value back.
- *
- * \since This function is available since SDL 2.0.0.
  *
  * \sa SDL_CreateThread
  * \sa SDL_DetachThread
@@ -448,8 +440,6 @@ extern DECLSPEC int SDLCALL SDL_TLSSet(SDL_TLSID id, const void *value, void (SD
 
 /**
  * Cleanup all TLS data for this thread.
- *
- * \since This function is available since SDL 2.0.16.
  */
 extern DECLSPEC void SDLCALL SDL_TLSCleanup(void);
 

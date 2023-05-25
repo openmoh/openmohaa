@@ -199,5 +199,4 @@ void yywarn(char *fmt, ...) {
 		fprintf(stderr, "line %d: ", yylineno);
 	fprintf(stderr, "warning: ");
 	vfprintf(stderr, fmt, ap);
-	va_end(ap);
 }

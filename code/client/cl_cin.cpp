@@ -1142,17 +1142,17 @@ redump:
 		case	ZA_SOUND_MONO:
 			if (!cinTable[currentHandle].silent) {
 				ssize = RllDecodeMonoToStereo( framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags);
-                                S_RawSamples(0, ssize, 22050, 2, 1, (byte *)sbuf, 1.0f, -1);
+                                S_RawSamples(0, 22050, 2, 1, (byte *)sbuf, 1.0f);
 			}
 			break;
 		case	ZA_SOUND_STEREO:
 			if (!cinTable[currentHandle].silent) {
 				if (cinTable[currentHandle].numQuads == -1) {
 					S_Update();
-					s_rawend[0] = s_soundtime;
+					s_rawend = s_soundtime;
 				}
 				ssize = RllDecodeStereoToStereo( framedata, sbuf, cinTable[currentHandle].RoQFrameSize, 0, (unsigned short)cinTable[currentHandle].roq_flags);
-                                S_RawSamples(0, ssize, 22050, 2, 2, (byte *)sbuf, 1.0f, -1);
+                                S_RawSamples(0, 22050, 2, 2, (byte *)sbuf, 1.0f);
 			}
 			break;
 		case	ROQ_QUAD_INFO:
@@ -1469,7 +1469,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 		}
 
 		if (!cinTable[currentHandle].silent) {
-			s_rawend[0] = s_soundtime;
+			s_rawend = s_soundtime;
 		}
 
 		return currentHandle;

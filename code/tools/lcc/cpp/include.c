@@ -108,6 +108,7 @@ doinclude(Tokenrow *trp)
 	return;
 syntax:
 	error(ERROR, "Syntax error in #include");
+	return;
 }
 
 /*
@@ -120,7 +121,7 @@ genline(void)
 	static Tokenrow tr = { &ta, &ta, &ta+1, 1 };
 	uchar *p;
 
-	ta.t = p = (uchar*)outbufp;
+	ta.t = p = (uchar*)outp;
 	strcpy((char*)p, "#line ");
 	p += sizeof("#line ")-1;
 	p = (uchar*)outnum((char*)p, cursource->line);
@@ -133,8 +134,8 @@ genline(void)
 	strcpy((char*)p, cursource->filename);
 	p += strlen((char*)p);
 	*p++ = '"'; *p++ = '\n';
-	ta.len = (char*)p-outbufp;
-	outbufp = (char*)p;
+	ta.len = (char*)p-outp;
+	outp = (char*)p;
 	tr.tp = tr.bp;
 	puttokens(&tr);
 }

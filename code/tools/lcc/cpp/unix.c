@@ -2,10 +2,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include "cpp.h"
 
-extern	int lcc_getopt(int, char *const *, const char *);
+extern	int getopt(int, char *const *, const char *);
 extern	char	*optarg, rcsid[];
 extern	int	optind;
 int	verbose;
@@ -24,7 +23,7 @@ setup(int argc, char **argv)
 	int   numIncludeDirs = 0;
 
 	setup_kwtab();
-	while ((c = lcc_getopt(argc, argv, "MNOVv+I:D:U:F:lg")) != -1)
+	while ((c = getopt(argc, argv, "MNOVv+I:D:U:F:lg")) != -1)
 		switch (c) {
 		case 'N':
 			for (i=0; i<NINCLUDE; i++)
@@ -67,12 +66,7 @@ setup(int argc, char **argv)
 			error(FATAL, "Can't open input file %s", fp);
 	}
 	if (optind+1<argc) {
-		int fdo;
-#ifdef WIN32
-		fdo = creat(argv[optind+1], _S_IREAD | _S_IWRITE);
-#else
-		fdo = creat(argv[optind+1], 0666);
-#endif
+		int fdo = creat(argv[optind+1], 0666);
 		if (fdo<0)
 			error(FATAL, "Can't open output file %s", argv[optind+1]);
 		dup2(fdo, 1);
@@ -105,8 +99,7 @@ char *basepath( char *fname )
 /* memmove is defined here because some vendors don't provide it at
    all and others do a terrible job (like calling malloc) */
 // -- ouch, that hurts -- ln
-/* always use the system memmove() on Mac OS X. --ryan. */
-#if !defined(__APPLE__) && !defined(_MSC_VER)
+#ifndef MACOS_X   /* always use the system memmove() on Mac OS X. --ryan. */
 #ifdef memmove
 #undef memmove
 #endif
@@ -116,7 +109,7 @@ memmove(void *dp, const void *sp, size_t n)
 	unsigned char *cdp, *csp;
 
 	if (n<=0)
-		return dp;
+		return 0;
 	cdp = dp;
 	csp = (unsigned char *)sp;
 	if (cdp < csp) {
@@ -130,6 +123,6 @@ memmove(void *dp, const void *sp, size_t n)
 			*--cdp = *--csp;
 		} while (--n);
 	}
-	return dp;
+	return 0;
 }
 #endif

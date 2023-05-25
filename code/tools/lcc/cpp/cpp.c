@@ -9,7 +9,7 @@ char rcsid[] = "cpp.c - faked rcsid";
 
 #define	OUTS	16384
 char	outbuf[OUTS];
-char	*outbufp = outbuf;
+char	*outp = outbuf;
 Source	*cursource;
 int	nerrs;
 struct	token nltoken = { NL, 0, 0, 0, 1, (uchar*)"\n" };
@@ -19,15 +19,6 @@ int	ifdepth;
 int	ifsatisfied[NIF];
 int	skipping;
 
-time_t reproducible_time()
-{
-	char *source_date_epoch;
-	time_t t;
-	if ((source_date_epoch = getenv("SOURCE_DATE_EPOCH")) == NULL ||
-		(t = (time_t)strtol(source_date_epoch, NULL, 10)) <= 0)
-		return time(NULL);
-	return t;
-}
 
 int
 main(int argc, char **argv)
@@ -37,7 +28,7 @@ main(int argc, char **argv)
 	char ebuf[BUFSIZ];
 
 	setbuf(stderr, ebuf);
-	t = reproducible_time();
+	t = time(NULL);
 	curtime = ctime(&t);
 	maketokenrow(3, &tr);
 	expandlex();
@@ -60,7 +51,7 @@ process(Tokenrow *trp)
 	for (;;) {
 		if (trp->tp >= trp->lp) {
 			trp->tp = trp->lp = trp->bp;
-			outbufp = outbuf;
+			outp = outbuf;
 			anymacros |= gettokens(trp, 1);
 			trp->tp = trp->bp;
 		}
@@ -213,14 +204,9 @@ control(Tokenrow *trp)
 			error(WARNING, "Syntax error in #endif");
 		break;
 
-	case KWARNING:
-		trp->tp = tp+1;
-		error(WARNING, "#warning directive: %r", trp);
-		break;
-
 	case KERROR:
 		trp->tp = tp+1;
-		error(ERROR, "#error directive: %r", trp);
+		error(WARNING, "#error directive: %r", trp);
 		break;
 
 	case KLINE:
@@ -259,6 +245,7 @@ control(Tokenrow *trp)
 		break;
 	}
 	setempty(trp);
+	return;
 }
 
 void *

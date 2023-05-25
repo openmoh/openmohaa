@@ -2430,7 +2430,7 @@ void CL_Frame ( int msec ) {
 	cls.realtime += cls.frametime;
 
 	if ( cl_timegraph->integer ) {
-		SCR_DebugGraph ( cls.realFrametime * 0.25 );
+		SCR_DebugGraph ( cls.realFrametime * 0.25, 0 );
 	}
 
 	cls.timeScaled = com_timescale->integer != 1;
@@ -3187,7 +3187,7 @@ void CL_Init( void ) {
 	Cvar_Set( "cl_running", "1" );
 
 	NET_Init();
-	S_Init2();
+	S_Init();
 
 	// fixme: should we leave it?
 	CL_GenerateQKey();

@@ -218,6 +218,7 @@ expand(Tokenrow *trp, Nlist *np)
 	insertrow(trp, ntokc, &ntr);
 	trp->tp -= rowlen(&ntr);
 	dofree(ntr.bp);
+	return;
 }	
 
 /*
@@ -470,10 +471,10 @@ builtin(Tokenrow *trp, int biname)
 	/* most are strings */
 	tp->type = STRING;
 	if (tp->wslen) {
-		*outbufp++ = ' ';
+		*outp++ = ' ';
 		tp->wslen = 1;
 	}
-	op = outbufp;
+	op = outp;
 	*op++ = '"';
 	switch (biname) {
 
@@ -508,7 +509,7 @@ builtin(Tokenrow *trp, int biname)
 	}
 	if (tp->type==STRING)
 		*op++ = '"';
-	tp->t = (uchar*)outbufp;
-	tp->len = op - outbufp;
-	outbufp = op;
+	tp->t = (uchar*)outp;
+	tp->len = op - outp;
+	outp = op;
 }
