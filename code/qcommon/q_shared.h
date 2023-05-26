@@ -607,8 +607,6 @@ void ByteToDir( int b, vec3_t dir );
 
 #if	1
 
-#define ftol(x)		((int)(x))
-
 #define DotProduct(x,y)			((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
 #define DotProduct2D(x,y)		((x)[0]*(y)[0]+(x)[1]*(y)[1])
 #define CrossProduct2D(a,b)		((a)[0]*(b)[1]-(b)[0]*(a)[1])
@@ -700,24 +698,6 @@ static ID_INLINE int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
 
 static ID_INLINE int VectorCompare2D( const vec2_t v1, const vec2_t v2 ) {
 	if( v1[ 0 ] != v2[ 0 ] || v1[ 1 ] != v2[ 1 ] ) {
-		return 0;
-	}
-	return 1;
-}
-
-static ID_INLINE int VectorCompare4(const vec4_t v1, const vec4_t v2)
-{
-	if(v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2] || v1[3] != v2[3])
-	{
-		return 0;
-	}
-	return 1;
-}
-
-static ID_INLINE int VectorCompare5( const vec5_t v1, const vec5_t v2 )
-{
-	if( v1[ 0 ] != v2[ 0 ] || v1[ 1 ] != v2[ 1 ] || v1[ 2 ] != v2[ 2 ] || v1[ 3 ] != v2[ 3 ] || v1[ 4 ] != v2[ 4 ] )
-	{
 		return 0;
 	}
 	return 1;
@@ -908,13 +888,6 @@ float           VectorMaxComponent(vec3_t v);
 #ifndef MIN
 #define MIN(x,y) ((x)<(y)?(x):(y))
 #endif
-
-static ID_INLINE void VectorLerp(const vec3_t from, const vec3_t to, float frac, vec3_t out)
-{
-	out[0] = from[0] + ((to[0] - from[0]) * frac);
-	out[1] = from[1] + ((to[1] - from[1]) * frac);
-	out[2] = from[2] + ((to[2] - from[2]) * frac);
-}
 
 vec_t           DistanceBetweenLineSegmentsSquared(const vec3_t sP0, const vec3_t sP1,
 												   const vec3_t tP0, const vec3_t tP1, float *s, float *t);

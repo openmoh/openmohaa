@@ -237,8 +237,8 @@ if (WITH_CLIENT)
 
 	file(GLOB_RECURSE SOURCES_CLIENT "code/client/*.c" "code/client/*.cpp" "code/qcommon/puff.c")
 	file(GLOB_RECURSE SOURCES_UILIB "code/uilib/*.c" "code/uilib/*.cpp")
-	file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderer/*.c" "code/renderer/*.cpp")
-	#file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderercommon/*.c" "code/renderergl2/*.c" "code/renderergl2/*.cpp")
+	#file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderer/*.c" "code/renderer/*.cpp")
+	file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderercommon/*.c" "code/renderergl2/*.c" "code/renderergl2/*.cpp")
 	set(SOURCES_CLIENT_APP ${SOURCES_APP} ${SOURCES_SERVER} ${SOURCES_CLIENT} ${SOURCES_UILIB} ${SOURCES_LIBS} ${SOURCES_RENDERER})
 
 	add_executable(openmohaa ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_CLIENT_APP} ${SOURCES_CLIENT_PLATFORM_SPECIFIC})
@@ -261,17 +261,17 @@ if (WITH_CLIENT)
 			if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 				add_library(sdl2 SHARED IMPORTED)
 				set_target_properties(sdl2 PROPERTIES
-				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/SDL2.lib"
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/SDL264.lib"
 				)
 
 				add_library(sdl2main SHARED IMPORTED)
 				set_target_properties(sdl2main PROPERTIES
-				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/SDL2main.lib"
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/SDL264main.lib"
 				)
 			
 				add_library(glew32 SHARED IMPORTED)
 				set_target_properties(glew32 PROPERTIES
-				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/glew32.lib"
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/glew32.lib"
 				)
 			else()
 				add_library(sdl2 SHARED IMPORTED)
@@ -286,12 +286,11 @@ if (WITH_CLIENT)
 			
 				add_library(glew32 SHARED IMPORTED)
 				set_target_properties(glew32 PROPERTIES
-				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/glew32.lib"
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/glew32.lib"
 				)
 			endif()
 
-			#target_link_libraries(openmohaa PRIVATE opengl32)
-			target_link_libraries(openmohaa PRIVATE sdl2 sdl2main glew32)
+			target_link_libraries(openmohaa PRIVATE opengl32 sdl2 sdl2main glew32)
 		endif()
 
 		target_link_libraries(openmohaa PRIVATE wsock32 ws2_32)

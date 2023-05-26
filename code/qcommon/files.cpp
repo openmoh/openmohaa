@@ -2482,7 +2482,9 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
 	return nMods;
 }
 
-
+void FS_GetModDescription(const char* modDir, char* description, int descriptionLen) {
+	// FIXME: unimplemented
+}
 
 
 //============================================================================

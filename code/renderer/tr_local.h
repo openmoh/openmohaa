@@ -28,7 +28,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qfiles.h"
 #include "../qcommon/qcommon.h"
 #include "tr_public.h"
+#include "../renderercommon/qgl.h"
 #include "qgl.h"
+
+#ifdef __cplusplus
+#define GLE(ret, name, ...) extern "C" name##proc * qgl##name;
+#else
+#define GLE(ret, name, ...) extern name##proc * qgl##name;
+#endif
+
+QGL_1_1_PROCS;
+QGL_1_1_FIXED_FUNCTION_PROCS;
+QGL_DESKTOP_1_1_PROCS;
+QGL_DESKTOP_1_1_FIXED_FUNCTION_PROCS;
+QGL_3_0_PROCS;
+
+#undef GLE
 
 #ifdef __cplusplus
 extern "C" {

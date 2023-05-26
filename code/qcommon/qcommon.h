@@ -673,6 +673,8 @@ int		FS_LoadStack( void );
 int		FS_GetFileList(  const char *path, const char *extension, char *listbuf, int bufsize );
 int		FS_GetModList(  char *listbuf, int bufsize );
 
+void	FS_GetModDescription(const char* modDir, char* description, int descriptionLen);
+
 fileHandle_t	FS_FOpenFileAppend( const char *filename );
 fileHandle_t	FS_FOpenFileWrite( const char *qpath );
 fileHandle_t	FS_FOpenTextFileWrite( const char *qpath );

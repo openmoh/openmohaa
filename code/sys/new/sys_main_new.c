@@ -26,6 +26,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static void* game_library = NULL;
 static void* cgame_library = NULL;
+qboolean	GLimp_SpawnRenderThread(void (*function)(void))
+{
+    return qfalse;
+}
+
+void* GLimp_RendererSleep(void)
+{
+}
+
+void		GLimp_FrontEndSleep(void)
+{
+}
+
+void		GLimp_WakeRenderer(void* data)
+{
+}
+
+/*
+==============
+Sys_ShowConsole
+==============
+*/
+void Sys_ShowConsole(int visLevel, qboolean quitOnClose)
+{
+}
 
 /*
 ==============

@@ -696,6 +696,7 @@ done:
 		ri.Hunk_FreeTempMemory( resampledBuffer );
 }
 
+/*
 static void UploadCompressed(
 	byte* data,
 	int width,
@@ -850,7 +851,7 @@ static void UploadCompressed(
 
 	GL_CheckErrors();
 }
-
+*/
 
 /*
 ================
@@ -936,37 +937,21 @@ image_t* R_CreateImage(
 
 	GL_Bind(image);
 
-	if (glCompressMode) {
-		UploadCompressed(
-			pic,
-			image->width,
-			image->height,
-			image->numMipmaps,
-			iMipmapsAvailable,
-			allowPicmip,
-			glCompressMode,
-			&image->internalFormat,
-			&image->uploadWidth,
-			&image->uploadHeight,
-			&image->bytesUsed
-		);
-	} else {
-		Upload32(
-			(unsigned*)pic,
-			image->width,
-			image->height,
-			image->numMipmaps,
-			allowPicmip,
-			image->dynamicallyUpdated,
-			force32bit,
-			hasAlpha,
-			&image->internalFormat,
-			&image->uploadWidth,
-			&image->uploadHeight,
-			&image->bytesUsed,
-			isLightmap
-		);
-	}
+    Upload32(
+        (unsigned*)pic,
+        image->width,
+        image->height,
+        image->numMipmaps,
+        allowPicmip,
+        image->dynamicallyUpdated,
+        force32bit,
+        hasAlpha,
+        &image->internalFormat,
+        &image->uploadWidth,
+        &image->uploadHeight,
+        &image->bytesUsed,
+        isLightmap
+    );
 
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapClampModeX );
 	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapClampModeY );

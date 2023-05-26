@@ -41,7 +41,7 @@ void GL_SetFogColor(const vec4_t fColor) {
 	glState.fFogColor[3] = fColor[3];
 
 	if (!(glState.glStateBits & GLS_FOG_COLOR)) {
-		qglFogfv(GL_FOG_COLOR, glState.fFogColor);
+		glFogfv(GL_FOG_COLOR, glState.fFogColor);
 	}
 }
 
@@ -481,18 +481,18 @@ void GL_State( unsigned long stateBits )
 			if (stateBits & GLS_FOG_BLACK)
 			{
 				vec4_t fBlackFogColor = { 0, 0, 0, 1 };
-				qglFogfv(GL_FOG_COLOR, fBlackFogColor);
+				glFogfv(GL_FOG_COLOR, fBlackFogColor);
 			}
 			else if (stateBits & GLS_FOG_WHITE)
 			{
 				vec4_t fWhiteFogColor = { 1, 1, 1, 1 };
-				qglFogfv(GL_FOG_COLOR, fWhiteFogColor);
+				glFogfv(GL_FOG_COLOR, fWhiteFogColor);
 			}
 			else
 			{
 				//
 				// Use the global fog
-				qglFogfv(GL_FOG_COLOR, glState.fFogColor);
+				glFogfv(GL_FOG_COLOR, glState.fFogColor);
 			}
 		}
 		else
@@ -517,12 +517,12 @@ void GL_State( unsigned long stateBits )
 			if (stateBits & GLS_FOG_BLACK)
 			{
 				vec4_t fBlackFogColor = { 0, 0, 0, 1 };
-				qglFogfv(GL_FOG_COLOR, fBlackFogColor);
+				glFogfv(GL_FOG_COLOR, fBlackFogColor);
 			}
 			else if (stateBits & GLS_FOG_WHITE)
 			{
 				vec4_t fWhiteFogColor = { 1, 1, 1, 1 };
-				qglFogfv(GL_FOG_COLOR, fWhiteFogColor);
+				glFogfv(GL_FOG_COLOR, fWhiteFogColor);
 			}
 		}
 	}

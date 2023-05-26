@@ -657,7 +657,7 @@ void R_SetupFrustum (void) {
 
 		if (!r_farplane_nofog->integer)
 		{
-			qglFogf(GL_FOG_END, tr.viewParms.farplane_distance);
+			glFogf(GL_FOG_END, tr.viewParms.farplane_distance);
 
 			fogColor[0] = tr.viewParms.farplane_color[0] * tr.identityLight;
 			fogColor[1] = tr.viewParms.farplane_color[1] * tr.identityLight;

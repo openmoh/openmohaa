@@ -344,13 +344,13 @@ void DrawLineLoop(const vec2_t* points, int count, int stipple_factor, int stipp
 
 	if (stipple_factor) {
 		qglEnable(GL_LINE_STIPPLE);
-		qglLineStipple(stipple_factor, stipple_mask);
+		glLineStipple(stipple_factor, stipple_mask);
 	}
 
 	qglBegin(GL_LINE_LOOP);
 
 	for (i = 0; i < count; i++) {
-		qglVertex2i(points[i][0], points[i][1]);
+		qglVertex2f(points[i][0], points[i][1]);
 	}
 
 	qglEnd();

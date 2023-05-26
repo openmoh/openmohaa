@@ -246,6 +246,16 @@ cvar_t* r_loadftx;
 
 cvar_t* r_showSkeleton;
 
+cvar_t* r_ext_multisample;
+cvar_t* r_noborder;
+cvar_t* r_ext_texture_filter_anisotropic;
+cvar_t* r_stereoEnabled;
+
+qboolean  textureFilterAnisotropic = qtrue;
+int       maxAnisotropy = 16;
+float     displayAspect = 16.f / 9.f;
+qboolean  haveClampToEdge = qtrue;
+
 static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral )
 {
 	if ( shouldBeIntegral )
@@ -842,7 +852,7 @@ void GL_SetDefaultState( void )
 	qglDisable( GL_CULL_FACE );
 	qglDisable( GL_BLEND );
 
-	qglFogi(GL_FOG_MODE, GL_LINEAR);
+	glFogi(GL_FOG_MODE, GL_LINEAR);
 
 	glState.fFogColor[0] = 0.0;
 	glState.fFogColor[1] = 0.0;
@@ -1001,11 +1011,11 @@ void R_Register( void )
 #else
 	r_stencilbits = ri.Cvar_Get( "r_stencilbits", "8", CVAR_ARCHIVE | CVAR_LATCH );
 #endif
-	r_depthbits = ri.Cvar_Get( "r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH );
+    r_depthbits = ri.Cvar_Get("r_depthbits", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_overBrightBits = ri.Cvar_Get ("r_overBrightBits", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ignorehwgamma = ri.Cvar_Get( "r_ignorehwgamma", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	r_mode = ri.Cvar_Get( "r_mode", "3", CVAR_ARCHIVE | CVAR_LATCH );
-	r_fullscreen = ri.Cvar_Get( "r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH );
+    r_fullscreen = ri.Cvar_Get("r_fullscreen", "1", CVAR_ARCHIVE | CVAR_LATCH);
 	r_customwidth = ri.Cvar_Get( "r_customwidth", "1600", CVAR_ARCHIVE | CVAR_LATCH );
 	r_customheight = ri.Cvar_Get( "r_customheight", "1024", CVAR_ARCHIVE | CVAR_LATCH );
 	r_customaspect = ri.Cvar_Get( "r_customaspect", "1", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1194,6 +1204,12 @@ void R_Register( void )
     fps = ri.Cvar_Get("fps", "0", 0);
     r_loadjpg = ri.Cvar_Get("r_loadjpg", "1", CVAR_LATCH);
     r_loadftx = ri.Cvar_Get("r_loadftx", "0", CVAR_LATCH);
+
+    r_ext_multisample = ri.Cvar_Get("r_ext_multisample", "0", CVAR_ARCHIVE | CVAR_LATCH);
+    r_noborder = ri.Cvar_Get("r_noborder", "0", CVAR_ARCHIVE | CVAR_LATCH);
+    r_ext_texture_filter_anisotropic = ri.Cvar_Get("r_ext_texture_filter_anisotropic",
+        "0", CVAR_ARCHIVE | CVAR_LATCH);
+    r_stereoEnabled = ri.Cvar_Get("r_stereoEnabled", "0", CVAR_ARCHIVE | CVAR_LATCH);
 
 	// make sure all the commands added here are also
 	// removed in R_Shutdown

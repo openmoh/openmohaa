@@ -103,8 +103,23 @@ cvar_t  *sv_packetdelay;
 cvar_t	*com_cameraMode;
 cvar_t	*com_ansiColor;
 cvar_t	*com_unfocused;
+cvar_t	*com_maxfpsUnfocused;
 cvar_t	*com_minimized;
+cvar_t	*com_maxfpsMinimized;
+cvar_t	*com_abnormalExit;
+cvar_t	*com_standalone;
+cvar_t	*com_gamename;
+cvar_t	*com_protocol;
+#ifdef LEGACY_PROTOCOL
+cvar_t	*com_legacyprotocol;
+#endif
+cvar_t	*com_basegame;
 cvar_t  *com_homepath;
+cvar_t	*com_busyWait;
+#ifndef DEDICATED
+cvar_t  *con_autochat;
+#endif
+
 cvar_t	*precache;
 
 // com_speeds times
