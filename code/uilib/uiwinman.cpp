@@ -661,7 +661,7 @@ qboolean UIWindowManager::KeyEvent
 {
 	UIWidget *selwidget = NULL;
 
-	if( key == K_TAB && ( uii.Sys_IsKeyDown( K_LCTRL ) || uii.Sys_IsKeyDown( K_DEL ) ) )
+	if( key == K_TAB && ( uii.Sys_IsKeyDown( K_CTRL ) || uii.Sys_IsKeyDown( K_DEL ) ) )
 	{
 		UIWidget *wid;
 

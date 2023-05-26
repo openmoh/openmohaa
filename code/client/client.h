@@ -169,6 +169,7 @@ demo through a file.
 
 typedef struct {
 
+	connstate_t	state;				// connection status
 	int			clientNum;
 	int			lastPacketSentTime;			// for retransmits during connection
 	int			lastPacketTime;				// for timeouts
@@ -286,7 +287,6 @@ typedef struct {
 
 typedef struct {
 	int			startStage;
-	connstate_t	state;				// connection status
 	int			loading;
 	int			keyCatchers;
 	qboolean	vid_restart;

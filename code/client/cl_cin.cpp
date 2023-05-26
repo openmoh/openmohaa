@@ -1274,7 +1274,7 @@ static void RoQShutdown( void ) {
 	}
 
 	if (cinTable[currentHandle].alterGameState) {
-		cls.state = CA_DISCONNECTED;
+		clc.state = CA_DISCONNECTED;
 		// we can't just do a vstr nextmap, because
 		// if we are aborting the intro cinematic with
 		// a devmap command, nextmap would be valid by
@@ -1307,7 +1307,7 @@ e_status CIN_StopCinematic(int handle) {
 	}
 
 	if (cinTable[currentHandle].alterGameState) {
-		if ( cls.state != CA_CINEMATIC ) {
+		if ( clc.state != CA_CINEMATIC ) {
 			return cinTable[currentHandle].status;
 		}
 	}
@@ -1348,7 +1348,7 @@ e_status CIN_RunCinematic (int handle)
 	currentHandle = handle;
 
 	if (cinTable[currentHandle].alterGameState) {
-		if ( cls.state != CA_CINEMATIC ) {
+		if ( clc.state != CA_CINEMATIC ) {
 			return cinTable[currentHandle].status;
 		}
 	}
@@ -1465,7 +1465,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 		Com_DPrintf("trFMV::play(), playing %s\n", arg);
 
 		if (cinTable[currentHandle].alterGameState) {
-			cls.state = CA_CINEMATIC;
+			clc.state = CA_CINEMATIC;
 		}
 
 		if (!cinTable[currentHandle].silent) {
@@ -1598,7 +1598,7 @@ void CL_PlayCinematic_f(void) {
 	int bits = CIN_system;
 
 	Com_DPrintf("CL_PlayCinematic_f\n");
-	if (cls.state == CA_CINEMATIC) {
+	if (clc.state == CA_CINEMATIC) {
 		SCR_StopCinematic();
 	}
 

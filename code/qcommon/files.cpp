@@ -3766,13 +3766,14 @@ void	FS_Flush( fileHandle_t f ) {
 }
 
 void	FS_FilenameCompletion( const char *dir, const char *ext,
-		qboolean stripExt, void(*callback)(const char *s) ) {
+		qboolean stripExt, void(*callback)(const char *s), qboolean allowNonPureFilesOnDisk ) {
 	char	**filenames;
 	int		nfiles;
 	int		i;
 	char	filename[ MAX_STRING_CHARS ];
 
-	filenames = FS_ListFilteredFiles( dir, ext, NULL, qfalse, &nfiles );
+	// FIXME: allowNonPureFilesOnDisk
+	filenames = FS_ListFilteredFiles( dir, ext, NULL, qtrue, &nfiles );
 
 	FS_SortFileList( filenames, nfiles );
 

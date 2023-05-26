@@ -49,7 +49,7 @@ void View3D::Draw
 	)
 
 {
-	if (cls.state != CA_DISCONNECTED) {
+	if (clc.state != CA_DISCONNECTED) {
 		SCR_DrawScreenField();
 	}
 

@@ -435,7 +435,7 @@ This will be called twice if rendering in stereo mode
 void SCR_DrawScreenField( void ) {
 	// wide aspect ratio screens need to have the sides cleared
 	// unless they are displaying game renderings
-	if ( cls.state != CA_ACTIVE && cls.state != CA_CINEMATIC ) {
+	if ( clc.state != CA_ACTIVE && clc.state != CA_CINEMATIC ) {
 		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
 			re.SetColor( g_color_table[0] );
 			//re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
@@ -444,9 +444,9 @@ void SCR_DrawScreenField( void ) {
 		}
 	}
 
-	switch( cls.state ) {
+	switch( clc.state ) {
 	case CA_UNINITIALIZED:
-		Com_Error( ERR_FATAL, "SCR_DrawScreenField: cls.state == CA_UNINITIALIZED" );
+		Com_Error( ERR_FATAL, "SCR_DrawScreenField: clc.state == CA_UNINITIALIZED" );
 		break;
 	case CA_LOADING:
 	case CA_PRIMED:
@@ -482,7 +482,7 @@ UpdateStereoSide
 void UpdateStereoSide( stereoFrame_t s ) {
 	s_scr_stereoFrame = s;
 	re.BeginFrame( s );
-	if( cls.state == CA_CINEMATIC ) {
+	if( clc.state == CA_CINEMATIC ) {
 		SCR_DrawCinematic();
 	}
 	UI_Update();
@@ -535,7 +535,7 @@ void SCR_UpdateScreen( void ) {
 	SCR_SimpleUpdateScreen();
 
 	// set the fps value
-	if( fps->integer && cls.state == CA_ACTIVE ) {
+	if( fps->integer && clc.state == CA_ACTIVE ) {
 		static int belowlastplaytime = 0;
 		static qboolean belowframerate = qfalse;
 

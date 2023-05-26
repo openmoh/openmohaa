@@ -111,7 +111,7 @@ void CMod_LoadShaders( gamelump_t *l, int **shaderSubdivisions ) {
 		Com_Error (ERR_DROP, "Map with no shaders");
 	}
 
-	cm.shaders = Hunk_Alloc( count * sizeof( *cm.shaders ) );
+	cm.shaders = Hunk_Alloc( count * sizeof( *cm.shaders ), h_dontcare);
 	cm.numShaders = count;
 	cm.fencemasks = NULL;
 
@@ -146,7 +146,7 @@ void CMod_LoadSubmodels( gamelump_t *l ) {
 
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map with no models");
-	cm.cmodels = Hunk_Alloc( count * sizeof( *cm.cmodels ) );
+	cm.cmodels = Hunk_Alloc( count * sizeof( *cm.cmodels ), h_dontcare);
 	cm.numSubModels = count;
 
 	if ( count > MAX_SUBMODELS ) {
@@ -171,7 +171,7 @@ void CMod_LoadSubmodels( gamelump_t *l ) {
 		out->leaf.numLeafBrushes = LittleLong( in->numBrushes );
 		if( out->leaf.numLeafBrushes )
 		{
-			indexes = Hunk_Alloc( out->leaf.numLeafBrushes * 4 );
+			indexes = Hunk_Alloc( out->leaf.numLeafBrushes * 4, h_dontcare);
 			out->leaf.firstLeafBrush = indexes - cm.leafbrushes;
 			for( j = 0; j < out->leaf.numLeafBrushes; j++ ) {
 				indexes[ j ] = LittleLong( in->firstBrush ) + j;
@@ -185,7 +185,7 @@ void CMod_LoadSubmodels( gamelump_t *l ) {
 		out->leaf.numLeafSurfaces = LittleLong( in->numSurfaces );
 		if( out->leaf.numLeafSurfaces )
 		{
-			indexes = Hunk_Alloc( out->leaf.numLeafSurfaces * 4 );
+			indexes = Hunk_Alloc( out->leaf.numLeafSurfaces * 4, h_dontcare);
 			out->leaf.firstLeafSurface = indexes - cm.leafsurfaces;
 			for( j = 0; j < out->leaf.numLeafSurfaces; j++ ) {
 				indexes[ j ] = LittleLong( in->firstSurface ) + j;
@@ -218,7 +218,7 @@ void CMod_LoadNodes( gamelump_t *l ) {
 
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map has no nodes");
-	cm.nodes = Hunk_Alloc( count * sizeof( *cm.nodes ) );
+	cm.nodes = Hunk_Alloc( count * sizeof( *cm.nodes ), h_dontcare);
 	cm.numNodes = count;
 
 	out = cm.nodes;
@@ -269,7 +269,7 @@ void CMod_LoadBrushes( gamelump_t *l ) {
 	}
 	count = l->length / sizeof(*in);
 
-	cm.brushes = Hunk_Alloc( ( BOX_BRUSHES + count ) * sizeof( *cm.brushes ) );
+	cm.brushes = Hunk_Alloc( ( BOX_BRUSHES + count ) * sizeof( *cm.brushes ), h_dontcare);
 	cm.numBrushes = count;
 
 	out = cm.brushes;
@@ -309,7 +309,7 @@ void CMod_LoadLeafs( gamelump_t *l )
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map with no leafs");
 
-	cm.leafs = Hunk_Alloc( ( BOX_LEAFS + count ) * sizeof( *cm.leafs ) );
+	cm.leafs = Hunk_Alloc( ( BOX_LEAFS + count ) * sizeof( *cm.leafs ), h_dontcare);
 	cm.numLeafs = count;
 
 	out = cm.leafs;
@@ -330,8 +330,8 @@ void CMod_LoadLeafs( gamelump_t *l )
 			cm.numAreas = out->area + 1;
 	}
 
-	cm.areas = Hunk_Alloc( cm.numAreas * sizeof( *cm.areas ) );
-	cm.areaPortals = Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ) );
+	cm.areas = Hunk_Alloc( cm.numAreas * sizeof( *cm.areas ), h_dontcare);
+	cm.areaPortals = Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), h_dontcare);
 }
 
 /*
@@ -354,7 +354,7 @@ void CMod_LoadLeafsOld( gamelump_t *l )
 	if( count < 1 )
 		Com_Error( ERR_DROP, "Map with no leafs" );
 
-	cm.leafs = Hunk_Alloc( ( BOX_LEAFS + count ) * sizeof( *cm.leafs ) );
+	cm.leafs = Hunk_Alloc( ( BOX_LEAFS + count ) * sizeof( *cm.leafs ), h_dontcare);
 	cm.numLeafs = count;
 
 	out = cm.leafs;
@@ -373,8 +373,8 @@ void CMod_LoadLeafsOld( gamelump_t *l )
 			cm.numAreas = out->area + 1;
 	}
 
-	cm.areas = Hunk_Alloc( cm.numAreas * sizeof( *cm.areas ) );
-	cm.areaPortals = Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ) );
+	cm.areas = Hunk_Alloc( cm.numAreas * sizeof( *cm.areas ), h_dontcare);
+	cm.areaPortals = Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), h_dontcare);
 }
 
 /*
@@ -397,7 +397,7 @@ void CMod_LoadPlanes( gamelump_t *l )
 
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map with no planes");
-	cm.planes = Hunk_Alloc( ( BOX_PLANES + count ) * sizeof( *cm.planes ) );
+	cm.planes = Hunk_Alloc( ( BOX_PLANES + count ) * sizeof( *cm.planes ), h_dontcare);
 	cm.numPlanes = count;
 
 	out = cm.planes;
@@ -435,7 +435,7 @@ void CMod_LoadLeafBrushes( gamelump_t *l )
 		Com_Error( ERR_DROP, "CM_LoadMap: funny lump size in %s", cm.name );
 	count = l->length / sizeof(*in);
 
-	cm.leafbrushes = Hunk_Alloc( (count + BOX_BRUSHES) * sizeof( *cm.leafbrushes ) );
+	cm.leafbrushes = Hunk_Alloc( (count + BOX_BRUSHES) * sizeof( *cm.leafbrushes ), h_dontcare);
 	cm.numLeafBrushes = count;
 
 	out = cm.leafbrushes;
@@ -462,7 +462,7 @@ void CMod_LoadLeafSurfaces( gamelump_t *l )
 		Com_Error( ERR_DROP, "CM_LoadMap: funny lump size in %s", cm.name );
 	count = l->length / sizeof(*in);
 
-	cm.leafsurfaces = Hunk_Alloc( count * sizeof( *cm.leafsurfaces ) );
+	cm.leafsurfaces = Hunk_Alloc( count * sizeof( *cm.leafsurfaces ), h_dontcare);
 	cm.numLeafSurfaces = count;
 
 	out = cm.leafsurfaces;
@@ -497,7 +497,7 @@ void CMod_LoadSideEquations( gamelump_t *l )
 		return;
 	}
 
-	cm.sideequations = Hunk_Alloc( count * sizeof( *cm.sideequations ) );
+	cm.sideequations = Hunk_Alloc( count * sizeof( *cm.sideequations ), h_dontcare);
 	cm.numSideEquations = count;
 
 	out = cm.sideequations;
@@ -529,7 +529,7 @@ void CMod_LoadBrushSides( gamelump_t *l )
 	}
 	count = l->length / sizeof(*in);
 
-	cm.brushsides = Hunk_Alloc( ( BOX_SIDES + count ) * sizeof( *cm.brushsides ) );
+	cm.brushsides = Hunk_Alloc( ( BOX_SIDES + count ) * sizeof( *cm.brushsides ), h_dontcare);
 	cm.numBrushSides = count;
 
 	out = cm.brushsides;
@@ -559,7 +559,7 @@ CMod_LoadEntityString
 =================
 */
 void CMod_LoadEntityString( gamelump_t *l ) {
-	cm.entityString = Hunk_Alloc( l->length );
+	cm.entityString = Hunk_Alloc( l->length, h_dontcare);
 	cm.numEntityChars = l->length;
 	Com_Memcpy( cm.entityString, l->buffer, l->length );
 }
@@ -577,14 +577,14 @@ void CMod_LoadVisibility( gamelump_t *l ) {
     len = l->length;
 	if ( !len ) {
 		cm.clusterBytes = ( cm.numClusters + 31 ) & ~31;
-		cm.visibility = Hunk_Alloc( cm.clusterBytes );
+		cm.visibility = Hunk_Alloc( cm.clusterBytes, h_dontcare);
 		Com_Memset( cm.visibility, 255, cm.clusterBytes );
 		return;
 	}
 	buf = ( byte * )l->buffer;
 
 	cm.vised = qtrue;
-	cm.visibility = Hunk_Alloc( len );
+	cm.visibility = Hunk_Alloc( len, h_dontcare);
 	cm.numClusters = LittleLong( ( ( int * )buf )[ 0 ] );
 	cm.clusterBytes = LittleLong( ( ( int * )buf )[ 1 ] );
 	Com_Memcpy( cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
@@ -615,7 +615,7 @@ void CMod_LoadPatches( gamelump_t *surfs, gamelump_t *verts, int *shaderSubdivis
 	if( surfs->length % sizeof( *in ) )
 		Com_Error( ERR_DROP, "CM_LoadMap: funny lump size in %s", cm.name );
 	cm.numSurfaces = count = surfs->length / sizeof(*in);
-	cm.surfaces = Hunk_Alloc( cm.numSurfaces * sizeof( cm.surfaces[0] ) );
+	cm.surfaces = Hunk_Alloc( cm.numSurfaces * sizeof( cm.surfaces[0] ), h_dontcare);
 	memset( cm.surfaces, 0, cm.numSurfaces * sizeof( cm.surfaces[ 0 ] ) );
 
 	dv = ( drawVert_t * )verts->buffer;
@@ -638,7 +638,7 @@ void CMod_LoadPatches( gamelump_t *surfs, gamelump_t *verts, int *shaderSubdivis
 			continue;
 		}
 
-		cm.surfaces[ i ] = patch = Hunk_Alloc( sizeof( *patch ) );
+		cm.surfaces[ i ] = patch = Hunk_Alloc( sizeof( *patch ), h_dontcare);
 		assert( cm.surfaces[ i ] != ( cPatch_t * )0 );
 		assert( cm.surfaces[ i ] != ( cPatch_t * )0x4 );
 
@@ -695,7 +695,7 @@ void CMod_LoadTerrain( gamelump_t *lump ) {
 		Com_Error( ERR_DROP, "CM_LoadMap: funny lump size in %s", cm.name );
 	numTerraPatches = lump->length / sizeof( *terraPatches );
 	cm.numTerrain = numTerraPatches;
-	cm.terrain = ( cTerrain_t * )Hunk_Alloc( cm.numTerrain * sizeof( cm.terrain[ 0 ] ) );
+	cm.terrain = ( cTerrain_t * )Hunk_Alloc( cm.numTerrain * sizeof( cm.terrain[ 0 ] ), h_dontcare);
 
 	// Prepare collision
 	CM_PrepareGenerateTerrainCollide();
@@ -729,7 +729,7 @@ void CMod_LoadTerrainIndexes( gamelump_t *lump ) {
 	}
 
 	cm.numLeafTerrains = lump->length / sizeof( short );
-	cm.leafterrains = ( cTerrain_t ** )Hunk_Alloc( cm.numLeafTerrains * sizeof( cTerrain_t * ) );
+	cm.leafterrains = ( cTerrain_t ** )Hunk_Alloc( cm.numLeafTerrains * sizeof( cTerrain_t * ), h_dontcare);
 
 	in = ( short * )lump->buffer;
 
@@ -852,7 +852,7 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum ) {
 		cm.numLeafs = 1;
 		cm.numClusters = 1;
 		cm.numAreas = 1;
-		cm.cmodels = Hunk_Alloc( sizeof( *cm.cmodels ) );
+		cm.cmodels = Hunk_Alloc( sizeof( *cm.cmodels ), h_dontcare);
 		*checksum = 0;
 		return;
 	}

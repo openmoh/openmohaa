@@ -385,6 +385,8 @@ typedef enum {
 	TRAP_TESTPRINTFLOAT
 } sharedTraps_t;
 
+typedef intptr_t (QDECL *vmMainProc)(int callNum, int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11);
+
 void	VM_Init( void );
 vm_t	*VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *), 
 				   vmInterpret_t interpret );
@@ -392,7 +394,9 @@ vm_t	*VM_Create( const char *module, intptr_t (*systemCalls)(intptr_t *),
 
 void	VM_Free( vm_t *vm );
 void	VM_Clear(void);
-vm_t	*VM_Restart( vm_t *vm );
+void	VM_Forced_Unload_Start(void);
+void	VM_Forced_Unload_Done(void);
+vm_t	*VM_Restart(vm_t *vm, qboolean unpure);
 
 intptr_t		QDECL VM_Call( vm_t *vm, int callNum, ... );
 
@@ -404,12 +408,9 @@ void	*VM_ExplicitArgPtr( vm_t *vm, intptr_t intValue );
 #define	VMA(x) VM_ArgPtr(args[x])
 static ID_INLINE float _vmf(intptr_t x)
 {
-	union {
-		intptr_t l;
-		float f;
-	} t;
-	t.l = x;
-	return t.f;
+    floatint_t fi;
+    fi.i = (int)x;
+    return fi.f;
 }
 #define	VMF(x)	_vmf(args[x])
 
@@ -483,6 +484,7 @@ void Cmd_SetCommandCompletionFunc( const char *command,
 void Cmd_CompleteArgument( const char *command, char *args, int argNum );
 void Cmd_CompleteCfgName( char *args, int argNum );
 void	Cmd_CommandCompletion( void(*callback)(const char *s) );
+const char* Cmd_CompleteCommandByNumber(const char* partial, int number);
 // callback with each valid string
 
 int		Cmd_Argc (void);
@@ -795,6 +797,30 @@ extern cvar_t *fs_basepath;
 /*
 ==============================================================
 
+Edit fields and command line history/completion
+
+==============================================================
+*/
+
+#define	MAX_EDIT_LINE	256
+typedef struct {
+	int		cursor;
+	int		scroll;
+	int		widthInChars;
+	char	buffer[MAX_EDIT_LINE];
+} field_t;
+
+void Field_Clear( field_t *edit );
+void Field_AutoComplete( field_t *edit );
+void Field_CompleteKeyname( void );
+void Field_CompleteFilename( const char *dir,
+		const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
+void Field_CompleteCommand( char *cmd,
+		qboolean doCommands, qboolean doCvars );
+void Field_CompletePlayerName( const char **names, int count );
+/*
+==============================================================
+
 MISC
 
 ==============================================================
@@ -911,6 +937,15 @@ extern	cvar_t	*sv_paused;
 extern	cvar_t	*cl_packetdelay;
 extern	cvar_t	*sv_packetdelay;
 
+extern	cvar_t* com_gamename;
+extern	cvar_t* com_protocol;
+#ifdef LEGACY_PROTOCOL
+extern	cvar_t* com_legacyprotocol;
+#endif
+#ifndef DEDICATED
+extern  cvar_t* con_autochat;
+#endif
+
 // com_speeds times
 extern	int		time_game;
 extern	int		time_frontend;
@@ -972,8 +1007,8 @@ const char *Z_EmptyStringPointer( void );
 const char *Z_NumberStringPointer( int iNum );
 
 #ifndef _DEBUG_MEM
-void *Z_TagMalloc( size_t size, int tag );
-void *Z_Malloc( size_t size );
+void *Z_TagMalloc(int size, int tag );
+void *Z_Malloc(int size );
 void Z_Free( void *ptr );
 #endif
 
@@ -985,11 +1020,7 @@ int Z_AvailableMemory( void );
 void Z_LogHeap( void );
 void Z_Meminfo_f( void );
 
-#ifdef HUNK_DEBUG
-void* Hunk_AllocDebug(size_t size, const char* label, const char* file, int line);
-#endif
-void *Hunk_Alloc( size_t size );
-void *Hunk_AllocateTempMemory(size_t size );
+void *Hunk_AllocateTempMemory(int size );
 void Hunk_FreeTempMemory( void *buf );
 
 void Hunk_Clear( void );
@@ -1208,10 +1239,10 @@ qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
 qboolean	Sys_IsLANAddress (netadr_t adr);
 void		Sys_ShowIP(void);
 
-void	Sys_Mkdir( const char *path );
-char	*Sys_Cwd( void );
-void	Sys_SetDefaultInstallPath(const char *path);
-char	*Sys_DefaultInstallPath( void );
+qboolean	Sys_Mkdir( const char *path );
+char		*Sys_Cwd( void );
+void		Sys_SetDefaultInstallPath(const char *path);
+char		*Sys_DefaultInstallPath( void );
 
 #ifdef MACOS_X
 char    *Sys_DefaultAppPath(void);

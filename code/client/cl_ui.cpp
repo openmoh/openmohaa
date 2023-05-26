@@ -260,7 +260,7 @@ GetClientState
 */
 static void GetClientState( uiClientState_t *state ) {
 	state->connectPacketCount = clc.connectPacketCount;
-	state->connState = cls.state;
+	state->connState = clc.state;
 	Q_strncpyz( state->servername, cls.servername, sizeof( state->servername ) );
 	Q_strncpyz( state->updateInfoString, cls.updateInfoString, sizeof( state->updateInfoString ) );
 	Q_strncpyz( state->messageString, clc.serverMessage, sizeof( state->messageString ) );
@@ -1664,7 +1664,7 @@ UI_DrawIntro
 ====================
 */
 void UI_DrawIntro( void ) {
-	if( cls.state == CA_CINEMATIC )
+	if( clc.state == CA_CINEMATIC )
 	{
 		view3d->setShow( true );
 		return;
@@ -1719,7 +1719,7 @@ void UI_Update(void) {
 	//
 	// draw the base HUD when in-game
 	//
-	if (cls.no_menus && cls.state == CA_ACTIVE)
+	if (cls.no_menus && clc.state == CA_ACTIVE)
 	{
 		view3d->setShow(true);
 		frame = uWinMan.getFrame();
@@ -1792,7 +1792,7 @@ void UI_Update(void) {
 	}
 	*/
 
-	if (!server_loading && (cls.state == CA_CONNECTING || cls.state == CA_CHALLENGING) && ui_pConnectingMenu)
+	if (!server_loading && (clc.state == CA_CONNECTING || clc.state == CA_CHALLENGING) && ui_pConnectingMenu)
 	{
 		view3d->setShow(false);
 		UI_ClearBackground();
@@ -1833,7 +1833,7 @@ void UI_Update(void) {
 	{
 		if (currentMenu && currentMenu->isFullscreen() && (!server_loading || !ui_pLoadingMenu))
 		{
-			if (com_sv_running->integer && cls.state == CA_ACTIVE) {
+			if (com_sv_running->integer && clc.state == CA_ACTIVE) {
 				Com_FakePause();
 			}
 
@@ -1841,12 +1841,12 @@ void UI_Update(void) {
 		}
 		else if (!server_loading)
 		{
-			if (cls.state <= CA_PRIMED)
+			if (clc.state <= CA_PRIMED)
 			{
 				view3d->setShow(false);
 				UI_ClearBackground();
 			}
-			else if (cls.state == CA_PRIMED || cls.state == CA_ACTIVE)
+			else if (clc.state == CA_PRIMED || clc.state == CA_ACTIVE)
 			{
 				Com_FakeUnpause();
 				view3d->setShow(true);
@@ -1899,7 +1899,7 @@ void UI_Update(void) {
 	}
 
 	// Hide the HUD when necessary
-	if (!ui_hud || cls.state != CA_ACTIVE || view3d->LetterboxActive()
+	if (!ui_hud || clc.state != CA_ACTIVE || view3d->LetterboxActive()
 		|| (currentMenu && currentMenu->isFullscreen())
 		|| server_loading
 		|| ((cl.snap.ps.pm_flags & PMF_NO_HUD) || (cl.snap.ps.pm_flags & PMF_SPECTATE_FOLLOW)))
@@ -2476,7 +2476,7 @@ void UI_MultiplayerMenuWidgetsUpdate( void ) {
 		event = new Event( EV_Widget_Disable );
 		menuManager.PassEventToWidget( "startnew", event );
 
-		if( cls.state > CA_PRIMED && !cg_gametype->integer )
+		if( clc.state > CA_PRIMED && !cg_gametype->integer )
 		{
 			event = new Event( EV_Widget_Disable );
 			menuManager.PassEventToWidget( "changemap", event );
@@ -2497,7 +2497,7 @@ void UI_MultiplayerMenuWidgetsUpdate( void ) {
 	}
 
 	// allow the disconnect widget when in-game
-	if( cls.state > CA_PRIMED )
+	if( clc.state > CA_PRIMED )
 	{
 		event = new Event( EV_Widget_Enable );
 		menuManager.PassEventToWidget( "disconnect", event );
@@ -2509,7 +2509,7 @@ void UI_MultiplayerMenuWidgetsUpdate( void ) {
 	}
 
 	// allow the join widget when in-game
-	if( com_sv_running->integer || cls.state > CA_PRIMED )
+	if( com_sv_running->integer || clc.state > CA_PRIMED )
 	{
 		event = new Event( EV_Widget_Disable );
 		menuManager.PassEventToWidget( "joinlan", event );
@@ -2533,7 +2533,7 @@ UI_MainMenuWidgetsUpdate
 ====================
 */
 void UI_MainMenuWidgetsUpdate( void ) {
-	if( cls.state > CA_PRIMED )
+	if( clc.state > CA_PRIMED )
 	{
 		Event *event = new Event( EV_Widget_Enable );
 		menuManager.PassEventToWidget( "backtogame", event );
@@ -2754,7 +2754,7 @@ void UI_PushMenuSP_f( void ) {
 	}
 
 	if( ( !com_cl_running || !com_cl_running->integer
-		|| cls.state == CA_DISCONNECTED || !cg_gametype->integer )
+		|| clc.state == CA_DISCONNECTED || !cg_gametype->integer )
 		&& ( !com_sv_running || !com_sv_running->integer || !g_gametype->integer ) )
 	{
 		UI_PushMenu( Cmd_Argv( 1 ) );
@@ -2775,7 +2775,7 @@ void UI_PushMenuMP_f( void ) {
 	}
 
 	if( com_cl_running && com_cl_running->integer
-		&& cls.state != CA_DISCONNECTED && cg_gametype->integer
+		&& clc.state != CA_DISCONNECTED && cg_gametype->integer
 		&& com_sv_running && com_sv_running->integer && g_gametype->integer )
 	{
 		cmd = Cmd_Argv( 1 );
@@ -3022,7 +3022,7 @@ void UI_MenuEscape( const char *name ) {
 	{
 		UI_KeyEvent( K_ESCAPE, qfalse );
 	}
-	else if( menuManager.CurrentMenu() != mainmenu || cls.state != CA_DISCONNECTED )
+	else if( menuManager.CurrentMenu() != mainmenu || clc.state != CA_DISCONNECTED )
 	{
 		if( uWinMan.DialogExists() )
 		{
@@ -3034,7 +3034,7 @@ void UI_MenuEscape( const char *name ) {
 			{
 				menuManager.PopMenu( qtrue );
 			}
-			else if( !Q_stricmp( name, "main" ) && cls.state > CA_PRIMED && cg_gametype->integer > 0 )
+			else if( !Q_stricmp( name, "main" ) && clc.state > CA_PRIMED && cg_gametype->integer > 0 )
 			{
 				UI_PushMenu( "dm_main" );
 			}
@@ -3497,7 +3497,7 @@ void UI_EditScript_f( void ) {
 	str mappath;
 
 	// editscript only works in-game
-	if( cls.state != CA_ACTIVE )
+	if( clc.state != CA_ACTIVE )
 	{
 		Com_Printf( "You need to load a map to edit its script\n" );
 		return;

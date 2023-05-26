@@ -345,7 +345,7 @@ void CL_Record_f( void ) {
 		return;
 	}
 
-	if ( cls.state != CA_ACTIVE ) {
+	if ( clc.state != CA_ACTIVE ) {
 		Com_Printf ("You must be in a level to record.\n");
 		return;
 	}
@@ -693,12 +693,12 @@ void CL_PlayDemo_f( void ) {
 
     UI_CloseConsole();
 
-	cls.state = CA_CONNECTED;
+	clc.state = CA_CONNECTED;
 	clc.demoplaying = qtrue;
 	Q_strncpyz( cls.servername, Cmd_Argv(1), sizeof( cls.servername ) );
 
 	// read demo messages until connected
-	while ( cls.state >= CA_CONNECTED && cls.state < CA_PRIMED ) {
+	while ( clc.state >= CA_CONNECTED && clc.state < CA_PRIMED ) {
 		CL_ReadDemoMessage();
 	}
 	// don't get the first snapshot this frame, to prevent the long
@@ -814,8 +814,8 @@ void CL_MapLoading( qboolean flush, const char *pszMapName ) {
 
 	if (pszMapName) {
 		// if we are already connected to the local host, stay connected
-		if (cls.state >= CA_CONNECTED && !Q_stricmp(cls.servername, "localhost")) {
-			cls.state = CA_CONNECTED;		// so the connect screen is drawn
+		if (clc.state >= CA_CONNECTED && !Q_stricmp(cls.servername, "localhost")) {
+			clc.state = CA_CONNECTED;		// so the connect screen is drawn
 			Com_Memset(cls.updateInfoString, 0, sizeof(cls.updateInfoString));
 			Com_Memset(clc.serverMessage, 0, sizeof(clc.serverMessage));
 			Com_Memset(&cl.gameState, 0, sizeof(cl.gameState));
@@ -826,7 +826,7 @@ void CL_MapLoading( qboolean flush, const char *pszMapName ) {
 			Cvar_Set("nextmap", "");
 			CL_Disconnect(qtrue);
 			Q_strncpyz(cls.servername, "localhost", sizeof(cls.servername));
-			cls.state = CA_CHALLENGING;		// so the connect screen is drawn
+			clc.state = CA_CHALLENGING;		// so the connect screen is drawn
             clc.connectStartTime = cls.realtime;
 			clc.connectTime = -RETRANSMIT_TIMEOUT;
 			NET_StringToAdr(cls.servername, &clc.serverAddress);
@@ -922,7 +922,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
 
 	// send a disconnect message to the server
 	// send it a few times in case one is dropped
-	if ( cls.state >= CA_CONNECTED ) {
+	if ( clc.state >= CA_CONNECTED ) {
 		CL_AddReliableCommand( "disconnect" );
 		CL_WritePacket();
 		CL_WritePacket();
@@ -934,7 +934,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	// wipe the client connection
 	Com_Memset( &clc, 0, sizeof( clientConnection_t ) );
 
-	cls.state = CA_DISCONNECTED;
+	clc.state = CA_DISCONNECTED;
 
 	// allow cheats locally
 	Cvar_Set( "sv_cheats", "1" );
@@ -971,7 +971,7 @@ void CL_ForwardCommandToServer( const char *string ) {
 		return;
 	}
 
-	if ( clc.demoplaying || cls.state < CA_CONNECTED || cmd[0] == '+' ) {
+	if ( clc.demoplaying || clc.state < CA_CONNECTED || cmd[0] == '+' ) {
 		Com_Printf ("Unknown command \"%s" S_COLOR_WHITE "\"\n", cmd);
 		return;
 	}
@@ -1118,7 +1118,7 @@ CL_ForwardToServer_f
 ==================
 */
 void CL_ForwardToServer_f( void ) {
-	if ( cls.state != CA_ACTIVE || clc.demoplaying ) {
+	if ( clc.state != CA_ACTIVE || clc.demoplaying ) {
 		Com_Printf ("Not connected to a server.\n");
 		return;
 	}
@@ -1172,7 +1172,7 @@ CL_Disconnect_f
 void CL_Disconnect_f( void ) {
 	SCR_StopCinematic();
 	Cvar_Set("ui_singlePlayerActive", "0");
-	if ( cls.state != CA_DISCONNECTED && cls.state != CA_CINEMATIC ) {
+	if ( clc.state != CA_DISCONNECTED && clc.state != CA_CINEMATIC ) {
 		Com_Error (ERR_DISCONNECT, "Disconnected from server");
 	}
 }
@@ -1230,7 +1230,7 @@ void CL_Connect( const char *server ) {
 
 	if( !NET_StringToAdr( cls.servername, &clc.serverAddress ) ) {
 		Com_Printf( "Bad server address\n" );
-		cls.state = CA_DISCONNECTED;
+		clc.state = CA_DISCONNECTED;
 		return;
 	}
 	if( clc.serverAddress.port == 0 ) {
@@ -1247,10 +1247,10 @@ void CL_Connect( const char *server ) {
 	// with the cd key
 	// wombat: no authorization in mohaa. need to send challenge to server though
 	if( NET_IsLocalAddress( clc.serverAddress ) ) {
-		cls.state = CA_CHALLENGING;
+		clc.state = CA_CHALLENGING;
 	}
 	else {
-		cls.state = CA_CONNECTING;
+		clc.state = CA_CONNECTING;
 	}
 
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
@@ -1373,7 +1373,7 @@ void CL_Rcon_f( void ) {
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=543
 	Q_strcat (message, MAX_RCON_MESSAGE, Cmd_Cmd()+5);
 
-	if ( cls.state >= CA_CONNECTED ) {
+	if ( clc.state >= CA_CONNECTED ) {
 		to = clc.netchan.remoteAddress;
 	} else {
 		if (!strlen(rconAddress->string)) {
@@ -1426,7 +1426,7 @@ void CL_ResetPureClientAtServer( void ) {
 }
 
 qboolean CL_Allowed_Vid_Restart() {
-	return cls.state == CA_DISCONNECTED || cls.state == CA_ACTIVE;
+	return clc.state == CA_DISCONNECTED || clc.state == CA_ACTIVE;
 }
 
 /*
@@ -1534,7 +1534,7 @@ void CL_Configstrings_f( void ) {
 	int		i;
 	int		ofs;
 
-	if ( cls.state != CA_ACTIVE ) {
+	if ( clc.state != CA_ACTIVE ) {
 		Com_Printf( "Not connected to a server.\n");
 		return;
 	}
@@ -1555,7 +1555,7 @@ CL_Clientinfo_f
 */
 void CL_Clientinfo_f( void ) {
 	Com_Printf( "--------- Client Information ---------\n" );
-	Com_Printf( "state: %i\n", cls.state );
+	Com_Printf( "state: %i\n", clc.state );
 	Com_Printf( "Server: %s\n", cls.servername );
 	Com_Printf ("User info settings:\n");
 	Info_Print( Cvar_InfoString( CVAR_USERINFO ) );
@@ -1606,7 +1606,7 @@ void CL_DownloadsComplete( void ) {
 	}
 
 	// let the client game init and load data
-	cls.state = CA_LOADING;
+	clc.state = CA_LOADING;
 
     CL_StartHunkUsers();
     // Pump the loop, this may change gamestate!
@@ -1762,7 +1762,7 @@ void CL_InitDownloads(void) {
 
 		if ( *clc.downloadList ) {
 			// if autodownloading is not enabled on the server
-			cls.state = CA_CONNECTED;
+			clc.state = CA_CONNECTED;
 			CL_NextDownload();
 			return;
 		}
@@ -1790,7 +1790,7 @@ void CL_CheckForResend( void ) {
 	}
 
 	// resend if we haven't gotten a reply yet
-	if ( cls.state != CA_CONNECTING && cls.state != CA_CHALLENGING ) {
+	if ( clc.state != CA_CONNECTING && clc.state != CA_CHALLENGING ) {
 		return;
 	}
 
@@ -1802,7 +1802,7 @@ void CL_CheckForResend( void ) {
 	clc.connectPacketCount++;
 
 
-	switch ( cls.state ) {
+	switch ( clc.state ) {
 	case CA_CONNECTING:
 		// requesting a challenge
 		//wombat: not authorization in mohaa
@@ -1853,7 +1853,7 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 		break;
 
 	default:
-		Com_Error( ERR_FATAL, "CL_CheckForResend: bad cls.state" );
+		Com_Error( ERR_FATAL, "CL_CheckForResend: bad clc.state" );
 	}
 }
 
@@ -1868,7 +1868,7 @@ to the client so it doesn't have to wait for the full timeout period.
 ===================
 */
 void CL_DisconnectPacket( netadr_t from ) {
-	if ( cls.state < CA_AUTHORIZING ) {
+	if ( clc.state < CA_AUTHORIZING ) {
 		return;
 	}
 
@@ -2091,12 +2091,12 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// challenge from the server we are connecting to
 	if ( !Q_stricmp(c, "challengeResponse") ) {
-		if ( cls.state != CA_CONNECTING && cls.state != CA_AUTHORIZING ) {
+		if ( clc.state != CA_CONNECTING && clc.state != CA_AUTHORIZING ) {
 			Com_Printf( "Unwanted challenge response received.  Ignored.\n" );
 		} else {
 			// start sending challenge repsonse instead of challenge request packets
 			clc.challenge = atoi(Cmd_Argv(1));
-			cls.state = CA_CHALLENGING;
+			clc.state = CA_CHALLENGING;
 			clc.connectPacketCount = 0;
 			clc.connectTime = -99999;
 
@@ -2110,11 +2110,11 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// server connection
 	if ( !Q_stricmp(c, "connectResponse") ) {
-		if ( cls.state >= CA_CONNECTED ) {
+		if ( clc.state >= CA_CONNECTED ) {
 			Com_Printf ("Dup connect received.  Ignored.\n");
 			return;
 		}
-		if ( cls.state != CA_CHALLENGING ) {
+		if ( clc.state != CA_CHALLENGING ) {
 			Com_Printf ("connectResponse packet while not connecting.  Ignored.\n");
 			return;
 		}
@@ -2125,7 +2125,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			return;
 		}
 		Netchan_Setup (NS_CLIENT, &clc.netchan, from, Cvar_VariableValue( "net_qport" ) );
-		cls.state = CA_CONNECTED;
+		clc.state = CA_CONNECTED;
 		clc.lastPacketSentTime = -9999;		// send first packet immediately
 		return;
 	}
@@ -2157,7 +2157,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	// cd check
 	if ( !Q_stricmp(c, "getKey") ) {
-		cls.state = CA_AUTHORIZING;
+		clc.state = CA_AUTHORIZING;
 		gcd_compute_response(cl_cdkey, Cmd_Argv(1), cls.gcdResponse, CDResponseMethod_NEWAUTH);
 		NET_OutOfBandPrint(NS_CLIENT, from, "authorizeThis %s", cls.gcdResponse);
 		return;
@@ -2213,7 +2213,7 @@ void CL_PacketEvent( netadr_t from, msg_t *msg ) {
 		return;
 	}
 
-	if ( cls.state < CA_CONNECTED ) {
+	if ( clc.state < CA_CONNECTED ) {
 		return;		// can't be a valid sequenced packet
 	}
 
@@ -2267,7 +2267,7 @@ void CL_CheckTimeout( void ) {
 	// check timeout
 	//
 	if ( ( !CL_CheckPaused() || !paused->integer )
-		&& cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
+		&& clc.state >= CA_CONNECTED && clc.state != CA_CINEMATIC
 	    && cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
 			Com_Printf ("\nServer connection timed out.\n");
@@ -2309,7 +2309,7 @@ void CL_CheckUserinfo( void ) {
 	char szSanitizedName[MAX_NAME_LENGTH];
 
 	// don't add reliable commands when not yet connected
-	if(cls.state < CA_CHALLENGING)
+	if(clc.state < CA_CHALLENGING)
 		return;
 
 	// don't overflow the reliable command buffer when paused
@@ -2348,7 +2348,7 @@ void CL_Frame ( int msec ) {
 	if(clc.downloadCURLM) {
 		CL_cURL_PerformDownload();
 		// we can't process frames normally when in disconnected
-		// download mode since the ui vm expects cls.state to be
+		// download mode since the ui vm expects clc.state to be
 		// CA_CONNECTED
 		if(clc.cURLDisconnected) {
 			cls.realFrametime = msec;
@@ -2362,7 +2362,7 @@ void CL_Frame ( int msec ) {
 	}
 #endif
 
-	if ( cls.state == CA_DISCONNECTED && !UI_MenuActive()
+	if ( clc.state == CA_DISCONNECTED && !UI_MenuActive()
 		&& !com_sv_running->integer ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds( qtrue );
@@ -2372,7 +2372,7 @@ void CL_Frame ( int msec ) {
 	// if recording an avi, lock to a fixed fps
 	if ( CL_VideoRecording( ) && cl_aviFrameRate->integer && msec) {
 		// save the current screen
-		if ( cls.state == CA_ACTIVE || cl_forceavidemo->integer) {
+		if ( clc.state == CA_ACTIVE || cl_forceavidemo->integer) {
 			CL_TakeVideoFrame( );
 
 			// fixed time for next frame'
@@ -2384,7 +2384,7 @@ void CL_Frame ( int msec ) {
 	}
 
 	if( cl_autoRecordDemo->integer ) {
-		if( cls.state == CA_ACTIVE && !clc.demorecording && !clc.demoplaying ) {
+		if( clc.state == CA_ACTIVE && !clc.demorecording && !clc.demoplaying ) {
 			// If not recording a demo, and we should be, start one
 			qtime_t	now;
 			const char	*nowString;
@@ -2415,7 +2415,7 @@ void CL_Frame ( int msec ) {
 			Cbuf_ExecuteText( EXEC_NOW,
 					va( "record %s-%s-%s", nowString, serverName, mapName ) );
 		}
-		else if( cls.state != CA_ACTIVE && clc.demorecording ) {
+		else if( clc.state != CA_ACTIVE && clc.demorecording ) {
 			// Recording, but not CA_ACTIVE, so stop recording
 			CL_StopRecord_f( );
 		}
@@ -2560,7 +2560,7 @@ void CL_StartHunkUsers( void ) {
 	}
 
 	if( !cls.cgameStarted ) {
-		if( cls.state >= CA_LOADING && cls.state != CA_CINEMATIC ) {
+		if( clc.state >= CA_LOADING && clc.state != CA_CINEMATIC ) {
 			CL_InitCGame();
 		}
 	}
@@ -2592,13 +2592,33 @@ void CL_RefClear( void )
 
 /*
 ============
+CL_RefStaticMallocDebug
+============
+*/
+void* CL_RefStaticMallocDebug(size_t size, const char* label, const char* file, int line) {
+    void* ptr = Z_TagMalloc(size, TAG_STATIC_RENDERER);
+    Com_Memset(ptr, 0, size);
+    return ptr;
+}
+
+/*
+============
 CL_RefStaticMalloc
 ============
 */
-void *CL_RefStaticMalloc( size_t size ) {
+void *CL_RefStaticMalloc(size_t size ) {
 	void *ptr = Z_TagMalloc( size, TAG_STATIC_RENDERER );
 	Com_Memset( ptr, 0, size );
 	return ptr;
+}
+
+/*
+============
+CL_RefStaticMallocTemp
+============
+*/
+void* CL_RefStaticMallocTemp(size_t size) {
+	return Hunk_AllocateTempMemory(size);
 }
 
 /*
@@ -2710,11 +2730,11 @@ void CL_InitRef( void ) {
 	ri.Clear = CL_RefClear;
     ri.Hunk_Clear = CL_RefStaticClear;
 #ifdef HUNK_DEBUG
-    ri.Hunk_AllocDebug = Hunk_AllocDebug;
+    ri.Hunk_AllocDebug = CL_RefStaticMallocDebug;
 #else
     ri.Hunk_Alloc = CL_RefStaticMalloc;
 #endif
-	ri.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
+	ri.Hunk_AllocateTempMemory = CL_RefStaticMallocTemp;
 	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
 	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
 
@@ -3014,7 +3034,7 @@ void CL_Init( void ) {
 	CL_ClearState ();
 	S_StopAllSounds( qtrue );
 
-	cls.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
+	clc.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
 	Key_SetCatcher(KEYCATCH_UI);
 	cls.realtime = 0;
 
@@ -4234,7 +4254,7 @@ void CL_ServerStatus_f(void) {
 	Com_Memset( &to, 0, sizeof(netadr_t) );
 
 	if ( Cmd_Argc() != 2 ) {
-		if ( cls.state != CA_ACTIVE || clc.demoplaying ) {
+		if ( clc.state != CA_ACTIVE || clc.demoplaying ) {
 			Com_Printf ("Not connected to a server.\n");
 			Com_Printf( "Usage: serverstatus [server]\n");
 			return;

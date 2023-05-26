@@ -675,7 +675,7 @@ void CL_CreateNewCommands( void ) {
 	int			cmdNum;
 
 	// no need to create usercmds until we have a gamestate
-	if ( cls.state < CA_PRIMED ) {
+	if ( clc.state < CA_PRIMED ) {
 		return;
 	}
 
@@ -751,7 +751,7 @@ qboolean CL_ReadyToSendPacket( void ) {
 	int		delta;
 
 	// don't send anything if playing back a demo
-	if ( clc.demoplaying || cls.state == CA_CINEMATIC ) {
+	if ( clc.demoplaying || clc.state == CA_CINEMATIC ) {
 		return qfalse;
 	}
 
@@ -763,8 +763,8 @@ qboolean CL_ReadyToSendPacket( void ) {
 
 	// if we don't have a valid gamestate yet, only send
 	// one packet a second
-	if ( cls.state != CA_ACTIVE &&
-		cls.state != CA_PRIMED &&
+	if ( clc.state != CA_ACTIVE &&
+		clc.state != CA_PRIMED &&
 		!*clc.downloadTempName &&
 		cls.realtime - clc.lastPacketSentTime < 1000 ) {
 		return qfalse;
@@ -829,7 +829,7 @@ void CL_WritePacket( void ) {
 	usereyes_t	eyeInfo;
 
 	// don't send anything if playing back a demo
-	if ( clc.demoplaying || cls.state == CA_CINEMATIC ) {
+	if ( clc.demoplaying || clc.state == CA_CINEMATIC ) {
 		return;
 	}
 
@@ -949,7 +949,7 @@ Called every frame to builds and sends a command packet to the server.
 */
 void CL_SendCmd( void ) {
 	// don't send any message if not connected
-	if ( cls.state < CA_CONNECTED ) {
+	if ( clc.state < CA_CONNECTED ) {
 		return;
 	}
 

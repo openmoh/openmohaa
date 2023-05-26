@@ -828,7 +828,7 @@ void CL_InitCGame( void ) {
 	S_BeginRegistration();
 	CL_ShutdownCGame();
 	CL_InitCGameDLL( &cgi, &cge );
-	cls.state = CA_LOADING;
+	clc.state = CA_LOADING;
 
 	if( !com_sv_running->integer && !cls.vid_restart )
 	{
@@ -852,7 +852,7 @@ void CL_InitCGame( void ) {
 
 	// we will send a usercmd this frame, which
 	// will cause the server to send us the first snapshot
-	cls.state = CA_PRIMED;
+	clc.state = CA_PRIMED;
 
 	CL_EndRegistration();
 
@@ -995,7 +995,7 @@ void CL_FirstSnapshot( void ) {
 	if ( cl.snap.snapFlags & SNAPFLAG_NOT_ACTIVE ) {
 		return;
 	}
-	cls.state = CA_ACTIVE;
+	clc.state = CA_ACTIVE;
 
 	// notify the UI
 	UI_ServerLoaded();
@@ -1033,8 +1033,8 @@ CL_SetCGameTime
 */
 void CL_SetCGameTime( void ) {
 	// getting a valid frame message ends the connection process
-	if ( cls.state != CA_ACTIVE ) {
-		if ( cls.state != CA_PRIMED ) {
+	if ( clc.state != CA_ACTIVE ) {
+		if ( clc.state != CA_PRIMED ) {
 			return;
 		}
 		if ( clc.demoplaying ) {
@@ -1050,7 +1050,7 @@ void CL_SetCGameTime( void ) {
 			cl.newSnapshots = qfalse;
 			CL_FirstSnapshot();
 		}
-		if ( cls.state != CA_ACTIVE ) {
+		if ( clc.state != CA_ACTIVE ) {
 			return;
 		}
 	}
@@ -1172,7 +1172,7 @@ void CL_SetCGameTime( void ) {
 		// feed another messag, which should change
 		// the contents of cl.snap
 		CL_ReadDemoMessage();
-		if ( cls.state != CA_ACTIVE ) {
+		if ( clc.state != CA_ACTIVE ) {
 			return;		// end of demo
 		}
 	}

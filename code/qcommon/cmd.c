@@ -253,27 +253,34 @@ Cmd_Exec_f
 ===============
 */
 void Cmd_Exec_f( void ) {
-	char	*f;
-	int		len;
+	qboolean quiet;
+	union {
+		char	*c;
+		void	*v;
+	} f;
 	char	filename[MAX_QPATH];
 
+	quiet = !Q_stricmp(Cmd_Argv(0), "execq");
+
 	if (Cmd_Argc () != 2) {
-		Com_Printf ("exec <filename> : execute a script file\n");
+		Com_Printf ("exec%s <filename> : execute a script file%s\n",
+		            quiet ? "q" : "", quiet ? " without notification" : "");
 		return;
 	}
 
 	Q_strncpyz( filename, Cmd_Argv(1), sizeof( filename ) );
-	COM_DefaultExtension( filename, sizeof( filename ), ".cfg" ); 
-	len = FS_ReadFile( filename, (void **)&f );
-	if (!f) {
-		Com_Printf ("couldn't exec %s\n",Cmd_Argv(1));
+	COM_DefaultExtension( filename, sizeof( filename ), ".cfg" );
+	FS_ReadFile( filename, &f.v);
+	if (!f.c) {
+		Com_Printf ("couldn't exec %s\n", filename);
 		return;
 	}
-	Com_Printf ("execing %s\n",Cmd_Argv(1));
+	if (!quiet)
+		Com_Printf ("execing %s\n", filename);
 	
-	Cbuf_InsertText (f);
+	Cbuf_InsertText (f.c);
 
-	FS_FreeFile (f);
+	FS_FreeFile (f.v);
 }
 
 
@@ -446,7 +453,7 @@ void Cmd_WriteAliases( fileHandle_t f )
 /*
 =============================================================================
 
-COMMAND EXECUTION
+					COMMAND EXECUTION
 
 =============================================================================
 */
@@ -456,6 +463,7 @@ typedef struct cmd_function_s
 	struct cmd_function_s	*next;
 	const char				*name;
 	xcommand_t				function;
+	completionFunc_t	complete;
 } cmd_function_t;
 
 
@@ -573,12 +581,37 @@ char *Cmd_Cmd(void)
 }
 
 /*
+   Replace command separators with space to prevent interpretation
+   This is a hack to protect buggy qvms
+   https://bugzilla.icculus.org/show_bug.cgi?id=3593
+   https://bugzilla.icculus.org/show_bug.cgi?id=4769
+*/
+
+void Cmd_Args_Sanitize(void)
+{
+	int i;
+
+	for(i = 1; i < cmd_argc; i++)
+	{
+		char *c = cmd_argv[i];
+		
+		if(strlen(c) > MAX_CVAR_VALUE_STRING - 1)
+			c[MAX_CVAR_VALUE_STRING - 1] = '\0';
+		
+		while ((c = strpbrk(c, "\n\r;"))) {
+			*c = ' ';
+			++c;
+		}
+	}
+}
+
+/*
 ============
 Cmd_TokenizeString
 
 Parses the given string into command line tokens.
-The text is copied to a seperate buffer and 0 characters
-are inserted in the apropriate place, The argv array
+The text is copied to a separate buffer and 0 characters
+are inserted in the appropriate place, The argv array
 will point into this temporary buffer.
 ============
 */
@@ -600,7 +633,7 @@ static void Cmd_TokenizeString2( const char *text_in, qboolean ignoreQuotes ) {
 		return;
 	}
 	
-	Q_strncpyz( cmd_cmd, text_in, sizeof( cmd_cmd ) );
+	Q_strncpyz( cmd_cmd, text_in, sizeof(cmd_cmd) );
 
 	text = text_in;
 	textOut = cmd_tokenized;
@@ -644,7 +677,7 @@ static void Cmd_TokenizeString2( const char *text_in, qboolean ignoreQuotes ) {
 			cmd_argv[cmd_argc] = textOut;
 			cmd_argc++;
 			text++;
-			while( *text && *text != '"' ) {
+			while ( *text && *text != '"' ) {
 				*textOut++ = *text++;
 			}
 			*textOut++ = 0;
@@ -706,6 +739,20 @@ void Cmd_TokenizeStringIgnoreQuotes( const char *text_in ) {
 
 /*
 ============
+Cmd_FindCommand
+============
+*/
+cmd_function_t *Cmd_FindCommand( const char *cmd_name )
+{
+	cmd_function_t *cmd;
+	for( cmd = cmd_functions; cmd; cmd = cmd->next )
+		if( !Q_stricmp( cmd_name, cmd->name ) )
+			return cmd;
+	return NULL;
+}
+
+/*
+============
 Cmd_AddCommand
 ============
 */
@@ -713,22 +760,37 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function ) {
 	cmd_function_t	*cmd;
 	
 	// fail if the command already exists
-	for ( cmd = cmd_functions ; cmd ; cmd=cmd->next ) {
-		if ( !strcmp( cmd_name, cmd->name ) ) {
-			// allow completion-only commands to be silently doubled
-			if ( function != NULL ) {
-				Com_Printf ("Cmd_AddCommand: %s already defined\n", cmd_name);
-			}
-			return;
-		}
+	if( Cmd_FindCommand( cmd_name ) )
+	{
+		// allow completion-only commands to be silently doubled
+		if( function != NULL )
+			Com_Printf( "Cmd_AddCommand: %s already defined\n", cmd_name );
+		return;
 	}
 
 	// use a small malloc to avoid zone fragmentation
 	cmd = Z_TagMalloc( sizeof( cmd_function_t ), TAG_STRINGS_AND_COMMANDS );
 	cmd->name = CopyString( cmd_name );
 	cmd->function = function;
+	cmd->complete = NULL;
 	cmd->next = cmd_functions;
 	cmd_functions = cmd;
+}
+
+/*
+============
+Cmd_SetCommandCompletionFunc
+============
+*/
+void Cmd_SetCommandCompletionFunc( const char *command, completionFunc_t complete ) {
+	cmd_function_t	*cmd;
+
+	for( cmd = cmd_functions; cmd; cmd = cmd->next ) {
+		if( !Q_stricmp( command, cmd->name ) ) {
+			cmd->complete = complete;
+			return;
+		}
+	}
 }
 
 /*
@@ -758,6 +820,28 @@ void	Cmd_RemoveCommand( const char *cmd_name ) {
 	}
 }
 
+/*
+============
+Cmd_RemoveCommandSafe
+
+Only remove commands with no associated function
+============
+*/
+void Cmd_RemoveCommandSafe( const char *cmd_name )
+{
+	cmd_function_t *cmd = Cmd_FindCommand( cmd_name );
+
+	if( !cmd )
+		return;
+	if( cmd->function )
+	{
+		Com_Error( ERR_DROP, "Restricted source tried to remove "
+			"system command \"%s\"", cmd_name );
+		return;
+	}
+
+	Cmd_RemoveCommand( cmd_name );
+}
 
 /*
 ============
@@ -771,6 +855,25 @@ void	Cmd_CommandCompletion( void(*callback)(const char *s) ) {
 		callback( cmd->name );
 	}
 }
+
+/*
+============
+Cmd_CompleteArgument
+============
+*/
+void Cmd_CompleteArgument( const char *command, char *args, int argNum ) {
+	cmd_function_t	*cmd;
+
+	for( cmd = cmd_functions; cmd; cmd = cmd->next ) {
+		if( !Q_stricmp( command, cmd->name ) ) {
+			if ( cmd->complete ) {
+				cmd->complete( args, argNum );
+			}
+			return;
+		}
+	}
+}
+
 
 /*
 ============
@@ -950,6 +1053,17 @@ void Cmd_List_f (void)
 		i++;
 	}
 	Com_Printf ("%i commands\n", i);
+}
+
+/*
+==================
+Cmd_CompleteCfgName
+==================
+*/
+void Cmd_CompleteCfgName( char *args, int argNum ) {
+	if( argNum == 2 ) {
+		Field_CompleteFilename( "", "cfg", qfalse, qtrue );
+	}
 }
 
 /*

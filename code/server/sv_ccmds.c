@@ -1253,7 +1253,7 @@ void SV_Loadgame_f( void )
 
 	if( com_cl_running && com_cl_running->integer &&
 #ifdef CLIENT
-		cls.state != CA_DISCONNECTED && cg_gametype->integer ||
+		clc.state != CA_DISCONNECTED && cg_gametype->integer ||
 #endif
 		com_sv_running && com_sv_running->integer && g_gametype->integer )
 	{
@@ -1374,7 +1374,7 @@ qboolean SV_AllowSaveGame( void )
 		Com_DPrintf( "You must be in game to save.\n" );
 	}
 #ifdef CLIENT
-	else if( cls.state != CA_DISCONNECTED && cg_gametype->integer )
+	else if( clc.state != CA_DISCONNECTED && cg_gametype->integer )
 	{
 		Com_DPrintf( "Can't savegame in a multiplayer game\n" );
 	}

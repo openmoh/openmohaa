@@ -635,7 +635,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 		SV_InitGameProgs();
 
 		// allocate the snapshot entities on the hunk
-		svs.snapshotEntities = Hunk_Alloc( sizeof( entityState_t )*svs.numSnapshotEntities );
+		svs.snapshotEntities = Hunk_Alloc( sizeof( entityState_t )*svs.numSnapshotEntities, h_dontcare);
 		svs.nextSnapshotEntities = 0;
 
 		// wipe the entire per-level structure

@@ -28,6 +28,109 @@ static void* game_library = NULL;
 static void* cgame_library = NULL;
 
 /*
+==============
+SaveRegistryInfo
+==============
+*/
+qboolean SaveRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long lSize)
+{
+    STUB_DESC("not implemented");
+    return qfalse;
+}
+
+/*
+==============
+LoadRegistryInfo
+==============
+*/
+qboolean LoadRegistryInfo(qboolean user, const char* pszName, void* pvBuf, long* plSize)
+{
+    STUB_DESC("not implemented");
+    return qfalse;
+}
+
+/*
+==============
+IsFirstRun
+==============
+*/
+qboolean IsFirstRun(void)
+{
+    STUB_DESC("wtf");
+    return qfalse;
+}
+
+/*
+==============
+IsNewConfig
+==============
+*/
+qboolean IsNewConfig(void)
+{
+    STUB_DESC("wtf");
+    return qfalse;
+}
+
+/*
+==============
+IsSafeMode
+==============
+*/
+qboolean IsSafeMode(void)
+{
+    STUB_DESC("wtf");
+    return qfalse;
+}
+
+/*
+==============
+ClearNewConfigFlag
+==============
+*/
+void ClearNewConfigFlag(void)
+{
+}
+
+/*
+==============
+Sys_GetWholeClipboard
+==============
+*/
+const char* Sys_GetWholeClipboard(void)
+{
+    return NULL;
+}
+
+/*
+==============
+Sys_SetClipboard
+==============
+*/
+void Sys_SetClipboard(const char* contents)
+{
+}
+
+/*
+================
+RecoverLostAutodialData
+================
+*/
+void RecoverLostAutodialData(void)
+{
+    // FIXME: stub
+}
+
+/*
+==============
+Sys_CloseMutex
+==============
+*/
+void Sys_CloseMutex(void)
+{
+    // FIXME: stub
+}
+
+/*
 =================
 Sys_UnloadGame
 =================

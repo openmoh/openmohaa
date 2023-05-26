@@ -393,7 +393,7 @@ Hunk_Alloc
 Allocate permanent (until the hunk is cleared) memory
 =================
 */
-void* Hunk_AllocDebug(size_t size, const char* label, const char* file, int line) {
+void* Hunk_AllocDebug(int size, ha_pref preference, const char* label, const char* file, int line) {
     void* ptr;
 
     ptr = Z_TagMalloc(size, TAG_STATIC);
@@ -402,7 +402,7 @@ void* Hunk_AllocDebug(size_t size, const char* label, const char* file, int line
     return ptr;
 }
 
-#endif
+#else
 
 /*
 =================
@@ -411,7 +411,7 @@ Hunk_Alloc
 Allocate permanent (until the hunk is cleared) memory
 =================
 */
-void *Hunk_Alloc( size_t size ) {
+void *Hunk_Alloc( int size, ha_pref preference) {
 	void *ptr;
 
 	ptr = Z_TagMalloc( size, TAG_STATIC );
@@ -419,6 +419,8 @@ void *Hunk_Alloc( size_t size ) {
 
 	return ptr;
 }
+
+#endif
 
 /*
 =================
@@ -440,7 +442,7 @@ Multiple files can be loaded in temporary memory.
 When the files-in-use count reaches zero, all temp memory will be deleted
 =================
 */
-void *Hunk_AllocateTempMemory( size_t size ) {
+void *Hunk_AllocateTempMemory(int size ) {
 	return Z_TagMalloc( size, TAG_TEMP );
 }
 
