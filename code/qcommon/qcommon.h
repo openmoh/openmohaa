@@ -439,7 +439,7 @@ void Cbuf_Init (void);
 void Cbuf_AddText( const char *text );
 // Adds command text at the end of the buffer, does NOT add a final \n
 
-void Cbuf_ExecuteText(cbufExec_t exec_when, const char *text );
+void Cbuf_ExecuteText(int exec_when, const char *text );
 // this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 
 void Cbuf_Execute (int msec);
@@ -705,8 +705,8 @@ size_t	FS_Read( void *buffer, size_t len, fileHandle_t f );
 void	FS_FCloseFile( fileHandle_t f );
 // note: you can't just fclose from another DLL, due to MS libc issues
 
-int		FS_ReadFileEx( const char *qpath, void **buffer, qboolean quiet );
-int		FS_ReadFile( const char *qpath, void **buffer );
+long		FS_ReadFileEx(const char* qpath, void** buffer, qboolean quiet);
+long		FS_ReadFile(const char* qpath, void** buffer);
 const char	*FS_Gamedir( void );
 // returns the length of the file
 // a null buffer will just return the file length without loading

@@ -23,9 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // DESCRIPTION:
 // Renderer types
 
-#ifndef __TR_TYPES_H
-#define __TR_TYPES_H
-
+#pragma once
 
 #define	MAX_DLIGHTS		32			// can't be increased, because bit flags are used on surfaces
 #define	MAX_ENTITIES	1023		// can't be increased without changing drawsurf bit packing
@@ -271,6 +269,3 @@ typedef struct {
 #define OPENGL_DRIVER_NAME	"opengl32"
 
 #endif	// !defined _WIN32
-
-
-#endif	// __TR_TYPES_H

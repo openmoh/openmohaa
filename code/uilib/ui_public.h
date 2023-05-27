@@ -73,7 +73,7 @@ typedef struct uiimport_s {
 	int( *Rend_GetShaderHeight )( qhandle_t hShader );
 	void ( *File_PickFile )( const char *name, Listener *obj, Event& event );
 	void ( *File_ListFiles )( const char *filespec );
-	int ( *File_OpenFile )( const char *qpath, void **buffer );
+	long ( *File_OpenFile )( const char *qpath, void **buffer );
 	void ( *File_FreeFile )( void *buffer );
 	void ( *File_WriteFile )( const char *qpath, const void *buffer, int size );
 	uihandle_t ( *Snd_RegisterSound )( const char *sample, qboolean streamed );

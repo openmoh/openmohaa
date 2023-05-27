@@ -1637,10 +1637,10 @@ UI_ClearBackground
 ====================
 */
 void UI_ClearBackground( void ) {
-	re.Set2DWindow( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, -1, -1 );
-	re.Scissor( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight );
+	re.newre.Set2DWindow( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, -1, -1 );
+	re.newre.Scissor( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight );
 	re.SetColor( g_color_table[ 0 ] );
-	re.DrawBox( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight );
+	re.newre.DrawBox( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight );
 	re.SetColor( NULL );
 }
 
@@ -1712,7 +1712,7 @@ void UI_Update(void) {
 	Menu* currentMenu;
 	UIRect2D	frame;
 
-	re.SetRenderTime(cls.realtime);
+	re.newre.SetRenderTime(cls.realtime);
 	CL_FillUIDef();
 	uWinMan.ServiceEvents();
 
@@ -3704,17 +3704,17 @@ CL_FillUIImports
 ====================
 */
 void CL_FillUIImports( void ) {
-	uii.Rend_DrawBox			= re.DrawBox;
+	uii.Rend_DrawBox			= re.newre.DrawBox;
 	uii.Rend_DrawPicStretched	= re.DrawStretchPic;
-	uii.Rend_DrawPicTiled		= re.DrawTilePic;
-	uii.Rend_GetShaderHeight	= re.GetShaderHeight;
-	uii.Rend_GetShaderWidth		= re.GetShaderWidth;
-	uii.Rend_DrawString			= re.DrawString;
-	uii.Rend_LoadFont			= re.LoadFont;
+	uii.Rend_DrawPicTiled		= re.newre.DrawTilePic;
+	uii.Rend_GetShaderHeight	= re.newre.GetShaderHeight;
+	uii.Rend_GetShaderWidth		= re.newre.GetShaderWidth;
+	uii.Rend_DrawString			= re.newre.DrawString;
+	uii.Rend_LoadFont			= re.newre.LoadFont;
 	uii.Rend_RegisterMaterial	= re.RegisterShaderNoMip;
-	uii.Rend_RefreshMaterial	= re.RefreshShaderNoMip;
-	uii.Rend_Scissor			= re.Scissor;
-	uii.Rend_Set2D				= re.Set2DWindow;
+	uii.Rend_RefreshMaterial	= re.newre.RefreshShaderNoMip;
+	uii.Rend_Scissor			= re.newre.Scissor;
+	uii.Rend_Set2D				= re.newre.Set2DWindow;
 	uii.Rend_SetColor			= re.SetColor;
 
 	uii.Cmd_Stuff						= Cbuf_AddText;

@@ -131,12 +131,12 @@ typedef struct
     char *         (*Args)( void );    // concatenation of all argv >= 1
    void           (*AddCommand)( const char *cmd );
     void          (*Cmd_Stuff)(const char* text);
-    void          (*Cmd_Execute)(cbufExec_t execWhen, const char* text);
+    void          (*Cmd_Execute)(int execWhen, const char* text);
     void          (*Cmd_TokenizeString)(const char* textIn);
 
     // a -1 return means the file does not exist
     // NULL can be passed for buf to just determine existance
-    int              (*FS_ReadFile)( const char *name, void **buf, qboolean quiet );
+    long              (*FS_ReadFile)( const char *name, void **buf, qboolean quiet );
     void             (*FS_FreeFile)( void *buf );
     int              (*FS_WriteFile)( const char *qpath, const void *buffer, int size );
    void           (*FS_WriteTextFile)( const char *qpath, const void *buffer, int size );

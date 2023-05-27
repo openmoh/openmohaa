@@ -1706,7 +1706,7 @@ Filename are relative to the quake search path
 a null buffer will just return the file length without loading
 ============
 */
-int FS_ReadFileEx( const char *qpath, void **buffer, qboolean quiet ) {
+long FS_ReadFileEx( const char *qpath, void **buffer, qboolean quiet ) {
 	fileHandle_t	h;
 	byte*			buf;
 	qboolean		isConfig;
@@ -1824,7 +1824,7 @@ Filename are relative to the quake search path
 a null buffer will just return the file length without loading
 ============
 */
-int FS_ReadFile( const char *qpath, void **buffer ) {
+long FS_ReadFile( const char *qpath, void **buffer ) {
 	return FS_ReadFileEx( qpath, buffer, qfalse );
 }
 

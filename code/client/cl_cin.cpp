@@ -1583,13 +1583,13 @@ void CIN_DrawCinematic (int handle) {
 
 		CIN_ResampleCinematic(handle, buf2);
 
-		re.DrawStretchRaw( x, y, w, h, 256, 256, 0, (byte *)buf2);
+		re.DrawStretchRaw( x, y, w, h, 256, 256, (byte *)buf2, 0, qfalse);
 		cinTable[handle].dirty = qfalse;
 		Hunk_FreeTempMemory(buf2);
 		return;
 	}
 
-	re.DrawStretchRaw( x, y, w, h, cinTable[handle].drawX, cinTable[handle].drawY, 0, buf);
+	re.DrawStretchRaw( x, y, w, h, cinTable[handle].drawX, cinTable[handle].drawY, buf, 0, qfalse);
 	cinTable[handle].dirty = qfalse;
 }
 

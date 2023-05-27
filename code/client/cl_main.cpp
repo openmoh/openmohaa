@@ -2329,7 +2329,7 @@ void CL_CheckUserinfo( void ) {
 }
 
 void CL_SetFrameNumber(int frameNumber) {
-	re.SetFrameNumber(frameNumber);
+	re.newre.SetFrameNumber(frameNumber);
 }
 
 /*
@@ -2576,7 +2576,7 @@ void CL_StartHunkUsers( void ) {
 CL_RefMalloc
 ============
 */
-void *CL_RefMalloc(size_t size) {
+void *CL_RefMalloc(int size) {
 	return Z_TagMalloc( size, TAG_RENDERER );
 }
 
@@ -2606,7 +2606,7 @@ void* CL_RefStaticMallocDebug(size_t size, const char* label, const char* file, 
 CL_RefStaticMalloc
 ============
 */
-void *CL_RefStaticMalloc(size_t size ) {
+void *CL_RefStaticMalloc(int size, ha_pref preference ) {
 	void *ptr = Z_TagMalloc( size, TAG_STATIC_RENDERER );
 	Com_Memset( ptr, 0, size );
 	return ptr;
@@ -2617,7 +2617,7 @@ void *CL_RefStaticMalloc(size_t size ) {
 CL_RefStaticMallocTemp
 ============
 */
-void* CL_RefStaticMallocTemp(size_t size) {
+void* CL_RefStaticMallocTemp(int size) {
 	return Hunk_AllocateTempMemory(size);
 }
 
@@ -2703,6 +2703,14 @@ int CL_ScaledMilliseconds(void) {
 	return Sys_Milliseconds()*com_timescale->value;
 }
 
+void CL_RefFS_WriteFile(const char* qpath, const void* buffer, int size) {
+	FS_WriteFile(qpath, buffer, size);
+}
+
+char** CL_RefFS_ListFiles(const char* name, const char* extension, int* numfilesfound) {
+	return FS_ListFiles(path, extension, qtrue, numfilesfound);
+}
+
 /*
 ============
 CL_InitRef
@@ -2727,8 +2735,8 @@ void CL_InitRef( void ) {
 	ri.Milliseconds = CL_ScaledMilliseconds;
 	ri.Malloc = CL_RefMalloc;
 	ri.Free = Z_Free;
-	ri.Clear = CL_RefClear;
-    ri.Hunk_Clear = CL_RefStaticClear;
+	ri.newri.Clear = CL_RefClear;
+    ri.newri.Hunk_Clear = CL_RefStaticClear;
 #ifdef HUNK_DEBUG
     ri.Hunk_AllocDebug = CL_RefStaticMallocDebug;
 #else
@@ -2738,45 +2746,45 @@ void CL_InitRef( void ) {
 	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
 	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
 
-	ri.FS_OpenFile = FS_FOpenFileRead;
-	ri.FS_CloseFile = FS_FCloseFile;
-	ri.FS_Read = FS_Read;
-	ri.FS_Seek = FS_Seek;
+	ri.newri.FS_OpenFile = FS_FOpenFileRead;
+	ri.newri.FS_CloseFile = FS_FCloseFile;
+	ri.newri.FS_Read = FS_Read;
+	ri.newri.FS_Seek = FS_Seek;
 	ri.FS_ReadFile = FS_ReadFile;
-	ri.FS_ReadFileEx = FS_ReadFileEx;
+	ri.newri.FS_ReadFileEx = FS_ReadFileEx;
 	ri.FS_FreeFile = FS_FreeFile;
-	ri.FS_WriteFile = FS_WriteFile;
+	ri.FS_WriteFile = CL_RefFS_WriteFile;
 	ri.FS_FreeFileList = FS_FreeFileList;
-	ri.FS_ListFiles = FS_ListFiles;
+	ri.FS_ListFiles = CL_RefFS_ListFiles;
 	ri.FS_FileIsInPAK = FS_FileIsInPAK;
 	ri.FS_FileExists = FS_FileExists;
 	ri.Cvar_Get = Cvar_Get;
 	ri.Cvar_Set = Cvar_Set;
-	ri.Cvar_SetDefault = Cvar_SetDefault;
+	ri.newri.Cvar_SetDefault = Cvar_SetDefault;
 
-	ri.CM_EntityString = CM_EntityString;
-	ri.CM_MapTime = CM_MapTime;
-	ri.CM_BoxTrace = CM_BoxTrace;
-	ri.CG_PermanentMark = CL_CG_PermanentMark;
-	ri.CG_PermanentTreadMarkDecal = CL_CG_PermanentTreadMarkDecal;
-	ri.CG_PermanentUpdateTreadMark = CL_CG_PermanentUpdateTreadMark;
-	ri.CM_TerrainSquareType = CM_TerrainSquareType;
-	ri.CG_ProcessInitCommands = CL_CG_ProcessInitCommands;
-	ri.CG_EndTiki = CL_CG_EndTiki;
-	ri.SetPerformanceCounters = CL_RefSetPerformanceCounters;
+    ri.newri.CM_EntityString = CM_EntityString;
+    ri.newri.CM_MapTime = CM_MapTime;
+    ri.newri.CM_BoxTrace = CM_BoxTrace;
+	ri.newri.CG_PermanentMark = CL_CG_PermanentMark;
+	ri.newri.CG_PermanentTreadMarkDecal = CL_CG_PermanentTreadMarkDecal;
+	ri.newri.CG_PermanentUpdateTreadMark = CL_CG_PermanentUpdateTreadMark;
+	ri.newri.CM_TerrainSquareType = CM_TerrainSquareType;
+	ri.newri.CG_ProcessInitCommands = CL_CG_ProcessInitCommands;
+	ri.newri.CG_EndTiki = CL_CG_EndTiki;
+	ri.newri.SetPerformanceCounters = CL_RefSetPerformanceCounters;
 
-	ri.DebugLines = &DebugLines;
-	ri.numDebugLines = &numDebugLines;
-	ri.DebugStrings = &DebugStrings;
-	ri.numDebugStrings = &numDebugStrings;
+    ri.newri.DebugLines = &DebugLines;
+    ri.newri.numDebugLines = &numDebugLines;
+    ri.newri.DebugStrings = &DebugStrings;
+    ri.newri.numDebugStrings = &numDebugStrings;
 
-	ri.TIKI_OrientationInternal = TIKI_OrientationInternal;
-	ri.TIKI_IsOnGroundInternal = TIKI_IsOnGroundInternal;
-	ri.TIKI_SetPoseInternal = TIKI_SetPoseInternal;
-	ri.TIKI_Alloc = TIKI_Alloc;
-	ri.GetRadiusInternal = TIKI_GetRadiusInternal;
-	ri.GetCentroidRadiusInternal = TIKI_GetCentroidRadiusInternal;
-	ri.GetFrameInternal = TIKI_GetFrameInternal;
+	ri.newri.TIKI_OrientationInternal = TIKI_OrientationInternal;
+	ri.newri.TIKI_IsOnGroundInternal = TIKI_IsOnGroundInternal;
+	ri.newri.TIKI_SetPoseInternal = TIKI_SetPoseInternal;
+	ri.newri.TIKI_Alloc = TIKI_Alloc;
+	ri.newri.GetRadiusInternal = TIKI_GetRadiusInternal;
+	ri.newri.GetCentroidRadiusInternal = TIKI_GetCentroidRadiusInternal;
+	ri.newri.GetFrameInternal = TIKI_GetFrameInternal;
 
 #ifdef USE_RENDERER_DLL
 	// su44: load renderer dll

@@ -491,13 +491,13 @@ void UIFakkLabel::DrawStatbar( float frac )
 				float width = frac * m_frame.size.width;
 
 				m_statbar_material->ReregisterMaterial();
-				re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material->GetMaterial());
+				re.newre.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material->GetMaterial());
 
 				if (alpha != 0.0 && m_statbar_material_flash)
 				{
 					re.SetColor(col);
 					m_statbar_material_flash->ReregisterMaterial();
-					re.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
+					re.newre.DrawTilePic(0.0, 0.0, width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
 				}
 				break;
 			}
@@ -509,13 +509,13 @@ void UIFakkLabel::DrawStatbar( float frac )
 				float y = m_frame.size.height * (1.0 - frac);
 
 				m_statbar_material->ReregisterMaterial();
-				re.DrawTilePic(0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material->GetMaterial());
+				re.newre.DrawTilePic(0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material->GetMaterial());
 
 				if (alpha != 0.0 && m_statbar_material_flash)
 				{
 					re.SetColor(col);
 					m_statbar_material_flash->ReregisterMaterial();
-					re.DrawTilePic(0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
+					re.newre.DrawTilePic(0.0, y, m_frame.size.width, m_frame.size.height, m_statbar_material_flash->GetMaterial());
 				}
 				break;
 			}
@@ -821,7 +821,7 @@ void UIFakkLabel::DrawStatCompass( float frac )
 	vVerts[2][1] = vCenter[1] - vCompassDir[1] * vCenter[1] - fSinVal * vCenter[0];
 
 	m_statbar_material->ReregisterMaterial();
-	re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+	re.newre.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 
 	vVerts[0][0] = vVerts[2][0];
 	vVerts[0][1] = vVerts[2][1];
@@ -834,7 +834,7 @@ void UIFakkLabel::DrawStatCompass( float frac )
 	vVerts[2][1] = vCenter[1] * fSinVal + vCenter[0] - vCompassDir[1] * vCenter[1];
 
 	m_statbar_material->ReregisterMaterial();
-	re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+	re.newre.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
 }
 
 void UIFakkLabel::DrawStatSpinner( float frac )

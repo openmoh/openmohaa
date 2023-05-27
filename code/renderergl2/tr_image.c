@@ -3227,3 +3227,32 @@ void	R_SkinList_f( void ) {
 }
 
 
+
+/*
+================
+R_ImageExists
+================
+*/
+qboolean R_ImageExists(const char* name) {
+    image_t* image;
+    long int hash;
+
+    if (name)
+    {
+        hash = generateHashValue(name);
+        image = hashTable[hash];
+
+        if (hash)
+        {
+            for (; image != NULL; image = image->next)
+            {
+                if (!strcmp(name, image->imgName)) {
+                    return qtrue;
+                }
+            }
+        }
+    }
+
+    return qfalse;
+}
+
