@@ -1644,5 +1644,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 
 	re.TakeVideoFrame = RE_TakeVideoFrame;
 
+	GetRefAPI_new(rimp, &re);
+
 	return &re;
 }

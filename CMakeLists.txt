@@ -240,7 +240,8 @@ if (WITH_CLIENT)
 	include("code/renderergl2/glsl/shaders.cmake")
 	#file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderer/*.c" "code/renderer/*.cpp")
 	file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderercommon/*.c" "code/renderergl2/*.c" "code/renderergl2/*.cpp")
-	list(FILTER SOURCES_RENDERER EXCLUDE REGEX "(.*)/tr_subs.c")
+	list(FILTER SOURCES_RENDERER EXCLUDE REGEX "code/renderergl2/tr_subs.c")
+	list(FILTER SOURCES_RENDERER EXCLUDE REGEX "code/renderergl2/tr_model.c")
 	set(SOURCES_CLIENT_APP ${SOURCES_APP} ${SOURCES_SERVER} ${SOURCES_CLIENT} ${SOURCES_UILIB} ${SOURCES_LIBS} ${SOURCES_RENDERER} ${SHADER_SRCS})
 
 	add_executable(openmohaa ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_CLIENT_APP} ${SOURCES_CLIENT_PLATFORM_SPECIFIC})
@@ -282,7 +283,7 @@ if (WITH_CLIENT)
 				)
 			endif()
 
-			target_link_libraries(openmohaa PRIVATE sdl2 sdl2main)
+			target_link_libraries(openmohaa PRIVATE opengl32 sdl2 sdl2main)
 		endif()
 
 		target_link_libraries(openmohaa PRIVATE wsock32 ws2_32)

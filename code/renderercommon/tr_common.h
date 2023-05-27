@@ -26,6 +26,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderercommon/tr_public.h"
 #include "qgl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum
 {
 	IMGTYPE_COLORALPHA, // for color, lightmap, diffuse, and specular
@@ -167,5 +171,9 @@ void		GLimp_SetGamma( unsigned char red[256],
 		unsigned char green[256],
 		unsigned char blue[256] );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

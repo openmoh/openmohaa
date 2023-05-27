@@ -36,7 +36,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderercommon/iqm.h"
 #include "../renderercommon/qgl.h"
 
+#ifdef __cplusplus
+#define GLE(ret, name, ...) extern "C" name##proc * qgl##name;
+#else
 #define GLE(ret, name, ...) extern name##proc * qgl##name;
+#endif
 QGL_1_1_PROCS;
 QGL_DESKTOP_1_1_PROCS;
 QGL_1_3_PROCS;
@@ -47,6 +51,12 @@ QGL_ARB_occlusion_query_PROCS;
 QGL_ARB_framebuffer_object_PROCS;
 QGL_ARB_vertex_array_object_PROCS;
 QGL_EXT_direct_state_access_PROCS;
+
+//
+// non-ioq3
+//
+//QGL_DESKTOP_1_1_FIXED_FUNCTION_PROCS;
+//QGL_1_1_FIXED_FUNCTION_PROCS;
 #undef GLE
 
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
@@ -67,6 +77,13 @@ typedef unsigned int glIndex_t;
 #define MAX_CALC_PSHADOWS    64
 #define MAX_DRAWN_PSHADOWS    16 // do not increase past 32, because bit flags are used on surfaces
 #define PSHADOW_MAP_SIZE      512
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "new/tr_local_begin.h"
 
 typedef struct cubemap_s {
 	char name[MAX_QPATH];
@@ -241,7 +258,20 @@ typedef enum {
 	AGEN_LIGHTING_SPECULAR,
 	AGEN_WAVEFORM,
 	AGEN_PORTAL,
-	AGEN_CONST,
+    AGEN_CONST,
+
+	//
+	// non-ioq3
+	//
+    AGEN_GLOBAL_ALPHA,
+    AGEN_SKYALPHA,
+    AGEN_ONE_MINUS_SKYALPHA,
+    AGEN_SCOORD,
+    AGEN_TCOORD,
+    AGEN_DIST_FADE,
+    AGEN_ONE_MINUS_DIST_FADE,
+    AGEN_DOT_VIEW,
+    AGEN_ONE_MINUS_DOT_VIEW,
 } alphaGen_t;
 
 typedef enum {
@@ -258,7 +288,21 @@ typedef enum {
 	CGEN_WAVEFORM,			// programmatically generated
 	CGEN_LIGHTING_DIFFUSE,
 	CGEN_FOG,				// standard fog
-	CGEN_CONST				// fixed color
+    CGEN_CONST,				// fixed color
+	//
+	// non-ioq3 values
+	//
+    CGEN_CONSTANT = CGEN_CONST,
+    CGEN_MULTIPLY_BY_WAVEFORM,
+    CGEN_LIGHTING_GRID,
+    CGEN_LIGHTING_SPHERICAL,
+    CGEN_NOISE,
+    CGEN_GLOBAL_COLOR,
+    CGEN_STATIC,
+    CGEN_SCOORD,
+    CGEN_TCOORD,
+    CGEN_DOT,
+    CGEN_ONE_MINUS_DOT
 } colorGen_t;
 
 typedef enum {
@@ -490,6 +534,11 @@ typedef struct shader_s {
   struct shader_s *remappedShader;                  // current shader this one is remapped too
 
 	struct	shader_s	*next;
+
+	//
+	// non-ioq3
+    //
+    spriteParms_t sprite;
 } shader_t;
 
 enum
@@ -865,6 +914,20 @@ typedef enum {
 	SF_VAO_MDVMESH,
 	SF_VAO_IQM,
 
+	//
+	// non-ioq3 stuff
+	//
+    SF_MARK_FRAG,
+	SF_DISPLAY_LIST,
+    SF_TIKI_SKEL,
+    SF_TIKI_STATIC,
+    SF_SWIPE,
+    SF_SPRITE,
+    SF_TERRAIN_PATCH,
+
+	//
+	//
+	//
 	SF_NUM_SURFACE_TYPES,
 	SF_MAX = 0x7fffffff			// ensures that sizeof( surfaceType_t ) == sizeof( int )
 } surfaceType_t;
@@ -1270,7 +1333,12 @@ typedef enum {
 	MOD_BRUSH,
 	MOD_MESH,
 	MOD_MDR,
-	MOD_IQM
+    MOD_IQM,
+	//
+	// non-ioq3
+	//
+    MOD_TIKI,
+    MOD_SPRITE
 } modtype_t;
 
 typedef struct model_s {
@@ -1283,7 +1351,17 @@ typedef struct model_s {
 	mdvModel_t	*mdv[MD3_MAX_LODS];	// only if type == MOD_MESH
 	void	*modelData;			// only if type == (MOD_MDR | MOD_IQM)
 
-	int			 numLods;
+    int			 numLods;
+
+	//
+	// non-ioq3
+	//
+    qboolean serveronly;
+    union {
+        bmodel_t* bmodel;
+        dtiki_t* tiki;
+        sprite_t* sprite;
+    } d;
 } model_t;
 
 
@@ -1474,6 +1552,11 @@ typedef struct {
 	qboolean    colorMask[4];
 	qboolean    framePostProcessed;
 	qboolean    depthFill;
+
+	//
+	// non-ioq3
+    //
+	int dsStreamVert;
 } backEndState_t;
 
 /*
@@ -1656,7 +1739,16 @@ typedef struct {
 	float					triangleTable[FUNCTABLE_SIZE];
 	float					sawToothTable[FUNCTABLE_SIZE];
 	float					inverseSawToothTable[FUNCTABLE_SIZE];
-	float					fogTable[FOG_TABLE_SIZE];
+    float					fogTable[FOG_TABLE_SIZE];
+
+    spherel_t				sSunLight;
+    spherel_t				sLights[1532];
+    int						numSLights;
+    int						rendererhandle;
+    qboolean				shadersParsed;
+    int						frame_skel_index;
+    int						skel_index[1024];
+    fontheader_t			*pFontDebugStrings;
 } trGlobals_t;
 
 extern backEndState_t	backEnd;
@@ -2496,5 +2588,10 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 void RE_TakeVideoFrame( int width, int height,
 		byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
+#include "new/tr_local.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //TR_LOCAL_H

@@ -1680,6 +1680,8 @@ void Com_Frame( void ) {
 		msec = com_frameTime - lastTime;
 	} while ( msec < minMsec );
 
+    IN_Frame();
+
 #ifndef DEDICATED
 	if( com_dedicated->integer || CL_FinishedIntro() )
 	{
