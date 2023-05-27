@@ -254,7 +254,7 @@ if (WITH_CLIENT)
 	# Gamespy dependency
 	add_dependencies(openmohaa gcd)
 	target_link_libraries(openmohaa PRIVATE gcd)
-	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib" "code/SDL2/include" "code/jpeg-8c")
+	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib" "code/SDL2/include-2.0.22" "code/jpeg-8c")
 	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
 
 	if(WIN32)

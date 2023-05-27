@@ -500,7 +500,10 @@ static void ComputeShaderColors( shaderStage_t *pStage, vec4_t baseColor, vec4_t
 			baseColor[0] =
 			baseColor[1] =
 			baseColor[2] = overbright;
-			break;
+            break;
+        case CGEN_GLOBAL_COLOR:
+            RB_CalcColorFromConstant((unsigned char*)tess.svars.colors, backEnd.color2D);
+            break;
 		case CGEN_IDENTITY_LIGHTING:
 		case CGEN_BAD:
 			break;

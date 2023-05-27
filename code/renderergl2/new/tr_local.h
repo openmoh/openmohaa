@@ -293,6 +293,23 @@ int R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t angles, cons
     const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
     int maxFragments, markFragment_t* fragmentBuffer, float radiusSquared);
 
+
+/*
+=============================================================
+
+SHADE
+
+=============================================================
+*/
+void RB_CalcColorFromConstant(unsigned char* dstColors, unsigned char* constantColor);
+void RB_CalcRGBFromDot(unsigned char* colors, float alphaMin, float alphaMax);
+void RB_CalcRGBFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax);
+void RB_CalcAlphaFromConstant(unsigned char* dstColors, int constantAlpha);
+void RB_CalcAlphaFromDot(unsigned char* colors, float alphaMin, float alphaMax);
+void RB_CalcAlphaFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax);
+void RB_CalcAlphaFromTexCoords(unsigned char* colors, float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float* st);
+void RB_CalcRGBFromTexCoords(unsigned char* colors, float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float* st);
+
 /*
 =============================================================
 

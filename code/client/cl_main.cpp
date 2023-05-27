@@ -3174,7 +3174,7 @@ void CL_Init( void ) {
 	}
 
 	// ~ and `, as keys and characters
-	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60 0x11e", CVAR_ARCHIVE );
+	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60", CVAR_ARCHIVE );
 
 	// userinfo
 	name = Cvar_Get ("name", "UnnamedSoldier", CVAR_USERINFO | CVAR_ARCHIVE );

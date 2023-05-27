@@ -213,6 +213,10 @@ static keyNum_t IN_TranslateSDLToQ3Key( SDL_Keysym *keysym, qboolean down )
 		// These happen to match the ASCII chars
 		key = (int)keysym->sym;
 	}
+	else if (keysym->scancode == SDL_SCANCODE_GRAVE)
+	{
+		key = '`';
+	}
 	else
 	{
 		switch( keysym->sym )
