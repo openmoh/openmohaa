@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef DEDICATED
 #ifdef USE_LOCAL_HEADERS
 #	include "SDL_version.h"
@@ -71,3 +75,7 @@ char *Sys_ParseProtocolUri( const char *uri );
 #endif
 
 #include "new/sys_local_new.h"
+
+#ifdef __cplusplus
+}
+#endif

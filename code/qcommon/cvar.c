@@ -1029,6 +1029,39 @@ void Cvar_InfoStringBuffer( int bit, char* buff, int buffsize ) {
 
 /*
 =====================
+Cvar_CheckRange
+=====================
+*/
+void Cvar_CheckRange( cvar_t *var, float min, float max, qboolean integral )
+{
+	var->validate = qtrue;
+	var->min = min;
+	var->max = max;
+	var->integral = integral;
+
+	// Force an initial range check
+	Cvar_Set( var->name, var->string );
+}
+
+/*
+=====================
+Cvar_SetDescription
+=====================
+*/
+void Cvar_SetDescription( cvar_t *var, const char *var_description )
+{
+	if( var_description && var_description[0] != '\0' )
+	{
+		if( var->description != NULL )
+		{
+			Z_Free( var->description );
+		}
+		var->description = CopyString( var_description );
+	}
+}
+
+/*
+=====================
 Cvar_Register
 
 basically a slightly modified Cvar_Get for the interpreted modules
@@ -1090,6 +1123,22 @@ void	Cvar_Update( vmCvar_t *vmCvar ) {
 	vmCvar->integer = cv->integer;
 }
 
+/*
+==================
+Cvar_CompleteCvarName
+==================
+*/
+void Cvar_CompleteCvarName( const char *args, int argNum )
+{
+	if( argNum == 2 )
+	{
+		// Skip "<cmd> "
+		char *p = Com_SkipTokens( args, 1, " " );
+
+		if( p > args )
+			Field_CompleteCommand( p, qfalse, qtrue );
+	}
+}
 
 /*
 ============

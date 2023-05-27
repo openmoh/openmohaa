@@ -39,7 +39,7 @@ int main(int argc, const char** argv)
     while (std::getline(ifp, buffer))
     {
         // Strip trailing whitespace from line
-        const char* end = buffer.c_str() + buffer.length() - 1;
+        const char* end = buffer.c_str() + buffer.length();
         while (end >= buffer.c_str() && isspace(*end)) {
             end--;
         }

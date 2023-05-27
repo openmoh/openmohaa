@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tr_types.h"
 #include "new/tr_public_new.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define	REF_API_VERSION		8
 
 //
@@ -195,6 +199,10 @@ typedef struct {
 typedef	refexport_t* (QDECL *GetRefAPI_t) (int apiVersion, refimport_t * rimp);
 #else
 refexport_t*GetRefAPI( int apiVersion, refimport_t *rimp );
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif	// __TR_PUBLIC_H

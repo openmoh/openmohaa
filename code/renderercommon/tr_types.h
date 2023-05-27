@@ -84,6 +84,9 @@ typedef enum {
 	RT_MAX_REF_ENTITY_TYPE
 } refEntityType_t;
 
+struct tikiFrame_s;
+struct dtiki_s;
+
 typedef struct {
 	refEntityType_t	reType;
 	int			renderfx;
@@ -117,6 +120,34 @@ typedef struct {
 	// extra sprite information
 	float		radius;
 	float		rotation;
+
+    //
+    // Non-IOQ3 stuff
+    //
+
+    int			parentEntity;
+
+    frameInfo_t	   frameInfo[MAX_FRAMEINFOS];
+    float       actionWeight;
+    short       wasframe;
+    float       scale;                     // scale of the thing
+
+    qhandle_t	hOldModel;
+	int         entityNumber;              // the real entity number
+
+	byte        surfaces[MAX_MODEL_SURFACES]; // the surface state of the entity
+	float       shader_data[ 2 ];          // data passed in from shader manipulation
+	
+	int         *bone_tag;
+	vec4_t      *bone_quat;
+	
+	// renderer use only
+	struct tikiFrame_s   *of,
+	                     *nf;
+	struct dtiki_s       *tiki;
+	int         bonestart;
+	int         morphstart;
+	qboolean    hasMorph;
 } refEntity_t;
 
 
@@ -138,7 +169,22 @@ typedef struct {
 	byte		areamask[MAX_MAP_AREA_BYTES];
 
 	// text messages for deform text shaders
-	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
+    char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
+
+	//
+	// Non-IOQ3 stuff
+	//
+
+    // fog stuff
+    float       farplane_distance;
+    vec3_t      farplane_color;
+    qboolean    farplane_cull;
+
+    // sky portal stuff
+    qboolean    sky_portal;
+    float       sky_alpha;
+    vec3_t      sky_origin;
+    vec3_t      sky_axis[3];
 } refdef_t;
 
 
@@ -213,7 +259,13 @@ typedef struct {
 	// used CDS.
 	qboolean				isFullscreen;
 	qboolean				stereoEnabled;
-	qboolean				smpActive;		// UNUSED, present for compatibility
+    qboolean				smpActive;		// UNUSED, present for compatibility
+    int						registerCombinerAvailable;
+    qboolean				secondaryColorAvailable;
+    qboolean				VAR;
+    qboolean				fence;
 } glconfig_t;
+
+#include "new/tr_types_new.h"
 
 #endif	// __TR_TYPES_H

@@ -608,9 +608,13 @@ char	*Cvar_InfoString_Big( int bit );
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
 void	Cvar_InfoStringBuffer( int bit, char *buff, int buffsize );
+void	Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
+void	Cvar_SetDescription( cvar_t *var, const char *var_description );
 
 void	Cvar_Restart_f( void );
 void	Cvar_SaveGameRestart_f( void );
+
+void	Cvar_CompleteCvarName(const char* args, int argNum);
 
 extern	int			cvar_modifiedFlags;
 extern	qboolean	cvar_global_force;
@@ -1136,7 +1140,7 @@ qboolean SV_GameCommand( void );
 //
 // input interface
 //
-void IN_Init(void);
+void IN_Init(void *windowData);
 void IN_Frame(void);
 void IN_Shutdown(void);
 void IN_Restart(void);
@@ -1272,7 +1276,9 @@ void Sys_EndStreamedFile(fileHandle_t f);
 int Sys_StreamedRead(void* buffer, int size, int count, fileHandle_t f);
 void Sys_StreamSeek(fileHandle_t f, int offset, int origin);
 
-qboolean Sys_LowPhysicalMemory( void );
+qboolean Sys_LowPhysicalMemory(void);
+
+void Sys_SetEnv(const char* name, const char* value);
 
 void SetNormalThreadPriority( void );
 void SetBelowNormalThreadPriority( void );

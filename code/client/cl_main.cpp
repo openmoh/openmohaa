@@ -2708,7 +2708,10 @@ void CL_RefFS_WriteFile(const char* qpath, const void* buffer, int size) {
 }
 
 char** CL_RefFS_ListFiles(const char* name, const char* extension, int* numfilesfound) {
-	return FS_ListFiles(path, extension, qtrue, numfilesfound);
+	return FS_ListFiles(name, extension, qtrue, numfilesfound);
+}
+
+void CL_RefCIN_UploadCinematic(int handle) {
 }
 
 /*
@@ -2786,6 +2789,28 @@ void CL_InitRef( void ) {
 	ri.newri.GetCentroidRadiusInternal = TIKI_GetCentroidRadiusInternal;
 	ri.newri.GetFrameInternal = TIKI_GetFrameInternal;
 
+	//
+	// ioq3 stuff
+	//
+    ri.Cvar_CheckRange = Cvar_CheckRange;
+    ri.Cvar_SetDescription = Cvar_SetDescription;
+    ri.Cvar_VariableIntegerValue = Cvar_VariableIntegerValue;
+
+    ri.CIN_UploadCinematic = CL_RefCIN_UploadCinematic;
+    ri.CIN_PlayCinematic = CIN_PlayCinematic;
+    ri.CIN_RunCinematic = CIN_RunCinematic;
+    ri.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
+
+    ri.IN_Init = IN_Init;
+    ri.IN_Shutdown = IN_Shutdown;
+    ri.IN_Restart = IN_Restart;
+    ri.ftol = Q_ftol;
+
+    ri.Sys_SetEnv = Sys_SetEnv;
+    ri.Sys_GLimpSafeInit = Sys_GLimpSafeInit;
+    ri.Sys_GLimpInit = Sys_GLimpInit;
+    ri.Sys_LowPhysicalMemory = Sys_LowPhysicalMemory;
+
 #ifdef USE_RENDERER_DLL
 	// su44: load renderer dll
 	cl_renderer = Cvar_Get("cl_renderer", "glom", CVAR_ARCHIVE);
@@ -2843,7 +2868,7 @@ void CL_InitRef( void ) {
 qboolean CL_SetVidMode( int mode ) {
 	qboolean ret;
 
-	ret = re.SetMode( mode, &cls.glconfig );
+	ret = re.newre.SetMode( mode, &cls.glconfig );
 
 	if( cge ) {
 		cge->CG_GetRendererConfig();
@@ -2854,7 +2879,7 @@ qboolean CL_SetVidMode( int mode ) {
 }
 
 void CL_SetFullscreen( qboolean fullscreen ) {
-	re.SetFullscreen( fullscreen );
+	re.newre.SetFullscreen( fullscreen );
 
 	if( cge ) {
 		cge->CG_GetRendererConfig();
@@ -2900,7 +2925,7 @@ void CL_TikiInfoCommand_f( void ) {
 
 	COM_DefaultExtension( modelname, sizeof( modelname ), ".tik" );
 	hModel = re.RegisterModel( modelname );
-	tiki = re.R_Model_GetHandle( hModel );
+	tiki = re.newre.R_Model_GetHandle( hModel );
 
 	TIKI_ModelInfo( tiki );
 }

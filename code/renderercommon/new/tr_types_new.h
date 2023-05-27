@@ -20,9 +20,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// DESCRIPTION:
-// Renderer types
+#define	MAX_ENTITIES	1023		// can't be increased without changing drawsurf bit packing
+#define  MAX_POINTS     32
+#define  MAX_SPRITES    1024
 
-#pragma once
+#define RDF_FULLBRIGHT		2		// fullbright intensity
 
-#include "../renderercommon/tr_types.h"
+typedef struct
+{
+    float pos[2];
+    float size[2];
+} letterloc_t;
+
+typedef struct fontheader_s
+{
+    int               indirection[256];
+    letterloc_t       locations[256];
+    char              name[64];
+    float             height;
+    float             aspectRatio;
+    void* shader;
+    int               trhandle; // the last renderer handle this font used
+} fontheader_t;
+
+typedef enum {
+    lensflare = (1 << 0),
+    viewlensflare = (1 << 1),
+    additive = (1 << 2)
+} dlighttype_t;

@@ -1284,19 +1284,30 @@ default values.
 #define CVAR_NONEXISTENT		0xFFFFFFFF	// Cvar doesn't exist.
 
 // nothing outside the Cvar_*() functions should modify these fields!
-typedef struct cvar_s {
-	char		*name;
-	char		*string;
-	char		*resetString;		// cvar_restart will reset to this value
-	char		*latchedString;		// for CVAR_LATCH vars
-	int			flags;
+typedef struct cvar_s cvar_t;
+
+struct cvar_s {
+	char			*name;
+	char			*string;
+	char			*resetString;		// cvar_restart will reset to this value
+	char			*latchedString;		// for CVAR_LATCH vars
+	int				flags;
 	qboolean	modified;			// set each time the cvar is changed
-	int			modificationCount;	// incremented each time the cvar is changed
-	float		value;				// atof( string )
-	int			integer;			// atoi( string )
-	struct cvar_s *next;
-	struct cvar_s *hashNext;
-} cvar_t;
+	int				modificationCount;	// incremented each time the cvar is changed
+	float			value;				// atof( string )
+	int				integer;			// atoi( string )
+	qboolean	validate;
+	qboolean	integral;
+	float			min;
+	float			max;
+	char			*description;
+
+	cvar_t *next;
+	cvar_t *prev;
+	cvar_t *hashNext;
+	cvar_t *hashPrev;
+	int			hashIndex;
+};
 
 #define	MAX_CVAR_VALUE_STRING	256
 
