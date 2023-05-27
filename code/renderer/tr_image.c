@@ -2991,7 +2991,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		return 0;
 	}
 	tr.numSkins++;
-	skin = ri.Hunk_Alloc( sizeof( skin_t ) );
+	skin = ri.Hunk_Alloc( sizeof( skin_t ), h_dontcare );
 	tr.skins[hSkin] = skin;
 	Q_strncpyz( skin->name, name, sizeof( skin->name ) );
 	skin->numSurfaces = 0;
@@ -3002,7 +3002,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	// If not a .skin file, load as a single shader
 	if ( strcmp( name + strlen( name ) - 5, ".skin" ) ) {
 		skin->numSurfaces = 1;
-		skin->surfaces[0] = ri.Hunk_Alloc( sizeof(skin->surfaces[0]) );
+		skin->surfaces[0] = ri.Hunk_Alloc( sizeof(skin->surfaces[0]), h_dontcare);
 		skin->surfaces[0]->shader = R_FindShader( name, LIGHTMAP_NONE, qtrue, qfalse, qfalse, qfalse );
 		return hSkin;
 	}
@@ -3036,7 +3036,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 		// parse the shader name
 		token = CommaParse( &text_p );
 
-		surf = skin->surfaces[ skin->numSurfaces ] = ri.Hunk_Alloc( sizeof( *skin->surfaces[0] ) );
+		surf = skin->surfaces[ skin->numSurfaces ] = ri.Hunk_Alloc( sizeof( *skin->surfaces[0] ), h_dontcare );
 		Q_strncpyz( surf->name, surfName, sizeof( surf->name ) );
 		surf->shader = R_FindShader( token, LIGHTMAP_NONE, qtrue, qfalse, qfalse, qfalse );
 		skin->numSurfaces++;

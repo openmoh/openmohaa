@@ -44,7 +44,7 @@ sprite_t *SPR_RegisterSprite(const char *name)
 			ri.Printf(1, "Could not find image for sprite in shader %s\n", name);
 			return 0;
 		}
-		spr = ri.Hunk_Alloc(sizeof(sprite_t));
+		spr = ri.Hunk_Alloc(sizeof(sprite_t), h_dontcare);
 		spr->height = spriteImage->height;
 		spr->width = spriteImage->width;
 		spr->origin_x = spr->width * 0.5;

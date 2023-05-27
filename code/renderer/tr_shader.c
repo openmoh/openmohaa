@@ -2490,7 +2490,7 @@ static shader_t *GeneratePermanentShader( void ) {
 		return tr.defaultShader;
 	}
 
-	newShader = ri.Hunk_Alloc( sizeof( shader_t ) );
+	newShader = ri.Hunk_Alloc( sizeof( shader_t ), h_dontcare);
 
 	*newShader = shader;
 	newShader->next = currentShader->shader;
@@ -2508,13 +2508,13 @@ static shader_t *GeneratePermanentShader( void ) {
 		if ( !unfoggedStages[i].active ) {
 			break;
 		}
-		newShader->unfoggedStages[i] = ri.Hunk_Alloc( sizeof( unfoggedStages[i] ) );
+		newShader->unfoggedStages[i] = ri.Hunk_Alloc( sizeof( unfoggedStages[i] ), h_dontcare );
 		*newShader->unfoggedStages[i] = unfoggedStages[i];
 
 		for ( b = 0 ; b < NUM_TEXTURE_BUNDLES ; b++ ) {
 			size = newShader->unfoggedStages[i]->bundle[b].numTexMods * sizeof( texModInfo_t );
 			if (size) {
-				newShader->unfoggedStages[i]->bundle[b].texMods = ri.Hunk_Alloc(size);
+				newShader->unfoggedStages[i]->bundle[b].texMods = ri.Hunk_Alloc(size, h_dontcare);
 				Com_Memcpy(newShader->unfoggedStages[i]->bundle[b].texMods, unfoggedStages[i].bundle[b].texMods, size);
 			}
 		}
@@ -3194,7 +3194,7 @@ static void ScanAndLoadShaderFiles( void )
 
     long sum = 0;
     // scan for shader files
-    shaderFiles = ri.FS_ListFiles("scripts", ".shader", qfalse, &numShaders);
+    shaderFiles = ri.FS_ListFiles("scripts", ".shader", &numShaders);
 
     if (!shaderFiles || !numShaders)
     {

@@ -55,7 +55,7 @@ void View3D::Draw
 
 	set2D();
 
-	re.newre.SavePerformanceCounters();
+	re.SavePerformanceCounters();
 
 	Draw2D();
 }
@@ -132,7 +132,7 @@ void View3D::DrawFPS
 	if (fps->integer == 2)
 	{
 		re.SetColor(UBlack);
-		re.newre.DrawBox(
+		re.DrawBox(
 			0.0,
 			m_frame.pos.y + m_frame.size.height - m_font->getHeight(qfalse) * 4.0,
 			m_frame.pos.x + m_frame.size.width,

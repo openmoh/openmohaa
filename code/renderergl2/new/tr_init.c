@@ -112,64 +112,64 @@ void RE_SetRenderTime(int t) {
 
 void GetRefAPI_new(refimport_t* ri, refexport_t* re)
 {
-    re->newre.FreeModels = RE_FreeModels;
-    re->newre.SpawnEffectModel = RE_SpawnEffectModel;
-    re->newre.RegisterServerModel = RE_RegisterServerModel;
-    re->newre.UnregisterServerModel = RE_UnregisterServerModel;
-    re->newre.RefreshShaderNoMip = RE_RefreshShaderNoMip;
-    re->newre.PrintBSPFileSizes = RE_PrintBSPFileSizes;
-    re->newre.MapVersion = RE_MapVersion;
-    re->newre.LoadFont = R_LoadFont;
+    re->FreeModels = RE_FreeModels;
+    re->SpawnEffectModel = RE_SpawnEffectModel;
+    re->RegisterServerModel = RE_RegisterServerModel;
+    re->UnregisterServerModel = RE_UnregisterServerModel;
+    re->RefreshShaderNoMip = RE_RefreshShaderNoMip;
+    re->PrintBSPFileSizes = RE_PrintBSPFileSizes;
+    re->MapVersion = RE_MapVersion;
+    re->LoadFont = R_LoadFont;
 
-    re->newre.BeginFrame = RE_BeginFrame;
+    re->BeginFrame = RE_BeginFrame;
     
-    re->newre.MarkFragments = R_MarkFragments_New;
-    re->newre.MarkFragmentsForInlineModel = R_MarkFragmentsForInlineModel;
-    re->newre.GetInlineModelBounds = R_GetInlineModelBounds;
-    re->newre.GetLightingForDecal = R_GetLightingForDecal;
-    re->newre.GetLightingForSmoke = R_GetLightingForSmoke;
-    re->newre.R_GatherLightSources = R_GatherLightSources;
-    re->newre.ModelBounds = R_ModelBounds;
-    re->newre.ModelRadius = R_ModelRadius;
+    re->MarkFragments = R_MarkFragments_New;
+    re->MarkFragmentsForInlineModel = R_MarkFragmentsForInlineModel;
+    re->GetInlineModelBounds = R_GetInlineModelBounds;
+    re->GetLightingForDecal = R_GetLightingForDecal;
+    re->GetLightingForSmoke = R_GetLightingForSmoke;
+    re->R_GatherLightSources = R_GatherLightSources;
+    re->ModelBounds = R_ModelBounds;
+    re->ModelRadius = R_ModelRadius;
 
-    re->newre.AddRefEntityToScene = RE_AddRefEntityToScene;
-    re->newre.AddRefSpriteToScene = RE_AddRefSpriteToScene;
-    re->newre.AddPolyToScene = RE_AddPolyToScene;
-    re->newre.AddTerrainMarkToScene = RE_AddTerrainMarkToScene;
-    re->newre.AddLightToScene = RE_AddLightToScene;
-    re->newre.RenderScene = RE_RenderScene;
-    re->newre.GetRenderEntity = RE_GetRenderEntity;
+    re->AddRefEntityToScene = RE_AddRefEntityToScene;
+    re->AddRefSpriteToScene = RE_AddRefSpriteToScene;
+    re->AddPolyToScene = RE_AddPolyToScene;
+    re->AddTerrainMarkToScene = RE_AddTerrainMarkToScene;
+    re->AddLightToScene = RE_AddLightToScene;
+    re->RenderScene = RE_RenderScene;
+    re->GetRenderEntity = RE_GetRenderEntity;
 
-    re->newre.SavePerformanceCounters = R_SavePerformanceCounters;
+    re->SavePerformanceCounters = R_SavePerformanceCounters;
 
-    re->newre.R_Model_GetHandle = R_Model_GetHandle;
-    re->newre.DrawStretchRaw = RE_StretchRaw;
-    re->newre.DebugLine = R_DebugLine;
-    re->newre.DrawStretchPic = Draw_StretchPic;
-    re->newre.DrawTilePic = Draw_TilePic;
-    re->newre.DrawTilePicOffset = Draw_TilePicOffset;
-    re->newre.DrawTrianglePic = Draw_TrianglePic;
-    re->newre.DrawBox = DrawBox;
-    re->newre.AddBox = AddBox;
-    re->newre.Set2DWindow = Set2DWindow;
-    re->newre.Scissor = RE_Scissor;
-    re->newre.DrawLineLoop = DrawLineLoop;
-    re->newre.DrawString = R_DrawString;
-    re->newre.GetFontHeight = R_GetFontHeight;
-    re->newre.GetFontStringWidth = R_GetFontStringWidth;
-    re->newre.SwipeBegin = RE_SwipeBegin;
-    re->newre.SwipeEnd = RE_SwipeEnd;
-    re->newre.SetRenderTime = RE_SetRenderTime;
-    re->newre.Noise = R_NoiseGet4f;
+    re->R_Model_GetHandle = R_Model_GetHandle;
+    re->DrawStretchRaw = RE_StretchRaw;
+    re->DebugLine = R_DebugLine;
+    re->DrawStretchPic = Draw_StretchPic;
+    re->DrawTilePic = Draw_TilePic;
+    re->DrawTilePicOffset = Draw_TilePicOffset;
+    re->DrawTrianglePic = Draw_TrianglePic;
+    re->DrawBox = DrawBox;
+    re->AddBox = AddBox;
+    re->Set2DWindow = Set2DWindow;
+    re->Scissor = RE_Scissor;
+    re->DrawLineLoop = DrawLineLoop;
+    re->DrawString = R_DrawString;
+    re->GetFontHeight = R_GetFontHeight;
+    re->GetFontStringWidth = R_GetFontStringWidth;
+    re->SwipeBegin = RE_SwipeBegin;
+    re->SwipeEnd = RE_SwipeEnd;
+    re->SetRenderTime = RE_SetRenderTime;
+    re->Noise = R_NoiseGet4f;
 
-    re->newre.SetMode = R_SetMode;
-    re->newre.SetFullscreen = R_SetFullscreen;
+    re->SetMode = R_SetMode;
+    re->SetFullscreen = R_SetFullscreen;
 
-    re->newre.GetShaderHeight = RE_GetShaderHeight;
-    re->newre.GetShaderWidth = RE_GetShaderWidth;
-    re->newre.GetGraphicsInfo = RE_GetGraphicsInfo;
-    re->newre.ForceUpdatePose = RE_ForceUpdatePose;
-    re->newre.TIKI_Orientation = RE_TIKI_Orientation;
-    re->newre.TIKI_IsOnGround = RE_TIKI_IsOnGround;
-    re->newre.SetFrameNumber = RE_SetFrameNumber;
+    re->GetShaderHeight = RE_GetShaderHeight;
+    re->GetShaderWidth = RE_GetShaderWidth;
+    re->GetGraphicsInfo = RE_GetGraphicsInfo;
+    re->ForceUpdatePose = RE_ForceUpdatePose;
+    re->TIKI_Orientation = RE_TIKI_Orientation;
+    re->TIKI_IsOnGround = RE_TIKI_IsOnGround;
+    re->SetFrameNumber = RE_SetFrameNumber;
 }

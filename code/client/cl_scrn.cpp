@@ -439,7 +439,7 @@ void SCR_DrawScreenField( void ) {
 		if ( cls.glconfig.vidWidth * 480 > cls.glconfig.vidHeight * 640 ) {
 			re.SetColor( g_color_table[0] );
 			//re.DrawStretchPic( 0, 0, cls.glconfig.vidWidth, cls.glconfig.vidHeight, 0, 0, 0, 0, cls.whiteShader );
-			re.newre.DrawBox( 0, 0, cls.glconfig.vidHeight, cls.glconfig.vidWidth );
+			re.DrawBox( 0, 0, cls.glconfig.vidHeight, cls.glconfig.vidWidth );
 			re.SetColor( NULL );
 		}
 	}

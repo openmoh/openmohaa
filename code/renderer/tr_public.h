@@ -19,8 +19,21 @@ along with Foobar; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-#ifndef __TR_PUBLIC_H
-#define __TR_PUBLIC_H
+#pragma once
+
+#include "../renderercommon/tr_public.h"
+#include "../renderercommon/iqm.h"
+#include "../renderercommon/qgl.h"
+
+#define GLE(ret, name, ...) extern name##proc * qgl##name;
+QGL_1_1_PROCS;
+QGL_1_1_FIXED_FUNCTION_PROCS;
+QGL_DESKTOP_1_1_PROCS;
+QGL_DESKTOP_1_1_FIXED_FUNCTION_PROCS;
+QGL_3_0_PROCS;
+#undef GLE
+
+#if 0
 
 #include "../cgame/tr_types.h"
 
@@ -244,4 +257,4 @@ qboolean R_ImageExists(const char* name);
 }
 #endif
 
-#endif	// __TR_PUBLIC_H
+#endif

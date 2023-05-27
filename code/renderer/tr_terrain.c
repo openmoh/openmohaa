@@ -639,8 +639,8 @@ static void R_PreTessellateTerrain()
 
 	g_nTris = ter_maxtris->integer * 2 + 1;
 	g_nVerts = ter_maxtris->integer + 1;
-	g_pTris = ri.Hunk_Alloc(g_nTris * sizeof(terraTri_t));
-	g_pVert = ri.Hunk_Alloc(g_nVerts * sizeof(terrainVert_t));
+	g_pTris = ri.Hunk_Alloc(g_nTris * sizeof(terraTri_t), h_dontcare);
+	g_pVert = ri.Hunk_Alloc(g_nVerts * sizeof(terrainVert_t), h_dontcare);
 
 	// Init triangles & vertices
 	R_TerrainHeapInit();

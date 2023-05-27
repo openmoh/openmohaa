@@ -66,7 +66,7 @@ dtiki_t	*R_Model_GetHandle( qhandle_t handle ) {
 */
 void R_FreeModel( model_t *mod ) {
 	if( mod->type == MOD_TIKI ) {
-		ri.newri.CG_EndTiki( mod->d.tiki );
+		ri.CG_EndTiki( mod->d.tiki );
 	}
 
 	ri.Free(mod);
@@ -227,7 +227,7 @@ static qhandle_t R_RegisterModelInternal( const char *name, qboolean bBeginTiki,
 				R_RegisterShaders( mod );
 
 				if( bBeginTiki ) {
-					ri.newri.CG_ProcessInitCommands( mod->d.tiki, NULL );
+					ri.CG_ProcessInitCommands( mod->d.tiki, NULL );
 				}
 
 				return mod->index;
@@ -269,7 +269,7 @@ qhandle_t RE_SpawnEffectModel( const char *szModel, vec3_t vPos, vec3_t *axis ) 
 	if( new_entity.hModel )
 	{
 		tr.models[ new_entity.hModel ]->serveronly = qfalse;
-		ri.newri.CG_ProcessInitCommands( tr.models[ new_entity.hModel ]->d.tiki, &new_entity );
+		ri.CG_ProcessInitCommands( tr.models[ new_entity.hModel ]->d.tiki, &new_entity );
 	}
 
 	return new_entity.hModel;
@@ -1349,7 +1349,7 @@ void R_UpdatePoseInternal( refEntity_t *model ) {
 		tr.skel_index[ model->entityNumber ] = tr.frame_skel_index;
 	}
 
-	ri.newri.TIKI_SetPoseInternal( TIKI_GetSkeletor( model->tiki, model->entityNumber ), model->frameInfo, model->bone_tag, model->bone_quat, model->actionWeight );
+	ri.TIKI_SetPoseInternal( TIKI_GetSkeletor( model->tiki, model->entityNumber ), model->frameInfo, model->bone_tag, model->bone_quat, model->actionWeight );
 }
 
 /*
@@ -1362,7 +1362,7 @@ void RE_ForceUpdatePose( refEntity_t *model ) {
 		tr.skel_index[ model->entityNumber ] = tr.frame_skel_index;
 	}
 
-	ri.newri.TIKI_SetPoseInternal( TIKI_GetSkeletor( model->tiki, model->entityNumber ), model->frameInfo, model->bone_tag, model->bone_quat, model->actionWeight );
+	ri.TIKI_SetPoseInternal( TIKI_GetSkeletor( model->tiki, model->entityNumber ), model->frameInfo, model->bone_tag, model->bone_quat, model->actionWeight );
 }
 
 /*
@@ -1372,7 +1372,7 @@ RE_TIKI_Orientation
 */
 orientation_t RE_TIKI_Orientation( refEntity_t *model, int tagnum ) {
 	R_UpdatePoseInternal( model );
-	return ri.newri.TIKI_OrientationInternal( model->tiki, model->entityNumber, tagnum, model->scale );
+	return ri.TIKI_OrientationInternal( model->tiki, model->entityNumber, tagnum, model->scale );
 }
 
 /*
@@ -1382,7 +1382,7 @@ RE_TIKI_IsOnGround
 */
 qboolean RE_TIKI_IsOnGround( refEntity_t *model, int tagnum, float threshold ) {
 	R_UpdatePoseInternal( model );
-	return ri.newri.TIKI_IsOnGroundInternal( model->tiki, model->entityNumber, tagnum, threshold );
+	return ri.TIKI_IsOnGroundInternal( model->tiki, model->entityNumber, tagnum, threshold );
 }
 
 /*
@@ -1392,7 +1392,7 @@ R_GetRadius
 */
 float R_GetRadius( refEntity_t *model ) {
 	R_UpdatePoseInternal( model );
-	return ri.newri.GetRadiusInternal( model->tiki, model->entityNumber, model->scale );
+	return ri.GetRadiusInternal( model->tiki, model->entityNumber, model->scale );
 }
 
 /*
@@ -1402,7 +1402,7 @@ R_GetFrame
 */
 void R_GetFrame( refEntity_t *model, struct skelAnimFrame_s *newFrame ) {
 	R_UpdatePoseInternal( model );
-	ri.newri.GetFrameInternal( model->tiki, model->entityNumber, newFrame );
+	ri.GetFrameInternal( model->tiki, model->entityNumber, newFrame );
 }
 
 /*

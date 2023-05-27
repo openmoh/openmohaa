@@ -266,7 +266,7 @@ static	void R_LoadLightmaps(gamelump_t* l) {
 		s_worldData.lighting = NULL;
 	}
 	else {
-		s_worldData.lighting = ri.Hunk_Alloc(l->length);
+		s_worldData.lighting = ri.Hunk_Alloc(l->length, h_dontcare);
 		Com_Memcpy(s_worldData.lighting, l->buffer, l->length);
 	}
 }
@@ -295,7 +295,7 @@ static	void R_LoadVisibility(gamelump_t* l) {
 	byte	*buf;
 
 	len = ( s_worldData.numClusters + 63 ) & ~63;
-	s_worldData.novis = ri.Hunk_Alloc( len );
+	s_worldData.novis = ri.Hunk_Alloc( len, h_dontcare );
 	Com_Memset( s_worldData.novis, 0xff, len );
 
     len = l->length;
@@ -314,7 +314,7 @@ static	void R_LoadVisibility(gamelump_t* l) {
 	} else {
 		byte	*dest;
 
-		dest = ri.Hunk_Alloc( len - 8 );
+		dest = ri.Hunk_Alloc( len - 8, h_dontcare );
 		Com_Memcpy( dest, buf + 8, len - 8 );
 		s_worldData.vis = dest;
 	}
@@ -398,7 +398,7 @@ void R_LoadSphereLightVis(gamelump_t* l) {
                         while (entries[j] != -1);
                     }
                     if (j) {
-                        node->lights = ri.Hunk_Alloc(j * sizeof(spherel_t*));
+                        node->lights = ri.Hunk_Alloc(j * sizeof(spherel_t*), h_dontcare);
                         node->numlights = j;
                         h = 0;
                         if (entries[0] == -2) {
@@ -560,7 +560,7 @@ void R_LoadTerrain(gamelump_t* lump) {
     }
 
     s_worldData.numTerraPatches = lump->length / sizeof(cTerraPatch_t);
-    s_worldData.terraPatches = ri.Hunk_Alloc(s_worldData.numTerraPatches * sizeof(cTerraPatchUnpacked_t));
+    s_worldData.terraPatches = ri.Hunk_Alloc(s_worldData.numTerraPatches * sizeof(cTerraPatchUnpacked_t), h_dontcare);
 
     in = lump->buffer;
     out = s_worldData.terraPatches;
@@ -591,7 +591,7 @@ void R_LoadTerrainIndexes(gamelump_t* lump) {
     }
 
     s_worldData.numVisTerraPatches = lump->length / sizeof(short);
-    s_worldData.visTerraPatches = ri.Hunk_Alloc(s_worldData.numVisTerraPatches * sizeof(cTerraPatchUnpacked_t*));
+    s_worldData.visTerraPatches = ri.Hunk_Alloc(s_worldData.numVisTerraPatches * sizeof(cTerraPatchUnpacked_t*), h_dontcare);
 
     in = lump->buffer;
     out = s_worldData.visTerraPatches;
@@ -635,7 +635,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	ofsIndexes = sfaceSize;
 	sfaceSize += sizeof( int ) * numIndexes;
 
-	cv = ri.Hunk_Alloc( sfaceSize );
+	cv = ri.Hunk_Alloc( sfaceSize, h_dontcare );
 	cv->surfaceType = SF_FACE;
 	cv->numPoints = numPoints;
 	cv->numIndices = numIndexes;
@@ -809,7 +809,7 @@ static void ParseTriSurf( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, i
 	numIndexes = LittleLong( ds->numIndexes );
 
 	tri = ri.Hunk_Alloc( sizeof( *tri ) + numVerts * sizeof( tri->verts[0] ) 
-		+ numIndexes * sizeof( tri->indexes[0] ) );
+		+ numIndexes * sizeof( tri->indexes[0] ), h_dontcare );
 	tri->surfaceType = SF_TRIANGLES;
 	tri->numVerts = numVerts;
 	tri->numIndexes = numIndexes;
@@ -863,7 +863,7 @@ static void ParseFlare( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int
 		surf->shader = tr.defaultShader;
 	}
 
-	flare = ri.Hunk_Alloc( sizeof( *flare ) );
+	flare = ri.Hunk_Alloc( sizeof( *flare ), h_dontcare );
 	flare->surfaceType = SF_FLARE;
 
 	surf->data = (surfaceType_t *)flare;
@@ -1556,13 +1556,13 @@ void R_MovePatchSurfacesToHunk(void) {
 			continue;
 		//
 		size = (grid->width * grid->height - 1) * sizeof( drawVert_t ) + sizeof( *grid );
-		hunkgrid = ri.Hunk_Alloc( size );
+		hunkgrid = ri.Hunk_Alloc( size, h_dontcare );
 		Com_Memcpy(hunkgrid, grid, size);
 
-		hunkgrid->widthLodError = ri.Hunk_Alloc( grid->width * 4 );
+		hunkgrid->widthLodError = ri.Hunk_Alloc( grid->width * 4, h_dontcare );
 		Com_Memcpy( hunkgrid->widthLodError, grid->widthLodError, grid->width * 4 );
 
-		hunkgrid->heightLodError = ri.Hunk_Alloc( grid->height * 4 );
+		hunkgrid->heightLodError = ri.Hunk_Alloc( grid->height * 4, h_dontcare );
 		Com_Memcpy( grid->heightLodError, grid->heightLodError, grid->height * 4 );
 
 		R_FreeSurfaceGridMesh( grid );
@@ -1603,7 +1603,7 @@ static	void R_LoadSurfaces(gamelump_t* surfs, gamelump_t* verts, gamelump_t* ind
         ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
 
     in = (void*)surfs->buffer;
-	out = ri.Hunk_Alloc ( count * sizeof(*out) );	
+	out = ri.Hunk_Alloc ( count * sizeof(*out), h_dontcare );	
 
 	s_worldData.surfaces = out;
 	s_worldData.numsurfaces = count;
@@ -1662,7 +1662,7 @@ static	void R_LoadSubmodels(gamelump_t* l) {
         ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
     count = l->length / sizeof(*in);
 
-	s_worldData.bmodels = out = ri.Hunk_Alloc( count * sizeof(*out) );
+	s_worldData.bmodels = out = ri.Hunk_Alloc( count * sizeof(*out), h_dontcare );
 
 	for ( i=0 ; i<count ; i++, in++, out++ ) {
 		model_t *model;
@@ -1723,7 +1723,7 @@ static	void R_LoadNodesAndLeafs(gamelump_t* nodeLump, gamelump_t* leafLump) {
     numNodes = nodeLump->length / sizeof(dnode_t);
     numLeafs = leafLump->length / sizeof(dleaf_t);
 
-    out = ri.Hunk_Alloc((numNodes + numLeafs) * sizeof(*out));
+    out = ri.Hunk_Alloc((numNodes + numLeafs) * sizeof(*out), h_dontcare);
 
     s_worldData.nodes = out;
     s_worldData.numnodes = numNodes + numLeafs;
@@ -1805,7 +1805,7 @@ static	void R_LoadNodesAndLeafsOld(gamelump_t* nodeLump, gamelump_t* leafLump) {
     numNodes = nodeLump->length / sizeof(dnode_t);
     numLeafs = leafLump->length / sizeof(dleaf_t);
 
-    out = ri.Hunk_Alloc((numNodes + numLeafs) * sizeof(*out));
+    out = ri.Hunk_Alloc((numNodes + numLeafs) * sizeof(*out), h_dontcare);
 
     s_worldData.nodes = out;
     s_worldData.numnodes = numNodes + numLeafs;
@@ -1879,7 +1879,7 @@ static	void R_LoadShaders(gamelump_t* l) {
     if (l->length % sizeof(*in))
         ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
     count = l->length / sizeof(*in);
-    out = ri.Hunk_Alloc(count * sizeof(*out));
+    out = ri.Hunk_Alloc(count * sizeof(*out), h_dontcare);
 
     s_worldData.shaders = out;
     s_worldData.numShaders = count;
@@ -1908,7 +1908,7 @@ static	void R_LoadMarksurfaces(gamelump_t* l)
     if (l->length % sizeof(*in))
         ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
     count = l->length / sizeof(*in);
-    out = (msurface_t**)ri.Hunk_Alloc(count * sizeof(*out));
+    out = (msurface_t**)ri.Hunk_Alloc(count * sizeof(*out), h_dontcare);
 
     s_worldData.marksurfaces = out;
     s_worldData.nummarksurfaces = count;
@@ -1937,7 +1937,7 @@ static	void R_LoadPlanes(gamelump_t* l) {
     if (l->length % sizeof(*in))
         ri.Error(ERR_DROP, "LoadMap: funny lump size in %s", s_worldData.name);
     count = l->length / sizeof(*in);
-    out = ri.Hunk_Alloc(count * 2 * sizeof(*out));
+    out = ri.Hunk_Alloc(count * 2 * sizeof(*out), h_dontcare);
 
     s_worldData.planes = out;
     s_worldData.numplanes = count;
@@ -2011,11 +2011,11 @@ void R_LoadLightGrid(gamelump_t* plPal, gamelump_t* plOffsets, gamelump_t* plDat
 		return;
 	}
 
-	w->lightGridOffsets = ri.Hunk_Alloc(plOffsets->length);
+	w->lightGridOffsets = ri.Hunk_Alloc(plOffsets->length, h_dontcare);
 	Com_Memcpy(w->lightGridOffsets, plOffsets->buffer, plOffsets->length);
 	Com_Memcpy(w->lightGridPalette, plPal->buffer, sizeof(s_worldData.lightGridPalette));
 
-    w->lightGridData = ri.Hunk_Alloc(plData->length);
+    w->lightGridData = ri.Hunk_Alloc(plData->length, h_dontcare);
     Com_Memcpy(w->lightGridData, plData->buffer, plData->length);
 }
 
@@ -2041,7 +2041,7 @@ void R_LoadStaticModelData(gamelump_t* lump) {
     }
 
     s_worldData.numStaticModelData = lump->length / (sizeof(byte) * 3);
-    s_worldData.staticModelData = (byte*)ri.Hunk_Alloc(s_worldData.numStaticModelData * sizeof(color4ub_t));
+    s_worldData.staticModelData = (byte*)ri.Hunk_Alloc(s_worldData.numStaticModelData * sizeof(color4ub_t), h_dontcare);
 
     pSrcColors = lump->buffer;
     pDstColors = s_worldData.staticModelData;
@@ -2097,7 +2097,7 @@ void R_LoadStaticModelDefs(gamelump_t* lump) {
     }
 
     s_worldData.numStaticModels = lump->length / sizeof(cStaticModel_t);
-    s_worldData.staticModels = ri.Hunk_Alloc(s_worldData.numStaticModels * sizeof(cStaticModelUnpacked_t));
+    s_worldData.staticModels = ri.Hunk_Alloc(s_worldData.numStaticModels * sizeof(cStaticModelUnpacked_t), h_dontcare);
 
     in = lump->buffer;
     out = s_worldData.staticModels;
@@ -2122,7 +2122,7 @@ void R_LoadStaticModelIndexes(gamelump_t* lump) {
     }
 
     s_worldData.numVisStaticModels = lump->length / sizeof(short);
-    s_worldData.visStaticModels = ri.Hunk_Alloc(s_worldData.numVisStaticModels * sizeof(cStaticModelUnpacked_t*));
+    s_worldData.visStaticModels = ri.Hunk_Alloc(s_worldData.numVisStaticModels * sizeof(cStaticModelUnpacked_t*), h_dontcare);
 
     in = lump->buffer;
     out = s_worldData.visStaticModels;

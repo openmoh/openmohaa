@@ -20,9 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-
-#ifndef TR_LOCAL_H
-#define TR_LOCAL_H
+#pragma once
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qfiles.h"
@@ -2336,6 +2334,3 @@ void UI_LoadResource(const char* name);
 #ifdef __cplusplus
 }
 #endif
-
-
-#endif //TR_LOCAL_H

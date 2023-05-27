@@ -2329,7 +2329,7 @@ void CL_CheckUserinfo( void ) {
 }
 
 void CL_SetFrameNumber(int frameNumber) {
-	re.newre.SetFrameNumber(frameNumber);
+	re.SetFrameNumber(frameNumber);
 }
 
 /*
@@ -2738,8 +2738,8 @@ void CL_InitRef( void ) {
 	ri.Milliseconds = CL_ScaledMilliseconds;
 	ri.Malloc = CL_RefMalloc;
 	ri.Free = Z_Free;
-	ri.newri.Clear = CL_RefClear;
-    ri.newri.Hunk_Clear = CL_RefStaticClear;
+	ri.Clear = CL_RefClear;
+    ri.Hunk_Clear = CL_RefStaticClear;
 #ifdef HUNK_DEBUG
     ri.Hunk_AllocDebug = CL_RefStaticMallocDebug;
 #else
@@ -2749,12 +2749,12 @@ void CL_InitRef( void ) {
 	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
 	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
 
-	ri.newri.FS_OpenFile = FS_FOpenFileRead;
-	ri.newri.FS_CloseFile = FS_FCloseFile;
-	ri.newri.FS_Read = FS_Read;
-	ri.newri.FS_Seek = FS_Seek;
+	ri.FS_OpenFile = FS_FOpenFileRead;
+	ri.FS_CloseFile = FS_FCloseFile;
+	ri.FS_Read = FS_Read;
+	ri.FS_Seek = FS_Seek;
 	ri.FS_ReadFile = FS_ReadFile;
-	ri.newri.FS_ReadFileEx = FS_ReadFileEx;
+	ri.FS_ReadFileEx = FS_ReadFileEx;
 	ri.FS_FreeFile = FS_FreeFile;
 	ri.FS_WriteFile = CL_RefFS_WriteFile;
 	ri.FS_FreeFileList = FS_FreeFileList;
@@ -2763,31 +2763,31 @@ void CL_InitRef( void ) {
 	ri.FS_FileExists = FS_FileExists;
 	ri.Cvar_Get = Cvar_Get;
 	ri.Cvar_Set = Cvar_Set;
-	ri.newri.Cvar_SetDefault = Cvar_SetDefault;
+	ri.Cvar_SetDefault = Cvar_SetDefault;
 
-    ri.newri.CM_EntityString = CM_EntityString;
-    ri.newri.CM_MapTime = CM_MapTime;
-    ri.newri.CM_BoxTrace = CM_BoxTrace;
-	ri.newri.CG_PermanentMark = CL_CG_PermanentMark;
-	ri.newri.CG_PermanentTreadMarkDecal = CL_CG_PermanentTreadMarkDecal;
-	ri.newri.CG_PermanentUpdateTreadMark = CL_CG_PermanentUpdateTreadMark;
-	ri.newri.CM_TerrainSquareType = CM_TerrainSquareType;
-	ri.newri.CG_ProcessInitCommands = CL_CG_ProcessInitCommands;
-	ri.newri.CG_EndTiki = CL_CG_EndTiki;
-	ri.newri.SetPerformanceCounters = CL_RefSetPerformanceCounters;
+    ri.CM_EntityString = CM_EntityString;
+    ri.CM_MapTime = CM_MapTime;
+    ri.CM_BoxTrace = CM_BoxTrace;
+	ri.CG_PermanentMark = CL_CG_PermanentMark;
+	ri.CG_PermanentTreadMarkDecal = CL_CG_PermanentTreadMarkDecal;
+	ri.CG_PermanentUpdateTreadMark = CL_CG_PermanentUpdateTreadMark;
+	ri.CM_TerrainSquareType = CM_TerrainSquareType;
+	ri.CG_ProcessInitCommands = CL_CG_ProcessInitCommands;
+	ri.CG_EndTiki = CL_CG_EndTiki;
+	ri.SetPerformanceCounters = CL_RefSetPerformanceCounters;
 
-    ri.newri.DebugLines = &DebugLines;
-    ri.newri.numDebugLines = &numDebugLines;
-    ri.newri.DebugStrings = &DebugStrings;
-    ri.newri.numDebugStrings = &numDebugStrings;
+    ri.DebugLines = &DebugLines;
+    ri.numDebugLines = &numDebugLines;
+    ri.DebugStrings = &DebugStrings;
+    ri.numDebugStrings = &numDebugStrings;
 
-	ri.newri.TIKI_OrientationInternal = TIKI_OrientationInternal;
-	ri.newri.TIKI_IsOnGroundInternal = TIKI_IsOnGroundInternal;
-	ri.newri.TIKI_SetPoseInternal = TIKI_SetPoseInternal;
-	ri.newri.TIKI_Alloc = TIKI_Alloc;
-	ri.newri.GetRadiusInternal = TIKI_GetRadiusInternal;
-	ri.newri.GetCentroidRadiusInternal = TIKI_GetCentroidRadiusInternal;
-	ri.newri.GetFrameInternal = TIKI_GetFrameInternal;
+	ri.TIKI_OrientationInternal = TIKI_OrientationInternal;
+	ri.TIKI_IsOnGroundInternal = TIKI_IsOnGroundInternal;
+	ri.TIKI_SetPoseInternal = TIKI_SetPoseInternal;
+	ri.TIKI_Alloc = TIKI_Alloc;
+	ri.GetRadiusInternal = TIKI_GetRadiusInternal;
+	ri.GetCentroidRadiusInternal = TIKI_GetCentroidRadiusInternal;
+	ri.GetFrameInternal = TIKI_GetFrameInternal;
 
 	//
 	// ioq3 stuff
@@ -2868,7 +2868,7 @@ void CL_InitRef( void ) {
 qboolean CL_SetVidMode( int mode ) {
 	qboolean ret;
 
-	ret = re.newre.SetMode( mode, &cls.glconfig );
+	ret = re.SetMode( mode, &cls.glconfig );
 
 	if( cge ) {
 		cge->CG_GetRendererConfig();
@@ -2879,7 +2879,7 @@ qboolean CL_SetVidMode( int mode ) {
 }
 
 void CL_SetFullscreen( qboolean fullscreen ) {
-	re.newre.SetFullscreen( fullscreen );
+	re.SetFullscreen( fullscreen );
 
 	if( cge ) {
 		cge->CG_GetRendererConfig();
@@ -2925,7 +2925,7 @@ void CL_TikiInfoCommand_f( void ) {
 
 	COM_DefaultExtension( modelname, sizeof( modelname ), ".tik" );
 	hModel = re.RegisterModel( modelname );
-	tiki = re.newre.R_Model_GetHandle( hModel );
+	tiki = re.R_Model_GetHandle( hModel );
 
 	TIKI_ModelInfo( tiki );
 }

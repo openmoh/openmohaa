@@ -602,6 +602,7 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 	tiki = R_Model_GetHandle( ent->e.hModel );
 	skeletor = ( skeletor_c * )TIKI_GetSkeletor( tiki, ENTITYNUM_NONE );
 
+#if 0
 	if( r_showSkeleton->integer == 1 ) {
 		//vec3_t vForward, vRight, vUp;
 		orientation_t ori;
@@ -699,6 +700,7 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 		qglEnd();
 		qglLineWidth( 1 );
 	}
+#endif
 }
 
 /*
@@ -1419,6 +1421,8 @@ void R_DebugSkeleton( void ) {
 	trRefEntity_t *ent;
 	model_t *model;
 
+	// FIXME: unimplemented
+#if 0
 	R_SyncRenderThread();
 
 	GL_Bind( tr.whiteImage );
@@ -1439,6 +1443,7 @@ void R_DebugSkeleton( void ) {
 			}
 		}
 	}
+#endif
 }
 static float ProjectRadius(float r, const vec3_t location)
 {

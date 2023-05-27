@@ -480,8 +480,8 @@ void CL_ShutdownCGame( void ) {
 
 	Sys_UnloadCGame();
 
-	if( re.newre.FreeModels ) {
-		re.newre.FreeModels();
+	if( re.FreeModels ) {
+		re.FreeModels();
 	}
 
 	Z_FreeTags( TAG_CGAME );
@@ -586,12 +586,12 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->CM_PointLeafnum				= CM_PointLeafnum;
 	cgi->CM_LeafInPVS					= CM_LeafInPVS;
 
-	cgi->R_MarkFragments				= re.newre.MarkFragments;
-	cgi->R_MarkFragmentsForInlineModel	= re.newre.MarkFragmentsForInlineModel;
-	cgi->R_GetInlineModelBounds			= re.newre.GetInlineModelBounds;
-	cgi->R_GetLightingForDecal			= re.newre.GetLightingForDecal;
-	cgi->R_GetLightingForSmoke			= re.newre.GetLightingForSmoke;
-	cgi->R_GatherLightSources			= re.newre.R_GatherLightSources;
+	cgi->R_MarkFragments				= re.MarkFragments;
+	cgi->R_MarkFragmentsForInlineModel	= re.MarkFragmentsForInlineModel;
+	cgi->R_GetInlineModelBounds			= re.GetInlineModelBounds;
+	cgi->R_GetLightingForDecal			= re.GetLightingForDecal;
+	cgi->R_GetLightingForSmoke			= re.GetLightingForSmoke;
+	cgi->R_GatherLightSources			= re.R_GatherLightSources;
 
 	cgi->S_StartSound					= S_StartSound;
 	cgi->S_StartLocalSound				= CL_StartLocalSound;
@@ -620,39 +620,39 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->R_RenderScene				= re.RenderScene;
 
 	cgi->R_LoadWorldMap				= re.LoadWorld;
-	cgi->R_PrintBSPFileSizes		= re.newre.PrintBSPFileSizes;
-	cgi->R_MapVersion				= re.newre.MapVersion;
+	cgi->R_PrintBSPFileSizes		= re.PrintBSPFileSizes;
+	cgi->R_MapVersion				= re.MapVersion;
 	cgi->R_RegisterModel			= re.RegisterModel;
-	cgi->R_SpawnEffectModel			= re.newre.SpawnEffectModel;
-	cgi->R_RegisterServerModel		= re.newre.RegisterServerModel;
-	cgi->R_UnregisterServerModel	= re.newre.UnregisterServerModel;
+	cgi->R_SpawnEffectModel			= re.SpawnEffectModel;
+	cgi->R_RegisterServerModel		= re.RegisterServerModel;
+	cgi->R_UnregisterServerModel	= re.UnregisterServerModel;
 	cgi->R_RegisterShader			= re.RegisterShader;
 	cgi->R_RegisterShaderNoMip		= re.RegisterShaderNoMip;
 
-	cgi->R_AddRefEntityToScene		= re.newre.AddRefEntityToScene;
-	cgi->R_AddRefSpriteToScene		= re.newre.AddRefSpriteToScene;
+	cgi->R_AddRefEntityToScene		= re.AddRefEntityToScene;
+	cgi->R_AddRefSpriteToScene		= re.AddRefSpriteToScene;
 	
-	cgi->R_AddLightToScene			= re.newre.AddLightToScene;
-	cgi->R_AddPolyToScene			= re.newre.AddPolyToScene;
-	cgi->R_AddTerrainMarkToScene	= re.newre.AddTerrainMarkToScene;
+	cgi->R_AddLightToScene			= re.AddLightToScene;
+	cgi->R_AddPolyToScene			= re.AddPolyToScene;
+	cgi->R_AddTerrainMarkToScene	= re.AddTerrainMarkToScene;
 	cgi->R_SetColor					= re.SetColor;
 	cgi->R_DrawStretchPic			= re.DrawStretchPic;
-	cgi->R_LoadFont					= re.newre.LoadFont;
-	cgi->R_DrawString				= re.newre.DrawString;
-	cgi->R_ModelBounds				= re.newre.ModelBounds;
-	cgi->R_ModelRadius				= re.newre.ModelRadius;
-	cgi->R_GetRenderEntity			= re.newre.GetRenderEntity;
-	cgi->R_Noise					= re.newre.Noise;
-	cgi->R_DebugLine				= re.newre.DebugLine;
+	cgi->R_LoadFont					= re.LoadFont;
+	cgi->R_DrawString				= re.DrawString;
+	cgi->R_ModelBounds				= re.ModelBounds;
+	cgi->R_ModelRadius				= re.ModelRadius;
+	cgi->R_GetRenderEntity			= re.GetRenderEntity;
+	cgi->R_Noise					= re.Noise;
+	cgi->R_DebugLine				= re.DebugLine;
 
 	cgi->GetShader					= CL_GetShaderPointer;
-	cgi->R_GetShaderWidth			= re.newre.GetShaderWidth;
-	cgi->R_GetShaderHeight			= re.newre.GetShaderHeight;
+	cgi->R_GetShaderWidth			= re.GetShaderWidth;
+	cgi->R_GetShaderHeight			= re.GetShaderHeight;
 
-	cgi->R_DrawBox					= re.newre.DrawBox;
-	cgi->R_SwipeBegin				= re.newre.SwipeBegin;
-	cgi->R_SwipePoint				= re.newre.SwipePoint;
-	cgi->R_SwipeEnd					= re.newre.SwipeEnd;
+	cgi->R_DrawBox					= re.DrawBox;
+	cgi->R_SwipeBegin				= re.SwipeBegin;
+	cgi->R_SwipePoint				= re.SwipePoint;
+	cgi->R_SwipeEnd					= re.SwipeEnd;
 
 	cgi->GetGameState				= CL_GetGameState;
 	cgi->GetSnapshot				= CL_GetSnapshot;
@@ -684,7 +684,7 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->Key_KeynumToBindString		= Key_KeynumToBindString;
 	cgi->Key_GetKeysForCommand		= Key_GetKeysForCommand;
 
-	cgi->R_Model_GetHandle			= re.newre.R_Model_GetHandle;
+	cgi->R_Model_GetHandle			= re.R_Model_GetHandle;
 
 	cgi->TIKI_NumAnims				= TIKI_NumAnims;
 	cgi->TIKI_CalculateBounds		= TIKI_CalculateBounds;
@@ -709,9 +709,9 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->Tag_NumForName				= TIKI_Tag_NameToNum;
 	cgi->Tag_NameForNum				= TIKI_Tag_NumToName;
 
-	cgi->ForceUpdatePose			= re.newre.ForceUpdatePose;
-	cgi->TIKI_Orientation			= re.newre.TIKI_Orientation;
-	cgi->TIKI_IsOnGround			= re.newre.TIKI_IsOnGround;
+	cgi->ForceUpdatePose			= re.ForceUpdatePose;
+	cgi->TIKI_Orientation			= re.TIKI_Orientation;
+	cgi->TIKI_IsOnGround			= re.TIKI_IsOnGround;
 
 	cgi->UI_ShowScoreBoard			= UI_ShowScoreboard_f;
 	cgi->UI_HideScoreBoard			= UI_HideScoreboard_f;

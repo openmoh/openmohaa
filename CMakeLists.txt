@@ -237,11 +237,13 @@ if (WITH_CLIENT)
 
 	file(GLOB_RECURSE SOURCES_CLIENT "code/client/*.c" "code/client/*.cpp" "code/qcommon/puff.c")
 	file(GLOB_RECURSE SOURCES_UILIB "code/uilib/*.c" "code/uilib/*.cpp")
-	#file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderer/*.c" "code/renderer/*.cpp")
-	include("code/renderergl2/glsl/shaders.cmake")
-	file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderercommon/*.c" "code/renderergl2/*.c" "code/renderergl2/*.cpp")
-	list(FILTER SOURCES_RENDERER EXCLUDE REGEX "code/renderergl2/tr_subs.c")
-	list(FILTER SOURCES_RENDERER EXCLUDE REGEX "code/renderergl2/tr_model.c")
+	file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderer/*.c" "code/renderer/*.cpp")
+
+	#include("code/renderergl2/glsl/shaders.cmake")
+	#file(GLOB_RECURSE SOURCES_RENDERER "code/sdl/*.c" "code/renderercommon/*.c" "code/renderergl2/*.c" "code/renderergl2/*.cpp")
+	#list(FILTER SOURCES_RENDERER EXCLUDE REGEX "code/renderergl2/tr_subs.c")
+	#list(FILTER SOURCES_RENDERER EXCLUDE REGEX "code/renderergl2/tr_model.c")
+
 	set(SOURCES_CLIENT_APP ${SOURCES_APP} ${SOURCES_SERVER} ${SOURCES_CLIENT} ${SOURCES_UILIB} ${SOURCES_LIBS} ${SOURCES_RENDERER} ${SHADER_SRCS})
 
 	add_executable(openmohaa ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_CLIENT_APP} ${SOURCES_CLIENT_PLATFORM_SPECIFIC})
