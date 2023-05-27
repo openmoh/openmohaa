@@ -48,3 +48,15 @@ typedef enum {
     viewlensflare = (1 << 1),
     additive = (1 << 2)
 } dlighttype_t;
+
+#if !defined _WIN32
+
+#define _3DFX_DRIVER_NAME	"libMesaVoodooGL.so.3.1"
+#define OPENGL_DRIVER_NAME	"libGL.so"
+
+#else
+
+#define _3DFX_DRIVER_NAME	"3dfxvgl"
+#define OPENGL_DRIVER_NAME	"opengl32"
+
+#endif	// !defined _WIN32

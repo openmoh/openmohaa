@@ -145,6 +145,7 @@ void GetRefAPI_new(refimport_t* ri, refexport_t* re)
     re->newre.R_Model_GetHandle = R_Model_GetHandle;
     re->newre.DrawStretchRaw = RE_StretchRaw;
     re->newre.DebugLine = R_DebugLine;
+    re->newre.DrawStretchPic = Draw_StretchPic;
     re->newre.DrawTilePic = Draw_TilePic;
     re->newre.DrawTilePicOffset = Draw_TilePicOffset;
     re->newre.DrawTrianglePic = Draw_TrianglePic;

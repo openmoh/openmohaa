@@ -48,6 +48,8 @@ typedef struct {
     void    (*SavePerformanceCounters)();
 
     void    (*Set2DWindow)(int x, int y, int w, int h, float left, float right, float bottom, float top, float n, float f);
+	void	(*DrawStretchPic) ( float x, float y, float w, float h, 
+		float s1, float t1, float s2, float t2, qhandle_t hShader );	// 0 = white
     void    (*DrawTilePic)(float x, float y, float w, float h, qhandle_t hShader);
     void    (*DrawTilePicOffset)(float x, float y, float w, float h, qhandle_t hShader, int offsetX, int offsetY);
     void    (*DrawTrianglePic)(vec2_t* points, vec2_t* texCoords, qhandle_t hShader);
