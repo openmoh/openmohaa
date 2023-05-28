@@ -248,8 +248,17 @@ if (WITH_CLIENT)
 
 	add_executable(openmohaa ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_CLIENT_APP} ${SOURCES_CLIENT_PLATFORM_SPECIFIC})
 	target_compile_definitions(openmohaa PRIVATE NO_SCRIPTENGINE APP_MODULE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
-	# Use OpenAL
-	#target_compile_definitions(openmohaa PRIVATE USE_OPENAL=1)
+
+	if (USE_OPENAL)
+		# Try to use OpenAL
+		find_package(OpenAL)
+		if (OPENAL_FOUND)
+			target_compile_definitions(openmohaa PRIVATE USE_OPENAL=1)
+			target_include_directories(openmohaa PRIVATE ${OPENAL_INCLUDE_DIR})
+			target_link_libraries(openmohaa PRIVATE ${OPENAL_LIBRARY})
+		endif()
+	endif()
+
 	target_compile_features(openmohaa PUBLIC cxx_nullptr)
 	target_compile_features(openmohaa PUBLIC c_variadic_macros)
 	target_link_libraries(openmohaa PRIVATE jpeg8)
