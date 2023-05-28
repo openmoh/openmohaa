@@ -49,6 +49,7 @@ extern void (APIENTRYP qglUnlockArraysEXT) (void);
 #define QGL_1_1_PROCS \
 	GLE(void, BindTexture, GLenum target, GLuint texture) \
 	GLE(void, BlendFunc, GLenum sfactor, GLenum dfactor) \
+	GLE(void, CallList, GLuint list) \
 	GLE(void, ClearColor, GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) \
 	GLE(void, Clear, GLbitfield mask) \
 	GLE(void, ClearStencil, GLint s) \
@@ -64,11 +65,15 @@ extern void (APIENTRYP qglUnlockArraysEXT) (void);
 	GLE(void, Enable, GLenum cap) \
 	GLE(void, Finish, void) \
 	GLE(void, Flush, void) \
+	GLE(void, Fogf, GLenum pname, GLfloat param) \
+	GLE(void, Fogfv, GLenum pname, const GLfloat *params) \
+	GLE(void, Fogi, GLenum pname, GLint param) \
 	GLE(void, GenTextures, GLsizei n, GLuint *textures ) \
 	GLE(void, GetBooleanv, GLenum pname, GLboolean *params) \
 	GLE(GLenum, GetError, void) \
 	GLE(void, GetIntegerv, GLenum pname, GLint *params) \
 	GLE(const GLubyte *, GetString, GLenum name) \
+	GLE(void, LineStipple, GLint factor, GLushort pattern) \
 	GLE(void, LineWidth, GLfloat width) \
 	GLE(void, PolygonOffset, GLfloat factor, GLfloat units) \
 	GLE(void, ReadPixels, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels) \
