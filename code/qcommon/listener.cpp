@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptexception.h"
 #include "Linklist.h"
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 #include "archive.h"
 #include "scriptmaster.h"
 #include "scriptthread.h"
@@ -56,7 +56,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 con_map< Event *, EventDef > Event::eventDefList;
 con_arrayset< command_t, command_t > Event::commandList;
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 con_map< const_str, unsigned int > Event::normalCommandList;
 con_map< const_str, unsigned int > Event::returnCommandList;
@@ -1435,7 +1435,7 @@ void Event::PendingEvents
 	EVENT_Printf( "%d pending events as of %.2f\n", num, EVENT_time );
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 /*
 =======================
@@ -1991,7 +1991,7 @@ Event::Event( str command )
 #endif
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 /*
 =======================
@@ -2116,7 +2116,7 @@ void Event::AddNil( void )
 	variable.Clear();
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 /*
 =======================
@@ -2228,7 +2228,7 @@ bool Event::GetBoolean( int pos )
 	return variable.booleanNumericValue();
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 /*
 =======================
@@ -2293,7 +2293,7 @@ Listener * Event::GetListener( int pos )
 }
 
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 /*
 =======================
@@ -2468,7 +2468,7 @@ qboolean Event::IsNumericAt( int pos )
 	return data[ pos - 1 ].IsNumeric();
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 /*
 =======================
@@ -2581,7 +2581,7 @@ Listener
 */
 Listener::Listener()
 {
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 	m_EndList = NULL;
 
@@ -2602,7 +2602,7 @@ Listener::~Listener()
 {
 	CancelPendingEvents();
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 	Unregister( "delete" );
 	Unregister( "remove" );
@@ -2631,7 +2631,7 @@ void Listener::Archive( Archiver &arc )
 {
 	Class::Archive( arc );
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 	byte flag = 0;
 
@@ -3205,7 +3205,7 @@ Listener *Listener::GetScriptOwner( void )
 	return NULL;
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 /*
 =======================
@@ -4092,7 +4092,7 @@ void Listener::CommandDelay( Event *ev )
 	PostEvent( e, ev->GetFloat( 1 ) );
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 /*
 =======================
@@ -4614,7 +4614,7 @@ CLASS_DECLARATION( Class, Listener, NULL )
 	{ &EV_Listener_InheritsFrom,				&Listener::EventInheritsFrom },
 	{ &EV_Listener_IsInheritedBy,				&Listener::EventIsInheritedBy },
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	{ &EV_Listener_CancelFor,					&Listener::CancelFor },
 	{ &EV_Listener_CreateReturnThread,			&Listener::CreateReturnThread },
 	{ &EV_Listener_CreateThread,				&Listener::CreateThread },

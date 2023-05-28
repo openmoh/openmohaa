@@ -132,7 +132,7 @@ public:
 	qboolean				IsListener( void );
 	qboolean				IsNumeric( void );
 	qboolean				IsConstArray() const;
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	qboolean				IsSimpleEntity( void );
 #endif
 	qboolean				IsString( void );
@@ -149,7 +149,7 @@ public:
 	bool					booleanNumericValue( void );
 	bool					booleanValue( void ) const;
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	str&					getName( void );
 
 	short3&					GetKey();
@@ -170,7 +170,7 @@ public:
 	ScriptVariable			*constArrayValue( void );
 	void					setConstArrayValue( ScriptVariable *pVar, unsigned int size );
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	const_str				constStringValue( void ) const;
 	void					setConstStringValue( const_str s );
 #endif
@@ -197,7 +197,7 @@ public:
 	str						stringValue( void ) const;
 	void					setStringValue( str newvalue );
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	SimpleEntity			*simpleEntityValue( void ) const;
 #endif
 
@@ -278,7 +278,7 @@ public:
 	void		setValue( const ScriptVariable& var );
 };
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 class ScriptVariableList : public Class
 {

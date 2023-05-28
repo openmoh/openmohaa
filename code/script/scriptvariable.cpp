@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../game/navigate.h"
 #endif
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 #include "world.h"
 #include "scriptmaster.h"
 #include "simpleentity.h"
@@ -93,7 +93,7 @@ void Entry< short3, ScriptVariable >::Archive
 	if( arc.Loading() )
 	{
 		value.Archive( arc );
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 		key = value.GetKey();
 #endif
 	}
@@ -226,7 +226,7 @@ void ScriptPointer::Archive( Archiver& arc, ScriptPointer *& pointerValue )
 
 void ScriptVariable::Archive(Archiver& arc)
 {
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	const_str s;
 
 	if (arc.Loading())
@@ -277,7 +277,7 @@ void ScriptVariable::ArchiveInternal(Archiver& arc)
 		arc.ArchiveChar(&m_data.charValue);
 		break;
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	case VARIABLE_CONSTSTRING:
 		if (arc.Loading())
 		{
@@ -688,7 +688,7 @@ qboolean ScriptVariable::IsConstArray() const
 		|| type == VARIABLE_SAFECONTAINER;
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 qboolean ScriptVariable::IsSimpleEntity( void )
 {
@@ -725,7 +725,7 @@ void ScriptVariable::PrintValue( void )
 		printf("None");
 		break;
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	case VARIABLE_CONSTSTRING:
 		printf("%s", Director.GetString(m_data.intValue).c_str());
 		break;
@@ -953,7 +953,7 @@ ScriptVariable *ScriptVariable::constArrayValue( void )
 	return m_data.constArrayValue->constArrayValue;
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 str getname_null = "";
 
@@ -1138,7 +1138,7 @@ Listener *ScriptVariable::listenerValue( void ) const
 {
 	switch( type )
 	{
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	case VARIABLE_CONSTSTRING:
 		return world->GetScriptTarget( Director.GetString( m_data.intValue ) );
 
@@ -1183,7 +1183,7 @@ void ScriptVariable::newPointer( void )
 	m_data.pointerValue->add( this );
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 SimpleEntity *ScriptVariable::simpleEntityValue( void ) const
 {
@@ -1201,7 +1201,7 @@ str ScriptVariable::stringValue() const
 	case VARIABLE_NONE:
 		return "NIL";
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	case VARIABLE_CONSTSTRING:
 		return Director.GetString( m_data.intValue );
 #endif
@@ -1221,7 +1221,7 @@ str ScriptVariable::stringValue() const
 	case VARIABLE_LISTENER:
 		if( m_data.listenerValue->Pointer() )
 		{
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 			if( m_data.listenerValue->Pointer()->isSubclassOf( SimpleEntity ) )
 			{
 				SimpleEntity *s = ( SimpleEntity * )m_data.listenerValue->Pointer();
@@ -1297,7 +1297,7 @@ Vector ScriptVariable::vectorValue( void ) const
 			throw ScriptException( "Cannot cast NULL to vector" );
 		}
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 		if( !checkInheritance( &SimpleEntity::ClassInfo, m_data.listenerValue->Pointer()->classinfo() ) )
 		{
 			throw ScriptException( "Cannot cast '%s' to vector", GetTypeName() );
@@ -1485,7 +1485,7 @@ void ScriptVariable::setConstArrayValue( ScriptVariable *pVar, unsigned int size
 	m_data.constArrayValue = constArray;
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 const_str ScriptVariable::constStringValue( void ) const
 {
@@ -2444,7 +2444,7 @@ ScriptVariable ScriptVariable::operator--( int )
 	return *this;
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 ScriptVariableList::ScriptVariableList()
 {

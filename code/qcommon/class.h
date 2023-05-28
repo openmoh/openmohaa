@@ -38,7 +38,7 @@ class Event;
 #define isSubclassOf(classname)   inheritsFrom(&classname::ClassInfo)
 #define isSuperclassOf(classname) isInheritedBy(&classname::ClassInfo)
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 #define CLASS_DECLARATION(parentclass, classname, classid)                     \
     ClassDef classname::ClassInfo(#classname, classid, #parentclass,           \
@@ -154,7 +154,7 @@ public:
     ClassDef* next;
     ClassDef* prev;
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
     con_set<const_str, const_str>* waitTillSet;
 #endif
 
@@ -178,7 +178,7 @@ public:
     static int compareClasses(const void* arg1, const void* arg2);
     static void SortClassList(Container<ClassDef*>* sortedList);
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
     void AddWaitTill(str s);
     void AddWaitTill(const_str s);
     void RemoveWaitTill(str s);

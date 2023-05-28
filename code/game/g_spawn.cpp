@@ -401,7 +401,7 @@ Listener *SpawnArgs::SpawnInternal( void )
 	qboolean		tikiWasStatic; // used to determine if entity was intentionally suppressed
 	const char		*key, *value;
 	str				keyname;
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	unsigned int	eventnum;
 	EventDef		*def;
 	ScriptVariable	*var;
@@ -482,7 +482,7 @@ Listener *SpawnArgs::SpawnInternal( void )
 			// don't count the prefix
 			keyname = ( key + 1 );
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 			// initialize the object vars
 			varList = obj->Vars();
 
@@ -537,7 +537,7 @@ Listener *SpawnArgs::SpawnInternal( void )
 		{
 			keyname = ( key + 1 );
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 			varList = obj->Vars();
 
 			var = varList->GetVariable( keyname );

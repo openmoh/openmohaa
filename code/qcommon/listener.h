@@ -235,7 +235,7 @@ inline bool operator==( const str &name, const command_t &command )
 	return command.command == name;
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 inline bool operator==( const command_t &cmd1, const command_t &cmd2 )
 {
 	return ( cmd2.command == cmd1.command && ( cmd2.type == ( uchar )-1 || cmd2.type == cmd1.type ) );
@@ -372,7 +372,7 @@ public:
 
 	class PathNode	*GetPathNode( int pos );
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	SimpleEntity	*GetSimpleEntity( int pos );
 #endif
 
@@ -389,7 +389,7 @@ public:
 	qboolean	IsListenerAt( int pos );
 	qboolean	IsNilAt( int pos );
 	qboolean	IsNumericAt( int pos );
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	qboolean	IsSimpleEntityAt( int pos );
 #endif
 	qboolean	IsStringAt( int pos );
@@ -446,7 +446,7 @@ using ListenerPtr = SafePtr< Listener >;
 class Listener : public Class
 {
 public:
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	con_set< const_str, ConList > *m_NotifyList;
 	con_set< const_str, ConList > *m_WaitForList;
 	con_set< const_str, ConList > *m_EndList;
@@ -456,7 +456,7 @@ public:
 	static bool		EventSystemStarted;
 
 private:
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	void			ExecuteScriptInternal( Event *ev, ScriptVariable& scriptVariable );
 	void			ExecuteThreadInternal( Event *ev, ScriptVariable& returnValue );
 	void			WaitExecuteScriptInternal( Event *ev, ScriptVariable& returnValue );
@@ -468,7 +468,7 @@ private:
 public:
 	CLASS_PROTOTYPE( Listener );
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	/* Game functions */
 	virtual ScriptThread *CreateThreadInternal( const ScriptVariable& label );
 	virtual ScriptThread *CreateScriptInternal( const ScriptVariable& label );
@@ -509,7 +509,7 @@ public:
 	bool					ProcessScriptEvent( Event &ev );
 	bool					ProcessScriptEvent( Event *ev );
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 	void					CreateVars( void );
 	void					ClearVars( void );
@@ -564,7 +564,7 @@ public:
 	void					EventIsInheritedBy( Event *ev );
 	void					GetClassname( Event *ev );
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	void					CancelFor( Event *ev );
 	void					CreateReturnThread( Event *ev );
 	void					CreateThread( Event *ev );

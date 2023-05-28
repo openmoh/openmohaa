@@ -167,7 +167,7 @@ file(GLOB_RECURSE SOURCES_GAME "code/game/*.c" "code/game/*.cpp" "code/parser/*.
 set(SOURCES_GAME_LIB ${SOURCES_SHARED} ${SOURCES_GAME})
 
 add_library(fgame SHARED ${SOURCES_GAME_LIB})
-target_compile_definitions(fgame PRIVATE GAME_DLL ARCHIVE_SUPPORTED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+target_compile_definitions(fgame PRIVATE GAME_DLL WITH_SCRIPT_ENGINE ARCHIVE_SUPPORTED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
 target_include_directories(fgame PUBLIC "code/qcommon" "code/script" "code/game")
 target_include_directories(fgame PRIVATE "code/parser")
 target_compile_features(fgame PUBLIC cxx_nullptr)
@@ -185,7 +185,7 @@ file(GLOB_RECURSE SOURCES_SERVER "code/server/*.c" "code/server/*.cpp")
 set(SOURCES_SERVER_APP ${SOURCES_APP} ${SOURCES_SERVER})
 
 add_executable(omohaaded ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_SERVER_APP} "code/null/null_client.c" "code/null/null_input.c" "code/null/null_snddma.c")
-target_compile_definitions(omohaaded PRIVATE NO_SCRIPTENGINE APP_MODULE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+target_compile_definitions(omohaaded PRIVATE APP_MODULE DEDICATED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
 target_compile_features(omohaaded PUBLIC cxx_nullptr)
 target_compile_features(omohaaded PUBLIC c_variadic_macros)
 # Gamespy dependency
@@ -220,7 +220,7 @@ if (WITH_CLIENT)
 	set(SOURCES_CGAME_LIB ${SOURCES_SHARED} ${SOURCES_CGAME} ${SOURCES_BG})
 
 	add_library(cgame SHARED ${SOURCES_CGAME_LIB})
-	target_compile_definitions(cgame PRIVATE CGAME_DLL NO_SCRIPTENGINE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+	target_compile_definitions(cgame PRIVATE CGAME_DLL TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
 	target_include_directories(cgame PUBLIC "code/qcommon" "code/cgame" "code/script")
 	target_compile_features(cgame PUBLIC cxx_nullptr)
 	target_compile_features(cgame PUBLIC c_variadic_macros)
@@ -247,7 +247,7 @@ if (WITH_CLIENT)
 	set(SOURCES_CLIENT_APP ${SOURCES_APP} ${SOURCES_SERVER} ${SOURCES_CLIENT} ${SOURCES_UILIB} ${SOURCES_LIBS} ${SOURCES_RENDERER} ${SHADER_SRCS})
 
 	add_executable(openmohaa ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_CLIENT_APP} ${SOURCES_CLIENT_PLATFORM_SPECIFIC})
-	target_compile_definitions(openmohaa PRIVATE NO_SCRIPTENGINE APP_MODULE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+	target_compile_definitions(openmohaa PRIVATE APP_MODULE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
 
 	if (USE_OPENAL)
 		# Try to use OpenAL
@@ -307,8 +307,9 @@ if (WITH_CLIENT)
 	elseif(UNIX)
 		find_package(Threads)
 
-		target_link_libraries(openmohaa PRIVATE m)
+		target_link_libraries(openmohaa PRIVATE m rt)
 		target_link_libraries(openmohaa PRIVATE stdc++)
+		target_link_libraries(openmohaa PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 		
 		find_package(SDL2 REQUIRED)
 		target_include_directories(openmohaa PUBLIC ${SDL2_INCLUDE_DIRS})

@@ -51,7 +51,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #endif
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 #include "scriptmaster.h"
 
@@ -369,7 +369,7 @@ ClassDef::ClassDef()
 	this->prev				= this;
 	this->next				= this;
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	this->waitTillSet		= NULL;
 #endif
 }
@@ -393,7 +393,7 @@ ClassDef::ClassDef( const char *classname, const char *classID, const char *supe
 	this->classSize			= classSize;
 	this->super				= getClass( superclass );
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 	this->waitTillSet		= NULL;
 #endif
 
@@ -411,7 +411,7 @@ ClassDef::ClassDef( const char *classname, const char *classID, const char *supe
 	}
 
 	// Add to front of list
-	LL_Add( classlist, this, prev, next );
+	LL_AddFirst( classlist, this, prev, next );
 
 	numclasses++;
 }
@@ -446,7 +446,7 @@ ClassDef::~ClassDef()
 	}
 }
 
-#ifndef NO_SCRIPTENGINE
+#ifdef WITH_SCRIPT_ENGINE
 
 void ClassDef::AddWaitTill( str s )
 {
