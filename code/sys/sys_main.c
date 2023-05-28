@@ -851,13 +851,16 @@ int main( int argc, char **argv )
 		}
 
 		containsSpaces = strchr(argv[i], ' ') != NULL;
-		if (containsSpaces)
-			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
+		//
+		// Seriously ioquake3, why? Why??
+		//
+		//if (containsSpaces)
+		//	Q_strcat( commandLine, sizeof( commandLine ), "\"" );
 
 		Q_strcat( commandLine, sizeof( commandLine ), argv[ i ] );
 
-		if (containsSpaces)
-			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
+		//if (containsSpaces)
+		//	Q_strcat( commandLine, sizeof( commandLine ), "\"" );
 
 		Q_strcat( commandLine, sizeof( commandLine ), " " );
 	}
