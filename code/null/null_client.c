@@ -27,7 +27,7 @@ clientStatic_t cls;
 clientActive_t cl;
 clientGameExport_t *cge;
 
-void CL_Shutdown( void ) {
+void CL_Shutdown(const char* finalmsg, qboolean disconnect, qboolean quit) {
 }
 
 void CL_Init( void ) {

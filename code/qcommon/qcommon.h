@@ -914,7 +914,7 @@ void		Com_BeginRedirect (char *buffer, int buffersize, void (*flush)(char *));
 void		Com_EndRedirect( void );
 void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
-void 		QDECL Com_Error( int level, const char *fmt, ... ) __attribute__ ((format (printf, 2, 3)));
+void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
 void 		Com_Quit_f( void );
 
 int			Com_Milliseconds( void );	// will be journaled properly
@@ -1089,7 +1089,7 @@ void CL_InitKeyCommands( void );
 
 void CL_Init( void );
 void CL_Disconnect( qboolean showMainMenu );
-void CL_Shutdown( void );
+void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit);
 void CL_SetFrameNumber(int frameNumber);
 void CL_Frame( int msec );
 qboolean CL_GameCommand( void );
@@ -1259,10 +1259,11 @@ cpuFeatures_t Sys_GetProcessorFeatures( void );
 
 void	Sys_SetErrorText( const char *text );
 
-void	Sys_SendPacket( size_t length, const void *data, netadr_t to );
+void	Sys_SendPacket( int length, const void *data, netadr_t to );
+
+qboolean	Sys_StringToAdr( const char *s, netadr_t *a, netadrtype_t family );
 qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message );
 
-qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
 //Does NOT parse port numbers, only base addresses.
 
 qboolean	Sys_IsLANAddress (netadr_t adr);

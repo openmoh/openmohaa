@@ -151,7 +151,7 @@ void Z_FreeTags( int tag )
 Z_TagMalloc
 ========================
 */
-void *Z_TagMalloc( size_t size, int tag )
+void *Z_TagMalloc( int size, int tag )
 {
 	memblock_t *block;
 
@@ -497,7 +497,7 @@ void Com_TouchMemory( void ) {
 Z_Malloc
 ========================
 */
-void *Z_Malloc( size_t size ) {
+void *Z_Malloc( int size ) {
 	void *ptr;
 
 	ptr = Z_TagMalloc( size, TAG_GENERAL );

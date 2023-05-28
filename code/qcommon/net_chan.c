@@ -689,49 +689,66 @@ NET_StringToAdr
 Traps "localhost" for loopback, passes everything else to system
 =============
 */
-qboolean	NET_StringToAdr( const char *s, netadr_t *a ) {
-	qboolean	r;
-	char	base[MAX_STRING_CHARS];
-	char	*port;
+int NET_StringToAdr( const char *s, netadr_t *a, netadrtype_t family )
+{
+	char	base[MAX_STRING_CHARS], *search;
+	char	*port = NULL;
 
 	if (!strcmp (s, "localhost")) {
 		Com_Memset (a, 0, sizeof(*a));
 		a->type = NA_LOOPBACK;
-		/*// wombat: localhost resolves to 0.0.0.0 ?
-		a->ip[0] = 127;
-		a->ip[1] = 0;
-		a->ip[2] = 0;
-		a->ip[3] = 1;*/
-		return qtrue;
+// as NA_LOOPBACK doesn't require ports report port was given.
+		return 1;
 	}
 
-	// look for a port number
 	Q_strncpyz( base, s, sizeof( base ) );
-	port = strstr( base, ":" );
-	if ( port ) {
-		*port = 0;
-		port++;
+	
+	if(*base == '[' || Q_CountChar(base, ':') > 1)
+	{
+		// This is an ipv6 address, handle it specially.
+		search = strchr(base, ']');
+		if(search)
+		{
+			*search = '\0';
+			search++;
+
+			if(*search == ':')
+				port = search + 1;
+		}
+		
+		if(*base == '[')
+			search = base + 1;
+		else
+			search = base;
+	}
+	else
+	{
+		// look for a port number
+		port = strchr( base, ':' );
+		
+		if ( port ) {
+			*port = '\0';
+			port++;
+		}
+		
+		search = base;
 	}
 
-	r = Sys_StringToAdr( base, a );
-
-	if ( !r ) {
+	if(!Sys_StringToAdr(search, a, family))
+	{
 		a->type = NA_BAD;
-		return qfalse;
+		return 0;
 	}
 
-	// inet_addr returns this if out of range
-	if ( a->ip[0] == 255 && a->ip[1] == 255 && a->ip[2] == 255 && a->ip[3] == 255 ) {
-		a->type = NA_BAD;
-		return qfalse;
+	if(port)
+	{
+		a->port = BigShort((short) atoi(port));
+		return 1;
 	}
-
-	if ( port ) {
-		a->port = BigShort( (short)atoi( port ) );
-	} else {
-		a->port = BigShort( PORT_SERVER );
+	else
+	{
+		a->port = BigShort(PORT_SERVER);
+		return 2;
 	}
-
-	return qtrue;
 }
 

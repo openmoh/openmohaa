@@ -164,7 +164,8 @@ typedef struct client_s {
 	int				deltaMessage;		// frame last client usercmd message
 	int				nextReliableTime;	// svs.time when another reliable command will be allowed
 	int				lastPacketTime;		// svs.time when packet was last received
-	int				lastConnectTime;	// svs.time when connection started
+    int				lastConnectTime;	// svs.time when connection started
+    int				lastSnapshotTime;	// svs.time of last sent snapshot
 	int				nextSnapshotTime;	// send another snapshot when svs.time >= nextSnapshotTime
 	qboolean		rateDelayed;		// true if nextSnapshotTime was set based on rate instead of snapshotMsec
 	int				timeoutCount;		// must timeout a few frames in a row so debugging doesn't break

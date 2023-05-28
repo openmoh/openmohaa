@@ -1134,7 +1134,7 @@ static void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
     pf->facets = Hunk_Alloc(numFacets * sizeof(*pf->facets), h_dontcare);
     Com_Memcpy(pf->facets, facets, numFacets * sizeof(*pf->facets));
     pf->planes = Hunk_Alloc(numPlanes * sizeof(*pf->planes), h_dontcare);
-    Com_Memcpy(pf->planes, planes, numPlanes * sizeof(*pf->planes), h_dontcare);
+    Com_Memcpy(pf->planes, planes, numPlanes * sizeof(*pf->planes));
 }
 
 
