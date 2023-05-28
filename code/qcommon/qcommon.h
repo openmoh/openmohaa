@@ -288,10 +288,14 @@ typedef struct {
     int			challenge;
     int			lastSentTime;
     int			lastSentSize;
+
+#ifdef LEGACY_PROTOCOL
+	qboolean	compat;
+#endif
 } netchan_t;
 
 void Netchan_Init( int qport );
-void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport );
+void Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport, int challenge, qboolean compat);
 
 void Netchan_Transmit( netchan_t *chan, size_t length, const byte *data );
 void Netchan_TransmitNextFragment( netchan_t *chan );
@@ -307,7 +311,8 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION	TARGET_GAME_PROTOCOL
+#define	PROTOCOL_VERSION			TARGET_GAME_PROTOCOL
+#define PROTOCOL_LEGACY_VERSION		PROTOCOL_VERSION
 // su44: MoHAA v 1.00 uses protocol version 6
 
 // maintain a list of compatible protocols for demo playing

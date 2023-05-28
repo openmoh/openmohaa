@@ -1455,6 +1455,17 @@ void Com_Init( char *commandLine ) {
 	s = va( "%s %s %s", PRODUCT_VERSION_FULL, PLATFORM_STRING, PRODUCT_DATE );
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
 	com_shortversion = Cvar_Get( "shortversion", TARGET_GAME_VERSION, CVAR_ROM );
+	com_gamename = Cvar_Get("com_gamename", TARGET_GAME_NAME, CVAR_SERVERINFO | CVAR_INIT);
+	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_INIT);
+#ifdef LEGACY_PROTOCOL
+	com_legacyprotocol = Cvar_Get("com_legacyprotocol", va("%i", PROTOCOL_LEGACY_VERSION), CVAR_INIT);
+
+	// Keep for compatibility with old mods / mods that haven't updated yet.
+	if(com_legacyprotocol->integer > 0)
+		Cvar_Get("protocol", com_legacyprotocol->string, CVAR_ROM);
+	else
+#endif
+		Cvar_Get("protocol", com_protocol->string, CVAR_ROM);
 
 	Sys_Init();
 	Netchan_Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random

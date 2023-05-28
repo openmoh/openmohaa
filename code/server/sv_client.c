@@ -237,16 +237,28 @@ void SV_DirectConnect( netadr_t from ) {
 	const char	*denied;
 	int			count;
 	char		*ip;
+#ifdef LEGACY_PROTOCOL
+	qboolean	compat = qfalse;
+#endif
 
 	Com_DPrintf( "SVC_DirectConnect ()\n" );
 
 	Q_strncpyz( userinfo, Cmd_Argv( 1 ), sizeof( userinfo ) );
 
 	version = atoi( Info_ValueForKey( userinfo, "protocol" ) );
-	if ( version != PROTOCOL_VERSION ) {
-		NET_OutOfBandPrint( NS_SERVER, from, "print\nServer uses protocol version %i.\n", PROTOCOL_VERSION );
-		Com_DPrintf ("    rejected connect from version %i\n", version);
-		return;
+#ifdef LEGACY_PROTOCOL
+	if(version > 0 && com_legacyprotocol->integer == version)
+		compat = qtrue;
+	else
+#endif
+	{
+		if(version != com_protocol->integer)
+		{
+			NET_OutOfBandPrint(NS_SERVER, from, "print\nServer uses protocol version %i "
+					   "(yours is %i).\n", com_protocol->integer, version);
+			Com_DPrintf("    rejected connect from version %i\n", version);
+			return;
+		}
 	}
 
 	challenge = atoi( Info_ValueForKey( userinfo, "challenge" ) );
@@ -416,7 +428,12 @@ gotnewcl:
 	newcl->challenge = challenge;
 
 	// save the address
-	Netchan_Setup (NS_SERVER, &newcl->netchan , from, qport);
+#ifdef LEGACY_PROTOCOL
+	newcl->compat = compat;
+	Netchan_Setup(NS_SERVER, &newcl->netchan, from, qport, challenge, compat);
+#else
+	Netchan_Setup(NS_SERVER, &newcl->netchan, from, qport, challenge, qfalse);
+#endif
 	// init the netchan queue
 	newcl->netchan_end_queue = &newcl->netchan_start_queue;
 
@@ -468,6 +485,31 @@ gotnewcl:
 	}
 }
 
+/*
+=====================
+SV_FreeClient
+
+Destructor for data allocated in a client structure
+=====================
+*/
+void SV_FreeClient(client_t* client)
+{
+#ifdef USE_VOIP
+    int index;
+
+    for (index = client->queuedVoipIndex; index < client->queuedVoipPackets; index++)
+    {
+        index %= ARRAY_LEN(client->voipPacket);
+
+        Z_Free(client->voipPacket[index]);
+    }
+
+    client->queuedVoipPackets = 0;
+#endif
+
+    SV_Netchan_FreeQueue(client);
+    SV_CloseDownload(client);
+}
 
 /*
 =====================
@@ -496,10 +538,10 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 				break;
 			}
 		}
-	}
+    }
 
-	// Kill any download
-	SV_CloseDownload( drop );
+    // Free all allocated data on the client structure
+    SV_FreeClient(drop);
 
 	// tell everyone why they got dropped
 	SV_SendServerCommand( NULL, "print \"%s %s\n\"", drop->name, reason );

@@ -48,6 +48,8 @@ extern "C" {
 #define PRODUCT_DATE					__DATE__
 
 #define BASEGAME				"main"
+// We're always legacy
+#define LEGACY_PROTOCOL
 
 //
 // The target type specifies which content pack the engine targets.

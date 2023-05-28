@@ -119,6 +119,9 @@ typedef enum {
 typedef struct netchan_buffer_s {
 	msg_t           msg;
 	byte            msgBuffer[MAX_MSGLEN];
+#ifdef LEGACY_PROTOCOL
+	char		clientCommandString[MAX_STRING_CHARS];	// valid command string for SV_Netchan_Encode
+#endif
 	struct netchan_buffer_s *next;
 } netchan_buffer_t;
 
@@ -187,7 +190,11 @@ typedef struct client_s {
 	qboolean locprint;
 	int XOffset;
 	int YOffset;
-	char centerprint[ 256 ];
+    char centerprint[256];
+
+#ifdef LEGACY_PROTOCOL
+    qboolean		compat;
+#endif
 } client_t;
 
 //=============================================================================
@@ -542,6 +549,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 void SV_Netchan_Transmit( client_t *client, msg_t *msg);
 int SV_Netchan_TransmitNextFragment( client_t *client );
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
+void SV_Netchan_FreeQueue(client_t *client);
 
 //
 // sv_gamespy.c

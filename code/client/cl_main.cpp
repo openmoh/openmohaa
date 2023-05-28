@@ -1826,7 +1826,16 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 		port = Cvar_VariableValue ("net_qport");
 
 		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
-		Info_SetValueForKey( info, "protocol", va("%i", PROTOCOL_VERSION ) );
+		
+#ifdef LEGACY_PROTOCOL
+		if(com_legacyprotocol->integer == com_protocol->integer)
+			clc.compat = qtrue;
+
+		if(clc.compat)
+			Info_SetValueForKey(info, "protocol", va("%i", com_legacyprotocol->integer));
+		else
+#endif
+			Info_SetValueForKey(info, "protocol", va("%i", com_protocol->integer));
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
 		Info_SetValueForKey(info, "version", TARGET_GAME_VERSION);
@@ -2124,7 +2133,15 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 				NET_AdrToString( clc.serverAddress ) );
 			return;
 		}
-		Netchan_Setup (NS_CLIENT, &clc.netchan, from, Cvar_VariableValue( "net_qport" ) );
+
+#ifdef LEGACY_PROTOCOL
+		Netchan_Setup(NS_CLIENT, &clc.netchan, from, Cvar_VariableValue("net_qport"),
+			      clc.challenge, clc.compat);
+#else
+		Netchan_Setup(NS_CLIENT, &clc.netchan, from, Cvar_VariableValue("net_qport"),
+			      clc.challenge, qfalse);
+#endif
+
 		clc.state = CA_CONNECTED;
 		clc.lastPacketSentTime = -9999;		// send first packet immediately
 		return;
