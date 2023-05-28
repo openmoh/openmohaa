@@ -83,7 +83,9 @@ These are the tools required on Unix :
 
 **clang-3.5** and **gcc-4.8.5** should work (tested on Ubuntu 16.04). Use the latest possible version of those compilers.
 
-1 line install command with latest clang version : `sudo apt-get install -y ninja-build cmake make clang-15 lld-15 flex bison`
+SDL2 library is required (libsdl2-dev).
+
+1 line install command with latest clang version : `sudo apt-get install -y ninja-build cmake make clang-15 lld-15 flex bison libsdl2-dev`
 
 Example with **CMake**, **clang-15** and **ninja-build** installed:
 ```sh
