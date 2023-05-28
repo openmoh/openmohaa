@@ -152,6 +152,8 @@ int serverStatusCount;
 	void hA3Dg_ExportRenderGeom (refexport_t *incoming_re);
 #endif
 
+static int noGameRestart = qfalse;
+
 extern void SV_BotFrame( int time );
 void CL_CheckForResend( void );
 void CL_ShowIP_f(void);
@@ -3278,22 +3280,25 @@ CL_Shutdown
 
 ===============
 */
-void CL_Shutdown( void ) {
+void CL_Shutdown(const char* finalmsg, qboolean disconnect, qboolean quit) {
 	static qboolean recursive = qfalse;
 
 	// check whether the client is running at all.
 	if(!(com_cl_running && com_cl_running->integer))
 		return;
-
-	Com_Printf( "----- CL_Shutdown -----\n" );
+	
+	Com_Printf( "----- Client Shutdown (%s) -----\n", finalmsg );
 
 	if ( recursive ) {
 		printf ("recursive shutdown\n");
 		return;
 	}
-	recursive = qtrue;
+    recursive = qtrue;
 
-	CL_Disconnect( qtrue );
+    noGameRestart = quit;
+
+	if(disconnect)
+		CL_Disconnect(qtrue);
 
 	S_Shutdown();
 	CL_ShutdownRef();
