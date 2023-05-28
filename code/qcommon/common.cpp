@@ -1474,6 +1474,10 @@ void Com_Init( char *commandLine ) {
 #endif
 		Cvar_Get("protocol", com_protocol->string, CVAR_ROM);
 
+#ifndef DEDICATED
+	con_autochat = Cvar_Get("con_autochat", "1", CVAR_ARCHIVE);
+#endif
+
 	Sys_Init();
 	Netchan_Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random
 	SV_Init();
