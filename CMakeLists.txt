@@ -265,10 +265,12 @@ if (WITH_CLIENT)
 	# Gamespy dependency
 	add_dependencies(openmohaa gcd)
 	target_link_libraries(openmohaa PRIVATE gcd)
-	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib" "code/SDL2/include-2.0.22" "code/jpeg-8c")
+	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib" "code/jpeg-8c")
 	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
 
 	if(WIN32)
+		target_include_directories(openmohaa PUBLIC "code/SDL2/include-2.0.22")
+
 		if (MSVC)
 			target_link_options(openmohaa PRIVATE "/MANIFEST:NO")
 
@@ -294,7 +296,7 @@ if (WITH_CLIENT)
 				)
 			endif()
 
-			target_link_libraries(openmohaa PRIVATE opengl32 sdl2 sdl2main)
+			target_link_libraries(openmohaa PRIVATE sdl2 sdl2main)
 		endif()
 
 		target_link_libraries(openmohaa PRIVATE wsock32 ws2_32)
@@ -303,16 +305,22 @@ if (WITH_CLIENT)
 		INSTALL(FILES $<TARGET_PDB_FILE:cgame> DESTINATION "${TARGET_BASE_GAME}" OPTIONAL)
 		INSTALL(FILES $<TARGET_PDB_FILE:openmohaa> DESTINATION "./" OPTIONAL)
 	elseif(UNIX)
-		find_package(OpenGL REQUIRED)
-		find_package(GLUT REQUIRED)
-		find_package(X11 REQUIRED)
 		find_package(Threads)
 
-		target_include_directories(openmohaa PRIVATE ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
-		target_link_libraries(openmohaa PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 		target_link_libraries(openmohaa PRIVATE m)
 		target_link_libraries(openmohaa PRIVATE stdc++)
-		target_link_libraries(openmohaa PRIVATE ${X11_LIBRARIES} ${X11_Xxf86vm_LIB} ${X11_Xext_LIB} Xxf86dga)
+		
+		find_package(SDL2 REQUIRED)
+		target_include_directories(openmohaa PUBLIC ${SDL2_INCLUDE_DIRS})
+		target_link_libraries(openmohaa PRIVATE ${SDL2_LIBRARIES})
+		
+		#find_package(OpenGL REQUIRED)
+		#find_package(GLUT REQUIRED)
+		#find_package(X11 REQUIRED)
+		#find_package(SDL2 REQUIRED)
+		#target_include_directories(openmohaa PRIVATE ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
+		#target_link_libraries(openmohaa PRIVATE ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+		#target_link_libraries(openmohaa PRIVATE ${X11_LIBRARIES} ${X11_Xxf86vm_LIB} ${X11_Xext_LIB} Xxf86dga)
 	endif()
 
 	INSTALL(TARGETS openmohaa DESTINATION "./")
