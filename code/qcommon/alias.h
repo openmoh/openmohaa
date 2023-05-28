@@ -56,6 +56,7 @@ typedef struct AliasListNode_s {
 	float maxDist;
 	int channel;
 	int streamed;
+	qboolean forcesubtitle;
 	char* subtitle;
 } AliasListNode_t;
 

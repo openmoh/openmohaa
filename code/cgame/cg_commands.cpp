@@ -5269,6 +5269,7 @@ void ClientGameCommandManager::AliasCache(Event* ev)
     char parmbuffer[2048]; // this holds the parameters to be passed into the
                           // alias command
     const char* psMapsBuffer;
+    bool bAlwaysLoaded = false;
 
     if (ev->NumArgs() < 2) {
         return;
@@ -5282,16 +5283,20 @@ void ClientGameCommandManager::AliasCache(Event* ev)
     psMapsBuffer = NULL;
 
     for (i = 3; i <= ev->NumArgs(); i++) {
-		if (strcmp(ev->GetToken(i).c_str(), "maps")) {
-			strcat(parmbuffer, ev->GetToken(i));
-			strcat(parmbuffer, " ");
-        }
-        else {
+        if (!strcmp(ev->GetToken(i).c_str(), "maps")) {
             psMapsBuffer = ev->GetToken(i++);
+        }
+        else if (!strcmp(ev->GetToken(i).c_str(), "always")) {
+            bAlwaysLoaded = true;
+        }
+        else
+        {
+            strcat(parmbuffer, ev->GetToken(i));
+            strcat(parmbuffer, " ");
         }
     }
 
-    if (bLoadForMap(psMapsBuffer, ev->GetString(1)))
+    if (bAlwaysLoaded || bLoadForMap(psMapsBuffer, ev->GetString(1)))
     {
         AliasResource(current_tiki, ev->GetString(1), ev->GetString(2), parmbuffer);
         CacheResource(ev->GetString(2));
@@ -5309,6 +5314,7 @@ void ClientGameCommandManager::Alias(Event* ev)
                           // alias command
     qboolean subtitle;
     const char* psMapsBuffer;
+    bool bAlwaysLoaded = false;
 
     if (ev->NumArgs() < 2) {
         return;
@@ -5324,11 +5330,19 @@ void ClientGameCommandManager::Alias(Event* ev)
 
 	for (i = 3; i <= ev->NumArgs(); i++)
     {
-		if (strcmp(ev->GetToken(i).c_str(), "maps"))
+		if (!strcmp(ev->GetToken(i).c_str(), "maps"))
+        {
+            psMapsBuffer = ev->GetToken(i++);
+		}
+        else if (!strcmp(ev->GetToken(i).c_str(), "always"))
+        {
+            bAlwaysLoaded = true;
+        }
+		else
         {
             if (!subtitle)
             {
-                if (!Q_stricmp(ev->GetToken(i), "subtitle")) {
+                if (!Q_stricmp(ev->GetToken(i), "subtitle") || !Q_stricmp(ev->GetToken(i), "forcesubtitle")) {
 					subtitle = qtrue;
 					strcat(parmbuffer, ev->GetToken(i));
                 }
@@ -5346,12 +5360,9 @@ void ClientGameCommandManager::Alias(Event* ev)
 
 			strcat(parmbuffer, " ");
 		}
-		else {
-			psMapsBuffer = ev->GetToken(i++);
-		}
 	}
 
-	if (bLoadForMap(psMapsBuffer, ev->GetString(1)))
+	if (bAlwaysLoaded || bLoadForMap(psMapsBuffer, ev->GetString(1)))
 	{
 		AliasResource(current_tiki, ev->GetString(1), ev->GetString(2), parmbuffer);
 	}

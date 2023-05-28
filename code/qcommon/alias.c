@@ -255,8 +255,14 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 				continue;
 			}
 		}
-		else if (!Q_stricmp(token, "subtitle"))
+		else if (!Q_stricmp(token, "subtitle") || !Q_stricmp(token, "forcesubtitle"))
 		{
+			if (!Q_stricmp(token, "subtitle")) {
+				node->forcesubtitle = qfalse;
+			} else {
+				node->forcesubtitle = qtrue;
+			}
+
 			token = COM_GetToken((char**)&parameters, qtrue);
 			if (!token || !*token)
 			{
