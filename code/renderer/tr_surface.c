@@ -733,7 +733,7 @@ void RB_SurfaceFlare( srfFlare_t *surf ) {
 void RB_SurfaceDisplayList( srfDisplayList_t *surf ) {
 	// all apropriate state must be set in RB_BeginSurface
 	// this isn't implemented yet...
-	glCallList( surf->listNum );
+	qglCallList( surf->listNum );
 }
 
 void RB_SurfaceSkip( void *surf ) {
