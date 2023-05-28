@@ -1190,7 +1190,7 @@ void IN_Frame( void )
 	IN_JoyMove( );
 
 	// If not DISCONNECTED (main menu) or ACTIVE (in game), we're loading
-	loading = ( clc.state != CA_DISCONNECTED && clc.state != CA_ACTIVE );
+	loading = (clc.state != CA_DISCONNECTED && clc.state != CA_ACTIVE && clc.state != CA_CONNECTING );
 
 	// update isFullscreen since it might of changed since the last vid_restart
 	cls.glconfig.isFullscreen = Cvar_VariableIntegerValue( "r_fullscreen" ) != 0;

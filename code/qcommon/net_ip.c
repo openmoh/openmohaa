@@ -28,9 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #	include <ws2tcpip.h>
 #	if WINVER < 0x501
 #		ifdef __MINGW32__
-// wspiapi.h isn't available on MinGW, so if it's
-// present it's because the end user has added it
-// and we should look for it in our tree
+			// wspiapi.h isn't available on MinGW, so if it's
+			// present it's because the end user has added it
+			// and we should look for it in our tree
 #			include "wspiapi.h"
 #		else
 #			include <wspiapi.h>
@@ -59,7 +59,7 @@ static qboolean	winsockInitialized = qfalse;
 #else
 
 #	if MAC_OS_X_VERSION_MIN_REQUIRED == 1020
-// needed for socklen_t on OSX 10.2
+		// needed for socklen_t on OSX 10.2
 #		define _BSD_SOCKLEN_T_
 #	endif
 
@@ -81,7 +81,6 @@ static qboolean	winsockInitialized = qfalse;
 #		include <sys/filio.h>
 #	endif
 
-
 typedef int SOCKET;
 #	define INVALID_SOCKET		-1
 #	define SOCKET_ERROR			-1
@@ -93,23 +92,59 @@ typedef int	ioctlarg_t;
 #endif
 
 static qboolean usingSocks = qfalse;
-static qboolean networkingEnabled = qfalse;
+static int networkingEnabled = 0;
 
-static cvar_t	*net_noudp;
+static cvar_t	*net_enabled;
 
 static cvar_t	*net_socksEnabled;
 static cvar_t	*net_socksServer;
 static cvar_t	*net_socksPort;
 static cvar_t	*net_socksUsername;
 static cvar_t	*net_socksPassword;
+
+static cvar_t	*net_ip;
+static cvar_t	*net_ip6;
+static cvar_t	*net_port;
+static cvar_t	*net_port6;
+static cvar_t	*net_mcast6addr;
+static cvar_t	*net_mcast6iface;
+
+static cvar_t	*net_dropsim;
+
 static struct sockaddr	socksRelayAddr;
 
-static SOCKET	ip_socket;
-static SOCKET	socks_socket;
+static SOCKET	ip_socket = INVALID_SOCKET;
+static SOCKET	ip6_socket = INVALID_SOCKET;
+static SOCKET	socks_socket = INVALID_SOCKET;
+static SOCKET	multicast6_socket = INVALID_SOCKET;
 
-#define	MAX_IPS		16
-static	int		numIP;
-static	byte	localIP[MAX_IPS][4];
+// Keep track of currently joined multicast group.
+static struct ipv6_mreq curgroup;
+// And the currently bound address.
+static struct sockaddr_in6 boundto;
+
+#ifndef IF_NAMESIZE
+  #define IF_NAMESIZE 16
+#endif
+
+// use an admin local address per default so that network admins can decide on how to handle quake3 traffic.
+#define NET_MULTICAST_IP6 "ff04::696f:7175:616b:6533"
+
+#define	MAX_IPS		32
+
+typedef struct
+{
+	char ifname[IF_NAMESIZE];
+	
+	netadrtype_t type;
+	sa_family_t family;
+	struct sockaddr_storage addr;
+	struct sockaddr_storage netmask;
+} nip_localaddr_t;
+
+static nip_localaddr_t localIP[MAX_IPS];
+static int numIP;
+
 
 //=============================================================================
 
@@ -170,13 +205,11 @@ char *NET_ErrorString( void ) {
 		default: return "NO ERROR";
 	}
 #else
-	return strerror (errno);
+	return strerror(socketError);
 #endif
 }
 
 static void NetadrToSockadr( netadr_t *a, struct sockaddr *s ) {
-	memset( s, 0, sizeof(*s) );
-
 	if( a->type == NA_BROADCAST ) {
 		((struct sockaddr_in *)s)->sin_family = AF_INET;
 		((struct sockaddr_in *)s)->sin_port = a->port;
@@ -187,6 +220,18 @@ static void NetadrToSockadr( netadr_t *a, struct sockaddr *s ) {
 		((struct sockaddr_in *)s)->sin_addr.s_addr = *(int *)&a->ip;
 		((struct sockaddr_in *)s)->sin_port = a->port;
 	}
+	else if( a->type == NA_IP6 ) {
+		((struct sockaddr_in6 *)s)->sin6_family = AF_INET6;
+		((struct sockaddr_in6 *)s)->sin6_addr = * ((struct in6_addr *) &a->ip6);
+		((struct sockaddr_in6 *)s)->sin6_port = a->port;
+		((struct sockaddr_in6 *)s)->sin6_scope_id = a->scope_id;
+	}
+	else if(a->type == NA_MULTICAST6)
+	{
+		((struct sockaddr_in6 *)s)->sin6_family = AF_INET6;
+		((struct sockaddr_in6 *)s)->sin6_addr = curgroup.ipv6mr_multiaddr;
+		((struct sockaddr_in6 *)s)->sin6_port = a->port;
+	}
 }
 
 
@@ -196,32 +241,114 @@ static void SockadrToNetadr( struct sockaddr *s, netadr_t *a ) {
 		*(int *)&a->ip = ((struct sockaddr_in *)s)->sin_addr.s_addr;
 		a->port = ((struct sockaddr_in *)s)->sin_port;
 	}
+	else if(s->sa_family == AF_INET6)
+	{
+		a->type = NA_IP6;
+		memcpy(a->ip6, &((struct sockaddr_in6 *)s)->sin6_addr, sizeof(a->ip6));
+		a->port = ((struct sockaddr_in6 *)s)->sin6_port;
+		a->scope_id = ((struct sockaddr_in6 *)s)->sin6_scope_id;
+	}
 }
 
+
+static struct addrinfo *SearchAddrInfo(struct addrinfo *hints, sa_family_t family)
+{
+	while(hints)
+	{
+		if(hints->ai_family == family)
+			return hints;
+
+		hints = hints->ai_next;
+	}
+	
+	return NULL;
+}
 
 /*
 =============
 Sys_StringToSockaddr
 =============
 */
-static qboolean Sys_StringToSockaddr( const char *s, struct sockaddr *sadr ) {
-	struct hostent	*h;
+static qboolean Sys_StringToSockaddr(const char *s, struct sockaddr *sadr, int sadr_len, sa_family_t family)
+{
+	struct addrinfo hints;
+	struct addrinfo *res = NULL;
+	struct addrinfo *search = NULL;
+	struct addrinfo *hintsp;
+	int retval;
 	
-	memset( sadr, 0, sizeof( *sadr ) );
+	memset(sadr, '\0', sizeof(*sadr));
+	memset(&hints, '\0', sizeof(hints));
 
-	((struct sockaddr_in *)sadr)->sin_family = AF_INET;
-	((struct sockaddr_in *)sadr)->sin_port = 0;
+	hintsp = &hints;
+	hintsp->ai_family = family;
+	hintsp->ai_socktype = SOCK_DGRAM;
+	
+	retval = getaddrinfo(s, NULL, hintsp, &res);
 
-	if( s[0] >= '0' && s[0] <= '9' ) {
-		*(int *)&((struct sockaddr_in *)sadr)->sin_addr = inet_addr(s);
-	} else {
-		if( ( h = gethostbyname( s ) ) == 0 ) {
-			return 0;
+	if(!retval)
+	{
+		if(family == AF_UNSPEC)
+		{
+			// Decide here and now which protocol family to use
+			if(net_enabled->integer & NET_PRIOV6)
+			{
+				if(net_enabled->integer & NET_ENABLEV6)
+					search = SearchAddrInfo(res, AF_INET6);
+				
+				if(!search && (net_enabled->integer & NET_ENABLEV4))
+					search = SearchAddrInfo(res, AF_INET);
+			}
+			else
+			{
+				if(net_enabled->integer & NET_ENABLEV4)
+					search = SearchAddrInfo(res, AF_INET);
+				
+				if(!search && (net_enabled->integer & NET_ENABLEV6))
+					search = SearchAddrInfo(res, AF_INET6);
+			}
 		}
-		*(int *)&((struct sockaddr_in *)sadr)->sin_addr = *(int *)h->h_addr_list[0];
+		else
+			search = SearchAddrInfo(res, family);
+
+		if(search)
+		{
+			if(search->ai_addrlen > sadr_len)
+				search->ai_addrlen = sadr_len;
+				
+			memcpy(sadr, search->ai_addr, search->ai_addrlen);
+			freeaddrinfo(res);
+			
+			return qtrue;
+		}
+		else
+			Com_Printf("Sys_StringToSockaddr: Error resolving %s: No address of required type found.\n", s);
 	}
+	else
+		Com_Printf("Sys_StringToSockaddr: Error resolving %s: %s\n", s, gai_strerror(retval));
 	
-	return qtrue;
+	if(res)
+		freeaddrinfo(res);
+	
+	return qfalse;
+}
+
+/*
+=============
+Sys_SockaddrToString
+=============
+*/
+static void Sys_SockaddrToString(char *dest, int destlen, struct sockaddr *input)
+{
+	socklen_t inputlen;
+
+	if (input->sa_family == AF_INET6)
+		inputlen = sizeof(struct sockaddr_in6);
+	else
+		inputlen = sizeof(struct sockaddr_in);
+
+	if(getnameinfo(input, inputlen, dest, destlen, NULL, 0, NI_NUMERICHOST) && destlen > 0)
+		*dest = '\0';
 }
 
 /*
@@ -229,417 +356,279 @@ static qboolean Sys_StringToSockaddr( const char *s, struct sockaddr *sadr ) {
 Sys_StringToAdr
 =============
 */
-qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
-	struct sockaddr sadr;
+qboolean Sys_StringToAdr( const char *s, netadr_t *a, netadrtype_t family ) {
+	struct sockaddr_storage sadr;
+	sa_family_t fam;
 	
-	if ( !Sys_StringToSockaddr( s, &sadr ) ) {
+	switch(family)
+	{
+		case NA_IP:
+			fam = AF_INET;
+		break;
+		case NA_IP6:
+			fam = AF_INET6;
+		break;
+		default:
+			fam = AF_UNSPEC;
+		break;
+	}
+	if( !Sys_StringToSockaddr(s, (struct sockaddr *) &sadr, sizeof(sadr), fam ) ) {
 		return qfalse;
 	}
 	
-	SockadrToNetadr( &sadr, a );
-	return qtrue;
-}
-
-//=============================================================================
-/*
-===============================
-GameSpy master server query
-===============================
-*/
-
-// wombat: some gamespy "encryption" ;-)
-// i had already begun reversing the algorithm,
-// then i found this GPL code by Luigi
-
-/*
-
-GSMSALG 0.3.2
-by Luigi Auriemma
-e-mail: aluigi@autistici.org
-web:    aluigi.org
-
-
-INTRODUCTION
-============
-With the name Gsmsalg I define the challenge-response algorithm needed
-to query the master servers that use the Gamespy "secure" protocol (like
-master.gamespy.com for example).
-This algorithm is not only used for this type of query but also in other
-situations like the so called "Gamespy Firewall Probe Packet" that is
-the challenge string sent by the master servers of the games that use
-the Gamespy SDK when game servers want to be included in the online
-servers list.
-
-
-HOW TO USE
-==========
-The function needs 4 parameters:
-- dst:     the destination buffer that will contain the calculated
-           response. Its length is 4/3 of the challenge size so if the
-           challenge is 6 bytes long, the response will be 8 bytes long
-           plus the final NULL byte which is required.
-- src:     the source buffer containing the challenge string received
-           from the server.
-- key:     the gamekey or any other text string used as algorithm's
-           key, usually it is the gamekey but "might" be another thing
-           in some cases. Each game has its unique Gamespy gamekey which
-           are available here:
-           http://aluigi.org/papers/gslist.cfg
-- enctype: are supported 0 (plain-text used in old games), 1 (Gamespy3D)
-           and 2 (actually the only one which can be used for any game).
-
-The return value is a pointer to the destination buffer.
-Note that the source buffer canNOT be a fixed read-only string (like
-"ABCDEF") because are made some write operations on it.
-
-
-EXAMPLE
-=======
-#include "gsmsalg.h";
-
-  char  source[7],          // 6 + NULL byte
-        dest[9];            // 6 * 4 / 3 + NULL byte
-  strcpy(source, "ABCDEF"); // the challenge received from the server
-                            // now we launch gsmsalg with the key
-                            // kbeafe of Doom 3 and enctype set to 0
-  gsseckey(dest, source, "kbeafe", 0);
-
-
-LICENSE
-=======
-    Copyright 2004,2005,2006 Luigi Auriemma
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-
-    http://www.gnu.org/licenses/gpl.txt
-
-*/
-
-unsigned char gsvalfunc(int reg) {
-    if(reg < 26) return(reg + 'A');
-    if(reg < 52) return(reg + 'G');
-    if(reg < 62) return(reg - 4);
-    if(reg == 62) return('+');
-    if(reg == 63) return('/');
-    return(0);
-}
-
-
-
-unsigned char *gsseckey(
-  unsigned char *dst,
-  unsigned char *src,
-  const unsigned char *key,
-  int           enctype) {
-
-    int             i,
-                    x,
-                    y,
-                    num,
-                    num2,
-                    size;
-	size_t			keysz;
-    unsigned char   enctmp[256],
-                    *p;
-    const static unsigned char enctype1_data[256] = /* pre-built */
-        "\x01\xba\xfa\xb2\x51\x00\x54\x80\x75\x16\x8e\x8e\x02\x08\x36\xa5"
-        "\x2d\x05\x0d\x16\x52\x07\xb4\x22\x8c\xe9\x09\xd6\xb9\x26\x00\x04"
-        "\x06\x05\x00\x13\x18\xc4\x1e\x5b\x1d\x76\x74\xfc\x50\x51\x06\x16"
-        "\x00\x51\x28\x00\x04\x0a\x29\x78\x51\x00\x01\x11\x52\x16\x06\x4a"
-        "\x20\x84\x01\xa2\x1e\x16\x47\x16\x32\x51\x9a\xc4\x03\x2a\x73\xe1"
-        "\x2d\x4f\x18\x4b\x93\x4c\x0f\x39\x0a\x00\x04\xc0\x12\x0c\x9a\x5e"
-        "\x02\xb3\x18\xb8\x07\x0c\xcd\x21\x05\xc0\xa9\x41\x43\x04\x3c\x52"
-        "\x75\xec\x98\x80\x1d\x08\x02\x1d\x58\x84\x01\x4e\x3b\x6a\x53\x7a"
-        "\x55\x56\x57\x1e\x7f\xec\xb8\xad\x00\x70\x1f\x82\xd8\xfc\x97\x8b"
-        "\xf0\x83\xfe\x0e\x76\x03\xbe\x39\x29\x77\x30\xe0\x2b\xff\xb7\x9e"
-        "\x01\x04\xf8\x01\x0e\xe8\x53\xff\x94\x0c\xb2\x45\x9e\x0a\xc7\x06"
-        "\x18\x01\x64\xb0\x03\x98\x01\xeb\x02\xb0\x01\xb4\x12\x49\x07\x1f"
-        "\x5f\x5e\x5d\xa0\x4f\x5b\xa0\x5a\x59\x58\xcf\x52\x54\xd0\xb8\x34"
-        "\x02\xfc\x0e\x42\x29\xb8\xda\x00\xba\xb1\xf0\x12\xfd\x23\xae\xb6"
-        "\x45\xa9\xbb\x06\xb8\x88\x14\x24\xa9\x00\x14\xcb\x24\x12\xae\xcc"
-        "\x57\x56\xee\xfd\x08\x30\xd9\xfd\x8b\x3e\x0a\x84\x46\xfa\x77\xb8";
-
-
-        /* 1) buffer creation with incremental data */
-
-    p = enctmp;
-    for(i = 0; i < 256; i++) {
-        *p++ = i;
-    }
-
-        /* 2) buffer scrambled with key */
-
-    keysz = strlen((char*)key);
-    p = enctmp;
-    for(i = num = 0; i < 256; i++) {
-        num = (num + *p + key[i % keysz]) & 0xff;
-        x = enctmp[num];
-        enctmp[num] = *p;
-        *p++ = x;
-    }
-
-        /* 3) source string scrambled with the buffer */
-
-    p = src;
-    num = num2 = 0;
-    while(*p) {
-        num = (num + *p + 1) & 0xff;
-        x = enctmp[num];
-        num2 = (num2 + x) & 0xff;
-        y = enctmp[num2];
-        enctmp[num2] = x;
-        enctmp[num] = y;
-        *p++ ^= enctmp[(x + y) & 0xff];
-    }
-    size = p - src;
-
-        /* 4) enctype management */
-
-    if(enctype == 1) {
-        for(i = 0; i < size; i++) {
-            src[i] = enctype1_data[src[i]];
-        }
-
-    } else if(enctype == 2) {
-        for(i = 0; i < size; i++) {
-            src[i] ^= key[i % keysz];
-        }
-    }
-
-        /* 5) splitting of the source string from 3 to 4 bytes */
-
-    p = dst;
-    size /= 3;
-    while(size--) {
-        x = *src++;
-        y = *src++;
-        *p++ = gsvalfunc(x >> 2);
-        *p++ = gsvalfunc(((x & 3) << 4) | (y >> 4));
-        x = *src++;
-        *p++ = gsvalfunc(((y & 15) << 2) | (x >> 6));
-        *p++ = gsvalfunc(x & 63);
-    }
-    *p = 0;
-
-    return(dst);
-}
-
-#define GS_MOHAAKEY			"M5Fdwc"
-#define GS_GAMENAME			"mohaa"
-#define GS_GAMEVER			"1.6"
-#define GS_MASTER_SERVER	"master.gamespy.com"
-int tcpsock;
-
-/*
-==================
-NETGS_CreateMasterSocket
-==================
-*/
-qboolean	NETGS_CreateMasterSocket( void ){
-	struct sockaddr_in master_addr;
-	struct hostent *h;
-
-	tcpsock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-	if ( tcpsock == -1 )
-		return qfalse;
-
-	master_addr.sin_family		= AF_INET;
-	master_addr.sin_port		= htons( 28900 );
-	master_addr.sin_addr.s_addr	= inet_addr( GS_MASTER_SERVER );
-	memset( master_addr.sin_zero, 0, sizeof(master_addr.sin_zero) );
-
-	h = gethostbyname( GS_MASTER_SERVER );
-	if (!h) {
-		close( tcpsock );
-		return qfalse;
-	}
-	master_addr.sin_addr = *((struct in_addr *)h->h_addr);
-
-	if ( connect(tcpsock, (struct sockaddr *)&master_addr, sizeof master_addr) == -1 ) {
-		close( tcpsock );
-		return qfalse;
-	}
-
+	SockadrToNetadr( (struct sockaddr *) &sadr, a );
 	return qtrue;
 }
 
 /*
-==================
-NETGS_SendMasterRequest
-==================
+===================
+NET_CompareBaseAdrMask
+
+Compare without port, and up to the bit number given in netmask.
+===================
 */
-qboolean	NETGS_SendMasterRequest( void ) {
-	char buffer[255];
-	char requestString[255];
-	char *ptr;
-	char encodedstring[32];
-	char string2encode[32];
+qboolean NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask)
+{
+	byte cmpmask, *addra, *addrb;
+	int curbyte;
+	
+	if (a.type != b.type)
+		return qfalse;
 
-	if (recv( tcpsock, buffer, sizeof(buffer), 0) ==-1) {
-		close( tcpsock );
+	if (a.type == NA_LOOPBACK)
+		return qtrue;
+
+	if(a.type == NA_IP)
+	{
+		addra = (byte *) &a.ip;
+		addrb = (byte *) &b.ip;
+		
+		if(netmask < 0 || netmask > 32)
+			netmask = 32;
+	}
+	else if(a.type == NA_IP6)
+	{
+		addra = (byte *) &a.ip6;
+		addrb = (byte *) &b.ip6;
+		
+		if(netmask < 0 || netmask > 128)
+			netmask = 128;
+	}
+	else
+	{
+		Com_Printf ("NET_CompareBaseAdr: bad address type\n");
 		return qfalse;
 	}
 
-	ptr = strstr( buffer, "\\secure\\" );
-	if (!ptr) {
-		close( tcpsock );
-		return qfalse;
+	curbyte = netmask >> 3;
+
+	if(curbyte && memcmp(addra, addrb, curbyte))
+			return qfalse;
+
+	netmask &= 0x07;
+	if(netmask)
+	{
+		cmpmask = (1 << netmask) - 1;
+		cmpmask <<= 8 - netmask;
+
+		if((addra[curbyte] & cmpmask) == (addrb[curbyte] & cmpmask))
+			return qtrue;
 	}
-	ptr += 8;
-
-	Q_strncpyz( string2encode, ptr, sizeof(string2encode) );
-
-	gsseckey((unsigned char*)encodedstring, (unsigned char*)string2encode, (const unsigned char*)GS_MOHAAKEY, 0 );
-
-	Q_snprintf( requestString, sizeof(requestString), "\\gamename\\%s\\gamever\\%s\\location\\0\\validate\\%s\\final\\\\queryid\\1.1\\", GS_GAMENAME, GS_GAMEVER, encodedstring );
-	if (send(tcpsock, requestString, (int)strlen(requestString), 0) == -1 ) {
-		close( tcpsock );
-		return qfalse;
-	}
-
-	// Request List: we may even send a filter string to e.g. "(numplayers > 0)" but we can do that later...
-	// see "\\where\\"
-	// PS: I really wonder what "cmp" stands for. "groups" and "info2" may also be used. i have no idea!
-	Q_snprintf( requestString, sizeof(requestString), "\\list\\%s\\gamename\\%s\\final\\", "cmp", GS_GAMENAME );
-	if (send(tcpsock, requestString, (int)strlen(requestString), 0) == -1 ) {
-		close( tcpsock );
-		return qfalse;
-	}
-
-	return qtrue;
+	else
+		return qtrue;
+	
+	return qfalse;
 }
+
 
 /*
-==================
-NETGS_ReceiveMasterResponse
-==================
+===================
+NET_CompareBaseAdr
+
+Compares without the port
+===================
 */
-int	NETGS_ReceiveMasterResponse( char *buffer, int size ) {
-	struct timeval timeout;
-	fd_set readfds;
-	qboolean final=qfalse;
-	int bufPtr=0;
-	int count=0;
+qboolean NET_CompareBaseAdr (netadr_t a, netadr_t b)
+{
+	return NET_CompareBaseAdrMask(a, b, -1);
+}
 
-	memset( buffer, 0, size );
+const char	*NET_AdrToString (netadr_t a)
+{
+	static	char	s[NET_ADDRSTRMAXLEN];
 
-	timeout.tv_sec	= 0;
-	timeout.tv_usec	= 0;
-
-	while ( final == qfalse ) {
-		int recvdNum;
-
-		FD_ZERO(&readfds);
-		FD_SET( tcpsock, &readfds );
-		timeout.tv_sec = 0;
-		timeout.tv_usec = 50000;
-		if (!select( tcpsock+1, &readfds, NULL, NULL, &timeout )) {
-			//close( tcpsock );
-			//Com_DPrintf( "GS: select...\n" );
-			count++;
-			if ( count == 100 ){
-				Com_Printf( "No GS Master Response after 5 seconds\n" );
-				break;
-			}
-			continue;
-		}
-
-		// well, this may be not the optimal solution...
-		recvdNum = recv( tcpsock, buffer + bufPtr, size - bufPtr, 0 );
-		if ( recvdNum == -1 ) {
-			closesocket( tcpsock );
-			return 0;
-		}
-		if (!recvdNum) {
-			closesocket( tcpsock );
-			final = qtrue;
-		}
-		bufPtr += recvdNum;
+	if (a.type == NA_LOOPBACK)
+		Com_sprintf (s, sizeof(s), "loopback");
+	else if (a.type == NA_BOT)
+		Com_sprintf (s, sizeof(s), "bot");
+	else if (a.type == NA_IP || a.type == NA_IP6)
+	{
+		struct sockaddr_storage sadr;
+	
+		memset(&sadr, 0, sizeof(sadr));
+		NetadrToSockadr(&a, (struct sockaddr *) &sadr);
+		Sys_SockaddrToString(s, sizeof(s), (struct sockaddr *) &sadr);
 	}
 
-	return bufPtr;
+	return s;
+}
+
+const char	*NET_AdrToStringwPort (netadr_t a)
+{
+	static	char	s[NET_ADDRSTRMAXLEN];
+
+	if (a.type == NA_LOOPBACK)
+		Com_sprintf (s, sizeof(s), "loopback");
+	else if (a.type == NA_BOT)
+		Com_sprintf (s, sizeof(s), "bot");
+	else if(a.type == NA_IP)
+		Com_sprintf(s, sizeof(s), "%s:%hu", NET_AdrToString(a), ntohs(a.port));
+	else if(a.type == NA_IP6)
+		Com_sprintf(s, sizeof(s), "[%s]:%hu", NET_AdrToString(a), ntohs(a.port));
+
+	return s;
 }
 
 
+qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
+{
+	if(!NET_CompareBaseAdr(a, b))
+		return qfalse;
+	
+	if (a.type == NA_IP || a.type == NA_IP6)
+	{
+		if (a.port == b.port)
+			return qtrue;
+	}
+	else
+		return qtrue;
+		
+	return qfalse;
+}
+
+
+qboolean	NET_IsLocalAddress( netadr_t adr ) {
+	return adr.type == NA_LOOPBACK;
+}
 
 //=============================================================================
 
 /*
 ==================
-Sys_GetPacket
+NET_GetPacket
 
-Never called by the game logic, just the system event queing
+Receive one packet
 ==================
 */
-#ifdef _DEBUG
-int	recvfromCount;
-#endif
-
-qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message ) {
+qboolean NET_GetPacket(netadr_t *net_from, msg_t *net_message, fd_set *fdr)
+{
 	int 	ret;
-	struct sockaddr from;
+	struct sockaddr_storage from;
 	socklen_t	fromlen;
 	int		err;
-
-	if( !ip_socket ) {
-		return qfalse;
-	}
-
-	fromlen = sizeof(from);
-#ifdef _DEBUG
-	recvfromCount++;		// performance check
-#endif
-	ret = recvfrom( ip_socket, net_message->data, (int)net_message->maxsize, 0, (struct sockaddr *)&from, &fromlen );
-	if (ret == SOCKET_ERROR)
+	
+	if(ip_socket != INVALID_SOCKET && FD_ISSET(ip_socket, fdr))
 	{
-		err = socketError;
+		fromlen = sizeof(from);
+		ret = recvfrom( ip_socket, (void *)net_message->data, net_message->maxsize, 0, (struct sockaddr *) &from, &fromlen );
+		
+		if (ret == SOCKET_ERROR)
+		{
+			err = socketError;
 
-		if( err == EAGAIN || err == ECONNRESET) {
-			return qfalse;
+			if( err != EAGAIN && err != ECONNRESET )
+				Com_Printf( "NET_GetPacket: %s\n", NET_ErrorString() );
 		}
-		Com_Printf( "NET_GetPacket: %s\n", NET_ErrorString() );
-		return qfalse;
-	}
+		else
+		{
 
-	memset( ((struct sockaddr_in *)&from)->sin_zero, 0, 8 );
-
-	if ( usingSocks && memcmp( &from, &socksRelayAddr, fromlen ) == 0 ) {
-		if ( ret < 10 || net_message->data[0] != 0 || net_message->data[1] != 0 || net_message->data[2] != 0 || net_message->data[3] != 1 ) {
-			return qfalse;
+			memset( ((struct sockaddr_in *)&from)->sin_zero, 0, 8 );
+		
+			if ( usingSocks && memcmp( &from, &socksRelayAddr, fromlen ) == 0 ) {
+				if ( ret < 10 || net_message->data[0] != 0 || net_message->data[1] != 0 || net_message->data[2] != 0 || net_message->data[3] != 1 ) {
+					return qfalse;
+				}
+				net_from->type = NA_IP;
+				net_from->ip[0] = net_message->data[4];
+				net_from->ip[1] = net_message->data[5];
+				net_from->ip[2] = net_message->data[6];
+				net_from->ip[3] = net_message->data[7];
+				net_from->port = *(short *)&net_message->data[8];
+				net_message->readcount = 10;
+			}
+			else {
+				SockadrToNetadr( (struct sockaddr *) &from, net_from );
+				net_message->readcount = 0;
+			}
+		
+			if( ret >= net_message->maxsize ) {
+				Com_Printf( "Oversize packet from %s\n", NET_AdrToString (*net_from) );
+				return qfalse;
+			}
+			
+			net_message->cursize = ret;
+			return qtrue;
 		}
-		net_from->type = NA_IP;
-		net_from->ip[0] = net_message->data[4];
-		net_from->ip[1] = net_message->data[5];
-		net_from->ip[2] = net_message->data[6];
-		net_from->ip[3] = net_message->data[7];
-		net_from->port = *(short *)&net_message->data[8];
-		net_message->readcount = 10;
 	}
-	else {
-		SockadrToNetadr( &from, net_from );
-		net_message->readcount = 0;
+	
+	if(ip6_socket != INVALID_SOCKET && FD_ISSET(ip6_socket, fdr))
+	{
+		fromlen = sizeof(from);
+		ret = recvfrom(ip6_socket, (void *)net_message->data, net_message->maxsize, 0, (struct sockaddr *) &from, &fromlen);
+		
+		if (ret == SOCKET_ERROR)
+		{
+			err = socketError;
+
+			if( err != EAGAIN && err != ECONNRESET )
+				Com_Printf( "NET_GetPacket: %s\n", NET_ErrorString() );
+		}
+		else
+		{
+			SockadrToNetadr((struct sockaddr *) &from, net_from);
+			net_message->readcount = 0;
+		
+			if(ret >= net_message->maxsize)
+			{
+				Com_Printf( "Oversize packet from %s\n", NET_AdrToString (*net_from) );
+				return qfalse;
+			}
+			
+			net_message->cursize = ret;
+			return qtrue;
+		}
 	}
 
-	if( ret == net_message->maxsize ) {
-		Com_Printf( "Oversize packet from %s\n", NET_AdrToString (*net_from) );
-		return qfalse;
-	}
+	if(multicast6_socket != INVALID_SOCKET && multicast6_socket != ip6_socket && FD_ISSET(multicast6_socket, fdr))
+	{
+		fromlen = sizeof(from);
+		ret = recvfrom(multicast6_socket, (void *)net_message->data, net_message->maxsize, 0, (struct sockaddr *) &from, &fromlen);
+		
+		if (ret == SOCKET_ERROR)
+		{
+			err = socketError;
 
-	net_message->cursize = ret;
-	return qtrue;
+			if( err != EAGAIN && err != ECONNRESET )
+				Com_Printf( "NET_GetPacket: %s\n", NET_ErrorString() );
+		}
+		else
+		{
+			SockadrToNetadr((struct sockaddr *) &from, net_from);
+			net_message->readcount = 0;
+		
+			if(ret >= net_message->maxsize)
+			{
+				Com_Printf( "Oversize packet from %s\n", NET_AdrToString (*net_from) );
+				return qfalse;
+			}
+			
+			net_message->cursize = ret;
+			return qtrue;
+		}
+	}
+	
+	
+	return qfalse;
 }
 
 //=============================================================================
@@ -651,20 +640,27 @@ static char socksBuf[4096];
 Sys_SendPacket
 ==================
 */
-void Sys_SendPacket( size_t length, const void *data, netadr_t to ) {
-	int				ret;
-	struct sockaddr	addr;
+void Sys_SendPacket( int length, const void *data, netadr_t to ) {
+	int				ret = SOCKET_ERROR;
+	struct sockaddr_storage	addr;
 
-	if( to.type != NA_BROADCAST && to.type != NA_IP ) {
+	if( to.type != NA_BROADCAST && to.type != NA_IP && to.type != NA_IP6 && to.type != NA_MULTICAST6)
+	{
 		Com_Error( ERR_FATAL, "Sys_SendPacket: bad address type" );
 		return;
 	}
 
-	if( !ip_socket ) {
+	if( (ip_socket == INVALID_SOCKET && to.type == NA_IP) ||
+		(ip_socket == INVALID_SOCKET && to.type == NA_BROADCAST) ||
+		(ip6_socket == INVALID_SOCKET && to.type == NA_IP6) ||
+		(ip6_socket == INVALID_SOCKET && to.type == NA_MULTICAST6) )
 		return;
-	}
 
-	NetadrToSockadr( &to, &addr );
+	if(to.type == NA_MULTICAST6 && (net_enabled->integer & NET_DISABLEMCAST))
+		return;
+
+	memset(&addr, 0, sizeof(addr));
+	NetadrToSockadr( &to, (struct sockaddr *) &addr );
 
 	if( usingSocks && to.type == NA_IP ) {
 		socksBuf[0] = 0;	// reserved
@@ -674,25 +670,28 @@ void Sys_SendPacket( size_t length, const void *data, netadr_t to ) {
 		*(int *)&socksBuf[4] = ((struct sockaddr_in *)&addr)->sin_addr.s_addr;
 		*(short *)&socksBuf[8] = ((struct sockaddr_in *)&addr)->sin_port;
 		memcpy( &socksBuf[10], data, length );
-		ret = sendto( ip_socket, socksBuf, (int)(length+10), 0, &socksRelayAddr, sizeof(socksRelayAddr) );
+		ret = sendto( ip_socket, socksBuf, length+10, 0, &socksRelayAddr, sizeof(socksRelayAddr) );
 	}
 	else {
-		ret = sendto( ip_socket, data, (int)length, 0, &addr, sizeof(addr) );
+		if(addr.ss_family == AF_INET)
+			ret = sendto( ip_socket, data, length, 0, (struct sockaddr *) &addr, sizeof(struct sockaddr_in) );
+		else if(addr.ss_family == AF_INET6)
+			ret = sendto( ip6_socket, data, length, 0, (struct sockaddr *) &addr, sizeof(struct sockaddr_in6) );
 	}
 	if( ret == SOCKET_ERROR ) {
 		int err = socketError;
 
 		// wouldblock is silent
-		if( err == EAGAIN) {
+		if( err == EAGAIN ) {
 			return;
 		}
 
 		// some PPP links do not allow broadcasts and return an error
-		if( ( err == EAGAIN) && ( ( to.type == NA_BROADCAST ) ) ) {
+		if( ( err == EADDRNOTAVAIL ) && ( ( to.type == NA_BROADCAST ) ) ) {
 			return;
 		}
 
-		Com_Printf( "NET_SendPacket: %s\n", NET_ErrorString() );
+		Com_Printf( "Sys_SendPacket: %s\n", NET_ErrorString() );
 	}
 }
 
@@ -707,62 +706,78 @@ LAN clients will have their rate var ignored
 ==================
 */
 qboolean Sys_IsLANAddress( netadr_t adr ) {
-	int		i;
+	int		index, run, addrsize;
+	qboolean differed;
+	byte *compareadr, *comparemask, *compareip;
 
 	if( adr.type == NA_LOOPBACK ) {
 		return qtrue;
 	}
 
-	if( adr.type != NA_IP ) {
-		return qfalse;
-	}
-
-	// RFC1918:
-	// 10.0.0.0        -   10.255.255.255  (10/8 prefix)
-	// 172.16.0.0      -   172.31.255.255  (172.16/12 prefix)
-	// 192.168.0.0     -   192.168.255.255 (192.168/16 prefix)
-	if(adr.ip[0] == 10)
-		return qtrue;
-	if(adr.ip[0] == 172 && (adr.ip[1]&0xf0) == 16)
-		return qtrue;
-	if(adr.ip[0] == 192 && adr.ip[1] == 168)
-		return qtrue;
-
-	// choose which comparison to use based on the class of the address being tested
-	// any local adresses of a different class than the address being tested will fail based on the first byte
-	// FIXME tma 28/08/07 Try and make this work for arbitrary subnet masks somehow
-
-	if( adr.ip[0] == 127 && adr.ip[1] == 0 && adr.ip[2] == 0 && adr.ip[3] == 1 ) {
-		return qtrue;
-	}
-
-	// Class A
-	if( (adr.ip[0] & 0x80) == 0x00 ) {
-		for ( i = 0 ; i < numIP ; i++ ) {
-			if( adr.ip[0] == localIP[i][0] ) {
-				return qtrue;
-			}
-		}
-
-		return qfalse;
-	}
-
-	// Class B
-	if( (adr.ip[0] & 0xc0) == 0x80 ) {
-		for ( i = 0 ; i < numIP ; i++ ) {
-			if( adr.ip[0] == localIP[i][0] && adr.ip[1] == localIP[i][1] ) {
-				return qtrue;
-			}
-		}
-		return qfalse;
-	}
-
-	// Class C
-	for ( i = 0 ; i < numIP ; i++ ) {
-		if( adr.ip[0] == localIP[i][0] && adr.ip[1] == localIP[i][1] && adr.ip[2] == localIP[i][2] ) {
+	if( adr.type == NA_IP )
+	{
+		// RFC1918:
+		// 10.0.0.0        -   10.255.255.255  (10/8 prefix)
+		// 172.16.0.0      -   172.31.255.255  (172.16/12 prefix)
+		// 192.168.0.0     -   192.168.255.255 (192.168/16 prefix)
+		if(adr.ip[0] == 10)
 			return qtrue;
+		if(adr.ip[0] == 172 && (adr.ip[1]&0xf0) == 16)
+			return qtrue;
+		if(adr.ip[0] == 192 && adr.ip[1] == 168)
+			return qtrue;
+
+		if(adr.ip[0] == 127)
+			return qtrue;
+	}
+	else if(adr.type == NA_IP6)
+	{
+		if(adr.ip6[0] == 0xfe && (adr.ip6[1] & 0xc0) == 0x80)
+			return qtrue;
+		if((adr.ip6[0] & 0xfe) == 0xfc)
+			return qtrue;
+	}
+	
+	// Now compare against the networks this computer is member of.
+	for(index = 0; index < numIP; index++)
+	{
+		if(localIP[index].type == adr.type)
+		{
+			if(adr.type == NA_IP)
+			{
+				compareip = (byte *) &((struct sockaddr_in *) &localIP[index].addr)->sin_addr.s_addr;
+				comparemask = (byte *) &((struct sockaddr_in *) &localIP[index].netmask)->sin_addr.s_addr;
+				compareadr = adr.ip;
+				
+				addrsize = sizeof(adr.ip);
+			}
+			else
+			{
+				// TODO? should we check the scope_id here?
+
+				compareip = (byte *) &((struct sockaddr_in6 *) &localIP[index].addr)->sin6_addr;
+				comparemask = (byte *) &((struct sockaddr_in6 *) &localIP[index].netmask)->sin6_addr;
+				compareadr = adr.ip6;
+				
+				addrsize = sizeof(adr.ip6);
+			}
+
+			differed = qfalse;
+			for(run = 0; run < addrsize; run++)
+			{
+				if((compareip[run] & comparemask[run]) != (compareadr[run] & comparemask[run]))
+				{
+					differed = qtrue;
+					break;
+				}
+			}
+			
+			if(!differed)
+				return qtrue;
+
 		}
 	}
+	
 	return qfalse;
 }
 
@@ -773,9 +788,16 @@ Sys_ShowIP
 */
 void Sys_ShowIP(void) {
 	int i;
+	char addrbuf[NET_ADDRSTRMAXLEN];
 
-	for (i = 0; i < numIP; i++) {
-		Com_Printf( "IP: %i.%i.%i.%i\n", localIP[i][0], localIP[i][1], localIP[i][2], localIP[i][3] );
+	for(i = 0; i < numIP; i++)
+	{
+		Sys_SockaddrToString(addrbuf, sizeof(addrbuf), (struct sockaddr *) &localIP[i].addr);
+
+		if(localIP[i].type == NA_IP)
+			Com_Printf( "IP: %s\n", addrbuf);
+		else if(localIP[i].type == NA_IP6)
+			Com_Printf( "IP6: %s\n", addrbuf);
 	}
 }
 
@@ -788,45 +810,50 @@ void Sys_ShowIP(void) {
 NET_IPSocket
 ====================
 */
-int NET_IPSocket( char *net_interface, int port ) {
+SOCKET NET_IPSocket( char *net_interface, int port, int *err ) {
 	SOCKET				newsocket;
 	struct sockaddr_in	address;
-	qboolean			_true = qtrue;
+	ioctlarg_t			_true = 1;
 	int					i = 1;
-	int					err;
+
+	*err = 0;
 
 	if( net_interface ) {
 		Com_Printf( "Opening IP socket: %s:%i\n", net_interface, port );
 	}
 	else {
-		Com_Printf( "Opening IP socket: localhost:%i\n", port );
+		Com_Printf( "Opening IP socket: 0.0.0.0:%i\n", port );
 	}
 
-	if( ( newsocket = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET ) {
-		err = socketError;
-		if( err != EAFNOSUPPORT) {
-			Com_Printf( "WARNING: UDP_OpenSocket: socket: %s\n", NET_ErrorString() );
-		}
-		return 0;
+	if( ( newsocket = socket( PF_INET, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET ) {
+		*err = socketError;
+		Com_Printf( "WARNING: NET_IPSocket: socket: %s\n", NET_ErrorString() );
+		return newsocket;
 	}
-
 	// make it non-blocking
-	if( ioctlsocket( newsocket, FIONBIO, (u_long *)&_true ) == SOCKET_ERROR ) {
-		Com_Printf( "WARNING: UDP_OpenSocket: ioctl FIONBIO: %s\n", NET_ErrorString() );
-		return 0;
+	if( ioctlsocket( newsocket, FIONBIO, &_true ) == SOCKET_ERROR ) {
+		Com_Printf( "WARNING: NET_IPSocket: ioctl FIONBIO: %s\n", NET_ErrorString() );
+		*err = socketError;
+		closesocket(newsocket);
+		return INVALID_SOCKET;
 	}
 
 	// make it broadcast capable
-	if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, (char *)&i, sizeof(i) ) == SOCKET_ERROR ) {
-		Com_Printf( "WARNING: UDP_OpenSocket: setsockopt SO_BROADCAST: %s\n", NET_ErrorString() );
-		return 0;
+	if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, (char *) &i, sizeof(i) ) == SOCKET_ERROR ) {
+		Com_Printf( "WARNING: NET_IPSocket: setsockopt SO_BROADCAST: %s\n", NET_ErrorString() );
 	}
 
-	if( !net_interface || !net_interface[0] || !Q_stricmp(net_interface, "localhost") ) {
+	if( !net_interface || !net_interface[0]) {
+		address.sin_family = AF_INET;
 		address.sin_addr.s_addr = INADDR_ANY;
 	}
-	else {
-		Sys_StringToSockaddr( net_interface, (struct sockaddr *)&address );
+	else
+	{
+		if(!Sys_StringToSockaddr( net_interface, (struct sockaddr *)&address, sizeof(address), AF_INET))
+		{
+			closesocket(newsocket);
+			return INVALID_SOCKET;
+		}
 	}
 
 	if( port == PORT_ANY ) {
@@ -836,17 +863,201 @@ int NET_IPSocket( char *net_interface, int port ) {
 		address.sin_port = htons( (short)port );
 	}
 
-	address.sin_family = AF_INET;
-
 	if( bind( newsocket, (void *)&address, sizeof(address) ) == SOCKET_ERROR ) {
-		Com_Printf( "WARNING: UDP_OpenSocket: bind: %s\n", NET_ErrorString() );
+		Com_Printf( "WARNING: NET_IPSocket: bind: %s\n", NET_ErrorString() );
+		*err = socketError;
 		closesocket( newsocket );
-		return 0;
+		return INVALID_SOCKET;
 	}
 
 	return newsocket;
 }
 
+/*
+====================
+NET_IP6Socket
+====================
+*/
+SOCKET NET_IP6Socket( char *net_interface, int port, struct sockaddr_in6 *bindto, int *err ) {
+	SOCKET				newsocket;
+	struct sockaddr_in6	address;
+	ioctlarg_t			_true = 1;
+
+	*err = 0;
+
+	if( net_interface )
+	{
+		// Print the name in brackets if there is a colon:
+		if(Q_CountChar(net_interface, ':'))
+			Com_Printf( "Opening IP6 socket: [%s]:%i\n", net_interface, port );
+		else
+			Com_Printf( "Opening IP6 socket: %s:%i\n", net_interface, port );
+	}
+	else
+		Com_Printf( "Opening IP6 socket: [::]:%i\n", port );
+
+	if( ( newsocket = socket( PF_INET6, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET ) {
+		*err = socketError;
+		Com_Printf( "WARNING: NET_IP6Socket: socket: %s\n", NET_ErrorString() );
+		return newsocket;
+	}
+
+	// make it non-blocking
+	if( ioctlsocket( newsocket, FIONBIO, &_true ) == SOCKET_ERROR ) {
+		Com_Printf( "WARNING: NET_IP6Socket: ioctl FIONBIO: %s\n", NET_ErrorString() );
+		*err = socketError;
+		closesocket(newsocket);
+		return INVALID_SOCKET;
+	}
+
+#ifdef IPV6_V6ONLY
+	{
+		int i = 1;
+
+		// ipv4 addresses should not be allowed to connect via this socket.
+		if(setsockopt(newsocket, IPPROTO_IPV6, IPV6_V6ONLY, (char *) &i, sizeof(i)) == SOCKET_ERROR)
+		{
+			// win32 systems don't seem to support this anyways.
+			Com_DPrintf("WARNING: NET_IP6Socket: setsockopt IPV6_V6ONLY: %s\n", NET_ErrorString());
+		}
+	}
+#endif
+
+	if( !net_interface || !net_interface[0]) {
+		address.sin6_family = AF_INET6;
+		address.sin6_addr = in6addr_any;
+	}
+	else
+	{
+		if(!Sys_StringToSockaddr( net_interface, (struct sockaddr *)&address, sizeof(address), AF_INET6))
+		{
+			closesocket(newsocket);
+			return INVALID_SOCKET;
+		}
+	}
+
+	if( port == PORT_ANY ) {
+		address.sin6_port = 0;
+	}
+	else {
+		address.sin6_port = htons( (short)port );
+	}
+
+	if( bind( newsocket, (void *)&address, sizeof(address) ) == SOCKET_ERROR ) {
+		Com_Printf( "WARNING: NET_IP6Socket: bind: %s\n", NET_ErrorString() );
+		*err = socketError;
+		closesocket( newsocket );
+		return INVALID_SOCKET;
+	}
+	
+	if(bindto)
+		*bindto = address;
+
+	return newsocket;
+}
+
+/*
+====================
+NET_SetMulticast
+Set the current multicast group
+====================
+*/
+void NET_SetMulticast6(void)
+{
+	struct sockaddr_in6 addr;
+
+	if(!*net_mcast6addr->string || !Sys_StringToSockaddr(net_mcast6addr->string, (struct sockaddr *) &addr, sizeof(addr), AF_INET6))
+	{
+		Com_Printf("WARNING: NET_JoinMulticast6: Incorrect multicast address given, "
+			   "please set cvar %s to a sane value.\n", net_mcast6addr->name);
+		
+		Cvar_SetValue(net_enabled->name, net_enabled->integer | NET_DISABLEMCAST);
+		
+		return;
+	}
+	
+	memcpy(&curgroup.ipv6mr_multiaddr, &addr.sin6_addr, sizeof(curgroup.ipv6mr_multiaddr));
+
+	if(*net_mcast6iface->string)
+	{
+#ifdef _WIN32
+		curgroup.ipv6mr_interface = net_mcast6iface->integer;
+#else
+		curgroup.ipv6mr_interface = if_nametoindex(net_mcast6iface->string);
+#endif
+	}
+	else
+		curgroup.ipv6mr_interface = 0;
+}
+
+/*
+====================
+NET_JoinMulticast
+Join an ipv6 multicast group
+====================
+*/
+void NET_JoinMulticast6(void)
+{
+	int err;
+	
+	if(ip6_socket == INVALID_SOCKET || multicast6_socket != INVALID_SOCKET || (net_enabled->integer & NET_DISABLEMCAST))
+		return;
+	
+	if(IN6_IS_ADDR_MULTICAST(&boundto.sin6_addr) || IN6_IS_ADDR_UNSPECIFIED(&boundto.sin6_addr))
+	{
+		// The way the socket was bound does not prohibit receiving multi-cast packets. So we don't need to open a new one.
+		multicast6_socket = ip6_socket;
+	}
+	else
+	{
+		if((multicast6_socket = NET_IP6Socket(net_mcast6addr->string, ntohs(boundto.sin6_port), NULL, &err)) == INVALID_SOCKET)
+		{
+			// If the OS does not support binding to multicast addresses, like WinXP, at least try with the normal file descriptor.
+			multicast6_socket = ip6_socket;
+		}
+	}
+	
+	if(curgroup.ipv6mr_interface)
+	{
+		if (setsockopt(multicast6_socket, IPPROTO_IPV6, IPV6_MULTICAST_IF,
+					(char *) &curgroup.ipv6mr_interface, sizeof(curgroup.ipv6mr_interface)) < 0)
+		{
+			Com_Printf("NET_JoinMulticast6: Couldn't set scope on multicast socket: %s\n", NET_ErrorString());
+
+			if(multicast6_socket != ip6_socket)
+			{
+				closesocket(multicast6_socket);
+				multicast6_socket = INVALID_SOCKET;
+				return;
+			}
+		}
+	}
+
+	if (setsockopt(multicast6_socket, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char *) &curgroup, sizeof(curgroup)))
+	{
+		Com_Printf("NET_JoinMulticast6: Couldn't join multicast group: %s\n", NET_ErrorString());
+
+		if(multicast6_socket != ip6_socket)
+		{
+			closesocket(multicast6_socket);
+			multicast6_socket = INVALID_SOCKET;
+			return;
+		}
+	}
+}
+
+void NET_LeaveMulticast6()
+{
+	if(multicast6_socket != INVALID_SOCKET)
+	{
+		if(multicast6_socket != ip6_socket)
+			closesocket(multicast6_socket);
+		else
+			setsockopt(multicast6_socket, IPPROTO_IPV6, IPV6_LEAVE_GROUP, (char *) &curgroup, sizeof(curgroup));
+
+		multicast6_socket = INVALID_SOCKET;
+	}
+}
 
 /*
 ====================
@@ -855,7 +1066,6 @@ NET_OpenSocks
 */
 void NET_OpenSocks( int port ) {
 	struct sockaddr_in	address;
-	int					err;
 	struct hostent		*h;
 	int					len;
 	qboolean			rfc1929;
@@ -866,14 +1076,12 @@ void NET_OpenSocks( int port ) {
 	Com_Printf( "Opening connection to SOCKS server.\n" );
 
 	if ( ( socks_socket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) == INVALID_SOCKET ) {
-		err = socketError;
 		Com_Printf( "WARNING: NET_OpenSocks: socket: %s\n", NET_ErrorString() );
 		return;
 	}
 
 	h = gethostbyname( net_socksServer->string );
 	if ( h == NULL ) {
-		err = socketError;
 		Com_Printf( "WARNING: NET_OpenSocks: gethostbyname: %s\n", NET_ErrorString() );
 		return;
 	}
@@ -886,7 +1094,6 @@ void NET_OpenSocks( int port ) {
 	address.sin_port = htons( (short)net_socksPort->integer );
 
 	if ( connect( socks_socket, (struct sockaddr *)&address, sizeof( address ) ) == SOCKET_ERROR ) {
-		err = socketError;
 		Com_Printf( "NET_OpenSocks: connect: %s\n", NET_ErrorString() );
 		return;
 	}
@@ -913,16 +1120,14 @@ void NET_OpenSocks( int port ) {
 	if ( rfc1929 ) {
 		buf[2] = 2;		// method #2 - method id #02: username/password
 	}
-	if ( send( socks_socket, buf, len, 0 ) == SOCKET_ERROR ) {
-		err = socketError;
+	if ( send( socks_socket, (void *)buf, len, 0 ) == SOCKET_ERROR ) {
 		Com_Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
 		return;
 	}
 
 	// get the response
-	len = recv( socks_socket, buf, 64, 0 );
+	len = recv( socks_socket, (void *)buf, 64, 0 );
 	if ( len == SOCKET_ERROR ) {
-		err = socketError;
 		Com_Printf( "NET_OpenSocks: recv: %s\n", NET_ErrorString() );
 		return;
 	}
@@ -942,34 +1147,32 @@ void NET_OpenSocks( int port ) {
 
 	// do username/password authentication if needed
 	if ( buf[1] == 2 ) {
-		size_t	ulen;
-		size_t	plen;
+		int		ulen;
+		int		plen;
 
 		// build the request
 		ulen = strlen( net_socksUsername->string );
 		plen = strlen( net_socksPassword->string );
 
 		buf[0] = 1;		// username/password authentication version
-		buf[1] = (unsigned char)ulen;
+		buf[1] = ulen;
 		if ( ulen ) {
 			memcpy( &buf[2], net_socksUsername->string, ulen );
 		}
-		buf[2 + ulen] = (unsigned char)plen;
+		buf[2 + ulen] = plen;
 		if ( plen ) {
 			memcpy( &buf[3 + ulen], net_socksPassword->string, plen );
 		}
 
 		// send it
-		if ( send( socks_socket, buf, (int)(3 + ulen + plen), 0 ) == SOCKET_ERROR ) {
-			err = socketError;
+		if ( send( socks_socket, (void *)buf, 3 + ulen + plen, 0 ) == SOCKET_ERROR ) {
 			Com_Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
 			return;
 		}
 
 		// get the response
-		len = recv( socks_socket, buf, 64, 0 );
+		len = recv( socks_socket, (void *)buf, 64, 0 );
 		if ( len == SOCKET_ERROR ) {
-			err = socketError;
 			Com_Printf( "NET_OpenSocks: recv: %s\n", NET_ErrorString() );
 			return;
 		}
@@ -990,16 +1193,14 @@ void NET_OpenSocks( int port ) {
 	buf[3] = 1;		// address type: IPV4
 	*(int *)&buf[4] = INADDR_ANY;
 	*(short *)&buf[8] = htons( (short)port );		// port
-	if ( send( socks_socket, buf, 10, 0 ) == SOCKET_ERROR ) {
-		err = socketError;
+	if ( send( socks_socket, (void *)buf, 10, 0 ) == SOCKET_ERROR ) {
 		Com_Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
 		return;
 	}
 
 	// get the response
-	len = recv( socks_socket, buf, 64, 0 );
+	len = recv( socks_socket, (void *)buf, 64, 0 );
 	if( len == SOCKET_ERROR ) {
-		err = socketError;
 		Com_Printf( "NET_OpenSocks: recv: %s\n", NET_ErrorString() );
 		return;
 	}
@@ -1027,164 +1228,117 @@ void NET_OpenSocks( int port ) {
 
 /*
 =====================
-NET_GetLocalAddress
+NET_AddLocalAddress
 =====================
 */
-#ifdef MACOS_X
-// Don't do a forward mapping from the hostname of the machine to the IP.
-// The reason is that we might have obtained an IP address from DHCP and
-// there might not be any name registered for the machine.  On Mac OS X,
-// the machine name defaults to 'localhost' and NetInfo has 127.0.0.1
-// listed for this name.  Instead, we want to get a list of all the IP
-// network interfaces on the machine. This code adapted from
-// OmniNetworking.
-
-#ifdef _SIZEOF_ADDR_IFREQ
-	// tjw: OSX 10.4 does not have sa_len
-	#define IFR_NEXT(ifr)	\
-	((struct ifreq *) ((char *) ifr + _SIZEOF_ADDR_IFREQ(*ifr)))
-#else
-	// tjw: assume that once upon a time some version did have sa_len
-	#define IFR_NEXT(ifr)	\
-	((struct ifreq *) ((char *) (ifr) + sizeof(*(ifr)) + \
-	MAX(0, (int) (ifr)->ifr_addr.sa_len - (int) sizeof((ifr)->ifr_addr))))
-#endif
-
-void NET_GetLocalAddress( void ) {
-	struct ifreq requestBuffer[MAX_IPS], *linkInterface, *inetInterface;
-	struct ifconf ifc;
-	struct ifreq ifr;
-	struct sockaddr_dl *sdl;
-	int interfaceSocket;
-	int family;
-
-	// Set this early so we can just return if there is an error
-	numIP = 0;
-
-	ifc.ifc_len = sizeof(requestBuffer);
-	ifc.ifc_buf = (caddr_t)requestBuffer;
-
-	// Since we get at this info via an ioctl, we need a temporary little socket.
-	// This will only get AF_INET interfaces, but we probably don't care about
-	// anything else.  If we do end up caring later, we should add a
-	// ONAddressFamily and at a -interfaces method to it.
-	family = AF_INET;
-	if ((interfaceSocket = socket(family, SOCK_DGRAM, 0)) < 0) {
-		Com_Printf("NET_GetLocalAddress: Unable to create temporary socket, errno = %d\n", errno);
+static void NET_AddLocalAddress(char *ifname, struct sockaddr *addr, struct sockaddr *netmask)
+{
+	int addrlen;
+	sa_family_t family;
+	
+	// only add addresses that have all required info.
+	if(!addr || !netmask || !ifname)
 		return;
-	}
+	
+	family = addr->sa_family;
 
-	if (ioctl(interfaceSocket, SIOCGIFCONF, &ifc) != 0) {
-		Com_Printf("NET_GetLocalAddress: Unable to get list of network interfaces, errno = %d\n", errno);
-		return;
-	}
-
-	linkInterface = (struct ifreq *) ifc.ifc_buf;
-	while ((char *) linkInterface < &ifc.ifc_buf[ifc.ifc_len]) {
-		unsigned int nameLength;
-
-		// The ioctl returns both the entries having the address (AF_INET)
-		// and the link layer entries (AF_LINK).  The AF_LINK entry has the
-		// link layer address which contains the interface type.  This is the
-		// only way I can see to get this information.  We cannot assume that
-		// we will get bot an AF_LINK and AF_INET entry since the interface
-		// may not be configured.  For example, if you have a 10Mb port on
-		// the motherboard and a 100Mb card, you may not configure the
-		// motherboard port.
-
-		// For each AF_LINK entry...
-		if (linkInterface->ifr_addr.sa_family == AF_LINK) {
-			// if there is a matching AF_INET entry
-			inetInterface = (struct ifreq *) ifc.ifc_buf;
-			while ((char *) inetInterface < &ifc.ifc_buf[ifc.ifc_len]) {
-				if (inetInterface->ifr_addr.sa_family == AF_INET &&
-						!strncmp(inetInterface->ifr_name, linkInterface->ifr_name,
-							sizeof(linkInterface->ifr_name))) {
-
-					for (nameLength = 0; nameLength < IFNAMSIZ; nameLength++)
-						if (!linkInterface->ifr_name[nameLength])
-							break;
-
-					sdl = (struct sockaddr_dl *)&linkInterface->ifr_addr;
-					// Skip loopback interfaces
-					if (sdl->sdl_type != IFT_LOOP) {
-						// Get the local interface address
-						strncpy(ifr.ifr_name, inetInterface->ifr_name, sizeof(ifr.ifr_name));
-						if (ioctl(interfaceSocket, SIOCGIFADDR, (caddr_t)&ifr) < 0) {
-							Com_Printf("NET_GetLocalAddress: Unable to get local address "
-									"for interface '%s', errno = %d\n", inetInterface->ifr_name, errno);
-						} else {
-							struct sockaddr_in *sin;
-							int ip;
-
-							sin = (struct sockaddr_in *)&ifr.ifr_addr;
-
-							ip = ntohl(sin->sin_addr.s_addr);
-							localIP[ numIP ][0] = (ip >> 24) & 0xff;
-							localIP[ numIP ][1] = (ip >> 16) & 0xff;
-							localIP[ numIP ][2] = (ip >>  8) & 0xff;
-							localIP[ numIP ][3] = (ip >>  0) & 0xff;
-							Com_Printf( "IP: %i.%i.%i.%i (%s)\n",
-									localIP[ numIP ][0], localIP[ numIP ][1],
-									localIP[ numIP ][2], localIP[ numIP ][3],
-									inetInterface->ifr_name);
-							numIP++;
-						}
-					}
-
-					// We will assume that there is only one AF_INET entry per AF_LINK entry.
-					// What happens when we have an interface that has multiple IP addresses, or
-					// can that even happen?
-					// break;
-				}
-				inetInterface = IFR_NEXT(inetInterface);
-			}
+	if(numIP < MAX_IPS)
+	{
+		if(family == AF_INET)
+		{
+			addrlen = sizeof(struct sockaddr_in);
+			localIP[numIP].type = NA_IP;
 		}
-		linkInterface = IFR_NEXT(linkInterface);
-	}
+		else if(family == AF_INET6)
+		{
+			addrlen = sizeof(struct sockaddr_in6);
+			localIP[numIP].type = NA_IP6;
+		}
+		else
+			return;
+		
+		Q_strncpyz(localIP[numIP].ifname, ifname, sizeof(localIP[numIP].ifname));
+	
+		localIP[numIP].family = family;
 
-	close(interfaceSocket);
-}
-#else
-void NET_GetLocalAddress( void ) {
-	char				hostname[256];
-	struct hostent		*hostInfo;
-	int					error;
-	char				*p;
-	int					ip;
-	int					n;
-
-	if( gethostname( hostname, 256 ) == SOCKET_ERROR ) {
-		error = socketError;
-		return;
-	}
-
-	hostInfo = gethostbyname( hostname );
-	if( !hostInfo ) {
-		error = socketError;
-		return;
-	}
-
-	Com_Printf( "Hostname: %s\n", hostInfo->h_name );
-	n = 0;
-	while( ( p = hostInfo->h_aliases[n++] ) != NULL ) {
-		Com_Printf( "Alias: %s\n", p );
-	}
-
-	if ( hostInfo->h_addrtype != AF_INET ) {
-		return;
-	}
-
-	numIP = 0;
-	while( ( p = hostInfo->h_addr_list[numIP] ) != NULL && numIP < MAX_IPS ) {
-		ip = ntohl( *(int *)p );
-		localIP[ numIP ][0] = p[0];
-		localIP[ numIP ][1] = p[1];
-		localIP[ numIP ][2] = p[2];
-		localIP[ numIP ][3] = p[3];
-		Com_Printf( "IP: %i.%i.%i.%i\n", ( ip >> 24 ) & 0xff, ( ip >> 16 ) & 0xff, ( ip >> 8 ) & 0xff, ip & 0xff );
+		memcpy(&localIP[numIP].addr, addr, addrlen);
+		memcpy(&localIP[numIP].netmask, netmask, addrlen);
+		
 		numIP++;
 	}
+}
+
+#if defined(__linux__) || defined(__APPLE__) || defined(__BSD__)
+static void NET_GetLocalAddress(void)
+{
+	struct ifaddrs *ifap, *search;
+
+	numIP = 0;
+
+	if(getifaddrs(&ifap))
+		Com_Printf("NET_GetLocalAddress: Unable to get list of network interfaces: %s\n", NET_ErrorString());
+	else
+	{
+		for(search = ifap; search; search = search->ifa_next)
+		{
+			// Only add interfaces that are up.
+			if(ifap->ifa_flags & IFF_UP)
+				NET_AddLocalAddress(search->ifa_name, search->ifa_addr, search->ifa_netmask);
+		}
+	
+		freeifaddrs(ifap);
+		
+		Sys_ShowIP();
+	}
+}
+#else
+static void NET_GetLocalAddress( void ) {
+	char				hostname[256];
+	struct addrinfo	hint;
+	struct addrinfo	*res = NULL;
+
+	numIP = 0;
+
+	if(gethostname( hostname, 256 ) == SOCKET_ERROR)
+		return;
+
+	Com_Printf( "Hostname: %s\n", hostname );
+	
+	memset(&hint, 0, sizeof(hint));
+	
+	hint.ai_family = AF_UNSPEC;
+	hint.ai_socktype = SOCK_DGRAM;
+	
+	if(!getaddrinfo(hostname, NULL, &hint, &res))
+	{
+		struct sockaddr_in mask4;
+		struct sockaddr_in6 mask6;
+		struct addrinfo *search;
+	
+		/* On operating systems where it's more difficult to find out the configured interfaces, we'll just assume a
+		 * netmask with all bits set. */
+	
+		memset(&mask4, 0, sizeof(mask4));
+		memset(&mask6, 0, sizeof(mask6));
+		mask4.sin_family = AF_INET;
+		memset(&mask4.sin_addr.s_addr, 0xFF, sizeof(mask4.sin_addr.s_addr));
+		mask6.sin6_family = AF_INET6;
+		memset(&mask6.sin6_addr, 0xFF, sizeof(mask6.sin6_addr));
+
+		// add all IPs from returned list.
+		for(search = res; search; search = search->ai_next)
+		{
+			if(search->ai_family == AF_INET)
+				NET_AddLocalAddress("", search->ai_addr, (struct sockaddr *) &mask4);
+			else if(search->ai_family == AF_INET6)
+				NET_AddLocalAddress("", search->ai_addr, (struct sockaddr *) &mask6);
+		}
+	
+		Sys_ShowIP();
+	}
+	
+	if(res)
+		freeaddrinfo(res);
 }
 #endif
 
@@ -1194,28 +1348,62 @@ NET_OpenIP
 ====================
 */
 void NET_OpenIP( void ) {
-	cvar_t	*ip;
-	int		port;
 	int		i;
+	int		err;
+	int		port;
+	int		port6;
 
-	ip = Cvar_Get( "net_ip", "localhost", CVAR_LATCH );
-	port = Cvar_Get( "net_port", va( "%i", PORT_SERVER ), CVAR_LATCH )->integer;
+	port = net_port->integer;
+	port6 = net_port6->integer;
+
+	NET_GetLocalAddress();
 
 	// automatically scan for a valid port, so multiple
 	// dedicated servers can be started without requiring
 	// a different net_port for each one
-	for( i = 0 ; i < 10 ; i++ ) {
-		ip_socket = NET_IPSocket( ip->string, port + i );
-		if ( ip_socket ) {
-			Cvar_SetValue( "net_port", port + i );
-			if ( net_socksEnabled->integer ) {
-				NET_OpenSocks( port + i );
+
+	if(net_enabled->integer & NET_ENABLEV6)
+	{
+		for( i = 0 ; i < 10 ; i++ )
+		{
+			ip6_socket = NET_IP6Socket(net_ip6->string, port6 + i, &boundto, &err);
+			if (ip6_socket != INVALID_SOCKET)
+			{
+				Cvar_SetValue( "net_port6", port6 + i );
+				break;
 			}
-			NET_GetLocalAddress();
-			return;
+			else
+			{
+				if(err == EAFNOSUPPORT)
+					break;
+			}
 		}
+		if(ip6_socket == INVALID_SOCKET)
+			Com_Printf( "WARNING: Couldn't bind to a v6 ip address.\n");
 	}
-	Com_Printf( "WARNING: Couldn't allocate IP port\n");
+
+	if(net_enabled->integer & NET_ENABLEV4)
+	{
+		for( i = 0 ; i < 10 ; i++ ) {
+			ip_socket = NET_IPSocket( net_ip->string, port + i, &err );
+			if (ip_socket != INVALID_SOCKET) {
+				Cvar_SetValue( "net_port", port + i );
+
+				if (net_socksEnabled->integer)
+					NET_OpenSocks( port + i );
+
+				break;
+			}
+			else
+			{
+				if(err == EAFNOSUPPORT)
+					break;
+			}
+		}
+		
+		if(ip_socket == INVALID_SOCKET)
+			Com_Printf( "WARNING: Couldn't bind to a v4 ip address.\n");
+	}
 }
 
 
@@ -1228,43 +1416,71 @@ NET_GetCvars
 ====================
 */
 static qboolean NET_GetCvars( void ) {
-	qboolean	modified;
+	int modified;
 
-	modified = qfalse;
+#ifdef DEDICATED
+	// I want server owners to explicitly turn on ipv6 support.
+	net_enabled = Cvar_Get( "net_enabled", "1", CVAR_LATCH | CVAR_ARCHIVE );
+#else
+	/* End users have it enabled so they can connect to ipv6-only hosts, but ipv4 will be
+	 * used if available due to ping */
+	net_enabled = Cvar_Get( "net_enabled", "3", CVAR_LATCH | CVAR_ARCHIVE );
+#endif
+	modified = net_enabled->modified;
+	net_enabled->modified = qfalse;
 
-	if( net_noudp && net_noudp->modified ) {
-		modified = qtrue;
-	}
-	net_noudp = Cvar_Get( "net_noudp", "0", CVAR_LATCH | CVAR_ARCHIVE );
+	net_ip = Cvar_Get( "net_ip", "0.0.0.0", CVAR_LATCH );
+	modified += net_ip->modified;
+	net_ip->modified = qfalse;
+	
+	net_ip6 = Cvar_Get( "net_ip6", "::", CVAR_LATCH );
+	modified += net_ip6->modified;
+	net_ip6->modified = qfalse;
+	
+	net_port = Cvar_Get( "net_port", va( "%i", PORT_SERVER ), CVAR_LATCH );
+	modified += net_port->modified;
+	net_port->modified = qfalse;
+	
+	net_port6 = Cvar_Get( "net_port6", va( "%i", PORT_SERVER ), CVAR_LATCH );
+	modified += net_port6->modified;
+	net_port6->modified = qfalse;
 
+	// Some cvars for configuring multicast options which facilitates scanning for servers on local subnets.
+	net_mcast6addr = Cvar_Get( "net_mcast6addr", NET_MULTICAST_IP6, CVAR_LATCH | CVAR_ARCHIVE );
+	modified += net_mcast6addr->modified;
+	net_mcast6addr->modified = qfalse;
 
-	if( net_socksEnabled && net_socksEnabled->modified ) {
-		modified = qtrue;
-	}
+#ifdef _WIN32
+	net_mcast6iface = Cvar_Get( "net_mcast6iface", "0", CVAR_LATCH | CVAR_ARCHIVE );
+#else
+	net_mcast6iface = Cvar_Get( "net_mcast6iface", "", CVAR_LATCH | CVAR_ARCHIVE );
+#endif
+	modified += net_mcast6iface->modified;
+	net_mcast6iface->modified = qfalse;
+
 	net_socksEnabled = Cvar_Get( "net_socksEnabled", "0", CVAR_LATCH | CVAR_ARCHIVE );
+	modified += net_socksEnabled->modified;
+	net_socksEnabled->modified = qfalse;
 
-	if( net_socksServer && net_socksServer->modified ) {
-		modified = qtrue;
-	}
 	net_socksServer = Cvar_Get( "net_socksServer", "", CVAR_LATCH | CVAR_ARCHIVE );
+	modified += net_socksServer->modified;
+	net_socksServer->modified = qfalse;
 
-	if( net_socksPort && net_socksPort->modified ) {
-		modified = qtrue;
-	}
 	net_socksPort = Cvar_Get( "net_socksPort", "1080", CVAR_LATCH | CVAR_ARCHIVE );
+	modified += net_socksPort->modified;
+	net_socksPort->modified = qfalse;
 
-	if( net_socksUsername && net_socksUsername->modified ) {
-		modified = qtrue;
-	}
 	net_socksUsername = Cvar_Get( "net_socksUsername", "", CVAR_LATCH | CVAR_ARCHIVE );
+	modified += net_socksUsername->modified;
+	net_socksUsername->modified = qfalse;
 
-	if( net_socksPassword && net_socksPassword->modified ) {
-		modified = qtrue;
-	}
 	net_socksPassword = Cvar_Get( "net_socksPassword", "", CVAR_LATCH | CVAR_ARCHIVE );
+	modified += net_socksPassword->modified;
+	net_socksPassword->modified = qfalse;
 
+	net_dropsim = Cvar_Get("net_dropsim", "", CVAR_TEMP);
 
-	return modified;
+	return modified ? qtrue : qfalse;
 }
 
 
@@ -1281,8 +1497,8 @@ void NET_Config( qboolean enableNetworking ) {
 	// get any latched changes to cvars
 	modified = NET_GetCvars();
 
-	if( net_noudp->integer ) {
-		enableNetworking = qfalse;
+	if( !net_enabled->integer ) {
+		enableNetworking = 0;
 	}
 
 	// if enable state is the same and no cvars were modified, we have nothing to do
@@ -1313,20 +1529,37 @@ void NET_Config( qboolean enableNetworking ) {
 	}
 
 	if( stop ) {
-		if ( ip_socket && ip_socket != INVALID_SOCKET ) {
+		if ( ip_socket != INVALID_SOCKET ) {
 			closesocket( ip_socket );
-			ip_socket = 0;
+			ip_socket = INVALID_SOCKET;
 		}
 
-		if ( socks_socket && socks_socket != INVALID_SOCKET ) {
-			closesocket( socks_socket );
-			socks_socket = 0;
+		if(multicast6_socket != INVALID_SOCKET)
+		{
+			if(multicast6_socket != ip6_socket)
+				closesocket(multicast6_socket);
+				
+			multicast6_socket = INVALID_SOCKET;
 		}
+
+		if ( ip6_socket != INVALID_SOCKET ) {
+			closesocket( ip6_socket );
+			ip6_socket = INVALID_SOCKET;
+		}
+
+		if ( socks_socket != INVALID_SOCKET ) {
+			closesocket( socks_socket );
+			socks_socket = INVALID_SOCKET;
+		}
+		
 	}
 
-	if( start ) {
-		if (! net_noudp->integer ) {
+	if( start )
+	{
+		if (net_enabled->integer)
+		{
 			NET_OpenIP();
+			NET_SetMulticast6();
 		}
 	}
 }
@@ -1351,12 +1584,9 @@ void NET_Init( void ) {
 	Com_Printf( "Winsock Initialized\n" );
 #endif
 
-	// this is really just to get the cvars registered
-	NET_GetCvars();
-
-	NET_Config(qtrue);
-
-	Cmd_AddCommand("net_restart", NET_Restart_f);
+	NET_Config( qtrue );
+	
+	Cmd_AddCommand ("net_restart", NET_Restart_f);
 }
 
 
@@ -1378,6 +1608,42 @@ void NET_Shutdown( void ) {
 #endif
 }
 
+/*
+====================
+NET_Event
+
+Called from NET_Sleep which uses select() to determine which sockets have seen action.
+====================
+*/
+
+void NET_Event(fd_set *fdr)
+{
+	byte bufData[MAX_MSGLEN + 1];
+	netadr_t from = {0};
+	msg_t netmsg;
+	
+	while(1)
+	{
+		MSG_Init(&netmsg, bufData, sizeof(bufData));
+
+		if(NET_GetPacket(&from, &netmsg, fdr))
+		{
+			if(net_dropsim->value > 0.0f && net_dropsim->value <= 100.0f)
+			{
+				// com_dropsim->value percent of incoming packets get dropped.
+				if(rand() < (int) (((double) RAND_MAX) / 100.0 * (double) net_dropsim->value))
+					continue;          // drop this packet
+			}
+
+			if(com_sv_running->integer)
+				Com_RunAndTimeServerPacket(&from, &netmsg);
+			else
+				CL_PacketEvent(from, &netmsg);
+		}
+		else
+			break;
+	}
+}
 
 /*
 ====================
@@ -1386,32 +1652,58 @@ NET_Sleep
 Sleeps msec or until something happens on the network
 ====================
 */
-void NET_Sleep( int msec ) {
+void NET_Sleep(int msec)
+{
 	struct timeval timeout;
-	fd_set	fdset;
+	fd_set fdr;
+	int retval;
+	SOCKET highestfd = INVALID_SOCKET;
 
-	if (!com_dedicated->integer)
-		return; // we're not a server, just run full speed
+	if(msec < 0)
+		msec = 0;
 
-	if (!ip_socket)
+	FD_ZERO(&fdr);
+
+	if(ip_socket != INVALID_SOCKET)
+	{
+		FD_SET(ip_socket, &fdr);
+
+		highestfd = ip_socket;
+	}
+	if(ip6_socket != INVALID_SOCKET)
+	{
+		FD_SET(ip6_socket, &fdr);
+
+		if(highestfd == INVALID_SOCKET || ip6_socket > highestfd)
+			highestfd = ip6_socket;
+	}
+
+#ifdef _WIN32
+	if(highestfd == INVALID_SOCKET)
+	{
+		// windows ain't happy when select is called without valid FDs
+		SleepEx(msec, 0);
 		return;
+	}
+#endif
 
-	if (msec < 0 )
-		return;
-
-	FD_ZERO(&fdset);
-	FD_SET(ip_socket, &fdset);
 	timeout.tv_sec = msec/1000;
 	timeout.tv_usec = (msec%1000)*1000;
-	select(ip_socket+1, &fdset, NULL, NULL, &timeout);
-}
 
+	retval = select(highestfd + 1, &fdr, NULL, NULL, &timeout);
+
+	if(retval == SOCKET_ERROR)
+		Com_Printf("Warning: select() syscall failed: %s\n", NET_ErrorString());
+	else if(retval > 0)
+		NET_Event(&fdr);
+}
 
 /*
 ====================
 NET_Restart_f
 ====================
 */
-void NET_Restart_f( void ) {
+void NET_Restart_f(void)
+{
 	NET_Config(qtrue);
 }

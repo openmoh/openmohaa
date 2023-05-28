@@ -94,7 +94,7 @@ void SV_GetChallenge( netadr_t from ) {
 	// look up the authorize server's IP
 	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
 		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress ) ) {
+		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) ) {
 			Com_Printf( "Couldn't resolve address\n" );
 			return;
 		}
@@ -781,7 +781,7 @@ Check to see if the client wants a file, open it if needed and start pumping the
 Fill up msg with data 
 ==================
 */
-void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
+int SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 {
 	int curindex;
 	int rate;
@@ -792,7 +792,7 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 	int numRefPaks;
 
 	if (!*cl->downloadName)
-		return;	// Nothing being downloaded
+		return 0;	// Nothing being downloaded
 
 	if (!cl->download) {
  		// Chop off filename extension.
@@ -877,7 +877,7 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 			MSG_WriteString( msg, errorMessage );
 
 			*cl->downloadName = 0;
-			return;
+			return 1;
 		}
  
 		Com_Printf( "clientDownload: %d : beginning \"%s\"\n", (int) (cl - svs.clients), cl->downloadName );
@@ -953,7 +953,7 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 		// automatically start retransmitting
 
 		if (cl->downloadClientBlock == cl->downloadCurrentBlock)
-			return; // Nothing to transmit
+			return 0; // Nothing to transmit
 
 		if (cl->downloadXmitBlock == cl->downloadCurrentBlock) {
 			// We have transmitted the complete window, should we start resending?
@@ -963,7 +963,7 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 			if (svs.time - cl->downloadSendTime > 1000)
 				cl->downloadXmitBlock = cl->downloadClientBlock;
 			else
-				return;
+				return 0;
 		}
 
 		// Send current block
@@ -991,6 +991,80 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 
 		cl->downloadSendTime = svs.time;
 	}
+
+	return 1;
+}
+
+/*
+==================
+SV_SendQueuedMessages
+
+Send one round of fragments, or queued messages to all clients that have data pending.
+Return the shortest time interval for sending next packet to client
+==================
+*/
+
+int SV_SendQueuedMessages(void)
+{
+	int i, retval = -1, nextFragT;
+	client_t *cl;
+	
+	for(i=0; i < sv_maxclients->integer; i++)
+	{
+		cl = &svs.clients[i];
+		
+		if(cl->state)
+		{
+			nextFragT = SV_RateMsec(cl);
+
+			if(!nextFragT)
+				nextFragT = SV_Netchan_TransmitNextFragment(cl);
+
+			if(nextFragT >= 0 && (retval == -1 || retval > nextFragT))
+				retval = nextFragT;
+		}
+	}
+
+	return retval;
+}
+
+
+/*
+==================
+SV_SendDownloadMessages
+
+Send one round of download messages to all clients
+==================
+*/
+
+int SV_SendDownloadMessages(void)
+{
+	int i, numDLs = 0, retval;
+	client_t *cl;
+	msg_t msg;
+	byte msgBuffer[MAX_MSGLEN];
+	
+	for(i=0; i < sv_maxclients->integer; i++)
+	{
+		cl = &svs.clients[i];
+		
+		if(cl->state && *cl->downloadName)
+		{
+			MSG_Init(&msg, msgBuffer, sizeof(msgBuffer));
+			MSG_WriteLong(&msg, cl->lastClientCommand);
+			
+			retval = SV_WriteDownloadToClient(cl, &msg);
+				
+			if(retval)
+			{
+				MSG_WriteByte(&msg, svc_EOF);
+				SV_Netchan_Transmit(cl, &msg);
+				numDLs += retval;
+			}
+		}
+	}
+
+	return numDLs;
 }
 
 /*

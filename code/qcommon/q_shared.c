@@ -1400,6 +1400,18 @@ char *Q_CleanStr( char *string ) {
 	return string;
 }
 
+int Q_CountChar(const char* string, char tocount)
+{
+    int count;
+
+    for (count = 0; *string; string++)
+    {
+        if (*string == tocount)
+            count++;
+    }
+
+    return count;
+}
 
 size_t QDECL Com_sprintf( char *dest, size_t size, const char *fmt, ...) {
 	size_t		len;

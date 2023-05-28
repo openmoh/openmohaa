@@ -131,7 +131,7 @@ static void SV_Netchan_Decode( client_t *client, msg_t *msg ) {
 SV_Netchan_TransmitNextFragment
 =================
 */
-void SV_Netchan_TransmitNextFragment( client_t *client ) {
+int SV_Netchan_TransmitNextFragment( client_t *client ) {
 	Netchan_TransmitNextFragment( &client->netchan );
 	if (!client->netchan.unsentFragments)
 	{
@@ -141,11 +141,11 @@ void SV_Netchan_TransmitNextFragment( client_t *client ) {
 		}
 		// the last fragment was transmitted, check wether we have queued messages
 		if (client->netchan_start_queue) {
-			netchan_buffer_t *netbuf;
+			netchan_buffer_t* netbuf;
 			Com_DPrintf("#462 Netchan_TransmitNextFragment: popping a queued message for transmit\n");
 			netbuf = client->netchan_start_queue;
-			SV_Netchan_Encode( client, &netbuf->msg );
-			Netchan_Transmit( &client->netchan, netbuf->msg.cursize, netbuf->msg.data );
+			SV_Netchan_Encode(client, &netbuf->msg);
+			Netchan_Transmit(&client->netchan, netbuf->msg.cursize, netbuf->msg.data);
 			// pop from queue
 			client->netchan_start_queue = netbuf->next;
 			if (!client->netchan_start_queue) {
@@ -155,8 +155,15 @@ void SV_Netchan_TransmitNextFragment( client_t *client ) {
 			else
 				Com_DPrintf("#462 Netchan_TransmitNextFragment: remaining queued message\n");
 			Z_Free(netbuf);
-		} 
-	}	
+			return SV_RateMsec(client);
+		}
+	}
+	else
+    {
+        return SV_RateMsec(client);
+    }
+
+    return -1;
 }
 
 

@@ -85,6 +85,7 @@ cvar_t	*com_fixedtime;
 cvar_t	*com_dropsim;		// 0.0 to 1.0, simulated packet drops
 cvar_t	*com_journal;
 cvar_t	*com_maxfps;
+cvar_t	*com_altivec;
 cvar_t	*com_timedemo;
 cvar_t	*com_sv_running;
 cvar_t	*com_cl_running;
@@ -1267,6 +1268,23 @@ char	cl_cdkey[34] = "                                ";
 char	cl_cdkey[34] = "123456789";
 #endif
 
+static void Com_DetectAltivec(void)
+{
+	// Only detect if user hasn't forcibly disabled it.
+	if (com_altivec->integer) {
+		static qboolean altivec = qfalse;
+		static qboolean detected = qfalse;
+		if (!detected) {
+			altivec = ( Sys_GetProcessorFeatures( ) & CF_ALTIVEC );
+			detected = qtrue;
+		}
+
+		if (!altivec) {
+			Cvar_Set( "com_altivec", "0" );  // we don't have it! Disable support!
+		}
+	}
+}
+
 /*
 =================
 Com_Init
@@ -1398,6 +1416,7 @@ void Com_Init( char *commandLine ) {
 	low_anim_memory = Cvar_Get( "low_anim_memory", "0", 0 );
 	showLoad = Cvar_Get( "showLoad", "0", 0 );
 	convertAnims = Cvar_Get( "convertAnim", "0", 0 );
+	com_altivec = Cvar_Get ("com_altivec", "1", CVAR_ARCHIVE);
 	com_maxfps = Cvar_Get( "com_maxfps", "85", CVAR_ARCHIVE );
 	deathmatch = Cvar_Get( "deathmatch", "0", 0 );
 	paused = Cvar_Get( "paused", "0", 64 );
@@ -1412,11 +1431,19 @@ void Com_Init( char *commandLine ) {
 	com_speeds = Cvar_Get( "com_speeds", "0", 0 );
 	com_timedemo = Cvar_Get( "timedemo", "0", CVAR_CHEAT );
 	com_dedicated = Cvar_Get( "dedicated", "0", CVAR_LATCH );
+	cl_packetdelay = Cvar_Get( "cl_packetdelay", "0", 0 );
+	sv_packetdelay = Cvar_Get( "sv_packetdelay", "0", 0 );
 	com_sv_running = Cvar_Get( "sv_running", "0", CVAR_ROM );
 	com_cl_running = Cvar_Get( "cl_running", "0", CVAR_ROM );
 	com_buildScript = Cvar_Get( "com_buildScript", "0", 0 );
-	cl_packetdelay = Cvar_Get( "cl_packetdelay", "0", 0 );
-	sv_packetdelay = Cvar_Get( "sv_packetdelay", "0", 0 );
+	com_ansiColor = Cvar_Get( "com_ansiColor", "0", CVAR_ARCHIVE );
+
+	com_unfocused = Cvar_Get( "com_unfocused", "0", CVAR_ROM );
+	com_maxfpsUnfocused = Cvar_Get( "com_maxfpsUnfocused", "0", CVAR_ARCHIVE );
+	com_minimized = Cvar_Get( "com_minimized", "0", CVAR_ROM );
+	com_maxfpsMinimized = Cvar_Get( "com_maxfpsMinimized", "0", CVAR_ARCHIVE );
+	com_abnormalExit = Cvar_Get( "com_abnormalExit", "0", CVAR_ROM );
+	com_busyWait = Cvar_Get("com_busyWait", "0", CVAR_ARCHIVE);
 
 	if( com_dedicated->integer )
 	{
@@ -1607,13 +1634,34 @@ int Com_ModifyMsec( int msec ) {
 
 /*
 =================
+Com_TimeVal
+=================
+*/
+
+int Com_TimeVal(int minMsec)
+{
+	int timeVal;
+
+	timeVal = Sys_Milliseconds() - com_frameTime;
+
+	if(timeVal >= minMsec)
+		timeVal = 0;
+	else
+		timeVal = minMsec - timeVal;
+
+	return timeVal;
+}
+
+/*
+=================
 Com_Frame
 =================
 */
 void Com_Frame( void ) {
 
 	int		msec, minMsec;
-	static int	lastTime;
+	int		timeVal, timeValSV;
+	static int	lastTime = 0, bias = 0;
 	int key;
 
 	int		timeBeforeFirstEvents;
@@ -1666,43 +1714,80 @@ void Com_Frame( void ) {
 		timeBeforeFirstEvents = Sys_Milliseconds ();
 	}
 
-	// we may want to spin here if things are going too fast
-	if ( !com_dedicated->integer && com_maxfps->integer > 0 && !com_timedemo->integer ) {
-		minMsec = 1000 / com_maxfps->integer;
-	} else {
-		minMsec = 1;
-	}
-	do {
-		com_frameTime = Com_EventLoop();
-		if ( lastTime > com_frameTime ) {
-			lastTime = com_frameTime;		// possible on first frame
-		}
-		msec = com_frameTime - lastTime;
-	} while ( msec < minMsec );
+    // Figure out how much time we have
+    if (!com_timedemo->integer)
+    {
+        if (com_dedicated->integer)
+            minMsec = SV_FrameMsec();
+        else
+        {
+            if (com_minimized->integer && com_maxfpsMinimized->integer > 0)
+                minMsec = 1000 / com_maxfpsMinimized->integer;
+            else if (com_unfocused->integer && com_maxfpsUnfocused->integer > 0)
+                minMsec = 1000 / com_maxfpsUnfocused->integer;
+            else if (com_maxfps->integer > 0)
+                minMsec = 1000 / com_maxfps->integer;
+            else
+                minMsec = 1;
+
+            timeVal = com_frameTime - lastTime;
+            bias += timeVal - minMsec;
+
+            if (bias > minMsec)
+                bias = minMsec;
+
+            // Adjust minMsec if previous frame took too long to render so
+            // that framerate is stable at the requested value.
+            minMsec -= bias;
+        }
+    }
+    else
+        minMsec = 1;
+
+    do
+    {
+        if (com_sv_running->integer)
+        {
+            timeValSV = SV_SendQueuedPackets();
+
+            timeVal = Com_TimeVal(minMsec);
+
+            if (timeValSV < timeVal)
+                timeVal = timeValSV;
+        }
+        else
+            timeVal = Com_TimeVal(minMsec);
+
+        if (com_busyWait->integer || timeVal < 1)
+            NET_Sleep(0);
+        else
+            NET_Sleep(timeVal - 1);
+    } while (Com_TimeVal(minMsec));
 
     IN_Frame();
 
-#ifndef DEDICATED
-	if( com_dedicated->integer || CL_FinishedIntro() )
-	{
-		Cbuf_Execute( 0 );
-	}
-#else
-	Cbuf_Execute(0);
-#endif
+    lastTime = com_frameTime;
+    com_frameTime = Com_EventLoop();
 
-	lastTime = com_frameTime;
+    msec = com_frameTime - lastTime;
 
-	// mess with msec if needed
-	com_frameMsec = msec;
-	msec = Com_ModifyMsec( msec );
+    Cbuf_Execute(0);
 
-	//
-	// server side
-	//
-	if ( com_speeds->integer ) {
-		timeBeforeServer = Sys_Milliseconds ();
-	}
+    if (com_altivec->modified)
+    {
+        Com_DetectAltivec();
+        com_altivec->modified = qfalse;
+    }
+
+    // mess with msec if needed
+    msec = Com_ModifyMsec(msec);
+
+    //
+    // server side
+    //
+    if (com_speeds->integer) {
+        timeBeforeServer = Sys_Milliseconds();
+    }
 
 	SV_Frame( msec );
 
@@ -1721,35 +1806,42 @@ void Com_Frame( void ) {
 	}
 
 #ifndef DEDICATED
-	if (!com_dedicated->integer) {
-		//
-		// client system
-		//
-		//
-		// run event loop a second time to get server to client packets
-		// without a frame of latency
-		//
-		if (com_speeds->integer) {
-			timeBeforeEvents = Sys_Milliseconds();
-		}
-		Com_EventLoop();
-		Cbuf_Execute(msec);
+	//
+	// client system
+	//
+	//
+	// run event loop a second time to get server to client packets
+	// without a frame of latency
+	//
+	if ( com_speeds->integer ) {
+		timeBeforeEvents = Sys_Milliseconds ();
+	}
+	Com_EventLoop();
+	Cbuf_Execute(msec);
 
 
-		//
-		// client side
-		//
-		if (com_speeds->integer) {
-			timeBeforeClient = Sys_Milliseconds();
-		}
+	//
+	// client side
+	//
+	if ( com_speeds->integer ) {
+		timeBeforeClient = Sys_Milliseconds ();
+	}
 
-		CL_Frame(msec);
+	CL_Frame( msec );
 
-		if (com_speeds->integer) {
-			timeAfter = Sys_Milliseconds();
-		}
+	if ( com_speeds->integer ) {
+		timeAfter = Sys_Milliseconds ();
+	}
+#else
+	if ( com_speeds->integer ) {
+		timeAfter = Sys_Milliseconds ();
+		timeBeforeEvents = timeAfter;
+		timeBeforeClient = timeAfter;
 	}
 #endif
+
+
+	NET_FlushPacketQueue();
 
 	//
 	// report timing information

@@ -180,6 +180,13 @@ NET
 ==============================================================
 */
 
+#define NET_ENABLEV4            0x01
+#define NET_ENABLEV6            0x02
+// if this flag is set, always attempt ipv6 connections instead of ipv4 if a v6 address is found.
+#define NET_PRIOV6              0x04
+// disables ipv6 multicast support if set.
+#define NET_DISABLEMCAST        0x08
+
 #define	PACKET_BACKUP	32	// number of old messages that must be kept on client and
 							// server for delta comrpession and ping estimation
 #define	PACKET_MASK		(PACKET_BACKUP-1)
@@ -197,7 +204,10 @@ typedef enum {
 	NA_BROADCAST,
 	NA_IP,
 	NA_IPX,
-	NA_BROADCAST_IPX
+    NA_BROADCAST_IPX,
+    NA_IP6,
+    NA_MULTICAST6,
+    NA_UNSPEC
 } netadrtype_t;
 
 typedef enum {
@@ -206,19 +216,17 @@ typedef enum {
 	NS_SERVER
 } netsrc_t;
 
+#define NET_ADDRSTRMAXLEN 48	// maximum length of an IPv6 address string including trailing '\0'
 typedef struct {
-	netadrtype_t	type;
+    netadrtype_t	type;
 
-	byte	ip[4];
-	byte	ipx[ 10 ];
+    byte	ip[4];
+    byte	ip6[16];
+    byte	ipx[10];
 
-	unsigned short	port;
+    unsigned short	port;
+    unsigned long	scope_id;	// Needed for IPv6 link-local addresses
 } netadr_t;
-
-// wombat: gamespy tcp code
-qboolean	NETGS_CreateMasterSocket( void );
-qboolean	NETGS_SendMasterRequest( void );
-int			NETGS_ReceiveMasterResponse( char *buffer, int size );
 
 void		NET_Init( void );
 void		NET_Shutdown( void );
@@ -230,11 +238,15 @@ void		QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *f
 void		QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len );
 
 qboolean	NET_CompareAdr (netadr_t a, netadr_t b);
+qboolean	NET_CompareBaseAdrMask(netadr_t a, netadr_t b, int netmask);
 qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b);
 qboolean	NET_IsLocalAddress (netadr_t adr);
 const char	*NET_AdrToString (netadr_t a);
-qboolean	NET_StringToAdr ( const char *s, netadr_t *a);
+const char	*NET_AdrToStringwPort (netadr_t a);
+int		NET_StringToAdr ( const char *s, netadr_t *a, netadrtype_t family);
 qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
+void		NET_JoinMulticast6(void);
+void		NET_LeaveMulticast6(void);
 void		NET_Sleep(int msec);
 
 
@@ -271,7 +283,11 @@ typedef struct {
 	qboolean	unsentFragments;
 	size_t		unsentFragmentStart;
 	size_t		unsentLength;
-	byte		unsentBuffer[MAX_MSGLEN];
+    byte		unsentBuffer[MAX_MSGLEN];
+
+    int			challenge;
+    int			lastSentTime;
+    int			lastSentSize;
 } netchan_t;
 
 void Netchan_Init( int qport );
@@ -1135,7 +1151,9 @@ void SV_Shutdown( const char *finalmsg );
 void SV_SetFrameNumber(int frameNumber);
 void SV_Frame( int msec );
 void SV_PacketEvent( netadr_t from, msg_t *msg );
-qboolean SV_GameCommand( void );
+int SV_FrameMsec(void);
+qboolean SV_GameCommand(void);
+int SV_SendQueuedPackets(void);
 
 //
 // input interface

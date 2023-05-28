@@ -104,7 +104,7 @@ extern "C" {
 #define PRODUCT_VERSION_FULL	PRODUCT_NAME_FULL
 #define Q3_VERSION PRODUCT_VERSION_FULL
 
-#define CLIENT_WINDOW_TITLE		PRODUCT_NAME
+#define CLIENT_WINDOW_TITLE		PRODUCT_NAME_FULL
 #define CLIENT_WINDOW_MIN_TITLE PRODUCT_NAME
 
 #define MAX_TEAMNAME 32
@@ -1192,6 +1192,8 @@ void	Q_strcat( char *dest, int size, const char *src );
 int Q_PrintStrlen( const char *string );
 // removes color sequences from string
 char *Q_CleanStr( char *string );
+// Count the number of char tocount encountered in string
+int Q_CountChar(const char *string, char tocount);
 
 //=============================================
 

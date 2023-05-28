@@ -1144,9 +1144,9 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 		|| key == K_MOUSE5 )
 	{
 		if( down ) {
-			cl.mouseButtons |= ( 1 << ( key + 75 ) );
+			cl.mouseButtons |= ( 1 << ( key + (256 - K_MOUSE1) ) );
 		} else {
-			cl.mouseButtons &= ~( 1 << ( key + 75 ) );
+			cl.mouseButtons &= ~( 1 << ( key + (256 - K_MOUSE1)) );
 		}
 	}
 
