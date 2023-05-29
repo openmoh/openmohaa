@@ -744,9 +744,7 @@ void RB_DrawTerrainTris(srfTerrain_t* p) {
 	terraInt numv;
 	int dlightBits;
 
-	if (tess.numVertexes + p->nVerts >= SHADER_MAX_VERTEXES || tess.numIndexes + p->nTris * 3 >= SHADER_MAX_INDEXES) {
-		RB_CheckOverflow(p->nVerts, 3 * p->nTris);
-	}
+	RB_CHECKOVERFLOW(p->nVerts, p->nTris * 3);
 
 	dlightBits = p->dlightBits[backEnd.smpFrame];
 	tess.dlightBits |= dlightBits;
