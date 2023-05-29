@@ -1044,7 +1044,7 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 	int		i;
 	int		b;
 
-	for ( b = 0; b < NUM_TEXTURE_BUNDLES; b++ ) {
+	for ( b = 0; b < NUM_TEXTURE_BUNDLES && pStage->bundle[b].image[0]; b++ ) {
 		int tm;
 
 		//
@@ -1067,17 +1067,29 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 				tess.svars.texcoords[b][i][1] = tess.texCoords[i][1][1];
 			}
 			break;
-		case TCGEN_VECTOR:
-			for ( i = 0 ; i < tess.numVertexes ; i++ ) {
-				tess.svars.texcoords[b][i][0] = DotProduct( tess.xyz[i], pStage->bundle[b].tcGenVectors[0] );
-				tess.svars.texcoords[b][i][1] = DotProduct( tess.xyz[i], pStage->bundle[b].tcGenVectors[1] );
-			}
-			break;
 		case TCGEN_ENVIRONMENT_MAPPED:
 			RB_CalcEnvironmentTexCoords( ( float * ) tess.svars.texcoords[b] );
+            break;
+		case TCGEN_VECTOR:
+			for (i = 0; i < tess.numVertexes; i++) {
+				tess.svars.texcoords[b][i][0] = DotProduct(tess.xyz[i], pStage->bundle[b].tcGenVectors[0]);
+				tess.svars.texcoords[b][i][1] = DotProduct(tess.xyz[i], pStage->bundle[b].tcGenVectors[1]);
+			}
 			break;
-		case TCGEN_BAD:
-			return;
+        case TCGEN_ENVIRONMENT_MAPPED2:
+            RB_CalcEnvironmentTexCoords2((float*)tess.svars.texcoords[b]);
+            break;
+		case TCGEN_SUN_REFLECTION:
+			// FIXME: unimplemented
+			break;
+        default:
+            ri.Printf(
+				PRINT_DEVELOPER,
+                "WARNING: invalid tcGen '%d' specified for shader '%s'\n",
+                pStage->bundle[b].tcGen,
+                tess.shader->name
+			);
+			break;
 		}
 
 		//
