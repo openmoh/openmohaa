@@ -139,13 +139,6 @@ static qboolean ParseVector( char **text, int count, float *v ) {
 	char	*token;
 	int		i;
 
-	// FIXME: spaces are currently required after parens, should change parseext...
-	token = COM_ParseExt( text, qfalse );
-	if ( strcmp( token, "(" ) ) {
-		ri.Printf( PRINT_WARNING, "WARNING: missing parenthesis in shader '%s'\n", shader.name );
-		return qfalse;
-	}
-
 	for ( i = 0 ; i < count ; i++ ) {
 		token = COM_ParseExt( text, qfalse );
 		if ( !token[0] ) {
@@ -153,12 +146,6 @@ static qboolean ParseVector( char **text, int count, float *v ) {
 			return qfalse;
 		}
 		v[i] = atof( token );
-	}
-
-	token = COM_ParseExt( text, qfalse );
-	if ( strcmp( token, ")" ) ) {
-		ri.Printf( PRINT_WARNING, "WARNING: missing parenthesis in shader '%s'\n", shader.name );
-		return qfalse;
 	}
 
 	return qtrue;
@@ -1128,27 +1115,19 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 			{
 				stage->alphaGen = AGEN_LIGHTING_SPECULAR;
 			}
-			else if (!Q_stricmp(token, "distFade"))
+			else if (!Q_stricmp(token, "distFade") || !Q_stricmp(token, "oneMinusDistFade")
+				|| !Q_stricmp(token, "tikiDistFade") || !Q_stricmp(token, "oneMinusTikiDistFade"))
 			{
-				stage->alphaGen = AGEN_DIST_FADE;
-				shader.fDistNear = 256.0;
-				shader.fDistRange = 256.0;
+				if (!Q_stricmp(token, "distFade")) {
+					stage->alphaGen = AGEN_DIST_FADE;
+				} else if (!Q_stricmp(token, "oneMinusDistFade")) {
+					stage->alphaGen = AGEN_ONE_MINUS_DIST_FADE;
+				} else if (!Q_stricmp(token, "tikiDistFade")) {
+                    stage->alphaGen = AGEN_TIKI_DIST_FADE;
+                } else {
+                    stage->alphaGen = AGEN_ONE_MINUS_TIKI_DIST_FADE;
+                }
 
-				token = COM_ParseExt(text, qfalse);
-				if (token[0] == 0) {
-					continue;
-				}
-				shader.fDistNear = atof(token);
-
-				token = COM_ParseExt(text, qfalse);
-				if (token[0] == 0) {
-					continue;
-				}
-				shader.fDistRange = atof(token);
-			}
-			else if (!Q_stricmp(token, "oneMinusDistFade"))
-			{
-				stage->alphaGen = AGEN_ONE_MINUS_DIST_FADE;
 				shader.fDistNear = 256.0;
 				shader.fDistRange = 256.0;
 
@@ -1182,6 +1161,25 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 					continue;
 				}
 				stage->alphaMax = atof(token);
+			}
+			else if (!Q_stricmp(token, "heightFade"))
+            {
+                shader.needsNormal = qtrue;
+                stage->alphaMin = 256.0f;
+                stage->alphaMax = 512.0f;
+                stage->alphaGen = AGEN_HEIGHT_FADE;
+
+                token = COM_ParseExt(text, qfalse);
+                if (token[0] == 0) {
+                    continue;
+                }
+                stage->alphaMin = atof(token);
+
+                token = COM_ParseExt(text, qfalse);
+                if (token[0] == 0) {
+                    continue;
+                }
+                stage->alphaMax = atof(token);
 			}
 			else if (!Q_stricmp(token, "oneMinusDot"))
 			{
