@@ -1020,6 +1020,10 @@ static void ComputeColors( shaderStage_t *pStage )
 	case AGEN_ONE_MINUS_DIST_FADE:
 		// FIXME: unimplemented
 		break;
+    case AGEN_TIKI_DIST_FADE:
+    case AGEN_ONE_MINUS_TIKI_DIST_FADE:
+        // FIXME: unimplemented
+		break;
 	case AGEN_DOT_VIEW:
 		RB_CalcAlphaFromDotView((unsigned char*)tess.svars.colors, pStage->alphaMin, pStage->alphaMax);
 		break;
