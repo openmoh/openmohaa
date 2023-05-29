@@ -2506,7 +2506,7 @@ image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip
 		if (!strcmp(name, image->imgName)) {
 			// the white image can be used with any set of parms, but other mismatches are errors
 			if (strcmp(name, "*white")) {
-				if (image->numMipmaps != mipmap) {
+				if ((image->numMipmaps && !mipmap) || (!image->numMipmaps && mipmap)) {
 					ri.Printf(PRINT_DEVELOPER, "WARNING: reused image %s with mixed mipmap parm\n", name);
 				}
 				if (image->allowPicmip != allowPicmip) {
