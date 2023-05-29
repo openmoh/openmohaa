@@ -317,7 +317,7 @@ void CG_ParseScores()
 			strcpy(szString6, cgi.Argv(4 + iCurrentEntry + iDatumCount * i));
 			strcpy(szString7, cgi.Argv(5 + iCurrentEntry + iDatumCount * i));
 
-			if (cgs.gametype >= GT_TEAM_ROUNDS && iClientNum == -1 && iClientTeam == TEAM_ALLIES || iClientTeam == TEAM_AXIS)
+			if (cgs.gametype >= GT_TEAM_ROUNDS && iClientNum == -1 && (iClientTeam == TEAM_ALLIES || iClientTeam == TEAM_AXIS))
 			{
 				strcat(szString4, va(" %s", cgi.LV_ConvertString("Wins")));
 				szString5[0] = 0;
