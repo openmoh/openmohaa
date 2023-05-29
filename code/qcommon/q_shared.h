@@ -1886,6 +1886,7 @@ typedef struct usercmd_s {
 #define BEAM_PARENT             (1<<9)
 #define BEAM_TILESHADER         (1<<10)
 #define BEAM_OFFSET_ENDPOINTS   (1<<11)
+#define BEAM_FADE               (1<<12)
 #define BEAM_INVERTED           (1<<13)
 #define BEAM_INVERTED_FAST      (1<<14)
 
