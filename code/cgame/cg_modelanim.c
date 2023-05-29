@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "tiki.h"
 
-void CG_PlayerTeamUpdate(refEntity_t* pModel, entityState_t* pPlayerState)
+void CG_PlayerTeamIcon(refEntity_t* pModel, entityState_t* pPlayerState)
 {
     qboolean bInArtillery, bInTeam, bSpecialIcon;
 
@@ -77,12 +77,12 @@ void CG_PlayerTeamUpdate(refEntity_t* pModel, entityState_t* pPlayerState)
 		if ((pPlayerState->eFlags & EF_PLAYER_TALKING) != 0 && ((cg.time >> 8) & 1) != 0)
 		{
 			iconEnt.hModel = cgi.R_RegisterModel("textures/hud/talking_headicon.spr");
-			bSpecialIcon = 1;
+			bSpecialIcon = qtrue;
 		}
 		else if ((pPlayerState->eFlags & EF_PLAYER_IN_MENU) != 0)
 		{
 			iconEnt.hModel = cgi.R_RegisterModel("textures/hud/inmenu_headicon.spr");
-			bSpecialIcon = 1;
+			bSpecialIcon = qtrue;
 		}
 		else
 		{
@@ -108,10 +108,10 @@ void CG_PlayerTeamUpdate(refEntity_t* pModel, entityState_t* pPlayerState)
 		memset(vTmp, 0, sizeof(vTmp));
 		AnglesToAxis(vTmp, iconEnt.axis);
 
-		iconEnt.scale = 0.5;
+		iconEnt.scale = 0.5f;
 		iconEnt.renderfx = 0;
 		iconEnt.reType = RT_SPRITE;
-		iconEnt.shaderTime = 0.0;
+		iconEnt.shaderTime = 0.0f;
 		iconEnt.frameInfo[0].index = 0;
 		iconEnt.shaderRGBA[0] = -1;
 		iconEnt.shaderRGBA[1] = -1;
@@ -121,7 +121,7 @@ void CG_PlayerTeamUpdate(refEntity_t* pModel, entityState_t* pPlayerState)
 		iTag = cgi.Tag_NumForName(pModel->tiki, "eyes bone");
 		if (iTag == -1)
 		{
-			iconEnt.origin[2] = iconEnt.origin[2] + 96.0;
+			iconEnt.origin[2] = iconEnt.origin[2] + 96.0f;
 		}
 		else
 		{
@@ -131,66 +131,58 @@ void CG_PlayerTeamUpdate(refEntity_t* pModel, entityState_t* pPlayerState)
                 VectorMA(iconEnt.origin, oEyes.origin[i], pModel->axis[i], iconEnt.origin);
             }
 
-			iconEnt.origin[2] = iconEnt.origin[2] + 20.0;
+			iconEnt.origin[2] = iconEnt.origin[2] + 20.0f;
 		}
 
         VectorSubtract(iconEnt.origin, cg.refdef.vieworg, vTmp);
         fDist = VectorLength(vTmp);
 
-        if (fDist >= 256)
-        {
-            if (fDist > 512.0) {
-                iconEnt.scale = (fDist - 512.0) / 2560.0 + 0.5;
-            }
-        }
-        else
-		{
-			iconEnt.scale = fDist / 853.0 + 0.2;
+        if (fDist < 256.0f)  {
+            iconEnt.scale = fDist / 853.0f + 0.2f;
+        } else if (fDist > 512.0f) {
+            // Make sure to scale so the icon can be seen far away
+            iconEnt.scale = (fDist - 512.0f) / 2560.0f + 0.5f;
 		}
 
-        if (iconEnt.scale > 1.0) {
-            iconEnt.scale = 1.0;
+        if (iconEnt.scale > 1.0f) {
+            iconEnt.scale = 1.0f;
         }
 
         if (fDist > 256.0) {
-            fAlpha = 1.0;
-        }
-        else if (fDist >= 72.0) {
-            fAlpha = (fDist - 72.0) / 184.0;
-        }
-        else {
-            fAlpha = 0.0;
+            fAlpha = 1.0f;
+        } else if (fDist >= 72.0f) {
+            fAlpha = (fDist - 72.0f) / 184.0f;
+        } else {
+            fAlpha = 0.0f;
         }
 
-        if (cg.snap->ps.stats[STAT_TEAM] == 4 || cg.snap->ps.stats[STAT_TEAM] == 3) {
-            fAlpha = fAlpha * 0.65;
+        if (cg.snap->ps.stats[STAT_TEAM] == TEAM_ALLIES || cg.snap->ps.stats[STAT_TEAM] == TEAM_AXIS) {
+            fAlpha = fAlpha * 0.65f;
         }
         else {
-            fAlpha = fAlpha * 0.4;
+            fAlpha = fAlpha * 0.4f;
         }
 
 		if (bSpecialIcon)
 		{
-			int value = (int)((fAlpha + 0.60000002) * 255.0);
+			int value = (int)((fAlpha + 0.6f) * 255.0f);
 			if (value > 255) value = 255;
 			iconEnt.shaderRGBA[3] = value;
-		}
-		else
-		{
-			iconEnt.shaderRGBA[3] = (int)(fAlpha * 255.0);
+		} else {
+			iconEnt.shaderRGBA[3] = (int)(fAlpha * 255.0f);
 		}
 
         if (fAlpha > 0.0 || bSpecialIcon)
 		{
 			if (bSpecialIcon)
 			{
-				VectorMA(iconEnt.origin, -2.0, cg.refdef.viewaxis[0], iconEnt.origin);
-				iconEnt.scale = iconEnt.scale + 0.05;
+				VectorMA(iconEnt.origin, -2.0f, cg.refdef.viewaxis[0], iconEnt.origin);
+				iconEnt.scale += 0.05f;
 			}
 
             cgi.R_AddRefSpriteToScene(&iconEnt);
 
-            if (bSpecialIcon && bInTeam && fAlpha > 0.0)
+            if (bSpecialIcon && bInTeam && fAlpha > 0.0f)
 			{
                 if (pPlayerState->eFlags & EF_ALLIES) {
                     iconEnt.hModel = cgi.R_RegisterModel("textures/hud/allies_headicon.spr");
@@ -198,14 +190,13 @@ void CG_PlayerTeamUpdate(refEntity_t* pModel, entityState_t* pPlayerState)
                 else {
                     iconEnt.hModel = cgi.R_RegisterModel("textures/hud/axis_headicon.spr");
                 }
-				VectorMA(iconEnt.origin, 4.0, cg.refdef.viewaxis[0], iconEnt.origin);
+				VectorMA(iconEnt.origin, 4.0f, cg.refdef.viewaxis[0], iconEnt.origin);
 				iconEnt.scale = iconEnt.scale - 0.1;
-				iconEnt.shaderRGBA[3] = (int)(fAlpha * 255.0);
+				iconEnt.shaderRGBA[3] = (int)(fAlpha * 255.0f);
 				cgi.R_AddRefSpriteToScene(&iconEnt);
             }
         }
     }
-    // FIXME: unimplemented
 }
 
 /*
@@ -953,7 +944,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
     }
 
     if (cent->currentState.eType == ET_PLAYER && !(cent->currentState.eFlags & EF_DEAD)) {
-        CG_PlayerTeamUpdate(&model, &cent->currentState);
+        CG_PlayerTeamIcon(&model, &cent->currentState);
     }
 
     if (s1->number == cg.snap->ps.clientNum)
