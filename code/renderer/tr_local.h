@@ -432,11 +432,13 @@ typedef struct {
 
 
 #define	MAX_IMAGE_ANIMATIONS	8
+#define BUNDLE_ANIMATE_ONCE		1
 
 typedef struct {
 	image_t			*image[MAX_IMAGE_ANIMATIONS];
 	int				numImageAnimations;
 	float			imageAnimationSpeed;
+	float			imageAnimationPhase;
 
 	texCoordGen_t	tcGen;
 	vec3_t			tcGenVectors[2];
@@ -448,6 +450,7 @@ typedef struct {
 	qboolean		isLightmap;
 	qboolean		vertexLightmap;
 	qboolean		isVideoMap;
+	int				flags;
 } textureBundle_t;
 
 #define NUM_TEXTURE_BUNDLES 2
@@ -1139,6 +1142,9 @@ extern	refimport_t		ri;
 #define	MAX_SPRITESURFS			0x8000
 #define	DRAWSURF_MASK			(MAX_DRAWSURFS-1)
 
+#define MAX_SPRITE_DIST				16384.0f
+#define MAX_SPRITE_DIST_SQUARED		(MAX_SPRITE_DIST * MAX_SPRITE_DIST)
+
 /*
 
 the drawsurf sort data is packed into a single 32 bit value so it can be
@@ -1291,6 +1297,7 @@ typedef struct {
 	trRefEntity_t			*currentEntity;
 	trRefEntity_t			worldEntity;		// point currentEntity at this when rendering world
 	int						currentEntityNum;
+	int						currentSpriteNum;
 	int						shiftedEntityNum;	// currentEntityNum << QSORT_ENTITYNUM_SHIFT
 	int                     shiftedIsStatic;
 	model_t					*currentModel;
@@ -2031,6 +2038,7 @@ SKY PORTALS
 void R_Sky_Init();
 void R_Sky_Reset();
 void R_Sky_AddSurf(msurface_t* surf);
+void R_Sky_Render();
 
 /*
 =============================================================
@@ -2063,6 +2071,7 @@ SWIPE
 void RB_DrawSwipeSurface(surfaceType_t* pswipe);
 void RE_SwipeBegin(float thistime, float life, qhandle_t shader);
 void RE_SwipeEnd();
+void R_AddSwipeSurfaces();
 
 /*
 =============================================================
@@ -2270,6 +2279,7 @@ typedef enum {
 	RC_SET_COLOR,
 	RC_STRETCH_PIC,
 	RC_DRAW_SURFS,
+	RC_SPRITE_SURFS,
 	RC_DRAW_BUFFER,
 	RC_SWAP_BUFFERS,
 	RC_SCREENSHOT

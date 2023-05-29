@@ -779,8 +779,16 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 		//
 		// animMap <frequency> <image1> .... <imageN>
 		//
-		else if ( !Q_stricmp( token, "animMap" ) )
+		else if ( !Q_stricmp( token, "animMap" ) || !Q_stricmp(token, "animMapOnce") || !Q_stricmp(token, "animMapPhase"))
 		{
+			qboolean phased;
+
+			if (!Q_stricmp(token, "animMapOnce")) {
+				stage->bundle[cntBundle].flags |= BUNDLE_ANIMATE_ONCE;
+			}
+
+			phased = !Q_stricmp(token, "animMapPhase");
+
 			token = COM_ParseExt( text, qfalse );
 			if ( !token[0] )
 			{
@@ -789,6 +797,17 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 			}
 			stage->bundle[cntBundle].imageAnimationSpeed = atof( token );
 
+			if (phased)
+            {
+                token = COM_ParseExt(text, qfalse);
+                if (!token[0])
+                {
+                    ri.Printf(PRINT_WARNING, "WARNING: missing phase for 'animMapPhase' keyword in shader '%s'\n", shader.name);
+                    return qfalse;
+                }
+
+				stage->bundle[cntBundle].imageAnimationPhase = atof(token);
+			}
 			// parse up to MAX_IMAGE_ANIMATIONS animations
 			while ( 1 ) {
 				int		num;
@@ -2043,7 +2062,7 @@ static qboolean ParseShader( char **text )
 
 			shader.sprite.scale = 1.0;
 			continue;
-			}
+		}
 		else if (!Q_stricmp(token, "spritescale"))
 		{
 			token = COM_ParseExt(text, qfalse);
