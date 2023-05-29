@@ -548,7 +548,7 @@ Event EV_Client_Sound
    );
 Event EV_Set_Current_Tiki
    (
-   "sound",
+   "settiki",
    EV_DEFAULT,
    "s",
    "settiki tikiname - all subsequent events are applied to this tiki",
@@ -7115,10 +7115,9 @@ void ClientGameCommandManager::SetCurrentTiki(Event* ev)
     }
 
     tikiName = ev->GetString(1);
-    if (!str::icmp(tikiName.c_str(), "none")) {
+    if (str::icmp(tikiName.c_str(), "none")) {
         current_tiki = cgi.TIKI_FindTiki(tikiName.c_str());
-    }
-    else {
+    } else {
         current_tiki = NULL;
     }
 }
