@@ -401,10 +401,10 @@ void CG_DrawOverlayTopBottom(qhandle_t handleTop, qhandle_t handleBottom, float 
     iHalfWidth = cgs.glconfig.vidHeight >> 1;
     iWidthOffset = (cgs.glconfig.vidWidth - cgs.glconfig.vidHeight) >> 1;
 
-    cgi.R_DrawStretchPic(iWidthOffset, 0.0, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, 1.0, 0.0, 0.0, 1.0, handleTop);
-    cgi.R_DrawStretchPic(iWidthOffset + iHalfWidth, 0.0, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, 0.0, 0.0, 1.0, 1.0, handleTop);
-    cgi.R_DrawStretchPic(iWidthOffset, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, 1.0, 0.0, 0.0, 1.0, handleBottom);
-    cgi.R_DrawStretchPic(iWidthOffset + iHalfWidth, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, cgs.glconfig.vidHeight, 0.0, 0.0, 1.0, 1.0, handleBottom);
+    cgi.R_DrawStretchPic(iWidthOffset, 0.0, iHalfWidth, iHalfWidth, 1.0, 0.0, 0.0, 1.0, handleTop);
+    cgi.R_DrawStretchPic(iWidthOffset + iHalfWidth, 0.0, iHalfWidth, iHalfWidth, 0.0, 0.0, 1.0, 1.0, handleTop);
+    cgi.R_DrawStretchPic(iWidthOffset, iHalfWidth, iHalfWidth, iHalfWidth, 1.0, 0.0, 0.0, 1.0, handleBottom);
+    cgi.R_DrawStretchPic(iWidthOffset + iHalfWidth, iHalfWidth, iHalfWidth, iHalfWidth, 0.0, 0.0, 1.0, 1.0, handleBottom);
 
     color[0] = 0.0;
     color[1] = 0.0;
