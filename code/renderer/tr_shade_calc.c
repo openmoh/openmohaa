@@ -533,7 +533,93 @@ static void Autosprite2Deform( void ) {
 }
 
 static void LightGlowDeform() {
-	// FIXME: unimplemented
+	int i;
+	int oldVerts;
+	float* xyz;
+	vec3_t mid, delta;
+	float radius, dist, ofs;
+	vec3_t forward, left, up;
+	vec3_t leftDir, upDir;
+
+    if (tess.numVertexes & 3) {
+        ri.Printf(PRINT_WARNING, "LightGlowDeform shader %s had odd vertex count", tess.shader->name);
+    }
+    if (tess.numIndexes != (tess.numVertexes >> 2) * 6) {
+        ri.Printf(PRINT_WARNING, "LightGlowDeform shader %s had odd index count", tess.shader->name);
+    }
+
+	oldVerts = tess.numVertexes;
+	tess.numVertexes = 0;
+	tess.numIndexes = 0;
+
+    if (backEnd.currentEntity == &tr.worldEntity)
+    {
+		VectorCopy(backEnd.viewParms.ori.axis[1], leftDir);
+		VectorCopy(backEnd.viewParms.ori.axis[2], upDir);
+    }
+    else
+    {
+        GlobalVectorToLocal(backEnd.viewParms.ori.axis[1], leftDir);
+        GlobalVectorToLocal(backEnd.viewParms.ori.axis[2], upDir);
+    }
+
+	for (i = 0; i < oldVerts; i += 4)
+	{
+		xyz = tess.xyz[i];
+
+		mid[0] = (xyz[0] + xyz[4] + xyz[8] + xyz[12]) * 0.25f;
+		mid[1] = (xyz[1] + xyz[5] + xyz[9] + xyz[13]) * 0.25f;
+		mid[2] = (xyz[2] + xyz[6] + xyz[10] + xyz[14]) * 0.25f;
+
+		VectorSubtract(xyz, mid, delta);
+
+		radius = VectorLength(delta) * 0.707f;
+		VectorAdd(mid, backEnd.ori.origin, delta);
+		VectorSubtract(backEnd.viewParms.ori.origin, delta, forward);
+
+		dist = VectorNormalize(forward) - 4.0;
+
+		VectorScale(forward, radius, forward);
+		VectorScale(leftDir, radius, left);
+		VectorScale(upDir, radius, up);
+
+		if (backEnd.viewParms.isMirror)
+		{
+			VectorSubtract(vec3_origin, forward, forward);
+			VectorSubtract(vec3_origin, left, left);
+		}
+
+		if (backEnd.currentStaticModel || backEnd.currentEntity->e.nonNormalizedAxes)
+		{
+			float axisLength;
+
+			if (backEnd.currentStaticModel) {
+				axisLength = VectorLength(backEnd.currentStaticModel->axis[0]);
+			} else {
+                axisLength = VectorLength(backEnd.currentEntity->e.axis[0]);
+			}
+
+			if (axisLength != 0.0f) {
+				VectorScale(forward, axisLength, forward);
+				VectorScale(left, axisLength, left);
+				VectorScale(up, axisLength, up);
+			} else {
+				VectorClear(forward);
+				VectorClear(left);
+				VectorClear(up);
+			}
+		}
+
+		ofs = VectorLength(forward);
+        if (ofs > dist)
+        {
+            VectorNormalizeFast(forward);
+			VectorScale(forward, dist, forward);
+        }
+
+		VectorAdd(mid, forward, mid);
+        RB_AddQuadStamp(mid, left, up, tess.vertexColors[i]);
+	}
 }
 
 /*
