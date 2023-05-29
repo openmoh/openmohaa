@@ -141,16 +141,19 @@ void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight)
 void R_GetLightingGridValueFast(const vec3_t vPos, vec3_t vLight)
 {
     // FIXME: unimplemented
+    VectorSet(vLight, 1.f, 1.f, 1.f);
 }
 
 void R_GetLightingForDecal(vec3_t vLight, vec3_t vFacing, vec3_t vOrigin)
 {
     // FIXME: unimplemented
+    VectorSet(vLight, 1.f, 1.f, 1.f);
 }
 
 void R_GetLightingForSmoke(vec3_t vLight, vec3_t vOrigin)
 {
     // FIXME: unimplemented
+	VectorSet(vLight, 1.f, 1.f, 1.f);
 }
 
 static int RB_GetEntityGridLighting()
