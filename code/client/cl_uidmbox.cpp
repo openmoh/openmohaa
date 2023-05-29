@@ -41,6 +41,8 @@ Event EV_DMBox_Decay
 );
 
 static float s_dmboxWidth = 384.0;
+static float s_dmboxOffsetX = 3.0f;
+static float s_dmboxOffsetY = 8.0f;
 
 CLASS_DECLARATION( UIWidget, UIDMBox, NULL )
 {
@@ -396,12 +398,12 @@ void UIDMBox::Draw( void )
 		alphaScale = 1.0 - cge->CG_GetObjectiveAlpha();
 	}
 
-	fsY = DrawItem(m_items, 0.0, 8.0, alpha * alphaScale);
-	fsY = alpha <= 0.2 ? 8.0 : fsY + 8.0;
+	fsY = DrawItem(m_items, s_dmboxOffsetX, s_dmboxOffsetY, alpha * alphaScale);
+	fsY = alpha <= 0.2 ? s_dmboxOffsetY : fsY + s_dmboxOffsetY;
 
 	for (i = 1; i < m_numitems; i++)
 	{
-		fsY += DrawItem(&m_items[i], 0.0, fsY, alphaScale);
+		fsY += DrawItem(&m_items[i], s_dmboxOffsetX, fsY, alphaScale);
 		if (fsY > m_frame.size.height)
 		{
 			if (EventPending(EV_DMBox_Decay)) {

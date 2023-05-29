@@ -117,6 +117,8 @@ cvar_t *ui_health_end;
 cvar_t *ui_gmboxspam;
 cvar_t *ui_debugload;
 cvar_t *sound_overlay;
+cvar_t *ui_compass_scale;
+
 static intro_stage_t intro_stage;
 static char server_mapname[ 64 ];
 static UIListCtrl *scoreboardlist;
@@ -147,6 +149,9 @@ static Container<Menu *> hudList;
 
 void UI_MultiplayerMenuWidgetsUpdate(void);
 void UI_MainMenuWidgetsUpdate(void);
+
+static UIRect2D getDefaultGMBoxRectangle(void);
+static UIRect2D getDefaultDMBoxRectangle(void);
 
 class ConsoleHider : public Listener {
 public:
@@ -1163,8 +1168,21 @@ UIFloatingDMConsole *getNewDMConsole() {
 getDefaultGMBoxRectangle
 ====================
 */
-static UIRect2D getDefaultGMBoxRectangle( void ) {
-	return UIRect2D( 20, 0, cls.glconfig.vidWidth - 20, 248 );
+static UIRect2D getDefaultGMBoxRectangle(void) {
+    UIRect2D dmRect = getDefaultDMBoxRectangle();
+    float height = cls.glconfig.vidHeight * ui_compass_scale->value * 0.25f;
+    float y = dmRect.size.height + dmRect.pos.y;
+
+    if (height < y) {
+		height = y;
+    }
+
+    return UIRect2D(
+        20.0f,
+        height,
+        cls.glconfig.vidWidth - 20,
+        128.0f
+    );
 }
 
 /*
@@ -1172,8 +1190,15 @@ static UIRect2D getDefaultGMBoxRectangle( void ) {
 getDefaultDMBoxRectangle
 ====================
 */
-static UIRect2D getDefaultDMBoxRectangle( void ) {
-	return UIRect2D( 128, 0, cls.glconfig.vidWidth - 320, 128 );
+static UIRect2D getDefaultDMBoxRectangle(void) {
+    float width = cls.glconfig.vidWidth * ui_compass_scale->value * 0.2f;
+
+    return UIRect2D(
+        width,
+        0,
+        cls.glconfig.vidWidth - (width + 192.0f),
+        120.0f
+    );
 }
 
 /*
@@ -3917,6 +3942,7 @@ UI_ResolutionChange
 void UI_ResolutionChange( void ) {
 	UIRect2D frame;
 
+	ui_compass_scale = Cvar_Get("ui_compass_scale", "0.75", CVAR_ARCHIVE | CVAR_LATCH);
 	CL_FillUIImports();
 	CL_FillUIDef();
 

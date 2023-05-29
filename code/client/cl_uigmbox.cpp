@@ -41,6 +41,8 @@ Event EV_GMBox_Decay
 );
 
 static float s_gmboxWidth = 640.0;
+static float s_gmboxOffsetX = 3.0f;
+static float s_gmboxOffsetY = 0.0f;
 
 CLASS_DECLARATION( UIWidget, UIGMBox, NULL )
 {
@@ -377,12 +379,12 @@ void UIGMBox::Draw( void )
 		alphaScale = 1.0 - cge->CG_GetObjectiveAlpha();
 	}
 
-	fsY = DrawItem(m_items, 0.0, 120.0, alpha * alphaScale);
-	fsY = alpha <= 0.2 ? 120.0 : fsY + 120.0;
+	fsY = DrawItem(m_items, s_gmboxOffsetX, s_gmboxOffsetY, alpha * alphaScale);
+	fsY = alpha <= 0.2 ? s_gmboxOffsetY : fsY + s_gmboxOffsetY;
 
 	for (i = 1; i < m_numitems; i++)
 	{
-		fsY += DrawItem(&m_items[i], 0.0, fsY, alphaScale);
+		fsY += DrawItem(&m_items[i], s_gmboxOffsetX, fsY, alphaScale);
 		if (fsY > m_frame.size.height)
 		{
 			if (EventPending(EV_GMBox_Decay)) {
