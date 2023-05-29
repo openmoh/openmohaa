@@ -5232,31 +5232,34 @@ qboolean bLoadForMap(const char* psMapsBuffer, const char* name)
     const char* mapname;
     const char* override;
 
-    mapname = cgs.mapname;
+    // ignore the "maps/"
+    mapname = cgs.mapname + strlen("maps/");
     if (!strncmp("test", mapname, strlen("test"))) {
-        return qtrue;
+        return true;
     }
 
     token = COM_GetToken((char**)&psMapsBuffer, qtrue);
-    override = token;
-    if (token && *token)
-    {
-        while (1)
-        {
-            if (!Q_stricmpn(token, mapname, strlen(token)))
-            {
-                return true;
-            }
-
-            token = COM_GetToken((char**)&psMapsBuffer, qtrue);
-            if (!token || !token[0]) {
-                return false;
-            }
-        }
+    if (!psMapsBuffer) {
+        return false;
     }
 
-	Com_Printf("ERROR bLoadForMap: %s alias with empty maps specification.\n", name);
-	return false;
+    if (!token || !token[0]) {
+        Com_Printf("ERROR bLoadForMap: %s alias with empty maps specification.\n", name);
+        return false;
+    }
+
+    override = token;
+    while (token && token[0])
+    {
+        if (!Q_stricmpn(token, mapname, strlen(token))) {
+            // found the map
+            return true;
+        }
+
+        token = COM_GetToken((char**)&psMapsBuffer, qtrue);
+    }
+
+    return false;
 }
 
 //===============
@@ -5284,7 +5287,8 @@ void ClientGameCommandManager::AliasCache(Event* ev)
 
     for (i = 3; i <= ev->NumArgs(); i++) {
         if (!strcmp(ev->GetToken(i).c_str(), "maps")) {
-            psMapsBuffer = ev->GetToken(i++);
+            i++;
+            psMapsBuffer = ev->GetToken(i);
         }
         else if (!strcmp(ev->GetToken(i).c_str(), "always")) {
             bAlwaysLoaded = true;
@@ -5332,7 +5336,8 @@ void ClientGameCommandManager::Alias(Event* ev)
     {
 		if (!strcmp(ev->GetToken(i).c_str(), "maps"))
         {
-            psMapsBuffer = ev->GetToken(i++);
+            i++;
+            psMapsBuffer = ev->GetToken(i);
 		}
         else if (!strcmp(ev->GetToken(i).c_str(), "always"))
         {
