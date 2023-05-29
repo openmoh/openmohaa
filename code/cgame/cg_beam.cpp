@@ -1134,8 +1134,16 @@ void CG_AddBeams(void)
         // Fade the beam based on it's life
         fade = (float)(b->endtime - cg.time) / (float)b->life;
 
-        for (ii = 0; ii < 4; ii++)
-            color[ii] = b->shaderRGBA[ii] * fade;
+        if (b->flags & BEAM_FADE)
+        {
+            for (ii = 0; ii < 4; ii++)
+                color[ii] = b->shaderRGBA[ii] * fade;
+        }
+        else
+        {
+            for (ii = 0; ii < 4; ii++)
+                color[ii] = b->shaderRGBA[ii];
+        }
 
         // Check to see if the beam should be toggled
         if (b->flags & BEAM_TOGGLE)
@@ -1430,12 +1438,11 @@ void CG_CreateBeam
         if (alpha < 1)
             b->shaderRGBA[3] = alpha * 255;
         else
-            b->shaderRGBA[3] = modulate[3];
+            b->shaderRGBA[3] = modulate[3] * 255;
 
         // Modulation based off the color
         for (i = 0; i < 3; i++)
-            b->shaderRGBA[i] = modulate[i] * ((float)b->shaderRGBA[3] / 255.0f);
-
+            b->shaderRGBA[i] = modulate[i] * (float)b->shaderRGBA[3];
 
         b->alphastep = ((float)(endalpha - alpha) / (float)b->numSubdivisions);
 
