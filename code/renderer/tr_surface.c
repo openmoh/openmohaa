@@ -211,6 +211,7 @@ void RB_SurfacePolychain( srfPoly_t *p ) {
 		tess.numIndexes += 3;
 	}
 
+	tess.vertexColorValid = qtrue;
 	tess.numVertexes = numv;
 }
 
