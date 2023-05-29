@@ -256,6 +256,29 @@ void	R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 /*
 =============
+R_AddSpriteSurfCmd
+
+=============
+*/
+void	R_AddSpriteSurfCmd(drawSurf_t* drawSurfs, int numDrawSurfs) {
+    drawSurfsCommand_t* cmd;
+
+    cmd = R_GetCommandBuffer(sizeof(*cmd));
+    if (!cmd) {
+        return;
+    }
+    cmd->commandId = RC_SPRITE_SURFS;
+
+    cmd->drawSurfs = drawSurfs;
+    cmd->numDrawSurfs = numDrawSurfs;
+
+    cmd->refdef = tr.refdef;
+    cmd->viewParms = tr.viewParms;
+}
+
+
+/*
+=============
 RE_SetColor
 
 Passing NULL will set the color to white

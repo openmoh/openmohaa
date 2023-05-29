@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tiki.h"
 
 int			r_firstSceneDrawSurf;
+int			r_firstSceneSpriteSurf;
 
 int			r_numdlights;
 int			r_firstSceneDlight;
@@ -62,6 +63,7 @@ void R_ToggleSmpFrame( void ) {
 	backEndData[tr.smpFrame]->commands.used = 0;
 
 	r_firstSceneDrawSurf = 0;
+	r_firstSceneSpriteSurf = 0;
 
 	r_numdlights = 0;
 	r_firstSceneDlight = 0;
@@ -245,7 +247,31 @@ void RE_AddRefEntityToScene( const refEntity_t *ent, int parentEntityNumber) {
 }
 
 void RE_AddRefSpriteToScene(const refEntity_t* ent) {
-	// FIXME: unimplemented
+	refSprite_t* spr;
+	int i;
+
+	if (!tr.registered) {
+		return;
+	}
+
+	if (r_numsprites >= MAX_SPRITES) {
+		return;
+	}
+
+	spr = &backEndData[tr.smpFrame]->sprites[r_numsprites];
+	VectorCopy(ent->origin, spr->origin);
+	spr->surftype = SF_SPRITE;
+    spr->hModel = ent->hModel;
+    spr->scale = ent->scale;
+    spr->renderfx = ent->renderfx;
+    spr->shaderTime = ent->shaderTime;
+	AxisCopy(ent->axis, spr->axis);
+
+	for (i = 0; i < 4; ++i) {
+		spr->shaderRGBA[i] = ent->shaderRGBA[i];
+	}
+
+    ++r_numsprites;
 }
 
 /*
@@ -388,6 +414,9 @@ void RE_RenderScene( const refdef_t *fd ) {
 	tr.refdef.numDrawSurfs = r_firstSceneDrawSurf;
 	tr.refdef.drawSurfs = backEndData[tr.smpFrame]->drawSurfs;
 
+    tr.refdef.numSpriteSurfs = r_firstSceneSpriteSurf;
+    tr.refdef.spriteSurfs = backEndData[tr.smpFrame]->spriteSurfs;
+
 	tr.refdef.num_entities = r_numentities - r_firstSceneEntity;
 	tr.refdef.entities = &backEndData[tr.smpFrame]->entities[r_firstSceneEntity];
 
@@ -456,6 +485,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	// the next scene rendered in this frame will tack on after this one
 	r_firstSceneDrawSurf = tr.refdef.numDrawSurfs;
+	r_firstSceneSpriteSurf = tr.refdef.numSpriteSurfs;
 	r_firstSceneEntity = r_numentities;
 	r_firstSceneSprite = r_numsprites;
 	r_firstSceneDlight = r_numdlights;

@@ -293,6 +293,29 @@ void myGlMultMatrix( const float *a, const float *b, float *out ) {
 	}
 }
 
+void R_AdjustVisBoundsForSprite(refSprite_t* ent, viewParms_t* viewParms, orientationr_t* or )
+{
+	if (tr.viewParms.visBounds[0][0] > ent->origin[0] - ent->scale) {
+		tr.viewParms.visBounds[0][0] = ent->origin[0] - ent->scale;
+    }
+    if (tr.viewParms.visBounds[0][1] > ent->origin[1] - ent->scale) {
+        tr.viewParms.visBounds[0][1] = ent->origin[1] - ent->scale;
+    }
+    if (tr.viewParms.visBounds[0][2] > ent->origin[2] - ent->scale) {
+        tr.viewParms.visBounds[0][2] = ent->origin[2] - ent->scale;
+    }
+
+	if (tr.viewParms.visBounds[1][0] < ent->origin[0] + ent->scale) {
+        tr.viewParms.visBounds[1][0] = ent->origin[0] + ent->scale;
+    }
+    if (tr.viewParms.visBounds[1][1] < ent->origin[1] + ent->scale) {
+        tr.viewParms.visBounds[1][1] = ent->origin[1] + ent->scale;
+    }
+    if (tr.viewParms.visBounds[1][2] < ent->origin[2] + ent->scale) {
+        tr.viewParms.visBounds[1][2] = ent->origin[2] + ent->scale;
+    }
+}
+
 /*
 =================
 R_RotateForEntity
@@ -1320,6 +1343,25 @@ void R_AddDrawSurf(surfaceType_t* surface, shader_t* shader, int dlightMap) {
 
 /*
 =================
+R_AddSpriteSurf
+=================
+*/
+void R_AddSpriteSurf(surfaceType_t* surface, shader_t* shader, float zDistance)
+{
+	int index;
+
+	if (zDistance > MAX_SPRITE_DIST_SQUARED) {
+		zDistance = MAX_SPRITE_DIST_SQUARED;
+	}
+
+	index = tr.refdef.numSpriteSurfs % MAX_SPRITES;
+    tr.refdef.spriteSurfs[index].sort = (int)(MAX_SPRITE_DIST_SQUARED - zDistance) | (shader->sortedIndex << QSORT_SHADERNUM_SHIFT);
+    tr.refdef.spriteSurfs[index].surface = surface;
+    tr.refdef.numSpriteSurfs++;
+}
+
+/*
+=================
 R_DecomposeSort
 =================
 */
@@ -1335,7 +1377,7 @@ void R_DecomposeSort(unsigned int sort, int* entityNum, shader_t** shader, int* 
 R_SortDrawSurfs
 =================
 */
-void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
+void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs, drawSurf_t *spriteSurfs, int numSpriteSurfs ) {
 	shader_t		*shader;
 	int				entityNum;
 	int				dlighted;
@@ -1351,39 +1393,49 @@ void R_SortDrawSurfs( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 	// if we overflowed MAX_DRAWSURFS, the drawsurfs
 	// wrapped around in the buffer and we will be missing
-	// the first surfaces, not the last ones
-	if ( numDrawSurfs > MAX_DRAWSURFS ) {
-		numDrawSurfs = MAX_DRAWSURFS;
-	}
+    // the first surfaces, not the last ones
+    if (numDrawSurfs > MAX_DRAWSURFS) {
+        numDrawSurfs = MAX_DRAWSURFS;
+    }
+    if (numSpriteSurfs > MAX_SPRITESURFS) {
+		numSpriteSurfs = MAX_SPRITESURFS;
+    }
 
 	// sort the drawsurfs by sort type, then orientation, then shader
 	qsortFast (drawSurfs, numDrawSurfs, sizeof(drawSurf_t) );
+	qsortFast (spriteSurfs, numSpriteSurfs, sizeof(drawSurf_t) );
 
-	// check for any pass through drawing, which
-	// may cause another view to be rendered first
-    for (i = 0; i < numDrawSurfs; i++) {
-        R_DecomposeSort((drawSurfs + i)->sort, &entityNum, &shader, &dlighted, &bStaticModel);
+	R_Sky_Render();
 
-		if ( shader->sort > SS_PORTAL ) {
-			break;
-		}
+	if (!tr.viewParms.isPortal)
+	{
+		// check for any pass through drawing, which
+		// may cause another view to be rendered first
+		for (i = 0; i < numDrawSurfs; i++) {
+			R_DecomposeSort((drawSurfs + i)->sort, &entityNum, &shader, &dlighted, &bStaticModel);
 
-		// no shader should ever have this sort type
-		if ( shader->sort == SS_BAD ) {
-			ri.Error (ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name );
-		}
-
-		// if the mirror was completely clipped away, we may need to check another surface
-		if ( R_MirrorViewBySurface( (drawSurfs+i), entityNum) ) {
-			// this is a debug option to see exactly what is being mirrored
-			if ( r_portalOnly->integer ) {
-				return;
+			if (shader->sort > SS_PORTAL) {
+				break;
 			}
-			break;		// only one mirror view at a time
+
+			// no shader should ever have this sort type
+			if (shader->sort == SS_BAD) {
+				ri.Error(ERR_DROP, "Shader '%s'with sort == SS_BAD", shader->name);
+			}
+
+			// if the mirror was completely clipped away, we may need to check another surface
+			if (R_MirrorViewBySurface((drawSurfs + i), entityNum)) {
+				// this is a debug option to see exactly what is being mirrored
+				if (r_portalOnly->integer) {
+					return;
+				}
+				break;		// only one mirror view at a time
+			}
 		}
 	}
 
-	R_AddDrawSurfCmd( drawSurfs, numDrawSurfs );
+    R_AddDrawSurfCmd(drawSurfs, numDrawSurfs);
+    R_AddSpriteSurfCmd(spriteSurfs, numSpriteSurfs);
 }
 
 /*
@@ -1470,6 +1522,55 @@ void R_AddEntitySurfaces (void) {
 
 }
 
+void R_AddSpriteSurfaces()
+{
+	refSprite_t* sprite;
+	vec3_t delta;
+
+	if (!r_drawsprites->integer) {
+		return;
+	}
+
+	for (tr.currentSpriteNum = 0; tr.currentSpriteNum < tr.refdef.num_sprites; ++tr.currentSpriteNum)
+	{
+		sprite = &tr.refdef.sprites[tr.currentSpriteNum];
+
+        if (tr.portalsky.inUse)
+        {
+			if ((sprite->renderfx & RF_SKYENTITY) == 0) {
+				continue;
+			}
+        }
+        else if ((sprite->renderfx & RF_SKYENTITY) != 0)
+        {
+            continue;
+        }
+        
+		if (tr.viewParms.isPortal)
+        {
+			if (!(sprite->renderfx & (RF_SHADOW_PLANE | RF_WRAP_FRAMES))) {
+				continue;
+			}
+        }
+		else if (sprite->renderfx & RF_SHADOW_PLANE) {
+			continue;
+		}
+
+		tr.currentEntityNum = ENTITYNUM_WORLD;
+        tr.shiftedEntityNum = tr.currentEntityNum << QSORT_ENTITYNUM_SHIFT;
+		if (sprite->hModel && sprite->hModel < tr.numModels) {
+			tr.currentModel = &tr.models[sprite->hModel];
+		} else {
+			tr.currentModel = &tr.models[0];
+		}
+
+		R_AdjustVisBoundsForSprite(&tr.refdef.sprites[tr.currentSpriteNum], &tr.viewParms, &tr.ori );
+		sprite->shaderNum = tr.currentModel->d.sprite->shader->sortedIndex;
+
+		VectorSubtract(sprite->origin, tr.refdef.vieworg, delta);
+		R_AddSpriteSurf(&sprite->surftype, tr.currentModel->d.sprite->shader, VectorLengthSquared(delta));
+	}
+}
 
 /*
 ====================
@@ -1478,8 +1579,17 @@ R_GenerateDrawSurfs
 */
 void R_GenerateDrawSurfs( void ) {
 	R_AddWorldSurfaces ();
+	if (!(tr.refdef.rdflags & RDF_NOWORLDMODEL)) {
+		R_AddSwipeSurfaces();
+	}
 
 	R_AddPolygonSurfaces();
+
+    R_AddTerrainMarkSurfaces();
+
+    R_AddEntitySurfaces();
+
+	R_AddSpriteSurfaces();
 
 	// set the projection matrix with the minimum zfar
 	// now that we have the world bounded
@@ -1487,8 +1597,6 @@ void R_GenerateDrawSurfs( void ) {
 	// added, because they use the projection
 	// matrix for lod calculation
 	R_SetupProjection ();
-
-	R_AddEntitySurfaces ();
 }
 
 /*
@@ -1643,6 +1751,15 @@ void R_DrawDebugLines(void) {
 
 /*
 ================
+R_DrawDebugLines
+================
+*/
+void R_DrawDebugStrings(void) {
+    // FIXME: stub
+}
+
+/*
+================
 R_RenderView
 
 A view may be either the actual camera view,
@@ -1651,6 +1768,7 @@ or a mirror / remote location
 */
 void R_RenderView (viewParms_t *parms) {
 	int		firstDrawSurf;
+	int		firstSpriteSurf;
 
 	if ( parms->viewportWidth <= 0 || parms->viewportHeight <= 0 ) {
 		return;
@@ -1663,6 +1781,7 @@ void R_RenderView (viewParms_t *parms) {
 	tr.viewParms.frameCount = tr.frameCount;
 
 	firstDrawSurf = tr.refdef.numDrawSurfs;
+	firstSpriteSurf = tr.refdef.numSpriteSurfs;
 
 	tr.viewCount++;
 
@@ -1673,9 +1792,16 @@ void R_RenderView (viewParms_t *parms) {
 
 	R_Sky_Reset();
 
+	R_DrawDebugStrings();
+
 	R_GenerateDrawSurfs();
 
-	R_SortDrawSurfs( tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf );
+    R_SortDrawSurfs(
+		tr.refdef.drawSurfs + firstDrawSurf, tr.refdef.numDrawSurfs - firstDrawSurf,
+		tr.refdef.spriteSurfs + firstSpriteSurf, tr.refdef.numSpriteSurfs - firstSpriteSurf
+	);
+
+	R_DrawDebugLines();
 
 	// draw main system development information (surface outlines, etc)
 	R_DebugGraphics();

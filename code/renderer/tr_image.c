@@ -2526,6 +2526,8 @@ image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip
 	//
 	// load the pic from disk
 	//
+	numMipmaps = mipmap;
+	iMipmapsAvailable = 0;
 	R_LoadImage(name, &pic, &width, &height, &hasAlpha, &glCompressMode, &numMipmaps, &iMipmapsAvailable);
 	if (pic == NULL) {
 		return NULL;
