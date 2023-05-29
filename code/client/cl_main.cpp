@@ -2576,6 +2576,7 @@ void CL_StartHunkUsers( void ) {
 	if ( !cls.rendererRegistered ) {
 		cls.rendererRegistered = qtrue;
 		CL_BeginRegistration();
+		UI_ResolutionChange();
 	}
 
 	if( !cls.cgameStarted ) {
