@@ -72,7 +72,6 @@ fontheader_t* R_LoadFont(const char* name)
         return NULL;
     }
 
-    va("fonts/%s.RitualFont", name);
     if (ri.FS_ReadFile(va("fonts/%s.RitualFont", name), (void**)&theFile) == -1)
     {
         ri.Printf(PRINT_WARNING, "LoadFont: Couldn't load font %s\n", name);
@@ -330,9 +329,7 @@ void R_DrawString(fontheader_t* font, const char* text, float x, float y, int ma
 				font->indirection[c] = indirected;
             }
 
-            if (tess.numVertexes + 4 >= SHADER_MAX_VERTEXES || tess.numIndexes + 6 >= SHADER_MAX_INDEXES) {
-                RB_CheckOverflow(4, 6);
-            }
+            RB_CHECKOVERFLOW(4, 6);
 
             loc = &font->locations[indirected];
 
