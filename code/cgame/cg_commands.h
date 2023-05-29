@@ -99,6 +99,7 @@ TIKI file, similar to ScriptMaster in the server game dll.
 #define T2_BOUNCE_DECAL         (1 << 6)
 #define T2_PARALLEL             (1 << 7)
 #define T2_VOLUMETRIC           (1 << 8)
+#define T2_COLOR_AVEL           (1 << 9)
 #define T2_WIND_AFFECT          (1 << 10)
 #define T2_SPRITEGRIDLIGHTING   (1 << 11)
 #define T2_WATERONLY            (1 << 12)
