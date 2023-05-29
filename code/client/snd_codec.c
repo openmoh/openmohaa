@@ -132,6 +132,10 @@ void S_CodecInit()
 	S_CodecRegister(&ogg_codec);
 #endif
 
+#if USE_CODEC_MP3
+	S_CodecRegister(&mp3_codec);
+#endif
+
 // Register wav codec last so that it is always tried first when a file extension was not found
 	S_CodecRegister(&wav_codec);
 }

@@ -1522,7 +1522,7 @@ void S_FreeOldestSound( void ) {
 
 	sfx = &s_knownSfx[used];
 
-	Com_DPrintf("S_FreeOldestSound: freeing sound %s\n", sfx->soundName);
+	//Com_DPrintf("S_FreeOldestSound: freeing sound %s\n", sfx->soundName);
 
 	buffer = sfx->soundData;
 	while(buffer != NULL) {

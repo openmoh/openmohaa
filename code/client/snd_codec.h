@@ -95,6 +95,15 @@ void S_OGG_CodecCloseStream(snd_stream_t *stream);
 int S_OGG_CodecReadStream(snd_stream_t *stream, int bytes, void *buffer);
 #endif // USE_CODEC_VORBIS
 
+// MP3 codec
+#ifdef USE_CODEC_MP3
+extern snd_codec_t mp3_codec;
+void* S_MP3_CodecLoad(const char* filename, snd_info_t * info);
+snd_stream_t * S_MP3_CodecOpenStream(const char* filename);
+void S_MP3_CodecCloseStream(snd_stream_t * stream);
+int S_MP3_CodecReadStream(snd_stream_t * stream, int bytes, void* buffer);
+#endif // USE_CODEC_MP3
+
 // Ogg Opus codec
 #ifdef USE_CODEC_OPUS
 extern snd_codec_t opus_codec;
