@@ -111,6 +111,7 @@ TIKI file, similar to ScriptMaster in the server game dll.
 #define T2_RADIALVELOCITY       (1 << 18)
 #define T2_FRICTION             (1 << 19)
 #define T2_VARYCOLOR            (1 << 20)
+#define T2_SPIN                 (1 << 21)
 
 class spawnthing_t;
 class specialeffect_t;
@@ -174,6 +175,7 @@ public:
 
     float decal_orientation;
     float decal_radius;
+    float spin_rotation;
 };
 
 inline cg_common_data::cg_common_data()
@@ -735,6 +737,7 @@ private:
     void SetRandomVelocityAlongAxis(Event* ev);
     void SetAccel(Event* ev);
     void SetFriction(Event* ev);
+    void SetSpin(Event* ev);
     void SetVaryColor(Event* ev);
     void SetFade(Event* ev);
     void SetFadeDelay(Event* ev);
