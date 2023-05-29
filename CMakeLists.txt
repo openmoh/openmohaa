@@ -248,7 +248,22 @@ if (WITH_CLIENT)
 
 	add_executable(openmohaa ${SOURCES_PLATFORM_SPECIFIC} ${SOURCES_CLIENT_APP} ${SOURCES_CLIENT_PLATFORM_SPECIFIC})
 	target_compile_definitions(openmohaa PRIVATE APP_MODULE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+	target_compile_definitions(openmohaa PRIVATE USE_CODEC_MP3)
 
+	target_compile_features(openmohaa PUBLIC cxx_nullptr)
+	target_compile_features(openmohaa PUBLIC c_variadic_macros)
+	### Gamespy dependency
+	add_dependencies(openmohaa gcd)
+	target_link_libraries(openmohaa PRIVATE gcd)
+	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib" "code/jpeg-8c")
+	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
+
+	### Third-parties
+	add_subdirectory("code/libmad-0.15.1b")
+	target_link_libraries(openmohaa PRIVATE libmad)
+	target_include_directories(openmohaa PRIVATE "code/libmad-0.15.1b")
+
+	target_link_libraries(openmohaa PRIVATE jpeg8)
 	if (USE_OPENAL)
 		# Try to use OpenAL
 		find_package(OpenAL)
@@ -258,15 +273,6 @@ if (WITH_CLIENT)
 			target_link_libraries(openmohaa PRIVATE ${OPENAL_LIBRARY})
 		endif()
 	endif()
-
-	target_compile_features(openmohaa PUBLIC cxx_nullptr)
-	target_compile_features(openmohaa PUBLIC c_variadic_macros)
-	target_link_libraries(openmohaa PRIVATE jpeg8)
-	# Gamespy dependency
-	add_dependencies(openmohaa gcd)
-	target_link_libraries(openmohaa PRIVATE gcd)
-	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib" "code/jpeg-8c")
-	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
 
 	if(WIN32)
 		target_include_directories(openmohaa PUBLIC "code/SDL2/include-2.0.22")
