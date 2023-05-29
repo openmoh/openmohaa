@@ -70,7 +70,7 @@ keyname_t keynames[] =
 
 	{"ALT", K_ALT},
 	{"CTRL", K_CTRL},
-	{"SHIFT", K_SHIFT},
+    {"SHIFT", K_SHIFT},
 
 	{"COMMAND", K_COMMAND},
 
@@ -325,6 +325,13 @@ keyname_t keynames[] =
 	{"PAD0_PADDLE3", K_PAD0_PADDLE3 },
 	{"PAD0_PADDLE4", K_PAD0_PADDLE4 },
 	{"PAD0_TOUCHPAD", K_PAD0_TOUCHPAD },
+
+	//
+	// non-ioq3
+	//
+    {"LALT", K_ALT},
+    {"LCTRL", K_CTRL},
+    {"LSHIFT", K_SHIFT},
 
 	{NULL,0}
 };
