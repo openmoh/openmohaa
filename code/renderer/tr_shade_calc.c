@@ -917,6 +917,36 @@ void RB_CalcEnvironmentTexCoords( float *st )
 }
 
 /*
+** RB_CalcEnvironmentTexCoords
+*/
+void RB_CalcEnvironmentTexCoords2(float* st)
+{
+    int			i;
+    float* v, * normal;
+    vec3_t		viewer, reflected;
+    float		d;
+
+    v = tess.xyz[0];
+    normal = tess.normal[0];
+
+    for (i = 0; i < tess.numVertexes; i++, v += 4, normal += 4, st += 2)
+    {
+        VectorSubtract(backEnd.ori.viewOrigin, v, viewer);
+        VectorNormalizeFast(viewer);
+
+        d = DotProduct(normal, viewer);
+		
+		// FIXME: use axis
+        reflected[0] = normal[0] * 2 * d - viewer[0];
+        reflected[1] = normal[1] * 2 * d - viewer[1];
+        reflected[2] = normal[2] * 2 * d - viewer[2];
+
+        st[0] = 0.5 + reflected[1] * 0.5;
+        st[1] = 0.5 - reflected[2] * 0.5;
+    }
+}
+
+/*
 ** RB_CalcTurbulentTexCoords
 */
 void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st )

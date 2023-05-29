@@ -2163,6 +2163,7 @@ void	R_TransformClipToWindow( const vec4_t clip, const viewParms_t *view, vec4_t
 void	RB_DeformTessGeometry( void );
 
 void	RB_CalcEnvironmentTexCoords( float *dstTexCoords );
+void	RB_CalcEnvironmentTexCoords2( float *dstTexCoords );
 void	RB_CalcScrollTexCoords( const float scroll[2], float *dstTexCoords );
 void	RB_CalcRotateTexCoords( float rotSpeed, float *dstTexCoords );
 void	RB_CalcScaleTexCoords( const float scale[2], float *dstTexCoords );
