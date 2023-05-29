@@ -42,3 +42,8 @@ void RE_SwipeEnd()
 {
     // FIXME: unimplemented
 }
+
+void R_AddSwipeSurfaces()
+{
+    // FIXME: unimplemented
+}
