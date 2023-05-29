@@ -120,6 +120,10 @@ protected:
 	fontvertjustify_t m_iFontAlignmentVertical;
 	qboolean m_bVirtual;
 	str m_enabledCvar;
+	//
+	// New since 2.0
+	//
+	cvar_t* m_scaleCvar;
 
 public:
 	CLASS_PROTOTYPE( UIWidget );
@@ -180,6 +184,9 @@ public:
 	void				TextAlignment( Event *ev );
 	void				LayoutAliasCache( Event *ev );
 	void				SetEnabledCvar( Event *ev );
+	void				SetScaleCvar( Event *ev );
+
+	void				SetVirtualScale(vec2_t out);
 	void				setParent( UIWidget *parent );
 	class UIWidget		*getParent( void );
 	class UIWidget		*getFirstChild( void );
@@ -190,6 +197,7 @@ public:
 	class UIWidget		*getPrevSibling( UIWidget *curr );
 	class UIWidget		*getLastSibling( void );
 	class UIWidget		*findSibling( str name );
+
 	void				Enable( void );
 	void				Disable( void );
 	bool				isEnabled( void );
