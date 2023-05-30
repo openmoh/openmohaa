@@ -498,8 +498,6 @@ void     CG_Event( centity_t *cent );
 void     CG_UpdateEntityEmitters(int entnum, refEntity_t *ent, centity_t *cent );
 void     CG_RemoveClientEntity( int number, dtiki_t* tiki, centity_t *cent );
 void     CG_UpdateTestEmitter( void );
-void     CG_AddTempModels( void );
-void     CG_ResetTempModels( void );
 void     CG_InitializeCommandManager( void );
 void     CG_ProcessInitCommands(dtiki_t* tiki, refEntity_t* ent);
 void     CG_ProcessCacheInitCommands(dtiki_t* tiki);
@@ -509,6 +507,17 @@ void     CG_RestartCommandManager();
 qboolean CG_ProcessEntityCommands(int frame, int anim, int entnum, refEntity_t* ent, centity_t* cent);
 void CG_ClientCommands(refEntity_t* ent, centity_t* cent, int slot);
 float RandomizeRange(float start, float end);
+
+//
+// cg_tempmodels.cpp
+//
+extern cvar_t *cg_showtempmodels;
+extern cvar_t *cg_detail;
+extern cvar_t *cg_effectdetail;
+extern cvar_t *cg_effect_physicsrate;
+
+void     CG_AddTempModels(void);
+void     CG_ResetTempModels(void);
 
 void CG_Splash( centity_t *cent );
 
