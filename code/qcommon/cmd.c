@@ -24,10 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
-#define	MAX_CMD_BUFFER		16384
-#define	MAX_CMD_LINE		1024
-#define MAX_ALIAS_NAME		32
-#define MAX_ALIAS_COUNT		16
+#define	MAX_CMD_BUFFER  128*1024
+#define	MAX_CMD_LINE	1024
+#define MAX_ALIAS_NAME	32
+#define MAX_ALIAS_COUNT	16
 
 typedef struct {
 	byte	*data;
@@ -62,6 +62,8 @@ bind g "cmd use rocket ; +attackprimary ; wait ; -attackprimary ; cmd use blaste
 void Cmd_Wait_f( void ) {
 	if ( Cmd_Argc() == 2 ) {
 		cmd_wait = atoi( Cmd_Argv( 1 ) );
+		if ( cmd_wait < 0 )
+			cmd_wait = 1; // ignore the argument
 	} else {
 		cmd_wait = 1;
 	}
@@ -183,7 +185,12 @@ void Cbuf_Execute (int msec)
 	int		quotes;
 
 	alias_count = 0;
-
+	
+	// This will keep // style comments all on one line by not breaking on
+	// a semicolon.  It will keep /* ... */ style comments all on one line by not
+	// breaking it for semicolon or newline.
+	qboolean in_star_comment = qfalse;
+	qboolean in_slash_comment = qfalse;
 	while (cmd_text.cursize)
 	{
 		if ( cmd_wait )	{
@@ -205,10 +212,29 @@ void Cbuf_Execute (int msec)
 		{
 			if (text[i] == '"')
 				quotes++;
-			if ( !(quotes&1) &&  text[i] == ';')
-				break;	// don't break if inside a quoted string
-			if (text[i] == '\n' || text[i] == '\r' )
+
+			if ( !(quotes&1)) {
+				if (i < cmd_text.cursize - 1) {
+					if (! in_star_comment && text[i] == '/' && text[i+1] == '/')
+						in_slash_comment = qtrue;
+					else if (! in_slash_comment && text[i] == '/' && text[i+1] == '*')
+						in_star_comment = qtrue;
+					else if (in_star_comment && text[i] == '*' && text[i+1] == '/') {
+						in_star_comment = qfalse;
+						// If we are in a star comment, then the part after it is valid
+						// Note: This will cause it to NUL out the terminating '/'
+						// but ExecuteString doesn't require it anyway.
+						i++;
+						break;
+					}
+				}
+				if (! in_slash_comment && ! in_star_comment && text[i] == ';')
+					break;
+			}
+			if (! in_star_comment && (text[i] == '\n' || text[i] == '\r')) {
+				in_slash_comment = qfalse;
 				break;
+			}
 		}
 
 		if( i >= (MAX_CMD_LINE - 1)) {
@@ -313,11 +339,7 @@ Just prints the rest of the line to the console
 */
 void Cmd_Echo_f (void)
 {
-	int		i;
-	
-	for (i=1 ; i<Cmd_Argc() ; i++)
-		Com_Printf ("%s ",Cmd_Argv(i));
-	Com_Printf ("\n");
+	Com_Printf ("%s\n", Cmd_Args());
 }
 
 /*
@@ -1072,11 +1094,15 @@ Cmd_Init
 ============
 */
 void Cmd_Init (void) {
-	Cmd_AddCommand( "cmdlist", Cmd_List_f );
-	Cmd_AddCommand( "exec", Cmd_Exec_f );
-	Cmd_AddCommand( "vstr", Cmd_Vstr_f );
-	Cmd_AddCommand( "echo", Cmd_Echo_f );
-	Cmd_AddCommand( "wait", Cmd_Wait_f );
+	Cmd_AddCommand ("cmdlist",Cmd_List_f);
+	Cmd_AddCommand ("exec",Cmd_Exec_f);
+	Cmd_AddCommand ("execq",Cmd_Exec_f);
+	Cmd_SetCommandCompletionFunc( "exec", Cmd_CompleteCfgName );
+	Cmd_SetCommandCompletionFunc( "execq", Cmd_CompleteCfgName );
+	Cmd_AddCommand ("vstr",Cmd_Vstr_f);
+	Cmd_SetCommandCompletionFunc( "vstr", Cvar_CompleteCvarName );
+	Cmd_AddCommand ("echo",Cmd_Echo_f);
+	Cmd_AddCommand ("wait", Cmd_Wait_f);
 	Cmd_AddCommand( "alias", Cmd_Alias_f );
 }
 
