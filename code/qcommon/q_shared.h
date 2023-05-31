@@ -503,6 +503,7 @@ enum {
 #define COLOR_WHITE		'7'
 #define ColorIndex(c)	( ( (c) - '0' ) & 7 )
 
+#if 0
 #define S_COLOR_BLACK	"^0"
 #define S_COLOR_RED		"^1"
 #define S_COLOR_GREEN	"^2"
@@ -511,6 +512,16 @@ enum {
 #define S_COLOR_CYAN	"^5"
 #define S_COLOR_MAGENTA	"^6"
 #define S_COLOR_WHITE	"^7"
+#else
+#define S_COLOR_BLACK	""
+#define S_COLOR_RED		""
+#define S_COLOR_GREEN	""
+#define S_COLOR_YELLOW	""
+#define S_COLOR_BLUE	""
+#define S_COLOR_CYAN	""
+#define S_COLOR_MAGENTA	""
+#define S_COLOR_WHITE	""
+#endif
 
 #define HUD_MESSAGE_YELLOW			"\x01"
 #define HUD_MESSAGE_WHITE			"\x03"
