@@ -4438,9 +4438,10 @@ void ClientGameCommandManager::OriginDynamicLight(Event* ev)
 // DynamicLight
 //===============
 void ClientGameCommandManager::DynamicLight(Event* ev)
-
 {
-    str tagname;
+    if (!m_spawnthing) {
+        return;
+    }
 
     // The emitter itself has a dynamic light
     m_spawnthing->cgd.flags |= T_DLIGHT;
