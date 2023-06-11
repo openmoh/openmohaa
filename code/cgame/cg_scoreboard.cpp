@@ -358,7 +358,7 @@ void CG_ParseScores()
 		}
 		else
 		{
-			iClientNum = atoi(cgi.Argv(iDatumCount * i));
+			iClientNum = atoi(cgi.Argv(iCurrentEntry + iDatumCount * i));
 			if (iClientNum >= 0)
 			{
                 strcpy(szString2, va("%i", iClientNum));
