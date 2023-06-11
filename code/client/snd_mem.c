@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "snd_local.h"
 #include "snd_codec.h"
 
-#define DEF_COMSOUNDMEGS "8"
+#define DEF_COMSOUNDMEGS 16
 
 /*
 ===============================================================================
@@ -59,10 +59,13 @@ void	SND_free(sndBuffer *v) {
 
 sndBuffer*	SND_malloc(void) {
 	sndBuffer *v;
-redo:
-	if (freelist == NULL) {
-		S_FreeOldestSound();
-		goto redo;
+	int oldInUse = inUse;
+
+    while (!freelist) {
+        if (!S_FreeOldestSound()) {
+            Com_Error(ERR_FATAL, "Out of SND allocations. Start the game with an higher com_soundMegs value and try again.");
+            return NULL;
+		}
 	}
 
 	inUse -= sizeof(sndBuffer);
@@ -79,7 +82,7 @@ void SND_setup(void) {
 	cvar_t	*cv;
 	int scs;
 
-	cv = Cvar_Get( "com_soundMegs", DEF_COMSOUNDMEGS, CVAR_LATCH | CVAR_ARCHIVE );
+	cv = Cvar_Get( "com_soundMegs", XSTRING(DEF_COMSOUNDMEGS), CVAR_LATCH | CVAR_ARCHIVE );
 
 	scs = (cv->integer*1536);
 
