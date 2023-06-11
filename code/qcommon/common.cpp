@@ -302,10 +302,16 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	static int	errorCount;
 	int			currentTime;
 
-#ifdef COM_ERROR_ASSERT
-	*( int * )0 = 0;
-	assert( 0 );
+#ifdef COM_ERROR_DROP_ASSERT
+	if (code == ERR_DROP)
+	{
+		*(int*)0 = 0;
+		assert(qfalse);
+	}
 #endif
+
+	// Debug builds should stop on this
+	assert(code != ERR_FATAL);
 
 	Cvar_Set( "com_errorCode", va( "%i", code ) );
 
