@@ -1504,7 +1504,7 @@ S_FreeOldestSound
 ======================
 */
 
-void S_FreeOldestSound( void ) {
+qboolean S_FreeOldestSound( void ) {
 	int	i, oldest, used;
 	sfx_t	*sfx;
 	sndBuffer	*buffer, *nbuffer;
@@ -1520,6 +1520,11 @@ void S_FreeOldestSound( void ) {
 		}
 	}
 
+	if (!used) {
+		// can't free anymore
+		return qfalse;
+	}
+
 	sfx = &s_knownSfx[used];
 
 	//Com_DPrintf("S_FreeOldestSound: freeing sound %s\n", sfx->soundName);
@@ -1532,6 +1537,8 @@ void S_FreeOldestSound( void ) {
 	}
 	sfx->inMemory = qfalse;
 	sfx->soundData = NULL;
+
+	return qtrue;
 }
 
 // =======================================================================
