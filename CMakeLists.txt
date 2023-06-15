@@ -82,7 +82,7 @@ set(SOURCES_SHARED
 	"code/script/scriptvariable.cpp"
 )
 
-file(GLOB_RECURSE SOURCES_BG "code/game/bg_*.cpp")
+file(GLOB_RECURSE SOURCES_BG "code/fgame/bg_*.cpp")
 
 ## For executable
 
@@ -163,12 +163,12 @@ set(SOURCES_APP ${SOURCES_SHARED} ${SOURCES_COMMON} ${SOURCES_SKEL})
 ## Server
 
 ### Server game library
-file(GLOB_RECURSE SOURCES_GAME "code/game/*.c" "code/game/*.cpp" "code/parser/*.cpp" "code/script/*.cpp")
+file(GLOB_RECURSE SOURCES_GAME "code/fgame/*.c" "code/fgame/*.cpp" "code/parser/*.cpp" "code/script/*.cpp")
 set(SOURCES_GAME_LIB ${SOURCES_SHARED} ${SOURCES_GAME})
 
 add_library(fgame SHARED ${SOURCES_GAME_LIB})
 target_compile_definitions(fgame PRIVATE GAME_DLL WITH_SCRIPT_ENGINE ARCHIVE_SUPPORTED TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
-target_include_directories(fgame PUBLIC "code/qcommon" "code/script" "code/game")
+target_include_directories(fgame PUBLIC "code/qcommon" "code/script" "code/fgame")
 target_include_directories(fgame PRIVATE "code/parser")
 target_compile_features(fgame PUBLIC cxx_nullptr)
 target_compile_features(fgame PUBLIC c_variadic_macros)

@@ -3052,6 +3052,9 @@ void Sentient::Archive
 	arc.ArchiveVector( &m_vViewVariation );
 	arc.ArchiveInteger( &means_of_death );
 
+    arc.ArchiveBool( &in_melee_attack );
+    arc.ArchiveBool( &in_block );
+    arc.ArchiveBool( &in_stun );
 	arc.ArchiveBool( &on_fire );
 	arc.ArchiveFloat( &on_fire_stop_time );
 	arc.ArchiveFloat( &next_catch_on_fire_time );

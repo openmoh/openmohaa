@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #ifdef GAME_DLL
-#include "../game/player.h"
+#include "../fgame/player.h"
 #endif
 
 #include "game.h"

@@ -35,8 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined( GAME_DLL )
 
-#include "../game/player.h"
-#include "../game/consoleevent.h"
+#include "../fgame/player.h"
+#include "../fgame/consoleevent.h"
 #include "animate.h"
 
 #define LISTENER_Cvar_Get gi.Cvar_Get

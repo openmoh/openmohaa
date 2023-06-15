@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef GAME_DLL
 #include "archive.h"
 #include "g_local.h"
-#include "../game/navigate.h"
+#include "../fgame/navigate.h"
 #endif
 
 #ifdef WITH_SCRIPT_ENGINE

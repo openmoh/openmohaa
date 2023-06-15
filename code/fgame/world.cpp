@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptexception.h"
 
 #ifdef GAME_DLL
-#include "../game/soundman.h"
+#include "../fgame/soundman.h"
 #endif
 
 WorldPtr world;

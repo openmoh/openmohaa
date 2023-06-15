@@ -29,8 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <tiki.h>
 
 #ifdef GAME_DLL
-#include "../game/entity.h"
-#include "../game/actor.h"
+#include "../fgame/entity.h"
+#include "../fgame/actor.h"
 #endif
 
 #if defined ( GAME_DLL )

@@ -90,7 +90,6 @@ Animate::Animate()
 
 	frame_delta = vec_zero;
 
-
 	if( !LoadingSavegame )
 	{
 		edict->s.actionWeight = 1.0f;

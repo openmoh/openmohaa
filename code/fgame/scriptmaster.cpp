@@ -52,13 +52,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <hud.h>
 
-#include "../game/dm_team.h"
-#include "../game/player.h"
-#include "../game/entity.h"
-#include "../game/huddraw.h"
-#include "../game/weaputils.h"
-#include "../game/camera.h"
-#include "../game/consoleevent.h"
+#include "../fgame/dm_team.h"
+#include "../fgame/player.h"
+#include "../fgame/entity.h"
+#include "../fgame/huddraw.h"
+#include "../fgame/weaputils.h"
+#include "../fgame/camera.h"
+#include "../fgame/consoleevent.h"
 
 #define SCRIPT_Printf gi.Printf
 #define SCRIPT_DPrintf gi.DPrintf
