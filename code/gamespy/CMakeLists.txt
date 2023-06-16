@@ -1,64 +1,62 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(CURRENT_DIR "code/gamespy")
-
-include_directories("${CURRENT_DIR}/common")
-include_directories("${CURRENT_DIR}/gcdkey")
+include_directories("./common")
+include_directories("./gcdkey")
 
 file(GLOB SRCS_common
-	"${CURRENT_DIR}/common/*.c"
-    "${CURRENT_DIR}/darray.c"
-	"${CURRENT_DIR}/hashtable.c"
-	"${CURRENT_DIR}/md5c.c"
-	"${CURRENT_DIR}/gutil.c"
+	"./common/*.c"
+    "./darray.c"
+	"./hashtable.c"
+	"./md5c.c"
+	"./gutil.c"
 )
 
 file(GLOB SRCS_gcdkey
-"${CURRENT_DIR}/gcdkey/*.c"
+"./gcdkey/*.c"
 )
 
 file(GLOB_RECURSE SRCS_ghttp
-"${CURRENT_DIR}/gcdkey/*.c"
+"./ghttp/*.c"
 )
 
 file(GLOB SRCS_GP
-"${CURRENT_DIR}/GP/*.c"
+"./GP/*.c"
 )
 
 file(GLOB_RECURSE SRCS_gstats
-"${CURRENT_DIR}/gstats/*.c"
+"./gstats/*.c"
 )
 
 file(GLOB SRCS_natneg
-"${CURRENT_DIR}/natneg/*.c"
+"./natneg/*.c"
 )
 
 file(GLOB SRCS_pinger
-"${CURRENT_DIR}/pinger/*.c"
+"./pinger/*.c"
 )
 
 file(GLOB SRCS_pt
-"${CURRENT_DIR}/pt/*.c"
+"./pt/*.c"
 )
 
 file(GLOB SRCS_qr2
-"${CURRENT_DIR}/qr2/*.c"
+"./qr2/*.c"
 )
 
 file(GLOB SRCS_sake
-"${CURRENT_DIR}/sake/*.c"
+"./sake/*.c"
 )
 
 file(GLOB SRCS_sc
-"${CURRENT_DIR}/sc/*.c"
+"./sc/*.c"
 )
 
 file(GLOB SRCS_serverbrowsing
-"${CURRENT_DIR}/serverbrowsing/*.c"
+"./serverbrowsing/*.c"
 )
 
 file(GLOB_RECURSE SRCS_webservices
-"${CURRENT_DIR}/webservices/*.c"
+"./webservices/*.c"
 )
 
 add_library(gcd_common STATIC ${SRCS_common})
