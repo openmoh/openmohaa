@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // game dll specific defines
 //
-#include "g_local.h"
+#include "../fgame/g_local.h"
 
 #define CONTAINER_Error          gi.Error
 #define CONTAINER_DPrintf        gi.DPrintf
@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // cgame dll specific defines
 //
-#include "cg_local.h"
+#include "../cgame/cg_local.h"
 
 #define CONTAINER_Error             cgi.Error
 #define CONTAINER_DPrintf           cgi.DPrintf

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ui_local.h"
-#include <localization.h>
+#include "../qcommon/localization.h"
 
 Event W_Destroyed
 	(

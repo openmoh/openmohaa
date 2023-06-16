@@ -30,10 +30,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "actorenemy.h"
 #include "level.h"
 #include "game.h"
-#include <gamescript.h>
-#include <scriptmaster.h>
+#include "gamescript.h"
+#include "scriptmaster.h"
 #include "grenadehint.h"
-#include <parm.h>
+#include "parm.h"
 
 extern Event EV_Actor_Start;
 extern Event EV_Actor_Dead;

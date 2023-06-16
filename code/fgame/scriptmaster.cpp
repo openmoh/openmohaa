@@ -50,15 +50,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #elif defined ( GAME_DLL )
 
-#include <hud.h>
+#include "hud.h"
 
-#include "../fgame/dm_team.h"
-#include "../fgame/player.h"
-#include "../fgame/entity.h"
-#include "../fgame/huddraw.h"
-#include "../fgame/weaputils.h"
-#include "../fgame/camera.h"
-#include "../fgame/consoleevent.h"
+#include "dm_team.h"
+#include "player.h"
+#include "entity.h"
+#include "huddraw.h"
+#include "weaputils.h"
+#include "camera.h"
+#include "consoleevent.h"
 
 #define SCRIPT_Printf gi.Printf
 #define SCRIPT_DPrintf gi.DPrintf

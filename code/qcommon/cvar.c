@@ -1641,7 +1641,7 @@ void Cvar_Init (void)
 }
 
 #ifndef STANDALONE
-#include "server.h"
+#include "../server/server.h"
 #endif
 
 static void Cvar_FlagsCheck(int flags) {

@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined(GAME_DLL)
 
-#include "g_local.h"
+#include "../fgame/g_local.h"
 
 #define FILE_FS_FreeFile       gi.FS_FreeFile
 #define FILE_FS_ReadFile(a, b) gi.FS_ReadFile(a, b, true)

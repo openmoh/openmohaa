@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include "playerbot.h"
 #include "playerstart.h"
-#include <scriptmaster.h>
+#include "scriptmaster.h"
 
 // g_client.c -- client functions that don't happen every frame
 

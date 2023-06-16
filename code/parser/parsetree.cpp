@@ -22,9 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // parsetree.cpp: Abstract Syntax Layer for Lexer/Parser
 
-#include "glb_local.h"
 #include "parsetree.h"
-#include <mem_tempalloc.h>
+#include "../fgame/gamecvars.h"
+#include "../qcommon/mem_tempalloc.h"
 
 MEM_TempAlloc			parsetree_allocator;
 
@@ -79,9 +79,9 @@ void parsetree_freeall()
 {
 	parsetree_allocator.FreeAll();
 
-	if (showopcodes->integer)
+	if (g_showopcodes->integer)
 	{
-		glbs.DPrintf("%d bytes freed\n", parsedata.total_length);
+		gi.DPrintf("%d bytes freed\n", parsedata.total_length);
 	}
 }
 

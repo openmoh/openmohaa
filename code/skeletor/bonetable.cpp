@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // bonetable.cpp : Bone table
 
 #include "q_shared.h"
-#include <tiki.h>
+#include "tiki.h"
 
 void ChannelNameTable::CopyChannel( ChannelName_t *dest, const ChannelName_t *source )
 {

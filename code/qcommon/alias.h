@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __ALIAS_H__
-#define __ALIAS_H__
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,6 +69,7 @@ typedef struct AliasList_s
 } AliasList_t;
 
 #if defined(APP_MODULE)
+
 const char* Alias_Find(const char* alias);
 qboolean Alias_Add(const char* alias, const char* name, const char* parameters);
 qboolean Alias_Delete(const char* alias);
@@ -80,6 +80,7 @@ AliasList_t* Alias_GetGlobalList();
 
 int S_ChannelNameToNum( const char *pszName );
 const char *S_ChannelNumToName( int iChannel );
+
 #endif
 
 //
@@ -118,5 +119,3 @@ float randweight(void);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* alias.h */

@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __MOVEGRID_H__
 
 #include "g_local.h"
-#include <class.h>
-#include <archive.h>
+#include "../qcommon/class.h"
+#include "../fgame/archive.h"
 
 typedef struct vehicleState_s {
 	float origin[ 3 ];

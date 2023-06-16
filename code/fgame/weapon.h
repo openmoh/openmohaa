@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ammo.h"
 #include "queue.h"
 #include "sentient.h"
-#include <scriptmaster.h>
+#include "../fgame/scriptmaster.h"
 
 extern Event EV_Weapon_GiveStartingAmmo;
 extern Event EV_Weapon_SetAmmoInClip;

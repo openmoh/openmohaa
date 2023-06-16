@@ -22,17 +22,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cl_main.c  -- client main loop
 
 #include "client.h"
-#include "server.h"
+#include "../server/server.h"
 #include "cl_ui.h"
-#include "tiki.h"
-#include <cm_terrain.h>
+#include "../qcommon/tiki.h"
+#include "../qcommon/cm_terrain.h"
 #include "../sys/sys_local.h"
-#include <limits.h>
 #ifdef USE_RENDERER_DLL
 #include "../sys/sys_loadlib.h"
 #endif
 
-#include "gcdkeyc.h"
+#include "../gamespy/gcdkey/gcdkeyc.h"
+
+#include <climits>
 
 cvar_t	*cl_nodelta;
 cvar_t	*cl_debugMove;

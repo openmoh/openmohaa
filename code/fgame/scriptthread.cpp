@@ -21,7 +21,7 @@
 
 #include "slre.h"
 
-#include <md5.h>
+#include "md5.h"
 
 #ifdef WIN32
 #include <direct.h>

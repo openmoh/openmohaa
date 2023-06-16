@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110EV_DEFAULT301  U
 */
 
 #include "cl_ui.h"
-#include <localization.h>
+#include "../qcommon/localization.h"
 
 Event EV_Layout_PlayerStat
 	(

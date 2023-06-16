@@ -30,9 +30,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef __cplusplus
 class Archiver;
-#include <mem_blockalloc.h>
-#include <con_set.h>
-#include <str.h>
+#include "../qcommon/mem_blockalloc.h"
+#include "../qcommon/con_set.h"
+#include "../qcommon/str.h"
 #endif
 
 typedef struct AliasList_s AliasList_t;
@@ -114,7 +114,7 @@ typedef struct {
 
 typedef struct dloaddef_s dloaddef_t;
 
-#include <tiki_script.h>
+#include "tiki_script.h"
 
 #ifdef __cplusplus
 

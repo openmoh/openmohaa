@@ -25,11 +25,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __SCRIPTVARIABLE_H__
 #define __SCRIPTVARIABLE_H__
 
-#include "listener.h"
-#include "short3.h"
+#include "../qcommon/listener.h"
+#include "../qcommon/short3.h"
 
 #ifdef GAME_DLL
-#include "misc.h"
+#include "../fgame/misc.h"
 #endif
 
 enum variabletype

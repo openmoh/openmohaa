@@ -24,18 +24,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "scriptvariable.h"
 #include "scriptexception.h"
-#include "str.h"
+#include "../qcommon/str.h"
 
 #ifdef GAME_DLL
-#include "archive.h"
-#include "g_local.h"
+#include "../fgame/archive.h"
+#include "../fgame/g_local.h"
 #include "../fgame/navigate.h"
 #endif
 
 #ifdef WITH_SCRIPT_ENGINE
-#include "world.h"
-#include "scriptmaster.h"
-#include "simpleentity.h"
+#include "../fgame/world.h"
+#include "../fgame/scriptmaster.h"
+#include "../fgame/simpleentity.h"
 #endif
 
 #include <utility>

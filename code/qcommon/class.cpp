@@ -24,11 +24,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "class.h"
 #include "listener.h"
-#include <q_shared.h>
+#include "q_shared.h"
 
 #if defined (GAME_DLL)
 
-#include "g_local.h"
+#include "../fgame/g_local.h"
 
 #define CLASS_Printf gi.Printf
 #define CLASS_DPrintf gi.DPrintf
@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #elif defined(CGAME_DLL)
 
-#include "cg_local.h"
+#include "../cgame/cg_local.h"
 
 #define CLASS_Printf cgi.Printf
 #define CLASS_DPrintf cgi.DPrintf
@@ -53,7 +53,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef WITH_SCRIPT_ENGINE
 
-#include "scriptmaster.h"
+#include "../fgame/scriptmaster.h"
 
 #endif
 

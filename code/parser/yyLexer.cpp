@@ -889,7 +889,7 @@ void fprintf2( FILE *f, const char *format, ... )
 	vsprintf( buffer, format, va );
 	va_end( va );
 
-	glbs.Printf( buffer );
+	gi.Printf( buffer );
 }
 
 #define fprintf fprintf2
@@ -906,7 +906,7 @@ extern yyparsedata parsedata;
 
 void yylexerror( const char *msg )
 {
-	glbs.Printf( "%s\n%s", msg, yytext );
+	gi.Printf( "%s\n%s", msg, yytext );
 	assert( 0 );
 }
 

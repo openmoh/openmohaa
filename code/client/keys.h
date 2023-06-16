@@ -39,6 +39,7 @@ extern	qboolean	chat_team;
 extern	int			chat_playerNum;
 
 #if defined(APP_MODULE)
+
 int Key_StringToKeynum( const char *str );
 void Key_WriteBindings( fileHandle_t f );
 void Key_SetBinding( int keynum, const char *binding );
@@ -48,7 +49,8 @@ qboolean Key_GetOverstrikeMode( void );
 void Key_SetOverstrikeMode( qboolean state );
 void Key_ClearStates( void );
 int Key_GetKey(const char *binding);
-const char *Key_GetKeynameForCommand( const char *command );
+const char* Key_GetKeynameForCommand(const char* command);
+
 #endif
 
 #ifdef __cplusplus

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __EXCEPT_H__
 #define __EXCEPT_H__
 
-#include "str.h"
+#include "../qcommon/str.h"
 
 class ScriptException
 {

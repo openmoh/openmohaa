@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "simpleentity.h"
 #endif
 
-#include <gamescript.h>
+#include "gamescript.h"
 
 #define WORLD_CINEMATIC		1
 

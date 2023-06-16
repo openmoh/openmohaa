@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
 
-#include <listener.h>
-#include <script.h>
+#include "../qcommon/listener.h"
+#include "../qcommon/script.h"
 #include "../client/client.h"
 #include "ui_public.h"
 

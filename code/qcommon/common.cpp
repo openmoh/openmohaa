@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // FPS
 #include <chrono>
 
-#include <tiki.h>
+#include "tiki.h"
 
 qboolean CL_FinishedIntro(void);
 void UI_PrintConsole(const char* msg);

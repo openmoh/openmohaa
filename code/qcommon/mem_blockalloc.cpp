@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if defined(GAME_DLL)
 
-#include "g_local.h"
+#include "../fgame/g_local.h"
 
 void* MEM_Alloc(int size) { return gi.Malloc(size); }
 
@@ -32,7 +32,7 @@ void MEM_Free(void* ptr) { return gi.Free(ptr); }
 
 #elif defined(CGAME_DLL)
 
-#include "cg_local.h"
+#include "../cgame/cg_local.h"
 
 void* MEM_Alloc(int size) { return cgi.Malloc(size); }
 

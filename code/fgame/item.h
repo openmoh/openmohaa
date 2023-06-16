@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "entity.h"
 #include "trigger.h"
 #include "sentient.h"
-#include <gamescript.h>
+#include "gamescript.h"
 
 extern Event EV_Item_Pickup;
 extern Event EV_Item_DropToFloor;

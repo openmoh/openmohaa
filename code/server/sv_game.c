@@ -25,9 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../client/snd_public.h"
 #include "../client/client.h"
-#include "tiki.h"
-#include <localization.h>
-#include <crc.h>
+#include "../qcommon/tiki.h"
+#include "../qcommon/localization.h"
+#include "../qcommon/crc.h"
+#include "../qcommon/alias.h"
 
 debugline_t *DebugLines;
 int numDebugLines;

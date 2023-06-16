@@ -22,22 +22,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // listener.cpp : Listener.
 
-#include "scriptvariable.h"
-#include "scriptexception.h"
+#include "../script/scriptvariable.h"
+#include "../script/scriptexception.h"
 #include "Linklist.h"
 
 #ifdef WITH_SCRIPT_ENGINE
-#include "archive.h"
-#include "scriptmaster.h"
-#include "scriptthread.h"
-#include "scriptclass.h"
+#include "../fgame/archive.h"
+#include "../fgame/scriptmaster.h"
+#include "../fgame/scriptthread.h"
+#include "../script/scriptclass.h"
 #endif
 
 #if defined( GAME_DLL )
 
 #include "../fgame/player.h"
 #include "../fgame/consoleevent.h"
-#include "animate.h"
+#include "../fgame/animate.h"
 
 #define LISTENER_Cvar_Get gi.Cvar_Get
 

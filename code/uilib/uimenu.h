@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __UIMENU_H__
 #define __UIMENU_H__
 
-#include "listener.h"
-#include "stack.h"
+#include "../qcommon/listener.h"
+#include "../qcommon/stack.h"
 
 class Menu : public Listener {
 	qboolean m_fullscreen;

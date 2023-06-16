@@ -947,7 +947,7 @@ inline int Entity::CurrentAnim
 	return 0;
 	}
 
-#include <world.h>
+#include "world.h"
 
 #endif
 

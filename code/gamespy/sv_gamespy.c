@@ -20,11 +20,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "q_shared.h"
-#include "server.h"
+#include "../qcommon/q_shared.h"
+#include "../server/server.h"
 #include "sv_gqueryreporting.h"
 
-#include <gcdkey/gcdkeys.h>
+#include "gcdkey/gcdkeys.h"
 
 static char gamemode[128];
 static qboolean gcdInitialized = qfalse;

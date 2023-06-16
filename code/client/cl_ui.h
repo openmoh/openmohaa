@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __CL_UI_H__
 #define __CL_UI_H__
 
-#include "ui_extern.h"
-#include "uiwidget.h"
+#include "../uilib/ui_extern.h"
+#include "../uilib/uiwidget.h"
 
 typedef struct {
 	UIReggedMaterial *loading;

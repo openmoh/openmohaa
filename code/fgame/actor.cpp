@@ -44,8 +44,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_phys.h"
 #include "debuglines.h"
 #include "scriptexception.h"
-#include <parm.h>
-#include <tiki.h>
+#include "parm.h"
+#include "../qcommon/tiki.h"
 
 #include <cmath>
 

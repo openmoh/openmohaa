@@ -1,6 +1,6 @@
 #include "scriptclass.h"
-#include "scriptmaster.h"
-#include "scriptthread.h"
+#include "../fgame/scriptmaster.h"
+#include "../fgame/scriptthread.h"
 #include "scriptexception.h"
 
 //====================

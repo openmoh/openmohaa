@@ -22,17 +22,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // mem_tempalloc.cpp: Fast temporary memory manager
 
-#include <mem_tempalloc.h>
+#include "mem_tempalloc.h"
 
 #ifdef GAME_DLL
-#include "g_local.h"
+#include "../fgame/g_local.h"
 
 #define MEM_TempAllocate(x) gi.Malloc(x)
 #define MEM_TempFree(x)     gi.Free(x)
 
 #elif defined(CGAME_DLL)
 
-#include "cg_local.h"
+#include "../cgame/cg_local.h"
 
 #define MEM_TempAllocate(x) cgi.Malloc(x)
 #define MEM_TempFree(x)     cgi.Free(x)

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "str.h"
 
 #if defined(ARCHIVE_SUPPORTED)
-#include "archive.h"
+#include "../fgame/archive.h"
 #endif
 
 #define TOKENCOMMENT  (';')

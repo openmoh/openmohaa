@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __BODY_H__
 #define __BODY_H__
 
-#include <animate.h>
+#include "animate.h"
 
 //=============================================================
 //class Body

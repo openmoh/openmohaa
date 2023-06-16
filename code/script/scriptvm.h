@@ -27,11 +27,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "listener.h"
 
-#include <gamescript.h>
+#include "../fgame/gamescript.h"
 
 #include "scriptvariable.h"
 #include "scriptopcodes.h"
-#include "con_set.h"
+#include "../qcommon/con_set.h"
 
 #define	MAX_STACK_DEPTH		20		// 9 in mohaa
 //#define	LOCALSTACK_SIZE		255		// pre-allocated localstack size for each VM

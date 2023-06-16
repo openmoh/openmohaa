@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __CON_SET_H__
 #define __CON_SET_H__
 
-#include <mem_blockalloc.h>
+#include "mem_blockalloc.h"
 
 class Class;
 class Archiver;

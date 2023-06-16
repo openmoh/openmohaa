@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 #include "cl_ui.h"
-#include "tiki.h"
-#include <localization.h>
+#include "../qcommon/tiki.h"
+#include "../qcommon/localization.h"
 
 extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);

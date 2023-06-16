@@ -23,9 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "client.h"
 
 #include "../server/server.h"
-#include "../renderer/tr_public.h"
-#include "tiki.h"
-#include <localization.h>
+#include "../renderercommon/tr_public.h"
+#include "../qcommon/tiki.h"
+#include "../qcommon/localization.h"
 
 #include "cl_ui.h"
 

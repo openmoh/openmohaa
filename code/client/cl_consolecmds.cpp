@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cl_consolecmds.cpp : New client console commands.
 
 #include "client.h"
-#include "listener.h"
+#include "../qcommon/listener.h"
 
 /*
 ===============

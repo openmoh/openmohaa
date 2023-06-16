@@ -25,10 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __COMPILER_H__
 #define __COMPILER_H__
 
-#include "glb_local.h"
-#include <scriptopcodes.h>
-#include <gamescript.h>
-#include "parsetree.h"
+#include "../script/scriptopcodes.h"
+#include "../fgame/gamescript.h"
+#include "../parser/parsetree.h"
 
 class ScriptVariable;
 
