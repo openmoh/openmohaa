@@ -93,10 +93,10 @@ float getTokenFloat(const char** parameters, char* parmName, AliasListNode_t* no
 	float temp_float = 0.0f;
 
 	token = COM_GetToken((char**)parameters, 1);
-
+	
 	if (token && *token)
 	{
-		temp_float = atof(token);
+		temp_float = (float)atof(token);
 		if (temp_float < 0.0f)
 		{
 			Com_Printf("ERROR getTokenFloat: %s value out of range in %s alias\n", parmName, node->alias_name);
@@ -281,7 +281,7 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 				return;
 			}
 
-			temp_float = atof(token);
+			temp_float = (float)atof(token);
 			if (temp_float < 0.0f)
 			{
 				Com_Printf("Pitch value out of range in %s alias\n", node->alias_name);
@@ -298,7 +298,7 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 				return;
 			}
 
-			temp_float = atof(token);
+			temp_float = (float)atof(token);
 			if (temp_float < 0.0f)
 			{
 				Com_Printf("PitchMod value out of range in %s alias\n", node->alias_name);
@@ -315,7 +315,7 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 				return;
 			}
 
-			temp_float = atof(token);
+			temp_float = (float)atof(token);
 			if (temp_float < 0.0f)
 			{
 				Com_Printf("volumeMod value out of range in %s alias\n", node->alias_name);
@@ -333,7 +333,7 @@ void Alias_ListAddParms(AliasListNode_t* node, const char* parameters)
 				return;
 			}
 
-			temp_float = atof(token);
+			temp_float = (float)atof(token);
 			if (temp_float < 0.0f)
 			{
 				Com_Printf("dist value out of range in %s alias\n", node->alias_name);
