@@ -39,3 +39,13 @@ target_compile_definitions(syslib INTERFACE TARGET_GAME_TYPE=${TARGET_GAME_TYPE}
 target_compile_features(syslib INTERFACE cxx_nullptr)
 target_compile_features(syslib INTERFACE c_variadic_macros)
 target_link_libraries(syslib INTERFACE qcommon)
+
+if(WIN32)
+	target_link_libraries(syslib INTERFACE wsock32 ws2_32)
+	target_link_libraries(syslib INTERFACE winmm)
+elseif(UNIX)
+	find_package(Threads)
+	target_link_libraries(syslib INTERFACE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(syslib INTERFACE m rt)
+	target_link_libraries(syslib INTERFACE stdc++)
+endif()
