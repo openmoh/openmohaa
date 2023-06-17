@@ -140,6 +140,11 @@ static bool UseField( void )
 %x VARIABLES
 %x IDENTIFIER
 
+string		([^\\\"]|\\.)*
+identifier	[^\{\}\(\)\[\]\r\n\,:; \t]
+alphanum	[a-zA-Z0-9_]+
+varname		[a-zA-Z0-9_\"]+
+
 %%
 
 "/*"							{ BEGIN( C_COMMENT ); }
@@ -169,7 +174,7 @@ static bool UseField( void )
 [\r\n]*							{ if( prev_yylex != TOKEN_EOL ) YYLEX( TOKEN_EOL ); }
 [ \t]*							{ ; }
 
-\"([^\\\"]|\\.)*\"				{ YYLLOCSET; TextEscapeValue( yytext + 1, strlen( yytext ) - 2 ); YYLEX( TOKEN_STRING ); }
+\"{string}\"					{ YYLLOCSET; TextEscapeValue( yytext + 1, strlen( yytext ) - 2 ); YYLEX( TOKEN_STRING ); }
 
 
 "?"								{ YYLEX( TOKEN_TERNARY ); }
@@ -245,8 +250,16 @@ static bool UseField( void )
 "NULL"							{ YYLEX( TOKEN_NULL ); }
 "NIL"							{ YYLEX( TOKEN_NIL ); }
 
-[0-9]+									{ YYLLOCSET; sscanf( yytext, "%d", &yylval.s.val.intValue ); YYLEX( TOKEN_INTEGER ); }
-[0-9\.]+|[0-9\.]+("e+"|"e-")+[0-9\.]	{ YYLLOCSET; sscanf( yytext, "%f", &yylval.s.val.floatValue ); YYLEX( TOKEN_FLOAT ); }
+[0-9]+									{
+											char* p = nullptr;
+											yylval.s.val.intValue = std::strtoll(yytext, &p, 10);
+											YYLEX(TOKEN_INTEGER);
+										}
+[0-9\.]+|[0-9\.]+("e+"|"e-")+[0-9\.]	{
+											char* p = nullptr;
+											yylval.s.val.floatValue = std::strtof(yytext, &p);
+											YYLEX(TOKEN_FLOAT);
+										}
 
 "try"							{ YYLEX( TOKEN_TRY ); }
 "catch"							{ YYLEX( TOKEN_CATCH ); }
