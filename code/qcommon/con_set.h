@@ -240,7 +240,7 @@ void con_set< key, value >::clear()
 {
 	Entry< key, value > *entry = NULL;
 	Entry< key, value > *next = NULL;
-	int i;
+	unsigned int i;
 
 	for( i = 0; i < tableLength; i++ )
 	{

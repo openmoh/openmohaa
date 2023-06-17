@@ -295,7 +295,7 @@ void CL_ConfigstringModified( void ) {
 	int			i, index;
 	char		*dup;
 	gameState_t	oldGs;
-	int			len;
+	size_t		len;
 
 	index = atoi( Cmd_Argv(1) );
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {

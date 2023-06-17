@@ -66,7 +66,7 @@ void con_arrayset<key, value>::resize( int count )
 {
 	Entry< key, value > **oldReverseTable = reverseTable;
 	unsigned int oldTableLength = this->tableLength;
-	int i;
+	unsigned int i;
 
 	con_set< key, value >::resize( count );
 

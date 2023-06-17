@@ -1713,7 +1713,7 @@ Sort events in alphabetical order
 */
 void Event::SortEventList( Container< int > *sortedList )
 {
-	int i;
+	unsigned int i;
 	command_t *cmd;
 
 	sortedList->Resize( commandList.size() );

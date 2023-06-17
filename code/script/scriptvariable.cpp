@@ -151,7 +151,7 @@ void ScriptConstArrayHolder::Archive( Archiver& arc )
 		constArrayValue = new ScriptVariable[ size + 1 ] - 1;
 	}
 
-	for( int i = 1; i <= size; i++ )
+	for( unsigned int i = 1; i <= size; i++ )
 	{
 		constArrayValue[ i ].ArchiveInternal( arc );
 	}
@@ -350,7 +350,7 @@ ScriptConstArrayHolder::ScriptConstArrayHolder(ScriptVariable* pVar, unsigned in
 
 	constArrayValue = new ScriptVariable[size + 1] - 1;
 
-	for (int i = 1; i <= size; i++)
+	for (unsigned int i = 1; i <= size; i++)
 	{
 		constArrayValue[i] = pVar[i];
 	}
@@ -985,7 +985,7 @@ Entity *ScriptVariable::entityValue( void )
 
 void ScriptVariable::evalArrayAt( ScriptVariable &var )
 {
-	int index;
+	unsigned int index;
 	str string;
 	ScriptVariable *array;
 
@@ -1361,7 +1361,7 @@ void ScriptVariable::setArrayAt( ScriptVariable& index, ScriptVariable& value )
 
 void ScriptVariable::setArrayAtRef( ScriptVariable& index, ScriptVariable& value )
 {
-	int intValue;
+	unsigned int intValue;
 	str string;
 
 	switch( type )

@@ -643,9 +643,9 @@ qboolean VSS_SourcePhysics(cvssource_t* pSource, float ftime)
     {
         for (i = 0; i < 3; ++i)
         {
-            pSource->newColor[i] -= ftime * 0.05 * pSource->fadeMult;
-            if (pSource->newColor[i] < 0.0) {
-                pSource->newColor[i] = 0.0;
+            pSource->newColor[i] -= ftime * 0.05f * pSource->fadeMult;
+            if (pSource->newColor[i] < 0.0f) {
+                pSource->newColor[i] = 0.0f;
             }
         }
     }
@@ -653,11 +653,11 @@ qboolean VSS_SourcePhysics(cvssource_t* pSource, float ftime)
     {
         for (i = 0; i < 3; ++i)
         {
-            if (pSource->newColor[i] < 0.9)
+            if (pSource->newColor[i] < 0.9f)
             {
-                pSource->newColor[i] += ftime * 0.02 * pSource->fadeMult;
-                if (pSource->newColor[i] > 0.9) {
-                    pSource->newColor[i] = 0.9;
+                pSource->newColor[i] += ftime * 0.02f * pSource->fadeMult;
+                if (pSource->newColor[i] > 0.9f) {
+                    pSource->newColor[i] = 0.9f;
                 }
             }
         }
