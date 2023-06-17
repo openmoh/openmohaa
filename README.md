@@ -14,6 +14,8 @@
 
 ## Current State
 
+[![Build](https://github.com/openmoh/openmohaa/actions/workflows/build-cmake.yml/badge.svg)](https://github.com/openmoh/openmohaa/actions/workflows/build-cmake.yml)
+
 OpenMoHAA is still in its early days.
 
 ### Server
