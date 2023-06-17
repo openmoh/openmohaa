@@ -25,7 +25,7 @@
 */
 
 #include "scriptcompiler.h"
-#include "yyParser.h"
+#include "./yyParser.hpp"
 
 #include <stdio.h>
 
@@ -38,7 +38,7 @@ void fprintf2( FILE *f, const char *format, ... )
 	vsprintf( buffer, format, va );
 	va_end( va );
 
-	glbs.Printf( buffer );
+	gi.Printf( buffer );
 }
 
 #define fprintf fprintf2
@@ -55,7 +55,7 @@ extern yyparsedata parsedata;
 
 void yylexerror( const char *msg )
 {
-	glbs.Printf( "%s\n%s", msg, yytext );
+	gi.Printf( "%s\n%s", msg, yytext );
 	assert( 0 );
 }
 
@@ -129,8 +129,7 @@ static bool UseField( void )
 %}
 
 /*%option debug*/
- 
-%option outfile="../../../code/globalcpp/parser/yyLexer.cpp" header-file="../../../code/globalcpp/parser/yyLexer.h"
+
 %option warn nodefault
 
 %option noyywrap never-interactive

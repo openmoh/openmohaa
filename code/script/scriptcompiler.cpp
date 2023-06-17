@@ -32,8 +32,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptclass.h"
 #include "scriptexception.h"
 #include "../parser/parsetree.h"
-#include "../parser/yyParser.h"
-#include "../parser/yyLexer.h"
+#include "../parser/generated/yyParser.hpp"
+#include "../parser/generated/yyLexer.h"
 
 ScriptCompiler Compiler;
 int ScriptCompiler::current_label;

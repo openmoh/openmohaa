@@ -2,9 +2,9 @@
 #define yyHEADER_H 1
 #define yyIN_HEADER 1
 
-#line 5 "../../../code/globalcpp/parser/yyLexer.h"
+#line 5 "Z:/openmohaa/code/parser/generated/yyLexer.h"
 
-#line 7 "../../../code/globalcpp/parser/yyLexer.h"
+#line 7 "Z:/openmohaa/code/parser/generated/yyLexer.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -13,88 +13,10 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 6
-#define YY_FLEX_SUBMINOR_VERSION 3
+#define YY_FLEX_SUBMINOR_VERSION 4
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
-
-    #define yy_create_buffer yy_create_buffer
-
-    #define yy_delete_buffer yy_delete_buffer
-
-    #define yy_scan_buffer yy_scan_buffer
-
-    #define yy_scan_string yy_scan_string
-
-    #define yy_scan_bytes yy_scan_bytes
-
-    #define yy_init_buffer yy_init_buffer
-
-    #define yy_flush_buffer yy_flush_buffer
-
-    #define yy_load_buffer_state yy_load_buffer_state
-
-    #define yy_switch_to_buffer yy_switch_to_buffer
-
-    #define yypush_buffer_state yypush_buffer_state
-
-    #define yypop_buffer_state yypop_buffer_state
-
-    #define yyensure_buffer_stack yyensure_buffer_stack
-
-    #define yylex yylex
-
-    #define yyrestart yyrestart
-
-    #define yylex_init yylex_init
-
-    #define yylex_init_extra yylex_init_extra
-
-    #define yylex_destroy yylex_destroy
-
-    #define yyget_debug yyget_debug
-
-    #define yyset_debug yyset_debug
-
-    #define yyget_extra yyget_extra
-
-    #define yyset_extra yyset_extra
-
-    #define yyget_in yyget_in
-
-    #define yyset_in yyset_in
-
-    #define yyget_out yyget_out
-
-    #define yyset_out yyset_out
-
-    #define yyget_leng yyget_leng
-
-    #define yyget_text yyget_text
-
-    #define yyget_lineno yyget_lineno
-
-    #define yyset_lineno yyset_lineno
-
-    #define yywrap yywrap
-
-    #define yyalloc yyalloc
-
-    #define yyrealloc yyrealloc
-
-    #define yyfree yyfree
-
-    #define yytext yytext
-
-    #define yyleng yyleng
-
-    #define yyin yyin
-
-    #define yyout yyout
-
-    #define yy_flex_debug yy_flex_debug
-
-    #define yylineno yylineno
 
 /* First, we deal with  platform-specific or compiler-specific issues. */
 
@@ -166,9 +88,15 @@ typedef unsigned int flex_uint32_t;
 #define UINT32_MAX             (4294967295U)
 #endif
 
+#ifndef SIZE_MAX
+#define SIZE_MAX               (~(size_t)0)
+#endif
+
 #endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
+
+/* begin standard C++ headers. */
 
 /* TODO: this is always defined, so inline it */
 #define yyconst const
@@ -295,14 +223,6 @@ extern char *yytext;
 
 #endif
 
-#ifndef YY_NO_UNISTD_H
-/* Special case for "unistd.h", since it is non-ANSI. We include it way
- * down here because we want the user's section 1 to have been scanned first.
- * The user has a chance to override it with an option.
- */
-//#include <unistd.h>
-#endif
-    
 #ifndef YY_EXTRA_TYPE
 #define YY_EXTRA_TYPE void *
 #endif
@@ -400,9 +320,154 @@ extern int yylex (void);
 #undef YY_DECL
 #endif
 
-#line 285 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#ifndef yy_create_buffer_ALREADY_DEFINED
+#undef yy_create_buffer
+#endif
+#ifndef yy_delete_buffer_ALREADY_DEFINED
+#undef yy_delete_buffer
+#endif
+#ifndef yy_scan_buffer_ALREADY_DEFINED
+#undef yy_scan_buffer
+#endif
+#ifndef yy_scan_string_ALREADY_DEFINED
+#undef yy_scan_string
+#endif
+#ifndef yy_scan_bytes_ALREADY_DEFINED
+#undef yy_scan_bytes
+#endif
+#ifndef yy_init_buffer_ALREADY_DEFINED
+#undef yy_init_buffer
+#endif
+#ifndef yy_flush_buffer_ALREADY_DEFINED
+#undef yy_flush_buffer
+#endif
+#ifndef yy_load_buffer_state_ALREADY_DEFINED
+#undef yy_load_buffer_state
+#endif
+#ifndef yy_switch_to_buffer_ALREADY_DEFINED
+#undef yy_switch_to_buffer
+#endif
+#ifndef yypush_buffer_state_ALREADY_DEFINED
+#undef yypush_buffer_state
+#endif
+#ifndef yypop_buffer_state_ALREADY_DEFINED
+#undef yypop_buffer_state
+#endif
+#ifndef yyensure_buffer_stack_ALREADY_DEFINED
+#undef yyensure_buffer_stack
+#endif
+#ifndef yylex_ALREADY_DEFINED
+#undef yylex
+#endif
+#ifndef yyrestart_ALREADY_DEFINED
+#undef yyrestart
+#endif
+#ifndef yylex_init_ALREADY_DEFINED
+#undef yylex_init
+#endif
+#ifndef yylex_init_extra_ALREADY_DEFINED
+#undef yylex_init_extra
+#endif
+#ifndef yylex_destroy_ALREADY_DEFINED
+#undef yylex_destroy
+#endif
+#ifndef yyget_debug_ALREADY_DEFINED
+#undef yyget_debug
+#endif
+#ifndef yyset_debug_ALREADY_DEFINED
+#undef yyset_debug
+#endif
+#ifndef yyget_extra_ALREADY_DEFINED
+#undef yyget_extra
+#endif
+#ifndef yyset_extra_ALREADY_DEFINED
+#undef yyset_extra
+#endif
+#ifndef yyget_in_ALREADY_DEFINED
+#undef yyget_in
+#endif
+#ifndef yyset_in_ALREADY_DEFINED
+#undef yyset_in
+#endif
+#ifndef yyget_out_ALREADY_DEFINED
+#undef yyget_out
+#endif
+#ifndef yyset_out_ALREADY_DEFINED
+#undef yyset_out
+#endif
+#ifndef yyget_leng_ALREADY_DEFINED
+#undef yyget_leng
+#endif
+#ifndef yyget_text_ALREADY_DEFINED
+#undef yyget_text
+#endif
+#ifndef yyget_lineno_ALREADY_DEFINED
+#undef yyget_lineno
+#endif
+#ifndef yyset_lineno_ALREADY_DEFINED
+#undef yyset_lineno
+#endif
+#ifndef yyget_column_ALREADY_DEFINED
+#undef yyget_column
+#endif
+#ifndef yyset_column_ALREADY_DEFINED
+#undef yyset_column
+#endif
+#ifndef yywrap_ALREADY_DEFINED
+#undef yywrap
+#endif
+#ifndef yyget_lval_ALREADY_DEFINED
+#undef yyget_lval
+#endif
+#ifndef yyset_lval_ALREADY_DEFINED
+#undef yyset_lval
+#endif
+#ifndef yyget_lloc_ALREADY_DEFINED
+#undef yyget_lloc
+#endif
+#ifndef yyset_lloc_ALREADY_DEFINED
+#undef yyset_lloc
+#endif
+#ifndef yyalloc_ALREADY_DEFINED
+#undef yyalloc
+#endif
+#ifndef yyrealloc_ALREADY_DEFINED
+#undef yyrealloc
+#endif
+#ifndef yyfree_ALREADY_DEFINED
+#undef yyfree
+#endif
+#ifndef yytext_ALREADY_DEFINED
+#undef yytext
+#endif
+#ifndef yyleng_ALREADY_DEFINED
+#undef yyleng
+#endif
+#ifndef yyin_ALREADY_DEFINED
+#undef yyin
+#endif
+#ifndef yyout_ALREADY_DEFINED
+#undef yyout
+#endif
+#ifndef yy_flex_debug_ALREADY_DEFINED
+#undef yy_flex_debug
+#endif
+#ifndef yylineno_ALREADY_DEFINED
+#undef yylineno
+#endif
+#ifndef yytables_fload_ALREADY_DEFINED
+#undef yytables_fload
+#endif
+#ifndef yytables_destroy_ALREADY_DEFINED
+#undef yytables_destroy
+#endif
+#ifndef yyTABLES_NAME_ALREADY_DEFINED
+#undef yyTABLES_NAME
+#endif
+
+#line 284 "Z:/openmohaa/code/parser/lex_source.txt"
 
 
-#line 406 "../../../code/globalcpp/parser/yyLexer.h"
+#line 471 "Z:/openmohaa/code/parser/generated/yyLexer.h"
 #undef yyIN_HEADER
 #endif /* yyHEADER_H */

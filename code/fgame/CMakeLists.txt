@@ -19,6 +19,25 @@ set(SOURCES_SHARED
 file(GLOB_RECURSE SOURCES_GAME "./*.c*" "../parser/*.c*" "../script/*.c*")
 
 add_library(fgame SHARED ${SOURCES_GAME})
+
+find_package(BISON)
+find_package(FLEX)
+
+if (FLEX_FOUND)
+	flex_target(fgame-lexer ${CMAKE_SOURCE_DIR}/code/parser/lex_source.txt ${CMAKE_SOURCE_DIR}/code/parser/generated/yyLexer.cpp DEFINES_FILE ${CMAKE_SOURCE_DIR}/code/parser/generated/yyLexer.h COMPILE_FLAGS "-Cem --nounistd")
+endif()
+
+if (BISON_FOUND)
+	bison_target(fgame-parser ${CMAKE_SOURCE_DIR}/code/parser/bison_source.txt ${CMAKE_SOURCE_DIR}/code/parser/generated/yyParser.cpp)
+endif()
+
+if (FLEX_FOUND AND BISON_FOUND)
+	add_flex_bison_dependency(fgame-lexer fgame-parser)
+endif()
+
+file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/code/parser/generated")
+target_sources(fgame PRIVATE ${BISON_fgame-parser_OUTPUTS} ${FLEX_fgame-lexer_OUTPUTS})
+
 target_compile_definitions(fgame PRIVATE GAME_DLL WITH_SCRIPT_ENGINE ARCHIVE_SUPPORTED)
 target_compile_features(fgame PUBLIC cxx_nullptr)
 target_compile_features(fgame PUBLIC c_variadic_macros)

@@ -25,8 +25,8 @@
 */
 
 #include "scriptcompiler.h"
-#include "yyParser.h"
-#include "yyLexer.h"
+#include "./yyParser.hpp"
+#include "./yyLexer.h"
 
 int yyerror( const char *msg );
 
@@ -37,9 +37,6 @@ extern yyparsedata parsedata;
 #define YYLLOC node_pos( parsedata.pos - yyleng )
 
 %}
-
-%output  "../../../code/globalcpp/parser/yyParser.cpp"
-%defines "../../../code/globalcpp/parser/yyParser.h"
 
 %error-verbose
 

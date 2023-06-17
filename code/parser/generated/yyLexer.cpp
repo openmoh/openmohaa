@@ -1,6 +1,6 @@
-#line 1 "../../../code/globalcpp/parser/yyLexer.cpp"
+#line 1 "Z:/openmohaa/code/parser/generated/yyLexer.cpp"
 
-#line 3 "../../../code/globalcpp/parser/yyLexer.cpp"
+#line 3 "Z:/openmohaa/code/parser/generated/yyLexer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -9,88 +9,10 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 6
-#define YY_FLEX_SUBMINOR_VERSION 3
+#define YY_FLEX_SUBMINOR_VERSION 4
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
-
-    #define yy_create_buffer yy_create_buffer
-
-    #define yy_delete_buffer yy_delete_buffer
-
-    #define yy_scan_buffer yy_scan_buffer
-
-    #define yy_scan_string yy_scan_string
-
-    #define yy_scan_bytes yy_scan_bytes
-
-    #define yy_init_buffer yy_init_buffer
-
-    #define yy_flush_buffer yy_flush_buffer
-
-    #define yy_load_buffer_state yy_load_buffer_state
-
-    #define yy_switch_to_buffer yy_switch_to_buffer
-
-    #define yypush_buffer_state yypush_buffer_state
-
-    #define yypop_buffer_state yypop_buffer_state
-
-    #define yyensure_buffer_stack yyensure_buffer_stack
-
-    #define yylex yylex
-
-    #define yyrestart yyrestart
-
-    #define yylex_init yylex_init
-
-    #define yylex_init_extra yylex_init_extra
-
-    #define yylex_destroy yylex_destroy
-
-    #define yyget_debug yyget_debug
-
-    #define yyset_debug yyset_debug
-
-    #define yyget_extra yyget_extra
-
-    #define yyset_extra yyset_extra
-
-    #define yyget_in yyget_in
-
-    #define yyset_in yyset_in
-
-    #define yyget_out yyget_out
-
-    #define yyset_out yyset_out
-
-    #define yyget_leng yyget_leng
-
-    #define yyget_text yyget_text
-
-    #define yyget_lineno yyget_lineno
-
-    #define yyset_lineno yyset_lineno
-
-    #define yywrap yywrap
-
-    #define yyalloc yyalloc
-
-    #define yyrealloc yyrealloc
-
-    #define yyfree yyfree
-
-    #define yytext yytext
-
-    #define yyleng yyleng
-
-    #define yyin yyin
-
-    #define yyout yyout
-
-    #define yy_flex_debug yy_flex_debug
-
-    #define yylineno yylineno
 
 /* First, we deal with  platform-specific or compiler-specific issues. */
 
@@ -162,9 +84,15 @@ typedef unsigned int flex_uint32_t;
 #define UINT32_MAX             (4294967295U)
 #endif
 
+#ifndef SIZE_MAX
+#define SIZE_MAX               (~(size_t)0)
+#endif
+
 #endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
+
+/* begin standard C++ headers. */
 
 /* TODO: this is always defined, so inline it */
 #define yyconst const
@@ -197,7 +125,7 @@ typedef unsigned int flex_uint32_t;
 /* Action number for EOF rule of a given start state. */
 #define YY_STATE_EOF(state) (YY_END_OF_BUFFER + state + 1)
 /* Special action meaning "start processing a new file". */
-#define YY_NEW_FILE yyrestart(yyin  )
+#define YY_NEW_FILE yyrestart( yyin  )
 #define YY_END_OF_BUFFER_CHAR 0
 
 /* Size of default input buffer. */
@@ -382,7 +310,7 @@ void yypop_buffer_state ( void );
 static void yyensure_buffer_stack ( void );
 static void yy_load_buffer_state ( void );
 static void yy_init_buffer ( YY_BUFFER_STATE b, FILE *file  );
-#define YY_FLUSH_BUFFER yy_flush_buffer(YY_CURRENT_BUFFER )
+#define YY_FLUSH_BUFFER yy_flush_buffer( YY_CURRENT_BUFFER )
 
 YY_BUFFER_STATE yy_scan_buffer ( char *base, yy_size_t size  );
 YY_BUFFER_STATE yy_scan_string ( const char *yy_str  );
@@ -398,7 +326,7 @@ void yyfree ( void *  );
 	if ( ! YY_CURRENT_BUFFER ){ \
         yyensure_buffer_stack (); \
 		YY_CURRENT_BUFFER_LVALUE =    \
-            yy_create_buffer(yyin,YY_BUF_SIZE ); \
+            yy_create_buffer( yyin, YY_BUF_SIZE ); \
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_is_interactive = is_interactive; \
 	}
@@ -407,7 +335,7 @@ void yyfree ( void *  );
 	if ( ! YY_CURRENT_BUFFER ){\
         yyensure_buffer_stack (); \
 		YY_CURRENT_BUFFER_LVALUE =    \
-            yy_create_buffer(yyin,YY_BUF_SIZE ); \
+            yy_create_buffer( yyin, YY_BUF_SIZE ); \
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_at_bol = at_bol; \
 	}
@@ -848,8 +776,8 @@ goto find_rule; \
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
-#line 2 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 1 "Z:/openmohaa/code/parser/lex_source.txt"
+#line 2 "Z:/openmohaa/code/parser/lex_source.txt"
 /*
 * ===========================================================================
 * Copyright (C) 2015 the OpenMoHAA team
@@ -876,7 +804,7 @@ char *yytext;
 */
 
 #include "scriptcompiler.h"
-#include "yyParser.h"
+#include "./yyParser.hpp"
 
 #include <stdio.h>
 
@@ -977,10 +905,10 @@ static bool UseField( void )
 	*yytext == '$' || *yytext == '-' || *yytext == '/' );
 }
 
-#line 980 "../../../code/globalcpp/parser/yyLexer.cpp"
+#line 908 "Z:/openmohaa/code/parser/generated/yyLexer.cpp"
 /*%option debug*/
 
-#line 983 "../../../code/globalcpp/parser/yyLexer.cpp"
+#line 911 "Z:/openmohaa/code/parser/generated/yyLexer.cpp"
 
 #define INITIAL 0
 #define C_COMMENT 1
@@ -988,14 +916,6 @@ static bool UseField( void )
 #define VARIABLES 3
 #define IDENTIFIER 4
 
-#ifndef YY_NO_UNISTD_H
-/* Special case for "unistd.h", since it is non-ANSI. We include it way
- * down here because we want the user's section 1 to have been scanned first.
- * The user has a chance to override it with an option.
- */
-//#include <unistd.h>
-#endif
-    
 #ifndef YY_EXTRA_TYPE
 #define YY_EXTRA_TYPE void *
 #endif
@@ -1200,17 +1120,17 @@ YY_DECL
 		if ( ! YY_CURRENT_BUFFER ) {
 			yyensure_buffer_stack ();
 			YY_CURRENT_BUFFER_LVALUE =
-				yy_create_buffer(yyin,YY_BUF_SIZE );
+				yy_create_buffer( yyin, YY_BUF_SIZE );
 		}
 
-		yy_load_buffer_state( );
+		yy_load_buffer_state(  );
 		}
 
 	{
-#line 144 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 143 "Z:/openmohaa/code/parser/lex_source.txt"
 
 
-#line 1213 "../../../code/globalcpp/parser/yyLexer.cpp"
+#line 1133 "Z:/openmohaa/code/parser/generated/yyLexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1248,7 +1168,9 @@ yy_match:
 yy_find_action:
 		yy_current_state = *--(yy_state_ptr);
 		(yy_lp) = yy_accept[yy_current_state];
+
 find_rule: /* we branch to this label when backing up */
+
 		for ( ; ; ) /* until we find what rule we matched */
 			{
 			if ( (yy_lp) && (yy_lp) < yy_accept[yy_current_state + 1] )
@@ -1282,71 +1204,71 @@ do_action:	/* This label is used only to access EOF actions. */
 	{ /* beginning of action switch */
 case 1:
 YY_RULE_SETUP
-#line 146 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 145 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( C_COMMENT ); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 147 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 146 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( INITIAL ); }
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 148 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 147 "Z:/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 149 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 148 "Z:/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 150 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 149 "Z:/openmohaa/code/parser/lex_source.txt"
 { Compiler.CompileError( parsedata.pos - yyleng, "'*/' found outside of comment" ); }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 153 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 152 "Z:/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 154 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 153 "Z:/openmohaa/code/parser/lex_source.txt"
 { if( prev_yylex != TOKEN_EOL ) YYLEX( TOKEN_EOL ); }
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 156 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 155 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( INITIAL ); YYLEX( TOKEN_EOL ); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 157 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 156 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SIZE ); }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 158 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 157 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_PERIOD ); }
 	YY_BREAK
 case 11:
 /* rule 11 can match eol */
 YY_RULE_SETUP
-#line 159 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 158 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLLOCSET; TextEscapeValue( yytext + 1, strlen( yytext ) - 2 ); YYLEX( TOKEN_STRING ); }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 160 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 159 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLLOCSET; TextValue( yytext, strlen( yytext ) ); YYLEX( TOKEN_IDENTIFIER ); }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 161 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 160 "Z:/openmohaa/code/parser/lex_source.txt"
 {
 									for ( int i = yyleng - 1; i >= 0; --i )
 										unput( yytext[ i ] );
@@ -1359,388 +1281,388 @@ YY_RULE_SETUP
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 170 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 169 "Z:/openmohaa/code/parser/lex_source.txt"
 { if( prev_yylex != TOKEN_EOL ) YYLEX( TOKEN_EOL ); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 171 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 170 "Z:/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 173 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 172 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLLOCSET; TextEscapeValue( yytext + 1, strlen( yytext ) - 2 ); YYLEX( TOKEN_STRING ); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 176 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 175 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_TERNARY ); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 177 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 176 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_IF ); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 178 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 177 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_ELSE ); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 179 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 178 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_WHILE ); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 180 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 179 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_FOR ); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 181 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 180 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DO ); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 183 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 182 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_game ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 184 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 183 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_group ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 185 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 184 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_level ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 186 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 185 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_local ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 187 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 186 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_parm ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 188 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 187 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_owner ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 189 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 188 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_self ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 191 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 190 "Z:/openmohaa/code/parser/lex_source.txt"
 { parsedata.braces_count++; YYLEX( TOKEN_LBRACKET ); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 192 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 191 "Z:/openmohaa/code/parser/lex_source.txt"
 { parsedata.braces_count--; YYLEX( TOKEN_RBRACKET ); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 193 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 192 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLLOCSET; YYLEX( TOKEN_LPAREN ); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 194 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 193 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); YYLLOCSET; YYLEX( TOKEN_RPAREN ); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 195 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 194 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LSQUARE ); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 196 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 195 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); YYLEX( TOKEN_RSQUARE ); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 198 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 197 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_ASSIGNMENT ); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 199 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 198 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_COLON ); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 200 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 199 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DOUBLE_COLON ); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 201 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 200 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SEMICOLON ); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 203 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 202 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_EQUALITY ); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 204 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 203 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LOGICAL_OR ); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 205 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 204 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LOGICAL_AND ); }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 207 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 206 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BITWISE_OR ); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 208 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 207 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BITWISE_EXCL_OR ); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 209 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 208 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BITWISE_AND ); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 210 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 209 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_INEQUALITY ); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 211 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 210 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LESS_THAN ); }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 212 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 211 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_GREATER_THAN ); }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 213 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 212 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LESS_THAN_OR_EQUAL ); }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 214 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 213 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_GREATER_THAN_OR_EQUAL ); }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 215 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 214 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NEG ); }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 217 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 216 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_PLUS ); }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 218 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 217 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_PLUS_EQUALS ); }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 219 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 218 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_INCREMENT ); }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 220 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 219 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MINUS ); }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 221 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 220 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MINUS_EQUALS ); }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 222 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 221 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MINUS_EQUALS ); }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 223 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 222 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DECREMENT ); }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 224 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 223 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MULTIPLY ); }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 225 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 224 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MULTIPLY_EQUALS ); }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 226 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 225 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DIVIDE ); }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 227 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 226 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DIVIDE_EQUALS ); }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 228 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 227 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MODULUS ); }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 229 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 228 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MODULUS_EQUALS ); }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 230 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 229 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_LEFT ); }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 231 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 230 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_LEFT_EQUALS ); }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 232 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 231 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_RIGHT ); }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 233 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 232 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_RIGHT_EQUALS ); }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 234 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 233 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_AND_EQUALS ); }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 235 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 234 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_EXCL_OR_EQUALS ); }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 236 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 235 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_OR_EQUALS ); }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 237 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 236 "Z:/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); YYLEX( TOKEN_DOLLAR ); }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 238 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 237 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NOT ); }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 239 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 238 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_COMPLEMENT ); }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 241 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 240 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_PERIOD ); }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 243 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 242 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_COMMA ); }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 244 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 243 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NUMBER ); }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 246 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 245 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NULL ); }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 247 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 246 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NIL ); }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 249 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 248 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLLOCSET; sscanf( yytext, "%d", &yylval.s.val.intValue ); YYLEX( TOKEN_INTEGER ); }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 250 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 249 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLLOCSET; sscanf( yytext, "%f", &yylval.s.val.floatValue ); YYLEX( TOKEN_FLOAT ); }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 252 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 251 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_TRY ); }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 253 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 252 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_CATCH ); }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 254 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 253 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SWITCH ); }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 256 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 255 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_CASE ); }
 	YY_BREAK
 case 86:
 YY_RULE_SETUP
-#line 257 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 256 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BREAK ); }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 258 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 257 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_CONTINUE ); }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 260 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 259 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MAKEARRAY ); }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 261 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 260 "Z:/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_ENDARRAY ); }
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 263 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 262 "Z:/openmohaa/code/parser/lex_source.txt"
 {
 									if( UseField() )
 									{
@@ -1757,7 +1679,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 277 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 276 "Z:/openmohaa/code/parser/lex_source.txt"
 { yylexerror( "bad token:\n" ); }
 	YY_BREAK
 
@@ -1767,10 +1689,10 @@ YY_RULE_SETUP
 
 case 92:
 YY_RULE_SETUP
-#line 285 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 284 "Z:/openmohaa/code/parser/lex_source.txt"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 1773 "../../../code/globalcpp/parser/yyLexer.cpp"
+#line 1695 "Z:/openmohaa/code/parser/generated/yyLexer.cpp"
 			case YY_STATE_EOF(INITIAL):
 			case YY_STATE_EOF(C_COMMENT):
 			case YY_STATE_EOF(C_LINE_COMMENT):
@@ -1852,7 +1774,7 @@ YY_FATAL_ERROR( "flex scanner jammed" );
 				{
 				(yy_did_buffer_switch_on_eof) = 0;
 
-				if ( yywrap( ) )
+				if ( yywrap(  ) )
 					{
 					/* Note: because we've taken care in
 					 * yy_get_next_buffer() to have set up
@@ -1987,7 +1909,7 @@ static int yy_get_next_buffer (void)
 		if ( number_to_move == YY_MORE_ADJ )
 			{
 			ret_val = EOB_ACT_END_OF_FILE;
-			yyrestart(yyin  );
+			yyrestart( yyin  );
 			}
 
 		else
@@ -2004,9 +1926,12 @@ static int yy_get_next_buffer (void)
 	if (((yy_n_chars) + number_to_move) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {
 		/* Extend the array by 50%, plus the number we really need. */
 		int new_size = (yy_n_chars) + number_to_move + ((yy_n_chars) >> 1);
-		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) yyrealloc((void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf,(yy_size_t) new_size  );
+		YY_CURRENT_BUFFER_LVALUE->yy_ch_buf = (char *) yyrealloc(
+			(void *) YY_CURRENT_BUFFER_LVALUE->yy_ch_buf, (yy_size_t) new_size  );
 		if ( ! YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
 			YY_FATAL_ERROR( "out of dynamic memory in yy_get_next_buffer()" );
+		/* "- 2" to take care of EOB's */
+		YY_CURRENT_BUFFER_LVALUE->yy_buf_size = (int) (new_size - 2);
 	}
 
 	(yy_n_chars) += number_to_move;
@@ -2156,13 +2081,13 @@ static int yy_get_next_buffer (void)
 					 */
 
 					/* Reset buffer status. */
-					yyrestart(yyin );
+					yyrestart( yyin );
 
 					/*FALLTHROUGH*/
 
 				case EOB_ACT_END_OF_FILE:
 					{
-					if ( yywrap( ) )
+					if ( yywrap(  ) )
 						return 0;
 
 					if ( ! (yy_did_buffer_switch_on_eof) )
@@ -2205,11 +2130,11 @@ static int yy_get_next_buffer (void)
 	if ( ! YY_CURRENT_BUFFER ){
         yyensure_buffer_stack ();
 		YY_CURRENT_BUFFER_LVALUE =
-            yy_create_buffer(yyin,YY_BUF_SIZE );
+            yy_create_buffer( yyin, YY_BUF_SIZE );
 	}
 
-	yy_init_buffer(YY_CURRENT_BUFFER,input_file );
-	yy_load_buffer_state( );
+	yy_init_buffer( YY_CURRENT_BUFFER, input_file );
+	yy_load_buffer_state(  );
 }
 
 /** Switch to a different input buffer.
@@ -2237,7 +2162,7 @@ static int yy_get_next_buffer (void)
 		}
 
 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
-	yy_load_buffer_state( );
+	yy_load_buffer_state(  );
 
 	/* We don't actually know whether we did this switch during
 	 * EOF (yywrap()) processing, but the only time this flag
@@ -2265,7 +2190,7 @@ static void yy_load_buffer_state  (void)
 {
 	YY_BUFFER_STATE b;
     
-	b = (YY_BUFFER_STATE) yyalloc(sizeof( struct yy_buffer_state )  );
+	b = (YY_BUFFER_STATE) yyalloc( sizeof( struct yy_buffer_state )  );
 	if ( ! b )
 		YY_FATAL_ERROR( "out of dynamic memory in yy_create_buffer()" );
 
@@ -2274,13 +2199,13 @@ static void yy_load_buffer_state  (void)
 	/* yy_ch_buf has to be 2 characters longer than the size given because
 	 * we need to put in 2 end-of-buffer characters.
 	 */
-	b->yy_ch_buf = (char *) yyalloc((yy_size_t) (b->yy_buf_size + 2)  );
+	b->yy_ch_buf = (char *) yyalloc( (yy_size_t) (b->yy_buf_size + 2)  );
 	if ( ! b->yy_ch_buf )
 		YY_FATAL_ERROR( "out of dynamic memory in yy_create_buffer()" );
 
 	b->yy_is_our_buffer = 1;
 
-	yy_init_buffer(b,file );
+	yy_init_buffer( b, file );
 
 	return b;
 }
@@ -2299,9 +2224,9 @@ static void yy_load_buffer_state  (void)
 		YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE) 0;
 
 	if ( b->yy_is_our_buffer )
-		yyfree((void *) b->yy_ch_buf  );
+		yyfree( (void *) b->yy_ch_buf  );
 
-	yyfree((void *) b  );
+	yyfree( (void *) b  );
 }
 
 /* Initializes or reinitializes a buffer.
@@ -2313,7 +2238,7 @@ static void yy_load_buffer_state  (void)
 {
 	int oerrno = errno;
     
-	yy_flush_buffer(b );
+	yy_flush_buffer( b );
 
 	b->yy_input_file = file;
 	b->yy_fill_buffer = 1;
@@ -2356,7 +2281,7 @@ static void yy_load_buffer_state  (void)
 	b->yy_buffer_status = YY_BUFFER_NEW;
 
 	if ( b == YY_CURRENT_BUFFER )
-		yy_load_buffer_state( );
+		yy_load_buffer_state(  );
 }
 
 /** Pushes the new state onto the stack. The new state becomes
@@ -2387,7 +2312,7 @@ void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
 
 	/* copied from yy_switch_to_buffer. */
-	yy_load_buffer_state( );
+	yy_load_buffer_state(  );
 	(yy_did_buffer_switch_on_eof) = 1;
 }
 
@@ -2406,7 +2331,7 @@ void yypop_buffer_state (void)
 		--(yy_buffer_stack_top);
 
 	if (YY_CURRENT_BUFFER) {
-		yy_load_buffer_state( );
+		yy_load_buffer_state(  );
 		(yy_did_buffer_switch_on_eof) = 1;
 	}
 }
@@ -2473,7 +2398,7 @@ YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
 		/* They forgot to leave room for the EOB's. */
 		return NULL;
 
-	b = (YY_BUFFER_STATE) yyalloc(sizeof( struct yy_buffer_state )  );
+	b = (YY_BUFFER_STATE) yyalloc( sizeof( struct yy_buffer_state )  );
 	if ( ! b )
 		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_buffer()" );
 
@@ -2487,7 +2412,7 @@ YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
 	b->yy_fill_buffer = 0;
 	b->yy_buffer_status = YY_BUFFER_NEW;
 
-	yy_switch_to_buffer(b  );
+	yy_switch_to_buffer( b  );
 
 	return b;
 }
@@ -2503,7 +2428,7 @@ YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
 YY_BUFFER_STATE yy_scan_string (const char * yystr )
 {
     
-	return yy_scan_bytes(yystr,(int) strlen(yystr) );
+	return yy_scan_bytes( yystr, (int) strlen(yystr) );
 }
 
 /** Setup the input buffer state to scan the given bytes. The next call to yylex() will
@@ -2522,7 +2447,7 @@ YY_BUFFER_STATE yy_scan_bytes  (const char * yybytes, int  _yybytes_len )
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = (yy_size_t) (_yybytes_len + 2);
-	buf = (char *) yyalloc(n  );
+	buf = (char *) yyalloc( n  );
 	if ( ! buf )
 		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_bytes()" );
 
@@ -2531,7 +2456,7 @@ YY_BUFFER_STATE yy_scan_bytes  (const char * yybytes, int  _yybytes_len )
 
 	buf[_yybytes_len] = buf[_yybytes_len+1] = YY_END_OF_BUFFER_CHAR;
 
-	b = yy_scan_buffer(buf,n );
+	b = yy_scan_buffer( buf, n );
 	if ( ! b )
 		YY_FATAL_ERROR( "bad buffer in yy_scan_bytes()" );
 
@@ -2549,7 +2474,7 @@ YY_BUFFER_STATE yy_scan_bytes  (const char * yybytes, int  _yybytes_len )
 
 static void yynoreturn yy_fatal_error (const char* msg )
 {
-			(void) fprintf( stderr, "%s\n", msg );
+			fprintf( stderr, "%s\n", msg );
 	exit( YY_EXIT_FAILURE );
 }
 
@@ -2692,7 +2617,7 @@ int yylex_destroy  (void)
     
     /* Pop the buffer stack, destroying each element. */
 	while(YY_CURRENT_BUFFER){
-		yy_delete_buffer(YY_CURRENT_BUFFER  );
+		yy_delete_buffer( YY_CURRENT_BUFFER  );
 		YY_CURRENT_BUFFER_LVALUE = NULL;
 		yypop_buffer_state();
 	}
@@ -2761,6 +2686,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 285 "..\\..\\..\\code\\globalcpp\\parser\\yyLexer.l"
+#line 284 "Z:/openmohaa/code/parser/lex_source.txt"
 
 
