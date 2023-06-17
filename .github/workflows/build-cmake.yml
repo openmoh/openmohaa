@@ -1,0 +1,103 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_call:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: RelWithDebInfo
+
+jobs:
+  build-platform-linux:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Required packages
+      run: sudo apt update && sudo apt install -y flex bison ninja-build libsdl2-dev
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DWITH_CLIENT=1 -G Ninja
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j4
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest -C ${{env.BUILD_TYPE}}
+
+    - name: Install
+      # Install to the directory defined in CMAKE_INSTALL_PREFIX
+      run: cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: out-linux-x64
+        if-no-files-found: error
+        path: ${{github.workspace}}/install
+  
+  build-platform-windows:
+    strategy:
+      matrix:
+        architecture: ['x64', 'x86']
+
+    runs-on: windows-2022
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Required packages
+      working-directory: ${{github.workspace}}
+      run: |
+        mkdir ${{github.workspace}}/others && cd ${{github.workspace}}/others
+        git clone --depth 1 --single-branch --branch v2.5.25 https://github.com/lexxmark/winflexbison.git
+        mkdir ${{github.workspace}}/others/winflexbison/build
+        cd ${{github.workspace}}/others/winflexbison/build
+        cmake -DCMAKE_BUILD_TYPE=Release ..\
+        cmake --build . --config Release
+        cmake --install . --config Release
+
+    - name: Configure CMake (x86)
+      if: matrix.architecture == 'x86'
+      run: cmake -B ${{github.workspace}}/build -A Win32 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DWITH_CLIENT=1
+
+    - name: Configure CMake (x64)
+      if: matrix.architecture == 'x64'
+      run: cmake -B ${{github.workspace}}/build -A x64 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DWITH_CLIENT=1
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j4
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      # Execute tests defined by the CMake configuration.
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest -C ${{env.BUILD_TYPE}}
+
+    - name: Install
+      # Install to the directory defined in CMAKE_INSTALL_PREFIX
+      run: cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: out-windows-${{matrix.architecture}}
+        if-no-files-found: error
+        path: |
+          ${{github.workspace}}/install
+          !${{github.workspace}}/install/**/*.pdb
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: out-windows-${{matrix.architecture}}-pdb
+        if-no-files-found: error
+        path: |
+          ${{github.workspace}}/install
