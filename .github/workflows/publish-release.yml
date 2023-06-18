@@ -20,16 +20,24 @@ jobs:
     strategy:
       matrix:
         target_os: [
-          'linux-x64',
+          'linux-amd64',
+          'linux-i686',
+          'linux-aarch64',
+          'linux-armhf',
           'windows-x64',
           'windows-x86',
           'windows-x64-pdb',
-          'windows-x86-pdb'
+          'windows-x86-pdb',
+          'windows-arm64',
+          'windows-arm64-pdb'
         ]
 
     runs-on: ubuntu-22.04
     environment: release
     needs: [build-all]
+
+    env:
+      RELEASE_NAME: ${{ github.event.repository.name }}-${{github.ref_name}}-${{matrix.target_os}}
 
     steps:
     - uses: actions/download-artifact@v3
@@ -39,11 +47,11 @@ jobs:
 
     - name: Zip
       working-directory: ${{github.workspace}}/${{matrix.target_os}}
-      run: zip -r ../${{matrix.target_os}}.zip .
+      run: zip -r ../${{ env.RELEASE_NAME }}.zip ./
 
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
         name: '${{github.ref_name}}-${{env.RELEASE_TYPE}}'
         prerelease: ${{env.RELEASE_IS_PRERELEASE}}
-        files: ${{github.workspace}}/${{matrix.target_os}}.zip
+        files: ${{github.workspace}}/${{ env.RELEASE_NAME }}.zip
