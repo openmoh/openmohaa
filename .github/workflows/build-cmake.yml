@@ -65,11 +65,11 @@ jobs:
         cmake --build . --config Release
         cmake --install . --config Release
 
-    - name: Configure CMake (x86)
+    - name: Configure CMake (Win32 config)
       if: matrix.architecture == 'x86'
       run: cmake -B ${{github.workspace}}/build -A Win32 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DWITH_CLIENT=1
 
-    - name: Configure CMake (x64)
+    - name: Configure CMake (x64 config)
       if: matrix.architecture == 'x64'
       run: cmake -B ${{github.workspace}}/build -A x64 -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DWITH_CLIENT=1
 
