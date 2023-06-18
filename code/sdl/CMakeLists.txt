@@ -8,36 +8,46 @@ target_compile_features(omohsdl PUBLIC c_variadic_macros)
 target_link_libraries(omohsdl PRIVATE qcommon qcommon_standalone)
 
 if(WIN32)
-	target_include_directories(omohsdl PUBLIC "../SDL2/include-2.0.22")
+	find_package(SDL2)
 
-	if (MSVC)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-			add_library(sdl2 SHARED IMPORTED)
-			set_target_properties(sdl2 PROPERTIES
-			  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/SDL264.lib"
-			)
+	if (SDL2_FOUND)
+		target_include_directories(omohsdl PUBLIC ${SDL2_INCLUDE_DIRS})
+		target_link_libraries(omohsdl PRIVATE ${SDL2_LIBRARIES})
+	else()
+		message(WARNING "SDL2 not found, falling back to using SDL2 from the source tree")
 
-			add_library(sdl2main SHARED IMPORTED)
-			set_target_properties(sdl2main PROPERTIES
-			  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/SDL264main.lib"
-			)
-		else()
-			add_library(sdl2 SHARED IMPORTED)
-			set_target_properties(sdl2 PROPERTIES
-			  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2.lib"
-			)
+		target_include_directories(omohsdl PUBLIC "../SDL2/include-2.0.22")
 
-			add_library(sdl2main SHARED IMPORTED)
-			set_target_properties(sdl2main PROPERTIES
-			  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2main.lib"
-			)
+		if (MSVC)
+			if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+				add_library(sdl2 SHARED IMPORTED)
+				set_target_properties(sdl2 PROPERTIES
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/SDL264.lib"
+				)
+
+				add_library(sdl2main SHARED IMPORTED)
+				set_target_properties(sdl2main PROPERTIES
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win64/SDL264main.lib"
+				)
+			else()
+				add_library(sdl2 SHARED IMPORTED)
+				set_target_properties(sdl2 PROPERTIES
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2.lib"
+				)
+
+				add_library(sdl2main SHARED IMPORTED)
+				set_target_properties(sdl2main PROPERTIES
+				  IMPORTED_IMPLIB "${CMAKE_SOURCE_DIR}/code/libs/win32/SDL2main.lib"
+				)
+			endif()
+
+			target_link_libraries(omohsdl PRIVATE sdl2 sdl2main)
 		endif()
-
-		target_link_libraries(omohsdl PRIVATE sdl2 sdl2main)
 	endif()
 
 elseif(UNIX)
 	find_package(SDL2 REQUIRED)
+
 	target_include_directories(omohsdl PUBLIC ${SDL2_INCLUDE_DIRS})
 	target_link_libraries(omohsdl PRIVATE ${SDL2_LIBRARIES})
 endif()
