@@ -104,7 +104,7 @@ if (WITH_CLIENT)
 	#list(FILTER SOURCES_RENDERER EXCLUDE REGEX "code/renderergl2/tr_subs.c")
 	#list(FILTER SOURCES_RENDERER EXCLUDE REGEX "code/renderergl2/tr_model.c")
 
-	add_executable(openmohaa "code/qcommon/dummy.c")
+	add_executable(openmohaa "misc/dummy.c")
 	target_link_libraries(openmohaa PRIVATE syslib)
 	target_link_libraries(openmohaa PRIVATE omohserver)
 	target_link_libraries(openmohaa PRIVATE omohclient)
