@@ -17,4 +17,3 @@ set(SRCS
 
 add_library(libmad STATIC ${SRCS})
 target_compile_definitions(libmad PUBLIC FPM_64BIT)
-target_link_directories(libmad PUBLIC "./")

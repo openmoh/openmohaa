@@ -8,7 +8,7 @@ file(GLOB_RECURSE SOURCES_UILIB "../uilib/*.c*")
 
 # Made as an interface and not static, as static only links used methods
 add_library(omohclient INTERFACE)
-target_sources(omohclient PUBLIC ${SOURCES_CLIENT} ${SOURCES_UILIB})
+target_sources(omohclient INTERFACE ${SOURCES_CLIENT} ${SOURCES_UILIB})
 target_compile_definitions(omohclient INTERFACE APP_MODULE)
 target_compile_features(omohclient INTERFACE cxx_nullptr)
 target_compile_features(omohclient INTERFACE c_variadic_macros)
