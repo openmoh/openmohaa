@@ -61,16 +61,16 @@ file(GLOB_RECURSE SRCS_webservices
 
 add_library(gcd_common STATIC ${SRCS_common})
 add_library(gcd_key STATIC ${SRCS_gcdkey})
-add_library(gcd_gp STATIC ${SRCS_GP})
-add_library(gcd_gstats STATIC ${SRCS_gstats})
+#add_library(gcd_gp STATIC ${SRCS_GP})
+#add_library(gcd_gstats STATIC ${SRCS_gstats})
 add_library(gcd_natneg STATIC ${SRCS_natneg})
-add_library(gcd_pinger STATIC ${SRCS_pinger})
-add_library(gcd_pt STATIC ${SRCS_pt})
+#add_library(gcd_pinger STATIC ${SRCS_pinger})
+#add_library(gcd_pt STATIC ${SRCS_pt})
 add_library(gcd_qr2 STATIC ${SRCS_qr2})
-add_library(gcd_sake STATIC ${SRCS_sake})
-add_library(gcd_sc STATIC ${SRCS_sc})
-add_library(gcd_serverbrowsing STATIC ${SRCS_serverbrowsing})
-add_library(gcd_webservices STATIC ${SRCS_webservices})
+#add_library(gcd_sake STATIC ${SRCS_sake})
+#add_library(gcd_sc STATIC ${SRCS_sc})
+#add_library(gcd_serverbrowsing STATIC ${SRCS_serverbrowsing})
+#add_library(gcd_webservices STATIC ${SRCS_webservices})
 add_library(gcd INTERFACE)
 
 set_property(TARGET gcd_common gcd_key PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -81,16 +81,16 @@ endif(UNIX)
 
 set(DEPENDENT_LIBS
 	gcd_key
-	gcd_gp
-	gcd_gstats
+#	gcd_gp
+#	gcd_gstats
 	gcd_natneg
-	gcd_pinger
-	gcd_pt
+#	gcd_pinger
+#	gcd_pt
 	gcd_qr2
-	gcd_sake
-	gcd_sc
-	gcd_serverbrowsing
-	gcd_webservices
+#	gcd_sake
+#	gcd_sc
+#	gcd_serverbrowsing
+#	gcd_webservices
 )
 
 target_link_libraries(gcd INTERFACE ${DEPENDENT_LIBS})
