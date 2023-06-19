@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "q_shared.h"
 #include "qcommon.h"
+#include "q_version.h"
 #include <setjmp.h>
 #ifndef _WIN32
 #include <netinet/in.h>
@@ -1313,7 +1314,7 @@ void Com_Init( char *commandLine ) {
 
 	iStart = Sys_Milliseconds();
 
-	Com_Printf( "%s %s %s\n", PRODUCT_VERSION_FULL, PLATFORM_STRING, __DATE__ );
+	Com_Printf( "%s %s (extension %s) %s %s\n", PRODUCT_NAME, PRODUCT_VERSION, PRODUCT_EXTENSION, PLATFORM_STRING, PRODUCT_DATE );
 
 	if ( setjmp (abortframe) ) {
 		Sys_Error("Error during initialization");

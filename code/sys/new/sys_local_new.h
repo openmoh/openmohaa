@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
+#include "../qcommon/q_version.h"
+
 // Setting DEFAULT_BASEDIR to an empty string will make
 // Sys_DefaultInstallPath() return the current directory instead
 // This was the usual behavior in Quake III Arena.

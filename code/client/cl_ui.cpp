@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderercommon/tr_public.h"
 #include "../qcommon/tiki.h"
 #include "../qcommon/localization.h"
+#include "../qcommon/q_version.h"
 
 #include "cl_ui.h"
 
@@ -1122,10 +1123,10 @@ getNewConsole
 ====================
 */
 UIFloatingConsole* getNewConsole() {
-	static constexpr char CONSOLE_NAME[] = PRODUCT_NAME " console version " PRODUCT_VERSION;
+	const char* consoleName = va("%s console version %s", PRODUCT_NAME, PRODUCT_VERSION);
 
 	UIFloatingConsole* console = new UIFloatingConsole;
-	console->Create(NULL, getDefaultConsoleRectangle(), CONSOLE_NAME, UWindowColor, UHudColor);
+	console->Create(NULL, getDefaultConsoleRectangle(), consoleName, UWindowColor, UHudColor);
 	console->setConsoleHandler(ConsoleCommandHandler);
 	console->setConsoleBackground(UBlack, 0.8f);
 	console->setShow(false);
