@@ -19,26 +19,19 @@ along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-//
-#pragma once
 
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
+
+#pragma once
+
+#include "q_version.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 #define PRODUCT_NAME					"OpenMoHAA"
-
-//
-// Version
-// 
-// These values are the only one that must be set for the version
-#define PRODUCT_VERSION_MAJOR			0
-#define PRODUCT_VERSION_MINOR			55
-#define PRODUCT_VERSION_PATCH			1
-#define PRODUCT_VERSION_STAGE			"alpha"
 
 //
 // Version display
