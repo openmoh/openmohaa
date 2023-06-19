@@ -5,6 +5,8 @@ if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13.0")
 	cmake_policy(SET CMP0076 NEW)
 endif()
 
+include("./q_version.cmake")
+
 # Shared source files for modules
 set(SOURCES_SHARED
 	"${CMAKE_SOURCE_DIR}/code/qcommon/class.cpp"
@@ -28,8 +30,7 @@ target_compile_definitions(qcommon INTERFACE TARGET_GAME_TYPE=${TARGET_GAME_TYPE
 target_include_directories(qcommon INTERFACE "../qcommon" "../script")
 target_compile_features(qcommon INTERFACE cxx_nullptr)
 target_compile_features(qcommon INTERFACE c_variadic_macros)
-
-include("./q_version.cmake")
+target_link_libraries(qcommon INTERFACE qcommon_version)
 
 # Source files for standalone executable
 set(SOURCES_COMMON
