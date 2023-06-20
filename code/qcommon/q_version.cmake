@@ -3,6 +3,7 @@ add_library(qcommon_version INTERFACE)
 # Current branch
 execute_process(
 	COMMAND git branch --show-current
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	OUTPUT_VARIABLE GIT_BRANCH_NAME
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -10,6 +11,7 @@ execute_process(
 # Revision
 execute_process(
 	COMMAND git show -s --format=%H HEAD
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	OUTPUT_VARIABLE GIT_REVISION_HASH
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
@@ -17,6 +19,7 @@ execute_process(
 # Commit date
 execute_process(
 	COMMAND git show -s --format=%ct
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	OUTPUT_VARIABLE GIT_REVISION_DATE
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
