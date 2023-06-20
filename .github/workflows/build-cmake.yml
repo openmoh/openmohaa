@@ -29,19 +29,34 @@ jobs:
     name: "Building for platform linux-${{matrix.architecture.name}}"
     runs-on: ubuntu-22.04
 
-    container:
-      image: ubuntu:22.04
-      volumes:
-        - ${{github.workspace}}:${{github.workspace}}
+#    container:
+#      image: ubuntu:22.04
+#      volumes:
+#        - ${{github.workspace}}:${{github.workspace}}
+#
+#    steps:
+#    - name: Install required packages
+#      run: apt update && apt install -y clang-15 cmake ninja-build flex bison git
+#
+#    - name: Install required cross-platform packages (${{ matrix.architecture.triple }})
+#      if: matrix.architecture.name != 'amd64'
+#      run: apt install -y gcc-12-${{ matrix.architecture.triple }} g++-12-${{ matrix.architecture.triple }}
 
     steps:
-    - name: Install required packages
-      run: apt update && apt install -y clang-15 cmake ninja-build flex bison git
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "CMAKE_BUILD_PARALLEL_LEVEL=$(($(nproc) * 16))" >> $GITHUB_ENV
+#       echo "CMAKE_GENERATOR=Ninja" >> $GITHUB_ENV
 
+    - name: Install required packages
+      run: |
+        sudo apt update && sudo apt install -y flex bison
+  
     - name: Install required cross-platform packages (${{ matrix.architecture.triple }})
       if: matrix.architecture.name != 'amd64'
-      run: apt install -y gcc-12-${{ matrix.architecture.triple }} g++-12-${{ matrix.architecture.triple }}
-
+      run: sudo apt install -y gcc-12-${{ matrix.architecture.triple }} g++-12-${{ matrix.architecture.triple }}
+  
     - name: Install dependencies
       working-directory: ${{github.workspace}}
       run: |
@@ -49,13 +64,13 @@ jobs:
         mkdir -p thirdparties && cd thirdparties
         git clone --depth 1 --single-branch --branch SDL2 https://github.com/libsdl-org/SDL.git
         cmake -B SDL-build \
-          -DCMAKE_C_COMPILER=clang-15 \
-          -DCMAKE_CXX_COMPILER=clang++-15 \
+          -DCMAKE_C_COMPILER=clang \
+          -DCMAKE_CXX_COMPILER=clang++ \
           -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }} \
           -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }} \
           -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/SDL-install' \
           ./SDL
-        cmake --build SDL-build --config Release --parallel
+        cmake --build SDL-build --config Release
         cmake --install SDL-build
 
     - uses: actions/checkout@v3
@@ -69,20 +84,19 @@ jobs:
           --log-level=VERBOSE \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
-          -DCMAKE_C_COMPILER=clang-15 \
-          -DCMAKE_CXX_COMPILER=clang++-15 \
+          -DCMAKE_C_COMPILER=clang \
+          -DCMAKE_CXX_COMPILER=clang++ \
           -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }} \
           -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }} \
           -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
           -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL-install/lib/cmake/SDL2' \
           -DWITH_CLIENT=1 \
-          -G Ninja \
           ./source
 
     - name: Build
       working-directory: ${{github.workspace}}
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -117,6 +131,11 @@ jobs:
     runs-on: windows-2022
 
     steps:
+    - name: Settings
+      working-directory: ${{github.workspace}}
+      run: |
+        echo "CMAKE_BUILD_PARALLEL_LEVEL=$((Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors * 16)" >> $GITHUB_ENV
+
     - name: Install required packages
       working-directory: ${{github.workspace}}
       run: |
