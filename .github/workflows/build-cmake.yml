@@ -35,10 +35,6 @@ jobs:
         - ${{github.workspace}}:${{github.workspace}}
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        path: 'source'
-
     - name: Install required packages
       run: apt update && apt install -y clang-15 cmake ninja-build flex bison git
 
@@ -62,10 +58,15 @@ jobs:
         cmake --build SDL-build --config Release --parallel
         cmake --install SDL-build
 
+    - uses: actions/checkout@v3
+      with:
+        path: 'source'
+  
     - name: Configure CMake
       working-directory: ${{github.workspace}}
       run: |
         cmake -B ./build \
+          --log-level=VERBOSE \
           -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
           -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
           -DCMAKE_C_COMPILER=clang-15 \
@@ -116,10 +117,6 @@ jobs:
     runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        path: 'source'
-
     - name: Install required packages
       working-directory: ${{github.workspace}}
       run: |
@@ -133,10 +130,16 @@ jobs:
         cmake --build winflexbison-build --config Release --parallel
         cmake --install winflexbison-build
 
+    - uses: actions/checkout@v3
+      with:
+        path: 'source'
+
     - name: Configure CMake
       working-directory: ${{github.workspace}}
       run: |
-        cmake -B ${{github.workspace}}/build -A ${{ matrix.architecture.config }} `
+        cmake -B ${{github.workspace}}/build `
+        -A ${{ matrix.architecture.config }} `
+        --log-level=VERBOSE `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' `
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
