@@ -59,7 +59,7 @@ jobs:
           -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }} \
           -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/SDL-install' \
           ./SDL
-        cmake --build SDL-build --config Release
+        cmake --build SDL-build --config Release --parallel
         cmake --install SDL-build
 
     - name: Configure CMake
@@ -81,7 +81,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j4
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -126,11 +126,11 @@ jobs:
         mkdir thirdparties && cd thirdparties
         git clone --depth 1 --single-branch --branch SDL2 https://github.com/libsdl-org/SDL.git
         cmake -B SDL-build -A ${{ matrix.architecture.config }} -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/SDL-install' ./SDL
-        cmake --build SDL-build --config Release
+        cmake --build SDL-build --config Release --parallel
         cmake --install SDL-build
         git clone --depth 1 --single-branch --branch v2.5.25 https://github.com/lexxmark/winflexbison.git
         cmake -B winflexbison-build -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/thirdparties/winflexbison-install' ./winflexbison
-        cmake --build winflexbison-build --config Release
+        cmake --build winflexbison-build --config Release --parallel
         cmake --install winflexbison-build
 
     - name: Configure CMake
@@ -149,7 +149,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -j4
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel
 
     - name: Test
       working-directory: ${{github.workspace}}/build
