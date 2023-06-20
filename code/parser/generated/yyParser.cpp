@@ -67,7 +67,7 @@
 
 
 /* First part of user prologue.  */
-#line 1 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 1 "E:/Src/openmohaa/code/parser/bison_source.txt"
 
 /*
 * ===========================================================================
@@ -107,7 +107,7 @@ extern yyparsedata parsedata;
 #define YYLLOC node_pos( parsedata.pos - yyleng )
 
 
-#line 111 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 111 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -1800,576 +1800,576 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: newline statement_list  */
-#line 108 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 108 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                { parsedata.val = node1( sval_statement_list, (yyvsp[0].s.val) ); }
-#line 1806 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1806 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 3: /* statement_list: statement_list statement newline  */
-#line 112 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 112 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                          { (yyval.s.val) = append_node( (yyvsp[-2].s.val), (yyvsp[-1].s.val) ); }
-#line 1812 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1812 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 4: /* statement_list: statement newline  */
-#line 114 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 114 "E:/Src/openmohaa/code/parser/bison_source.txt"
                             { (yyval.s.val) = linked_list_end( (yyvsp[-1].s.val) ); }
-#line 1818 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1818 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 5: /* statement_list: newline  */
-#line 115 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 115 "E:/Src/openmohaa/code/parser/bison_source.txt"
                   { (yyval.s.val) = node0( sval_none ); }
-#line 1824 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1824 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 6: /* statement: TOKEN_IDENTIFIER event_parameter_list TOKEN_COLON  */
-#line 119 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 119 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                           { (yyval.s.val) = node3( sval_label, (yyvsp[-2].s).val, (yyvsp[-1].s.val), YYLLOC ); }
-#line 1830 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1830 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 7: /* statement: TOKEN_PLUS TOKEN_IDENTIFIER event_parameter_list TOKEN_COLON  */
-#line 120 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 120 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                        { (yyval.s.val) = node3( sval_label, (yyvsp[-2].s).val, (yyvsp[-1].s.val), YYLLOC ); }
-#line 1836 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1836 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 8: /* statement: TOKEN_MINUS TOKEN_IDENTIFIER event_parameter_list TOKEN_COLON  */
-#line 121 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 121 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                         { (yyval.s.val) = node3( sval_privatelabel, (yyvsp[-2].s).val, (yyvsp[-1].s.val), YYLLOC ); }
-#line 1842 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1842 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 9: /* statement: TOKEN_CASE prim_expr event_parameter_list TOKEN_COLON  */
-#line 122 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 122 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                 { (yyval.s.val) = node3( sval_case, (yyvsp[-2].s.val), (yyvsp[-1].s.val), YYLLOC ); }
-#line 1848 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1848 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 11: /* statement: TOKEN_IF prim_expr newline statement newline  */
-#line 124 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 124 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                           { (yyval.s.val) = node3( sval_if, (yyvsp[-3].s.val), (yyvsp[-1].s.val), YYLLOC ); }
-#line 1854 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1854 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 12: /* statement: TOKEN_IF prim_expr newline statement newline TOKEN_ELSE newline statement  */
-#line 125 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 125 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                                             { (yyval.s.val) = node4( sval_ifelse, (yyvsp[-6].s.val), (yyvsp[-4].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 1860 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1860 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 13: /* statement: TOKEN_WHILE prim_expr newline statement  */
-#line 126 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 126 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                   { (yyval.s.val) = node4( sval_while, (yyvsp[-2].s.val), (yyvsp[0].s.val), node0( sval_none ), YYLLOC ); }
-#line 1866 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1866 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 14: /* statement: TOKEN_FOR TOKEN_LPAREN statement TOKEN_SEMICOLON expr TOKEN_SEMICOLON statement_list TOKEN_RPAREN newline statement  */
-#line 128 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 128 "E:/Src/openmohaa/code/parser/bison_source.txt"
         {
 		sval_u while_stmt = node4( sval_while, (yyvsp[-5].s.val), (yyvsp[0].s.val), node1( sval_statement_list, (yyvsp[-3].s.val) ), YYLLOC );
 		(yyval.s.val) = node1( sval_statement_list, append_node( linked_list_end( (yyvsp[-7].s.val) ), while_stmt ) );
 	}
-#line 1875 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1875 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 15: /* statement: TOKEN_FOR TOKEN_LPAREN TOKEN_SEMICOLON expr TOKEN_SEMICOLON statement_list TOKEN_RPAREN newline statement  */
-#line 133 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 133 "E:/Src/openmohaa/code/parser/bison_source.txt"
         {
 		(yyval.s.val) = node4( sval_while, (yyvsp[-5].s.val), (yyvsp[0].s.val), node1( sval_statement_list, (yyvsp[-3].s.val) ), YYLLOC );
 	}
-#line 1883 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1883 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 16: /* statement: TOKEN_DO newline statement newline TOKEN_WHILE prim_expr  */
-#line 136 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 136 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                          { (yyval.s.val) = node3( sval_do, (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 1889 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1889 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 17: /* statement: TOKEN_TRY newline compound_statement newline TOKEN_CATCH newline compound_statement  */
-#line 137 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 137 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                                               { (yyval.s.val) = node3( sval_catch, (yyvsp[-4].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 1895 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1895 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 18: /* statement: TOKEN_SWITCH prim_expr newline compound_statement  */
-#line 138 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 138 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                             { (yyval.s.val) = node3( sval_switch, (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 1901 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1901 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 19: /* statement: TOKEN_BREAK  */
-#line 139 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 139 "E:/Src/openmohaa/code/parser/bison_source.txt"
                       { (yyval.s.val) = node1( sval_break, YYLLOC ); }
-#line 1907 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1907 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 20: /* statement: TOKEN_CONTINUE  */
-#line 140 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 140 "E:/Src/openmohaa/code/parser/bison_source.txt"
                          { (yyval.s.val) = node1( sval_continue, YYLLOC ); }
-#line 1913 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1913 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 21: /* statement: TOKEN_IDENTIFIER event_parameter_list  */
-#line 141 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 141 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                 { (yyval.s.val) = node3( sval_cmd, (yyvsp[-1].s).val, node1( sval_none, (yyvsp[0].s.val) ), node_pos( (yyvsp[-1].s).sourcePos ) ); }
-#line 1919 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1919 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 22: /* statement: nonident_prim_expr TOKEN_IDENTIFIER event_parameter_list  */
-#line 143 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 143 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                    { (yyval.s.val) = node4( sval_cmd_method, (yyvsp[-2].s.val), (yyvsp[-1].s).val, node1( sval_none, (yyvsp[0].s.val) ), node_pos( (yyvsp[-1].s).sourcePos ) ); }
-#line 1925 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1925 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 23: /* statement: nonident_prim_expr TOKEN_ASSIGNMENT expr  */
-#line 145 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 145 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 1931 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1931 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 24: /* statement: nonident_prim_expr TOKEN_PLUS_EQUALS expr  */
-#line 146 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 146 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                     { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), node4( sval_operation, node1b( OP_BIN_PLUS ), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ), YYLLOC ); }
-#line 1937 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1937 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 25: /* statement: nonident_prim_expr TOKEN_MINUS_EQUALS expr  */
-#line 147 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 147 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                      { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), node4( sval_operation, node1b( OP_BIN_MINUS ), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ), YYLLOC ); }
-#line 1943 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1943 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 26: /* statement: nonident_prim_expr TOKEN_MULTIPLY_EQUALS expr  */
-#line 148 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 148 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                         { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), node4( sval_operation, node1b( OP_BIN_MULTIPLY ), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ), YYLLOC ); }
-#line 1949 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1949 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 27: /* statement: nonident_prim_expr TOKEN_DIVIDE_EQUALS expr  */
-#line 149 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 149 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                       { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), node4( sval_operation, node1b( OP_BIN_DIVIDE ), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ), YYLLOC ); }
-#line 1955 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1955 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 28: /* statement: nonident_prim_expr TOKEN_MODULUS_EQUALS expr  */
-#line 150 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 150 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                        { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), node4( sval_operation, node1b( OP_BIN_PERCENTAGE ), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ), YYLLOC ); }
-#line 1961 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1961 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 29: /* statement: nonident_prim_expr TOKEN_AND_EQUALS expr  */
-#line 151 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 151 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), node4( sval_operation, node1b( OP_BIN_BITWISE_AND ), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ), YYLLOC ); }
-#line 1967 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1967 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 30: /* statement: nonident_prim_expr TOKEN_EXCL_OR_EQUALS expr  */
-#line 152 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 152 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                        { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), node4( sval_operation, node1b( OP_BIN_BITWISE_EXCL_OR ), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ), YYLLOC ); }
-#line 1973 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1973 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 31: /* statement: nonident_prim_expr TOKEN_OR_EQUALS expr  */
-#line 153 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 153 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                   { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), node4( sval_operation, node1b( OP_BIN_BITWISE_OR ), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ), YYLLOC ); }
-#line 1979 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1979 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 32: /* statement: nonident_prim_expr TOKEN_SHIFT_LEFT_EQUALS expr  */
-#line 154 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 154 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                           { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), node4( sval_operation, node1b( OP_BIN_SHIFT_LEFT ), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ), YYLLOC ); }
-#line 1985 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1985 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 33: /* statement: nonident_prim_expr TOKEN_SHIFT_RIGHT_EQUALS expr  */
-#line 155 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 155 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                            { (yyval.s.val) = node3( sval_assignment, (yyvsp[-2].s.val), node4( sval_operation, node1b( OP_BIN_SHIFT_RIGHT ), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ), YYLLOC ); }
-#line 1991 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1991 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 34: /* statement: nonident_prim_expr TOKEN_INCREMENT  */
-#line 156 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 156 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node3( sval_assignment, (yyvsp[-1].s.val), node2( sval_func1, node1b( OP_UN_INC ), (yyvsp[-1].s.val) ), YYLLOC ); }
-#line 1997 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1997 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 35: /* statement: nonident_prim_expr TOKEN_DECREMENT  */
-#line 157 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 157 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node3( sval_assignment, (yyvsp[-1].s.val), node2( sval_func1, node1b( OP_UN_DEC ), (yyvsp[-1].s.val) ), YYLLOC ); }
-#line 2003 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2003 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 37: /* compound_statement: TOKEN_LBRACKET newline statement_list newline TOKEN_RBRACKET  */
-#line 162 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 162 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                      { (yyval.s.val) = node1( sval_statement_list, (yyvsp[-2].s.val) ); }
-#line 2009 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2009 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 38: /* expr: expr TOKEN_LOGICAL_AND newline expr  */
-#line 166 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 166 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                             { (yyval.s.val) = node3( sval_and, (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2015 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2015 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 39: /* expr: expr TOKEN_LOGICAL_OR newline expr  */
-#line 167 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 167 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node3( sval_or, (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2021 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2021 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 40: /* expr: expr TOKEN_BITWISE_AND newline expr  */
-#line 168 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 168 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                               { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_BITWISE_AND ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2027 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2027 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 41: /* expr: expr TOKEN_BITWISE_EXCL_OR newline expr  */
-#line 169 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 169 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                   { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_BITWISE_EXCL_OR ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2033 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2033 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 42: /* expr: expr TOKEN_BITWISE_OR newline expr  */
-#line 170 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 170 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_BITWISE_OR ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2039 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2039 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 43: /* expr: expr TOKEN_EQUALITY newline expr  */
-#line 171 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 171 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                            { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_EQUALITY ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2045 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2045 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 44: /* expr: expr TOKEN_INEQUALITY newline expr  */
-#line 172 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 172 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_INEQUALITY ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2051 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2051 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 45: /* expr: expr TOKEN_LESS_THAN newline expr  */
-#line 173 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 173 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                             { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_LESS_THAN ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2057 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2057 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 46: /* expr: expr TOKEN_GREATER_THAN newline expr  */
-#line 174 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 174 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_GREATER_THAN ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2063 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2063 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 47: /* expr: expr TOKEN_LESS_THAN_OR_EQUAL newline expr  */
-#line 175 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 175 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                      { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_LESS_THAN_OR_EQUAL ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2069 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2069 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 48: /* expr: expr TOKEN_GREATER_THAN_OR_EQUAL newline expr  */
-#line 176 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 176 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                         { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_GREATER_THAN_OR_EQUAL ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2075 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2075 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 49: /* expr: expr TOKEN_PLUS newline expr  */
-#line 177 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 177 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                        { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_PLUS ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2081 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2081 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 50: /* expr: expr TOKEN_MINUS newline expr  */
-#line 178 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 178 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                         { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_MINUS ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2087 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2087 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 51: /* expr: expr TOKEN_MULTIPLY newline expr  */
-#line 179 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 179 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                            { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_MULTIPLY ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2093 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2093 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 52: /* expr: expr TOKEN_DIVIDE newline expr  */
-#line 180 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 180 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                          { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_DIVIDE ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2099 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2099 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 53: /* expr: expr TOKEN_MODULUS newline expr  */
-#line 181 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 181 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                           { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_PERCENTAGE ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2105 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2105 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 54: /* expr: expr TOKEN_SHIFT_LEFT newline expr  */
-#line 182 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 182 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_SHIFT_LEFT ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2111 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2111 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 55: /* expr: expr TOKEN_SHIFT_RIGHT newline expr  */
-#line 183 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 183 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                               { (yyval.s.val) = node4( sval_operation, node1b( OP_BIN_SHIFT_RIGHT ), (yyvsp[-3].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2117 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2117 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 56: /* expr: expr TOKEN_TERNARY expr TOKEN_COLON expr  */
-#line 184 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 184 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node4( sval_ifelse, (yyvsp[-4].s.val), (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2123 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2123 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 59: /* expr: identifier_prim  */
-#line 187 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 187 "E:/Src/openmohaa/code/parser/bison_source.txt"
                           { (yyval.s.val) = node1( sval_store_string, (yyvsp[0].s).val ); }
-#line 2129 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2129 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 60: /* func_prim_expr: TOKEN_IDENTIFIER event_parameter_list_need  */
-#line 191 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 191 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node3( sval_cmd_default_ret, (yyvsp[-1].s).val, node1( sval_none, (yyvsp[0].s.val) ), node_pos( (yyvsp[-1].s).sourcePos ) ); }
-#line 2135 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2135 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 61: /* func_prim_expr: nonident_prim_expr TOKEN_IDENTIFIER event_parameter_list  */
-#line 193 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 193 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                    { (yyval.s.val) = node4( sval_cmd_method_ret, (yyvsp[-2].s.val), (yyvsp[-1].s).val, node1( sval_none, (yyvsp[0].s.val) ), node_pos( (yyvsp[-1].s).sourcePos ) ); }
-#line 2141 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2141 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 62: /* func_prim_expr: TOKEN_NEG func_prim_expr  */
-#line 195 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 195 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                    { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_MINUS ), (yyvsp[0].s.val), YYLLOC ); }
-#line 2147 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2147 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 63: /* func_prim_expr: TOKEN_COMPLEMENT func_prim_expr  */
-#line 196 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 196 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                           { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_COMPLEMENT ), (yyvsp[0].s.val), YYLLOC ); }
-#line 2153 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2153 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 64: /* func_prim_expr: TOKEN_NOT func_prim_expr  */
-#line 197 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 197 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                    { (yyval.s.val) = node2( sval_not, (yyvsp[0].s.val), YYLLOC ); }
-#line 2159 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2159 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 65: /* func_prim_expr: TOKEN_IDENTIFIER TOKEN_DOUBLE_COLON prim_expr  */
-#line 198 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 198 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                         { (yyval.s.val) = node3( sval_constarray, node2( sval_store_string, (yyvsp[-2].s).val, node_pos( (yyvsp[-2].s).sourcePos ) ), (yyvsp[0].s.val), YYLLOC ); }
-#line 2165 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2165 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 66: /* func_prim_expr: nonident_prim_expr TOKEN_DOUBLE_COLON prim_expr  */
-#line 199 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 199 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                           { (yyval.s.val) = node3( sval_constarray, (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2171 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2171 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 67: /* func_prim_expr: TOKEN_MAKEARRAY newline makearray_statement_list newline TOKEN_ENDARRAY  */
-#line 200 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 200 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                                   { (yyval.s.val) = node1( sval_makearray, (yyvsp[-2].s.val) ); }
-#line 2177 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2177 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 68: /* event_parameter_list: %empty  */
-#line 204 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 204 "E:/Src/openmohaa/code/parser/bison_source.txt"
         { (yyval.s.val) = node0( sval_none ); }
-#line 2183 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2183 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 69: /* event_parameter_list: event_parameter_list prim_expr  */
-#line 205 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 205 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                          { (yyval.s.val) = append_node( (yyvsp[-1].s.val), (yyvsp[0].s.val) ); }
-#line 2189 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2189 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 70: /* event_parameter_list: prim_expr  */
-#line 206 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 206 "E:/Src/openmohaa/code/parser/bison_source.txt"
                     { (yyval.s.val) = linked_list_end( (yyvsp[0].s.val) ); }
-#line 2195 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2195 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 71: /* event_parameter_list_need: event_parameter_list_need prim_expr  */
-#line 210 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 210 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                             { (yyval.s.val) = append_node( (yyvsp[-1].s.val), (yyvsp[0].s.val) ); }
-#line 2201 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2201 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 72: /* event_parameter_list_need: prim_expr  */
-#line 211 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 211 "E:/Src/openmohaa/code/parser/bison_source.txt"
                     { (yyval.s.val) = linked_list_end( (yyvsp[0].s.val) ); }
-#line 2207 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2207 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 74: /* prim_expr: identifier_prim  */
-#line 216 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 216 "E:/Src/openmohaa/code/parser/bison_source.txt"
                           { (yyval.s.val) = node1( sval_store_string, (yyvsp[0].s).val ); }
-#line 2213 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2213 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 75: /* prim_expr: prim_expr TOKEN_DOUBLE_COLON prim_expr  */
-#line 217 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 217 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                  { (yyval.s.val) = node3( sval_constarray, (yyvsp[-2].s.val), (yyvsp[0].s.val), YYLLOC ); }
-#line 2219 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2219 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 76: /* nonident_prim_expr: TOKEN_DOLLAR TOKEN_LPAREN expr TOKEN_RPAREN  */
-#line 221 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 221 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                     { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_TARGETNAME ), (yyvsp[-1].s.val), YYLLOC ); }
-#line 2225 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2225 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 77: /* nonident_prim_expr: TOKEN_DOLLAR TOKEN_IDENTIFIER  */
-#line 222 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 222 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                         { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_TARGETNAME ), node1( sval_store_string, (yyvsp[0].s).val ), YYLLOC ); }
-#line 2231 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2231 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 78: /* nonident_prim_expr: TOKEN_DOLLAR TOKEN_STRING  */
-#line 223 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 223 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                     { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_TARGETNAME ), node1( sval_store_string, (yyvsp[0].s).val ), YYLLOC ); }
-#line 2237 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2237 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 79: /* nonident_prim_expr: nonident_prim_expr TOKEN_PERIOD TOKEN_IDENTIFIER  */
-#line 224 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 224 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                            { (yyval.s.val) = node3( sval_field, (yyvsp[-2].s.val), (yyvsp[0].s).val, node_pos( (yyvsp[0].s).sourcePos ) ); }
-#line 2243 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2243 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 80: /* nonident_prim_expr: nonident_prim_expr TOKEN_PERIOD TOKEN_STRING  */
-#line 225 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 225 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                        { (yyval.s.val) = node3( sval_field, (yyvsp[-2].s.val), (yyvsp[0].s).val, node_pos( (yyvsp[0].s).sourcePos ) ); }
-#line 2249 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2249 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 81: /* nonident_prim_expr: nonident_prim_expr TOKEN_PERIOD TOKEN_SIZE  */
-#line 226 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 226 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                      { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_SIZE ), (yyvsp[-2].s.val), YYLLOC ); }
-#line 2255 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2255 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 82: /* nonident_prim_expr: nonident_prim_expr TOKEN_LSQUARE expr TOKEN_RSQUARE  */
-#line 227 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 227 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                               { (yyval.s.val) = node3( sval_array, (yyvsp[-3].s.val), (yyvsp[-1].s.val), (yyvsp[-3].s.val) ); }
-#line 2261 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2261 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 83: /* nonident_prim_expr: TOKEN_STRING  */
-#line 228 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 228 "E:/Src/openmohaa/code/parser/bison_source.txt"
                        { (yyval.s.val) = node1( sval_store_string, (yyvsp[0].s).val ); }
-#line 2267 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2267 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 85: /* nonident_prim_expr: TOKEN_LPAREN expr expr expr TOKEN_RPAREN  */
-#line 230 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 230 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node4( sval_calc_vector, (yyvsp[-3].s.val), (yyvsp[-2].s.val), (yyvsp[-1].s.val), YYLLOC ); }
-#line 2273 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2273 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 86: /* nonident_prim_expr: TOKEN_LISTENER  */
-#line 231 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 231 "E:/Src/openmohaa/code/parser/bison_source.txt"
                          { (yyval.s.val) = node2( sval_store_method, (yyvsp[0].s).val, YYLLOC ); }
-#line 2279 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2279 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 87: /* nonident_prim_expr: TOKEN_LPAREN expr TOKEN_RPAREN  */
-#line 232 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 232 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                          { (yyval.s.val) = (yyvsp[-1].s.val); }
-#line 2285 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2285 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 88: /* nonident_prim_expr: TOKEN_LPAREN TOKEN_RPAREN  */
-#line 233 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 233 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                     { (yyval.s.val) = node0( sval_none ); }
-#line 2291 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2291 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 89: /* nonident_prim_expr: TOKEN_NEG nonident_prim_expr  */
-#line 234 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 234 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                        { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_MINUS ), (yyvsp[0].s.val), YYLLOC ); }
-#line 2297 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2297 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 90: /* nonident_prim_expr: TOKEN_COMPLEMENT nonident_prim_expr  */
-#line 235 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 235 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                               { (yyval.s.val) = node3( sval_func1, node1b( OP_UN_COMPLEMENT ), (yyvsp[0].s.val), YYLLOC ); }
-#line 2303 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2303 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 91: /* nonident_prim_expr: TOKEN_NOT nonident_prim_expr  */
-#line 236 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 236 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                        { (yyval.s.val) = node2( sval_not, (yyvsp[0].s.val), YYLLOC ); }
-#line 2309 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2309 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 92: /* nonident_prim_expr: TOKEN_NULL  */
-#line 237 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 237 "E:/Src/openmohaa/code/parser/bison_source.txt"
                      { (yyval.s.val) = node1( sval_store_null, YYLLOC ); }
-#line 2315 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2315 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 93: /* nonident_prim_expr: TOKEN_NIL  */
-#line 238 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 238 "E:/Src/openmohaa/code/parser/bison_source.txt"
                     { (yyval.s.val) = node1( sval_store_nil, YYLLOC ); }
-#line 2321 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2321 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 94: /* number: TOKEN_FLOAT  */
-#line 242 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 242 "E:/Src/openmohaa/code/parser/bison_source.txt"
                     { (yyval.s.val) = node1( sval_store_float, (yyvsp[0].s).val ); }
-#line 2327 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2327 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 95: /* number: TOKEN_INTEGER  */
-#line 243 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 243 "E:/Src/openmohaa/code/parser/bison_source.txt"
                         { (yyval.s.val) = node1( sval_store_integer, (yyvsp[0].s).val ); }
-#line 2333 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2333 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 97: /* makearray_statement_list: %empty  */
-#line 251 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 251 "E:/Src/openmohaa/code/parser/bison_source.txt"
         { (yyval.s.val) = node0( sval_none ); }
-#line 2339 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2339 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 98: /* makearray_statement_list: makearray_statement_list makearray_statement newline  */
-#line 252 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 252 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                                                { (yyval.s.val) = append_node( (yyvsp[-2].s.val), node1( sval_makearray, (yyvsp[-1].s.val) ) ); }
-#line 2345 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2345 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 99: /* makearray_statement_list: makearray_statement newline  */
-#line 253 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 253 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                       { (yyval.s.val) = linked_list_end( node1( sval_makearray, (yyvsp[-1].s.val) ) ); }
-#line 2351 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2351 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 100: /* makearray_statement: prim_expr  */
-#line 257 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 257 "E:/Src/openmohaa/code/parser/bison_source.txt"
                   { (yyval.s.val) = linked_list_end( (yyvsp[0].s.val) ); }
-#line 2357 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2357 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 101: /* makearray_statement: makearray_statement prim_expr  */
-#line 258 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 258 "E:/Src/openmohaa/code/parser/bison_source.txt"
                                         { (yyval.s.val) = append_node( (yyvsp[-1].s.val), (yyvsp[0].s.val) ); }
-#line 2363 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2363 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 102: /* newline: %empty  */
-#line 262 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 262 "E:/Src/openmohaa/code/parser/bison_source.txt"
         {}
-#line 2369 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2369 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
 
-#line 2373 "Z:/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2373 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
 
       default: break;
     }
@@ -2593,5 +2593,5 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 266 "Z:/openmohaa/code/parser/bison_source.txt"
+#line 266 "E:/Src/openmohaa/code/parser/bison_source.txt"
 
