@@ -72,6 +72,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=clang++-15 \
           -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }} \
           -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }} \
+          -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
           -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL-install/lib/cmake/SDL2' \
           -DWITH_CLIENT=1 \
           -G Ninja \
@@ -138,6 +139,7 @@ jobs:
         cmake -B ${{github.workspace}}/build -A ${{ matrix.architecture.config }} `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' `
+        -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
         -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL-install/cmake' `
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
         -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe' `
