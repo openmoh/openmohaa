@@ -21,10 +21,14 @@ execute_process(
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-string(TIMESTAMP GIT_REVISION_DATE UTC)
+string(TIMESTAMP GIT_REVISION_DATE_TIME UTC)
 
-set(GIT_REVISION_DATE_HUMAN ${GIT_REVISION_DATE})
-string(TIMESTAMP GIT_REVISION_DATE_HUMAN "%b %d %Y" UTC)
+set(GIT_REVISION_DATE ${GIT_REVISION_DATE_TIME})
+string(TIMESTAMP GIT_REVISION_DATE "%b %d %Y UTC%z" UTC)
+
+if(NOT GIT_REVISION_BUILD_NUMBER)
+	set(GIT_REVISION_BUILD_NUMBER 0)
+endif()
 
 configure_file("q_version.generated.h.in" "generated/q_version.generated.h")
 target_include_directories(qcommon_version INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/generated")

@@ -1314,7 +1314,7 @@ void Com_Init( char *commandLine ) {
 
 	iStart = Sys_Milliseconds();
 
-	Com_Printf( "%s %s (extension %s) %s %s\n", PRODUCT_NAME, PRODUCT_VERSION, PRODUCT_EXTENSION, PLATFORM_STRING, PRODUCT_DATE );
+	Com_Printf( "%s %s (extension %s) %s %s\n", PRODUCT_NAME, PRODUCT_VERSION_FULL, PRODUCT_EXTENSION, PLATFORM_STRING, PRODUCT_VERSION_DATE );
 
 	if ( setjmp (abortframe) ) {
 		Sys_Error("Error during initialization");
@@ -1466,9 +1466,9 @@ void Com_Init( char *commandLine ) {
 		}
 	}
 
-	s = va( "%s %s %s", PRODUCT_VERSION_FULL, PLATFORM_STRING, PRODUCT_DATE );
+	s = va( "%s %s %s", PRODUCT_VERSION_FULL, PLATFORM_STRING, PRODUCT_VERSION_DATE );
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
-	com_shortversion = Cvar_Get( "shortversion", TARGET_GAME_VERSION, CVAR_ROM );
+	com_shortversion = Cvar_Get( "shortversion", PRODUCT_VERSION, CVAR_ROM );
 	com_gamename = Cvar_Get("com_gamename", TARGET_GAME_NAME, CVAR_SERVERINFO | CVAR_INIT);
 	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_INIT);
 #ifdef LEGACY_PROTOCOL
