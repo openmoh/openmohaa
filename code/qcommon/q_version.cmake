@@ -33,5 +33,10 @@ if(NOT GIT_REVISION_BUILD_NUMBER)
 	set(GIT_REVISION_BUILD_NUMBER 0)
 endif()
 
+message(VERBOSE "Git branch: ${GIT_BRANCH_NAME}")
+message(VERBOSE "Git revision hash: ${GIT_REVISION_HASH}")
+message(VERBOSE "Git revision date: ${GIT_REVISION_DATE}")
+message(VERBOSE "Git revision build: ${GIT_REVISION_BUILD_NUMBER}")
+
 configure_file("q_version.generated.h.in" "generated/q_version.generated.h")
 target_include_directories(qcommon_version INTERFACE "${CMAKE_CURRENT_BINARY_DIR}/generated")
