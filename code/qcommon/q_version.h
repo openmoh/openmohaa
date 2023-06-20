@@ -33,10 +33,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PRODUCT_VERSION_MAJOR			0
 #define PRODUCT_VERSION_MINOR			55
 #define PRODUCT_VERSION_PATCH			1
-
-#ifndef PRODUCT_VERSION_SUFFIX
 #define PRODUCT_VERSION_SUFFIX			"alpha"
-#endif
+
+//
+// Generated version info
+//
 
 #ifdef GIT_REVISION_BUILD_NUMBER
 #   define PRODUCT_VERSION_BUILD_NUMBER GIT_REVISION_BUILD_NUMBER
