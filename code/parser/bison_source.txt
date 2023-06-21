@@ -38,7 +38,7 @@ extern yyparsedata parsedata;
 
 %}
 
-%error-verbose
+%define parse.error verbose
 
 %expect 306
 
