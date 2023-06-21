@@ -1815,7 +1815,7 @@ void ScriptVariable::operator%=( const ScriptVariable& value )
 	default:
 		Clear();
 
-		throw ScriptException( "binary '%' applied to incompatible types '%s' and '%s'", typenames[ GetType() ], typenames[ value.GetType() ] );
+		throw ScriptException( "binary '%%' applied to incompatible types '%s' and '%s'", typenames[ GetType() ], typenames[ value.GetType() ] );
 
 		break;
 

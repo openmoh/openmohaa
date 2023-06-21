@@ -1069,7 +1069,7 @@ void NET_OpenSocks( int port ) {
 	struct hostent		*h;
 	int					len;
 	qboolean			rfc1929;
-	unsigned char		buf[64];
+	unsigned char		buf[64] = { 0 };
 
 	usingSocks = qfalse;
 

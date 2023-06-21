@@ -7331,7 +7331,7 @@ void Actor::ShowInfo
 		Vector a = origin;
 		a.z += maxs.z + 74;
 
-		G_DebugString(a, 1.0, 1.0, 1.0, 1065353216, "DISABLED");
+		G_DebugString(a, 1.0, 1.0, 1.0, 1.0, "DISABLED");
 	}
 	
 	{
@@ -7344,7 +7344,7 @@ void Actor::ShowInfo
 			1.0,
 			1.0,
 			1.0,
-			1065353216,
+			1.0,
 			"%i:%i:%s:%.1f",
 			entnum,
 			radnum,
@@ -7363,12 +7363,11 @@ void Actor::ShowInfo
 			1.0,
 			1.0,
 			1.0,
-			1065353216,
+			1.0,
 			"%i:%s:%.1f:%i",
-			m_Enemy->entnum,
-			m_Enemy->radnum,
-			m_Enemy->targetname.c_str(),
-			m_Enemy->health,
+            m_Enemy->entnum,
+            m_Enemy->targetname.c_str(),
+            m_Enemy->health,
 			m_PotentialEnemies.GetCurrentThreat());
 	}
 
@@ -7384,7 +7383,7 @@ void Actor::ShowInfo
 			1.0,
 			1.0,
 			1.0,
-			1065353216,
+			1.0,
 			"%s:%%%.1f",
 			Director.GetString(m_csThinkStateNames[THINKSTATE_CURIOUS]).c_str(),
 			m_PotentialEnemies.GetCurrentVisibility() * 100);
@@ -7401,7 +7400,7 @@ void Actor::ShowInfo
 			1.0,
 			1.0,
 			1.0,
-			1065353216,
+			1.0,
 			"%s",
 			ThinkStateName().c_str());
 	}
@@ -7420,7 +7419,7 @@ void Actor::ShowInfo
 			1.0,
 			1.0,
 			1.0,
-			1065353216,
+			1.0,
 			"%s:%s:%i - %s",
 			ThinkName().c_str(),
 			m_pszDebugState,
@@ -11862,7 +11861,7 @@ void Actor::SetPatrolCurrentNode
 	
 	if (!l->inheritsFrom(&SimpleEntity::ClassInfo))
 	{
-		ScriptError("Bad patrol path with classname '%s' specified for '%s' at (%f %f %f) %i\n",
+		ScriptError("Bad patrol path with classname '%s' specified for '%s' at (%f %f %f)\n",
 			l->getClassname(),
 			targetname.c_str(),
 			origin.x,

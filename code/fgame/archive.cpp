@@ -437,7 +437,7 @@ qboolean harderror
 	if( version > ArchiveVersion )
 	{
 		readfile.Close();
-		FileError( "Archive is from version %.2f.  Check http://www.x-null.net for an update.", version );
+		FileError( "Archive is from version %u.  Check http://www.x-null.net for an update.", version );
 		return false;
 	}
 

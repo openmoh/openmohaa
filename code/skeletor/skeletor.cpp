@@ -141,12 +141,11 @@ SkelVec3 skelAnimDataGameHeader_s::GetDeltaOverTime( float time1, float time2 )
 	return delta;
 }
 
-skelAnimDataGameHeader_t *skelAnimDataGameHeader_s::AllocAnimData( int numFrames, int numChannels )
+skelAnimDataGameHeader_t *skelAnimDataGameHeader_s::AllocAnimData( size_t numFrames, size_t numChannels )
 {
 	skelAnimDataGameHeader_t *data;
-	int animSize;
-
-	animSize = sizeof( skelAnimDataGameHeader_t ) + ( 16 * ( 3 * numFrames - 3 ) ) + 16 * numChannels * numFrames;
+	
+	const size_t animSize = sizeof( skelAnimDataGameHeader_t ) + ( 16 * ( 3 * numFrames - 3 ) ) + 16 * numChannels * numFrames;
 
 	data = ( skelAnimDataGameHeader_t * )Skel_Alloc( animSize );
 	data->flags = 0;
@@ -157,7 +156,7 @@ skelAnimDataGameHeader_t *skelAnimDataGameHeader_s::AllocAnimData( int numFrames
 }
 
 
-skelAnimDataGameHeader_s *skelAnimDataGameHeader_s::AllocRLEChannelData( int numChannels )
+skelAnimDataGameHeader_s *skelAnimDataGameHeader_s::AllocRLEChannelData(size_t numChannels)
 {
 	int animSize;
 	skelAnimDataGameHeader_t *data;

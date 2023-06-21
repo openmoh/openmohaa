@@ -444,7 +444,7 @@ qboolean TikiScript::ProcessCommand( qboolean crossline )
 		}
 		else
 		{
-			TIKI_Error( "^~^~^ Cannot find include file '%s' in %s on line %d\n", &argument1, Filename(), GetLineNumber() );
+			TIKI_Error( "^~^~^ Cannot find include file '%s' in %s on line %d\n", argument1, Filename(), GetLineNumber() );
 			Uninclude();
 		}
 	}

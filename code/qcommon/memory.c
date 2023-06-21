@@ -158,7 +158,7 @@ void *Z_TagMalloc( int size, int tag )
 	if( size <= 0 )
 	{
 		//Z_Meminfo_f();
-		Com_DPrintf( "Z_TagMalloc, Negative or zero size %zu tag %i\n", size, tag );
+		Com_DPrintf( "Z_TagMalloc, Negative or zero size %d tag %i\n", size, tag );
 		return NULL;
 	}
 

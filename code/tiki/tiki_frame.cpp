@@ -133,7 +133,7 @@ qboolean TIKI_Frame_Commands_ClientTime( dtiki_t *pmdl, int animnum, float start
 		{
 			if( tiki_cmd->num_cmds >= TIKI_MAX_COMMANDS )
 			{
-				TIKI_Error( "TIKI_Frame_Commands_Client: Too many cmds for anim %d times %f %f for %s.\n", animnum, start );
+				TIKI_Error( "TIKI_Frame_Commands_Client: Too many cmds for anim %d times %f %f for %s.\n", animnum, start, end, pmdl->a->name );
 				return false;
 			}
 

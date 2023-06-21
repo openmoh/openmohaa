@@ -138,7 +138,7 @@ void TIKI_ParseFrameCommands( dloaddef_t *ld, dloadframecmd_t **cmdlist, int max
 
 			if( framenum < TIKI_FRAME_LAST )
 			{
-				TIKI_Error( "TIKI_ParseFrameCommands: illegal frame number %d on line %d in %s\n", framenum, ld->tikiFile.Filename(), ld->tikiFile.GetLineNumber() );
+				TIKI_Error( "TIKI_ParseFrameCommands: illegal frame number %d on line %d in %s\n", framenum, ld->tikiFile.GetLineNumber(), ld->tikiFile.Filename());
 				while( ld->tikiFile.TokenAvailable( false ) )
 					ld->tikiFile.GetToken( false );
 				( *numcmds )--;

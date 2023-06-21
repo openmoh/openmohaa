@@ -196,7 +196,7 @@ float grandom( void ) {
 		s = v1 * v1 + v2 * v2;
 	} while( s >= 1.0 || s == 0 );
 
-	s = sqrt( -2.0 * log( s ) / s );
+	s = sqrtf( -2.0 * log( s ) / s );
 	x1 = v1 * s;
 	x2 = v2 * s;
 	toggle = 1;
@@ -565,7 +565,7 @@ vec_t PlaneNormalize(vec4_t plane)
 {
 	vec_t           length, ilength;
 
-	length = sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
+	length = sqrtf(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
 	if(length == 0)
 	{
 		VectorClear(plane);
@@ -631,10 +631,10 @@ void RotatePointAroundVector( vec3_t dst, const vec3_t dir, const vec3_t point,
 	zrot[0][0] = zrot[1][1] = zrot[2][2] = 1.0F;
 
 	rad = DEG2RAD( degrees );
-	zrot[0][0] = cos( rad );
-	zrot[0][1] = sin( rad );
-	zrot[1][0] = -sin( rad );
-	zrot[1][1] = cos( rad );
+	zrot[0][0] = cosf( rad );
+	zrot[0][1] = sinf( rad );
+	zrot[1][0] = -sinf( rad );
+	zrot[1][1] = cosf( rad );
 
 	Matrix3x3Multiply( m, zrot, tmpmat );
 	Matrix3x3Multiply( tmpmat, im, rot );
@@ -726,7 +726,7 @@ void VectorToAngles( const vec3_t vec, vec3_t angles )
 		if( yaw < 0 ) {
 			yaw += 360;
 		}
-		forward = sqrt( 1.0f - vec[ 2 ] * vec[ 2 ] );
+		forward = sqrtf( 1.0f - vec[ 2 ] * vec[ 2 ] );
 		pitch = ( atan2( vec[ 2 ], forward ) * -( 180.0f / M_PI ) );
 		if( pitch < 0 ) {
 			pitch += 360;
@@ -749,14 +749,14 @@ void AnglesToAxis( const vec3_t angles, vec3_t axis[3] ) {
 	// static to help MS compiler fp bugs
 
 	angle = angles[ YAW ] * ( M_PI * 2 / 360 );
-	sy = sin( angle );
-	cy = cos( angle );
+	sy = sinf( angle );
+	cy = cosf( angle );
 	angle = angles[ PITCH ] * ( M_PI * 2 / 360 );
-	sp = sin( angle );
-	cp = cos( angle );
+	sp = sinf( angle );
+	cp = cosf( angle );
 	angle = angles[ ROLL ] * ( M_PI * 2 / 360 );
-	sr = sin( angle );
-	cr = cos( angle );
+	sr = sinf( angle );
+	cr = cosf( angle );
 
 	axis[ 0 ][ 0 ] = cp*cy;
 	axis[ 0 ][ 1 ] = cp*sy;
@@ -883,7 +883,7 @@ the msvc acos doesn't always return a value between -PI and PI:
 
 int i;
 i = 1065353246;
-acos(*(float*) &i) == -1.#IND0
+acosf(*(float*) &i) == -1.#IND0
 
 	This should go in q_math but it is too late to add new traps
 	to game and ui
@@ -892,7 +892,7 @@ acos(*(float*) &i) == -1.#IND0
 float Q_acos(float c) {
 	float angle;
 
-	angle = acos(c);
+	angle = acosf(c);
 
 	if (angle > M_PI) {
 		return (float)M_PI;
@@ -1619,7 +1619,7 @@ void MatToQuat
 
 	if( trace > 0.0 )
 	{
-		s = sqrt( trace + 1.0 );
+		s = sqrtf( trace + 1.0 );
 		destQuat[ W ] = s * 0.5;
 		s = 0.5 / s;
 
@@ -1858,7 +1858,7 @@ vec_t VectorNormalize2D2( const vec2_t v, vec2_t out ) {
 	float	length, ilength;
 
 	length = v[ 0 ] * v[ 0 ] + v[ 1 ] * v[ 1 ];
-	length = sqrt( length );
+	length = sqrtf( length );
 
 	if( length )
 	{
@@ -2039,14 +2039,14 @@ void AngleVectors( const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up 
 	// static to help MS compiler fp bugs
 
 	angle = angles[ YAW ] * ( M_PI * 2 / 360 );
-	sy = sin( angle );
-	cy = cos( angle );
+	sy = sinf( angle );
+	cy = cosf( angle );
 	angle = angles[ PITCH ] * ( M_PI * 2 / 360 );
-	sp = sin( angle );
-	cp = cos( angle );
+	sp = sinf( angle );
+	cp = cosf( angle );
 	angle = angles[ ROLL ] * ( M_PI * 2 / 360 );
-	sr = sin( angle );
-	cr = cos( angle );
+	sr = sinf( angle );
+	cr = cosf( angle );
 
 	if( forward )
 	{
@@ -2075,11 +2075,11 @@ void AngleVectorsLeft( const vec3_t angles, vec3_t forward, vec3_t left, vec3_t 
 	// static to help MS compiler fp bugs
 
 	angle = angles[ YAW ] * ( M_PI * 2 / 360 );
-	sy = sin( angle );
-	cy = cos( angle );
+	sy = sinf( angle );
+	cy = cosf( angle );
 	angle = angles[ PITCH ] * ( M_PI * 2 / 360 );
-	sp = sin( angle );
-	cp = cos( angle );
+	sp = sinf( angle );
+	cp = cosf( angle );
 
 	if( forward )
 	{
@@ -2091,8 +2091,8 @@ void AngleVectorsLeft( const vec3_t angles, vec3_t forward, vec3_t left, vec3_t 
 	if( left || up )
 	{
 		angle = angles[ ROLL ] * ( M_PI * 2 / 360 );
-		sr = sin( angle );
-		cr = cos( angle );
+		sr = sinf( angle );
+		cr = cosf( angle );
 
 		if( left )
 		{
@@ -2360,7 +2360,7 @@ Return the smallest distance between two line segments
 */
 vec_t DistanceBetweenLineSegments(const vec3_t sP0, const vec3_t sP1, const vec3_t tP0, const vec3_t tP1, float *s, float *t)
 {
-	return (vec_t) sqrt(DistanceBetweenLineSegmentsSquared(sP0, sP1, tP0, tP1, s, t));
+	return (vec_t) sqrtf(DistanceBetweenLineSegmentsSquared(sP0, sP1, tP0, tP1, s, t));
 }
 
 void VectorMatrixInverse( void* DstMatrix, const void* SrcMatrix )
@@ -2705,8 +2705,8 @@ void MatrixSetupXRotation(matrix_t m, vec_t degrees)
 	vec_t a = DEG2RAD(degrees);
 
 	m[ 0] = 1;      m[ 4] = 0;              m[ 8] = 0;              m[12] = 0;
-	m[ 1] = 0;      m[ 5] = cos(a);         m[ 9] =-sin(a);         m[13] = 0;
-	m[ 2] = 0;      m[ 6] = sin(a);         m[10] = cos(a);         m[14] = 0;
+	m[ 1] = 0;      m[ 5] = cosf(a);         m[ 9] =-sinf(a);         m[13] = 0;
+	m[ 2] = 0;      m[ 6] = sinf(a);         m[10] = cosf(a);         m[14] = 0;
 	m[ 3] = 0;      m[ 7] = 0;              m[11] = 0;              m[15] = 1;
 }
 
@@ -2714,9 +2714,9 @@ void MatrixSetupYRotation(matrix_t m, vec_t degrees)
 {
 	vec_t a = DEG2RAD(degrees);
 
-	m[ 0] = cos(a);         m[ 4] = 0;      m[ 8] = sin(a);         m[12] = 0;
+	m[ 0] = cosf(a);         m[ 4] = 0;      m[ 8] = sinf(a);         m[12] = 0;
 	m[ 1] = 0;              m[ 5] = 1;      m[ 9] = 0;              m[13] = 0;
-	m[ 2] =-sin(a);         m[ 6] = 0;      m[10] = cos(a);         m[14] = 0;
+	m[ 2] =-sinf(a);         m[ 6] = 0;      m[10] = cosf(a);         m[14] = 0;
 	m[ 3] = 0;              m[ 7] = 0;      m[11] = 0;              m[15] = 1;
 }
 
@@ -2724,8 +2724,8 @@ void MatrixSetupZRotation(matrix_t m, vec_t degrees)
 {
 	vec_t a = DEG2RAD(degrees);
 
-	m[ 0] = cos(a);         m[ 4] =-sin(a);         m[ 8] = 0;      m[12] = 0;
-	m[ 1] = sin(a);         m[ 5] = cos(a);         m[ 9] = 0;      m[13] = 0;
+	m[ 0] = cosf(a);         m[ 4] =-sinf(a);         m[ 8] = 0;      m[12] = 0;
+	m[ 1] = sinf(a);         m[ 5] = cosf(a);         m[ 9] = 0;      m[13] = 0;
 	m[ 2] = 0;              m[ 6] = 0;              m[10] = 1;      m[14] = 0;
 	m[ 3] = 0;              m[ 7] = 0;              m[11] = 0;      m[15] = 1;
 }
@@ -2927,8 +2927,8 @@ void MatrixToAngles(const matrix_t m, vec3_t angles)
 		sp = -1.0;
 	}
 
-	theta = -asin(sp);
-	cp = cos(theta);
+	theta = -asinf(sp);
+	cp = cosf(theta);
 
 	if(cp > 8192 * FLT_EPSILON)
 	{
@@ -2946,8 +2946,8 @@ void MatrixToAngles(const matrix_t m, vec3_t angles)
 	double          a;
 	double          ca;
 
-	a = asin(-m[2]);
-	ca = cos(a);
+	a = asinf(-m[2]);
+	ca = cosf(a);
 
 	if(fabs(ca) > 0.005)		// Gimbal lock?
 	{
@@ -2971,14 +2971,14 @@ void MatrixFromAngles(matrix_t m, vec_t pitch, vec_t yaw, vec_t roll)
 	static float    sr, sp, sy, cr, cp, cy;
 
     // static to help MS compiler fp bugs
-	sp = sin(DEG2RAD(pitch));
-	cp = cos(DEG2RAD(pitch));
+	sp = sinf(DEG2RAD(pitch));
+	cp = cosf(DEG2RAD(pitch));
 
-	sy = sin(DEG2RAD(yaw));
-	cy = cos(DEG2RAD(yaw));
+	sy = sinf(DEG2RAD(yaw));
+	cy = cosf(DEG2RAD(yaw));
 
-	sr = sin(DEG2RAD(roll));
-	cr = cos(DEG2RAD(roll));
+	sr = sinf(DEG2RAD(roll));
+	cr = cosf(DEG2RAD(roll));
 
 	m[ 0] = cp*cy;  m[ 4] = (sr*sp*cy+cr*-sy);      m[ 8] = (cr*sp*cy+-sr*-sy);     m[12] = 0;
 	m[ 1] = cp*sy;  m[ 5] = (sr*sp*sy+cr*cy);       m[ 9] = (cr*sp*sy+-sr*cy);      m[13] = 0;
@@ -3626,7 +3626,7 @@ vec_t QuatNormalize(quat_t q)
 	float           length, ilength;
 
 	length = q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3];
-	length = sqrt(length);
+	length = sqrtf(length);
 
 	if(length)
 	{
@@ -3651,14 +3651,14 @@ void QuatFromAngles(quat_t q, vec_t pitch, vec_t yaw, vec_t roll)
 	static float    sr, sp, sy, cr, cp, cy;
 
 	// static to help MS compiler fp bugs
-	sp = sin(DEG2RAD(pitch));
-	cp = cos(DEG2RAD(pitch));
+	sp = sinf(DEG2RAD(pitch));
+	cp = cosf(DEG2RAD(pitch));
 
-	sy = sin(DEG2RAD(yaw));
-	cy = cos(DEG2RAD(yaw));
+	sy = sinf(DEG2RAD(yaw));
+	cy = cosf(DEG2RAD(yaw));
 
-	sr = sin(DEG2RAD(roll));
-	cr = cos(DEG2RAD(roll));
+	sr = sinf(DEG2RAD(roll));
+	cr = cosf(DEG2RAD(roll));
 
 	q[0] = sr * cp * cy - cr * sp * sy;	// x
 	q[1] = cr * sp * cy + sr * cp * sy;	// y
@@ -3729,7 +3729,7 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 
 	if(trace > 0.0f)
 	{
-		vec_t           s = 0.5f / sqrt(trace);
+		vec_t           s = 0.5f / sqrtf(trace);
 
 		q[0] = (m[6] - m[9]) * s;
 		q[1] = (m[8] - m[2]) * s;
@@ -3741,7 +3741,7 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 		if(m[0] > m[5] && m[0] > m[10])
 		{
 			// column 0
-			float           s = sqrt(1.0f + m[0] - m[5] - m[10]) * 2.0f;
+			float           s = sqrtf(1.0f + m[0] - m[5] - m[10]) * 2.0f;
 
 			q[0] = 0.25f * s;
 			q[1] = (m[4] + m[1]) / s;
@@ -3751,7 +3751,7 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 		else if(m[5] > m[10])
 		{
 			// column 1
-			float           s = sqrt(1.0f + m[5] - m[0] - m[10]) * 2.0f;
+			float           s = sqrtf(1.0f + m[5] - m[0] - m[10]) * 2.0f;
 
 			q[0] = (m[4] + m[1]) / s;
 			q[1] = 0.25f * s;
@@ -3761,7 +3761,7 @@ void QuatFromMatrix(quat_t q, const matrix_t m)
 		else
 		{
 			// column 2
-			float           s = sqrt(1.0f + m[10] - m[0] - m[5]) * 2.0f;
+			float           s = sqrtf(1.0f + m[10] - m[0] - m[5]) * 2.0f;
 
 			q[0] = (m[8] + m[2]) / s;
 			q[1] = (m[9] + m[6]) / s;
@@ -3806,19 +3806,19 @@ void QuatToRotAngle( const quat_t q, vec_t *angle ) {
 void QuatToRotAngleAxis( const quat_t q, vec_t *angle, vec3_t axis ) {
 
 	*angle = atan( VectorLength(q)/q[3] );
-	axis[0] = q[0] / sin(*angle);
-	axis[1] = q[1] / sin(*angle);
-	axis[2] = q[2] / sin(*angle);
+	axis[0] = q[0] / sinf(*angle);
+	axis[1] = q[1] / sinf(*angle);
+	axis[2] = q[2] / sinf(*angle);
 
 	*angle *= 360.0f / M_PI;
 }
 
 void QuatFromRotAngleAxis( quat_t q, vec_t angle, const vec3_t axis ) {
 
-	q[0] = axis[0] * sin( angle*M_PI/360 );
-	q[1] = axis[1] * sin( angle*M_PI/360 );
-	q[2] = axis[2] * sin( angle*M_PI/360 );
-	q[3] = cos( angle*M_PI/360 );
+	q[0] = axis[0] * sinf( angle*M_PI/360 );
+	q[1] = axis[1] * sinf( angle*M_PI/360 );
+	q[2] = axis[2] * sinf( angle*M_PI/360 );
+	q[3] = cosf( angle*M_PI/360 );
 }
 
 void QuatToAngles( const quat_t q, vec3_t angles )
@@ -3830,7 +3830,7 @@ void QuatToAngles( const quat_t q, vec3_t angles )
 	q2[ 2 ] = q[ 2 ] * q[ 2 ];
 	q2[ 3 ] = q[ 3 ] * q[ 3 ];
 
-	angles[ PITCH ] = RAD2DEG( asin( -2 * ( q[ 2 ] * q[ 0 ] - q[ 3 ] * q[ 1 ] ) ) );
+	angles[ PITCH ] = RAD2DEG( asinf( -2 * ( q[ 2 ] * q[ 0 ] - q[ 3 ] * q[ 1 ] ) ) );
 	angles[ YAW ] = RAD2DEG( atan2( 2 * ( q[ 2 ] * q[ 3 ] + q[ 0 ] * q[ 1 ] ), ( q2[ 2 ] - q2[ 3 ] - q2[ 0 ] + q2[ 1 ] ) ) );
 	angles[ ROLL ] = RAD2DEG( atan2( 2 * ( q[ 3 ] * q[ 0 ] + q[ 2 ] * q[ 1 ] ), ( -q2[ 2 ] - q2[ 3 ] + q2[ 0 ] + q2[ 1 ] ) ) );
 }
@@ -3857,7 +3857,7 @@ void QuatToAngles( const quat_t q, vec3_t angles )
 	}
 	else
 	{
-		angles[ PITCH ] = asin( 2.f*( SingularityTest ) ) * RAD_TO_DEG;
+		angles[ PITCH ] = asinf( 2.f*( SingularityTest ) ) * RAD_TO_DEG;
 		angles[ YAW ] = atan2( YawY, YawX ) * RAD_TO_DEG;
 		angles[ ROLL ] = atan2( -2.f*( q[W]*q[X] + q[Y]*q[Z] ), ( 1.f - 2.f*( Square( q[X] ) + Square( q[Y] ) ) ) ) * RAD_TO_DEG;
 	}
@@ -3991,11 +3991,11 @@ void QuatSlerp(const quat_t from, const quat_t to, float frac, quat_t out)
 	if((1.0f - absCosom) > 1e-6f)
 	{
 		sinSqr = 1.0f - absCosom * absCosom;
-		sinom = 1.0f / sqrt(sinSqr);
-		omega = atan2(sinSqr * sinom, absCosom);
+		sinom = 1.0f / sqrtf(sinSqr);
+		omega = atan2f(sinSqr * sinom, absCosom);
 
-		scale0 = sin((1.0f - frac) * omega) * sinom;
-		scale1 = sin(frac * omega) * sinom;
+		scale0 = sinf((1.0f - frac) * omega) * sinom;
+		scale1 = sinf(frac * omega) * sinom;
 	}
 	else
 	{
@@ -4043,8 +4043,8 @@ void MatrixToEulerAngles
 		sp = -1.0;
 	}
 
-	theta = -asin( sp );
-	cp = cos( theta );
+	theta = -asinf( sp );
+	cp = cosf( theta );
 
 	if( cp > 8192 * FLT_EPSILON )
 	{
