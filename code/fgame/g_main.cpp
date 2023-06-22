@@ -621,7 +621,7 @@ void G_RunFrame( int levelTime, int frameTime )
 			end = clock();
 
 			gi.DebugPrintf( "\n%i total: %d (%.1f)\n-----------------------\n",
-				level.framenum, end - start, ( float )( end - start ) * g_fMsecPerClock );
+				level.framenum, end - start, static_cast<float>(end - start) * g_fMsecPerClock );
 		}
 
 		g_iInThinks--;

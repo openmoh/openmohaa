@@ -733,7 +733,7 @@ static void gs_encode ( uchar *ins, int size, uchar *result )
 
 static void gs_encrypt ( uchar *key, int key_len, uchar *buffer_ptr, int buffer_len )
 { 
-	short counter;     
+	int counter;     
 	uchar x, y, xorIndex;
 	uchar state[256];       
 	

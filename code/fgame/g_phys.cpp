@@ -1497,7 +1497,7 @@ void G_Physics_Step
 			{
 			if( !( ( ent->flags & FL_SWIM ) && ( ent->waterlevel > 2 ) ) )
 				{
-				if ( ent->velocity[ 2 ] < sv_gravity->value * ent->gravity * -0.1 )
+				if ( ent->velocity[ 2 ] < sv_gravity->value * ent->gravity * -0.1f )
 					{
 					hitsound = true;
 					}

@@ -4805,7 +4805,7 @@ Vector Actor::CalcThrowVelocity
 	Vector ret;
 	Vector vDelta;
 	float v10; // ST0C_4
-	long double v11; // fst3
+	float v11; // fst3
 	//////
 	float fGravity;
 	float fVelHorz;
@@ -10297,173 +10297,173 @@ void Actor::UpdateBoneControllers
 	
 {
 	int v1; // eax
-	long double v2; // fst7
+	float v2; // fst7
 	float v3; // ebx
-	long double v4; // fst7
-	long double error; // fst5
-	long double v6; // fst3
+	float v4; // fst7
+	float error; // fst5
+	float v6; // fst3
 	float v7; // ST34_4
 	float torsoYawError; // edx
-	long double fErr1; // fst7
-	long double v10; // tt
-	long double v11; // fst5
-	long double v12; // fst7
-	long double v13; // fst5
-	long double fErr2; // fst3
-	long double fAng1; // fst4
-	long double fAng2; // fst5
-	long double v17; // fst1
-	long double fAng3; // fst4
-	long double v19; // fst3
-	long double fAng3_; // fst5
-	long double fFrameTorsoDist; // fst4
-	long double fAng4; // fst5
-	long double v23; // fst4
-	long double fAng5; // fst6
+	float fErr1; // fst7
+	float v10; // tt
+	float v11; // fst5
+	float v12; // fst7
+	float v13; // fst5
+	float fErr2; // fst3
+	float fAng1; // fst4
+	float fAng2; // fst5
+	float v17; // fst1
+	float fAng3; // fst4
+	float v19; // fst3
+	float fAng3_; // fst5
+	float fFrameTorsoDist; // fst4
+	float fAng4; // fst5
+	float v23; // fst4
+	float fAng5; // fst6
 	float v25; // ST48_4
 	float v26; // ST38_4
-	long double fAng6; // fst6
-	long double v28; // fst5
-	long double v29; // fst4
-	long double fAng7; // fst5
-	long double fAng8; // fst2
-	long double v32; // fst1
-	long double fAng9; // fst6
-	long double v34; // fst6
-	long double v35; // fst3
-	long double v36; // fst1
-	long double fAng10; // fst5
-	long double v38; // fst3
-	long double v39; // fst6
-	long double v40; // fst3
-	long double v41; // fst5
-	long double v42; // fst5
-	long double v43; // t1
-	long double v44; // fst4
-	long double v45; // t2
-	long double v46; // fst5
-	long double v47; // fst7
-	long double v48; // fst5
-	long double fAng11; // fst5
-	long double v50; // fst5
-	long double fAng12; // fst5
-	long double v52; // t0
-	long double v53; // fst5
-	long double v54; // fst7
-	long double v55; // fst6
-	long double fAng13; // fst7
-	long double v57; // fst6
-	long double v58; // fst7
-	long double v59; // fst6
-	long double v60; // fst7
-	long double v61; // fst6
-	long double fAng15; // fst7
-	long double v63; // tt
-	long double v64; // fst6
-	long double v65; // t0
-	long double v66; // fst6
-	long double v67; // fst2
-	long double v68; // tt
-	long double v69; // fst4
-	long double v70; // t1
-	long double v71; // fst4
-	long double v72; // t2
-	long double v73; // fst4
-	long double v74; // tt
-	long double v75; // fst4
+	float fAng6; // fst6
+	float v28; // fst5
+	float v29; // fst4
+	float fAng7; // fst5
+	float fAng8; // fst2
+	float v32; // fst1
+	float fAng9; // fst6
+	float v34; // fst6
+	float v35; // fst3
+	float v36; // fst1
+	float fAng10; // fst5
+	float v38; // fst3
+	float v39; // fst6
+	float v40; // fst3
+	float v41; // fst5
+	float v42; // fst5
+	float v43; // t1
+	float v44; // fst4
+	float v45; // t2
+	float v46; // fst5
+	float v47; // fst7
+	float v48; // fst5
+	float fAng11; // fst5
+	float v50; // fst5
+	float fAng12; // fst5
+	float v52; // t0
+	float v53; // fst5
+	float v54; // fst7
+	float v55; // fst6
+	float fAng13; // fst7
+	float v57; // fst6
+	float v58; // fst7
+	float v59; // fst6
+	float v60; // fst7
+	float v61; // fst6
+	float fAng15; // fst7
+	float v63; // tt
+	float v64; // fst6
+	float v65; // t0
+	float v66; // fst6
+	float v67; // fst2
+	float v68; // tt
+	float v69; // fst4
+	float v70; // t1
+	float v71; // fst4
+	float v72; // t2
+	float v73; // fst4
+	float v74; // tt
+	float v75; // fst4
 	int16_t tagnum; // ax
 	signed int v77; // ebx
-	long double v78; // fst7
-	long double v79; // fst6
-	long double v80; // fst5
+	float v78; // fst7
+	float v79; // fst6
+	float v80; // fst5
 	int *v81; // eax
-	long double v82; // fst4
-	long double v83; // fst3
-	long double v84; // fst4
-	long double v85; // t2
-	long double v86; // tt
-	long double v87; // fst4
-	long double v88; // fst5
-	long double v89; // fst6
-	long double v90; // t0
+	float v82; // fst4
+	float v83; // fst3
+	float v84; // fst4
+	float v85; // t2
+	float v86; // tt
+	float v87; // fst4
+	float v88; // fst5
+	float v89; // fst6
+	float v90; // t0
 	float v91; // eax
 	signed int v92; // edx
 	float *v93; // eax
-	long double v94; // fst7
-	long double v95; // fst5
-	long double v96; // t0
-	long double v97; // fst5
-	long double v98; // t1
-	long double v99; // fst5
-	long double v100; // fst6
+	float v94; // fst7
+	float v95; // fst5
+	float v96; // t0
+	float v97; // fst5
+	float v98; // t1
+	float v99; // fst5
+	float v100; // fst6
 	signed int fAlpha; // ebx
 	float fAlpha2; // ST34_4 MAPDST
 	int *v104; // eax
 	signed int v105; // edx
-	long double v106; // fst6
-	long double v107; // fst5
-	long double v108; // fst4
-	long double v109; // fst3
-	long double v110; // fst7
-	long double v111; // fst2
-	long double v112; // fst0
-	long double v113; // fst1
-	long double v114; // fst2
-	long double v115; // t1
-	long double v116; // fst1
-	long double v117; // fst3
-	long double v118; // tt
-	long double v119; // fst2
-	long double v120; // fst5
-	long double v121; // t0
-	long double v122; // fst2
-	long double v123; // fst7
-	long double v124; // fst6
-	long double v125; // t1
-	long double v126; // fst3
-	long double v127; // t2
-	long double v128; // fst3
-	long double v129; // tt
+	float v106; // fst6
+	float v107; // fst5
+	float v108; // fst4
+	float v109; // fst3
+	float v110; // fst7
+	float v111; // fst2
+	float v112; // fst0
+	float v113; // fst1
+	float v114; // fst2
+	float v115; // t1
+	float v116; // fst1
+	float v117; // fst3
+	float v118; // tt
+	float v119; // fst2
+	float v120; // fst5
+	float v121; // t0
+	float v122; // fst2
+	float v123; // fst7
+	float v124; // fst6
+	float v125; // t1
+	float v126; // fst3
+	float v127; // t2
+	float v128; // fst3
+	float v129; // tt
 	int *v130; // eax
 	signed int v131; // edx
-	long double v132; // fst6
-	long double v133; // fst5
-	long double v134; // fst4
-	long double v135; // fst3
-	long double v136; // fst7
-	long double v137; // fst2
-	long double v138; // fst0
-	long double v139; // fst1
-	long double v140; // fst2
-	long double v141; // tt
-	long double v142; // fst1
-	long double v143; // fst3
-	long double v144; // t1
-	long double v145; // fst2
-	long double v146; // fst5
-	long double v147; // t2
-	long double v148; // fst2
-	long double v149; // fst7
-	long double v150; // fst6
-	long double v151; // tt
-	long double v152; // fst3
-	long double v153; // t0
-	long double v154; // fst3
-	long double v155; // t1
+	float v132; // fst6
+	float v133; // fst5
+	float v134; // fst4
+	float v135; // fst3
+	float v136; // fst7
+	float v137; // fst2
+	float v138; // fst0
+	float v139; // fst1
+	float v140; // fst2
+	float v141; // tt
+	float v142; // fst1
+	float v143; // fst3
+	float v144; // t1
+	float v145; // fst2
+	float v146; // fst5
+	float v147; // t2
+	float v148; // fst2
+	float v149; // fst7
+	float v150; // fst6
+	float v151; // tt
+	float v152; // fst3
+	float v153; // t0
+	float v154; // fst3
+	float v155; // t1
 	signed int v156; // ebx
-	long double v157; // fst7
-	long double v158; // fst6
-	long double v159; // fst5
+	float v157; // fst7
+	float v158; // fst6
+	float v159; // fst5
 	int *v160; // eax
-	long double v161; // fst4
-	long double v162; // fst3
-	long double v163; // fst4
-	long double v164; // t1
-	long double v165; // t2
-	long double v166; // fst4
-	long double v167; // fst5
-	long double v168; // fst6
-	long double v169; // tt
+	float v161; // fst4
+	float v162; // fst3
+	float v163; // fst4
+	float v164; // t1
+	float v165; // t2
+	float v166; // fst4
+	float v167; // fst5
+	float v168; // fst6
+	float v169; // tt
 	SimpleEntityPtr v170; // ecx
 	struct gentity_s *v171; // esi
 	float v172; // [esp+2Ch] [ebp-20Ch]
