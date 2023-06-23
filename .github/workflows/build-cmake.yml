@@ -76,39 +76,48 @@ jobs:
     - uses: actions/checkout@v3
       with:
         path: 'source'
-  
+
+    - name: CMake Settings
+      run: |
+        echo "CMAKE_PARAM=--log-level=VERBOSE \
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+        -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
+        -DCMAKE_C_COMPILER=clang \
+        -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }} \
+        -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }} \
+        -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
+        -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL-install/lib/cmake/SDL2' \
+        -DWITH_CLIENT=1" >> $GITHUB_ENV
+
     - name: Configure CMake
       working-directory: ${{github.workspace}}
       run: |
-        cmake -B ./build \
-          --log-level=VERBOSE \
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-          -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' \
-          -DCMAKE_C_COMPILER=clang \
-          -DCMAKE_CXX_COMPILER=clang++ \
-          -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }} \
-          -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }} \
-          -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
-          -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL-install/lib/cmake/SDL2' \
-          -DWITH_CLIENT=1 \
-          ./source
+        cmake -B ./build ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=0 ./source
+        cmake -B ./buildtt ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=2 ./source
 
     - name: Build
       working-directory: ${{github.workspace}}
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: |
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        cmake --build ${{github.workspace}}/buildtt --config ${{env.BUILD_TYPE}}
 
     - name: Test
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{github.workspace}}
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: |
+        cd "${{github.workspace}}/build"
+        ctest -C ${{env.BUILD_TYPE}}
+        cd "${{github.workspace}}/buildtt"
+        ctest -C ${{env.BUILD_TYPE}}
 
     - name: Install
       working-directory: ${{github.workspace}}
       # Install to the directory defined in CMAKE_INSTALL_PREFIX
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        cmake --install ${{github.workspace}}/buildtt --config ${{env.BUILD_TYPE}}
         cp '${{github.workspace}}/thirdparties/SDL-install/lib/libSDL2.so' '${{github.workspace}}/install'
 
     - uses: actions/upload-artifact@v3
@@ -153,37 +162,48 @@ jobs:
       with:
         path: 'source'
 
-    - name: Configure CMake
-      working-directory: ${{github.workspace}}
+    - name: CMake Settings
       run: |
-        cmake -B ${{github.workspace}}/build `
-        -A ${{ matrix.architecture.config }} `
+        echo "CMAKE_PARAM=-A ${{ matrix.architecture.config }} `
         --log-level=VERBOSE `
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
         -DCMAKE_INSTALL_PREFIX='${{github.workspace}}/install' `
+        -DCMAKE_C_COMPILER=clang `
+        -DCMAKE_CXX_COMPILER=clang++ `
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
         -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL-install/cmake' `
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
         -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe' `
-        -DWITH_CLIENT=1 `
-        ./source
+        -DWITH_CLIENT=1".Replace("`r", "").Replace("`n", "") >> $env:GITHUB_ENV
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}
+      run: |
+        cmake -B ./build ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=0 ./source
+        cmake -B ./buildtt ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=2 ./source
 
     - name: Build
       working-directory: ${{github.workspace}}
-      # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --parallel
+      run: |
+        cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        cmake --build ${{github.workspace}}/buildtt --config ${{env.BUILD_TYPE}}
 
     - name: Test
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{github.workspace}}
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
+      run: |
+        cd "${{github.workspace}}/build"
+        ctest -C ${{env.BUILD_TYPE}}
+        cd "${{github.workspace}}/buildtt"
+        ctest -C ${{env.BUILD_TYPE}}
 
     - name: Install
       working-directory: ${{github.workspace}}
       # Install to the directory defined in CMAKE_INSTALL_PREFIX
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+        cmake --install ${{github.workspace}}/buildtt --config ${{env.BUILD_TYPE}}
         Copy-Item "${{github.workspace}}/thirdparties/SDL-install/bin/*.dll" -Destination "${{github.workspace}}/install"
 
     - uses: actions/upload-artifact@v3
