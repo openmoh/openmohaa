@@ -1340,10 +1340,137 @@ void R_AddTerrainSurfaces()
 	}
 }
 
+/**
+ * Calculates the height of a terrain polygon by interpolating the heights of its vertices.
+ * The function finds the triangle containing the given point (x, y) within the terrain patch,
+ * and then computes the height at each vertex of the polygon using barycentric interpolation.
+ * Finally, it updates the z-coordinate of each vertex to store the calculated height.
+ * Returns qtrue if the triangle was found and the height could be calculated and saved into its vertices.
+ *
+ * ToDo: try to use the Vector*(?) macros for the math operations below from q_shared.h and q_math.h, not sure which ones would be a good fit
+ */
 qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t* pPatch, polyVert_t* pVerts, int nVerts)
 {
-	// FIXME: unimplemented
-	return qfalse;
+	float x0 = 0;
+	float y0 = 0;
+	float x1 = 0;
+	float y1 = 0;
+	float x2 = 0;
+	float y2 = 0;
+	float fKx[3] = { 0 }, fKy[3] = { 0 }, fKz[3] = { 0 }, fArea[3] = { 0 };
+	float fAreaTotal = 0;
+
+	float x = pVerts->xyz[0];
+	float y = pVerts->xyz[1];
+
+	// Calculate the average of the x and y coordinates of all vertices
+	if (nVerts > 1)
+	{
+		for (int i = 1; i < nVerts; i++)
+		{
+			x += pVerts[i].xyz[0];
+			y += pVerts[i].xyz[1];
+		}
+
+		// Use the averaged values from this point onwards
+		x = x / nVerts;
+		y = y / nVerts;
+	}
+
+	// Get the first valid triangle in the patch
+	terraInt iTri = pPatch->drawinfo.iTriHead;
+	if (!iTri)
+	{
+		assert(!pPatch->drawinfo.iTriHead &&
+				va("R_TerrainHeightForPoly: point(%f %f) not in patch(%f %f %f)\n",
+					x, y, pPatch->x0, pPatch->y0, pPatch->z0));
+		return qfalse;
+	}
+
+	// Find a triangle that contains the point (x, y)
+	while (qtrue)
+	{
+		if (g_pTris[iTri].byConstChecks & 4)
+		{
+			// Get all three x-y coordinates of the current triangle's vertices
+			x0 = g_pVert[g_pTris[iTri].iPt[0]].xyz[0];
+			y0 = g_pVert[g_pTris[iTri].iPt[0]].xyz[1];
+			x1 = g_pVert[g_pTris[iTri].iPt[1]].xyz[0];
+			y1 = g_pVert[g_pTris[iTri].iPt[1]].xyz[1];
+			x2 = g_pVert[g_pTris[iTri].iPt[2]].xyz[0];
+			y2 = g_pVert[g_pTris[iTri].iPt[2]].xyz[1];
+
+			// Calculate the signed areas of the three sub-triangles
+			fArea[0] = (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1);
+			if (fArea[0] < -0.1)
+			{
+				// The point is outside the triangle
+				continue;
+			}
+
+			fArea[1] = (x - x2) * (y0 - y2) - (y - y2) * (x0 - x2);
+			if (fArea[1] < -0.1)
+			{
+				// The point is outside the triangle
+				continue;
+			}
+
+			fArea[2] = (x - x0) * (y1 - y0) - (y - y0) * (x1 - x0);
+			if (fArea[2] < -0.1)
+			{
+				// The point is outside the triangle
+				continue;
+			}
+
+			fAreaTotal = fArea[0] + fArea[1] + fArea[2];
+			if (fAreaTotal > 0.0)
+			{
+				// Found it - the point is inside the triangle
+				break;
+			}
+		}
+
+		iTri = g_pTris[iTri].iNext;
+		if (!iTri)
+		{
+			// There's no triangle that contains point (x, y) - bail out
+			assert(!g_pTris[iTri].iNext &&
+				va("R_TerrainHeightForPoly: point(%f %f) not in patch(%f %f %f)\n",
+					x, y, pPatch->x0, pPatch->y0, pPatch->z0));
+			return qfalse;
+		}
+	}
+
+	// Calculate the barycentric coordinates (fKx, fKy, fKz) of the triangle
+	float z0 = g_pVert[g_pTris[iTri].iPt[0]].xyz[2] / fAreaTotal;
+	float z1 = g_pVert[g_pTris[iTri].iPt[1]].xyz[2] / fAreaTotal;
+	float z2 = g_pVert[g_pTris[iTri].iPt[2]].xyz[2] / fAreaTotal;
+
+	fKy[0] = z0 * (x2 - x1);
+	fKy[1] = z1 * (x0 - x2);
+	fKy[2] = z2 * (x1 - x0);
+
+	fKx[0] = z0 * (y2 - y1);
+	fKx[1] = z1 * (y0 - y2);
+	fKx[2] = z2 * (y1 - y0);
+
+	// Note: this could be done with the CrossProduct macro if everything were in a vector
+	fKz[0] = fKx[0] * x1 - y1 * fKy[0];
+	fKz[1] = fKx[1] * x2 - y2 * fKy[1];
+	fKz[2] = fKx[2] * x0 - y0 * fKy[2];
+
+	// Calculate the height for each vertex
+	for (int i = 0; i < nVerts; i++)
+	{
+		float fScaleX = pVerts[i].xyz[0] * (fKx[0] + fKx[1] + fKx[2]);
+		float fScaleY = pVerts[i].xyz[1] * (fKy[0] + fKy[1] + fKy[2]);
+		float fConstZ = fKz[0] + fKz[1] + fKz[2];
+
+		// Write back the calculated height into the vertex
+		pVerts[i].xyz[2] = fScaleY - fScaleX - fConstZ;
+	}
+
+	return qtrue;
 }
 
 void R_TerrainRestart_f(void)
