@@ -1381,9 +1381,9 @@ qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t* pPatch, polyVert_t* pVert
 	terraInt iTri = pPatch->drawinfo.iTriHead;
 	if (!iTri)
 	{
-		// Original assert message:
-		// "R_TerrainHeightForPoly: point (%f %f) not in patch (%f %f %f)\n", x, y, pPatch->x0, pPatch->y0, pPatch->z0
-		assert(!pPatch->drawinfo.iTriHead);
+		assert(!pPatch->drawinfo.iTriHead &&
+				va("R_TerrainHeightForPoly: point(%f %f) not in patch(%f %f %f)\n",
+					x, y, pPatch->x0, pPatch->y0, pPatch->z0));
 		return qfalse;
 	}
 
@@ -1434,9 +1434,9 @@ qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t* pPatch, polyVert_t* pVert
 		if (!iTri)
 		{
 			// There's no triangle that contains point (x, y) - bail out
-			// Original assert message:
-			// "R_TerrainHeightForPoly: point (%f %f) not in patch (%f %f %f)\n", x, y, pPatch->x0, pPatch->y0, pPatch->z0
-			assert(!g_pTris[iTri].iNext);
+			assert(!g_pTris[iTri].iNext &&
+				va("R_TerrainHeightForPoly: point(%f %f) not in patch(%f %f %f)\n",
+					x, y, pPatch->x0, pPatch->y0, pPatch->z0));
 			return qfalse;
 		}
 	}
