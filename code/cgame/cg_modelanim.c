@@ -44,7 +44,7 @@ void CG_PlayerTeamIcon(refEntity_t* pModel, entityState_t* pPlayerState)
     if (pPlayerState->number == cg.snap->ps.clientNum) {
         return;
     }
-
+    
     bInTeam = qfalse;
     bSpecialIcon = qfalse;
 	if (cgs.gametype > GT_FFA
