@@ -94,10 +94,11 @@ void CL_CDDialog( void ) {
 void CL_FlushMemory( void ) {
 }
 
-void CL_StartHunkUsers( void ) {
+void CL_StartHunkUsers( qboolean rendererOnly ) {
 }
 
-void CL_ShutdownAll(void) {}
+void CL_ShutdownAll(qboolean shutdownRef) {
+}
 
 qboolean CL_CDKeyValidate( const char *key, const char *checksum ) { return qtrue; }
 
