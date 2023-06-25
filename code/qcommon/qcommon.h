@@ -666,10 +666,15 @@ issues.
 
 #define	MAX_FILE_HANDLES	64
 
+#ifdef DEDICATED
+#	define Q3CONFIG_CFG "q3config_server.cfg"
+#else
+#	define Q3CONFIG_CFG "q3config.cfg"
+#endif
+
 qboolean FS_Initialized( void );
 
 void	FS_InitFilesystem( void );
-void	FS_InitFilesystem2( void );
 void	FS_Shutdown( qboolean closemfp );
 
 qboolean	FS_ConditionalRestart( int checksumFeed );
@@ -705,14 +710,13 @@ fileHandle_t	FS_FOpenFileWrite( const char *qpath );
 fileHandle_t	FS_FOpenTextFileWrite( const char *qpath );
 // will properly create any needed paths and deal with seperater character issues
 
-int		FS_filelength( fileHandle_t f );
 void	FS_ReplaceSeparators( char *path );
 void	FS_DeleteFile( const char *filename );
 void	FS_CanonicalFilename( char *filename );
 fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
-int		FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
-void	FS_SV_Rename( const char *from, const char *to );
-int		FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFILE, qboolean quiet );
+long	FS_SV_FOpenFileRead( const char *filename, fileHandle_t *fp );
+void	FS_SV_Rename( const char *from, const char *to, qboolean safe );
+long	FS_FOpenFileRead(const char* filename, fileHandle_t* file, qboolean uniqueFILE, qboolean quiet);
 // if uniqueFILE is true, then a new FILE will be fopened even if the file
 // is found in an already open pak file.  If uniqueFILE is false, you must call
 // FS_FCloseFile instead of fclose, otherwise the pak FILE would be improperly closed
@@ -756,7 +760,7 @@ int     FS_WriteFile( const char *qpath, const void *buffer, int size );
 void	FS_WriteTextFile( const char *qpath, const void *buffer, int size );
 // writes a complete text file, creating any subdirectories needed
 
-int		FS_filelength( fileHandle_t f );
+long FS_filelength(fileHandle_t f);
 // doesn't work for files that are opened from a pack file
 
 int		FS_FTell( fileHandle_t f );
@@ -953,7 +957,12 @@ extern	cvar_t	*com_journal;
 extern	cvar_t	*com_cameraMode;
 extern	cvar_t	*com_ansiColor;
 extern	cvar_t	*com_unfocused;
+extern	cvar_t	*com_maxfpsUnfocused;
 extern	cvar_t	*com_minimized;
+extern	cvar_t	*com_maxfpsMinimized;
+extern	cvar_t	*com_altivec;
+extern	cvar_t	*com_standalone;
+extern	cvar_t	*com_basegame;
 extern	cvar_t	*com_homepath;
 extern	cvar_t	*com_altivec;
 
@@ -1269,12 +1278,17 @@ qboolean Sys_GetPacket( netadr_t *net_from, msg_t *net_message );
 qboolean	Sys_IsLANAddress (netadr_t adr);
 void		Sys_ShowIP(void);
 
-qboolean	Sys_Mkdir( const char *path );
-char		*Sys_Cwd( void );
-void		Sys_SetDefaultInstallPath(const char *path);
-char		*Sys_DefaultInstallPath( void );
+FILE	*Sys_FOpen( const char *ospath, const char *mode );
+qboolean Sys_Mkdir( const char *path );
+FILE	*Sys_Mkfifo( const char *ospath );
+char	*Sys_Cwd( void );
+void	Sys_SetDefaultInstallPath(const char *path);
+char	*Sys_DefaultInstallPath(void);
+char	*Sys_SteamPath(void);
+char	*Sys_GogPath(void);
+char	*Sys_MicrosoftStorePath(void);
 
-#ifdef MACOS_X
+#ifdef __APPLE__
 char    *Sys_DefaultAppPath(void);
 #endif
 

@@ -416,7 +416,7 @@ typedef struct gameImport_s {
 	int		( *Argc )( void );
 	char	*( *Argv )( int n );
 	const char	*( *Args )();
-	int		( *FS_FOpenFile )( const char *qpath, fileHandle_t *f, fsMode_t mode );
+	long	( *FS_FOpenFile )( const char *qpath, fileHandle_t *f, fsMode_t mode );
 	void	( *FS_Read )( void *buffer, int len, fileHandle_t f );
 	int		( *FS_Write )( const void *buffer, int len, fileHandle_t f );
 	void	( *FS_FCloseFile )( fileHandle_t f );

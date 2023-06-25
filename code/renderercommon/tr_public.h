@@ -259,7 +259,7 @@ typedef struct {
     void (*Clear)();
     void (*Cvar_SetDefault)(cvar_t* var, const char* varValue);
 
-    int     (*FS_OpenFile)(const char* qpath, fileHandle_t *file, qboolean uniqueFILE, qboolean quiet);
+    long    (*FS_OpenFile)(const char* qpath, fileHandle_t *file, qboolean uniqueFILE, qboolean quiet);
     size_t  (*FS_Read)(void* buffer, size_t len, fileHandle_t fileHandle);
     void    (*FS_CloseFile)(fileHandle_t fileHandle);
     int     (*FS_Seek)(fileHandle_t fileHandle, long offset, fsOrigin_t origin);

@@ -92,6 +92,8 @@ extern "C" {
 
 #define MAX_TEAMNAME 32
 
+#define DEMOEXT	"dm_"			// standard demo extension
+
 #ifdef _MSC_VER
 
 #pragma warning(disable : 4018)     // signed/unsigned mismatch
