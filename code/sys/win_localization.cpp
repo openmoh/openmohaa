@@ -70,7 +70,7 @@ cLocalization::cLocalization()
 	char szFilename[ MAX_QPATH ];
 	size_t iBasePos;
 
-	ppszFiles = FS_ListFilteredFiles( "global", "txt", "localization*.txt", qfalse, &iFileCount );
+	ppszFiles = FS_ListFilteredFiles( "global", "txt", "localization*.txt", qfalse, &iFileCount, qtrue );
 	strcpy( szFilename, "global/" );
 	memset( szFilename + 8, 0, sizeof( szFilename ) - 8 );
 	iBasePos = strlen( szFilename );

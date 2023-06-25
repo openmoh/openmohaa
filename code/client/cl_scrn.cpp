@@ -531,7 +531,7 @@ void SCR_UpdateScreen( void ) {
 	}
 	recursive = 1;
 	
-	CL_StartHunkUsers();
+	CL_StartHunkUsers(qfalse);
 	SCR_SimpleUpdateScreen();
 
 	// set the fps value

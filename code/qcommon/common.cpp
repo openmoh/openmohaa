@@ -130,11 +130,13 @@ int		time_frontend;		// renderer frontend time
 int		time_backend;		// renderer backend time
 
 int			com_frameTime;
-int			com_frameMsec;
 int			com_frameNumber;
+int			com_frameMsec;
 
-qboolean	com_errorEntered;
-qboolean	com_fullyInitialized;
+qboolean	com_errorEntered = qfalse;
+qboolean	com_fullyInitialized = qfalse;
+qboolean	com_gameRestarting = qfalse;
+qboolean	com_gameClientRestarting = qfalse;
 
 char	com_errorMessage[MAXPRINTMSG];
 
@@ -1271,6 +1273,126 @@ A way to force a bus error for development reasons
 static void Com_Crash_f(void) {
 	void* invalid_ptr = NULL;
 	*(int*)invalid_ptr = 0x12345678;
+}
+
+/*
+==================
+Com_Setenv_f
+
+For controlling environment variables
+==================
+*/
+void Com_Setenv_f(void)
+{
+	int argc = Cmd_Argc();
+	char *arg1 = Cmd_Argv(1);
+
+	if(argc > 2)
+	{
+		char *arg2 = Cmd_ArgsFrom(2);
+		
+		Sys_SetEnv(arg1, arg2);
+	}
+	else if(argc == 2)
+	{
+		char *env = getenv(arg1);
+		
+		if(env)
+			Com_Printf("%s=%s\n", arg1, env);
+		else
+			Com_Printf("%s undefined\n", arg1);
+        }
+}
+
+/*
+==================
+Com_ExecuteCfg
+
+For controlling environment variables
+==================
+*/
+
+void Com_ExecuteCfg(void)
+{
+	Cbuf_ExecuteText(EXEC_NOW, "exec default.cfg\n");
+	Cbuf_Execute(0); // Always execute after exec to prevent text buffer overflowing
+
+	if(!Com_SafeMode())
+	{
+		// skip the q3config.cfg and autoexec.cfg if "safe" is on the command line
+		Cbuf_ExecuteText(EXEC_NOW, "exec " Q3CONFIG_CFG "\n");
+		Cbuf_Execute(0);
+		Cbuf_ExecuteText(EXEC_NOW, "exec autoexec.cfg\n");
+		Cbuf_Execute(0);
+	}
+}
+
+/*
+==================
+Com_GameRestart
+
+Change to a new mod properly with cleaning up cvars before switching.
+==================
+*/
+
+void Com_GameRestart(int checksumFeed, qboolean disconnect)
+{
+	// make sure no recursion can be triggered
+	if(!com_gameRestarting && com_fullyInitialized)
+	{
+		com_gameRestarting = qtrue;
+		com_gameClientRestarting = com_cl_running->integer;
+
+		// Kill server if we have one
+		if(com_sv_running->integer)
+			SV_Shutdown("Game directory changed");
+
+		if(com_gameClientRestarting)
+		{
+			if(disconnect)
+				CL_Disconnect(qfalse);
+				
+			CL_Shutdown("Game directory changed", disconnect, qfalse);
+		}
+
+		FS_Restart(checksumFeed);
+	
+		// Clean out any user and VM created cvars
+		Cvar_Restart(qtrue);
+		Com_ExecuteCfg();
+
+		if(disconnect)
+		{
+			// We don't want to change any network settings if gamedir
+			// change was triggered by a connect to server because the
+			// new network settings might make the connection fail.
+			NET_Restart_f();
+		}
+
+		if(com_gameClientRestarting)
+		{
+			CL_Init();
+			CL_StartHunkUsers(qfalse);
+		}
+		
+		com_gameRestarting = qfalse;
+		com_gameClientRestarting = qfalse;
+	}
+}
+
+/*
+==================
+Com_GameRestart_f
+
+Expose possibility to change current running mod to the user
+==================
+*/
+
+void Com_GameRestart_f(void)
+{
+	Cvar_Set("fs_game", Cmd_Argv(1));
+
+	Com_GameRestart(0, qtrue);
 }
 
 #ifndef STANDALONE

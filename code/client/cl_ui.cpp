@@ -1114,7 +1114,7 @@ static void DMConsoleCommandHandler( const char *txt ) {
 	}
 
 	Com_sprintf(szStringOut, sizeof(szStringOut), "dmmessage %i %s\n", iMode, txt);
-	CL_AddReliableCommand(szStringOut);
+	CL_AddReliableCommand(szStringOut, qfalse);
 }
 
 /*
@@ -4399,7 +4399,7 @@ void StatsUpdater::UpdateStats( Event *ev )
 	}
 
 	if( paused && !paused->integer ) {
-		CL_AddReliableCommand( "stats" );
+		CL_AddReliableCommand( "stats", qfalse );
 	}
 
 	Event *event = new Event( EV_StatsUpdater_UpdateStats );
@@ -5019,7 +5019,7 @@ void UI_ShowStatistics_f() {
 		if( paused && !paused->integer )
 		{
 			statsRequestTime = cls.realtime;
-			CL_AddReliableCommand( "stats" );
+			CL_AddReliableCommand( "stats", qfalse );
 			Event *event = new Event( EV_StatsUpdater_UpdateStats );
 			statsUpdater.PostEvent( event, 2.0 );
 		}

@@ -445,6 +445,16 @@ void CL_CG_Free( void *ptr )
 
 /*
 ====================
+CL_CG_AddReliableCommand
+====================
+*/
+void CL_CG_AddReliableCommand(const char* cmd)
+{
+	CL_AddReliableCommand(cmd, qfalse);
+}
+
+/*
+====================
 CL_R_AddPolyToScene
 ====================
 */
@@ -572,7 +582,7 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->MSG_ReadCoord					= CL_MSG_ReadCoord;
 	cgi->MSG_ReadDir					= CL_MSG_ReadDir;
 
-	cgi->SendClientCommand				= CL_AddReliableCommand;
+	cgi->SendClientCommand				= CL_CG_AddReliableCommand;
 
 	cgi->CM_LoadMap						= CL_CM_LoadMap;
 	cgi->CM_NumInlineModels				= CM_NumInlineModels;

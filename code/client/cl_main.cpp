@@ -206,7 +206,7 @@ The given command will be transmitted to the server, and is gauranteed to
 not have future usercmd_t executed before it is executed
 ======================
 */
-void CL_AddReliableCommand( const char *cmd ) {
+void CL_AddReliableCommand( const char *cmd, qboolean isDisconnectCmd ) {
 	int		index;
 
 	// if we would be losing an old command that hasn't been acknowledged,
@@ -756,7 +756,7 @@ void CL_NextDemo( void ) {
 CL_ShutdownAll
 =====================
 */
-void CL_ShutdownAll(void) {
+void CL_ShutdownAll(qboolean shutdownRef) {
 
 #ifdef USE_CURL
 	CL_cURL_Shutdown();
@@ -927,7 +927,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	// send a disconnect message to the server
 	// send it a few times in case one is dropped
 	if ( clc.state >= CA_CONNECTED ) {
-		CL_AddReliableCommand( "disconnect" );
+		CL_AddReliableCommand( "disconnect", qtrue );
 		CL_WritePacket();
 		CL_WritePacket();
 		CL_WritePacket();
@@ -981,9 +981,9 @@ void CL_ForwardCommandToServer( const char *string ) {
 	}
 
 	if ( Cmd_Argc() > 1 ) {
-		CL_AddReliableCommand( string );
+		CL_AddReliableCommand( string, qfalse );
 	} else {
-		CL_AddReliableCommand( cmd );
+		CL_AddReliableCommand( cmd, qfalse );
 	}
 }
 
@@ -1129,7 +1129,7 @@ void CL_ForwardToServer_f( void ) {
 
 	// don't forward the first argument
 	if ( Cmd_Argc() > 1 ) {
-		CL_AddReliableCommand( Cmd_Args() );
+		CL_AddReliableCommand( Cmd_Args(), qfalse );
 	}
 }
 
@@ -1417,7 +1417,7 @@ void CL_SendPureChecksums( void ) {
 	for (i = 0; i < 2; i++) {
 		cMsg[i] += 10;
 	}
-	CL_AddReliableCommand( cMsg );
+	CL_AddReliableCommand( cMsg, qfalse );
 }
 
 /*
@@ -1426,7 +1426,7 @@ CL_ResetPureClientAtServer
 =================
 */
 void CL_ResetPureClientAtServer( void ) {
-	CL_AddReliableCommand( va("vdr") );
+	CL_AddReliableCommand( va("vdr"), qfalse );
 }
 
 qboolean CL_Allowed_Vid_Restart() {
@@ -1472,7 +1472,7 @@ void CL_Vid_Restart_f( void ) {
 	// unpause so the cgame definately gets a snapshot and renders a frame
 	Com_Unpause();
 
-	CL_StartHunkUsers();
+	CL_StartHunkUsers(qfalse);
 
 	SV_FinishSvsTimeFixups();
 
@@ -1602,7 +1602,7 @@ void CL_DownloadsComplete( void ) {
 		FS_Restart(clc.checksumFeed); // We possibly downloaded a pak, restart the file system to load it
 
 		// inform the server so we get new gamestate info
-		CL_AddReliableCommand( "donedl" );
+		CL_AddReliableCommand( "donedl", qfalse );
 
 		// by sending the donedl command we request a new gamestate
 		// so we don't want to load stuff yet
@@ -1612,11 +1612,11 @@ void CL_DownloadsComplete( void ) {
 	// let the client game init and load data
 	clc.state = CA_LOADING;
 
-    CL_StartHunkUsers();
+    CL_StartHunkUsers(qfalse);
     // Pump the loop, this may change gamestate!
     Com_EventLoop();
 
-    CL_StartHunkUsers();
+    CL_StartHunkUsers(qfalse);
 }
 
 /*
@@ -1646,7 +1646,7 @@ void CL_BeginDownload( const char *localName, const char *remoteName ) {
 	clc.downloadBlock = 0; // Starting new file
 	clc.downloadCount = 0;
 
-	CL_AddReliableCommand( va("download %s", remoteName) );
+	CL_AddReliableCommand( va("download %s", remoteName), qfalse );
 }
 
 /*
@@ -2345,7 +2345,7 @@ void CL_CheckUserinfo( void ) {
 		}
 
 		cvar_modifiedFlags &= ~CVAR_USERINFO;
-		CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( CVAR_USERINFO ) ) );
+		CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( CVAR_USERINFO ) ), qfalse );
 	}
 }
 
@@ -2566,7 +2566,7 @@ After the server has cleared the hunk, these will need to be restarted
 This is the only place that any of these functions are called from
 ============================
 */
-void CL_StartHunkUsers( void ) {
+void CL_StartHunkUsers( qboolean rendererOnly ) {
 	if( !com_cl_running ) {
 		return;
 	}
@@ -3278,7 +3278,7 @@ void CL_Init( void ) {
 	Cmd_AddCommand ("stopvideo", CL_StopVideo_f );
 	CL_InitConsoleCommands();
 	CL_InitRef();
-	CL_StartHunkUsers();
+	CL_StartHunkUsers(qfalse);
 
 	SCR_Init ();
 
@@ -3294,7 +3294,7 @@ void CL_Init( void ) {
 	Cvar_Get( "cl_guid", "", CVAR_USERINFO | CVAR_ROM );
 	CL_UpdateGUID( NULL, 0 );
 
-	CL_StartHunkUsers();
+	CL_StartHunkUsers(qfalse);
 
 	end = Sys_Milliseconds();
 

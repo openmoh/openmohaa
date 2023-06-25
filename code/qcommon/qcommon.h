@@ -629,9 +629,10 @@ char	*Cvar_InfoString_Big( int bit );
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
 void	Cvar_InfoStringBuffer( int bit, char *buff, int buffsize );
-void	Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
-void	Cvar_SetDescription( cvar_t *var, const char *var_description );
+void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
+void Cvar_SetDescription( cvar_t *var, const char *var_description );
 
+void	Cvar_Restart(qboolean unsetVM);
 void	Cvar_Restart_f( void );
 void	Cvar_SaveGameRestart_f( void );
 
@@ -677,14 +678,14 @@ qboolean FS_Initialized( void );
 void	FS_InitFilesystem( void );
 void	FS_Shutdown( qboolean closemfp );
 
-qboolean	FS_ConditionalRestart( int checksumFeed );
+qboolean	FS_ConditionalRestart( int checksumFeed, qboolean disconnect );
 void	FS_Restart( int checksumFeed );
 // shutdown and restart the filesystem so changes to fs_gamedir can take effect
 
 void FS_AddGameDirectory(const char *path, const char *dir);
 void FS_AddGameDirectory2(const char *path, const char *dir, qboolean original_paks_priority);
 
-char	**FS_ListFilteredFiles( const char *path, const char *extension, const char *filter, qboolean wantSubs, int *numfiles );
+char	**FS_ListFilteredFiles( const char *path, const char *extension, const char *filter, qboolean wantSubs, int *numfiles, qboolean allowNonPureFilesOnDisk );
 char	**FS_ListFiles( const char *directory, const char *extension, qboolean wantSubs, int *numfiles );
 // directory should not have either a leading or trailing /
 // if extension is "/", only subdirectories will be returned
@@ -919,7 +920,8 @@ void		Com_EndRedirect( void );
 void 		QDECL Com_Printf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_DPrintf( const char *fmt, ... ) __attribute__ ((format (printf, 1, 2)));
 void 		QDECL Com_Error( int code, const char *fmt, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
-void 		Com_Quit_f( void );
+void 		Com_Quit_f( void ) __attribute__ ((noreturn));
+void		Com_GameRestart(int checksumFeed, qboolean disconnect);
 
 int			Com_Milliseconds( void );	// will be journaled properly
 unsigned	Com_BlockChecksum( const void *buffer, int length );
@@ -1133,14 +1135,20 @@ void	CL_ForwardCommandToServer( const char *string );
 void CL_CDDialog( void );
 // bring up the "need a cd to play" dialog
 
-void CL_ShutdownAll( void );
-// shutdown all the client stuff
-
 void CL_FlushMemory( void );
 // dump all memory on an error
 
-void CL_StartHunkUsers( void );
+void CL_ShutdownAll(qboolean shutdownRef);
+// shutdown client
+
+void CL_InitRef(void);
+// initialize renderer interface
+
+void CL_StartHunkUsers( qboolean rendererOnly );
 // start all the client stuff using the hunk
+
+void CL_Snd_Shutdown(void);
+// Restart sound subsystem
 
 void Key_KeynameCompletion( void(*callback)(const char *s) );
 // for keyname autocompletion
