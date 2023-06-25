@@ -711,7 +711,6 @@ fileHandle_t	FS_FOpenFileWrite( const char *qpath );
 fileHandle_t	FS_FOpenTextFileWrite( const char *qpath );
 // will properly create any needed paths and deal with seperater character issues
 
-void	FS_ReplaceSeparators( char *path );
 void	FS_DeleteFile( const char *filename );
 void	FS_CanonicalFilename( char *filename );
 fileHandle_t FS_SV_FOpenFileWrite( const char *filename );
@@ -821,10 +820,8 @@ void	FS_FilenameCompletion( const char *dir, const char *ext,
 const char* FS_GetCurrentGameDir();
 void	FS_GetRelativeFilename( const char *currentDirectory, const char *absoluteFilename, char *out, size_t destlen );
 
-extern char fs_gamedir[];
-extern cvar_t *fs_debug;
-extern cvar_t *fs_mapdir;
-extern cvar_t *fs_basepath;
+extern cvar_t* fs_debug;
+extern cvar_t* fs_mapdir;
 
 /*
 ==============================================================
