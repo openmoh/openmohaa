@@ -1149,7 +1149,7 @@ void Door::LinkDoors
 		}
 	}
 
-	if (iNumTouching == 0)
+	if (!iNumTouching)
 	{
 		for (ent = (Door *)G_FindClass(NULL, getClassID()); ent; ent = (Door *)G_FindClass(ent, getClassID()))
 		{
@@ -1157,12 +1157,12 @@ void Door::LinkDoors
 			{
 				iNumTouching++;
 			}
-		}
-	}
+        }
 
-	if (iNumTouching != 0)
-	{
-		return;
+        if (iNumTouching != 0)
+        {
+            return;
+        }
 	}
 
 	cmins = absmin;
