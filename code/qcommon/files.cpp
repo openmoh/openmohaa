@@ -2088,10 +2088,12 @@ void FS_FreeFile( void *buffer ) {
 
 	Hunk_FreeTempMemory( buffer );
 
+	//// Can't understand how Quake III lived with this code
+	//
 	// if all of our temp files are free, clear all of our space
-	if ( fs_loadStack == 0 ) {
-		Hunk_ClearTempMemory();
-	}
+	//if ( fs_loadStack == 0 ) {
+	//	Hunk_ClearTempMemory();
+	//}
 }
 
 /*
