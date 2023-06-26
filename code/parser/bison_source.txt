@@ -153,8 +153,8 @@ statement:
 	| nonident_prim_expr TOKEN_OR_EQUALS expr { $$ = node3( sval_assignment, $1, node4( sval_operation, node1b( OP_BIN_BITWISE_OR ), $1, $3, YYLLOC ), YYLLOC ); }
 	| nonident_prim_expr TOKEN_SHIFT_LEFT_EQUALS expr { $$ = node3( sval_assignment, $1, node4( sval_operation, node1b( OP_BIN_SHIFT_LEFT ), $1, $3, YYLLOC ), YYLLOC ); }
 	| nonident_prim_expr TOKEN_SHIFT_RIGHT_EQUALS expr { $$ = node3( sval_assignment, $1, node4( sval_operation, node1b( OP_BIN_SHIFT_RIGHT ), $1, $3, YYLLOC ), YYLLOC ); }
-	| nonident_prim_expr TOKEN_INCREMENT { $$ = node3( sval_assignment, $1, node2( sval_func1, node1b( OP_UN_INC ), $1 ), YYLLOC ); }
-	| nonident_prim_expr TOKEN_DECREMENT { $$ = node3( sval_assignment, $1, node2( sval_func1, node1b( OP_UN_DEC ), $1 ), YYLLOC ); }
+	| nonident_prim_expr TOKEN_INCREMENT { $$ = node3( sval_assignment, $1, node3( sval_func1, node1b( OP_UN_INC ), $1, YYLLOC ), YYLLOC ); }
+	| nonident_prim_expr TOKEN_DECREMENT { $$ = node3( sval_assignment, $1, node3( sval_func1, node1b( OP_UN_DEC ), $1, YYLLOC ), YYLLOC ); }
 	| statement TOKEN_SEMICOLON
 	;
 

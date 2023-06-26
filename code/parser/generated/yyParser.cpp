@@ -1992,13 +1992,13 @@ yyreduce:
 
   case 34: /* statement: nonident_prim_expr TOKEN_INCREMENT  */
 #line 156 "E:/Src/openmohaa/code/parser/bison_source.txt"
-                                             { (yyval.s.val) = node3( sval_assignment, (yyvsp[-1].s.val), node2( sval_func1, node1b( OP_UN_INC ), (yyvsp[-1].s.val) ), YYLLOC ); }
+                                             { (yyval.s.val) = node3( sval_assignment, (yyvsp[-1].s.val), node3( sval_func1, node1b( OP_UN_INC ), (yyvsp[-1].s.val), YYLLOC ), YYLLOC ); }
 #line 1997 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 35: /* statement: nonident_prim_expr TOKEN_DECREMENT  */
 #line 157 "E:/Src/openmohaa/code/parser/bison_source.txt"
-                                             { (yyval.s.val) = node3( sval_assignment, (yyvsp[-1].s.val), node2( sval_func1, node1b( OP_UN_DEC ), (yyvsp[-1].s.val) ), YYLLOC ); }
+                                             { (yyval.s.val) = node3( sval_assignment, (yyvsp[-1].s.val), node3( sval_func1, node1b( OP_UN_DEC ), (yyvsp[-1].s.val), YYLLOC ), YYLLOC ); }
 #line 2003 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
