@@ -290,19 +290,16 @@ void CL_CgameError( const char *string ) {
 CL_ConfigstringModified
 =====================
 */
-void CL_ConfigstringModified( void ) {
-	char		*old, *s;
-	int			i, index;
+void CL_ConfigstringModified(int index, char* s) {
+	char		*old;
+	int			i;
 	char		*dup;
 	gameState_t	oldGs;
 	size_t		len;
 
-	index = atoi( Cmd_Argv(1) );
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 	}
-	// get everything after "cs <num>"
-	s = Cmd_ArgsFrom(2);
 
 	old = cl.gameState.stringData + cl.gameState.stringOffsets[ index ];
 	if ( !strcmp( old, s ) ) {
@@ -346,6 +343,46 @@ void CL_ConfigstringModified( void ) {
 
 }
 
+/*
+=====================
+CL_ProcessServerCommand
+=====================
+*/
+qboolean CL_ProcessServerCommand(const char* origString, const char* cmd, qboolean differentServer) {
+    if (!strcmp(cmd, "disconnect")) {
+		// Execute the disconnect command in the main loop
+		// Never call Com_Error there:
+		// because this function might be called from a module that would be unloaded
+		// inside Com_Error
+        UI_ForceMenuOff(1);
+        Cbuf_AddText("disconnect;pushmenu disconnected");
+        return qtrue;
+    }
+
+    if (!strcmp(cmd, "cs")) {
+        CL_ConfigstringModified(atoi(Cmd_Argv(1)), Cmd_ArgsFrom(2));
+        // reparse the string, because CL_ConfigstringModified may have done another Cmd_TokenizeString()
+        Cmd_TokenizeString(origString);
+        return qtrue;
+    }
+
+	if (!strcmp(cmd, "fadesound")) {
+		Com_Printf("CL_ProcessServerCommand: fadesound '%s'\n", Cmd_Argv(1));
+
+		if (differentServer) {
+			Com_Printf("^~^~^ fadesound from previous map ignored\n");
+			return qfalse;
+		}
+
+		S_FadeSound(atof(Cmd_Argv(1)));
+		return qfalse;
+	}
+
+    // we may want to put a "connect to other server" command here
+
+    // cgame can now act on the command
+    return qtrue;
+}
 
 /*
 ===================
@@ -358,7 +395,6 @@ qboolean CL_GetServerCommand( int serverCommandNumber, qboolean differentServer 
 	char	*s;
 	char	*cmd;
 	static char bigConfigString[BIG_INFO_STRING];
-	int argc;
 
 	// if we have irretrievably lost a reliable command, drop the connection
 	if ( serverCommandNumber <= clc.serverCommandSequence - MAX_RELIABLE_COMMANDS ) {
@@ -382,31 +418,10 @@ qboolean CL_GetServerCommand( int serverCommandNumber, qboolean differentServer 
 		Com_DPrintf( "serverCommand: %i : %s\n", serverCommandNumber, s );
 	}
 
-rescan:
 	Cmd_TokenizeString( s );
 	cmd = Cmd_Argv(0);
-	argc = Cmd_Argc();
 
-	if ( !strcmp( cmd, "disconnect" ) ) {
-		// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=552
-		// allow server to indicate why they were disconnected
-		if ( argc >= 2 )
-			Com_Error( ERR_SERVERDISCONNECT, "Server disconnected - %s", Cmd_Argv( 1 ) );
-		else
-			Com_Error( ERR_SERVERDISCONNECT, "Server disconnected\n" );
-	}
-
-	if ( !strcmp( cmd, "cs" ) ) {
-		CL_ConfigstringModified();
-		// reparse the string, because CL_ConfigstringModified may have done another Cmd_TokenizeString()
-		Cmd_TokenizeString( s );
-		return qtrue;
-	}
-
-	// we may want to put a "connect to other server" command here
-
-	// cgame can now act on the command
-	return qtrue;
+	return CL_ProcessServerCommand(s, cmd, differentServer);
 }
 
 
