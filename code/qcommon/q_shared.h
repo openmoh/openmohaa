@@ -36,6 +36,38 @@ extern "C" {
 // We're always legacy
 #define LEGACY_PROTOCOL
 
+#define GAME_EXTENSION_MOH			"main"
+#define PRODUCT_EXTENSION_MOH		"base"
+// The version string must be 1.1x or below, otherwise it's not possible to connect
+#define TARGET_GAME_VERSION_MOH		"1.12"
+#define TARGET_GAME_PROTOCOL_MOH	8
+#define TARGET_GAME_NAME_MOH		"mohaa"
+
+#define HOMEPATH_NAME_UNIX_MOH		".moh"
+#define HOMEPATH_NAME_WIN_MOH		"moh"
+#define HOMEPATH_NAME_MACOSX_MOH	HOMEPATH_NAME_WIN_MOH
+
+#define GAME_EXTENSION_MOHTA		"mainta"
+#define PRODUCT_EXTENSION_MOHTA		"spearhead"
+#define TARGET_GAME_VERSION_MOHTA	"2.16"
+#define TARGET_GAME_PROTOCOL_MOHTA	17
+#define TARGET_GAME_NAME_MOHTA		"mohaas"
+
+#define HOMEPATH_NAME_UNIX_MOHTA	".mohta"
+#define HOMEPATH_NAME_WIN_MOHTA		"mohta"
+#define HOMEPATH_NAME_MACOSX_MOHTA	HOMEPATH_NAME_WIN_MOHTA
+
+#define GAME_EXTENSION_BASE_MOHTT	"maintt"
+#define PRODUCT_EXTENSION_MOHTT		"breakthrough"
+// The version string must be equal or above 2.0 to be able to connect to breakthrough servers
+#define	TARGET_GAME_VERSION_MOHTT	"2.41"
+#define TARGET_GAME_PROTOCOL_MOHTT	17
+#define TARGET_GAME_NAME_MOHTT		"mohaab"
+
+#define HOMEPATH_NAME_UNIX_MOHTT	".mohtt"
+#define HOMEPATH_NAME_WIN_MOHTT		"mohtt"
+#define HOMEPATH_NAME_MACOSX_MOHTT	HOMEPATH_NAME_WIN_MOHTT
+
 //
 // The target type specifies which content pack the engine targets.
 // 
@@ -46,15 +78,15 @@ extern "C" {
 	//
 	// Team Assault
 	//
-	#define GAME_EXTENSION_BASE		"mainta"
-	#define PRODUCT_EXTENSION		"spearhead"
+	#define GAME_EXTENSION_BASE		GAME_EXTENSION_MOHTA
+	#define PRODUCT_EXTENSION		PRODUCT_EXTENSION_MOHTA
 	// The version string must be equal or above 2.0 to be able to connect to spearhead servers
-	#define TARGET_GAME_VERSION		"2.16"
-	#define TARGET_GAME_PROTOCOL	17
-	#define TARGET_GAME_NAME		"mohaas"
+	#define TARGET_GAME_VERSION		TARGET_GAME_VERSION_MOHTA
+	#define TARGET_GAME_PROTOCOL	TARGET_GAME_PROTOCOL_MOHTA
+	#define TARGET_GAME_NAME		TARGET_GAME_NAME_MOHTA
 
-	#define HOMEPATH_NAME_UNIX		".mohta"
-	#define HOMEPATH_NAME_WIN		"mohta"
+	#define HOMEPATH_NAME_UNIX		HOMEPATH_NAME_UNIX_MOHTA
+	#define HOMEPATH_NAME_WIN		HOMEPATH_NAME_WIN_MOHTA
 	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 #elif TARGET_GAME_TYPE == 2
 	//
@@ -67,8 +99,8 @@ extern "C" {
 	#define TARGET_GAME_PROTOCOL	17
 	#define TARGET_GAME_NAME		"mohaab"
 
-	#define HOMEPATH_NAME_UNIX		".mohtt"
-	#define HOMEPATH_NAME_WIN		"mohtt"
+	#define HOMEPATH_NAME_UNIX		HOMEPATH_NAME_UNIX_MOHTT
+	#define HOMEPATH_NAME_WIN		HOMEPATH_NAME_WIN_MOHTT
 	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 #else
 	//
@@ -82,8 +114,8 @@ extern "C" {
 	#define TARGET_GAME_PROTOCOL	8
 	#define TARGET_GAME_NAME		"mohaa"
 
-	#define HOMEPATH_NAME_UNIX		".moh"
-	#define HOMEPATH_NAME_WIN		"moh"
+	#define HOMEPATH_NAME_UNIX		HOMEPATH_NAME_UNIX_MOH
+	#define HOMEPATH_NAME_WIN		HOMEPATH_NAME_WIN_MOH
 	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 #endif
 
