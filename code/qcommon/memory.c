@@ -490,6 +490,14 @@ void Com_TouchMemory( void ) {
 	Z_TouchMemory();
 }
 
+/*
+=================
+Com_InitHunkZoneMemory
+=================
+*/
+void Com_InitHunkMemory( void ) {
+}
+
 #ifndef _DEBUG_MEM
 
 /*
