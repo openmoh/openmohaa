@@ -279,8 +279,8 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	} else {
 		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps, cls.serverFrameTime);
 	}
-	// Make pm_flags compatible with opm's pm_flags
-	newSnap.ps.pm_flags = CPT_NormalizePlayerStateFlags(newSnap.ps.pm_flags);
+	// get normalized flags
+	newSnap.ps.pm_flags = CPT_NormalizePlayerStateFlags(newSnap.ps.net_pm_flags);
 
 	// read packet entities
 	SHOWNET( msg, "packet entities" );
