@@ -3442,7 +3442,7 @@ static void FS_ReorderPurePaks( void )
 FS_Startup
 ================
 */
-static void FS_Startup(const char* gameName, const char* extensionName)
+static void FS_Startup(const char* gameName)
 {
 	const char* homePath;
 
@@ -3464,9 +3464,6 @@ static void FS_Startup(const char* gameName, const char* extensionName)
 		Cvar_ForceReset( "com_basegame" );
 	}
 
-	if (extensionName && FS_FilenameCompare(extensionName, gameName)) {
-		Cvar_Set("fs_basegame", extensionName);
-	}
 
 	if (!FS_FilenameCompare(fs_gamedirvar->string, gameName)) {
 		// This is the standard base game. Servers and clients should
@@ -3992,7 +3989,7 @@ void FS_InitFilesystem( void ) {
 		Cvar_Set("fs_game", "");
 
 	// try to start up normally
-	FS_Startup( com_basegame->string, GAME_EXTENSION_BASE);
+	FS_Startup(com_basegame->string);
 	FS_SetRestrictions();
 
 #ifndef STANDALONE
@@ -4029,7 +4026,7 @@ void FS_Restart( int checksumFeed ) {
 	FS_ClearPakReferences(0);
 
 	// try to start up normally
-	FS_Startup(BASEGAME, GAME_EXTENSION_BASE);
+	FS_Startup(com_basegame->string);
 
 	FS_CheckPak0( );
 

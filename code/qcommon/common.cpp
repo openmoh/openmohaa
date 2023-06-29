@@ -123,6 +123,7 @@ cvar_t  *con_autochat;
 #endif
 
 cvar_t	*precache;
+cvar_t	*com_target_game;
 
 // com_speeds times
 int		time_game;
@@ -140,8 +141,17 @@ qboolean	com_gameClientRestarting = qfalse;
 
 char	com_errorMessage[MAXPRINTMSG];
 
+static const char *target_game_names[] =
+{
+	"moh",
+	"mohta",
+	"mohtt"
+};
+
 void Com_WriteConfig_f( void );
 void CIN_CloseAllVideos(void);
+
+void Com_InitTargetGame();
 
 //============================================================================
 
@@ -1578,9 +1588,12 @@ void Com_Init( char *commandLine ) {
 	// done early so bind command exists
 	CL_InitKeyCommands();
 
+	com_target_game = Cvar_Get("com_target_game", "0", CVAR_LATCH | CVAR_PROTECTED);
 	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM);
 	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
 	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT|CVAR_PROTECTED);
+
+	Com_InitTargetGame();
 
 	FS_InitFilesystem ();
 
@@ -1654,12 +1667,29 @@ void Com_Init( char *commandLine ) {
 		Cmd_AddCommand( "crash", Com_Crash_f );
 		Cmd_AddCommand( "freeze", Com_Freeze_f );
 	}
-	Cmd_AddCommand( "quit", Com_Quit_f );
-	Cmd_AddCommand( "changeVectors", MSG_ReportChangeVectors_f );
+	Cmd_AddCommand("quit", Com_Quit_f);
+	Cmd_AddCommand("changeVectors", MSG_ReportChangeVectors_f );
+	Cmd_AddCommand("writeconfig", Com_WriteConfig_f );
+	Cmd_SetCommandCompletionFunc( "writeconfig", Cmd_CompleteCfgName );
+	Cmd_AddCommand("game_restart", Com_GameRestart_f);
 
-#ifndef DEDICATED
-	Cmd_AddCommand( "writeconfig", Com_WriteConfig_f );
+	// override anything from the config files with command line args
+	Com_StartupVariable( NULL );
+
+  // get dedicated here for proper hunk megs initialization
+#ifdef DEDICATED
+	com_dedicated = Cvar_Get ("dedicated", "1", CVAR_INIT);
+	Cvar_CheckRange( com_dedicated, 1, 2, qtrue );
+#else
+	com_dedicated = Cvar_Get ("dedicated", "0", CVAR_LATCH);
+	Cvar_CheckRange( com_dedicated, 0, 2, qtrue );
 #endif
+	// allocate the stack based hunk allocator
+	Com_InitHunkMemory();
+
+	// if any archived cvars are modified after this, we will trigger a writing
+	// of the config file
+	cvar_modifiedFlags &= ~CVAR_ARCHIVE;
 
 	//
 	// init commands and vars
@@ -2546,6 +2576,47 @@ void Field_AutoComplete(field_t* field)
     completionField = field;
 
     Field_CompleteCommand(completionField->buffer, qtrue, qtrue);
+}
+
+void Com_InitTargetGameWithType(target_game_e target_game)
+{
+	const char* protocol;
+
+    switch (target_game)
+    {
+    case target_game_e::TG_MOH:
+        Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOH));
+        Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOH));
+		// "main" is already used as first argument of FS_Startup
+		Cvar_Set("fs_basegame", "");
+        break;
+
+    case target_game_e::TG_MOHTA:
+        Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOHTA));
+        Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOHTA));
+        Cvar_Set("fs_basegame", "mainta");
+        break;
+
+    case target_game_e::TG_MOHTT:
+		// mohta and mohtt use the same protocol version number
+        Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOHTA));
+        Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOHTA));
+        Cvar_Set("fs_basegame", "maintt");
+        break;
+
+    default:
+		Com_Error(ERR_FATAL, "Invalid target game '%d'", target_game);
+		return;
+    }
+}
+
+/*
+===============
+Com_InitTargetGame
+===============
+*/
+void Com_InitTargetGame() {
+	Com_InitTargetGameWithType(static_cast<target_game_e>(com_target_game->integer));
 }
 
 #ifdef __cplusplus

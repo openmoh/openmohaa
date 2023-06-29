@@ -980,6 +980,7 @@ extern	cvar_t* com_legacyprotocol;
 #ifndef DEDICATED
 extern  cvar_t* con_autochat;
 #endif
+extern	cvar_t* com_target_game;
 
 // com_speeds times
 extern	int		time_game;
@@ -1068,6 +1069,7 @@ void Hunk_Log( void);
 void Hunk_Trash( void );
 
 void Com_TouchMemory( void );
+void Com_InitHunkMemory(void);
 
 // commandLine should not include the executable name (argv[0])
 void Com_Init( char *commandLine );

@@ -299,6 +299,20 @@ typedef int		clipHandle_t;
 #define strnicmp strncasecmp
 #endif
 
+typedef enum {
+    TG_MOH,
+    TG_MOHTA,
+    TG_MOHTT,
+    TG_INVALID
+} target_game_e;
+
+typedef enum {
+    PROTOCOL_MOH_MIN = 6,
+    PROTOCOL_MOH = 8,
+    PROTOCOL_MOHTA_MIN = 15,
+    PROTOCOL_MOHTA = 17,
+} protocol_e;
+
 // plane sides
 typedef enum
 {
