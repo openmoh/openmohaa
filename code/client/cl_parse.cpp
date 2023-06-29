@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 #include "cl_ui.h"
+#include "../qcommon/bg_compat.h"
 
 const char *svc_strings[256] = {
 	"svc_bad",
@@ -278,6 +279,8 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	} else {
 		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps, cls.serverFrameTime);
 	}
+	// Make pm_flags compatible with opm's pm_flags
+	newSnap.ps.pm_flags = CPT_NormalizePlayerStateFlags(newSnap.ps.pm_flags);
 
 	// read packet entities
 	SHOWNET( msg, "packet entities" );
@@ -472,7 +475,7 @@ CL_ParseGamestate
 ==================
 */
 void CL_ParseGamestate( msg_t *msg ) {
-	int				i;
+	int				i, csNum;
 	entityState_t	*es;
 	int				newnum;
 	entityState_t	nullstate;
@@ -502,22 +505,24 @@ void CL_ParseGamestate( msg_t *msg ) {
 		}
 		
 		if ( cmd == svc_configstring ) {
-			int		len;
+            int		len;
 
-			i = MSG_ReadShort( msg );
-			if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
-				Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
-			}
-			s = MSG_ReadGameStateChar( msg );
-			len = strlen( s );
+            i = MSG_ReadShort(msg);
+            csNum = CPT_NormalizeConfigstring(i);
+            if (csNum < 0 || csNum >= MAX_CONFIGSTRINGS) {
+                Com_Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
+            }
+            s = MSG_ReadGameStateChar(msg);
+            len = strlen(s);
 
-			if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
-				Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
-			}
-			// append it to the gameState string buffer
-			cl.gameState.stringOffsets[ i ] = cl.gameState.dataCount;
-			Com_Memcpy( cl.gameState.stringData + cl.gameState.dataCount, s, len + 1 );
-			cl.gameState.dataCount += len + 1;
+            if (len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS) {
+                Com_Error(ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
+            }
+
+            // append it to the gameState string buffer
+            cl.gameState.stringOffsets[csNum] = cl.gameState.dataCount;
+            Com_Memcpy(cl.gameState.stringData + cl.gameState.dataCount, s, len + 1);
+            cl.gameState.dataCount += len + 1;
 		} else if ( cmd == svc_baseline ) {
 			newnum = MSG_ReadEntityNum(msg);
 			if ( newnum < 0 || newnum >= MAX_GENTITIES ) {
