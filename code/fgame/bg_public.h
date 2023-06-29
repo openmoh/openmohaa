@@ -66,7 +66,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CS_MOTD					4		// g_motd string for server message of the day
 #define	CS_WARMUP				5		// server time when the match will be restarted
 
-#if TARGET_GAME_PROTOCOL >= 15
+// 2 values were removed in team tactics
 #define	CS_MUSIC				6		// MUSIC_NewSoundtrack(cs)
 #define CS_FOGINFO				7		// cg.farplane_cull cg.farplane_distance cg.farplane_color[3]
 #define CS_SKYINFO				8		// cg.sky_alpha cg.sky_portal
@@ -86,34 +86,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_RAIN_SHADER			19
 #define CS_RAIN_NUMSHADERS		20
 
+//
+// Team tactics
+//
 #define CS_VOTE_TIME			21
 #define CS_VOTE_STRING			22
 #define CS_VOTE_YES				23
 #define CS_VOTE_NO				24
 #define CS_VOTE_UNDECIDED		25
-
-#else
-
-#define	CS_MUSIC				8		// MUSIC_NewSoundtrack(cs)
-#define CS_FOGINFO				9		// cg.farplane_cull cg.farplane_distance cg.farplane_color[3]
-#define CS_SKYINFO				10		// cg.sky_alpha cg.sky_portal
-
-#define	CS_GAME_VERSION			11
-#define	CS_LEVEL_START_TIME		12		// so the timer only shows the current level cgs.levelStartTime
-
-#define CS_CURRENT_OBJECTIVE	13
-
-#define CS_RAIN_DENSITY			14		// cg.rain
-#define CS_RAIN_SPEED			15
-#define CS_RAIN_SPEEDVARY		16
-#define CS_RAIN_SLANT			17
-#define CS_RAIN_LENGTH			18
-#define CS_RAIN_MINDIST			19
-#define CS_RAIN_WIDTH			20
-#define CS_RAIN_SHADER			21
-#define CS_RAIN_NUMSHADERS		22
-
-#endif
+//
 
 #define CS_MATCHEND				26		// cgs.matchEndTime
 
@@ -265,11 +246,12 @@ typedef enum {
 #define	PMF_LEVELEXIT			(1<<20)		// use camera view instead of ps view
 #endif
 
-#if TARGET_GAME_PROTOCOL >= 15
-
 // moh pm_flags
 #define	PMF_DUCKED				(1<<0)
 #define	PMF_VIEW_PRONE			(1<<1)
+//
+// 2 Flags removed in team tactics
+//
 #define PMF_SPECTATING			(1<<2)
 #define	PMF_RESPAWNED			(1<<3)
 #define	PMF_NO_PREDICTION		(1<<4)
@@ -284,28 +266,6 @@ typedef enum {
 #define	PMF_NO_GRAVITY			(1<<12)
 #define	PMF_NO_HUD				(1<<13)
 #define	PMF_UNKNOWN				(1<<14)
-
-#else
-
-// moh pm_flags
-#define	PMF_DUCKED				(1<<0)
-#define	PMF_VIEW_PRONE			(1<<1)
-#define PMF_SPECTATING			(1<<4)
-#define	PMF_RESPAWNED			(1<<5)
-#define	PMF_NO_PREDICTION		(1<<6)
-#define	PMF_FROZEN				(1<<7)
-#define	PMF_INTERMISSION		(1<<8)
-#define PMF_SPECTATE_FOLLOW		(1<<9)
-#define	PMF_CAMERA_VIEW			(1<<9)		// use camera view instead of ps view
-#define	PMF_NO_MOVE				(1<<10)
-#define PMF_VIEW_DUCK_RUN		(1<<11)
-#define	PMF_VIEW_JUMP_START		(1<<12)
-#define	PMF_LEVELEXIT			(1<<13)
-#define	PMF_NO_GRAVITY			(1<<14)
-#define	PMF_NO_HUD				(1<<15)
-#define	PMF_UNKNOWN				(1<<16)
-
-#endif
 
 // moveposflags
 #define MPF_POSITION_STANDING	(1<<0)
