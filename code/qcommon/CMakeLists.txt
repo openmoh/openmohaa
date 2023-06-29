@@ -35,6 +35,7 @@ target_link_libraries(qcommon INTERFACE qcommon_version)
 # Source files for standalone executable
 set(SOURCES_COMMON
 	"${CMAKE_SOURCE_DIR}/code/qcommon/alias.c"
+	"${CMAKE_SOURCE_DIR}/code/qcommon/bg_compat.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/cm_fencemask.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/cm_load.c"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/cm_patch.c"
