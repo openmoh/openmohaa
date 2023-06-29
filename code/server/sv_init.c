@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "server.h"
 #include "../client/client.h"
 #include "../qcommon/tiki.h"
+#include "../qcommon/bg_compat.h"
 
 static char last_mapname[ MAX_QPATH ];
 static int g_iSvsTimeFixupCount;
@@ -262,6 +263,7 @@ void SV_SendConfigstring(client_t *client, int index)
 	int maxChunkSize = MAX_STRING_CHARS - 24;
 	size_t len;
 
+	index = CPT_DenormalizeConfigstring(index);
 	len = strlen(sv.configstrings[index]);
 
 	if( len >= maxChunkSize ) {
