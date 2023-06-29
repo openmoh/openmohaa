@@ -30,16 +30,17 @@ void CG_PlayerTeamIcon(refEntity_t* pModel, entityState_t* pPlayerState)
 {
     qboolean bInArtillery, bInTeam, bSpecialIcon;
 
-#if TARGET_GAME_PROTOCOL < 15
-    if (pPlayerState->eFlags & EF_ALLIES)
+    if (cgi.protocol < PROTOCOL_MOHTA_MIN)
     {
-        cg.clientinfo[pPlayerState->number].team = TEAM_ALLIES;
-    } else if (pPlayerState->eFlags & EF_AXIS) {
-        cg.clientinfo[pPlayerState->number].team = TEAM_AXIS;
-    } else {
-		cg.clientinfo[pPlayerState->number].team = TEAM_NONE;
+        if (pPlayerState->eFlags & EF_ALLIES)
+        {
+            cg.clientinfo[pPlayerState->number].team = TEAM_ALLIES;
+        } else if (pPlayerState->eFlags & EF_AXIS) {
+            cg.clientinfo[pPlayerState->number].team = TEAM_AXIS;
+        } else {
+		    cg.clientinfo[pPlayerState->number].team = TEAM_NONE;
+        }
     }
-#endif
 
     if (pPlayerState->number == cg.snap->ps.clientNum) {
         return;
