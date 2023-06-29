@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "server.h"
+#include "../qcommon/bg_compat.h"
 
 
 /*
@@ -508,6 +509,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	// grab the current playerState_t
 	ps = SV_GameClientNum( client - svs.clients );
 	frame->ps = *ps;
+	frame->ps.pm_flags = CPT_DenormalizePlayerStateFlags(ps->pm_flags);
 
 	//SV_SvEntityForGentity
 	// never send client's own entity, because it can
