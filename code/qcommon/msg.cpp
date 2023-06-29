@@ -149,6 +149,11 @@ void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src)
 	Com_Memcpy(buf->data, src->data, src->cursize);
 }
 
+qboolean MSG_IsProtocolVersion15()
+{
+	return com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN;
+}
+
 /*
 =============================================================================
 
@@ -159,9 +164,7 @@ bit functions
 
 int	overflows;
 
-#if TARGET_GAME_PROTOCOL >= 15
-
-int MSG_WriteNegateValue(int value, int bits)
+int MSG_WriteNegateValue_ver_15(int value, int bits)
 {
 	if (value >= 0) {
 		value <<= 1;
@@ -173,7 +176,7 @@ int MSG_WriteNegateValue(int value, int bits)
 	return value;
 }
 
-int MSG_ReadNegateValue(int value, int bits)
+int MSG_ReadNegateValue_ver_15(int value, int bits)
 {
 	if (value & 1) {
 		value = ~(value >> 1);
@@ -185,14 +188,12 @@ int MSG_ReadNegateValue(int value, int bits)
 	return value;
 }
 
-#else
-
-int MSG_WriteNegateValue(int value, int bits)
+int MSG_WriteNegateValue_ver_6(int value, int bits)
 {
 	return value;
 }
 
-int MSG_ReadNegateValue(int value, int bits)
+int MSG_ReadNegateValue_ver_6(int value, int bits)
 {
 	if (value & (1 << (bits - 1))) {
 		value |= -1 ^ ((1 << bits) - 1);
@@ -201,7 +202,29 @@ int MSG_ReadNegateValue(int value, int bits)
 	return value;
 }
 
-#endif
+int MSG_WriteNegateValue(int value, int bits)
+{
+    if (MSG_IsProtocolVersion15())
+    {
+        return MSG_WriteNegateValue_ver_15(value, bits);
+    }
+    else
+    {
+        return MSG_WriteNegateValue_ver_6(value, bits);
+    }
+}
+
+int MSG_ReadNegateValue(int value, int bits)
+{
+	if (MSG_IsProtocolVersion15())
+	{
+		return MSG_ReadNegateValue_ver_15(value, bits);
+	}
+	else
+    {
+        return MSG_ReadNegateValue_ver_6(value, bits);
+	}
+}
 
 // negative bit values include signs
 void MSG_WriteBits( msg_t *msg, int value, int bits ) {
@@ -460,11 +483,7 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 	}
 }
 
-
-
-#if TARGET_GAME_PROTOCOL >= 15
-
-void MSG_WriteScrambledString(msg_t* sb, const char* s) {
+void MSG_WriteScrambledString_ver_15(msg_t* sb, const char* s) {
 	if (!s) {
 		strstats[0]++;
 		MSG_WriteByte(sb, StrCharToNetByte[0]);
@@ -491,7 +510,7 @@ void MSG_WriteScrambledString(msg_t* sb, const char* s) {
 	}
 }
 
-void MSG_WriteScrambledBigString(msg_t* sb, const char* s) {
+void MSG_WriteScrambledBigString_ver_15(msg_t* sb, const char* s) {
 	if (!s) {
 		strstats[0]++;
 		MSG_WriteByte(sb, StrCharToNetByte[0]);
@@ -518,17 +537,29 @@ void MSG_WriteScrambledBigString(msg_t* sb, const char* s) {
 	}
 }
 
-#else
-
-void MSG_WriteScrambledString(msg_t* sb, const char* s) {
+void MSG_WriteScrambledString_ver_6(msg_t* sb, const char* s) {
 	return MSG_WriteString(sb, s);
 }
 
-void MSG_WriteScrambledBigString(msg_t* sb, const char* s) {
+void MSG_WriteScrambledBigString_ver_6(msg_t* sb, const char* s) {
 	return MSG_WriteBigString(sb, s);
 }
 
-#endif
+void MSG_WriteScrambledString(msg_t* sb, const char* s) {
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_WriteScrambledString_ver_15(sb, s);
+	} else {
+        return MSG_WriteScrambledString_ver_6(sb, s);
+	}
+}
+
+void MSG_WriteScrambledBigString(msg_t* sb, const char* s) {
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_WriteScrambledBigString_ver_15(sb, s);
+	} else {
+        return MSG_WriteScrambledBigString_ver_6(sb, s);
+	}
+}
 
 void MSG_WriteAngle( msg_t *sb, float f ) {
 	MSG_WriteByte (sb, (int)(f*256/360) & 255);
@@ -635,9 +666,7 @@ float MSG_ReadFloat( msg_t *msg ) {
 	return dat.f;	
 }
 
-#if TARGET_GAME_PROTOCOL >= 15
-
-char* MSG_ReadScrambledString(msg_t* msg) {
+char* MSG_ReadScrambledString_ver_15(msg_t* msg) {
 	static char	string[MAX_STRING_CHARS];
 	int		l, c;
 
@@ -671,7 +700,7 @@ char* MSG_ReadScrambledString(msg_t* msg) {
 	return string;
 }
 
-char* MSG_ReadScrambledBigString(msg_t* msg) {
+char* MSG_ReadScrambledBigString_ver_15(msg_t* msg) {
 	static char	string[BIG_INFO_STRING];
 	int		l, c;
 
@@ -705,17 +734,29 @@ char* MSG_ReadScrambledBigString(msg_t* msg) {
 	return string;
 }
 
-#else
-
-char* MSG_ReadScrambledString(msg_t* msg) {
+char* MSG_ReadScrambledString_ver_6(msg_t* msg) {
 	return MSG_ReadString(msg);
 }
 
-char* MSG_ReadScrambledBigString(msg_t* msg) {
+char* MSG_ReadScrambledBigString_ver_6(msg_t* msg) {
 	return MSG_ReadBigString(msg);
 }
 
-#endif
+char* MSG_ReadScrambledString(msg_t* msg) {
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadScrambledString_ver_15(msg);
+    } else {
+        return MSG_ReadScrambledString_ver_6(msg);
+	}
+}
+
+char* MSG_ReadScrambledBigString(msg_t* msg) {
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadScrambledBigString_ver_15(msg);
+    } else {
+        return MSG_ReadScrambledBigString_ver_6(msg);
+	}
+}
 
 char *MSG_ReadString( msg_t *msg ) {
 	static char	string[MAX_STRING_CHARS];
@@ -1258,8 +1299,7 @@ typedef struct {
 // using the stringizing operator to save typing...
 #define	NETF(x) #x,(size_t)&((entityState_t*)0)->x
 
-#if TARGET_GAME_PROTOCOL >= 15
-netField_t	entityStateFields[] =
+netField_t	entityStateFields_ver_15[] =
 {
 { NETF(netorigin[0]), 0, netFieldType_t::coord },
 { NETF(netorigin[1]), 0, netFieldType_t::coord },
@@ -1408,8 +1448,9 @@ netField_t	entityStateFields[] =
 { NETF(surfaces[30]), 8, netFieldType_t::regular },
 { NETF(surfaces[31]), 8, netFieldType_t::regular }
 };
-#else
-netField_t	entityStateFields[] = 
+static constexpr unsigned long numEntityStateFields_ver_15 = sizeof(entityStateFields_ver_15) / sizeof(entityStateFields_ver_15[0]);
+
+netField_t	entityStateFields_ver_6[] = 
 {
 { NETF(netorigin[0]), 0, netFieldType_t::coord },
 { NETF(netorigin[1]), 0, netFieldType_t::coord },
@@ -1558,17 +1599,29 @@ netField_t	entityStateFields[] =
 { NETF(surfaces[30]), 8, netFieldType_t::regular },
 { NETF(surfaces[31]), 8, netFieldType_t::regular }
 };
-#endif
-static constexpr unsigned long numEntityFields = sizeof(entityStateFields) / sizeof(entityStateFields[0]);
+static constexpr unsigned long numEntityStateFields_ver_6 = sizeof(entityStateFields_ver_6) / sizeof(entityStateFields_ver_6[0]);
+static constexpr unsigned long numBiggestEntityStateFields = numEntityStateFields_ver_15 >= numEntityStateFields_ver_6 ? numEntityStateFields_ver_15 : numEntityStateFields_ver_6;
+
+netField_t* MSG_GetEntityStateFields(size_t& outNumFields)
+{
+    if (com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN)
+    {
+        outNumFields = sizeof(entityStateFields_ver_15) / sizeof(entityStateFields_ver_15[0]);
+        return entityStateFields_ver_15;
+    }
+    else
+    {
+        outNumFields = sizeof(entityStateFields_ver_6) / sizeof(entityStateFields_ver_6[0]);
+        return entityStateFields_ver_6;
+    }
+}
 
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
 // the float will be sent with FLOAT_INT_BITS, otherwise all 32 bits will be sent
 #define	FLOAT_INT_BITS	13
 #define	FLOAT_INT_BIAS	(1<<(FLOAT_INT_BITS-1))
 
-#if TARGET_GAME_PROTOCOL >= 15
-
-void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
+void MSG_ReadRegular_ver_15(msg_t* sb, int bits, void* toF)
 {
 	if (bits == 0)
 	{
@@ -1608,12 +1661,12 @@ void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
 	}
 }
 
-void MSG_ReadRegularSimple(msg_t* sb, int bits, void* toF)
+void MSG_ReadRegularSimple_ver_15(msg_t* sb, int bits, void* toF)
 {
-	MSG_ReadRegular(sb, bits, toF);
+	MSG_ReadRegular_ver_15(sb, bits, toF);
 }
 
-void MSG_WriteRegular(msg_t* sb, int bits, const void* toF)
+void MSG_WriteRegular_ver_15(msg_t* sb, int bits, const void* toF)
 {
 	float fullFloat;
 	int trunc;
@@ -1657,25 +1710,23 @@ void MSG_WriteRegular(msg_t* sb, int bits, const void* toF)
 	}
 }
 
-void MSG_WriteRegularSimple(msg_t* sb, int bits, const void* toF)
+void MSG_WriteRegularSimple_ver_15(msg_t* sb, int bits, const void* toF)
 {
-	MSG_WriteRegular(sb, bits, toF);
+	MSG_WriteRegular_ver_15(sb, bits, toF);
 }
 
-void MSG_WriteEntityNum(msg_t* sb, short number)
+void MSG_WriteEntityNum_ver_15(msg_t* sb, short number)
 {
 	// protocols version 15 and above adds 1 to the entity number
 	MSG_WriteBits(sb, (number + 1) % MAX_GENTITIES, GENTITYNUM_BITS);
 }
 
-unsigned short MSG_ReadEntityNum(msg_t* sb)
+unsigned short MSG_ReadEntityNum_ver_15(msg_t* sb)
 {
 	return (unsigned short)(MSG_ReadBits(sb, GENTITYNUM_BITS) - 1) % MAX_GENTITIES;
 }
 
-#else
-
-void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
+void MSG_ReadRegular_ver_6(msg_t* sb, int bits, void* toF)
 {
 	if (bits == 0)
 	{
@@ -1706,7 +1757,7 @@ void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
 	}
 }
 
-void MSG_ReadRegularSimple(msg_t* sb, int bits, void* toF)
+void MSG_ReadRegularSimple_ver_6(msg_t* sb, int bits, void* toF)
 {
 	if (bits == 0) {
 		// float
@@ -1728,7 +1779,7 @@ void MSG_ReadRegularSimple(msg_t* sb, int bits, void* toF)
 	}
 }
 
-void MSG_WriteRegular(msg_t* sb, int bits, const void* toF)
+void MSG_WriteRegular_ver_6(msg_t* sb, int bits, const void* toF)
 {
 	float fullFloat;
 	int trunc;
@@ -1769,7 +1820,7 @@ void MSG_WriteRegular(msg_t* sb, int bits, const void* toF)
 	}
 }
 
-void MSG_WriteRegularSimple(msg_t* sb, int bits, const void* toF)
+void MSG_WriteRegularSimple_ver_6(msg_t* sb, int bits, const void* toF)
 {
 	float fullFloat;
 	int trunc;
@@ -1797,17 +1848,69 @@ void MSG_WriteRegularSimple(msg_t* sb, int bits, const void* toF)
 	}
 }
 
-void MSG_WriteEntityNum(msg_t* sb, short number)
+void MSG_WriteEntityNum_ver_6(msg_t* sb, short number)
 {
 	MSG_WriteBits(sb, number % MAX_GENTITIES, GENTITYNUM_BITS);
 }
 
-unsigned short MSG_ReadEntityNum(msg_t* sb)
+unsigned short MSG_ReadEntityNum_ver_6(msg_t* sb)
 {
 	return MSG_ReadBits(sb, GENTITYNUM_BITS) % MAX_GENTITIES;
 }
 
-#endif
+void MSG_ReadRegular(msg_t* sb, int bits, void* toF)
+{
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadRegular_ver_15(sb, bits, toF);
+	} else {
+		return MSG_ReadRegular_ver_6(sb, bits, toF);
+	}
+}
+
+void MSG_ReadRegularSimple(msg_t* sb, int bits, void* toF)
+{
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadRegularSimple_ver_15(sb, bits, toF);
+	} else {
+		return MSG_ReadRegularSimple_ver_6(sb, bits, toF);
+	}
+}
+
+void MSG_WriteRegular(msg_t* sb, int bits, const void* toF)
+{
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_WriteRegular_ver_15(sb, bits, toF);
+	} else {
+		return MSG_WriteRegular_ver_6(sb, bits, toF);
+	}
+}
+
+void MSG_WriteRegularSimple(msg_t* sb, int bits, const void* toF)
+{
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_WriteRegularSimple_ver_15(sb, bits, toF);
+	} else {
+		return MSG_WriteRegularSimple_ver_6(sb, bits, toF);
+	}
+}
+
+void MSG_WriteEntityNum(msg_t* sb, short number)
+{
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_WriteEntityNum_ver_15(sb, number);
+	} else {
+		return MSG_WriteEntityNum_ver_6(sb, number);
+	}
+}
+
+unsigned short MSG_ReadEntityNum(msg_t* sb)
+{
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadEntityNum_ver_15(sb);
+	} else {
+		return MSG_ReadEntityNum_ver_6(sb);
+	}
+}
 
 /*
 ==================
@@ -1823,9 +1926,11 @@ identical, under the assumption that the in-order delta code will catch it.
 void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to, 
 						   qboolean force, float frameTime ) {
 	int i, lc;
+	netField_t* entityStateFields;
 	netField_t *field;
+	size_t numFields;
 	int *fromF, *toF;
-	qboolean deltasNeeded[numEntityFields];
+	qboolean deltasNeeded[numBiggestEntityStateFields];
 
 	// all fields should be 32 bits to avoid any compiler packing issues
 	// the "number" field is not part of the field list
@@ -1849,9 +1954,11 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		Com_Error (ERR_FATAL, "MSG_WriteDeltaEntity: Bad entity number: %i", to->number );
 	}
 
+    entityStateFields = MSG_GetEntityStateFields(numFields);
+
 	lc = 0;
 	// build the change vector as bytes so it is endien independent
-	for ( i = 0, field = entityStateFields ; i < numEntityFields; i++, field++ ) {
+	for ( i = 0, field = entityStateFields ; i < numFields; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
 		toF = (int *)( (byte *)to + field->offset );
 		deltasNeeded[i] = MSG_DeltaNeeded(fromF, toF, field->type, field->bits);
@@ -1878,7 +1985,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 
 	MSG_WriteByte( msg, lc );	// # of changes
 
-	oldsize += numEntityFields;
+	oldsize += numFields;
 
 	for ( i = 0, field = entityStateFields ; i < lc ; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
@@ -1930,8 +2037,6 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 				Com_Error( ERR_DROP, "MSG_WriteDeltaEntity: unrecognized entity field type %i for field %i\n", field->bits, i );
 				break;
 		}
-
-
 	}
 }
 
@@ -2083,15 +2188,13 @@ int MSG_PackCoordExtra(float coord)
 	return packed;
 }
 
-#if TARGET_GAME_PROTOCOL >= 15
-
-float MSG_ReadPackedAngle(msg_t* msg, int bits)
+float MSG_ReadPackedAngle_ver_15(msg_t* msg, int bits)
 {
 	int packed = MSG_ReadBits(msg, abs(bits));
 	return MSG_UnpackAngle(packed, bits);
 }
 
-float MSG_ReadPackedAnimTime(msg_t* msg, int bits, float fromValue, float frameTime)
+float MSG_ReadPackedAnimTime_ver_15(msg_t* msg, int bits, float fromValue, float frameTime)
 {
 	int packed;
 	if (!MSG_ReadBits(msg, 1)) {
@@ -2102,45 +2205,45 @@ float MSG_ReadPackedAnimTime(msg_t* msg, int bits, float fromValue, float frameT
 	return MSG_UnpackAnimTime(packed);
 }
 
-float MSG_ReadPackedAnimWeight(msg_t* msg, int bits)
+float MSG_ReadPackedAnimWeight_ver_15(msg_t* msg, int bits)
 {
 	int packed = MSG_ReadBits(msg, bits);
 	return MSG_UnpackAnimWeight(packed, bits);
 }
 
-float MSG_ReadPackedScale(msg_t* msg, int bits)
+float MSG_ReadPackedScale_ver_15(msg_t* msg, int bits)
 {
 	int packed = MSG_ReadBits(msg, bits);
 	return MSG_UnpackScale(packed);
 }
 
-float MSG_ReadPackedAlpha(msg_t* msg, int bits)
+float MSG_ReadPackedAlpha_ver_15(msg_t* msg, int bits)
 {
 	int packed = MSG_ReadBits(msg, bits);
 	return MSG_UnpackAlpha(packed, bits);
 }
 
-float MSG_ReadPackedCoord(msg_t* msg, float fromValue, int bits)
+float MSG_ReadPackedCoord_ver_15(msg_t* msg, float fromValue, int bits)
 {
 	int packedFrom = MSG_PackCoord(fromValue);
 	int packedTo = MSG_ReadDeltaCoord(msg, packedFrom);
 	return MSG_UnpackCoord(packedTo, bits);
 }
 
-float MSG_ReadPackedCoordExtra(msg_t* msg, float fromValue, int bits)
+float MSG_ReadPackedCoordExtra_ver_15(msg_t* msg, float fromValue, int bits)
 {
 	int packedFrom = MSG_PackCoordExtra(fromValue);
 	int packedTo = MSG_ReadDeltaCoordExtra(msg, packedFrom);
 	return MSG_UnpackCoordExtra(packedTo, bits);
 }
 
-void MSG_WritePackedAngle(msg_t* msg, float value, int bits)
+void MSG_WritePackedAngle_ver_15(msg_t* msg, float value, int bits)
 {
 	int packed = MSG_PackAngle(value, bits);
 	MSG_WriteBits(msg, packed, abs(bits));
 }
 
-void MSG_WritePackedAnimTime(msg_t* msg, float fromValue, float toValue, float frameTime, int bits)
+void MSG_WritePackedAnimTime_ver_15(msg_t* msg, float fromValue, float toValue, float frameTime, int bits)
 {
 	int packed;
 
@@ -2155,39 +2258,39 @@ void MSG_WritePackedAnimTime(msg_t* msg, float fromValue, float toValue, float f
 	MSG_WriteBits(msg, packed, bits);
 }
 
-void MSG_WritePackedAnimWeight(msg_t* msg, float value, int bits)
+void MSG_WritePackedAnimWeight_ver_15(msg_t* msg, float value, int bits)
 {
 	int packed = MSG_PackAnimWeight(value, bits);
 	MSG_WriteBits(msg, packed, bits);
 }
 
-void MSG_WritePackedScale(msg_t* msg, float value, int bits)
+void MSG_WritePackedScale_ver_15(msg_t* msg, float value, int bits)
 {
 	int packed = MSG_PackScale(value, bits);
 	MSG_WriteBits(msg, packed, bits);
 }
 
-void MSG_WritePackedAlpha(msg_t* msg, float value, int bits)
+void MSG_WritePackedAlpha_ver_15(msg_t* msg, float value, int bits)
 {
 	int packed = MSG_PackAlpha(value, bits);
 	MSG_WriteBits(msg, packed, bits);
 }
 
-void MSG_WritePackedCoord(msg_t* msg, float fromValue, float toValue, int bits)
+void MSG_WritePackedCoord_ver_15(msg_t* msg, float fromValue, float toValue, int bits)
 {
 	int packedFrom = MSG_PackCoord(fromValue);
 	int packedTo = MSG_PackCoord(toValue);
 	MSG_WriteDeltaCoord(msg, packedFrom, packedTo);
 }
 
-void MSG_WritePackedCoordExtra(msg_t* msg, float fromValue, float toValue, int bits)
+void MSG_WritePackedCoordExtra_ver_15(msg_t* msg, float fromValue, float toValue, int bits)
 {
 	int packedFrom = MSG_PackCoordExtra(fromValue);
 	int packedTo = MSG_PackCoordExtra(toValue);
 	MSG_WriteDeltaCoordExtra(msg, packedFrom, packedTo);
 }
 
-qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits)
+qboolean MSG_DeltaNeeded_ver_15(const void* fromField, const void* toField, int fieldType, int bits)
 {
 	int packedFrom;
 	int packedTo;
@@ -2243,9 +2346,7 @@ qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldTy
 	}
 }
 
-#else
-
-float MSG_ReadPackedAngle(msg_t* msg, int bits)
+float MSG_ReadPackedAngle_ver_6(msg_t* msg, int bits)
 {
 	int result;
 	float tmp = 1.0f;
@@ -2269,12 +2370,12 @@ float MSG_ReadPackedAngle(msg_t* msg, int bits)
 	}
 }
 
-float MSG_ReadPackedAnimTime(msg_t* msg, int bits, float fromValue, float frameTime)
+float MSG_ReadPackedAnimTime_ver_6(msg_t* msg, int bits, float fromValue, float frameTime)
 {
 	return MSG_ReadBits(msg, 15) / 100.0f;
 }
 
-float MSG_ReadPackedAnimWeight(msg_t* msg, int bits)
+float MSG_ReadPackedAnimWeight_ver_6(msg_t* msg, int bits)
 {
 	float tmp = MSG_ReadBits(msg, 8) / 255.0f;
 	if (tmp < 0.0f)
@@ -2285,12 +2386,12 @@ float MSG_ReadPackedAnimWeight(msg_t* msg, int bits)
 		return tmp;
 }
 
-float MSG_ReadPackedScale(msg_t* msg, int bits)
+float MSG_ReadPackedScale_ver_6(msg_t* msg, int bits)
 {
 	return MSG_ReadBits(msg, 10) / 100.0f;
 }
 
-float MSG_ReadPackedAlpha(msg_t* msg, int bits)
+float MSG_ReadPackedAlpha_ver_6(msg_t* msg, int bits)
 {
 	float tmp = MSG_ReadBits(msg, 8) / 255.0f;
 	if (tmp < 0.0f)
@@ -2301,7 +2402,7 @@ float MSG_ReadPackedAlpha(msg_t* msg, int bits)
 		return tmp;
 }
 
-float MSG_ReadPackedCoord(msg_t* msg, float fromValue, int bits)
+float MSG_ReadPackedCoord_ver_6(msg_t* msg, float fromValue, int bits)
 {
 	float tmp = 1.0f;
 	int value = MSG_ReadBits(msg, 19);
@@ -2311,7 +2412,7 @@ float MSG_ReadPackedCoord(msg_t* msg, float fromValue, int bits)
 	return tmp * value / 16.0f;
 }
 
-float MSG_ReadPackedCoordExtra(msg_t* msg, float fromValue, int bits)
+float MSG_ReadPackedCoordExtra_ver_6(msg_t* msg, float fromValue, int bits)
 {
 	int packedFrom = MSG_PackCoordExtra(fromValue);
 	int packedTo = MSG_ReadDeltaCoordExtra(msg, packedFrom);
@@ -2319,7 +2420,7 @@ float MSG_ReadPackedCoordExtra(msg_t* msg, float fromValue, int bits)
 }
 
 
-void MSG_WritePackedAngle(msg_t* msg, float value, int bits)
+void MSG_WritePackedAngle_ver_6(msg_t* msg, float value, int bits)
 {
 	// angles, what a mess! it wouldnt surprise me if something goes wrong here ;)
 
@@ -2358,7 +2459,7 @@ void MSG_WritePackedAngle(msg_t* msg, float value, int bits)
 	}
 }
 
-void MSG_WritePackedAnimTime(msg_t* msg, float fromValue, float toValue, float frameTime, int bits)
+void MSG_WritePackedAnimTime_ver_6(msg_t* msg, float fromValue, float toValue, float frameTime, int bits)
 {
 	int packed = toValue * 100.0f;
 	if (packed < 0) {
@@ -2371,7 +2472,7 @@ void MSG_WritePackedAnimTime(msg_t* msg, float fromValue, float toValue, float f
 	MSG_WriteBits(msg, packed, 15);
 }
 
-void MSG_WritePackedAnimWeight(msg_t* msg, float value, int bits)
+void MSG_WritePackedAnimWeight_ver_6(msg_t* msg, float value, int bits)
 {
 	int packed = (value * 255.0f) + 0.5f;
 
@@ -2385,7 +2486,7 @@ void MSG_WritePackedAnimWeight(msg_t* msg, float value, int bits)
 	MSG_WriteBits(msg, packed, 8);
 }
 
-void MSG_WritePackedScale(msg_t* msg, float value, int bits)
+void MSG_WritePackedScale_ver_6(msg_t* msg, float value, int bits)
 {
 	int packed = value * 100.0f;
 	if (packed < 0) {
@@ -2398,7 +2499,7 @@ void MSG_WritePackedScale(msg_t* msg, float value, int bits)
 	MSG_WriteBits(msg, packed, 10);
 }
 
-void MSG_WritePackedAlpha(msg_t* msg, float value, int bits)
+void MSG_WritePackedAlpha_ver_6(msg_t* msg, float value, int bits)
 {
 	int packed = (value * 255.0f) + 0.5f;
 
@@ -2412,7 +2513,7 @@ void MSG_WritePackedAlpha(msg_t* msg, float value, int bits)
 	MSG_WriteBits(msg, packed, 8);
 }
 
-void MSG_WritePackedCoord(msg_t* msg, float fromValue, float toValue, int bits)
+void MSG_WritePackedCoord_ver_6(msg_t* msg, float fromValue, float toValue, int bits)
 {
 	int packed = toValue * 16.0f;
 
@@ -2426,19 +2527,137 @@ void MSG_WritePackedCoord(msg_t* msg, float fromValue, float toValue, int bits)
 	MSG_WriteBits(msg, packed, 19);
 }
 
-void MSG_WritePackedCoordExtra(msg_t* msg, float fromValue, float toValue, int bits)
-{
-
+void MSG_WritePackedCoordExtra_ver_6(msg_t* msg, float fromValue, float toValue, int bits) {
+	// Don't implement
 }
 
-qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits)
+qboolean MSG_DeltaNeeded_ver_6(const void* fromField, const void* toField, int fieldType, int bits)
 {
 	// Unoptimized in base game
 	// Doesn't compare packed values
 	return *(int*)fromField != *(int*)toField;
 }
 
-#endif
+float MSG_ReadPackedAngle(msg_t* msg, int bits) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadPackedAngle_ver_15(msg, bits);
+    } else {
+		return MSG_ReadPackedAngle_ver_6(msg, bits);
+    }
+}
+
+float MSG_ReadPackedAnimTime(msg_t* msg, int bits, float fromValue, float frameTime) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadPackedAnimTime_ver_15(msg, bits, fromValue, frameTime);
+    } else {
+		return MSG_ReadPackedAnimTime_ver_6(msg, bits, fromValue, frameTime);
+    }
+}
+
+float MSG_ReadPackedAnimWeight(msg_t* msg, int bits) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadPackedAnimWeight_ver_15(msg, bits);
+    } else {
+		return MSG_ReadPackedAnimWeight_ver_6(msg, bits);
+    }
+}
+
+float MSG_ReadPackedScale(msg_t* msg, int bits) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadPackedScale_ver_15(msg, bits);
+    } else {
+		return MSG_ReadPackedScale_ver_6(msg, bits);
+    }
+}
+
+float MSG_ReadPackedAlpha(msg_t* msg, int bits) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadPackedAlpha_ver_15(msg, bits);
+    } else {
+		return MSG_ReadPackedAlpha_ver_6(msg, bits);
+    }
+}
+
+float MSG_ReadPackedCoord(msg_t* msg, float fromValue, int bits) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadPackedCoord_ver_15(msg, fromValue, bits);
+    } else {
+		return MSG_ReadPackedCoord_ver_6(msg, fromValue, bits);
+    }
+}
+
+float MSG_ReadPackedCoordExtra(msg_t* msg, float fromValue, int bits)
+{
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadPackedCoordExtra_ver_15(msg, fromValue, bits);
+    } else {
+		return MSG_ReadPackedCoordExtra_ver_6(msg, fromValue, bits);
+    }
+}
+
+
+void MSG_WritePackedAngle(msg_t* msg, float value, int bits) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_WritePackedAngle_ver_15(msg, value, bits);
+    } else {
+		return MSG_WritePackedAngle_ver_6(msg, value, bits);
+    }
+}
+
+void MSG_WritePackedAnimTime(msg_t* msg, float fromValue, float toValue, float frameTime, int bits) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_WritePackedAnimTime_ver_15(msg, fromValue, toValue, frameTime, bits);
+    } else {
+		return MSG_WritePackedAnimTime_ver_6(msg, fromValue, toValue, frameTime, bits);
+    }
+}
+
+void MSG_WritePackedAnimWeight(msg_t* msg, float value, int bits) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_WritePackedAnimWeight_ver_15(msg, value, bits);
+    } else {
+		return MSG_WritePackedAnimWeight_ver_6(msg, value, bits);
+    }
+}
+
+void MSG_WritePackedScale(msg_t* msg, float value, int bits) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_WritePackedScale_ver_15(msg, value, bits);
+    } else {
+		return MSG_WritePackedScale_ver_6(msg, value, bits);
+    }
+}
+
+void MSG_WritePackedAlpha(msg_t* msg, float value, int bits) {
+    if (MSG_IsProtocolVersion15()) {
+		return MSG_WritePackedAlpha_ver_15(msg, value, bits);
+    } else {
+		return MSG_WritePackedAlpha_ver_6(msg, value, bits);
+    }
+}
+
+void MSG_WritePackedCoord(msg_t* msg, float fromValue, float toValue, int bits) {
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_WritePackedCoord_ver_15(msg, fromValue, toValue, bits);
+    } else {
+		return MSG_WritePackedCoord_ver_6(msg, fromValue, toValue, bits);
+	}
+}
+
+void MSG_WritePackedCoordExtra(msg_t* msg, float fromValue, float toValue, int bits) {
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_WritePackedCoordExtra_ver_15(msg, fromValue, toValue, bits);
+    } else {
+		return MSG_WritePackedCoordExtra_ver_6(msg, fromValue, toValue, bits);
+	}
+}
+
+qboolean MSG_DeltaNeeded(const void* fromField, const void* toField, int fieldType, int bits)
+{
+    // Unoptimized in base game
+    // Doesn't compare packed values
+    return *(int*)fromField != *(int*)toField;
+}
 
 float MSG_ReadPackedVelocity(msg_t* msg, int bits)
 {
@@ -2500,7 +2719,8 @@ extern	cvar_t	*cl_shownet;
 void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, 
 						 int number, float frameTime) {
 	int			i, lc;
-	int			numFields;
+	size_t		numFields;
+	netField_t* entityStateFields;
 	netField_t	*field;
 	int			*fromF, *toF;
 	int			print;
@@ -2537,7 +2757,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 		return;
 	}
 
-	numFields = sizeof(entityStateFields)/sizeof(entityStateFields[0]);
+	entityStateFields = MSG_GetEntityStateFields(numFields);
 	lc = MSG_ReadByte(msg);
 
 	// su44: trying to find the cause of "unrecognized entity field type" error.
@@ -2861,8 +3081,7 @@ plyer_state_t communication
 // using the stringizing operator to save typing...
 #define	PSF(x) #x,(size_t)&((playerState_t*)0)->x
 
-#if TARGET_GAME_PROTOCOL >= 15
-netField_t	playerStateFields[] =
+netField_t	playerStateFields_ver_15[] =
 {
 { PSF(commandTime), 32, netFieldType_t::regular },
 { PSF(origin[0]), 0, netFieldType_t::coordExtra },
@@ -2920,8 +3139,9 @@ netField_t	playerStateFields[] =
 { PSF(camera_posofs[1]), 0, netFieldType_t::coordExtra },
 { PSF(camera_flags), 16, netFieldType_t::regular }
 };
-#else
-netField_t	playerStateFields[] = 
+static constexpr unsigned long numPlayerStateFields_ver_15 = sizeof(playerStateFields_ver_15) / sizeof(playerStateFields_ver_15[0]);
+
+netField_t	playerStateFields_ver_6[] = 
 {
 { PSF(commandTime), 32, netFieldType_t::regular },				
 { PSF(origin[0]), 0, netFieldType_t::coord },
@@ -2979,7 +3199,22 @@ netField_t	playerStateFields[] =
 { PSF(camera_posofs[1]), 0, netFieldType_t::coord },
 { PSF(camera_flags), 16, netFieldType_t::regular }
 };
-#endif
+static constexpr unsigned long numPlayerStateFields_ver_6 = sizeof(playerStateFields_ver_6) / sizeof(playerStateFields_ver_6[0]);
+static constexpr unsigned long numBiggestPlayerStateFields = numPlayerStateFields_ver_15 >= numPlayerStateFields_ver_6 ? numPlayerStateFields_ver_15 : numPlayerStateFields_ver_6;
+
+netField_t* MSG_GetPlayerStateFields(size_t& outNumFields)
+{
+    if (com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN)
+    {
+		outNumFields = sizeof(playerStateFields_ver_15) / sizeof(playerStateFields_ver_15[0]);
+		return playerStateFields_ver_15;
+    }
+    else
+    {
+        outNumFields = sizeof(playerStateFields_ver_6) / sizeof(playerStateFields_ver_6[0]);
+        return playerStateFields_ver_6;
+    }
+}
 
 /*
 =============
@@ -2995,8 +3230,9 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 	int				ammobits;
 	int				ammo_amountbits;
 	int				max_ammo_amountbits;
-	int				numFields;
+	size_t			numFields;
 	size_t			c;
+	netField_t		*playerStateFields;
 	netField_t		*field;
 	int				*fromF, *toF;
 	int				lc;
@@ -3008,7 +3244,7 @@ void MSG_WriteDeltaPlayerstate(msg_t *msg, struct playerState_s *from, struct pl
 
 	c = msg->cursize;
 
-	numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
+	playerStateFields = MSG_GetPlayerStateFields(numFields);
 
 	lc = 0;
 	for ( i = 0, field = playerStateFields ; i < numFields ; i++, field++ ) {
@@ -3179,8 +3415,9 @@ MSG_ReadDeltaPlayerstate
 void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to, float frameTime) {
 	int			i, lc;
 	int			bits;
+	netField_t* playerStateFields;
 	netField_t	*field;
-	int			numFields;
+	size_t		numFields;
 	int			startBit, endBit;
 	int			print;
 	int			*fromF, *toF;
@@ -3212,7 +3449,8 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 		print = 0;
 	}
 
-	numFields = sizeof( playerStateFields ) / sizeof( playerStateFields[0] );
+    playerStateFields = MSG_GetPlayerStateFields(numFields);
+
 	lc = MSG_ReadByte(msg);
 	assert(lc <= numFields);
 	for ( i = 0, field = playerStateFields ; i < lc ; i++, field++ ) {
