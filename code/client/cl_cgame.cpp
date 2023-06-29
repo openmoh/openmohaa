@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_ui.h"
 #include "../qcommon/tiki.h"
 #include "../qcommon/localization.h"
+#include "../qcommon/bg_compat.h"
 
 extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);
@@ -297,6 +298,7 @@ void CL_ConfigstringModified(int index, char* s) {
 	gameState_t	oldGs;
 	size_t		len;
 
+	index = CPT_NormalizeConfigstring(index);
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
 	}
@@ -755,6 +757,9 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->stopWatch					= &cls.stopwatch;
 	// FIXME
 	//cgi->pUnknownVar				= NULL;
+
+    cgi->targetGame					= (target_game_e)com_target_game->integer;
+    cgi->protocol					= (protocol_e)com_protocol->integer;
 
 	cls.cgameStarted = qtrue;
 }
