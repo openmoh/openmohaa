@@ -215,8 +215,45 @@ void RB_SurfacePolychain( srfPoly_t *p ) {
 	tess.numVertexes = numv;
 }
 
+/*
+=============
+RB_SurfaceMarkFragment
+=============
+*/
 void RB_SurfaceMarkFragment(srfMarkFragment_t* p) {
-	// FIXME: unimplemented
+	int i;
+	int numv;
+
+	RB_CHECKOVERFLOW( p->numVerts, 3*(p->numVerts - 2) );
+
+	if (p->iIndex <= 0 || R_TerrainHeightForPoly(&tr.world->terraPatches[p->iIndex - 1], p->verts, p->numVerts))
+	{
+		// FIXME: from here on out, it's mostly the same code as in RB_SurfacePolychain,
+		// common part could be extracted into an inline func
+
+		// fan triangles into the tess array
+		numv = tess.numVertexes;
+		for ( i = 0; i < p->numVerts; i++ )
+		{
+			VectorCopy( p->verts[i].xyz, tess.xyz[numv] );
+			tess.texCoords[numv][0][0] = p->verts[i].st[0];
+			tess.texCoords[numv][0][1] = p->verts[i].st[1];
+			*(int *)&tess.vertexColors[numv] = *(int *)p->verts[ i ].modulate;
+
+			numv++;
+		}
+
+		// generate fan indexes into the tess array
+		for ( i = 0; i < p->numVerts - 2; i++ ) {
+			tess.indexes[tess.numIndexes + 0] = tess.numVertexes;
+			tess.indexes[tess.numIndexes + 1] = tess.numVertexes + i + 1;
+			tess.indexes[tess.numIndexes + 2] = tess.numVertexes + i + 2;
+			tess.numIndexes += 3;
+		}
+
+		tess.vertexColorValid = qtrue;
+		tess.numVertexes = numv;
+	}
 }
 
 /*
