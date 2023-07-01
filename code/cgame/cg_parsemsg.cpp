@@ -306,9 +306,7 @@ void CG_MakeVehicleEffect(vec3_t i_vStart, vec3_t i_vEnd , vec3_t i_vDir) {
     cgi.R_DebugLine(vFrom, trace.endpos, 1.0, 1.0, 1.0, 1.0);
 }
 
-#if TARGET_GAME_PROTOCOL >= 15
-
-void CG_ParseCGMessage()
+void CG_ParseCGMessage_ver_15()
 {
 	int i;
 	int iType;
@@ -761,9 +759,7 @@ void CG_ParseCGMessage()
 	}
 }
 
-#else
-
-void CG_ParseCGMessage()
+void CG_ParseCGMessage_ver_6()
 {
     int i;
     int iType;
@@ -1149,4 +1145,11 @@ void CG_ParseCGMessage()
         bMoreCGameMessages = cgi.MSG_ReadBits(1);
     }
 }
-#endif
+
+void CG_InitCGMessageAPI(clientGameExport_t* cge)
+{	if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+		cge->CG_ParseCGMessage = &CG_ParseCGMessage_ver_15;
+    } else {
+		cge->CG_ParseCGMessage = &CG_ParseCGMessage_ver_6;
+	}
+}
