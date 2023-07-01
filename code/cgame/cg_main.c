@@ -783,9 +783,7 @@ void Com_Printf( const char *msg, ... ) {
 
 #endif
 
-#if TARGET_GAME_PROTOCOL >= 15
-
-void CG_ParseFogInfo(const char* str) {
+void CG_ParseFogInfo_ver_15(const char* str) {
 	sscanf(
         str,
 		"%d %f %f %f %f %f %f %f %d %f %f %f %f",
@@ -805,9 +803,7 @@ void CG_ParseFogInfo(const char* str) {
     );
 }
 
-#else
-
-void CG_ParseFogInfo(const char* str) {
+void CG_ParseFogInfo_ver_6(const char* str) {
 	cg.farclipOverride = 0.0;
 	cg.farplaneColorOverride[0] = -1.0;
 	cg.farplaneColorOverride[1] = -1.0;
@@ -824,4 +820,10 @@ void CG_ParseFogInfo(const char* str) {
 	);
 }
 
-#endif
+void CG_ParseFogInfo(const char* str) {
+    if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+        CG_ParseFogInfo_ver_15(str);
+    } else {
+        CG_ParseFogInfo_ver_6(str);
+    }
+}
