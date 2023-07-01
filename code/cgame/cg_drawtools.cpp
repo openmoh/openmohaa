@@ -1041,9 +1041,7 @@ void CG_DrawInstantMessageMenu()
     cgi.R_DrawStretchPic(x, y, w, h, 0.0, 0.0, 1.0, 1.0, handle);
 }
 
-#if TARGET_GAME_PROTOCOL >= 15
-
-void CG_DrawSpectatorView()
+void CG_DrawSpectatorView_ver_15()
 {
 	const char* pszString;
 	int iKey1, iKey2;
@@ -1151,9 +1149,7 @@ void CG_DrawSpectatorView()
     }
 }
 
-#else
-
-void CG_DrawSpectatorView()
+void CG_DrawSpectatorView_ver_6()
 {
 	const char* pszString;
 	int iKey1, iKey2;
@@ -1213,7 +1209,13 @@ void CG_DrawSpectatorView()
     }
 }
 
-#endif
+void CG_DrawSpectatorView() {
+    if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+        CG_DrawSpectatorView_ver_15();
+    } else {
+        CG_DrawSpectatorView_ver_6();
+    }
+}
 
 /*
 ==============
