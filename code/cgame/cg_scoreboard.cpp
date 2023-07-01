@@ -75,9 +75,7 @@ void CG_PrepScoreBoardInfo()
     }
 }
 
-#if TARGET_GAME_PROTOCOL >= 15
-
-const char* CG_GetColumnName(int iColumnNum, int* iColumnWidth)
+const char* CG_GetColumnName_ver_15(int iColumnNum, int* iColumnWidth)
 {
 	int iReturnWidth;
 	const char* pszReturnString;
@@ -123,7 +121,49 @@ const char* CG_GetColumnName(int iColumnNum, int* iColumnWidth)
 	return pszReturnString;
 }
 
-void CG_ParseScores()
+const char* CG_GetColumnName_ver_6(int iColumnNum, int* iColumnWidth)
+{
+	int iReturnWidth;
+	const char* pszReturnString;
+
+	switch (iColumnNum) {
+	case 0:
+		iReturnWidth = 128;
+		pszReturnString = "Name";
+		break;
+	case 1:
+		iReturnWidth = 64;
+		pszReturnString = "Kills";
+		break;
+	case 2:
+		iReturnWidth = 64;
+		pszReturnString = "Deaths";
+		if (cgs.gametype > GT_TEAM) {
+			pszReturnString = "Total";
+		}
+		break;
+	case 3:
+		iReturnWidth = 64;
+		pszReturnString = "Time";
+		break;
+	case 4:
+		iReturnWidth = 64;
+		pszReturnString = "Ping";
+		break;
+	default:
+		iReturnWidth = 0;
+		pszReturnString = 0;
+		break;
+	}
+
+	if (iColumnWidth) {
+		*iColumnWidth = iReturnWidth;
+	}
+
+	return pszReturnString;
+}
+
+void CG_ParseScores_ver_15()
 {
 	int i;
 	int iEntryCount;
@@ -423,51 +463,7 @@ void CG_ParseScores()
 	cgi.UI_DeleteScoreBoardItems(iEntryCount);
 }
 
-#else
-
-const char* CG_GetColumnName(int iColumnNum, int* iColumnWidth)
-{
-	int iReturnWidth;
-	const char* pszReturnString;
-
-	switch (iColumnNum) {
-	case 0:
-		iReturnWidth = 128;
-		pszReturnString = "Name";
-		break;
-	case 1:
-		iReturnWidth = 64;
-		pszReturnString = "Kills";
-		break;
-	case 2:
-		iReturnWidth = 64;
-		pszReturnString = "Deaths";
-		if (cgs.gametype > GT_TEAM) {
-			pszReturnString = "Total";
-		}
-		break;
-	case 3:
-		iReturnWidth = 64;
-		pszReturnString = "Time";
-		break;
-	case 4:
-		iReturnWidth = 64;
-		pszReturnString = "Ping";
-		break;
-	default:
-		iReturnWidth = 0;
-		pszReturnString = 0;
-		break;
-	}
-
-	if (iColumnWidth) {
-		*iColumnWidth = iReturnWidth;
-	}
-
-	return pszReturnString;
-}
-
-void CG_ParseScores()
+void CG_ParseScores_ver_6()
 {
     int i;
     int iEntryCount;
@@ -720,4 +716,26 @@ void CG_ParseScores()
 
     cgi.UI_DeleteScoreBoardItems(iEntryCount);
 }
-#endif
+
+void CG_ParseScores()
+{
+    if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+        CG_ParseScores_ver_15();
+	} else {
+		CG_ParseScores_ver_6();
+	}
+}
+
+void CG_InitScoresAPI(clientGameExport_t* cge)
+{
+	cge->CG_GetScoreBoardColor = CG_GetScoreBoardColor;
+	cge->CG_GetScoreBoardFontColor = CG_GetScoreBoardFontColor;
+	cge->CG_GetScoreBoardPosition = CG_GetScoreBoardPosition;
+	cge->CG_GetScoreBoardDrawHeader = CG_GetScoreBoardDrawHeader;
+
+	if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+		cge->CG_GetColumnName = &CG_GetColumnName_ver_15;
+    } else {
+		cge->CG_GetColumnName = &CG_GetColumnName_ver_6;
+	}
+}
