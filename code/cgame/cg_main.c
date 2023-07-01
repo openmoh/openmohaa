@@ -687,7 +687,6 @@ clientGameExport_t *GetCGameAPI(void)
    cge.CG_EyeOffset = CG_EyeOffset;
    cge.CG_EyeAngles = CG_EyeAngles;
    cge.CG_SensitivityScale = CG_SensitivityScale;
-   cge.CG_ParseCGMessage = CG_ParseCGMessage;
    cge.CG_RefreshHudDrawElements = CG_RefreshHudDrawElements;
    cge.CG_HudDrawShader = CG_HudDrawShader;
    cge.CG_HudDrawFont = CG_HudDrawFont;
@@ -699,13 +698,11 @@ clientGameExport_t *GetCGameAPI(void)
    cge.CG_EndTiki = CG_EndTiki;
    cge.CG_GetParent = CG_GetParent;
    cge.CG_GetObjectiveAlpha = CG_GetObjectiveAlpha;
-   cge.CG_GetColumnName = CG_GetColumnName;
-   cge.CG_GetScoreBoardColor = CG_GetScoreBoardColor;
-   cge.CG_GetScoreBoardFontColor = CG_GetScoreBoardFontColor;
-   cge.CG_GetScoreBoardPosition = CG_GetScoreBoardPosition;
-   cge.CG_GetScoreBoardDrawHeader = CG_GetScoreBoardDrawHeader;
    cge.CG_WeaponCommandButtonBits = CG_WeaponCommandButtonBits;
    cge.CG_CheckCaptureKey = CG_CheckCaptureKey;
+
+   CG_InitCGMessageAPI(&cge);
+   CG_InitScoresAPI(&cge);
 
    // FIXME
    //cge.profStruct = NULL;

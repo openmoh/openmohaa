@@ -832,9 +832,10 @@ void CG_GetScoreBoardColor(float* fR, float* fG, float* fB, float* fA);
 void CG_GetScoreBoardFontColor(float* fR, float* fG, float* fB, float* fA);
 void CG_GetScoreBoardPosition(float* fX, float* fY, float* fW, float* fH);
 int CG_GetScoreBoardDrawHeader();
-const char* CG_GetColumnName(int iColumnNum, int* iColumnWidth);
+//const char* CG_GetColumnName(int iColumnNum, int* iColumnWidth);
 void CG_PrepScoreBoardInfo();
 void CG_ParseScores();
+void CG_InitScoresAPI(clientGameExport_t* cge);
 
 //
 // cg_specialfx.cpp
