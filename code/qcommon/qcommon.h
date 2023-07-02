@@ -312,7 +312,7 @@ PROTOCOL
 ==============================================================
 */
 
-#define	PROTOCOL_VERSION			TARGET_GAME_PROTOCOL
+#define	PROTOCOL_VERSION			17
 #define PROTOCOL_LEGACY_VERSION		PROTOCOL_VERSION
 // su44: MoHAA v 1.00 uses protocol version 6
 
@@ -973,7 +973,6 @@ extern	cvar_t	*sv_paused;
 extern	cvar_t	*cl_packetdelay;
 extern	cvar_t	*sv_packetdelay;
 
-extern	cvar_t* com_gamename;
 extern	cvar_t* com_protocol;
 #ifdef LEGACY_PROTOCOL
 extern	cvar_t* com_legacyprotocol;
