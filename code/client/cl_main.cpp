@@ -1843,9 +1843,10 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
 		Info_SetValueForKey(info, "version", TARGET_GAME_VERSION);
-#if TARGET_GAME_PROTOCOL >= 15
-		Info_SetValueForKey(info, "clientType", "Breakthrough");
-#endif
+		if (com_target_game->integer == target_game_e::TG_MOHTT) {
+			// only send if maintt is loaded
+			Info_SetValueForKey(info, "clientType", "Breakthrough");
+		}
 
 		strcpy(data, "connect ");
     // TTimo adding " " around the userinfo string to avoid truncated userinfo on the server
