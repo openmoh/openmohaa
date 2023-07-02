@@ -201,7 +201,7 @@ void* Sys_GetGameAPI(void* parms)
     apppath = Cvar_VariableString("fs_apppath");
 #endif
 
-    fn = FS_BuildOSPath(basepath, gamedir, gamename);
+    fn = FS_BuildOSPath(basepath, com_basegame->string, gamename);
 
     game_library = Sys_LoadLibrary(fn);
 
@@ -325,7 +325,7 @@ void* Sys_GetCGameAPI(void* parms)
     apppath = Cvar_VariableString("fs_apppath");
 #endif
 
-    fn = FS_BuildOSPath(basepath, gamedir, gamename);
+    fn = FS_BuildOSPath(basepath, com_basegame->string, gamename);
 
     cgame_library = Sys_LoadLibrary(fn);
 
