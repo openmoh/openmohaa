@@ -93,7 +93,8 @@ jobs:
     - name: Configure CMake
       working-directory: ${{github.workspace}}
       run: |
-        cmake -B ./build ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=0 ./source
+        cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
+#        cmake -B ./build ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=0 ./source
 #        cmake -B ./buildtt ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=2 ./source
 
     - name: Build
@@ -179,7 +180,8 @@ jobs:
     - name: Configure CMake
       working-directory: ${{github.workspace}}
       run: |
-        cmake -B ./build ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=0 ./source
+        cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
+#        cmake -B ./build ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=0 ./source
 #        cmake -B ./buildtt ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=2 ./source
 
     - name: Build
