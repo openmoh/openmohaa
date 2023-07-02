@@ -27,7 +27,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "bg_public.h"
 
-#define	GAME_API_VERSION	12
+// Version 11 is >= 0.05 and <= 1.00
+// Version 12 is >= 1.10
+// Version 15 is >= 2.0
+#define	GAME_API_VERSION	15
 
 // entity->svFlags
 // the server does not know how to interpret most of the values
