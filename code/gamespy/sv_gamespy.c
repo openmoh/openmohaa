@@ -43,6 +43,13 @@ static const unsigned int GCD_GAME_IDS[] =
 	802,
 };
 
+static const char* GS_GAME_NAME[] =
+{
+    "mohaa",
+    "mohaas",
+    "mohaab"
+};
+
 static const unsigned int GAMESPY_DEFAULT_PORT = 12300;
 
 void qr_send_statechanged(qr_t qrec);
@@ -232,6 +239,7 @@ qboolean SV_InitGamespy()
 	cvar_t* net_gamespy_port;
 	char secret_key[9];
 	const char* secret_gs_key;
+	const char* gs_game_name;
 	int gcd_game_id;
 
     if (com_target_game->integer > ARRAY_LEN(SECRET_GS_KEYS)) {
@@ -241,6 +249,7 @@ qboolean SV_InitGamespy()
 
 	secret_gs_key = SECRET_GS_KEYS[com_target_game->integer];
 	gcd_game_id = GCD_GAME_IDS[com_target_game->integer];
+	gs_game_name = GS_GAME_NAME[com_target_game->integer];
 
 	sv_debug_gamespy = Cvar_Get("sv_debuggamespy", "0", 0);
 	sv_location = Cvar_Get("sv_location", "1", CVAR_ARCHIVE);
@@ -260,7 +269,7 @@ qboolean SV_InitGamespy()
 		NULL,
 		net_ip->string,
 		net_gamespy_port->integer,
-		TARGET_GAME_NAME,
+		gs_game_name,
 		secret_key,
 		basic_callback,
 		info_callback,
