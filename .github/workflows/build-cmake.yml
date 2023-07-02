@@ -94,14 +94,11 @@ jobs:
       working-directory: ${{github.workspace}}
       run: |
         cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
-#        cmake -B ./build ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=0 ./source
-#        cmake -B ./buildtt ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=2 ./source
 
     - name: Build
       working-directory: ${{github.workspace}}
       run: |
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-#        cmake --build ${{github.workspace}}/buildtt --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}
@@ -110,15 +107,12 @@ jobs:
       run: |
         cd "${{github.workspace}}/build"
         ctest -C ${{env.BUILD_TYPE}}
-#        cd "${{github.workspace}}/buildtt"
-#        ctest -C ${{env.BUILD_TYPE}}
 
     - name: Install
       working-directory: ${{github.workspace}}
       # Install to the directory defined in CMAKE_INSTALL_PREFIX
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-#        cmake --install ${{github.workspace}}/buildtt --config ${{env.BUILD_TYPE}}
         cp '${{github.workspace}}/thirdparties/SDL-install/lib/libSDL2.so' '${{github.workspace}}/install'
 
     - uses: actions/upload-artifact@v3
@@ -181,14 +175,11 @@ jobs:
       working-directory: ${{github.workspace}}
       run: |
         cmake -B ./build ${{ env.CMAKE_PARAM }} ./source
-#        cmake -B ./build ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=0 ./source
-#        cmake -B ./buildtt ${{ env.CMAKE_PARAM }} -DTARGET_GAME_TYPE=2 ./source
 
     - name: Build
       working-directory: ${{github.workspace}}
       run: |
         cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-#        cmake --build ${{github.workspace}}/buildtt --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}
@@ -197,15 +188,12 @@ jobs:
       run: |
         cd "${{github.workspace}}/build"
         ctest -C ${{env.BUILD_TYPE}}
-#        cd "${{github.workspace}}/buildtt"
-#        ctest -C ${{env.BUILD_TYPE}}
 
     - name: Install
       working-directory: ${{github.workspace}}
       # Install to the directory defined in CMAKE_INSTALL_PREFIX
       run: |
         cmake --install ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-#        cmake --install ${{github.workspace}}/buildtt --config ${{env.BUILD_TYPE}}
         Copy-Item "${{github.workspace}}/thirdparties/SDL-install/bin/*.dll" -Destination "${{github.workspace}}/install"
 
     - uses: actions/upload-artifact@v3
