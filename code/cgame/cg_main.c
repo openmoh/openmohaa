@@ -31,11 +31,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 clientGameImport_t	cgi;
+static clientGameExport_t cge;
 
 cvar_t* paused;
 cvar_t* developer;
 cg_t		  cg;
 cgs_t		  cgs;
+int cg_protocol;
 centity_t  cg_entities[MAX_GENTITIES];
 
 cvar_t* cg_animSpeed;
@@ -587,6 +589,10 @@ void CG_Init(clientGameImport_t* imported, int serverMessageNum,
     cgi.Free = &CG_Free;
 #endif
 
+    cg_protocol = cgi.Cvar_Get("com_protocol", "", 0)->integer;
+    CG_InitCGMessageAPI(&cge);
+    CG_InitScoresAPI(&cge);
+
     memset(&cg, 0, sizeof(cg));
     memset(&cgs, 0, sizeof(cgs));
 
@@ -675,8 +681,6 @@ The only exported function from this module
 */
 clientGameExport_t *GetCGameAPI(void)
 {
-   static clientGameExport_t cge;
-
    cge.CG_Init = CG_Init;
    cge.CG_DrawActiveFrame = CG_DrawActiveFrame;
    cge.CG_Shutdown = CG_Shutdown;
@@ -700,9 +704,6 @@ clientGameExport_t *GetCGameAPI(void)
    cge.CG_GetObjectiveAlpha = CG_GetObjectiveAlpha;
    cge.CG_WeaponCommandButtonBits = CG_WeaponCommandButtonBits;
    cge.CG_CheckCaptureKey = CG_CheckCaptureKey;
-
-   CG_InitCGMessageAPI(&cge);
-   CG_InitScoresAPI(&cge);
 
    // FIXME
    //cge.profStruct = NULL;
@@ -821,7 +822,7 @@ void CG_ParseFogInfo_ver_6(const char* str) {
 }
 
 void CG_ParseFogInfo(const char* str) {
-    if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+    if (cg_protocol >= PROTOCOL_MOHTA_MIN) {
         CG_ParseFogInfo_ver_15(str);
     } else {
         CG_ParseFogInfo_ver_6(str);

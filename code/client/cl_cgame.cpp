@@ -758,9 +758,6 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	// FIXME
 	//cgi->pUnknownVar				= NULL;
 
-    cgi->targetGame					= (target_game_e)com_target_game->integer;
-    cgi->protocol					= (protocol_e)com_protocol->integer;
-
 	cls.cgameStarted = qtrue;
 }
 

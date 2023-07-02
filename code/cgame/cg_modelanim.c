@@ -30,7 +30,7 @@ void CG_PlayerTeamIcon(refEntity_t* pModel, entityState_t* pPlayerState)
 {
     qboolean bInArtillery, bInTeam, bSpecialIcon;
 
-    if (cgi.protocol < PROTOCOL_MOHTA_MIN)
+    if (cg_protocol < PROTOCOL_MOHTA_MIN)
     {
         if (pPlayerState->eFlags & EF_ALLIES)
         {

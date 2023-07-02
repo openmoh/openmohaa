@@ -225,7 +225,7 @@ static void CG_Stopwatch_f()
         Com_Error(ERR_DROP, "stopwatch didn't have 2 parameters");
     }
 
-    if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+    if (cg_protocol >= PROTOCOL_MOHTA_MIN) {
         cgi.stopWatch->iStartTime = atoi(cgi.Argv(1));
     } else {
         // The base game has it wrong

@@ -1210,7 +1210,7 @@ void CG_DrawSpectatorView_ver_6()
 }
 
 void CG_DrawSpectatorView() {
-    if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+    if (cg_protocol >= PROTOCOL_MOHTA_MIN) {
         CG_DrawSpectatorView_ver_15();
     } else {
         CG_DrawSpectatorView_ver_6();

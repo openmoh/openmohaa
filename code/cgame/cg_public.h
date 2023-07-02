@@ -360,9 +360,6 @@ typedef struct
    clientAnim_t* anim;
    stopWatch_t* stopWatch;
 
-   target_game_e targetGame;
-   protocol_e protocol;
-
 } clientGameImport_t;
 
 

@@ -719,7 +719,7 @@ void CG_ParseScores_ver_6()
 
 void CG_ParseScores()
 {
-    if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+    if (cg_protocol >= PROTOCOL_MOHTA_MIN) {
         CG_ParseScores_ver_15();
 	} else {
 		CG_ParseScores_ver_6();
@@ -733,7 +733,7 @@ void CG_InitScoresAPI(clientGameExport_t* cge)
 	cge->CG_GetScoreBoardPosition = CG_GetScoreBoardPosition;
 	cge->CG_GetScoreBoardDrawHeader = CG_GetScoreBoardDrawHeader;
 
-	if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+	if (cg_protocol >= PROTOCOL_MOHTA_MIN) {
 		cge->CG_GetColumnName = &CG_GetColumnName_ver_15;
     } else {
 		cge->CG_GetColumnName = &CG_GetColumnName_ver_6;

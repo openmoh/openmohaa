@@ -1147,7 +1147,7 @@ void CG_ParseCGMessage_ver_6()
 }
 
 void CG_InitCGMessageAPI(clientGameExport_t* cge)
-{	if (cgi.protocol >= PROTOCOL_MOHTA_MIN) {
+{	if (cg_protocol >= PROTOCOL_MOHTA_MIN) {
 		cge->CG_ParseCGMessage = &CG_ParseCGMessage_ver_15;
     } else {
 		cge->CG_ParseCGMessage = &CG_ParseCGMessage_ver_6;

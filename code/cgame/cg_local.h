@@ -359,9 +359,9 @@ typedef struct {
 typedef struct {
     gameState_t		gameState;			// gamestate from server
     glconfig_t		glconfig;			// rendering configuration
-    float			   screenXScale;		// derived from glconfig
-    float			   screenYScale;
-    float			   screenXBias;
+    float			screenXScale;		// derived from glconfig
+    float			screenYScale;
+    float		    screenXBias;
 
     int				serverCommandSequence;	// reliable command stream counter
     int				processedSnapshotNum;// the number of snapshots cgame has requested
@@ -402,6 +402,7 @@ extern cvar_t* developer;
 extern	cgs_t			         cgs;
 extern	cg_t			         cg;
 extern	clientGameImport_t	cgi;
+extern  int                     cg_protocol;
 extern	centity_t		      cg_entities[MAX_GENTITIES];
 extern	markPoly_t		      cg_markPolys[MAX_MARK_POLYS];
 
