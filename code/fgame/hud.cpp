@@ -507,7 +507,7 @@ Hud::~Hud()
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_DELETE );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_DELETE );
 		WriteNumber();
 	gi.MSG_EndCGM();
 #endif
@@ -960,7 +960,7 @@ void Hud::FadeOverTime( float time )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_FADE );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_FADE ));
 		WriteNumber();
 		gi.MSG_WriteFloat( time );
 	gi.MSG_EndCGM();
@@ -991,7 +991,7 @@ void Hud::MoveOverTime( float time )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_MOVE );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_MOVE ));
 		WriteNumber();
 		gi.MSG_WriteFloat( time );
 	gi.MSG_EndCGM();
@@ -1004,7 +1004,7 @@ void Hud::Refresh( int clientNumber )
 #ifdef GAME_DLL
 	SetBroadcast( clientNumber );
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_ALIGN );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_ALIGN ));
 		WriteNumber();
 		gi.MSG_WriteBits( alignX, 2 );
 		gi.MSG_WriteBits( alignY, 2 );
@@ -1012,14 +1012,14 @@ void Hud::Refresh( int clientNumber )
 
 	SetBroadcast( clientNumber );
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_ALPHA );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_ALPHA ));
 		WriteNumber();
 		gi.MSG_WriteByte( ( uchar )( alpha * 255.0f ) );
 	gi.MSG_EndCGM();
 
 	SetBroadcast( clientNumber );
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_COLOR );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_COLOR ));
 		WriteNumber();
 		gi.MSG_WriteByte( ( uchar )( color.x * 255.0f ) );
 		gi.MSG_WriteByte( ( uchar )( color.y * 255.0f ) );
@@ -1028,7 +1028,7 @@ void Hud::Refresh( int clientNumber )
 
 	SetBroadcast( clientNumber );
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_FONT );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_FONT ));
 		WriteNumber();
 		gi.MSG_WriteString( fontName );
 	gi.MSG_EndCGM();
@@ -1037,17 +1037,17 @@ void Hud::Refresh( int clientNumber )
 
 	/*if( sv_reborn->integer )
 	{
-		gi.MSG_StartCGM( CGM_HUDDRAW_RECTX );
+		gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_RECTX ));
 			WriteNumber();
 			gi.MSG_WriteShort( ( short )x );
 		gi.MSG_EndCGM();
 
-		gi.MSG_StartCGM( CGM_HUDDRAW_RECTY );
+		gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_RECTY ));
 			WriteNumber();
 			gi.MSG_WriteShort( ( short )y );
 		gi.MSG_EndCGM();
 
-		gi.MSG_StartCGM( CGM_HUDDRAW_RECTWH );
+		gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_RECTWH ));
 			WriteNumber();
 			gi.MSG_WriteShort( ( short )width );
 			gi.MSG_WriteShort( ( short )height );
@@ -1055,7 +1055,7 @@ void Hud::Refresh( int clientNumber )
 	}
 	else
 	{
-		gi.MSG_StartCGM( CGM_HUDDRAW_RECT );
+		gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_RECT ));
 			WriteNumber();
 			gi.MSG_WriteShort( ( short )x );
 			gi.MSG_WriteShort( ( short )y );
@@ -1064,7 +1064,7 @@ void Hud::Refresh( int clientNumber )
 		gi.MSG_EndCGM();
 	}*/
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_RECT );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_RECT ));
 		WriteNumber();
 		gi.MSG_WriteShort( ( short )x );
 		gi.MSG_WriteShort( ( short )y );
@@ -1074,21 +1074,21 @@ void Hud::Refresh( int clientNumber )
 
 	SetBroadcast( clientNumber );
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_SHADER );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_SHADER ));
 		WriteNumber();
 		gi.MSG_WriteString( shader );
 	gi.MSG_EndCGM();
 
 	SetBroadcast( clientNumber );
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_STRING );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_STRING ));
 		WriteNumber();
 		gi.MSG_WriteString( text );
 	gi.MSG_EndCGM();
 
 	SetBroadcast( clientNumber );
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_VIRTUALSIZE );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_VIRTUALSIZE ));
 		WriteNumber();
 		gi.MSG_WriteBits( virtualSize, 1 );
 	gi.MSG_EndCGM();
@@ -1100,7 +1100,7 @@ void Hud::Refresh( int clientNumber )
 			SetBroadcast();
 
 			/*
-			gi.MSG_StartCGM( CGM_HUDDRAW_3D );
+			gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_3D ));
 				WriteNumber();
 				gi.MSG_WriteCoord( org[ 0 ] );
 				gi.MSG_WriteCoord( org[ 1 ] );
@@ -1119,7 +1119,7 @@ void Hud::Refresh( int clientNumber )
 			SetBroadcast();
 
 			/*
-			gi.MSG_StartCGM( CGM_HUDDRAW_FADE );
+			gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_FADE ));
 				WriteNumber();
 				gi.MSG_WriteFloat( fade_alpha_current );
 			gi.MSG_EndCGM();
@@ -1127,7 +1127,7 @@ void Hud::Refresh( int clientNumber )
 
 			SetBroadcast();
 
-			gi.MSG_StartCGM( CGM_HUDDRAW_ALPHA );
+			gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_ALPHA ));
 				WriteNumber();
 				gi.MSG_WriteByte( ( uchar )( fade_alpha_target * 255.0f ) );
 			gi.MSG_EndCGM();
@@ -1138,14 +1138,14 @@ void Hud::Refresh( int clientNumber )
 			SetBroadcast();
 
 			/*
-			gi.MSG_StartCGM( CGM_HUDDRAW_MOVE );
+			gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_MOVE ));
 				WriteNumber();
 				gi.MSG_WriteFloat( fade_move_current );
 			gi.MSG_EndCGM();
 
 			SetBroadcast();
 
-			gi.MSG_StartCGM( CGM_HUDDRAW_RECT );
+			gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_RECT ));
 				WriteNumber();
 				gi.MSG_WriteShort( ( short )fade_move_x_target );
 				gi.MSG_WriteShort( ( short )fade_move_y_target );
@@ -1158,7 +1158,7 @@ void Hud::Refresh( int clientNumber )
 			/*
 			SetBroadcast();
 
-			gi.MSG_StartCGM( CGM_HUDDRAW_TIMER );
+			gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_TIMER ));
 				WriteNumber();
 				gi.MSG_WriteFloat( fade_time_current );
 				gi.MSG_WriteFloat( fade_out_time );
@@ -1204,7 +1204,7 @@ void Hud::ScaleOverTime( float time, short w, short h )
 
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_SCALE );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_SCALE ));
 		WriteNumber();
 		gi.MSG_WriteFloat( time );
 		gi.MSG_WriteShort( w );
@@ -1255,7 +1255,7 @@ void Hud::Set3D( Vector vector_or_offset, qboolean alwaysOnScreen, qboolean hasD
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_3D );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_3D ));
 		WriteNumber();
 		gi.MSG_WriteCoord( vector_or_offset[ 0 ] );
 		gi.MSG_WriteCoord( vector_or_offset[ 1 ] );
@@ -1277,7 +1277,7 @@ void Hud::SetNon3D()
 /*
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_BREAK3D );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_BREAK3D ));
 		WriteNumber();
 	gi.MSG_EndCGM();
 */
@@ -1294,7 +1294,7 @@ void Hud::SetAlignX( hudAlign_t align )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_ALIGN );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_ALIGN ));
 		WriteNumber();
 		gi.MSG_WriteBits( alignX, 2 );
 		gi.MSG_WriteBits( alignY, 2 );
@@ -1313,7 +1313,7 @@ void Hud::SetAlignY( hudAlign_t align )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_ALIGN );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_ALIGN ));
 		WriteNumber();
 		gi.MSG_WriteBits( alignX, 2 );
 		gi.MSG_WriteBits( alignY, 2 );
@@ -1344,7 +1344,7 @@ void Hud::SetAlpha( float value )
 
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_ALPHA );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_ALPHA ));
 		WriteNumber();
 		gi.MSG_WriteByte( ucharvalue );
 	gi.MSG_EndCGM();
@@ -1358,7 +1358,7 @@ void Hud::SetColor( Vector c )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_COLOR );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_COLOR ));
 		WriteNumber();
 		gi.MSG_WriteByte( ( uchar )( c.x * 255.0f ) );
 		gi.MSG_WriteByte( ( uchar )( c.y * 255.0f ) );
@@ -1378,7 +1378,7 @@ void Hud::SetClient( int c, qboolean clears )
 #ifdef GAME_DLL
 		SetBroadcast();
 
-		gi.MSG_StartCGM( CGM_HUDDRAW_ALPHA );
+		gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_ALPHA ));
 			WriteNumber();
 			gi.MSG_WriteByte( 0 );
 		gi.MSG_EndCGM();
@@ -1409,7 +1409,7 @@ void Hud::SetFont( const char * f )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_FONT );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_FONT ));
 		WriteNumber();
 		gi.MSG_WriteString( f );
 	gi.MSG_EndCGM();
@@ -1436,7 +1436,7 @@ void Hud::SetRectX( short value )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM(CGM_HUDDRAW_RECT);
+	gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_RECT));
 		WriteNumber();
 		gi.MSG_WriteShort((short)fade_move_x_target);
 		gi.MSG_WriteShort((short)fade_move_y_target);
@@ -1462,7 +1462,7 @@ void Hud::SetRectY( short value )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM(CGM_HUDDRAW_RECT);
+	gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_RECT));
 		WriteNumber();
 		gi.MSG_WriteShort((short)fade_move_x_target);
 		gi.MSG_WriteShort((short)fade_move_y_target);
@@ -1513,7 +1513,7 @@ void Hud::SetShader( const char * s, float w, float h )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM(CGM_HUDDRAW_RECT);
+	gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_RECT));
 	WriteNumber();
 	gi.MSG_WriteShort((short)x);
 	gi.MSG_WriteShort((short)y);
@@ -1523,7 +1523,7 @@ void Hud::SetShader( const char * s, float w, float h )
 
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_SHADER );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_SHADER ));
 		WriteNumber();
 		gi.MSG_WriteString( s );
 	gi.MSG_EndCGM();
@@ -1548,7 +1548,7 @@ void Hud::SetText( const char * t )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_STRING );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_STRING ));
 		WriteNumber();
 		gi.MSG_WriteString( t );
 	gi.MSG_EndCGM();
@@ -1573,7 +1573,7 @@ void Hud::SetTimer( float time, float fade_at_time )
 /*
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_TIMER );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_TIMER ));
 		WriteNumber();
 		gi.MSG_WriteFloat( time );
 		gi.MSG_WriteFloat( fade_at_time );
@@ -1600,7 +1600,7 @@ void Hud::SetTimerUp( float time, float fade_at_time )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_TIMER );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_TIMER ));
 		WriteNumber();
 		gi.MSG_WriteFloat( time );
 		gi.MSG_WriteFloat( fade_at_time );
@@ -1617,7 +1617,7 @@ void Hud::SetVirtualSize( qboolean v )
 #ifdef GAME_DLL
 	SetBroadcast();
 
-	gi.MSG_StartCGM( CGM_HUDDRAW_VIRTUALSIZE );
+	gi.MSG_StartCGM( BG_MapCGMToProtocol(gi.protocol, CGM_HUDDRAW_VIRTUALSIZE ));
 		WriteNumber();
 		gi.MSG_WriteBits( virtualSize, 1 );
 	gi.MSG_EndCGM();

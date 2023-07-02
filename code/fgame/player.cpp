@@ -5780,9 +5780,9 @@ void Player::Pain
 	{
 		gi.MSG_SetClient( attacker->edict - g_entities );
 		if( IsDead() )
-			gi.MSG_StartCGM(CGM_NOTIFY_KILL);
+			gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_NOTIFY_KILL));
 		else
-			gi.MSG_StartCGM(CGM_NOTIFY_HIT);
+			gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_NOTIFY_HIT));
 		gi.MSG_EndCGM();
 	}
 
@@ -13214,13 +13214,13 @@ void Player::EventDMMessage
 				if( bInstaMessage )
 				{
 					gi.MSG_SetClient( i );
-					gi.MSG_StartCGM(CGM_VOICE_CHAT);
-					gi.MSG_WriteCoord( m_vViewPos[ 0 ] );
-					gi.MSG_WriteCoord( m_vViewPos[ 1 ] );
-					gi.MSG_WriteCoord( m_vViewPos[ 2 ] );
-					gi.MSG_WriteBits( 1, 1 );
-					gi.MSG_WriteBits( edict - g_entities, 6 );
-					gi.MSG_WriteString( voiceName.c_str() );
+					gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_VOICE_CHAT));
+						gi.MSG_WriteCoord( m_vViewPos[ 0 ] );
+						gi.MSG_WriteCoord( m_vViewPos[ 1 ] );
+						gi.MSG_WriteCoord( m_vViewPos[ 2 ] );
+						gi.MSG_WriteBits( 1, 1 );
+						gi.MSG_WriteBits( edict - g_entities, 6 );
+						gi.MSG_WriteString( voiceName.c_str() );
 					gi.MSG_EndCGM();
 				}
 			}

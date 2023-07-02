@@ -387,3 +387,41 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 	s->groundEntityNum = ps->groundEntityNum;
 
 }
+
+/*
+========================
+BG_MapCGMToProtocol
+
+This is done after each set of usercmd_t on the server,
+and after local prediction on the client
+========================
+*/
+int BG_MapCGMToProtocol(protocol_e protocol, int messageNumber)
+{
+	int newMessageNumber = messageNumber;
+
+	if (protocol >= PROTOCOL_MOHTA_MIN) {
+		// no need translation
+		return messageNumber;
+	}
+
+	if (messageNumber > 40) {
+		// unsupported...
+		return messageNumber;
+	}
+
+	if (messageNumber >= 17) {
+		return messageNumber - 3;
+	}
+
+	if (messageNumber == 15 || messageNumber == 16) {
+		// return explosion effect number 2
+		return 14;
+	}
+
+	if (messageNumber > 10) {
+		return messageNumber - 1;
+	}
+
+	return newMessageNumber;
+}

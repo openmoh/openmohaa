@@ -465,7 +465,7 @@ void CrateObject::CrateKilled
 
 	// Tell clients around that a crate is destroyed
 	gi.SetBroadcastVisible( origin, origin );
-	gi.MSG_StartCGM(CGM_MAKE_CRATE_DEBRIS);
+	gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_CRATE_DEBRIS));
 		gi.MSG_WriteCoord( vCenter[ 0 ] );
 		gi.MSG_WriteCoord( vCenter[ 1 ] );
 		gi.MSG_WriteCoord( vCenter[ 2 ] );
