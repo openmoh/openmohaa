@@ -2049,7 +2049,9 @@ void R_LoadStaticModelData(gamelump_t* lump) {
     for (i = 0; i < lump->length; i += sizeof(byte) * 3)
     { 
 		// Colors are stored as integers
-		*(unsigned int*)pDstColors = LittleLong(*(unsigned int*)pSrcColors);
+		pDstColors[0] = pSrcColors[0];
+		pDstColors[1] = pSrcColors[1];
+		pDstColors[2] = pSrcColors[2];
         pDstColors[3] = 0xFF;
 
         pSrcColors += sizeof(byte) * 3;
