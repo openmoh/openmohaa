@@ -43,7 +43,7 @@ Here is the current working state for each part of the engine:
 | Server module (fgame)   |      | x      |      |       |     |             | Actor, vehicle, and few gameplay bugs                             |
 | UI                      |      |        |      | x     |     |             | Has core features only (menu, widgets, console, hud, urc loading) |
 
-NOTE: Both client and server version can be compiled to target **Medal of Honor: Spearhead** and **Medal of Honor: Breakthrough**.
+**Medal of Honor: Spearhead** and **Medal of Honor: Breakthrough** are supported in OpenMoHAA with the `com_target_game` variable. See the **Running** section for the usage.
 
 ## Running
 
@@ -62,6 +62,8 @@ You may need to install Microsoft Visual C++ 2015/2017/2019/2022 Redistributable
 https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
 You can now start a local OpenMOHAA server or play on a server.
+
+To play expansions, append to the executable `+set com_target_game 1` for Spearhead, and `+set com_target_game 2` for Breakthrough. On windows you can make a shortcut.
 
 ## Compiling
 
