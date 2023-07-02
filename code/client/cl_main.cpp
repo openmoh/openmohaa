@@ -1842,7 +1842,7 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 			Info_SetValueForKey(info, "protocol", va("%i", com_protocol->integer));
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
-		Info_SetValueForKey(info, "version", TARGET_GAME_VERSION);
+		Info_SetValueForKey(info, "version", com_version->string);
 		if (com_target_game->integer == target_game_e::TG_MOHTT) {
 			// only send if maintt is loaded
 			Info_SetValueForKey(info, "clientType", "Breakthrough");
