@@ -5,23 +5,13 @@ include(TargetArch.cmake)
 
 target_architecture(TARGET_ARCH)
 
+
 if(TARGET_GAME_TYPE)
-	if(TARGET_GAME_TYPE EQUAL 1)
-		# Build for Team Assault (Spearhead)
-		set(TARGET_BASE_SUFFIX "ta")
-	elseif(TARGET_GAME_TYPE EQUAL 2)
-		# Build for Team Tactics (Breakthrough)
-		set(TARGET_BASE_SUFFIX "tt")
-	else()
-		set(TARGET_BASE_SUFFIX)
-		message(SEND_ERROR "Invalid game type. Game type can be 0, 1 or 2")
-	endif()
-else()
-	set(TARGET_BASE_SUFFIX)
-	set(TARGET_GAME_TYPE 0)
+	message(SEND_ERROR "TARGET_GAME_TYPE is now unsupported, it is now done at runtime.")
 endif()
 
-set(TARGET_BASE_GAME "main${TARGET_BASE_SUFFIX}")
+
+set(TARGET_BASE_GAME "main")
 
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE)
@@ -37,7 +27,7 @@ ELSE()
 	set(TARGET_ARCH_SUFFIX ${TARGET_ARCH})
 ENDIF()
 
-message(STATUS "Architecture detected: ${TARGET_ARCH}, suffix set to ${TARGET_ARCH_SUFFIX}")
+message(STATUS "Architecture detected: ${TARGET_ARCH}, suffix set to ${TARGET_ARCH_SUFFIX}.")
 
 IF(WIN32)
 	set(TARGET_PLATFORM_PREFIX "")

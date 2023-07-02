@@ -78,8 +78,6 @@ The installation directory can be set to MOHAA directory.
 
 The client build can be built by adding `-DWITH_CLIENT=1` to the CMake command line. This will compile the cgame module and the full app with rendering, ui and sound suppport, alongside the dedicated server version.
 
-To compile for either Spearhead or Breakthrough, append `-DTARGET_GAME_TYPE=x` where x can be 1 for Team Assault (Spearhead), and 2 for Team Tactics (Breakthrough). 2 is recommended because Team Tactics can connect to both Spearhead and Breakthrough servers.
-
 ### Linux
 
 These are the tools required on Unix :

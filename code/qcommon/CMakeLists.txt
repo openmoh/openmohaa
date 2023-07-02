@@ -26,7 +26,7 @@ set(SOURCES_SHARED
 
 add_library(qcommon INTERFACE)
 target_sources(qcommon INTERFACE ${SOURCES_SHARED})
-target_compile_definitions(qcommon INTERFACE TARGET_GAME_TYPE=${TARGET_GAME_TYPE})
+target_compile_definitions(qcommon INTERFACE)
 target_include_directories(qcommon INTERFACE "../qcommon" "../script")
 target_compile_features(qcommon INTERFACE cxx_nullptr)
 target_compile_features(qcommon INTERFACE c_variadic_macros)
