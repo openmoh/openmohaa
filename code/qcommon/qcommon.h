@@ -59,7 +59,8 @@ void MSG_Init (msg_t *buf, byte *data, size_t length);
 void MSG_InitOOB( msg_t *buf, byte *data, size_t length );
 void MSG_Clear (msg_t *buf);
 void MSG_WriteData (msg_t *buf, const void *data, size_t length);
-void MSG_Bitstream( msg_t *buf );
+void MSG_Bitstream(msg_t* buf);
+qboolean MSG_IsProtocolVersion15();
 
 // TTimo
 // copy a msg_t in case we need to store it as is for a bit
