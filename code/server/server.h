@@ -291,7 +291,7 @@ typedef struct {
 extern cvar_t	*sv_mapname;
 extern serverStatic_t	svs;			// persistant server info across maps
 extern server_t		sv;					// cleared each map
-extern gameExport_t	*ge;				// game exports
+extern game_export_t	*ge;				// game exports
 
 #define	MAX_MASTER_SERVERS	5
 

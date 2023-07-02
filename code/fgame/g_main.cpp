@@ -51,8 +51,8 @@ qboolean		LoadingSavegame = false;
 qboolean		LoadingServer = false;
 Archiver		*currentArc = NULL;
 
-gameExport_t	globals;
-gameImport_t	gi;
+game_export_t	globals;
+game_import_t	gi;
 
 gentity_t active_edicts;
 gentity_t free_edicts;
@@ -1444,7 +1444,7 @@ Gets game imports and returns game exports
 ================
 */
 extern "C"
-gameExport_t * GetGameAPI(gameImport_t * import)
+game_export_t * GetGameAPI(game_import_t * import)
 {
 	gi = *import;
 

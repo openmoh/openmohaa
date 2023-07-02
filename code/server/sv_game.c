@@ -1458,7 +1458,7 @@ Called on a normal map change, not on a map_restart
 ===============
 */
 void SV_InitGameProgs( void ) {
-	gameImport_t import;
+	game_import_t import;
 	const char *err;
 	int i;
 

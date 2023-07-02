@@ -401,7 +401,7 @@ typedef struct gameImport_s
 	// New functions will start from here
 	//
 
-} gameImport_t;
+} game_import_t;
 
 typedef struct gameExport_s {
 	int			apiversion;
@@ -483,7 +483,7 @@ typedef struct gameExport_s {
 	int					max_entities;
 
 	const char        *errorMessage;
-} gameExport_t;
+} game_export_t;
 
 #ifdef __cplusplus
 extern "C"
@@ -496,7 +496,7 @@ __declspec(dllexport)
 __attribute__((visibility("default")))
 #endif
 #endif
-gameExport_t* GetGameAPI( gameImport_t *import );
+game_export_t* GetGameAPI( game_import_t *import );
 
 #if 0
 //
@@ -811,7 +811,7 @@ typedef enum {
 	G_MSG_BROADCASTALL,
 	G_MSG_BROADCASTVISIBLE,
 	G_MSG_BROADCASTHEARABLE,
-} gameImport_t;
+} game_import_t;
 
 
 //
@@ -848,5 +848,5 @@ typedef enum {
 	// and parameters.  Return qfalse if the game doesn't recognize it as a command.
 
 	BOTAI_START_FRAME				//  )( int time );
-} gameExport_t;
+} game_export_t;
 #endif
