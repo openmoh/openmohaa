@@ -74,50 +74,9 @@ extern "C" {
 // Note: An universal client is not currently possible without refactoring the network and the file system.
 //       Pak files must be reloaded on-the-fly depending on the server the client is connecting to.
 //
-#if TARGET_GAME_TYPE == 1
-	//
-	// Team Assault
-	//
-	#define GAME_EXTENSION_BASE		GAME_EXTENSION_MOHTA
-	#define PRODUCT_EXTENSION		PRODUCT_EXTENSION_MOHTA
-	// The version string must be equal or above 2.0 to be able to connect to spearhead servers
-	#define TARGET_GAME_VERSION		TARGET_GAME_VERSION_MOHTA
-	#define TARGET_GAME_PROTOCOL	TARGET_GAME_PROTOCOL_MOHTA
-	#define TARGET_GAME_NAME		TARGET_GAME_NAME_MOHTA
-
-	#define HOMEPATH_NAME_UNIX		HOMEPATH_NAME_UNIX_MOHTA
-	#define HOMEPATH_NAME_WIN		HOMEPATH_NAME_WIN_MOHTA
-	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
-#elif TARGET_GAME_TYPE == 2
-	//
-	// Team Tactics
-	//
-	#define GAME_EXTENSION_BASE		"maintt"
-	#define PRODUCT_EXTENSION		"breakthrough"
-	// The version string must be equal or above 2.0 to be able to connect to breakthrough servers
-	#define	TARGET_GAME_VERSION		"2.41"
-	#define TARGET_GAME_PROTOCOL	17
-	#define TARGET_GAME_NAME		"mohaab"
-
-	#define HOMEPATH_NAME_UNIX		HOMEPATH_NAME_UNIX_MOHTT
-	#define HOMEPATH_NAME_WIN		HOMEPATH_NAME_WIN_MOHTT
-	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
-#else
-	//
-	// Base game
-	//
-	
-	#define GAME_EXTENSION_BASE		"main"
-	#define PRODUCT_EXTENSION		"base"
-	// The version string must be 1.1x or below, otherwise it's not possible to connect
-	#define TARGET_GAME_VERSION		"1.12"
-	#define TARGET_GAME_PROTOCOL	8
-	#define TARGET_GAME_NAME		"mohaa"
-
-	#define HOMEPATH_NAME_UNIX		HOMEPATH_NAME_UNIX_MOH
-	#define HOMEPATH_NAME_WIN		HOMEPATH_NAME_WIN_MOH
-	#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
-#endif
+#define HOMEPATH_NAME_UNIX		HOMEPATH_NAME_UNIX_MOH
+#define HOMEPATH_NAME_WIN		HOMEPATH_NAME_WIN_MOH
+#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 
 #define CLIENT_WINDOW_TITLE		PRODUCT_NAME
 #define CLIENT_WINDOW_MIN_TITLE PRODUCT_NAME
