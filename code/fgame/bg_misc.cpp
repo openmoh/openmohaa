@@ -396,7 +396,7 @@ This is done after each set of usercmd_t on the server,
 and after local prediction on the client
 ========================
 */
-int BG_MapCGMToProtocol(protocol_e protocol, int messageNumber)
+int BG_MapCGMToProtocol(int protocol, int messageNumber)
 {
 	int newMessageNumber = messageNumber;
 

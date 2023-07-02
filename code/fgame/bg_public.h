@@ -751,7 +751,7 @@ enum cg_message_ver_6_e {
 	CGM6_VOICE_CHAT,
 };
 
-int BG_MapCGMToProtocol(protocol_e protocol, int messageNumber);
+int BG_MapCGMToProtocol(int protocol, int messageNumber);
 
 #ifdef __cplusplus
 }

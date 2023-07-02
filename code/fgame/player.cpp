@@ -5780,9 +5780,9 @@ void Player::Pain
 	{
 		gi.MSG_SetClient( attacker->edict - g_entities );
 		if( IsDead() )
-			gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_NOTIFY_KILL));
+			gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_NOTIFY_KILL));
 		else
-			gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_NOTIFY_HIT));
+			gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_NOTIFY_HIT));
 		gi.MSG_EndCGM();
 	}
 
@@ -13214,7 +13214,7 @@ void Player::EventDMMessage
 				if( bInstaMessage )
 				{
 					gi.MSG_SetClient( i );
-					gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_VOICE_CHAT));
+					gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_VOICE_CHAT));
 						gi.MSG_WriteCoord( m_vViewPos[ 0 ] );
 						gi.MSG_WriteCoord( m_vViewPos[ 1 ] );
 						gi.MSG_WriteCoord( m_vViewPos[ 2 ] );

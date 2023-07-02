@@ -1785,11 +1785,11 @@ void Explosion::MakeExplosionEffect
 
 	if( !sEffect.icmp( "grenade" ) )
 	{
-		gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_EXPLOSION_EFFECT_1));
+		gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_EXPLOSION_EFFECT_1));
 	}
 	else
 	{
-		gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_EXPLOSION_EFFECT_2));
+		gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_EXPLOSION_EFFECT_2));
 	}
 
 	gi.MSG_WriteCoord( origin[ 0 ] );
@@ -2349,7 +2349,7 @@ void FakeBulletAttack
 			( *piTracerCount )++;
 			if( *piTracerCount == iTracerFrequency )
 			{
-				gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_BULLET_NO_BARREL_1));
+				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_NO_BARREL_1));
 					gi.MSG_WriteCoord( vBarrel[ 0 ] );
 					gi.MSG_WriteCoord( vBarrel[ 1 ] );
 					gi.MSG_WriteCoord( vBarrel[ 2 ] );
@@ -2357,12 +2357,12 @@ void FakeBulletAttack
 			}
 			else
 			{
-				gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_BULLET_NO_BARREL_2));
+				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_NO_BARREL_2));
 			}
 		}
 		else
 		{
-			gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_BULLET_NO_BARREL_2));
+			gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_NO_BARREL_2));
 		}
 
 		gi.MSG_WriteCoord( start[ 0 ] );

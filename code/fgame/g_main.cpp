@@ -60,6 +60,7 @@ gentity_t free_edicts;
 int					sv_numtraces = 0;
 int					sv_numpmtraces = 0;
 
+int					g_protocol = 0;
 gentity_t			*g_entities;
 qboolean			g_iInThinks = 0;
 qboolean			g_bBeforeThinks = qfalse;
@@ -232,6 +233,8 @@ void G_InitGame( int levelTime, int randomSeed )
 	G_Printf( "==== InitGame ====\n" );
 	G_Printf( "gamename: %s\n", GAMEVERSION );
 	G_Printf( "gamedate: %s\n", __DATE__ );
+
+	g_protocol = gi.Cvar_Get("com_protocol", "", 0)->integer;
 
 	srand( randomSeed );
 
@@ -1512,7 +1515,6 @@ gameExport_t * GetGameAPI(gameImport_t * import)
 	globals.SoundCallback			= G_SoundCallback;
 	globals.SpawnEntities			= G_SpawnEntities;
 	globals.TIKI_Orientation		= G_TIKI_Orientation;
-
 
 	return &globals;
 }

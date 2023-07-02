@@ -401,9 +401,6 @@ typedef struct gameImport_s
 	// New functions will start from here
 	//
 
-    target_game_e targetGame;
-    protocol_e protocol;
-
 } gameImport_t;
 
 typedef struct gameExport_s {

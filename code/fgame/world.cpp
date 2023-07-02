@@ -580,7 +580,7 @@ void World::UpdateFog(void)
 	const char* fogInfoString;
 	gi.SetFarPlane(farplane_distance);
 
-	if (gi.protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+	if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
 		fogInfoString = va(
 			"%d %.0f %.0f %.0f %.6f %.4f %.4f %.4f %d %.0f %.2f %.2f %.2f",
 			farplane_cull,

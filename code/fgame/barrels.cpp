@@ -238,11 +238,11 @@ void BarrelObject::BarrelThink
 
 					if( m_iBarrelType == BARREL_OIL )
 					{
-						gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_1));
+						gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_1));
 					}
 					else
 					{
-						gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_5));
+						gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_5));
 					}
 
 					m_fFluidAmount -= 1.0f;
@@ -254,11 +254,11 @@ void BarrelObject::BarrelThink
 
 					if( m_iBarrelType == BARREL_OIL )
 					{
-						gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_2));
+						gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_2));
 					}
 					else
 					{
-						gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_6));
+						gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_6));
 					}
 
 					m_fFluidAmount -= 0.75f;
@@ -271,11 +271,11 @@ void BarrelObject::BarrelThink
 
 				if( m_iBarrelType == BARREL_OIL )
 				{
-					gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_3));
+					gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_3));
 				}
 				else
 				{
-					gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_7));
+					gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_7));
 				}
 
 				m_fFluidAmount -= 0.5f;
@@ -294,11 +294,11 @@ void BarrelObject::BarrelThink
 
 			if( m_iBarrelType == BARREL_OIL )
 			{
-				gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_3));
+				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_3));
 			}
 			else
 			{
-				gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_7));
+				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_7));
 			}
 
 			gi.MSG_WriteCoord( m_vLeaks[ i ][ 0 ] );
@@ -506,18 +506,18 @@ void BarrelObject::BarrelDamaged
 			gi.SetBroadcastVisible( vHitPos, vHitPos );
 
 			if( m_iBarrelType == BARREL_OIL )
-				gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_4));
+				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_4));
 			else
-				gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_8));
+				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_8));
 		}
 		else
 		{
 			gi.SetBroadcastVisible( vHitPos, vHitPos );
 
 			if( m_iBarrelType == BARREL_OIL )
-				gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_3));
+				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_3));
 			else
-				gi.MSG_StartCGM(BG_MapCGMToProtocol(gi.protocol, CGM_MAKE_EFFECT_7));
+				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_EFFECT_7));
 		}
 
 		gi.MSG_WriteCoord( vHitPos[ 0 ] );

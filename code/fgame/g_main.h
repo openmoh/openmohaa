@@ -34,6 +34,7 @@ extern qboolean			LoadingSavegame;
 extern qboolean			LoadingServer;
 extern gameImport_t		gi;
 extern gameExport_t		globals;
+extern int              g_protocol;
 
 extern qboolean g_iInThinks;
 extern qboolean g_bBeforeThinks;

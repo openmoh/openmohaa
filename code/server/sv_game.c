@@ -1648,9 +1648,6 @@ void SV_InitGameProgs( void ) {
 	import.SanitizeName					= Com_SanitizeName;
 	import.fsDebug						= fs_debug;
 
-	import.targetGame					= (target_game_e)com_target_game->integer;
-	import.protocol						= (protocol_e)com_protocol->integer;
-
 	ge = Sys_GetGameAPI( &import );
 
 	if( !ge ) {
