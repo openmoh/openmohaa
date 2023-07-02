@@ -647,7 +647,7 @@ void SV_SendClientGameState( client_t *client ) {
 	for ( start = 0 ; start < MAX_CONFIGSTRINGS ; start++ ) {
 		if (sv.configstrings[start][0]) {
 			MSG_WriteSVC( &msg, svc_configstring );
-			MSG_WriteShort( &msg, start );
+			MSG_WriteShort( &msg, CPT_DenormalizeConfigstring(start) );
 			MSG_WriteScrambledBigString( &msg, sv.configstrings[start] );
 		}
 	}
