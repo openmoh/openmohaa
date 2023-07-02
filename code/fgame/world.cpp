@@ -575,40 +575,41 @@ void World::SetNorthYaw( Event *ev )
 	m_fNorth = anglemod( ev->GetFloat( 1 ) );
 }
 
-#if TARGET_GAME_PROTOCOL >= 15
-
 void World::UpdateFog(void)
 {
+	const char* fogInfoString;
 	gi.SetFarPlane(farplane_distance);
-	gi.SetConfigstring(CS_FOGINFO, va(
-		"%d %.0f %.0f %.0f %.6f %.4f %.4f %.4f %d %.0f %.2f %.2f %.2f",
-		farplane_cull,
-		farplane_distance,
-		farplane_bias,
-		skybox_farplane,
-		skybox_speed,
-		farplane_color.x,
-		farplane_color.y,
-		farplane_color.z,
-		render_terrain,
-		farclip_override,
-		farplane_color_override.x,
-		farplane_color_override.y,
-		farplane_color_override.z
-		)
-	);
+
+	if (gi.protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+		fogInfoString = va(
+			"%d %.0f %.0f %.0f %.6f %.4f %.4f %.4f %d %.0f %.2f %.2f %.2f",
+			farplane_cull,
+			farplane_distance,
+			farplane_bias,
+			skybox_farplane,
+			skybox_speed,
+			farplane_color.x,
+			farplane_color.y,
+			farplane_color.z,
+			render_terrain,
+			farclip_override,
+			farplane_color_override.x,
+			farplane_color_override.y,
+			farplane_color_override.z
+		);
+	} else {
+		fogInfoString = va(
+			"%d %.0f %.4f %.4f %.4f",
+			farplane_cull,
+			farplane_distance,
+			farplane_color.x,
+			farplane_color.y,
+			farplane_color.z
+		);
+	}
+
+	gi.SetConfigstring(CS_FOGINFO, fogInfoString);
 }
-
-#else
-
-void World::UpdateFog(void)
-{
-	gi.SetFarPlane(farplane_distance);
-	gi.SetConfigstring(CS_FOGINFO, va("%d %.0f %.4f %.4f %.4f", farplane_cull, farplane_distance, farplane_color.x, farplane_color.y, farplane_color.z));
-}
-
-#endif
-
 
 CLASS_DECLARATION( Entity, World, "worldspawn" )
 {
