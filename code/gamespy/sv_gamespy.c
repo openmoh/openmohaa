@@ -29,16 +29,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static char gamemode[128];
 static qboolean gcdInitialized = qfalse;
 
-#if TARGET_GAME_TYPE == 1
-static const char SECRET_GS_KEY[] = {'h', '2', 'P', '1', 'c', '9'};
-static const unsigned int GCD_GAME_ID = 641;
-#elif TARGET_GAME_TYPE == 2
-static const char SECRET_GS_KEY[] = { 'y', '3', '2', 'F', 'D', 'c' };
-static const unsigned int GCD_GAME_ID = 802;
-#else
-static const char SECRET_GS_KEY[] = { 'M', '5', 'F', 'd', 'w', 'c' };
-static const unsigned int GCD_GAME_ID = 0;
-#endif
+static const char *SECRET_GS_KEYS[] =
+{
+	"M5Fdwc",
+	"h2P1c9",
+	"y32FDc"
+};
+
+static const unsigned int GCD_GAME_IDS[] =
+{
+    0,
+	641,
+	802,
+};
 
 static const unsigned int GAMESPY_DEFAULT_PORT = 12300;
 
@@ -74,8 +77,22 @@ static const char* ConvertMapFilename(const char* mapname)
 
 static void basic_callback(char* outbuf, int maxlen, void* userdata)
 {
-	Info_SetValueForKey(outbuf, "gamename", TARGET_GAME_NAME);
-	Info_SetValueForKey(outbuf, "gamever", TARGET_GAME_VERSION);
+	switch (com_target_game->integer)
+	{
+    case TG_MOH:
+        Info_SetValueForKey(outbuf, "gamename", TARGET_GAME_NAME_MOH);
+        Info_SetValueForKey(outbuf, "gamever", TARGET_GAME_VERSION_MOH);
+        break;
+    case TG_MOHTA:
+        Info_SetValueForKey(outbuf, "gamename", TARGET_GAME_NAME_MOHTA);
+        Info_SetValueForKey(outbuf, "gamever", TARGET_GAME_VERSION_MOHTA);
+        break;
+    case TG_MOHTT:
+        Info_SetValueForKey(outbuf, "gamename", TARGET_GAME_NAME_MOH);
+        Info_SetValueForKey(outbuf, "gamever", TARGET_GAME_VERSION_MOHTT);
+        break;
+	}
+
 	Info_SetValueForKey(outbuf, "location", va("%i", sv_location->integer));
 
 	if (sv_debug_gamespy->integer) {
@@ -214,6 +231,16 @@ qboolean SV_InitGamespy()
 	cvar_t* net_ip;
 	cvar_t* net_gamespy_port;
 	char secret_key[9];
+	const char* secret_gs_key;
+	int gcd_game_id;
+
+    if (com_target_game->integer > ARRAY_LEN(SECRET_GS_KEYS)) {
+		Com_Error(ERR_DROP, "Invalid target game %d for GameSpy", com_target_game->integer);
+		return qfalse;
+    }
+
+	secret_gs_key = SECRET_GS_KEYS[com_target_game->integer];
+	gcd_game_id = GCD_GAME_IDS[com_target_game->integer];
 
 	sv_debug_gamespy = Cvar_Get("sv_debuggamespy", "0", 0);
 	sv_location = Cvar_Get("sv_location", "1", CVAR_ARCHIVE);
@@ -224,7 +251,7 @@ qboolean SV_InitGamespy()
 	}
 
 	strcpy(gamemode, "openplaying");
-	strcpy(secret_key, SECRET_GS_KEY);
+	strcpy(secret_key, secret_gs_key);
 
 	net_ip = Cvar_Get("net_ip", "localhost", CVAR_LATCH);
 	net_gamespy_port = Cvar_Get("net_gamespy_port", va("%i", GAMESPY_DEFAULT_PORT), CVAR_LATCH);
@@ -253,9 +280,10 @@ qboolean SV_InitGamespy()
 
 	if (!gcdInitialized)
 	{
-#if GCD_GAME_ID
-		gcd_init(GCD_GAME_ID);
-#endif
+		if (gcd_game_id) {
+			gcd_init(gcd_game_id);
+		}
+
 		gcdInitialized = 1;
 	}
 
