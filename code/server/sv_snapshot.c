@@ -509,7 +509,8 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	// grab the current playerState_t
 	ps = SV_GameClientNum( client - svs.clients );
 	frame->ps = *ps;
-	frame->ps.net_pm_flags = CPT_DenormalizePlayerStateFlags(ps->pm_flags);
+    frame->ps.net_pm_flags = CPT_DenormalizePlayerStateFlags(ps->pm_flags);
+    frame->ps.iNetViewModelAnim = CPT_DenormalizeViewModelAnim(ps->iViewModelAnim);
 
 	//SV_SvEntityForGentity
 	// never send client's own entity, because it can

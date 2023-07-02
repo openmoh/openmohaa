@@ -1754,6 +1754,7 @@ typedef struct playerState_s {
 	int			viewheight;
 
 	float		fLeanAngle;
+	int			iNetViewModelAnim;
 	int			iViewModelAnim;
 	int			iViewModelAnimChanged;
 

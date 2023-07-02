@@ -36,6 +36,9 @@ size_t CPT_DenormalizeConfigstring(size_t num);
 uint32_t CPT_NormalizePlayerStateFlags(uint32_t flags);
 uint32_t CPT_DenormalizePlayerStateFlags(uint32_t flags);
 
+int CPT_NormalizeViewModelAnim(int iViewModelAnim);
+int CPT_DenormalizeViewModelAnim(int iViewModelAnim);
+
 #ifdef __cplusplus
 }
 #endif

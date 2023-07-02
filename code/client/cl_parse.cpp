@@ -281,6 +281,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	}
 	// get normalized flags
 	newSnap.ps.pm_flags = CPT_NormalizePlayerStateFlags(newSnap.ps.net_pm_flags);
+	newSnap.ps.iViewModelAnim = CPT_NormalizeViewModelAnim(newSnap.ps.iNetViewModelAnim);
 
 	// read packet entities
 	SHOWNET( msg, "packet entities" );
@@ -447,27 +448,39 @@ static void CL_ParseServerInfo(void)
 		sizeof(clc.sv_dlURL));
 }
 
-#if TARGET_GAME_PROTOCOL >= 15
-
-char* MSG_ReadGameStateChar(msg_t* msg) {
+char* MSG_ReadGameStateChar_ver_15(msg_t* msg) {
 	return MSG_ReadScrambledBigString(msg);
 }
 
-float MSG_ReadServerFrameTime(msg_t* msg) {
+float MSG_ReadServerFrameTime_ver_15(msg_t* msg) {
 	return MSG_ReadFloat(msg);
 }
 
-#else
-
-char* MSG_ReadGameStateChar(msg_t* msg) {
+char* MSG_ReadGameStateChar_ver_6(msg_t* msg) {
 	return MSG_ReadString(msg);
 }
 
-float MSG_ReadServerFrameTime(msg_t* msg) {
+float MSG_ReadServerFrameTime_ver_6(msg_t* msg) {
 	return 1.f / atof(Info_ValueForKey(cl.gameState.stringData + cl.gameState.stringOffsets[CS_SYSTEMINFO], "sv_fps"));
 }
 
-#endif
+char* MSG_ReadGameStateChar(msg_t* msg) {
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadGameStateChar_ver_15(msg);
+    } else {
+		// smaller below version 15
+        MSG_ReadGameStateChar_ver_6(msg);
+	}
+}
+
+float MSG_ReadServerFrameTime(msg_t* msg) {
+	if (MSG_IsProtocolVersion15()) {
+		return MSG_ReadServerFrameTime_ver_15(msg);
+    } else {
+		// smaller below version 15
+		return MSG_ReadServerFrameTime_ver_6(msg);
+	}
+}
 
 /*
 ==================

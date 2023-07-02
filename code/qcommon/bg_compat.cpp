@@ -25,8 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "./bg_compat.h"
 #include "./qcommon.h"
 
-static size_t CPT_NormalizeConfigstring_proto6(size_t num)
-{
+static size_t CPT_NormalizeConfigstring_ver_6(size_t num) {
     if (num <= 5 || num >= 26) {
         return num;
     }
@@ -34,8 +33,7 @@ static size_t CPT_NormalizeConfigstring_proto6(size_t num)
     return num - 2;
 }
 
-static size_t CPT_DenormalizeConfigstring_proto6(size_t num)
-{
+static size_t CPT_DenormalizeConfigstring_ver_6(size_t num) {
     if (num <= 5 || num >= 26) {
         return num;
     }
@@ -43,18 +41,15 @@ static size_t CPT_DenormalizeConfigstring_proto6(size_t num)
     return num + 2;
 }
 
-static size_t CPT_NormalizeConfigstring_proto15(size_t num)
-{
+static size_t CPT_NormalizeConfigstring_ver_15(size_t num) {
     return num;
 }
 
-static size_t CPT_DenormalizeConfigstring_proto15(size_t num)
-{
+static size_t CPT_DenormalizeConfigstring_ver_15(size_t num) {
     return num;
 }
 
-static uint32_t CPT_NormalizePlayerStateFlags_proto6(uint32_t flags)
-{
+static uint32_t CPT_NormalizePlayerStateFlags_ver_6(uint32_t flags) {
     uint32_t normalizedFlags = 0;
 
     // Convert AA PlayerMove flags to SH/BT flags
@@ -70,8 +65,7 @@ static uint32_t CPT_NormalizePlayerStateFlags_proto6(uint32_t flags)
     return normalizedFlags;
 }
 
-static uint32_t CPT_DenormalizePlayerStateFlags_proto6(uint32_t flags)
-{
+static uint32_t CPT_DenormalizePlayerStateFlags_ver_6(uint32_t flags) {
     uint32_t normalizedFlags = 0;
 
     // Convert AA PlayerMove flags to SH/BT flags
@@ -87,25 +81,39 @@ static uint32_t CPT_DenormalizePlayerStateFlags_proto6(uint32_t flags)
     return normalizedFlags;
 }
 
-static uint32_t CPT_NormalizePlayerStateFlags_proto15(uint32_t flags)
-{
+static int CPT_NormalizeViewModelAnim_ver_6(int iViewModelAnim) {
+    return iViewModelAnim + 1;
+}
+
+static int CPT_DenormalizeViewModelAnim_ver_6(int iViewModelAnim) {
+    return iViewModelAnim - 1;
+}
+
+static uint32_t CPT_NormalizePlayerStateFlags_ver_15(uint32_t flags) {
     return flags;
 }
 
-static uint32_t CPT_DenormalizePlayerStateFlags_proto15(uint32_t flags)
-{
+static uint32_t CPT_DenormalizePlayerStateFlags_ver_15(uint32_t flags) {
     return flags;
+}
+
+static int CPT_NormalizeViewModelAnim_ver_15(int iViewModelAnim) {
+    return iViewModelAnim;
+}
+
+static int CPT_DenormalizeViewModelAnim_ver_15(int iViewModelAnim) {
+    return iViewModelAnim;
 }
 
 size_t CPT_NormalizeConfigstring(size_t num)
 {
     if (com_protocol->integer <= protocol_e::PROTOCOL_MOH)
     {
-        return CPT_NormalizeConfigstring_proto6(num);
+        return CPT_NormalizeConfigstring_ver_6(num);
     }
     else if (com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN)
     {
-        return CPT_NormalizeConfigstring_proto15(num);
+        return CPT_NormalizeConfigstring_ver_15(num);
     }
     else
     {
@@ -118,11 +126,11 @@ size_t CPT_DenormalizeConfigstring(size_t num)
 {
     if (com_protocol->integer <= protocol_e::PROTOCOL_MOH)
     {
-        return CPT_DenormalizeConfigstring_proto6(num);
+        return CPT_DenormalizeConfigstring_ver_6(num);
     }
     else if (com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN)
     {
-        return CPT_DenormalizeConfigstring_proto15(num);
+        return CPT_DenormalizeConfigstring_ver_15(num);
     }
     else
     {
@@ -135,11 +143,11 @@ uint32_t CPT_NormalizePlayerStateFlags(uint32_t flags)
 {
     if (com_protocol->integer <= protocol_e::PROTOCOL_MOH)
     {
-        return CPT_NormalizePlayerStateFlags_proto6(flags);
+        return CPT_NormalizePlayerStateFlags_ver_6(flags);
     }
     else if (com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN)
     {
-        return CPT_NormalizePlayerStateFlags_proto15(flags);
+        return CPT_NormalizePlayerStateFlags_ver_15(flags);
     }
     else
     {
@@ -152,11 +160,43 @@ uint32_t CPT_DenormalizePlayerStateFlags(uint32_t flags)
 {
     if (com_protocol->integer <= protocol_e::PROTOCOL_MOH)
     {
-        return CPT_DenormalizePlayerStateFlags_proto6(flags);
+        return CPT_DenormalizePlayerStateFlags_ver_6(flags);
     }
     else if (com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN)
     {
-        return CPT_DenormalizePlayerStateFlags_proto15(flags);
+        return CPT_DenormalizePlayerStateFlags_ver_15(flags);
+    }
+    else
+    {
+        Com_Error(ERR_DROP, "CPT Normalizer: unknown protocol %d", com_protocol->integer);
+        return 0;
+    }
+}
+
+int CPT_NormalizeViewModelAnim(int iViewModelAnim) {
+    if (com_protocol->integer <= protocol_e::PROTOCOL_MOH)
+    {
+        return CPT_NormalizeViewModelAnim_ver_6(iViewModelAnim);
+    }
+    else if (com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN)
+    {
+        return CPT_NormalizeViewModelAnim_ver_15(iViewModelAnim);
+    }
+    else
+    {
+        Com_Error(ERR_DROP, "CPT Normalizer: unknown protocol %d", com_protocol->integer);
+        return 0;
+    }
+}
+
+int CPT_DenormalizeViewModelAnim(int iViewModelAnim) {
+    if (com_protocol->integer <= protocol_e::PROTOCOL_MOH)
+    {
+        return CPT_DenormalizeViewModelAnim_ver_6(iViewModelAnim);
+    }
+    else if (com_protocol->integer >= protocol_e::PROTOCOL_MOHTA_MIN)
+    {
+        return CPT_DenormalizeViewModelAnim_ver_15(iViewModelAnim);
     }
     else
     {
