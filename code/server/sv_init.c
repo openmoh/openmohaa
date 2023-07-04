@@ -96,7 +96,7 @@ void SV_SetConfigstring (int index, const char *val) {
 
 	// send it to all the clients if we aren't
 	// spawning a new server
-	if ( sv.state == SS_GAME || sv.restarting ) {
+	if (sv.state == SS_LOADING2 || sv.state == SS_GAME || sv.restarting ) {
 
 		// send the data to all relevent clients
 		for (i = 0, client = svs.clients; i < svs.iNumClients ; i++, client++) {
