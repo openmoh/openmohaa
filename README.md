@@ -16,7 +16,7 @@
 
 [![Build](https://github.com/openmoh/openmohaa/actions/workflows/build-cmake.yml/badge.svg)](https://github.com/openmoh/openmohaa/actions/workflows/build-cmake.yml)
 
-OpenMoHAA is still in its early days.
+OpenMoHAA is still in its early days. The singleplayer part is not working correctly, the current usage is multiplayer.
 
 ### Server
 
