@@ -561,6 +561,7 @@ void ScriptCompiler::EmitField( sval_t listener_val, sval_t field_val, unsigned 
 	{
 		AbsorbPrevOpcode();
 		EmitOpcode( OP_LOAD_STORE_GAME_VAR + listener_val.node[ 1 ].byteValue, sourcePos );
+		code_pos += sizeof(unsigned int);
 	}
 }
 
