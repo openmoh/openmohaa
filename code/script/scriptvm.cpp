@@ -399,9 +399,8 @@ void ScriptVM::jumpBool(int offset, bool booleanValue)
 void ScriptVM::loadTopInternal(Listener* listener)
 {
 	const const_str variable = fetchOpcodeValue<op_name_t>();
-	const op_evName_t eventName = fetchOpcodeValue<op_evName_t>();
 
-	if (!eventName || !executeSetter(listener, eventName))
+	if (!executeSetter(listener, variable))
 	{
 		// just set the variable
 		const uintptr_t varIndex = m_VMStack.GetIndex();
@@ -426,10 +425,9 @@ void ScriptVM::loadTopInternal(Listener* listener)
 ScriptVariable* ScriptVM::storeTopInternal(Listener* listener)
 {
 	const const_str variable = fetchOpcodeValue<op_name_t>();
-	const op_evName_t eventName = fetchOpcodeValue<op_evName_t>();
 	ScriptVariable* listenerVar;
 
-	if (!eventName || !executeGetter(listener, eventName))
+	if (!executeGetter(listener, variable))
 	{
 		const uintptr_t varIndex = m_VMStack.GetIndex();
 		ScriptVariable& pTop = m_VMStack.GetTop();
