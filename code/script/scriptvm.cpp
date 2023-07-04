@@ -1727,21 +1727,15 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 			case OP_STORE_STRING:
 				m_VMStack.Push();
 				m_VMStack.GetTop().setConstStringValue(fetchOpcodeValue<unsigned int>());
-
-				m_CodePos += sizeof(unsigned int);
-
 				break;
 
 			case OP_STORE_VECTOR:
 				m_VMStack.Push();
 				m_VMStack.GetTop().setVectorValue(fetchOpcodeValue<Vector>());
-
-				m_CodePos += sizeof(Vector);
-
 				break;
 
 			case OP_SWITCH:
-				if (!Switch(fetchOpcodeValue<StateScript*>(), m_VMStack.Pop()))
+				if (!Switch(fetchActualOpcodeValue<StateScript*>(), m_VMStack.Pop()))
 				{
 					m_CodePos += sizeof(StateScript*);
 				}
@@ -1824,6 +1818,7 @@ void ScriptVM::Execute(ScriptVariable* data, int dataSize, str label)
 				break;
 
 			default:
+				assert(!"Invalid opcode");
 				if (*opcode < OP_MAX)
 				{
 					glbs.DPrintf("unknown opcode %d ('%s')\n", *opcode, OpcodeName(*opcode));
