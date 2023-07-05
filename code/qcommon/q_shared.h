@@ -81,8 +81,6 @@ extern "C" {
 #define CLIENT_WINDOW_TITLE		PRODUCT_NAME
 #define CLIENT_WINDOW_MIN_TITLE PRODUCT_NAME
 
-#define MAX_TEAMNAME 32
-
 #define DEMOEXT	"dm_"			// standard demo extension
 
 #ifdef _MSC_VER
