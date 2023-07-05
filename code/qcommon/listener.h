@@ -313,6 +313,7 @@ public:
 	Event( const Event *ev );
 	Event( const Event &ev );
 	Event( int index );
+	Event( int index, int numArgs );
 	Event( str command );
 	Event( str command, uchar type );
 	Event

@@ -1954,6 +1954,25 @@ Event::Event( int index )
 =======================
 Event
 
+Initializes the event with the specified index
+=======================
+*/
+Event::Event(int index, int numArgs)
+{
+    fromScript = false;
+    eventnum = index;
+    data = new ScriptVariable[numArgs];
+    dataSize = numArgs;
+
+#ifdef _DEBUG
+    name = GetEventName(index);
+#endif
+}
+
+/*
+=======================
+Event
+
 Initializes the event with the specified command
 =======================
 */
