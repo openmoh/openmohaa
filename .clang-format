@@ -14,8 +14,8 @@ AlignConsecutiveMacros:
   AcrossComments: false
 AlignEscapedNewlines: Left
 AlignOperands: AlignAfterOperator
-AllowAllArgumentsOnNextLine: false
-AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortEnumsOnASingleLine: false
@@ -70,7 +70,7 @@ LambdaBodyIndentation: Signature
 LineEnding: LF
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
-PackConstructorInitializers: NextLine
+PackConstructorInitializers: Never
 PointerAlignment: Right
 QualifierAlignment: Left
 ReferenceAlignment: Left
