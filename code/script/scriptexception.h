@@ -30,25 +30,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class ScriptException
 {
 public:
-	str		string;
-	int		bAbort;
-	int		bIsForAnim;
+    str string;
+    int bAbort;
+    int bIsForAnim;
 
 private:
-	void CreateException( const char *data );
+    void CreateException(const char *data);
 
 public:
-	ScriptException( str text );
-	ScriptException( const char *format, ... );
-	ScriptException( char *text );
+    ScriptException(str text);
+    ScriptException(const char *format, ...);
+    ScriptException(char *text);
 
-	static int next_abort;
-	static int next_bIsForAnim;
+    static int next_abort;
+    static int next_bIsForAnim;
 };
 
-void Error( const char * format, ... );
+void Error(const char *format, ...);
 
-#define ScriptDeprecated( function ) throw ScriptException( function ": DEPRECATED. DON'T USE IT ANYMORE" )
-#define ScriptError throw ScriptException
+#define ScriptDeprecated(function) throw ScriptException(function ": DEPRECATED. DON'T USE IT ANYMORE")
+#define ScriptError                throw ScriptException
 
 #endif /* __EXCEPT_H__ */

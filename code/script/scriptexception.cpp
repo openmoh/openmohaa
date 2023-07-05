@@ -26,49 +26,49 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstdarg>
 
-int ScriptException::next_abort = 0;
+int ScriptException::next_abort      = 0;
 int ScriptException::next_bIsForAnim = 0;
 
-void ScriptException::CreateException( const char *data )
+void ScriptException::CreateException(const char *data)
 {
-	string = data;
+    string = data;
 
-	bAbort = next_abort;
-	next_abort = 0;
-	bIsForAnim = next_bIsForAnim;
-	next_bIsForAnim = 0;
+    bAbort          = next_abort;
+    next_abort      = 0;
+    bIsForAnim      = next_bIsForAnim;
+    next_bIsForAnim = 0;
 }
 
-ScriptException::ScriptException( str text )
+ScriptException::ScriptException(str text)
 {
-	CreateException( text.c_str() );
+    CreateException(text.c_str());
 }
 
-ScriptException::ScriptException( const char *format, ... )
+ScriptException::ScriptException(const char *format, ...)
 {
-	va_list va;
-	char data[4100];
+    va_list va;
+    char    data[4100];
 
-	va_start( va, format );
-	vsprintf( data, format, va);
-	va_end( va );
+    va_start(va, format);
+    vsprintf(data, format, va);
+    va_end(va);
 
-	CreateException( data );
+    CreateException(data);
 }
 
-ScriptException::ScriptException( char *text )
+ScriptException::ScriptException(char *text)
 {
-	CreateException( text );
+    CreateException(text);
 }
 
-void Error( const char * format, ... )
+void Error(const char *format, ...)
 {
-	va_list va;
-	char data[4100];
+    va_list va;
+    char    data[4100];
 
-	va_start( va, format );
-	vsprintf( data, format, va);
-	va_end( va );
+    va_start(va, format);
+    vsprintf(data, format, va);
+    va_end(va);
 
-	throw ScriptException( ( const char * )data );
+    throw ScriptException((const char *)data);
 }

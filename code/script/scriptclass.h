@@ -33,50 +33,50 @@ class StateScript;
 
 class ScriptClass : public Listener
 {
-	friend GameScript;
-	friend StateScript;
+    friend GameScript;
+    friend StateScript;
 
 public:
-	// script variable
-	GameScript* m_Script;	// current game script
+    // script variable
+    GameScript *m_Script; // current game script
 
-	// listener variable
-	SafePtr<Listener>	m_Self;		// self
+    // listener variable
+    SafePtr<Listener> m_Self; // self
 
-	// thread variable
-	ScriptVM* m_Threads;	// threads list
+    // thread variable
+    ScriptVM *m_Threads; // threads list
 
 public:
-	CLASS_PROTOTYPE(ScriptClass);
+    CLASS_PROTOTYPE(ScriptClass);
 
 #ifndef _DEBUG_MEM
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
+    void *operator new(size_t size);
+    void  operator delete(void *ptr);
 #endif
 
-	ScriptClass(GameScript* gameScript, Listener* self);
-	ScriptClass();
-	~ScriptClass();
+    ScriptClass(GameScript *gameScript, Listener *self);
+    ScriptClass();
+    ~ScriptClass();
 
-	void	Archive(Archiver& arc) override;
-	void			ArchiveInternal(Archiver& arc);
-	static void		ArchiveScript(Archiver& arc, ScriptClass** obj);
-	void			ArchiveCodePos(Archiver& arc, unsigned char** codePos);
+    void        Archive(Archiver       &arc) override;
+    void        ArchiveInternal(Archiver       &arc);
+    static void ArchiveScript(Archiver& arc, ScriptClass **obj);
+    void        ArchiveCodePos(Archiver       &arc, unsigned char **codePos);
 
-	ScriptThread* CreateThreadInternal(const ScriptVariable& label) override;
-	ScriptThread* CreateScriptInternal(const ScriptVariable& label) override;
+    ScriptThread *CreateThreadInternal(const ScriptVariable& label) override;
+    ScriptThread *CreateScriptInternal(const ScriptVariable& label) override;
 
-	void			AddThread(ScriptVM* m_ScriptVM);
-	void			KillThreads(void);
-	void			RemoveThread(ScriptVM* m_ScriptVM);
+    void AddThread(ScriptVM *m_ScriptVM);
+    void KillThreads(void);
+    void RemoveThread(ScriptVM *m_ScriptVM);
 
-	str				Filename();
-	unsigned char* FindLabel(str label);
-	unsigned char* FindLabel(const_str label);
-	const_str		NearestLabel(unsigned char* pos);
+    str            Filename();
+    unsigned char *FindLabel(str label);
+    unsigned char *FindLabel(const_str label);
+    const_str      NearestLabel(unsigned char *pos);
 
-	StateScript* GetCatchStateScript(unsigned char* in, unsigned char*& out);
+    StateScript *GetCatchStateScript(unsigned char *in, unsigned char *& out);
 
-	GameScript* GetScript();
-	Listener* GetSelf();
+    GameScript *GetScript();
+    Listener   *GetSelf();
 };

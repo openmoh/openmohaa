@@ -29,155 +29,136 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // game dll specific defines
 //
-#include "g_local.h"
+#    include "g_local.h"
 
-#define STACK_Error          gi.Error
-#define STACK_DPrintf        gi.DPrintf
-#define STACK_WDPrintf(text) gi.DPrintf(text)
+#    define STACK_Error          gi.Error
+#    define STACK_DPrintf        gi.DPrintf
+#    define STACK_WDPrintf(text) gi.DPrintf(text)
 
 #elif defined(CGAME_DLL)
 //
 // cgame dll specific defines
 //
-#include "cg_local.h"
+#    include "cg_local.h"
 
-#define STACK_Error             cgi.Error
-#define STACK_DPrintf           cgi.DPrintf
-#define STACK_WDPrintf(text)    cgi.DPrintf(text)
+#    define STACK_Error          cgi.Error
+#    define STACK_DPrintf        cgi.DPrintf
+#    define STACK_WDPrintf(text) cgi.DPrintf(text)
 
 #else
 
 //
 // client specific defines
 //
-#define STACK_Error             Com_Error
-#define STACK_DPrintf           Com_DPrintf
-#define STACK_WDPrintf(text)    Com_DPrintf(text)
+#    define STACK_Error          Com_Error
+#    define STACK_DPrintf        Com_DPrintf
+#    define STACK_WDPrintf(text) Com_DPrintf(text)
 #endif
 
-template <class Type>
+template<class Type>
 class StackNode
 {
 public:
-	Type		 data;
-	StackNode *next;
+    Type       data;
+    StackNode *next;
 
-	StackNode( Type d );
+    StackNode(Type d);
 };
 
-template <class Type>
-inline StackNode<Type>::StackNode( Type d ) : data( d )
+template<class Type>
+inline StackNode<Type>::StackNode(Type d)
+    : data(d)
 {
-	next = NULL;
+    next = NULL;
 }
 
-template <class Type>
+template<class Type>
 class Stack
 {
 private:
-	StackNode<Type> *head;
+    StackNode<Type> *head;
 
 public:
-	Stack();
-	~Stack<Type>();
-	void		Clear( void );
-	qboolean	Empty( void );
-	void		Push( Type data );
-	Type		Pop( void );
-	Type		Head( void );
+    Stack();
+    ~Stack<Type>();
+    void     Clear(void);
+    qboolean Empty(void);
+    void     Push(Type data);
+    Type     Pop(void);
+    Type     Head(void);
 };
 
-template <class Type>
+template<class Type>
 inline Stack<Type>::Stack()
 {
-	head = NULL;
+    head = NULL;
 }
 
-template <class Type>
+template<class Type>
 inline Stack<Type>::~Stack()
 {
-	Clear();
+    Clear();
 }
 
-template <class Type>
-inline void Stack<Type>::Clear
-	(
-	void
-	)
+template<class Type>
+inline void Stack<Type>::Clear(void)
 {
-	while( !Empty() )
-	{
-		Pop();
-	}
+    while (!Empty()) {
+        Pop();
+    }
 }
 
-template <class Type>
-inline qboolean Stack<Type>::Empty
-	(
-	void
-	)
+template<class Type>
+inline qboolean Stack<Type>::Empty(void)
 {
-	if( head == NULL )
-	{
-		return true;
-	}
-	return false;
+    if (head == NULL) {
+        return true;
+    }
+    return false;
 }
 
-template <class Type>
-inline void Stack<Type>::Push
-	(
-	Type data
-	)
+template<class Type>
+inline void Stack<Type>::Push(Type data)
 {
-	StackNode<Type> *tmp;
+    StackNode<Type> *tmp;
 
-	tmp = new StackNode<Type>( data );
-	if( !tmp )
-	{
-		assert( NULL );
-		STACK_Error( ERR_DROP, "Stack::Push : Out of memory" );
-	}
+    tmp = new StackNode<Type>(data);
+    if (!tmp) {
+        assert(NULL);
+        STACK_Error(ERR_DROP, "Stack::Push : Out of memory");
+    }
 
-	tmp->next = head;
-	head = tmp;
+    tmp->next = head;
+    head      = tmp;
 }
 
-template <class Type>
-inline Type Stack<Type>::Pop
-	(
-	void
-	)
+template<class Type>
+inline Type Stack<Type>::Pop(void)
 {
-	Type ret;
-	StackNode<Type> *node;
+    Type             ret;
+    StackNode<Type> *node;
 
-	if( !head )
-	{
-		return NULL;
-	}
+    if (!head) {
+        return NULL;
+    }
 
-	node = head;
-	ret = node->data;
-	head = node->next;
+    node = head;
+    ret  = node->data;
+    head = node->next;
 
-	delete node;
+    delete node;
 
-	return ret;
+    return ret;
 }
 
-template <class Type>
-inline Type Stack<Type>::Head
-	(
-	void
-	)
+template<class Type>
+inline Type Stack<Type>::Head(void)
 {
-	if( !head )
-	{
-		return NULL;
-	}
+    if (!head) {
+        return NULL;
+    }
 
-	return head->data;
+    return head->data;
 }
 
 #endif /* stack.h */

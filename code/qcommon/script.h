@@ -30,23 +30,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "str.h"
 
 #if defined(ARCHIVE_SUPPORTED)
-#include "../fgame/archive.h"
+#    include "../fgame/archive.h"
 #endif
 
 #define TOKENCOMMENT  (';')
 #define TOKENCOMMENT2 ('#')
 #define TOKENEOL      ('\n')
 // #define TOKENNULL			('\0')
-#define TOKENSPACE   (' ')
-#define TOKENSPECIAL ('$')
+#define TOKENSPACE      (' ')
+#define TOKENSPECIAL    ('$')
 
-#define SCRIPT_MAXTOKEN     512
+#define SCRIPT_MAXTOKEN 512
 
 typedef struct {
     qboolean tokenready;
-    int offset;
-    int line;
-    char token[SCRIPT_MAXTOKEN];
+    int      offset;
+    int      line;
+    char     token[SCRIPT_MAXTOKEN];
 } scriptmarker_t;
 
 typedef struct {
@@ -61,23 +61,23 @@ class Script : public Class
 protected:
     qboolean tokenready;
 
-    str filename;
-    const char* script_p;
-    const char* end_p;
-    Container<macro*> macrolist;
+    str                filename;
+    const char        *script_p;
+    const char        *end_p;
+    Container<macro *> macrolist;
 
-    int line;
+    int  line;
     char token[SCRIPT_MAXTOKEN];
 
     qboolean releaseBuffer;
     qboolean hasError;
 
     qboolean AtComment(void);
-    void CheckOverflow(void);
+    void     CheckOverflow(void);
 
 public:
-    const char* buffer;
-    size_t length;
+    const char *buffer;
+    size_t      length;
 
     CLASS_PROTOTYPE(Script);
 
@@ -86,55 +86,56 @@ public:
 #endif
 
     ~Script();
-    Script(const char* filename);
+    Script(const char *filename);
     Script();
 
-    void Close(void);
-    const char* Filename(void);
-    int GetLineNumber(void);
-    void Reset(void);
-    void MarkPosition(scriptmarker_t* mark);
-    void RestorePosition(const scriptmarker_t* mark);
-    qboolean SkipToEOL(void);
-    void SkipWhiteSpace(qboolean crossline);
-    void SkipNonToken(qboolean crossline);
-    qboolean TokenAvailable(qboolean crossline);
-    qboolean CommentAvailable(qboolean crossline);
-    void UnGetToken(void);
-    qboolean AtString(qboolean crossline);
-    qboolean AtOpenParen(qboolean crossline);
-    qboolean AtCloseParen(qboolean crossline);
-    qboolean AtComma(qboolean crossline);
-    qboolean AtDot(qboolean crossline);
-    qboolean AtAssignment(qboolean crossline);
-    const char* GetToken(qboolean crossline);
-    const char* GetLine(qboolean crossline);
-    const char* GetRaw(void);
-    const char* GetString(qboolean crossline);
-    qboolean GetSpecific(const char* string);
-    qboolean GetBoolean(qboolean crossline);
-    int GetInteger(qboolean crossline);
-    double GetDouble(qboolean crossline);
-    float GetFloat(qboolean crossline);
-    Vector GetVector(qboolean crossline);
-    int LinesInFile(void);
-    void Parse(const char* data, size_t length, const char* name);
-    void LoadFile(const char* name);
-    void LoadFile(const char* name, int length, const char* buf);
-    const char* Token(void);
-    void AddMacroDefinition(qboolean crossline);
-    const char* GetMacroString(const char* theMacroName);
-    char* EvaluateMacroString(const char* theMacroString);
-    float EvaluateMacroMath(float value, float newval, char oper);
-    const char* GetExprToken(const char* ptr, char* token);
-    const char* GrabNextToken(qboolean crossline);
-    qboolean isMacro(void);
+    void        Close(void);
+    const char *Filename(void);
+    int         GetLineNumber(void);
+    void        Reset(void);
+    void        MarkPosition(scriptmarker_t *mark);
+    void        RestorePosition(const scriptmarker_t *mark);
+    qboolean    SkipToEOL(void);
+    void        SkipWhiteSpace(qboolean crossline);
+    void        SkipNonToken(qboolean crossline);
+    qboolean    TokenAvailable(qboolean crossline);
+    qboolean    CommentAvailable(qboolean crossline);
+    void        UnGetToken(void);
+    qboolean    AtString(qboolean crossline);
+    qboolean    AtOpenParen(qboolean crossline);
+    qboolean    AtCloseParen(qboolean crossline);
+    qboolean    AtComma(qboolean crossline);
+    qboolean    AtDot(qboolean crossline);
+    qboolean    AtAssignment(qboolean crossline);
+    const char *GetToken(qboolean crossline);
+    const char *GetLine(qboolean crossline);
+    const char *GetRaw(void);
+    const char *GetString(qboolean crossline);
+    qboolean    GetSpecific(const char *string);
+    qboolean    GetBoolean(qboolean crossline);
+    int         GetInteger(qboolean crossline);
+    double      GetDouble(qboolean crossline);
+    float       GetFloat(qboolean crossline);
+    Vector      GetVector(qboolean crossline);
+    int         LinesInFile(void);
+    void        Parse(const char *data, size_t length, const char *name);
+    void        LoadFile(const char *name);
+    void        LoadFile(const char *name, int length, const char *buf);
+    const char *Token(void);
+    void        AddMacroDefinition(qboolean crossline);
+    const char *GetMacroString(const char *theMacroName);
+    char       *EvaluateMacroString(const char *theMacroString);
+    float       EvaluateMacroMath(float value, float newval, char oper);
+    const char *GetExprToken(const char *ptr, char *token);
+    const char *GrabNextToken(qboolean crossline);
+    qboolean    isMacro(void);
 
     qboolean EndOfFile();
     qboolean isValid(void);
 
-    Container<macro*>* GetMacroList() { return &macrolist; }
-    void AddMacro(const char* name, const char* value);
+    Container<macro *> *GetMacroList() { return &macrolist; }
+
+    void AddMacro(const char *name, const char *value);
 };
 
 #if defined(ARCHIVE_SUPPORTED)

@@ -27,2553 +27,2443 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/str.h"
 
 #ifdef GAME_DLL
-#include "../fgame/archive.h"
-#include "../fgame/g_local.h"
-#include "../fgame/navigate.h"
+#    include "../fgame/archive.h"
+#    include "../fgame/g_local.h"
+#    include "../fgame/navigate.h"
 #endif
 
 #ifdef WITH_SCRIPT_ENGINE
-#include "../fgame/world.h"
-#include "../fgame/scriptmaster.h"
-#include "../fgame/simpleentity.h"
+#    include "../fgame/world.h"
+#    include "../fgame/scriptmaster.h"
+#    include "../fgame/simpleentity.h"
 #endif
 
 #include <utility>
 
 template<>
-int HashCode< ScriptVariable >( const ScriptVariable& key )
+int HashCode<ScriptVariable>(const ScriptVariable& key)
 {
-#if defined (GAME_DLL)
-	Entity *e;
+#if defined(GAME_DLL)
+    Entity *e;
 #endif
 
-	switch( key.GetType() )
-	{
-	case VARIABLE_STRING:
-	case VARIABLE_CONSTSTRING:
-		return HashCode< str >( key.stringValue() );
+    switch (key.GetType()) {
+    case VARIABLE_STRING:
+    case VARIABLE_CONSTSTRING:
+        return HashCode<str>(key.stringValue());
 
-	case VARIABLE_INTEGER:
-		return key.m_data.intValue;
+    case VARIABLE_INTEGER:
+        return key.m_data.intValue;
 
-#if defined (GAME_DLL)
-	case VARIABLE_LISTENER:
-		e = (Entity*)key.listenerValue();
+#if defined(GAME_DLL)
+    case VARIABLE_LISTENER:
+        e = (Entity *)key.listenerValue();
 
-		if (checkInheritance(&Entity::ClassInfo, e->classinfo()))
-		{
-			return e->entnum;
-		}
+        if (checkInheritance(&Entity::ClassInfo, e->classinfo())) {
+            return e->entnum;
+        }
 #endif
 
-	default:
-		throw ScriptException( "Bad hash code value: %s", key.stringValue().c_str() );
-	}
+    default:
+        throw ScriptException("Bad hash code value: %s", key.stringValue().c_str());
+    }
 }
 
 #if defined(ARCHIVE_SUPPORTED)
 template<>
-void Entry< ScriptVariable, ScriptVariable >::Archive
-	(
-	Archiver& arc
-	)
+void Entry<ScriptVariable, ScriptVariable>::Archive(Archiver& arc)
 {
-	key.ArchiveInternal( arc );
-	value.ArchiveInternal( arc );
+    key.ArchiveInternal(arc);
+    value.ArchiveInternal(arc);
 }
 
 template<>
-void Entry< short3, ScriptVariable >::Archive
-	(
-	Archiver& arc
-	)
+void Entry<short3, ScriptVariable>::Archive(Archiver& arc)
 {
-	if( arc.Loading() )
-	{
-		value.Archive( arc );
-#ifdef WITH_SCRIPT_ENGINE
-		key = value.GetKey();
-#endif
-	}
-	else
-	{
-		value.Archive( arc );
-	}
+    if (arc.Loading()) {
+        value.Archive(arc);
+#    ifdef WITH_SCRIPT_ENGINE
+        key = value.GetKey();
+#    endif
+    } else {
+        value.Archive(arc);
+    }
 }
 
-void ScriptArrayHolder::Archive( Archiver& arc )
+void ScriptArrayHolder::Archive(Archiver& arc)
 {
-	arc.ArchiveUnsigned( &refCount );
-	arrayValue.Archive( arc );
+    arc.ArchiveUnsigned(&refCount);
+    arrayValue.Archive(arc);
 }
 
-void ScriptArrayHolder::Archive( Archiver& arc, ScriptArrayHolder *& arrayValue )
+void ScriptArrayHolder::Archive(Archiver& arc, ScriptArrayHolder *& arrayValue)
 {
-	qboolean newRef;
+    qboolean newRef;
 
-	if( arc.Loading() )
-	{
-		arc.ArchiveBoolean( &newRef );
-	}
-	else
-	{
-		newRef = !arc.ObjectPositionExists( arrayValue );
-		arc.ArchiveBoolean( &newRef );
-	}
+    if (arc.Loading()) {
+        arc.ArchiveBoolean(&newRef);
+    } else {
+        newRef = !arc.ObjectPositionExists(arrayValue);
+        arc.ArchiveBoolean(&newRef);
+    }
 
-	if( newRef )
-	{
-		if( arc.Loading() )
-		{
-			arrayValue = new ScriptArrayHolder();
-		}
+    if (newRef) {
+        if (arc.Loading()) {
+            arrayValue = new ScriptArrayHolder();
+        }
 
-		arc.ArchiveObjectPosition( arrayValue );
-		arrayValue->Archive( arc );
-		return;
-	}
-	else
-	{
-		arc.ArchiveObjectPointer( ( Class ** )&arrayValue );
-	}
+        arc.ArchiveObjectPosition(arrayValue);
+        arrayValue->Archive(arc);
+        return;
+    } else {
+        arc.ArchiveObjectPointer((Class **)&arrayValue);
+    }
 }
 
-
-void ScriptConstArrayHolder::Archive( Archiver& arc )
+void ScriptConstArrayHolder::Archive(Archiver& arc)
 {
-	arc.ArchiveUnsigned( &refCount );
-	arc.ArchiveUnsigned( &size );
+    arc.ArchiveUnsigned(&refCount);
+    arc.ArchiveUnsigned(&size);
 
-	if( arc.Loading() )
-	{
-		constArrayValue = new ScriptVariable[ size + 1 ] - 1;
-	}
+    if (arc.Loading()) {
+        constArrayValue = new ScriptVariable[size + 1] - 1;
+    }
 
-	for( unsigned int i = 1; i <= size; i++ )
-	{
-		constArrayValue[ i ].ArchiveInternal( arc );
-	}
+    for (unsigned int i = 1; i <= size; i++) {
+        constArrayValue[i].ArchiveInternal(arc);
+    }
 }
 
-void ScriptConstArrayHolder::Archive( Archiver& arc, ScriptConstArrayHolder *& constArrayValue )
+void ScriptConstArrayHolder::Archive(Archiver& arc, ScriptConstArrayHolder *& constArrayValue)
 {
-	qboolean newRef;
+    qboolean newRef;
 
-	if( arc.Loading() )
-	{
-		arc.ArchiveBoolean( &newRef );
-	}
-	else
-	{
-		newRef = !arc.ObjectPositionExists( constArrayValue );
-		arc.ArchiveBoolean( &newRef );
-	}
+    if (arc.Loading()) {
+        arc.ArchiveBoolean(&newRef);
+    } else {
+        newRef = !arc.ObjectPositionExists(constArrayValue);
+        arc.ArchiveBoolean(&newRef);
+    }
 
-	if( newRef )
-	{
-		if( arc.Loading() )
-		{
-			constArrayValue = new ScriptConstArrayHolder();
-		}
+    if (newRef) {
+        if (arc.Loading()) {
+            constArrayValue = new ScriptConstArrayHolder();
+        }
 
-		arc.ArchiveObjectPosition( constArrayValue );
-		constArrayValue->Archive( arc );
-		return;
-	}
-	else
-	{
-		arc.ArchiveObjectPointer( ( Class ** )&constArrayValue );
-	}
+        arc.ArchiveObjectPosition(constArrayValue);
+        constArrayValue->Archive(arc);
+        return;
+    } else {
+        arc.ArchiveObjectPointer((Class **)&constArrayValue);
+    }
 }
 
-void ScriptPointer::Archive( Archiver& arc )
+void ScriptPointer::Archive(Archiver& arc)
 {
-	list.Archive( arc, ScriptVariable::Archive );
+    list.Archive(arc, ScriptVariable::Archive);
 }
 
-void ScriptPointer::Archive( Archiver& arc, ScriptPointer *& pointerValue )
+void ScriptPointer::Archive(Archiver& arc, ScriptPointer *& pointerValue)
 {
-	qboolean newRef;
+    qboolean newRef;
 
-	if( arc.Loading() )
-	{
-		arc.ArchiveBoolean( &newRef );
-	}
-	else
-	{
-		newRef = !arc.ObjectPositionExists( pointerValue );
-		arc.ArchiveBoolean( &newRef );
-	}
+    if (arc.Loading()) {
+        arc.ArchiveBoolean(&newRef);
+    } else {
+        newRef = !arc.ObjectPositionExists(pointerValue);
+        arc.ArchiveBoolean(&newRef);
+    }
 
-	if( newRef )
-	{
-		if( arc.Loading() )
-		{
-			pointerValue = new ScriptPointer();
-		}
+    if (newRef) {
+        if (arc.Loading()) {
+            pointerValue = new ScriptPointer();
+        }
 
-		arc.ArchiveObjectPosition( pointerValue );
-		pointerValue->Archive( arc );
-		return;
-	}
-	else
-	{
-		arc.ArchiveObjectPointer( ( Class ** )&pointerValue );
-	}
+        arc.ArchiveObjectPosition(pointerValue);
+        pointerValue->Archive(arc);
+        return;
+    } else {
+        arc.ArchiveObjectPointer((Class **)&pointerValue);
+    }
 }
 
 void ScriptVariable::Archive(Archiver& arc)
 {
-#ifdef WITH_SCRIPT_ENGINE
-	const_str s;
+#    ifdef WITH_SCRIPT_ENGINE
+    const_str s;
 
-	if (arc.Loading())
-	{
-		Director.ArchiveString(arc, s);
-		key = s;
-	}
-	else
-	{
-		s = key;
-		Director.ArchiveString(arc, s);
-	}
-#endif
+    if (arc.Loading()) {
+        Director.ArchiveString(arc, s);
+        key = s;
+    } else {
+        s = key;
+        Director.ArchiveString(arc, s);
+    }
+#    endif
 
-	ArchiveInternal(arc);
+    ArchiveInternal(arc);
 }
 
-void ScriptVariable::Archive(Archiver& arc, ScriptVariable** obj)
+void ScriptVariable::Archive(Archiver& arc, ScriptVariable **obj)
 {
-	arc.ArchiveObjectPointer((Class**)obj);
+    arc.ArchiveObjectPointer((Class **)obj);
 }
 
 void ScriptVariable::ArchiveInternal(Archiver& arc)
 {
-	arc.ArchiveObjectPosition(this);
+    arc.ArchiveObjectPosition(this);
 
-	arc.ArchiveByte(&type);
-	switch (type)
-	{
-	case VARIABLE_STRING:
-		if (arc.Loading())
-		{
-			m_data.stringValue = new str(4);
-		}
+    arc.ArchiveByte(&type);
+    switch (type) {
+    case VARIABLE_STRING:
+        if (arc.Loading()) {
+            m_data.stringValue = new str(4);
+        }
 
-		arc.ArchiveString(m_data.stringValue);
-		break;
+        arc.ArchiveString(m_data.stringValue);
+        break;
 
-	case VARIABLE_INTEGER:
-		arc.ArchiveInteger(&m_data.intValue);
-		break;
+    case VARIABLE_INTEGER:
+        arc.ArchiveInteger(&m_data.intValue);
+        break;
 
-	case VARIABLE_FLOAT:
-		arc.ArchiveFloat(&m_data.floatValue);
-		break;
+    case VARIABLE_FLOAT:
+        arc.ArchiveFloat(&m_data.floatValue);
+        break;
 
-	case VARIABLE_CHAR:
-		arc.ArchiveChar(&m_data.charValue);
-		break;
+    case VARIABLE_CHAR:
+        arc.ArchiveChar(&m_data.charValue);
+        break;
 
-#ifdef WITH_SCRIPT_ENGINE
-	case VARIABLE_CONSTSTRING:
-		if (arc.Loading())
-		{
-			str s;
-			arc.ArchiveString(&s);
-			m_data.intValue = Director.AddString(s);
-		}
-		else
-		{
-			str s = Director.GetString(m_data.intValue);
-			arc.ArchiveString(&s);
-		}
-		break;
-#endif
+#    ifdef WITH_SCRIPT_ENGINE
+    case VARIABLE_CONSTSTRING:
+        if (arc.Loading()) {
+            str s;
+            arc.ArchiveString(&s);
+            m_data.intValue = Director.AddString(s);
+        } else {
+            str s = Director.GetString(m_data.intValue);
+            arc.ArchiveString(&s);
+        }
+        break;
+#    endif
 
-	case VARIABLE_LISTENER:
-		if (arc.Loading())
-		{
-			m_data.listenerValue = new SafePtr < Listener >;
-		}
+    case VARIABLE_LISTENER:
+        if (arc.Loading()) {
+            m_data.listenerValue = new SafePtr<Listener>;
+        }
 
-		arc.ArchiveSafePointer(m_data.listenerValue);
-		break;
+        arc.ArchiveSafePointer(m_data.listenerValue);
+        break;
 
-	case VARIABLE_ARRAY:
-		ScriptArrayHolder::Archive(arc, m_data.arrayValue);
-		break;
+    case VARIABLE_ARRAY:
+        ScriptArrayHolder::Archive(arc, m_data.arrayValue);
+        break;
 
-	case VARIABLE_CONSTARRAY:
-		ScriptConstArrayHolder::Archive(arc, m_data.constArrayValue);
-		break;
+    case VARIABLE_CONSTARRAY:
+        ScriptConstArrayHolder::Archive(arc, m_data.constArrayValue);
+        break;
 
-	case VARIABLE_REF:
-	case VARIABLE_CONTAINER:
-		arc.ArchiveObjectPointer((Class**)&m_data.refValue);
-		break;
+    case VARIABLE_REF:
+    case VARIABLE_CONTAINER:
+        arc.ArchiveObjectPointer((Class **)&m_data.refValue);
+        break;
 
-	case VARIABLE_SAFECONTAINER:
-		if (arc.Loading())
-		{
-			m_data.safeContainerValue = new SafePtr < ConList >;
-		}
+    case VARIABLE_SAFECONTAINER:
+        if (arc.Loading()) {
+            m_data.safeContainerValue = new SafePtr<ConList>;
+        }
 
-		arc.ArchiveSafePointer(m_data.safeContainerValue);
-		break;
+        arc.ArchiveSafePointer(m_data.safeContainerValue);
+        break;
 
-	case VARIABLE_POINTER:
-		ScriptPointer::Archive(arc, m_data.pointerValue);
-		break;
+    case VARIABLE_POINTER:
+        ScriptPointer::Archive(arc, m_data.pointerValue);
+        break;
 
-	case VARIABLE_VECTOR:
-		if (arc.Loading())
-		{
-			m_data.vectorValue = new float[3];
-		}
+    case VARIABLE_VECTOR:
+        if (arc.Loading()) {
+            m_data.vectorValue = new float[3];
+        }
 
-		arc.ArchiveVec3(m_data.vectorValue);
-		break;
+        arc.ArchiveVec3(m_data.vectorValue);
+        break;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 }
 #endif
 
-ScriptConstArrayHolder::ScriptConstArrayHolder(ScriptVariable* pVar, unsigned int size)
+ScriptConstArrayHolder::ScriptConstArrayHolder(ScriptVariable *pVar, unsigned int size)
 {
-	refCount = 0;
-	this->size = size;
+    refCount   = 0;
+    this->size = size;
 
-	constArrayValue = new ScriptVariable[size + 1] - 1;
+    constArrayValue = new ScriptVariable[size + 1] - 1;
 
-	for (unsigned int i = 1; i <= size; i++)
-	{
-		constArrayValue[i] = pVar[i];
-	}
+    for (unsigned int i = 1; i <= size; i++) {
+        constArrayValue[i] = pVar[i];
+    }
 }
 
 ScriptConstArrayHolder::ScriptConstArrayHolder(unsigned int size)
 {
-	refCount = 0;
-	this->size = size;
+    refCount   = 0;
+    this->size = size;
 
-	constArrayValue = new ScriptVariable[size + 1] - 1;
+    constArrayValue = new ScriptVariable[size + 1] - 1;
 }
 
 ScriptConstArrayHolder::ScriptConstArrayHolder()
 {
-	refCount = 0;
-	size = 0;
-	constArrayValue = NULL;
+    refCount        = 0;
+    size            = 0;
+    constArrayValue = NULL;
 }
 
 ScriptConstArrayHolder::~ScriptConstArrayHolder()
 {
-	if (constArrayValue)
-	{
-		ScriptVariable* const offset = constArrayValue + 1;
-		delete[] offset;
-	}
+    if (constArrayValue) {
+        ScriptVariable *const offset = constArrayValue + 1;
+        delete[] offset;
+    }
 }
 
 void ScriptPointer::Clear()
 {
-	for( int i = 0; i < list.NumObjects(); i++ )
-	{
-		ScriptVariable *variable = list[ i ];
+    for (int i = 0; i < list.NumObjects(); i++) {
+        ScriptVariable *variable = list[i];
 
-		variable->type = 0;
-	}
+        variable->type = 0;
+    }
 
-	delete this;
+    delete this;
 }
 
-void ScriptPointer::add( ScriptVariable *var )
+void ScriptPointer::add(ScriptVariable *var)
 {
-	list.AddObject( var );
+    list.AddObject(var);
 }
 
-void ScriptPointer::remove( ScriptVariable *var )
+void ScriptPointer::remove(ScriptVariable *var)
 {
-	list.RemoveObject( var );
+    list.RemoveObject(var);
 
-	if( !list.NumObjects() ) {
-		delete this;
-	}
+    if (!list.NumObjects()) {
+        delete this;
+    }
 }
 
-void ScriptPointer::setValue( const ScriptVariable& var )
+void ScriptPointer::setValue(const ScriptVariable& var)
 {
-	int i;
-	ScriptVariable *pVar;
+    int             i;
+    ScriptVariable *pVar;
 
-	for( i = list.NumObjects(); i > 0; i-- )
-	{
-		pVar = list.ObjectAt( i );
+    for (i = list.NumObjects(); i > 0; i--) {
+        pVar = list.ObjectAt(i);
 
-		pVar->type = 0;
-		*pVar = var;
-	}
+        pVar->type = 0;
+        *pVar      = var;
+    }
 
-	delete this;
+    delete this;
 }
 
 ScriptVariable::ScriptVariable()
 {
 #if defined(GAME_DLL)
-	key = 0;
+    key = 0;
 #endif
-	type = 0;
-	m_data.pointerValue = NULL;
+    type                = 0;
+    m_data.pointerValue = NULL;
 }
 
 ScriptVariable::ScriptVariable(const ScriptVariable& variable)
 {
-	type = 0;
-	m_data.pointerValue = NULL;
+    type                = 0;
+    m_data.pointerValue = NULL;
 
-	*this = variable;
+    *this = variable;
 }
-
 
 ScriptVariable::ScriptVariable(ScriptVariable&& variable)
 {
 #if defined(GAME_DLL)
-	key = variable.GetKey();
-	variable.key = 0;
+    key          = variable.GetKey();
+    variable.key = 0;
 #endif
-	type = variable.GetType();
-	m_data = variable.m_data;
-	variable.type = VARIABLE_NONE;
+    type          = variable.GetType();
+    m_data        = variable.m_data;
+    variable.type = VARIABLE_NONE;
 }
 
 ScriptVariable::~ScriptVariable()
 {
-	ClearInternal();
+    ClearInternal();
 }
 
-void ScriptVariable::CastBoolean( void )
+void ScriptVariable::CastBoolean(void)
 {
-	int newvalue = booleanValue();
+    int newvalue = booleanValue();
 
-	ClearInternal();
+    ClearInternal();
 
-	type = VARIABLE_INTEGER;
-	m_data.intValue = newvalue;
+    type            = VARIABLE_INTEGER;
+    m_data.intValue = newvalue;
 }
 
-void ScriptVariable::CastConstArrayValue( void )
+void ScriptVariable::CastConstArrayValue(void)
 {
-	con_map_enum< ScriptVariable, ScriptVariable > en;
-	ScriptConstArrayHolder *constArrayValue;
-	ScriptVariable *value;
-	int i;
-	ConList *listeners;
+    con_map_enum<ScriptVariable, ScriptVariable> en;
+    ScriptConstArrayHolder                      *constArrayValue;
+    ScriptVariable                              *value;
+    int                                          i;
+    ConList                                     *listeners;
 
-	switch( GetType() )
-	{
-	case VARIABLE_POINTER:
-		ClearPointerInternal();
-	case VARIABLE_NONE:
-		throw ScriptException( "cannot cast NIL to an array" );
+    switch (GetType()) {
+    case VARIABLE_POINTER:
+        ClearPointerInternal();
+    case VARIABLE_NONE:
+        throw ScriptException("cannot cast NIL to an array");
 
-	case VARIABLE_CONSTARRAY:
-		return;
+    case VARIABLE_CONSTARRAY:
+        return;
 
-	case VARIABLE_ARRAY:
-		constArrayValue = new ScriptConstArrayHolder( m_data.arrayValue->arrayValue.size() );
+    case VARIABLE_ARRAY:
+        constArrayValue = new ScriptConstArrayHolder(m_data.arrayValue->arrayValue.size());
 
-		en = m_data.arrayValue->arrayValue;
+        en = m_data.arrayValue->arrayValue;
 
-		i = 0;
+        i = 0;
 
-		for( value = en.NextValue(); value != NULL; value = en.NextValue() )
-		{
-			i++;
-			constArrayValue->constArrayValue[ i ] = *value;
-		}
+        for (value = en.NextValue(); value != NULL; value = en.NextValue()) {
+            i++;
+            constArrayValue->constArrayValue[i] = *value;
+        }
 
-		break;
+        break;
 
-	case VARIABLE_CONTAINER:
-		constArrayValue = new ScriptConstArrayHolder( m_data.containerValue->NumObjects() );
+    case VARIABLE_CONTAINER:
+        constArrayValue = new ScriptConstArrayHolder(m_data.containerValue->NumObjects());
 
-		for( int i = m_data.containerValue->NumObjects(); i > 0; i-- )
-		{
-			constArrayValue->constArrayValue[ i ].setListenerValue( m_data.containerValue->ObjectAt( i ) );
-		}
-		break;
+        for (int i = m_data.containerValue->NumObjects(); i > 0; i--) {
+            constArrayValue->constArrayValue[i].setListenerValue(m_data.containerValue->ObjectAt(i));
+        }
+        break;
 
-	case VARIABLE_SAFECONTAINER:
-		listeners = *m_data.safeContainerValue;
+    case VARIABLE_SAFECONTAINER:
+        listeners = *m_data.safeContainerValue;
 
-		if( listeners )
-		{
-			constArrayValue = new ScriptConstArrayHolder( listeners->NumObjects() );
+        if (listeners) {
+            constArrayValue = new ScriptConstArrayHolder(listeners->NumObjects());
 
-			for( int i = listeners->NumObjects(); i > 0; i-- )
-			{
-				constArrayValue->constArrayValue[ i ].setListenerValue( listeners->ObjectAt( i ) );
-			}
-		}
-		else
-		{
-			constArrayValue = new ScriptConstArrayHolder( 0 );
-		}
-		break;
+            for (int i = listeners->NumObjects(); i > 0; i--) {
+                constArrayValue->constArrayValue[i].setListenerValue(listeners->ObjectAt(i));
+            }
+        } else {
+            constArrayValue = new ScriptConstArrayHolder(0);
+        }
+        break;
 
-	default:
-		constArrayValue = new ScriptConstArrayHolder( 1 );
-		constArrayValue->constArrayValue[ 1 ] = *this;
+    default:
+        constArrayValue                     = new ScriptConstArrayHolder(1);
+        constArrayValue->constArrayValue[1] = *this;
 
-		break;
-	}
+        break;
+    }
 
-	ClearInternal();
-	type = VARIABLE_CONSTARRAY;
-	m_data.constArrayValue = constArrayValue;
+    ClearInternal();
+    type                   = VARIABLE_CONSTARRAY;
+    m_data.constArrayValue = constArrayValue;
 }
 
-void ScriptVariable::CastEntity( void )
+void ScriptVariable::CastEntity(void)
 {
-	setListenerValue( ( Listener * )entityValue() );
+    setListenerValue((Listener *)entityValue());
 }
 
-void ScriptVariable::CastFloat( void )
+void ScriptVariable::CastFloat(void)
 {
-	setFloatValue( floatValue() );
+    setFloatValue(floatValue());
 }
 
-void ScriptVariable::CastInteger( void )
+void ScriptVariable::CastInteger(void)
 {
-	setIntValue( intValue() );
+    setIntValue(intValue());
 }
 
-void ScriptVariable::CastString( void )
+void ScriptVariable::CastString(void)
 {
-	setStringValue( stringValue() );
+    setStringValue(stringValue());
 }
 
 void ScriptVariable::Clear()
 {
-	ClearInternal();
-	type = 0;
+    ClearInternal();
+    type = 0;
 }
 
 void ScriptVariable::ClearInternal()
 {
-	switch( GetType() )
-	{
-	case VARIABLE_STRING:
-		if( m_data.stringValue )
-		{
-			delete m_data.stringValue;
-			m_data.stringValue = NULL;
-		}
+    switch (GetType()) {
+    case VARIABLE_STRING:
+        if (m_data.stringValue) {
+            delete m_data.stringValue;
+            m_data.stringValue = NULL;
+        }
 
-		break;
+        break;
 
-	case VARIABLE_ARRAY:
-		if( m_data.arrayValue->refCount )
-		{
-			m_data.arrayValue->refCount--;
-		}
-		else
-		{
-			delete m_data.arrayValue;
-		}
+    case VARIABLE_ARRAY:
+        if (m_data.arrayValue->refCount) {
+            m_data.arrayValue->refCount--;
+        } else {
+            delete m_data.arrayValue;
+        }
 
-		m_data.arrayValue = NULL;
-		break;
+        m_data.arrayValue = NULL;
+        break;
 
-	case VARIABLE_CONSTARRAY:
-		if( m_data.constArrayValue->refCount )
-		{
-			m_data.constArrayValue->refCount--;
-		}
-		else
-		{
-			delete m_data.constArrayValue;
-		}
+    case VARIABLE_CONSTARRAY:
+        if (m_data.constArrayValue->refCount) {
+            m_data.constArrayValue->refCount--;
+        } else {
+            delete m_data.constArrayValue;
+        }
 
-		m_data.constArrayValue = NULL;
-		break;
+        m_data.constArrayValue = NULL;
+        break;
 
-	case VARIABLE_LISTENER:
-	case VARIABLE_SAFECONTAINER:
-		if( m_data.listenerValue )
-		{
-			delete m_data.listenerValue;
-			m_data.listenerValue = NULL;
-		}
+    case VARIABLE_LISTENER:
+    case VARIABLE_SAFECONTAINER:
+        if (m_data.listenerValue) {
+            delete m_data.listenerValue;
+            m_data.listenerValue = NULL;
+        }
 
-		break;
+        break;
 
-	case VARIABLE_POINTER:
-		m_data.pointerValue->remove( this );
-		m_data.pointerValue = NULL;
-		break;
+    case VARIABLE_POINTER:
+        m_data.pointerValue->remove(this);
+        m_data.pointerValue = NULL;
+        break;
 
-	case VARIABLE_VECTOR:
-		delete[] m_data.vectorValue;
-		m_data.vectorValue = NULL;
-		break;
+    case VARIABLE_VECTOR:
+        delete[] m_data.vectorValue;
+        m_data.vectorValue = NULL;
+        break;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 }
 
 void ScriptVariable::ClearPointer()
 {
-	if( type == VARIABLE_POINTER ) {
-		return ClearPointerInternal();
-	}
+    if (type == VARIABLE_POINTER) {
+        return ClearPointerInternal();
+    }
 }
 
 void ScriptVariable::ClearPointerInternal()
 {
-	type = VARIABLE_NONE;
+    type = VARIABLE_NONE;
 
-	m_data.pointerValue->Clear();
-	m_data.pointerValue = NULL;
+    m_data.pointerValue->Clear();
+    m_data.pointerValue = NULL;
 }
 
 const char *ScriptVariable::GetTypeName() const
 {
-	return typenames[ type ];
+    return typenames[type];
 }
 
 variabletype ScriptVariable::GetType() const
 {
-	return ( variabletype )type;
+    return (variabletype)type;
 }
 
-qboolean ScriptVariable::IsEntity( void )
+qboolean ScriptVariable::IsEntity(void)
 {
-	if( type == VARIABLE_LISTENER )
-	{
+    if (type == VARIABLE_LISTENER) {
         if (!m_data.listenerValue->Pointer()
-#if defined ( GAME_DLL )
-			||
-			checkInheritance( Entity::classinfostatic(), m_data.listenerValue->Pointer()->classinfo() )
+#if defined(GAME_DLL)
+            || checkInheritance(Entity::classinfostatic(), m_data.listenerValue->Pointer()->classinfo())
 #endif
-			)
-		{
-			return true;
-		}
-	}
+        ) {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
-qboolean ScriptVariable::IsListener( void )
+qboolean ScriptVariable::IsListener(void)
 {
-	return type == VARIABLE_LISTENER;
+    return type == VARIABLE_LISTENER;
 }
 
-qboolean ScriptVariable::IsNumeric( void )
+qboolean ScriptVariable::IsNumeric(void)
 {
-	return type == VARIABLE_INTEGER || type == VARIABLE_FLOAT;
+    return type == VARIABLE_INTEGER || type == VARIABLE_FLOAT;
 }
 
 qboolean ScriptVariable::IsConstArray() const
 {
-	return type == VARIABLE_CONSTARRAY
-		|| type == VARIABLE_CONTAINER
-		|| type == VARIABLE_SAFECONTAINER;
+    return type == VARIABLE_CONSTARRAY || type == VARIABLE_CONTAINER || type == VARIABLE_SAFECONTAINER;
 }
 
 #ifdef WITH_SCRIPT_ENGINE
 
-qboolean ScriptVariable::IsSimpleEntity( void )
+qboolean ScriptVariable::IsSimpleEntity(void)
 {
-	if( type == VARIABLE_LISTENER )
-	{
-		if( !m_data.listenerValue->Pointer() ||
-			checkInheritance( &SimpleEntity::ClassInfo, m_data.listenerValue->Pointer()->classinfo() )
-		)
-		{
-			return true;
-		}
-	}
+    if (type == VARIABLE_LISTENER) {
+        if (!m_data.listenerValue->Pointer()
+            || checkInheritance(&SimpleEntity::ClassInfo, m_data.listenerValue->Pointer()->classinfo())) {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 #endif
 
-qboolean ScriptVariable::IsString( void )
+qboolean ScriptVariable::IsString(void)
 {
-	return ( type == VARIABLE_STRING || type == VARIABLE_CONSTSTRING );
+    return (type == VARIABLE_STRING || type == VARIABLE_CONSTSTRING);
 }
 
-qboolean ScriptVariable::IsVector( void )
+qboolean ScriptVariable::IsVector(void)
 {
-	return type == VARIABLE_VECTOR;
+    return type == VARIABLE_VECTOR;
 }
 
-void ScriptVariable::PrintValue( void )
+void ScriptVariable::PrintValue(void)
 {
-	switch (GetType())
-	{
-	case VARIABLE_NONE:
-		printf("None");
-		break;
+    switch (GetType()) {
+    case VARIABLE_NONE:
+        printf("None");
+        break;
 
 #ifdef WITH_SCRIPT_ENGINE
-	case VARIABLE_CONSTSTRING:
-		printf("%s", Director.GetString(m_data.intValue).c_str());
-		break;
+    case VARIABLE_CONSTSTRING:
+        printf("%s", Director.GetString(m_data.intValue).c_str());
+        break;
 #endif
 
-	case VARIABLE_STRING:
-		printf("%s", m_data.stringValue->c_str());
-		break;
+    case VARIABLE_STRING:
+        printf("%s", m_data.stringValue->c_str());
+        break;
 
-	case VARIABLE_INTEGER:
-		printf( "%d", m_data.intValue );
-		break;
+    case VARIABLE_INTEGER:
+        printf("%d", m_data.intValue);
+        break;
 
-	case VARIABLE_FLOAT:
-		printf( "%f", m_data.floatValue );
-		break;
+    case VARIABLE_FLOAT:
+        printf("%f", m_data.floatValue);
+        break;
 
-	case VARIABLE_CHAR:
-		printf( "%c", m_data.charValue );
-		break;
+    case VARIABLE_CHAR:
+        printf("%c", m_data.charValue);
+        break;
 
-	case VARIABLE_LISTENER:
-		printf( "<Listener>%p", m_data.listenerValue->Pointer() );
-		break;
+    case VARIABLE_LISTENER:
+        printf("<Listener>%p", m_data.listenerValue->Pointer());
+        break;
 
-	case VARIABLE_REF:
-	case VARIABLE_ARRAY:
-	case VARIABLE_CONSTARRAY:
-	case VARIABLE_CONTAINER:
-	case VARIABLE_SAFECONTAINER:
-	case VARIABLE_POINTER:
-		printf( "type: %s", GetTypeName() );
-		break;
+    case VARIABLE_REF:
+    case VARIABLE_ARRAY:
+    case VARIABLE_CONSTARRAY:
+    case VARIABLE_CONTAINER:
+    case VARIABLE_SAFECONTAINER:
+    case VARIABLE_POINTER:
+        printf("type: %s", GetTypeName());
+        break;
 
-	case VARIABLE_VECTOR:
-		printf( "( %f %f %f )", m_data.vectorValue[ 0 ], m_data.vectorValue[ 1 ], m_data.vectorValue[ 2 ] );
-		break;
-	default:
-		printf("unknown");
-		break;
-	}
+    case VARIABLE_VECTOR:
+        printf("( %f %f %f )", m_data.vectorValue[0], m_data.vectorValue[1], m_data.vectorValue[2]);
+        break;
+    default:
+        printf("unknown");
+        break;
+    }
 }
 
-void ScriptVariable::SetFalse( void )
+void ScriptVariable::SetFalse(void)
 {
-	setIntValue( 0 );
+    setIntValue(0);
 }
 
-void ScriptVariable::SetTrue( void )
+void ScriptVariable::SetTrue(void)
 {
-	setIntValue( 1 );
+    setIntValue(1);
 }
 
-int ScriptVariable::arraysize( void ) const
+int ScriptVariable::arraysize(void) const
 {
-	switch( GetType() )
-	{
-	case VARIABLE_POINTER:
-		m_data.pointerValue->Clear();
-		delete m_data.pointerValue;
+    switch (GetType()) {
+    case VARIABLE_POINTER:
+        m_data.pointerValue->Clear();
+        delete m_data.pointerValue;
 
-		return -1;
+        return -1;
 
-	case VARIABLE_NONE:
-		return -1;
+    case VARIABLE_NONE:
+        return -1;
 
-	case VARIABLE_ARRAY:
-		return m_data.arrayValue->arrayValue.size();
+    case VARIABLE_ARRAY:
+        return m_data.arrayValue->arrayValue.size();
 
-	case VARIABLE_CONSTARRAY:
-		return m_data.constArrayValue->size;
+    case VARIABLE_CONSTARRAY:
+        return m_data.constArrayValue->size;
 
-	case VARIABLE_CONTAINER:
-		return m_data.containerValue->NumObjects();
+    case VARIABLE_CONTAINER:
+        return m_data.containerValue->NumObjects();
 
-	case VARIABLE_SAFECONTAINER:
-		if( *m_data.safeContainerValue )
-		{
-			return ( *m_data.safeContainerValue )->NumObjects();
-		}
-		else
-		{
-			return 0;
-		}
+    case VARIABLE_SAFECONTAINER:
+        if (*m_data.safeContainerValue) {
+            return (*m_data.safeContainerValue)->NumObjects();
+        } else {
+            return 0;
+        }
 
-	default:
-		return 1;
-	}
+    default:
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
-size_t ScriptVariable::size( void ) const
+size_t ScriptVariable::size(void) const
 {
-	switch( GetType() )
-	{
-	case VARIABLE_POINTER:
-		m_data.pointerValue->Clear();
-		delete m_data.pointerValue;
+    switch (GetType()) {
+    case VARIABLE_POINTER:
+        m_data.pointerValue->Clear();
+        delete m_data.pointerValue;
 
-		return -1;
+        return -1;
 
-	case VARIABLE_CONSTSTRING:
-	case VARIABLE_STRING:
-		return stringValue().length();
+    case VARIABLE_CONSTSTRING:
+    case VARIABLE_STRING:
+        return stringValue().length();
 
-	case VARIABLE_LISTENER:
-		return *m_data.listenerValue != NULL;
+    case VARIABLE_LISTENER:
+        return *m_data.listenerValue != NULL;
 
-	case VARIABLE_ARRAY:
-		return m_data.arrayValue->arrayValue.size();
+    case VARIABLE_ARRAY:
+        return m_data.arrayValue->arrayValue.size();
 
-	case VARIABLE_CONSTARRAY:
-		return m_data.constArrayValue->size;
+    case VARIABLE_CONSTARRAY:
+        return m_data.constArrayValue->size;
 
-	case VARIABLE_CONTAINER:
-		return m_data.containerValue->NumObjects();
+    case VARIABLE_CONTAINER:
+        return m_data.containerValue->NumObjects();
 
-	case VARIABLE_SAFECONTAINER:
-		if( *m_data.safeContainerValue )
-		{
-			return ( *m_data.safeContainerValue )->NumObjects();
-		}
-		else
-		{
-			return 0;
-		}
+    case VARIABLE_SAFECONTAINER:
+        if (*m_data.safeContainerValue) {
+            return (*m_data.safeContainerValue)->NumObjects();
+        } else {
+            return 0;
+        }
 
-	default:
-		return 1;
-	}
+    default:
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
-bool ScriptVariable::booleanNumericValue( void )
+bool ScriptVariable::booleanNumericValue(void)
 {
-	str value;
+    str value;
 
-	switch( GetType() )
-	{
-	case VARIABLE_STRING:
-	case VARIABLE_CONSTSTRING:
-		value = stringValue();
+    switch (GetType()) {
+    case VARIABLE_STRING:
+    case VARIABLE_CONSTSTRING:
+        value = stringValue();
 
-		return atoi( value.c_str() ) ? true : false;
+        return atoi(value.c_str()) ? true : false;
 
-	case VARIABLE_INTEGER:
-		return m_data.intValue != 0;
+    case VARIABLE_INTEGER:
+        return m_data.intValue != 0;
 
-	case VARIABLE_FLOAT:
-		return fabs( m_data.floatValue ) >= 0.00009999999747378752;
+    case VARIABLE_FLOAT:
+        return fabs(m_data.floatValue) >= 0.00009999999747378752;
 
-	case VARIABLE_LISTENER:
-		return ( *m_data.listenerValue ) != NULL;
+    case VARIABLE_LISTENER:
+        return (*m_data.listenerValue) != NULL;
 
-	default:
-		throw ScriptException( "Cannot cast '%s' to boolean numeric", GetTypeName() );
-	}
+    default:
+        throw ScriptException("Cannot cast '%s' to boolean numeric", GetTypeName());
+    }
 
-	return true;
+    return true;
 }
 
-bool ScriptVariable::booleanValue( void ) const
+bool ScriptVariable::booleanValue(void) const
 {
-	switch( GetType() )
-	{
-	case VARIABLE_NONE:
-		return false;
+    switch (GetType()) {
+    case VARIABLE_NONE:
+        return false;
 
-	case VARIABLE_STRING:
-		if( m_data.stringValue )
-		{
-			return m_data.stringValue->length() != 0;
-		}
+    case VARIABLE_STRING:
+        if (m_data.stringValue) {
+            return m_data.stringValue->length() != 0;
+        }
 
-		return false;
+        return false;
 
-	case VARIABLE_INTEGER:
-		return m_data.intValue != 0;
+    case VARIABLE_INTEGER:
+        return m_data.intValue != 0;
 
-	case VARIABLE_FLOAT:
-		return fabs( m_data.floatValue ) >= 0.00009999999747378752;
+    case VARIABLE_FLOAT:
+        return fabs(m_data.floatValue) >= 0.00009999999747378752;
 
-	case VARIABLE_CONSTSTRING:
-		return m_data.intValue != STRING_EMPTY;
+    case VARIABLE_CONSTSTRING:
+        return m_data.intValue != STRING_EMPTY;
 
-	case VARIABLE_LISTENER:
-		return ( *m_data.listenerValue ) != NULL;
+    case VARIABLE_LISTENER:
+        return (*m_data.listenerValue) != NULL;
 
-	default:
-		return true;
-	}
+    default:
+        return true;
+    }
 }
 
-char ScriptVariable::charValue( void ) const
+char ScriptVariable::charValue(void) const
 {
-	str value;
+    str value;
 
-	switch( GetType() )
-	{
-	case VARIABLE_CHAR:
-		return m_data.charValue;
+    switch (GetType()) {
+    case VARIABLE_CHAR:
+        return m_data.charValue;
 
-	case VARIABLE_CONSTSTRING:
-	case VARIABLE_STRING:
-		value = stringValue();
+    case VARIABLE_CONSTSTRING:
+    case VARIABLE_STRING:
+        value = stringValue();
 
-		if( value.length() != 1 )
-		{
-			throw ScriptException( "Cannot cast string not of length 1 to char" );
-		}
+        if (value.length() != 1) {
+            throw ScriptException("Cannot cast string not of length 1 to char");
+        }
 
-		return *value;
+        return *value;
 
-	default:
-		throw ScriptException( "Cannot cast '%s' to char", GetTypeName() );
-	}
+    default:
+        throw ScriptException("Cannot cast '%s' to char", GetTypeName());
+    }
 
-	return 0;
+    return 0;
 }
 
-ScriptVariable *ScriptVariable::constArrayValue( void )
+ScriptVariable *ScriptVariable::constArrayValue(void)
 {
-	return m_data.constArrayValue->constArrayValue;
+    return m_data.constArrayValue->constArrayValue;
 }
 
 #ifdef WITH_SCRIPT_ENGINE
 
 str getname_null = "";
 
-str& ScriptVariable::getName( void )
+str& ScriptVariable::getName(void)
 {
-	return Director.GetString( GetKey() );
+    return Director.GetString(GetKey());
 }
 
 short3& ScriptVariable::GetKey()
 {
-	return key;
+    return key;
 }
 
-void ScriptVariable::SetKey( const short3& key )
+void ScriptVariable::SetKey(const short3& key)
 {
-	this->key = key;
+    this->key = key;
 }
 
 #endif
 
-Entity *ScriptVariable::entityValue( void )
+Entity *ScriptVariable::entityValue(void)
 {
-#if defined (GAME_DLL)
-	return (Entity *)listenerValue();
+#if defined(GAME_DLL)
+    return (Entity *)listenerValue();
 #else
-	return NULL;
+    return NULL;
 #endif
 }
 
-void ScriptVariable::evalArrayAt( ScriptVariable &var )
+void ScriptVariable::evalArrayAt(ScriptVariable& var)
 {
-	unsigned int index;
-	str string;
-	ScriptVariable *array;
+    unsigned int    index;
+    str             string;
+    ScriptVariable *array;
 
-	switch( GetType() )
-	{
-	case VARIABLE_VECTOR:
-		index = var.intValue();
+    switch (GetType()) {
+    case VARIABLE_VECTOR:
+        index = var.intValue();
 
-		if( index > 2 )
-		{
-			Clear();
-			throw ScriptException( "Vector index '%d' out of range", index );
-		}
+        if (index > 2) {
+            Clear();
+            throw ScriptException("Vector index '%d' out of range", index);
+        }
 
-		return setFloatValue( m_data.vectorValue[ index ] );
+        return setFloatValue(m_data.vectorValue[index]);
 
-	case VARIABLE_NONE:
-		break;
+    case VARIABLE_NONE:
+        break;
 
-	case VARIABLE_CONSTSTRING:
-	case VARIABLE_STRING:
-		index = var.intValue();
-		string = stringValue();
+    case VARIABLE_CONSTSTRING:
+    case VARIABLE_STRING:
+        index  = var.intValue();
+        string = stringValue();
 
-		if( index >= string.length() )
-		{
-			Clear();
-			throw ScriptException( "String index %d out of range", index );
-		}
+        if (index >= string.length()) {
+            Clear();
+            throw ScriptException("String index %d out of range", index);
+        }
 
-		return setCharValue( string[ index ] );
+        return setCharValue(string[index]);
 
-	case VARIABLE_LISTENER:
-		index = var.intValue();
+    case VARIABLE_LISTENER:
+        index = var.intValue();
 
-		if( index != 1 )
-		{
-			Clear();
-			throw ScriptException( "array index %d out of range", index );
-		}
+        if (index != 1) {
+            Clear();
+            throw ScriptException("array index %d out of range", index);
+        }
 
-		break;
+        break;
 
-	case VARIABLE_ARRAY:
-		array = m_data.arrayValue->arrayValue.find( var );
+    case VARIABLE_ARRAY:
+        array = m_data.arrayValue->arrayValue.find(var);
 
-		if( array )
-		{
-			*this = *array;
-		}
-		else
-		{
-			Clear();
-		}
+        if (array) {
+            *this = *array;
+        } else {
+            Clear();
+        }
 
-		break;
+        break;
 
-	case VARIABLE_CONSTARRAY:
-		index = var.intValue();
+    case VARIABLE_CONSTARRAY:
+        index = var.intValue();
 
-		if( !index || index > m_data.constArrayValue->size )
-		{
-			throw ScriptException( "array index %d out of range", index );
-		}
+        if (!index || index > m_data.constArrayValue->size) {
+            throw ScriptException("array index %d out of range", index);
+        }
 
-		*this = m_data.constArrayValue->constArrayValue[ index ];
-		break;
+        *this = m_data.constArrayValue->constArrayValue[index];
+        break;
 
-	case VARIABLE_CONTAINER:
-		index = var.intValue();
+    case VARIABLE_CONTAINER:
+        index = var.intValue();
 
-		if( !index || index > m_data.constArrayValue->size )
-		{
-			throw ScriptException( "array index %d out of range", index );
-		}
+        if (!index || index > m_data.constArrayValue->size) {
+            throw ScriptException("array index %d out of range", index);
+        }
 
-		setListenerValue( m_data.containerValue->ObjectAt( index ) );
-		break;
+        setListenerValue(m_data.containerValue->ObjectAt(index));
+        break;
 
-	case VARIABLE_SAFECONTAINER:
-		index = var.intValue();
+    case VARIABLE_SAFECONTAINER:
+        index = var.intValue();
 
-		if( !*m_data.safeContainerValue || !index || index > m_data.constArrayValue->size )
-		{
-			throw ScriptException( "array index %d out of range", index );
-		}
+        if (!*m_data.safeContainerValue || !index || index > m_data.constArrayValue->size) {
+            throw ScriptException("array index %d out of range", index);
+        }
 
-		setListenerValue( ( *m_data.safeContainerValue )->ObjectAt( index ) );
-		break;
+        setListenerValue((*m_data.safeContainerValue)->ObjectAt(index));
+        break;
 
-	default:
-		Clear();
-		throw ScriptException( "[] applied to invalid type '%s'", typenames[ GetType() ] );
-		break;
-	}
+    default:
+        Clear();
+        throw ScriptException("[] applied to invalid type '%s'", typenames[GetType()]);
+        break;
+    }
 }
 
-float ScriptVariable::floatValue( void ) const
+float ScriptVariable::floatValue(void) const
 {
-	const char *string;
-	float val;
+    const char *string;
+    float       val;
 
-	switch( type )
-	{
-	case VARIABLE_FLOAT:
-		return m_data.floatValue;
+    switch (type) {
+    case VARIABLE_FLOAT:
+        return m_data.floatValue;
 
-	case VARIABLE_INTEGER:
-		return ( float )m_data.intValue;
+    case VARIABLE_INTEGER:
+        return (float)m_data.intValue;
 
-	/* Transform the string into an integer if possible */
-	case VARIABLE_STRING:
-	case VARIABLE_CONSTSTRING:
-		string = stringValue();
-		val = atof( ( const char * )string );
+    /* Transform the string into an integer if possible */
+    case VARIABLE_STRING:
+    case VARIABLE_CONSTSTRING:
+        string = stringValue();
+        val    = atof((const char *)string);
 
-		return val;
+        return val;
 
-	default:
-		throw ScriptException( "Cannot cast '%s' to float", typenames[ type ] );
-	}
+    default:
+        throw ScriptException("Cannot cast '%s' to float", typenames[type]);
+    }
 }
 
-int ScriptVariable::intValue( void ) const
+int ScriptVariable::intValue(void) const
 {
-	str string;
-	int val;
+    str string;
+    int val;
 
-	switch( type )
-	{
-	case VARIABLE_INTEGER:
-		return m_data.intValue;
+    switch (type) {
+    case VARIABLE_INTEGER:
+        return m_data.intValue;
 
-	case VARIABLE_FLOAT:
-		return ( int )m_data.floatValue;
+    case VARIABLE_FLOAT:
+        return (int)m_data.floatValue;
 
-	case VARIABLE_STRING:
-	case VARIABLE_CONSTSTRING:
-		string = stringValue();
-		val = atoi( string );
+    case VARIABLE_STRING:
+    case VARIABLE_CONSTSTRING:
+        string = stringValue();
+        val    = atoi(string);
 
-		return val;
+        return val;
 
-	default:
-		throw ScriptException( "Cannot cast '%s' to int", typenames[ type ] );
-	}
+    default:
+        throw ScriptException("Cannot cast '%s' to int", typenames[type]);
+    }
 }
 
-Listener *ScriptVariable::listenerValue( void ) const
+Listener *ScriptVariable::listenerValue(void) const
 {
-	switch( type )
-	{
+    switch (type) {
 #ifdef WITH_SCRIPT_ENGINE
-	case VARIABLE_CONSTSTRING:
-		return world->GetScriptTarget( Director.GetString( m_data.intValue ) );
+    case VARIABLE_CONSTSTRING:
+        return world->GetScriptTarget(Director.GetString(m_data.intValue));
 
-	case VARIABLE_STRING:
-		return world->GetScriptTarget( stringValue() );
+    case VARIABLE_STRING:
+        return world->GetScriptTarget(stringValue());
 #endif
 
-	case VARIABLE_LISTENER:
-		return ( Listener * )m_data.listenerValue->Pointer();
+    case VARIABLE_LISTENER:
+        return (Listener *)m_data.listenerValue->Pointer();
 
-	default:
-		throw ScriptException( "Cannot cast '%s' to listener", typenames[ type ] );
-	}
+    default:
+        throw ScriptException("Cannot cast '%s' to listener", typenames[type]);
+    }
 
-	return NULL;
+    return NULL;
 }
 
-Listener* ScriptVariable::listenerAt(uintptr_t index) const
+Listener *ScriptVariable::listenerAt(uintptr_t index) const
 {
-	switch (type)
-	{
-	case VARIABLE_CONSTARRAY:
-		return m_data.constArrayValue->constArrayValue[index].listenerValue();
+    switch (type) {
+    case VARIABLE_CONSTARRAY:
+        return m_data.constArrayValue->constArrayValue[index].listenerValue();
 
-	case VARIABLE_CONTAINER:
-		return m_data.containerValue->ObjectAt(index);
+    case VARIABLE_CONTAINER:
+        return m_data.containerValue->ObjectAt(index);
 
-	case VARIABLE_SAFECONTAINER:
-		assert(*m_data.safeContainerValue);
-		return (*m_data.safeContainerValue)->ObjectAt(index);
+    case VARIABLE_SAFECONTAINER:
+        assert(*m_data.safeContainerValue);
+        return (*m_data.safeContainerValue)->ObjectAt(index);
 
-	default:
-		throw ScriptException("Cannot cast '%s' to listener", typenames[type]);
-	}
+    default:
+        throw ScriptException("Cannot cast '%s' to listener", typenames[type]);
+    }
 }
 
-void ScriptVariable::newPointer( void )
+void ScriptVariable::newPointer(void)
 {
-	type = VARIABLE_POINTER;
+    type = VARIABLE_POINTER;
 
-	m_data.pointerValue = new ScriptPointer();
-	m_data.pointerValue->add( this );
+    m_data.pointerValue = new ScriptPointer();
+    m_data.pointerValue->add(this);
 }
 
 #ifdef WITH_SCRIPT_ENGINE
 
-SimpleEntity *ScriptVariable::simpleEntityValue( void ) const
+SimpleEntity *ScriptVariable::simpleEntityValue(void) const
 {
-	return ( SimpleEntity * )listenerValue();
+    return (SimpleEntity *)listenerValue();
 }
 
 #endif
 
 str ScriptVariable::stringValue() const
 {
-	str string;
+    str string;
 
-	switch( GetType() )
-	{
-	case VARIABLE_NONE:
-		return "NIL";
+    switch (GetType()) {
+    case VARIABLE_NONE:
+        return "NIL";
 
 #ifdef WITH_SCRIPT_ENGINE
-	case VARIABLE_CONSTSTRING:
-		return Director.GetString( m_data.intValue );
+    case VARIABLE_CONSTSTRING:
+        return Director.GetString(m_data.intValue);
 #endif
 
-	case VARIABLE_STRING:
-		return *m_data.stringValue;
+    case VARIABLE_STRING:
+        return *m_data.stringValue;
 
-	case VARIABLE_INTEGER:
-		return str( m_data.intValue );
+    case VARIABLE_INTEGER:
+        return str(m_data.intValue);
 
-	case VARIABLE_FLOAT:
-		return str( m_data.floatValue );
+    case VARIABLE_FLOAT:
+        return str(m_data.floatValue);
 
-	case VARIABLE_CHAR:
-		return str( m_data.charValue );
+    case VARIABLE_CHAR:
+        return str(m_data.charValue);
 
-	case VARIABLE_LISTENER:
-		if( m_data.listenerValue->Pointer() )
-		{
+    case VARIABLE_LISTENER:
+        if (m_data.listenerValue->Pointer()) {
 #ifdef WITH_SCRIPT_ENGINE
-			if( m_data.listenerValue->Pointer()->isSubclassOf( SimpleEntity ) )
-			{
-				SimpleEntity *s = ( SimpleEntity * )m_data.listenerValue->Pointer();
-				return s->targetname;
-			}
-			else
-			{
-				string = "class '" + str( m_data.listenerValue->Pointer()->getClassname() ) + "'";
-				return string;
-			}
+            if (m_data.listenerValue->Pointer()->isSubclassOf(SimpleEntity)) {
+                SimpleEntity *s = (SimpleEntity *)m_data.listenerValue->Pointer();
+                return s->targetname;
+            } else {
+                string = "class '" + str(m_data.listenerValue->Pointer()->getClassname()) + "'";
+                return string;
+            }
 #else
-			string = "class '" + str( m_data.listenerValue->Pointer()->getClassname() ) + "'";
-			return string;
+            string = "class '" + str(m_data.listenerValue->Pointer()->getClassname()) + "'";
+            return string;
 #endif
-		}
-		else
-		{
-			return "NULL";
-		}
+        } else {
+            return "NULL";
+        }
 
-	case VARIABLE_VECTOR:
-		return str("( ") + str(m_data.vectorValue[0]) + str(" ") + str(m_data.vectorValue[1]) + str(" ") + str(m_data.vectorValue[2]) + str(" )");
+    case VARIABLE_VECTOR:
+        return str("( ") + str(m_data.vectorValue[0]) + str(" ") + str(m_data.vectorValue[1]) + str(" ")
+             + str(m_data.vectorValue[2]) + str(" )");
 
-	default:
-		throw ScriptException( "Cannot cast '%s' to string", typenames[ GetType() ] );
-		break;
-	}
+    default:
+        throw ScriptException("Cannot cast '%s' to string", typenames[GetType()]);
+        break;
+    }
 
-	return "";
+    return "";
 }
 
-Vector ScriptVariable::vectorValue( void ) const
+Vector ScriptVariable::vectorValue(void) const
 {
-	const char *string;
-	float x = 0.f, y = 0.f, z = 0.f;
+    const char *string;
+    float       x = 0.f, y = 0.f, z = 0.f;
 
-	switch( type )
-	{
-	case VARIABLE_VECTOR:
-		return Vector( m_data.vectorValue );
+    switch (type) {
+    case VARIABLE_VECTOR:
+        return Vector(m_data.vectorValue);
 
-	case VARIABLE_CONSTSTRING:
-	case VARIABLE_STRING:
-		string = stringValue();
+    case VARIABLE_CONSTSTRING:
+    case VARIABLE_STRING:
+        string = stringValue();
 
-		if( strcmp( string, "" ) == 0 ) {
-			throw ScriptException( "cannot cast empty string to vector" );
-		}
+        if (strcmp(string, "") == 0) {
+            throw ScriptException("cannot cast empty string to vector");
+        }
 
-		if( *string == '(' )
-		{
-			if( sscanf( string, "(%f %f %f)", &x, &y, &z ) != 3 )
-			{
-				if( sscanf( string, "(%f, %f, %f)", &x, &y, &z ) != 3 ) {
-					throw ScriptException( "Couldn't convert string to vector - malformed string '%s'", string );
-				}
-			}
-		}
-		else
-		{
-			if( sscanf( string, "%f %f %f", &x, &y, &z ) != 3 )
-			{
-				if( sscanf( string, "%f, %f, %f", &x, &y, &z ) != 3 ) {
-					throw ScriptException( "Couldn't convert string to vector - malformed string '%s'", string );
-				}
-			}
-		}
+        if (*string == '(') {
+            if (sscanf(string, "(%f %f %f)", &x, &y, &z) != 3) {
+                if (sscanf(string, "(%f, %f, %f)", &x, &y, &z) != 3) {
+                    throw ScriptException("Couldn't convert string to vector - malformed string '%s'", string);
+                }
+            }
+        } else {
+            if (sscanf(string, "%f %f %f", &x, &y, &z) != 3) {
+                if (sscanf(string, "%f, %f, %f", &x, &y, &z) != 3) {
+                    throw ScriptException("Couldn't convert string to vector - malformed string '%s'", string);
+                }
+            }
+        }
 
-		return Vector( x, y, z );
-	case VARIABLE_LISTENER:
-	{
-		if( !m_data.listenerValue->Pointer() ) {
-			throw ScriptException( "Cannot cast NULL to vector" );
-		}
+        return Vector(x, y, z);
+    case VARIABLE_LISTENER:
+        {
+            if (!m_data.listenerValue->Pointer()) {
+                throw ScriptException("Cannot cast NULL to vector");
+            }
 
 #ifdef WITH_SCRIPT_ENGINE
-		if( !checkInheritance( &SimpleEntity::ClassInfo, m_data.listenerValue->Pointer()->classinfo() ) )
-		{
-			throw ScriptException( "Cannot cast '%s' to vector", GetTypeName() );
-		}
+            if (!checkInheritance(&SimpleEntity::ClassInfo, m_data.listenerValue->Pointer()->classinfo())) {
+                throw ScriptException("Cannot cast '%s' to vector", GetTypeName());
+            }
 
-		SimpleEntity *ent = ( SimpleEntity * )m_data.listenerValue->Pointer();
+            SimpleEntity *ent = (SimpleEntity *)m_data.listenerValue->Pointer();
 
-		return Vector( ent->origin[ 0 ], ent->origin[ 1 ], ent->origin[ 2 ] );
+            return Vector(ent->origin[0], ent->origin[1], ent->origin[2]);
 #else
-		throw ScriptException( "Cannot cast '%s' to vector", GetTypeName() );
+            throw ScriptException("Cannot cast '%s' to vector", GetTypeName());
 #endif
-	}
+        }
 
-	default:
-		throw ScriptException( "Cannot cast '%s' to vector", GetTypeName() );
-	}
+    default:
+        throw ScriptException("Cannot cast '%s' to vector", GetTypeName());
+    }
 }
 
 #ifdef GAME_DLL
 
-PathNode *ScriptVariable::pathNodeValue( void ) const
+PathNode *ScriptVariable::pathNodeValue(void) const
 {
-	Listener *node = listenerValue();
+    Listener *node = listenerValue();
 
-	if( !node )
-	{
-		throw ScriptException( "listener is NULL" );
-	}
+    if (!node) {
+        throw ScriptException("listener is NULL");
+    }
 
-	if( !node->isSubclassOf( PathNode ) )
-	{
-		throw ScriptException( "listener is not a path node" );
-	}
+    if (!node->isSubclassOf(PathNode)) {
+        throw ScriptException("listener is not a path node");
+    }
 
-	return ( PathNode * )node;
+    return (PathNode *)node;
 }
 
-Waypoint *ScriptVariable::waypointValue( void ) const
+Waypoint *ScriptVariable::waypointValue(void) const
 {
-	Listener *node = listenerValue();
+    Listener *node = listenerValue();
 
-	if( !node )
-	{
-		throw ScriptException( "listener is NULL" );
-	}
+    if (!node) {
+        throw ScriptException("listener is NULL");
+    }
 
-	if( !node->isSubclassOf( Waypoint ) )
-	{
-		throw ScriptException( "listener is not a way point" );
-	}
+    if (!node->isSubclassOf(Waypoint)) {
+        throw ScriptException("listener is not a way point");
+    }
 
-	return ( Waypoint * )node;
+    return (Waypoint *)node;
 }
 
 #endif
 
-void ScriptVariable::setArrayAt( ScriptVariable& index, ScriptVariable& value )
+void ScriptVariable::setArrayAt(ScriptVariable& index, ScriptVariable& value)
 {
-	return m_data.refValue->setArrayAtRef( index, value );
+    return m_data.refValue->setArrayAtRef(index, value);
 }
 
-void ScriptVariable::setArrayAtRef( ScriptVariable& index, ScriptVariable& value )
+void ScriptVariable::setArrayAtRef(ScriptVariable& index, ScriptVariable& value)
 {
-	unsigned int intValue;
-	str string;
+    unsigned int intValue;
+    str          string;
 
-	switch( type )
-	{
-	case VARIABLE_VECTOR:
-		intValue = index.intValue();
+    switch (type) {
+    case VARIABLE_VECTOR:
+        intValue = index.intValue();
 
-		if( intValue > 2 ) {
-			throw ScriptException( "Vector index '%d' out of range", intValue );
-		}
+        if (intValue > 2) {
+            throw ScriptException("Vector index '%d' out of range", intValue);
+        }
 
-		m_data.vectorValue[ intValue ] = value.floatValue();
-		break;
+        m_data.vectorValue[intValue] = value.floatValue();
+        break;
 
-	case VARIABLE_REF:
-		return;
+    case VARIABLE_REF:
+        return;
 
-	case VARIABLE_NONE:
-		type = VARIABLE_ARRAY;
+    case VARIABLE_NONE:
+        type = VARIABLE_ARRAY;
 
-		m_data.arrayValue = new ScriptArrayHolder;
+        m_data.arrayValue = new ScriptArrayHolder;
 
-		if( value.GetType() != VARIABLE_NONE )
-		{
-			m_data.arrayValue->arrayValue[ index ] = value;
-		}
+        if (value.GetType() != VARIABLE_NONE) {
+            m_data.arrayValue->arrayValue[index] = value;
+        }
 
-		break;
+        break;
 
-	case VARIABLE_ARRAY:
-		if( value.GetType() == VARIABLE_NONE )
-		{
-			m_data.arrayValue->arrayValue.remove( index );
-		}
-		else
-		{
-			m_data.arrayValue->arrayValue[ index ] = value;
-		}
-		break;
+    case VARIABLE_ARRAY:
+        if (value.GetType() == VARIABLE_NONE) {
+            m_data.arrayValue->arrayValue.remove(index);
+        } else {
+            m_data.arrayValue->arrayValue[index] = value;
+        }
+        break;
 
-	case VARIABLE_STRING:
-	case VARIABLE_CONSTSTRING:
-		intValue = index.intValue();
-		string = stringValue();
+    case VARIABLE_STRING:
+    case VARIABLE_CONSTSTRING:
+        intValue = index.intValue();
+        string   = stringValue();
 
-		if( intValue >= strlen( string ) ) {
-			throw ScriptException( "String index '%d' out of range", intValue );
-		}
+        if (intValue >= strlen(string)) {
+            throw ScriptException("String index '%d' out of range", intValue);
+        }
 
-		string[ intValue ] = value.charValue();
+        string[intValue] = value.charValue();
 
-		setStringValue( string );
+        setStringValue(string);
 
-		break;
+        break;
 
-	case VARIABLE_CONSTARRAY:
-		intValue = index.intValue();
+    case VARIABLE_CONSTARRAY:
+        intValue = index.intValue();
 
-		if( !intValue || intValue > m_data.constArrayValue->size ) {
-			throw ScriptException( "array index %d out of range", intValue );
-		}
+        if (!intValue || intValue > m_data.constArrayValue->size) {
+            throw ScriptException("array index %d out of range", intValue);
+        }
 
-		if( value.GetType() )
-		{
-			m_data.constArrayValue->constArrayValue[ intValue ] = value;
-		} else {
-			m_data.constArrayValue->constArrayValue[ intValue ].Clear();
-		}
+        if (value.GetType()) {
+            m_data.constArrayValue->constArrayValue[intValue] = value;
+        } else {
+            m_data.constArrayValue->constArrayValue[intValue].Clear();
+        }
 
-		break;
+        break;
 
-	default:
-		throw ScriptException( "[] applied to invalid type '%s'\n", typenames[ GetType() ] );
-		break;
-	}
+    default:
+        throw ScriptException("[] applied to invalid type '%s'\n", typenames[GetType()]);
+        break;
+    }
 }
 
-void ScriptVariable::setArrayRefValue( ScriptVariable &var )
+void ScriptVariable::setArrayRefValue(ScriptVariable& var)
 {
-	setRefValue( &( *m_data.refValue )[ var ] );
+    setRefValue(&(*m_data.refValue)[var]);
 }
 
-void ScriptVariable::setCharValue( char newvalue )
+void ScriptVariable::setCharValue(char newvalue)
 {
-	ClearInternal();
+    ClearInternal();
 
-	type = VARIABLE_CHAR;
-	m_data.charValue = newvalue;
+    type             = VARIABLE_CHAR;
+    m_data.charValue = newvalue;
 }
 
-void ScriptVariable::setContainerValue( Container< SafePtr< Listener > > *newvalue )
+void ScriptVariable::setContainerValue(Container<SafePtr<Listener>> *newvalue)
 {
-	ClearInternal();
+    ClearInternal();
 
-	type = VARIABLE_CONTAINER;
-	m_data.containerValue = newvalue;
+    type                  = VARIABLE_CONTAINER;
+    m_data.containerValue = newvalue;
 }
 
-void ScriptVariable::setSafeContainerValue( ConList *newvalue )
+void ScriptVariable::setSafeContainerValue(ConList *newvalue)
 {
-	ClearInternal();
+    ClearInternal();
 
-	if( newvalue )
-	{
-		type = VARIABLE_SAFECONTAINER;
-		m_data.safeContainerValue = new SafePtr< ConList >( newvalue );
-	}
-	else
-	{
-		type = VARIABLE_NONE;
-	}
+    if (newvalue) {
+        type                      = VARIABLE_SAFECONTAINER;
+        m_data.safeContainerValue = new SafePtr<ConList>(newvalue);
+    } else {
+        type = VARIABLE_NONE;
+    }
 }
 
-void ScriptVariable::setConstArrayValue( ScriptVariable *pVar, unsigned int size )
+void ScriptVariable::setConstArrayValue(ScriptVariable *pVar, unsigned int size)
 {
-	ScriptConstArrayHolder *constArray = new ScriptConstArrayHolder( pVar - 1, size );
+    ScriptConstArrayHolder *constArray = new ScriptConstArrayHolder(pVar - 1, size);
 
-	ClearInternal();
-	type = VARIABLE_CONSTARRAY;
+    ClearInternal();
+    type = VARIABLE_CONSTARRAY;
 
-	m_data.constArrayValue = constArray;
+    m_data.constArrayValue = constArray;
 }
 
 #ifdef WITH_SCRIPT_ENGINE
 
-const_str ScriptVariable::constStringValue( void ) const
+const_str ScriptVariable::constStringValue(void) const
 {
-	if( GetType() == VARIABLE_CONSTSTRING )
-	{
-		return m_data.intValue;
-	}
-	else
-	{
-		return Director.AddString( stringValue() );
-	}
+    if (GetType() == VARIABLE_CONSTSTRING) {
+        return m_data.intValue;
+    } else {
+        return Director.AddString(stringValue());
+    }
 }
 
-void ScriptVariable::setConstStringValue( const_str s )
+void ScriptVariable::setConstStringValue(const_str s)
 {
-	ClearInternal();
-	type = VARIABLE_CONSTSTRING;
-	m_data.intValue = s;
+    ClearInternal();
+    type            = VARIABLE_CONSTSTRING;
+    m_data.intValue = s;
 }
 
 #endif
 
-void ScriptVariable::setFloatValue( float newvalue )
+void ScriptVariable::setFloatValue(float newvalue)
 {
-	ClearInternal();
-	type = VARIABLE_FLOAT;
-	m_data.floatValue = newvalue;
+    ClearInternal();
+    type              = VARIABLE_FLOAT;
+    m_data.floatValue = newvalue;
 }
 
-void ScriptVariable::setIntValue( int newvalue )
+void ScriptVariable::setIntValue(int newvalue)
 {
-	ClearInternal();
-	type = VARIABLE_INTEGER;
-	m_data.intValue = newvalue;
+    ClearInternal();
+    type            = VARIABLE_INTEGER;
+    m_data.intValue = newvalue;
 }
 
-void ScriptVariable::setListenerValue( Listener *newvalue )
+void ScriptVariable::setListenerValue(Listener *newvalue)
 {
-	ClearInternal();
+    ClearInternal();
 
-	type = VARIABLE_LISTENER;
+    type = VARIABLE_LISTENER;
 
-	m_data.listenerValue = new SafePtr< Listener >( newvalue );
+    m_data.listenerValue = new SafePtr<Listener>(newvalue);
 }
 
-void ScriptVariable::setPointer( const ScriptVariable& newvalue )
+void ScriptVariable::setPointer(const ScriptVariable& newvalue)
 {
-	if( GetType() == VARIABLE_POINTER ) {
-		m_data.pointerValue->setValue( newvalue );
-	}
+    if (GetType() == VARIABLE_POINTER) {
+        m_data.pointerValue->setValue(newvalue);
+    }
 }
 
-void ScriptVariable::setRefValue( ScriptVariable *ref )
+void ScriptVariable::setRefValue(ScriptVariable *ref)
 {
-	ClearInternal();
+    ClearInternal();
 
-	type = VARIABLE_REF;
-	m_data.refValue = ref;
+    type            = VARIABLE_REF;
+    m_data.refValue = ref;
 }
 
-void ScriptVariable::setStringValue( str newvalue )
+void ScriptVariable::setStringValue(str newvalue)
 {
-	str *s;
+    str *s;
 
-	ClearInternal();
-	type = VARIABLE_STRING;
+    ClearInternal();
+    type = VARIABLE_STRING;
 
-	s = new str( newvalue );
+    s = new str(newvalue);
 
-	m_data.stringValue = s;
+    m_data.stringValue = s;
 }
 
-void ScriptVariable::setVectorValue( const Vector &newvector )
+void ScriptVariable::setVectorValue(const Vector& newvector)
 {
-	ClearInternal();
+    ClearInternal();
 
-	type = VARIABLE_VECTOR;
-	m_data.vectorValue = new float[ 3 ];
-	newvector.copyTo( m_data.vectorValue );
+    type               = VARIABLE_VECTOR;
+    m_data.vectorValue = new float[3];
+    newvector.copyTo(m_data.vectorValue);
 }
 
-void ScriptVariable::operator+=( const ScriptVariable& value )
+void ScriptVariable::operator+=(const ScriptVariable& value)
 {
-	int type = GetType();
+    int type = GetType();
 
-	switch( type + value.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (type + value.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '+' applied to incompatible types '%s' and '%s'", typenames[ type ], typenames[ value.GetType() ] );
+        throw ScriptException(
+            "binary '+' applied to incompatible types '%s' and '%s'", typenames[type], typenames[value.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) + ( int )
-		m_data.intValue = m_data.intValue + value.m_data.intValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) + ( int )
+        m_data.intValue = m_data.intValue + value.m_data.intValue;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_FLOAT * VARIABLE_MAX: // ( int ) + ( float )
-		setFloatValue( ( float )m_data.intValue + value.m_data.floatValue );
-		break;
+    case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) + ( float )
+        setFloatValue((float)m_data.intValue + value.m_data.floatValue);
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_FLOAT * VARIABLE_MAX: // ( float ) + ( float )
-		m_data.floatValue = m_data.floatValue + value.m_data.floatValue;
-		break;
+    case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) + ( float )
+        m_data.floatValue = m_data.floatValue + value.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_INTEGER * VARIABLE_MAX: // ( float ) + ( int )
-		m_data.floatValue = m_data.floatValue + value.m_data.intValue;
-		break;
+    case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) + ( int )
+        m_data.floatValue = m_data.floatValue + value.m_data.intValue;
+        break;
 
-	case VARIABLE_STRING + VARIABLE_STRING * VARIABLE_MAX:				// ( string )			+		( string )
-	case VARIABLE_INTEGER + VARIABLE_STRING * VARIABLE_MAX:				// ( int )				+		( string )
-	case VARIABLE_FLOAT + VARIABLE_STRING * VARIABLE_MAX:				// ( float )			+		( string )
-	case VARIABLE_CHAR + VARIABLE_STRING * VARIABLE_MAX:				// ( char )				+		( string )
-	case VARIABLE_CONSTSTRING + VARIABLE_STRING * VARIABLE_MAX:			// ( const string )		+		( string )
-	case VARIABLE_LISTENER + VARIABLE_STRING * VARIABLE_MAX:			// ( listener )			+		( string )
-	case VARIABLE_VECTOR + VARIABLE_STRING * VARIABLE_MAX:				// ( vector )			+		( string )
-	case VARIABLE_STRING + VARIABLE_INTEGER * VARIABLE_MAX:				// ( string )			+		( int )
-	case VARIABLE_CONSTSTRING + VARIABLE_INTEGER * VARIABLE_MAX:		// ( const string )		+		( int )
-	case VARIABLE_STRING + VARIABLE_FLOAT * VARIABLE_MAX:				// ( string )			+		( float )
-	case VARIABLE_CONSTSTRING + VARIABLE_FLOAT * VARIABLE_MAX:			// ( const string )		+		( float )
-	case VARIABLE_STRING + VARIABLE_CHAR * VARIABLE_MAX:				// ( string )			+		( char )
-	case VARIABLE_CONSTSTRING + VARIABLE_CHAR * VARIABLE_MAX:			// ( const string )		+		( char )
-	case VARIABLE_STRING + VARIABLE_CONSTSTRING * VARIABLE_MAX:			// ( string )			+		( const string )
-	case VARIABLE_INTEGER + VARIABLE_CONSTSTRING * VARIABLE_MAX:		// ( int )				+		( const string )
-	case VARIABLE_FLOAT + VARIABLE_CONSTSTRING * VARIABLE_MAX:			// ( float )			+		( const string )
-	case VARIABLE_CHAR + VARIABLE_CONSTSTRING * VARIABLE_MAX:			// ( char )				+		( const string )
-	case VARIABLE_CONSTSTRING + VARIABLE_CONSTSTRING * VARIABLE_MAX:	// ( const string )		+		( const string )
-	case VARIABLE_LISTENER + VARIABLE_CONSTSTRING * VARIABLE_MAX:		// ( listener )			+		( const string )
-	case VARIABLE_VECTOR + VARIABLE_CONSTSTRING * VARIABLE_MAX:			// ( vector )			+		( const string )
-	case VARIABLE_STRING + VARIABLE_LISTENER * VARIABLE_MAX:			// ( string )			+		( listener )
-	case VARIABLE_CONSTSTRING + VARIABLE_LISTENER * VARIABLE_MAX:		// ( const string )		+		( listener )
-	case VARIABLE_STRING + VARIABLE_VECTOR * VARIABLE_MAX:				// ( string )			+		( vector )
-	case VARIABLE_CONSTSTRING + VARIABLE_VECTOR * VARIABLE_MAX:			// ( const string )		+		( vector )
-		setStringValue( stringValue() + value.stringValue() );
-		break;
+    case VARIABLE_STRING + VARIABLE_STRING *VARIABLE_MAX: // ( string )			+		( string )
+    case VARIABLE_INTEGER
+        + VARIABLE_STRING                 *VARIABLE_MAX: // ( int )				+		( string )
+    case VARIABLE_FLOAT + VARIABLE_STRING *VARIABLE_MAX: // ( float )			+		( string )
+    case VARIABLE_CHAR
+        + VARIABLE_STRING *VARIABLE_MAX: // ( char )				+		( string )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_STRING                        *VARIABLE_MAX: // ( const string )		+		( string )
+    case VARIABLE_LISTENER + VARIABLE_STRING     *VARIABLE_MAX: // ( listener )			+		( string )
+    case VARIABLE_VECTOR + VARIABLE_STRING       *VARIABLE_MAX: // ( vector )			+		( string )
+    case VARIABLE_STRING + VARIABLE_INTEGER      *VARIABLE_MAX: // ( string )			+		( int )
+    case VARIABLE_CONSTSTRING + VARIABLE_INTEGER *VARIABLE_MAX: // ( const string )		+		( int )
+    case VARIABLE_STRING + VARIABLE_FLOAT        *VARIABLE_MAX: // ( string )			+		( float )
+    case VARIABLE_CONSTSTRING + VARIABLE_FLOAT   *VARIABLE_MAX: // ( const string )		+		( float )
+    case VARIABLE_STRING + VARIABLE_CHAR         *VARIABLE_MAX: // ( string )			+		( char )
+    case VARIABLE_CONSTSTRING + VARIABLE_CHAR    *VARIABLE_MAX: // ( const string )		+		( char )
+    case VARIABLE_STRING
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( string )			+		( const string )
+    case VARIABLE_INTEGER
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( int )				+		( const string )
+    case VARIABLE_FLOAT
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( float )			+		( const string )
+    case VARIABLE_CHAR
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( char )				+		( const string )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( const string )		+		( const string )
+    case VARIABLE_LISTENER
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( listener )			+		( const string )
+    case VARIABLE_VECTOR
+        + VARIABLE_CONSTSTRING               *VARIABLE_MAX: // ( vector )			+		( const string )
+    case VARIABLE_STRING + VARIABLE_LISTENER *VARIABLE_MAX: // ( string )			+		( listener )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		+		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			+		( vector )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
+        setStringValue(stringValue() + value.stringValue());
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_VECTOR * VARIABLE_MAX:
-		VectorAdd( m_data.vectorValue, value.m_data.vectorValue, m_data.vectorValue );
-		break;
-	}
+    case VARIABLE_VECTOR + VARIABLE_VECTOR *VARIABLE_MAX:
+        VectorAdd(m_data.vectorValue, value.m_data.vectorValue, m_data.vectorValue);
+        break;
+    }
 }
 
-void ScriptVariable::operator-=( const ScriptVariable& value )
+void ScriptVariable::operator-=(const ScriptVariable& value)
 {
-	switch( GetType() + value.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '-' applied to incompatible types '%s' and '%s'", typenames[ GetType() ], typenames[ value.GetType() ] );
+        throw ScriptException(
+            "binary '-' applied to incompatible types '%s' and '%s'", typenames[GetType()], typenames[value.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) - ( int )
-		m_data.intValue = m_data.intValue - value.m_data.intValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) - ( int )
+        m_data.intValue = m_data.intValue - value.m_data.intValue;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_FLOAT * VARIABLE_MAX: // ( int ) - ( float )
-		setFloatValue( ( float )m_data.intValue - value.m_data.floatValue );
-		break;
+    case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) - ( float )
+        setFloatValue((float)m_data.intValue - value.m_data.floatValue);
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_FLOAT * VARIABLE_MAX: // ( float ) - ( float )
-		m_data.floatValue = m_data.floatValue - value.m_data.floatValue;
-		break;
+    case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) - ( float )
+        m_data.floatValue = m_data.floatValue - value.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_INTEGER * VARIABLE_MAX: // ( float ) - ( int )
-		m_data.floatValue = m_data.floatValue - value.m_data.intValue;
-		break;
+    case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) - ( int )
+        m_data.floatValue = m_data.floatValue - value.m_data.intValue;
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_VECTOR * VARIABLE_MAX: // ( vector ) - ( vector )
-		VectorSubtract( m_data.vectorValue, value.m_data.vectorValue, m_data.vectorValue );
-		break;
-	}
+    case VARIABLE_VECTOR + VARIABLE_VECTOR *VARIABLE_MAX: // ( vector ) - ( vector )
+        VectorSubtract(m_data.vectorValue, value.m_data.vectorValue, m_data.vectorValue);
+        break;
+    }
 }
 
-void ScriptVariable::operator*=( const ScriptVariable& value )
+void ScriptVariable::operator*=(const ScriptVariable& value)
 {
-	switch( GetType() + value.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '*' applied to incompatible types '%s' and '%s'", typenames[ GetType() ], typenames[ value.GetType() ] );
+        throw ScriptException(
+            "binary '*' applied to incompatible types '%s' and '%s'", typenames[GetType()], typenames[value.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) * ( int )
-		m_data.intValue = m_data.intValue * value.m_data.intValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) * ( int )
+        m_data.intValue = m_data.intValue * value.m_data.intValue;
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_INTEGER * VARIABLE_MAX: // ( vector ) * ( int )
-		VectorScale( m_data.vectorValue, ( float )value.m_data.intValue, m_data.vectorValue );
-		break;
+    case VARIABLE_VECTOR + VARIABLE_INTEGER *VARIABLE_MAX: // ( vector ) * ( int )
+        VectorScale(m_data.vectorValue, (float)value.m_data.intValue, m_data.vectorValue);
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_FLOAT * VARIABLE_MAX: // ( vector ) * ( float )
-		VectorScale( m_data.vectorValue, value.m_data.floatValue, m_data.vectorValue );
-		break;
+    case VARIABLE_VECTOR + VARIABLE_FLOAT *VARIABLE_MAX: // ( vector ) * ( float )
+        VectorScale(m_data.vectorValue, value.m_data.floatValue, m_data.vectorValue);
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_FLOAT * VARIABLE_MAX: // ( int ) * ( float )
-		setFloatValue( ( float )m_data.intValue * value.m_data.floatValue );
-		break;
+    case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) * ( float )
+        setFloatValue((float)m_data.intValue * value.m_data.floatValue);
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_FLOAT * VARIABLE_MAX: // ( float ) * ( float )
-		m_data.floatValue = m_data.floatValue * value.m_data.floatValue;
-		break;
+    case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) * ( float )
+        m_data.floatValue = m_data.floatValue * value.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_INTEGER * VARIABLE_MAX: // ( float ) * ( int )
-		m_data.floatValue = m_data.floatValue * value.m_data.intValue;
-		break;
+    case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) * ( int )
+        m_data.floatValue = m_data.floatValue * value.m_data.intValue;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_VECTOR * VARIABLE_MAX: // ( int ) * ( vector )
-		setVectorValue( ( float )m_data.intValue * Vector( value.m_data.vectorValue ) );
-		break;
+    case VARIABLE_INTEGER + VARIABLE_VECTOR *VARIABLE_MAX: // ( int ) * ( vector )
+        setVectorValue((float)m_data.intValue * Vector(value.m_data.vectorValue));
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_VECTOR * VARIABLE_MAX: // ( float ) * ( vector )
-		setVectorValue( m_data.floatValue * Vector( value.m_data.vectorValue ) );
-		break;
+    case VARIABLE_FLOAT + VARIABLE_VECTOR *VARIABLE_MAX: // ( float ) * ( vector )
+        setVectorValue(m_data.floatValue * Vector(value.m_data.vectorValue));
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_VECTOR * VARIABLE_MAX: // ( vector ) * ( vector )
-		setFloatValue(DotProduct(m_data.vectorValue, value.m_data.vectorValue));
-		break;
-	}
+    case VARIABLE_VECTOR + VARIABLE_VECTOR *VARIABLE_MAX: // ( vector ) * ( vector )
+        setFloatValue(DotProduct(m_data.vectorValue, value.m_data.vectorValue));
+        break;
+    }
 }
 
-void ScriptVariable::operator/=( const ScriptVariable& value )
+void ScriptVariable::operator/=(const ScriptVariable& value)
 {
-	switch( GetType() + value.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '/' applied to incompatible types '%s' and '%s'", typenames[ GetType() ], typenames[ value.GetType() ] );
+        throw ScriptException(
+            "binary '/' applied to incompatible types '%s' and '%s'", typenames[GetType()], typenames[value.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) / ( int )
-		if( value.m_data.intValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) / ( int )
+        if (value.m_data.intValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		m_data.intValue = m_data.intValue / value.m_data.intValue;
-		break;
+        m_data.intValue = m_data.intValue / value.m_data.intValue;
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_INTEGER * VARIABLE_MAX: // ( vector ) / ( int )
-		if( value.m_data.intValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_VECTOR + VARIABLE_INTEGER *VARIABLE_MAX: // ( vector ) / ( int )
+        if (value.m_data.intValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		( Vector )m_data.vectorValue = ( Vector )m_data.vectorValue / ( float )value.m_data.intValue;
-		break;
+        (Vector) m_data.vectorValue = (Vector)m_data.vectorValue / (float)value.m_data.intValue;
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_FLOAT * VARIABLE_MAX: // ( vector ) / ( float )
-		if( value.m_data.floatValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_VECTOR + VARIABLE_FLOAT *VARIABLE_MAX: // ( vector ) / ( float )
+        if (value.m_data.floatValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		m_data.vectorValue[ 0 ] = m_data.vectorValue[ 0 ] / value.m_data.floatValue;
-		m_data.vectorValue[ 1 ] = m_data.vectorValue[ 1 ] / value.m_data.floatValue;
-		m_data.vectorValue[ 2 ] = m_data.vectorValue[ 2 ] / value.m_data.floatValue;
-		break;
+        m_data.vectorValue[0] = m_data.vectorValue[0] / value.m_data.floatValue;
+        m_data.vectorValue[1] = m_data.vectorValue[1] / value.m_data.floatValue;
+        m_data.vectorValue[2] = m_data.vectorValue[2] / value.m_data.floatValue;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_FLOAT * VARIABLE_MAX: // ( int ) / ( float )
-		if( value.m_data.floatValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) / ( float )
+        if (value.m_data.floatValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		setFloatValue( ( float )m_data.intValue / value.m_data.floatValue );
-		break;
+        setFloatValue((float)m_data.intValue / value.m_data.floatValue);
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_FLOAT * VARIABLE_MAX: // ( float ) / ( float )
-		if( value.m_data.floatValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) / ( float )
+        if (value.m_data.floatValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		m_data.floatValue = m_data.floatValue / value.m_data.floatValue;
-		break;
+        m_data.floatValue = m_data.floatValue / value.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_INTEGER * VARIABLE_MAX: // ( float ) / ( int )
-		if( value.m_data.intValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) / ( int )
+        if (value.m_data.intValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		m_data.floatValue = m_data.floatValue / value.m_data.intValue;
-		break;
+        m_data.floatValue = m_data.floatValue / value.m_data.intValue;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_VECTOR * VARIABLE_MAX: // ( int ) / ( vector )
-		if( m_data.intValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_INTEGER + VARIABLE_VECTOR *VARIABLE_MAX: // ( int ) / ( vector )
+        if (m_data.intValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		setVectorValue( ( float )m_data.intValue / Vector( value.m_data.vectorValue ) );
-		break;
+        setVectorValue((float)m_data.intValue / Vector(value.m_data.vectorValue));
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_VECTOR * VARIABLE_MAX: // ( float ) / ( vector )
-		if( m_data.floatValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_FLOAT + VARIABLE_VECTOR *VARIABLE_MAX: // ( float ) / ( vector )
+        if (m_data.floatValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		setVectorValue( m_data.floatValue / Vector( value.m_data.vectorValue ) );
-		break;
+        setVectorValue(m_data.floatValue / Vector(value.m_data.vectorValue));
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_VECTOR * VARIABLE_MAX: // ( vector ) / ( vector )
-		m_data.vectorValue = vec_zero;
+    case VARIABLE_VECTOR + VARIABLE_VECTOR *VARIABLE_MAX: // ( vector ) / ( vector )
+        m_data.vectorValue = vec_zero;
 
-		if( value.m_data.vectorValue[ 0 ] != 0 ) {
-			m_data.vectorValue[ 0 ] = m_data.vectorValue[ 0 ] / value.m_data.vectorValue[ 0 ];
-		}
+        if (value.m_data.vectorValue[0] != 0) {
+            m_data.vectorValue[0] = m_data.vectorValue[0] / value.m_data.vectorValue[0];
+        }
 
-		if( value.m_data.vectorValue[ 1 ] != 0 ) {
-			m_data.vectorValue[ 1 ] = m_data.vectorValue[ 1 ] / value.m_data.vectorValue[ 1 ];
-		}
+        if (value.m_data.vectorValue[1] != 0) {
+            m_data.vectorValue[1] = m_data.vectorValue[1] / value.m_data.vectorValue[1];
+        }
 
-		if( value.m_data.vectorValue[ 2 ] != 0 ) {
-			m_data.vectorValue[ 2 ] = m_data.vectorValue[ 2 ] / value.m_data.vectorValue[ 2 ];
-		}
-		break;
-	}
+        if (value.m_data.vectorValue[2] != 0) {
+            m_data.vectorValue[2] = m_data.vectorValue[2] / value.m_data.vectorValue[2];
+        }
+        break;
+    }
 }
 
-void ScriptVariable::operator%=( const ScriptVariable& value )
+void ScriptVariable::operator%=(const ScriptVariable& value)
 {
-	float mult = 0.0f;
+    float mult = 0.0f;
 
-	switch( GetType() + value.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (GetType() + value.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '%%' applied to incompatible types '%s' and '%s'", typenames[ GetType() ], typenames[ value.GetType() ] );
+        throw ScriptException(
+            "binary '%%' applied to incompatible types '%s' and '%s'", typenames[GetType()], typenames[value.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) % ( int )
-		if( value.m_data.intValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) % ( int )
+        if (value.m_data.intValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		m_data.intValue = m_data.intValue % value.m_data.intValue;
-		break;
+        m_data.intValue = m_data.intValue % value.m_data.intValue;
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_INTEGER * VARIABLE_MAX: // ( vector ) % ( int )
-		if( value.m_data.intValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_VECTOR + VARIABLE_INTEGER *VARIABLE_MAX: // ( vector ) % ( int )
+        if (value.m_data.intValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		m_data.vectorValue[ 0 ] = fmod( m_data.vectorValue[ 0 ], value.m_data.intValue );
-		m_data.vectorValue[ 1 ] = fmod( m_data.vectorValue[ 1 ], value.m_data.intValue );
-		m_data.vectorValue[ 2 ] = fmod( m_data.vectorValue[ 2 ], value.m_data.intValue );
-		break;
+        m_data.vectorValue[0] = fmod(m_data.vectorValue[0], value.m_data.intValue);
+        m_data.vectorValue[1] = fmod(m_data.vectorValue[1], value.m_data.intValue);
+        m_data.vectorValue[2] = fmod(m_data.vectorValue[2], value.m_data.intValue);
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_FLOAT * VARIABLE_MAX: // ( vector ) % ( float )
-		if( value.m_data.floatValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_VECTOR + VARIABLE_FLOAT *VARIABLE_MAX: // ( vector ) % ( float )
+        if (value.m_data.floatValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		m_data.vectorValue[ 0 ] = fmod( m_data.vectorValue[ 0 ], value.m_data.floatValue );
-		m_data.vectorValue[ 1 ] = fmod( m_data.vectorValue[ 1 ], value.m_data.floatValue );
-		m_data.vectorValue[ 2 ] = fmod( m_data.vectorValue[ 2 ], value.m_data.floatValue );
-		break;
+        m_data.vectorValue[0] = fmod(m_data.vectorValue[0], value.m_data.floatValue);
+        m_data.vectorValue[1] = fmod(m_data.vectorValue[1], value.m_data.floatValue);
+        m_data.vectorValue[2] = fmod(m_data.vectorValue[2], value.m_data.floatValue);
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_FLOAT * VARIABLE_MAX: // ( int ) % ( float )
-		if( value.m_data.floatValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) % ( float )
+        if (value.m_data.floatValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		setFloatValue( fmod( ( float )m_data.intValue, value.m_data.floatValue ) );
-		break;
+        setFloatValue(fmod((float)m_data.intValue, value.m_data.floatValue));
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_FLOAT * VARIABLE_MAX: // ( float ) % ( float )
-		if( value.m_data.floatValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) % ( float )
+        if (value.m_data.floatValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		m_data.floatValue = fmod( m_data.floatValue, value.m_data.floatValue );
-		break;
+        m_data.floatValue = fmod(m_data.floatValue, value.m_data.floatValue);
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_INTEGER * VARIABLE_MAX: // ( float ) % ( int )
-		if( value.m_data.intValue == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+    case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) % ( int )
+        if (value.m_data.intValue == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		m_data.floatValue = fmod( m_data.floatValue, ( float )value.m_data.intValue );
-		break;
+        m_data.floatValue = fmod(m_data.floatValue, (float)value.m_data.intValue);
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_VECTOR * VARIABLE_MAX: // ( int ) % ( vector )
-		mult = ( float )m_data.intValue;
+    case VARIABLE_INTEGER + VARIABLE_VECTOR *VARIABLE_MAX: // ( int ) % ( vector )
+        mult = (float)m_data.intValue;
 
-		if( mult == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+        if (mult == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		setVectorValue( vec_zero );
+        setVectorValue(vec_zero);
 
-		m_data.vectorValue[ 0 ] = fmod( value.m_data.vectorValue[ 0 ], mult );
-		m_data.vectorValue[ 1 ] = fmod( value.m_data.vectorValue[ 1 ], mult );
-		m_data.vectorValue[ 2 ] = fmod( value.m_data.vectorValue[ 2 ], mult );
-		break;
+        m_data.vectorValue[0] = fmod(value.m_data.vectorValue[0], mult);
+        m_data.vectorValue[1] = fmod(value.m_data.vectorValue[1], mult);
+        m_data.vectorValue[2] = fmod(value.m_data.vectorValue[2], mult);
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_VECTOR * VARIABLE_MAX: // ( float ) % ( vector )
-		mult = m_data.floatValue;
+    case VARIABLE_FLOAT + VARIABLE_VECTOR *VARIABLE_MAX: // ( float ) % ( vector )
+        mult = m_data.floatValue;
 
-		if( mult == 0 ) {
-			throw ScriptException( "Division by zero error\n" );
-		}
+        if (mult == 0) {
+            throw ScriptException("Division by zero error\n");
+        }
 
-		setVectorValue( vec_zero );
+        setVectorValue(vec_zero);
 
-		m_data.vectorValue[ 0 ] = fmod( m_data.vectorValue[ 0 ], mult );
-		m_data.vectorValue[ 1 ] = fmod( m_data.vectorValue[ 1 ], mult );
-		m_data.vectorValue[ 2 ] = fmod( m_data.vectorValue[ 2 ], mult );
-		break;
+        m_data.vectorValue[0] = fmod(m_data.vectorValue[0], mult);
+        m_data.vectorValue[1] = fmod(m_data.vectorValue[1], mult);
+        m_data.vectorValue[2] = fmod(m_data.vectorValue[2], mult);
+        break;
 
-	case VARIABLE_VECTOR + VARIABLE_VECTOR * VARIABLE_MAX: // ( vector ) % ( vector )
-		m_data.vectorValue = vec_zero;
+    case VARIABLE_VECTOR + VARIABLE_VECTOR *VARIABLE_MAX: // ( vector ) % ( vector )
+        m_data.vectorValue = vec_zero;
 
-		if( value.m_data.vectorValue[ 0 ] != 0 ) {
-			m_data.vectorValue[ 0 ] = fmod( m_data.vectorValue[ 0 ], value.m_data.vectorValue[ 0 ] );
-		}
+        if (value.m_data.vectorValue[0] != 0) {
+            m_data.vectorValue[0] = fmod(m_data.vectorValue[0], value.m_data.vectorValue[0]);
+        }
 
-		if( value.m_data.vectorValue[ 1 ] != 0 ) {
-			m_data.vectorValue[ 1 ] = fmod( m_data.vectorValue[ 1 ], value.m_data.vectorValue[ 1 ] );
-		}
+        if (value.m_data.vectorValue[1] != 0) {
+            m_data.vectorValue[1] = fmod(m_data.vectorValue[1], value.m_data.vectorValue[1]);
+        }
 
-		if( value.m_data.vectorValue[ 2 ] != 0 ) {
-			m_data.vectorValue[ 2 ] = fmod( m_data.vectorValue[ 2 ], value.m_data.vectorValue[ 2 ] );
-		}
+        if (value.m_data.vectorValue[2] != 0) {
+            m_data.vectorValue[2] = fmod(m_data.vectorValue[2], value.m_data.vectorValue[2]);
+        }
 
-		break;
-	}
+        break;
+    }
 }
 
-void ScriptVariable::operator&=( const ScriptVariable& value )
+void ScriptVariable::operator&=(const ScriptVariable& value)
 {
-	int type = GetType();
+    int type = GetType();
 
-	switch( type + value.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (type + value.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '&' applied to incompatible types '%s' and '%s'", typenames[ type ], typenames[ value.GetType() ] );
+        throw ScriptException(
+            "binary '&' applied to incompatible types '%s' and '%s'", typenames[type], typenames[value.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) &= ( int )
-		m_data.intValue &= value.m_data.intValue;
-		break;
-	}
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) &= ( int )
+        m_data.intValue &= value.m_data.intValue;
+        break;
+    }
 }
 
-void ScriptVariable::operator^=( const ScriptVariable& value )
+void ScriptVariable::operator^=(const ScriptVariable& value)
 {
-	int type = GetType();
+    int type = GetType();
 
-	switch( type + value.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (type + value.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '^' applied to incompatible types '%s' and '%s'", typenames[ type ], typenames[ value.GetType() ] );
+        throw ScriptException(
+            "binary '^' applied to incompatible types '%s' and '%s'", typenames[type], typenames[value.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) ^= ( int )
-		m_data.intValue ^= value.m_data.intValue;
-		break;
-	}
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) ^= ( int )
+        m_data.intValue ^= value.m_data.intValue;
+        break;
+    }
 }
 
-void ScriptVariable::operator|=( const ScriptVariable& value )
+void ScriptVariable::operator|=(const ScriptVariable& value)
 {
-	int type = GetType();
+    int type = GetType();
 
-	switch( type + value.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (type + value.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '|' applied to incompatible types '%s' and '%s'", typenames[ type ], typenames[ value.GetType() ] );
+        throw ScriptException(
+            "binary '|' applied to incompatible types '%s' and '%s'", typenames[type], typenames[value.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) |= ( int )
-		m_data.intValue |= value.m_data.intValue;
-		break;
-	}
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) |= ( int )
+        m_data.intValue |= value.m_data.intValue;
+        break;
+    }
 }
 
-void ScriptVariable::operator<<=( const ScriptVariable& value )
+void ScriptVariable::operator<<=(const ScriptVariable& value)
 {
-	int type = GetType();
+    int type = GetType();
 
-	switch( type + value.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (type + value.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '<<' applied to incompatible types '%s' and '%s'", typenames[ type ], typenames[ value.GetType() ] );
+        throw ScriptException(
+            "binary '<<' applied to incompatible types '%s' and '%s'", typenames[type], typenames[value.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) <<= ( int )
-		m_data.intValue <<= value.m_data.intValue;
-		break;
-	}
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) <<= ( int )
+        m_data.intValue <<= value.m_data.intValue;
+        break;
+    }
 }
 
-void ScriptVariable::operator>>=( const ScriptVariable& value )
+void ScriptVariable::operator>>=(const ScriptVariable& value)
 {
-	int type = GetType();
+    int type = GetType();
 
-	switch( type + value.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (type + value.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '>>' applied to incompatible types '%s' and '%s'", typenames[ type ], typenames[ value.GetType() ] );
+        throw ScriptException(
+            "binary '>>' applied to incompatible types '%s' and '%s'", typenames[type], typenames[value.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) >>= ( int )
-		m_data.intValue >>= value.m_data.intValue;
-		break;
-	}
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) >>= ( int )
+        m_data.intValue >>= value.m_data.intValue;
+        break;
+    }
 }
 
-bool ScriptVariable::operator!=( const ScriptVariable &value )
+bool ScriptVariable::operator!=(const ScriptVariable& value)
 {
-	return !( *this == value );
+    return !(*this == value);
 }
 
-bool ScriptVariable::operator==( const ScriptVariable &value )
+bool ScriptVariable::operator==(const ScriptVariable& value)
 {
-	int type = GetType();
+    int type = GetType();
 
-	switch( type + value.GetType() * VARIABLE_MAX )
-	{
-	default:		// ( lval )	==	( nil )
-					// ( nil )	==	( rval )
-		Clear();
-		return false;
+    switch (type + value.GetType() * VARIABLE_MAX) {
+    default: // ( lval )	==	( nil )
+             // ( nil )	==	( rval )
+        Clear();
+        return false;
 
-	case VARIABLE_NONE + VARIABLE_NONE * VARIABLE_MAX : // ( nil ) == ( nil )
-		return true;
+    case VARIABLE_NONE + VARIABLE_NONE *VARIABLE_MAX: // ( nil ) == ( nil )
+        return true;
 
-	case VARIABLE_LISTENER + VARIABLE_LISTENER * VARIABLE_MAX: // ( listener ) == ( listener )
-	{
-		Class *lval = NULL;
-		Class *rval = NULL;
+    case VARIABLE_LISTENER + VARIABLE_LISTENER *VARIABLE_MAX: // ( listener ) == ( listener )
+        {
+            Class *lval = NULL;
+            Class *rval = NULL;
 
-		if( m_data.listenerValue )
-		{
-			lval = m_data.listenerValue->Pointer();
-		}
+            if (m_data.listenerValue) {
+                lval = m_data.listenerValue->Pointer();
+            }
 
-		if( value.m_data.listenerValue )
-		{
-			rval = value.m_data.listenerValue->Pointer();
-		}
+            if (value.m_data.listenerValue) {
+                rval = value.m_data.listenerValue->Pointer();
+            }
 
-		return lval == rval;
-	}
+            return lval == rval;
+        }
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) == ( int )
-		return m_data.intValue == value.m_data.intValue;
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) == ( int )
+        return m_data.intValue == value.m_data.intValue;
 
-	case VARIABLE_INTEGER + VARIABLE_FLOAT * VARIABLE_MAX: // ( int ) == ( float )
-		return m_data.intValue == value.m_data.floatValue;
+    case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) == ( float )
+        return m_data.intValue == value.m_data.floatValue;
 
-	case VARIABLE_FLOAT + VARIABLE_FLOAT * VARIABLE_MAX: // ( float ) == ( float )
-		return m_data.floatValue == value.m_data.floatValue;
+    case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) == ( float )
+        return m_data.floatValue == value.m_data.floatValue;
 
-	case VARIABLE_FLOAT + VARIABLE_INTEGER * VARIABLE_MAX: // ( float ) == ( int )
-		return m_data.floatValue == value.m_data.intValue;
+    case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) == ( int )
+        return m_data.floatValue == value.m_data.intValue;
 
-	case VARIABLE_CONSTSTRING + VARIABLE_CONSTSTRING * VARIABLE_MAX:	// ( const string )		==		( const string )
-		return m_data.intValue == value.m_data.intValue;
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( const string )		==		( const string )
+        return m_data.intValue == value.m_data.intValue;
 
-	case VARIABLE_STRING + VARIABLE_STRING * VARIABLE_MAX:				// ( string )			==		( string )
-	case VARIABLE_INTEGER + VARIABLE_STRING * VARIABLE_MAX:				// ( int )				==		( string )
-	case VARIABLE_FLOAT + VARIABLE_STRING * VARIABLE_MAX:				// ( float )			==		( string )
-	case VARIABLE_CHAR + VARIABLE_STRING * VARIABLE_MAX:				// ( char )				==		( string )
-	case VARIABLE_CONSTSTRING + VARIABLE_STRING * VARIABLE_MAX:			// ( const string )		==		( string )
-	case VARIABLE_LISTENER + VARIABLE_STRING * VARIABLE_MAX:			// ( listener )			==		( string )
-	case VARIABLE_VECTOR + VARIABLE_STRING * VARIABLE_MAX:				// ( vector )			==		( string )
-	case VARIABLE_STRING + VARIABLE_CONSTSTRING * VARIABLE_MAX:			// ( string )			==		( const string )
-	case VARIABLE_INTEGER + VARIABLE_CONSTSTRING * VARIABLE_MAX:		// ( int )				==		( const string )
-	case VARIABLE_FLOAT + VARIABLE_CONSTSTRING * VARIABLE_MAX:			// ( float )			==		( const string )
-	case VARIABLE_CHAR + VARIABLE_CONSTSTRING * VARIABLE_MAX:			// ( char )				==		( const string )
-	case VARIABLE_LISTENER + VARIABLE_CONSTSTRING * VARIABLE_MAX:		// ( listener )			==		( const string )
-	case VARIABLE_VECTOR + VARIABLE_CONSTSTRING * VARIABLE_MAX:			// ( vector )			==		( const string )
-	case VARIABLE_STRING + VARIABLE_INTEGER * VARIABLE_MAX:				// ( string )			==		( int )
-	case VARIABLE_CONSTSTRING + VARIABLE_INTEGER * VARIABLE_MAX:		// ( const string )		==		( int )
-	case VARIABLE_STRING + VARIABLE_FLOAT * VARIABLE_MAX:				// ( string )			==		( float )
-	case VARIABLE_CONSTSTRING + VARIABLE_FLOAT * VARIABLE_MAX:			// ( const string )		==		( float )
-	case VARIABLE_STRING + VARIABLE_CHAR * VARIABLE_MAX:				// ( string )			==		( char )
-	case VARIABLE_CONSTSTRING + VARIABLE_CHAR * VARIABLE_MAX:			// ( const string )		==		( char )
-	case VARIABLE_STRING + VARIABLE_LISTENER * VARIABLE_MAX:			// ( string )			==		( listener )
-	case VARIABLE_CONSTSTRING + VARIABLE_LISTENER * VARIABLE_MAX:		// ( const string )		==		( listener )
-	case VARIABLE_STRING + VARIABLE_VECTOR * VARIABLE_MAX:				// ( string )			==		( vector )
-	case VARIABLE_CONSTSTRING + VARIABLE_VECTOR * VARIABLE_MAX:			// ( const string )		==		( vector )
-	{
-		str lval = stringValue();
-		str rval = value.stringValue();
+    case VARIABLE_STRING + VARIABLE_STRING *VARIABLE_MAX: // ( string )			==		( string )
+    case VARIABLE_INTEGER
+        + VARIABLE_STRING                 *VARIABLE_MAX: // ( int )				==		( string )
+    case VARIABLE_FLOAT + VARIABLE_STRING *VARIABLE_MAX: // ( float )			==		( string )
+    case VARIABLE_CHAR
+        + VARIABLE_STRING *VARIABLE_MAX: // ( char )				==		( string )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_STRING                    *VARIABLE_MAX: // ( const string )		==		( string )
+    case VARIABLE_LISTENER + VARIABLE_STRING *VARIABLE_MAX: // ( listener )			==		( string )
+    case VARIABLE_VECTOR + VARIABLE_STRING   *VARIABLE_MAX: // ( vector )			==		( string )
+    case VARIABLE_STRING
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( string )			==		( const string )
+    case VARIABLE_INTEGER
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( int )				==		( const string )
+    case VARIABLE_FLOAT
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( float )			==		( const string )
+    case VARIABLE_CHAR
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( char )				==		( const string )
+    case VARIABLE_LISTENER
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( listener )			==		( const string )
+    case VARIABLE_VECTOR
+        + VARIABLE_CONSTSTRING                   *VARIABLE_MAX: // ( vector )			==		( const string )
+    case VARIABLE_STRING + VARIABLE_INTEGER      *VARIABLE_MAX: // ( string )			==		( int )
+    case VARIABLE_CONSTSTRING + VARIABLE_INTEGER *VARIABLE_MAX: // ( const string )		==		( int )
+    case VARIABLE_STRING + VARIABLE_FLOAT        *VARIABLE_MAX: // ( string )			==		( float )
+    case VARIABLE_CONSTSTRING + VARIABLE_FLOAT   *VARIABLE_MAX: // ( const string )		==		( float )
+    case VARIABLE_STRING + VARIABLE_CHAR         *VARIABLE_MAX: // ( string )			==		( char )
+    case VARIABLE_CONSTSTRING + VARIABLE_CHAR    *VARIABLE_MAX: // ( const string )		==		( char )
+    case VARIABLE_STRING + VARIABLE_LISTENER     *VARIABLE_MAX: // ( string )			==		( listener )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		==		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			==		( vector )
+    case VARIABLE_CONSTSTRING
+        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
+        {
+            str lval = stringValue();
+            str rval = value.stringValue();
 
-		return ( !lval.length() && !rval.length() ) || ( lval == rval ) ;
-	}
+            return (!lval.length() && !rval.length()) || (lval == rval);
+        }
 
-	case VARIABLE_VECTOR + VARIABLE_VECTOR * VARIABLE_MAX: // ( vector ) == ( vector )
-		return VectorCompare( m_data.vectorValue, value.m_data.vectorValue ) ? true : false;
-	}
+    case VARIABLE_VECTOR + VARIABLE_VECTOR *VARIABLE_MAX: // ( vector ) == ( vector )
+        return VectorCompare(m_data.vectorValue, value.m_data.vectorValue) ? true : false;
+    }
 }
 
-ScriptVariable& ScriptVariable::operator=( const ScriptVariable &variable )
+ScriptVariable& ScriptVariable::operator=(const ScriptVariable& variable)
 {
-	ClearInternal();
+    ClearInternal();
 
-	type = variable.GetType();
+    type = variable.GetType();
 
-	switch( type )
-	{
-	case VARIABLE_NONE:
-		break;
+    switch (type) {
+    case VARIABLE_NONE:
+        break;
 
-	case VARIABLE_CONSTSTRING:
-		m_data.intValue = variable.m_data.intValue;
-		break;
+    case VARIABLE_CONSTSTRING:
+        m_data.intValue = variable.m_data.intValue;
+        break;
 
-	case VARIABLE_STRING:
-		m_data.stringValue = new str(variable.stringValue());
-		break;
+    case VARIABLE_STRING:
+        m_data.stringValue = new str(variable.stringValue());
+        break;
 
-	case VARIABLE_FLOAT:
-		m_data.floatValue = variable.m_data.floatValue;
-		break;
+    case VARIABLE_FLOAT:
+        m_data.floatValue = variable.m_data.floatValue;
+        break;
 
-	case VARIABLE_CHAR:
-		m_data.charValue = variable.m_data.charValue;
-		break;
+    case VARIABLE_CHAR:
+        m_data.charValue = variable.m_data.charValue;
+        break;
 
-	case VARIABLE_INTEGER:
-		m_data.intValue = variable.m_data.intValue;
-		break;
+    case VARIABLE_INTEGER:
+        m_data.intValue = variable.m_data.intValue;
+        break;
 
-	case VARIABLE_LISTENER:
-		m_data.listenerValue = new SafePtr< Listener >(*variable.m_data.listenerValue);
-		break;
+    case VARIABLE_LISTENER:
+        m_data.listenerValue = new SafePtr<Listener>(*variable.m_data.listenerValue);
+        break;
 
-	case VARIABLE_ARRAY:
-		m_data.arrayValue = variable.m_data.arrayValue;
-		m_data.arrayValue->refCount++;
-		break;
+    case VARIABLE_ARRAY:
+        m_data.arrayValue = variable.m_data.arrayValue;
+        m_data.arrayValue->refCount++;
+        break;
 
-	case VARIABLE_CONSTARRAY:
-		m_data.constArrayValue = variable.m_data.constArrayValue;
-		m_data.constArrayValue->refCount++;
-		break;
+    case VARIABLE_CONSTARRAY:
+        m_data.constArrayValue = variable.m_data.constArrayValue;
+        m_data.constArrayValue->refCount++;
+        break;
 
-	case VARIABLE_CONTAINER:
-		m_data.containerValue = new Container< SafePtr< Listener > >(*variable.m_data.containerValue);
-		break;
+    case VARIABLE_CONTAINER:
+        m_data.containerValue = new Container<SafePtr<Listener>>(*variable.m_data.containerValue);
+        break;
 
-	case VARIABLE_SAFECONTAINER:
-		m_data.safeContainerValue = new SafePtr< ConList >(*variable.m_data.safeContainerValue);
-		break;
+    case VARIABLE_SAFECONTAINER:
+        m_data.safeContainerValue = new SafePtr<ConList>(*variable.m_data.safeContainerValue);
+        break;
 
-	case VARIABLE_POINTER:
-		m_data.pointerValue = variable.m_data.pointerValue;
-		m_data.pointerValue->add(this);
-		break;
+    case VARIABLE_POINTER:
+        m_data.pointerValue = variable.m_data.pointerValue;
+        m_data.pointerValue->add(this);
+        break;
 
-	case VARIABLE_VECTOR:
-		m_data.vectorValue = ( float * )new float[ 3 ];
-		VectorCopy(variable.m_data.vectorValue, m_data.vectorValue);
-		break;
-	}
+    case VARIABLE_VECTOR:
+        m_data.vectorValue = (float *)new float[3];
+        VectorCopy(variable.m_data.vectorValue, m_data.vectorValue);
+        break;
+    }
 
-	return *this;
+    return *this;
 }
 
 ScriptVariable& ScriptVariable::operator=(ScriptVariable&& variable)
 {
-	ClearInternal();
+    ClearInternal();
 
 #if defined(GAME_DLL)
-	key = variable.GetKey();
-	variable.key = 0;
+    key          = variable.GetKey();
+    variable.key = 0;
 #endif
 
-	type = variable.GetType();
-	m_data = variable.m_data;
-	variable.type = VARIABLE_NONE;
+    type          = variable.GetType();
+    m_data        = variable.m_data;
+    variable.type = VARIABLE_NONE;
 
-	return *this;
+    return *this;
 }
 
-ScriptVariable &ScriptVariable::operator[]( ScriptVariable& index )
+ScriptVariable& ScriptVariable::operator[](ScriptVariable& index)
 {
-	int i;
+    int i;
 
-	switch( GetType() )
-	{
-	case VARIABLE_NONE:
-		type = VARIABLE_ARRAY;
+    switch (GetType()) {
+    case VARIABLE_NONE:
+        type = VARIABLE_ARRAY;
 
-		m_data.arrayValue = new ScriptArrayHolder;
-		return m_data.arrayValue->arrayValue[ index ];
+        m_data.arrayValue = new ScriptArrayHolder;
+        return m_data.arrayValue->arrayValue[index];
 
-	case VARIABLE_ARRAY:
-		return m_data.arrayValue->arrayValue[ index ];
+    case VARIABLE_ARRAY:
+        return m_data.arrayValue->arrayValue[index];
 
-	case VARIABLE_CONSTARRAY:
-		i = index.intValue();
+    case VARIABLE_CONSTARRAY:
+        i = index.intValue();
 
-		if( i == 0 || i > m_data.constArrayValue->size )
-		{
-			throw ScriptException( "array index %d out of range", i );
-		}
+        if (i == 0 || i > m_data.constArrayValue->size) {
+            throw ScriptException("array index %d out of range", i);
+        }
 
-		return m_data.constArrayValue->constArrayValue[ i ];
+        return m_data.constArrayValue->constArrayValue[i];
 
-	default:
-		throw ScriptException( "[] applied to invalid type '%s'", typenames[ GetType() ] );
-	}
+    default:
+        throw ScriptException("[] applied to invalid type '%s'", typenames[GetType()]);
+    }
 }
 
-ScriptVariable *ScriptVariable::operator[]( unsigned index ) const
+ScriptVariable *ScriptVariable::operator[](unsigned index) const
 {
-	return &m_data.constArrayValue->constArrayValue[ index ];
+    return &m_data.constArrayValue->constArrayValue[index];
 }
 
-ScriptVariable *ScriptVariable::operator*( )
+ScriptVariable *ScriptVariable::operator*()
 {
-	return m_data.refValue;
+    return m_data.refValue;
 }
 
-void ScriptVariable::complement( void )
+void ScriptVariable::complement(void)
 {
-	if( type == VARIABLE_INTEGER )
-	{
-		m_data.intValue = ~m_data.intValue;
-	}
-	else
-	{
-		float value = floatValue();
-		int i = ~*( int * )&value; // ley0k: evil floating point hack
+    if (type == VARIABLE_INTEGER) {
+        m_data.intValue = ~m_data.intValue;
+    } else {
+        float value = floatValue();
+        int   i     = ~*(int *)&value; // ley0k: evil floating point hack
 
-		setFloatValue( *( float * )&i );
-	}
+        setFloatValue(*(float *)&i);
+    }
 }
 
-void ScriptVariable::greaterthan( ScriptVariable &variable )
+void ScriptVariable::greaterthan(ScriptVariable& variable)
 {
-	switch( GetType() + variable.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '>' applied to incompatible types '%s' and '%s'", typenames[ GetType() ], typenames[ variable.GetType() ] );
+        throw ScriptException(
+            "binary '>' applied to incompatible types '%s' and '%s'",
+            typenames[GetType()],
+            typenames[variable.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) > ( int )
-		m_data.intValue = m_data.intValue > variable.m_data.intValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) > ( int )
+        m_data.intValue = m_data.intValue > variable.m_data.intValue;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_FLOAT * VARIABLE_MAX: // ( int ) > ( float )
-		m_data.intValue = m_data.intValue > variable.m_data.floatValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) > ( float )
+        m_data.intValue = m_data.intValue > variable.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_FLOAT * VARIABLE_MAX: // ( float ) > ( float )
-		type = VARIABLE_INTEGER;
-		m_data.intValue = m_data.floatValue > variable.m_data.floatValue;
-		break;
+    case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) > ( float )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.floatValue > variable.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_INTEGER * VARIABLE_MAX: // ( float ) > ( int )
-		type = VARIABLE_INTEGER;
-		m_data.intValue = m_data.floatValue > variable.m_data.intValue;
-		break;
-	}
+    case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) > ( int )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.floatValue > variable.m_data.intValue;
+        break;
+    }
 }
 
-void ScriptVariable::greaterthanorequal( ScriptVariable &variable )
+void ScriptVariable::greaterthanorequal(ScriptVariable& variable)
 {
-	switch( GetType() + variable.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '>=' applied to incompatible types '%s' and '%s'", typenames[ GetType() ], typenames[ variable.GetType() ] );
+        throw ScriptException(
+            "binary '>=' applied to incompatible types '%s' and '%s'",
+            typenames[GetType()],
+            typenames[variable.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) >= ( int )
-		m_data.intValue = m_data.intValue >= variable.m_data.intValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) >= ( int )
+        m_data.intValue = m_data.intValue >= variable.m_data.intValue;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_FLOAT * VARIABLE_MAX: // ( int ) >= ( float )
-		m_data.intValue = m_data.intValue >= variable.m_data.floatValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) >= ( float )
+        m_data.intValue = m_data.intValue >= variable.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_FLOAT * VARIABLE_MAX: // ( float ) >= ( float )
-		type = VARIABLE_INTEGER;
-		m_data.intValue = m_data.floatValue >= variable.m_data.floatValue;
-		break;
+    case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) >= ( float )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.floatValue >= variable.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_INTEGER * VARIABLE_MAX: // ( float ) >= ( int )
-		type = VARIABLE_INTEGER;
-		m_data.intValue = m_data.floatValue >= variable.m_data.intValue;
-		break;
-	}
+    case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) >= ( int )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.floatValue >= variable.m_data.intValue;
+        break;
+    }
 }
 
-void ScriptVariable::lessthan( ScriptVariable &variable )
+void ScriptVariable::lessthan(ScriptVariable& variable)
 {
-	switch( GetType() + variable.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '<' applied to incompatible types '%s' and '%s'", typenames[ GetType() ], typenames[ variable.GetType() ] );
+        throw ScriptException(
+            "binary '<' applied to incompatible types '%s' and '%s'",
+            typenames[GetType()],
+            typenames[variable.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) < ( int )
-		m_data.intValue = m_data.intValue < variable.m_data.intValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) < ( int )
+        m_data.intValue = m_data.intValue < variable.m_data.intValue;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_FLOAT * VARIABLE_MAX: // ( int ) < ( float )
-		m_data.intValue = m_data.intValue < variable.m_data.floatValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) < ( float )
+        m_data.intValue = m_data.intValue < variable.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_FLOAT * VARIABLE_MAX: // ( float ) < ( float )
-		type = VARIABLE_INTEGER;
-		m_data.intValue = m_data.floatValue < variable.m_data.floatValue;
-		break;
+    case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) < ( float )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.floatValue < variable.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_INTEGER * VARIABLE_MAX: // ( float ) < ( int )
-		type = VARIABLE_INTEGER;
-		m_data.intValue = m_data.floatValue < variable.m_data.intValue;
-		break;
-	}
+    case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) < ( int )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.floatValue < variable.m_data.intValue;
+        break;
+    }
 }
 
-void ScriptVariable::lessthanorequal( ScriptVariable &variable )
+void ScriptVariable::lessthanorequal(ScriptVariable& variable)
 {
-	switch( GetType() + variable.GetType() * VARIABLE_MAX )
-	{
-	default:
-		Clear();
+    switch (GetType() + variable.GetType() * VARIABLE_MAX) {
+    default:
+        Clear();
 
-		throw ScriptException( "binary '<=' applied to incompatible types '%s' and '%s'", typenames[ GetType() ], typenames[ variable.GetType() ] );
+        throw ScriptException(
+            "binary '<=' applied to incompatible types '%s' and '%s'",
+            typenames[GetType()],
+            typenames[variable.GetType()]
+        );
 
-		break;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_INTEGER * VARIABLE_MAX: // ( int ) <= ( int )
-		m_data.intValue = m_data.intValue <= variable.m_data.intValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_INTEGER *VARIABLE_MAX: // ( int ) <= ( int )
+        m_data.intValue = m_data.intValue <= variable.m_data.intValue;
+        break;
 
-	case VARIABLE_INTEGER + VARIABLE_FLOAT * VARIABLE_MAX: // ( int ) <= ( float )
-		m_data.intValue = m_data.intValue <= variable.m_data.floatValue;
-		break;
+    case VARIABLE_INTEGER + VARIABLE_FLOAT *VARIABLE_MAX: // ( int ) <= ( float )
+        m_data.intValue = m_data.intValue <= variable.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_FLOAT * VARIABLE_MAX: // ( float ) <= ( float )
-		type = VARIABLE_INTEGER;
-		m_data.intValue = m_data.floatValue <= variable.m_data.floatValue;
-		break;
+    case VARIABLE_FLOAT + VARIABLE_FLOAT *VARIABLE_MAX: // ( float ) <= ( float )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.floatValue <= variable.m_data.floatValue;
+        break;
 
-	case VARIABLE_FLOAT + VARIABLE_INTEGER * VARIABLE_MAX: // ( float ) <= ( int )
-		type = VARIABLE_INTEGER;
-		m_data.intValue = m_data.floatValue <= variable.m_data.intValue;
-		break;
-	}
+    case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) <= ( int )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.floatValue <= variable.m_data.intValue;
+        break;
+    }
 }
 
-void ScriptVariable::minus( void )
+void ScriptVariable::minus(void)
 {
-	if( GetType() == VARIABLE_INTEGER )
-	{
-		m_data.intValue = -m_data.intValue;
-	}
-	else if( GetType() == VARIABLE_FLOAT )
-	{
-		m_data.floatValue = -m_data.floatValue;
-	}
-	else
-	{
-		setIntValue( -intValue() );
-	}
+    if (GetType() == VARIABLE_INTEGER) {
+        m_data.intValue = -m_data.intValue;
+    } else if (GetType() == VARIABLE_FLOAT) {
+        m_data.floatValue = -m_data.floatValue;
+    } else {
+        setIntValue(-intValue());
+    }
 }
 
-ScriptVariable ScriptVariable::operator++( int )
+ScriptVariable ScriptVariable::operator++(int)
 {
-	switch( type )
-	{
-		case VARIABLE_NONE:
-			return *this;
+    switch (type) {
+    case VARIABLE_NONE:
+        return *this;
 
-		case VARIABLE_INTEGER:
-			setIntValue( intValue() + 1 );
-			break;
+    case VARIABLE_INTEGER:
+        setIntValue(intValue() + 1);
+        break;
 
-		case VARIABLE_POINTER:
-			ClearPointerInternal();
-			break;
+    case VARIABLE_POINTER:
+        ClearPointerInternal();
+        break;
 
-		case VARIABLE_FLOAT:
-			setFloatValue( floatValue() + 1.0f );
-			break;
+    case VARIABLE_FLOAT:
+        setFloatValue(floatValue() + 1.0f);
+        break;
 
-		default:
-			int newvalue = intValue();
+    default:
+        int newvalue = intValue();
 
-			ClearInternal();
+        ClearInternal();
 
-			type = VARIABLE_INTEGER;
-			m_data.intValue = newvalue + 1;
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = newvalue + 1;
 
-			break;
-	}
+        break;
+    }
 
-	return *this;
+    return *this;
 }
 
-ScriptVariable ScriptVariable::operator--( int )
+ScriptVariable ScriptVariable::operator--(int)
 {
-	switch( type )
-	{
-		case VARIABLE_NONE:
-			return *this;
+    switch (type) {
+    case VARIABLE_NONE:
+        return *this;
 
-		case VARIABLE_INTEGER:
-			setIntValue( intValue() - 1 );
-			break;
+    case VARIABLE_INTEGER:
+        setIntValue(intValue() - 1);
+        break;
 
-		case VARIABLE_POINTER:
-			ClearPointerInternal();
-			break;
+    case VARIABLE_POINTER:
+        ClearPointerInternal();
+        break;
 
-		case VARIABLE_FLOAT:
-			setFloatValue( floatValue() - 1.0f );
-			break;
+    case VARIABLE_FLOAT:
+        setFloatValue(floatValue() - 1.0f);
+        break;
 
-		default:
-			int newvalue = intValue();
+    default:
+        int newvalue = intValue();
 
-			ClearInternal();
+        ClearInternal();
 
-			type = VARIABLE_INTEGER;
-			m_data.intValue = newvalue - 1;
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = newvalue - 1;
 
-			break;
-	}
+        break;
+    }
 
-	return *this;
+    return *this;
 }
 
 #ifdef WITH_SCRIPT_ENGINE
 
-ScriptVariableList::ScriptVariableList()
-{
+ScriptVariableList::ScriptVariableList() {}
 
+void ScriptVariableList::ClearList(void)
+{
+    list.clear();
 }
 
-void ScriptVariableList::ClearList( void )
+ScriptVariable *ScriptVariableList::GetOrCreateVariable(str name)
 {
-	list.clear();
+    return GetOrCreateVariable(Director.AddString(name));
 }
 
-ScriptVariable *ScriptVariableList::GetOrCreateVariable( str name )
+ScriptVariable *ScriptVariableList::GetOrCreateVariable(unsigned int name)
 {
-	return GetOrCreateVariable( Director.AddString( name ) );
+    return &list.addKeyValue(name);
 }
 
-ScriptVariable *ScriptVariableList::GetOrCreateVariable( unsigned int name )
+ScriptVariable *ScriptVariableList::GetVariable(str name)
 {
-	return &list.addKeyValue( name );
+    return GetVariable(Director.AddString(name));
 }
 
-ScriptVariable *ScriptVariableList::GetVariable( str name )
+ScriptVariable *ScriptVariableList::GetVariable(unsigned int name)
 {
-	return GetVariable( Director.AddString( name ) );
+    return list.findKeyValue(name);
 }
 
-ScriptVariable *ScriptVariableList::GetVariable( unsigned int name )
+ScriptVariable *ScriptVariableList::SetVariable(const char *name, int value)
 {
-	return list.findKeyValue( name );
+    ScriptVariable *variable = GetOrCreateVariable(name);
+
+    variable->setIntValue(value);
+
+    return variable;
 }
 
-ScriptVariable * ScriptVariableList::SetVariable( const char *name, int value )
+ScriptVariable *ScriptVariableList::SetVariable(const char *name, float value)
 {
-	ScriptVariable *variable = GetOrCreateVariable( name );
+    ScriptVariable *variable = GetOrCreateVariable(name);
 
-	variable->setIntValue( value );
+    variable->setFloatValue(value);
 
-	return variable;
+    return variable;
 }
 
-ScriptVariable * ScriptVariableList::SetVariable( const char *name, float value )
+ScriptVariable *ScriptVariableList::SetVariable(const char *name, const char *value)
 {
-	ScriptVariable *variable = GetOrCreateVariable( name );
+    ScriptVariable *variable = GetOrCreateVariable(name);
 
-	variable->setFloatValue( value );
+    variable->setStringValue(value);
 
-	return variable;
+    return variable;
 }
 
-ScriptVariable * ScriptVariableList::SetVariable( const char *name, const char * value )
+#    if defined(GAME_DLL)
+
+ScriptVariable *ScriptVariableList::SetVariable(const char *name, Entity *value)
 {
-	ScriptVariable *variable = GetOrCreateVariable( name );
+    ScriptVariable *variable = GetOrCreateVariable(name);
 
-	variable->setStringValue( value );
+    variable->setListenerValue((Listener *)value);
 
-	return variable;
+    return variable;
 }
 
-#if defined (GAME_DLL)
+#    endif
 
-ScriptVariable *ScriptVariableList::SetVariable( const char *name, Entity *value )
+ScriptVariable *ScriptVariableList::SetVariable(const char *name, Listener *value)
 {
-	ScriptVariable *variable = GetOrCreateVariable( name );
+    ScriptVariable *variable = GetOrCreateVariable(name);
 
-	variable->setListenerValue( ( Listener * )value );
+    variable->setListenerValue(value);
 
-	return variable;
+    return variable;
 }
 
-#endif
-
-ScriptVariable *ScriptVariableList::SetVariable( const char *name, Listener *value )
+ScriptVariable *ScriptVariableList::SetVariable(const char *name, ScriptVariable& value)
 {
-	ScriptVariable *variable = GetOrCreateVariable( name );
+    ScriptVariable *variable = GetOrCreateVariable(name);
 
-	variable->setListenerValue( value );
+    *variable = value;
 
-	return variable;
+    return variable;
 }
 
-ScriptVariable *ScriptVariableList::SetVariable( const char *name, ScriptVariable& value )
+ScriptVariable *ScriptVariableList::SetVariable(const char *name, Vector& value)
 {
-	ScriptVariable *variable = GetOrCreateVariable( name );
+    ScriptVariable *variable = GetOrCreateVariable(name);
 
-	*variable = value;
+    variable->setVectorValue(value);
 
-	return variable;
+    return variable;
 }
 
-ScriptVariable *ScriptVariableList::SetVariable( const char *name, Vector &value )
+ScriptVariable *ScriptVariableList::SetVariable(unsigned int name, ScriptVariable& value)
 {
-	ScriptVariable *variable = GetOrCreateVariable( name );
+    ScriptVariable *variable = GetOrCreateVariable(name);
 
-	variable->setVectorValue( value );
+    *variable = value;
+    variable->SetKey(name);
 
-	return variable;
+    return variable;
 }
 
-ScriptVariable *ScriptVariableList::SetVariable( unsigned int name, ScriptVariable& value )
+ScriptVariable *ScriptVariableList::SetVariable(unsigned int name, ScriptVariable&& value)
 {
-	ScriptVariable *variable = GetOrCreateVariable( name );
+    ScriptVariable *variable = GetOrCreateVariable(name);
 
-	*variable = value;
-	variable->SetKey( name );
+    *variable = std::move(value);
+    variable->SetKey(name);
 
-	return variable;
+    return variable;
 }
 
-ScriptVariable* ScriptVariableList::SetVariable(unsigned int name, ScriptVariable&& value)
+void ScriptVariableList::Archive(Archiver& arc)
 {
-	ScriptVariable* variable = GetOrCreateVariable(name);
-
-	*variable = std::move(value);
-	variable->SetKey(name);
-
-	return variable;
+    Class::Archive(arc);
+    list.Archive(arc);
 }
 
-void ScriptVariableList::Archive
-	(
-	Archiver &arc
-	)
-{
-	Class::Archive( arc );
-	list.Archive( arc );
-}
-
-CLASS_DECLARATION( Class, ScriptVariableList, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(Class, ScriptVariableList, NULL) {
+    {NULL, NULL}
 };
 
 #endif
-

@@ -29,253 +29,255 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/short3.h"
 
 #ifdef GAME_DLL
-#include "../fgame/misc.h"
+#    include "../fgame/misc.h"
 #endif
 
-enum variabletype
-{
-	VARIABLE_NONE,
-	VARIABLE_STRING,
-	VARIABLE_INTEGER,
-	VARIABLE_FLOAT,
-	VARIABLE_CHAR,
-	VARIABLE_CONSTSTRING,
-	VARIABLE_LISTENER,
-	VARIABLE_REF,
-	VARIABLE_ARRAY,
-	VARIABLE_CONSTARRAY,
-	VARIABLE_CONTAINER,
-	VARIABLE_SAFECONTAINER,
-	VARIABLE_POINTER,
-	VARIABLE_VECTOR,
-	VARIABLE_MAX
+enum variabletype {
+    VARIABLE_NONE,
+    VARIABLE_STRING,
+    VARIABLE_INTEGER,
+    VARIABLE_FLOAT,
+    VARIABLE_CHAR,
+    VARIABLE_CONSTSTRING,
+    VARIABLE_LISTENER,
+    VARIABLE_REF,
+    VARIABLE_ARRAY,
+    VARIABLE_CONSTARRAY,
+    VARIABLE_CONTAINER,
+    VARIABLE_SAFECONTAINER,
+    VARIABLE_POINTER,
+    VARIABLE_VECTOR,
+    VARIABLE_MAX
 };
 
-static const char *typenames[] =
-{
-	"none",
-	"string",
-	"int",
-	"float",
-	"char",
-	"const string",
-	"listener",
-	"ref",
-	"array",
-	"const array",
-	"array",
-	"array",
-	"pointer",
-	"vector",
-	"double"
-};
+static const char *typenames[] = {
+    "none",
+    "string",
+    "int",
+    "float",
+    "char",
+    "const string",
+    "listener",
+    "ref",
+    "array",
+    "const array",
+    "array",
+    "array",
+    "pointer",
+    "vector",
+    "double"};
 
 class ScriptArrayHolder;
 class ScriptConstArrayHolder;
 class ScriptPointer;
 
-class ScriptVariable {
+class ScriptVariable
+{
 public:
 #ifdef GAME_DLL
-	short3			key;		// variable name
+    short3 key; // variable name
 #endif
-	unsigned char	type;		// variable type
-	union anon393 {
-	public:
-		char						charValue;
-		float						floatValue;
-		int							intValue;
-		SafePtr<Listener>			*listenerValue;
-		str							*stringValue;
-		float						*vectorValue;
+    unsigned char type; // variable type
 
-		ScriptVariable				*refValue;
+    union anon393 {
+    public:
+        char               charValue;
+        float              floatValue;
+        int                intValue;
+        SafePtr<Listener> *listenerValue;
+        str               *stringValue;
+        float             *vectorValue;
 
-		ScriptArrayHolder			*arrayValue;
-		ScriptConstArrayHolder		*constArrayValue;
+        ScriptVariable *refValue;
 
-		Container< SafePtr< Listener > >					*containerValue;
-		SafePtr< ContainerClass< SafePtr< Listener > > >	*safeContainerValue;
+        ScriptArrayHolder      *arrayValue;
+        ScriptConstArrayHolder *constArrayValue;
 
-		ScriptPointer								*pointerValue;
-	} m_data;
+        Container<SafePtr<Listener>>               *containerValue;
+        SafePtr<ContainerClass<SafePtr<Listener>>> *safeContainerValue;
+
+        ScriptPointer *pointerValue;
+    } m_data;
 
 private:
-	void					ClearInternal();
-	void					ClearPointerInternal();
+    void ClearInternal();
+    void ClearPointerInternal();
 
 public:
-	ScriptVariable();
-	ScriptVariable(const ScriptVariable& variable);
-	ScriptVariable(ScriptVariable&& variable);
+    ScriptVariable();
+    ScriptVariable(const ScriptVariable& variable);
+    ScriptVariable(ScriptVariable&& variable);
 
-	~ScriptVariable();
+    ~ScriptVariable();
 
-	void					Archive( Archiver& arc );
-	static void				Archive( Archiver& arc, ScriptVariable **obj );
-	void					ArchiveInternal( Archiver& arc );
+    void        Archive(Archiver       &arc);
+    static void Archive(Archiver& arc, ScriptVariable **obj);
+    void        ArchiveInternal(Archiver       &arc);
 
-	void					CastBoolean( void );
-	void					CastConstArrayValue( void );
-	void					CastEntity( void );
-	void					CastFloat( void );
-	void					CastInteger( void );
-	void					CastString( void );
+    void CastBoolean(void);
+    void CastConstArrayValue(void);
+    void CastEntity(void);
+    void CastFloat(void);
+    void CastInteger(void);
+    void CastString(void);
 
-	void					Clear();
-	void					ClearPointer();
+    void Clear();
+    void ClearPointer();
 
-	const char				*GetTypeName( void ) const;
-	variabletype			GetType( void ) const;
+    const char  *GetTypeName(void) const;
+    variabletype GetType(void) const;
 
-	qboolean				IsEntity( void );
-	qboolean				IsListener( void );
-	qboolean				IsNumeric( void );
-	qboolean				IsConstArray() const;
+    qboolean IsEntity(void);
+    qboolean IsListener(void);
+    qboolean IsNumeric(void);
+    qboolean IsConstArray() const;
 #ifdef WITH_SCRIPT_ENGINE
-	qboolean				IsSimpleEntity( void );
+    qboolean IsSimpleEntity(void);
 #endif
-	qboolean				IsString( void );
-	qboolean				IsVector( void );
+    qboolean IsString(void);
+    qboolean IsVector(void);
 
-	void					PrintValue( void );
+    void PrintValue(void);
 
-	void					SetFalse( void );
-	void					SetTrue( void );
+    void SetFalse(void);
+    void SetTrue(void);
 
-	int						arraysize( void ) const;
-	size_t					size( void ) const;
+    int    arraysize(void) const;
+    size_t size(void) const;
 
-	bool					booleanNumericValue( void );
-	bool					booleanValue( void ) const;
-
-#ifdef WITH_SCRIPT_ENGINE
-	str&					getName( void );
-
-	short3&					GetKey();
-	void					SetKey( const short3& key );
-#endif
-
-	Entity					*entityValue( void );
-
-	void					evalArrayAt( ScriptVariable &var );
-
-	void					setArrayAt( ScriptVariable &index, ScriptVariable &value );
-	void					setArrayAtRef( ScriptVariable &index, ScriptVariable &value );
-	void					setArrayRefValue( ScriptVariable &var );
-
-	char					charValue( void ) const;
-	void					setCharValue( char newvalue );
-
-	ScriptVariable			*constArrayValue( void );
-	void					setConstArrayValue( ScriptVariable *pVar, unsigned int size );
+    bool booleanNumericValue(void);
+    bool booleanValue(void) const;
 
 #ifdef WITH_SCRIPT_ENGINE
-	const_str				constStringValue( void ) const;
-	void					setConstStringValue( const_str s );
+    str& getName(void);
+
+    short3& GetKey();
+    void    SetKey(const short3   &key);
 #endif
 
-	void					setContainerValue( Container< SafePtr< Listener > > *newvalue );
-	void					setSafeContainerValue( ContainerClass< SafePtr< Listener > > *newvalue );
+    Entity *entityValue(void);
 
-	float					floatValue( void ) const;
-	void					setFloatValue( float newvalue );
+    void evalArrayAt(ScriptVariable& var);
 
-	int						intValue( void ) const;
-	void					setIntValue( int newvalue );
+    void setArrayAt(ScriptVariable& index, ScriptVariable& value);
+    void setArrayAtRef(ScriptVariable& index, ScriptVariable& value);
+    void setArrayRefValue(ScriptVariable& var);
 
-	Listener				*listenerValue( void ) const;
-	Listener*				listenerAt(uintptr_t index) const;
-	void					setListenerValue( Listener * newvalue );
+    char charValue(void) const;
+    void setCharValue(char newvalue);
 
-	void					newPointer( void );
-	void					setPointer( const ScriptVariable& newvalue );
-
-	void					setRefValue( ScriptVariable * ref );
-
-	//const char				*stringValue( void );
-	str						stringValue( void ) const;
-	void					setStringValue( str newvalue );
+    ScriptVariable *constArrayValue(void);
+    void            setConstArrayValue(ScriptVariable *pVar, unsigned int size);
 
 #ifdef WITH_SCRIPT_ENGINE
-	SimpleEntity			*simpleEntityValue( void ) const;
+    const_str constStringValue(void) const;
+    void      setConstStringValue(const_str s);
 #endif
 
-	Vector					vectorValue( void ) const;
-	void					setVectorValue( const Vector &newvector );
+    void setContainerValue(Container<SafePtr<Listener>> *newvalue);
+    void setSafeContainerValue(ContainerClass<SafePtr<Listener>> *newvalue);
 
-	class PathNode			*pathNodeValue( void ) const;
-	class Waypoint			*waypointValue( void ) const;
+    float floatValue(void) const;
+    void  setFloatValue(float newvalue);
 
-	void					greaterthan( ScriptVariable &variable );
-	void					greaterthanorequal( ScriptVariable &variable );
-	void					lessthan( ScriptVariable &variable );
-	void					lessthanorequal( ScriptVariable &variable );
+    int  intValue(void) const;
+    void setIntValue(int newvalue);
 
-	void					complement( void );
-	void					minus( void );
-	ScriptVariable&			operator=(const ScriptVariable& variable);
-	ScriptVariable&			operator=(ScriptVariable&& variable);
-	ScriptVariable			&operator[]( ScriptVariable& index );
-	ScriptVariable			*operator[]( unsigned index ) const;
-	ScriptVariable			*operator*( );
-	void					operator+=( const ScriptVariable& value );
-	void					operator-=( const ScriptVariable& value );
-	void					operator*=( const ScriptVariable& value );
-	void					operator/=( const ScriptVariable& value );
-	void					operator%=( const ScriptVariable& value );
-	void					operator&=( const ScriptVariable& value );
-	void					operator^=( const ScriptVariable& value );
-	void					operator|=( const ScriptVariable& value );
-	void					operator<<=( const ScriptVariable& value );
-	void					operator>>=( const ScriptVariable& value );
+    Listener *listenerValue(void) const;
+    Listener *listenerAt(uintptr_t index) const;
+    void      setListenerValue(Listener *newvalue);
 
-	bool					operator!=( const ScriptVariable& value );
-	bool					operator==( const ScriptVariable& value );
+    void newPointer(void);
+    void setPointer(const ScriptVariable& newvalue);
 
-	ScriptVariable			operator++( int );
-	ScriptVariable			operator--( int );
+    void setRefValue(ScriptVariable *ref);
+
+    //const char				*stringValue( void );
+    str  stringValue(void) const;
+    void setStringValue(str newvalue);
+
+#ifdef WITH_SCRIPT_ENGINE
+    SimpleEntity *simpleEntityValue(void) const;
+#endif
+
+    Vector vectorValue(void) const;
+    void   setVectorValue(const Vector  &newvector);
+
+    class PathNode *pathNodeValue(void) const;
+    class Waypoint *waypointValue(void) const;
+
+    void greaterthan(ScriptVariable& variable);
+    void greaterthanorequal(ScriptVariable& variable);
+    void lessthan(ScriptVariable& variable);
+    void lessthanorequal(ScriptVariable& variable);
+
+    void            complement(void);
+    void            minus(void);
+    ScriptVariable& operator=(const ScriptVariable& variable);
+    ScriptVariable& operator=(ScriptVariable&& variable);
+    ScriptVariable& operator[](ScriptVariable& index);
+    ScriptVariable *operator[](unsigned index) const;
+    ScriptVariable *operator*();
+    void            operator+=(const ScriptVariable           &value);
+    void            operator-=(const ScriptVariable           &value);
+    void            operator*=(const ScriptVariable           &value);
+    void            operator/=(const ScriptVariable           &value);
+    void            operator%=(const ScriptVariable           &value);
+    void            operator&=(const ScriptVariable           &value);
+    void            operator^=(const ScriptVariable           &value);
+    void            operator|=(const ScriptVariable           &value);
+    void            operator<<=(const ScriptVariable           &value);
+    void            operator>>=(const ScriptVariable           &value);
+
+    bool operator!=(const ScriptVariable& value);
+    bool operator==(const ScriptVariable& value);
+
+    ScriptVariable operator++(int);
+    ScriptVariable operator--(int);
 };
 
-class ScriptArrayHolder {
+class ScriptArrayHolder
+{
 public:
-	con_map< ScriptVariable, ScriptVariable > arrayValue;
-	unsigned int	refCount;
+    con_map<ScriptVariable, ScriptVariable> arrayValue;
+    unsigned int                            refCount;
 
 public:
-	void			Archive( Archiver& arc );
-	static void		Archive( Archiver& arc, ScriptArrayHolder *& arrayValue );
+    void        Archive(Archiver       &arc);
+    static void Archive(Archiver& arc, ScriptArrayHolder *& arrayValue);
 };
 
-class ScriptConstArrayHolder {
+class ScriptConstArrayHolder
+{
 public:
-	ScriptVariable			*constArrayValue;
-	unsigned int			refCount;
-	unsigned int			size;
+    ScriptVariable *constArrayValue;
+    unsigned int    refCount;
+    unsigned int    size;
 
 public:
-	void			Archive( Archiver& arc );
-	static void		Archive( Archiver& arc, ScriptConstArrayHolder *& constArrayValue );
+    void        Archive(Archiver       &arc);
+    static void Archive(Archiver& arc, ScriptConstArrayHolder *& constArrayValue);
 
-	ScriptConstArrayHolder( ScriptVariable *pVar, unsigned int size );
-	ScriptConstArrayHolder( unsigned int size );
-	ScriptConstArrayHolder();
-	~ScriptConstArrayHolder();
+    ScriptConstArrayHolder(ScriptVariable *pVar, unsigned int size);
+    ScriptConstArrayHolder(unsigned int size);
+    ScriptConstArrayHolder();
+    ~ScriptConstArrayHolder();
 };
 
-class ScriptPointer {
+class ScriptPointer
+{
 public:
-	Container< ScriptVariable * > list;
+    Container<ScriptVariable *> list;
 
 public:
-	void			Archive( Archiver& arc );
-	static void		Archive( Archiver& arc, ScriptPointer *& pointerValue );
+    void        Archive(Archiver       &arc);
+    static void Archive(Archiver& arc, ScriptPointer *& pointerValue);
 
-	void		Clear();
+    void Clear();
 
-	void		add( ScriptVariable *var );
-	void		remove( ScriptVariable *var );
-	void		setValue( const ScriptVariable& var );
+    void add(ScriptVariable *var);
+    void remove(ScriptVariable *var);
+    void setValue(const ScriptVariable& var);
 };
 
 #ifdef WITH_SCRIPT_ENGINE
@@ -283,32 +285,32 @@ public:
 class ScriptVariableList : public Class
 {
 private:
-	con_set< short3, ScriptVariable > list;
+    con_set<short3, ScriptVariable> list;
 
 public:
-	CLASS_PROTOTYPE( ScriptVariableList );
+    CLASS_PROTOTYPE(ScriptVariableList);
 
-	ScriptVariableList();
+    ScriptVariableList();
 
-	void	Archive( Archiver &arc ) override;
+    void Archive(Archiver& arc) override;
 
-	void			ClearList( void );
+    void ClearList(void);
 
-	ScriptVariable *GetOrCreateVariable( str name );
-	ScriptVariable *GetOrCreateVariable( unsigned int name );
+    ScriptVariable *GetOrCreateVariable(str name);
+    ScriptVariable *GetOrCreateVariable(unsigned int name);
 
-	ScriptVariable *GetVariable( str name );
-	ScriptVariable *GetVariable( unsigned int name );
+    ScriptVariable *GetVariable(str name);
+    ScriptVariable *GetVariable(unsigned int name);
 
-	ScriptVariable *SetVariable( const char *name, int value );
-	ScriptVariable *SetVariable( const char *name, float value );
-	ScriptVariable *SetVariable( const char *name, const char *value );
-	ScriptVariable *SetVariable( const char *name, Entity *value );
-	ScriptVariable *SetVariable( const char *name, Listener *value );
-	ScriptVariable *SetVariable( const char *name, Vector &value );
-	ScriptVariable* SetVariable(const char* name, ScriptVariable& value);
-	ScriptVariable* SetVariable(unsigned int name, ScriptVariable& value);
-	ScriptVariable* SetVariable(unsigned int name, ScriptVariable&& value);
+    ScriptVariable *SetVariable(const char *name, int value);
+    ScriptVariable *SetVariable(const char *name, float value);
+    ScriptVariable *SetVariable(const char *name, const char *value);
+    ScriptVariable *SetVariable(const char *name, Entity *value);
+    ScriptVariable *SetVariable(const char *name, Listener *value);
+    ScriptVariable *SetVariable(const char *name, Vector& value);
+    ScriptVariable *SetVariable(const char *name, ScriptVariable& value);
+    ScriptVariable *SetVariable(unsigned int name, ScriptVariable& value);
+    ScriptVariable *SetVariable(unsigned int name, ScriptVariable&& value);
 };
 
 #endif

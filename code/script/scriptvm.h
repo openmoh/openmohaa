@@ -33,218 +33,223 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptopcodes.h"
 #include "../qcommon/con_set.h"
 
-#define	MAX_STACK_DEPTH		20		// 9 in mohaa
+#define MAX_STACK_DEPTH 20 // 9 in mohaa
 //#define	LOCALSTACK_SIZE		255		// pre-allocated localstack size for each VM
-#define MAX_SCRIPTCYCLES	9999	// max cmds
+#define MAX_SCRIPTCYCLES      9999 // max cmds
 
-#define STATE_RUNNING					0		// Running
-#define STATE_SUSPENDED					1		// Suspended
-#define STATE_WAITING					2		// Waiting for something
-#define STATE_EXECUTION					3		// Resume to execution
-#define STATE_DESTROYED					4		// Pending deletion
+#define STATE_RUNNING         0 // Running
+#define STATE_SUSPENDED       1 // Suspended
+#define STATE_WAITING         2 // Waiting for something
+#define STATE_EXECUTION       3 // Resume to execution
+#define STATE_DESTROYED       4 // Pending deletion
 
-#define THREAD_RUNNING					0		// Running
-#define THREAD_WAITING					1		// Waiting
-#define THREAD_SUSPENDED				2		// Suspended
-#define THREAD_CONTEXT_SWITCH			3		// Resume from context switch
+#define THREAD_RUNNING        0 // Running
+#define THREAD_WAITING        1 // Waiting
+#define THREAD_SUSPENDED      2 // Suspended
+#define THREAD_CONTEXT_SWITCH 3 // Resume from context switch
 
 class ScriptException;
 class ScriptThread;
 class ScriptVM;
 
-class ScriptCallStack {
+class ScriptCallStack
+{
 public:
-	// opcode variable
-	unsigned char		*codePos;	// opcode will be restored once a DONE was hit
+    // opcode variable
+    unsigned char *codePos; // opcode will be restored once a DONE was hit
 
-	// stack variables
-	ScriptVariable		*localStack;
-	ScriptVariable		*pTop;
+    // stack variables
+    ScriptVariable *localStack;
+    ScriptVariable *pTop;
 
-	// return variable
-	ScriptVariable		returnValue;
+    // return variable
+    ScriptVariable returnValue;
 
-	// OLD self value
-	SafePtr< Listener > m_Self;
+    // OLD self value
+    SafePtr<Listener> m_Self;
 };
 
-// Ley0k: I'm unsure about this class, MOHAA use it
 class ScriptStack
 {
 public:
-	ScriptVariable		*m_Array;
-	int					m_Count;
+    ScriptVariable *m_Array;
+    int             m_Count;
 };
 
 class ScriptVMStack
 {
 public:
-	ScriptVMStack();
-	ScriptVMStack(size_t stackSize);
-	~ScriptVMStack();
+    ScriptVMStack();
+    ScriptVMStack(size_t stackSize);
+    ~ScriptVMStack();
 
-	ScriptVMStack(const ScriptVMStack& other) = delete;
-	ScriptVMStack& operator=(const ScriptVMStack& other) = delete;
-	ScriptVMStack(ScriptVMStack&& other);
-	ScriptVMStack& operator=(ScriptVMStack&& other);
+    ScriptVMStack(const ScriptVMStack& other)            = delete;
+    ScriptVMStack& operator=(const ScriptVMStack& other) = delete;
+    ScriptVMStack(ScriptVMStack&& other);
+    ScriptVMStack& operator=(ScriptVMStack&& other);
 
-	size_t GetStackSize() const;
-	ScriptVariable& SetTop(ScriptVariable& newTop);
-	ScriptVariable& GetTop() const;
-	ScriptVariable& GetTop(size_t offset) const;
-	ScriptVariable* GetTopPtr() const;
-	ScriptVariable* GetTopPtr(size_t offset) const;
-	ScriptVariable* GetTopArray(size_t offset = 0) const;
-	uintptr_t GetIndex() const;
-	void MoveTop(ScriptVariable&& other);
-	ScriptVariable* GetListenerVar(uintptr_t index);
-	void SetListenerVar(uintptr_t index, ScriptVariable* newVar);
+    size_t          GetStackSize() const;
+    ScriptVariable& SetTop(ScriptVariable& newTop);
+    ScriptVariable& GetTop() const;
+    ScriptVariable& GetTop(size_t offset) const;
+    ScriptVariable *GetTopPtr() const;
+    ScriptVariable *GetTopPtr(size_t offset) const;
+    ScriptVariable *GetTopArray(size_t offset = 0) const;
+    uintptr_t       GetIndex() const;
+    void            MoveTop(ScriptVariable           &&other);
+    ScriptVariable *GetListenerVar(uintptr_t index);
+    void            SetListenerVar(uintptr_t index, ScriptVariable *newVar);
 
-	/** Pop and return the previous value. */
-	ScriptVariable& Pop();
-	ScriptVariable& Pop(size_t offset);
-	ScriptVariable& PopAndGet();
-	ScriptVariable& PopAndGet(size_t offset);
-	/** Push and return the previous value. */
-	ScriptVariable& Push();
-	ScriptVariable& Push(size_t offset);
-	ScriptVariable& PushAndGet();
-	ScriptVariable& PushAndGet(size_t offset);
+    /** Pop and return the previous value. */
+    ScriptVariable& Pop();
+    ScriptVariable& Pop(size_t offset);
+    ScriptVariable& PopAndGet();
+    ScriptVariable& PopAndGet(size_t offset);
+    /** Push and return the previous value. */
+    ScriptVariable& Push();
+    ScriptVariable& Push(size_t offset);
+    ScriptVariable& PushAndGet();
+    ScriptVariable& PushAndGet(size_t offset);
 
 private:
-	/** The VM's local stack. */
-	ScriptVariable* localStack;
-	/** The local stack size. */
-	ScriptVariable* stackBottom;
-	/** Variable from the top stack of the local stack. */
-	ScriptVariable* pTop;
-	ScriptVariable** listenerVarPtr;
+    /** The VM's local stack. */
+    ScriptVariable *localStack;
+    /** The local stack size. */
+    ScriptVariable *stackBottom;
+    /** Variable from the top stack of the local stack. */
+    ScriptVariable  *pTop;
+    ScriptVariable **listenerVarPtr;
 };
 
 class ScriptVM
 {
-	friend class ScriptThread;
+    friend class ScriptThread;
 
 public:
-	// important thread variables
-	ScriptVM		*next;				// next VM in the current ScriptClass
+    // important thread variables
+    ScriptVM *next; // next VM in the current ScriptClass
 
-	ScriptThread	*m_Thread;			// script thread
-	ScriptClass		*m_ScriptClass;		// current group of threads
-
-public:
-	// return variables
-	ScriptStack		*m_Stack;		// Currently unused
-	ScriptVMStack	m_VMStack;
-	ScriptVariable	m_ReturnValue;	// VM return value
-
-	// opcode variables
-	unsigned char *m_PrevCodePos;		// previous opcode, for use with script exceptions
-	unsigned char *m_CodePos;			// check compiler.h for the list of all opcodes
+    ScriptThread *m_Thread;      // script thread
+    ScriptClass  *m_ScriptClass; // current group of threads
 
 public:
-	// states
-	unsigned char state;			// current VM state
-	unsigned char m_ThreadState;	// current thread state
+    // return variables
+    ScriptStack   *m_Stack; // Currently unused
+    ScriptVMStack  m_VMStack;
+    ScriptVariable m_ReturnValue; // VM return value
 
-	// stack variables
-	Container< ScriptCallStack * >	callStack;			// thread's call stack
-	ScriptVariable					*m_StackPos;		// marked stack position
+    // opcode variables
+    unsigned char *m_PrevCodePos; // previous opcode, for use with script exceptions
+    unsigned char *m_CodePos;     // check compiler.h for the list of all opcodes
 
-	// parameters variables
-	ScriptVariable	*m_pOldData;		// old fastEvent data, to cleanup
-	int				m_OldDataSize;
-	bool			m_bMarkStack;		// changed by OP_MARK_STACK_POS and OP_RESTORE_STACK_POS
-	Event			fastEvent;			// parameter list, set when the VM is executed
+public:
+    // states
+    unsigned char state;         // current VM state
+    unsigned char m_ThreadState; // current thread state
+
+    // stack variables
+    Container<ScriptCallStack *> callStack;  // thread's call stack
+    ScriptVariable              *m_StackPos; // marked stack position
+
+    // parameters variables
+    ScriptVariable *m_pOldData; // old fastEvent data, to cleanup
+    int             m_OldDataSize;
+    bool            m_bMarkStack; // changed by OP_MARK_STACK_POS and OP_RESTORE_STACK_POS
+    Event           fastEvent;    // parameter list, set when the VM is executed
 
 private:
-	void			error( const char *format, ... );
+    void error(const char *format, ...);
 
-	template<bool bMethod = false, bool bReturn = false>
-	void			executeCommand(Listener* listener, op_parmNum_t iParamCount, op_evName_t eventnum);
-	template<bool bReturn>
-	void			executeCommandInternal(Event& ev, Listener* listener, ScriptVariable* fromVar, op_parmNum_t iParamCount);
-	bool			executeGetter(Listener* listener, op_evName_t eventName);
-	bool			executeSetter(Listener* listener, op_evName_t eventName);
-	void			transferVarsToEvent(Event& ev, ScriptVariable* fromVar, op_parmNum_t count);
+    template<bool bMethod = false, bool bReturn = false>
+    void executeCommand(Listener *listener, op_parmNum_t iParamCount, op_evName_t eventnum);
+    template<bool bReturn>
+    void executeCommandInternal(Event& ev, Listener *listener, ScriptVariable *fromVar, op_parmNum_t iParamCount);
+    bool executeGetter(Listener *listener, op_evName_t eventName);
+    bool executeSetter(Listener *listener, op_evName_t eventName);
+    void transferVarsToEvent(Event& ev, ScriptVariable *fromVar, op_parmNum_t count);
 
-	void			jump( int offset );
-	void			jumpBool(int offset, bool value);
-	void			loadTopInternal(Listener* listener);
-	ScriptVariable* storeTopInternal(Listener* listener);
-	template<bool noTop = false> void loadTop(Listener* listener);
-	template<bool noTop = false> ScriptVariable* storeTop(Listener* listener);
+    void            jump(int offset);
+    void            jumpBool(int offset, bool value);
+    void            loadTopInternal(Listener *listener);
+    ScriptVariable *storeTopInternal(Listener *listener);
+    template<bool noTop = false>
+    void loadTop(Listener *listener);
+    template<bool noTop = false>
+    ScriptVariable *storeTop(Listener *listener);
 
-	void			fetchOpcodeValue(void* outValue, size_t size);
-	void			fetchActualOpcodeValue(void* outValue, size_t size);
+    void fetchOpcodeValue(void *outValue, size_t size);
+    void fetchActualOpcodeValue(void *outValue, size_t size);
 
-	template<typename T> T fetchOpcodeValue()
-	{
-		T value;
-		fetchOpcodeValue(&value, sizeof(T));
-		return value;
-	}
+    template<typename T>
+    T fetchOpcodeValue()
+    {
+        T value;
+        fetchOpcodeValue(&value, sizeof(T));
+        return value;
+    }
 
-	template<typename T> T fetchOpcodeValue(size_t offset)
-	{
-		T value;
-		fetchOpcodeValue(&value, sizeof(T));
-		return value;
-	}
+    template<typename T>
+    T fetchOpcodeValue(size_t offset)
+    {
+        T value;
+        fetchOpcodeValue(&value, sizeof(T));
+        return value;
+    }
 
-	template<typename T> T fetchActualOpcodeValue()
-	{
-		T value;
-		fetchActualOpcodeValue(&value, sizeof(T));
-		return value;
-	}
+    template<typename T>
+    T fetchActualOpcodeValue()
+    {
+        T value;
+        fetchActualOpcodeValue(&value, sizeof(T));
+        return value;
+    }
 
-	void execCmdCommon(op_parmNum_t param);
-	void execCmdMethodCommon(op_parmNum_t param);
-	void execMethodCommon(op_parmNum_t param);
-	void execFunction(ScriptMaster& Director);
+    void execCmdCommon(op_parmNum_t param);
+    void execCmdMethodCommon(op_parmNum_t param);
+    void execMethodCommon(op_parmNum_t param);
+    void execFunction(ScriptMaster& Director);
 
-	void			SetFastData( ScriptVariable *data, int dataSize );
+    void SetFastData(ScriptVariable *data, int dataSize);
 
-	bool			Switch( StateScript *stateScript, ScriptVariable &var );
+    bool Switch(StateScript *stateScript, ScriptVariable& var);
 
-	unsigned char	*ProgBuffer();
-	void			HandleScriptException( ScriptException& exc );
+    unsigned char *ProgBuffer();
+    void           HandleScriptException(ScriptException          &exc);
 
 public:
 #ifndef _DEBUG_MEM
-	void *operator new( size_t size );
-	void operator delete( void *ptr );
+    void *operator new(size_t size);
+    void  operator delete(void *ptr);
 #endif
 
-	ScriptVM( ScriptClass *scriptClass, unsigned char *pCodePos, ScriptThread *thread );
-	~ScriptVM();
+    ScriptVM(ScriptClass *scriptClass, unsigned char *pCodePos, ScriptThread *thread);
+    ~ScriptVM();
 
-	void			Archive( Archiver& arc );
+    void Archive(Archiver& arc);
 
-	void			EnterFunction(Container<ScriptVariable>&&);
-	void			LeaveFunction();
+    void EnterFunction(Container<ScriptVariable>&&);
+    void LeaveFunction();
 
-	void			End( const ScriptVariable& returnValue );
-	void			End( void );
+    void End(const ScriptVariable& returnValue);
+    void End(void);
 
-	void			Execute( ScriptVariable *data = NULL, int dataSize = 0, str label = "" );
-	void			NotifyDelete( void );
-	void			Resume( qboolean bForce = false );
-	void			Suspend( void );
+    void Execute(ScriptVariable *data = NULL, int dataSize = 0, str label = "");
+    void NotifyDelete(void);
+    void Resume(qboolean bForce = false);
+    void Suspend(void);
 
-	str				Filename( void );
-	str				Label( void );
-	ScriptClass		*GetScriptClass( void );
+    str          Filename(void);
+    str          Label(void);
+    ScriptClass *GetScriptClass(void);
 
-	bool			IsSuspended( void );
-	int				State( void );
-	int				ThreadState( void );
+    bool IsSuspended(void);
+    int  State(void);
+    int  ThreadState(void);
 
-	void			EventGoto( Event *ev );
-	bool			EventThrow( Event *ev );
+    void EventGoto(Event *ev);
+    bool EventThrow(Event *ev);
 
-	bool			CanScriptTracePrint( void );
+    bool CanScriptTracePrint(void);
 };
 
 extern MEM_BlockAlloc<ScriptClass> ScriptClass_allocator;
