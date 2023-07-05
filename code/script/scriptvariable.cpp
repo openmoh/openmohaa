@@ -77,7 +77,6 @@ void Entry< ScriptVariable, ScriptVariable >::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	key.ArchiveInternal( arc );
 	value.ArchiveInternal( arc );
@@ -88,7 +87,6 @@ void Entry< short3, ScriptVariable >::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	if( arc.Loading() )
 	{
@@ -2567,7 +2565,6 @@ void ScriptVariableList::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	Class::Archive( arc );
 	list.Archive( arc );

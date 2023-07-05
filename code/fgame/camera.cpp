@@ -78,7 +78,6 @@ void CameraMoveState::DoNodeEvents
 	(
 	Camera * camera
 	)
-
 {
 	SplinePath  *node;
 	Entity      *ent;
@@ -1030,7 +1029,6 @@ Vector Camera::CalculateOrientation
 	(
 	void
 	)
-
 {
 	int      i;
 	float    t;
@@ -1173,7 +1171,6 @@ void Camera::CameraThink
 	(
 	Event *ev
 	)
-
 {
 	UpdateStates();
 

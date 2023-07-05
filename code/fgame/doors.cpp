@@ -488,7 +488,6 @@ void Door::SetMessageSound
 	(
 	Event *ev
 	)
-
 {
 	SetMessageSound( ev->GetString( 1 ) );
 }
@@ -497,7 +496,6 @@ void Door::SetLockedSound
 	(
 	Event *ev
 	)
-
 {
 	SetLockedSound( ev->GetString( 1 ) );
 }
@@ -506,7 +504,6 @@ void Door::SetWait
 	(
 	Event *ev
 	)
-
 {
 	wait = ev->GetFloat( 1 );
 }
@@ -515,7 +512,6 @@ void Door::SetDmg
 	(
 	Event *ev
 	)
-
 {
 	dmg = ev->GetInteger( 1 );
 }
@@ -524,7 +520,6 @@ void Door::EventAlwaysAway
 	(
 	Event *ev
 	)
-
 {
 	qboolean bAlwaysAway = true;
 
@@ -538,7 +533,6 @@ void Door::EventTrySolid
 	(
 	Event *ev
 	)
-
 {
 	Entity *check;
 	gentity_t *ent;
@@ -577,7 +571,6 @@ void Door::EventDoorType
 	(
 	Event *ev
 	)
-
 {
 	str s = ev->GetString( 1 );
 
@@ -599,7 +592,6 @@ qboolean Door::isOpen
 	(
 	void
 	)
-
 {
 	return ( state == STATE_OPEN );
 }
@@ -608,7 +600,6 @@ qboolean Door::isCompletelyClosed
 	(
 	void
 	)
-
 {
 	return ( state == STATE_CLOSED );
 }
@@ -617,7 +608,6 @@ void Door::OpenEnd
 	(
 	Event *ev
 	)
-
 {
 	if( edict->r.contents != CONTENTS_SOLID )
 	{
@@ -652,7 +642,6 @@ void Door::CloseEnd
 	(
 	Event *ev
 	)
-
 {
 	if( sound_close_end.length() > 1 )
 	{
@@ -680,7 +669,6 @@ void Door::Close
 	(
 	Event *ev
 	)
-
 {
 	Door *door;
 
@@ -720,7 +708,6 @@ void Door::Open
 	(
 	Event *ev
 	)
-
 {
 	Door *door;
 	Event *e;
@@ -893,7 +880,6 @@ void Door::DoorBlocked
 	(
 	Event *ev
 	)
-
 {
 	Event *e;
 	Entity *other;
@@ -1111,7 +1097,6 @@ void Door::LinkDoors
 	(
 	Event *ev
 	)
-
 {
 	Entity       *entptr;
 	Door	        *ent;
@@ -1276,7 +1261,6 @@ void Door::LockDoor
 	(
 	Event *ev
 	)
-
 {
 	if( !level.PreSpawned() )
 		ScriptError( "Cannot lock door before level prespawn" );
@@ -1288,7 +1272,6 @@ void Door::UnlockDoor
 	(
 	Event *ev
 	)
-
 {
 	SetLocked( false );
 }
@@ -1297,7 +1280,6 @@ qboolean Door::DoorTouches
 	(
 	Door *e1
 	)
-
 {
 	if( e1->absmin.x > absmax.x )
 	{
@@ -1331,7 +1313,6 @@ void Door::UpdatePathConnection
 	(
 	void
 	)
-
 {
 	if( BlocksAIMovement() )
 	{
@@ -1347,7 +1328,6 @@ void Door::SetLocked
 	(
 	qboolean newLocked
 	)
-
 {
 	if( locked == newLocked )
 		return;
@@ -1361,7 +1341,6 @@ void Door::SetState
 	(
 	int newState
 	)
-
 {
 	if( state == newState )
 		return;
@@ -1375,7 +1354,6 @@ qboolean Door::BlocksAIMovement
 	(
 	void
 	) const
-
 {
 	return ( locked || state == STATE_OPEN );
 }
@@ -1384,7 +1362,6 @@ qboolean Door::AIDontFace
 	(
 	void
 	) const
-
 {
 	return ( locked || state == STATE_OPEN );
 }
@@ -1513,7 +1490,6 @@ void RotatingDoor::DoClose
 	(
 	Event *ev
 	)
-
 {
 	MoveTo( origin, startangle, fabs( speed*angle ), EV_Door_CloseEnd );
 }

@@ -1794,7 +1794,6 @@ bool Entity::AutoArchiveModel
 	(
 	void
 	)
-
 {
 	return true;
 }
@@ -1916,7 +1915,6 @@ qboolean Entity::setModel
 	(
 	void
 	)
-
 {
 	level.skel_index[ edict->s.number ] = -1;
 	return gi.setmodel( edict, model );
@@ -1926,7 +1924,6 @@ void Entity::SetSize
 	(
 	void
 	)
-
 {
 	mins = edict->r.mins;
 	maxs = edict->r.maxs;
@@ -1941,7 +1938,6 @@ void Entity::setModel
 	(
 	const char *mdl
 	)
-
 {
 	if( strcmp( mdl, "" ) )
 	{
@@ -2099,7 +2095,6 @@ void Entity::TriggerEvent
 	(
 	Event *ev
 	)
-
 {
 	const char	*name;
 	Event		   *event;
@@ -2179,7 +2174,6 @@ void Entity::setScale
 	(
 	float scale
 	)
-
 {
 	edict->s.scale = scale;
 }
@@ -2188,7 +2182,6 @@ void Entity::setContentsSolid
 	(
 	void
 	)
-
 {
 	setContents( CONTENTS_BBOX );
 }
@@ -2197,7 +2190,6 @@ void Entity::setSolidType
 	(
 	solid_t type
 	)
-
 {
 	if(
 		( !LoadingSavegame ) &&
@@ -2242,7 +2234,6 @@ void Entity::setSize
 	Vector min,
 	Vector max
 	)
-
 {
 	Vector delta;
 
@@ -2313,7 +2304,6 @@ void Entity::link
 	(
 	void
 	)
-
 {
 	gi.LinkEntity( edict );
 	absmin = edict->r.absmin;
@@ -2333,7 +2323,6 @@ void Entity::addOrigin
 	(
 	Vector add
 	)
-
 {
 	setLocalOrigin( localorigin + add );
 }
@@ -2342,7 +2331,6 @@ void Entity::setOrigin
 	(
 	void
 	)
-
 {
 	Entity *ent;
 
@@ -2377,7 +2365,6 @@ void Entity::setLocalOrigin
 	(
 	Vector org
 	)
-
 {
 	if( m_pGlueMaster )
 	{
@@ -2411,7 +2398,6 @@ void Entity::setOrigin
 	(
 	Vector org
 	)
-
 {
 	if( m_pGlueMaster )
 	{
@@ -2451,7 +2437,6 @@ void Entity::setOriginEvent
 	(
 	Vector org
 	)
-
 {
 	velocity = vec_zero;
 	setOrigin( org );
@@ -2461,7 +2446,6 @@ void Entity::updateOrigin
 	(
 	void
 	)
-
 {
 	Entity *ent;
 	int i, num;
@@ -2496,7 +2480,6 @@ void Entity::ShowInfo
 	float fDot,
 	float fDist
 	)
-
 {
 	int i;
 	char szText[512];
@@ -2522,7 +2505,6 @@ void Entity::GetRawTag
 	int    tagnum,
 	orientation_t *orient
 	)
-
 {
 	*orient = G_TIKI_Orientation( edict, tagnum & TAG_MASK );
 }
@@ -2532,7 +2514,6 @@ qboolean Entity::GetRawTag
 	const char *name,
 	orientation_t * orient
 	)
-
 {
 	int tagnum;
 
@@ -2550,7 +2531,6 @@ void Entity::GetTag
 	int    tagnum,
 	orientation_t *orient
 	)
-
 {
 	orientation_t  o;
 	int            i;
@@ -2571,7 +2551,6 @@ qboolean Entity::GetTag
 	const char *name,
 	orientation_t * orient
 	)
-
 {
 	int      tagnum;
 
@@ -2592,7 +2571,6 @@ void Entity::GetTag
 	Vector *left,
 	Vector *up
 	)
-
 {
 	orientation_t orient;
 
@@ -2624,7 +2602,6 @@ qboolean Entity::GetTag
 	Vector *left,
 	Vector *up
 	)
-
 {
 	int tagnum;
 
@@ -2642,7 +2619,6 @@ qboolean Entity::GetTagPositionAndOrientation
 	str tagname,
 	orientation_t *new_or
 	)
-
 {
 	int tagnum;
 
@@ -2660,7 +2636,6 @@ void Entity::GetTagPositionAndOrientation
 	int tagnum,
 	orientation_t *new_or
 	)
-
 {
 	int i;
 	orientation_t tag_or;
@@ -2684,7 +2659,6 @@ void Entity::GetTagAngles
 	(
 	Event *ev
 	)
-
 {
 	orientation_t orient;
 	Vector ang;
@@ -2713,7 +2687,6 @@ void Entity::GetTagPosition
 	(
 	Event *ev
 	)
-
 {
 	Vector pos;
 	str tagname;
@@ -2750,7 +2723,6 @@ void Entity::addAngles
 	(
 	Vector add
 	)
-
 {
 	if( bindmaster )
 	{
@@ -2766,7 +2738,6 @@ void Entity::setAngles
 	(
 	void
 	)
-
 {
 	if( bindmaster )
 	{
@@ -2782,7 +2753,6 @@ void Entity::setAngles
 	(
 	Vector ang
 	)
-
 {
 	Entity * ent;
 	int num, i;
@@ -2902,7 +2872,6 @@ void Entity::Damage
 	int meansofdeath,
 	int location
 	)
-
 {
 	Event	*ev;
 
@@ -2939,7 +2908,6 @@ void Entity::DamageEvent
 	(
 	Event *ev
 	)
-
 {
 	Entity	*inflictor;
 	Entity	*attacker;
@@ -3080,7 +3048,6 @@ void Entity::Delete
 	(
 	void
 	)
-
 {
 	// Delete the entity the next frame
 
@@ -3094,7 +3061,6 @@ void Entity::Remove
 	(
 	Event *ev
 	)
-
 {
 	if( ev->NumArgs() )
 		ScriptError( "Arguments not allowed." );
@@ -3106,7 +3072,6 @@ void Entity::EventSoundDone
 	(
 	Event *ev
 	)
-
 {
 	int channelNum = ev->GetInteger( 1 );
 	str sfxName = ev->GetString( 2 );
@@ -3129,7 +3094,6 @@ void Entity::VolumeDamage
 	(
 	float damage
 	)
-
 {
 	int i;
 	int numtouch;
@@ -3158,7 +3122,6 @@ void Entity::EventVolumeDamage
 	(
 	Event *ev
 	)
-
 {
 	VolumeDamage( ev->GetFloat( 1 ) );
 }
@@ -3167,7 +3130,6 @@ void Entity::AddImmunity
 	(
 	Event *ev
 	)
-
 {
 	str immune_string;
 	int new_immunity;
@@ -3192,7 +3154,6 @@ void Entity::RemoveImmunity
 	(
 	Event *ev
 	)
-
 {
 	str immune_string;
 	int old_immunity;
@@ -3217,7 +3178,6 @@ qboolean Entity::Immune
 	(
 	int meansofdeath
 	)
-
 {
 	int number_of_immunities, i;
 
@@ -3256,7 +3216,6 @@ qboolean Entity::CanDamage
 	Entity *target,
 	Entity *skip_ent
 	)
-
 {
 	trace_t	trace;
 	Vector	pos;
@@ -3304,7 +3263,6 @@ void Entity::EventInPVS
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( gi.AreasConnected( edict->r.areanum, ev->GetEntity( 1 )->edict->r.areanum ) != 0 );
 }
@@ -3313,7 +3271,6 @@ qboolean Entity::IsDead
 	(
 	void
 	)
-
 {
 	return deadflag != DEAD_NO;
 }
@@ -3356,7 +3313,6 @@ void Entity::IsTouching
 	(
 	Event *ev
 	)
-
 {
 	Entity *ent = ev->GetEntity( 1 );
 
@@ -3373,7 +3329,6 @@ qboolean Entity::FovCheck
 	float *delta,
 	float fovdot
 	)
-
 {
 	float deltadot = delta[ 0 ] * orientation[ 0 ][ 0 ] + delta[ 1 ] * orientation[ 0 ][ 1 ];
 
@@ -3399,7 +3354,6 @@ bool Entity::CanSee
 	float fov,
 	float vision_distance
 	)
-
 {
 	float delta[ 2 ];
 
@@ -3431,7 +3385,6 @@ void Entity::CanSee
 	(
 	Event *ev
 	)
-
 {
 	Entity *ent;
 	float fov = 0.0f;
@@ -3473,7 +3426,6 @@ void Entity::GetVelocity
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector( velocity );
 }
@@ -3482,7 +3434,6 @@ void Entity::GetAVelocity
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector( avelocity );
 }
@@ -3491,7 +3442,6 @@ void Entity::SetVelocity
 	(
 	Event *ev
 	)
-
 {
 	velocity = ev->GetVector( 1 );
 }
@@ -3684,7 +3634,6 @@ void Entity::CheckGround
 	(
 	void
 	)
-
 {
 	Vector	point;
 	trace_t	trace;
@@ -3743,7 +3692,6 @@ void Entity::BecomeNonSolid
 	(
 	Event *ev
 	)
-
 {
 	setSolidType( SOLID_NOT );
 }
@@ -3772,7 +3720,6 @@ void Entity::Sound
 	int		checkSubtitle,
 	float	max_dist
 	)
-
 {
 	const char *name = NULL;
 	vec3_t org;
@@ -3901,7 +3848,6 @@ void Entity::LoopSound
 	(
 	Event *ev
 	)
-
 {
 	str sound_name;
 	float volume = DEFAULT_VOL;
@@ -4046,7 +3992,6 @@ void Entity::Sound
 	(
 	Event *ev
 	)
-
 {
 	if( level.spawning )
 	{
@@ -4196,7 +4141,6 @@ void Entity::EventSetHealthOnly
 	(
 	Event *ev
 	)
-
 {
 	if( IsDead() )
 	{
@@ -4218,7 +4162,6 @@ void Entity::EventSetMaxHealth
 	(
 	Event *ev
 	)
-
 {
 	max_health = ev->GetFloat( 1 );
 	if( max_health <= 0.0f )
@@ -4235,7 +4178,6 @@ void Entity::EventGetMaxHealth
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( max_health );
 }
@@ -4244,7 +4186,6 @@ void Entity::SetHealth
 	(
 	Event *ev
 	)
-
 {
 	if( IsDead() )
 	{
@@ -4265,7 +4206,6 @@ void Entity::GetHealth
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( health );
 }
@@ -4321,7 +4261,6 @@ void Entity::SetSize
 	(
 	Event *ev
 	)
-
 {
 	Vector min, max;
 
@@ -4334,7 +4273,6 @@ void Entity::SetMins
 	(
 	Event *ev
 	)
-
 {
 	Vector min;
 
@@ -4346,7 +4284,6 @@ void Entity::SetMaxs
 	(
 	Event *ev
 	)
-
 {
 	Vector max;
 
@@ -4358,7 +4295,6 @@ void Entity::SetScale
 	(
 	Event *ev
 	)
-
 {
 	setScale( ev->GetFloat( 1 ) );
 }
@@ -4367,7 +4303,6 @@ void Entity::GetScale
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( edict->s.scale );
 }
@@ -4403,7 +4338,6 @@ void Entity::SetAngles
 	(
 	Event *ev
 	)
-
 {
 	setAngles( ev->GetVector( 1 ) );
 }
@@ -4412,7 +4346,6 @@ Vector Entity::GetControllerAngles
 	(
 	int num
 	)
-
 {
 	Vector controller_angles;
 
@@ -4433,7 +4366,6 @@ void Entity::GetControllerAngles
 	(
 	Event *ev
 	)
-
 {
 	int num = ev->GetInteger( 1 );
 
@@ -4451,7 +4383,6 @@ void Entity::SetControllerAngles
 	int num,
 	vec3_t angles
 	)
-
 {
 	assert( ( num >= 0 ) && ( num < NUM_BONE_CONTROLLERS ) );
 	if( ( num < 0 ) || ( num >= NUM_BONE_CONTROLLERS ) )
@@ -4468,7 +4399,6 @@ void Entity::SetControllerAngles
 	(
 	Event *ev
 	)
-
 {
 	int num;
 	Vector angles;
@@ -4491,7 +4421,6 @@ void Entity::SetControllerTag
 	int num,
 	int tag_num
 	)
-
 {
 	assert( ( num >= 0 ) && ( num < NUM_BONE_CONTROLLERS ) );
 
@@ -4511,7 +4440,6 @@ qboolean Entity::attach
 	qboolean use_angles,
 	Vector offset
 	)
-
 {
 	int i;
 	Entity * parent;
@@ -4599,7 +4527,6 @@ void Entity::detach
 	(
 	void
 	)
-
 {
 	int i;
 	int num;
@@ -4754,7 +4681,6 @@ void Entity::RenderEffects
 	(
 	Event *ev
 	)
-
 {
 	const char *flag;
 	int mask = 0;
@@ -4836,7 +4762,6 @@ void Entity::SVFlags
 	(
 	Event *ev
 	)
-
 {
 	const char *flag;
 	int mask = 0;
@@ -4951,7 +4876,6 @@ void Entity::BroadcastAIEvent
 	int iType,
 	float rad
 	)
-
 {
 	G_BroadcastAIEvent( this, origin, iType, rad );
 }
@@ -4960,7 +4884,6 @@ void Entity::BroadcastAIEvent
 	(
 	Event *ev
 	)
-
 {
 	int iType;
 	float rad;
@@ -4986,7 +4909,6 @@ void Entity::PreAnimate
 	(
 	void
 	)
-
 {
 }
 
@@ -4994,7 +4916,6 @@ void Entity::DoForceActivate
 	(
 	void
 	)
-
 {
 	edict->r.lastNetTime = level.inttime;
 }
@@ -5003,7 +4924,6 @@ void Entity::ClientThink
 	(
 	void
 	)
-
 {
 
 }
@@ -5012,7 +4932,6 @@ void Entity::Think
 	(
 	void
 	)
-
 {
 }
 
@@ -5072,7 +4991,6 @@ void Entity::SurfaceCommand
 	const char * surf_name,
 	const char * token
 	)
-
 {
 	const char * current_surface_name;
 	int surface_num;
@@ -5183,7 +5101,6 @@ void Entity::SurfaceModelEvent
 	(
 	Event *ev
 	)
-
 {
 	const char * surf_name;
 	const char * token;
@@ -5202,7 +5119,6 @@ void Entity::SetShaderData
 	(
 	Event *ev
 	)
-
 {
 	edict->s.shader_data[ 0 ] = ev->GetFloat( 1 );
 	edict->s.shader_data[ 1 ] = ev->GetFloat( 2 );
@@ -5440,7 +5356,6 @@ void Entity::UseBoundingBoxEvent
 	(
 	Event *ev
 	)
-
 {
 	edict->r.svFlags |= SVF_USEBBOX;
 }
@@ -5449,7 +5364,6 @@ void Entity::HurtEvent
 	(
 	Event *ev
 	)
-
 {
 	Vector normal;
 	float dmg;
@@ -5488,7 +5402,6 @@ void Entity::HealEvent
 	(
 	Event *ev
 	)
-
 {
 	if( IsDead() )
 	{
@@ -5691,7 +5604,6 @@ void Entity::bind
 	qboolean use_my_angles,
 	qboolean bBindChilds
 	)
-
 {
 	float  mat[ 3 ][ 3 ];
 	float  local[ 3 ][ 3 ];
@@ -5740,7 +5652,6 @@ void Entity::unbind
 	(
 	void
 	)
-
 {
 	Entity *prev;
 	Entity *next;
@@ -5843,7 +5754,6 @@ void Entity::glue
 	Entity *master,
 	qboolean use_my_angles
 	)
-
 {
 	int iNumGlues;
 
@@ -5903,7 +5813,6 @@ void Entity::unglue
 	(
 	void
 	)
-
 {
 	int iNumGlues;
 	int i;
@@ -5950,7 +5859,6 @@ void Entity::BindEvent
 	(
 	Event *ev
 	)
-
 {
 	Entity *ent;
 	bool bBindChilds;
@@ -5975,7 +5883,6 @@ void Entity::EventUnglue
 	(
 	Event *ev
 	)
-
 {
 	unglue();
 }
@@ -5984,7 +5891,6 @@ void Entity::GlueEvent
 	(
 	Event *ev
 	)
-
 {
 	Entity *ent;
 	qboolean glueAngles;
@@ -6009,7 +5915,6 @@ Vector Entity::getParentVector
 	(
 	Vector vec
 	)
-
 {
 	Vector pos;
 
@@ -6033,7 +5938,6 @@ void Entity::joinTeam
 	(
 	Entity *teammember
 	)
-
 {
 	Entity *ent;
 	Entity *master;
@@ -6109,7 +6013,6 @@ void Entity::quitTeam
 	(
 	void
 	)
-
 {
 	Entity *ent;
 
@@ -6200,7 +6103,6 @@ inline qboolean Entity::HitSky
 	(
 	trace_t *trace
 	)
-
 {
 	assert( trace );
 	if( trace->surfaceFlags & SURF_SKY )
@@ -6214,7 +6116,6 @@ qboolean Entity::HitSky
 	(
 	void
 	)
-
 {
 	return HitSky( &level.impact_trace );
 }
@@ -6300,7 +6201,6 @@ void Entity::EndFrame
 	(
 	void
 	)
-
 {
 }
 
@@ -6308,7 +6208,6 @@ void Entity::CalcBlend
 	(
 	void
 	)
-
 {
 }
 
@@ -6316,7 +6215,6 @@ void Entity::VelocityModified
 	(
 	void
 	)
-
 {
 }
 
@@ -6324,7 +6222,6 @@ void Entity::DetachAllChildren
 	(
 	void
 	)
-
 {
 	int i;
 
@@ -6346,7 +6243,6 @@ void Entity::DetachAllChildren
 	(
 	Event *ev
 	)
-
 {
 	DetachAllChildren();
 }
@@ -6367,7 +6263,6 @@ void Entity::EventMovementStealth
 	(
 	Event *ev
 	)
-
 {
 	SetMovementStealth( ev->GetFloat( 1 ) );
 }
@@ -6376,7 +6271,6 @@ void Entity::GetYaw
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( angles[ 1 ] );
 }
@@ -6385,7 +6279,6 @@ void Entity::PusherEvent
 	(
 	Event *ev
 	)
-
 {
 	Entity *inflictor;
 	Entity *attacker;
@@ -6423,7 +6316,6 @@ void Entity::AlwaysDraw
 	(
 	Event *ev
 	)
-
 {
 	edict->s.renderfx |= RF_ALWAYSDRAW;
 }
@@ -6432,7 +6324,6 @@ void Entity::NormalDraw
 	(
 	Event *ev
 	)
-
 {
 	edict->s.renderfx &= RF_DONTDRAW | RF_ALWAYSDRAW;
 }
@@ -6441,7 +6332,6 @@ void Entity::NeverDraw
 	(
 	Event *ev
 	)
-
 {
 	edict->s.renderfx |= RF_DONTDRAW;
 }
@@ -6450,7 +6340,6 @@ void Entity::GetMins
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector( mins );
 }
@@ -6459,7 +6348,6 @@ void Entity::GetMaxs
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector( maxs );
 }
@@ -6468,7 +6356,6 @@ void Entity::ForceActivate
 	(
 	Event *ev
 	)
-
 {
 	DoForceActivate();
 }
@@ -6477,7 +6364,6 @@ void Entity::EventTrace
 	(
 	Event *ev
 	)
-
 {
 	Vector start, end, mins, maxs;
 	int mask = 0x2000B01;
@@ -6527,7 +6413,6 @@ void Entity::EventSightTrace
 	(
 	Event *ev
 	)
-
 {
 	Vector start, end, mins, maxs;
 	int mask = 0x2000B01;
@@ -6578,7 +6463,6 @@ void Entity::ConnectPaths
 	(
 	void
 	)
-
 {
 	PathNode *node;
 	int to;
@@ -6616,7 +6500,6 @@ void Entity::DisconnectPaths
 	(
 	void
 	)
-
 {
 	int i;
 	int j;
@@ -6691,7 +6574,6 @@ void Entity::EventDisconnectPaths
 	(
 	Event *ev
 	)
-
 {
 	DisconnectPaths();
 }
@@ -6700,7 +6582,6 @@ void Entity::EventConnectPaths
 	(
 	Event *ev
 	)
-
 {
 	ConnectPaths();
 }
@@ -6709,7 +6590,6 @@ void Entity::EventGetEntnum
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( entnum );
 }
@@ -6718,7 +6598,6 @@ void Entity::EventSetRadnum
 	(
 	Event *ev
 	)
-
 {
 	radnum = ev->GetInteger( 1 );
 }
@@ -6727,7 +6606,6 @@ void Entity::EventGetRadnum
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( radnum );
 }
@@ -6736,7 +6614,6 @@ void Entity::EventSetRotatedBbox
 	(
 	Event *ev
 	)
-
 {
 	if( ev->GetInteger( 1 ) )
 	{
@@ -6754,7 +6631,6 @@ void Entity::EventGetRotatedBbox
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( ( edict->s.eFlags & EF_LINKANGLES ) ? 1 : 0 );
 }
@@ -6763,7 +6639,6 @@ void Entity::DrawBoundingBox
 	(
 	int showbboxes
 	)
-
 {
 	if( showbboxes >= 100 )
 	{
@@ -6821,7 +6696,6 @@ void Entity::PathnodeClaimRevoked
 	(
 	PathNode *node
 	)
-
 {
 	return node->Relinquish();
 }
@@ -6830,7 +6704,6 @@ qboolean Entity::BlocksAIMovement
 	(
 	void
 	) const
-
 {
 	return true;
 }
@@ -6839,7 +6712,6 @@ qboolean Entity::AIDontFace
 	(
 	void
 	) const
-
 {
 	return true;
 }
@@ -6943,7 +6815,6 @@ void Entity::SetShader
 	(
 	Event *ev
 	)
-
 {
 	str shadername = ev->GetString( 1 );
 	qboolean fReset = false;

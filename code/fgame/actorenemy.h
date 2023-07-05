@@ -64,7 +64,6 @@ inline void ActorEnemy::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Class::Archive( arc );
 
@@ -111,7 +110,6 @@ inline void ActorEnemySet::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Class::Archive( arc );
 

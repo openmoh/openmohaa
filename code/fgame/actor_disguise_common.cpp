@@ -29,7 +29,6 @@ void Actor::InitDisguiseNone
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->IsState = &Actor::IsDisguiseState;
 }
@@ -38,7 +37,6 @@ void Actor::State_Disguise_Wait
 	(
 	void
 	)
-
 {
 	vec2_t vDelta;
 	float fDistSquared;
@@ -74,7 +72,6 @@ void Actor::State_Disguise_Papers
 	(
 	void
 	)
-
 {
 	vec2_t vDelta;
 
@@ -116,7 +113,6 @@ void Actor::State_Disguise_Fake_Papers
 	(
 	void
 	)
-
 {
 	vec2_t vDelta;
 
@@ -143,7 +139,6 @@ void Actor::State_Disguise_Enemy
 	(
 	void
 	)
-
 {
 	m_eNextAnimMode = 1;
 	m_csNextAnimString = STRING_ANIM_DISGUISE_ENEMY_SCR;
@@ -159,7 +154,6 @@ void Actor::State_Disguise_Halt
 	(
 	void
 	)
-
 {
 	m_eNextAnimMode = 1;
 	m_csNextAnimString = STRING_ANIM_DISGUISE_HALT_SCR;
@@ -175,7 +169,6 @@ void Actor::State_Disguise_Accept
 	(
 	void
 	)
-
 {
 	m_eNextAnimMode = 1;
 	m_csNextAnimString = STRING_ANIM_DISGUISE_ACCEPT_SCR;
@@ -192,7 +185,6 @@ void Actor::State_Disguise_Deny
 	(
 	void
 	)
-
 {
 	m_eNextAnimMode = 1;
 	m_csNextAnimString = STRING_ANIM_DISGUISE_DENY_SCR;

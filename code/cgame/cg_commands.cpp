@@ -1344,7 +1344,6 @@ CLASS_DECLARATION( Listener, ClientGameCommandManager, NULL )
    };
 
 static int DLightNameToNum(str s)
-
 {
     if (!s.icmp("normal")) {
         return 0;
@@ -1360,7 +1359,6 @@ static int DLightNameToNum(str s)
 }
 
 float RandomizeRange(float start, float end)
-
 {
     float t;
 
@@ -1479,7 +1477,6 @@ void ClientGameCommandManager::SetBaseAndAmplitude(Event* ev, Vector& base, Vect
 // ClientGameCommandManager
 //=============
 ClientGameCommandManager::ClientGameCommandManager()
-
 {
     m_seed = 0;
 
@@ -1668,7 +1665,6 @@ void ClientGameCommandManager::ClearCurrentSFX()
 // RandomChance
 //===============
 void ClientGameCommandManager::RandomChance(Event* ev)
-
 {
     int i;
     float percentage = ev->GetFloat(1);
@@ -1800,7 +1796,6 @@ void ClientGameCommandManager::SetAlignStretch(Event* ev)
 // SetDecalRadius
 //===============
 void ClientGameCommandManager::SetDecalRadius(Event* ev)
-
 {
 	if (!m_spawnthing) {
 		return;
@@ -1813,7 +1808,6 @@ void ClientGameCommandManager::SetDecalRadius(Event* ev)
 // SetDecalOrientation
 //===============
 void ClientGameCommandManager::SetDecalOrientation(Event* ev)
-
 {
     str deg;
 
@@ -2100,7 +2094,6 @@ void ClientGameCommandManager::EmitterStartOff(Event* ev)
 // StartBlock
 //===============
 void ClientGameCommandManager::StartBlock(Event* ev)
-
 {
     // Make sure there are no more args on this line, because
     // they will be lost
@@ -2113,7 +2106,6 @@ void ClientGameCommandManager::StartBlock(Event* ev)
 // EndBlock
 //===============
 void ClientGameCommandManager::EndBlock(Event* ev)
-
 {
     // Make sure there are no more args on this line, because
     // they will be lost
@@ -2135,7 +2127,6 @@ void ClientGameCommandManager::EndBlock(Event* ev)
 // SetSwarm
 //=============
 void ClientGameCommandManager::SetSwarm(Event* ev)
-
 {
     if (!m_spawnthing) {
         return;
@@ -2151,7 +2142,6 @@ void ClientGameCommandManager::SetSwarm(Event* ev)
 // SetCircle
 //=============
 void ClientGameCommandManager::SetCircle(Event* ev)
-
 {
     if (!m_spawnthing) {
         return;
@@ -2164,7 +2154,6 @@ void ClientGameCommandManager::SetCircle(Event* ev)
 // SetSphere
 //=============
 void ClientGameCommandManager::SetSphere(Event* ev)
-
 {
     if (!m_spawnthing) {
         return;
@@ -2177,7 +2166,6 @@ void ClientGameCommandManager::SetSphere(Event* ev)
 // SetSphere
 //=============
 void ClientGameCommandManager::SetRadius(Event* ev)
-
 {
     if (!m_spawnthing) {
         return;
@@ -2190,7 +2178,6 @@ void ClientGameCommandManager::SetRadius(Event* ev)
 // SetInwardSphere
 //=============
 void ClientGameCommandManager::SetInwardSphere(Event* ev)
-
 {
     if (!m_spawnthing) {
         return;
@@ -2204,7 +2191,6 @@ void ClientGameCommandManager::SetInwardSphere(Event* ev)
 // SetAlign
 //=============
 void ClientGameCommandManager::SetAlign(Event* ev)
-
 {
     if (!m_spawnthing) {
         return;
@@ -2217,7 +2203,6 @@ void ClientGameCommandManager::SetAlign(Event* ev)
 // SetAlignOnce
 //=============
 void ClientGameCommandManager::SetAlignOnce(Event* ev)
-
 {
     if (!m_spawnthing) {
         return;
@@ -2230,7 +2215,6 @@ void ClientGameCommandManager::SetAlignOnce(Event* ev)
 // SetRandomRoll
 //=============
 void ClientGameCommandManager::SetRandomRoll(Event* ev)
-
 {
     if (!m_spawnthing) {
         return;
@@ -2252,7 +2236,6 @@ void ClientGameCommandManager::SetVolumetric(Event* ev)
 // SetCollision
 //=============
 void ClientGameCommandManager::SetCollision(Event* ev)
-
 {
     str mask;
 
@@ -2753,7 +2736,6 @@ void ClientGameCommandManager::SetVelocity(Event* ev)
 // SetAngularVelocity
 //=============
 void ClientGameCommandManager::SetAngularVelocity(Event* ev)
-
 {
     int i = 1;
     int j = 0;
@@ -2997,7 +2979,6 @@ void ClientGameCommandManager::SetEyeMovement(Event* ev)
 // InitializeSpawnthing
 //=============
 spawnthing_t* ClientGameCommandManager::InitializeSpawnthing(spawnthing_t* sp)
-
 {
     int i;
 
@@ -3125,7 +3106,6 @@ void ClientGameCommandManager::SpawnEffect(int count, int timealive)
 // GetEmitterByName
 //==================
 spawnthing_t* ClientGameCommandManager::GetEmitterByName(str name)
-
 {
     int i;
     for (i = 1; i <= m_emitters.NumObjects(); i++) {
@@ -3141,7 +3121,6 @@ spawnthing_t* ClientGameCommandManager::GetEmitterByName(str name)
 // CreateNewEmitter
 //==================
 spawnthing_t* ClientGameCommandManager::CreateNewEmitter(str name)
-
 {
     spawnthing_t* st;
 
@@ -3184,7 +3163,6 @@ void CG_DeleteEmitters(dtiki_t* tiki)
 // CreateNewEmitter
 //==================
 spawnthing_t* ClientGameCommandManager::CreateNewEmitter(void)
-
 {
     return CreateNewEmitter("");
 }
@@ -3219,7 +3197,6 @@ void ClientGameCommandManager::BeginOriginSpawn(Event* ev)
 // EndOriginSpawn
 //===============
 void ClientGameCommandManager::EndOriginSpawn(void)
-
 {
     // Okay we should have a valid spawnthing, let's create a render entity
     SpawnTempModel(m_spawnthing->count);
@@ -3299,7 +3276,6 @@ void ClientGameCommandManager::EndTagEmitter(void) { endblockfcn = NULL; }
 // BeginTagBeamEmitter
 //===============
 void ClientGameCommandManager::BeginTagBeamEmitter(Event* ev)
-
 {
     // Setup ending function
     endblockfcn = &ClientGameCommandManager::EndTagBeamEmitter;
@@ -3341,7 +3317,6 @@ void ClientGameCommandManager::EndTagBeamEmitter(void) { endblockfcn = NULL; }
 // BeginOriginEmitter
 //===============
 void ClientGameCommandManager::BeginOriginEmitter(Event* ev)
-
 {
     // Setup ending function
     endblockfcn = &ClientGameCommandManager::EndOriginEmitter;
@@ -3373,7 +3348,6 @@ void ClientGameCommandManager::EndOriginEmitter(void) { endblockfcn = NULL; }
 // BeginOriginBeamEmitter
 //===============
 void ClientGameCommandManager::BeginOriginBeamEmitter(Event* ev)
-
 {
     // Setup ending function
     endblockfcn = &ClientGameCommandManager::EndOriginBeamEmitter;
@@ -3401,7 +3375,6 @@ void ClientGameCommandManager::BeginOriginBeamEmitter(Event* ev)
 // EndOriginBeamEmitter
 //===============
 void ClientGameCommandManager::EndOriginBeamEmitter(void)
-
 {
     endblockfcn = NULL;
 }
@@ -3473,7 +3446,6 @@ void ClientGameCommandManager::BeginTagSpawn(Event* ev)
 // EndTagSpawn
 //===============
 void ClientGameCommandManager::EndTagSpawn(void)
-
 {
     // Okay we should have a valid spawnthing, let's create a render entity
     SpawnTempModel(m_spawnthing->count);
@@ -3507,7 +3479,6 @@ void ClientGameCommandManager::BeginTagBeamSpawn(Event* ev)
 // EndTagSpawn
 //===============
 void ClientGameCommandManager::EndTagBeamSpawn(void)
-
 {
     // Okay we should have a valid spawnthing, let's create the beam now
     int i;
@@ -3587,7 +3558,6 @@ void ClientGameCommandManager::BeginOriginBeamSpawn(Event* ev)
 // EndOriginBeamSpawn
 //===============
 void ClientGameCommandManager::EndOriginBeamSpawn(void)
-
 {
     // Okay we should have a valid spawnthing, let's create the beam now
     int i, renderfx, c, count;
@@ -3655,7 +3625,6 @@ void ClientGameCommandManager::InitializeEmitters(void) {}
 // EmitterOn
 //===============
 void ClientGameCommandManager::EmitterOn(Event* ev)
-
 {
     int i;
     str name;
@@ -3681,7 +3650,6 @@ void ClientGameCommandManager::EmitterOn(Event* ev)
 // EmitterOff
 //===============
 void ClientGameCommandManager::EmitterOff(Event* ev)
-
 {
     int i;
     str name;
@@ -3712,7 +3680,6 @@ void ClientGameCommandManager::PlaySound(str sound_name, vec3_t origin,
                                          int channel, float volume,
                                          float min_distance,
                                          float pitch, int argstype)
-
 {
     int aliaschannel;
     float aliasvolume;
@@ -3848,7 +3815,6 @@ void ClientGameCommandManager::PlaySound(str sound_name, vec3_t origin,
 // Sound
 //===============
 void ClientGameCommandManager::Sound(Event* ev)
-
 {
     int channel = CHAN_AUTO;
     str sound_name;
@@ -3888,7 +3854,6 @@ void ClientGameCommandManager::Sound(Event* ev)
 // StopSound
 //===============
 void ClientGameCommandManager::StopSound(Event* ev)
-
 {
     int channel;
 
@@ -3939,7 +3904,6 @@ void ClientGameCommandManager::StopAliasChannel(Event* ev)
 // LoopSound
 //===============
 void ClientGameCommandManager::LoopSound(Event* ev)
-
 {
     str sound_name;
     float volume = -1.0;
@@ -4005,7 +3969,6 @@ void ClientGameCommandManager::LoopSound(Event* ev)
 // CacheResource
 //===============
 void CacheResource(const char* stuff)
-
 {
     str real_stuff;
 
@@ -4031,7 +3994,6 @@ void CacheResource(const char* stuff)
 // Cache
 //===============
 void ClientGameCommandManager::Cache(Event* ev)
-
 {
     if (ev->NumArgs() < 1) {
         return;
@@ -4107,7 +4069,6 @@ qboolean bLoadForMap(const char* psMapsBuffer, const char* name)
 // AliasCache
 //===============
 void ClientGameCommandManager::AliasCache(Event* ev)
-
 {
     int i;
     char parmbuffer[2048]; // this holds the parameters to be passed into the
@@ -4152,7 +4113,6 @@ void ClientGameCommandManager::AliasCache(Event* ev)
 // Alias
 //===============
 void ClientGameCommandManager::Alias(Event* ev)
-
 {
     int i;
     char parmbuffer[2048]; // this holds the parameters to be passed into the
@@ -4341,7 +4301,6 @@ void ClientGameCommandManager::BodyFallSound(Event* ev)
 // Client
 //===============
 void ClientGameCommandManager::Client(Event* ev)
-
 {
     Event* event;
     const char* eventname;
@@ -4402,7 +4361,6 @@ void ClientGameCommandManager::TagDynamicLight(Event* ev)
 // OriginDynamicLight
 //===============
 void ClientGameCommandManager::OriginDynamicLight(Event* ev)
-
 {
     str tagname;
 
@@ -4659,7 +4617,6 @@ void ClientGameCommandManager::UpdateEmitter(dtiki_t* tiki, vec3_t axis[3],
                                              int entity_number,
                                              int parent_number,
                                              Vector entity_origin)
-
 {
     int parent, lastparent, i;
     emittertime_t* et = NULL;
@@ -4832,7 +4789,6 @@ void ClientGameCommandManager::UpdateEmitter(dtiki_t* tiki, vec3_t axis[3],
 void ClientGameCommandManager::RemoveClientEntity(int number, dtiki_t* tiki,
                                                   centity_t* cent,
                                                   ctempmodel_t* p)
-
 {
     int i;
 
@@ -4909,7 +4865,6 @@ bool ClientGameCommandManager::GetTagPositionAndOrientation(str tagname, orienta
 // FreeAllTempModels
 //===============
 void ClientGameCommandManager::FreeAllTempModels(void)
-
 {
     ctempmodel_t *p, *next;
 
@@ -5328,7 +5283,6 @@ void CG_InitializeCommandManager(void)
 // CG_RemoveClientEntity
 //===============
 void CG_RemoveClientEntity(int number, dtiki_t* tiki, centity_t* cent)
-
 {
     commandManager.RemoveClientEntity(number, tiki, cent);
 
@@ -5499,7 +5453,6 @@ CLASS_DECLARATION(Listener, EmitterLoader, NULL){
 EmitterLoader::EmitterLoader() { emitterActive = false; }
 
 void EmitterLoader::Emitter(Event* ev)
-
 {
     spawnthing_t* st;
 
@@ -5512,7 +5465,6 @@ void EmitterLoader::Emitter(Event* ev)
 }
 
 void EmitterLoader::ProcessEmitter(Script& script)
-
 {
     str token;
 
@@ -5541,7 +5493,6 @@ void EmitterLoader::ProcessEmitter(Script& script)
 }
 
 bool EmitterLoader::Load(Script& script)
-
 {
     str token;
     str errortext;
@@ -5617,7 +5568,6 @@ void CG_Emitter(centity_t* cent)
 }
 
 void ClientGameCommandManager::CGEvent(centity_t* cent)
-
 {
     str modelname;
     dtiki_t *tiki;

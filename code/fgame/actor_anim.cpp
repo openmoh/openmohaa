@@ -28,7 +28,6 @@ void Actor::InitAnim
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_Anim;
 	func->BeginState					= &Actor::Begin_Anim;
@@ -42,7 +41,6 @@ void Actor::Begin_Anim
 	(
 	void
 	)
-
 {
 	m_csMood = m_csIdleMood;
 	ClearPath();
@@ -54,7 +52,6 @@ void Actor::Think_Anim
 	(
 	void
 	)
-
 {
 	if (RequireThink())
 	{
@@ -87,7 +84,6 @@ void Actor::FinishedAnimation_Anim
 	(
 	void
 	)
-
 {
 	if (!m_bAnimScriptSet)
 	{
@@ -103,7 +99,6 @@ void Actor::ShowInfo_Anim
 	(
 	void
 	)
-
 {
 	Com_Printf("anim script: %s, anim mode %d\n", Director.GetString(m_csAnimScript).c_str(), m_AnimMode);
 }

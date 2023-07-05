@@ -56,7 +56,6 @@ void cSpline< cGrids, cPoints >::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	arc.ArchiveInteger( &m_iPoints );
 
@@ -76,7 +75,6 @@ void cSpline< cGrids, cPoints >::Reset
 	(
 	void
 	)
-
 {
 	m_iPoints = 0;
 }
@@ -87,7 +85,6 @@ int cSpline< cGrids, cPoints >::Add
 	float *fAdd,
 	int flags
 	)
-
 {
 	int i;
 	int ii;
@@ -125,7 +122,6 @@ void cSpline< cGrids, cPoints >::UniformAdd
 	(
 	float *pos
 	)
-
 {
 	int i;
 	int ii;
@@ -144,7 +140,6 @@ int cSpline< cGrids, cPoints >::Right
 	(
 	float x
 	)
-
 {
 	int i;
 
@@ -164,7 +159,6 @@ float *cSpline< cGrids, cPoints >::Get
 	float x,
 	int *flags
 	)
-
 {
 	if( !m_iPoints )
 	{
@@ -232,7 +226,6 @@ float *cSpline< cGrids, cPoints >::GetByNode
 	float x,
 	int *flags
 	)
-
 {
 	if( !m_iPoints )
 	{
@@ -296,7 +289,6 @@ int	cSpline< cGrids, cPoints >::Append
 	(
 	cSpline< cGrids, cPoints > *pNew
 	)
-
 {
 	float *i_fTmp;
 	float o_fTmp[ 4 ];

@@ -162,7 +162,6 @@ inline qboolean Archiver::Read
 str &name,
 qboolean harderror
 )
-
 {
 	return Read( name.c_str(), harderror );
 }
@@ -172,7 +171,6 @@ inline qboolean Archiver::Create
 str &name,
 qboolean harderror
 )
-
 {
 	return Create( name.c_str(), harderror );
 }
@@ -207,7 +205,6 @@ inline void Container<Type>::Archive
 	Archiver& arc,
 	void( *ArchiveFunc )( Archiver& arc, Type *obj )
 	)
-
 {
 	int num;
 	int i;
@@ -339,7 +336,6 @@ inline void ArchiveClass
 	Archiver& arc,
 	c *obj
 	)
-
 {
 	arc.ArchiveObject( obj );
 }
@@ -351,7 +347,6 @@ void con_set< key, value >::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Entry< key, value > *e;
 	int hash;
@@ -399,7 +394,6 @@ void con_map< key, value >::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	m_con_set.Archive( arc );
 }

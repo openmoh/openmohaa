@@ -29,7 +29,6 @@ void Actor::InitDisguiseOfficer
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState						= &Actor::Think_DisguiseOfficer;
 	func->BeginState						= &Actor::Begin_DisguiseOfficer;
@@ -44,7 +43,6 @@ void Actor::Begin_DisguiseOfficer
 	(
 	void
 	)
-
 {
 	vec2_t vDelta;
 	m_csMood = STRING_BORED;
@@ -86,7 +84,6 @@ void Actor::End_DisguiseOfficer
 	(
 	void
 	)
-
 {
 	m_iNextDisguiseTime = level.inttime + (m_State ? m_iDisguisePeriod : 500);
 }
@@ -95,7 +92,6 @@ void Actor::Resume_DisguiseOfficer
 	(
 	void
 	)
-
 {
 	Begin_DisguiseOfficer();
 }
@@ -104,7 +100,6 @@ void Actor::Suspend_DisguiseOfficer
 	(
 	void
 	)
-
 {
 	End_DisguiseOfficer();
 }
@@ -113,7 +108,6 @@ void Actor::Think_DisguiseOfficer
 	(
 	void
 	)
-
 {
 	if (RequireThink())
 	{

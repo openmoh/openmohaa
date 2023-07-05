@@ -315,7 +315,6 @@ void PM_CheckTerminalVelocity
 	(
 	void
 	)
-
 {
 	float oldspeed;
 	float speed;
@@ -403,7 +402,6 @@ void PM_GetMove
 	float *pfForward,
 	float *pfRight
 	)
-
 {
 	*pfForward = pm->cmd.forwardmove;
 	if( *pfForward < 0 )
@@ -469,7 +467,6 @@ qboolean PM_FeetOnGround
 	(
 	vec3_t pos
 	)
-
 {
 	vec3_t start;
 	vec3_t end;
@@ -489,7 +486,6 @@ qboolean PM_FindBestFallPos
 	vec3_t pos,
 	vec3_t bestdir
 	)
-
 { 
 	trace_t trace;
 	vec3_t ang;
@@ -547,7 +543,6 @@ void PM_CheckFeet
 	(
 	vec3_t vWishdir
 	)
-
 {
 	vec3_t		temp;
 	trace_t		trace;

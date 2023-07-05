@@ -298,7 +298,6 @@ void TurretGun::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Weapon::Archive( arc );
 
@@ -349,7 +348,6 @@ void TurretGun::SetTargetAngles
 	(
 	Vector& vTargAngles
 	)
-
 {
 	float fDiff;
 	float fTurnAmount;
@@ -444,7 +442,6 @@ void TurretGun::ThinkActive
 	(
 	void
 	)
-
 {
 	Vector vTarg;
 	Vector vTargAngles;
@@ -639,7 +636,6 @@ void TurretGun::ThinkIdle
 	(
 	void
 	)
-
 {
 	Vector vDir, vNewAngles, vEnd;
 	trace_t trace;
@@ -736,7 +732,6 @@ void TurretGun::Think
 	(
 	void
 	)
-
 {
 	if (owner || (!m_bHadOwner && aim_target))
 	{
@@ -752,7 +747,6 @@ qboolean TurretGun::UserAim
 	(
 	usercmd_s *ucmd
 	)
-
 {
 	Vector vNewCmdAng;
 
@@ -792,7 +786,6 @@ void TurretGun::PlaceTurret
 	(
 	Event *ev
 	)
-
 {
 	// Don't make the turret solid
 	setSolidType( SOLID_NOT );
@@ -816,7 +809,6 @@ void TurretGun::TurretBeginUsed
 	(
 	Sentient *pEnt
 	)
-
 {
 	owner = pEnt;
 
@@ -853,7 +845,6 @@ void TurretGun::TurretEndUsed
 	(
 	void
 	)
-
 {
 	if( owner->IsSubclassOfPlayer() )
 	{
@@ -893,7 +884,6 @@ void TurretGun::TurretUsed
 	(
 	Sentient *pEnt
 	)
-
 {
 	if( ( pEnt->IsSubclassOfPlayer() ) && ( pEnt == owner ) )
 	{
@@ -935,7 +925,6 @@ void TurretGun::SetAimTarget
 	(
 	Entity *ent
 	)
-
 {
 	aim_target = ent;
 }
@@ -944,7 +933,6 @@ void TurretGun::SetAimOffset
 	(
 	const Vector& offset
 	)
-
 {
 	m_Aim_offset = offset;
 }
@@ -953,7 +941,6 @@ void TurretGun::ClearAimTarget
 	(
 	void
 	)
-
 {
 	aim_target = NULL;
 
@@ -966,7 +953,6 @@ void TurretGun::StartFiring
 	(
 	void
 	)
-
 {
 	m_iFiring = 1;
 }
@@ -975,7 +961,6 @@ void TurretGun::StopFiring
 	(
 	void
 	)
-
 {
 	m_iFiring = 0;
 }
@@ -984,7 +969,6 @@ bool TurretGun::IsFiring
 	(
 	void
 	)
-
 {
 	return m_iFiring == 2;
 }
@@ -993,7 +977,6 @@ void TurretGun::CalcFiringViewJitter
 	(
 	void
 	)
-
 {
 	if( owner && owner->IsSubclassOfPlayer() )
 	{
@@ -1005,7 +988,6 @@ void TurretGun::ApplyFiringViewJitter
 	(
 	Vector& vAng
 	)
-
 {
 }
 
@@ -1013,7 +995,6 @@ void TurretGun::TurnSpeed
 	(
 	float speed
 	)
-
 {
 	m_fTurnSpeed = speed;
 }
@@ -1023,7 +1004,6 @@ void TurretGun::PitchCaps
 	float upcap,
 	float downcap
 	)
-
 {
 	m_fPitchUpCap = upcap;
 	m_fPitchDownCap = downcap;
@@ -1039,7 +1019,6 @@ void TurretGun::MaxYawOffset
 	(
 	float max
 	)
-
 {
 	m_fMaxYawOffset = max;
 	if( max < 0.0f )
@@ -1056,7 +1035,6 @@ void TurretGun::YawCenter
 	(
 	float center
 	)
-
 {
 	m_fStartYaw = center;
 }
@@ -1065,7 +1043,6 @@ void TurretGun::UserDistance
 	(
 	float dist
 	)
-
 {
 	m_fUserDistance = dist;
 }
@@ -1077,7 +1054,6 @@ void TurretGun::BurstFireSettings
 	float min_burstdelay,
 	float max_burstdelay
 	)
-
 {
 	m_fMinBurstTime = min_bursttime;
 	m_fMaxBurstTime = max_bursttime;
@@ -1089,7 +1065,6 @@ void TurretGun::CreateViewModel
 	(
 	void
 	)
-
 {
 	char newmodel[ MAX_STRING_TOKENS ];
 	int tagnum;
@@ -1148,7 +1123,6 @@ void TurretGun::DeleteViewModel
 	(
 	void
 	)
-
 {
 	delete m_pViewModel;
 	m_pViewModel = NULL;
@@ -1161,7 +1135,6 @@ qboolean TurretGun::SetWeaponAnim
 	const char *anim,
 	Event *ev
 	)
-
 {
 	int slot;
 	int animnum;
@@ -1200,7 +1173,6 @@ void TurretGun::StopWeaponAnim
 	(
 	void
 	)
-
 {
 	if( m_pViewModel )
 	{
@@ -1219,7 +1191,6 @@ bool TurretGun::CanTarget
 	(
 	float *pos
 	)
-
 {
 	Vector vAngles;
 	float ang;
@@ -1255,7 +1226,6 @@ float TurretGun::FireDelay
 	(
 	firemode_t mode
 	)
-
 {
 	if( owner && owner->IsSubclassOfPlayer() )
 	{
@@ -1272,7 +1242,6 @@ void TurretGun::ShowInfo
 	float fDot,
 	float fDist
 	)
-
 {
 	if( fDot <= 0.90f && ( fDot <= 0.0f || fDist >= 256.0f ) ) {
 		return;
@@ -1291,7 +1260,6 @@ void TurretGun::TurretUsed
 	(
 	Event *ev
 	)
-
 {
 	Entity *pEnt = ev->GetEntity( 1 );
 
@@ -1319,7 +1287,6 @@ void TurretGun::SetPlayerUsable
 	(
 	Event *ev
 	)
-
 {
 	m_bPlayerUsable = ( ev->GetInteger( 1 ) != 0 );
 }
@@ -1328,7 +1295,6 @@ void TurretGun::SetViewOffset
 	(
 	Event *ev
 	)
-
 {
 	m_vViewOffset = ev->GetVector( 1 );
 }
@@ -1337,7 +1303,6 @@ void TurretGun::SetIdleCheckOffset
 	(
 	Event *ev
 	)
-
 {
 	m_vIdleCheckOffset = ev->GetVector( 1 );
 }
@@ -1346,7 +1311,6 @@ void TurretGun::EventSetAimTarget
 	(
 	Event *ev
 	)
-
 {
 	SetAimTarget( ev->GetEntity( 1 ) );
 }
@@ -1355,7 +1319,6 @@ void TurretGun::EventSetAimOffset
 	(
 	Event *ev
 	)
-
 {
 	SetAimOffset( ev->GetVector( 1 ) );
 }
@@ -1364,7 +1327,6 @@ void TurretGun::EventClearAimTarget
 	(
 	Event *ev
 	)
-
 {
 	ClearAimTarget();
 }
@@ -1373,7 +1335,6 @@ void TurretGun::EventStartFiring
 	(
 	Event *ev
 	)
-
 {
 	StartFiring();
 }
@@ -1382,7 +1343,6 @@ void TurretGun::EventStopFiring
 	(
 	Event *ev
 	)
-
 {
 	StopFiring();
 }
@@ -1391,7 +1351,6 @@ void TurretGun::EventTurnSpeed
 	(
 	Event *ev
 	)
-
 {
 	TurnSpeed( ev->GetFloat( 1 ) );
 }
@@ -1400,7 +1359,6 @@ void TurretGun::EventPitchCaps
 	(
 	Event *ev
 	)
-
 {
 	Vector caps = ev->GetVector( 1 );
 	PitchCaps( caps[ 0 ], caps[ 1 ] );
@@ -1410,7 +1368,6 @@ void TurretGun::EventMaxYawOffset
 	(
 	Event *ev
 	)
-
 {
 	MaxYawOffset( ev->GetFloat( 1 ) );
 }
@@ -1419,7 +1376,6 @@ void TurretGun::EventYawCenter
 	(
 	Event *ev
 	)
-
 {
 	YawCenter( ev->GetFloat( 1 ) );
 }
@@ -1428,7 +1384,6 @@ void TurretGun::EventUserDistance
 	(
 	Event *ev
 	)
-
 {
 	UserDistance( ev->GetFloat( 1 ) );
 }
@@ -1437,7 +1392,6 @@ void TurretGun::EventViewJitter
 	(
 	Event *ev
 	)
-
 {
 	m_fViewJitter = ev->GetFloat( 1 );
 }
@@ -1446,7 +1400,6 @@ void TurretGun::EventBurstFireSettings
 	(
 	Event *ev
 	)
-
 {
 	if( ev->NumArgs() <= 3 ) {
 		return;
@@ -1459,7 +1412,6 @@ void TurretGun::EventSetThread
 	(
 	Event *ev
 	)
-
 {
 	if( ev->IsFromScript() )
 	{
@@ -1475,7 +1427,6 @@ void TurretGun::SetViewangles
 	(
 	Event *ev
 	)
-
 {
 	m_vUserViewAng = ev->GetVector( 1 );
 }
@@ -1484,7 +1435,6 @@ void TurretGun::GetViewangles
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector( m_vUserViewAng );
 }

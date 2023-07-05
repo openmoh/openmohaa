@@ -104,7 +104,6 @@ inline void Stack<Type>::Clear
 	(
 	void
 	)
-
 {
 	while( !Empty() )
 	{
@@ -117,7 +116,6 @@ inline qboolean Stack<Type>::Empty
 	(
 	void
 	)
-
 {
 	if( head == NULL )
 	{
@@ -131,7 +129,6 @@ inline void Stack<Type>::Push
 	(
 	Type data
 	)
-
 {
 	StackNode<Type> *tmp;
 
@@ -151,7 +148,6 @@ inline Type Stack<Type>::Pop
 	(
 	void
 	)
-
 {
 	Type ret;
 	StackNode<Type> *node;
@@ -175,7 +171,6 @@ inline Type Stack<Type>::Head
 	(
 	void
 	)
-
 {
 	if( !head )
 	{

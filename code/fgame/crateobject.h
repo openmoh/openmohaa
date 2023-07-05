@@ -60,7 +60,6 @@ inline void CrateObject::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Entity::Archive( arc );
 

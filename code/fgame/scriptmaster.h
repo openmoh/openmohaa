@@ -190,7 +190,6 @@ inline void ScriptEvent::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	label.Archive( arc );
 }
@@ -199,7 +198,6 @@ inline bool ScriptEvent::IsRegistered
 	(
 	void
 	)
-
 {
 	return label.IsSet();
 }
@@ -208,7 +206,6 @@ inline void ScriptEvent::Trigger
 	(
 	Event *ev
 	)
-
 {
 	if( label.IsSet() )
 	{

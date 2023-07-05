@@ -44,7 +44,6 @@ float ActorEnemy::UpdateVisibility
 	bool *pbInFovAndRange,
 	bool *pbVisible
 	)
-
 {
 	float fLMRF, fFrameTime;
 
@@ -80,7 +79,6 @@ int ActorEnemy::UpdateThreat
 	(
 	Actor *pSelf
 	)
-
 {
 	//FIXME: macro
 	static float fRangeThreatSquared[15];
@@ -237,7 +235,6 @@ Sentient *ActorEnemy::GetEnemy
 	(
 	void
 	) const
-
 {
 	return m_pEnemy;
 }
@@ -246,7 +243,6 @@ float ActorEnemy::GetVisibility
 	(
 	void
 	) const
-
 {
 	return m_fVisibility;
 }
@@ -255,7 +251,6 @@ int ActorEnemy::GetThreat
 	(
 	void
 	) const
-
 {
 	return m_iThreat;
 }
@@ -264,7 +259,6 @@ float ActorEnemy::GetRangeSquared
 	(
 	void
 	) const
-
 {
 	return m_fCurrentRangeSquared;
 }
@@ -365,7 +359,6 @@ ActorEnemy *ActorEnemySet::AddPotentialEnemy
 	(
 	Sentient *pEnemy
 	)
-
 {
 	ActorEnemy NewEnemy;
 	
@@ -408,7 +401,6 @@ void ActorEnemySet::FlagBadEnemy
 	(
 	Sentient *pEnemy
 	)
-
 {
 	ActorEnemy *pActorEnemy;
 	for (int i = 0; i < m_Enemies.NumObjects(); i++)
@@ -447,7 +439,6 @@ void ActorEnemySet::CheckEnemies
 	(
 	Actor *pSelf
 	)
-
 {
 	float fRangeSquared;
 	bool bVisible;
@@ -588,7 +579,6 @@ Sentient *ActorEnemySet::GetCurrentEnemy
 	(
 	void
 	) const
-
 {
 	return m_pCurrentEnemy;
 }
@@ -597,7 +587,6 @@ float ActorEnemySet::GetCurrentVisibility
 	(
 	void
 	) const
-
 {
 	return m_fCurrentVisibility;
 }
@@ -606,7 +595,6 @@ int ActorEnemySet::GetCurrentThreat
 	(
 	void
 	) const
-
 {
 	return m_iCurrentThreat;
 }
@@ -615,7 +603,6 @@ qboolean ActorEnemySet::IsEnemyConfirmed
 	(
 	void
 	) const
-
 {
 	// not found in ida
 	return false;
@@ -625,7 +612,6 @@ bool ActorEnemySet::HasAlternateEnemy
 	(
 	void
 	) const
-
 {
 	ActorEnemy *pActorEnemy;
 	for (int i = 0; i < m_Enemies.NumObjects(); i++)
@@ -643,7 +629,6 @@ void ActorEnemySet::RemoveAll
 	(
 	void
 	)
-
 {
 	m_Enemies.ClearObjectList();
 	m_iCheckCount = 0;
@@ -661,7 +646,6 @@ void ActorEnemySet::ConfirmEnemy
 	Actor *pSelf,
 	Sentient *pEnemy
 	)
-
 {
 	pSelf->m_bEnemyIsDisguised = false;
 	ActorEnemy *pActorEnemy = ActorEnemySet::AddPotentialEnemy(pEnemy);
@@ -685,7 +669,6 @@ void ActorEnemySet::ConfirmEnemyIfCanSeeSharerOrEnemy
 	Actor *pSharer,
 	Sentient *pEnemy
 	)
-
 {
 	pSelf->m_bEnemyIsDisguised = false;
 	ActorEnemy *pActorEnemy = ActorEnemySet::AddPotentialEnemy(pEnemy);
@@ -720,7 +703,6 @@ bool ActorEnemySet::CaresAboutPerfectInfo
 	(
 	Sentient *pEnemy
 	)
-
 {
 	ActorEnemy *pActorEnemy = ActorEnemySet::AddPotentialEnemy(pEnemy);
 	if (pActorEnemy)

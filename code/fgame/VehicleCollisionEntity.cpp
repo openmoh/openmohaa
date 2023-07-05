@@ -34,7 +34,6 @@ VehicleCollisionEntity::VehicleCollisionEntity
 	(
 	Entity *ent
 	)
-
 {
 	if( LoadingSavegame )
 	{
@@ -59,7 +58,6 @@ VehicleCollisionEntity::VehicleCollisionEntity
 	(
 	void
 	)
-
 {
 	if( LoadingSavegame )
 	{
@@ -73,7 +71,6 @@ void VehicleCollisionEntity::EventDamage
 	(
 	Event *ev
 	)
-
 {
 	Event *event = new Event( ev );
 
@@ -84,7 +81,6 @@ void VehicleCollisionEntity::Solid
 	(
 	void
 	)
-
 {
 	setContents( CONTENTS_SOLID );
 	setSolidType( SOLID_BSP );
@@ -94,7 +90,6 @@ void VehicleCollisionEntity::NotSolid
 	(
 	void
 	)
-
 {
 	setSolidType( SOLID_NOT );
 }

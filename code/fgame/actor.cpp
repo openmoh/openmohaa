@@ -2745,7 +2745,6 @@ void Actor::ShowInfo
 	(
 	void
 	)
-
 {
 	Com_Printf( "-------------------------------------------------------------------------------\n" );
 	Com_Printf( "Info for Actor:\n" );
@@ -2772,7 +2771,6 @@ void Actor::MoveTo
 	(
 	Event *ev
 	)
-
 {
 	m_csPatrolCurrentAnim = ev->GetConstString( 1 );
 
@@ -2806,7 +2804,6 @@ void Actor::WalkTo
 	(
 	Event *ev
 	)
-
 {
 	Event event = EV_Listener_ExecuteScript;
 	event.AddConstString( STRING_GLOBAL_WALKTO_SCR );
@@ -2825,7 +2822,6 @@ void Actor::RunTo
 	(
 	Event *ev
 	)
-
 {
 	Event event = EV_Listener_ExecuteScript;
 	event.AddConstString( STRING_GLOBAL_RUNTO_SCR );
@@ -2844,7 +2840,6 @@ void Actor::CrouchTo
 	(
 	Event *ev
 	)
-
 {
 	Event event = EV_Listener_ExecuteScript;
 	event.AddConstString( STRING_GLOBAL_CROUCHTO_SCR );
@@ -2863,7 +2858,6 @@ void Actor::CrawlTo
 	(
 	Event *ev
 	)
-
 {
 	Event event = EV_Listener_ExecuteScript;
 	event.AddConstString( STRING_GLOBAL_CRAWLTO_SCR );
@@ -2882,7 +2876,6 @@ void Actor::AimAt
 	(
 	Event *ev
 	)
-
 {
 
 	if( ev->IsVectorAt( 1 ) )
@@ -2919,7 +2912,6 @@ void Actor::DefaultRestart
 	(
 	void
 	)
-
 {
 	EndState( m_ThinkLevel );
 	BeginState();
@@ -2936,7 +2928,6 @@ void Actor::SuspendState
 	(
 	void
 	)
-
 {
 	GlobalFuncs_t *func = &GlobalFuncs[ m_Think[ m_ThinkLevel ] ];
 
@@ -2955,7 +2946,6 @@ void Actor::ResumeState
 	(
 	void
 	)
-
 {
 	GlobalFuncs_t *func = &GlobalFuncs[ m_Think[ m_ThinkLevel ] ];
 
@@ -2974,7 +2964,6 @@ void Actor::BeginState
 	(
 	void
 	)
-
 {
 	m_Think[ m_ThinkLevel ] = m_ThinkMap[ m_ThinkState ];
 
@@ -2997,7 +2986,6 @@ void Actor::EndState
 	(
 	int level
 	)
-
 {
 	GlobalFuncs_t *func = &GlobalFuncs[ m_Think[ level ] ];
 
@@ -3021,7 +3009,6 @@ void Actor::RestartState
 	(
 	void
 	)
-
 {
 	GlobalFuncs_t *func = &GlobalFuncs[ m_Think[ m_ThinkLevel ] ];
 
@@ -3039,7 +3026,6 @@ void Actor::setContentsSolid
 	(
 	void
 	)
-
 {
 	setContents(CONTENTS_NOBOTCLIP);
 }
@@ -3055,7 +3041,6 @@ void Actor::InitThinkStates
 	(
 	void
 	)
-
 {
 	for (size_t i = 0; i < NUM_THINKSTATES; i++)
 	{
@@ -3095,7 +3080,6 @@ void Actor::UpdateEyeOrigin
 	(
 	void
 	)
-
 {
 	Vector eyeTag = vec_zero;
 
@@ -3149,7 +3133,6 @@ bool Actor::RequireThink
 	(
 	void
 	)
-
 {
 	if(G_GetEntity(0))
 		return ( level.inttime < edict->r.lastNetTime + 60000 );
@@ -3169,7 +3152,6 @@ void Actor::UpdateEnemy
 	(
 	int iMaxDirtyTime
 	)
-
 {
 	if (level.inttime > iMaxDirtyTime + m_iEnemyCheckTime)
 		UpdateEnemyInternal();
@@ -3186,7 +3168,6 @@ void Actor::UpdateEnemyInternal
 	(
 	void
 	)
-
 {
 	
 	
@@ -3220,7 +3201,6 @@ void Actor::SetEnemy
 	Sentient *pEnemy,
 	bool bForceConfirmed
 	)
-
 {
 	if (pEnemy == m_Enemy)
 	{
@@ -3278,7 +3258,6 @@ void Actor::SetEnemyPos
 (
 	Vector vPos
 )
-
 {
 	if (m_vLastEnemyPos != vPos)
 	{
@@ -3313,7 +3292,6 @@ void Actor::ResetBodyQueue
 	(
 	void
 	)
-
 {
 	//weird useless loop ?
 
@@ -3337,7 +3315,6 @@ void Actor::AddToBodyQue
 	(
 	void
 	)
-
 {
 	SafePtr<Actor> lastActor = mBodyQueue[mCurBody + 3];
 	
@@ -3366,7 +3343,6 @@ Vector Actor::GetAntiBunchPoint
 	(
 	void
 	)
-
 {
 	int count = 0;
 	Vector ret = vec_origin;
@@ -3413,7 +3389,6 @@ void Actor::InitVoid
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->IsState = &Actor::IsVoidState;
 }
@@ -3430,7 +3405,6 @@ const char *Actor::DumpCallTrace
 	const char *pszFmt,
 	...
 	) const
-
 {
 	cvar_t *sv_mapname;
 	tm *ptm; 
@@ -3543,7 +3517,6 @@ void Actor::Init
 	(
 	void
 	)
-
 {
 	g_showinfo = gi.Cvar_Get("g_showinfo", "0", 0);
 
@@ -3637,7 +3610,6 @@ void Actor::FixAIParameters
 	(
 	void
 	)
-
 {
 	//FIXME: needs revision(silly mistakes)
 
@@ -3758,7 +3730,6 @@ bool Actor::AttackEntryAnimation
 	(
 	void
 	)
-
 {
 	if (m_Enemy)
 	{
@@ -3847,7 +3818,6 @@ void Actor::CheckForThinkStateTransition
 	(
 	void
 	)
-
 {
 	if (!CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL))
 	{
@@ -3889,7 +3859,6 @@ bool Actor::CheckForTransition
 	eThinkState state,
 	eThinkLevel level
 	)
-
 {
 	GlobalFuncs_t *func;
 
@@ -3919,7 +3888,6 @@ bool Actor::PassesTransitionConditions_Grenade
 	(
 	void
 	)
-
 {
 	if( !m_bLockThinkState && m_bEnableEnemy && m_pGrenade )
 	{
@@ -3940,7 +3908,6 @@ bool Actor::PassesTransitionConditions_Attack
 	(
 	void
 	)
-
 {
 	UpdateEnemy(0);
 
@@ -3972,7 +3939,6 @@ bool Actor::PassesTransitionConditions_Disguise
 	(
 	void
 	)
-
 {
 	if( m_bLockThinkState )
 		return false;
@@ -4036,7 +4002,6 @@ bool Actor::PassesTransitionConditions_Curious
 	(
 	void
 	)
-
 {
 	UpdateEnemy(200);
 
@@ -4071,7 +4036,6 @@ void Actor::UpdateEnableEnemy
 	(
 	void
 	)
-
 {
 	if (m_bEnableEnemy != m_bDesiredEnableEnemy)
 	{
@@ -4103,7 +4067,6 @@ void Actor::ThinkStateTransitions
 	(
 	void
 	)
-
 {
 	int newThinkLevel;
 	int newThinkState;
@@ -4204,7 +4167,6 @@ void Actor::TransitionState
 	int iNewState,
 	int iPadTime
 	)
-
 {
 	//fixme: this is an inline function.
 	m_State = iNewState;
@@ -4314,7 +4276,6 @@ void Actor::ChangeAnim
 	(
 	void
 	)
-
 {
 	if (m_pAnimThread)
 	{
@@ -4422,7 +4383,6 @@ void Actor::UpdateSayAnim
 	(
 	void
 	)
-
 {
 	gi.DPrintf("Actor::UpdateSayAnim 1\n");
 
@@ -4507,7 +4467,6 @@ void Actor::UpdateUpperAnim
 	(
 	void
 	)
-
 {
 	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(m_csUpperAnim).c_str());
 	if (animnum != -1)
@@ -4545,7 +4504,6 @@ void Actor::UpdateAnim
 	(
 	void
 	)
-
 {
 	m_bAnimating = true;
 	SimpleActor::UpdateAim();
@@ -4636,7 +4594,6 @@ void Actor::StoppedWaitFor
 	const_str name,
 	bool bDeleting
 )
-
 {
 	g_iInThinks++;
 
@@ -4664,7 +4621,6 @@ bool Actor::ValidGrenadePath
 	const Vector& vTo,
 	Vector& vVel
 	)
-
 {
 	//FIXME: macros
 	float fGravity, fTime1, fTime2, fTime3, fTimeLand;
@@ -4799,7 +4755,6 @@ Vector Actor::CalcThrowVelocity
 	const Vector& vFrom,
 	const Vector& vTo
 	)
-
 {
 	
 	Vector ret;
@@ -4865,7 +4820,6 @@ Vector Actor::CanThrowGrenade
 	const Vector& vFrom,
 	const Vector& vTo
 	)
-
 {
 	Vector vVel = vec_zero;
 
@@ -4893,7 +4847,6 @@ Vector Actor::CalcRollVelocity
 	const Vector& vFrom,
 	const Vector& vTo
 	)
-
 {
 	float fOOTime, fVelVert, fVelHorz, fGravity;
 	Vector vDelta = vFrom - vTo, vRet;
@@ -4941,7 +4894,6 @@ Vector Actor::CanRollGrenade
 	const Vector& vFrom,
 	const Vector& vTo
 	)
-
 {
 	Vector vVel = vec_zero;
 	vVel = CalcRollVelocity(vFrom, vTo);
@@ -4972,7 +4924,6 @@ bool Actor::CanTossGrenadeThroughHint
 	Vector *pvVel,
 	eGrenadeTossMode *peMode
 	)
-
 {
 	float fGravity = 0.8 * sv_gravity->value;
 	float fAngle, fTemp, fTemp2, fTemp3, fTemp4, /*fVelVert, fVelHorz,*/ fRange, fRangeSquared, fDist, fDistSquared, fHeight;
@@ -5051,7 +5002,6 @@ Vector Actor::GrenadeThrowPoint
 	const Vector& vDelta,
 	const_str csAnim
 	)
-
 {
 	vec2_t axis;
 	Vector vRet;
@@ -5115,7 +5065,6 @@ Vector Actor::CalcKickVelocity
 	Vector& vDelta,
 	float fDist
 	) const
-
 {
 	float fScale, fGravity;
 	Vector ret;
@@ -5148,7 +5097,6 @@ bool Actor::CanKickGrenade
 	Vector &vFace,
 	Vector *pvVel
 	)
-
 {
 	Vector vEnd, vStart, vDelta, vVel;
 	float fDist, fGravity, fScale;
@@ -5204,7 +5152,6 @@ bool Actor::GrenadeWillHurtTeamAt
 	(
 	const Vector& vTo
 	)
-
 {
 	if (m_pNextSquadMate == this)
 	{
@@ -5238,7 +5185,6 @@ bool Actor::CanGetGrenadeFromAToB
 	Vector *pvVel,
 	eGrenadeTossMode *peMode
 	)
-
 {
 	float fDot;
 	Vector vHint;
@@ -5345,7 +5291,6 @@ bool Actor::DecideToThrowGrenade
 	Vector *pvVel,
 	eGrenadeTossMode *peMode
 	)
-
 {
 	if (Sentient::AmmoCount("grenade"))
 	{
@@ -5368,7 +5313,6 @@ void Actor::Grenade_EventFire
 	(
 	Event *ev
 	)
-
 {
 	const_str csAnim;
 	str strGrenade;
@@ -5419,7 +5363,6 @@ void Actor::GenericGrenadeTossThink
 	(
 	void
 	)
-
 {
 	Vector vGrenadeVel = vec_zero;
 	eGrenadeTossMode eGrenadeMode;
@@ -5454,7 +5397,6 @@ void Actor::CanSee
 	(
 	Event *ev
 	)
-
 {
 	float fov = 0;
 	float vision_distance = 0;
@@ -5520,7 +5462,6 @@ void Actor::Think
 	(
 	void
 	)
-
 {
 	int v1, v2, v3, tempHistory,ohIndex;
 	m_bAnimating = false; 
@@ -5612,7 +5553,6 @@ void Actor::PostThink
 	(
 	bool bDontFaceWall
 	)
-
 {
 	CheckUnregister();
 	if (bDontFaceWall)
@@ -5642,7 +5582,6 @@ void Actor::SetMoveInfo
 	(
 	mmove_t *mm
 	)
-
 {
 	memset(mm, 0, sizeof(mmove_t));
 
@@ -5686,7 +5625,6 @@ void Actor::GetMoveInfo
 	(
 	mmove_t *mm
 	)
-
 {
 	//FIXME: macros
 	m_walking = mm->walking;
@@ -5829,7 +5767,6 @@ void Actor::DoFailSafeMove
 	(
 	vec3_t dest
 	)
-
 {
 	Com_Printf("(entnum %d, radnum %d) blocked, doing failsafe\n", entnum, radnum);
 
@@ -5849,7 +5786,6 @@ void Actor::TouchStuff
 	(
 	mmove_t *mm
 	)
-
 {
 	int i, j;
 	gentity_t  *other;
@@ -5904,7 +5840,6 @@ void Actor::ExtractConstraints
 	(
 	mmove_t *mm
 	)
-
 {
 	// not found in ida
 }
@@ -5922,7 +5857,6 @@ void Actor::EventGiveWeaponInternal
 	(
 	Event *ev
 	)
-
 {
 	Holster();
 	RemoveWeapons();
@@ -5944,7 +5878,6 @@ void Actor::EventGiveWeapon
 	(
 	Event *ev
 	)
-
 {
 	Event e1(EV_Listener_ExecuteScript);
 	str weapName = ev->GetString(1);
@@ -5980,7 +5913,6 @@ void Actor::EventGetWeapon
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(m_csWeapon);
 }
@@ -5996,7 +5928,6 @@ void Actor::FireWeapon
 	(
 	Event *ev
 	)
-
 {
 	Sentient::FireWeapon(WEAPON_MAIN, FIRE_PRIMARY);
 }
@@ -6012,7 +5943,6 @@ bool Actor::CanTarget
 	(
 	void
 	)
-
 {
 	return true;
 }
@@ -6028,7 +5958,6 @@ bool Actor::IsImmortal
 	(
 	void
 	)
-
 {
 	return false;
 }
@@ -6037,7 +5966,6 @@ bool Actor::IsVoidState
 	(
 	int state
 	)
-
 {
 	return true;
 }
@@ -6046,7 +5974,6 @@ bool Actor::IsCuriousState
 	(
 	int state
 	)
-
 {
 	return state == THINKSTATE_CURIOUS;
 }
@@ -6055,7 +5982,6 @@ bool Actor::IsDisguiseState
 	(
 	int state
 	)
-
 {
 	return state == THINKSTATE_DISGUISE;
 }
@@ -6064,7 +5990,6 @@ bool Actor::IsAttackState
 	(
 	int state
 	)
-
 {
 	return state == THINKSTATE_ATTACK;
 }
@@ -6073,7 +5998,6 @@ bool Actor::IsGrenadeState
 	(
 	int state
 	)
-
 {
 	return state == THINKSTATE_GRENADE;
 }
@@ -6082,7 +6006,6 @@ bool Actor::IsPainState
 	(
 	int state
 	)
-
 {
 	return state == THINKSTATE_PAIN;
 }
@@ -6091,7 +6014,6 @@ bool Actor::IsKilledState
 	(
 	int state
 	)
-
 {
 	return state == THINKSTATE_KILLED;
 }
@@ -6100,7 +6022,6 @@ bool Actor::IsMachineGunnerState
 	(
 	int state
 	)
-
 {
 	return true;
 }
@@ -6109,7 +6030,6 @@ bool Actor::IsDogState
 	(
 	int state
 	)
-
 {
 	return true;
 }
@@ -6125,7 +6045,6 @@ void Actor::IgnoreSoundSet
 	(
 	int iType
 	)
-
 {
 	m_iIgnoreSoundsMask |= 1 << iType;
 }
@@ -6141,7 +6060,6 @@ void Actor::IgnoreSoundSetAll
 	(
 	void
 	)
-
 {
 	m_iIgnoreSoundsMask = ~AI_EVENT_NONE;
 }
@@ -6157,7 +6075,6 @@ void Actor::IgnoreSoundClear
 	(
 	int iType
 	)
-
 {
 	m_iIgnoreSoundsMask &= ~iType;
 }
@@ -6173,7 +6090,6 @@ void Actor::IgnoreSoundClearAll
 	(
 	void
 	)
-
 {
 	m_iIgnoreSoundsMask = 0;
 }
@@ -6189,7 +6105,6 @@ bool Actor::IgnoreSound
 	(
 	int iType
 	)
-
 {
 	return ( m_iIgnoreSoundsMask >> iType ) & 1;
 }
@@ -6205,7 +6120,6 @@ void Actor::EventShareEnemy
 	(
 	Event *ev
 	)
-
 {
 
 	if (m_Enemy)
@@ -6239,7 +6153,6 @@ void Actor::EventShareGrenade
 	(
 		Event *ev
 	)
-
 {
 	
 	if (m_pGrenade)
@@ -6282,7 +6195,6 @@ void Actor::ReceiveAIEvent
 	float fDistSquared,
 	float fMaxDistSquared
 	)
-
 {
 	if (originator != this && originator != GetActiveWeapon(WEAPON_MAIN))
 	{
@@ -6309,7 +6221,6 @@ void Actor::DefaultReceiveAIEvent
 	float fDistSquared,
 	float fMaxDistSquared
 	)
-
 {
 	if (!IsDead())
 	{
@@ -6368,7 +6279,6 @@ int Actor::PriorityForEventType
 	(
 	int iType
 	)
-
 {
 	switch( iType )
 	{
@@ -6413,7 +6323,6 @@ void Actor::CuriousSound
 	float fDistSquared,
 	float fMaxDistSquared
 	)
-
 {
 	float v7, v8, fRangeFactor = 1.0;
 	int iPriority;
@@ -6494,7 +6403,6 @@ void Actor::WeaponSound
 	float fMaxDistSquared,
 	Entity *originator
 	)
-
 {
 	Sentient *pOwner;
 	gi.Printf("Actor::WeaponSound");
@@ -6595,7 +6503,6 @@ void Actor::FootstepSound
 	float fMaxDistSquared,
 	Entity *originator
 	)
-
 {
 	if (originator->IsSubclassOfSentient())
 	{
@@ -6631,7 +6538,6 @@ void Actor::VoiceSound
 	float fMaxDistSquared,
 	Entity *originator
 	)
-
 {
 	bool bFriendly;
 	//FIXME: macros
@@ -6675,7 +6581,6 @@ void Actor::GrenadeNotification
 	(
 	Entity *originator
 	)
-
 {
 	if (!m_pGrenade)
 	{
@@ -6732,7 +6637,6 @@ void Actor::SetGrenade
 	(
 	Entity *pGrenade
 	)
-
 {
 	m_pGrenade = pGrenade;
 	
@@ -6756,7 +6660,6 @@ void Actor::NotifySquadmateKilled
 	Sentient *pSquadMate,
 	Sentient *pAttacker
 	)
-
 {
 	if (m_PotentialEnemies.CaresAboutPerfectInfo(pAttacker))
 	{
@@ -6817,7 +6720,6 @@ void Actor::RaiseAlertnessForEventType
 	(
 	int iType
 	)
-
 {
 	float fAmount;
 
@@ -6870,7 +6772,6 @@ void Actor::RaiseAlertness
 	(
 	float fAmount
 	)
-
 {
 	float fMaxAmount;
 
@@ -6892,7 +6793,6 @@ bool Actor::CanSee
 	float fov,
 	float vision_distance
 	)
-
 {
 	bool canSee = Sentient::CanSee(e1, fov, vision_distance);
 	if (e1 == m_Enemy)
@@ -6937,7 +6837,6 @@ Vector Actor::GunPosition
 	(
 	void
 	)
-
 {
 	if (m_iGunPositionCheckTime < level.inttime)
 	{
@@ -6966,7 +6865,6 @@ bool Actor::WithinVisionDistance
 	(
 	Entity *ent
 	) const
-
 {
 	float fRadius = world->m_fAIVisionDistance;
 
@@ -7003,7 +6901,6 @@ bool Actor::InFOV
 	float check_fov,
 	float check_fovdot
 	)
-
 {
 
 	bool bInFov = true;
@@ -7038,7 +6935,6 @@ bool Actor::EnemyInFOV
 	(
 	int iMaxDirtyTime
 	)
-
 {
 	if (level.inttime > iMaxDirtyTime + m_iEnemyFovCheckTime)
 	{
@@ -7065,7 +6961,6 @@ bool Actor::InFOV
 	(
 	Vector pos
 	)
-
 {
 	return InFOV(pos, m_fFov, m_fFovDot);
 }
@@ -7081,7 +6976,6 @@ bool Actor::InFOV
 	(
 	Entity *ent
 	)
-
 {
 	if (ent == m_Enemy)
 	{
@@ -7097,7 +6991,6 @@ bool Actor::CanSeeNoFOV
 	(
 	Entity *ent
 	)
-
 {
 	if (ent == m_Enemy)
 	{
@@ -7118,7 +7011,6 @@ bool Actor::CanSeeFOV
 	(
 	Entity *ent
 	)
-
 {
 	//fixme: this is an inline function.
 	if (ent == m_Enemy)
@@ -7141,7 +7033,6 @@ bool Actor::CanSeeEnemyFOV
 	int iMaxFovDirtyTime,
 	int iMaxSightDirtyTime
 	)
-
 {
 	return EnemyInFOV(iMaxFovDirtyTime) && CanSeeEnemy(iMaxSightDirtyTime);
 }
@@ -7157,7 +7048,6 @@ bool Actor::CanShoot
 	(
 	Entity *ent
 	)
-
 {
 	bool bCanShootEnemy = false;
 	if (ent->IsSubclassOfSentient())
@@ -7230,7 +7120,6 @@ bool Actor::CanSeeFrom
 	vec3_t pos,
 	Entity *ent
 	)
-
 {
 	Vector vPos(pos);
 	bool bCanSee = false;
@@ -7255,7 +7144,6 @@ bool Actor::CanSeeEnemy
 	(
 	int iMaxDirtyTime
 	)
-
 {
 	//FIXME: macro
 	if (level.inttime > iMaxDirtyTime + m_iEnemyVisibleCheckTime)
@@ -7275,7 +7163,6 @@ bool Actor::CanShootEnemy
 	(
 	int iMaxDirtyTime
 	)
-
 {
 	if( level.inttime > iMaxDirtyTime + m_iCanShootCheckTime )
 		CanShoot( m_Enemy );
@@ -7295,7 +7182,6 @@ void Actor::ShowInfo
 	float fDot,
 	float fDist
 	)
-
 {
 	float fMaxDist, fMinDot;
 	static cvar_t *g_entinfo_max;
@@ -7489,7 +7375,6 @@ void Actor::DefaultPain
 	(
 	Event *ev
 	)
-
 {
 	gi.Printf("DefaultPain event");
 	SetThink(THINKSTATE_PAIN, THINK_PAIN);
@@ -7508,7 +7393,6 @@ void Actor::HandlePain
 	(
 	Event *ev
 	)
-
 {
 	gi.Printf("HandlePain");
 	Event e1(EV_Listener_ExecuteScript);
@@ -7561,7 +7445,6 @@ void Actor::EventPain
 	(
 	Event *ev
 	)
-
 {
 	ShowInfo();
 
@@ -7584,7 +7467,6 @@ void Actor::DefaultKilled
 	Event *ev,
 	bool bPlayDeathAnim
 	)
-
 {
 	ClearStates();
 
@@ -7605,7 +7487,6 @@ void Actor::HandleKilled
 	Event *ev,
 	bool bPlayDeathAnim
 	)
-
 {
 	deadflag = DEAD_DEAD;
 	health = 0.0;
@@ -7645,7 +7526,6 @@ void Actor::DispatchEventKilled
 	Event *ev,
 	bool bPlayDeathAnim
 	)
-
 {
 	GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
 
@@ -7673,7 +7553,6 @@ void Actor::EventKilled
 	(
 	Event *ev
 	)
-
 {
 	DispatchEventKilled(ev, true);
 
@@ -7711,7 +7590,6 @@ void Actor::EventBeDead
 	(
 	Event *ev
 	)
-
 {
 	DispatchEventKilled(ev, false);
 }
@@ -7727,7 +7605,6 @@ void Actor::DeathEmbalm
 	(
 	Event *ev
 	)
-
 {
 	if (maxs[2] > 8)
 	{
@@ -7779,7 +7656,6 @@ bool Actor::NoticeShot
 	Sentient *pTarget,
 	float fDist
 	)
-
 {
 	gi.Printf("Notice shot");
 	if (pShooter->m_Team != m_Team)
@@ -7813,7 +7689,6 @@ bool Actor::NoticeFootstep
 	(
 	Sentient *pPedestrian
 	)
-
 {
 	if (m_Team == pPedestrian->m_Team || pPedestrian->m_bIsDisguised)
 		return false;
@@ -7833,7 +7708,6 @@ bool Actor::NoticeVoice
 	(
 	Sentient *pVocallist
 	)
-
 {
 	if (IsSquadMate(pVocallist))
 		return false;
@@ -7852,7 +7726,6 @@ void Actor::ClearLookEntity
 	(
 	void
 	)
-
 {
 	if (m_pLookEntity)
 	{
@@ -7875,7 +7748,6 @@ void Actor::LookAt
 	(
 	const Vector& vec
 	)
-
 {
 	if (g_showlookat->integer == entnum || g_showlookat->integer == -1)
 	{
@@ -7909,7 +7781,6 @@ void Actor::LookAt
 	(
 	Listener *l
 	)
-
 {
 	ClearLookEntity();
 	if ( l )
@@ -7954,7 +7825,6 @@ void Actor::ForwardLook
 	(
 	void
 	)
-
 {
 	//fixme: this is an inline function.
 	m_bHasDesiredLookAngles = false;
@@ -7971,7 +7841,6 @@ void Actor::LookAtLookEntity
 	(
 	void
 	)
-
 {
 	Vector dir;
 	if (m_pLookEntity->IsSubclassOfSentient())
@@ -7997,7 +7866,6 @@ void Actor::IdleLook
 	(
 	void
 	)
-
 {
 	if (m_pLookEntity)
 	{
@@ -8020,7 +7888,6 @@ void Actor::IdleLook
 	(
 	vec3_t dir
 	)
-
 {
 	if (m_pLookEntity)
 	{
@@ -8043,7 +7910,6 @@ void Actor::SetDesiredLookDir
 	(
 	vec3_t dir
 	)
-
 {
 	m_bHasDesiredLookAngles = true;
 	vectoangles( dir, m_DesiredLookAngles );
@@ -8063,7 +7929,6 @@ void Actor::SetDesiredLookAnglesRelative
 	(
 	vec3_t ang
 	)
-
 {
 	m_bHasDesiredLookAngles = true;
 	m_DesiredLookAngles[ 0 ] = AngleNormalize180( ang[ 0 ] );
@@ -8082,7 +7947,6 @@ void Actor::EventLookAt
 	(
 	Event *ev
 	)
-
 {
 	if (ev->IsVectorAt(1))
 	{
@@ -8107,7 +7971,6 @@ void Actor::EventEyesLookAt
 	(
 	Event *ev
 	)
-
 {
 	EventLookAt(ev);
 
@@ -8125,7 +7988,6 @@ void Actor::NoPoint
 	(
 	void
 	)
-
 {
 	VectorClear(m_vLUpperArmDesiredAngles);
 }
@@ -8141,7 +8003,6 @@ void Actor::IdlePoint
 	(
 	void
 	)
-
 {
 	if (m_pPointEntity)
 	{
@@ -8176,7 +8037,6 @@ void Actor::ClearPointEntity
 	(
 	void
 	)
-
 {
 	if (m_pPointEntity)
 	{
@@ -8199,7 +8059,6 @@ void Actor::PointAt
 	(
 	const Vector& vec
 	)
-
 {
 	ClearPointEntity();
 
@@ -8219,7 +8078,6 @@ void Actor::PointAt
 	(
 	Listener* l
 	)
-
 {
 	ClearPointEntity();
 	if (l)
@@ -8251,7 +8109,6 @@ void Actor::EventPointAt
 	(
 	Event *ev
 	)
-
 {
 	if (ev->IsVectorAt(1))
 	{
@@ -8275,7 +8132,6 @@ void Actor::ClearTurnEntity
 	(
 	void
 	)
-
 {
 	if (m_pTurnEntity)
 	{
@@ -8298,7 +8154,6 @@ void Actor::TurnTo
 	(
 	const Vector& vec
 	)
-
 {
 	ClearTurnEntity();
 
@@ -8318,7 +8173,6 @@ void Actor::TurnTo
 	(
 	Listener *l
 	)
-
 {
 	ClearTurnEntity();
 	if (l)
@@ -8352,7 +8206,6 @@ void Actor::IdleTurn
 	(
 	void
 	)
-
 {
 	if (m_pTurnEntity)
 	{
@@ -8408,7 +8261,6 @@ void Actor::EventTurnTo
 	(
 	Event *ev
 	)
-
 {
 	if (ev->IsVectorAt(1))
 	{
@@ -8431,7 +8283,6 @@ void Actor::EventSetTurnDoneError
 	(
 	Event *ev
 	)
-
 {
 	m_fTurnDoneError = ev->GetFloat(1);
 	if (m_fTurnDoneError < 0)
@@ -8452,7 +8303,6 @@ void Actor::EventGetTurnDoneError
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fTurnDoneError);
 }
@@ -8468,7 +8318,6 @@ void Actor::LookAround
 	(
 	float fFovAdd
 	)
-
 {
 	Vector vDest, vAngle;
 	float fModTime;
@@ -8521,7 +8370,6 @@ bool Actor::SoundSayAnim
 	const_str name,
 	byte bLevelSayAnim
 	)
-
 {
 	int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str());
 	if (animnum == -1)
@@ -8560,7 +8408,6 @@ void Actor::EventSetAnim
 	(
 	Event *ev
 	)
-
 {
 	//"anim slot weight flagged"
 	int numArgs = ev->NumArgs(), slot = 0, animnum;
@@ -8688,7 +8535,6 @@ void Actor::EventIdleSayAnim
 	(
 	Event *ev
 	)
-
 {
 	const_str name;
 	if (ev->NumArgs())
@@ -8734,7 +8580,6 @@ void Actor::EventSayAnim
 	(
 	Event *ev
 	)
-
 {
 	const_str name;
 	if (ev->NumArgs())
@@ -8774,7 +8619,6 @@ void Actor::EventSetSayAnim
 	(
 	Event *ev
 	)
-
 {
 	const_str name;
 	str sName;
@@ -8857,7 +8701,6 @@ void Actor::EventSetMotionAnim
 	(
 	Event *ev
 	)
-
 {
 	gi.DPrintf("Actor::EventSetMotionAnim\n");
 
@@ -8897,7 +8740,6 @@ void Actor::EventSetAimMotionAnim
 	(
 	Event *ev
 	)
-
 {
 	int anim_crouch, anim_stand, anim_high;
 	const_str name;
@@ -8957,7 +8799,6 @@ void Actor::EventSetActionAnim
 	(
 	Event *ev
 	)
-
 {
 	if (ev->NumArgs() != 3)
 	{
@@ -9026,7 +8867,6 @@ void Actor::EventUpperAnim
 	(
 	Event *ev
 	)
-
 {
 	if (ev->NumArgs())
 	{
@@ -9060,7 +8900,6 @@ void Actor::EventSetUpperAnim
 	(
 	Event *ev
 	)
-
 {
 	if (ev->NumArgs() != 1)
 	{
@@ -9096,7 +8935,6 @@ void Actor::EventEndActionAnim
 	(
 	Event *ev
 	)
-
 {
 	parm.upperfail = qtrue;
 	if (!m_bLevelActionAnim)
@@ -9117,7 +8955,6 @@ void Actor::EventDamagePuff
 	(
 	Event *ev
 	)
-
 {
 	
 	Vector pos = ev->GetVector(1), dir = ev->GetVector(2);
@@ -9144,7 +8981,6 @@ void Actor::SafeSetOrigin
 	(
 	vec3_t newOrigin
 	)
-
 {
 	if (newOrigin == origin)
 	{
@@ -9176,7 +9012,6 @@ void Actor::DoMove
 	(
 	void
 	)
-
 {
 	mmove_t mm;
 	//FIXME: macros
@@ -9258,7 +9093,6 @@ void Actor::AnimFinished
 	int slot,
 	bool stop
 	)
-
 {
 	if (stop && slot >= 0)
 		animFlags[slot] |= ANIM_NOACTION;
@@ -9309,7 +9143,6 @@ void Actor::AnimFinished
 	(
 	int slot
 	)
-
 {
 	animFlags[slot] &= ~ANIM_FINISHED;
 	AnimFinished(slot, ((animFlags[slot] & ANIM_LOOP) != ANIM_LOOP));
@@ -9326,7 +9159,6 @@ void Actor::PlayAnimation
 	(
 	Event *ev
 	)
-
 {
 	Event e1(EV_Listener_ExecuteScript);
 	e1.AddConstString(STRING_GLOBAL_ANIM_SCR);
@@ -9345,7 +9177,6 @@ void Actor::PlayScriptedAnimation
 	(
 	Event *ev
 	)
-
 {
 	Event e1(EV_Listener_ExecuteScript);
 	e1.AddConstString(STRING_GLOBAL_ANIM_SCRIPTED_SCR);
@@ -9364,7 +9195,6 @@ void Actor::PlayNoclipAnimation
 	(
 	Event *ev
 	)
-
 {
 	Event e1(EV_Listener_ExecuteScript);
 	e1.AddConstString(STRING_GLOBAL_ANIM_NOCLIP_SCR);
@@ -9383,7 +9213,6 @@ void Actor::MoveDest
 	(
 	float fMoveSpeed
 	)
-
 {
 	mmove_t mm;
 	vec2_t offset;
@@ -9415,7 +9244,6 @@ void Actor::MovePath
 	(
 	float fMoveSpeed
 	)
-
 {
 	//FIXME: macros
 	mmove_t mm;
@@ -9702,7 +9530,6 @@ void Actor::MovePathGoal
 	(
 	float fMoveSpeed
 	)
-
 {
 	float fTimeToGo, fDeltaSquareLen, fSlowdownSpeed;
 	vec2_t vDelta;
@@ -9768,7 +9595,6 @@ void Actor::Dumb
 	(
 	Event *ev
 	)
-
 {
 	Event e1(EV_Listener_ExecuteScript);
 	e1.AddConstString(STRING_GLOBAL_DISABLE_AI_SCR);
@@ -9786,7 +9612,6 @@ void Actor::PhysicsOn
 	(
 	Event *ev
 	)
-
 {
 	m_bDoPhysics = true;
 }
@@ -9802,7 +9627,6 @@ void Actor::PhysicsOff
 	(
 	Event *ev
 	)
-
 {
 	m_bDoPhysics = false;
 }
@@ -9818,7 +9642,6 @@ void Actor::EventStart
 	(
 	Event *ev
 	)
-
 {
 	ResolveVoiceType();
 	setSize(MINS, MAXS);//notsure
@@ -9848,7 +9671,6 @@ void Actor::EventGetMood
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(m_csMood);
 }
@@ -9864,7 +9686,6 @@ void Actor::EventSetMood
 	(
 	Event *ev
 	)
-
 {
 	m_csMood = ev->GetConstString(1);
 	if (m_csMood > STRING_ALERT)
@@ -9885,7 +9706,6 @@ void Actor::EventGetAngleYawSpeed
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fAngleYawSpeed);
 }
@@ -9901,7 +9721,6 @@ void Actor::EventSetAngleYawSpeed
 	(
 	Event *ev
 	)
-
 {
 	float speed = ev->GetFloat(1);
 	if (speed <= 0)
@@ -9922,7 +9741,6 @@ void Actor::EventSetAimTarget
 	(
 	Event *ev
 	)
-
 {
 	Weapon *weap = GetActiveWeapon(WEAPON_MAIN);
 	weap->SetAimTarget(ev->GetEntity(1));
@@ -9939,7 +9757,6 @@ void Actor::UpdateAngles
 	(
 	void
 	)
-
 {
 	float max_change, error, dist;
 
@@ -9986,7 +9803,6 @@ void Actor::SetLeashHome
 (
 	Vector vHome
 )
-
 {
 	if (!m_bFixedLeash)
 	{
@@ -10005,7 +9821,6 @@ void Actor::AimAtTargetPos
 	(
 	void
 	)
-
 {
 	Vector vDir = mTargetPos - EyePosition() + Vector(0, 0, 16);
 	SetDesiredLookDir(vDir);
@@ -10027,7 +9842,6 @@ void Actor::AimAtAimNode
 	(
 	void
 	)
-
 {
 	mTargetPos = m_aimNode->origin;
 
@@ -10046,7 +9860,6 @@ void Actor::AimAtEnemyBehavior
 	(
 	void
 	)
-
 {
 	AimAtTargetPos();
 
@@ -10063,7 +9876,6 @@ void Actor::FaceMotion
 	(
 	void
 	)
-
 {
 	Vector delta;
 
@@ -10113,7 +9925,6 @@ void Actor::FaceDirectionDuringMotion
 	(
 	vec3_t vLook
 	)
-
 {
 	float yaw;
 
@@ -10181,7 +9992,6 @@ float Actor::PathDistanceAlongVector
 	(
 	vec3_t vDir
 	)
-
 {
 	Vector vDelta = m_Path.CurrentDelta();
 
@@ -10199,7 +10009,6 @@ void Actor::FaceEnemyOrMotion
 	(
 	int iTimeIntoMove
 	)
-
 {
 	Vector vDelta = origin - m_vLastEnemyPos;
 	vDelta.z = 0;
@@ -10242,7 +10051,6 @@ int Actor::NextUpdateTime
 	int iLastUpdateTime,
 	int iUpdatePeriod
 	)
-
 {
 	int i = iLastUpdateTime;
 
@@ -10264,7 +10072,6 @@ void Actor::ResetBoneControllers
 	(
 	void
 	)
-
 {
 
 	if (edict->s.bone_tag[HEAD_TAG] != -1)
@@ -11671,7 +11478,6 @@ void Actor::ReadyToFire
 	(
 	Event *ev
 	)
-
 {
 	bool ready;
 
@@ -11693,7 +11499,6 @@ void Actor::GetLocalYawFromVector
 	(
 	Event *ev
 	)
-
 {
 	float yaw;
 	Vector vec;
@@ -11715,7 +11520,6 @@ void Actor::EventGetSight
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fSight);
 }
@@ -11731,7 +11535,6 @@ void Actor::EventSetSight
 	(
 	Event *ev
 	)
-
 {
 	m_fSight = ev->GetFloat(1);
 }
@@ -11747,7 +11550,6 @@ void Actor::EventGetHearing
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fHearing);
 }
@@ -11763,7 +11565,6 @@ void Actor::EventSetHearing
 	(
 	Event *ev
 	)
-
 {
 	m_fHearing = ev->GetFloat(1);
 }
@@ -11779,7 +11580,6 @@ void Actor::ClearPatrolCurrentNode
 	(
 	void
 	)
-
 {
 	if (m_patrolCurrentNode)
 	{
@@ -11802,7 +11602,6 @@ void Actor::NextPatrolCurrentNode
 	(
 	void
 	)
-
 {
 	if (m_bScriptGoalValid)
 	{
@@ -11832,7 +11631,6 @@ void Actor::SetPatrolCurrentNode
 	(
 	Vector& vec
 	)
-
 {
 	ClearPatrolCurrentNode();
 	
@@ -11855,7 +11653,6 @@ void Actor::SetPatrolCurrentNode
 	(
 	Listener *l
 	)
-
 {
 	ClearPatrolCurrentNode();
 	
@@ -11884,7 +11681,6 @@ void Actor::EventSetPatrolPath
 	(
 	Event *ev
 	)
-
 {
 	SetPatrolCurrentNode(ev->GetListener(1));
 }
@@ -11900,7 +11696,6 @@ void Actor::EventGetPatrolPath
 	(
 	Event *ev
 	)
-
 {
 	ev->AddListener(m_patrolCurrentNode);
 }
@@ -11916,7 +11711,6 @@ void Actor::EventSetPatrolWaitTrigger
 	(
 	Event *ev
 	)
-
 {
 	m_bPatrolWaitTrigger = ev->GetBoolean(1);
 }
@@ -11932,7 +11726,6 @@ void Actor::EventGetPatrolWaitTrigger
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_bPatrolWaitTrigger);
 }
@@ -11948,7 +11741,6 @@ void Actor::ShowInfo_PatrolCurrentNode
 	(
 	void
 	)
-
 {
 
 	if (m_patrolCurrentNode)
@@ -11972,7 +11764,6 @@ bool Actor::MoveOnPathWithSquad
 	(
 	void
 	)
-
 {
 	float fDistSquared, fIntervalSquared;
 	vec2_t vMyNormalDir, vDelta, vHisDir;
@@ -12055,7 +11846,6 @@ bool Actor::MoveToWaypointWithPlayer
 	(
 	void
 	)
-
 {
 	float fIntervalSquared, fDistSquared;
 	vec2_t vMyNormalDir, vDelta, vMyDir;
@@ -12117,7 +11907,6 @@ bool Actor::PatrolNextNodeExists
 	(
 	void
 	)
-
 {
 	return m_patrolCurrentNode && !( m_patrolCurrentNode->IsSubclassOfTempWaypoint() ) && m_patrolCurrentNode->Next();
 }
@@ -12133,7 +11922,6 @@ void Actor::UpdatePatrolCurrentNode
 	(
 	void
 	)
-
 {
 	bool next = false;
 	if (m_patrolCurrentNode)
@@ -12170,7 +11958,6 @@ bool Actor::MoveToPatrolCurrentNode
 	(
 	void
 	)
-
 {
 	UpdatePatrolCurrentNode();
 	if (m_patrolCurrentNode && !m_bPatrolWaitTrigger)
@@ -12268,7 +12055,6 @@ void Actor::ClearAimNode
 	(
 	void
 	)
-
 {
 	if (m_aimNode)
 	{
@@ -12292,7 +12078,6 @@ void Actor::SetAimNode
 	(
 	Vector& vec
 	)
-
 {
 	ClearAimNode();
 
@@ -12313,7 +12098,6 @@ void Actor::SetAimNode
 	(
 	Listener *l
 	)
-
 {
 	ClearAimNode();
 	if (l)
@@ -12343,7 +12127,6 @@ void Actor::ShowInfo_AimNode
 	(
 	void
 	)
-
 {
 	if (m_aimNode)
 	{
@@ -12366,7 +12149,6 @@ void Actor::EventSetAccuracy
 	(
 	Event *ev
 	)
-
 {
 	mAccuracy = ev->GetFloat(1) / 100;
 }
@@ -12382,7 +12164,6 @@ void Actor::EventGetAccuracy
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(mAccuracy * 100);
 }
@@ -12398,7 +12179,6 @@ int Actor::GetThinkType
 	(
 	const_str csName
 	)
-
 {
 	int result = 0;
 	while (m_csThinkNames[result] != csName)
@@ -12423,7 +12203,6 @@ void Actor::SetThink
 	eThinkState state,
 	eThinkNum think
 	)
-
 {
 	m_ThinkMap[state] = think;
 	if (m_ThinkState == state)
@@ -12441,7 +12220,6 @@ void Actor::SetThinkIdle
 	(
 	eThinkNum think_idle
 	)
-
 {
 	eThinkNum think_curious;
 
@@ -12488,7 +12266,6 @@ void Actor::SetThinkState
 	eThinkState state,
 	eThinkLevel level
 	)
-
 {
 	if (IsAttackState(state))
 	{
@@ -12525,7 +12302,6 @@ void Actor::EndCurrentThinkState
 	(
 	void
 	)
-
 {
 	SetThinkState(THINKSTATE_VOID, m_ThinkLevel);
 }
@@ -12541,7 +12317,6 @@ void Actor::ClearThinkStates
 	(
 	void
 	)
-
 {
 	for (int i = 0; i <= NUM_THINKLEVELS -1; i++)
 	{
@@ -12560,7 +12335,6 @@ int Actor::CurrentThink
 	(
 	void
 	) const
-
 {
 	return m_Think[ m_ThinkLevel ];
 }
@@ -12576,7 +12350,6 @@ bool Actor::IsAttacking
 	(
 	void
 	) const
-
 {
 	return m_ThinkStates[ THINKLEVEL_NORMAL ] == THINKSTATE_ATTACK;
 }
@@ -12592,7 +12365,6 @@ void Actor::EventGetFov
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fFov);
 }
@@ -12608,7 +12380,6 @@ void Actor::EventSetFov
 	(
 	Event *ev
 	)
-
 {
 	float fov = ev->GetFloat(1);
 	if (fov < 0 || fov > 360)
@@ -12623,7 +12394,6 @@ void Actor::EventSetDestIdle
 	(
 	Event *ev
 	)
-
 {
 	// not found in ida
 }
@@ -12632,7 +12402,6 @@ void Actor::EventSetDestIdle2
 	(
 	Event *ev
 	)
-
 {
 	// not found in ida
 }
@@ -12641,7 +12410,6 @@ void Actor::EventSetTypeIdle
 	(
 	Event *ev
 	)
-
 {
 	eThinkNum think = (eThinkNum)GetThinkType(ev->GetConstString(1));
 	glbs.Printf("EventSetTypeIdle %s : %d\n", ev->GetString(1).c_str(), think);
@@ -12658,7 +12426,6 @@ void Actor::EventGetTypeIdle
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_IDLE]]);
 }
@@ -12667,7 +12434,6 @@ void Actor::EventSetTypeAttack
 	(
 	Event *ev
 	)
-
 {
 	eThinkNum think = (eThinkNum)GetThinkType(ev->GetConstString(1));
 	glbs.Printf("EventSetTypeAttack %s : %d\n", ev->GetString(1).c_str(), think);
@@ -12686,7 +12452,6 @@ void Actor::EventGetTypeAttack
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_ATTACK]]);
 }
@@ -12695,7 +12460,6 @@ void Actor::EventSetTypeDisguise
 	(
 	Event *ev
 	)
-
 {
 	eThinkNum think = (eThinkNum)GetThinkType(ev->GetConstString(1));
 	glbs.Printf("EventSetTypeDisguise %s : %d\n", ev->GetString(1).c_str(), think);
@@ -12713,7 +12477,6 @@ void Actor::EventGetTypeDisguise
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_DISGUISE]]);
 }
@@ -12722,7 +12485,6 @@ void Actor::EventSetDisguiseLevel
 	(
 	Event *ev
 	)
-
 {
 	m_iDisguiseLevel = ev->GetInteger(1);
 	if (m_iDisguiseLevel -1 > 1)
@@ -12736,7 +12498,6 @@ void Actor::EventGetDisguiseLevel
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_iDisguiseLevel);
 }
@@ -12745,7 +12506,6 @@ void Actor::EventSetTypeGrenade
 	(
 	Event *ev
 	)
-
 {
 	eThinkNum think = (eThinkNum)GetThinkType(ev->GetConstString(1));
 	glbs.Printf("EventSetTypeGrenade %s : %d\n", ev->GetString(1).c_str(), think);
@@ -12763,7 +12523,6 @@ void Actor::EventGetTypeGrenade
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(m_csThinkNames[m_ThinkMap[THINKSTATE_GRENADE]]);
 }
@@ -12772,7 +12531,6 @@ void Actor::EventSetMinDistance
 	(
 	Event *ev
 	)
-
 {
 	m_fMinDistance = ev->GetFloat(1);
 
@@ -12792,7 +12550,6 @@ void Actor::EventGetMinDistance
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fMinDistance);
 }
@@ -12801,7 +12558,6 @@ void Actor::EventSetMaxDistance
 	(
 	Event *ev
 	)
-
 {
 	m_fMaxDistance = ev->GetFloat(1);
 	//FIXME: macro
@@ -12821,7 +12577,6 @@ void Actor::EventGetMaxDistance
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fMaxDistance);
 }
@@ -12830,7 +12585,6 @@ void Actor::EventSetLeash
 	(
 	Event *ev
 	)
-
 {
 	m_fLeash = ev->GetFloat(1);
 	m_fLeashSquared = Square(m_fLeash);
@@ -12840,7 +12594,6 @@ void Actor::EventGetLeash
 (
 	Event *ev
 )
-
 {
 	ev->AddFloat(m_fLeash);
 }
@@ -12849,7 +12602,6 @@ void Actor::EventSetInterval
 	(
 	Event *ev
 	)
-
 {
 	m_fInterval = ev->GetFloat(1);
 }
@@ -12858,7 +12610,6 @@ void Actor::EventDistToEnemy
 	(
 	Event *ev
 	)
-
 {
 	float dist = 0;
 	if (m_Enemy)
@@ -12873,7 +12624,6 @@ void Actor::EventGetInterval
 (
 	Event *ev
 )
-
 {
 	ev->AddFloat(m_fInterval);
 }
@@ -12882,7 +12632,6 @@ void Actor::EventGetRunAnim
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(GetRunAnim());
 }
@@ -12891,7 +12640,6 @@ void Actor::EventGetWalkAnim
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(GetWalkAnim());
 }
@@ -12900,7 +12648,6 @@ void Actor::EventSetAnimName
 	(
 	Event *ev
 	)
-
 {
 	m_csAnimName = ev->GetConstString(1);
 }
@@ -12909,7 +12656,6 @@ void Actor::EventGetAnimName
 (
 	Event *ev
 )
-
 {
 	ev->AddConstString(m_csAnimName);
 }
@@ -12918,7 +12664,6 @@ void Actor::EventSetDisguiseRange
 	(
 	Event *ev
 	)
-
 {
 	float range = ev->GetFloat(1);
 	m_fMaxDisguiseDistSquared = Square(range);
@@ -12928,7 +12673,6 @@ void Actor::EventGetDisguiseRange
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(sqrt(m_fMaxDisguiseDistSquared));
 }
@@ -12937,7 +12681,6 @@ void Actor::EventSetDisguisePeriod
 	(
 	Event *ev
 	)
-
 {
 	m_iDisguisePeriod = ev->GetFloat(1) * 1000 + 0.5;
 }
@@ -12946,7 +12689,6 @@ void Actor::EventGetDisguisePeriod
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_iDisguisePeriod / 1000.0);
 }
@@ -12955,7 +12697,6 @@ void Actor::EventSetDisguiseAcceptThread
 	(
 	Event *ev
 	)
-
 {
 
 	if (ev->IsFromScript())
@@ -12973,7 +12714,6 @@ void Actor::EventGetDisguiseAcceptThread
 	(
 	Event *ev
 	)
-
 {
 	m_DisguiseAcceptThread.GetScriptValue(&ev->GetValue());
 }
@@ -12982,7 +12722,6 @@ void Actor::EventAttackPlayer
 	(
 	Event *ev
 	)
-
 {
 	Player *pPlayer = (Player *)G_GetEntity(0);
 	if (!pPlayer)
@@ -13000,7 +12739,6 @@ void Actor::ForceAttackPlayer
 	(
 	void
 	)
-
 {
 	m_PotentialEnemies.ConfirmEnemy(this, (Sentient *)G_GetEntity(0));
 }
@@ -13009,7 +12747,6 @@ void Actor::EventSetAlarmNode
 	(
 	Event *ev
 	)
-
 {
 	Listener *l = ev->GetListener(1);
 	if (l)
@@ -13026,7 +12763,6 @@ void Actor::EventGetAlarmNode
 	(
 	Event *ev
 	)
-
 {
 	ev->AddListener(m_AlarmNode);
 }
@@ -13035,7 +12771,6 @@ void Actor::EventSetAlarmThread
 	(
 	Event *ev
 	)
-
 {
 	if (ev->IsFromScript())
 	{
@@ -13052,7 +12787,6 @@ void Actor::EventGetAlarmThread
 	(
 	Event *ev
 	)
-
 {
 	
 	m_AlarmThread.GetScriptValue(&ev->GetValue());
@@ -13062,7 +12796,6 @@ void Actor::EventSetSoundAwareness
 	(
 	Event *ev
 	)
-
 {
 	m_fSoundAwareness = ev->GetFloat(1);
 }
@@ -13071,7 +12804,6 @@ void Actor::EventGetSoundAwareness
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fSoundAwareness);
 }
@@ -13080,7 +12812,6 @@ void Actor::EventSetGrenadeAwareness
 	(
 	Event *ev
 	)
-
 {
 	m_fGrenadeAwareness = ev->GetFloat(1);
 }
@@ -13089,7 +12820,6 @@ void Actor::EventGetGrenadeAwareness
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fGrenadeAwareness);
 }
@@ -13098,7 +12828,6 @@ str Actor::ThinkName
 	(
 	void
 	) const
-
 {
 	return Director.GetString( m_csThinkNames[ m_Think[ m_ThinkLevel ] ] );
 }
@@ -13107,7 +12836,6 @@ str Actor::ThinkStateName
 	(
 	void
 	) const
-
 {
 	return Director.GetString( m_csThinkStateNames[ m_ThinkState ] );
 }
@@ -13116,7 +12844,6 @@ void Actor::EventSetTurret
 	(
 	Event *ev
 	)
-
 {
 	Listener *l = ev->GetListener(1);
 	if (l->inheritsFrom(&TurretGun::ClassInfo))
@@ -13129,7 +12856,6 @@ void Actor::EventGetTurret
 	(
 	Event *ev
 	)
-
 {
 	ev->AddListener(m_pTurret);
 }
@@ -13138,7 +12864,6 @@ void Actor::EventEnableEnemy
 	(
 	Event *ev
 	)
-
 {
 	m_bDesiredEnableEnemy = ev->GetBoolean(1);
 }
@@ -13147,7 +12872,6 @@ void Actor::EventEnablePain
 	(
 	Event *ev
 	)
-
 {
 	m_bEnablePain = ev->GetBoolean(1);
 }
@@ -13156,7 +12880,6 @@ void Actor::EventActivate
 	(
 	Event *ev
 	)
-
 {
 	m_bPatrolWaitTrigger = false;
 	Unregister(STRING_TRIGGER);
@@ -13166,7 +12889,6 @@ void Actor::EventGetAmmoGrenade
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(AmmoCount("grenade"));
 }
@@ -13175,7 +12897,6 @@ void Actor::EventSetAmmoGrenade
 	(
 	Event *ev
 	)
-
 {
 	GiveAmmo("grenade", ev->GetInteger(1));
 }
@@ -13184,7 +12905,6 @@ void Actor::EventInterruptPoint
 	(
 	Event *ev
 	)
-
 {
 
 	GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
@@ -13197,7 +12917,6 @@ void Actor::EventAnimScript
 	(
 	Event *ev
 	)
-
 {
 	m_bAnimScriptSet = true;
 	m_csAnimScript = ev->GetConstString(1);
@@ -13213,7 +12932,6 @@ void Actor::EventAnimScript_Scripted
 	(
 	Event *ev
 	)
-
 {
 	m_bAnimScriptSet = true;
 	m_csAnimScript = ev->GetConstString(1);
@@ -13229,7 +12947,6 @@ void Actor::EventAnimScript_Noclip
 	(
 	Event *ev
 	)
-
 {
 	m_bAnimScriptSet = true;
 	m_csAnimScript = ev->GetConstString(1);
@@ -13244,7 +12961,6 @@ void Actor::EventReload_mg42
 	(
 	Event *ev
 	)
-
 {
 	//FIXME: macos/enum
 	if (m_State != 1201)
@@ -13267,7 +12983,6 @@ void Actor::SetPathWithLeash
 	const char *description,
 	int iMaxDirtyTime
 	)
-
 {
 	vec2_t dist = { vDestPos[0] - m_vHome[0],  vDestPos[1] - m_vHome[1] };
 	float distSq = DotProduct2D(dist, dist);
@@ -13298,7 +13013,6 @@ void Actor::SetPathWithLeash
 	const char *description,
 	int iMaxDirtyTime
 	)
-
 {
 	if (pDestNode)
 	{
@@ -13329,7 +13043,6 @@ void Actor::FindPathAwayWithLeash
 	vec3_t vDirPreferred,
 	float fMinSafeDist
 	)
-
 {
 	m_Path.FindPathAway(
 		origin,
@@ -13347,7 +13060,6 @@ void Actor::FindPathNearWithLeash
 	vec3_t vNearbyTo,
 	float fCloseDistSquared
 	)
-
 {
 	vec2_t dist = {vNearbyTo[0] - m_vHome[0],  vNearbyTo[1] - m_vHome[1]};
 	float distSq = DotProduct2D(dist,dist);
@@ -13377,7 +13089,6 @@ bool Actor::CanMovePathWithLeash
 	(
 	void
 	) const
-
 {
 	vec2_t delta;
 
@@ -13396,7 +13107,6 @@ bool Actor::MovePathWithLeash
 	(
 	void
 	)
-
 {
 	if( CanMovePathWithLeash() )
 	{
@@ -13415,7 +13125,6 @@ bool Actor::ShortenPathToAttack
 	(
 	float fMinDist
 	)
-
 {
 	if (PathExists() && !PathComplete() && PathAvoidsSquadMates())
 	{
@@ -13441,7 +13150,6 @@ void Actor::StrafeToAttack
 	float fDist,
 	vec3_t vDir
 	)
-
 {
 	Vector vEnemyCentroid, vDelta, vSpot, vDestPos;
 	Vector mins(-16,-16,16);
@@ -13504,7 +13212,6 @@ Vector Actor::GunTarget
 	(
 	bool bNoCollision
 	)
-
 {
 	float accuracy;
 	static bool doInit = true;
@@ -13667,7 +13374,6 @@ qboolean Actor::setModel
 	(
 	void
 	)
-
 {
 	str headModel, headSkin, weapon;
 	headModel = level.GetRandomHeadModel(model);
@@ -13713,7 +13419,6 @@ void Actor::EventSetHeadModel
 	(
 	Event *ev
 	)
-
 {
 
 	m_csHeadModel = ev->GetConstString(1);
@@ -13724,7 +13429,6 @@ void Actor::EventGetHeadModel
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(m_csHeadModel);
 }
@@ -13733,7 +13437,6 @@ void Actor::EventSetHeadSkin
 	(
 	Event *ev
 	)
-
 {
 	m_csHeadSkin = ev->GetConstString(1);
 	setModel();
@@ -13743,7 +13446,6 @@ void Actor::EventGetHeadSkin
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(m_csHeadSkin);
 }
@@ -13752,7 +13454,6 @@ void Actor::EventSetNoIdle
 	(
 	Event *ev
 	)
-
 {
 	m_bNoIdleAfterAnim = ev->GetInteger(1);
 }
@@ -13761,7 +13462,6 @@ void Actor::EventGetNoIdle
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_bNoIdleAfterAnim);
 }
@@ -13770,7 +13470,6 @@ void Actor::EventGetEnemy
 	(
 	Event *ev
 	)
-
 {
 	ev->AddListener(m_Enemy);
 }
@@ -13779,7 +13478,6 @@ void Actor::EventSetMaxNoticeTimeScale
 	(
 	Event *ev
 	)
-
 {
 	float noticeScale; // fst7
 
@@ -13798,7 +13496,6 @@ void Actor::EventGetMaxNoticeTimeScale
 	(
 	Event *ev
 	)
-
 {
 	
 	ev->AddFloat(m_fMaxNoticeTimeScale * 100);
@@ -13808,7 +13505,6 @@ void Actor::EventSetFixedLeash
 	(
 	Event *ev
 	)
-
 {
 	m_bFixedLeash = ev->GetBoolean(1);
 }
@@ -13817,7 +13513,6 @@ void Actor::EventGetFixedLeash
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_bFixedLeash);
 }
@@ -13826,7 +13521,6 @@ void Actor::Holster
 	(
 	void
 	)
-
 {
 	if (activeWeaponList[0])
 	{
@@ -13838,7 +13532,6 @@ void Actor::Unholster
 	(
 	void
 	)
-
 {
 	Weapon *weap;
 
@@ -13857,7 +13550,6 @@ void Actor::EventHolster
 	(
 	Event *ev
 	)
-
 {
 	if (activeWeaponList[WEAPON_MAIN])
 	{
@@ -13869,7 +13561,6 @@ void Actor::EventUnholster
 	(
 	Event *ev
 	)
-
 {
 	Unholster();
 }
@@ -13878,7 +13569,6 @@ void Actor::EventSoundDone
 	(
 	Event *ev
 	)
-
 {
 	//soundChannel_t
 	int channel = ev->GetInteger(1);
@@ -13909,7 +13599,6 @@ void Actor::EventSound
 	(
 	Event *ev
 	)
-
 {
 	ProcessSoundEvent(ev, m_Team == TEAM_AMERICAN);
 }
@@ -13918,7 +13607,6 @@ void Actor::EventIsEnemyVisible
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_bEnemyVisible);
 }
@@ -13927,7 +13615,6 @@ void Actor::EventGetEnemyVisibleChangeTime
 	(
 	Event *ev
 	)
-
 {
 	//FIXME: /100 ??
 	ev->AddFloat(m_iEnemyVisibleChangeTime / 100);
@@ -13937,7 +13624,6 @@ void Actor::EventGetLastEnemyVisibleTime
 	(
 	Event *ev
 	)
-
 {
 	//FIXME: /100 ??
 	ev->AddFloat(m_iLastEnemyVisibleTime / 100 );
@@ -13947,7 +13633,6 @@ void Actor::EventSetFallHeight
 	(
 	Event *ev
 	)
-
 {
 	float fHeight = ev->GetFloat(1);
 
@@ -13967,7 +13652,6 @@ void Actor::EventGetFallHeight
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_Path.GetFallHeight());
 }
@@ -13976,7 +13660,6 @@ void Actor::EventCanMoveTo
 	(
 	Event *ev
 	)
-
 {
 	float fIntervalSquared, fDistSquared;
 	vec2_t vDelta;
@@ -14067,7 +13750,6 @@ void Actor::EventMoveDir
 	(
 	Event *ev
 	)
-
 {
 	
 	vec2_t vec;
@@ -14090,7 +13772,6 @@ void Actor::EventIntervalDir
 	(
 	Event *ev
 	)
-
 {
 	//FIXME: macro
 	if (level.inttime >= m_iIntervalDirTime + 250)
@@ -14114,7 +13795,6 @@ void Actor::EventResetLeash
 	(
 	Event *ev
 	)
-
 {
 	m_vHome = origin;
 	//delete m_pTetherEnt;
@@ -14125,7 +13805,6 @@ void Actor::EventTether
 	(
 	Event *ev
 	)
-
 {
 	m_pTetherEnt = ev->GetSimpleEntity(1);
 }
@@ -14134,7 +13813,6 @@ void Actor::EventGetThinkState
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(m_csThinkStateNames[m_ThinkState]);
 }
@@ -14143,7 +13821,6 @@ void Actor::EventGetEnemyShareRange
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fMaxShareDistSquared);
 }
@@ -14152,7 +13829,6 @@ void Actor::EventSetEnemyShareRange
 	(
 	Event *ev
 	)
-
 {
 	float fRange = ev->GetFloat(1);
 	m_fMaxShareDistSquared = fRange * fRange;
@@ -14162,7 +13838,6 @@ void Actor::EventGetKickDir
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector(m_vKickDir);
 }
@@ -14171,7 +13846,6 @@ void Actor::EventGetNoLongPain
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_bNoLongPain);
 }
@@ -14180,7 +13854,6 @@ void Actor::EventSetNoLongPain
 	(
 	Event *ev
 	)
-
 {
 	m_bNoLongPain = ev->GetBoolean(1);
 }
@@ -14189,7 +13862,6 @@ void Actor::EventGetFavoriteEnemy
 	(
 	Event *ev
 	)
-
 {
 	ev->AddEntity(m_FavoriteEnemy);
 }
@@ -14198,7 +13870,6 @@ void Actor::EventSetFavoriteEnemy
 	(
 	Event *ev
 	)
-
 {
 	Sentient *fEnemy = (Sentient*)ev->GetEntity(1);
 	m_FavoriteEnemy = fEnemy;
@@ -14208,7 +13879,6 @@ void Actor::EventGetMumble
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_bMumble);
 }
@@ -14217,7 +13887,6 @@ void Actor::EventSetMumble
 	(
 	Event *ev
 	)
-
 {
 	m_bMumble = ev->GetInteger(1);
 }
@@ -14226,7 +13895,6 @@ void Actor::EventGetBreathSteam
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_bBreathSteam);
 }
@@ -14235,7 +13903,6 @@ void Actor::EventSetBreathSteam
 	(
 	Event *ev
 	)
-
 {
 	m_bBreathSteam = ev->GetInteger(1);
 }
@@ -14244,7 +13911,6 @@ void Actor::EventSetNextBreathTime
 	(
 	Event *ev
 	)
-
 {
 	ScriptVariable sVar;
 	ScriptThread *t = Director.CreateThread("global/breathe.scr", "nextbreathtime");
@@ -14257,7 +13923,6 @@ void Actor::EventCalcGrenadeToss
 	(
 	Event *ev
 	)
-
 {
 	//FIXME: macros
 	Vector vTarget;
@@ -14304,7 +13969,6 @@ void Actor::EventSetNoSurprise
 	(
 	Event *ev
 	)
-
 {
 
 	m_bNoSurprise = ev->GetBoolean(1);
@@ -14314,7 +13978,6 @@ void Actor::EventGetSilent
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_bSilent);
 }
@@ -14323,7 +13986,6 @@ void Actor::EventSetSilent
 	(
 	Event *ev
 	)
-
 {
 	m_bSilent = ev->GetBoolean(1);
 }
@@ -14332,7 +13994,6 @@ void Actor::EventGetAvoidPlayer
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_bAutoAvoidPlayer);
 }
@@ -14341,7 +14002,6 @@ void Actor::EventSetAvoidPlayer
 	(
 	Event *ev
 	)
-
 {
 	m_bAutoAvoidPlayer = ev->GetBoolean(1);
 }
@@ -14350,7 +14010,6 @@ void Actor::EventGetLookAroundAngle
 	(
 	Event *ev
 	)
-
 {
 	//FIXME: weird
 	//ev->GetFloat(m_fLookAroundFov);
@@ -14361,7 +14020,6 @@ void Actor::EventSetLookAroundAngle
 	(
 	Event *ev
 	)
-
 {
 	float angle = ev->GetFloat(1);
 	if (angle < 0.0 || angle > 60.0)
@@ -14375,7 +14033,6 @@ void Actor::EventHasCompleteLookahead
 	(
 	Event *ev
 	)
-
 {
 	int completeLH = PathExists() && PathHasCompleteLookahead();
 	
@@ -14386,7 +14043,6 @@ void Actor::EventPathDist
 	(
 	Event *ev
 	)
-
 {
 	float dist = 0;
 	if (PathExists() && !PathComplete())
@@ -14400,7 +14056,6 @@ void Actor::EventCanShootEnemyFrom
 	(
 	Event *ev
 	)
-
 {
 	int canShoot = false;
 	if (m_Enemy)
@@ -14414,7 +14069,6 @@ void Actor::EventCanShoot
 	(
 	Event *ev
 	)
-
 {
 	Entity *target = ev->GetEntity(1);
 
@@ -14430,7 +14084,6 @@ void Actor::EventSetInReload
 	(
 	Event *ev
 	)
-
 {
 
 	m_bInReload = ev->GetBoolean(1);
@@ -14440,7 +14093,6 @@ void Actor::EventGetInReload
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger(m_bInReload);
 }
@@ -14449,7 +14101,6 @@ void Actor::EventSetReloadCover
 	(
 	Event *ev
 	)
-
 {
 	m_bNeedReload = ev->GetBoolean(1);
 }
@@ -14458,7 +14109,6 @@ void Actor::EventBreakSpecial
 	(
 	Event *ev
 	)
-
 {
 	mbBreakSpecialAttack = true;
 }
@@ -14467,7 +14117,6 @@ void Actor::GetVoiceType
 	(
 	Event *ev
 	)
-
 {
 	//voice type in actor is a char.
 	const char *vType = va("%c", mVoiceType);
@@ -14479,7 +14128,6 @@ void Actor::SetVoiceType
 	(
 	Event *ev
 	)
-
 {
 	//voice type in actor is a char.
 	str vType = ev->GetString(1);
@@ -14498,7 +14146,6 @@ void Actor::ResolveVoiceType
 	(
 	void
 	)
-
 {
 	char validVoice[128];
 
@@ -14569,7 +14216,6 @@ void Actor::EventSetBalconyHeight
 	(
 	Event *ev
 	)
-
 {
 	m_fBalconyHeight = ev->GetFloat(1);
 }
@@ -14578,7 +14224,6 @@ void Actor::EventGetBalconyHeight
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fBalconyHeight);
 }
@@ -14587,7 +14232,6 @@ PathNode *Actor::FindSniperNodeAndSetPath
 	(
 	bool *pbTryAgain
 	)
-
 {
 	PathNode *pSniperNode = PathManager.FindNearestSniperNode( this, origin, m_Enemy );
 
@@ -14616,7 +14260,6 @@ void Actor::Remove
 	(
 	Event *ev
 	)
-
 {
 	EndStates();
 
@@ -14633,7 +14276,6 @@ void Actor::DontFaceWall
 	(
 	void
 	)
-
 {
 	//PathNode *pNode;
 	vec2_t vDelta;
@@ -14762,7 +14404,6 @@ bool Actor::AvoidingFacingWall
 	(
 	void
 	) const
-
 {
 	return m_eDontFaceWallMode <= 8;
 }
@@ -14771,7 +14412,6 @@ void Actor::EndStates
 	(
 	void
 	)
-
 {
 	for (int i = 0; i < NUM_THINKLEVELS; i++)
 	{
@@ -14791,7 +14431,6 @@ void Actor::ClearStates
 	(
 	void
 	)
-
 {
 	for (int i = 0; i < NUM_THINKSTATES; i++)
 	{
@@ -14803,7 +14442,6 @@ void Actor::CheckUnregister
 	(
 	void
 	)
-
 {
 	m_bBecomeRunner = false;
 	if (parm.movefail)
@@ -14825,7 +14463,6 @@ void Actor::BecomeCorpse
 	(
 	void
 	)
-
 {
 	Event e1(EV_DeathSinkStart);
 
@@ -14845,7 +14482,6 @@ void Actor::PathnodeClaimRevoked
 	(
 	PathNode *node
 	)
-
 {
 	for (int i = m_ThinkLevel; i >= 0; --i)
 	{
@@ -14863,7 +14499,6 @@ void Actor::SetPathToNotBlockSentient
 	(
 	Sentient *pOther
 	)
-
 {
 	Vector vDest, vPerp, vAway;
 
@@ -14968,7 +14603,6 @@ void Actor::EventSetMoveDoneRadius
 	(
 	Event *ev
 	)
-
 {
 	float moveDoneR = ev->GetFloat(1);
 	m_fMoveDoneRadiusSquared = Square(moveDoneR);
@@ -14979,7 +14613,6 @@ bool Actor::CalcFallPath
 	(
 	void
 	)
-
 {
 	float startTime, animTime, startDeltaTime, nextTime;
 	vec3_t vAbsDelta, vRelDelta, pos[200];
@@ -15103,7 +14736,6 @@ void Actor::ClearEnemies
 	(
 	void
 	)
-
 {
 	m_PotentialEnemies.RemoveAll();
 	SetEnemy( NULL, false );
@@ -15113,7 +14745,6 @@ bool Actor::EnemyIsDisguised
 	(
 	void
 	)
-
 {
 	return ( m_bEnemyIsDisguised || (m_Enemy && m_Enemy->m_bIsDisguised) ) && ( !m_bForceAttackPlayer && m_ThinkState != THINKSTATE_ATTACK );
 }
@@ -15122,7 +14753,6 @@ void Actor::setOriginEvent
 	(
 	Vector org
 	)
-
 {
 	bool bRejoin = false;
 	//FIXME: macro
@@ -15162,7 +14792,6 @@ void Actor::DumpAnimInfo
 	(
 	void
 	)
-
 {
 	Animate::DumpAnimInfo();
 	Vector desiredLook = m_bHasDesiredLookAngles ? m_DesiredLookAngles : vec_zero;
@@ -15184,7 +14813,6 @@ bool Actor::AutoArchiveModel
 	(
 	void
 	)
-
 {
 	return false;
 }

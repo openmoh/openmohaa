@@ -212,7 +212,6 @@ inline Vector::Vector( const float init_x, const float init_y, const float init_
 }
 
 inline Vector::Vector( const char *text	): x( 0 ), y( 0 ), z( 0 )
-
 {
 	if ( text )
 	{
@@ -416,7 +415,6 @@ inline int Vector::FuzzyEqual( vec3_t b, const float epsilon ) const
 }
 
 inline int operator==( const Vector &a, const Vector &b	)
-
 {
 	return ( ( a.x == b.x ) && ( a.y == b.y ) && ( a.z == b.z ) );
 }

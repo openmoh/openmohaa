@@ -385,13 +385,11 @@ protected:
 };
 
 inline enttracker_t::enttracker_t()
-
 {
     memset(usedNumbers, 0, sizeof(usedNumbers));
 }
 
 inline void enttracker_t::RemoveEntity(int entnum)
-
 {
     // If the entnum is a magic number, then clear out the usedNumber field, so
     // that it may be reused for this emitter.
@@ -407,7 +405,6 @@ inline void enttracker_t::RemoveEntity(int entnum)
 }
 
 inline int enttracker_t::AssignNumber(void)
-
 {
     int i;
 
@@ -524,7 +521,6 @@ public:
 };
 
 inline void commandthing_t::RemoveEntity(int entnum)
-
 {
     int num, count;
     commandtime_t* ct;
@@ -543,7 +539,6 @@ inline void commandthing_t::RemoveEntity(int entnum)
 
 inline commandtime_t* commandthing_t::GetLastCommandTime(int entnum,
                                                          int commandnum)
-
 {
     int num, count;
     commandtime_t* ct;
@@ -632,14 +627,12 @@ public:
 };
 
 inline void spawnthing_t::SetModel(str model)
-
 {
     m_modellist.ClearObjectList();
     m_modellist.AddObject(model);
 }
 
 inline str spawnthing_t::GetModel(void)
-
 {
     int num, index;
 

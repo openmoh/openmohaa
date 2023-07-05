@@ -132,7 +132,6 @@ void CrateObject::TellNeighborsToFall
 	(
 	void
 	)
-
 {
 	Entity *pEnt;
 	Entity *pNext;
@@ -179,7 +178,6 @@ void CrateObject::TellNeighborsToJitter
 	(
 	Vector vJitterAdd
 	)
-
 {
 
 	Entity *pEnt;
@@ -251,7 +249,6 @@ void CrateObject::CrateSetup
 	(
 	Event *ev
 	)
-
 {
 	Vector vMins;
 	Vector vMaxs;
@@ -298,7 +295,6 @@ void CrateObject::CrateDebrisType
 	(
 	Event *ev
 	)
-
 {
 	m_iDebrisType = ev->GetInteger( 1 );
 
@@ -312,7 +308,6 @@ void CrateObject::StartFalling
 	(
 	Event *ev
 	)
-
 {
 	setMoveType( MOVETYPE_FLY );
 	m_fMoveTime = 0;
@@ -329,7 +324,6 @@ void CrateObject::CrateFalling
 	(
 	Event *ev
 	)
-
 {
 	if( velocity != vec_zero || !groundentity || edict->solid != SOLID_BSP )
 	{
@@ -351,7 +345,6 @@ void CrateObject::CrateDamaged
 	(
 	Event *ev
 	)
-
 {
 	Vector vDir;
 	Vector vForward;
@@ -440,7 +433,6 @@ void CrateObject::CrateKilled
 	(
 	Event *ev
 	)
-
 {
 	Vector vCenter;
 	Entity *attacker = ev->GetEntity( 1 );
@@ -485,7 +477,6 @@ void CrateObject::CrateThink
 	(
 	Event *ev
 	)
-
 {
 	// Shake the create if it's on fire
 

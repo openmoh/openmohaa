@@ -28,7 +28,6 @@ void Actor::InitAnimCurious
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_AnimCurious;
 	func->BeginState					= &Actor::Begin_AnimCurious;
@@ -42,7 +41,6 @@ void Actor::Begin_AnimCurious
 	(
 	void
 	)
-
 {
 	DoForceActivate();
 
@@ -56,7 +54,6 @@ void Actor::Think_AnimCurious
 	(
 	void
 	)
-
 {
 	if( !RequireThink() )
 		return;
@@ -74,7 +71,6 @@ void Actor::FinishedAnimation_AnimCurious
 	(
 	void
 	)
-
 {
 	if( m_State == 1101 )
 	{

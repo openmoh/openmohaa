@@ -28,7 +28,6 @@ void Actor::InitCurious
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_Curious;
 	func->BeginState					= &Actor::Begin_Curious;
@@ -44,7 +43,6 @@ void Actor::Begin_Curious
 	(
 	void
 	)
-
 {
 	Vector vDelta;
 	//float fDistSquared;
@@ -157,7 +155,6 @@ void Actor::End_Curious
 	(
 	void
 	)
-
 {
 	m_iCuriousTime = 0;
 	m_iCuriousLevel = 0;
@@ -167,7 +164,6 @@ void Actor::Resume_Curious
 	(
 	void
 	)
-
 {
 	Begin_Curious();
 }
@@ -176,7 +172,6 @@ void Actor::Suspend_Curious
 	(
 	void
 	)
-
 {
 	End_Curious();
 }
@@ -185,7 +180,6 @@ void Actor::Think_Curious
 	(
 	void
 	)
-
 {
 	//horrible function!
 	if (RequireThink())
@@ -427,7 +421,6 @@ void Actor::FinishedAnimation_Curious
 	(
 	void
 	)
-
 {
 	FinishedAnimation_AnimCurious();
 }
@@ -437,7 +430,6 @@ void Actor::LookAtCuriosity
 	(
 	void
 	)
-
 {
 	Vector vAngles;
 	float fLookScale;
@@ -495,7 +487,6 @@ void Actor::TimeOutCurious
 	(
 	void
 	)
-
 {
 	//FIXME: macros
 	if (!m_Enemy || EnemyIsDisguised())

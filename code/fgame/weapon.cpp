@@ -1015,7 +1015,6 @@ void Weapon::Delete
 	(
 	void
 	)
-
 {
 	if( g_iInThinks )
 	{
@@ -1039,7 +1038,6 @@ Listener *Weapon::GetScriptOwner
 	(
 	void
 	)
-
 {
 	return owner;
 }
@@ -1076,7 +1074,6 @@ void Weapon::SetRank
 	int order,
 	int rank
 	)
-
 {
 	this->order = order;
 	this->rank = rank;
@@ -1089,7 +1086,6 @@ void Weapon::SetRankEvent
 	(
 	Event *ev
 	)
-
 {
 	SetRank( ev->GetInteger( 1 ), ev->GetInteger( 2 ) );
 }
@@ -1101,7 +1097,6 @@ void Weapon::SetAutoPutaway
 	(
 	Event *ev
 	)
-
 {
 	auto_putaway = ev->GetBoolean( 1 );
 }
@@ -1113,7 +1108,6 @@ void Weapon::SetUseNoAmmo
 	(
 	Event *ev
 	)
-
 {
 	use_no_ammo = ev->GetBoolean( 1 );
 }
@@ -1125,7 +1119,6 @@ void Weapon::SetStartAmmo
    (
    Event *ev
    )
-
 {
 	if( g_gametype->integer )
 		return;
@@ -1141,7 +1134,6 @@ void Weapon::SetDMStartAmmo
    (
    Event *ev
    )
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -1170,7 +1162,6 @@ void Weapon::SetMinChargeTime
 (
 Event *ev
 )
-
 {
 	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
 	min_charge_time[ firemodeindex ] = ev->GetFloat( 1 );
@@ -1183,7 +1174,6 @@ float Weapon::GetMinChargeTime
 	(
 	firemode_t mode
 	)
-
 {
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
 	return min_charge_time[ mode ];
@@ -1196,7 +1186,6 @@ float Weapon::GetMaxChargeTime
 	(
 	firemode_t mode
 	)
-
 {
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
 	return max_charge_time[ mode ];
@@ -1209,7 +1198,6 @@ void Weapon::SetAmmoRequired
    (
    Event *ev
    )
-
 {
 	if( g_gametype->integer )
 		return;
@@ -1225,7 +1213,6 @@ void Weapon::SetDMAmmoRequired
 (
 Event *ev
 )
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -1241,7 +1228,6 @@ int Weapon::GetStartAmmo
 	(
 	firemode_t mode
 	)
-
 {
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
 	return startammo[ mode ];
@@ -1254,7 +1240,6 @@ str Weapon::GetAmmoType
 (
 firemode_t mode
 )
-
 {
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
 
@@ -1290,7 +1275,6 @@ void Weapon::SetAmmoAmount
 	int amount,
 	firemode_t mode
 	)
-
 {
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
 
@@ -1308,7 +1292,6 @@ int Weapon::GetClipSize
 	(
 	firemode_t mode
 	)
-
 {
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
 
@@ -1331,7 +1314,6 @@ void Weapon::UseAmmo
 	int amount,
 	firemode_t mode
 	)
-
 {
 	mode = m_bShareClip ? FIRE_PRIMARY : mode;
 
@@ -1511,7 +1493,6 @@ void Weapon::GetMuzzlePosition
 	Vector *up,
 	Vector *vBarrelPos
 	)
-
 {
 	orientation_t	weap_or, barrel_or, orient;
 	//orientation_t	view_or;
@@ -1774,7 +1755,6 @@ void Weapon::SetShareClip
 	(
 	Event * ev
 	)
-
 {
 	m_bShareClip = qtrue;
 }
@@ -1786,7 +1766,6 @@ void Weapon::Shoot
 	(
 	Event *ev
 	)
-
 {
 	Vector			pos, forward, right, up, vBarrel, delta;
 	firemode_t		mode = FIRE_PRIMARY;
@@ -2195,7 +2174,6 @@ void Weapon::SetCantPartialReload
 	(
 	Event *ev
 	)
-
 {
 	if( g_gametype->integer )
 		return;
@@ -2210,7 +2188,6 @@ void Weapon::SetDMCantPartialReload
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -2225,7 +2202,6 @@ int Weapon::AmmoAvailable
 	(
 	firemode_t mode
 	)
-
 {
 	// Returns the amount of ammo the owner has that is available for use
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
@@ -2258,7 +2234,6 @@ qboolean Weapon::UnlimitedAmmo
 	(
 	firemode_t mode
 	)
-
 {
 	if( !owner )
 	{
@@ -2284,7 +2259,6 @@ qboolean Weapon::HasAmmo
 	(
 	firemode_t mode
 	)
-
 {
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
 
@@ -2320,7 +2294,6 @@ qboolean Weapon::HasAmmoInClip
 	(
 	firemode_t mode
 	)
-
 {
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
 
@@ -2352,7 +2325,6 @@ qboolean Weapon::IsSemiAuto
 	(
 	void
 	)
-
 {
 	return m_bSemiAuto;
 }
@@ -2364,7 +2336,6 @@ weaponstate_t Weapon::GetState
 	(
 	void
 	)
-
 {
 	return weaponstate;
 }
@@ -2376,7 +2347,6 @@ void Weapon::ForceState
 	(
 	weaponstate_t state
 	)
-
 {
 	weaponstate = state;
 }
@@ -2388,7 +2358,6 @@ qboolean Weapon::MuzzleClear
 	(
 	void
 	)
-
 {
 	return qtrue;
 }
@@ -2401,7 +2370,6 @@ qboolean Weapon::ReadyToFire
 	firemode_t mode,
 	qboolean   playsound
 	)
-
 {
 	if( m_iZoom && mode == FIRE_SECONDARY ) {
 		return qtrue;
@@ -2430,7 +2398,6 @@ void Weapon::PutAway
 	(
 	void
 	)
-
 {
 	// set the putaway flag to true, so the state machine know to put this weapon away
 	putaway = true;
@@ -2443,7 +2410,6 @@ void Weapon::DetachFromOwner
 	(
 	void
 	)
-
 {
 	DetachGun();
 	weaponstate = WEAPON_HOLSTERED;
@@ -2456,7 +2422,6 @@ void Weapon::AttachToOwner
 	(
 	weaponhand_t hand
 	)
-
 {
 	AttachGun( hand );
 	ForceIdle();
@@ -2469,7 +2434,6 @@ void Weapon::AttachToHolster
    (
    weaponhand_t hand
    )
-
 {
 	AttachGun( hand, qtrue );
 	SetWeaponAnim( "holster", EV_Weapon_Idle );
@@ -2482,7 +2446,6 @@ qboolean Weapon::Drop
 	(
 	void
 	)
-
 {
 	Vector temp;
 
@@ -2633,7 +2596,6 @@ void Weapon::Charge
 	(
 	firemode_t mode
 	)
-
 {
 }
 
@@ -2645,7 +2607,6 @@ void Weapon::ReleaseFire
 	firemode_t mode,
 	float      charge_time
 	)
-
 {
 	// Calculate and store off the charge fraction to use when the weapon actually shoots
 
@@ -2673,7 +2634,6 @@ void Weapon::Fire
 	(
 	firemode_t mode
 	)
-
 {
 	Event *done_event = NULL;
 	Vector pos;
@@ -2738,7 +2698,6 @@ void Weapon::DetachGun
 	(
 	void
 	)
-
 {
 	if( attached )
 	{
@@ -2762,7 +2721,6 @@ void Weapon::AttachGun
 	weaponhand_t   hand,
 	qboolean       holstering
 	)
-
 {
 	int tag_num;
 
@@ -2859,7 +2817,6 @@ void Weapon::GiveStartingAmmoToOwner
 	(
 	Event *ev
 	)
-
 {
 	str   ammotype;
 	int   mode;
@@ -2913,7 +2870,6 @@ void Weapon::PickupWeapon
 	(
 	Event *ev
 	)
-
 {
 	Sentient       *sen;
 	Entity         *other;
@@ -3048,7 +3004,6 @@ qboolean Weapon::IsSecondaryWeapon
 	(
 	void
 	)
-
 {
 	return ( weapon_class & WEAPON_CLASS_SECONDARY );
 }
@@ -3060,7 +3015,6 @@ void Weapon::ForceIdle
 	(
 	void
 	)
-
 {
 	SetWeaponIdleAnim();
 
@@ -3076,7 +3030,6 @@ qboolean Weapon::SetWeaponAnim
 	const char *anim,
 	Event *ev
 	)
-
 {
 	int animnum = gi.Anim_NumForName( edict->tiki, anim );
 
@@ -3121,7 +3074,6 @@ qboolean Weapon::SetWeaponAnim
 	const char *anim,
 	Event& ev
 	)
-
 {
 	Event *event = new Event( ev );
 
@@ -3135,7 +3087,6 @@ void Weapon::SetWeaponAnimEvent
 	(
 	Event *ev
 	)
-
 {
 	SetWeaponAnim( ev->GetString( 1 ) );
 }
@@ -3147,7 +3098,6 @@ void Weapon::SetWeaponIdleAnim
 	(
 	void
 	)
-
 {
 	if( ammo_clip_size[ FIRE_PRIMARY ] && !ammo_in_clip[ FIRE_PRIMARY ] )
 	{
@@ -3167,7 +3117,6 @@ void Weapon::SetWeaponIdleAnimEvent
 	(
 	Event *ev
 	)
-
 {
 	SetWeaponIdleAnim();
 }
@@ -3179,7 +3128,6 @@ void Weapon::StopWeaponAnim
 	(
 	void
 	)
-
 {
 	SetTime( m_iAnimSlot );
 	StopAnimating( m_iAnimSlot );
@@ -3200,7 +3148,6 @@ void Weapon::DoneRaising
 	(
 	Event *ev
 	)
-
 {
 	weaponstate = WEAPON_READY;
 	ForceIdle();
@@ -3231,7 +3178,6 @@ void Weapon::DoneFiring
 	(
 	Event *ev
 	)
-
 {
 	// This is called when the weapon's firing animation is done
 	ForceIdle();
@@ -3251,7 +3197,6 @@ void Weapon::DoneReloading
 	(
 	Event *ev
 	)
-
 {
    SetShouldReload( qfalse );
    weaponstate = WEAPON_READY;
@@ -3264,7 +3209,6 @@ qboolean Weapon::CheckReload
 	(
 	firemode_t mode
 	)
-
 {
 	// Check to see if the weapon needs to be reloaded
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
@@ -3287,7 +3231,6 @@ void Weapon::Idle
 	(
 	Event *ev
 	)
-
 {
 	ForceIdle();
 }
@@ -3299,7 +3242,6 @@ void Weapon::IdleInit
 	(
 	Event *ev
 	)
-
 {
 	for( int i = 7; i >= 0; i-- )
 	{
@@ -3400,7 +3342,6 @@ void Weapon::WeaponSound
 	(
 	Event *ev
 	)
-
 {
 	Event *e;
 
@@ -3508,7 +3449,6 @@ int Weapon::ClipAmmo
 	(
 	firemode_t mode
 	)
-
 {
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
 
@@ -3592,7 +3532,6 @@ void Weapon::SetFireType
 	(
 	Event *ev
 	)
-
 {
 	str ftype;
 
@@ -3644,7 +3583,6 @@ void Weapon::SetProjectile
 	(
 	Event *ev
 	)
-
 {
 	if( g_gametype->integer )
 		return;
@@ -3661,7 +3599,6 @@ void Weapon::SetDMProjectile
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -3691,7 +3628,6 @@ void Weapon::SetDMBulletDamage
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -3720,7 +3656,6 @@ void Weapon::SetDMBulletKnockback
 (
 Event *ev
 )
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -3736,7 +3671,6 @@ void Weapon::SetBulletRange
 	(
 	Event *ev
 	)
-
 {
 	if( g_gametype->integer )
 		return;
@@ -3752,7 +3686,6 @@ void Weapon::SetDMBulletRange
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -3768,7 +3701,6 @@ void Weapon::SetRange
 	(
 	Event *ev
 	)
-
 {
 	SetBulletRange( ev );
 }
@@ -3780,7 +3712,6 @@ void Weapon::SetBulletCount
 	(
 	Event *ev
 	)
-
 {
 	if( g_gametype->integer )
 		return;
@@ -3796,7 +3727,6 @@ void Weapon::SetDMBulletCount
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -3812,7 +3742,6 @@ void Weapon::SetBulletSpread
 	(
 	Event *ev
 	)
-
 {
 	if( g_gametype->integer )
 		return;
@@ -3835,7 +3764,6 @@ void Weapon::SetDMBulletSpread
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -3858,7 +3786,6 @@ void Weapon::SetZoomSpreadMult
 	(
 	Event *ev
 	)
-
 {
 	if( g_gametype->integer )
 		return;
@@ -3873,7 +3800,6 @@ void Weapon::SetDMZoomSpreadMult
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -3889,7 +3815,6 @@ void Weapon::SetFireSpreadMult
 	(
 	Event *ev
 	)
-
 {
 	if( g_gametype->integer )
 		return;
@@ -3908,7 +3833,6 @@ void Weapon::SetDMFireSpreadMult
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -3927,7 +3851,6 @@ void Weapon::SetTracerFrequency
 	(
 	Event *ev
 	)
-
 {
 	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
 	tracerfrequency[ firemodeindex ] = ev->GetInteger( 1 );
@@ -3940,7 +3863,6 @@ void Weapon::Secondary
 	(
 	Event *ev
 	)
-
 {
 	int i;
 
@@ -3976,7 +3898,6 @@ void Weapon::Crosshair
 	(
 	Event *ev
 	)
-
 {
 	crosshair = ev->GetBoolean( 1 );
 }
@@ -3988,7 +3909,6 @@ void Weapon::DMCrosshair
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -4003,7 +3923,6 @@ void Weapon::OffHandAttachToTag
 	(
 	Event *ev
 	)
-
 {
 	attachToTag_offhand = ev->GetString( 1 );
 }
@@ -4015,7 +3934,6 @@ void Weapon::MainAttachToTag
 	(
 	Event *ev
 	)
-
 {
 	attachToTag_main = ev->GetString( 1 );
 }
@@ -4027,7 +3945,6 @@ void Weapon::HolsterAttachToTag
 	(
 	Event *ev
 	)
-
 {
 	holster_attachToTag = ev->GetString( 1 );
 }
@@ -4039,7 +3956,6 @@ void Weapon::SetHolsterOffset
 	(
 	Event *ev
 	)
-
 {
 	holsterOffset = ev->GetVector( 1 );
 }
@@ -4051,7 +3967,6 @@ void Weapon::SetHolsterAngles
 	(
 	Event *ev
 	)
-
 {
 	holsterAngles = ev->GetVector( 1 );
 }
@@ -4075,7 +3990,6 @@ void Weapon::SetQuiet
 	(
 	Event *ev
 	)
-
 {
    quiet[ firemodeindex ] = true;
 }
@@ -4129,7 +4043,6 @@ meansOfDeath_t Weapon::GetMeansOfDeath
 	(
 	firemode_t mode
 	)
-
 {
 	assert( ( mode >= 0 ) && ( mode < MAX_FIREMODES ) );
 
@@ -4205,7 +4118,6 @@ void Weapon::WorldHitSpawn
 	Vector      angles,
 	float       life
 	)
-
 {
 
 }
@@ -4331,7 +4243,6 @@ float Weapon::FireDelay
 	(
 	firemode_t mode
 	)
-
 {
 	return firedelay[ mode ];
 }
@@ -4340,7 +4251,6 @@ void Weapon::EventSetFireDelay
 	(
 	Event *ev
 	)
-
 {
 	if( g_gametype->integer )
 		return;
@@ -4352,7 +4262,6 @@ void Weapon::EventSetDMFireDelay
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -4364,7 +4273,6 @@ void Weapon::MakeNoise
 	(
 	Event *ev
 	)
-
 {
 	float radius = 500;
 	qboolean force = false;
@@ -4386,7 +4294,6 @@ void Weapon::FallingAngleAdjust
 (
 Event *ev
 )
-
 {
 	Vector vTmp;
 	Vector vDir;
@@ -4481,7 +4388,6 @@ void Weapon::SetAIRange
 	(
 	Event *ev
 	)
-
 {
 	str s = ev->GetString( 1 );
 
@@ -4511,7 +4417,6 @@ void Weapon::SetViewKick
 	(
 	Event *ev
 	)
-
 {
 	float pitchmin, pitchmax;
 	float yawmin, yawmax;
@@ -4554,7 +4459,6 @@ void Weapon::SetMovementSpeed
 	(
 	Event *ev
 	)
-
 {
 	if( g_gametype->integer )
 		return;
@@ -4566,7 +4470,6 @@ void Weapon::SetDMMovementSpeed
 	(
 	Event *ev
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -4578,7 +4481,6 @@ void Weapon::EventAmmoPickupSound
 	(
 	Event *ev
 	)
-
 {
 	m_sAmmoPickupSound = ev->GetString( 1 );
 }
@@ -4587,7 +4489,6 @@ void Weapon::EventNoAmmoSound
 	(
 	Event *ev
 	)
-
 {
 	m_NoAmmoSound = ev->GetString( 1 );
 }
@@ -4596,7 +4497,6 @@ float Weapon::GetBulletRange
 	(
 	firemode_t mode
 	)
-
 {
 	return bulletrange[ mode ];
 }

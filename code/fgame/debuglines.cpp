@@ -45,7 +45,6 @@ void G_InitDebugLines
 	(
 	void
 	)
-
 {
 	if( g_numdebuglinedelays->integer <= 0 )
 	{
@@ -94,7 +93,6 @@ void G_InitDebugStrings
 	(
 	void
 	)
-
 {
 	*gi.DebugStrings = DebugStrings;
 	*gi.numDebugStrings = 0;
@@ -104,7 +102,6 @@ void G_AllocDebugLines
 	(
 	void
 	)
-
 {
 	// we do a malloc here so that we don't interfere with the game's memory footprint
 	DebugLines = ( debugline_t * )malloc( ( int )g_numdebuglines->integer * sizeof( debugline_t ) );
@@ -123,7 +120,6 @@ void G_AllocDebugStrings
 	(
 	void
 	)
-
 {
 	DebugStrings = ( debugstring_t * )malloc( ( int )g_numdebugstrings->integer * sizeof( debugstring_t ) );
 
@@ -134,7 +130,6 @@ void G_DeAllocDebugLines
 	(
 	void
 	)
-
 {
 	if( DebugLines )
 	{
@@ -150,7 +145,6 @@ void G_ShiftDebugLines
 	(
 	void
 	)
-
 {
 	int iNewPos;
 	int iOldPos;
@@ -170,7 +164,6 @@ void G_DeAllocDebugStrings
 	(
 	void
 	)
-
 {
 	if( DebugStrings )
 	{
@@ -191,7 +184,6 @@ void G_DebugLine
 	float b,
 	float alpha
 	)
-
 {
 	debugline_t *line;
 	static int printTime = 0;
@@ -453,7 +445,6 @@ void G_DrawDebugNumber
 	float b,
 	int precision
 	)
-
 {
 	int i;
 	int j;
@@ -732,7 +723,6 @@ void G_DrawCSystem
 	Vector up,
 	int length
 	)
-
 {
 	G_DebugLine( pos, pos + forward * length, 1.0, 0, 0, 1 );
 	G_DebugLine( pos, pos + right * length, 0, 1.0, 0, 1 );

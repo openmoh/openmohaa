@@ -245,7 +245,6 @@ float G_Random
 	(
 	void
 	)
-
 {
 	return ( ( float )( rand() & 0x7fff ) ) / ( ( float )0x8000 );
 }
@@ -264,7 +263,6 @@ float G_Random
 	(
 	float n
 	)
-
 {
 	return G_Random() * n;
 }
@@ -283,7 +281,6 @@ float G_CRandom
 	(
 	void
 	)
-
 {
 	return G_Random( 2 ) - 1;
 }
@@ -302,7 +299,6 @@ float G_CRandom
 	(
 	float n
 	)
-
 {
 	return G_CRandom() * n;
 }
@@ -378,7 +374,6 @@ void G_SetTrajectory
 gentity_t *ent,
 vec3_t org
 )
-
 {
 	ent->s.pos.trTime = 0;
 	VectorClear( ent->s.pos.trDelta );
@@ -402,7 +397,6 @@ float * blue,
 float * radius,
 int   * lightStyle
 )
-
 {
 	int ir, ig, ib, iradius;
 
@@ -653,7 +647,6 @@ Entity *G_NextEntity
 (
 Entity *ent
 )
-
 {
 	gentity_t *from;
 
@@ -861,7 +854,6 @@ qboolean KillBox
 (
 Entity *ent
 )
-
 {
 	int		   i;
 	int	   	num;
@@ -918,7 +910,6 @@ void G_TouchSolids
 (
 Entity *ent
 )
-
 {
 	int		i;
 	int		num;
@@ -955,7 +946,6 @@ void G_ShowSightTrace
 	gentity_t *passent2,
 	const char *reason
 	)
-
 {
 	str text;
 	str pass1;
@@ -1000,7 +990,6 @@ void G_ShowTrace
 	gentity_t *passent,
 	const char *reason
 	)
-
 {
 	str text;
 	str pass;
@@ -1049,7 +1038,6 @@ Vector &maxs,
 Vector *minbounds,
 Vector *maxbounds
 )
-
 {
 	Vector bmin;
 	Vector bmax;
@@ -1083,7 +1071,6 @@ int contentmask,
 qboolean cylinder,
 const char *reason
 )
-
 {
 	int entnum, entnum2;
 	bool result;
@@ -1137,7 +1124,6 @@ bool G_SightTrace
 	qboolean cylinder,
 	const char *reason
 	)
-
 {
 	gentity_t *ent, *ent2;
 	int entnum, entnum2;
@@ -1196,7 +1182,6 @@ trace_t G_Trace
 	const char *reason,
 	qboolean tracedeep
 	)
-
 {
 	int entnum;
 	trace_t trace;
@@ -1248,7 +1233,6 @@ trace_t G_Trace
 	const char *reason,
 	qboolean tracedeep
 	)
-
 {
 	gentity_t *ent;
 	int entnum;
@@ -1303,7 +1287,6 @@ void G_TraceEntities
 	int contentmask,
 	qboolean bIncludeTriggers
 	)
-
 {
 	trace_t trace;
 	vec3_t boxmins;
@@ -1355,7 +1338,6 @@ float PlayersRangeFromSpot
 	(
 	Entity *ent
 	)
-
 {
 	float bestplayerdistance = 9999999.0f;
 	Vector vDist;
@@ -1416,7 +1398,6 @@ Entity *startent,
 Vector org,
 float rad
 )
-
 {
 	Vector		eorg;
 	gentity_t	*from;
@@ -1485,7 +1466,6 @@ Entity *startent,
 Vector org,
 float rad
 )
-
 {
 	Vector	 eorg;
 	gentity_t *ed;
@@ -1586,7 +1566,6 @@ void G_DebugDamage
 	Entity *attacker,
 	Entity *inflictor
 	)
-
 {
 	gi.DPrintf( "Victim:%s Attacker:%s Inflictor:%s Damage:%f\n", victim->getClassname(), attacker->getClassname(), inflictor->getClassname(), damage );
 }
@@ -1602,7 +1581,6 @@ void G_DebugString
 	const char *pszText,
 	...
 	)
-
 {
 	debugstring_t *string;
 	va_list va;
@@ -1641,7 +1619,6 @@ void G_FadeOut
 	(
 	float delaytime
 	)
-
 {
 	// Fade the screen out
 	level.m_fade_color = Vector( 0, 0, 0 );
@@ -1656,7 +1633,6 @@ void G_AutoFadeIn
 (
 void
 )
-
 {
 	level.m_fade_time_start = 1;
 	level.m_fade_time = 1;
@@ -1672,7 +1648,6 @@ void G_ClearFade
 (
 void
 )
-
 {
 	level.m_fade_time = -1;
 	level.m_fade_type = fadein;
@@ -1694,7 +1669,6 @@ void G_MissionFailed
 (
 void
 )
-
 {
 	// Make the music system play the failure music for this level
 	ChangeMusic( "failure", "normal", true );
@@ -1711,7 +1685,6 @@ void G_StartCinematic
 (
 void
 )
-
 {
 	level.cinematic = true;
 	gi.Cvar_Set( "sv_cinematic", "1" );
@@ -1721,7 +1694,6 @@ void G_StopCinematic
 	(
 	void
 	)
-
 {
 	// clear out the skip thread
 	level.cinematic = false;
@@ -2030,7 +2002,6 @@ int G_AIEventTypeFromString
 	(
 	const char *pszType
 	)
-
 {
 	if( !Q_stricmp( pszType, "weapon_fire" ) )
 		return AI_EVENT_WEAPON_FIRE;
@@ -2062,7 +2033,6 @@ float G_AIEventRadius
 	(
 	int iType
 	)
-
 {
 	static float fRadius[] =
 	{
@@ -2100,7 +2070,6 @@ void G_BroadcastAIEvent
 	Vector origin,
 	char *pszType
 	)
-
 {
 	G_BroadcastAIEvent( originator, origin, G_AIEventTypeFromString( pszType ), -1.0f );
 }
@@ -2112,7 +2081,6 @@ void G_BroadcastAIEvent
 	int iType,
 	float radius
 	)
-
 {
 	Sentient *ent;
 	Vector delta;
@@ -2195,7 +2163,6 @@ void CloneEntity
 	Entity *dest,
 	Entity *src
 	)
-
 {
 	int     i, num;
 
@@ -2241,7 +2208,6 @@ weaponhand_t WeaponHandNameToNum
 	(
 	str side
 	)
-
 {
 	if( !side.length() )
 	{
@@ -2267,7 +2233,6 @@ const char *WeaponHandNumToName
 (
 weaponhand_t hand
 )
-
 {
 	switch( hand )
 	{
@@ -2284,7 +2249,6 @@ firemode_t WeaponModeNameToNum
 (
 str mode
 )
-
 {
 	if( !mode.length() )
 	{
@@ -2456,7 +2420,6 @@ void G_ArchiveEdict
 Archiver &arc,
 gentity_t *edict
 )
-
 {
 	int    i;
 	str    tempStr;
@@ -2641,7 +2604,6 @@ str G_WeaponClassNumToName
 	(
 	int num
 	)
-
 {
 	if( num & WEAPON_CLASS_PISTOL )
 	{
@@ -2702,7 +2664,6 @@ int G_WeaponClassNameToNum
 	(
 	str name
 	)
-
 {
 	int weaponindex = 0;
 
@@ -2773,7 +2734,6 @@ void G_MoveClientToIntermission
 	(
 	Entity *ent
 	)
-
 {
 	G_DisplayScores( ent );
 	ent->flags |= FL_IMMOBILE;
@@ -2783,7 +2743,6 @@ void G_DisplayScores
 	(
 	Entity *ent
 	)
-
 {
 	ent->client->ps.pm_flags |= PMF_INTERMISSION;
 }
@@ -2792,7 +2751,6 @@ void G_HideScores
 	(
 	Entity *ent
 	)
-
 {
 	ent->client->ps.pm_flags &= ~PMF_INTERMISSION;
 }
@@ -2801,7 +2759,6 @@ void G_DisplayScoresToAllClients
 	(
 	void
 	)
-
 {
 	gentity_t *ent;
 	int i;
@@ -2820,7 +2777,6 @@ void G_HideScoresToAllClients
 	(
 	void
 	)
-
 {
 	gentity_t *ent;
 	int i;

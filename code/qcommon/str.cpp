@@ -377,7 +377,6 @@ str& str::operator-=
 	(
 	int c
 	)
-
 {
 	if( !m_data )
 	{
@@ -429,7 +428,6 @@ void str::EnsureDataWritable
 	(
 	void
 	)
-
 {
 	strdata *olddata;
 	size_t len;
@@ -457,7 +455,6 @@ void str::EnsureAlloced
 	size_t amount,
 	bool keepold
 	)
-
 {
 	if( !m_data )
 	{

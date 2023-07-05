@@ -59,7 +59,6 @@ void cVehicleSlot::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Class::Archive( arc );
 
@@ -90,7 +89,6 @@ void cTurretSlot::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	cVehicleSlot::Archive( arc );
 

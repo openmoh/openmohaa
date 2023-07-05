@@ -37,7 +37,6 @@ void cVehicleSlot::NotSolid
 	(
 	void
 	)
-
 {
 	if( !( flags & FL_SWIM ) )
 	{
@@ -62,7 +61,6 @@ void cVehicleSlot::Solid
 	(
 	void
 	)
-
 {
 	if( !( flags & FL_SWIM ) )
 	{
@@ -96,7 +94,6 @@ void cTurretSlot::NotSolid
 	(
 	void
 	)
-
 {
 	if( !( flags & FL_SWIM ) )
 	{
@@ -131,7 +128,6 @@ void cTurretSlot::Solid
 	(
 	void
 	)
-
 {
 	if( !( flags & FL_SWIM ) )
 	{

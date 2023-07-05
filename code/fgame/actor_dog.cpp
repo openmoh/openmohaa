@@ -28,7 +28,6 @@ void Actor::InitDogIdle
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState					= &Actor::Begin_Dog;
 	func->EndState						= &Actor::End_Dog;
@@ -41,7 +40,6 @@ void Actor::InitDogAttack
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState					= &Actor::Begin_Dog;
 	func->EndState						= &Actor::End_Dog;
@@ -54,7 +52,6 @@ void Actor::InitDogCurious
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState					= &Actor::Begin_Dog;
 	func->EndState						= &Actor::End_Dog;
@@ -67,7 +64,6 @@ void Actor::Begin_Dog
 	(
 	void
 	)
-
 {
 	m_bDog = true;
 }
@@ -76,7 +72,6 @@ void Actor::End_Dog
 	(
 	void
 	)
-
 {
 	;
 }
@@ -85,7 +80,6 @@ void Actor::Think_Dog_Idle
 	(
 	void
 	)
-
 {
 	if( !RequireThink() )
 	{
@@ -105,7 +99,6 @@ void Actor::Think_Dog_Attack
 	(
 	void
 	)
-
 {
 	if (!RequireThink())
 	{
@@ -177,7 +170,6 @@ void Actor::Think_Dog_Curious
 	(
 	void
 	)
-
 {
 	if (RequireThink())
 	{

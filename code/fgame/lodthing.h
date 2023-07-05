@@ -41,7 +41,6 @@ inline void LODMaster::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Listener::Archive( arc );
 
@@ -69,7 +68,6 @@ inline void LODSlave::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Animate::Archive( arc );
 

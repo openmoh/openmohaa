@@ -143,7 +143,6 @@ inline void Projectile::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	Animate::Archive( arc );
 
@@ -217,7 +216,6 @@ inline void Explosion::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	Projectile::Archive( arc );
 

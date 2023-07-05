@@ -456,7 +456,6 @@ void Item::PlaceItem
 	(
 	void
 	)
-
 {
 	setSolidType( SOLID_TRIGGER );
 	setMoveType( MOVETYPE_TOSS );
@@ -478,7 +477,6 @@ void Item::DropToFloor
 	(
 	Event *ev
 	)
-
 {
 	str fullname;
 	Vector save;
@@ -515,7 +513,6 @@ qboolean Item::Drop
 	(
 	void
 	)
-
 {
 	if( !owner )
 	{
@@ -578,7 +575,6 @@ void Item::SetOwner
 	(
 	Sentient *ent
 	)
-
 {
 	assert( ent );
 	if( !ent )
@@ -606,7 +602,6 @@ Sentient *Item::GetOwner
 	(
 	void
 	)
-
 {
 	return owner;
 }
@@ -615,7 +610,6 @@ void Item::Delete
 	(
 	void
 	)
-
 {
 	if( g_iInThinks )
 	{
@@ -634,7 +628,6 @@ void Item::RemoveFromOwner
 	(
 	void
 	)
-
 {
 	owner->RemoveItem( this );
 	owner = NULL;
@@ -645,7 +638,6 @@ Item * Item::ItemPickup
 	Entity *other,
 	qboolean add_to_inventory
 	)
-
 {
 	Sentient * sent;
 	Item * item = NULL;
@@ -723,7 +715,6 @@ void Item::Respawn
 	(
 	Event *ev
 	)
-
 {
 	showModel();
 
@@ -793,7 +784,6 @@ void Item::setRespawn
 	(
 	qboolean flag
 	)
-
 {
 	respawnable = flag;
 }
@@ -811,7 +801,6 @@ void Item::setRespawnTime
 	(
 	float time
 	)
-
 {
 	respawntime = time;
 }
@@ -847,7 +836,6 @@ qboolean Item::Pickupable
 	(
 	Entity *other
 	)
-
 {
 	if( !other->IsSubclassOfSentient() )
 	{
@@ -875,7 +863,6 @@ void Item::Pickup
 	(
 	Event * ev
 	)
-
 {
 	ItemPickup( ev->GetEntity( 1 ) );
 }
@@ -884,7 +871,6 @@ void Item::setName
    (
    const char *i
    )
-
 {
 	const char *prefix;
 
@@ -944,7 +930,6 @@ void Item::SetAmountEvent
 (
 	Event *ev
 )
-
 {
 	setAmount( ev->GetInteger( 1 ) );
 }
@@ -953,7 +938,6 @@ void Item::SetDMAmountEvent
 (
 	Event *ev
 )
-
 {
 	if (!g_gametype->integer)
 		return;
@@ -1083,7 +1067,6 @@ void Item::CoolItemEvent
 	(
 	Event *ev
 	)
-
 {
 
 }
@@ -1092,7 +1075,6 @@ void Item::ForceCoolItemEvent
 	(
 	Event *ev
 	)
-
 {
 
 }
@@ -1101,7 +1083,6 @@ void Item::SetPickupSound
 	(
 	Event *ev
 	)
-
 {
 	sPickupSound = ev->GetString( 1 );
 }
@@ -1110,7 +1091,6 @@ void Item::EventViewModelPrefix
 	(
 	Event *ev
 	)
-
 {
 	int i;
 	gentity_t *ent;
@@ -1139,7 +1119,6 @@ void Item::updatePrefix
 	(
 	Event *ev
 	)
-
 {
 	if( !level.reborn ) {
 		return;

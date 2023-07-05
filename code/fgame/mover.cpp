@@ -55,7 +55,6 @@ void Mover::MoveDone
 	(
 	Event *ev
 	)
-
 {
 	Event * event;
 	Vector move;
@@ -237,7 +236,6 @@ void Mover::LinearInterpolate
 	float time,
 	Event &event
 	)
-
 {
 	Vector vdestdelta;
 	Vector angdestdelta;

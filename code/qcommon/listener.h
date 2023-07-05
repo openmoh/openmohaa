@@ -176,7 +176,6 @@ inline int EventArgDef::getType
 (
 void
 )
-
 {
 	return type;
 }
@@ -185,7 +184,6 @@ inline const char *EventArgDef::getName
 (
 void
 )
-
 {
 	return name.c_str();
 }
@@ -194,7 +192,6 @@ inline qboolean EventArgDef::isOptional
 (
 void
 )
-
 {
 	return optional;
 }

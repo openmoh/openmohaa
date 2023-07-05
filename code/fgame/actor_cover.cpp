@@ -28,7 +28,6 @@ void Actor::InitCover
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_Cover;
 	func->BeginState					= &Actor::Begin_Cover;
@@ -44,7 +43,6 @@ void Actor::Begin_Cover
 	(
 	void
 	)
-
 {
 	DoForceActivate();
 	m_csIdleMood = STRING_NERVOUS;
@@ -74,7 +72,6 @@ void Actor::End_Cover
 	(
 	void
 	)
-
 {
 	m_pszDebugState = "";
 
@@ -91,7 +88,6 @@ void Actor::Suspend_Cover
 	(
 	void
 	)
-
 {
 	if( m_pCoverNode )
 	{
@@ -107,7 +103,6 @@ void Actor::State_Cover_NewEnemy
 	(
 	void
 	)
-
 {
 	m_bHasDesiredLookAngles = true;
 
@@ -130,7 +125,6 @@ void Actor::State_Cover_FindCover
 	(
 	void
 	)
-
 {
 	Anim_Aim();
 	AimAtTargetPos();
@@ -161,7 +155,6 @@ void Actor::State_Cover_TakeCover
 	(
 	void
 	)
-
 {
 	if( PathExists() && !PathComplete() )
 	{
@@ -194,7 +187,6 @@ void Actor::State_Cover_FinishReloading
 	(
 	void
 	)
-
 {
 	if( m_bInReload )
 	{
@@ -238,7 +230,6 @@ void Actor::State_Cover_Target
 	(
 	void
 	)
-
 {
 	DontFaceWall();
 
@@ -279,7 +270,6 @@ void Actor::State_Cover_Hide
 (
 	void
 )
-
 {
 	if (m_Enemy)
 	{
@@ -456,7 +446,6 @@ void Actor::State_Cover_Shoot
 (
 	void
 )
-
 {
 	if (m_bNeedReload)
 	{
@@ -486,7 +475,6 @@ void Actor::State_Cover_Grenade
 	(
 	void
 	)
-
 {
 	GenericGrenadeTossThink();
 }
@@ -495,7 +483,6 @@ void Actor::State_Cover_SpecialAttack
 	(
 	void
 	)
-
 {
 	m_bHasDesiredLookAngles = false;
 
@@ -543,7 +530,6 @@ void Actor::State_Cover_FindEnemy
 	(
 	void
 	)
-
 {
 	if( m_Team == TEAM_AMERICAN )
 	{
@@ -590,7 +576,6 @@ void Actor::State_Cover_SearchNode
 	(
 	void
 	)
-
 {
 	m_bHasDesiredLookAngles = false;
 
@@ -623,7 +608,6 @@ void Actor::State_Cover_HuntEnemy
 	(
 	void
 	)
-
 {
 	FaceEnemyOrMotion( level.inttime - m_iStateTime );
 	MovePathWithLeash();
@@ -651,7 +635,6 @@ void Actor::State_Cover_FakeEnemy
 	(
 	void
 	)
-
 {
 	AimAtTargetPos();
 	Anim_Aim();
@@ -666,7 +649,6 @@ void Actor::Think_Cover
 	(
 	void
 	)
-
 {
 	if( !RequireThink() )
 	{
@@ -776,7 +758,6 @@ void Actor::FinishedAnimation_Cover
 	(
 	void
 	)
-
 {
 	if( m_State == 309 )
 	{
@@ -799,7 +780,6 @@ void Actor::PathnodeClaimRevoked_Cover
 	(
 	void
 	)
-
 {
 	TransitionState(301, 0);
 }
@@ -808,7 +788,6 @@ bool Actor::Cover_IsValid
 	(
 	PathNode *node
 	)
-
 {
 	if( !node->IsClaimedByOther( this ) )
 	{
@@ -845,7 +824,6 @@ bool Actor::Cover_SetPath
 	(
 	PathNode *node
 	)
-
 {
 	SetPathWithLeash( node, NULL, 0 );
 
@@ -912,7 +890,6 @@ void Actor::Cover_FindCover
 	(
 	bool bCheckAll
 	)
-
 {
 
 	if( m_pCoverNode )

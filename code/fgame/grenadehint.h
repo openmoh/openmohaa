@@ -48,7 +48,6 @@ inline void GrenadeHint::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	SimpleEntity::Archive( arc );
 

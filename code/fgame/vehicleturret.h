@@ -100,7 +100,6 @@ inline void VehicleTurretGun::Archive
 	(
 	Archiver& arc
 	)
-
 {
 
 }

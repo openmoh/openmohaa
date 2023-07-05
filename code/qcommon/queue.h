@@ -68,7 +68,6 @@ qboolean Queue<T>::Empty
 	(
 	void
 	)
-
 {
 	if (head == NULL)
 	{
@@ -85,7 +84,6 @@ void Queue<T>::Enqueue
 	(
 	T data
 	)
-
 {
 	QueueNode<T> *tmp;
 
@@ -113,7 +111,6 @@ T Queue<T>::Dequeue
 	(
 	void
 	)
-
 {
 	T ptr;
 	QueueNode<T> *node;
@@ -144,7 +141,6 @@ void Queue<T>::Clear
 	(
 	void
 	)
-
 {
 	while (!Empty())
 	{
@@ -170,7 +166,6 @@ void Queue<T>::Remove
 	(
 	T data
 	)
-
 {
 	QueueNode<T> *node;
 	QueueNode<T> *prev;
@@ -228,7 +223,6 @@ qboolean Queue<T>::Inqueue
 	(
 	T data
 	)
-
 {
 	QueueNode<T> *node;
 

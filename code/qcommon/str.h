@@ -211,7 +211,6 @@ inline str::str
 	(
 	const char *text
 	) : m_data( NULL )
-
 {
 	size_t len;
 
@@ -233,7 +232,6 @@ inline str::str
 	(
 	const str& text
 	) : m_data( NULL )
-
 {
 	if( text.m_data )
 		text.m_data->AddRef();
@@ -250,7 +248,6 @@ inline str::str
 	size_t start,
 	size_t end
 ) : m_data(NULL)
-
 {
 	size_t i;
 	size_t len;
@@ -365,7 +362,6 @@ inline void str::append
 	(
 	const char *text
 	)
-
 {
 	size_t len;
 
@@ -386,7 +382,6 @@ inline void str::append
 	(
 	const str& text
 	)
-
 {
 	size_t len;
 
@@ -433,7 +428,6 @@ inline void str::operator=
 	(
 	const str& text
 	)
-
 {
 	// adding the reference before deleting our current reference prevents
 	// us from deleting our string if we are copying from ourself
@@ -450,7 +444,6 @@ inline void str::operator=
 	(
 	const char *text
 	)
-
 {
 	size_t len;
 
@@ -779,7 +772,6 @@ inline str::operator const char *
 	(
 	void
 	) const
-
 {
 	return c_str();
 }

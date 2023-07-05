@@ -119,7 +119,6 @@ void AI_AddNode
 	(
 	PathNode *node
 	)
-
 {
 	int i = PathSearch::nodecount;
 
@@ -147,7 +146,6 @@ qboolean CheckMove
 	short int *path_fallheight,
 	float size
 	)
-
 {
 	mmove_t mm;
 	int i;
@@ -348,7 +346,6 @@ void PathNode::Claim
 	(
 	Entity *pClaimer
 	)
-
 {
 	pLastClaimer = pClaimer;
 	iAvailableTime = 0;
@@ -358,7 +355,6 @@ const_str PathNode::GetSpecialAttack
 	(
 	Actor *pActor
 	)
-
 {
 	int iSpecialAttack;
 	const_str csAnimation;
@@ -446,7 +442,6 @@ Entity *PathNode::GetClaimHolder
 	(
 	void
 	) const
-
 {
 	if( iAvailableTime )
 		return NULL;
@@ -458,7 +453,6 @@ bool PathNode::IsClaimedByOther
 	(
 	Entity *pPossibleClaimer
 	) const
-
 {
 	if( pLastClaimer == pPossibleClaimer )
 		return false;
@@ -477,7 +471,6 @@ qboolean PathNode::IsTouching
 	(
 	Entity *e1
 	)
-
 {
 	return e1->absmin[ 0 ] <= origin[ 0 ] + 15.5f &&
 		e1->absmin[ 1 ] <= origin[ 1 ] + 15.5f &&
@@ -491,7 +484,6 @@ void PathNode::SetNodeFlags
 	(
 	Event *ev
 	)
-
 {
 	nodeflags = ev->GetInteger( 1 );
 }
@@ -500,7 +492,6 @@ void PathNode::IsTouching
 	(
 	Event *ev
 	)
-
 {
 	Entity *ent = ev->GetEntity( 1 );
 
@@ -516,7 +507,6 @@ void PathNode::Remove
 	(
 	Event *ev
 	)
-
 {
 	// Pathnodes mustn't be removed
 	ScriptError( "Not allowed to delete a path node" );
@@ -526,7 +516,6 @@ void PathNode::setOriginEvent
 	(
 	Vector org
 	)
-
 {
 	if( !PathManager.m_bNodesloaded )
 	{
@@ -539,7 +528,6 @@ void PathNode::Archive
 	(
 	Archiver &arc
 	)
-
 {
 }
 
@@ -547,7 +535,6 @@ void PathNode::ArchiveDynamic
 	(
 	Archiver &arc
 	)
-
 {
 	SimpleEntity::SimpleArchive( arc );
 
@@ -575,7 +562,6 @@ void PathNode::ArchiveStatic
 	(
 	Archiver &arc
 	)
-
 {
 	arc.ArchiveVector( &origin );
 	arc.ArchiveVector( &centroid );
@@ -608,7 +594,6 @@ void PathNode::ConnectChild
 	(
 	int i
 	)
-
 {
 	int j;
 	pathway_t child = Child[ i ];
@@ -626,7 +611,6 @@ void PathNode::DisconnectChild
 	(
 	int i
 	)
-
 {
 	int j;
 	pathway_t child = Child[ i ];
@@ -644,7 +628,6 @@ void PathNode::ConnectTo
 	(
 	PathNode *node
 	)
-
 {
 	Child[ virtualNumChildren ].node = nodenum;
 	Child[ virtualNumChildren ].numBlockers = 0;
@@ -656,7 +639,6 @@ bool PathNode::CheckPathTo
 	(
 	PathNode *node
 	)
-
 {
 
 	if( virtualNumChildren < NUM_PATHSPERNODE )
@@ -677,7 +659,6 @@ void PathNode::CheckPathToDefault
 	PathNode *node,
 	pathway_t *pathway
 	)
-
 {
 	float dist;
 	float delta[ 2 ];
@@ -740,7 +721,6 @@ void PathNode::MarkTemporarilyBad
 	(
 	void
 	)
-
 {
 	iAvailableTime = level.inttime + 5000;
 	pLastClaimer = NULL;
@@ -750,7 +730,6 @@ void PathNode::Relinquish
 	(
 	void
 	)
-
 {
 	iAvailableTime = level.inttime + 4000;
 }
@@ -759,7 +738,6 @@ void PathNode::DrawConnections
 	(
 	void
 	)
-
 {
 	int i;
 	pathway_t *path;
@@ -778,7 +756,6 @@ static bool IsValidPathnode
 	(
 	int spawnflags
 	)
-
 {
 	if( ( spawnflags & AI_DUCK ) && ( spawnflags & AI_COVERFLAGS2 ) )
 		return false;
@@ -806,7 +783,6 @@ static void GetPathnodeColor
 	int spawnflags,
 	vec3_t color
 	)
-
 {
 	if( IsValidPathnode( spawnflags ) )
 	{
@@ -853,7 +829,6 @@ void DrawNode
 	(
 	int iNodeCount
 	)
-
 {
 	Vector down;
 	Vector up;
@@ -956,7 +931,6 @@ void DrawAllConnections
 	(
 	void
 	)
-
 {
 	pathway_t   *path;
 	pathway_t   *path2;
@@ -1087,7 +1061,6 @@ qboolean MapCell::AddNode
 	(
 	PathNode *node
 	)
-
 {
 	nodes[ numnodes ] = ( short )node->nodenum;
 	numnodes++;
@@ -1099,7 +1072,6 @@ int MapCell::NumNodes
 	(
 	void
 	)
-
 {
 	return numnodes;
 }
@@ -1174,7 +1146,6 @@ void PathSearch::AddToGrid
 	int x,
 	int y
 	)
-
 {
 	MapCell *cell;
 
@@ -1196,7 +1167,6 @@ int PathSearch::NodeCoordinate
 	(
 	float coord
 	)
-
 {
 	float c;
 
@@ -1214,7 +1184,6 @@ int PathSearch::GridCoordinate
 	(
 	float coord
 	)
-
 {
 	float c;
 
@@ -1232,7 +1201,6 @@ void PathSearch::AddNode
 	(
 	PathNode *node
 	)
-
 {
 	int x;
 	int y;
@@ -1253,7 +1221,6 @@ void PathSearch::LoadAddToGrid
 	int x,
 	int y
 	)
-
 {
 	MapCell *cell;
 
@@ -1272,7 +1239,6 @@ void PathSearch::LoadAddToGrid2
 	int x,
 	int y
 	)
-
 {
 	MapCell *cell;
 
@@ -1290,7 +1256,6 @@ MapCell *PathSearch::GetNodesInCell
 	int x,
 	int y
 	)
-
 {
 	if( ( x < 0 ) || ( x >= PATHMAP_GRIDSIZE ) || ( y < 0 ) || ( y >= PATHMAP_GRIDSIZE ) )
 	{
@@ -1304,7 +1269,6 @@ MapCell *PathSearch::GetNodesInCell
 	(
 	float *pos
 	)
-
 {
 	int x;
 	int y;
@@ -1321,7 +1285,6 @@ PathNode *PathSearch::DebugNearestStartNode
 	float *pos,
 	Entity *ent
 	)
-
 {
 	PathNode *node = NULL;
 	int i;
@@ -1379,7 +1342,6 @@ PathNode *PathSearch::NearestStartNode
 	float *pos,
 	SimpleActor *ent
 	)
-
 {
 	PathNode *node = NULL;
 	int i;
@@ -1458,7 +1420,6 @@ PathNode *PathSearch::NearestEndNode
 	(
 	float *pos
 	)
-
 {
 	PathNode *node = NULL;
 	int i;
@@ -1518,7 +1479,6 @@ int PathSearch::DebugNearestNodeList
 	PathNode **nodelist,
 	int iMaxNodes
 	)
-
 {
 	PathNode *node;
 	int i;
@@ -1586,7 +1546,6 @@ int PathSearch::DebugNearestNodeList2
 	PathNode **nodelist,
 	int iMaxNodes
 	)
-
 {
 	vec3_t delta;
 	PathNode *node;
@@ -1636,7 +1595,6 @@ void PathSearch::ArchiveStaticLoad
 	(
 	Archiver& arc
 	)
-
 {
 	int i;
 	PathNode *node;
@@ -1720,7 +1678,6 @@ void PathSearch::ArchiveStaticSave
 	(
 	Archiver& arc
 	)
-
 {
 	int i;
 	PathNode *node;
@@ -1759,7 +1716,6 @@ void PathSearch::ArchiveLoadNodes
 	(
 	void
 	)
-
 {
 	Archiver arc;
 	qboolean success;
@@ -1807,7 +1763,6 @@ qboolean PathSearch::ArchiveSaveNodes
 	(
 	void
 	)
-
 {
 	Archiver arc;
 	str		maptime;
@@ -1829,7 +1784,6 @@ void PathSearch::Connect
 	(
 	PathNode *node
 	)
-
 {
 	int x;
 	int y;
@@ -1873,7 +1827,6 @@ bool PathSearch::Connect
 	int x,
 	int y
 	)
-
 {
 	MapCell *cell;
 	int i;
@@ -1910,7 +1863,6 @@ void PathSearch::ShowNodes
 	(
 	void
 	)
-
 {
 	if( g_entities->client )
 	{
@@ -1979,7 +1931,6 @@ void PathSearch::LoadNodes
 	(
 	void
 	)
-
 {
 	ai_showroutes				= gi.Cvar_Get( "ai_showroutes", "0", 0 );
 	ai_showroutes_distance		= gi.Cvar_Get( "ai_showroutes_distance", "1000", 0 );
@@ -1999,7 +1950,6 @@ void PathSearch::CreatePaths
 	(
 	void
 	)
-
 {
 	int i;
 	int j;
@@ -2136,7 +2086,6 @@ void *PathSearch::AllocPathNode
 	(
 	void
 	)
-
 {
 	if( bulkNavMemory && !m_bNodesloaded )
 	{
@@ -2153,7 +2102,6 @@ void PathSearch::FreePathNode
 	(
 	void *ptr
 	)
-
 {
 	if( !bulkNavMemory || m_bNodesloaded )
 	{
@@ -2165,7 +2113,6 @@ void PathSearch::ResetNodes
 	(
 	void
 	)
-
 {
 	int i;
 	int x;
@@ -2222,7 +2169,6 @@ PathInfo *PathSearch::GeneratePath
 	(
 	PathInfo *path
 	)
-
 {
 	PathNode *ParentNode;
 	pathway_t *pathway;
@@ -2312,7 +2258,6 @@ PathInfo *PathSearch::GeneratePathNear
 	(
 	PathInfo *path
 	)
-
 {
 	PathInfo *current_path = path;
 	pathway_t *pathway;
@@ -2382,7 +2327,6 @@ PathInfo *PathSearch::GeneratePathAway
 	(
 	PathInfo *path
 	)
-
 {
 	PathInfo *current_path = path;
 	pathway_t *pathway;
@@ -2449,7 +2393,6 @@ PathNode *PathSearch::GetSpawnNode
 	(
 	ClassDef *cls
 	)
-
 {
 	if( m_bNodesloaded )
 	{
@@ -2472,7 +2415,6 @@ int PathSearch::FindPath
 	float fLeashDistSquared,
 	int fallheight
 	)
-
 {
 	int i;
 	int g;
@@ -2674,7 +2616,6 @@ int PathSearch::FindPathAway
 	float fLeashDistSquared,
 	int fallheight
 	)
-
 {
 	int i;
 	int g;
@@ -2862,7 +2803,6 @@ int PathSearch::FindPathNear
 	float fLeashDistSquared,
 	int fallheight
 	)
-
 {
 	int i;
 	int g;
@@ -3058,7 +2998,6 @@ PathNode *PathSearch::FindCornerNodeForWall
 	float maxPath,
 	float *plane
 	)
-
 {
 	PathNode *ParentNode;
 	PathNode *OpenNode;
@@ -3256,7 +3195,6 @@ PathNode *PathSearch::FindCornerNodeForExactPath
 	Sentient *enemy,
 	float fMaxPath
 	)
-
 {
 	PathNode *pPathNode[4096];
 
@@ -3330,7 +3268,6 @@ int PathSearch::FindPotentialCover
 	PathNode **ppFoundNodes,
 	int iMaxFind
 	)
-
 {
 	Actor *pSelf = (Actor *)pEnt;
 	PathNode *pNode;
@@ -3387,7 +3324,6 @@ void PathSearch::PlayerCover
 	(
 	Player *pPlayer
 	)
-
 {
 	int i;
 	PathNode *node;
@@ -3431,7 +3367,6 @@ PathNode *PathSearch::FindNearestCover
 	Vector& vPos,
 	Entity *pEnemy
 	)
-
 {
 	// not found in ida
 	return NULL;
@@ -3443,7 +3378,6 @@ PathNode *PathSearch::FindNearestSniperNode
 	Vector& vPos,
 	Entity *pEnemy
 	)
-
 {
 	Actor *pSelf = (Actor *)pEnt;
 	PathNode *pNode;
@@ -3506,7 +3440,6 @@ int PathSearch::NearestNodeSetup
 	int *nodes,
 	vec3_t *deltas
 	)
-
 {
 	vec3_t delta;
 	PathNode *node;
@@ -3558,7 +3491,6 @@ void PathSearch::Init
 	(
 	void
 	)
-
 {
 	ai_showroutes				= gi.Cvar_Get( "ai_showroutes", "0", 0 );
 	ai_showroutes_distance		= gi.Cvar_Get( "ai_showroutes_distance", "1000", 0 );
@@ -3723,7 +3655,6 @@ bool AttractiveNode::CheckTeam
 	(
 	Sentient *sent
 	)
-
 {
 	if( !m_iTeam )
 	{
@@ -3759,7 +3690,6 @@ void AttractiveNode::setMaxDist
 	(
 	float dist
 	)
-
 {
 	m_fMaxDistance = dist;
 
@@ -3777,7 +3707,6 @@ void AttractiveNode::GetPriority
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( m_iPriority );
 }
@@ -3786,7 +3715,6 @@ void AttractiveNode::SetPriority
 	(
 	Event *ev
 	)
-
 {
 	m_iPriority = ev->GetInteger( 1 );
 }
@@ -3795,7 +3723,6 @@ void AttractiveNode::GetDistance
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( m_fMaxDistance );
 }
@@ -3804,7 +3731,6 @@ void AttractiveNode::SetDistance
 	(
 	Event *ev
 	)
-
 {
 	setMaxDist( ev->GetFloat( 1 ) );
 }
@@ -3813,7 +3739,6 @@ void AttractiveNode::GetStayTime
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( m_fMaxStayTime );
 }
@@ -3822,7 +3747,6 @@ void AttractiveNode::SetStayTime
 	(
 	Event *ev
 	)
-
 {
 	m_fMaxStayTime = ev->GetFloat( 1 );
 }
@@ -3831,7 +3755,6 @@ void AttractiveNode::GetRespawnTime
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( m_fRespawnTime );
 }
@@ -3840,7 +3763,6 @@ void AttractiveNode::SetRespawnTime
 	(
 	Event *ev
 	)
-
 {
 	m_fRespawnTime = ev->GetFloat( 1 );
 	if( m_fRespawnTime < 1.0f )
@@ -3853,7 +3775,6 @@ void AttractiveNode::GetTeam
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString( m_csTeam );
 }
@@ -3862,7 +3783,6 @@ void AttractiveNode::SetTeam
 	(
 	Event *ev
 	)
-
 {
 	if( ev->IsNilAt( 1 ) )
 	{
@@ -3902,7 +3822,6 @@ void AttractiveNode::SetUse
 	(
 	Event *ev
 	)
-
 {
 	m_bUse = ev->GetBoolean( 1 );
 }

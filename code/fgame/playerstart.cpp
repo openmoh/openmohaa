@@ -94,7 +94,6 @@ void PlayerStart::SetAngle
    (
    Event *ev
    )
-
 {
 	angles = Vector( 0, ev->GetFloat( 1 ), 0 );
 }
@@ -103,7 +102,6 @@ void PlayerStart::EventEnableSpawn
 	(
 	Event *ev
 	)
-
 {
 	m_bForbidSpawns = false;
 }
@@ -112,7 +110,6 @@ void PlayerStart::EventDisableSpawn
 	(
 	Event *ev
 	)
-
 {
 	m_bForbidSpawns = true;
 }
@@ -121,7 +118,6 @@ void PlayerStart::EventDeleteOnSpawn
 	(
 	Event *ev
 	)
-
 {
 	m_bDeleteOnSpawn = true;
 }
@@ -130,7 +126,6 @@ void PlayerStart::EventKeepOnSpawn
 	(
 	Event *ev
 	)
-
 {
 	m_bDeleteOnSpawn = false;
 }

@@ -109,7 +109,6 @@ inline void PathInfo::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	arc.ArchiveBool( &bAccurate );
 	arc.ArchiveVec3( point );
@@ -360,7 +359,6 @@ inline void AttractiveNode::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	arc.ArchiveInteger( &m_iPriority );
 	arc.ArchiveBool( &m_bUse );

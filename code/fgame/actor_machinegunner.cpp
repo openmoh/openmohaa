@@ -32,7 +32,6 @@ void Actor::InitMachineGunner
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState				= &Actor::Begin_MachineGunner;
 	func->EndState					= &Actor::End_MachineGunner;
@@ -45,7 +44,6 @@ void Actor::Begin_MachineGunner
 	(
 	void
 	)
-
 {
 	m_csMood = STRING_ALERT;
 	m_csIdleMood = STRING_NERVOUS;
@@ -91,7 +89,6 @@ void Actor::End_MachineGunner
 	(
 	void
 	)
-
 {
 	if (!GetWeapon(WEAPON_MAIN))
 		giveItem("models/weapons/mp40.tik");
@@ -109,7 +106,6 @@ void Actor::BecomeTurretGuy
 	(
 	void
 	)
-
 {
 	SetThinkIdle(THINK_IDLE);
 
@@ -127,7 +123,6 @@ void Actor::Think_MachineGunner
 	(
 	void
 	)
-
 {
 	if (RequireThink())
 	{
@@ -197,7 +192,6 @@ void Actor::ThinkHoldGun
 	(
 	void
 	)
-
 {
 	Vector end;
 	trace_t trace;
@@ -325,7 +319,6 @@ void Actor::FinishedAnimation_MachineGunner
 	(
 	void
 	)
-
 {
 	if (!m_bAnimScriptSet && m_State == 1201)
 	{
@@ -340,7 +333,6 @@ bool Actor::MachineGunner_CanSee
 	float fov,
 	float vision_distance
 	)
-
 {
 	float delta[2];
 

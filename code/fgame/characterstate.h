@@ -172,7 +172,6 @@ inline bool Conditional::getResult
    testcondition_t test, 
    Entity &ent
    )
-
 {
 	if ( condition.func && !checked )
 	{

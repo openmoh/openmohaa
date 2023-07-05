@@ -29,7 +29,6 @@ void Actor::InitBalconyIdle
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_Idle;
 	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Idle;
@@ -42,7 +41,6 @@ void Actor::InitBalconyCurious
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_Curious;
 	func->BeginState					= &Actor::Begin_Curious;
@@ -60,7 +58,6 @@ void Actor::InitBalconyAttack
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_BalconyAttack;
 	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Attack;
@@ -76,7 +73,6 @@ void Actor::InitBalconyDisguise
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->IsState = &Actor::IsDisguiseState;
 }
@@ -85,7 +81,6 @@ void Actor::InitBalconyGrenade
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->IsState = &Actor::IsGrenadeState;
 }
@@ -94,7 +89,6 @@ void Actor::InitBalconyPain
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState				= &Actor::Begin_Pain;
 	func->ThinkState				= &Actor::Think_Pain;
@@ -108,7 +102,6 @@ void Actor::InitBalconyKilled
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState				= &Actor::Begin_BalconyKilled;
 	func->EndState					= &Actor::End_BalconyKilled;
@@ -121,7 +114,6 @@ void Actor::Pain_Balcony
 	(
 	Event *ev
 	)
-
 {
 	SetThink( THINKSTATE_PAIN, THINK_BALCONY_PAIN);
 	HandlePain( ev );
@@ -132,7 +124,6 @@ void Actor::Killed_Balcony
 	Event *ev,
 	bool bPlayDeathAnim
 	)
-
 {
 	ClearStates();
 	SetThink( THINKSTATE_KILLED, THINK_BALCONY_KILLED);
@@ -146,7 +137,6 @@ void Actor::Begin_BalconyAttack
 	(
 	void
 	)
-
 {
 	TransitionState(200, 0);
 }
@@ -155,7 +145,6 @@ void Actor::State_Balcony_PostShoot
 	(
 	void
 	)
-
 {
 	if( m_Enemy )
 	{
@@ -167,7 +156,6 @@ void Actor::State_Balcony_FindEnemy
 	(
 	void
 	)
-
 {
 	m_bHasDesiredLookAngles = false;
 	Anim_Aim();
@@ -182,7 +170,6 @@ void Actor::State_Balcony_Target
 	(
 	void
 	)
-
 {
 	Anim_Aim();
 	AimAtTargetPos();
@@ -205,7 +192,6 @@ void Actor::State_Balcony_Shoot
 	(
 	void
 	)
-
 {
 	Anim_Shoot();
 	AimAtTargetPos();
@@ -215,7 +201,6 @@ void Actor::Think_BalconyAttack
 	(
 	void
 	)
-
 {
 	if( !RequireThink() )
 		return;
@@ -260,7 +245,6 @@ void Actor::FinishedAnimation_BalconyAttack
 	(
 	void
 	)
-
 {
 	if( m_State == 202 )
 		State_Balcony_PostShoot();
@@ -270,7 +254,6 @@ void Actor::Begin_BalconyKilled
 	(
 	void
 	)
-
 {
 	ClearPath();
 	ResetBoneControllers();
@@ -287,7 +270,6 @@ void Actor::End_BalconyKilled
 	(
 	void
 	)
-
 {
 	if( m_pFallPath )
 	{
@@ -300,7 +282,6 @@ void Actor::Think_BalconyKilled
 	(
 	void
 	)
-
 {
 	int animnum;
 
@@ -395,7 +376,6 @@ void Actor::FinishedAnimation_BalconyKilled
 	(
 	void
 	)
-
 {
 	if( m_State == 804 || m_State == 806 )
 	{

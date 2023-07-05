@@ -64,7 +64,6 @@ inline void ViewJitter::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	Trigger::Archive( arc );
 

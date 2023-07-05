@@ -162,7 +162,6 @@ inline void ScriptSlave::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	int tempInt;
 

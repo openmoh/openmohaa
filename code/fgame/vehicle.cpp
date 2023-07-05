@@ -985,7 +985,6 @@ void Vehicle::VehicleStart
 	(
 	Event *ev
 	)
-
 {
 	Entity			*ent;
 	VehicleBase		*last;
@@ -1063,7 +1062,6 @@ void Vehicle::Drivable
 	(
 	Event *ev
 	)
-
 {
 	setMoveType( MOVETYPE_VEHICLE );
 	drivable = true;
@@ -1078,7 +1076,6 @@ void Vehicle::UnDrivable
 	(
 	Event *ev
 	)
-
 {
 	setMoveType( MOVETYPE_PUSH );
 	drivable = false;
@@ -1093,7 +1090,6 @@ void Vehicle::Jumpable
 	(
 	Event *ev
 	)
-
 {
 	jumpable = true;
 }
@@ -1107,7 +1103,6 @@ void Vehicle::Lock
 	(
 	Event *ev
 	)
-
 {
 	Lock();
 }
@@ -1121,7 +1116,6 @@ void Vehicle::UnLock
 	(
 	Event *ev
 	)
-
 {
 	UnLock();
 }
@@ -1135,7 +1129,6 @@ void Vehicle::SteerInPlace
 	(
 	Event *ev
 	)
-
 {
 	steerinplace = true;
 }
@@ -1149,7 +1142,6 @@ void Vehicle::SeatAnglesOffset
 	(
 	Event *ev
 	)
-
 {
 	seatangles = ev->GetVector( 1 );
 }
@@ -1163,7 +1155,6 @@ void Vehicle::SeatOffset
 	(
 	Event *ev
 	)
-
 {
 	seatoffset = ev->GetVector( 1 );
 }
@@ -1177,7 +1168,6 @@ void Vehicle::SetWeapon
 	(
 	Event *ev
 	)
-
 {
 	showweapon = true;
 	hasweapon = true;
@@ -1193,7 +1183,6 @@ void Vehicle::ShowWeaponEvent
 	(
 	Event *ev
 	)
-
 {
 	showweapon = true;
 }
@@ -1207,7 +1196,6 @@ qboolean Vehicle::HasWeapon
 	(
 	void
 	)
-
 {
 	return hasweapon;
 }
@@ -1221,7 +1209,6 @@ qboolean Vehicle::ShowWeapon
 	(
 	void
 	)
-
 {
 	return showweapon;
 }
@@ -1235,7 +1222,6 @@ void Vehicle::SetDriverAngles
 	(
 	Vector angles
 	)
-
 {
 	int i;
 
@@ -1257,7 +1243,6 @@ void Vehicle::CheckWater
 	(
 	void
 	)
-
 {
 	Vector  point;
 	int	  cont;
@@ -1334,7 +1319,6 @@ void Vehicle::WorldEffects
 	(
 	void
 	)
-
 {
 	//
 	// Check for earthquakes
@@ -1367,7 +1351,6 @@ void Vehicle::DriverUse
 	(
 	Event *ev
 	)
-
 {
 	int slot;
 	Vector pos;
@@ -1574,7 +1557,6 @@ qboolean Vehicle::Drive
 	(
 	usercmd_t *ucmd
 	)
-
 {
 	Vector i, j, k;
 
@@ -1624,7 +1606,6 @@ void Vehicle::Think
 	(
 	void
 	)
-
 {
 	flags |= FL_POSTTHINK;
 }
@@ -1638,7 +1619,6 @@ void Vehicle::Postthink
 	(
 	void
 	)
-
 {
 	float	turn;
 	Vector	i;
@@ -2112,7 +2092,6 @@ void Vehicle::SetMoveInfo
 	(
 	vmove_t *vm
 	)
-
 {
 	memset( vm, 0, sizeof( vmove_t ) );
 
@@ -2142,7 +2121,6 @@ void Vehicle::GetMoveInfo
 	(
 	vmove_t *vm
 	)
-
 {
 	Vector newOrigin = vm->vs->origin;
 
@@ -2169,7 +2147,6 @@ void Vehicle::SetCEMoveInfo
 	(
 	vmove_t *vm
 	)
-
 {
 	SetMoveInfo( vm );
 
@@ -2190,7 +2167,6 @@ void Vehicle::GetCEMoveInfo
 	(
 	vmove_t *vm
 	)
-
 {
 	GetMoveInfo( vm );
 }
@@ -2204,7 +2180,6 @@ void Vehicle::SetViewAngles
 	(
 	Vector newViewangles
 	)
-
 {
 	client->ps.delta_angles[ 0 ] = ANGLE2SHORT( newViewangles.x );
 	client->ps.delta_angles[ 1 ] = ANGLE2SHORT( newViewangles.y );
@@ -2322,7 +2297,6 @@ float Vehicle::TorqueLookup
 	(
 	int rpm
 	)
-
 {
 	if( rpm > 4999 )
 	{
@@ -2356,7 +2330,6 @@ void Vehicle::UpdateVariables
 	Vector *t_vup,
 	Vector *t_vright
 	)
-
 {
 
 }
@@ -3140,7 +3113,6 @@ void Vehicle::EventDriveInternal
 	Event *ev,
 	bool wait
 	)
-
 {
 	SimpleEntity *path;
 	SimpleEntity *alternate_path = NULL;
@@ -3680,7 +3652,6 @@ void Vehicle::TouchStuff
 	(
 	vmove_t *vm
 	)
-
 {
 	int i, j;
 	gentity_t *other;
@@ -4188,7 +4159,6 @@ bool Vehicle::AssertMove
 	Vector vNewOrigin,
 	Vector vOldOrigin
 	)
-
 {
 	Entity *check;
 	gentity_t *edict;
@@ -4241,7 +4211,6 @@ bool Vehicle::AssertRotation
 	Vector vNewAngles,
 	Vector vOldAngles
 	)
-
 {
 	Vector i;
 	Vector j;
@@ -4290,7 +4259,6 @@ void Vehicle::SlidePush
 	(
 	Vector vPush
 	)
-
 {
 	vmove_t vm;
 	int i;
@@ -4399,7 +4367,6 @@ void Vehicle::SetupPath
 	cSpline<4, 512> *pPath,
 	SimpleEntity *se
 	)
-
 {
 	Vector vLastOrigin;
 	SimpleEntity *ent;
@@ -4929,7 +4896,6 @@ void Vehicle::UpdateTurretSlot
 	(
 	int iSlot
 	)
-
 {
 	orientation_t orient;
 
@@ -4984,7 +4950,6 @@ void Vehicle::UpdatePassengerSlot
 	(
 	int iSlot
 	)
-
 {
 	orientation_t orient;
 
@@ -5035,7 +5000,6 @@ void Vehicle::UpdateDriverSlot
 	(
 	int iSlot
 	)
-
 {
 	orientation_t orient;
 
@@ -5089,7 +5053,6 @@ void Vehicle::UpdateSkidAngle
 	(
 	void
 	)
-
 {
 	if( m_bEnableSkidding )
 	{
@@ -5120,7 +5083,6 @@ float Vehicle::GetPathPosition
 	cSpline<4, 512> *pPath,
 	int iNode
 	)
-
 {
 	float *vTmp;
 	float vPrev[ 3 ];
@@ -5306,7 +5268,6 @@ void Vehicle::FactorInAnglesOffset
 	(
 	Vector *vAddedAngles
 	)
-
 {
 	( *vAddedAngles ) += m_vAnglesOffset;
 	( *vAddedAngles )[ 1 ] += m_fSkidAngle;
@@ -5321,7 +5282,6 @@ void Vehicle::CalculateAnglesOffset
 	(
 	Vector acceleration
 	)
-
 {
 	if( level.time <= 1200 )
 	{
@@ -5384,7 +5344,6 @@ qboolean Vehicle::GetTagPositionAndOrientation
 	str tagname,
 	orientation_t *new_or
 	)
-
 {
 	int tagnum = gi.Tag_NumForName( edict->tiki, tagname.c_str() );
 
@@ -5409,7 +5368,6 @@ qboolean Vehicle::GetTagPositionAndOrientation
 	int tagnum,
 	orientation_t *new_or
 	)
-
 {
 	int i;
 	orientation_t tag_or;
@@ -5440,7 +5398,6 @@ void Vehicle::CalculateAnimationData
 	Vector vAngles,
 	Vector vOrigin
 	)
-
 {
 	float fLeft = fEpsilon();
 	float fRight = fEpsilon();
@@ -5495,7 +5452,6 @@ bool Vehicle::IsDamagedBy
 	(
 	Entity *ent
 	)
-
 {
 	int i = FindDriverSlotByEntity( ent );
 
@@ -5541,7 +5497,6 @@ void Vehicle::AutoPilot
 	(
 	void
 	)
-
 {
 	float *vTmp;
 
@@ -5601,7 +5556,6 @@ str Vehicle::GetSoundSet
 	(
 	void
 	)
-
 {
 	return m_sSoundSet;
 }
@@ -5615,7 +5569,6 @@ int Vehicle::QueryFreePassengerSlot
 	(
 	void
 	)
-
 {
 	for( int i = 0; i < numPassengers; i++ )
 	{
@@ -5637,7 +5590,6 @@ int Vehicle::QueryFreeDriverSlot
 	(
 	void
 	)
-
 {
 	return ( driver.flags & SLOT_FREE ) ? 0 : -1;
 }
@@ -5651,7 +5603,6 @@ int Vehicle::QueryFreeTurretSlot
 	(
 	void
 	)
-
 {
 	for( int i = 0; i < numTurrets; i++ )
 	{
@@ -5674,7 +5625,6 @@ void Vehicle::QueryPassengerSlotPosition
 	int slot,
 	float *pos
 	)
-
 {
 	orientation_t orient;
 
@@ -5699,7 +5649,6 @@ void Vehicle::QueryDriverSlotPosition
 	int slot,
 	float *pos
 	)
-
 {
 	orientation_t orient;
 
@@ -5724,7 +5673,6 @@ void Vehicle::QueryTurretSlotPosition
 	int slot,
 	float *pos
 	)
-
 {
 	orientation_t orient;
 
@@ -5749,7 +5697,6 @@ void Vehicle::QueryPassengerSlotAngles
 	int slot,
 	float *ang
 	)
-
 {
 	orientation_t orient;
 
@@ -5767,7 +5714,6 @@ void Vehicle::QueryDriverSlotAngles
 	int slot,
 	float *ang
 	)
-
 {
 	orientation_t orient;
 
@@ -5785,7 +5731,6 @@ void Vehicle::QueryTurretSlotAngles
 	int slot,
 	float *ang
 	)
-
 {
 	orientation_t orient;
 
@@ -5802,7 +5747,6 @@ int Vehicle::QueryPassengerSlotStatus
 	(
 	int slot
 	)
-
 {
 	return Passengers[ slot ].flags;
 }
@@ -5816,7 +5760,6 @@ int Vehicle::QueryDriverSlotStatus
 	(
 	int slot
 	)
-
 {
 	return driver.flags;
 }
@@ -5830,7 +5773,6 @@ int Vehicle::QueryTurretSlotStatus
 	(
 	int slot
 	)
-
 {
 	return Turrets[ slot ].flags;
 }
@@ -5844,7 +5786,6 @@ Entity *Vehicle::QueryPassengerSlotEntity
 	(
 	int slot
 	)
-
 {
 	return Passengers[ slot ].ent;
 }
@@ -5858,7 +5799,6 @@ Entity *Vehicle::QueryDriverSlotEntity
 	(
 	int slot
 	)
-
 {
 	return driver.ent;
 }
@@ -5872,7 +5812,6 @@ Entity *Vehicle::QueryTurretSlotEntity
 	(
 	int slot
 	)
-
 {
 	return Turrets[ slot ].ent;
 }
@@ -5888,7 +5827,6 @@ void Vehicle::AttachPassengerSlot
 	Entity *ent,
 	Vector vExitPosition
 	)
-
 {
 	Entity *passenger;
 	str sName;
@@ -5933,7 +5871,6 @@ void Vehicle::AttachDriverSlot
 	Entity *ent,
 	Vector vExitPosition
 	)
-
 {
 	Entity *d;
 	str sName;
@@ -5985,7 +5922,6 @@ void Vehicle::AttachTurretSlot
 	Vector vExitPosition,
 	Vector *vExitAngles
 	)
-
 {
 	TurretGun *pTurret;
 	VehicleTurretGun *pVehicleTurret;
@@ -6184,7 +6120,6 @@ void Vehicle::DetachPassengerSlot
 	Vector vExitPosition,
 	Vector *vExitAngles
 	)
-
 {
 	Entity *passenger = Passengers[ slot ].ent;
 
@@ -6271,7 +6206,6 @@ void Vehicle::DetachDriverSlot
 	Vector vExitPosition,
 	Vector *vExitAngles
 	)
-
 {
 	Entity *other = driver.ent;
 
@@ -6378,7 +6312,6 @@ void Vehicle::DetachTurretSlot
 	Vector vExitPosition,
 	Vector *vExitAngles
 	)
-
 {
 	Entity *passenger = Turrets[ slot ].ent;
 
@@ -6474,7 +6407,6 @@ int Vehicle::FindPassengerSlotByEntity
 	(
 	Entity *ent
 	)
-
 {
 	for( int i = 0; i < MAX_PASSENGERS; i++ )
 	{
@@ -6496,7 +6428,6 @@ int Vehicle::FindDriverSlotByEntity
 	(
 	Entity *ent
 	)
-
 {
 	return driver.ent == ent ? 0 : -1;
 }
@@ -6510,7 +6441,6 @@ int Vehicle::FindTurretSlotByEntity
 	(
 	Entity *ent
 	)
-
 {
 	for( int i = 0; i < MAX_TURRETS; i++ )
 	{
@@ -6532,7 +6462,6 @@ void Vehicle::SetSlotsNonSolid
 	(
 	void
 	)
-
 {
 	for( int i = 0; i < MAX_PASSENGERS; i++ )
 	{
@@ -6561,7 +6490,6 @@ void Vehicle::SetSlotsSolid
 	(
 	void
 	)
-
 {
 	for( int i = 0; i < MAX_PASSENGERS; i++ )
 	{
@@ -6591,7 +6519,6 @@ void Vehicle::KickSuspension
 	Vector vDirection,
 	float fForce
 	)
-
 {
 	VectorNormalizeFast( vDirection );
 
@@ -6608,7 +6535,6 @@ qboolean Vehicle::isLocked
 	(
 	void
 	)
-
 {
 	return locked;
 }
@@ -6622,7 +6548,6 @@ void Vehicle::Lock
 	(
 	void
 	)
-
 {
 	locked = true;
 }
@@ -6636,7 +6561,6 @@ void Vehicle::UnLock
 	(
 	void
 	)
-
 {
 	locked = false;
 }
@@ -6650,7 +6574,6 @@ VehicleCollisionEntity *Vehicle::GetCollisionEntity
 	(
 	void
 	)
-
 {
 	return m_pCollisionEntity;
 }
@@ -6689,7 +6612,6 @@ void DrivableVehicle::Killed
 	(
 	Event *ev
 	)
-
 {
 	Entity * ent;
 	Entity * attacker;

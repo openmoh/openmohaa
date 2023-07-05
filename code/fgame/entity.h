@@ -617,7 +617,6 @@ inline qboolean Entity::DistanceTo
 	(
 	Entity *ent
 	)
-
 {
 	Vector delta;
 
@@ -638,7 +637,6 @@ inline qboolean Entity::WithinDistance
 	Vector pos,
 	float dist
 	)
-
 {
 	Vector delta;
 
@@ -696,7 +694,6 @@ inline qboolean Entity::hidden
 	(
 	void
 	)
-
 {
 	if( edict->s.renderfx & RF_DONTDRAW )
 	{
@@ -727,7 +724,6 @@ inline void Entity::GetBrushModelEvent
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( model );
 }
@@ -736,7 +732,6 @@ inline void Entity::GetModelEvent
 	(
 	Event *ev
 	)
-
 {
 	if( !edict->tiki )
 	{
@@ -768,7 +763,6 @@ inline void Entity::hideModel
 	(
 	void
 	)
-
 {
 	edict->s.renderfx |= RF_DONTDRAW;
 	if( getSolidType() <= SOLID_TRIGGER )
@@ -781,7 +775,6 @@ inline void Entity::showModel
 	(
 	void
 	)
-
 {
 	edict->s.renderfx &= ~RF_DONTDRAW;
 	edict->r.svFlags &= ~SVF_NOCLIENT;
@@ -836,7 +829,6 @@ inline int Entity::getContents
 	(
 	void
 	)
-
 {
 	return edict->r.contents;
 }
@@ -845,7 +837,6 @@ inline qboolean Entity::isClient
 	(
 	void
 	)
-
 {
 	if( client )
 	{

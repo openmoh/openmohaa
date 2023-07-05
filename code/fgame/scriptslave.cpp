@@ -720,7 +720,6 @@ void ScriptSlave::CheckNewOrders
 	(
 	void
 	)
-
 {
 	// make sure position and angles are current
 	if( !commandswaiting )
@@ -735,7 +734,6 @@ void ScriptSlave::NewMove
 	(
 	void
 	)
-
 {
 	float dist;
 
@@ -808,7 +806,6 @@ void ScriptSlave::DoMove
 	(
 	Event *ev
 	)
-
 {
 	NewMove();
 }
@@ -862,7 +859,6 @@ void ScriptSlave::SetModelEvent
 	(
 	Event *ev
 	)
-
 {
 	const char *m;
 
@@ -944,7 +940,6 @@ void ScriptSlave::JumpTo
 	(
 	Event *ev
 	)
-
 {
 	Entity *part;
 
@@ -1045,7 +1040,6 @@ void ScriptSlave::MoveUp
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewPos[ 2 ] += ev->GetFloat( 1 );
@@ -1055,7 +1049,6 @@ void ScriptSlave::MoveDown
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewPos[ 2 ] -= ev->GetFloat( 1 );
@@ -1065,7 +1058,6 @@ void ScriptSlave::MoveNorth
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewPos[ 1 ] += ev->GetFloat( 1 );
@@ -1075,7 +1067,6 @@ void ScriptSlave::MoveSouth
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewPos[ 1 ] -= ev->GetFloat( 1 );
@@ -1085,7 +1076,6 @@ void ScriptSlave::MoveEast
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewPos[ 0 ] += ev->GetFloat( 1 );
@@ -1095,7 +1085,6 @@ void ScriptSlave::MoveWest
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewPos[ 0 ] -= ev->GetFloat( 1 );
@@ -1105,7 +1094,6 @@ void ScriptSlave::MoveForward
 	(
 	Event *ev
 	)
-
 {
 	Vector v;
 	Vector t;
@@ -1122,7 +1110,6 @@ void ScriptSlave::MoveBackward
 	(
 	Event *ev
 	)
-
 {
 	Vector v;
 	Vector t;
@@ -1139,7 +1126,6 @@ void ScriptSlave::MoveLeft
 	(
 	Event *ev
 	)
-
 {
 	Vector v;
 	Vector t;
@@ -1156,7 +1142,6 @@ void ScriptSlave::MoveRight
 	(
 	Event *ev
 	)
-
 {
 	Vector t;
 	Vector v;
@@ -1175,7 +1160,6 @@ void ScriptSlave::RotateXdownto
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 
@@ -1190,7 +1174,6 @@ void ScriptSlave::RotateYdownto
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 
@@ -1205,7 +1188,6 @@ void ScriptSlave::RotateZdownto
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 
@@ -1220,7 +1202,6 @@ void ScriptSlave::RotateAxisdownto
 	(
 	Event *ev
 	)
-
 {
 	int axis;
 	CheckNewOrders();
@@ -1237,7 +1218,6 @@ void ScriptSlave::RotateXupto
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 
@@ -1252,7 +1232,6 @@ void ScriptSlave::RotateYupto
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 
@@ -1267,7 +1246,6 @@ void ScriptSlave::RotateZupto
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 
@@ -1282,7 +1260,6 @@ void ScriptSlave::RotateAxisupto
 	(
 	Event *ev
 	)
-
 {
 	int axis;
 	CheckNewOrders();
@@ -1301,7 +1278,6 @@ void ScriptSlave::Rotatedownto
 	(
 	Event *ev
 	)
-
 {
 	Vector ang;
 
@@ -1330,7 +1306,6 @@ void ScriptSlave::Rotateupto
 	(
 	Event *ev
 	)
-
 {
 	Vector ang;
 
@@ -1359,7 +1334,6 @@ void ScriptSlave::Rotateto
 	(
 	Event *ev
 	)
-
 {
 	Vector ang;
 
@@ -1376,7 +1350,6 @@ void ScriptSlave::RotateXdown
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewAngles[ 0 ] = localangles[ 0 ] - ev->GetFloat( 1 );
@@ -1386,7 +1359,6 @@ void ScriptSlave::RotateYdown
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewAngles[ 1 ] = localangles[ 1 ] - ev->GetFloat( 1 );
@@ -1396,7 +1368,6 @@ void ScriptSlave::RotateZdown
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewAngles[ 2 ] = localangles[ 2 ] - ev->GetFloat( 1 );
@@ -1406,7 +1377,6 @@ void ScriptSlave::RotateAxisdown
 	(
 	Event *ev
 	)
-
 {
 	int axis;
 	CheckNewOrders();
@@ -1419,7 +1389,6 @@ void ScriptSlave::RotateXup
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewAngles[ 0 ] = localangles[ 0 ] + ev->GetFloat( 1 );
@@ -1429,7 +1398,6 @@ void ScriptSlave::RotateYup
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewAngles[ 1 ] = localangles[ 1 ] + ev->GetFloat( 1 );
@@ -1439,7 +1407,6 @@ void ScriptSlave::RotateZup
 	(
 	Event *ev
 	)
-
 {
 	CheckNewOrders();
 	NewAngles[ 2 ] = localangles[ 2 ] + ev->GetFloat( 1 );
@@ -1449,7 +1416,6 @@ void ScriptSlave::RotateAxisup
 	(
 	Event *ev
 	)
-
 {
 	int axis;
 	CheckNewOrders();
@@ -1501,7 +1467,6 @@ void ScriptSlave::DamageFunc
 	(
 	Event *ev
 	)
-
 {
 	Unregister( STRING_DAMAGE );
 }
@@ -1558,7 +1523,6 @@ void ScriptSlave::FollowPath
 	(
 	Event *ev
 	)
-
 {
 	int i, argnum;
 	Entity * ent;
@@ -1637,7 +1601,6 @@ void ScriptSlave::FollowingPath
 	(
 	Event *ev
 	)
-
 {
 	Vector	pos;
 	Vector	orient;
@@ -1978,7 +1941,6 @@ void ScriptSlave::EventFlyPath
 	(
 	Event *ev
 	)
-
 {
 	SimpleEntity *path;
 
@@ -2018,7 +1980,6 @@ void ScriptSlave::EventModifyFlyPath
 	(
 	Event *ev
 	)
-
 {
 	m_fIdealDistance = 100.0f;
 
@@ -2040,7 +2001,6 @@ void ScriptSlave::SetupPath
 	cSpline< 4, 512 > *pPath,
 	SimpleEntity *se
 	)
-
 {
 	str name;
 	//int iObjNum;

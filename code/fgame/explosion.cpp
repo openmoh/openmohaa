@@ -87,7 +87,6 @@ void CreateExplosion
 	const char *explosionModel,
 	float  scale
 	)
-
 {
 	Explosion   *explosion;
 	Event       *ev;

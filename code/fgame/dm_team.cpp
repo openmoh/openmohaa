@@ -650,7 +650,6 @@ void DM_Team::InitSpawnPoints
 	(
 	void
 	)
-
 {
 	int i;
 

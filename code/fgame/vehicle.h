@@ -98,7 +98,6 @@ inline void VehicleBase::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	Animate::Archive( arc );
 
@@ -488,7 +487,6 @@ inline void Vehicle::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	VehicleBase::Archive( arc );
 

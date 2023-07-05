@@ -29,7 +29,6 @@ void G_BotBegin
 	(
 	gentity_t *ent
 	)
-
 {
 	level.m_bSpawnBot = true;
 	G_ClientBegin( ent, NULL );
@@ -40,7 +39,6 @@ void G_BotThink
 	gentity_t *ent,
 	int msec
 	)
-
 {
 	usercmd_t ucmd;
 	usereyes_t eyeinfo;

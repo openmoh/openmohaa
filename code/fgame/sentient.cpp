@@ -744,7 +744,6 @@ Vector Sentient::GunPosition
 	(
 	void
 	)
-
 {
 	Vector vPos;
 
@@ -764,7 +763,6 @@ Vector Sentient::GunTarget
 	(
 	bool bNoCollision
 	)
-
 {
 	Vector vPos;
 
@@ -848,7 +846,6 @@ void Sentient::ChargeWeapon
 	(
 	Event *ev
 	)
-
 {
 	firemode_t		mode = FIRE_PRIMARY;
 	weaponhand_t	hand = WEAPON_MAIN;
@@ -883,7 +880,6 @@ void Sentient::ChargeWeapon
 	weaponhand_t hand,
 	firemode_t mode
 	)
-
 {
 	Weapon * activeWeapon;
 
@@ -911,7 +907,6 @@ void Sentient::FireWeapon
 	(
 	Event *ev
 	)
-
 {
 	firemode_t mode = FIRE_PRIMARY;
 	int number = 0;
@@ -965,7 +960,6 @@ void Sentient::FireWeapon
 	int number,
 	firemode_t mode
 	)
-
 {
 	Weapon *activeWeapon = activeWeaponList[ number ];
 
@@ -994,7 +988,6 @@ void Sentient::StopFireWeapon
 	(
 	Event *ev
 	)
-
 {
 	Weapon      *activeWeapon;
 	int         number = 0;
@@ -1031,7 +1024,6 @@ void Sentient::ReleaseFireWeapon
 	int number,
 	firemode_t mode
 	)
-
 {
 	float charge_time = level.time - charge_start_time;
 
@@ -1055,7 +1047,6 @@ void Sentient::ReleaseFireWeapon
 	(
 	Event *ev
 	)
-
 {
 	firemode_t mode = FIRE_PRIMARY;
 	int number = 0;
@@ -1108,7 +1099,6 @@ void Sentient::AddItem
 	(
 	Item *object
 	)
-
 {
 	inventory.AddObject( object->entnum );
 }
@@ -1117,7 +1107,6 @@ void Sentient::RemoveItem
 	(
 	Item *object
 	)
-
 {
 	if( !inventory.IndexOfObject( object->entnum ) ) {
 		return;
@@ -1138,7 +1127,6 @@ void Sentient::RemoveWeapons
 	(
 	void
 	)
-
 {
 	for( int i = inventory.NumObjects(); i > 0; i-- )
 	{
@@ -1156,7 +1144,6 @@ Weapon *Sentient::GetWeapon
 	(
 	int index
 	)
-
 {
 	for( int i = inventory.NumObjects(); i > 0; i-- )
 	{
@@ -1181,7 +1168,6 @@ Item *Sentient::FindItemByExternalName
 	(
 	const char *itemname
 	)
-
 {
 	int	num;
 	int	i;
@@ -1205,7 +1191,6 @@ Item *Sentient::FindItemByModelname
 	(
 	const char *mdl
 	)
-
 {
 	int	num;
 	int	i;
@@ -1236,7 +1221,6 @@ Item *Sentient::FindItemByClassName
 	(
 	const char *classname
 	)
-
 {
 	int	num;
 	int	i;
@@ -1260,7 +1244,6 @@ Item *Sentient::FindItem
 	(
 	const char *itemname
 	)
-
 {
 	Item	*item;
 
@@ -1280,7 +1263,6 @@ void Sentient::AttachAllActiveWeapons
 	(
 	void
 	)
-
 {
 	int i;
 
@@ -1303,7 +1285,6 @@ void Sentient::DetachAllActiveWeapons
 	(
 	void
 	)
-
 {
 	int i;
 
@@ -1320,7 +1301,6 @@ void Sentient::FreeInventory
 	(
 	void
 	)
-
 {
 	int	num;
 	int	i;
@@ -1358,7 +1338,6 @@ qboolean Sentient::HasItem
 	(
 	const char *itemname
 	)
-
 {
 	return ( FindItem( itemname ) != NULL );
 }
@@ -1367,7 +1346,6 @@ qboolean Sentient::HasWeaponClass
 	(
 	int iWeaponClass
 	)
-
 {
 	int i;
 	Weapon *weapon;
@@ -1394,7 +1372,6 @@ qboolean Sentient::HasPrimaryWeapon
 	(
 	void
 	)
-
 {
 	int i;
 	Weapon *weapon;
@@ -1421,7 +1398,6 @@ qboolean Sentient::HasSecondaryWeapon
 	(
 	void
 	)
-
 {
 	int i;
 	Weapon *weapon;
@@ -1474,7 +1450,6 @@ void Sentient::PutawayWeapon
 	(
 	Event *ev
 	)
-
 {
 	Weapon * weapon;
 	weaponhand_t hand;
@@ -1499,7 +1474,6 @@ void Sentient::WeaponCommand
 	(
 	Event *ev
 	)
-
 {
 	weaponhand_t   hand;
 	Weapon         *weap;
@@ -1528,7 +1502,6 @@ void Sentient::ChangeWeapon
 	Weapon         *weapon,
 	weaponhand_t   hand
 	)
-
 {
 	if( ( hand > MAX_ACTIVE_WEAPONS ) || ( hand < 0 ) )
 	{
@@ -1547,7 +1520,6 @@ void Sentient::DeactivateWeapon
 	(
 	weaponhand_t hand
 	)
-
 {
 	int i;
 
@@ -1589,7 +1561,6 @@ void Sentient::DeactivateWeapon
 	(
 	Weapon *weapon
 	)
-
 {
 	int i;
 
@@ -1609,7 +1580,6 @@ void Sentient::ActivateWeapon
 	Weapon         *weapon,
 	weaponhand_t   hand
 	)
-
 {
 	int i;
 
@@ -1710,7 +1680,6 @@ Weapon *Sentient::NextWeapon
 	(
 	Weapon *weapon
 	)
-
 {
 	Item		*item;
 	int		i;
@@ -1776,7 +1745,6 @@ Weapon *Sentient::PreviousWeapon
 	(
 	Weapon *weapon
 	)
-
 {
 	Item		*item;
 	int		i;
@@ -1927,7 +1895,6 @@ Item *Sentient::giveItem
 	str itemname,
 	int amount
 	)
-
 {
 	ClassDef	*cls;
 	Item     *item;
@@ -2007,7 +1974,6 @@ void Sentient::takeItem
 	(
 	const char *name
 	)
-
 {
 	Item * item;
 
@@ -2034,7 +2000,6 @@ void Sentient::takeAmmoType
 	(
 	const char *name
 	)
-
 {
 	Ammo *ammo;
 
@@ -2052,7 +2017,6 @@ void Sentient::useWeapon
 const char		*weaponname,
 weaponhand_t	hand
 )
-
 {
 	Weapon *weapon;
 
@@ -2080,7 +2044,6 @@ void Sentient::useWeapon
 	Weapon			*weapon,
 	weaponhand_t	hand
 	)
-
 {
 	assert( weapon );
 
@@ -2122,7 +2085,6 @@ void Sentient::EventTake
 	(
 	Event *ev
 	)
-
 {
 	takeItem( ev->GetString( 1 ) );
 }
@@ -2131,7 +2093,6 @@ void Sentient::EventFreeInventory
 	(
 	Event *ev
 	)
-
 {
 	FreeInventory();
 }
@@ -2229,7 +2190,6 @@ void Sentient::ArmorDamage
 	(
 	Event *ev
 	)
-
 {
 	Entity	   *inflictor;
 	Sentient   *attacker;
@@ -2898,7 +2858,6 @@ void Sentient::DropInventoryItems
 	(
 	void
 	)
-
 {
 	int   num;
 	int   i;
@@ -2972,7 +2931,6 @@ void Sentient::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	int i;
 	int num;
@@ -3310,7 +3268,6 @@ int Sentient::AmmoCount
 	(
 	str type
 	)
-
 {
 	Ammo *ammo;
 
@@ -3329,7 +3286,6 @@ int Sentient::MaxAmmoCount
 	(
 	str type
 	)
-
 {
 	Ammo *ammo;
 
@@ -3347,7 +3303,6 @@ void Sentient::GiveAmmo
 	int amount,
 	int maxamount
 	)
-
 {
 	Ammo *ammo;
 
@@ -3417,7 +3372,6 @@ void Sentient::AmmoAmountInClipChanged
 	str type,
 	int amount_in_clip
 	)
-
 {
 	int count, i;
 
@@ -3568,7 +3522,6 @@ void Sentient::TryLightOnFire
 	int meansofdeath,
 	Entity *attacker
 	)
-
 {
 	gi.Printf( "Sentient::TryLightOnFire not implemented. Needs fixed" );
 }
@@ -3577,7 +3530,6 @@ void Sentient::OnFire
 	(
 	Event *ev
 	)
-
 {
 	gi.Printf( "Sentient::OnFire not implemented. Needs fixed" );
 }
@@ -3586,7 +3538,6 @@ void Sentient::StopOnFire
 	(
 	Event *ev
 	)
-
 {
 	gi.Printf( "Sentient::StopOnFire not implemented. Needs fixed" );
 }
@@ -3761,7 +3712,6 @@ void Sentient::Holster
    (
    qboolean putaway
    )
-
 {
 	Weapon   *rightWeap;
 
@@ -3832,7 +3782,6 @@ void Sentient::ActivateNewWeapon
 	(
 	Event *ev
 	)
-
 {
 	if( deadflag ) {
 		return;
@@ -3853,7 +3802,6 @@ void Sentient::ActivateNewWeapon
 	(
 	void
 	)
-
 {
 	// Change the weapon to the currently active weapon as specified by useWeapon
 	ChangeWeapon( newActiveWeapon.weapon, newActiveWeapon.hand );
@@ -3869,7 +3817,6 @@ void Sentient::UpdateWeapons
 	(
 	void
 	)
-
 {
 	GetActiveWeapon( WEAPON_MAIN );
 }
@@ -3881,7 +3828,6 @@ void Sentient::DeactivateWeapon
 (
 Event *ev
 )
-
 {
 	// Deactivate the weapon
 	weaponhand_t hand;
@@ -3902,7 +3848,6 @@ void Sentient::EventUseItem
 	(
 	Event *ev
 	)
-
 {
 	str				name;
 	weaponhand_t	hand = WEAPON_MAIN;
@@ -3941,7 +3886,6 @@ void Sentient::EventDontDropWeapons
 	(
 	Event *ev
 	)
-
 {
 	if( ev->NumArgs() > 0 )
 	{
@@ -4092,7 +4036,6 @@ void Sentient::ReceivedItem
 	(
 	Item * item
 	)
-
 {
 }
 
@@ -4100,7 +4043,6 @@ void Sentient::RemovedItem
 	(
 	Item *item
 	)
-
 {
 }
 
@@ -4109,7 +4051,6 @@ void Sentient::AmmoAmountChanged
 	Ammo *ammo,
 	int ammo_in_clip
 	)
-
 {
 }
 
@@ -4117,7 +4058,6 @@ void Sentient::EventGerman
 	(
 	Event *ev
 	)
-
 {
 	bool bRejoinSquads = false;
 
@@ -4170,7 +4110,6 @@ void Sentient::EventAmerican
 	(
 	Event *ev
 	)
-
 {
 	bool bRejoinSquads = false;
 
@@ -4231,7 +4170,6 @@ void Sentient::EventGetTeam
 	(
 	Event *ev
 	)
-
 {
 	if( m_Team == TEAM_AMERICAN )
 	{
@@ -4256,7 +4194,6 @@ void Sentient::EventGetThreatBias
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( m_iThreatBias );
 }
@@ -4265,7 +4202,6 @@ void Sentient::EventSetThreatBias
 	(
 	Event *ev
 	)
-
 {
 	str sBias;
 
@@ -4287,7 +4223,6 @@ void Sentient::SetDamageMult
 	(
 	Event *ev
 	)
-
 {
 	int index = ev->GetInteger( 1 );
 	if( index < 0 || index >= MAX_DAMAGE_MULTIPLIERS )
@@ -4306,7 +4241,6 @@ void Sentient::SetupHelmet
 	str sHelmetSurface1,
 	str sHelmetSurface2
 	)
-
 {
 	m_sHelmetTiki = sHelmetTiki;
 	m_sHelmetSurface1 = sHelmetSurface1;
@@ -4320,7 +4254,6 @@ void Sentient::EventSetupHelmet
 	(
 	Event *ev
 	)
-
 {
 	// FIXME
 }
@@ -4329,7 +4262,6 @@ void Sentient::EventPopHelmet
 	(
 	Event *ev
 	)
-
 {
 	// FIXME
 }
@@ -4338,7 +4270,6 @@ bool Sentient::WearingHelmet
 	(
 	void
 	)
-
 {
 	if( !m_sHelmetSurface1.length() ) {
 		return false;
@@ -4359,7 +4290,6 @@ int Sentient::CheckHitLocation
 	(
 	int iLocation
 	)
-
 {
 	if( iLocation == 1 )
 	{
@@ -4380,7 +4310,6 @@ bool Sentient::IsTeamMate
 	(
 	Sentient *pOther
 	)
-
 {
 	return ( pOther->m_bIsDisguised || pOther->m_Team == m_Team );
 }
@@ -4389,7 +4318,6 @@ void Sentient::JoinNearbySquads
 	(
 	float fJoinRadius
 	)
-
 {
 	float fJoinRadiusSquared = Square(fJoinRadius);
 
@@ -4412,7 +4340,6 @@ void Sentient::MergeWithSquad
 	(
 	Sentient *pFriendly
 	)
-
 {
 	Sentient *pFriendNext;
 	Sentient *pSelfPrev;
@@ -4435,7 +4362,6 @@ void Sentient::DisbandSquadMate
 	(
 	Sentient *pExFriendly
 	)
-
 {
 	Sentient *pPrev;
 	Sentient *pNext;
@@ -4454,7 +4380,6 @@ bool Sentient::IsSquadMate
 	(
 	Sentient *pFriendly
 	)
-
 {
 	Sentient *pSquadMate = this;
 
@@ -4479,7 +4404,6 @@ bool Sentient::CanSee
 	float fov,
 	float vision_distance
 	)
-
 {
 	float delta[ 2 ];
 
@@ -4534,7 +4458,6 @@ void Sentient::SetViewAngles
 	(
 	Vector angles
 	)
-
 {
 
 }
@@ -4543,7 +4466,6 @@ Vector Sentient::GetViewAngles
 	(
 	void
 	)
-
 {
 	return angles;
 }
@@ -4567,7 +4489,6 @@ void Sentient::UpdateFootsteps
 	(
 	void
 	)
-
 {
 	//FIXME: macros
 	int iTagNum, iAnimFlags = 0, iAnimNum;

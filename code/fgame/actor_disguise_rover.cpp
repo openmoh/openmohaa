@@ -28,7 +28,6 @@ void Actor::InitDisguiseRover
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState						= &Actor::Think_DisguiseRover;
 	func->BeginState						= &Actor::Begin_DisguiseRover;
@@ -43,7 +42,6 @@ void Actor::Begin_DisguiseRover
 	(
 	void
 	)
-
 {
 
 	vec2_t vDelta;
@@ -85,7 +83,6 @@ void Actor::End_DisguiseRover
 	(
 	void
 	)
-
 {
 	m_iNextDisguiseTime = level.inttime + (m_State ? m_iDisguisePeriod : 500);
 }
@@ -94,7 +91,6 @@ void Actor::Resume_DisguiseRover
 	(
 	void
 	)
-
 {
 	Begin_DisguiseRover();
 }
@@ -103,7 +99,6 @@ void Actor::Suspend_DisguiseRover
 	(
 	void
 	)
-
 {
 	End_DisguiseRover();
 }
@@ -112,7 +107,6 @@ void Actor::Think_DisguiseRover
 	(
 	void
 	)
-
 {
 	if (!RequireThink())
 	{

@@ -28,7 +28,6 @@ void Actor::InitIdle
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState					= &Actor::Begin_Idle;
 	func->ThinkState					= &Actor::Think_Idle;
@@ -40,7 +39,6 @@ void Actor::Begin_Idle
 	(
 	void
 	)
-
 {
 	glbs.Printf("Begin_Idle\n");
 	m_csMood = m_csIdleMood;
@@ -51,7 +49,6 @@ void Actor::Think_Idle
 	(
 	void
 	)
-
 {
 	if (RequireThink())
 	{
@@ -66,7 +63,6 @@ void Actor::IdleThink
 (
 	void
 )
-
 {
 	IdlePoint();
 	IdleLook();
@@ -109,7 +105,6 @@ bool Actor::PassesTransitionConditions_Idle
 (
 	void
 )
-
 {
 	glbs.Printf("PassesTransitionConditions_Idle\n");
 
@@ -128,7 +123,6 @@ bool Actor::IsIdleState
 (
 	int state
 )
-
 {
 	return state == THINKSTATE_IDLE;
 }

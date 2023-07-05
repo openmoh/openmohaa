@@ -28,7 +28,6 @@ void Actor::InitPain
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState					= &Actor::Begin_Pain;
 	func->ThinkState					= &Actor::Think_Pain;
@@ -40,7 +39,6 @@ void Actor::Begin_Pain
 	(
 	void
 	)
-
 {
 	m_PainState = 500;
 }
@@ -49,7 +47,6 @@ void Actor::Think_Pain
 	(
 	void
 	)
-
 {
 	NoPoint();
 
@@ -75,7 +72,6 @@ void Actor::FinishedAnimation_Pain
 	(
 	void
 	)
-
 {
 	if (m_PainState != 500)
 		EndCurrentThinkState();

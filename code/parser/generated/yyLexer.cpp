@@ -2054,7 +2054,6 @@ static int yy_get_next_buffer (void)
 #else
     static int input  (void)
 #endif
-
 {
 	int c;
     
@@ -2242,7 +2241,6 @@ static void yy_load_buffer_state  (void)
  * such as during a yyrestart() or at EOF.
  */
     static void yy_init_buffer  (YY_BUFFER_STATE  b, FILE * file )
-
 {
 	int oerrno = errno;
     

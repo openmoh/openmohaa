@@ -64,7 +64,6 @@ qboolean MeleeAttack
 	qboolean hit_dead,
 	Container<Entity *>*victimlist
 	)
-
 {
 	trace_t trace;
 	Entity *victim;
@@ -726,7 +725,6 @@ void Projectile::Drunk
 	(
 	Event *ev
 	)
-
 {
 	if( fDrunk ) {
 		return;
@@ -799,7 +797,6 @@ void Projectile::Prethink
 	(
 	Event *ev
 	)
-
 {
 	Vector end;
 
@@ -904,7 +901,6 @@ void Projectile::Explode
 	(
 	Event *ev
 	)
-
 {
 	Entity *owner;
 	Entity *ignoreEnt = NULL;
@@ -964,7 +960,6 @@ void Projectile::SetBounceTouch
 	(
 	Event *ev
 	)
-
 {
 	projFlags |= P_BOUNCE_TOUCH;
 	setMoveType( MOVETYPE_BOUNCE );
@@ -974,7 +969,6 @@ void Projectile::SetNoTouchDamage
 	(
 	Event *ev
 	)
-
 {
 	projFlags |= P_NO_TOUCH_DAMAGE;
 }
@@ -983,7 +977,6 @@ void Projectile::SetSmashThroughGlass
 	(
 	Event *ev
 	)
-
 {
 	m_iSmashThroughGlass = ev->GetInteger( 1 );
 
@@ -994,7 +987,6 @@ void Projectile::SmashThroughGlassThink
 	(
 	Event *ev
 	)
-
 {
 	if( velocity.length() > m_iSmashThroughGlass )
 	{
@@ -1081,7 +1073,6 @@ void Projectile::SetBounceSound
 	(
 	Event *ev
 	)
-
 {
 	bouncesound = ev->GetString( 1 );
 }
@@ -1090,7 +1081,6 @@ void Projectile::SetBounceSoundMetal
 	(
 	Event *ev
 	)
-
 {
 	bouncesound_metal = ev->GetString( 1 );
 }
@@ -1099,7 +1089,6 @@ void Projectile::SetBounceSoundHard
 	(
 	Event *ev
 	)
-
 {
 	bouncesound_hard = ev->GetString( 1 );
 }
@@ -1108,7 +1097,6 @@ void Projectile::SetBounceSoundWater
 	(
 	Event *ev
 	)
-
 {
 	bouncesound_water = ev->GetString( 1 );
 }
@@ -1136,7 +1124,6 @@ void Projectile::SetLife
 	(
 	Event *ev
 	)
-
 {
 	life = ev->GetFloat( 1 );
 }
@@ -1145,7 +1132,6 @@ void Projectile::SetDMLife
 	(
 	Event *ev
 	)
-
 {
 	dmlife = ev->GetFloat( 1 );
 }
@@ -1254,7 +1240,6 @@ void Projectile::DoDecal
 	(
 	void
 	)
-
 {
 	if( impactmarkshader.length() )
 	{
@@ -1271,7 +1256,6 @@ void Projectile::Touch
 	(
 	Event *ev
 	)
-
 {
 	Entity   *other;
 	Entity   *owner;
@@ -1478,7 +1462,6 @@ void Projectile::RemoveWhenStopped
 	(
 	Event *ev
 	)
-
 {
 	remove_when_stopped = true;
 }
@@ -1487,7 +1470,6 @@ void Projectile::ExplodeOnTouch
 	(
 	Event *ev
 	)
-
 {
 	m_bExplodeOnTouch = true;
 }
@@ -1518,7 +1500,6 @@ bool Projectile::CheckTeams
 	(
 	void
 	)
-
 {
 	Player *pOwner = ( Player * )m_pOwnerPtr.Pointer();
 
@@ -1557,7 +1538,6 @@ void Projectile::SetOwner
 	(
 	Entity *owner
 	)
-
 {
 	this->owner = owner->entnum;
 	m_pOwnerPtr = owner;
@@ -1735,7 +1715,6 @@ void Explosion::DamageAgain
 	(
 	Event *ev
 	)
-
 {
 	Entity *owner_ent;
 	Weapon *weapon;
@@ -1777,7 +1756,6 @@ void Explosion::MakeExplosionEffect
 	(
 	Event *ev
 	)
-
 {
 	str sEffect = ev->GetString( 1 );
 
@@ -1808,7 +1786,6 @@ Projectile *ProjectileAttack
 	float			real_speed,
 	Weapon			*weap
 	)
-
 {
 	Event          *ev;
 	Projectile     *proj = NULL;
@@ -1964,7 +1941,6 @@ float BulletAttack
 	int			*piTracerCount,
 	Weapon		*weap
 	)
-
 {
 	Vector		vDir;
 	Vector		vTmpEnd;
@@ -2326,7 +2302,6 @@ void FakeBulletAttack
 	int				iTracerFrequency,
 	int				*piTracerCount
 	)
-
 {
 	Vector vDir;
 	Vector vTraceEnd;
@@ -2383,7 +2358,6 @@ void ClickItemAttack
 	float			fRange,
 	Entity			*pOwner
 	)
-
 {
 	Vector vEnd;
 	trace_t trace;
@@ -2429,7 +2403,6 @@ Projectile *HeavyAttack
 	Entity			*owner,
 	Weapon			*weap
 	)
-
 {
 	Event          *ev;
 	Projectile     *proj = NULL;
@@ -2561,7 +2534,6 @@ void ExplosionAttack
 	Weapon		*weap,
 	bool		hurtOwnerOnly
 	)
-
 {
 	Explosion   *explosion;
 	Event			*ev;
@@ -2726,7 +2698,6 @@ void RadiusDamage
 	Weapon		*weap,
 	bool		hurtOwnerOnly
 	)
-
 {
 	float		points;
 	Entity		*ent;

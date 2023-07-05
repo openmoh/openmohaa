@@ -33,7 +33,6 @@ EffectEntity::EffectEntity
 	(
 	void
 	)
-
 {
 	edict->s.eType = ET_MODELANIM;
 }

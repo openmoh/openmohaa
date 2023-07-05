@@ -99,7 +99,6 @@ void LODMaster::Init
 	(
 	void
 	)
-
 {
 	gi.AddCommand( "lod_spawn", NULL );
 	gi.AddCommand( "lod_yaw", NULL );
@@ -113,7 +112,6 @@ void LODMaster::Spawn
 	(
 	Event *ev
 	)
-
 {
 	const char *mdl;
 	Vector forward, up, delta;
@@ -186,7 +184,6 @@ void LODMaster::PassEvent
 	(
 	Event *ev
 	)
-
 {
 	if( !m_current )
 	{
@@ -210,7 +207,6 @@ void LODSlave::UpdateCvars
 	qboolean quiet,
 	qboolean updateFrame
 	)
-
 {
 
 }
@@ -219,7 +215,6 @@ LODSlave::LODSlave
 	(
 	void
 	)
-
 {
 	m_baseorigin = origin;
 	LODModel.m_current = this;
@@ -237,7 +232,6 @@ void LODSlave::ThinkEvent
 	(
 	Event *ev
 	)
-
 {
 	cvar_t *cvar;
 	Entity *ent;
@@ -277,7 +271,6 @@ void LODSlave::SetModelEvent
 	(
 	Event *ev
 	)
-
 {
 	str modelname = ev->GetString( 1 );
 
@@ -294,7 +287,6 @@ void LODSlave::Delete
 	(
 	Event *ev
 	)
-
 {
 	ScriptError( "DELETE" );
 }

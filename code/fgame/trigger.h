@@ -192,7 +192,6 @@ inline void TriggerAll::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Trigger::Archive( arc );
 
@@ -251,7 +250,6 @@ inline void TriggerSave::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	Trigger::Archive( arc );
 	arc.ArchiveString( &m_sSaveName );
@@ -677,7 +675,6 @@ inline void TriggerGivePowerup::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	Trigger::Archive( arc );
 
@@ -700,7 +697,6 @@ inline void TriggerClickItem::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	Trigger::Archive( arc );
 }

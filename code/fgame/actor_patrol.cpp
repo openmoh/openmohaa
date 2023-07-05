@@ -28,7 +28,6 @@ void Actor::InitPatrol
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_Patrol;
 	func->BeginState					= &Actor::Begin_Patrol;
@@ -43,7 +42,6 @@ void Actor::Begin_Patrol
 	(
 	void
 	)
-
 {
 	m_csMood = STRING_BORED;
 	StopTurning();
@@ -54,7 +52,6 @@ void Actor::End_Patrol
 	(
 	void
 	)
-
 {
 
 	parm.movefail = true;
@@ -64,7 +61,6 @@ void Actor::Resume_Patrol
 	(
 	void
 	)
-
 {
 	;
 }
@@ -73,7 +69,6 @@ void Actor::Think_Patrol
 	(
 	void
 	)
-
 {
 	if (Actor::RequireThink())
 	{
@@ -115,7 +110,6 @@ void Actor::ShowInfo_Patrol
 	(
 	void
 	)
-
 {
 	ShowInfo_PatrolCurrentNode();
 }

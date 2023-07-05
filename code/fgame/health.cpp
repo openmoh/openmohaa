@@ -52,7 +52,6 @@ void Health::PickupHealth
 	(
 	Event *ev
 	)
-
 {
 	Sentient *sen;
 	Entity *other;

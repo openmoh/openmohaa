@@ -38,7 +38,6 @@ void G_BeginIntermission
 	const char *map_name,
 	INTTYPE_e transtype
 	)
-
 {
 	Entity *camera;
 	Entity *node;
@@ -155,7 +154,6 @@ void G_ExitLevel
 	(
 	void
 	)
-
 {
 	static const char *seps = " ,\n\r";
 	char command[ 256 ];

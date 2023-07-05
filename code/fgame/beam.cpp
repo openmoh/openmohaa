@@ -442,7 +442,6 @@ void FuncBeam::setAngles
 	(
 	Vector angles
 	)
-
 {
 	trace_t  trace;
 	Vector   endpoint;
@@ -467,7 +466,6 @@ void FuncBeam::SetEndPoint
 	(
 	Event *ev
 	)
-
 {
 	trace_t  trace;
 
@@ -483,7 +481,6 @@ void FuncBeam::SetModel
 	(
 	Event *ev
 	)
-
 {
 	setModel( ev->GetString( 1 ) );
 	edict->s.renderfx &= ~RF_BEAM;
@@ -688,7 +685,6 @@ void FuncBeam::SetIgnoreWalls
 	(
 	Event *ev
 	)
-
 {
 	if( ev->NumArgs() > 0 )
 	{
@@ -704,7 +700,6 @@ void FuncBeam::Activate
 	(
 	Event *ev
 	)
-
 {
 	Vector      forward;
 	trace_t     trace;

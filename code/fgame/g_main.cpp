@@ -716,7 +716,6 @@ void G_ClientDrawBoundingBoxes
 	(
 	void
 	)
-
 {
 	gentity_t  *edict;
 	Entity	*ent;
@@ -861,7 +860,6 @@ void G_ArchivePersistantData
 	(
 	Archiver &arc
 	)
-
 {
 	gentity_t   *ed;
 	int         i;
@@ -927,7 +925,6 @@ qboolean G_ReadPersistant
 	(
 	const char *name
 	)
-
 {
 	try
 	{
@@ -956,7 +953,6 @@ void G_WritePersistant
 	(
 	const char *name
 	)
-
 {
 	try
 	{
@@ -979,7 +975,6 @@ qboolean LevelArchiveValid
 	(
 	Archiver &arc
 	)
-
 {
 	int      version;
 	int      savegame_version;
@@ -1025,7 +1020,6 @@ void ArchiveAliases
 	(
 	Archiver &arc
 	)
-
 {
 	int i;
 	byte another;
@@ -1135,7 +1129,6 @@ qboolean G_ArchiveLevel
 	qboolean autosave,
 	qboolean loading
 	)
-
 {
 	try
 	{
@@ -1360,7 +1353,6 @@ void G_WriteLevel
 	const char *filename,
 	qboolean autosave
 	)
-
 {
 	game.autosaved = autosave;
 	G_ArchiveLevel( filename, autosave, qfalse );
@@ -1386,7 +1378,6 @@ qboolean G_ReadLevel
 	(
 	const char *filename
 	)
-
 {
 	qboolean status;
 
@@ -1409,7 +1400,6 @@ qboolean G_LevelArchiveValid
 	(
 	const char *filename
 	)
-
 {
 	try
 	{

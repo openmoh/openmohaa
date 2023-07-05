@@ -28,7 +28,6 @@ void Actor::InitRunner
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_Runner;
 	func->BeginState					= &Actor::Begin_Runner;
@@ -43,7 +42,6 @@ void Actor::Begin_Runner
 	(
 	void
 	)
-
 {
 	m_csMood = STRING_NERVOUS;
 	m_csIdleMood = STRING_NERVOUS;
@@ -55,7 +53,6 @@ void Actor::End_Runner
 	(
 	void
 	)
-
 {
 	parm.movefail = true;
 }
@@ -64,7 +61,6 @@ void Actor::Resume_Runner
 	(
 	void
 	)
-
 {
 	;
 }
@@ -73,7 +69,6 @@ void Actor::Think_Runner
 	(
 	void
 	)
-
 {
 	if (RequireThink())
 	{
@@ -113,7 +108,6 @@ void Actor::ShowInfo_Runner
 	(
 	void
 	)
-
 {
 	ShowInfo_PatrolCurrentNode();
 }

@@ -186,7 +186,6 @@ void RemoveBeamList
 (
     int owner
 )
-
 {
     int i, num;
 
@@ -209,7 +208,6 @@ beamEnt_t* FindBeamList
 (
     int owner
 )
-
 {
     int i, num;
 
@@ -230,7 +228,6 @@ int CreateNewBeamEntity
     int   owner,
     float life
 )
-
 {
     beamEnt_t* be;
     int         i, oldest, oldest_time;
@@ -285,7 +282,6 @@ void RemoveBeamEntity
 (
     int   owner
 )
-
 {
     RemoveBeamList(owner);
 }
@@ -298,7 +294,6 @@ void AddBeamSegmentToList
     int segnum,
     int renderfx
 )
-
 {
     beamEnt_t* be;
 
@@ -327,7 +322,6 @@ void CG_AddBeamsFromList
     int owner,
     int beamshader
 )
-
 {
     int         i, j, k, l;
     float       frac, fade;
@@ -386,7 +380,6 @@ void RenderSegment
     int    beamshader,
     int    renderfx
 )
-
 {
     int         i, j;
     polyVert_t  points[4];
@@ -436,7 +429,6 @@ void CG_MultiBeamBegin
 (
     void
 )
-
 {
     ptctr = 0;
 }
@@ -451,7 +443,6 @@ void CG_MultiBeamAddPoints
     float    maxoffset,
     qboolean addstartpoint
 )
-
 {
     Vector   delta, dir, randdir;
     float    length;
@@ -500,7 +491,6 @@ void CG_MultiBeamEnd
     int         owner,
     float       life
 )
-
 {
     Vector         prevpt, currpt;
     Vector         p1, p2, p3, p4, v1, v2, up, currpt1, currpt2, prevpt1, prevpt2;
@@ -556,7 +546,6 @@ static void CG_MultiBeamSubdivide
 (
     centity_t* cent
 )
-
 {
     Vector    pt1, pt2, pt3;
     Vector    out1, out2, out3, out4, out5, out6, out7, out8, out9;
@@ -652,7 +641,6 @@ void CG_MultiBeam
 (
     centity_t* cent
 )
-
 {
     Vector         prevpt, currpt;
     entityState_t* s1;
@@ -967,7 +955,6 @@ void CG_CreateModelBeam
     vec3_t   left,
     vec3_t   up
 )
-
 {
     dtiki_t* tiki;
     vec3_t      mins, maxs;
@@ -1334,7 +1321,6 @@ void CG_CreateBeam
     int            renderfx,
     const char* name
 )
-
 {
     int      i;
     beam_t* b;
@@ -1492,7 +1478,6 @@ void CG_RestartBeams
 (
     int timedelta
 )
-
 {
     int i;
     beam_t* b;
@@ -1514,7 +1499,6 @@ void CG_Rope
 (
     centity_t* cent
 )
-
 {
     Vector         prevpt, currpt;
     entityState_t* s1;

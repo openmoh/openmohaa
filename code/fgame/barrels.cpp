@@ -117,7 +117,6 @@ int BarrelObject::PickBarrelLeak
 	(
 	void
 	)
-
 {
 	int iHighest;
 	float fHighestHeight;
@@ -148,7 +147,6 @@ void BarrelObject::BarrelSetup
 	(
 	Event *ev
 	)
-
 {
 	setMoveType( MOVETYPE_PUSH );
 	setSolidType( SOLID_BSP );
@@ -167,7 +165,6 @@ void BarrelObject::BarrelSetType
 	(
 	Event *ev
 	)
-
 {
 	str sType = ev->GetString( 1 );
 
@@ -210,7 +207,6 @@ void BarrelObject::BarrelThink
 	(
 	Event *ev
 	)
-
 {
 	int i;
 	int iBiggestLeak;
@@ -415,7 +411,6 @@ void BarrelObject::BarrelDamaged
 	(
 	Event *ev
 	)
-
 {
 	Vector vDir;
 	Vector vForward;
@@ -532,7 +527,6 @@ void BarrelObject::BarrelKilled
 	(
 	Event *ev
 	)
-
 {
 	float fFluidTop;
 	Vector vPos;

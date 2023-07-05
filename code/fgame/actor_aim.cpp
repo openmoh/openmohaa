@@ -28,7 +28,6 @@ void Actor::InitAim
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState					= &Actor::Begin_Aim;
 	func->ThinkState					= &Actor::Think_Aim;
@@ -40,7 +39,6 @@ void Actor::Begin_Aim
 	(
 	void
 	)
-
 {
 	m_csMood = STRING_ALERT;
 	m_csIdleMood = STRING_NERVOUS;
@@ -50,7 +48,6 @@ void Actor::Think_Aim
 	(
 	void
 	)
-
 {
 	if( !RequireThink() )
 		return;
@@ -73,7 +70,6 @@ void Actor::ShowInfo_Aim
 	(
 	void
 	)
-
 {
 	ShowInfo_AimNode();
 }

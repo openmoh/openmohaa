@@ -436,7 +436,6 @@ void Container<Type>::SetObjectAt(int index, const Type& obj)
 
 template<class Type>
 void Container<Type>::Sort(int (*compare)(const void* elem1, const void* elem2))
-
 {
     if (!objlist) {
         return;

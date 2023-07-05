@@ -363,7 +363,6 @@ inline void Weapon::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	Item::Archive( arc );
 	

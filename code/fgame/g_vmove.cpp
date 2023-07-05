@@ -43,7 +43,6 @@ void VM_ClipVelocity
 	float *out,
 	float overbounce
 	)
-
 {
 	float backoff;
 	float dir_z;
@@ -88,7 +87,6 @@ void VM_AddTouchEnt
 	(
 	int entityNum
 	)
-
 {
 	int			i;
 
@@ -118,7 +116,6 @@ qboolean VM_SlideMove
 	(
 	qboolean gravity
 	)
-
 {
 	int bumpcount;
 	vec3_t dir;
@@ -287,7 +284,6 @@ void VM_GroundTraceInternal
 	(
 	void
 	)
-
 {
 	VM_GroundTraceInternal2();
 	VM_AddTouchEnt( vm->vs->groundTrace.entityNum );
@@ -297,7 +293,6 @@ void VM_GroundTraceInternal2
 	(
 	void
 	)
-
 {
 	if( vm->vs->groundTrace.fraction == 1.0f )
 	{
@@ -349,7 +344,6 @@ void VM_GroundTrace
 	(
 	void
 	)
-
 {
 	float point[ 3 ];
 
@@ -365,7 +359,6 @@ void VM_StepSlideMove
 	(
 	void
 	)
-
 {
 	vec3_t start_o;
 	vec3_t start_v;
@@ -546,7 +539,6 @@ void VM_ClipVelocity2D
 	float *out,
 	float overbounce
 	)
-
 {
 	float backoff;
 	float dir_z;
@@ -591,7 +583,6 @@ void VmoveSingle
 	(
 	vmove_t *vmove
 	)
-
 {
 	float point[ 3 ];
 	trace_t trace;

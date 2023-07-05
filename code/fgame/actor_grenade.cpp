@@ -29,7 +29,6 @@ void Actor::InitGrenade
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_Grenade;
 	func->BeginState					= &Actor::Begin_Grenade;
@@ -46,7 +45,6 @@ bool Actor::Grenade_Acquire
 	eGrenadeState eNextState,
 	const_str csReturnAnim
 	)
-
 {
 	bool bRetVal = false;
 	Vector vDest;
@@ -117,7 +115,6 @@ void Actor::Grenade_Flee
 	(
 	void
 	)
-
 {
 	//float origin_ratio;
 	float fMinCloseDistSquared;
@@ -209,7 +206,6 @@ void Actor::Grenade_ThrowAcquire
 	(
 	void
 	)
-
 {
 	if (!Grenade_Acquire(AI_GRENSTATE_THROW, STRING_ANIM_GRENADERETURN_SCR)
 		&& !CanGetGrenadeFromAToB(
@@ -229,7 +225,6 @@ void Actor::Grenade_Throw
 	(
 	void
 	)
-
 {
 	m_bHasDesiredLookAngles = false;
 
@@ -242,7 +237,6 @@ void Actor::Grenade_KickAcquire
 	(
 	void
 	)
-
 {
 	Vector vFace = vec_zero;
 	if (!Grenade_Acquire(AI_GRENSTATE_KICK, STRING_ANIM_GRENADEKICK_SCR))
@@ -267,7 +261,6 @@ void Actor::Grenade_Kick
 	(
 	void
 	)
-
 {
 	m_bHasDesiredLookAngles = false;
 	ContinueAnimation();
@@ -277,7 +270,6 @@ void Actor::Grenade_MartyrAcquire
 	(
 	void
 	)
-
 {
 	Vector vDest;
 	if (m_bGrenadeBounced)
@@ -340,7 +332,6 @@ void Actor::Grenade_Martyr
 	(
 	void
 	)
-
 {
 	if (m_pGrenade && level.inttime >= (m_iStateTime + 1000) - 0.5)
 	{
@@ -359,7 +350,6 @@ void Actor::Grenade_Wait
 	(
 	void
 	)
-
 {
 	if (rand() & 0xF)
 	{
@@ -377,7 +367,6 @@ void Actor::Grenade_NextThinkState
 	(
 	void
 	)
-
 {
 	if (m_Enemy && !(m_Enemy->IsSubclassOfActor()))
 		SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
@@ -389,7 +378,6 @@ void Actor::Grenade_EventAttach
 	(
 	Event *ev
 	)
-
 {
 	if (m_pGrenade)
 	{
@@ -426,7 +414,6 @@ void Actor::Grenade_EventDetach
 	(
 	Event *ev
 	)
-
 {
 	if (m_pGrenade)
 	{
@@ -444,7 +431,6 @@ void Actor::Begin_Grenade
 	(
 	void
 	)
-
 {
 	DoForceActivate();
 	m_csMood = STRING_ALERT;
@@ -571,7 +557,6 @@ void Actor::End_Grenade
 	(
 	void
 	)
-
 {
 	m_pszDebugState = "";
 }
@@ -580,7 +565,6 @@ void Actor::Resume_Grenade
 	(
 	void
 	)
-
 {
 	if (m_pGrenade)
 		Begin_Grenade();
@@ -592,7 +576,6 @@ void Actor::Think_Grenade
 	(
 	void
 	)
-
 {
 	if (m_bEnableEnemy)
 		UpdateEnemy(200);
@@ -677,7 +660,6 @@ void Actor::FinishedAnimation_Grenade
 	(
 	void
 	)
-
 {
 	switch (m_eGrenadeState)
 	{

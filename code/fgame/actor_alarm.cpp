@@ -28,7 +28,6 @@ void Actor::InitAlarm
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState					= &Actor::Begin_Alarm;
 	func->EndState						= &Actor::End_Alarm;
@@ -41,7 +40,6 @@ void Actor::Begin_Alarm
 	(
 	void
 	)
-
 {
 	DoForceActivate();
 
@@ -74,7 +72,6 @@ void Actor::End_Alarm
 	(
 	void
 	)
-
 {
 	parm.movefail = true;
 }
@@ -83,7 +80,6 @@ void Actor::State_Alarm_StartThread
 	(
 	void
 	)
-
 {
 	if( m_AlarmNode )
 		SetLeashHome( m_AlarmNode->origin );
@@ -98,7 +94,6 @@ void Actor::State_Alarm_Move
 	(
 	void
 	)
-
 {
 	if( PathExists() )
 	{
@@ -127,7 +122,6 @@ void Actor::State_Alarm_Idle
 	(
 	void
 	)
-
 {
 	AimAtTargetPos();
 	SetThink(THINKSTATE_ATTACK, THINK_TURRET);
@@ -137,7 +131,6 @@ void Actor::Think_Alarm
 	(
 	void
 	)
-
 {
 	if( !RequireThink() )
 		return;
@@ -167,7 +160,6 @@ void Actor::FinishedAnimation_Alarm
 	(
 	void
 	)
-
 {
 	// not needed
 	return;

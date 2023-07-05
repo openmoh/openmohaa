@@ -75,7 +75,6 @@ void G_InitConsoleCommands
 	(
 	void
 	)
-
 {
 	consolecmd_t *cmds;
 
@@ -149,7 +148,6 @@ qboolean G_ProcessClientCommand
 	(
 	gentity_t *ent
 	)
-
 {
 	const char		*cmd;
 	consolecmd_t	*cmds;
@@ -552,7 +550,6 @@ qboolean G_ShowVarCmd
 	(
 	gentity_t *ent
 	)
-
 {
 	return qtrue;
 }
@@ -616,7 +613,6 @@ qboolean G_CompileScript
 	(
 	gentity_t *ent
 	)
-
 {
 	if( gi.Argc() <= 2 )
 	{
@@ -634,7 +630,6 @@ qboolean G_AddBot
 	(
 	gentity_t *ent
 	)
-
 {
 	int numbots;
 	int n;
@@ -724,7 +719,6 @@ qboolean G_RemoveBot
 	(
 	gentity_t *ent
 	)
-
 {
 	if( gi.Argc() <= 1 )
 	{
@@ -750,7 +744,6 @@ qboolean G_BotCommand
 	(
 	gentity_t *ent
 	)
-
 {
 	const char *command;
 	PlayerBot *bot;

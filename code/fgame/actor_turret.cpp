@@ -28,7 +28,6 @@ void Actor::InitTurret
 (
 	GlobalFuncs_t *func
 )
-
 {
 	func->ThinkState					= &Actor::Think_Turret;
 	func->BeginState					= &Actor::Begin_Turret;
@@ -47,7 +46,6 @@ void Actor::Begin_Turret
 (
 	void
 )
-
 {
 	DoForceActivate();
 	m_csMood = STRING_ALERT;
@@ -68,7 +66,6 @@ void Actor::End_Turret
 (
 	void
 )
-
 {
 	if (m_pCoverNode && m_State != 111)
 	{
@@ -82,7 +79,6 @@ void Actor::Suspend_Turret
 (
 	void
 )
-
 {
 	if (!m_Enemy)
 	{
@@ -103,7 +99,6 @@ void Actor::Think_Turret
 (
 	void
 )
-
 {
 
 
@@ -300,7 +295,6 @@ void Actor::FinishedAnimation_Turret
 (
 	void
 )
-
 {
 	if (m_State <= 108)
 	{
@@ -316,7 +310,6 @@ void Actor::ReceiveAIEvent_Turret
 	float fDistSquared,
 	float fMaxDistSquared
 )
-
 {
 	if (iType == AI_EVENT_WEAPON_IMPACT)
 	{
@@ -340,7 +333,6 @@ void Actor::InterruptPoint_Turret
 (
 	void
 )
-
 {
 	if (m_Enemy && !Turret_TryToBecomeCoverGuy() && m_State == 100)
 	{
@@ -353,7 +345,6 @@ void Actor::PathnodeClaimRevoked_Turret
 (
 	void
 )
-
 {
 	if (m_Enemy == NULL)
 	{
@@ -369,7 +360,6 @@ bool Actor::Turret_IsRetargeting
 (
 	void
 ) const
-
 {
 	return m_State <= 120;
 }
@@ -378,7 +368,6 @@ bool Actor::Turret_DecideToSelectState
 (
 	void
 )
-
 {
 	switch (m_State)
 	{
@@ -401,7 +390,6 @@ void Actor::Turret_SelectState
 (
 	void
 )
-
 {
 	vec2_t vDelta;
 	float fDistSquared;
@@ -511,7 +499,6 @@ bool Actor::Turret_CheckRetarget
 (
 	void
 )
-
 {
 	if (level.inttime < m_iStateTime + 5000 || level.inttime < m_iLastHitTime + 5000)
 		return false;
@@ -525,7 +512,6 @@ bool Actor::Turret_TryToBecomeCoverGuy
 (
 	void
 )
-
 {
 	PathNode* pOldCover = m_pCoverNode;
 	Cover_FindCover(true);
@@ -550,7 +536,6 @@ void Actor::Turret_BeginRetarget
 (
 	void
 )
-
 {
 	SetEnemyPos(m_Enemy->origin);
 	AimAtEnemyBehavior();
@@ -563,7 +548,6 @@ void Actor::Turret_NextRetarget
 (
 	void
 )
-
 {
 	vec2_t vDelta;
 	float fDistSquared;
@@ -629,7 +613,6 @@ void Actor::Turret_SideStep
 	int iStepSize,
 	vec3_t vDir
 )
-
 {
 	AimAtEnemyBehavior();
 	//v3 = iStepSize;
@@ -654,7 +637,6 @@ void Actor::State_Turret_Combat
 (
 	void
 )
-
 {
 	if (CanSeeEnemy(200))
 	{
@@ -703,7 +685,6 @@ void Actor::State_Turret_Reacquire
 (
 	void
 )
-
 {
 	/*Sentient *v1; // ecx
 	float v2; // ST08_4
@@ -737,7 +718,6 @@ void Actor::State_Turret_TakeSniperNode
 (
 	void
 )
-
 {
 	if (PathExists() && !PathComplete())
 	{
@@ -755,7 +735,6 @@ void Actor::State_Turret_SniperNode
 (
 	void
 )
-
 {
 	AimAtTargetPos();
 	Anim_Sniper();
@@ -771,7 +750,6 @@ bool Actor::State_Turret_RunHome
 (
 	bool bAttackOnFail
 )
-
 {
 
 	SetPath(m_vHome, NULL, 0, NULL, 0.0);
@@ -802,7 +780,6 @@ void Actor::State_Turret_RunAway
 (
 	void
 )
-
 {
 	if (!PathExists() || PathComplete())
 	{
@@ -828,7 +805,6 @@ void Actor::State_Turret_Charge
 (
 	void
 )
-
 {
 	SetPathWithLeash(m_vLastEnemyPos, NULL, 0);
 	ShortenPathToAvoidSquadMates();
@@ -881,7 +857,6 @@ void Actor::State_Turret_Grenade
 (
 	void
 )
-
 {
 	GenericGrenadeTossThink();
 }
@@ -890,7 +865,6 @@ void Actor::State_Turret_FakeEnemy
 (
 	void
 )
-
 {
 	AimAtTargetPos();
 	Anim_Aim();
@@ -902,7 +876,6 @@ void Actor::State_Turret_Wait
 (
 	void
 )
-
 {
 	PathNode *pNode;
 	if (CanSeeEnemy(500) || CanShootEnemy(500))
@@ -977,7 +950,6 @@ void Actor::State_Turret_Retarget_Sniper_Node
 (
 	void
 )
-
 {
 	PathNode *pSniperNode;
 	bool bTryAgain;
@@ -1011,7 +983,6 @@ void Actor::State_Turret_Retarget_Path_Exact
 (
 	void
 )
-
 {
 	AimAtEnemyBehavior();
 	SetPathWithLeash(m_vLastEnemyPos, NULL, 0);
@@ -1030,7 +1001,6 @@ void Actor::State_Turret_Retarget_Path_Near
 (
 	void
 )
-
 {
 	AimAtEnemyBehavior();
 	FindPathNearWithLeash(m_vLastEnemyPos, m_fMinDistanceSquared);
@@ -1048,7 +1018,6 @@ void Actor::State_Turret_Retarget_Step_Side_Small
 (
 	void
 )
-
 {
 	int iRand; // esi
 
@@ -1073,7 +1042,6 @@ void Actor::State_Turret_Retarget_Step_Side_Medium
 (
 	void
 )
-
 {
 	int iRand; // esi
 
@@ -1098,7 +1066,6 @@ void Actor::State_Turret_Retarget_Step_Side_Large
 (
 	void
 )
-
 {
 	int iRand; // esi
 
@@ -1123,7 +1090,6 @@ void Actor::State_Turret_Retarget_Step_Face_Medium
 (
 	void
 )
-
 {
 	int iRand; // esi
 
@@ -1148,7 +1114,6 @@ void Actor::State_Turret_Retarget_Step_Face_Large
 (
 	void
 )
-
 {
 	int iRand; // esi
 

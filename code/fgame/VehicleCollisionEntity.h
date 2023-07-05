@@ -51,7 +51,6 @@ void VehicleCollisionEntity::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Entity::Archive( arc );
 

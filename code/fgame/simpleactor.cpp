@@ -105,7 +105,6 @@ void SimpleActor::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Sentient::Archive( arc );
 
@@ -220,7 +219,6 @@ void SimpleActor::SetMoveInfo
 	(
 	mmove_t *
 	)
-
 {
 	OVERLOADED_ERROR();
 }
@@ -229,7 +227,6 @@ void SimpleActor::GetMoveInfo
 (
 mmove_t *
 )
-
 {
 	OVERLOADED_ERROR();
 }
@@ -238,7 +235,6 @@ void SimpleActor::StopAnimating
 	(
 	int slot
 	)
-
 {
 	int index = 0;
 
@@ -264,7 +260,6 @@ void SimpleActor::AnimFinished
 	(
 	int slot
 	)
-
 {
 	assert( !DumpCallTrace("") );
 }
@@ -273,7 +268,6 @@ bool SimpleActor::CanTarget
 	(
 	void
 	)
-
 {
 	OVERLOADED_ERROR();
 	return false;
@@ -283,7 +277,6 @@ bool SimpleActor::IsImmortal
 	(
 	void
 	)
-
 {
 	OVERLOADED_ERROR();
 	return false;
@@ -294,7 +287,6 @@ bool SimpleActor::DoesTheoreticPathExist
 	Vector vDestPos,
 	float fMaxPath
 	)
-
 {
 	return m_Path.DoesTheoreticPathExist( origin, vDestPos, this, fMaxPath, NULL, 0 );
 }
@@ -307,7 +299,6 @@ void SimpleActor::SetPath
 	float *vLeashHome,
 	float fLeashDistSquared
 	)
-
 {
 	if (!PathExists()
 		|| ( ( level.inttime >= m_Path.Time() + iMaxDirtyTime
@@ -362,7 +353,6 @@ void SimpleActor::SetPath
 	const char *description,
 	int iMaxDirtyTime
 	)
-
 {
 	if (pDestNode)
 	{
@@ -396,7 +386,6 @@ void SimpleActor::SetPathWithinDistance
 	float fMaxPath,
 	int iMaxDirtyTime
 	)
-
 {
 	SetPath(vDestPos, description, iMaxDirtyTime, NULL, 0);
 }
@@ -407,7 +396,6 @@ void SimpleActor::FindPathAway
 	vec_t *vDirPreferred,
 	float fMinSafeDist
 	)
-
 {
 	m_Path.FindPathAway(origin, vAwayFrom, vDirPreferred, this, fMinSafeDist, NULL, 0);
 	
@@ -418,7 +406,6 @@ void SimpleActor::ClearPath
 	(
 	void
 	)
-
 {
 	m_Path.Clear();
 }
@@ -427,7 +414,6 @@ bool SimpleActor::PathComplete
 	(
 	void
 	) const
-
 {
 	if( level.time >= m_fPathGoalTime )
 	{
@@ -442,7 +428,6 @@ bool SimpleActor::PathExists
 	(
 	void
 	) const
-
 {
 	return m_Path.CurrentNode() != NULL;
 }
@@ -451,7 +436,6 @@ bool SimpleActor::PathIsValid
 	(
 	void
 	) const
-
 {
 	//Called by SetPath...
 	return true;
@@ -461,7 +445,6 @@ bool SimpleActor::PathAvoidsSquadMates
 	(
 	void
 	) const
-
 {
 	Entity* player;
 	float fDelta;
@@ -637,7 +620,6 @@ void SimpleActor::ShortenPathToAvoidSquadMates
 	(
 	void
 	)
-
 {
 	if (PathExists() && !PathComplete())
 	{
@@ -686,7 +668,6 @@ PathInfo *SimpleActor::CurrentPathNode
 	(
 	void
 	) const
-
 {
 	return m_Path.CurrentNode();
 }
@@ -695,7 +676,6 @@ PathInfo *SimpleActor::LastPathNode
 	(
 	void
 	) const
-
 {
 	return m_Path.LastNode();
 }
@@ -704,7 +684,6 @@ float SimpleActor::PathDist
 	(
 	void
 	) const
-
 {
 	return m_Path.TotalDist();
 }
@@ -713,7 +692,6 @@ bool SimpleActor::PathHasCompleteLookahead
 	(
 	void
 	) const
-
 {
 	return m_Path.HasCompleteLookahead();
 }
@@ -722,7 +700,6 @@ Vector SimpleActor::PathGoal
 	(
 	void
 	) const
-
 {
 	return LastPathNode()->point;
 }
@@ -731,7 +708,6 @@ float *SimpleActor::PathDelta
 	(
 	void
 	) const
-
 {
 	return m_Path.CurrentDelta();
 }
@@ -740,7 +716,6 @@ bool SimpleActor::PathGoalSlowdownStarted
 	(
 	void
 	) const
-
 {
 	return m_fPathGoalTime >= level.time;
 }
@@ -749,7 +724,6 @@ void SimpleActor::SetDest
 	(
 	vec3_t dest
 	)
-
 {
 	VectorCopy(dest, m_Dest);
 }
@@ -758,7 +732,6 @@ void SimpleActor::StopTurning
 	(
 	void
 	)
-
 {
 	m_YawAchieved = true;
 }
@@ -767,7 +740,6 @@ void SimpleActor::SetDesiredYaw
 	(
 	float yaw
 	)
-
 {
 	m_YawAchieved = false;
 	m_DesiredYaw = yaw;
@@ -777,7 +749,6 @@ void SimpleActor::SetDesiredYawDir
 	(
 	vec3_t vec
 	)
-
 {
 	m_YawAchieved = false;
 	m_DesiredYaw = vectoyaw(vec);
@@ -787,7 +758,6 @@ void SimpleActor::SetDesiredYawDest
 	(
 	vec3_t vec
 	)
-
 {
 	float facedir[2];
 	VectorSub2D(vec, origin, facedir);
@@ -802,7 +772,6 @@ void SimpleActor::UpdateEmotion
 	(
 	void
 	)
-
 {
 	int anim;
 	if (IsDead())
@@ -831,7 +800,6 @@ int SimpleActor::GetEmotionAnim
 	(
 	void
 	)
-
 {
 	const char *emotionanim = NULL;
 	int anim;
@@ -929,7 +897,6 @@ int SimpleActor::GetMotionSlot
 	(
 	int slot
 	)
-
 {
 	if( m_AnimMotionHigh )
 		return slot + 3;
@@ -941,7 +908,6 @@ int SimpleActor::GetActionSlot
 	(
 	int slot
 	)
-
 {
 	if( m_AnimActionHigh )
 		return slot + 9;
@@ -953,7 +919,6 @@ int SimpleActor::GetSaySlot
 	(
 	void
 	)
-
 {
 	return m_AnimDialogHigh ? 13 : 12;
 }
@@ -962,7 +927,6 @@ void SimpleActor::StartCrossBlendAnimSlot
 	(
 	int slot
 	)
-
 {
 	if (m_weightType[slot] == 1)
 	{
@@ -987,7 +951,6 @@ void SimpleActor::StartMotionAnimSlot
 	int anim,
 	float weight
 	)
-
 {
 	int iSlot = GetMotionSlot(slot);
 
@@ -1008,7 +971,6 @@ void SimpleActor::StartAimMotionAnimSlot
 	int slot,
 	int anim
 	)
-
 {
 	int iSlot = GetMotionSlot(slot);
 
@@ -1027,7 +989,6 @@ void SimpleActor::StartActionAnimSlot
 	(
 	int anim
 	)
-
 {
 	int iSlot = GetActionSlot(0);
 
@@ -1046,7 +1007,6 @@ void SimpleActor::StartSayAnimSlot
 	(
 	int anim
 	)
-
 {
 	int iSlot = GetSaySlot();
 
@@ -1066,7 +1026,6 @@ void SimpleActor::StartAimAnimSlot
 	int slot,
 	int anim
 	)
-
 {
 	int iSlot = GetActionSlot(slot);
 
@@ -1084,7 +1043,6 @@ void SimpleActor::SetBlendedWeight
 	(
 	int slot
 	)
-
 {
 	m_bUpdateAnimDoneFlags |= 1 << slot;
 	if (m_weightCrossBlend[slot] < 1.0)
@@ -1104,7 +1062,6 @@ void SimpleActor::EventSetAnimLength
 	(
 	Event *ev
 	)
-
 {
 	int slot;
 	float length;
@@ -1154,7 +1111,6 @@ void SimpleActor::UpdateNormalAnimSlot
 	(
 	int slot
 	)
-
 {
 	m_weightCrossBlend[slot] += m_fCrossblendTime == 0.0 ? 1.0 : level.frametime / m_fCrossblendTime;
 
@@ -1165,7 +1121,6 @@ void SimpleActor::UpdateCrossBlendAnimSlot
 	(
 	int slot
 	)
-
 {
 	m_weightCrossBlend[slot] -= m_fCrossblendTime == 0.0 ? 1.0 : level.frametime / m_fCrossblendTime;
 
@@ -1184,7 +1139,6 @@ void SimpleActor::UpdateCrossBlendDialogAnimSlot
 	(
 	int slot
 	)
-
 {
 	m_weightCrossBlend[slot] -= m_iSaySlot < 0 ? level.frametime + level.frametime : level.frametime / 0.1;
 
@@ -1203,7 +1157,6 @@ void SimpleActor::UpdateSayAnimSlot
 	(
 	int slot
 	)
-
 {
 	m_weightCrossBlend[slot] += m_iSaySlot < 0 ? level.frametime + level.frametime : level.frametime / 0.1;
 
@@ -1214,7 +1167,6 @@ void SimpleActor::UpdateLastFrameSlot
 	(
 	int slot
 	)
-
 {
 	StopAnimating(slot);
 }
@@ -1223,7 +1175,6 @@ void SimpleActor::UpdateAnimSlot
 	(
 	int slot
 	)
-
 {
 	int weightType = m_weightType[slot];
 	switch (weightType)
@@ -1258,7 +1209,6 @@ void SimpleActor::StopAllAnimating
 	(
 	void
 	)
-
 {
 	SetSyncTime(0);
 
@@ -1272,7 +1222,6 @@ void SimpleActor::ChangeMotionAnim
 	(
 	void
 	)
-
 {
 	//int lastMotionSlot;
 	//int firstMotionSlot;
@@ -1306,7 +1255,6 @@ void SimpleActor::ChangeActionAnim
 	(
 	void
 	)
-
 {
 	int iSlot;
 	int i;
@@ -1343,7 +1291,6 @@ void SimpleActor::ChangeSayAnim
 	(
 	void
 	)
-
 {
 	int iSlot; 
 
@@ -1372,7 +1319,6 @@ void SimpleActor::UpdateAim
 	(
 	void
 	)
-
 {
 	float dir;
 
@@ -1421,7 +1367,6 @@ void SimpleActor::UpdateAimMotion
 	(
 	void
 	)
-
 {
 	int slot = GetMotionSlot(0);
 
@@ -1443,7 +1388,6 @@ void SimpleActor::EventAIOn
 	(
 	Event *ev
 	)
-
 {
 	m_bDoAI = true;
 }
@@ -1452,7 +1396,6 @@ void SimpleActor::EventAIOff
 	(
 	Event *ev
 	)
-
 {
 	m_bDoAI = false;
 }
@@ -1461,7 +1404,6 @@ void SimpleActor::EventGetWeaponGroup
 	(
 	Event *ev
 	)
-
 {
 	const_str csWeaponGroup;
 	Weapon *weapon = GetActiveWeapon(WEAPON_MAIN);
@@ -1484,7 +1426,6 @@ void SimpleActor::EventGetWeaponType
 	(
 	Event *ev
 	)
-
 {
 	Weapon *weapon;
 	const_str csWeaponType;
@@ -1551,7 +1492,6 @@ void SimpleActor::EventGetPainHandler
 	(
 	Event *ev
 	)
-
 {
 	ScriptVariable var;
 	
@@ -1564,7 +1504,6 @@ void SimpleActor::EventSetPainHandler
 	(
 	Event *ev
 	)
-
 {
 	if (ev->IsFromScript())
 	{
@@ -1583,7 +1522,6 @@ void SimpleActor::EventGetDeathHandler
 	(
 	Event *ev
 	)
-
 {
 	ScriptVariable var;
 
@@ -1596,7 +1534,6 @@ void SimpleActor::EventSetDeathHandler
 	(
 	Event *ev
 	)
-
 {
 	if (ev->IsFromScript())
 	{
@@ -1615,7 +1552,6 @@ void SimpleActor::EventGetAttackHandler
 	(
 	Event *ev
 	)
-
 {
 	ScriptVariable var;
 
@@ -1628,7 +1564,6 @@ void SimpleActor::EventSetAttackHandler
 	(
 	Event *ev
 	)
-
 {
 	if (ev->IsFromScript())
 	{
@@ -1647,7 +1582,6 @@ void SimpleActor::EventGetSniperHandler
 	(
 	Event *ev
 	)
-
 {
 	ScriptVariable var;
 
@@ -1660,7 +1594,6 @@ void SimpleActor::EventSetSniperHandler
 	(
 	Event *ev
 	)
-
 {
 	if (ev->IsFromScript())
 	{
@@ -1679,7 +1612,6 @@ void SimpleActor::EventSetCrossblendTime
 	(
 	Event *ev
 	)
-
 {
 	m_fCrossblendTime = ev->GetFloat(1);
 }
@@ -1688,7 +1620,6 @@ void SimpleActor::EventGetCrossblendTime
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat(m_fCrossblendTime);
 }
@@ -1697,7 +1628,6 @@ void SimpleActor::EventSetEmotion
 	(
 	Event *ev
 	)
-
 {
 	switch (ev->GetConstString(1))
 	{
@@ -1744,7 +1674,6 @@ void SimpleActor::EventGetPosition
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString(m_csCurrentPosition);
 }
@@ -1753,7 +1682,6 @@ void SimpleActor::EventSetPosition
 	(
 	Event *ev
 	)
-
 {
 	m_csCurrentPosition = ev->GetConstString(1);
 }
@@ -1762,7 +1690,6 @@ void SimpleActor::EventGetAnimMode
 	(
 	Event *ev
 	)
-
 {
 	// not found in ida
 }
@@ -1771,7 +1698,6 @@ void SimpleActor::EventSetAnimMode
 	(
 	Event *ev
 	)
-
 {
 	// not found in ida
 }
@@ -1780,7 +1706,6 @@ void SimpleActor::EventSetAnimFinal
 	(
 	Event *ev
 	)
-
 {
 	ScriptError("animfinal is obsolete");
 }
@@ -1790,7 +1715,6 @@ void SimpleActor::DesiredAnimation
 	int eAnimMode,
 	const_str csAnimString
 	)
-
 {
 	//fixme: this is an inline function.
 	m_eNextAnimMode = eAnimMode;
@@ -1803,7 +1727,6 @@ void SimpleActor::StartAnimation
 	int eAnimMode,
 	const_str csAnimString
 	)
-
 {
 	//fixme: this is an inline function.
 	m_eNextAnimMode = eAnimMode;
@@ -1816,7 +1739,6 @@ void SimpleActor::DesiredAnimation
 	int eAnimMode,
 	ScriptThreadLabel AnimLabel
 	)
-
 {
 	//fixme: this is an inline function.
 	m_eNextAnimMode = eAnimMode;
@@ -1830,7 +1752,6 @@ void SimpleActor::StartAnimation
 	int eAnimMode,
 	ScriptThreadLabel AnimLabel
 	)
-
 {
 	//fixme: this is an inline function.
 	m_eNextAnimMode = eAnimMode;
@@ -1843,7 +1764,6 @@ void SimpleActor::ContinueAnimationAllowNoPath
 	(
 	void
 	)
-
 {
 	if (m_eNextAnimMode < 0)
 	{
@@ -1858,7 +1778,6 @@ void SimpleActor::ContinueAnimation
 	(
 	void
 	)
-
 {
 	int eAnimMode = m_eNextAnimMode;
 	if (eAnimMode < 0)
@@ -1881,7 +1800,6 @@ void SimpleActor::SetPathGoalEndAnim
 	(
 	const_str csEndAnim
 	)
-
 {
 	//fixme: this is an inline function
 	m_csPathGoalEndAnimScript = csEndAnim;
@@ -1891,7 +1809,6 @@ bool SimpleActor::UpdateSelectedAnimation
 	(
 	void
 	)
-
 {
 	if (m_csNextAnimString ==  STRING_NULL)
 	{
@@ -1984,7 +1901,6 @@ const char *SimpleActor::DumpCallTrace
 	const char *pszFmt,
 	...
 	) const
-
 {
 	OVERLOADED_ERROR();
 	return "overloaded version should always get called";

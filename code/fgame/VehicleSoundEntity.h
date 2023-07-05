@@ -56,7 +56,6 @@ void VehicleSoundEntity::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Entity::Archive( arc );
 

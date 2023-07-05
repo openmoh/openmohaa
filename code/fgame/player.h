@@ -866,7 +866,6 @@ inline void Player::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	str tempStr;
 
@@ -1143,7 +1142,6 @@ inline void Player::SetCamera
 	Camera *ent,
 	float switchTime
 	)
-
 {
 	camera = ent;
 	client->ps.camera_time = switchTime;

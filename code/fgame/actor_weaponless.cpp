@@ -28,7 +28,6 @@ void Actor::InitWeaponless
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState					= &Actor::Think_Weaponless;
 	func->BeginState					= &Actor::Begin_Weaponless;
@@ -42,7 +41,6 @@ void Actor::Begin_Weaponless
 	(
 	void
 	)
-
 {
 
 	DoForceActivate();
@@ -67,7 +65,6 @@ void Actor::Suspend_Weaponless
 	(
 	void
 	)
-
 {
 	if (m_State <= 902)
 	{
@@ -80,7 +77,6 @@ void Actor::Think_Weaponless
 	(
 	void
 	)
-
 {
 
 	if (RequireThink())
@@ -131,7 +127,6 @@ void Actor::FinishedAnimation_Weaponless
 	(
 	void
 	)
-
 {
 	if (m_State <= 902)
 	{
@@ -143,7 +138,6 @@ void Actor::State_Weaponless_Normal
 	(
 	void
 	)
-
 {
 	int iStateTime;
 	if (m_bScriptGoalValid)
@@ -192,7 +186,6 @@ void Actor::State_Weaponless_Grenade
 (
 	void
 )
-
 {
 	GenericGrenadeTossThink();
 }

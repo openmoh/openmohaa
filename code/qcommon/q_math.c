@@ -1568,7 +1568,6 @@ void QuatToMat
 	const float q[ 4 ],
 	float m[ 3 ][ 3 ]
 	)
-
 {
 	float wx, wy, wz;
 	float xx, yy, yz;
@@ -1609,7 +1608,6 @@ void MatToQuat
 	float srcMatrix[ 3 ][ 3 ],
 	float destQuat[ 4 ]
 	)
-
 {
 	double  	trace, s;
 	int     	i, j, k;
@@ -1657,7 +1655,6 @@ void SlerpQuaternion
     float t,
     float res[4]
 )
-
 {
     float		to1[4];
     double	omega, cosom, sinom, scale0, scale1;
@@ -1718,7 +1715,6 @@ void EulerToQuat
 	float ang[ 3 ],
 	float q[ 4 ]
 	)
-
 {
 	float mat[ 3 ][ 3 ];
 	int *i;
@@ -1745,7 +1741,6 @@ float ProjectPointOnLine
 	vec_t *i_vPoint,
 	vec_t *o_vProj
 	)
-
 {
 	float fDot;
 	vec3_t vDir;
@@ -1771,7 +1766,6 @@ float ProjectLineOnPlane
 	vec_t *vEnd,
 	vec_t *vProj
 	)
-
 {
 	float d1;
 	float d2;
@@ -1981,7 +1975,6 @@ void MatrixTransformVector
 	const float mat[ 3 ][ 3 ],
 	vec3_t out
 	)
-
 {
 	out[ 0 ] = ( in[ 0 ] * mat[ 0 ][ 0 ] ) + ( in[ 1 ] * mat[ 1 ][ 0 ] ) + ( in[ 2 ] * mat[ 2 ][ 0 ] );
 	out[ 1 ] = ( in[ 0 ] * mat[ 0 ][ 1 ] ) + ( in[ 1 ] * mat[ 1 ][ 1 ] ) + ( in[ 2 ] * mat[ 2 ][ 1 ] );
@@ -1999,7 +1992,6 @@ const float mat[ 3 ][ 3 ],
 const vec3_t in,
 vec3_t out
 )
-
 {
 	out[ 0 ] = ( in[ 0 ] * mat[ 0 ][ 0 ] ) + ( in[ 1 ] * mat[ 0 ][ 1 ] ) + ( in[ 2 ] * mat[ 0 ][ 2 ] );
 	out[ 1 ] = ( in[ 0 ] * mat[ 1 ][ 0 ] ) + ( in[ 1 ] * mat[ 1 ][ 1 ] ) + ( in[ 2 ] * mat[ 1 ][ 2 ] );
@@ -4025,7 +4017,6 @@ void MatrixToEulerAngles
 	const float mat[ 3 ][ 3 ],
 	vec3_t ang
 	)
-
 {
 	double theta;
 	double cp;

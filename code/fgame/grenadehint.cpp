@@ -41,7 +41,6 @@ void GrenadeHint::ResetHints
 	(
 	void
 	)
-
 {
 	gm_pFirst = NULL;
 }
@@ -53,7 +52,6 @@ int GrenadeHint::GetClosestSet
 	Vector& vOrg,
 	float fMaxRangeSquared
 	)
-
 {
 	int i;
 	int nFound = 0;

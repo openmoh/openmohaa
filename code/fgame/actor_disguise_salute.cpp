@@ -28,7 +28,6 @@ void Actor::InitDisguiseSalute
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState						= &Actor::Think_DisguiseSalute;
 	func->BeginState						= &Actor::Begin_DisguiseSalute;
@@ -43,7 +42,6 @@ void Actor::Begin_DisguiseSalute
 	(
 	void
 	)
-
 {
 	vec2_t vDelta; 
 	
@@ -89,7 +87,6 @@ void Actor::End_DisguiseSalute
 	(
 	void
 	)
-
 {
 	m_iNextDisguiseTime = level.inttime + m_iDisguisePeriod;
 }
@@ -98,7 +95,6 @@ void Actor::Resume_DisguiseSalute
 	(
 	void
 	)
-
 {
 	Begin_DisguiseSalute();
 }
@@ -107,7 +103,6 @@ void Actor::Suspend_DisguiseSalute
 	(
 	void
 	)
-
 {
 	End_DisguiseSalute();
 }
@@ -116,7 +111,6 @@ void Actor::Think_DisguiseSalute
 	(
 	void
 	)
-
 {
 	NoPoint();
 	ContinueAnimation();
@@ -157,7 +151,6 @@ void Actor::FinishedAnimation_DisguiseSalute
 	(
 	void
 	)
-
 {
 	SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
 }

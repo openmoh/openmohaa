@@ -294,7 +294,6 @@ void State::readAction
 	(
 	Script &script
 	)
-
 {
 	str token;
 
@@ -584,7 +583,6 @@ const char *State::getLegAnim
 	Entity &ent,
 	Container<Conditional *> *sent_conditionals
 	)
-
 {
 	int i;
 	Expression *exp;
@@ -615,7 +613,6 @@ const char *State::getActionAnim
 	Container<Conditional *> *sent_conditionals,
 	int *piAnimType
 	)
-
 {
 	int i;
 	Expression *exp;
@@ -807,7 +804,6 @@ State::State
 	Script &script,
 	StateMap &map
 	) : statemap( map )
-
 {
 	str cmd;
 

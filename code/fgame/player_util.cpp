@@ -598,7 +598,6 @@ void Player::Stats
 	(
 	Event *ev
 	)
-
 {
 	// FIXME: stub
 }
@@ -607,7 +606,6 @@ void ClosePlayerLogFile
 	(
 	void
 	)
-
 {
 	if( logfile )
 	{
@@ -620,7 +618,6 @@ void Player::SkipCinematic
 	(
 	Event *ev
 	)
-
 {
 	if( level.cinematic && ( level.RegisterSize( STRING_SKIP ) ) )
 	{

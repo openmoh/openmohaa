@@ -396,7 +396,6 @@ void Trigger::StartThread
 	(
 	Event *ev
 	)
-
 {
 	SafePtr< Trigger > This = this;
 
@@ -439,7 +438,6 @@ void Trigger::TriggerStuff
 	(
 	Event *ev
 	)
-
 {
 	Entity *other;
 	Entity *activator;
@@ -780,7 +778,6 @@ void Trigger::EventSetThread
 	(
 	Event *ev
 	)
-
 {
 	if( ev->IsFromScript() )
 	{
@@ -796,7 +793,6 @@ void Trigger::EventSetHealth
 	(
 	Event *ev
 	)
-
 {
 	health = ev->GetFloat( 1 );
 	max_health = health;
@@ -1209,7 +1205,6 @@ void TriggerSave::SaveGame
 	(
 	Event *ev
 	)
-
 {
 	gi.SetConfigstring( CS_SAVENAME, m_sSaveName );
 	gi.SendConsoleCommand( "savegame" );
@@ -1219,7 +1214,6 @@ void TriggerSave::EventSaveName
 	(
 	Event *ev
 	)
-
 {
 	m_sSaveName = ev->GetString( 1 );
 }
@@ -1972,7 +1966,6 @@ void TriggerChangeLevel::SetSpawnSpot
 	(
 	Event *ev
 	)
-
 {
 	spawnspot = ev->GetConstString(1);
 }
@@ -1981,7 +1974,6 @@ void TriggerChangeLevel::ChangeLevel
 	(
 	Event *ev
 	)
-
 {
 	SafePtr<Entity> safeThis = this;
 	Entity* other;
@@ -2429,7 +2421,6 @@ void TriggerCameraUse::TriggerCamera
 	(
 	Event *ev
 	)
-
 {
 	ScriptThreadLabel camthread;
 	Entity *other;
@@ -3214,7 +3205,6 @@ void TriggerClickItem::SetClickItemModelEvent
 	(
 	Event *ev
 	)
-
 {
 	SetModelEvent( ev );
 	setContents( CONTENTS_UNKNOWN3 );

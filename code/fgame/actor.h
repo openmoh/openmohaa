@@ -1289,7 +1289,6 @@ inline void Actor::ArchiveStatic
 	(
 	Archiver &arc
 	)
-
 {
 	for( int i = MAX_BODYQUEUE - 1; i >= 0; i-- )
 	{
@@ -1303,7 +1302,6 @@ inline void Actor::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	SimpleActor::Archive( arc );
 

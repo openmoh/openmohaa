@@ -1782,7 +1782,6 @@ qboolean Player::checkturnleft
 	(
 	Conditional &condition
 	)
-
 {
 	float yaw;
 
@@ -1795,7 +1794,6 @@ qboolean Player::checkturnright
 	(
 	Conditional &condition
 	)
-
 {
 	float yaw;
 
@@ -1808,7 +1806,6 @@ qboolean Player::checkforward
 	(
 	Conditional &condition
 	)
-
 {
 	return last_ucmd.forwardmove > 0;
 }
@@ -1817,7 +1814,6 @@ qboolean Player::checkbackward
 	(
 	Conditional &condition
 	)
-
 {
 	return last_ucmd.forwardmove < 0;
 }
@@ -1844,7 +1840,6 @@ qboolean Player::checkrise
 	(
 	Conditional &condition
 	)
-
 {
 	return false;
 }
@@ -1881,7 +1876,6 @@ qboolean Player::checkanimdone_legs
 	(
 	Conditional &condition
 	)
-
 {
 	return animdone_Legs;
 }
@@ -1890,7 +1884,6 @@ qboolean Player::checkanimdone_torso
 	(
 	Conditional &condition
 	)
-
 {
 	return animdone_Torso;
 }
@@ -1900,7 +1893,6 @@ qboolean Player::checkattackleft
 	(
 	Conditional &condition
 	)
-
 {
 	if( level.playerfrozen || m_bFrozen || ( flags & FL_IMMOBILE ) || (g_gametype->integer && !m_bAllowFighting) )
 	{
@@ -1932,7 +1924,6 @@ qboolean Player::checkattackbuttonleft
 	(
 	Conditional &condition
 	)
-
 {
 	if( level.playerfrozen || m_bFrozen || ( flags & FL_IMMOBILE ) || !m_bAllowFighting )
 	{
@@ -1947,7 +1938,6 @@ qboolean Player::checkattackright
 	(
 	Conditional &condition
 	)
-
 {
 	if( level.playerfrozen || m_bFrozen || ( flags & FL_IMMOBILE ) || !m_bAllowFighting )
 	{
@@ -1979,7 +1969,6 @@ qboolean Player::checkattackbuttonright
 	(
 	Conditional &condition
 	)
-
 {
 	if( level.playerfrozen || m_bFrozen || ( flags & FL_IMMOBILE ) || !m_bAllowFighting )
 	{
@@ -1993,7 +1982,6 @@ qboolean Player::checksneak
 	(
 	Conditional &condition
 	)
-
 {
 	return ( last_ucmd.upmove ) < 0;
 }
@@ -2002,7 +1990,6 @@ qboolean Player::checkrun
 	(
 	Conditional &condition
 	)
-
 {
 	return ( last_ucmd.buttons & BUTTON_RUN ) != 0;
 }
@@ -2218,7 +2205,6 @@ qboolean Player::checkonground
 	(
 	Conditional &condition
 	)
-
 {
 	if( groundentity || client->ps.walking )
 	{
@@ -2500,7 +2486,6 @@ qboolean Player::checkpaintype
 	(
 	Conditional &condition
 	)
-
 {
 	if( pain_type == MOD_NameToNum( condition.getParm( 1 ) ) )
 	{
@@ -2516,7 +2501,6 @@ qboolean Player::checkpaindirection
 	(
 	Conditional &condition
 	)
-
 {
 	if( pain_dir == Pain_string_to_int( condition.getParm( 1 ) ) )
 	{
@@ -2532,7 +2516,6 @@ qboolean Player::checkpainlocation
 	(
 	Conditional &condition
 	)
-
 {
 	str sLocationName;
 	int iLocationNum;
@@ -2912,7 +2895,6 @@ qboolean Player::checkweaponreadytofire
 	(
 	Conditional &condition
 	)
-
 {
 	firemode_t		mode = FIRE_PRIMARY;
 	str				weaponName = "None";
@@ -2997,7 +2979,6 @@ qboolean Player::checkweaponreadytofire_nosound
 	(
 	Conditional &condition
 	)
-
 {
 	firemode_t     mode = FIRE_PRIMARY;
 	str            weaponName = "None";
@@ -3041,7 +3022,6 @@ qboolean Player::checkweaponsemiauto
 	(
 	Conditional &condition
 	)
-
 {
 	firemode_t		mode = FIRE_PRIMARY;
 	str				handname;
@@ -3077,7 +3057,6 @@ qboolean Player::checkputawayright
 	(
 	Conditional &condition
 	)
-
 {
 	Weapon *weapon = GetActiveWeapon( WEAPON_MAIN );
 
@@ -3184,7 +3163,6 @@ qboolean Player::checkladder
 	(
 	Conditional &condition
 	)
-
 {
 	trace_t		trace;
 	Vector		forward;
@@ -3315,7 +3293,6 @@ qboolean Player::checkcanclimbupladder
 	(
 	Conditional &condition
 	)
-
 {
 	trace_t trace;
 	Vector	fwd;
@@ -3355,7 +3332,6 @@ qboolean Player::checkcanclimbdownladder
 	(
 	Conditional &condition
 	)
-
 {
 	Vector vEnd = origin - Vector( 0, 0, 16 );
 
@@ -3481,7 +3457,6 @@ qboolean Player::checksolidforward
 	(
 	Conditional &condition
 	)
-
 {
 	// Trace out forward to see if there is a solid ahead
 	float dist = atof( condition.getParm( 1 ) );
@@ -3499,7 +3474,6 @@ qboolean Player::checkweaponsholstered
    (
    Conditional &condition
    )
-
 {
 	if( holsteredWeapon )
 	{
@@ -4401,7 +4375,6 @@ void Player::InitState
 	(
 	void
 	)
-
 {
 	gibbed = false;
 	pain = 0;
@@ -4444,7 +4417,6 @@ void Player::InitModel
    (
    void
    )
-
 {
 	gi.clearmodel( edict );
 
@@ -4565,7 +4537,6 @@ void Player::InitPhysics
    (
    void
    )
-
 {
 	// Physics stuff
 	oldvelocity = vec_zero;
@@ -4597,7 +4568,6 @@ void Player::InitWorldEffects
 	(
 	void
 	)
-
 {
 	// world effects
 	next_painsound_time = 0;
@@ -4631,7 +4601,6 @@ void Player::InitView
 	(
 	void
 	)
-
 {
 	// view stuff
 	camera = NULL;
@@ -4839,7 +4808,6 @@ void Player::InitMaxAmmo
 	(
 	void
 	)
-
 {
 	GiveAmmo( "pistol", 0, 200 );
 	GiveAmmo( "rifle", 0, 200 );
@@ -4855,7 +4823,6 @@ void Player::InitStats
 	(
 	void
 	)
-
 {
 	m_iNumObjectives		= 0;
 	m_iObjectivesCompleted	= 0;
@@ -4935,7 +4902,6 @@ void Player::Respawn
 	(
 	Event *ev
 	)
-
 {
 	if( g_gametype->integer )
 	{
@@ -4977,7 +4943,6 @@ Vector Player::GunTarget
 	(
 	bool bNoCollision
 	)
-
 {
 	Vector vForward;
 	Vector vOut;
@@ -5438,7 +5403,6 @@ void Player::Dead
 	(
 	Event *ev
 	)
-
 {
 	if( deadflag == DEAD_DEAD ) {
 		return;
@@ -5484,7 +5448,6 @@ void Player::Killed
 	(
 	Event *ev
 	)
-
 {
 	Entity	*attacker;
 	Entity	*inflictor;
@@ -5618,7 +5581,6 @@ void Player::KilledPlayerInDeathmatch
 	(
 	Player *killed
 	)
-
 {
 	DM_Team *pDMTeam;
 
@@ -5648,7 +5610,6 @@ void Player::ArmorDamage
 	(
 	Event *ev
 	)
-
 {
 	int mod = ev->GetInteger( 9 );
 
@@ -5706,7 +5667,6 @@ void Player::Pain
 	(
 	Event *ev
 	)
-
 {
 	float		damage, yawdiff;
 	Entity		*attacker;
@@ -5956,7 +5916,6 @@ void Player::DoUse
 	(
 	Event *ev
 	)
-
 {
 	gentity_t *hit;
 	int touch[ MAX_GENTITIES ];
@@ -6028,7 +5987,6 @@ void Player::TouchStuff
 	(
 	pmove_t *pm
 	)
-
 {
 	gentity_t  *other;
 	Event		*event;
@@ -6084,7 +6042,6 @@ void Player::GetMoveInfo
 	(
 	pmove_t *pm
 	)
-
 {
 	moveresult = pm->moveresult;
 
@@ -6160,7 +6117,6 @@ void Player::SetMoveInfo
 	pmove_t *pm,
 	usercmd_t *ucmd
 	)
-
 {
 	Vector move;
 
@@ -6213,7 +6169,6 @@ pmtype_t Player::GetMovePlayerMoveType
 	(
 	void
 	)
-
 {
 	if( getMoveType() == MOVETYPE_NOCLIP || IsSpectator() )
 	{
@@ -6237,7 +6192,6 @@ void Player::CheckGround
 	(
 	void
 	)
-
 {
 	pmove_t pm;
 
@@ -6251,7 +6205,6 @@ qboolean Player::AnimMove
 	Vector &move,
 	Vector *endpos
 	)
-
 {
 	Vector  up;
 	Vector  down;
@@ -6394,7 +6347,6 @@ void Player::CheckMoveFlags
 	(
 	void
 	)
-
 {
 	trace_t trace;
 	Vector start;
@@ -6493,7 +6445,6 @@ void Player::ClientMove
 	(
 	usercmd_t *ucmd
 	)
-
 {
 	pmove_t pm;
 	Vector move;
@@ -6729,7 +6680,6 @@ void Player::VehicleMove
 	(
 	usercmd_t *ucmd
 	)
-
 {
 	if( !m_pVehicle ) {
 		return;
@@ -6764,7 +6714,6 @@ void Player::TurretMove
 	(
 	usercmd_t *ucmd
 	)
-
 {
 	if( !m_pTurret ) {
 		return;
@@ -6799,7 +6748,6 @@ void Player::ClientInactivityTimer
 	(
 	void
 	)
-
 {
 	if( !g_gametype->integer )
 		return;
@@ -6945,7 +6893,6 @@ void Player::ClientThink
 	(
 	void
 	)
-
 {
 	// sanity check the command time to prevent speedup cheating
 	if( current_ucmd->serverTime > level.svsTime )
@@ -7149,7 +7096,6 @@ void Player::UpdateEnemies
 	(
 	void
 	)
-
 {
 	float fFov;
 	float fMaxDist;
@@ -7214,7 +7160,6 @@ void Player::Think
 	(
 	void
 	)
-
 {
 	static cvar_t *g_aimLagTime = NULL;
 
@@ -7603,7 +7548,6 @@ void Player::Postthink
 	(
 	void
 	)
-
 {
 	if( bindmaster )
 	{
@@ -7699,7 +7643,6 @@ void Player::ResetState
 	(
 	Event *ev
 	)
-
 {
 	movecontrol = MOVECONTROL_LEGS;
 	LoadStateTable();
@@ -7750,7 +7693,6 @@ void Player::StartUseAnim
 	(
 	void
 	)
-
 {
 	UseAnim  *ua;
 	Vector   neworg;
@@ -8030,7 +7972,6 @@ void Player::EvaluateState
 	State *forceTorso,
 	State *forceLegs
 	)
-
 {
 	int count;
 	State *laststate_Legs;
@@ -8410,7 +8351,6 @@ void Player::FullHeal
 	(
 	Event *ev
 	)
-
 {
 	if( IsDead() )
 	{
@@ -8434,7 +8374,6 @@ void Player::EventFace
 	(
 	Event *ev
 	)
-
 {
 	SetViewAngles( Vector( ev->GetFloat( 1 ), ev->GetFloat( 2 ), ev->GetFloat( 3 ) ) );
 }
@@ -8480,7 +8419,6 @@ void Player::NoclipCheat
 	(
 	Event *ev
 	)
-
 {
 	const char *msg;
 
@@ -8516,7 +8454,6 @@ void Player::EventTeleport
 	(
 	Event *ev
 	)
-
 {
 	if( ev->NumArgs() == 1 )
 	{
@@ -8541,7 +8478,6 @@ void Player::SetFov
 	(
 	float newFov
 	)
-
 {
 	fov = newFov;
 
@@ -8559,7 +8495,6 @@ void Player::EventSetSelectedFov
 	(
 	Event *ev
 	)
-
 {
 	if( ev->NumArgs() < 1 )
 	{
@@ -8575,7 +8510,6 @@ void Player::SetSelectedFov
 	(
 	float newFov
 	)
-
 {
 	selectedfov = newFov;
 
@@ -8607,7 +8541,6 @@ void Player::SafeZoomed
 	(
 	Event *ev
 	)
-
 {
 	if( ev->GetInteger( 1 ) )
 	{
@@ -8631,7 +8564,6 @@ void Player::ToggleZoom
 	(
 	int iZoom
 	)
-
 {
 	if( iZoom && m_iInZoomMode == -1 )
 	{
@@ -8649,7 +8581,6 @@ void Player::ZoomOff
 	(
 	void
 	)
-
 {
 	SetFov( selectedfov );
 	m_iInZoomMode = 0;
@@ -8659,7 +8590,6 @@ void Player::ZoomOffEvent
 	(
 	Event *ev
 	)
-
 {
 	ZoomOff();
 }
@@ -8668,7 +8598,6 @@ qboolean Player::IsZoomed
 	(
 	void
 	)
-
 {
 	return m_iInZoomMode == -1;
 }
@@ -8716,7 +8645,6 @@ void Player::ProcessPmoveEvents
 	(
 	int event
 	)
-
 {
 	float damage;
 
@@ -8817,7 +8745,6 @@ void Player::WorldEffects
 	(
 	void
 	)
-
 {
 	if( deadflag == DEAD_DEAD )
 	{
@@ -8986,7 +8913,6 @@ void Player::DamageFeedback
 	(
 	void
 	)
-
 {
 	float realcount;
 	float count;
@@ -9088,7 +9014,6 @@ void Player::GetPlayerView
 	Vector *pos,
 	Vector *angle
 	)
-
 {
 	if( pos )
 	{
@@ -9112,7 +9037,6 @@ void Player::SetPlayerView
 	float camerablend[ 4 ],
 	float camerafov
 	)
-
 {
 	client->ps.viewangles[ 0 ] = ang[ 0 ];
 	client->ps.viewangles[ 1 ] = ang[ 1 ];
@@ -9395,7 +9319,6 @@ void Player::SetupView
 	(
 	void
 	)
-
 {
 	// if we currently are not in a camera or the camera we are looking through is automatic, evaluate our camera choices
 
@@ -9925,7 +9848,6 @@ void Player::AutoAim
 	(
 	void
 	)
-
 {
 
 }
@@ -9939,7 +9861,6 @@ void Player::PlayerAngles
    (
    void
    )
-
 {
 	PmoveAdjustAngleSettings( v_angle, angles, &client->ps, &edict->s );
 
@@ -9996,7 +9917,6 @@ void Player::CopyStats
 	(
 	Player *player
 	)
-
 {
 	gentity_t *ent;
 	int i;
@@ -10105,7 +10025,6 @@ void Player::UpdateStats
 	(
 	void
 	)
-
 {
 	int i, count;
 	Vector vObjectiveLocation;
@@ -10579,7 +10498,6 @@ void Player::UpdateStatus
 	(
 	const char *s
 	)
-
 {
 	gi.SendServerCommand( edict - g_entities, "status \"%s\"", s );
 }
@@ -10646,7 +10564,6 @@ void Player::EndAnim_Legs
 	(
 	Event *ev
 	)
-
 {
 	animdone_Legs = true;
 
@@ -10661,7 +10578,6 @@ void Player::EndAnim_Torso
 	(
 	Event *ev
 	)
-
 {
 	animdone_Torso = true;
 
@@ -10676,7 +10592,6 @@ void Player::EndActionAnim
 	(
 	Event *ev
 	)
-
 {
 	m_bActionAnimDone = qtrue;
 	EvaluateState();
@@ -10914,7 +10829,6 @@ void Player::PlayerAnimDelta
 	(
 	float *vDelta
 	)
-
 {
 	float fTimeDelta;
 	float fBackTime;
@@ -10977,7 +10891,6 @@ void Player::CheckReloadWeapons
 	(
 	void
 	)
-
 {
 	Weapon *weap;
 
@@ -10998,7 +10911,6 @@ void Player::UpdateMisc
    (
    void
    )
-
 {
 	//
 	// clear out the level exit flag
@@ -11044,7 +10956,6 @@ void Player::EndFrame
 	(
 	void
 	)
-
 {
 	FinishMove();
 	UpdateStats();
@@ -11158,7 +11069,6 @@ void Player::ChangeMusic
    const char * fallback,
    qboolean force
 	)
-
 {
 	int current_mood_num;
 	int fallback_mood_num;
@@ -11240,7 +11150,6 @@ void Player::JumpXY
    (
    Event *ev
    )
-
 {
 	float forwardmove;
 	float sidemove;
@@ -11268,7 +11177,6 @@ Vector Player::EyePosition
 	(
 	void
 	)
-
 {
 	return m_vViewPos;
 }
@@ -11277,7 +11185,6 @@ void Player::GetViewangles
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector( v_angle );
 }
@@ -11286,7 +11193,6 @@ void Player::SetViewangles
 	(
 	Event *ev
 	)
-
 {
 	SetViewAngles( ev->GetVector( 1 ) );
 }
@@ -11295,7 +11201,6 @@ void Player::SetViewAngles
 	(
 	Vector newViewangles
 	)
-
 {
 	// set the delta angle
 	client->ps.delta_angles[ 0 ] = ANGLE2SHORT( newViewangles.x - client->cmd_angles[ 0 ] );
@@ -11316,7 +11221,6 @@ Vector Player::GetViewAngles
 	(
 	void
 	)
-
 {
 	return v_angle;
 }
@@ -11334,7 +11238,6 @@ void Player::ForceLegsState
 	(
 	Event *ev
 	)
-
 {
 	State *ls = statemap_Legs->FindState( ev->GetString( 1 ) );
 	EvaluateState( NULL, ls );
@@ -11344,7 +11247,6 @@ void Player::ForceTorsoState
 	(
 	Event *ev
 	)
-
 {
 	State *ts = statemap_Torso->FindState( ev->GetString( 1 ) );
 	EvaluateState( ts );
@@ -11551,7 +11453,6 @@ void Player::Spectator
 	(
 	Event *ev
 	)
-
 {
 	client->pers.weapon[ 0 ] = 0;
 	SetTeam( TEAM_SPECTATOR );
@@ -11576,7 +11477,6 @@ void Player::EventGetUseHeld
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( buttons & BUTTON_USE ? qtrue : qfalse );
 }
@@ -11585,7 +11485,6 @@ void Player::EventGetFireHeld
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( buttons & ( BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT ) ? qtrue : qfalse );
 }
@@ -11594,7 +11493,6 @@ void Player::Score
 	(
 	Event *ev
 	)
-
 {
 	dmManager.Score( this );
 }
@@ -11618,7 +11516,6 @@ void Player::GetIsDisguised
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( m_bIsDisguised );
 }
@@ -11627,7 +11524,6 @@ void Player::GetHasDisguise
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( m_bHasDisguise );
 }
@@ -11636,7 +11532,6 @@ void Player::SetHasDisguise
 	(
 	Event *ev
 	)
-
 {
 	m_bHasDisguise = ev->GetBoolean( 1 );
 }
@@ -11645,7 +11540,6 @@ void Player::SetObjectiveCount
 	(
 	Event *ev
 	)
-
 {
 	m_iObjectivesCompleted = ev->GetInteger( 1 );
 	m_iNumObjectives = ev->GetInteger( 2 );
@@ -11727,7 +11621,6 @@ void Player::CallVote
 	(
 	Event *ev
 	)
-
 {
 	str arg1;
 	str arg2;
@@ -11845,7 +11738,6 @@ void Player::Vote
 	(
 	Event *ev
 	)
-
 {
 	if( level.m_voteTime == 0.0f )
 	{
@@ -11880,7 +11772,6 @@ void Player::EventCoord
 	(
 	Event *ev
 	)
-
 {
 	const char *s = va( "location: %.2f %.2f %.2f\nangles: %.2f %.2f %.2f\n(use 'tele' or 'face' to set)\n",
 		origin[ 0 ], origin[ 1 ], origin[ 2 ], v_angle[ 0 ], v_angle[ 1 ], v_angle[ 2 ] );
@@ -11893,7 +11784,6 @@ void Player::EventStuffText
 	(
 	Event *ev
 	)
-
 {
 	if( level.spawning )
 	{
@@ -11912,7 +11802,6 @@ void Player::EventSetVoiceType
 	(
 	Event *ev
 	)
-
 {
 	str sVoiceName = ev->GetString( 1 );
 
@@ -11970,7 +11859,6 @@ void Player::EventEnterIntermission
 	(
 	Event *ev
 	)
-
 {
 	if( !level.intermissiontime ) {
 		return;
@@ -12001,7 +11889,6 @@ void Player::EnterTurret
 	(
 	Event *ev
 	)
-
 {
 	TurretGun *ent = ( TurretGun * )ev->GetEntity( 1 );
 
@@ -12020,7 +11907,6 @@ void Player::EnterTurret
 	(
 	TurretGun *ent
 	)
-
 {
 	flags |= FL_PARTIAL_IMMOBILE;
 	viewheight = DEFAULT_VIEWHEIGHT;
@@ -12037,7 +11923,6 @@ void Player::ExitTurret
 	(
 	Event *ev
 	)
-
 {
 	ExitTurret();
 }
@@ -12046,7 +11931,6 @@ void Player::ExitTurret
 	(
 	void
 	)
-
 {
 	flags &= ~FL_PARTIAL_IMMOBILE;
 	setMoveType( MOVETYPE_WALK );
@@ -12068,7 +11952,6 @@ void Player::NextPainTime
 	(
 	Event *ev
 	)
-
 {
 	float time = ev->GetFloat( 1 );
 
@@ -12121,7 +12004,6 @@ void Player::EnterVehicle
 	(
 	Event *ev
 	)
-
 {
 	Entity *ent;
 
@@ -12145,7 +12027,6 @@ void Player::ExitVehicle
 	(
 	Event *ev
 	)
-
 {
 	flags &= ~FL_PARTIAL_IMMOBILE;
 	setMoveType( MOVETYPE_WALK );
@@ -12226,7 +12107,6 @@ void Player::setAngles
 	(
 	Vector ang
 	)
-
 {
 	// set the angles normally
 
@@ -12242,7 +12122,6 @@ void Player::PlayerDone
 	(
 	Event *ev
 	)
-
 {
 	// This is used to let scripts know that the player is done doing something
 }
@@ -12269,7 +12148,6 @@ void Player::ArchivePersistantData
 	(
 	Archiver &arc
 	)
-
 {
 	str model_name;
 
@@ -12319,7 +12197,6 @@ void Player::SpawnDamageEffect
 	(
 	meansOfDeath_t mod
 	)
-
 {
 	switch( mod )
 	{
@@ -12339,7 +12216,6 @@ void Player::VelocityModified
 	(
 	void
 	)
-
 {
 
 }
@@ -12349,7 +12225,6 @@ int Player::GetKnockback
 	int original_knockback,
 	qboolean blocked
 	)
-
 {
 	int new_knockback;
 
@@ -12385,7 +12260,6 @@ int Player::GetMoveResult
 	(
 	void
 	)
-
 {
 	return moveresult;
 }
@@ -12410,7 +12284,6 @@ void Player::Join_DM_Team
 	(
 	Event *ev
 	)
-
 {
 	teamtype_t team;
 	str teamname;
@@ -12494,7 +12367,6 @@ void Player::Auto_Join_DM_Team
 	(
 	Event *ev
 	)
-
 {
 	Event *event = new Event( EV_Player_JoinDMTeam );
 
@@ -12514,7 +12386,6 @@ void Player::Leave_DM_Team
 	(
 	Event *ev
 	)
-
 {
 	// FIXME: should it stays disabled ?
 #if 0
@@ -12533,7 +12404,6 @@ void Player::EventPrimaryDMWeapon
 	(
 	Event *ev
 	)
-
 {
 	str dm_weapon = ev->GetString( 1 );
 
@@ -12568,7 +12438,6 @@ void Player::PlayerReload
 	(
 	Event *ev
 	)
-
 {
 	Weapon *weapon;
 
@@ -12588,7 +12457,6 @@ void Player::EventCorrectWeaponAttachments
 	(
 	Event *ev
 	)
-
 {
 	int iChild;
 	int iNumChildren;
@@ -12642,7 +12510,6 @@ void Player::SelectNextItem
 	(
 	Event *ev
 	)
-
 {
 	if( deadflag )
 	{
@@ -12663,7 +12530,6 @@ void Player::SelectPreviousItem
 	(
 	Event *ev
 	)
-
 {
 	if( deadflag )
 	{
@@ -12684,7 +12550,6 @@ void Player::SelectNextWeapon
 	(
 	Event *ev
 	)
-
 {
 	if( deadflag )
 	{
@@ -12721,7 +12586,6 @@ void Player::SelectPreviousWeapon
 	(
 	Event *ev
 	)
-
 {
 	if( deadflag )
 	{
@@ -12758,7 +12622,6 @@ void Player::DropCurrentWeapon
 	(
 	Event *ev
 	)
-
 {
 	Weapon *weapon;
 	Vector forward;
@@ -12825,7 +12688,6 @@ void Player::ModifyHeight
 	(
 	Event *ev
 	)
-
 {
 	str height = ev->GetString( 1 );
 
@@ -12866,7 +12728,6 @@ void Player::SetMovePosFlags
 	(
 	Event *ev
 	)
-
 {
 	str sParm;
 
@@ -12920,7 +12781,6 @@ void Player::GetPositionForScript
 	(
 	Event *ev
 	)
-
 {
 	if( m_iMovePosFlags & MPF_POSITION_CROUCHING )
 	{
@@ -12944,7 +12804,6 @@ void Player::GetMovementForScript
 	(
 	Event *ev
 	)
-
 {
 	if( m_iMovePosFlags & MPF_MOVEMENT_WALKING )
 	{
@@ -12968,7 +12827,6 @@ void Player::EventSetViewModelAnim
 	(
 	Event *ev
 	)
-
 {
 	str anim;
 	int force_restart = 0;
@@ -12991,7 +12849,6 @@ void Player::EventDMMessage
 	(
 	Event *ev
 	)
-
 {
 	int mode;
 	str stuffstrings;
@@ -13270,7 +13127,6 @@ void Player::EventIPrint
 	(
 	Event *ev
 	)
-
 {
 	str sString = ev->GetString( 1 );
 	qboolean iBold = qfalse;
@@ -13389,7 +13245,6 @@ bool Player::IsReady
 	(
 	void
 	) const
-
 {
 	return m_bReady;
 }
@@ -13398,7 +13253,6 @@ void Player::EventGetReady
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( m_bReady );
 }
@@ -13407,7 +13261,6 @@ void Player::EventSetReady
 	(
 	Event *ev
 	)
-
 {
 	if( m_bReady )
 		return;
@@ -13420,7 +13273,6 @@ void Player::EventSetNotReady
 	(
 	Event *ev
 	)
-
 {
 	if( !m_bReady )
 		return;
@@ -13433,7 +13285,6 @@ void Player::EventGetDMTeam
 	(
 	Event *ev
 	)
-
 {
 	if( dm_team == TEAM_FREEFORALL )
 	{
@@ -13461,7 +13312,6 @@ void Player::EventSetPerferredWeapon
 	(
 	Event *ev
 	)
-
 {
 	m_sPerferredWeaponOverride = ev->GetString( 1 );
 }
@@ -13470,7 +13320,6 @@ void Player::ReceivedItem
 	(
 	Item * item
 	)
-
 {
 
 }
@@ -13479,7 +13328,6 @@ void Player::RemovedItem
 (
 Item * item
 )
-
 {
 
 }
@@ -13489,7 +13337,6 @@ void Player::AmmoAmountChanged
 	Ammo * ammo,
 	int ammo_in_clip
 	)
-
 {
 	str fullname;
 	ScriptVariable * var;
@@ -13514,7 +13361,6 @@ void Player::PhysicsOff
 	(
 	Event *ev
 	)
-
 {
 	flags |= FL_IMMOBILE;
 }
@@ -13523,7 +13369,6 @@ void Player::PhysicsOn
 	(
 	Event *ev
 	)
-
 {
 	flags &= ~FL_IMMOBILE;
 }
@@ -13532,7 +13377,6 @@ void Player::AttachToLadder
 	(
 	Event *ev
 	)
-
 {
 	Vector vStart, vEnd, vOffset;
 	trace_t trace;
@@ -13574,7 +13418,6 @@ void Player::UnattachFromLadder
 	(
 	Event *ev
 	)
-
 {
 	m_pLadder = NULL;
 }
@@ -13583,7 +13426,6 @@ void Player::TweakLadderPos
 	(
 	Event *ev
 	)
-
 {
 	FuncLadder *pLadder = ( FuncLadder * )m_pLadder.Pointer();
 
@@ -13596,7 +13438,6 @@ void Player::EnsureOverLadder
 	(
 	Event *ev
 	)
-
 {
 	FuncLadder *pLadder = ( FuncLadder * )m_pLadder.Pointer();
 
@@ -13609,7 +13450,6 @@ void Player::EnsureForwardOffLadder
 	(
 	Event *ev
 	)
-
 {
 	FuncLadder *pLadder = ( FuncLadder * )m_pLadder.Pointer();
 
@@ -13622,7 +13462,6 @@ void Player::RemoveFromVehiclesAndTurrets
 	(
 	void
 	)
-
 {
 	if( m_pVehicle && m_pVehicle->isLocked() )
 	{
@@ -13676,7 +13515,6 @@ void Player::WaitForState
 	(
 	Event *ev
 	)
-
 {
 	waitForState = ev->GetString( 1 );
 }
@@ -13686,7 +13524,6 @@ void Player::SetDamageMultiplier
 	(
 	Event *ev
 	)
-
 {
 	damage_multiplier = ev->GetFloat( 1 );
 }
@@ -13695,7 +13532,6 @@ void Player::SetTakePain
 	(
 	Event *ev
 	)
-
 {
 	take_pain = ev->GetBoolean( 1 );
 }
@@ -13704,7 +13540,6 @@ void Player::Loaded
 	(
 	void
 	)
-
 {
 	UpdateWeapons();
 }
@@ -13713,7 +13548,6 @@ void Player::PlayerShowModel
 	(
 	Event *ev
 	)
-
 {
 	Entity::showModel();
 	UpdateWeapons();
@@ -13723,7 +13557,6 @@ void Player::showModel
 	(
 	void
 	)
-
 {
 	Entity::showModel();
 	UpdateWeapons();
@@ -13733,7 +13566,6 @@ void Player::Spawned
 	(
 	void
 	)
-
 {
 	Event *ev = new Event;
 
@@ -13746,7 +13578,6 @@ void Player::AddKills
 	(
 	Event *ev
 	)
-
 {
 	AddKills( ev->GetInteger( 1 ) );
 }
@@ -13755,7 +13586,6 @@ void Player::AddDeaths
 	(
 	Event *ev
 	)
-
 {
 	AddDeaths( ev->GetInteger( 1 ) );
 }
@@ -13764,7 +13594,6 @@ void Player::AdminRights
 	(
 	Event *ev
 	)
-
 {
 	// FIXME: Admin manager ?
 	ev->AddInteger( 0 );
@@ -13774,7 +13603,6 @@ void Player::BindWeap
 	(
 	Event *ev
 	)
-
 {
 	// FIXME: TODO
 }
@@ -13783,7 +13611,6 @@ void Player::CanSwitchTeams
 	(
 	Event *ev
 	)
-
 {
 	qboolean bAllow = ev->GetBoolean( 1 );
 
@@ -13800,7 +13627,6 @@ void Player::ClearCommand
 	(
 	Event *ev
 	)
-
 {
 	str command;
 	int clientNum = G_GetClientNumber( this );
@@ -13816,7 +13642,6 @@ void Player::Dive
 	(
 	Event *ev
 	)
-
 {
 	float height, airborne_duration, speed;
 
@@ -13841,7 +13666,6 @@ void Player::EventEarthquake
 	(
 	Event *ev
 	)
-
 {
 	float duration = ev->GetFloat( 1 );
 	float magnitude = ev->GetFloat( 2 );
@@ -13870,7 +13694,6 @@ void Player::EventIsSpectator
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( IsSpectator() );
 }
@@ -13879,7 +13702,6 @@ void Player::EventSetTeam
 	(
 	Event *ev
 	)
-
 {
 	str team_name;
 	teamtype_t teamType;
@@ -13916,7 +13738,6 @@ void Player::EventGetViewModelAnim
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( m_sVMcurrent );
 }
@@ -13925,7 +13746,6 @@ void Player::EventGetViewModelAnimFinished
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( animDoneVM );
 }
@@ -13934,7 +13754,6 @@ void Player::EventGetViewModelAnimValid
 	(
 	Event *ev
 	)
-
 {
 	str anim_name = ev->GetString( 1 );
 	str fullanim;
@@ -13983,7 +13802,6 @@ void Player::FreezeControls
 	(
 	Event *ev
 	)
-
 {
 	m_bFrozen = ev->GetBoolean( 1 );
 }
@@ -13992,7 +13810,6 @@ void Player::GetConnState
 	(
 	Event *ev
 	)
-
 {
 	ScriptDeprecated( "Player::GetConnState" );
 }
@@ -14001,7 +13818,6 @@ void Player::GetDamageMultiplier
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( damage_multiplier );
 }
@@ -14010,7 +13826,6 @@ void Player::GetDeaths
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( num_deaths );
 }
@@ -14019,7 +13834,6 @@ void Player::GetKillHandler
 	(
 	Event *ev
 	)
-
 {
 	if( m_pKilledEvent ) {
 		ev->AddValue( m_pKilledEvent->GetValue( 1 ) );
@@ -14033,7 +13847,6 @@ void Player::GetKills
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( num_kills );
 }
@@ -14042,7 +13855,6 @@ void Player::GetMoveSpeedScale
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( speed_multiplier[ 0 ] );
 }
@@ -14051,7 +13863,6 @@ void Player::GetLegsState
 	(
 	Event *ev
 	)
-
 {
 	const char *name;
 
@@ -14069,7 +13880,6 @@ void Player::GetStateFile
 	(
 	Event *ev
 	)
-
 {
 	int clientNum = G_GetClientNumber( this );
 
@@ -14087,7 +13897,6 @@ void Player::GetTorsoState
 	(
 	Event *ev
 	)
-
 {
 	const char *name;
 
@@ -14105,7 +13914,6 @@ void Player::HideEntity
 	(
 	Event *ev
 	)
-
 {
 	// FIXME: todo
 }
@@ -14114,7 +13922,6 @@ void Player::ShowEntity
 	(
 	Event *ev
 	)
-
 {
 	// FIXME: REDO
 }
@@ -14123,7 +13930,6 @@ void Player::Inventory
 	(
 	Event *ev
 	)
-
 {
 	Entity *ent = NULL;
 	ScriptVariable *ref = new ScriptVariable, *array = new ScriptVariable;
@@ -14154,7 +13960,6 @@ void Player::InventorySet
 	(
 	Event *ev
 	)
-
 {
 	ScriptVariable array;
 	ScriptVariable * value;
@@ -14210,7 +14015,6 @@ void Player::IsAdmin
 	(
 	Event *ev
 	)
-
 {
 	// FIXME: Admin manager ?
 	ev->AddInteger( 0 );
@@ -14220,7 +14024,6 @@ void Player::LeanLeftHeld
 	(
 	Event *ev
 	)
-
 {
 	Player *player = NULL;
 	int buttonheld = 0;
@@ -14236,7 +14039,6 @@ void Player::LeanRightHeld
 	(
 	Event *ev
 	)
-
 {
 	Player *player = NULL;
 	int buttonheld = 0;
@@ -14253,7 +14055,6 @@ void Player::ModifyHeightFloat
 	(
 	Event *ev
 	)
-
 {
 	// params
 	int height;
@@ -14296,7 +14097,6 @@ void Player::PlayLocalSound
 	(
 	Event *ev
 	)
-
 {
 	str soundName = ev->GetString( 1 );
 	qboolean loop = false;
@@ -14364,7 +14164,6 @@ void Player::RunHeld
 	(
 	Event *ev
 	)
-
 {
 	Player *player = NULL;
 	int buttonheld = 0;
@@ -14380,7 +14179,6 @@ void Player::SecFireHeld
 	(
 	Event *ev
 	)
-
 {
 	Player *player = NULL;
 	int buttonheld = 0;
@@ -14396,7 +14194,6 @@ void Player::SetAnimSpeed
 	(
 	Event *ev
 	)
-
 {
 	float speed;
 	Player * player = ( Player * )this;
@@ -14413,7 +14210,6 @@ void Player::SetClientFlag
 	(
 	Event *ev
 	)
-
 {
 	str name = ev->GetString( 1 );
 
@@ -14424,7 +14220,6 @@ void Player::SetEntityShader
 	(
 	Event *ev
 	)
-
 {
 	Entity *entity = ev->GetEntity( 1 );
 	str shadername = ev->GetString( 2 );
@@ -14447,7 +14242,6 @@ void Player::SetKillHandler
 	(
 	Event *ev
 	)
-
 {
 	if( ev->IsNilAt( 1 ) || ( ev->IsStringAt( 1 ) && !ev->GetString( 1 ).icmp( "none" ) ) )
 	{
@@ -14468,7 +14262,6 @@ void Player::SetLocalSoundRate
 	(
 	Event *ev
 	)
-
 {
 	str name = ev->GetString( 1 );
 	float rate = ev->GetFloat( 2 );
@@ -14506,7 +14299,6 @@ void Player::SetSpeed
 	(
 	Event *ev
 	)
-
 {
 	float speed;
 	Player * player = ( Player * )this;
@@ -14537,7 +14329,6 @@ void Player::SetStateFile
 	(
 	Event *ev
 	)
-
 {
 	int clientNum = G_GetClientNumber( this );
 	qboolean bRemove = false;
@@ -14566,7 +14357,6 @@ void Player::SetVMASpeed
 	(
 	Event *ev
 	)
-
 {
 	str name = ev->GetString( 1 );
 	float speed = ev->GetFloat( 2 );
@@ -14599,7 +14389,6 @@ void Player::StopLocalSound
 	(
 	Event *ev
 	)
-
 {
 	str soundName = ev->GetString( 1 );
 	float time;
@@ -14628,7 +14417,6 @@ void Player::UseHeld
 	(
 	Event *ev
 	)
-
 {
 	int buttonheld = 0;
 
@@ -14641,7 +14429,6 @@ void Player::Userinfo
 	(
 	Event *ev
 	)
-
 {
 	if( !client )
 	{
@@ -14657,7 +14444,6 @@ void Player::VisionGetNaked
 	(
 	Event *ev
 	)
-
 {
 	// return the global vision
 	if( !m_sVision.length() ) {
@@ -14672,7 +14458,6 @@ void Player::VisionSetBlur
 	(
 	Event *ev
 	)
-
 {
 	float blur_level = ev->GetFloat( 1 );
 	float fade_time;
@@ -14691,7 +14476,6 @@ void Player::VisionSetNaked
 	(
 	Event *ev
 	)
-
 {
 	str vision = ev->GetString( 1 );
 	float fade_time;

@@ -45,7 +45,6 @@ void ActorPath::Clear
 	(
 	void
 	)
-
 {
 	m_startpathpos = 0;
 	m_pathpos = 0;
@@ -64,7 +63,6 @@ bool ActorPath::DoesTheoreticPathExist
 	float *vLeashHome,
 	float fLeashDistSquared
 	)
-
 {
 	return PathSearch::FindPath( start, end, ent, maxPath, NULL, 0, m_FallHeight ) != 0;
 }
@@ -78,7 +76,6 @@ void ActorPath::FindPath
 	float *vLeashHome,
 	float fLeashDistSquared
 	)
-
 {
 	int depth = PathManager.FindPath( start, end, ent, maxPath, vLeashHome, fLeashDistSquared, m_FallHeight );
 
@@ -116,7 +113,6 @@ void ActorPath::FindPathAway
 	float *vLeashHome,
 	float fLeashDistSquared
 	)
-
 {
 	int depth = PathManager.FindPathAway( start, avoid, vPreferredDir, ent, fMinSafeDist, vLeashHome, fLeashDistSquared, m_FallHeight );
 
@@ -154,7 +150,6 @@ void ActorPath::FindPathNear
 	float *vLeashHome,
 	float fLeashDistSquared
 	)
-
 {
 	int depth = PathManager.FindPathNear( start, nearby, ent, maxPath, fRadiusSquared, vLeashHome, fLeashDistSquared, m_FallHeight );
 
@@ -187,7 +182,6 @@ void ActorPath::ReFindPath
 	float *start,
 	Entity *ent
 	)
-
 {
 	int depth = PathManager.FindPath( start, m_path->point, ent, 0, NULL, 0, m_FallHeight );
 
@@ -221,7 +215,6 @@ float ActorPath::PathLookAhead
 	Vector& end,
 	float *origin
 	)
-
 {
 	float		area = total_area;
 	float		s;
@@ -286,7 +279,6 @@ void ActorPath::UpdatePos
 	float *origin,
 	float fNodeRadius
 	)
-
 {
 	Vector end;
 	float s = 0;
@@ -477,7 +469,6 @@ bool ActorPath::Complete
 	(
 	const float *origin
 	) const
-
 {
 	if( !m_HasCompleteLookahead )
 		return false;
@@ -498,7 +489,6 @@ PathInfo *ActorPath::StartNode
 	(
 	void
 	) const
-
 {
 	return m_startpathpos;
 }
@@ -507,7 +497,6 @@ PathInfo *ActorPath::CurrentNode
 	(
 	void
 	) const
-
 {
 	return m_pathpos;
 }
@@ -516,7 +505,6 @@ int ActorPath::CurrentNodeIndex
 	(
 	void
 	) const
-
 {
 	return m_pathpos ? m_pathpos - m_path : -1;
 }
@@ -525,7 +513,6 @@ PathInfo *ActorPath::NextNode
 	(
 	void
 	) const
-
 {
 	return m_pathpos == m_path ? NULL : m_pathpos - 1;
 }
@@ -534,7 +521,6 @@ PathInfo *ActorPath::LastNode
 	(
 	void
 	) const
-
 {
 	return m_path;
 }
@@ -543,7 +529,6 @@ Vector ActorPath::CurrentPathDir
 	(
 	void
 	) const
-
 {
 	return Vector( m_pathpos->dir[ 0 ], m_pathpos->dir[ 1 ], 0 );
 }
@@ -552,7 +537,6 @@ float *ActorPath::CurrentPathGoal
 	(
 	void
 	) const
-
 {
 	return m_pathpos->point;
 }
@@ -561,7 +545,6 @@ int ActorPath::Time
 	(
 	void
 	) const
-
 {
 	return m_Time;
 }
@@ -570,7 +553,6 @@ Vector ActorPath::CurrentDelta
 	(
 	void
 	) const
-
 {
 	return Vector( m_delta[ 0 ], m_delta[ 1 ], 0 );
 }
@@ -579,7 +561,6 @@ bool ActorPath::IsAccurate
 	(
 	void
 	) const
-
 {
 	return m_pathpos->bAccurate;
 }
@@ -588,7 +569,6 @@ float ActorPath::TotalDist
 	(
 	void
 	) const
-
 {
 	return m_TotalDist;
 }
@@ -597,7 +577,6 @@ void ActorPath::SetFallHeight
 	(
 	float fHeight
 	)
-
 {
 	m_FallHeight = fHeight;
 }
@@ -606,7 +585,6 @@ float ActorPath::GetFallHeight
 	(
 	void
 	) const
-
 {
 	return m_FallHeight;
 }
@@ -615,7 +593,6 @@ void ActorPath::TrimPathFromEnd
 	(
 	int nNodesPop
 	)
-
 {
 	int iLastPos = m_path - m_pathpos;
 
@@ -636,7 +613,6 @@ void ActorPath::Shorten
 	(
 	float fDistRemove
 	)
-
 {
 	if( m_path->dist > fDistRemove )
 	{
@@ -661,7 +637,6 @@ bool ActorPath::HasCompleteLookahead
 	(
 	void
 	) const
-
 {
 	return m_HasCompleteLookahead;
 }
@@ -678,7 +653,6 @@ void ActorPath::ForceShortLookahead
 	(
 	void
 	)
-
 {
 	m_fLookAhead = 4096.0f;
 }

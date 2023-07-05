@@ -954,7 +954,6 @@ void ScriptMaster::RegisterAliasInternal
 	Event *ev,
 	bool bCache
 	)
-
 {
 #ifdef GAME_DLL
 	int i;
@@ -1027,7 +1026,6 @@ void ScriptMaster::RegisterAlias
 	(
 	Event *ev
 	)
-
 {
 	RegisterAliasInternal( ev );
 }
@@ -1036,7 +1034,6 @@ void ScriptMaster::RegisterAliasAndCache
 	(
 	Event *ev
 	)
-
 {
 	RegisterAliasInternal( ev, true );
 }
@@ -1045,7 +1042,6 @@ void ScriptMaster::Cache
 	(
 	Event *ev
 	)
-
 {
 #ifdef GAME_DLL
 	if( !precache->integer )

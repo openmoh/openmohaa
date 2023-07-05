@@ -187,7 +187,6 @@ void VehicleTurretGun::Think
 	(
 	void
 	)
-
 {
 	// FIXME: stub
 }
@@ -197,7 +196,6 @@ void VehicleTurretGun::SetBaseOrientation
 	float( *borientation )[ 3 ],
 	float *bangles
 	)
-
 {
 	m_bBOIsSet = true;
 
@@ -221,7 +219,6 @@ void VehicleTurretGun::SetBaseEntity
 	(
 	Entity *e
 	)
-
 {
 	m_pBaseEntity = e;
 	m_vLastBaseAngles = m_vBaseAngles;
@@ -242,7 +239,6 @@ void VehicleTurretGun::SetVehicleOwner
 	(
 	Entity *e
 	)
-
 {
 	m_pVehicleOwner = e;
 }
@@ -251,7 +247,6 @@ void VehicleTurretGun::SetRemoteOwner
 	(
 	Sentient *e
 	)
-
 {
 	m_bUseRemoteControl = true;
 	m_pRemoteOwner = e;
@@ -262,7 +257,6 @@ void VehicleTurretGun::RemoteControl
 	usercmd_t *ucmd,
 	Sentient *owner
 	)
-
 {
 
 }
@@ -271,7 +265,6 @@ void VehicleTurretGun::CollisionCorrect
 	(
 	trace_t *pTr
 	)
-
 {
 
 }
@@ -280,7 +273,6 @@ void VehicleTurretGun::UpdateOrientation
 	(
 	bool bCollisionCheck
 	)
-
 {
 
 }
@@ -289,7 +281,6 @@ void VehicleTurretGun::UpdateSound
 	(
 	void
 	)
-
 {
 	if( level.time < m_fNextSoundState )
 	{
@@ -341,7 +332,6 @@ void VehicleTurretGun::UpdateOwner
 	(
 	Sentient *pOwner
 	)
-
 {
 	// FIXME: stub
 	STUB();
@@ -394,7 +384,6 @@ void VehicleTurretGun::TurretBeginUsed
 	(
 	Sentient *pEnt
 	)
-
 {
 	if( m_pVehicleOwner )
 	{
@@ -445,7 +434,6 @@ void VehicleTurretGun::TurretEndUsed
 	(
 	void
 	)
-
 {
 	if( owner->IsSubclassOfPlayer() )
 	{
@@ -474,7 +462,6 @@ void VehicleTurretGun::TurretUsed
 	(
 	Sentient *pEnt
 	)
-
 {
 	if( owner )
 	{
@@ -693,7 +680,6 @@ bool VehicleTurretGun::isLocked
 	(
 	void
 	)
-
 {
 	return m_bLocked;
 }
@@ -702,7 +688,6 @@ void VehicleTurretGun::Lock
 	(
 	void
 	)
-
 {
 	m_bLocked = true;
 }
@@ -711,7 +696,6 @@ void VehicleTurretGun::UnLock
 	(
 	void
 	)
-
 {
 	m_bLocked = false;
 }
@@ -720,7 +704,6 @@ bool VehicleTurretGun::UseRemoteControl
 	(
 	void
 	)
-
 {
 	return m_bUseRemoteControl;
 }
@@ -729,7 +712,6 @@ Sentient* VehicleTurretGun::GetRemoteOwner
 	(
 	void
 	)
-
 {
 	return m_pRemoteOwner;
 }

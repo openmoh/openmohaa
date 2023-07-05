@@ -46,7 +46,6 @@ extern Event EV_Client_SwipeOff;
 // AllocateTempModel
 //=============
 ctempmodel_t* ClientGameCommandManager::AllocateTempModel(void)
-
 {
     ctempmodel_t* p;
 
@@ -72,7 +71,6 @@ ctempmodel_t* ClientGameCommandManager::AllocateTempModel(void)
 // FreeTempModel
 //===============
 void ClientGameCommandManager::FreeTempModel(ctempmodel_t* p)
-
 {
     if (!p->prev) {
         cgi.Error(ERR_DROP, "CCM::FreeTempModel: not active");
@@ -90,7 +88,6 @@ void ClientGameCommandManager::FreeTempModel(ctempmodel_t* p)
 }
 
 void ClientGameCommandManager::ResetTempModels(void)
-
 {
     // Go through all the active tempmodels and free them
     ctempmodel_t* p, * next;
@@ -114,7 +111,6 @@ void CG_ResetTempModels(void)
 // InitializeTempModels
 //=============
 void ClientGameCommandManager::InitializeTempModels(void)
-
 {
     int i;
     int numtempmodels = MAX_TEMPMODELS;
@@ -143,7 +139,6 @@ void ClientGameCommandManager::InitializeTempModelCvars(void)
 //===============
 void ClientGameCommandManager::AnimateTempModel(ctempmodel_t* p, Vector origin,
     refEntity_t* newEnt)
-
 {
     int numframes;
     int deltatime;
@@ -186,7 +181,6 @@ void ClientGameCommandManager::AnimateTempModel(ctempmodel_t* p, Vector origin,
 // UpdateSwarm
 //===============
 void ClientGameCommandManager::UpdateSwarm(ctempmodel_t* p)
-
 {
     if (p->cgd.swarmfreq == 0) {
         return;
@@ -223,7 +217,6 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
     float ftime,
     float dtime,
     float scale)
-
 {
     float fade, fadein;
     byte tempColor[4];
@@ -385,7 +378,6 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
 void ClientGameCommandManager::OtherTempModelEffects(ctempmodel_t* p,
     Vector origin,
     refEntity_t* newEnt)
-
 {
     vec3_t axis[3];
 
@@ -419,7 +411,6 @@ void ClientGameCommandManager::OtherTempModelEffects(ctempmodel_t* p,
 qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
     float ftime, float time2,
     float scale)
-
 {
     int dtime;
     Vector parentOrigin(0, 0, 0);
@@ -680,7 +671,6 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
 
 qboolean ClientGameCommandManager::LerpTempModel(refEntity_t* newEnt,
     ctempmodel_t* p, float frac)
-
 {
     int i, j;
 
@@ -759,7 +749,6 @@ void CG_AddTempModels(void) { commandManager.AddTempModels(); }
 //===============
 #define TOO_MUCH_TIME_PASSED 500
 void ClientGameCommandManager::AddTempModels(void)
-
 {
     ctempmodel_t* p, * next;
     int count = 0; // Tempmodel count
@@ -995,7 +984,6 @@ void ClientGameCommandManager::SpawnTempModel(int count, spawnthing_t* sp)
 // SpawnTempModel
 //=================
 void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
-
 {
     int i;
     ctempmodel_t* p;

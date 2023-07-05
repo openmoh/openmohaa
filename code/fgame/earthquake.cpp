@@ -164,7 +164,6 @@ void ViewJitter::EventActivateJitter
 	(
 	Event *ev
 	)
-
 {
 	m_fTimeRunning = 0;
 	PostEvent( EV_ViewJitter_Think, 0 );
@@ -174,7 +173,6 @@ void ViewJitter::EventJitterThink
 	(
 	Event *ev
 	)
-
 {
 	int i;
 	int iNumSents;
@@ -254,7 +252,6 @@ void ViewJitter::EventSetRadius
 	(
 	Event *ev
 	)
-
 {
 	float rad = ev->GetFloat( 1 );
 
@@ -269,7 +266,6 @@ void ViewJitter::EventSetEdgeEffect
 	(
 	Event *ev
 	)
-
 {
 	m_fEdgeEffect = ev->GetFloat( 1 );
 }
@@ -278,7 +274,6 @@ void ViewJitter::EventSetAmount
 	(
 	Event *ev
 	)
-
 {
 	m_vJitterStrength = ev->GetVector( 1 );
 }
@@ -287,7 +282,6 @@ void ViewJitter::EventSetDuration
 	(
 	Event *ev
 	)
-
 {
 	m_fDuration = ev->GetFloat( 1 );
 }
@@ -296,7 +290,6 @@ void ViewJitter::EventSetTimeDecay
 	(
 	Event *ev
 	)
-
 {
 	m_vTimeDecay = ev->GetVector( 1 );
 }
@@ -305,7 +298,6 @@ void ViewJitter::EventSetDoneDeath
 	(
 	Event *ev
 	)
-
 {
 	m_bDoneDeath = qtrue;
 }

@@ -364,7 +364,6 @@ inline void VehiclePoint::Archive
 	(
 	Archiver &arc
 	)
-
 {
 	SimpleArchivedEntity::Archive( arc );
 

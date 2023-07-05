@@ -128,7 +128,6 @@ ClassDef *getClassList
 	(
 	void
 	)
-
 {
 	return ClassDef::classlist;
 }
@@ -137,7 +136,6 @@ void listAllClasses
 	(
 	void
 	)
-
 {
 	ClassDef *c;
 	ClassDef *list = ClassDef::classlist;
@@ -152,7 +150,6 @@ void listInheritanceOrder
 	(
 	const char *classname
 	)
-
 {
 	ClassDef *cls;
 	ClassDef *c;
@@ -336,7 +333,6 @@ void Class::error
 	const char *fmt,
 	...
 	)
-
 {
 	va_list	argptr;
 	char		text[ 1024 ];
@@ -620,7 +616,6 @@ void ClassEvents
 	const char *classname,
 	qboolean print_to_disk
 	)
-
 {
 	ClassDef		*c;
 	ResponseDef<Class> *r;
@@ -729,7 +724,6 @@ void DumpClass
 	FILE * class_file,
 	const char * className
 	)
-
 {
 	ClassDef		*c;
 	ResponseDef<Class> *r;
@@ -805,7 +799,6 @@ void DumpAllClasses
 	(
 	void
 	)
-
 {
 	int i, num;
 	ClassDef *c;

@@ -371,7 +371,6 @@ void ArchiveListenerPtr
 	Archiver& arc,
 	SafePtr< Listener > *obj
 	)
-
 {
 	arc.ArchiveSafePointer( obj );
 }
@@ -381,7 +380,6 @@ void ConList::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	value.Archive( arc, ArchiveListenerPtr );
 }
@@ -391,7 +389,6 @@ void Entry< const_str, ConList >::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Director.ArchiveString( arc, key );
 	value.Archive( arc );
@@ -428,7 +425,6 @@ void L_ArchiveEvents
 (
 	Archiver& arc
 )
-
 {
 	EventQueueNode* event;
 	int num;
@@ -485,7 +481,6 @@ void L_UnarchiveEvents
 (
 	Archiver& arc
 )
-
 {
 	EventQueueNode* node;
 	Event* e;
@@ -1229,7 +1224,6 @@ void Event::ListCommands
 	(
 	const char *mask
 	)
-
 {
 	command_t *command;
 	int eventnum;
@@ -1317,7 +1311,6 @@ void Event::ListDocumentation
 	const char *mask,
 	qboolean print_to_disk
 	)
-
 {
 	int num;
 	int n;
@@ -1405,7 +1398,6 @@ void Event::PendingEvents
 	(
 	const char *mask
 	)
-
 {
 	EventQueueNode *event;
 	size_t l;
@@ -1817,7 +1809,6 @@ Event::Event
 		const char *documentation,
 		uchar type
 	)
-
 {
 	eventInfo_t *evi = ( eventInfo_t * )malloc( sizeof( eventInfo_t ) );
 

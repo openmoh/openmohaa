@@ -1189,7 +1189,6 @@ void Level::ResetEdicts( void )
 }
 
 qboolean Level::inhibitEntity( int spawnflags )
-
 {
 	if( !developer->integer && ( spawnflags & SPAWNFLAG_DEVELOPMENT ) )
 	{
@@ -1593,7 +1592,6 @@ void Level::CheckVote
 	(
 	void
 	)
-
 {
 	// FIXME: show the vote HUD like in SH and BT
 
@@ -1629,7 +1627,6 @@ void Level::GetTime
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( level.time );
 }
@@ -1638,7 +1635,6 @@ void Level::GetTotalSecrets
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( total_secrets );
 }
@@ -1647,7 +1643,6 @@ void Level::GetFoundSecrets
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( found_secrets );
 }
@@ -1656,7 +1651,6 @@ void Level::GetAlarm
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( m_bAlarm );
 }
@@ -1665,7 +1659,6 @@ void Level::SetAlarm
 	(
 	Event *ev
 	)
-
 {
 	m_bAlarm = ev->GetInteger( 1 );
 }
@@ -1674,7 +1667,6 @@ void Level::SetNoDropHealth
 	(
 	Event *ev
 	)
-
 {
 	mbNoDropHealth = ev->GetInteger( 1 );
 }
@@ -1683,7 +1675,6 @@ void Level::GetLoopProtection
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( m_LoopProtection );
 }
@@ -1692,7 +1683,6 @@ void Level::SetLoopProtection
 	(
 	Event *ev
 	)
-
 {
 	m_LoopProtection = ev->GetInteger( 1 );
 }
@@ -1701,7 +1691,6 @@ void Level::GetPapersLevel
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( m_iPapersLevel );
 }
@@ -1710,7 +1699,6 @@ void Level::SetPapersLevel
 	(
 	Event *ev
 	)
-
 {
 	m_iPapersLevel = ev->GetInteger( 1 );
 }
@@ -1719,7 +1707,6 @@ void Level::EventGetDMRespawning
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( dmManager.GameAllowsRespawns() );
 }
@@ -1728,7 +1715,6 @@ void Level::EventSetDMRespawning
 	(
 	Event *ev
 	)
-
 {
 	dmManager.SetGameAllowsRespawns( ev->GetBoolean( 1 ) );
 }
@@ -1737,7 +1723,6 @@ void Level::EventGetDMRoundLimit
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( dmManager.GetRoundLimit() );
 }
@@ -1746,7 +1731,6 @@ void Level::EventSetDMRoundLimit
 	(
 	Event *ev
 	)
-
 {
 	int round_limit = ev->GetInteger( 1 );
 
@@ -1762,7 +1746,6 @@ void Level::EventGetClockSide
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString( dmManager.GetClockSide() );
 }
@@ -1771,7 +1754,6 @@ void Level::EventSetClockSide
 	(
 	Event *ev
 	)
-
 {
 	const_str clockside = ev->GetConstString( 1 );
 
@@ -1787,7 +1769,6 @@ void Level::EventGetBombPlantTeam
 	(
 	Event *ev
 	)
-
 {
 	ev->AddConstString( dmManager.GetBombPlantTeam() );
 }
@@ -1796,7 +1777,6 @@ void Level::EventSetBombPlantTeam
 	(
 	Event *ev
 	)
-
 {
 	const_str plant_team = ev->GetConstString( 1 );
 
@@ -1812,7 +1792,6 @@ void Level::EventGetTargetsToDestroy
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( dmManager.GetTargetsToDestroy() );
 }
@@ -1821,7 +1800,6 @@ void Level::EventSetTargetsToDestroy
 	(
 	Event *ev
 	)
-
 {
 	dmManager.SetTargetsToDestroy( ev->GetInteger( 1 ) );
 }
@@ -1830,7 +1808,6 @@ void Level::EventGetTargetsDestroyed
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( dmManager.GetTargetsDestroyed() );
 }
@@ -1839,7 +1816,6 @@ void Level::EventSetTargetsDestroyed
 	(
 	Event *ev
 	)
-
 {
 	dmManager.SetTargetsDestroyed( ev->GetInteger( 1 ) );
 }
@@ -1848,7 +1824,6 @@ void Level::EventGetBombsPlanted
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( dmManager.GetBombsPlanted() );
 }
@@ -1857,7 +1832,6 @@ void Level::EventSetBombsPlanted
 	(
 	Event *ev
 	)
-
 {
 	dmManager.SetBombsPlanted( ev->GetInteger( 1 ) );
 }
@@ -1866,7 +1840,6 @@ void Level::EventGetRoundBased
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( g_gametype->integer >= GT_TEAM_ROUNDS );
 }
@@ -1875,7 +1848,6 @@ void Level::EventRainDensitySet
 	(
 	Event *ev
 	)
-
 {
 	gi.SetConfigstring( CS_RAIN_DENSITY, ev->GetString( 1 ) );
 }
@@ -1884,7 +1856,6 @@ void Level::EventRainDensityGet
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( gi.GetConfigstring( CS_RAIN_DENSITY ) );
 }
@@ -1893,7 +1864,6 @@ void Level::EventRainSpeedSet
 	(
 	Event *ev
 	)
-
 {
 	gi.SetConfigstring( CS_RAIN_SPEED, ev->GetString( 1 ) );
 }
@@ -1902,7 +1872,6 @@ void Level::EventRainSpeedGet
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( gi.GetConfigstring( CS_RAIN_SPEED ) );
 }
@@ -1911,7 +1880,6 @@ void Level::EventRainSpeedVarySet
 	(
 	Event *ev
 	)
-
 {
 	gi.SetConfigstring( CS_RAIN_SPEEDVARY, ev->GetString( 1 ) );
 }
@@ -1920,7 +1888,6 @@ void Level::EventRainSpeedVaryGet
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( gi.GetConfigstring( CS_RAIN_SPEEDVARY ) );
 }
@@ -1929,7 +1896,6 @@ void Level::EventRainSlantSet
 	(
 	Event *ev
 	)
-
 {
 	gi.SetConfigstring( CS_RAIN_SLANT, ev->GetString( 1 ) );
 }
@@ -1938,7 +1904,6 @@ void Level::EventRainSlantGet
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( gi.GetConfigstring( CS_RAIN_SLANT ) );
 }
@@ -1947,7 +1912,6 @@ void Level::EventRainLengthSet
 	(
 	Event *ev
 	)
-
 {
 	gi.SetConfigstring( CS_RAIN_LENGTH, ev->GetString( 1 ) );
 }
@@ -1956,7 +1920,6 @@ void Level::EventRainLengthGet
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( gi.GetConfigstring( CS_RAIN_LENGTH ) );
 }
@@ -1965,7 +1928,6 @@ void Level::EventRainMin_DistSet
 	(
 	Event *ev
 	)
-
 {
 	gi.SetConfigstring( CS_RAIN_MINDIST, ev->GetString( 1 ) );
 }
@@ -1974,7 +1936,6 @@ void Level::EventRainMin_DistGet
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( gi.GetConfigstring( CS_RAIN_MINDIST ) );
 }
@@ -1983,7 +1944,6 @@ void Level::EventRainWidthSet
 	(
 	Event *ev
 	)
-
 {
 	gi.SetConfigstring( CS_RAIN_WIDTH, ev->GetString( 1 ) );
 }
@@ -1992,7 +1952,6 @@ void Level::EventRainWidthGet
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( gi.GetConfigstring( CS_RAIN_WIDTH ) );
 }
@@ -2001,7 +1960,6 @@ void Level::EventRainShaderSet
 	(
 	Event *ev
 	)
-
 {
 	gi.SetConfigstring( CS_RAIN_SHADER, ev->GetString( 1 ) );
 }
@@ -2010,7 +1968,6 @@ void Level::EventRainShaderGet
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( gi.GetConfigstring( CS_RAIN_SHADER ) );
 }
@@ -2019,7 +1976,6 @@ void Level::EventRainNumShadersSet
 	(
 	Event *ev
 	)
-
 {
 	gi.SetConfigstring( CS_RAIN_NUMSHADERS, ev->GetString( 1 ) );
 }
@@ -2028,7 +1984,6 @@ void Level::EventRainNumShadersGet
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( gi.GetConfigstring( CS_RAIN_NUMSHADERS ) );
 }
@@ -2037,7 +1992,6 @@ void Level::EventGetFlags
 	(
 	Event *ev
 	)
-
 {
 }
 

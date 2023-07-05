@@ -681,7 +681,6 @@ void Animate::DumpAnimInfo
 	(
 	void
 	)
-
 {
 	MPrintf( "----------------------------------------\n" );
 
@@ -704,7 +703,6 @@ void Animate::ForwardExec
 	(
 	Event *ev
 	)
-
 {
 	int slot = 0;
 	float weight = 1.0f;
@@ -737,7 +735,6 @@ void Animate::EventSetSyncTime
 	(
 	Event *ev
 	)
-
 {
 	SetSyncTime( ev->GetFloat( 1 ) );
 }
@@ -746,7 +743,6 @@ void Animate::EventIsLoopingAnim
 	(
 	Event *ev
 	)
-
 {
 	str anim_name = ev->GetString( 1 );
 	int animnum;

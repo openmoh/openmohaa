@@ -73,7 +73,6 @@ void FileRead::Close
 	(
 	bool bDoCompression
 	)
-
 {
 	if( bDoCompression )
 	{
@@ -115,7 +114,6 @@ const char *FileRead::Filename
 (
 void
 )
-
 {
 	return filename.c_str();
 }
@@ -124,7 +122,6 @@ size_t FileRead::Length
 (
 void
 )
-
 {
 	return length;
 }
@@ -133,7 +130,6 @@ size_t FileRead::Pos
 (
 void
 )
-
 {
 	return pos - buffer;
 }
@@ -142,7 +138,6 @@ qboolean FileRead::Seek
 (
 size_t newpos
 )
-
 {
 	if( !buffer )
 	{
@@ -163,7 +158,6 @@ qboolean FileRead::Open
 	(
 	const char *name
 	)
-
 {
 	byte  *tempbuf;
 	assert( name );
@@ -228,7 +222,6 @@ qboolean FileRead::Read
 	void *dest,
 	size_t size
 	)
-
 {
 	assert( dest );
 	assert( buffer );
@@ -285,7 +278,6 @@ void Archiver::FileError
 	const char *fmt,
 	...
 	)
-
 {
 	va_list	argptr;
 	char		text[ 1024 ];
@@ -324,7 +316,6 @@ void Archiver::Close
 	(
 	void
 	)
-
 {
 	if( file )
 	{
@@ -391,7 +382,6 @@ qboolean Archiver::Read
 const char *name,
 qboolean harderror
 )
-
 {
 	unsigned header;
 	unsigned version;
@@ -467,7 +457,6 @@ qboolean Archiver::Create
 	const char *name,
 	qboolean harderror
 	)
-
 {
 	unsigned header;
 	unsigned version;
@@ -516,7 +505,6 @@ inline void Archiver::CheckRead
 (
 void
 )
-
 {
 	assert( archivemode == ARCHIVE_READ );
 	if( !fileerror && ( archivemode != ARCHIVE_READ ) )
@@ -529,7 +517,6 @@ inline void Archiver::CheckWrite
 (
 void
 )
-
 {
 	assert( archivemode == ARCHIVE_WRITE );
 	if( !fileerror && ( archivemode != ARCHIVE_WRITE ) )
@@ -542,7 +529,6 @@ inline fileSize_t Archiver::ReadSize
 (
 void
 )
-
 {
 	fileSize_t s;
 
@@ -560,7 +546,6 @@ inline void Archiver::CheckSize
 int type,
 fileSize_t size
 )
-
 {
 	fileSize_t s;
 
@@ -584,7 +569,6 @@ inline int Archiver::ReadType
 (
 void
 )
-
 {
 	int t;
 
@@ -602,7 +586,6 @@ inline void Archiver::WriteType
 	(
 	int type
 	)
-
 {
 	glbs.FS_Write( &type, sizeof( type ), file );
 }
@@ -612,7 +595,6 @@ inline void Archiver::CheckType
 	(
 	int type
 	)
-
 {
 	int t;
 
@@ -650,7 +632,6 @@ inline void Archiver::ArchiveData
 	void *data,
 	size_t size
 	)
-
 {
 	if( archivemode == ARCHIVE_READ )
 	{
@@ -714,7 +695,6 @@ void Archiver::ArchiveSvsTime
 	(
 	int *time
 	)
-
 {
 #ifdef GAME_DLL
 	if( archivemode == ARCHIVE_READ )
@@ -735,7 +715,6 @@ void Archiver::ArchiveVec2
 	(
 	vec2_t vec
 	)
-
 {
 	ArchiveData( ARC_Vec2, vec, sizeof( vec2_t ) );
 }
@@ -744,7 +723,6 @@ void Archiver::ArchiveVec3
 	(
 	vec3_t vec
 	)
-
 {
 	ArchiveData( ARC_Vec3, vec, sizeof( vec3_t ) );
 }
@@ -753,7 +731,6 @@ void Archiver::ArchiveVec4
 	(
 	vec4_t vec
 	)
-
 {
 	ArchiveData( ARC_Vec4, vec, sizeof( vec4_t ) );
 }
@@ -762,7 +739,6 @@ void Archiver::ArchiveObjectPointer
 (
 Class ** ptr
 )
-
 {
 	int index = 0;
 
@@ -831,7 +807,6 @@ void Archiver::ArchiveSafePointer
 (
 SafePtrBase * ptr
 )
-
 {
 	int index = 0;
 
@@ -889,7 +864,6 @@ void Archiver::ArchiveEventPointer
 (
 Event ** ev
 )
-
 {
 	int index;
 
@@ -947,7 +921,6 @@ void Archiver::ArchiveRaw
 void *data,
 size_t size
 )
-
 {
 	ArchiveData( ARC_Raw, data, size );
 }
@@ -956,7 +929,6 @@ void Archiver::ArchiveString
 (
 str * string
 )
-
 {
 	if( archivemode == ARCHIVE_READ )
 	{
@@ -1026,7 +998,6 @@ Class * Archiver::ReadObject
 	(
 	void
 	)
-
 {
 	ClassDef	*cls;
 	Class		*obj;
@@ -1117,7 +1088,6 @@ void Archiver::ArchiveObject
 	(
 	Class *obj
 	)
-
 {
 	str		classname;
 	int      index;

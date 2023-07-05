@@ -2549,7 +2549,6 @@ void VehiclePoint::SetSpawnFlags
 	(
 	Event *ev
 	)
-
 {
 	spawnflags = ev->GetInteger( 1 );
 }
@@ -3222,7 +3221,6 @@ void FallingRock::SetBounceSound
 	(
 	str sound
 	)
-
 {
 	bouncesound = sound;
 	// cache the sound in

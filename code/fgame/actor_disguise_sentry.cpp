@@ -28,7 +28,6 @@ void Actor::InitDisguiseSentry
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->ThinkState						= &Actor::Think_DisguiseSentry;
 	func->BeginState						= &Actor::Begin_DisguiseSentry;
@@ -43,7 +42,6 @@ void Actor::Begin_DisguiseSentry
 	(
 	void
 	)
-
 {
 	vec2_t vDelta;
 
@@ -87,7 +85,6 @@ void Actor::End_DisguiseSentry
 	(
 	void
 	)
-
 {
 	m_iNextDisguiseTime = level.inttime + (m_State ? m_iDisguisePeriod : 500);
 }
@@ -96,7 +93,6 @@ void Actor::Resume_DisguiseSentry
 	(
 	void
 	)
-
 {
 	Begin_DisguiseSentry();
 }
@@ -105,7 +101,6 @@ void Actor::Suspend_DisguiseSentry
 	(
 	void
 	)
-
 {
 	End_DisguiseSentry();
 }
@@ -114,7 +109,6 @@ void Actor::Think_DisguiseSentry
 	(
 	void
 	)
-
 {
 	if (RequireThink())
 	{

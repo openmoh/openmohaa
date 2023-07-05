@@ -88,7 +88,6 @@ inline void ActorPath::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	int pos;
 	int startpathpos;

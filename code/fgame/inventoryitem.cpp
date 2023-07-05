@@ -72,7 +72,6 @@ void InventoryItem::ActivateItem
 	(
 	Event *ev
 	)
-
 {
 	if( firetype[ FIRE_PRIMARY ] == FT_CLICKITEM )
 	{
@@ -93,7 +92,6 @@ void InventoryItem::ActivatePapers
 	(
 	Event *ev
 	)
-
 {
 	GetOwner()->m_ShowPapersTime = level.inttime;
 }

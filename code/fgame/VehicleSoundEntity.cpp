@@ -73,7 +73,6 @@ void VehicleSoundEntity::Start
 	(
 	void
 	)
-
 {
 	m_bDoSoundStuff = true;
 }
@@ -82,7 +81,6 @@ void VehicleSoundEntity::Stop
 	(
 	void
 	)
-
 {
 	m_bDoSoundStuff = false;
 }
@@ -91,7 +89,6 @@ void VehicleSoundEntity::Think
 	(
 	void
 	)
-
 {
 	DoSoundStuff();
 }
@@ -142,7 +139,6 @@ void VehicleSoundEntity::DoSoundStuff
 	(
 	void
 	)
-
 {
 	float pitch;
 

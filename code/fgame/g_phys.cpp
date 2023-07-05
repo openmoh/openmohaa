@@ -62,7 +62,6 @@ Entity *G_FixEntityPosition
 	(
 	Entity *ent
 	)
-
 {
 	int mask;
 	trace_t trace;
@@ -119,7 +118,6 @@ Entity *G_TestEntityPosition
 	(
 	Entity *ent
 	)
-
 {
 	int mask;
 	trace_t trace;
@@ -190,7 +188,6 @@ void G_Impact
 	Entity *e1,
 	trace_t *trace
 	)
-
 {
 	gentity_t   *e2;
 	Event		   *ev;
@@ -247,7 +244,6 @@ Entity *G_TestEntityPosition
 	Entity *ent,
 	Vector vOrg
 	)
-
 {
 	int mask;
 	trace_t trace;
@@ -346,7 +342,6 @@ int G_FlyMove
 	float time,
 	int mask
 	)
-
 {
 	Entity	*hit;
 	gentity_t  *edict;
@@ -573,7 +568,6 @@ trace_t G_PushEntity
 	Entity *ent,
 	Vector push
 	)
-
 {
 	trace_t	trace;
 	Vector	start;
@@ -1094,7 +1088,6 @@ void G_Physics_Pusher
 	(
 	Entity *ent
 	)
-
 {
 	Vector	move, amove;
 	Entity   *part, *mv;
@@ -1191,7 +1184,6 @@ void G_Physics_Toss
 	(
 	Entity *ent
 	)
-
 {
 	trace_t	trace;
 	Vector	move;
@@ -1425,7 +1417,6 @@ void G_CheckWater
 	(
 	Entity *ent
 	)
-
 {
 	ent->watertype = gi.PointContents( ent->origin, 0 );
 	if( ent->watertype & MASK_WATER )

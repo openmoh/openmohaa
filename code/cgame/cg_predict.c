@@ -91,7 +91,6 @@ void CG_ClipMoveToEntities(const vec3_t start, const vec3_t mins,
                            const vec3_t maxs, const vec3_t end,
                            int skipNumber, int mask, trace_t* tr,
                            qboolean cylinder)
-
 {
     int i;
     trace_t trace;
@@ -143,7 +142,6 @@ void CG_ClipMoveToEntities(const vec3_t start, const vec3_t mins,
 }
 
 void CG_ShowTrace(trace_t* trace, int passent, const char* reason)
-
 {
     char text[1024];
 
@@ -170,7 +168,6 @@ void CG_Trace(trace_t* result, const vec3_t start, const vec3_t mins,
               const vec3_t maxs, const vec3_t end, int skipNumber, int mask,
               qboolean cylinder, qboolean cliptoentities,
               const char* description)
-
 {
     trace_t t;
 
@@ -204,7 +201,6 @@ CG_PlayerTrace
 void CG_PlayerTrace(trace_t* result, const vec3_t start, const vec3_t mins,
                     const vec3_t maxs, const vec3_t end, int skipNumber,
                     int mask, qboolean cylinder, qboolean tracedeep)
-
 {
     CG_Trace(result, start, mins, maxs, end, skipNumber, mask, cylinder, qtrue,
              "PlayerTrace");

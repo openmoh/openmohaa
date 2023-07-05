@@ -71,7 +71,6 @@ inline void BarrelObject::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	Entity::Archive( arc );
 

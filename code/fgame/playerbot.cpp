@@ -91,7 +91,6 @@ void PlayerBot::Init
 	(
 	void
 	)
-
 {
 	bot_manualmove			= gi.Cvar_Get( "bot_manualmove",			"0",			0 );
 
@@ -125,7 +124,6 @@ void PlayerBot::TurnThink
 	(
 	void
 	)
-
 {
 	float diff, factor, maxchange, anglespeed, desired_speed;
 	int i;
@@ -185,7 +183,6 @@ void PlayerBot::CheckAttractiveNodes
 	(
 	void
 	)
-
 {
 	for( int i = m_attractList.NumObjects(); i > 0; i-- )
 	{
@@ -203,7 +200,6 @@ void PlayerBot::MoveThink
 	(
 	void
 	)
-
 {
 	Vector vDir;
 	Vector vAngles;
@@ -344,7 +340,6 @@ void PlayerBot::CheckJump
 	(
 	void
 	)
-
 {
 	Vector start;
 	Vector end;
@@ -412,7 +407,6 @@ void PlayerBot::CheckEndPos
 	(
 	void
 	)
-
 {
 	Vector start;
 	Vector end;
@@ -441,7 +435,6 @@ void PlayerBot::CheckUse
 	(
 	void
 	)
-
 {
 	Vector dir;
 	Vector start;
@@ -474,7 +467,6 @@ void PlayerBot::GetUsercmd
 	(
 	usercmd_t *ucmd
 	)
-
 {
 	*ucmd = m_botCmd;
 }
@@ -483,7 +475,6 @@ void PlayerBot::GetEyeInfo
 	(
 	usereyes_t *eyeinfo
 	)
-
 {
 	*eyeinfo = m_botEyes;
 }
@@ -492,7 +483,6 @@ void PlayerBot::UpdateBotStates
 	(
 	void
 	)
-
 {
 	if( bot_manualmove->integer )
 	{
@@ -528,7 +518,6 @@ void PlayerBot::SendCommand
 	(
 	const char *text
 	)
-
 {
 	char *buffer;
 	char *data;
@@ -593,7 +582,6 @@ void PlayerBot::setAngles
 	(
 	Vector ang
 	)
-
 {
 	Entity::setAngles( ang );
 	SetTargetAngles( angles );
@@ -603,7 +591,6 @@ void PlayerBot::updateOrigin
 	(
 	void
 	)
-
 {
 	Entity::updateOrigin();
 
@@ -633,7 +620,6 @@ void PlayerBot::SetTargetAngles
 	(
 	Vector vAngles
 	)
-
 {
 	m_vTargetAng = vAngles;
 }
@@ -649,7 +635,6 @@ void PlayerBot::AimAt
 	(
 	Vector vPos
 	)
-
 {
 	Vector vDelta = vPos - centroid;
 
@@ -668,7 +653,6 @@ void PlayerBot::AimAtAimNode
 (
 void
 )
-
 {
 	if( m_Path.CurrentDelta() )
 	{
@@ -693,7 +677,6 @@ void PlayerBot::CheckReload
 (
 void
 )
-
 {
 	Weapon *weap = GetActiveWeapon( WEAPON_MAIN );
 
@@ -716,7 +699,6 @@ Vector vPos,
 float *vLeashHome,
 float fLeashRadius
 )
-
 {
 	m_bPathing = true;
 	m_vTargetPos = vPos;
@@ -743,7 +725,6 @@ bool PlayerBot::MoveToBestAttractivePoint
 	(
 	int iMinPriority
 	)
-
 {
 	Container< AttractiveNode * > list;
 	AttractiveNode *bestNode;
@@ -866,7 +847,6 @@ bool PlayerBot::CanMoveTo
 	(
 	Vector vPos
 	)
-
 {
 	return m_Path.DoesTheoreticPathExist( origin, vPos, NULL, 0, NULL, 0 );
 }
@@ -882,7 +862,6 @@ bool PlayerBot::MoveDone
 	(
 	void
 	)
-
 {
 	return m_Path.Complete( origin );
 }
@@ -898,7 +877,6 @@ bool PlayerBot::IsMoving
 	(
 	void
 	)
-
 {
 	return m_bPathing;
 }
@@ -914,7 +892,6 @@ void PlayerBot::ClearMove
 	(
 	void
 	)
-
 {
 	m_Path.Clear();
 	m_bPathing = false;
@@ -934,7 +911,6 @@ void PlayerBot::MoveNear
 	float *vLeashHome,
 	float fLeashRadius
 	)
-
 {
 	m_bPathing = true;
 	m_Path.FindPathNear( origin, vNear, this, 0, fRadius * fRadius, vLeashHome, fLeashRadius * fLeashRadius );
@@ -963,7 +939,6 @@ void PlayerBot::AvoidPath
 	float *vLeashHome,
 	float fLeashRadius
 	)
-
 {
 	Vector vDir;
 
@@ -1004,7 +979,6 @@ void PlayerBot::NoticeEvent
 	float fDistanceSquared,
 	float fRadiusSquared
 	)
-
 {
 	// Ignore teammates
 	if( pEnt->IsSubclassOfPlayer() )
@@ -1063,7 +1037,6 @@ void PlayerBot::ClearEnemy
 	(
 	void
 	)
-
 {
 	m_iAttackTime = 0;
 	m_pEnemy = NULL;
@@ -1089,7 +1062,6 @@ void PlayerBot::CheckStates
 	(
 	void
 	)
-
 {
 	m_StateCount = 0;
 
@@ -1159,7 +1131,6 @@ void PlayerBot::State_DefaultBegin
 	(
 	void
 	)
-
 {
 	ClearMove();
 }
@@ -1168,7 +1139,6 @@ void PlayerBot::State_DefaultEnd
 	(
 	void
 	)
-
 {
 
 }
@@ -1177,7 +1147,6 @@ void PlayerBot::State_Reset
 	(
 	void
 	)
-
 {
 	m_iCuriousTime = 0;
 	m_iAttackTime = 0;
@@ -1199,7 +1168,6 @@ void PlayerBot::InitState_Idle
 	(
 	botfunc_t *func
 	)
-
 {
 	func->CheckCondition	= &PlayerBot::CheckCondition_Idle;
 	func->ThinkState		= &PlayerBot::State_Idle;
@@ -1209,7 +1177,6 @@ bool PlayerBot::CheckCondition_Idle
 	(
 	void
 	)
-
 {
 	if( m_iCuriousTime )
 		return false;
@@ -1224,7 +1191,6 @@ void PlayerBot::State_Idle
 	(
 	void
 	)
-
 {
 	AimAtAimNode();
 	CheckReload();
@@ -1258,7 +1224,6 @@ void PlayerBot::InitState_Curious
 	(
 	botfunc_t *func
 	)
-
 {
 	func->CheckCondition	= &PlayerBot::CheckCondition_Curious;
 	func->ThinkState		= &PlayerBot::State_Curious;
@@ -1268,7 +1233,6 @@ bool PlayerBot::CheckCondition_Curious
 	(
 	void
 	)
-
 {
 	if( m_iAttackTime )
 	{
@@ -1294,7 +1258,6 @@ void PlayerBot::State_Curious
 	(
 	void
 	)
-
 {
 	//AimAt( m_vLastCuriousPos );
 	AimAtAimNode();
@@ -1321,7 +1284,6 @@ void PlayerBot::InitState_Attack
 	(
 	botfunc_t *func
 	)
-
 {
 	func->CheckCondition	= &PlayerBot::CheckCondition_Attack;
 	func->EndState			= &PlayerBot::State_EndAttack;
@@ -1359,7 +1321,6 @@ bool PlayerBot::CheckCondition_Attack
 	(
 	void
 	)
-
 {
 	Container< Sentient * > sents = SentientList;
 
@@ -1417,7 +1378,6 @@ void PlayerBot::State_EndAttack
 	(
 	void
 	)
-
 {
 	m_botCmd.buttons &= ~( BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT );
 }
@@ -1426,7 +1386,6 @@ void PlayerBot::State_Attack
 	(
 	void
 	)
-
 {
 	Player *p = ( Player * )m_pEnemy.Pointer();
 	bool bMelee = false;
@@ -1545,7 +1504,6 @@ void PlayerBot::InitState_Grenade
 	(
 	botfunc_t *func
 	)
-
 {
 	func->CheckCondition	= &PlayerBot::CheckCondition_Grenade;
 	func->ThinkState		= &PlayerBot::State_Grenade;
@@ -1555,7 +1513,6 @@ bool PlayerBot::CheckCondition_Grenade
 	(
 	void
 	)
-
 {
 	// FIXME: TODO
 	return false;
@@ -1565,7 +1522,6 @@ void PlayerBot::State_Grenade
 	(
 	void
 	)
-
 {
 	// FIXME: TODO
 }
@@ -1581,7 +1537,6 @@ void PlayerBot::InitState_Weapon
 	(
 	botfunc_t *func
 	)
-
 {
 	func->CheckCondition	= &PlayerBot::CheckCondition_Weapon;
 	func->BeginState		= &PlayerBot::State_BeginWeapon;
@@ -1591,7 +1546,6 @@ bool PlayerBot::CheckCondition_Weapon
 	(
 	void
 	)
-
 {
 	return GetActiveWeapon( WEAPON_MAIN ) != BestWeapon( NULL, false, WEAPON_CLASS_THROWABLE );
 }
@@ -1600,7 +1554,6 @@ void PlayerBot::State_BeginWeapon
 	(
 	void
 	)
-
 {
 	Weapon *weap = BestWeapon( NULL, false, WEAPON_CLASS_THROWABLE );
 
@@ -1617,7 +1570,6 @@ void PlayerBot::Spawned
 	(
 	void
 	)
-
 {
 	ClearEnemy();
 	m_iCuriousTime = 0;
@@ -1629,7 +1581,6 @@ void PlayerBot::Killed
 	(
 	Event *ev
 	)
-
 {
 	Player::Killed( ev );
 
@@ -1652,7 +1603,6 @@ void PlayerBot::GotKill
 	(
 	Event *ev
 	)
-
 {
 	Player::GotKill( ev );
 
@@ -1664,7 +1614,6 @@ void PlayerBot::EventStuffText
 	(
 	Event *ev
 	)
-
 {
 	SendCommand( ev->GetString( 1 ) );
 }

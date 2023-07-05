@@ -2345,7 +2345,6 @@ void ScriptThread::Execute
 (
 	Event& ev
 )
-
 {
 	Execute(&ev);
 }
@@ -2354,7 +2353,6 @@ void ScriptThread::Execute
 (
 	Event* ev
 )
-
 {
 	assert(m_ScriptVM);
 
@@ -2393,7 +2391,6 @@ void ScriptThread::Execute
 	ScriptVariable* data,
 	int dataSize
 )
-
 {
 	ScriptExecuteInternal(data, dataSize);
 }
@@ -2402,7 +2399,6 @@ void ScriptThread::DelayExecute
 (
 	Event& ev
 )
-
 {
 	DelayExecute(&ev);
 }
@@ -2411,7 +2407,6 @@ void ScriptThread::DelayExecute
 (
 	Event* ev
 )
-
 {
 	assert(m_ScriptVM);
 
@@ -2584,7 +2579,6 @@ void ScriptThread::CreateReturnThread
 	(
 	Event *ev
 	)
-
 {
 	m_ScriptVM->GetScriptClass()->CreateReturnThread( ev );
 }
@@ -2593,7 +2587,6 @@ void ScriptThread::CreateThread
 	(
 	Event *ev
 	)
-
 {
 	m_ScriptVM->GetScriptClass()->CreateThread( ev );
 }
@@ -2602,7 +2595,6 @@ void ScriptThread::ExecuteReturnScript
 	(
 	Event *ev
 	)
-
 {
 	m_ScriptVM->GetScriptClass()->ExecuteReturnScript( ev );
 }
@@ -2611,7 +2603,6 @@ void ScriptThread::ExecuteScript
 	(
 	Event *ev
 	)
-
 {
 	m_ScriptVM->GetScriptClass()->ExecuteScript( ev );
 }
@@ -2620,7 +2611,6 @@ void ScriptThread::EventCreateListener
 	(
 	Event *ev
 	)
-
 {
 	ev->AddListener( new Listener );
 }
@@ -2629,7 +2619,6 @@ void ScriptThread::CancelWaiting
 	(
 	Event *ev
 	)
-
 {
 	CancelWaitingAll();
 }
@@ -2650,7 +2639,6 @@ void ScriptThread::GetAbs
 	(
 	Event *ev
 	)
-
 {
 	ScriptVariable& val = ev->GetValue(1);
 	if (val.GetType() == VARIABLE_INTEGER)
@@ -2671,7 +2659,6 @@ void ScriptThread::ServerStufftext
 	(
 	Event *ev
 	)
-
 {
 	gi.SendConsoleCommand( ev->GetString( 1 ) );
 }
@@ -2680,7 +2667,6 @@ void ScriptThread::RemoveArchivedClass
 	(
 	Event *ev
 	)
-
 {
 	str classname;
 	int except_entity_number = -1;
@@ -2713,7 +2699,6 @@ void ScriptThread::SetTimer
 	(
 	Event *ev
 	)
-
 {
 
 	int interval = -1;
@@ -2743,7 +2728,6 @@ void ScriptThread::Angles_ToForward
 	(
 	Event *ev
 	)
-
 {
 	Vector fwd;
 
@@ -2755,7 +2739,6 @@ void ScriptThread::Angles_ToLeft
 	(
 	Event *ev
 	)
-
 {
 	Vector left;
 
@@ -2767,7 +2750,6 @@ void ScriptThread::Angles_ToUp
 	(
 	Event *ev
 	)
-
 {
 	Vector up;
 
@@ -2779,7 +2761,6 @@ void ScriptThread::Assert
 	(
 	Event *ev
 	)
-
 {
 	assert( ev->GetFloat( 1 ) );
 }
@@ -2788,7 +2769,6 @@ void ScriptThread::Cache
 	(
 	Event *ev
 	)
-
 {
 #ifdef GAME_DLL
 	CacheResource( ev->GetString( 1 ) );
@@ -2799,7 +2779,6 @@ void ScriptThread::CastBoolean
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( ev->GetBoolean( 1 ) );
 }
@@ -2808,7 +2787,6 @@ void ScriptThread::CastEntity
 	(
 	Event *ev
 	)
-
 {
 	ev->AddListener( ( Listener *)ev->GetEntity( 1 ) );
 }
@@ -2817,7 +2795,6 @@ void ScriptThread::CastFloat
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( ev->GetFloat( 1 ) );
 }
@@ -2826,7 +2803,6 @@ void ScriptThread::CastInt
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( ev->GetInteger( 1 ) );
 }
@@ -2835,7 +2811,6 @@ void ScriptThread::CastString
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( ev->GetString( 1 ) );
 }
@@ -2845,7 +2820,6 @@ void ScriptThread::EventDelayThrow
 	(
 	Event *ev
 	)
-
 {
 	if( !m_ScriptVM->m_PrevCodePos ) {
 		return;
@@ -2887,7 +2861,6 @@ void ScriptThread::EventEnd
 	(
 	Event *ev
 	)
-
 {
 	if( ev->NumArgs() > 0 )
 	{
@@ -2907,7 +2880,6 @@ void ScriptThread::EventTimeout
 	(
 	Event *ev
 	)
-
 {
 	Director.maxTime = ev->GetFloat( 1 ) * 1000.0f + 0.5f;
 }
@@ -2916,7 +2888,6 @@ void ScriptThread::EventError
 	(
 	Event *ev
 	)
-
 {
 	if( ev->NumArgs() > 1 )
 	{
@@ -2938,7 +2909,6 @@ void ScriptThread::EventGoto
 	(
 	Event *ev
 	)
-
 {
 	m_ScriptVM->EventGoto( ev );
 
@@ -2957,7 +2927,6 @@ void ScriptThread::EventRegisterCommand
 	(
 	Event *ev
 	)
-
 {
 #ifdef CGAME_DLL
 	ScriptThreadLabel scriptLabel;
@@ -2972,7 +2941,6 @@ void ScriptThread::EventGetCvar
 	(
 	Event *ev
 	)
-
 {
 	str s = gi.Cvar_Get( ev->GetString( 1 ), "", 0 )->string;
 
@@ -2994,7 +2962,6 @@ void ScriptThread::EventSetCvar
 	(
 	Event *ev
 	)
-
 {
 	gi.Cvar_Set( ev->GetString( 1 ), ev->GetString( 2 ) );
 }
@@ -3003,7 +2970,6 @@ void ScriptThread::EventThrow
 	(
 	Event *ev
 	)
-
 {
 	if( !m_ScriptVM->m_PrevCodePos ) {
 		return;
@@ -3045,7 +3011,6 @@ void ScriptThread::EventWait
 	(
 	Event *ev
 	)
-
 {
 	Wait( ev->GetFloat( 1 ) );
 }
@@ -3054,7 +3019,6 @@ void ScriptThread::EventWaitFrame
 	(
 	Event *ev
 	)
-
 {
 	Wait( level.frametime );
 }
@@ -3063,7 +3027,6 @@ void ScriptThread::GetSelf
 	(
 	Event *ev
 	)
-
 {
 	ev->AddListener( m_ScriptVM->GetScriptClass()->GetSelf() );
 }
@@ -3072,7 +3035,6 @@ void ScriptThread::Println
 	(
 	Event *ev
 	)
-
 {
 	if( !developer->integer )
 		return;
@@ -3085,7 +3047,6 @@ void ScriptThread::Print
 	(
 	Event *ev
 	)
-
 {
 	if( !developer->integer )
 		return;
@@ -3100,7 +3061,6 @@ void ScriptThread::MPrintln
 	(
 	Event *ev
 	)
-
 {
 	SimpleEntity *m_Self = ( SimpleEntity * )m_ScriptVM->GetScriptClass()->GetSelf();
 
@@ -3117,7 +3077,6 @@ void ScriptThread::MPrint
 	(
 	Event *ev
 	)
-
 {
 	SimpleEntity *m_Self = ( SimpleEntity * )m_ScriptVM->GetScriptClass()->GetSelf();
 
@@ -3136,7 +3095,6 @@ void ScriptThread::RandomFloat
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( G_Random( ev->GetFloat( 1 ) ) );
 }
@@ -3145,7 +3103,6 @@ void ScriptThread::RandomInt
 	(
 	Event *ev
 	)
-
 {
 	ev->AddInteger( G_Random( ev->GetInteger( 1 ) ) );
 }
@@ -3154,7 +3111,6 @@ void ScriptThread::Spawn
 	(
 	Event *ev
 	)
-
 {
 	Listener *listener = SpawnInternal( ev );
 
@@ -3168,7 +3124,6 @@ Listener *ScriptThread::SpawnInternal
 	(
 	Event *ev
 	)
-
 {
 	SpawnArgs args;
 	str classname;
@@ -3244,7 +3199,6 @@ void ScriptThread::SpawnReturn
 	(
 	Event *ev
 	)
-
 {
 	Listener *listener = SpawnInternal( ev );
 
@@ -3260,7 +3214,6 @@ void ScriptThread::EventVectorAdd
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector( ev->GetVector( 1 ) + ev->GetVector( 2 ) );
 }
@@ -3269,7 +3222,6 @@ void ScriptThread::EventVectorCloser
 	(
 	Event *ev
 	)
-
 {
 	
 }
@@ -3278,7 +3230,6 @@ void ScriptThread::EventVectorCross
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector( Vector::Cross( ev->GetVector( 1 ), ev->GetVector( 2 ) ) );
 }
@@ -3287,7 +3238,6 @@ void ScriptThread::EventVectorDot
 	(
 	Event *ev
 	)
-
 {
 	Vector vector1 = ev->GetVector( 1 ), vector2 = ev->GetVector( 2 );
 
@@ -3298,7 +3248,6 @@ void ScriptThread::EventVectorLength
 	(
 	Event *ev
 	)
-
 {
 	ev->AddFloat( ev->GetVector( 1 ).length() );
 }
@@ -3307,7 +3256,6 @@ void ScriptThread::EventVectorNormalize
 	(
 	Event *ev
 	)
-
 {
 	Vector vector = ev->GetVector( 1 );
 
@@ -3320,7 +3268,6 @@ void ScriptThread::EventVectorScale
 	(
 	Event *ev
 	)
-
 {
 	Vector vector = ev->GetVector( 1 );
 
@@ -3333,7 +3280,6 @@ void ScriptThread::EventVectorSubtract
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector( ev->GetVector( 1 ) - ev->GetVector( 2 ) );
 }
@@ -3342,7 +3288,6 @@ void ScriptThread::EventVectorToAngles
 	(
 	Event *ev
 	)
-
 {
 	ev->AddVector( ev->GetVector( 1 ).toAngles() );
 }
@@ -3351,7 +3296,6 @@ void ScriptThread::EventVectorWithin
 	(
 	Event *ev
 	)
-
 {
 	Vector delta;
 	float dist = ev->GetFloat( 2 );
@@ -3366,7 +3310,6 @@ void ScriptThread::EventGetBoundKey1
 	(
 	Event *ev
 	)
-
 {
 	int iKey1;
 	int iKey2;
@@ -3383,7 +3326,6 @@ void ScriptThread::EventGetBoundKey2
 	(
 	Event *ev
 	)
-
 {
 	int iKey1;
 	int iKey2;
@@ -3400,7 +3342,6 @@ void ScriptThread::EventLocConvertString
 	(
 	Event *ev
 	)
-
 {
 	ev->AddString( gi.LV_ConvertString( ev->GetString( 1 ) ) );
 }
@@ -3411,7 +3352,6 @@ void ScriptThread::MapEvent
 	(
 	Event *ev
 	)
-
 {
 	if( level.mission_failed )
 		return;
@@ -3423,7 +3363,6 @@ void ScriptThread::EventSightTrace
 	(
 	Event *ev
 	)
-
 {
 	int content_mask = MASK_LINE;
 	Vector start;
@@ -3468,7 +3407,6 @@ void ScriptThread::EventTrace
 	(
 	Event *ev
 	)
-
 {
 	int content_mask = MASK_LINE;
 	Vector start;
@@ -3515,7 +3453,6 @@ void ScriptThread::TriggerEvent
 	(
 	Event *ev
 	)
-
 {
 	ScriptVariable var;
 	Entity *ent;
@@ -3541,7 +3478,6 @@ void ScriptThread::ServerEvent
 	(
 	Event *ev
 	)
-
 {
 	Event *event = new Event( ev->GetString( 1 ) );
 
@@ -3557,7 +3493,6 @@ void ScriptThread::StuffCommand
 	(
 	Event *ev
 	)
-
 {
 	gi.SendConsoleCommand( va( "%s\n", ev->GetString( 1 ).c_str() ) );
 }
@@ -3627,7 +3562,6 @@ void ScriptThread::CreateHUD
 	(
 	Event *ev
 	)
-
 {
 	int clientNum = -1;
 
@@ -3649,7 +3583,6 @@ void ScriptThread::IPrintln
 	(
 	Event *ev
 	)
-
 {
 	G_PrintToAllClients( gi.LV_ConvertString( ev->GetString( 1 ) ), false );
 }
@@ -3658,7 +3591,6 @@ void ScriptThread::IPrintln_NoLoc
 	(
 	Event *ev
 	)
-
 {
 	G_PrintToAllClients( ev->GetString( 1 ), false );
 }
@@ -3667,7 +3599,6 @@ void ScriptThread::IPrintlnBold
 	(
 	Event *ev
 	)
-
 {
 	G_PrintToAllClients( gi.LV_ConvertString( ev->GetString( 1 ) ), true );
 }
@@ -3676,7 +3607,6 @@ void ScriptThread::IPrintlnBold_NoLoc
 	(
 	Event *ev
 	)
-
 {
 	G_PrintToAllClients( ev->GetString( 1 ), true );
 }
@@ -3692,7 +3622,6 @@ void ScriptThread::Earthquake
 	(
 	Event *ev
 	)
-
 {
 	float duration = ev->GetFloat( 1 );
 	float magnitude = ev->GetFloat( 2 );
@@ -3718,7 +3647,6 @@ void ScriptThread::EventIsAlive
 	(
 	Event *ev
 	)
-
 {
 	Entity *ent = ev->GetEntity( 1 );
 
@@ -3737,7 +3665,6 @@ void ScriptThread::AddObjective
 (
 	Event* ev
 )
-
 {
 	int index;
 	int status;
@@ -3835,7 +3762,6 @@ void ScriptThread::ClearObjectiveLocation
 (
 	Event* ev
 )
-
 {
 	ClearObjectiveLocation();
 }
@@ -3849,7 +3775,6 @@ void ScriptThread::SetObjectiveLocation
 (
 	Event* ev
 )
-
 {
 	SetObjectiveLocation(ev->GetVector(1));
 }
@@ -3863,7 +3788,6 @@ void ScriptThread::SetCurrentObjective
 (
 	Event* ev
 )
-
 {
 	int iObjective = ev->GetInteger(1);
 
@@ -3896,7 +3820,6 @@ void ScriptThread::AllAIOff
 (
 	Event* ev
 )
-
 {
 	level.ai_on = qfalse;
 }
@@ -3905,7 +3828,6 @@ void ScriptThread::AllAIOn
 (
 	Event* ev
 )
-
 {
 	level.ai_on = qtrue;
 }
@@ -3914,7 +3836,6 @@ void ScriptThread::EventTeamWin
 (
 	Event* ev
 )
-
 {
 	const_str team;
 	int teamnum;
@@ -3945,7 +3866,6 @@ void ScriptThread::Angles_PointAt
 (
 	Event* ev
 )
-
 {
 	Entity* pParent, * pEnt, * pTarget;
 	Vector vDelta, vVec, vAngles;
@@ -3976,7 +3896,6 @@ void ScriptThread::EventEarthquake
 (
 	Event* ev
 )
-
 {
 	earthquake_t e;
 
@@ -4002,7 +3921,6 @@ void ScriptThread::CueCamera
 (
 	Event* ev
 )
-
 {
 	float    switchTime;
 	Entity* ent;
@@ -4031,7 +3949,6 @@ void ScriptThread::CuePlayer
 (
 	Event* ev
 )
-
 {
 	float    switchTime;
 
@@ -4051,7 +3968,6 @@ void ScriptThread::FreezePlayer
 (
 	Event* ev
 )
-
 {
 	level.playerfrozen = true;
 }
@@ -4060,7 +3976,6 @@ void ScriptThread::ReleasePlayer
 (
 	Event* ev
 )
-
 {
 	level.playerfrozen = false;
 }
@@ -4069,7 +3984,6 @@ void ScriptThread::EventDrawHud
 (
 	Event* ev
 )
-
 {
 	int i;
 	gentity_t* ent;
@@ -4096,7 +4010,6 @@ void ScriptThread::EventRadiusDamage
 (
 	Event* ev
 )
-
 {
 	Vector origin = ev->GetVector(1);
 	float damage = ev->GetFloat(2);
@@ -4119,7 +4032,6 @@ void ScriptThread::ForceMusicEvent
 (
 	Event* ev
 )
-
 {
 	const char* current;
 	const char* fallback;
@@ -4139,7 +4051,6 @@ void ScriptThread::EventPrint3D
 (
 	Event* ev
 )
-
 {
 	Vector origin;
 	float scale;
@@ -4156,7 +4067,6 @@ void ScriptThread::SoundtrackEvent
 (
 	Event* ev
 )
-
 {
 	ChangeSoundtrack(ev->GetString(1));
 }
@@ -4165,7 +4075,6 @@ void ScriptThread::RestoreSoundtrackEvent
 (
 	Event* ev
 )
-
 {
 	RestoreSoundtrack();
 }
@@ -4174,7 +4083,6 @@ void ScriptThread::EventBspTransition
 (
 	Event* ev
 )
-
 {
 	str map = ev->GetString(1);
 
@@ -4188,7 +4096,6 @@ void ScriptThread::EventLevelTransition
 (
 	Event* ev
 )
-
 {
 	str map = ev->GetString(1);
 
@@ -4202,7 +4109,6 @@ void ScriptThread::EventMissionTransition
 (
 	Event* ev
 )
-
 {
 	str map = ev->GetString(1);
 
@@ -4216,7 +4122,6 @@ void ScriptThread::Letterbox
 (
 	Event* ev
 )
-
 {
 	level.m_letterbox_fraction = 1.0f / 8.0f;
 	level.m_letterbox_time = ev->GetFloat(1);
@@ -4231,7 +4136,6 @@ void ScriptThread::ClearLetterbox
 (
 	Event* ev
 )
-
 {
 	level.m_letterbox_time = level.m_letterbox_time_start;
 	level.m_letterbox_dir = letterbox_out;
@@ -4241,7 +4145,6 @@ void ScriptThread::SetLightStyle
 (
 	Event* ev
 )
-
 {
 	lightStyles.SetLightStyle(ev->GetInteger(1), ev->GetString(2));
 }
@@ -4250,7 +4153,6 @@ void ScriptThread::FadeIn
 (
 	Event* ev
 )
-
 {
 	level.m_fade_time_start = ev->GetFloat(1);
 	level.m_fade_time = ev->GetFloat(1);
@@ -4271,7 +4173,6 @@ void ScriptThread::ClearFade
 (
 	Event* ev
 )
-
 {
 	level.m_fade_time = -1;
 	level.m_fade_type = fadein;
@@ -4281,7 +4182,6 @@ void ScriptThread::FadeOut
 (
 	Event* ev
 )
-
 {
 	level.m_fade_time_start = ev->GetFloat(1);
 	level.m_fade_time = ev->GetFloat(1);
@@ -4302,7 +4202,6 @@ void ScriptThread::MusicEvent
 (
 	Event* ev
 )
-
 {
 	const char* current;
 	const char* fallback;
@@ -4321,7 +4220,6 @@ void ScriptThread::MusicVolumeEvent
 (
 	Event* ev
 )
-
 {
 	float volume;
 	float fade_time;
@@ -4348,7 +4246,6 @@ void ScriptThread::SetCinematic
 (
 	Event* ev
 )
-
 {
 	G_StartCinematic();
 }
@@ -4357,7 +4254,6 @@ void ScriptThread::SetNonCinematic
 (
 	Event* ev
 )
-
 {
 	G_StopCinematic();
 }
@@ -4366,7 +4262,6 @@ void ScriptThread::CenterPrint
 (
 	Event* ev
 )
-
 {
 	int         j;
 	gentity_t* other;
@@ -4385,7 +4280,6 @@ void ScriptThread::LocationPrint
 (
 	Event* ev
 )
-
 {
 	int         j;
 	gentity_t* other;
@@ -4408,7 +4302,6 @@ void ScriptThread::KillEnt
 (
 	Event* ev
 )
-
 {
 	int num;
 	Entity* ent;
@@ -4432,7 +4325,6 @@ void ScriptThread::RemoveEnt
 (
 	Event* ev
 )
-
 {
 	int num;
 	Entity* ent;
@@ -4456,7 +4348,6 @@ void ScriptThread::KillClass
 (
 	Event* ev
 )
-
 {
 	int except;
 	str classname;
@@ -4503,7 +4394,6 @@ void ScriptThread::RemoveClass
 (
 	Event* ev
 )
-
 {
 	int except;
 	str classname;
@@ -4548,7 +4438,6 @@ void ScriptThread::CameraCommand
 (
 	Event* ev
 )
-
 {
 	Event* e;
 	const char* cmd;
@@ -4583,7 +4472,6 @@ void ScriptThread::MissionFailed
 (
 	Event* ev
 )
-
 {
 	G_MissionFailed();
 }
@@ -4592,7 +4480,6 @@ void ScriptThread::EventHudDrawShader
 	(
 	Event *ev
 	)
-
 {
 	int index = -1;
 	str shadername;
@@ -4613,7 +4500,6 @@ void ScriptThread::EventHudDrawAlign
 	(
 	Event *ev
 	)
-
 {
 	int index = -1;
 	int h_alignement = -1;
@@ -4673,7 +4559,6 @@ void ScriptThread::EventHudDrawRect
 	(
 	Event *ev
 	)
-
 {
 	int index = -1;
 	int x = 0;
@@ -4700,7 +4585,6 @@ void ScriptThread::EventHudDrawVirtualSize
 	(
 	Event *ev
 	)
-
 {
 	int index = -1;
 	int virt = -1;
@@ -4723,7 +4607,6 @@ void ScriptThread::EventHudDrawColor
 	(
 	Event *ev
 	)
-
 {
 	int numArgs = -1;
 	int index = -1;
@@ -4751,7 +4634,6 @@ void ScriptThread::EventHudDrawAlpha
 	(
 	Event *ev
 	)
-
 {
 	int index = -1;
 	float alpha = 0.0f;
@@ -4773,7 +4655,6 @@ void ScriptThread::EventHudDrawString
 	(
 	Event *ev
 	)
-
 {
 	int index = -1;
 	str string;
@@ -4794,7 +4675,6 @@ void ScriptThread::EventHudDrawFont
 	(
 	Event *ev
 	)
-
 {
 	int index = -1;
 	str fontname;
@@ -4815,7 +4695,6 @@ void ScriptThread::FadeSound
 	(
 	Event *ev
 	)
-
 {
 	// params
 	float delaytime;
@@ -4847,7 +4726,6 @@ void ScriptThread::RestoreSound
 	(
 	Event *ev
 	)
-
 {
 	// params
 	float delaytime;
@@ -4882,7 +4760,6 @@ void ScriptThread::EventHudDraw3d
 (
 	Event* ev
 )
-
 {
 	int index;
 	float* tmp;
@@ -4911,7 +4788,6 @@ void ScriptThread::EventHudDrawTimer
 (
 	Event* ev
 )
-
 {
 	int index;
 	float duration;
@@ -4934,7 +4810,6 @@ void ScriptThread::CanSwitchTeams
 (
 	Event* ev
 )
-
 {
 	qboolean bAllow = ev->GetBoolean(1);
 
@@ -4952,7 +4827,6 @@ void ScriptThread::GetEntity
 (
 	Event* ev
 )
-
 {
 	int entnum = -1;
 	Entity* ent;
@@ -4971,7 +4845,6 @@ void ScriptThread::GetPlayerNetname
 (
 	Event* ev
 )
-
 {
 	Entity* ent = NULL;
 
@@ -4996,7 +4869,6 @@ void ScriptThread::GetPlayerIP
 (
 	Event* ev
 )
-
 {
 	Entity* ent = NULL;
 	char* ip = NULL;
@@ -5026,7 +4898,6 @@ void ScriptThread::GetPlayerPing
 (
 	Event* ev
 )
-
 {
 
 	Entity* ent = NULL;
@@ -5053,7 +4924,6 @@ void ScriptThread::GetPlayerClientNum
 (
 	Event* ev
 )
-
 {
 
 	Entity* ent = NULL;
@@ -5079,7 +4949,6 @@ void ScriptThread::GetAreaEntities
 (
 	Event* ev
 )
-
 {
 	Vector origin;
 	Vector mins;
@@ -5127,7 +4996,6 @@ void ScriptThread::GetEntArray
 (
 	Event* ev
 )
-
 {
 	str name = ev->GetString(1);
 	str key = ev->GetString(2);
@@ -5226,7 +5094,6 @@ void ScriptThread::EventIHudDraw3d
 (
 	Event* ev
 )
-
 {
 	Player* player;
 	int index;
@@ -5263,7 +5130,6 @@ void ScriptThread::EventIHudDrawTimer
 (
 	Event* ev
 )
-
 {
 	Player* player;
 	int index;
@@ -5294,7 +5160,6 @@ void ScriptThread::EventIHudDrawShader
 (
 	Event* ev
 )
-
 {
 	int numArgs = -1;
 	int index = -1;
@@ -5331,7 +5196,6 @@ void ScriptThread::EventIHudDrawAlign
 (
 	Event* ev
 )
-
 {
 	int numArgs = -1;
 	int index = -1;
@@ -5419,7 +5283,6 @@ void ScriptThread::EventIHudDrawRect
 (
 	Event* ev
 )
-
 {
 	int numArgs = -1;
 	int index = -1;
@@ -5462,7 +5325,6 @@ void ScriptThread::EventIHudDrawVirtualSize
 (
 	Event* ev
 )
-
 {
 	int numArgs = -1;
 	int index = -1;
@@ -5501,7 +5363,6 @@ void ScriptThread::EventIHudDrawColor
 (
 	Event* ev
 )
-
 {
 	int numArgs = -1;
 	int index = -1;
@@ -5541,7 +5402,6 @@ void ScriptThread::EventIHudDrawAlpha
 (
 	Event* ev
 )
-
 {
 	int numArgs = -1;
 	int index = -1;
@@ -5576,7 +5436,6 @@ void ScriptThread::EventIHudDrawString
 (
 	Event* ev
 )
-
 {
 	int numArgs = -1;
 	int index = -1;
@@ -5614,7 +5473,6 @@ void ScriptThread::EventIHudDrawFont
 (
 	Event* ev
 )
-
 {
 	int index;
 	Entity* player = NULL;
@@ -5648,7 +5506,6 @@ void ScriptThread::EventIsOnGround
 (
 	Event* ev
 )
-
 {
 	Entity* entity = ev->GetEntity(1);
 
@@ -5659,7 +5516,6 @@ void ScriptThread::EventIsOutOfBounds
 (
 	Event* ev
 )
-
 {
 	Entity* entity = ev->GetEntity(1);
 	int areanum = gi.AreaForPoint(entity->origin);
@@ -5676,7 +5532,6 @@ void ScriptThread::TeamGetScore
 	(
 	Event *ev
 	)
-
 {
 	str teamname = ev->GetString( 1 );
 	DM_Team *team = dmManager.GetTeam( teamname );
@@ -5695,7 +5550,6 @@ void ScriptThread::TeamSetScore
 	(
 	Event *ev
 	)
-
 {
 	str teamname;
 	DM_Team *team;
@@ -5740,7 +5594,6 @@ void ScriptThread::CharToInt
 (
 	Event* ev
 )
-
 {
 	str c = ev->GetString(1);
 
@@ -5751,7 +5604,6 @@ void ScriptThread::Conprintf
 (
 	Event* ev
 )
-
 {
 	gi.Printf("%s", ev->GetString(1).c_str());
 }
@@ -5760,7 +5612,6 @@ void ScriptThread::FileOpen
 (
 	Event* ev
 )
-
 {
 	int numArgs = -1;
 	str filename;
@@ -5803,7 +5654,6 @@ void ScriptThread::FileWrite
 (
 	Event* ev
 )
-
 {
 
 }
@@ -5812,7 +5662,6 @@ void ScriptThread::FileRead
 (
 	Event* ev
 )
-
 {
 
 }
@@ -5821,7 +5670,6 @@ void ScriptThread::FileClose
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -5888,7 +5736,6 @@ void ScriptThread::FileEof
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -5914,7 +5761,6 @@ void ScriptThread::FileSeek
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -5956,7 +5802,6 @@ void ScriptThread::FileTell
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -5982,7 +5827,6 @@ void ScriptThread::FileRewind
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6007,7 +5851,6 @@ void ScriptThread::FilePutc
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6036,7 +5879,6 @@ void ScriptThread::FilePuts
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6065,7 +5907,6 @@ void ScriptThread::FileGetc
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6091,7 +5932,6 @@ void ScriptThread::FileGets
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6140,7 +5980,6 @@ void ScriptThread::FileError
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6166,7 +6005,6 @@ void ScriptThread::FileFlush
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6193,7 +6031,6 @@ void ScriptThread::FileExists
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6227,7 +6064,6 @@ void ScriptThread::FileReadAll
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6272,7 +6108,6 @@ void ScriptThread::FileSaveAll
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6306,7 +6141,6 @@ void ScriptThread::FileRemove
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6335,7 +6169,6 @@ void ScriptThread::FileRename
 (
 	Event* ev
 )
-
 {
 	int id = 0;
 	int numArgs = 0;
@@ -6369,7 +6202,6 @@ void ScriptThread::FileCopy
 (
 	Event* ev
 )
-
 {
 	size_t n = 0;
 	int numArgs = 0;
@@ -6438,7 +6270,6 @@ void ScriptThread::FileReadPak
 (
 	Event* ev
 )
-
 {
 	str filename;
 	char* content = NULL;
@@ -6474,7 +6305,6 @@ void ScriptThread::FileList
 (
 	Event* ev
 )
-
 {
 	int i = 0, numArgs = 0;
 	const char* path = NULL;
@@ -6529,7 +6359,6 @@ void ScriptThread::FileNewDirectory
 (
 	Event* ev
 )
-
 {
 	str path;
 	int numArgs = 0;
@@ -6563,7 +6392,6 @@ void ScriptThread::FileRemoveDirectory
 (
 	Event* ev
 )
-
 {
 	str path;
 	int numArgs = 0;
@@ -6597,7 +6425,6 @@ void ScriptThread::GetArrayKeys
 (
 	Event* ev
 )
-
 {
 	Entity* ent = NULL;
 	ScriptVariable array;
@@ -6646,7 +6473,6 @@ void ScriptThread::GetArrayValues
 (
 	Event* ev
 )
-
 {
 	Entity* ent = NULL;
 	ScriptVariable array;
@@ -6691,7 +6517,6 @@ void ScriptThread::GetDate
 (
 	Event* ev
 )
-
 {
 
 	char buff[1024];
@@ -6710,7 +6535,6 @@ void ScriptThread::GetTimeZone
 (
 	Event* ev
 )
-
 {
 	int gmttime;
 	int local;
@@ -6744,7 +6568,6 @@ void ScriptThread::PregMatch
 (
 	Event* ev
 )
-
 {
 	slre_cap sl_cap[32];
 	int i, j;
@@ -6799,7 +6622,6 @@ void ScriptThread::EventIsArray
 (
 	Event* ev
 )
-
 {
 	ScriptVariable* value = &ev->GetValue(1);
 
@@ -6814,7 +6636,6 @@ void ScriptThread::EventIsDefined
 (
 	Event* ev
 )
-
 {
 	ev->AddInteger(!ev->IsNilAt(1));
 }
@@ -6823,7 +6644,6 @@ void ScriptThread::FlagClear
 (
 	Event* ev
 )
-
 {
 	str name;
 	Flag* flag;
@@ -6843,7 +6663,6 @@ void ScriptThread::FlagInit
 (
 	Event* ev
 )
-
 {
 	str name;
 	Flag* flag;
@@ -6867,7 +6686,6 @@ void ScriptThread::FlagSet
 (
 	Event* ev
 )
-
 {
 	str name;
 	Flag* flag;
@@ -6887,7 +6705,6 @@ void ScriptThread::FlagWait
 (
 	Event* ev
 )
-
 {
 	str name;
 	Flag* flag;
@@ -6907,7 +6724,6 @@ void ScriptThread::MathCos
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -6929,7 +6745,6 @@ void ScriptThread::MathSin
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -6951,7 +6766,6 @@ void ScriptThread::MathTan
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -6973,7 +6787,6 @@ void ScriptThread::MathACos
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -6995,7 +6808,6 @@ void ScriptThread::MathASin
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7017,7 +6829,6 @@ void ScriptThread::MathATan
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7039,7 +6850,6 @@ void ScriptThread::MathATan2
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, y = 0.0f, res = 0.0f;
@@ -7063,7 +6873,6 @@ void ScriptThread::MathCosH
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7085,7 +6894,6 @@ void ScriptThread::MathSinH
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7107,7 +6915,6 @@ void ScriptThread::MathTanH
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7129,7 +6936,6 @@ void ScriptThread::MathExp
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7151,7 +6957,6 @@ void ScriptThread::MathFrexp
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7191,7 +6996,6 @@ void ScriptThread::MathLdexp
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7216,7 +7020,6 @@ void ScriptThread::MathLog
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7238,7 +7041,6 @@ void ScriptThread::MathLog10
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7260,7 +7062,6 @@ void ScriptThread::MathModf
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7300,7 +7101,6 @@ void ScriptThread::MathPow
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double base = 0.0f, res = 0.0f;
@@ -7324,7 +7124,6 @@ void ScriptThread::MathSqrt
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7346,7 +7145,6 @@ void ScriptThread::MathCeil
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7368,7 +7166,6 @@ void ScriptThread::MathFloor
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double x = 0.0f, res = 0.0f;
@@ -7390,7 +7187,6 @@ void ScriptThread::MathFmod
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	double numerator = 0.0f, denominator = 0.0f, res = 0.0f;
@@ -7506,7 +7302,6 @@ void ScriptThread::Md5File
 (
 	Event* ev
 )
-
 {
 	char hash[64];
 	str filename;
@@ -7534,7 +7329,6 @@ void ScriptThread::StringBytesCopy
 (
 	Event* ev
 )
-
 {
 	int bytes = ev->GetInteger(1);
 	str source = ev->GetString(2);
@@ -7554,7 +7348,6 @@ void ScriptThread::Md5String
 (
 	Event* ev
 )
-
 {
 	char hash[64];
 	str text;
@@ -7634,7 +7427,6 @@ void ScriptThread::RegisterEvent
 (
 	Event* ev
 )
-
 {
 	str eventname;
 	char eventname_full[64];
@@ -7673,7 +7465,6 @@ void ScriptThread::UnregisterEvent
 (
 	Event* ev
 )
-
 {
 	str eventname;
 	int numArgs = 0;
@@ -7719,7 +7510,6 @@ void ScriptThread::TypeOfVariable
 (
 	Event* ev
 )
-
 {
 	int numArgs = 0;
 	char* type = NULL;
@@ -7742,7 +7532,6 @@ void ScriptThread::VisionGetNaked
 (
 	Event* ev
 )
-
 {
 	ev->AddString(vision_current);
 }
@@ -7751,7 +7540,6 @@ void ScriptThread::VisionSetNaked
 (
 	Event* ev
 )
-
 {
 	str vision = ev->GetString(1);
 	float fade_time;
@@ -7786,7 +7574,6 @@ void ScriptThread::GetTime
 (
 	Event* ev
 )
-
 {
 	int timearray[3], gmttime;
 	char buff[1024];
@@ -7818,7 +7605,6 @@ void ScriptThread::TraceDetails
 (
 	Event* ev
 )
-
 {
 
 	int numArgs = 0;

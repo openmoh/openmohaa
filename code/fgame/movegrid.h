@@ -97,7 +97,6 @@ inline void cMoveGrid::Archive
 	(
 	Archiver& arc
 	)
-
 {
 	arc.ArchiveInteger( &m_iXRes );
 	arc.ArchiveInteger( &m_iYRes );

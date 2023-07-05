@@ -45,7 +45,6 @@ void cMoveGrid::SetOrientation
 	(
 	float( *v )[ 3 ]
 	)
-
 {
 	for( int i = 0; i < 3; i++ )
 	{
@@ -57,7 +56,6 @@ void cMoveGrid::SetMoveInfo
 	(
 	vmove_t *vm
 	)
-
 {
 	memcpy( &v, vm, sizeof( vmove_t ) );
 }
@@ -66,7 +64,6 @@ void cMoveGrid::CalculateBoxPoints
 	(
 	void
 	)
-
 {
 	int x, y, z;
 	int rx, ry, rz;
@@ -155,7 +152,6 @@ gridpoint_t *cMoveGrid::GetGridPoint
 	int y,
 	int z
 	)
-
 {
 	return &GridPoints[ x * m_iZRes + y * m_iXRes + z ];
 }
@@ -164,7 +160,6 @@ void cMoveGrid::Move
 	(
 	void
 	)
-
 {
 	int x;
 	int y;
@@ -193,7 +188,6 @@ qboolean cMoveGrid::CheckStuck
 	(
 	void
 	)
-
 {
 	int x;
 	int y;
@@ -223,7 +217,6 @@ void cMoveGrid::GetMoveInfo
 	(
 	vmove_t *vm
 	)
-
 {
 	memcpy( vm, &v, sizeof( vmove_t ) );
 }

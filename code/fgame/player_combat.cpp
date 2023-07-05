@@ -197,7 +197,6 @@ void Player::useWeapon
    Weapon         *weapon,
    weaponhand_t   hand
    )
-
 {
 	Weapon * activeWeapon;
 
@@ -258,7 +257,6 @@ void Player::AcquireHeadTarget
    (
    void
    )
-
 {
 
 }

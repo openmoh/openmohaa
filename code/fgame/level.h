@@ -286,7 +286,6 @@ qboolean Level::Reborn
 	(
 	void
 	)
-
 {
 	return reborn;
 }

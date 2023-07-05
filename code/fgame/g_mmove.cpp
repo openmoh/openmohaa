@@ -44,7 +44,6 @@ void MM_ClipVelocity
 	float *out,
 	float overbounce
 	)
-
 {
 	float backoff;
 	float dir_z;
@@ -89,7 +88,6 @@ qboolean MM_AddTouchEnt
 	(
 	int entityNum
 	)
-
 {
 	int			i;
 	qboolean	blockEnt;
@@ -133,7 +131,6 @@ qboolean MM_SlideMove
 	(
 	qboolean gravity
 	)
-
 {
 	int bumpcount;
 	vec3_t dir;
@@ -324,7 +321,6 @@ void MM_GroundTraceInternal
 	(
 	void
 	)
-
 {
 	if( mml.groundTrace.fraction == 1.0f )
 	{
@@ -376,7 +372,6 @@ void MM_GroundTrace
 	(
 	void
 	)
-
 {
 	float point[ 3 ];
 
@@ -392,7 +387,6 @@ void MM_StepSlideMove
 	(
 	void
 	)
-
 {
 	vec3_t start_o;
 	vec3_t start_v;
@@ -524,7 +518,6 @@ void MM_ClipVelocity2D
 	float *out,
 	float overbounce
 	)
-
 {
 	float backoff;
 	float dir_z;
@@ -569,7 +562,6 @@ void MmoveSingle
 	(
 	mmove_t *mmove
 	)
-
 {
 	float point[ 3 ];
 	trace_t trace;

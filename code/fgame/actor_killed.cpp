@@ -28,7 +28,6 @@ void Actor::InitDead
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->IsState = &Actor::IsKilledState;
 }
@@ -37,7 +36,6 @@ void Actor::InitKilled
 	(
 	GlobalFuncs_t *func
 	)
-
 {
 	func->BeginState				= &Actor::Begin_Killed;
 	func->ThinkState				= &Actor::Think_Killed;
@@ -49,7 +47,6 @@ void Actor::Begin_Killed
 	(
 	void
 	)
-
 {
 	Event e1(EV_Actor_DeathEmbalm); // ebx
 
@@ -66,7 +63,6 @@ void Actor::Think_Killed
 	(
 	void
 	)
-
 {
 	Unregister(STRING_ANIMDONE);
 	if (m_State == 700)
@@ -88,7 +84,6 @@ void Actor::FinishedAnimation_Killed
 	(
 	void
 	)
-
 {
 	BecomeCorpse();
 	TransitionState(701, 0);

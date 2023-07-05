@@ -149,7 +149,6 @@ void CG_ImpactMark
    float fSCenter,
    float fTCenter
    )
-
 {
     vec3_t axis[3];
     float texCoordScale;
