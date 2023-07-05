@@ -90,88 +90,92 @@ TIKI file, similar to ScriptMaster in the server game dll.
 #define T_ASSIGNED_NUMBER     (1 << 30)
 #define T_DETAIL              (1 << 31)
 
-#define T2_MOVE                 (1 << 0)
-#define T2_AMOVE                (1 << 1)
-#define T2_ACCEL                (1 << 2)
-#define T2_TRAIL                (1 << 3)
-#define T2_PHYSICS_EVERYFRAME   (1 << 4)
-#define T2_TEMPORARY_DECAL      (1 << 5)
-#define T2_BOUNCE_DECAL         (1 << 6)
-#define T2_PARALLEL             (1 << 7)
-#define T2_VOLUMETRIC           (1 << 8)
-#define T2_COLOR_AVEL           (1 << 9)
-#define T2_WIND_AFFECT          (1 << 10)
-#define T2_SPRITEGRIDLIGHTING   (1 << 11)
-#define T2_WATERONLY            (1 << 12)
-#define T2_ALIGNSTRETCH         (1 << 13)
-#define T2_ALWAYSDRAW           (1 << 14)
-#define T2_CLAMP_VEL            (1 << 15)
-#define T2_CLAMP_VEL_AXIS       (1 << 16)
-#define T2_CONE                 (1 << 17)
-#define T2_RADIALVELOCITY       (1 << 18)
-#define T2_FRICTION             (1 << 19)
-#define T2_VARYCOLOR            (1 << 20)
-#define T2_SPIN                 (1 << 21)
+#define T2_MOVE               (1 << 0)
+#define T2_AMOVE              (1 << 1)
+#define T2_ACCEL              (1 << 2)
+#define T2_TRAIL              (1 << 3)
+#define T2_PHYSICS_EVERYFRAME (1 << 4)
+#define T2_TEMPORARY_DECAL    (1 << 5)
+#define T2_BOUNCE_DECAL       (1 << 6)
+#define T2_PARALLEL           (1 << 7)
+#define T2_VOLUMETRIC         (1 << 8)
+#define T2_COLOR_AVEL         (1 << 9)
+#define T2_WIND_AFFECT        (1 << 10)
+#define T2_SPRITEGRIDLIGHTING (1 << 11)
+#define T2_WATERONLY          (1 << 12)
+#define T2_ALIGNSTRETCH       (1 << 13)
+#define T2_ALWAYSDRAW         (1 << 14)
+#define T2_CLAMP_VEL          (1 << 15)
+#define T2_CLAMP_VEL_AXIS     (1 << 16)
+#define T2_CONE               (1 << 17)
+#define T2_RADIALVELOCITY     (1 << 18)
+#define T2_FRICTION           (1 << 19)
+#define T2_VARYCOLOR          (1 << 20)
+#define T2_SPIN               (1 << 21)
 
 class spawnthing_t;
 class specialeffect_t;
 
-typedef enum { NOT_RANDOM, RANDOM, CRANDOM } randtype_t;
+typedef enum {
+    NOT_RANDOM,
+    RANDOM,
+    CRANDOM
+} randtype_t;
 
 class cg_common_data : public Class
 {
 public:
     cg_common_data();
 
-    int life;
-    int createTime;
-    Vector origin;
-    Vector oldorigin;
-    Vector accel;
-    Vector angles;
-    Vector velocity;
-    Vector avelocity;
-    Vector parentOrigin;
-    Vector parentMins;
-    Vector parentMaxs;
-    Vector minVel;
-    Vector maxVel;
-    float color[4];
-    float alpha;
-    float scaleRate;
-    float scalemin;
-    float scalemax;
-    float bouncefactor;
-    int bouncecount;
-    int maxbouncecount;
-    str bouncesound;
-    int bouncesound_delay;
-    int flags;
-    int flags2;
-    dtiki_t* tiki;
-    int swarmfreq;
-    float swarmmaxspeed;
-    float swarmdelta;
-    float lightIntensity;
-    int lightType;
-    int fadeintime;
-    int fadedelay;
-    int parent;
-    int collisionmask;
-    int min_twinkletimeoff;
-    int max_twinkletimeoff;
-    int min_twinkletimeon;
-    int max_twinkletimeon;
-    int lightstyle;
-    int physicsRate;
-    float scale;
-    float scale2;
-    str swipe_shader;
-    str swipe_tag_start;
-    str swipe_tag_end;
-    str shadername;
-    float swipe_life;
-    float friction;
+    int      life;
+    int      createTime;
+    Vector   origin;
+    Vector   oldorigin;
+    Vector   accel;
+    Vector   angles;
+    Vector   velocity;
+    Vector   avelocity;
+    Vector   parentOrigin;
+    Vector   parentMins;
+    Vector   parentMaxs;
+    Vector   minVel;
+    Vector   maxVel;
+    float    color[4];
+    float    alpha;
+    float    scaleRate;
+    float    scalemin;
+    float    scalemax;
+    float    bouncefactor;
+    int      bouncecount;
+    int      maxbouncecount;
+    str      bouncesound;
+    int      bouncesound_delay;
+    int      flags;
+    int      flags2;
+    dtiki_t *tiki;
+    int      swarmfreq;
+    float    swarmmaxspeed;
+    float    swarmdelta;
+    float    lightIntensity;
+    int      lightType;
+    int      fadeintime;
+    int      fadedelay;
+    int      parent;
+    int      collisionmask;
+    int      min_twinkletimeoff;
+    int      max_twinkletimeoff;
+    int      min_twinkletimeon;
+    int      max_twinkletimeon;
+    int      lightstyle;
+    int      physicsRate;
+    float    scale;
+    float    scale2;
+    str      swipe_shader;
+    str      swipe_tag_start;
+    str      swipe_tag_end;
+    str      shadername;
+    float    swipe_life;
+    float    friction;
 
     float decal_orientation;
     float decal_radius;
@@ -182,35 +186,35 @@ inline cg_common_data::cg_common_data()
 {
     int i;
 
-    bouncesound_delay = 0;
-    life = 0;
-    createTime = 0;
-    alpha = 0;
-    fadedelay = 0;
-    lightIntensity = 0;
-    lightType = (dlighttype_t)0;
-    bouncefactor = 0;
-    bouncecount = 0;
-    maxbouncecount = 0;
-    scaleRate = 0;
-    scale = 1;
-    scalemin = 0;
-    scalemax = 0;
-    swarmfreq = 0;
-    swarmmaxspeed = 0;
-    swarmdelta = 0;
-    flags = 0;
-    flags2 = 0;
-    fadeintime = 0;
-    parent = 0;
-    tiki = nullptr;
-    collisionmask = 0;
+    bouncesound_delay  = 0;
+    life               = 0;
+    createTime         = 0;
+    alpha              = 0;
+    fadedelay          = 0;
+    lightIntensity     = 0;
+    lightType          = (dlighttype_t)0;
+    bouncefactor       = 0;
+    bouncecount        = 0;
+    maxbouncecount     = 0;
+    scaleRate          = 0;
+    scale              = 1;
+    scalemin           = 0;
+    scalemax           = 0;
+    swarmfreq          = 0;
+    swarmmaxspeed      = 0;
+    swarmdelta         = 0;
+    flags              = 0;
+    flags2             = 0;
+    fadeintime         = 0;
+    parent             = 0;
+    tiki               = nullptr;
+    collisionmask      = 0;
     min_twinkletimeoff = 0;
     max_twinkletimeoff = 0;
-    min_twinkletimeon = 0;
+    min_twinkletimeon  = 0;
     max_twinkletimeoff = 0;
-    lightstyle = -1;
-    physicsRate = 10;
+    lightstyle         = -1;
+    physicsRate        = 10;
 
     for (i = 0; i < 4; i++) {
         color[i] = 0;
@@ -222,42 +226,42 @@ class ctempmodel_t : public Class
 public:
     ctempmodel_t();
 
-    class ctempmodel_t* next;
-    class ctempmodel_t* prev;
+    class ctempmodel_t *next;
+    class ctempmodel_t *prev;
 
     cg_common_data cgd;
-    str modelname;
+    str            modelname;
 
     refEntity_t lastEnt;
     refEntity_t ent;
 
-    int number;
-    int lastAnimTime;
-    int lastPhysicsTime;
-    int killTime;
-    int next_bouncesound_time;
-    int seed;
-    int twinkleTime;
-    int aliveTime;
-    qboolean addedOnce;
-    qboolean lastEntValid;
-    spawnthing_t* m_spawnthing;
+    int           number;
+    int           lastAnimTime;
+    int           lastPhysicsTime;
+    int           killTime;
+    int           next_bouncesound_time;
+    int           seed;
+    int           twinkleTime;
+    int           aliveTime;
+    qboolean      addedOnce;
+    qboolean      lastEntValid;
+    spawnthing_t *m_spawnthing;
 
-    void (*touchfcn)(ctempmodel_t* ct, trace_t* trace);
+    void (*touchfcn)(ctempmodel_t *ct, trace_t *trace);
 };
 
 inline ctempmodel_t::ctempmodel_t()
 {
-    number = 0;
-    lastPhysicsTime = 0;
-    lastAnimTime = 0;
-    killTime = 0;
+    number                = 0;
+    lastPhysicsTime       = 0;
+    lastAnimTime          = 0;
+    killTime              = 0;
     next_bouncesound_time = 0;
-    seed = 0;
-    twinkleTime = 0;
-    aliveTime = 0;
-    addedOnce = qfalse;
-    lastEntValid = qfalse;
+    seed                  = 0;
+    twinkleTime           = 0;
+    aliveTime             = 0;
+    addedOnce             = qfalse;
+    lastEntValid          = qfalse;
 }
 
 enum class vsstypes_t : unsigned char {
@@ -279,46 +283,46 @@ enum class vsstypes_t : unsigned char {
 class cvssource_t
 {
 public:
-    cvssource_t* next;
-    cvssource_t* prev;
-    cvssource_t* stnext;
-    int stindex;
-    Vector lastOrigin;
-    float lastRadius;
-    float lastDensity;
-    float lastColor[3];
-    float lastLighting[3];
-    Vector newOrigin;
-    float newRadius;
-    float newDensity;
-    float newColor[3];
-    float newLighting[3];
-    float ooRadius;
-    Vector velocity;
-    float startAlpha;
-    int roll;
-    Vector repulsion;
-    int lifeTime;
-    int collisionmask;
-    int parent;
-    int flags;
-    int flags2;
-    int smokeType;
-    float typeInfo;
-    float fadeMult;
-    float scaleMult;
-    int lastPhysicsTime;
-    int lastLightingTime;
-    qboolean lastValid;
+    cvssource_t *next;
+    cvssource_t *prev;
+    cvssource_t *stnext;
+    int          stindex;
+    Vector       lastOrigin;
+    float        lastRadius;
+    float        lastDensity;
+    float        lastColor[3];
+    float        lastLighting[3];
+    Vector       newOrigin;
+    float        newRadius;
+    float        newDensity;
+    float        newColor[3];
+    float        newLighting[3];
+    float        ooRadius;
+    Vector       velocity;
+    float        startAlpha;
+    int          roll;
+    Vector       repulsion;
+    int          lifeTime;
+    int          collisionmask;
+    int          parent;
+    int          flags;
+    int          flags2;
+    int          smokeType;
+    float        typeInfo;
+    float        fadeMult;
+    float        scaleMult;
+    int          lastPhysicsTime;
+    int          lastLightingTime;
+    qboolean     lastValid;
 };
 
 class cvssourcestate_t
 {
 public:
     Vector origin;
-    float color[3];
-    float radius;
-    float density;
+    float  color[3];
+    float  radius;
+    float  density;
 };
 
 #define LIFE_SWIPE       1
@@ -326,39 +330,39 @@ public:
 
 struct swipepoint_t {
     vec3_t points[2];
-    float time;
+    float  time;
 };
 
 class swipething_t : public Class
 {
 public:
-    qboolean enabled;
-    str tagname_start;
-    str tagname_end;
-    int entitynum;
-    float startcolor[4];
-    float endcolor[4];
+    qboolean     enabled;
+    str          tagname_start;
+    str          tagname_end;
+    int          entitynum;
+    float        startcolor[4];
+    float        endcolor[4];
     swipepoint_t swipepoints[MAX_SWIPE_POINTS];
     swipepoint_t cntPoint;
-    int num_live_swipes;
-    int first_swipe;
-    float life;
-    qhandle_t shader;
-    void Init();
+    int          num_live_swipes;
+    int          first_swipe;
+    float        life;
+    qhandle_t    shader;
+    void         Init();
 };
 
 inline void swipething_t::Init()
 {
     int i;
 
-    enabled = qfalse;
+    enabled       = qfalse;
     tagname_start = "";
-    tagname_end = "";
-    entitynum = -1;
+    tagname_end   = "";
+    entitynum     = -1;
 
     for (i = 0; i < 4; i++) {
         startcolor[i] = 1.f;
-        endcolor[i] = 0.f;
+        endcolor[i]   = 0.f;
     }
 
     for (i = 0; i < MAX_SWIPE_POINTS; i++) {
@@ -368,7 +372,7 @@ inline void swipething_t::Init()
     }
 
     num_live_swipes = 0;
-    first_swipe = 0;
+    first_swipe     = 0;
 }
 
 // Enttracker is used to keep track of client side tempmodels.  They are
@@ -380,7 +384,7 @@ public:
     int AssignNumber(void);
 
 protected:
-    qboolean usedNumbers[256];
+    qboolean     usedNumbers[256];
     virtual void RemoveEntity(int entnum);
 };
 
@@ -427,9 +431,9 @@ inline int enttracker_t::AssignNumber(void)
 class emittertime_t : public Class
 {
 public:
-    int entity_number;
-    int last_emit_time;
-    Vector oldorigin;
+    int      entity_number;
+    int      last_emit_time;
+    Vector   oldorigin;
     qboolean active;
     qboolean lerp_emitter;
 };
@@ -444,15 +448,15 @@ protected:
                                              // last time they emitted
 
 public:
-    emittertime_t* GetEmitTime(int entnum);
-    virtual void RemoveEntity(int entnum);
-    qboolean startoff;
+    emittertime_t *GetEmitTime(int entnum);
+    virtual void   RemoveEntity(int entnum);
+    qboolean       startoff;
 };
 
 inline void emitterthing_t::RemoveEntity(int entnum)
 {
-    int num, count;
-    emittertime_t* et;
+    int            num, count;
+    emittertime_t *et;
 
     if (entnum == -1) {
         return;
@@ -470,10 +474,10 @@ inline void emitterthing_t::RemoveEntity(int entnum)
     enttracker_t::RemoveEntity(entnum);
 }
 
-inline emittertime_t* emitterthing_t::GetEmitTime(int entnum)
+inline emittertime_t *emitterthing_t::GetEmitTime(int entnum)
 {
-    int num, count;
-    emittertime_t* et;
+    int            num, count;
+    emittertime_t *et;
 
     count = m_emittertimes.NumObjects();
 
@@ -485,10 +489,10 @@ inline emittertime_t* emitterthing_t::GetEmitTime(int entnum)
     }
 
     // Add a new entry if we didn't find it already
-    et = &m_emittertimes.ObjectAt(m_emittertimes.AddObject({}));
-    et->entity_number = entnum;
+    et                 = &m_emittertimes.ObjectAt(m_emittertimes.AddObject({}));
+    et->entity_number  = entnum;
     et->last_emit_time = cg.time;
-    et->lerp_emitter = qfalse;
+    et->lerp_emitter   = qfalse;
 
     if (this->startoff) {
         et->active = qfalse;
@@ -511,19 +515,18 @@ public:
 // particular command.  A command number must be assigned externally by the user
 class commandthing_t : public enttracker_t
 {
-
-    Container<commandtime_t*> m_commandtimes; // A list of entity numbers and the last time they
-                        // executed a command
+    Container<commandtime_t *> m_commandtimes; // A list of entity numbers and the last time they
+                                               // executed a command
 
 public:
-    commandtime_t* GetLastCommandTime(int entnum, int commandnum);
-    virtual void RemoveEntity(int entnum);
+    commandtime_t *GetLastCommandTime(int entnum, int commandnum);
+    virtual void   RemoveEntity(int entnum);
 };
 
 inline void commandthing_t::RemoveEntity(int entnum)
 {
-    int num, count;
-    commandtime_t* ct;
+    int            num, count;
+    commandtime_t *ct;
 
     count = m_commandtimes.NumObjects();
 
@@ -537,27 +540,25 @@ inline void commandthing_t::RemoveEntity(int entnum)
     enttracker_t::RemoveEntity(entnum);
 }
 
-inline commandtime_t* commandthing_t::GetLastCommandTime(int entnum,
-                                                         int commandnum)
+inline commandtime_t *commandthing_t::GetLastCommandTime(int entnum, int commandnum)
 {
-    int num, count;
-    commandtime_t* ct;
+    int            num, count;
+    commandtime_t *ct;
 
     // Search for this entity number
     count = m_commandtimes.NumObjects();
 
     for (num = 1; num <= count; num++) {
         ct = m_commandtimes.ObjectAt(num);
-        if ((ct->entity_number == entnum) &&
-            (ct->command_number == commandnum)) {
+        if ((ct->entity_number == entnum) && (ct->command_number == commandnum)) {
             return ct;
         }
     }
 
     // Add a new entry if we didn't find it
-    ct = new commandtime_t;
-    ct->entity_number = entnum;
-    ct->command_number = commandnum;
+    ct                    = new commandtime_t;
+    ct->entity_number     = entnum;
+    ct->command_number    = commandnum;
     ct->last_command_time = 0;
 
     m_commandtimes.AddObject(ct);
@@ -568,61 +569,60 @@ inline commandtime_t* commandthing_t::GetLastCommandTime(int entnum,
 class spawnthing_t : public emitterthing_t
 {
 public:
-    Container<str>
-        m_modellist; // A list of models that should be spawned from the emitter
-    Container<str> m_taglist; // A list of tags to create beams
+    Container<str> m_modellist; // A list of models that should be spawned from the emitter
+    Container<str> m_taglist;   // A list of tags to create beams
 
     cg_common_data cgd;
-    int entnum;
+    int            entnum;
 
-    Vector origin_offset_base;
-    Vector origin_offset_amplitude;
-    Vector axis_offset_base;
-    Vector axis_offset_amplitude;
-    Vector randvel_base;
-    Vector randvel_amplitude;
-    Vector avelocity_base;
-    Vector avelocity_amplitude;
-    Vector angles_amplitude;
-    vec3_t axis[3];
-    vec3_t tag_axis[3];
-    float life_random;
-    float forwardVelocity;
-    float sphereRadius;
-    float coneHeight;
-    float spawnRate;
-    int lastTime;
-    int count;
-    int tagnum;
-    str emittername;
-    str animName;
-    float dcolor[3];
+    Vector   origin_offset_base;
+    Vector   origin_offset_amplitude;
+    Vector   axis_offset_base;
+    Vector   axis_offset_amplitude;
+    Vector   randvel_base;
+    Vector   randvel_amplitude;
+    Vector   avelocity_base;
+    Vector   avelocity_amplitude;
+    Vector   angles_amplitude;
+    vec3_t   axis[3];
+    vec3_t   tag_axis[3];
+    float    life_random;
+    float    forwardVelocity;
+    float    sphereRadius;
+    float    coneHeight;
+    float    spawnRate;
+    int      lastTime;
+    int      count;
+    int      tagnum;
+    str      emittername;
+    str      animName;
+    float    dcolor[3];
     qboolean dlight;
-    int numtempmodels;
-    float linked_origin[3];
-    float linked_axis[3][3];
-    float fMinRangeSquared;
-    float fMaxRangeSquared;
+    int      numtempmodels;
+    float    linked_origin[3];
+    float    linked_axis[3][3];
+    float    fMinRangeSquared;
+    float    fMaxRangeSquared;
 
     // beam stuff also impact trace stuff
-    str startTag;
-    str endTag;
-    float length;
-    float min_offset;
-    float max_offset;
-    float overlap;
-    float numSubdivisions;
-    float delay;
-    float toggledelay;
-    int beamflags;
-    int numspherebeams;
-    float endalpha;
-    float spreadx;
-    float spready;
+    str      startTag;
+    str      endTag;
+    float    length;
+    float    min_offset;
+    float    max_offset;
+    float    overlap;
+    float    numSubdivisions;
+    float    delay;
+    float    toggledelay;
+    int      beamflags;
+    int      numspherebeams;
+    float    endalpha;
+    float    spreadx;
+    float    spready;
     qboolean use_last_trace_end;
 
-    void (*touchfcn)(ctempmodel_t* ct, trace_t* trace);
-    str GetModel(void);
+    void (*touchfcn)(ctempmodel_t *ct, trace_t *trace);
+    str  GetModel(void);
     void SetModel(str model);
 };
 
@@ -656,22 +656,22 @@ inline str spawnthing_t::GetModel(void)
 class beamthing_t : public emitterthing_t
 {
 public:
-    str beamname;
-    str shadername;
-    str startTag;
-    str endTag;
-    int numSubdivisions;
+    str      beamname;
+    str      shadername;
+    str      startTag;
+    str      endTag;
+    int      numSubdivisions;
     dtiki_t *tiki;
-    float alpha;
-    float scale;
-    int flags;
-    float length;
-    int life;
-    float min_offset;
-    float max_offset;
-    float overlap;
-    int delay;
-    byte modulate[4];
+    float    alpha;
+    float    scale;
+    int      flags;
+    float    length;
+    int      life;
+    float    min_offset;
+    float    max_offset;
+    float    overlap;
+    int      delay;
+    byte     modulate[4];
 };
 
 #define MAX_TEMPMODELS 1024
@@ -680,224 +680,226 @@ public:
 class ClientGameCommandManager : public Listener
 {
 private:
-    spawnthing_t m_localemitter; // local emitter used by animation commands
-    ctempmodel_t m_active_tempmodels;
-    ctempmodel_t* m_free_tempmodels;
-    ctempmodel_t m_tempmodels[MAX_TEMPMODELS];
-    cvssource_t m_active_vsssources;
-    cvssource_t* m_free_vsssources;
-    cvssource_t* m_vsssources;
-    int m_iAllocatedvsssources;
-    spawnthing_t* m_spawnthing;
-    Container<spawnthing_t*> m_emitters;      // Global emitters set up by client commands
-    int m_seed;
-    commandthing_t m_command_time_manager; // Keeps track of entity numbers and the last
-                                // time they executed particular commands
-    specialeffect_t* m_pCurrentSfx;
-    int m_iLastVSSRepulsionTime;
-    float m_fEventWait;
+    spawnthing_t              m_localemitter; // local emitter used by animation commands
+    ctempmodel_t              m_active_tempmodels;
+    ctempmodel_t             *m_free_tempmodels;
+    ctempmodel_t              m_tempmodels[MAX_TEMPMODELS];
+    cvssource_t               m_active_vsssources;
+    cvssource_t              *m_free_vsssources;
+    cvssource_t              *m_vsssources;
+    int                       m_iAllocatedvsssources;
+    spawnthing_t             *m_spawnthing;
+    Container<spawnthing_t *> m_emitters; // Global emitters set up by client commands
+    int                       m_seed;
+    commandthing_t            m_command_time_manager; // Keeps track of entity numbers and the last
+                                                      // time they executed particular commands
+    specialeffect_t *m_pCurrentSfx;
+    int              m_iLastVSSRepulsionTime;
+    float            m_fEventWait;
 
     void (ClientGameCommandManager::*endblockfcn)(void);
-    cvssource_t* AllocateVSSSource();
-    void FreeVSSSource(cvssource_t *p);
-    void SpawnVSSSource(int count, int timealive);
-    void EventViewKick(Event* ev);
-    void Print(Event* ev);
-    void StartBlock(Event* ev);
-    void EndBlock(Event* ev);
-    void UpdateSpawnThing(spawnthing_t* ep);
-    void EmitterStartOff(Event* ev);
-    void SetAlpha(Event* ev);
-    void SetDieTouch(Event* ev);
-    void SetBounceFactor(Event* ev);
-    void SetBounceSound(Event* ev);
-    void SetBounceSoundOnce(Event* ev);
-    void SetModel(Event* ev);
-    void SetLife(Event* ev);
-    void SetColor(Event* ev);
-    void SetColorRange(Event* ev);
-    void SetLightstyle(Event* ev);
-    void SetRadialVelocity(Event* ev);
-    void SetVelocity(Event* ev);
-    void SetAngularVelocity(Event* ev);
-    void SetCount(Event* ev);
-    void SetScale(Event* ev);
-    void SetScaleUpDown(Event* ev);
-    void SetScaleMin(Event* ev);
-    void SetScaleMax(Event* ev);
-    void SetScaleRate(Event* ev);
-    void SetRandomVelocity(Event* ev);
-    void SetRandomVelocityAlongAxis(Event* ev);
-    void SetAccel(Event* ev);
-    void SetFriction(Event* ev);
-    void SetSpin(Event* ev);
-    void SetVaryColor(Event* ev);
-    void SetFade(Event* ev);
-    void SetFadeDelay(Event* ev);
-    void SetSpawnRange(Event* ev);
-    void SetSpawnRate(Event* ev);
-    void SetOriginOffset(Event* ev);
-    void SetOffsetAlongAxis(Event* ev);
-    void SetCone(Event* ev);
-    void SetCircle(Event* ev);
-    void SetSphere(Event* ev);
-    void SetInwardSphere(Event* ev);
-    void SetRandomRoll(Event* ev);
-    void SetVolumetric(Event* ev);
-    void SetSwarm(Event* ev);
-    void SetAlign(Event* ev);
-    void SetAlignOnce(Event* ev);
-    void SetCollision(Event* ev);
-    void SetFlickerAlpha(Event* ev);
-    void SetFadeIn(Event* ev);
-    void SetEntityColor(Event* ev);
-    void SetGlobalFade(Event* ev);
-    void SetRadius(Event* ev);
-    void SetParentLink(Event* ev);
-    void SetHardLink(Event* ev);
-    void SetAngles(Event* ev);
-    void ParentAngles(Event* ev);
-    void EmitterAngles(Event* ev);
-    void SetTwinkle(Event* ev);
-    void SetTrail(Event* ev);
-    void SetPhysicsRate(Event* ev);
-    void SetBounceDecal(Event* ev);
-    void UpdateSwarm(ctempmodel_t* p);
-    void BeginOriginSpawn(Event* ev);
-    void EndOriginSpawn(void);
-    void BeginOriginBeamSpawn(Event* ev);
-    void EndOriginBeamSpawn(void);
-    void BeginOriginBeamEmitter(Event* ev);
-    void EndOriginBeamEmitter(void);
-    void BeginTagSpawn(Event* ev);
-    void BeginTagSpawnLinked(Event* ev);
-    void EndTagSpawn(void);
-    void BeginTagBeamSpawn(Event* ev);
-    void EndTagBeamSpawn(void);
-    void BeginTagEmitter(Event* ev);
-    void EndTagEmitter(void);
-    void BeginOriginEmitter(Event* ev);
-    void EndOriginEmitter(void);
-    void BeginTagBeamEmitter(Event* ev);
-    void EndTagBeamEmitter(void);
-    void EmitterOn(Event* ev);
-    void EmitterOff(Event* ev);
-    void RainTouch(Event* ev);
-    void Sound(Event* ev);
-    void SetCurrentTiki(Event* ev);
-    void StopSound(Event* ev);
-    void StopAliasChannel(Event* ev);
-    void LoopSound(Event* ev);
-    void Cache(Event* ev);
-    void CacheImage(Event* ev);
-    void CacheFont(Event* ev);
-    void AliasCache(Event* ev);
-    void Alias(Event* ev);
-    void CacheAlias(Event* ev);
-    void Client(Event* ev);
-    void TagDynamicLight(Event* ev);
-    void OriginDynamicLight(Event* ev);
-    void DynamicLight(Event* ev);
-    void BlockDynamicLight(Event* ev);
-    void EndBlockDynamicLight();
-    void GetOrientation(int tagnum, spawnthing_t* sp);
-    void Swipe(Event* ev);
-    void SwipeOn(Event* ev);
-    void SwipeOff(Event* ev);
-    void AnimateOnce(Event* ev);
-    void SetAnim(Event* ev);
-    void SetDecalRadius(Event* ev);
-    void SetDecalOrientation(Event* ev);
-    void TagList(Event* ev);
-    void SetParallel(Event* ev);
-    void Footstep(Event* ev);
-    void LandingSound(Event* ev);
-    void BodyFallSound(Event* ev);
-    void SetAlwaysDraw(Event* ev);
-    void SetDetail(Event* ev);
-    void SetWindAffect(Event* ev);
-    void SpriteGridLighting(Event* ev);
-    void SetWaterOnly(Event* ev);
-    void SetAlignStretch(Event* ev);
-    void SetClampVel(Event* ev);
-    void SetClampVelAxis(Event* ev);
-    ctempmodel_t* AllocateTempModel(void);
-    qboolean TempModelPhysics(ctempmodel_t* p, float ftime, float time2,
-        float scale);
-    qboolean TempModelRealtimeEffects(ctempmodel_t* p, float ftime, float time2,
-        float scale);
-    qboolean LerpTempModel(refEntity_t* newEnt, ctempmodel_t* p, float frac);
-    void SpawnEffect(int count, int timealive);
-    void SpawnTempModel(int count, int timealive = 0);
-    void FreeTempModel(ctempmodel_t* le);
-    void AnimateTempModel(ctempmodel_t* ent, Vector origin,
-                          refEntity_t* newEnt);
-    void OtherTempModelEffects(ctempmodel_t* p, Vector origin,
-                               refEntity_t* newEnt);
-    qboolean IsBlockCommand(const str& name);
-    void SetBaseAndAmplitude(Event* ev, Vector& base, Vector& amplitude);
+    cvssource_t  *AllocateVSSSource();
+    void          FreeVSSSource(cvssource_t *p);
+    void          SpawnVSSSource(int count, int timealive);
+    void          EventViewKick(Event *ev);
+    void          Print(Event *ev);
+    void          StartBlock(Event *ev);
+    void          EndBlock(Event *ev);
+    void          UpdateSpawnThing(spawnthing_t *ep);
+    void          EmitterStartOff(Event *ev);
+    void          SetAlpha(Event *ev);
+    void          SetDieTouch(Event *ev);
+    void          SetBounceFactor(Event *ev);
+    void          SetBounceSound(Event *ev);
+    void          SetBounceSoundOnce(Event *ev);
+    void          SetModel(Event *ev);
+    void          SetLife(Event *ev);
+    void          SetColor(Event *ev);
+    void          SetColorRange(Event *ev);
+    void          SetLightstyle(Event *ev);
+    void          SetRadialVelocity(Event *ev);
+    void          SetVelocity(Event *ev);
+    void          SetAngularVelocity(Event *ev);
+    void          SetCount(Event *ev);
+    void          SetScale(Event *ev);
+    void          SetScaleUpDown(Event *ev);
+    void          SetScaleMin(Event *ev);
+    void          SetScaleMax(Event *ev);
+    void          SetScaleRate(Event *ev);
+    void          SetRandomVelocity(Event *ev);
+    void          SetRandomVelocityAlongAxis(Event *ev);
+    void          SetAccel(Event *ev);
+    void          SetFriction(Event *ev);
+    void          SetSpin(Event *ev);
+    void          SetVaryColor(Event *ev);
+    void          SetFade(Event *ev);
+    void          SetFadeDelay(Event *ev);
+    void          SetSpawnRange(Event *ev);
+    void          SetSpawnRate(Event *ev);
+    void          SetOriginOffset(Event *ev);
+    void          SetOffsetAlongAxis(Event *ev);
+    void          SetCone(Event *ev);
+    void          SetCircle(Event *ev);
+    void          SetSphere(Event *ev);
+    void          SetInwardSphere(Event *ev);
+    void          SetRandomRoll(Event *ev);
+    void          SetVolumetric(Event *ev);
+    void          SetSwarm(Event *ev);
+    void          SetAlign(Event *ev);
+    void          SetAlignOnce(Event *ev);
+    void          SetCollision(Event *ev);
+    void          SetFlickerAlpha(Event *ev);
+    void          SetFadeIn(Event *ev);
+    void          SetEntityColor(Event *ev);
+    void          SetGlobalFade(Event *ev);
+    void          SetRadius(Event *ev);
+    void          SetParentLink(Event *ev);
+    void          SetHardLink(Event *ev);
+    void          SetAngles(Event *ev);
+    void          ParentAngles(Event *ev);
+    void          EmitterAngles(Event *ev);
+    void          SetTwinkle(Event *ev);
+    void          SetTrail(Event *ev);
+    void          SetPhysicsRate(Event *ev);
+    void          SetBounceDecal(Event *ev);
+    void          UpdateSwarm(ctempmodel_t *p);
+    void          BeginOriginSpawn(Event *ev);
+    void          EndOriginSpawn(void);
+    void          BeginOriginBeamSpawn(Event *ev);
+    void          EndOriginBeamSpawn(void);
+    void          BeginOriginBeamEmitter(Event *ev);
+    void          EndOriginBeamEmitter(void);
+    void          BeginTagSpawn(Event *ev);
+    void          BeginTagSpawnLinked(Event *ev);
+    void          EndTagSpawn(void);
+    void          BeginTagBeamSpawn(Event *ev);
+    void          EndTagBeamSpawn(void);
+    void          BeginTagEmitter(Event *ev);
+    void          EndTagEmitter(void);
+    void          BeginOriginEmitter(Event *ev);
+    void          EndOriginEmitter(void);
+    void          BeginTagBeamEmitter(Event *ev);
+    void          EndTagBeamEmitter(void);
+    void          EmitterOn(Event *ev);
+    void          EmitterOff(Event *ev);
+    void          RainTouch(Event *ev);
+    void          Sound(Event *ev);
+    void          SetCurrentTiki(Event *ev);
+    void          StopSound(Event *ev);
+    void          StopAliasChannel(Event *ev);
+    void          LoopSound(Event *ev);
+    void          Cache(Event *ev);
+    void          CacheImage(Event *ev);
+    void          CacheFont(Event *ev);
+    void          AliasCache(Event *ev);
+    void          Alias(Event *ev);
+    void          CacheAlias(Event *ev);
+    void          Client(Event *ev);
+    void          TagDynamicLight(Event *ev);
+    void          OriginDynamicLight(Event *ev);
+    void          DynamicLight(Event *ev);
+    void          BlockDynamicLight(Event *ev);
+    void          EndBlockDynamicLight();
+    void          GetOrientation(int tagnum, spawnthing_t *sp);
+    void          Swipe(Event *ev);
+    void          SwipeOn(Event *ev);
+    void          SwipeOff(Event *ev);
+    void          AnimateOnce(Event *ev);
+    void          SetAnim(Event *ev);
+    void          SetDecalRadius(Event *ev);
+    void          SetDecalOrientation(Event *ev);
+    void          TagList(Event *ev);
+    void          SetParallel(Event *ev);
+    void          Footstep(Event *ev);
+    void          LandingSound(Event *ev);
+    void          BodyFallSound(Event *ev);
+    void          SetAlwaysDraw(Event *ev);
+    void          SetDetail(Event *ev);
+    void          SetWindAffect(Event *ev);
+    void          SpriteGridLighting(Event *ev);
+    void          SetWaterOnly(Event *ev);
+    void          SetAlignStretch(Event *ev);
+    void          SetClampVel(Event *ev);
+    void          SetClampVelAxis(Event *ev);
+    ctempmodel_t *AllocateTempModel(void);
+    qboolean      TempModelPhysics(ctempmodel_t *p, float ftime, float time2, float scale);
+    qboolean      TempModelRealtimeEffects(ctempmodel_t *p, float ftime, float time2, float scale);
+    qboolean      LerpTempModel(refEntity_t *newEnt, ctempmodel_t *p, float frac);
+    void          SpawnEffect(int count, int timealive);
+    void          SpawnTempModel(int count, int timealive = 0);
+    void          FreeTempModel(ctempmodel_t *le);
+    void          AnimateTempModel(ctempmodel_t *ent, Vector origin, refEntity_t *newEnt);
+    void          OtherTempModelEffects(ctempmodel_t *p, Vector origin, refEntity_t *newEnt);
+    qboolean      IsBlockCommand(const str     &name);
+    void          SetBaseAndAmplitude(Event *ev, Vector         &base, Vector         &amplitude);
 
     // Beam stuff
-    void SetSubdivisions(Event* ev);
-    void SetMinOffset(Event* ev);
-    void SetMaxOffset(Event* ev);
-    void SetShader(Event* ev);
-    void SetLength(Event* ev);
-    void SetBeamDelay(Event* ev);
-    void SetBeamToggleDelay(Event* ev);
-    void SetBeamPersist(Event* ev);
-    void SetBeamOffsetEndpoints(Event* ev);
-    void SetBeamSphere(Event* ev);
-    void SetSpread(Event* ev);
-    void SetUseLastTraceEnd(Event* ev);
-    void SetEndAlpha(Event* ev);
-    void SetEyeLimits(Event* ev);
-    void SetEyeMovement(Event* ev);
-    void StartSFX(Event* ev);
-    void StartSFXDelayed(Event* ev);
-    void StartSFXCommand(Event* ev, qboolean bDelayed);
+    void SetSubdivisions(Event *ev);
+    void SetMinOffset(Event *ev);
+    void SetMaxOffset(Event *ev);
+    void SetShader(Event *ev);
+    void SetLength(Event *ev);
+    void SetBeamDelay(Event *ev);
+    void SetBeamToggleDelay(Event *ev);
+    void SetBeamPersist(Event *ev);
+    void SetBeamOffsetEndpoints(Event *ev);
+    void SetBeamSphere(Event *ev);
+    void SetSpread(Event *ev);
+    void SetUseLastTraceEnd(Event *ev);
+    void SetEndAlpha(Event *ev);
+    void SetEyeLimits(Event *ev);
+    void SetEyeMovement(Event *ev);
+    void StartSFX(Event *ev);
+    void StartSFXDelayed(Event *ev);
+    void StartSFXCommand(Event *ev, qboolean bDelayed);
     void EndIgnoreSfxBlock();
-    void RandomChance(Event* ev);
-    void DelayedRepeat(Event* ev);
-    void CommandDelay(Event* ev);
-    void SpawnTreads(Event* ev);
-    void TreadsOff(Event* ev);
-    bool GetTagPositionAndOrientation(int tagnum, orientation_t* new_or);
-    bool GetTagPositionAndOrientation(str tagname, orientation_t* new_or);
+    void RandomChance(Event *ev);
+    void DelayedRepeat(Event *ev);
+    void CommandDelay(Event *ev);
+    void SpawnTreads(Event *ev);
+    void TreadsOff(Event *ev);
+    bool GetTagPositionAndOrientation(int tagnum, orientation_t *new_or);
+    bool GetTagPositionAndOrientation(str tagname, orientation_t *new_or);
 
 public:
     CLASS_PROTOTYPE(ClientGameCommandManager);
 
     ClientGameCommandManager();
     void AddTempModels(void);
-    void UpdateEmitter(dtiki_t* tiki, vec3_t axis[3], int entity_number,
-                       int parent_number, Vector entity_origin);
-    void UpdateBeam(dtiki_t *tiki, int entity_number, spawnthing_t* beamthing);
-    void PlaySound(str sound_name, vec3_t origin = NULL,
-                   int channel = CHAN_AUTO, float volume = -1,
-                   float min_distance = -1, float pitch = -1, int argstype = 0);
+    void UpdateEmitter(dtiki_t *tiki, vec3_t axis[3], int entity_number, int parent_number, Vector entity_origin);
+    void UpdateBeam(dtiki_t *tiki, int entity_number, spawnthing_t *beamthing);
+    void PlaySound(
+        str    sound_name,
+        vec3_t origin       = NULL,
+        int    channel      = CHAN_AUTO,
+        float  volume       = -1,
+        float  min_distance = -1,
+        float  pitch        = -1,
+        int    argstype     = 0
+    );
 
-    spawnthing_t* InitializeSpawnthing(spawnthing_t* ep);
-    void SpawnEffect(int count, spawnthing_t* sp);
-    void FreeAllTempModels(void);
-    void RestartAllEmitters(void);
+    spawnthing_t *InitializeSpawnthing(spawnthing_t *ep);
+    void          SpawnEffect(int count, spawnthing_t *sp);
+    void          FreeAllTempModels(void);
+    void          RestartAllEmitters(void);
 
     void InitializeTempModels(void);
     void InitializeTempModelCvars(void);
     void InitializeEmitters(void);
-    void RemoveClientEntity(int number, dtiki_t* tiki, centity_t* cent,
-                            ctempmodel_t* p = NULL);
+    void RemoveClientEntity(int number, dtiki_t *tiki, centity_t *cent, ctempmodel_t *p = NULL);
     void ClearSwipes(void);
     void ResetTempModels(void);
-    void SpawnTempModel(int count, spawnthing_t* sp);
-    inline void SetSpawnthing(spawnthing_t* st) { m_spawnthing = st; };
-    spawnthing_t* CreateNewEmitter(str emittername);
-    spawnthing_t* CreateNewEmitter(void);
-    spawnthing_t* GetEmitterByName(str emittername);
-    void DeleteEmitters(dtiki_t* tiki);
-    void CGEvent(centity_t* cent);
+    void SpawnTempModel(int count, spawnthing_t *sp);
 
-    void ProcessPendingEventsForEntity();
+    inline void SetSpawnthing(spawnthing_t *st) { m_spawnthing = st; };
+
+    spawnthing_t *CreateNewEmitter(str emittername);
+    spawnthing_t *CreateNewEmitter(void);
+    spawnthing_t *GetEmitterByName(str emittername);
+    void          DeleteEmitters(dtiki_t *tiki);
+    void          CGEvent(centity_t *cent);
+
+    void     ProcessPendingEventsForEntity();
     qboolean PostEventForEntity(Event *ev, float fWait);
     qboolean SelectProcessEvent(Event *ev);
 
@@ -906,14 +908,14 @@ public:
     void InitializeVSSCvars();
     void InitializeVSSSources();
     void ResetVSSSources();
-    void ResetVSSSources(Event* ev);
-    void SetCurrentSFX(specialeffect_t* pSFX);
+    void ResetVSSSources(Event *ev);
+    void SetCurrentSFX(specialeffect_t *pSFX);
     void ClearCurrentSFX();
     void AddTreadMarkSources();
     void InitializeTreadMarkCvars();
     void InitializeTreadMarkSources();
     void ResetTreadMarkSources();
-    void ResetTreadMarkSources(Event* ev);
+    void ResetTreadMarkSources(Event *ev);
     void InitializeRainCvars();
     void InitializeBeams();
 };
@@ -929,29 +931,35 @@ public:
     EmitterLoader();
     bool Load(Script&);
     void ProcessEmitter(Script&);
-    void Emitter(Event* ev);
+    void Emitter(Event *ev);
 };
 
-class EffectsEventQueueNode {
+class EffectsEventQueueNode
+{
 public:
-    Event* event;
-    int	inttime;
-    int flags;
-    int entity_num;
+    Event *event;
+    int    inttime;
+    int    flags;
+    int    entity_num;
 
-    EffectsEventQueueNode* prev;
-    EffectsEventQueueNode* next;
+    EffectsEventQueueNode *prev;
+    EffectsEventQueueNode *next;
 
 #ifdef _DEBUG
     str name;
 #endif
 
-    EffectsEventQueueNode() { prev = this; next = this; }
-    EffectsEventQueueNode(Event* event, int inttime, int flags, int entity_num)
+    EffectsEventQueueNode()
     {
-        this->event = event;
-        this->inttime = inttime;
-        this->flags = flags;
+        prev = this;
+        next = this;
+    }
+
+    EffectsEventQueueNode(Event *event, int inttime, int flags, int entity_num)
+    {
+        this->event      = event;
+        this->inttime    = inttime;
+        this->flags      = flags;
         this->entity_num = entity_num;
     }
 

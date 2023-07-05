@@ -26,22 +26,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "cg_commands.h"
 
-cvar_t* cg_rain;
-cvar_t* cg_rain_drawcoverage;
+cvar_t *cg_rain;
+cvar_t *cg_rain_drawcoverage;
 
-void RainTouch(ctempmodel_t* ct, trace_t* trace)
+void RainTouch(ctempmodel_t *ct, trace_t *trace)
 {
     Vector norm, neworg;
 
-    ct->ent.hModel = cgi.R_RegisterModel("splash_z.spr");
-    ct->cgd.velocity = vec_zero;
-    ct->cgd.accel = vec_zero;
-    ct->killTime = cg.time + 400;
-    norm = trace->plane.normal;
-    norm.x = -norm.x;
-    norm.y = -norm.y;
-    ct->cgd.angles = norm.toAngles();
-    ct->ent.scale = 0.3f;
+    ct->ent.hModel    = cgi.R_RegisterModel("splash_z.spr");
+    ct->cgd.velocity  = vec_zero;
+    ct->cgd.accel     = vec_zero;
+    ct->killTime      = cg.time + 400;
+    norm              = trace->plane.normal;
+    norm.x            = -norm.x;
+    norm.y            = -norm.y;
+    ct->cgd.angles    = norm.toAngles();
+    ct->ent.scale     = 0.3f;
     ct->cgd.scaleRate = 4.0;
     ct->cgd.flags |= T_FADE;
 
@@ -49,7 +49,7 @@ void RainTouch(ctempmodel_t* ct, trace_t* trace)
     VectorCopy(neworg, ct->ent.origin);
 }
 
-void ClientGameCommandManager::RainTouch(Event* ev)
+void ClientGameCommandManager::RainTouch(Event *ev)
 {
     // FIXME: unimplemented
 }
@@ -59,15 +59,16 @@ void ClientGameCommandManager::InitializeRainCvars()
     int i;
 
     cg_rain = cgi.Cvar_Get("cg_rain", "0", CVAR_ARCHIVE);
-    cg_rain_drawcoverage = cgi.Cvar_Get("cg_rain_drawcoverage", "0", CVAR_SAVEGAME | CVAR_SERVER_CREATED | CVAR_SYSTEMINFO);
+    cg_rain_drawcoverage =
+        cgi.Cvar_Get("cg_rain_drawcoverage", "0", CVAR_SAVEGAME | CVAR_SERVER_CREATED | CVAR_SYSTEMINFO);
 
-    cg.rain.density = 0.0;
-    cg.rain.speed = 2048.0f;
-    cg.rain.length = 90.0f;
-    cg.rain.min_dist = 512.0f;
-    cg.rain.width = 1.0f;
+    cg.rain.density    = 0.0;
+    cg.rain.speed      = 2048.0f;
+    cg.rain.length     = 90.0f;
+    cg.rain.min_dist   = 512.0f;
+    cg.rain.width      = 1.0f;
     cg.rain.speed_vary = 512;
-    cg.rain.slant = 50;
+    cg.rain.slant      = 50;
 
     for (i = 0; i < MAX_RAIN_SHADERS; i++) {
         cg.rain.shader[i][0] = 0;
@@ -76,19 +77,19 @@ void ClientGameCommandManager::InitializeRainCvars()
     cg.rain.numshaders = 0;
 }
 
-void CG_Rain(centity_t* cent)
+void CG_Rain(centity_t *cent)
 {
-    int iLife;
-    vec3_t mins, maxs;
-    vec3_t vOmins, vOmaxs, vOe;
-    float fcolor[4];
-    vec3_t vStart, vEnd;
-    int iNumSpawn;
-    int i;
-    int iRandom;
-    float fDensity;
-    vec3_t vLength;
-    const char* shadername;
+    int         iLife;
+    vec3_t      mins, maxs;
+    vec3_t      vOmins, vOmaxs, vOe;
+    float       fcolor[4];
+    vec3_t      vStart, vEnd;
+    int         iNumSpawn;
+    int         i;
+    int         iRandom;
+    float       fDensity;
+    vec3_t      vLength;
+    const char *shadername;
 
     fcolor[0] = 1.0;
     fcolor[1] = 1.0;
@@ -133,35 +134,26 @@ void CG_Rain(centity_t* cent)
         return;
     }
 
-    if (cg_rain_drawcoverage->integer)
-    {
+    if (cg_rain_drawcoverage->integer) {
         cgi.R_DebugLine(
-            Vector(vOmins[0], vOmins[1], vOmins[2]),
-            Vector(vOmaxs[0], vOmins[1], vOmins[2]),
-            1.0, 0.0, 0.0, 1.0
+            Vector(vOmins[0], vOmins[1], vOmins[2]), Vector(vOmaxs[0], vOmins[1], vOmins[2]), 1.0, 0.0, 0.0, 1.0
         );
 
         cgi.R_DebugLine(
-            Vector(vOmaxs[0], vOmins[1], vOmins[2]),
-            Vector(vOmaxs[0], vOmaxs[1], vOmins[2]),
-            1.0, 0.0, 0.0, 1.0
+            Vector(vOmaxs[0], vOmins[1], vOmins[2]), Vector(vOmaxs[0], vOmaxs[1], vOmins[2]), 1.0, 0.0, 0.0, 1.0
         );
 
         cgi.R_DebugLine(
-            Vector(vOmaxs[0], vOmaxs[1], vOmins[2]),
-            Vector(vOmins[0], vOmaxs[1], vOmins[2]),
-            1.0, 0.0, 0.0, 1.0
+            Vector(vOmaxs[0], vOmaxs[1], vOmins[2]), Vector(vOmins[0], vOmaxs[1], vOmins[2]), 1.0, 0.0, 0.0, 1.0
         );
 
         cgi.R_DebugLine(
-            Vector(vOmins[0], vOmaxs[1], vOmins[2]),
-            Vector(vOmins[0], vOmins[1], vOmins[2]),
-            1.0, 0.0, 0.0, 1.0
+            Vector(vOmins[0], vOmaxs[1], vOmins[2]), Vector(vOmins[0], vOmins[1], vOmins[2]), 1.0, 0.0, 0.0, 1.0
         );
     }
 
     VectorSubtract(vOmaxs, vOmins, vOe);
-    fDensity = cg.rain.density / 200.0;
+    fDensity  = cg.rain.density / 200.0;
     iNumSpawn = (int)(sqrt(vOe[0] * vOe[1]) * fDensity);
     if (iNumSpawn > MAX_BEAMS) {
         iNumSpawn = MAX_BEAMS;
@@ -171,21 +163,18 @@ void CG_Rain(centity_t* cent)
 
     if (cg.rain.numshaders) {
         shadername = cg.rain.shader[iRandom % cg.rain.numshaders];
-    }
-    else {
+    } else {
         shadername = cg.rain.shader[0];
     }
 
-    for (i = 0; i < iNumSpawn; ++i)
-    {
-        iLife = (int)(vOe[2] / ((float)(iRandom % cg.rain.speed_vary) + cg.rain.speed) * 1000.0);
+    for (i = 0; i < iNumSpawn; ++i) {
+        iLife     = (int)(vOe[2] / ((float)(iRandom % cg.rain.speed_vary) + cg.rain.speed) * 1000.0);
         vStart[0] = (float)(iRandom % (int)(vOe[0] + 1.0)) + vOmins[0];
-        iRandom = ((214013 * iRandom + 2531011) >> 16) & 0x7FFF;
+        iRandom   = ((214013 * iRandom + 2531011) >> 16) & 0x7FFF;
         vStart[1] = (float)(iRandom % (int)(vOe[1] + 1.0)) + vOmins[1];
         vStart[2] = vOmaxs[2];
 
-        if (cg.snap)
-        {
+        if (cg.snap) {
             vLength[0] = cg.snap->ps.origin[0] - vStart[0];
             vLength[1] = cg.snap->ps.origin[1] - vStart[1];
             vLength[2] = 0.0;

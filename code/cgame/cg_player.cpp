@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // DESCRIPTION:
-// Player functions for the cgame 
+// Player functions for the cgame
 
 #include "cg_local.h"
 #include "cg_commands.h"
@@ -42,9 +42,9 @@ CG_ResetPlayerEntity
 A player just came into view or teleported, so reset all animation info
 ===============
 */
-void CG_ResetPlayerEntity( centity_t *cent )
+void CG_ResetPlayerEntity(centity_t *cent)
 {
-    cent->errorTime = -99999;		// guarantee no error decay added
+    cent->errorTime    = -99999; // guarantee no error decay added
     cent->extrapolated = qfalse;
 
     VectorCopy(cent->currentState.origin, cent->lerpOrigin);
@@ -53,8 +53,7 @@ void CG_ResetPlayerEntity( centity_t *cent )
     VectorCopy(cent->currentState.angles, cent->lerpAngles);
     VectorCopy(cent->lerpAngles, cent->rawAngles);
 
-    if (cent->currentState.number == cg.snap->ps.clientNum)
-    {
+    if (cent->currentState.number == cg.snap->ps.clientNum) {
         // initialize the camera position
         VectorCopy(cent->lerpOrigin, cg.currentViewPos);
         // initialize the camera angles
@@ -70,7 +69,7 @@ void CG_ResetPlayerEntity( centity_t *cent )
 CG_Player
 ===============
 */
-void CG_Player( centity_t *cent )
-   {
-   //CG_PlayerSplash( cent );
-   }
+void CG_Player(centity_t *cent)
+{
+    //CG_PlayerSplash( cent );
+}

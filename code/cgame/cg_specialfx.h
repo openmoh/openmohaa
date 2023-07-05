@@ -31,10 +31,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_SPECIAL_EFFECT_COMMANDS 32
 
-class specialeffectcommand_t : public Class {
+class specialeffectcommand_t : public Class
+{
 public:
-    spawnthing_t* emitter;
-    float fCommandTime;
+    spawnthing_t *emitter;
+    float         fCommandTime;
     void (*endfcn)();
     Event *pEvent;
 
@@ -45,39 +46,40 @@ public:
 class specialeffect_t : public Class
 {
 public:
-    int m_iCommandCount;
-    specialeffectcommand_t* m_commands[MAX_SPECIAL_EFFECT_COMMANDS];
+    int                     m_iCommandCount;
+    specialeffectcommand_t *m_commands[MAX_SPECIAL_EFFECT_COMMANDS];
 
 public:
     specialeffect_t();
 
-    specialeffectcommand_t* AddNewCommand();
+    specialeffectcommand_t *AddNewCommand();
 };
 
 #define MAX_SPECIAL_EFFECTS 99
 #define SPECIAL_EFFECT_TEST MAX_SPECIAL_EFFECTS - 1
 
-class ClientSpecialEffectsManager : public Listener {
+class ClientSpecialEffectsManager : public Listener
+{
     specialeffect_t m_effects[99];
-    qboolean m_bEffectsLoaded;
-    int m_iNumPendingEvents;
+    qboolean        m_bEffectsLoaded;
+    int             m_iNumPendingEvents;
 
 public:
     CLASS_PROTOTYPE(ClientSpecialEffectsManager);
 
 private:
-    void ContinueEffectExecution(Event* ev);
+    void ContinueEffectExecution(Event *ev);
     void ExecuteEffect(int iEffect, int iStartCommand, Vector vPos, Vector vAngles, float axis[3][3]);
 
 public:
     ClientSpecialEffectsManager();
 
-    void LoadEffects();
-    qboolean EffectsPending();
-    void MakeEffect_Normal(int iEffect, Vector vPos, Vector vNormal);
-    void MakeEffect_Angles(int iEffect, Vector vPos, Vector vAngles);
-    void MakeEffect_Axis(int iEffect, Vector vPos, float axis[3][3]);
-    specialeffect_t* GetTestEffectPointer();
+    void             LoadEffects();
+    qboolean         EffectsPending();
+    void             MakeEffect_Normal(int iEffect, Vector vPos, Vector vNormal);
+    void             MakeEffect_Angles(int iEffect, Vector vPos, Vector vAngles);
+    void             MakeEffect_Axis(int iEffect, Vector vPos, float axis[3][3]);
+    specialeffect_t *GetTestEffectPointer();
 };
 
 extern ClientSpecialEffectsManager sfxManager;

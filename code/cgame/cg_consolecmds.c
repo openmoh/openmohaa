@@ -61,22 +61,25 @@ Debugging command to print the current position
 */
 static void CG_Viewpos_f(void)
 {
-    cgi.Printf("(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
-               (int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2],
-               (int)cg.refdefViewAngles[YAW]);
+    cgi.Printf(
+        "(%i %i %i) : %i\n",
+        (int)cg.refdef.vieworg[0],
+        (int)cg.refdef.vieworg[1],
+        (int)cg.refdef.vieworg[2],
+        (int)cg.refdefViewAngles[YAW]
+    );
 }
 
 void CG_SetDesiredObjectiveAlpha(float fAlpha)
 {
     cg.ObjectivesDesiredAlpha = fAlpha;
-    cg.ObjectivesAlphaTime = (float)(cg.time + 250);
-    cg.ObjectivesBaseAlpha = cg.ObjectivesCurrentAlpha;
+    cg.ObjectivesAlphaTime    = (float)(cg.time + 250);
+    cg.ObjectivesBaseAlpha    = cg.ObjectivesCurrentAlpha;
 }
 
-void CG_ScoresDown_f( void )
+void CG_ScoresDown_f(void)
 {
-    if (cgs.gametype == GT_SINGLE_PLAYER)
-    {
+    if (cgs.gametype == GT_SINGLE_PLAYER) {
         if (!cg.scoresRequestTime) {
             cg.scoresRequestTime = cg.time;
             CG_SetDesiredObjectiveAlpha(1.0f);
@@ -85,32 +88,29 @@ void CG_ScoresDown_f( void )
         return;
     }
 
-	if ( cg.scoresRequestTime + 2000 >= cg.time )
-    {
+    if (cg.scoresRequestTime + 2000 >= cg.time) {
         // send another request
         cg.showScores = qtrue;
         CG_PrepScoreBoardInfo();
         cgi.UI_ShowScoreBoard(cg.scoresMenuName);
-		return;
-	}
-    
-    cg.scoresRequestTime = cg.time;
-	cgi.SendClientCommand( "score" );
+        return;
+    }
 
-	if ( !cg.showScores ) {
-		// don't display anything until first score returns
-		cg.showScores = qtrue;
+    cg.scoresRequestTime = cg.time;
+    cgi.SendClientCommand("score");
+
+    if (!cg.showScores) {
+        // don't display anything until first score returns
+        cg.showScores = qtrue;
         CG_PrepScoreBoardInfo();
         cgi.UI_ShowScoreBoard(cg.scoresMenuName);
-	}
+    }
 }
 
-void CG_ScoresUp_f( void )
+void CG_ScoresUp_f(void)
 {
-    if (cgs.gametype == GT_SINGLE_PLAYER)
-    {
-        if (!cg.scoresRequestTime)
-        {
+    if (cgs.gametype == GT_SINGLE_PLAYER) {
+        if (!cg.scoresRequestTime) {
             cg.scoresRequestTime = cg.time;
             CG_SetDesiredObjectiveAlpha(0.0f);
         }
@@ -126,12 +126,12 @@ void CG_ScoresUp_f( void )
     cgi.UI_HideScoreBoard();
 }
 
-baseshader_t* CG_GetShaderUnderCrosshair(qboolean bVerbose, trace_t* pRetTrace)
+baseshader_t *CG_GetShaderUnderCrosshair(qboolean bVerbose, trace_t *pRetTrace)
 {
-    vec3_t vPos, vEnd;
-    vec3_t axis[3];
-    baseshader_t* pShader;
-    trace_t trace;
+    vec3_t        vPos, vEnd;
+    vec3_t        axis[3];
+    baseshader_t *pShader;
+    trace_t       trace;
 
     AnglesToAxis(cg.refdefViewAngles, axis);
     vPos[0] = cg.refdef.vieworg[0];
@@ -140,18 +140,13 @@ baseshader_t* CG_GetShaderUnderCrosshair(qboolean bVerbose, trace_t* pRetTrace)
     VectorMA(vPos, 4096.0, axis[0], vEnd);
 
     CG_Trace(&trace, vPos, vec3_origin, vec3_origin, vEnd, 0, MASK_SHOT, 0, 0, "CG_GetShaderUnderCrosshair");
-    
+
     if (trace.startsolid || trace.fraction == 1.0) {
         return NULL;
     }
 
-    if (bVerbose)
-    {
-        cgi.Printf(
-            "Surface hit at (%i %i %i)\n",
-            (int)trace.endpos[0],
-            (int)trace.endpos[1],
-            (int)trace.endpos[2]);
+    if (bVerbose) {
+        cgi.Printf("Surface hit at (%i %i %i)\n", (int)trace.endpos[0], (int)trace.endpos[1], (int)trace.endpos[2]);
     }
 
     pShader = cgi.GetShader(trace.shaderNum);
@@ -179,19 +174,15 @@ static void CG_PrintSurfaceType(int iSurfType)
 
 void CG_GetCHShader(void)
 {
-    trace_t trace;
-    baseshader_t* pShader;
+    trace_t       trace;
+    baseshader_t *pShader;
 
     pShader = CG_GetShaderUnderCrosshair(qtrue, &trace);
     cgi.Printf("\n");
-    if (pShader)
-    {
-        if (pShader->surfaceFlags & SURF_SKY)
-        {
+    if (pShader) {
+        if (pShader->surfaceFlags & SURF_SKY) {
             cgi.Printf("Hit the sky\n");
-        }
-        else
-        {
+        } else {
             cgi.Printf("Shader: %s\n", pShader->shader);
             cgi.Printf("Shader Contents:");
             CG_PrintContentTypes(pShader->contentFlags);
@@ -212,28 +203,23 @@ void CG_GetCHShader(void)
             CG_PrintSurfaceType(trace.surfaceFlags);
             cgi.Printf("\n\n");
         }
-    }
-    else
-    {
+    } else {
         cgi.Printf("No surface selected\n");
     }
 }
 
 void CG_EditCHShader(void)
 {
-    char name[1024];
-    baseshader_t* pShader;
+    char          name[1024];
+    baseshader_t *pShader;
 
     pShader = CG_GetShaderUnderCrosshair(qfalse, NULL);
-    if (pShader)
-    {
+    if (pShader) {
         strcpy(name, "editspecificshader ");
         strcat(name, pShader->shader);
         strcat(name, "\n");
         cgi.AddCommand(name);
-    }
-    else
-    {
+    } else {
         cgi.Printf("No surface selected\n");
     }
 }
@@ -348,61 +334,61 @@ void CG_AddTestModel (void) {
 #endif
 
 typedef struct {
-    char* cmd;
+    char *cmd;
     void (*function)(void);
 } consoleCommand_t;
 
 static consoleCommand_t commands[] = {
-    { "useweaponclass",         &CG_UseWeaponClass_f },
-    { "weapnext",               &CG_NextWeapon_f },
-    { "weapprev",               &CG_PrevWeapon_f },
-    { "uselast",                &CG_UseLastWeapon_f },
-    { "holster",                &CG_HolsterWeapon_f },
-    { "weapdrop",               &CG_DropWeapon_f },
-    { "toggleitem",             &CG_ToggleItem_f },
-    { "+scores",                &CG_ScoresDown_f },
-    { "-scores",                &CG_ScoresUp_f },
-    { "viewpos",                &CG_Viewpos_f },
-    { "sizeup",                 &CG_SizeUp_f },
-    { "sizedown",               &CG_SizeDown_f },
-    { "cg_eventlist",           &CG_EventList_f },
-    { "cg_eventhelp",           &CG_EventHelp_f },
-    { "cg_dumpevents",          &CG_DumpEventHelp_f },
-    { "cg_pendingevents",       &CG_PendingEvents_f },
-    { "cg_classlist",           &CG_ClassList_f },
-    { "cg_classtree",           &CG_ClassTree_f },
-    { "cg_classevents",         &CG_ClassEvents_f },
-    { "cg_dumpclassevents",     &CG_DumpClassEvents_f },
-    { "cg_dumpallclasses",      &CG_DumpAllClasses_f },
-    { "testemitter",            &CG_TestEmitter_f },
-    { "triggertestemitter",     &CG_TriggerTestEmitter_f },
-    { "prevemittercommand",     &CG_PrevEmitterCommand_f },
-    { "nextemittercommand",     &CG_NextEmitterCommand_f },
-    { "newemittercommand",      &CG_NewEmitterCommand_f },
-    { "deleteemittercommand",   &CG_DeleteEmitterCommand_f },
-    { "dumpemitter",            &CG_DumpEmitter_f },
-    { "loademitter",            &CG_LoadEmitter_f },
-    { "resetvss",               &CG_ResetVSSSources },
-    { "getchshader",            &CG_GetCHShader },
-    { "editchshader",           &CG_EditCHShader },
-    { "messagemode",            &CG_MessageMode_f },
-    { "messagemode_all",        &CG_MessageMode_All_f },
-    { "messagemode_team",       &CG_MessageMode_Team_f },
-    { "messagemode_private",    &CG_MessageMode_Private_f },
-    { "say",                    &CG_MessageSingleAll_f },
-    { "sayteam",                &CG_MessageSingleTeam_f },
-    { "teamsay",                &CG_MessageSingleTeam_f },
-    { "sayprivate",             &CG_MessageSingleClient_f },
-    { "sayone",                 &CG_MessageSingleClient_f },
-    { "wisper",                 &CG_MessageSingleClient_f },
-    { "instamsg_main",          &CG_InstaMessageMain_f },
-    { "instamsg_group_a",       &CG_InstaMessageGroupA_f },
-    { "instamsg_group_b",       &CG_InstaMessageGroupB_f },
-    { "instamsg_group_c",       &CG_InstaMessageGroupC_f },
-    { "instamsg_group_d",       &CG_InstaMessageGroupD_f },
-    { "instamsg_group_e",       &CG_InstaMessageGroupE_f },
-    { "pushmenu_teamselect",    &CG_PushMenuTeamSelect_f },
-    { "pushmenu_weaponselect",  &CG_PushMenuWeaponSelect_f },
+    {"useweaponclass",        &CG_UseWeaponClass_f      },
+    {"weapnext",              &CG_NextWeapon_f          },
+    {"weapprev",              &CG_PrevWeapon_f          },
+    {"uselast",               &CG_UseLastWeapon_f       },
+    {"holster",               &CG_HolsterWeapon_f       },
+    {"weapdrop",              &CG_DropWeapon_f          },
+    {"toggleitem",            &CG_ToggleItem_f          },
+    {"+scores",               &CG_ScoresDown_f          },
+    {"-scores",               &CG_ScoresUp_f            },
+    {"viewpos",               &CG_Viewpos_f             },
+    {"sizeup",                &CG_SizeUp_f              },
+    {"sizedown",              &CG_SizeDown_f            },
+    {"cg_eventlist",          &CG_EventList_f           },
+    {"cg_eventhelp",          &CG_EventHelp_f           },
+    {"cg_dumpevents",         &CG_DumpEventHelp_f       },
+    {"cg_pendingevents",      &CG_PendingEvents_f       },
+    {"cg_classlist",          &CG_ClassList_f           },
+    {"cg_classtree",          &CG_ClassTree_f           },
+    {"cg_classevents",        &CG_ClassEvents_f         },
+    {"cg_dumpclassevents",    &CG_DumpClassEvents_f     },
+    {"cg_dumpallclasses",     &CG_DumpAllClasses_f      },
+    {"testemitter",           &CG_TestEmitter_f         },
+    {"triggertestemitter",    &CG_TriggerTestEmitter_f  },
+    {"prevemittercommand",    &CG_PrevEmitterCommand_f  },
+    {"nextemittercommand",    &CG_NextEmitterCommand_f  },
+    {"newemittercommand",     &CG_NewEmitterCommand_f   },
+    {"deleteemittercommand",  &CG_DeleteEmitterCommand_f},
+    {"dumpemitter",           &CG_DumpEmitter_f         },
+    {"loademitter",           &CG_LoadEmitter_f         },
+    {"resetvss",              &CG_ResetVSSSources       },
+    {"getchshader",           &CG_GetCHShader           },
+    {"editchshader",          &CG_EditCHShader          },
+    {"messagemode",           &CG_MessageMode_f         },
+    {"messagemode_all",       &CG_MessageMode_All_f     },
+    {"messagemode_team",      &CG_MessageMode_Team_f    },
+    {"messagemode_private",   &CG_MessageMode_Private_f },
+    {"say",                   &CG_MessageSingleAll_f    },
+    {"sayteam",               &CG_MessageSingleTeam_f   },
+    {"teamsay",               &CG_MessageSingleTeam_f   },
+    {"sayprivate",            &CG_MessageSingleClient_f },
+    {"sayone",                &CG_MessageSingleClient_f },
+    {"wisper",                &CG_MessageSingleClient_f },
+    {"instamsg_main",         &CG_InstaMessageMain_f    },
+    {"instamsg_group_a",      &CG_InstaMessageGroupA_f  },
+    {"instamsg_group_b",      &CG_InstaMessageGroupB_f  },
+    {"instamsg_group_c",      &CG_InstaMessageGroupC_f  },
+    {"instamsg_group_d",      &CG_InstaMessageGroupD_f  },
+    {"instamsg_group_e",      &CG_InstaMessageGroupE_f  },
+    {"pushmenu_teamselect",   &CG_PushMenuTeamSelect_f  },
+    {"pushmenu_weaponselect", &CG_PushMenuWeaponSelect_f},
 };
 
 /*
@@ -415,8 +401,8 @@ Cmd_Argc() / Cmd_Argv()
 */
 qboolean CG_ConsoleCommand(void)
 {
-    const char* cmd;
-    int i;
+    const char *cmd;
+    int         i;
 
     cmd = cgi.Argv(0);
 
@@ -475,7 +461,7 @@ void CG_PushMenuTeamSelect_f(void)
     default:
         cgi.Cmd_Execute(EXEC_NOW, "pushmenu SelectTeam\n");
         break;
-	}
+    }
 }
 
 void CG_PushMenuWeaponSelect_f(void)
@@ -489,7 +475,7 @@ void CG_PushMenuWeaponSelect_f(void)
 
 void CG_UseWeaponClass_f(void)
 {
-    const char* cmd;
+    const char *cmd;
 
     cmd = cgi.Argv(1);
 
@@ -520,37 +506,37 @@ void CG_UseWeaponClass_f(void)
 
 void CG_NextWeapon_f(void)
 {
-    cg.iWeaponCommand = WEAPON_COMMAND_USE_NEXT_WEAPON;
+    cg.iWeaponCommand     = WEAPON_COMMAND_USE_NEXT_WEAPON;
     cg.iWeaponCommandSend = 0;
 }
 
 void CG_PrevWeapon_f(void)
 {
-    cg.iWeaponCommand = WEAPON_COMMAND_USE_PREV_WEAPON;
+    cg.iWeaponCommand     = WEAPON_COMMAND_USE_PREV_WEAPON;
     cg.iWeaponCommandSend = 0;
 }
 
 void CG_UseLastWeapon_f(void)
 {
-    cg.iWeaponCommand = WEAPON_COMMAND_USE_LAST_WEAPON;
+    cg.iWeaponCommand     = WEAPON_COMMAND_USE_LAST_WEAPON;
     cg.iWeaponCommandSend = 0;
 }
 
 void CG_HolsterWeapon_f(void)
 {
-    cg.iWeaponCommand = WEAPON_COMMAND_HOLSTER;
+    cg.iWeaponCommand     = WEAPON_COMMAND_HOLSTER;
     cg.iWeaponCommandSend = 0;
 }
 
 void CG_DropWeapon_f(void)
 {
-    cg.iWeaponCommand = WEAPON_COMMAND_DROP;
+    cg.iWeaponCommand     = WEAPON_COMMAND_DROP;
     cg.iWeaponCommandSend = 0;
 }
 
 void CG_ToggleItem_f(void)
 {
-    cg.iWeaponCommand = WEAPON_COMMAND_USE_ITEM1;
+    cg.iWeaponCommand     = WEAPON_COMMAND_USE_ITEM1;
     cg.iWeaponCommandSend = 0;
 }
 
@@ -562,7 +548,7 @@ int CG_WeaponCommandButtonBits(void)
         return 0;
     }
 
-	iShiftedWeaponCommand = cg.iWeaponCommand << 7;
+    iShiftedWeaponCommand = cg.iWeaponCommand << 7;
 
     cg.iWeaponCommandSend++;
     if (cg.iWeaponCommandSend > 2) {

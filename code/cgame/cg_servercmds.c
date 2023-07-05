@@ -25,11 +25,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-static const char* IsWeaponAllowed(int dmFlags, int flags) {
+static const char *IsWeaponAllowed(int dmFlags, int flags)
+{
     return (dmFlags & flags) ? "0" : "1";
 }
 
-static qboolean QueryLandminesAllowed2(const char* mapname, int dmflags) {
+static qboolean QueryLandminesAllowed2(const char *mapname, int dmflags)
+{
     if (dmflags & DF_WEAPON_NO_LANDMINE) {
         return qfalse;
     }
@@ -38,43 +40,61 @@ static qboolean QueryLandminesAllowed2(const char* mapname, int dmflags) {
         return qtrue;
     }
 
-	if (!Q_stricmpn(mapname, "obj/obj_", 8u))
-		return qfalse;
-	if (!Q_stricmpn(mapname, "dm/mohdm", 8u))
-		return qfalse;
-	if (!Q_stricmp(mapname, "DM/MP_Bahnhof_DM"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "obj/MP_Ardennes_TOW"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "DM/MP_Bazaar_DM"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "obj/MP_Berlin_TOW"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "DM/MP_Brest_DM"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "obj/MP_Druckkammern_TOW"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "DM/MP_Gewitter_DM"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "obj/MP_Flughafen_TOW"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "DM/MP_Holland_DM"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "DM/MP_Malta_DM"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "DM/MP_Stadt_DM"))
-		return qfalse;
-	if (!Q_stricmp(mapname, "DM/MP_Unterseite_DM"))
-		return qfalse;
-    if (!Q_stricmp(mapname, "DM/MP_Verschneit_DM"))
+    if (!Q_stricmpn(mapname, "obj/obj_", 8u)) {
         return qfalse;
-    if (!Q_stricmp(mapname, "lib/mp_ship_lib"))
+    }
+    if (!Q_stricmpn(mapname, "dm/mohdm", 8u)) {
         return qfalse;
-    if (!Q_stricmp(mapname, "DM/MP_Verschneit_DM"))
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Bahnhof_DM")) {
         return qfalse;
-    if (!Q_stricmp(mapname, "lib/mp_ship_lib"))
+    }
+    if (!Q_stricmp(mapname, "obj/MP_Ardennes_TOW")) {
         return qfalse;
-	return qtrue;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Bazaar_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "obj/MP_Berlin_TOW")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Brest_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "obj/MP_Druckkammern_TOW")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Gewitter_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "obj/MP_Flughafen_TOW")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Holland_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Malta_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Stadt_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Unterseite_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Verschneit_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "lib/mp_ship_lib")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Verschneit_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "lib/mp_ship_lib")) {
+        return qfalse;
+    }
+    return qtrue;
 }
 
 /*
@@ -87,25 +107,25 @@ and whenever the server updates any serverinfo flagged cvars
 */
 void CG_ParseServerinfo(void)
 {
-    const char* info;
-    const char* mapname;
-    char map[MAX_QPATH];
-    char* spawnpos;
-    const char* version;
+    const char *info;
+    const char *mapname;
+    char        map[MAX_QPATH];
+    char       *spawnpos;
+    const char *version;
 
-    info = CG_ConfigString(CS_SERVERINFO);
-    cgs.gametype = atoi(Info_ValueForKey(info, "g_gametype"));
-    cgs.dmflags = atoi(Info_ValueForKey(info, "dmflags"));
-    cgs.teamflags = atoi(Info_ValueForKey(info, "teamflags"));
-    cgs.fraglimit = atoi(Info_ValueForKey(info, "fraglimit"));
-    cgs.timelimit = atoi(Info_ValueForKey(info, "timelimit"));
+    info           = CG_ConfigString(CS_SERVERINFO);
+    cgs.gametype   = atoi(Info_ValueForKey(info, "g_gametype"));
+    cgs.dmflags    = atoi(Info_ValueForKey(info, "dmflags"));
+    cgs.teamflags  = atoi(Info_ValueForKey(info, "teamflags"));
+    cgs.fraglimit  = atoi(Info_ValueForKey(info, "fraglimit"));
+    cgs.timelimit  = atoi(Info_ValueForKey(info, "timelimit"));
     cgs.maxclients = atoi(Info_ValueForKey(info, "sv_maxclients"));
 
     version = Info_ValueForKey(info, "version");
     if (strstr(version, "Spearhead")) {
         cgi.Cvar_Set("g_servertype", "1");
     } else {
-		cgi.Cvar_Set("g_servertype", "2");
+        cgi.Cvar_Set("g_servertype", "2");
     }
 
     cgi.Cvar_Set("cg_gametype", Info_ValueForKey(info, "g_gametype"));
@@ -142,22 +162,16 @@ void CG_ParseServerinfo(void)
     Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", map);
 
     // hide/show huds
-    if (cgs.gametype)
-    {
+    if (cgs.gametype) {
         cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_timelimit\n");
-        if (cgs.fraglimit)
-        {
+        if (cgs.fraglimit) {
             cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_fraglimit\n");
             cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_score\n");
-        }
-        else
-        {
+        } else {
             cgi.Cmd_Execute(EXEC_NOW, "ui_addhud hud_score\n");
             cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_fraglimit\n");
         }
-    }
-    else
-    {
+    } else {
         cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_timelimit\n");
         cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_fraglimit\n");
         cgi.Cmd_Execute(EXEC_NOW, "ui_removehud hud_score\n");
@@ -256,7 +270,7 @@ Cmd_Argc() / Cmd_Argv()
 */
 static void CG_ServerCommand(void)
 {
-    const char* cmd;
+    const char *cmd;
 
     cmd = cgi.Argv(0);
 
@@ -276,52 +290,47 @@ static void CG_ServerCommand(void)
             CG_HudPrint_f();
         }
         return;
-    }
-    else if (!strcmp(cmd, "printdeathmsg")) {
-        const char* s1, * s2, * s3, * s4, * s5;
-        const char* result1, * result2;
-        int hudColor;
+    } else if (!strcmp(cmd, "printdeathmsg")) {
+        const char *s1, *s2, *s3, *s4, *s5;
+        const char *result1, *result2;
+        int         hudColor;
 
-		result1 = NULL;
-		result2 = NULL;
-		s1 = cgi.Argv(1);
-		s2 = cgi.Argv(2);
-		s3 = cgi.Argv(3);
-		s4 = cgi.Argv(4);
-		s5 = cgi.Argv(5);
+        result1 = NULL;
+        result2 = NULL;
+        s1      = cgi.Argv(1);
+        s2      = cgi.Argv(2);
+        s3      = cgi.Argv(3);
+        s4      = cgi.Argv(4);
+        s5      = cgi.Argv(5);
 
         if (*s5 == tolower(*s5)) {
             hudColor = 4;
         } else {
-			hudColor = 5;
+            hudColor = 5;
         }
 
-		if (*s1 != 'x')
-			result1 = cgi.LV_ConvertString(s1);
-		if (*s2 != 'x')
-			result2 = cgi.LV_ConvertString(s2);
-		if (tolower(*s5) == 's')
-		{
-			cgi.Printf("%c%s %s\n", hudColor, s4, result1);
-		}
-		else if (tolower(*s5) == 'p')
-		{
-			if (*s2 == 'x')
-				cgi.Printf("%c%s %s %s\n", hudColor, s4, result1, s3);
-			else
-				cgi.Printf("%c%s %s %s%s\n", hudColor, s4, result1, s3, result2);
-		}
-		else if (tolower(*s5) == 'w')
-		{
-			cgi.Printf("%c%s %s\n", hudColor, s4, result1);
-		}
-		else
-		{
-			cgi.Printf("%s", cgi.Argv(1));
-		}
+        if (*s1 != 'x') {
+            result1 = cgi.LV_ConvertString(s1);
+        }
+        if (*s2 != 'x') {
+            result2 = cgi.LV_ConvertString(s2);
+        }
+        if (tolower(*s5) == 's') {
+            cgi.Printf("%c%s %s\n", hudColor, s4, result1);
+        } else if (tolower(*s5) == 'p') {
+            if (*s2 == 'x') {
+                cgi.Printf("%c%s %s %s\n", hudColor, s4, result1, s3);
+            } else {
+                cgi.Printf("%c%s %s %s%s\n", hudColor, s4, result1, s3, result2);
+            }
+        } else if (tolower(*s5) == 'w') {
+            cgi.Printf("%c%s %s\n", hudColor, s4, result1);
+        } else {
+            cgi.Printf("%s", cgi.Argv(1));
+        }
         return;
     }
-    
+
     if (!strcmp(cmd, "stufftext")) {
         cgi.Cmd_Stuff(cgi.Argv(1));
         cgi.Cmd_Stuff("\n");

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // DESCRIPTION:
-// 
+//
 // this file acts on changes in a new playerState_t.
 // With normal play, this will be done after local prediction, but when
 // following another player or playing back a demo, it will be checked
@@ -35,8 +35,4 @@ CG_TransitionPlayerState
 
 ===============
 */
-void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops )
-   {
-
-   }
-
+void CG_TransitionPlayerState(playerState_t *ps, playerState_t *ops) {}

@@ -29,9 +29,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #endif
 
-void CG_AddBulletTracers();
-void CG_AddBulletImpacts();
-void CG_InitCGMessageAPI(clientGameExport_t *cge);
+    void CG_AddBulletTracers();
+    void CG_AddBulletImpacts();
+    void CG_InitCGMessageAPI(clientGameExport_t *cge);
 
 #ifdef __cplusplus
 }

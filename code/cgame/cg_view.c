@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 //============================================================================
 
-
 /*
 =================
 CG_CalcVrect
@@ -33,37 +32,36 @@ CG_CalcVrect
 Sets the coordinates of the rendered window
 =================
 */
-static void CG_CalcVrect (void) {
-	int		size;
+static void CG_CalcVrect(void)
+{
+    int size;
 
-	// the intermission should allways be full screen
-	if ( cg.snap->ps.pm_flags & PMF_INTERMISSION ) {
-		size = 100;
-	} else {
-		// bound normal viewsize
-		if (cg_viewsize->integer < 30) {
-			cgi.Cvar_Set ("viewsize","30");
-			size = 30;
-		} else if (cg_viewsize->integer > 100) {
-			cgi.Cvar_Set ("viewsize","100");
-			size = 100;
-		} else {
-			size = cg_viewsize->integer;
-		}
+    // the intermission should allways be full screen
+    if (cg.snap->ps.pm_flags & PMF_INTERMISSION) {
+        size = 100;
+    } else {
+        // bound normal viewsize
+        if (cg_viewsize->integer < 30) {
+            cgi.Cvar_Set("viewsize", "30");
+            size = 30;
+        } else if (cg_viewsize->integer > 100) {
+            cgi.Cvar_Set("viewsize", "100");
+            size = 100;
+        } else {
+            size = cg_viewsize->integer;
+        }
+    }
+    cg.refdef.width = cgs.glconfig.vidWidth * size / 100;
+    cg.refdef.width &= ~1;
 
-	}
-	cg.refdef.width = cgs.glconfig.vidWidth*size/100;
-	cg.refdef.width &= ~1;
+    cg.refdef.height = cgs.glconfig.vidHeight * size / 100;
+    cg.refdef.height &= ~1;
 
-	cg.refdef.height = cgs.glconfig.vidHeight*size/100;
-	cg.refdef.height &= ~1;
-
-	cg.refdef.x = (cgs.glconfig.vidWidth - cg.refdef.width)/2;
-	cg.refdef.y = (cgs.glconfig.vidHeight - cg.refdef.height)/2;
+    cg.refdef.x = (cgs.glconfig.vidWidth - cg.refdef.width) / 2;
+    cg.refdef.y = (cgs.glconfig.vidHeight - cg.refdef.height) / 2;
 }
 
 //==============================================================================
-
 
 /*
 ===============
@@ -72,110 +70,100 @@ CG_OffsetThirdPersonView
 ===============
 */
 #define CAMERA_MINIMUM_DISTANCE 40
-static void CG_OffsetThirdPersonView( void )
+
+static void CG_OffsetThirdPersonView(void)
 {
-	vec3_t forward;
-	vec3_t original_camera_position;
-	vec3_t new_vieworg;
-	trace_t trace;
-	vec3_t min, max;
-   float *look_offset;
-   float *target_angles;
-   float *target_position;
-   vec3_t delta;
-   vec3_t original_angles;
-   qboolean lookactive, resetview;
-   static vec3_t saved_look_offset;
-   vec3_t camera_offset;
+    vec3_t        forward;
+    vec3_t        original_camera_position;
+    vec3_t        new_vieworg;
+    trace_t       trace;
+    vec3_t        min, max;
+    float        *look_offset;
+    float        *target_angles;
+    float        *target_position;
+    vec3_t        delta;
+    vec3_t        original_angles;
+    qboolean      lookactive, resetview;
+    static vec3_t saved_look_offset;
+    vec3_t        camera_offset;
 
-   target_angles = cg.refdefViewAngles;
-   target_position = cg.refdef.vieworg;
+    target_angles   = cg.refdefViewAngles;
+    target_position = cg.refdef.vieworg;
 
-   // see if angles are absolute
-   if ( cg.predicted_player_state.camera_flags & CF_CAMERA_ANGLES_ABSOLUTE )
-      {
-      VectorClear( target_angles );
-      }
+    // see if angles are absolute
+    if (cg.predicted_player_state.camera_flags & CF_CAMERA_ANGLES_ABSOLUTE) {
+        VectorClear(target_angles);
+    }
 
-   // see if we need to ignore yaw
-   if ( cg.predicted_player_state.camera_flags & CF_CAMERA_ANGLES_IGNORE_YAW )
-      {
-      target_angles[ YAW ] = 0;
-      }
+    // see if we need to ignore yaw
+    if (cg.predicted_player_state.camera_flags & CF_CAMERA_ANGLES_IGNORE_YAW) {
+        target_angles[YAW] = 0;
+    }
 
-   // see if we need to ignore pitch
-   if ( cg.predicted_player_state.camera_flags & CF_CAMERA_ANGLES_IGNORE_PITCH )
-      {
-      target_angles[ PITCH ] = 0;
-      }
+    // see if we need to ignore pitch
+    if (cg.predicted_player_state.camera_flags & CF_CAMERA_ANGLES_IGNORE_PITCH) {
+        target_angles[PITCH] = 0;
+    }
 
-   // offset the current angles by the camera offset
-   VectorSubtract( target_angles, cg.predicted_player_state.camera_offset, target_angles );
+    // offset the current angles by the camera offset
+    VectorSubtract(target_angles, cg.predicted_player_state.camera_offset, target_angles);
 
-   // Get the position of the camera after any needed rotation
-   look_offset = cgi.get_camera_offset( &lookactive, &resetview );
+    // Get the position of the camera after any needed rotation
+    look_offset = cgi.get_camera_offset(&lookactive, &resetview);
 
-   if ( 
-         ( !resetview ) &&
-         (
-            ( cg.predicted_player_state.camera_flags & CF_CAMERA_ANGLES_ALLOWOFFSET ) || 
-            ( lookactive )
-         )
-      )
-      {
-      VectorSubtract( look_offset, saved_look_offset, camera_offset );
-      VectorAdd( target_angles, camera_offset, target_angles );
-      if ( target_angles[ PITCH ] > 90 )
-         target_angles[ PITCH ] = 90;
-      else if ( target_angles[ PITCH ] < -90 )
-         target_angles[ PITCH ] = -90;
-      }
-   else
-      {
-      VectorCopy( look_offset, saved_look_offset );
-      }
+    if ((!resetview) && ((cg.predicted_player_state.camera_flags & CF_CAMERA_ANGLES_ALLOWOFFSET) || (lookactive))) {
+        VectorSubtract(look_offset, saved_look_offset, camera_offset);
+        VectorAdd(target_angles, camera_offset, target_angles);
+        if (target_angles[PITCH] > 90) {
+            target_angles[PITCH] = 90;
+        } else if (target_angles[PITCH] < -90) {
+            target_angles[PITCH] = -90;
+        }
+    } else {
+        VectorCopy(look_offset, saved_look_offset);
+    }
 
-   target_angles[ YAW ] = AngleNormalize360( target_angles[ YAW ] );
-   target_angles[ PITCH ] = AngleNormalize180( target_angles[ PITCH ] );
+    target_angles[YAW]   = AngleNormalize360(target_angles[YAW]);
+    target_angles[PITCH] = AngleNormalize180(target_angles[PITCH]);
 
-	// Move reference point up
+    // Move reference point up
 
-	target_position[2] += cg_cameraheight->value;
+    target_position[2] += cg_cameraheight->value;
 
-	VectorCopy(target_position, original_camera_position);
+    VectorCopy(target_position, original_camera_position);
 
-	// Move camera back from reference point
+    // Move camera back from reference point
 
-	AngleVectors(target_angles, forward, NULL, NULL);
+    AngleVectors(target_angles, forward, NULL, NULL);
 
-	VectorMA(target_position, -cg_cameradist->value, forward, new_vieworg);
+    VectorMA(target_position, -cg_cameradist->value, forward, new_vieworg);
 
-   new_vieworg[ 2 ] += cg_cameraverticaldisplacement->value;
+    new_vieworg[2] += cg_cameraverticaldisplacement->value;
 
-	// Create a bounding box for our camera
+    // Create a bounding box for our camera
 
-	min[0] = -5;
-	min[1] = -5;
-	min[2] = -5;
+    min[0] = -5;
+    min[1] = -5;
+    min[2] = -5;
 
-	max[0] = 5;
-	max[1] = 5;
-	max[2] = 5;
+    max[0] = 5;
+    max[1] = 5;
+    max[2] = 5;
 
-	// Make sure camera does not collide with anything
-	CG_Trace(&trace, cg.playerHeadPos, min, max, new_vieworg, 0, MASK_CAMERASOLID, qfalse, qtrue, "ThirdPersonTrace 1" );
+    // Make sure camera does not collide with anything
+    CG_Trace(&trace, cg.playerHeadPos, min, max, new_vieworg, 0, MASK_CAMERASOLID, qfalse, qtrue, "ThirdPersonTrace 1");
 
-	VectorCopy(trace.endpos, target_position);
+    VectorCopy(trace.endpos, target_position);
 
-   // calculate distance from end position to head position
-   VectorSubtract( target_position, cg.playerHeadPos, delta );
-   // kill any negative z difference in delta
-   if ( delta[ 2 ] < CAMERA_MINIMUM_DISTANCE )
-      delta[ 2 ] = 0;
-   if ( VectorLength( delta ) < CAMERA_MINIMUM_DISTANCE )
-      {
-      VectorNormalize( delta);
-/*
+    // calculate distance from end position to head position
+    VectorSubtract(target_position, cg.playerHeadPos, delta);
+    // kill any negative z difference in delta
+    if (delta[2] < CAMERA_MINIMUM_DISTANCE) {
+        delta[2] = 0;
+    }
+    if (VectorLength(delta) < CAMERA_MINIMUM_DISTANCE) {
+        VectorNormalize(delta);
+        /*
       // see if we are going straight up
       if ( ( delta[ 2 ] > 0.75 ) && ( height > 0.85f * cg.predicted_player_state.viewheight ) )
          {
@@ -186,46 +174,55 @@ static void CG_OffsetThirdPersonView( void )
          }
       else
 */
-         {
-         // we are probably up against the wall so we want the camera to pitch up on top of the player
-         // save off the original angles
-         VectorCopy( target_angles, original_angles );
-         // start cranking up the target angles, pitch until we are the correct distance away from the player
-         while ( target_angles[ PITCH ] < 90 )
-            {
-            target_angles[ PITCH ] += 2;
+        {
+            // we are probably up against the wall so we want the camera to pitch up on top of the player
+            // save off the original angles
+            VectorCopy(target_angles, original_angles);
+            // start cranking up the target angles, pitch until we are the correct distance away from the player
+            while (target_angles[PITCH] < 90) {
+                target_angles[PITCH] += 2;
 
-	         AngleVectors(target_angles, forward, NULL, NULL);
+                AngleVectors(target_angles, forward, NULL, NULL);
 
-	         VectorMA( original_camera_position, -cg_cameradist->value, forward, new_vieworg);
+                VectorMA(original_camera_position, -cg_cameradist->value, forward, new_vieworg);
 
-            new_vieworg[ 2 ] += cg_cameraverticaldisplacement->value;
+                new_vieworg[2] += cg_cameraverticaldisplacement->value;
 
-	         CG_Trace(&trace, cg.playerHeadPos, min, max, new_vieworg, 0, MASK_CAMERASOLID, qfalse, qtrue, "ThirdPersonTrace 3" );
+                CG_Trace(
+                    &trace,
+                    cg.playerHeadPos,
+                    min,
+                    max,
+                    new_vieworg,
+                    0,
+                    MASK_CAMERASOLID,
+                    qfalse,
+                    qtrue,
+                    "ThirdPersonTrace 3"
+                );
 
-	         VectorCopy(trace.endpos, target_position);
+                VectorCopy(trace.endpos, target_position);
 
-            // calculate distance from end position to head position
-            VectorSubtract( target_position, cg.playerHeadPos, delta );
-            // kill any negative z difference in delta
-            if ( delta[ 2 ] < 0 )
-               delta[ 2 ] = 0;
-            if ( VectorLength( delta ) >= CAMERA_MINIMUM_DISTANCE )
-               {
-               target_angles[ PITCH ] = ( 0.25f * target_angles[ PITCH ] ) + ( 0.75f * original_angles[ PITCH ] );
-               // set the pitch to be that of the angle we are currently looking
-               //target_angles[ PITCH ] = original_angles[ PITCH ];
-               break;
-               }
+                // calculate distance from end position to head position
+                VectorSubtract(target_position, cg.playerHeadPos, delta);
+                // kill any negative z difference in delta
+                if (delta[2] < 0) {
+                    delta[2] = 0;
+                }
+                if (VectorLength(delta) >= CAMERA_MINIMUM_DISTANCE) {
+                    target_angles[PITCH] = (0.25f * target_angles[PITCH]) + (0.75f * original_angles[PITCH]);
+                    // set the pitch to be that of the angle we are currently looking
+                    //target_angles[ PITCH ] = original_angles[ PITCH ];
+                    break;
+                }
             }
-         if ( target_angles[ PITCH ] > 90 )
-            {
-            // if we failed, go with the original angles
-            target_angles[ PITCH ] = original_angles[ PITCH ];
+            if (target_angles[PITCH] > 90) {
+                // if we failed, go with the original angles
+                target_angles[PITCH] = original_angles[PITCH];
             }
-         }
-      }
-   }
+        }
+    }
+}
 
 /*
 ===============
@@ -233,23 +230,23 @@ CG_OffsetFirstPersonView
 
 ===============
 */
-void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
+void CG_OffsetFirstPersonView(refEntity_t *pREnt, qboolean bUseWorldPosition)
 {
-	float* origin;
-	centity_t* pCent;
-	dtiki_t* tiki;
-	int iTag;
-	int i;
-	int iMask;
-	vec3_t vDelta;
-	float mat[3][3];
-	vec3_t vOldOrigin;
-	vec3_t vStart, vEnd, vMins, vMaxs;
-	trace_t trace;
+    float     *origin;
+    centity_t *pCent;
+    dtiki_t   *tiki;
+    int        iTag;
+    int        i;
+    int        iMask;
+    vec3_t     vDelta;
+    float      mat[3][3];
+    vec3_t     vOldOrigin;
+    vec3_t     vStart, vEnd, vMins, vMaxs;
+    trace_t    trace;
 
     VectorSet(vMins, -6, -6, -6);
     VectorSet(vMaxs, 6, 6, 6);
-    
+
     //
     //
     //
@@ -260,32 +257,28 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 
     tiki = cgi.R_Model_GetHandle(cgs.model_draw[pCent->currentState.modelindex]);
     iTag = cgi.Tag_NumForName(tiki, "eyes bone");
-    if (iTag != -1)
-    {
-        if (bUseWorldPosition)
-        {
+    if (iTag != -1) {
+        if (bUseWorldPosition) {
             orientation_t oHead;
-            float mat3[3][3];
-            vec3_t vHeadAng, vDelta;
+            float         mat3[3][3];
+            vec3_t        vHeadAng, vDelta;
 
             VectorCopy(pCent->lerpOrigin, origin);
             AxisCopy(pREnt->axis, mat);
             oHead = cgi.TIKI_Orientation(pREnt, iTag);
 
-            for (i = 0; i < 3; i++ ) {
+            for (i = 0; i < 3; i++) {
                 VectorMA(origin, oHead.origin[i], mat[i], origin);
             }
-            
+
             R_ConcatRotations(oHead.axis, mat, mat3);
             MatrixToEulerAngles(mat3, vHeadAng);
             AnglesSubtract(vHeadAng, cg.refdefViewAngles, vDelta);
             VectorMA(cg.refdefViewAngles, cg.fEyeOffsetFrac, vDelta, cg.refdefViewAngles);
             VectorCopy(vHeadAng, cg.refdefViewAngles);
-        }
-        else
-        {
+        } else {
             orientation_t oHead;
-            vec3_t vHeadAng;
+            vec3_t        vHeadAng;
 
             VectorCopy(pCent->lerpOrigin, origin);
             AxisCopy(pREnt->axis, mat);
@@ -298,44 +291,35 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 
             cg.refdefViewAngles[2] += cg.predicted_player_state.fLeanAngle * 0.3;
         }
-    }
-    else
-    {
+    } else {
         cgi.DPrintf("CG_OffsetFirstPersonView warning: Couldn't find 'eyes bone' for player\n");
     }
 
     VectorCopy(origin, vOldOrigin);
 
-    if (bUseWorldPosition)
-    {
+    if (bUseWorldPosition) {
         iMask = MASK_VIEWSOLID;
-    }
-    else
-    {
-        float fTargHeight;
-        float fHeightDelta, fHeightChange;
-        float fPhase, fVel;
+    } else {
+        float  fTargHeight;
+        float  fHeightDelta, fHeightChange;
+        float  fPhase, fVel;
         vec3_t vDelta;
         vec3_t vPivotPoint;
         vec3_t vForward, vLeft;
 
-        origin[0] = cg.predicted_player_state.origin[0];
-        origin[1] = cg.predicted_player_state.origin[1];
-        fTargHeight = cg.predicted_player_state.origin[2] + cg.predicted_player_state.viewheight;
+        origin[0]    = cg.predicted_player_state.origin[0];
+        origin[1]    = cg.predicted_player_state.origin[1];
+        fTargHeight  = cg.predicted_player_state.origin[2] + cg.predicted_player_state.viewheight;
         fHeightDelta = fTargHeight - cg.fCurrentViewHeight;
 
-        if (fabs(fHeightDelta) < 0.1 || !cg.fCurrentViewHeight)
-        {
+        if (fabs(fHeightDelta) < 0.1 || !cg.fCurrentViewHeight) {
             cg.fCurrentViewHeight = fTargHeight;
-        }
-        else
-        {
+        } else {
             if (fHeightDelta > 32.f) {
-                fHeightDelta = 32.f;
+                fHeightDelta          = 32.f;
                 cg.fCurrentViewHeight = fTargHeight - 32.0;
-            }
-            else if (fHeightDelta < -32.f) {
-                fHeightDelta = -32.f;
+            } else if (fHeightDelta < -32.f) {
+                fHeightDelta          = -32.f;
                 cg.fCurrentViewHeight = fTargHeight + 32.0;
             }
 
@@ -351,7 +335,7 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
             cg.fCurrentViewHeight += fHeightChange;
         }
 
-        origin[2] = cg.fCurrentViewHeight;
+        origin[2]      = cg.fCurrentViewHeight;
         vPivotPoint[0] = cg.refdefViewAngles[0];
         vPivotPoint[1] = cg.refdefViewAngles[1];
         vPivotPoint[2] = 0.0;
@@ -359,16 +343,13 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 
         VectorCopy(origin, vStart);
 
-        if (cg.predicted_player_state.pm_type != PM_CLIMBWALL)
-        {
+        if (cg.predicted_player_state.pm_type != PM_CLIMBWALL) {
             if (cg.refdefViewAngles[0] > 0.0) {
                 vStart[2] -= (cg.fCurrentViewHeight - cg.predicted_player_state.origin[2]) * 0.4;
-            }
-            else {
+            } else {
                 vStart[2] -= (cg.fCurrentViewHeight - cg.predicted_player_state.origin[2]) * 0.2;
             }
-        }
-        else {
+        } else {
             vStart[2] -= (cg.fCurrentViewHeight - cg.predicted_player_state.origin[2]) * 0.15;
         }
 
@@ -385,16 +366,14 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
             VectorAdd(vStart, vEnd, origin);
         }
 
-        if (cg.predicted_player_state.walking)
-        {
-            fVel = VectorLength(cg.predicted_player_state.velocity);
+        if (cg.predicted_player_state.walking) {
+            fVel   = VectorLength(cg.predicted_player_state.velocity);
             fPhase = fVel * 0.0015 + 0.9;
             cg.fCurrentViewBobPhase += (cg.frametime / 1000.0 + cg.frametime / 1000.0) * M_PI * fPhase;
 
             if (cg.fCurrentViewBobAmp) {
                 cg.fCurrentViewBobAmp = fVel;
-            }
-            else {
+            } else {
                 cg.fCurrentViewBobAmp = fVel * 0.5;
             }
 
@@ -403,25 +382,21 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
             }
 
             cg.fCurrentViewBobAmp *= (1.0 - fabs(cg.refdefViewAngles[0]) * (1.0 / 90.0) * 0.5) * 0.5;
-        }
-        else if (cg.fCurrentViewBobAmp > 0.0)
-        {
-            cg.fCurrentViewBobAmp -= (cg.frametime / 1000.0 * cg.fCurrentViewBobAmp)
-                + (cg.frametime / 1000.0 * cg.fCurrentViewBobAmp);
+        } else if (cg.fCurrentViewBobAmp > 0.0) {
+            cg.fCurrentViewBobAmp -=
+                (cg.frametime / 1000.0 * cg.fCurrentViewBobAmp) + (cg.frametime / 1000.0 * cg.fCurrentViewBobAmp);
 
             if (cg.fCurrentViewBobAmp < 0.1) {
                 cg.fCurrentViewBobAmp = 0.0;
             }
         }
 
-        if (cg.fCurrentViewBobAmp > 0.0)
-        {
+        if (cg.fCurrentViewBobAmp > 0.0) {
             fPhase = sin(cg.fCurrentViewBobPhase) * cg.fCurrentViewBobAmp * 0.03;
-            
+
             if (fPhase > 16.0) {
                 fPhase = 16.0;
-            }
-            else if (fPhase < -16.0) {
+            } else if (fPhase < -16.0) {
                 fPhase = -16.0;
             }
 
@@ -432,8 +407,7 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
 
             if (fPhase > 16.0) {
                 fPhase = 16.0;
-            }
-            else if (fPhase < -16.0) {
+            } else if (fPhase < -16.0) {
                 fPhase = -16.0;
             }
 
@@ -446,11 +420,13 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
     vStart[0] = cg.predicted_player_state.origin[0];
     vStart[1] = cg.predicted_player_state.origin[1];
     vStart[2] = cg.predicted_player_state.origin[2] + cg.predicted_player_state.viewheight;
-    vEnd[0] = cg.predicted_player_state.origin[0];
-    vEnd[1] = cg.predicted_player_state.origin[1];
-    vEnd[2] = origin[2];
+    vEnd[0]   = cg.predicted_player_state.origin[0];
+    vEnd[1]   = cg.predicted_player_state.origin[1];
+    vEnd[2]   = origin[2];
 
-    CG_Trace(&trace, vStart, vMins, vMaxs, vEnd, cg.snap->ps.clientNum, iMask, qfalse, qtrue, "FirstPerson Height Check");
+    CG_Trace(
+        &trace, vStart, vMins, vMaxs, vEnd, cg.snap->ps.clientNum, iMask, qfalse, qtrue, "FirstPerson Height Check"
+    );
 
     VectorCopy(trace.endpos, vStart);
     vEnd[0] = origin[0];
@@ -462,8 +438,7 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
     VectorSubtract(origin, vOldOrigin, vDelta);
     VectorAdd(pREnt->origin, vDelta, pREnt->origin);
 
-    if (!bUseWorldPosition)
-    {
+    if (!bUseWorldPosition) {
         VectorCopy(cg.refdefViewAngles, vDelta);
         vDelta[0] *= 0.5;
         vDelta[2] *= 0.75;
@@ -471,10 +446,7 @@ void CG_OffsetFirstPersonView(refEntity_t* pREnt, qboolean bUseWorldPosition)
         AngleVectorsLeft(vDelta, mat[0], mat[1], mat[2]);
 
         CG_CalcViewModelMovement(
-            cg.fCurrentViewBobPhase,
-            cg.fCurrentViewBobAmp,
-            cg.predicted_player_state.velocity,
-            vDelta
+            cg.fCurrentViewBobPhase, cg.fCurrentViewBobAmp, cg.predicted_player_state.velocity, vDelta
         );
 
         VectorMA(pREnt->origin, vDelta[0], mat[0], pREnt->origin);
@@ -492,20 +464,20 @@ CG_CalcFov
 Fixed fov at intermissions, otherwise account for fov variable and zooms.
 ====================
 */
-#define	WAVE_AMPLITUDE	1
-#define	WAVE_FREQUENCY	0.4
+#define WAVE_AMPLITUDE 1
+#define WAVE_FREQUENCY 0.4
 
-static int CG_CalcFov( void )
+static int CG_CalcFov(void)
 {
-    float	x;
-    float	phase;
-    float	v;
-    int		contents;
-    float	fov_x, fov_y;
-    int		inwater;
+    float x;
+    float phase;
+    float v;
+    int   contents;
+    float fov_x, fov_y;
+    int   inwater;
 
     fov_x = cg.camera_fov;
-    x = cg.refdef.width / tan(fov_x / 360 * M_PI);
+    x     = cg.refdef.width / tan(fov_x / 360 * M_PI);
     fov_y = atan2(cg.refdef.height, x);
     fov_y = fov_y * 360 / M_PI;
 
@@ -513,23 +485,20 @@ static int CG_CalcFov( void )
     contents = CG_PointContents(cg.refdef.vieworg, -1);
     if (contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)) {
         phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-        v = WAVE_AMPLITUDE * sin(phase);
+        v     = WAVE_AMPLITUDE * sin(phase);
         fov_x += v;
         fov_y -= v;
         inwater = qtrue;
-    }
-    else {
+    } else {
         inwater = qfalse;
     }
 
-
     // set it
-    cg.refdef.fov_x = fov_x;
-    cg.refdef.fov_y = fov_y;
+    cg.refdef.fov_x    = fov_x;
+    cg.refdef.fov_y    = fov_y;
     cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
     return inwater;
 }
-
 
 /*
 ===============
@@ -540,8 +509,8 @@ Sets cg.refdef view values
 */
 static int CG_CalcViewValues(void)
 {
-    playerState_t* ps;
-    float SoundAngles[3];
+    playerState_t *ps;
+    float          SoundAngles[3];
 
     memset(&cg.refdef, 0, sizeof(cg.refdef));
 
@@ -554,7 +523,7 @@ static int CG_CalcViewValues(void)
     cg.refdef.farplane_cull = cg.farplane_cull;
 
     // setup portal sky
-    cg.refdef.sky_alpha = cg.sky_alpha;
+    cg.refdef.sky_alpha  = cg.sky_alpha;
     cg.refdef.sky_portal = cg.sky_portal;
     memcpy(cg.refdef.sky_axis, cg.sky_axis, sizeof(cg.sky_axis));
     VectorCopy(cg.sky_origin, cg.refdef.sky_origin);
@@ -564,47 +533,37 @@ static int CG_CalcViewValues(void)
     VectorCopy(ps->origin, cg.refdef.vieworg);
     VectorCopy(ps->viewangles, cg.refdefViewAngles);
 
-    if (cg.snap->ps.stats[STAT_HEALTH] > 0)
-    {
+    if (cg.snap->ps.stats[STAT_HEALTH] > 0) {
         VectorSubtract(cg.refdefViewAngles, cg.predicted_player_state.damage_angles, cg.refdefViewAngles);
         cg.refdefViewAngles[0] += cg.viewkick[0];
         cg.refdefViewAngles[1] += cg.viewkick[1];
 
-        if (cg.viewkick[0] || cg.viewkick[1])
-        {
-            int i;
+        if (cg.viewkick[0] || cg.viewkick[1]) {
+            int   i;
             float fDecay;
 
-            for (i = 0; i < 2; i++)
-            {
+            for (i = 0; i < 2; i++) {
                 fDecay = cg.viewkick[i] * cg.viewkickRecenter;
-                if (fDecay > cg.viewkickMaxDecay)
-                {
+                if (fDecay > cg.viewkickMaxDecay) {
                     fDecay = cg.viewkickMaxDecay;
-                }
-                else if (fDecay < -cg.viewkickMaxDecay) {
+                } else if (fDecay < -cg.viewkickMaxDecay) {
                     fDecay = -cg.viewkickMaxDecay;
                 }
 
-                if (fabs(fDecay) < cg.viewkickMinDecay)
-                {
+                if (fabs(fDecay) < cg.viewkickMinDecay) {
                     if (fDecay > 0.0) {
                         fDecay = cg.viewkickMinDecay;
-                    }
-                    else {
+                    } else {
                         fDecay = -cg.viewkickMinDecay;
                     }
                 }
 
-                if (cg.viewkick[i] > 0.0)
-                {
+                if (cg.viewkick[i] > 0.0) {
                     cg.viewkick[i] -= fDecay * (float)cg.frametime / 1000.0;
                     if (cg.viewkick[i] < 0.0) {
                         cg.viewkick[i] = 0.0;
                     }
-                }
-                else
-                {
+                } else {
                     cg.viewkick[i] -= fDecay * (float)cg.frametime / 1000.0;
                     if (cg.viewkick[i] > 0.0) {
                         cg.viewkick[i] = 0.0;
@@ -617,19 +576,15 @@ static int CG_CalcViewValues(void)
     // FIXME: fffx screen shake on win32 builds?
 
     // add error decay
-    if (cg_errorDecay->value > 0)
-    {
-        int		t;
-        float	f;
+    if (cg_errorDecay->value > 0) {
+        int   t;
+        float f;
 
         t = cg.time - cg.predictedErrorTime;
         f = (cg_errorDecay->value - t) / cg_errorDecay->value;
-        if (f > 0 && f < 1)
-        {
+        if (f > 0 && f < 1) {
             VectorMA(cg.refdef.vieworg, f, cg.predictedError, cg.refdef.vieworg);
-        }
-        else
-        {
+        } else {
             cg.predictedErrorTime = 0;
         }
     }
@@ -651,23 +606,20 @@ static int CG_CalcViewValues(void)
     // decide on third person view
     cg.renderingThirdPerson = cg_3rd_person->integer;
 
-    if (cg.renderingThirdPerson)
-    {
+    if (cg.renderingThirdPerson) {
         // back away from character
         CG_OffsetThirdPersonView();
     }
 
     // if we are in a camera view, we take our audio cues directly from the camera
-    if (ps->pm_flags & PMF_CAMERA_VIEW)
-    {
+    if (ps->pm_flags & PMF_CAMERA_VIEW) {
         // Set the aural position to that of the camera
         VectorCopy(cg.camera_origin, cg.refdef.vieworg);
 
         // Set the aural axis to the camera's angles
         VectorCopy(cg.camera_angles, cg.refdefViewAngles);
 
-        if (ps->camera_posofs[0] || ps->camera_posofs[1] || ps->camera_posofs[2])
-        {
+        if (ps->camera_posofs[0] || ps->camera_posofs[1] || ps->camera_posofs[2]) {
             vec3_t vAxis[3], vOrg;
             AnglesToAxis(cg.refdefViewAngles, vAxis);
             MatrixTransformVector(ps->camera_posofs, vAxis, vOrg);
@@ -690,21 +642,21 @@ static int CG_CalcViewValues(void)
     return CG_CalcFov();
 }
 
-void CG_EyePosition(vec3_t* o_vPos)
+void CG_EyePosition(vec3_t *o_vPos)
 {
     (*o_vPos)[0] = cg.playerHeadPos[0];
     (*o_vPos)[1] = cg.playerHeadPos[1];
     (*o_vPos)[2] = cg.playerHeadPos[2];
 }
 
-void CG_EyeOffset(vec3_t* o_vOfs)
+void CG_EyeOffset(vec3_t *o_vOfs)
 {
     (*o_vOfs)[0] = cg.playerHeadPos[0] - cg.predicted_player_state.origin[0];
     (*o_vOfs)[1] = cg.playerHeadPos[1] - cg.predicted_player_state.origin[1];
     (*o_vOfs)[2] = cg.playerHeadPos[2] - cg.predicted_player_state.origin[2];
 }
 
-void CG_EyeAngles(vec3_t* o_vAngles)
+void CG_EyeAngles(vec3_t *o_vAngles)
 {
     (*o_vAngles)[0] = cg.refdefViewAngles[0];
     (*o_vAngles)[1] = cg.refdefViewAngles[1];
@@ -730,10 +682,10 @@ CG_DrawActiveFrame
 Generates and draws a game scene and status information at the given time.
 =================
 */
-void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback )
+void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback)
 {
-    cg.time = serverTime;
-    cg.frametime = frameTime;
+    cg.time         = serverTime;
+    cg.frametime    = frameTime;
     cg.demoPlayback = demoPlayback;
 
     // any looped sounds will be respecified as entities
@@ -748,8 +700,7 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
 
     // if we haven't received any snapshots yet, all
     // we can draw is the information screen
-    if (!cg.snap || (cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE))
-    {
+    if (!cg.snap || (cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE)) {
         return;
     }
 
@@ -758,18 +709,16 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
 
     // set cg.frameInterpolation
     if (cg.nextSnap && r_lerpmodels->integer) {
-        int		delta;
+        int delta;
 
         delta = (cg.nextSnap->serverTime - cg.snap->serverTime);
         if (delta == 0) {
             cg.frameInterpolation = 0;
-        }
-        else {
+        } else {
             cg.frameInterpolation = (float)(cg.time - cg.snap->serverTime) / delta;
         }
-    }
-    else {
-        cg.frameInterpolation = 0;	// actually, it should never be used, because 
+    } else {
+        cg.frameInterpolation = 0; // actually, it should never be used, because
         // no entities should be marked as interpolating
     }
 
@@ -780,19 +729,15 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
     CG_CalcViewValues();
 
     // display the intermission
-    if (cg.snap->ps.pm_flags & PMF_INTERMISSION)
-    {
+    if (cg.snap->ps.pm_flags & PMF_INTERMISSION) {
         if (cgs.gametype != GT_SINGLE_PLAYER) {
             CG_ScoresDown_f();
-        }
-        else if (cg.bIntermissionDisplay)
-        {
-            if (cg.nextSnap)
-            {
+        } else if (cg.bIntermissionDisplay) {
+            if (cg.nextSnap) {
                 if (cgi.Cvar_Get("g_success", "", 0)->integer) {
-                   cgi.UI_ShowMenu("StatsScreen_Success", qfalse);
+                    cgi.UI_ShowMenu("StatsScreen_Success", qfalse);
                 } else {
-                   cgi.UI_ShowMenu("StatsScreen_Failed", qfalse);
+                    cgi.UI_ShowMenu("StatsScreen_Failed", qfalse);
                 }
             }
         } else {
@@ -800,14 +745,10 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
         }
 
         cg.bIntermissionDisplay = qtrue;
-    }
-    else if (cg.bIntermissionDisplay)
-    {
+    } else if (cg.bIntermissionDisplay) {
         if (cgs.gametype != GT_SINGLE_PLAYER) {
             CG_ScoresUp_f();
-        }
-        else
-        {
+        } else {
             if (cgi.Cvar_Get("g_success", "", 0)->integer) {
                 cgi.UI_ShowMenu("StatsScreen_Success", qfalse);
             } else {
@@ -819,9 +760,8 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
     }
 
     // build the render lists
-    if (!cg.hyperspace)
-    {
-        CG_AddPacketEntities();	// after calcViewValues, so predicted player state is correct
+    if (!cg.hyperspace) {
+        CG_AddPacketEntities(); // after calcViewValues, so predicted player state is correct
         CG_AddMarks();
     }
 
@@ -841,8 +781,9 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
     CG_UpdateTestEmitter();
     CG_AddPendingEffects();
 
-    if (!cg_hidetempmodels->integer)
+    if (!cg_hidetempmodels->integer) {
         CG_AddTempModels();
+    }
 
     if (vss_draw->integer) {
         CG_AddVSSSources();
@@ -860,9 +801,7 @@ void CG_DrawActiveFrame( int serverTime, int frameTime, stereoFrame_t stereoView
     // actually issue the rendering calls
     CG_DrawActive(stereoView);
 
-    if (cg_stats->integer)
-    {
+    if (cg_stats->integer) {
         cgi.Printf("cg.clientFrame:%i\n", cg.clientFrame);
     }
 }
-

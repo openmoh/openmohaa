@@ -29,43 +29,41 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_specialfx.h"
 
 extern refEntity_t *current_entity;
-extern dtiki_t* current_tiki;
+extern dtiki_t     *current_tiki;
 
-static vec3_t g_vFootstepMins = { -4, -4, 0 };
-static vec3_t g_vFootstepMaxs = { 4, 4, 2 };
+static vec3_t g_vFootstepMins = {-4, -4, 0};
+static vec3_t g_vFootstepMaxs = {4, 4, 2};
 static vec3_t g_vLadderstepMins;
 static vec3_t g_vLadderstepMaxs;
 
 ClientSpecialEffectsManager sfxManager;
 
-Event EV_SFX_EffectDelay
-(
-	"effectdelay",
-	EV_DEFAULT,
-	"iivvvvv",
-	"iEffect iCurrEmitter vPos vAngles vAxisA vAxisB vAxisC",
-	"Resumes the execution of iEffect effect from its iCurrEmitter emitter."
+Event EV_SFX_EffectDelay(
+    "effectdelay",
+    EV_DEFAULT,
+    "iivvvvv",
+    "iEffect iCurrEmitter vPos vAngles vAxisA vAxisB vAxisC",
+    "Resumes the execution of iEffect effect from its iCurrEmitter emitter."
 );
 
-CLASS_DECLARATION(Listener, ClientSpecialEffectsManager, NULL)
-{
-	{ &EV_SFX_EffectDelay, &ClientSpecialEffectsManager::ContinueEffectExecution },
-	{ NULL, NULL }
+CLASS_DECLARATION(Listener, ClientSpecialEffectsManager, NULL) {
+    {&EV_SFX_EffectDelay, &ClientSpecialEffectsManager::ContinueEffectExecution},
+    {NULL,                NULL                                                 }
 };
 
 specialeffectcommand_t::specialeffectcommand_t()
 {
-	emitter = NULL;
-	fCommandTime = 0.0f;
-	endfcn = NULL;
+    emitter      = NULL;
+    fCommandTime = 0.0f;
+    endfcn       = NULL;
 }
 
 specialeffect_t::specialeffect_t()
 {
-	m_iCommandCount = 0;
+    m_iCommandCount = 0;
 }
 
-specialeffectcommand_t* specialeffect_t::AddNewCommand()
+specialeffectcommand_t *specialeffect_t::AddNewCommand()
 {
     if (m_iCommandCount == MAX_SPECIAL_EFFECT_COMMANDS - 1) {
         return NULL;
@@ -77,28 +75,26 @@ specialeffectcommand_t* specialeffect_t::AddNewCommand()
 
 ClientSpecialEffectsManager::ClientSpecialEffectsManager()
 {
-    m_bEffectsLoaded = 0;
+    m_bEffectsLoaded    = 0;
     m_iNumPendingEvents = 0;
 }
 
 void ClientSpecialEffectsManager::LoadEffects()
 {
-	int i, j, k;
-	const char* szEffectModel;
-	float axis[3][3];
-	specialeffect_t* pEffect;
+    int              i, j, k;
+    const char      *szEffectModel;
+    float            axis[3][3];
+    specialeffect_t *pEffect;
 
-	if (m_bEffectsLoaded) {
-		return;
-	}
+    if (m_bEffectsLoaded) {
+        return;
+    }
 
-	cgi.DPrintf("Loading Special Effects...\n");
-	AxisClear(axis);
+    cgi.DPrintf("Loading Special Effects...\n");
+    AxisClear(axis);
 
-	for (i = 0; i < MAX_SPECIAL_EFFECTS; i++)
-	{
-		switch (i)
-        {
+    for (i = 0; i < MAX_SPECIAL_EFFECTS; i++) {
+        switch (i) {
         case 0:
             szEffectModel = "models/fx/bh_paper_lite.tik";
             break;
@@ -337,148 +333,135 @@ void ClientSpecialEffectsManager::LoadEffects()
             break;
         default:
             szEffectModel = "models/fx/bh_stone_hard.tik";
-		}
+        }
 
         pEffect = &m_effects[i];
         commandManager.SetCurrentSFX(pEffect);
         cgi.R_SpawnEffectModel(szEffectModel, vec_zero, axis);
         commandManager.ClearCurrentSFX();
 
-        for (j = 0; j < pEffect->m_iCommandCount - 1; j++)
-        {
-            for (k = 0; k < j; k++)
-            {
-                if (pEffect->m_commands[k]->fCommandTime > pEffect->m_commands[k + 1]->fCommandTime)
-                {
-                    specialeffectcommand_t* pCur = pEffect->m_commands[k];
-                    pEffect->m_commands[k] = pEffect->m_commands[k + 1];
-                    pEffect->m_commands[k + 1] = pCur;
+        for (j = 0; j < pEffect->m_iCommandCount - 1; j++) {
+            for (k = 0; k < j; k++) {
+                if (pEffect->m_commands[k]->fCommandTime > pEffect->m_commands[k + 1]->fCommandTime) {
+                    specialeffectcommand_t *pCur = pEffect->m_commands[k];
+                    pEffect->m_commands[k]       = pEffect->m_commands[k + 1];
+                    pEffect->m_commands[k + 1]   = pCur;
                 }
             }
         }
-	}
+    }
 
     m_bEffectsLoaded = qtrue;
 }
 
 void CG_InitializeSpecialEffectsManager()
 {
-	sfxManager.LoadEffects();
+    sfxManager.LoadEffects();
 }
 
 void CG_AddPendingEffects()
 {
-	if (sfxManager.EffectsPending()) {
-		sfxManager.ProcessPendingEvents();
-	}
+    if (sfxManager.EffectsPending()) {
+        sfxManager.ProcessPendingEvents();
+    }
 }
 
-void ClientSpecialEffectsManager::ContinueEffectExecution(Event* ev)
+void ClientSpecialEffectsManager::ContinueEffectExecution(Event *ev)
 {
-	Vector norm;
-	float axis[3][3];
+    Vector norm;
+    float  axis[3][3];
 
-	norm = ev->GetVector(5);
+    norm = ev->GetVector(5);
     VectorCopy(norm, axis[0]);
 
-	norm = ev->GetVector(6);
+    norm = ev->GetVector(6);
     VectorCopy(norm, axis[1]);
 
-	norm = ev->GetVector(7);
+    norm = ev->GetVector(7);
     VectorCopy(norm, axis[2]);
 
-	ExecuteEffect(
-		ev->GetInteger(1),
-		ev->GetInteger(2),
-		ev->GetVector(3),
-		ev->GetVector(4),
-		axis
-	);
+    ExecuteEffect(ev->GetInteger(1), ev->GetInteger(2), ev->GetVector(3), ev->GetVector(4), axis);
 }
 
-void ClientSpecialEffectsManager::ExecuteEffect(int iEffect, int iStartCommand, Vector vPos, Vector vAngles, float axis[3][3])
+void ClientSpecialEffectsManager::ExecuteEffect(
+    int iEffect, int iStartCommand, Vector vPos, Vector vAngles, float axis[3][3]
+)
 {
-	int i;
-	int iCommandCount;
-	float fStartCommandTime;
-	specialeffect_t* pEffect;
-	specialeffectcommand_t* pCommand;
-	refEntity_t* old_entity;
-	dtiki_t* old_tiki;
-	refEntity_t tmpEntity;
+    int                     i;
+    int                     iCommandCount;
+    float                   fStartCommandTime;
+    specialeffect_t        *pEffect;
+    specialeffectcommand_t *pCommand;
+    refEntity_t            *old_entity;
+    dtiki_t                *old_tiki;
+    refEntity_t             tmpEntity;
 
-	memset(&tmpEntity, 0, sizeof(tmpEntity));
-	VectorCopy(((const float*)vPos), tmpEntity.origin);
-	tmpEntity.scale = 1.0;
-	tmpEntity.renderfx = 0;
-	tmpEntity.shaderRGBA[3] = -1;
+    memset(&tmpEntity, 0, sizeof(tmpEntity));
+    VectorCopy(((const float *)vPos), tmpEntity.origin);
+    tmpEntity.scale         = 1.0;
+    tmpEntity.renderfx      = 0;
+    tmpEntity.shaderRGBA[3] = -1;
 
-	pEffect = &this->m_effects[iEffect];
-	iCommandCount = pEffect->m_iCommandCount;
-	if (pEffect->m_iCommandCount)
-	{
-		old_entity = current_entity;
-		old_tiki = current_tiki;
-		current_entity = NULL;
-		current_tiki = NULL;
-		pCommand = pEffect->m_commands[iStartCommand];
+    pEffect       = &this->m_effects[iEffect];
+    iCommandCount = pEffect->m_iCommandCount;
+    if (pEffect->m_iCommandCount) {
+        old_entity     = current_entity;
+        old_tiki       = current_tiki;
+        current_entity = NULL;
+        current_tiki   = NULL;
+        pCommand       = pEffect->m_commands[iStartCommand];
 
         fStartCommandTime = pCommand->fCommandTime;
-		for (i = iStartCommand; i < iCommandCount; i++)
-		{
-			pCommand = pEffect->m_commands[i];
-			if (pCommand->fCommandTime > fStartCommandTime)
-			{
-				Event ev1(EV_SFX_EffectDelay);
-				ev1.AddInteger(iEffect);
-				ev1.AddInteger(i);
-				ev1.AddVector(vPos);
-				ev1.AddVector(vAngles);
+        for (i = iStartCommand; i < iCommandCount; i++) {
+            pCommand = pEffect->m_commands[i];
+            if (pCommand->fCommandTime > fStartCommandTime) {
+                Event ev1(EV_SFX_EffectDelay);
+                ev1.AddInteger(iEffect);
+                ev1.AddInteger(i);
+                ev1.AddVector(vPos);
+                ev1.AddVector(vAngles);
                 ev1.AddVector(axis[0]);
                 ev1.AddVector(axis[1]);
                 ev1.AddVector(axis[2]);
 
-				PostEvent(ev1, pCommand->fCommandTime - fStartCommandTime);
-				++m_iNumPendingEvents;
+                PostEvent(ev1, pCommand->fCommandTime - fStartCommandTime);
+                ++m_iNumPendingEvents;
 
-				break;
-			}
+                break;
+            }
 
-			if (pCommand->pEvent)
-			{
-				current_entity = &tmpEntity;
-				current_tiki = tmpEntity.tiki;
+            if (pCommand->pEvent) {
+                current_entity = &tmpEntity;
+                current_tiki   = tmpEntity.tiki;
                 // give a reference to it so the event doesn't get deleted
-				commandManager.ProcessEvent(*pCommand->pEvent);
-			}
-			else if (pCommand->emitter && pCommand->endfcn)
-            {
-				current_entity = NULL;
-                current_tiki = NULL;
+                commandManager.ProcessEvent(*pCommand->pEvent);
+            } else if (pCommand->emitter && pCommand->endfcn) {
+                current_entity = NULL;
+                current_tiki   = NULL;
 
-				pCommand->emitter->cgd.origin = vPos;
-				if (pCommand->emitter->cgd.flags & T_ANGLES) {
+                pCommand->emitter->cgd.origin = vPos;
+                if (pCommand->emitter->cgd.flags & T_ANGLES) {
                     pCommand->emitter->cgd.angles = vAngles;
-				}
+                }
 
-				AxisCopy(axis, pCommand->emitter->axis);
-				AxisCopy(axis, pCommand->emitter->tag_axis);
-				pCommand->emitter->cgd.createTime = cg.time;
-				commandManager.SetSpawnthing(pCommand->emitter);
-			}
-		}
+                AxisCopy(axis, pCommand->emitter->axis);
+                AxisCopy(axis, pCommand->emitter->tag_axis);
+                pCommand->emitter->cgd.createTime = cg.time;
+                commandManager.SetSpawnthing(pCommand->emitter);
+            }
+        }
 
-		current_entity = old_entity;
-		current_tiki = old_tiki;
-	}
+        current_entity = old_entity;
+        current_tiki   = old_tiki;
+    }
 }
 
 void ClientSpecialEffectsManager::MakeEffect_Normal(int iEffect, Vector vPos, Vector vNormal)
 {
-	Vector vAngles;
-	float axis[3][3];
+    Vector vAngles;
+    float  axis[3][3];
 
-	vAngles = vNormal.toAngles();
+    vAngles = vNormal.toAngles();
     AnglesToAxis(vAngles, axis);
     ClientSpecialEffectsManager::ExecuteEffect(iEffect, 0, vPos, vAngles, axis);
 }
@@ -487,7 +470,7 @@ void ClientSpecialEffectsManager::MakeEffect_Angles(int iEffect, Vector vPos, Ve
 {
     float axis[3][3];
 
-    AnglesToAxis((const float*)vAngles, axis);
+    AnglesToAxis((const float *)vAngles, axis);
     ClientSpecialEffectsManager::ExecuteEffect(iEffect, 0, vPos, vAngles, axis);
 }
 
@@ -495,7 +478,7 @@ void ClientSpecialEffectsManager::MakeEffect_Axis(int iEffect, Vector vPos, floa
 {
     Vector vAngles;
 
-    MatrixToEulerAngles(axis, (float*)vAngles);
+    MatrixToEulerAngles(axis, (float *)vAngles);
     ClientSpecialEffectsManager::ExecuteEffect(iEffect, 0, vPos, vAngles, axis);
 }
 
@@ -507,295 +490,182 @@ FOOTSTEP CODE
 ==============================================================
 */
 
-#define GROUND_DISTANCE 8
+#define GROUND_DISTANCE        8
 #define WATER_NO_SPLASH_HEIGHT 16
 
-static void CG_FootstepMain(trace_t* trace, int iRunning, int iEquipment)
+static void CG_FootstepMain(trace_t *trace, int iRunning, int iEquipment)
 {
-	int contents;
-	int surftype;
-	int iEffectNum;
-	float fVolume;
-	vec3_t vPos;
-	vec3_t midlegs;
-	str sSoundName;
+    int    contents;
+    int    surftype;
+    int    iEffectNum;
+    float  fVolume;
+    vec3_t vPos;
+    vec3_t midlegs;
+    str    sSoundName;
 
-	iEffectNum = -1;
+    iEffectNum = -1;
 
-	VectorCopy(trace->endpos, vPos);
-	sSoundName = "snd_step_";
+    VectorCopy(trace->endpos, vPos);
+    sSoundName = "snd_step_";
 
-	contents = CG_PointContents(trace->endpos, -1);
-	if (contents & MASK_WATER)
-	{
-		// take our ground position and trace upwards 
-		VectorCopy(trace->endpos, midlegs);
-		midlegs[2] += WATER_NO_SPLASH_HEIGHT;
-		contents = CG_PointContents(midlegs, -1);
-		if (contents & MASK_WATER)
-		{
-			sSoundName += "wade";
-		}
-		else
-		{
-			sSoundName += "puddle";
-			iEffectNum = 95;
-		}
-	}
-	else
-	{
-		surftype = trace->surfaceFlags & MASK_SURF_TYPE;
-		switch (surftype)
-		{
-		case SURF_FOLIAGE:
-			sSoundName += "foliage";
-			iEffectNum = 93;
-			break;
-		case SURF_SNOW:
-			sSoundName += "snow";
-			iEffectNum = 97;
-			break;
-		case SURF_CARPET:
-			sSoundName += "carpet";
-			iEffectNum = 90;
-			break;
-		case SURF_SAND:
-			sSoundName += "sand";
-			iEffectNum = 96;
-			break;
-		case SURF_PUDDLE:
-			sSoundName += "puddle";
-			iEffectNum = 95;
-			break;
-		case SURF_GLASS:
+    contents = CG_PointContents(trace->endpos, -1);
+    if (contents & MASK_WATER) {
+        // take our ground position and trace upwards
+        VectorCopy(trace->endpos, midlegs);
+        midlegs[2] += WATER_NO_SPLASH_HEIGHT;
+        contents = CG_PointContents(midlegs, -1);
+        if (contents & MASK_WATER) {
+            sSoundName += "wade";
+        } else {
+            sSoundName += "puddle";
+            iEffectNum = 95;
+        }
+    } else {
+        surftype = trace->surfaceFlags & MASK_SURF_TYPE;
+        switch (surftype) {
+        case SURF_FOLIAGE:
+            sSoundName += "foliage";
+            iEffectNum = 93;
+            break;
+        case SURF_SNOW:
+            sSoundName += "snow";
+            iEffectNum = 97;
+            break;
+        case SURF_CARPET:
+            sSoundName += "carpet";
+            iEffectNum = 90;
+            break;
+        case SURF_SAND:
+            sSoundName += "sand";
+            iEffectNum = 96;
+            break;
+        case SURF_PUDDLE:
+            sSoundName += "puddle";
+            iEffectNum = 95;
+            break;
+        case SURF_GLASS:
             sSoundName += "glass";
             iEffectNum = 90;
-			break;
-		case SURF_GRAVEL:
+            break;
+        case SURF_GRAVEL:
             sSoundName += "gravel";
             iEffectNum = 91;
-			break;
-		case SURF_MUD:
+            break;
+        case SURF_MUD:
             sSoundName += "mud";
             iEffectNum = 94;
-			break;
-		case SURF_DIRT:
+            break;
+        case SURF_DIRT:
             sSoundName += "dirt";
             iEffectNum = 92;
-			break;
-		case SURF_GRILL:
+            break;
+        case SURF_GRILL:
             sSoundName += "grill";
             iEffectNum = 90;
-			break;
-		case SURF_GRASS:
+            break;
+        case SURF_GRASS:
             sSoundName += "grass";
             iEffectNum = 93;
-			break;
-		case SURF_ROCK:
+            break;
+        case SURF_ROCK:
             sSoundName += "stone";
             iEffectNum = 91;
-			break;
-		case SURF_PAPER:
+            break;
+        case SURF_PAPER:
             sSoundName += "paper";
             iEffectNum = 90;
-			break;
-		case SURF_WOOD:
+            break;
+        case SURF_WOOD:
             sSoundName += "wood";
             iEffectNum = 90;
-			break;
-		case SURF_METAL:
+            break;
+        case SURF_METAL:
             sSoundName += "metal";
             iEffectNum = 90;
-			break;
-		default:
-			sSoundName += "stone";
-			iEffectNum = 91;
-			break;
-		}
-	}
+            break;
+        default:
+            sSoundName += "stone";
+            iEffectNum = 91;
+            break;
+        }
+    }
 
-	if (cg_debugFootsteps->integer) {
-		cgi.DPrintf("Footstep: %s  running = %i  effect = %i\n", sSoundName.c_str(), iRunning, surftype);
-	}
+    if (cg_debugFootsteps->integer) {
+        cgi.DPrintf("Footstep: %s  running = %i  effect = %i\n", sSoundName.c_str(), iRunning, surftype);
+    }
 
-	if (iRunning)
-	{
-		if (iRunning == -1) {
-			fVolume = 0.5;
-		}
-		else {
-			fVolume = 1.0;
-		}
-	}
-	else {
-		fVolume = 0.25;
-	}
+    if (iRunning) {
+        if (iRunning == -1) {
+            fVolume = 0.5;
+        } else {
+            fVolume = 1.0;
+        }
+    } else {
+        fVolume = 0.25;
+    }
 
-	if (!iRunning && cgs.gametype == GT_SINGLE_PLAYER) {
-		return;
-	}
+    if (!iRunning && cgs.gametype == GT_SINGLE_PLAYER) {
+        return;
+    }
 
-	commandManager.PlaySound(
-		sSoundName,
-		vPos,
-		-1,
-		fVolume,
-		-1,
-		-1,
-		1
-	);
+    commandManager.PlaySound(sSoundName, vPos, -1, fVolume, -1, -1, 1);
 
-	if (iEquipment && random() < 0.3)
-	{
+    if (iEquipment && random() < 0.3) {
         // also play equipment sound
 
-        commandManager.PlaySound(
-            "snd_step_equipment",
-            vPos,
-            -1,
-            fVolume,
-            -1,
-            -1,
-            1
-        );
-	}
+        commandManager.PlaySound("snd_step_equipment", vPos, -1, fVolume, -1, -1, 1);
+    }
 }
 
-void CG_Footstep(const char* szTagName, centity_t* ent, refEntity_t* pREnt, int iRunning, int iEquipment)
+void CG_Footstep(const char *szTagName, centity_t *ent, refEntity_t *pREnt, int iRunning, int iEquipment)
 {
-	int i;
-	int iTagNum;
-	vec3_t vStart, vEnd;
-	vec3_t midlegs;
-	vec3_t vMins, vMaxs;
-	str sSoundName;
-	trace_t trace;
-	orientation_t oTag;
+    int           i;
+    int           iTagNum;
+    vec3_t        vStart, vEnd;
+    vec3_t        midlegs;
+    vec3_t        vMins, vMaxs;
+    str           sSoundName;
+    trace_t       trace;
+    orientation_t oTag;
 
-	// send a trace down from the player to the ground
-	VectorCopy(ent->lerpOrigin, vStart);
-	vStart[2] += GROUND_DISTANCE;
+    // send a trace down from the player to the ground
+    VectorCopy(ent->lerpOrigin, vStart);
+    vStart[2] += GROUND_DISTANCE;
 
-	if (szTagName)
-	{
-		iTagNum = cgi.Tag_NumForName(pREnt->tiki, szTagName);
-		if (iTagNum != -1)
-		{
-			oTag = cgi.TIKI_Orientation(pREnt, iTagNum);
+    if (szTagName) {
+        iTagNum = cgi.Tag_NumForName(pREnt->tiki, szTagName);
+        if (iTagNum != -1) {
+            oTag = cgi.TIKI_Orientation(pREnt, iTagNum);
 
-			for (i = 0; i < 2; i++) {
+            for (i = 0; i < 2; i++) {
                 VectorMA(vStart, oTag.origin[i], pREnt->axis[i], vStart);
-			}
-		}
-	}
+            }
+        }
+    }
 
-	if (iRunning == -1)
-    {
+    if (iRunning == -1) {
         AngleVectors(ent->lerpAngles, midlegs, NULL, NULL);
         VectorMA(vStart, -16, midlegs, vStart);
         VectorMA(vStart, 64, midlegs, vEnd);
 
         VectorSet(vMins, -2, -2, -8);
         VectorSet(vMaxs, 2, 2, 8);
-	}
-	else
-    {
+    } else {
         VectorSet(vMins, -4, -4, 0);
         VectorSet(vMaxs, 4, 4, 2);
 
-		// add 16 units above feets
+        // add 16 units above feets
         vStart[2] += 16.0;
-		VectorCopy(vStart, vEnd);
-		vEnd[2] -= 64.0;
-	}
+        VectorCopy(vStart, vEnd);
+        vEnd[2] -= 64.0;
+    }
 
-	if (ent->currentState.eType == ET_PLAYER)
-	{
-		CG_Trace(
-			&trace,
-			vStart,
-			vMins,
-			vMaxs,
-			vEnd,
-			ent->currentState.number,
-			MASK_PLAYERSOLID,
-			qtrue,
-			qtrue,
-			"Player Footsteps"
-		);
-	}
-	else
-	{
-		CG_Trace(
-			&trace,
-			vStart,
-			vMins,
-			vMaxs,
-			vEnd,
-			ent->currentState.number,
-			MASK_MONSTERSOLID,
-			qfalse,
-			qfalse,
-			"Monster Footsteps"
-		);
-	}
-
-	if (trace.fraction == 1.0f)
-    {
-        if (cg_debugFootsteps->integer) {
-            cgi.DPrintf("Footstep: missed floor\n");
-        }
-
-		return;
-	}
-
-	CG_FootstepMain(&trace, iRunning, iEquipment);
-}
-
-void CG_MeleeImpact(vec3_t vStart, vec3_t vEnd) {
-	vec3_t vMins, vMaxs;
-	trace_t trace;
-
-	VectorSet(vMins, -4, -4, 0);
-	VectorSet(vMaxs, 4, 4, 2);
-	CG_Trace(&trace, vStart, vMins, vMaxs, vEnd, ENTITYNUM_NONE, MASK_PLAYERSOLID, qtrue, qtrue, "CG_MeleeImpact");
-
-	if (trace.fraction != 1.0) {
-		CG_FootstepMain(&trace, qtrue, qfalse);
-	}
-}
-
-void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEquipment)
-{
-	int contents;
-	int surftype;
-	int iEffectNum;
-	vec3_t vStart, vEnd;
-	vec3_t midlegs;
-	str sSoundName;
-	trace_t trace;
-
-    iEffectNum = -1;
-
-	if (ent->iNextLandTime > cg.time) {
-		ent->iNextLandTime = cg.time + 200;
-		return;
-	}
-
-	ent->iNextLandTime = cg.time + 200;
-	VectorCopy(ent->lerpOrigin, vStart);
-	vStart[2] += GROUND_DISTANCE;
-
-	VectorCopy(vStart, vEnd);
-	vEnd[2] -= 64.0;
-
-    if (ent->currentState.eType == ET_PLAYER)
-    {
+    if (ent->currentState.eType == ET_PLAYER) {
         CG_Trace(
             &trace,
             vStart,
-            g_vFootstepMins,
-			g_vFootstepMaxs,
+            vMins,
+            vMaxs,
             vEnd,
             ent->currentState.number,
             MASK_PLAYERSOLID,
@@ -803,14 +673,12 @@ void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEqui
             qtrue,
             "Player Footsteps"
         );
-    }
-    else
-    {
+    } else {
         CG_Trace(
             &trace,
             vStart,
-			g_vFootstepMins,
-			g_vFootstepMaxs,
+            vMins,
+            vMaxs,
             vEnd,
             ent->currentState.number,
             MASK_MONSTERSOLID,
@@ -820,34 +688,104 @@ void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEqui
         );
     }
 
-	if (trace.fraction == 1.0) {
-		return;
-	}
+    if (trace.fraction == 1.0f) {
+        if (cg_debugFootsteps->integer) {
+            cgi.DPrintf("Footstep: missed floor\n");
+        }
 
-	sSoundName += "snd_landing_";
+        return;
+    }
+
+    CG_FootstepMain(&trace, iRunning, iEquipment);
+}
+
+void CG_MeleeImpact(vec3_t vStart, vec3_t vEnd)
+{
+    vec3_t  vMins, vMaxs;
+    trace_t trace;
+
+    VectorSet(vMins, -4, -4, 0);
+    VectorSet(vMaxs, 4, 4, 2);
+    CG_Trace(&trace, vStart, vMins, vMaxs, vEnd, ENTITYNUM_NONE, MASK_PLAYERSOLID, qtrue, qtrue, "CG_MeleeImpact");
+
+    if (trace.fraction != 1.0) {
+        CG_FootstepMain(&trace, qtrue, qfalse);
+    }
+}
+
+void CG_LandingSound(centity_t *ent, refEntity_t *pREnt, float volume, int iEquipment)
+{
+    int     contents;
+    int     surftype;
+    int     iEffectNum;
+    vec3_t  vStart, vEnd;
+    vec3_t  midlegs;
+    str     sSoundName;
+    trace_t trace;
+
+    iEffectNum = -1;
+
+    if (ent->iNextLandTime > cg.time) {
+        ent->iNextLandTime = cg.time + 200;
+        return;
+    }
+
+    ent->iNextLandTime = cg.time + 200;
+    VectorCopy(ent->lerpOrigin, vStart);
+    vStart[2] += GROUND_DISTANCE;
+
+    VectorCopy(vStart, vEnd);
+    vEnd[2] -= 64.0;
+
+    if (ent->currentState.eType == ET_PLAYER) {
+        CG_Trace(
+            &trace,
+            vStart,
+            g_vFootstepMins,
+            g_vFootstepMaxs,
+            vEnd,
+            ent->currentState.number,
+            MASK_PLAYERSOLID,
+            qtrue,
+            qtrue,
+            "Player Footsteps"
+        );
+    } else {
+        CG_Trace(
+            &trace,
+            vStart,
+            g_vFootstepMins,
+            g_vFootstepMaxs,
+            vEnd,
+            ent->currentState.number,
+            MASK_MONSTERSOLID,
+            qfalse,
+            qfalse,
+            "Monster Footsteps"
+        );
+    }
+
+    if (trace.fraction == 1.0) {
+        return;
+    }
+
+    sSoundName += "snd_landing_";
 
     contents = CG_PointContents(trace.endpos, -1);
-    if (contents & MASK_WATER)
-    {
-        // take our ground position and trace upwards 
+    if (contents & MASK_WATER) {
+        // take our ground position and trace upwards
         VectorCopy(trace.endpos, midlegs);
         midlegs[2] += WATER_NO_SPLASH_HEIGHT;
         contents = CG_PointContents(midlegs, -1);
-        if (contents & MASK_WATER)
-        {
+        if (contents & MASK_WATER) {
             sSoundName += "wade";
-        }
-        else
-        {
+        } else {
             sSoundName += "puddle";
             iEffectNum = 95;
         }
-    }
-    else
-    {
+    } else {
         surftype = trace.surfaceFlags & MASK_SURF_TYPE;
-        switch (surftype)
-        {
+        switch (surftype) {
         case SURF_FOLIAGE:
             sSoundName += "foliage";
             iEffectNum = 93;
@@ -917,42 +855,20 @@ void CG_LandingSound(centity_t* ent, refEntity_t* pREnt, float volume, int iEqui
 
     if (cg_debugFootsteps->integer) {
         cgi.DPrintf("Landing: %s    volume: %.2f   effect = %i\n", sSoundName.c_str(), volume, contents);
-	}
+    }
 
-    commandManager.PlaySound(
-        sSoundName,
-        trace.endpos,
-        -1,
-        volume,
-        -1,
-        -1,
-        1
-    );
+    commandManager.PlaySound(sSoundName, trace.endpos, -1, volume, -1, -1, 1);
 
     if (iEquipment && random() < 0.5) {
+        commandManager.PlaySound("snd_step_equipment", ent->lerpOrigin, -1, volume, -1, -1, 1);
+    }
 
-        commandManager.PlaySound(
-            "snd_step_equipment",
-            ent->lerpOrigin,
-            -1,
-            volume,
-            -1,
-            -1,
-            1
-        );
-	}
-
-	if (iEffectNum != -1)
-	{
-		sfxManager.MakeEffect_Angles(
-			iEffectNum,
-			trace.endpos,
-			Vector(270, 0, 0)
-		);
-	}
+    if (iEffectNum != -1) {
+        sfxManager.MakeEffect_Angles(iEffectNum, trace.endpos, Vector(270, 0, 0));
+    }
 }
 
-void CG_BodyFallSound(centity_t* ent, refEntity_t* pREnt, float volume)
+void CG_BodyFallSound(centity_t *ent, refEntity_t *pREnt, float volume)
 {
     // FIXME: unimplemented
 }
@@ -964,92 +880,96 @@ CG_Splash
 Draw a mark at the water surface
 ===============
 */
-void CG_Splash( centity_t *cent ) {
-	vec3_t		start, end, diff;
-	trace_t		trace;
-	int			contents;
-	float			dist;
-	float			time_required;
+void CG_Splash(centity_t *cent)
+{
+    vec3_t  start, end, diff;
+    trace_t trace;
+    int     contents;
+    float   dist;
+    float   time_required;
 
-	spawnthing_t   m_ripple;
+    spawnthing_t m_ripple;
 
-	if ( !cg_shadows->integer ) {
-		return;
-	}
+    if (!cg_shadows->integer) {
+        return;
+    }
 
-   VectorSubtract( cent->currentState.origin, cent->nextState.origin, diff );
-   diff[ 2 ] = 0;
-	dist = VectorLength( diff );
+    VectorSubtract(cent->currentState.origin, cent->nextState.origin, diff);
+    diff[2] = 0;
+    dist    = VectorLength(diff);
 
-	// See if enough time has passed to add another ripple
+    // See if enough time has passed to add another ripple
 
-	if ( dist >= 1 )
-		time_required = 100 - dist;
-	else
-		time_required = 200;
+    if (dist >= 1) {
+        time_required = 100 - dist;
+    } else {
+        time_required = 200;
+    }
 
-	if ( time_required < 10 )
-		time_required = 10;
+    if (time_required < 10) {
+        time_required = 10;
+    }
 
-	if ( cent->splash_last_spawn_time + time_required > cg.time )
-		return;
+    if (cent->splash_last_spawn_time + time_required > cg.time) {
+        return;
+    }
 
-	// Save the current time
+    // Save the current time
 
-	cent->splash_last_spawn_time = cg.time;
+    cent->splash_last_spawn_time = cg.time;
 
-	// Make sure the entity is moving
-	if ( dist < 1 )
-		{
-		if ( cent->splash_still_count >= 0 )
-			{
-			cent->splash_still_count++;
+    // Make sure the entity is moving
+    if (dist < 1) {
+        if (cent->splash_still_count >= 0) {
+            cent->splash_still_count++;
 
-			if ( cent->splash_still_count > 2 )
-				cent->splash_still_count = 0;
-			else
-				return;
-			}
-		else
-			return;
-		}
+            if (cent->splash_still_count > 2) {
+                cent->splash_still_count = 0;
+            } else {
+                return;
+            }
+        } else {
+            return;
+        }
+    }
 
+    VectorCopy(cent->lerpOrigin, end);
 
-	VectorCopy( cent->lerpOrigin, end );
+    // if the feet aren't in liquid, don't make a mark
+    // this won't handle moving water brushes, but they wouldn't draw right anyway...
+    contents = cgi.CM_PointContents(end, 0);
+    if (!(contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA))) {
+        return;
+    }
 
-	// if the feet aren't in liquid, don't make a mark
-	// this won't handle moving water brushes, but they wouldn't draw right anyway...
-	contents = cgi.CM_PointContents( end, 0 );
-	if ( !( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) ) {
-		return;
-	}
+    VectorCopy(cent->lerpOrigin, start);
+    start[2] += 88;
 
-	VectorCopy( cent->lerpOrigin, start );
-	start[2] += 88;
+    // if the head isn't out of liquid, don't make a mark
+    contents = cgi.CM_PointContents(start, 0);
+    if (contents & (CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)) {
+        return;
+    }
 
-	// if the head isn't out of liquid, don't make a mark
-	contents = cgi.CM_PointContents( start, 0 );
-	if ( contents & ( CONTENTS_SOLID | CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
-		return;
-	}
+    // trace down to find the surface
+    cgi.CM_BoxTrace(
+        &trace, start, end, vec3_origin, vec3_origin, 0, (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA), qfalse
+    );
 
-	// trace down to find the surface
-	cgi.CM_BoxTrace( &trace, start, end, vec3_origin, vec3_origin, 0, ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ), qfalse );
+    if (trace.fraction == 1.0) {
+        return;
+    }
 
-	if ( trace.fraction == 1.0 ) {
-		return;
-	}
-
-	// FIXME
-	// TODO: Make effect
+    // FIXME
+    // TODO: Make effect
 }
 
 qboolean ClientSpecialEffectsManager::EffectsPending()
 {
-	return sfxManager.m_iNumPendingEvents > 0;
+    return sfxManager.m_iNumPendingEvents > 0;
 }
 
-specialeffect_t* ClientSpecialEffectsManager::GetTestEffectPointer()
+specialeffect_t *ClientSpecialEffectsManager::GetTestEffectPointer()
 {
     return &m_effects[SPECIAL_EFFECT_TEST];
 }

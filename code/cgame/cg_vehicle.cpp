@@ -26,17 +26,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "cg_commands.h"
 
-void CG_Vehicle(centity_t* cent)
-{
+void CG_Vehicle(centity_t *cent) {}
 
-}
-
-void ClientGameCommandManager::SpawnTreads(Event* ev)
+void ClientGameCommandManager::SpawnTreads(Event *ev)
 {
     // stub
 }
 
-void ClientGameCommandManager::TreadsOff(Event* ev)
+void ClientGameCommandManager::TreadsOff(Event *ev)
 {
     // stub
 }

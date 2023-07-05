@@ -32,10 +32,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 CG_ResetEntity
 ==================
 */
-static void CG_ResetEntity(centity_t* cent)
+static void CG_ResetEntity(centity_t *cent)
 {
-    dtiki_t* tiki;
-    int i;
+    dtiki_t *tiki;
+    int      i;
 
     VectorCopy(cent->currentState.origin, cent->lerpOrigin);
 
@@ -62,7 +62,7 @@ static void CG_ResetEntity(centity_t* cent)
 
     // Reset splash info
     cent->splash_last_spawn_time = 0;
-    cent->splash_still_count = -1;
+    cent->splash_still_count     = -1;
 
     tiki = cgi.R_Model_GetHandle(cgs.model_draw[cent->currentState.modelindex]);
     // reset client command
@@ -71,7 +71,7 @@ static void CG_ResetEntity(centity_t* cent)
     // reset the animation for the entities
     if (tiki && tiki->a->bIsCharacter) {
         for (i = 0; i < MAX_FRAMEINFOS; i++) {
-            cent->animLast[i] = cent->currentState.frameInfo[i].index;
+            cent->animLast[i]      = cent->currentState.frameInfo[i].index;
             cent->animLastTimes[i] = cent->currentState.frameInfo[i].time;
             if (cent->currentState.frameInfo[i].weight) {
                 cent->animLastWeight |= 1 << i;
@@ -89,8 +89,8 @@ static void CG_ResetEntity(centity_t* cent)
         cent->animLastWeight = 0;
     }
 
-    cent->usageIndexLast = 0;
-    cent->bFootOnGround_Left = qtrue;
+    cent->usageIndexLast      = 0;
+    cent->bFootOnGround_Left  = qtrue;
     cent->bFootOnGround_Right = qtrue;
 
     if (cent->currentState.eType == ET_PLAYER) {
@@ -105,7 +105,7 @@ CG_TransitionEntity
 cent->nextState is moved to cent->currentState and events are fired
 ===============
 */
-static void CG_TransitionEntity(centity_t* cent)
+static void CG_TransitionEntity(centity_t *cent)
 {
     cent->currentState = cent->nextState;
     cent->currentValid = qtrue;
@@ -134,11 +134,11 @@ on tourney restarts.  All other times will use
 CG_TransitionSnapshot instead.
 ==================
 */
-void CG_SetInitialSnapshot(snapshot_t* snap)
+void CG_SetInitialSnapshot(snapshot_t *snap)
 {
-    int i;
-    centity_t* cent;
-    entityState_t* state;
+    int            i;
+    centity_t     *cent;
+    entityState_t *state;
 
     cg.snap = snap;
 
@@ -149,19 +149,17 @@ void CG_SetInitialSnapshot(snapshot_t* snap)
 
     for (i = 0; i < cg.snap->numEntities; i++) {
         state = &cg.snap->entities[i];
-        cent = &cg_entities[state->number];
+        cent  = &cg_entities[state->number];
 
         cent->currentState = *state;
-        cent->interpolate = qfalse;
+        cent->interpolate  = qfalse;
         cent->currentValid = qtrue;
 
         CG_ResetEntity(cent);
     }
 
-    cgi.MUSIC_UpdateMood(snap->ps.current_music_mood,
-                         snap->ps.fallback_music_mood);
-    cgi.MUSIC_UpdateVolume(snap->ps.music_volume,
-                           snap->ps.music_volume_fade_time);
+    cgi.MUSIC_UpdateMood(snap->ps.current_music_mood, snap->ps.fallback_music_mood);
+    cgi.MUSIC_UpdateVolume(snap->ps.music_volume, snap->ps.music_volume_fade_time);
     cgi.S_SetReverb(snap->ps.reverb_type, snap->ps.reverb_level);
 }
 
@@ -174,9 +172,9 @@ The transition point from snap to nextSnap has passed
 */
 static void CG_TransitionSnapshot(qboolean differentServer)
 {
-    centity_t* cent;
-    snapshot_t* oldFrame;
-    int i;
+    centity_t  *cent;
+    snapshot_t *oldFrame;
+    int         i;
 
     if (differentServer) {
         CG_ServerRestarted();
@@ -187,13 +185,13 @@ static void CG_TransitionSnapshot(qboolean differentServer)
 
     // clear the currentValid flag for all entities in the existing snapshot
     for (i = 0; i < cg.snap->numEntities; i++) {
-        cent = &cg_entities[cg.snap->entities[i].number];
+        cent               = &cg_entities[cg.snap->entities[i].number];
         cent->currentValid = qfalse;
     }
 
     // move nextSnap to snap and do the transitions
     oldFrame = cg.snap;
-    cg.snap = cg.nextSnap;
+    cg.snap  = cg.nextSnap;
 
     // FAKK: Commented out to make our stuff work
     // cg_entities[ cg.snap->ps.clientNum ].interpolate = qfalse;
@@ -202,7 +200,7 @@ static void CG_TransitionSnapshot(qboolean differentServer)
         cent = &cg_entities[cg.snap->entities[i].number];
         if (differentServer) {
             cent->interpolate = qfalse;
-            cent->teleported = qfalse;
+            cent->teleported  = qfalse;
         }
         CG_TransitionEntity(cent);
     }
@@ -220,28 +218,25 @@ static void CG_TransitionSnapshot(qboolean differentServer)
         playerState_t *ops, *ps;
 
         ops = &oldFrame->ps;
-        ps = &cg.snap->ps;
+        ps  = &cg.snap->ps;
 
         // teleporting checks are irrespective of prediction
         if (ps->pm_flags & PMF_RESPAWNED) {
             cg.thisFrameTeleport = qtrue;
         }
 
-        if ((ops->music_volume != ps->music_volume) ||
-            (ops->music_volume_fade_time != ps->music_volume_fade_time)) {
-            cgi.MUSIC_UpdateVolume(ps->music_volume,
-                                   ps->music_volume_fade_time);
+        if ((ops->music_volume != ps->music_volume) || (ops->music_volume_fade_time != ps->music_volume_fade_time)) {
+            cgi.MUSIC_UpdateVolume(ps->music_volume, ps->music_volume_fade_time);
         }
 
-        if ((ops->reverb_type != ps->reverb_type) ||
-            (ops->reverb_level != ps->reverb_level)) {
+        if ((ops->reverb_type != ps->reverb_type) || (ops->reverb_level != ps->reverb_level)) {
             cgi.S_SetReverb(ps->reverb_type, ps->reverb_level);
         }
 
         // if we are not doing client side movement prediction for any
         // reason, then the client events and view changes will be issued now
-        if (cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_NO_PREDICTION) ||
-            cg_nopredict->integer || cg_synchronousClients->integer) {
+        if (cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_NO_PREDICTION) || cg_nopredict->integer
+            || cg_synchronousClients->integer) {
             CG_TransitionPlayerState(ps, ops);
         }
     }
@@ -254,11 +249,11 @@ CG_SetNextSnap
 A new snapshot has just been read in from the client system.
 ===================
 */
-static void CG_SetNextSnap(snapshot_t* snap)
+static void CG_SetNextSnap(snapshot_t *snap)
 {
-    int num;
-    entityState_t* es;
-    centity_t* cent;
+    int            num;
+    entityState_t *es;
+    centity_t     *cent;
 
     cg.nextSnap = snap;
 
@@ -266,17 +261,15 @@ static void CG_SetNextSnap(snapshot_t* snap)
 
     // check for extrapolation errors
     for (num = 0; num < snap->numEntities; num++) {
-        es = &snap->entities[num];
+        es   = &snap->entities[num];
         cent = &cg_entities[es->number];
 
         cent->nextState = *es;
 
         // if this frame is a teleport, or the entity wasn't in the
         // previous frame, don't interpolate
-        if (!cent->currentValid ||
-            ((cent->currentState.eFlags ^ es->eFlags) & EF_TELEPORT_BIT) ||
-            (cent->currentState.parent != es->parent) ||
-            (cent->currentState.modelindex != es->modelindex)) {
+        if (!cent->currentValid || ((cent->currentState.eFlags ^ es->eFlags) & EF_TELEPORT_BIT)
+            || (cent->currentState.parent != es->parent) || (cent->currentState.modelindex != es->modelindex)) {
             cent->interpolate = qfalse;
             // if this isn't the first frame and we have valid data, set the
             // teleport flag
@@ -302,8 +295,7 @@ static void CG_SetNextSnap(snapshot_t* snap)
     }
 
     // if the camera cut bit changed, than the next frame is a camera cut
-    if ((cg.nextSnap->ps.camera_flags & CF_CAMERA_CUT_BIT) !=
-        (cg.snap->ps.camera_flags & CF_CAMERA_CUT_BIT)) {
+    if ((cg.nextSnap->ps.camera_flags & CF_CAMERA_CUT_BIT) != (cg.snap->ps.camera_flags & CF_CAMERA_CUT_BIT)) {
         cg.nextFrameCameraCut = qtrue;
     } else {
         cg.nextFrameCameraCut = qfalse;
@@ -329,14 +321,15 @@ times if the client system fails to return a
 valid snapshot.
 ========================
 */
-static snapshot_t* CG_ReadNextSnapshot(void)
+static snapshot_t *CG_ReadNextSnapshot(void)
 {
-    qboolean r;
-    snapshot_t* dest;
+    qboolean    r;
+    snapshot_t *dest;
 
     if (cg.latestSnapshotNum > cgs.processedSnapshotNum + 1000) {
-        cgi.Error(ERR_DROP, "CG_ReadNextSnapshot: way out of range, %i > %i",
-                  cg.latestSnapshotNum, cgs.processedSnapshotNum);
+        cgi.Error(
+            ERR_DROP, "CG_ReadNextSnapshot: way out of range, %i > %i", cg.latestSnapshotNum, cgs.processedSnapshotNum
+        );
     }
 
     while (cgs.processedSnapshotNum < cg.latestSnapshotNum) {
@@ -394,17 +387,16 @@ of an interpolating one)
 */
 void CG_ProcessSnapshots(void)
 {
-    snapshot_t* snap;
-    int n;
-    qboolean differentServer;
+    snapshot_t *snap;
+    int         n;
+    qboolean    differentServer;
 
     // see what the latest snapshot the client system has is
     cgi.GetCurrentSnapshotNumber(&n, &cg.latestSnapshotTime);
     if (n != cg.latestSnapshotNum) {
         if (n < cg.latestSnapshotNum) {
             // this should never happen
-            cgi.Error(ERR_DROP,
-                      "CG_ProcessSnapshots: n < cg.latestSnapshotNum");
+            cgi.Error(ERR_DROP, "CG_ProcessSnapshots: n < cg.latestSnapshotNum");
         }
         cg.latestSnapshotNum = n;
     }
@@ -445,11 +437,8 @@ void CG_ProcessSnapshots(void)
             // if time went backwards, we have a level restart
             if (cg.nextSnap->serverTime < cg.snap->serverTime) {
                 // only drop if this is not a restart or loadgame
-                if (!((cg.nextSnap->snapFlags ^ cg.snap->snapFlags) &
-                      SNAPFLAG_SERVERCOUNT)) {
-                    cgi.Error(
-                        ERR_DROP,
-                        "CG_ProcessSnapshots: Server time went backwards");
+                if (!((cg.nextSnap->snapFlags ^ cg.snap->snapFlags) & SNAPFLAG_SERVERCOUNT)) {
+                    cgi.Error(ERR_DROP, "CG_ProcessSnapshots: Server time went backwards");
                 }
             }
         }
@@ -457,9 +446,7 @@ void CG_ProcessSnapshots(void)
         differentServer = cg.snap->serverTime <= cgi.GetServerStartTime();
 
         // if our time is < nextFrame's, we have a nice interpolating state
-        if (cg.time >= cg.snap->serverTime &&
-            cg.time < cg.nextSnap->serverTime &&
-            !differentServer) {
+        if (cg.time >= cg.snap->serverTime && cg.time < cg.nextSnap->serverTime && !differentServer) {
             break;
         }
 
@@ -477,7 +464,6 @@ void CG_ProcessSnapshots(void)
         cgi.SetTime(cg.time);
     }
     if (cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time) {
-        cgi.Error(ERR_DROP,
-                  "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
+        cgi.Error(ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time");
     }
 }

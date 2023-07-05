@@ -62,8 +62,7 @@ void CG_MessageMode_Private_f(void)
     }
 
     clientNum = atoi(cgi.Argv(1)) - 1;
-    if (clientNum < 0 || clientNum >= MAX_CLIENTS)
-    {
+    if (clientNum < 0 || clientNum >= MAX_CLIENTS) {
         cgi.Printf(HUD_MESSAGE_CHAT_WHITE "Message Error: %s is a bad client number\n", cgi.Argv(1));
         return;
     }
@@ -79,8 +78,7 @@ void CG_MessageSingleAll_f(void)
 
     if (cgi.Argc() > 1) {
         cgi.SendClientCommand(va("dmmessage 0 %s\n", cgi.Args()));
-    }
-    else {
+    } else {
         cgi.UI_ToggleDMMessageConsole(-100);
     }
 }
@@ -93,8 +91,7 @@ void CG_MessageSingleTeam_f(void)
 
     if (cgi.Argc() > 1) {
         cgi.SendClientCommand(va("dmmessage -1 %s\n", cgi.Args()));
-    }
-    else {
+    } else {
         cgi.UI_ToggleDMMessageConsole(-200);
     }
 }
@@ -108,14 +105,12 @@ void CG_MessageSingleClient_f(void)
     }
 
     clientNum = atoi(cgi.Argv(1));
-    if (clientNum < 1 || clientNum > MAX_CLIENTS)
-    {
+    if (clientNum < 1 || clientNum > MAX_CLIENTS) {
         cgi.Printf(HUD_MESSAGE_CHAT_WHITE "Message Error: %s is a bad client number\n", cgi.Argv(1));
         return;
     }
 
-    if (cgi.Argc() > 2)
-    {
+    if (cgi.Argc() > 2) {
         int i;
         str sString;
 
@@ -129,8 +124,7 @@ void CG_MessageSingleClient_f(void)
 
         sString += "\n";
         cgi.SendClientCommand(sString.c_str());
-    }
-    else {
+    } else {
         cgi.UI_ToggleDMMessageConsole(-clientNum);
     }
 }

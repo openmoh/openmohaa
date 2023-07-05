@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-
 /*
 ==============
 CG_EntityEvent
@@ -34,6 +33,4 @@ An entity has an event value
 ==============
 */
 
-void CG_EntityEvent( centity_t *cent, vec3_t position )
-   {
-   }
+void CG_EntityEvent(centity_t *cent, vec3_t position) {}

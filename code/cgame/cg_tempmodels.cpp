@@ -27,27 +27,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_commands.h"
 #include "tiki.h"
 
-cvar_t         *cg_showtempmodels;
-cvar_t         *cg_detail;
-cvar_t         *cg_effectdetail;
-cvar_t         *cg_effect_physicsrate;
+cvar_t *cg_showtempmodels;
+cvar_t *cg_detail;
+cvar_t *cg_effectdetail;
+cvar_t *cg_effect_physicsrate;
 
-extern refEntity_t    *current_entity;
-extern int            current_entity_number;
-extern centity_t      *current_centity;
-extern float          current_scale;
-extern dtiki_t*       current_tiki;
+extern refEntity_t *current_entity;
+extern int          current_entity_number;
+extern centity_t   *current_centity;
+extern float        current_scale;
+extern dtiki_t     *current_tiki;
 
 extern Event EV_Client_Swipe;
 extern Event EV_Client_SwipeOn;
 extern Event EV_Client_SwipeOff;
- 
+
 //=============
 // AllocateTempModel
 //=============
-ctempmodel_t* ClientGameCommandManager::AllocateTempModel(void)
+ctempmodel_t *ClientGameCommandManager::AllocateTempModel(void)
 {
-    ctempmodel_t* p;
+    ctempmodel_t *p;
 
     if (!m_free_tempmodels) {
         // no free entities, so free the one at the end of the chain
@@ -55,14 +55,14 @@ ctempmodel_t* ClientGameCommandManager::AllocateTempModel(void)
         FreeTempModel(m_active_tempmodels.prev);
     }
 
-    p = m_free_tempmodels;
+    p                 = m_free_tempmodels;
     m_free_tempmodels = m_free_tempmodels->next;
 
     // link into the active list
-    p->next = m_active_tempmodels.next;
-    p->prev = &m_active_tempmodels;
+    p->next                        = m_active_tempmodels.next;
+    p->prev                        = &m_active_tempmodels;
     m_active_tempmodels.next->prev = p;
-    m_active_tempmodels.next = p;
+    m_active_tempmodels.next       = p;
 
     return p;
 }
@@ -70,7 +70,7 @@ ctempmodel_t* ClientGameCommandManager::AllocateTempModel(void)
 //===============
 // FreeTempModel
 //===============
-void ClientGameCommandManager::FreeTempModel(ctempmodel_t* p)
+void ClientGameCommandManager::FreeTempModel(ctempmodel_t *p)
 {
     if (!p->prev) {
         cgi.Error(ERR_DROP, "CCM::FreeTempModel: not active");
@@ -83,14 +83,14 @@ void ClientGameCommandManager::FreeTempModel(ctempmodel_t* p)
     p->next->prev = p->prev;
 
     // the free list is only singly linked
-    p->next = m_free_tempmodels;
+    p->next           = m_free_tempmodels;
     m_free_tempmodels = p;
 }
 
 void ClientGameCommandManager::ResetTempModels(void)
 {
     // Go through all the active tempmodels and free them
-    ctempmodel_t* p, * next;
+    ctempmodel_t *p, *next;
 
     p = m_active_tempmodels.prev;
     for (; p != &m_active_tempmodels; p = next) {
@@ -128,17 +128,16 @@ void ClientGameCommandManager::InitializeTempModels(void)
 
 void ClientGameCommandManager::InitializeTempModelCvars(void)
 {
-    cg_showtempmodels = cgi.Cvar_Get("cg_showtempmodels", "0", 0);
-    cg_detail = cgi.Cvar_Get("detail", "1", 1);
-    cg_effectdetail = cgi.Cvar_Get("cg_effectdetail", "0.2", 1);
+    cg_showtempmodels     = cgi.Cvar_Get("cg_showtempmodels", "0", 0);
+    cg_detail             = cgi.Cvar_Get("detail", "1", 1);
+    cg_effectdetail       = cgi.Cvar_Get("cg_effectdetail", "0.2", 1);
     cg_effect_physicsrate = cgi.Cvar_Get("cg_effect_physicsrate", "10", 1);
 }
 
 //===============
 // AnimateTempModel - animate temp models
 //===============
-void ClientGameCommandManager::AnimateTempModel(ctempmodel_t* p, Vector origin,
-    refEntity_t* newEnt)
+void ClientGameCommandManager::AnimateTempModel(ctempmodel_t *p, Vector origin, refEntity_t *newEnt)
 {
     int numframes;
     int deltatime;
@@ -158,8 +157,7 @@ void ClientGameCommandManager::AnimateTempModel(ctempmodel_t* p, Vector origin,
 
     if (!p->addedOnce) {
         // Process entry commands
-        CG_ProcessEntityCommands(TIKI_FRAME_ENTRY,
-            p->ent.frameInfo[0].index, -1, &p->ent, NULL);
+        CG_ProcessEntityCommands(TIKI_FRAME_ENTRY, p->ent.frameInfo[0].index, -1, &p->ent, NULL);
     }
 
     if (numframes < 2) {
@@ -171,16 +169,14 @@ void ClientGameCommandManager::AnimateTempModel(ctempmodel_t* p, Vector origin,
     while (deltatime >= frametime) {
         p->lastAnimTime += frametime;
         p->ent.wasframe = (p->ent.wasframe + 1) % numframes;
-        CG_ProcessEntityCommands(p->ent.wasframe, p->ent.frameInfo[0].index,
-            -1, &p->ent, NULL);
+        CG_ProcessEntityCommands(p->ent.wasframe, p->ent.frameInfo[0].index, -1, &p->ent, NULL);
     }
 }
-
 
 //===============
 // UpdateSwarm
 //===============
-void ClientGameCommandManager::UpdateSwarm(ctempmodel_t* p)
+void ClientGameCommandManager::UpdateSwarm(ctempmodel_t *p)
 {
     if (p->cgd.swarmfreq == 0) {
         return;
@@ -213,17 +209,13 @@ void ClientGameCommandManager::UpdateSwarm(ctempmodel_t* p)
     }
 }
 
-qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
-    float ftime,
-    float dtime,
-    float scale)
+qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t *p, float ftime, float dtime, float scale)
 {
     float fade, fadein;
-    byte tempColor[4];
+    byte  tempColor[4];
 
     if (p->cgd.flags & (T_FADE | T_SCALEUPDOWN)) {
-        fade = 1.0f - (float)(p->aliveTime - p->cgd.fadedelay) /
-            (float)(p->cgd.life - p->cgd.fadedelay);
+        fade = 1.0f - (float)(p->aliveTime - p->cgd.fadedelay) / (float)(p->cgd.life - p->cgd.fadedelay);
 
         // Clamp the fade
         if (fade > 1) {
@@ -232,8 +224,7 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
         if (fade < 0) {
             fade = 0;
         }
-    }
-    else {
+    } else {
         fade = 1.0f;
     }
 
@@ -242,8 +233,7 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
     // Calculate fade in value
     if (p->cgd.flags & T_FADEIN) {
         fadein = dtime / (float)p->cgd.fadeintime;
-    }
-    else {
+    } else {
         fadein = 0;
     }
 
@@ -253,8 +243,7 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
     // Do the scale animation
     if (ftime && p->cgd.scaleRate) {
         p->ent.scale += p->cgd.scale * (p->cgd.scaleRate * ftime);
-    }
-    else if (p->cgd.flags & T_DLIGHT) {
+    } else if (p->cgd.flags & T_DLIGHT) {
         p->cgd.lightIntensity += p->cgd.scaleRate * ftime * p->cgd.lightIntensity;
         if (p->cgd.lightIntensity < 0.0f) {
             return qfalse;
@@ -273,23 +262,27 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
     }
 
     if (p->cgd.lightstyle >= 0) {
-        int i;
+        int   i;
         float color[4];
         CG_LightStyleColor(p->cgd.lightstyle, dtime * 1000, color);
         for (i = 0; i < 4; i++) {
             tempColor[i] = (byte)(color[i] * 255.0f);
         }
-    }
-    else {
-        if (p->cgd.flags2 & T2_COLOR_AVEL)
-        {
+    } else {
+        if (p->cgd.flags2 & T2_COLOR_AVEL) {
             p->cgd.color[0] += p->cgd.avelocity.x * ftime;
             p->cgd.color[1] += p->cgd.avelocity.y * ftime;
             p->cgd.color[2] += p->cgd.avelocity.z * ftime;
 
-            if (p->cgd.color[0] < 0.0f) p->cgd.color[0] = 0.0f;
-            if (p->cgd.color[1] < 0.0f) p->cgd.color[1] = 0.0f;
-            if (p->cgd.color[2] < 0.0f) p->cgd.color[2] = 0.0f;
+            if (p->cgd.color[0] < 0.0f) {
+                p->cgd.color[0] = 0.0f;
+            }
+            if (p->cgd.color[1] < 0.0f) {
+                p->cgd.color[1] = 0.0f;
+            }
+            if (p->cgd.color[2] < 0.0f) {
+                p->cgd.color[2] = 0.0f;
+            }
         }
 
         tempColor[0] = (int)(p->cgd.color[0] * 255.0f);
@@ -304,13 +297,10 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
             // If off, turn it on
             if (p->cgd.flags & T_TWINKLE_OFF) {
                 p->cgd.flags &= ~T_TWINKLE_OFF;
-                p->twinkleTime = cg.time + p->cgd.min_twinkletimeon +
-                    random() * p->cgd.max_twinkletimeon;
-            }
-            else {
+                p->twinkleTime = cg.time + p->cgd.min_twinkletimeon + random() * p->cgd.max_twinkletimeon;
+            } else {
                 p->cgd.flags |= T_TWINKLE_OFF;
-                p->twinkleTime = cg.time + p->cgd.min_twinkletimeoff +
-                    random() * p->cgd.max_twinkletimeoff;
+                p->twinkleTime = cg.time + p->cgd.min_twinkletimeoff + random() * p->cgd.max_twinkletimeoff;
             }
         }
 
@@ -325,9 +315,7 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
 
         p->ent.shaderRGBA[0] = (int)((float)tempColor[0] * vLighting[0]);
         p->ent.shaderRGBA[1] = (int)((float)tempColor[1] * vLighting[1]);
-    }
-    else
-    {
+    } else {
         p->ent.shaderRGBA[0] = tempColor[0];
         p->ent.shaderRGBA[1] = tempColor[1];
     }
@@ -335,12 +323,10 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
     if (p->cgd.flags & T_FADEIN && (fadein < 1)) // Do the fadein effect
     {
         p->ent.shaderRGBA[3] = (int)((float)tempColor[3] * (fadein * p->cgd.alpha));
-    }
-    else if (p->cgd.flags & T_FADE) // Do a fadeout effect
+    } else if (p->cgd.flags & T_FADE) // Do a fadeout effect
     {
         p->ent.shaderRGBA[3] = (int)((float)tempColor[3] * (fade * p->cgd.alpha));
-    }
-    else {
+    } else {
         p->ent.shaderRGBA[3] = (int)((float)tempColor[3] * p->cgd.alpha);
     }
 
@@ -349,8 +335,7 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
 
         if (p->cgd.flags & (T_FADE | T_FADEIN)) {
             p->ent.shaderRGBA[3] *= random;
-        }
-        else {
+        } else {
             p->ent.shaderRGBA[3] = p->cgd.color[3] * random;
         }
     }
@@ -361,8 +346,7 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
     }
 
     // Check for completely scaled out model
-    if ((p->ent.scale <= 0 && p->addedOnce) &&
-        !(p->cgd.flags & T_SCALEUPDOWN)) {
+    if ((p->ent.scale <= 0 && p->addedOnce) && !(p->cgd.flags & T_SCALEUPDOWN)) {
         return false;
     }
 
@@ -374,10 +358,7 @@ qboolean ClientGameCommandManager::TempModelRealtimeEffects(ctempmodel_t* p,
     return true;
 }
 
-
-void ClientGameCommandManager::OtherTempModelEffects(ctempmodel_t* p,
-    Vector origin,
-    refEntity_t* newEnt)
+void ClientGameCommandManager::OtherTempModelEffects(ctempmodel_t *p, Vector origin, refEntity_t *newEnt)
 {
     vec3_t axis[3];
 
@@ -385,39 +366,36 @@ void ClientGameCommandManager::OtherTempModelEffects(ctempmodel_t* p,
         // Set the axis
         AnglesToAxis(p->cgd.angles, axis);
 
-        current_scale = newEnt->scale;
-        current_entity = newEnt;
-        current_tiki = p->cgd.tiki;
+        current_scale         = newEnt->scale;
+        current_entity        = newEnt;
+        current_tiki          = p->cgd.tiki;
         current_entity_number = p->number;
 
         // Update any emitters that are active on this tempmodel
-        UpdateEmitter(p->cgd.tiki, axis, p->number, p->cgd.parent,
-            origin);
+        UpdateEmitter(p->cgd.tiki, axis, p->number, p->cgd.parent, origin);
 
         // Add in trails for this tempmodel
         if (p->cgd.flags2 & T2_TRAIL) {
-            Event* ev = new Event(EV_Client_Swipe);
+            Event *ev = new Event(EV_Client_Swipe);
             ev->AddVector(origin);
             commandManager.ProcessEvent(ev);
         }
 
         current_entity_number = -1;
-        current_tiki = NULL;
-        current_entity = NULL;
-        current_scale = -1;
+        current_tiki          = NULL;
+        current_entity        = NULL;
+        current_scale         = -1;
     }
 }
 
-qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
-    float ftime, float time2,
-    float scale)
+qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t *p, float ftime, float time2, float scale)
 {
-    int dtime;
-    Vector parentOrigin(0, 0, 0);
-    Vector parentAngles(0, 0, 0);
-    Vector tempangles;
+    int     dtime;
+    Vector  parentOrigin(0, 0, 0);
+    Vector  parentAngles(0, 0, 0);
+    Vector  tempangles;
     trace_t trace;
-    float dot;
+    float   dot;
 
     VectorCopy(p->ent.origin, p->lastEnt.origin);
     AxisCopy(p->ent.axis, p->lastEnt.axis);
@@ -434,18 +412,16 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
 
     // Update the orign and the angles based on velocities first
     if (p->cgd.flags2 & (T2_MOVE | T2_ACCEL)) {
-        p->cgd.origin = p->cgd.origin + (p->cgd.velocity * ftime * scale) +
-            (time2 * p->cgd.accel);
+        p->cgd.origin = p->cgd.origin + (p->cgd.velocity * ftime * scale) + (time2 * p->cgd.accel);
     }
 
     // If linked to the parent or hardlinked, get the parent's origin
-    if ((p->cgd.flags & (T_PARENTLINK | T_HARDLINK)) &&
-        (p->cgd.parent != ENTITYNUM_NONE)) {
-        centity_t* pc;
+    if ((p->cgd.flags & (T_PARENTLINK | T_HARDLINK)) && (p->cgd.parent != ENTITYNUM_NONE)) {
+        centity_t *pc;
         pc = &cg_entities[p->cgd.parent];
 
         if (pc->currentValid) {
-            refEntity_t* e;
+            refEntity_t *e;
 
             e = cgi.R_GetRenderEntity(p->cgd.parent);
 
@@ -455,19 +431,17 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
 
             parentOrigin = e->origin;
             vectoangles(e->axis[0], parentAngles);
-        }
-        else {
+        } else {
             return false;
         }
-    }
-    else if (p->cgd.flags & T_SWARM) {
+    } else if (p->cgd.flags & T_SWARM) {
         p->cgd.parentOrigin = p->cgd.velocity + p->cgd.accel * ftime * scale;
     }
 
     // Align the object along it's traveling vector
     if (p->cgd.flags & T_ALIGN) {
         p->cgd.angles = p->cgd.velocity.toAngles();
-        parentAngles = vec_zero;
+        parentAngles  = vec_zero;
     }
 
     if (p->cgd.flags & T_RANDOMROLL) {
@@ -488,19 +462,27 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
     tempangles = p->cgd.angles + parentAngles;
 
     // Convert to axis
-    if ((p->cgd.flags &
-        (T_ALIGN | T_RANDOMROLL | T_PARENTLINK | T_HARDLINK | T_ANGLES)) ||
-        (p->cgd.flags2 & T2_AMOVE)) {
+    if ((p->cgd.flags & (T_ALIGN | T_RANDOMROLL | T_PARENTLINK | T_HARDLINK | T_ANGLES))
+        || (p->cgd.flags2 & T2_AMOVE)) {
         AnglesToAxis(tempangles, p->ent.axis);
     }
 
     // Only do real collision if necessary
     if (p->cgd.flags & T_COLLISION) {
         // trace a line from previous position to new position
-        CG_Trace(&trace, p->cgd.oldorigin, vec3_origin, vec3_origin, p->cgd.origin, -1,
-            p->cgd.collisionmask, qfalse, qfalse, "Collision");
-    }
-    else {
+        CG_Trace(
+            &trace,
+            p->cgd.oldorigin,
+            vec3_origin,
+            vec3_origin,
+            p->cgd.origin,
+            -1,
+            p->cgd.collisionmask,
+            qfalse,
+            qfalse,
+            "Collision"
+        );
+    } else {
         // Fake it out so it never collides
         trace.fraction = 1.0;
     }
@@ -516,8 +498,7 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
             float fFriction = 1.0f - ftime * p->cgd.friction;
             if (fFriction > 0.0f) {
                 p->cgd.velocity *= fFriction;
-            }
-            else {
+            } else {
                 p->cgd.velocity = vec_zero;
             }
         }
@@ -578,8 +559,7 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
         if (p->cgd.flags2 & T_ALIGN) {
             // FIXME: vss wind
         }
-    }
-    else {
+    } else {
         if (p->touchfcn) {
             p->touchfcn(p, &trace);
         }
@@ -593,19 +573,25 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
         // Set the origin
         p->cgd.origin = trace.endpos;
 
-        if ((p->cgd.flags2 & T2_BOUNCE_DECAL) &&
-            (p->cgd.bouncecount < p->cgd.maxbouncecount)) {
+        if ((p->cgd.flags2 & T2_BOUNCE_DECAL) && (p->cgd.bouncecount < p->cgd.maxbouncecount)) {
             // Put down a bounce decal
             qhandle_t shader = cgi.R_RegisterShader(p->cgd.shadername);
 
-            CG_ImpactMarkSimple(shader, trace.endpos, trace.plane.normal,
+            CG_ImpactMarkSimple(
+                shader,
+                trace.endpos,
+                trace.plane.normal,
                 p->cgd.decal_orientation,
                 p->cgd.color[0],
                 p->cgd.color[1],
-                p->cgd.color[2], p->cgd.alpha,
-                p->cgd.flags & T_FADE, p->cgd.decal_radius,
-                p->cgd.flags2 & T2_TEMPORARY_DECAL, p->cgd.lightstyle,
-                p->cgd.flags & T_FADEIN);
+                p->cgd.color[2],
+                p->cgd.alpha,
+                p->cgd.flags & T_FADE,
+                p->cgd.decal_radius,
+                p->cgd.flags2 & T2_TEMPORARY_DECAL,
+                p->cgd.lightstyle,
+                p->cgd.flags & T_FADEIN
+            );
 
             p->cgd.bouncecount++;
         }
@@ -619,29 +605,25 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
 
         // reflect the velocity on the trace plane
         if (p->cgd.flags2 & T2_ACCEL) {
-            p->cgd.velocity =
-                p->cgd.velocity + ftime * trace.fraction * p->cgd.accel;
+            p->cgd.velocity = p->cgd.velocity + ftime * trace.fraction * p->cgd.accel;
         }
 
-        dot = p->cgd.velocity * normal;
+        dot             = p->cgd.velocity * normal;
         p->cgd.velocity = p->cgd.velocity + ((-2 * dot) * normal);
         p->cgd.velocity *= p->cgd.bouncefactor;
 
         // check for stop
         if (trace.plane.normal[2] > 0 && p->cgd.velocity[2] < 40) {
-            p->cgd.velocity = Vector(0, 0, 0);
+            p->cgd.velocity  = Vector(0, 0, 0);
             p->cgd.avelocity = Vector(0, 0, 0);
             p->cgd.flags &= ~T_WAVE;
-        }
-        else {
+        } else {
             if (p->cgd.flags & T_BOUNCESOUNDONCE) {
                 vec3_t org;
                 VectorCopy(p->cgd.origin, org);
                 PlaySound(p->cgd.bouncesound, org);
                 p->cgd.flags &= ~(T_BOUNCESOUNDONCE | T_BOUNCESOUND);
-            }
-            else if ((p->cgd.flags & T_BOUNCESOUND) &&
-                (p->next_bouncesound_time < cg.time)) {
+            } else if ((p->cgd.flags & T_BOUNCESOUND) && (p->next_bouncesound_time < cg.time)) {
                 vec3_t org;
                 VectorCopy(p->cgd.origin, org);
                 PlaySound(p->cgd.bouncesound, org);
@@ -669,28 +651,26 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t* p,
     return true;
 }
 
-qboolean ClientGameCommandManager::LerpTempModel(refEntity_t* newEnt,
-    ctempmodel_t* p, float frac)
+qboolean ClientGameCommandManager::LerpTempModel(refEntity_t *newEnt, ctempmodel_t *p, float frac)
 {
     int i, j;
 
     // If the tempmodel is parentlinked, then we need to get the origin of the
     // parent and add it to the tempmodel's origin
     if (p->cgd.flags & (T_PARENTLINK | T_HARDLINK)) {
-        centity_t* pc;
-        Vector parentOrigin;
+        centity_t *pc;
+        Vector     parentOrigin;
 
         // Lerp the tempmodel's local origin
         for (i = 0; i < 3; i++) {
-            newEnt->origin[i] = p->cgd.oldorigin[i] +
-                frac * (p->cgd.origin[i] - p->cgd.oldorigin[i]);
+            newEnt->origin[i] = p->cgd.oldorigin[i] + frac * (p->cgd.origin[i] - p->cgd.oldorigin[i]);
         }
 
         // Find the parent entity
         pc = &cg_entities[p->cgd.parent];
 
         if (pc->currentValid) {
-            refEntity_t* e;
+            refEntity_t *e;
 
             e = cgi.R_GetRenderEntity(p->cgd.parent);
 
@@ -699,21 +679,17 @@ qboolean ClientGameCommandManager::LerpTempModel(refEntity_t* newEnt,
             }
 
             parentOrigin = e->origin;
-        }
-        else {
+        } else {
             return false;
         }
 
         // Add the parent ent's origin to the local origin
         VectorAdd(newEnt->origin, parentOrigin, newEnt->origin);
-    }
-    else {
+    } else {
         if (p->cgd.flags2 & (T2_MOVE | T2_ACCEL)) {
             // Lerp the ent's origin
             for (i = 0; i < 3; i++) {
-                newEnt->origin[i] =
-                    p->lastEnt.origin[i] +
-                    frac * (p->ent.origin[i] - p->lastEnt.origin[i]);
+                newEnt->origin[i] = p->lastEnt.origin[i] + frac * (p->ent.origin[i] - p->lastEnt.origin[i]);
             }
         }
     }
@@ -722,16 +698,11 @@ qboolean ClientGameCommandManager::LerpTempModel(refEntity_t* newEnt,
         Vector v1 = p->cgd.origin - cg.refdef.vieworg;
         vectoangles(v1, p->cgd.angles);
         AnglesToAxis(p->cgd.angles, newEnt->axis);
-    }
-    else if ((p->cgd.flags &
-        (T_ALIGN | T_RANDOMROLL | T_PARENTLINK | T_HARDLINK)) ||
-        (p->cgd.flags2 & T2_AMOVE)) {
+    } else if ((p->cgd.flags & (T_ALIGN | T_RANDOMROLL | T_PARENTLINK | T_HARDLINK)) || (p->cgd.flags2 & T2_AMOVE)) {
         // Lerp axis
         for (i = 0; i < 3; i++) {
             for (j = 0; j < 3; j++) {
-                newEnt->axis[i][j] =
-                    p->lastEnt.axis[i][j] +
-                    frac * (p->ent.axis[i][j] - p->lastEnt.axis[i][j]);
+                newEnt->axis[i][j] = p->lastEnt.axis[i][j] + frac * (p->ent.axis[i][j] - p->lastEnt.axis[i][j]);
             }
         }
     }
@@ -742,37 +713,40 @@ qboolean ClientGameCommandManager::LerpTempModel(refEntity_t* newEnt,
 //===============
 // CG_AddTempModels
 //===============
-void CG_AddTempModels(void) { commandManager.AddTempModels(); }
+void CG_AddTempModels(void)
+{
+    commandManager.AddTempModels();
+}
 
 //===============
 // AddTempModels - Update and add tempmodels to the ref
 //===============
 #define TOO_MUCH_TIME_PASSED 500
+
 void ClientGameCommandManager::AddTempModels(void)
 {
-    ctempmodel_t* p, * next;
-    int count = 0; // Tempmodel count
-    int frameTime;
-    float effectTime, effectTime2;
-    int mstime = 0;
-    float ftime = 0;
-    float time2 = 0;
-    float scale = 1.0f;
-    float lerpfrac = 0;
-    int physics_rate = 0;
-    qboolean ret;
-    refEntity_t newEnt;
-    dtiki_t* old_tiki;
-    int old_num;
-    refEntity_t* old_ent;
+    ctempmodel_t *p, *next;
+    int           count = 0; // Tempmodel count
+    int           frameTime;
+    float         effectTime, effectTime2;
+    int           mstime       = 0;
+    float         ftime        = 0;
+    float         time2        = 0;
+    float         scale        = 1.0f;
+    float         lerpfrac     = 0;
+    int           physics_rate = 0;
+    qboolean      ret;
+    refEntity_t   newEnt;
+    dtiki_t      *old_tiki;
+    int           old_num;
+    refEntity_t  *old_ent;
 
     // To counteract cg.time going backwards
     if (lastTempModelFrameTime) {
-        if ((cg.time < lastTempModelFrameTime) ||
-            (cg.time - lastTempModelFrameTime > TOO_MUCH_TIME_PASSED)) {
+        if ((cg.time < lastTempModelFrameTime) || (cg.time - lastTempModelFrameTime > TOO_MUCH_TIME_PASSED)) {
             p = m_active_tempmodels.prev;
             for (; p != &m_active_tempmodels; p = next) {
-                next = p->prev;
+                next               = p->prev;
                 p->lastPhysicsTime = cg.time;
             }
             lastTempModelFrameTime = cg.time;
@@ -782,21 +756,19 @@ void ClientGameCommandManager::AddTempModels(void)
 
     if (lastTempModelFrameTime != 0) {
         frameTime = cg.time - lastTempModelFrameTime;
-    }
-    else {
+    } else {
         frameTime = 0;
     }
 
     if (paused->integer) {
         lastTempModelFrameTime = 0;
-    }
-    else {
+    } else {
         lastTempModelFrameTime = cg.time;
     }
 
     memset(&newEnt, 0, sizeof(newEnt));
     // Set this frame time for the next one
-    effectTime = (float)frameTime / 1000.0f;
+    effectTime  = (float)frameTime / 1000.0f;
     effectTime2 = effectTime * effectTime;
 
     // If there is a current entity, it's scale is used as a factor
@@ -806,9 +778,9 @@ void ClientGameCommandManager::AddTempModels(void)
 
     // Go through all the temp models and run the physics if necessary,
     // then add them to the ref
-    old_ent = current_entity;
+    old_ent  = current_entity;
     old_tiki = current_tiki;
-    old_num = current_entity_number;
+    old_num  = current_entity_number;
 
     p = m_active_tempmodels.prev;
     for (; p != &m_active_tempmodels; p = next) {
@@ -820,9 +792,9 @@ void ClientGameCommandManager::AddTempModels(void)
             continue;
         }
 
-        p->ent.tiki = p->cgd.tiki;
-        current_entity = &p->ent;
-        current_tiki = p->cgd.tiki;
+        p->ent.tiki           = p->cgd.tiki;
+        current_entity        = &p->ent;
+        current_tiki          = p->cgd.tiki;
         current_entity_number = p->number;
 
         TempModelRealtimeEffects(p, effectTime, effectTime2, scale);
@@ -831,19 +803,17 @@ void ClientGameCommandManager::AddTempModels(void)
             mstime = cg.time - p->lastPhysicsTime;
 
             // Check for physics
-            physics_rate =
-                1000 / p->cgd.physicsRate; // Physics rate in milliseconds
+            physics_rate = 1000 / p->cgd.physicsRate; // Physics rate in milliseconds
 
             // Avoid large jumps in time
             if (mstime > physics_rate * 2) {
                 mstime = physics_rate;
             }
 
-            if ((mstime >= physics_rate) ||
-                (p->cgd.flags2 & T2_PHYSICS_EVERYFRAME)) {
+            if ((mstime >= physics_rate) || (p->cgd.flags2 & T2_PHYSICS_EVERYFRAME)) {
                 ftime = mstime / 1000.0f;
                 time2 = ftime * ftime;
-                ret = TempModelPhysics(p, ftime, time2, scale);
+                ret   = TempModelPhysics(p, ftime, time2, scale);
 
                 if (!ret) {
                     FreeTempModel(p);
@@ -878,7 +848,7 @@ void ClientGameCommandManager::AddTempModels(void)
         // Run physics if the lastEnt is not valid to get a valid lerp
         if (!p->lastEntValid) {
             float t, t2;
-            t = physics_rate / 1000.0f;
+            t  = physics_rate / 1000.0f;
             t2 = t * t;
 
             ret = TempModelPhysics(p, t, t2, scale);
@@ -887,7 +857,7 @@ void ClientGameCommandManager::AddTempModels(void)
                 continue;
             }
 
-            lerpfrac = 0;
+            lerpfrac           = 0;
             p->lastPhysicsTime = cg.time;
         }
 
@@ -907,12 +877,11 @@ void ClientGameCommandManager::AddTempModels(void)
 
         if (p->cgd.flags & T_WAVE) {
             Vector origin;
-            float axis[3][3];
+            float  axis[3][3];
 
-            origin = Vector(m_spawnthing->linked_origin) +
-                Vector(m_spawnthing->linked_axis[0]) * newEnt.origin[0] +
-                Vector(m_spawnthing->linked_axis[1]) * newEnt.origin[1] +
-                Vector(m_spawnthing->linked_axis[2]) * newEnt.origin[2];
+            origin = Vector(m_spawnthing->linked_origin) + Vector(m_spawnthing->linked_axis[0]) * newEnt.origin[0]
+                   + Vector(m_spawnthing->linked_axis[1]) * newEnt.origin[1]
+                   + Vector(m_spawnthing->linked_axis[2]) * newEnt.origin[2];
 
             VectorCopy(origin, newEnt.origin);
 
@@ -921,16 +890,16 @@ void ClientGameCommandManager::AddTempModels(void)
         }
 
         // Animate and do trails (swipes)
-        newEnt.renderfx = p->ent.renderfx;
-        newEnt.hModel = p->ent.hModel;
-        newEnt.reType = p->ent.reType;
+        newEnt.renderfx   = p->ent.renderfx;
+        newEnt.hModel     = p->ent.hModel;
+        newEnt.reType     = p->ent.reType;
         newEnt.shaderTime = p->ent.shaderTime;
 
         newEnt.frameInfo[0] = p->ent.frameInfo[0];
-        newEnt.wasframe = p->ent.wasframe;
+        newEnt.wasframe     = p->ent.wasframe;
         newEnt.actionWeight = 1.0;
         newEnt.entityNumber = ENTITYNUM_NONE;
-        newEnt.tiki = p->ent.tiki;
+        newEnt.tiki         = p->ent.tiki;
 
         AnimateTempModel(p, newEnt.origin, &newEnt);
 
@@ -939,18 +908,19 @@ void ClientGameCommandManager::AddTempModels(void)
         // Add to the ref
         if (p->cgd.flags & T_DLIGHT) {
             // Tempmodel is a Dynamic Light
-            cgi.R_AddLightToScene(p->cgd.origin, p->cgd.lightIntensity * scale,
+            cgi.R_AddLightToScene(
+                p->cgd.origin,
+                p->cgd.lightIntensity * scale,
                 p->cgd.color[0],
                 p->cgd.color[1],
                 p->cgd.color[2],
-                p->cgd.lightType);
-        }
-        else if (p->ent.reType == RT_SPRITE) {
+                p->cgd.lightType
+            );
+        } else if (p->ent.reType == RT_SPRITE) {
             vec3_t vTestAngles;
             cgi.R_AddRefSpriteToScene(&newEnt); // Sprite
             MatrixToEulerAngles(newEnt.axis, vTestAngles);
-        }
-        else {
+        } else {
             cgi.R_AddRefEntityToScene(&newEnt, ENTITYNUM_NONE); // Model
         }
 
@@ -961,8 +931,8 @@ void ClientGameCommandManager::AddTempModels(void)
         count++;
     }
 
-    current_entity = old_ent;
-    current_tiki = old_tiki;
+    current_entity        = old_ent;
+    current_tiki          = old_tiki;
     current_entity_number = old_num;
 
     // stats
@@ -974,7 +944,7 @@ void ClientGameCommandManager::AddTempModels(void)
 //=================
 // SpawnTempModel
 //=================
-void ClientGameCommandManager::SpawnTempModel(int count, spawnthing_t* sp)
+void ClientGameCommandManager::SpawnTempModel(int count, spawnthing_t *sp)
 {
     m_spawnthing = sp;
     SpawnTempModel(count);
@@ -985,20 +955,19 @@ void ClientGameCommandManager::SpawnTempModel(int count, spawnthing_t* sp)
 //=================
 void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
 {
-    int i;
-    ctempmodel_t* p;
-    refEntity_t ent;
-    int count;
-    float current_entity_scale = 1.0f;
-    Vector newForward;
-    Vector delta;
-    Vector start;
-    Vector vForward, vLeft, vUp;
+    int           i;
+    ctempmodel_t *p;
+    refEntity_t   ent;
+    int           count;
+    float         current_entity_scale = 1.0f;
+    Vector        newForward;
+    Vector        delta;
+    Vector        start;
+    Vector        vForward, vLeft, vUp;
 
     if (current_entity) {
         current_entity_scale = current_entity->scale;
-    }
-    else {
+    } else {
         current_entity_scale = 1.0f;
     }
 
@@ -1019,18 +988,17 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         float fAngle;
 
         fAngle = (cg.time - cgs.levelStartTime) * m_spawnthing->cgd.spin_rotation / 160.0f;
-        cosa = cos(fAngle);
-        sina = sin(fAngle);
+        cosa   = cos(fAngle);
+        sina   = sin(fAngle);
 
         vForward = cosa * Vector(m_spawnthing->axis[0]);
         VectorMA(vForward, -sina, m_spawnthing->axis[1], vForward);
 
         vLeft = sina * Vector(m_spawnthing->axis[0]);
         VectorMA(vLeft, cosa, m_spawnthing->axis[1], vLeft);
-    }
-    else {
+    } else {
         vForward = m_spawnthing->axis[0];
-        vLeft = m_spawnthing->axis[1];
+        vLeft    = m_spawnthing->axis[1];
     }
 
     vUp = m_spawnthing->axis[2];
@@ -1046,15 +1014,12 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         memset(&ent, 0, sizeof(refEntity_t));
         memset(&p->lastEnt, 0, sizeof(refEntity_t));
 
-        if (p->cgd.flags & T_WAVE)
-        {
+        if (p->cgd.flags & T_WAVE) {
             p->m_spawnthing = m_spawnthing;
-            start = Vector(0, 0, 0);
-        }
-        else
-        {
+            start           = Vector(0, 0, 0);
+        } else {
             p->m_spawnthing = NULL;
-            start = m_spawnthing->cgd.origin;
+            start           = m_spawnthing->cgd.origin;
         }
 
         // Copy over the common data block
@@ -1068,37 +1033,31 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
             // Create a random forward vector so the particles burst out in a
             // sphere
             newForward = Vector(crandom(), crandom(), crandom());
-        }
-        else if (m_spawnthing->cgd.flags & T_CIRCLE) {
+        } else if (m_spawnthing->cgd.flags & T_CIRCLE) {
             if (m_spawnthing->sphereRadius != 0) // Offset by the radius
             {
                 Vector dst;
                 // Create a circular shaped burst around the up vector
-                float angle = ((float)count / (float)m_spawnthing->count) *
-                    360; // * M_PI * 2;
+                float angle = ((float)count / (float)m_spawnthing->count) * 360; // * M_PI * 2;
 
-                Vector end = Vector(vLeft) *
-                    m_spawnthing->sphereRadius * current_entity_scale;
+                Vector end = Vector(vLeft) * m_spawnthing->sphereRadius * current_entity_scale;
                 RotatePointAroundVector(dst, Vector(vForward), end, angle);
 
                 VectorAdd(dst, m_spawnthing->cgd.origin, p->cgd.origin);
                 newForward = p->cgd.origin - m_spawnthing->cgd.origin;
                 newForward.normalize();
             }
-        }
-        else if (m_spawnthing->cgd.flags & T_INWARDSPHERE) {
+        } else if (m_spawnthing->cgd.flags & T_INWARDSPHERE) {
             // Project the origin along a random ray, and set the forward
             // vector pointing back to the origin
             Vector dir, end;
 
             dir = Vector(crandom(), crandom(), crandom());
 
-            end = m_spawnthing->cgd.origin +
-                dir * m_spawnthing->sphereRadius * current_entity_scale;
+            end = m_spawnthing->cgd.origin + dir * m_spawnthing->sphereRadius * current_entity_scale;
             VectorCopy(end, p->cgd.origin);
             newForward = dir * -1;
-        }
-        else if (m_spawnthing->cgd.flags2 & T2_CONE) {
+        } else if (m_spawnthing->cgd.flags2 & T2_CONE) {
             float fHeight;
             float fRadius;
             float fAngle;
@@ -1110,23 +1069,21 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
 
             if (fHeight < fRadius) {
                 float fTemp = fHeight;
-                fHeight = fRadius;
-                fRadius = fTemp;
+                fHeight     = fRadius;
+                fRadius     = fTemp;
             }
 
             fHeight *= m_spawnthing->coneHeight;
             fRadius = m_spawnthing->sphereRadius;
 
             fAngle = random() * M_PI * 2;
-            sina = sin(fAngle);
-            cosa = cos(fAngle);
+            sina   = sin(fAngle);
+            cosa   = cos(fAngle);
 
             p->cgd.origin = start + vForward * fHeight;
             p->cgd.origin += start + vLeft * (cosa * fRadius);
             p->cgd.origin += start + vUp * (sina * fRadius);
-        }
-        else if (m_spawnthing->sphereRadius !=
-            0) // Offset in a spherical pattern
+        } else if (m_spawnthing->sphereRadius != 0) // Offset in a spherical pattern
         {
             Vector dir, end;
 
@@ -1134,12 +1091,10 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
 
             dir.normalize();
 
-            end = m_spawnthing->cgd.origin +
-                dir * m_spawnthing->sphereRadius * current_entity_scale;
+            end = m_spawnthing->cgd.origin + dir * m_spawnthing->sphereRadius * current_entity_scale;
             VectorCopy(end, p->cgd.origin);
             newForward = dir;
-        }
-        else {
+        } else {
             VectorCopy(m_spawnthing->cgd.origin, p->cgd.origin);
         }
 
@@ -1149,19 +1104,20 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
 
         // Randomize the origin based on offsets
         for (i = 0; i < 3; i++) {
-            p->cgd.origin[i] += (random() * m_spawnthing->origin_offset_amplitude[i] + m_spawnthing->origin_offset_base[i]) *
-                current_entity_scale;
+            p->cgd.origin[i] +=
+                (random() * m_spawnthing->origin_offset_amplitude[i] + m_spawnthing->origin_offset_base[i])
+                * current_entity_scale;
         }
 
         p->cgd.oldorigin = p->cgd.origin;
-        p->modelname = m_spawnthing->GetModel();
+        p->modelname     = m_spawnthing->GetModel();
 
         if (p->cgd.flags & T_DLIGHT) {
             FreeTempModel(p);
             continue;
         }
 
-        p->addedOnce = qfalse;
+        p->addedOnce    = qfalse;
         p->lastEntValid = qfalse;
 
         if (p->modelname.length()) {
@@ -1176,30 +1132,26 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
 
         // Set the reftype based on the modelname
         if (p->modelname == "*beam") {
-            ent.reType = RT_BEAM;
+            ent.reType       = RT_BEAM;
             ent.customShader = cgi.R_RegisterShader("beamshader");
-        }
-        else if (strstr(p->modelname, ".spr")) {
+        } else if (strstr(p->modelname, ".spr")) {
             ent.reType = RT_SPRITE;
-        }
-        else {
+        } else {
             ent.reType = RT_MODEL;
         }
 
         // Set the animation
         if (m_spawnthing->animName.length() && p->cgd.tiki) {
-            ent.frameInfo[0].index =
-                cgi.Anim_NumForName(p->cgd.tiki, m_spawnthing->animName);
+            ent.frameInfo[0].index = cgi.Anim_NumForName(p->cgd.tiki, m_spawnthing->animName);
 
             if (ent.frameInfo[0].index < 0) {
                 ent.frameInfo[0].index = 0;
             }
 
             ent.frameInfo[0].weight = 1.0f;
-            ent.frameInfo[0].time = 0.0f;
-            ent.actionWeight = 1.0f;
-        }
-        else if (ent.reType == RT_MODEL && p->cgd.tiki) {
+            ent.frameInfo[0].time   = 0.0f;
+            ent.actionWeight        = 1.0f;
+        } else if (ent.reType == RT_MODEL && p->cgd.tiki) {
             ent.frameInfo[0].index = cgi.Anim_NumForName(p->cgd.tiki, "idle");
 
             if (ent.frameInfo[0].index < 0) {
@@ -1207,18 +1159,16 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
             }
 
             ent.frameInfo[0].weight = 1.0f;
-            ent.frameInfo[0].time = 0.0f;
-            ent.actionWeight = 1.0f;
+            ent.frameInfo[0].time   = 0.0f;
+            ent.actionWeight        = 1.0f;
         }
 
         // Randomize the scale
         if (m_spawnthing->cgd.flags & T_RANDSCALE) // Check for random scale
         {
-            ent.scale = RandomizeRange(m_spawnthing->cgd.scalemin,
-                m_spawnthing->cgd.scalemax);
+            ent.scale    = RandomizeRange(m_spawnthing->cgd.scalemin, m_spawnthing->cgd.scalemax);
             p->cgd.scale = ent.scale;
-        }
-        else {
+        } else {
             ent.scale = m_spawnthing->cgd.scale;
         }
 
@@ -1230,14 +1180,12 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         if (current_entity) {
             // explicitly add RF_LIGHTING ORIGIN and RF_SHADOWPLANE because we
             // don't want those on dynamic objects
-            ent.renderfx |= (current_entity->renderfx &
-                ~(RF_FLAGS_NOT_INHERITED | RF_LIGHTING_ORIGIN));
+            ent.renderfx |= (current_entity->renderfx & ~(RF_FLAGS_NOT_INHERITED | RF_LIGHTING_ORIGIN));
         }
 
         // Set up modulation for constant color
-        for (i = 0; i < 4; i++)
-        {
-            p->cgd.color[i] = m_spawnthing->cgd.color[i];
+        for (i = 0; i < 4; i++) {
+            p->cgd.color[i]   = m_spawnthing->cgd.color[i];
             ent.shaderRGBA[i] = (byte)(p->cgd.color[i] * 255.0);
         }
 
@@ -1251,8 +1199,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         if (current_entity) {
             if (current_entity->shaderRGBA[3] != 255) {
                 // pre-multiply the alpha from the entity
-                for (i = 0; i < 4; i++)
-                {
+                for (i = 0; i < 4; i++) {
                     p->cgd.color[3] *= current_entity->shaderRGBA[3] / 255.0;
                     ent.shaderRGBA[3] = current_entity->shaderRGBA[3];
                 }
@@ -1264,26 +1211,22 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
             }
         }
 
-        p->ent = ent;
+        p->ent     = ent;
         p->lastEnt = ent;
-        p->number = -1;
+        p->number  = -1;
 
         // If createTime is specified, the use it.  Otherwise use the createTime
         // from the spawnthing.
         if (timeAlive > 0) {
             p->aliveTime = timeAlive;
-        }
-        else {
+        } else {
             p->aliveTime = 0;
         }
 
         // If animateonce is set, set the life = to the length of the anim
-        if ((m_spawnthing->cgd.flags & T_ANIMATEONCE) &&
-            (p->ent.frameInfo[0].index > 0)) {
-            p->cgd.life =
-                cgi.Anim_Time(p->cgd.tiki, p->ent.frameInfo[0].index) * 1000.0f;
-        }
-        else {
+        if ((m_spawnthing->cgd.flags & T_ANIMATEONCE) && (p->ent.frameInfo[0].index > 0)) {
+            p->cgd.life = cgi.Anim_Time(p->cgd.tiki, p->ent.frameInfo[0].index) * 1000.0f;
+        } else {
             p->cgd.life = m_spawnthing->cgd.life;
 
             if (m_spawnthing->life_random) {
@@ -1291,12 +1234,12 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
             }
         }
 
-        p->lastAnimTime = p->cgd.createTime;
-        p->lastPhysicsTime = p->cgd.createTime;
-        p->killTime = cg.time + p->cgd.life;  // The time the tempmodel will die
-        p->seed = m_seed++;                   // For use with randomizations
-        p->cgd.velocity = Vector(0, 0, 0);    // Zero out the velocity
-        p->next_bouncesound_time = 0; // Init the next bouncesound time
+        p->lastAnimTime          = p->cgd.createTime;
+        p->lastPhysicsTime       = p->cgd.createTime;
+        p->killTime              = cg.time + p->cgd.life; // The time the tempmodel will die
+        p->seed                  = m_seed++;              // For use with randomizations
+        p->cgd.velocity          = Vector(0, 0, 0);       // Zero out the velocity
+        p->next_bouncesound_time = 0;                     // Init the next bouncesound time
 
         if (p->cgd.flags & T_TWINKLE) {
             if (random() > 0.5f) {
@@ -1310,12 +1253,12 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
             // number.
             p->number = m_command_time_manager.AssignNumber();
             p->cgd.flags |= T_ASSIGNED_NUMBER;
-            int oldnum = current_entity_number;
-            centity_t* oldcent = current_centity;
-            current_centity = NULL;
+            int        oldnum     = current_entity_number;
+            centity_t *oldcent    = current_centity;
+            current_centity       = NULL;
             current_entity_number = p->number;
 
-            Event* swipeEv = new Event(EV_Client_SwipeOn);
+            Event *swipeEv = new Event(EV_Client_SwipeOn);
             swipeEv->AddString(p->cgd.swipe_shader);
             swipeEv->AddString(p->cgd.swipe_tag_start);
             swipeEv->AddString(p->cgd.swipe_tag_end);
@@ -1323,7 +1266,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
 
             commandManager.ProcessEvent(swipeEv);
 
-            current_centity = oldcent;
+            current_centity       = oldcent;
             current_entity_number = oldnum;
         }
 
@@ -1332,7 +1275,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         // tempmodels.
         if (p->cgd.tiki) {
             for (i = 1; i <= m_emitters.NumObjects(); i++) {
-                spawnthing_t* st = m_emitters.ObjectAt(i);
+                spawnthing_t *st = m_emitters.ObjectAt(i);
 
                 if (st->cgd.tiki == p->cgd.tiki) {
                     // Assign this tempmodel a number if he doesn't already have
@@ -1348,9 +1291,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
 
         for (i = 0; i < 3; i++) {
             // Randomize avelocity or set absolute
-            p->cgd.avelocity[i] =
-                m_spawnthing->avelocity_amplitude[i] * random() +
-                m_spawnthing->avelocity_base[i];
+            p->cgd.avelocity[i] = m_spawnthing->avelocity_amplitude[i] * random() + m_spawnthing->avelocity_base[i];
 
             // Randomize angles or set absolute
             p->cgd.angles[i] += random() * m_spawnthing->angles_amplitude[i];
@@ -1360,9 +1301,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         // variation of the velocity
         if (m_spawnthing->forwardVelocity != 0) {
             for (i = 0; i < 3; i++) {
-                p->cgd.velocity[i] = newForward[i] *
-                    m_spawnthing->forwardVelocity *
-                    current_entity_scale;
+                p->cgd.velocity[i] = newForward[i] * m_spawnthing->forwardVelocity * current_entity_scale;
             }
         }
 
@@ -1377,14 +1316,15 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         // Random offsets along axis
         for (i = 0; i < 3; i++) {
             if (p->cgd.flags2 & T2_PARALLEL) {
-                p->cgd.origin += Vector(m_spawnthing->axis[i])
+                p->cgd.origin +=
+                    Vector(m_spawnthing->axis[i])
                     * ((m_spawnthing->axis_offset_amplitude[i] * random() + m_spawnthing->axis_offset_base[i])
-                        * current_entity_scale);
-            }
-            else {
-                p->cgd.origin += Vector(m_spawnthing->tag_axis[i])
+                       * current_entity_scale);
+            } else {
+                p->cgd.origin +=
+                    Vector(m_spawnthing->tag_axis[i])
                     * ((m_spawnthing->axis_offset_amplitude[i] * random() + m_spawnthing->axis_offset_base[i])
-                        * current_entity_scale);
+                       * current_entity_scale);
             }
         }
 
@@ -1397,24 +1337,21 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
             p->cgd.velocity = p->cgd.origin - start;
 
             fLength = p->cgd.velocity.length();
-            if (fLength)
-            {
-                float fVel =
-                    m_spawnthing->cgd.velocity.x
-                    + (m_spawnthing->cgd.velocity.y
-                        + m_spawnthing->cgd.velocity.z * crandom()) / fLength;
+            if (fLength) {
+                float fVel = m_spawnthing->cgd.velocity.x
+                           + (m_spawnthing->cgd.velocity.y + m_spawnthing->cgd.velocity.z * crandom()) / fLength;
 
                 p->cgd.velocity *= fVel;
             }
         }
 
         for (i = 0; i < 3; i++) {
-            float fVel = (m_spawnthing->randvel_base[i] + m_spawnthing->randvel_amplitude[i] * random()) * current_entity_scale;
+            float fVel =
+                (m_spawnthing->randvel_base[i] + m_spawnthing->randvel_amplitude[i] * random()) * current_entity_scale;
 
             if (m_spawnthing->cgd.flags & T_RANDVELAXIS) {
                 p->cgd.velocity += fVel * Vector(m_spawnthing->tag_axis[i]);
-            }
-            else {
+            } else {
                 p->cgd.velocity[i] += fVel;
             }
         }
@@ -1428,21 +1365,30 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         }
 
         if (p->cgd.flags & T_AUTOCALCLIFE) {
-            Vector end, delta;
-            float length, speed;
-            vec3_t vForward;
+            Vector  end, delta;
+            float   length, speed;
+            vec3_t  vForward;
             trace_t trace;
 
             AngleVectorsLeft(p->cgd.angles, vForward, NULL, NULL);
 
             end = p->cgd.origin + Vector(vForward) * MAP_SIZE;
-            CG_Trace(&trace, p->cgd.origin, vec_zero, vec_zero, end,
-                ENTITYNUM_NONE, CONTENTS_SOLID | CONTENTS_WATER, qfalse,
-                qfalse, "AutoCalcLife");
+            CG_Trace(
+                &trace,
+                p->cgd.origin,
+                vec_zero,
+                vec_zero,
+                end,
+                ENTITYNUM_NONE,
+                CONTENTS_SOLID | CONTENTS_WATER,
+                qfalse,
+                qfalse,
+                "AutoCalcLife"
+            );
 
-            delta = trace.endpos - p->cgd.origin;
+            delta  = trace.endpos - p->cgd.origin;
             length = delta.length();
-            speed = p->cgd.velocity.length();
+            speed  = p->cgd.velocity.length();
 
             p->cgd.life = (length / speed) * 1000.0f;
         }
@@ -1451,8 +1397,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
         // current_entity's animation
         if (current_entity) {
             if (m_spawnthing->cgd.flags & (T_GLOBALFADEIN | T_GLOBALFADEOUT)) {
-                int numframes = cgi.Anim_NumFrames(current_tiki,
-                    current_entity->frameInfo[0].index);
+                int numframes = cgi.Anim_NumFrames(current_tiki, current_entity->frameInfo[0].index);
 
                 p->cgd.alpha = (float)current_entity->wasframe / (float)numframes;
 
@@ -1464,8 +1409,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
 
         // Make sure to not spawn the world model as a tempmodel
         // Of course it would become extremely confusing...
-        if (!(p->cgd.flags & T_DLIGHT) && p->ent.reType == RT_MODEL && !p->ent.hModel)
-        {
+        if (!(p->cgd.flags & T_DLIGHT) && p->ent.reType == RT_MODEL && !p->ent.hModel) {
             Com_Printf("^~^~^ not spawning tempmodel because it is using the world as a brush model\n");
             FreeTempModel(p);
             break;

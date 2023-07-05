@@ -33,10 +33,9 @@ MARK POLYS
 ===================================================================
 */
 
-
-markPoly_t	cg_activeMarkPolys;			// double linked list
-markPoly_t	*cg_freeMarkPolys;			// single linked list
-markPoly_t	cg_markPolys[MAX_MARK_POLYS];
+markPoly_t  cg_activeMarkPolys; // double linked list
+markPoly_t *cg_freeMarkPolys;   // single linked list
+markPoly_t  cg_markPolys[MAX_MARK_POLYS];
 
 vec3_t vec_upwards;
 
@@ -55,19 +54,18 @@ void CG_InitMarks(void)
 
     cg_activeMarkPolys.nextMark = &cg_activeMarkPolys;
     cg_activeMarkPolys.prevMark = &cg_activeMarkPolys;
-    cg_freeMarkPolys = cg_markPolys;
+    cg_freeMarkPolys            = cg_markPolys;
     for (i = 0; i < MAX_MARK_POLYS - 1; i++) {
         cg_markPolys[i].nextMark = &cg_markPolys[i + 1];
     }
 }
-
 
 /*
 ==================
 CG_FreeMarkPoly
 ==================
 */
-void CG_FreeMarkPoly(markPoly_t* le)
+void CG_FreeMarkPoly(markPoly_t *le)
 {
     if (!le->prevMark) {
         cgi.Error(ERR_DROP, "CG_FreeLocalEntity: not active");
@@ -78,7 +76,7 @@ void CG_FreeMarkPoly(markPoly_t* le)
     le->nextMark->prevMark = le->prevMark;
 
     // the free list is only singly linked
-    le->nextMark = cg_freeMarkPolys;
+    le->nextMark     = cg_freeMarkPolys;
     cg_freeMarkPolys = le;
 }
 
@@ -89,31 +87,30 @@ CG_AllocMark
 Will allways succeed, even if it requires freeing an old active mark
 ===================
 */
-markPoly_t* CG_AllocMark(void)
+markPoly_t *CG_AllocMark(void)
 {
-    markPoly_t* le;
+    markPoly_t *le;
 
     if (!cg_freeMarkPolys) {
         int time;
         // no free entities, so free the one at the end of the chain
         // remove the oldest active entity
         time = cg_activeMarkPolys.prevMark->time;
-        while (cg_activeMarkPolys.prevMark &&
-               time == cg_activeMarkPolys.prevMark->time) {
+        while (cg_activeMarkPolys.prevMark && time == cg_activeMarkPolys.prevMark->time) {
             CG_FreeMarkPoly(cg_activeMarkPolys.prevMark);
         }
     }
 
-    le = cg_freeMarkPolys;
+    le               = cg_freeMarkPolys;
     cg_freeMarkPolys = cg_freeMarkPolys->nextMark;
 
     memset(le, 0, sizeof(*le));
 
     // link into the active list
-    le->nextMark = cg_activeMarkPolys.nextMark;
-    le->prevMark = &cg_activeMarkPolys;
+    le->nextMark                          = cg_activeMarkPolys.nextMark;
+    le->prevMark                          = &cg_activeMarkPolys;
     cg_activeMarkPolys.nextMark->prevMark = le;
-    cg_activeMarkPolys.nextMark = le;
+    cg_activeMarkPolys.nextMark           = le;
     return le;
 }
 
@@ -128,37 +125,36 @@ temporary marks will not be stored or randomly oriented, but immediately
 passed to the renderer.
 =================
 */
-#define	MAX_MARK_FRAGMENTS	128
-#define	MAX_MARK_POINTS		384
+#define MAX_MARK_FRAGMENTS 128
+#define MAX_MARK_POINTS    384
 
-void CG_ImpactMark
-   (
-   qhandle_t markShader, 
-   const vec3_t origin,
-   const vec3_t dir, 
-   float orientation,
-   float red, 
-   float green, 
-   float blue,
-   float alpha,
-   qboolean alphaFade,
-   float radius,
-   qboolean temporary,
-   int lightstyle, 
-   qboolean fadein,
-   float fSCenter,
-   float fTCenter
-   )
+void CG_ImpactMark(
+    qhandle_t    markShader,
+    const vec3_t origin,
+    const vec3_t dir,
+    float        orientation,
+    float        red,
+    float        green,
+    float        blue,
+    float        alpha,
+    qboolean     alphaFade,
+    float        radius,
+    qboolean     temporary,
+    int          lightstyle,
+    qboolean     fadein,
+    float        fSCenter,
+    float        fTCenter
+)
 {
-    vec3_t axis[3];
-    float texCoordScale;
-    vec3_t originalPoints[4];
-    byte colors[4];
-    int i, j;
-    int numFragments;
+    vec3_t         axis[3];
+    float          texCoordScale;
+    vec3_t         originalPoints[4];
+    byte           colors[4];
+    int            i, j;
+    int            numFragments;
     markFragment_t markFragments[MAX_MARK_FRAGMENTS], *mf;
-    vec3_t markPoints[MAX_MARK_POINTS];
-    vec3_t projection;
+    vec3_t         markPoints[MAX_MARK_POINTS];
+    vec3_t         projection;
 
     if (!cg_addMarks->integer) {
         return;
@@ -192,23 +188,19 @@ void CG_ImpactMark
 
     // create the full polygon
     for (i = 0; i < 3; i++) {
-        originalPoints[0][i] =
-            origin[i] - radius * axis[1][i] - radius * axis[2][i];
-        originalPoints[1][i] =
-            origin[i] + radius * axis[1][i] - radius * axis[2][i];
-        originalPoints[2][i] =
-            origin[i] + radius * axis[1][i] + radius * axis[2][i];
-        originalPoints[3][i] =
-            origin[i] - radius * axis[1][i] + radius * axis[2][i];
+        originalPoints[0][i] = origin[i] - radius * axis[1][i] - radius * axis[2][i];
+        originalPoints[1][i] = origin[i] + radius * axis[1][i] - radius * axis[2][i];
+        originalPoints[2][i] = origin[i] + radius * axis[1][i] + radius * axis[2][i];
+        originalPoints[3][i] = origin[i] - radius * axis[1][i] + radius * axis[2][i];
     }
 
     // get the fragments
     VectorScale(dir, -32, projection);
 
     // FIXME: fRadiusSquared
-    numFragments = cgi.R_MarkFragments(4, (void*)originalPoints, projection,
-                                       MAX_MARK_POINTS, markPoints[0],
-                                       MAX_MARK_FRAGMENTS, markFragments, 0.f);
+    numFragments = cgi.R_MarkFragments(
+        4, (void *)originalPoints, projection, MAX_MARK_POINTS, markPoints[0], MAX_MARK_FRAGMENTS, markFragments, 0.f
+    );
 
     if (fadein) {
         colors[0] = 0;
@@ -223,9 +215,9 @@ void CG_ImpactMark
     }
 
     for (i = 0, mf = markFragments; i < numFragments; i++, mf++) {
-        polyVert_t* v;
-        polyVert_t verts[MAX_VERTS_ON_POLY];
-        markPoly_t* mark;
+        polyVert_t *v;
+        polyVert_t  verts[MAX_VERTS_ON_POLY];
+        markPoly_t *mark;
 
         // we have an upper limit on the complexity of polygons
         // that we store persistantly
@@ -238,9 +230,9 @@ void CG_ImpactMark
             VectorCopy(markPoints[mf->firstPoint + j], v->xyz);
 
             VectorSubtract(v->xyz, origin, delta);
-            v->st[0] = 0.5 + DotProduct(delta, axis[1]) * texCoordScale;
-            v->st[1] = 0.5 + DotProduct(delta, axis[2]) * texCoordScale;
-            *(int*)v->modulate = *(int*)colors;
+            v->st[0]            = 0.5 + DotProduct(delta, axis[1]) * texCoordScale;
+            v->st[1]            = 0.5 + DotProduct(delta, axis[2]) * texCoordScale;
+            *(int *)v->modulate = *(int *)colors;
         }
 
         // if it is a temporary (shadow) mark, add it immediately and forget
@@ -251,38 +243,38 @@ void CG_ImpactMark
         }
 
         // otherwise save it persistantly
-        mark = CG_AllocMark();
-        mark->time = cg.time;
-        mark->alphaFade = alphaFade;
-        mark->markShader = markShader;
+        mark                = CG_AllocMark();
+        mark->time          = cg.time;
+        mark->alphaFade     = alphaFade;
+        mark->markShader    = markShader;
         mark->poly.numVerts = mf->numPoints;
-        mark->color[0] = red;
-        mark->color[1] = green;
-        mark->color[2] = blue;
-        mark->color[3] = alpha;
-        mark->fadein = fadein;
-        mark->lightstyle = lightstyle;
+        mark->color[0]      = red;
+        mark->color[1]      = green;
+        mark->color[2]      = blue;
+        mark->color[3]      = alpha;
+        mark->fadein        = fadein;
+        mark->lightstyle    = lightstyle;
         memcpy(mark->verts, verts, mf->numPoints * sizeof(verts[0]));
     }
 }
 
 void CG_ImpactMarkSimple(
-	qhandle_t markShader,
-	vec_t* origin,
-	vec_t* dir,
-	float orientation,
-	float fRadius,
-	float red,
-	float green,
-	float blue,
-	float alpha,
-	qboolean alphaFade,
-	qboolean temporary,
-	qboolean dolighting,
-	qboolean fadein
+    qhandle_t markShader,
+    vec_t    *origin,
+    vec_t    *dir,
+    float     orientation,
+    float     fRadius,
+    float     red,
+    float     green,
+    float     blue,
+    float     alpha,
+    qboolean  alphaFade,
+    qboolean  temporary,
+    qboolean  dolighting,
+    qboolean  fadein
 )
 {
-	// FIXME: unimplemented
+    // FIXME: unimplemented
 }
 
 /*
@@ -290,15 +282,15 @@ void CG_ImpactMarkSimple(
 CG_AddMarks
 ===============
 */
-#define	MARK_TOTAL_TIME		10000
-#define	MARK_FADE_TIME		   1000
+#define MARK_TOTAL_TIME 10000
+#define MARK_FADE_TIME  1000
 
 void CG_AddMarks(void)
 {
-    int j;
+    int         j;
     markPoly_t *mp, *next;
-    int t;
-    int fade;
+    int         t;
+    int         fade;
 
     if (!cg_addMarks->integer) {
         return;
@@ -384,54 +376,33 @@ qboolean CG_CheckMakeMarkOnEntity(int iEntIndex)
 
 void CG_InitTestTreadMark()
 {
-	// FIXME: unimplemented
-}
-
-int CG_StartTreadMark(
-	int iReference,
-	qhandle_t treadShader,
-	vec_t* vStartPos,
-	float fWidth,
-	float fAlpha)
-{
-	// FIXME: unimplemented
-	return 0;
-}
-
-qboolean CG_MakeTreadMarkDecal_PerPolyCallback(
-    vec3_t* markPoints,
-    markFragment_t* mf,
-    polyVert_t* verts,
-    void* pCustom
-)
-{
     // FIXME: unimplemented
-    return qfalse;
 }
 
-int CG_MakeTreadMarkDecal_GetLeafCallback(
-    markFragment_t* mf,
-    void* pCustom
-)
+int CG_StartTreadMark(int iReference, qhandle_t treadShader, vec_t *vStartPos, float fWidth, float fAlpha)
 {
     // FIXME: unimplemented
     return 0;
 }
 
-void CG_MakeTreadMarkDecal(
-    treadMark_t* pTread,
-    qboolean bStartSegment,
-    qboolean bTemporary
-)
+qboolean CG_MakeTreadMarkDecal_PerPolyCallback(vec3_t *markPoints, markFragment_t *mf, polyVert_t *verts, void *pCustom)
+{
+    // FIXME: unimplemented
+    return qfalse;
+}
+
+int CG_MakeTreadMarkDecal_GetLeafCallback(markFragment_t *mf, void *pCustom)
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
+void CG_MakeTreadMarkDecal(treadMark_t *pTread, qboolean bStartSegment, qboolean bTemporary)
 {
     // FIXME: unimplemented
 }
 
-int CG_UpdateTreadMark(
-    int iReference,
-    vec_t* vNewPos,
-    float fAlpha
-)
+int CG_UpdateTreadMark(int iReference, vec_t *vNewPos, float fAlpha)
 {
     // FIXME: unimplemented
     return 0;
@@ -443,20 +414,20 @@ void CG_AddTreadMarks()
 }
 
 int CG_PermanentMark(
-    const vec3_t origin,
-    const vec3_t dir,
-    float orientation,
-    float fSScale,
-    float fTScale,
-    float red,
-    float green,
-    float blue,
-    float alpha,
-    qboolean dolighting,
-    float fSCenter,
-    float fTCenter,
-    markFragment_t* pMarkFragments,
-    void* pVoidPolyVerts
+    const vec3_t    origin,
+    const vec3_t    dir,
+    float           orientation,
+    float           fSScale,
+    float           fTScale,
+    float           red,
+    float           green,
+    float           blue,
+    float           alpha,
+    qboolean        dolighting,
+    float           fSCenter,
+    float           fTCenter,
+    markFragment_t *pMarkFragments,
+    void           *pVoidPolyVerts
 )
 {
     // FIXME: unimplemented
@@ -464,11 +435,11 @@ int CG_PermanentMark(
 }
 
 int CG_PermanentTreadMarkDecal(
-    treadMark_t* pTread,
-    qboolean bStartSegment,
-    qboolean dolighting,
-    markFragment_t* pMarkFragments,
-    void* pVoidPolyVerts
+    treadMark_t    *pTread,
+    qboolean        bStartSegment,
+    qboolean        dolighting,
+    markFragment_t *pMarkFragments,
+    void           *pVoidPolyVerts
 )
 {
     // FIXME: unimplemented
@@ -476,12 +447,7 @@ int CG_PermanentTreadMarkDecal(
 }
 
 int CG_PermanentUpdateTreadMark(
-    treadMark_t* pTread,
-    float fAlpha,
-    float fMinSegment,
-    float fMaxSegment,
-    float fMaxOffset,
-    float fTexScale
+    treadMark_t *pTread, float fAlpha, float fMinSegment, float fMaxSegment, float fMaxOffset, float fTexScale
 )
 {
     // FIXME: unimplemented

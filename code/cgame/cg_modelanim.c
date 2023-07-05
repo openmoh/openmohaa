@@ -26,35 +26,33 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_local.h"
 #include "tiki.h"
 
-void CG_PlayerTeamIcon(refEntity_t* pModel, entityState_t* pPlayerState)
+void CG_PlayerTeamIcon(refEntity_t *pModel, entityState_t *pPlayerState)
 {
     qboolean bInArtillery, bInTeam, bSpecialIcon;
 
-    if (cg_protocol < PROTOCOL_MOHTA_MIN)
-    {
-        if (pPlayerState->eFlags & EF_ALLIES)
-        {
+    if (cg_protocol < PROTOCOL_MOHTA_MIN) {
+        if (pPlayerState->eFlags & EF_ALLIES) {
             cg.clientinfo[pPlayerState->number].team = TEAM_ALLIES;
         } else if (pPlayerState->eFlags & EF_AXIS) {
             cg.clientinfo[pPlayerState->number].team = TEAM_AXIS;
         } else {
-		    cg.clientinfo[pPlayerState->number].team = TEAM_NONE;
+            cg.clientinfo[pPlayerState->number].team = TEAM_NONE;
         }
     }
 
     if (pPlayerState->number == cg.snap->ps.clientNum) {
         return;
     }
-    
-    bInTeam = qfalse;
+
+    bInTeam      = qfalse;
     bSpecialIcon = qfalse;
-	if (cgs.gametype > GT_FFA
-		&& (cg.snap->ps.stats[STAT_TEAM] == TEAM_ALLIES && (pPlayerState->eFlags & EF_ALLIES)
-			|| cg.snap->ps.stats[STAT_TEAM] == TEAM_AXIS && (pPlayerState->eFlags & EF_AXIS)
-			|| cg.snap->ps.stats[STAT_TEAM] != TEAM_AXIS && cg.snap->ps.stats[STAT_TEAM] != TEAM_ALLIES && (pPlayerState->eFlags & EF_ANY_TEAM) != 0))
-	{
-		bInTeam = qtrue;
-	}
+    if (cgs.gametype > GT_FFA
+        && (cg.snap->ps.stats[STAT_TEAM] == TEAM_ALLIES && (pPlayerState->eFlags & EF_ALLIES)
+            || cg.snap->ps.stats[STAT_TEAM] == TEAM_AXIS && (pPlayerState->eFlags & EF_AXIS)
+            || cg.snap->ps.stats[STAT_TEAM] != TEAM_AXIS && cg.snap->ps.stats[STAT_TEAM] != TEAM_ALLIES
+                   && (pPlayerState->eFlags & EF_ANY_TEAM) != 0)) {
+        bInTeam = qtrue;
+    }
 
     if (cgs.gametype <= GT_FFA) {
         return;
@@ -65,85 +63,71 @@ void CG_PlayerTeamIcon(refEntity_t* pModel, entityState_t* pPlayerState)
         bInArtillery = qtrue;
     }
 
-    if (bInTeam || (pPlayerState->eFlags & (EF_PLAYER_IN_MENU | EF_PLAYER_TALKING)) || bInArtillery)
-    {
-        int i;
-        int iTag;
-        float fAlpha;
-        float fDist;
-        vec3_t vTmp;
+    if (bInTeam || (pPlayerState->eFlags & (EF_PLAYER_IN_MENU | EF_PLAYER_TALKING)) || bInArtillery) {
+        int         i;
+        int         iTag;
+        float       fAlpha;
+        float       fDist;
+        vec3_t      vTmp;
         refEntity_t iconEnt;
 
-		memset(&iconEnt, 0, sizeof(iconEnt));
-		if ((pPlayerState->eFlags & EF_PLAYER_TALKING) != 0 && ((cg.time >> 8) & 1) != 0)
-		{
-			iconEnt.hModel = cgi.R_RegisterModel("textures/hud/talking_headicon.spr");
-			bSpecialIcon = qtrue;
-		}
-		else if ((pPlayerState->eFlags & EF_PLAYER_IN_MENU) != 0)
-		{
-			iconEnt.hModel = cgi.R_RegisterModel("textures/hud/inmenu_headicon.spr");
-			bSpecialIcon = qtrue;
-		}
-		else
-		{
+        memset(&iconEnt, 0, sizeof(iconEnt));
+        if ((pPlayerState->eFlags & EF_PLAYER_TALKING) != 0 && ((cg.time >> 8) & 1) != 0) {
+            iconEnt.hModel = cgi.R_RegisterModel("textures/hud/talking_headicon.spr");
+            bSpecialIcon   = qtrue;
+        } else if ((pPlayerState->eFlags & EF_PLAYER_IN_MENU) != 0) {
+            iconEnt.hModel = cgi.R_RegisterModel("textures/hud/inmenu_headicon.spr");
+            bSpecialIcon   = qtrue;
+        } else {
             if (!bInTeam) {
                 return;
             }
 
-			if (bInArtillery)
-			{
-				iconEnt.hModel = cgi.R_RegisterModel("textures/hud/inmenu_artilleryicon.spr");
-				bSpecialIcon = qtrue;
-			}
-			else if ((pPlayerState->eFlags & 0x80) != 0)
-			{
-				iconEnt.hModel = cgi.R_RegisterModel("textures/hud/allies_headicon.spr");
-			}
-			else
-			{
-				iconEnt.hModel = cgi.R_RegisterModel("textures/hud/axis_headicon.spr");
-			}
-		}
+            if (bInArtillery) {
+                iconEnt.hModel = cgi.R_RegisterModel("textures/hud/inmenu_artilleryicon.spr");
+                bSpecialIcon   = qtrue;
+            } else if ((pPlayerState->eFlags & 0x80) != 0) {
+                iconEnt.hModel = cgi.R_RegisterModel("textures/hud/allies_headicon.spr");
+            } else {
+                iconEnt.hModel = cgi.R_RegisterModel("textures/hud/axis_headicon.spr");
+            }
+        }
 
-		memset(vTmp, 0, sizeof(vTmp));
-		AnglesToAxis(vTmp, iconEnt.axis);
+        memset(vTmp, 0, sizeof(vTmp));
+        AnglesToAxis(vTmp, iconEnt.axis);
 
-		iconEnt.scale = 0.5f;
-		iconEnt.renderfx = 0;
-		iconEnt.reType = RT_SPRITE;
-		iconEnt.shaderTime = 0.0f;
-		iconEnt.frameInfo[0].index = 0;
-		iconEnt.shaderRGBA[0] = -1;
-		iconEnt.shaderRGBA[1] = -1;
-		iconEnt.shaderRGBA[2] = -1;
+        iconEnt.scale              = 0.5f;
+        iconEnt.renderfx           = 0;
+        iconEnt.reType             = RT_SPRITE;
+        iconEnt.shaderTime         = 0.0f;
+        iconEnt.frameInfo[0].index = 0;
+        iconEnt.shaderRGBA[0]      = -1;
+        iconEnt.shaderRGBA[1]      = -1;
+        iconEnt.shaderRGBA[2]      = -1;
         VectorCopy(pModel->origin, iconEnt.origin);
 
-		iTag = cgi.Tag_NumForName(pModel->tiki, "eyes bone");
-		if (iTag == -1)
-		{
-			iconEnt.origin[2] = iconEnt.origin[2] + 96.0f;
-		}
-		else
-		{
+        iTag = cgi.Tag_NumForName(pModel->tiki, "eyes bone");
+        if (iTag == -1) {
+            iconEnt.origin[2] = iconEnt.origin[2] + 96.0f;
+        } else {
             orientation_t oEyes = cgi.TIKI_Orientation(pModel, iTag);
 
             for (i = 0; i < 3; ++i) {
                 VectorMA(iconEnt.origin, oEyes.origin[i], pModel->axis[i], iconEnt.origin);
             }
 
-			iconEnt.origin[2] = iconEnt.origin[2] + 20.0f;
-		}
+            iconEnt.origin[2] = iconEnt.origin[2] + 20.0f;
+        }
 
         VectorSubtract(iconEnt.origin, cg.refdef.vieworg, vTmp);
         fDist = VectorLength(vTmp);
 
-        if (fDist < 256.0f)  {
+        if (fDist < 256.0f) {
             iconEnt.scale = fDist / 853.0f + 0.2f;
         } else if (fDist > 512.0f) {
             // Make sure to scale so the icon can be seen far away
             iconEnt.scale = (fDist - 512.0f) / 2560.0f + 0.5f;
-		}
+        }
 
         if (iconEnt.scale > 1.0f) {
             iconEnt.scale = 1.0f;
@@ -159,42 +143,38 @@ void CG_PlayerTeamIcon(refEntity_t* pModel, entityState_t* pPlayerState)
 
         if (cg.snap->ps.stats[STAT_TEAM] == TEAM_ALLIES || cg.snap->ps.stats[STAT_TEAM] == TEAM_AXIS) {
             fAlpha = fAlpha * 0.65f;
-        }
-        else {
+        } else {
             fAlpha = fAlpha * 0.4f;
         }
 
-		if (bSpecialIcon)
-		{
-			int value = (int)((fAlpha + 0.6f) * 255.0f);
-			if (value > 255) value = 255;
-			iconEnt.shaderRGBA[3] = value;
-		} else {
-			iconEnt.shaderRGBA[3] = (int)(fAlpha * 255.0f);
-		}
+        if (bSpecialIcon) {
+            int value = (int)((fAlpha + 0.6f) * 255.0f);
+            if (value > 255) {
+                value = 255;
+            }
+            iconEnt.shaderRGBA[3] = value;
+        } else {
+            iconEnt.shaderRGBA[3] = (int)(fAlpha * 255.0f);
+        }
 
-        if (fAlpha > 0.0 || bSpecialIcon)
-		{
-			if (bSpecialIcon)
-			{
-				VectorMA(iconEnt.origin, -2.0f, cg.refdef.viewaxis[0], iconEnt.origin);
-				iconEnt.scale += 0.05f;
-			}
+        if (fAlpha > 0.0 || bSpecialIcon) {
+            if (bSpecialIcon) {
+                VectorMA(iconEnt.origin, -2.0f, cg.refdef.viewaxis[0], iconEnt.origin);
+                iconEnt.scale += 0.05f;
+            }
 
             cgi.R_AddRefSpriteToScene(&iconEnt);
 
-            if (bSpecialIcon && bInTeam && fAlpha > 0.0f)
-			{
+            if (bSpecialIcon && bInTeam && fAlpha > 0.0f) {
                 if (pPlayerState->eFlags & EF_ALLIES) {
                     iconEnt.hModel = cgi.R_RegisterModel("textures/hud/allies_headicon.spr");
-                }
-                else {
+                } else {
                     iconEnt.hModel = cgi.R_RegisterModel("textures/hud/axis_headicon.spr");
                 }
-				VectorMA(iconEnt.origin, 4.0f, cg.refdef.viewaxis[0], iconEnt.origin);
-				iconEnt.scale = iconEnt.scale - 0.1;
-				iconEnt.shaderRGBA[3] = (int)(fAlpha * 255.0f);
-				cgi.R_AddRefSpriteToScene(&iconEnt);
+                VectorMA(iconEnt.origin, 4.0f, cg.refdef.viewaxis[0], iconEnt.origin);
+                iconEnt.scale         = iconEnt.scale - 0.1;
+                iconEnt.shaderRGBA[3] = (int)(fAlpha * 255.0f);
+                cgi.R_AddRefSpriteToScene(&iconEnt);
             }
         }
     }
@@ -209,72 +189,83 @@ Returns the Z component of the surface being shadowed
   should it return a full plane instead of a Z?
 ===============
 */
-#define  SHADOW_DISTANCE      96
-qboolean CG_EntityShadow( centity_t *cent, refEntity_t *model ) {
-   vec3_t      end;
-   trace_t     trace;
-   float       alpha, radius;
+#define SHADOW_DISTANCE 96
 
-   if ( cg_shadows->integer == 0 ) {
-      return qfalse;
-   }
+qboolean CG_EntityShadow(centity_t *cent, refEntity_t *model)
+{
+    vec3_t  end;
+    trace_t trace;
+    float   alpha, radius;
 
-   if ( model->renderfx & RF_SKYENTITY )
-      {
-      // no shadows on sky entities
-      return qfalse;
-      }
+    if (cg_shadows->integer == 0) {
+        return qfalse;
+    }
 
-   // no shadows when invisible
-//   if ( cent->currentState.powerups & ( 1 << PW_INVIS ) ) {
-//      return qfalse;
-//   }
+    if (model->renderfx & RF_SKYENTITY) {
+        // no shadows on sky entities
+        return qfalse;
+    }
 
-   // send a trace down from the player to the ground
-   VectorCopy( model->origin, end );
-   end[2] -= SHADOW_DISTANCE;
+    // no shadows when invisible
+    //   if ( cent->currentState.powerups & ( 1 << PW_INVIS ) ) {
+    //      return qfalse;
+    //   }
 
-   cgi.CM_BoxTrace( &trace, model->origin, end, vec3_origin, vec3_origin, 0, MASK_PLAYERSOLID, qfalse );
+    // send a trace down from the player to the ground
+    VectorCopy(model->origin, end);
+    end[2] -= SHADOW_DISTANCE;
 
-   // no shadow if too high
-   if ( trace.fraction == 1.0 ) {
-      return qfalse;
-   }
+    cgi.CM_BoxTrace(&trace, model->origin, end, vec3_origin, vec3_origin, 0, MASK_PLAYERSOLID, qfalse);
 
-   if ( ( cg_shadows->integer == 2 ) && ( model->renderfx & RF_SHADOW_PRECISE ) )
-      {
-      return qtrue;
-      }
+    // no shadow if too high
+    if (trace.fraction == 1.0) {
+        return qfalse;
+    }
 
-   //
-   // get the bounds of the current frame
-   //
-   radius = model->scale * cgi.R_ModelRadius( model->hModel );
+    if ((cg_shadows->integer == 2) && (model->renderfx & RF_SHADOW_PRECISE)) {
+        return qtrue;
+    }
 
-   if ( radius < 1 )
-      {
-      return qfalse;
-      }
+    //
+    // get the bounds of the current frame
+    //
+    radius = model->scale * cgi.R_ModelRadius(model->hModel);
 
-   // fade the shadow out with height
-   alpha = ( 1.0 - trace.fraction ) * 0.8f;
+    if (radius < 1) {
+        return qfalse;
+    }
 
-   if ( ( cg_shadows->integer == 3 ) && ( model->renderfx & RF_SHADOW_PRECISE ) )
-      {
-      if ( model->shaderRGBA[ 3 ] == 255 )
-         {
-         model->shaderRGBA[ 3 ] = alpha * 255;
-         }
-      return qtrue;
-      }
+    // fade the shadow out with height
+    alpha = (1.0 - trace.fraction) * 0.8f;
 
-   // add the mark as a temporary, so it goes directly to the renderer
-   // without taking a spot in the cg_marks array
-   CG_ImpactMark(cgs.media.shadowMarkShader, trace.endpos,
-                 trace.plane.normal, cent->lerpAngles[YAW], alpha, alpha,
-                 alpha, 1, qfalse, radius, qtrue, -1, qfalse, 0.f, 0.f);
+    if ((cg_shadows->integer == 3) && (model->renderfx & RF_SHADOW_PRECISE)) {
+        if (model->shaderRGBA[3] == 255) {
+            model->shaderRGBA[3] = alpha * 255;
+        }
+        return qtrue;
+    }
 
-   return qtrue;
+    // add the mark as a temporary, so it goes directly to the renderer
+    // without taking a spot in the cg_marks array
+    CG_ImpactMark(
+        cgs.media.shadowMarkShader,
+        trace.endpos,
+        trace.plane.normal,
+        cent->lerpAngles[YAW],
+        alpha,
+        alpha,
+        alpha,
+        1,
+        qfalse,
+        radius,
+        qtrue,
+        -1,
+        qfalse,
+        0.f,
+        0.f
+    );
+
+    return qtrue;
 }
 
 //
@@ -286,37 +277,27 @@ qboolean CG_EntityShadow( centity_t *cent, refEntity_t *model ) {
 //=================
 //CG_AnimationDebugMessage
 //=================
-void CG_AnimationDebugMessage
-   (
-   int            number,
-   const char     *fmt, 
-   ...
-   )
-   {
+void CG_AnimationDebugMessage(int number, const char *fmt, ...)
+{
 #ifndef NDEBUG
-   if ( cg_debugAnim->integer ) 
-      {
-	   va_list		argptr;
-	   char		msg[1024];
+    if (cg_debugAnim->integer) {
+        va_list argptr;
+        char    msg[1024];
 
-	   va_start (argptr,fmt);
-	   vsprintf (msg,fmt,argptr);
-	   va_end (argptr);
+        va_start(argptr, fmt);
+        vsprintf(msg, fmt, argptr);
+        va_end(argptr);
 
-      if ( ( !cg_debugAnimWatch->integer ) || ( ( cg_debugAnimWatch->integer - 1 ) == number ) )
-         {
-         if ( cg_debugAnim->integer == 2 ) 
-            {
- 		      cgi.DebugPrintf( msg );
+        if ((!cg_debugAnimWatch->integer) || ((cg_debugAnimWatch->integer - 1) == number)) {
+            if (cg_debugAnim->integer == 2) {
+                cgi.DebugPrintf(msg);
+            } else {
+                cgi.Printf(msg);
             }
-         else
-            {
- 		      cgi.Printf( msg );
-            }
-         }
-	   }
+        }
+    }
 #endif
-   }
+}
 
 /*
 ======================
@@ -326,25 +307,25 @@ Modifies the entities position and axis by the given
 tag location
 ======================
 */
-void CG_AttachEntity( refEntity_t *entity, refEntity_t *parent, dtiki_t* tiki, int tagnum, qboolean use_angles, vec3_t attach_offset )
+void CG_AttachEntity(
+    refEntity_t *entity, refEntity_t *parent, dtiki_t *tiki, int tagnum, qboolean use_angles, vec3_t attach_offset
+)
 {
-    int				i;
-    orientation_t   or;
-    vec3_t			tempAxis[3];
-    vec3_t          vOrigin;
+    int i;
+    orientation_t or ;
+    vec3_t tempAxis[3];
+    vec3_t vOrigin;
 
     or = cgi.TIKI_Orientation(parent, tagnum);
     //cgi.Printf( "th = %d %.2f %.2f %.2f\n", tikihandle, or.origin[ 0 ], or.origin[ 1 ], or.origin[ 2 ] );
 
     VectorCopy(parent->origin, entity->origin);
 
-    for (i = 0; i < 3; i++)
-    {
+    for (i = 0; i < 3; i++) {
         VectorMA(entity->origin, or.origin[i], parent->axis[i], entity->origin);
     }
 
-    if (attach_offset[0] || attach_offset[1] || attach_offset[2])
-    {
+    if (attach_offset[0] || attach_offset[1] || attach_offset[2]) {
         MatrixMultiply(or.axis, parent->axis, tempAxis);
 
         for (i = 0; i < 3; i++) {
@@ -354,8 +335,7 @@ void CG_AttachEntity( refEntity_t *entity, refEntity_t *parent, dtiki_t* tiki, i
 
     VectorCopy(entity->origin, entity->oldorigin);
 
-    if (use_angles)
-    {
+    if (use_angles) {
         MatrixMultiply(entity->axis, parent->axis, tempAxis);
         MatrixMultiply(or.axis, tempAxis, entity->axis);
     }
@@ -367,7 +347,9 @@ void CG_AttachEntity( refEntity_t *entity, refEntity_t *parent, dtiki_t* tiki, i
     VectorAdd(entity->origin, vOrigin, entity->lightingOrigin);
 }
 
-void CG_AttachEyeEntity(refEntity_t* entity, refEntity_t* parent, dtiki_t* tiki, int tagnum, qboolean use_angles, vec_t* attach_offset)
+void CG_AttachEyeEntity(
+    refEntity_t *entity, refEntity_t *parent, dtiki_t *tiki, int tagnum, qboolean use_angles, vec_t *attach_offset
+)
 {
     // FIXME: unimplemented
 }
@@ -377,23 +359,20 @@ void CG_UpdateForceModels()
     // FIXME: unimplemented
 }
 
-void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
+void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
 {
-    entityState_t* s1;
-    entityState_t* sNext = NULL;
-    refEntity_t model;
-    int i;
-    vec3_t vMins, vMaxs, vTmp;
-    const char* szTagName;
-    static cvar_t* vmEntity = NULL;
-    int iAnimFlags;
+    entityState_t *s1;
+    entityState_t *sNext = NULL;
+    refEntity_t    model;
+    int            i;
+    vec3_t         vMins, vMaxs, vTmp;
+    const char    *szTagName;
+    static cvar_t *vmEntity = NULL;
+    int            iAnimFlags;
 
     s1 = &cent->currentState;
 
-    if ((cg.snap->ps.pm_flags & PMF_INTERMISSION)
-        && s1->number == cg.snap->ps.clientNum
-        && !cg_3rd_person->integer)
-    {
+    if ((cg.snap->ps.pm_flags & PMF_INTERMISSION) && s1->number == cg.snap->ps.clientNum && !cg_3rd_person->integer) {
         // don't render if in intermission and the client is self without 3rd person
         return;
     }
@@ -409,8 +388,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
     }
 
     // add loop sound only if it is not attached
-    if (s1->loopSound && (s1->parent == ENTITYNUM_NONE))
-    {
+    if (s1->loopSound && (s1->parent == ENTITYNUM_NONE)) {
         cgi.S_AddLoopingSound(
             cent->lerpOrigin,
             vec3_origin,
@@ -423,7 +401,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         );
     }
 
-    if (cent->tikiLoopSound && (s1->parent == ENTITYNUM_NONE))
+    if (cent->tikiLoopSound && (s1->parent == ENTITYNUM_NONE)) {
         cgi.S_AddLoopingSound(
             cent->lerpOrigin,
             vec3_origin,
@@ -434,10 +412,10 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
             cent->tikiLoopSoundPitch,
             cent->tikiLoopSoundFlags
         );
+    }
 
     // if set to invisible, skip
-    if (!s1->modelindex)
-    {
+    if (!s1->modelindex) {
         return;
     }
 
@@ -456,37 +434,23 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
     VectorSubtract(vMins, vMaxs, vTmp);
     model.radius = VectorLength(vTmp) * 0.5;
 
-    if (s1->number == cg.snap->ps.clientNum)
-    {
+    if (s1->number == cg.snap->ps.clientNum) {
         if (!cg_3rd_person->integer) {
             PmoveAdjustAngleSettings_Client(
-                cg.refdefViewAngles,
-                cent->lerpAngles,
-                &cg.predicted_player_state,
-                &cent->currentState
+                cg.refdefViewAngles, cent->lerpAngles, &cg.predicted_player_state, &cent->currentState
             );
         }
 
         model.bone_quat = s1->bone_quat;
-        model.bone_tag = s1->bone_tag;
-    }
-    else
-    {
-        for (i = 0; i < NUM_BONE_CONTROLLERS; i++)
-        {
-            if (s1->bone_tag[i] >= 0)
-            {
-                if ((cent->interpolate) && (cent->nextState.bone_tag[i] == s1->bone_tag[i]))
-                {
+        model.bone_tag  = s1->bone_tag;
+    } else {
+        for (i = 0; i < NUM_BONE_CONTROLLERS; i++) {
+            if (s1->bone_tag[i] >= 0) {
+                if ((cent->interpolate) && (cent->nextState.bone_tag[i] == s1->bone_tag[i])) {
                     SlerpQuaternion(
-                        s1->bone_quat[i],
-                        cent->nextState.bone_quat[i],
-                        cg.frameInterpolation,
-                        cent->bone_quat[i]
+                        s1->bone_quat[i], cent->nextState.bone_quat[i], cg.frameInterpolation, cent->bone_quat[i]
                     );
-                }
-                else
-                {
+                } else {
                     cent->bone_quat[i][0] = s1->bone_quat[i][0];
                     cent->bone_quat[i][1] = s1->bone_quat[i][1];
                     cent->bone_quat[i][2] = s1->bone_quat[i][2];
@@ -496,7 +460,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         }
 
         model.bone_quat = cent->bone_quat;
-        model.bone_tag = s1->bone_tag;
+        model.bone_tag  = s1->bone_tag;
     }
 
     // convert angles to axis
@@ -505,92 +469,69 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
     // copy shader specific data
     if (s1->shader_data[0]) {
         model.shader_data[0] = s1->shader_data[0];
-    }
-    else {
+    } else {
         model.shader_data[0] = s1->tag_num;
     }
 
     if (s1->shader_data[1]) {
         model.shader_data[1] = s1->shader_data[1];
-    }
-    else {
+    } else {
         model.shader_data[1] = s1->skinNum;
     }
 
-    if (bDoShaderTime)
-    {
+    if (bDoShaderTime) {
         if (cent->interpolate) {
-            model.shaderTime = s1->shader_time
-                     + (sNext->shader_time - s1->shader_time) * cg.frameInterpolation
-                     + cg.time / 1000.0;
-        }
-        else {
+            model.shaderTime =
+                s1->shader_time + (sNext->shader_time - s1->shader_time) * cg.frameInterpolation + cg.time / 1000.0;
+        } else {
             model.shaderTime = cg.time / 1000.0 + s1->shader_time;
         }
     }
 
     // Interpolated state variables
-    if (cent->interpolate)
-    {
+    if (cent->interpolate) {
         model.scale = s1->scale + cg.frameInterpolation * (cent->nextState.scale - s1->scale);
-    }
-    else
-    {
+    } else {
         model.scale = s1->scale;
     }
 
     model.hOldModel = 0;
-    model.tiki = cgi.R_Model_GetHandle(cgs.model_draw[s1->modelindex]);
+    model.tiki      = cgi.R_Model_GetHandle(cgs.model_draw[s1->modelindex]);
 
-    if (s1->number != cg.snap->ps.clientNum
-        && (s1->eType == ET_PLAYER || (s1->eFlags & EF_DEAD)))
-    {
-        if (cg_forceModel->integer)
-        {
+    if (s1->number != cg.snap->ps.clientNum && (s1->eType == ET_PLAYER || (s1->eFlags & EF_DEAD))) {
+        if (cg_forceModel->integer) {
             CG_UpdateForceModels();
 
-            if (s1->eFlags & EF_AXIS)
-            {
+            if (s1->eFlags & EF_AXIS) {
                 model.hModel = cg.hAxisPlayerModelHandle;
-                model.tiki = cg.pAxisPlayerModel;
-            }
-            else
-            {
+                model.tiki   = cg.pAxisPlayerModel;
+            } else {
                 model.hModel = cg.hAlliedPlayerModelHandle;
-                model.tiki = cg.pAlliedPlayerModel;
+                model.tiki   = cg.pAlliedPlayerModel;
             }
 
-            if (model.hModel && model.tiki)
-            {
+            if (model.hModel && model.tiki) {
                 model.hOldModel = cgs.model_draw[s1->modelindex];
-            }
-            else
-            {
+            } else {
                 // fallback to non-forced model
-                model.tiki = cgi.R_Model_GetHandle(cgs.model_draw[s1->modelindex]);
+                model.tiki   = cgi.R_Model_GetHandle(cgs.model_draw[s1->modelindex]);
                 model.hModel = cgs.model_draw[s1->modelindex];
             }
-        }
-        else
-        {
+        } else {
             model.hModel = cgs.model_draw[s1->modelindex];
         }
 
-        if (!model.hModel || !model.tiki)
-        {
+        if (!model.hModel || !model.tiki) {
             // Use a model in case it still doesn't exist
             if (s1->eFlags & EF_AXIS) {
                 model.hModel = cgi.R_RegisterModel("models/player/german_wehrmacht_soldier.tik");
-            }
-            else {
+            } else {
                 model.hModel = cgi.R_RegisterModel("models/player/american_army.tik");
             }
-            model.tiki = cgi.R_Model_GetHandle(model.hModel);
+            model.tiki      = cgi.R_Model_GetHandle(model.hModel);
             model.hOldModel = cgs.model_draw[s1->modelindex];
         }
-    }
-    else
-    {
+    } else {
         model.hModel = cgs.model_draw[s1->modelindex];
     }
 
@@ -609,34 +550,28 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         float animLength;
         float t1, t2;
 
-        t1 = cg.time - cg.snap->serverTime;
-        t2 = cg.nextSnap->serverTime - cg.snap->serverTime;
-        t = t1 / t2;
+        t1                 = cg.time - cg.snap->serverTime;
+        t2                 = cg.nextSnap->serverTime - cg.snap->serverTime;
+        t                  = t1 / t2;
         model.actionWeight = (sNext->actionWeight - s1->actionWeight) * t + s1->actionWeight;
 
-        for (i = 0; i < MAX_FRAMEINFOS; i++)
-        {
-            if (sNext->frameInfo[i].weight)
-            {
+        for (i = 0; i < MAX_FRAMEINFOS; i++) {
+            if (sNext->frameInfo[i].weight) {
                 model.frameInfo[i].index = sNext->frameInfo[i].index;
-                if (sNext->frameInfo[i].index == s1->frameInfo[i].index && s1->frameInfo[i].weight)
-                {
-                    model.frameInfo[i].weight = (sNext->frameInfo[i].weight - s1->frameInfo[i].weight) * t
-                            + s1->frameInfo[i].weight;
+                if (sNext->frameInfo[i].index == s1->frameInfo[i].index && s1->frameInfo[i].weight) {
+                    model.frameInfo[i].weight =
+                        (sNext->frameInfo[i].weight - s1->frameInfo[i].weight) * t + s1->frameInfo[i].weight;
 
-                    if (sNext->frameInfo[i].time >= s1->frameInfo[i].time)
-                    {
-                        model.frameInfo[i].time = (sNext->frameInfo[i].time - s1->frameInfo[i].time) * t
-                            + s1->frameInfo[i].time;
-                    }
-                    else
-                    {
+                    if (sNext->frameInfo[i].time >= s1->frameInfo[i].time) {
+                        model.frameInfo[i].time =
+                            (sNext->frameInfo[i].time - s1->frameInfo[i].time) * t + s1->frameInfo[i].time;
+                    } else {
                         animLength = cgi.Anim_Time(model.tiki, sNext->frameInfo[i].index);
                         if (!animLength) {
                             t1 = 0.0;
-                        }
-                        else {
-                            t1 = (animLength + sNext->frameInfo[i].time - s1->frameInfo[i].time) * t + s1->frameInfo[i].time;
+                        } else {
+                            t1 = (animLength + sNext->frameInfo[i].time - s1->frameInfo[i].time) * t
+                               + s1->frameInfo[i].time;
                         }
 
                         t2 = t1;
@@ -646,14 +581,11 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
 
                         model.frameInfo[i].time = t2;
                     }
-                }
-                else
-                {
+                } else {
                     animLength = cgi.Anim_Time(model.tiki, sNext->frameInfo[i].index);
                     if (!animLength) {
                         t1 = 0.0;
-                    }
-                    else {
+                    } else {
                         t1 = sNext->frameInfo[i].time - (cg.nextSnap->serverTime - cg.time) / 1000.0;
                     }
 
@@ -662,16 +594,14 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
                         t2 = 0.0;
                     }
 
-                    model.frameInfo[i].time = t2;
+                    model.frameInfo[i].time   = t2;
                     model.frameInfo[i].weight = sNext->frameInfo[i].weight;
                 }
-            }
-            else if (sNext->frameInfo[i].index == s1->frameInfo[i].index) {
+            } else if (sNext->frameInfo[i].index == s1->frameInfo[i].index) {
                 animLength = cgi.Anim_Time(model.tiki, sNext->frameInfo[i].index);
                 if (!animLength) {
                     t1 = 0.0;
-                }
-                else {
+                } else {
                     t1 = (cg.time - cg.snap->serverTime) / 1000.0 + s1->frameInfo[i].time;
                 }
 
@@ -680,40 +610,32 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
                     t2 = animLength;
                 }
 
-                model.frameInfo[i].index = s1->frameInfo[i].index;
-                model.frameInfo[i].time = t2;
+                model.frameInfo[i].index  = s1->frameInfo[i].index;
+                model.frameInfo[i].time   = t2;
                 model.frameInfo[i].weight = (1.0 - t) * s1->frameInfo[i].weight;
-            }
-            else {
-                model.frameInfo[i].index = -1;
+            } else {
+                model.frameInfo[i].index  = -1;
                 model.frameInfo[i].weight = 0.0;
             }
         }
-    }
-    else
-    {
+    } else {
         // no next state, don't blend anims
 
         model.actionWeight = s1->actionWeight;
-        for (i = 0; i < MAX_FRAMEINFOS; i++)
-        {
-            if (s1->frameInfo[i].weight)
-            {
-                model.frameInfo[i].index = s1->frameInfo[i].index;
-                model.frameInfo[i].time = s1->frameInfo[i].time;
+        for (i = 0; i < MAX_FRAMEINFOS; i++) {
+            if (s1->frameInfo[i].weight) {
+                model.frameInfo[i].index  = s1->frameInfo[i].index;
+                model.frameInfo[i].time   = s1->frameInfo[i].time;
                 model.frameInfo[i].weight = s1->frameInfo[i].weight;
-            }
-            else
-            {
-                model.frameInfo[i].index = -1;
+            } else {
+                model.frameInfo[i].index  = -1;
                 model.frameInfo[i].weight = 0.0;
             }
         }
     }
 
-    if (vmEntity->integer == s1->number)
-    {
-        static cvar_t* curanim;
+    if (vmEntity->integer == s1->number) {
+        static cvar_t *curanim;
         if (!curanim) {
             curanim = cgi.Cvar_Get("viewmodelanimslot", "1", 0);
         }
@@ -721,15 +643,13 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         cgi.Cvar_Set("viewmodelanimclienttime", va("%0.2f", model.frameInfo[curanim->integer].time));
     }
 
-    if (cent->currentState.parent != ENTITYNUM_NONE)
-    {
-        int iTagNum;
-        refEntity_t* parent;
-        dtiki_t* tiki;
+    if (cent->currentState.parent != ENTITYNUM_NONE) {
+        int          iTagNum;
+        refEntity_t *parent;
+        dtiki_t     *tiki;
 
         parent = cgi.R_GetRenderEntity(cent->currentState.parent);
-        if (!parent)
-        {
+        if (!parent) {
             if (developer->integer > 1) {
                 cgi.DPrintf("CG_ModelAnim: Could not find parent entity\n");
             }
@@ -737,70 +657,39 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
             return;
         }
 
-        if (s1->parent != cg.snap->ps.clientNum || cg_3rd_person->integer)
-        {
+        if (s1->parent != cg.snap->ps.clientNum || cg_3rd_person->integer) {
             // attach the model to the world model
-            if (parent->hOldModel)
-            {
-                tiki = cgi.R_Model_GetHandle(parent->hOldModel);
+            if (parent->hOldModel) {
+                tiki      = cgi.R_Model_GetHandle(parent->hOldModel);
                 szTagName = cgi.Tag_NameForNum(tiki, s1->tag_num & TAG_MASK);
-                tiki = cgi.R_Model_GetHandle(parent->hModel);
-                iTagNum = cgi.Tag_NumForName(tiki, szTagName);
-            }
-            else
-            {
-                tiki = cgi.R_Model_GetHandle(parent->hModel);
+                tiki      = cgi.R_Model_GetHandle(parent->hModel);
+                iTagNum   = cgi.Tag_NumForName(tiki, szTagName);
+            } else {
+                tiki    = cgi.R_Model_GetHandle(parent->hModel);
                 iTagNum = s1->tag_num;
             }
 
-            CG_AttachEntity(
-                &model,
-                parent,
-                tiki,
-                iTagNum & TAG_MASK,
-                s1->attach_use_angles,
-                s1->attach_offset
-            );
-        }
-        else
-        {
+            CG_AttachEntity(&model, parent, tiki, iTagNum & TAG_MASK, s1->attach_use_angles, s1->attach_offset);
+        } else {
             tiki = cg.pPlayerFPSModel;
 
             // attach to the first person model
             if (cg.pLastPlayerWorldModel) {
                 szTagName = cgi.Tag_NameForNum(cg.pLastPlayerWorldModel, s1->tag_num & TAG_MASK);
-            }
-            else {
+            } else {
                 szTagName = cgi.Tag_NameForNum(tiki, s1->tag_num & TAG_MASK);
             }
 
-            if (!Q_stricmp(szTagName, "eyes bone"))
-            {
+            if (!Q_stricmp(szTagName, "eyes bone")) {
                 iTagNum = cgi.Tag_NumForName(tiki, szTagName);
-                CG_AttachEyeEntity(
-                    &model,
-                    parent,
-                    tiki,
-                    iTagNum & TAG_MASK,
-                    s1->attach_use_angles,
-                    s1->attach_offset
-                );
-            }
-            else if (!Q_stricmp(szTagName, "tag_weapon_right") || !Q_stricmp(szTagName, "tag_weapon_left")) {
+                CG_AttachEyeEntity(&model, parent, tiki, iTagNum & TAG_MASK, s1->attach_use_angles, s1->attach_offset);
+            } else if (!Q_stricmp(szTagName, "tag_weapon_right") || !Q_stricmp(szTagName, "tag_weapon_left")) {
                 iTagNum = cgi.Tag_NumForName(tiki, szTagName);
-                CG_AttachEntity(
-                    &model,
-                    parent,
-                    tiki,
-                    iTagNum & TAG_MASK,
-                    s1->attach_use_angles,
-                    s1->attach_offset
-                );
+                CG_AttachEntity(&model, parent, tiki, iTagNum & TAG_MASK, s1->attach_use_angles, s1->attach_offset);
             }
         }
 
-        if (s1->loopSound)
-        {
+        if (s1->loopSound) {
             cgi.S_AddLoopingSound(
                 model.origin,
                 vec3_origin,
@@ -831,8 +720,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         model.renderfx |= parent->renderfx & (RF_THIRD_PERSON | RF_THIRD_PERSON | RF_DEPTHHACK);
     }
 
-    for (i = 0; i < 3; i++)
-    {
+    for (i = 0; i < 3; i++) {
         model.shaderRGBA[i] = cent->color[i] * 255;
     }
     model.shaderRGBA[3] = s1->alpha * 255;
@@ -840,13 +728,10 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
     // set surfaces
     memcpy(model.surfaces, s1->surfaces, MAX_MODEL_SURFACES);
 
-    if (!(s1->renderfx & RF_VIEWMODEL)
-        && s1->parent != ENTITYNUM_NONE && s1->parent == cg.snap->ps.clientNum
-        && ((!cg_drawviewmodel->integer && !cg_3rd_person->integer) || cg.snap->ps.stats[STAT_INZOOM]))
-    {
+    if (!(s1->renderfx & RF_VIEWMODEL) && s1->parent != ENTITYNUM_NONE && s1->parent == cg.snap->ps.clientNum
+        && ((!cg_drawviewmodel->integer && !cg_3rd_person->integer) || cg.snap->ps.stats[STAT_INZOOM])) {
         // hide all surfaces while zooming or if the viewmodel shouldn't be shown
-        for (i = 0; i < MAX_MODEL_SURFACES; i++)
-        {
+        for (i = 0; i < MAX_MODEL_SURFACES; i++) {
             model.surfaces[i] |= MDL_SURFACE_NODRAW;
         }
     }
@@ -859,37 +744,27 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
     iAnimFlags = 0;
 
     // combine anim flags from all frame infos
-    for (i = 0; i < MAX_FRAMEINFOS; i++)
-    {
-        if (model.frameInfo[i].weight && model.frameInfo[i].index >= 0)
-        {
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
+        if (model.frameInfo[i].weight && model.frameInfo[i].index >= 0) {
             iAnimFlags |= cgi.Anim_Flags(model.tiki, model.frameInfo[i].index);
         }
     }
 
-    if (iAnimFlags & TAF_AUTOFOOTSTEPS)
-    {
+    if (iAnimFlags & TAF_AUTOFOOTSTEPS) {
         int iTagNum;
         // Automatically calculate the footsteps sounds
 
-        if (cent->bFootOnGround_Right)
-        {
+        if (cent->bFootOnGround_Right) {
             iTagNum = cgi.Tag_NumForName(model.tiki, "Bip01 R Foot");
-            if (iTagNum >= 0)
-            {
+            if (iTagNum >= 0) {
                 cent->bFootOnGround_Right = cgi.TIKI_IsOnGround(&model, iTagNum, 13.653847f);
-            }
-            else {
+            } else {
                 cent->bFootOnGround_Right = qtrue;
             }
-        }
-        else
-        {
+        } else {
             iTagNum = cgi.Tag_NumForName(model.tiki, "Bip01 R Foot");
-            if (iTagNum >= 0)
-            {
-                if (cgi.TIKI_IsOnGround(&model, iTagNum, 13.461539f))
-                {
+            if (iTagNum >= 0) {
+                if (cgi.TIKI_IsOnGround(&model, iTagNum, 13.461539f)) {
                     CG_Footstep(
                         "Bip01 R Foot",
                         cent,
@@ -899,30 +774,22 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
                     );
                     cent->bFootOnGround_Right = qtrue;
                 }
-            }
-            else {
+            } else {
                 cent->bFootOnGround_Right = qtrue;
             }
         }
 
-        if (cent->bFootOnGround_Left)
-        {
+        if (cent->bFootOnGround_Left) {
             iTagNum = cgi.Tag_NumForName(model.tiki, "Bip01 L Foot");
-            if (iTagNum >= 0)
-            {
+            if (iTagNum >= 0) {
                 cent->bFootOnGround_Left = cgi.TIKI_IsOnGround(&model, iTagNum, 13.653847f);
-            }
-            else {
+            } else {
                 cent->bFootOnGround_Left = qtrue;
             }
-        }
-        else
-        {
+        } else {
             iTagNum = cgi.Tag_NumForName(model.tiki, "Bip01 L Foot");
-            if (iTagNum >= 0)
-            {
-                if (cgi.TIKI_IsOnGround(&model, iTagNum, 13.461539f))
-                {
+            if (iTagNum >= 0) {
+                if (cgi.TIKI_IsOnGround(&model, iTagNum, 13.461539f)) {
                     CG_Footstep(
                         "Bip01 L Foot",
                         cent,
@@ -933,14 +800,12 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
 
                     cent->bFootOnGround_Left = qtrue;
                 }
-            }
-            else {
+            } else {
                 cent->bFootOnGround_Left = qtrue;
             }
         }
-    }
-    else {
-        cent->bFootOnGround_Left = qtrue;
+    } else {
+        cent->bFootOnGround_Left  = qtrue;
         cent->bFootOnGround_Right = qtrue;
     }
 
@@ -948,14 +813,10 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         CG_PlayerTeamIcon(&model, &cent->currentState);
     }
 
-    if (s1->number == cg.snap->ps.clientNum)
-    {
-        if ((!cg.bFPSModelLastFrame && !cg_3rd_person->integer)
-            || (cg.bFPSModelLastFrame && cg_3rd_person->integer))
-        {
+    if (s1->number == cg.snap->ps.clientNum) {
+        if ((!cg.bFPSModelLastFrame && !cg_3rd_person->integer) || (cg.bFPSModelLastFrame && cg_3rd_person->integer)) {
             // reset the animations when toggling 3rd person
-            for (i = 0; i < MAX_FRAMEINFOS; i++)
-            {
+            for (i = 0; i < MAX_FRAMEINFOS; i++) {
                 cent->animLast[i] = -1;
             }
 
@@ -966,14 +827,11 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         }
 
         // player footsteps, walking/falling
-        if (cg.bFPSOnGround != cg.predicted_player_state.walking)
-        {
+        if (cg.bFPSOnGround != cg.predicted_player_state.walking) {
             cg.bFPSOnGround = cg.predicted_player_state.walking;
             if (cg.predicted_player_state.walking) {
                 CG_LandingSound(cent, &model, 1.0, 1);
-            }
-            else
-            {
+            } else {
                 if (cent->iNextLandTime < cg.time) {
                     CG_Footstep(0, cent, &model, 1, 1);
                 }
@@ -982,94 +840,76 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
             }
         }
 
-        if (!cg_3rd_person->integer)
-        {
+        if (!cg_3rd_person->integer) {
             // first person view
 
             if (!(cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW)
-                && (cg.snap->ps.stats[STAT_HEALTH] <= 0 || cg_animationviewmodel->integer))
-            {
+                && (cg.snap->ps.stats[STAT_HEALTH] <= 0 || cg_animationviewmodel->integer)) {
                 // use world position for this case
                 CG_OffsetFirstPersonView(&model, qtrue);
             }
 
-            if (!cg.pLastPlayerWorldModel || cg.pLastPlayerWorldModel != model.tiki)
-            {
+            if (!cg.pLastPlayerWorldModel || cg.pLastPlayerWorldModel != model.tiki) {
                 qhandle_t hModel;
-                char fpsname[128];
+                char      fpsname[128];
                 COM_StripExtension(model.tiki->a->name, fpsname, sizeof(fpsname));
 
                 hModel = cgi.R_RegisterModel(fpsname);
-                if (hModel)
-                {
+                if (hModel) {
                     cg.hPlayerFPSModelHandle = hModel;
-                    cg.pPlayerFPSModel = cgi.R_Model_GetHandle(hModel);
+                    cg.pPlayerFPSModel       = cgi.R_Model_GetHandle(hModel);
                     if (!cg.pPlayerFPSModel) {
                         cg.pPlayerFPSModel = model.tiki;
                     }
-                }
-                else
-                {
+                } else {
                     if (cg.snap->ps.stats[STAT_TEAM] == TEAM_AXIS) {
                         hModel = cgi.R_RegisterModel("models/player/german_wehrmacht_soldier_fps.tik");
-                    }
-                    else {
+                    } else {
                         hModel = cgi.R_RegisterModel("models/player/american_army_fps.tik");
                     }
 
-                    if (hModel)
-                    {
+                    if (hModel) {
                         cg.hPlayerFPSModelHandle = hModel;
-                        cg.pPlayerFPSModel = cgi.R_Model_GetHandle(hModel);
+                        cg.pPlayerFPSModel       = cgi.R_Model_GetHandle(hModel);
 
                         if (!cg.pPlayerFPSModel) {
                             cg.pPlayerFPSModel = model.tiki;
                         }
-                    }
-                    else {
+                    } else {
                         cg.hPlayerFPSModelHandle = cgs.model_draw[s1->modelindex];
-                        cg.pPlayerFPSModel = model.tiki;
+                        cg.pPlayerFPSModel       = model.tiki;
                     }
                 }
 
                 cg.pLastPlayerWorldModel = model.tiki;
             }
 
-            model.tiki = cg.pPlayerFPSModel;
+            model.tiki   = cg.pPlayerFPSModel;
             model.hModel = cg.hPlayerFPSModelHandle;
             memset(model.surfaces, 0, sizeof(model.surfaces));
 
             CG_ViewModelAnimation(&model);
             cgi.ForceUpdatePose(&model);
 
-            if ((cent->currentState.eFlags & EF_UNARMED)
-                || cg_drawviewmodel->integer <= 1
-                || cg.snap->ps.stats[STAT_INZOOM]
-                || cg.snap->ps.stats[STAT_HEALTH] <= 0)
-            {
+            if ((cent->currentState.eFlags & EF_UNARMED) || cg_drawviewmodel->integer <= 1
+                || cg.snap->ps.stats[STAT_INZOOM] || cg.snap->ps.stats[STAT_HEALTH] <= 0) {
                 // unarmed or zooming, hide the arms
-                for (i = 0; i < MAX_MODEL_SURFACES; i++)
-                {
+                for (i = 0; i < MAX_MODEL_SURFACES; i++) {
                     model.surfaces[i] |= MDL_SURFACE_NODRAW;
                 }
-            }
-            else
-            {
+            } else {
                 // show/hide the garand hand depending if it's a rifle or not
                 // so the hand can hold the rifle correctly
 
-                const char* weaponstring = "";
-                int iSurfaceNum;
+                const char *weaponstring = "";
+                int         iSurfaceNum;
 
                 if (cg.snap->ps.activeItems[1] >= 0) {
                     weaponstring = CG_ConfigString(CS_WEAPONS + cg.snap->ps.activeItems[1]);
                 }
 
-                if (!Q_stricmp(weaponstring, "M1 Garand")
-                    || !Q_stricmp(weaponstring, "Springfield '03 Sniper")
-                    || !Q_stricmp(weaponstring, "Mauser KAR 98K")
-                    || !Q_stricmp(weaponstring, "KAR98 - Sniper"))
-                {
+                if (!Q_stricmp(weaponstring, "M1 Garand") || !Q_stricmp(weaponstring, "Springfield '03 Sniper")
+                    || !Q_stricmp(weaponstring, "Mauser KAR 98K") || !Q_stricmp(weaponstring, "KAR98 - Sniper")) {
                     // show the garand hands
 
                     iSurfaceNum = cgi.Surface_NameToNum(model.tiki, "lefthand");
@@ -1081,10 +921,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
                     if (iSurfaceNum >= 0) {
                         model.surfaces[iSurfaceNum] &= ~MDL_SURFACE_NODRAW;
                     }
-                }
-                else
-                {
-
+                } else {
                     // hide the garand hands
 
                     iSurfaceNum = cgi.Surface_NameToNum(model.tiki, "garandhand");
@@ -1104,8 +941,7 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
                 model.renderfx |= RF_DEPTHHACK;
             }
 
-            if (!(cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW))
-            {
+            if (!(cg.predicted_player_state.pm_flags & PMF_CAMERA_VIEW)) {
                 if (cg.snap->ps.stats[STAT_HEALTH] > 0 && !cg_animationviewmodel->integer) {
                     CG_OffsetFirstPersonView(&model, qfalse);
                 }
@@ -1119,18 +955,15 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         }
     }
 
-    if (model.renderfx & RF_SKYORIGIN)
-    {
+    if (model.renderfx & RF_SKYORIGIN) {
         memcpy(cg.sky_axis, model.axis, sizeof(cg.sky_axis));
         VectorCopy(model.origin, cg.sky_origin);
     }
 
     model.reType = RT_MODEL;
-    if (!(s1->renderfx & RF_DONTDRAW))
-    {
+    if (!(s1->renderfx & RF_DONTDRAW)) {
         cgi.R_Model_GetHandle(model.hModel);
-        if (VectorCompare(model.origin, vec3_origin))
-        {
+        if (VectorCompare(model.origin, vec3_origin)) {
             VectorCopy(s1->origin, model.origin);
             AngleVectors(s1->angles, model.axis[0], model.axis[1], model.axis[2]);
         }
@@ -1141,28 +974,21 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
 
     CG_UpdateEntityEmitters(s1->number, &model, cent);
 
-    if (s1->usageIndex == cent->usageIndexLast)
-    {
+    if (s1->usageIndex == cent->usageIndexLast) {
         // process the exit commands of the last animations
-        for (i = 0; i < MAX_FRAMEINFOS; i++)
-        {
-            if ((cent->animLastWeight >> i) & 1)
-            {
-                if (!model.frameInfo[i].weight || model.frameInfo[i].index != cent->animLast[i])
-                {
+        for (i = 0; i < MAX_FRAMEINFOS; i++) {
+            if ((cent->animLastWeight >> i) & 1) {
+                if (!model.frameInfo[i].weight || model.frameInfo[i].index != cent->animLast[i]) {
                     CG_ProcessEntityCommands(TIKI_FRAME_EXIT, cent->animLast[i], s1->number, &model, cent);
                 }
             }
         }
     }
 
-    for (i = 0; i < MAX_FRAMEINFOS; i++)
-    {
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
         // process the entry commands of the current anim
-        if (model.frameInfo[i].weight)
-        {
-            if (!((cent->animLastWeight >> i) & 1) || model.frameInfo[i].index != cent->animLast[i])
-            {
+        if (model.frameInfo[i].weight) {
+            if (!((cent->animLastWeight >> i) & 1) || model.frameInfo[i].index != cent->animLast[i]) {
                 CG_ProcessEntityCommands(TIKI_FRAME_ENTRY, model.frameInfo[i].index, s1->number, &model, cent);
                 cent->animLastTimes[i] = 0.0;
             }
@@ -1171,12 +997,11 @@ void CG_ModelAnim(centity_t* cent, qboolean bDoShaderTime)
         }
 
         cent->animLastTimes[i] = model.frameInfo[i].time;
-        cent->animLast[i] = model.frameInfo[i].index;
+        cent->animLast[i]      = model.frameInfo[i].index;
 
         if (model.frameInfo[i].weight) {
             cent->animLastWeight |= 1 << i;
-        }
-        else {
+        } else {
             cent->animLastWeight &= ~(1 << i);
         }
     }
