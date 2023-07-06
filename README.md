@@ -1,22 +1,45 @@
 # OpenMoHAA
 
+![Build](https://github.com/openmoh/openmohaa/actions/workflows/build-cmake.yml/badge.svg?branch=main) [![Release](https://img.shields.io/github/v/release/openmoh/openmohaa)](https://github.com/openmoh/openmohaa/releases) [![Downloads](https://img.shields.io/github/downloads/openmoh/openmohaa/total)](https://github.com/openmoh/openmohaa/releases)
+
+![License](https://img.shields.io/github/license/openmoh/openmohaa) ![Commits](https://img.shields.io/github/commit-activity/t/openmoh/openmohaa)
+
+![Discord](https://img.shields.io/discord/596049712579215361?logo=discord&logoColor=white&color=5865F2)
+
+
+```
      / _ \ _ __   ___ _ __ |  \/  |/ _ \| | | |  / \      / \
     | | | | '_ \ / _ \ '_ \| |\/| | | | | |_| | / _ \    / _ \
     | |_| | |_) |  __/ | | | |  | | |_| |  _  |/ ___ \  / ___ \
      \___/| .__/ \___|_| |_|_|  |_|\___/|_| |_/_/   \_\/_/   \_\
           |_|
-      
-
-
-## Discord
-
-[![Discord Banner 1](https://discordapp.com/api/guilds/596049712579215361/widget.png?style=banner2)](https://discord.gg/NYtH58R)
+```
 
 ## Current State
 
-[![Build](https://github.com/openmoh/openmohaa/actions/workflows/build-cmake.yml/badge.svg)](https://github.com/openmoh/openmohaa/actions/workflows/build-cmake.yml)
-
 OpenMoHAA is still in its early days. The singleplayer part is not working correctly, the current usage is multiplayer.
+
+## Running
+
+Backup existing mohaa files, **cgamex86.dll** and **gamex86.dll** (set their extension to **.bak**)
+
+a) extract archive to your MOHAA installation directory.
+
+-or-
+
+b) Copy all pak*.pk3 files and the sound/ directory from your **MOHAA/main** directory into openmohaa's 'main' directory.
+
+If you have problems running the game :
+
+You may need to install Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from
+
+https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170
+
+You can now start a local OpenMOHAA server or play on a server.
+
+To play expansions, append to the executable `+set com_target_game 1` for Spearhead, and `+set com_target_game 2` for Breakthrough. On windows you can make a shortcut.
+
+## Builds
 
 ### Server
 
@@ -44,26 +67,6 @@ Here is the current working state for each part of the engine:
 | UI                      |      |        |      | x     |     |             | Has core features only (menu, widgets, console, hud, urc loading) |
 
 **Medal of Honor: Spearhead** and **Medal of Honor: Breakthrough** are supported in OpenMoHAA with the `com_target_game` variable. See the **Running** section for the usage.
-
-## Running
-
-Backup existing mohaa files, **cgamex86.dll** and **gamex86.dll** (set their extension to **.bak**)
-
-a) extract archive to your MOHAA installation directory.
-
--or-
-
-b) Copy all pak*.pk3 files and the sound/ directory from your **MOHAA/main** directory into openmohaa's 'main' directory.
-
-If you have problems running the game :
-
-You may need to install Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from
-
-https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170
-
-You can now start a local OpenMOHAA server or play on a server.
-
-To play expansions, append to the executable `+set com_target_game 1` for Spearhead, and `+set com_target_game 2` for Breakthrough. On windows you can make a shortcut.
 
 ## Compiling
 
@@ -143,8 +146,14 @@ https://xiph.org/vorbis/
 
 https://opus-codec.org/
 
-## URLs and communities
+## Communities
+
+### URLs
 
 - https://github.com/openmoh/openmohaa/
 - https://mohaaaa.co.uk/AAAAMOHAA/index.php
 - https://x-null.net/
+
+### Discord
+
+[![Discord Banner 1](https://discordapp.com/api/guilds/596049712579215361/widget.png?style=banner2)](https://discord.gg/NYtH58R)
