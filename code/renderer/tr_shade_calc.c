@@ -159,8 +159,98 @@ void RB_CalcDeformVertexes( deformStage_t *ds )
 	}
 }
 
-void RB_CalcFlapVertexes(deformStage_t* ds, texDirection_t coordsToUse) {
-	// FIXME: unimplemented
+void RB_CalcFlapVertexes(deformStage_t* ds, texDirection_t coordsToUse)
+{
+    int    i;
+    vec3_t offset;
+    float  scale;
+    vec4_t* xyz, * normal;
+	float* table;
+    float  base;
+    float  amplitude;
+    float  phase;
+    float  frequency;
+    float  min, max;
+    vec2_t (*st)[2];
+    float  vertexScale;
+
+    xyz = tess.xyz;
+    normal = tess.normal;
+    min = ds->bulgeWidth;
+    max = ds->bulgeHeight;
+    st = tess.texCoords;
+
+    if (ds->deformationWave.base != 1234567.0f) {
+        base = ds->deformationWave.base;
+    }
+    else if (backEnd.currentEntity) {
+        base = (float)backEnd.currentEntity->e.surfaces[0] / 16.0 - 8.0;
+    }
+    else {
+        base = r_static_shaderdata0->value;
+    }
+
+    if (ds->deformationWave.amplitude != 1234567.0f) {
+        amplitude = ds->deformationWave.amplitude;
+    }
+    else if (backEnd.currentEntity) {
+        amplitude = (float)backEnd.currentEntity->e.surfaces[1] / 16.0;
+    }
+    else {
+        amplitude = r_static_shaderdata1->value;
+    }
+
+    if (ds->deformationWave.phase != 1234567.0f) {
+        phase = ds->deformationWave.phase;
+    }
+    else if (backEnd.currentEntity) {
+        phase = (float)backEnd.currentEntity->e.surfaces[2] / 16.0 - 8.0;
+    }
+    else {
+        phase = r_static_shaderdata2->value;
+    }
+
+    if (ds->deformationWave.frequency != 1234567.0f) {
+        frequency = ds->deformationWave.frequency;
+    }
+    else if (backEnd.currentEntity) {
+        frequency = (float)backEnd.currentEntity->e.surfaces[3] / 16.0;
+    }
+    else {
+        frequency = r_static_shaderdata3->value;
+    }
+
+    if (!backEnd.currentEntity) {
+        base = base * r_static_shadermultiplier0->value;
+        amplitude = amplitude * r_static_shadermultiplier1->value;
+        phase = phase * r_static_shadermultiplier2->value;
+        frequency = frequency * r_static_shadermultiplier3->value;
+    }
+
+	if (frequency) {
+		table = TableForFunc(ds->deformationWave.func);
+		for (i = 0; i < tess.numVertexes; i++, xyz++, st++, normal++) {
+			float off;
+
+			off = ((*xyz)[0] + (*xyz)[1] + (*xyz)[2]) * ds->deformationSpread;
+            scale = table[(int)((phase + off + tess.shaderTime * frequency) * 1024.0) & FUNCTABLE_MASK] * amplitude + base;
+            vertexScale = (max - min) * (*st)[0][coordsToUse] + min;
+            offset[0] = scale * vertexScale * (*normal)[0];
+            offset[1] = scale * vertexScale * (*normal)[1];
+            offset[2] = scale * vertexScale * (*normal)[2];
+			VectorAdd(*xyz, offset, *xyz);
+		}
+	}
+	else {
+        scale = EvalWaveForm(&ds->deformationWave);
+        for (i = 0; i < tess.numVertexes; i++, xyz++, st++, normal++) {
+            vertexScale = (max - min) * (*st)[0][coordsToUse] + min;
+            offset[0] = vertexScale * scale * (*normal)[0];
+            offset[1] = vertexScale * scale * (*normal)[1];
+            offset[2] = vertexScale * scale * (*normal)[2];
+            VectorAdd(*xyz, offset, *xyz);
+		}
+	}
 }
 
 /*
@@ -923,7 +1013,7 @@ void RB_CalcEnvironmentTexCoords2(float* st)
 {
     int			i;
     float* v, * normal;
-    vec3_t		viewer, reflected;
+    vec3_t		viewer, reflected, worldReflected;
     float		d;
 
     v = tess.xyz[0];
@@ -935,11 +1025,21 @@ void RB_CalcEnvironmentTexCoords2(float* st)
         VectorNormalizeFast(viewer);
 
         d = DotProduct(normal, viewer);
-		
-		// FIXME: use axis
-        reflected[0] = normal[0] * 2 * d - viewer[0];
-        reflected[1] = normal[1] * 2 * d - viewer[1];
-        reflected[2] = normal[2] * 2 * d - viewer[2];
+		if (d > 0.0f) {
+			VectorCopy(viewer, reflected);
+		} else {
+            d *= -2;
+            reflected[0] = normal[0] * d + viewer[0];
+            reflected[1] = normal[1] * d + viewer[1];
+            reflected[2] = normal[2] * d + viewer[2];
+		}
+
+		worldReflected[0] = reflected[0] * backEnd.ori.axis[0][0];
+		worldReflected[2] = reflected[0] * backEnd.ori.axis[0][2];
+		worldReflected[0] = backEnd.ori.axis[1][0] * reflected[1] + worldReflected[0];
+		worldReflected[2] = backEnd.ori.axis[1][2] * reflected[1] + worldReflected[2];
+		worldReflected[0] = backEnd.ori.axis[2][0] * reflected[2] + worldReflected[0];
+		worldReflected[2] = backEnd.ori.axis[2][2] * reflected[2] + worldReflected[2];
 
         st[0] = 0.5 + reflected[1] * 0.5;
         st[1] = 0.5 - reflected[2] * 0.5;
