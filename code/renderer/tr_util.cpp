@@ -220,8 +220,63 @@ void R_DrawDebugNumber( const vec3_t org, float number, float scale, float r, fl
 R_DebugRotatedBBox
 ===============
 */
-void R_DebugRotatedBBox( const vec3_t org, vec3_t ang, vec3_t mins, vec3_t maxs, float r, float g, float b, float alpha ) {
+void R_DebugRotatedBBox( const vec3_t org, const vec3_t ang, const vec3_t mins, const vec3_t maxs, float r, float g, float b, float alpha ) {
+	int i;
+	vec3_t tmp;
+	vec3_t points[8];
+	vec3_t axis[3];
 
+	AnglesToAxis(ang, axis);
+
+	for (i = 0; i < 8; i++) {
+		if (i & 1) {
+			tmp[0] = mins[0];
+		} else {
+			tmp[0] = maxs[0];
+        }
+
+        if (i & 2) {
+            tmp[1] = mins[1];
+        }
+        else {
+            tmp[1] = maxs[1];
+        }
+
+		if (i & 4) {
+			tmp[2] = mins[2];
+		} else {
+			tmp[2] = maxs[2];
+		}
+
+		points[i][0] = tmp[0] * axis[0][0];
+		points[i][1] = tmp[0] * axis[0][1];
+        points[i][2] = tmp[0] * axis[0][2];
+
+        points[i][0] += tmp[1] * axis[1][0];
+        points[i][1] += tmp[1] * axis[1][1];
+        points[i][2] += tmp[1] * axis[1][2];
+
+        points[i][0] += tmp[2] * axis[2][0];
+        points[i][1] += tmp[2] * axis[2][1];
+        points[i][2] += tmp[2] * axis[2][2];
+
+		points[i][0] += org[0];
+		points[i][1] += org[1];
+		points[i][2] += org[2];
+	}
+
+    R_DebugLine(points[0], points[1], r, g, b, alpha);
+    R_DebugLine(points[1], points[3], r, g, b, alpha);
+    R_DebugLine(points[3], points[2], r, g, b, alpha);
+    R_DebugLine(points[2], points[0], r, g, b, alpha);
+    R_DebugLine(points[4], points[5], r, g, b, alpha);
+    R_DebugLine(points[5], points[7], r, g, b, alpha);
+    R_DebugLine(points[7], points[6], r, g, b, alpha);
+    R_DebugLine(points[6], points[4], r, g, b, alpha);
+
+	for (i = 0; i < 4; i++) {
+		R_DebugLine(points[i], points[i + 4], r, g, b, alpha);
+	}
 }
 
 /*
