@@ -236,7 +236,38 @@ static int R_CullStaticModel(dtiki_t* tiki, float fScale, const vec3_t vLocalOrg
 
     cull = R_CullLocalBox(bounds);
 
-    // FIXME: r_showcull
+    if (r_showcull->integer & 4) {
+        float fR, fG, fB;
+        vec3_t vAngles;
+
+        switch (cull)
+        {
+        case CULL_CLIP:
+            fR = 1.0f;
+            fG = 1.0f;
+            fB = 0.0f;
+            break;
+        case CULL_IN:
+            fR = 0.0f;
+            fG = 1.0f;
+            fB = 0.0f;
+            break;
+        case CULL_OUT:
+            fR = 1.0f;
+            fG = 0.2f;
+            fB = 0.2f;
+            for (i = 0; i < 2; i++) {
+                bounds[0][i] = bounds[0][i] - 16.0;
+                bounds[1][i] = bounds[1][i] + 16.0;
+            }
+            break;
+        default:
+            break;
+        }
+
+        MatrixToEulerAngles(tr.ori.axis, vAngles);
+        R_DebugRotatedBBox(tr.ori.origin, vAngles, bounds[0], bounds[1], fR, fG, fB, 0.5);
+    }
 
     switch (cull)
     {
@@ -305,7 +336,7 @@ void R_AddStaticModelSurfaces(void) {
 
         // FIXME: r_showcull
 
-        if (iRadiusCull != CULL_OUT && (iRadiusCull != CULL_IN || R_CullStaticModel(SM->tiki, tiki_scale, tiki_localorigin) != CULL_OUT))
+        if (iRadiusCull != CULL_OUT && (iRadiusCull != CULL_CLIP || R_CullStaticModel(SM->tiki, tiki_scale, tiki_localorigin) != CULL_OUT))
         {
             dtikisurface_t* dsurf;
 
@@ -370,15 +401,28 @@ void R_AddStaticModelSurfaces(void) {
                     R_AddDrawSurf((surfaceType_t*)s_surface, shader, 0);
 
                     if (r_showstaticlod->integer) {
-                        //
-                        // FIXME: draw debug lods
-                        //
+                        vec3_t org;
+                        int render_count, total_tris;
+
+                        VectorCopy(SM->origin, org);
+                        org[2] += 100.0;
+                        R_DrawDebugNumber(org, SM->lodpercentage[0], r_showstaticlod->value * 2, 1.0, 1.0, 0.0, 3);
+
+                        org[2] += 125.0;
+                        R_CountTikiLodTris(tiki, SM->lodpercentage[0], &render_count, &total_tris);
+                        R_DrawDebugNumber(org, render_count, r_showstaticlod->value * 2, 1.0, 1.0, 0.0, 0);
                     }
 
                     if (r_showstaticbboxes->integer) {
-                        //
-                        // FIXME: draw debug bbox
-                        //
+                        vec3_t vMins, vMaxs;
+
+                        for (i = 0; i < 3; i++)
+                        {
+                            vMins[i] = tiki->a->mins[i] * tiki->load_scale * SM->scale;
+                            vMaxs[i] = tiki->a->maxs[i] * tiki->load_scale * SM->scale;
+                        }
+
+                        R_DebugRotatedBBox(SM->origin, SM->angles, vMins, vMaxs, 1.0, 0.0, 1.0, 0.75);
                     }
                 }
             }
