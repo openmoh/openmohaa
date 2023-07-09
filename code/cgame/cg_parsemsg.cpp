@@ -84,6 +84,36 @@ static void CG_MakeBulletTracerInternal(
     qboolean bIgnoreEntities
 )
 {
+    vec3_t vPos;
+    int iBullet;
+    int iContinueCount;
+    int iDist;
+    int iHeadDist;
+    int iTravelDist;
+    float fLen, fDist;
+    trace_t trace;
+    qboolean bStartInWater, bInWater;
+    qboolean bBulletDone;
+    qboolean bMadeTracer;
+    vec3_t vDir;
+    vec3_t vTrailStart;
+    vec3_t vTraceStart;
+    vec3_t vTraceEnd;
+    vec3_t vTmp;
+    int iNumImpacts;
+    trace_t tImpacts[128];
+    float fImpSndDistRA;
+    static float fImpSndDistLA;
+    float fImpSndDistRB;
+    float fImpSndDistLB;
+    int iImpSndIndexRA;
+    int iImpSndIndexRB;
+    int iImpSndIndexLB;
+    float fVolume;
+    float fPitch;
+    float fZingDistA, fZingDistB, fZingDistC;
+    vec3_t vZingPosA, vZingPosB, vZingPosC;
+
     // FIXME: unimplemented
 }
 
