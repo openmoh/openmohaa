@@ -242,32 +242,82 @@ DrawTris
 Draws triangle outlines for debugging
 ================
 */
-static void DrawTris (shaderCommands_t *input) {
+static void DrawTris (shaderCommands_t *input, int flags) {
 	GL_Bind( tr.whiteImage );
 	qglColor3f (1,1,1);
 
-	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE );
-	qglDepthRange( 0, 0 );
-
-	qglDisableClientState (GL_COLOR_ARRAY);
-	qglDisableClientState (GL_TEXTURE_COORD_ARRAY);
-
-	qglVertexPointer (3, GL_FLOAT, 16, input->xyz);	// padded for SIMD
-
-	if (qglLockArraysEXT) {
-		qglLockArraysEXT(0, input->numVertexes);
-		GLimp_LogComment( "glLockArraysEXT\n" );
+	if (flags == 1) {
+		GL_State(GLS_POLYMODE_LINE);
+	} else {
+        GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
+        qglDepthRange(0, 0);
 	}
 
-	R_DrawElements( input->numIndexes, input->indexes );
+	if (flags < 3) {
+		qglDisableClientState(GL_COLOR_ARRAY);
+		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	if (qglUnlockArraysEXT) {
-		qglUnlockArraysEXT();
-		GLimp_LogComment( "glUnlockArraysEXT\n" );
+		qglVertexPointer(3, GL_FLOAT, 16, input->xyz);	// padded for SIMD
+
+		if (qglLockArraysEXT) {
+			qglLockArraysEXT(0, input->numVertexes);
+			GLimp_LogComment("glLockArraysEXT\n");
+		}
+
+		R_DrawElements(input->numIndexes, input->indexes);
+
+		if (qglUnlockArraysEXT) {
+			qglUnlockArraysEXT();
+			GLimp_LogComment("glUnlockArraysEXT\n");
+		}
+		qglDepthRange(0, 1);
 	}
-	qglDepthRange( 0, 1 );
+
+	if (flags > 1) {
+		vec3_t start, end;
+
+        start[1] = start[0] = 0.0;
+		end[1] = end[0] = 0.0;
+
+        GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
+        qglDepthRange(0, 0);
+
+        qglDisable(GL_TEXTURE_2D);
+        qglBegin(GL_LINES);
+
+        qglColor4f(1.0, 0.0, 0.0, 1.0);
+
+        start[2] = 0.0 - 5.0;
+        end[2] = 0.0 + 5.0;
+        qglVertex3fv(start);
+        qglVertex3fv(end);
+
+        qglColor4f(0.0, 1.0, 0.0, 1.0);
+
+        start[2] = start[2] + 5.0;
+        end[2] = end[2] - 5.0;
+        start[1] = start[1] - 5.0;
+        end[1] = end[1] + 5.0;
+        qglVertex3fv(start);
+        qglVertex3fv(end);
+
+        qglColor4f(0.0, 0.0, 1.0, 1.0);
+
+        start[1] = start[1] + 5.0;
+        start[0] = start[0] - 5.0;
+        end[0] = end[0] + 5.0;
+        qglVertex3fv(start);
+        qglVertex3fv(end);
+
+        start[0] = start[0] + 5.0;
+        end[0] = end[0] - 5.0;
+
+        qglEnd();
+        qglEnable(GL_TEXTURE_2D);
+        qglDepthRange(0.0, 1.0);
+
+	}
 }
-
 
 /*
 ================
@@ -1569,7 +1619,7 @@ void RB_EndSurface( void ) {
 		// draw debugging stuff
 		//
 		if (r_showtris->integer && developer->integer) {
-			DrawTris(input);
+			DrawTris(input, r_showtris->integer);
 		}
 		if (r_shownormals->integer && developer->integer) {
 			DrawNormals(input);
