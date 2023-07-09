@@ -848,7 +848,7 @@ void UIWindowManager::RefreshShadersFromList
 	for( i = 1; i <= num; i++ )
 	{
 		UIReggedMaterial *regged = m_materiallist.ObjectAt( i );
-		regged->RefreshMaterial();
+		regged->ReregisterMaterial();
 	}
 }
 
