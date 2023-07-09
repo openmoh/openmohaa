@@ -1461,3 +1461,9 @@ float R_CalcLod(const vec3_t origin, float radius)
 	return ProjectRadius(radius, origin);
 }
 
+void R_CountTikiLodTris(dtiki_t* tiki, float lodpercentage, int* render_tris, int* total_tris)
+{
+	*render_tris = 0;
+    *total_tris = 0;
+    // FIXME: unimplemented
+}

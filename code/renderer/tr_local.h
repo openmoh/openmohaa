@@ -2119,6 +2119,7 @@ void RB_Static_BuildDLights();
 void R_PrintInfoStaticModels();
 void R_AddSkelSurfaces(trRefEntity_t* ent);
 void R_AddStaticModelSurfaces(void);
+void R_CountTikiLodTris(dtiki_t* tiki, float lodpercentage, int* render_tris, int* total_tris);
 float R_CalcLod(const vec3_t origin, float radius);
 void R_PrintInfoWorldtris(void);
 
