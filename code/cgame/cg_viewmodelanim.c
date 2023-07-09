@@ -59,7 +59,6 @@ static const char *AnimPrefixList[] = {
     "enfieldl42a1",
     "carcano",
     "delisle",
-    "thompson",
     "sten",
     "ppsh",
     "moschetto",
@@ -78,7 +77,8 @@ static const char *AnimPrefixList[] = {
     "minedetectoraxis",
     "detonator",
     "kar98mortar",
-    "PIAT"};
+    "PIAT"
+};
 
 enum animPrefix_e {
     WPREFIX_NONE,
@@ -192,7 +192,7 @@ int CG_GetVMAnimPrefixIndex()
         // Team Assault and Team Tactics
         //
         if (!Q_stricmp(szWeaponName, "Lee-Enfield")) {
-            return WPREFIX_SPRINGFIELD;
+            return WPREFIX_ENFIELD;
         }
         if (!Q_stricmp(szWeaponName, "SVT 40")) {
             return WPREFIX_SVT;
@@ -204,7 +204,7 @@ int CG_GetVMAnimPrefixIndex()
             return WPREFIX_G43;
         }
         if (!Q_stricmp(szWeaponName, "Enfield L42A1")) {
-            return WPREFIX_ENFIELD;
+            return WPREFIX_ENFIELDL42A;
         }
         if (!Q_stricmp(szWeaponName, "Carcano")) {
             return WPREFIX_CARCANO;
@@ -249,10 +249,10 @@ int CG_GetVMAnimPrefixIndex()
             return WPREFIX_MP44;
         }
         if (!Q_stricmp(szWeaponName, "Vickers-Berthier")) {
-            return WPREFIX_MP44;
+            return WPREFIX_VICKERS;
         }
         if (!Q_stricmp(szWeaponName, "Breda")) {
-            return WPREFIX_MP44;
+            return WPREFIX_BREDA;
         }
 
         return WPREFIX_BAR;
