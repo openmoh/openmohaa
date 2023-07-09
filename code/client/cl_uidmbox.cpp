@@ -161,10 +161,13 @@ void UIDMBox::PostDecayEvent( void )
 			}
 		}
 
-		//
-		// Bold as twice more decay
-		//
-		if (m_items[0].flags & DMBOX_ITEM_FLAG_BOLD) {
+        if (m_items[0].flags & DMBOX_ITEM_FLAG_BOLD) {
+            fDelayTime = iNumLines * 8.0;
+        }
+        //
+        // Bold as twice more decay
+        //
+		else if (m_items[0].flags & DMBOX_ITEM_FLAG_DEATH) {
 			fDelayTime = iNumLines * 6.0;
 		}
 		else {
@@ -285,7 +288,7 @@ void UIDMBox::Print( const char *text )
 {
 	const char* text1 = text;
 
-	if (m_numitems > 4)
+	if (m_numitems > 5)
 	{
 		//
 		// Overwrite an item
@@ -307,15 +310,15 @@ void UIDMBox::Print( const char *text )
 	{
 		m_items[m_numitems].color = ULightRed;
 		m_items[m_numitems].font = m_fontbold;
-		m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_BOLD;
+		m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_DEATH;
 
 		text1 = text + 1;
 	}
 	else if (*text == MESSAGE_CHAT_GREEN)
 	{
 		m_items[m_numitems].color = UGreen;
-		m_items[m_numitems].font = m_fontbold;
-		m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_BOLD;
+        m_items[m_numitems].font = m_fontbold;
+        m_items[m_numitems].flags |= DMBOX_ITEM_FLAG_DEATH;
 
 		text1 = text + 1;
 	}
