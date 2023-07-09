@@ -676,7 +676,7 @@ void R_SetupFrustum (void) {
 		SetPlaneSignbits(&tr.viewParms.frustum[4]);
 
 		tr.viewParms.fog.enabled = r_farplane_nofog->integer == 0;
-		tr.viewParms.fog.extrafrustums = tr.viewParms.farplane_cull;
+		tr.viewParms.fog.extrafrustums = tr.viewParms.farplane_cull ? 1 : 0;
 
 		if (!r_farplane_nofog->integer)
 		{
