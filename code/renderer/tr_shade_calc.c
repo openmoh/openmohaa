@@ -513,15 +513,15 @@ Autosprite2 will pivot a rectangular quad along the center of its long axis
 */
 int edgeVerts[6][2] = {
 	{ 0, 1 },
-	{ 0, 2 },
 	{ 0, 3 },
-	{ 1, 2 },
+	{ 0, 2 },
 	{ 1, 3 },
-	{ 2, 3 }
+	{ 1, 2 },
+	{ 3, 2 }
 };
 
 static void Autosprite2Deform( void ) {
-	int		i, j, k;
+	int		i, j;
 	int		indexes;
 	float	*xyz;
 	vec3_t	forward;
@@ -533,7 +533,7 @@ static void Autosprite2Deform( void ) {
 		ri.Printf( PRINT_WARNING, "Autosprite2 shader %s had odd index count", tess.shader->name );
 	}
 
-	if ( backEnd.currentEntity != &tr.worldEntity ) {
+	if ( backEnd.currentStaticModel || backEnd.currentEntity != &tr.worldEntity ) {
 		GlobalVectorToLocal( backEnd.viewParms.ori.axis[0], forward );
 	} else {
 		VectorCopy( backEnd.viewParms.ori.axis[0], forward );
@@ -543,18 +543,24 @@ static void Autosprite2Deform( void ) {
 	// we could precalculate a lot of it is an issue, but it would mess up
 	// the shader abstraction
 	for ( i = 0, indexes = 0 ; i < tess.numVertexes ; i+=4, indexes+=6 ) {
-		float	lengths[2];
-		int		nums[2];
+		float shortLengths[2];
+		int shortNums[2];
+		float longLengths[2];
+		int longNums[2];
 		vec3_t	mid[2];
 		vec3_t	major, minor;
-		float	*v1, *v2;
+		float	*v1, *v2, *v3, *v4;
+		qboolean firstOnLeft, secondOnLeft;
+		float edgeLength;
 
 		// find the midpoint
 		xyz = tess.xyz[i];
 
 		// identify the two shortest edges
-		nums[0] = nums[1] = 0;
-		lengths[0] = lengths[1] = 999999;
+		shortNums[0] = shortNums[1] = 0;
+		shortLengths[0] = shortLengths[1] = 1000000000;
+		longNums[1] = longNums[0] = 0;
+		longLengths[1] = longLengths[0] = 0;
 
 		for ( j = 0 ; j < 6 ; j++ ) {
 			float	l;
@@ -566,20 +572,30 @@ static void Autosprite2Deform( void ) {
 			VectorSubtract( v1, v2, temp );
 			
 			l = DotProduct( temp, temp );
-			if ( l < lengths[0] ) {
-				nums[1] = nums[0];
-				lengths[1] = lengths[0];
-				nums[0] = j;
-				lengths[0] = l;
-			} else if ( l < lengths[1] ) {
-				nums[1] = j;
-				lengths[1] = l;
+			if ( l < shortLengths[0] ) {
+				shortNums[1] = shortNums[0];
+				shortLengths[1] = shortLengths[0];
+				shortNums[0] = j;
+				shortLengths[0] = l;
+			} else if ( l < shortLengths[1] ) {
+				shortNums[1] = j;
+				shortLengths[1] = l;
+			}
+
+			if (l > longLengths[0]) {
+				longNums[1] = longNums[0];
+				longLengths[1] = longLengths[0];
+				longNums[0] = j;
+				longLengths[0] = l;
+			} else if (l > longLengths[1]) {
+				longNums[1] = j;
+				longLengths[1] = l;
 			}
 		}
 
 		for ( j = 0 ; j < 2 ; j++ ) {
-			v1 = xyz + 4 * edgeVerts[nums[j]][0];
-			v2 = xyz + 4 * edgeVerts[nums[j]][1];
+			v1 = xyz + 4 * edgeVerts[shortNums[j]][0];
+			v2 = xyz + 4 * edgeVerts[shortNums[j]][1];
 
 			mid[j][0] = 0.5f * (v1[0] + v2[0]);
 			mid[j][1] = 0.5f * (v1[1] + v2[1]);
@@ -592,33 +608,59 @@ static void Autosprite2Deform( void ) {
 		// cross this with the view direction to get minor axis
 		CrossProduct( major, forward, minor );
 		VectorNormalize( minor );
-		
-		// re-project the points
-		for ( j = 0 ; j < 2 ; j++ ) {
-			float	l;
 
-			v1 = xyz + 4 * edgeVerts[nums[j]][0];
-			v2 = xyz + 4 * edgeVerts[nums[j]][1];
+        v1 = xyz + 4 * edgeVerts[shortNums[0]][0];
+        v2 = xyz + 4 * edgeVerts[shortNums[0]][1];
 
-			l = 0.5 * sqrt( lengths[j] );
-			
-			// we need to see which direction this edge
-			// is used to determine direction of projection
-			for ( k = 0 ; k < 5 ; k++ ) {
-				if ( tess.indexes[ indexes + k ] == i + edgeVerts[nums[j]][0]
-					&& tess.indexes[ indexes + k + 1 ] == i + edgeVerts[nums[j]][1] ) {
-					break;
-				}
-			}
-
-			if ( k == 5 ) {
-				VectorMA( mid[j], l, minor, v1 );
-				VectorMA( mid[j], -l, minor, v2 );
-			} else {
-				VectorMA( mid[j], -l, minor, v1 );
-				VectorMA( mid[j], l, minor, v2 );
-			}
+        // we need to see which direction this edge
+        // is used to determine direction of projection
+		if (edgeVerts[shortNums[0]][0] == edgeVerts[longNums[0]][0]
+			|| edgeVerts[shortNums[0]][0] == edgeVerts[longNums[0]][1])
+		{
+			firstOnLeft = qtrue;
 		}
+		else
+		{
+			firstOnLeft = qfalse;
+        }
+
+        if (edgeVerts[shortNums[1]][0] == edgeVerts[longNums[1]][0]
+            || edgeVerts[shortNums[1]][0] == edgeVerts[longNums[1]][1])
+        {
+            secondOnLeft = qtrue;
+        }
+        else
+        {
+			secondOnLeft = qfalse;
+        }
+
+		if (firstOnLeft == secondOnLeft)
+        {
+            v3 = xyz + 4 * edgeVerts[shortNums[1]][0];
+            v4 = xyz + 4 * edgeVerts[shortNums[1]][1];
+		}
+		else
+        {
+            v3 = xyz + 4 * edgeVerts[shortNums[1]][1];
+            v4 = xyz + 4 * edgeVerts[shortNums[1]][0];
+		}
+
+        // re-project the points
+		edgeLength = sqrt(shortLengths[0]) * 0.5;
+        v1[0] = -edgeLength * minor[0] + mid[0][0];
+        v1[1] = -edgeLength * minor[1] + mid[0][1];
+        v1[2] = -edgeLength * minor[2] + mid[0][2];
+		v2[0] = minor[0] * edgeLength + mid[0][0];
+        v2[1] = minor[1] * edgeLength + mid[0][1];
+        v2[2] = minor[2] * edgeLength + mid[0][2];
+
+        edgeLength = sqrt(shortLengths[1]) * 0.5;
+		v3[0] = -edgeLength * minor[0] + mid[1][0];
+        v3[1] = -edgeLength * minor[1] + mid[1][1];
+        v3[2] = -edgeLength * minor[2] + mid[1][2];
+		v4[0] = minor[0] * edgeLength + mid[1][0];
+        v4[1] = minor[1] * edgeLength + mid[1][1];
+        v4[2] = minor[2] * edgeLength + mid[1][2];
 	}
 }
 
