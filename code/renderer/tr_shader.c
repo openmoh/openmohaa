@@ -625,7 +625,7 @@ ParseStage
 static qboolean ParseStage(shaderStage_t* stage, char** text)
 {
 	char* token;
-	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0;
+	int depthMaskBits = GLS_DEPTHMASK_TRUE, blendSrcBits = 0, blendDstBits = 0, atestBits = 0, depthFuncBits = 0, colorBits = 0;
 	qboolean depthMaskExplicit = qfalse;
 	int cntBundle = 0;
 	int depthTestBits = 0;
@@ -1386,7 +1386,20 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 			depthMaskExplicit = qtrue;
 
 			continue;
-		}
+        }
+        else if (!Q_stricmp(token, "nodepthwrite") || !Q_stricmp(token, "nodepthmask"))
+        {
+            depthMaskBits = 0;
+            depthMaskExplicit = qtrue;
+
+            continue;
+        }
+        else if (!Q_stricmp(token, "nocolorwrite") || !Q_stricmp(token, "nocolormask"))
+        {
+            colorBits = GLS_COLOR_NOMASK;
+
+            continue;
+        }
 		else if (!Q_stricmp(token, "noDepthTest"))
 		{
 			depthFuncBits = GLS_DEPTHTEST_DISABLE;
@@ -1434,7 +1447,6 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 		}
 	}
 
-
 	//
 	// implicitly assume that a GL_ONE GL_ZERO blend mask disables blending
 	//
@@ -1466,6 +1478,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 					   atestBits | 
 					   depthFuncBits |
 					   depthTestBits |
+					   colorBits |
 					   fogBits;
 
 	return qtrue;
@@ -2483,10 +2496,6 @@ static void SortNewShader( void ) {
 		tr.sortedShaders[i+1]->sortedIndex++;
 	}
 
-	// Arnout: fix rendercommandlist
-	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=493
-	FixRenderCommandList( i+1 );
-
 	newShader->sortedIndex = i+1;
 	tr.sortedShaders[i+1] = newShader;
 }
@@ -2741,7 +2750,7 @@ static shader_t *FinishShader( void ) {
 		//
 		if (qglActiveTextureARB) {
 			CollapseMultitexture(&stage);
-		};
+		}
 	}
 
 	for (i = 0; i < stage; i++) {
@@ -2787,6 +2796,10 @@ static shader_t *FinishShader( void ) {
 		}
 		else {
 			pStage->stateBits |= GLS_FOG_ENABLED;
+
+			if (shader.sort == SS_BAD) {
+				shader.sort = SS_OPAQUE;
+			}
 		}
 	}
 
