@@ -1660,57 +1660,57 @@ R_DebugCircle
 void R_DebugCircle(const vec3_t org, float radius, float r, float g, float b, float alpha, qboolean horizontal) {
     int				i;
     float			ang;
-    debugline_t* line;
-    vec3_t			forward, right;
-    vec3_t			pos, lastpos;
+	debugline_t* line;
+	vec3_t			forward, right;
+	vec3_t			pos, lastpos;
 
-    if (!ri.DebugLines || !ri.numDebugLines) {
-        return;
-    }
+	if (!ri.DebugLines || !ri.numDebugLines) {
+		return;
+	}
 
-    if (horizontal)
-    {
-        VectorSet(forward, 1, 0, 0);
-        VectorSet(right, 0, 1, 0);
-    }
-    else
-    {
-        VectorCopy(tr.refdef.viewaxis[1], right);
-        VectorCopy(tr.refdef.viewaxis[2], forward);
-    }
+	if (horizontal)
+	{
+		VectorSet(forward, 1, 0, 0);
+		VectorSet(right, 0, 1, 0);
+	}
+	else
+	{
+		VectorCopy(tr.refdef.viewaxis[1], right);
+		VectorCopy(tr.refdef.viewaxis[2], forward);
+	}
 
-    VectorClear(pos);
-    VectorClear(lastpos);
+	VectorClear(pos);
+	VectorClear(lastpos);
 
-    for (i = 0; i < CIRCLE_LENGTH; i++) {
-        VectorCopy(pos, lastpos);
+	for (i = 0; i < CIRCLE_LENGTH; i++) {
+		VectorCopy(pos, lastpos);
 
-        ang = (float)i * 0.0174532925199433f;
-        pos[0] = (org[0] + sin(ang) * radius * forward[0]) +
-            cos(ang) * radius * right[0];
-        pos[1] = (org[1] + sin(ang) * radius * forward[1]) +
-            cos(ang) * radius * right[1];
-        pos[2] = (org[2] + sin(ang) * radius * forward[2]) +
-            cos(ang) * radius * right[2];
+		ang = (float)i * 0.0174532925199433f;
+		pos[0] = (org[0] + sin(ang) * radius * forward[0]) +
+			cos(ang) * radius * right[0];
+		pos[1] = (org[1] + sin(ang) * radius * forward[1]) +
+			cos(ang) * radius * right[1];
+		pos[2] = (org[2] + sin(ang) * radius * forward[2]) +
+			cos(ang) * radius * right[2];
 
-        if (i > 0)
-        {
-            if (*ri.numDebugLines >= r_numdebuglines->integer) {
-                ri.Printf(PRINT_ALL, "R_DebugCircle: Exceeded MAX_DEBUG_LINES\n");
-                return;
-            }
+		if (i > 0)
+		{
+			if (*ri.numDebugLines >= r_numdebuglines->integer) {
+				ri.Printf(PRINT_ALL, "R_DebugCircle: Exceeded MAX_DEBUG_LINES\n");
+				return;
+			}
 
-            line = &(*ri.DebugLines)[*ri.numDebugLines];
-            (*ri.numDebugLines)++;
-            VectorCopy(lastpos, line->start);
-            VectorCopy(pos, line->end);
-            VectorSet(line->color, r, g, b);
-            line->alpha = alpha;
-            line->width = 1.0;
-            line->factor = 1;
-            line->pattern = -1;
-        }
-    }
+			line = &(*ri.DebugLines)[*ri.numDebugLines];
+			(*ri.numDebugLines)++;
+			VectorCopy(lastpos, line->start);
+			VectorCopy(pos, line->end);
+			VectorSet(line->color, r, g, b);
+			line->alpha = alpha;
+			line->width = 1.0;
+			line->factor = 1;
+			line->pattern = -1;
+		}
+	}
 }
 
 /*
@@ -1719,25 +1719,25 @@ R_DebugLine
 ================
 */
 void R_DebugLine(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha) {
-    debugline_t* line;
+	debugline_t* line;
 
-    if (!ri.DebugLines || !ri.numDebugLines) {
-        return;
-    }
+	if (!ri.DebugLines || !ri.numDebugLines) {
+		return;
+	}
 
-    if (*ri.numDebugLines >= r_numdebuglines->integer) {
-        ri.Printf(PRINT_ALL, "R_DebugLine: Exceeded MAX_DEBUG_LINES\n");
-    }
+	if (*ri.numDebugLines >= r_numdebuglines->integer) {
+		ri.Printf(PRINT_ALL, "R_DebugLine: Exceeded MAX_DEBUG_LINES\n");
+	}
 
-    line = &(*ri.DebugLines)[*ri.numDebugLines];
-    (*ri.numDebugLines)++;
-    VectorCopy(start, line->start);
-    VectorCopy(end, line->end);
-    VectorSet(line->color, r, g, b);
-    line->alpha = alpha;
-    line->width = 1.0;
-    line->factor = 1;
-    line->pattern = -1;
+	line = &(*ri.DebugLines)[*ri.numDebugLines];
+	(*ri.numDebugLines)++;
+	VectorCopy(start, line->start);
+	VectorCopy(end, line->end);
+	VectorSet(line->color, r, g, b);
+	line->alpha = alpha;
+	line->width = 1.0;
+	line->factor = 1;
+	line->pattern = -1;
 }
 
 /*
@@ -1746,7 +1746,82 @@ R_DrawDebugLines
 ================
 */
 void R_DrawDebugLines(void) {
-    // FIXME: stub
+	debugline_t* line;
+	int i;
+	float width;
+	int factor;
+	unsigned short pattern;
+
+	if (!ri.DebugLines || !ri.numDebugLines) {
+		return;
+	}
+
+	if (!*ri.numDebugLines) {
+		return;
+	}
+
+	if (tr.refdef.rdflags & RDF_NOWORLDMODEL) {
+		return;
+	}
+
+	if (tr.portalsky.inUse) {
+		return;
+	}
+
+    R_SyncRenderThread();
+    GL_Bind(tr.whiteImage);
+	if (r_debuglines_depthmask->integer) {
+		GL_State(GLS_POLYMODE_LINE | GLS_DEPTHMASK_TRUE);
+	} else {
+		GL_State(GLS_POLYMODE_LINE);
+	}
+
+    qglDisableClientState(GL_COLOR_ARRAY);
+    qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    width = 1.0;
+    factor = 4;
+    pattern = -1;
+
+    if (r_stipplelines->integer)
+    {
+        qglEnable(GL_LINE_STIPPLE);
+        qglLineStipple(4, -1);
+        qglLineWidth(1.0f);
+    }
+
+	qglBegin(GL_LINES);
+
+	for (i = 0; i < *ri.numDebugLines; i++) {
+		line = &(*ri.DebugLines)[i];
+
+		if (r_stipplelines->integer) {
+			if (line->width != width || line->factor != factor || line->pattern != pattern) {
+				qglEnd();
+				qglLineStipple(line->factor, line->pattern);
+                qglLineWidth(line->width);
+                qglBegin(GL_LINES);
+                factor = line->factor;
+                width = line->width;
+                pattern = line->pattern;
+			}
+		}
+
+		qglColor4f(line->color[0], line->color[1], line->color[2], line->alpha);
+        qglVertex3fv(line->start);
+        qglVertex3fv(line->end);
+	}
+
+    qglEnd();
+
+    if (r_stipplelines->integer)
+    {
+        qglDisable(GL_LINE_STIPPLE);
+        qglLineStipple(1, -1);
+        qglLineWidth(1.0);
+    }
+
+    qglDepthRange(0.0, 1.0);
 }
 
 /*
@@ -1755,7 +1830,37 @@ R_DrawDebugLines
 ================
 */
 void R_DrawDebugStrings(void) {
-    // FIXME: stub
+	int i;
+	debugstring_t* string;
+
+	if (!ri.DebugStrings || !ri.numDebugStrings) {
+		return;
+	}
+
+	if (!*ri.numDebugStrings) {
+		return;
+	}
+
+    if (tr.refdef.rdflags & RDF_NOWORLDMODEL) {
+        return;
+    }
+
+    if (tr.portalsky.inUse) {
+        return;
+    }
+
+	for (i = 0; i < *ri.numDebugStrings; i++) {
+		string = &(*ri.DebugStrings)[i];
+
+		R_DrawFloatingString(
+			tr.pFontDebugStrings,
+			string->szText,
+			string->pos,
+			string->color,
+			string->scale,
+			64
+		);
+	}
 }
 
 /*
