@@ -2015,6 +2015,7 @@ FONT
 fontheader_t* R_LoadFont(const char* name);
 void R_LoadFontShader(fontheader_t* font);
 void R_DrawString(fontheader_t* font, const char* text, float x, float y, int maxlen, qboolean bVirtualScreen);
+void R_DrawFloatingString(fontheader_t* font, const char* text, const vec3_t org, const vec4_t color, float scale, int maxlen);
 float R_GetFontHeight(const fontheader_t* font);
 float R_GetFontStringWidth(const fontheader_t* font, const char* s);
 
@@ -2149,7 +2150,7 @@ void RB_Color4bv(unsigned char* colors);
 void RB_Texcoord2f(float s, float t);
 void RB_Texcoord2fv(vec2_t st);
 void R_DrawDebugNumber(const vec3_t org, float number, float scale, float r, float g, float b, int precision);
-void R_DebugRotatedBBox(const vec3_t org, vec3_t ang, vec3_t mins, vec3_t maxs, float r, float g, float b, float alpha);
+void R_DebugRotatedBBox(const vec3_t org, const vec3_t ang, const vec3_t mins, const vec3_t maxs, float r, float g, float b, float alpha);
 int RE_GetShaderWidth(qhandle_t hShader);
 int RE_GetShaderHeight(qhandle_t hShader);
 
