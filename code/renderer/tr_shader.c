@@ -2791,7 +2791,7 @@ static shader_t *FinishShader( void ) {
 	}
 
 	// fogonly shaders don't have any normal passes
-	if (!shader.sort) {
+	if (shader.sort == SS_BAD) {
 		shader.sort = SS_OPAQUE;
 	}
 
@@ -3092,9 +3092,51 @@ qhandle_t RE_RegisterShaderNoMip( const char *name ) {
 }
 
 qhandle_t RE_RefreshShaderNoMip(const char* name) {
-	// FIXME: unimplemented
-	// Workaround
-	return RE_RegisterShaderNoMip(name);
+	shader_t* sh;
+	char strippedName[64];
+	int hash;
+
+	if (!name || !*name) {
+		return 0;
+	}
+
+    COM_StripExtension(name, strippedName, sizeof(strippedName));
+
+	hash = generateHashValue(strippedName);
+
+	for (currentShader = hashTable[hash]; currentShader; currentShader = currentShader->next) {
+		if (!Q_stricmp(currentShader->name, strippedName)) {
+			if (currentShader) {
+				image_t* image;
+
+				sh = currentShader->shader;
+				image = sh->unfoggedStages[0]->bundle[0].image[0];
+				currentShader = NULL;
+
+				if (image) {
+					sh->unfoggedStages[0]->bundle[0].image[0] = R_RefreshImageFile(
+						image->imgName,
+						image->numMipmaps,
+						image->allowPicmip,
+						image->force32bit,
+						image->wrapClampModeX,
+						image->wrapClampModeY
+					);
+				}
+
+				return sh->index;
+			}
+
+			break;
+		}
+	}
+
+    sh = R_FindShader(name, -4, 0, 0, 0, 0);
+	if (sh->defaultShader) {
+		return 0;
+	}
+
+    return sh->index;
 }
 
 /*
