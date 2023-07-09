@@ -1677,6 +1677,7 @@ void	GL_Cull( int cullType );
 #define GLS_FOG_BLACK							0x00020000
 #define GLS_FOG_WHITE							0x00040000
 #define GLS_FOG_COLOR							(GLS_FOG_BLACK | GLS_FOG_WHITE)
+#define GLS_COLOR_NOMASK						0x00080000
 
 #define GLS_ATEST_GT_0							0x10000000
 #define GLS_ATEST_LT_80							0x20000000
