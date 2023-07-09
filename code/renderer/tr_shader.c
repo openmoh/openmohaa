@@ -1572,45 +1572,6 @@ static void ParseDeform( char **text ) {
 		return;
 	}
 
-	if ( !Q_stricmp( token, "normal" ) )
-	{
-		token = COM_ParseExt( text, qfalse );
-		if ( token[0] == 0 )
-		{
-			ri.Printf( PRINT_WARNING, "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name );
-			return;
-		}
-		ds->deformationWave.amplitude = atof( token );
-
-		token = COM_ParseExt( text, qfalse );
-		if ( token[0] == 0 )
-		{
-			ri.Printf( PRINT_WARNING, "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name );
-			return;
-		}
-		ds->deformationWave.frequency = atof( token );
-
-		ds->deformation = DEFORM_NORMALS;
-		return;
-	}
-
-	if ( !Q_stricmp( token, "move" ) ) {
-		int		i;
-
-		for ( i = 0 ; i < 3 ; i++ ) {
-			token = COM_ParseExt( text, qfalse );
-			if ( token[0] == 0 ) {
-				ri.Printf( PRINT_WARNING, "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name );
-				return;
-			}
-			ds->moveVector[i] = atof( token );
-		}
-
-		ParseWaveForm( text, &ds->deformationWave );
-		ds->deformation = DEFORM_MOVE;
-		return;
-	}
-
 	if (!Q_stricmp(token, "flap")) {
 		texDirection_t coordDirection;
 
@@ -1667,6 +1628,45 @@ static void ParseDeform( char **text ) {
 			return;
 		}
 		ds->bulgeHeight = atof(token);
+		return;
+	}
+
+	if ( !Q_stricmp( token, "normal" ) )
+	{
+		token = COM_ParseExt( text, qfalse );
+		if ( token[0] == 0 )
+		{
+			ri.Printf( PRINT_WARNING, "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name );
+			return;
+		}
+		ds->deformationWave.amplitude = atof( token );
+
+		token = COM_ParseExt( text, qfalse );
+		if ( token[0] == 0 )
+		{
+			ri.Printf( PRINT_WARNING, "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name );
+			return;
+		}
+		ds->deformationWave.frequency = atof( token );
+
+		ds->deformation = DEFORM_NORMALS;
+		return;
+	}
+
+	if ( !Q_stricmp( token, "move" ) ) {
+		int		i;
+
+		for ( i = 0 ; i < 3 ; i++ ) {
+			token = COM_ParseExt( text, qfalse );
+			if ( token[0] == 0 ) {
+				ri.Printf( PRINT_WARNING, "WARNING: missing deformVertexes parm in shader '%s'\n", shader.name );
+				return;
+			}
+			ds->moveVector[i] = atof( token );
+		}
+
+		ParseWaveForm( text, &ds->deformationWave );
+		ds->deformation = DEFORM_MOVE;
 		return;
 	}
 
