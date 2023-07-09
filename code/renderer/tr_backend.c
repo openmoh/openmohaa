@@ -524,6 +524,12 @@ void GL_State( unsigned long stateBits )
 				vec4_t fWhiteFogColor = { 1, 1, 1, 1 };
 				qglFogfv(GL_FOG_COLOR, fWhiteFogColor);
 			}
+			else
+            {
+                //
+                // Use the global fog
+                qglFogfv(GL_FOG_COLOR, glState.fFogColor);
+            }
 		}
 	}
 
