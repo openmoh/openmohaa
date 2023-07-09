@@ -141,10 +141,10 @@ int TIKI_Anim_NumForName( dtiki_t *pmdl, const char *name )
 					continue;
 				}
 
-				if( panimdef->flags & TAF_AUTOSTEPS_DOG )
+				if( panimdef->flags & TAF_AUTOSTEPS )
 				{
 					fAnimWeights[ iAnimCount ] = 0.0f;
-					panimdef->flags &= ~TAF_AUTOSTEPS_DOG;
+					panimdef->flags &= ~TAF_AUTOSTEPS;
 				}
 				else
 				{
@@ -170,7 +170,7 @@ int TIKI_Anim_NumForName( dtiki_t *pmdl, const char *name )
 			panimdef = pmdl->a->animdefs[ iMiddle ];
 			if( panimdef && panimdef->flags & TAF_NOREPEAT )
 			{
-				panimdef->flags |= TAF_AUTOSTEPS_DOG;
+				panimdef->flags |= TAF_AUTOSTEPS;
 			}
 
 			return iMiddle;

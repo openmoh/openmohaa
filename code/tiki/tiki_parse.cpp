@@ -259,15 +259,15 @@ void TIKI_ParseAnimationFlags( dloaddef_t *ld, dloadanim_t *anim )
 		}
 		else if( !stricmp( token, "autosteps_run" ) )
 		{
-			anim->flags |= TAF_AUTOSTEPS_RUN;
+			anim->flags |= TAF_AUTOSTEPS | TAF_AUTOSTEPS_RUNNING | TAF_AUTOSTEPS_EQUIPMENT;
 		}
 		else if( !stricmp( token, "autosteps_walk" ) )
 		{
-			anim->flags |= TAF_AUTOSTEPS_WALK;
+			anim->flags |= TAF_AUTOSTEPS | TAF_AUTOSTEPS_EQUIPMENT;
 		}
 		else if( !stricmp( token, "autosteps_dog" ) )
 		{
-			anim->flags |= TAF_AUTOSTEPS_DOG;
+			anim->flags |= TAF_AUTOSTEPS;
 		}
 		else
 		{

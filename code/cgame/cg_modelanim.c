@@ -750,7 +750,7 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
         }
     }
 
-    if (iAnimFlags & TAF_AUTOFOOTSTEPS) {
+    if (iAnimFlags & TAF_AUTOSTEPS) {
         int iTagNum;
         // Automatically calculate the footsteps sounds
 
@@ -769,8 +769,8 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
                         "Bip01 R Foot",
                         cent,
                         &model,
-                        (iAnimFlags & TAF_AUTOFOOTSTEPS_RUNNING),
-                        (iAnimFlags & TAF_AUTOFOOTSTEPS_EQUIPMENT)
+                        (iAnimFlags & TAF_AUTOSTEPS_RUNNING),
+                        (iAnimFlags & TAF_AUTOSTEPS_EQUIPMENT)
                     );
                     cent->bFootOnGround_Right = qtrue;
                 }
@@ -794,8 +794,8 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
                         "Bip01 L Foot",
                         cent,
                         &model,
-                        (iAnimFlags & TAF_AUTOFOOTSTEPS_RUNNING),
-                        (iAnimFlags & TAF_AUTOFOOTSTEPS_EQUIPMENT)
+                        (iAnimFlags & TAF_AUTOSTEPS_RUNNING),
+                        (iAnimFlags & TAF_AUTOSTEPS_EQUIPMENT)
                     );
 
                     cent->bFootOnGround_Left = qtrue;
