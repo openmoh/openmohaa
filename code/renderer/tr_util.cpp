@@ -22,9 +22,41 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tr_util.c -- renderer utility
 
 #include "tr_local.h"
+#include "../qcommon/str.h"
 
 static byte cntColor[4];
 static float cntSt[ 2 ];
+
+static int Numbers[12][8] = {
+    { 1, 3, 4, 5, 6, 7, 0, 0 },
+    { 4, 5, 0, 0, 0, 0, 0, 0 },
+    { 1, 4, 2, 7, 3, 0, 0, 0 },
+    { 1, 4, 2, 5, 3, 0, 0, 0 },
+    { 6, 4, 2, 5, 0, 0, 0, 0 },
+    { 1, 6, 2, 5, 3, 0, 0, 0 },
+    { 1, 6, 2, 5, 7, 3, 0, 0 },
+    { 1, 8, 0, 0, 0, 0, 0, 0 },
+    { 1, 2, 3, 4, 5, 6, 7, 0 },
+    { 1, 6, 4, 2, 5, 3, 0, 0 },
+    { 9, 10, 11, 12, 0, 0, 0, 0 },
+    { 2, 0, 0, 0, 0, 0, 0, 0 }
+};
+
+static float Lines[13][4] = {
+    { 0.0, 0.0, 0.0, 0.0 },
+    { -4.0, 8.0, 4.0, 8.0 },
+    { -4.0, 4.0, 4.0, 4.0 },
+    { -4.0, 0.0, 4.0, 0.0 },
+    { 4.0, 8.0, 4.0, 4.0 },
+    { 4.0, 4.0, 4.0, 0.0 },
+    { -4.0, 8.0, -4.0, 4.0 },
+    { -4.0, 4.0, -4.0, 0.0 },
+    { 4.0, 8.0, -4.0, 0.0 },
+    { -1.0, 2.0, 1.0, 2.0 },
+    { 1.0, 2.0, 1.0, 0.0 },
+    { -1.0, 0.0, 1.0, 0.0 },
+    { -1.0, 0.0, -1.0, 2.0 }
+};
 
 /*
 ===============
@@ -203,16 +235,77 @@ void RB_Texcoord2fv( vec2_t st ) {
 	cntSt[ 1 ] = st[ 1 ];
 }
 
-static int Numbers[ 12 ][ 8 ];
-static float Lines[ 13 ][ 4 ];
-
 /*
 ===============
 R_DrawDebugNumber
 ===============
 */
 void R_DrawDebugNumber( const vec3_t org, float number, float scale, float r, float g, float b, int precision ) {
-	// FIXME: unimplemented
+	vec3_t up, right;
+	vec3_t pos1, pos2;
+	vec3_t start;
+	str text;
+	char format[20];
+	int i;
+	int j;
+	int l;
+	int num;
+	
+	VectorCopy(tr.viewParms.ori.axis[2], up);
+	VectorCopy(tr.viewParms.ori.axis[1], right);
+	VectorNegate(right, right);
+
+	VectorNormalize(up);
+	VectorNormalize(right);
+
+	VectorScale(up, scale, up);
+	VectorScale(right, scale, right);
+
+    if (precision > 0) {
+		sprintf(format, "%%.%df", precision);
+        text = va(format, precision);
+	} else {
+		text = va("%d", number);
+	}
+
+	l = 5 - 5 * text.length();
+	start[0] = org[0] + l * right[0];
+	start[1] = org[1] + l * right[1];
+	start[2] = org[2] + l * right[2];
+
+	for (i = 0; i < l; i++) {
+		if (text[i] == '.') {
+			num = 10;
+		}
+		else if (text[i] == '-') {
+			num = 11;
+		}
+		else {
+			num = text[i] - '0';
+		}
+
+		l = 32 * num;
+		num = Numbers[num][0];
+
+		for (j = 0; j < 8 && num; j++) {
+            pos1[0] = start[0] + Lines[num][0] * right[0] + Lines[num][1] * up[0];
+            pos1[1] = start[1] + Lines[num][0] * right[1] + Lines[num][1] * up[1];
+            pos1[2] = start[2] + Lines[num][0] * right[2] + Lines[num][1] * up[2];
+
+			pos2[0] = start[0] + Lines[num][2] * right[0] + Lines[num][3] * up[0];
+			pos2[1] = start[1] + Lines[num][2] * right[1] + Lines[num][3] * up[1];
+			pos2[2] = start[2] + Lines[num][2] * right[2] + Lines[num][3] * up[2];
+
+			R_DebugLine(pos1, pos2, r, g, b, 1.0);
+
+			l += 4;
+			num = Numbers[l / 8][l % 8];
+        }
+
+        start[0] += right[0] * 10.0;
+        start[1] += right[1] * 10.0;
+        start[2] += right[2] * 10.0;
+	}
 }
 
 /*
