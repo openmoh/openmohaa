@@ -2553,6 +2553,54 @@ image_t* R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip
 
 /*
 ================
+R_RefreshImageFile
+================
+*/
+image_t* R_RefreshImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY) {
+	char imagename[64];
+	image_t* image;
+	long hash;
+	
+	if (!name) {
+		return NULL;
+	}
+
+	strncpy(imagename, name, ARRAY_LEN(imagename));
+	hash = generateHashValue(name);
+	image = hashTable[hash];
+
+    if (image)
+    {
+        while (strcmp(name, image->imgName))
+        {
+            image = image->next;
+			if (!image) {
+				return R_FindImageFile(
+					imagename,
+					mipmap,
+					allowPicmip,
+					force32bit,
+					glWrapClampModeX,
+					glWrapClampModeY
+				);
+			}
+        }
+
+        R_FreeImage(image);
+    }
+
+    return R_FindImageFile(
+		imagename,
+		mipmap,
+		allowPicmip,
+		force32bit,
+		glWrapClampModeX,
+		glWrapClampModeY
+	);
+}
+
+/*
+================
 R_ImageExists
 ================
 */
@@ -2805,6 +2853,51 @@ void	R_InitImages( void ) {
 
 	// create default texture and white texture
 	R_CreateBuiltinImages();
+}
+
+/*
+===============
+R_DeleteImageFromHash
+===============
+*/
+void R_DeleteImageFromHash(image_t* image) {
+	image_t* current;
+	image_t* prev;
+	int hash;
+
+    hash = generateHashValue(image->imgName);
+    current = hashTable[hash];
+    prev = NULL;
+
+    while (current)
+    {
+        if (image == current)
+        {
+			if (prev) {
+				prev->next = current->next;
+			} else {
+                hashTable[hash] = current->next;
+			}
+            return;
+        }
+
+        prev = current;
+        current = current->next;
+    }
+}
+
+/*
+===============
+R_FreeImage
+===============
+*/
+void R_FreeImage(image_t* image) {
+	if (image->texnum) {
+		qglDeleteTextures(1, &image->texnum);
+	}
+
+    R_DeleteImageFromHash(image);
+	memset(image, 0, sizeof(image_t));
 }
 
 /*

@@ -1714,6 +1714,7 @@ model_t		*R_AllocModel( void );
 
 void    	R_Init( void );
 image_t		*R_FindImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
+image_t		*R_RefreshImageFile(const char* name, qboolean mipmap, qboolean allowPicmip, qboolean force32bit, int glWrapClampModeX, int glWrapClampModeY);
 
 image_t* R_CreateImage(
 	const char* name,
@@ -1741,6 +1742,7 @@ const void *RB_TakeScreenshotCmd( const void *data );
 void	R_ScreenShot_f( void );
 
 void	R_InitImages( void );
+void	R_FreeImage(image_t* image);
 void	R_DeleteTextures( void );
 int		R_SumOfUsedImages( void );
 skin_t	*R_GetSkinByHandle( qhandle_t hSkin );
