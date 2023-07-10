@@ -37,6 +37,10 @@ markPoly_t  cg_activeMarkPolys; // double linked list
 markPoly_t *cg_freeMarkPolys;   // single linked list
 markPoly_t  cg_markPolys[MAX_MARK_POLYS];
 markObj_t* cg_markObjs;
+markObj_t cg_activeMarkObjs;
+markObj_t* cg_freeMarkObjs;
+treadMark_t cg_treadMarks[MAX_TREAD_MARKS];
+cvar_t* cg_treadmark_test;
 int cg_iNumFreeMarkObjs;
 int cg_iMinFreeMarkObjs;
 qboolean cg_bMarksInitialized;
@@ -121,6 +125,22 @@ markPoly_t *CG_AllocMark(void)
     cg_activeMarkPolys.nextMark           = le;
     return le;
 }
+
+void CG_AssembleFinalMarks(
+    vec3_t           *markPoints,
+    markFragment_t   *markFragments,
+    int              numFragments,
+    qboolean         (*PerPolyCallback)(const vec3_t* markPoints, markFragment_t* mf, polyVert_t* verts, void* pCustom),
+    int              (*GetLeafCallback)(markFragment_t* mf, void* pCustom),
+    void             *pCustom,
+    qhandle_t        markShader,
+    qboolean         fadein,
+    qboolean         alphaFade
+)
+{
+    // FIXME: unimplemented
+}
+
 /*
 =================
 CG_ImpactMark
@@ -411,13 +431,28 @@ void CG_AddMarks(void)
 
 qboolean CG_CheckMakeMarkOnEntity(int iEntIndex)
 {
-    // FIXME: unimplemented
-    return qfalse;
+    if (iEntIndex == ENTITYNUM_WORLD) {
+        return qtrue;
+    }
+
+    if (iEntIndex == ENTITYNUM_NONE) {
+        return qfalse;
+    }
+
+    if (cg_entities[iEntIndex].currentState.solid != SOLID_BMODEL) {
+        return qfalse;
+    }
+
+    if (cg_entities[iEntIndex].currentState.modelindex < 0 || cg_entities[iEntIndex].currentState.modelindex > cgi.CM_NumInlineModels()) {
+        return qfalse;
+    }
+
+    return qtrue;
 }
 
 void CG_InitTestTreadMark()
 {
-    // FIXME: unimplemented
+    cg_treadmark_test = cgi.Cvar_Get("cg_treadmark_test", "0", 0);
 }
 
 int CG_StartTreadMark(int iReference, qhandle_t treadShader, vec_t *vStartPos, float fWidth, float fAlpha)
@@ -426,7 +461,7 @@ int CG_StartTreadMark(int iReference, qhandle_t treadShader, vec_t *vStartPos, f
     return 0;
 }
 
-qboolean CG_MakeTreadMarkDecal_PerPolyCallback(vec3_t *markPoints, markFragment_t *mf, polyVert_t *verts, void *pCustom)
+qboolean CG_MakeTreadMarkDecal_PerPolyCallback(const vec3_t *markPoints, markFragment_t *mf, polyVert_t *verts, void *pCustom)
 {
     // FIXME: unimplemented
     return qfalse;

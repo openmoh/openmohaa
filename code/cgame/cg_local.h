@@ -139,6 +139,7 @@ extern "C" {
 
 #define MAX_VERTS_ON_POLY 10
 #define MAX_MARK_POLYS    64
+#define MAX_TREAD_MARKS   16
 
     typedef struct markPoly_s {
         struct markPoly_s *prevMark, *nextMark;
