@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	CONTENTS_LAVA			0x0008
 #define	CONTENTS_SLIME			0x0010
 #define	CONTENTS_WATER			0x0020
+#define CONTENTS_FLUID          (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)
 #define	CONTENTS_FOG			0x0040
 
 #define CONTENTS_NOTTEAM1		0x0080
