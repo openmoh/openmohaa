@@ -1736,10 +1736,10 @@ void EulerToQuat
 
 float ProjectPointOnLine
 	(
-	vec_t *i_vStart,
-	vec_t *i_vEnd,
-	vec_t *i_vPoint,
-	vec_t *o_vProj
+	const vec3_t i_vStart,
+	const vec3_t i_vEnd,
+	const vec3_t i_vPoint,
+	vec3_t o_vProj
 	)
 {
 	float fDot;
@@ -1760,11 +1760,11 @@ float ProjectPointOnLine
 
 float ProjectLineOnPlane
 	(
-	vec_t *vPlaneNorm,
+	const vec3_t vPlaneNorm,
 	float fPlaneDist,
-	vec_t *vStart,
-	vec_t *vEnd,
-	vec_t *vProj
+	const vec3_t vStart,
+	const vec3_t vEnd,
+	vec3_t vProj
 	)
 {
 	float d1;

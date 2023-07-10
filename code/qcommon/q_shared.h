@@ -838,8 +838,8 @@ void SlerpQuaternion(float from[4], float to[4], float t, float res[4]);
 void	EulerToQuat( float ang[ 3 ], float q[ 4 ] );
 void	MatToQuat( float srcMatrix[ 3 ][ 3 ], float destQuat[ 4 ] );
 
-float ProjectPointOnLine( vec_t *i_vStart, vec_t *i_vEnd, vec_t *i_vPoint, vec_t *o_vProj );
-float ProjectLineOnPlane( vec_t *vPlaneNorm, float fPlaneDist, vec_t *vStart, vec_t *vEnd, vec_t *vProj );
+float ProjectPointOnLine( const vec3_t i_vStart, const vec3_t i_vEnd, const vec3_t i_vPoint, vec3_t o_vProj );
+float ProjectLineOnPlane(const vec3_t vPlaneNorm, float fPlaneDist, const vec3_t vStart, const vec3_t vEnd, vec3_t vProj );
 
 float anglemod( float a );
 float angledist( float ang );
