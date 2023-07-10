@@ -61,7 +61,92 @@ static vec3_t          flesh_impact_norm[MAX_IMPACTS];
 static int             flesh_impact_large[MAX_IMPACTS];
 
 void CG_MakeBulletHoleSound(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, trace_t* pPreTrace) {
-    // FIXME: unimplemented
+
+    int iSurfType;
+    float fVolume;
+    str sSoundName;
+    vec3_t vFrom, vDest;
+    trace_t trace;
+
+    if (pPreTrace) {
+        trace = *pPreTrace;
+    }
+    else {
+        VectorMA(i_vPos, 2.0f, i_vNorm, vFrom);
+        VectorMA(i_vPos, -4.0f, i_vNorm, vDest);
+        CG_Trace(&trace, vFrom, vec_zero, vec_zero, vDest, ENTITYNUM_NONE, MASK_SHOT, qfalse, qtrue, "CG_MakeBulletHole");
+    }
+
+    iSurfType = trace.surfaceFlags & MASK_SURF_TYPE;
+    if (trace.contents & CONTENTS_WATER) {
+        iSurfType = SURF_PUDDLE;
+    }
+
+    if (trace.fraction == 1.0f || trace.startsolid || (trace.surfaceFlags & SURF_SKY)) {
+        return;
+    }
+
+    VectorAdd(trace.endpos, trace.plane.normal, vFrom);
+    sSoundName = "snd_bh_";
+
+    switch (iSurfType) {
+    case SURF_FOLIAGE:
+        sSoundName += "foliage";
+        break;
+    case SURF_SNOW:
+        sSoundName += "snow";
+        break;
+    case SURF_CARPET:
+        sSoundName += "carpet";
+        break;
+    case SURF_SAND:
+        sSoundName += "sand";
+        break;
+    case SURF_PUDDLE:
+        sSoundName += "puddle";
+        break;
+    case SURF_GLASS:
+        sSoundName += "glass";
+        break;
+    case SURF_GRAVEL:
+        sSoundName += "gravel";
+        break;
+    case SURF_MUD:
+        sSoundName += "mud";
+        break;
+    case SURF_DIRT:
+        sSoundName += "dirt";
+        break;
+    case SURF_GRILL:
+        sSoundName += "grill";
+        break;
+    case SURF_GRASS:
+        sSoundName += "grass";
+        break;
+    case SURF_ROCK:
+        sSoundName += "stone";
+        break;
+    case SURF_PAPER:
+        sSoundName += "paper";
+        break;
+    case SURF_WOOD:
+        sSoundName += "wood";
+        break;
+    case SURF_METAL:
+        sSoundName += "metal";
+        break;
+    default:
+        sSoundName += "stone";
+        break;
+    }
+
+    if (iLarge) {
+        fVolume = 1.0f;
+    } else {
+        fVolume = 0.75f;
+    }
+
+    commandManager.PlaySound(sSoundName, vFrom, -1, fVolume, -1.f, -1.f, 1);
 }
 
 static void CG_MakeBulletHoleType(const vec3_t i_vPos, const vec3_t i_vNorm, int iLarge, int iEffectNum, float fRadius, qboolean bMakeSound) {
@@ -159,7 +244,7 @@ static void CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLa
         iSurfType = SURF_PUDDLE;
     }
 
-    if (trace.fraction != 1.0f && !trace.startsolid && !(trace.surfaceFlags & SURF_SKY)) {
+    if (trace.fraction == 1.0f || trace.startsolid || (trace.surfaceFlags & SURF_SKY)) {
         return;
     }
 
@@ -423,7 +508,7 @@ static void CG_MakeBulletTracerInternal(
                 }
 
                 memset(&trace, 0, sizeof(trace));
-                VectorCopy(vTraceStart, vTraceEnd);
+                VectorCopy(vTraceEnd, vTraceStart);
                 VectorMA(i_vStart, iTravelDist, vDir, vTraceEnd);
 
                 while (trace.fraction < 1) {
@@ -484,8 +569,8 @@ static void CG_MakeBulletTracerInternal(
                     }
 
                     if (trace.fraction < 1.0f) {
-                        if ((trace.surfaceFlags & (SURF_HINT | SURF_NODLIGHT | SURF_SNOW | SURF_FOLIAGE | SURF_DIRT))
-                            || ((trace.contents & CONTENTS_WATER) && iContinueCount < 5))
+                        if (((trace.surfaceFlags & (SURF_HINT | SURF_NODLIGHT | SURF_SNOW | SURF_FOLIAGE | SURF_DIRT)) || (trace.contents & CONTENTS_WATER))
+                            && iContinueCount < 5)
                         {
                             if (bInWater)
                             {
@@ -927,6 +1012,7 @@ void CG_AddBulletImpacts()
             }
         }
 
+        wall_impact_count = 0;
     }
 
     if (flesh_impact_count)
@@ -955,9 +1041,9 @@ void CG_AddBulletImpacts()
                 }
             }
         }
-    }
 
-    // FIXME: unimplemented
+        flesh_impact_count = 0;
+    }
 }
 
 void CG_MakeExplosionEffect(vec3_t vPos, int iType)
