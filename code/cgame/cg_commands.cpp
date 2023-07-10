@@ -3245,7 +3245,7 @@ void ClientGameCommandManager::EmitterOff(Event *ev)
 // Sound
 //===============
 void ClientGameCommandManager::PlaySound(
-    str sound_name, vec3_t origin, int channel, float volume, float min_distance, float pitch, int argstype
+    str sound_name, const vec3_t origin, int channel, float volume, float min_distance, float pitch, int argstype
 )
 {
     int              aliaschannel;

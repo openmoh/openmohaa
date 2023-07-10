@@ -389,17 +389,18 @@ void CG_Decal(centity_t *cent)
         s1->origin,
         dir,
         s1->angles[2],
+        s1->scale,
+        s1->scale,
         cent->color[0],
         cent->color[1],
         cent->color[2],
         cent->color[3],
         qtrue,
-        s1->scale,
         qfalse,
-        -1,
+        qtrue,
         qfalse,
-        0.f,
-        0.f
+        0.5f,
+        0.5f
     );
 }
 

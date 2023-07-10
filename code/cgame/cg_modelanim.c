@@ -252,17 +252,18 @@ qboolean CG_EntityShadow(centity_t *cent, refEntity_t *model)
         trace.endpos,
         trace.plane.normal,
         cent->lerpAngles[YAW],
+        radius,
+        radius,
         alpha,
         alpha,
         alpha,
         1,
         qfalse,
-        radius,
         qtrue,
-        -1,
+        qtrue,
         qfalse,
-        0.f,
-        0.f
+        0.5f,
+        0.5f
     );
 
     return qtrue;

@@ -870,12 +870,12 @@ public:
     void UpdateBeam(dtiki_t *tiki, int entity_number, spawnthing_t *beamthing);
     void PlaySound(
         str    sound_name,
-        vec3_t origin       = NULL,
-        int    channel      = CHAN_AUTO,
-        float  volume       = -1,
-        float  min_distance = -1,
-        float  pitch        = -1,
-        int    argstype     = 0
+        const vec3_t origin       = NULL,
+        int    channel            = CHAN_AUTO,
+        float  volume             = -1,
+        float  min_distance       = -1,
+        float  pitch              = -1,
+        int    argstype           = 0
     );
 
     spawnthing_t *InitializeSpawnthing(spawnthing_t *ep);

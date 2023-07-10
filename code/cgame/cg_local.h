@@ -152,6 +152,18 @@ extern "C" {
         polyVert_t         verts[MAX_VERTS_ON_POLY];
     } markPoly_t;
 
+    typedef struct markObj_s {
+        struct markObj_s* prevMark;
+        struct markObj_s* nextMark;
+        int time;
+        int lastVisTime;
+        int leafnum;
+        int markShader;
+        int alphaFade;
+        int fadein;
+        markPoly_t* markPolys;
+    } markObj_t;
+
 #define MAX_CUSTOM_SOUNDS 32
 
     typedef struct {
@@ -643,33 +655,35 @@ extern "C" {
         const vec3_t origin,
         const vec3_t dir,
         float        orientation,
-        float        r,
-        float        g,
-        float        b,
-        float        a,
+        float        fSScale,
+        float        fTScale,
+        float        red,
+        float        green,
+        float        blue,
+        float        alpha,
         qboolean     alphaFade,
-        float        radius,
         qboolean     temporary,
-        int          lightstyle,
+        qboolean     dolighting,
         qboolean     fadein,
         float        fSCenter,
         float        fTCenter
     );
     void CG_ImpactMarkSimple(
-        qhandle_t markShader,
-        vec_t    *origin,
-        vec_t    *dir,
-        float     orientation,
-        float     fRadius,
-        float     red,
-        float     green,
-        float     blue,
-        float     alpha,
-        qboolean  alphaFade,
-        qboolean  temporary,
-        qboolean  dolighting,
-        qboolean  fadein
+        qhandle_t    markShader,
+        const vec3_t origin,
+        const vec3_t dir,
+        float        orientation,
+        float        fRadius,
+        float        red,
+        float        green,
+        float        blue,
+        float        alpha,
+        qboolean     alphaFade,
+        qboolean     temporary,
+        qboolean     dolighting,
+        qboolean     fadein
     );
+    qboolean CG_CheckMakeMarkOnEntity(int iEntIndex);
     void CG_InitTestTreadMark();
     int  CG_PermanentMark(
          const vec3_t    origin,

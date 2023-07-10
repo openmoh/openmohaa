@@ -36,6 +36,10 @@ MARK POLYS
 markPoly_t  cg_activeMarkPolys; // double linked list
 markPoly_t *cg_freeMarkPolys;   // single linked list
 markPoly_t  cg_markPolys[MAX_MARK_POLYS];
+markObj_t* cg_markObjs;
+int cg_iNumFreeMarkObjs;
+int cg_iMinFreeMarkObjs;
+qboolean cg_bMarksInitialized;
 
 vec3_t vec_upwards;
 
@@ -58,6 +62,10 @@ void CG_InitMarks(void)
     for (i = 0; i < MAX_MARK_POLYS - 1; i++) {
         cg_markPolys[i].nextMark = &cg_markPolys[i + 1];
     }
+
+    cg_bMarksInitialized = qtrue;
+
+    // FIXME: partially implemented
 }
 
 /*
@@ -113,7 +121,6 @@ markPoly_t *CG_AllocMark(void)
     cg_activeMarkPolys.nextMark           = le;
     return le;
 }
-
 /*
 =================
 CG_ImpactMark
@@ -133,14 +140,15 @@ void CG_ImpactMark(
     const vec3_t origin,
     const vec3_t dir,
     float        orientation,
+    float        fSScale,
+    float        fTScale,
     float        red,
     float        green,
     float        blue,
     float        alpha,
     qboolean     alphaFade,
-    float        radius,
     qboolean     temporary,
-    int          lightstyle,
+    qboolean     dolighting,
     qboolean     fadein,
     float        fSCenter,
     float        fTCenter
@@ -155,9 +163,23 @@ void CG_ImpactMark(
     markFragment_t markFragments[MAX_MARK_FRAGMENTS], *mf;
     vec3_t         markPoints[MAX_MARK_POINTS];
     vec3_t         projection;
+    float          radius = fSScale * fTScale;
 
-    if (!cg_addMarks->integer) {
+    if (!cg_bMarksInitialized) {
         return;
+    }
+
+    if (!cg_addMarks->integer
+        && markShader != cgs.media.shadowMarkShader
+        && markShader != cgs.media.footShadowMarkShader) {
+        return;
+    }
+
+    if (fSScale == 0.0) {
+        fSScale = 1.0;
+    }
+    if (fTScale == 0.0) {
+        fTScale = 1.0;
     }
 
     if (radius <= 0) {
@@ -253,27 +275,46 @@ void CG_ImpactMark(
         mark->color[2]      = blue;
         mark->color[3]      = alpha;
         mark->fadein        = fadein;
-        mark->lightstyle    = lightstyle;
         memcpy(mark->verts, verts, mf->numPoints * sizeof(verts[0]));
     }
 }
 
 void CG_ImpactMarkSimple(
-    qhandle_t markShader,
-    vec_t    *origin,
-    vec_t    *dir,
-    float     orientation,
-    float     fRadius,
-    float     red,
-    float     green,
-    float     blue,
-    float     alpha,
-    qboolean  alphaFade,
-    qboolean  temporary,
-    qboolean  dolighting,
-    qboolean  fadein
+    qhandle_t    markShader,
+    const vec3_t origin,
+    const vec3_t dir,
+    float        orientation,
+    float        fRadius,
+    float        red,
+    float        green,
+    float        blue,
+    float        alpha,
+    qboolean     alphaFade,
+    qboolean     temporary,
+    qboolean     dolighting,
+    qboolean     fadein
 )
 {
+    if (cg_bMarksInitialized) {
+        CG_ImpactMark(
+            markShader,
+            origin,
+            dir,
+            orientation,
+            fRadius,
+            fRadius,
+            red,
+            green,
+            blue,
+            alpha,
+            alphaFade,
+            temporary,
+            dolighting,
+            fadein,
+            0.5f,
+            0.5f
+        );
+    }
     // FIXME: unimplemented
 }
 
