@@ -236,7 +236,7 @@ static void CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLa
     }
 
     if (fRadius && CG_CheckMakeMarkOnEntity(trace.entityNum)) {
-        fRadius *= 1.f + crandom() * 2.f;
+        fRadius *= 1.f + random() * 2.f;
 
         CG_ImpactMarkSimple(
             cgi.R_RegisterShader(sBulletHole.c_str()),
@@ -260,12 +260,85 @@ static void CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLa
 
 static void CG_MakeBubbleTrail(const vec3_t i_vStart, const vec3_t i_vEnd, int iLarge, float alpha = 1.0f)
 {
-    // FIXME: unimplemented
+    vec3_t vDir;
+    vec3_t vPos;
+    float fDist;
+    float fMove;
+
+    VectorSubtract(i_vEnd, i_vStart, vDir);
+    fDist = VectorNormalize(vDir);
+    VectorCopy(i_vStart, vPos);
+
+    fMove = random() * 8.f;
+    fDist -= fMove;
+    while (fDist > 0.f) {
+        VectorMA(vPos, fMove, vDir, vPos);
+        sfxManager.MakeEffect_Angles(32, vPos, vec_zero);
+
+        fMove = 16.f + crandom() * 8.f;
+        fDist -= fMove;
+    }
 }
 
 static void CG_BulletTracerEffect(const vec3_t i_vStart, const vec3_t i_vEnd)
 {
-    // FIXME: unimplemented
+    int iLife;
+    int iTracerLength;
+    float fLength, fDist;
+    vec4_t fTracerColor;
+    vec3_t vDir, vNewStart;
+
+    iTracerLength = 450.0f + random() * 150.f;
+    VectorSubtract(i_vEnd, i_vStart, vDir);
+    fLength = VectorNormalize(vDir);
+    fDist = 450.0f + random() * 150.f;
+    if (fLength < fDist + 150.f) {
+        float fFrac;
+
+        if (fLength < 150.f) {
+            return;
+        }
+
+        fFrac = fLength / (fDist + 150.0);
+        iTracerLength = (int)((float)iTracerLength * fFrac + 0.5f);
+        fDist *= fFrac;
+    }
+
+    iLife = (int)((fLength - fDist) / 12000.f * 1000.f);
+    if (iLife < 20) iLife = 20;
+
+    VectorMA(i_vStart, fDist, vDir, vNewStart);
+    fTracerColor[0] = 1.f;
+    fTracerColor[1] = 1.f;
+    fTracerColor[2] = 1.f;
+    fTracerColor[3] = 1.f;
+
+    CG_CreateBeam(
+        vNewStart,
+        vec_zero,
+        0,
+        1,
+        1.0,
+        1.0,
+        BEAM_INVERTED,
+        1000.0,
+        iLife,
+        qtrue,
+        i_vEnd,
+        0,
+        0,
+        0,
+        1,
+        0,
+        "tracer",
+        fTracerColor,
+        0,
+        0.0,
+        iTracerLength,
+        1.0,
+        0,
+        "tracereffect"
+    );
 }
 
 static void CG_MakeBulletTracerInternal(
@@ -649,6 +722,241 @@ void CG_AddBulletTracers()
 
 void CG_AddBulletImpacts()
 {
+    int i;
+    int iHeadDist;
+    float fVolume;
+    float fImpSndDistRA;
+    static float fImpSndDistLA = 9999.f;
+    float fImpSndDistRB;
+    float fImpSndDistLB;
+    int iImpSndIndexRA;
+    int iImpSndIndexRB;
+    int iImpSndIndexLB;
+    vec3_t vTmp;
+    str sSoundName;
+
+    if (wall_impact_count)
+    {
+        if (wall_impact_count > 4)
+        {
+            fImpSndDistRA = fImpSndDistLA;
+            fImpSndDistRB = fImpSndDistLA;
+            fImpSndDistLB = fImpSndDistLA;
+            iImpSndIndexRA = 0;
+            iImpSndIndexRB = 0;
+            iImpSndIndexLB = 0;
+
+            for (i = 0; i < wall_impact_count; i++) {
+                VectorSubtract(wall_impact_pos[i], cg.SoundOrg, vTmp);
+                iHeadDist = VectorLength(vTmp);
+                
+                if (DotProduct(vTmp, cg.SoundAxis[1]) > 0.f)
+                {
+                    if (iHeadDist < fImpSndDistRA || iHeadDist < fImpSndDistRB)
+                    {
+                        if (iHeadDist < fImpSndDistRA) {
+                            fImpSndDistRB = fImpSndDistRA;
+                            fImpSndDistRA = iHeadDist;
+                            iImpSndIndexRB = iImpSndIndexRA;
+                            iImpSndIndexRA = i;
+                        } else if (iHeadDist < fImpSndDistRB) {
+                            fImpSndDistRB = iHeadDist;
+                            iImpSndIndexRB = i;
+                        }
+                    }
+                }
+                else
+                {
+                    if (iHeadDist < fImpSndDistLA || iHeadDist < fImpSndDistLB)
+                    {
+                        if (iHeadDist < fImpSndDistLA) {
+                            fImpSndDistRA = iHeadDist;
+                            fImpSndDistLB = fImpSndDistLA;
+                            iImpSndIndexLB = 0;
+                            iImpSndIndexRA = i;
+                        } else if (iHeadDist < fImpSndDistLB) {
+                            fImpSndDistLB = iHeadDist;
+                            iImpSndIndexLB = i;
+                        }
+                    }
+                }
+            }
+
+            if (fImpSndDistRA < fImpSndDistLA) {
+                if (wall_impact_type[iImpSndIndexRA]) {
+                    if (wall_impact_large[iImpSndIndexRA]) {
+                        fVolume = 1.f;
+                    } else {
+                        fVolume = 0.75f;
+                    }
+
+                    if (wall_impact_type[iImpSndIndexRA] == 2 || wall_impact_type[iImpSndIndexRA] == 3) {
+                        sSoundName = "snd_bh_metal";
+                    } else {
+                        sSoundName = "snd_bh_wood";
+                    }
+
+                    commandManager.PlaySound(sSoundName, wall_impact_pos[iImpSndIndexRA], -1, fVolume, -1, -1, 1);
+
+                    sfxManager.MakeEffect_Normal(
+                        wall_impact_type[iImpSndIndexRA],
+                        wall_impact_pos[iImpSndIndexRA],
+                        wall_impact_norm[iImpSndIndexRA]
+                    );
+                } else {
+                    CG_MakeBulletHole(
+                        wall_impact_pos[iImpSndIndexRA],
+                        wall_impact_norm[iImpSndIndexRA],
+                        wall_impact_large[iImpSndIndexRA],
+                        NULL,
+                        qtrue
+                    );
+                }
+
+                if (fImpSndDistRB < fImpSndDistLA) {
+                    if (wall_impact_type[iImpSndIndexRB]) {
+                        if (wall_impact_large[iImpSndIndexRB]) {
+                            fVolume = 1.f;
+                        } else {
+                            fVolume = 0.75f;
+                        }
+
+                        if (wall_impact_type[iImpSndIndexRB] == 2 || wall_impact_type[iImpSndIndexRB] == 3) {
+                            sSoundName = "snd_bh_metal";
+                        }
+                        else {
+                            sSoundName = "snd_bh_wood";
+                        }
+
+                        commandManager.PlaySound(sSoundName, wall_impact_pos[iImpSndIndexRB], -1, fVolume, -1, -1, 1);
+
+                        sfxManager.MakeEffect_Normal(
+                            wall_impact_type[iImpSndIndexRB],
+                            wall_impact_pos[iImpSndIndexRB],
+                            wall_impact_norm[iImpSndIndexRB]
+                        );
+                    } else {
+                        CG_MakeBulletHole(
+                            wall_impact_pos[iImpSndIndexRB],
+                            wall_impact_norm[iImpSndIndexRB],
+                            wall_impact_large[iImpSndIndexRB],
+                            NULL,
+                            qtrue
+                        );
+                    }
+                }
+            }
+
+            if (fImpSndDistLA > 9999.0f) {
+                if (wall_impact_type[0]) {
+                    if (wall_impact_large[0]) {
+                        fVolume = 1.f;
+                    } else {
+                        fVolume = 0.75f;
+                    }
+
+                    if (wall_impact_type[0] == 2 || wall_impact_type[0] == 3) {
+                        sSoundName = "snd_bh_metal";
+                    }
+                    else {
+                        sSoundName = "snd_bh_wood";
+                    }
+
+                    commandManager.PlaySound(sSoundName, wall_impact_pos[0], -1, fVolume, -1, -1, 1);
+
+                    sfxManager.MakeEffect_Normal(
+                        wall_impact_type[0],
+                        wall_impact_pos[0],
+                        wall_impact_norm[0]
+                    );
+                } else {
+                    CG_MakeBulletHole(
+                        wall_impact_pos[0],
+                        wall_impact_norm[0],
+                        wall_impact_large[0],
+                        NULL,
+                        qtrue
+                    );
+                }
+            }
+
+            if (fImpSndDistLB < fImpSndDistLA) {
+                if (wall_impact_type[iImpSndIndexLB]) {
+                    if (wall_impact_large[iImpSndIndexLB]) {
+                        fVolume = 1.f;
+                    }
+                    else {
+                        fVolume = 0.75f;
+                    }
+
+                    if (wall_impact_type[iImpSndIndexLB] == 2 || wall_impact_type[iImpSndIndexLB] == 3) {
+                        sSoundName = "snd_bh_metal";
+                    }
+                    else {
+                        sSoundName = "snd_bh_wood";
+                    }
+
+                    commandManager.PlaySound(sSoundName, wall_impact_pos[iImpSndIndexLB], -1, fVolume, -1, -1, 1);
+
+                    sfxManager.MakeEffect_Normal(
+                        wall_impact_type[iImpSndIndexLB],
+                        wall_impact_pos[iImpSndIndexLB],
+                        wall_impact_norm[iImpSndIndexLB]
+                    );
+                } else {
+                    CG_MakeBulletHole(
+                        wall_impact_pos[iImpSndIndexLB],
+                        wall_impact_norm[iImpSndIndexLB],
+                        wall_impact_large[iImpSndIndexLB],
+                        NULL,
+                        qtrue
+                    );
+                }
+            }
+        }
+        else
+        {
+            for (i = 0; i < wall_impact_count; i++) {
+                CG_MakeBulletHole(
+                    wall_impact_pos[i],
+                    wall_impact_norm[i],
+                    wall_impact_large[i],
+                    NULL,
+                    qtrue
+                );
+            }
+        }
+
+    }
+
+    if (flesh_impact_count)
+    {
+        if (flesh_impact_count > 1)
+        {
+            fImpSndDistRA = 9999.0;
+            iImpSndIndexRA = 0;
+
+            for (i = 0; i < flesh_impact_count; i++) {
+                VectorSubtract(wall_impact_pos[i], cg.SoundOrg, vTmp);
+                iHeadDist = VectorLength(vTmp);
+                
+                if (DotProduct(vTmp, cg.SoundAxis[1]) > 0.f)
+                {
+                    if (iHeadDist < fImpSndDistRA)
+                    {
+                        fImpSndDistRA = iHeadDist;
+                        iImpSndIndexRA = i;
+                    }
+                }
+                else if (iHeadDist < fImpSndDistLA)
+                {
+                    fImpSndDistRA = iHeadDist;
+                    iImpSndIndexRA = i;
+                }
+            }
+        }
+    }
+
     // FIXME: unimplemented
 }
 
