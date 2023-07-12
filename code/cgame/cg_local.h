@@ -137,20 +137,14 @@ extern "C" {
     // local entities are created as a result of events or predicted actions,
     // and live independantly from all server transmitted entities
 
-#define MAX_VERTS_ON_POLY 10
+#define MAX_VERTS_ON_POLY 8
 #define MAX_MARK_POLYS    64
 #define MAX_TREAD_MARKS   16
 
     typedef struct markPoly_s {
-        struct markPoly_s *prevMark, *nextMark;
-        int                time;
-        int                lightstyle;
-        qhandle_t          markShader;
-        qboolean           alphaFade; // fade alpha instead of rgb
-        qboolean           fadein;
-        float              color[4];
-        poly_t             poly;
-        polyVert_t         verts[MAX_VERTS_ON_POLY];
+        struct markPoly_s* nextPoly;
+        polyVert_t verts[MAX_VERTS_ON_POLY];
+        int iIndex;
     } markPoly_t;
 
     typedef struct markObj_s {
@@ -414,7 +408,7 @@ extern "C" {
     extern clientGameImport_t cgi;
     extern int                cg_protocol;
     extern centity_t          cg_entities[MAX_GENTITIES];
-    extern markPoly_t         cg_markPolys[MAX_MARK_POLYS];
+    extern markPoly_t         *cg_markPolys;
 
     extern cvar_t *cg_animSpeed;
     extern cvar_t *cg_debugAnim;
@@ -686,6 +680,7 @@ extern "C" {
     );
     qboolean CG_CheckMakeMarkOnEntity(int iEntIndex);
     void CG_InitTestTreadMark();
+    void CG_AddTreadMarks();
     int  CG_PermanentMark(
          const vec3_t    origin,
          const vec3_t    dir,
