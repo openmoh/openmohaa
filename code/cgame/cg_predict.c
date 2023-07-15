@@ -83,8 +83,39 @@ void CG_BuildSolidList(void)
 
 int CG_GetBrushEntitiesInBounds(int iMaxEnts, centity_t** pEntList, const vec3_t vMins, const vec3_t vMaxs)
 {
-    // FIXME: unimplemented
-    return 0;
+    int i;
+    int iEntCount;
+    clipHandle_t cmodel;
+    vec3_t vEntMins, vEntMaxs;
+    centity_t* cent;
+
+    iEntCount = 0;
+    for (i = 0; i < cg_numSolidEntities; i++) {
+        cent = cg_solidEntities[i];
+        if (cent->currentState.solid != SOLID_BMODEL) {
+            continue;
+        }
+
+        cmodel = cgi.CM_InlineModel(cent->currentState.modelindex);
+        cgi.R_GetInlineModelBounds(cmodel, vEntMins, vEntMaxs);
+        if (cent->lerpAngles[0] || cent->lerpAngles[1] || cent->lerpAngles[2]) {
+            CalculateRotatedBounds(cent->lerpAngles, vEntMins, vEntMaxs);
+        }
+
+        VectorAdd(vEntMins, cent->lerpOrigin, vEntMins);
+        VectorAdd(vEntMaxs, cent->lerpOrigin, vEntMaxs);
+
+        if (vEntMins[0] <= vMaxs[0] && vEntMaxs[0] >= vMins[0]
+            && vEntMins[1] <= vMaxs[1] && vEntMaxs[1] >= vMins[1]
+            && vEntMins[2] <= vMaxs[2] && vEntMaxs[2] >= vMins[2]) {
+            pEntList[iEntCount++] = cent;
+            if (iEntCount >= iMaxEnts) {
+                return iEntCount;
+            }
+        }
+    }
+
+    return iEntCount;
 }
 
 /*
