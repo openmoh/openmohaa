@@ -90,7 +90,7 @@ typedef struct {
 
 
 	int		(*MarkFragments)( int numPoints, const vec3_t *points, const vec3_t projection,
-				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared );
+				   int maxPoints, const vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared );
 
 	int		(*LerpTag)( orientation_t *tag,  qhandle_t model, int startFrame, int endFrame, 
 					 float frac, const char *tagName );
@@ -140,12 +140,12 @@ typedef struct {
     void    (*DrawLineLoop)(const vec2_t* points, int count, int stippleFactor, int stippleMask);
    
     int (*MarkFragmentsForInlineModel)(clipHandle_t bmodel, const vec3_t angles, const vec3_t origin, int numPoints,
-        const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
+        const vec3_t* points, const vec3_t projection, int maxPoints, const vec3_t pointBuffer,
         int maxFragments, markFragment_t* fragmentBuffer, float radiusSquared);
 
     void    (*GetInlineModelBounds)(int index, vec3_t mins, vec3_t maxs);
-    void    (*GetLightingForDecal)(vec3_t light, vec3_t facing, vec3_t origin);
-    void    (*GetLightingForSmoke)(vec3_t light, vec3_t origin);
+    void    (*GetLightingForDecal)(vec3_t light, const vec3_t facing, const vec3_t origin);
+    void    (*GetLightingForSmoke)(vec3_t light, const vec3_t origin);
     int     (*R_GatherLightSources)(const vec3_t pos, vec3_t* lightPos, vec3_t* lightIntensity, int maxLights);
 
     float   (*ModelRadius)(qhandle_t handle);
