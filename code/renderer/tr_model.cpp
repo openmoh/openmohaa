@@ -1189,7 +1189,7 @@ static void LerpSkelMesh( skelSurfaceGame_t *sf ) {
 			}
 		}
 		else
-		{
+        {
 			if( mesh > 0 )
 			{
 				int channelNum;
@@ -1199,7 +1199,7 @@ static void LerpSkelMesh( skelSurfaceGame_t *sf ) {
 				boneNum = tiki->m_boneList.GetLocalFromGlobal( channelNum );
 				bone = &bones[ boneNum ];
 
-				SkelVertGetNormal( newVerts, bone, normal );
+                SkelVertGetNormal(newVerts, bone, normal);
 
 				for( weightNum = 0; weightNum < newVerts->numWeights; weightNum++ ) {
 					channelNum = skelmodel->pBones[ weight->boneIndex ].channel;
@@ -1212,7 +1212,10 @@ static void LerpSkelMesh( skelSurfaceGame_t *sf ) {
 				}
 			}
 			else
-			{
+            {
+				bone = &bones[weight->boneIndex];
+                SkelVertGetNormal(newVerts, bone, normal);
+
 				for( weightNum = 0; weightNum < newVerts->numWeights; weightNum++ ) {
 					bone = &bones[ weight->boneIndex ];
 
