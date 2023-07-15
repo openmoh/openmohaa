@@ -143,6 +143,7 @@ extern "C" {
 
     typedef struct markPoly_s {
         struct markPoly_s* nextPoly;
+        int numVerts;
         polyVert_t verts[MAX_VERTS_ON_POLY];
         int iIndex;
     } markPoly_t;
@@ -153,6 +154,8 @@ extern "C" {
         int time;
         int lastVisTime;
         int leafnum;
+        vec3_t pos;
+        float radius;
         int markShader;
         int alphaFade;
         int fadein;
@@ -559,6 +562,7 @@ extern "C" {
     void  CG_EyeAngles(vec3_t *o_vAngles);
     float CG_SensitivityScale();
     void  CG_AddLightShow();
+    qboolean CG_FrustumCullSphere(const vec3_t vPos, float fRadius);
     void  CG_OffsetFirstPersonView(refEntity_t *pREnt, qboolean bUseWorldPosition);
     void  CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView, qboolean demoPlayback);
 
@@ -600,6 +604,7 @@ extern "C" {
     // cg_predict.c
     //
     void CG_BuildSolidList(void);
+    int CG_GetBrushEntitiesInBounds(int iMaxEnts, centity_t** pEntList, const vec3_t vMins, const vec3_t vMaxs);
     int  CG_PointContents(const vec3_t point, int passEntityNum);
     void CG_ClipMoveToEntities(
         const vec3_t start,
@@ -677,6 +682,19 @@ extern "C" {
         qboolean     temporary,
         qboolean     dolighting,
         qboolean     fadein
+    );
+    void CG_AssembleFinalMarks(
+        vec3_t           *markPoints,
+        markFragment_t   *markFragments,
+        int              numFragments,
+        qboolean         (*PerPolyCallback)(const vec3_t* markPoints, markFragment_t* mf, polyVert_t* verts, void* pCustom),
+        int              (*GetLeafCallback)(markFragment_t* mf, void* pCustom),
+        void             *pCustom,
+        vec3_t           pos,
+        float            radius,
+        qhandle_t        markShader,
+        qboolean         fadein,
+        qboolean         alphaFade
     );
     qboolean CG_CheckMakeMarkOnEntity(int iEntIndex);
     void CG_InitTestTreadMark();
