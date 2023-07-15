@@ -1437,6 +1437,7 @@ typedef struct {
 typedef struct {
 	int		firstPoint;
 	int		numPoints;
+	int		iIndex;
 } markFragment_t;
 
 typedef struct treadMark_s {
