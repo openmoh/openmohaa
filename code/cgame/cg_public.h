@@ -200,7 +200,7 @@ functions exported to the main executable
             const vec3_t   *points,
             const vec3_t    projection,
             int             maxPoints,
-            vec3_t          pointBuffer,
+            const vec3_t    pointBuffer,
             int             maxFragments,
             markFragment_t *fragmentBuffer,
             float           fRadiusSquared
@@ -213,15 +213,15 @@ functions exported to the main executable
             const vec3_t   *points,
             const vec3_t    projection,
             int             maxPoints,
-            vec3_t          pointBuffer,
+            const vec3_t    pointBuffer,
             int             maxFragments,
             markFragment_t *fragmentBuffer,
             float           fRadiusSquared
         );
 
         void (*R_GetInlineModelBounds)(int index, vec3_t mins, vec3_t maxs);
-        void (*R_GetLightingForDecal)(vec3_t light, vec3_t facing, vec3_t origin);
-        void (*R_GetLightingForSmoke)(vec3_t light, vec3_t origin);
+        void (*R_GetLightingForDecal)(vec3_t light, const vec3_t facing, const vec3_t origin);
+        void (*R_GetLightingForSmoke)(vec3_t light, const vec3_t origin);
         int (*R_GatherLightSources)(const vec3_t pos, vec3_t *lightPos, vec3_t *lightIntensity, int maxLights);
 
         // =========== sound function calls ===============
