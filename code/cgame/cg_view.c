@@ -673,6 +673,11 @@ void CG_AddLightShow()
     // FIXME: unimplemented
 }
 
+qboolean CG_FrustumCullSphere(const vec3_t vPos, float fRadius) {
+    // FIXME: unimplemented
+    return qfalse;
+}
+
 //=========================================================================
 
 /*
