@@ -81,6 +81,12 @@ void CG_BuildSolidList(void)
     }
 }
 
+int CG_GetBrushEntitiesInBounds(int iMaxEnts, centity_t** pEntList, const vec3_t vMins, const vec3_t vMaxs)
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
 /*
 ====================
 CG_ClipMoveToEntities
