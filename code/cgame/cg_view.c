@@ -496,6 +496,10 @@ static int CG_CalcFov(void)
     // set it
     cg.refdef.fov_x    = fov_x;
     cg.refdef.fov_y    = fov_y;
+    cg.fRefFovXCos     = cos(fov_x / 114.0f);
+    cg.fRefFovXSin     = sin(fov_x / 114.0f);
+    cg.fRefFovYCos     = cos(fov_y / 114.0f);
+    cg.fRefFovYSin     = sin(fov_y / 114.0f);
     cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
     return inwater;
 }
@@ -674,7 +678,38 @@ void CG_AddLightShow()
 }
 
 qboolean CG_FrustumCullSphere(const vec3_t vPos, float fRadius) {
-    // FIXME: unimplemented
+    vec3_t delta;
+    float fDotFwd, fDotSide, fDotUp;
+
+    VectorSubtract(vPos, cg.refdef.vieworg, delta);
+
+    fDotFwd = DotProduct(delta, cg.refdef.viewaxis[0]);
+    if (-fRadius >= fDotFwd) {
+        return qtrue;
+    }
+
+    if (cg.refdef.farplane_distance && cg.refdef.farplane_distance + fRadius <= fDotFwd) {
+        return qtrue;
+    }
+
+    fDotSide = DotProduct(delta, cg.refdef.viewaxis[1]);
+    if (fDotSide < 1.f) {
+        fDotSide = -fDotSide;
+    }
+
+    if (fDotSide * cg.fRefFovXCos - fDotFwd * cg.fRefFovXSin >= fRadius) {
+        return qtrue;
+    }
+
+    fDotUp = DotProduct(delta, cg.refdef.viewaxis[2]);
+    if (fDotUp < 0.f) {
+        fDotUp = -fDotUp;
+    }
+
+    if (fDotUp * cg.fRefFovYCos - fDotFwd * cg.fRefFovYSin >= fRadius) {
+        return qtrue;
+    }
+
     return qfalse;
 }
 
