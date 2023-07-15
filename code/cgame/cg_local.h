@@ -248,6 +248,11 @@ extern "C" {
         vec3_t   refdefViewAngles;  // will be converted to refdef.viewaxis
         vec3_t   currentViewPos;    // current position of the camera
         vec3_t   currentViewAngles; // current angles of the camera
+
+        float    fRefFovXSin;
+        float    fRefFovXCos;
+        float    fRefFovYSin;
+        float    fRefFovYCos;
         float    fCurrentViewHeight;
         float    fCurrentViewBobPhase;
         float    fCurrentViewBobAmp;
