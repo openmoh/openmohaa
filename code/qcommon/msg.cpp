@@ -685,11 +685,6 @@ char* MSG_ReadScrambledString_ver_15(msg_t* msg) {
 		if (c == '%') {
 			c = '.';
 		}
-		// don't allow higher ascii values
-		// (su44: this check is missing in MoHAA)
-		if (c > 127) {
-			c = '.';
-		}
 
 		string[l] = c;
 		l++;
@@ -717,11 +712,6 @@ char* MSG_ReadScrambledBigString_ver_15(msg_t* msg) {
 		}
 		// translate all fmt spec to avoid crash bugs
 		if (c == '%') {
-			c = '.';
-		}
-		// don't allow higher ascii values
-		// (su44: this check is missing in MoHAA)
-		if (c > 127) {
 			c = '.';
 		}
 
@@ -770,11 +760,6 @@ char *MSG_ReadString( msg_t *msg ) {
 		}
 		// translate all fmt spec to avoid crash bugs
 		if ( c == '%' ) {
-			c = '.';
-		}
-		// don't allow higher ascii values
-		// (su44: this check is missing in MoHAA)
-		if ( c > 127 ) {
 			c = '.';
 		}
 
