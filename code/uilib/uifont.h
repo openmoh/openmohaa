@@ -44,9 +44,10 @@ public:
 	void		setAlpha( float alpha );
 	void		setFont( const char *fontname );
 	int			getWidth( const char *text, int maxlen );
-	int			getCharWidth( char ch );
+	int			getCharWidth( unsigned short ch );
 	int			getHeight( const char *text, int maxlen, qboolean bVirtual );
 	int			getHeight( qboolean bVirtual );
+	int			CodeSearch(unsigned short uch);
 };
 
 int UI_FontStringWidth( fontheader_t *pFont, const char *pszString, int iMaxLen );

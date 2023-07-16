@@ -22,6 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
+qboolean UI_FontDBCSIsLeadByte(fontheader_t* font, unsigned short uch);
+int UI_FontCodeSearch(const fontheader_t* font, unsigned short uch);
+
 UIFont::UIFont()
 {
 	m_font = uii.Rend_LoadFont( "verdana-14" );
@@ -198,33 +201,45 @@ int UIFont::getWidth
 
 int UIFont::getCharWidth
 	(
-	char ch
+	unsigned short ch
 	)
 
 {
-	int indirected = m_font->indirection[ 32 ];
+	int index;
+	int indirected;
 
-	if( ch == '\t' )
+	if (!m_font) {
+		return 0;
+	}
+
+	if (ch == '\t') {
+		ch = ' ';
+	}
+
+	if (m_font->numPages)
 	{
-		indirected = m_font->indirection[ 32 ];
-
-		if( indirected > 255 ) {
-			Com_Printf( "getCharWidth: no space-character in font!\n" );
+		int code = CodeSearch(ch);
+		if (code < 0) {
 			return 0;
 		}
 
-		return m_font->locations[ indirected ].size[ 0 ] * 256.0 * 3.0;
+		index = m_font->charTable[code].index;
+		indirected = m_font->charTable[code].loc;
 	}
 	else
 	{
-		indirected = m_font->indirection[ ch ];
-
-		if( indirected > 255 ) {
-			Com_Printf( "getCharWidth: no 0x%02x-character in font!\n", ch );
+		indirected = m_font->sgl[0]->indirection[ch];
+		if (indirected < 0 || indirected > 255) {
 			return 0;
 		}
 
-		return m_font->locations[ indirected ].size[ 0 ] * 256.0;
+		index = 0;
+	}
+
+    if (ch == '\t') {
+        return m_font->sgl[index]->locations[indirected].size[0] * 256.0 * 3.0;
+	} else {
+		return m_font->sgl[index]->locations[indirected].size[0] * 256.0;
 	}
 }
 
@@ -270,7 +285,7 @@ int UIFont::getHeight
 	{
 		if( m_font )
 		{
-			return ( m_font->height * uid.vidHeight / 480.0 );
+			return ( m_font->sgl[0]->height * uid.vidHeight / 480.0 );
 		}
 		else
 		{
@@ -281,13 +296,167 @@ int UIFont::getHeight
 	{
 		if( m_font )
 		{
-			return m_font->height;
+			return m_font->sgl[0]->height;
 		}
 		else
 		{
 			return 16;
 		}
 	}
+}
+
+int UIFont::CodeSearch(unsigned short uch)
+{
+	return UI_FontCodeSearch(m_font, uch);
+}
+
+qboolean UI_FontDBCSIsLeadByte(fontheader_t* font, unsigned short uch)
+{
+    // Byte ranges found in Wikipedia articles with relevant search strings in each case
+    switch (font->codePage) {
+    case 932:
+        // Shift_jis
+        return ((uch >= 0x81) && (uch <= 0x9F)) ||
+            ((uch >= 0xE0) && (uch <= 0xFC));
+        // Lead bytes F0 to FC may be a Microsoft addition.
+    case 936:
+        // GBK
+        return (uch >= 0x81) && (uch <= 0xFE);
+    case 949:
+        // Korean Wansung KS C-5601-1987
+        return (uch >= 0x81) && (uch <= 0xFE);
+    case 950:
+        // Big5
+        return (uch >= 0x81) && (uch <= 0xFE);
+    case 1361:
+        // Korean Johab KS C-5601-1992
+        return
+            ((uch >= 0x84) && (uch <= 0xD3)) ||
+            ((uch >= 0xD8) && (uch <= 0xDE)) ||
+            ((uch >= 0xE0) && (uch <= 0xF9));
+    }
+    return false;
+}
+
+int UI_FontCodeSearch(const fontheader_t* font, unsigned short uch) {
+    int mid;
+    int l, r;
+
+    r = font->charTableLength;
+    l = 0;
+    while (l < r) {
+        mid = (l + r) / 2;
+
+        if (font->charTable[mid].cp > uch) {
+            r = (l + r) / 2;
+            continue;
+        }
+
+        if (uch == font->charTable[mid].cp) {
+            return (l + r) / 2;
+        }
+
+        l = mid + 1;
+    }
+
+    if (uch != font->charTable[l].cp) {
+        return -1;
+    }
+
+    return l;
+}
+
+float UI_FontgetCharWidthf(fontheader_t* font, unsigned short uch)
+{
+	int index;
+	int indirected;
+
+	if (!font) {
+		return 0.f;
+	}
+
+	if (uch == '\t') {
+		uch = ' ';
+	}
+
+	if (font->numPages)
+	{
+		int code = UI_FontCodeSearch(font, uch);
+		if (code < 0) {
+			return 0.f;
+		}
+
+		index = font->charTable[code].index;
+		indirected = font->charTable[code].loc;
+	}
+	else
+	{
+		indirected = font->sgl[0]->indirection[uch];
+		if (indirected < 0 || indirected > 255) {
+			return 0.f;
+		}
+
+		index = 0;
+	}
+
+	if (uch == '\t') {
+		return font->sgl[index]->locations[indirected].size[0] * 3.0;
+	} else {
+		return font->sgl[index]->locations[indirected].size[0];
+	}
+}
+
+int UI_FontStringMaxWidth
+	(
+	fontheader_t *pFont,
+	const char *pszString,
+	int iMaxLen
+	)
+
+{
+    float widths = 0.0;
+    float maxwidths = iMaxLen / 256.0f;
+    int i;
+
+    if (!pFont) {
+        return 0;
+    }
+
+	i = 0;
+    for(;;)
+    {
+        unsigned short uch = pszString[i++];
+
+        if (uch == 0 || (iMaxLen != -1 && i > iMaxLen))
+        {
+            break;
+        }
+
+		if (UI_FontDBCSIsLeadByte(pFont, uch))
+		{
+			uch = (uch << 8) | pszString[i];
+			if (!pszString[i]) {
+				break;
+			}
+
+			i++;
+		}
+
+        if (uch == '\n')
+        {
+            widths = 0.0;
+        }
+        else
+        {
+            widths += UI_FontgetCharWidthf(pFont, uch);
+
+            if (maxwidths < widths) {
+                return i - 1;
+            }
+        }
+    }
+
+    return -1;
 }
 
 int UI_FontStringWidth
@@ -298,58 +467,47 @@ int UI_FontStringWidth
 	)
 
 {
-	float widths = 0.0;
-	float maxwidths = 0.0;
-	int indirected;
-	int i;
+    float widths = 0.0;
+    float maxwidths = 0.0;
+    int i;
 
-	if( !pFont ) {
-		return 0;
-	}
+    if (!pFont) {
+        return 0;
+    }
 
-	if( iMaxLen == -1 ) {
-		iMaxLen = strlen( pszString ) + 1;
-	}
+	i = 0;
+    for(;;)
+    {
+        unsigned short uch = pszString[i++];
 
-	for( i = 0; i < iMaxLen; i++ )
-	{
-		unsigned char c = pszString[ i ];
+        if (uch == 0 || (iMaxLen != -1 && i > iMaxLen))
+        {
+            break;
+        }
 
-		if( c == 0 )
+		if (UI_FontDBCSIsLeadByte(pFont, uch))
 		{
-			break;
-		}
-		else if( c == '\t' )
-		{
-			indirected = pFont->indirection[ 32 ];
-
-			if( indirected > 255 ) {
-				Com_Printf( "UIFont::getWidth: no space-character in font!\n" );
-				continue;
-			} else {
-				widths += pFont->locations[ indirected ].size[ 0 ] * 3.0;
+			uch = (uch << 8) | pszString[i];
+			if (!pszString[i]) {
+				break;
 			}
-		}
-		else if( c == '\n' )
-		{
-			widths = 0.0;
-		}
-		else
-		{
-			indirected = pFont->indirection[ c ];
 
-			if( indirected > 255 ) {
-				Com_Printf( "UIFont::getWidth: no 0x%02x-character in font!\n", c );
-				continue;
-			} else {
-				widths += pFont->locations[ indirected ].size[ 0 ];
-			}
+			i++;
 		}
 
-		if( maxwidths < widths ) {
-			maxwidths = widths;
-		}
-	}
+        if (uch == '\n')
+        {
+            widths = 0.0;
+        }
+        else
+        {
+            widths += UI_FontgetCharWidthf(pFont, uch);
 
-	return maxwidths * 256.0;
+            if (maxwidths < widths) {
+                maxwidths = widths;
+            }
+        }
+    }
+
+    return maxwidths * 256.0;
 }

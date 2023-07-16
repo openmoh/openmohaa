@@ -32,15 +32,30 @@ typedef struct
     float size[2];
 } letterloc_t;
 
-typedef struct fontheader_s
+typedef struct fontheader_sgl_s
 {
     int               indirection[256];
     letterloc_t       locations[256];
     char              name[64];
     float             height;
     float             aspectRatio;
-    void* shader;
+    void              *shader;
     int               trhandle; // the last renderer handle this font used
+} fontheader_sgl_t;
+
+typedef struct {
+    unsigned short cp;
+    unsigned char index;
+    unsigned char loc;
+} fontchartable_t;
+
+typedef struct fontheader_s {
+    int numPages;
+    int charTableLength;
+    fontchartable_t* charTable;
+    short codePage;
+    fontheader_sgl_t* sgl[32];
+    char name[64];
 } fontheader_t;
 
 typedef enum {
