@@ -263,17 +263,19 @@ void R_DrawDebugNumber( const vec3_t org, float number, float scale, float r, fl
 
     if (precision > 0) {
 		sprintf(format, "%%.%df", precision);
-        text = va(format, precision);
+        text = va(format, number);
 	} else {
 		text = va("%d", number);
 	}
 
-	l = 5 - 5 * text.length();
-	start[0] = org[0] + l * right[0];
-	start[1] = org[1] + l * right[1];
-	start[2] = org[2] + l * right[2];
+	// NOTE: this cast here is needed!
+	// Otherwise the compiler will do very nasty implicit casting of negative
+	// numbers to unsigned numbers, resulting in incorrect values.
+	// -------------------v
+	VectorMA(org, 5 - 5 * (int)text.length(), right, start);
 
-	for (i = 0; i < l; i++) {
+	// Draw each character/digit of the text
+	for (i = 0; i < text.length(); i++) {
 		if (text[i] == '.') {
 			num = 10;
 		}
@@ -284,27 +286,23 @@ void R_DrawDebugNumber( const vec3_t org, float number, float scale, float r, fl
 			num = text[i] - '0';
 		}
 
-		l = 32 * num;
-		num = Numbers[num][0];
+		// Get the first line index for the number to be drawn
+		l = Numbers[num][0];
 
-		for (j = 0; j < 8 && num; j++) {
-            pos1[0] = start[0] + Lines[num][0] * right[0] + Lines[num][1] * up[0];
-            pos1[1] = start[1] + Lines[num][0] * right[1] + Lines[num][1] * up[1];
-            pos1[2] = start[2] + Lines[num][0] * right[2] + Lines[num][1] * up[2];
+		// Draw each line of the character/digit
+		for (j = 0; j < 8 && l; ++j, l = Numbers[num][j]) {
+            pos1[0] = start[0] + Lines[l][0] * right[0] + Lines[l][1] * up[0];
+            pos1[1] = start[1] + Lines[l][0] * right[1] + Lines[l][1] * up[1];
+            pos1[2] = start[2] + Lines[l][0] * right[2] + Lines[l][1] * up[2];
 
-			pos2[0] = start[0] + Lines[num][2] * right[0] + Lines[num][3] * up[0];
-			pos2[1] = start[1] + Lines[num][2] * right[1] + Lines[num][3] * up[1];
-			pos2[2] = start[2] + Lines[num][2] * right[2] + Lines[num][3] * up[2];
+			pos2[0] = start[0] + Lines[l][2] * right[0] + Lines[l][3] * up[0];
+			pos2[1] = start[1] + Lines[l][2] * right[1] + Lines[l][3] * up[1];
+			pos2[2] = start[2] + Lines[l][2] * right[2] + Lines[l][3] * up[2];
 
 			R_DebugLine(pos1, pos2, r, g, b, 1.0);
-
-			l += 4;
-			num = Numbers[l / 8][l % 8];
         }
 
-        start[0] += right[0] * 10.0;
-        start[1] += right[1] * 10.0;
-        start[2] += right[2] * 10.0;
+		VectorMA(start, 10.0, right, start);
 	}
 }
 

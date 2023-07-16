@@ -1464,9 +1464,87 @@ float R_CalcLod(const vec3_t origin, float radius)
 	return ProjectRadius(radius, origin);
 }
 
+/*
+==================
+R_CountTikiLodTris
+
+Computes the number of triangles to be rendered for the given TIKI model
+based on the given LoD percentage, and passes it back with render_tris.
+The total number of triangles in the TIKI model are passed back with total_tris.
+Currently only used for debugging purposes.
+
+FIXME: Shares some code with RB_StaticMesh, common parts could be extracted.
+According to debug symbols, this was originally in tiki_mesh.cpp
+==================
+*/
 void R_CountTikiLodTris(dtiki_t* tiki, float lodpercentage, int* render_tris, int* total_tris)
 {
 	*render_tris = 0;
-    *total_tris = 0;
-    // FIXME: unimplemented
+	*total_tris = 0;
+	int numtris = 0, totaltris = 0;
+
+	for (int i = 0; i < tiki->numMeshes; i++)
+	{
+		skelHeaderGame_t *skelmodel = TIKI_GetSkel(tiki->mesh[i]);
+		skelSurfaceGame_t *surface = skelmodel->pSurfaces;
+
+		for (int j = 0; j < skelmodel->numSurfaces; j++)
+		{
+			int render_count = 0;
+			if (skelmodel->pLOD)
+			{
+				int lod_cutoff = GetLodCutoff(skelmodel, lodpercentage, 0);
+				skelIndex_t *collapseIndex = surface->pCollapseIndex;
+				render_count = surface->numVerts;
+
+				// Determine the number of vertices to be rendered based on the LOD cutoff
+				while (render_count > 0 && collapseIndex[render_count - 1] < lod_cutoff)
+				{
+					render_count--;
+				}
+			}
+			else
+			{
+				// The surf mesh doesn't have a LOD model, so all vertices will be rendered
+				render_count = surface->numVerts;
+			}
+
+			skelIndex_t *triangles = surface->pTriangles;
+			int indexes = surface->numTriangles * 3; // 3 vertex/index for each tri
+			skelIndex_t *collapse_map = surface->pCollapse;
+			totaltris += surface->numTriangles;
+			skelIndex_t collapse[4096]{};
+
+			// Initialize array for collapsed indices
+			int k;
+			for (k = 0; k < render_count; ++k)
+			{
+				collapse[k] = k;
+			}
+
+			// Map remaining vertices to their collapsed indices using the collapse map
+			for (k = render_count; k < surface->numVerts; ++k)
+			{
+				collapse[k] = collapse[collapse_map[k]];
+			}
+
+			// Check the first two collapsed indices of each triangle
+			for (k = 0; k < indexes; k += 3)
+			{
+				if (collapse[triangles[k]] == collapse[triangles[k + 1]])
+				{
+					// The collapsed indices of the two vertices are the same:
+					// this, and any subsequent tris do not need to be rendered
+					// because the collapsed vertices (for this surface) coincide from here.
+					break;
+				}
+			}
+
+			surface = surface->pNext;
+			numtris += k / 3;
+		}
+	}
+
+	*render_tris = numtris;
+	*total_tris = totaltris;
 }

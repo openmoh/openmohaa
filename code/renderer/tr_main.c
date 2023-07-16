@@ -1727,6 +1727,7 @@ void R_DebugLine(const vec3_t start, const vec3_t end, float r, float g, float b
 
 	if (*ri.numDebugLines >= r_numdebuglines->integer) {
 		ri.Printf(PRINT_ALL, "R_DebugLine: Exceeded MAX_DEBUG_LINES\n");
+		return;
 	}
 
 	line = &(*ri.DebugLines)[*ri.numDebugLines];
