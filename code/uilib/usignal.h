@@ -20,8 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __USIGNAL_H__
-#define __USIGNAL_H__
+#pragma once
+
+#include "../qcommon/listener.h"
 
 class UConnection {
 	class Event m_inevent;
@@ -49,5 +50,3 @@ public:
 	bool	Disconnect( Listener *object, Event& ev );
 	bool	Disconnect( Listener *object );
 };
-
-#endif /* __USIGNAL_H__ */

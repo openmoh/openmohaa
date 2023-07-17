@@ -20,8 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIRECT2D_H__
-#define __UIRECT2D_H__
+#pragma once
+
+#include "uipoint2d.h"
+#include "uisize2d.h"
 
 class UIRect2D {
 public:
@@ -216,5 +218,3 @@ bool UIRect2D::intersects
 	// FIXME: stub
 	return false;
 }
-
-#endif // __UIRECT2D_H__

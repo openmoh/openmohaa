@@ -20,8 +20,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UI_WIDGET_H__
-#define __UI_WIDGET_H__
+#pragma once
+
+#include "usignal.h"
+#include "../qcommon/q_shared.h"
+#include "../qcommon/str.h"
+#include "ui_public.h"
+#include "uirect2d.h"
+#include "ucolor.h"
+#include "uifont.h"
+
+class UIFont;
 
 class UIReggedMaterial {
 	uihandle_t hMat;
@@ -370,5 +379,3 @@ void DrawBox( float x, float y, float width, float height, const UColor &color, 
 void Draw3DBox( float x, float y, float width, float height, bool indent, const UBorderColor& color, float alpha );
 void DrawMac3DBox( const UIRect2D& rect, bool indent, const UBorderColor& color, int inset, float alpha );
 void DrawBoxWithSolidBorder( const UIRect2D& rect, const UColor& inside, const UColor& outside, int size, int flags, float alpha );
-
-#endif /* __UI_WIDGET_H__ */

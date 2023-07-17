@@ -32,6 +32,8 @@ typedef struct tiki_s tiki_t;
 typedef struct polyVert_t;
 typedef struct refdef_t;
 typedef struct glconfig_t;*/
+typedef struct fontheader_s fontheader_t;
+typedef struct AliasListNode_s AliasListNode_t;
 
 typedef struct {
 	connstate_t		connState;
