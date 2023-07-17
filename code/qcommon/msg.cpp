@@ -503,7 +503,7 @@ void MSG_WriteScrambledString_ver_15(msg_t* sb, const char* s) {
 		Q_strncpyz(string, s, sizeof(string));
 
 		for (i = 0; i <= l; i++) {
-			char c = string[i];
+			unsigned char c = string[i];
 			strstats[c]++;
 			MSG_WriteByte(sb, StrCharToNetByte[c]);
 		}
@@ -530,7 +530,7 @@ void MSG_WriteScrambledBigString_ver_15(msg_t* sb, const char* s) {
 		Q_strncpyz(string, s, sizeof(string));
 
 		for (i = 0; i <= l; i++) {
-			char c = string[i];
+			unsigned char c = string[i];
 			strstats[c]++;
 			MSG_WriteByte(sb, StrCharToNetByte[c]);
 		}
@@ -668,7 +668,8 @@ float MSG_ReadFloat( msg_t *msg ) {
 
 char* MSG_ReadScrambledString_ver_15(msg_t* msg) {
 	static char	string[MAX_STRING_CHARS];
-	int		l, c;
+	int l;
+	unsigned char c;
 
 	l = 0;
 	do {
@@ -697,7 +698,8 @@ char* MSG_ReadScrambledString_ver_15(msg_t* msg) {
 
 char* MSG_ReadScrambledBigString_ver_15(msg_t* msg) {
 	static char	string[BIG_INFO_STRING];
-	int		l, c;
+    int l;
+    unsigned char c;
 
 	l = 0;
 	do {
@@ -750,7 +752,8 @@ char* MSG_ReadScrambledBigString(msg_t* msg) {
 
 char *MSG_ReadString( msg_t *msg ) {
 	static char	string[MAX_STRING_CHARS];
-	int		l,c;
+	int l;
+	unsigned char c;
 	
 	l = 0;
 	do {
@@ -774,7 +777,8 @@ char *MSG_ReadString( msg_t *msg ) {
 
 char *MSG_ReadBigString( msg_t *msg ) {
 	static char	string[BIG_INFO_STRING];
-	int		l,c;
+	int l;
+	unsigned char c;
 	
 	l = 0;
 	do {
