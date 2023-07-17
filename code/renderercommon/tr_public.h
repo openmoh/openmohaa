@@ -80,7 +80,7 @@ typedef struct {
 	void	(*SetColor)( const float *rgba );	// NULL = 1,1,1,1
 
 	// Draw images for cinematic rendering, pass as 32 bit rgba
-	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
+	void	(*DrawStretchRaw) (int x, int y, int w, int h, int cols, int rows, int components, const byte* data);
 	void	(*UploadCinematic) (int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty);
 
 	void	(*BeginFrame)( stereoFrame_t stereoFrame );
@@ -90,7 +90,7 @@ typedef struct {
 
 
 	int		(*MarkFragments)( int numPoints, const vec3_t *points, const vec3_t projection,
-				   int maxPoints, const vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared );
+				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared );
 
 	int		(*LerpTag)( orientation_t *tag,  qhandle_t model, int startFrame, int endFrame, 
 					 float frac, const char *tagName );
@@ -140,7 +140,7 @@ typedef struct {
     void    (*DrawLineLoop)(const vec2_t* points, int count, int stippleFactor, int stippleMask);
    
     int     (*MarkFragmentsForInlineModel)(clipHandle_t bmodel, const vec3_t vAngles, const vec3_t vOrigin, int numPoints,
-                const vec3_t* points, const vec3_t projection, int maxPoints, const vec3_t pointBuffer,
+                const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
                 int maxFragments, markFragment_t* fragmentBuffer, float fRadiusSquared);
 
     void    (*GetInlineModelBounds)(int index, vec3_t mins, vec3_t maxs);

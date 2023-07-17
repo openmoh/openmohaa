@@ -1901,8 +1901,8 @@ LIGHTS
 
 void R_DlightBmodel( bmodel_t *bmodel );
 void R_GetLightingGridValue(const vec3_t vPos, vec3_t vLight);
-void R_GetLightingForDecal(vec3_t vLight, vec3_t vFacing, vec3_t vOrigin);
-void R_GetLightingForSmoke(vec3_t vLight, vec3_t vOrigin);
+void R_GetLightingForDecal(vec3_t vLight, const vec3_t vFacing, const vec3_t vOrigin);
+void R_GetLightingForSmoke(vec3_t vLight, const vec3_t vOrigin);
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
 void RB_SetupEntityGridLighting();
 void RB_SetupStaticModelGridLighting(trRefdef_t* refdef, cStaticModelUnpacked_t* ent, const vec3_t lightOrigin);
@@ -1973,7 +1973,7 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared);
 
 int R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t vAngles, const vec3_t vOrigin, int numPoints,
-	const vec3_t* points, const vec3_t projection, int maxPoints, const vec3_t pointBuffer,
+	const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
 	int maxFragments, markFragment_t* fragmentBuffer, float fRadiusSquared);
 
 

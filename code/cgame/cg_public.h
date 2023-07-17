@@ -200,7 +200,7 @@ functions exported to the main executable
             const vec3_t   *points,
             const vec3_t    projection,
             int             maxPoints,
-            const vec3_t    pointBuffer,
+            vec3_t          pointBuffer,
             int             maxFragments,
             markFragment_t *fragmentBuffer,
             float           fRadiusSquared
@@ -213,7 +213,7 @@ functions exported to the main executable
             const vec3_t   *points,
             const vec3_t    projection,
             int             maxPoints,
-            const vec3_t    pointBuffer,
+            vec3_t          pointBuffer,
             int             maxFragments,
             markFragment_t *fragmentBuffer,
             float           fRadiusSquared

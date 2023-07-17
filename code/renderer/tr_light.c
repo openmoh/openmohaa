@@ -144,13 +144,13 @@ void R_GetLightingGridValueFast(const vec3_t vPos, vec3_t vLight)
     VectorSet(vLight, 1.f, 1.f, 1.f);
 }
 
-void R_GetLightingForDecal(vec3_t vLight, vec3_t vFacing, vec3_t vOrigin)
+void R_GetLightingForDecal(vec3_t vLight, const vec3_t vFacing, const vec3_t vOrigin)
 {
     // FIXME: unimplemented
     VectorSet(vLight, 1.f, 1.f, 1.f);
 }
 
-void R_GetLightingForSmoke(vec3_t vLight, vec3_t vOrigin)
+void R_GetLightingForSmoke(vec3_t vLight, const vec3_t vOrigin)
 {
     // FIXME: unimplemented
 	VectorSet(vLight, 1.f, 1.f, 1.f);
