@@ -2225,3 +2225,11 @@ typedef enum _flag_status {
 #if defined(__cplusplus)
 }
 #endif
+
+#ifdef __cplusplus
+#include <chrono>
+
+using qcclock_t = std::chrono::steady_clock;
+using qctime_t = qcclock_t::time_point;
+using qctimedelta_t = qcclock_t::duration;
+#endif
