@@ -493,10 +493,14 @@ void CG_ViewModelAnimation(refEntity_t *pModel)
             cgi.anim->g_VMFrameInfo[i].time += cg.frametime / 1000.0;
 
             if (cgi.anim->g_VMFrameInfo[i].time > fAnimLength) {
-                if (cgi.Anim_Flags(pTiki, cgi.anim->g_VMFrameInfo[i].index) & TAF_DELTADRIVEN) {
-                    cgi.anim->g_VMFrameInfo[i].time -= fAnimLength;
+                if (pTiki) {
+                    if (cgi.Anim_Flags(pTiki, cgi.anim->g_VMFrameInfo[i].index) & TAF_DELTADRIVEN) {
+                        cgi.anim->g_VMFrameInfo[i].time -= fAnimLength;
+                    } else {
+                        cgi.anim->g_VMFrameInfo[i].time = fAnimLength;
+                    }
                 } else {
-                    cgi.anim->g_VMFrameInfo[i].time = fAnimLength;
+                    cgi.anim->g_VMFrameInfo[i].time = 0.f;
                 }
             }
 
@@ -507,7 +511,7 @@ void CG_ViewModelAnimation(refEntity_t *pModel)
                 if (i == cgi.anim->g_iCurrentVMAnimSlot) {
                     pModel->frameInfo[i].weight = fCrossblendFrac;
                 } else {
-                    pModel->frameInfo[i].weight *= (1.0 - fCrossblendFrac);
+                    pModel->frameInfo[i].weight = cgi.anim->g_VMFrameInfo[i].weight * (1.0 - fCrossblendFrac);
                 }
             } else {
                 pModel->frameInfo[i].weight = 1.0;
