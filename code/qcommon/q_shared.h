@@ -848,7 +848,7 @@ void AxisClear( vec3_t axis[3] );
 void AxisCopy( const vec3_t in[3], vec3_t out[3] );
 
 void SetPlaneSignbits( struct cplane_s *out );
-int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct cplane_s *plane);
+int BoxOnPlaneSide (const vec3_t emins, const vec3_t emaxs, struct cplane_s *plane);
 
 void  CalculateRotatedBounds( vec3_t angles, vec3_t mins, vec3_t maxs );
 void  CalculateRotatedBounds2( float trans[ 3 ][ 3 ], vec3_t mins, vec3_t maxs );
