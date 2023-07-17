@@ -1972,9 +1972,9 @@ MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
 int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection,
 				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer, float fRadiusSquared);
 
-int R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t angles, const vec3_t origin, int numPoints,
-	const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
-	int maxFragments, markFragment_t* fragmentBuffer, float radiusSquared);
+int R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t vAngles, const vec3_t vOrigin, int numPoints,
+	const vec3_t* points, const vec3_t projection, int maxPoints, const vec3_t pointBuffer,
+	int maxFragments, markFragment_t* fragmentBuffer, float fRadiusSquared);
 
 
 /*

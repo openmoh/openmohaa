@@ -250,10 +250,12 @@ void R_AddMarkFragmentsToTerrain(
 void R_TessellateMarkFragments(
 	int* pReturnedPoints,
 	int* pReturnedFragments,
-	int numsurfaces, surfaceType_t** surfaces,
-	const vec3_t projectionDir, int numPlanes,
-	vec3_t* normals,
-	float* dists,
+	int numsurfaces,
+	surfaceType_t** surfaces,
+	const vec3_t projectionDir,
+	int numPlanes,
+    const vec3_t* normals,
+    const float* dists,
 	int maxPoints,
 	const vec3_t pointBuffer,
 	int maxFragments,
@@ -261,6 +263,16 @@ void R_TessellateMarkFragments(
 	float fRadiusSquared
 )
 {
+	int i, j, k, m, n;
+	int* indexes;
+	float* v;
+	vec3_t clipPoints[2][64];
+	vec3_t v1, v2;
+	vec3_t normal;
+	drawVert_t* dv;
+	qboolean bSkipTerrain;
+
+
 	// FIXME: unimplemented
 }
 
@@ -463,13 +475,159 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 
 void R_BoxSurfacesForBModel_r(bmodel_t* pBmodel, const vec3_t mins, const vec3_t maxs, surfaceType_t** list, int listsize, int* listlength, const vec3_t dir)
 {
-	// FIXME: unimplemented
+	int s;
+	int c;
+	msurface_t* surf;
+
+	surf = pBmodel->firstSurface;
+
+	for (*listlength = 0; *listlength < listsize; (*listlength)++, surf++) {
+		if (surf - pBmodel->firstSurface >= pBmodel->numSurfaces) {
+			break;
+		}
+
+		s = surf->shader->surfaceFlags;
+		c = surf->shader->contentFlags;
+
+		if (!(s & SURF_NOIMPACT)
+			&& !(s & SURF_NOMARKS)
+			&& !(c & CONTENTS_FOG))
+		{
+			switch (*surf->data)
+			{
+			case SF_FACE:
+            {
+                int plane;
+                srfSurfaceFace_t* face;
+
+				face = (srfSurfaceFace_t*)surf->data;
+				plane = BoxOnPlaneSide(mins, maxs, &face->plane);
+				if (plane == PLANE_Y || plane == PLANE_Z) {
+					surf->viewCount = tr.viewCount;
+				}
+				else if (DotProduct(dir, face->plane.normal) > 0.5f) {
+					surf->viewCount = tr.viewCount;
+				}
+				break;
+			}
+            case SF_GRID:
+                surf->viewCount = tr.viewCount;
+				break;
+			}
+		}
+		else
+		{
+			surf->viewCount = tr.viewCount;
+		}
+
+		if (surf->viewCount != tr.viewCount)
+		{
+			surf->viewCount = tr.viewCount;
+			list[(*listlength)++] = surf->data;
+		}
+	}
 }
 
-int R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t angles, const vec3_t origin, int numPoints,
-	const vec3_t* points, const vec3_t projection, int maxPoints, vec3_t pointBuffer,
-	int maxFragments, markFragment_t* fragmentBuffer, float radiusSquared)
+int R_MarkFragmentsForInlineModel(clipHandle_t bmodel, const vec3_t vAngles, const vec3_t vOrigin, int numPoints,
+    const vec3_t* points, const vec3_t projection, int maxPoints, const vec3_t pointBuffer,
+    int maxFragments, markFragment_t* fragmentBuffer, float fRadiusSquared)
 {
-	// FIXME: unimplemented
-	return 0;
+	int i;
+	int numsurfaces;
+	vec3_t vTmp;
+	vec3_t v1, v2;
+	vec3_t vMins, vMaxs;
+	vec3_t vTransPoints[64];
+	vec3_t vTransProj;
+	vec3_t vTransProjDir;
+	bmodel_t* pBmodel;
+	surfaceType_t* surfaces[64];
+	int returnedFragments;
+	int returnedPoints;
+	vec3_t normals[66];
+	float dists[66];
+
+    tr.viewCount++;
+
+    pBmodel = &tr.world->bmodels[bmodel];
+
+	if (numPoints > 64) {
+		numPoints = 64;
+	}
+
+	if (vAngles[0] || vAngles[1] || vAngles[2])
+	{
+		vec3_t axis[3];
+
+		AngleVectorsLeft(vAngles, axis[0], axis[1], axis[2]);
+	
+		for (i = 0; i < numPoints; i++) {
+			VectorSubtract(points[i], vOrigin, vTmp);
+			MatrixTransformVectorRight(axis, vTmp, vTransPoints[i]);
+		}
+
+		MatrixTransformVectorRight(axis, projection, vTransProj);
+	}
+	else
+	{
+        for (i = 0; i < numPoints; i++) {
+            VectorSubtract(points[i], vOrigin, vTransPoints[i]);
+		}
+
+		VectorCopy(projection, vTransProj);
+	}
+
+    VectorNormalize2(vTransProj, vTransProjDir);
+    ClearBounds(vMins, vMaxs);
+
+	for (i = 0; i < numPoints; i++) {
+		AddPointToBounds(vTransPoints[i], vMins, vMaxs);
+		VectorAdd(vTransPoints[i], vTransProj, vTmp);
+		AddPointToBounds(vTmp, vMins, vMaxs);
+		VectorMA(vTransPoints[i], -20.f, vTransProjDir, vTmp);
+		AddPointToBounds(vTmp, vMins, vMaxs);
+	}
+
+	for (i = 0; i < numPoints; i++) {
+		VectorSubtract(vTransPoints[(i + 1) % numPoints], vTransPoints[i], v1);
+		VectorAdd(vTransPoints[i], vTransProj, v2);
+		VectorSubtract(vTransPoints[i], v2, v2);
+		CrossProduct(v1, v2, normals[i]);
+		VectorNormalize(normals[i]);
+		dists[i] = DotProduct(normals[i], vTransPoints[i]);
+	}
+
+	VectorCopy(vTransProjDir, normals[numPoints]);
+	dists[numPoints] = DotProduct(normals[numPoints], vTransPoints[0]) - 32.f;
+
+	VectorCopy(vTransProjDir, normals[numPoints + 1]);
+	VectorInverse(normals[numPoints + 1]);
+	dists[numPoints + 1] = DotProduct(normals[numPoints + 1], vTransPoints[i]) - 20.f;
+
+	returnedPoints = 0;
+	returnedFragments = 0;
+	numsurfaces = 0;
+
+	R_BoxSurfacesForBModel_r(pBmodel, vMins, vMaxs, surfaces, ARRAY_LEN(surfaces), &numsurfaces, vTransProjDir);
+	if (!numsurfaces) {
+		return 0;
+	}
+
+    R_TessellateMarkFragments(
+        &returnedPoints,
+        &returnedFragments,
+        numsurfaces,
+        surfaces,
+        vTransProjDir,
+        numPoints + 2,
+        normals,
+        dists,
+        maxPoints,
+        pointBuffer,
+        maxFragments,
+        fragmentBuffer,
+        fRadiusSquared
+	);
+
+    return returnedFragments;
 }

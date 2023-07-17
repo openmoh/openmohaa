@@ -139,9 +139,9 @@ typedef struct {
     void    (*Scissor)(int x, int y, int width, int height);
     void    (*DrawLineLoop)(const vec2_t* points, int count, int stippleFactor, int stippleMask);
    
-    int (*MarkFragmentsForInlineModel)(clipHandle_t bmodel, const vec3_t angles, const vec3_t origin, int numPoints,
-        const vec3_t* points, const vec3_t projection, int maxPoints, const vec3_t pointBuffer,
-        int maxFragments, markFragment_t* fragmentBuffer, float radiusSquared);
+    int     (*MarkFragmentsForInlineModel)(clipHandle_t bmodel, const vec3_t vAngles, const vec3_t vOrigin, int numPoints,
+                const vec3_t* points, const vec3_t projection, int maxPoints, const vec3_t pointBuffer,
+                int maxFragments, markFragment_t* fragmentBuffer, float fRadiusSquared);
 
     void    (*GetInlineModelBounds)(int index, vec3_t mins, vec3_t maxs);
     void    (*GetLightingForDecal)(vec3_t light, const vec3_t facing, const vec3_t origin);
