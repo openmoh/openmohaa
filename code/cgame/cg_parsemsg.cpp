@@ -321,7 +321,7 @@ static void CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLa
     }
 
     if (fRadius && CG_CheckMakeMarkOnEntity(trace.entityNum)) {
-        fRadius *= 1.f + random() * 2.f;
+        fRadius *= 1.f + crandom() * 0.2f;
 
         CG_ImpactMarkSimple(
             cgi.R_RegisterShader(sBulletHole.c_str()),
@@ -1046,7 +1046,7 @@ void CG_AddBulletImpacts()
     }
 }
 
-void CG_MakeExplosionEffect(vec3_t vPos, int iType)
+void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
 {
     int       iSurfType;
     int       iBaseEffect;
@@ -1090,7 +1090,7 @@ void CG_MakeExplosionEffect(vec3_t vPos, int iType)
         return;
     }
 
-    VectorMA(trace.endpos, 32.0, trace.plane.normal, vPos);
+    VectorMA(trace.endpos, 32.0, trace.plane.normal, vEnd);
 
     iSurfType = trace.surfaceFlags & MASK_SURF_TYPE;
     switch (iSurfType) {
@@ -1154,8 +1154,7 @@ void CG_MakeExplosionEffect(vec3_t vPos, int iType)
 
     sMark = "blastmark";
     if (fRadius) {
-        float value = (rand() & 0x7FFF) / 32767.0 - 0.5;
-        fRadius *= (value + value) * 0.1 + 1.0;
+        fRadius *= 1.f + crandom() * 0.1;
         shader = cgi.R_RegisterShader(sMark.c_str());
 
         CG_ImpactMarkSimple(
@@ -1175,7 +1174,7 @@ void CG_MakeExplosionEffect(vec3_t vPos, int iType)
         );
     }
 
-    VectorMA(vPos, 1.0, trace.plane.normal, vPos);
+    VectorMA(vEnd, 1.0, trace.plane.normal, vEnd);
 
     if (iSurfEffect != -1) {
         sfxManager.MakeEffect_Normal(
@@ -1183,7 +1182,7 @@ void CG_MakeExplosionEffect(vec3_t vPos, int iType)
         );
     }
 
-    sfxManager.MakeEffect_Normal(iSurfEffect, vPos, trace.plane.normal);
+    sfxManager.MakeEffect_Normal(iBaseEffect, vEnd, trace.plane.normal);
 }
 
 void CG_MakeVehicleEffect(vec3_t i_vStart, vec3_t i_vEnd, vec3_t i_vDir)
