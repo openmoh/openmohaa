@@ -45,9 +45,73 @@ typedef struct {
   int numLights;
 } dlightInfo_t;
 
+typedef struct {
+  vec3_t point;
+  int s;
+  int t;
+} patchLightBlock_t;
+
 dlightInfo_t dli;
 
 void R_SetupEntityLightingGrid(trRefEntity_t* ent);
+
+static int R_RecursiveDlightPatch(patchLightBlock_t* plb) {
+    patchLightBlock_t cut[4];
+    qboolean added;
+    int index;
+
+    // FIXME: unimplemented
+    return 0;
+}
+
+int R_RealDlightPatch(srfGridMesh_t* srf, int dlightBit) {
+    int x, y;
+    int i, j;
+    int i2, j2;
+    int steps[2][2];
+    dlight_t* dl;
+    qboolean added;
+    float* origin;
+    drawVert_t* dv;
+
+    // FIXME: unimplemented
+    return 0;
+}
+
+int R_RealDlightFace(srfSurfaceFace_t* srf, int dlightBits) {
+    int x, y;
+    byte* src, * dst;
+    int i, j;
+    vec3_t vec;
+    vec3_t vecStepS, vecStepT;
+    dlight_t* dl;
+    float d;
+    qboolean added;
+    float* origin;
+
+    // FIXME: unimplemented
+    return 0;
+}
+
+int R_RealDlightTerrain(cTerraPatchUnpacked_t* srf, int dlightBits) {
+    dlight_t* dl;
+    int x, y;
+    byte* dst, * src;
+    vec3_t vec;
+    float delta, dist;
+    float* origin;
+    int i, j, k;
+    int di, dj;
+    qboolean added;
+    float lmScale;
+    int lumelsPerHeight;
+    float heightPerLumelSquared;
+    float z00, z01;
+    float z10, z11;
+
+    // FIXME: unimplemented
+    return 0;
+}
 
 /*
 ===============
@@ -525,4 +589,15 @@ qboolean R_AllocLMBlock(int w, int h, int* x, int* y) {
 	}
 
 	return qtrue;
+}
+
+qboolean R_DlightSample(byte* src, const vec3_t vec, byte* dst) {
+	int r, g, b;
+	int k;
+	qboolean added;
+	vec3_t dir;
+	float add;
+
+	// FIXME: unimplemented
+	return qfalse;
 }
