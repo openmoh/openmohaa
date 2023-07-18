@@ -97,23 +97,25 @@ int R_RealDlightFace(srfSurfaceFace_t* srf, int dlightBits) {
 	dli.numLights = 0;
 
 	for (i = 0; i < tr.refdef.num_dlights; i++) {
-        if (dlightBits & (1 << i)) {
-            dl = &tr.refdef.dlights[i];
+        if (!(dlightBits & (1 << i))) {
+            continue;
+        }
 
-            d = dl->transformed[0] * srf->plane.normal[0]
-				+ dl->transformed[1] * srf->plane.normal[1]
-				+ dl->transformed[2] * srf->plane.normal[2]
-				- srf->plane.dist;
+        dl = &tr.refdef.dlights[i];
 
-			if (d < 0.f && !r_dlightBacks->integer
-				|| dl->radius < d || -dl->radius > d) {
-				dlightBits &= ~(1 << i);
-			} else {
-				VectorCopy(dl->transformed, dli.lights[dli.numLights].origin);
-				dli.lights[dli.numLights].dl = dl;
-				dli.lights[dli.numLights++].power = 1.0 / dl->radius;
-			}
-		}
+        d = DotProduct(dl->transformed, srf->plane.normal) - srf->plane.dist;
+
+        if ((d < 0.f && !r_dlightBacks->integer)
+            || (d > dl->radius || d < -dl->radius)) {
+            // dlight doesn't reach the plane
+            dlightBits &= ~(1 << i);
+        }
+        else {
+            VectorCopy(dl->transformed, dli.lights[dli.numLights].origin);
+            dli.lights[dli.numLights].dl = dl;
+            dli.lights[dli.numLights].power = 1.0 / dl->radius;
+			dli.numLights++;
+        }
     }
 
     if (!dli.numLights) {
@@ -136,7 +138,7 @@ int R_RealDlightFace(srfSurfaceFace_t* srf, int dlightBits) {
 	tr.pc.c_dlightTexels += srf->lmWidth * srf->lmHeight;
 
 	VectorCopy(srf->lmVecs[0], vecStepS);
-	VectorMA(srf->lmVecs[1], -srf->lmWidth, vecStepS, vecStepT);
+	VectorMA(srf->lmVecs[1], -srf->lmWidth, srf->lmVecs[0], vecStepT);
 
 	added = qfalse;
 	VectorCopy(srf->lmOrigin, vec);
@@ -154,17 +156,17 @@ int R_RealDlightFace(srfSurfaceFace_t* srf, int dlightBits) {
 		dst += 4 * (LIGHTMAP_SIZE - j);
 	}
 
-	if (added) {
-		for (i = 0; i < srf->lmWidth; i++) {
-			dli.allocated[x + i] = srf->lmHeight + y;
-        }
-
-		srf->dlightMap[tr.smpFrame] = dli.dlightMap + 1;
-        return srf->dlightMap[tr.smpFrame];
+	if (!added) {
+        srf->dlightMap[tr.smpFrame] = 0;
+        return 0;
 	}
 
-	srf->dlightMap[tr.smpFrame] = 0;
-    return 0;
+    for (i = 0; i < srf->lmWidth; i++) {
+        dli.allocated[x + i] = srf->lmHeight + y;
+    }
+
+    srf->dlightMap[tr.smpFrame] = dli.dlightMap + 1;
+    return srf->dlightMap[tr.smpFrame];
 }
 
 int R_RealDlightTerrain(cTerraPatchUnpacked_t* srf, int dlightBits) {
