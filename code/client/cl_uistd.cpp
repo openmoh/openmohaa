@@ -614,17 +614,336 @@ void UIFakkLabel::DrawStatbar( float frac )
 
 void UIFakkLabel::DrawStatCircle( float frac )
 {
-	// FIXME: stub
+	vec4_t col;
+	float alpha;
+	float fCurrAng, fEndAng, fNextAng;
+	vec2_t vVerts[3];
+	vec2_t vTexCoords[3];
+
+    col[0] = 1.f;
+    col[1] = 1.f;
+    col[2] = 1.f;
+    col[3] = 1.f;
+
+    if (m_lastfrac != frac) {
+        m_flashtime = uid.time;
+    }
+    m_lastfrac = frac;
+
+    alpha = 1.f - (uid.time - m_flashtime) / 1500.f;
+    if (alpha < 0.f) alpha = 0.f;
+    else if (alpha > 1.f) alpha = 1.f;
+
+    col[3] = alpha;
+
+	vVerts[0][0] = m_frame.size.width * 0.5f;
+	vVerts[0][1] = m_frame.size.height * 0.5f;
+	vTexCoords[0][0] = 0.5f;
+	vTexCoords[0][1] = 0.5f;
+
+	if (ui_health_start->value && ui_health_end->value) {
+		m_angles[0] = ui_health_start->value;
+		m_angles[1] = ui_health_end->value;
+	}
+
+	fCurrAng = m_angles[0];
+	fEndAng = frac * (m_angles[1] - fCurrAng) + fCurrAng;
+    if (m_angles[1] > fCurrAng) {
+        StatCircleTexCoord(fCurrAng, vTexCoords[1]);
+        vVerts[1][0] = m_frame.size.width * vTexCoords[1][0];
+        vVerts[1][1] = m_frame.size.height * vTexCoords[1][1];
+       
+		if ((int)fCurrAng - (((int)fCurrAng - 45) % 90 + 90) % 90 == (int)fEndAng - (((int)fEndAng - 45) % 90 + 90) % 90)
+		{
+            StatCircleTexCoord(fEndAng, vTexCoords[2]);
+            vVerts[2][0] = m_frame.size.width * vTexCoords[2][0];
+            vVerts[2][1] = m_frame.size.height * vTexCoords[2][1];
+		
+            if (alpha && m_statbar_material_flash) {
+                re.SetColor(m_foreground_color);
+            }
+
+            m_statbar_material->ReregisterMaterial();
+            re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+
+            if (alpha && m_statbar_material_flash) {
+                re.SetColor(col);
+                m_statbar_material_flash->ReregisterMaterial();
+                re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
+            }
+		}
+		else
+        {
+			while (fCurrAng > fEndAng)
+			{
+				fNextAng = ((int)fCurrAng - (((int)fCurrAng - 45) % 90 + 90) % 90) + 90.0;
+				if (fNextAng > fEndAng) {
+					fNextAng = fEndAng;
+				}
+
+                StatCircleTexCoord(fNextAng, vTexCoords[2]);
+                vVerts[2][0] = m_frame.size.width * vTexCoords[2][0];
+                vVerts[2][1] = m_frame.size.height * vTexCoords[2][1];
+
+				if (alpha && m_statbar_material_flash) {
+					re.SetColor(m_foreground_color);
+				}
+
+				m_statbar_material->ReregisterMaterial();
+				re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+			
+				if (alpha && m_statbar_material_flash) {
+					re.SetColor(col);
+					m_statbar_material_flash->ReregisterMaterial();
+					re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
+				}
+
+                vTexCoords[1][0] = vTexCoords[2][0];
+                vTexCoords[1][1] = vTexCoords[2][1];
+                vVerts[1][0] = vVerts[2][0];
+                vVerts[1][1] = vVerts[2][1];
+                fCurrAng = fNextAng;
+			}
+		}
+	} else {
+		StatCircleTexCoord(fCurrAng, vTexCoords[2]);
+		vVerts[2][0] = m_frame.size.width * vTexCoords[2][0];
+		vVerts[2][1] = m_frame.size.height * vTexCoords[2][1];
+		if ((int)fCurrAng - (((int)fCurrAng - 45) % 90 + 90) % 90 == (int)fEndAng
+			- (((int)fEndAng - 45) % 90 + 90) % 90)
+		{
+			StatCircleTexCoord(fEndAng, vTexCoords[1]);
+            vVerts[1][0] = m_frame.size.width * vTexCoords[1][0];
+            vVerts[1][1] = m_frame.size.height * vTexCoords[1][1];
+		
+			if (alpha && m_statbar_material_flash) {
+				re.SetColor(m_foreground_color);
+			}
+
+			m_statbar_material->ReregisterMaterial();
+			re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+		
+			if (alpha && m_statbar_material_flash) {
+				re.SetColor(col);
+				m_statbar_material_flash->ReregisterMaterial();
+				re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
+			}
+		}
+		else
+		{
+			while (fCurrAng > fEndAng)
+			{
+				fNextAng = ((int)fCurrAng - (((int)fCurrAng + 45) % 90 + 90) % 90);
+				if (fNextAng == fCurrAng) {
+					fNextAng -= 90.f;
+				}
+
+				if (fNextAng < fEndAng) {
+					fNextAng = fEndAng;
+				}
+
+				StatCircleTexCoord(fNextAng, vTexCoords[1]);
+                vVerts[1][0] = m_frame.size.width * vTexCoords[1][0];
+                vVerts[1][1] = m_frame.size.height * vTexCoords[1][1];
+			
+                if (alpha && m_statbar_material_flash) {
+                    re.SetColor(m_foreground_color);
+                }
+
+                m_statbar_material->ReregisterMaterial();
+                re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+
+                if (alpha && m_statbar_material_flash) {
+                    re.SetColor(col);
+                    m_statbar_material_flash->ReregisterMaterial();
+                    re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
+                }
+
+                vTexCoords[2][0] = vTexCoords[1][0];
+                vTexCoords[2][1] = vTexCoords[1][1];
+                vVerts[2][0] = vVerts[1][0];
+                vVerts[2][1] = vVerts[1][1];
+                fCurrAng = fNextAng;
+			}
+		}
+	}
 }
 
 void UIFakkLabel::DrawStatNeedle( float frac )
 {
-	// FIXME: stub
+	vec4_t col;
+	float alpha;
+	float fTargAng;
+	float fSinVal;
+	float fCosVal;
+	vec2_t vCenter;
+	vec2_t vVerts[3];
+	vec2_t vTexCoords[3];
+	vec2_t vNeedleDir;
+	vec2_t vSideDir;
+
+	col[0] = 1.f;
+	col[1] = 1.f;
+	col[2] = 1.f;
+	col[3] = 1.f;
+
+	if (m_lastfrac != frac) {
+		m_flashtime = uid.time;
+	}
+	m_lastfrac = frac;
+
+	alpha = 1.f - (uid.time - m_flashtime) / 1500.f;
+	if (alpha < 0.f) alpha = 0.f;
+	else if (alpha > 1.f) alpha = 1.f;
+
+	col[3] = alpha;
+
+	fTargAng = DEG2RAD(frac * (m_angles[1] - m_angles[0]) + m_angles[0]);
+	fSinVal = sin(fTargAng);
+	fCosVal = cos(fTargAng);
+
+	vSideDir[0] = m_frame.size.width * 0.5f;
+	vSideDir[1] = m_frame.size.height * 0.5f;
+	vCenter[0] = m_frame.size.width + fSinVal * vSideDir[0];
+	vCenter[1] = m_frame.size.height + -fCosVal * vSideDir[1];
+	vNeedleDir[0] = m_angles[2] * fCosVal;
+	vNeedleDir[1] = m_angles[2] * fSinVal;
+
+	vVerts[0][0] = vCenter[0] - vNeedleDir[0];
+	vVerts[0][1] = vCenter[1] - vNeedleDir[1];
+	vVerts[1][0] = vCenter[0] + vNeedleDir[0];
+	vVerts[1][1] = vCenter[1] + vNeedleDir[1];
+	vVerts[2][0] = vSideDir[0] - vNeedleDir[1] - vNeedleDir[0];
+	vVerts[2][1] = vSideDir[1] + vNeedleDir[0] - vNeedleDir[1];
+
+    vTexCoords[0][0] = 0.f;
+    vTexCoords[0][1] = 0.f;
+    vTexCoords[1][0] = 1.f;
+    vTexCoords[1][1] = 0.f;
+    vTexCoords[2][0] = 0.f;
+    vTexCoords[2][1] = 1.f;
+
+	if (alpha != 0.f) {
+		re.SetColor(m_foreground_color);
+	}
+
+	m_statbar_material->ReregisterMaterial();
+	re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+
+	if (alpha != 0.f && m_statbar_material_flash) {
+		re.SetColor(col);
+		m_statbar_material_flash->ReregisterMaterial();
+		re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
+	}
+
+	vVerts[0][0] = vVerts[2][0];
+	vVerts[0][1] = vVerts[2][1];
+	vVerts[2][0] = m_angles[2] * vCenter[0] + m_frame.size.width * 0.5f - m_angles[2] * vCenter[1];
+	vVerts[2][1] = m_angles[2] * vCenter[1] + m_frame.size.height * 0.5f - m_angles[2] * -vCenter[0];
+
+    vTexCoords[0][0] = vTexCoords[2][0];
+    vTexCoords[0][1] = vTexCoords[2][1];
+
+	if (alpha != 0.f && m_statbar_material_flash) {
+		re.SetColor(m_foreground_color);
+	}
+
+	m_statbar_material->ReregisterMaterial();
+	re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+
+	if (alpha != 0.f && m_statbar_material_flash) {
+		m_statbar_material_flash->ReregisterMaterial();
+		re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
+	}
 }
 
 void UIFakkLabel::DrawStatRotator( float frac )
 {
-	// FIXME: stub
+	vec4_t col;
+	float alpha;
+	float fTargAng;
+	float fSinVal, fCosVal;
+    vec2_t vCenter;
+    vec2_t vVerts[3];
+    vec2_t vTexCoords[3];
+    vec2_t vNeedleDir;
+	vec2_t vSize;
+
+    col[0] = 1.f;
+    col[1] = 1.f;
+    col[2] = 1.f;
+    col[3] = 1.f;
+
+    if (m_lastfrac != frac) {
+        m_flashtime = uid.time;
+    }
+    m_lastfrac = frac;
+
+    alpha = 1.f - (uid.time - m_flashtime) / 1500.f;
+    if (alpha < 0.f) alpha = 0.f;
+    else if (alpha > 1.f) alpha = 1.f;
+
+    col[3] = alpha;
+
+    fTargAng = DEG2RAD(frac * (m_angles[1] - m_angles[0]) + m_angles[0]);
+    fSinVal = sin(fTargAng);
+	fCosVal = cos(fTargAng);
+	vNeedleDir[0] = fSinVal;
+	vNeedleDir[1] = -fCosVal;
+
+	vSize[0] = (m_frame.size.width + m_frame.size.height) / m_frame.size.width * m_angles[2] * m_vVirtualScale[0];
+	vSize[1] = (m_frame.size.width + m_frame.size.height) / m_frame.size.height * m_scale * m_vVirtualScale[1];
+
+	vCenter[0] = (m_frame.size.width * 0.5f - vSize[0]) * vNeedleDir[0] + m_frame.size.width * 0.5f;
+	vCenter[1] = (m_frame.size.height * 0.5f - vSize[1]) * vNeedleDir[1] + m_frame.size.height * 0.5f;
+
+	vVerts[0][0] = vCenter[0] - vSize[0];
+	vVerts[0][1] = vCenter[1] - vSize[1];
+	vVerts[1][0] = vCenter[0] + vSize[0];
+	vVerts[1][1] = vCenter[1] - vSize[1];
+	vVerts[2][0] = vCenter[0] - vSize[0];
+	vVerts[2][1] = vCenter[1] + vSize[1];
+
+    vTexCoords[0][0] = 0.f;
+    vTexCoords[0][1] = 0.f;
+	vTexCoords[1][0] = 1.f;
+	vTexCoords[1][1] = 0.f;
+	vTexCoords[2][0] = 0.f;
+	vTexCoords[2][1] = 1.f;
+
+    if (alpha != 0.f && m_statbar_material_flash) {
+        re.SetColor(m_foreground_color);
+    }
+
+    m_statbar_material->ReregisterMaterial();
+    re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+
+    if (alpha != 0.f && m_statbar_material_flash) {
+        m_statbar_material_flash->ReregisterMaterial();
+        re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
+    }
+
+    vVerts[0][0] = vVerts[2][0];
+    vVerts[0][1] = vVerts[2][1];
+	vVerts[2][0] = vCenter[0] + vSize[0];
+	vVerts[2][1] = vCenter[1] + vSize[1];
+
+    vTexCoords[0][0] = vTexCoords[2][0];
+    vTexCoords[0][1] = vTexCoords[2][1];
+	vTexCoords[2][0] = 1.f;
+	vTexCoords[2][1] = 1.f;
+
+    if (alpha != 0.f && m_statbar_material_flash) {
+        re.SetColor(m_foreground_color);
+    }
+
+    m_statbar_material->ReregisterMaterial();
+    re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+
+    if (alpha != 0.f && m_statbar_material_flash) {
+        m_statbar_material_flash->ReregisterMaterial();
+        re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
+    }
 }
 
 void UIFakkLabel::DrawStatCompass( float frac )
@@ -839,12 +1158,135 @@ void UIFakkLabel::DrawStatCompass( float frac )
 
 void UIFakkLabel::DrawStatSpinner( float frac )
 {
-	// FIXME: stub
+    vec4_t col;
+    float alpha;
+    float fTargAng;
+    float fSinVal, fCosVal;
+    vec2_t vCenter;
+    vec2_t vVerts[3];
+    vec2_t vTexCoords[3];
+    vec2_t vCompassDir;
+    vec2_t vSideDir;
+
+    col[0] = 1.f;
+    col[1] = 1.f;
+    col[2] = 1.f;
+    col[3] = 1.f;
+
+    if (m_lastfrac != frac) {
+        m_flashtime = uid.time;
+    }
+    m_lastfrac = frac;
+
+    alpha = 1.f - (uid.time - m_flashtime) / 1500.f;
+    if (alpha < 0.f) alpha = 0.f;
+    else if (alpha > 1.f) alpha = 1.f;
+
+    col[3] = alpha;
+
+	if (m_statbar_or == L_STATBAR_HEADING_SPINNER) {
+		if (cge) {
+			vec3_t vViewAngles;
+			float fAngAlpha;
+			cge->CG_EyeAngles(&vViewAngles);
+
+			frac = (AngleSubtract(vViewAngles[1], frac * 360.f + 180.f) + 180.f) / 360.f;
+			if (frac < 0.f || frac > 1.f) {
+				frac = 0.f;
+			}
+		}
+	}
+
+    fTargAng = DEG2RAD(frac * (m_angles[1] - m_angles[0]) + m_angles[0]);
+    fSinVal = sin(fTargAng);
+    fCosVal = cos(fTargAng);
+
+	vSideDir[0] = fCosVal;
+    vSideDir[1] = fSinVal;
+    vCompassDir[0] = fSinVal;
+	vCompassDir[1] = -fCosVal;
+	vCenter[0] = m_frame.size.width * 0.5f;
+	vCenter[1] = m_frame.size.height * 0.5f;
+
+	vVerts[0][0] = (fSinVal * vCenter[0] + vCenter[0]) - (fCosVal * vCenter[1]);
+	vVerts[0][1] = (vCompassDir[1] * vCenter[1] + vCenter[1]) - (vSideDir[1] * vCenter[0]);
+	vVerts[1][0] = (fSinVal * vCenter[0] + vCenter[0]) + (fCosVal * vCenter[1]);
+	vVerts[1][1] = (vSideDir[1] * vCenter[0]) + (vCompassDir[1] * vCenter[1] + vCenter[1]);
+	vVerts[2][0] = vCenter[0] - fSinVal * vCenter[0] - fCosVal * vCenter[1];
+	vVerts[2][1] = vCenter[1] - vCompassDir[1] * vCenter[1] - vSideDir[1] * vCenter[0];
+
+	vTexCoords[0][0] = 0.f;
+    vTexCoords[0][1] = 0.f;
+    vTexCoords[1][0] = 1.f;
+    vTexCoords[1][1] = 0.f;
+    vTexCoords[2][0] = 0.f;
+    vTexCoords[2][1] = 1.f;
+
+    if (alpha != 0.f && m_statbar_material_flash) {
+        re.SetColor(m_foreground_color);
+    }
+
+    m_statbar_material->ReregisterMaterial();
+    re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+
+    if (alpha != 0.f && m_statbar_material_flash) {
+        m_statbar_material_flash->ReregisterMaterial();
+        re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
+    }
+
+    vVerts[0][0] = vVerts[2][0];
+    vVerts[0][1] = vVerts[2][1];
+    vVerts[2][0] = vCenter[1] * fCosVal + vCenter[0] - vCompassDir[0] * vCenter[0];
+    vVerts[2][1] = vCenter[0] * vSideDir[1] + vCenter[1] - vCompassDir[1] * vCenter[1];
+
+    vTexCoords[0][0] = vTexCoords[2][0];
+    vTexCoords[0][1] = vTexCoords[2][1];
+    vTexCoords[2][0] = 1.f;
+    vTexCoords[2][1] = 1.f;
+
+    if (alpha != 0.f && m_statbar_material_flash) {
+        re.SetColor(m_foreground_color);
+    }
+
+    m_statbar_material->ReregisterMaterial();
+    re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material->GetMaterial());
+
+    if (alpha != 0.f && m_statbar_material_flash) {
+        m_statbar_material_flash->ReregisterMaterial();
+        re.DrawTrianglePic(vVerts, vTexCoords, m_statbar_material_flash->GetMaterial());
+    }
 }
 
 void UIFakkLabel::StatCircleTexCoord( float fAng, vec3_t vTexCoord )
 {
-	// FIXME: stub
+	int iSector;
+	float fSinVal, fCosVal;
+
+	iSector = (AngleMod(fAng) + 45.f) / 90;
+	fSinVal = sin(DEG2RAD(fAng));
+	fCosVal = cos(DEG2RAD(fAng));
+
+	if (iSector >= 0) {
+		if (iSector == 0) {
+			vTexCoord[0] = 0.f;
+			vTexCoord[1] = 0.5f / fCosVal * fSinVal + 0.5f;
+		} else if (iSector == 1) {
+			vTexCoord[0] = 1.f;
+			vTexCoord[1] = -0.5f / fSinVal * fCosVal + 0.5f;
+		} else if (iSector == 2) {
+			vTexCoord[0] = fSinVal * (-0.5f * fCosVal) + 0.5f;
+			vTexCoord[1] = 1.f;
+		} else if (iSector == 4) {
+			vTexCoord[0] = 0.5f / fCosVal * fSinVal + 0.5f;
+			vTexCoord[1] = 0.f;
+		} else {
+			vTexCoord[0] = 0.f;
+			vTexCoord[1] = 0.5f / fSinVal * fCosVal + 0.5f;
+		}
+	} else {
+		vTexCoord[0] = 0.f;
+		vTexCoord[1] = 0.5f / fSinVal * fCosVal + 0.5f;
+	}
 }
 
 void UIFakkLabel::Draw( void )
