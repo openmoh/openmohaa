@@ -683,9 +683,9 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 
 		for (i = 0; i < 3; i++)
 		{
-			cv->lmOrigin[j] = LittleFloat(ds->lightmapOrigin[j]);
-			cv->lmVecs[0][j] = LittleFloat(ds->lightmapVecs[0][j]);
-			cv->lmVecs[1][j] = LittleFloat(ds->lightmapVecs[1][j]);
+			cv->lmOrigin[i] = LittleFloat(ds->lightmapOrigin[i]);
+            cv->lmVecs[0][i] = LittleFloat(ds->lightmapVecs[0][i]);
+            cv->lmVecs[1][i] = LittleFloat(ds->lightmapVecs[1][i]);
 		}
 
 		inv = VectorNormalize2(cv->lmVecs[0], cv->lmInverseVecs[0]);
