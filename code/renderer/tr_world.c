@@ -282,7 +282,7 @@ static int R_DlightSurface( msurface_t *surf, int dlightBits ) {
 			if (surf->shader->lightmapIndex >= 0) {
 				dlightMap = R_RealDlightPatch((srfGridMesh_t*)surf->data, dlightBits);
 			} else {
-				((srfGridMesh_t*)surf)->dlightMap[tr.smpFrame + 2] = 0.f;
+				((srfGridMesh_t*)surf)->dlightMap[tr.smpFrame] = 0.f;
 				dlightMap = 0;
             }
             return dlightMap;
