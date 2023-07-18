@@ -89,7 +89,81 @@ int R_RealDlightFace(srfSurfaceFace_t* srf, int dlightBits) {
     qboolean added;
     float* origin;
 
-    // FIXME: unimplemented
+	if (!srf->lmHeight || !srf->lmWidth) {
+		srf->dlightMap[tr.smpFrame] = 0;
+		return 0;
+	}
+
+	dli.numLights = 0;
+
+	for (i = 0; i < tr.refdef.num_dlights; i++) {
+        if (dlightBits & (1 << i)) {
+            dl = &tr.refdef.dlights[i];
+
+            d = dl->transformed[0] * srf->plane.normal[0]
+				+ dl->transformed[1] * srf->plane.normal[1]
+				+ dl->transformed[2] * srf->plane.normal[2]
+				- srf->plane.dist;
+
+			if (d < 0.f && !r_dlightBacks->integer
+				|| dl->radius < d || -dl->radius > d) {
+				dlightBits &= ~(1 << i);
+			} else {
+				VectorCopy(dl->transformed, dli.lights[dli.numLights].origin);
+				dli.lights[dli.numLights].dl = dl;
+				dli.lights[dli.numLights++].power = 1.0 / dl->radius;
+			}
+		}
+    }
+
+    if (!dli.numLights) {
+        srf->dlightMap[tr.smpFrame] = 0;
+        return 0;
+    }
+
+	if (!R_AllocLMBlock(srf->lmWidth, srf->lmHeight, &x, &y)) {
+		srf->dlightMap[tr.smpFrame] = 0;
+        return 0;
+	}
+
+    src = srf->lmData;
+    dst = &dli.lightmap_buffer[512 * y + 4 * x];
+
+	srf->lightmapOffset[0] = (float)x / LIGHTMAP_SIZE - (float)srf->lmX / LIGHTMAP_SIZE;
+	srf->lightmapOffset[1] = (float)y / LIGHTMAP_SIZE - (float)srf->lmY / LIGHTMAP_SIZE;
+
+	tr.pc.c_dlightSurfaces++;
+	tr.pc.c_dlightTexels += srf->lmWidth * srf->lmHeight;
+
+	VectorCopy(srf->lmVecs[0], vecStepS);
+	VectorMA(srf->lmVecs[1], -srf->lmWidth, vecStepS, vecStepT);
+
+	added = qfalse;
+	VectorCopy(srf->lmOrigin, vec);
+
+	for (i = 0; i < srf->lmHeight; i++) {
+		for (j = 0; j < srf->lmWidth; j++) {
+			added |= R_DlightSample(src, vec, dst);
+			VectorAdd(vec, vecStepS, vec);
+			src += 3;
+			dst += 4;
+		}
+
+		VectorAdd(vec, vecStepT, vec);
+		src += 3 * (LIGHTMAP_SIZE - j);
+		dst += 4 * (LIGHTMAP_SIZE - j);
+	}
+
+	if (added) {
+		for (i = 0; i < srf->lmWidth; i++) {
+			dli.allocated[x + i] = srf->lmHeight + y;
+        }
+
+		srf->dlightMap[tr.smpFrame] = dli.dlightMap + 1;
+        return srf->dlightMap[tr.smpFrame];
+	}
+
+	srf->dlightMap[tr.smpFrame] = 0;
     return 0;
 }
 
@@ -598,6 +672,47 @@ qboolean R_DlightSample(byte* src, const vec3_t vec, byte* dst) {
 	vec3_t dir;
 	float add;
 
-	// FIXME: unimplemented
-	return qfalse;
+	added = qfalse;
+	r = src[0];
+	g = src[1];
+	b = src[2];
+
+	for (k = 0; k < dli.numLights; k++) {
+		incidentLight_t* light = &dli.lights[k];
+
+		VectorSubtract(vec, light->origin, dir);
+		add = VectorLength(dir) * light->power;
+		if (add <= 1.f) {
+			float t = (1.0 - add) * (1.0 - add) * 375.0;
+
+			r = (int)(t * light->dl->color[0] + (float)r);
+			g = (int)(t * light->dl->color[1] + (float)g);
+			b = (int)(t * light->dl->color[2] + (float)b);
+			// light was added
+			added = qtrue;
+		}
+    }
+
+	if (tr.overbrightShift) {
+		r <<= tr.overbrightShift & 0xFF;
+		g <<= tr.overbrightShift & 0xFF;
+		b <<= tr.overbrightShift & 0xFF;
+	}
+
+	if (r > 0xFF || g > 0xFF || b > 0xFF) {
+        float t;
+		// normalize color values
+        t = 255.0 / (float)Q_max(r, Q_max(g, b));
+
+        r = (int)((float)r * t);
+        g = (int)((float)g * t);
+        b = (int)((float)b * t);
+    }
+
+	dst[0] = (byte)r;
+	dst[1] = (byte)g;
+	dst[2] = (byte)b;
+	dst[3] = -1;
+
+	return added;
 }
