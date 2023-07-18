@@ -37,8 +37,8 @@ typedef struct {
 
 typedef struct {
   int dlightMap;
-  int allocated[128];
-  byte lightmap_buffer[65536];
+  int allocated[LIGHTMAP_SIZE];
+  byte lightmap_buffer[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
   byte* srcBase;
   byte* dstBase;
   incidentLight_t lights[32];
@@ -603,7 +603,7 @@ void R_UploadDlights() {
 	}
 
 	h = 0;
-	for (i = 0; i < 128; ++i)
+	for (i = 0; i < LIGHTMAP_SIZE; i++)
 	{
 		if (h < dli.allocated[i]) {
 			h = dli.allocated[i];
@@ -612,12 +612,12 @@ void R_UploadDlights() {
 
 	if (h)
 	{
-		if (h > 128) {
+		if (h > LIGHTMAP_SIZE) {
 			ri.Error(ERR_DROP, "R_UploadDlights: bad allocated height");
 		}
 
 		GL_Bind(tr.dlightImages[dli.dlightMap]);
-		qglTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 128, h, GL_RGBA, GL_UNSIGNED_BYTE, dli.lightmap_buffer);
+		qglTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, LIGHTMAP_SIZE, h, GL_RGBA, GL_UNSIGNED_BYTE, dli.lightmap_buffer);
 
 		tr.pc.c_dlightMaps++;
 		memset(dli.allocated, 0, sizeof(dli.allocated));
@@ -630,8 +630,8 @@ qboolean R_AllocLMBlock(int w, int h, int* x, int* y) {
 
 	for (;;)
 	{
-		best = 128;
-		for (i = 0; i < 128 - w; i++)
+		best = LIGHTMAP_SIZE;
+		for (i = 0; i < LIGHTMAP_SIZE - w; i++)
 		{
 			best2 = 0;
 
@@ -650,7 +650,7 @@ qboolean R_AllocLMBlock(int w, int h, int* x, int* y) {
 			}
 		}
 
-		if (h + best <= 128) {
+		if (h + best <= LIGHTMAP_SIZE) {
 			break;
 		}
 

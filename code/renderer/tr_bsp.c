@@ -676,7 +676,7 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 		cv->lmHeight = LittleLong(ds->lightmapHeight);
 
 		if (s_worldData.lighting) {
-			cv->lmData = &s_worldData.lighting[lightmapNum * (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3) + 3 * cv->lmX + 3 * 128 * cv->lmY];
+			cv->lmData = &s_worldData.lighting[lightmapNum * (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3) + 3 * cv->lmX + 3 * LIGHTMAP_SIZE * cv->lmY];
 		} else {
 			cv->lmData = NULL;
 		}
