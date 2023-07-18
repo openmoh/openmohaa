@@ -1082,6 +1082,7 @@ void CG_DrawSpectatorView_ver_15()
         iClientNum = cg.snap->ps.stats[STAT_INFOCLIENT];
         sprintf(buf, "%s : %i", cg.clientinfo[iClientNum].name, cg.snap->ps.stats[STAT_INFOCLIENT_HEALTH]);
 
+        hShader = 0;
         color[0] = 0.5;
         color[1] = 1.0;
         color[2] = 0.5;
