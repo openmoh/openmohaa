@@ -160,7 +160,7 @@ static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 }
 
 
-static int R_DlightFace( srfSurfaceFace_t *face, int dlightBits ) {
+static int R_FastDlightFace( srfSurfaceFace_t *face, int dlightBits ) {
 	float		d;
 	int			i;
 	dlight_t	*dl;
@@ -185,7 +185,7 @@ static int R_DlightFace( srfSurfaceFace_t *face, int dlightBits ) {
 	return dlightBits;
 }
 
-static int R_DlightGrid( srfGridMesh_t *grid, int dlightBits ) {
+static int R_FastDlightGrid( srfGridMesh_t *grid, int dlightBits ) {
 	int			i;
 	dlight_t	*dl;
 
@@ -213,6 +213,10 @@ static int R_DlightGrid( srfGridMesh_t *grid, int dlightBits ) {
 	return dlightBits;
 }
 
+static int R_FastDlightTerrain(cTerraPatchUnpacked_t* srf, int dlightBits) {
+	// FIXME: unimplemented
+	return 0;
+}
 
 static int R_DlightTrisurf( srfTriangles_t *surf, int dlightBits ) {
 	// FIXME: more dlight culling to trisurfs...
@@ -257,27 +261,65 @@ more dlights if possible.
 ====================
 */
 static int R_DlightSurface( msurface_t *surf, int dlightBits ) {
+	int dlightMap;
+
+	dlightMap = 0;
+
 	if ( *surf->data == SF_FACE ) {
-		dlightBits = R_DlightFace( (srfSurfaceFace_t *)surf->data, dlightBits );
+		if (!r_fastdlights->integer) {
+			if (surf->shader->lightmapIndex >= 0) {
+				dlightMap = R_RealDlightFace((srfSurfaceFace_t*)surf->data, dlightBits);
+			} else {
+				((srfSurfaceFace_t*)surf)->dlightMap[tr.smpFrame] = 0;
+				dlightMap = 0;
+			}
+			return dlightMap;
+        } else {
+			dlightBits = R_FastDlightFace((srfSurfaceFace_t*)surf->data, dlightBits);
+		}
 	} else if ( *surf->data == SF_GRID ) {
-		dlightBits = R_DlightGrid( (srfGridMesh_t *)surf->data, dlightBits );
-	} else if ( *surf->data == SF_TRIANGLES ) {
-		dlightBits = R_DlightTrisurf( (srfTriangles_t *)surf->data, dlightBits );
+		if (!r_fastdlights->integer) {
+			if (surf->shader->lightmapIndex >= 0) {
+				dlightMap = R_RealDlightPatch((srfGridMesh_t*)surf->data, dlightBits);
+			} else {
+				((srfGridMesh_t*)surf)->dlightMap[tr.smpFrame + 2] = 0.f;
+				dlightMap = 0;
+            }
+            return dlightMap;
+        } else {
+            dlightBits = R_FastDlightGrid((srfGridMesh_t*)surf->data, dlightBits);
+		}
 	} else {
-		dlightBits = 0;
+		return dlightMap;
 	}
 
-	if ( dlightBits ) {
+	if (dlightBits) {
 		tr.pc.c_dlightSurfaces++;
+		return 1;
 	}
 
-	return dlightBits;
+	return dlightMap;
 }
 
 int R_DlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits)
 {
-    // FIXME: unimplemented
-    return 0;
+	int dlightMap;
+
+    dlightMap = 0;
+
+    if (r_fastdlights->integer)
+    {
+        if (R_FastDlightTerrain(surf, dlightBits)) {
+            ++tr.pc.c_dlightSurfaces;
+			dlightMap = 1;
+        }
+    } else if (surf->shader->lightmapIndex < 0) {
+        surf->drawinfo.dlightMap[tr.smpFrame] = 0;
+    } else {
+		dlightMap = R_RealDlightTerrain(surf, dlightBits);
+    }
+
+    return dlightMap;
 }
 
 static int R_CheckDlightSurface(msurface_t* surf, int dlightBits)
