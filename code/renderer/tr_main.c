@@ -1336,7 +1336,7 @@ void R_AddDrawSurf(surfaceType_t* surface, shader_t* shader, int dlightMap) {
 	// the sort data is packed into a single 32 bit value so it can be
 	// compared quickly during the qsorting process
 	tr.refdef.drawSurfs[index].sort = (shader->sortedIndex << QSORT_SHADERNUM_SHIFT) 
-		| tr.shiftedEntityNum | tr.shiftedIsStatic | ((int)dlightMap & 15);
+		| tr.shiftedEntityNum | tr.shiftedIsStatic | (dlightMap & 15);
 	tr.refdef.drawSurfs[index].surface = surface;
 	tr.refdef.numDrawSurfs++;
 }
