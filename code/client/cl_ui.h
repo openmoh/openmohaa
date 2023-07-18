@@ -31,6 +31,12 @@ typedef struct {
 } static_media_t;
 
 //
+// cvars
+//
+extern cvar_t* ui_health_start;
+extern cvar_t* ui_health_end;
+
+//
 // initialization
 //
 void CL_FillUIDef( void );
