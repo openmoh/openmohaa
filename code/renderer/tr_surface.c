@@ -134,6 +134,7 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, flo
 
 	tess.numVertexes += 4;
 	tess.numIndexes += 6;
+	tess.dlightMap = 0;
 }
 
 /*
@@ -395,6 +396,10 @@ void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
 	dlightBits = surf->dlightBits[backEnd.smpFrame];
 	tess.dlightBits |= dlightBits;
 
+	if ((tess.shader->surfaceFlags & SURF_NODLIGHT) || (tess.shader->surfaceFlags & SURF_SKY)) {
+		tess.dlightBits = 0;
+	}
+
 	indices = ( unsigned * ) ( ( ( char  * ) surf ) + surf->ofsIndices );
 
 	Bob = tess.numVertexes;
@@ -425,7 +430,6 @@ void RB_SurfaceFace( srfSurfaceFace_t *surf ) {
 
 	if (tess.dlightMap)
 	{
-
 		for (i = 0, v = surf->points[0], ndx = tess.numVertexes; i < numPoints; i++, v += VERTEXSIZE, ndx++) {
 			VectorCopy(v, tess.xyz[ndx]);
 			tess.texCoords[ndx][0][0] = v[3];
