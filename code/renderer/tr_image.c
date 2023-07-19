@@ -2643,7 +2643,8 @@ static void R_CreateDlightImage( void ) {
 		for (y=0 ; y<DLIGHT_SIZE ; y++) {
 			float	d;
 
-			d = ( DLIGHT_SIZE/2 - 0.5f - x ) * ( DLIGHT_SIZE/2 - 0.5f - x );
+			d = ( DLIGHT_SIZE/2 - 0.5f - x ) * ( DLIGHT_SIZE/2 - 0.5f - x ) +
+				( DLIGHT_SIZE/2 - 0.5f - y ) * ( DLIGHT_SIZE/2 - 0.5f - y );
 			b = 16000 / d;
 			if (b > 255) {
 				b = 255;
@@ -2657,6 +2658,7 @@ static void R_CreateDlightImage( void ) {
 		}
 	}
 	tr.dlightImage = R_CreateImage("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
+	tr.dlightImage->r_sequence = -1
 }
 
 /*
@@ -2701,10 +2703,10 @@ static void R_CreateDefaultImage( void ) {
 R_CreateBuiltinImages
 ==================
 */
-void R_CreateBuiltinImages( void ) {
-	int		x,y;
+void R_CreateBuiltinImages(void) {
+	int		x, y;
 	int		i;
-	byte	lightmap_buffer[128 * 128 * 4];
+	byte	lightmap_buffer[LIGHTMAP_SIZE][LIGHTMAP_SIZE][4];
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 
 	R_CreateDefaultImage();
