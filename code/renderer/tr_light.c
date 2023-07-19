@@ -129,7 +129,7 @@ int R_RealDlightFace(srfSurfaceFace_t* srf, int dlightBits) {
 	}
 
     src = srf->lmData;
-    dst = &dli.lightmap_buffer[512 * y + 4 * x];
+    dst = &dli.lightmap_buffer[y * 4 * LIGHTMAP_SIZE + x * 4];
 
 	srf->lightmapOffset[0] = (float)x / LIGHTMAP_SIZE - (float)srf->lmX / LIGHTMAP_SIZE;
 	srf->lightmapOffset[1] = (float)y / LIGHTMAP_SIZE - (float)srf->lmY / LIGHTMAP_SIZE;
