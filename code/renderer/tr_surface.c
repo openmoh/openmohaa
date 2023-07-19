@@ -792,7 +792,7 @@ void RB_DrawTerrainTris(srfTerrain_t* p) {
 	tess.dlightBits |= dlightBits;
 	if (p->dlightMap[backEnd.smpFrame])
 	{
-		float lmScale = (1 / 128.0) / p->lmapStep;
+		float lmScale = (1.0 / LIGHTMAP_SIZE) / p->lmapStep;
 
 		for (i = p->iVertHead; i; i = g_pVert[i].iNext) {
 			assert(tess.numVertexes < SHADER_MAX_VERTEXES);
