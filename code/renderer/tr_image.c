@@ -2706,7 +2706,7 @@ R_CreateBuiltinImages
 void R_CreateBuiltinImages(void) {
 	int		x, y;
 	int		i;
-	byte	lightmap_buffer[LIGHTMAP_SIZE][LIGHTMAP_SIZE][4];
+	byte	lightmap_buffer[LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4];
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 
 	R_CreateDefaultImage();
