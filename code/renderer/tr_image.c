@@ -2658,7 +2658,7 @@ static void R_CreateDlightImage( void ) {
 		}
 	}
 	tr.dlightImage = R_CreateImage("*dlight", (byte *)data, DLIGHT_SIZE, DLIGHT_SIZE, 0, 1, qfalse, qfalse, qfalse, qfalse, GL_CLAMP, GL_CLAMP);
-	tr.dlightImage->r_sequence = -1
+	tr.dlightImage->r_sequence = -1;
 }
 
 /*
