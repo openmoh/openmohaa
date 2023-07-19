@@ -482,11 +482,11 @@ void R_UnpackTerraPatch(cTerraPatch_t* pPacked, cTerraPatchUnpacked_t* pUnpacked
 
     pUnpacked->drawinfo.lmapStep = (float)(pPacked->lmapScale / 64);
     pUnpacked->drawinfo.lmapSize = (float)((pPacked->lmapScale * 8) + 1);
-    pUnpacked->s = ((float)pPacked->s + 0.5) * 0.0078125;
-    pUnpacked->t = ((float)pPacked->t + 0.5) * 0.0078125;
+    pUnpacked->s = ((float)pPacked->s + 0.5) / LIGHTMAP_SIZE;
+    pUnpacked->t = ((float)pPacked->t + 0.5) / LIGHTMAP_SIZE;
 
     if( s_worldData.lighting ) {
-    	pUnpacked->drawinfo.lmData = &s_worldData.lighting[pPacked->iLightMap * (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3) + 3 * pPacked->s + 3 * 128 * pPacked->t];
+    	pUnpacked->drawinfo.lmData = &s_worldData.lighting[pPacked->iLightMap * (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3) + 3 * pPacked->s + 3 * LIGHTMAP_SIZE * pPacked->t];
     } else {
     	pUnpacked->drawinfo.lmData = NULL;
     }
@@ -767,7 +767,7 @@ static void ParseMesh ( dsurface_t *ds, drawVert_t *verts, msurface_t *surf ) {
 		grid->lmWidth = LittleLong(ds->lightmapWidth);
 		grid->lmHeight = LittleLong(ds->lightmapHeight);
 		if (s_worldData.lighting) {
-			grid->lmData = &s_worldData.lighting[lightmapNum * (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3) + 3 * grid->lmX + 3 * 128 * grid->lmY];
+			grid->lmData = &s_worldData.lighting[lightmapNum * (LIGHTMAP_SIZE * LIGHTMAP_SIZE * 3) + 3 * grid->lmX + 3 * LIGHTMAP_SIZE * grid->lmY];
 		} else {
 			grid->lmData = NULL;
 		}
