@@ -2632,7 +2632,7 @@ qboolean R_ImageExists(const char* name) {
 R_CreateDlightImage
 ================
 */
-#define	DLIGHT_SIZE	16
+#define	DLIGHT_SIZE	32
 static void R_CreateDlightImage( void ) {
 	int		x,y;
 	byte	data[DLIGHT_SIZE][DLIGHT_SIZE][4];
@@ -2643,9 +2643,8 @@ static void R_CreateDlightImage( void ) {
 		for (y=0 ; y<DLIGHT_SIZE ; y++) {
 			float	d;
 
-			d = ( DLIGHT_SIZE/2 - 0.5f - x ) * ( DLIGHT_SIZE/2 - 0.5f - x ) +
-				( DLIGHT_SIZE/2 - 0.5f - y ) * ( DLIGHT_SIZE/2 - 0.5f - y );
-			b = 4000 / d;
+			d = ( DLIGHT_SIZE/2 - 0.5f - x ) * ( DLIGHT_SIZE/2 - 0.5f - x );
+			b = 16000 / d;
 			if (b > 255) {
 				b = 255;
 			} else if ( b < 75 ) {
