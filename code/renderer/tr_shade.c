@@ -404,23 +404,23 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 
 		if (pStage->multitextureEnv == GL_ADD)
 		{
-			qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, 260.0);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, 33984.0);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, 0x44400000);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_ADD);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE0);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
 			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, 0);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, 33985.0);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, 0x44400000);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, 0x44400000);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_ONE_MINUS_SRC_COLOR);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_TEXTURE1);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
 			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE3_RGB, 0);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND3_RGB, 0x44404000);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND3_RGB, GL_ONE_MINUS_SRC_COLOR);
 		}
 		else if (pStage->multitextureEnv == GL_MODULATE)
 		{
 			qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, 33984.0);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, 0x44400000);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, 33985.0);
-			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, 0x44400000);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE0);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE1);
+			qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 		}
 		else
 		{
@@ -441,13 +441,13 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 		glState.cntTexEnvExt = GLS_MULTITEXTURE_ENV;
 
 		GL_TexEnv(GL_COMBINE);
-		qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, 34165);
-		qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, 0x47057700);
-		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, 0x44400000);
-		qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, 34168);
-		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, 0x44400000);
-		qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, 0x47057700);
-		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, 0x44407700000);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PREVIOUS);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_SRC_ALPHA);
+		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_ALPHA);
 	} else {
 		GL_TexEnv( pStage->multitextureEnv );
 	}
@@ -457,7 +457,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	if (!input->dlightMap || !pStage->bundle[1].isLightmap) {
 		R_BindAnimatedImage(&pStage->bundle[1]);
 	} else {
-		GL_Bind(&tr.identityLightImage[input->dlightMap]);
+		GL_Bind(tr.dlightImages[input->dlightMap - 1]);
 	}
 
 	R_DrawElements( input->numIndexes, input->indexes );
@@ -1257,7 +1257,7 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			}
 			else {
 				if (input->dlightMap && tess.xstages[stage]->bundle[0].isLightmap) {
-					GL_Bind(&tr.identityLightImage[input->dlightMap]);
+					GL_Bind(tr.dlightImages[input->dlightMap - 1]);
 				}
 				else {
 					R_BindAnimatedImage(&pStage->bundle[0]);
@@ -1523,7 +1523,7 @@ void RB_StageIteratorLightmappedMultitextureUnfogged( void ) {
 		GL_TexEnv( GL_MODULATE );
 	}
 	if (tess.dlightMap && tess.xstages[0]->bundle[1].isLightmap) {
-		GL_Bind(&tr.identityLightImage[tess.dlightMap]);
+		GL_Bind(tr.dlightImages[tess.dlightMap - 1]);
 	} else {
 		R_BindAnimatedImage(&tess.xstages[0]->bundle[1]);
 	}
