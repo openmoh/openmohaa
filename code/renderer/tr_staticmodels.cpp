@@ -189,6 +189,7 @@ void R_InitStaticModels(void) {
                             + weight->offset[1] * bone->matrix[1][2]
                             + weight->offset[2] * bone->matrix[2][2])
                             + bone->offset[2]) * weight->boneWeight;
+                        surf->pStaticXyz[l][3] = 0.f;
 
                         surf->pStaticNormal[l][0] = vert->normal[0] * bone->matrix[0][0]
                             + vert->normal[1] * bone->matrix[1][0]
@@ -199,6 +200,7 @@ void R_InitStaticModels(void) {
                         surf->pStaticNormal[l][2] = vert->normal[0] * bone->matrix[0][2]
                             + vert->normal[1] * bone->matrix[1][2]
                             + vert->normal[2] * bone->matrix[2][2];
+                        surf->pStaticNormal[l][3] = 0.f;
 
                         surf->pStaticTexCoords[l][0][0] = vert->texCoords[0];
                         surf->pStaticTexCoords[l][0][1] = vert->texCoords[1];
