@@ -611,7 +611,8 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	srfSurfaceFace_t	*cv;
 	int			numPoints, numIndexes;
 	int			lightmapNum;
-	int			sfaceSize, ofsIndexes;
+    int			sfaceSize, ofsIndexes;
+    static surfaceType_t skipData = SF_SKIP;
 
 	lightmapNum = LittleLong( ds->lightmapNum );
 
@@ -619,6 +620,12 @@ static void ParseFace( dsurface_t *ds, drawVert_t *verts, msurface_t *surf, int 
 	surf->shader = ShaderForShaderNum( ds->shaderNum, lightmapNum );
 	if ( r_singleShader->integer && !surf->shader->isSky ) {
 		surf->shader = tr.defaultShader;
+	}
+
+	if (surf->shader->surfaceFlags & SURF_NODRAW) {
+		// Nodraw surface doesn't need any processing
+		surf->data = &skipData;
+		return;
 	}
 
 	numPoints = LittleLong( ds->numVerts );
