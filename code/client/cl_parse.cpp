@@ -469,7 +469,7 @@ char* MSG_ReadGameStateChar(msg_t* msg) {
 		return MSG_ReadGameStateChar_ver_15(msg);
     } else {
 		// smaller below version 15
-        MSG_ReadGameStateChar_ver_6(msg);
+        return MSG_ReadGameStateChar_ver_6(msg);
 	}
 }
 
