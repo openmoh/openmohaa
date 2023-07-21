@@ -380,7 +380,7 @@ void UIDMBox::Draw( void )
 	float alpha;
 	float alphaScale;
 
-	alphaScale = 0.8;
+	alphaScale = 0.8f;
 	HandleBoxMoving();
 
 	if (!m_numitems) {
