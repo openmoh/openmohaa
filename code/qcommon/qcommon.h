@@ -980,6 +980,7 @@ extern	cvar_t* com_legacyprotocol;
 #ifndef DEDICATED
 extern  cvar_t* con_autochat;
 #endif
+extern	cvar_t* com_target_version;
 extern	cvar_t* com_target_game;
 
 // com_speeds times
@@ -1098,7 +1099,7 @@ void CL_InitKeyCommands( void );
 // config files, but the rest of client startup will happen later
 
 void CL_Init( void );
-void CL_Disconnect( qboolean showMainMenu );
+void CL_Disconnect();
 void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit);
 void CL_SetFrameNumber(int frameNumber);
 void CL_Frame( int msec );
