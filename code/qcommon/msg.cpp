@@ -669,7 +669,7 @@ float MSG_ReadFloat( msg_t *msg ) {
 char* MSG_ReadScrambledString_ver_15(msg_t* msg) {
 	static char	string[MAX_STRING_CHARS];
 	int l;
-	unsigned char c;
+	int c;
 
 	l = 0;
 	do {
@@ -687,7 +687,7 @@ char* MSG_ReadScrambledString_ver_15(msg_t* msg) {
 			c = '.';
 		}
 
-		string[l] = c;
+		string[l] = (char)c;
 		l++;
 	} while (l < sizeof(string) - 1);
 
@@ -699,7 +699,7 @@ char* MSG_ReadScrambledString_ver_15(msg_t* msg) {
 char* MSG_ReadScrambledBigString_ver_15(msg_t* msg) {
 	static char	string[BIG_INFO_STRING];
     int l;
-    unsigned char c;
+    int c;
 
 	l = 0;
 	do {
@@ -717,7 +717,7 @@ char* MSG_ReadScrambledBigString_ver_15(msg_t* msg) {
 			c = '.';
 		}
 
-		string[l] = c;
+		string[l] = (char)c;
 		l++;
 	} while (l < sizeof(string) - 1);
 
@@ -753,7 +753,7 @@ char* MSG_ReadScrambledBigString(msg_t* msg) {
 char *MSG_ReadString( msg_t *msg ) {
 	static char	string[MAX_STRING_CHARS];
 	int l;
-	unsigned char c;
+	int c;
 	
 	l = 0;
 	do {
@@ -766,7 +766,7 @@ char *MSG_ReadString( msg_t *msg ) {
 			c = '.';
 		}
 
-		string[l] = c;
+		string[l] = (char)c;
 		l++;
 	} while (l < sizeof(string)-1);
 	
@@ -778,7 +778,7 @@ char *MSG_ReadString( msg_t *msg ) {
 char *MSG_ReadBigString( msg_t *msg ) {
 	static char	string[BIG_INFO_STRING];
 	int l;
-	unsigned char c;
+	int c;
 	
 	l = 0;
 	do {
@@ -795,7 +795,7 @@ char *MSG_ReadBigString( msg_t *msg ) {
 			c = '.';
 		}
 
-		string[l] = c;
+		string[l] = (char)c;
 		l++;
 	} while (l < sizeof(string)-1);
 	
