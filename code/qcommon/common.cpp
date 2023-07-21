@@ -123,6 +123,7 @@ cvar_t  *con_autochat;
 
 cvar_t	*precache;
 cvar_t	*com_target_game;
+cvar_t	*com_target_version;
 
 // com_speeds times
 int		time_game;
@@ -357,7 +358,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		Cvar_Set("com_errorMessage", com_errorMessage);
 
 	if (code == ERR_DISCONNECT || code == ERR_SERVERDISCONNECT) {
-		CL_Disconnect( qtrue );
+		CL_Disconnect();
 		CL_FlushMemory( );
 		// make sure we can get at our local stuff
 		FS_PureServerSetLoadedPaks("", "");
@@ -366,7 +367,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	} else if (code == ERR_DROP) {
 		Com_Printf ("********************\nERROR: %s\n********************\n", com_errorMessage);
 		SV_Shutdown (va("Server crashed: %s",  com_errorMessage));
-		CL_Disconnect( qtrue );
+		CL_Disconnect();
 		CL_FlushMemory( );
 		FS_PureServerSetLoadedPaks("", "");
 		com_errorEntered = qfalse;
@@ -374,7 +375,7 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	} else if ( code == ERR_NEED_CD ) {
 		SV_Shutdown( "Server didn't have CD" );
 		if ( com_cl_running && com_cl_running->integer ) {
-			CL_Disconnect( qtrue );
+			CL_Disconnect();
 			CL_FlushMemory( );
 			com_errorEntered = qfalse;
 			CL_CDDialog();
@@ -1359,7 +1360,7 @@ void Com_GameRestart(int checksumFeed, qboolean disconnect)
 		if(com_gameClientRestarting)
 		{
 			if(disconnect)
-				CL_Disconnect(qfalse);
+				CL_Disconnect();
 				
 			CL_Shutdown("Game directory changed", disconnect, qfalse);
 		}
@@ -1588,6 +1589,7 @@ void Com_Init( char *commandLine ) {
 	CL_InitKeyCommands();
 
 	com_target_game = Cvar_Get("com_target_game", "0", CVAR_LATCH | CVAR_PROTECTED);
+	com_target_version = Cvar_Get("com_target_version", "0.00", CVAR_ROM);
 	com_standalone = Cvar_Get("com_standalone", "0", CVAR_ROM);
 	com_basegame = Cvar_Get("com_basegame", BASEGAME, CVAR_INIT);
 	com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT|CVAR_PROTECTED);
@@ -2585,6 +2587,7 @@ void Com_InitTargetGameWithType(target_game_e target_game)
     case target_game_e::TG_MOH:
         Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOH));
         Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOH));
+		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOH);
 		// "main" is already used as first argument of FS_Startup
 		Cvar_Set("fs_basegame", "");
         break;
@@ -2592,6 +2595,7 @@ void Com_InitTargetGameWithType(target_game_e target_game)
     case target_game_e::TG_MOHTA:
         Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOHTA));
         Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOHTA));
+        Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTA);
         Cvar_Set("fs_basegame", "mainta");
         break;
 
@@ -2599,6 +2603,7 @@ void Com_InitTargetGameWithType(target_game_e target_game)
 		// mohta and mohtt use the same protocol version number
         Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOHTA));
         Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOHTA));
+        Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT);
         Cvar_Set("fs_basegame", "maintt");
         break;
 
