@@ -50,6 +50,7 @@ int S_IsSoundPlaying(int channelNumber, const char* name);
 
 void S_UpdateEntity(int entityNum, const vec3_t origin, const vec3_t velocity, qboolean use_listener);
 void S_FadeSound(float fTime);
+void S_TriggeredMusic_PlayIntroMusic();
 
 #ifdef __cplusplus
 }
