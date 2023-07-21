@@ -554,7 +554,7 @@ void CL_DemoCompleted( void )
 		}
 	}
 
-	CL_Disconnect( qtrue );
+	CL_Disconnect();
 	CL_NextDemo();
 }
 
@@ -658,7 +658,7 @@ void CL_PlayDemo_f( void ) {
 	// 2 means don't force disconnect of local client
 	Cvar_Set( "sv_killserver", "2" );
 
-	CL_Disconnect( qtrue );
+	CL_Disconnect();
 
 	// open the demo file
 	arg = Cmd_Argv(1);
@@ -828,7 +828,7 @@ void CL_MapLoading( qboolean flush, const char *pszMapName ) {
 		else {
 			// clear nextmap so the cinematic shutdown doesn't execute it
 			Cvar_Set("nextmap", "");
-			CL_Disconnect(qtrue);
+			CL_Disconnect();
 			Q_strncpyz(cls.servername, "localhost", sizeof(cls.servername));
 			clc.state = CA_CHALLENGING;		// so the connect screen is drawn
             clc.connectStartTime = cls.realtime;
@@ -897,7 +897,7 @@ Sends a disconnect message to the server
 This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
 =====================
 */
-void CL_Disconnect( qboolean showMainMenu ) {
+void CL_Disconnect() {
 	if ( !com_cl_running || !com_cl_running->integer ) {
 		return;
 	}
@@ -955,6 +955,19 @@ void CL_Disconnect( qboolean showMainMenu ) {
 	CL_UpdateGUID( NULL, 0 );
 }
 
+/*
+===================
+CL_AbnormalDisconnect
+===================
+*/
+void CL_AbnormalDisconnect() {
+    CL_Disconnect();
+    UI_ServerLoaded();
+
+	if (developer->integer) {
+		UI_OpenConsole();
+	}
+}
 
 /*
 ===================
@@ -1174,10 +1187,28 @@ CL_Disconnect_f
 ==================
 */
 void CL_Disconnect_f( void ) {
-	SCR_StopCinematic();
-	Cvar_Set("ui_singlePlayerActive", "0");
-	if ( clc.state != CA_DISCONNECTED && clc.state != CA_CINEMATIC ) {
-		Com_Error (ERR_DISCONNECT, "Disconnected from server");
+	if ( clc.state != CA_DISCONNECTED ) {
+		qboolean bConsoleState = UI_ConsoleIsOpen();
+
+        Com_Printf("\nDisconnected from server\n");
+        SV_Shutdown("Disconnected from server\n");
+
+        if (com_cl_running && com_cl_running->integer)
+        {
+            CL_AbnormalDisconnect();
+            CL_FlushMemory();
+            CL_StartHunkUsers(qfalse);
+            S_StopAllSounds(1);
+            S_TriggeredMusic_PlayIntroMusic();
+        }
+
+        UI_FocusMenuIfExists();
+
+		if (bConsoleState) {
+			UI_OpenConsole();
+		} else {
+			UI_CloseConsole();
+		}
 	}
 }
 
@@ -1223,7 +1254,7 @@ void CL_Connect( const char *server ) {
 	Cvar_Set( "sv_killserver", "1" );
 	SV_Frame( 0 );
 
-	CL_Disconnect( qtrue );
+	CL_Disconnect();
 	UI_CloseConsole();
 
 	/* MrE: 2000-09-13: now called in CL_DownloadsComplete
@@ -1842,7 +1873,7 @@ wombat: sending conect here: an example connect string from MOHAA looks like thi
 			Info_SetValueForKey(info, "protocol", va("%i", com_protocol->integer));
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey(info, "challenge", va("%i", clc.challenge));
-		Info_SetValueForKey(info, "version", com_version->string);
+		Info_SetValueForKey(info, "version", com_shortversion->string);
 		if (com_target_game->integer == target_game_e::TG_MOHTT) {
 			// only send if maintt is loaded
 			Info_SetValueForKey(info, "clientType", "Breakthrough");
@@ -1891,16 +1922,11 @@ void CL_DisconnectPacket( netadr_t from ) {
 		return;
 	}
 
-	// if we have received packets within three seconds, ignore it
-	// (it might be a malicious spoof)
-	if ( cls.realtime - clc.lastPacketTime < 3000 ) {
-		return;
-	}
-
 	// drop the connection
-	Com_Printf( "Server disconnected for unknown reason\n" );
-	Cvar_Set("com_errorMessage", "Server disconnected for unknown reason\n" );
-	CL_Disconnect( qtrue );
+    Com_Printf("Server disconnected for unknown reason\n");
+    CL_Disconnect_f();
+    UI_ForceMenuOff(qtrue);
+    UI_PushMenu("serverdisconnected");
 }
 
 
@@ -2204,15 +2230,26 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		CL_ServersResponsePacket( from, msg );
 		return;
 	}
+
 	// wombat: mohaa servers send this to reject clients
-	// TODO: tell the UI to draw serverdisconnect.urc serverfull.urc or servertimeout.urc
 	if ( !Q_stricmp(c, "droperror") ) {
-		reason = MSG_ReadString( msg );
-		Com_Printf( "Server dropped connection. Reason: %s", reason );
-		Cvar_Set("com_errorMessage", reason );
-		CL_Disconnect( qtrue );
+        reason = MSG_ReadString(msg);
+        Com_Printf("Server dropped connection. Reason: %s", reason);
+		Cvar_Set("com_errorMessage", reason);
+        CL_Disconnect_f();
+        UI_ForceMenuOff(qtrue);
+        UI_PushMenu("errormessage");
 		return;
-	}
+    }
+
+    if (!Q_stricmp(c, "wrongver")) {
+        reason = MSG_ReadString(msg);
+        Cvar_Set("com_errorMessage", va("Server is version %s, you are using %s, from base '%s'", reason, com_target_version->string, Cvar_VariableString("fs_basegame")));
+        CL_Disconnect_f();
+        UI_ForceMenuOff(qtrue);
+        UI_PushMenu("errormessage");
+        return;
+    }
 
 	Com_DPrintf ("Unknown connectionless packet command: \"%s\".\n", c);
 }
@@ -2294,7 +2331,7 @@ void CL_CheckTimeout( void ) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
 			Com_Printf ("\nServer connection timed out.\n");
 			Cbuf_AddText( "pushmenu servertimeout\n" );
-			CL_Disconnect( qtrue );
+			CL_Disconnect();
 			return;
 		}
 	} else {
@@ -3327,7 +3364,7 @@ void CL_Shutdown(const char* finalmsg, qboolean disconnect, qboolean quit) {
     noGameRestart = quit;
 
 	if(disconnect)
-		CL_Disconnect(qtrue);
+		CL_Disconnect();
 
 	S_Shutdown();
 	CL_ShutdownRef();
