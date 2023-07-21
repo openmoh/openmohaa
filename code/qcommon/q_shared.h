@@ -537,6 +537,9 @@ extern vec4_t	g_color_table[8];
 #define Q_max(a,b)  (((a) > (b)) ? (a) : (b))
 #endif
 
+int Q_clamp_int(int value, int min, int max);
+float Q_clamp_float(float value, float min, float max);
+
 #define bound(a,minval,maxval)  ( ((a) > (minval)) ? ( ((a) < (maxval)) ? (a) : (maxval) ) : (minval) )
 
 struct cplane_s;

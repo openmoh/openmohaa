@@ -4063,3 +4063,22 @@ void TransposeMatrix( float in[ 3 ][ 3 ], float out[ 3 ][ 3 ] )
 	out[ 2 ][ 1 ] = in[ 1 ][ 2 ];
 	out[ 2 ][ 2 ] = in[ 2 ][ 2 ];
 }
+int Q_clamp_int(int value, int min, int max) {
+	if (value < min) {
+		return min;
+	} else if (value > max) {
+		return max;
+	} else {
+		return value;
+	}
+}
+
+float Q_clamp_float(float value, float min, float max) {
+	if (value < min) {
+		return min;
+	} else if (value > max) {
+		return max;
+	} else {
+		return value;
+	}
+}
