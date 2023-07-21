@@ -38,7 +38,6 @@ extern "C" {
 
 #define GAME_EXTENSION_MOH			"main"
 #define PRODUCT_EXTENSION_MOH		"base"
-// The version string must be 1.1x or below, otherwise it's not possible to connect
 #define TARGET_GAME_VERSION_MOH		"1.12"
 #define TARGET_GAME_PROTOCOL_MOH	8
 #define TARGET_GAME_NAME_MOH		"mohaa"
