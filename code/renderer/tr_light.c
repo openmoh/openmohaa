@@ -229,13 +229,8 @@ int R_RealDlightPatch(srfGridMesh_t* srf, int dlightBits) {
 			plb[0].s = dv->lightmap[0] * 128.0 - srf->lmX;
 			plb[0].t = dv->lightmap[1] * 128.0 - srf->lmY;
 
-			i2 = steps[0][0] + i;
-			if (i2 < 0) { i2 = 0; }
-			else if (i2 >= srf->height) { i2 = srf->height - 1; }
-
-            j2 = steps[0][1] + j;
-			if (j2 < 0) { j2 = 0; }
-            else if (j2 >= srf->width) { j2 = srf->width - 1; }
+			i2 = Q_clamp_int(steps[0][0] + i, 0, srf->height - 1);
+            j2 = Q_clamp_int(steps[0][1] + j, 0, srf->width - 1);
 
             //
             // Vert 2
@@ -246,13 +241,8 @@ int R_RealDlightPatch(srfGridMesh_t* srf, int dlightBits) {
             plb[1].s = dv->lightmap[0] * 128.0 - srf->lmX;
             plb[1].t = dv->lightmap[1] * 128.0 - srf->lmY;
 
-            i2 = steps[1][0] + i;
-			if (i2 < 0) { i2 = 0; }
-			else if (i2 >= srf->height) { i2 = srf->height - 1; }
-
-            j2 = steps[1][1] + j;
-            if (j2 < 0) { j2 = 0; }
-            else if (j2 >= srf->width) { j2 = srf->width - 1; }
+            i2 = Q_clamp_int(steps[1][0] + i, 0, srf->height - 1);
+            j2 = Q_clamp_int(steps[1][1] + j, 0, srf->width - 1);
 
             //
             // Vert 3
@@ -263,13 +253,8 @@ int R_RealDlightPatch(srfGridMesh_t* srf, int dlightBits) {
             plb[2].s = dv->lightmap[0] * 128.0 - srf->lmX;
             plb[2].t = dv->lightmap[1] * 128.0 - srf->lmY;
 
-            i2 = steps[1][0] + steps[0][0] + i;
-			if (i2 < 0) { i2 = 0; }
-			else if (i2 >= srf->height) { i2 = srf->height - 1; }
-
-            j2 = steps[1][1] + steps[0][1] + j;
-            if (j2 < 0) { j2 = 0; }
-            else if (j2 >= srf->width) { j2 = srf->width - 1; }
+            i2 = Q_clamp_int(steps[1][0] + steps[0][0] + i, 0, srf->height - 1);
+            j2 = Q_clamp_int(steps[1][1] + steps[0][1] + j, 0, srf->width - 1);
 
             //
             // Vert 4
@@ -289,7 +274,7 @@ int R_RealDlightPatch(srfGridMesh_t* srf, int dlightBits) {
         return 0;
 	}
 
-	for (i = 0; i < srf->width; i++) {
+	for (i = 0; i < srf->lmWidth; i++) {
 		dli.allocated[x + i] = srf->lmHeight + y;
 	}
 
