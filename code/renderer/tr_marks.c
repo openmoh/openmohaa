@@ -801,14 +801,11 @@ void R_BoxSurfacesForBModel_r(bmodel_t* pBmodel, const vec3_t mins, const vec3_t
 	int s;
 	int c;
 	msurface_t* surf;
+	int i;
 
 	surf = pBmodel->firstSurface;
 
-	for (*listlength = 0; *listlength < listsize; (*listlength)++, surf++) {
-		if (surf - pBmodel->firstSurface >= pBmodel->numSurfaces) {
-			break;
-		}
-
+	for (i = 0; i < listsize && i < pBmodel->numSurfaces; i++, surf++) {
 		s = surf->shader->surfaceFlags;
 		c = surf->shader->contentFlags;
 
