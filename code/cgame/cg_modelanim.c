@@ -352,12 +352,75 @@ void CG_AttachEyeEntity(
     refEntity_t *entity, refEntity_t *parent, dtiki_t *tiki, int tagnum, qboolean use_angles, vec_t *attach_offset
 )
 {
-    // FIXME: unimplemented
+    int i;
+
+    VectorCopy(cg.refdef.vieworg, entity->origin);
+
+    if (use_angles) {
+        AnglesToAxis(cg.refdefViewAngles, entity->axis);
+    }
+
+    if (attach_offset[0] || attach_offset[1] || attach_offset[2])
+    {
+        for (i = 0; i < 3; i++) {
+            VectorMA(entity->origin, attach_offset[i], entity->axis[i], entity->origin);
+        }
+    }
+
+    VectorCopy(entity->origin, entity->oldorigin);
+    entity->scale *= parent->scale;
+    entity->renderfx |= parent->renderfx & (RF_THIRD_PERSON | RF_DEPTHHACK | RF_VIEWLENSFLARE | RF_BEAM | RF_LENSFLARE | RF_SHADOW | RF_SKYORIGIN | RF_LIGHTING_ORIGIN | RF_SHADOW_PRECISE);
+    VectorCopy(parent->lightingOrigin, entity->lightingOrigin);
 }
 
 void CG_UpdateForceModels()
 {
-    // FIXME: unimplemented
+    qhandle_t hModel;
+    char* pszAlliesPartial;
+    char* pszAxisPartial;
+    char szAlliesModel[256];
+    char szAxisModel[256];
+
+    if (cg.pAlliedPlayerModel && cg.pAxisPlayerModel && !dm_playermodel->modified && !dm_playergermanmodel->modified) {
+        return;
+    }
+
+    pszAlliesPartial = dm_playermodel->string;
+    pszAxisPartial = dm_playergermanmodel->string;
+
+    sprintf(szAlliesModel, "models/player/%s.tik", pszAlliesPartial);
+    sprintf(szAxisModel, "models/player/%s.tik", pszAxisPartial);
+    hModel = cgi.R_RegisterModel(szAlliesModel);
+    if (!hModel) hModel = cgi.R_RegisterModel("models/player/american_army.tik");
+
+    if (hModel) {
+        cg.hAlliedPlayerModelHandle = hModel;
+        cg.pAlliedPlayerModel = cgi.R_Model_GetHandle(hModel);
+        if (!cg.pAlliedPlayerModel) {
+            cg.hAlliedPlayerModelHandle = 0;
+        }
+    } else {
+        cg.hAlliedPlayerModelHandle = 0;
+        cg.pAlliedPlayerModel = 0;
+    }
+
+    hModel = cgi.R_RegisterModel(szAxisModel);
+    if (!hModel) hModel = cgi.R_RegisterModel("models/player/german_wehrmacht_soldier.tik");
+
+    if (hModel) {
+        cg.hAxisPlayerModelHandle = hModel;
+        cg.pAxisPlayerModel = cgi.R_Model_GetHandle(hModel);
+        if (!cg.pAxisPlayerModel) {
+            cg.hAxisPlayerModelHandle = 0;
+        }
+    } else {
+        cg.hAxisPlayerModelHandle = 0;
+        cg.pAxisPlayerModel = 0;
+    }
+
+    // Clear modified flag
+    dm_playermodel->modified = qfalse;
+    dm_playergermanmodel->modified = qfalse;
 }
 
 void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
@@ -687,6 +750,9 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
             } else if (!Q_stricmp(szTagName, "tag_weapon_right") || !Q_stricmp(szTagName, "tag_weapon_left")) {
                 iTagNum = cgi.Tag_NumForName(tiki, szTagName);
                 CG_AttachEntity(&model, parent, tiki, iTagNum & TAG_MASK, s1->attach_use_angles, s1->attach_offset);
+            } else {
+                // Don't show the model at all
+                return;
             }
         }
 
