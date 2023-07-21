@@ -344,10 +344,6 @@ In game talk message
 ================
 */
 void Message_Key( int key ) {
-
-	char	buffer[MAX_STRING_CHARS];
-
-
 	if (key == K_ESCAPE) {
 		Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_MESSAGE );
 		return;
