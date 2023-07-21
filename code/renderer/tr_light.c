@@ -220,6 +220,9 @@ int R_RealDlightPatch(srfGridMesh_t* srf, int dlightBits) {
 		for (j = 0; j < srf->width; j++) {
 			patchLightBlock_t plb[4];
 
+			//
+			// Vert 1
+			//
 			dv = &srf->verts[i * srf->width + j];
 
 			VectorCopy(dv->xyz, plb[0].point);
@@ -234,6 +237,9 @@ int R_RealDlightPatch(srfGridMesh_t* srf, int dlightBits) {
 			if (j2 < 0) { j2 = 0; }
             else if (j2 >= srf->width) { j2 = srf->width - 1; }
 
+            //
+            // Vert 2
+            //
             dv = &srf->verts[srf->width * i2 + j2];
 
             VectorCopy(dv->xyz, plb[1].point);
@@ -248,20 +254,26 @@ int R_RealDlightPatch(srfGridMesh_t* srf, int dlightBits) {
             if (j2 < 0) { j2 = 0; }
             else if (j2 >= srf->width) { j2 = srf->width - 1; }
 
+            //
+            // Vert 3
+            //
             dv = &srf->verts[srf->width * i2 + j2];
 
             VectorCopy(dv->xyz, plb[2].point);
             plb[2].s = dv->lightmap[0] * 128.0 - srf->lmX;
             plb[2].t = dv->lightmap[1] * 128.0 - srf->lmY;
 
-            i2 = steps[1][0] + i;
+            i2 = steps[1][0] + steps[0][0] + i;
 			if (i2 < 0) { i2 = 0; }
 			else if (i2 >= srf->height) { i2 = srf->height - 1; }
 
-            j2 = steps[1][1] + j;
+            j2 = steps[1][1] + steps[0][1] + j;
             if (j2 < 0) { j2 = 0; }
             else if (j2 >= srf->width) { j2 = srf->width - 1; }
 
+            //
+            // Vert 4
+            //
             dv = &srf->verts[srf->width * i2 + j2];
 
             VectorCopy(dv->xyz, plb[3].point);
