@@ -56,6 +56,7 @@ specialeffectcommand_t::specialeffectcommand_t()
     emitter      = NULL;
     fCommandTime = 0.0f;
     endfcn       = NULL;
+    pEvent       = NULL;
 }
 
 specialeffect_t::specialeffect_t()

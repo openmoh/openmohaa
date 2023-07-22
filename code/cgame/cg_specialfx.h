@@ -150,7 +150,7 @@ class specialeffectcommand_t : public Class
 {
 public:
     spawnthing_t *emitter;
-    float         fCommandTime;
+    float fCommandTime;
     void (ClientGameCommandManager::*endfcn)();
     Event *pEvent;
 
