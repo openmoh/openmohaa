@@ -179,7 +179,7 @@ static qhandle_t R_RegisterModelInternal( const char *name, qboolean bBeginTiki,
 	//
 	for( hModel = 1; hModel < tr.numModels; hModel++ ) {
 		mod = &tr.models[ hModel ];
-		if( !strcmp( mod->name, name ) ) {
+		if( !Q_stricmp( mod->name, name ) ) {
 			if( mod->type == MOD_BAD ) {
 				return 0;
 			}
