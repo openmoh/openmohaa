@@ -2438,6 +2438,9 @@ void ClientGameCommandManager::SetLife(Event *ev)
         m_spawnthing->cgd.flags |= T_AUTOCALCLIFE;
     } else {
         m_spawnthing->cgd.life = atof(life) * 1000;
+        if (ev->NumArgs() > 1) {
+            m_spawnthing->life_random = ev->GetFloat(2) * 1000;
+        }
     }
 }
 
