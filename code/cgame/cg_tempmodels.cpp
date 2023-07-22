@@ -49,13 +49,12 @@ ctempmodel_t *ClientGameCommandManager::AllocateTempModel(void)
 {
     ctempmodel_t *p;
 
-    if (!m_free_tempmodels) {
-        // no free entities, so free the one at the end of the chain
-        // remove the oldest active entity
-        FreeTempModel(m_active_tempmodels.prev);
+    p = m_free_tempmodels;
+    if (!p) {
+        // no free entities
+        return NULL;
     }
 
-    p                 = m_free_tempmodels;
     m_free_tempmodels = m_free_tempmodels->next;
 
     // link into the active list
@@ -953,7 +952,7 @@ void ClientGameCommandManager::SpawnTempModel(int count, spawnthing_t *sp)
 //=================
 // SpawnTempModel
 //=================
-void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
+void ClientGameCommandManager::SpawnTempModel(int mcount)
 {
     int           i;
     ctempmodel_t *p;
@@ -1047,7 +1046,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
                 newForward = p->cgd.origin - m_spawnthing->cgd.origin;
                 newForward.normalize();
             }
-        } else if (m_spawnthing->cgd.flags & T_INWARDSPHERE) {
+        } else if (m_spawnthing->cgd.flags & T_SPHERE) {
             // Project the origin along a random ray, and set the forward
             // vector pointing back to the origin
             Vector dir, end;
@@ -1217,11 +1216,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
 
         // If createTime is specified, the use it.  Otherwise use the createTime
         // from the spawnthing.
-        if (timeAlive > 0) {
-            p->aliveTime = timeAlive;
-        } else {
-            p->aliveTime = 0;
-        }
+        p->aliveTime = 0;
 
         // If animateonce is set, set the life = to the length of the anim
         if ((m_spawnthing->cgd.flags & T_ANIMATEONCE) && (p->ent.frameInfo[0].index > 0)) {
@@ -1413,6 +1408,16 @@ void ClientGameCommandManager::SpawnTempModel(int mcount, int timeAlive)
             Com_Printf("^~^~^ not spawning tempmodel because it is using the world as a brush model\n");
             FreeTempModel(p);
             break;
+        }
+
+        if (m_spawnthing->cgd.flags2 & T2_RELATIVEANGLES) {
+            float mat[3][3];
+
+            MatrixMultiply(m_spawnthing->axis, p->ent.axis, mat);
+            VectorCopy(mat[0], p->ent.axis[0]);
+            VectorCopy(mat[1], p->ent.axis[1]);
+            VectorCopy(mat[2], p->ent.axis[2]);
+            MatrixToEulerAngles(p->ent.axis, p->cgd.angles);
         }
     }
 }
