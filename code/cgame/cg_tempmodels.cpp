@@ -751,9 +751,6 @@ void ClientGameCommandManager::AddTempModels(void)
             lastTempModelFrameTime = cg.time;
             return;
         }
-    }
-
-    if (lastTempModelFrameTime != 0) {
         frameTime = cg.time - lastTempModelFrameTime;
     } else {
         frameTime = 0;
@@ -878,9 +875,9 @@ void ClientGameCommandManager::AddTempModels(void)
             Vector origin;
             float  axis[3][3];
 
-            origin = Vector(m_spawnthing->linked_origin) + Vector(m_spawnthing->linked_axis[0]) * newEnt.origin[0]
-                   + Vector(m_spawnthing->linked_axis[1]) * newEnt.origin[1]
-                   + Vector(m_spawnthing->linked_axis[2]) * newEnt.origin[2];
+            origin = Vector(p->m_spawnthing->linked_origin) + Vector(p->m_spawnthing->linked_axis[0]) * newEnt.origin[0]
+                   + Vector(p->m_spawnthing->linked_axis[1]) * newEnt.origin[1]
+                   + Vector(p->m_spawnthing->linked_axis[2]) * newEnt.origin[2];
 
             VectorCopy(origin, newEnt.origin);
 
@@ -1013,8 +1010,9 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
         memset(&ent, 0, sizeof(refEntity_t));
         memset(&p->lastEnt, 0, sizeof(refEntity_t));
 
-        if (p->cgd.flags & T_WAVE) {
+        if (m_spawnthing->cgd.flags & T_WAVE) {
             p->m_spawnthing = m_spawnthing;
+            m_spawnthing->numtempmodels++;
             start           = Vector(0, 0, 0);
         } else {
             p->m_spawnthing = NULL;
@@ -1111,7 +1109,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
         p->cgd.oldorigin = p->cgd.origin;
         p->modelname     = m_spawnthing->GetModel();
 
-        if (p->cgd.flags & T_DLIGHT) {
+        if (!(p->cgd.flags & T_DLIGHT) && !p->modelname.length()) {
             FreeTempModel(p);
             continue;
         }
