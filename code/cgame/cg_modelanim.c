@@ -369,7 +369,7 @@ void CG_AttachEyeEntity(
 
     VectorCopy(entity->origin, entity->oldorigin);
     entity->scale *= parent->scale;
-    entity->renderfx |= parent->renderfx & (RF_THIRD_PERSON | RF_DEPTHHACK | RF_VIEWLENSFLARE | RF_BEAM | RF_LENSFLARE | RF_SHADOW | RF_SKYORIGIN | RF_LIGHTING_ORIGIN | RF_SHADOW_PRECISE);
+    entity->renderfx |= (parent->renderfx & ~(RF_FLAGS_NOT_INHERITED | RF_LIGHTING_ORIGIN));
     VectorCopy(parent->lightingOrigin, entity->lightingOrigin);
 }
 
