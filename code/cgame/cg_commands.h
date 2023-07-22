@@ -112,6 +112,7 @@ TIKI file, similar to ScriptMaster in the server game dll.
 #define T2_FRICTION           (1 << 19)
 #define T2_VARYCOLOR          (1 << 20)
 #define T2_SPIN               (1 << 21)
+#define T2_RELATIVEANGLES     (1 << 22)
 
 class spawnthing_t;
 class specialeffect_t;
@@ -756,6 +757,7 @@ private:
     void          SetParentLink(Event *ev);
     void          SetHardLink(Event *ev);
     void          SetAngles(Event *ev);
+    void          SetRelativeAngles(Event *ev);
     void          ParentAngles(Event *ev);
     void          EmitterAngles(Event *ev);
     void          SetTwinkle(Event *ev);
@@ -826,7 +828,7 @@ private:
     qboolean      TempModelRealtimeEffects(ctempmodel_t *p, float ftime, float time2, float scale);
     qboolean      LerpTempModel(refEntity_t *newEnt, ctempmodel_t *p, float frac);
     void          SpawnEffect(int count, int timealive);
-    void          SpawnTempModel(int count, int timealive = 0);
+    void          SpawnTempModel(int count);
     void          FreeTempModel(ctempmodel_t *le);
     void          AnimateTempModel(ctempmodel_t *ent, Vector origin, refEntity_t *newEnt);
     void          OtherTempModelEffects(ctempmodel_t *p, Vector origin, refEntity_t *newEnt);
