@@ -1042,7 +1042,19 @@ void ClientGameCommandManager::Print(Event *ev)
 
 qboolean ClientGameCommandManager::IsBlockCommand(const str& name)
 {
-    return qfalse;
+    if (!str::icmp(name, "originspawn")) {
+        return true;
+    } else if (!str::icmp(name, "originbeamspawn")) {
+        return true;
+    } else if (!str::icmp(name, "tagspawn")) {
+        return true;
+    } else if (!str::icmp(name, "tagbeamspawn")) {
+        return true;
+    } else if (!str::icmp(name, "blockdlight")) {
+        return true;
+    }
+
+    return false;
 }
 
 void ClientGameCommandManager::DelayedRepeat(Event *ev)
@@ -1179,6 +1191,8 @@ void ClientGameCommandManager::StartSFXCommand(Event *ev, qboolean bDelayed)
 
     if (bBlockCommand) {
         ProcessEvent(ev1);
+        pCommand->endfcn = endblockfcn;
+        endblockfcn = NULL;
     } else {
         pCommand->pEvent = ev1;
     }
@@ -1648,7 +1662,7 @@ void ClientGameCommandManager::EndBlock(Event *ev)
     // they will be lost
 
     if (ev->NumArgs() > 1) {
-        cgi.DPrintf("CCM::StartBlock : Invalid commands on start block '{'\n");
+        cgi.DPrintf("CCM::StartBlock : Invalid commands on end block '{'\n");
     }
 
     if (endblockfcn) {
@@ -2719,13 +2733,13 @@ void ClientGameCommandManager::BeginOriginSpawn(Event *ev)
         return;
     }
 
+    // Setup ending function
+    endblockfcn = &ClientGameCommandManager::EndOriginSpawn;
+
     if (!m_pCurrentSfx) {
         m_spawnthing = &m_localemitter;
     }
     InitializeSpawnthing(m_spawnthing);
-
-    // Setup ending function
-    endblockfcn = &ClientGameCommandManager::EndOriginSpawn;
 
     // Set the origin based on the entity's origin
     m_spawnthing->cgd.origin = current_entity->origin;
@@ -3000,10 +3014,14 @@ void ClientGameCommandManager::BeginTagSpawnLinked(Event *ev) {
 
     // Create a new emitter
     m_spawnthing = CreateNewEmitter();
+    m_spawnthing->tagnum = tagnum;
     m_spawnthing->entnum = current_entity->entityNumber;
     m_spawnthing->cgd.tiki = current_tiki;
-    m_spawnthing->cgd.flags = T_WAVE;
+    m_spawnthing->cgd.flags |= T_WAVE;
     m_spawnthing->cgd.origin = Vector(0, 0, 0);
+
+    ori = cgi.TIKI_Orientation(current_entity, tagnum);
+
     VectorCopy(current_entity->origin, m_spawnthing->linked_origin);
 
     for (i = 0; i < 3; i++) {
@@ -4253,9 +4271,16 @@ void ClientGameCommandManager::UpdateEmitter(
     centity_t     *pc;
     int            count = 0;
     float          scale = 1.0f;
+    int            entnum;
 
-    if (current_entity) {
+    if (current_entity)
+    {
         scale = current_entity->scale;
+        entnum = current_entity->entityNumber;
+    }
+    else
+    {
+        entnum = 1023;
     }
 
     // Find the emitter associated with this model
@@ -4274,6 +4299,27 @@ void ClientGameCommandManager::UpdateEmitter(
 
         if ((m_spawnthing->cgd.flags & T_DETAIL) && !cg_detail->integer) {
             et->last_emit_time = 0;
+            continue;
+        }
+
+        if (m_spawnthing->cgd.flags & T_WAVE) {
+            if (m_spawnthing->entnum == entnum) {
+                orientation_t ori;
+                int j;
+
+                // Set the default origin (spawn from the parent's origin)
+                VectorCopy(entity_origin, m_spawnthing->cgd.origin);
+            
+                ori = cgi.TIKI_Orientation(current_entity, m_spawnthing->tagnum);
+
+                VectorCopy(current_entity->origin, m_spawnthing->linked_origin);
+
+                for (j = 0; j < 3; j++) {
+                    VectorMA(m_spawnthing->linked_origin, ori.origin[i], current_entity->axis[i], m_spawnthing->linked_origin);
+                }
+                MatrixMultiply(ori.axis, current_entity->axis, m_spawnthing->linked_axis);
+            }
+
             continue;
         }
 
