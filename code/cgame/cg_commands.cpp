@@ -2979,7 +2979,39 @@ void ClientGameCommandManager::GetOrientation(int tagnum, spawnthing_t *sp)
     AxisCopy(sp->axis, sp->tag_axis);
 }
 
-void ClientGameCommandManager::BeginTagSpawnLinked(Event *ev) {}
+//===============
+// BeginTagSpawnLinked
+//===============
+void ClientGameCommandManager::BeginTagSpawnLinked(Event *ev) {
+    str tagname;
+    int tagnum;
+    int i;
+    orientation_t ori;
+
+    // Get the tagname and orientation
+    tagname = ev->GetString(1);
+    tagnum = cgi.Tag_NumForName(current_tiki, tagname.c_str());
+    if (tagnum == -1) {
+        throw ScriptException("Tagname '%s' does not exist", tagname.c_str());
+    }
+
+    // Setup ending function
+    endblockfcn = &ClientGameCommandManager::EndTagSpawn;
+
+    // Create a new emitter
+    m_spawnthing = CreateNewEmitter();
+    m_spawnthing->entnum = current_entity->entityNumber;
+    m_spawnthing->cgd.tiki = current_tiki;
+    m_spawnthing->cgd.flags = T_WAVE;
+    m_spawnthing->cgd.origin = Vector(0, 0, 0);
+    VectorCopy(current_entity->origin, m_spawnthing->linked_origin);
+
+    for (i = 0; i < 3; i++) {
+        VectorMA(m_spawnthing->linked_origin, ori.origin[i], current_entity->axis[i], m_spawnthing->linked_origin);
+    }
+
+    MatrixMultiply(ori.axis, current_entity->axis, m_spawnthing->linked_axis);
+}
 
 //===============
 // BeginTagSpawn
