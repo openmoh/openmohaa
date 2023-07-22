@@ -95,244 +95,281 @@ void ClientSpecialEffectsManager::LoadEffects()
 
     for (i = 0; i < MAX_SPECIAL_EFFECTS; i++) {
         switch (i) {
-        case 0:
+        case SFX_BHIT_PAPER_LITE:
             szEffectModel = "models/fx/bh_paper_lite.tik";
             break;
-        case 1:
+        case SFX_BHIT_PAPER_HARD:
             szEffectModel = "models/fx/bh_paper_hard.tik";
             break;
-        case 2:
+        case SFX_BHIT_WOOD_LITE:
             szEffectModel = "models/fx/bh_wood_lite.tik";
             break;
-        case 3:
+        case SFX_BHIT_WOOD_HARD:
             szEffectModel = "models/fx/bh_wood_hard.tik";
             break;
-        case 4:
+        case SFX_BHIT_METAL_LITE:
             szEffectModel = "models/fx/bh_metal_lite.tik";
             break;
-        case 5:
+        case SFX_BHIT_METAL_HARD:
             szEffectModel = "models/fx/bh_metal_hard.tik";
             break;
-        case 6:
+        case SFX_BHIT_STONE_LITE:
             szEffectModel = "models/fx/bh_stone_lite.tik";
             break;
-        case 7:
+        case SFX_BHIT_STONE_HARD:
             szEffectModel = "models/fx/bh_stone_hard.tik";
             break;
-        case 8:
+        case SFX_BHIT_DIRT_LITE:
             szEffectModel = "models/fx/bh_dirt_lite.tik";
             break;
-        case 9:
+        case SFX_BHIT_DIRT_HARD:
             szEffectModel = "models/fx/bh_dirt_hard.tik";
             break;
-        case 10:
+        case SFX_BHIT_GRILL_LITE:
             szEffectModel = "models/fx/bh_metal_lite.tik";
             break;
-        case 11:
+        case SFX_BHIT_GRILL_HARD:
             szEffectModel = "models/fx/bh_metal_hard.tik";
             break;
-        case 12:
+        case SFX_BHIT_GRASS_LITE:
             szEffectModel = "models/fx/bh_grass_lite.tik";
             break;
-        case 13:
+        case SFX_BHIT_GRASS_HARD:
             szEffectModel = "models/fx/bh_grass_hard.tik";
             break;
-        case 14:
+        case SFX_BHIT_MUD_LITE:
             szEffectModel = "models/fx/bh_mud_lite.tik";
             break;
-        case 15:
+        case SFX_BHIT_MUD_HARD:
             szEffectModel = "models/fx/bh_mud_hard.tik";
             break;
-        case 16:
+        case SFX_BHIT_PUDDLE_LITE:
             szEffectModel = "models/fx/bh_water_lite.tik";
             break;
-        case 17:
+        case SFX_BHIT_PUDDLE_HARD:
             szEffectModel = "models/fx/bh_water_hard.tik";
             break;
-        case 18:
+        case SFX_BHIT_GLASS_LITE:
             szEffectModel = "models/fx/bh_glass_lite.tik";
             break;
-        case 19:
+        case SFX_BHIT_GLASS_HARD:
             szEffectModel = "models/fx/bh_glass_hard.tik";
             break;
-        case 20:
+        case SFX_BHIT_GRAVEL_LITE:
             szEffectModel = "models/fx/bh_stone_lite.tik";
             break;
-        case 21:
+        case SFX_BHIT_GRAVEL_HARD:
             szEffectModel = "models/fx/bh_stone_hard.tik";
             break;
-        case 22:
+        case SFX_BHIT_SAND_LITE:
             szEffectModel = "models/fx/bh_sand_lite.tik";
             break;
-        case 23:
+        case SFX_BHIT_SAND_HARD:
             szEffectModel = "models/fx/bh_sand_hard.tik";
             break;
-        case 24:
+        case SFX_BHIT_FOLIAGE_LITE:
             szEffectModel = "models/fx/bh_foliage_lite.tik";
             break;
-        case 25:
+        case SFX_BHIT_FOLIAGE_HARD:
             szEffectModel = "models/fx/bh_foliage_hard.tik";
             break;
-        case 26:
+        case SFX_BHIT_SNOW_LITE:
             szEffectModel = "models/fx/bh_snow_lite.tik";
             break;
-        case 27:
+        case SFX_BHIT_SNOW_HARD:
             szEffectModel = "models/fx/bh_snow_hard.tik";
             break;
-        case 28:
+        case SFX_BHIT_CARPET_LITE:
             szEffectModel = "models/fx/bh_carpet_lite.tik";
             break;
-        case 29:
+        case SFX_BHIT_CARPET_HARD:
             szEffectModel = "models/fx/bh_carpet_hard.tik";
             break;
-        case 30:
+        case SFX_BHIT_HUMAN_UNIFORM_LITE:
             szEffectModel = "models/fx/bh_human_uniform_lite.tik";
             break;
-        case 31:
+        case SFX_BHIT_HUMAN_UNIFORM_HARD:
             szEffectModel = "models/fx/bh_human_uniform_hard.tik";
             break;
-        case 32:
+        case SFX_WATER_TRAIL_BUBBLE:
             szEffectModel = "models/fx/water_trail_bubble.tik";
             break;
-        case 33:
-        case 34:
-        case 35:
-        case 36:
-        case 37:
-        case 38:
-        case 39:
-        case 40:
-        case 41:
-        case 42:
-        case 43:
-        case 44:
-        case 45:
-        case 46:
-        case 47:
-        case 48:
-        case 49:
-        case 50:
-        case 51:
-        case 52:
-        case 53:
-        case 54:
-        case 55:
-        case 56:
-        case 57:
-        case 58:
-        case 59:
-        case 60:
-        case 61:
-        case 62:
+        case SFX_VFX_PAPER_LITE:
+        case SFX_VFX_PAPER_HARD:
+        case SFX_VFX_WOOD_LITE:
+        case SFX_VFX_WOOD_HARD:
+        case SFX_VFX_METAL_LITE:
+        case SFX_VFX_METAL_HARD:
+        case SFX_VFX_STONE_LITE:
+        case SFX_VFX_STONE_HARD:
+        case SFX_VFX_DIRT_LITE:
+        case SFX_VFX_DIRT_HARD:
+        case SFX_VFX_GRILL_LITE:
+        case SFX_VFX_GRILL_HARD:
+        case SFX_VFX_GRASS_LITE:
+        case SFX_VFX_GRASS_HARD:
+        case SFX_VFX_MUD_LITE:
+        case SFX_VFX_MUD_HARD:
+        case SFX_VFX_PUDDLE_LITE:
+        case SFX_VFX_PUDDLE_HARD:
+        case SFX_VFX_GLASS_LITE:
+        case SFX_VFX_GLASS_HARD:
+        case SFX_VFX_GRAVEL_LITE:
+        case SFX_VFX_GRAVEL_HARD:
+        case SFX_VFX_SAND_LITE:
+        case SFX_VFX_SAND_HARD:
+        case SFX_VFX_FOLIAGE_LITE:
+        case SFX_VFX_FOLIAGE_HARD:
+        case SFX_VFX_SNOW_LITE:
+        case SFX_VFX_SNOW_HARD:
+        case SFX_VFX_CARPET_LITE:
+        case SFX_VFX_CARPET_HARD:
             szEffectModel = "models/fx/bh_stone_hard.tik";
             break;
-        case 63:
+        case SFX_EXP_GREN_BASE:
             szEffectModel = "models/fx/grenexp_base.tik";
             break;
-        case 64:
+        case SFX_EXP_BAZOOKA_BASE:
             szEffectModel = "models/fx/bazookaexp_base.tik";
             break;
-        case 65:
+        case SFX_EXP_HEAVYSHELL_BASE:
+            szEffectModel = "models/fx/heavyshellexp_base.tik";
+            break;
+        case SFX_EXP_TANK_BASE:
+            szEffectModel = "models/fx/tankexp_base.tik";
+            break;
+        case SFX_EXP_GREN_PAPER:
             szEffectModel = "models/fx/grenexp_paper.tik";
             break;
-        case 66:
+        case SFX_EXP_GREN_WOOD:
             szEffectModel = "models/fx/grenexp_wood.tik";
             break;
-        case 67:
+        case SFX_EXP_GREN_METAL:
             szEffectModel = "models/fx/grenexp_metal.tik";
             break;
-        case 68:
+        case SFX_EXP_GREN_STONE:
             szEffectModel = "models/fx/grenexp_stone.tik";
             break;
-        case 69:
+        case SFX_EXP_GREN_DIRT:
             szEffectModel = "models/fx/grenexp_dirt.tik";
             break;
-        case 70:
+        case SFX_EXP_GREN_GRILL:
             szEffectModel = "models/fx/grenexp_metal.tik";
             break;
-        case 71:
+        case SFX_EXP_GREN_GRASS:
             szEffectModel = "models/fx/grenexp_grass.tik";
             break;
-        case 72:
+        case SFX_EXP_GREN_MUD:
             szEffectModel = "models/fx/grenexp_mud.tik";
             break;
-        case 73:
+        case SFX_EXP_GREN_PUDDLE:
             szEffectModel = "models/fx/grenexp_water.tik";
             break;
-        case 74:
-        case 98:
+        case SFX_EXP_GREN_GLASS:
+        case SFX_TEST_EFFECT:
             continue;
-        case 75:
+        case SFX_EXP_GREN_GRAVEL:
             szEffectModel = "models/fx/grenexp_gravel.tik";
             break;
-        case 76:
+        case SFX_EXP_GREN_SAND:
             szEffectModel = "models/fx/grenexp_sand.tik";
             break;
-        case 77:
+        case SFX_EXP_GREN_FOLIAGE:
             szEffectModel = "models/fx/grenexp_foliage.tik";
             break;
-        case 78:
+        case SFX_EXP_GREN_SNOW:
             szEffectModel = "models/fx/grenexp_snow.tik";
             break;
-        case 79:
+        case SFX_EXP_GREN_CARPET:
             szEffectModel = "models/fx/grenexp_carpet.tik";
             break;
-        case 80:
+        case SFX_EXP_HEAVYSHELL_DIRT:
+            szEffectModel = "models/fx/heavyshellexp_dirt.tik";
+            break;
+        case SFX_EXP_HEAVYSHELL_STONE:
+            szEffectModel = "models/fx/heavyshellexp_stone.tik";
+            break;
+        case SFX_EXP_HEAVYSHELL_SNOW:
+            szEffectModel = "models/fx/heavyshellexp_snow.tik";
+            break;
+        case SFX_EXP_TANK_DIRT:
+            szEffectModel = "models/fx/tankexp_dirt.tik";
+            break;
+        case SFX_EXP_TANK_STONE:
+            szEffectModel = "models/fx/tankexp_stone.tik";
+            break;
+        case SFX_EXP_TANK_SNOW:
+            szEffectModel = "models/fx/tankexp_snow.tik";
+            break;
+        case SFX_EXP_BAZOOKA_DIRT:
+            szEffectModel = "models/fx/bazookaexp_dirt.tik";
+            break;
+        case SFX_EXP_BAZOOKA_STONE:
+            szEffectModel = "models/fx/bazookaexp_stone.tik";
+            break;
+        case SFX_EXP_BAZOOKA_SNOW:
+            szEffectModel = "models/fx/bazookaexp_snow.tik";
+            break;
+        case SFX_WATER_RIPPLE_STILL:
             szEffectModel = "models/fx/water_ripple_still.tik";
             break;
-        case 81:
+        case SFX_WATER_RIPPLE_MOVING:
             szEffectModel = "models/fx/water_ripple_moving.tik";
             break;
-        case 82:
+        case SFX_OIL_LEAK_BIG:
             szEffectModel = "models/fx/barrel_oil_leak_big.tik";
             break;
-        case 83:
+        case SFX_OIL_LEAK_MEDIUM:
             szEffectModel = "models/fx/barrel_oil_leak_medium.tik";
             break;
-        case 84:
+        case SFX_OIL_LEAK_SMALL:
             szEffectModel = "models/fx/barrel_oil_leak_small.tik";
             break;
-        case 85:
+        case SFX_OIL_LEAK_SPLAT:
             szEffectModel = "models/fx/barrel_oil_leak_splat.tik";
             break;
-        case 86:
+        case SFX_WATER_LEAK_BIG:
             szEffectModel = "models/fx/barrel_water_leak_big.tik";
             break;
-        case 87:
+        case SFX_WATER_LEAK_MEDIUM:
             szEffectModel = "models/fx/barrel_water_leak_medium.tik";
             break;
-        case 88:
+        case SFX_WATER_LEAK_SMALL:
             szEffectModel = "models/fx/barrel_water_leak_small.tik";
             break;
-        case 89:
+        case SFX_WATER_LEAK_SPLAT:
             szEffectModel = "models/fx/barrel_water_leak_splat.tik";
             break;
-        case 90:
+        case SFX_FOOT_LIGHT_DUST:
             szEffectModel = "models/fx/fs_light_dust.tik";
             break;
-        case 91:
+        case SFX_FOOT_HEAVY_DUST:
             szEffectModel = "models/fx/fs_heavy_dust.tik";
             break;
-        case 92:
+        case SFX_FOOT_DIRT:
             szEffectModel = "models/fx/fs_dirt.tik";
             break;
-        case 93:
+        case SFX_FOOT_GRASS:
             szEffectModel = "models/fx/fs_grass.tik";
             break;
-        case 94:
+        case SFX_FOOT_MUD:
             szEffectModel = "models/fx/fs_mud.tik";
             break;
-        case 95:
+        case SFX_FOOT_PUDDLE:
             szEffectModel = "models/fx/fs_puddle.tik";
             break;
-        case 96:
+        case SFX_FOOT_SAND:
             szEffectModel = "models/fx/fs_sand.tik";
             break;
-        case 97:
+        case SFX_FOOT_SNOW:
             szEffectModel = "models/fx/fs_snow.tik";
+            break;
+        case SFX_FENCE_WOOD:
+            szEffectModel = "models/fx/fx_fence_wood.tik";
             break;
         default:
             szEffectModel = "models/fx/bh_stone_hard.tik";
+            break;
         }
 
         pEffect = &m_effects[i];
@@ -425,7 +462,7 @@ void ClientSpecialEffectsManager::ExecuteEffect(
                 ev1.AddVector(axis[2]);
 
                 PostEvent(ev1, pCommand->fCommandTime - fStartCommandTime);
-                ++m_iNumPendingEvents;
+                m_iNumPendingEvents++;
 
                 break;
             }
@@ -448,6 +485,8 @@ void ClientSpecialEffectsManager::ExecuteEffect(
                 AxisCopy(axis, pCommand->emitter->tag_axis);
                 pCommand->emitter->cgd.createTime = cg.time;
                 commandManager.SetSpawnthing(pCommand->emitter);
+            
+                (commandManager.*pCommand->endfcn)();
             }
         }
 
@@ -518,74 +557,74 @@ static void CG_FootstepMain(trace_t *trace, int iRunning, int iEquipment)
             sSoundName += "wade";
         } else {
             sSoundName += "puddle";
-            iEffectNum = 95;
+            iEffectNum = SFX_FOOT_PUDDLE;
         }
     } else {
         surftype = trace->surfaceFlags & MASK_SURF_TYPE;
         switch (surftype) {
         case SURF_FOLIAGE:
             sSoundName += "foliage";
-            iEffectNum = 93;
+            iEffectNum = SFX_FOOT_GRASS;
             break;
         case SURF_SNOW:
             sSoundName += "snow";
-            iEffectNum = 97;
+            iEffectNum = SFX_FOOT_SNOW;
             break;
         case SURF_CARPET:
             sSoundName += "carpet";
-            iEffectNum = 90;
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
             break;
         case SURF_SAND:
             sSoundName += "sand";
-            iEffectNum = 96;
+            iEffectNum = SFX_FOOT_SAND;
             break;
         case SURF_PUDDLE:
             sSoundName += "puddle";
-            iEffectNum = 95;
+            iEffectNum = SFX_FOOT_PUDDLE;
             break;
         case SURF_GLASS:
             sSoundName += "glass";
-            iEffectNum = 90;
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
             break;
         case SURF_GRAVEL:
             sSoundName += "gravel";
-            iEffectNum = 91;
+            iEffectNum = SFX_FOOT_HEAVY_DUST;
             break;
         case SURF_MUD:
             sSoundName += "mud";
-            iEffectNum = 94;
+            iEffectNum = SFX_FOOT_MUD;
             break;
         case SURF_DIRT:
             sSoundName += "dirt";
-            iEffectNum = 92;
+            iEffectNum = SFX_FOOT_DIRT;
             break;
         case SURF_GRILL:
             sSoundName += "grill";
-            iEffectNum = 90;
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
             break;
         case SURF_GRASS:
             sSoundName += "grass";
-            iEffectNum = 93;
+            iEffectNum = SFX_FOOT_GRASS;
             break;
         case SURF_ROCK:
             sSoundName += "stone";
-            iEffectNum = 91;
+            iEffectNum = SFX_FOOT_HEAVY_DUST;
             break;
         case SURF_PAPER:
             sSoundName += "paper";
-            iEffectNum = 90;
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
             break;
         case SURF_WOOD:
             sSoundName += "wood";
-            iEffectNum = 90;
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
             break;
         case SURF_METAL:
             sSoundName += "metal";
-            iEffectNum = 90;
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
             break;
         default:
             sSoundName += "stone";
-            iEffectNum = 91;
+            iEffectNum = SFX_FOOT_HEAVY_DUST;
             break;
         }
     }
@@ -781,74 +820,68 @@ void CG_LandingSound(centity_t *ent, refEntity_t *pREnt, float volume, int iEqui
             sSoundName += "wade";
         } else {
             sSoundName += "puddle";
-            iEffectNum = 95;
+            iEffectNum = SFX_FOOT_PUDDLE;
         }
     } else {
         surftype = trace.surfaceFlags & MASK_SURF_TYPE;
         switch (surftype) {
         case SURF_FOLIAGE:
             sSoundName += "foliage";
-            iEffectNum = 93;
+            iEffectNum = SFX_FOOT_GRASS;
             break;
         case SURF_SNOW:
             sSoundName += "snow";
-            iEffectNum = 97;
+            iEffectNum = SFX_FOOT_SNOW;
             break;
         case SURF_CARPET:
             sSoundName += "carpet";
-            iEffectNum = 90;
             break;
         case SURF_SAND:
             sSoundName += "sand";
-            iEffectNum = 96;
+            iEffectNum = SFX_FOOT_SAND;
             break;
         case SURF_PUDDLE:
             sSoundName += "puddle";
-            iEffectNum = 95;
+            iEffectNum = SFX_FOOT_PUDDLE;
             break;
         case SURF_GLASS:
             sSoundName += "glass";
-            iEffectNum = 90;
             break;
         case SURF_GRAVEL:
             sSoundName += "gravel";
-            iEffectNum = 91;
+            iEffectNum = SFX_FOOT_HEAVY_DUST;
             break;
         case SURF_MUD:
             sSoundName += "mud";
-            iEffectNum = 94;
+            iEffectNum = SFX_FOOT_MUD;
             break;
         case SURF_DIRT:
             sSoundName += "dirt";
-            iEffectNum = 92;
+            iEffectNum = SFX_FOOT_DIRT;
             break;
         case SURF_GRILL:
             sSoundName += "grill";
-            iEffectNum = 90;
             break;
         case SURF_GRASS:
             sSoundName += "grass";
-            iEffectNum = 93;
+            iEffectNum = SFX_FOOT_GRASS;
             break;
         case SURF_ROCK:
             sSoundName += "stone";
-            iEffectNum = 91;
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
             break;
         case SURF_PAPER:
             sSoundName += "paper";
-            iEffectNum = 90;
             break;
         case SURF_WOOD:
             sSoundName += "wood";
-            iEffectNum = 90;
             break;
         case SURF_METAL:
             sSoundName += "metal";
-            iEffectNum = 90;
             break;
         default:
             sSoundName += "stone";
-            iEffectNum = 91;
+            iEffectNum = SFX_FOOT_LIGHT_DUST;
             break;
         }
     }
@@ -896,18 +929,18 @@ void CG_Splash(centity_t *cent)
 
     VectorSubtract(cent->currentState.origin, cent->nextState.origin, diff);
     diff[2] = 0;
-    dist    = VectorLength(diff);
+    dist    = VectorNormalize(diff);
 
     // See if enough time has passed to add another ripple
 
     if (dist >= 1) {
-        time_required = 100 - dist;
+        time_required = 60 - dist;
     } else {
-        time_required = 200;
+        time_required = 175;
     }
 
-    if (time_required < 10) {
-        time_required = 10;
+    if (time_required < 5) {
+        time_required = 5;
     }
 
     if (cent->splash_last_spawn_time + time_required > cg.time) {
@@ -943,7 +976,7 @@ void CG_Splash(centity_t *cent)
     }
 
     VectorCopy(cent->lerpOrigin, start);
-    start[2] += 88;
+    start[2] += 72;
 
     // if the head isn't out of liquid, don't make a mark
     contents = cgi.CM_PointContents(start, 0);
@@ -960,8 +993,26 @@ void CG_Splash(centity_t *cent)
         return;
     }
 
-    // FIXME
-    // TODO: Make effect
+    if (dist > 0) {
+        vectoangles(diff, start);
+        start[0] = -90.0;
+
+        dist /= cg.frametime;
+        if (dist < 0) {
+            dist = 0;
+        } else if (dist > 8192) {
+            dist = 8192;
+        }
+
+        VectorMA(trace.endpos, dist, diff, end);
+        sfxManager.MakeEffect_Angles(81, end, start);
+    } else {
+        start[0] = 90;
+        start[1] = 0;
+        start[2] = 0;
+
+        sfxManager.MakeEffect_Angles(80, trace.endpos, start);
+    }
 }
 
 qboolean ClientSpecialEffectsManager::EffectsPending()

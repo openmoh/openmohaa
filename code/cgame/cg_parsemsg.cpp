@@ -255,68 +255,68 @@ static void CG_MakeBulletHole(const vec3_t i_vPos, const vec3_t i_vNorm, int iLa
     switch (iSurfType) {
     case SURF_FOLIAGE:
         fRadius = 0.f;
-        iEffect = 24;
+        iEffect = SFX_BHIT_FOLIAGE_LITE;
         break;
     case SURF_SNOW:
         sBulletHole += "snow";
-        iEffect = 26;
+        iEffect = SFX_BHIT_FOLIAGE_LITE;
         break;
     case SURF_CARPET:
         sBulletHole += "carpet";
-        iEffect = 28;
+        iEffect = SFX_BHIT_CARPET_LITE;
         break;
     case SURF_SAND:
         fRadius = 0.f;
-        iEffect = 22;
+        iEffect = SFX_BHIT_SAND_LITE;
         break;
     case SURF_PUDDLE:
         fRadius = 0.f;
-        iEffect = 16;
+        iEffect = SFX_BHIT_PUDDLE_LITE;
         break;
     case SURF_GLASS:
         sBulletHole += "glass";
-        iEffect = 18;
+        iEffect = SFX_BHIT_GRASS_LITE;
         break;
     case SURF_GRAVEL:
         fRadius = 0.f;
-        iEffect = 20;
+        iEffect = SFX_BHIT_GRAVEL_LITE;
         break;
     case SURF_MUD:
         sBulletHole += "mud";
-        iEffect = 14;
+        iEffect = SFX_BHIT_MUD_LITE;
         break;
     case SURF_DIRT:
         sBulletHole += "dirt";
-        iEffect = 8;
+        iEffect = SFX_BHIT_DIRT_LITE;
         break;
     case SURF_GRILL:
         sBulletHole += "grill";
-        iEffect = 10;
+        iEffect = SFX_BHIT_GRILL_LITE;
         break;
     case SURF_GRASS:
         sBulletHole += "grass";
-        iEffect = 12;
+        iEffect = SFX_BHIT_GRASS_LITE;
         break;
     case SURF_ROCK:
         sBulletHole += "stone";
-        iEffect = 6;
+        iEffect = SFX_BHIT_STONE_LITE;
         break;
     case SURF_PAPER:
         sBulletHole += "paper";
-        iEffect = 0;
+        iEffect = SFX_BHIT_PAPER_LITE;
         break;
     case SURF_WOOD:
         sBulletHole += "wood";
-        iEffect = 2;
+        iEffect = SFX_BHIT_WOOD_LITE;
         break;
     case SURF_METAL:
         fRadius -= 0.25f;
         sBulletHole += "metal";
-        iEffect = 4;
+        iEffect = SFX_BHIT_METAL_LITE;
         break;
     default:
         sBulletHole += "stone";
-        iEffect = 6;
+        iEffect = SFX_BHIT_STONE_LITE;
         break;
     }
 
@@ -1063,20 +1063,26 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
     fRadius = 64.0;
 
     if ((CG_PointContents(vPos, 0)) & MASK_WATER) {
-        iBaseEffect = 73;
+        iBaseEffect = SFX_EXP_GREN_PUDDLE;
         sfxManager.MakeEffect_Normal(iBaseEffect, vPos, Vector(0, 0, 1));
         return;
     }
 
     switch (iType) {
-    case 12:
-        iBaseEffect = 63;
-        break;
     case 13:
-        iBaseEffect = 64;
+        iBaseEffect = SFX_EXP_GREN_BASE;
+        break;
+    case 14:
+        iBaseEffect = SFX_EXP_BAZOOKA_BASE;
+        break;
+    case 15:
+        iBaseEffect = SFX_EXP_HEAVYSHELL_BASE;
+        break;
+    case 16:
+        iBaseEffect = SFX_EXP_TANK_BASE;
         break;
     default:
-        iBaseEffect = 63;
+        iBaseEffect = SFX_EXP_GREN_BASE;
         break;
     }
 
@@ -1095,18 +1101,34 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
     iSurfType = trace.surfaceFlags & MASK_SURF_TYPE;
     switch (iSurfType) {
     case SURF_FOLIAGE:
-        iSurfEffect = 77;
+        iSurfEffect = SFX_EXP_GREN_FOLIAGE;
         fRadius     = 0;
         break;
     case SURF_SNOW:
-        iSurfEffect = 78;
+        switch (iBaseEffect)
+        {
+        case SFX_EXP_TANK_BASE:
+            iSurfEffect = SFX_EXP_TANK_SNOW;
+            break;
+        case SFX_EXP_BAZOOKA_BASE:
+            iSurfEffect = SFX_EXP_BAZOOKA_SNOW;
+            iBaseEffect = -1;
+            break;
+        case SFX_EXP_HEAVYSHELL_BASE:
+            iSurfEffect = SFX_EXP_HEAVYSHELL_SNOW;
+            break;
+        default:
+            iSurfEffect = SFX_EXP_GREN_SNOW;
+            iBaseEffect = -1;
+            break;
+        }
         fRadius     = 0;
         break;
     case SURF_CARPET:
-        iSurfEffect = 79;
+        iSurfEffect = SFX_EXP_GREN_CARPET;
         break;
     case SURF_SAND:
-        iSurfEffect = 76;
+        iSurfEffect = SFX_EXP_GREN_SAND;
         fRadius     = 0;
         break;
     case SURF_PUDDLE:
@@ -1118,34 +1140,82 @@ void CG_MakeExplosionEffect(const vec3_t vPos, int iType)
         fRadius     = 0;
         break;
     case SURF_GRAVEL:
-        iSurfEffect = 75;
+        iSurfEffect = SFX_EXP_GREN_GRAVEL;
         break;
     case SURF_MUD:
-        iSurfEffect = 72;
+        iSurfEffect = SFX_EXP_GREN_MUD;
         fRadius     = 0;
         break;
     case SURF_DIRT:
-        iSurfEffect = 69;
+        switch (iBaseEffect)
+        {
+        case SFX_EXP_TANK_BASE:
+            iSurfEffect = SFX_EXP_TANK_DIRT;
+            break;
+        case SFX_EXP_BAZOOKA_BASE:
+            iSurfEffect = SFX_EXP_BAZOOKA_DIRT;
+            iBaseEffect = -1;
+            break;
+        case SFX_EXP_HEAVYSHELL_BASE:
+            iSurfEffect = SFX_EXP_HEAVYSHELL_DIRT;
+            break;
+        default:
+            iSurfEffect = SFX_EXP_GREN_DIRT;
+            iBaseEffect = -1;
+            break;
+        }
         fRadius     = 0;
         break;
     case SURF_GRILL:
-        iSurfEffect = 70;
+        iSurfEffect = SFX_EXP_GREN_GRILL;
         fRadius     = 0;
         break;
     case SURF_GRASS:
-        iSurfEffect = 71;
+        switch (iBaseEffect)
+        {
+        case SFX_EXP_TANK_BASE:
+            iSurfEffect = SFX_EXP_TANK_DIRT;
+            break;
+        case SFX_EXP_BAZOOKA_BASE:
+            iSurfEffect = SFX_EXP_BAZOOKA_DIRT;
+            break;
+        case SFX_EXP_HEAVYSHELL_BASE:
+            iSurfEffect = SFX_EXP_HEAVYSHELL_DIRT;
+            break;
+        default:
+            iSurfEffect = SFX_EXP_GREN_GRASS;
+            iBaseEffect = -1;
+            break;
+        }
+        fRadius = 0;
         break;
     case SURF_ROCK:
-        iSurfEffect = 68;
+        switch (iBaseEffect)
+        {
+        case SFX_EXP_TANK_BASE:
+            iSurfEffect = SFX_EXP_TANK_STONE;
+            break;
+        case SFX_EXP_BAZOOKA_BASE:
+            iSurfEffect = SFX_EXP_BAZOOKA_STONE;
+            iBaseEffect = -1;
+            break;
+        case SFX_EXP_HEAVYSHELL_BASE:
+            iSurfEffect = SFX_EXP_HEAVYSHELL_STONE;
+            break;
+        default:
+            iSurfEffect = SFX_EXP_GREN_STONE;
+            iBaseEffect = -1;
+            break;
+        }
         break;
     case SURF_PAPER:
-        iSurfEffect = 65;
+        iSurfEffect = SFX_EXP_GREN_PAPER;
         break;
     case SURF_WOOD:
-        iSurfEffect = 66;
+        iSurfEffect = SFX_EXP_GREN_WOOD;
         break;
     case SURF_METAL:
-        iSurfEffect = 67;
+        iSurfEffect = SFX_EXP_GREN_METAL;
         break;
     default:
         iSurfEffect = -1;
@@ -1400,7 +1470,7 @@ void CG_ParseCGMessage_ver_15()
             vStart[2] = cgi.MSG_ReadCoord();
             cgi.MSG_ReadDir(vEnd);
 
-            sfxManager.MakeEffect_Normal(iType + 67, vStart, vEnd);
+            sfxManager.MakeEffect_Normal(iType + SFX_EXP_GREN_PUDDLE, vStart, vEnd);
             break;
 
         case 26:
@@ -1769,7 +1839,7 @@ void CG_ParseCGMessage_ver_6()
             vStart[2] = cgi.MSG_ReadCoord();
             cgi.MSG_ReadDir(vEnd);
 
-            sfxManager.MakeEffect_Normal(iType + 67, vStart, vEnd);
+            sfxManager.MakeEffect_Normal(iType + SFX_EXP_GREN_PUDDLE, vStart, vEnd);
             break;
 
         case 23:
