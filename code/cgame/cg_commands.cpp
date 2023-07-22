@@ -2714,19 +2714,18 @@ spawnthing_t *ClientGameCommandManager::CreateNewEmitter(void)
 //===============
 void ClientGameCommandManager::BeginOriginSpawn(Event *ev)
 {
-    // FIXME: partially implemented
-
     if (!current_entity) {
+        m_spawnthing = NULL;
         return;
     }
 
+    if (!m_pCurrentSfx) {
+        m_spawnthing = &m_localemitter;
+    }
+    InitializeSpawnthing(m_spawnthing);
+
     // Setup ending function
     endblockfcn = &ClientGameCommandManager::EndOriginSpawn;
-
-    if (!m_pCurrentSfx) {
-        // Init the thing we are going to spawn
-        m_spawnthing = InitializeSpawnthing(&m_localemitter);
-    }
 
     // Set the origin based on the entity's origin
     m_spawnthing->cgd.origin = current_entity->origin;
@@ -2742,8 +2741,9 @@ void ClientGameCommandManager::BeginOriginSpawn(Event *ev)
 //===============
 void ClientGameCommandManager::EndOriginSpawn(void)
 {
-    // Okay we should have a valid spawnthing, let's create a render entity
-    SpawnTempModel(m_spawnthing->count);
+    if (m_spawnthing) {
+        SpawnEffect(m_spawnthing->count, 0);
+    }
 }
 
 void ClientGameCommandManager::TestEffectEndFunc()
@@ -2779,6 +2779,11 @@ void ClientGameCommandManager::BeginTagEmitter(Event *ev)
 {
     str tagname;
     int tagnum;
+
+    if (current_entity) {
+        m_spawnthing = NULL;
+        return;
+    }
 
     // Get the tagname and orientation
     tagname = ev->GetString(1);
@@ -2825,15 +2830,16 @@ void ClientGameCommandManager::EndTagEmitter(void)
 //===============
 void ClientGameCommandManager::BeginTagBeamEmitter(Event *ev)
 {
+    if (current_entity) {
+        m_spawnthing = NULL;
+        return;
+    }
+
     // Setup ending function
     endblockfcn = &ClientGameCommandManager::EndTagBeamEmitter;
 
     // Init the emitter
     m_spawnthing = CreateNewEmitter();
-    if (!m_spawnthing) {
-        return;
-    }
-
     m_spawnthing->cgd.flags |= T_BEAMTHING;
 
     // Get the tagname and orientation
@@ -2869,14 +2875,16 @@ void ClientGameCommandManager::EndTagBeamEmitter(void)
 //===============
 void ClientGameCommandManager::BeginOriginEmitter(Event *ev)
 {
+    if (current_entity) {
+        m_spawnthing = NULL;
+        return;
+    }
+
     // Setup ending function
     endblockfcn = &ClientGameCommandManager::EndOriginEmitter;
 
     // Init the emitter
     m_spawnthing = CreateNewEmitter();
-    if (!m_spawnthing) {
-        return;
-    }
 
     // Get the emitter's name
     m_spawnthing->emittername = ev->GetString(1);
@@ -2905,15 +2913,16 @@ void ClientGameCommandManager::EndOriginEmitter(void)
 //===============
 void ClientGameCommandManager::BeginOriginBeamEmitter(Event *ev)
 {
-    // Setup ending function
-    endblockfcn = &ClientGameCommandManager::EndOriginBeamEmitter;
-
     // Init the emitter
-    m_spawnthing = CreateNewEmitter();
-    if (!m_spawnthing) {
+    if (current_entity) {
+        m_spawnthing = NULL;
         return;
     }
 
+    // Setup ending function
+    endblockfcn = &ClientGameCommandManager::EndOriginBeamEmitter;
+
+    m_spawnthing = CreateNewEmitter();
     // Get the emitter's name
     m_spawnthing->emittername = ev->GetString(1);
 
@@ -2980,20 +2989,21 @@ void ClientGameCommandManager::BeginTagSpawn(Event *ev)
     str tagname;
     int tagnum;
 
-    // Setup ending function
-    endblockfcn = &ClientGameCommandManager::EndTagSpawn;
-    
-    if (!m_pCurrentSfx) {
-        // Init the thing we are going to spawn
-        m_spawnthing = InitializeSpawnthing(&m_localemitter);
-    }
-
     // Get the tagname and orientation
     tagname = ev->GetString(1);
     tagnum  = cgi.Tag_NumForName(current_tiki, tagname.c_str());
     if (tagnum == -1) {
         throw ScriptException("Tagname '%s' does not exist", tagname.c_str());
     }
+
+    // Setup ending function
+    endblockfcn = &ClientGameCommandManager::EndTagSpawn;
+
+    if (!m_pCurrentSfx) {
+        // Init the thing we are going to spawn
+        m_spawnthing = &m_localemitter;
+    }
+    InitializeSpawnthing(m_spawnthing);
 
     GetOrientation(tagnum, m_spawnthing);
 }
@@ -3004,7 +3014,7 @@ void ClientGameCommandManager::BeginTagSpawn(Event *ev)
 void ClientGameCommandManager::EndTagSpawn(void)
 {
     // Okay we should have a valid spawnthing, let's create a render entity
-    SpawnTempModel(m_spawnthing->count);
+    SpawnEffect(m_spawnthing->count, 0);
 }
 
 //===============
@@ -3015,20 +3025,21 @@ void ClientGameCommandManager::BeginTagBeamSpawn(Event *ev)
     str tagname;
     int tagnum;
 
-    // Setup ending function
-    endblockfcn = &ClientGameCommandManager::EndTagBeamSpawn;
-
-    if (!m_pCurrentSfx) {
-        // Init the thing we are going to spawn
-        m_spawnthing = InitializeSpawnthing(&m_localemitter);
-    }
-
     // Get the tagname and orientation
     tagname = ev->GetString(1);
     tagnum  = cgi.Tag_NumForName(current_tiki, tagname.c_str());
     if (tagnum == -1) {
         throw ScriptException("Tagname '%s' does not exist", tagname.c_str());
     }
+
+    // Setup ending function
+    endblockfcn = &ClientGameCommandManager::EndTagBeamSpawn;
+
+    if (!m_pCurrentSfx) {
+        // Init the thing we are going to spawn
+        m_spawnthing = &m_localemitter;
+    }
+    InitializeSpawnthing(m_spawnthing);
 
     GetOrientation(tagnum, m_spawnthing);
 }
@@ -3116,11 +3127,11 @@ void ClientGameCommandManager::EndTagBeamSpawn(void)
 //===============
 void ClientGameCommandManager::BeginOriginBeamSpawn(Event *ev)
 {
-    // Init the emitter
-    m_spawnthing = CreateNewEmitter();
-    if (!m_spawnthing) {
-        return;
+    if (!m_pCurrentSfx) {
+        m_spawnthing = &m_localemitter;
     }
+    // Init the emitter
+    InitializeSpawnthing(m_spawnthing);
 
     // Set the origin based on the entity's origin
     m_spawnthing->cgd.origin = current_entity->origin;
@@ -3896,8 +3907,9 @@ void ClientGameCommandManager::TagDynamicLight(Event *ev)
 
     if (!m_pCurrentSfx) {
         // Spawn a single tempmodel that is a dynamic light
-        m_spawnthing = InitializeSpawnthing(&m_localemitter);
+        m_spawnthing = &m_localemitter;
     }
+    InitializeSpawnthing(m_spawnthing);
 
     tagname = ev->GetString(1);
     tagnum  = cgi.Tag_NumForName(current_tiki, tagname.c_str());
@@ -3922,7 +3934,7 @@ void ClientGameCommandManager::TagDynamicLight(Event *ev)
     } else {
         m_spawnthing->cgd.lightType = 0;
     }
-    SpawnTempModel(1, m_spawnthing);
+    SpawnEffect(1, m_spawnthing);
 }
 
 //===============
@@ -3933,17 +3945,15 @@ void ClientGameCommandManager::OriginDynamicLight(Event *ev)
     str tagname;
 
     if (!current_entity) {
-        cgi.DPrintf(
-            "ClientGameCommandManager::OriginDynamicLight : Illegal "
-            "use of \"origindlight\"\n"
-        );
+        m_spawnthing = NULL;
         return;
     }
 
     if (!m_pCurrentSfx) {
         // Spawn a single tempmodel that is a dynamic light
-        m_spawnthing = InitializeSpawnthing(&m_localemitter);
+        m_spawnthing = &m_localemitter;
     }
+    InitializeSpawnthing(m_spawnthing);
 
     m_spawnthing->cgd.origin = current_entity->origin;
     m_spawnthing->cgd.flags |= T_DLIGHT;
@@ -3961,7 +3971,7 @@ void ClientGameCommandManager::OriginDynamicLight(Event *ev)
     } else {
         m_spawnthing->cgd.lightType = 0;
     }
-    SpawnTempModel(1, m_spawnthing);
+    SpawnEffect(1, m_spawnthing);
 }
 
 //===============
@@ -5131,7 +5141,7 @@ void CG_Emitter(centity_t *cent)
             dtime = cg.time - et->last_emit_time;
             while (dtime > emitter->spawnRate) {
                 dtime -= emitter->spawnRate;
-                commandManager.SpawnTempModel(1, emitter);
+                commandManager.SpawnEffect(1, emitter);
                 et->last_emit_time = cg.time;
             }
         }
@@ -5174,7 +5184,7 @@ void ClientGameCommandManager::CGEvent(centity_t *cent)
     ev->AddString("idle");
     ProcessEvent(ev);
 
-    SpawnTempModel(1);
+    SpawnEffect(1, 0);
 }
 
 qboolean ClientGameCommandManager::SelectProcessEvent(Event *ev)
