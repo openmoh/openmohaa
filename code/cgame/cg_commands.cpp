@@ -506,6 +506,13 @@ Event EV_Client_SetAngles(
     "from the first number to the first number plus the second number.\n"
     "If no keyword is explicitly specified, then the component will be just set\n"
 );
+Event EV_Client_SetRelativeAngles(
+    "relativeangles",
+    EV_DEFAULT,
+    "",
+    "",
+    "makes the spawn angles get applied relative to the orientation of the model"
+);
 Event EV_Client_Swipe("swipe", EV_DEFAULT, "V", "origin", "Do a swipe and add it on to the swipe rendering list.");
 Event EV_Client_SwipeOn(
     "swipeon",
@@ -842,6 +849,7 @@ CLASS_DECLARATION(Listener, ClientGameCommandManager, NULL) {
     {&EV_Client_SetRandomRoll,              &ClientGameCommandManager::SetRandomRoll             },
     {&EV_Client_SetVolumetric,              &ClientGameCommandManager::SetVolumetric             },
     {&EV_Client_SetAngles,                  &ClientGameCommandManager::SetAngles                 },
+    {&EV_Client_SetRelativeAngles,          &ClientGameCommandManager::SetRelativeAngles         },
     {&EV_Client_ParentAngles,               &ClientGameCommandManager::ParentAngles              },
     {&EV_Client_Swipe,                      &ClientGameCommandManager::Swipe                     },
     {&EV_Client_SwipeOn,                    &ClientGameCommandManager::SwipeOn                   },
@@ -2300,6 +2308,18 @@ void ClientGameCommandManager::SetAngles(Event *ev)
 }
 
 //=============
+// SetRelativeAngles
+//=============
+void ClientGameCommandManager::SetRelativeAngles(Event* ev)
+{
+    if (!m_spawnthing) {
+        return;
+    }
+
+    m_spawnthing->cgd.flags2 |= T2_RELATIVEANGLES;
+}
+
+//=============
 // ParentAngles
 //=============
 void ClientGameCommandManager::ParentAngles(Event *ev)
@@ -2582,6 +2602,8 @@ spawnthing_t *ClientGameCommandManager::InitializeSpawnthing(spawnthing_t *sp)
     sp->cgd.max_twinkletimeon  = 0;
     sp->cgd.min_twinkletimeon  = 0;
     sp->cgd.swipe_life         = 0;
+    sp->cgd.scale2             = 1;
+    sp->cgd.spin_rotation      = 0;
     sp->fMinRangeSquared       = 0;
     sp->fMaxRangeSquared       = 9.9999997e37f;
 
@@ -2604,6 +2626,7 @@ void ClientGameCommandManager::SpawnEffect(int count, spawnthing_t *sp)
     } else {
         SpawnTempModel(count);
     }
+    m_spawnthing = NULL;
 }
 
 void ClientGameCommandManager::SpawnEffect(int count, int timealive)
@@ -4294,7 +4317,7 @@ void ClientGameCommandManager::UpdateEmitter(
             if (!count) {
                 continue;
             } else if (count == 1) {
-                SpawnTempModel(1);
+                SpawnEffect(1, 0);
                 et->last_emit_time = cg.time;
             } else {
                 lerpfrac = 1.0f / (float)count;
@@ -4309,7 +4332,7 @@ void ClientGameCommandManager::UpdateEmitter(
                         m_spawnthing->cgd.origin = et->oldorigin + (delta * lerp);
                     }
 
-                    SpawnTempModel(1, dtime);
+                    SpawnEffect(1, dtime);
 
                     lerp += lerpfrac;
                 }
