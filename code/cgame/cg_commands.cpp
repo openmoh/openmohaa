@@ -2720,8 +2720,10 @@ void ClientGameCommandManager::BeginOriginSpawn(Event *ev)
     // Setup ending function
     endblockfcn = &ClientGameCommandManager::EndOriginSpawn;
 
-    // Init the thing we are going to spawn
-    m_spawnthing = InitializeSpawnthing(&m_localemitter);
+    if (!m_pCurrentSfx) {
+        // Init the thing we are going to spawn
+        m_spawnthing = InitializeSpawnthing(&m_localemitter);
+    }
 
     // Set the origin based on the entity's origin
     m_spawnthing->cgd.origin = current_entity->origin;
@@ -2977,9 +2979,11 @@ void ClientGameCommandManager::BeginTagSpawn(Event *ev)
 
     // Setup ending function
     endblockfcn = &ClientGameCommandManager::EndTagSpawn;
-
-    // Init the thing we are going to spawn
-    m_spawnthing = InitializeSpawnthing(&m_localemitter);
+    
+    if (!m_pCurrentSfx) {
+        // Init the thing we are going to spawn
+        m_spawnthing = InitializeSpawnthing(&m_localemitter);
+    }
 
     // Get the tagname and orientation
     tagname = ev->GetString(1);
@@ -3011,8 +3015,10 @@ void ClientGameCommandManager::BeginTagBeamSpawn(Event *ev)
     // Setup ending function
     endblockfcn = &ClientGameCommandManager::EndTagBeamSpawn;
 
-    // Init the thing we are going to spawn
-    m_spawnthing = InitializeSpawnthing(&m_localemitter);
+    if (!m_pCurrentSfx) {
+        // Init the thing we are going to spawn
+        m_spawnthing = InitializeSpawnthing(&m_localemitter);
+    }
 
     // Get the tagname and orientation
     tagname = ev->GetString(1);
@@ -3885,8 +3891,10 @@ void ClientGameCommandManager::TagDynamicLight(Event *ev)
     str tagname;
     int tagnum;
 
-    // Spawn a single tempmodel that is a dynamic light
-    m_spawnthing = InitializeSpawnthing(&m_localemitter);
+    if (!m_pCurrentSfx) {
+        // Spawn a single tempmodel that is a dynamic light
+        m_spawnthing = InitializeSpawnthing(&m_localemitter);
+    }
 
     tagname = ev->GetString(1);
     tagnum  = cgi.Tag_NumForName(current_tiki, tagname.c_str());
@@ -3929,8 +3937,10 @@ void ClientGameCommandManager::OriginDynamicLight(Event *ev)
         return;
     }
 
-    // Spawn a single tempmodel that is a dynamic light
-    m_spawnthing = InitializeSpawnthing(&m_localemitter);
+    if (!m_pCurrentSfx) {
+        // Spawn a single tempmodel that is a dynamic light
+        m_spawnthing = InitializeSpawnthing(&m_localemitter);
+    }
 
     m_spawnthing->cgd.origin = current_entity->origin;
     m_spawnthing->cgd.flags |= T_DLIGHT;
