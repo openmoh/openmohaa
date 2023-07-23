@@ -2190,6 +2190,7 @@ void	RB_CalcRGBFromDot(unsigned char* colors, float alphaMin, float alphaMax);
 void	RB_CalcRGBFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax);
 void	RB_CalcAlphaFromConstant(unsigned char* dstColors, int constantAlpha);
 void	RB_CalcAlphaFromDot(unsigned char* colors, float alphaMin, float alphaMax);
+void	RB_CalcAlphaFromHeightFade(unsigned char* colors, float alphaMin, float alphaMax);
 void	RB_CalcAlphaFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax);
 void	RB_CalcAlphaFromTexCoords(unsigned char* colors, float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float* st);
 void	RB_CalcRGBFromTexCoords(unsigned char* colors, float alphaMin, float alphaMax, int alphaMinCap, int alphaCap, float sWeight, float tWeight, float* st);

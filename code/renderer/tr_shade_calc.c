@@ -895,6 +895,21 @@ void RB_CalcAlphaFromDot(unsigned char* colors, float alphaMin, float alphaMax)
 	// FIXME: unimplemented
 }
 
+void RB_CalcAlphaFromHeightFade(unsigned char* colors, float alphaMin, float alphaMax)
+{
+	int i;
+	float dist;
+	float alpha;
+
+	for (i = 0; i < tess.numVertexes; i++) {
+		dist = fabs(backEnd.ori.viewOrigin[2] - tess.xyz[i][2]);
+		dist = Q_clamp_float(dist, alphaMin, alphaMax);
+		// Calculate the alpha height
+		alpha = (dist - alphaMin) / (alphaMax - alphaMin);
+		colors[i * 4 + 3] = (unsigned char)((1.f - alpha) * 255.0);
+	}
+}
+
 void RB_CalcAlphaFromOneMinusDot(unsigned char* colors, float alphaMin, float alphaMax)
 {
 	// FIXME: unimplemented
