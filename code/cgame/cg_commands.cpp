@@ -2739,6 +2739,7 @@ void ClientGameCommandManager::BeginOriginSpawn(Event *ev)
     if (!m_pCurrentSfx) {
         m_spawnthing = &m_localemitter;
     }
+    if (!m_spawnthing) return;
     InitializeSpawnthing(m_spawnthing);
 
     // Set the origin based on the entity's origin
