@@ -2125,7 +2125,7 @@ static qboolean ParseShader( char **text )
 	//
 	// ignore shaders that don't have any unfoggedStages, unless it is a sky or fog
 	//
-	if ( s == 0 && !shader.isSky && !(shader.contentFlags & CONTENTS_FOG ) ) {
+	if ( s == 0 && !shader.isSky && !(shader.contentFlags & CONTENTS_FOG) && !(shader.surfaceFlags & SURF_NODRAW)) {
 		return qfalse;
 	}
 
