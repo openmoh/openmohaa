@@ -1006,13 +1006,13 @@ void CG_Splash(centity_t *cent)
         }
 
         VectorMA(trace.endpos, dist, diff, end);
-        sfxManager.MakeEffect_Angles(81, end, start);
+        sfxManager.MakeEffect_Angles(SFX_WATER_RIPPLE_MOVING, end, start);
     } else {
         start[0] = 90;
         start[1] = 0;
         start[2] = 0;
 
-        sfxManager.MakeEffect_Angles(80, trace.endpos, start);
+        sfxManager.MakeEffect_Angles(SFX_WATER_RIPPLE_STILL, trace.endpos, start);
     }
 }
 
