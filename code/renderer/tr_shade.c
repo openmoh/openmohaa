@@ -1065,21 +1065,198 @@ static void ComputeColors( shaderStage_t *pStage )
 		);
 		break;
 	case AGEN_DIST_FADE:
-		// FIXME: unimplemented
+		if (backEnd.currentStaticModel)
+		{
+			unsigned char alpha;
+
+			for (i = 0; i < tess.numVertexes; i++) {
+				float len;
+				vec3_t org, v;
+
+				VectorSubtract(backEnd.viewParms.ori.origin, backEnd.currentStaticModel->origin, v);
+				org[0] = tess.xyz[i][0] - DotProduct(v, backEnd.currentStaticModel->axis[0]);
+				org[1] = tess.xyz[i][1] - DotProduct(v, backEnd.currentStaticModel->axis[1]);
+				org[2] = tess.xyz[i][2] - DotProduct(v, backEnd.currentStaticModel->axis[2]);
+			
+				len = (VectorLength(org) - tess.shader->fDistNear) / tess.shader->fDistRange;
+				if (len < 0) {
+					alpha = 0xff;
+				} else if (len > 1) {
+					alpha = 0;
+				} else {
+					alpha = ((1.0 - len) * 255.0);
+                }
+                tess.svars.colors[i][3] = alpha;
+			}
+		}
+		else
+        {
+            unsigned char alpha;
+
+            for (i = 0; i < tess.numVertexes; i++) {
+                float len;
+                vec3_t org, v;
+
+				if (backEnd.currentEntity) {
+					VectorSubtract(backEnd.viewParms.ori.origin, backEnd.currentEntity->e.origin, v);
+					org[0] = tess.xyz[i][0] - DotProduct(v, backEnd.currentEntity->e.axis[0]);
+					org[1] = tess.xyz[i][1] - DotProduct(v, backEnd.currentEntity->e.axis[1]);
+					org[2] = tess.xyz[i][2] - DotProduct(v, backEnd.currentEntity->e.axis[2]);
+				} else {
+					VectorCopy(backEnd.viewParms.ori.origin, org);
+				}
+
+				
+				len = (VectorLength(org) - tess.shader->fDistNear) / tess.shader->fDistRange;
+				if (len < 0) {
+					alpha = 0xff;
+				} else if (len > 1) {
+					alpha = 0;
+				} else {
+					alpha = ((1.0 - len) * 255.0);
+                }
+                tess.svars.colors[i][3] = alpha;
+			}
+		}
 		break;
 	case AGEN_ONE_MINUS_DIST_FADE:
-		// FIXME: unimplemented
+		if (backEnd.currentStaticModel)
+		{
+			unsigned char alpha;
+
+			for (i = 0; i < tess.numVertexes; i++) {
+				float len;
+				vec3_t org, v;
+
+                VectorSubtract(backEnd.viewParms.ori.origin, backEnd.currentStaticModel->origin, v);
+                org[0] = tess.xyz[i][0] - DotProduct(v, backEnd.currentStaticModel->axis[0]);
+                org[1] = tess.xyz[i][1] - DotProduct(v, backEnd.currentStaticModel->axis[1]);
+                org[2] = tess.xyz[i][2] - DotProduct(v, backEnd.currentStaticModel->axis[2]);
+			
+				len = (VectorLength(org) - tess.shader->fDistNear) / tess.shader->fDistRange;
+				if (len < 0) {
+					alpha = 0;
+				} else if (len > 1) {
+					alpha = 0xff;
+				} else {
+					alpha = (len * 255.0);
+                }
+                tess.svars.colors[i][3] = alpha;
+			}
+		}
+		else
+        {
+            unsigned char alpha;
+
+            for (i = 0; i < tess.numVertexes; i++) {
+                float len;
+                vec3_t org, v;
+
+				if (backEnd.currentEntity) {
+                    VectorSubtract(backEnd.viewParms.ori.origin, backEnd.currentEntity->e.origin, v);
+                    org[0] = tess.xyz[i][0] - DotProduct(v, backEnd.currentEntity->e.axis[0]);
+                    org[1] = tess.xyz[i][1] - DotProduct(v, backEnd.currentEntity->e.axis[1]);
+                    org[2] = tess.xyz[i][2] - DotProduct(v, backEnd.currentEntity->e.axis[2]);
+				} else {
+					VectorCopy(backEnd.viewParms.ori.origin, org);
+				}
+
+				
+				len = (VectorLength(org) - tess.shader->fDistNear) / tess.shader->fDistRange;
+				if (len < 0) {
+					alpha = 0;
+				} else if (len > 1) {
+					alpha = 0xff;
+				} else {
+					alpha = (len * 255.0);
+                }
+                tess.svars.colors[i][3] = alpha;
+			}
+		}
 		break;
     case AGEN_TIKI_DIST_FADE:
     case AGEN_ONE_MINUS_TIKI_DIST_FADE:
-        // FIXME: unimplemented
+		{
+			unsigned char alpha;
+
+			if (backEnd.currentStaticModel)
+			{
+				float lenSqr;
+				float fDistNearSqr;
+				float fDistFarSqr;
+				vec3_t org;
+
+				VectorSubtract(backEnd.currentStaticModel->origin, backEnd.viewParms.ori.origin, org);
+
+				lenSqr = VectorLengthSquared(org);
+                fDistNearSqr = tess.shader->fDistNear * tess.shader->fDistNear;
+                fDistFarSqr = (tess.shader->fDistNear + tess.shader->fDistRange) * (tess.shader->fDistNear + tess.shader->fDistRange);
+				if (lenSqr <= fDistNearSqr) {
+					alpha = 0;
+				} else if (lenSqr >= fDistFarSqr) {
+					alpha = 0xff;
+				} else {
+					float len;
+
+					len = VectorLength(org);
+					alpha = (((VectorLength(org) - tess.shader->fDistNear) / tess.shader->fDistRange) * 255.0);
+				}
+
+				if (pStage->alphaGen == AGEN_TIKI_DIST_FADE) {
+					alpha = 0xff - alpha;
+				}
+			}
+			else if (backEnd.currentEntity)
+			{
+				float lenSqr;
+				float fDistNearSqr;
+				float fDistFarSqr;
+				vec3_t org;
+
+				VectorSubtract(backEnd.currentEntity->e.origin, backEnd.viewParms.ori.origin, org);
+
+				lenSqr = VectorLengthSquared(org);
+				fDistNearSqr = tess.shader->fDistNear * tess.shader->fDistNear;
+				fDistFarSqr = (tess.shader->fDistNear + tess.shader->fDistRange) * (tess.shader->fDistNear + tess.shader->fDistRange);
+				if (lenSqr <= fDistNearSqr) {
+					alpha = 0;
+				} else if (lenSqr >= fDistFarSqr) {
+					alpha = 0xff;
+				} else {
+					float len;
+
+                    len = VectorLength(org);
+                    alpha = (((VectorLength(org) - tess.shader->fDistNear) / tess.shader->fDistRange) * 255.0);
+				}
+
+				if (pStage->alphaGen == AGEN_TIKI_DIST_FADE) {
+					alpha = 0xff - alpha;
+				}
+			}
+			else
+			{
+				const char* type;
+				if (pStage->alphaGen == AGEN_TIKI_DIST_FADE) {
+					type = "tikiDistFade";
+				} else {
+					type = "oneMinusTikiDistFade";
+				}
+
+				ri.Error(ERR_DROP, "ERROR: '%s' shader command used on a non-tiki\n", type);
+				alpha = 0xff;
+			}
+			RB_CalcAlphaFromConstant((unsigned char*)tess.svars.colors, alpha);
+		}
 		break;
 	case AGEN_DOT_VIEW:
 		RB_CalcAlphaFromDotView((unsigned char*)tess.svars.colors, pStage->alphaMin, pStage->alphaMax);
 		break;
 	case AGEN_ONE_MINUS_DOT_VIEW:
 		RB_CalcAlphaFromOneMinusDotView((unsigned char*)tess.svars.colors, pStage->alphaMin, pStage->alphaMax);
-		break;
+        break;
+    case AGEN_HEIGHT_FADE:
+        RB_CalcAlphaFromHeightFade((unsigned char*)tess.svars.colors, pStage->alphaMin, pStage->alphaMax);
+        break;
 	default:
 		break;
 	}
