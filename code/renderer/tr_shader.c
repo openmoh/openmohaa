@@ -805,7 +805,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 				}
 				num = stage->bundle[cntBundle].numImageAnimations;
 				if ( num < MAX_IMAGE_ANIMATIONS ) {
-                    stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT );
+                    stage->bundle[cntBundle].image[num] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT );
 					if ( !stage->bundle[cntBundle].image[num] )
 					{
 						ri.Printf( PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name );
