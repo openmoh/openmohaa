@@ -478,6 +478,11 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
         );
     }
 
+    if (s1->renderfx & RF_SKYORIGIN) {
+        AnglesToAxis(cent->lerpAngles, cg.sky_axis);
+        VectorCopy(cent->lerpOrigin, cg.sky_origin);
+    }
+
     // if set to invisible, skip
     if (!s1->modelindex) {
         return;
@@ -1020,11 +1025,6 @@ void CG_ModelAnim(centity_t *cent, qboolean bDoShaderTime)
             // set the first person render flag
             model.renderfx |= RF_FIRST_PERSON;
         }
-    }
-
-    if (model.renderfx & RF_SKYORIGIN) {
-        memcpy(cg.sky_axis, model.axis, sizeof(cg.sky_axis));
-        VectorCopy(model.origin, cg.sky_origin);
     }
 
     model.reType = RT_MODEL;
