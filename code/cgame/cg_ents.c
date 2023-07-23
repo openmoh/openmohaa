@@ -175,8 +175,17 @@ void CG_General(centity_t *cent)
         );
     }
 
+    if (s1->renderfx & RF_SKYORIGIN) {
+        AnglesToAxis(cent->lerpAngles, cg.sky_axis);
+        VectorCopy(cent->lerpOrigin, cg.sky_origin);
+    }
+
     // if set to invisible, skip
     if (!s1->modelindex) {
+        return;
+    }
+
+    if (s1->renderfx & RF_DONTDRAW) {
         return;
     }
 
@@ -191,11 +200,9 @@ void CG_General(centity_t *cent)
 
     // set skin
     IntegerToBoundingBox(s1->solid, vMins, vMaxs);
+    VectorMA(ent.origin, 0.5f, ent.lightingOrigin, ent.lightingOrigin);
     VectorSubtract(vMins, vMaxs, vTmp);
-    ent.lightingOrigin[0] = ent.origin[0] + (vMins[0] + vMaxs[0]) * 0.5;
-    ent.lightingOrigin[1] = ent.origin[1] + (vMins[1] + vMaxs[1]) * 0.5;
-    ent.lightingOrigin[2] = ent.origin[2] + (vMins[2] + vMaxs[2]) * 0.5;
-    ent.radius            = VectorLength(vTmp) * 0.5;
+    ent.radius = VectorLength(vTmp) * 0.5;
 
     ent.skinNum = s1->skinNum;
 
@@ -233,16 +240,9 @@ void CG_General(centity_t *cent)
     ent.shader_data[1] = s1->skinNum;
     ent.renderfx |= s1->renderfx;
 
-    if (ent.renderfx & RF_SKYORIGIN) {
-        memcpy(cg.sky_axis, ent.axis, sizeof(cg.sky_axis));
-        VectorCopy(ent.origin, cg.sky_origin);
-    }
-
-    ent.tiki                = cgi.R_Model_GetHandle(cgs.model_draw[s1->modelindex]);
-    ent.frameInfo[0].index  = s1->frameInfo[0].index;
-    ent.frameInfo[0].time   = s1->frameInfo[0].time;
-    ent.frameInfo[0].weight = s1->frameInfo[0].weight;
-    ent.actionWeight        = 1.0;
+    ent.tiki            = cgi.R_Model_GetHandle(cgs.model_draw[s1->modelindex]);
+    ent.frameInfo[0]    = s1->frameInfo[0];
+    ent.actionWeight    = 1.0;
 
     // add to refresh list
     cgi.R_AddRefEntityToScene(&ent, ENTITYNUM_NONE);
