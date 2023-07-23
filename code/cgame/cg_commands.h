@@ -675,7 +675,7 @@ public:
     byte     modulate[4];
 };
 
-#define MAX_TEMPMODELS 1024
+#define MAX_TEMPMODELS 2048
 #define MAX_BEAMS      4096
 
 class ClientGameCommandManager : public Listener
