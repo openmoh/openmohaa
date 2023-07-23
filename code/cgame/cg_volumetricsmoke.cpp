@@ -38,7 +38,8 @@ const char *cg_vsstypes[] = {
     "grenade",
     "fire",
     "greasefire",
-    "debris"};
+    "debris"
+};
 
 cvssource_t *vss_sorttable[16384];
 
@@ -679,7 +680,7 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
         fRadius = 32.0;
     }
 
-    if (m_spawnthing->cgd.flags & 0x10) {
+    if (m_spawnthing->cgd.flags & T_CIRCLE) {
         fAngle     = 0.0;
         fAngleStep = 360.0 / (count / vss_maxcount->value);
     }
@@ -851,7 +852,7 @@ void ClientGameCommandManager::SpawnVSSSource(int count, int timealive)
         for (i = 0; i < 3; ++i) {
             float fVel = m_spawnthing->randvel_base[i] + random() * m_spawnthing->randvel_amplitude[i];
 
-            if (m_spawnthing->cgd.flags & 0x400000) {
+            if (m_spawnthing->cgd.flags & T_RANDVELAXIS) {
                 pSource->velocity += Vector(m_spawnthing->tag_axis[i]) * fVel;
             } else {
                 pSource->velocity[i] += fVel;
@@ -963,7 +964,7 @@ void VSS_CalcRepulsionForces(cvssource_t *pActiveSources)
                 i = 0;
             }
 
-            while (i < (bZDown ? 26 : 17)) {
+            for(; i < (bZDown ? 26 : 17); i++) {
                 switch (i) {
                 case 0:
                     iIndex = iMaxZ | (pCurrent->stindex & 0xFFFFFCC3);
@@ -1120,8 +1121,6 @@ void VSS_CalcRepulsionForces(cvssource_t *pActiveSources)
                 for (pComp = vss_sorttable[iIndex]; pComp; pComp = pComp->stnext) {
                     VSS_AddRepulsion(pCurrent, pComp);
                 }
-
-                i++;
             }
 
             if (pSTLatch == (cvssource_t *)-1) {
