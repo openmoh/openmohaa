@@ -581,9 +581,50 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 
 }
 
-int R_SphereInLeafs(vec_t* p, float r, mnode_t** nodes, int nMaxNodes) {
-	// FIXME: unimplemented
-	return 0;
+int R_SphereInLeafs(const vec3_t p, float r, mnode_t** nodes, int nMaxNodes) {
+	mnode_t* nodestack[1024];
+	int iNodeStackPos;
+	mnode_t* pCurNode;
+	int nFoundNodes;
+
+	iNodeStackPos = 0;
+	pCurNode = tr.world->nodes;
+	nFoundNodes = 0;
+
+	while (1)
+    {
+        cplane_t* plane;
+		float d;
+
+		while (pCurNode->contents == -1)
+		{
+			plane = pCurNode->plane;
+			if (plane->type >= PLANE_NON_AXIAL) {
+				d = DotProduct(p, plane->normal) - plane->dist;
+			} else {
+				d = p[plane->type] - plane->dist;
+			}
+
+            if (d < r) {
+                if (d > -r) {
+                    nodestack[iNodeStackPos++] = pCurNode->children[0];
+                }
+                pCurNode = pCurNode->children[1];
+            } else {
+                pCurNode = pCurNode->children[0];
+			}
+		}
+
+		nodes[nFoundNodes++] = pCurNode;
+		if (!iNodeStackPos || nFoundNodes == nMaxNodes) {
+			break;
+		}
+
+		iNodeStackPos--;
+        pCurNode = nodestack[iNodeStackPos];
+	}
+
+	return nFoundNodes;
 }
 /*
 ===============
