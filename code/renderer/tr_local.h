@@ -148,7 +148,7 @@ typedef struct {
         int value;
     } ambient;
     int numRealLights;
-    reallightinfo_t light[32];
+    reallightinfo_t light[MAX_REAL_LIGHTS];
     int bUsesCubeMap;
     float cubemap[24][3][4];
 } sphereor_t;
@@ -958,7 +958,7 @@ typedef struct cStaticModelUnpacked_s {
     int numVertexData;
     int visCount;
     dtiki_t* tiki;
-    sphere_dlight_t dlights[32];
+    sphere_dlight_t dlights[MAX_DLIGHTS];
     int numdlights;
     float radius;
     float cull_radius;
@@ -1869,7 +1869,7 @@ extern terrainVert_t* g_pVert;
 
 void R_AddBrushModelSurfaces( trRefEntity_t *e );
 void R_GetInlineModelBounds(int iIndex, vec3_t vMins, vec3_t vMaxs);
-int R_SphereInLeafs(vec_t* p, float r, mnode_t** nodes, int nMaxNodes);
+int R_SphereInLeafs(const vec3_t p, float r, mnode_t** nodes, int nMaxNodes);
 mnode_t* R_PointInLeaf(const vec3_t p);
 int R_DlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits);
 int R_CheckDlightTerrain(cTerraPatchUnpacked_t* surf, int dlightBits);

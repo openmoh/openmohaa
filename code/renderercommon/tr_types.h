@@ -24,7 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define __TR_TYPES_H
 
 
-#define	MAX_DLIGHTS		32		// can't be increased, because bit flags are used on surfaces
+#define	MAX_DLIGHTS			32		// can't be increased, because bit flags are used on surfaces
+#define MAX_REAL_LIGHTS		32
 
 #define	REFENTITYNUM_BITS	10		// can't be increased without changing drawsurf bit packing
 #define	REFENTITYNUM_MASK	((1<<REFENTITYNUM_BITS) - 1)
@@ -60,6 +61,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // refdef flags
 #define RDF_NOWORLDMODEL	0x0001		// used for player configuration screen
+#define RDF_HUD				0x0002
 #define RDF_HYPERSPACE		0x0004		// teleportation effect
 
 typedef struct {
