@@ -848,7 +848,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			}
 			else if (shader->needsLSpherical)
 			{
-				if ((tr.refdef.rdflags & 2) != 0)
+				if (tr.refdef.rdflags & RDF_HUD)
 				{
 					backEnd.currentSphere = &backEnd.hudSphere;
 					backEnd.hudSphere.TessFunction = 0;
