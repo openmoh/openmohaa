@@ -31,6 +31,8 @@ static qboolean bEntityOverbright;
 static int iEntityLightingMax;
 static int light_reference_count = 0;
 
+const float one_half_root = 0.70710678118654752440084436210485;
+const float one_third_root = 0.57735026918962576450914878050196;
 
 static vec3_t offsets[26] =
 {
@@ -40,26 +42,26 @@ static vec3_t offsets[26] =
 	{ 0.0, -1.0, 0.0 },
 	{ 0.0, 0.0, 1.0 },
 	{ 0.0, 0.0, -1.0 },
-	{ sqrt(0.5), sqrt(0.5), 0.0},
-	{ sqrt(0.5), -sqrt(0.5), 0.0 },
-	{ -sqrt(0.5), sqrt(0.5), 0.0 },
-	{ -sqrt(0.5), -sqrt(0.5), 0.0 },
-	{ sqrt(0.5), 0.0, sqrt(0.5) },
-	{ sqrt(0.5), 0.0, -sqrt(0.5) },
-	{ -sqrt(0.5), 0.0, sqrt(0.5) },
-	{ -sqrt(0.5), 0.0, -sqrt(0.5) },
-	{ 0.0, sqrt(0.5), sqrt(0.5) },
-	{ 0.0, sqrt(0.5), -sqrt(0.5) },
-	{ 0.0, -sqrt(0.5), sqrt(0.5) },
-	{ 0.0, -sqrt(0.5), -sqrt(0.5) },
-	{ sqrt(1.0 / 3.0), sqrt(1.0 / 3.0), sqrt(1.0 / 3.0) },
-	{ sqrt(1.0 / 3.0), sqrt(1.0 / 3.0), -sqrt(1.0 / 3.0) },
-	{ sqrt(1.0 / 3.0), -sqrt(1.0 / 3.0), sqrt(1.0 / 3.0) },
-	{ sqrt(1.0 / 3.0), -sqrt(1.0 / 3.0), -sqrt(1.0 / 3.0) },
-	{ -sqrt(1.0 / 3.0), sqrt(1.0 / 3.0), sqrt(1.0 / 3.0) },
-	{ -sqrt(1.0 / 3.0), sqrt(1.0 / 3.0), -sqrt(1.0 / 3.0) },
-	{ -sqrt(1.0 / 3.0), -sqrt(1.0 / 3.0), sqrt(1.0 / 3.0) },
-	{ -sqrt(1.0 / 3.0), -sqrt(1.0 / 3.0), -sqrt(1.0 / 3.0) }
+	{ one_half_root, one_half_root, 0.0},
+	{ one_half_root, -one_half_root, 0.0 },
+	{ -one_half_root, one_half_root, 0.0 },
+	{ -one_half_root, -one_half_root, 0.0 },
+	{ one_half_root, 0.0, one_half_root },
+	{ one_half_root, 0.0, -one_half_root },
+	{ -one_half_root, 0.0, one_half_root },
+	{ -one_half_root, 0.0, -one_half_root },
+	{ 0.0, one_half_root, one_half_root },
+	{ 0.0, one_half_root, -one_half_root },
+	{ 0.0, -one_half_root, one_half_root },
+	{ 0.0, -one_half_root, -one_half_root },
+	{ one_third_root, one_third_root, one_third_root },
+	{ one_third_root, one_third_root, -one_third_root },
+	{ one_third_root, -one_third_root, one_third_root },
+	{ one_third_root, -one_third_root, -one_third_root },
+	{ -one_third_root, one_third_root, one_third_root },
+	{ -one_third_root, one_third_root, -one_third_root },
+	{ -one_third_root, -one_third_root, one_third_root },
+	{ -one_third_root, -one_third_root, -one_third_root }
 };
 
 int compare_light_intensities(const void* p1, const void* p2)
