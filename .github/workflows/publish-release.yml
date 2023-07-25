@@ -18,6 +18,9 @@ jobs:
 
   deploy_all:
     strategy:
+      # Set the maximum number of parallel jobs to 1, to avoid a race-condition
+      # while creating a new release
+      max-parallel: 1
       matrix:
         target_os: [
           'linux-amd64',
