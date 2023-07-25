@@ -24,6 +24,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tr_local.h"
 
+typedef struct gatheredLight_s {
+	spherel_t* pLight;
+	float fIntensity;
+    gatheredLight_s* pPrev;
+    gatheredLight_s* pNext;
+} gatheredLight_t;
+
 vec3_t spheredef[6];
 suninfo_t s_sun;
 static vec3_t ambientlight;
@@ -31,8 +38,8 @@ static qboolean bEntityOverbright;
 static int iEntityLightingMax;
 static int light_reference_count = 0;
 
-const float one_half_root = 0.70710678118654752440084436210485;
-const float one_third_root = 0.57735026918962576450914878050196;
+const float one_half_root = 0.70710678118654752440084436210485f;
+const float one_third_root = 0.57735026918962576450914878050196f;
 
 static vec3_t offsets[26] =
 {
@@ -1065,7 +1072,6 @@ static void RB_Sphere_BuildStaticLights()
 					spherel_t* pLight = leaf->lights[i];
 					byte mask = backEnd.refdef.areamask[pLight->leaf->area >> 3];
 
-
 					if (!(mask & (1 << (pLight->leaf->area & 7))) && pLight->reference_count != light_reference_count) {
                         RB_Sphere_AddLight(pLight);
 						pLight->reference_count = light_reference_count;
@@ -1263,8 +1269,162 @@ void R_Sphere_InitLights()
 	}
 }
 
+static qboolean R_CheckAddLightToList(spherel_t* pLight, const vec3_t vPos, float* pfFalloff) {
+    vec3_t vDelta;
+
+    if (pLight->intensity < 0) {
+        return qfalse;
+    }
+
+	VectorSubtract(pLight->origin, vPos, vDelta);
+	*pfFalloff = pLight->intensity * 7500.0 / VectorLengthSquared(vDelta);
+
+	return *pfFalloff >= 5.0;
+}
+
+static void R_InsertLightIntoList(spherel_t* pLight, float fIntensity, gatheredLight_t** pLightsList) {
+	gatheredLight_t* pCurrLight;
+	gatheredLight_t* pLastLight;
+
+	if (pLightsList[0]->pPrev->fIntensity >= fIntensity) {
+		return;
+	}
+
+	if (fIntensity > pLightsList[0]->fIntensity) {
+		pLightsList[0] = pLightsList[0]->pPrev;
+		pLightsList[0]->pPrev->pLight = pLight;
+		pLightsList[0]->fIntensity = fIntensity;
+	}
+
+	pCurrLight = pLightsList[0]->pNext;
+	if (!pCurrLight) {
+		return;
+	}
+
+	while (pCurrLight->fIntensity >= fIntensity) {
+		pCurrLight = pCurrLight->pNext;
+		if (!pCurrLight) {
+			return;
+		}
+	}
+
+	pLastLight = pLightsList[0]->pPrev->pPrev;
+	pCurrLight->pPrev->pNext = pLightsList[0]->pPrev;
+	pLightsList[0]->pPrev->pPrev = pCurrLight->pPrev;
+	pLightsList[0]->pPrev->pNext = pCurrLight;
+	pCurrLight->pPrev = pLightsList[0]->pPrev;
+	pLastLight->pNext = pLightsList[0];
+	pLightsList[0]->pPrev = pLastLight;
+	pCurrLight = pCurrLight->pPrev;
+	pCurrLight->fIntensity = fIntensity;
+	pCurrLight->pLight = pLight;
+}
+
+#define MAX_GATHERED_LIGHTS 8
+
 int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights)
 {
-    // FIXME: unimplemented
-    return 0;
+	int i, j;
+	int iLightCount;
+	vec3_t vEnd;
+	vec3_t vDelta;
+	spherel_t* pCurrLight;
+	gatheredLight_t lights[MAX_GATHERED_LIGHTS];
+	gatheredLight_t* pLightsHead;
+	gatheredLight_t* pLightsCurr;
+	float fFalloff;
+	trace_t trace;
+	mnode_t* leaf;
+
+	fFalloff = 0;
+	leaf = NULL;
+
+	if (iMaxLights <= 0 || !r_drawspherelights->integer) {
+		return 0;
+	}
+
+    for (j = 0; j < 6; j++) {
+        lights[j].pNext = &lights[j + 2];
+		lights[j].pPrev = &lights[j];
+	}
+
+	lights[0].pNext = &lights[1];
+	lights[0].pPrev = &lights[MAX_GATHERED_LIGHTS - 1];
+	lights[MAX_GATHERED_LIGHTS - 1].pNext = &lights[0];
+	lights[MAX_GATHERED_LIGHTS - 1].pPrev = &lights[MAX_GATHERED_LIGHTS - 2];
+
+	if (tr.world->vis) {
+		leaf = R_PointInLeaf(vPos);
+		if (leaf->area == -1 || !leaf->numlights) {
+			leaf = NULL;
+		}
+	}
+
+	if (leaf) {
+		if (leaf->numlights) {
+			light_reference_count++;
+
+			for (i = (leaf->lights[0] == &tr.sSunLight ? 1 : 0); i < leaf->numlights; i++) {
+				pCurrLight = leaf->lights[i];
+				if (pCurrLight->leaf != (mnode_t*)-1) {
+					byte mask = backEnd.refdef.areamask[pCurrLight->leaf->area >> 3];
+
+					if (!(mask & (1 << (pCurrLight->leaf->area & 7))) && pCurrLight->reference_count != light_reference_count) {
+						if (R_CheckAddLightToList(pCurrLight, vPos, &fFalloff)) {
+							R_InsertLightIntoList(pCurrLight, fFalloff, &pLightsHead);
+						}
+
+						pCurrLight->reference_count = light_reference_count;
+					}
+				}
+			}
+		}
+	} else {
+		for (i = 0; i < tr.numSLights; i++) {
+			pCurrLight = &tr.sLights[i];
+
+			if (R_CheckAddLightToList(pCurrLight, vPos, &fFalloff)) {
+				R_InsertLightIntoList(pCurrLight, fFalloff, &pLightsHead);
+			}
+		}
+	}
+
+	iLightCount = 0;
+
+	if (s_sun.exists) {
+		if (leaf) {
+			if (leaf->lights[0] = &tr.sSunLight) {
+				VectorMA(vPos, 16384.0, s_sun.direction, vEnd);
+				ri.CM_BoxTrace(&trace, vPos, vEnd, vec3_origin, vec3_origin, 0, CONTENTS_SOLID, 0);
+
+				if (trace.surfaceFlags & SURF_SKY) {
+					VectorMA(vPos, 16384.0, s_sun.direction, pvLightPos[0]);
+					pvLightIntensity[0][0] = s_sun.color[0] * (1.0 / 510.0);
+					pvLightIntensity[0][1] = s_sun.color[1] * (1.0 / 510.0);
+					pvLightIntensity[0][2] = s_sun.color[2] * (1.0 / 510.0);
+					iLightCount = 1;
+				}
+			}
+		}
+	}
+
+	pLightsCurr = pLightsHead;
+
+	for (;
+		iLightCount < iMaxLights && pLightsCurr->pLight && pLightsCurr != pLightsHead;
+		iLightCount++, pLightsCurr = pLightsCurr->pNext) {
+		VectorCopy(pLightsCurr->pLight->origin, pvLightPos[iLightCount]);
+		vDelta[0] = pLightsCurr->fIntensity / 200.0 * pLightsCurr->pLight->color[0];
+		vDelta[1] = pLightsCurr->fIntensity / 200.0 * pLightsCurr->pLight->color[1];
+		vDelta[2] = pLightsCurr->fIntensity / 200.0 * pLightsCurr->pLight->color[2];
+	
+		if (vDelta[0] > 1.0 || vDelta[1] > 1.0 || vDelta[2] > 1.0) {
+			NormalizeColor(vDelta, vDelta);
+		}
+
+		VectorCopy(vDelta, pvLightIntensity[iLightCount]);
+		pLightsCurr = pLightsCurr->pNext;
+	}
+
+	return iLightCount;
 }
