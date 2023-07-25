@@ -266,6 +266,7 @@ typedef enum {
 #define	PMF_NO_GRAVITY			(1<<12)
 #define	PMF_NO_HUD				(1<<13)
 #define	PMF_UNKNOWN				(1<<14)
+#define	PMF_NO_LEAN				(1<<15)
 
 // moveposflags
 #define MPF_POSITION_STANDING	(1<<0)
@@ -293,6 +294,7 @@ typedef struct {
 	int			tracemask;			// collide against these types of surfaces
 	int			debugLevel;			// if set, diagnostic output will be printed
 	qboolean	noFootsteps;		// if the game is setup for no footsteps by the server
+	qboolean	alwaysAllowLean;
 
 	int			framecount;
 
@@ -551,6 +553,7 @@ extern const char *means_of_death_strings[];
 #define DF_FIXED_FOV          (1<<15)
 #define DF_NO_DROP_WEAPONS    (1<<16)
 #define DF_NO_FOOTSTEPS			(1<<17)
+#define DF_ALLOW_LEAN_MOVEMENT	(1<<18)
 
 #define DF_WEAPON_LANDMINE_ALWAYS		(1<<21)
 #define DF_WEAPON_NO_RIFLE				(1<<22)
