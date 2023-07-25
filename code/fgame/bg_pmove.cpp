@@ -1442,8 +1442,11 @@ void PmoveSingle( pmove_t *pmove )
 
 	pml.frametime = pml.msec * 0.001;
 
-	if( ( pm->cmd.buttons & ( BUTTON_LEAN_LEFT | BUTTON_LEAN_RIGHT ) &&
-		( pm->cmd.buttons & ( BUTTON_LEAN_LEFT | BUTTON_LEAN_RIGHT ) ) != ( BUTTON_LEAN_LEFT | BUTTON_LEAN_RIGHT ) ) )
+    if ((pm->cmd.buttons & (BUTTON_LEAN_LEFT | BUTTON_LEAN_RIGHT) &&
+        (pm->cmd.buttons & (BUTTON_LEAN_LEFT | BUTTON_LEAN_RIGHT)) != (BUTTON_LEAN_LEFT | BUTTON_LEAN_RIGHT)) &&
+        (!pm->cmd.forwardmove || pm->alwaysAllowLean) &&
+        (!pm->cmd.rightmove || pm->alwaysAllowLean) &&
+        (!pm->cmd.upmove || pm->alwaysAllowLean))
 	{
 		if( pm->cmd.buttons & BUTTON_LEAN_LEFT )
 		{
@@ -1515,6 +1518,10 @@ void PmoveSingle( pmove_t *pmove )
 		}
 	}
 
+	if (pm->ps->pm_flags & PMF_NO_LEAN) {
+		pm->ps->fLeanAngle = 0;
+	}
+
 	// update the viewangles
 	PM_UpdateViewAngles( pm->ps, &pm->cmd );
 
@@ -1540,6 +1547,7 @@ void PmoveSingle( pmove_t *pmove )
 
 	if( ( pm->ps->pm_flags & PMF_NO_MOVE ) || ( pm->ps->pm_flags & PMF_FROZEN ) )
 	{
+		PM_CheckDuck();
 		return;
 	}
 
