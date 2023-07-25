@@ -1986,9 +1986,25 @@ void R_LoadLightGrid(gamelump_t* plPal, gamelump_t* plOffsets, gamelump_t* plDat
 		return;
 	}
 
-	w->lightGridSize[0] = 32.0;
-	w->lightGridSize[1] = 32.0;
-	w->lightGridSize[2] = 32.0;
+	switch (map_version)
+	{
+    case 21:
+        w->lightGridSize[0] = 80.0;
+        w->lightGridSize[1] = 80.0;
+        w->lightGridSize[2] = 80.0;
+		break;
+    case 20:
+        w->lightGridSize[0] = 48.0;
+        w->lightGridSize[1] = 48.0;
+        w->lightGridSize[2] = 64.0;
+		break;
+    default:
+        w->lightGridSize[0] = 32.0;
+        w->lightGridSize[1] = 32.0;
+        w->lightGridSize[2] = 32.0;
+		break;
+	}
+
 	w->lightGridOOSize[0] = 1.0f / w->lightGridSize[0];
 	w->lightGridOOSize[1] = 1.0f / w->lightGridSize[1];
 	w->lightGridOOSize[2] = 1.0f / w->lightGridSize[2];
