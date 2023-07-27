@@ -33,6 +33,7 @@ Fax(714)549-0757
 	#include "../darray.h"
 	#include "../hashtable.h"
 #endif
+#include "common/gsPlatformSocket.h"
 #include "gutil.h"
 #ifndef UNDER_CE
 #include <assert.h>
@@ -243,7 +244,7 @@ static GError SendListRequest(GServerList serverlist, char *filter)
 
 	
 	len = recv(serverlist->slsocket, data, sizeof(data) - 1, 0);
-	if (len == SOCKET_ERROR)
+	if (gsiSocketIsError(len))
 		return GE_NOCONNECT;
 	data[len] = '\0'; //null terminate it
 	
@@ -259,7 +260,7 @@ static GError SendListRequest(GServerList serverlist, char *filter)
 			serverlist->enginename, ENGINE_VERSION, result); //validate us		
 	
 	len = send ( serverlist->slsocket, data, strlen(data), 0 );
-	if (len == SOCKET_ERROR || len == 0)
+	if (gsiSocketIsError(len) || len == 0)
 		return GE_NOCONNECT;
 
 	//send the list request
@@ -268,7 +269,7 @@ static GError SendListRequest(GServerList serverlist, char *filter)
 	else
 		sprintf(data, "\\list\\cmp\\gamename\\%s\\final\\", serverlist->gamename);
 	len = send ( serverlist->slsocket, data, strlen(data), 0 );
-	if (len == SOCKET_ERROR || len == 0)
+	if (gsiSocketIsError(len) || len == 0)
 		return GE_NOCONNECT;
 
 	ServerListModeChange(serverlist, sl_listxfer);
@@ -524,10 +525,10 @@ static GError ServerListLANList(GServerList serverlist)
 		FD_ZERO(&set);
 		FD_SET( serverlist->slsocket, &set);
 		error = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
-		if (SOCKET_ERROR == error || 0 == error) //no data
+		if (gsiSocketIsError(error) || 0 == error) //no data
 			break;
 		error = recvfrom(serverlist->slsocket, indata, sizeof(indata) - 1, 0, (struct sockaddr *)&saddr, &saddrlen );
-		if (SOCKET_ERROR == error)
+		if (gsiSocketIsError(error))
 			continue; 
 		//we got data, add the server to the list to update
 		if (strstr(indata,"\\final\\") != NULL)
@@ -565,7 +566,7 @@ static GError ServerListReadList(GServerList serverlist)
 
 //append to data
 	len = recv(serverlist->slsocket, data + oldlen, sizeof(data) - oldlen - 1, 0);
-	if (len == SOCKET_ERROR || len == 0)
+	if (gsiSocketIsError(len) || len == 0)
 	{
 		closesocket(serverlist->slsocket);
 		serverlist->slsocket = INVALID_SOCKET;
@@ -627,7 +628,7 @@ static GError ServerListQueryLoop(GServerList serverlist)
 	{
 
 		error = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
-		if (SOCKET_ERROR != error && 0 != error)
+		if (!gsiSocketIsError(error) && 0 != error)
 			for (i = 0 ; i < serverlist->maxupdates ; i++)
 				if (serverlist->updatelist[i].currentserver != NULL && FD_ISSET(serverlist->updatelist[i].s, &set) ) //there is a server waiting
 				{ //we can read data!!
@@ -638,7 +639,7 @@ static GError ServerListQueryLoop(GServerList serverlist)
 							saddr.sin_port != serverlist->updatelist[i].saddr.sin_port)
 						continue; //it wasn't from this server
 
-					if (SOCKET_ERROR != error) //we got data
+					if (!gsiSocketIsError(error)) //we got data
 					{
 						indata[error] = 0; //truncate and parse it
 						final = (strstr(indata,"\\final\\") != NULL);

@@ -126,7 +126,7 @@ static char *LookupKey(GServer server, char *k)
 	keyindex = (char **)TableLookup(server->keylist,&k);
 	if (keyindex != NULL)
 		return *keyindex;
-	k = _strdup(k);
+	k = strdup(k);
 	TableEnter(server->keylist,&k);
 	return k;
 }
