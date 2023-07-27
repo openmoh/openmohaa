@@ -20,10 +20,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UILISTBOX_H__
-#define __UILISTBOX_H__
+#pragma once
 
 extern Event EV_Layout_AddListItem;
+extern Event EV_UIListBase_ItemDoubleClicked;
+extern Event EV_UIListBase_ItemSelected;
 
 class UIListBase : public UIWidget {
 protected:
@@ -93,5 +94,3 @@ public:
 	void			DeleteAllItems( void ) override;
 	void			DeleteItem( int which ) override;
 };
-
-#endif /* __UILISTBOX_H__ */
