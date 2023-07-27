@@ -6,6 +6,8 @@ include_directories("./gcdkey")
 file(GLOB SRCS_common
 	"./common/*.c"
     "./darray.c"
+    "./gserver.c"
+    "./gserverlist.c"
 	"./hashtable.c"
 	"./md5c.c"
 	"./gutil.c"
