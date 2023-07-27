@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class UIFAKKServerList : public UIListCtrl {
 protected:
 	// need a new struct instead of gamespy
-	void *m_serverList;
+	struct GServerListImplementation *m_serverList;
 	bool m_bHasList;
 	bool m_bLANListing;
 
