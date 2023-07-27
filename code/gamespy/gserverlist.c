@@ -444,7 +444,7 @@ void ServerListRemoveServer(GServerList serverlist, char *ip, int port)
 -------------------
 Adds an auxilliary (non-fetched) server to the update list.
 If the engine is idle, the server is added and the engine started. */
-GError ServerListAuxUpdate(GServerList serverlist, char *ip, int port, gbool async, GQueryType querytype)
+GError ServerListAuxUpdate(GServerList serverlist, const char *ip, int port, gbool async, GQueryType querytype)
 {
 	GError error;
 	int currentindex;

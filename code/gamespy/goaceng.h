@@ -192,7 +192,7 @@ ServerListHalt has been called (from another thread or from the progress callbac
 If async = true, the function will return immediately, but you must call ServerListThink 
 every ~10ms for list processing and querying to occur. Note that async has no effect
 if an update is in progress. */
-GError ServerListAuxUpdate(GServerList serverlist, char *ip, int port, gbool async, GQueryType querytype);
+GError ServerListAuxUpdate(GServerList serverlist, const char *ip, int port, gbool async, GQueryType querytype);
 
 /* ServerListRemoveServer
 -------------------------
