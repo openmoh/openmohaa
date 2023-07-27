@@ -29,7 +29,18 @@ CLASS_DECLARATION( UIListCtrl, UIFAKKServerList, NULL )
 
 UIFAKKServerList::UIFAKKServerList()
 {
-	// FIXME: stub
+	setBackgroundColor(UWhite, true);
+    Connect(this, EV_UIListBase_ItemDoubleClicked, EV_UIListBase_ItemDoubleClicked);
+    Connect(this, EV_UIListBase_ItemSelected, EV_UIListBase_ItemSelected);
+
+	AllowActivate(true);
+	setHeaderFont("facfont-20");
+	m_serverList = NULL;
+	m_bHasList = false;
+	m_bGettingList = false;
+	m_bUpdatingList = false;
+	m_bLANListing = false;
+	m_iLastSortColumn = 2;
 }
 
 void UIFAKKServerList::SelectServer( Event *ev )

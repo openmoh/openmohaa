@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __CL_UISERVERLIST_H__
-#define __CL_UISERVERLIST_H__
+#pragma once
 
 class UIFAKKServerList : public UIListCtrl {
 protected:
@@ -54,5 +53,3 @@ public:
 	void		Draw( void ) override;
 	void		SortByColumn( int column ) override;
 };
-
-#endif /* __CL_UISERVERLIST_H__ */
