@@ -591,7 +591,8 @@ void	Cvar_SetValue( const char *var_name, float value );
 
 cvar_t	*Cvar_FindVar( const char *var_name );
 float	Cvar_VariableValue( const char *var_name );
-int		Cvar_VariableIntegerValue( const char *var_name );
+int		Cvar_VariableIntegerValue(const char* var_name);
+float	Cvar_VariableFloatValue(const char* var_name);
 // returns 0 if not defined or non numeric
 
 char	*Cvar_VariableString( const char *var_name );

@@ -1698,3 +1698,18 @@ void Cvar_SaveGameRestart_f( void ) {
 	SV_ClearSvsTimeFixups();
 #endif
 }
+
+/*
+============
+Cvar_VariableFloatValue
+============
+*/
+float Cvar_VariableFloatValue(const char* var_name)
+{
+    cvar_t* var;
+
+    var = Cvar_FindVar(var_name);
+    if (!var)
+        return 0;
+    return var->value;
+}
