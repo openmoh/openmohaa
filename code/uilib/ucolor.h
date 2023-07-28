@@ -31,7 +31,7 @@ public:
 	float a;
 
 	UColor();
-	UColor( float r, float g, float b, float a );
+	UColor( float r, float g, float b, float a = 1.0 );
 	UColor( class UColorHSV hsv );
 
 	operator float *( );
