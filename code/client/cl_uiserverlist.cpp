@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_ui.h"
 #include "../gamespy/goaceng.h"
 #include "../gamespy/sv_gamespy.h"
+#include "../gamespy/common/gsPlatformSocket.h"
 
 class FAKKServerListItem : public UIListCtrlItem {
     str m_strings[6];
@@ -70,6 +71,14 @@ qboolean g_NeedAdditionalLANSearch = qfalse;
 
 FAKKServerListItem::FAKKServerListItem(str string1, str string2, str string3, str string4, str string5, str string6, str ver)
 {
+    m_strings[0] = string1;
+    m_strings[1] = string2;
+    m_strings[2] = string3;
+    m_strings[3] = string4;
+    m_strings[4] = string5;
+    m_strings[5] = string6;
+    m_sVersion = ver;
+
     m_bFavorite = false;
     m_bQueryDone = false;
     m_bQueryFailed = false;
@@ -305,18 +314,135 @@ void UIFAKKServerList::SelectServer( Event *ev )
 
 void UIFAKKServerList::ConnectServer( Event *ev )
 {
-	// FIXME: unimplemented
+    const FAKKServerListItem* pItem;
+
+    if (getCurrentItem() <= 0) {
+        return;
+    }
+
+    pItem = static_cast<const FAKKServerListItem*>(GetItem(getCurrentItem()));
+    if (pItem->IsDifferentVersion()) {
+        const char* message;
+        float neededVersion = com_target_version->value;
+        float serverVersion = atof(pItem->GetListItemVersion().c_str());
+
+        // Tolerate patch version
+        if (fabs(neededVersion - serverVersion) >= 0.1) {
+            UI_SetReturnMenuToCurrent();
+
+            message = va("Server is version %s, you are targeting %s", pItem->GetListItemVersion().c_str(), com_target_version->string);
+            Cvar_Set("com_errormessage", message);
+
+            UI_PushMenu("wrongversion");
+        } else {
+            message = va("Can not connect to v%s server, you are targeting v%s", pItem->GetListItemVersion().c_str(), com_target_version->string);
+        
+            Cvar_Set("dm_serverstatus", message);
+        }
+    } else {
+        char cmdString[256];
+
+        UI_SetReturnMenuToCurrent();
+
+        Com_sprintf(cmdString, sizeof(cmdString), "connect %s\n", pItem->getListItemString(1).c_str());
+        Cbuf_AddText(cmdString);
+        ServerListHalt(m_serverList);
+    }
 }
 
 qboolean UIFAKKServerList::KeyEvent( int key, unsigned int time )
 {
-	// FIXME: unimplemented
-	return qfalse;
+    switch (key)
+    {
+    case K_ENTER:
+    case K_KP_ENTER:
+        ConnectServer(NULL);
+        return qtrue;
+    case K_UPARROW:
+        if (getCurrentItem() > 1) {
+            TrySelectItem(getCurrentItem() - 1);
+            SelectServer(NULL);
+
+            return qtrue;
+        } else {
+            return qfalse;
+        }
+        break;
+    case K_DOWNARROW:
+        if (getCurrentItem() < getNumItems()) {
+            TrySelectItem(getCurrentItem() + 1);
+            SelectServer(NULL);
+
+            return qtrue;
+        }
+        else {
+            return qfalse;
+        }
+        break;
+    case 'u':
+    case 'U':
+        if (getCurrentItem() > 0)
+        {
+            const FAKKServerListItem* pItem = static_cast<const FAKKServerListItem*>(GetItem(getCurrentItem()));
+            ServerListAuxUpdate(m_serverList, pItem->m_sIP.c_str(), pItem->m_iGameSpyPort, true, GQueryType::qt_status);
+        }
+        return UIListCtrl::KeyEvent(key, time);
+    case 'c':
+    case 'C':
+        ServerListHalt(m_serverList);
+        return qtrue;
+    case 'i':
+    case 'I':
+        {
+            int i, j;
+            const FAKKServerListItem* pServerItem1;
+            const FAKKServerListItem* pServerItem2;
+            int iNumErrors = 0;
+
+            for (i = 1; i <= getNumItems(); i++) {
+                pServerItem1 = static_cast<const FAKKServerListItem*>(GetItem(i));
+
+                for (j = i + 1; j <= getNumItems(); j++) {
+                    pServerItem2 = static_cast<const FAKKServerListItem*>(GetItem(j));
+
+                    if (!str::icmp(pServerItem1->m_sIP.c_str(), pServerItem2->m_sIP.c_str())) {
+                        if (pServerItem1->m_iPort == pServerItem2->m_iPort) {
+                            Com_DPrintf("*#*#* Duplicate server address: %s:%i\n", pServerItem1->m_sIP.c_str(), pServerItem1->m_iPort);
+                            iNumErrors++;
+                        }
+
+                        if (pServerItem1->m_iGameSpyPort == pServerItem2->m_iGameSpyPort) {
+                            Com_DPrintf("*#*#* servers at IP %s sharing GameSpy port %i\n", pServerItem1->m_sIP.c_str(), pServerItem1->m_iGameSpyPort);
+                            iNumErrors++;
+                        }
+                    }
+                }
+            }
+
+            Com_DPrintf("*#*#* %i problems detected\n", iNumErrors);
+        }
+        return qtrue;
+    default:
+        return UIListCtrl::KeyEvent(key, time);
+    }
 }
 
 void UIFAKKServerList::UpdateUIElement( void )
 {
-	// FIXME: unimplemented
+    float width;
+
+    RemoveAllColumns();
+
+    width = getClientFrame().size.width;
+
+    AddColumn("Server Name", 0, width * 0.31f, false, false);
+    AddColumn("Map", 5, width * 0.135f, false, false);
+    AddColumn("Players", 3, width * 0.085f, true, true);
+    AddColumn("Gametype", 4, width * 0.18f, false, false);
+    AddColumn("Ping", 2, width * 0.05f, true, false);
+    AddColumn("IP", 1, width * 0.23f, false, false);
+
+    uWinMan.ActivateControl(this);
 }
 
 void UIFAKKServerList::RefreshServerList( Event *ev )
@@ -394,7 +520,7 @@ void UIFAKKServerList::NewServerList( void )
         game_name,
         secret_key,
         iNumConcurrent,
-        &UpdateServerListCallBack,
+        (void*)&UpdateServerListCallBack,
         1,
         (void*)this
     );
@@ -527,7 +653,43 @@ int UIFAKKServerList::ServerCompareFunction( const UIListCtrlItem *i1, const UIL
 
 void UIFAKKServerList::Draw( void )
 {
-	// FIXME: unimplemented
+    if (!m_serverList)
+    {
+        GServerListState listState;
+
+        ServerListThink(m_serverList);
+
+        listState = ServerListState(m_serverList);
+        if (listState != GServerListState::sl_idle)
+        {
+            menuManager.PassEventToWidget("refresh", new Event(EV_Widget_Disable));
+            menuManager.PassEventToWidget("cancelrefresh", new Event(EV_Widget_Enable));
+        }
+        else
+        {
+            menuManager.PassEventToWidget("refresh", new Event(EV_Widget_Enable));
+            menuManager.PassEventToWidget("cancelrefresh", new Event(EV_Widget_Disable));
+        }
+    }
+    else
+    {
+        if (m_bHasList) {
+            UIListCtrl::Draw();
+            return;
+        }
+
+        if (m_bLANListing) {
+            RefreshLANServerList(NULL);
+        }
+        else {
+            RefreshServerList(NULL);
+        }
+
+        m_bHasList = true;
+
+        menuManager.PassEventToWidget("refresh", new Event(EV_Widget_Enable));
+        menuManager.PassEventToWidget("cancelrefresh", new Event(EV_Widget_Disable));
+    }
 }
 
 void UIFAKKServerList::SortByColumn( int column )
@@ -588,5 +750,186 @@ void UIFAKKServerList::SortByColumn( int column )
 
 void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, void* param1, void* param2)
 {
-    // FIXME: unimplemented
+    int i, j;
+    int iPort, iGameSpyPort;
+    unsigned int iRealIP;
+    str sAddress;
+    GServer server;
+    FAKKServerListItem* pNewServerItem;
+    static int iServerQueryCount = 0;
+    UIFAKKServerList* uiServerList = (UIFAKKServerList*)instance;
+
+    pNewServerItem = NULL;
+    server = (GServer)param1;
+
+    if (param2)
+    {
+        if (msg == 2 && param2 == (void*)-1) {
+            iRealIP = inet_addr(ServerGetAddress(server));
+            ServerGetIntValue(server, "hostport", PORT_SERVER);
+            iGameSpyPort = ServerGetQueryPort(server);
+
+            for (i = 1; i <= uiServerList->getNumItems(); i++) {
+                pNewServerItem = static_cast<FAKKServerListItem*>(uiServerList->GetItem(i));
+                if (pNewServerItem->m_uiRealIP == iRealIP && pNewServerItem->m_iGameSpyPort == iGameSpyPort) {
+                    break;
+                }
+            }
+
+            if (i <= uiServerList->getNumItems() && pNewServerItem) {
+                pNewServerItem->SetQueryFailed(true);
+            }
+
+            return;
+        }
+
+        Cvar_Set("dm_serverstatusbar", va("%i", param2));
+    }
+
+    if (msg == 2)
+    {
+        const char* pszHostName;
+        bool bDiffVersion;
+        str sServerName;
+        str sPlayers;
+        const char* pszGameVer;
+
+        pszHostName = ServerGetStringValue(server, "hostname", "(NONE)");
+        bDiffVersion = false;
+        pszGameVer = ServerGetStringValue(server, "gamever", "1.00");
+        if (fabs(atof(pszGameVer) - com_target_version->value) > 0.1f) {
+            bDiffVersion = true;
+            sServerName = va(" (%s) %s", pszGameVer, pszHostName);
+        } else {
+            if (!Q_stricmp(pszGameVer, com_target_version->string)) {
+                sServerName = pszHostName;
+            } else {
+                sServerName = va(" (%s) %s", pszGameVer, pszHostName);
+            }
+        }
+
+        iRealIP = inet_addr(ServerGetAddress(server));
+        iPort = ServerGetIntValue(server, "hostport", PORT_SERVER);
+        iGameSpyPort = ServerGetQueryPort(server);
+        sAddress = va("%s:%i", ServerGetAddress(server), iPort);
+        sPlayers = va("%d/%d", ServerGetIntValue(server, "maxplayers", 0), ServerGetIntValue(server, "numplayers", 0));
+        
+        for (i = 1; i <= uiServerList->getNumItems(); i++) {
+            pNewServerItem = static_cast<FAKKServerListItem*>(uiServerList->GetItem(i));
+            if (pNewServerItem->m_uiRealIP == iRealIP && pNewServerItem->m_iGameSpyPort == iGameSpyPort) {
+                break;
+            }
+        }
+
+        if (i > uiServerList->getNumItems() || !pNewServerItem) {
+            pNewServerItem = new FAKKServerListItem("?", sAddress, "?", "?/?", "?", "?", "?");
+            pNewServerItem->m_sIP = ServerGetAddress(server);
+            pNewServerItem->m_uiRealIP = iRealIP;
+            pNewServerItem->m_iGameSpyPort = iGameSpyPort;
+
+            uiServerList->AddItem(pNewServerItem);
+        }
+
+        pNewServerItem->m_iPort = iPort;
+
+        pNewServerItem->setListItemString(0, sServerName);
+        pNewServerItem->setListItemString(1, sAddress);
+        pNewServerItem->setListItemString(2, va("%d", ServerGetPing(server)));
+        pNewServerItem->setListItemString(3, sPlayers.c_str());
+        pNewServerItem->setListItemString(4, ServerGetStringValue(server, "gametype", "(NONE)"));
+        pNewServerItem->setListItemString(5, ServerGetStringValue(server, "mapname", "(NONE)"));
+        pNewServerItem->SetListItemVersion(pszGameVer);
+        pNewServerItem->SetNumPlayers(ServerGetIntValue(server, "numplayers", 0));
+
+        iServerQueryCount++;
+        Cvar_Set("dm_servercount", va("%d/%d", iServerQueryCount, uiServerList->getNumItems()));
+
+        uiServerList->SortByLastSortColumn();
+    }
+    else if (msg == 1)
+    {
+        switch (ServerListState(serverlist))
+        {
+        case GServerListState::sl_idle:
+            Cvar_Set("dm_serverstatus", "Done Updating.");
+            Cvar_Set("dm_serverstatusbar", "0");
+            uiServerList->m_bUpdatingList = false;
+            Cvar_Set("dm_servercount", va("%d", uiServerList->getNumItems()));
+            uiServerList->SortByLastSortColumn();
+            break;
+        case GServerListState::sl_listxfer:
+            Cvar_Set("dm_serverstatus", "Getting List.");
+            uiServerList->m_bGettingList = true;
+            uiServerList->m_bUpdatingList = true;
+            iServerQueryCount = 0;
+            return;
+        case GServerListState::sl_lanlist:
+            Cvar_Set("dm_serverstatus", "Searching LAN.");
+            uiServerList->m_bUpdatingList = true;
+            break;
+        case GServerListState::sl_querying:
+            Cvar_Set("dm_serverstatus", "Querying Servers.");
+            uiServerList->m_bUpdatingList = true;
+            iServerQueryCount = 0;
+            break;
+        default:
+            break;
+        }
+
+        if (!uiServerList->m_bGettingList) {
+            return;
+        }
+
+        for (j = 0; j < ServerListCount(serverlist); j++) {
+            GServer arrayServer = ServerListGetServer(serverlist, j);
+        
+            iRealIP = inet_addr(ServerGetAddress(arrayServer));
+            iGameSpyPort = ServerGetQueryPort(arrayServer);
+
+            for (i = 1; i <= uiServerList->getNumItems(); i++) {
+                pNewServerItem = static_cast<FAKKServerListItem*>(uiServerList->GetItem(i));
+                if (pNewServerItem->m_uiRealIP == iRealIP && pNewServerItem->m_iGameSpyPort == iGameSpyPort) {
+                    break;
+                }
+            }
+
+            if (i <= uiServerList->getNumItems() && pNewServerItem) {
+                continue;
+            }
+
+            pNewServerItem = new FAKKServerListItem("?", sAddress, "?", "?/?", "?", "?", "?");
+            pNewServerItem->m_uiRealIP = iRealIP;
+            pNewServerItem->m_iPort = PORT_SERVER;
+            pNewServerItem->m_iGameSpyPort = iGameSpyPort;
+            pNewServerItem->SetDifferentVersion(false);
+            pNewServerItem->SetQueried(false);
+            pNewServerItem->SetNumPlayers(0);
+
+            uiServerList->AddItem(pNewServerItem);
+        }
+
+        for (i = 0; i <= uiServerList->getNumItems(); i++)
+        {
+            pNewServerItem = static_cast<FAKKServerListItem*>(uiServerList->GetItem(i));
+
+            if (!pNewServerItem->IsFavorite())
+            {
+                for (j = 0; j < ServerListCount(serverlist); j++) {
+                    GServer arrayServer = ServerListGetServer(serverlist, j);
+
+                    iRealIP = inet_addr(ServerGetAddress(arrayServer));
+                    iGameSpyPort = ServerGetQueryPort(arrayServer);
+
+                    if (pNewServerItem->m_uiRealIP == iRealIP && pNewServerItem->m_iGameSpyPort == iGameSpyPort) {
+                        break;
+                    }
+                }
+
+                if (j == ServerListCount(serverlist)) {
+                    uiServerList->DeleteItem(i);
+                    i--;
+                }
+            }
+        }
+    }
 }
