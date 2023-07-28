@@ -104,7 +104,7 @@ static int KeyValHashKeyA(const void *elem, int numbuckets);
 /* ServerListNew
 ----------------
 Creates and returns a new (empty) GServerList. */
-GServerList	ServerListNew(char *gamename, char *enginename, char *seckey, int maxconcupdates, void *CallBackFn, int CallBackFnType, void *instance)
+GServerList	ServerListNew(const char *gamename, const char *enginename, const char *seckey, int maxconcupdates, void *CallBackFn, int CallBackFnType, void *instance)
 {
 	GServerList list;
 

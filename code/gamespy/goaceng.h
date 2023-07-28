@@ -122,7 +122,7 @@ maxconcupdates - max number of concurent updates (10-15 for modem users, 20-30 f
 CallBackFn - The function or handle used for progress updates
 CallBackFnType - The type of the CallBackFn parameter (from the #define list above)
 instance - user-defined instance data (e.g. structure or object pointer) */
-GServerList	ServerListNew(char *gamename,char *enginename, char *seckey, int maxconcupdates, void *CallBackFn, int CallBackFnType, void *instance);
+GServerList	ServerListNew(const char *gamename, const char *enginename, const char *seckey, int maxconcupdates, void *CallBackFn, int CallBackFnType, void *instance);
 
 /* ServerListFree
 -----------------
