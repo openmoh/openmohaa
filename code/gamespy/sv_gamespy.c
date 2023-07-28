@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../server/server.h"
 #include "sv_gqueryreporting.h"
+#include "sv_gamespy.h"
 
 #include "gcdkey/gcdkeys.h"
 
@@ -47,16 +48,40 @@ void qr_process_queries(qr_t qrec);
 
 int qr_init(
     qr_t              *qrec,
-    char              *ip,
+    const char         *ip,
     int                baseport,
-    char              *gamename,
-    char              *secret_key,
+    const char         *gamename,
+    const char         *secret_key,
     qr_querycallback_t qr_basic_callback,
     qr_querycallback_t qr_info_callback,
     qr_querycallback_t qr_rules_callback,
     qr_querycallback_t qr_players_callback,
     void              *userdata
 );
+
+const char* GS_GetGameKey(unsigned int index) {
+    return SECRET_GS_KEYS[index];
+}
+
+const char* GS_GetCurrentGameKey() {
+    return GS_GetGameKey(com_target_game->integer);
+}
+
+unsigned int GS_GetGameID(unsigned int index) {
+    return GCD_GAME_IDS[index];
+}
+
+unsigned int GS_GetCurrentGameID() {
+    return GS_GetGameID(com_target_game->integer);
+}
+
+const char* GS_GetGameName(unsigned int index) {
+    return GS_GAME_NAME[index];
+}
+
+const char* GS_GetCurrentGameName() {
+    return GS_GetGameName(com_target_game->integer);
+}
 
 static const char *ConvertMapFilename(const char *mapname)
 {
