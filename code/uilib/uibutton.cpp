@@ -50,6 +50,15 @@ Event W_Button_HoverCommand
 	"Set the command to execute when this button is hovered over"
 );
 
+Event W_Button_MouseAwayCommand
+(
+    "mouseawaycommand",
+    EV_DEFAULT,
+    "s",
+    "string",
+    "Set the command to execute when the mouse exits this button"
+);
+
 CLASS_DECLARATION( UIWidget, UIButtonBase, NULL )
 {
 	{ &W_LeftMouseDown,				&UIButtonBase::Pressed },
@@ -59,6 +68,7 @@ CLASS_DECLARATION( UIWidget, UIButtonBase, NULL )
 	{ &W_MouseExited,				&UIButtonBase::MouseExited },
 	{ &W_Button_HoverSound,			&UIButtonBase::SetHoverSound },
 	{ &W_Button_HoverCommand,		&UIButtonBase::SetHoverCommand },
+	{ &W_Button_MouseAwayCommand,	&UIButtonBase::SetMouseExitedCommand },
 	{ NULL, NULL }
 };
 
@@ -147,7 +157,12 @@ void UIButtonBase::MouseExited
 	)
 
 {
-	// Does nothing
+	SetHovermaterialActive(false);
+
+	if (m_mouseExitedCommand.length()) {
+        str stuff = m_mouseExitedCommand + "\n";
+        uii.Cmd_Stuff(stuff.c_str());
+	}
 }
 
 void UIButtonBase::Dragged
@@ -156,7 +171,7 @@ void UIButtonBase::Dragged
 	)
 
 {
-	m_hovermaterial_active = getClientFrame().contains(MouseEventToClientPoint(ev));
+	SetHovermaterialActive(getClientFrame().contains(MouseEventToClientPoint(ev)));
 }
 
 void UIButtonBase::SetHoverSound
@@ -175,6 +190,11 @@ void UIButtonBase::SetHoverCommand
 
 {
 	m_hoverCommand = ev->GetString(1);
+}
+
+void UIButtonBase::SetMouseExitedCommand(Event* ev)
+{
+	m_mouseExitedCommand = ev->GetString(1);
 }
 
 void UIButtonBase::Action
