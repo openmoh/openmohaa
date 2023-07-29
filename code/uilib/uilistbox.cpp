@@ -41,7 +41,52 @@ void UIListBase::TrySelectItem
 	)
 
 {
-	// FIXME: stub
+	int numitems;
+
+	numitems = getNumItems();
+	if (!numitems) {
+		m_currentItem = 0;
+		return;
+	}
+
+	if (m_currentItem != which)
+	{
+		int previous = m_currentItem;
+
+		m_currentItem = which;
+		if (which > numitems) {
+			m_currentItem = numitems;
+		}
+
+		if (m_currentItem <= 0) {
+			m_currentItem = 1;
+		}
+
+		if (previous != m_currentItem) {
+			Event ev(EV_UIListBase_ItemSelected);
+			ev.AddInteger(m_currentItem);
+			SendSignal(ev);
+		}
+	}
+
+	if (m_vertscroll)
+	{
+		if (m_currentItem < m_vertscroll->getTopItem() + 1) {
+			if (m_currentItem - 1 >= 0) {
+				m_vertscroll->setTopItem(m_currentItem - 1);
+			} else {
+				m_vertscroll->setTopItem(0);
+			}
+		}
+
+		if (m_currentItem >= m_vertscroll->getTopItem() + m_vertscroll->getPageHeight() + 1) {
+			if (m_currentItem - m_vertscroll->getPageHeight() >= 0) {
+                m_vertscroll->setTopItem(m_currentItem - m_vertscroll->getPageHeight());
+			} else {
+				m_vertscroll->setTopItem(0);
+			}
+		}
+	}
 }
 
 qboolean UIListBase::KeyEvent
@@ -51,8 +96,77 @@ qboolean UIListBase::KeyEvent
 	)
 
 {
-	// FIXME: stub
-	return qfalse;
+	int offsetitem;
+	qboolean key_rec;
+	int itemindex;
+
+	offsetitem = 0;
+	key_rec = qfalse;
+
+	switch (key)
+	{
+	case K_UPARROW:
+	case K_LEFTARROW:
+        offsetitem = -1;
+        key_rec = qtrue;
+		break;
+	case K_DOWNARROW:
+	case K_RIGHTARROW:
+        offsetitem = 1;
+        key_rec = qtrue;
+		break;
+	case K_PGDN:
+		if (GetScrollBar())
+		{
+			itemindex = GetScrollBar()->getTopItem() + GetScrollBar()->getPageHeight();
+			if (getCurrentItem() == itemindex) {
+                offsetitem = GetScrollBar()->getPageHeight();
+			} else {
+				TrySelectItem(itemindex);
+			}
+        }
+        key_rec = qtrue;
+		break;
+	case K_PGUP:
+		if (GetScrollBar())
+		{
+			if (getCurrentItem() - 1 == GetScrollBar()->getTopItem()) {
+				offsetitem = -GetScrollBar()->getPageHeight();
+			} else {
+				TrySelectItem(GetScrollBar()->getTopItem() + 1);
+			}
+        }
+        key_rec = qtrue;
+		break;
+	case K_HOME:
+		TrySelectItem(1);
+		key_rec = qtrue;
+		break;
+	case K_END:
+		TrySelectItem(getNumItems());
+		key_rec = qtrue;
+		break;
+	case K_MWHEELDOWN:
+		if (GetScrollBar()) {
+			GetScrollBar()->AttemptScrollTo(GetScrollBar()->getTopItem() + 2);
+        }
+        key_rec = qtrue;
+        break;
+    case K_MWHEELUP:
+        if (GetScrollBar()) {
+            GetScrollBar()->AttemptScrollTo(GetScrollBar()->getTopItem() - 2);
+        }
+        key_rec = qtrue;
+        break;
+	default:
+		break;
+	}
+
+	if (offsetitem) {
+		TrySelectItem(getCurrentItem() + offsetitem);
+	}
+
+	return key_rec;
 }
 
 void UIListBase::FrameInitialized
