@@ -5274,6 +5274,10 @@ void CL_InitializeUI( void ) {
 	UI_LoadInventory_f();
 	UI_CreateScoreboard();
 
+	// New since mohta
+	// Version number
+	Cvar_Set("game_version", va("v%s", com_target_version->string));
+
 	// Add all commands
 	Cmd_AddCommand( "pushmenu", UI_PushMenu_f );
 	Cmd_AddCommand( "pushmenu_sp", UI_PushMenuSP_f );
