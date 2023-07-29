@@ -57,6 +57,7 @@ public:
 #define WF_ALWAYS_BOTTOM		(1<<4)
 #define WF_ALWAYS_TOP			(1<<5)
 #define WF_NOPARENTADJUST		(1<<6)
+#define WF_DONTLOCALIZE			(1<<7)
 
 // widget alignment flags
 #define WA_LEFT					(1<<0)
@@ -68,9 +69,33 @@ public:
 #define WA_FULL					( WA_LEFT | WA_RIGHT | WA_TOP | WA_BOTTOM | WA_CENTERX | WA_CENTERY )
 
 typedef class UIReggedMaterial UIReggedMaterial;
-typedef enum { border_none, border_3D, border_indent, border_outline } borderstyle_t;
-typedef enum { D_NONE, D_FROM_LEFT, D_FROM_RIGHT, D_FROM_BOTTOM, D_FROM_TOP } direction_t;
-typedef enum { MOTION_IN, MOTION_OUT } motion_t;
+typedef enum {
+	border_none,
+	border_3D,
+	border_indent,
+	border_outline
+} borderstyle_t;
+
+typedef enum {
+	D_NONE,
+	D_FROM_LEFT,
+	D_FROM_RIGHT,
+	D_FROM_BOTTOM,
+	D_FROM_TOP 
+} direction_t;
+
+typedef enum {
+	MOTION_IN,
+	MOTION_OUT
+} motion_t;
+
+typedef enum {
+	SEQUENCE_NONE,
+	SEQUENCE_STARTING,
+	SEQUENCE_FADEIN,
+	SEQUENCE_HOLD,
+	SEQUENCE_FADEOUT
+} fadesequence_t;
 
 class UIWidget : public USignal {
 	friend class Menu;
@@ -118,6 +143,13 @@ protected:
 	float m_alpha;
 	float m_local_alpha;
 	float m_motiontime;
+    float m_fadeSequenceDelayStart;
+    float m_fadeSequenceFadeIn;
+    float m_fadeSequenceHold;
+    float m_fadeSequenceFadeOut;
+    float m_fadeSequenceDelayEnd;
+    float m_fadeSequenceAlpha;
+    int m_fadeSequenceState;
 	str m_stopsound;
 	str m_clicksound;
 	int m_align;
@@ -194,8 +226,11 @@ public:
 	void				LayoutAliasCache( Event *ev );
 	void				SetEnabledCvar( Event *ev );
 	void				SetScaleCvar( Event *ev );
+	void				SetDontLocalize( Event *ev );
+	void				EventFadeSequence( Event *ev );
 
 	void				SetVirtualScale(vec2_t out);
+	void				SetDontLocalize();
 	void				setParent( UIWidget *parent );
 	class UIWidget		*getParent( void );
 	class UIWidget		*getFirstChild( void );

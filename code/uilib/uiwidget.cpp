@@ -419,6 +419,24 @@ Event EV_Layout_AliasCache
 	"Create an alias to the specified path and cache the resource"
 	);
 
+Event EV_Layout_DontLocalize
+	(
+	"dontlocalize",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Disables localization for this widget"
+	);
+
+Event EV_Layout_FadeSequence
+	(
+	"fadesequence",
+	EV_DEFAULT,
+	"ffff",
+	"delay fadein hold fadeout",
+	"Set up for a delay/fadein/hold/fadeout"
+	);
+
 Event EV_Layout_BGFill
 	(
 	"bgfill",
@@ -484,6 +502,8 @@ CLASS_DECLARATION( USignal, UIWidget, NULL )
 	{ &EV_Widget_Disable,				&UIWidget::DisableEvent },
 	{ &EV_Widget_EnabledCvar,			&UIWidget::SetEnabledCvar },
 	{ &EV_Widget_ScaleCvar,				&UIWidget::SetScaleCvar },
+	{ &EV_Layout_DontLocalize,			&UIWidget::SetDontLocalize },
+	{ &EV_Layout_FadeSequence,			&UIWidget::EventFadeSequence },
 
 	{ NULL, NULL }
 };
@@ -871,6 +891,10 @@ void UIWidget::FrameInitialized
 	)
 
 {
+	if (m_fadeSequenceDelayStart || m_fadeSequenceFadeIn || m_fadeSequenceHold || m_fadeSequenceFadeOut) {
+		m_fadeSequenceDelayEnd = m_fadeSequenceDelayStart;
+		m_fadeSequenceState = fadesequence_t::SEQUENCE_FADEIN;
+	}
 }
 
 void UIWidget::DrawTitle
@@ -897,8 +921,62 @@ void UIWidget::Motion
 
 	t = uid.time / 1000.0;
 
-	if( m_fadetime >= 0.0 )
+	if (m_fadeSequenceState != fadesequence_t::SEQUENCE_NONE)
 	{
+		if (!paused->integer) {
+			switch (m_fadeSequenceState)
+			{
+			case fadesequence_t::SEQUENCE_STARTING:
+				m_alpha = 0.f;
+				m_fadeSequenceDelayEnd -= t - m_fadeSequenceAlpha;
+				if (m_fadeSequenceDelayEnd >= 0.f) {
+					m_fadeSequenceAlpha = t;
+				} else {
+					m_fadeSequenceState = fadesequence_t::SEQUENCE_FADEIN;
+					m_fadeSequenceAlpha = t;
+					m_fadeSequenceDelayEnd = m_fadeSequenceFadeIn;
+				}
+				break;
+			case fadesequence_t::SEQUENCE_FADEIN:
+				m_alpha = 1.f - m_fadeSequenceDelayEnd / m_fadeSequenceFadeIn;
+				m_fadeSequenceDelayEnd -= t - m_fadeSequenceAlpha;
+				if (m_fadeSequenceDelayEnd >= 0.f) {
+					m_fadeSequenceAlpha = t;
+				} else {
+					m_fadeSequenceState = fadesequence_t::SEQUENCE_HOLD;
+					m_fadeSequenceAlpha = t;
+					m_fadeSequenceDelayEnd = m_fadeSequenceHold;
+				}
+				break;
+			case fadesequence_t::SEQUENCE_HOLD:
+				m_alpha = 1.f;
+				m_fadeSequenceDelayEnd -= t - m_fadeSequenceAlpha;
+				if (m_fadeSequenceDelayEnd >= 0.f) {
+					m_fadeSequenceAlpha = t;
+				} else {
+					m_fadeSequenceState = fadesequence_t::SEQUENCE_FADEOUT;
+					m_fadeSequenceAlpha = t;
+					m_fadeSequenceDelayEnd = m_fadeSequenceFadeOut;
+				}
+				break;
+			case fadesequence_t::SEQUENCE_FADEOUT:
+				m_alpha = m_fadeSequenceDelayEnd / m_fadeSequenceFadeOut;
+				m_fadeSequenceDelayEnd -= (t - m_fadeSequenceAlpha);
+                if (m_fadeSequenceDelayEnd >= 0.f) {
+                    m_fadeSequenceAlpha = t;
+				} else {
+					m_alpha = 0.f;
+					m_fadeSequenceState = fadesequence_t::SEQUENCE_NONE;
+				}
+				break;
+            default:
+                m_fadeSequenceAlpha = t;
+				break;
+			}
+		} else {
+			m_fadeSequenceAlpha = t;
+		}
+	} else if( m_fadetime >= 0.0 ) {
 		frac = ( t - m_starttime ) / m_fadetime;
 
 		m_alpha = frac;
@@ -1674,35 +1752,6 @@ void UIWidget::LayoutAliasCache
 	if( strstr( realSound, ".wav" ) || strstr( realSound, ".mp3" ) )
 	{
 		uii.Snd_RegisterSound( realSound, false );
-	}
-}
-
-void UIWidget::SetEnabledCvar
-	(
-	Event *ev
-	)
-
-{
-	m_enabledCvar = ev->GetString( 1 );
-}
-
-void UIWidget::SetScaleCvar
-	(
-	Event *ev
-	)
-{
-	m_scaleCvar = uii.Cvar_Find(ev->GetString(1).c_str());
-}
-
-void UIWidget::SetVirtualScale(vec2_t out)
-{
-    out[0] = uid.vidWidth / 640.0;
-    out[1] = uid.vidHeight / 480.0;
-
-	if (m_scaleCvar)
-	{
-		out[0] *= m_scaleCvar->value;
-		out[1] *= m_scaleCvar->value;
 	}
 }
 
@@ -3028,6 +3077,55 @@ bool UIWidget::PassEventToWidget
 	ProcessEvent( ev );
 
 	return true;
+}
+
+void UIWidget::SetEnabledCvar
+(
+    Event* ev
+)
+
+{
+    m_enabledCvar = ev->GetString(1);
+}
+
+void UIWidget::SetScaleCvar
+(
+    Event* ev
+)
+{
+    m_scaleCvar = uii.Cvar_Find(ev->GetString(1).c_str());
+}
+
+void UIWidget::SetVirtualScale(vec2_t out)
+{
+    out[0] = uid.vidWidth / 640.0;
+    out[1] = uid.vidHeight / 480.0;
+
+    if (m_scaleCvar)
+    {
+        out[0] *= m_scaleCvar->value;
+        out[1] *= m_scaleCvar->value;
+    }
+}
+
+void UIWidget::SetDontLocalize(Event* ev)
+{
+    SetDontLocalize();
+}
+
+void UIWidget::EventFadeSequence(Event* ev)
+{
+	m_fadeSequenceDelayStart = ev->GetFloat(1);
+	m_fadeSequenceFadeIn = ev->GetFloat(2);
+	m_fadeSequenceHold = ev->GetFloat(3);
+	m_fadeSequenceFadeOut = ev->GetFloat(4);
+	m_fadeSequenceDelayEnd = m_fadeSequenceDelayStart;
+	m_fadeSequenceState = fadesequence_t::SEQUENCE_FADEIN;
+}
+
+void UIWidget::SetDontLocalize()
+{
+	m_flags |= WF_DONTLOCALIZE;
 }
 
 CLASS_DECLARATION( UIWidget, UIWidgetContainer, NULL )
