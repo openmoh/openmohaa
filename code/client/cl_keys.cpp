@@ -1153,7 +1153,7 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 		}
 	}
 
-	if (!in_guimouse || key <= K_MOUSE3 || key > K_JOY1)
+	if (!in_guimouse || key <= K_MWHEELUP || key > K_JOY1)
 	{
 		// keys can still be used for bound actions
 		if (down && (key <= K_BACKSPACE || key == K_MOUSE4) &&
