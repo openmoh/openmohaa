@@ -119,4 +119,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	SURF_LIGHTFILTER		0x8000	// act as a light filter during q3map -light
 #define SURF_DUST				0x40000 // leave a dust trail when walking on this surface
 
-#define MASK_SURF_TYPE        (SURF_WOOD|SURF_METAL|SURF_ROCK|SURF_DIRT|SURF_GRILL)
+#define MASK_SURF_TYPE        (SURF_PAPER|SURF_WOOD|SURF_METAL|SURF_ROCK|SURF_DIRT|SURF_GRILL|SURF_GRASS|SURF_MUD|SURF_PUDDLE|SURF_GLASS|SURF_GRAVEL|SURF_SAND|SURF_FOLIAGE|SURF_SNOW|SURF_CARPET)
