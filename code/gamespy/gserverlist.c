@@ -35,6 +35,7 @@ Fax(714)549-0757
 #endif
 #include "common/gsPlatformSocket.h"
 #include "gutil.h"
+#include "sv_gqueryreporting.h"
 #ifndef UNDER_CE
 #include <assert.h>
 #else
@@ -44,7 +45,7 @@ Fax(714)549-0757
 #include <string.h>
 #include <stdlib.h>
 
-#define MSHOST "master.gamespy.com"
+#define MSHOST MASTER_SERVER_HOST
 #define MSPORT	28900
 #define SERVER_GROWBY 64
 #define LAN_SEARCH_TIME 3000 //3 sec

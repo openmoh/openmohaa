@@ -527,5 +527,5 @@ int qr_init(
         qrec = &current_rec;
     }
 
-    return do_connect((void *)hbsock, "master.x-null.net", 27900, &(*qrec)->master_saddr);
+    return do_connect((void *)hbsock, MASTER_SERVER_HOST, 27900, &(*qrec)->master_saddr);
 }

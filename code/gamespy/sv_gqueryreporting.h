@@ -60,3 +60,5 @@ typedef struct qr_implementation_s {
     qr_custom_handler_t qr_custom_handler;
     void               *udata;
 } qr_implementation_t, *qr_t;
+
+#define MASTER_SERVER_HOST "master.x-null.net"
