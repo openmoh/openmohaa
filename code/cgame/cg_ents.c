@@ -666,7 +666,6 @@ void CG_GetOrigin(centity_t *cent, vec3_t origin)
         parent = cgi.R_GetRenderEntity(cent->currentState.parent);
 
         if (!parent) {
-            cgi.DPrintf("CG_GetOrigin: Could not find parent entity\n");
             return;
         }
 
