@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ui_local.h"
 #include "../qcommon/localization.h"
 
-static UISize2D s_columnpadding;
+static UISize2D s_columnpadding(2.0, 2.0);
 
 bool UIListCtrl::s_qsortreverse;
 int UIListCtrl::s_qsortcolumn;
