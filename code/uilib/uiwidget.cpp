@@ -2393,9 +2393,16 @@ void UIWidget::Display
 
 			m_material->ReregisterMaterial();
 
-			if( m_flags & WA_TOP )
+			if( m_flags & WF_TILESHADER )
 			{
-				uii.Rend_DrawPicTiled( 0, 0, m_frame.size.width, m_frame.size.height, m_material->GetMaterial() );
+                if (m_bVirtual) {
+					float fvWidth = m_frame.size.width / m_vVirtualScale[0] / uii.Rend_GetShaderWidth(m_material->GetMaterial());
+					float fvHeight = m_frame.size.height / m_vVirtualScale[1] / uii.Rend_GetShaderHeight(m_material->GetMaterial());
+                    
+					uii.Rend_DrawPicStretched(0, 0, m_frame.size.width, m_frame.size.height, 0, 0, fvWidth, fvHeight, m_material->GetMaterial());
+				} else {
+					uii.Rend_DrawPicTiled(0, 0, m_frame.size.width, m_frame.size.height, m_material->GetMaterial());
+				}
 			}
 			else
 			{
