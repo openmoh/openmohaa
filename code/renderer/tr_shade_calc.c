@@ -440,67 +440,74 @@ Assuming all the triangles for this shader are independant
 quads, rebuild them as forward facing sprites
 =====================
 */
-static void AutospriteDeform( void ) {
-	int		i;
-	int		oldVerts;
-	float	*xyz;
-	vec3_t	mid, delta;
-	float	radius;
-	vec3_t	left, up;
-	vec3_t	leftDir, upDir;
+static void AutospriteDeform(void) {
+    int		i;
+    int		oldVerts;
+    float* xyz;
+    vec3_t	mid, delta;
+    float	radius;
+    vec3_t	left, up;
+    vec3_t	leftDir, upDir;
 
-	if ( tess.numVertexes & 3 ) {
-		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd vertex count", tess.shader->name );
-	}
-	if ( tess.numIndexes != ( tess.numVertexes >> 2 ) * 6 ) {
-		ri.Printf( PRINT_WARNING, "Autosprite shader %s had odd index count", tess.shader->name );
-	}
-
-	oldVerts = tess.numVertexes;
-	tess.numVertexes = 0;
-	tess.numIndexes = 0;
-
-	if ( backEnd.currentEntity != &tr.worldEntity ) {
-		GlobalVectorToLocal( backEnd.viewParms.ori.axis[1], leftDir );
-		GlobalVectorToLocal( backEnd.viewParms.ori.axis[2], upDir );
-	} else {
-		VectorCopy( backEnd.viewParms.ori.axis[1], leftDir );
-		VectorCopy( backEnd.viewParms.ori.axis[2], upDir );
-	}
-
-	for ( i = 0 ; i < oldVerts ; i+=4 ) {
-		// find the midpoint
-		xyz = tess.xyz[i];
-
-		mid[0] = 0.25f * (xyz[0] + xyz[4] + xyz[8] + xyz[12]);
-		mid[1] = 0.25f * (xyz[1] + xyz[5] + xyz[9] + xyz[13]);
-		mid[2] = 0.25f * (xyz[2] + xyz[6] + xyz[10] + xyz[14]);
-
-		VectorSubtract( xyz, mid, delta );
-		radius = VectorLength( delta ) * 0.707f;		// / sqrt(2)
-
-		VectorScale( leftDir, radius, left );
-		VectorScale( upDir, radius, up );
-
-		if ( backEnd.viewParms.isMirror ) {
-			VectorSubtract( vec3_origin, left, left );
-		}
-
-	  // compensate for scale in the axes if necessary
-  	if ( backEnd.currentEntity->e.nonNormalizedAxes ) {
-      float axisLength;
-		  axisLength = VectorLength( backEnd.currentEntity->e.axis[0] );
-  		if ( !axisLength ) {
-	  		axisLength = 0;
-  		} else {
-	  		axisLength = 1.0f / axisLength;
-  		}
-      VectorScale(left, axisLength, left);
-      VectorScale(up, axisLength, up);
+    if (tess.numVertexes & 3) {
+        ri.Printf(PRINT_WARNING, "Autosprite shader %s had odd vertex count", tess.shader->name);
+    }
+    if (tess.numIndexes != (tess.numVertexes >> 2) * 6) {
+        ri.Printf(PRINT_WARNING, "Autosprite shader %s had odd index count", tess.shader->name);
     }
 
-		RB_AddQuadStamp( mid, left, up, tess.vertexColors[i] );
-	}
+    oldVerts = tess.numVertexes;
+    tess.numVertexes = 0;
+    tess.numIndexes = 0;
+
+    if (backEnd.currentEntity != &tr.worldEntity) {
+        GlobalVectorToLocal(backEnd.viewParms.ori.axis[1], leftDir);
+        GlobalVectorToLocal(backEnd.viewParms.ori.axis[2], upDir);
+    } else {
+        VectorCopy(backEnd.viewParms.ori.axis[1], leftDir);
+        VectorCopy(backEnd.viewParms.ori.axis[2], upDir);
+    }
+
+    for (i = 0; i < oldVerts; i += 4) {
+        // find the midpoint
+        xyz = tess.xyz[i];
+
+        mid[0] = 0.25f * (xyz[0] + xyz[4] + xyz[8] + xyz[12]);
+        mid[1] = 0.25f * (xyz[1] + xyz[5] + xyz[9] + xyz[13]);
+        mid[2] = 0.25f * (xyz[2] + xyz[6] + xyz[10] + xyz[14]);
+
+        VectorSubtract(xyz, mid, delta);
+        radius = VectorLength(delta) * 0.707f;		// / sqrt(2)
+
+        VectorScale(leftDir, radius, left);
+        VectorScale(upDir, radius, up);
+
+        if (backEnd.viewParms.isMirror) {
+            VectorSubtract(vec3_origin, left, left);
+        }
+
+        // compensate for scale in the axes if necessary
+        if (backEnd.currentStaticModel || backEnd.currentEntity->e.nonNormalizedAxes) {
+            float axisLength;
+
+			if (backEnd.currentStaticModel) {
+				axisLength = VectorLength(backEnd.currentStaticModel->axis[0]);
+			} else {
+				axisLength = VectorLength(backEnd.currentEntity->e.axis[0]);
+			}
+            
+            if (!axisLength) {
+                axisLength = 0;
+            }
+            else {
+                axisLength = 1.0f / axisLength;
+            }
+            VectorScale(left, axisLength, left);
+            VectorScale(up, axisLength, up);
+        }
+
+        RB_AddQuadStamp(mid, left, up, tess.vertexColors[i]);
+    }
 }
 
 
