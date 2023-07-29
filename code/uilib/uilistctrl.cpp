@@ -127,7 +127,7 @@ int UIListCtrl::QsortCompare
 	)
 
 {
-	int val = s_qsortobject->m_comparefunction((const UIListCtrlItem*)e1, (const UIListCtrlItem*)e2, s_qsortcolumn);
+	int val = s_qsortobject->m_comparefunction(*(const UIListCtrlItem**)e1, *(const UIListCtrlItem**)e2, s_qsortcolumn);
 	return s_qsortreverse ? -val : val;
 }
 
