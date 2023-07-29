@@ -225,7 +225,7 @@ void UIListCtrl::MousePressed
 			&& fabs(m_clickState.point.x - p.x) <= 2.0
 			&& fabs(m_clickState.point.y - p.y) <= 2.0)
 		{
-			Event newev;
+			Event newev(EV_UIListBase_ItemDoubleClicked);
 			newev.AddInteger(m_currentItem);
 			SendSignal(newev);
 			m_clickState.time = 0;
