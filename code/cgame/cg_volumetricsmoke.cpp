@@ -287,6 +287,7 @@ qboolean VSS_SourcePhysics(cvssource_t *pSource, float ftime)
     pSource->lastOrigin = pSource->newOrigin;
 
     if (pSource->flags & 0x800) {
+        trace.allsolid = qfalse;
         CG_ClipMoveToEntities(
             pSource->newOrigin, vec3_origin, vec3_origin, pSource->newOrigin, -1, MASK_VOLUMETRIC_SMOKE, &trace, qfalse
         );
