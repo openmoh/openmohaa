@@ -697,6 +697,7 @@ unsigned ColorBytes3 (float r, float g, float b);
 unsigned ColorBytes4 (float r, float g, float b, float a);
 
 float NormalizeColor( const vec3_t in, vec3_t out );
+void RotatePointAroundAxis(vec3_t dst, int axis, const vec3_t point, float degrees);
 void ClampColor(vec4_t color);
 
 float RadiusFromBounds( const vec3_t mins, const vec3_t maxs );

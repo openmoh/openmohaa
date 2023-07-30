@@ -471,6 +471,25 @@ float NormalizeColor( const vec3_t in, vec3_t out ) {
 	return max;
 }
 
+void RotatePointAroundAxis(vec3_t dst, int axis, const vec3_t point, float degrees) {
+	
+	if (degrees != 0.0) {
+		float fCos, fSin;
+		int i1, i2;
+
+		fCos = cos(DEG2RAD(degrees));
+		fSin = sin(DEG2RAD(degrees));
+		i2 = (axis + 1) % 3;
+		i1 = (axis + 2) % 3;
+
+		dst[axis] = point[axis];
+		dst[i2] = point[i2] * fCos - point[i1] * fSin;
+		dst[i1] = point[i2] * fSin - point[i1] * fCos;
+    } else {
+        VectorCopy(point, dst);
+	}
+}
+
 
 void ClampColor(vec4_t color)
 {
