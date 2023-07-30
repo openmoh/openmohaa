@@ -148,7 +148,7 @@ Event EV_Weapon_EmptyClip
 	"Empties the weapon's clip of ammo, returning it to the owner",
 	EV_NORMAL
 	);
-Event EV_Weapon_AddClip
+Event EV_Weapon_AddToClip
 	(
 	"clip_add",
 	EV_DEFAULT,
@@ -272,6 +272,24 @@ Event EV_Weapon_SetDMBulletDamage
    "Set the damage that the bullet causes",
 	EV_NORMAL
    );
+Event EV_Weapon_SetBulletLarge
+   (
+   "bulletlarge",
+   EV_DEFAULT,
+   "i",
+   "bulletType",
+   "Set if the bullets fired are rifle bullets(1), artillery(2) or larger tracers(3)",
+	EV_NORMAL
+   );
+Event EV_Weapon_SetTracerSpeed
+   (
+   "tracerspeed",
+   EV_DEFAULT,
+   "f",
+   "speed",
+   "Scale factor of how fast a tracer should travel (valid ranges 0-2)",
+	EV_NORMAL
+   );
 Event EV_Weapon_SetBulletKnockback
    (
    "bulletknockback",
@@ -288,6 +306,24 @@ Event EV_Weapon_SetDMBulletKnockback
    "f",
    "bulletKnockback",
    "Set the knockback that the bullet causes",
+	EV_NORMAL
+   );
+Event EV_Weapon_SetBulletThroughWood
+   (
+   "throughwood",
+   EV_DEFAULT,
+   "f",
+   "dist",
+   "Sets how far the bullets can go through wood",
+	EV_NORMAL
+   );
+Event EV_Weapon_SetBulletThroughMetal
+   (
+   "throughmetal",
+   EV_DEFAULT,
+   "f",
+   "dist",
+   "Sets how far the bullets can go through metal",
 	EV_NORMAL
    );
 Event EV_Weapon_SetBulletCount
@@ -469,6 +505,24 @@ Event EV_Weapon_MinChargeTime
    "Set the minimum time the weapon must be charged up",
 	EV_NORMAL
    );
+Event EV_Weapon_AddAdditionalStartAmmo
+   (
+   "additionalstartammo",
+   EV_DEFAULT,
+   "si",
+   "ammotype amount",
+   "Gives some additional start ammo of the specified type",
+	EV_NORMAL
+   );
+Event EV_Weapon_AddStartItem
+   (
+   "startitem",
+   EV_DEFAULT,
+   "s",
+   "itemname",
+   "Adds an item to the starting loadout of the weapon",
+	EV_NORMAL
+   );
 Event EV_Weapon_GiveStartingAmmo
    (
    "startingammotoowner",
@@ -497,23 +551,32 @@ Event EV_Weapon_Crosshair
 	EV_NORMAL
    );
 Event EV_Weapon_DMCrosshair
-   (
-   "dmcrosshair",
-   EV_DEFAULT,
-   "b",
-   "bool",
-   "Turn on/off the crosshair for this weapon",
+	(
+	"dmcrosshair",
+	EV_DEFAULT,
+	"b",
+	"bool",
+	"Turn on/off the crosshair for this weapon",
 	EV_NORMAL
-   );
+	);
 Event EV_Weapon_SetQuiet
-   (
-   "quiet",
-   EV_DEFAULT,
-   NULL,
-   NULL,
-   "Makes the weapon make no noise.",
+	(
+	"quiet",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Makes the weapon make no noise.",
 	EV_NORMAL
-   );
+	);
+Event EV_Weapon_SetSecondaryAmmoInHud
+	(
+	"secondaryammoinhud",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Makes the weapon show its secondary ammo to the hud.",
+	EV_NORMAL
+	);
 Event EV_Weapon_SetLoopFire
    (
    "loopfire",
@@ -622,7 +685,7 @@ Event EV_Weapon_MakeNoise
    "Makes the weapon make noise that actors can hear.",
 	EV_NORMAL
    );
-Event EV_Weapon_SetWeaponType
+Event EV_Weapon_SetType
 	(
 	"weapontype",
 	EV_DEFAULT,
@@ -631,7 +694,7 @@ Event EV_Weapon_SetWeaponType
 	"Sets the weapon type",
 	EV_NORMAL
 	);
-Event EV_Weapon_SetWeaponGroup
+Event EV_Weapon_SetGroup
 	(
 	"weapongroup",
 	EV_DEFAULT,
@@ -712,6 +775,22 @@ Event EV_Weapon_DMMovementSpeed
 	"speedmult",
 	"Alters the movement speed of the player when he has the weapon out"
 );
+Event EV_Weapon_MaxFireMovement
+(
+	"maxfiremovement",
+	EV_DEFAULT,
+	"f",
+	"speedmult",
+	"Sets the max speed the player can be moving to fire the weapon (fraction of weapon's running speed)"
+);
+Event EV_Weapon_ZoomMovement
+(
+    "zoommovement",
+    EV_DEFAULT,
+    "f",
+    "speedmult",
+    "Sets the max speed the player can move while zoomed (fraction of weapon's running speed)"
+);
 Event EV_Weapon_AmmoPickupSound
 (
 	"ammopickupsound",
@@ -727,6 +806,62 @@ Event EV_Weapon_NoAmmoSound
 	"s",
 	"name",
 	"sets the weapon's dry fire sound alias"
+);
+Event EV_Weapon_MaxMovementSound
+(
+    "maxmovementsound",
+    EV_DEFAULT,
+    "s",
+    "name",
+    "sets the weapon's movement fire prevention sound alias"
+);
+Event EV_Weapon_NumFireAnims
+(
+    "numfireanims",
+    EV_DEFAULT,
+    "i",
+    "value",
+    "Sets the number of fire animations this weapon uses."
+);
+Event EV_Weapon_SetCurrentFireAnim
+(
+    "setcurrentfireanim",
+    EV_DEFAULT,
+    "i",
+    "value",
+    "Sets the current firing animation."
+);
+Event EV_Weapon_SubType
+(
+    "weaponsubtype",
+    EV_DEFAULT,
+    "i",
+    "subtype",
+    "sets the weapon's sub-type. Used by smoke grenades."
+);
+Event EV_SetCookTime
+(
+    "cooktime",
+    EV_DEFAULT,
+    "f",
+    "cooktime",
+    "sets weapons cook time."
+);
+Event EV_OverCooked
+(
+    "overcooked",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+	"used when the cookable weapon has been over cooked."
+);
+Event EV_OverCooked_Warning
+(
+    "overcooked_warning",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+	"causes a warning sound to play that the grenade is about to be overcooked."
 );
 
 CLASS_DECLARATION( Item, Weapon, NULL )
@@ -744,7 +879,7 @@ CLASS_DECLARATION( Item, Weapon, NULL )
 	{ &EV_Weapon_SetShareClip,					&Weapon::SetShareClip },
 	{ &EV_Weapon_FillClip,						&Weapon::EventClipFill },
 	{ &EV_Weapon_EmptyClip,						&Weapon::EventClipEmpty },
-	{ &EV_Weapon_AddClip,						&Weapon::EventClipAdd },
+	{ &EV_Weapon_AddToClip,						&Weapon::EventClipAdd },
 	{ &EV_Weapon_SetMaxRange,					&Weapon::SetMaxRangeEvent },
 	{ &EV_Weapon_SetMinRange,					&Weapon::SetMinRangeEvent },
 	{ &EV_Weapon_SetFireDelay,					&Weapon::EventSetFireDelay },
@@ -757,8 +892,12 @@ CLASS_DECLARATION( Item, Weapon, NULL )
 	{ &EV_Weapon_SetProjectile,					&Weapon::SetProjectile },
 	{ &EV_Weapon_SetDMProjectile,				&Weapon::SetDMProjectile },
 	{ &EV_Weapon_SetBulletDamage,				&Weapon::SetBulletDamage },
+	{ &EV_Weapon_SetBulletLarge,				&Weapon::SetBulletLarge },
+	{ &EV_Weapon_SetTracerSpeed,				&Weapon::SetTracerSpeed },
 	{ &EV_Weapon_SetBulletCount,				&Weapon::SetBulletCount },
 	{ &EV_Weapon_SetBulletKnockback,			&Weapon::SetBulletKnockback },
+    { &EV_Weapon_SetBulletThroughWood,			&Weapon::SetBulletThroughWood },
+    { &EV_Weapon_SetBulletThroughMetal,			&Weapon::SetBulletThroughMetal },
 	{ &EV_Weapon_SetBulletRange,				&Weapon::SetBulletRange },
 	{ &EV_Weapon_SetRange,						&Weapon::SetRange },
 	{ &EV_Weapon_SetBulletSpread,				&Weapon::SetBulletSpread },
@@ -769,6 +908,8 @@ CLASS_DECLARATION( Item, Weapon, NULL )
 	{ &EV_Weapon_AmmoRequired,					&Weapon::SetAmmoRequired },
 	{ &EV_Weapon_MaxChargeTime,					&Weapon::SetMaxChargeTime },
 	{ &EV_Weapon_MinChargeTime,					&Weapon::SetMinChargeTime },
+	{ &EV_Weapon_AddAdditionalStartAmmo,		&Weapon::AddAdditionalStartAmmo },
+	{ &EV_Weapon_AddStartItem,					&Weapon::AddStartItem },
 	{ &EV_Weapon_GiveStartingAmmo,				&Weapon::GiveStartingAmmoToOwner },
 	{ &EV_Weapon_AutoAim,						&Weapon::AutoAim },
 	{ &EV_Weapon_Crosshair,						&Weapon::Crosshair },
@@ -785,8 +926,8 @@ CLASS_DECLARATION( Item, Weapon, NULL )
 	{ &EV_Weapon_SetMeansOfDeath,				&Weapon::SetMeansOfDeath },
 	{ &EV_Weapon_SetWorldHitSpawn,				&Weapon::SetWorldHitSpawn },
 	{ &EV_Weapon_MakeNoise,						&Weapon::MakeNoise },
-	{ &EV_Weapon_SetWeaponType,					&Weapon::SetWeaponType },
-	{ &EV_Weapon_SetWeaponGroup,				&Weapon::SetWeaponGroup },
+	{ &EV_Weapon_SetType,						&Weapon::SetWeaponType },
+	{ &EV_Weapon_SetGroup,						&Weapon::SetWeaponGroup },
 	{ &EV_Weapon_SetZoom,						&Weapon::SetZoom },
 	{ &EV_Weapon_SetSemiAuto,					&Weapon::SetSemiAuto },
 	{ &EV_Weapon_AttachToHand,					&Weapon::AttachToHand },
@@ -808,8 +949,18 @@ CLASS_DECLARATION( Item, Weapon, NULL )
 	{ &EV_Weapon_DMCrosshair,					&Weapon::DMCrosshair },
 	{ &EV_Weapon_MovementSpeed,					&Weapon::SetMovementSpeed },
 	{ &EV_Weapon_DMMovementSpeed,				&Weapon::SetDMMovementSpeed },
+	{ &EV_Weapon_MaxFireMovement,				&Weapon::SetMaxFireMovement },
+	{ &EV_Weapon_ZoomMovement,					&Weapon::SetZoomMovement },
 	{ &EV_Weapon_AmmoPickupSound,				&Weapon::EventAmmoPickupSound },
 	{ &EV_Weapon_NoAmmoSound,					&Weapon::EventNoAmmoSound },
+	{ &EV_Weapon_MaxMovementSound,				&Weapon::EventMaxMovementSound },
+	{ &EV_Weapon_NumFireAnims,					&Weapon::SetNumFireAnims },
+	{ &EV_Weapon_NumFireAnims,					&Weapon::SetWeaponSubtype },
+	{ &EV_SetCookTime,							&Weapon::SetCookTime },
+	{ &EV_OverCooked,							&Weapon::OnOverCooked },
+	{ &EV_OverCooked_Warning,					&Weapon::OnOverCookedWarning },
+	{ &EV_Weapon_SetCurrentFireAnim,			&Weapon::SetCurrentFireAnim },
+	{ &EV_Weapon_SetSecondaryAmmoInHud,			&Weapon::SetSecondaryAmmoInHud },
 	{ NULL, NULL }
 };
 
@@ -2196,6 +2347,22 @@ void Weapon::SetDMCantPartialReload
 }
 
 //======================
+//Weapon::AddAdditionalStartAmmo
+//======================
+void Weapon::AddAdditionalStartAmmo(Event* ev)
+{
+	// FIXME: unimplemented
+}
+
+//======================
+//Weapon::AddStartItem
+//======================
+void Weapon::AddStartItem(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+//======================
 //Weapon::AmmoAvailable
 //======================
 int Weapon::AmmoAvailable
@@ -2440,6 +2607,14 @@ void Weapon::AttachToHolster
 }
 
 //======================
+//Weapon::IsCarryableTurret
+//======================
+bool Weapon::IsCarryableTurret()
+{
+	return false;
+}
+
+//======================
 //Weapon::Drop
 //======================
 qboolean Weapon::Drop
@@ -2597,6 +2772,21 @@ void Weapon::Charge
 	firemode_t mode
 	)
 {
+}
+
+//======================
+//Weapon::OnOverCookedWarning
+//======================
+void Weapon::OnOverCookedWarning(Event* ev)
+{
+}
+
+//======================
+//Weapon::OnOverCooked
+//======================
+void Weapon::OnOverCooked(Event* ev)
+{
+	// FIXME: unimplemented
 }
 
 //======================
@@ -3622,6 +3812,30 @@ void Weapon::SetBulletDamage
 }
 
 //======================
+//Weapon::SetBulletLarge
+//======================
+void Weapon::SetBulletLarge
+(
+    Event* ev
+)
+
+{
+	// FIXME: unimplemented
+}
+
+//======================
+//Weapon::SetBulletLarge
+//======================
+void Weapon::SetTracerSpeed
+(
+    Event* ev
+)
+
+{
+    // FIXME: unimplemented
+}
+
+//======================
 //Weapon::SetDMBulletDamage
 //======================
 void Weapon::SetDMBulletDamage
@@ -3662,6 +3876,22 @@ Event *ev
 
 	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
 	bulletknockback[ firemodeindex ] = ev->GetFloat( 1 );
+}
+
+//======================
+//Weapon::SetBulletThroughWood
+//======================
+void Weapon::SetBulletThroughWood(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+//======================
+//Weapon::SetBulletThroughMetal
+//======================
+void Weapon::SetBulletThroughMetal(Event* ev)
+{
+	// FIXME: unimplemented
 }
 
 //======================
@@ -4477,6 +4707,16 @@ void Weapon::SetDMMovementSpeed
 	m_fMovementSpeed = ev->GetFloat( 1 );
 }
 
+void Weapon::SetMaxFireMovement(Event* ev)
+{
+	// FIXME: unimplemented
+}
+
+void Weapon::SetZoomMovement(Event* ev)
+{
+	// FIXME: unimplemented
+}
+
 void Weapon::EventAmmoPickupSound
 	(
 	Event *ev
@@ -4491,6 +4731,36 @@ void Weapon::EventNoAmmoSound
 	)
 {
 	m_NoAmmoSound = ev->GetString( 1 );
+}
+
+void Weapon::EventMaxMovementSound(Event* ev)
+{
+	// FIXME: unimplemented
+}
+
+void Weapon::SetNumFireAnims(Event* ev)
+{
+	// FIXME: unimplemented
+}
+
+void Weapon::SetWeaponSubtype(Event* ev)
+{
+	// FIXME: unimplemented
+}
+
+void Weapon::SetCookTime(Event* ev)
+{
+	// FIXME: unimplemented
+}
+
+void Weapon::SetCurrentFireAnim(Event* ev)
+{
+	// FIXME: unimplemented
+}
+
+void Weapon::SetSecondaryAmmoInHud(Event* ev)
+{
+	// FIXME: unimplemented
 }
 
 float Weapon::GetBulletRange
