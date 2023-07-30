@@ -754,20 +754,34 @@ static void ComputeColors( shaderStage_t *pStage )
 			break;
 		case CGEN_EXACT_VERTEX:
 			if (!tess.vertexColorValid) {
-				ri.Printf(
-					PRINT_WARNING,
-					"Vertex color specified for shader '%s', but vertex colors are not valid for this model\n",
-					tess.shader->name);
+				static qboolean bWarned = qfalse;
+
+				if (!bWarned) {
+					// mohta and mohtt shows the warning once
+                    bWarned = qtrue;
+
+                    ri.Printf(
+                        PRINT_WARNING,
+                        "Vertex color specified for shader '%s', but vertex colors are not valid for this model\n",
+                        tess.shader->name
+					);
+				}
 				break;
 			}
 			Com_Memcpy( tess.svars.colors, tess.vertexColors, tess.numVertexes * sizeof( tess.vertexColors[0] ) );
 			break;
 		case CGEN_VERTEX:
-			if (!tess.vertexColorValid) {
-				ri.Printf(
-					PRINT_WARNING,
-					"Vertex color specified for shader '%s', but vertex colors are not valid for this model\n",
-					tess.shader->name);
+            if (!tess.vertexColorValid) {
+                static qboolean bWarned = qfalse;
+
+				if (!bWarned) {
+					bWarned = qtrue;
+
+					ri.Printf(
+						PRINT_WARNING,
+						"Vertex color specified for shader '%s', but vertex colors are not valid for this model\n",
+						tess.shader->name);
+				}
 				break;
 			}
 			if (tr.identityLight == 1)
