@@ -463,6 +463,12 @@ void G_RunFrame( int levelTime, int frameTime )
 
 	try
 	{
+        g_iInThinks = 0;
+
+		if (g_showmem->integer) {
+			DisplayMemoryUsage();
+		}
+
 		// exit intermissions
 		if( level.exitintermission )
 		{
