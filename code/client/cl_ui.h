@@ -35,6 +35,7 @@ typedef struct {
 //
 extern cvar_t* ui_health_start;
 extern cvar_t* ui_health_end;
+extern cvar_t* sound_overlay;
 
 //
 // initialization
