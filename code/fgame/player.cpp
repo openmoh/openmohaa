@@ -10242,7 +10242,7 @@ void Player::UpdateStats
 		client->ps.stats[ STAT_HEALTH ] = ( int )( health / max_health * 100.0f );
 	}
 
-	client->ps.stats[ STAT_MAX_HEALTH ] = 100;
+	client->ps.stats[ STAT_MAXHEALTH ] = 100;
 
 	Weapon *activeweap = GetActiveWeapon( WEAPON_MAIN );
 

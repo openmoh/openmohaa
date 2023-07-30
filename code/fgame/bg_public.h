@@ -333,43 +333,6 @@ void PmoveAdjustAngleSettings_Client( vec_t *vViewAngles, vec_t *vAngles, player
 
 //===================================================================================
 
-
-// player_state->stats[] indexes
-// NOTE: may not have more than 32
-typedef enum {
-	STAT_HEALTH,
-	STAT_MAX_HEALTH,
-	STAT_WEAPONS,
-	STAT_EQUIPPED_WEAPON,
-	STAT_AMMO,	
-	STAT_MAXAMMO,
-	STAT_CLIPAMMO,		// ammo in current weapon clip
-	STAT_MAXCLIPAMMO,	// maxammo in current weapon clip
-	STAT_INZOOM,
-	STAT_CROSSHAIR,
-	STAT_LAST_PAIN,		// Last amount of damage the player took
-	STAT_UNUSED_2,
-	STAT_BOSSHEALTH,	// if we are fighting a boss, how much health he currently has
-	STAT_CINEMATIC,		// This is set when we go into cinematics
-	STAT_ADDFADE,		// This is set when we need to do an addblend for the fade
-	STAT_LETTERBOX,		// This is set to the fraction of the letterbox
-	STAT_COMPASSNORTH,
-	STAT_OBJECTIVELEFT,
-	STAT_OBJECTIVERIGHT,
-	STAT_OBJECTIVECENTER,
-	STAT_TEAM,
-	STAT_KILLS,
-	STAT_DEATHS,
-	STAT_UNUSED_3,
-	STAT_UNUSED_4,
-	STAT_HIGHEST_SCORE,
-	STAT_ATTACKERCLIENT, 
-	STAT_INFOCLIENT,
-	STAT_INFOCLIENT_HEALTH,
-	STAT_DAMAGEDIR,
-	STAT_LAST_STAT
-} statIndex_t;
-
 #define MAX_LETTERBOX_SIZE        0x7fff
 
 #define ITEM_NAME_AMMO				0
@@ -484,6 +447,109 @@ typedef enum {
 #define CF_CAMERA_ANGLES_TURRETMODE		( 1 << 4 )
 #define CF_CAMERA_CUT_BIT				( 1 << 7 ) // this bit gets toggled everytime we do a hard camera cut
 
+
+
+// means of death
+// su44: changed to MoHAA's
+typedef enum {
+    MOD_NONE,
+    MOD_SUICIDE,
+    MOD_CRUSH,
+    MOD_CRUSH_EVERY_FRAME,
+    MOD_TELEFRAG,
+    MOD_LAVA,
+    MOD_SLIME,
+    MOD_FALLING,
+    MOD_LAST_SELF_INFLICTED,
+    MOD_EXPLOSION,
+    MOD_EXPLODEWALL,
+    MOD_ELECTRIC,
+    MOD_ELECTRICWATER,
+    MOD_THROWNOBJECT,
+    MOD_GRENADE,
+    MOD_BEAM,
+    MOD_ROCKET,
+    MOD_IMPACT,
+    MOD_BULLET,
+    MOD_FAST_BULLET,
+    MOD_VEHICLE,
+    MOD_FIRE,
+    MOD_FLASHBANG,
+    MOD_ON_FIRE,
+    MOD_GIB,
+    MOD_IMPALE,
+    MOD_BASH,
+    MOD_SHOTGUN,
+    MOD_TOTAL_NUMBER,
+
+} meansOfDeath_t;
+
+//
+// entityState_t->eType
+//
+typedef enum {
+	ET_MODELANIM_SKEL,
+	ET_MODELANIM,
+	ET_VEHICLE,
+	ET_PLAYER,
+	ET_ITEM,
+	ET_GENERAL,
+	ET_MISSILE,
+	ET_MOVER,
+	ET_BEAM,
+	ET_MULTIBEAM,
+	ET_PORTAL,
+	ET_EVENT_ONLY,
+	ET_RAIN,
+	ET_LEAF,
+	ET_SPEAKER,
+	ET_PUSH_TRIGGER,
+	ET_TELEPORT_TRIGGER,
+	ET_DECAL,
+	ET_EMITTER,
+	ET_ROPE,
+	ET_EVENTS,
+	ET_EXEC_COMMANDS
+} entityType_t;
+
+// player_state->stats[] indexes
+// NOTE: may not have more than 32
+typedef enum {
+	STAT_HEALTH,
+	STAT_MAXHEALTH,
+	STAT_WEAPONS,
+	STAT_EQUIPPED_WEAPON,
+	STAT_AMMO,
+	STAT_MAXAMMO,
+	STAT_CLIPAMMO,
+	STAT_MAXCLIPAMMO,
+	STAT_INZOOM,
+	STAT_CROSSHAIR,
+	STAT_LAST_PAIN,
+	STAT_UNUSED_2,
+	STAT_BOSSHEALTH,
+	STAT_CINEMATIC,
+	STAT_ADDFADE,
+	STAT_LETTERBOX,
+	STAT_COMPASSNORTH,
+	STAT_OBJECTIVELEFT,
+	STAT_OBJECTIVERIGHT,
+	STAT_OBJECTIVECENTER,
+	STAT_TEAM,
+	STAT_KILLS,
+	STAT_DEATHS,
+	STAT_UNUSED_3,
+	STAT_UNUSED_4,
+	STAT_HIGHEST_SCORE,
+	STAT_ATTACKERCLIENT,
+	STAT_INFOCLIENT,
+	STAT_INFOCLIENT_HEALTH,
+	STAT_DAMAGEDIR,
+	STAT_LAST_STAT
+} playerstat_t;
+
+extern const char* means_of_death_strings[];
+
 typedef enum {
 	TEAM_NONE,
 	TEAM_SPECTATOR,
@@ -494,43 +560,6 @@ typedef enum {
 
 // How many players on the overlay
 #define TEAM_MAXOVERLAY		32
-
-// means of death
-// su44: changed to MoHAA's
-typedef enum {
-	MOD_NONE,
-	MOD_SUICIDE,
-	MOD_CRUSH,
-	MOD_CRUSH_EVERY_FRAME,
-	MOD_TELEFRAG,
-	MOD_LAVA,
-	MOD_SLIME,
-	MOD_FALLING,
-	MOD_LAST_SELF_INFLICTED,
-	MOD_EXPLOSION,
-	MOD_EXPLODEWALL,
-	MOD_ELECTRIC,
-	MOD_ELECTRICWATER,
-	MOD_THROWNOBJECT,
-	MOD_GRENADE,
-	MOD_BEAM,
-	MOD_ROCKET,
-	MOD_IMPACT,
-	MOD_BULLET,
-	MOD_FAST_BULLET,
-	MOD_VEHICLE,
-	MOD_FIRE,
-	MOD_FLASHBANG,
-	MOD_ON_FIRE,
-	MOD_GIB,
-	MOD_IMPALE,
-	MOD_BASH,
-	MOD_SHOTGUN,
-	MOD_TOTAL_NUMBER,
-
-} meansOfDeath_t;
-
-extern const char *means_of_death_strings[];
 
 //---------------------------------------------------------
 
@@ -617,34 +646,6 @@ extern const char *means_of_death_strings[];
 #define MASK_CROSSHAIRSHADER				0x42092B01
 #define MASK_TRACER							0x42142B21
 */
-
-//
-// entityState_t->eType
-//
-typedef enum {
-	ET_MODELANIM_SKEL,
-	ET_MODELANIM,
-	ET_VEHICLE,
-	ET_PLAYER,
-	ET_ITEM,
-	ET_GENERAL,
-	ET_MISSILE,
-	ET_MOVER,
-	ET_BEAM,
-	ET_MULTIBEAM,
-	ET_PORTAL,
-	ET_EVENT_ONLY,
-	ET_RAIN,
-	ET_LEAF,
-	ET_SPEAKER,
-	ET_PUSH_TRIGGER,
-	ET_TELEPORT_TRIGGER,
-	ET_DECAL,
-	ET_EMITTER,
-	ET_ROPE,
-	ET_EVENTS,
-	ET_EXEC_COMMANDS
-} entityType_t;
 
 void	BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t result );
 
