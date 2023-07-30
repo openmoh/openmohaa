@@ -12,6 +12,7 @@ set(SOURCES_SHARED
 	"${CMAKE_SOURCE_DIR}/code/qcommon/class.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/con_set.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/con_timer.cpp"
+	"${CMAKE_SOURCE_DIR}/code/qcommon/lightclass.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/listener.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/lz77.cpp"
 	"${CMAKE_SOURCE_DIR}/code/qcommon/mem_blockalloc.cpp"

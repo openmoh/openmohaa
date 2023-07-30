@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "container.h"
 #include "q_shared.h"
 #include "str.h"
+#include "lightclass.h"
 
 #include "const_str.h"
 
@@ -239,7 +240,7 @@ void listInheritanceOrder(const char* classname);
 class SafePtrBase;
 class Archiver;
 
-class Class
+class Class : public LightClass
 {
 public:
     SafePtrBase* SafePtrList;
@@ -248,11 +249,6 @@ private:
     void ClearSafePointers();
 
 public:
-#ifndef _DEBUG_MEM
-    void* operator new(size_t);
-    void operator delete(void*);
-#endif
-
     Class();
     virtual ~Class();
 

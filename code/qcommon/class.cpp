@@ -212,56 +212,7 @@ void CLASS_Print(FILE *class_file, const char *fmt, ...)
     }
 }
 
-size_t       totalmemallocated   = 0;
-unsigned int numclassesallocated = 0;
 
-bool classInited = false;
-
-#ifndef _DEBUG_MEM
-void *Class::operator new(size_t s)
-{
-    size_t *p;
-
-    if (s == 0) {
-        static void *empty_memory = nullptr;
-        return &empty_memory;
-    }
-
-    s += sizeof(size_t);
-
-#    ifdef GAME_DLL
-    p = (size_t *)gi.Malloc(s);
-#    elif defined(CGAME_DLL)
-    p = (size_t *)cgi.Malloc(s);
-#    else
-    p = (size_t *)Z_Malloc(s);
-#    endif
-
-    totalmemallocated += s;
-    numclassesallocated++;
-
-    p++;
-
-    return p;
-}
-
-void Class::operator delete(void *ptr)
-{
-    size_t *p = ((size_t *)ptr) - 1;
-
-    totalmemallocated -= *p;
-    numclassesallocated--;
-
-#    ifdef GAME_DLL
-    gi.Free(p);
-#    elif defined(CGAME_DLL)
-    cgi.Free(p);
-#    else
-    Z_Free(p);
-#    endif
-}
-
-#endif
 
 Class::Class()
 {
