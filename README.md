@@ -50,7 +50,7 @@ Overall the server part and the game module are almost fully implemented, but th
 
 ### Client
 
-The client version of OpenMoHAA is partially implemented and not stable currently. The cgame module is partially implemented as well, but is compatible with the original MOH:AA game. Credits to **Heavy Metal: F.A.K.K. 2**'s SDK for the cgame module.
+The client version of OpenMoHAA is partially implemented and not stable currently. The cgame module is partially implemented as well, but is compatible with the original MOH:AA game. Credits to **Heavy Metal: F.A.K.K. 2**'s SDK for the cgame and fgame module.
 
 Here is the current working state for each part of the engine:
 
@@ -58,13 +58,13 @@ Here is the current working state for each part of the engine:
 |-------------------------|------|--------|------|-------|-----|-------------|-------------------------------------------------------------------|
 | Audio                   |      |        |      |       | x   |             | Very basic implementation from Quake III                          |
 | CG Module               |      | x      |      |       |     |             | Missing FX, Marks and decals                                      |
-| Client                  |      |        | x    |       |     |             | Missing GameSpy, server list, binds, map picker, ...              |
+| Client                  |      | x      |      |       |     |             | Missing GameSpy, server list, binds, map picker, ...              |
 | Collision               | x    |        |      |       |     |             |                                                                   |
 | Model/TIKI/Skeletor     | x    |        |      |       |     |             |                                                                   |
-| Renderer                |      |        |      | x     |     |             | Missing ghost, marks, sphere lights, sky portal, sun flare, swipe |
+| Renderer                |      | x      |      |       |     |             | Missing ghost, marks, sphere lights, sky portal, sun flare, swipe |
 | Server                  |      | x      |      |       |     |             | Probably a few bugs remaining                                     |
 | Server module (fgame)   |      | x      |      |       |     |             | Actor, vehicle, and few gameplay bugs                             |
-| UI                      |      |        |      | x     |     |             | Has core features only (menu, widgets, console, hud, urc loading) |
+| UI                      |      |        | x    |       |     |             | Has core features only (menu, widgets, console, hud, urc loading) |
 
 **Medal of Honor: Allied Assault Spearhead** and **Medal of Honor: Allied Assault Breakthrough** are supported in OpenMoHAA with the `com_target_game` variable. See the **Running** section for the usage.
 
