@@ -700,58 +700,61 @@ screenshot [filename]
 Doesn't print the pacifier message if there is a second arg
 ================== 
 */  
-void R_ScreenShot_f (void) {
-	char	checkname[MAX_OSPATH];
-	static	int	lastNumber = -1;
-	qboolean	silent;
+void R_ScreenShot_f(void) {
+    char	checkname[MAX_OSPATH];
+    static	int	lastNumber = -1;
+    qboolean	silent;
 
-	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
-		R_LevelShot();
-		return;
-	}
+    if (!strcmp(ri.Cmd_Argv(1), "levelshot")) {
+        R_LevelShot();
+        return;
+    }
 
-	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) ) {
-		silent = qtrue;
-	} else {
-		silent = qfalse;
-	}
+    if (!strcmp(ri.Cmd_Argv(1), "silent")) {
+        silent = qtrue;
+    } else {
+        silent = qfalse;
+    }
 
-	if ( ri.Cmd_Argc() == 2 && !silent ) {
-		// explicit filename
-		Com_sprintf( checkname, MAX_OSPATH, "screenshots/%s.tga", ri.Cmd_Argv( 1 ) );
-	} else {
-		// scan for a free filename
+    if (ri.Cmd_Argc() == 2 && !silent) {
+        // explicit filename
+        Com_sprintf(checkname, MAX_OSPATH, "screenshots/%s.tga", ri.Cmd_Argv(1));
+    } else {
+        // scan for a free filename
 
-		// if we have saved a previous screenshot, don't scan
-		// again, because recording demo avis can involve
-		// thousands of shots
-		if ( lastNumber == -1 ) {
-			lastNumber = 0;
-		}
-		// scan for a free number
-		for ( ; lastNumber <= 9999 ; lastNumber++ ) {
-			R_ScreenshotFilename( lastNumber, checkname );
+        // if we have saved a previous screenshot, don't scan
+        // again, because recording demo avis can involve
+        // thousands of shots
+        if (lastNumber == -1) {
+            lastNumber = 0;
+        }
+        // scan for a free number
+        for (; lastNumber <= 9999; lastNumber++) {
+            R_ScreenshotFilename(lastNumber, checkname);
 
-      if (!ri.FS_FileExists( checkname ))
-      {
-        break; // file doesn't exist
-      }
-		}
+            if (!ri.FS_FileExists(checkname))
+            {
+                break; // file doesn't exist
+            }
+        }
 
-		if ( lastNumber >= 9999 ) {
-			ri.Printf (PRINT_ALL, "ScreenShot: Couldn't create a file\n"); 
-			return;
- 		}
+        if (lastNumber >= 9999) {
+            ri.Printf(PRINT_ALL, "ScreenShot: Couldn't create a file\n");
+            return;
+        }
 
-		lastNumber++;
-	}
+        lastNumber++;
+    }
 
-	R_TakeScreenshot( 0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname, qfalse );
+    R_TakeScreenshot(0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname, qfalse);
 
-	if ( !silent ) {
-		ri.Printf (PRINT_ALL, "Wrote %s\n", checkname);
-	}
-} 
+    if (!silent) {
+        char message[64];
+
+        Com_sprintf(message, sizeof(message), "centerprint \"%s %s\"\n", ri.LV_ConvertString("Wrote"), checkname);
+        ri.Cmd_ExecuteText(EXEC_NOW, message);
+    }
+}
 
 void R_ScreenShotJPEG_f (void) {
 	char		checkname[MAX_OSPATH];
