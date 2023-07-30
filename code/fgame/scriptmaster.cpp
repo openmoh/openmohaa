@@ -959,7 +959,8 @@ void ScriptMaster::RegisterAliasInternal
 	int i;
 	char parameters[ MAX_STRING_CHARS ];
 	char *psMapsBuffer;
-	int subtitle;
+    int subtitle;
+    bool bAlwaysLoaded = false;
 
 	// Get the parameters for this alias command
 
@@ -1002,9 +1003,9 @@ void ScriptMaster::RegisterAliasInternal
 		{
 			i++;
 			psMapsBuffer = ( char * )ev->GetToken( i ).c_str();
-		}
-		else
-		{
+		} else if (!s.icmp("always")) {
+			bAlwaysLoaded = true;
+		} else {
 			subtitle = s.icmp( "subtitle" ) == 0;
 			
 			strcat( parameters, s );
@@ -1012,12 +1013,13 @@ void ScriptMaster::RegisterAliasInternal
 		}
 	}
 
-	if( bLoadForMap( psMapsBuffer, ev->GetString( 1 ) ) )
+	if(bAlwaysLoaded || bLoadForMap( psMapsBuffer, ev->GetString( 1 ) ) )
 	{
 		gi.GlobalAlias_Add( ev->GetString( 1 ), ev->GetString( 2 ), parameters );
 
-		if( bCache )
-			CacheResource( ev->GetString( 2 ) );
+		if (bCache) {
+			CacheResource(ev->GetString(2));
+		}
 	}
 #endif
 }
