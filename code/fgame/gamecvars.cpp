@@ -130,9 +130,10 @@ cvar_t *g_ai;
 cvar_t *g_vehicle;
 
 cvar_t *g_gametype;
-cvar_t *g_gametypestring;
-cvar_t *g_rankedserver;
-cvar_t *g_teamdamage;
+cvar_t* g_gametypestring;
+cvar_t* g_realismmode;
+cvar_t* g_teamdamage;
+cvar_t* g_rankedserver;
 
 cvar_t *g_allowvote;
 cvar_t *g_monitor;
@@ -355,6 +356,11 @@ void CVAR_Init( void )
 
 	g_gametype				= gi.Cvar_Get( "g_gametype", 				"0",				CVAR_USERINFO|CVAR_SERVERINFO|CVAR_LATCH );
 	g_gametypestring		= gi.Cvar_Get( "g_gametypestring", 			"Free-For-All",		CVAR_SERVERINFO );
+	g_realismmode			= gi.Cvar_Get( "g_realismmode", 			"0",				CVAR_USERINFO|CVAR_SERVERINFO|CVAR_LATCH );
+	if (!g_gametype->integer) {
+		gi.Cvar_Set("g_realismmode", "0");
+	}
+
 	g_rankedserver			= gi.Cvar_Get( "g_rankedserver", 			"0",				0 );
 	g_teamdamage			= gi.Cvar_Get( "g_teamdamage", 				"0",				0 );
 	g_allowvote				= gi.Cvar_Get( "g_allowvote", 				"1",				0 );

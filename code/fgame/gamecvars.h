@@ -137,6 +137,7 @@ extern cvar_t *g_vehicle;
 
 extern cvar_t *g_gametype;
 extern cvar_t *g_gametypestring;
+extern cvar_t *g_realismmode;
 extern cvar_t *g_rankedserver;
 extern cvar_t *g_teamdamage;
 
