@@ -21,3 +21,43 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #pragma once
+
+#include "effectentity.h"
+
+class SmokeGrenade : public EffectEntity {
+    CLASS_PROTOTYPE(SmokeGrenade);
+
+public:
+    SmokeGrenade();
+
+    void EventSetSpawnrate(Event* ev);
+    void EventSetBouncefactor(Event* ev);
+    void EventSetLife(Event* ev);
+    void EventSetSpawnLife(Event* ev);
+    void EventSetScalerate(Event* ev);
+    void EventSetVelocity(Event* ev);
+    void EventSetSpin(Event* ev);
+    void EventSetOffset(Event* ev);
+    void EventSetScale(Event* ev);
+    void EventSetFadein(Event* ev);
+    void EventSetFadedelay(Event* ev);
+    void EventSetMaxAlpha(Event* ev);
+
+    void Think();
+
+private:
+    float nextRemoveTime;
+    int spawnRate;
+    float bounceFactor;
+    float spawnLife;
+    float scaleRate;
+    Vector velocity;
+    float spinRate;
+    Vector offset;
+    float scale;
+    float fadeIn;
+    float fadeDelay;
+    float maxAlpha;
+    int lastSpawnTime;
+    SafePtr<class Sentient> owner;
+};
