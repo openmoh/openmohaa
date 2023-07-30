@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cl_ui.h"
 #include "../qcommon/tiki.h"
 #include "../qcommon/cm_terrain.h"
+#include "../qcommon/localization.h"
 #include "../sys/sys_local.h"
 #ifdef USE_RENDERER_DLL
 #include "../sys/sys_loadlib.h"
@@ -2796,6 +2797,7 @@ void CL_InitRef( void ) {
 	ri.Printf = CL_RefPrintf;
 	ri.Error = Com_Error;
 	ri.Milliseconds = CL_ScaledMilliseconds;
+	ri.LV_ConvertString = Sys_LV_CL_ConvertString;
 	ri.Malloc = CL_RefMalloc;
 	ri.Free = Z_Free;
 	ri.Clear = CL_RefClear;
