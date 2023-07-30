@@ -301,6 +301,15 @@ Event EV_Stationary
 	"entity does not move, causes no physics to be run on it.",
 	EV_NORMAL
 	);
+Event EV_Toss
+	( 
+	"toss",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"entity has gravity applied to it.",
+	EV_NORMAL
+	);
 
 // Physics events
 Event EV_MoveDone
@@ -392,6 +401,15 @@ Event EV_RemoveAttachedModel
 	"Removes the model attached to this entity at the specified tag.",
 	EV_NORMAL
 	);
+Event EV_AttachedModelAnim
+	( 
+	"attachedmodelanim",
+	EV_DEFAULT,
+	"ssfs",
+	"tagname anim_name crossblend_time model_name",
+	"Tells models (or specified model) attached to specified tag to play \n"
+	"specified animation.  Crossblend time doesn't work yet."
+	);
 Event EV_Detach
 	( 
 	"detach",
@@ -412,16 +430,16 @@ Event EV_Model
 	"set the model to modelName.",
 	EV_NORMAL
 	);
-Event EV_Entity_GetBrushModel
-	( 
-	"brushmodel",
+Event EV_SetModel
+	(
+	"model",
 	EV_DEFAULT,
-	NULL,
-	NULL,
-	"get the brush modelName.",
-	EV_GETTER
+	"e",
+	"modelName",
+	"set the model to modelName.",
+	EV_SETTER
 	);
-Event EV_Entity_GetModel
+Event EV_GetModel
 	( 
 	"model",
 	EV_DEFAULT,
@@ -430,14 +448,14 @@ Event EV_Entity_GetModel
 	"get the modelName.",
 	EV_GETTER
 	);
-Event EV_Entity_SetModel
-	(
-	"model",
+Event EV_GetBrushModel
+	( 
+	"brushmodel",
 	EV_DEFAULT,
-	"e",
-	"modelName",
-	"set the model to modelName.",
-	EV_SETTER
+	NULL,
+	NULL,
+	"get the brush modelName.",
+	EV_GETTER
 	);
 Event EV_Hide
 	( 
@@ -464,6 +482,15 @@ Event EV_BecomeSolid
 	NULL,
 	NULL,
 	"make solid.",
+	EV_NORMAL
+	);
+Event EV_SafeSolid
+	( 
+	"safesolid",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"make solid but first make sure no one is in my bounds that is thinking.",
 	EV_NORMAL
 	);
 Event EV_BecomeNonSolid
@@ -515,6 +542,34 @@ Event EV_StopSound
 	"default channel, CHAN_BODY.",
 	EV_NORMAL
 	);
+
+Event EV_DuckableGlue
+	( 
+	"duckableglue",
+	EV_DEFAULT,
+	"eI",
+	"parent glueAngles",
+	"glue this entity to the specified entity, but allow ducking.",
+	EV_NORMAL
+	);
+Event EV_Glue
+	( 
+	"glue",
+	EV_DEFAULT,
+	"eI",
+	"parent glueAngles",
+	"glue this entity to the specified entity.",
+	EV_NORMAL
+	);
+Event EV_Unglue
+	( 
+	"unglue",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"unglue this entity.",
+	EV_NORMAL
+	);
 Event EV_Bind
 	( 
 	"bind",
@@ -533,22 +588,13 @@ Event EV_Unbind
 	"unbind this entity.",
 	EV_NORMAL
 	);
-Event EV_Glue
+Event EV_MakeClayPidgeon
 	( 
-	"glue",
-	EV_DEFAULT,
-	"ei",
-	"parent glueAngles",
-	"glue this entity to the specified entity.",
-	EV_NORMAL
-	);
-Event EV_Unglue
-	( 
-	"unglue",
+	"claypidgeon",
 	EV_DEFAULT,
 	NULL,
 	NULL,
-	"unglue this entity.",
+	"turn the entity into a non-solid shootable thing",
 	EV_NORMAL
 	);
 Event EV_JoinTeam
@@ -568,78 +614,6 @@ Event EV_QuitTeam
 	NULL,
 	"quit the current bind team",
 	EV_NORMAL
-	);
-Event EV_Entity_SetHealthOnly
-	( 
-	"healthonly", 
-	EV_CONSOLE | EV_CHEAT,
-	"i",
-	"newHealth",
-	"set the health of the entity to newHealth without changing max_health",
-	EV_NORMAL
-	);
-Event EV_Entity_SetHealthOnly2
-	( 
-	"healthonly", 
-	EV_CONSOLE | EV_CHEAT,
-	"i",
-	"newHealth",
-	"set the health of the entity to newHealth without changing max_health",
-	EV_SETTER
-	);
-Event EV_Entity_SetMaxHealth
-	( 
-	"max_health", 
-	EV_DEFAULT,
-	"i",
-	"newHealth",
-	"sets max_health without changing health",
-	EV_NORMAL
-	);
-Event EV_Entity_SetMaxHealth2
-	( 
-	"max_health", 
-	EV_DEFAULT,
-	"i",
-	"newHealth",
-	"sets max_health without changing health",
-	EV_SETTER
-	);
-Event EV_Entity_GetMaxHealth
-	( 
-	"max_health", 
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"gets the entity's max health",
-	EV_GETTER
-	);
-Event EV_SetHealth
-	( 
-	"health", 
-	EV_CONSOLE | EV_CHEAT,
-	"i",
-	"newHealth",
-	"set the health of the entity to newHealth",
-	EV_NORMAL
-	);
-Event EV_SetHealth2
-	( 
-	"health", 
-	EV_CONSOLE | EV_CHEAT,
-	"i",
-	"newHealth",
-	"set the health of the entity to newHealth",
-	EV_SETTER
-	);
-Event EV_Entity_GetHealth
-	( 
-	"health", 
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"entity's health",
-	EV_GETTER
 	);
 Event EV_SetScale
 	(
@@ -695,6 +669,24 @@ Event EV_SetMaxs
    "Set the maxs of the bounding box of the entity to maxs.",
 	EV_NORMAL
    );
+Event EV_GetMins
+	(
+	"getmins",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Get the mins of the bounding box of the entity to mins.",
+	EV_RETURN
+	);
+Event EV_GetMaxs
+	(
+	"getmaxs",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Get the maxs of the bounding box of the entity to maxs.",
+	EV_RETURN
+	);
 Event EV_SetAlpha
    ( 
    "alpha",
@@ -1001,6 +993,33 @@ Event EV_SetControllerAngles
 	"Sets the control angles for the specified bone.",
 	EV_NORMAL
 	);
+Event EV_GetControllerAngles
+	(
+    "getcontrollerangles",
+    EV_DEFAULT,
+    "i",
+    "num",
+    "Gets the control angles for the specified bone.",
+    EV_RETURN
+	);
+Event EV_GetTagPosition
+    (
+	"gettagposition",
+	EV_DEFAULT,
+	"s",
+	"tag_name",
+	"Gets the world position of the tag",
+	EV_RETURN
+    );
+Event EV_GetTagAngles
+    (
+	"gettagangles",
+	EV_DEFAULT,
+	"s",
+	"tag_name",
+	"Gets the world angles of the tag",
+	EV_RETURN
+    );
 Event EV_DeathSinkStart
 	( 
 	"deathsinkstart",
@@ -1043,6 +1062,86 @@ Event EV_Entity_MovementStealth
 	"f",
 	"scale",
 	"Sets the current movement stealth scalar for the sentient"
+);
+Event EV_Entity_Revive
+(
+    "revive",
+    EV_DEFAULT,
+    "f",
+    "health",
+    "sets the health, even if dead"
+);
+Event EV_SetHealth
+(
+	"health",
+	EV_CONSOLE | EV_CHEAT,
+	"i",
+	"newHealth",
+	"set the health of the entity to newHealth",
+	EV_NORMAL
+);
+Event EV_SetHealth2
+(
+	"health",
+	EV_CONSOLE | EV_CHEAT,
+	"i",
+	"newHealth",
+	"set the health of the entity to newHealth",
+	EV_SETTER
+);
+Event EV_Entity_GetHealth
+(
+	"health",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"entity's health",
+	EV_GETTER
+);
+Event EV_Entity_GetMaxHealth
+(
+	"max_health",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"gets the entity's max health",
+	EV_GETTER
+);
+Event EV_Entity_SetMaxHealth
+(
+	"max_health",
+	EV_DEFAULT,
+	"i",
+	"newHealth",
+	"sets max_health without changing health",
+	EV_NORMAL
+);
+Event EV_Entity_SetMaxHealth2
+(
+	"max_health",
+	EV_DEFAULT,
+	"i",
+	"newHealth",
+	"sets max_health without changing health",
+	EV_SETTER
+);
+Event EV_Entity_SetHealthOnly
+(
+	"healthonly",
+	EV_CONSOLE | EV_CHEAT,
+	"i",
+	"newHealth",
+	"set the health of the entity to newHealth without changing max_health",
+	EV_NORMAL
+);
+Event EV_Entity_SetHealthOnly2
+(
+	"healthonly",
+	EV_CONSOLE | EV_CHEAT,
+	"i",
+	"newHealth",
+	"set the health of the entity to newHealth without changing max_health",
+	EV_SETTER
 );
 Event EV_Entity_GetYaw
 (
@@ -1094,14 +1193,32 @@ Event EV_IsTouching
 	"returns 1 if the entities are touching, 0 if not",
 	EV_RETURN
 );
+Event EV_IsInside
+(
+    "isinside",
+    EV_DEFAULT,
+    "e",
+    "ent",
+    "returns 1 if the entity is inside, 0 if not",
+    EV_RETURN
+);
 Event EV_CanSee
 (
 	"cansee",
 	EV_DEFAULT,
-	"eff",
+	"eFF",
 	"entity fov vision_distance",
 	"returns 1 if the entities can see eachother, 0 if not",
 	EV_RETURN
+);
+Event EV_CanSeeNoEnts
+(
+    "cansee",
+    EV_DEFAULT,
+    "eFF",
+    "entity fov vision_distance",
+    "returns 1 if the entities can see eachother, 0 if not; ignores any entities between them",
+    EV_RETURN
 );
 Event EV_Entity_InPVS
 (
@@ -1121,7 +1238,7 @@ Event EV_SetShaderData
 	"sets the shader controllers for this entity.",
 	EV_NORMAL
 );
-Event EV_Entity_SetVelocity
+Event EV_SetVelocity
 (
 	"velocity",
 	EV_DEFAULT,
@@ -1130,7 +1247,7 @@ Event EV_Entity_SetVelocity
 	"sets the velocity for this entity.",
 	EV_SETTER
 );
-Event EV_Entity_GetVelocity
+Event EV_GetVelocity
 (
 	"velocity",
 	EV_DEFAULT,
@@ -1148,33 +1265,6 @@ Event EV_GetAVelocity
 	"gets the angular velocity for this entity.",
 	EV_GETTER
 );
-Event EV_GetTagAngles
-(
-	"gettagangles",
-	EV_DEFAULT,
-	"s",
-	"tag_name",
-	"Gets the world angles of the tag",
-	EV_RETURN
-);
-Event EV_GetTagPosition
-(
-	"gettagposition",
-	EV_DEFAULT,
-	"s",
-	"tag_name",
-	"Gets the world position of the tag",
-	EV_RETURN
-);
-Event EV_GetControllerAngles
-(
-	"getcontrollerangles",
-	EV_DEFAULT,
-	"i",
-	"num",
-	"Gets the control angles for the specified bone.",
-	EV_RETURN
-);
 Event EV_ForceActivate
 (
 	"forceactivate",
@@ -1182,6 +1272,14 @@ Event EV_ForceActivate
 	NULL,
 	NULL,
 	"Forces an entity to activate outside of the player's PVS"
+);
+Event EV_ConnectPaths
+(
+    "connect_paths",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Connects all navigation paths which intersect with the specified entity's volume"
 );
 Event EV_DisconnectPaths
 (
@@ -1191,37 +1289,29 @@ Event EV_DisconnectPaths
 	NULL,
 	"disonnects all navigation paths which intersect with the specified entity's volume"
 );
-Event EV_ConnectPaths
-(
-	"connect_paths",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Connects all navigation paths which intersect with the specified entity's volume"
-);
 Event EV_VolumeDamage
 (
-	"volumedamage",
-	EV_DEFAULT,
-	"f",
-	"damage",
-	"does damage to any entity within this's volume"
+    "volumedamage",
+    EV_DEFAULT,
+    "f",
+    "damage",
+    "does damage to any entity within this's volume"
 );
 Event EV_Entity_AddImmunity
 (
-	"immune",
-	EV_DEFAULT,
-	"sSSSSS",
-	"immune_string1 immune_string2 immune_string3 immune_string4 immune_string5 immune_string6",
-	"Adds to the immunity list for this sentient."
+    "immune",
+    EV_DEFAULT,
+    "sSSSSS",
+    "immune_string1 immune_string2 immune_string3 immune_string4 immune_string5 immune_string6",
+    "Adds to the immunity list for this sentient."
 );
 Event EV_Entity_RemoveImmunity
 (
-	"removeimmune",
-	EV_DEFAULT,
-	"sSSSSS",
-	"immune_string1 immune_string2 immune_string3 immune_string4 immune_string5 immune_string6",
-	"Removes from the immunity list for this sentient."
+    "removeimmune",
+    EV_DEFAULT,
+    "sSSSSS",
+    "immune_string1 immune_string2 immune_string3 immune_string4 immune_string5 immune_string6",
+    "Removes from the immunity list for this sentient."
 );
 Event EV_GetEntnum
 (
@@ -1231,6 +1321,15 @@ Event EV_GetEntnum
 	NULL,
 	"The entity's entity number",
 	EV_GETTER
+);
+Event EV_GetClassname
+(
+    "classname",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "The entity's classname",
+    EV_GETTER
 );
 Event EV_Entity_SetRadnum
 (
@@ -1268,24 +1367,80 @@ Event EV_Entity_GetRotatedBbox
 	"Gets te entity's bbox to rotate with it.",
 	EV_GETTER
 );
-Event EV_Entity_GetMaxs
-	(
-	"getmaxs",
+Event EV_Entity_SinglePlayerCommand
+(
+	"sp",
 	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Get the maxs of the bounding box of the entity to maxs.",
-	EV_RETURN
-	);
-Event EV_Entity_GetMins
-	(
-	"getmins",
+	"sSSS",
+	"command parms",
+	"Makes a command be executed only in single player"
+);
+Event EV_Entity_MultiPlayerCommand
+(
+	"dm",
 	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Get the mins of the bounding box of the entity to mins.",
-	EV_RETURN
-	);
+	"sSSS",
+	"command parms",
+	"Makes a command be executed only in multiplayer"
+);
+Event EV_Entity_RealismModeCommand
+(
+	"realism",
+	EV_DEFAULT,
+	"sSSS",
+	"command parms",
+	"Makes a command be executed only in realism mode"
+);
+Event EV_Entity_SPRealismModeCommand
+(
+	"sprealism",
+	EV_DEFAULT,
+	"sSSS",
+	"command parms",
+	"Makes a command be executed only in single player realism mode"
+);
+Event EV_Entity_DMRealismModeCommand
+(
+    "dmrealism",
+    EV_DEFAULT,
+    "sSSS",
+    "command parms",
+    "Makes a command be executed only in multiplayer realism mode"
+);
+Event EV_Entity_GetLocalYawFromVector
+(
+    "GetLocalYawFromVector",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Turn a worldspace vector into a local space yaw",
+	EV_GETTER
+);
+Event EV_ShootableOnly
+(
+    "shootableonly",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Makes the entity shootable only."
+);
+Event EV_SetShaderTime
+(
+    "setshadertime",
+    EV_DEFAULT,
+    "FF",
+    "timeOffset randomTimeOffset",
+    "reset the shader time for this entity."
+);
+Event EV_NoTarget
+(
+    "notarget",
+    EV_DEFAULT,
+    "b",
+    "setNoTarget",
+    "flag an entity as no target."
+);
+
 Event EV_Entity_SetDHack
 	(
 	"depthhack",
@@ -1354,6 +1509,7 @@ CLASS_DECLARATION( SimpleEntity, Entity, NULL )
 		{ &EV_Damage,						&Entity::DamageEvent },
 		{ &EV_DamageType,					&Entity::DamageType },
 		{ &EV_Kill,							&Entity::Kill },
+		{ &EV_Killed,						&Entity::Killed },
 		{ &EV_FadeNoRemove,					&Entity::FadeNoRemove },
 		{ &EV_FadeOut,						&Entity::FadeOut },
 		{ &EV_FadeIn,						&Entity::FadeIn },
@@ -1366,17 +1522,11 @@ CLASS_DECLARATION( SimpleEntity, Entity, NULL )
 		{ &EV_TouchTriggers,				&Entity::TouchTriggersEvent },
 		{ &EV_Sound,						&Entity::Sound },
 		{ &EV_StopSound,					&Entity::StopSound },
-		{ &EV_Entity_SetHealthOnly,			&Entity::EventSetHealthOnly },
-		{ &EV_Entity_SetHealthOnly2,		&Entity::EventSetHealthOnly },
-		{ &EV_Entity_SetMaxHealth,			&Entity::EventSetMaxHealth },
-		{ &EV_Entity_SetMaxHealth2,			&Entity::EventSetMaxHealth },
-		{ &EV_Entity_GetMaxHealth,			&Entity::EventGetMaxHealth },
-		{ &EV_SetHealth,					&Entity::SetHealth },
-		{ &EV_SetHealth2,					&Entity::SetHealth },
-		{ &EV_Entity_GetHealth,				&Entity::GetHealth },
 		{ &EV_SetSize,						&Entity::SetSize },
 		{ &EV_SetMins,						&Entity::SetMins },
-		{ &EV_SetMaxs,						&Entity::SetMaxs },
+        { &EV_SetMaxs,						&Entity::SetMaxs },
+        { &EV_GetMins,						&Entity::GetMins },
+        { &EV_GetMaxs,						&Entity::GetMaxs },
 		{ &EV_SetScale,						&Entity::SetScale },
 		{ &EV_SetScale2,					&Entity::SetScale },
 		{ &EV_GetScale,						&Entity::GetScale },
@@ -1386,9 +1536,9 @@ CLASS_DECLARATION( SimpleEntity, Entity, NULL )
 		{ &EV_LoopSound,					&Entity::LoopSound },
 		{ &EV_StopLoopSound,				&Entity::StopLoopSound },
 		{ &EV_Model,						&Entity::SetModelEvent },
-		{ &EV_Entity_SetModel,				&Entity::SetModelEvent },
-		{ &EV_Entity_GetBrushModel,			&Entity::GetBrushModelEvent },
-		{ &EV_Entity_GetModel,				&Entity::GetModelEvent },
+        { &EV_SetModel,						&Entity::SetModelEvent },
+        { &EV_GetModel,						&Entity::GetModelEvent },
+		{ &EV_GetBrushModel,				&Entity::GetBrushModelEvent },
 		{ &EV_SetLight,						&Entity::SetLight },
 		{ &EV_LightOn,						&Entity::LightOn },
 		{ &EV_LightOff,						&Entity::LightOff },
@@ -1406,6 +1556,7 @@ CLASS_DECLARATION( SimpleEntity, Entity, NULL )
 		{ &EV_Attach,						&Entity::AttachEvent },
 		{ &EV_AttachModel,					&Entity::AttachModelEvent },
 		{ &EV_RemoveAttachedModel,			&Entity::RemoveAttachedModelEvent },
+		{ &EV_AttachedModelAnim,			&Entity::AttachedModelAnimEvent },
 		{ &EV_Detach,						&Entity::DetachEvent },
 		{ &EV_TakeDamage,					&Entity::TakeDamageEvent },
 		{ &EV_NoDamage,						&Entity::NoDamageEvent },
@@ -1420,43 +1571,59 @@ CLASS_DECLARATION( SimpleEntity, Entity, NULL )
 		{ &EV_Trigger,						&Entity::TriggerEvent },
 		{ &EV_Censor,						&Entity::Censor },
 		{ &EV_Stationary,					&Entity::StationaryEvent },
+		{ &EV_Toss,							&Entity::TossEvent },
 		{ &EV_Explosion,					&Entity::Explosion },
 		{ &EV_ShaderEvent,					&Entity::Shader },
 		{ &EV_ScriptShaderEvent,			&Entity::Shader },
 		{ &EV_KillAttach,					&Entity::KillAttach },
 		{ &EV_DropToFloor,					&Entity::DropToFloorEvent },
+        { &EV_Glue,							&Entity::GlueEvent },
+        { &EV_DuckableGlue,					&Entity::DuckableGlueEvent },
+        { &EV_Unglue,						&Entity::EventUnglue },
 		{ &EV_Bind,							&Entity::BindEvent },
 		{ &EV_Unbind,						&Entity::EventUnbind },
-		{ &EV_Glue,							&Entity::GlueEvent },
-		{ &EV_Unglue,						&Entity::EventUnglue },
+		{ &EV_MakeClayPidgeon,				&Entity::MakeClayPidgeon },
 		{ &EV_JoinTeam,						&Entity::JoinTeam },
 		{ &EV_QuitTeam,						&Entity::EventQuitTeam },
 		{ &EV_AddToSoundManager,			&Entity::AddToSoundManager },
 		{ &EV_SetControllerAngles,			&Entity::SetControllerAngles },
+        { &EV_GetControllerAngles,			&Entity::GetControllerAngles },
+        { &EV_GetTagAngles,					&Entity::GetTagAngles },
+        { &EV_GetTagPosition,				&Entity::GetTagPosition },
 		{ &EV_DeathSinkStart,				&Entity::DeathSinkStart },
 		{ &EV_DeathSink,					&Entity::DeathSink },
 		{ &EV_DetachAllChildren,			&Entity::DetachAllChildren },
 		{ &EV_Entity_MovementStealth,		&Entity::EventMovementStealth },
-		{ &EV_Entity_GetYaw,				&Entity::GetYaw },
 		{ &EV_Pusher,						&Entity::PusherEvent },
 		{ &EV_NeverDraw,					&Entity::NeverDraw },
 		{ &EV_NormalDraw,					&Entity::NormalDraw },
 		{ &EV_AlwaysDraw,					&Entity::AlwaysDraw },
 		{ &EV_IsTouching,					&Entity::IsTouching },
-		{ &EV_Entity_GetVelocity,			&Entity::GetVelocity },
-		{ &EV_GetAVelocity,					&Entity::GetAVelocity },
-		{ &EV_Entity_SetVelocity,			&Entity::SetVelocity },
+		{ &EV_IsInside,						&Entity::IsInside },
 		{ &EV_CanSee,						&Entity::CanSee },
 		{ &EV_Entity_InPVS,					&Entity::EventInPVS },
-		{ &EV_SetShaderData,				&Entity::SetShaderData },
+        { &EV_SetShaderData,				&Entity::SetShaderData },
+        { &EV_GetVelocity,					&Entity::GetVelocity },
+        { &EV_SetVelocity,					&Entity::SetVelocity },
+        { &EV_GetAVelocity,					&Entity::GetAVelocity },
 		{ &EV_ForceActivate,				&Entity::ForceActivate },
 		{ &EV_ScriptThread_Trace,			&Entity::EventTrace },
 		{ &EV_ScriptThread_SightTrace,		&Entity::EventSightTrace },
+		{ &EV_Entity_Revive,				&Entity::EventRevive },
+        { &EV_SetHealth,					&Entity::SetHealth },
+        { &EV_SetHealth2,					&Entity::SetHealth },
+        { &EV_Entity_GetHealth,				&Entity::GetHealth },
+        { &EV_Entity_GetMaxHealth,			&Entity::EventGetMaxHealth },
+        { &EV_Entity_SetMaxHealth,			&Entity::EventSetMaxHealth },
+        { &EV_Entity_SetMaxHealth2,			&Entity::EventSetMaxHealth },
+        { &EV_Entity_SetHealthOnly,			&Entity::EventSetHealthOnly },
+        { &EV_Entity_SetHealthOnly2,		&Entity::EventSetHealthOnly },
+        { &EV_Entity_GetYaw,				&Entity::GetYaw },
+        { &EV_ConnectPaths,					&Entity::EventConnectPaths },
 		{ &EV_DisconnectPaths,				&Entity::EventDisconnectPaths },
 		{ &EV_Remove,						&Entity::Remove },
 		{ &EV_Delete,						&Entity::Remove },
 		{ &EV_ScriptRemove,					&Entity::Remove },
-		{ &EV_ConnectPaths,					&Entity::EventConnectPaths },
 		{ &EV_VolumeDamage,					&Entity::EventVolumeDamage },
 		{ &EV_GetNormalHealth,				&Entity::EventGetNormalHealth },
 		{ &EV_NormalDamage,					&Entity::EventNormalDamage },
@@ -1466,12 +1633,16 @@ CLASS_DECLARATION( SimpleEntity, Entity, NULL )
 		{ &EV_Entity_SetRadnum,				&Entity::EventSetRadnum },
 		{ &EV_Entity_GetRadnum,				&Entity::EventGetRadnum },
 		{ &EV_Entity_SetRotatedBbox,		&Entity::EventSetRotatedBbox },
-		{ &EV_Entity_GetRotatedBbox,		&Entity::EventGetRotatedBbox },
-		{ &EV_GetTagAngles,					&Entity::GetTagAngles },
-		{ &EV_GetTagPosition,				&Entity::GetTagPosition },
-		{ &EV_GetControllerAngles,			&Entity::GetControllerAngles },
-		{ &EV_Entity_GetMaxs,				&Entity::GetMaxs },
-		{ &EV_Entity_GetMins,				&Entity::GetMins },
+        { &EV_Entity_GetRotatedBbox,		&Entity::EventGetRotatedBbox },
+		{ &EV_Entity_SinglePlayerCommand,	&Entity::EventSinglePlayerCommand },
+		{ &EV_Entity_MultiPlayerCommand,	&Entity::EventMultiPlayerCommand },
+		{ &EV_Entity_RealismModeCommand,	&Entity::EventRealismModeCommand },
+		{ &EV_Entity_SPRealismModeCommand,	&Entity::EventSPRealismModeCommand },
+		{ &EV_Entity_DMRealismModeCommand,	&Entity::EventDMRealismModeCommand },
+		{ &EV_Entity_GetLocalYawFromVector,	&Entity::GetLocalYawFromVector },
+		{ &EV_ShootableOnly,				&Entity::EventShootableOnly },
+		{ &EV_SetShaderTime,				&Entity::SetShaderTime },
+		{ &EV_NoTarget,						&Entity::NoTarget },
 		{ &EV_Entity_GetZone,				&Entity::GetZone },
 		{ &EV_Entity_Zone,					&Entity::GetZone },
 		{ &EV_Entity_IsInZone,				&Entity::IsInZone },
@@ -1522,7 +1693,7 @@ Entity::Entity()
 	edict->clipmask = MASK_USABLE;
 
 	m_iNumGlues = 0;
-	m_bGlueAngles = false;
+	m_bGlueAngles = true;
 	m_pGlueMaster = NULL;
 
 	// team variables
@@ -1837,6 +2008,49 @@ void Entity::SpawnFlagsEvent
       edict->s.renderfx |= RF_DETAIL;
 		}
 	}
+
+void Entity::EventRevive(Event* ev)
+{
+	float multiplier = 1.0f;
+
+	if (!ev->IsFromScript() && IsSubclassOfSentient()) {
+		Sentient* pThis = static_cast<Sentient*>(this);
+
+		if (pThis->m_Team == TEAM_AMERICAN) {
+			switch (skill->integer) {
+			case 0:
+				multiplier = 1.3f;
+				break;
+			case 1:
+				multiplier = 1.0f;
+				break;
+			case 2:
+				multiplier = 0.7f;
+				break;
+			}
+		} else {
+            switch (skill->integer) {
+            case 0:
+                multiplier = 0.7f;
+                break;
+            case 1:
+                multiplier = 1.0f;
+                break;
+            case 2:
+                multiplier = 1.3f;
+                break;
+            }
+		}
+
+	}
+
+	health = ev->GetFloat(1) * multiplier;
+	if (health <= 0.f) {
+		throw ScriptException("health must be greated than 0");
+	}
+
+	deadflag = DEAD_NO;
+}
 
 bool monkeycheck = false;
 cvar_t *thereisnomonkey;
@@ -3044,6 +3258,40 @@ void Entity::DamageEvent
 	ProcessEvent( event );
 }
 
+qboolean Entity::IsTouching
+	(
+	Entity *e1
+	)
+
+	{
+	if ( e1->absmin.x > absmax.x )
+		{
+		return false;
+		}
+	if ( e1->absmin.y > absmax.y )
+		{
+		return false;
+		}
+	if ( e1->absmin.z > absmax.z )
+		{
+		return false;
+		}
+	if ( e1->absmax.x < absmin.x )
+		{
+		return false;
+		}
+	if ( e1->absmax.y < absmin.y )
+		{
+		return false;
+		}
+	if ( e1->absmax.z < absmin.z )
+		{
+		return false;
+		}
+
+	return true;
+	}
+
 void Entity::Delete
 	(
 	void
@@ -3275,40 +3523,6 @@ qboolean Entity::IsDead
 	return deadflag != DEAD_NO;
 }
 
-qboolean Entity::IsTouching
-	(
-	Entity *e1
-	)
-
-	{
-	if ( e1->absmin.x > absmax.x )
-		{
-		return false;
-		}
-	if ( e1->absmin.y > absmax.y )
-		{
-		return false;
-		}
-	if ( e1->absmin.z > absmax.z )
-		{
-		return false;
-		}
-	if ( e1->absmax.x < absmin.x )
-		{
-		return false;
-		}
-	if ( e1->absmax.y < absmin.y )
-		{
-		return false;
-		}
-	if ( e1->absmax.z < absmin.z )
-		{
-		return false;
-		}
-
-	return true;
-	}
-
 void Entity::IsTouching
 	(
 	Event *ev
@@ -3322,6 +3536,23 @@ void Entity::IsTouching
 	}
 
 	ev->AddInteger( IsTouching( ent ) );
+}
+
+void Entity::IsInside(Event* ev)
+{
+	Entity *ent = ev->GetEntity( 1 );
+
+	if( !ent )
+	{
+		ScriptError( "IsInside used with a NULL entity." );
+	}
+
+	ev->AddInteger(IsInside( ent ) );
+}
+
+qboolean Entity::IsInside(Entity* e1)
+{
+	return gi.HitEntity(edict, e1->edict);
 }
 
 qboolean Entity::FovCheck
@@ -4975,16 +5206,18 @@ void Entity::DamageSkin
    */
    }
 
-void Entity::Kill
-	(
-	Event *ev
-	)
+void Entity::Kill(Event *ev)
+{
+    health = 0;
+    Damage(this, this, 10, origin, vec_zero, vec_zero, 0, 0, MOD_SUICIDE);
+}
 
-	{
-	health = 0;
-   Damage( this, this, 10, origin, vec_zero, vec_zero, 0, 0, MOD_SUICIDE );
-	}
 
+void Entity::Killed(Event* ev)
+{
+	deadflag = DEAD_DEAD;
+	if (health > 0) health = 0;
+}
 
 void Entity::SurfaceCommand
 	(
@@ -5314,6 +5547,53 @@ void Entity::RemoveAttachedModelEvent
       }
    }
 
+void Entity::AttachedModelAnimEvent(Event* ev)
+{
+	int tag_num;
+	int num;
+	int i;
+	Entity* ent;
+	str model_name;
+	str anim_name;
+	float crossblend_time;
+
+	tag_num = gi.Tag_NumForName(edict->tiki, ev->GetString(1).c_str());
+	anim_name = ev->GetString(2);
+	if (ev->NumArgs() >= 3) {
+		crossblend_time = ev->GetFloat(3);
+	}
+
+	if (ev->NumArgs() >= 4) {
+		model_name = ev->GetString(4);
+	}
+
+	if (tag_num >= 0) {
+		num = numchildren;
+
+		// find the children that is glued to the specified tagnum
+		for (i = 0; i < MAX_MODEL_CHILDREN && num; i++) {
+			if (children[i] == ENTITYNUM_NONE) {
+				continue;
+			}
+
+			ent = G_GetEntity(children[i]);
+			if (ent->edict->s.tag_num != tag_num) {
+				// not matching the requested tag num
+				continue;
+			}
+
+			if (model_name.length() && str::icmp(model_name.c_str(), ent->model.c_str())) {
+				// different model
+				continue;
+			}
+
+			Event* newev = new Event(EV_SetAnim);
+			newev->AddString(anim_name);
+			ent->PostEvent(newev, 0.f);
+		}
+	}
+}
+
 void Entity::DetachEvent
 	(
 	Event * ev
@@ -5447,6 +5727,11 @@ void Entity::StationaryEvent
 	setMoveType( MOVETYPE_STATIONARY );
 	}
 
+void Entity::TossEvent(Event* ev)
+{
+	movetype = MOVETYPE_TOSS;
+}
+
 void Entity::Explosion
    (
    Event *ev
@@ -5578,6 +5863,105 @@ void Entity::DropToFloorEvent
 // BIND code 
 //
 //*************************************************************************
+
+void Entity::glue
+	(
+	Entity *master,
+	qboolean use_my_angles,
+	qboolean can_duck
+	)
+{
+	int iNumGlues;
+
+	if( m_pGlueMaster ) {
+		unglue();
+	}
+
+	if( !master )
+	{
+		warning( "glue", "Cannot glue to master because of: Master is NULL\n" );
+		return;
+	}
+
+	if( master == this )
+	{
+		warning( "glue", "Cannot glue to master because of: Binding an entity to itself\n" );
+		return;
+	}
+
+	iNumGlues = master->m_iNumGlues;
+	if( iNumGlues + 1 > MAX_GLUE_CHILDREN )
+	{
+		warning( "glue", "Cannot glue to master because of: MAX_GLUE_CHILDREN reached\n" );
+		return;
+	}
+
+	for( int i = 0; i < iNumGlues; i++ )
+	{
+		if( master->m_pGlues[ i ] == this )
+		{
+			warning( "glue", "Cannot glue to master because of: entity is already glued\n" );
+			return;
+		}
+	}
+
+	master->m_pGlues[ iNumGlues ] = this;
+
+	if( use_my_angles )
+	{
+		m_bGlueAngles = true;
+		master->m_pGluesFlags[ iNumGlues ] = GL_USEANGLES;
+	}
+	else
+	{
+		m_bGlueAngles = false;
+		master->m_pGluesFlags[ iNumGlues ] = 0;
+	}
+
+	m_pGlueMaster = master;
+	m_bGlueDuckable = can_duck == qtrue;
+	master->m_iNumGlues++;
+
+	setAngles( master->angles );
+	setOrigin( master->origin );
+}
+
+void Entity::unglue
+	(
+	void
+	)
+{
+	int iNumGlues;
+	int i;
+	Entity *master = m_pGlueMaster;
+
+	if( !master ) {
+		return;
+	}
+
+	iNumGlues = master->m_iNumGlues;
+
+	for( i = 0; i < iNumGlues; i++ )
+	{
+		if( master->m_pGlues[ i ] == this ) {
+			break;
+		}
+	}
+
+	if( i != iNumGlues )
+	{
+		for( ; i < iNumGlues - 1; i++ )
+		{
+			master->m_pGlues[ i ] = master->m_pGlues[ i + 1 ];
+			master->m_pGluesFlags[ i ] = master->m_pGluesFlags[ i + 1 ];
+		}
+
+		master->m_iNumGlues--;
+
+		m_pGlueMaster = NULL;
+		m_bGlueAngles = false;
+	}
+}
 
 qboolean Entity::isBoundTo
    (
@@ -5749,101 +6133,63 @@ void Entity::unbind
 	bindmaster = NULL;
 }
 
-void Entity::glue
+void Entity::EventUnglue
 	(
-	Entity *master,
-	qboolean use_my_angles
+	Event *ev
 	)
 {
-	int iNumGlues;
+	unglue();
+}
 
-	if( m_pGlueMaster ) {
-		unglue();
-	}
+void Entity::GlueEvent
+	(
+	Event *ev
+	)
+{
+	Entity *ent;
+	qboolean glueAngles;
 
-	if( !master )
+	if( ev->NumArgs() > 1 )
 	{
-		warning( "glue", "Cannot glue to master because of: Master is NULL\n" );
-		return;
-	}
-
-	if( master == this )
-	{
-		warning( "glue", "Cannot glue to master because of: Binding an entity to itself\n" );
-		return;
-	}
-
-	iNumGlues = master->m_iNumGlues;
-	if( iNumGlues + 1 > MAX_GLUE_CHILDREN )
-	{
-		warning( "glue", "Cannot glue to master because of: MAX_GLUE_CHILDREN reached\n" );
-		return;
-	}
-
-	for( int i = 0; i < iNumGlues; i++ )
-	{
-		if( master->m_pGlues[ i ] == this )
-		{
-			warning( "glue", "Cannot glue to master because of: entity is already glued\n" );
-			return;
-		}
-	}
-
-	master->m_pGlues[ iNumGlues ] = this;
-
-	if( use_my_angles )
-	{
-		m_bGlueAngles = true;
-		master->m_pGluesFlags[ iNumGlues ] = GL_USEANGLES;
+		glueAngles = ev->GetInteger( 2 );
 	}
 	else
 	{
-		m_bGlueAngles = false;
-		master->m_pGluesFlags[ iNumGlues ] = 0;
+		glueAngles = qtrue;
 	}
 
-	m_pGlueMaster = master;
-	master->m_iNumGlues++;
-
-	setAngles( master->angles );
-	setOrigin( master->origin );
+	ent = ev->GetEntity( 1 );
+	if( ent )
+	{
+		glue( ent, glueAngles, qfalse );
+	}
 }
 
-void Entity::unglue
-	(
-	void
-	)
+void Entity::DuckableGlueEvent(Event* ev)
 {
-	int iNumGlues;
-	int i;
-	Entity *master = m_pGlueMaster;
+	Entity *ent;
+	qboolean glueAngles;
 
-	if( !master ) {
-		return;
-	}
-
-	iNumGlues = master->m_iNumGlues;
-
-	for( i = 0; i < iNumGlues; i++ )
+	if( ev->NumArgs() > 1 )
 	{
-		if( master->m_pGlues[ i ] == this ) {
-			break;
-		}
+		glueAngles = ev->GetInteger( 2 );
 	}
-
-	if( i != iNumGlues )
+	else
 	{
-		for( ; i < iNumGlues - 1; i++ )
-		{
-			master->m_pGlues[ i ] = master->m_pGlues[ i + 1 ];
-			master->m_pGluesFlags[ i ] = master->m_pGluesFlags[ i + 1 ];
-		}
-
-		master->m_iNumGlues--;
-
-		m_pGlueMaster = NULL;
-		m_bGlueAngles = false;
+		glueAngles = qtrue;
 	}
+
+	ent = ev->GetEntity( 1 );
+	if( ent )
+	{
+		glue( ent, glueAngles, qtrue );
+	}
+}
+
+void Entity::MakeClayPidgeon(Event* ev)
+{
+	edict->r.contents = CONTENTS_CLAYPIDGEON;
+	setSolidType(SOLID_BBOX);
 }
 
 void Entity::EventUnbind
@@ -5876,38 +6222,6 @@ void Entity::BindEvent
 		}
 
 		bind( ent, false, bBindChilds );
-	}
-}
-
-void Entity::EventUnglue
-	(
-	Event *ev
-	)
-{
-	unglue();
-}
-
-void Entity::GlueEvent
-	(
-	Event *ev
-	)
-{
-	Entity *ent;
-	qboolean glueAngles;
-
-	if( ev->NumArgs() > 1 )
-	{
-		glueAngles = ev->GetInteger( 2 );
-	}
-	else
-	{
-		glueAngles = qtrue;
-	}
-
-	ent = ev->GetEntity( 1 );
-	if( ent )
-	{
-		glue( ent, glueAngles );
 	}
 }
 
@@ -6633,6 +6947,108 @@ void Entity::EventGetRotatedBbox
 	)
 {
 	ev->AddInteger( ( edict->s.eFlags & EF_LINKANGLES ) ? 1 : 0 );
+}
+
+void Entity::EventSinglePlayerCommand(Event* ev)
+{
+	if (g_gametype->integer == GT_SINGLE_PLAYER && !g_realismmode->integer) {
+        Event* newev = new Event(ev->GetToken(1));
+
+        for (int i = 2; i <= ev->NumArgs(); i++) {
+            newev->AddToken(ev->GetToken(i));
+        }
+
+        ProcessEvent(newev);
+	}
+}
+
+void Entity::EventMultiPlayerCommand(Event* ev)
+{
+	if (g_gametype->integer != GT_SINGLE_PLAYER && !g_realismmode->integer) {
+        Event* newev = new Event(ev->GetToken(1));
+
+        for (int i = 2; i <= ev->NumArgs(); i++) {
+            newev->AddToken(ev->GetToken(i));
+        }
+
+        ProcessEvent(newev);
+	}
+}
+
+void Entity::EventRealismModeCommand(Event* ev)
+{
+    if (g_realismmode->integer) {
+        Event* newev = new Event(ev->GetToken(1));
+
+        for (int i = 2; i <= ev->NumArgs(); i++) {
+            newev->AddToken(ev->GetToken(i));
+        }
+
+        ProcessEvent(newev);
+    }
+}
+
+void Entity::EventSPRealismModeCommand(Event* ev)
+{
+    if (g_realismmode->integer && g_gametype->integer == GT_SINGLE_PLAYER) {
+        Event* newev = new Event(ev->GetToken(1));
+
+        for (int i = 2; i <= ev->NumArgs(); i++) {
+            newev->AddToken(ev->GetToken(i));
+        }
+
+        ProcessEvent(newev);
+    }
+}
+
+void Entity::EventDMRealismModeCommand(Event* ev)
+{
+    if (g_realismmode->integer && g_gametype->integer != GT_SINGLE_PLAYER) {
+        Event* newev = new Event(ev->GetToken(1));
+
+        for (int i = 2; i <= ev->NumArgs(); i++) {
+            newev->AddToken(ev->GetToken(i));
+        }
+
+        ProcessEvent(newev);
+    }
+}
+
+void Entity::GetLocalYawFromVector(Event* ev)
+{
+	float yaw;
+	Vector vec;
+
+	vec = ev->GetVector(1);
+	yaw = vectoyaw(vec) + 180.0f;
+	yaw = AngleSubtract(yaw, angles[1]);
+	ev->AddFloat(yaw);
+}
+
+void Entity::EventShootableOnly(Event* ev)
+{
+	edict->r.contents |= CONTENTS_SHOOTONLY | CONTENTS_WEAPONCLIP;
+}
+
+void Entity::SetShaderTime(Event* ev)
+{
+	edict->s.shader_time = level.time;
+	if (ev->NumArgs() > 0) {
+		edict->s.shader_time += ev->GetFloat(1);
+	}
+
+	if (ev->NumArgs() > 1) {
+		edict->s.shader_time += ev->GetFloat(1) * random() / 32768.0;
+	}
+}
+
+void Entity::NoTarget(Event* ev)
+{
+	if (ev->GetBoolean(1)) {
+		flags |= FL_NOTARGET;
+	} else {
+		flags &= ~FL_NOTARGET;
+	}
 }
 
 void Entity::DrawBoundingBox

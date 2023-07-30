@@ -172,7 +172,8 @@ class ScriptMaster;
 // "target"
 //
 
-#define MAX_MODEL_CHILDREN 8
+// was 8, increased to 16
+#define MAX_MODEL_CHILDREN 16
 #define MAX_GLUE_CHILDREN 8
 
 #define GL_USEANGLES	1
@@ -258,6 +259,7 @@ public:
 	int				m_pGluesFlags[ MAX_GLUE_CHILDREN ];
 	class Entity	*m_pGlueMaster;
 	bool			m_bGlueAngles;
+	bool			m_bGlueDuckable;
 	qboolean		detach_at_death;
 
 	// Path variables
@@ -279,6 +281,7 @@ public:
 	void              SetEntNum( int num );
 	void              ClassnameEvent( Event *ev );
 	void              SpawnFlagsEvent( Event *ev );
+	void              EventRevive( Event *ev );
 
 	qboolean			CheckEventFlags( Event *event );
 
@@ -402,7 +405,9 @@ public:
 
 	virtual qboolean IsDead();
 	qboolean				IsTouching( Entity *e1 );
+	qboolean				IsInside( Entity *e1 );
 	void					IsTouching( Event *ev );
+	void					IsInside( Event *ev );
 
 	void					GetVelocity( Event *ev );
 	void					GetAVelocity( Event *ev );
@@ -476,6 +481,7 @@ public:
 	void					BroadcastAIEvent( int iType = 8, float rad = SOUND_RADIUS );
 	void					BroadcastAIEvent( Event *ev );
 	void				Kill( Event *ev );
+	void				Killed( Event *ev );
 	void				SurfaceModelEvent( Event *ev );
 	void				SurfaceCommand( const char * surf_name, const char * token );
 	void				SetShaderData( Event *ev );
@@ -490,6 +496,7 @@ public:
 	void					AttachEvent( Event *ev );
 	void					AttachModelEvent( Event *ev );
 	void					RemoveAttachedModelEvent( Event *ev );
+	void					AttachedModelAnimEvent( Event *ev );
 	void					DetachEvent( Event *ev );
 	void              TakeDamageEvent( Event *ev );
 	void              NoDamageEvent( Event *ev );
@@ -503,6 +510,7 @@ public:
 	void              Ghost( Event *ev );
 
 	void					StationaryEvent( Event *ev );
+	void              TossEvent( Event *ev );
 	void              Explosion( Event *ev );
 
 	void              Shader( Event *ev );
@@ -518,7 +526,7 @@ public:
 	qboolean          isBoundTo( Entity *master );
 	virtual void bind( Entity *master, qboolean use_my_angles = qfalse, qboolean bBindChilds = qfalse );
 	virtual void unbind( void );
-	virtual void glue( Entity *master, qboolean use_my_angles = qtrue );
+	virtual void glue( Entity *master, qboolean use_my_angles = qtrue, qboolean can_duck = qfalse );
 	virtual void unglue( void );
 
 	void					JoinTeam( Event *ev );
@@ -526,6 +534,8 @@ public:
 	void					BindEvent( Event *ev );
 	void					EventUnbind( Event *ev );
 	void					GlueEvent( Event *ev );
+	void					DuckableGlueEvent( Event *ev );
+	void					MakeClayPidgeon( Event *ev );
 	void					EventUnglue( Event *ev );
 	void					AddToSoundManager( Event *ev );
 	void              NoLerpThisFrame( void );
@@ -565,6 +575,15 @@ public:
 	void				EventGetRadnum( Event *ev );
 	void				EventSetRotatedBbox( Event *ev );
 	void				EventGetRotatedBbox( Event *ev );
+	void				EventSinglePlayerCommand( Event *ev );
+	void				EventMultiPlayerCommand( Event *ev );
+	void				EventRealismModeCommand( Event *ev );
+	void				EventSPRealismModeCommand( Event *ev );
+	void				EventDMRealismModeCommand( Event *ev );
+	void				GetLocalYawFromVector( Event *ev );
+	void				EventShootableOnly( Event *ev );
+	void				SetShaderTime( Event *ev );
+	void				NoTarget( Event *ev );
 
 	virtual void EndFrame( void );
 	virtual void CalcBlend( void );
