@@ -486,6 +486,16 @@ Event EV_Camera_NoWatch
    "if fadeTime is specified, camera will fade over that time",
 	EV_NORMAL
 	);
+Event EV_Camera_WatchString
+    ( 
+    "watchstring", 
+    EV_CONSOLE,
+    "sF",
+    "string fadeTime",
+    "Makes the camera watch based on a string.\n"
+    "if fadeTime is specified, camera will fade over that time",
+	EV_NORMAL
+    );
 
 //
 // Camera positioning events
@@ -679,46 +689,47 @@ LEVEL_EXIT if the camera is being used, the level exit state will be set
 
 ******************************************************************************/
 
-CLASS_DECLARATION( Entity, Camera, "func_camera" )
-	{
-	   { &EV_Camera_CameraThink,			&Camera::CameraThink },
-		{ &EV_Activate,						&Camera::StartMoving },
-		{ &EV_Camera_StartMoving,			&Camera::StartMoving },
-		{ &EV_Camera_StopMoving,			&Camera::StopMoving },
-		{ &EV_Camera_Pause,					&Camera::Pause },
-		{ &EV_Camera_Continue,				&Camera::Continue },
-		{ &EV_Camera_SetSpeed,				&Camera::SetSpeed },
-		{ &EV_Camera_SetFollowDistance,		&Camera::SetFollowDistance },
-		{ &EV_Camera_SetFollowYaw,			&Camera::SetFollowYaw },
-		{ &EV_Camera_AbsoluteYaw,			&Camera::AbsoluteYaw },
-		{ &EV_Camera_RelativeYaw,			&Camera::RelativeYaw },
-		{ &EV_Camera_SetOrbitHeight,		&Camera::SetOrbitHeight },
-		{ &EV_Camera_SetFOV,				&Camera::SetFOV },
-		{ &EV_Camera_Orbit,					&Camera::OrbitEvent },
-		{ &EV_Camera_Follow,				&Camera::FollowEvent },
-		{ &EV_Camera_Watch,					&Camera::WatchEvent },
-		{ &EV_Camera_WatchPath,				&Camera::WatchPathEvent },
-		{ &EV_Camera_WatchNodes,			&Camera::WatchNodesEvent },
-		{ &EV_Camera_NoWatch,				&Camera::NoWatchEvent },
-		{ &EV_Camera_LookAt,				&Camera::LookAt },
-		{ &EV_Camera_TurnTo,				&Camera::TurnTo },
-		{ &EV_Camera_MoveToEntity,  		&Camera::MoveToEntity },
-		{ &EV_Camera_MoveToPos,				&Camera::MoveToPos },
-		{ &EV_Camera_Cut,					&Camera::Cut },
-		{ &EV_Camera_FadeTime,				&Camera::FadeTime },
-		{ &EV_Camera_SetNextCamera,			&Camera::SetNextCamera },
-		{ &EV_Camera_SetupCamera,			&Camera::SetupCamera },
-      { &EV_SetAngles,						&Camera::SetAnglesEvent },
-      { &EV_Camera_SetAutoState,			&Camera::SetAutoStateEvent },
-      { &EV_Camera_SetAutoRadius,			&Camera::SetAutoRadiusEvent },
-      { &EV_Camera_SetAutoStartTime,		&Camera::SetAutoStartTimeEvent },
-      { &EV_Camera_SetAutoStopTime,			&Camera::SetAutoStopTimeEvent },
-      { &EV_Camera_SetMaximumAutoFOV,		&Camera::SetMaximumAutoFOVEvent },
-      { &EV_Camera_SetAutoActive,			&Camera::SetAutoActiveEvent },
-	  { &EV_Camera_SetShowQuakes,			&Camera::SetShowQuakes },
+CLASS_DECLARATION(Entity, Camera, "func_camera")
+{
+    { &EV_Camera_CameraThink,			&Camera::CameraThink },
+    { &EV_Activate,						&Camera::StartMoving },
+    { &EV_Camera_StartMoving,			&Camera::StartMoving },
+    { &EV_Camera_StopMoving,			&Camera::StopMoving },
+    { &EV_Camera_Pause,					&Camera::Pause },
+    { &EV_Camera_Continue,				&Camera::Continue },
+    { &EV_Camera_SetSpeed,				&Camera::SetSpeed },
+    { &EV_Camera_SetFollowDistance,		&Camera::SetFollowDistance },
+    { &EV_Camera_SetFollowYaw,			&Camera::SetFollowYaw },
+    { &EV_Camera_AbsoluteYaw,			&Camera::AbsoluteYaw },
+    { &EV_Camera_RelativeYaw,			&Camera::RelativeYaw },
+    { &EV_Camera_SetOrbitHeight,		&Camera::SetOrbitHeight },
+    { &EV_Camera_SetFOV,				&Camera::SetFOV },
+    { &EV_Camera_Orbit,					&Camera::OrbitEvent },
+    { &EV_Camera_Follow,				&Camera::FollowEvent },
+    { &EV_Camera_Watch,					&Camera::WatchEvent },
+    { &EV_Camera_WatchPath,				&Camera::WatchPathEvent },
+    { &EV_Camera_WatchNodes,			&Camera::WatchNodesEvent },
+    { &EV_Camera_NoWatch,				&Camera::NoWatchEvent },
+    { &EV_Camera_LookAt,				&Camera::LookAt },
+    { &EV_Camera_TurnTo,				&Camera::TurnTo },
+    { &EV_Camera_MoveToEntity,  		&Camera::MoveToEntity },
+    { &EV_Camera_MoveToPos,				&Camera::MoveToPos },
+    { &EV_Camera_Cut,					&Camera::Cut },
+    { &EV_Camera_FadeTime,				&Camera::FadeTime },
+    { &EV_Camera_SetNextCamera,			&Camera::SetNextCamera },
+    { &EV_Camera_SetupCamera,			&Camera::SetupCamera },
+    { &EV_SetAngles,					&Camera::SetAnglesEvent },
+    { &EV_Camera_SetAutoState,			&Camera::SetAutoStateEvent },
+    { &EV_Camera_SetAutoRadius,			&Camera::SetAutoRadiusEvent },
+    { &EV_Camera_SetAutoStartTime,		&Camera::SetAutoStartTimeEvent },
+    { &EV_Camera_SetAutoStopTime,		&Camera::SetAutoStopTimeEvent },
+    { &EV_Camera_SetMaximumAutoFOV,		&Camera::SetMaximumAutoFOVEvent },
+    { &EV_Camera_SetAutoActive,			&Camera::SetAutoActiveEvent },
+    { &EV_Camera_WatchString,			&Camera::WatchStringEvent },
+    { &EV_Camera_SetShowQuakes,			&Camera::EventShowQuakes },
 
-		{ NULL, NULL }
-	};
+    { NULL, NULL }
+};
 
 Camera::Camera()
 {
@@ -1935,20 +1946,47 @@ void Camera::WatchEvent
 	Event *ev
 	)
 
-	{
-   float time;
+{
+    float time;
 
-   if ( ev->NumArgs() > 1 )
-      {
-      time = ev->GetFloat( 2 );
-      }
-   else
-      {
-      time = fadeTime;
-      }
+    if (ev->NumArgs() > 1)
+    {
+        time = ev->GetFloat(2);
+    }
+    else
+    {
+        time = fadeTime;
+    }
 
-   Watch( ev->GetString( 1 ), time );
-	}
+	// fixed since mohaab v2.30
+	// use the entity instead
+    Watch(ev->GetEntity(1), time);
+}
+
+void Camera::WatchStringEvent(Event* ev) {
+    float time;
+
+    if (ev->NumArgs() > 1)
+    {
+        time = ev->GetFloat(2);
+    }
+    else
+    {
+        time = fadeTime;
+    }
+
+    Watch(ev->GetString(1), time);
+}
+
+void Camera::EventShowQuakes(Event* ev)
+{
+    if (ev->NumArgs() > 0)
+    {
+        m_bShowquakes = ev->GetBoolean(1);
+    } else {
+        m_bShowquakes = qtrue;
+    }
+}
 
 Entity * GetWatchEntity
 	(
@@ -2173,18 +2211,6 @@ void Camera::NoWatchEvent
 	newstate.watch.watchPath = false;
 	newstate.watch.watchNodes = false;
 	}
-
-void Camera::SetShowQuakes( Event * ev )
-{
-	if( ev->NumArgs() > 0 )
-	{
-		m_bShowquakes = ev->GetBoolean( 1 );
-	}
-	else
-	{
-		m_bShowquakes = 1;
-	}
-}
 
 void SetCamera
 	(

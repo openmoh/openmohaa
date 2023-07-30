@@ -227,7 +227,6 @@ class Camera : public Entity
 
 	  // Miscellaneous
 	  Vector			m_vPosOffset;
-	  bool				m_bShowquakes;
 
 	protected:
       CameraState       currentstate;
@@ -241,6 +240,8 @@ class Camera : public Entity
       float             fovFadeTime; // time for fov transition
       float             followFadeTime; // time for fov transition
       float             watchFadeTime; // time for fov transition
+
+      bool				m_bShowquakes;
 
       str               nextCamera;
 
@@ -285,9 +286,11 @@ class Camera : public Entity
 		void					OrbitEvent( Event *ev );
 		void					FollowEvent( Event *ev );
 		void					WatchEvent( Event *ev );
+		void					WatchStringEvent( Event *ev );
 		void					WatchPathEvent( Event *ev );
 		void					WatchNodesEvent( Event *ev );
-		void					NoWatchEvent( Event *ev );
+        void					NoWatchEvent(Event* ev);
+        void				    EventShowQuakes(Event* ev);
 		void					LookAt( Event *ev );
 		void					MoveToEntity( Event *ev );
 		void					MoveToPos( Event *ev );
@@ -306,7 +309,6 @@ class Camera : public Entity
       void              SetAutoStopTimeEvent( Event * ev );
       void              SetMaximumAutoFOVEvent( Event * ev );
       void              SetAutoActiveEvent( Event * ev );
-	  void				SetShowQuakes( Event * ev );
 
       str&					NextCamera( void );
       float             Fov( void );
