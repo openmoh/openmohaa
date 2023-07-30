@@ -528,6 +528,7 @@ int SV_PointContents( const vec3_t p, int passEntityNum );
 
 qboolean SV_SightTraceEntity( gentity_t *touch, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int contentmask, qboolean cylinder );
 qboolean SV_SightTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int passEntityNum2, int contentmask, qboolean cylinder );
+qboolean SV_HitEntity(gentity_t* pEnt, gentity_t* pOther);
 void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, qboolean cylinder, qboolean traceDeep );
 void SV_TraceDeep( trace_t *results, const vec3_t vStart, const vec3_t vEnd, int iBrushMask, gentity_t *touch );
 // mins and maxs are relative

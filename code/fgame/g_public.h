@@ -300,6 +300,7 @@ typedef struct gameImport_s
 	void ( *UnlinkEntity )( gentity_t *gEnt );
 	int ( *AreaEntities )( const vec3_t mins, const vec3_t maxs, int *list, int maxcount );
 	void ( *ClipToEntity )( trace_t *tr, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentMask );
+	qboolean (*HitEntity)(gentity_t* pEnt, gentity_t* pOther);
 	int ( *imageindex )( const char *name );
 	int ( *itemindex )( const char *name );
 	int ( *soundindex )( const char *name, int streamed );

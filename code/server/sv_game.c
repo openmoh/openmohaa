@@ -1506,6 +1506,7 @@ void SV_InitGameProgs( void ) {
 	import.SetBrushModel				= SV_SetBrushModel;
 	import.ModelBoundsFromName			= CM_ModelBoundsFromName;
 	import.ClipToEntity					= SV_ClipToEntity;
+	import.HitEntity					= SV_HitEntity;
 	import.SetConfigstring				= SV_SetConfigstring;
 	import.GetConfigstring				= SV_GetConfigstring;
 	import.GetUserinfo					= SV_GetUserinfo;

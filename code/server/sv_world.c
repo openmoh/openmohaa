@@ -758,6 +758,29 @@ qboolean SV_SightTrace( const vec3_t start, const vec3_t mins, const vec3_t maxs
 	// clip to other solid entities
 	return SV_ClipSightToEntities( &clip, passEntityNum2 );
 }
+/*
+==================
+SV_HitEntity
+
+This functions checks if an entity is inside another entity.
+==================
+*/
+qboolean SV_HitEntity(gentity_t* pEnt, gentity_t* pOther)
+{
+	clipHandle_t handle = SV_ClipHandleForEntity(pOther);
+
+	return CM_TransformedBoxSightTrace(
+		pEnt->s.origin,
+		pEnt->s.origin,
+		pEnt->r.mins,
+		pEnt->r.maxs,
+		handle,
+		CONTENTS_SOLID,
+		pOther->s.origin,
+		pOther->r.currentAngles,
+		qfalse
+	);
+}
 
 /*
 ==================
