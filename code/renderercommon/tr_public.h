@@ -254,7 +254,7 @@ typedef struct {
     //
     // non-ioq3
     //
-    char* (*LV_ConvertString)(char* string);
+    const char* (*LV_ConvertString)(const char* string);
     void (*Hunk_Clear)();
     void (*Clear)();
     void (*Cvar_SetDefault)(cvar_t* var, const char* varValue);
