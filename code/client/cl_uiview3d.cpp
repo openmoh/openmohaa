@@ -30,6 +30,15 @@ CLASS_DECLARATION( UIWidget, View3D, NULL )
 	{ NULL, NULL }
 };
 
+#define MAX_SUBTITLES 4
+
+cvar_t* subs[MAX_SUBTITLES];
+cvar_t* teams[MAX_SUBTITLES];
+float fadeTime[MAX_SUBTITLES];
+float subLife[MAX_SUBTITLES];
+float alpha[MAX_SUBTITLES];
+char oldStrings[MAX_SUBTITLES][2048];
+
 View3D::View3D()
 {
 	// set as transparent
@@ -66,7 +75,22 @@ void View3D::DrawLetterbox
 	)
 
 {
-	// FIXME: stub
+	float frac;
+	vec4_t col;
+
+	col[0] = col[1] = col[2] = 0;
+	col[3] = 1;
+
+	frac = cl.snap.ps.stats[STAT_LETTERBOX] / 32767.0;
+	if (frac > 0.0) {
+		m_letterbox_active = true;
+		re.SetColor(col);
+
+		re.DrawBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height);
+		re.DrawBox(0.0, m_screenframe.size.height - m_screenframe.size.height * frac, m_screenframe.size.width, m_screenframe.size.height);
+	} else {
+		m_letterbox_active = false;
+	}
 }
 
 void View3D::DrawFades
@@ -75,7 +99,14 @@ void View3D::DrawFades
 	)
 
 {
-	// FIXME: stub
+	if (cl.snap.ps.blend[3] > 0) {
+		re.SetColor(cl.snap.ps.blend);
+		if (cl.snap.ps.stats[STAT_ADDFADE]) {
+			re.AddBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height);
+		} else {
+            re.DrawBox(0.0, 0.0, m_screenframe.size.width, m_screenframe.size.height);
+		}
+	}
 }
 
 void View3D::Draw2D
@@ -200,7 +231,7 @@ void View3D::DrawProf
 	)
 
 {
-	// FIXME: stub
+	// Normal empty function
 }
 
 void View3D::PrintSound
@@ -215,7 +246,7 @@ void View3D::PrintSound
 	)
 
 {
-	// FIXME: stub
+	// FIXME: unimplemented
 }
 
 void View3D::DrawSoundOverlay
@@ -224,7 +255,13 @@ void View3D::DrawSoundOverlay
 	)
 
 {
-	// FIXME: stub
+	setFont("verdana-14");
+	m_font->setColor(UWhite);
+
+	if (sound_overlay->integer) {
+		Com_Printf("sound_overlay isn't supported with OpenAL/SDL right now.\n");
+		Cvar_Set("sound_overlay", "0");
+	}
 }
 
 void View3D::CenterPrint
@@ -233,7 +270,7 @@ void View3D::CenterPrint
 	)
 
 {
-	// FIXME: stub
+	// FIXME: unimplemented
 }
 
 void View3D::LocationPrint
@@ -242,7 +279,7 @@ void View3D::LocationPrint
 	)
 
 {
-	// FIXME: stub
+	// FIXME: unimplemented
 }
 
 void View3D::OnActivate
@@ -287,7 +324,7 @@ void View3D::DrawSubtitleOverlay
 	)
 
 {
-	// FIXME: stub
+	// FIXME: unimplemented
 }
 
 void View3D::ClearCenterPrint
@@ -296,7 +333,7 @@ void View3D::ClearCenterPrint
 	)
 
 {
-	// FIXME: stub
+	m_printfadetime = 0.0;
 }
 
 void View3D::UpdateCenterPrint
@@ -306,7 +343,17 @@ void View3D::UpdateCenterPrint
 	)
 
 {
-	// FIXME: stub
+	m_printstring = s;
+
+	if (s[0] == '@') {
+		m_print_mat = uWinMan.RegisterShader(s + 1);
+	} else {
+		m_print_mat = NULL;
+	}
+
+	m_printalpha = alpha;
+	m_printfadetime = 4000.0;
+	m_locationprint = qfalse;
 }
 
 void View3D::UpdateLocationPrint
@@ -318,7 +365,12 @@ void View3D::UpdateLocationPrint
 	)
 
 {
-	// FIXME: stub
+	m_printstring = s;
+	m_printalpha = alpha;
+	m_printfadetime = 4000.0;
+	m_x_coord = x;
+	m_y_coord = y;
+	m_locationprint = qtrue;
 }
 
 qboolean View3D::LetterboxActive
@@ -330,13 +382,30 @@ qboolean View3D::LetterboxActive
 	return m_letterbox_active;
 }
 
+float avWidth = 0.0;
+
 void View3D::InitSubtitle
 	(
 	void
 	)
 
 {
-	// FIXME: stub
+	float totalWidth;
+
+	for (int i = 0; i < 4; i++) {
+		subs[i] = Cvar_Get(va("subtitle%d", i), "", 0);
+		teams[i] = Cvar_Get(va("subteam%d", i), "0", 0);
+		strcpy(oldStrings[i], subs[i]->string);
+		fadeTime[i] = 4000.0;
+		subLife[i] = 4000.0;
+	}
+
+	totalWidth = 0.0;
+	for (char j = 'A'; j <= 'Z'; j++) {
+		totalWidth += m_font->getCharWidth(j);
+	}
+
+	avWidth = totalWidth / 26.0;
 }
 
 void View3D::FrameInitialized
@@ -370,6 +439,6 @@ void ConsoleView::Draw
 	)
 
 {
-	// FIXME: stub
+	// FIXME: unimplemented
 }
 
