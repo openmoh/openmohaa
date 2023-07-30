@@ -220,6 +220,8 @@ extern cvar_t *g_spectatefollow_pitch;
 extern cvar_t *g_spectatefollow_firstperson;
 extern cvar_t *g_spectate_allow_full_chat;
 
+extern cvar_t* g_debugsmoke;
+
 extern cvar_t *g_voiceChat;
 
 extern cvar_t *sv_scriptfiles;

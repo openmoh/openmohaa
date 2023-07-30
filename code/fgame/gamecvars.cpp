@@ -214,6 +214,8 @@ cvar_t *g_spectatefollow_pitch;
 cvar_t *g_spectatefollow_firstperson;
 cvar_t *g_spectate_allow_full_chat;
 
+cvar_t* g_debugsmoke;
+
 cvar_t *g_voiceChat;
 
 cvar_t *sv_scriptfiles;
@@ -457,6 +459,7 @@ void CVAR_Init( void )
 	g_spectate_allow_full_chat		= gi.Cvar_Get( "g_spectate_allow_full_chat",	"0",			0 );
 
 	g_voiceChat						= gi.Cvar_Get( "g_voiceChat",					"1",			0 );
+	g_debugsmoke					= gi.Cvar_Get("g_debugsmoke",					"0",			CVAR_CHEAT);
 
 	gi.Cvar_Get( "g_obj_alliedtext1",			"",			CVAR_SERVERINFO );
 	gi.Cvar_Get( "g_obj_alliedtext2",			"",			CVAR_SERVERINFO );
