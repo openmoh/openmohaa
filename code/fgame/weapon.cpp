@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include "vehicleturret.h"
 #include "debuglines.h"
+#include "g_spawn.h"
 
 Event EV_Weapon_Shoot
    (
@@ -1035,7 +1036,7 @@ Weapon::Weapon()
 	// What type of ammo this weapon fires
 	INITIALIZE_WEAPONMODE_VAR( firetype, ( firetype_t )0 );
 
-	INITIALIZE_WEAPONMODE_VAR( firedelay, 0.1f );
+	INITIALIZE_WEAPONMODE_VAR( fire_delay, 0.1f );
 
 	// Init the bullet specs
 	INITIALIZE_WEAPONMODE_VAR( projectilespeed, 0 );
@@ -2351,7 +2352,8 @@ void Weapon::SetDMCantPartialReload
 //======================
 void Weapon::AddAdditionalStartAmmo(Event* ev)
 {
-	// FIXME: unimplemented
+	m_additionalStartAmmoTypes.AddObject(ev->GetString(1));
+	m_additionalStartAmmoAmounts.AddObject(ev->GetInteger(2));
 }
 
 //======================
@@ -2359,7 +2361,7 @@ void Weapon::AddAdditionalStartAmmo(Event* ev)
 //======================
 void Weapon::AddStartItem(Event* ev)
 {
-    // FIXME: unimplemented
+	m_startItems.AddObject(ev->GetString(1));
 }
 
 //======================
@@ -2786,7 +2788,55 @@ void Weapon::OnOverCookedWarning(Event* ev)
 //======================
 void Weapon::OnOverCooked(Event* ev)
 {
-	// FIXME: unimplemented
+	if (!owner) {
+		return;
+	}
+
+    if (projectileModel[m_eCookModeIndex].length()) {
+        Entity* spawnedEnt;
+
+        SpawnArgs sp;
+        sp.setArg("model", projectileModel[m_eCookModeIndex]);
+		
+		spawnedEnt = static_cast<Entity*>(sp.Spawn());
+        if (spawnedEnt && spawnedEnt->IsSubclassOfProjectile()) {
+            Event* newev;
+			Projectile* proj = static_cast<Projectile*>(spawnedEnt);
+			trace_t trace;
+
+			proj->origin = owner->origin;
+			proj->angles = owner->angles;
+			proj->owner = owner->entnum;
+			proj->edict->r.ownerNum = owner->entnum;
+
+			trace = G_Trace(
+				proj->origin,
+				vec_zero,
+				vec_zero,
+				owner->origin,
+				static_cast<Entity*>(owner.Pointer()),
+				owner->edict->clipmask,
+				qfalse,
+				"Weapon::OnOverCooked"
+			);
+
+			if (trace.ent && trace.ent->entity->entnum == world->entnum) {
+				proj->origin = owner->origin;
+			}
+
+			newev = new Event(EV_Projectile_Explode);
+			newev->AddEntity(NULL);
+			if (g_gametype->integer == GT_SINGLE_PLAYER) {
+				newev->AddFloat(1000.0);
+			}
+
+			if (owner->IsSubclassOfSentient()) {
+				owner->m_bOvercookDied = true;
+			}
+
+			proj->ProcessEvent(newev);
+		}
+	}
 }
 
 //======================
@@ -3820,7 +3870,7 @@ void Weapon::SetBulletLarge
 )
 
 {
-	// FIXME: unimplemented
+	bulletlarge[firemodeindex] = ev->GetInteger(1);
 }
 
 //======================
@@ -3832,7 +3882,7 @@ void Weapon::SetTracerSpeed
 )
 
 {
-    // FIXME: unimplemented
+	tracerspeed[firemodeindex] = ev->GetFloat(1);
 }
 
 //======================
@@ -3883,7 +3933,7 @@ Event *ev
 //======================
 void Weapon::SetBulletThroughWood(Event* ev)
 {
-    // FIXME: unimplemented
+	bulletthroughwood[firemodeindex] = ev->GetFloat(1);
 }
 
 //======================
@@ -3891,7 +3941,7 @@ void Weapon::SetBulletThroughWood(Event* ev)
 //======================
 void Weapon::SetBulletThroughMetal(Event* ev)
 {
-	// FIXME: unimplemented
+    bulletthroughmetal[firemodeindex] = ev->GetFloat(1);
 }
 
 //======================
@@ -4474,7 +4524,7 @@ float Weapon::FireDelay
 	firemode_t mode
 	)
 {
-	return firedelay[ mode ];
+	return fire_delay[ mode ];
 }
 
 void Weapon::EventSetFireDelay
@@ -4485,7 +4535,7 @@ void Weapon::EventSetFireDelay
 	if( g_gametype->integer )
 		return;
 
-	firedelay[ firemodeindex ] = ev->GetFloat( 1 );
+	fire_delay[ firemodeindex ] = ev->GetFloat( 1 );
 }
 
 void Weapon::EventSetDMFireDelay
@@ -4496,7 +4546,7 @@ void Weapon::EventSetDMFireDelay
 	if( !g_gametype->integer )
 		return;
 
-	firedelay[ firemodeindex ] = ev->GetFloat( 1 );
+	fire_delay[ firemodeindex ] = ev->GetFloat( 1 );
 }
 
 void Weapon::MakeNoise
@@ -4709,12 +4759,20 @@ void Weapon::SetDMMovementSpeed
 
 void Weapon::SetMaxFireMovement(Event* ev)
 {
-	// FIXME: unimplemented
+	m_fMaxFireMovement = ev->GetFloat(1);
+	if (m_fMaxFireMovement > 1.0) {
+		// Cap at 1.0
+		m_fMaxFireMovement = 1.0;
+	}
 }
 
 void Weapon::SetZoomMovement(Event* ev)
 {
-	// FIXME: unimplemented
+    m_fZoomMovement = ev->GetFloat(1);
+    if (m_fZoomMovement > 1.0) {
+        // Cap at 1.0
+		m_fZoomMovement = 1.0;
+    }
 }
 
 void Weapon::EventAmmoPickupSound
@@ -4735,32 +4793,32 @@ void Weapon::EventNoAmmoSound
 
 void Weapon::EventMaxMovementSound(Event* ev)
 {
-	// FIXME: unimplemented
+	m_sMaxMovementSound = ev->GetString(1);
 }
 
 void Weapon::SetNumFireAnims(Event* ev)
 {
-	// FIXME: unimplemented
+	m_iNumFireAnims = ev->GetInteger(1);
 }
 
 void Weapon::SetWeaponSubtype(Event* ev)
 {
-	// FIXME: unimplemented
+	m_iWeaponSubtype = ev->GetInteger(1);
 }
 
 void Weapon::SetCookTime(Event* ev)
 {
-	// FIXME: unimplemented
+	m_fCookTime = ev->GetFloat(1);
 }
 
 void Weapon::SetCurrentFireAnim(Event* ev)
 {
-	// FIXME: unimplemented
+	m_iCurrentFireAnim = ev->GetInteger(1);
 }
 
 void Weapon::SetSecondaryAmmoInHud(Event* ev)
 {
-	// FIXME: unimplemented
+	m_bSecondaryAmmoInHud = qtrue;
 }
 
 float Weapon::GetBulletRange
