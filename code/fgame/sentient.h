@@ -235,6 +235,7 @@ class Sentient : public Animate
 		float m_fPlayerSightLevel;
 		bool m_bIsDisguised;
 		bool m_bHasDisguise;
+		bool m_bOvercookDied;
 		int m_ShowPapersTime;
 		int m_iLastHitTime;
 		int m_iThreatBias;
