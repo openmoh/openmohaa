@@ -46,7 +46,6 @@ class Projectile : public Animate
 public:
 	CLASS_PROTOTYPE( Projectile );
 
-	float fov;
 	int owner;
 	float speed;
 	float minspeed;
@@ -146,13 +145,13 @@ inline void Projectile::Archive
 {
 	Animate::Archive( arc );
 
-	arc.ArchiveFloat( &fov );
 	arc.ArchiveInteger( &owner );
 	arc.ArchiveFloat( &speed );
 	arc.ArchiveFloat( &minspeed );
 	arc.ArchiveFloat( &damage );
 	arc.ArchiveFloat( &knockback );
 	arc.ArchiveFloat( &life );
+	arc.ArchiveFloat( &dmlife );
 	arc.ArchiveFloat( &minlife );
 	arc.ArchiveFloat( &dlight_radius );
 	arc.ArchiveFloat( &charge_fraction );
