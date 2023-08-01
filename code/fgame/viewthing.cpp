@@ -606,19 +606,9 @@ void Viewthing::UpdateCvars
    qboolean quiet
    )
 
-   {
-   gi.Cvar_Set( "viewmodelanim", AnimName() );
-   gi.Cvar_Set( "viewmodelframe", va( "%d", CurrentFrame() ) );
-   gi.Cvar_Set( "viewmodelname", model.c_str() );
-   gi.Cvar_Set( "viewmodelscale", va( "%0.2f", edict->s.scale ) );
-   gi.Cvar_Set( "currentviewthing", model.c_str() );
-   gi.Cvar_Set( "viewthingorigin", va( "%0.2f,%0.2f,%0.2f", edict->s.origin[0],edict->s.origin[1],edict->s.origin[2] ) );
-   gi.Cvar_Set( "viewmodelanimnum", va( "%.3f", ( float )CurrentAnim() / ( float )NumAnims() ) );
-   if ( !quiet )
-      {
-      gi.Printf( "%s, frame %3d, scale %4.2f\n", AnimName(), CurrentFrame(), edict->s.scale );
-      }
-   }
+{
+	gi.Cvar_Set("viewmodelentity", va("%d", edict->s.number));
+}
 
 
 void Viewthing::ThinkEvent
@@ -626,36 +616,36 @@ void Viewthing::ThinkEvent
 	Event *ev
 	)
 	
-	{
-   int f;
-   if (animstate >= 2)
-      {
-      Vector   forward;
-	   Vector	left;
-	   Vector	up;
-      Vector   realmove;
+{
+    int f;
+    if (animstate >= 2)
+    {
+        Vector   forward;
+        Vector	left;
+        Vector	up;
+        Vector   realmove;
 
-	   angles.AngleVectors( &forward, &left, &up );
-      realmove = left * accel[1] + up * accel[2] + forward * accel[0];
-      setOrigin( baseorigin + realmove );
-      gi.Cvar_Set( "viewthingorigin", va( "%0.2f,%0.2f,%0.2f", edict->s.origin[0],edict->s.origin[1],edict->s.origin[2] ) );
-      }
-	PostEvent( EV_ViewThing_Think, FRAMETIME );
-   if ( ( animstate > 0 ) && ( Viewmodel.current_viewthing == this ) )
-      {
-      f = CurrentFrame();
-      if ( f != lastframe )
-         {
-         float time;
-         lastframe = f;
-         time = f * AnimTime() / NumFrames();
-         gi.Printf( "current frame %d time %.2f\n", f, time );
-         gi.Cvar_Set( "viewmodeltime", va( "%.2f", time ) );
-         gi.Cvar_Set( "viewmodelframe", va( "%d", f ) );
-         gi.Cvar_Set( "viewmodelanim", AnimName() );
-         }
-      }
-	}
+        angles.AngleVectors(&forward, &left, &up);
+        realmove = left * accel[1] + up * accel[2] + forward * accel[0];
+        setOrigin(baseorigin + realmove);
+        gi.Cvar_Set("viewthingorigin", va("%0.2f,%0.2f,%0.2f", edict->s.origin[0], edict->s.origin[1], edict->s.origin[2]));
+    }
+    PostEvent(EV_ViewThing_Think, FRAMETIME);
+    if ((animstate > 0) && (Viewmodel.current_viewthing == this))
+    {
+        f = GetTime() / gi.Anim_Frametime(edict->tiki, CurrentAnim());
+        if (f != lastframe)
+        {
+            float time;
+            lastframe = f;
+            time = f * AnimTime() / NumFrames();
+            gi.Printf("current frame %d time %.2f\n", f, time);
+            gi.Cvar_Set("viewmodeltime", va("%.2f", time));
+            gi.Cvar_Set("viewmodelframe", va("%d", f));
+            gi.Cvar_Set("viewmodelanim", AnimName());
+        }
+    }
+}
 
 void Viewthing::LastFrameEvent
 	(
