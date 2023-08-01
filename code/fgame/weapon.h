@@ -47,7 +47,9 @@ typedef enum {
     FT_MELEE,
     FT_SPECIAL_PROJECTILE,
     FT_CLICKITEM,
-    FT_HEAVY
+    FT_HEAVY,
+    FT_LANDMINE,
+    FT_DEFUSE,
 } firetype_t;
 
 typedef enum {
@@ -228,6 +230,7 @@ public:
     void         IdleInit(Event *ev);
     qboolean     CheckReload(firemode_t mode);
     void         DoneReloading(Event *ev);
+    void         ApplyFireKickback(const Vector& org, float kickback);
     void         SetAimAnim(Event *ev);
     virtual void Shoot(Event *ev);
     void         Secondary(Event *ev);
@@ -336,6 +339,8 @@ public:
     void       SetAmmoClipSize(Event *ev);
     void       SetAmmoInClip(Event *ev);
     void       SetShareClip(Event *ev);
+    void       SetTagBarrel(const char* tagBarrel);
+    str        GetTagBarrel() const;
     void       SetModels(const char *world, const char *view);
     void       SetOwner(Sentient *ent) override;
     void       SetMaxChargeTime(Event *ev);
@@ -357,6 +362,7 @@ public:
     void       OnOverCookedWarning(Event *ev);
     void       OnOverCooked(Event *ev);
     void       ReleaseFire(firemode_t mode, float chargetime);
+    const char* GetFireAnim();
     void       ClientFireDone(void);
     qboolean   Removable(void) override;
     qboolean   Pickupable(Entity *other) override;

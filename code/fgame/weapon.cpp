@@ -1776,7 +1776,7 @@ void Weapon::GetMuzzlePosition
 	pos = weap_or.origin;
 
 	// Get the tag_barrel orientation from the weapon
-	if( !vBarrelPos || !this->GetRawTag( "tag_barrel", &barrel_or ) )
+	if( !vBarrelPos || !this->GetRawTag( GetTagBarrel(), &barrel_or ) )
 	{
 		//warning( "Weapon::GetMuzzlePosition", "Could not find tag_barrel\n" );
 
@@ -1945,6 +1945,22 @@ void Weapon::SetShareClip
 	)
 {
 	m_bShareClip = qtrue;
+}
+
+//======================
+//Weapon::SetTagBarrel
+//======================
+void Weapon::SetTagBarrel(const char* tagBarrel)
+{
+	m_sTagBarrel = tagBarrel;
+}
+
+//======================
+//Weapon::GetTagBarrel
+//======================
+str Weapon::GetTagBarrel() const
+{
+	return m_sTagBarrel;
 }
 
 //======================
@@ -2272,6 +2288,13 @@ void Weapon::Shoot
 	}
 
 	m_fLastFireTime = level.time;
+}
+
+//======================
+//Weapon::ApplyFireKickback
+//======================
+void Weapon::ApplyFireKickback(const Vector& org, float kickback)
+{
 }
 
 //======================
@@ -2929,6 +2952,20 @@ void Weapon::ReleaseFire
 }
 
 //======================
+//Weapon::GetFireAnim
+//======================
+const char* Weapon::GetFireAnim() {
+	if (m_iNumFireAnims > 1) {
+		static char tagname[256];
+
+		Com_sprintf(tagname, sizeof(tagname), "fire_%d", m_iCurrentFireAnim + 1);
+		return tagname;
+	} else {
+		return "fire";
+	}
+}
+
+//======================
 //Weapon::Fire
 //======================
 void Weapon::Fire
@@ -2969,13 +3006,20 @@ void Weapon::Fire
 	// Play the correct animation
 	if( mode == FIRE_PRIMARY )
 	{
+		if (m_iNumFireAnims > 1) {
+			m_iCurrentFireAnim++;
+
+			if (m_iCurrentFireAnim >= m_iNumFireAnims) {
+				m_iCurrentFireAnim = 0;
+			}
+		}
 		if( ammo_clip_size[ FIRE_PRIMARY ] && !ammo_in_clip[ FIRE_PRIMARY ] && HasAnim( "fire_empty" ) )
 		{
 			SetWeaponAnim( "fire_empty", done_event );
 		}
 		else
 		{
-			SetWeaponAnim( "fire", done_event );
+			SetWeaponAnim( GetFireAnim(), done_event);
 		}
 	}
 	else if( mode == FIRE_SECONDARY )
@@ -3539,14 +3583,13 @@ void Weapon::StopWeaponAnim
 	void
 	)
 {
-	SetTime( m_iAnimSlot );
+	int animnum;
+
+	RestartAnimSlot( m_iAnimSlot );
 	StopAnimating( m_iAnimSlot );
 
-	int animnum = gi.Anim_NumForName( edict->tiki, "idle" );
-
-	edict->s.frameInfo[ m_iAnimSlot ].index = animnum;
-	edict->s.frameInfo[ m_iAnimSlot ].weight = 1.0f;
-	edict->s.frameInfo[ m_iAnimSlot ].time = 0;
+	animnum = gi.Anim_NumForName( edict->tiki, "idle" );
+	StartAnimSlot(m_iAnimSlot, animnum, 1.f);
 
 	m_iAnimSlot = ( m_iAnimSlot + 1 ) & 3;
 }
@@ -3938,35 +3981,36 @@ qboolean Weapon::IsDroppable
 //======================
 //Weapon::SetFireType
 //======================
-void Weapon::SetFireType
-	(
-	Event *ev
-	)
+void Weapon::SetFireType(Event* ev)
 {
-	str ftype;
+    str ftype;
 
-	ftype = ev->GetString( 1 );
+    ftype = ev->GetString(1);
 
-	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
+    assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
 
-	if( !ftype.icmp( "projectile" ) )
-		firetype[ firemodeindex ] = FT_PROJECTILE;
-	else if( !ftype.icmp( "bullet" ) )
-		firetype[ firemodeindex ] = FT_BULLET;
-	else if( !ftype.icmp( "fakebullet" ) )
-		firetype[ firemodeindex ] = FT_FAKEBULLET;
-	else if( !ftype.icmp( "melee" ) )
-		firetype[ firemodeindex ] = FT_MELEE;
-	else if( !ftype.icmp( "special_projectile" ) )
-		firetype[ firemodeindex ] = FT_SPECIAL_PROJECTILE;
-	else if( !ftype.icmp( "clickitem" ) )
-		firetype[ firemodeindex ] = FT_CLICKITEM;
-	else if( !ftype.icmp( "heavy" ) )
-		firetype[ firemodeindex ] = FT_HEAVY;
-	else if( !ftype.icmp( "none" ) )
-		firetype[ firemodeindex ] = FT_NONE;
-	else
-		warning( "Weapon::SetFireType", "unknown firetype: %s\n", ftype.c_str() );
+    if (!ftype.icmp("projectile"))
+        firetype[firemodeindex] = FT_PROJECTILE;
+    else if (!ftype.icmp("bullet"))
+        firetype[firemodeindex] = FT_BULLET;
+    else if (!ftype.icmp("fakebullet"))
+        firetype[firemodeindex] = FT_FAKEBULLET;
+    else if (!ftype.icmp("melee"))
+        firetype[firemodeindex] = FT_MELEE;
+    else if (!ftype.icmp("special_projectile"))
+        firetype[firemodeindex] = FT_SPECIAL_PROJECTILE;
+    else if (!ftype.icmp("clickitem"))
+        firetype[firemodeindex] = FT_CLICKITEM;
+    else if (!ftype.icmp("heavy"))
+        firetype[firemodeindex] = FT_HEAVY;
+    else if (!ftype.icmp("landmine"))
+        firetype[firemodeindex] = FT_LANDMINE;
+    else if (!ftype.icmp("defuse"))
+        firetype[firemodeindex] = FT_DEFUSE;
+    else if (!ftype.icmp("none"))
+        firetype[firemodeindex] = FT_NONE;
+    else
+        warning("Weapon::SetFireType", "unknown firetype: %s\n", ftype.c_str());
 }
 
 //======================
