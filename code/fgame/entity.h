@@ -329,7 +329,7 @@ public:
 	void setOrigin( Vector org ) override;
 	void setOriginEvent( Vector org ) override;
 	virtual void setOrigin( void );
-	virtual void addOrigin( Vector org );
+    virtual void addOrigin(Vector org);
 	virtual void updateOrigin( void );
 
 	void              GetRawTag( int tagnum, orientation_t * orient );
@@ -345,8 +345,11 @@ public:
 	void				GetTagAngles( Event *ev );
 	void				GetTagPosition( Event *ev );
 
-	virtual int CurrentFrame( bodypart_t part = legs );
-	virtual int CurrentAnim( bodypart_t part = legs );
+    virtual float CurrentTime(int slot = 0);
+    virtual int CurrentAnim(int slot = 0);
+	void ClearAnimSlot(int slot);
+	void StartAnimSlot(int slot, int index, float weight);
+	void RestartAnimSlot(int slot);
 
 	void setAngles( Vector ang ) override;
 	virtual void setAngles( void );
@@ -936,26 +939,6 @@ inline str Entity::GetRandomAlias( str name, AliasListNode_t **ret )
 
 	return realname;
 }
-
-inline int Entity::CurrentFrame
-	(
-   bodypart_t part
-	)
-
-	{
-   part = part;
-	return 0;
-	}
-
-inline int Entity::CurrentAnim
-	(
-   bodypart_t part
-	)
-
-	{
-   part = part;
-	return 0;
-	}
 
 #include "world.h"
 

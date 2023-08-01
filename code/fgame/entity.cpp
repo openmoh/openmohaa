@@ -2828,6 +2828,35 @@ qboolean Entity::GetTag
 	return true;
 }
 
+int Entity::CurrentAnim(int slot)
+{
+    return 0;
+}
+
+float Entity::CurrentTime(int slot)
+{
+    return 0;
+}
+
+void Entity::ClearAnimSlot(int slot)
+{
+    edict->s.frameInfo[slot].index = 0;
+    edict->s.frameInfo[slot].weight = 0;
+    edict->s.frameInfo[slot].time = 0;
+}
+
+void Entity::StartAnimSlot(int slot, int index, float weight)
+{
+    edict->s.frameInfo[slot].index = index;
+    edict->s.frameInfo[slot].weight = weight;
+    edict->s.frameInfo[slot].time = 0;
+}
+
+void Entity::RestartAnimSlot(int slot)
+{
+    edict->s.frameInfo[slot].time = 0;
+}
+
 qboolean Entity::GetTagPositionAndOrientation
 	(
 	str tagname,
