@@ -980,8 +980,16 @@ Weapon::Weapon()
 		return;
 	}
 
+	// Set the weapon class to item by default
+	weapon_class = WEAPON_CLASS_ITEM;
+	order = 0;
+
 	// Owner of the weapon
 	owner = NULL;
+
+	// Maximum spread multiplier while firing
+	m_fFireSpreadMultCap[0] = 0;
+	m_fFireSpreadMultCap[1] = 0;
 
 	// Starting rank of the weapon
 	rank = 0;
@@ -1000,6 +1008,10 @@ Weapon::Weapon()
 
 	// Amount of time to pass before broadcasting a weapon sound again
 	nextweaponsoundtime = 0;
+
+	// Last fire state
+	m_fLastFireTime = 0;
+	m_eLastFireMode = (firemode_t)-11;
 
 	// The initial state of the weapon
 	weaponstate = WEAPON_HOLSTERED;
@@ -1031,25 +1043,27 @@ Weapon::Weapon()
 	// Weapons don't move
 	setMoveType( MOVETYPE_NONE );
 
-	m_fLastFireTime = 0;
-
 	// What type of ammo this weapon fires
-	INITIALIZE_WEAPONMODE_VAR( firetype, ( firetype_t )0 );
+	INITIALIZE_WEAPONMODE_VAR( firetype, FT_NONE );
 
 	INITIALIZE_WEAPONMODE_VAR( fire_delay, 0.1f );
 
 	// Init the bullet specs
 	INITIALIZE_WEAPONMODE_VAR( projectilespeed, 0 );
 	INITIALIZE_WEAPONMODE_VAR( bulletdamage, 0 );
+	INITIALIZE_WEAPONMODE_VAR( bulletlarge, 0 );
 	INITIALIZE_WEAPONMODE_VAR( bulletcount, 1 );
-	INITIALIZE_WEAPONMODE_VAR( bulletrange, 1024 );
+	INITIALIZE_WEAPONMODE_VAR( bulletrange, 4096 );
 	INITIALIZE_WEAPONMODE_VAR( bulletknockback, 0 );
+	INITIALIZE_WEAPONMODE_VAR( bulletthroughwood, 0 );
+	INITIALIZE_WEAPONMODE_VAR( bulletthroughmetal, 0 );
 	INITIALIZE_WEAPONMODE_VAR( ammo_type, "" );
 	INITIALIZE_WEAPONMODE_VAR( loopfire, false );
 	INITIALIZE_WEAPONMODE_VAR( quiet, qfalse );
 	INITIALIZE_WEAPONMODE_VAR( loopfire, qfalse );
 	INITIALIZE_WEAPONMODE_VAR( tracercount, 0 );
 	INITIALIZE_WEAPONMODE_VAR( tracerfrequency, 0 );
+	INITIALIZE_WEAPONMODE_VAR( tracerspeed, 0 );
 
 	for( int i = 0; i < MAX_FIREMODES; i++ )
 	{
@@ -1081,9 +1095,8 @@ Weapon::Weapon()
 	// Name and index
 	setName( "Unnamed Weapon" );
 
-	m_fZoomSpreadMult = 1.0f;
-	m_bCanPartialReload = qtrue;
-	m_bShareClip = qfalse;
+    m_bCanPartialReload = qtrue;
+    m_bShareClip = qfalse;
 
 	// do better lighting on all weapons
 	edict->s.renderfx |= RF_EXTRALIGHT;
@@ -1094,32 +1107,18 @@ Weapon::Weapon()
 	// No crosshair visible
 	crosshair = false;
 
-	m_bAutoZoom = false;
-	m_iZoom = 0;
+    m_iZoom = 0;
+    m_bAutoZoom = false;
+    m_fZoomSpreadMult = 1.0f;
 	m_bSemiAuto = false;
-	m_bShouldReload = false;
-
-	// Set the stats
-	m_iNumHits = 0;
-	m_iNumGroinShots = 0;
-	m_iNumHeadShots = 0;
-	m_iNumLeftArmShots = 0;
-	m_iNumRightArmShots = 0;
-	m_iNumLeftLegShots = 0;
-	m_iNumRightLegShots = 0;
-	m_iNumTorsoShots = 0;
-
-	m_fMovementSpeed = 1.0f;
-
-	m_sAmmoPickupSound = "snd_pickup_";
-	m_NoAmmoSound = "snd_noammo";
-
-	// Set the default weapon group
-	m_csWeaponGroup = STRING_EMPTY;
 
 	// Weapons default to making noise
 	next_noise_time = 0;
 	next_noammo_time = 0;
+    next_maxmovement_time = 0;
+
+	// Obviously mustn't reload at first
+    m_bShouldReload = false;
 
 	// Used to keep track of last angles and scale before holstering
 	lastValid = qfalse;
@@ -1132,9 +1131,46 @@ Weapon::Weapon()
 	// Weapon will be able to be used when it has no ammo
 	use_no_ammo = qtrue;
 
-	INITIALIZE_WEAPONMODE_VAR( meansofdeath, MOD_NONE );
+    INITIALIZE_WEAPONMODE_VAR(meansofdeath, MOD_NONE);
+
+    // Set the stats
+    m_iNumHits = 0;
+    m_iNumGroinShots = 0;
+    m_iNumHeadShots = 0;
+    m_iNumLeftArmShots = 0;
+    m_iNumRightArmShots = 0;
+    m_iNumLeftLegShots = 0;
+    m_iNumRightLegShots = 0;
+    m_iNumTorsoShots = 0;
+
+    // Set the default weapon group
+    m_csWeaponGroup = STRING_EMPTY;
+    m_fMovementSpeed = 1.0f;
+	m_fMaxFireMovement = 1.0f;
+	m_fZoomMovement = 1.0f;
+
+    m_sAmmoPickupSound = "snd_pickup_";
+    m_NoAmmoSound = "snd_noammo";
+    m_sMaxMovementSound = "snd_maxmovement";
+
+	// Always has a fire animation
+	m_iNumFireAnims = 1;
+	m_iCurrentFireAnim = 0;
+
+	// Default tag to use for muzzle and special effects
+	m_sTagBarrel = "tag_barrel";
+
+	m_iWeaponSubtype = 0;
+
+	// Not cooking by default
+	m_fCookTime = 0;
+	m_eCookModeIndex = FIRE_PRIMARY;
+	// Defaults to no secondary HUD
+	m_bSecondaryAmmoInHud = false;
 
 	PostEvent( EV_Weapon_IdleInit, 0 );
+
+	last_owner_trigger_time = 0;
 }
 
 
@@ -1272,7 +1308,7 @@ void Weapon::SetStartAmmo
    Event *ev
    )
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
@@ -1351,7 +1387,7 @@ void Weapon::SetAmmoRequired
    Event *ev
    )
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
@@ -2327,7 +2363,7 @@ void Weapon::SetCantPartialReload
 	Event *ev
 	)
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	m_bCanPartialReload = qfalse;
@@ -3060,6 +3096,7 @@ void Weapon::GiveStartingAmmoToOwner
 {
 	str   ammotype;
 	int   mode;
+	int   i;
 
 	assert( owner );
 
@@ -3101,6 +3138,32 @@ void Weapon::GiveStartingAmmoToOwner
 				owner->GiveAmmo( ammotype, start_ammo );
 			}
 		}
+	}
+
+	if (m_additionalStartAmmoTypes.NumObjects()) {
+		for (i = 1; i <= m_additionalStartAmmoTypes.NumObjects(); i++) {
+			const str& type = m_additionalStartAmmoTypes.ObjectAt(i);
+			int startAmmoAmount = m_additionalStartAmmoAmounts.ObjectAt(i);
+
+			if (type.length() && startAmmoAmount) {
+				owner->GiveAmmo(type, startAmmoAmount);
+			}
+		}
+
+		m_additionalStartAmmoTypes.ClearObjectList();
+		m_additionalStartAmmoAmounts.ClearObjectList();
+	}
+
+	if (m_startItems.NumObjects()) {
+		for (i = 1; i <= m_startItems.NumObjects(); i++) {
+			const str& itemName = m_startItems.ObjectAt(i);
+
+			if (itemName.length()) {
+				owner->giveItem(itemName);
+			}
+		}
+
+		m_startItems.ClearObjectList();
 	}
 }
 //======================
@@ -3824,7 +3887,7 @@ void Weapon::SetProjectile
 	Event *ev
 	)
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
@@ -3952,7 +4015,7 @@ void Weapon::SetBulletRange
 	Event *ev
 	)
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
@@ -3993,7 +4056,7 @@ void Weapon::SetBulletCount
 	Event *ev
 	)
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
@@ -4023,7 +4086,7 @@ void Weapon::SetBulletSpread
 	Event *ev
 	)
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
@@ -4067,7 +4130,7 @@ void Weapon::SetZoomSpreadMult
 	Event *ev
 	)
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	m_fZoomSpreadMult = ev->GetFloat( 1 );
@@ -4096,7 +4159,7 @@ void Weapon::SetFireSpreadMult
 	Event *ev
 	)
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	assert( ( firemodeindex >= 0 ) && ( firemodeindex < MAX_FIREMODES ) );
@@ -4532,7 +4595,7 @@ void Weapon::EventSetFireDelay
 	Event *ev
 	)
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	fire_delay[ firemodeindex ] = ev->GetFloat( 1 );
@@ -4740,7 +4803,7 @@ void Weapon::SetMovementSpeed
 	Event *ev
 	)
 {
-	if( g_gametype->integer )
+	if( g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer )
 		return;
 
 	m_fMovementSpeed = ev->GetFloat( 1 );
