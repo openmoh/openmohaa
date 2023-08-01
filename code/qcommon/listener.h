@@ -314,7 +314,7 @@ public:
 	Event( const Event &ev );
 	Event( int index );
 	Event( int index, int numArgs );
-	Event( str command );
+	Event( str command, int numArgs = 0 );
 	Event( str command, uchar type );
 	Event
 	(

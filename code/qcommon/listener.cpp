@@ -53,6 +53,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../client/client.h"
 #endif
 
+// std::move
+#include <utility>
+
 con_map< Event *, EventDef > Event::eventDefList;
 con_arrayset< command_t, command_t > Event::commandList;
 
@@ -1976,7 +1979,7 @@ Event
 Initializes the event with the specified command
 =======================
 */
-Event::Event( str command )
+Event::Event( str command, int numArgs )
 {
 	command_t c;
 
@@ -1993,8 +1996,13 @@ Event::Event( str command )
 	}
 
 	fromScript = qfalse;
-	dataSize = 0;
-	data = NULL;
+    if (numArgs) {
+        data = new ScriptVariable[numArgs];
+        dataSize = numArgs;
+	} else {
+		dataSize = 0;
+		data = NULL;
+    }
 
 #ifdef _DEBUG
 	name = command;
@@ -2374,7 +2382,7 @@ ScriptVariable& Event::GetValue( void )
 	if( tmp != NULL )
 	{
 		for( int i = 0; i < dataSize; i++ ) {
-			data[ i ] = tmp[ i ];
+			data[ i ] = std::move(tmp[ i ]);
 		}
 
 		delete[] tmp;
