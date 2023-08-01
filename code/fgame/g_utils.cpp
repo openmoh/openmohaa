@@ -2351,63 +2351,64 @@ char *CanonicalTikiName( const char *szInName )
 
 qboolean G_Command_ProcessFile( const char * filename, qboolean quiet )
 {
-	char  *buffer;
-	const char  *bufstart;
-	char	com_token[ MAX_STRING_CHARS ];
+    char* buffer;
+    const char* bufstart;
+    const char* token;
+	int numTokens = 0;
 
-	if( gi.FS_ReadFile( filename, ( void ** )&buffer, quiet ) == -1 )
-	{
-		return qfalse;
-	}
+    if (gi.FS_ReadFile(filename, (void**)&buffer, quiet) == -1)
+    {
+        return qfalse;
+    }
 
-	if( !quiet )
-		gi.DPrintf( "G_Command_ProcessFile: %s\n", filename );
+    if (!quiet)
+        gi.DPrintf("G_Command_ProcessFile: %s\n", filename);
 
-	bufstart = buffer;
+    bufstart = buffer;
 
-	while( 1 )
-	{
-		Event *ev;
+    while (1)
+    {
+        // grab each line as we go
+        token = COM_ParseExt(&buffer, qtrue);
+        if (!token[0]) {
+            break;
+        }
 
-		// grab each line as we go
-		strcpy( com_token, COM_ParseExt( &buffer, qtrue ) );
-		if( !com_token[ 0 ] )
-			break;
+        if (
+            !Q_stricmp(token, "end") ||
+            !Q_stricmp(token, "server")
+            )
+        {
+            // skip the line
+            while (1)
+            {
+                token = COM_ParseExt(&buffer, qfalse);
+                if (!token[0]) {
+                    break;
+                }
+            }
+            continue;
+        }
 
-		if(
-			!Q_stricmp( com_token, "end" ) ||
-			!Q_stricmp( com_token, "server" )
-			)
-		{
-			// skip the line
-			while( 1 )
-			{
-				strcpy( com_token, COM_ParseExt( &buffer, qfalse ) );
-				if( !com_token[ 0 ] )
-					break;
-			}
-			continue;
-		}
+        // Create the event
+		Event ev(token);
 
-		// Create the event
-		ev = new Event( com_token );
+        // get the rest of the line
+        while (1) {
+            token = COM_ParseExt(&buffer, qfalse);
+            if (!token[0]) {
+                break;
+            }
+			
+            ev.AddToken(token);
+        }
 
-		// get the rest of the line
-		while( 1 )
-		{
-			strcpy( com_token, COM_ParseExt( &buffer, qfalse ) );
-			if( !com_token[ 0 ] )
-				break;
+        Director.ProcessEvent(ev);
+    }
 
-			ev->AddToken( com_token );
-		}
+    gi.FS_FreeFile((void*)bufstart);
 
-		Director.ProcessEvent( ev );
-	}
-
-	gi.FS_FreeFile( ( void * )bufstart );
-
-	return qtrue;
+    return qtrue;
 }
 
 /*
