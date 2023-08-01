@@ -2576,22 +2576,47 @@ qboolean Weapon::ReadyToFire
 	qboolean   playsound
 	)
 {
-	if( m_iZoom && mode == FIRE_SECONDARY ) {
+    if (owner && owner->IsSubclassOfSentient()) {
+        // Clear the cook flag
+        owner->m_bOvercookDied = false;
+    }
+
+	if( !level.playerfrozen && m_iZoom && mode == FIRE_SECONDARY ) {
 		return qtrue;
 	}
 
 	// Make sure the weapon is in the ready state and the weapon has ammo
-	if( level.time > ( m_fLastFireTime + FireDelay( mode ) ) )
+	if( m_eLastFireMode != mode || level.time > ( m_fLastFireTime + FireDelay( mode ) ) )
 	{
+		float speed;
+
 		if( HasAmmoInClip( mode ) )
-		{
-			return qtrue;
+        {
+			if (m_fMaxFireMovement >= 1.f) {
+				return qtrue;
+			}
+
+			if (!owner) {
+				return qtrue;
+			}
+
+			speed = owner->velocity.lengthXY();
+			if ((speed / sv_runspeed->value) <= (m_fMovementSpeed * m_fMaxFireMovement)) {
+				return qtrue;
+            }
+
+            if (playsound && (level.time > next_maxmovement_time))
+            {
+                Sound(m_sMaxMovementSound);
+                next_noammo_time = level.time + level.frametime + G_Random(0.1f) + 0.95f;
+            }
 		}
-		if( playsound && ( level.time >	next_noammo_time ) )
-		{
-			Sound( "snd_noammo" );
-			next_noammo_time = level.time + level.frametime + G_Random( 0.1f ) + 0.95f;
-		}
+
+        if (playsound && (level.time > next_noammo_time))
+        {
+            Sound(m_NoAmmoSound);
+            next_noammo_time = level.time + level.frametime + G_Random(0.1f) + 0.95f;
+        }
 	}
 	return qfalse;
 }
@@ -3177,6 +3202,9 @@ void Weapon::PickupWeapon
 	Sentient       *sen;
 	Entity         *other;
 	qboolean       hasweapon;
+	qboolean       hasclass;
+	int            iGiveAmmo;
+	str            realname;
 
 	other = ev->GetEntity( 1 );
 	assert( other );
@@ -3194,15 +3222,30 @@ void Weapon::PickupWeapon
 		return;
 	}
 
-	hasweapon = sen->HasItem( item_name ) || sen->HasWeaponClass( weapon_class );
+	hasweapon = sen->HasItem(item_name);
+	hasclass = sen->HasWeaponClass(weapon_class);
 
-	if( g_gametype->integer && !hasweapon && !IsSecondaryWeapon() )
+	if( (g_gametype->integer || g_realismmode->integer)
+		&& !hasclass
+		&& !IsSecondaryWeapon()
+		&& sen->HasPrimaryWeapon()
+		)
 	{
 		// Make sure the sentient doesn't have a primary weapon on DM modes
-		hasweapon = sen->HasPrimaryWeapon();
-	}
+		return;
+    }
 
-	if( !hasweapon )
+    if ((g_gametype->integer || g_realismmode->integer)
+		&& other->IsSubclassOfPlayer()
+        && (weapon_class & WEAPON_CLASS_GRENADE)
+        && !hasweapon
+		&& hasclass
+        )
+    {
+		hasclass = false;
+    }
+
+	if( !hasweapon && !hasclass )
 	{
 		if( other->IsSubclassOfPlayer() )
 		{
@@ -3227,19 +3270,17 @@ void Weapon::PickupWeapon
 				CancelEventsOfType( EV_Remove );
 				CancelEventsOfType( EV_Weapon_FallingAngleAdjust );
 
-				StopWeaponAnim();
-				DetachGun();
+				DetachFromOwner();
+                current_attachToTag = "";
+                lastValid = qfalse;
+                edict->s.tag_num = -1;
+                edict->s.attach_use_angles = qfalse;
+                VectorClear(edict->s.attach_offset);
 
-				ForceState( WEAPON_CHANGING );
-				current_attachToTag = "";
-				lastValid = qfalse;
-				edict->s.tag_num = -1;
-				edict->s.attach_use_angles = qfalse;
-				VectorClear( edict->s.attach_offset );
 				setOrigin( vec_zero );
 				setAngles( vec_zero );
-
 				SetOwner( sen );
+
 				sen->AddItem( this );
 				sen->ReceivedItem( this );
 
@@ -3275,26 +3316,80 @@ void Weapon::PickupWeapon
 		}
 	}
 
-	if( sen->isClient() && startammo[ FIRE_PRIMARY ] && ammo_type[ FIRE_PRIMARY ].length() )
-	{
-		str sMessage;
-		str sAmmoType = ammo_type[ FIRE_PRIMARY ];
+    if (startammo[FIRE_PRIMARY] && ammo_type[FIRE_PRIMARY].length() && other->isClient())
+    {
+        str sMessage;
+        const str& sAmmoType = ammo_type[FIRE_PRIMARY];
+		
+		iGiveAmmo = startammo[FIRE_PRIMARY];
 
-		sen->GiveAmmo( sAmmoType, startammo[ FIRE_PRIMARY ] );
+        sen->GiveAmmo(sAmmoType, iGiveAmmo);
 
-		if( !sAmmoType.icmp( "agrenade" ) )
-		{
-			if( startammo[ FIRE_PRIMARY ] == 1 )
-				sMessage = gi.LV_ConvertString( "Got 1 Grenade" );
+        if (!g_gametype->integer && other->IsSubclassOfPlayer()) {
+            if (!sAmmoType.icmp("agrenade"))
+            {
+                if (iGiveAmmo == 1)
+                    sMessage = gi.LV_ConvertString("Got 1 Grenade");
+                else
+                    sMessage = gi.LV_ConvertString(va("Got %i Grenades", iGiveAmmo));
+            }
+        }
+
+        if (!sAmmoType.icmp("grenade"))
+        {
+            if (iGiveAmmo == 1)
+                sMessage = gi.LV_ConvertString("Got 1 Grenade");
+            else
+                sMessage = gi.LV_ConvertString(va("Got %i Grenades", iGiveAmmo));
+        }
+        else
+        {
+            sMessage = gi.LV_ConvertString(va("Got %i %s Rounds", iGiveAmmo, sAmmoType.c_str()));
+        }
+
+        gi.SendServerCommand(other->edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sMessage.c_str());
+    }
+
+	if (ammo_type[FIRE_SECONDARY] != ammo_type[FIRE_PRIMARY]) {
+		if (startammo[FIRE_SECONDARY] && ammo_type[FIRE_SECONDARY].length() && other->isClient()) {
+            str sMessage;
+            const str& sAmmoType = ammo_type[FIRE_PRIMARY];
+
+            iGiveAmmo = startammo[FIRE_SECONDARY];
+
+            sen->GiveAmmo(sAmmoType, iGiveAmmo);
+
+            if (!g_gametype->integer && other->IsSubclassOfPlayer()) {
+                if (!sAmmoType.icmp("agrenade"))
+                {
+                    if (iGiveAmmo == 1)
+                        sMessage = gi.LV_ConvertString("Got 1 Grenade");
+                    else
+                        sMessage = gi.LV_ConvertString(va("Got %i Grenades", iGiveAmmo));
+                }
+            }
+
+            if (!sAmmoType.icmp("grenade"))
+            {
+                if (iGiveAmmo == 1)
+                    sMessage = gi.LV_ConvertString("Got 1 Grenade");
+                else
+                    sMessage = gi.LV_ConvertString(va("Got %i Grenades", iGiveAmmo));
+            }
+			else if (!sAmmoType.icmp("riflegrenade"))
+            {
+                if (iGiveAmmo == 1)
+                    sMessage = gi.LV_ConvertString("Got 1 Rifle Grenade");
+                else
+                    sMessage = gi.LV_ConvertString(va("Got %i Rifle Grenades", iGiveAmmo));
+			}
 			else
-				sMessage = gi.LV_ConvertString( va( "Got %i Grenades", startammo[ FIRE_PRIMARY ] ) );
-		}
-		else
-		{
-			sMessage = gi.LV_ConvertString( va( "Got %i %s Rounds", startammo[ FIRE_PRIMARY ], sAmmoType.c_str() ) );
-		}
+            {
+                sMessage = gi.LV_ConvertString(va("Got %i %s Rounds", startammo[FIRE_PRIMARY], sAmmoType.c_str()));
+            }
 
-		gi.SendServerCommand( other->edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sMessage.c_str() );
+            gi.SendServerCommand(other->edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", sMessage.c_str());
+		}
 	}
 
 	Unregister( STRING_PICKUP );
@@ -3346,7 +3441,7 @@ qboolean Weapon::SetWeaponAnim
 	}
 
 	StopAnimating( m_iAnimSlot );
-	SetTime( m_iAnimSlot );
+	RestartAnimSlot( m_iAnimSlot );
 
 	int idleanim = gi.Anim_NumForName( edict->tiki, "idle" );
 
@@ -3364,7 +3459,7 @@ qboolean Weapon::SetWeaponAnim
 	}
 
 	SetOnceType( m_iAnimSlot );
-	SetTime( m_iAnimSlot );
+	RestartAnimSlot( m_iAnimSlot );
 
 	return qtrue;
 }
@@ -3402,15 +3497,27 @@ void Weapon::SetWeaponIdleAnim
 	void
 	)
 {
-	if( ammo_clip_size[ FIRE_PRIMARY ] && !ammo_in_clip[ FIRE_PRIMARY ] )
-	{
-		if( SetWeaponAnim( "idle_empty" ) )
+	if (m_bShareClip) {
+		if (ammo_clip_size[FIRE_PRIMARY] && !ammo_in_clip[FIRE_PRIMARY])
 		{
-			return;
+			if (SetWeaponAnim("idle_empty"))
+			{
+				return;
+			}
+		}
+
+		SetWeaponAnim("idle");
+	} else {
+		if (ammo_clip_size[FIRE_PRIMARY] && !ammo_in_clip[FIRE_PRIMARY])
+		{
+			if (SetWeaponAnim("idle_empty"))
+			{
+				return;
+			}
 		}
 	}
 
-	SetWeaponAnim( "idle" );
+	SetWeaponAnim("idle");
 }
 
 //======================
@@ -3698,40 +3805,40 @@ qboolean Weapon::Removable
 //Weapon::Pickupable
 //======================
 qboolean Weapon::Pickupable
-   (
-   Entity *other
-   )
+(
+    Entity* other
+)
 
-   {
-   Sentient *sen;
+{
+    Sentient* sen;
 
-   if ( !other->IsSubclassOfSentient() )
-		{
-		return false;
-		}
-   else if ( !other->isClient() )
-      {
-      return false;
-      }
+    if (!other->IsSubclassOfSentient())
+    {
+        return false;
+    }
+    else if (!other->isClient())
+    {
+        return false;
+    }
 
-   sen = ( Sentient * )other;
+    sen = (Sentient*)other;
 
-   //FIXME
-   // This should be in player
+    //FIXME
+    // This should be in player
 
-   // If we have the weapon and weapons stay, then don't pick it up
-   if ( ( ( int )( dmflags->integer ) & DF_WEAPONS_STAY ) && !( spawnflags & ( DROPPED_ITEM | DROPPED_PLAYER_ITEM ) ) )
-      {
-      Weapon   *weapon;
+    // If we have the weapon and weapons stay, then don't pick it up
+    if (((int)(dmflags->integer) & DF_WEAPONS_STAY) && !(spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)))
+    {
+        Weapon* weapon;
 
-      weapon = ( Weapon * )sen->FindItem( getName() );
+        weapon = (Weapon*)sen->FindItem(getName());
 
-      if ( weapon )
-         return false;
-      }
+        if (weapon)
+            return false;
+    }
 
-   return true;
-   }
+    return true;
+}
 
 //======================
 //Weapon::AutoChange
