@@ -128,8 +128,8 @@ public:
 	void				StopAnimating( int slot = 0 );
 	void				StopAnimatingAtEnd( int slot = 0 );
 	
-	virtual int CurrentAnim( int slot = 0 );
-	virtual float CurrentTime( int slot = 0 );
+	int CurrentAnim( int slot = 0 ) override;
+	float CurrentTime( int slot = 0 ) override;
 
 	void PreAnimate( void ) override;
 	void PostAnimate( void ) override;
