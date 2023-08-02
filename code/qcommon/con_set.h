@@ -80,7 +80,7 @@ protected:
 	Entry< k, v >				*defaultEntry;
 
 protected:
-	Entry< k, v >				*findKeyEntry( const k& key );
+	Entry< k, v >				*findKeyEntry( const k& key ) const;
 	Entry< k, v >				*addKeyEntry( const k& key );
 	virtual Entry< k, v >		*addNewKeyEntry( const k& key );
 
@@ -95,7 +95,7 @@ public:
 	virtual void				clear();
 	virtual void				resize( int count = 0 );
 
-	v							*findKeyValue( const k& key );
+	v							*findKeyValue( const k& key ) const;
 	k							*firstKeyValue();
 
 	v&							addKeyValue( const k& key );
@@ -319,7 +319,7 @@ void con_set< key, value >::resize( int count )
 }
 
 template< typename k, typename v >
-Entry< k, v > *con_set< k, v >::findKeyEntry( const k& key )
+Entry< k, v > *con_set< k, v >::findKeyEntry( const k& key ) const
 {
 	Entry< k, v > *entry;
 
@@ -429,7 +429,7 @@ bool con_set< k, v >::remove( const k& key )
 }
 
 template< typename k, typename v >
-v *con_set< k, v >::findKeyValue( const k& key )
+v *con_set< k, v >::findKeyValue( const k& key ) const
 {
 	Entry< k, v > *entry = findKeyEntry( key );
 
