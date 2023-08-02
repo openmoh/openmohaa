@@ -95,44 +95,6 @@ static Entity *FindClosestEntityInRadius
    return bestent;
    }
 
-Entity *Player::FindEnemyInFOVFromTagWithOffset
-   (
-   float fov,
-   float maxdist,
-   str   tagname,
-   Vector offset
-   )
-
-   {
-   vec3_t mat[3];
-   orientation_t tag_or;
-
-   GetTagPositionAndOrientation( gi.Tag_NumForName( edict->tiki, tagname ), &tag_or );
-   
-   AnglesToAxis( torsoAngles, mat );
-
-   //G_DebugLine( tag_or.origin + offset, tag_or.origin + offset + Vector( mat[0] ) * 100, 1,1,1,1 );
-
-   return FindClosestEntityInRadius( tag_or.origin + offset, mat[0], fov, maxdist );
-   }
-
-//====================
-//FindEnemyInFOV
-//Returns entity if an enemy is in the player's FOV
-//====================
-Entity *Player::FindEnemyInFOV
-   (
-   float fov,
-   float maxdist
-   )
-
-   {
-   vec3_t mat[3];
-
-   AnglesToAxis( headAngles, mat );
-   return FindClosestEntityInRadius( this->centroid, mat[0], fov, maxdist );
-   }
-
 //====================
 //AdjustAnglesForAttack 
 //Adjust the player angles toward an enemy if they are attacking it
