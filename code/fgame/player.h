@@ -89,6 +89,12 @@ typedef enum
 	PVT_AXIS_END
 } voicetype_t;
 
+typedef enum jailstate_e {
+    JAILSTATE_NONE,
+    JAILSTATE_ESCAPE,
+    JAILSTATE_ASSIST_ESCAPE
+} jailstate_t;
+
 typedef void ( Player::*movecontrolfunc_t )( void );
 
 typedef struct vma_s {
@@ -127,28 +133,13 @@ private:
 
 	bool						animdone_Legs;
 	bool						animdone_Torso;
+	bool						animdone_Pain;
 	Container<Conditional *>	legs_conditionals;
 	Container<Conditional *>	torso_conditionals;
 	Conditional					*m_pLegsPainCond;
 	Conditional					*m_pTorsoPainCond;
 
 	float		m_fLastDeltaTime;
-	qboolean	m_bActionAnimPlaying;
-	int			m_iBaseActionAnimSlot;
-	str			m_sActionAnimName;
-	int			m_iActionAnimType;
-	qboolean	m_bActionAnimDone;
-	str			m_sOldActionAnimName;
-	float		m_fOldActionAnimWeight;
-	float		m_fOldActionAnimFadeTime;
-	int			m_iOldActionAnimType;
-	qboolean	m_bMovementAnimPlaying;
-	int			m_iBaseMovementAnimSlot;
-	str			m_sMovementAnimName;
-	str			m_sOldMovementAnimName;
-	float		m_fOldMovementWeight;
-	float		m_fOldMovementFadeTime;
-	str			m_sSlotAnimNames[ MAX_ANIM_SLOT ];
 
 	movecontrol_t	movecontrol;
 	int				m_iMovePosFlags;
@@ -169,8 +160,6 @@ private:
 
 	// aiming direction
 	Vector v_angle;
-	Vector m_vViewPos;
-	Vector m_vViewAng;
 
 	int buttons;
 	int new_buttons;
@@ -213,7 +202,11 @@ private:
 	meansOfDeath_t	pain_type;
 	int				pain_location;
 	bool		take_pain;
-	int			nextpaintime;
+    int			nextpaintime;
+    float       m_fMineDist;
+    float       m_fMineCheckTime;
+    str         m_sDmPrimary;
+    bool        m_bIsInJail;
 	bool		knockdown;
 
 	bool	canfall;
@@ -252,12 +245,18 @@ private:
 
 	float damage_multiplier;
 
-	voicetype_t m_voiceType;
+	//
+	// Talking
+	//
+    voicetype_t m_voiceType;
+    float m_fTalkTime;
 
 	int num_deaths;
 	int num_kills;
 	int num_won_matches;
 	int num_lost_matches;
+    int num_team_kills;
+    int m_iLastNumTeamKills;
 
 	bool	m_bTempSpectator;
 	bool	m_bSpectator;
@@ -270,8 +269,13 @@ private:
 	float					m_fTeamSelectTime;
 	class PlayerStart		*m_pLastSpawnpoint;
 
+	//
+	// Vote
+	///
 	bool	voted;
 	int		votecount;
+    float   m_fLastVoteTime;
+    float   m_fNextVoteOptionTime;
 
 	float			m_fWeapSelectTime;
 	float			fAttackerDispTime;
@@ -280,6 +284,8 @@ private:
 	int		m_iInfoClient;
 	int		m_iInfoClientHealth;
 	float	m_fInfoClientTime;
+    bool m_bDeathSpectator;
+    jailstate_t m_jailstate;
 
 	bool m_bShowingHint;
 
@@ -289,6 +295,9 @@ public:
 
 	str m_sPerferredWeaponOverride;
 
+	float m_fHealRate;
+    Vector m_vViewPos;
+    Vector m_vViewAng;
 	Vector mvTrail[ MAX_TRAILS ];
 	Vector mvTrailEyes[ MAX_TRAILS ];
 	int mCurTrailOrigin;
@@ -298,8 +307,6 @@ public:
 	int m_iNumObjectsDestroyed;
 	int m_iNumShotsFired;
 	int m_iNumHits;
-	float m_fAccuracy;
-	float m_fTimeUsed;
 	int m_iNumHeadShots;
 	int m_iNumTorsoShots;
 	int m_iNumLeftLegShots;
@@ -308,14 +315,14 @@ public:
 	int m_iNumLeftArmShots;
 	int m_iNumRightArmShots;
 
-	qboolean yawing_left;
-	qboolean yawing_right;
-	qboolean yawing;
-
-	Vector headAngles;
-	Vector torsoAngles;
-	Vector headAimAngles;
-	Vector torsoAimAngles;
+    float m_fLastSprintTime;
+    bool m_bHasJumped;
+    float m_fLastInvulnerableTime;
+    int m_iInvulnerableTimeRemaining;
+    float m_fInvulnerableTimeElapsed;
+    float m_fSpawnTimeLeft;
+    bool m_bWaitingForRespawn;
+    bool m_bShouldRespawn;
 
 	// new variables
 	str						m_sVision;				// current vision
@@ -425,7 +432,14 @@ public:
 	qboolean			checkfacingupslope( Conditional &condition );
 	qboolean			checkfacingdownslope( Conditional &condition );
 	qboolean			checkinturret( Conditional &condition );
-	qboolean			checkinvehicle( Conditional &condition );
+    qboolean			checkinvehicle(Conditional& condition);
+    qboolean			CondIsEscaping(Conditional& condition);
+    qboolean			CondAbleToDefuse(Conditional& condition);
+    qboolean			CondCanPlaceLandmine(Conditional& condition);
+	qboolean			CondOnLandmine(Conditional& condition);
+	qboolean			CondNearLandmine(Conditional& condition);
+	void				MeasureLandmineDistances();
+	qboolean			CondIsAssistingEscape(Conditional& condition);
 	qboolean			checkturrettype( Conditional &condition );
 	qboolean			checkduckedviewinwater( Conditional &condition );
 	qboolean			checkviewinwater( Conditional &condition );
@@ -443,10 +457,6 @@ public:
 	qboolean			checkmaxchargetimemet( Conditional &condition );
 	qboolean			checkimmediateswitch( Conditional &condition );
 	qboolean			checkmovementspeed( Conditional &condition );
-	qboolean			checkabletodefuse( Conditional &condition );
-	qboolean			checkonlandmine( Conditional &condition );
-	qboolean			checknearlandmine( Conditional &condition );
-	qboolean			CondCanPlaceLandmine( Conditional &condition );
 	qboolean			CondWeaponCurrentFireAnim( Conditional &condition );
 	qboolean			CondVehicleType( Conditional &condition );
 	qboolean			CondAnimDoneVM( Conditional &condition );
@@ -550,7 +560,6 @@ public:
 
 	void				EndAnim_Legs( Event *ev );
 	void				EndAnim_Torso( Event *ev );
-	void				EndActionAnim( Event *ev );
 	void				SetPartAnim( const char *anim, bodypart_t slot = legs );
 	void				StopPartAnimating( bodypart_t part );
 	void				PausePartAnim( bodypart_t part );
@@ -657,8 +666,6 @@ public:
 	void				SetSelectedFov( float newFov );
 
 	void              AdjustAnglesForAttack( void );
-	Entity            *FindEnemyInFOV( float fov, float maxdist );
-	Entity            *FindEnemyInFOVFromTagWithOffset( float fov, float maxdist, str tagname, Vector offset );
 	void              DumpState( Event *ev );
 	void              ForceLegsState( Event *ev );
 	void              ForceTorsoState( Event *ev );
@@ -715,6 +722,8 @@ public:
 	void				EventGetUseHeld( Event *ev );
 	void				EventGetFireHeld( Event *ev );
 
+	void				EventForceLandmineMeasure(Event* ev);
+	str					GetCurrentDMWeaponType() const;
 	void				Score( Event *ev );
 
 	void				WonMatch( void );
@@ -890,26 +899,6 @@ inline void Player::Archive
 
 	arc.ArchiveBool( &animdone_Legs );
 	arc.ArchiveBool( &animdone_Torso );
-	arc.ArchiveBoolean( &m_bActionAnimPlaying );
-	arc.ArchiveInteger( &m_iBaseActionAnimSlot );
-	arc.ArchiveString( &m_sActionAnimName );
-	arc.ArchiveInteger( &m_iActionAnimType );
-	arc.ArchiveBoolean( &m_bActionAnimDone );
-	arc.ArchiveString( &m_sOldActionAnimName );
-	arc.ArchiveFloat( &m_fOldActionAnimWeight );
-	arc.ArchiveFloat( &m_fOldActionAnimFadeTime );
-	arc.ArchiveInteger( &m_iOldActionAnimType );
-	arc.ArchiveBoolean( &m_iBaseActionAnimSlot );
-	arc.ArchiveInteger( &m_iBaseMovementAnimSlot );
-	arc.ArchiveString( &m_sMovementAnimName );
-	arc.ArchiveString( &m_sOldMovementAnimName );
-	arc.ArchiveFloat( &m_fOldMovementWeight );
-	arc.ArchiveFloat( &m_fOldMovementFadeTime );
-
-	for( int i = 0; i < MAX_ANIM_SLOT; i++ )
-	{
-		arc.ArchiveString( &m_sSlotAnimNames[ i ] );
-	}
 
 	arc.ArchiveInteger( &m_iMovePosFlags );
 	ArchiveEnum( movecontrol, movecontrol_t );
@@ -1033,8 +1022,6 @@ inline void Player::Archive
 	arc.ArchiveInteger( &m_iNumObjectsDestroyed );
 	arc.ArchiveInteger( &m_iNumShotsFired );
 	arc.ArchiveInteger( &m_iNumHits );
-	arc.ArchiveFloat( &m_fAccuracy );
-	arc.ArchiveFloat( &m_fTimeUsed );
 	arc.ArchiveInteger( &m_iNumHeadShots );
 	arc.ArchiveInteger( &m_iNumTorsoShots );
 	arc.ArchiveInteger( &m_iNumLeftLegShots );

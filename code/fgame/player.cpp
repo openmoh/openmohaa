@@ -419,14 +419,6 @@ Event EV_Player_AnimLoop_Torso
    "Called when the torso animation has finished.",
 	EV_NORMAL
 	);
-Event EV_Player_ActionAnimEnd
-	(
-	"actionanimend",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Called when the action animation has finished."
-	);
 Event EV_Player_AnimLoop_Legs
 	(
 	"animloop_legs",
@@ -1652,7 +1644,6 @@ CLASS_DECLARATION( Sentient, Player, "player" )
 	{ &EV_Player_RemoveClass, 					&Player::RemoveClass },
 	{ &EV_Player_AnimLoop_Legs, 				&Player::EndAnim_Legs },
 	{ &EV_Player_AnimLoop_Torso, 				&Player::EndAnim_Torso },
-	{ &EV_Player_ActionAnimEnd, 				&Player::EndActionAnim },
 	{ &EV_Player_Jump, 							&Player::Jump },
 	{ &EV_Sentient_JumpXY, 						&Player::JumpXY },
 	{ &EV_Player_ListInventory, 				&Player::ListInventoryEvent },
@@ -3426,6 +3417,47 @@ qboolean Player::checkinvehicle( Conditional &condition )
 	return ( m_pVehicle != NULL );
 }
 
+qboolean Player::CondIsEscaping(Conditional& condition)
+{
+    // FIXME: unimplemented
+    return true;
+}
+
+qboolean Player::CondAbleToDefuse(Conditional& condition)
+{
+    // FIXME: unimplemented
+    return true;
+}
+
+qboolean Player::CondCanPlaceLandmine(Conditional& condition)
+{
+    // FIXME: unimplemented
+    return false;
+}
+
+qboolean Player::CondOnLandmine(Conditional& condition)
+{
+    // FIXME: unimplemented
+    return false;
+}
+
+qboolean Player::CondNearLandmine(Conditional& condition)
+{
+    // FIXME: unimplemented
+    return false;
+}
+
+void Player::MeasureLandmineDistances()
+{
+    // FIXME: unimplemented
+}
+
+qboolean Player::CondIsAssistingEscape(Conditional& condition)
+{
+	// FIXME: unimplemented
+	return qfalse;
+}
+
 qboolean Player::checkturrettype( Conditional &condition )
 {
 	str name = condition.getParm( 1 );
@@ -3636,30 +3668,6 @@ qboolean Player::checkmovementspeed(Conditional& condition)
 {
 	int speed = atoi(condition.getParm(1));
 	return client->ps.speed >= speed;
-}
-
-qboolean Player::checkabletodefuse(Conditional& condition)
-{
-	// FIXME: unimplemented
-	return true;
-}
-
-qboolean Player::checkonlandmine(Conditional& condition)
-{
-	// FIXME: unimplemented
-	return false;
-}
-
-qboolean Player::checknearlandmine(Conditional& condition)
-{
-	// FIXME: unimplemented
-	return false;
-}
-
-qboolean Player::CondCanPlaceLandmine(Conditional& condition)
-{
-	// FIXME: unimplemented
-	return false;
 }
 
 qboolean Player::CondWeaponCurrentFireAnim(Conditional& condition)
@@ -4032,9 +4040,9 @@ Condition<Player> Player::Conditions[] =
 	{ "MAX_CHARGE_TIME_MET",				&Player::checkmaxchargetimemet },
 	{ "IMMEDIATE_SWITCH",					&Player::checkimmediateswitch },
 	{ "CHECK_MOVEMENT_SPEED",				&Player::checkmovementspeed },
-	{ "ABLE_TO_DEFUSE",						&Player::checkabletodefuse },
-	{ "ON_LANDMINE",						&Player::checkonlandmine },
-	{ "NEAR_LANDMINE",						&Player::checknearlandmine },
+	{ "ABLE_TO_DEFUSE",						&Player::CondAbleToDefuse },
+	{ "ON_LANDMINE",						&Player::CondOnLandmine },
+	{ "NEAR_LANDMINE",						&Player::CondNearLandmine },
 	{ "CAN_PLACE_LANDMINE",					&Player::CondCanPlaceLandmine },
 	{ "WEAPON_CURRENT_FIRE_ANIM",			&Player::CondWeaponCurrentFireAnim },
 	{ "VEHICLE_TYPE",						&Player::CondVehicleType },
@@ -4098,16 +4106,7 @@ Player::Player()
 	partBlendMult[ 0 ] = 0;
 	partBlendMult[ 1 ] = 0;
 
-	m_fOldActionAnimFadeTime = 0;
-	m_bActionAnimPlaying = false;
 	m_fLastDeltaTime = level.time;
-	m_iBaseActionAnimSlot = 0;
-	m_iActionAnimType = 0;
-
-	m_fOldActionAnimWeight = 0;
-	m_fOldActionAnimFadeTime = 0;
-	m_bMovementAnimPlaying = false;
-	m_fOldMovementWeight = 0;
 
 	camera = NULL;
 	atobject = NULL;
@@ -10588,15 +10587,6 @@ void Player::EndAnim_Torso
 	EvaluateState();
 }
 
-void Player::EndActionAnim
-	(
-	Event *ev
-	)
-{
-	m_bActionAnimDone = qtrue;
-	EvaluateState();
-}
-
 void Player::SetPartAnim
 	(
 	const char *anim,
@@ -11487,6 +11477,16 @@ void Player::EventGetFireHeld
 	)
 {
 	ev->AddInteger( buttons & ( BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT ) ? qtrue : qfalse );
+}
+
+void Player::EventForceLandmineMeasure(Event* ev)
+{
+	MeasureLandmineDistances();
+}
+
+str Player::GetCurrentDMWeaponType() const
+{
+	return m_sDmPrimary;
 }
 
 void Player::Score
