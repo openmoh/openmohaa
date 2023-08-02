@@ -268,6 +268,7 @@ public:
 	str				GetRandomHeadModel( const char *model );
 	str				GetRandomHeadSkin( const char *model );
 
+	bool			RoundStarted();
 	bool			PreSpawned( void );
 	bool			Spawned( void );
 

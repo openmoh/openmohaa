@@ -918,6 +918,11 @@ void Level::AddAutomaticCamera( Camera *cam )
 	automatic_cameras.AddUniqueObject( cam );
 }
 
+bool Level::RoundStarted()
+{
+	return !WaitTillDefined(STRING_ROUNDSTART);
+}
+
 bool Level::PreSpawned( void )
 {
 	return WaitTillDefined( "prespawn" );
