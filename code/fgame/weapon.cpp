@@ -1981,6 +1981,15 @@ void Weapon::Shoot
 
 		if( mode == FIRE_ERROR )
 			return;
+
+		if (ev->NumArgs() > 1) {
+			SetTagBarrel(ev->GetString(2));
+		}
+	}
+
+	if (owner->IsSubclassOfSentient() && owner->m_bOvercookDied) {
+		owner->m_bOvercookDied = false;
+		return;
 	}
 
 	mc = MuzzleClear();
@@ -2007,287 +2016,348 @@ void Weapon::Shoot
 	}
 
 	GetMuzzlePosition( &pos, &forward, &right, &up, &vBarrel );
+	ApplyFireKickback(right, 1000.0);
 
-	if( m_fFireSpreadMultAmount[ mode ] != 0.0f )
+	if (firetype[mode] != FT_LANDMINE || CanPlaceLandmine(pos, owner))
 	{
-		float fTime = level.time - m_fFireSpreadMultTime[ mode ];
-
-		if( fTime <= m_fFireSpreadMultTimeCap[ mode ] )
+		if (m_fFireSpreadMultAmount[mode] != 0.0f)
 		{
-			float fDecay = fTime * m_fFireSpreadMultFalloff[ mode ];
+			float fTime = level.time - m_fFireSpreadMultTime[mode];
 
-			if( m_fFireSpreadMult[ mode ] <= 0.0f )
+			if (fTime <= m_fFireSpreadMultTimeCap[mode])
 			{
-				m_fFireSpreadMult[ mode ] -= fDecay;
+				float fDecay = fTime * m_fFireSpreadMultFalloff[mode];
 
-				if( m_fFireSpreadMult[ mode ] > 0.0f )
+				if (m_fFireSpreadMult[mode] <= 0.0f)
 				{
-					m_fFireSpreadMult[ mode ] = 0.0f;
-				}
-			}
-			else
-			{
-				m_fFireSpreadMult[ mode ] -= fDecay;
+					m_fFireSpreadMult[mode] -= fDecay;
 
-				if( m_fFireSpreadMult[ mode ] < 0.0f )
-				{
-					m_fFireSpreadMult[ mode ] = 0.0f;
-				}
-			}
-		}
-		else
-		{
-			m_fFireSpreadMult[ mode ] = 0.0f;
-		}
-
-		m_fFireSpreadMultTime[ mode ] = level.time;
-	}
-
-	if( firetype[ mode ] == FT_PROJECTILE )
-	{
-		ProjectileAttack( pos,
-			forward,
-			owner,
-			projectileModel[ mode ],
-			charge_fraction
-			);
-	}
-	else if( firetype[ mode ] == FT_BULLET || firetype[ mode ] == FT_FAKEBULLET )
-	{
-		Vector vSpread;
-		float fSpreadFactor;
-		int tracerFrequency;
-		float bulletDamage;
-
-		if( owner )
-		{
-			if( owner->client )
-			{
-				Player *player = ( Player * )owner.Pointer();
-
-				fSpreadFactor = player->velocity.length() / sv_runspeed->integer;
-
-				if( fSpreadFactor > 1.0f )
-				{
-					fSpreadFactor = 1.0f;
-				}
-
-				vSpread = bulletspreadmax[ mode ] * fSpreadFactor;
-				fSpreadFactor = 1.0f - fSpreadFactor;
-				vSpread += bulletspread[ mode ] * fSpreadFactor;
-				vSpread *= m_fFireSpreadMult[ mode ] + 1.0f;
-
-				if( m_iZoom )
-				{
-					if( player->IsSubclassOfPlayer() && player->IsZoomed() )
+					if (m_fFireSpreadMult[mode] > 0.0f)
 					{
-						vSpread *= 1.0f + fSpreadFactor * ( m_fZoomSpreadMult - 1.0f );
+						m_fFireSpreadMult[mode] = 0.0f;
+					}
+				}
+				else
+				{
+					m_fFireSpreadMult[mode] -= fDecay;
+
+					if (m_fFireSpreadMult[mode] < 0.0f)
+					{
+						m_fFireSpreadMult[mode] = 0.0f;
 					}
 				}
 			}
-		}
-		else
-		{
-			vSpread = ( bulletspreadmax[ mode ] + bulletspread[ mode ] ) * 0.5f;
+			else
+			{
+				m_fFireSpreadMult[mode] = 0.0f;
+			}
+
+			m_fFireSpreadMultTime[mode] = level.time;
 		}
 
-		if( owner && owner->IsSubclassOfPlayer() )
+		switch (firetype[mode])
 		{
-			if( IsSubclassOfTurretGun() )
-			{
-				tracerFrequency = 3;
-				bulletDamage = 45.0f;
+        case FT_PROJECTILE:
+            ProjectileAttack(pos,
+                forward,
+                owner,
+                projectileModel[mode],
+                charge_fraction
+            );
+			break;
+		case FT_LANDMINE:
+			PlaceLandmine(pos, owner, projectileModel[mode], this);
+			break;
+		case FT_DEFUSE:
+			DefuseObject(right, owner, bulletrange[mode]);
+			break;
+		case FT_BULLET:
+		{
+            Vector vSpread;
+            float fSpreadFactor;
+            int tracerFrequency;
+			SafePtr<Sentient> ownerPtr;
+
+            if (owner)
+            {
+                if (owner->client)
+                {
+                    Player* player = (Player*)owner.Pointer();
+
+                    fSpreadFactor = player->velocity.length() / sv_runspeed->integer;
+
+                    if (fSpreadFactor > 1.0f)
+                    {
+                        fSpreadFactor = 1.0f;
+                    }
+
+                    vSpread = bulletspreadmax[mode] * fSpreadFactor;
+                    fSpreadFactor = 1.0f - fSpreadFactor;
+                    vSpread += bulletspread[mode] * fSpreadFactor;
+                    vSpread *= m_fFireSpreadMult[mode] + 1.0f;
+
+                    if (m_iZoom)
+                    {
+                        if (player->IsSubclassOfPlayer() && player->IsZoomed())
+                        {
+                            vSpread *= 1.0f + fSpreadFactor * (m_fZoomSpreadMult - 1.0f);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                vSpread = (bulletspreadmax[mode] + bulletspread[mode]) * 0.5f;
+            }
+
+            if (!g_gametype->integer && owner && owner->IsSubclassOfPlayer())
+            {
+                if (IsSubclassOfTurretGun()) {
+                    tracerFrequency = 3;
+                } else {
+                    tracerFrequency = 0;
+                }
+            }
+            else
+            {
+                tracerFrequency = tracerfrequency[mode];
+            }
+
+			ownerPtr = owner;
+
+			if (!owner && IsSubclassOfVehicleTurretGun()) {
+				VehicleTurretGun* turretGun = static_cast<VehicleTurretGun*>(this);
+				ownerPtr = turretGun->GetRemoteOwner();
+			}
+
+            BulletAttack(pos,
+                vBarrel,
+                forward,
+                right,
+                up,
+                bulletrange[mode],
+                bulletdamage[mode],
+				bulletlarge[mode],
+                bulletknockback[mode],
+                0,
+                GetMeansOfDeath(mode),
+                vSpread,
+                bulletcount[mode],
+				ownerPtr,
+                tracerFrequency,
+                &tracercount[mode],
+				bulletthroughwood[mode],
+				bulletthroughmetal[mode],
+                this,
+				tracerspeed[mode]
+            );
+		}
+			break;
+		case FT_FAKEBULLET:
+		{
+            Vector vSpread;
+            float fSpreadFactor;
+
+            if (owner)
+            {
+                if (owner->client)
+                {
+                    Player* player = (Player*)owner.Pointer();
+
+                    fSpreadFactor = player->velocity.length() / sv_runspeed->integer;
+
+                    if (fSpreadFactor > 1.0f)
+                    {
+                        fSpreadFactor = 1.0f;
+                    }
+
+                    vSpread = bulletspreadmax[mode] * fSpreadFactor;
+                    fSpreadFactor = 1.0f - fSpreadFactor;
+                    vSpread += bulletspread[mode] * fSpreadFactor;
+                    vSpread *= m_fFireSpreadMult[mode] + 1.0f;
+
+                    if (m_iZoom)
+                    {
+                        if (player->IsSubclassOfPlayer() && player->IsZoomed())
+                        {
+                            vSpread *= 1.0f + fSpreadFactor * (m_fZoomSpreadMult - 1.0f);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                vSpread = (bulletspreadmax[mode] + bulletspread[mode]) * 0.5f;
+            }
+
+            FakeBulletAttack(pos,
+                vBarrel,
+                forward,
+                right,
+                up,
+                bulletrange[mode],
+                bulletdamage[mode],
+                bulletlarge[mode],
+                vSpread,
+                bulletcount[mode],
+                owner,
+                tracerfrequency[mode],
+                &tracercount[mode],
+				tracerspeed[mode]);
+		}
+			break;
+        case FT_SPECIAL_PROJECTILE:
+            SpecialFireProjectile(pos,
+                forward,
+                right,
+                up,
+                owner,
+                projectileModel[mode],
+                charge_fraction
+            );
+			break;
+        case FT_CLICKITEM:
+            ClickItemAttack(pos,
+                forward,
+                bulletrange[mode],
+                owner);
+			break;
+		case FT_HEAVY:
+			if (owner || !IsSubclassOfVehicleTurretGun())
+            {
+                HeavyAttack(
+                    pos,
+                    forward,
+                    projectileModel[mode],
+                    0,
+                    owner,
+                    this);
 			}
 			else
 			{
-				tracerFrequency = 0;
-				bulletDamage = bulletdamage[ mode ];
+				VehicleTurretGun* turret = (VehicleTurretGun*)this;
+
+				if (turret->UseRemoteControl() && turret->GetRemoteOwner())
+				{
+					HeavyAttack(
+						pos,
+						forward,
+						projectileModel[mode],
+						0,
+						turret->GetRemoteOwner(),
+						this);
+				}
+				else
+				{
+					HeavyAttack(
+						pos,
+						forward,
+						projectileModel[mode],
+						0,
+						this,
+						this);
+				}
 			}
-		}
-		else
+			break;
+		case FT_MELEE:
 		{
-			tracerFrequency = tracerfrequency[ mode ];
-			bulletDamage = bulletdamage[ mode ];
+            Vector melee_pos, melee_end;
+            Vector dir;
+            float damage;
+            meansOfDeath_t meansofdeath;
+            float knockback;
+
+            if (owner)
+            {
+                dir = owner->centroid - pos;
+            }
+            else
+            {
+                dir = centroid - pos;
+            }
+
+            dir.z = 0;
+
+            melee_pos = pos - forward * dir.length();
+            melee_end = melee_pos + forward * bulletrange[mode];
+
+            damage = bulletdamage[mode];
+            knockback = 0;
+
+            meansofdeath = GetMeansOfDeath(mode);
+
+            Container<Entity*>victimlist;
+
+            m_iNumShotsFired++;
+            if (MeleeAttack(melee_pos, melee_end, damage, owner, meansofdeath, 8, -8, 8, knockback, true, &victimlist))
+            {
+                m_iNumHits++;
+                m_iNumTorsoShots++;
+            }
+		}
+			break;
 		}
 
-		if( firetype[ mode ] == FT_BULLET )
+		if (!quiet[firemodeindex])
 		{
-			BulletAttack( pos,
-				vBarrel,
-				forward,
-				right,
-				up,
-				bulletrange[ mode ],
-				bulletDamage,
-				bulletknockback[ mode ],
-				0,
-				GetMeansOfDeath( mode ),
-				vSpread,
-				bulletcount[ mode ],
-				owner,
-				tracerFrequency,
-				&tracercount[ mode ],
-				this
-				);
-		}
-		else
-		{
-			FakeBulletAttack( pos,
-				vBarrel,
-				forward,
-				right,
-				up,
-				bulletrange[ mode ],
-				bulletDamage,
-				vSpread,
-				bulletcount[ mode ],
-				owner,
-				tracerFrequency,
-				&tracercount[ mode ] );
-		}
-	}
-	else if( firetype[ mode ] == FT_SPECIAL_PROJECTILE )
-	{
-		this->SpecialFireProjectile( pos,
-			forward,
-			right,
-			up,
-			owner,
-			projectileModel[ mode ],
-			charge_fraction
-			);
-	}
-	else if( firetype[ mode ] == FT_CLICKITEM )
-	{
-		ClickItemAttack( pos,
-			forward,
-			bulletrange[ mode ],
-			owner );
-	}
-	else if( firetype[ mode ] == FT_HEAVY )
-	{
-		if( owner || !IsSubclassOfVehicleTurretGun() )
-		{
-			HeavyAttack(
-				pos,
-				forward,
-				projectileModel[ mode ],
-				0,
-				owner,
-				this );
-		}
-		else
-		{
-			VehicleTurretGun *turret = ( VehicleTurretGun * )this;
-
-			if( turret->UseRemoteControl() && turret->GetRemoteOwner() )
+			if (next_noise_time <= level.time)
 			{
-				HeavyAttack(
-					pos,
-					forward,
-					projectileModel[ mode ],
-					0,
-					turret->GetRemoteOwner(),
-					this );
+				BroadcastAIEvent(AI_EVENT_WEAPON_FIRE);
+				next_noise_time = level.time + 1;
 			}
-			else
+		}
+
+		if (owner && owner->client)
+		{
+			Vector vAngles = owner->GetViewAngles();
+
+			if (viewkickmin[mode][0] != 0.0f || viewkickmax[mode][0] != 0.0f)
 			{
-				HeavyAttack(
-					pos,
-					forward,
-					projectileModel[ mode ],
-					0,
-					this,
-					this );
+				vAngles[0] += random() * (viewkickmax[mode][0] - viewkickmin[mode][0]) + viewkickmin[mode][0];
 			}
-		}
-	}
-	else if( firetype[ mode ] == FT_MELEE ) // this is a weapon that fires like a sword
-	{
-		Vector melee_pos, melee_end;
-		Vector dir;
-		float damage;
-		meansOfDeath_t meansofdeath;
-		float knockback;
 
-		if( owner )
-		{
-			dir = owner->centroid - pos;
-		}
-		else
-		{
-			dir = centroid - pos;
-		}
-
-		dir.z = 0;
-
-		melee_pos = pos - forward * dir.length();
-		melee_end = melee_pos + forward * bulletrange[ mode ];
-
-		damage = bulletdamage[ mode ];
-		knockback = 0;
-
-		meansofdeath = GetMeansOfDeath( mode );
-
-		Container<Entity *>victimlist;
-
-		m_iNumShotsFired++;
-		if( MeleeAttack( melee_pos, melee_end, damage, owner, meansofdeath, 8, -8, 8, knockback, true, &victimlist ) )
-		{
-			m_iNumHits++;
-			m_iNumTorsoShots++;
-		}
-	}
-
-	if( !quiet[ firemodeindex ] )
-	{
-		if( next_noise_time <= level.time )
-		{
-			BroadcastAIEvent( AI_EVENT_WEAPON_FIRE );
-			next_noise_time = level.time + 1;
-		}
-	}
-
-	if( owner && owner->client )
-	{
-		Vector vAngles = owner->GetViewAngles();
-
-		if( viewkickmin[ mode ][ 0 ] != 0.0f || viewkickmax[ mode ][ 0 ] != 0.0f )
-		{
-			vAngles[ 0 ] += random() * ( viewkickmax[ mode ][ 0 ] - viewkickmin[ mode ][ 0 ] ) + viewkickmin[ mode ][ 0 ];
-		}
-
-		if( viewkickmin[ 1 ][ 0 ] != 0.0f || viewkickmax[ 1 ][ 0 ] != 0.0f )
-		{
-			vAngles[ 1 ] += random() * ( viewkickmax[ mode ][ 1 ] - viewkickmin[ mode ][ 1 ] ) + viewkickmin[ mode ][ 1 ];
-		}
-
-		owner->SetViewAngles( vAngles );
-	}
-
-	if( m_fFireSpreadMultAmount[ mode ] )
-	{
-		m_fFireSpreadMult[ mode ] += m_fFireSpreadMultAmount[ mode ];
-
-		if( m_fFireSpreadMultCap[ mode ] < 0.0f )
-		{
-			if( m_fFireSpreadMultCap[ mode ] > m_fFireSpreadMult[ mode ] )
+			if (viewkickmin[1][0] != 0.0f || viewkickmax[1][0] != 0.0f)
 			{
-				m_fFireSpreadMult[ mode ] = m_fFireSpreadMultCap[ mode ];
+				vAngles[1] += random() * (viewkickmax[mode][1] - viewkickmin[mode][1]) + viewkickmin[mode][1];
 			}
-			else if( m_fFireSpreadMult[ mode ] > 0.0f )
+
+			owner->SetViewAngles(vAngles);
+		}
+
+		if (m_fFireSpreadMultAmount[mode])
+		{
+			m_fFireSpreadMult[mode] += m_fFireSpreadMultAmount[mode];
+
+			if (m_fFireSpreadMultCap[mode] < 0.0f)
 			{
-				m_fFireSpreadMult[ mode ] = 0.0f;
+				if (m_fFireSpreadMultCap[mode] > m_fFireSpreadMult[mode])
+				{
+					m_fFireSpreadMult[mode] = m_fFireSpreadMultCap[mode];
+				}
+				else if (m_fFireSpreadMult[mode] > 0.0f)
+				{
+					m_fFireSpreadMult[mode] = 0.0f;
+				}
+			}
+			else if (m_fFireSpreadMult[mode] <= m_fFireSpreadMultCap[mode] &&
+				m_fFireSpreadMult[mode] < 0.0f)
+			{
+				m_fFireSpreadMult[mode] = 0.0f;
 			}
 		}
-		else if( m_fFireSpreadMult[ mode ] <= m_fFireSpreadMultCap[ mode ] &&
-			m_fFireSpreadMult[ mode ] < 0.0f )
-		{
-			m_fFireSpreadMult[ mode ] = 0.0f;
+
+		m_fLastFireTime = level.time;
+		m_eLastFireMode = mode;
+	}
+	else
+	{
+		// Landmine weapon
+		if (ammo_clip_size[mode]) {
+			UseAmmo(-ammorequired[mode], mode);
+		} else if (owner && owner->isClient() && !UnlimitedAmmo(mode)) {
+			owner->UseAmmo(ammo_type[mode], -ammorequired[mode]);
 		}
 	}
-
-	m_fLastFireTime = level.time;
 }
 
 //======================
@@ -2611,8 +2681,6 @@ qboolean Weapon::ReadyToFire
 	// Make sure the weapon is in the ready state and the weapon has ammo
 	if( m_eLastFireMode != mode || level.time > ( m_fLastFireTime + FireDelay( mode ) ) )
 	{
-		float speed;
-
 		if( HasAmmoInClip( mode ) )
         {
 			if (m_fMaxFireMovement >= 1.f) {
@@ -2623,8 +2691,7 @@ qboolean Weapon::ReadyToFire
 				return qtrue;
 			}
 
-			speed = owner->velocity.lengthXY();
-			if ((speed / sv_runspeed->value) <= (m_fMovementSpeed * m_fMaxFireMovement)) {
+			if ((owner->velocity.lengthXY() / sv_runspeed->value) <= (m_fMovementSpeed * m_fMaxFireMovement)) {
 				return qtrue;
             }
 
@@ -2954,7 +3021,7 @@ void Weapon::ReleaseFire
 //======================
 //Weapon::GetFireAnim
 //======================
-const char* Weapon::GetFireAnim() {
+const char* Weapon::GetFireAnim() const {
 	if (m_iNumFireAnims > 1) {
 		static char tagname[256];
 
@@ -4876,6 +4943,19 @@ Event *ev
 	angles[ 2 ] = anglemod( angles[ 2 ] );
 	setAngles( angles );
 	PostEvent( EV_Weapon_FallingAngleAdjust, level.frametime );
+}
+
+qboolean Weapon::GetUseCrosshair() const
+{
+	if (m_fMaxFireMovement >= 1.f) {
+		return crosshair;
+	}
+
+	if (!owner || (owner->velocity.lengthXY() / sv_runspeed->value) <= (m_fMaxFireMovement * m_fMovementSpeed)) {
+		return crosshair;
+	}
+
+	return qfalse;
 }
 
 void Weapon::SetAIRange

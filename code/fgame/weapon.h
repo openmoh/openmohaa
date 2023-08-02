@@ -362,7 +362,7 @@ public:
     void       OnOverCookedWarning(Event *ev);
     void       OnOverCooked(Event *ev);
     void       ReleaseFire(firemode_t mode, float chargetime);
-    const char* GetFireAnim();
+    const char* GetFireAnim() const;
     void       ClientFireDone(void);
     qboolean   Removable(void) override;
     qboolean   Pickupable(Entity *other) override;
@@ -425,6 +425,7 @@ public:
     void           WorldHitSpawn(firemode_t mode, Vector org, Vector angles, float life);
     void           MakeNoise(Event *ev);
     void           FallingAngleAdjust(Event *ev);
+    qboolean       GetUseCrosshair() const;
     void           Archive(Archiver          &arc) override;
 };
 
