@@ -701,4 +701,43 @@ inline void TriggerClickItem::Archive
 	Trigger::Archive( arc );
 }
 
+class TriggerNoDamage : public TriggerUse {
+public:
+    CLASS_PROTOTYPE(TriggerNoDamage);
+
+public:
+	void TakeNoDamage(Event* ev);
+};
+
+class TriggerEntity : public Trigger {
+public:
+    CLASS_PROTOTYPE(TriggerEntity);
+};
+
+class TriggerLandmine : public TriggerEntity {
+public:
+    CLASS_PROTOTYPE(TriggerLandmine);
+
+	TriggerLandmine();
+    void Archive(Archiver& arc) override;
+
+	void EventIsAbandoned(Event* ev);
+	void EventIsImmune(Event* ev);
+	void EventSetDamageable(Event* ev);
+
+	void SetDamageable(qboolean damageable);
+	qboolean IsImmune(Entity* other) const;
+	void SetTeam(int team);
+
+private:
+	int team;
+};
+
+inline void TriggerLandmine::Archive(Archiver& arc)
+{
+	Trigger::Archive(arc);
+
+    arc.ArchiveInteger(&team);
+}
+
 #endif /* trigger.h */

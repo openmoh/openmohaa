@@ -3211,3 +3211,158 @@ void TriggerClickItem::SetClickItemModelEvent
 	edict->r.svFlags |= SVF_NOCLIENT;
 	link();
 }
+
+CLASS_DECLARATION(TriggerUse, TriggerNoDamage, "trigger_nodamage")
+{
+	{ &EV_Touch,            &TriggerNoDamage::TakeNoDamage },
+	{ &EV_Trigger_Effect,   &TriggerNoDamage::TakeNoDamage },
+	{ NULL, NULL }
+};
+
+void TriggerNoDamage::TakeNoDamage(Event* ev)
+{
+	Entity* ent = ev->GetEntity(1);
+	Event* newev;
+
+	ent->ProcessEvent(EV_NoDamage);
+	ent->CancelEventsOfType(EV_TakeDamage);
+
+	// Make sure the entity will take damage
+	// outside the trigger
+	newev = new Event(EV_TakeDamage);
+	ent->PostEvent(newev, level.frametime * 3);
+}
+
+CLASS_DECLARATION(Trigger, TriggerEntity, "trigger_entity")
+{
+	{ NULL, NULL }
+};
+
+Event EV_Trigger_IsAbandonned
+(
+	"isabandonned",
+	EV_DEFAULT,
+	"e",
+	"owner",
+	"Returns true if the owner has abandoned the mine",
+	EV_RETURN
+);
+
+Event EV_Trigger_IsImmune
+(
+    "isimmune",
+    EV_DEFAULT,
+    "e",
+    "owner",
+    "Returns true if the given entity is immune to this landmine",
+    EV_RETURN
+);
+
+Event EV_Trigger_SetDamageable
+(
+    "damageable",
+    EV_DEFAULT,
+    "b",
+    "isDamageable",
+    "Makes the trigger able to take damage, but it is up to the script to watch this damage",
+    EV_RETURN
+);
+
+CLASS_DECLARATION(TriggerEntity, TriggerLandmine, "trigger_landmine")
+{
+	{ &EV_Trigger_IsAbandonned,     &TriggerLandmine::EventIsAbandoned },
+	{ &EV_Trigger_IsImmune,         &TriggerLandmine::EventIsImmune },
+	{ &EV_Trigger_SetDamageable,    &TriggerLandmine::EventSetDamageable },
+	{ NULL, NULL }
+};
+
+TriggerLandmine::TriggerLandmine()
+{
+	setMoveType(MOVETYPE_TOSS);
+	setSolidType(SOLID_TRIGGER);
+	setContentsSolid();
+	edict->clipmask = MASK_LANDMINE;
+	setSize(mins, maxs);
+
+	team = -1;
+	max_health = health;
+	deadflag = DEAD_NO;
+	takedamage = DAMAGE_YES;
+}
+
+void TriggerLandmine::EventIsAbandoned(Event* ev)
+{
+	Entity* other = ev->GetEntity(1);
+	Player* p;
+	str weapontype;
+
+	if (!other) {
+		ev->AddInteger(1);
+		return;
+	}
+
+	if (!other->IsSubclassOfPlayer()) {
+        ev->AddInteger(0);
+        return;
+	}
+
+	p = static_cast<Player*>(other);
+
+	if (team && team != p->GetTeam()) {
+		ev->AddInteger(1);
+	}
+
+	weapontype = p->GetCurrentDMWeaponType();
+
+	if (!str::icmp(weapontype, "landmine")) {
+		ev->AddInteger(1);
+	} else {
+		ev->AddInteger(0);
+	}
+}
+
+void TriggerLandmine::EventIsImmune(Event* ev)
+{
+	Entity* ent = ev->GetEntity(1);
+	ev->AddInteger(IsImmune(ent));
+}
+
+void TriggerLandmine::EventSetDamageable(Event* ev)
+{
+	SetDamageable(ev->GetBoolean(1));
+}
+
+void TriggerLandmine::SetDamageable(qboolean damageable)
+{
+	if (damageable) {
+		setContentsSolid();
+    } else {
+		setContents(0);
+	}
+}
+
+qboolean TriggerLandmine::IsImmune(Entity* other) const
+{
+	if (!other) {
+		return qtrue;
+	}
+
+	if (entnum == other->entnum) {
+		return qtrue;
+	}
+
+	if (edict->r.ownerNum == other->entnum) {
+		return qtrue;
+	}
+
+	if (!other->inheritsFrom(&Player::ClassInfo)) {
+		return qfalse;
+	}
+
+	return static_cast<Player*>(other)->GetTeam() == team;
+}
+
+void TriggerLandmine::SetTeam(int team)
+{
+	this->team = team;
+}
