@@ -1777,21 +1777,217 @@ void Explosion::MakeExplosionEffect
 }
 
 Entity* FindDefusableObject(const Vector& dir, Entity* owner, float maxdist) {
-	// FIXME: unimplemented
+	Vector startOrg;
+	Vector endOrg;
+	Vector mins, maxs;
+    float fCos;
+    int numAreaEntities;
+    int i;
+	int entNums[MAX_GENTITIES];
+
+	startOrg = owner->origin;
+	endOrg = startOrg + dir * maxdist;
+
+    if (startOrg.z > endOrg.z) {
+        endOrg.z -= 10;
+		startOrg.z += 10;
+	} else {
+		startOrg.z -= 10;
+		endOrg.z += 10;
+	}
+
+	fCos = cos(M_PI / 3);
+
+	for (i = 0; i < 3; i++) {
+		if (endOrg[i] > startOrg[i]) {
+			mins[i] = startOrg[i] - 1;
+			maxs[i] = endOrg[i] + 1;
+		} else {
+			mins[i] = endOrg[i] - 1;
+			maxs[i] = startOrg[i] + 1;
+		}
+	}
+
+	if (endOrg.x > startOrg.x) {
+		mins[0] = startOrg.x - 1;
+		maxs[0] = endOrg.x + 1;
+	} else {
+		mins[0] = endOrg.x - 1;
+		maxs[0] = startOrg.x + 1;
+	}
+
+	numAreaEntities = gi.AreaEntities(mins, maxs, entNums, ARRAY_LEN(entNums));
+	for (i = 0; i < numAreaEntities; i++) {
+		gentity_t* pgEnt = &g_entities[entNums[i]];
+        Entity* pEnt;
+        vec3_t delta;
+
+		if (!pgEnt->solid) {
+			continue;
+		}
+
+        pEnt = pgEnt->entity;
+
+        VectorSubtract(pEnt->centroid, startOrg, delta);
+        VectorNormalize(delta);
+
+		if (pEnt == owner) {
+			continue;
+		}
+
+        if (DotProduct(delta, dir) > fCos && pEnt->Vars()->VariableExists("defuseThread")) {
+			return pEnt;
+        }
+	}
+	
 	return NULL;
 }
 
 void DefuseObject(const Vector& dir, Entity* owner, float maxdist) {
-    // FIXME: unimplemented
+	Entity* defusableObj = FindDefusableObject(dir, owner, maxdist);
+	ScriptVariable* defuseThreadVar;
+	str defuseThreadName;
+	
+	if (!defusableObj) {
+		return;
+	}
+
+	defuseThreadVar = defusableObj->Vars()->GetVariable("defuseThread");
+	if (defuseThreadVar) {
+		defuseThreadName = defuseThreadVar->stringValue();
+	}
+
+	ScriptThreadLabel label;
+	label.Set(defuseThreadName);
+	label.Execute(defusableObj, ListenerPtr());
 }
 
 qboolean CanPlaceLandmine(const Vector& origin, Entity* owner) {
-	// FIXME: unimplemented
-	return qfalse;
+	Vector vEnd;
+	Vector vDelta;
+	trace_t trace;
+	
+	if (!level.RoundStarted()) {
+		gi.DPrintf("Can't place landmine until the round starts\n");
+		return qfalse;
+	}
+
+	vEnd = origin - Vector(0, 0, 256);
+
+	trace = G_Trace(
+		origin,
+		vec_zero,
+		vec_zero,
+		vEnd,
+		owner,
+		MASK_LANDMINE_PLACE,
+		qfalse,
+		"LandminePlace",
+		qtrue
+	);
+
+	vDelta = origin - trace.endpos;
+	if (vDelta.length() > 90) {
+		gi.DPrintf("Too high to place landmine\n");
+		return qfalse;
+	}
+
+	if (trace.surfaceFlags & SURF_WOOD) {
+		gi.DPrintf("Can't place landmine on wood\n");
+		return qfalse;
+	} else if (trace.surfaceFlags & SURF_METAL) {
+		gi.DPrintf("Can't place landmine on metal\n");
+		return qfalse;
+	} else if (trace.surfaceFlags & SURF_ROCK) {
+		gi.DPrintf("Can't place landmine on rock\n");
+		return qfalse;
+	} else if (trace.surfaceFlags & SURF_GRILL) {
+		gi.DPrintf("Can't place landmine on grill\n");
+		return qfalse;
+	} else if (trace.surfaceFlags & SURF_GLASS) {
+		gi.DPrintf("Can't place landmine on glass\n");
+		return qfalse;
+	} else if (trace.surfaceFlags & SURF_CARPET) {
+		gi.DPrintf("Can't place landmine on carpet\n");
+		return qfalse;
+	}
+	
+	if (!(trace.contents & CONTENTS_SOLID)) {
+        gi.DPrintf("Can't place landmine on nonsolid things\n");
+        return qfalse;
+	}
+
+	return qtrue;
 }
 
 void PlaceLandmine(const Vector& origin, Entity* owner, const str& model, Weapon* weap) {
-	// FIXME: unimplemented
+	SpawnArgs args;
+	Listener* l;
+	TriggerLandmine* trigger;
+
+	if (!model.length()) {
+		gi.DPrintf("PlaceLandmine : No model specified for PlaceLandmine");
+		return;
+	}
+
+	args.setArg("model", model.c_str());
+	args.setArg("setthread", "global/landmine.scr::steppedOn");
+	args.setArg("$defuseThread", "global/landmine.scr::defuse");
+	args.setArg("targetname", "landmine");
+
+	l = args.Spawn();
+	if (!l) {
+		gi.DPrintf("PlaceLandmine model '%s' not found\n", model.c_str());
+		return;
+	}
+
+	if (!l->inheritsFrom(&TriggerLandmine::ClassInfo)) {
+		gi.DPrintf("%s is not of class trigger_landmine\n", model.c_str());
+		return;
+	}
+
+	trigger = static_cast<TriggerLandmine*>(l);
+	trigger->droptofloor(256);
+	trigger->ProcessInitCommands();
+	trigger->SetDamageable(qtrue);
+	if (owner) {
+		trigger->edict->r.ownerNum = owner->entnum;
+	}
+
+	trigger->setOrigin(origin);
+
+	if (owner->inheritsFrom(&Player::ClassInfo)) {
+		if (g_gametype->integer >= GT_TEAM) {
+			Player* p = static_cast<Player*>(owner);
+			trigger->SetTeam(p->GetTeam());
+		} else {
+			trigger->SetTeam(0);
+		}
+	}
+
+	trigger->NewAnim("idle");
+
+	if (g_gametype->integer == GT_SINGLE_PLAYER)
+	{
+		if (owner) {
+			if (owner->IsDead()) {
+				weap = NULL;
+			}
+		} else {
+			weap = NULL;
+		}
+
+		if (weap) {
+			weap->m_iNumShotsFired++;
+
+			if (owner) {
+				if (owner->IsSubclassOfPlayer() && weap->IsSubclassOfTurretGun()) {
+					TurretGun* turret = static_cast<TurretGun*>(weap);
+					// FIXME: find what to increment
+				}
+			}
+		}
+	}
 }
 
 Projectile *ProjectileAttack
