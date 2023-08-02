@@ -1776,6 +1776,24 @@ void Explosion::MakeExplosionEffect
 	gi.MSG_EndCGM();
 }
 
+Entity* FindDefusableObject(const Vector& dir, Entity* owner, float maxdist) {
+	// FIXME: unimplemented
+	return NULL;
+}
+
+void DefuseObject(const Vector& dir, Entity* owner, float maxdist) {
+    // FIXME: unimplemented
+}
+
+qboolean CanPlaceLandmine(const Vector& origin, Entity* owner) {
+	// FIXME: unimplemented
+	return qfalse;
+}
+
+void PlaceLandmine(const Vector& origin, Entity* owner, const str& model, Weapon* weap) {
+	// FIXME: unimplemented
+}
+
 Projectile *ProjectileAttack
 	(
 	Vector			start,
@@ -1924,22 +1942,26 @@ Projectile *ProjectileAttack
 
 float BulletAttack
 	(
-	Vector		start,
-	Vector		vBarrel,
-	Vector		dir,
-	Vector		right,
-	Vector		up,
-	float		range,
-	float		damage,
-	float		knockback,
-	int			dflags,
-	int			meansofdeath,
-	Vector		spread,
-	int			count,
-	Entity		*owner,
-	int			iTracerFrequency,
-	int			*piTracerCount,
-	Weapon		*weap
+	Vector   start,
+	Vector   vBarrel,
+	Vector   dir,
+	Vector   right,
+	Vector   up,
+	float    range,
+	float    damage,
+	int      bulletlarge,
+	float    knockback,
+	int      dflags,
+	int      meansofdeath,
+	Vector   spread,
+	int      count,
+	Entity*  owner,
+	int      iTracerFrequency,
+	int*     piTracerCount,
+	float    bulletthroughwood,
+	float    bulletthroughmetal,
+	Weapon*  weap,
+	float    tracerspeed
 	)
 {
 	Vector		vDir;
@@ -1977,9 +1999,9 @@ float BulletAttack
 			( right	* grandom() * spread.x ) +
 			( up	* grandom() * spread.y );
 
-		vTmpEnd = vTraceEnd - start;
+		vDir = vTraceEnd - start;
 
-		VectorNormalizeFast( vTmpEnd );
+		VectorNormalizeFast(vDir);
 
 		iContinueCount = 0;
 		iTravelDist = 0;
@@ -1988,13 +2010,19 @@ float BulletAttack
 		while( !bBulletDone && iTravelDist < 9216 )
 		{
 			iTravelDist += 9216;
-			vTraceEnd = start + vTmpEnd * iTravelDist;
+			vTraceEnd = start + vDir * iTravelDist;
 
 			memset( &trace, 0, sizeof( trace_t ) );
 
 			while( trace.fraction < 1.0f )
 			{
 				trace = G_Trace( start, vec_zero, vec_zero, vTraceEnd, owner, MASK_SHOT, false, "BulletAttack", true );
+				
+				vTmpEnd = trace.endpos;
+
+				if (!count && !(trace.contents & CONTENTS_NODROP) && weap) {
+					G_BroadcastAIEvent(weap, vTmpEnd, 2, -1.0f);
+				}
 
 				if( trace.ent )
 				{
@@ -2002,12 +2030,11 @@ float BulletAttack
 
 					if( ent != world )
 					{
-
 						if( trace.ent->entity->takedamage ) {
 							break;
 						}
 
-						if( ent->edict->solid == 3 && trace.shaderNum >= 0 )
+						if( ent->edict->solid == SOLID_BSP && (trace.contents & CONTENTS_NODROP) )
 						{
 							gi.SetBroadcastVisible( trace.endpos, 0 );
 							gi.MSG_StartCGM(CGM_BULLET_6);
@@ -2034,7 +2061,7 @@ float BulletAttack
 					{
 						if( iContinueCount <= 4 )
 						{
-							vTraceEnd = vTmpEnd + trace.endpos;
+							vTraceEnd = vDir + trace.endpos;
 
 							if( g_showbullettrace->integer )
 							{
@@ -2289,18 +2316,20 @@ float BulletAttack
 
 void FakeBulletAttack
 	(
-	Vector			start,
-	Vector			vBarrel,
-	Vector			dir,
-	Vector			right,
-	Vector			up,
-	float			range,
-	float			damage,
-	Vector			spread,
-	int				count,
-	Entity			*owner,
-	int				iTracerFrequency,
-	int				*piTracerCount
+	Vector    start,
+	Vector    vBarrel,
+	Vector    dir,
+	Vector    right,
+	Vector    up,
+	float     range,
+	float     damage,
+	int       large,
+	Vector    spread,
+	int       count,
+	Entity*   owner,
+	int       iTracerFrequency,
+	int*      piTracerCount,
+	float     tracerspeed
 	)
 {
 	Vector vDir;

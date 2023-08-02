@@ -278,38 +278,44 @@ void StunAttack
 
 float BulletAttack
 	(
-	Vector			start,
-	Vector			vBarrel,
-	Vector			dir,
-	Vector			right,
-	Vector			up,
-	float			range,
-	float			damage,
-	float			knockback,
-	int				dflags,
-	int				meansofdeath,
-	Vector			spread,
-	int				count,
-	Entity			*owner,
-	int				iTracerFrequency,
-	int				*piTracerCount,
-	class Weapon	*weap
+	Vector   start,
+	Vector   vBarrel,
+	Vector   dir,
+	Vector   right,
+	Vector   up,
+	float    range,
+	float    damage,
+	int      bulletlarge,
+	float    knockback,
+	int      dflags,
+	int      meansofdeath,
+	Vector   spread,
+	int      count,
+	Entity*  owner,
+	int      iTracerFrequency,
+	int*     piTracerCount,
+	float    bulletthroughwood,
+	float    bulletthroughmetal,
+	Weapon*  weap,
+	float    tracerspeed
 	);
 
 void FakeBulletAttack
 	(
-	Vector			start,
-	Vector			vBarrel,
-	Vector			dir,
-	Vector			right,
-	Vector			up,
-	float			range,
-	float			damage,
-	Vector			spread,
-	int				count,
-	Entity			*owner,
-	int				iTracerFrequency,
-	int				*piTracerCount
+	Vector    start,
+	Vector    vBarrel,
+	Vector    dir,
+	Vector    right,
+	Vector    up,
+	float     range,
+	float     damage,
+	int       large,
+	Vector    spread,
+	int       count,
+	Entity*   owner,
+	int       iTracerFrequency,
+	int*      piTracerCount,
+	float     tracerspeed
 	);
 
 void ClickItemAttack
@@ -344,5 +350,10 @@ void RadiusDamage
 	Weapon		*weap = NULL,
 	bool		hurtOwnerOnly = false
 	);
+
+Entity* FindDefusableObject(const Vector& dir, Entity* owner, float maxdist);
+void DefuseObject(const Vector& dir, Entity* owner, float maxdist);
+qboolean CanPlaceLandmine(const Vector& origin, Entity* owner);
+void PlaceLandmine(const Vector& origin, Entity* owner, const str& model, Weapon* weap);
 
 #endif // __WEAPUTILS_H__
