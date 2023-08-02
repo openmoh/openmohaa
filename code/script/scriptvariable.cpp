@@ -2359,14 +2359,19 @@ ScriptVariable *ScriptVariableList::GetOrCreateVariable(unsigned int name)
     return &list.addKeyValue(name);
 }
 
-ScriptVariable *ScriptVariableList::GetVariable(str name)
+ScriptVariable *ScriptVariableList::GetVariable(str name) const
 {
     return GetVariable(Director.AddString(name));
 }
 
-ScriptVariable *ScriptVariableList::GetVariable(unsigned int name)
+ScriptVariable *ScriptVariableList::GetVariable(unsigned int name) const
 {
     return list.findKeyValue(name);
+}
+
+bool ScriptVariableList::VariableExists(str name) const
+{
+    return GetVariable(name) != NULL;
 }
 
 ScriptVariable *ScriptVariableList::SetVariable(const char *name, int value)

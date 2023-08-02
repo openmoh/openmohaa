@@ -299,8 +299,9 @@ public:
     ScriptVariable *GetOrCreateVariable(str name);
     ScriptVariable *GetOrCreateVariable(unsigned int name);
 
-    ScriptVariable *GetVariable(str name);
-    ScriptVariable *GetVariable(unsigned int name);
+    ScriptVariable *GetVariable(str name) const;
+    ScriptVariable *GetVariable(unsigned int name) const;
+    bool VariableExists(str name) const;
 
     ScriptVariable *SetVariable(const char *name, int value);
     ScriptVariable *SetVariable(const char *name, float value);
