@@ -2274,7 +2274,7 @@ float BulletAttack
 	int			iContinueCount;
 	float		vEndArray[ 64 ][ 3 ];
 	int			iTracerCount = 0;
-	static int	iNumHit;
+	int			iNumHit;
 
 	iNumHit = 0;
 	bLargeBullet = damage >= 41.0f;
@@ -2372,141 +2372,91 @@ float BulletAttack
 				bBulletDone = qtrue;
 			}
 
-			if( !g_gametype->integer && !iNumHit && ent->IsSubclassOfPlayer() && weap )
+			if (ent && ent != world && ent != owner)
 			{
-				weap->m_iNumHits++;
-				switch( trace.location )
+				if (ent->takedamage)
 				{
-				case LOCATION_HEAD:
-				case LOCATION_HELMET:
-				case LOCATION_NECK:
-					weap->m_iNumHeadShots++;
-					break;
-				case LOCATION_PELVIS:
-					weap->m_iNumGroinShots++;
-					break;
-				case LOCATION_R_ARM_UPPER:
-				case LOCATION_R_ARM_LOWER:
-				case LOCATION_R_HAND:
-					weap->m_iNumRightArmShots++;
-					break;
-				case LOCATION_L_ARM_UPPER:
-				case LOCATION_L_ARM_LOWER:
-				case LOCATION_L_HAND:
-					weap->m_iNumLeftArmShots++;
-					break;
-				case LOCATION_R_LEG_UPPER:
-				case LOCATION_R_LEG_LOWER:
-				case LOCATION_R_FOOT:
-					weap->m_iNumRightLegShots++;
-					break;
-				case LOCATION_L_LEG_UPPER:
-				case LOCATION_L_LEG_LOWER:
-				case LOCATION_L_FOOT:
-					weap->m_iNumLeftLegShots++;
-					break;
-				default:
-					weap->m_iNumTorsoShots++;
-					break;
-				}
-
-				if( owner && owner->IsSubclassOfPlayer() && weap && weap->IsSubclassOfTurretGun() )
-				{
-					Player *p = ( Player * )owner;
-
-					p->m_iNumHits++;
-
-					switch( trace.location )
-					{
-					case LOCATION_HEAD:
-					case LOCATION_HELMET:
-					case LOCATION_NECK:
-						p->m_iNumHeadShots++;
-						break;
-					case LOCATION_PELVIS:
-						p->m_iNumGroinShots++;
-						break;
-					case LOCATION_R_ARM_UPPER:
-					case LOCATION_R_ARM_LOWER:
-					case LOCATION_R_HAND:
-						p->m_iNumRightArmShots++;
-						break;
-					case LOCATION_L_ARM_UPPER:
-					case LOCATION_L_ARM_LOWER:
-					case LOCATION_L_HAND:
-						p->m_iNumLeftArmShots++;
-						break;
-					case LOCATION_R_LEG_UPPER:
-					case LOCATION_R_LEG_LOWER:
-					case LOCATION_R_FOOT:
-						p->m_iNumRightLegShots++;
-						break;
-					case LOCATION_L_LEG_UPPER:
-					case LOCATION_L_LEG_LOWER:
-					case LOCATION_L_FOOT:
-						p->m_iNumLeftLegShots++;
-						break;
-					default:
-						p->m_iNumTorsoShots++;
-						break;
+					if (g_gametype->integer == GT_SINGLE_PLAYER && !iNumHit) {
+						BulletAttack_Stat(owner, ent, &trace, weap);
 					}
+
+					iNumHit++;
+
+					/* if ( !ent->deadflag )
+					damage_total += damage;
+
+					if ( ent->IsSubclassOfSentient() )
+					{
+					Sentient *sent = (Sentient *)ent;
+
+					if ( sent->Immune( meansofdeath ) )
+					damage_total = 0;
+					} */
+
+					// Get the original value of the victims health or water
+
+					original_value = ent->health;
+
+					ent->Damage(NULL,
+						owner,
+						damage,
+						trace.endpos,
+						dir,
+						trace.plane.normal,
+						knockback,
+						dflags,
+						meansofdeath,
+						trace.location);
+
+					// Get the new value of the victims health or water
+
+					damage_total += original_value - ent->health;
 				}
-			}
 
-			if( ent && ent->takedamage )
-			{
-				/* if ( !ent->deadflag )
-				damage_total += damage;
-
-				if ( ent->IsSubclassOfSentient() )
-				{
-				Sentient *sent = (Sentient *)ent;
-
-				if ( sent->Immune( meansofdeath ) )
-				damage_total = 0;
-				} */
-
-				// Get the original value of the victims health or water
-
-				original_value = ent->health;
-
-				ent->Damage( NULL,
-					owner,
-					damage,
-					trace.endpos,
-					dir,
-					trace.plane.normal,
-					knockback,
-					dflags,
-					meansofdeath,
-					trace.location );
-
-				// Get the new value of the victims health or water
-
-				damage_total += original_value - ent->health;
-			}
-
-			if( trace.contents > 0 && trace.surfaceFlags & 0xFFFE000 )
-			{
-				gi.SetBroadcastVisible( trace.endpos, NULL );
-				gi.MSG_StartCGM(CGM_BULLET_6);
-				gi.MSG_WriteCoord( trace.endpos[ 0 ] );
-				gi.MSG_WriteCoord( trace.endpos[ 1 ] );
-				gi.MSG_WriteCoord( trace.endpos[ 2 ] );
-				gi.MSG_WriteDir( trace.plane.normal );
-				gi.MSG_WriteBits( bLargeBullet, 1 );
-				gi.MSG_EndCGM();
-			}
-			else if( trace.location >= 0 && ent->IsSubclassOfPlayer() )
-			{
-				gi.SetBroadcastVisible( trace.endpos, NULL );
-				gi.MSG_StartCGM(CGM_BULLET_7);
-				gi.MSG_WriteCoord( trace.endpos[ 0 ] );
-				gi.MSG_WriteCoord( trace.endpos[ 1 ] );
-				gi.MSG_WriteCoord( trace.endpos[ 2 ] );
-				gi.MSG_WriteDir( trace.plane.normal );
-				gi.MSG_WriteBits( bLargeBullet, 1 );
-				gi.MSG_EndCGM();
+				if (ent->edict->solid == SOLID_BBOX && !(trace.contents & CONTENTS_CLAYPIDGEON)) {
+                    if (trace.contents > 0 && trace.surfaceFlags & 0xFFFE000)
+                    {
+                        gi.SetBroadcastVisible(trace.endpos, NULL);
+                        gi.MSG_StartCGM(CGM_BULLET_6);
+                        gi.MSG_WriteCoord(trace.endpos[0]);
+                        gi.MSG_WriteCoord(trace.endpos[1]);
+                        gi.MSG_WriteCoord(trace.endpos[2]);
+                        gi.MSG_WriteDir(trace.plane.normal);
+                        gi.MSG_WriteBits(bLargeBullet, 1);
+                        gi.MSG_EndCGM();
+                    }
+                    else if (trace.location >= 0 && ent->IsSubclassOfPlayer())
+                    {
+                        gi.SetBroadcastVisible(trace.endpos, NULL);
+                        gi.MSG_StartCGM(CGM_BULLET_8);
+                        gi.MSG_WriteCoord(trace.endpos[0]);
+                        gi.MSG_WriteCoord(trace.endpos[1]);
+                        gi.MSG_WriteCoord(trace.endpos[2]);
+                        gi.MSG_WriteDir(trace.plane.normal);
+                        gi.MSG_WriteBits(bLargeBullet, 1);
+                        gi.MSG_EndCGM();
+                    }
+                    else if (ent->edict->r.contents & CONTENTS_SOLID)
+					{
+                        gi.SetBroadcastVisible(trace.endpos, NULL);
+                        gi.MSG_StartCGM(CGM_BULLET_7);
+                        gi.MSG_WriteCoord(trace.endpos[0]);
+                        gi.MSG_WriteCoord(trace.endpos[1]);
+                        gi.MSG_WriteCoord(trace.endpos[2]);
+                        gi.MSG_WriteDir(trace.plane.normal);
+                        gi.MSG_WriteBits(bLargeBullet, 1);
+                        gi.MSG_EndCGM();
+					}
+				} else if (ent->edict->solid == SOLID_BSP && !(trace.contents & CONTENTS_CLAYPIDGEON)) {
+                    gi.SetBroadcastVisible(trace.endpos, NULL);
+                    gi.MSG_StartCGM(CGM_BULLET_6);
+                    gi.MSG_WriteCoord(trace.endpos[0]);
+                    gi.MSG_WriteCoord(trace.endpos[1]);
+                    gi.MSG_WriteCoord(trace.endpos[2]);
+                    gi.MSG_WriteDir(trace.plane.normal);
+                    gi.MSG_WriteBits(bLargeBullet, 1);
+                    gi.MSG_EndCGM();
+				}
 			}
 		}
 
