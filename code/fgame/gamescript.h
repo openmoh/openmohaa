@@ -163,6 +163,7 @@ public:
 	void				Execute( Listener *listener = NULL );
 	void				Execute( Listener *listener, Event &ev );
 	void				Execute( Listener *listener, Event *ev );
+	void				Execute(const SafePtr<Listener>& listener, const SafePtr<Listener>& param);
 
 	void				Set( const char *label );
 	void				SetScript( const ScriptVariable& label );

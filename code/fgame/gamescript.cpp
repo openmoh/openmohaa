@@ -923,6 +923,26 @@ void ScriptThreadLabel::Execute( Listener *listener, Event *ev )
 	}
 }
 
+void ScriptThreadLabel::Execute(const SafePtr<Listener>& listener, const SafePtr<Listener>& param)
+{
+    if (!m_Script) {
+        return;
+    }
+
+	ScriptVariable params[2];
+
+	params[0].setListenerValue(listener);
+	params[1].setListenerValue(param);
+
+    ScriptClass* scriptClass = new ScriptClass(m_Script, listener);
+    ScriptThread* thread = Director.CreateScriptThread(scriptClass, m_Label);
+
+	if (thread)
+	{
+		thread->Execute(params, 2);
+	}
+}
+
 void ScriptThreadLabel::Set(const char *label)
 {
 	str script;
