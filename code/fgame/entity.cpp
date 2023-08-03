@@ -7153,6 +7153,11 @@ qboolean Entity::BlocksAIMovement
 	return true;
 }
 
+bool Entity::BlocksAIMovement()
+{
+	return true;
+}
+
 qboolean Entity::AIDontFace
 	(
 	void

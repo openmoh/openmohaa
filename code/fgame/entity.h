@@ -599,6 +599,7 @@ public:
 	void Archive( Archiver &arc ) override;
 	virtual bool AutoArchiveModel( void );
 	virtual void PathnodeClaimRevoked( class PathNode *node );
+	virtual bool BlocksAIMovement();
 	virtual qboolean	BlocksAIMovement( void ) const;
 	virtual qboolean	AIDontFace( void ) const;
 
