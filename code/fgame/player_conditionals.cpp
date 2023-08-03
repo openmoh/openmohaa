@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // player_combat.cpp: Player combat system and combat utility functions
-// 
+//
 
 #include "player.h"
 #include "weapturret.h"
@@ -1241,8 +1241,8 @@ qboolean Player::CondIsEscaping(Conditional& condition)
 
 qboolean Player::CondAbleToDefuse(Conditional& condition)
 {
-    Weapon* weapon = GetActiveWeapon(WEAPON_MAIN);
-    float maxrange;
+    Weapon *weapon = GetActiveWeapon(WEAPON_MAIN);
+    float   maxrange;
 
     if (!weapon) {
         weapon = GetActiveWeapon(WEAPON_OFFHAND);
@@ -1258,10 +1258,10 @@ qboolean Player::CondAbleToDefuse(Conditional& condition)
 
 qboolean Player::CondCanPlaceLandmine(Conditional& condition)
 {
-	Weapon* weapon = GetActiveWeapon(WEAPON_MAIN);
-	if (!weapon) {
-		weapon = GetActiveWeapon(WEAPON_OFFHAND);
-	}
+    Weapon *weapon = GetActiveWeapon(WEAPON_MAIN);
+    if (!weapon) {
+        weapon = GetActiveWeapon(WEAPON_OFFHAND);
+    }
 
     Vector vPos, vForward, vRight, vUp, vBarrel;
     weapon->GetMuzzlePosition(&vPos, &vForward, &vRight, &vUp, &vBarrel);
@@ -1278,7 +1278,7 @@ qboolean Player::CondOnLandmine(Conditional& condition)
 
 qboolean Player::CondNearLandmine(Conditional& condition)
 {
-	MeasureLandmineDistances();
+    MeasureLandmineDistances();
 
     return m_fMineDist < 3.f && m_fMineDist > 1.f;
 }
@@ -1463,9 +1463,9 @@ qboolean Player::CondCheckMovementSpeed(Conditional& condition)
 
 qboolean Player::CondWeaponCurrentFireAnim(Conditional& condition)
 {
-    weaponhand_t hand = WeaponHandNameToNum(condition.getParm(1));
-    int iFireAnim = atoi(condition.getParm(2));
-    Weapon* weapon;
+    weaponhand_t hand      = WeaponHandNameToNum(condition.getParm(1));
+    int          iFireAnim = atoi(condition.getParm(2));
+    Weapon      *weapon;
 
     if (hand == WEAPON_ERROR) {
         return false;
@@ -1493,14 +1493,14 @@ qboolean Player::CondIsPassenger(Conditional& condition)
 
 qboolean Player::CondIsDriver(Conditional& condition)
 {
-	return m_pVehicle && m_pVehicle->IsSubclassOfVehicle() && m_pVehicle->FindDriverSlotByEntity(this);
+    return m_pVehicle && m_pVehicle->IsSubclassOfVehicle() && m_pVehicle->FindDriverSlotByEntity(this);
 }
 
 qboolean Player::CondWeaponIsItem(Conditional& condition)
 {
     weaponhand_t hand = WeaponHandNameToNum(condition.getParm(1));
-    Weapon* weapon;
-    
+    Weapon      *weapon;
+
     if (hand == WEAPON_ERROR) {
         return false;
     }
@@ -1512,7 +1512,7 @@ qboolean Player::CondWeaponIsItem(Conditional& condition)
 
 qboolean Player::CondNewWeaponIsItem(Conditional& condition)
 {
-    Weapon* weapon = GetNewActiveWeapon();
+    Weapon *weapon = GetNewActiveWeapon();
     return weapon && weapon->IsSubclassOfInventoryItem();
 }
 
@@ -1819,123 +1819,125 @@ CLASS_DECLARATION(Class, Conditional, NULL) {
 };
 
 Condition<Player> Player::Conditions[] = {
-    {"default",                         &Player::CondTrue                     },
-	{"CHANCE",                          &Player::CondChance                   },
-    {"HEALTH",                          &Player::CondHealth                   },
-	{"BLOCKED",                         &Player::CondBlocked                  },
-	{"PAIN",                            &Player::CondPain                     },
-    {"ONGROUND",                        &Player::CondOnGround                 }, // Checks to see if the right attack button is pressed
-    {"HAS_WEAPON",                      &Player::CondHasWeapon                },
-    {"NEW_WEAPON",                      &Player::CondNewWeapon                },
-    {"IMMEDIATE_SWITCH",                &Player::CondImmediateSwitch          },
-    {"IS_NEW_WEAPON",                   &Player::CondUseWeapon                },
-    {"IS_WEAPON_ACTIVE",                &Player::CondWeaponActive             },
-    {"IS_WEAPON_READY_TO_FIRE",         &Player::CondWeaponReadyToFire        },
-    {"IS_WEAPON_READY_TO_FIRE_NOSOUND", &Player::CondWeaponReadyToFireNoSound },
-    {"PUTAWAYMAIN",                     &Player::CondPutAwayMain              },
-    {"PUTAWAYLEFT",                     &Player::CondPutAwayOffHand           },
-    {"ANY_WEAPON_ACTIVE",               &Player::CondAnyWeaponActive          },
-    {"ATTACK_BLOCKED",                  &Player::CondAttackBlocked            },
-    {"IS_WEAPON_SEMIAUTO",              &Player::CondSemiAuto                 },
-    {"MIN_CHARGE_TIME_MET",             &Player::CondMinChargeTime            },
-    {"MAX_CHARGE_TIME_MET",             &Player::CondMaxChargeTime            },
-    {"IS_NEW_WEAPONCLASS",              &Player::CondUseWeaponClass           },
-    {"IS_WEAPONCLASS_ACTIVE",           &Player::CondWeaponClassActive        },
-    {"IS_WEAPONCLASS_READY_TO_FIRE",    &Player::CondWeaponClassReadyToFire   },
-    {"IS_USING_VEHICLE",                &Player::CondUsingVehicle             },
-    {"VEHICLE_TYPE",                    &Player::CondVehicleType              },
-    {"IS_PASSENGER",                    &Player::CondIsPassenger              },
-    {"IS_DRIVER",                       &Player::CondIsDriver                 },
-    {"IS_USING_TURRET",                 &Player::CondUsingTurret              },
-    {"TURRET_TYPE",                     &Player::CondTurretType               },
-    {"BLOCK_DELAY",                     &Player::CondBlockDelay               },
-    {"MUZZLE_CLEAR",                    &Player::CondMuzzleClear              },
-    {"HAS_AMMO",                        &Player::CondWeaponHasAmmo            },
-    {"HAS_AMMO_IN_CLIP",                &Player::CondWeaponHasAmmoInClip      },
-    {"RELOAD",                          &Player::CondReload                   },
-    {"WEAPONS_HOLSTERED",               &Player::CondWeaponsHolstered         },
-    {"IS_WEAPON_AN_ITEM",               &Player::CondWeaponIsItem             },
-    {"NEW_WEAPON_AN_ITEM",              &Player::CondNewWeaponIsItem          },
-    {"POSITION_TYPE",                   &Player::CondPositionType             },
-    {"MOVEMENT_TYPE",                   &Player::CondMovementType             },
-    {"RUN",                             &Player::CondRun                      },
-    {"USE",                             &Player::CondUse                      },
-    {"LEFT",                            &Player::CondTurnLeft                 },
-    {"RIGHT",                           &Player::CondTurnRight                },
-    {"FORWARD",                         &Player::CondForward                  },
-    {"BACKWARD",                        &Player::CondBackward                 },
-    {"STRAFE_LEFT",                     &Player::CondStrafeLeft               },
-    {"STRAFE_RIGHT",                    &Player::CondStrafeRight              },
-    {"JUMP",                            &Player::CondJump                     },
-    {"CROUCH",                          &Player::CondCrouch                   },
-    {"DO_JUMP_FLIP",                    &Player::CondJumpFlip                 },
-    {"ANIMDONE_LEGS",                   &Player::CondAnimDoneLegs             },
-    {"ANIMDONE_TORSO",                  &Player::CondAnimDoneTorso            },
-    {"CAN_TURN",                        &Player::CondCanTurn                  },
-    {"LEFT_VELOCITY",                   &Player::CondLeftVelocity             },
-    {"RIGHT_VELOCITY",                  &Player::CondRightVelocity            },
-    {"BACKWARD_VELOCITY",               &Player::CondBackwardVelocity         },
-    {"FORWARD_VELOCITY",                &Player::CondForwardVelocity          },
-    {"UP_VELOCITY",                     &Player::CondUpVelocity               },
-    {"DOWN_VELOCITY",                   &Player::CondDownVelocity             },
-    {"HAS_VELOCITY",                    &Player::CondHasVelocity              },
-    {"SLOPE_22",                        &Player::Cond22DegreeSlope            },
-    {"SLOPE_45",                        &Player::Cond45DegreeSlope            },
-    {"LOOKING_UP",                      &Player::CondLookingUp                },
-    {"RIGHT_LEG_HIGH",                  &Player::CondRightLegHigh             },
-    {"LEFT_LEG_HIGH",                   &Player::CondLeftLegHigh              },
-    {"CAN_FALL",                        &Player::CondCanFall                  },
-    {"AT_DOOR",                         &Player::CondAtDoor                   },
-    {"FALLING",                         &Player::CondFalling                  },
-    {"MEDIUM_IMPACT",                   &Player::CondMediumImpact             },
-    {"HARD_IMPACT",                     &Player::CondHardImpact               },
-    {"KILLED",                          &Player::CondDead                     },
-    {"PAIN_TYPE",                       &Player::CondPainType                 },
-    {"PAIN_DIRECTION",                  &Player::CondPainDirection            },
-    {"PAIN_LOCATION",                   &Player::CondPainLocation             },
-    {"PAIN_THRESHOLD",                  &Player::CondPainThreshold            },
-    {"KNOCKDOWN",                       &Player::CondKnockDown                },
-    {"LEGS",                            &Player::CondLegsState                },
-    {"TORSO",                           &Player::CondTorsoState               },
-    {"AT_USEANIM",                      &Player::CondAtUseAnim                },
-    {"TOUCHEDUSEANIM",                  &Player::CondTouchUseAnim             },
-    {"FINISHEDUSEANIM",                 &Player::CondUseAnimFinished          },
-    {"AT_USEOBJECT",                    &Player::CondAtUseObject              },
-    {"LOOP_USEOBJECT",                  &Player::CondLoopUseObject            },
-    {"CAN_PUSH",                        &Player::CondPush                     },
-    {"CAN_PULL",                        &Player::CondPull                     },
-    {"AT_LADDER",                       &Player::CondLadder                   },
-    {"AT_TOP_OF_LADDER",                &Player::CondTopOfLadder              },
-    {"ON_LADDER",                       &Player::CondOnLadder                 },
-    {"CAN_CLIMB_UP_LADDER",             &Player::CondCanClimbUpLadder         },
-    {"CAN_CLIMB_DOWN_LADDER",           &Player::CondCanClimbDownLadder       },
-    {"CAN_GET_OFF_LADDER_TOP",          &Player::CondCanGetOffLadderTop       },
-    {"CAN_GET_OFF_LADDER_BOTTOM",       &Player::CondCanGetOffLadderBottom    },
-    {"CAN_STAND",                       &Player::CondCanStand                 },
-    {"FACING_UP_SLOPE",                 &Player::CondFacingUpSlope            },
-    {"FACING_DOWN_SLOPE",               &Player::CondFacingDownSlope          },
-    {"SOLID_FORWARD",                   &Player::CondSolidForward             },
-    {"STATE_ACTIVE",                    &Player::CondStateName                },
-    {"GROUNDENTITY",                    &Player::CondGroundEntity             },
-    {"CHECK_HEIGHT",                    &Player::CondCheckHeight              },
-    {"VIEW_IN_WATER",                   &Player::CondViewInWater              },
-    {"DUCKED_VIEW_IN_WATER",            &Player::CondDuckedViewInWater        },
-    {"IS_USING_TURRET",                 &Player::CondUsingTurret              },
-    {"ATTACK_PRIMARY",                  &Player::CondAttackPrimary            }, // Checks to see if there is an active weapon as well as the button being pressed
-	{"ATTACK_SECONDARY",                &Player::CondAttackSecondary          }, // Checks to see if there is an active weapon as well as the button being pressed
-	{"ATTACK_PRIMARY_BUTTON",           &Player::CondAttackButtonPrimary      }, // Checks to see if the left attack button is pressed
-	{"ATTACK_SECONDARY_BUTTON",         &Player::CondAttackButtonSecondary    },
-    {"ABLE_TO_DEFUSE",                  &Player::CondAbleToDefuse             },
-    {"ON_LANDMINE",                     &Player::CondOnLandmine               },
-    {"NEAR_LANDMINE",                   &Player::CondNearLandmine             },
-    {"CAN_PLACE_LANDMINE",              &Player::CondCanPlaceLandmine         },
-    {"WEAPON_CURRENT_FIRE_ANIM",        &Player::CondWeaponCurrentFireAnim    },
+    {"default",                         &Player::CondTrue                    },
+    {"CHANCE",                          &Player::CondChance                  },
+    {"HEALTH",                          &Player::CondHealth                  },
+    {"BLOCKED",                         &Player::CondBlocked                 },
+    {"PAIN",                            &Player::CondPain                    },
+    {"ONGROUND",                        &Player::CondOnGround                }, // Checks to see if the right attack button is pressed
+    {"HAS_WEAPON",                      &Player::CondHasWeapon               },
+    {"NEW_WEAPON",                      &Player::CondNewWeapon               },
+    {"IMMEDIATE_SWITCH",                &Player::CondImmediateSwitch         },
+    {"IS_NEW_WEAPON",                   &Player::CondUseWeapon               },
+    {"IS_WEAPON_ACTIVE",                &Player::CondWeaponActive            },
+    {"IS_WEAPON_READY_TO_FIRE",         &Player::CondWeaponReadyToFire       },
+    {"IS_WEAPON_READY_TO_FIRE_NOSOUND", &Player::CondWeaponReadyToFireNoSound},
+    {"PUTAWAYMAIN",                     &Player::CondPutAwayMain             },
+    {"PUTAWAYLEFT",                     &Player::CondPutAwayOffHand          },
+    {"ANY_WEAPON_ACTIVE",               &Player::CondAnyWeaponActive         },
+    {"ATTACK_BLOCKED",                  &Player::CondAttackBlocked           },
+    {"IS_WEAPON_SEMIAUTO",              &Player::CondSemiAuto                },
+    {"MIN_CHARGE_TIME_MET",             &Player::CondMinChargeTime           },
+    {"MAX_CHARGE_TIME_MET",             &Player::CondMaxChargeTime           },
+    {"IS_NEW_WEAPONCLASS",              &Player::CondUseWeaponClass          },
+    {"IS_WEAPONCLASS_ACTIVE",           &Player::CondWeaponClassActive       },
+    {"IS_WEAPONCLASS_READY_TO_FIRE",    &Player::CondWeaponClassReadyToFire  },
+    {"IS_USING_VEHICLE",                &Player::CondUsingVehicle            },
+    {"VEHICLE_TYPE",                    &Player::CondVehicleType             },
+    {"IS_PASSENGER",                    &Player::CondIsPassenger             },
+    {"IS_DRIVER",                       &Player::CondIsDriver                },
+    {"IS_USING_TURRET",                 &Player::CondUsingTurret             },
+    {"TURRET_TYPE",                     &Player::CondTurretType              },
+    {"BLOCK_DELAY",                     &Player::CondBlockDelay              },
+    {"MUZZLE_CLEAR",                    &Player::CondMuzzleClear             },
+    {"HAS_AMMO",                        &Player::CondWeaponHasAmmo           },
+    {"HAS_AMMO_IN_CLIP",                &Player::CondWeaponHasAmmoInClip     },
+    {"RELOAD",                          &Player::CondReload                  },
+    {"WEAPONS_HOLSTERED",               &Player::CondWeaponsHolstered        },
+    {"IS_WEAPON_AN_ITEM",               &Player::CondWeaponIsItem            },
+    {"NEW_WEAPON_AN_ITEM",              &Player::CondNewWeaponIsItem         },
+    {"POSITION_TYPE",                   &Player::CondPositionType            },
+    {"MOVEMENT_TYPE",                   &Player::CondMovementType            },
+    {"RUN",                             &Player::CondRun                     },
+    {"USE",                             &Player::CondUse                     },
+    {"LEFT",                            &Player::CondTurnLeft                },
+    {"RIGHT",                           &Player::CondTurnRight               },
+    {"FORWARD",                         &Player::CondForward                 },
+    {"BACKWARD",                        &Player::CondBackward                },
+    {"STRAFE_LEFT",                     &Player::CondStrafeLeft              },
+    {"STRAFE_RIGHT",                    &Player::CondStrafeRight             },
+    {"JUMP",                            &Player::CondJump                    },
+    {"CROUCH",                          &Player::CondCrouch                  },
+    {"DO_JUMP_FLIP",                    &Player::CondJumpFlip                },
+    {"ANIMDONE_LEGS",                   &Player::CondAnimDoneLegs            },
+    {"ANIMDONE_TORSO",                  &Player::CondAnimDoneTorso           },
+    {"CAN_TURN",                        &Player::CondCanTurn                 },
+    {"LEFT_VELOCITY",                   &Player::CondLeftVelocity            },
+    {"RIGHT_VELOCITY",                  &Player::CondRightVelocity           },
+    {"BACKWARD_VELOCITY",               &Player::CondBackwardVelocity        },
+    {"FORWARD_VELOCITY",                &Player::CondForwardVelocity         },
+    {"UP_VELOCITY",                     &Player::CondUpVelocity              },
+    {"DOWN_VELOCITY",                   &Player::CondDownVelocity            },
+    {"HAS_VELOCITY",                    &Player::CondHasVelocity             },
+    {"SLOPE_22",                        &Player::Cond22DegreeSlope           },
+    {"SLOPE_45",                        &Player::Cond45DegreeSlope           },
+    {"LOOKING_UP",                      &Player::CondLookingUp               },
+    {"RIGHT_LEG_HIGH",                  &Player::CondRightLegHigh            },
+    {"LEFT_LEG_HIGH",                   &Player::CondLeftLegHigh             },
+    {"CAN_FALL",                        &Player::CondCanFall                 },
+    {"AT_DOOR",                         &Player::CondAtDoor                  },
+    {"FALLING",                         &Player::CondFalling                 },
+    {"MEDIUM_IMPACT",                   &Player::CondMediumImpact            },
+    {"HARD_IMPACT",                     &Player::CondHardImpact              },
+    {"KILLED",                          &Player::CondDead                    },
+    {"PAIN_TYPE",                       &Player::CondPainType                },
+    {"PAIN_DIRECTION",                  &Player::CondPainDirection           },
+    {"PAIN_LOCATION",                   &Player::CondPainLocation            },
+    {"PAIN_THRESHOLD",                  &Player::CondPainThreshold           },
+    {"KNOCKDOWN",                       &Player::CondKnockDown               },
+    {"LEGS",                            &Player::CondLegsState               },
+    {"TORSO",                           &Player::CondTorsoState              },
+    {"AT_USEANIM",                      &Player::CondAtUseAnim               },
+    {"TOUCHEDUSEANIM",                  &Player::CondTouchUseAnim            },
+    {"FINISHEDUSEANIM",                 &Player::CondUseAnimFinished         },
+    {"AT_USEOBJECT",                    &Player::CondAtUseObject             },
+    {"LOOP_USEOBJECT",                  &Player::CondLoopUseObject           },
+    {"CAN_PUSH",                        &Player::CondPush                    },
+    {"CAN_PULL",                        &Player::CondPull                    },
+    {"AT_LADDER",                       &Player::CondLadder                  },
+    {"AT_TOP_OF_LADDER",                &Player::CondTopOfLadder             },
+    {"ON_LADDER",                       &Player::CondOnLadder                },
+    {"CAN_CLIMB_UP_LADDER",             &Player::CondCanClimbUpLadder        },
+    {"CAN_CLIMB_DOWN_LADDER",           &Player::CondCanClimbDownLadder      },
+    {"CAN_GET_OFF_LADDER_TOP",          &Player::CondCanGetOffLadderTop      },
+    {"CAN_GET_OFF_LADDER_BOTTOM",       &Player::CondCanGetOffLadderBottom   },
+    {"CAN_STAND",                       &Player::CondCanStand                },
+    {"FACING_UP_SLOPE",                 &Player::CondFacingUpSlope           },
+    {"FACING_DOWN_SLOPE",               &Player::CondFacingDownSlope         },
+    {"SOLID_FORWARD",                   &Player::CondSolidForward            },
+    {"STATE_ACTIVE",                    &Player::CondStateName               },
+    {"GROUNDENTITY",                    &Player::CondGroundEntity            },
+    {"CHECK_HEIGHT",                    &Player::CondCheckHeight             },
+    {"VIEW_IN_WATER",                   &Player::CondViewInWater             },
+    {"DUCKED_VIEW_IN_WATER",            &Player::CondDuckedViewInWater       },
+    {"IS_USING_TURRET",                 &Player::CondUsingTurret             },
+    {"ATTACK_PRIMARY",
+     &Player::CondAttackPrimary                                              }, // Checks to see if there is an active weapon as well as the button being pressed
+    {"ATTACK_SECONDARY",
+     &Player::CondAttackSecondary                                            }, // Checks to see if there is an active weapon as well as the button being pressed
+    {"ATTACK_PRIMARY_BUTTON",           &Player::CondAttackButtonPrimary     }, // Checks to see if the left attack button is pressed
+    {"ATTACK_SECONDARY_BUTTON",         &Player::CondAttackButtonSecondary   },
+    {"ABLE_TO_DEFUSE",                  &Player::CondAbleToDefuse            },
+    {"ON_LANDMINE",                     &Player::CondOnLandmine              },
+    {"NEAR_LANDMINE",                   &Player::CondNearLandmine            },
+    {"CAN_PLACE_LANDMINE",              &Player::CondCanPlaceLandmine        },
+    {"WEAPON_CURRENT_FIRE_ANIM",        &Player::CondWeaponCurrentFireAnim   },
 
  // Weapon conditions
-    {"CHECK_MOVEMENT_SPEED",            &Player::CondCheckMovementSpeed },
-    {"ANIMDONE_VM",                     &Player::CondAnimDoneVM                },
-    {"CLIENT_COMMAND",                  &Player::CondClientCommand             },
-    {"IS_VM_ANIM",                      &Player::CondVMAnim                    },
-    {"VAR_OPERATOR",                    &Player::CondVariable                  },
-    {NULL,                              NULL                                   },
+    {"CHECK_MOVEMENT_SPEED",            &Player::CondCheckMovementSpeed      },
+    {"ANIMDONE_VM",                     &Player::CondAnimDoneVM              },
+    {"CLIENT_COMMAND",                  &Player::CondClientCommand           },
+    {"IS_VM_ANIM",                      &Player::CondVMAnim                  },
+    {"VAR_OPERATOR",                    &Player::CondVariable                },
+    {NULL,                              NULL                                 },
 };

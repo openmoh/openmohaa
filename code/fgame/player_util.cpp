@@ -304,7 +304,7 @@ void Player::TestThread(Event *ev)
 
 {
     const char *scriptfile;
-    str label;
+    str         label;
 
     if (ev->NumArgs() < 1) {
         gi.SendServerCommand(edict - g_entities, "print \"Syntax: testthread scriptfile <label>.\n\"");
@@ -573,21 +573,21 @@ void Player::EventTeleport(Event *ev)
     }
 }
 
-void Player::EventFace(Event* ev)
+void Player::EventFace(Event *ev)
 {
     SetViewAngles(Vector(ev->GetFloat(1), ev->GetFloat(2), ev->GetFloat(3)));
 }
 
-void Player::EventCoord(Event* ev)
+void Player::EventCoord(Event *ev)
 {
-    const char* s =
+    const char *s =
         va("location: %.2f %.2f %.2f\nangles: %.2f %.2f %.2f\n(use 'tele' or 'face' to set)\n",
-            origin[0],
-            origin[1],
-            origin[2],
-            v_angle[0],
-            v_angle[1],
-            v_angle[2]);
+           origin[0],
+           origin[1],
+           origin[2],
+           v_angle[0],
+           v_angle[1],
+           v_angle[2]);
 
     HUDPrint(s);
     gi.Printf(s);

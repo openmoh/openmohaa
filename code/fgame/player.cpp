@@ -1052,10 +1052,10 @@ void Player::Init(void)
 
 void Player::InitStats(void)
 {
-    m_iNumObjectives = 0;
+    m_iNumObjectives       = 0;
     m_iObjectivesCompleted = 0;
-    m_iNumHitsTaken = 0;
-    m_iNumEnemiesKilled = 0;
+    m_iNumHitsTaken        = 0;
+    m_iNumEnemiesKilled    = 0;
     m_iNumObjectsDestroyed = 0;
 }
 
@@ -4023,18 +4023,18 @@ void Player::Postthink(void)
     }
 }
 
-void Player::SelectPreviousItem(Event* ev)
+void Player::SelectPreviousItem(Event *ev)
 {
     if (deadflag) {
         return;
     }
 
-    Item* item = GetActiveWeapon(WEAPON_MAIN);
+    Item *item = GetActiveWeapon(WEAPON_MAIN);
 
     item = PrevItem(item);
 
     if (item) {
-        useWeapon((Weapon*)item, WEAPON_MAIN);
+        useWeapon((Weapon *)item, WEAPON_MAIN);
     }
 }
 
@@ -4079,14 +4079,14 @@ void Player::SelectPreviousWeapon(Event *ev)
     }
 }
 
-void Player::SelectNextWeapon(Event* ev)
+void Player::SelectNextWeapon(Event *ev)
 {
     if (deadflag) {
         return;
     }
 
-    Weapon* weapon = GetActiveWeapon(WEAPON_MAIN);
-    Weapon* activeWeapon = weapon;
+    Weapon *weapon       = GetActiveWeapon(WEAPON_MAIN);
+    Weapon *activeWeapon = weapon;
 
     if (weapon) {
         weapon = NextWeapon(weapon);
@@ -4096,8 +4096,7 @@ void Player::SelectNextWeapon(Event* ev)
                 weapon = NextWeapon(weapon);
             }
         }
-    }
-    else {
+    } else {
         weapon = WorstWeapon();
     }
 
@@ -5968,6 +5967,7 @@ void Player::UpdateReverb(void)
     client->ps.reverb_type  = reverb_type;
     client->ps.reverb_level = reverb_level;
 }
+
 void Player::UpdateMisc(void)
 {
     //
@@ -6135,8 +6135,8 @@ void Player::addOrigin(Vector org)
 {
     setLocalOrigin(localorigin + org);
 
-    animspeed = org.x * (1.f / level.frametime);
-    airspeed = org.y * (1.f / level.frametime);
+    animspeed         = org.x * (1.f / level.frametime);
+    airspeed          = org.y * (1.f / level.frametime);
     m_vPushVelocity.x = org.z * (1.f / level.frametime);
 }
 
@@ -6210,9 +6210,9 @@ void Player::DumpState(Event *ev)
     );
 }
 
-void Player::ForceTorsoState(Event* ev)
+void Player::ForceTorsoState(Event *ev)
 {
-    State* ts = statemap_Torso->FindState(ev->GetString(1));
+    State *ts = statemap_Torso->FindState(ev->GetString(1));
     EvaluateState(ts);
 }
 
@@ -6222,20 +6222,20 @@ void Player::ForceLegsState(Event *ev)
     EvaluateState(NULL, ls);
 }
 
-void Player::TouchedUseAnim(Entity* ent)
+void Player::TouchedUseAnim(Entity *ent)
 {
     toucheduseanim = ent;
 }
 
-void Player::NextPainTime(Event* ev)
+void Player::NextPainTime(Event *ev)
 {
     float time = ev->GetFloat(1);
 
     nextpaintime = level.time + time;
 
     if (time >= 0.0f) {
-        pain = 0.0f;
-        pain_type = MOD_NONE;
+        pain          = 0.0f;
+        pain_type     = MOD_NONE;
         pain_location = LOCATION_MISS;
 
         m_pLegsPainCond->clearCheck();
@@ -6243,20 +6243,19 @@ void Player::NextPainTime(Event* ev)
     }
 }
 
-void Player::EnterVehicle(Event* ev)
+void Player::EnterVehicle(Event *ev)
 {
-    Entity* ent;
+    Entity *ent;
 
     ent = ev->GetEntity(1);
     if (ent && ent->IsSubclassOfVehicle()) {
         flags |= FL_PARTIAL_IMMOBILE;
         viewheight = STAND_EYE_HEIGHT;
-        velocity = vec_zero;
-        m_pVehicle = (Vehicle*)ent;
+        velocity   = vec_zero;
+        m_pVehicle = (Vehicle *)ent;
         if (m_pVehicle->IsDrivable()) {
             setMoveType(MOVETYPE_VEHICLE);
-        }
-        else {
+        } else {
             setMoveType(MOVETYPE_NOCLIP);
         }
 
@@ -6264,13 +6263,14 @@ void Player::EnterVehicle(Event* ev)
     }
 }
 
-void Player::ExitVehicle(Event* ev)
+void Player::ExitVehicle(Event *ev)
 {
     flags &= ~FL_PARTIAL_IMMOBILE;
     setMoveType(MOVETYPE_WALK);
     m_pVehicle = NULL;
 }
-void Player::EnterTurret(TurretGun* ent)
+
+void Player::EnterTurret(TurretGun *ent)
 {
     flags |= FL_PARTIAL_IMMOBILE;
     viewheight = DEFAULT_VIEWHEIGHT;
@@ -6283,9 +6283,9 @@ void Player::EnterTurret(TurretGun* ent)
     SafeHolster(true);
 }
 
-void Player::EnterTurret(Event* ev)
+void Player::EnterTurret(Event *ev)
 {
-    TurretGun* ent = (TurretGun*)ev->GetEntity(1);
+    TurretGun *ent = (TurretGun *)ev->GetEntity(1);
 
     if (!ent) {
         return;
@@ -6308,10 +6308,11 @@ void Player::ExitTurret(void)
     SafeHolster(qfalse);
 }
 
-void Player::ExitTurret(Event* ev)
+void Player::ExitTurret(Event *ev)
 {
     ExitTurret();
 }
+
 void Player::HolsterToggle(Event *ev)
 {
     if (deadflag) {
@@ -6546,6 +6547,7 @@ Vector Player::EyePosition(void)
 {
     return m_vViewPos;
 }
+
 void Player::ModifyHeight(Event *ev)
 {
     str height = ev->GetString(1);
@@ -6673,7 +6675,9 @@ void Player::SafeZoomed(Event *ev)
             SetFov(selectedfov);
         }
     }
-}void Player::AttachToLadder(Event *ev)
+}
+
+void Player::AttachToLadder(Event *ev)
 {
     Vector      vStart, vEnd, vOffset;
     trace_t     trace;
@@ -6734,7 +6738,7 @@ void Player::EnsureForwardOffLadder(Event *ev)
     }
 }
 
-void Player::Score(Event* ev)
+void Player::Score(Event *ev)
 {
     dmManager.Score(this);
 }
@@ -6879,7 +6883,8 @@ void Player::InitDeathmatch(void)
     }
 }
 
-bool Player::QueryLandminesAllowed() const {
+bool Player::QueryLandminesAllowed() const
+{
     // FIXME: unimplemented
     return false;
 }
@@ -6964,13 +6969,13 @@ void Player::SetPlayerSpectate(void)
     }
 }
 
-void Player::Spectator(Event* ev)
+void Player::Spectator(Event *ev)
 {
     client->pers.dm_primary[0] = 0;
     SetTeam(TEAM_SPECTATOR);
 }
 
-void Player::Leave_DM_Team(Event* ev)
+void Player::Leave_DM_Team(Event *ev)
 {
     // FIXME: should it stays disabled ?
 #if 0
@@ -7125,12 +7130,12 @@ void Player::UpdateStatus(const char *s)
     gi.SendServerCommand(edict - g_entities, "status \"%s\"", s);
 }
 
-void Player::HUDPrint(const char* s)
+void Player::HUDPrint(const char *s)
 {
     gi.SendServerCommand(edict - g_entities, "hudprint \"%s\"\n", s);
 }
 
-void Player::ArmorDamage(Event* ev)
+void Player::ArmorDamage(Event *ev)
 {
     int mod = ev->GetInteger(9);
 
@@ -7140,7 +7145,7 @@ void Player::ArmorDamage(Event* ev)
             return;
         }
 
-        Player* attacker = (Player*)ev->GetEntity(1);
+        Player *attacker = (Player *)ev->GetEntity(1);
 
         if (attacker && attacker->IsSubclassOfPlayer()) {
             if (attacker != this) {
@@ -7152,7 +7157,7 @@ void Player::ArmorDamage(Event* ev)
                 }
 
                 pAttackerDistPointer = attacker;
-                fAttackerDispTime = g_drawattackertime->value + level.time;
+                fAttackerDispTime    = g_drawattackertime->value + level.time;
             }
         }
     }
@@ -7161,7 +7166,7 @@ void Player::ArmorDamage(Event* ev)
 
     Sentient::ArmorDamage(ev);
 
-    Event* event = new Event;
+    Event *event = new Event;
 
     event->AddEntity(ev->GetEntity(1));
     event->AddFloat(ev->GetFloat(2));
@@ -7180,7 +7185,7 @@ void Player::ArmorDamage(Event* ev)
 
 void Player::Disconnect(void)
 {
-    Event* ev = new Event;
+    Event *ev = new Event;
 
     ev->AddListener(this);
     scriptedEvents[SE_DISCONNECTED].Trigger(ev);
@@ -7190,7 +7195,7 @@ void Player::Disconnect(void)
     }
 }
 
-void Player::CallVote(Event* ev)
+void Player::CallVote(Event *ev)
 {
     str arg1;
     str arg2;
@@ -7228,15 +7233,15 @@ void Player::CallVote(Event* ev)
         HUDPrint(gi.LV_ConvertString("Invalid vote string."));
         HUDPrint(
             va("%s restart, nextmap, map <mapname>, g_gametype <n>, fraglimit <n>, timelimit <n>, kick <player>, and "
-                "clientkick <player #>.",
-                gi.LV_ConvertString("Vote commands are:"))
+               "clientkick <player #>.",
+               gi.LV_ConvertString("Vote commands are:"))
         );
 
         return;
     }
 
     if (!Q_stricmp(arg1.c_str(), "kick")) {
-        gentity_t* ent;
+        gentity_t *ent;
         int        i;
 
         for (i = 0; i < game.maxclients; i++) {
@@ -7261,11 +7266,9 @@ void Player::CallVote(Event* ev)
             HUDPrint(va("%s %s", ent->client->pers.netname, gi.LV_ConvertString("is not a valid player name to kick."))
             );
         }
-    }
-    else if (!Q_stricmp(arg1.c_str(), "map") && *sv_nextmap->string) {
+    } else if (!Q_stricmp(arg1.c_str(), "map") && *sv_nextmap->string) {
         level.m_voteString = va("%s %s; set next map \"%s\"", arg1.c_str(), arg2.c_str(), arg2.c_str());
-    }
-    else {
+    } else {
         level.m_voteString = va("%s %s", arg1.c_str(), arg2.c_str());
     }
 
@@ -7273,19 +7276,19 @@ void Player::CallVote(Event* ev)
         va("%s %s: %s\n", client->pers.netname, gi.LV_ConvertString("called a vote"), level.m_voteString.c_str())
     );
 
-    level.m_voteYes = 1;
-    level.m_voteNo = 0;
+    level.m_voteYes  = 1;
+    level.m_voteNo   = 0;
     level.m_voteTime = level.time;
 
     // Reset all player's vote
     for (int i = 0; i < game.maxclients; i++) {
-        gentity_t* ent = &g_entities[i];
+        gentity_t *ent = &g_entities[i];
 
         if (!ent->client || !ent->inuse) {
             continue;
         }
 
-        Player* p = (Player*)ent->entity;
+        Player *p = (Player *)ent->entity;
 
         p->voted = false;
     }
@@ -7296,7 +7299,7 @@ void Player::CallVote(Event* ev)
     level.m_numVoters = 0;
 }
 
-void Player::Vote(Event* ev)
+void Player::Vote(Event *ev)
 {
     if (level.m_voteTime == 0.0f) {
         HUDPrint(gi.LV_ConvertString("No vote in progress."));
@@ -7320,36 +7323,29 @@ void Player::Vote(Event* ev)
 
     if (*arg1 == 'y' || *arg1 == 'Y' || *arg1 == '1') {
         level.m_voteYes++;
-    }
-    else {
+    } else {
         level.m_voteNo++;
     }
 }
 
-void Player::EventPrimaryDMWeapon(Event* ev)
+void Player::EventPrimaryDMWeapon(Event *ev)
 {
     str  dm_weapon = ev->GetString(1);
     bool bIsBanned;
 
     if (!str::icmp(dm_weapon, "shotgun")) {
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_SHOTGUN);
-    }
-    else if (!str::icmp(dm_weapon, "rifle")) {
+    } else if (!str::icmp(dm_weapon, "rifle")) {
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_RIFLE);
-    }
-    else if (!str::icmp(dm_weapon, "sniper")) {
+    } else if (!str::icmp(dm_weapon, "sniper")) {
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_SNIPER);
-    }
-    else if (!str::icmp(dm_weapon, "smg")) {
+    } else if (!str::icmp(dm_weapon, "smg")) {
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_SMG);
-    }
-    else if (!str::icmp(dm_weapon, "mg")) {
+    } else if (!str::icmp(dm_weapon, "mg")) {
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_MG);
-    }
-    else if (!str::icmp(dm_weapon, "heavy")) {
+    } else if (!str::icmp(dm_weapon, "heavy")) {
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_ROCKET);
-    }
-    else if (!str::icmp(dm_weapon, "landmine")) {
+    } else if (!str::icmp(dm_weapon, "landmine")) {
         bIsBanned = (dmflags->integer & DF_WEAPON_NO_LANDMINE) || !QueryLandminesAllowed();
     }
 
@@ -7366,8 +7362,7 @@ void Player::EventPrimaryDMWeapon(Event* ev)
         if (current_team && (current_team->teamType == TEAM_AXIS || current_team->teamType == TEAM_ALLIES)) {
             if (m_fSpawnTimeLeft) {
                 m_bWaitingForRespawn = true;
-            }
-            else if (AllowTeamRespawn()) {
+            } else if (AllowTeamRespawn()) {
                 EndSpectator();
 
                 if (deadflag) {
@@ -7378,19 +7373,17 @@ void Player::EventPrimaryDMWeapon(Event* ev)
 
                 gi.centerprintf(edict, "");
             }
-        }
-        else {
+        } else {
             gi.SendServerCommand(edict - g_entities, "stufftext \"wait 250;pushmenu_teamselect\"");
         }
-    }
-    else {
+    } else {
         gi.SendServerCommand(
             edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", "Will switch to new weapon next time you respawn"
         );
     }
 }
 
-void Player::DeadBody(Event* ev)
+void Player::DeadBody(Event *ev)
 {
     DeadBody();
 }
@@ -7405,38 +7398,38 @@ void Player::LostMatch(void)
     num_lost_matches++;
 }
 
-void Player::PhysicsOff(Event* ev)
+void Player::PhysicsOff(Event *ev)
 {
     flags |= FL_IMMOBILE;
 }
 
-void Player::PhysicsOn(Event* ev)
+void Player::PhysicsOn(Event *ev)
 {
     flags &= ~FL_IMMOBILE;
 }
 
-void Player::GetIsDisguised(Event* ev)
+void Player::GetIsDisguised(Event *ev)
 {
     ev->AddInteger(m_bIsDisguised);
 }
 
-void Player::GetHasDisguise(Event* ev)
+void Player::GetHasDisguise(Event *ev)
 {
     ev->AddInteger(m_bHasDisguise);
 }
 
-void Player::SetHasDisguise(Event* ev)
+void Player::SetHasDisguise(Event *ev)
 {
     m_bHasDisguise = ev->GetBoolean(1);
 }
 
-void Player::SetObjectiveCount(Event* ev)
+void Player::SetObjectiveCount(Event *ev)
 {
     m_iObjectivesCompleted = ev->GetInteger(1);
-    m_iNumObjectives = ev->GetInteger(2);
+    m_iNumObjectives       = ev->GetInteger(2);
 }
 
-void Player::Stats(Event* ev)
+void Player::Stats(Event *ev)
 {
     // FIXME: unimplemented
 }
@@ -7746,22 +7739,22 @@ void Player::EventIPrint(Event *ev)
     }
 }
 
-void Player::SetViewangles(Event* ev)
+void Player::SetViewangles(Event *ev)
 {
     SetViewAngles(ev->GetVector(1));
 }
 
-void Player::GetViewangles(Event* ev)
+void Player::GetViewangles(Event *ev)
 {
     ev->AddVector(v_angle);
 }
 
-void Player::EventGetUseHeld(Event* ev)
+void Player::EventGetUseHeld(Event *ev)
 {
     ev->AddInteger(buttons & BUTTON_USE ? qtrue : qfalse);
 }
 
-void Player::EventGetFireHeld(Event* ev)
+void Player::EventGetFireHeld(Event *ev)
 {
     ev->AddInteger(buttons & (BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT) ? qtrue : qfalse);
 }
@@ -7775,8 +7768,8 @@ void Player::BeginTempSpectator(void)
     m_iPlayerSpectating = 0;
 
     takedamage = DAMAGE_NO;
-    health = max_health;
-    deadflag = 0;
+    health     = max_health;
+    deadflag   = 0;
 
     client->ps.feetfalling = 0;
     client->ps.pm_flags |= PMF_SPECTATING;
@@ -7794,7 +7787,7 @@ void Player::BeginTempSpectator(void)
 
 void Player::EndSpectator(void)
 {
-    m_bSpectator = false;
+    m_bSpectator     = false;
     m_bTempSpectator = false;
 
     client->ps.pm_flags &= ~(PMF_SPECTATING | PMF_SPECTATE_FOLLOW);
@@ -8874,7 +8867,8 @@ str Player::GetCurrentDMWeaponType() const
     return m_sDmPrimary;
 }
 
-bool Player::AllowTeamRespawn() const {
+bool Player::AllowTeamRespawn() const
+{
     // FIXME: unimplemented
     return true;
 }

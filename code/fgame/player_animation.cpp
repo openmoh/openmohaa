@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // player_animation.cpp: Animation utility functions
-// 
+//
 
 #include "player.h"
 #include "g_phys.h"
