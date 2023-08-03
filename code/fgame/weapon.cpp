@@ -2698,7 +2698,7 @@ qboolean Weapon::ReadyToFire
             if (playsound && (level.time > next_maxmovement_time))
             {
                 Sound(m_sMaxMovementSound);
-                next_noammo_time = level.time + level.frametime + G_Random(0.1f) + 0.95f;
+				next_maxmovement_time = level.time + level.frametime + G_Random(0.1f) + 0.95f;
             }
 		}
 
