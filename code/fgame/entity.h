@@ -345,8 +345,8 @@ public:
 	void				GetTagAngles( Event *ev );
 	void				GetTagPosition( Event *ev );
 
-    virtual float CurrentTime(int slot = 0);
-    virtual int CurrentAnim(int slot = 0);
+    virtual float CurrentTime(int slot = 0) const;
+    virtual int CurrentAnim(int slot = 0) const;
 	void ClearAnimSlot(int slot);
 	void StartAnimSlot(int slot, int index, float weight);
 	void RestartAnimSlot(int slot);

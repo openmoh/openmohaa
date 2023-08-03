@@ -128,8 +128,8 @@ public:
 	void				StopAnimating( int slot = 0 );
 	void				StopAnimatingAtEnd( int slot = 0 );
 	
-	int CurrentAnim( int slot = 0 ) override;
-	float CurrentTime( int slot = 0 ) override;
+	int CurrentAnim( int slot = 0 ) const override;
+	float CurrentTime( int slot = 0 ) const override;
 
 	void PreAnimate( void ) override;
 	void PostAnimate( void ) override;
@@ -147,12 +147,12 @@ public:
 
 extern MEM_BlockAlloc<AnimationEvent> AnimationEvent_allocator;
 
-inline int Animate::CurrentAnim( int slot )
+inline int Animate::CurrentAnim( int slot ) const
 {
 	return edict->s.frameInfo[ slot ].index;
 }
 
-inline float Animate::CurrentTime( int slot )
+inline float Animate::CurrentTime( int slot ) const
 {
 	return edict->s.frameInfo[ slot ].time;
 }

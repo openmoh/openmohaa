@@ -2828,12 +2828,12 @@ qboolean Entity::GetTag
 	return true;
 }
 
-int Entity::CurrentAnim(int slot)
+int Entity::CurrentAnim(int slot) const
 {
     return 0;
 }
 
-float Entity::CurrentTime(int slot)
+float Entity::CurrentTime(int slot) const
 {
     return 0;
 }
