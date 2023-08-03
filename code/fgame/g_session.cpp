@@ -46,7 +46,7 @@ Called on game shutdown
 void G_WriteClientSessionData( gclient_t *client )
 {
 	gi.Cvar_Set( va( "session%i", ( int )( client - game.clients ) ),
-		va( "%s %i %i", client->pers.weapon[ 0 ] ? client->pers.weapon : "-",
+		va( "%s %i %i", client->pers.dm_primary[ 0 ] ? client->pers.dm_primary : "-",
 		client->pers.team,
 		client->pers.kills ) );
 }
@@ -68,10 +68,10 @@ void G_ReadSessionData( gclient_t *client )
 
 	session = gi.Cvar_Get(va("session%zi", client - game.clients), "", 0);
 	
-	sscanf( session->string, "%s %i %i", client->pers.weapon, &client->pers.team, &client->pers.kills );
-	if( client->pers.weapon[ 0 ] == '-' )
+	sscanf( session->string, "%s %i %i", client->pers.dm_primary, &client->pers.team, &client->pers.kills );
+	if( client->pers.dm_primary[ 0 ] == '-' )
 	{
-		client->pers.weapon[ 0 ] = 0;
+		client->pers.dm_primary[ 0 ] = 0;
 	}
 }
 

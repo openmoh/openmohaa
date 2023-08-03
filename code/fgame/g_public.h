@@ -122,7 +122,7 @@ typedef struct {
 	char			netname[ MAX_NAME_LENGTH ];
 	char			playermodel[ MAX_QPATH ];
 	char			playergermanmodel[ MAX_QPATH ];
-	char			weapon[ MAX_QPATH ];
+	char			dm_primary[ MAX_QPATH ];
 
 	float			enterTime;
 
