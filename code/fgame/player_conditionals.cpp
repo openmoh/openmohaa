@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "player.h"
 #include "weapturret.h"
+#include "weaputils.h"
 
 //Forward
 //Back
@@ -1235,32 +1236,51 @@ qboolean Player::CondUsingVehicle(Conditional& condition)
 
 qboolean Player::CondIsEscaping(Conditional& condition)
 {
-    // FIXME: unimplemented
-    return true;
+    return m_jailstate == JAILSTATE_ESCAPE;
 }
 
 qboolean Player::CondAbleToDefuse(Conditional& condition)
 {
-    // FIXME: unimplemented
-    return true;
+    Weapon* weapon = GetActiveWeapon(WEAPON_MAIN);
+    float maxrange;
+
+    if (!weapon) {
+        weapon = GetActiveWeapon(WEAPON_OFFHAND);
+    }
+
+    Vector vForward, vRight, vUp;
+    AngleVectors(m_vViewPos, vForward, vRight, vUp);
+
+    maxrange = weapon->GetMaxRange();
+
+    return FindDefusableObject(vForward, this, maxrange) ? true : false;
 }
 
 qboolean Player::CondCanPlaceLandmine(Conditional& condition)
 {
-    // FIXME: unimplemented
-    return false;
+	Weapon* weapon = GetActiveWeapon(WEAPON_MAIN);
+	if (!weapon) {
+		weapon = GetActiveWeapon(WEAPON_OFFHAND);
+	}
+
+    Vector vPos, vForward, vRight, vUp, vBarrel;
+    weapon->GetMuzzlePosition(&vPos, &vForward, &vRight, &vUp, &vBarrel);
+
+    return CanPlaceLandmine(vPos, this);
 }
 
 qboolean Player::CondOnLandmine(Conditional& condition)
 {
-    // FIXME: unimplemented
-    return false;
+    MeasureLandmineDistances();
+
+    return m_fMineDist <= 1.f;
 }
 
 qboolean Player::CondNearLandmine(Conditional& condition)
 {
-    // FIXME: unimplemented
-    return false;
+	MeasureLandmineDistances();
+
+    return m_fMineDist < 3.f && m_fMineDist > 1.f;
 }
 
 void Player::MeasureLandmineDistances()
@@ -1270,8 +1290,7 @@ void Player::MeasureLandmineDistances()
 
 qboolean Player::CondIsAssistingEscape(Conditional& condition)
 {
-    // FIXME: unimplemented
-    return qfalse;
+    return m_jailstate == JAILSTATE_ASSIST_ESCAPE;
 }
 
 qboolean Player::CondTurretType(Conditional& condition)
@@ -1444,80 +1463,123 @@ qboolean Player::CondCheckMovementSpeed(Conditional& condition)
 
 qboolean Player::CondWeaponCurrentFireAnim(Conditional& condition)
 {
-    // FIXME: unimplemented
-    return false;
+    weaponhand_t hand = WeaponHandNameToNum(condition.getParm(1));
+    int iFireAnim = atoi(condition.getParm(2));
+    Weapon* weapon;
+
+    if (hand == WEAPON_ERROR) {
+        return false;
+    }
+
+    weapon = GetActiveWeapon(hand);
+
+    return weapon && weapon->m_iCurrentFireAnim == iFireAnim;
 }
 
 qboolean Player::CondVehicleType(Conditional& condition)
 {
-    // FIXME: unimplemented
-    return false;
+    str sType = condition.getParm(1);
+    if (m_pVehicle && m_pVehicle->IsSubclassOfVehicle()) {
+        return !str::cmp(sType, "vehicle");
+    } else {
+        return !str::cmp(sType, "none");
+    }
 }
 
 qboolean Player::CondIsPassenger(Conditional& condition)
 {
-	// FIXME: unimplemented
-	return false;
+    return m_pVehicle && m_pVehicle->IsSubclassOfVehicle() && m_pVehicle->FindPassengerSlotByEntity(this);
 }
 
 qboolean Player::CondIsDriver(Conditional& condition)
 {
-	// FIXME: unimplemented
-	return false;
+	return m_pVehicle && m_pVehicle->IsSubclassOfVehicle() && m_pVehicle->FindDriverSlotByEntity(this);
 }
 
 qboolean Player::CondWeaponIsItem(Conditional& condition)
 {
-	// FIXME: unimplemented
-	return false;
+    weaponhand_t hand = WeaponHandNameToNum(condition.getParm(1));
+    Weapon* weapon;
+    
+    if (hand == WEAPON_ERROR) {
+        return false;
+    }
+
+    weapon = GetActiveWeapon(hand);
+
+    return weapon && weapon->IsSubclassOfInventoryItem();
 }
 
 qboolean Player::CondNewWeaponIsItem(Conditional& condition)
 {
-	// FIXME: unimplemented
-	return false;
+    Weapon* weapon = GetNewActiveWeapon();
+    return weapon && weapon->IsSubclassOfInventoryItem();
 }
 
 qboolean Player::CondActionAnimDone(Conditional& condition)
 {
-	// FIXME: unimplemented
-	return false;
+    // was removed in mohaas 2.0
+    return false;
 }
 
 qboolean Player::CondLeftVelocity(Conditional& condition)
 {
-	// FIXME: unimplemented
-	return false;
+    if (condition.numParms()) {
+        return move_left_vel >= atof(condition.getParm(1));
+    } else {
+        return move_left_vel > 4.0f;
+    }
+
+    return qfalse;
 }
 
 qboolean Player::CondRightVelocity(Conditional& condition)
 {
-	// FIXME: unimplemented
-	return false;
+    if (condition.numParms()) {
+        return move_right_vel >= atof(condition.getParm(1));
+    } else {
+        return move_right_vel > 4.0f;
+    }
+
+    return qfalse;
 }
 
 qboolean Player::CondBackwardVelocity(Conditional& condition)
 {
-	// FIXME: unimplemented
-	return false;
+    if (condition.numParms()) {
+        return move_backward_vel >= atof(condition.getParm(1));
+    } else {
+        return move_backward_vel > 4.0f;
+    }
+
+    return qfalse;
 }
 
 qboolean Player::CondUpVelocity(Conditional& condition)
 {
-	// FIXME: unimplemented
-	return false;
+    if (condition.numParms()) {
+        return move_up_vel >= atof(condition.getParm(1));
+    } else {
+        return move_up_vel > 4.0f;
+    }
+
+    return qfalse;
 }
 
 qboolean Player::CondDownVelocity(Conditional& condition)
 {
-	// FIXME: unimplemented
-	return false;
+    if (condition.numParms()) {
+        return move_down_vel >= atof(condition.getParm(1));
+    } else {
+        return move_down_vel > 4.0f;
+    }
+
+    return qfalse;
 }
 
 qboolean Player::CondCanFall(Conditional& condition)
 {
-    // FIXME: unimplemented
-    return false;
+    return canfall;
 }
 
 qboolean Player::CondAnimDoneVM(Conditional& condition)
