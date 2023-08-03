@@ -222,3 +222,118 @@ void Player::AcquireHeadTarget
 {
 
 }
+
+Vector Player::GunTarget(bool bNoCollision)
+{
+    Vector  vForward;
+    Vector  vOut;
+    Vector  vDest;
+    trace_t trace;
+    solid_t prev_solid = SOLID_BBOX;
+
+    if (bNoCollision) {
+        AngleVectors(m_vViewAng, vForward, NULL, NULL);
+        vOut = m_vViewPos + vForward * 1024.0f;
+
+        return vOut;
+    } else if (m_pVehicle) {
+        AngleVectors(m_vViewAng, vForward, NULL, NULL);
+        vDest = m_vViewPos + vForward * 4096.0f;
+
+        prev_solid = m_pVehicle->edict->solid;
+
+        m_pVehicle->setSolidType(SOLID_NOT);
+
+        if (m_pVehicle->IsSubclassOfVehicle()) {
+            m_pVehicle->SetSlotsNonSolid();
+        }
+
+        trace = G_Trace(m_vViewPos, vec_zero, vec_zero, vDest, this, MASK_OPAQUE, qfalse, "Player::GunTarget");
+
+        vOut = trace.endpos;
+    } else {
+        AngleVectors(m_vViewAng, vForward, NULL, NULL);
+        vDest = m_vViewPos + vForward * 1024.0f;
+
+        trace = G_Trace(m_vViewPos, vec_zero, vec_zero, vDest, this, MASK_PLAYERSOLID, qfalse, "Player::GunTarget");
+
+        if (!m_pTurret || (Vector(trace.endpos) - m_vViewPos).lengthSquared() >= 16384.0f) {
+            vOut = trace.endpos;
+        } else {
+            vOut = vDest;
+        }
+    }
+
+    if (m_pVehicle) {
+        m_pVehicle->setSolidType(prev_solid);
+
+        if (m_pVehicle->IsSubclassOfVehicle()) {
+            m_pVehicle->SetSlotsSolid();
+        }
+    }
+
+    return vOut;
+}
+
+void Player::PlayerReload(Event *ev)
+{
+    Weapon *weapon;
+
+    if (deadflag) {
+        return;
+    }
+
+    weapon = GetActiveWeapon(WEAPON_MAIN);
+
+    if (!weapon) {
+        return;
+    }
+
+    if (weapon->CheckReload(FIRE_PRIMARY)) {
+        weapon->SetShouldReload(true);
+    }
+}
+
+void Player::EventCorrectWeaponAttachments(Event *ev)
+{
+    int      iChild;
+    int      iNumChildren;
+    int      iTagRight;
+    int      iTagLeft;
+    qboolean iUseAngles;
+    Vector   vOffset;
+    Entity  *pChild;
+
+    iTagRight    = gi.Tag_NumForName(edict->tiki, "tag_weapon_right");
+    iTagLeft     = gi.Tag_NumForName(edict->tiki, "tag_weapon_left");
+    iNumChildren = numchildren;
+
+    for (int i = 0; i < iNumChildren; i++) {
+        iChild = children[i];
+
+        if (iChild == ENTITYNUM_NONE) {
+            continue;
+        }
+
+        pChild = G_GetEntity(iChild);
+        if (!pChild) {
+            continue;
+        }
+
+        if (pChild->edict->s.tag_num == iTagLeft || pChild->edict->s.tag_num == iTagRight) {
+            if (pChild->IsSubclassOfWeapon()) {
+                if (pChild->edict->s.tag_num == iTagLeft) {
+                    iUseAngles = edict->s.attach_use_angles;
+                    vOffset    = edict->s.attach_offset;
+
+                    // reattach to the right tag
+                    detach();
+                    attach(entnum, iTagRight, iUseAngles, vOffset);
+                }
+            } else {
+                // Remove entities like ammoclip
+                pChild->PostEvent(EV_Remove, 0);
+            }
+        }
+    }
+}
