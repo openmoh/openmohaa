@@ -38,6 +38,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "trigger.h"
 #include "debuglines.h"
 
+constexpr unsigned long MAX_TRAVEL_DIST = 16216;
+
 static void FlashPlayers
    (
    Vector   org,
@@ -1757,23 +1759,41 @@ void Explosion::MakeExplosionEffect
 	Event *ev
 	)
 {
-	str sEffect = ev->GetString( 1 );
+    str sEffect = ev->GetString(1);
 
-	gi.SetBroadcastAll();
+    gi.SetBroadcastAll();
 
-	if( !sEffect.icmp( "grenade" ) )
-	{
-		gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_EXPLOSION_EFFECT_1));
+    if (!sEffect.icmp("grenade"))
+    {
+        gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_EXPLOSION_EFFECT_1));
+    }
+    else
+    {
+		if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN)
+		{
+			if (!sEffect.icmp("heavyshell"))
+			{
+				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_EXPLOSION_EFFECT_3));
+			}
+			else if (!sEffect.icmp("tank"))
+			{
+				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_EXPLOSION_EFFECT_4));
+			}
+			else
+            {
+                gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_EXPLOSION_EFFECT_2));
+			}
+		}
+		else
+		{
+			gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_EXPLOSION_EFFECT_2));
+		}
 	}
-	else
-	{
-		gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_EXPLOSION_EFFECT_2));
-	}
 
-	gi.MSG_WriteCoord( origin[ 0 ] );
-	gi.MSG_WriteCoord( origin[ 1 ] );
-	gi.MSG_WriteCoord( origin[ 2 ] );
-	gi.MSG_EndCGM();
+    gi.MSG_WriteCoord(origin[0]);
+    gi.MSG_WriteCoord(origin[1]);
+    gi.MSG_WriteCoord(origin[2]);
+    gi.MSG_EndCGM();
 }
 
 Entity* FindDefusableObject(const Vector& dir, Entity* owner, float maxdist) {
@@ -2235,7 +2255,7 @@ void BulletAttack_Stat(Entity* owner, Entity* target, trace_t* trace, Weapon* we
 }
 
 float BulletAttack
-	(
+(
 	Vector   start,
 	Vector   vBarrel,
 	Vector   dir,
@@ -2249,14 +2269,14 @@ float BulletAttack
 	int      meansofdeath,
 	Vector   spread,
 	int      count,
-	Entity*  owner,
+	Entity* owner,
 	int      iTracerFrequency,
-	int*     piTracerCount,
+	int* piTracerCount,
 	float    bulletthroughwood,
 	float    bulletthroughmetal,
-	Weapon*  weap,
+	Weapon* weap,
 	float    tracerspeed
-	)
+)
 {
 	Vector		vDir;
 	Vector		vTmpEnd;
@@ -2265,33 +2285,52 @@ float BulletAttack
 	int			i;
 	int			iTravelDist;
 	trace_t		trace;
-	Entity		*ent;
+	Entity*		ent;
+	Entity*		newowner;
 	//Entity		*tmpSkipEnt;
 	float		damage_total = 0;
 	float		original_value;
-	qboolean	bLargeBullet;
 	qboolean	bBulletDone;
+	qboolean	bThroughThing;
 	int			iContinueCount;
-	float		vEndArray[ 64 ][ 3 ];
+	float		vEndArray[64][3];
 	int			iTracerCount = 0;
 	int			iNumHit;
+	int			lastSurfaceFlags;
+	float		bulletdist;
+	float		newdamage;
+	float		throughThingFrac;
+	float		oldfrac;
+	int			bulletbits;
 
+	lastSurfaceFlags = 0;
 	iNumHit = 0;
-	bLargeBullet = damage >= 41.0f;
 
-	if( count > 63 ) {
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN)
+    {
+        bulletbits = 2;
+    }
+    else
+    {
+        bulletlarge = damage >= 41.f;
+        bulletbits = 1;
+    }
+
+	if (count > 63) {
 		count = 63;
 	}
 
-	if( !owner || owner->IsDead() || owner == world ) {
+	if (!owner || owner->IsDead() || owner == world) {
 		weap = NULL;
 	}
 
-	for( i = 0; i < count; i++ )
-	{
-		vTraceEnd = start + ( dir * range ) +
-			( right	* grandom() * spread.x ) +
-			( up	* grandom() * spread.y );
+	for (i = 0; i < count; i++)
+    {
+        trace_t tracethrough;
+
+		vTraceEnd = start + (dir * range) +
+			(right * grandom() * spread.x) +
+			(up * grandom() * spread.y);
 
 		vDir = vTraceEnd - start;
 
@@ -2300,173 +2339,305 @@ float BulletAttack
 		iContinueCount = 0;
 		iTravelDist = 0;
 		bBulletDone = qfalse;
+		bThroughThing = qfalse;
+		newowner = owner;
+		newdamage = damage;
 
-		while( !bBulletDone && iTravelDist < 9216 )
+		while (!bBulletDone && iTravelDist < MAX_TRAVEL_DIST)
 		{
-			iTravelDist += 9216;
+			iTravelDist += MAX_TRAVEL_DIST;
 			vTraceEnd = start + vDir * iTravelDist;
+			vTraceStart = vTraceEnd;
 
-			memset( &trace, 0, sizeof( trace_t ) );
+			memset(&trace, 0, sizeof(trace_t));
 
-			while( trace.fraction < 1.0f )
-			{
-				trace = G_Trace( start, vec_zero, vec_zero, vTraceEnd, owner, MASK_SHOT, false, "BulletAttack", true );
-				
+			oldfrac = -1;
+
+			while (trace.fraction < 1.0f)
+            {
+				trace = G_Trace(
+					vTraceStart,
+					vec_zero,
+					vec_zero,
+					vTraceEnd,
+					newowner,
+					MASK_SHOT,
+					false,
+					"BulletAttack",
+					true
+				);
+
 				vTmpEnd = trace.endpos;
 
-				if (!count && !(trace.contents & CONTENTS_NODROP) && weap) {
-					G_BroadcastAIEvent(weap, vTmpEnd, 2, -1.0f);
-				}
-
-				if( trace.ent )
+				if (bThroughThing)
 				{
-					ent = trace.ent->entity;
+					bThroughThing = qfalse;
 
-					if( ent != world )
+					tracethrough = G_Trace(
+						vTmpEnd,
+						vec_zero,
+						vec_zero,
+						vTraceStart + vDir * -4,
+						newowner,
+						MASK_SHOT,
+						qfalse,
+						"BulletAttack2",
+						qtrue
+					);
+
+					if (!(tracethrough.surfaceFlags & (SURF_FOLIAGE | SURF_GLASS | SURF_PUDDLE | SURF_PAPER))
+						&& (!(tracethrough.surfaceFlags & SURF_WOOD) || bulletthroughwood)
+						&& (!(tracethrough.surfaceFlags & (SURF_GRILL | SURF_METAL)) || bulletthroughmetal)
+						)
 					{
-						if( trace.ent->entity->takedamage ) {
-							break;
-						}
+						vTmpEnd = vTraceStart + vDir * -4;
+						trace.fraction = 1.f;
+						bBulletDone = qtrue;
 
-						if( ent->edict->solid == SOLID_BSP && (trace.contents & CONTENTS_NODROP) )
-						{
-							gi.SetBroadcastVisible( trace.endpos, 0 );
-							gi.MSG_StartCGM(CGM_BULLET_6);
-							gi.MSG_WriteCoord( trace.endpos[ 0 ] );
-							gi.MSG_WriteCoord( trace.endpos[ 1 ] );
-							gi.MSG_WriteCoord( trace.endpos[ 2 ] );
-							gi.MSG_WriteDir( trace.plane.normal );
-							gi.MSG_WriteBits( bLargeBullet, 1 );
-							gi.MSG_EndCGM();
+						if (g_showbullettrace->integer) {
+							bThroughThing = qtrue;
+						}
+						break;
+					}
+
+					if (lastSurfaceFlags & SURF_WOOD)
+					{
+						if (tracethrough.surfaceFlags & SURF_WOOD) {
+							throughThingFrac = 1.f / bulletthroughwood;
+						} else {
+							throughThingFrac = 2.f / (bulletthroughwood + bulletthroughmetal);
 						}
 					}
+					else
+					{
+						if (tracethrough.surfaceFlags & SURF_WOOD) {
+							throughThingFrac = 2.f / (bulletthroughwood + bulletthroughmetal);
+						} else {
+							throughThingFrac = 1.f / bulletthroughmetal;
+						}
+					}
+
+					bulletdist = (tracethrough.endpos - vTraceStart).length() + 4.f;
+
+					if (g_showbullettrace->integer) {
+						gi.Printf("Bullet damage: %.2f : %.2f -> ", bulletdist, damage);
+					}
+
+					newdamage -= damage * bulletdist * throughThingFrac;
+					if (newdamage < 1.f) {
+						vTmpEnd = vTraceStart + vDir * -4;
+						trace.fraction = 1.f;
+						bBulletDone = qtrue;
+
+						if (g_showbullettrace->integer) {
+							bThroughThing = qtrue;
+						}
+						break;
+					}
+
+					if (g_showbullettrace->integer) {
+						G_DebugLine(tracethrough.endpos + Vector(8, 0, 0), tracethrough.endpos - Vector(8, 0, 0), 0.5f, 0.5f, 1.f, 1.f);
+						G_DebugLine(tracethrough.endpos + Vector(0, 8, 0), tracethrough.endpos - Vector(0, 8, 0), 0.5f, 0.5f, 1.f, 1.f);
+						G_DebugLine(tracethrough.endpos + Vector(0, 0, 8), tracethrough.endpos - Vector(0, 0, 8), 0.5f, 0.5f, 1.f, 1.f);
+					}
+				}
+
+				if (trace.ent)
+				{
+					ent = trace.ent->entity;
 				}
 				else
 				{
 					ent = NULL;
 				}
 
-				if( trace.fraction < 1.0f )
+				if (ent && ent != world && ent != newowner)
 				{
-					if( trace.surfaceFlags & ( SURF_SNOW | SURF_FOLIAGE | SURF_GLASS | SURF_PUDDLE | SURF_PAPER ) ||
-						trace.contents & ( CONTENTS_NOTTEAM1 | CONTENTS_WATER ) ||
-						trace.startsolid ||
-						( bLargeBullet && trace.ent && !trace.ent->r.bmodel && trace.ent->entity->takedamage ))
+					if (ent->takedamage)
 					{
-						if( iContinueCount <= 4 )
-						{
-							vTraceEnd = vDir + trace.endpos;
+						if (g_gametype->integer == GT_SINGLE_PLAYER && !iNumHit) {
+							BulletAttack_Stat(newowner, ent, &trace, weap);
+						}
 
-							if( g_showbullettrace->integer )
+						iNumHit++;
+
+						// Get the original value of the victims health or water
+
+						original_value = ent->health;
+
+						ent->Damage(
+							world,
+							newowner,
+							newdamage,
+							trace.endpos,
+							dir,
+							trace.plane.normal,
+							knockback,
+							dflags,
+							meansofdeath,
+							trace.location
+						);
+
+						// Get the new value of the victims health or water
+
+						damage_total += original_value - ent->health;
+					}
+
+					if (ent->edict->solid == SOLID_BBOX && !(trace.contents & CONTENTS_CLAYPIDGEON))
+					{
+						if (trace.surfaceFlags & MASK_SURF_TYPE)
+						{
+							gi.SetBroadcastVisible(vTmpEnd, NULL);
+							gi.MSG_StartCGM(CGM_BULLET_6);
+                            gi.MSG_WriteCoord(vTmpEnd[0]);
+                            gi.MSG_WriteCoord(vTmpEnd[1]);
+                            gi.MSG_WriteCoord(vTmpEnd[2]);
+							gi.MSG_WriteDir(trace.plane.normal);
+							gi.MSG_WriteBits(bulletlarge, bulletbits);
+							gi.MSG_EndCGM();
+						}
+						else if (trace.location >= 0 && ent->IsSubclassOfPlayer())
+						{
+							gi.SetBroadcastVisible(vTmpEnd, NULL);
+                            gi.MSG_StartCGM(CGM_BULLET_8);
+                            gi.MSG_WriteCoord(vTmpEnd[0]);
+                            gi.MSG_WriteCoord(vTmpEnd[1]);
+                            gi.MSG_WriteCoord(vTmpEnd[2]);
+							gi.MSG_WriteDir(trace.plane.normal);
+							gi.MSG_WriteBits(bulletlarge, bulletbits);
+							gi.MSG_EndCGM();
+						}
+						else if (ent->edict->r.contents & CONTENTS_SOLID)
+						{
+							gi.SetBroadcastVisible(vTmpEnd, NULL);
+                            gi.MSG_StartCGM(CGM_BULLET_7);
+                            gi.MSG_WriteCoord(vTmpEnd[0]);
+                            gi.MSG_WriteCoord(vTmpEnd[1]);
+                            gi.MSG_WriteCoord(vTmpEnd[2]);
+							gi.MSG_WriteDir(trace.plane.normal);
+							gi.MSG_WriteBits(bulletlarge, bulletbits);
+							gi.MSG_EndCGM();
+						}
+					}
+					else if (ent->edict->solid == SOLID_BSP && !(trace.contents & CONTENTS_CLAYPIDGEON))
+					{
+						gi.SetBroadcastVisible(vTmpEnd, NULL);
+                        gi.MSG_StartCGM(CGM_BULLET_6);
+                        gi.MSG_WriteCoord(vTmpEnd[0]);
+                        gi.MSG_WriteCoord(vTmpEnd[1]);
+                        gi.MSG_WriteCoord(vTmpEnd[2]);
+						gi.MSG_WriteDir(trace.plane.normal);
+						gi.MSG_WriteBits(bulletlarge, bulletbits);
+						gi.MSG_EndCGM();
+					}
+				}
+
+				if (trace.fraction < 1.0f)
+				{
+					if (trace.surfaceFlags & (SURF_FOLIAGE | SURF_GLASS | SURF_PUDDLE | SURF_PAPER) ||
+						trace.contents & (CONTENTS_CLAYPIDGEON | CONTENTS_WATER) ||
+						(bulletlarge
+							&& trace.ent
+							&& trace.ent->r.contents & CONTENTS_BBOX
+							&& !trace.ent->r.bmodel
+							&& trace.ent->entity->takedamage)
+						|| ((trace.surfaceFlags & SURF_WOOD) && bulletthroughwood)
+						|| ((trace.surfaceFlags & (SURF_GRILL|SURF_METAL)) && bulletthroughmetal)
+						&& iContinueCount < 5)
+                    {
+						if (((trace.surfaceFlags & SURF_WOOD) && bulletthroughwood)
+							|| ((trace.surfaceFlags & (SURF_GRILL | SURF_METAL)) && bulletthroughmetal))
+						{
+							if (trace.contents & CONTENTS_FENCE)
 							{
-								G_DebugLine( start, vTraceEnd, 1, 1, 1, 1 );
+								float damageMultiplier;
+
+								if (lastSurfaceFlags & SURF_WOOD) {
+									damageMultiplier = 1.f / bulletthroughwood;
+								} else {
+									damageMultiplier = 1.f / bulletthroughmetal;
+								}
+
+								newdamage -= damageMultiplier * 2 * damage;
+
+								if (newdamage < 0)
+								{
+									trace.fraction = 1;
+									bBulletDone = qtrue;
+
+									if (g_showbullettrace->integer) {
+										bThroughThing = qtrue;
+										VectorScale(vDir, 2, tracethrough.endpos);
+										VectorAdd(tracethrough.endpos, vTmpEnd, tracethrough.endpos);
+									}
+								}
+								else
+								{
+									trace.fraction = 1.f;
+									bBulletDone = qtrue;
+
+									if (g_showbullettrace->integer)
+									{
+										bThroughThing = qtrue;
+										VectorScale(vDir, 2, tracethrough.endpos);
+										VectorAdd(tracethrough.endpos, vTmpEnd, tracethrough.endpos);
+									}
+								}
+							}
+							else
+							{
+								bThroughThing = qtrue;
+								lastSurfaceFlags = trace.surfaceFlags;
+							}
+						}
+
+						if (!bBulletDone)
+						{
+							vTraceStart = vTmpEnd + vDir * 4;
+
+							if (trace.ent) {
+								newowner = trace.ent->entity;
+							} else {
+								newowner = NULL;
+							}
+
+							if (g_showbullettrace->integer) {
+								G_DebugLine(vTmpEnd + Vector(8, 0, 0), vTmpEnd - Vector(8, 0, 0), 1, 0.5f, 0.5f, 1.f);
+								G_DebugLine(vTmpEnd + Vector(0, 8, 0), vTmpEnd - Vector(0, 8, 0), 1, 0.5f, 0.5f, 1.f);
+								G_DebugLine(vTmpEnd + Vector(0, 0, 8), vTmpEnd - Vector(0, 0, 8), 1, 0.5f, 0.5f, 1.f);
 							}
 
 							iContinueCount++;
-							continue;
 						}
 					}
-				}
-
-				trace.fraction = 1.0f;
-				bBulletDone = qtrue;
-			}
-
-			if (ent && ent != world && ent != owner)
-			{
-				if (ent->takedamage)
-				{
-					if (g_gametype->integer == GT_SINGLE_PLAYER && !iNumHit) {
-						BulletAttack_Stat(owner, ent, &trace, weap);
+					else
+					{
+						trace.fraction = 1.f;
+						bBulletDone = qtrue;
 					}
 
-					iNumHit++;
-
-					/* if ( !ent->deadflag )
-					damage_total += damage;
-
-					if ( ent->IsSubclassOfSentient() )
-					{
-					Sentient *sent = (Sentient *)ent;
-
-					if ( sent->Immune( meansofdeath ) )
-					damage_total = 0;
-					} */
-
-					// Get the original value of the victims health or water
-
-					original_value = ent->health;
-
-					ent->Damage(NULL,
-						owner,
-						damage,
-						trace.endpos,
-						dir,
-						trace.plane.normal,
-						knockback,
-						dflags,
-						meansofdeath,
-						trace.location);
-
-					// Get the new value of the victims health or water
-
-					damage_total += original_value - ent->health;
-				}
-
-				if (ent->edict->solid == SOLID_BBOX && !(trace.contents & CONTENTS_CLAYPIDGEON)) {
-                    if (trace.contents > 0 && trace.surfaceFlags & 0xFFFE000)
-                    {
-                        gi.SetBroadcastVisible(trace.endpos, NULL);
-                        gi.MSG_StartCGM(CGM_BULLET_6);
-                        gi.MSG_WriteCoord(trace.endpos[0]);
-                        gi.MSG_WriteCoord(trace.endpos[1]);
-                        gi.MSG_WriteCoord(trace.endpos[2]);
-                        gi.MSG_WriteDir(trace.plane.normal);
-                        gi.MSG_WriteBits(bLargeBullet, 1);
-                        gi.MSG_EndCGM();
-                    }
-                    else if (trace.location >= 0 && ent->IsSubclassOfPlayer())
-                    {
-                        gi.SetBroadcastVisible(trace.endpos, NULL);
-                        gi.MSG_StartCGM(CGM_BULLET_8);
-                        gi.MSG_WriteCoord(trace.endpos[0]);
-                        gi.MSG_WriteCoord(trace.endpos[1]);
-                        gi.MSG_WriteCoord(trace.endpos[2]);
-                        gi.MSG_WriteDir(trace.plane.normal);
-                        gi.MSG_WriteBits(bLargeBullet, 1);
-                        gi.MSG_EndCGM();
-                    }
-                    else if (ent->edict->r.contents & CONTENTS_SOLID)
-					{
-                        gi.SetBroadcastVisible(trace.endpos, NULL);
-                        gi.MSG_StartCGM(CGM_BULLET_7);
-                        gi.MSG_WriteCoord(trace.endpos[0]);
-                        gi.MSG_WriteCoord(trace.endpos[1]);
-                        gi.MSG_WriteCoord(trace.endpos[2]);
-                        gi.MSG_WriteDir(trace.plane.normal);
-                        gi.MSG_WriteBits(bLargeBullet, 1);
-                        gi.MSG_EndCGM();
+					if (oldfrac != trace.fraction) {
+						oldfrac = trace.fraction;
+					} else {
+						trace.fraction = 1.f;
 					}
-				} else if (ent->edict->solid == SOLID_BSP && !(trace.contents & CONTENTS_CLAYPIDGEON)) {
-                    gi.SetBroadcastVisible(trace.endpos, NULL);
-                    gi.MSG_StartCGM(CGM_BULLET_6);
-                    gi.MSG_WriteCoord(trace.endpos[0]);
-                    gi.MSG_WriteCoord(trace.endpos[1]);
-                    gi.MSG_WriteCoord(trace.endpos[2]);
-                    gi.MSG_WriteDir(trace.plane.normal);
-                    gi.MSG_WriteBits(bLargeBullet, 1);
-                    gi.MSG_EndCGM();
 				}
 			}
 		}
 
-		VectorCopy( vTraceEnd, vEndArray[ i ] );
+        if (bBulletDone && g_showbullettrace->integer && bThroughThing) {
+            G_DebugLine(tracethrough.endpos + Vector(8, 0, 0), tracethrough.endpos - Vector(8, 0, 0), 0.25f, 0.25f, 0.5f, 1.f);
+            G_DebugLine(tracethrough.endpos + Vector(0, 8, 0), tracethrough.endpos - Vector(0, 8, 0), 0.25f, 0.25f, 0.5f, 1.f);
+            G_DebugLine(tracethrough.endpos + Vector(0, 0, 8), tracethrough.endpos - Vector(0, 0, 8), 0.25f, 0.25f, 0.5f, 1.f);
+        }
 
-		if( iTracerFrequency && piTracerCount )
+		VectorCopy(vTraceEnd, vEndArray[i]);
+
+		if (iTracerFrequency && piTracerCount)
 		{
-			( *piTracerCount )++;
+			(*piTracerCount)++;
 
-			if( *piTracerCount == iTracerFrequency )
+			if (*piTracerCount == iTracerFrequency)
 			{
 				iTracerCount++;
 				*piTracerCount = 0;
@@ -2474,24 +2645,26 @@ float BulletAttack
 		}
 
 		// Draw a debug trace line to show bullet fire  
-		if ( g_showbullettrace->integer )
-			G_DebugLine( start, vTraceEnd, 1, 1, 1, 1 );
-	}
-
-	if( !g_gametype->integer )
-	{
-		if( weap )
-		{
-			weap->m_iNumShotsFired++;
-			if( owner && owner->IsSubclassOfPlayer() && weap->IsSubclassOfTurretGun() )
-			{
-				Player *p = ( Player * )owner;
-				p->m_iNumShotsFired++;
-			}
+		if (g_showbullettrace->integer) {
+			G_DebugLine(start, vTmpEnd, 1, 1, 1, 1);
+			G_DebugLine(vTmpEnd + Vector(8, 0, 0), vTmpEnd - Vector(8, 0, 0), 0.5f, 0.25f, 0.25f, 1.f);
+			G_DebugLine(vTmpEnd + Vector(0, 8, 0), vTmpEnd - Vector(0, 8, 0), 0.5f, 0.25f, 0.25f, 1.f);
+			G_DebugLine(vTmpEnd + Vector(0, 0, 8), vTmpEnd - Vector(0, 0, 8), 0.5f, 0.25f, 0.25f, 1.f);
+			G_DebugLine(vTmpEnd, vTraceEnd, 0.4f, 0.4f, 0.4f, 1.f);
 		}
 	}
 
-	gi.SetBroadcastVisible( start, trace.endpos );
+	if(g_gametype->integer == GT_SINGLE_PLAYER && weap)
+    {
+        weap->m_iNumShotsFired++;
+        if (owner && owner->IsSubclassOfPlayer() && weap->IsSubclassOfTurretGun())
+        {
+            Player* p = (Player*)owner;
+            p->m_iNumShotsFired++;
+        }
+	}
+
+    gi.SetBroadcastVisible(start, trace.endpos);
 
 	if( count == 1 )
 	{
@@ -2514,7 +2687,16 @@ float BulletAttack
 		gi.MSG_WriteCoord( trace.endpos[ 0 ] );
 		gi.MSG_WriteCoord( trace.endpos[ 1 ] );
 		gi.MSG_WriteCoord( trace.endpos[ 2 ] );
-		gi.MSG_WriteBits( bLargeBullet, 1 );
+		gi.MSG_WriteBits( bulletlarge, bulletbits );
+
+		if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+			if (tracerspeed == 1.f) {
+				gi.MSG_WriteBits(0, 1);
+			} else {
+				gi.MSG_WriteBits(1, 1);
+				gi.MSG_WriteBits(Q_clamp(tracerspeed, 1, 1023), 10);
+			}
+		}
 	}
 	else
 	{
@@ -2526,10 +2708,11 @@ float BulletAttack
 			gi.MSG_WriteCoord( vBarrel[ 1 ] );
 			gi.MSG_WriteCoord( vBarrel[ 2 ] );
 
-			if( iTracerCount > 63 )
+			if (iTracerCount > 63) {
 				iTracerCount = 63;
+			}
 
-			gi.MSG_WriteBits( iTracerCount, 6 );
+			gi.MSG_WriteBits( Q_min(iTracerCount, 63), 6);
 		}
 		else
 		{
@@ -2539,7 +2722,17 @@ float BulletAttack
 		gi.MSG_WriteCoord( start[ 0 ] );
 		gi.MSG_WriteCoord( start[ 1 ] );
 		gi.MSG_WriteCoord( start[ 2 ] );
-		gi.MSG_WriteBits( bLargeBullet, 1 );
+        gi.MSG_WriteBits(bulletlarge, bulletbits);
+
+        if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+            if (tracerspeed == 1.f) {
+                gi.MSG_WriteBits(0, 1);
+            } else {
+                gi.MSG_WriteBits(1, 1);
+                gi.MSG_WriteBits(Q_clamp(tracerspeed, 1, 1023), 10);
+            }
+        }
+
 		gi.MSG_WriteBits( count, 6 );
 
 		for( int i = count; i > 0; i-- )
@@ -2576,52 +2769,72 @@ void FakeBulletAttack
 	float     tracerspeed
 	)
 {
-	Vector vDir;
-	Vector vTraceEnd;
-	int i;
-	qboolean bLargeBullet = damage >= 41.0f;
+    Vector vDir;
+    Vector vTraceEnd;
+    int i;
+    int bulletbits;
 
-	for( i = 0; i < count; i++ )
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN)
 	{
-		vTraceEnd = start + ( dir * range ) +
-			( right	* grandom() * spread.x ) +
-			( up	* grandom() * spread.y );
+        bulletbits = 2;
+    }
+    else
+	{
+        large = damage >= 41.f;
+        bulletbits = 1;
+    }
 
-		vDir = vTraceEnd - start;
-		VectorNormalize( vDir );
-		vTraceEnd = start + vDir * 9216.0f;
+    for (i = 0; i < count; i++)
+    {
+        vTraceEnd = start + (dir * range) +
+            (right * grandom() * spread.x) +
+            (up * grandom() * spread.y);
 
-		gi.SetBroadcastVisible( start, vTraceEnd );
-		if( iTracerFrequency && piTracerCount )
-		{
-			( *piTracerCount )++;
-			if( *piTracerCount == iTracerFrequency )
-			{
-				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_NO_BARREL_1));
-					gi.MSG_WriteCoord( vBarrel[ 0 ] );
-					gi.MSG_WriteCoord( vBarrel[ 1 ] );
-					gi.MSG_WriteCoord( vBarrel[ 2 ] );
-				*piTracerCount = 0;
-			}
-			else
-			{
-				gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_NO_BARREL_2));
-			}
-		}
-		else
-		{
-			gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_NO_BARREL_2));
-		}
+        vDir = vTraceEnd - start;
+        VectorNormalize(vDir);
+        vTraceEnd = start + vDir * 9216.0f;
 
-		gi.MSG_WriteCoord( start[ 0 ] );
-		gi.MSG_WriteCoord( start[ 1 ] );
-		gi.MSG_WriteCoord( start[ 2 ] );
-		gi.MSG_WriteCoord( vTraceEnd[ 0 ] );
-		gi.MSG_WriteCoord( vTraceEnd[ 1 ] );
-		gi.MSG_WriteCoord( vTraceEnd[ 2 ] );
-		gi.MSG_WriteBits( bLargeBullet, 1 );
-		gi.MSG_EndCGM();
-	}
+        gi.SetBroadcastVisible(start, vTraceEnd);
+        if (iTracerFrequency && piTracerCount)
+        {
+            (*piTracerCount)++;
+            if (*piTracerCount == iTracerFrequency)
+            {
+                gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_NO_BARREL_1));
+                gi.MSG_WriteCoord(vBarrel[0]);
+                gi.MSG_WriteCoord(vBarrel[1]);
+                gi.MSG_WriteCoord(vBarrel[2]);
+                *piTracerCount = 0;
+            }
+            else
+            {
+                gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_NO_BARREL_2));
+            }
+        }
+        else
+        {
+            gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_NO_BARREL_2));
+        }
+
+        gi.MSG_WriteCoord(start[0]);
+        gi.MSG_WriteCoord(start[1]);
+        gi.MSG_WriteCoord(start[2]);
+        gi.MSG_WriteCoord(vTraceEnd[0]);
+        gi.MSG_WriteCoord(vTraceEnd[1]);
+        gi.MSG_WriteCoord(vTraceEnd[2]);
+        gi.MSG_WriteBits(large, bulletbits);
+
+        if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+            if (tracerspeed == 1.f) {
+                gi.MSG_WriteBits(0, 1);
+            } else {
+                gi.MSG_WriteBits(1, 1);
+                gi.MSG_WriteBits(Q_clamp(tracerspeed, 1, 1023), 10);
+            }
+        }
+
+        gi.MSG_EndCGM();
+    }
 }
 
 void ClickItemAttack
