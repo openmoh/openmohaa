@@ -1620,7 +1620,7 @@ typedef enum
 #define	MAX_SOUNDS			512		// so they cannot be blindly increased
 #define MAX_OBJECTIVES		20
 #define MAX_LIGHTSTYLES		32
-#define MAX_WEAPONS			48
+#define MAX_WEAPONS			64
 
 #define	MAX_CONFIGSTRINGS	2736
 #define MAX_HUDDRAW_ELEMENTS 256
