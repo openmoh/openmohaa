@@ -95,40 +95,6 @@ static Entity *FindClosestEntityInRadius
    return bestent;
    }
 
-//====================
-//AdjustAnglesForAttack 
-//Adjust the player angles toward an enemy if they are attacking it
-//====================
-void Player::AdjustAnglesForAttack
-   (
-   void
-   )
-
-   {
-   /*
-   Vector dir;
-   Vector newAngles;
-   Vector moveToAngles;
-
-   if ( FindEnemyInFOV( 180, 1000 ) ) 
-      {
-      G_DrawCoordSystem( origin, dir,dir,dir,100 );
-
-      if ( buttons & ( BUTTON_ATTACKRIGHT|BUTTON_ATTACKLEFT ) )
-         {
-         // Adjust for a percentage of the total
-         float deltayaw = AngleSubtract( dir.toYaw(), v_angle[YAW] );
-
-         if ( fabs( deltayaw ) > 5 )
-            {
-            v_angle[YAW] += deltayaw * 0.1f;
-     		   client->ps.delta_angles[YAW] += ANGLE2SHORT( deltayaw * 0.1f );
-            }
-         }
-      }
-      */
-   }
-
 
 //====================
 //useWeapon
@@ -213,14 +179,6 @@ void Player::useWeapon
 	// trigger when to attach it to the player model.
 	newActiveWeapon.weapon = weapon;
 	newActiveWeapon.hand = hand;
-}
-
-void Player::AcquireHeadTarget
-   (
-   void
-   )
-{
-
 }
 
 Vector Player::GunTarget(bool bNoCollision)

@@ -3443,13 +3443,13 @@ void Player::StartPush(void)
     setOrigin(trace.endpos - yaw_forward * 0.4f);
 }
 
-void Player::StartClimbWall(void)
+void Player::StartClimbLadder(void)
 
 {
     trace_t trace;
     Vector  end(origin + yaw_forward * 20.0f);
 
-    trace = G_Trace(origin, mins, maxs, end, this, MASK_SOLID, true, "StartClimbWall");
+    trace = G_Trace(origin, mins, maxs, end, this, MASK_SOLID, true, "StartClimbLadder");
     if ((trace.fraction == 1.0f) || !(trace.surfaceFlags & SURF_LADDER)) {
         return;
     }
@@ -6180,6 +6180,11 @@ void Player::JumpXY(Event *ev)
     client->ps.walking = qfalse;
 }
 
+Vector Player::GetViewAngles(void)
+{
+    return v_angle;
+}
+
 void Player::SetViewAngles(Vector newViewangles)
 {
     // set the delta angle
@@ -6197,9 +6202,9 @@ void Player::SetViewAngles(Vector newViewangles)
     yaw_left    = orientation[1];
 }
 
-Vector Player::GetViewAngles(void)
+void Player::SetTargetViewAngles(Vector angles)
 {
-    return v_angle;
+    v_angle = angles;
 }
 
 void Player::DumpState(Event *ev)
@@ -7964,10 +7969,6 @@ void Player::SetMouthAngle(Event *ev)
     }
 }
 
-void Player::WeaponsNotHolstered(void) {}
-
-void Player::WeaponsHolstered(void) {}
-
 int Player::GetMoveResult(void)
 {
     return moveresult;
@@ -8816,21 +8817,6 @@ void Player::VisionSetNaked(Event *ev)
     m_sVision = vision;
 
     gi.SendServerCommand(edict - g_entities, "vsn %s %f %f", vision.c_str(), fade_time, phase);
-}
-
-void Player::CheckReloadWeapons(void)
-{
-    Weapon *weap;
-
-    weap = GetActiveWeapon(WEAPON_OFFHAND);
-    if (weap) {
-        weap->CheckReload(FIRE_PRIMARY);
-    }
-
-    weap = GetActiveWeapon(WEAPON_MAIN);
-    if (weap) {
-        weap->CheckReload(FIRE_PRIMARY);
-    }
 }
 
 int Player::GetNumKills(void) const
