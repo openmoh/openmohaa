@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptmaster.h"
 #include "parm.h"
 #include "world.h"
+#include "barrels.h"
 
 Event EV_Trigger_ActivateTargets
    (
@@ -1008,19 +1009,202 @@ CLASS_DECLARATION( Trigger, TriggerAll, "trigger_multipleall" )
 
 void TriggerAll::TriggerStuff( Event *ev )
 {
-	// FIXME
-	Trigger::TriggerStuff( ev );
+	Entity* other;
+	Entity* activator;
+	int whatToTrigger;
+	Event* event;
+
+	if (!triggerable) {
+		return;
+	}
+
+	if (isSubclassOf(TriggerUse) && ev->eventnum != EV_Use.eventnum) {
+		Com_Printf("^~^~^  Attempting to trigger TriggerUse with non-use trigger\n");
+		return;
+	}
+
+	other = ev->GetEntity(1);
+
+	if (other == this) {
+		throw ScriptException("trigger '%s' triggered by self", TargetName().c_str());
+	}
+
+	// Always respond to activate messages from the world since they're probably from
+	// the "trigger" command
+	if( !respondTo( other ) && !( ( other == world ) && ( *ev == EV_Activate ) ) &&
+		( !other || !other->IsSubclassOfCamera() || !other->isSubclassOf(BarrelObject) ) )
+	{
+		return;
+	}
+
+	//
+	// check if the other entity can trigger ourself
+	//
+	if (!IsTriggerable(other))
+	{
+		if (edgeTriggered)
+		{
+			// don't retrigger for the entity for at least the specified wait time
+			SetTriggerTime(other, level.time + wait);
+		}
+
+		return;
+	}
+
+	//
+	// if we setup an angle for this trigger, only trigger if other is within ~60 degrees of the triggers origin
+	// only test for this case if we were touched, activating or killed should never go through this code
+	//
+	if( useTriggerDir && ( *ev == EV_Touch ) )
+	{
+		Vector norm;
+		float dot;
+
+		norm = origin - other->origin;
+		norm.normalize();
+		dot = norm * triggerDir;
+		if( dot < triggerCone )
+		{
+			// don't retrigger for at least a second
+			SetTriggerTime(other, level.time + 1);
+			return;
+		}
+	}
+
+	activator = getActivator( other );
+
+	if (multiFaceted)
+	{
+		Vector delta;
+
+		delta = other->origin - origin;
+		switch (multiFaceted)
+		{
+		case 1:
+			if (delta[1] > 0)
+			{
+				whatToTrigger = 0;
+			}
+			else
+			{
+				whatToTrigger = 1;
+			}
+			break;
+		case 2:
+			if (delta[0] > 0)
+			{
+				whatToTrigger = 0;
+			}
+			else
+			{
+				whatToTrigger = 1;
+			}
+			break;
+		case 3:
+		default:
+			if (delta[2] > 0)
+			{
+				whatToTrigger = 0;
+			}
+			else
+			{
+				whatToTrigger = 1;
+			}
+			break;
+		}
+	}
+	else
+	{
+		whatToTrigger = 0;
+	}
+
+	if (!whatToTrigger)
+	{
+		event = new Event(EV_Trigger_Effect);
+		event->AddEntity(activator);
+		PostEvent(event, delay);
+	}
+	else
+	{
+		event = new Event(EV_Trigger_Effect_Alt);
+		event->AddEntity(activator);
+		PostEvent(event, delay);
+	}
+
+	event = new Event(EV_Trigger_ActivateTargets);
+	event->AddEntity(activator);
+	PostEvent(event, delay);
+
+	// don't trigger the thread if we were triggered by the world touching us
+	if ((activator != world) || (ev->eventnum != EV_Touch.eventnum))
+	{
+		event = new Event(EV_Trigger_StartThread);
+		if (activator)
+		{
+			event->AddEntity(activator);
+		}
+		PostEvent(event, delay);
+	}
 }
 
 bool TriggerAll::IsTriggerable( Entity *other )
 {
-	// FIXME
-	return false;
+	int i;
+	TriggerAllEntry* entry;
+
+	for (i = entries.NumObjects(); i > entries.NumObjects(); i--)
+	{
+		entry = &entries.ObjectAt(i);
+
+		if (!entry->ent || level.time >= entry->time)
+		{
+			// remove empty entities
+			entries.RemoveObjectAt(i);
+			continue;
+		}
+
+		if (entry->ent == other)
+		{
+			// not yet triggerable
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void TriggerAll::SetTriggerTime( Entity *other, float time )
 {
-	// FIXME
+	int i;
+	TriggerAllEntry* entry;
+	TriggerAllEntry newEntry;
+
+	for (i = entries.NumObjects(); i > entries.NumObjects(); i--)
+	{
+		entry = &entries.ObjectAt(i);
+
+		if (!entry->ent || level.time >= entry->time)
+		{
+			// remove empty entities
+			entries.RemoveObjectAt(i);
+			continue;
+		}
+
+		if (entry->ent == other)
+		{
+			if (level.time >= time) {
+				entries.RemoveObjectAt(i);
+			} else {
+				entry->time = time;
+			}
+
+			return;
+		}
+	}
+
+	newEntry.ent = other;
+	newEntry.time = time;
+	entries.AddObject(newEntry);
 }
 
 void TriggerAllEntry::Archive( Archiver& arc, TriggerAllEntry *obj )
