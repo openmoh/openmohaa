@@ -38,11 +38,9 @@ extern Event EV_Trigger_SetDelay;
 extern Event EV_Trigger_SetCount;
 extern Event EV_Trigger_SetMessage;
 extern Event EV_Trigger_SetNoise;
-extern Event EV_Trigger_SetKey;
 extern Event EV_Trigger_SetThread;
 extern Event EV_Trigger_Effect;
 extern Event EV_Trigger_StartThread;
-extern Event EV_Trigger_SetKey;
 extern Event EV_Trigger_SetTriggerable;
 extern Event EV_Trigger_SetNotTriggerable;
 
@@ -60,7 +58,6 @@ protected:
     int               count;
     str               noise;
     str               message;
-    str               key;
     ScriptThreadLabel label;
     EntityPtr         activator;
     int               respondto;
@@ -90,8 +87,6 @@ public:
     void EventSetWait(Event *ev);
     void EventSetDelay(Event *ev);
     void EventSetCount(Event *ev);
-    void EventSetKey(Event *ev);
-    void EventSetHealth(Event *ev);
     void EventSetThread(Event *ev);
     void SetTriggerDir(Event *ev);
     void SetTriggerable(Event *ev);
@@ -138,7 +133,6 @@ inline void Trigger::Archive(Archiver& arc)
         SetNoise(noise.c_str());
     }
     arc.ArchiveString(&message);
-    arc.ArchiveString(&key);
     arc.ArchiveSafePointer(&activator);
     arc.ArchiveInteger(&respondto);
     arc.ArchiveBoolean(&useTriggerDir);

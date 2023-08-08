@@ -965,12 +965,7 @@ qboolean	Door::CanBeOpenedBy
 		return master->CanBeOpenedBy( ent );
 		}
 
-	if ( !locked && !key.length() )
-		{
-		return true;
-		}
-
-	if ( ent && ent->isSubclassOf( Sentient ) && ( ( Sentient * )ent )->HasItem( key.c_str() ) )
+	if ( !locked )
 		{
 		return true;
 		}
@@ -1036,29 +1031,8 @@ void Door::TryOpen
 
    if ( !CanBeOpenedBy( other ) )
 		{
-      Item        *item;
-      ClassDef		*cls;
-
-		if ( other->isClient() )
-			{
-			cls = getClass( key.c_str() );
-			if ( !cls )
-				{
-            gi.DPrintf( "No item named '%s'\n", key.c_str() );
-				return;
-				}
-			item = ( Item * )cls->newInstance();
-			item->CancelEventsOfType( EV_Item_DropToFloor );
-			item->CancelEventsOfType( EV_Remove );
-			item->ProcessPendingEvents();
-         gi.centerprintf ( other->edict, "You need the %s", item->getName().c_str() );
-			delete item;
-			}
       return;
       }
-
-	// once we're opened by an item, we no longer need that item to open the door
-	key = "";
 
 	if ( Message().length() )
 		{

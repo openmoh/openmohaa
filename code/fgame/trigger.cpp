@@ -144,15 +144,6 @@ Event EV_Trigger_StartThread
     "Start the trigger thread.",
     EV_NORMAL
 );
-Event EV_Trigger_SetKey
-(
-    "key",
-    EV_DEFAULT,
-    "s",
-    "key",
-    "Set the object needed by the sentient to activate this trigger",
-    EV_NORMAL
-);
 Event EV_Trigger_SetTriggerable
 (
     "triggerable",
@@ -248,12 +239,10 @@ CLASS_DECLARATION(Animate, Trigger, "trigger_multiple") {
     {&EV_Trigger_SetNoise,          &Trigger::EventSetNoise    },
     {&EV_Trigger_SetSound,          &Trigger::EventSetNoise    },
     {&EV_Trigger_SetThread,         &Trigger::EventSetThread   },
-    {&EV_SetHealth,                 &Trigger::EventSetHealth   },
     {&EV_Touch,                     &Trigger::TriggerStuff     },
     {&EV_Killed,                    &Trigger::TriggerStuff     },
     {&EV_Activate,                  &Trigger::TriggerStuff     },
     {&EV_Trigger_ActivateTargets,   &Trigger::ActivateTargets  },
-    {&EV_Trigger_SetKey,            &Trigger::EventSetKey      },
     {&EV_Trigger_StartThread,       &Trigger::StartThread      },
     {&EV_Model,                     &Trigger::SetModelEvent    },
     {&EV_SetAngle,                  &Trigger::SetTriggerDir    },
@@ -453,39 +442,6 @@ void Trigger::TriggerStuff(Event *ev)
 
     activator = getActivator(other);
 
-    if (key.length()) {
-        if (!activator->isSubclassOf(Sentient)) {
-            return;
-        }
-        if (!(((Sentient *)activator)->HasItem(key.c_str()))) {
-            qboolean  setModel;
-            Item     *item;
-            ClassDef *cls;
-            str       dialog;
-
-            cls = FindClass(key.c_str(), &setModel);
-            if (!cls || !checkInheritance("Item", cls->classname)) {
-                gi.DPrintf("No item named '%s'\n", key.c_str());
-                return;
-            }
-            item = (Item *)cls->newInstance();
-            if (setModel) {
-                item->setModel(key.c_str());
-            }
-            item->CancelEventsOfType(EV_Item_DropToFloor);
-            item->CancelEventsOfType(EV_Remove);
-            item->ProcessPendingEvents();
-            dialog = item->GetDialogNeeded();
-            if (dialog.length() > 1) {
-                activator->Sound(dialog);
-            } else {
-                gi.centerprintf(activator->edict, "You need the %s", item->getName().c_str());
-            }
-            delete item;
-            return;
-        }
-    }
-
     if (multiFaceted) {
         Vector delta;
 
@@ -665,12 +621,6 @@ void Trigger::EventSetDelay(Event *ev)
     delay = ev->GetFloat(1);
 }
 
-void Trigger::EventSetKey(Event *ev)
-
-{
-    key = ev->GetString(1);
-}
-
 void Trigger::EventSetThread(Event *ev)
 {
     if (ev->IsFromScript()) {
@@ -679,20 +629,6 @@ void Trigger::EventSetThread(Event *ev)
         label.Set(ev->GetString(1));
     }
 }
-
-void Trigger::EventSetHealth(Event *ev)
-{
-    health     = ev->GetFloat(1);
-    max_health = health;
-    if (health) {
-        takedamage = DAMAGE_YES;
-        setSolidType(SOLID_BBOX);
-    } else {
-        setMoveType(MOVETYPE_NONE);
-        setSolidType(SOLID_TRIGGER);
-    }
-}
-
 void Trigger::EventSetCount(Event *ev)
 
 {
