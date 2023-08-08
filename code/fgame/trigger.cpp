@@ -45,176 +45,170 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "barrels.h"
 
 Event EV_Trigger_ActivateTargets
-   (
-   "activatetrigger",
-	EV_DEFAULT,
-   "e",
-   "triggering_entity",
-   "Activates all of the targets for this trigger.",
-	EV_NORMAL
-   );
+(
+    "activatetrigger",
+    EV_DEFAULT,
+    "e",
+    "triggering_entity",
+    "Activates all of the targets for this trigger.",
+    EV_NORMAL
+);
 Event EV_Trigger_SetWait
-   (
-   "wait",
-   EV_DEFAULT,
-   "f",
-   "wait_time",
-   "Set the wait time (time bewteen triggerings) for this trigger",
-	EV_NORMAL
-   );
+(
+    "wait",
+    EV_DEFAULT,
+    "f",
+    "wait_time",
+    "Set the wait time (time bewteen triggerings) for this trigger",
+    EV_NORMAL
+);
 Event EV_Trigger_SetDelay
-   (
-   "delay",
-   EV_DEFAULT,
-   "f",
-   "delay_time",
-   "Set the delay time (time between triggering and firing) for this trigger",
-	EV_NORMAL
-   );
+(
+    "delay",
+    EV_DEFAULT,
+    "f",
+    "delay_time",
+    "Set the delay time (time between triggering and firing) for this trigger",
+    EV_NORMAL
+);
 Event EV_Trigger_SetCount
-   (
-   "cnt",
-   EV_DEFAULT,
-   "i",
-   "count",
-   "Set the amount of times this trigger can be triggered",
-	EV_NORMAL
-   );
+(
+    "cnt",
+    EV_DEFAULT,
+    "i",
+    "count",
+    "Set the amount of times this trigger can be triggered",
+    EV_NORMAL
+);
 Event EV_Trigger_SetMessage
-   (
-   "message",
-   EV_DEFAULT,
-   "s",
-   "message",
-   "Set a message to be displayed when this trigger is activated",
-	EV_NORMAL
-   );
+(
+    "message",
+    EV_DEFAULT,
+    "s",
+    "message",
+    "Set a message to be displayed when this trigger is activated",
+    EV_NORMAL
+);
 Event EV_Trigger_SetNoise
-   (
-   "noise",
-   EV_DEFAULT,
-   "s",
-   "sound",
-   "Set the sound to play when this trigger is activated",
-	EV_NORMAL
-   );
+(
+    "noise",
+    EV_DEFAULT,
+    "s",
+    "sound",
+    "Set the sound to play when this trigger is activated",
+    EV_NORMAL
+);
 Event EV_Trigger_SetSound
-   (
-   "sound",
-   EV_DEFAULT,
-   "s",
-   "sound",
-   "Set the sound to play when this trigger is activated",
-	EV_NORMAL
-   );
+(
+    "sound",
+    EV_DEFAULT,
+    "s",
+    "sound",
+    "Set the sound to play when this trigger is activated",
+    EV_NORMAL
+);
 Event EV_Trigger_SetThread
-   (
-   "setthread",
-   EV_DEFAULT,
-   "s",
-   "thread",
-   "Set the thread to execute when this trigger is activated",
-	EV_NORMAL
-   );
+(
+    "setthread",
+    EV_DEFAULT, 
+    "s",
+    "thread",
+    "Set the thread to execute when this trigger is activated",
+    EV_NORMAL
+);
 Event EV_Trigger_Effect
-   (
-   "triggereffect",
-	EV_DEFAULT,
-   "e",
-   "triggering_entity",
-   "Send event to owner of trigger.",
-	EV_NORMAL
-   );
+(
+    "triggereffect",
+    EV_DEFAULT,
+    "e",
+    "triggering_entity",
+    "Send event to owner of trigger.",
+    EV_NORMAL
+);
 Event EV_Trigger_Effect_Alt
-   (
-   "triggereffectalt",
-	EV_DEFAULT,
-   "e",
-   "triggering_entity",
-   "Send event to owner of trigger.  This event is only triggered when using a trigger\n"
-   "as a multi-faceted edge trigger.",
-	EV_NORMAL
-   );
+(
+    "triggereffectalt",
+    EV_DEFAULT,
+    "e",
+    "triggering_entity",
+    "Send event to owner of trigger.  This event is only triggered when using a trigger\n"
+    "as a multi-faceted edge trigger.",
+    EV_NORMAL
+);
 Event EV_Trigger_StartThread
-   (
-   "triggerthread",
-	EV_DEFAULT,
-   NULL,
-   NULL,
-   "Start the trigger thread.",
-   EV_NORMAL
-   );
+(
+    "triggerthread",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Start the trigger thread.",
+    EV_NORMAL
+);
 Event EV_Trigger_SetKey
-   (
-   "key",
-   EV_DEFAULT,
-   "s",
-   "key",
-   "Set the object needed by the sentient to activate this trigger",
-	EV_NORMAL
-   );
-
+(
+    "key",
+    EV_DEFAULT,
+    "s",
+    "key",
+    "Set the object needed by the sentient to activate this trigger",
+    EV_NORMAL
+);
 Event EV_Trigger_SetTriggerable
-   (
-   "triggerable",
-   EV_DEFAULT,
-   NULL,
-   NULL,
-   "Turn this trigger back on",
-	EV_NORMAL
-   );
-
+(
+    "triggerable",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Turn this trigger back on",
+    EV_NORMAL
+);
 Event EV_Trigger_SetNotTriggerable
-   (
-   "nottriggerable",
-   EV_DEFAULT,
-   NULL,
-   NULL,
-   "Turn this trigger off",
-	EV_NORMAL
-   );
-
+(
+    "nottriggerable",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Turn this trigger off",
+    EV_NORMAL
+);
 Event EV_Trigger_SetMultiFaceted
-   (
-   "multifaceted",
-   EV_DEFAULT,
-   "i",
-   "facetDirection",
-   "Make this trigger multifaceted.  If facet is 1, than trigger is North/South oriented.\n"
-   "If facet is 2 than trigger is East/West oriented. If facet is 3 than trigger is Up/Down oriented.",
-	EV_NORMAL
-   );
-
+(
+    "multifaceted",
+    EV_DEFAULT,
+    "i",
+    "facetDirection",
+    "Make this trigger multifaceted.  If facet is 1, than trigger is North/South oriented.\n"
+    "If facet is 2 than trigger is East/West oriented. If facet is 3 than trigger is Up/Down oriented.",
+    EV_NORMAL
+);
 Event EV_Trigger_SetEdgeTriggered
-   (
-   "edgetriggered",
-   EV_DEFAULT,
-   "b",
-   "newEdgeTriggered",
-   "If true, trigger will only trigger when object enters trigger, not when it is inside it.",
-	EV_NORMAL
-   );
-
+(
+    "edgetriggered",
+    EV_DEFAULT,
+    "b",
+    "newEdgeTriggered",
+    "If true, trigger will only trigger when object enters trigger, not when it is inside it.",
+    EV_NORMAL
+);
 Event EV_Trigger_SetTriggerCone
-   (
-   "cone",
-   EV_DEFAULT,
-   "f",
-   "newTriggerCone",
-   "Sets the cone in which directed triggers will trigger.",
-	EV_NORMAL
-   );
+(
+    "cone",
+    EV_DEFAULT,
+    "f",
+    "newTriggerCone",
+    "Sets the cone in which directed triggers will trigger.",
+    EV_NORMAL
+);
 
+#define MULTI_ACTIVATE      1
+#define INVISIBLE           2
 
-#define MULTI_ACTIVATE	1
-#define INVISIBLE		2
+#define VISIBLE             1
 
-#define VISIBLE			1
-
-#define TRIGGER_PLAYERS			4
-#define TRIGGER_MONSTERS		8
-#define TRIGGER_PROJECTILES		16
-#define TRIGGER_DAMAGE			128
+#define TRIGGER_PLAYERS     4
+#define TRIGGER_MONSTERS    8
+#define TRIGGER_PROJECTILES 16
+#define TRIGGER_DAMAGE      128
 
 /*****************************************************************************/
 /*QUAKED trigger_multiple (1 0 0) ? x x NOT_PLAYERS MONSTERS PROJECTILES x x DAMAGE
@@ -246,399 +240,325 @@ set "message" to text string
 
 ******************************************************************************/
 
-CLASS_DECLARATION( Animate, Trigger, "trigger_multiple" )
-	{
-	   { &EV_Trigger_SetWait,			&Trigger::EventSetWait },
-	   { &EV_Trigger_SetDelay,			&Trigger::EventSetDelay },
-	   { &EV_Trigger_SetCount,			&Trigger::EventSetCount },
-	   { &EV_Trigger_SetMessage,		&Trigger::EventSetMessage },
-	   { &EV_Trigger_SetNoise,			&Trigger::EventSetNoise },
-	   { &EV_Trigger_SetSound,			&Trigger::EventSetNoise },
-      { &EV_Trigger_SetThread,			&Trigger::EventSetThread },
-      { &EV_SetHealth,					&Trigger::EventSetHealth },
-	   { &EV_Touch,						&Trigger::TriggerStuff },
-	   { &EV_Killed,					&Trigger::TriggerStuff },
-	   { &EV_Activate,					&Trigger::TriggerStuff },
-	   { &EV_Trigger_ActivateTargets,	&Trigger::ActivateTargets },
-	   { &EV_Trigger_SetKey,			&Trigger::EventSetKey },
-	   { &EV_Trigger_StartThread,		&Trigger::StartThread },
-      { &EV_Model,						&Trigger::SetModelEvent },
-      { &EV_SetAngle,					&Trigger::SetTriggerDir },
-      { &EV_Trigger_SetTriggerable,		&Trigger::SetTriggerable },
-      { &EV_Trigger_SetNotTriggerable,	&Trigger::SetNotTriggerable },
-      { &EV_Trigger_SetMultiFaceted,	&Trigger::SetMultiFaceted },
-      { &EV_Trigger_SetEdgeTriggered,	&Trigger::SetEdgeTriggered },
-      { &EV_Trigger_SetTriggerCone,		&Trigger::SetTriggerCone },
-      { NULL, NULL }
-	};
+CLASS_DECLARATION(Animate, Trigger, "trigger_multiple") {
+    {&EV_Trigger_SetWait,           &Trigger::EventSetWait     },
+    {&EV_Trigger_SetDelay,          &Trigger::EventSetDelay    },
+    {&EV_Trigger_SetCount,          &Trigger::EventSetCount    },
+    {&EV_Trigger_SetMessage,        &Trigger::EventSetMessage  },
+    {&EV_Trigger_SetNoise,          &Trigger::EventSetNoise    },
+    {&EV_Trigger_SetSound,          &Trigger::EventSetNoise    },
+    {&EV_Trigger_SetThread,         &Trigger::EventSetThread   },
+    {&EV_SetHealth,                 &Trigger::EventSetHealth   },
+    {&EV_Touch,                     &Trigger::TriggerStuff     },
+    {&EV_Killed,                    &Trigger::TriggerStuff     },
+    {&EV_Activate,                  &Trigger::TriggerStuff     },
+    {&EV_Trigger_ActivateTargets,   &Trigger::ActivateTargets  },
+    {&EV_Trigger_SetKey,            &Trigger::EventSetKey      },
+    {&EV_Trigger_StartThread,       &Trigger::StartThread      },
+    {&EV_Model,                     &Trigger::SetModelEvent    },
+    {&EV_SetAngle,                  &Trigger::SetTriggerDir    },
+    {&EV_Trigger_SetTriggerable,    &Trigger::SetTriggerable   },
+    {&EV_Trigger_SetNotTriggerable, &Trigger::SetNotTriggerable},
+    {&EV_Trigger_SetMultiFaceted,   &Trigger::SetMultiFaceted  },
+    {&EV_Trigger_SetEdgeTriggered,  &Trigger::SetEdgeTriggered },
+    {&EV_Trigger_SetTriggerCone,    &Trigger::SetTriggerCone   },
+    {NULL,                          NULL                       }
+};
 
 Trigger::Trigger()
 {
-	AddWaitTill(STRING_TRIGGER);
+    AddWaitTill(STRING_TRIGGER);
 
-	if (LoadingSavegame)
-	{
-		// Archive function will setup all necessary data
-		return;
-	}
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
 
-	triggerActivated = false;
-	activator = NULL;
-	trigger_time = 0;
+    triggerActivated = false;
+    activator        = NULL;
+    trigger_time     = 0;
 
-	setMoveType( MOVETYPE_NONE );
+    setMoveType(MOVETYPE_NONE);
 
-	health = 0;
-	max_health = 0;
+    health     = 0;
+    max_health = 0;
 
-	if( spawnflags & TRIGGER_DAMAGE )
-	{
-		takedamage = DAMAGE_YES;
-		setContents( CONTENTS_CLAYPIDGEON );
-		setSolidType( SOLID_BBOX );
-	}
-	else
-	{
-		setContents( 0 );
-		setSolidType( SOLID_TRIGGER );
-	}
+    if (spawnflags & TRIGGER_DAMAGE) {
+        takedamage = DAMAGE_YES;
+        setContents(CONTENTS_CLAYPIDGEON);
+        setSolidType(SOLID_BBOX);
+    } else {
+        setContents(0);
+        setSolidType(SOLID_TRIGGER);
+    }
 
-	edict->r.svFlags |= SVF_NOCLIENT;
+    edict->r.svFlags |= SVF_NOCLIENT;
 
-	delay = 0;
-	wait = 0.2f;
-	triggerCone = cos( DEG2RAD( 60 ) );
+    delay       = 0;
+    wait        = 0.2f;
+    triggerCone = cos(DEG2RAD(60));
 
-	useTriggerDir = qfalse;
-	triggerDir = G_GetMovedir( 0 );
+    useTriggerDir = qfalse;
+    triggerDir    = G_GetMovedir(0);
 
-	triggerable = qtrue;
-	removable = qtrue;
+    triggerable = qtrue;
+    removable   = qtrue;
 
-	trigger_time = 0;
-	// normal trigger to begin with
-	multiFaceted = 0;
-	// normally, not edge triggered
-	edgeTriggered = qfalse;
+    trigger_time = 0;
+    // normal trigger to begin with
+    multiFaceted = 0;
+    // normally, not edge triggered
+    edgeTriggered = qfalse;
 
-	count = -1;
+    count = -1;
 
-	//noise = "environment/switch/switch2.wav";
-	noise = "";
+    //noise = "environment/switch/switch2.wav";
+    noise = "";
 
-	respondto = spawnflags ^ TRIGGER_PLAYERS;
+    respondto = spawnflags ^ TRIGGER_PLAYERS;
 
-	message = "";
+    message = "";
 }
 
-Trigger::~Trigger()
-	{
-	}
+Trigger::~Trigger() {}
 
-void Trigger::SetTriggerDir
-	(
-   float angle
-	)
+void Trigger::SetTriggerDir(float angle)
 
-   {
-   triggerDirYaw = angle;
-   triggerDir = G_GetMovedir( angle );
-   useTriggerDir = qtrue;
-   }
-
-Vector Trigger::GetTriggerDir
-	(
-   void
-	)
-
-   {
-   return triggerDir;
-   }
-
-void Trigger::SetTriggerCone
-	(
-	Event *ev
-	)
-
-   {
-   triggerCone = cos( DEG2RAD( ev->GetFloat( 1 ) ) );
-   }
-
-qboolean Trigger::UsingTriggerDir
-   (
-   void 
-   )
-   {
-   return useTriggerDir;
-   }
-
-void Trigger::SetTriggerDir
-	(
-	Event *ev
-	)
-
-   {
-   SetTriggerDir( ev->GetFloat( 1 ) );
-   }
-
-void Trigger::SetModelEvent
-	(
-	Event *ev
-	)
-
-   {
-   Animate::SetModelEvent( ev );
-   setContents( 0 );
-   //edict->contents = CONTENTS_TRIGGER;		// replaces the -1 from gi.SetBrushModel
-	edict->r.svFlags |= SVF_NOCLIENT;
-   link();
-   }
-
-void Trigger::StartThread
-	(
-	Event *ev
-	)
 {
-	SafePtr< Trigger > This = this;
-
-	parm.other = ev->GetEntity( 1 );
-
-	if( ev->NumArgs() > 1 )
-	{
-		parm.owner = ev->GetEntity( 2 );
-	}
-
-	Unregister( "trigger" );
-
-	if( This )
-	{
-		label.Execute( this );
-	}
+    triggerDirYaw = angle;
+    triggerDir    = G_GetMovedir(angle);
+    useTriggerDir = qtrue;
 }
 
-qboolean Trigger::respondTo
-   (
-   Entity *other
-   )
+Vector Trigger::GetTriggerDir(void)
 
-   {
-	return ( ( ( respondto & TRIGGER_PLAYERS ) && other->isClient() ) ||
-		( ( respondto & TRIGGER_MONSTERS ) && other->isSubclassOf( Actor ) ) ||
-		( ( respondto & TRIGGER_PROJECTILES ) && other->isSubclassOf( Projectile ) ) );
-   }
-
-Entity *Trigger::getActivator
-   (
-   Entity *other
-   )
-
-   {
-   return other;
-   }
-
-void Trigger::TriggerStuff
-	(
-	Event *ev
-	)
 {
-	Entity *other;
-	Entity *activator;
-	Event *event;
-	int    whatToTrigger;
+    return triggerDir;
+}
 
-	// if trigger is shut off return immediately
-	if( !triggerable )
-	{
-		return;
-	}
+void Trigger::SetTriggerCone(Event *ev)
 
-	// Don't bother with testing anything if we can't trigger yet
-	if( ( level.time < trigger_time ) || ( trigger_time == -1 ) )
-	{
-		// if we are edgeTriggered, we reset our time until we leave the trigger
-		if( edgeTriggered && trigger_time != -1 )
-		{
-			trigger_time = level.time + wait;
-		}
-		return;
-	}
+{
+    triggerCone = cos(DEG2RAD(ev->GetFloat(1)));
+}
 
-	health = max_health;
-	if( health && ( *ev != EV_Killed ) && ( *ev != EV_Activate ) )
-	{
-		// if health is set, we only respond to killed and activate messages
-		return;
-	}
+qboolean Trigger::UsingTriggerDir(void)
+{
+    return useTriggerDir;
+}
 
-	other = ev->GetEntity( 1 );
+void Trigger::SetTriggerDir(Event *ev)
 
-	assert( other != this );
+{
+    SetTriggerDir(ev->GetFloat(1));
+}
 
-	// Always respond to activate messages from the world since they're probably from
-	// the "trigger" command
-	if( !respondTo( other ) && !( ( other == world ) && ( *ev == EV_Activate ) ) &&
-		( !other || !other->isSubclassOf( Camera ) ) )
-	{
-		return;
-	}
+void Trigger::SetModelEvent(Event *ev)
 
-	//
-	// if we setup an angle for this trigger, only trigger if other is within ~60 degrees of the triggers origin
-	// only test for this case if we were touched, activating or killed should never go through this code
-	//
-	if( useTriggerDir && ( *ev == EV_Touch ) )
-	{
-		Vector norm;
-		float dot;
+{
+    Animate::SetModelEvent(ev);
+    setContents(0);
+    //edict->contents = CONTENTS_TRIGGER;        // replaces the -1 from gi.SetBrushModel
+    edict->r.svFlags |= SVF_NOCLIENT;
+    link();
+}
 
-		norm = origin - other->origin;
-		norm.normalize();
-		dot = norm * triggerDir;
-		if( dot < triggerCone )
-		{
-			// don't retrigger for at least a second
-			trigger_time = level.time + 1;
-			return;
-		}
-	}
+void Trigger::StartThread(Event *ev)
+{
+    SafePtr<Trigger> This = this;
 
-	activator = getActivator( other );
+    parm.other = ev->GetEntity(1);
 
-	if( key.length() )
-	{
-		if( !activator->isSubclassOf( Sentient ) )
-		{
-			return;
-		}
-		if( !( ( ( Sentient * )activator )->HasItem( key.c_str() ) ) )
-		{
-			qboolean    setModel;
-			Item        *item;
-			ClassDef		*cls;
-			str         dialog;
+    if (ev->NumArgs() > 1) {
+        parm.owner = ev->GetEntity(2);
+    }
 
-			cls = FindClass( key.c_str(), &setModel );
-			if( !cls || !checkInheritance( "Item", cls->classname ) )
-			{
-				gi.DPrintf( "No item named '%s'\n", key.c_str() );
-				return;
-			}
-			item = ( Item * )cls->newInstance();
-			if( setModel )
-			{
-				item->setModel( key.c_str() );
-			}
-			item->CancelEventsOfType( EV_Item_DropToFloor );
-			item->CancelEventsOfType( EV_Remove );
-			item->ProcessPendingEvents();
-			dialog = item->GetDialogNeeded();
-			if( dialog.length() > 1 )
-			{
-				activator->Sound( dialog );
-			}
-			else
-			{
-				gi.centerprintf( activator->edict, "You need the %s", item->getName().c_str() );
-			}
-			delete item;
-			return;
-		}
-	}
+    Unregister("trigger");
 
-	if( multiFaceted )
-	{
-		Vector delta;
+    if (This) {
+        label.Execute(this);
+    }
+}
 
-		delta = other->origin - origin;
-		switch( multiFaceted )
-		{
-		case 1:
-			if( delta[ 1 ] > 0 )
-			{
-				whatToTrigger = 0;
-			}
-			else
-			{
-				whatToTrigger = 1;
-			}
-			break;
-		case 2:
-			if( delta[ 0 ] > 0 )
-			{
-				whatToTrigger = 0;
-			}
-			else
-			{
-				whatToTrigger = 1;
-			}
-			break;
-		case 3:
-		default:
-			if( delta[ 2 ] > 0 )
-			{
-				whatToTrigger = 0;
-			}
-			else
-			{
-				whatToTrigger = 1;
-			}
-			break;
-		}
-	}
-	else
-	{
-		whatToTrigger = 0;
-	}
+qboolean Trigger::respondTo(Entity *other)
 
-	trigger_time = level.time + wait;
+{
+    return (
+        ((respondto & TRIGGER_PLAYERS) && other->isClient())
+        || ((respondto & TRIGGER_MONSTERS) && other->isSubclassOf(Actor))
+        || ((respondto & TRIGGER_PROJECTILES) && other->isSubclassOf(Projectile))
+    );
+}
 
-	if( !whatToTrigger )
-	{
-		event = new Event( EV_Trigger_Effect );
-		event->AddEntity( activator );
-		PostEvent( event, delay );
-	}
-	else
-	{
-		event = new Event( EV_Trigger_Effect_Alt );
-		event->AddEntity( activator );
-		PostEvent( event, delay );
-	}
+Entity *Trigger::getActivator(Entity *other)
 
-	event = new Event( EV_Trigger_ActivateTargets );
-	event->AddEntity( activator );
-	PostEvent( event, delay );
+{
+    return other;
+}
 
-	// don't trigger the thread if we were triggered by the world touching us
-	if( ( activator != world ) || ( ev->eventnum != EV_Touch.eventnum ) )
-	{
-		event = new Event( EV_Trigger_StartThread );
-		if( activator )
-		{
-			event->AddEntity( activator );
-		}
-		PostEvent( event, delay );
-	}
+void Trigger::TriggerStuff(Event *ev)
+{
+    Entity *other;
+    Entity *activator;
+    Event  *event;
+    int     whatToTrigger;
 
-	if( count > -1 )
-	{
-		count--;
-		if( count < 1 )
-		{
-			//
-			// Don't allow it to trigger anymore
-			//
-			trigger_time = -1;
+    // if trigger is shut off return immediately
+    if (!triggerable) {
+        return;
+    }
 
-			//
-			// Make sure we wait until we're done triggering things before removing
-			//
-			if( removable )
-			{
-				PostEvent( EV_Remove, delay + FRAMETIME );
-			}
-		}
-	}
+    // Don't bother with testing anything if we can't trigger yet
+    if ((level.time < trigger_time) || (trigger_time == -1)) {
+        // if we are edgeTriggered, we reset our time until we leave the trigger
+        if (edgeTriggered && trigger_time != -1) {
+            trigger_time = level.time + wait;
+        }
+        return;
+    }
+
+    health = max_health;
+    if (health && (*ev != EV_Killed) && (*ev != EV_Activate)) {
+        // if health is set, we only respond to killed and activate messages
+        return;
+    }
+
+    other = ev->GetEntity(1);
+
+    assert(other != this);
+
+    // Always respond to activate messages from the world since they're probably from
+    // the "trigger" command
+    if (!respondTo(other) && !((other == world) && (*ev == EV_Activate)) && (!other || !other->isSubclassOf(Camera))) {
+        return;
+    }
+
+    //
+    // if we setup an angle for this trigger, only trigger if other is within ~60 degrees of the triggers origin
+    // only test for this case if we were touched, activating or killed should never go through this code
+    //
+    if (useTriggerDir && (*ev == EV_Touch)) {
+        Vector norm;
+        float  dot;
+
+        norm = origin - other->origin;
+        norm.normalize();
+        dot = norm * triggerDir;
+        if (dot < triggerCone) {
+            // don't retrigger for at least a second
+            trigger_time = level.time + 1;
+            return;
+        }
+    }
+
+    activator = getActivator(other);
+
+    if (key.length()) {
+        if (!activator->isSubclassOf(Sentient)) {
+            return;
+        }
+        if (!(((Sentient *)activator)->HasItem(key.c_str()))) {
+            qboolean  setModel;
+            Item     *item;
+            ClassDef *cls;
+            str       dialog;
+
+            cls = FindClass(key.c_str(), &setModel);
+            if (!cls || !checkInheritance("Item", cls->classname)) {
+                gi.DPrintf("No item named '%s'\n", key.c_str());
+                return;
+            }
+            item = (Item *)cls->newInstance();
+            if (setModel) {
+                item->setModel(key.c_str());
+            }
+            item->CancelEventsOfType(EV_Item_DropToFloor);
+            item->CancelEventsOfType(EV_Remove);
+            item->ProcessPendingEvents();
+            dialog = item->GetDialogNeeded();
+            if (dialog.length() > 1) {
+                activator->Sound(dialog);
+            } else {
+                gi.centerprintf(activator->edict, "You need the %s", item->getName().c_str());
+            }
+            delete item;
+            return;
+        }
+    }
+
+    if (multiFaceted) {
+        Vector delta;
+
+        delta = other->origin - origin;
+        switch (multiFaceted) {
+        case 1:
+            if (delta[1] > 0) {
+                whatToTrigger = 0;
+            } else {
+                whatToTrigger = 1;
+            }
+            break;
+        case 2:
+            if (delta[0] > 0) {
+                whatToTrigger = 0;
+            } else {
+                whatToTrigger = 1;
+            }
+            break;
+        case 3:
+        default:
+            if (delta[2] > 0) {
+                whatToTrigger = 0;
+            } else {
+                whatToTrigger = 1;
+            }
+            break;
+        }
+    } else {
+        whatToTrigger = 0;
+    }
+
+    trigger_time = level.time + wait;
+
+    if (!whatToTrigger) {
+        event = new Event(EV_Trigger_Effect);
+        event->AddEntity(activator);
+        PostEvent(event, delay);
+    } else {
+        event = new Event(EV_Trigger_Effect_Alt);
+        event->AddEntity(activator);
+        PostEvent(event, delay);
+    }
+
+    event = new Event(EV_Trigger_ActivateTargets);
+    event->AddEntity(activator);
+    PostEvent(event, delay);
+
+    // don't trigger the thread if we were triggered by the world touching us
+    if ((activator != world) || (ev->eventnum != EV_Touch.eventnum)) {
+        event = new Event(EV_Trigger_StartThread);
+        if (activator) {
+            event->AddEntity(activator);
+        }
+        PostEvent(event, delay);
+    }
+
+    if (count > -1) {
+        count--;
+        if (count < 1) {
+            //
+            // Don't allow it to trigger anymore
+            //
+            trigger_time = -1;
+
+            //
+            // Make sure we wait until we're done triggering things before removing
+            //
+            if (removable) {
+                PostEvent(EV_Remove, delay + FRAMETIME);
+            }
+        }
+    }
 }
 
 //
@@ -656,321 +576,230 @@ void Trigger::TriggerStuff
 // and send EVENT_ACTIVATE to there event handler
 //==============================
 //
-void Trigger::ActivateTargets
-	(
-	Event *ev
-	)
+void Trigger::ActivateTargets(Event *ev)
 
-	{
-	Entity	*other;
-	Entity	*ent;
-	Event		*event;
-	const char *name;
-
-	other = ev->GetEntity( 1 );
-
-   if ( !other )
-      other = world;
-
-	if ( triggerActivated )
-		{
-		//
-		// Entity triggered itself.  Prevent an infinite loop
-		//
-		ScriptError( "Entity targeting itself--Targetname '%s'", TargetName().c_str() );
-		return;
-		}
-
-	triggerActivated = true;
-	activator = other;
-
-//
-// print the message
-//
-	if ( message.length() && other && ( other->isClient() || other->isSubclassOf( Camera ) ) )
-		{
-      // HACK HACK HACK
-      // if it is a camera, pass in default player
-      if ( !other->isClient() )
-         {
-		   gi.centerprintf( &g_entities[ 0 ], message.c_str() );
-         }
-      else
-         {
-		   gi.centerprintf( other->edict, message.c_str() );
-         }
-		if ( Noise().length() )
-			{
-			other->Sound( noise.c_str(), CHAN_VOICE );
-			}
-		}
-
-//
-// kill the killtargets
-//
-	name = KillTarget();
-	if ( name && strcmp( name, "" ) )
-		{
-      ent = NULL;
-		do
-			{
-			ent = ( Entity * )G_FindTarget( ( SimpleEntity * )ent, name );
-			if ( !ent )
-				{
-				break;
-				}
-			ent->PostEvent( EV_Remove, 0 );
-			}
-		while ( 1 );
-		}
-
-//
-// fire targets
-//
-	name = Target();
-	if ( name && strcmp( name, "" ) )
-		{
-      ent = NULL;
-		do
-			{
-			ent = ( Entity * )G_FindTarget( ( SimpleEntity * )ent, name );
-			if ( !ent )
-				{
-				break;
-				}
-
-			event = new Event( EV_Activate );
-			event->AddEntity( other );
-			ent->ProcessEvent( event );
-			}
-		while ( 1 );
-		}
-
-	triggerActivated = false;
-	}
-
-void Trigger::EventSetWait
-	(
-	Event *ev
-	)
-
-	{
-	wait = ev->GetFloat( 1 );
-   }
-
-void Trigger::EventSetDelay
-	(
-	Event *ev
-	)
-
-	{
-	delay = ev->GetFloat( 1 );
-	}
-
-void Trigger::EventSetKey
-	(
-	Event *ev
-	)
-
-	{
-	key = ev->GetString( 1 );
-	}
-
-void Trigger::EventSetThread
-	(
-	Event *ev
-	)
 {
-	if( ev->IsFromScript() )
-	{
-		label.SetThread( ev->GetValue( 1 ) );
-	}
-	else
-	{
-		label.Set( ev->GetString( 1 ) );
-	}
+    Entity     *other;
+    Entity     *ent;
+    Event      *event;
+    const char *name;
+
+    other = ev->GetEntity(1);
+
+    if (!other) {
+        other = world;
+    }
+
+    if (triggerActivated) {
+        //
+        // Entity triggered itself.  Prevent an infinite loop
+        //
+        ScriptError("Entity targeting itself--Targetname '%s'", TargetName().c_str());
+        return;
+    }
+
+    triggerActivated = true;
+    activator        = other;
+
+    //
+    // print the message
+    //
+    if (message.length() && other && (other->isClient() || other->isSubclassOf(Camera))) {
+        // HACK HACK HACK
+        // if it is a camera, pass in default player
+        if (!other->isClient()) {
+            gi.centerprintf(&g_entities[0], message.c_str());
+        } else {
+            gi.centerprintf(other->edict, message.c_str());
+        }
+        if (Noise().length()) {
+            other->Sound(noise.c_str(), CHAN_VOICE);
+        }
+    }
+
+    //
+    // kill the killtargets
+    //
+    name = KillTarget();
+    if (name && strcmp(name, "")) {
+        ent = NULL;
+        do {
+            ent = (Entity *)G_FindTarget((SimpleEntity *)ent, name);
+            if (!ent) {
+                break;
+            }
+            ent->PostEvent(EV_Remove, 0);
+        } while (1);
+    }
+
+    //
+    // fire targets
+    //
+    name = Target();
+    if (name && strcmp(name, "")) {
+        ent = NULL;
+        do {
+            ent = (Entity *)G_FindTarget((SimpleEntity *)ent, name);
+            if (!ent) {
+                break;
+            }
+
+            event = new Event(EV_Activate);
+            event->AddEntity(other);
+            ent->ProcessEvent(event);
+        } while (1);
+    }
+
+    triggerActivated = false;
 }
 
-void Trigger::EventSetHealth
-	(
-	Event *ev
-	)
+void Trigger::EventSetWait(Event *ev)
+
 {
-	health = ev->GetFloat( 1 );
-	max_health = health;
-	if( health )
-	{
-		takedamage = DAMAGE_YES;
-		setSolidType( SOLID_BBOX );
-	}
-	else
-	{
-		setMoveType( MOVETYPE_NONE );
-		setSolidType( SOLID_TRIGGER );
-	}
+    wait = ev->GetFloat(1);
 }
 
-void Trigger::EventSetCount
-	(
-	Event *ev
-	)
+void Trigger::EventSetDelay(Event *ev)
 
-	{
-	count = ev->GetInteger( 1 );
-   }
+{
+    delay = ev->GetFloat(1);
+}
 
-void Trigger::EventSetMessage
-	(
-	Event *ev
-	)
+void Trigger::EventSetKey(Event *ev)
 
-	{
-  	SetMessage( ev->GetString( 1 ) );
-	}
+{
+    key = ev->GetString(1);
+}
 
-void Trigger::SetMessage
-	(
-	const char *text
-	)
+void Trigger::EventSetThread(Event *ev)
+{
+    if (ev->IsFromScript()) {
+        label.SetThread(ev->GetValue(1));
+    } else {
+        label.Set(ev->GetString(1));
+    }
+}
 
-	{
-   if ( text )
-      {
-      message = str( text );
-      }
-   else
-      {
-      message = "";
-      }
-	}
+void Trigger::EventSetHealth(Event *ev)
+{
+    health     = ev->GetFloat(1);
+    max_health = health;
+    if (health) {
+        takedamage = DAMAGE_YES;
+        setSolidType(SOLID_BBOX);
+    } else {
+        setMoveType(MOVETYPE_NONE);
+        setSolidType(SOLID_TRIGGER);
+    }
+}
 
-str &Trigger::Message
-	(
-	void
-	)
+void Trigger::EventSetCount(Event *ev)
 
-	{
-   return message;
-	}
+{
+    count = ev->GetInteger(1);
+}
 
-void Trigger::EventSetNoise
-	(
-	Event *ev
-	)
+void Trigger::EventSetMessage(Event *ev)
 
-	{
-   SetNoise( ev->GetString( 1 ) );
-	}
+{
+    SetMessage(ev->GetString(1));
+}
 
-void Trigger::SetNoise
-	(
-	const char *text
-	)
+void Trigger::SetMessage(const char *text)
 
-	{
-   if ( text )
-      {
-      noise = str( text );
-      //
-      // cache in the sound
-      //
-      CacheResource( noise.c_str() );
-      }
-	}
+{
+    if (text) {
+        message = str(text);
+    } else {
+        message = "";
+    }
+}
 
-str &Trigger::Noise
-	(
-	void
-	)
+str& Trigger::Message(void)
 
-	{
-	return noise;
-	}
+{
+    return message;
+}
 
-void Trigger::SetMultiFaceted
-	(
-   int newFacet
-	)
-	{
-   multiFaceted = newFacet;
-	}
+void Trigger::EventSetNoise(Event *ev)
 
-void Trigger::SetEdgeTriggered
-	(
-   qboolean newEdge
-	)
-	{
-   edgeTriggered = newEdge;
-	}
+{
+    SetNoise(ev->GetString(1));
+}
 
-int Trigger::GetMultiFaceted
-	(
-   void
-	)
-	{
-   return multiFaceted;
-	}
+void Trigger::SetNoise(const char *text)
 
-qboolean Trigger::GetEdgeTriggered
-	(
-   void
-	)
-	{
-   return edgeTriggered;
-	}
+{
+    if (text) {
+        noise = str(text);
+        //
+        // cache in the sound
+        //
+        CacheResource(noise.c_str());
+    }
+}
 
-void Trigger::SetMultiFaceted
-	(
-	Event *ev
-	)
-	{
-   SetMultiFaceted( ev->GetInteger( 1 ) );
-	}
+str& Trigger::Noise(void)
 
-void Trigger::SetEdgeTriggered
-	(
-	Event *ev
-	)
-	{
-   SetEdgeTriggered( ev->GetBoolean( 1 ) );
-	}
+{
+    return noise;
+}
 
-void Trigger::SetTriggerable
-	(
-	Event *ev
-	)
-	{
-   triggerable = qtrue;
-	}
+void Trigger::SetMultiFaceted(int newFacet)
+{
+    multiFaceted = newFacet;
+}
 
-void Trigger::SetNotTriggerable
-	(
-	Event *ev
-	)
-	{
-   triggerable = qfalse;
-	}
+void Trigger::SetEdgeTriggered(qboolean newEdge)
+{
+    edgeTriggered = newEdge;
+}
+
+int Trigger::GetMultiFaceted(void)
+{
+    return multiFaceted;
+}
+
+qboolean Trigger::GetEdgeTriggered(void)
+{
+    return edgeTriggered;
+}
+
+void Trigger::SetMultiFaceted(Event *ev)
+{
+    SetMultiFaceted(ev->GetInteger(1));
+}
+
+void Trigger::SetEdgeTriggered(Event *ev)
+{
+    SetEdgeTriggered(ev->GetBoolean(1));
+}
+
+void Trigger::SetTriggerable(Event *ev)
+{
+    triggerable = qtrue;
+}
+
+void Trigger::SetNotTriggerable(Event *ev)
+{
+    triggerable = qfalse;
+}
 
 /*QUAKED trigger_vehicle (0.25 0.5 0.35) ? x x x x x x x x
 works exactly like a trigger_multiple but only responds to vehicles.
 ******************************************************************************/
 
-CLASS_DECLARATION( Trigger, TriggerVehicle, "trigger_vehicle" )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(Trigger, TriggerVehicle, "trigger_vehicle") {
+    {NULL, NULL}
 };
 
-qboolean TriggerVehicle::respondTo( Entity *other )
+qboolean TriggerVehicle::respondTo(Entity *other)
 {
-	if( ( other->IsSubclassOfVehicle() )
-		|| isSubclassOf( VehicleCollisionEntity ) )
-	{
-		return qtrue;
-	}
-	else
-	{
-		return qfalse;
-	}
+    if ((other->IsSubclassOfVehicle()) || isSubclassOf(VehicleCollisionEntity)) {
+        return qtrue;
+    } else {
+        return qfalse;
+    }
 }
 
 /*QUAKED trigger_multipleall (1 0 0) ? x x NOT_PLAYERS MONSTERS PROJECTILES x x DAMAGE
@@ -1000,284 +829,238 @@ If DAMAGE is set, the trigger will only respond to bullets
 set "message" to text string
 
 ******************************************************************************/
-CLASS_DECLARATION( Trigger, TriggerAll, "trigger_multipleall" )
-{
-	{ &EV_Touch,				&TriggerAll::TriggerStuff },
-	{ &EV_Activate,				&TriggerAll::TriggerStuff },
-	{ NULL, NULL }
+CLASS_DECLARATION(Trigger, TriggerAll, "trigger_multipleall") {
+    {&EV_Touch,    &TriggerAll::TriggerStuff},
+    {&EV_Activate, &TriggerAll::TriggerStuff},
+    {NULL,         NULL                     }
 };
 
-void TriggerAll::TriggerStuff( Event *ev )
+void TriggerAll::TriggerStuff(Event *ev)
 {
-	Entity* other;
-	Entity* activator;
-	int whatToTrigger;
-	Event* event;
+    Entity *other;
+    Entity *activator;
+    int     whatToTrigger;
+    Event  *event;
 
-	if (!triggerable) {
-		return;
-	}
+    if (!triggerable) {
+        return;
+    }
 
-	if (isSubclassOf(TriggerUse) && ev->eventnum != EV_Use.eventnum) {
-		Com_Printf("^~^~^  Attempting to trigger TriggerUse with non-use trigger\n");
-		return;
-	}
+    if (isSubclassOf(TriggerUse) && ev->eventnum != EV_Use.eventnum) {
+        Com_Printf("^~^~^  Attempting to trigger TriggerUse with non-use trigger\n");
+        return;
+    }
 
-	other = ev->GetEntity(1);
+    other = ev->GetEntity(1);
 
-	if (other == this) {
-		throw ScriptException("trigger '%s' triggered by self", TargetName().c_str());
-	}
+    if (other == this) {
+        throw ScriptException("trigger '%s' triggered by self", TargetName().c_str());
+    }
 
-	// Always respond to activate messages from the world since they're probably from
-	// the "trigger" command
-	if( !respondTo( other ) && !( ( other == world ) && ( *ev == EV_Activate ) ) &&
-		( !other || !other->IsSubclassOfCamera() || !other->isSubclassOf(BarrelObject) ) )
-	{
-		return;
-	}
+    // Always respond to activate messages from the world since they're probably from
+    // the "trigger" command
+    if (!respondTo(other) && !((other == world) && (*ev == EV_Activate))
+        && (!other || !other->IsSubclassOfCamera() || !other->isSubclassOf(BarrelObject))) {
+        return;
+    }
 
-	//
-	// check if the other entity can trigger ourself
-	//
-	if (!IsTriggerable(other))
-	{
-		if (edgeTriggered)
-		{
-			// don't retrigger for the entity for at least the specified wait time
-			SetTriggerTime(other, level.time + wait);
-		}
+    //
+    // check if the other entity can trigger ourself
+    //
+    if (!IsTriggerable(other)) {
+        if (edgeTriggered) {
+            // don't retrigger for the entity for at least the specified wait time
+            SetTriggerTime(other, level.time + wait);
+        }
 
-		return;
-	}
+        return;
+    }
 
-	//
-	// if we setup an angle for this trigger, only trigger if other is within ~60 degrees of the triggers origin
-	// only test for this case if we were touched, activating or killed should never go through this code
-	//
-	if( useTriggerDir && ( *ev == EV_Touch ) )
-	{
-		Vector norm;
-		float dot;
+    //
+    // if we setup an angle for this trigger, only trigger if other is within ~60 degrees of the triggers origin
+    // only test for this case if we were touched, activating or killed should never go through this code
+    //
+    if (useTriggerDir && (*ev == EV_Touch)) {
+        Vector norm;
+        float  dot;
 
-		norm = origin - other->origin;
-		norm.normalize();
-		dot = norm * triggerDir;
-		if( dot < triggerCone )
-		{
-			// don't retrigger for at least a second
-			SetTriggerTime(other, level.time + 1);
-			return;
-		}
-	}
+        norm = origin - other->origin;
+        norm.normalize();
+        dot = norm * triggerDir;
+        if (dot < triggerCone) {
+            // don't retrigger for at least a second
+            SetTriggerTime(other, level.time + 1);
+            return;
+        }
+    }
 
-	activator = getActivator( other );
+    activator = getActivator(other);
 
-	if (multiFaceted)
-	{
-		Vector delta;
+    if (multiFaceted) {
+        Vector delta;
 
-		delta = other->origin - origin;
-		switch (multiFaceted)
-		{
-		case 1:
-			if (delta[1] > 0)
-			{
-				whatToTrigger = 0;
-			}
-			else
-			{
-				whatToTrigger = 1;
-			}
-			break;
-		case 2:
-			if (delta[0] > 0)
-			{
-				whatToTrigger = 0;
-			}
-			else
-			{
-				whatToTrigger = 1;
-			}
-			break;
-		case 3:
-		default:
-			if (delta[2] > 0)
-			{
-				whatToTrigger = 0;
-			}
-			else
-			{
-				whatToTrigger = 1;
-			}
-			break;
-		}
-	}
-	else
-	{
-		whatToTrigger = 0;
-	}
+        delta = other->origin - origin;
+        switch (multiFaceted) {
+        case 1:
+            if (delta[1] > 0) {
+                whatToTrigger = 0;
+            } else {
+                whatToTrigger = 1;
+            }
+            break;
+        case 2:
+            if (delta[0] > 0) {
+                whatToTrigger = 0;
+            } else {
+                whatToTrigger = 1;
+            }
+            break;
+        case 3:
+        default:
+            if (delta[2] > 0) {
+                whatToTrigger = 0;
+            } else {
+                whatToTrigger = 1;
+            }
+            break;
+        }
+    } else {
+        whatToTrigger = 0;
+    }
 
-	if (!whatToTrigger)
-	{
-		event = new Event(EV_Trigger_Effect);
-		event->AddEntity(activator);
-		PostEvent(event, delay);
-	}
-	else
-	{
-		event = new Event(EV_Trigger_Effect_Alt);
-		event->AddEntity(activator);
-		PostEvent(event, delay);
-	}
+    if (!whatToTrigger) {
+        event = new Event(EV_Trigger_Effect);
+        event->AddEntity(activator);
+        PostEvent(event, delay);
+    } else {
+        event = new Event(EV_Trigger_Effect_Alt);
+        event->AddEntity(activator);
+        PostEvent(event, delay);
+    }
 
-	event = new Event(EV_Trigger_ActivateTargets);
-	event->AddEntity(activator);
-	PostEvent(event, delay);
+    event = new Event(EV_Trigger_ActivateTargets);
+    event->AddEntity(activator);
+    PostEvent(event, delay);
 
-	// don't trigger the thread if we were triggered by the world touching us
-	if ((activator != world) || (ev->eventnum != EV_Touch.eventnum))
-	{
-		event = new Event(EV_Trigger_StartThread);
-		if (activator)
-		{
-			event->AddEntity(activator);
-		}
-		PostEvent(event, delay);
-	}
+    // don't trigger the thread if we were triggered by the world touching us
+    if ((activator != world) || (ev->eventnum != EV_Touch.eventnum)) {
+        event = new Event(EV_Trigger_StartThread);
+        if (activator) {
+            event->AddEntity(activator);
+        }
+        PostEvent(event, delay);
+    }
 }
 
-bool TriggerAll::IsTriggerable( Entity *other )
+bool TriggerAll::IsTriggerable(Entity *other)
 {
-	int i;
-	TriggerAllEntry* entry;
+    int              i;
+    TriggerAllEntry *entry;
 
-	for (i = entries.NumObjects(); i > entries.NumObjects(); i--)
-	{
-		entry = &entries.ObjectAt(i);
+    for (i = entries.NumObjects(); i > entries.NumObjects(); i--) {
+        entry = &entries.ObjectAt(i);
 
-		if (!entry->ent || level.time >= entry->time)
-		{
-			// remove empty entities
-			entries.RemoveObjectAt(i);
-			continue;
-		}
+        if (!entry->ent || level.time >= entry->time) {
+            // remove empty entities
+            entries.RemoveObjectAt(i);
+            continue;
+        }
 
-		if (entry->ent == other)
-		{
-			// not yet triggerable
-			return false;
-		}
-	}
+        if (entry->ent == other) {
+            // not yet triggerable
+            return false;
+        }
+    }
 
-	return true;
+    return true;
 }
 
-void TriggerAll::SetTriggerTime( Entity *other, float time )
+void TriggerAll::SetTriggerTime(Entity *other, float time)
 {
-	int i;
-	TriggerAllEntry* entry;
-	TriggerAllEntry newEntry;
+    int              i;
+    TriggerAllEntry *entry;
+    TriggerAllEntry  newEntry;
 
-	for (i = entries.NumObjects(); i > entries.NumObjects(); i--)
-	{
-		entry = &entries.ObjectAt(i);
+    for (i = entries.NumObjects(); i > entries.NumObjects(); i--) {
+        entry = &entries.ObjectAt(i);
 
-		if (!entry->ent || level.time >= entry->time)
-		{
-			// remove empty entities
-			entries.RemoveObjectAt(i);
-			continue;
-		}
+        if (!entry->ent || level.time >= entry->time) {
+            // remove empty entities
+            entries.RemoveObjectAt(i);
+            continue;
+        }
 
-		if (entry->ent == other)
-		{
-			if (level.time >= time) {
-				entries.RemoveObjectAt(i);
-			} else {
-				entry->time = time;
-			}
+        if (entry->ent == other) {
+            if (level.time >= time) {
+                entries.RemoveObjectAt(i);
+            } else {
+                entry->time = time;
+            }
 
-			return;
-		}
-	}
+            return;
+        }
+    }
 
-	newEntry.ent = other;
-	newEntry.time = time;
-	entries.AddObject(newEntry);
+    newEntry.ent  = other;
+    newEntry.time = time;
+    entries.AddObject(newEntry);
 }
 
-void TriggerAllEntry::Archive( Archiver& arc, TriggerAllEntry *obj )
+void TriggerAllEntry::Archive(Archiver& arc, TriggerAllEntry *obj)
 {
-	arc.ArchiveSafePointer( &obj->ent );
-	arc.ArchiveFloat( &obj->time );
+    arc.ArchiveSafePointer(&obj->ent);
+    arc.ArchiveFloat(&obj->time);
 }
 
-CLASS_DECLARATION( Trigger, TouchField, NULL )
-{
-	{ &EV_Trigger_Effect,		&TouchField::SendEvent },
-	{ NULL, NULL }
+CLASS_DECLARATION(Trigger, TouchField, NULL) {
+    {&EV_Trigger_Effect, &TouchField::SendEvent},
+    {NULL,               NULL                  }
 };
 
 TouchField::TouchField()
-   {
-   ontouch = NULL;
-   }
+{
+    ontouch = NULL;
+}
 
-void TouchField::Setup
-	(
-	Entity *ownerentity,
-	Event &touchevent,
-	Vector min,
-	Vector max,
-	int respondto
-	)
+void TouchField::Setup(Entity *ownerentity, Event& touchevent, Vector min, Vector max, int respondto)
 
-	{
-	assert( ownerentity );
-	if ( !ownerentity )
-		{
-		ScriptError( "Null owner" );
-		}
+{
+    assert(ownerentity);
+    if (!ownerentity) {
+        ScriptError("Null owner");
+    }
 
-	owner = ownerentity;
-   if ( ontouch )
-      {
-      delete ontouch;
-   }
+    owner = ownerentity;
+    if (ontouch) {
+        delete ontouch;
+    }
 
-   ontouch = new Event( touchevent );
-   setSize( min, max );
+    ontouch = new Event(touchevent);
+    setSize(min, max);
 
-   setContents( 0 );
-   setSolidType( SOLID_TRIGGER );
-   link();
+    setContents(0);
+    setSolidType(SOLID_TRIGGER);
+    link();
 
-	this->respondto = respondto;
-	}
+    this->respondto = respondto;
+}
 
-void TouchField::SendEvent
-	(
-	Event *ev
-	)
+void TouchField::SendEvent(Event *ev)
 
-	{
-	Event *event;
+{
+    Event *event;
 
-   // Check if our owner is still around
-   if ( owner )
-      {
-	   event = new Event( ontouch );
-	   event->AddEntity( ev->GetEntity( 1 ) );
-	   owner->PostEvent( event, delay );
-      }
-   else
-      {
-      // Our owner is gone!  The bastard didn't delete us!
-      // Guess we're no longer needed, so remove ourself.
-      PostEvent( EV_Remove, 0 );
-      }
-	}
+    // Check if our owner is still around
+    if (owner) {
+        event = new Event(ontouch);
+        event->AddEntity(ev->GetEntity(1));
+        owner->PostEvent(event, delay);
+    } else {
+        // Our owner is gone!  The bastard didn't delete us!
+        // Guess we're no longer needed, so remove ourself.
+        PostEvent(EV_Remove, 0);
+    }
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_once (1 0 0) ? NOTOUCH x NOT_PLAYERS MONSTERS PROJECTILES
@@ -1315,32 +1098,29 @@ set "message" to text string
 
 ******************************************************************************/
 
-CLASS_DECLARATION( Trigger, TriggerOnce, "trigger_once" )
-	{
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerOnce, "trigger_once") {
+    {NULL, NULL}
+};
 
 TriggerOnce::TriggerOnce()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
-	//
-	// no matter what, we only trigger once
-	//
-	count = 1;
-	respondto = spawnflags ^ TRIGGER_PLAYERS;
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
+    //
+    // no matter what, we only trigger once
+    //
+    count     = 1;
+    respondto = spawnflags ^ TRIGGER_PLAYERS;
 
-   //
-   // if it's not supposed to be touchable, clear the trigger
-   //
-   if ( spawnflags & 1 )
-      {
-	   setSolidType( SOLID_NOT );
-      }
-	}
+    //
+    // if it's not supposed to be touchable, clear the trigger
+    //
+    if (spawnflags & 1) {
+        setSolidType(SOLID_NOT);
+    }
+}
 
 /*QUAKED trigger_save (1 0 0) ? NOTOUCH x NOT_PLAYERS MONSTERS PROJECTILES
 
@@ -1377,37 +1157,29 @@ set "message" to text string
 
 ******************************************************************************/
 
-Event EV_TriggerSave_SaveName
-(
-	"savename",
-	EV_DEFAULT,
-	"s",
-	"name",
-	"Sets the name which is appended to the world.message for this specific autosave"
+Event EV_TriggerSave_SaveName(
+    "savename",
+    EV_DEFAULT,
+    "s",
+    "name",
+    "Sets the name which is appended to the world.message for this specific autosave"
 );
 
-void TriggerSave::SaveGame
-	(
-	Event *ev
-	)
+void TriggerSave::SaveGame(Event *ev)
 {
-	gi.SetConfigstring( CS_SAVENAME, m_sSaveName );
-	gi.SendConsoleCommand( "savegame" );
+    gi.SetConfigstring(CS_SAVENAME, m_sSaveName);
+    gi.SendConsoleCommand("savegame");
 }
 
-void TriggerSave::EventSaveName
-	(
-	Event *ev
-	)
+void TriggerSave::EventSaveName(Event *ev)
 {
-	m_sSaveName = ev->GetString( 1 );
+    m_sSaveName = ev->GetString(1);
 }
 
-CLASS_DECLARATION( Trigger, TriggerSave, "trigger_save" )
-{
-	{ &EV_Trigger_Effect,			&TriggerSave::SaveGame },
-	{ &EV_TriggerSave_SaveName,		&TriggerSave::EventSaveName },
-	{ NULL, NULL }
+CLASS_DECLARATION(Trigger, TriggerSave, "trigger_save") {
+    {&EV_Trigger_Effect,       &TriggerSave::SaveGame     },
+    {&EV_TriggerSave_SaveName, &TriggerSave::EventSaveName},
+    {NULL,                     NULL                       }
 };
 
 /*****************************************************************************/
@@ -1422,17 +1194,15 @@ If PROJECTILES is set, the trigger will respond to events triggered by projectil
 
 ******************************************************************************/
 
-CLASS_DECLARATION( Trigger, TriggerRelay, "trigger_relay" )
-	{
-		{ &EV_Touch,   NULL },
-		{ NULL,        NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerRelay, "trigger_relay") {
+    {&EV_Touch, NULL},
+    {NULL,      NULL}
+};
 
 TriggerRelay::TriggerRelay()
-	{
-	setSolidType( SOLID_NOT );
-	}
-
+{
+    setSolidType(SOLID_NOT);
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_secret (1 0 0) ? NOTOUCH x NOT_PLAYERS MONSTERS PROJECTILES
@@ -1460,42 +1230,37 @@ If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenade
 
 ******************************************************************************/
 
-CLASS_DECLARATION( TriggerOnce, TriggerSecret, "trigger_secret" )
-	{
-		{ &EV_Trigger_Effect,		&TriggerSecret::FoundSecret },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(TriggerOnce, TriggerSecret, "trigger_secret") {
+    {&EV_Trigger_Effect, &TriggerSecret::FoundSecret},
+    {NULL,               NULL                       }
+};
 
 TriggerSecret::TriggerSecret()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
-	level.total_secrets++;
-   level.vars->SetVariable( "total_secrets", level.total_secrets );
-	respondto = spawnflags ^ TRIGGER_PLAYERS;
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
+    level.total_secrets++;
+    level.vars->SetVariable("total_secrets", level.total_secrets);
+    respondto = spawnflags ^ TRIGGER_PLAYERS;
 
-   // set the thread to trigger when secrets are found
-   label.Set( "global/universal_script.scr::secret" );
-	}
+    // set the thread to trigger when secrets are found
+    label.Set("global/universal_script.scr::secret");
+}
 
-void TriggerSecret::FoundSecret
-	(
-	Event *ev
-	)
+void TriggerSecret::FoundSecret(Event *ev)
 
-	{
-	//
-	// anything that causes the trigger to fire increments the number
-   // of secrets found.  This way, if the level designer triggers the
-   // secret from the script, the player still gets credit for finding
-   // it.  This is to prevent a secret from becoming undiscoverable.
-	//
-	level.found_secrets++;
-   level.vars->SetVariable( "found_secrets", level.found_secrets );
-   }
+{
+    //
+    // anything that causes the trigger to fire increments the number
+    // of secrets found.  This way, if the level designer triggers the
+    // secret from the script, the player still gets credit for finding
+    // it.  This is to prevent a secret from becoming undiscoverable.
+    //
+    level.found_secrets++;
+    level.vars->SetVariable("found_secrets", level.found_secrets);
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_push (1 0 0) ? x x NOT_PLAYERS NOT_MONSTERS NOT_PROJECTILES
@@ -1519,100 +1284,70 @@ If NOT_PROJECTILES is set, the trigger will not push projectiles (rockets, grena
 
 ******************************************************************************/
 
-Event EV_TriggerPush_SetPushSpeed
-   (
-   "speed",
-   EV_DEFAULT,
-   "f",
-   "speed",
-   "Set the push speed of the TriggerPush",
-	EV_NORMAL
-   );
+Event
+    EV_TriggerPush_SetPushSpeed("speed", EV_DEFAULT, "f", "speed", "Set the push speed of the TriggerPush", EV_NORMAL);
 
-CLASS_DECLARATION( Trigger, TriggerPush, "trigger_push" )
-	{
-	   { &EV_Trigger_Effect,			  &TriggerPush::Push },
-	   { &EV_SetAngle,	               &TriggerPush::SetPushDir },
-	   { &EV_TriggerPush_SetPushSpeed,	&TriggerPush::SetPushSpeed },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerPush, "trigger_push") {
+    {&EV_Trigger_Effect,           &TriggerPush::Push        },
+    {&EV_SetAngle,                 &TriggerPush::SetPushDir  },
+    {&EV_TriggerPush_SetPushSpeed, &TriggerPush::SetPushSpeed},
+    {NULL,                         NULL                      }
+};
 
-void TriggerPush::Push
-	(
-	Event *ev
-	)
+void TriggerPush::Push(Event *ev)
 
-	{
-	Entity *other;
+{
+    Entity *other;
 
-	other = ev->GetEntity( 1 );
-	if ( other )
-		{
-      const char * targ;
-	   Entity *ent;
+    other = ev->GetEntity(1);
+    if (other) {
+        const char *targ;
+        Entity     *ent;
 
-      targ = Target ();
-      if ( targ[ 0 ] )
-         {
-		  ent = ( Entity * )G_FindTarget( NULL, Target() );
-		   if ( ent )
-            {
-            other->velocity = G_CalculateImpulse
-               (
-               other->origin,
-               ent->origin,
-               speed,
-               other->gravity
-               );
+        targ = Target();
+        if (targ[0]) {
+            ent = (Entity *)G_FindTarget(NULL, Target());
+            if (ent) {
+                other->velocity = G_CalculateImpulse(other->origin, ent->origin, speed, other->gravity);
             }
-         }
-      else
-         {
-         float dot;
+        } else {
+            float dot;
 
-         // find out how much velocity we have in this direction
-         dot = triggerDir * other->velocity;
-         // subtract it out and add in our velocity
-         other->velocity += ( speed - dot ) * triggerDir;
-         }
+            // find out how much velocity we have in this direction
+            dot = triggerDir * other->velocity;
+            // subtract it out and add in our velocity
+            other->velocity += (speed - dot) * triggerDir;
+        }
 
-      other->VelocityModified();
-		}
-	}
+        other->VelocityModified();
+    }
+}
 
-void TriggerPush::SetPushDir
-	(
-	Event *ev
-	)
+void TriggerPush::SetPushDir(Event *ev)
 
-	{
-   float angle;
+{
+    float angle;
 
-   angle = ev->GetFloat( 1 );
-   // this is used, since we won't need elsewhere
-   triggerDir = G_GetMovedir( angle );
-   }
+    angle = ev->GetFloat(1);
+    // this is used, since we won't need elsewhere
+    triggerDir = G_GetMovedir(angle);
+}
 
+void TriggerPush::SetPushSpeed(Event *ev)
 
-void TriggerPush::SetPushSpeed
-	(
-	Event *ev
-	)
-
-	{
-   speed = ev->GetFloat( 1 );
-   }
+{
+    speed = ev->GetFloat(1);
+}
 
 TriggerPush::TriggerPush()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
-   speed = 1000;
-	respondto = spawnflags ^ ( TRIGGER_PLAYERS | TRIGGER_MONSTERS | TRIGGER_PROJECTILES );
-	}
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
+    speed     = 1000;
+    respondto = spawnflags ^ (TRIGGER_PLAYERS | TRIGGER_MONSTERS | TRIGGER_PROJECTILES);
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_pushany (1 0 0) ? x x NOT_PLAYERS NOT_MONSTERS NOT_PROJECTILES
@@ -1633,77 +1368,50 @@ If NOT_PROJECTILES is set, the trigger will not push projectiles (rockets, grena
 
 ******************************************************************************/
 
-Event EV_TriggerPushAny_SetSpeed
-	( 
-	"speed",
-	EV_DEFAULT,
-   "f",
-   "speed",
-   "Set the speed.",
-	EV_NORMAL
-	);
+Event EV_TriggerPushAny_SetSpeed("speed", EV_DEFAULT, "f", "speed", "Set the speed.", EV_NORMAL);
 
-CLASS_DECLARATION( Trigger, TriggerPushAny, "trigger_pushany" )
-	{
-      { &EV_TriggerPushAny_SetSpeed,   &TriggerPushAny::SetSpeed },
-	   { &EV_Trigger_Effect,			&TriggerPushAny::Push },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerPushAny, "trigger_pushany") {
+    {&EV_TriggerPushAny_SetSpeed, &TriggerPushAny::SetSpeed},
+    {&EV_Trigger_Effect,          &TriggerPushAny::Push    },
+    {NULL,                        NULL                     }
+};
 
 TriggerPushAny::TriggerPushAny()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
-   speed = 1000;
-	respondto = spawnflags ^ ( TRIGGER_PLAYERS | TRIGGER_MONSTERS | TRIGGER_PROJECTILES );
-	}
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
+    speed     = 1000;
+    respondto = spawnflags ^ (TRIGGER_PLAYERS | TRIGGER_MONSTERS | TRIGGER_PROJECTILES);
+}
 
-void TriggerPushAny::Push
-	(
-	Event *ev
-	)
+void TriggerPushAny::Push(Event *ev)
 
-	{
-	Entity *other;
+{
+    Entity *other;
 
-	other = ev->GetEntity( 1 );
-	if ( other )
-		{
-	   Entity *ent;
+    other = ev->GetEntity(1);
+    if (other) {
+        Entity *ent;
 
-      if ( target.length() )
-         {
-		  ent = ( Entity * )G_FindTarget( NULL, target.c_str() );
-		   if ( ent )
-            {
-            other->velocity = G_CalculateImpulse
-               (
-               other->origin,
-               ent->origin,
-               speed,
-               other->gravity
-               );
+        if (target.length()) {
+            ent = (Entity *)G_FindTarget(NULL, target.c_str());
+            if (ent) {
+                other->velocity = G_CalculateImpulse(other->origin, ent->origin, speed, other->gravity);
             }
-         }
-      else
-         {
-		   other->velocity = Vector( orientation[ 0 ] ) * speed;
-         }
-      other->VelocityModified();
-		}
-	}
+        } else {
+            other->velocity = Vector(orientation[0]) * speed;
+        }
+        other->VelocityModified();
+    }
+}
 
-void TriggerPushAny::SetSpeed
-   (
-   Event *ev
-   )
+void TriggerPushAny::SetSpeed(Event *ev)
 
-   {
-   speed = ev->GetFloat( 1 );
-   }
+{
+    speed = ev->GetFloat(1);
+}
 
 //================================================================================================
 //
@@ -1711,173 +1419,114 @@ void TriggerPushAny::SetSpeed
 //
 //================================================================================================
 
-Event EV_TriggerPlaySound_SetVolume
-	( 
-	"volume",
-	EV_DEFAULT,
-   "f",
-   "volume",
-   "Sets the volume.",
-	EV_NORMAL
-	);
-Event EV_TriggerPlaySound_SetMinDist
-	( 
-	"min_dist",
-	EV_DEFAULT,
-   "f",
-   "min_dist",
-   "Sets the minimum distance.",
-	EV_NORMAL
-	);
-Event EV_TriggerPlaySound_SetChannel
-	( 
-	"channel",
-	EV_DEFAULT,
-   "i",
-   "channel",
-   "Sets the sound channel to play on.",
-	EV_NORMAL
-	);
+Event EV_TriggerPlaySound_SetVolume("volume", EV_DEFAULT, "f", "volume", "Sets the volume.", EV_NORMAL);
+Event EV_TriggerPlaySound_SetMinDist("min_dist", EV_DEFAULT, "f", "min_dist", "Sets the minimum distance.", EV_NORMAL);
+Event EV_TriggerPlaySound_SetChannel(
+    "channel", EV_DEFAULT, "i", "channel", "Sets the sound channel to play on.", EV_NORMAL
+);
 
-CLASS_DECLARATION( Trigger, TriggerPlaySound, "play_sound_triggered" )
-	{
-	   { &EV_Trigger_Effect,				&TriggerPlaySound::ToggleSound },
-	   { &EV_TriggerPlaySound_SetVolume,	&TriggerPlaySound::SetVolume },
-	   { &EV_TriggerPlaySound_SetMinDist,	&TriggerPlaySound::SetMinDist },
-	   { &EV_TriggerPlaySound_SetChannel,	&TriggerPlaySound::SetChannel },
-		{ &EV_Touch,                              NULL },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerPlaySound, "play_sound_triggered") {
+    {&EV_Trigger_Effect,              &TriggerPlaySound::ToggleSound},
+    {&EV_TriggerPlaySound_SetVolume,  &TriggerPlaySound::SetVolume  },
+    {&EV_TriggerPlaySound_SetMinDist, &TriggerPlaySound::SetMinDist },
+    {&EV_TriggerPlaySound_SetChannel, &TriggerPlaySound::SetChannel },
+    {&EV_Touch,                       NULL                          },
+    {NULL,                            NULL                          }
+};
 
-void TriggerPlaySound::ToggleSound
-	(
-	Event *ev
-	)
+void TriggerPlaySound::ToggleSound(Event *ev)
 
-	{
-	if ( !state )
-		{
-		// noise should already be initialized
-      if ( Noise().length() )
-         {
-         if ( ambient || spawnflags & TOGGLESOUND )
-            {
- 		      state = 1;
+{
+    if (!state) {
+        // noise should already be initialized
+        if (Noise().length()) {
+            if (ambient || spawnflags & TOGGLESOUND) {
+                state = 1;
             }
 
-         if ( ambient )
-            {
-			   LoopSound( Noise().c_str(), volume, min_dist );
+            if (ambient) {
+                LoopSound(Noise().c_str(), volume, min_dist);
+            } else {
+                Sound(Noise(), channel, volume, min_dist);
             }
-         else
-            {
-			   Sound( Noise(), channel, volume, min_dist );
-            }
-         }
-		}
-	else
-		{
-		state = 0;
-      if ( ambient )
-         {
-			StopLoopSound();
-         }
-      else
-         {
-			StopSound( channel );
-         }
-		}
-	}
+        }
+    } else {
+        state = 0;
+        if (ambient) {
+            StopLoopSound();
+        } else {
+            StopSound(channel);
+        }
+    }
+}
 
-void TriggerPlaySound::StartSound
-	(
-   void
-	)
+void TriggerPlaySound::StartSound(void)
 
-	{
-   // turn the current one off
-   state = 1;
-   ToggleSound( NULL );
+{
+    // turn the current one off
+    state = 1;
+    ToggleSound(NULL);
 
-   // start it up again
-   state = 0;
-   ToggleSound( NULL );
-	}
+    // start it up again
+    state = 0;
+    ToggleSound(NULL);
+}
 
-void TriggerPlaySound::SetVolume
-	(
-   float vol
-	)
+void TriggerPlaySound::SetVolume(float vol)
 
-	{
-	volume = vol;
-	}
+{
+    volume = vol;
+}
 
+void TriggerPlaySound::SetVolume(Event *ev)
 
-void TriggerPlaySound::SetVolume
-	(
-	Event *ev
-	)
+{
+    volume = ev->GetFloat(1);
+}
 
-	{
-	volume = ev->GetFloat( 1 );
-	}
+void TriggerPlaySound::SetMinDist(float dist)
 
-void TriggerPlaySound::SetMinDist
-	(
-   float dist
-	)
+{
+    min_dist = dist;
+}
 
-	{
-	min_dist = dist;
-	}
+void TriggerPlaySound::SetMinDist(Event *ev)
 
-void TriggerPlaySound::SetMinDist
-	(
-	Event *ev
-	)
+{
+    min_dist = ev->GetFloat(1);
+}
 
-	{
-	min_dist = ev->GetFloat( 1 );
-	}
+void TriggerPlaySound::SetChannel(Event *ev)
 
-void TriggerPlaySound::SetChannel
-	(
-	Event *ev
-	)
-
-	{
-	channel = ev->GetInteger( 1 );
-	}
+{
+    channel = ev->GetInteger(1);
+}
 
 TriggerPlaySound::TriggerPlaySound()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
-   //
-   // this is here so that it gets sent over at least once
-   //
-   PostEvent( EV_Show, EV_POSTSPAWN );
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
+    //
+    // this is here so that it gets sent over at least once
+    //
+    PostEvent(EV_Show, EV_POSTSPAWN);
 
-   ambient     = false;
-	volume		= DEFAULT_VOL;
-	channel		= CHAN_VOICE;
-	state			= 0;
-	respondto	= spawnflags ^ TRIGGER_PLAYERS;
-   min_dist		= DEFAULT_MIN_DIST;
+    ambient   = false;
+    volume    = DEFAULT_VOL;
+    channel   = CHAN_VOICE;
+    state     = 0;
+    respondto = spawnflags ^ TRIGGER_PLAYERS;
+    min_dist  = DEFAULT_MIN_DIST;
 
-   if ( spawnflags & ( AMBIENT_ON | AMBIENT_OFF ) )
-      {
-      ambient = true;
-      if ( spawnflags & AMBIENT_ON )
-         {
-         PostEvent( EV_Trigger_Effect, EV_POSTSPAWN );
-         }
-      }
-	}
+    if (spawnflags & (AMBIENT_ON | AMBIENT_OFF)) {
+        ambient = true;
+        if (spawnflags & AMBIENT_ON) {
+            PostEvent(EV_Trigger_Effect, EV_POSTSPAWN);
+        }
+    }
+}
 
 /*****************************************************************************/
 /*QUAKED sound_speaker (0 0.75 0.75) (-8 -8 -8) (8 8 8) AMBIENT-ON AMBIENT-OFF NOT_PLAYERS MONSTERS PROJECTILES TOGGLE
@@ -1908,15 +1557,12 @@ If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenade
 
 ******************************************************************************/
 
-CLASS_DECLARATION( TriggerPlaySound, TriggerSpeaker, "sound_speaker" )
-	{
-		{ &EV_Touch,	NULL },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(TriggerPlaySound, TriggerSpeaker, "sound_speaker") {
+    {&EV_Touch, NULL},
+    {NULL,      NULL}
+};
 
-TriggerSpeaker::TriggerSpeaker()
-	{
-	}
+TriggerSpeaker::TriggerSpeaker() {}
 
 /*****************************************************************************/
 /*QUAKED sound_randomspeaker (0 0.75 0.75) (-8 -8 -8) (8 8 8) x x NOT_PLAYERS MONSTERS PROJECTILES x x
@@ -1940,142 +1586,93 @@ If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenade
 
 ******************************************************************************/
 
-Event EV_TriggerRandomSpeaker_TriggerSound
-	( 
-	"triggersound",
-	EV_DEFAULT,
-   NULL,
-   NULL,
-   "Triggers the sound to play and schedules the next time to play.",
-	EV_NORMAL
-	);
-Event EV_Trigger_SetMinDelay
-	( 
-	"mindelay",
-	EV_DEFAULT,
-   "f",
-   "min_delay",
-   "Sets the minimum time between playings.",
-	EV_NORMAL
-	);
-Event EV_Trigger_SetMaxDelay
-	( 
-	"maxdelay",
-	EV_DEFAULT,
-   "f",
-   "max_delay",
-   "Sets the maximum time between playings.",
-	EV_NORMAL
-	);
-Event EV_Trigger_SetChance
-	( 
-	"chance",
-	EV_DEFAULT,
-   "f[0,1]",
-   "newChance",
-   "Sets the chance that the sound will play when triggered.",
-	EV_NORMAL
-	);
+Event EV_TriggerRandomSpeaker_TriggerSound(
+    "triggersound", EV_DEFAULT, NULL, NULL, "Triggers the sound to play and schedules the next time to play.", EV_NORMAL
+);
+Event EV_Trigger_SetMinDelay(
+    "mindelay", EV_DEFAULT, "f", "min_delay", "Sets the minimum time between playings.", EV_NORMAL
+);
+Event EV_Trigger_SetMaxDelay(
+    "maxdelay", EV_DEFAULT, "f", "max_delay", "Sets the maximum time between playings.", EV_NORMAL
+);
+Event EV_Trigger_SetChance(
+    "chance", EV_DEFAULT, "f[0,1]", "newChance", "Sets the chance that the sound will play when triggered.", EV_NORMAL
+);
 
-CLASS_DECLARATION( TriggerSpeaker, RandomSpeaker, "sound_randomspeaker" )
-	{
-	   { &EV_Trigger_Effect,				&RandomSpeaker::TriggerSound },
-      { &EV_Trigger_SetMinDelay,			&RandomSpeaker::SetMinDelay },
-      { &EV_Trigger_SetMaxDelay,			&RandomSpeaker::SetMaxDelay },
-      { &EV_Trigger_SetChance,				&RandomSpeaker::SetChance },
-		{ &EV_Touch,	NULL },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(TriggerSpeaker, RandomSpeaker, "sound_randomspeaker") {
+    {&EV_Trigger_Effect,      &RandomSpeaker::TriggerSound},
+    {&EV_Trigger_SetMinDelay, &RandomSpeaker::SetMinDelay },
+    {&EV_Trigger_SetMaxDelay, &RandomSpeaker::SetMaxDelay },
+    {&EV_Trigger_SetChance,   &RandomSpeaker::SetChance   },
+    {&EV_Touch,               NULL                        },
+    {NULL,                    NULL                        }
+};
 
-void RandomSpeaker::TriggerSound
-	(
-	Event *ev
-	)
+void RandomSpeaker::TriggerSound(Event *ev)
 
-	{
-   ScheduleSound();
-   if ( G_Random( 1 ) <= chance )
-      TriggerPlaySound::ToggleSound( ev );
-	}
+{
+    ScheduleSound();
+    if (G_Random(1) <= chance) {
+        TriggerPlaySound::ToggleSound(ev);
+    }
+}
 
-void RandomSpeaker::ScheduleSound
-	(
-   void
-	)
+void RandomSpeaker::ScheduleSound(void)
 
-	{
-	CancelEventsOfType( EV_Trigger_Effect );
-   PostEvent( EV_Trigger_Effect, mindelay + G_Random( maxdelay-mindelay ) );
-	}
+{
+    CancelEventsOfType(EV_Trigger_Effect);
+    PostEvent(EV_Trigger_Effect, mindelay + G_Random(maxdelay - mindelay));
+}
 
-void RandomSpeaker::SetMinDelay
-	(
-	Event *ev
-	)
+void RandomSpeaker::SetMinDelay(Event *ev)
 
-	{
-	mindelay = ev->GetFloat( 1 );
-	}
+{
+    mindelay = ev->GetFloat(1);
+}
 
-void RandomSpeaker::SetMaxDelay
-	(
-	Event *ev
-	)
+void RandomSpeaker::SetMaxDelay(Event *ev)
 
-	{
-	maxdelay = ev->GetFloat( 1 );
-	}
+{
+    maxdelay = ev->GetFloat(1);
+}
 
-void RandomSpeaker::SetChance
-	(
-	Event *ev
-	)
+void RandomSpeaker::SetChance(Event *ev)
 
-	{
-	chance = ev->GetFloat( 1 );
-	}
+{
+    chance = ev->GetFloat(1);
+}
 
-void RandomSpeaker::SetMinDelay
-	(
-   float newMinDelay
-	)
+void RandomSpeaker::SetMinDelay(float newMinDelay)
 
-	{
-	mindelay = newMinDelay;
-	}
+{
+    mindelay = newMinDelay;
+}
 
-void RandomSpeaker::SetMaxDelay
-	(
-   float newMaxDelay
-	)
+void RandomSpeaker::SetMaxDelay(float newMaxDelay)
 
-	{
-	maxdelay = newMaxDelay;
-	}
+{
+    maxdelay = newMaxDelay;
+}
 
-void RandomSpeaker::SetChance
-	(
-	float newChance
-	)
+void RandomSpeaker::SetChance(float newChance)
 
-	{
-	chance = newChance;
-	}
+{
+    chance = newChance;
+}
 
 RandomSpeaker::RandomSpeaker()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
-   ambient = qfalse;
-   chance = 1.0f;
-	mindelay = 3;
-	maxdelay = 10;
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
+    ambient  = qfalse;
+    chance   = 1.0f;
+    mindelay = 3;
+    maxdelay = 10;
 
-   ScheduleSound();
-	}
+    ScheduleSound();
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_changelevel (1 0 0) ? NO_INTERMISSION x NOT_PLAYERS MONSTERS PROJECTILES
@@ -2098,143 +1695,113 @@ If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenade
 
 ******************************************************************************/
 
-Event EV_TriggerChangeLevel_Map
-	( 
-	"map",
-	EV_DEFAULT,
-   "s",
-   "map_name",
-   "Sets the map to change to when triggered.",
-	EV_NORMAL
-	);
-Event EV_TriggerChangeLevel_SpawnSpot
-	( 
-	"spawnspot",
-	EV_DEFAULT,
-   "s",
-   "spawn_spot",
-   "Sets the spawn spot to use.",
-	EV_NORMAL
-	);
+Event EV_TriggerChangeLevel_Map(
+    "map", EV_DEFAULT, "s", "map_name", "Sets the map to change to when triggered.", EV_NORMAL
+);
+Event EV_TriggerChangeLevel_SpawnSpot(
+    "spawnspot", EV_DEFAULT, "s", "spawn_spot", "Sets the spawn spot to use.", EV_NORMAL
+);
 
-CLASS_DECLARATION( Trigger, TriggerChangeLevel, "trigger_changelevel" )
-{
-	{ &EV_Trigger_Effect,					&TriggerChangeLevel::ChangeLevel },
-	{ &EV_TriggerChangeLevel_Map,			&TriggerChangeLevel::SetMap },
-	{ &EV_TriggerChangeLevel_SpawnSpot,		&TriggerChangeLevel::SetSpawnSpot },
-	{ NULL, NULL }
+CLASS_DECLARATION(Trigger, TriggerChangeLevel, "trigger_changelevel") {
+    {&EV_Trigger_Effect,               &TriggerChangeLevel::ChangeLevel },
+    {&EV_TriggerChangeLevel_Map,       &TriggerChangeLevel::SetMap      },
+    {&EV_TriggerChangeLevel_SpawnSpot, &TriggerChangeLevel::SetSpawnSpot},
+    {NULL,                             NULL                             }
 };
 
 TriggerChangeLevel::TriggerChangeLevel()
 {
-	if (LoadingSavegame)
-	{
-		// Archive function will setup all necessary data
-		return;
-	}
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
 
-	// default level change thread
-	map = STRING_EMPTY;
-	spawnspot = STRING_EMPTY;
+    // default level change thread
+    map       = STRING_EMPTY;
+    spawnspot = STRING_EMPTY;
 }
 
-void TriggerChangeLevel::SetMap
-	(
-	Event *ev
-	)
+void TriggerChangeLevel::SetMap(Event *ev)
 
-	{
-   map = ev->GetConstString( 1 );
-   }
-
-void TriggerChangeLevel::SetSpawnSpot
-	(
-	Event *ev
-	)
 {
-	spawnspot = ev->GetConstString(1);
+    map = ev->GetConstString(1);
 }
 
-void TriggerChangeLevel::ChangeLevel
-	(
-	Event *ev
-	)
+void TriggerChangeLevel::SetSpawnSpot(Event *ev)
 {
-	SafePtr<Entity> safeThis = this;
-	Entity* other;
+    spawnspot = ev->GetConstString(1);
+}
 
-	other = ev->GetEntity(1);
+void TriggerChangeLevel::ChangeLevel(Event *ev)
+{
+    SafePtr<Entity> safeThis = this;
+    Entity         *other;
 
-	if (level.intermissiontime)
-	{
-		// already activated
-		return;
-	}
+    other = ev->GetEntity(1);
 
-	// if noexit, do a ton of damage to other
-	if (DM_FLAG(DF_SAME_LEVEL) && other != world)
-	{
-		other->Damage(this, other, 10 * other->max_health, other->origin, vec_zero, vec_zero, 1000, 0, MOD_CRUSH);
-		return;
-	}
+    if (level.intermissiontime) {
+        // already activated
+        return;
+    }
 
-	parm.other.Clear();
-	parm.owner.Clear();
+    // if noexit, do a ton of damage to other
+    if (DM_FLAG(DF_SAME_LEVEL) && other != world) {
+        other->Damage(this, other, 10 * other->max_health, other->origin, vec_zero, vec_zero, 1000, 0, MOD_CRUSH);
+        return;
+    }
 
-	Unregister(STRING_TRIGGER);
+    parm.other.Clear();
+    parm.owner.Clear();
 
-	// Scripts could potentially remove the trigger
-	// So make sure it's safe to continue here
-	if (!safeThis) {
-		return;
-	}
+    Unregister(STRING_TRIGGER);
 
-	//
-	// make sure we execute the thread before changing
-	//
-	label.Execute();
+    // Scripts could potentially remove the trigger
+    // So make sure it's safe to continue here
+    if (!safeThis) {
+        return;
+    }
 
-	if (g_gametype->integer)
-	{
-		G_BeginIntermission2();
-		return;
-	}
+    //
+    // make sure we execute the thread before changing
+    //
+    label.Execute();
 
-	if (spawnflags & VISIBLE)
-	{
-		level.intermissiontime = level.time;
-		G_FadeOut(1.0);
-		G_FadeSound(1.0);
-		// Set the next map
-		level.nextmap = Director.GetString(map);
-	}
+    if (g_gametype->integer) {
+        G_BeginIntermission2();
+        return;
+    }
 
-	if (spawnspot != STRING_EMPTY)
-	{
-		G_BeginIntermission(Director.GetString(map) + "$" + Director.GetString(spawnspot), TRANS_BSP);
-	}
-	else
-	{
-		G_BeginIntermission(Director.GetString(map));
-	}
+    if (spawnflags & VISIBLE) {
+        level.intermissiontime = level.time;
+        G_FadeOut(1.0);
+        G_FadeSound(1.0);
+        // Set the next map
+        level.nextmap = Director.GetString(map);
+    }
+
+    if (spawnspot != STRING_EMPTY) {
+        G_BeginIntermission(Director.GetString(map) + "$" + Director.GetString(spawnspot), TRANS_BSP);
+    } else {
+        G_BeginIntermission(Director.GetString(map));
+    }
 }
 
 const char *TriggerChangeLevel::Map(void)
 {
-	return Director.GetString(map).c_str();
+    return Director.GetString(map).c_str();
 }
 
 const char *TriggerChangeLevel::SpawnSpot(void)
 {
-	return Director.GetString(spawnspot).c_str();
+    return Director.GetString(spawnspot).c_str();
 }
 
 void TriggerChangeLevel::Archive(Archiver& arc)
 {
-	Trigger::Archive(arc);
+    Trigger::Archive(arc);
 
-	Director.ArchiveString(arc, map);
-	Director.ArchiveString(arc, spawnspot);
+    Director.ArchiveString(arc, map);
+    Director.ArchiveString(arc, spawnspot);
 }
 
 /*****************************************************************************/
@@ -2253,29 +1820,26 @@ If MONSTERS is set, the trigger will respond to monsters
 
 ******************************************************************************/
 
-CLASS_DECLARATION( Trigger, TriggerUse, "trigger_use" )
-	{
-	   { &EV_Use,		   &TriggerUse::TriggerStuff },
-		{ &EV_Touch,	   NULL },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerUse, "trigger_use") {
+    {&EV_Use,   &TriggerUse::TriggerStuff},
+    {&EV_Touch, NULL                     },
+    {NULL,      NULL                     }
+};
 
 TriggerUse::TriggerUse()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
-	if ( spawnflags & VISIBLE )
-		{
-		showModel();
-		setMoveType( MOVETYPE_PUSH );
-		setSolidType( SOLID_BSP );
-		}
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
+    if (spawnflags & VISIBLE) {
+        showModel();
+        setMoveType(MOVETYPE_PUSH);
+        setSolidType(SOLID_BSP);
+    }
 
-	respondto = ( spawnflags ^ TRIGGER_PLAYERS ) & ~TRIGGER_PROJECTILES;
-	}
+    respondto = (spawnflags ^ TRIGGER_PLAYERS) & ~TRIGGER_PROJECTILES;
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_useonce (1 0 0) ? VISIBLE x NOT_PLAYERS MONSTERS
@@ -2293,25 +1857,23 @@ If MONSTERS is set, the trigger will respond to monsters
 
 ******************************************************************************/
 
-CLASS_DECLARATION( TriggerUse, TriggerUseOnce, "trigger_useonce" )
-	{
-		{ &EV_Touch,	NULL },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(TriggerUse, TriggerUseOnce, "trigger_useonce") {
+    {&EV_Touch, NULL},
+    {NULL,      NULL}
+};
 
 TriggerUseOnce::TriggerUseOnce()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
 
-	// Only allow 1 use.
-	count = 1;
+    // Only allow 1 use.
+    count = 1;
 
-	respondto = ( spawnflags ^ TRIGGER_PLAYERS ) & ~TRIGGER_PROJECTILES;
-	}
+    respondto = (spawnflags ^ TRIGGER_PLAYERS) & ~TRIGGER_PROJECTILES;
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_hurt (1 0 0) ? x x NOT_PLAYERS NOT_MONSTERS PROJECTILES
@@ -2329,72 +1891,51 @@ If PROJECTILES is set, the trigger will hurt projectiles (rockets, grenades, etc
 
 ******************************************************************************/
 
-Event EV_TriggerHurt_SetDamage
-	( 
-	"damage",
-	EV_DEFAULT,
-   "i",
-   "damage",
-   "Sets the amount of damage to do.",
-	EV_NORMAL
-	);
+Event EV_TriggerHurt_SetDamage("damage", EV_DEFAULT, "i", "damage", "Sets the amount of damage to do.", EV_NORMAL);
 
-Event EV_TriggerHurt_SetDamageType
-	( 
-	"damagetype",
-	EV_DEFAULT,
-   "s",
-   "damageType",
-   "Sets the type of damage a TriggerHurt delivers.",
-	EV_NORMAL
-	);
+Event EV_TriggerHurt_SetDamageType(
+    "damagetype", EV_DEFAULT, "s", "damageType", "Sets the type of damage a TriggerHurt delivers.", EV_NORMAL
+);
 
-CLASS_DECLARATION( TriggerUse, TriggerHurt, "trigger_hurt" )
-	{
-		{ &EV_Trigger_Effect,				&TriggerHurt::Hurt },
-		{ &EV_TriggerHurt_SetDamage,		&TriggerHurt::SetDamage },
-		{ &EV_TriggerHurt_SetDamageType,	&TriggerHurt::DamageType },
-	   { &EV_Touch,							&Trigger::TriggerStuff },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(TriggerUse, TriggerHurt, "trigger_hurt") {
+    {&EV_Trigger_Effect,            &TriggerHurt::Hurt      },
+    {&EV_TriggerHurt_SetDamage,     &TriggerHurt::SetDamage },
+    {&EV_TriggerHurt_SetDamageType, &TriggerHurt::DamageType},
+    {&EV_Touch,                     &Trigger::TriggerStuff  },
+    {NULL,                          NULL                    }
+};
 
 TriggerHurt::TriggerHurt()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
 
-	damage = 10;
-   damage_type = MOD_CRUSH;
-	respondto = spawnflags ^ ( TRIGGER_PLAYERS | TRIGGER_MONSTERS );
-	}
+    damage      = 10;
+    damage_type = MOD_CRUSH;
+    respondto   = spawnflags ^ (TRIGGER_PLAYERS | TRIGGER_MONSTERS);
+}
 
-void TriggerHurt::SetDamage
-	(
-	Event *ev
-	)
+void TriggerHurt::SetDamage(Event *ev)
 
-	{
-	damage = ev->GetInteger( 1 );
-	}
+{
+    damage = ev->GetInteger(1);
+}
 
-void TriggerHurt::Hurt
-	(
-	Event *ev
-	)
+void TriggerHurt::Hurt(Event *ev)
 
-	{
-	Entity *other;
+{
+    Entity *other;
 
-	other = ev->GetEntity( 1 );
+    other = ev->GetEntity(1);
 
-	if( ( damage != 0 ) && !other->deadflag && !( other->flags & FL_GODMODE ) )
-		{
-      other->Damage( this, other, damage, other->origin, vec_zero, vec_zero, 0, DAMAGE_NO_ARMOR|DAMAGE_NO_SKILL, damage_type );
-		}
-	}
+    if ((damage != 0) && !other->deadflag && !(other->flags & FL_GODMODE)) {
+        other->Damage(
+            this, other, damage, other->origin, vec_zero, vec_zero, 0, DAMAGE_NO_ARMOR | DAMAGE_NO_SKILL, damage_type
+        );
+    }
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_damagetargets (1 0 0) ? SOLID x NOT_PLAYERS NOT_MONSTERS PROJECTILES
@@ -2416,167 +1957,135 @@ If PROJECTILES is set, the trigger will hurt projectiles (rockets, grenades, etc
 
 ******************************************************************************/
 
-Event EV_TriggerDamageTargets_SetDamage
-	( 
-	"damage",
-	EV_DEFAULT,
-   "i",
-   "damage",
-   "Sets the amount of damage to do.",
-	EV_NORMAL
-	);
+Event EV_TriggerDamageTargets_SetDamage(
+    "damage", EV_DEFAULT, "i", "damage", "Sets the amount of damage to do.", EV_NORMAL
+);
 
-CLASS_DECLARATION( Trigger, TriggerDamageTargets, "trigger_damagetargets" )
-	{
-      { &EV_Trigger_ActivateTargets,			&TriggerDamageTargets::DamageTargets },
-      { &EV_TriggerDamageTargets_SetDamage,		&TriggerDamageTargets::SetDamage },
-      { &EV_Damage,								&TriggerDamageTargets::PassDamage },
-		{ &EV_Touch,                     NULL },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerDamageTargets, "trigger_damagetargets") {
+    {&EV_Trigger_ActivateTargets,        &TriggerDamageTargets::DamageTargets},
+    {&EV_TriggerDamageTargets_SetDamage, &TriggerDamageTargets::SetDamage    },
+    {&EV_Damage,                         &TriggerDamageTargets::PassDamage   },
+    {&EV_Touch,                          NULL                                },
+    {NULL,                               NULL                                }
+};
 
 TriggerDamageTargets::TriggerDamageTargets()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
 
-	damage = 0;
-	respondto = spawnflags ^ ( TRIGGER_PLAYERS | TRIGGER_MONSTERS );
+    damage    = 0;
+    respondto = spawnflags ^ (TRIGGER_PLAYERS | TRIGGER_MONSTERS);
 
-   if ( spawnflags & 1 )
-      {
-	   health = 60;
-	   max_health = health;
-	   takedamage = DAMAGE_YES;
-	   setSolidType( SOLID_BBOX );
-      }
-   else
-      {
-	   takedamage = DAMAGE_NO;
-	   setSolidType( SOLID_NOT );
-      }
-	}
+    if (spawnflags & 1) {
+        health     = 60;
+        max_health = health;
+        takedamage = DAMAGE_YES;
+        setSolidType(SOLID_BBOX);
+    } else {
+        takedamage = DAMAGE_NO;
+        setSolidType(SOLID_NOT);
+    }
+}
 
-void TriggerDamageTargets::SetDamage
-	(
-	Event *ev
-	)
+void TriggerDamageTargets::SetDamage(Event *ev)
 
-	{
-	damage = ev->GetInteger( 1 );
-	}
+{
+    damage = ev->GetInteger(1);
+}
 
+void TriggerDamageTargets::PassDamage(Event *ev)
 
-void TriggerDamageTargets::PassDamage
-	(
-	Event *ev
-	)
+{
+    Entity     *attacker;
+    int         dmg;
+    Entity     *ent;
+    const char *name;
 
-	{
-	Entity		*attacker;
-	int			dmg;
-	Entity	   *ent;
-	const char	*name;
+    attacker = ev->GetEntity(1);
+    dmg      = ev->GetInteger(2);
 
-	attacker	= ev->GetEntity( 1 );
-	dmg			= ev->GetInteger( 2 );
+    //
+    // damage the targets
+    //
+    name = Target();
+    if (name && strcmp(name, "")) {
+        ent = NULL;
+        do {
+            ent = (Entity *)G_FindTarget((SimpleEntity *)ent, name);
+            if (!ent) {
+                break;
+            }
 
-   //
-   // damage the targets
-   //
-	name = Target();
-	if ( name && strcmp( name, "" ) )
-		{
-      ent = NULL;
-		do
-			{
-			ent = ( Entity * )G_FindTarget( ( SimpleEntity * )ent, name );
-			if ( !ent )
-				{
-				break;
-				}
+            if (!ent->deadflag && !(ent->flags & FL_GODMODE)) {
+                ent->Damage(this, attacker, dmg, ent->origin, vec_zero, vec_zero, 0, 0, MOD_CRUSH);
+            }
+        } while (1);
+    }
+}
 
-			if( !ent->deadflag && !( ent->flags & FL_GODMODE ) )
-		      {
-            ent->Damage( this, attacker, dmg, ent->origin, vec_zero, vec_zero, 0, 0, MOD_CRUSH );
-		      }
-			}
-		while ( 1 );
-		}
-	}
 //
 //==============================
 // DamageTargets
 //==============================
 //
 
-void TriggerDamageTargets::DamageTargets
-	(
-	Event *ev
-	)
+void TriggerDamageTargets::DamageTargets(Event *ev)
 
-	{
-	Entity	*other;
-	Entity	*ent;
-	const char		*name;
+{
+    Entity     *other;
+    Entity     *ent;
+    const char *name;
 
-	other = ev->GetEntity( 1 );
+    other = ev->GetEntity(1);
 
-	if ( triggerActivated )
-		{
-		//
-		// Entity triggered itself.  Prevent an infinite loop
-		//
-		ScriptError( "Entity targeting itself--Targetname '%s'", TargetName().c_str() );
-		return;
-		}
+    if (triggerActivated) {
+        //
+        // Entity triggered itself.  Prevent an infinite loop
+        //
+        ScriptError("Entity targeting itself--Targetname '%s'", TargetName().c_str());
+        return;
+    }
 
-	triggerActivated = true;
-	activator = other;
+    triggerActivated = true;
+    activator        = other;
 
-   //
-   // print the message
-   //
-	if ( message.length() && other && other->isClient() )
-		{
-		gi.centerprintf( other->edict, message.c_str() );
-		if ( Noise().length() )
-			{
-			other->Sound( Noise().c_str(), CHAN_VOICE );
-			}
-		}
+    //
+    // print the message
+    //
+    if (message.length() && other && other->isClient()) {
+        gi.centerprintf(other->edict, message.c_str());
+        if (Noise().length()) {
+            other->Sound(Noise().c_str(), CHAN_VOICE);
+        }
+    }
 
-   //
-   // damage the targets
-   //
-	name = Target();
-	if ( name && strcmp( name, "" ) )
-		{
-      ent = NULL;
-		do
-			{
-			ent = ( Entity * )G_FindTarget( ( SimpleEntity * )ent, name );
-			if ( !ent )
-				{
-				break;
-				}
+    //
+    // damage the targets
+    //
+    name = Target();
+    if (name && strcmp(name, "")) {
+        ent = NULL;
+        do {
+            ent = (Entity *)G_FindTarget((SimpleEntity *)ent, name);
+            if (!ent) {
+                break;
+            }
 
-			if( !ent->deadflag && !( ent->flags & FL_GODMODE ) )
-		      {
-            if (damage)
-               ent->Damage( this, other, damage, ent->origin, vec_zero, vec_zero, 0, 0, MOD_CRUSH );
-            else
-               ent->Damage( this, other, ent->health+1, ent->origin, vec_zero, vec_zero, 0, 0, MOD_CRUSH );
-		      }
-			}
-		while ( 1 );
-		}
+            if (!ent->deadflag && !(ent->flags & FL_GODMODE)) {
+                if (damage) {
+                    ent->Damage(this, other, damage, ent->origin, vec_zero, vec_zero, 0, 0, MOD_CRUSH);
+                } else {
+                    ent->Damage(this, other, ent->health + 1, ent->origin, vec_zero, vec_zero, 0, 0, MOD_CRUSH);
+                }
+            }
+        } while (1);
+    }
 
-	triggerActivated = false;
-	}
+    triggerActivated = false;
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_camerause (1 0 0) ? VISIBLE x NOT_PLAYERS MONSTERS
@@ -2595,71 +2104,55 @@ If MONSTERS is set, the trigger will respond to monsters
 
 ******************************************************************************/
 
-CLASS_DECLARATION( TriggerUse, TriggerCameraUse, "trigger_camerause" )
-	{
-	   { &EV_Use,		&TriggerCameraUse::TriggerCamera },
-		{ &EV_Touch,	NULL },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(TriggerUse, TriggerCameraUse, "trigger_camerause") {
+    {&EV_Use,   &TriggerCameraUse::TriggerCamera},
+    {&EV_Touch, NULL                            },
+    {NULL,      NULL                            }
+};
 
-void TriggerCameraUse::TriggerCamera
-	(
-	Event *ev
-	)
+void TriggerCameraUse::TriggerCamera(Event *ev)
 {
-	ScriptThreadLabel camthread;
-	Entity *other;
+    ScriptThreadLabel camthread;
+    Entity           *other;
 
-	other = ev->GetEntity( 1 );
-	if( other->isClient() )
-	{
-		Player * client;
-		Entity * ent;
-		Camera * cam;
+    other = ev->GetEntity(1);
+    if (other->isClient()) {
+        Player *client;
+        Entity *ent;
+        Camera *cam;
 
-		client = ( Player * )other;
-		cam = client->CurrentCamera();
-		if( cam != NULL )
-		{
-			str nextcam;
+        client = (Player *)other;
+        cam    = client->CurrentCamera();
+        if (cam != NULL) {
+            str nextcam;
 
-			nextcam = cam->NextCamera();
-			if( nextcam.length() )
-			{
-				ent = ( Entity * )G_FindTarget( NULL, nextcam.c_str() );
+            nextcam = cam->NextCamera();
+            if (nextcam.length()) {
+                ent = (Entity *)G_FindTarget(NULL, nextcam.c_str());
 
-				if( ent )
-				{
-					if( ent->IsSubclassOfCamera() )
-					{
-						cam = ( Camera * )ent;
-						client->SetCamera( cam, CAMERA_SWITCHTIME );
-						ent->Unregister( STRING_TRIGGER );
-					}
-				}
-			}
-		}
-		else
-		{
-			ent = ( Entity * )G_FindTarget( NULL, Target() );
-			if( ent )
-			{
-				if( ent->IsSubclassOfCamera() )
-				{
-					cam = ( Camera * )ent;
-					client->SetCamera( cam, CAMERA_SWITCHTIME );
-					ent->Unregister( STRING_TRIGGER );
-				}
-				else
-				{
-					warning( "TriggerCamera", "%s is not a camera", Target().c_str() );
-				}
-			}
+                if (ent) {
+                    if (ent->IsSubclassOfCamera()) {
+                        cam = (Camera *)ent;
+                        client->SetCamera(cam, CAMERA_SWITCHTIME);
+                        ent->Unregister(STRING_TRIGGER);
+                    }
+                }
+            }
+        } else {
+            ent = (Entity *)G_FindTarget(NULL, Target());
+            if (ent) {
+                if (ent->IsSubclassOfCamera()) {
+                    cam = (Camera *)ent;
+                    client->SetCamera(cam, CAMERA_SWITCHTIME);
+                    ent->Unregister(STRING_TRIGGER);
+                } else {
+                    warning("TriggerCamera", "%s is not a camera", Target().c_str());
+                }
+            }
+        }
 
-		}
-
-		camthread.Execute( this );
-	}
+        camthread.Execute(this);
+    }
 }
 
 /*****************************************************************************/
@@ -2673,49 +2166,36 @@ This is to inform him that he is near an exit.
 
 ******************************************************************************/
 
-Event EV_TriggerExit_TurnExitOff
-	( 
-	"_turnexitoff",
-	EV_DEFAULT,
-   NULL,
-   NULL,
-   "Internal event that turns the exit sign off.",
-	EV_NORMAL
-	);
+Event EV_TriggerExit_TurnExitOff(
+    "_turnexitoff", EV_DEFAULT, NULL, NULL, "Internal event that turns the exit sign off.", EV_NORMAL
+);
 
-CLASS_DECLARATION( Trigger, TriggerExit, "trigger_exit" )
-	{
-		{ &EV_Trigger_Effect,			&TriggerExit::DisplayExitSign },
-		{ &EV_TriggerExit_TurnExitOff,	&TriggerExit::TurnExitSignOff },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerExit, "trigger_exit") {
+    {&EV_Trigger_Effect,          &TriggerExit::DisplayExitSign},
+    {&EV_TriggerExit_TurnExitOff, &TriggerExit::TurnExitSignOff},
+    {NULL,                        NULL                         }
+};
 
 TriggerExit::TriggerExit()
-	{
-   wait = 1;
-	respondto = TRIGGER_PLAYERS;
-	}
+{
+    wait      = 1;
+    respondto = TRIGGER_PLAYERS;
+}
 
-void TriggerExit::TurnExitSignOff
-	(
-	Event *ev
-	)
+void TriggerExit::TurnExitSignOff(Event *ev)
 
-	{
-   level.near_exit = false;
-	}
+{
+    level.near_exit = false;
+}
 
-void TriggerExit::DisplayExitSign
-	(
-	Event *ev
-	)
+void TriggerExit::DisplayExitSign(Event *ev)
 
-	{
-   level.near_exit = qtrue;
+{
+    level.near_exit = qtrue;
 
-   CancelEventsOfType( EV_TriggerExit_TurnExitOff );
-   PostEvent( EV_TriggerExit_TurnExitOff, 1.1f );
-	}
+    CancelEventsOfType(EV_TriggerExit_TurnExitOff);
+    PostEvent(EV_TriggerExit_TurnExitOff, 1.1f);
+}
 
 /*****************************************************************************/
 /*       trigger_box (0.5 0.5 0.5) ? x x NOT_PLAYERS MONSTERS PROJECTILES
@@ -2743,61 +2223,38 @@ set "message" to text string
 
 ******************************************************************************/
 
-Event EV_TriggerBox_SetMins
-	( 
-	"mins",
-	EV_DEFAULT,
-   "v",
-   "mins",
-   "Sets the minimum bounds of the trigger box.",
-	EV_NORMAL
-	);
-Event EV_TriggerBox_SetMaxs
-	( 
-	"maxs",
-	EV_DEFAULT,
-   "v",
-   "maxs",
-   "Sets the maximum bounds of the trigger box.",
-	EV_NORMAL
-	);
+Event EV_TriggerBox_SetMins("mins", EV_DEFAULT, "v", "mins", "Sets the minimum bounds of the trigger box.", EV_NORMAL);
+Event EV_TriggerBox_SetMaxs("maxs", EV_DEFAULT, "v", "maxs", "Sets the maximum bounds of the trigger box.", EV_NORMAL);
 
-CLASS_DECLARATION( Trigger, TriggerBox, "trigger_box" )
-	{
-      { &EV_TriggerBox_SetMins,		&TriggerBox::SetMins },
-      { &EV_TriggerBox_SetMaxs,		&TriggerBox::SetMaxs },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerBox, "trigger_box") {
+    {&EV_TriggerBox_SetMins, &TriggerBox::SetMins},
+    {&EV_TriggerBox_SetMaxs, &TriggerBox::SetMaxs},
+    {NULL,                   NULL                }
+};
 
-void TriggerBox::SetMins
-	(
-	Event *ev
-	)
+void TriggerBox::SetMins(Event *ev)
 
-	{
-   Vector org;
+{
+    Vector org;
 
-	mins = ev->GetVector( 1 );
-   org = ( mins + maxs ) * 0.5;
+    mins = ev->GetVector(1);
+    org  = (mins + maxs) * 0.5;
 
-   setSize( mins - org, maxs - org );
-	setOrigin( org );
-	}
+    setSize(mins - org, maxs - org);
+    setOrigin(org);
+}
 
-void TriggerBox::SetMaxs
-	(
-	Event *ev
-	)
+void TriggerBox::SetMaxs(Event *ev)
 
-	{
-   Vector org;
+{
+    Vector org;
 
-	maxs = ev->GetVector( 1 );
-   org = ( mins + maxs ) * 0.5;
+    maxs = ev->GetVector(1);
+    org  = (mins + maxs) * 0.5;
 
-   setSize( mins - org, maxs - org );
-	setOrigin( org );
-	}
+    setSize(mins - org, maxs - org);
+    setOrigin(org);
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_music (1 0 0) ? NORMAL ACTION NOT_PLAYERS MONSTERS PROJECTILES SUSPENSE MYSTERY SURPRISE
@@ -2830,206 +2287,152 @@ NORMAL, ACTION, SUSPENSE, MYSTERY, and SURPRISE are the moods that can be trigge
 
 ******************************************************************************/
 
-Event EV_TriggerMusic_CurrentMood
-	( 
-	"current",
-	EV_DEFAULT,
-   "s",
-   "current_mood",
-   "Sets the current mood to use when triggered.",
-	EV_NORMAL
-	);
+Event EV_TriggerMusic_CurrentMood(
+    "current", EV_DEFAULT, "s", "current_mood", "Sets the current mood to use when triggered.", EV_NORMAL
+);
 
-Event EV_TriggerMusic_FallbackMood
-	( 
-	"fallback",
-	EV_DEFAULT,
-   "s",
-   "fallback_mood",
-   "Sets the fallback mood to use when triggered.",
-	EV_NORMAL
-	);
+Event EV_TriggerMusic_FallbackMood(
+    "fallback", EV_DEFAULT, "s", "fallback_mood", "Sets the fallback mood to use when triggered.", EV_NORMAL
+);
 
-Event EV_TriggerMusic_AltCurrentMood
-	( 
-	"altcurrent",
-	EV_DEFAULT,
-   "s",
-   "alternate_current_mood",
-   "Sets the alternate current mood to use when triggered.",
-	EV_NORMAL
-	);
+Event EV_TriggerMusic_AltCurrentMood(
+    "altcurrent",
+    EV_DEFAULT,
+    "s",
+    "alternate_current_mood",
+    "Sets the alternate current mood to use when triggered.",
+    EV_NORMAL
+);
 
-Event EV_TriggerMusic_AltFallbackMood
-	( 
-	"altfallback",
-	EV_DEFAULT,
-   "s",
-   "alterante_fallback_mood",
-   "Sets the alternate fallback mood to use when triggered.",
-	EV_NORMAL
-	);
+Event EV_TriggerMusic_AltFallbackMood(
+    "altfallback",
+    EV_DEFAULT,
+    "s",
+    "alterante_fallback_mood",
+    "Sets the alternate fallback mood to use when triggered.",
+    EV_NORMAL
+);
 
-Event EV_TriggerMusic_OneShot
-	( 
-	"oneshot",
-	EV_DEFAULT,
-   NULL,
-   NULL,
-   "Make this a one time trigger.",
-	EV_NORMAL
-	);
+Event EV_TriggerMusic_OneShot("oneshot", EV_DEFAULT, NULL, NULL, "Make this a one time trigger.", EV_NORMAL);
 
-CLASS_DECLARATION( Trigger, TriggerMusic, "trigger_music" )
-	{
-		{ &EV_TriggerMusic_CurrentMood,			&TriggerMusic::SetCurrentMood },
-		{ &EV_TriggerMusic_FallbackMood,		&TriggerMusic::SetFallbackMood },
-		{ &EV_TriggerMusic_AltCurrentMood,		&TriggerMusic::SetAltCurrentMood },
-		{ &EV_TriggerMusic_AltFallbackMood,		&TriggerMusic::SetAltFallbackMood },
-		{ &EV_TriggerMusic_OneShot,				&TriggerMusic::SetOneShot },
-		{ &EV_Trigger_Effect,					&TriggerMusic::ChangeMood },
-		{ &EV_Trigger_Effect_Alt,				&TriggerMusic::AltChangeMood },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerMusic, "trigger_music") {
+    {&EV_TriggerMusic_CurrentMood,     &TriggerMusic::SetCurrentMood    },
+    {&EV_TriggerMusic_FallbackMood,    &TriggerMusic::SetFallbackMood   },
+    {&EV_TriggerMusic_AltCurrentMood,  &TriggerMusic::SetAltCurrentMood },
+    {&EV_TriggerMusic_AltFallbackMood, &TriggerMusic::SetAltFallbackMood},
+    {&EV_TriggerMusic_OneShot,         &TriggerMusic::SetOneShot        },
+    {&EV_Trigger_Effect,               &TriggerMusic::ChangeMood        },
+    {&EV_Trigger_Effect_Alt,           &TriggerMusic::AltChangeMood     },
+    {NULL,                             NULL                             }
+};
 
 TriggerMusic::TriggerMusic()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
-   removable         = false;
-	triggerActivated	= false;
-	activator			= NULL;
-	trigger_time		= (float)0;
-   edgeTriggered     = qtrue;
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
+    removable        = false;
+    triggerActivated = false;
+    activator        = NULL;
+    trigger_time     = (float)0;
+    edgeTriggered    = qtrue;
 
-	setMoveType( MOVETYPE_NONE );
-	setSolidType( SOLID_TRIGGER );
+    setMoveType(MOVETYPE_NONE);
+    setSolidType(SOLID_TRIGGER);
 
-   setContents( 0 );
-	edict->r.svFlags |= SVF_NOCLIENT;
+    setContents(0);
+    edict->r.svFlags |= SVF_NOCLIENT;
 
-	delay = 0;
-	wait  = 1.0f;
-	health = 0;
-	max_health = 0;
+    delay      = 0;
+    wait       = 1.0f;
+    health     = 0;
+    max_health = 0;
 
-	trigger_time = (float)0;
+    trigger_time = (float)0;
 
-   SetOneShot( false );
+    SetOneShot(false);
 
-   noise = "";
-	respondto = spawnflags ^ TRIGGER_PLAYERS;
+    noise     = "";
+    respondto = spawnflags ^ TRIGGER_PLAYERS;
 
-	current  = "normal";
-	fallback = "normal";
+    current  = "normal";
+    fallback = "normal";
 
-	altcurrent  = "normal";
-	altfallback = "normal";
+    altcurrent  = "normal";
+    altfallback = "normal";
 
-   // setup sound based on spawn flags
-	if ( spawnflags & 1 )
-		current = "normal";
-	else if ( spawnflags & 2 )
-		current = "action";
-	else if ( spawnflags & 32 )
-		current = "suspense";
-	else if ( spawnflags & 64 )
-		current = "mystery";
-	else if ( spawnflags & 128 )
-		current = "surprise";
-	}
+    // setup sound based on spawn flags
+    if (spawnflags & 1) {
+        current = "normal";
+    } else if (spawnflags & 2) {
+        current = "action";
+    } else if (spawnflags & 32) {
+        current = "suspense";
+    } else if (spawnflags & 64) {
+        current = "mystery";
+    } else if (spawnflags & 128) {
+        current = "surprise";
+    }
+}
 
-void TriggerMusic::SetMood
-	(
-   str crnt,
-   str fback
-	)
-	{
-   current = crnt;
-   fallback = fback;
-	}
+void TriggerMusic::SetMood(str crnt, str fback)
+{
+    current  = crnt;
+    fallback = fback;
+}
 
-void TriggerMusic::SetAltMood
-	(
-   str crnt,
-   str fback
-	)
-	{
-   altcurrent = crnt;
-   altfallback = fback;
-	}
+void TriggerMusic::SetAltMood(str crnt, str fback)
+{
+    altcurrent  = crnt;
+    altfallback = fback;
+}
 
-void TriggerMusic::SetCurrentMood
-	(
-	Event *ev
-	)
-	{
-	current = ev->GetString( 1 );
-	}
+void TriggerMusic::SetCurrentMood(Event *ev)
+{
+    current = ev->GetString(1);
+}
 
-void TriggerMusic::SetFallbackMood
-	(
-	Event *ev
-	)
-	{
-	fallback = ev->GetString( 1 );
-	}
+void TriggerMusic::SetFallbackMood(Event *ev)
+{
+    fallback = ev->GetString(1);
+}
 
-void TriggerMusic::SetAltCurrentMood
-	(
-	Event *ev
-	)
-	{
-	altcurrent = ev->GetString( 1 );
-	}
+void TriggerMusic::SetAltCurrentMood(Event *ev)
+{
+    altcurrent = ev->GetString(1);
+}
 
-void TriggerMusic::SetAltFallbackMood
-	(
-	Event *ev
-	)
-	{
-	altfallback = ev->GetString( 1 );
-	}
+void TriggerMusic::SetAltFallbackMood(Event *ev)
+{
+    altfallback = ev->GetString(1);
+}
 
-void TriggerMusic::ChangeMood
-	(
-	Event *ev
-	)
-	{
-	ChangeMusic( current.c_str(), fallback.c_str(), qfalse );
-	}
+void TriggerMusic::ChangeMood(Event *ev)
+{
+    ChangeMusic(current.c_str(), fallback.c_str(), qfalse);
+}
 
-void TriggerMusic::AltChangeMood
-	(
-	Event *ev
-	)
-	{
-	ChangeMusic( altcurrent.c_str(), altfallback.c_str(), qfalse );
-	}
+void TriggerMusic::AltChangeMood(Event *ev)
+{
+    ChangeMusic(altcurrent.c_str(), altfallback.c_str(), qfalse);
+}
 
-void TriggerMusic::SetOneShot
-	(
-   qboolean once
-	)
-	{
-	trigger_time = 0.0f;
-   oneshot = once;
-   if ( oneshot )
-      count = 1;
-   else
-      count = -1;
-	}
+void TriggerMusic::SetOneShot(qboolean once)
+{
+    trigger_time = 0.0f;
+    oneshot      = once;
+    if (oneshot) {
+        count = 1;
+    } else {
+        count = -1;
+    }
+}
 
-void TriggerMusic::SetOneShot
-	(
-	Event *ev
-	)
-	{
-   SetOneShot( true );
-	}
+void TriggerMusic::SetOneShot(Event *ev)
+{
+    SetOneShot(true);
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_reverb (1 0 0) ? x x NOT_PLAYERS MONSTERS PROJECTILES
@@ -3060,213 +2463,143 @@ If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenade
 
 ******************************************************************************/
 
-Event EV_TriggerReverb_ReverbType
-	( 
-	"reverbtype",
-	EV_DEFAULT,
-   "i",
-   "reverbType",
-   "Sets the reverb type.",
-	EV_NORMAL
-	);
+Event EV_TriggerReverb_ReverbType("reverbtype", EV_DEFAULT, "i", "reverbType", "Sets the reverb type.", EV_NORMAL);
 
-Event EV_TriggerReverb_ReverbLevel
-	( 
-	"reverblevel",
-	EV_DEFAULT,
-   "f",
-   "reverbLevel",
-   "Sets the reverb level to be used when triggered.",
-	EV_NORMAL
-	);
+Event EV_TriggerReverb_ReverbLevel(
+    "reverblevel", EV_DEFAULT, "f", "reverbLevel", "Sets the reverb level to be used when triggered.", EV_NORMAL
+);
 
-Event EV_TriggerReverb_AltReverbType
-	( 
-	"altreverbtype",
-	EV_DEFAULT,
-   "i",
-   "reverbType",
-   "Sets the reverb type.",
-	EV_NORMAL
-	);
+Event
+    EV_TriggerReverb_AltReverbType("altreverbtype", EV_DEFAULT, "i", "reverbType", "Sets the reverb type.", EV_NORMAL);
 
-Event EV_TriggerReverb_AltReverbLevel
-	( 
-	"altreverblevel",
-	EV_DEFAULT,
-   "f",
-   "reverbLevel",
-   "Sets the reverb level to be used when triggered.",
-	EV_NORMAL
-	);
+Event EV_TriggerReverb_AltReverbLevel(
+    "altreverblevel", EV_DEFAULT, "f", "reverbLevel", "Sets the reverb level to be used when triggered.", EV_NORMAL
+);
 
-Event EV_TriggerReverb_OneShot
-	( 
-	"oneshot",
-	EV_DEFAULT,
-   NULL,
-   NULL,
-   "Make this a one time trigger.",
-	EV_NORMAL
-	);
+Event EV_TriggerReverb_OneShot("oneshot", EV_DEFAULT, NULL, NULL, "Make this a one time trigger.", EV_NORMAL);
 
-CLASS_DECLARATION( Trigger, TriggerReverb, "trigger_music" )
-	{
-		{ &EV_TriggerReverb_ReverbType,			&TriggerReverb::SetReverbType },
-		{ &EV_TriggerReverb_ReverbLevel,		&TriggerReverb::SetReverbLevel },
-		{ &EV_TriggerReverb_AltReverbType,		&TriggerReverb::SetAltReverbType },
-		{ &EV_TriggerReverb_AltReverbLevel,		&TriggerReverb::SetAltReverbLevel },
-		{ &EV_TriggerReverb_OneShot,			&TriggerReverb::SetOneShot },
-		{ &EV_Trigger_Effect,					&TriggerReverb::ChangeReverb },
-		{ &EV_Trigger_Effect_Alt,				&TriggerReverb::AltChangeReverb },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(Trigger, TriggerReverb, "trigger_music") {
+    {&EV_TriggerReverb_ReverbType,     &TriggerReverb::SetReverbType    },
+    {&EV_TriggerReverb_ReverbLevel,    &TriggerReverb::SetReverbLevel   },
+    {&EV_TriggerReverb_AltReverbType,  &TriggerReverb::SetAltReverbType },
+    {&EV_TriggerReverb_AltReverbLevel, &TriggerReverb::SetAltReverbLevel},
+    {&EV_TriggerReverb_OneShot,        &TriggerReverb::SetOneShot       },
+    {&EV_Trigger_Effect,               &TriggerReverb::ChangeReverb     },
+    {&EV_Trigger_Effect_Alt,           &TriggerReverb::AltChangeReverb  },
+    {NULL,                             NULL                             }
+};
 
 TriggerReverb::TriggerReverb()
-	{
-   if ( LoadingSavegame )
-      {
-      // Archive function will setup all necessary data
-      return;
-      }
-   removable         = false;
-	triggerActivated	= false;
-	activator			= NULL;
-	trigger_time		= (float)0;
-   edgeTriggered     = qtrue;
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
+    removable        = false;
+    triggerActivated = false;
+    activator        = NULL;
+    trigger_time     = (float)0;
+    edgeTriggered    = qtrue;
 
-	setMoveType( MOVETYPE_NONE );
-	setSolidType( SOLID_TRIGGER );
+    setMoveType(MOVETYPE_NONE);
+    setSolidType(SOLID_TRIGGER);
 
-   setContents( 0 );
-	edict->r.svFlags |= SVF_NOCLIENT;
+    setContents(0);
+    edict->r.svFlags |= SVF_NOCLIENT;
 
-	delay = 0;
-	wait  = 1.0f;
-	health = 0;
-	max_health = 0;
+    delay      = 0;
+    wait       = 1.0f;
+    health     = 0;
+    max_health = 0;
 
-	trigger_time = (float)0;
+    trigger_time = (float)0;
 
-   SetOneShot( false );
+    SetOneShot(false);
 
-   noise = "";
-	respondto = spawnflags ^ TRIGGER_PLAYERS;
+    noise     = "";
+    respondto = spawnflags ^ TRIGGER_PLAYERS;
 
-   reverbtype = 0;
-   altreverbtype = 0;
-   reverblevel = 0.5f;
-   altreverblevel = 0.5f;
-	}
+    reverbtype     = 0;
+    altreverbtype  = 0;
+    reverblevel    = 0.5f;
+    altreverblevel = 0.5f;
+}
 
-void TriggerReverb::SetReverb
-	(
-   int type,
-   float level
-	)
-	{
-   reverbtype = type;
-   reverblevel = level;
-	}
+void TriggerReverb::SetReverb(int type, float level)
+{
+    reverbtype  = type;
+    reverblevel = level;
+}
 
-void TriggerReverb::SetAltReverb
-	(
-   int type,
-   float level
-	)
-	{
-   altreverbtype = type;
-   altreverblevel = level;
-	}
+void TriggerReverb::SetAltReverb(int type, float level)
+{
+    altreverbtype  = type;
+    altreverblevel = level;
+}
 
-void TriggerReverb::SetReverbType
-	(
-	Event *ev
-	)
-	{
-	reverbtype = ev->GetInteger( 1 );
-	}
+void TriggerReverb::SetReverbType(Event *ev)
+{
+    reverbtype = ev->GetInteger(1);
+}
 
-void TriggerReverb::SetReverbLevel
-	(
-	Event *ev
-	)
-	{
-	reverblevel = ev->GetFloat( 1 );
-	}
+void TriggerReverb::SetReverbLevel(Event *ev)
+{
+    reverblevel = ev->GetFloat(1);
+}
 
-void TriggerReverb::SetAltReverbType
-	(
-	Event *ev
-	)
-	{
-	altreverbtype = ev->GetInteger( 1 );
-	}
+void TriggerReverb::SetAltReverbType(Event *ev)
+{
+    altreverbtype = ev->GetInteger(1);
+}
 
-void TriggerReverb::SetAltReverbLevel
-	(
-	Event *ev
-	)
-	{
-	altreverblevel = ev->GetFloat( 1 );
-	}
+void TriggerReverb::SetAltReverbLevel(Event *ev)
+{
+    altreverblevel = ev->GetFloat(1);
+}
 
-void TriggerReverb::ChangeReverb
-	(
-	Event *ev
-	)
-	{
-   Entity * other;
+void TriggerReverb::ChangeReverb(Event *ev)
+{
+    Entity *other;
 
-   other = ev->GetEntity( 1 );
-   if ( other->isClient() ) 
-      {
-      Player *client;
+    other = ev->GetEntity(1);
+    if (other->isClient()) {
+        Player *client;
 
-      client = ( Player * )other;
-      client->SetReverb( reverbtype, reverblevel );
-      gi.DPrintf( "reverb set to %s at level %.2f\n", EAXMode_NumToName( reverbtype ), reverblevel );
-      }
-	}
+        client = (Player *)other;
+        client->SetReverb(reverbtype, reverblevel);
+        gi.DPrintf("reverb set to %s at level %.2f\n", EAXMode_NumToName(reverbtype), reverblevel);
+    }
+}
 
-void TriggerReverb::AltChangeReverb
-	(
-	Event *ev
-	)
-	{
-   Entity * other;
+void TriggerReverb::AltChangeReverb(Event *ev)
+{
+    Entity *other;
 
-   other = ev->GetEntity( 1 );
-   if ( other->isClient() ) 
-      {
-      Player *client;
+    other = ev->GetEntity(1);
+    if (other->isClient()) {
+        Player *client;
 
-      client = ( Player * )other;
-      client->SetReverb( altreverbtype, altreverblevel );
-      gi.DPrintf( "reverb set to %s at level %.2f\n", EAXMode_NumToName( altreverbtype ), altreverblevel );
-      }
-	}
+        client = (Player *)other;
+        client->SetReverb(altreverbtype, altreverblevel);
+        gi.DPrintf("reverb set to %s at level %.2f\n", EAXMode_NumToName(altreverbtype), altreverblevel);
+    }
+}
 
-void TriggerReverb::SetOneShot
-	(
-   qboolean once
-	)
-	{
-	trigger_time = 0.0f;
-   oneshot = once;
-   if ( oneshot )
-      count = 1;
-   else
-      count = -1;
-	}
+void TriggerReverb::SetOneShot(qboolean once)
+{
+    trigger_time = 0.0f;
+    oneshot      = once;
+    if (oneshot) {
+        count = 1;
+    } else {
+        count = -1;
+    }
+}
 
-void TriggerReverb::SetOneShot
-	(
-	Event *ev
-	)
-	{
-   SetOneShot( true );
-	}
+void TriggerReverb::SetOneShot(Event *ev)
+{
+    SetOneShot(true);
+}
 
 /*****************************************************************************/
 /*QUAKED trigger_pushobject (1 0 0) ? 
@@ -3276,70 +2609,55 @@ Special trigger that can only be triggered by a push object.
 "cnt" how many times it can be triggered (default 1, use -1 for infinite)
 ******************************************************************************/
 
-Event EV_TriggerByPushObject_TriggerName
-	( 
-	"triggername",
-	EV_DEFAULT,
-   "s",
-   "targetname_of_object",
-   "If set, trigger will only respond to objects with specified name.",
-	EV_NORMAL
-	);
+Event EV_TriggerByPushObject_TriggerName(
+    "triggername",
+    EV_DEFAULT,
+    "s",
+    "targetname_of_object",
+    "If set, trigger will only respond to objects with specified name.",
+    EV_NORMAL
+);
 
-CLASS_DECLARATION( TriggerOnce, TriggerByPushObject, "trigger_pushobject" )
-	{
-      { &EV_TriggerByPushObject_TriggerName,    &TriggerByPushObject::setTriggerName },
-		{ NULL, NULL }
-	};
+CLASS_DECLARATION(TriggerOnce, TriggerByPushObject, "trigger_pushobject") {
+    {&EV_TriggerByPushObject_TriggerName, &TriggerByPushObject::setTriggerName},
+    {NULL,                                NULL                                }
+};
 
-void TriggerByPushObject::setTriggerName
-   (
-   Event *event
-   )
+void TriggerByPushObject::setTriggerName(Event *event)
 
-   {
-   triggername = event->GetString( 1 );
-   }
+{
+    triggername = event->GetString(1);
+}
 
-qboolean TriggerByPushObject::respondTo
-   (
-   Entity *other
-   )
+qboolean TriggerByPushObject::respondTo(Entity *other)
 
-   {
-   if ( other->isSubclassOf( PushObject ) )
-      {
-      if ( triggername.length() )
-         {
-         return ( triggername == other->TargetName() );
-         }
+{
+    if (other->isSubclassOf(PushObject)) {
+        if (triggername.length()) {
+            return (triggername == other->TargetName());
+        }
 
-      return qtrue;
-      }
+        return qtrue;
+    }
 
-   return qfalse;
-   }
+    return qfalse;
+}
 
-Entity *TriggerByPushObject::getActivator
-   (
-   Entity *other
-   )
+Entity *TriggerByPushObject::getActivator(Entity *other)
 
-   {
-   Entity *owner;
+{
+    Entity *owner;
 
-   if ( other->isSubclassOf( PushObject ) )
-      {
-      owner = ( ( PushObject * )other )->getOwner();
-      
-      if ( owner )
-         {
-         return owner;
-         }
-      }
+    if (other->isSubclassOf(PushObject)) {
+        owner = ((PushObject *)other)->getOwner();
 
-   return other;
-   }
+        if (owner) {
+            return owner;
+        }
+    }
+
+    return other;
+}
 
 /*****************************************************************************
 /*QUAKED trigger_clickitem (1 0 0) ?
@@ -3366,85 +2684,65 @@ by using the '::' notation.
 
 ******************************************************************************/
 
-CLASS_DECLARATION( Trigger, TriggerClickItem, "trigger_clickitem" )
-{
-	{ &EV_Model,			&TriggerClickItem::SetClickItemModelEvent },
-	{ &EV_Touch,			NULL },
-	{ NULL, NULL }
+CLASS_DECLARATION(Trigger, TriggerClickItem, "trigger_clickitem") {
+    {&EV_Model, &TriggerClickItem::SetClickItemModelEvent},
+    {&EV_Touch, NULL                                     },
+    {NULL,      NULL                                     }
 };
 
 TriggerClickItem::TriggerClickItem()
 {
-	if( LoadingSavegame )
-	{
-		return;
-	}
+    if (LoadingSavegame) {
+        return;
+    }
 
-	setMoveType( MOVETYPE_NONE );
-	setContents( CONTENTS_UNKNOWN3 );
-	setSolidType( SOLID_BBOX );
-	edict->r.svFlags |= SVF_NOCLIENT;
+    setMoveType(MOVETYPE_NONE);
+    setContents(CONTENTS_UNKNOWN3);
+    setSolidType(SOLID_BBOX);
+    edict->r.svFlags |= SVF_NOCLIENT;
 }
 
-void TriggerClickItem::SetClickItemModelEvent
-	(
-	Event *ev
-	)
+void TriggerClickItem::SetClickItemModelEvent(Event *ev)
 {
-	SetModelEvent( ev );
-	setContents( CONTENTS_UNKNOWN3 );
-	edict->r.svFlags |= SVF_NOCLIENT;
-	link();
+    SetModelEvent(ev);
+    setContents(CONTENTS_UNKNOWN3);
+    edict->r.svFlags |= SVF_NOCLIENT;
+    link();
 }
 
-CLASS_DECLARATION(TriggerUse, TriggerNoDamage, "trigger_nodamage")
-{
-	{ &EV_Touch,            &TriggerNoDamage::TakeNoDamage },
-	{ &EV_Trigger_Effect,   &TriggerNoDamage::TakeNoDamage },
-	{ NULL, NULL }
+CLASS_DECLARATION(TriggerUse, TriggerNoDamage, "trigger_nodamage") {
+    {&EV_Touch,          &TriggerNoDamage::TakeNoDamage},
+    {&EV_Trigger_Effect, &TriggerNoDamage::TakeNoDamage},
+    {NULL,               NULL                          }
 };
 
-void TriggerNoDamage::TakeNoDamage(Event* ev)
+void TriggerNoDamage::TakeNoDamage(Event *ev)
 {
-	Entity* ent = ev->GetEntity(1);
-	Event* newev;
+    Entity *ent = ev->GetEntity(1);
+    Event  *newev;
 
-	ent->ProcessEvent(EV_NoDamage);
-	ent->CancelEventsOfType(EV_TakeDamage);
+    ent->ProcessEvent(EV_NoDamage);
+    ent->CancelEventsOfType(EV_TakeDamage);
 
-	// Make sure the entity will take damage
-	// outside the trigger
-	newev = new Event(EV_TakeDamage);
-	ent->PostEvent(newev, level.frametime * 3);
+    // Make sure the entity will take damage
+    // outside the trigger
+    newev = new Event(EV_TakeDamage);
+    ent->PostEvent(newev, level.frametime * 3);
 }
 
-CLASS_DECLARATION(Trigger, TriggerEntity, "trigger_entity")
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(Trigger, TriggerEntity, "trigger_entity") {
+    {NULL, NULL}
 };
 
-Event EV_Trigger_IsAbandonned
-(
-	"isabandonned",
-	EV_DEFAULT,
-	"e",
-	"owner",
-	"Returns true if the owner has abandoned the mine",
-	EV_RETURN
+Event EV_Trigger_IsAbandonned(
+    "isabandonned", EV_DEFAULT, "e", "owner", "Returns true if the owner has abandoned the mine", EV_RETURN
 );
 
-Event EV_Trigger_IsImmune
-(
-    "isimmune",
-    EV_DEFAULT,
-    "e",
-    "owner",
-    "Returns true if the given entity is immune to this landmine",
-    EV_RETURN
+Event EV_Trigger_IsImmune(
+    "isimmune", EV_DEFAULT, "e", "owner", "Returns true if the given entity is immune to this landmine", EV_RETURN
 );
 
-Event EV_Trigger_SetDamageable
-(
+Event EV_Trigger_SetDamageable(
     "damageable",
     EV_DEFAULT,
     "b",
@@ -3453,101 +2751,100 @@ Event EV_Trigger_SetDamageable
     EV_RETURN
 );
 
-CLASS_DECLARATION(TriggerEntity, TriggerLandmine, "trigger_landmine")
-{
-	{ &EV_Trigger_IsAbandonned,     &TriggerLandmine::EventIsAbandoned },
-	{ &EV_Trigger_IsImmune,         &TriggerLandmine::EventIsImmune },
-	{ &EV_Trigger_SetDamageable,    &TriggerLandmine::EventSetDamageable },
-	{ NULL, NULL }
+CLASS_DECLARATION(TriggerEntity, TriggerLandmine, "trigger_landmine") {
+    {&EV_Trigger_IsAbandonned,  &TriggerLandmine::EventIsAbandoned  },
+    {&EV_Trigger_IsImmune,      &TriggerLandmine::EventIsImmune     },
+    {&EV_Trigger_SetDamageable, &TriggerLandmine::EventSetDamageable},
+    {NULL,                      NULL                                }
 };
 
 TriggerLandmine::TriggerLandmine()
 {
-	setMoveType(MOVETYPE_TOSS);
-	setSolidType(SOLID_TRIGGER);
-	setContentsSolid();
-	edict->clipmask = MASK_LANDMINE;
-	setSize(mins, maxs);
+    setMoveType(MOVETYPE_TOSS);
+    setSolidType(SOLID_TRIGGER);
+    setContentsSolid();
+    edict->clipmask = MASK_LANDMINE;
+    setSize(mins, maxs);
 
-	team = -1;
-	max_health = health;
-	deadflag = DEAD_NO;
-	takedamage = DAMAGE_YES;
+    team       = -1;
+    max_health = health;
+    deadflag   = DEAD_NO;
+    takedamage = DAMAGE_YES;
 }
 
-void TriggerLandmine::EventIsAbandoned(Event* ev)
+void TriggerLandmine::EventIsAbandoned(Event *ev)
 {
-	Entity* other = ev->GetEntity(1);
-	Player* p;
-	str weapontype;
+    Entity *other = ev->GetEntity(1);
+    Player *p;
+    str     weapontype;
 
-	if (!other) {
-		ev->AddInteger(1);
-		return;
-	}
+    if (!other) {
+        ev->AddInteger(1);
+        return;
+    }
 
-	if (!other->IsSubclassOfPlayer()) {
+    if (!other->IsSubclassOfPlayer()) {
         ev->AddInteger(0);
         return;
-	}
+    }
 
-	p = static_cast<Player*>(other);
+    p = static_cast<Player *>(other);
 
-	if (team && team != p->GetTeam()) {
-		ev->AddInteger(1);
-	}
+    if (team && team != p->GetTeam()) {
+        ev->AddInteger(1);
+    }
 
-	weapontype = p->GetCurrentDMWeaponType();
+    weapontype = p->GetCurrentDMWeaponType();
 
-	if (!str::icmp(weapontype, "landmine")) {
-		ev->AddInteger(1);
-	} else {
-		ev->AddInteger(0);
-	}
+    if (!str::icmp(weapontype, "landmine")) {
+        ev->AddInteger(1);
+    } else {
+        ev->AddInteger(0);
+    }
 }
 
-void TriggerLandmine::EventIsImmune(Event* ev)
+void TriggerLandmine::EventIsImmune(Event *ev)
 {
-	Entity* ent = ev->GetEntity(1);
-	ev->AddInteger(IsImmune(ent));
+    Entity *ent = ev->GetEntity(1);
+    ev->AddInteger(IsImmune(ent));
 }
 
-void TriggerLandmine::EventSetDamageable(Event* ev)
+void TriggerLandmine::EventSetDamageable(Event *ev)
 {
-	SetDamageable(ev->GetBoolean(1));
+    SetDamageable(ev->GetBoolean(1));
 }
 
 void TriggerLandmine::SetDamageable(qboolean damageable)
 {
-	if (damageable) {
-		setContentsSolid();
+    if (damageable) {
+        setContentsSolid();
     } else {
-		setContents(0);
-	}
+        setContents(0);
+    }
 }
 
-qboolean TriggerLandmine::IsImmune(Entity* other) const
+qboolean TriggerLandmine::IsImmune(Entity *other) const
 {
-	if (!other) {
-		return qtrue;
-	}
+    if (!other) {
+        return qtrue;
+    }
 
-	if (entnum == other->entnum) {
-		return qtrue;
-	}
+    if (entnum == other->entnum) {
+        return qtrue;
+    }
 
-	if (edict->r.ownerNum == other->entnum) {
-		return qtrue;
-	}
+    if (edict->r.ownerNum == other->entnum) {
+        return qtrue;
+    }
 
-	if (!other->inheritsFrom(&Player::ClassInfo)) {
-		return qfalse;
-	}
+    if (!other->inheritsFrom(&Player::ClassInfo)) {
+        return qfalse;
+    }
 
-	return static_cast<Player*>(other)->GetTeam() == team;
+    return static_cast<Player *>(other)->GetTeam() == team;
 }
 
 void TriggerLandmine::SetTeam(int team)
 {
-	this->team = team;
+    this->team = team;
 }

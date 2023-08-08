@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // trigger.h: Environment based triggers.
-// 
+//
 
 #ifndef __TRIGGER_H__
 #define __TRIGGER_H__
@@ -46,696 +46,653 @@ extern Event EV_Trigger_SetKey;
 extern Event EV_Trigger_SetTriggerable;
 extern Event EV_Trigger_SetNotTriggerable;
 
-#define TRIGGER_PLAYERS			4
-#define TRIGGER_MONSTERS		8
-#define TRIGGER_PROJECTILES		16
+#define TRIGGER_PLAYERS     4
+#define TRIGGER_MONSTERS    8
+#define TRIGGER_PROJECTILES 16
 
 class Trigger : public Animate
-	{
-	protected:
-		float			      wait;
-		float			      delay;
-		float			      trigger_time;
-		qboolean		      triggerActivated;
-		int			      count;
-		str		         noise;
-		str			      message;
-      str               key;
-      ScriptThreadLabel label;
-		EntityPtr	      activator;
-		int			      respondto;
-      qboolean          useTriggerDir;
-      float             triggerCone;
-      Vector            triggerDir;
-      float             triggerDirYaw;
-		qboolean		      triggerable;
-      qboolean          removable;  // if count is 0, should this be removed?
-      qboolean          edgeTriggered; // if true, trigger only triggers when entering trigger, not when standing in it
-      int               multiFaceted; // if 0, it isn't. if 1 it is N/S oriented, if 2 it is E/W oriented
+{
+protected:
+    float             wait;
+    float             delay;
+    float             trigger_time;
+    qboolean          triggerActivated;
+    int               count;
+    str               noise;
+    str               message;
+    str               key;
+    ScriptThreadLabel label;
+    EntityPtr         activator;
+    int               respondto;
+    qboolean          useTriggerDir;
+    float             triggerCone;
+    Vector            triggerDir;
+    float             triggerDirYaw;
+    qboolean          triggerable;
+    qboolean          removable;     // if count is 0, should this be removed?
+    qboolean          edgeTriggered; // if true, trigger only triggers when entering trigger, not when standing in it
+    int               multiFaceted;  // if 0, it isn't. if 1 it is N/S oriented, if 2 it is E/W oriented
 
-	public:
-      CLASS_PROTOTYPE( Trigger );
+public:
+    CLASS_PROTOTYPE(Trigger);
 
-						      Trigger();
-		virtual		      ~Trigger();
+    Trigger();
+    virtual ~Trigger();
 
-      // override this to allow objects other than players, projectiles, and monsters to activate the trigger
-		virtual qboolean respondTo( Entity *other );
+    // override this to allow objects other than players, projectiles, and monsters to activate the trigger
+    virtual qboolean respondTo(Entity *other);
 
-      // override this to redirect messages to an entity other than the one who triggered it
-      virtual Entity    *getActivator( Entity *other );
+    // override this to redirect messages to an entity other than the one who triggered it
+    virtual Entity *getActivator(Entity *other);
 
-      void              SetModelEvent( Event *ev );
-		void			      Touch( Event *ev );
-		void			      EventSetWait( Event *ev );
-		void			      EventSetDelay( Event *ev );
-		void			      EventSetCount( Event *ev );
-		void			      EventSetKey( Event *ev );
-		void			      EventSetHealth( Event *ev );
-      void              EventSetThread( Event *ev );
-      void              SetTriggerDir( Event *ev );
-      void              SetTriggerable( Event *ev );
-      void              SetNotTriggerable( Event *ev );
-      void              SetMultiFaceted( Event *ev );
-      void              SetEdgeTriggered( Event *ev );
-      void              SetTriggerCone( Event *ev );
-                        
-		void			      EventSetMessage( Event *ev );
-		void			      SetMessage( const char *message );
-		str               &Message( void );
-                        
-		void			      EventSetNoise( Event *ev );
-		void			      SetNoise( const char *text );
-		str               &Noise( void );
-                        
-      void              SetTriggerDir( float angle );
-      Vector            GetTriggerDir( void );
-      qboolean          UsingTriggerDir( void );
+    void SetModelEvent(Event *ev);
+    void Touch(Event *ev);
+    void EventSetWait(Event *ev);
+    void EventSetDelay(Event *ev);
+    void EventSetCount(Event *ev);
+    void EventSetKey(Event *ev);
+    void EventSetHealth(Event *ev);
+    void EventSetThread(Event *ev);
+    void SetTriggerDir(Event *ev);
+    void SetTriggerable(Event *ev);
+    void SetNotTriggerable(Event *ev);
+    void SetMultiFaceted(Event *ev);
+    void SetEdgeTriggered(Event *ev);
+    void SetTriggerCone(Event *ev);
 
-      void              SetMultiFaceted( int newFacet );
-      void              SetEdgeTriggered( qboolean newEdge );
+    void EventSetMessage(Event *ev);
+    void SetMessage(const char *message);
+    str& Message(void);
 
-      int               GetMultiFaceted( void );
-      qboolean          GetEdgeTriggered( void );
-                        
-      void              StartThread( Event *ev );
-		void			      TriggerStuff( Event *ev );
-		void			      ActivateTargets( Event *ev );
-      void Archive( Archiver &arc ) override;
-	};
+    void EventSetNoise(Event *ev);
+    void SetNoise(const char *text);
+    str& Noise(void);
 
-inline void Trigger::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Animate::Archive( arc );
+    void     SetTriggerDir(float angle);
+    Vector   GetTriggerDir(void);
+    qboolean UsingTriggerDir(void);
 
-   arc.ArchiveFloat( &wait );
-   arc.ArchiveFloat( &delay );
-   arc.ArchiveFloat( &trigger_time );
-   arc.ArchiveBoolean( &triggerActivated );
-   arc.ArchiveInteger( &count );
-   arc.ArchiveString( &noise );
-   if ( arc.Loading() )
-      {
-      SetNoise( noise.c_str() );
-      }
-   arc.ArchiveString( &message );
-   arc.ArchiveString( &key );
-   arc.ArchiveSafePointer( &activator );
-   arc.ArchiveInteger( &respondto );
-   arc.ArchiveBoolean( &useTriggerDir );
-   arc.ArchiveFloat( &triggerCone );
-   arc.ArchiveVector( &triggerDir );
-   arc.ArchiveFloat( &triggerDirYaw );
-   arc.ArchiveBoolean( &triggerable );
-   arc.ArchiveBoolean( &removable );
-   arc.ArchiveBoolean( &edgeTriggered );
-   arc.ArchiveInteger( &multiFaceted );
-   }
+    void SetMultiFaceted(int newFacet);
+    void SetEdgeTriggered(qboolean newEdge);
+
+    int      GetMultiFaceted(void);
+    qboolean GetEdgeTriggered(void);
+
+    void StartThread(Event *ev);
+    void TriggerStuff(Event *ev);
+    void ActivateTargets(Event *ev);
+    void Archive(Archiver& arc) override;
+};
+
+inline void Trigger::Archive(Archiver& arc)
+{
+    Animate::Archive(arc);
+
+    arc.ArchiveFloat(&wait);
+    arc.ArchiveFloat(&delay);
+    arc.ArchiveFloat(&trigger_time);
+    arc.ArchiveBoolean(&triggerActivated);
+    arc.ArchiveInteger(&count);
+    arc.ArchiveString(&noise);
+    if (arc.Loading()) {
+        SetNoise(noise.c_str());
+    }
+    arc.ArchiveString(&message);
+    arc.ArchiveString(&key);
+    arc.ArchiveSafePointer(&activator);
+    arc.ArchiveInteger(&respondto);
+    arc.ArchiveBoolean(&useTriggerDir);
+    arc.ArchiveFloat(&triggerCone);
+    arc.ArchiveVector(&triggerDir);
+    arc.ArchiveFloat(&triggerDirYaw);
+    arc.ArchiveBoolean(&triggerable);
+    arc.ArchiveBoolean(&removable);
+    arc.ArchiveBoolean(&edgeTriggered);
+    arc.ArchiveInteger(&multiFaceted);
+}
 
 class TriggerVehicle : public Trigger
 {
 public:
-	CLASS_PROTOTYPE( TriggerVehicle );
+    CLASS_PROTOTYPE(TriggerVehicle);
 
-	qboolean respondTo( Entity *other ) override;
+    qboolean respondTo(Entity *other) override;
 };
 
 class TriggerAllEntry
 {
 public:
-	EntityPtr ent;
-	float time;
+    EntityPtr ent;
+    float     time;
 
 public:
-	static void		Archive( Archiver& arc, TriggerAllEntry *obj );
+    static void Archive(Archiver& arc, TriggerAllEntry *obj);
 };
 
 class TriggerAll : public Trigger
 {
 private:
-	Container< TriggerAllEntry > entries;
+    Container<TriggerAllEntry> entries;
 
 public:
-	CLASS_PROTOTYPE( TriggerAll );
+    CLASS_PROTOTYPE(TriggerAll);
 
-	void Archive( Archiver& arc ) override;
+    void Archive(Archiver& arc) override;
 
-	void		TriggerStuff( Event *ev );
-	bool		IsTriggerable( Entity *other );
-	void		SetTriggerTime( Entity *other, float time );
+    void TriggerStuff(Event *ev);
+    bool IsTriggerable(Entity *other);
+    void SetTriggerTime(Entity *other, float time);
 };
 
-inline void TriggerAll::Archive
-	(
-	Archiver& arc
-	)
+inline void TriggerAll::Archive(Archiver& arc)
 {
-	Trigger::Archive( arc );
+    Trigger::Archive(arc);
 
-	entries.Archive( arc, &TriggerAllEntry::Archive );
+    entries.Archive(arc, &TriggerAllEntry::Archive);
 }
 
 class TouchField : public Trigger
-	{
-	private:
-		Event				*ontouch;
-		EntityPtr      owner;
+{
+private:
+    Event    *ontouch;
+    EntityPtr owner;
 
-	public:
-      CLASS_PROTOTYPE( TouchField );
+public:
+    CLASS_PROTOTYPE(TouchField);
 
-		TouchField();
-		virtual void Setup( Entity *ownerentity, Event &ontouch, Vector min, Vector max, int respondto );
-		void				SendEvent( Event *ev );
-      void Archive(	Archiver &arc ) override;
-	};
+    TouchField();
+    virtual void Setup(Entity *ownerentity, Event& ontouch, Vector min, Vector max, int respondto);
+    void         SendEvent(Event *ev);
+    void         Archive(Archiver        &arc) override;
+};
 
-inline void TouchField::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Trigger::Archive( arc );
+inline void TouchField::Archive(Archiver& arc)
+{
+    Trigger::Archive(arc);
 
-   arc.ArchiveEventPointer( &ontouch );
-   arc.ArchiveSafePointer( &owner );
-   }
+    arc.ArchiveEventPointer(&ontouch);
+    arc.ArchiveSafePointer(&owner);
+}
 
 typedef SafePtr<TouchField> TouchFieldPtr;
 
 class TriggerOnce : public Trigger
-	{
-	public:
-      CLASS_PROTOTYPE( TriggerOnce );
-		TriggerOnce();
-	};
+{
+public:
+    CLASS_PROTOTYPE(TriggerOnce);
+    TriggerOnce();
+};
 
 class TriggerSave : public Trigger
 {
 private:
-	str m_sSaveName;
+    str m_sSaveName;
 
 public:
-	CLASS_PROTOTYPE( TriggerSave );
+    CLASS_PROTOTYPE(TriggerSave);
 
-	void				SaveGame( Event *ev );
-	void				EventSaveName( Event *ev );
-	void Archive( Archiver& arc ) override;
+    void SaveGame(Event *ev);
+    void EventSaveName(Event *ev);
+    void Archive(Archiver& arc) override;
 };
 
-inline void TriggerSave::Archive
-	(
-	Archiver &arc
-	)
+inline void TriggerSave::Archive(Archiver& arc)
 {
-	Trigger::Archive( arc );
-	arc.ArchiveString( &m_sSaveName );
+    Trigger::Archive(arc);
+    arc.ArchiveString(&m_sSaveName);
 }
 
 class TriggerRelay : public Trigger
-	{
-	public:
-      CLASS_PROTOTYPE( TriggerRelay );
-		
-		TriggerRelay();
-	};
+{
+public:
+    CLASS_PROTOTYPE(TriggerRelay);
+
+    TriggerRelay();
+};
 
 class TriggerSecret : public TriggerOnce
-	{
-	public:
-      CLASS_PROTOTYPE( TriggerSecret );
-								
-				TriggerSecret();
-		void	FoundSecret( Event *ev );
-		void	Activate( Event *ev );
-	};
+{
+public:
+    CLASS_PROTOTYPE(TriggerSecret);
+
+    TriggerSecret();
+    void FoundSecret(Event *ev);
+    void Activate(Event *ev);
+};
 
 class TriggerPush : public Trigger
-	{
-	protected:
-      float    speed;
+{
+protected:
+    float speed;
 
-	public:
-      CLASS_PROTOTYPE( TriggerPush );
+public:
+    CLASS_PROTOTYPE(TriggerPush);
 
-					TriggerPush();
-		void		Push( Event *ev );
-		void		SetPushDir( Event *ev );
-		void		SetPushSpeed( Event *ev );
-      void Archive(	Archiver &arc ) override;
-	};
+    TriggerPush();
+    void Push(Event *ev);
+    void SetPushDir(Event *ev);
+    void SetPushSpeed(Event *ev);
+    void Archive(Archiver& arc) override;
+};
 
-inline void TriggerPush::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Trigger::Archive( arc );
+inline void TriggerPush::Archive(Archiver& arc)
+{
+    Trigger::Archive(arc);
 
-   arc.ArchiveFloat( &speed );
-   }
+    arc.ArchiveFloat(&speed);
+}
 
 class TriggerPushAny : public Trigger
-	{
-	protected:
-      float    speed;
+{
+protected:
+    float speed;
 
-	public:
-      CLASS_PROTOTYPE( TriggerPushAny );
+public:
+    CLASS_PROTOTYPE(TriggerPushAny);
 
-					      TriggerPushAny();
-		void		      Push( Event *ev );
-		void		      SetSpeed( Event *ev );
-      void Archive(	Archiver &arc ) override;
-	};
+    TriggerPushAny();
+    void Push(Event *ev);
+    void SetSpeed(Event *ev);
+    void Archive(Archiver& arc) override;
+};
 
-inline void TriggerPushAny::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Trigger::Archive( arc );
+inline void TriggerPushAny::Archive(Archiver& arc)
+{
+    Trigger::Archive(arc);
 
-   arc.ArchiveFloat( &speed );
-   }
+    arc.ArchiveFloat(&speed);
+}
 
-#define AMBIENT_ON   ( 1 << 0 )
-#define AMBIENT_OFF  ( 1 << 1 )
-#define TOGGLESOUND  ( 1 << 5 )
+#define AMBIENT_ON  (1 << 0)
+#define AMBIENT_OFF (1 << 1)
+#define TOGGLESOUND (1 << 5)
 
 class TriggerPlaySound : public Trigger
-	{
-	protected:
-      friend class SoundManager;
+{
+protected:
+    friend class SoundManager;
 
-		int	   state;
-		float	   min_dist;
-		float	   volume;
-      int	   channel;
-      qboolean ambient;
+    int      state;
+    float    min_dist;
+    float    volume;
+    int      channel;
+    qboolean ambient;
 
-	public:
-      CLASS_PROTOTYPE( TriggerPlaySound );
+public:
+    CLASS_PROTOTYPE(TriggerPlaySound);
 
-				         TriggerPlaySound();
-		void	         ToggleSound( Event *ev );
-		void	         SetVolume( Event *ev );
-		void	         SetMinDist( Event *ev );
-		void	         SetChannel( Event *ev );
+    TriggerPlaySound();
+    void ToggleSound(Event *ev);
+    void SetVolume(Event *ev);
+    void SetMinDist(Event *ev);
+    void SetChannel(Event *ev);
 
-      void           StartSound( void );
-      void           SetVolume( float vol );
-      void           SetMinDist( float dist );
+    void StartSound(void);
+    void SetVolume(float vol);
+    void SetMinDist(float dist);
 
-      void Archive(	Archiver &arc ) override;
-	};
+    void Archive(Archiver& arc) override;
+};
 
-inline void TriggerPlaySound::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Trigger::Archive( arc );
+inline void TriggerPlaySound::Archive(Archiver& arc)
+{
+    Trigger::Archive(arc);
 
-   arc.ArchiveInteger( &state );
-   arc.ArchiveFloat( &min_dist );
-   arc.ArchiveFloat( &volume );
-   arc.ArchiveInteger( &channel );
-   arc.ArchiveBoolean( &ambient );
-   if ( arc.Loading() )
-      {
-      //
-      // see if its a toggle sound, if it is, lets start its sound again
-      //
-      if ( spawnflags & TOGGLESOUND )
-         {
-         //
-         // invert state so that final state will be right
-         //
-         state = !state;
-         PostEvent( EV_Trigger_Effect, EV_POSTSPAWN );
-         }
-      }
-   }
+    arc.ArchiveInteger(&state);
+    arc.ArchiveFloat(&min_dist);
+    arc.ArchiveFloat(&volume);
+    arc.ArchiveInteger(&channel);
+    arc.ArchiveBoolean(&ambient);
+    if (arc.Loading()) {
+        //
+        // see if its a toggle sound, if it is, lets start its sound again
+        //
+        if (spawnflags & TOGGLESOUND) {
+            //
+            // invert state so that final state will be right
+            //
+            state = !state;
+            PostEvent(EV_Trigger_Effect, EV_POSTSPAWN);
+        }
+    }
+}
 
 class TriggerSpeaker : public TriggerPlaySound
-	{
-	public:
-      CLASS_PROTOTYPE( TriggerSpeaker );
+{
+public:
+    CLASS_PROTOTYPE(TriggerSpeaker);
 
-				         TriggerSpeaker();
-	};
+    TriggerSpeaker();
+};
 
 class RandomSpeaker : public TriggerSpeaker
-	{
-	protected:
-      friend class SoundManager;
+{
+protected:
+    friend class SoundManager;
 
-      float chance;
-      float mindelay;
-      float maxdelay;
+    float chance;
+    float mindelay;
+    float maxdelay;
 
-	public:
-      CLASS_PROTOTYPE( RandomSpeaker );
+public:
+    CLASS_PROTOTYPE(RandomSpeaker);
 
-				         RandomSpeaker();
-      void           TriggerSound( Event *ev );
-      void           SetMinDelay( Event *ev );
-      void           SetMaxDelay( Event *ev );
-      void           SetChance( Event *ev );
+    RandomSpeaker();
+    void TriggerSound(Event *ev);
+    void SetMinDelay(Event *ev);
+    void SetMaxDelay(Event *ev);
+    void SetChance(Event *ev);
 
-      void           SetMinDelay( float value );
-      void           SetMaxDelay( float value );
-      void           SetChance( float value );
-      void           ScheduleSound( void );
+    void SetMinDelay(float value);
+    void SetMaxDelay(float value);
+    void SetChance(float value);
+    void ScheduleSound(void);
 
-      void Archive(	Archiver &arc ) override;
-	};
+    void Archive(Archiver& arc) override;
+};
 
-inline void RandomSpeaker::Archive
-	(
-	Archiver &arc
-	)
-   {
-   TriggerSpeaker::Archive( arc );
+inline void RandomSpeaker::Archive(Archiver& arc)
+{
+    TriggerSpeaker::Archive(arc);
 
-   arc.ArchiveFloat( &chance );
-   arc.ArchiveFloat( &mindelay );
-   arc.ArchiveFloat( &maxdelay );
-   }
+    arc.ArchiveFloat(&chance);
+    arc.ArchiveFloat(&mindelay);
+    arc.ArchiveFloat(&maxdelay);
+}
 
 class TriggerChangeLevel : public Trigger
 {
 protected:
-	const_str map;
-	const_str spawnspot;
+    const_str map;
+    const_str spawnspot;
 
 public:
-	CLASS_PROTOTYPE(TriggerChangeLevel);
+    CLASS_PROTOTYPE(TriggerChangeLevel);
 
-	TriggerChangeLevel();
-	void        SetMap(Event* ev);
-	void        SetSpawnSpot(Event* ev);
-	void		ChangeLevel(Event* ev);
-	const char* Map(void);
-	const char* SpawnSpot(void);
-	void Archive(Archiver& arc) override;
+    TriggerChangeLevel();
+    void        SetMap(Event *ev);
+    void        SetSpawnSpot(Event *ev);
+    void        ChangeLevel(Event *ev);
+    const char *Map(void);
+    const char *SpawnSpot(void);
+    void        Archive(Archiver       &arc) override;
 };
 
 class TriggerExit : public Trigger
-	{
-	public:
-      CLASS_PROTOTYPE( TriggerExit );
+{
+public:
+    CLASS_PROTOTYPE(TriggerExit);
 
-			  TriggerExit();
-		void DisplayExitSign( Event *ev );
-      void TurnExitSignOff( Event *ev );
-	};
-
+    TriggerExit();
+    void DisplayExitSign(Event *ev);
+    void TurnExitSignOff(Event *ev);
+};
 
 class TriggerUse : public Trigger
-	{
-	public:
-      CLASS_PROTOTYPE( TriggerUse );
-		
-		TriggerUse();
-	};
+{
+public:
+    CLASS_PROTOTYPE(TriggerUse);
+
+    TriggerUse();
+};
 
 class TriggerUseOnce : public TriggerUse
-	{
-	public:
-      CLASS_PROTOTYPE( TriggerUseOnce );
+{
+public:
+    CLASS_PROTOTYPE(TriggerUseOnce);
 
-		TriggerUseOnce();
-	};
+    TriggerUseOnce();
+};
 
 class TriggerHurt : public TriggerUse
-	{
-	protected:
-		float		damage;
+{
+protected:
+    float damage;
 
-		void		Hurt( Event *ev );
-      void		SetDamage( Event *ev );
+    void Hurt(Event *ev);
+    void SetDamage(Event *ev);
 
-	public:
-      CLASS_PROTOTYPE( TriggerHurt );
+public:
+    CLASS_PROTOTYPE(TriggerHurt);
 
-		             TriggerHurt();
-      void Archive(	Archiver &arc ) override;
-	};
+    TriggerHurt();
+    void Archive(Archiver& arc) override;
+};
 
-inline void TriggerHurt::Archive
-	(
-	Archiver &arc
-	)
-   {
-   TriggerUse::Archive( arc );
+inline void TriggerHurt::Archive(Archiver& arc)
+{
+    TriggerUse::Archive(arc);
 
-   arc.ArchiveFloat( &damage );
-   }
+    arc.ArchiveFloat(&damage);
+}
 
 class TriggerDamageTargets : public Trigger
-	{
-	protected:
-		float		    damage;
+{
+protected:
+    float damage;
 
-		void		    DamageTargets( Event *ev );
-      void		    SetDamage( Event *ev );
+    void DamageTargets(Event *ev);
+    void SetDamage(Event *ev);
 
-	public:
-      CLASS_PROTOTYPE( TriggerDamageTargets );
+public:
+    CLASS_PROTOTYPE(TriggerDamageTargets);
 
-		             TriggerDamageTargets();
-		void	       PassDamage( Event *ev );
-      void Archive(	Archiver &arc ) override;
-	};
+    TriggerDamageTargets();
+    void PassDamage(Event *ev);
+    void Archive(Archiver& arc) override;
+};
 
-inline void TriggerDamageTargets::Archive
-	(
-	Archiver &arc
-	)
+inline void TriggerDamageTargets::Archive(Archiver& arc)
 
-   {
-   Trigger::Archive( arc );
+{
+    Trigger::Archive(arc);
 
-   arc.ArchiveFloat( &damage );
-   }
+    arc.ArchiveFloat(&damage);
+}
 
 class TriggerCameraUse : public TriggerUse
-	{
-	public:
-      CLASS_PROTOTYPE( TriggerCameraUse );
+{
+public:
+    CLASS_PROTOTYPE(TriggerCameraUse);
 
-		void TriggerCamera( Event * ev );
-	};
+    void TriggerCamera(Event *ev);
+};
 
 class TriggerBox : public Trigger
-	{
-	public:
-      CLASS_PROTOTYPE( TriggerBox );
+{
+public:
+    CLASS_PROTOTYPE(TriggerBox);
 
-      void           SetMins( Event *ev );
-      void           SetMaxs( Event *ev );
-	};
+    void SetMins(Event *ev);
+    void SetMaxs(Event *ev);
+};
 
 class TriggerMusic : public Trigger
-	{
-	private:
-      friend class   SoundManager;
+{
+private:
+    friend class SoundManager;
 
-      qboolean       oneshot;
-		str				current;
-		str				fallback;
-		str				altcurrent;
-		str				altfallback;
-	public:
-      CLASS_PROTOTYPE( TriggerMusic );
+    qboolean oneshot;
+    str      current;
+    str      fallback;
+    str      altcurrent;
+    str      altfallback;
 
-							TriggerMusic();
-		void				SetCurrentMood( Event *ev );
-		void				SetFallbackMood( Event *ev );
-		void				SetAltCurrentMood( Event *ev );
-		void				SetAltFallbackMood( Event *ev );
-		void				ChangeMood(	Event *ev );
-		void				AltChangeMood(	Event *ev );
-      void           SetOneShot( Event *ev );
+public:
+    CLASS_PROTOTYPE(TriggerMusic);
 
-      void           SetMood( str crnt, str fback );
-      void           SetAltMood( str crnt, str fback );
-      void           SetOneShot( qboolean once );
+    TriggerMusic();
+    void SetCurrentMood(Event *ev);
+    void SetFallbackMood(Event *ev);
+    void SetAltCurrentMood(Event *ev);
+    void SetAltFallbackMood(Event *ev);
+    void ChangeMood(Event *ev);
+    void AltChangeMood(Event *ev);
+    void SetOneShot(Event *ev);
 
-		void Archive(	Archiver &arc ) override;
-	};
+    void SetMood(str crnt, str fback);
+    void SetAltMood(str crnt, str fback);
+    void SetOneShot(qboolean once);
 
-inline void TriggerMusic::Archive
-	(
-	Archiver &arc
-	)
+    void Archive(Archiver& arc) override;
+};
 
-   {
-   Trigger::Archive( arc );
+inline void TriggerMusic::Archive(Archiver& arc)
 
-   arc.ArchiveBoolean( &oneshot );
-   arc.ArchiveString( &current );
-	arc.ArchiveString( &fallback );
-   arc.ArchiveString( &altcurrent );
-	arc.ArchiveString( &altfallback );
-   }
+{
+    Trigger::Archive(arc);
+
+    arc.ArchiveBoolean(&oneshot);
+    arc.ArchiveString(&current);
+    arc.ArchiveString(&fallback);
+    arc.ArchiveString(&altcurrent);
+    arc.ArchiveString(&altfallback);
+}
 
 class TriggerReverb : public Trigger
-	{
-	private:
-      friend class   SoundManager;
+{
+private:
+    friend class SoundManager;
 
-      qboolean       oneshot;
-		int				reverbtype;
-		int				altreverbtype;
-      float          reverblevel;
-      float          altreverblevel;
-	public:
-      CLASS_PROTOTYPE( TriggerReverb );
+    qboolean oneshot;
+    int      reverbtype;
+    int      altreverbtype;
+    float    reverblevel;
+    float    altreverblevel;
 
-							TriggerReverb();
-		void				SetReverbLevel( Event *ev );
-		void				SetReverbType( Event *ev );
-		void				SetAltReverbType( Event *ev );
-		void				SetAltReverbLevel( Event *ev );
-		void				ChangeReverb(	Event *ev );
-		void				AltChangeReverb(	Event *ev );
-      void           SetOneShot( Event *ev );
+public:
+    CLASS_PROTOTYPE(TriggerReverb);
 
-      void           SetReverb( int type, float level );
-      void           SetAltReverb( int type, float level );
-      void           SetOneShot( qboolean once );
+    TriggerReverb();
+    void SetReverbLevel(Event *ev);
+    void SetReverbType(Event *ev);
+    void SetAltReverbType(Event *ev);
+    void SetAltReverbLevel(Event *ev);
+    void ChangeReverb(Event *ev);
+    void AltChangeReverb(Event *ev);
+    void SetOneShot(Event *ev);
 
-		void Archive(	Archiver &arc ) override;
-	};
+    void SetReverb(int type, float level);
+    void SetAltReverb(int type, float level);
+    void SetOneShot(qboolean once);
 
-inline void TriggerReverb::Archive
-	(
-	Archiver &arc
-	)
+    void Archive(Archiver& arc) override;
+};
 
-   {
-   Trigger::Archive( arc );
+inline void TriggerReverb::Archive(Archiver& arc)
 
-   arc.ArchiveBoolean( &oneshot );
-   arc.ArchiveInteger( &reverbtype );
-	arc.ArchiveInteger( &altreverbtype );
-   arc.ArchiveFloat( &reverblevel );
-	arc.ArchiveFloat( &altreverblevel );
-   }
+{
+    Trigger::Archive(arc);
+
+    arc.ArchiveBoolean(&oneshot);
+    arc.ArchiveInteger(&reverbtype);
+    arc.ArchiveInteger(&altreverbtype);
+    arc.ArchiveFloat(&reverblevel);
+    arc.ArchiveFloat(&altreverblevel);
+}
 
 class TriggerByPushObject : public TriggerOnce
-	{
-   private:
-      str               triggername;
+{
+private:
+    str triggername;
 
-      void              setTriggerName( Event *event );
+    void setTriggerName(Event *event);
 
-	public:
-      CLASS_PROTOTYPE( TriggerByPushObject );
+public:
+    CLASS_PROTOTYPE(TriggerByPushObject);
 
-      qboolean respondTo( Entity *other ) override;
-      Entity    *getActivator( Entity *other ) override;
+    qboolean respondTo(Entity *other) override;
+    Entity  *getActivator(Entity *other) override;
 
-		void Archive(	Archiver &arc ) override;
-	};
+    void Archive(Archiver& arc) override;
+};
 
-inline void TriggerByPushObject::Archive
-	(
-	Archiver &arc
-	)
+inline void TriggerByPushObject::Archive(Archiver& arc)
 
-   {
-   TriggerOnce::Archive( arc );
+{
+    TriggerOnce::Archive(arc);
 
-	arc.ArchiveString( &triggername );
-   }
+    arc.ArchiveString(&triggername);
+}
 
 class TriggerGivePowerup : public Trigger
-	{
-	private:
-      qboolean       oneshot;
-		str				powerup_name;
-	public:
-      CLASS_PROTOTYPE( TriggerGivePowerup );
-
-							TriggerGivePowerup();
-		void				SetOneShot( Event *ev );
-		void				SetPowerupName( Event *ev );
-		void				GivePowerup( Event *ev );
-		void Archive(	Archiver &arc ) override;
-	};
-
-inline void TriggerGivePowerup::Archive
-	(
-	Archiver &arc
-	)
 {
-	Trigger::Archive( arc );
+private:
+    qboolean oneshot;
+    str      powerup_name;
 
-	arc.ArchiveBoolean( &oneshot );
-	arc.ArchiveString( &powerup_name );
+public:
+    CLASS_PROTOTYPE(TriggerGivePowerup);
+
+    TriggerGivePowerup();
+    void SetOneShot(Event *ev);
+    void SetPowerupName(Event *ev);
+    void GivePowerup(Event *ev);
+    void Archive(Archiver& arc) override;
+};
+
+inline void TriggerGivePowerup::Archive(Archiver& arc)
+{
+    Trigger::Archive(arc);
+
+    arc.ArchiveBoolean(&oneshot);
+    arc.ArchiveString(&powerup_name);
 }
 
 class TriggerClickItem : public Trigger
 {
 public:
-	CLASS_PROTOTYPE( TriggerClickItem );
+    CLASS_PROTOTYPE(TriggerClickItem);
 
-	TriggerClickItem();
+    TriggerClickItem();
 
-	void		SetClickItemModelEvent( Event *ev );
-	void		Archive( Archiver& arc ) override;
+    void SetClickItemModelEvent(Event *ev);
+    void Archive(Archiver& arc) override;
 };
 
-inline void TriggerClickItem::Archive
-	(
-	Archiver &arc
-	)
+inline void TriggerClickItem::Archive(Archiver& arc)
 {
-	Trigger::Archive( arc );
+    Trigger::Archive(arc);
 }
 
-class TriggerNoDamage : public TriggerUse {
+class TriggerNoDamage : public TriggerUse
+{
 public:
     CLASS_PROTOTYPE(TriggerNoDamage);
 
 public:
-	void TakeNoDamage(Event* ev);
+    void TakeNoDamage(Event *ev);
 };
 
-class TriggerEntity : public Trigger {
+class TriggerEntity : public Trigger
+{
 public:
     CLASS_PROTOTYPE(TriggerEntity);
 };
 
-class TriggerLandmine : public TriggerEntity {
+class TriggerLandmine : public TriggerEntity
+{
 public:
     CLASS_PROTOTYPE(TriggerLandmine);
 
-	TriggerLandmine();
+    TriggerLandmine();
     void Archive(Archiver& arc) override;
 
-	void EventIsAbandoned(Event* ev);
-	void EventIsImmune(Event* ev);
-	void EventSetDamageable(Event* ev);
+    void EventIsAbandoned(Event *ev);
+    void EventIsImmune(Event *ev);
+    void EventSetDamageable(Event *ev);
 
-	void SetDamageable(qboolean damageable);
-	qboolean IsImmune(Entity* other) const;
-	void SetTeam(int team);
+    void     SetDamageable(qboolean damageable);
+    qboolean IsImmune(Entity *other) const;
+    void     SetTeam(int team);
 
 private:
-	int team;
+    int team;
 };
 
 inline void TriggerLandmine::Archive(Archiver& arc)
 {
-	Trigger::Archive(arc);
+    Trigger::Archive(arc);
 
     arc.ArchiveInteger(&team);
 }
