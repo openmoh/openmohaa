@@ -233,7 +233,7 @@ void Class::ClearSafePointers(void)
     }
 }
 
-void Class::warning(const char *function, const char *format, ...)
+void Class::warning(const char *function, const char *format, ...) const
 {
     char        buffer[MAX_STRING_CHARS];
     const char *classname;
@@ -255,7 +255,7 @@ void Class::warning(const char *function, const char *format, ...)
     );
 }
 
-void Class::error(const char *function, const char *fmt, ...)
+void Class::error(const char *function, const char *fmt, ...) const
 {
     va_list argptr;
     char    text[1024];

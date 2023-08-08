@@ -270,8 +270,8 @@ public:
     qboolean isInheritedBy(const char* name) const;
     qboolean isInheritedBy(ClassDef* c) const;
 
-    void warning(const char* function, const char* format, ...);
-    void error(const char* function, const char* format, ...);
+    void warning(const char* function, const char* format, ...) const;
+    void error(const char* function, const char* format, ...) const;
 };
 
 #include "safeptr.h"
