@@ -612,26 +612,19 @@ inline void TriggerByPushObject::Archive(Archiver& arc)
 class TriggerGivePowerup : public Trigger
 {
 private:
-    qboolean oneshot;
-    str      powerup_name;
+    qboolean  oneshot;
+    const_str powerup_name;
 
 public:
     CLASS_PROTOTYPE(TriggerGivePowerup);
 
     TriggerGivePowerup();
+
     void SetOneShot(Event *ev);
     void SetPowerupName(Event *ev);
     void GivePowerup(Event *ev);
     void Archive(Archiver& arc) override;
 };
-
-inline void TriggerGivePowerup::Archive(Archiver& arc)
-{
-    Trigger::Archive(arc);
-
-    arc.ArchiveBoolean(&oneshot);
-    arc.ArchiveString(&powerup_name);
-}
 
 class TriggerClickItem : public Trigger
 {

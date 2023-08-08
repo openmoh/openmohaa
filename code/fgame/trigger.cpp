@@ -790,7 +790,7 @@ void TriggerAll::TriggerStuff(Event *ev)
     other = ev->GetEntity(1);
 
     if (other == this) {
-        throw ScriptException("trigger '%s' triggered by self", TargetName().c_str());
+        ScriptError("trigger '%s' triggered by self", TargetName().c_str());
     }
 
     // Always respond to activate messages from the world since they're probably from
@@ -1010,7 +1010,7 @@ If "delay" is set, the trigger waits some time after activating before firing.
 
 "targetname".  If "health" is set, the trigger must be killed to activate.
 
-"thread" name of thread to trigger.  This can be in a different script file as well\
+"setthread" name of thread to trigger.  This can be in a different script file as well\
 by using the '::' notation.
 
 if "killtarget" is set, any objects that have a matching "target" will be
@@ -1019,8 +1019,6 @@ removed when the trigger is fired.
 if "angle" is set, the trigger will only fire when someone is facing the
 direction of the angle.
 "cone" the cone in which a directed trigger can be triggered (default 60 degrees)
-
-"key" The item needed to activate this. (default nothing)
 
 "triggerable" turn trigger on
 "nottriggerable" turn trigger off
@@ -1147,13 +1145,11 @@ level.total_secrets and level.found_secrets.
 
 set "message" to text string
 
-"key" The item needed to activate this. (default nothing)
-
 if "angle" is set, the trigger will only fire when someone is facing the
 direction of the angle.
 "cone" the cone in which a directed trigger can be triggered (default 60 degrees)
 
-"thread" name of thread to trigger.  This can be in a different script file as well \
+"setthread" name of thread to trigger.  This can be in a different script file as well \
 by using the '::' notation.  (defaults to "global/universal_script.scr::secret")
 
 "triggerable" turn trigger on
@@ -1178,11 +1174,6 @@ TriggerSecret::TriggerSecret()
         return;
     }
     level.total_secrets++;
-    level.vars->SetVariable("total_secrets", level.total_secrets);
-    respondto = spawnflags ^ TRIGGER_PLAYERS;
-
-    // set the thread to trigger when secrets are found
-    label.Set("global/universal_script.scr::secret");
 }
 
 void TriggerSecret::FoundSecret(Event *ev)
@@ -1194,12 +1185,11 @@ void TriggerSecret::FoundSecret(Event *ev)
     // secret from the script, the player still gets credit for finding
     // it.  This is to prevent a secret from becoming undiscoverable.
     //
-    level.found_secrets++;
-    level.vars->SetVariable("found_secrets", level.found_secrets);
+    level.found_secrets++;  
 }
 
 /*****************************************************************************/
-/*QUAKED trigger_push (1 0 0) ? x x NOT_PLAYERS NOT_MONSTERS NOT_PROJECTILES
+/*QUAKED trigger_push (1 0 0) ? x x NOT_PLAYERS MONSTERS PROJECTILES
 
 Pushes entities as if they were caught in a heavy wind.
 
@@ -1207,21 +1197,26 @@ Pushes entities as if they were caught in a heavy wind.
 
 "angle" indicates the direction the wind is blowing (-1 is up, -2 is down)
 
-"key" The item needed to activate this. (default nothing)
-
 "target" if target is set, then a velocity will be calculated based on speed
 
 "triggerable" turn trigger on
 "nottriggerable" turn trigger off
 
 If NOT_PLAYERS is set, the trigger does not push players
-If NOT_MONSTERS is set, the trigger will not push monsters
-If NOT_PROJECTILES is set, the trigger will not push projectiles (rockets, grenades, etc.)
+If MONSTERS is set, the trigger will push monsters
+If PROJECTILES is set, the trigger will push projectiles (rockets, grenades, etc.)
 
 ******************************************************************************/
 
-Event
-    EV_TriggerPush_SetPushSpeed("speed", EV_DEFAULT, "f", "speed", "Set the push speed of the TriggerPush", EV_NORMAL);
+Event EV_TriggerPush_SetPushSpeed
+(
+    "speed",
+    EV_DEFAULT,
+    "f",
+    "speed",
+    "Set the push speed of the TriggerPush",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Trigger, TriggerPush, "trigger_push") {
     {&EV_Trigger_Effect,           &TriggerPush::Push        },
@@ -1231,7 +1226,6 @@ CLASS_DECLARATION(Trigger, TriggerPush, "trigger_push") {
 };
 
 void TriggerPush::Push(Event *ev)
-
 {
     Entity *other;
 
@@ -1260,7 +1254,6 @@ void TriggerPush::Push(Event *ev)
 }
 
 void TriggerPush::SetPushDir(Event *ev)
-
 {
     float angle;
 
@@ -1282,29 +1275,35 @@ TriggerPush::TriggerPush()
         return;
     }
     speed     = 1000;
-    respondto = spawnflags ^ (TRIGGER_PLAYERS | TRIGGER_MONSTERS | TRIGGER_PROJECTILES);
 }
 
 /*****************************************************************************/
-/*QUAKED trigger_pushany (1 0 0) ? x x NOT_PLAYERS NOT_MONSTERS NOT_PROJECTILES
+/*QUAKED trigger_pushany (1 0 0) ? x x NOT_PLAYERS MONSTERS PROJECTILES
 
 Pushes entities as if they were caught in a heavy wind.
 
 "speed" indicates the rate that entities are pushed (default 1000).
 "angles" indicates the direction of the push
-"key" The item needed to activate this. (default nothing)
 "target" if target is set, then a velocity will be calculated based on speed
 
 "triggerable" turn trigger on
 "nottriggerable" turn trigger off
 
 If NOT_PLAYERS is set, the trigger does not push players
-If NOT_MONSTERS is set, the trigger will not push monsters
-If NOT_PROJECTILES is set, the trigger will not push projectiles (rockets, grenades, etc.)
+If MONSTERS is set, the trigger will push monsters
+If PROJECTILES is set, the trigger will push projectiles (rockets, grenades, etc.)
 
 ******************************************************************************/
 
-Event EV_TriggerPushAny_SetSpeed("speed", EV_DEFAULT, "f", "speed", "Set the speed.", EV_NORMAL);
+Event EV_TriggerPushAny_SetSpeed
+(
+    "speed",
+    EV_DEFAULT,
+    "f",
+    "speed",
+    "Set the speed.",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Trigger, TriggerPushAny, "trigger_pushany") {
     {&EV_TriggerPushAny_SetSpeed, &TriggerPushAny::SetSpeed},
@@ -1319,11 +1318,9 @@ TriggerPushAny::TriggerPushAny()
         return;
     }
     speed     = 1000;
-    respondto = spawnflags ^ (TRIGGER_PLAYERS | TRIGGER_MONSTERS | TRIGGER_PROJECTILES);
 }
 
 void TriggerPushAny::Push(Event *ev)
-
 {
     Entity *other;
 
@@ -1344,7 +1341,6 @@ void TriggerPushAny::Push(Event *ev)
 }
 
 void TriggerPushAny::SetSpeed(Event *ev)
-
 {
     speed = ev->GetFloat(1);
 }
@@ -1355,10 +1351,41 @@ void TriggerPushAny::SetSpeed(Event *ev)
 //
 //================================================================================================
 
-Event EV_TriggerPlaySound_SetVolume("volume", EV_DEFAULT, "f", "volume", "Sets the volume.", EV_NORMAL);
-Event EV_TriggerPlaySound_SetMinDist("min_dist", EV_DEFAULT, "f", "min_dist", "Sets the minimum distance.", EV_NORMAL);
-Event EV_TriggerPlaySound_SetChannel(
-    "channel", EV_DEFAULT, "i", "channel", "Sets the sound channel to play on.", EV_NORMAL
+Event EV_TriggerPlaySound_SetPitch
+(
+    "pitch",
+    EV_DEFAULT,
+    "f",
+    "pitch",
+    "Sets the pitch.",
+    EV_NORMAL
+);
+Event EV_TriggerPlaySound_SetVolume
+(
+    "volume",
+    EV_DEFAULT,
+    "f",
+    "volume",
+    "Sets the volume.",
+    EV_NORMAL
+);
+Event EV_TriggerPlaySound_SetMinDist
+(
+    "min_dist",
+    EV_DEFAULT,
+    "f",
+    "min_dist",
+    "Sets the minimum distance.",
+    EV_NORMAL
+);
+Event EV_TriggerPlaySound_SetChannel
+(
+    "channel",
+    EV_DEFAULT,
+    "i",
+    "channel",
+    "Sets the sound channel to play on.",
+    EV_NORMAL
 );
 
 CLASS_DECLARATION(Trigger, TriggerPlaySound, "play_sound_triggered") {
@@ -1479,8 +1506,7 @@ if (AMBIENT-?) is not set, then the sound is sent over explicitly this creates m
 "noise" sound to play
 "channel" channel on which to play sound\
 (0 auto, 1 weapon, 2 voice, 3 item, 4 body, 8 don't use PHS) (voice is default)
-"key" The item needed to activate this. (default nothing)
-"thread" name of thread to trigger.  This can be in a different script file as well\
+"setthread" name of thread to trigger.  This can be in a different script file as well\
 by using the '::' notation.
 
 Normal sounds play each time the target is used.
@@ -1512,7 +1538,6 @@ play a sound at random times
 "noise" sound to play
 "channel" channel on which to play sound\
 (0 auto, 1 weapon, 2 voice, 3 item, 4 body, 8 don't use PHS) (voice is default)
-"key"          The item needed to activate this. (default nothing)
 
 Normal sounds play each time the target is used.
 
@@ -1522,17 +1547,41 @@ If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenade
 
 ******************************************************************************/
 
-Event EV_TriggerRandomSpeaker_TriggerSound(
-    "triggersound", EV_DEFAULT, NULL, NULL, "Triggers the sound to play and schedules the next time to play.", EV_NORMAL
+Event EV_TriggerRandomSpeaker_TriggerSound
+(
+    "triggersound",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Triggers the sound to play and schedules the next time to play.",
+    EV_NORMAL
 );
-Event EV_Trigger_SetMinDelay(
-    "mindelay", EV_DEFAULT, "f", "min_delay", "Sets the minimum time between playings.", EV_NORMAL
+Event EV_Trigger_SetMinDelay
+(
+    "mindelay",
+    EV_DEFAULT,
+    "f",
+    "min_delay",
+    "Sets the minimum time between playings.",
+    EV_NORMAL
 );
-Event EV_Trigger_SetMaxDelay(
-    "maxdelay", EV_DEFAULT, "f", "max_delay", "Sets the maximum time between playings.", EV_NORMAL
+Event EV_Trigger_SetMaxDelay
+(
+    "maxdelay",
+    EV_DEFAULT,
+    "f",
+    "max_delay",
+    "Sets the maximum time between playings.",
+    EV_NORMAL
 );
-Event EV_Trigger_SetChance(
-    "chance", EV_DEFAULT, "f[0,1]", "newChance", "Sets the chance that the sound will play when triggered.", EV_NORMAL
+Event EV_Trigger_SetChance
+(
+    "chance",
+    EV_DEFAULT,
+    "f[0,1]",
+    "newChance",
+    "Sets the chance that the sound will play when triggered.",
+    EV_NORMAL
 );
 
 CLASS_DECLARATION(TriggerSpeaker, RandomSpeaker, "sound_randomspeaker") {
@@ -1618,8 +1667,7 @@ Unless the NO_INTERMISSION flag is set, the view will go to the info_intermissio
 spot and display stats.
 
 "spawnspot"  name of the spawn location to start at in next map.
-"key"          The item needed to activate this. (default nothing)
-"thread" This defaults to "LevelComplete" and should point to a thread that is called just
+"setthread" This defaults to "LevelComplete" and should point to a thread that is called just
 before the level ends.
 
 "triggerable" turn trigger on
@@ -1631,11 +1679,23 @@ If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenade
 
 ******************************************************************************/
 
-Event EV_TriggerChangeLevel_Map(
-    "map", EV_DEFAULT, "s", "map_name", "Sets the map to change to when triggered.", EV_NORMAL
+Event EV_TriggerChangeLevel_Map
+(
+    "map",
+    EV_DEFAULT,
+    "s",
+    "map_name",
+    "Sets the map to change to when triggered.",
+    EV_NORMAL
 );
-Event EV_TriggerChangeLevel_SpawnSpot(
-    "spawnspot", EV_DEFAULT, "s", "spawn_spot", "Sets the spawn spot to use.", EV_NORMAL
+Event EV_TriggerChangeLevel_SpawnSpot
+(
+    "spawnspot",
+    EV_DEFAULT,
+    "s",
+    "spawn_spot",
+    "Sets the spawn spot to use.",
+    EV_NORMAL
 );
 
 CLASS_DECLARATION(Trigger, TriggerChangeLevel, "trigger_changelevel") {
@@ -1741,11 +1801,10 @@ void TriggerChangeLevel::Archive(Archiver& arc)
 }
 
 /*****************************************************************************/
-/*QUAKED trigger_use (1 0 0) ? VISIBLE x NOT_PLAYERS MONSTERS
+/*QUAKED trigger_use (1 0 0) ? x x NOT_PLAYERS MONSTERS
 
 Activates targets when 'used' by an entity
-"key"          The item needed to activate this. (default nothing)
-"thread" name of thread to trigger.  This can be in a different script file as well\
+"setthread" name of thread to trigger.  This can be in a different script file as well\
 by using the '::' notation.
 
 "triggerable" turn trigger on
@@ -1764,25 +1823,13 @@ CLASS_DECLARATION(Trigger, TriggerUse, "trigger_use") {
 
 TriggerUse::TriggerUse()
 {
-    if (LoadingSavegame) {
-        // Archive function will setup all necessary data
-        return;
-    }
-    if (spawnflags & VISIBLE) {
-        showModel();
-        setMoveType(MOVETYPE_PUSH);
-        setSolidType(SOLID_BSP);
-    }
-
-    respondto = (spawnflags ^ TRIGGER_PLAYERS) & ~TRIGGER_PROJECTILES;
 }
 
 /*****************************************************************************/
-/*QUAKED trigger_useonce (1 0 0) ? VISIBLE x NOT_PLAYERS MONSTERS
+/*QUAKED trigger_useonce (1 0 0) ? x x NOT_PLAYERS MONSTERS
 
 Activates targets when 'used' by an entity, but only once
-"key"          The item needed to activate this. (default nothing)
-"thread" name of thread to trigger.  This can be in a different script file as well\
+"setthread" name of thread to trigger.  This can be in a different script file as well\
 by using the '::' notation.
 
 "triggerable" turn trigger on
@@ -1807,30 +1854,41 @@ TriggerUseOnce::TriggerUseOnce()
 
     // Only allow 1 use.
     count = 1;
-
-    respondto = (spawnflags ^ TRIGGER_PLAYERS) & ~TRIGGER_PROJECTILES;
 }
 
 /*****************************************************************************/
-/*QUAKED trigger_hurt (1 0 0) ? x x NOT_PLAYERS NOT_MONSTERS PROJECTILES
+/*QUAKED trigger_hurt (1 0 0) ? x x NOT_PLAYERS MONSTERS PROJECTILES
 
 "damage" amount of damage to cause. (default 10)
-"key"          The item needed to activate this. (default nothing)
 "damagetype" what kind of damage should be given to the player. (default CRUSH)
 
 "triggerable" turn trigger on
 "nottriggerable" turn trigger off
 
 If NOT_PLAYERS is set, the trigger does not hurt players
-If NOT_MONSTERS is set, the trigger does not hurt monsters
+If MONSTERS is set, the trigger hurts monsters
 If PROJECTILES is set, the trigger will hurt projectiles (rockets, grenades, etc.)
 
 ******************************************************************************/
 
-Event EV_TriggerHurt_SetDamage("damage", EV_DEFAULT, "i", "damage", "Sets the amount of damage to do.", EV_NORMAL);
+Event EV_TriggerHurt_SetDamage
+(
+    "damage",
+    EV_DEFAULT,
+    "i",
+    "damage",
+    "Sets the amount of damage to do.",
+    EV_NORMAL
+);
 
-Event EV_TriggerHurt_SetDamageType(
-    "damagetype", EV_DEFAULT, "s", "damageType", "Sets the type of damage a TriggerHurt delivers.", EV_NORMAL
+Event EV_TriggerHurt_SetDamageType
+(
+    "damagetype",
+    EV_DEFAULT,
+    "s",
+    "damageType",
+    "Sets the type of damage a TriggerHurt delivers.",
+    EV_NORMAL
 );
 
 CLASS_DECLARATION(TriggerUse, TriggerHurt, "trigger_hurt") {
@@ -1850,17 +1908,14 @@ TriggerHurt::TriggerHurt()
 
     damage      = 10;
     damage_type = MOD_CRUSH;
-    respondto   = spawnflags ^ (TRIGGER_PLAYERS | TRIGGER_MONSTERS);
 }
 
 void TriggerHurt::SetDamage(Event *ev)
-
 {
     damage = ev->GetInteger(1);
 }
 
 void TriggerHurt::Hurt(Event *ev)
-
 {
     Entity *other;
 
@@ -1879,8 +1934,6 @@ void TriggerHurt::Hurt(Event *ev)
 "damage" amount of damage to cause. If no damage is specified, objects\
 are damaged by the current health+1
 
-"key"          The item needed to activate this. (default nothing)
-
 if a trigger_damagetargets is shot at and the SOLID flag is set,\
 the damage is passed on to the targets
 
@@ -1893,8 +1946,14 @@ If PROJECTILES is set, the trigger will hurt projectiles (rockets, grenades, etc
 
 ******************************************************************************/
 
-Event EV_TriggerDamageTargets_SetDamage(
-    "damage", EV_DEFAULT, "i", "damage", "Sets the amount of damage to do.", EV_NORMAL
+Event EV_TriggerDamageTargets_SetDamage
+(
+    "damage",
+    EV_DEFAULT,
+    "i",
+    "damage",
+    "Sets the amount of damage to do.",
+    EV_NORMAL
 );
 
 CLASS_DECLARATION(Trigger, TriggerDamageTargets, "trigger_damagetargets") {
@@ -1913,11 +1972,11 @@ TriggerDamageTargets::TriggerDamageTargets()
     }
 
     damage    = 0;
-    respondto = spawnflags ^ (TRIGGER_PLAYERS | TRIGGER_MONSTERS);
 
     if (spawnflags & 1) {
         health     = 60;
         max_health = health;
+        deadflag = DEAD_NO;
         takedamage = DAMAGE_YES;
         setSolidType(SOLID_BBOX);
     } else {
@@ -1955,7 +2014,7 @@ void TriggerDamageTargets::PassDamage(Event *ev)
                 break;
             }
 
-            if (!ent->deadflag && !(ent->flags & FL_GODMODE)) {
+            if (!ent->deadflag) {
                 ent->Damage(this, attacker, dmg, ent->origin, vec_zero, vec_zero, 0, 0, MOD_CRUSH);
             }
         } while (1);
@@ -2010,7 +2069,7 @@ void TriggerDamageTargets::DamageTargets(Event *ev)
                 break;
             }
 
-            if (!ent->deadflag && !(ent->flags & FL_GODMODE)) {
+            if (!ent->IsDead()) {
                 if (damage) {
                     ent->Damage(this, other, damage, ent->origin, vec_zero, vec_zero, 0, 0, MOD_CRUSH);
                 } else {
@@ -2028,8 +2087,7 @@ void TriggerDamageTargets::DamageTargets(Event *ev)
 
 Activates 'targeted' camera when 'used'
 If activated, toggles through cameras
-"key"          The item needed to activate this. (default nothing)
-"thread" name of thread to trigger.  This can be in a different script file as well\
+"setthread" name of thread to trigger.  This can be in a different script file as well\
 by using the '::' notation.
 
 "triggerable" turn trigger on
@@ -2102,8 +2160,14 @@ This is to inform him that he is near an exit.
 
 ******************************************************************************/
 
-Event EV_TriggerExit_TurnExitOff(
-    "_turnexitoff", EV_DEFAULT, NULL, NULL, "Internal event that turns the exit sign off.", EV_NORMAL
+Event EV_TriggerExit_TurnExitOff
+(
+    "_turnexitoff",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Internal event that turns the exit sign off.",
+    EV_NORMAL
 );
 
 CLASS_DECLARATION(Trigger, TriggerExit, "trigger_exit") {
@@ -2115,7 +2179,6 @@ CLASS_DECLARATION(Trigger, TriggerExit, "trigger_exit") {
 TriggerExit::TriggerExit()
 {
     wait      = 1;
-    respondto = TRIGGER_PLAYERS;
 }
 
 void TriggerExit::TurnExitSignOff(Event *ev)
@@ -2142,7 +2205,7 @@ be spawned via script.
 If "health" is set, the trigger must be killed to activate each time.
 If "delay" is set, the trigger waits some time after activating before firing.
 
-"thread" name of thread to trigger.  This can be in a different script file as well\
+"setthread" name of thread to trigger.  This can be in a different script file as well\
 by using the '::' notation.
 
 "wait" : Seconds between triggerings. (.2 default)
@@ -2159,8 +2222,23 @@ set "message" to text string
 
 ******************************************************************************/
 
-Event EV_TriggerBox_SetMins("mins", EV_DEFAULT, "v", "mins", "Sets the minimum bounds of the trigger box.", EV_NORMAL);
-Event EV_TriggerBox_SetMaxs("maxs", EV_DEFAULT, "v", "maxs", "Sets the maximum bounds of the trigger box.", EV_NORMAL);
+Event EV_TriggerBox_SetMins
+(
+    "mins",
+    EV_DEFAULT,
+    "v",
+    "mins",
+    "Sets the minimum bounds of the trigger box.", EV_NORMAL
+);
+Event EV_TriggerBox_SetMaxs
+(
+    "maxs",
+    EV_DEFAULT,
+    "v",
+    "maxs",
+    "Sets the maximum bounds of the trigger box.",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Trigger, TriggerBox, "trigger_box") {
     {&EV_TriggerBox_SetMins, &TriggerBox::SetMins},
@@ -2169,7 +2247,6 @@ CLASS_DECLARATION(Trigger, TriggerBox, "trigger_box") {
 };
 
 void TriggerBox::SetMins(Event *ev)
-
 {
     Vector org;
 
@@ -2181,7 +2258,6 @@ void TriggerBox::SetMins(Event *ev)
 }
 
 void TriggerBox::SetMaxs(Event *ev)
-
 {
     Vector org;
 
@@ -2223,15 +2299,26 @@ NORMAL, ACTION, SUSPENSE, MYSTERY, and SURPRISE are the moods that can be trigge
 
 ******************************************************************************/
 
-Event EV_TriggerMusic_CurrentMood(
-    "current", EV_DEFAULT, "s", "current_mood", "Sets the current mood to use when triggered.", EV_NORMAL
+Event EV_TriggerMusic_CurrentMood
+(
+    "current",
+    EV_DEFAULT,
+    "s",
+    "current_mood",
+    "Sets the current mood to use when triggered.",
+    EV_NORMAL
 );
-
-Event EV_TriggerMusic_FallbackMood(
-    "fallback", EV_DEFAULT, "s", "fallback_mood", "Sets the fallback mood to use when triggered.", EV_NORMAL
+Event EV_TriggerMusic_FallbackMood
+(
+    "fallback",
+    EV_DEFAULT,
+    "s",
+    "fallback_mood",
+    "Sets the fallback mood to use when triggered.",
+    EV_NORMAL
 );
-
-Event EV_TriggerMusic_AltCurrentMood(
+Event EV_TriggerMusic_AltCurrentMood
+(
     "altcurrent",
     EV_DEFAULT,
     "s",
@@ -2239,8 +2326,8 @@ Event EV_TriggerMusic_AltCurrentMood(
     "Sets the alternate current mood to use when triggered.",
     EV_NORMAL
 );
-
-Event EV_TriggerMusic_AltFallbackMood(
+Event EV_TriggerMusic_AltFallbackMood
+(
     "altfallback",
     EV_DEFAULT,
     "s",
@@ -2248,8 +2335,15 @@ Event EV_TriggerMusic_AltFallbackMood(
     "Sets the alternate fallback mood to use when triggered.",
     EV_NORMAL
 );
-
-Event EV_TriggerMusic_OneShot("oneshot", EV_DEFAULT, NULL, NULL, "Make this a one time trigger.", EV_NORMAL);
+Event EV_TriggerMusic_OneShot
+(
+    "oneshot",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Make this a one time trigger.",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Trigger, TriggerMusic, "trigger_music") {
     {&EV_TriggerMusic_CurrentMood,     &TriggerMusic::SetCurrentMood    },
@@ -2290,7 +2384,6 @@ TriggerMusic::TriggerMusic()
     SetOneShot(false);
 
     noise     = "";
-    respondto = spawnflags ^ TRIGGER_PLAYERS;
 
     current  = "normal";
     fallback = "normal";
@@ -2384,7 +2477,7 @@ If "delay" is set, the trigger waits some time after activating before firing.
 "multiFaceted" if 1, then trigger is North/South separate triggerable\
 if 2, then trigger East/West separate triggerable
 
-"thread" name of thread to trigger.  This can be in a different script file as well\
+"setthread" name of thread to trigger.  This can be in a different script file as well\
 by using the '::' notation.
 "wait" : Seconds between triggerings. (1.0 default)
 "cnt" how many times it can be triggered (infinite default)
@@ -2399,20 +2492,55 @@ If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenade
 
 ******************************************************************************/
 
-Event EV_TriggerReverb_ReverbType("reverbtype", EV_DEFAULT, "i", "reverbType", "Sets the reverb type.", EV_NORMAL);
-
-Event EV_TriggerReverb_ReverbLevel(
-    "reverblevel", EV_DEFAULT, "f", "reverbLevel", "Sets the reverb level to be used when triggered.", EV_NORMAL
+Event EV_TriggerReverb_ReverbType
+(
+    "reverbtype",
+    EV_DEFAULT,
+    "i",
+    "reverbType",
+    "Sets the reverb type.",
+    EV_NORMAL
 );
 
-Event
-    EV_TriggerReverb_AltReverbType("altreverbtype", EV_DEFAULT, "i", "reverbType", "Sets the reverb type.", EV_NORMAL);
-
-Event EV_TriggerReverb_AltReverbLevel(
-    "altreverblevel", EV_DEFAULT, "f", "reverbLevel", "Sets the reverb level to be used when triggered.", EV_NORMAL
+Event EV_TriggerReverb_ReverbLevel
+(
+    "reverblevel",
+    EV_DEFAULT,
+    "f",
+    "reverbLevel",
+    "Sets the reverb level to be used when triggered.",
+    EV_NORMAL
 );
 
-Event EV_TriggerReverb_OneShot("oneshot", EV_DEFAULT, NULL, NULL, "Make this a one time trigger.", EV_NORMAL);
+Event EV_TriggerReverb_AltReverbType
+(
+    "altreverbtype",
+    EV_DEFAULT,
+    "i",
+    "reverbType",
+    "Sets the reverb type.",
+    EV_NORMAL
+);
+
+Event EV_TriggerReverb_AltReverbLevel
+(
+    "altreverblevel",
+    EV_DEFAULT,
+    "f",
+    "reverbLevel",
+    "Sets the reverb level to be used when triggered.",
+    EV_NORMAL
+);
+
+Event EV_TriggerReverb_OneShot
+(
+    "oneshot",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Make this a one time trigger.",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Trigger, TriggerReverb, "trigger_music") {
     {&EV_TriggerReverb_ReverbType,     &TriggerReverb::SetReverbType    },
@@ -2453,7 +2581,6 @@ TriggerReverb::TriggerReverb()
     SetOneShot(false);
 
     noise     = "";
-    respondto = spawnflags ^ TRIGGER_PLAYERS;
 
     reverbtype     = 0;
     altreverbtype  = 0;
@@ -2538,14 +2665,15 @@ void TriggerReverb::SetOneShot(Event *ev)
 }
 
 /*****************************************************************************/
-/*QUAKED trigger_pushobject (1 0 0) ? 
+/*QUAKED trigger_pushobject (1 0 0) ?
 Special trigger that can only be triggered by a push object.
 
 "triggername" if set, trigger only responds to objects with a targetname the same as triggername.
 "cnt" how many times it can be triggered (default 1, use -1 for infinite)
 ******************************************************************************/
 
-Event EV_TriggerByPushObject_TriggerName(
+Event EV_TriggerByPushObject_TriggerName
+(
     "triggername",
     EV_DEFAULT,
     "s",
@@ -2560,7 +2688,6 @@ CLASS_DECLARATION(TriggerOnce, TriggerByPushObject, "trigger_pushobject") {
 };
 
 void TriggerByPushObject::setTriggerName(Event *event)
-
 {
     triggername = event->GetString(1);
 }
@@ -2593,6 +2720,112 @@ Entity *TriggerByPushObject::getActivator(Entity *other)
     }
 
     return other;
+}
+
+Event EV_TriggerGivePowerup_OneShot
+(
+    "oneshot",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Make this a one time trigger."
+);
+
+Event EV_TriggerGivePowerup_PowerupName
+(
+    "powerupname",
+    EV_DEFAULT,
+    "s",
+    "powerup_name",
+    "Specifies the powerup to give to the sentient."
+);
+
+CLASS_DECLARATION(Trigger, TriggerGivePowerup, "trigger_givepowerup") {
+    {&EV_TriggerGivePowerup_OneShot,      &TriggerGivePowerup::SetOneShot    },
+    {&EV_TriggerGivePowerup_PowerupName,  &TriggerGivePowerup::SetPowerupName},
+    {&EV_Trigger_Effect,                  &TriggerGivePowerup::GivePowerup   },
+    {NULL,                                NULL                               }
+};
+
+TriggerGivePowerup::TriggerGivePowerup()
+{
+    if (LoadingSavegame) {
+        // Archive function will setup all necessary data
+        return;
+    }
+    removable        = false;
+    triggerActivated = false;
+    activator        = NULL;
+    trigger_time     = (float)0;
+    edgeTriggered    = qtrue;
+
+    setMoveType(MOVETYPE_NONE);
+    setSolidType(SOLID_TRIGGER);
+
+    setContents(0);
+    edict->r.svFlags |= SVF_NOCLIENT;
+
+    delay      = 0;
+    wait       = 1.0f;
+    health     = 0;
+    max_health = 0;
+
+    trigger_time = (float)0;
+
+    oneshot      = false;
+
+    count        = -1;
+    noise        = "";
+    powerup_name = STRING_EMPTY;
+}
+
+void TriggerGivePowerup::SetOneShot(Event* ev)
+{
+    trigger_time = 0.f;
+    oneshot      = true;
+    count        = 1;
+}
+
+void TriggerGivePowerup::SetPowerupName(Event* ev)
+{
+    powerup_name = ev->GetConstString(1);
+}
+
+void TriggerGivePowerup::GivePowerup(Event* ev)
+{
+    Entity* other = ev->GetEntity(1);
+    Sentient* sen;
+    str powerup_name_str;
+
+    if (!other->IsSubclassOfSentient()) {
+        // ignore non-sentient entities
+        return;
+    }
+
+    sen = static_cast<Sentient*>(other);
+    powerup_name_str = Director.GetString(powerup_name);
+    if (sen->FindItem(powerup_name_str)) {
+        // sentient already has that item, so ignore
+        return;
+    }
+
+    // NOTE:
+    // Little bug found in original mohaa, even in 2.40!!
+    // Sentient::giveItem() expects an str and powerup_name is a const_str
+    // which is an int. It means that powerup_name is implicitly passed as an integer value
+    // for the str(int) constructor, which will convert the number to string
+    //sen->giveItem(powerup_name);
+
+    // Pass the obtained str instead
+    sen->giveItem(powerup_name_str);
+}
+
+void TriggerGivePowerup::Archive(Archiver& arc)
+{
+	Trigger::Archive(arc);
+
+	arc.ArchiveBoolean(&oneshot);
+	Director.ArchiveString(arc, powerup_name);
 }
 
 /*****************************************************************************
@@ -2670,15 +2903,28 @@ CLASS_DECLARATION(Trigger, TriggerEntity, "trigger_entity") {
     {NULL, NULL}
 };
 
-Event EV_Trigger_IsAbandonned(
-    "isabandonned", EV_DEFAULT, "e", "owner", "Returns true if the owner has abandoned the mine", EV_RETURN
+Event EV_Trigger_IsAbandonned
+(
+    "isabandonned",
+    EV_DEFAULT,
+    "e",
+    "owner",
+    "Returns true if the owner has abandoned the mine",
+    EV_RETURN
 );
 
-Event EV_Trigger_IsImmune(
-    "isimmune", EV_DEFAULT, "e", "owner", "Returns true if the given entity is immune to this landmine", EV_RETURN
+Event EV_Trigger_IsImmune
+(
+    "isimmune",
+    EV_DEFAULT,
+    "e",
+    "owner",
+    "Returns true if the given entity is immune to this landmine",
+    EV_RETURN
 );
 
-Event EV_Trigger_SetDamageable(
+Event EV_Trigger_SetDamageable
+(
     "damageable",
     EV_DEFAULT,
     "b",
