@@ -213,7 +213,7 @@ Event EV_Trigger_SetTriggerCone
 #define TRIGGER_PLAYERS			4
 #define TRIGGER_MONSTERS		8
 #define TRIGGER_PROJECTILES		16
-#define TRIGGER_DAMAGE			64
+#define TRIGGER_DAMAGE			128
 
 /*****************************************************************************/
 /*QUAKED trigger_multiple (1 0 0) ? x x NOT_PLAYERS MONSTERS PROJECTILES x x DAMAGE
@@ -223,7 +223,7 @@ Variable sized repeatable trigger.  Must be targeted at one or more entities.
 If "health" is set, the trigger must be killed to activate each time.
 If "delay" is set, the trigger waits some time after activating before firing.
 
-"thread" name of thread to trigger.  This can be in a different script file as well\
+"setthread" name of thread to trigger.  This can be in a different script file as well\
 by using the '::' notation.
 
 if "angle" is set, the trigger will only fire when someone is facing the
@@ -239,6 +239,7 @@ direction of the angle.
 If NOT_PLAYERS is set, the trigger does not respond to players
 If MONSTERS is set, the trigger will respond to monsters
 If PROJECTILES is set, the trigger will respond to projectiles (rockets, grenades, etc.)
+If DAMAGE is set, the trigger will only respond to bullets
 
 set "message" to text string
 
@@ -292,7 +293,7 @@ Trigger::Trigger()
 	if( spawnflags & TRIGGER_DAMAGE )
 	{
 		takedamage = DAMAGE_YES;
-		setContents( CONTENTS_NOTTEAM1 );
+		setContents( CONTENTS_CLAYPIDGEON );
 		setSolidType( SOLID_BBOX );
 	}
 	else
