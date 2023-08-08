@@ -56,8 +56,8 @@ protected:
     float             trigger_time;
     qboolean          triggerActivated;
     int               count;
-    str               noise;
-    str               message;
+	const_str         noise;
+	const_str         message;
     ScriptThreadLabel label;
     EntityPtr         activator;
     int               respondto;
@@ -118,32 +118,6 @@ public:
     void ActivateTargets(Event *ev);
     void Archive(Archiver& arc) override;
 };
-
-inline void Trigger::Archive(Archiver& arc)
-{
-    Animate::Archive(arc);
-
-    arc.ArchiveFloat(&wait);
-    arc.ArchiveFloat(&delay);
-    arc.ArchiveFloat(&trigger_time);
-    arc.ArchiveBoolean(&triggerActivated);
-    arc.ArchiveInteger(&count);
-    arc.ArchiveString(&noise);
-    if (arc.Loading()) {
-        SetNoise(noise.c_str());
-    }
-    arc.ArchiveString(&message);
-    arc.ArchiveSafePointer(&activator);
-    arc.ArchiveInteger(&respondto);
-    arc.ArchiveBoolean(&useTriggerDir);
-    arc.ArchiveFloat(&triggerCone);
-    arc.ArchiveVector(&triggerDir);
-    arc.ArchiveFloat(&triggerDirYaw);
-    arc.ArchiveBoolean(&triggerable);
-    arc.ArchiveBoolean(&removable);
-    arc.ArchiveBoolean(&edgeTriggered);
-    arc.ArchiveInteger(&multiFaceted);
-}
 
 class TriggerVehicle : public Trigger
 {
@@ -229,12 +203,6 @@ public:
     void EventSaveName(Event *ev);
     void Archive(Archiver& arc) override;
 };
-
-inline void TriggerSave::Archive(Archiver& arc)
-{
-    Trigger::Archive(arc);
-    arc.ArchiveString(&m_sSaveName);
-}
 
 class TriggerRelay : public Trigger
 {
@@ -506,11 +474,11 @@ class TriggerMusic : public Trigger
 private:
     friend class SoundManager;
 
-    qboolean oneshot;
-    str      current;
-    str      fallback;
-    str      altcurrent;
-    str      altfallback;
+    qboolean  oneshot;
+    const_str current;
+    const_str fallback;
+    const_str altcurrent;
+    const_str altfallback;
 
 public:
     CLASS_PROTOTYPE(TriggerMusic);
@@ -530,18 +498,6 @@ public:
 
     void Archive(Archiver& arc) override;
 };
-
-inline void TriggerMusic::Archive(Archiver& arc)
-
-{
-    Trigger::Archive(arc);
-
-    arc.ArchiveBoolean(&oneshot);
-    arc.ArchiveString(&current);
-    arc.ArchiveString(&fallback);
-    arc.ArchiveString(&altcurrent);
-    arc.ArchiveString(&altfallback);
-}
 
 class TriggerReverb : public Trigger
 {
@@ -588,7 +544,7 @@ inline void TriggerReverb::Archive(Archiver& arc)
 class TriggerByPushObject : public TriggerOnce
 {
 private:
-    str triggername;
+    const_str triggername;
 
     void setTriggerName(Event *event);
 
@@ -600,14 +556,6 @@ public:
 
     void Archive(Archiver& arc) override;
 };
-
-inline void TriggerByPushObject::Archive(Archiver& arc)
-
-{
-    TriggerOnce::Archive(arc);
-
-    arc.ArchiveString(&triggername);
-}
 
 class TriggerGivePowerup : public Trigger
 {

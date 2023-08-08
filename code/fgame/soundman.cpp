@@ -398,13 +398,13 @@ void SoundManager::UpdateUI
 
             if ( !currentFacet )
                {
-               gi.Cvar_Set( "snd_currentmood", music->current.c_str() );
-               gi.Cvar_Set( "snd_fallbackmood", music->fallback.c_str() );
+               gi.Cvar_Set( "snd_currentmood", Director.GetString(music->current).c_str() );
+               gi.Cvar_Set( "snd_fallbackmood", Director.GetString(music->fallback).c_str() );
                }
             else
                {
-               gi.Cvar_Set( "snd_currentmood", music->altcurrent.c_str() );
-               gi.Cvar_Set( "snd_fallbackmood", music->altfallback.c_str() );
+               gi.Cvar_Set( "snd_currentmood", Director.GetString(music->altcurrent).c_str() );
+               gi.Cvar_Set( "snd_fallbackmood", Director.GetString(music->altfallback).c_str() );
                }
             }
          else if ( current->isSubclassOf( TriggerReverb ) )
@@ -1609,12 +1609,12 @@ void SoundManager::Save
       //
       // set current
       //
-      buf += va( " current %s", music->current.c_str() );
+      buf += va( " current %s", Director.GetString(music->current).c_str() );
 
       //
       // set fallback
       //
-      buf += va( " fallback %s", music->fallback.c_str() );
+      buf += va( " fallback %s", Director.GetString(music->fallback).c_str() );
 
       if ( music->GetMultiFaceted() )
          {
@@ -1626,12 +1626,12 @@ void SoundManager::Save
          //
          // set alt current
          //
-         buf += va( " altcurrent %s", music->altcurrent.c_str() );
+         buf += va( " altcurrent %s", Director.GetString(music->altcurrent).c_str() );
 
          //
          // set alt fallback
          //
-         buf += va( " altfallback %s", music->altfallback.c_str() );
+         buf += va( " altfallback %s", Director.GetString(music->altfallback).c_str() );
          }
 
       //

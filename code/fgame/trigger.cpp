@@ -302,11 +302,11 @@ Trigger::Trigger()
     count = -1;
 
     //noise = "environment/switch/switch2.wav";
-    noise = "";
+    noise = STRING_EMPTY;
 
     respondto = spawnflags ^ TRIGGER_PLAYERS;
 
-    message = "";
+    message = STRING_EMPTY;
 }
 
 Trigger::~Trigger() {}
@@ -560,16 +560,16 @@ void Trigger::ActivateTargets(Event *ev)
     //
     // print the message
     //
-    if (message.length() && other && (other->isClient() || other->isSubclassOf(Camera))) {
+    if (message != STRING_EMPTY && other && (other->isClient() || other->isSubclassOf(Camera))) {
         // HACK HACK HACK
         // if it is a camera, pass in default player
         if (!other->isClient()) {
-            gi.centerprintf(&g_entities[0], message.c_str());
+            gi.centerprintf(&g_entities[0], Director.GetString(message).c_str());
         } else {
-            gi.centerprintf(other->edict, message.c_str());
+            gi.centerprintf(other->edict, Director.GetString(message).c_str());
         }
         if (Noise().length()) {
-            other->Sound(noise.c_str(), CHAN_VOICE);
+            other->Sound(Director.GetString(noise).c_str(), CHAN_VOICE);
         }
     }
 
@@ -645,16 +645,16 @@ void Trigger::SetMessage(const char *text)
 
 {
     if (text) {
-        message = str(text);
+        message = Director.AddString(text);
     } else {
-        message = "";
+        message = STRING_EMPTY;
     }
 }
 
 str& Trigger::Message(void)
 
 {
-    return message;
+    return Director.GetString(message);
 }
 
 void Trigger::EventSetNoise(Event *ev)
@@ -667,18 +667,18 @@ void Trigger::SetNoise(const char *text)
 
 {
     if (text) {
-        noise = str(text);
+        noise = Director.AddString(text);
         //
         // cache in the sound
         //
-        CacheResource(noise.c_str());
+        CacheResource(Director.GetString(noise).c_str());
     }
 }
 
 str& Trigger::Noise(void)
 
 {
-    return noise;
+    return Director.GetString(noise);
 }
 
 void Trigger::SetMultiFaceted(int newFacet)
@@ -719,6 +719,32 @@ void Trigger::SetTriggerable(Event *ev)
 void Trigger::SetNotTriggerable(Event *ev)
 {
     triggerable = qfalse;
+}
+
+void Trigger::Archive(Archiver& arc)
+{
+    Animate::Archive(arc);
+
+    arc.ArchiveFloat(&wait);
+    arc.ArchiveFloat(&delay);
+    arc.ArchiveFloat(&trigger_time);
+    arc.ArchiveBoolean(&triggerActivated);
+    arc.ArchiveInteger(&count);
+    Director.ArchiveString(arc, noise);
+    if (arc.Loading()) {
+        SetNoise(Director.GetString(noise).c_str());
+    }
+    Director.ArchiveString(arc, message);
+    arc.ArchiveSafePointer(&activator);
+    arc.ArchiveInteger(&respondto);
+    arc.ArchiveBoolean(&useTriggerDir);
+    arc.ArchiveFloat(&triggerCone);
+    arc.ArchiveVector(&triggerDir);
+    arc.ArchiveFloat(&triggerDirYaw);
+    arc.ArchiveBoolean(&triggerable);
+    arc.ArchiveBoolean(&removable);
+    arc.ArchiveBoolean(&edgeTriggered);
+    arc.ArchiveInteger(&multiFaceted);
 }
 
 /*QUAKED trigger_vehicle (0.25 0.5 0.35) ? x x x x x x x x
@@ -1107,7 +1133,13 @@ void TriggerSave::SaveGame(Event *ev)
 
 void TriggerSave::EventSaveName(Event *ev)
 {
-    m_sSaveName = ev->GetString(1);
+    m_sSaveName = ev->GetConstString(1);
+}
+
+void TriggerSave::Archive(Archiver& arc)
+{
+	Trigger::Archive(arc);
+	arc.ArchiveString(&m_sSaveName);
 }
 
 CLASS_DECLARATION(Trigger, TriggerSave, "trigger_save") {
@@ -2050,8 +2082,8 @@ void TriggerDamageTargets::DamageTargets(Event *ev)
     //
     // print the message
     //
-    if (message.length() && other && other->isClient()) {
-        gi.centerprintf(other->edict, message.c_str());
+    if (message != STRING_EMPTY && other && other->isClient()) {
+        gi.centerprintf(other->edict, Director.GetString(message).c_str());
         if (Noise().length()) {
             other->Sound(Noise().c_str(), CHAN_VOICE);
         }
@@ -2383,68 +2415,68 @@ TriggerMusic::TriggerMusic()
 
     SetOneShot(false);
 
-    noise     = "";
+    noise    = STRING_EMPTY;
 
-    current  = "normal";
-    fallback = "normal";
+    current  = STRING_NORMAL;
+    fallback = STRING_NORMAL;
 
-    altcurrent  = "normal";
-    altfallback = "normal";
+    altcurrent  = STRING_NORMAL;
+    altfallback = STRING_NORMAL;
 
     // setup sound based on spawn flags
     if (spawnflags & 1) {
-        current = "normal";
+        current = STRING_NORMAL;
     } else if (spawnflags & 2) {
-        current = "action";
+        current = STRING_ACTION;
     } else if (spawnflags & 32) {
-        current = "suspense";
+        current = STRING_SUSPENSE;
     } else if (spawnflags & 64) {
-        current = "mystery";
+        current = STRING_MYSTERY;
     } else if (spawnflags & 128) {
-        current = "surprise";
+        current = STRING_SURPRISE;
     }
 }
 
 void TriggerMusic::SetMood(str crnt, str fback)
 {
-    current  = crnt;
-    fallback = fback;
+    current  = Director.AddString(crnt);
+    fallback = Director.AddString(fback);
 }
 
 void TriggerMusic::SetAltMood(str crnt, str fback)
 {
-    altcurrent  = crnt;
-    altfallback = fback;
+    altcurrent  = Director.AddString(crnt);
+    altfallback = Director.AddString(fback);
 }
 
 void TriggerMusic::SetCurrentMood(Event *ev)
 {
-    current = ev->GetString(1);
+    current = ev->GetConstString(1);
 }
 
 void TriggerMusic::SetFallbackMood(Event *ev)
 {
-    fallback = ev->GetString(1);
+    fallback = ev->GetConstString(1);
 }
 
 void TriggerMusic::SetAltCurrentMood(Event *ev)
 {
-    altcurrent = ev->GetString(1);
+    altcurrent = ev->GetConstString(1);
 }
 
 void TriggerMusic::SetAltFallbackMood(Event *ev)
 {
-    altfallback = ev->GetString(1);
+    altfallback = ev->GetConstString(1);
 }
 
 void TriggerMusic::ChangeMood(Event *ev)
 {
-    ChangeMusic(current.c_str(), fallback.c_str(), qfalse);
+    ChangeMusic(Director.GetString(current).c_str(), Director.GetString(fallback).c_str(), qfalse);
 }
 
 void TriggerMusic::AltChangeMood(Event *ev)
 {
-    ChangeMusic(altcurrent.c_str(), altfallback.c_str(), qfalse);
+    ChangeMusic(Director.GetString(altcurrent).c_str(), Director.GetString(altfallback).c_str(), qfalse);
 }
 
 void TriggerMusic::SetOneShot(qboolean once)
@@ -2461,6 +2493,17 @@ void TriggerMusic::SetOneShot(qboolean once)
 void TriggerMusic::SetOneShot(Event *ev)
 {
     SetOneShot(true);
+}
+
+void TriggerMusic::Archive(Archiver& arc)
+{
+	Trigger::Archive(arc);
+
+	arc.ArchiveBoolean(&oneshot);
+	Director.ArchiveString(arc, current);
+	Director.ArchiveString(arc, fallback);
+	Director.ArchiveString(arc, altcurrent);
+	Director.ArchiveString(arc, altfallback);
 }
 
 /*****************************************************************************/
@@ -2580,7 +2623,7 @@ TriggerReverb::TriggerReverb()
 
     SetOneShot(false);
 
-    noise     = "";
+    noise     = STRING_EMPTY;
 
     reverbtype     = 0;
     altreverbtype  = 0;
@@ -2689,15 +2732,15 @@ CLASS_DECLARATION(TriggerOnce, TriggerByPushObject, "trigger_pushobject") {
 
 void TriggerByPushObject::setTriggerName(Event *event)
 {
-    triggername = event->GetString(1);
+    triggername = event->GetConstString(1);
 }
 
 qboolean TriggerByPushObject::respondTo(Entity *other)
 
 {
     if (other->isSubclassOf(PushObject)) {
-        if (triggername.length()) {
-            return (triggername == other->TargetName());
+        if (triggername != STRING_EMPTY) {
+            return (Director.GetString(triggername) == other->TargetName());
         }
 
         return qtrue;
@@ -2720,6 +2763,13 @@ Entity *TriggerByPushObject::getActivator(Entity *other)
     }
 
     return other;
+}
+
+void TriggerByPushObject::Archive(Archiver& arc)
+{
+	TriggerOnce::Archive(arc);
+
+	Director.ArchiveString(arc, triggername);
 }
 
 Event EV_TriggerGivePowerup_OneShot
@@ -2775,7 +2825,7 @@ TriggerGivePowerup::TriggerGivePowerup()
     oneshot      = false;
 
     count        = -1;
-    noise        = "";
+    noise        = STRING_EMPTY;
     powerup_name = STRING_EMPTY;
 }
 
