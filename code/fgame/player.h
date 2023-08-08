@@ -354,7 +354,8 @@ public:
     qboolean            CondUseWeapon(Conditional& condition);
     qboolean            CondUseWeaponClass(Conditional& condition);
     qboolean            CondWeaponActive(Conditional& condition);
-    qboolean            CondWeaponClassActive(Conditional& condition);
+	qboolean            CondWeaponClassActive(Conditional& condition);
+	qboolean			CondWeaponCurrentFireAnim(Conditional& condition); // mohaas
     qboolean            CondWeaponReadyToFire(Conditional& condition);
     qboolean            CondWeaponClassReadyToFire(Conditional& condition);
     qboolean            CondUsingVehicle(Conditional& condition);
@@ -362,6 +363,13 @@ public:
     qboolean            CondIsPassenger(Conditional& condition);
     qboolean            CondIsDriver(Conditional& condition);
     qboolean            CondUsingTurret(Conditional& condition);
+    qboolean			CondIsEscaping(Conditional& condition); // mohaab
+    qboolean			CondAbleToDefuse(Conditional& condition); // mohaab
+    qboolean			CondCanPlaceLandmine(Conditional& condition); // mohaab
+    qboolean			CondOnLandmine(Conditional& condition); // mohaab
+    qboolean			CondNearLandmine(Conditional& condition); // mohaab
+    void				MeasureLandmineDistances(); // mohaab
+    qboolean			CondIsAssistingEscape(Conditional& condition); // mohaab
     qboolean            CondTurretType(Conditional& condition);
     qboolean            CondWeaponReadyToFireNoSound(Conditional& condition);
     qboolean            CondPutAwayMain(Conditional& condition);
@@ -443,23 +451,16 @@ public:
     qboolean            CondGroundEntity(Conditional& condition);
     qboolean            CondCheckHeight(Conditional& condition);
     qboolean            CondViewInWater(Conditional& condition);
-    qboolean            CondDuckedViewInWater(Conditional& condition);
+	qboolean            CondDuckedViewInWater(Conditional& condition);
+	qboolean			CondCheckMovementSpeed(Conditional& condition); // mohaas
     qboolean            CondAttackPrimary(Conditional& condition);
     qboolean            CondAttackSecondary(Conditional& condition);
     qboolean            CondAttackButtonPrimary(Conditional& condition);
     qboolean            CondAttackButtonSecondary(Conditional& condition);
-
-	// mohaab
-    qboolean			CondIsEscaping(Conditional& condition);
-    qboolean			CondAbleToDefuse(Conditional& condition);
-    qboolean			CondCanPlaceLandmine(Conditional& condition);
-    qboolean			CondOnLandmine(Conditional& condition);
-    qboolean			CondNearLandmine(Conditional& condition);
-    void				MeasureLandmineDistances();
-    qboolean			CondIsAssistingEscape(Conditional& condition);
-    qboolean			CondCheckMovementSpeed(Conditional& condition);
-    qboolean			CondWeaponCurrentFireAnim(Conditional& condition);
 	
+	//
+	// Custom openmohaa functions
+	//
 	qboolean			CondAnimDoneVM( Conditional &condition );
 	qboolean			CondClientCommand( Conditional &condition );
 	qboolean			CondVMAnim( Conditional &condition );
