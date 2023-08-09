@@ -76,11 +76,12 @@ Event EV_Classname
 );
 Event EV_SpawnFlags
 (
-    "spawnflags", EV_DEFAULT,
+    "spawnflags",
+    EV_DEFAULT,
     "i",
     "flags",
-    "spawnflags from the BSP,
-    these are set inside the editor",
+    "spawnflags from the BSP,"
+    "these are set inside the editor",
     EV_NORMAL
 );
 Event EV_GetNormalHealth
@@ -185,8 +186,7 @@ Event EV_FadeIn
     "the default values.",
     EV_NORMAL
 );
-Event EV_Killed
-(
+Event EV_Killed(
     "killed",
     EV_DEFAULT,
     "eievvviiii",
@@ -214,8 +214,7 @@ Event EV_Pain
     "used to inflict pain to an entity",
     EV_NORMAL
 );
-Event EV_Damage
-(
+Event EV_Damage(
     "damage",
     EV_DEFAULT,
     "eievvviiii",
@@ -263,14 +262,13 @@ Event EV_Hurt
     "entity's current health, it will be killed or destroyed.",
     EV_NORMAL
 );
-Event EV_Heal
-(
+Event EV_Heal(
     "heal",
     EV_DEFAULT,
     "f",
     "health",
-    "Adds health to an entity,
-    0-1 fraction of max_health"
+    "Adds health to an entity,"
+    "0-1 fraction of max_health"
 );
 
 Event EV_TakeDamage
@@ -294,11 +292,12 @@ Event EV_NoDamage
 
 Event EV_Stationary
 (
-    "stationary", EV_DEFAULT,
+    "stationary",
+    EV_DEFAULT,
     NULL,
     NULL,
-    "entity does not move,
-    causes no physics to be run on it.",
+    "entity does not move,"
+    "causes no physics to be run on it.",
     EV_NORMAL
 );
 Event EV_Toss
@@ -341,11 +340,12 @@ Event EV_Blocked
 );
 Event EV_UseBoundingBox
 (
-    "usebbox", EV_DEFAULT,
+    "usebbox",
+    EV_DEFAULT,
     NULL,
     NULL,
-    "do not perform perfect collision,
-    use bounding box instead.",
+    "do not perform perfect collision,"
+    "use bounding box instead.",
     EV_NORMAL
 );
 Event EV_Gravity
@@ -401,8 +401,7 @@ Event EV_RemoveAttachedModel
     "Removes the model attached to this entity at the specified tag.",
     EV_NORMAL
 );
-Event EV_AttachedModelAnim
-(
+Event EV_AttachedModelAnim(
     "attachedmodelanim",
     EV_DEFAULT,
     "ssfs",
@@ -459,20 +458,22 @@ Event EV_GetBrushModel
 );
 Event EV_Hide
 (
-    "hide", EV_DEFAULT,
+    "hide",
+    EV_DEFAULT,
     NULL,
     NULL,
-    "hide the entity,
-    opposite of show.",
+    "hide the entity,"
+    "opposite of show.",
     EV_NORMAL
 );
 Event EV_Show
 (
-    "show", EV_DEFAULT,
+    "show",
+    EV_DEFAULT,
     NULL,
     NULL,
-    "show the entity,
-    opposite of hide.",
+    "show the entity,"
+    "opposite of hide.",
     EV_NORMAL
 );
 Event EV_BecomeSolid
@@ -734,8 +735,7 @@ Event EV_StopLoopSound
     EV_NORMAL
 );
 
-Event EV_SurfaceModelEvent
-(
+Event EV_SurfaceModelEvent(
     "surface",
     EV_DEFAULT,
     "sSSSSSS",
@@ -836,8 +836,7 @@ Event EV_LightRadius
 );
 
 // Entity flag specific
-Event EV_EntityFlags
-(
+Event EV_EntityFlags(
     "flags",
     EV_DEFAULT,
     "SSSSSS",
@@ -851,8 +850,7 @@ Event EV_EntityFlags
     "god - makes the entity invincible\n",
     EV_NORMAL
 );
-Event EV_EntityRenderEffects
-(
+Event EV_EntityRenderEffects(
     "rendereffects",
     EV_DEFAULT,
     "SSSSSS",
@@ -873,8 +871,7 @@ Event EV_EntityRenderEffects
     "'lightstyle' command to set the index of the light style to be used",
     EV_NORMAL
 );
-Event EV_EntityEffects
-(
+Event EV_EntityEffects(
     "effects",
     EV_DEFAULT,
     "SSSSSS",
@@ -886,8 +883,7 @@ Event EV_EntityEffects
     "everyframe - process commands every time entity is rendered",
     EV_NORMAL
 );
-Event EV_EntitySVFlags
-(
+Event EV_EntitySVFlags(
     "svflags",
     EV_DEFAULT,
     "SSSSSS",
@@ -1071,8 +1067,8 @@ Event EV_Entity_Revive
     EV_DEFAULT,
     "f",
     "health",
-    "sets the health,
-    even if dead"
+    "sets the health,"
+    "even if dead"
 );
 Event EV_SetHealth
 (
@@ -1193,20 +1189,22 @@ Event EV_AlwaysDraw
 );
 Event EV_IsTouching
 (
-    "istouching", EV_DEFAULT,
+    "istouching",
+    EV_DEFAULT,
     "e",
     "ent",
-    "returns 1 if the entities are touching,
-    0 if not",
+    "returns 1 if the entities are touching,"
+    "0 if not",
     EV_RETURN
 );
 Event EV_IsInside
 (
-    "isinside", EV_DEFAULT,
+    "isinside",
+    EV_DEFAULT,
     "e",
     "ent",
-    "returns 1 if the entity is inside,
-    0 if not",
+    "returns 1 if the entity is inside,"
+    "0 if not",
     EV_RETURN
 );
 Event EV_CanSee
@@ -1229,11 +1227,12 @@ Event EV_CanSeeNoEnts
 );
 Event EV_Entity_InPVS
 (
-    "inpvs", EV_DEFAULT,
+    "inpvs",
+    EV_DEFAULT,
     "e",
     "entity",
-    "returns 1 if the entities have connected pvs,
-    0 if not",
+    "returns 1 if the entities have connected pvs,"
+    "0 if not",
     EV_RETURN
 );
 Event EV_SetShaderData
@@ -1380,20 +1379,50 @@ Event EV_Entity_GetRotatedBbox
     "Gets te entity's bbox to rotate with it.",
     EV_GETTER
 );
-Event EV_Entity_SinglePlayerCommand(
-    "sp", EV_DEFAULT, "sSSS", "command parms", "Makes a command be executed only in single player"
+Event EV_Entity_SinglePlayerCommand
+(
+    "sp",
+    EV_DEFAULT,
+    "sSSS",
+    "command parms",
+    "Makes a command be executed only in single player",
+    EV_NORMAL
 );
-Event EV_Entity_MultiPlayerCommand(
-    "dm", EV_DEFAULT, "sSSS", "command parms", "Makes a command be executed only in multiplayer"
+Event EV_Entity_MultiPlayerCommand
+(
+    "dm",
+    EV_DEFAULT,
+    "sSSS",
+    "command parms",
+    "Makes a command be executed only in multiplayer",
+    EV_NORMAL
 );
-Event EV_Entity_RealismModeCommand(
-    "realism", EV_DEFAULT, "sSSS", "command parms", "Makes a command be executed only in realism mode"
+Event EV_Entity_RealismModeCommand
+(
+    "realism",
+    EV_DEFAULT,
+    "sSSS",
+    "command parms",
+    "Makes a command be executed only in realism mode",
+    EV_NORMAL
 );
-Event EV_Entity_SPRealismModeCommand(
-    "sprealism", EV_DEFAULT, "sSSS", "command parms", "Makes a command be executed only in single player realism mode"
+Event EV_Entity_SPRealismModeCommand
+(
+    "sprealism",
+    EV_DEFAULT,
+    "sSSS",
+    "command parms",
+    "Makes a command be executed only in single player realism mode",
+    EV_NORMAL
 );
-Event EV_Entity_DMRealismModeCommand(
-    "dmrealism", EV_DEFAULT, "sSSS", "command parms", "Makes a command be executed only in multiplayer realism mode"
+Event EV_Entity_DMRealismModeCommand
+(
+    "dmrealism",
+    EV_DEFAULT,
+    "sSSS",
+    "command parms",
+    "Makes a command be executed only in multiplayer realism mode",
+    EV_NORMAL
 );
 Event EV_Entity_GetLocalYawFromVector
 (
