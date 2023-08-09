@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // item.h: Base class for respawnable, carryable objects.
-// 
+//
 
 #pragma once
 
@@ -40,131 +40,131 @@ extern Event EV_Item_RespawnSound;
 extern Event EV_Item_DialogNeeded;
 extern Event EV_Item_PickupDone;
 
-#define DROPPED_ITEM					0x00008000
-#define DROPPED_PLAYER_ITEM		0x00010000
+#define DROPPED_ITEM        0x00008000
+#define DROPPED_PLAYER_ITEM 0x00010000
 
 class Item : public Trigger
 {
 protected:
-	SentientPtr			owner;
-	qboolean			respawnable;
-	qboolean			playrespawn;
-	float				respawntime;
-	str					dialog_needed;
-	int					item_index;
-	str					item_name;
-	int					maximum_amount;
-	int					amount;
-	str					sPickupSound;
+    SentientPtr owner;
+    qboolean    respawnable;
+    qboolean    playrespawn;
+    float       respawntime;
+    str         dialog_needed;
+    int         item_index;
+    str         item_name;
+    int         maximum_amount;
+    int         amount;
+    str         sPickupSound;
 
-	qboolean			no_remove;
+    qboolean no_remove;
 
-	void ItemTouch( Event *ev );
+    void ItemTouch(Event *ev);
 
 public:
-	str					m_sVMprefix;
-	qboolean			m_bMOHPrefix;
+    str      m_sVMprefix;
+    qboolean m_bMOHPrefix;
 
-	CLASS_PROTOTYPE( Item );
+    CLASS_PROTOTYPE(Item);
 
-	Item();
-	~Item();
-	void Delete(void) override;
-	void RemoveFromOwner(void);
-	virtual void PlaceItem( void );
-	virtual void SetOwner( Sentient *ent );
-	virtual Sentient*	GetOwner( void );
-	void					SetNoRemove( Event *ev );
-	virtual void DropToFloor( Event *ev );
-	virtual Item      *ItemPickup( Entity *other, qboolean add_to_inventory = qtrue );
-	virtual void Respawn( Event *ev );
-	virtual void setRespawn( qboolean flag );
-	void					setRespawn( Event *ev );
-	virtual qboolean Respawnable( void );
-	virtual void setRespawnTime( float time );
-	void					setRespawnTime( Event *ev );
-	virtual float RespawnTime( void );
-	void					RespawnDone( Event *ev );
-	void					PickupDone( Event *ev );
-	virtual int       GetItemIndex( void ) { return item_index; };
-	virtual const char* GetItemName(void) { return item_name; };
-	virtual int getAmount( void );
-	virtual void setAmount( int startamount );
+    Item();
+    ~Item();
+    void              Delete(void) override;
+    void              RemoveFromOwner(void);
+    virtual void      PlaceItem(void);
+    virtual void      SetOwner(Sentient *ent);
+    virtual Sentient *GetOwner(void);
+    void              SetNoRemove(Event *ev);
+    virtual void      DropToFloor(Event *ev);
+    virtual Item     *ItemPickup(Entity *other, qboolean add_to_inventory = qtrue);
+    virtual void      Respawn(Event *ev);
+    virtual void      setRespawn(qboolean flag);
+    void              setRespawn(Event *ev);
+    virtual qboolean  Respawnable(void);
+    virtual void      setRespawnTime(float time);
+    void              setRespawnTime(Event *ev);
+    virtual float     RespawnTime(void);
+    void              RespawnDone(Event *ev);
+    void              PickupDone(Event *ev);
 
-	virtual int MaxAmount( void );
-	virtual qboolean Pickupable( Entity *other );
+    virtual int GetItemIndex(void) { return item_index; };
 
-	virtual void setName( const char *i );
-	virtual str getName( void );
-	virtual int getIndex( void );
-	virtual void SetAmountEvent(Event* ev);
-	virtual void SetMaxAmount(Event* ev);
-	virtual void SetDMAmountEvent(Event *ev);
-	virtual void SetDMMaxAmount(Event *ev);
-	virtual void SetItemName(Event* ev);
-	void SetPickupSound(Event* ev);
+    virtual const char *GetItemName(void) { return item_name; };
 
-	virtual void SetMax( int maxamount );
-	virtual void Add( int num );
-	virtual void Remove( int num );
-	virtual qboolean Use( int amount );
-	virtual qboolean Removable( void );
-	virtual void Pickup( Event *ev );
-	virtual qboolean Drop( void );
-	virtual void RespawnSound( Event *ev );
-	virtual void DialogNeeded( Event *ev );
-	virtual str GetDialogNeeded( void );
-	void Landed( Event *ev );
+    virtual int  getAmount(void);
+    virtual void setAmount(int startamount);
 
-	void Archive(Archiver& arc) override;
+    virtual int      MaxAmount(void);
+    virtual qboolean Pickupable(Entity *other);
 
-	//
-	// Custom openmohaa stuff
-	//
-	void			EventViewModelPrefix(Event* ev);
-	void			updatePrefix(Event* ev);
+    virtual void setName(const char *i);
+    virtual str  getName(void);
+    virtual int  getIndex(void);
+    virtual void SetAmountEvent(Event *ev);
+    virtual void SetMaxAmount(Event *ev);
+    virtual void SetDMAmountEvent(Event *ev);
+    virtual void SetDMMaxAmount(Event *ev);
+    virtual void SetItemName(Event *ev);
+    void         SetPickupSound(Event *ev);
+
+    virtual void     SetMax(int maxamount);
+    virtual void     Add(int num);
+    virtual void     Remove(int num);
+    virtual qboolean Use(int amount);
+    virtual qboolean Removable(void);
+    virtual void     Pickup(Event *ev);
+    virtual qboolean Drop(void);
+    virtual void     RespawnSound(Event *ev);
+    virtual void     DialogNeeded(Event *ev);
+    virtual str      GetDialogNeeded(void);
+    void             Landed(Event *ev);
+
+    void Archive(Archiver& arc) override;
+
+    //
+    // Custom openmohaa stuff
+    //
+    void EventViewModelPrefix(Event *ev);
+    void updatePrefix(Event *ev);
 };
 
-inline void Item::Archive
-(
-Archiver &arc
-)
+inline void Item::Archive(Archiver& arc)
 {
-	Trigger::Archive( arc );
+    Trigger::Archive(arc);
 
-	arc.ArchiveSafePointer( &owner );
-	arc.ArchiveBoolean( &respawnable );
-	arc.ArchiveBoolean( &playrespawn );
-	arc.ArchiveFloat( &respawntime );
-	arc.ArchiveString( &dialog_needed );
-	arc.ArchiveInteger( &item_index );
-	arc.ArchiveString( &item_name );
-	if( arc.Loading() )
-	{
-		setName( item_name.c_str() );
-	}
-	arc.ArchiveInteger( &maximum_amount );
-	arc.ArchiveInteger( &amount );
-	arc.ArchiveBoolean( &no_remove );
-	arc.ArchiveString( &sPickupSound );
+    arc.ArchiveSafePointer(&owner);
+    arc.ArchiveBoolean(&respawnable);
+    arc.ArchiveBoolean(&playrespawn);
+    arc.ArchiveFloat(&respawntime);
+    arc.ArchiveString(&dialog_needed);
+    arc.ArchiveInteger(&item_index);
+    arc.ArchiveString(&item_name);
+    if (arc.Loading()) {
+        setName(item_name.c_str());
+    }
+    arc.ArchiveInteger(&maximum_amount);
+    arc.ArchiveInteger(&amount);
+    arc.ArchiveBoolean(&no_remove);
+    arc.ArchiveString(&sPickupSound);
 }
 
-class DynItem : public Item {
+class DynItem : public Item
+{
 public:
-	str m_attachPrime;
-	str m_attachSec;
-	str m_dynItemName;
+    str m_attachPrime;
+    str m_attachSec;
+    str m_dynItemName;
 
 public:
-	CLASS_PROTOTYPE(DynItem);
+    CLASS_PROTOTYPE(DynItem);
 
-	DynItem();
+    DynItem();
 
-	void UnlinkItem(Event* ev);
-	void DynItemTouched(Event* ev);
-	void DynItemUse(Event* ev);
-	void Archive(Archiver& arc) override;
+    void UnlinkItem(Event *ev);
+    void DynItemTouched(Event *ev);
+    void DynItemUse(Event *ev);
+    void Archive(Archiver& arc) override;
 };
 
-const char *GetItemName( const char *prefix, qboolean *mohprefix = NULL );
-const char *GetItemPrefix( const char *name, qboolean *mohprefix = NULL );
+const char *GetItemName(const char *prefix, qboolean *mohprefix = NULL);
+const char *GetItemPrefix(const char *name, qboolean *mohprefix = NULL);
