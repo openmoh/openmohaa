@@ -21,8 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // player.h: Class definition of the player.
 
-#ifndef __PLAYER_H__
-#define __PLAYER_H__
+#pragma once
 
 #include "g_local.h"
 #include "vector.h"
@@ -560,33 +559,33 @@ public:
     void PlayerAnimDelta(float *vDelta);
     void TouchedUseAnim(Entity *ent);
 
-	void SelectPreviousItem(Event* ev);
-	void SelectNextItem(Event* ev);
-	void SelectPreviousWeapon(Event* ev);
+    void SelectPreviousItem(Event *ev);
+    void SelectNextItem(Event *ev);
+    void SelectPreviousWeapon(Event *ev);
     void SelectNextWeapon(Event *ev);
-	void DropCurrentWeapon(Event* ev);
-	void PlayerReload(Event* ev);
-	void EventCorrectWeaponAttachments(Event* ev);
+    void DropCurrentWeapon(Event *ev);
+    void PlayerReload(Event *ev);
+    void EventCorrectWeaponAttachments(Event *ev);
 
     void GiveCheat(Event *ev);
     void GiveWeaponCheat(Event *ev);
     void GiveAllCheat(Event *ev);
     void GodCheat(Event *ev);
-	void FullHeal(Event* ev);
-	void NoTargetCheat(Event* ev);
-	void NoclipCheat(Event* ev);
-	void Kill(Event* ev);
-	void SpawnEntity(Event* ev);
-	void SpawnActor(Event* ev);
-	void ListInventoryEvent(Event* ev);
-	void EventTeleport(Event* ev);
-	void EventFace(Event* ev);
-	void EventCoord(Event* ev);
+    void FullHeal(Event *ev);
+    void NoTargetCheat(Event *ev);
+    void NoclipCheat(Event *ev);
+    void Kill(Event *ev);
+    void SpawnEntity(Event *ev);
+    void SpawnActor(Event *ev);
+    void ListInventoryEvent(Event *ev);
+    void EventTeleport(Event *ev);
+    void EventFace(Event *ev);
+    void EventCoord(Event *ev);
 
-	void GameVersion(Event* ev);
+    void GameVersion(Event *ev);
 
-	void EventSetSelectedFov(Event* ev);
-	void SetSelectedFov(float newFov);
+    void EventSetSelectedFov(Event *ev);
+    void SetSelectedFov(float newFov);
     void GetPlayerView(Vector *pos, Vector *angle);
 
     float CalcRoll(void);
@@ -630,9 +629,9 @@ public:
     void FinishMove(void);
     void EndFrame(void) override;
 
-	void TestThread(Event* ev);
-	Vector EyePosition(void) override;
-	Vector GunTarget(bool bNoCollision = false) override;
+    void   TestThread(Event *ev);
+    Vector EyePosition(void) override;
+    Vector GunTarget(bool bNoCollision = false) override;
 
     void GotKill(Event *ev);
     void SetPowerupTimer(Event *ev);
@@ -665,14 +664,14 @@ public:
     void   SetFov(float newFov);
     float  GetFov() const;
 
-	void     ToggleZoom(int iZoom);
-	void     ZoomOff(void);
-	void     ZoomOffEvent(Event* ev);
-	qboolean IsZoomed(void);
-	void     SafeZoomed(Event* ev);
-    void DumpState(Event *ev);
-    void ForceLegsState(Event *ev);
-    void ForceTorsoState(Event *ev);
+    void     ToggleZoom(int iZoom);
+    void     ZoomOff(void);
+    void     ZoomOffEvent(Event *ev);
+    qboolean IsZoomed(void);
+    void     SafeZoomed(Event *ev);
+    void     DumpState(Event *ev);
+    void     ForceLegsState(Event *ev);
+    void     ForceTorsoState(Event *ev);
 
     Vector GetAngleToTarget(Entity *ent, str tag, float yawclamp, float pitchclamp, Vector baseangles);
 
@@ -687,19 +686,20 @@ public:
     void SetMouthAngle(Event *ev);
 
     void EnterVehicle(Event *ev);
-	void ExitVehicle(Event* ev);
-	void EnterTurret(TurretGun* ent);
-	void EnterTurret(Event* ev);
-	void ExitTurret(void);
-	void ExitTurret(Event* ev);
+    void ExitVehicle(Event *ev);
+    void EnterTurret(TurretGun *ent);
+    void EnterTurret(Event *ev);
+    void ExitTurret(void);
+    void ExitTurret(Event *ev);
     void Holster(Event *ev);
     void HolsterToggle(Event *ev);
 
-	void RemoveFromVehiclesAndTurrets(void);
-    void WatchActor(Event *ev);
-	void StopWatchingActor(Event* ev);
-	painDirection_t Pain_string_to_int(str pain);
-	inline Vector GetVAngles(void) { return v_angle; }
+    void            RemoveFromVehiclesAndTurrets(void);
+    void            WatchActor(Event *ev);
+    void            StopWatchingActor(Event *ev);
+    painDirection_t Pain_string_to_int(str pain);
+
+    inline Vector GetVAngles(void) { return v_angle; }
 
     void SpawnDamageEffect(meansOfDeath_t mod);
     void GetStateAnims(Container<const char *> *c) override;
@@ -708,107 +708,105 @@ public:
     int  GetMoveResult(void);
     void ReceivedItem(Item *item) override;
     void RemovedItem(Item *item) override;
-	void AmmoAmountChanged(Ammo* ammo, int inclip = 0) override;
+    void AmmoAmountChanged(Ammo *ammo, int inclip = 0) override;
 
-	void WaitForState(Event* ev);
-	void SkipCinematic(Event* ev);
-	void SetDamageMultiplier(Event* ev);
-	void LogStats(Event* ev);
-	void Loaded(void);
-	void PlayerShowModel(Event* ev);
-	void showModel(void) override;
-	void ResetHaveItem(Event* ev);
-	void ModifyHeight(Event* ev);
-	void SetMovePosFlags(Event* ev);
-	void GetPositionForScript(Event* ev);
-	void GetMovementForScript(Event* ev);
-    void EventStuffText(Event* ev);
-    void EventSetVoiceType(Event* ev);
-    void EventDMMessage(Event* ev);
-    void EventIPrint(Event* ev);
-    void EventGetUseHeld(Event* ev);
-    void EventGetFireHeld(Event* ev);
-    void Score(Event* ev);
-    void Join_DM_Team(Event* ev);
-    void Auto_Join_DM_Team(Event* ev);
-	void Leave_DM_Team(Event* ev);
-	teamtype_t GetTeam();
-	void SetTeam(teamtype_t team);
-	bool IsSpectator(void);
-	void BeginFight(void);
-	void EndFight(void);
-	void Spectator(void);
-	void Spectator(Event* ev);
-	void SetPlayerSpectate(void);
-	bool IsValidSpectatePlayer(Player* pPlayer);
-	void GetSpectateFollowOrientation(Player* pPlayer, Vector& vPos, Vector& vAng);
-	void UpdateStatus(const char* s);
-	void SetDM_Team(DM_Team* team);
-	DM_Team* GetDM_Team();
-	void WarpToPoint(Entity* spawnpoint);
+    void       WaitForState(Event *ev);
+    void       SkipCinematic(Event *ev);
+    void       SetDamageMultiplier(Event *ev);
+    void       LogStats(Event *ev);
+    void       Loaded(void);
+    void       PlayerShowModel(Event *ev);
+    void       showModel(void) override;
+    void       ResetHaveItem(Event *ev);
+    void       ModifyHeight(Event *ev);
+    void       SetMovePosFlags(Event *ev);
+    void       GetPositionForScript(Event *ev);
+    void       GetMovementForScript(Event *ev);
+    void       EventStuffText(Event *ev);
+    void       EventSetVoiceType(Event *ev);
+    void       EventDMMessage(Event *ev);
+    void       EventIPrint(Event *ev);
+    void       EventGetUseHeld(Event *ev);
+    void       EventGetFireHeld(Event *ev);
+    void       Score(Event *ev);
+    void       Join_DM_Team(Event *ev);
+    void       Auto_Join_DM_Team(Event *ev);
+    void       Leave_DM_Team(Event *ev);
+    teamtype_t GetTeam();
+    void       SetTeam(teamtype_t team);
+    bool       IsSpectator(void);
+    void       BeginFight(void);
+    void       EndFight(void);
+    void       Spectator(void);
+    void       Spectator(Event *ev);
+    void       SetPlayerSpectate(void);
+    bool       IsValidSpectatePlayer(Player *pPlayer);
+    void       GetSpectateFollowOrientation(Player *pPlayer, Vector      &vPos, Vector      &vAng);
+    void       UpdateStatus(const char *s);
+    void       SetDM_Team(DM_Team *team);
+    DM_Team   *GetDM_Team();
+    void       WarpToPoint(Entity *spawnpoint);
 
-	void ArmorDamage(Event* ev) override;
-	void HUDPrint(const char* s);
-	void Disconnect(void);
+    void ArmorDamage(Event *ev) override;
+    void HUDPrint(const char *s);
+    void Disconnect(void);
 
     // team stuff
     int  GetNumKills() const;
     int  GetNumDeaths() const;
     void AddKills(int num);
-	void AddDeaths(int num);
-	void CallVote(Event* ev);
-	void Vote(Event* ev);
-	void EventPrimaryDMWeapon(Event* ev);
-    void EventSecondaryDMWeapon(Event* ev);
-	void ResetScore();
-	void DeadBody(Event* ev);
-	void Gib();
-	void WonMatch(void);
-	void LostMatch(void);
-    int GetMatchesWon() const;
-	int GetMatchesLost() const;
+    void AddDeaths(int num);
+    void CallVote(Event *ev);
+    void Vote(Event *ev);
+    void EventPrimaryDMWeapon(Event *ev);
+    void EventSecondaryDMWeapon(Event *ev);
+    void ResetScore();
+    void DeadBody(Event *ev);
+    void Gib();
+    void WonMatch(void);
+    void LostMatch(void);
+    int  GetMatchesWon() const;
+    int  GetMatchesLost() const;
 
-	void GetIsDisguised(Event* ev);
-	void GetHasDisguise(Event* ev);
-	void SetHasDisguise(Event* ev);
-	void SetObjectiveCount(Event* ev);
+    void GetIsDisguised(Event *ev);
+    void GetHasDisguise(Event *ev);
+    void SetHasDisguise(Event *ev);
+    void SetObjectiveCount(Event *ev);
 
-	void EventDMDeathDrop(Event* ev);
-	void EventStopwatch(Event* ev);
-	void KilledPlayerInDeathmatch(Player* killed);
-	void SetStopwatch(int iDuration);
-	void BeginTempSpectator(void);
-	void EndSpectator(void);
+    void EventDMDeathDrop(Event *ev);
+    void EventStopwatch(Event *ev);
+    void KilledPlayerInDeathmatch(Player *killed);
+    void SetStopwatch(int iDuration);
+    void BeginTempSpectator(void);
+    void EndSpectator(void);
 
-	PlayerStart* GetLastSpawnpoint() const { return m_pLastSpawnpoint; }
+    PlayerStart *GetLastSpawnpoint() const { return m_pLastSpawnpoint; }
 
-	void Stats(Event* ev);
-	void PhysicsOn(Event* ev);
-	void PhysicsOff(Event* ev);
+    void Stats(Event *ev);
+    void PhysicsOn(Event *ev);
+    void PhysicsOff(Event *ev);
 
-	void Think() override;
-	bool IsReady(void) const;
+    void Think() override;
+    bool IsReady(void) const;
 
-	void EventGetReady(Event* ev);
-	void EventSetReady(Event* ev);
-	void EventSetNotReady(Event* ev);
-	void EventGetDMTeam(Event* ev);
-	void EventSetViewModelAnim(Event* ev);
-	void EventEnterIntermission(Event* ev);
-	void EventSetPerferredWeapon(Event* ev);
+    void EventGetReady(Event *ev);
+    void EventSetReady(Event *ev);
+    void EventSetNotReady(Event *ev);
+    void EventGetDMTeam(Event *ev);
+    void EventSetViewModelAnim(Event *ev);
+    void EventEnterIntermission(Event *ev);
+    void EventSetPerferredWeapon(Event *ev);
 
-	bool BlocksAIMovement();
+    bool BlocksAIMovement();
 
-	void PlayerDone(Event* ev);
+    void EventForceLandmineMeasure(Event *ev);
+    str  GetCurrentDMWeaponType() const;
 
-	void EventForceLandmineMeasure(Event* ev);
-	str  GetCurrentDMWeaponType() const;
+    void FindAlias(str& output, str name, AliasListNode_t **node);
 
-	void FindAlias(str& output, str name, AliasListNode_t** node);
-
-	//=============================
-	// Custom openmohaa stuff
-	//=============================
+    //=============================
+    // Custom openmohaa stuff
+    //=============================
 
     qboolean     ViewModelAnim(str anim, qboolean force_restart, qboolean bFullAnim);
     virtual void Spawned(void);
@@ -864,14 +862,11 @@ public:
     void VisionSetBlur(Event *ev);
     void VisionSetNaked(Event *ev);
 
-	void Postthink() override;
-	void GibEvent(Event* ev);
-	void     DeadBody(void);
+    void     Postthink() override;
+    void     GibEvent(Event *ev);
     qboolean canUse();
     qboolean canUse(Entity *entity, bool requiresLookAt);
     int      getUseableEntities(int *touch, int maxcount, bool requiresLookAt = true);
-	void useWeapon(const char* weaponname, weaponhand_t hand = WEAPON_MAIN) override;
-	void useWeapon(Weapon* weapon, weaponhand_t hand = WEAPON_MAIN) override;
     bool     AllowTeamRespawn() const;
 };
 
@@ -1103,5 +1098,3 @@ inline void Player::SetCamera(Camera *ent, float switchTime)
         CameraCut();
     }
 }
-
-#endif /* player.h */
