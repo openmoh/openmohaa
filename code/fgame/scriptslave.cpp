@@ -900,7 +900,7 @@ void ScriptSlave::TriggerEvent
 	ent = ev->GetEntity( 1 );
 	if ( ent )
 		{
-		SetTarget( ent->TargetName() );
+		target = ent->TargetName();
 
 		e = new Event( EV_Trigger_ActivateTargets );
 		//fixme
