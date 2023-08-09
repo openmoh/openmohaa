@@ -1015,7 +1015,7 @@ bool DM_Manager::PlayerHitScoreLimit( void )
 void DM_Manager::PlayerKilled( Player *player )
 {
 	// Spawn a deadbody
-	player->DeadBody();
+	player->DeadBody(NULL);
 
 	// Hide the model because of the dead body
 	player->hideModel();
