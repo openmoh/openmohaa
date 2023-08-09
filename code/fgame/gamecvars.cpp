@@ -91,6 +91,14 @@ cvar_t *sv_walkspeed;
 cvar_t *sv_dmspeedmult;
 cvar_t *sv_crouchspeedmult;
 
+cvar_t* sv_sprinttime;
+cvar_t* sv_sprintmult;
+cvar_t* sv_sprinttime_dm;
+cvar_t* sv_sprintmult_dm;
+cvar_t* sv_sprinton;
+cvar_t* sv_invulnerabletime;
+cvar_t* sv_team_spawn_interval;
+
 cvar_t *g_showmem;
 cvar_t *g_timeents;
 
@@ -297,6 +305,19 @@ void CVAR_Init( void )
 	sv_walkspeed			= gi.Cvar_Get( "sv_walkspeed", 				"150",				CVAR_SERVERINFO );
 	sv_dmspeedmult			= gi.Cvar_Get( "sv_dmspeedmult", 			"1.1",				CVAR_SERVERINFO );
 	sv_crouchspeedmult		= gi.Cvar_Get( "sv_crouchspeedmult", 		"0.6",				CVAR_SERVERINFO );
+
+	sv_sprinttime = gi.Cvar_Get("sv_sprinttime", "5.0", 0);
+	sv_sprintmult = gi.Cvar_Get("sv_sprintmult", "1.20", 0);
+	sv_sprinttime_dm = gi.Cvar_Get("sv_sprinttime_dm", "5.0", 0);
+	sv_sprintmult_dm = gi.Cvar_Get("sv_sprintmult_dm", "1.20", 0);
+	sv_sprinton = gi.Cvar_Get("sv_sprinton", "1", 0);
+
+	if (!sv_sprinton->integer && sv_runspeed->integer == 287) {
+		gi.Cvar_Set("sv_runspeed", "250");
+	}
+
+	sv_invulnerabletime = gi.Cvar_Get("sv_invulnerabletime", "3.0", CVAR_ARCHIVE | CVAR_SERVERINFO);
+	sv_team_spawn_interval = gi.Cvar_Get("sv_team_spawn_interval", "15", CVAR_ARCHIVE | CVAR_SERVERINFO);
 
 	g_showmem				= gi.Cvar_Get( "g_showmem", 				"0",				0 );
 	g_timeents				= gi.Cvar_Get( "g_timeents", 				"0",				0 );

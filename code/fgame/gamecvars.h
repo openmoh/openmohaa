@@ -97,6 +97,17 @@ extern cvar_t *sv_walkspeed;
 extern cvar_t *sv_dmspeedmult;
 extern cvar_t *sv_crouchspeedmult;
 
+//====
+// Added in 2.0
+extern cvar_t* sv_sprinttime;
+extern cvar_t* sv_sprintmult;
+extern cvar_t* sv_sprinttime_dm;
+extern cvar_t* sv_sprintmult_dm;
+extern cvar_t* sv_sprinton;
+extern cvar_t* sv_invulnerabletime;
+extern cvar_t* sv_team_spawn_interval;
+//
+
 extern cvar_t *g_showmem;
 extern cvar_t *g_timeents;
 
