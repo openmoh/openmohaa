@@ -1133,7 +1133,7 @@ void Archiver::ArchiveObject
 			}
 
 			ArchiveInteger( &entnum );
-			( ( Entity * )obj )->SetEntNum( entnum );
+			( ( Entity * )obj )->entnum = entnum;
 			//
 			// make sure to setup spawnflags properly
 			//
