@@ -266,16 +266,6 @@ void ExplosionAttack
 	bool			hurtOwnerOnly = false
 );
 
-void StunAttack
-	(
-   Vector   pos,
-   Entity   *attacker,
-   Entity   *inflictor,
-   float    radius,
-   float    time,
-   Entity   *ignore
-   );
-
 float BulletAttack
 	(
 	Vector   start,

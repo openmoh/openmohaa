@@ -3114,35 +3114,6 @@ void ExplosionAttack
 	}
 }
 
-void StunAttack
-	(
-   Vector   pos,
-   Entity   *attacker,
-   Entity   *inflictor,
-   float    radius,
-   float    time,
-   Entity   *ignore
-   )
-
-	{
-   Entity *ent;
-
-   ent = findradius( NULL, inflictor->origin, radius );
-
-	while( ent )
-		{
-		if ( ( ent != ignore ) && ( ( ent->takedamage ) || ent->IsSubclassOfActor() ) )
-			{ 
-         if ( inflictor->CanDamage( ent, attacker ) )
-				{
-            // Fixme : Add in knockback
-            ent->Stun( time );
-				}
-			}
-      ent = findradius( ent, inflictor->origin, radius );
-		}
-	}
-
 static float radiusdamage_origin[ 3 ];
 
 static int radiusdamage_compare( const void *elem1, const void *elem2 )
