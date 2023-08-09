@@ -143,7 +143,7 @@ protected:
     void         EventGiveDynItem(Event *ev);
     void         SetBloodModel(Event *ev);
     void         EventUseItem(Event *ev);
-    void         EventUseWeaponClass(Event *ev);
+    virtual void EventUseWeaponClass(Event *ev);
     virtual void EventGiveTargetname(Event *ev);
 
     void         EventGerman(Event *ev);
@@ -172,24 +172,24 @@ protected:
     virtual void     TurnOnShadow(Event *ev);
     virtual void     WeaponKnockedFromHands(void);
 
-    void     EventDropItems(Event *ev);
-    void     EventDontDropWeapons(Event *ev);
-    void     DetachAllActiveWeapons(void);
-    void     AttachAllActiveWeapons(void);
-    qboolean WeaponsOut(void);
-    qboolean IsActiveWeapon(Weapon *weapon);
-    void     ActivateWeapon(Weapon *weapon, weaponhand_t hand);
-    void     ActivateLastActiveWeapon(void);
-    void     EventActivateLastActiveWeapon(Event *ev);
-    void     EventToggleItemUse(Event *ev);
-    void     DeactivateWeapon(Weapon *weapon);
-    void     DeactivateWeapon(weaponhand_t hand);
-    void     CheckAnimations(Event *ev);
-    void     ChargeWeapon(weaponhand_t hand, firemode_t mode);
-    void     FireWeapon(int number, firemode_t mode);
-    void     ReleaseFireWeapon(int number, firemode_t mode);
-    void     Link();
-    void     Unlink();
+	void         EventDropItems(Event* ev);
+	void         EventDontDropWeapons(Event* ev);
+	void         DetachAllActiveWeapons(void);
+	void         AttachAllActiveWeapons(void);
+	qboolean     WeaponsOut(void);
+	qboolean     IsActiveWeapon(Weapon* weapon);
+	void         ActivateWeapon(Weapon* weapon, weaponhand_t hand);
+	void         ActivateLastActiveWeapon(void);
+	void         EventActivateLastActiveWeapon(Event* ev);
+	void         EventToggleItemUse(Event* ev);
+	void         DeactivateWeapon(Weapon* weapon);
+	void         DeactivateWeapon(weaponhand_t hand);
+	void         CheckAnimations(Event* ev);
+	void         ChargeWeapon(weaponhand_t hand, firemode_t mode);
+	virtual void FireWeapon(int number, firemode_t mode);
+	void         ReleaseFireWeapon(int number, firemode_t mode);
+	void         Link();
+	void         Unlink();
 
 public:
     Vector            mTargetPos;
