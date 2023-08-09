@@ -622,9 +622,6 @@ public:
 
     void ProcessPmoveEvents(int event);
 
-    void SwingAngles(
-        float destination, float swingTolerance, float clampTolerance, float speed, float *angle, qboolean *swinging
-    );
     void PlayerAngles(void);
     void FinishMove(void);
     void EndFrame(void) override;
@@ -658,11 +655,13 @@ public:
     void Jump(Event *ev);
     void JumpXY(Event *ev);
 
-    void   SetViewAngles(Vector angles) override;
-    void   SetTargetViewAngles(Vector angles) override;
-    Vector GetViewAngles(void) override;
-    void   SetFov(float newFov);
-    float  GetFov() const;
+    void SetViewAngles(Vector angles) override;
+    void SetTargetViewAngles(Vector angles) override;
+
+    Vector GetViewAngles(void) override { return v_angle; };
+
+    void  SetFov(float newFov);
+    float GetFov() const;
 
     void     ToggleZoom(int iZoom);
     void     ZoomOff(void);

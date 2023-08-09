@@ -65,15 +65,6 @@ Event EV_Player_DumpState
     "Dumps the player's state to the console.",
     EV_NORMAL
 );
-Event EV_Player_ForceLegsState
-(
-    "forcelegsstate",
-    EV_DEFAULT,
-    "s",
-    "legsstate",
-    "Force the player's legs to a certain state",
-    EV_NORMAL
-);
 Event EV_Player_ForceTorsoState
 (
     "forcetorsostate",
@@ -81,6 +72,15 @@ Event EV_Player_ForceTorsoState
     "s",
     "torsostate",
     "Force the player's torso to a certain state",
+    EV_NORMAL
+);
+Event EV_Player_ForceLegsState
+(
+    "forcelegsstate",
+    EV_DEFAULT,
+    "s",
+    "legsstate",
+    "Force the player's legs to a certain state",
     EV_NORMAL
 );
 Event EV_Player_GiveAllCheat
@@ -119,15 +119,6 @@ Event EV_Player_FullHeal
     "Heals player.",
     EV_NORMAL
 );
-Event EV_Player_Face
-(
-    "face",
-    EV_CHEAT | EV_CONSOLE,
-    "v",
-    "angles",
-    "Force angles to specified vector",
-    EV_NORMAL
-);
 Event EV_Player_DevNoTargetCheat
 (
     "notarget",
@@ -144,15 +135,6 @@ Event EV_Player_DevNoClipCheat
     NULL,
     NULL,
     "Toggles the noclip cheat.",
-    EV_NORMAL
-);
-Event EV_Player_Teleport
-(
-    "tele",
-    EV_CHEAT | EV_CONSOLE,
-    "v",
-    "location",
-    "Teleport to location",
     EV_NORMAL
 );
 Event EV_Player_PrevItem
@@ -198,6 +180,24 @@ Event EV_Player_DropWeapon
     NULL,
     NULL,
     "Drops the player's current weapon.",
+    EV_NORMAL
+);
+Event EV_Player_Reload
+(
+    "reload",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Reloads the player's weapon",
+    EV_NORMAL
+);
+Event EV_Player_CorrectWeaponAttachments
+(
+    "correctweaponattachments",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "makes sure the weapons is properly attached when interupting a reload",
     EV_NORMAL
 );
 Event EV_Player_GiveCheat
@@ -371,15 +371,6 @@ Event EV_Player_Jump
     "Makes the player jump.",
     EV_NORMAL
 );
-Event EV_Player_SwordAttack
-(
-    "swordattack",
-    EV_DEFAULT,
-    "s",
-    "hand",
-    "Makes the player attack with the sword in the specified sword.",
-    EV_NORMAL
-);
 Event EV_Player_AnimLoop_Torso
 (
     "animloop_torso",
@@ -416,6 +407,24 @@ Event EV_Player_ListInventory
     "List of the player's inventory.",
     EV_NORMAL
 );
+Event EV_Player_ActivateShield
+(
+    "activateshield",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Activates the player's shield",
+    EV_NORMAL
+);
+Event EV_Player_DeactivateShield
+(
+    "deactivateshield",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Deactivates the player's shield",
+    EV_NORMAL
+);
 Event EV_Player_Turn
 (
     "turn",
@@ -443,8 +452,7 @@ Event EV_Player_TurnLegs
     "Turns the players legs instantly by the specified amount.",
     EV_NORMAL
 );
-Event EV_Player_NextPainTime
-(
+Event EV_Player_NextPainTime(
     "nextpaintime",
     EV_DEFAULT,
     "f",
@@ -479,6 +487,23 @@ Event EV_Player_SafeHolster
     "putaway",
     "Holsters all wielded weapons, or unholsters previously put away weapons\n"
     "preserves state, so it will not holster or unholster unless necessary",
+    EV_NORMAL
+);
+Event EV_Player_SafeZoom(
+    "safezoom",
+    EV_DEFAULT,
+    "b",
+    "zoomin",
+    "0 turns off zoom,"
+    "and 1 returns zoom to previous setting"
+);
+Event EV_Player_ZoomOff
+(
+    "zoomoff",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "makes sure that zoom is off",
     EV_NORMAL
 );
 Event EV_Player_StartUseObject
@@ -579,172 +604,6 @@ Event EV_Player_ModifyHeight
     "s",
     "height",
     "change the maximum height of the player\ncan specify 'stand', 'duck' or 'prone'.",
-    0
-);
-Event EV_Player_PrimaryDMWeapon
-(
-    "primarydmweapon",
-    EV_CONSOLE,
-    "s",
-    "weaptype",
-    "Sets the player's primary DM weapon",
-    EV_NORMAL
-);
-Event EV_Player_DeadBody
-(
-    "deadbody",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Spawn a dead body",
-    EV_NORMAL
-);
-
-Event EV_Player_Physics_On
-(
-    "physics_on",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "turn player physics on.",
-    EV_NORMAL
-);
-
-Event EV_Player_Physics_Off
-(
-    "physics_off",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "turn player physics off.",
-    EV_NORMAL
-);
-
-Event EV_Player_AttachToLadder
-(
-    "attachtoladder",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Attaches the sentient to a ladder",
-    EV_NORMAL
-);
-
-Event EV_Player_UnattachFromLadder
-(
-    "unattachfromladder",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Unattaches the sentient from a ladder",
-    EV_NORMAL
-);
-
-Event EV_Player_TweakLadderPos
-(
-    "tweakladderpos",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Tweaks the player's position on a ladder to be proper",
-    EV_NORMAL
-);
-
-Event EV_Player_EnsureOverLadder
-(
-    "ensureoverladder",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Ensures that the player is at the proper height when getting off the top of a ladder",
-    EV_NORMAL
-);
-
-Event EV_Player_EnsureForwardOffLadder
-(
-    "ensureforwardoffladder",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Ensures that the player went forward off the ladder.",
-    EV_NORMAL
-);
-
-Event EV_Player_GetIsDisguised
-(
-    "is_disguised", EV_DEFAULT,
-    NULL,
-    NULL,
-    "zero = not disguised,
-    non-zero = disguised",
-    EV_GETTER
-);
-
-Event EV_Player_GetHasDisguise
-(
-    "has_disguise", EV_DEFAULT,
-    NULL,
-    NULL,
-    "zero = does not have a disguise,
-    non-zero = has a disguise",
-    EV_GETTER
-);
-
-Event EV_Player_SetHasDisguise
-(
-    "has_disguise", -1,
-    "i",
-    "is_disguised",
-    "zero = does not have a disguise,
-    non-zero = has a disguise",
-    EV_SETTER
-);
-
-Event EV_Player_ObjectiveCount
-(
-    "objective",
-    EV_DEFAULT,
-    "ii",
-    "num_completed out_of",
-    "Sets the number of objectives completed and the total number of objectives",
-    EV_NORMAL
-);
-
-Event EV_Player_Stats
-(
-    "stats",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Display the MissionLog.",
-    EV_NORMAL
-);
-
-Event EV_Player_Reload
-(
-    "reload",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Reloads the player's weapon",
-    EV_NORMAL
-);
-Event EV_Player_CorrectWeaponAttachments
-(
-    "correctweaponattachments",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "makes sure the weapons is properly attached when interupting a reload",
-    EV_NORMAL
-);
-Event EV_Player_Score
-(
-    "score",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Show the score for the current deathmatch game",
     EV_NORMAL
 );
 Event EV_Player_SetMovePosFlags
@@ -774,6 +633,33 @@ Event EV_Player_GetMovement
     "returns the player current movement",
     EV_RETURN
 );
+Event EV_Player_Score
+(
+    "score",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Show the score for the current deathmatch game",
+    EV_NORMAL
+);
+Event EV_Player_JoinDMTeam
+(
+    "join_team",
+    EV_CONSOLE,
+    "s",
+    "team",
+    "Join the specified team (allies or axis)",
+    EV_NORMAL
+);
+Event EV_Player_AutoJoinDMTeam
+(
+    "auto_join_team",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Join the team with fewer players",
+    EV_NORMAL
+);
 Event EV_Player_Spectator
 (
     "spectator",
@@ -783,13 +669,233 @@ Event EV_Player_Spectator
     "Become a spectator",
     EV_NORMAL
 );
-Event EV_Player_SetViewModelAnim
+Event EV_Player_JoinArena
 (
-    "viewmodelanim",
+    "join_arena",
+    EV_CONSOLE,
+    "i",
+    "arena_id_num",
+    "Join the specified arena",
+    EV_NORMAL
+);
+Event EV_Player_LeaveArena
+(
+    "leave_arena",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Leave the current arena",
+    EV_NORMAL
+);
+Event EV_Player_CreateTeam
+(
+    "create_team",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Create a team in the current arena",
+    EV_NORMAL
+);
+Event EV_Player_LeaveTeam
+(
+    "leave_team",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Leave the current team",
+    EV_NORMAL
+);
+Event EV_Player_RefreshArenaUI
+(
+    "arena_ui",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Refresh the arena UI",
+    EV_NORMAL
+);
+Event EV_Player_CallVote
+(
+    "callvote",
+    EV_CONSOLE,
+    "ss",
+    "arg1 arg2",
+    "Player calls a vote",
+    EV_NORMAL
+);
+Event EV_Player_Vote
+(
+    "vote",
+    EV_CONSOLE,
+    "s",
+    "arg1",
+    "Player votes either yes or no",
+    EV_NORMAL
+);
+Event EV_Player_PrimaryDMWeapon
+(
+    "primarydmweapon",
+    EV_CONSOLE,
+    "s",
+    "weaptype",
+    "Sets the player's primary DM weapon",
+    EV_NORMAL
+);
+Event EV_Player_DeadBody
+(
+    "deadbody",
     EV_DEFAULT,
-    "sI",
-    "name force_restart",
-    "Sets the player's view model animation.",
+    NULL,
+    NULL,
+    "Spawn a dead body",
+    EV_NORMAL
+);
+Event EV_Player_Physics_On
+(
+    "physics_on",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "turn player physics on.",
+    EV_NORMAL
+);
+Event EV_Player_Physics_Off
+(
+    "physics_off",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "turn player physics off.",
+    EV_NORMAL
+);
+Event EV_Player_AttachToLadder
+(
+    "attachtoladder",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Attaches the sentient to a ladder",
+    EV_NORMAL
+);
+Event EV_Player_UnattachFromLadder
+(
+    "unattachfromladder",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Unattaches the sentient from a ladder",
+    EV_NORMAL
+);
+Event EV_Player_TweakLadderPos
+(
+    "tweakladderpos",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Tweaks the player's position on a ladder to be proper",
+    EV_NORMAL
+);
+Event EV_Player_EnsureOverLadder
+(
+    "ensureoverladder",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Ensures that the player is at the proper height when getting off the top of a ladder",
+    EV_NORMAL
+);
+Event EV_Player_EnsureForwardOffLadder
+(
+    "ensureforwardoffladder",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Ensures that the player went forward off the ladder.",
+    EV_NORMAL
+);
+Event EV_Player_GetIsDisguised
+(
+    "is_disguised",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "zero = not disguised"
+    "non-zero = disguised",
+    EV_GETTER
+);
+Event EV_Player_GetHasDisguise
+(
+    "has_disguise",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "zero = does not have a disguise,"
+    "non - zero = has a disguise",
+    EV_GETTER
+);
+
+Event EV_Player_SetHasDisguise
+(
+    "has_disguise",
+    EV_DEFAULT,
+    "i",
+    "is_disguised",
+    "zero = does not have a disguise,"
+    "non - zero = has a disguise",
+    EV_SETTER
+);
+Event EV_Player_ObjectiveCount
+(
+    "objective",
+    EV_DEFAULT,
+    "ii",
+    "num_completed out_of",
+    "Sets the number of objectives completed and the total number of objectives",
+    EV_NORMAL
+);
+Event EV_Player_Stats
+(
+    "stats",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Display the MissionLog.",
+    EV_NORMAL
+);
+Event EV_Player_Teleport
+(
+    "tele",
+    EV_CHEAT | EV_CONSOLE,
+    "v",
+    "location",
+    "Teleport to location",
+    EV_NORMAL
+);
+Event EV_Player_Face
+(
+    "face",
+    EV_CHEAT | EV_CONSOLE,
+    "v",
+    "angles",
+    "Force angles to specified vector",
+    EV_NORMAL
+);
+Event EV_Player_Coord
+(
+    "coord",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Prints out current location and angles",
+    EV_NORMAL
+);
+Event EV_Player_StuffText
+(
+    "stufftext",
+    EV_DEFAULT,
+    "s",
+    "stuffstrings",
+    "Stuffs text to the player's console",
     EV_NORMAL
 );
 Event EV_Player_DMMessage
@@ -803,11 +909,100 @@ Event EV_Player_DMMessage
 );
 Event EV_Player_IPrint
 (
-    "iprint", EV_CONSOLE,
+    "iprint",
+    EV_CONSOLE,
     "sI",
     "string bold",
-    "prints a string to the player,
-    optionally in bold",
+    "prints a string to the player,"
+    "optionally in bold",
+    EV_NORMAL
+);
+Event EV_SetViewangles
+(
+    "viewangles",
+    EV_DEFAULT,
+    "v",
+    "newAngles",
+    "set the view angles of the entity to newAngles.",
+    EV_SETTER
+);
+Event EV_GetViewangles
+(
+    "viewangles",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the angles of the entity.",
+    EV_GETTER
+);
+Event EV_GetUseHeld
+(
+    "useheld",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns 1 if this player is holding use,"
+    "or 0 if he is not",
+    EV_GETTER
+);
+Event EV_GetFireHeld
+(
+    "fireheld",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns 1 if this player is holding fire,"
+    "or 0 if he is not",
+    EV_GETTER
+);
+
+Event EV_Player_GetReady
+(
+    "ready",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns 1 if this player is ready,"
+    "0 otherwise",
+    EV_GETTER
+);
+Event EV_Player_SetReady
+(
+    "ready",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "makes this player ready for the round to start",
+    EV_NORMAL
+);
+Event EV_Player_SetNotReady
+(
+    "notready",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "makes this player not ready for the round to start",
+    EV_NORMAL
+);
+Event EV_Player_GetDMTeam
+(
+    "dmteam",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns 'allies',"
+    "'axis',"
+    "'spectator',"
+    "or 'freeforall'",
+    EV_GETTER
+);
+Event EV_Player_SetViewModelAnim
+(
+    "viewmodelanim",
+    EV_DEFAULT,
+    "sI",
+    "name force_restart",
+    "Sets the player's view model animation.",
     EV_NORMAL
 );
 Event EV_Player_DMDeathDrop
@@ -853,137 +1048,6 @@ Event EV_Player_SetVoiceType
     "s",
     "voice_name",
     "Sets the voice type to use the player.",
-    EV_NORMAL
-);
-Event EV_Player_Coord
-(
-    "coord",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Prints out current location and angles",
-    EV_NORMAL
-);
-Event EV_GetViewangles
-(
-    "viewangles",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "get the angles of the entity.",
-    EV_GETTER
-);
-Event EV_SetViewangles
-(
-    "viewangles",
-    EV_DEFAULT,
-    "v",
-    "newAngles",
-    "set the view angles of the entity to newAngles.",
-    EV_SETTER
-);
-Event EV_GetUseHeld
-(
-    "useheld", EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns 1 if this player is holding use,
-    or 0 if he is not",
-    EV_GETTER
-);
-
-Event EV_GetFireHeld
-(
-    "fireheld", EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns 1 if this player is holding fire,
-    or 0 if he is not",
-    EV_GETTER
-);
-
-Event EV_Player_GetReady
-(
-    "ready", EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns 1 if this player is ready,
-    0 otherwise",
-    EV_GETTER
-);
-
-Event EV_Player_SetReady
-(
-    "ready",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "makes this player ready for the round to start",
-    EV_NORMAL
-);
-
-Event EV_Player_SetNotReady
-(
-    "notready",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "makes this player not ready for the round to start",
-    EV_NORMAL
-);
-
-Event EV_Player_GetDMTeam
-(
-    "dmteam", EV_DEFAULT, NULL, NULL,
-    "returns 'allies',
-    'axis',
-    'spectator',
-    or 'freeforall'",
-    EV_GETTER
-);
-Event EV_Player_StuffText
-(
-    "stufftext",
-    EV_DEFAULT,
-    "s",
-    "stuffstrings",
-    "Stuffs text to the player's console",
-    EV_NORMAL
-);
-Event EV_Player_TurretEnter
-(
-    "turretenter",
-    EV_DEFAULT,
-    "es",
-    "turret driver_anim",
-    "Called when someone gets into a turret.",
-    EV_NORMAL
-);
-Event EV_Player_TurretExit
-(
-    "turretexit",
-    EV_DEFAULT,
-    "e",
-    "turret",
-    "Called when driver gets out of the turret.",
-    EV_NORMAL
-);
-Event EV_Player_SafeZoom
-(
-    "safezoom",
-    EV_DEFAULT,
-    "b",
-    "zoomin",
-    "0 turns off zoom,
-    and 1 returns zoom to previous setting"
-);
-Event EV_Player_ZoomOff
-(
-    "zoomoff",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "makes sure that zoom is off",
     EV_NORMAL
 );
 
@@ -1208,96 +1272,6 @@ Event EV_Player_IsSpectator
     EV_RETURN
 );
 
-Event EV_Player_JoinDMTeam
-(
-    "join_team",
-    EV_CONSOLE,
-    "s",
-    "team",
-    "Join the specified team (allies or axis)",
-    EV_NORMAL
-);
-
-Event EV_Player_AutoJoinDMTeam
-(
-    "auto_join_team",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Join the team with fewer players",
-    EV_NORMAL
-);
-
-Event EV_Player_JoinArena
-(
-    "join_arena",
-    EV_CONSOLE,
-    "i",
-    "arena_id_num",
-    "Join the specified arena",
-    EV_NORMAL
-);
-
-Event EV_Player_LeaveArena
-(
-    "leave_arena",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Leave the current arena",
-    EV_NORMAL
-);
-
-Event EV_Player_CreateTeam
-(
-    "create_team",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Create a team in the current arena",
-    EV_NORMAL
-);
-
-Event EV_Player_LeaveTeam
-(
-    "leave_team",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Leave the current team",
-    EV_NORMAL
-);
-
-Event EV_Player_RefreshArenaUI
-(
-    "arena_ui",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Refresh the arena UI",
-    EV_NORMAL
-);
-
-Event EV_Player_CallVote
-(
-    "callvote",
-    EV_CONSOLE,
-    "ss",
-    "arg1 arg2",
-    "Player calls a vote",
-    EV_NORMAL
-);
-
-Event EV_Player_Vote
-(
-    "vote",
-    EV_CONSOLE,
-    "s",
-    "arg1",
-    "Player votes either yes or no",
-    EV_NORMAL
-);
-
 Event EV_Player_LeanLeftHeld
 (
     "leanleftheld",
@@ -1371,11 +1345,12 @@ Event EV_Player_Replicate
 
 Event EV_Player_RunHeld
 (
-    "runheld", EV_DEFAULT,
+    "runheld",
+    EV_DEFAULT,
     NULL,
     NULL,
-    "returns 1 if this player is holding run key,
-    or 0 if he is not",
+    "returns 1 if this player is holding run key,"
+    "or 0 if he is not",
     EV_GETTER
 );
 
@@ -1513,11 +1488,12 @@ Event EV_Player_StopLocalSound
 
 Event EV_Player_UseHeld
 (
-    "useheld", EV_DEFAULT,
+    "useheld",
+    EV_DEFAULT,
     NULL,
     NULL,
-    "returns 1 if this player is holding use key,
-    or 0 if he is not",
+    "returns 1 if this player is holding use key,"
+    "or 0 if he is not",
     EV_GETTER
 );
 
@@ -4839,99 +4815,6 @@ void Player::EvaluateState(State *forceTorso, State *forceLegs)
     pain = 0;
 }
 
-qboolean Player::canUse()
-{
-    int touch[MAX_GENTITIES];
-    int num = getUseableEntities(touch, MAX_GENTITIES);
-
-    return num ? true : false;
-}
-
-qboolean Player::canUse(Entity *entity, bool requiresLookAt)
-{
-    gentity_t *hit;
-    int        touch[MAX_GENTITIES];
-    int        num;
-    int        i;
-
-    num = getUseableEntities(touch, MAX_GENTITIES, requiresLookAt);
-
-    for (i = 0; i < num; i++) {
-        hit = &g_entities[touch[i]];
-
-        if (!hit->inuse || hit->entity == NULL) {
-            continue;
-        }
-
-        if (hit->entity == entity) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-int Player::getUseableEntities(int *touch, int maxcount, bool requiresLookAt)
-{
-    Vector  end;
-    Vector  start;
-    trace_t trace;
-    Vector  offset;
-    Vector  max;
-    Vector  min;
-
-    if ((g_gametype->integer && IsSpectator()) || IsDead()) {
-        return 0;
-    }
-
-    if (m_pTurret) {
-        *touch = m_pTurret->entnum;
-        return 1;
-    }
-
-    if (m_pTurret) {
-        return 0;
-    }
-
-    AngleVectors(client->ps.viewangles, offset, NULL, NULL);
-
-    start = origin;
-    start.z += client->ps.viewheight;
-
-    if (requiresLookAt) {
-        min = Vector(-4.f, -4.f, -4.f);
-        max = Vector(4.f, 4.f, 4.f);
-
-        end[0] = start[0] + (offset[0] * 64.f);
-        end[1] = start[1] + (offset[1] * 64.f);
-
-        if (v_angle[0] <= 0.0f) {
-            end[2] = start[2] + (offset[2] * 40.f);
-        } else {
-            end[2] = start[2] + (offset[2] * 88.f);
-        }
-
-        trace = G_Trace(start, min, max, end, this, MASK_SOLID, false, "Player::getUseableEntity");
-
-        offset = trace.endpos;
-
-        min = offset - Vector(16.f, 16.f, 16.f);
-        max = offset + Vector(16.f, 16.f, 16.f);
-    } else {
-        min = start - Vector(31.f, 31.f, 31.f);
-        max = start + Vector(31.f, 31.f, 31.f);
-    }
-
-    return gi.AreaEntities(min, max, touch, maxcount);
-}
-
-void Player::Postthink(void)
-{
-    if (bindmaster) {
-        SetViewAngles(GetViewAngles() + Vector(0, bindmaster->avelocity[YAW] * level.frametime, 0));
-    }
-}
-
 void Player::SelectPreviousItem(Event *ev)
 {
     if (deadflag) {
@@ -6213,83 +6096,6 @@ void Player::RemoveTarget(Entity *ent_to_remove) {}
 void Player::AutoAim(void) {}
 
 /*
-==================
-SwingAngles
-==================
-*/
-void Player::SwingAngles(
-    float destination, float swingTolerance, float clampTolerance, float speed, float *angle, qboolean *swinging
-)
-
-{
-    float swing;
-    float move;
-    float scale;
-
-    if (!*swinging) {
-        // see if a swing should be started
-        swing = AngleSubtract(*angle, destination);
-        if (swing > swingTolerance || swing < -swingTolerance) {
-            *swinging = qtrue;
-            // we intentionally return so that we can start the animation before turning
-            return;
-        }
-    }
-
-    if (!*swinging) {
-        return;
-    }
-
-    // modify the speed depending on the delta
-    // so it doesn't seem so linear
-    swing = AngleSubtract(destination, *angle);
-    scale = fabs(swing);
-
-#if 0
-	if ( scale < swingTolerance * 0.5 )
-      {
-		scale = 0.5;
-	   }
-   else if ( scale < swingTolerance )
-      {
-		scale = 1.0;
-	   }
-   else
-      {
-		scale = 2.0;
-	   }
-#else
-    scale = 1.0f;
-#endif
-
-    // swing towards the destination angle
-    if (swing >= 0) {
-        move = level.intframetime * scale * speed;
-        if (move >= swing) {
-            move      = swing;
-            *swinging = qfalse;
-        }
-
-        *angle = AngleMod(*angle + move);
-    } else if (swing < 0) {
-        move = level.intframetime * scale * -speed;
-        if (move <= swing) {
-            move      = swing;
-            *swinging = qfalse;
-        }
-        *angle = AngleMod(*angle + move);
-    }
-
-    // clamp to no more than tolerance
-    swing = AngleSubtract(destination, *angle);
-    if (swing > clampTolerance) {
-        *angle = AngleMod(destination - (clampTolerance - 1));
-    } else if (swing < -clampTolerance) {
-        *angle = AngleMod(destination + (clampTolerance - 1));
-    }
-}
-
-/*
 ===============
 PlayerAngles
 ===============
@@ -6933,24 +6739,6 @@ void Player::EndFrame(void)
     }
 }
 
-void Player::GibEvent(Event *ev)
-{
-    qboolean hidemodel;
-
-    hidemodel = !ev->GetInteger(1);
-
-    if (com_blood->integer) {
-        if (hidemodel) {
-            gibbed     = true;
-            takedamage = DAMAGE_NO;
-            setSolidType(SOLID_NOT);
-            hideModel();
-        }
-
-        CreateGibs(this, health, 0.75f, 3);
-    }
-}
-
 void Player::GotKill(Event *ev)
 
 {
@@ -7086,11 +6874,6 @@ void Player::JumpXY(Event *ev)
 
     // make sure the player leaves the ground
     client->ps.walking = qfalse;
-}
-
-Vector Player::GetViewAngles(void)
-{
-    return v_angle;
 }
 
 void Player::SetViewAngles(Vector newViewangles)
@@ -8033,6 +7816,18 @@ void Player::EndFight(void)
     m_bAllowFighting = false;
 }
 
+void Player::WarpToPoint(Entity* spawnpoint)
+{
+    if (spawnpoint)
+    {
+        setOrigin(spawnpoint->origin + Vector(0, 0, 1));
+        setAngles(spawnpoint->angles);
+		SetViewAngles(angles);
+		client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
+		client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
+    }
+}
+
 void Player::UpdateStatus(const char *s)
 {
     gi.SendServerCommand(edict - g_entities, "status \"%s\"", s);
@@ -8041,6 +7836,24 @@ void Player::UpdateStatus(const char *s)
 void Player::HUDPrint(const char *s)
 {
     gi.SendServerCommand(edict - g_entities, "hudprint \"%s\"\n", s);
+}
+
+void Player::GibEvent(Event* ev)
+{
+	qboolean hidemodel;
+
+	hidemodel = !ev->GetInteger(1);
+
+	if (com_blood->integer) {
+		if (hidemodel) {
+			gibbed = true;
+			takedamage = DAMAGE_NO;
+			setSolidType(SOLID_NOT);
+			hideModel();
+		}
+
+		CreateGibs(this, health, 0.75f, 3);
+	}
 }
 
 void Player::ArmorDamage(Event *ev)
@@ -9787,4 +9600,100 @@ bool Player::AllowTeamRespawn() const
 {
     // FIXME: unimplemented
     return true;
+}
+
+
+qboolean Player::canUse()
+{
+	int touch[MAX_GENTITIES];
+	int num = getUseableEntities(touch, MAX_GENTITIES);
+
+	return num ? true : false;
+}
+
+qboolean Player::canUse(Entity* entity, bool requiresLookAt)
+{
+	gentity_t* hit;
+	int        touch[MAX_GENTITIES];
+	int        num;
+	int        i;
+
+	num = getUseableEntities(touch, MAX_GENTITIES, requiresLookAt);
+
+	for (i = 0; i < num; i++) {
+		hit = &g_entities[touch[i]];
+
+		if (!hit->inuse || hit->entity == NULL) {
+			continue;
+		}
+
+		if (hit->entity == entity) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+int Player::getUseableEntities(int* touch, int maxcount, bool requiresLookAt)
+{
+	Vector  end;
+	Vector  start;
+	trace_t trace;
+	Vector  offset;
+	Vector  max;
+	Vector  min;
+
+	if ((g_gametype->integer && IsSpectator()) || IsDead()) {
+		return 0;
+	}
+
+	if (m_pTurret) {
+		*touch = m_pTurret->entnum;
+		return 1;
+	}
+
+	if (m_pTurret) {
+		return 0;
+	}
+
+	AngleVectors(client->ps.viewangles, offset, NULL, NULL);
+
+	start = origin;
+	start.z += client->ps.viewheight;
+
+	if (requiresLookAt) {
+		min = Vector(-4.f, -4.f, -4.f);
+		max = Vector(4.f, 4.f, 4.f);
+
+		end[0] = start[0] + (offset[0] * 64.f);
+		end[1] = start[1] + (offset[1] * 64.f);
+
+		if (v_angle[0] <= 0.0f) {
+			end[2] = start[2] + (offset[2] * 40.f);
+		}
+		else {
+			end[2] = start[2] + (offset[2] * 88.f);
+		}
+
+		trace = G_Trace(start, min, max, end, this, MASK_SOLID, false, "Player::getUseableEntity");
+
+		offset = trace.endpos;
+
+		min = offset - Vector(16.f, 16.f, 16.f);
+		max = offset + Vector(16.f, 16.f, 16.f);
+	}
+	else {
+		min = start - Vector(31.f, 31.f, 31.f);
+		max = start + Vector(31.f, 31.f, 31.f);
+	}
+
+	return gi.AreaEntities(min, max, touch, maxcount);
+}
+
+void Player::Postthink(void)
+{
+	if (bindmaster) {
+		SetViewAngles(GetViewAngles() + Vector(0, bindmaster->avelocity[YAW] * level.frametime, 0));
+	}
 }
