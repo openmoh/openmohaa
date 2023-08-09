@@ -119,20 +119,20 @@ Event EV_GetTarget
 );
 Event EV_SetAngles
 (
-    "angles", EV_DEFAULT, "v[0,360][0,
-    360][0,
-    360]",
-    "newAngles",
-    "Set the angles of the entity to newAngles.",
+	"angles",
+	EV_DEFAULT,
+	"v[0,360][0,360][0,360]",
+	"newAngles",
+	"set the angles of the entity to newAngles.",
     EV_NORMAL
 );
 Event EV_SetAngles2
 (
-    "angles", EV_DEFAULT, "v[0,360][0,
-    360][0,
-    360]",
-    "newAngles",
-    "Set the angles of the entity to newAngles.",
+	"angles",
+	EV_DEFAULT,
+	"v[0,360][0,360][0,360]",
+	"newAngles",
+	"set the angles of the entity to newAngles.",
     EV_SETTER
 );
 Event EV_GetAngles

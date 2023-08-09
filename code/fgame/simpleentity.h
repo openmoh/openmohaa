@@ -121,5 +121,3 @@ public:
     SimpleArchivedEntity();
     virtual ~SimpleArchivedEntity();
 };
-
-#endif
