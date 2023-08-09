@@ -211,15 +211,6 @@ Event EV_Item_SetAmount
    "Sets the amount of the item.",
 	EV_NORMAL
 	);
-Event EV_Item_SetDMAmount
-(
-	"dmamount",
-	EV_DEFAULT,
-	"i",
-	"amount",
-	"Sets the amount of the item.",
-	EV_NORMAL
-);
 Event EV_Item_SetMaxAmount
 	( 
 	"maxamount",
@@ -227,6 +218,24 @@ Event EV_Item_SetMaxAmount
    "i",
    "max_amount",
    "Sets the max amount of the item.",
+	EV_NORMAL
+	);
+Event EV_Item_SetDMAmount
+(
+	"dmamount",
+	EV_DEFAULT,
+	"i",
+	"amount",
+	"Sets the amount of the item for DM.",
+	EV_NORMAL
+);
+Event EV_Item_SetDMMaxAmount
+	( 
+	"dmmaxamount",
+	EV_DEFAULT,
+   "i",
+   "max_amount",
+   "Sets the max amount of the item fmr DM.",
 	EV_NORMAL
 	);
 Event EV_Item_SetItemName
@@ -284,32 +293,6 @@ Event EV_Item_PickupDone
 	EV_NORMAL
 	);
 
-Event EV_Item_CoolItem
-	( 
-	"coolitem",
-	EV_DEFAULT,
-   "SS",
-   "dialog anim_to_play",
-   "Specify that this is a cool item when we pick it up for the first time.\n"
-   "If dialog is specified, than the dialog will be played during the pickup.\n"
-   "If anim_to_play is specified, than the specified anim will be played after\n"
-   "the initial cinematic.",
-	EV_NORMAL
-	);
-
-Event EV_Item_ForceCoolItem
-	( 
-	"forcecoolitem",
-	EV_DEFAULT,
-   "SS",
-   "dialog anim_to_play",
-   "Specify that this is a cool item when we pick it up regardless of whether or not we have it.\n"
-   "If dialog is specified, than the dialog will be played during the pickup.\n"
-   "If anim_to_play is specified, than the specified anim will be played after\n"
-   "the initial cinematic.",
-	EV_NORMAL
-	);
-
 Event EV_Item_SetPickupSound
 (
 	"pickupsound",
@@ -343,7 +326,6 @@ CLASS_DECLARATION( Trigger, Item, NULL )
 	{ &EV_Item_DropToFloor,			&Item::DropToFloor },
 	{ &EV_Item_Respawn,				&Item::Respawn },
 	{ &EV_Item_SetAmount,			&Item::SetAmountEvent },
-	{ &EV_Item_SetDMAmount,			&Item::SetDMAmountEvent },
 	{ &EV_Item_SetMaxAmount,		&Item::SetMaxAmount },
 	{ &EV_Item_SetItemName,			&Item::SetItemName },
 	{ &EV_Item_Pickup,				&Item::Pickup },
@@ -355,10 +337,10 @@ CLASS_DECLARATION( Trigger, Item, NULL )
 	{ &EV_Item_PickupDone,			&Item::PickupDone },
 	{ &EV_Item_SetRespawn,			&Item::setRespawn },
 	{ &EV_Item_SetRespawnTime,		&Item::setRespawnTime },
-	{ &EV_Item_CoolItem,			&Item::CoolItemEvent },   
-	{ &EV_Item_ForceCoolItem,		&Item::ForceCoolItemEvent },   
 	{ &EV_Stop,						&Item::Landed },
 	{ &EV_SetAngle,					&Item::SetAngleEvent },
+	{ &EV_Item_SetDMAmount,			&Item::SetDMAmountEvent },
+	{ &EV_Item_SetDMMaxAmount,		&Item::SetDMMaxAmount },
 	{ &EV_Item_SetPickupSound,		&Item::SetPickupSound },
 	{ &EV_Item_ViewModelPrefix,		&Item::EventViewModelPrefix },
 	{ &EV_Item_UpdatePrefix,		&Item::updatePrefix },
@@ -435,6 +417,33 @@ Item::~Item()
 	}
 
 	entflags &= ~EF_ITEM;
+}
+
+void Item::RemoveFromOwner
+(
+	void
+)
+{
+	owner->RemoveItem(this);
+	owner = NULL;
+}
+
+void Item::Delete
+(
+	void
+)
+{
+	if (g_iInThinks)
+	{
+		if (owner)
+			RemoveFromOwner();
+
+		PostEvent(EV_Remove, 0);
+	}
+	else
+	{
+		delete this;
+	}
 }
 
 void Item::SetNoRemove
@@ -546,91 +555,63 @@ qboolean Item::Drop
 	return true;
 }
 
-
 void Item::ItemTouch
-	(
-	Event *ev
-	)
+(
+	Event* ev
+)
 
+{
+	Entity* other;
+	Event* e;
+
+	if (owner)
 	{
-	Entity	*other;
-	Event		*e;
-
-	if ( owner )
-		{
 		// Don't respond to trigger events after item is picked up.
-      // we really don't need to see this.
-      //gi.DPrintf( "%s with targetname of %s was triggered unexpectedly.\n", getClassID(), TargetName() );
+	  // we really don't need to see this.
+	  //gi.DPrintf( "%s with targetname of %s was triggered unexpectedly.\n", getClassID(), TargetName() );
 		return;
-		}
-
-	other = ev->GetEntity( 1 );
-
-	e = new Event( EV_Item_Pickup );
-	e->AddEntity( other );
-	ProcessEvent( e );
 	}
 
+	other = ev->GetEntity(1);
+
+	e = new Event(EV_Item_Pickup);
+	e->AddEntity(other);
+	ProcessEvent(e);
+}
+
 void Item::SetOwner
-	(
-	Sentient *ent
-	)
+(
+	Sentient* ent
+)
 {
-	assert( ent );
-	if( !ent )
+	assert(ent);
+	if (!ent)
 	{
 		// return to avoid any buggy behaviour
 		return;
 	}
 
 	owner = ent;
-	setRespawn( false );
+	setRespawn(false);
 
-	setSolidType( SOLID_NOT );
+	setSolidType(SOLID_NOT);
 	hideModel();
-	CancelEventsOfType( EV_Touch );
-	CancelEventsOfType( EV_Item_DropToFloor );
-	CancelEventsOfType( EV_Remove );
+	CancelEventsOfType(EV_Touch);
+	CancelEventsOfType(EV_Item_DropToFloor);
+	CancelEventsOfType(EV_Remove);
 
-	Event *ev = new Event( EV_Item_UpdatePrefix );
-	ev->AddEntity( ent );
+	Event* ev = new Event(EV_Item_UpdatePrefix);
+	ev->AddEntity(ent);
 
-	PostEvent( ev, EV_POSTSPAWN );
+	PostEvent(ev, EV_POSTSPAWN);
 }
 
-Sentient *Item::GetOwner
-	(
+Sentient* Item::GetOwner
+(
 	void
-	)
+)
 {
 	return owner;
-}
-
-void Item::Delete
-	(
-	void
-	)
-{
-	if( g_iInThinks )
-	{
-		if( owner )
-			RemoveFromOwner();
-
-		PostEvent( EV_Remove, 0 );
-	}
-	else
-	{
-		delete this;
-	}
-}
-
-void Item::RemoveFromOwner
-	(
-	void
-	)
-{
-	owner->RemoveItem( this );
-	owner = NULL;
 }
 
 Item * Item::ItemPickup
@@ -931,7 +912,20 @@ void Item::SetAmountEvent
 	Event *ev
 )
 {
+	if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER)
+		return;
 	setAmount( ev->GetInteger( 1 ) );
+}
+
+void Item::SetMaxAmount
+(
+	Event* ev
+)
+
+{
+	if (g_protocol <= protocol_e::PROTOCOL_MOH && g_gametype->integer != GT_SINGLE_PLAYER)
+		return;
+	SetMax(ev->GetInteger(1));
 }
 
 void Item::SetDMAmountEvent
@@ -944,14 +938,23 @@ void Item::SetDMAmountEvent
 	setAmount(ev->GetInteger(1));
 }
 
-void Item::SetMaxAmount
-	(
-	Event *ev
-	)
+void Item::SetDMMaxAmount
+(
+	Event* ev
+)
+{
+	if (!g_gametype->integer)
+		return;
+	setAmount(ev->GetInteger(1));
+}
 
-	{
-	SetMax( ev->GetInteger( 1 ) );
-   }
+void Item::SetPickupSound
+(
+	Event* ev
+)
+{
+	sPickupSound = ev->GetString(1);
+}
 
 void Item::SetItemName
 	(
@@ -1053,40 +1056,6 @@ void Item::Landed
 	setMoveType( MOVETYPE_NONE );
    }
 
-void Item::SetCoolItem
-	(
-	qboolean cool,
-	str &dialog,
-	str &anim
-	)
-{
-
-}
-
-void Item::CoolItemEvent
-	(
-	Event *ev
-	)
-{
-
-}
-
-void Item::ForceCoolItemEvent
-	(
-	Event *ev
-	)
-{
-
-}
-
-void Item::SetPickupSound
-	(
-	Event *ev
-	)
-{
-	sPickupSound = ev->GetString( 1 );
-}
-
 void Item::EventViewModelPrefix
 	(
 	Event *ev
@@ -1141,12 +1110,73 @@ void Item::updatePrefix
 	*/
 }
 
-qboolean Item::IsItemCool
-	(
-	str * dialog,
-	str * anim,
-	qboolean * forced
-	)
+CLASS_DECLARATION(Item, DynItem, NULL)
 {
-	return qfalse;
+	{ &EV_Kill,   &DynItem::UnlinkItem },
+	{ &EV_Damage, &DynItem::UnlinkItem },
+	{ NULL,       NULL }
+};
+
+DynItem::DynItem()
+{
+	if (LoadingSavegame) {
+		return;
+	}
+
+	setSolidType(SOLID_BBOX);
+	setMoveType(MOVETYPE_BOUNCE);
+	takedamage = DAMAGE_YES;
+}
+
+void DynItem::UnlinkItem(Event* ev)
+{
+	if (!owner) {
+		return;
+	}
+
+	setOrigin(owner->origin + Vector(0, 0, 40));
+	PlaceItem();
+
+	velocity = owner->velocity * 0.5 + Vector(G_CRandom(50), G_CRandom(50), 100);
+	setAngles( owner->angles );
+	avelocity = Vector( 0, G_CRandom( 360 ), 0 );
+
+	trigger_time = level.time + 1;
+
+	if( owner->isClient() )
+	{
+		spawnflags |= DROPPED_PLAYER_ITEM;
+	}
+	else
+	{
+		spawnflags |= DROPPED_ITEM;
+	}
+
+	// Remove this from the owner's item list
+	RemoveFromOwner();
+
+}
+
+void DynItem::DynItemTouched(Event* ev)
+{
+	// Empty
+}
+
+void DynItem::DynItemUse(Event* ev)
+{
+	// Empty
+}
+
+void DynItem::Archive(Archiver& arc)
+{
+	Item::Archive(arc);
+
+	arc.ArchiveString(&m_attachPrime);
+	arc.ArchiveString(&m_attachSec);
+	arc.ArchiveString(&m_dynItemName);
+
+	if (arc.Loading())
+	{
+		setName(m_dynItemName.c_str());
+	}
 }

@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // item.h: Base class for respawnable, carryable objects.
 // 
 
-#ifndef __ITEM_H__
-#define __ITEM_H__
+#pragma once
 
 #include "g_local.h"
 #include "entity.h"
@@ -60,7 +59,7 @@ protected:
 
 	qboolean			no_remove;
 
-	void					ItemTouch( Event *ev );
+	void ItemTouch( Event *ev );
 
 public:
 	str					m_sVMprefix;
@@ -70,11 +69,11 @@ public:
 
 	Item();
 	~Item();
+	void Delete(void) override;
+	void RemoveFromOwner(void);
 	virtual void PlaceItem( void );
 	virtual void SetOwner( Sentient *ent );
 	virtual Sentient*	GetOwner( void );
-	void Delete( void ) override;
-	void				RemoveFromOwner( void );
 	void					SetNoRemove( Event *ev );
 	virtual void DropToFloor( Event *ev );
 	virtual Item      *ItemPickup( Entity *other, qboolean add_to_inventory = qtrue );
@@ -88,6 +87,7 @@ public:
 	void					RespawnDone( Event *ev );
 	void					PickupDone( Event *ev );
 	virtual int       GetItemIndex( void ) { return item_index; };
+	virtual const char* GetItemName(void) { return item_name; };
 	virtual int getAmount( void );
 	virtual void setAmount( int startamount );
 
@@ -97,10 +97,12 @@ public:
 	virtual void setName( const char *i );
 	virtual str getName( void );
 	virtual int getIndex( void );
-	virtual void SetAmountEvent( Event *ev );
+	virtual void SetAmountEvent(Event* ev);
+	virtual void SetMaxAmount(Event* ev);
 	virtual void SetDMAmountEvent(Event *ev);
-	virtual void SetMaxAmount( Event *ev );
-	virtual void SetItemName( Event *ev );
+	virtual void SetDMMaxAmount(Event *ev);
+	virtual void SetItemName(Event* ev);
+	void SetPickupSound(Event* ev);
 
 	virtual void SetMax( int maxamount );
 	virtual void Add( int num );
@@ -112,18 +114,15 @@ public:
 	virtual void RespawnSound( Event *ev );
 	virtual void DialogNeeded( Event *ev );
 	virtual str GetDialogNeeded( void );
-	void					Landed( Event *ev );
-	void					CoolItemEvent( Event *ev );
-	void					ForceCoolItemEvent( Event *ev );
-	qboolean				IsItemCool( str * dialog, str * anim, qboolean *force );
-	void				   SetCoolItem( qboolean cool, str &dialog, str &anim );
+	void Landed( Event *ev );
 
-	void			SetPickupSound( Event *ev );
+	void Archive(Archiver& arc) override;
 
-	void			EventViewModelPrefix( Event *ev );
-	void			updatePrefix( Event *ev );
-
-	void Archive( Archiver &arc ) override;
+	//
+	// Custom openmohaa stuff
+	//
+	void			EventViewModelPrefix(Event* ev);
+	void			updatePrefix(Event* ev);
 };
 
 inline void Item::Archive
@@ -150,7 +149,22 @@ Archiver &arc
 	arc.ArchiveString( &sPickupSound );
 }
 
+class DynItem : public Item {
+public:
+	str m_attachPrime;
+	str m_attachSec;
+	str m_dynItemName;
+
+public:
+	CLASS_PROTOTYPE(DynItem);
+
+	DynItem();
+
+	void UnlinkItem(Event* ev);
+	void DynItemTouched(Event* ev);
+	void DynItemUse(Event* ev);
+	void Archive(Archiver& arc) override;
+};
+
 const char *GetItemName( const char *prefix, qboolean *mohprefix = NULL );
 const char *GetItemPrefix( const char *name, qboolean *mohprefix = NULL );
-
-#endif /* item.h */
