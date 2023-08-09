@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "actor.h"
 #include "decals.h"
 #include "g_spawn.h"
+#include "object.h"
 #include "../qcommon/tiki.h"
 
 Event EV_Sentient_ReloadWeapon
@@ -1853,8 +1854,7 @@ qboolean Sentient::PowerupActive(void)
     return poweruptype;
 }
 
-void Sentient::setModel(const char *mdl)
-
+void Sentient::setModel(const char* mdl)
 {
     // Rebind all active weapons
 
@@ -2599,7 +2599,7 @@ void Sentient::EventPopHelmet(Event *ev)
     VectorMA(obj->velocity, fRandom, oWorldTag.axis[1], obj->velocity);
 
     fRandom = (crandom() * 0.3f + 1.0f) * m_fHelmetSpeed;
-    VectorMA(obj->velocity, fRandom, oWorldTag.axis[2]);
+    VectorMA(obj->velocity, fRandom, oWorldTag.axis[2], obj->velocity);
 
     fPitchVelocity = crandom() * 300;
     fYawVelocity   = crandom() * 400;
@@ -2706,7 +2706,7 @@ void Sentient::UpdateFootsteps(void)
     iAnimFlags = 0;
 
     for (iAnimNum = 0; iAnimNum < MAX_FRAMEINFOS; iAnimNum++) {
-        if (edict->s.frameInfo[i].weight != 0 && CurrentAnim(iAnimNum) >= 0) {
+        if (edict->s.frameInfo[iAnimNum].weight != 0 && CurrentAnim(iAnimNum) >= 0) {
             iAnimFlags |= gi.Anim_Flags(edict->tiki, CurrentAnim(iAnimNum));
         }
     }

@@ -291,7 +291,7 @@ public:
 
     qboolean PowerupActive(void);
 
-    void             setModel(const char *model) override;
+    void             setModel(const char* mdl);
     void             Archive(Archiver            &arc) override;
     void             ArchivePersistantData(Archiver            &arc);
     void             DoubleArmor(void);
