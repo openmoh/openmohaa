@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // simpleentity.h: Simple entity.
 
-#ifndef __SIMPLEENTITY_H__
-#define __SIMPLEENTITY_H__
+#pragma once
 
 #include "listener.h"
 
@@ -34,97 +33,93 @@ extern Event EV_SetOrigin;
 typedef int entflags_t;
 
 class SimpleEntity;
-typedef SafePtr< SimpleEntity > SimpleEntityPtr;
+typedef SafePtr<SimpleEntity> SimpleEntityPtr;
 
 class SimpleEntity : public Listener
 {
 public:
-	// Base coord variable
-	Vector			origin;
-	Vector			angles;
+    // Base coord variable
+    Vector origin;
+    Vector angles;
 
-	// Flag (used to set a class flag)
-	entflags_t		entflags;
+    // Flag (used to set a class flag)
+    entflags_t entflags;
 
-	// Used by scripts
-	str				target;
-	str				targetname;
+    // Used by scripts
+    str target;
+    str targetname;
 
-	// Centered origin based on mins/maxs
-	Vector			centroid;
+    // Centered origin based on mins/maxs
+    Vector centroid;
 
 public:
-	CLASS_PROTOTYPE( SimpleEntity );
+    CLASS_PROTOTYPE(SimpleEntity);
 
-	SimpleEntity();
-	virtual ~SimpleEntity();
+    SimpleEntity();
+    virtual ~SimpleEntity();
 
-	void SimpleArchive( Archiver& arc );
-	void Archive( Archiver& arc ) override;
+    virtual void setOrigin(Vector origin);
+    virtual void setOriginEvent(Vector origin);
+    virtual void setAngles(Vector angles);
+    str        & Target();
+    qboolean     Targeted(void);
+    str        & TargetName();
+    void         SetTargetName(str targetname);
+    void         Archive(Archiver        &arc) override;
 
-	virtual void setOrigin(Vector origin);
-	virtual void setOriginEvent(Vector origin);
-	virtual void setAngles(Vector angles);
+    int IsSubclassOfEntity(void) const;
+    int IsSubclassOfAnimate(void) const;
+    int IsSubclassOfSentient(void) const;
+    int IsSubclassOfPlayer(void) const;
+    int IsSubclassOfActor(void) const;
+    int IsSubclassOfItem(void) const;
+    int IsSubclassOfInventoryItem(void) const;
+    int IsSubclassOfWeapon(void) const;
+    int IsSubclassOfProjectile(void) const;
+    int IsSubclassOfDoor(void) const;
+    int IsSubclassOfCamera(void) const;
+    int IsSubclassOfVehicle(void) const;
+    int IsSubclassOfVehicleTank(void) const;
+    int IsSubclassOfVehicleTurretGun(void) const;
+    int IsSubclassOfTurretGun(void) const;
+    int IsSubclassOfPathNode(void) const;
+    int IsSubclassOfWaypoint(void) const;
+    int IsSubclassOfTempWaypoint(void) const;
+    int IsSubclassOfVehiclePoint(void) const;
+    int IsSubclassOfSplinePath(void) const;
+    int IsSubclassOfCrateObject(void) const;
+    int IsSubclassOfBot(void) const;
 
-	void		SetTarget( str target );
-	void		SetTargetName( str targetname );
-	str&		Target();
-	str&		TargetName();
+    void GetOrigin(Event *ev);
+    void SetOrigin(Event *ev);
+    void GetCentroid(Event *ev);
+    void SetTargetname(Event *ev);
+    void GetTargetname(Event *ev);
+    void SetTarget(Event *ev);
+    void GetTarget(Event *ev);
+    void SetAngles(Event *ev);
+    void GetAngles(Event *ev);
+    void SetAngleEvent(Event *ev);
+    void GetAngleEvent(Event *ev);
 
-	SimpleEntity	*Next( void );
+    void GetForwardVector(Event *ev);
+    void GetLeftVector(Event *ev);
+    void GetRightVector(Event *ev);
+    void GetUpVector(Event *ev);
 
-	int			IsSubclassOfEntity( void ) const;
-	int			IsSubclassOfAnimate( void ) const;
-	int			IsSubclassOfSentient( void ) const;
-	int			IsSubclassOfPlayer( void ) const;
-	int			IsSubclassOfActor( void ) const;
-	int			IsSubclassOfItem( void ) const;
-	int			IsSubclassOfInventoryItem( void ) const;
-	int			IsSubclassOfWeapon( void ) const;
-	int			IsSubclassOfProjectile( void ) const;
-	int			IsSubclassOfDoor( void ) const;
-	int			IsSubclassOfCamera( void ) const;
-	int			IsSubclassOfVehicle( void ) const;
-	int			IsSubclassOfVehicleTank( void ) const;
-	int			IsSubclassOfVehicleTurretGun( void ) const;
-	int			IsSubclassOfTurretGun( void ) const;
-	int			IsSubclassOfPathNode( void ) const;
-	int			IsSubclassOfWaypoint( void ) const;
-	int			IsSubclassOfTempWaypoint( void ) const;
-	int			IsSubclassOfVehiclePoint( void ) const;
-	int			IsSubclassOfSplinePath( void ) const;
-	int			IsSubclassOfCrateObject( void ) const;
-	int			IsSubclassOfBot( void ) const;
+    SimpleEntity *Next(void);
+    void          MPrintf(const char *msg, ...);
 
-	void		EventGetAngle( Event *ev );
-	void		EventGetAngles( Event *ev );
-	void		EventGetOrigin( Event *ev );
-	void		EventGetTargetname( Event *ev );
-	void		EventGetTarget( Event *ev );
-
-	void		EventSetAngle( Event *ev );
-	void		EventSetAngles( Event *ev );
-	void		EventSetOrigin( Event *ev );
-	void		EventSetTargetname( Event *ev );
-	void		EventSetTarget( Event *ev );
-
-	void		GetCentroid( Event *ev );
-
-	void		GetForwardVector( Event *ev );
-	void		GetLeftVector( Event *ev );
-	void		GetRightVector( Event *ev );
-	void		GetUpVector( Event *ev );
-
-	void		MPrintf( const char *msg, ... );
+    void SimpleArchive(Archiver& arc);
 };
 
 class SimpleArchivedEntity : public SimpleEntity
 {
 public:
-	CLASS_PROTOTYPE( SimpleArchivedEntity );
+    CLASS_PROTOTYPE(SimpleArchivedEntity);
 
-	SimpleArchivedEntity();
-	virtual ~SimpleArchivedEntity();
+    SimpleArchivedEntity();
+    virtual ~SimpleArchivedEntity();
 };
 
 #endif

@@ -27,580 +27,551 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "world.h"
 #include "level.h"
 
-Event EV_SimpleEntity_GetAngle
+Event EV_SetTargetname
 (
-	"angle",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"get the angles of the entity using just one value.\n"
-	"Gets the yaw of the entity or an up and down\n"
-	"direction if newAngle is[ 0 - 359 ] or - 1 or - 2",
-	EV_GETTER
+    "targetname",
+    EV_DEFAULT,
+    "s",
+    "targetName",
+    "set the targetname of the entity to targetName.",
+    EV_NORMAL
 );
-
-Event EV_SetAngle
-(
-	"angle",
-	EV_DEFAULT,
-	"f",
-	"newAngle",
-	"set the angles of the entity using just one value.\n"
-	"Sets the yaw of the entity or an up and down\n"
-	"direction if newAngle is[ 0 - 359 ] or - 1 or - 2",
-	EV_NORMAL
-);
-
-Event EV_SimpleEntity_SetterAngle
-(
-	"angle",
-	EV_DEFAULT,
-	"f",
-	"newAngle",
-	"set the angles of the entity using just one value.\n"
-	"Sets the yaw of the entity or an up and down\n"
-	"direction if newAngle is[ 0 - 359 ] or - 1 or - 2",
-	EV_SETTER
-);
-
-Event EV_SimpleEntity_GetAngles
-(
-	"angles",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"get the angles of the entity.",
-	EV_GETTER
-);
-
-Event EV_SetAngles
-(
-	"angles",
-	EV_DEFAULT,
-	"v[0,360][0,360][0,360]",
-	"newAngles",
-	"Set the angles of the entity to newAngles.",
-	EV_NORMAL
-);
-
-Event EV_SimpleEntity_SetterAngles
-(
-	"angles",
-	EV_DEFAULT,
-	"v[0,360][0,360][0,360]",
-	"newAngles",
-	"Set the angles of the entity to newAngles.",
-	EV_SETTER
-);
-
-Event EV_SimpleEntity_GetOrigin
-(
-	"origin",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"entity's origin",
-	EV_GETTER
-);
-
 Event EV_SetOrigin
 (
-	"origin",
-	EV_DEFAULT,
-	"v",
-	"newOrigin",
-	"Set the origin of the entity to newOrigin.",
-	EV_NORMAL
+    "origin",
+    EV_DEFAULT,
+    "v",
+    "newOrigin",
+    "Set the origin of the entity to newOrigin.",
+    EV_NORMAL
 );
-
-Event EV_SimpleEntity_SetterOrigin
+Event EV_SetOrigin2
 (
-	"origin",
-	EV_DEFAULT,
-	"v",
-	"newOrigin",
-	"Set the origin of the entity to newOrigin.",
-	EV_SETTER
+    "origin",
+    EV_DEFAULT,
+    "v",
+    "newOrigin",
+    "Set the origin of the entity to newOrigin.",
+    EV_SETTER
 );
-
-Event EV_SimpleEntity_GetTargetname
+Event EV_GetOrigin
 (
-	"targetname",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"entity's targetname",
-	EV_GETTER
+    "origin",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "entity's origin",
+    EV_GETTER
 );
-
-Event EV_SimpleEntity_SetTargetname
+Event EV_GetCentroid
 (
-	"targetname",
-	EV_DEFAULT,
-	"s",
-	"targetName",
-	"set the targetname of the entity to targetName.",
-	EV_NORMAL
+    "centroid",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "entity's centroid",
+    EV_GETTER
 );
-
-Event EV_SimpleEntity_SetterTargetname
+Event EV_SetTargetname2
 (
-	"targetname",
-	EV_DEFAULT,
-	"s",
-	"targetName",
-	"set the targetname of the entity to targetName.",
-	EV_SETTER
+    "targetname",
+    EV_DEFAULT,
+    "s",
+    "targetName",
+    "set the targetname of the entity to targetName.",
+    EV_SETTER
 );
-
-Event EV_SimpleEntity_GetTarget
+Event EV_GetTargetname
 (
-	"target",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"entity's target",
-	EV_GETTER
+    "targetname",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "entity's targetname",
+    EV_GETTER
 );
-
-Event EV_SimpleEntity_SetTarget
+Event EV_SetTarget
 (
-	"target",
-	EV_DEFAULT,
-	"s",
-	"targetname_to_target",
-	"target another entity with targetname_to_target.",
-	EV_NORMAL
+    "target",
+    EV_DEFAULT,
+    "s",
+    "targetname_to_target",
+    "target another entity with targetname_to_target.",
+    EV_NORMAL
 );
-
-Event EV_SimpleEntity_SetterTarget
+Event EV_SetTarget2
 (
-	"target",
-	EV_DEFAULT,
-	"s",
-	"targetname_to_target",
-	"target another entity with targetname_to_target.",
-	EV_SETTER
+    "target",
+    EV_DEFAULT,
+    "s",
+    "targetname_to_target",
+    "target another entity with targetname_to_target.",
+    EV_SETTER
 );
-
-Event EV_SimpleEntity_Centroid
+Event EV_GetTarget
 (
-	"centroid",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"entity's centroid",
-	EV_GETTER
+    "target",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "entity's target",
+    EV_GETTER
 );
-
-Event EV_SimpleEntity_ForwardVector
+Event EV_SetAngles
 (
-	"forwardvector",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"get the forward vector of angles",
-	EV_GETTER
+    "angles", EV_DEFAULT, "v[0,360][0,
+    360][0,
+    360]",
+    "newAngles",
+    "Set the angles of the entity to newAngles.",
+    EV_NORMAL
 );
-
-Event EV_SimpleEntity_LeftVector
+Event EV_SetAngles2
 (
-	"leftvector",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"get the left vector of angles",
-	EV_GETTER
+    "angles", EV_DEFAULT, "v[0,360][0,
+    360][0,
+    360]",
+    "newAngles",
+    "Set the angles of the entity to newAngles.",
+    EV_SETTER
 );
-
-Event EV_SimpleEntity_RightVector
+Event EV_GetAngles
 (
-	"rightvector",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"get the right vector of angles",
-	EV_GETTER
+    "angles",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the angles of the entity.",
+    EV_GETTER
 );
-
-Event EV_SimpleEntity_UpVector
+Event EV_SetAngle
 (
-	"upvector",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"get the up vector of angles",
-	EV_GETTER
+    "angle",
+    EV_DEFAULT,
+    "f",
+    "newAngle",
+    "set the angles of the entity using just one value.\n"
+    "Sets the yaw of the entity or an up and down\n"
+    "direction if newAngle is[ 0 - 359 ] or - 1 or - 2",
+    EV_NORMAL
+);
+Event EV_SetAngle2
+(
+    "angle",
+    EV_DEFAULT,
+    "f",
+    "newAngle",
+    "set the angles of the entity using just one value.\n"
+    "Sets the yaw of the entity or an up and down\n"
+    "direction if newAngle is[ 0 - 359 ] or - 1 or - 2",
+    EV_SETTER
+);
+Event EV_GetAngle
+(
+    "angle",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the angles of the entity using just one value.\n"
+    "Gets the yaw of the entity or an up and down\n"
+    "direction if newAngle is[ 0 - 359 ] or - 1 or - 2",
+    EV_GETTER
+);
+Event EV_ForwardVector
+(
+    "forwardvector",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the forward vector of angles",
+    EV_GETTER
+);
+Event EV_LeftVector
+(
+    "leftvector",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the left vector of angles",
+    EV_GETTER
+);
+Event EV_RightVector
+(
+    "rightvector",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the right vector of angles",
+    EV_GETTER
+);
+Event EV_UpVector
+(
+    "upvector",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the up vector of angles",
+    EV_GETTER
 );
 
-void SimpleEntity::SimpleArchive( Archiver& arc )
-{
-	int index;
-
-	Listener::Archive( arc );
-
-	arc.ArchiveVector( &angles );
-
-	arc.ArchiveString( &target );
-	arc.ArchiveString( &targetname );
-
-	if( targetname.length() )
-	{
-		if( arc.Loading() )
-		{
-			arc.ArchiveInteger( &index );
-			world->AddTargetEntityAt( this, index );
-		}
-		else
-		{
-			index = world->GetTargetnameIndex( this );
-			arc.ArchiveInteger( &index );
-		}
-	}
-}
-
-void SimpleEntity::Archive( Archiver& arc )
-{
-	SimpleEntity::SimpleArchive( arc );
-
-	arc.ArchiveVector( &origin );
-	arc.ArchiveVector( &centroid );
-}
-
-void SimpleEntity::setOrigin( Vector origin )
-{
-	this->origin = origin;
-	this->centroid = origin;
-}
-
-void SimpleEntity::setOriginEvent( Vector origin )
-{
-	setOrigin( origin );
-}
-
-void SimpleEntity::setAngles( Vector angles )
-{
-	this->angles = angles.AnglesMod();
-}
+CLASS_DECLARATION(Listener, SimpleEntity, NULL) {
+    {&EV_SetOrigin,      &SimpleEntity::SetOrigin       },
+    {&EV_SetOrigin2,     &SimpleEntity::SetOrigin       },
+    {&EV_GetOrigin,      &SimpleEntity::GetOrigin       },
+    {&EV_GetCentroid,    &SimpleEntity::GetCentroid     },
+    {&EV_SetTargetname,  &SimpleEntity::SetTargetname   },
+    {&EV_SetTargetname2, &SimpleEntity::SetTargetname   },
+    {&EV_GetTargetname,  &SimpleEntity::GetTargetname   },
+    {&EV_SetTarget,      &SimpleEntity::SetTarget       },
+    {&EV_SetTarget2,     &SimpleEntity::SetTarget       },
+    {&EV_GetTarget,      &SimpleEntity::GetTarget       },
+    {&EV_SetAngles,      &SimpleEntity::SetAngles       },
+    {&EV_SetAngles2,     &SimpleEntity::SetAngles       },
+    {&EV_GetAngles,      &SimpleEntity::GetAngles       },
+    {&EV_SetAngle,       &SimpleEntity::SetAngleEvent   },
+    {&EV_SetAngle2,      &SimpleEntity::SetAngleEvent   },
+    {&EV_GetAngle,       &SimpleEntity::GetAngleEvent   },
+    {&EV_ForwardVector,  &SimpleEntity::GetForwardVector},
+    {&EV_LeftVector,     &SimpleEntity::GetLeftVector   },
+    {&EV_RightVector,    &SimpleEntity::GetRightVector  },
+    {&EV_UpVector,       &SimpleEntity::GetUpVector     },
+    {NULL,               NULL                           }
+};
 
 SimpleEntity::SimpleEntity()
 {
-	entflags = 0;
+    entflags = 0;
 }
 
 SimpleEntity::~SimpleEntity()
 {
-	if( world ) {
-		world->RemoveTargetEntity( this );
-	}
+    if (world) {
+        world->RemoveTargetEntity(this);
+    }
 }
 
-void SimpleEntity::SetTarget( str target )
+int SimpleEntity::IsSubclassOfEntity(void) const
 {
-	this->target = target;
+    return (entflags & EF_ENTITY);
 }
 
-void SimpleEntity::SetTargetName( str targetname )
+int SimpleEntity::IsSubclassOfAnimate(void) const
 {
-	world->RemoveTargetEntity( this );
+    return (entflags & EF_ANIMATE);
+}
 
-	this->targetname = targetname;
+int SimpleEntity::IsSubclassOfSentient(void) const
+{
+    return (entflags & EF_SENTIENT);
+}
 
-	world->AddTargetEntity( this );
+int SimpleEntity::IsSubclassOfPlayer(void) const
+{
+    return (entflags & EF_PLAYER);
+}
+
+int SimpleEntity::IsSubclassOfActor(void) const
+{
+    return (entflags & EF_ACTOR);
+}
+
+int SimpleEntity::IsSubclassOfItem(void) const
+{
+    return (entflags & EF_ITEM);
+}
+
+int SimpleEntity::IsSubclassOfInventoryItem(void) const
+{
+    return (entflags & EF_INVENTORYITEM);
+}
+
+int SimpleEntity::IsSubclassOfWeapon(void) const
+{
+    return (entflags & EF_WEAPON);
+}
+
+int SimpleEntity::IsSubclassOfProjectile(void) const
+{
+    return (entflags & EF_PROJECTILE);
+}
+
+int SimpleEntity::IsSubclassOfDoor(void) const
+{
+    return (entflags & EF_DOOR);
+}
+
+int SimpleEntity::IsSubclassOfCamera(void) const
+{
+    return (entflags & EF_CAMERA);
+}
+
+int SimpleEntity::IsSubclassOfVehicle(void) const
+{
+    return (entflags & EF_VEHICLE);
+}
+
+int SimpleEntity::IsSubclassOfVehicleTank(void) const
+{
+    return (entflags & EF_VEHICLETANK);
+}
+
+int SimpleEntity::IsSubclassOfVehicleTurretGun(void) const
+{
+    return (entflags & EF_VEHICLETURRET);
+}
+
+int SimpleEntity::IsSubclassOfTurretGun(void) const
+{
+    return (entflags & EF_TURRET);
+}
+
+int SimpleEntity::IsSubclassOfPathNode(void) const
+{
+    return (entflags & EF_PATHNODE);
+}
+
+int SimpleEntity::IsSubclassOfWaypoint(void) const
+{
+    return (entflags & EF_WAYPOINT);
+}
+
+int SimpleEntity::IsSubclassOfTempWaypoint(void) const
+{
+    return (entflags & EF_TEMPWAYPOINT);
+}
+
+int SimpleEntity::IsSubclassOfVehiclePoint(void) const
+{
+    return (entflags & EF_VEHICLEPOINT);
+}
+
+int SimpleEntity::IsSubclassOfSplinePath(void) const
+{
+    return (entflags & EF_SPLINEPATH);
+}
+
+int SimpleEntity::IsSubclassOfCrateObject(void) const
+{
+    return (entflags & EF_CRATEOBJECT);
+}
+
+int SimpleEntity::IsSubclassOfBot(void) const
+{
+    return (entflags & EF_BOT);
+}
+
+void SimpleEntity::SetTargetName(str targetname)
+{
+    world->RemoveTargetEntity(this);
+
+    this->targetname = targetname;
+
+    world->AddTargetEntity(this);
+}
+
+void SimpleEntity::SetTargetname(Event *ev)
+{
+    SetTargetName(ev->GetString(1));
+}
+
+void SimpleEntity::GetTargetname(Event *ev)
+{
+    ev->AddString(TargetName());
+}
+
+void SimpleEntity::SetTarget(Event *ev)
+{
+    target = ev->GetString(1);
+}
+
+void SimpleEntity::GetTarget(Event *ev)
+{
+    ev->AddString(Target());
+}
+
+void SimpleEntity::GetOrigin(Event *ev)
+{
+    ev->AddVector(origin);
+}
+
+void SimpleEntity::GetCentroid(Event *ev)
+{
+    ev->AddVector(centroid);
 }
 
 str& SimpleEntity::Target()
 {
-	return target;
+    return target;
+}
+
+qboolean SimpleEntity::Targeted(void)
+
+{
+    if (!targetname.length()) {
+        return false;
+    }
+    return true;
 }
 
 str& SimpleEntity::TargetName()
 {
-	return targetname;
+    return targetname;
 }
 
-SimpleEntity *SimpleEntity::Next( void )
+void SimpleEntity::SetOrigin(Event *ev)
 {
-	SimpleEntity *ent = world->GetTarget( target, true );
-
-	if( !ent || !ent->isSubclassOf( SimpleEntity ) )
-	{
-		return NULL;
-	}
-	else
-	{
-		return ent;
-	}
+    setOriginEvent(ev->GetVector(1));
 }
 
-void SimpleEntity::EventGetAngle( Event *ev )
+void SimpleEntity::setOrigin(Vector origin)
 {
-	ev->AddFloat( angles[ 1 ] );
+    this->origin   = origin;
+    this->centroid = origin;
 }
 
-void SimpleEntity::EventGetAngles( Event *ev )
+void SimpleEntity::setOriginEvent(Vector origin)
 {
-	ev->AddVector( angles );
+    setOrigin(origin);
 }
 
-void SimpleEntity::EventGetOrigin( Event *ev )
+void SimpleEntity::MPrintf(const char *fmt, ...)
 {
-	ev->AddVector( origin );
+    va_list argptr;
+    char    msg[MAXPRINTMSG];
+    if (!*g_monitor->string) {
+        return;
+    }
+
+    if (targetname == g_monitor->string) {
+        va_start(argptr, fmt);
+        Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
+        va_end(argptr);
+        Com_Printf("%s", msg);
+    }
 }
 
-void SimpleEntity::EventGetTargetname( Event *ev )
+void SimpleEntity::SetAngles(Event *ev)
 {
-	ev->AddString( TargetName() );
+    Vector angles;
+
+    if (ev->NumArgs() == 1) {
+        angles = ev->GetVector(1);
+    } else {
+        angles = Vector(ev->GetFloat(1), ev->GetFloat(2), ev->GetFloat(3));
+    }
+
+    setAngles(angles);
 }
 
-void SimpleEntity::EventGetTarget( Event *ev )
+void SimpleEntity::GetAngles(Event *ev)
 {
-	ev->AddString( Target() );
+    ev->AddVector(angles);
 }
 
-void SimpleEntity::EventSetAngle( Event *ev )
+void SimpleEntity::SetAngleEvent(Event *ev)
 {
-	Vector dir;
-	float angle = ev->GetFloat( 1 );
+    Vector dir;
+    float  angle = ev->GetFloat(1);
 
-	dir = G_GetMovedir( angle );
-	dir.toAngles();
+    dir = G_GetMovedir(angle);
+    dir.toAngles();
 
-	setAngles( dir );
+    setAngles(dir);
 }
 
-void SimpleEntity::EventSetAngles( Event *ev )
+void SimpleEntity::GetAngleEvent(Event *ev)
 {
-	Vector angles;
-
-	if( ev->NumArgs() == 1 )
-	{
-		angles = ev->GetVector( 1 );
-	}
-	else
-	{
-		angles = Vector( ev->GetFloat( 1 ), ev->GetFloat( 2 ), ev->GetFloat( 3 ) );
-	}
-
-	setAngles( angles );
+    ev->AddFloat(angles[1]);
 }
 
-void SimpleEntity::EventSetOrigin( Event *ev )
+void SimpleEntity::setAngles(Vector angles)
 {
-	setOriginEvent( ev->GetVector( 1 ) );
+    this->angles = angles.AnglesMod();
 }
 
-void SimpleEntity::EventSetTargetname( Event *ev )
+void SimpleEntity::GetForwardVector(Event *ev)
 {
-	SetTargetName( ev->GetString( 1 ) );
+    Vector fwd;
+
+    AngleVectorsLeft(angles, fwd, NULL, NULL);
+    ev->AddVector(fwd);
 }
 
-void SimpleEntity::EventSetTarget( Event *ev )
+void SimpleEntity::GetLeftVector(Event *ev)
 {
-	SetTarget( ev->GetString( 1 ) );
+    Vector left;
+
+    AngleVectorsLeft(angles, NULL, left, NULL);
+    ev->AddVector(left);
 }
 
-void SimpleEntity::GetCentroid( Event *ev )
+void SimpleEntity::GetRightVector(Event *ev)
 {
-	ev->AddVector( centroid );
+    Vector right;
+
+    AngleVectors(angles, NULL, right, NULL);
+    ev->AddVector(right);
 }
 
-void SimpleEntity::GetForwardVector( Event *ev )
+void SimpleEntity::GetUpVector(Event *ev)
 {
-	Vector fwd;
+    Vector up;
 
-	AngleVectorsLeft( angles, fwd, NULL, NULL );
-	ev->AddVector( fwd );
+    AngleVectorsLeft(angles, NULL, NULL, up);
+    ev->AddVector(up);
 }
 
-void SimpleEntity::GetLeftVector( Event *ev )
+SimpleEntity *SimpleEntity::Next(void)
 {
-	Vector left;
+    SimpleEntity *ent = world->GetTarget(target, true);
 
-	AngleVectorsLeft( angles, NULL, left, NULL );
-	ev->AddVector( left );
+    if (!ent || !ent->isSubclassOf(SimpleEntity)) {
+        return NULL;
+    } else {
+        return ent;
+    }
 }
 
-void SimpleEntity::GetRightVector( Event *ev )
+void SimpleEntity::SimpleArchive(Archiver& arc)
 {
-	Vector right;
+    int index;
 
-	AngleVectors( angles, NULL, right, NULL );
-	ev->AddVector( right );
+    Listener::Archive(arc);
+
+    arc.ArchiveVector(&angles);
+
+    arc.ArchiveString(&target);
+    arc.ArchiveString(&targetname);
+
+    if (targetname.length()) {
+        if (arc.Loading()) {
+            arc.ArchiveInteger(&index);
+            world->AddTargetEntityAt(this, index);
+        } else {
+            index = world->GetTargetnameIndex(this);
+            arc.ArchiveInteger(&index);
+        }
+    }
 }
 
-void SimpleEntity::GetUpVector( Event *ev )
-{
-	Vector up;
-
-	AngleVectorsLeft( angles, NULL, NULL, up );
-	ev->AddVector( up );
-}
-
-void SimpleEntity::MPrintf( const char *fmt, ... )
-{
-	va_list		argptr;
-	char		msg[MAXPRINTMSG];
-	if (!*g_monitor->string)
-	{
-		return;
-	}
-
-	if (targetname == g_monitor->string)
-	{
-		va_start(argptr, fmt);
-		Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-		va_end(argptr);
-		Com_Printf("%s", msg);
-	}
-}
-
-int SimpleEntity::IsSubclassOfEntity( void ) const
-{
-	return ( entflags & EF_ENTITY );
-}
-
-int SimpleEntity::IsSubclassOfAnimate( void ) const
-{
-	return ( entflags & EF_ANIMATE );
-}
-
-int SimpleEntity::IsSubclassOfSentient( void ) const
-{
-	return ( entflags & EF_SENTIENT );
-}
-
-int SimpleEntity::IsSubclassOfPlayer( void ) const
-{
-	return ( entflags & EF_PLAYER );
-}
-
-int SimpleEntity::IsSubclassOfActor( void ) const
-{
-	return ( entflags & EF_ACTOR );
-}
-
-int SimpleEntity::IsSubclassOfItem( void ) const
-{
-	return ( entflags & EF_ITEM );
-}
-
-int SimpleEntity::IsSubclassOfInventoryItem( void ) const
-{
-	return ( entflags & EF_INVENTORYITEM );
-}
-
-int SimpleEntity::IsSubclassOfWeapon( void ) const
-{
-	return ( entflags & EF_WEAPON );
-}
-
-int SimpleEntity::IsSubclassOfProjectile( void ) const
-{
-	return ( entflags & EF_PROJECTILE );
-}
-
-int SimpleEntity::IsSubclassOfDoor( void ) const
-{
-	return ( entflags & EF_DOOR );
-}
-
-int SimpleEntity::IsSubclassOfCamera( void ) const
-{
-	return ( entflags & EF_CAMERA );
-}
-
-int SimpleEntity::IsSubclassOfVehicle( void ) const
-{
-	return ( entflags & EF_VEHICLE );
-}
-
-int SimpleEntity::IsSubclassOfVehicleTank( void ) const
-{
-	return ( entflags & EF_VEHICLETANK );
-}
-
-int SimpleEntity::IsSubclassOfVehicleTurretGun( void ) const
-{
-	return ( entflags & EF_VEHICLETURRET );
-}
-
-int SimpleEntity::IsSubclassOfTurretGun( void ) const
-{
-	return ( entflags & EF_TURRET );
-}
-
-int SimpleEntity::IsSubclassOfPathNode( void ) const
-{
-	return ( entflags & EF_PATHNODE );
-}
-
-int SimpleEntity::IsSubclassOfWaypoint( void ) const
-{
-	return ( entflags & EF_WAYPOINT );
-}
-
-int SimpleEntity::IsSubclassOfTempWaypoint( void ) const
-{
-	return ( entflags & EF_TEMPWAYPOINT );
-}
-
-int SimpleEntity::IsSubclassOfVehiclePoint( void ) const
-{
-	return ( entflags & EF_VEHICLEPOINT );
-}
-
-int SimpleEntity::IsSubclassOfSplinePath( void ) const
-{
-	return ( entflags & EF_SPLINEPATH );
-}
-
-int SimpleEntity::IsSubclassOfCrateObject( void ) const
-{
-	return ( entflags & EF_CRATEOBJECT );
-}
-
-int SimpleEntity::IsSubclassOfBot( void ) const
-{
-	return ( entflags & EF_BOT );
-}
-
-CLASS_DECLARATION( Listener, SimpleEntity, NULL )
-{
-	{ &EV_SimpleEntity_GetAngle,				&SimpleEntity::EventGetAngle },
-	{ &EV_SimpleEntity_GetAngles,				&SimpleEntity::EventGetAngles },
-	{ &EV_SimpleEntity_GetOrigin,				&SimpleEntity::EventGetOrigin },
-	{ &EV_SimpleEntity_GetTargetname,			&SimpleEntity::EventGetTargetname },
-	{ &EV_SimpleEntity_GetTarget,				&SimpleEntity::EventGetTarget },
-	{ &EV_SimpleEntity_SetterAngle,				&SimpleEntity::EventSetAngle },
-	{ &EV_SimpleEntity_SetterAngles,			&SimpleEntity::EventSetAngles },
-	{ &EV_SimpleEntity_SetterOrigin,			&SimpleEntity::EventSetOrigin },
-	{ &EV_SimpleEntity_SetterTargetname,		&SimpleEntity::EventSetTargetname },
-	{ &EV_SimpleEntity_SetterTarget,			&SimpleEntity::EventSetTarget },
-	{ &EV_SetAngle,								&SimpleEntity::EventSetAngle },
-	{ &EV_SetAngles,							&SimpleEntity::EventSetAngles },
-	{ &EV_SetOrigin,							&SimpleEntity::EventSetOrigin },
-	{ &EV_SimpleEntity_SetTargetname,			&SimpleEntity::EventSetTargetname },
-	{ &EV_SimpleEntity_SetTarget,				&SimpleEntity::EventSetTarget },
-	{ &EV_SimpleEntity_Centroid,				&SimpleEntity::GetCentroid },
-	{ &EV_SimpleEntity_ForwardVector,			&SimpleEntity::GetForwardVector },
-	{ &EV_SimpleEntity_LeftVector,				&SimpleEntity::GetLeftVector },
-	{ &EV_SimpleEntity_RightVector,				&SimpleEntity::GetRightVector },
-	{ &EV_SimpleEntity_UpVector,				&SimpleEntity::GetUpVector },
-	{ NULL, NULL }
+CLASS_DECLARATION(SimpleEntity, SimpleArchivedEntity, NULL) {
+    {NULL, NULL}
 };
+
+void SimpleEntity::Archive(Archiver& arc)
+{
+    SimpleEntity::SimpleArchive(arc);
+
+    arc.ArchiveVector(&origin);
+    arc.ArchiveVector(&centroid);
+}
 
 SimpleArchivedEntity::SimpleArchivedEntity()
 {
-	level.m_SimpleArchivedEntities.AddObject( this );
+    level.m_SimpleArchivedEntities.AddObject(this);
 }
 
 SimpleArchivedEntity::~SimpleArchivedEntity()
 {
-	level.m_SimpleArchivedEntities.RemoveObject( this );
+    level.m_SimpleArchivedEntities.RemoveObject(this);
 }
-
-CLASS_DECLARATION( SimpleEntity, SimpleArchivedEntity, NULL )
-{
-	{ NULL, NULL }
-};

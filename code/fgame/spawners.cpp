@@ -123,7 +123,7 @@ void Spawn::SetAngleEvent
 	Event *ev
 	)
 	{
-	Entity::SetAngleEvent( ev );
+	SimpleEntity::SetAngleEvent( ev );
    }
 
 void Spawn::SetPickupThread
