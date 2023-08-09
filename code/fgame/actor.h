@@ -981,7 +981,7 @@ public:
 	void NotifySquadmateKilled( Sentient *pSquadMate, Sentient *pAttacker );
 	void RaiseAlertnessForEventType( int iType );
 	void RaiseAlertness( float fAmount );
-	virtual bool CanSee( Entity *e1, float fov, float vision_distance ) override;
+	virtual bool CanSee( Entity *e1, float fov, float vision_distance, bool bNoEnts ) override;
 	virtual Vector GunPosition( void ) override;
 	bool WithinVisionDistance( Entity *ent ) const;
 	bool InFOV( Vector pos, float check_fov, float check_fovdot );

@@ -241,7 +241,7 @@ public:
     virtual Vector GetViewAngles(void);
     void           AddViewVariation(const Vector          &vVariation);
     void           SetMinViewVariation(const Vector          &vVariation);
-    bool           CanSee(Entity *ent, float fov, float vision_distance) override;
+    bool           CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnts) override;
     virtual Vector GunPosition(void);
     virtual Vector GunTarget(bool bNoCollision = false);
     void           ReloadWeapon(Event *ev);

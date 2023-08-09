@@ -1352,7 +1352,7 @@ bool PlayerBot::CheckCondition_Attack
 				continue;
 		}
 
-		if( CanSee( sent, 80, world->m_fAIVisionDistance ) )
+		if( CanSee( sent, 80, world->m_fAIVisionDistance, false ) )
 		{
 			m_pEnemy = sent;
 			m_iAttackTime = level.inttime + 10000;
@@ -1400,7 +1400,7 @@ void PlayerBot::State_Attack
 
 	float fDistanceSquared = ( m_pEnemy->origin - origin ).lengthSquared();
 
-	if( CanSee( m_pEnemy, 20, world->m_fAIVisionDistance ) )
+	if( CanSee( m_pEnemy, 20, world->m_fAIVisionDistance, false ) )
 	{
 		Weapon *pWeap = GetActiveWeapon( WEAPON_MAIN );
 

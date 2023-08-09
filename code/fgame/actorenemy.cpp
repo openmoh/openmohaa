@@ -313,7 +313,7 @@ float ActorEnemy::UpdateLMRF
 
 	*pbInFovAndRange = true;
 
-	if (!pSelf->CanSee(m_pEnemy, 0, 0))
+	if (!pSelf->CanSee(m_pEnemy, 0, 0, false))
 	{
 		return 8.0;
 	}
@@ -684,7 +684,7 @@ void ActorEnemySet::ConfirmEnemyIfCanSeeSharerOrEnemy
 			if (!pSelf->CanSee(
 				pSharer,
 				pSelf->m_bSilent ? 90.0f : 0,
-				0.828 * world->farplane_distance))
+				0.828 * world->farplane_distance, false))
 				return;
 		}
 		pActorEnemy->m_fVisibility = 1.0;

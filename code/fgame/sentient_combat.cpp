@@ -211,7 +211,7 @@ void Sentient::WeaponKnockedFromHands(void)
     }
 }
 
-bool Sentient::CanSee(Entity *ent, float fov, float vision_distance)
+bool Sentient::CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnts)
 {
     float delta[2];
 

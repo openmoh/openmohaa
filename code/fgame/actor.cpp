@@ -3230,7 +3230,7 @@ void Actor::SetEnemy
 			{
 				//this cansee call changes m_bEnemyVisible and m_bEnemyInFOV
 				//FIXME: macro
-				CanSee(m_Enemy, 0, 0.828 * world->farplane_distance);
+				CanSee(m_Enemy, 0, 0.828 * world->farplane_distance, false);
 			}
 		}
 
@@ -6791,10 +6791,11 @@ bool Actor::CanSee
 	(
 	Entity *e1,
 	float fov,
-	float vision_distance
+	float vision_distance,
+	bool bNoEnts
 	)
 {
-	bool canSee = Sentient::CanSee(e1, fov, vision_distance);
+	bool canSee = Sentient::CanSee(e1, fov, vision_distance, false);
 	if (e1 == m_Enemy)
 	{
 		m_iEnemyVisibleCheckTime = level.inttime;
@@ -7147,7 +7148,7 @@ bool Actor::CanSeeEnemy
 {
 	//FIXME: macro
 	if (level.inttime > iMaxDirtyTime + m_iEnemyVisibleCheckTime)
-		CanSee(m_Enemy, 0, 0.828 * world->farplane_distance);
+		CanSee(m_Enemy, 0, 0.828 * world->farplane_distance, false);
 
 	return m_bEnemyVisible;
 }
@@ -7667,7 +7668,7 @@ bool Actor::NoticeShot
 
 	if (pTarget)
 	{
-		if (DoesTheoreticPathExist(pShooter->origin, fDist * 1.5) || CanSee(pTarget, 0, 0.828 * world->farplane_distance))
+		if (DoesTheoreticPathExist(pShooter->origin, fDist * 1.5) || CanSee(pTarget, 0, 0.828 * world->farplane_distance, false))
 		{
 			m_PotentialEnemies.ConfirmEnemy(this, pTarget);
 		}
