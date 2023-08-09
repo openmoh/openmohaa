@@ -184,6 +184,7 @@ public:
 
 	// Current level state
 	bool spawning;
+	bool m_bIgnoreClock;
 
 	// New Stuff
 
