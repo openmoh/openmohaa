@@ -22,27 +22,64 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // object.h: Object (used by common TIKIs)
 
-#ifndef __OBJECT_H__
-#define __OBJECT_H__
-
-#if defined ( GAME_DLL ) || defined ( CGAME_DLL )
+#pragma once
 
 #include "animate.h"
 
-class Object : public Animate {
+class Object : public Animate
+{
 public:
-	CLASS_PROTOTYPE( Object );
+    CLASS_PROTOTYPE(Object);
+
+    void EventRemoveObjectModel(Event *ev);
+    void EventHandleSpawn(Event *ev);
 };
 
-#else
+class InteractObject : public Animate
+{
+private:
+    str m_sHitEffect;
+    str m_sKilledEffect;
 
-#include "simpleentity.h"
-
-class Object : public SimpleEntity {
 public:
-	CLASS_PROTOTYPE( Object );
+    CLASS_PROTOTYPE(InteractObject);
+
+    InteractObject();
+    void Damaged(Event *ev);
+    void Killed(Event *ev);
+    void Setup(Event *ev);
+    void EventHitEffect(Event *ev);
+    void EventKilledEffect(Event *ev);
+    void Archive(Archiver& arc) override;
 };
 
-#endif
+extern Event EV_ThrowObject_Pickup;
+extern Event EV_ThrowObject_Throw;
 
-#endif /* __OBJECT_H__ */
+class ThrowObject : public Object
+{
+private:
+    int    owner;
+    Vector pickup_offset;
+    str    throw_sound;
+
+public:
+    CLASS_PROTOTYPE(ThrowObject);
+
+    ThrowObject();
+    void Touch(Event *ev);
+    void Throw(Event *ev);
+    void Pickup(Event *ev);
+    void PickupOffset(Event *ev);
+    void ThrowSound(Event *ev);
+    void Archive(Archiver& arc) override;
+};
+
+class HelmetObject : public Entity
+{
+public:
+    CLASS_PROTOTYPE(HelmetObject);
+
+    HelmetObject();
+    void HelmetTouch(Event *ev);
+};
