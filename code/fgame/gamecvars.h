@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // gamecvars.h: Game variables
 
-#ifndef __GAMECVARS_H__
-#define __GAMECVARS_H__
+#pragma once
 
 #include "g_local.h"
 
@@ -99,13 +98,13 @@ extern cvar_t *sv_crouchspeedmult;
 
 //====
 // Added in 2.0
-extern cvar_t* sv_sprinttime;
-extern cvar_t* sv_sprintmult;
-extern cvar_t* sv_sprinttime_dm;
-extern cvar_t* sv_sprintmult_dm;
-extern cvar_t* sv_sprinton;
-extern cvar_t* sv_invulnerabletime;
-extern cvar_t* sv_team_spawn_interval;
+extern cvar_t *sv_sprinttime;
+extern cvar_t *sv_sprintmult;
+extern cvar_t *sv_sprinttime_dm;
+extern cvar_t *sv_sprintmult_dm;
+extern cvar_t *sv_sprinton;
+extern cvar_t *sv_invulnerabletime;
+extern cvar_t *sv_team_spawn_interval;
 //
 
 extern cvar_t *g_showmem;
@@ -221,7 +220,10 @@ extern cvar_t *g_m5l2;
 extern cvar_t *g_m5l3;
 extern cvar_t *g_m6l1;
 extern cvar_t *g_m6l2;
-extern cvar_t *g_m6l3;
+extern cvar_t* g_m6l3;
+extern cvar_t* g_t2l1;
+extern cvar_t* g_t3l1;
+extern cvar_t* g_mission;
 extern cvar_t *g_lastsave;
 
 extern cvar_t *g_forceteamspectate;
@@ -229,19 +231,37 @@ extern cvar_t *g_spectatefollow_forward;
 extern cvar_t *g_spectatefollow_right;
 extern cvar_t *g_spectatefollow_up;
 extern cvar_t *g_spectatefollow_pitch;
-extern cvar_t *g_spectatefollow_firstperson;
 extern cvar_t *g_spectate_allow_full_chat;
 
-extern cvar_t* g_debugsmoke;
-
 extern cvar_t *g_voiceChat;
+extern cvar_t *g_voiceChatTime;
+extern cvar_t *g_textChatTime;
+extern cvar_t *g_debugsmoke;
+
+extern cvar_t *g_turret_convergetime;
+extern cvar_t *g_turret_suppresstime;
+extern cvar_t *g_turret_suppresswaittime;
+extern cvar_t *g_turret_spread;
+extern cvar_t *g_maprotation_filter;
+
+extern cvar_t *g_shownpc;
+extern cvar_t *g_TOW_winstate;
+extern cvar_t *g_chat_expansions;
+
+extern cvar_t *g_qunits_to_feet;
+extern cvar_t *g_cinematics_off;
+
+extern cvar_t *g_rifles_for_sweepers;
+extern cvar_t *g_no_seasick;
+
+extern cvar_t *g_aistats;
 
 extern cvar_t *sv_scriptfiles;
 
-void CVAR_Init( void );
+extern cvar_t *g_spectatefollow_firstperson;
+
+void CVAR_Init(void);
 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* !__GAMECVARS_H__ */

@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // gamecvars.cpp: Definitions for any cvars used by the game.
-// 
+//
 
 #include "gamecvars.h"
 
@@ -91,13 +91,13 @@ cvar_t *sv_walkspeed;
 cvar_t *sv_dmspeedmult;
 cvar_t *sv_crouchspeedmult;
 
-cvar_t* sv_sprinttime;
-cvar_t* sv_sprintmult;
-cvar_t* sv_sprinttime_dm;
-cvar_t* sv_sprintmult_dm;
-cvar_t* sv_sprinton;
-cvar_t* sv_invulnerabletime;
-cvar_t* sv_team_spawn_interval;
+cvar_t *sv_sprinttime;
+cvar_t *sv_sprintmult;
+cvar_t *sv_sprinttime_dm;
+cvar_t *sv_sprintmult_dm;
+cvar_t *sv_sprinton;
+cvar_t *sv_invulnerabletime;
+cvar_t *sv_team_spawn_interval;
 
 cvar_t *g_showmem;
 cvar_t *g_timeents;
@@ -138,10 +138,10 @@ cvar_t *g_ai;
 cvar_t *g_vehicle;
 
 cvar_t *g_gametype;
-cvar_t* g_gametypestring;
-cvar_t* g_realismmode;
-cvar_t* g_teamdamage;
-cvar_t* g_rankedserver;
+cvar_t *g_gametypestring;
+cvar_t *g_realismmode;
+cvar_t *g_teamdamage;
+cvar_t *g_rankedserver;
 
 cvar_t *g_allowvote;
 cvar_t *g_monitor;
@@ -192,6 +192,12 @@ cvar_t *g_medal2;
 cvar_t *g_medal3;
 cvar_t *g_medal4;
 cvar_t *g_medal5;
+cvar_t *g_medalbt0;
+cvar_t *g_medalbt1;
+cvar_t *g_medalbt2;
+cvar_t *g_medalbt3;
+cvar_t *g_medalbt4;
+cvar_t *g_medalbt5;
 cvar_t *g_eogmedal0;
 cvar_t *g_eogmedal1;
 cvar_t *g_eogmedal2;
@@ -213,6 +219,9 @@ cvar_t *g_m5l3;
 cvar_t *g_m6l1;
 cvar_t *g_m6l2;
 cvar_t *g_m6l3;
+cvar_t *g_t2l1;
+cvar_t *g_t3l1;
+cvar_t* g_mission;
 cvar_t *g_lastsave;
 
 cvar_t *g_forceteamspectate;
@@ -220,290 +229,344 @@ cvar_t *g_spectatefollow_forward;
 cvar_t *g_spectatefollow_right;
 cvar_t *g_spectatefollow_up;
 cvar_t *g_spectatefollow_pitch;
-cvar_t *g_spectatefollow_firstperson;
 cvar_t *g_spectate_allow_full_chat;
 
-cvar_t* g_debugsmoke;
-
 cvar_t *g_voiceChat;
+cvar_t *g_voiceChatTime;
+cvar_t *g_textChatTime;
+cvar_t *g_debugsmoke;
+
+cvar_t *g_turret_convergetime;
+cvar_t *g_turret_suppresstime;
+cvar_t *g_turret_suppresswaittime;
+cvar_t *g_turret_spread;
+cvar_t *g_maprotation_filter;
+
+cvar_t *g_shownpc;
+cvar_t *g_TOW_winstate;
+cvar_t *g_chat_expansions;
+
+cvar_t *g_qunits_to_feet;
+cvar_t *g_cinematics_off;
+
+cvar_t *g_rifles_for_sweepers;
+cvar_t *g_no_seasick;
+
+cvar_t *g_aistats;
 
 cvar_t *sv_scriptfiles;
 
-void CVAR_Init( void )
+cvar_t *g_spectatefollow_firstperson;
+
+void CVAR_Init(void)
 {
-	developer				= gi.Cvar_Get( "developer",					"0",				0 );
-	sv_reborn				= gi.Cvar_Get( "sv_reborn",					"0",				CVAR_LATCH|CVAR_SERVERINFO );
+    developer = gi.Cvar_Get("developer", "0", 0);
+    sv_reborn = gi.Cvar_Get("sv_reborn", "0", CVAR_LATCH | CVAR_SERVERINFO);
 
-	precache				= gi.Cvar_Get( "sv_precache",				"1",				0 );
+    precache = gi.Cvar_Get("sv_precache", "1", 0);
 
-	dedicated				= gi.Cvar_Get( "dedicated",					"1",				CVAR_LATCH );
-	deathmatch				= gi.Cvar_Get( "deathmatch",				"1",				CVAR_USERINFO|CVAR_SERVERINFO|CVAR_LATCH );
-	skill					= gi.Cvar_Get( "skill",						"1",				CVAR_USERINFO|CVAR_SERVERINFO|CVAR_LATCH );
+    dedicated  = gi.Cvar_Get("dedicated", "1", CVAR_LATCH);
+    deathmatch = gi.Cvar_Get("deathmatch", "1", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
+    skill      = gi.Cvar_Get("skill", "1", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
 
-	maxclients				= gi.Cvar_Get( "sv_maxclients",				"1",				0 );
-	maxbots					= gi.Cvar_Get( "sv_maxbots",				"2",				0 );
-	maxentities				= gi.Cvar_Get( "maxentities",				"1024",				CVAR_LATCH );
+    maxclients  = gi.Cvar_Get("sv_maxclients", "1", 0);
+    maxbots     = gi.Cvar_Get("sv_maxbots", "2", 0);
+    maxentities = gi.Cvar_Get("maxentities", "1024", CVAR_LATCH);
 
-	password				= gi.Cvar_Get( "password",					"",					CVAR_USERINFO );
-	sv_privatePassword		= gi.Cvar_Get( "sv_privatePassword",		"",					CVAR_TEMP );
-	filterban				= gi.Cvar_Get( "filterban",					"1",				0 );
+    password           = gi.Cvar_Get("password", "", CVAR_USERINFO);
+    sv_privatePassword = gi.Cvar_Get("sv_privatePassword", "", CVAR_TEMP);
+    filterban          = gi.Cvar_Get("filterban", "1", 0);
 
-	dmflags					= gi.Cvar_Get( "dmflags",					"0",				CVAR_SERVERINFO );
-	fraglimit				= gi.Cvar_Get( "fraglimit",					"0",				CVAR_SERVERINFO );
-	timelimit				= gi.Cvar_Get( "timelimit",					"0",				CVAR_SERVERINFO );
-	roundlimit				= gi.Cvar_Get( "roundlimit",				"0",				CVAR_SERVERINFO );
-	g_allowjointime			= gi.Cvar_Get( "g_allowjointime",			"30",				CVAR_SERVERINFO );
-	g_teamswitchdelay		= gi.Cvar_Get( "g_teamswitchdelay",			"15",				0 );
+    dmflags           = gi.Cvar_Get("dmflags", "0", CVAR_SERVERINFO);
+    fraglimit         = gi.Cvar_Get("fraglimit", "0", CVAR_SERVERINFO);
+    timelimit         = gi.Cvar_Get("timelimit", "0", CVAR_SERVERINFO);
+    roundlimit        = gi.Cvar_Get("roundlimit", "0", CVAR_SERVERINFO);
+    g_allowjointime   = gi.Cvar_Get("g_allowjointime", "30", CVAR_SERVERINFO);
+    g_teamswitchdelay = gi.Cvar_Get("g_teamswitchdelay", "15", 0);
 
-	nomonsters				= gi.Cvar_Get( "nomonsters",				"0",				CVAR_SERVERINFO );
+    nomonsters = gi.Cvar_Get("nomonsters", "0", CVAR_SERVERINFO);
 
-	flood_msgs				= gi.Cvar_Get( "flood_msgs",				"4",				0 );
-	flood_persecond			= gi.Cvar_Get( "flood_persecond",			"4",				0 );
-	flood_waitdelay			= gi.Cvar_Get( "flood_waitdelay",			"10",				0 );
+    flood_msgs      = gi.Cvar_Get("flood_msgs", "4", 0);
+    flood_persecond = gi.Cvar_Get("flood_persecond", "4", 0);
+    flood_waitdelay = gi.Cvar_Get("flood_waitdelay", "10", 0);
 
-	detail					= gi.Cvar_Get( "detail",					"1",				CVAR_ARCHIVE );
-	com_blood				= gi.Cvar_Get( "com_blood",					"1",				CVAR_ARCHIVE );
-	whereami				= gi.Cvar_Get( "whereami",					"0",				0 );
-	bosshealth				= gi.Cvar_Get( "bosshealth",				"0",				0 );
+    detail     = gi.Cvar_Get("detail", "1", CVAR_ARCHIVE);
+    com_blood  = gi.Cvar_Get("com_blood", "1", CVAR_ARCHIVE);
+    whereami   = gi.Cvar_Get("whereami", "0", 0);
+    bosshealth = gi.Cvar_Get("bosshealth", "0", 0);
 
-	sv_rollspeed			= gi.Cvar_Get( "sv_rollspeed",				"2200",				0 );
-	sv_rollangle			= gi.Cvar_Get( "sv_rollangle",				"2",				0 );
-	sv_maxvelocity			= gi.Cvar_Get( "sv_maxvelocity", 			"6000",				0 );
-	sv_gravity				= gi.Cvar_Get( "sv_gravity", 				"512",				0 );
+    sv_rollspeed   = gi.Cvar_Get("sv_rollspeed", "2200", 0);
+    sv_rollangle   = gi.Cvar_Get("sv_rollangle", "2", 0);
+    sv_maxvelocity = gi.Cvar_Get("sv_maxvelocity", "6000", 0);
+    sv_gravity     = gi.Cvar_Get("sv_gravity", "512", 0);
 
-	sv_traceinfo			= gi.Cvar_Get( "sv_traceinfo", 				"0",				0 );
-	sv_drawtrace			= gi.Cvar_Get( "sv_drawtrace", 				"0",				0 );
-	sv_showbboxes			= gi.Cvar_Get( "sv_showbboxes", 			"0",				0 );
+    sv_traceinfo  = gi.Cvar_Get("sv_traceinfo", "0", 0);
+    sv_drawtrace  = gi.Cvar_Get("sv_drawtrace", "0", 0);
+    sv_showbboxes = gi.Cvar_Get("sv_showbboxes", "0", 0);
 
-	sv_testloc_num			= gi.Cvar_Get( "sv_testloc_num", 			"0",				0 );
-	sv_testloc_secondary	= gi.Cvar_Get( "sv_testloc_secondary", 		"0",				0 );
-	sv_testloc_radius		= gi.Cvar_Get( "sv_testloc_radius", 		"1",				0 );
-	sv_testloc_offset_x		= gi.Cvar_Get( "sv_testloc_offset_x", 		"0",				0 );
-	sv_testloc_offset_y		= gi.Cvar_Get( "sv_testloc_offset_y", 		"0",				0 );
-	sv_testloc_offset_z		= gi.Cvar_Get( "sv_testloc_offset_z", 		"0",				0 );
-	sv_testloc_radius2		= gi.Cvar_Get( "sv_testloc_radius2", 		"1",				0 );
-	sv_testloc_offset2_x	= gi.Cvar_Get( "sv_testloc_offset2_x", 		"0",				0 );
-	sv_testloc_offset2_y	= gi.Cvar_Get( "sv_testloc_offset2_y", 		"0",				0 );
-	sv_testloc_offset2_z	= gi.Cvar_Get( "sv_testloc_offset2_z", 		"0",				0 );
+    sv_testloc_num       = gi.Cvar_Get("sv_testloc_num", "0", 0);
+    sv_testloc_secondary = gi.Cvar_Get("sv_testloc_secondary", "0", 0);
+    sv_testloc_radius    = gi.Cvar_Get("sv_testloc_radius", "1", 0);
+    sv_testloc_offset_x  = gi.Cvar_Get("sv_testloc_offset_x", "0", 0);
+    sv_testloc_offset_y  = gi.Cvar_Get("sv_testloc_offset_y", "0", 0);
+    sv_testloc_offset_z  = gi.Cvar_Get("sv_testloc_offset_z", "0", 0);
+    sv_testloc_radius2   = gi.Cvar_Get("sv_testloc_radius2", "1", 0);
+    sv_testloc_offset2_x = gi.Cvar_Get("sv_testloc_offset2_x", "0", 0);
+    sv_testloc_offset2_y = gi.Cvar_Get("sv_testloc_offset2_y", "0", 0);
+    sv_testloc_offset2_z = gi.Cvar_Get("sv_testloc_offset2_z", "0", 0);
 
-	sv_showcameras			= gi.Cvar_Get( "sv_showcameras", 			"0",				0 );
-	sv_showentnums			= gi.Cvar_Get( "sv_showentnums", 			"0",				0 );
+    sv_showcameras = gi.Cvar_Get("sv_showcameras", "0", 0);
+    sv_showentnums = gi.Cvar_Get("sv_showentnums", "0", 0);
 
-	sv_friction				= gi.Cvar_Get( "sv_friction", 				"4",				CVAR_SERVERINFO );
-	sv_stopspeed			= gi.Cvar_Get( "sv_stopspeed", 				"100",				CVAR_SERVERINFO );
-	sv_waterfriction		= gi.Cvar_Get( "sv_waterfriction", 			"1",				CVAR_SERVERINFO );
-	sv_waterspeed			= gi.Cvar_Get( "sv_waterspeed", 			"400",				CVAR_SERVERINFO );
+    sv_friction      = gi.Cvar_Get("sv_friction", "4", CVAR_SERVERINFO);
+    sv_stopspeed     = gi.Cvar_Get("sv_stopspeed", "100", CVAR_SERVERINFO);
+    sv_waterfriction = gi.Cvar_Get("sv_waterfriction", "1", CVAR_SERVERINFO);
+    sv_waterspeed    = gi.Cvar_Get("sv_waterspeed", "400", CVAR_SERVERINFO);
 
-	sv_cheats				= gi.Cvar_Get( "cheats", 					"0",				CVAR_USERINFO|CVAR_SERVERINFO|CVAR_LATCH );
-	sv_fps					= gi.Cvar_Get( "sv_fps", 					"20",				CVAR_SERVERINFO|CVAR_SAVEGAME );
-	sv_cinematic			= gi.Cvar_Get( "sv_cinematic", 				"0",				CVAR_SYSTEMINFO|CVAR_ROM );
+    sv_cheats    = gi.Cvar_Get("cheats", "0", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
+    sv_fps       = gi.Cvar_Get("sv_fps", "20", CVAR_SERVERINFO | CVAR_SAVEGAME);
+    sv_cinematic = gi.Cvar_Get("sv_cinematic", "0", CVAR_SYSTEMINFO | CVAR_ROM);
 
-	sv_maplist				= gi.Cvar_Get( "sv_maplist", 				"",					CVAR_ARCHIVE|CVAR_SERVERINFO );
-	sv_nextmap				= gi.Cvar_Get( "nextmap", 					"",					0 );
+    sv_maplist = gi.Cvar_Get("sv_maplist", "", CVAR_ARCHIVE | CVAR_SERVERINFO);
+    sv_nextmap = gi.Cvar_Get("nextmap", "", 0);
 
-	sv_runspeed				= gi.Cvar_Get( "sv_runspeed", 				"250",				CVAR_SERVERINFO );
-	sv_walkspeed			= gi.Cvar_Get( "sv_walkspeed", 				"150",				CVAR_SERVERINFO );
-	sv_dmspeedmult			= gi.Cvar_Get( "sv_dmspeedmult", 			"1.1",				CVAR_SERVERINFO );
-	sv_crouchspeedmult		= gi.Cvar_Get( "sv_crouchspeedmult", 		"0.6",				CVAR_SERVERINFO );
+    sv_runspeed        = gi.Cvar_Get("sv_runspeed", "250", CVAR_SERVERINFO);
+    sv_walkspeed       = gi.Cvar_Get("sv_walkspeed", "150", CVAR_SERVERINFO);
+    sv_dmspeedmult     = gi.Cvar_Get("sv_dmspeedmult", "1.1", CVAR_SERVERINFO);
+    sv_crouchspeedmult = gi.Cvar_Get("sv_crouchspeedmult", "0.6", CVAR_SERVERINFO);
 
-	sv_sprinttime = gi.Cvar_Get("sv_sprinttime", "5.0", 0);
-	sv_sprintmult = gi.Cvar_Get("sv_sprintmult", "1.20", 0);
-	sv_sprinttime_dm = gi.Cvar_Get("sv_sprinttime_dm", "5.0", 0);
-	sv_sprintmult_dm = gi.Cvar_Get("sv_sprintmult_dm", "1.20", 0);
-	sv_sprinton = gi.Cvar_Get("sv_sprinton", "1", 0);
+    sv_sprinttime    = gi.Cvar_Get("sv_sprinttime", "5.0", 0);
+    sv_sprintmult    = gi.Cvar_Get("sv_sprintmult", "1.20", 0);
+    sv_sprinttime_dm = gi.Cvar_Get("sv_sprinttime_dm", "5.0", 0);
+    sv_sprintmult_dm = gi.Cvar_Get("sv_sprintmult_dm", "1.20", 0);
+    sv_sprinton      = gi.Cvar_Get("sv_sprinton", "1", 0);
 
-	if (!sv_sprinton->integer && sv_runspeed->integer == 287) {
-		gi.Cvar_Set("sv_runspeed", "250");
-	}
+    if (!sv_sprinton->integer && sv_runspeed->integer == 287) {
+        gi.Cvar_Set("sv_runspeed", "250");
+    }
 
-	sv_invulnerabletime = gi.Cvar_Get("sv_invulnerabletime", "3.0", CVAR_ARCHIVE | CVAR_SERVERINFO);
-	sv_team_spawn_interval = gi.Cvar_Get("sv_team_spawn_interval", "15", CVAR_ARCHIVE | CVAR_SERVERINFO);
+    sv_invulnerabletime    = gi.Cvar_Get("sv_invulnerabletime", "3.0", CVAR_ARCHIVE | CVAR_SERVERINFO);
+    sv_team_spawn_interval = gi.Cvar_Get("sv_team_spawn_interval", "15", CVAR_ARCHIVE | CVAR_SERVERINFO);
 
-	g_showmem				= gi.Cvar_Get( "g_showmem", 				"0",				0 );
-	g_timeents				= gi.Cvar_Get( "g_timeents", 				"0",				0 );
-	g_showaxis				= gi.Cvar_Get( "g_showaxis", 				"0",				0 );
-	g_showplayerstate		= gi.Cvar_Get( "g_showplayerstate", 		"0",				0 );
-	g_showplayeranim		= gi.Cvar_Get( "g_showplayeranim", 			"0",				0 );
-	g_showbullettrace		= gi.Cvar_Get( "g_showbullettrace", 		"0",				0 );
-	g_showawareness			= gi.Cvar_Get( "g_showawareness", 			"0",				CVAR_CHEAT );
-	g_entinfo				= gi.Cvar_Get( "g_entinfo", 				"0",				CVAR_CHEAT );
-	g_showlookat			= gi.Cvar_Get( "g_showlookat", 				"0",				CVAR_CHEAT );
+    g_showmem         = gi.Cvar_Get("g_showmem", "0", 0);
+    g_timeents        = gi.Cvar_Get("g_timeents", "0", 0);
+    g_showaxis        = gi.Cvar_Get("g_showaxis", "0", 0);
+    g_showplayerstate = gi.Cvar_Get("g_showplayerstate", "0", 0);
+    g_showplayeranim  = gi.Cvar_Get("g_showplayeranim", "0", 0);
+    g_showbullettrace = gi.Cvar_Get("g_showbullettrace", "0", 0);
+    g_showawareness   = gi.Cvar_Get("g_showawareness", "0", CVAR_CHEAT);
+    g_entinfo         = gi.Cvar_Get("g_entinfo", "0", CVAR_CHEAT);
+    g_showlookat      = gi.Cvar_Get("g_showlookat", "0", CVAR_CHEAT);
 
-	g_numdebuglines			= gi.Cvar_Get( "g_numdebuglines", 			"4096",				CVAR_LATCH );
-	g_numdebuglinedelays	= gi.Cvar_Get( "g_numdebuglinedelays", 		"0",				0 );
-	g_numdebugstrings		= gi.Cvar_Get( "g_numdebugstrings", 		"256",				CVAR_LATCH );
+    g_numdebuglines      = gi.Cvar_Get("g_numdebuglines", "4096", CVAR_LATCH);
+    g_numdebuglinedelays = gi.Cvar_Get("g_numdebuglinedelays", "0", 0);
+    g_numdebugstrings    = gi.Cvar_Get("g_numdebugstrings", "256", CVAR_LATCH);
 
-	g_spiffyplayer			= gi.Cvar_Get( "g_spiffyplayer", 			"0",				CVAR_LATCH );
-	g_spiffyvelocity_x		= gi.Cvar_Get( "g_spiffyvelocity_x", 		"0",				0 );
-	g_spiffyvelocity_y		= gi.Cvar_Get( "g_spiffyvelocity_y", 		"0",				0 );
-	g_spiffyvelocity_z		= gi.Cvar_Get( "g_spiffyvelocity_z", 		"0",				0 );
+    g_spiffyplayer     = gi.Cvar_Get("g_spiffyplayer", "0", CVAR_LATCH);
+    g_spiffyvelocity_x = gi.Cvar_Get("g_spiffyvelocity_x", "0", 0);
+    g_spiffyvelocity_y = gi.Cvar_Get("g_spiffyvelocity_y", "0", 0);
+    g_spiffyvelocity_z = gi.Cvar_Get("g_spiffyvelocity_z", "0", 0);
 
-	g_playermodel			= gi.Cvar_Get( "g_playermodel", 			"american_army",	CVAR_SAVEGAME );
-	g_statefile				= gi.Cvar_Get( "g_statefile", 				"global/mike",		0 );
+    g_playermodel = gi.Cvar_Get("g_playermodel", "american_army", CVAR_SAVEGAME);
+    g_statefile   = gi.Cvar_Get("g_statefile", "global/mike", 0);
 
-	g_showautoaim			= gi.Cvar_Get( "g_showautoaim", 			"0",				0 );
-	g_debugtargets			= gi.Cvar_Get( "g_debugtargets", 			"0",				0 );
-	g_debugdamage			= gi.Cvar_Get( "g_debugdamage", 			"0",				0 );
-	g_logstats				= gi.Cvar_Get( "g_logstats", 				"0",				0 );
-	g_showtokens			= gi.Cvar_Get( "g_showtokens", 				"0",				0 );
-	g_showopcodes			= gi.Cvar_Get( "g_showopcodes", 			"0",				0 );
-	g_scriptcheck			= gi.Cvar_Get( "g_scriptcheck", 			"0",				0 );
-	g_nodecheck				= gi.Cvar_Get( "g_nodecheck", 				"0",				0 );
-	g_scriptdebug			= gi.Cvar_Get( "g_scriptdebug", 			"0",				0 );
-	g_scripttrace			= gi.Cvar_Get( "g_scripttrace", 			"0",				0 );
+    g_showautoaim  = gi.Cvar_Get("g_showautoaim", "0", 0);
+    g_debugtargets = gi.Cvar_Get("g_debugtargets", "0", 0);
+    g_debugdamage  = gi.Cvar_Get("g_debugdamage", "0", 0);
+    g_logstats     = gi.Cvar_Get("g_logstats", "0", 0);
+    g_showtokens   = gi.Cvar_Get("g_showtokens", "0", 0);
+    g_showopcodes  = gi.Cvar_Get("g_showopcodes", "0", 0);
+    g_scriptcheck  = gi.Cvar_Get("g_scriptcheck", "0", 0);
+    g_nodecheck    = gi.Cvar_Get("g_nodecheck", "0", 0);
+    g_scriptdebug  = gi.Cvar_Get("g_scriptdebug", "0", 0);
+    g_scripttrace  = gi.Cvar_Get("g_scripttrace", "0", 0);
 
-	g_ai					= gi.Cvar_Get( "g_ai", 						"1",				0 );
-	g_vehicle				= gi.Cvar_Get( "g_vehicle", 				"1",				0 );
+    g_ai      = gi.Cvar_Get("g_ai", "1", 0);
+    g_vehicle = gi.Cvar_Get("g_vehicle", "1", 0);
 
-	g_monitor				= gi.Cvar_Get( "g_monitor", 				"",					0 );
-	g_monitorNum			= gi.Cvar_Get( "g_monitorNum", 				"-1",				0 );
+    g_monitor    = gi.Cvar_Get("g_monitor", "", 0);
+    g_monitorNum = gi.Cvar_Get("g_monitorNum", "-1", 0);
 
-	g_spawnentities			= gi.Cvar_Get( "g_spawnentities", 			"1",				0 );
-	g_spawnai				= gi.Cvar_Get( "g_spawnai", 				"1",				0 );
+    g_spawnentities = gi.Cvar_Get("g_spawnentities", "1", 0);
+    g_spawnai       = gi.Cvar_Get("g_spawnai", "1", 0);
 
-	g_patherror				= gi.Cvar_Get( "g_patherror", 				"1",				0 );
+    g_patherror = gi.Cvar_Get("g_patherror", "1", 0);
 
-	g_droppeditemlife		= gi.Cvar_Get( "g_droppeditemlife", 		"30",				0 );
-	g_dropclips				= gi.Cvar_Get( "g_dropclips", 				"2",				0 );
+    g_droppeditemlife = gi.Cvar_Get("g_droppeditemlife", "30", 0);
+    g_dropclips       = gi.Cvar_Get("g_dropclips", "2", 0);
 
-	g_animdump				= gi.Cvar_Get( "g_animdump", 				"0",				0 );
+    g_animdump = gi.Cvar_Get("g_animdump", "0", 0);
 
-	g_showdamage			= gi.Cvar_Get( "g_showdamage", 				"0",				0 );
+    g_showdamage = gi.Cvar_Get("g_showdamage", "0", 0);
 
-	g_ai_notifyradius		= gi.Cvar_Get( "g_ai_notifyradius", 		"1024",				0 );
-	g_ai_noticescale		= gi.Cvar_Get( "g_ai_noticescale", 			"1",				0 );
-	g_ai_soundscale			= gi.Cvar_Get( "g_ai_soundscale", 			"1",				0 );
-	ai_debug_grenades		= gi.Cvar_Get( "ai_debug_grenades", 		"0",				CVAR_CHEAT );
+    g_ai_notifyradius = gi.Cvar_Get("g_ai_notifyradius", "1024", 0);
+    g_ai_noticescale  = gi.Cvar_Get("g_ai_noticescale", "1", 0);
+    g_ai_soundscale   = gi.Cvar_Get("g_ai_soundscale", "1", 0);
+    ai_debug_grenades = gi.Cvar_Get("ai_debug_grenades", "0", CVAR_CHEAT);
 
-	g_gametype				= gi.Cvar_Get( "g_gametype", 				"0",				CVAR_USERINFO|CVAR_SERVERINFO|CVAR_LATCH );
-	g_gametypestring		= gi.Cvar_Get( "g_gametypestring", 			"Free-For-All",		CVAR_SERVERINFO );
-	g_realismmode			= gi.Cvar_Get( "g_realismmode", 			"0",				CVAR_USERINFO|CVAR_SERVERINFO|CVAR_LATCH );
-	if (!g_gametype->integer) {
-		gi.Cvar_Set("g_realismmode", "0");
-	}
+    g_gametype       = gi.Cvar_Get("g_gametype", "0", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
+    g_gametypestring = gi.Cvar_Get("g_gametypestring", "Free-For-All", CVAR_SERVERINFO);
+    g_realismmode    = gi.Cvar_Get("g_realismmode", "0", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
+    if (!g_gametype->integer) {
+        gi.Cvar_Set("g_realismmode", "0");
+    }
 
-	g_rankedserver			= gi.Cvar_Get( "g_rankedserver", 			"0",				0 );
-	g_teamdamage			= gi.Cvar_Get( "g_teamdamage", 				"0",				0 );
-	g_allowvote				= gi.Cvar_Get( "g_allowvote", 				"1",				0 );
-	g_warmup				= gi.Cvar_Get( "g_warmup", 					"20",				CVAR_ARCHIVE );
-	g_doWarmup				= gi.Cvar_Get( "g_doWarmup", 				"1",				0 );
+    g_rankedserver = gi.Cvar_Get("g_rankedserver", "0", 0);
+    g_teamdamage   = gi.Cvar_Get("g_teamdamage", "0", 0);
+    g_allowvote    = gi.Cvar_Get("g_allowvote", "1", 0);
+    g_warmup       = gi.Cvar_Get("g_warmup", "20", CVAR_ARCHIVE);
+    g_doWarmup     = gi.Cvar_Get("g_doWarmup", "1", 0);
 
-	g_forceready			= gi.Cvar_Get( "g_forceready", 				"1",				CVAR_ARCHIVE|CVAR_SERVERINFO );
-	g_forcerespawn			= gi.Cvar_Get( "g_forcerespawn", 			"0",				CVAR_ARCHIVE|CVAR_SERVERINFO );
-	g_maxintermission		= gi.Cvar_Get( "g_maxintermission", 		"15",				CVAR_ARCHIVE|CVAR_SERVERINFO );
+    g_forceready      = gi.Cvar_Get("g_forceready", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
+    g_forcerespawn    = gi.Cvar_Get("g_forcerespawn", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
+    g_maxintermission = gi.Cvar_Get("g_maxintermission", "15", CVAR_ARCHIVE | CVAR_SERVERINFO);
 
-	g_smoothClients			= gi.Cvar_Get( "g_smoothClients", 			"1",				0 );
-	pmove_fixed				= gi.Cvar_Get( "pmove_fixed", 				"0",				CVAR_SYSTEMINFO );
-	pmove_msec				= gi.Cvar_Get( "pmove_msec", 				"0",				CVAR_SYSTEMINFO );
+    g_smoothClients = gi.Cvar_Get("g_smoothClients", "1", 0);
+    pmove_fixed     = gi.Cvar_Get("pmove_fixed", "0", CVAR_SYSTEMINFO);
+    pmove_msec      = gi.Cvar_Get("pmove_msec", "0", CVAR_SYSTEMINFO);
 
-	g_inactivespectate		= gi.Cvar_Get( "g_inactiveSpectate", 		"60",				CVAR_ARCHIVE );
-	g_inactivekick			= gi.Cvar_Get( "g_inactivekick", 			"900",				CVAR_ARCHIVE );
+    g_inactivespectate = gi.Cvar_Get("g_inactiveSpectate", "60", CVAR_ARCHIVE);
+    g_inactivekick     = gi.Cvar_Get("g_inactivekick", "900", CVAR_ARCHIVE);
 
-	s_debugmusic			= gi.Cvar_Get( "s_debugmusic", 				"0",				0 );
+    s_debugmusic = gi.Cvar_Get("s_debugmusic", "0", 0);
 
-	sv_scriptfiles			= gi.Cvar_Get( "sv_scriptfiles", 			"0",				0 );
+    sv_scriptfiles = gi.Cvar_Get("sv_scriptfiles", "0", 0);
 
-	switch( g_gametype->integer )
-	{
-	default:
-	case GT_FFA:
-		if( g_gametype->integer >= GT_MAX_GAME_TYPE )
-		{
-			gi.Cvar_Set( "g_gametypestring", "Multiplayer" );
-		}
-		else
-		{
-			gi.Cvar_Set( "g_gametypestring", "Free-For-All" );
-		}
-		break;
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        gi.Cvar_Set("deathmatch", "0");
+    } else {
+        gi.Cvar_Set("deathmatch", "1");
+    }
 
-	case GT_TEAM:
-		gi.Cvar_Set( "g_gametypestring", "Team-Match" );
-		break;
+    if (g_protocol >= PROTOCOL_MOHTA_MIN) {
+        if (gi.Cvar_Get("com_target_game", "", 0)->integer == target_game_e::TG_MOHTT) {
+            // Set the server type to mohaab
+            gi.Cvar_Set("g_servertype", va("%d", target_game_e::TG_MOHTT));
+        }
+    }
 
-	case GT_TEAM_ROUNDS:
-		gi.Cvar_Set( "g_gametypestring", "Round-Based-Match" );
-		break;
+    switch (g_gametype->integer) {
+    default:
+    case GT_FFA:
+        gi.Cvar_Set("g_gametypestring", "Free-For-All");
+        break;
+    case GT_TEAM:
+        gi.Cvar_Set("g_gametypestring", "Team-Match");
+        break;
+    case GT_TEAM_ROUNDS:
+        gi.Cvar_Set("g_gametypestring", "Round-Based-Match");
+        break;
+    case GT_OBJECTIVE:
+        gi.Cvar_Set("g_gametypestring", "Objective-Match");
+        break;
+    case GT_TOW:
+        gi.Cvar_Set("g_gametypestring", "Tug-of-War");
+        break;
+    case GT_LIBERATION:
+        gi.Cvar_Set("g_gametypestring", "Liberation");
+        break;
+    case GT_SINGLE_PLAYER:
+        gi.Cvar_Set("g_gametypestring", "Multiplayer");
+        break;
+    }
 
-	case GT_OBJECTIVE:
-		gi.Cvar_Set( "g_gametypestring", "Objective-Match" );
-		break;
+    g_viewkick_pitch  = gi.Cvar_Get("g_viewkick_pitch", "0.3", CVAR_CHEAT);
+    g_viewkick_yaw    = gi.Cvar_Get("g_viewkick_yaw", "0.3", CVAR_CHEAT);
+    g_viewkick_roll   = gi.Cvar_Get("g_viewkick_roll", "0.15", CVAR_CHEAT);
+    g_viewkick_dmmult = gi.Cvar_Get("g_viewkick_dmmult", "1.0", CVAR_CHEAT);
 
-	case GT_SINGLE_PLAYER:
-		gi.Cvar_Set( "g_gametypestring", "0" );
-		break;
-	}
+    g_drawattackertime  = gi.Cvar_Get("g_drawattackertime", "5", 0);
+    g_playerdeltamethod = gi.Cvar_Get("g_playerdeltamethod", "0", 0);
 
-	g_viewkick_pitch				= gi.Cvar_Get( "g_viewkick_pitch",				"0.3",			CVAR_CHEAT );
-	g_viewkick_yaw					= gi.Cvar_Get( "g_viewkick_yaw",				"0.3",			CVAR_CHEAT );
-	g_viewkick_roll					= gi.Cvar_Get( "g_viewkick_roll",				"0.15",			CVAR_CHEAT );
-	g_viewkick_dmmult				= gi.Cvar_Get( "g_viewkick_dmmult",				"1.0",			CVAR_CHEAT );
+    g_success  = gi.Cvar_Get("g_success", "0", 0);
+    g_failed   = gi.Cvar_Get("g_failed", "0", 0);
+    g_gotmedal = gi.Cvar_Get("g_gotmedal", "0", 0);
 
-	g_drawattackertime				= gi.Cvar_Get( "g_drawattackertime",			"5",			0 );
-	g_playerdeltamethod				= gi.Cvar_Get( "g_playerdeltamethod",			"0",			0 );
+    g_medal0   = gi.Cvar_Get("g_medal0", "0", CVAR_ARCHIVE);
+    g_medal1   = gi.Cvar_Get("g_medal1", "0", CVAR_ARCHIVE);
+    g_medal2   = gi.Cvar_Get("g_medal2", "0", CVAR_ARCHIVE);
+    g_medal3   = gi.Cvar_Get("g_medal3", "0", CVAR_ARCHIVE);
+    g_medal4   = gi.Cvar_Get("g_medal4", "0", CVAR_ARCHIVE);
+    g_medal5   = gi.Cvar_Get("g_medal5", "0", CVAR_ARCHIVE);
+    g_medalbt0 = gi.Cvar_Get("g_medalbt0", "0", CVAR_ARCHIVE);
+    g_medalbt1 = gi.Cvar_Get("g_medalbt1", "0", CVAR_ARCHIVE);
+    g_medalbt2 = gi.Cvar_Get("g_medalbt2", "0", CVAR_ARCHIVE);
+    g_medalbt3 = gi.Cvar_Get("g_medalbt3", "0", CVAR_ARCHIVE);
+    g_medalbt4 = gi.Cvar_Get("g_medalbt4", "0", CVAR_ARCHIVE);
+    g_medalbt5 = gi.Cvar_Get("g_medalbt5", "0", CVAR_ARCHIVE);
 
-	g_success						= gi.Cvar_Get( "g_success",						"0",			0 );
-	g_failed						= gi.Cvar_Get( "g_failed",						"0",			0 );
-	g_gotmedal						= gi.Cvar_Get( "g_gotmedal",					"0",			0 );
+    g_eogmedal0 = gi.Cvar_Get("g_eogmedal0", "0", CVAR_ARCHIVE);
+    g_eogmedal1 = gi.Cvar_Get("g_eogmedal1", "0", CVAR_ARCHIVE);
+    g_eogmedal2 = gi.Cvar_Get("g_eogmedal2", "0", CVAR_ARCHIVE);
 
-	g_medal0						= gi.Cvar_Get( "g_medal0",						"0",			CVAR_ARCHIVE );
-	g_medal1						= gi.Cvar_Get( "g_medal1",						"0",			CVAR_ARCHIVE );
-	g_medal2						= gi.Cvar_Get( "g_medal2",						"0",			CVAR_ARCHIVE );
-	g_medal3						= gi.Cvar_Get( "g_medal3",						"0",			CVAR_ARCHIVE );
-	g_medal4						= gi.Cvar_Get( "g_medal4",						"0",			CVAR_ARCHIVE );
-	g_medal5						= gi.Cvar_Get( "g_medal5",						"0",			CVAR_ARCHIVE );
+    g_m1l1 = gi.Cvar_Get("g_m1l1", "1", CVAR_ARCHIVE);
+    g_m1l2 = gi.Cvar_Get("g_m1l2", "0", CVAR_ARCHIVE);
+    g_m1l3 = gi.Cvar_Get("g_m1l3", "0", CVAR_ARCHIVE);
+    g_m2l1 = gi.Cvar_Get("g_m2l1", "0", CVAR_ARCHIVE);
+    g_m2l2 = gi.Cvar_Get("g_m2l2", "0", CVAR_ARCHIVE);
+    g_m2l3 = gi.Cvar_Get("g_m2l3", "0", CVAR_ARCHIVE);
+    g_m3l1 = gi.Cvar_Get("g_m3l1", "0", CVAR_ARCHIVE);
+    g_m3l2 = gi.Cvar_Get("g_m3l2", "0", CVAR_ARCHIVE);
+    g_m3l3 = gi.Cvar_Get("g_m3l3", "0", CVAR_ARCHIVE);
+    g_m4l1 = gi.Cvar_Get("g_m4l1", "0", CVAR_ARCHIVE);
+    g_m4l2 = gi.Cvar_Get("g_m4l2", "0", CVAR_ARCHIVE);
+    g_m4l3 = gi.Cvar_Get("g_m4l3", "0", CVAR_ARCHIVE);
+    g_m5l1 = gi.Cvar_Get("g_m5l1", "0", CVAR_ARCHIVE);
+    g_m5l2 = gi.Cvar_Get("g_m5l2", "0", CVAR_ARCHIVE);
+    g_m5l3 = gi.Cvar_Get("g_m5l3", "0", CVAR_ARCHIVE);
+    g_m6l1 = gi.Cvar_Get("g_m6l1", "0", CVAR_ARCHIVE);
+    g_m6l2 = gi.Cvar_Get("g_m6l2", "0", CVAR_ARCHIVE);
+    g_m6l3 = gi.Cvar_Get("g_m6l3", "0", CVAR_ARCHIVE);
+    g_t2l1 = gi.Cvar_Get("g_t2l1", "0", CVAR_ARCHIVE);
+    g_t3l1 = gi.Cvar_Get("g_t3l1", "0", CVAR_ARCHIVE);
 
-	g_eogmedal0						= gi.Cvar_Get( "g_eogmedal0",					"0",			CVAR_ARCHIVE );
-	g_eogmedal1						= gi.Cvar_Get( "g_eogmedal1",					"0",			CVAR_ARCHIVE );
-	g_eogmedal2						= gi.Cvar_Get( "g_eogmedal2",					"0",			CVAR_ARCHIVE );
+    g_mission = (gi.Cvar_Get)("g_mission", "0", CVAR_ARCHIVE);
 
-	g_m1l1							= gi.Cvar_Get( "g_m1l1",						"1",			CVAR_ARCHIVE );
-	g_m1l2							= gi.Cvar_Get( "g_m1l2",						"0",			CVAR_ARCHIVE );
-	g_m1l3							= gi.Cvar_Get( "g_m1l3",						"0",			CVAR_ARCHIVE );
-	g_m2l1							= gi.Cvar_Get( "g_m2l1",						"0",			CVAR_ARCHIVE );
-	g_m2l2							= gi.Cvar_Get( "g_m2l2",						"0",			CVAR_ARCHIVE );
-	g_m2l3							= gi.Cvar_Get( "g_m2l3",						"0",			CVAR_ARCHIVE );
-	g_m3l1							= gi.Cvar_Get( "g_m3l1",						"0",			CVAR_ARCHIVE );
-	g_m3l2							= gi.Cvar_Get( "g_m3l2",						"0",			CVAR_ARCHIVE );
-	g_m3l3							= gi.Cvar_Get( "g_m3l3",						"0",			CVAR_ARCHIVE );
-	g_m4l1							= gi.Cvar_Get( "g_m4l1",						"0",			CVAR_ARCHIVE );
-	g_m4l2							= gi.Cvar_Get( "g_m4l2",						"0",			CVAR_ARCHIVE );
-	g_m4l3							= gi.Cvar_Get( "g_m4l3",						"0",			CVAR_ARCHIVE );
-	g_m5l1							= gi.Cvar_Get( "g_m5l1",						"0",			CVAR_ARCHIVE );
-	g_m5l2							= gi.Cvar_Get( "g_m5l2",						"0",			CVAR_ARCHIVE );
-	g_m5l3							= gi.Cvar_Get( "g_m5l3",						"0",			CVAR_ARCHIVE );
-	g_m6l1							= gi.Cvar_Get( "g_m6l1",						"0",			CVAR_ARCHIVE );
-	g_m6l2							= gi.Cvar_Get( "g_m6l2",						"0",			CVAR_ARCHIVE );
-	g_m6l3							= gi.Cvar_Get( "g_m6l3",						"0",			CVAR_ARCHIVE );
+    g_lastsave                 = gi.Cvar_Get("g_lastsave", "", CVAR_ARCHIVE);
+    g_forceteamspectate        = gi.Cvar_Get("g_forceteamspectate", "1", 0);
+    g_spectatefollow_forward   = gi.Cvar_Get("g_spectatefollow_forward", "-56", 0);
+    g_spectatefollow_right     = gi.Cvar_Get("g_spectatefollow_right", "0", 0);
+    g_spectatefollow_up        = gi.Cvar_Get("g_spectatefollow_up", "24", 0);
+    g_spectatefollow_pitch     = gi.Cvar_Get("g_spectatefollow_pitch", "2", 0);
+    g_spectate_allow_full_chat = gi.Cvar_Get("g_spectate_allow_full_chat", "0", 0);
 
-	g_lastsave						= gi.Cvar_Get( "g_lastsave",					"",				CVAR_ARCHIVE );
-	g_forceteamspectate				= gi.Cvar_Get( "g_forceteamspectate",			"1",			0 );
-	g_spectatefollow_forward		= gi.Cvar_Get( "g_spectatefollow_forward",		"-56",			0 );
-	g_spectatefollow_right			= gi.Cvar_Get( "g_spectatefollow_right",		"0",			0 );
-	g_spectatefollow_up				= gi.Cvar_Get( "g_spectatefollow_up",			"24",			0 );
-	g_spectatefollow_pitch			= gi.Cvar_Get( "g_spectatefollow_pitch",		"2",			0 );
-	g_spectatefollow_firstperson	= gi.Cvar_Get( "g_spectatefollow_firstperson",	"0",			0 );
-	g_spectate_allow_full_chat		= gi.Cvar_Get( "g_spectate_allow_full_chat",	"0",			0 );
+    g_voiceChat     = gi.Cvar_Get("g_voiceChat", "1", 0);
+    g_voiceChatTime = gi.Cvar_Get("g_voiceChatTime", "2.5", 0);
+    g_textChatTime  = gi.Cvar_Get("g_textChatTime", "1", 0);
+    g_debugsmoke    = gi.Cvar_Get("g_debugsmoke", "0", CVAR_CHEAT);
+    gi.Cvar_Get("g_obj_alliedtext1", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_obj_alliedtext2", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_obj_alliedtext3", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_obj_alliedtext4", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_obj_alliedtext5", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_obj_axistext1", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_obj_axistext2", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_obj_axistext3", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_obj_axistext4", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_obj_axistext5", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_scoreboardpic", "", CVAR_SERVERINFO);
+    gi.Cvar_Get("g_scoreboardpicover", "", CVAR_SERVERINFO);
 
-	g_voiceChat						= gi.Cvar_Get( "g_voiceChat",					"1",			0 );
-	g_debugsmoke					= gi.Cvar_Get("g_debugsmoke",					"0",			CVAR_CHEAT);
+    if (g_gametype->integer > GT_TEAM) {
+        gi.Cvar_Set("g_tempaxisscore", "0");
+        gi.Cvar_Set("g_tempaxiswinsinrow", "0");
+        gi.Cvar_Set("g_tempalliesscore", "0");
+        gi.Cvar_Set("g_tempallieswinsinrow", "0");
+        gi.Cvar_Set("g_tempmaptime", "0");
+        gi.Cvar_Set("g_scoreboardpicover", "");
+    }
 
-	gi.Cvar_Get( "g_obj_alliedtext1",			"",			CVAR_SERVERINFO );
-	gi.Cvar_Get( "g_obj_alliedtext2",			"",			CVAR_SERVERINFO );
-	gi.Cvar_Get( "g_obj_alliedtext3",			"",			CVAR_SERVERINFO );
-	gi.Cvar_Get( "g_obj_axistext1",				"",			CVAR_SERVERINFO );
-	gi.Cvar_Get( "g_obj_axistext2",				"",			CVAR_SERVERINFO );
-	gi.Cvar_Get( "g_obj_axistext3",				"",			CVAR_SERVERINFO );
-	gi.Cvar_Get( "g_scoreboardpic",				"",			CVAR_SERVERINFO );
-	gi.Cvar_Get( "g_scoreboardpicover",			"",			CVAR_SERVERINFO );
+    g_turret_convergetime     = gi.Cvar_Get("g_turret_convergetime", "2", 0);
+    g_turret_suppresstime     = gi.Cvar_Get("g_turret_suppresstime", "2", 0);
+    g_turret_suppresswaittime = gi.Cvar_Get("g_turret_suppresswaittime", "2", 0);
+    g_turret_spread           = gi.Cvar_Get("g_turret_spread", "16", 0);
+    g_TOW_winstate            = gi.Cvar_Get("g_TOW_winstate", "0", 0);
+    g_chat_expansions         = gi.Cvar_Get("g_chat_expansions", "1", 0);
+    g_qunits_to_feet          = gi.Cvar_Get("g_qunits_to_feet", "1", 0);
+    g_aistats                 = gi.Cvar_Get("g_aistats", "0", CVAR_CHEAT);
+    g_cinematics_off          = gi.Cvar_Get("g_cinematics_off", "0", 0);
+    g_rifles_for_sweepers     = gi.Cvar_Get("g_rifles_for_sweepers", "0", 0);
+    g_no_seasick              = gi.Cvar_Get("g_no_seasick", "0", 0);
 
-	if( g_gametype->integer > GT_TEAM )
-	{
-		gi.Cvar_Set( "g_tempaxisscore",				"0" );
-		gi.Cvar_Set( "g_tempaxiswinsinrow",			"0" );
-		gi.Cvar_Set( "g_tempalliesscore",			"0" );
-		gi.Cvar_Set( "g_tempallieswinsinrow",		"0" );
-		gi.Cvar_Set( "g_tempmaptime",				"0" );
-		gi.Cvar_Set( "g_scoreboardpicover",			"" );
-	}
+    g_spectatefollow_firstperson = gi.Cvar_Get("g_spectatefollow_firstperson", "0", 0);
 }
