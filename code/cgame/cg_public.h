@@ -67,7 +67,7 @@ extern "C" {
     typedef struct stopWatch_s {
         int iStartTime;
         int iEndTime;
-
+        int eType;
     } stopWatch_t;
 
     typedef struct AliasList_s     AliasList_t;

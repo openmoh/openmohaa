@@ -241,6 +241,13 @@ static void CG_Stopwatch_f()
 
     if (cg_protocol >= PROTOCOL_MOHTA_MIN) {
         cgi.stopWatch->iStartTime = atoi(cgi.Argv(1));
+
+        if (cgi.Argc() > 3) {
+            cgi.stopWatch->eType = atoi(cgi.Argv(3));
+        } else {
+            // Normal stop watch
+            cgi.stopWatch->eType = SWT_NORMAL;
+        }
     } else {
         // The base game has it wrong
         cgi.stopWatch->iStartTime = 1000 * atoi(cgi.Argv(1));

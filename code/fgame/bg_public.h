@@ -574,6 +574,12 @@ movement on the server game.
         TEAM_AXIS
     } teamtype_t;
 
+    typedef enum {
+        SWT_NORMAL,
+        SWT_FUSE,
+        SWT_FUSE_WET
+    } stopWatchType_t;
+
 // How many players on the overlay
 #define TEAM_MAXOVERLAY 32
 
