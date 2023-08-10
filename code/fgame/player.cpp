@@ -1270,7 +1270,7 @@ void Player::InitClient(void)
         char       userinfo[MAX_INFO_STRING];
         char       dm_primary[MAX_QPATH];
         float      enterTime   = client->pers.enterTime;
-        teamtype_t team        = client->pers.team;
+        teamtype_t team        = client->pers.teamnum;
         int        round_kills = client->pers.round_kills;
 
         memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
@@ -1280,7 +1280,7 @@ void Player::InitClient(void)
 
         memcpy(client->pers.dm_primary, dm_primary, sizeof(client->pers.dm_primary));
         client->pers.enterTime   = enterTime;
-        client->pers.team        = team;
+        client->pers.teamnum     = team;
         client->pers.round_kills = round_kills;
     }
 
@@ -6822,8 +6822,8 @@ void Player::InitDeathmatch(void)
             }
         }
     } else {
-        if (client->pers.team) {
-            SetTeam(client->pers.team);
+        if (client->pers.teamnum) {
+            SetTeam(client->pers.teamnum);
         } else {
             SetTeam(TEAM_SPECTATOR);
         }
@@ -7621,7 +7621,7 @@ void Player::SetDM_Team(DM_Team *team)
         dm_team = TEAM_NONE;
     }
 
-    client->pers.team = dm_team;
+    client->pers.teamnum = dm_team;
     G_SetClientConfigString(edict);
 
     if (m_fTeamSelectTime != level.time && (edict->s.eFlags & (EF_ANY_TEAM))) {

@@ -524,6 +524,7 @@ public:
     void EnsurePlayerHasAllowedWeapons();
     void EquipWeapons();
     //=======
+    void EquipWeapons_ver8();
     void ChooseSpawnPoint(void);
 
     void EndLevel(Event *ev);

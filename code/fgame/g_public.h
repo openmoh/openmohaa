@@ -126,7 +126,7 @@ typedef struct {
 
 	float			enterTime;
 
-	teamtype_t		team;
+	teamtype_t		teamnum;
 	int				round_kills;
 
 	char			ip[ 17 ];

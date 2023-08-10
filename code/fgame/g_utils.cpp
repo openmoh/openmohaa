@@ -462,7 +462,7 @@ void G_TeamCommand( teamtype_t team, char *cmd ) {
 	{
 		if ( game.clients[i].pers.enterTime != 0.0f )
 		{
-			if ( game.clients[i].pers.team == team ) {
+			if ( game.clients[i].pers.teamnum == team ) {
 				gi.SendServerCommand( i, va("%s", cmd ));
 			}
 		}
