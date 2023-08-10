@@ -46,7 +46,11 @@ void Sys_ShutLocalization()
 
 const char *Sys_LV_ConvertString( const char *var )
 {
-	return g_localization->ConvertString( var );
+	//
+	// Since 2.0, don't localize messages from fgame.
+	// The client already localize messages it receives
+	//
+	return var;
 }
 
 const char *Sys_LV_CL_ConvertString( const char *var )

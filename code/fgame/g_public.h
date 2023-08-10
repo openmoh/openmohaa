@@ -231,6 +231,7 @@ typedef struct gameImport_s
 	void ( *Error )( int level, const char *format, ... );
 	int ( *Milliseconds )( );
 	const char * ( *LV_ConvertString )( const char *string );
+	const char * ( *CL_LV_ConvertString )( const char *string );
 	void * ( *Malloc )( size_t size );
 	void ( *Free )( void *ptr );
 	cvar_t * ( *Cvar_Get )( const char *varName, const char *varValue, int varFlags );

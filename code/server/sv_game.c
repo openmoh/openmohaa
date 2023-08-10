@@ -1468,7 +1468,8 @@ void SV_InitGameProgs( void ) {
 	import.Error						= Com_Error;
 	import.GetArchiveFileName			= Com_GetArchiveFileName;
 	import.Milliseconds					= Sys_Milliseconds;
-	import.LV_ConvertString				= Sys_LV_CL_ConvertString;
+	import.LV_ConvertString				= Sys_LV_ConvertString;
+	import.CL_LV_ConvertString			= Sys_LV_CL_ConvertString;
 
 	import.SendServerCommand			= SV_GameSendServerCommand;
 	import.DropClient					= SV_GameDropClient;
