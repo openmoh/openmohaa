@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "playerstart.h"
 #include "weapturret.h"
 #include "vehicleturret.h"
+#include "portableturret.h"
 
 const Vector power_color(0.0, 1.0, 0.0);
 const Vector acolor(1.0, 1.0, 1.0);
@@ -9568,43 +9569,64 @@ void Player::FullHeal(Event *ev)
 
 void Player::RemoveFromVehiclesAndTurretsInternal(void)
 {
-    // FIXME: unimplemented
+    if (m_pVehicle)
+	{
+        Event* event;
+
+        m_pVehicle->flags &= ~FL_GODMODE;
+
+        event = new Event(EV_Use);
+        event->AddEntity(this);
+        m_pVehicle->ProcessEvent(event);
+    }
+    else if (m_pTurret)
+    {
+        m_pTurret->TurretUsed(this);
+    }
 }
 
 void Player::RemoveFromVehiclesAndTurrets(void)
 {
+    Weapon* activeWeap = GetActiveWeapon(WEAPON_MAIN);
+    if (activeWeap && activeWeap->IsCarryableTurret()) {
+        CarryableTurret* pTurret = static_cast<CarryableTurret*>(activeWeap);
+        pTurret->DropTurret(NULL);
+    }
+
+    if (!m_pVehicle && !m_pTurret) {
+        return;
+    }
+
     if (m_pVehicle && m_pVehicle->isLocked()) {
         m_pVehicle->UnLock();
 
-        if (m_pTurret) {
+        if (m_pTurret && m_pTurret->IsSubclassOfVehicleTurretGun()) {
             VehicleTurretGun *turret = (VehicleTurretGun *)m_pTurret.Pointer();
 
             if (turret->isLocked()) {
                 turret->UnLock();
-                DoUse(NULL);
+                RemoveFromVehiclesAndTurretsInternal();
                 turret->Lock();
             } else {
-                DoUse(NULL);
+                RemoveFromVehiclesAndTurretsInternal();
             }
         } else {
-            DoUse(NULL);
+            RemoveFromVehiclesAndTurretsInternal();
         }
 
         m_pVehicle->Lock();
-    }
-
-    if (m_pTurret) {
+    } else if (m_pTurret && m_pTurret->IsSubclassOfVehicleTurretGun()) {
         VehicleTurretGun *turret = (VehicleTurretGun *)m_pTurret.Pointer();
 
         if (turret->isLocked()) {
-            turret->UnLock();
-            DoUse(NULL);
+			turret->UnLock();
+			RemoveFromVehiclesAndTurretsInternal();
             turret->Lock();
         } else {
-            DoUse(NULL);
+            RemoveFromVehiclesAndTurretsInternal();
         }
     } else {
-        DoUse(NULL);
+        RemoveFromVehiclesAndTurretsInternal();
     }
 }
 
