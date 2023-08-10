@@ -471,6 +471,7 @@ const char *G_ClientConnect( int clientNum, qboolean firstTime );
 void G_ClientUserinfoChanged( gentity_t *ent, const char *userinfo );
 void G_ClientDisconnect( gentity_t *ent );
 void G_ClientBegin( gentity_t *ent, usercmd_t *cmd );
+void G_SetClientConfigString(gentity_t* ent);
 void G_ClientCommand( gentity_t *ent );
 
 //

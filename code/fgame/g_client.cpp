@@ -1014,6 +1014,37 @@ void G_ClientBegin( gentity_t *ent, usercmd_t *cmd )
 
 /*
 ===========
+G_SetClientConfigString
+============
+*/
+void G_SetClientConfigString(gentity_t* ent)
+{
+	int num;
+	const char* string;
+
+	if (!ent)
+	{
+		return;
+	}
+
+	num = ent - g_entities;
+
+	if (ent->entity)
+	{
+		Player* pEnt = static_cast<Player*>(ent->entity);
+		string = va("name\\%s\\team\\%i", ent->client->pers.netname, pEnt->GetTeam());
+	}
+	else
+	{
+		// No team
+		string = va("name\\%s\\team\\0", ent->client->pers.netname);
+	}
+
+	gi.SetConfigstring(CS_PLAYERS + num, string);
+}
+
+/*
+===========
 ClientDisconnect
 
 Called when a player drops from the server.
