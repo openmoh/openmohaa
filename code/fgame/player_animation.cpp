@@ -53,7 +53,7 @@ void Player::EndAnim_Torso(Event *ev)
 
 void Player::EndAnim_Pain(Event* ev)
 {
-    // FIXME: unimplemented
+    animdone_Pain = true;
 }
 
 void Player::SetPartAnim(const char *anim, bodypart_t slot)
