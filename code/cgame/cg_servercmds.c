@@ -298,19 +298,19 @@ static void CG_ServerCommand(void)
         }
         return;
     } else if (!strcmp(cmd, "printdeathmsg")) {
-        const char *s1, *s2, *s3, *s4, *s5;
+        const char *s1, *s2, * attackerName, * victimName, *type;
         const char *result1, *result2;
         int         hudColor;
 
         result1 = NULL;
         result2 = NULL;
-        s1      = cgi.Argv(1);
-        s2      = cgi.Argv(2);
-        s3      = cgi.Argv(3);
-        s4      = cgi.Argv(4);
-        s5      = cgi.Argv(5);
+        s1           = cgi.Argv(1);
+        s2           = cgi.Argv(2);
+        attackerName = cgi.Argv(3);
+        victimName   = cgi.Argv(4);
+        type         = cgi.Argv(5);
 
-        if (*s5 == tolower(*s5)) {
+        if (*type == tolower(*type)) {
             hudColor = 4;
         } else {
             hudColor = 5;
@@ -322,16 +322,16 @@ static void CG_ServerCommand(void)
         if (*s2 != 'x') {
             result2 = cgi.LV_ConvertString(s2);
         }
-        if (tolower(*s5) == 's') {
-            cgi.Printf("%c%s %s\n", hudColor, s4, result1);
-        } else if (tolower(*s5) == 'p') {
+        if (tolower(*type) == 's') {
+            cgi.Printf("%c%s %s\n", hudColor, victimName, result1);
+        } else if (tolower(*type) == 'p') {
             if (*s2 == 'x') {
-                cgi.Printf("%c%s %s %s\n", hudColor, s4, result1, s3);
+                cgi.Printf("%c%s %s %s\n", hudColor, victimName, result1, attackerName);
             } else {
-                cgi.Printf("%c%s %s %s%s\n", hudColor, s4, result1, s3, result2);
+                cgi.Printf("%c%s %s %s%s\n", hudColor, victimName, result1, attackerName, result2);
             }
-        } else if (tolower(*s5) == 'w') {
-            cgi.Printf("%c%s %s\n", hudColor, s4, result1);
+        } else if (tolower(*type) == 'w') {
+            cgi.Printf("%c%s %s\n", hudColor, victimName, result1);
         } else {
             cgi.Printf("%s", cgi.Argv(1));
         }
