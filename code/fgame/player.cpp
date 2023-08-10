@@ -2855,19 +2855,35 @@ void Player::Dead(Event *ev)
 
     partAnim[torso] = "";
 
-    respawn_time = level.time + 1.0f;
+    if (m_fPainBlend != 0) {
+        // Clear pain blend
+        StopAnimating(ANIMSLOT_PAIN);
+        edict->s.frameInfo[ANIMSLOT_PAIN].weight = 0;
+        m_fPainBlend = 0;
+        animdone_Pain = false;
+    }
 
     if (g_gametype->integer) {
         if (!dmManager.AllowRespawn()) {
-            respawn_time = level.time + 2.0f;
+            respawn_time = level.time + 1.0f;
+		} else {
+			respawn_time = level.time + 2.0f;
         }
+    } else if (level.current_map && *level.current_map) {
+        G_BeginIntermission(level.current_map, TRANS_LEVEL);
     } else {
-        if (level.current_map && *level.current_map) {
-            G_BeginIntermission(level.current_map, TRANS_LEVEL);
-        }
+        respawn_time = level.time + 1.f;
     }
 
     ZoomOff();
+
+	if (ShouldForceSpectatorOnDeath())
+	{
+		m_bDeathSpectator = true;
+
+		Spectator();
+		SetPlayerSpectateRandom();
+	}
 }
 
 void Player::Killed(Event *ev)
@@ -3201,7 +3217,7 @@ void Player::DoUse(Event *ev)
         }
     }
 
-    // FIXME: reborn feature
+    // FIXME: special game feature
 #if 0
 
 	// Now retrieve entities that doesn't require to look at
@@ -4291,8 +4307,29 @@ void Player::Think(void)
         }
 
         if (IsSpectator()) {
-            if ((server_new_buttons & BUTTON_USE)) {
-                SetPlayerSpectate();
+            if (g_protocol >= PROTOCOL_MOHTA_MIN) {
+                if (m_iPlayerSpectating) {
+                    if (last_ucmd.upmove) {
+                        if (!m_bSpectatorSwitching) {
+                            m_bSpectatorSwitching = true;
+
+                            if (last_ucmd.upmove > 0) {
+                                SetPlayerSpectate(true);
+                            } else {
+                                SetPlayerSpectate(false);
+                            }
+                        }
+                    } else {
+                        m_bSpectatorSwitching = false;
+                    }
+                } else if ((server_new_buttons & BUTTON_USE)) {
+                    SetPlayerSpectateRandom();
+                    server_new_buttons &= ~BUTTON_USE;
+                }
+			} else {
+				if ((server_new_buttons & BUTTON_USE)) {
+                    SetPlayerSpectateRandom();
+				}
             }
 
             if ((g_gametype->integer <= GT_FFA) || (!g_forceteamspectate->integer) || (dm_team <= TEAM_FREEFORALL)) {
@@ -4308,28 +4345,28 @@ void Player::Think(void)
                         || ((player->IsSpectator())
                             || (g_gametype->integer > GT_FFA && g_forceteamspectate->integer
                                 && dm_team > TEAM_FREEFORALL && player->GetTeam() != GetTeam()))) {
-                        SetPlayerSpectate();
+                        SetPlayerSpectateRandom();
                     }
                 }
             } else {
                 if (!m_iPlayerSpectating) {
-                    SetPlayerSpectate();
+                    SetPlayerSpectateRandom();
                 } else {
                     gentity_t *ent    = g_entities + m_iPlayerSpectating - 1;
                     Player    *player = (Player *)ent->entity;
 
                     if (!ent->inuse) {
-                        SetPlayerSpectate();
+                        SetPlayerSpectateRandom();
                     } else if (!player) {
-                        SetPlayerSpectate();
+                        SetPlayerSpectateRandom();
                     } else if (player->deadflag >= DEAD_DEAD) {
-                        SetPlayerSpectate();
+                        SetPlayerSpectateRandom();
                     } else if (player->IsSpectator()) {
-                        SetPlayerSpectate();
+                        SetPlayerSpectateRandom();
                     } else if (g_gametype->integer > GT_FFA) {
                         if ((dm_team > TEAM_FREEFORALL) && (g_forceteamspectate->integer)
                             && (GetDM_Team()->NumLivePlayers()) && (player->GetTeam() != GetTeam())) {
-                            SetPlayerSpectate();
+                            SetPlayerSpectateRandom();
                         }
                     }
                 }
@@ -5212,7 +5249,44 @@ void Player::GiveAllCheat(Event *ev)
 
 void Player::GiveNewWeaponsCheat(Event* ev)
 {
-    // FIXME: unimplemented
+    char* buffer;
+    char* current;
+    const char* token;
+
+    if (deadflag != DEAD_NO) {
+        return;
+    }
+
+    if (gi.FS_ReadFile("global/givenewweapons.scr",&(void*)buffer, qtrue) != -1) {
+        return;
+    }
+
+    current = buffer;
+    for(;;)
+    {
+        Event* event;
+
+        token = COM_ParseExt(&current, qtrue);
+        if (!token[0]) {
+            break;
+        }
+
+        event = new Event(token);
+
+        for(;;)
+		{
+			token = COM_ParseExt(&current, qfalse);
+			if (!token[0]) {
+				break;
+			}
+
+            event->AddToken(token);
+        }
+
+        ProcessEvent(event);
+    }
+
+    gi.FS_FreeFile(buffer);
 }
 
 void Player::GodCheat(Event *ev)
@@ -5760,81 +5834,20 @@ void Player::SetPlayerView(
             //
             client->ps.camera_flags = client->ps.camera_flags & CF_CAMERA_CUT_BIT;
         } else if (camera->IsSubclassOfPlayer()) {
-            //FIXME: inline func Player::GetSpectateFollowOrientation
-            if (!g_spectatefollow_firstperson->integer) {
-                Vector  forward, right, up;
-                Vector  vAngles, vCamOfs;
-                Vector  start;
-                trace_t trace;
+            Vector vPos, vAng;
+            Player* pPlayer = (Player*)camera;
 
-                // spectating a player
-                Player *m_player = (Player *)camera;
+            GetSpectateFollowOrientation(pPlayer, vPos, vAng);
 
-                vAngles = m_player->GetVAngles();
+            VectorCopy(vPos, client->ps.camera_origin);
+            VectorCopy(vAng, client->ps.camera_angles);
 
-                AngleVectors(vAngles, forward, right, up);
-
-                vCamOfs = m_player->origin;
-                vCamOfs[2] += m_player->viewheight;
-
-                vCamOfs += forward * g_spectatefollow_forward->value;
-                vCamOfs += right * g_spectatefollow_right->value;
-                vCamOfs += up * g_spectatefollow_up->value;
-
-                if (m_player->client->ps.fLeanAngle != 0.0f) {
-                    vCamOfs += client->ps.fLeanAngle * 0.65f * forward;
-                }
-
-                start = m_player->origin;
-                start[2] += m_player->maxs[2] - 2.0;
-
-                Vector vMins = Vector(-2, -2, 2);
-                Vector vMaxs = Vector(2, 2, 2);
-
-                trace = G_Trace(
-                    start, vMins, vMaxs, vCamOfs, m_player, MASK_SHOT, false, "Player::GetSpectateFollowOrientation"
-                );
-
-                vAngles[0] += g_spectatefollow_pitch->value * trace.fraction;
-                VectorCopy(vAngles, client->ps.camera_angles);
-                VectorCopy(trace.endpos, client->ps.camera_origin);
-
-                SetViewAngles(vAngles);
-                setOrigin(trace.endpos);
-
-                VectorClear(client->ps.camera_posofs);
-                client->ps.camera_flags = client->ps.camera_flags & CF_CAMERA_CUT_BIT;
-                client->ps.pm_flags |= PMF_CAMERA_VIEW;
-            } else {
-                Player *m_player = (Player *)camera;
-
-                client->ps.camera_angles[0] = m_player->angles[0];
-                client->ps.camera_angles[1] = m_player->angles[1];
-                client->ps.camera_angles[2] = m_player->angles[2];
-
-                client->ps.camera_origin[0] = m_player->origin[0];
-                client->ps.camera_origin[1] = m_player->origin[1];
-                client->ps.camera_origin[2] = m_player->origin[2];
-
-                SetViewAngles(m_player->GetViewAngles());
-                setOrigin(m_player->origin);
-
-                VectorClear(client->ps.camera_posofs);
-                client->ps.camera_flags = client->ps.camera_flags & CF_CAMERA_CUT_BIT;
-                client->ps.pm_flags |= PMF_CAMERA_VIEW;
-            }
-        } else {
-            client->ps.camera_angles[0] = ang[0];
-            client->ps.camera_angles[1] = ang[1];
-            client->ps.camera_angles[2] = ang[2];
-
-            client->ps.camera_origin[0] = position[0];
-            client->ps.camera_origin[1] = position[1];
-            client->ps.camera_origin[2] = position[2];
+            SetViewAngles(pPlayer->GetViewAngles());
+            setOrigin(pPlayer->origin);
 
             VectorClear(client->ps.camera_posofs);
-            client->ps.camera_flags = client->ps.camera_flags & CF_CAMERA_CUT_BIT;
             client->ps.pm_flags |= PMF_CAMERA_VIEW;
+            client->ps.camera_flags = client->ps.camera_flags & CF_CAMERA_CUT_BIT;
         }
     } else {
         client->ps.pm_flags &= ~PMF_CAMERA_VIEW;
@@ -7932,7 +7945,67 @@ bool Player::QueryLandminesAllowed() const
 
 void Player::EnsurePlayerHasAllowedWeapons()
 {
-    // FIXME: unimplemented
+    int i;
+
+    //if (client != (gclient_t*)-2190)
+    if (!client) {
+        return;
+    }
+
+    if (!client->pers.dm_primary[0]) {
+        return;
+    }
+
+    for (i = 0; i < 7; i++)
+    {
+        if (!Q_stricmp(client->pers.dm_primary, "sniper")) {
+            if (!(dmflags->integer & DF_WEAPON_NO_SNIPER)) {
+                return;
+            }
+
+            strcpy(client->pers.dm_primary, "rifle");
+        } else if (!Q_stricmp(client->pers.dm_primary, "rifle")) {
+            if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+                return;
+            }
+
+            strcpy(client->pers.dm_primary, "smg");
+        } else if (!Q_stricmp(client->pers.dm_primary, "smg")) {
+            if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+                return;
+            }
+
+            strcpy(client->pers.dm_primary, "mg");
+        } else if (!Q_stricmp(client->pers.dm_primary, "mg")) {
+            if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+                return;
+            }
+
+            strcpy(client->pers.dm_primary, "shotgun");
+        } else if (!Q_stricmp(client->pers.dm_primary, "shotgun")) {
+            if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+                return;
+            }
+
+            strcpy(client->pers.dm_primary, "heavy");
+        } else if (!Q_stricmp(client->pers.dm_primary, "heavy")) {
+            if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+                return;
+            }
+
+            strcpy(client->pers.dm_primary, "landmine");
+        } else if (!Q_stricmp(client->pers.dm_primary, "landmine")) {
+            if (QueryLandminesAllowed()) {
+                return;
+            }
+
+            strcpy(client->pers.dm_primary, "sniper");
+        }
+    }
+
+    gi.Cvar_Set("dmflags", va("%i", dmflags->integer & ~DF_WEAPON_NO_RIFLE));
+    Com_Printf("No valid weapons -- re-allowing the rifle\n");
+    strcpy(client->pers.dm_primary, "rifle");
 }
 
 void Player::EquipWeapons()
@@ -7947,19 +8020,18 @@ void Player::Spectator(void)
     }
 
     RemoveFromVehiclesAndTurrets();
+    
 
+    m_bSpectator        = !m_bTempSpectator;
+    m_iPlayerSpectating = 0;
     takedamage          = DAMAGE_NO;
-    m_iPlayerSpectating = 0;
+    deadflag            = DEAD_NO;
     health              = max_health;
-    deadflag            = 0;
 
-    m_bSpectator        = m_bTempSpectator ^ 1;
-    m_iPlayerSpectating = 0;
-
-    client->ps.feetfalling = 0;
+	client->ps.feetfalling = 0;
+	movecontrol = MOVECONTROL_USER;
     client->ps.pm_flags |= PMF_SPECTATING;
 
-    movecontrol = MOVECONTROL_USER;
     EvaluateState(statemap_Torso->FindState("STAND"), statemap_Legs->FindState("STAND"));
 
     setSolidType(SOLID_NOT);
@@ -7969,7 +8041,7 @@ void Player::Spectator(void)
 
     hideModel();
 
-    SetPlayerSpectate();
+    SetPlayerSpectateRandom();
 }
 
 bool Player::IsValidSpectatePlayer(Player *pPlayer)
@@ -7986,48 +8058,155 @@ bool Player::IsValidSpectatePlayer(Player *pPlayer)
     }
 }
 
-void Player::SetPlayerSpectate(void)
+void Player::SetPlayerSpectate(bool bNext)
 {
     int        i;
+    int        dir;
+    int        num;
     gentity_t *ent;
     Player    *pPlayer;
+
+    if (bNext)
+    {
+        dir = 1;
+        num = m_iPlayerSpectating;
+    }
+    else
+    {
+        dir = -1;
+        if (m_iPlayerSpectating) {
+            num = m_iPlayerSpectating - 2;
+        } else {
+            num = game.maxclients - 1;
+        }
+    }
 
     if (m_iPlayerSpectating >= game.maxclients) {
         m_iPlayerSpectating = 0;
     }
 
-    while (1) {
-        for (i = m_iPlayerSpectating, ent = g_entities + i; i < game.maxclients; i++, ent++) {
-            if (!ent->inuse || !ent->entity) {
-                continue;
-            }
+    i = num;
+	while (i < game.maxclients && i >= 0)
+	{
+        ent = &g_entities[i];
+		if (!ent->inuse || !ent->entity) {
+			continue;
+		}
 
-            pPlayer = (Player *)ent->entity;
+		pPlayer = (Player*)ent->entity;
 
-            if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
-                m_iPlayerSpectating = i + 1;
-                client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
-                client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
-                return;
-            }
-        }
+		if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
+			m_iPlayerSpectating = i + 1;
+			client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
+			client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
+			return;
+		}
 
-        if (!m_iPlayerSpectating) {
-            return;
-        }
+		if (!m_iPlayerSpectating) {
+			return;
+		}
 
-        m_iPlayerSpectating = 0;
-    }
+		m_iPlayerSpectating = 0;
+        i += dir;
+	}
+
+	if (m_iPlayerSpectating)
+	{
+		m_iPlayerSpectating = 0;
+		SetPlayerSpectate(bNext);
+	}
 }
 
 void Player::SetPlayerSpectateRandom(void)
 {
-    // FIXME: unimplemented
+    Player* pPlayer;
+    int i;
+    int numvalid;
+    int iRandom;
+
+    numvalid = 0;
+
+    for (i = 0; i < game.maxclients; i++) {
+        gentity_t* ent = &g_entities[i];
+        if (!ent->inuse || !ent->entity) {
+            continue;
+        }
+
+        pPlayer = static_cast<Player*>(ent->entity);
+        if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
+            numvalid++;
+        }
+    }
+
+    if (!numvalid)
+    {
+        // There is no valid player to spectate
+        return;
+    }
+
+    iRandom = (int)(random() * numvalid);
+
+	for (i = 0; i < game.maxclients; i++) {
+		gentity_t* ent = &g_entities[i];
+		if (!ent->inuse || !ent->entity) {
+			continue;
+		}
+
+		pPlayer = static_cast<Player*>(ent->entity);
+		if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
+            if (!iRandom) {
+                m_iPlayerSpectating = i + 1;
+
+				client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
+				client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
+                break;
+            }
+
+            iRandom--;
+		}
+	}
 }
 
 void Player::GetSpectateFollowOrientation(Player* pPlayer, Vector& vPos, Vector& vAng)
 {
-	// FIXME: unimplemented
+	Vector  forward, right, up;
+	Vector  vCamOfs;
+	Vector  start;
+	trace_t trace;
+
+	if (!g_spectatefollow_firstperson->integer) {
+		// spectating a player
+		vAng = pPlayer->GetVAngles();
+
+		AngleVectors(vAng, forward, right, up);
+
+		vCamOfs = pPlayer->origin;
+		vCamOfs[2] += pPlayer->viewheight;
+
+		vCamOfs += forward * g_spectatefollow_forward->value;
+		vCamOfs += right * g_spectatefollow_right->value;
+		vCamOfs += up * g_spectatefollow_up->value;
+
+		if (pPlayer->client->ps.fLeanAngle != 0.0f) {
+			vCamOfs += client->ps.fLeanAngle * 0.65f * forward;
+		}
+
+		start = pPlayer->origin;
+		start[2] += pPlayer->maxs[2] - 2.0;
+
+		Vector vMins = Vector(-2, -2, 2);
+		Vector vMaxs = Vector(2, 2, 2);
+
+		trace = G_Trace(
+			start, vMins, vMaxs, vCamOfs, pPlayer, MASK_SHOT, false, "Player::GetSpectateFollowOrientation"
+		);
+
+        vAng[0] += g_spectatefollow_pitch->value * trace.fraction;
+        vPos = trace.endpos;
+	} else {
+        vAng = pPlayer->angles;
+        vPos = pPlayer->origin;
+	}
 }
 
 void Player::Spectator(Event *ev)
@@ -8422,7 +8601,16 @@ void Player::Vote(Event *ev)
 
 void Player::RetrieveVoteOptions(Event* ev)
 {
-    // FIXME: unimplemented
+    if (m_fNextVoteOptionTime > level.time)
+	{
+		gi.SendServerCommand(edict - g_entities, "vo0 \"\"\n");
+		gi.SendServerCommand(edict - g_entities, "vo2 \"\"\n");
+    }
+    else
+    {
+		m_fNextVoteOptionTime = level.time + 2.0;
+		level.SendVoteOptionsFile(edict);
+    }
 }
 
 void Player::EventPrimaryDMWeapon(Event *ev)
@@ -8564,7 +8752,34 @@ void Player::EventGetInJail(Event* ev)
 
 void Player::GetNationalityPrefix(Event* ev)
 {
-    // FIXME: unimplemented
+    nationality_t nationality;
+
+	if (GetTeam() == TEAM_AXIS) {
+		nationality = GetPlayerTeamType(client->pers.playergermanmodel);
+    } else {
+        nationality = GetPlayerTeamType(client->pers.playermodel);
+    }
+
+    switch (nationality)
+    {
+    case NA_RUSSIAN:
+        ev->AddString("dfrru");
+		break;
+	case NA_ITALIAN:
+		ev->AddString("denit");
+		break;
+	case NA_BRITISH:
+		ev->AddString("dfruk");
+		break;
+	case NA_AMERICAN:
+		ev->AddString("dfr");
+		break;
+
+    case NA_NONE:
+	default:
+		ev->AddString("dfr");
+		break;
+    }
 }
 
 void Player::GetIsDisguised(Event *ev)
@@ -9134,27 +9349,7 @@ void Player::EventGetSecondaryFireHeld(Event* ev)
 void Player::BeginTempSpectator(void)
 {
     m_bTempSpectator = true;
-
-    RemoveFromVehiclesAndTurrets();
-
-    m_iPlayerSpectating = 0;
-
-    takedamage = DAMAGE_NO;
-    health     = max_health;
-    deadflag   = 0;
-
-    client->ps.feetfalling = 0;
-    client->ps.pm_flags |= PMF_SPECTATING;
-
-    EvaluateState(statemap_Torso->FindState("STAND"), statemap_Legs->FindState("STAND"));
-    setSolidType(SOLID_NOT);
-    setMoveType(MOVETYPE_NOCLIP);
-
-    FreeInventory();
-
-    hideModel();
-
-    SetPlayerSpectate();
+    Spectator();
 }
 
 void Player::EndSpectator(void)
