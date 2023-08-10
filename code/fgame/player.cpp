@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_spawn.h"
 #include "g_phys.h"
 #include "entity.h"
+#include "consoleevent.h"
 #include "player.h"
 #include "world.h"
 #include "weapon.h"
@@ -3370,7 +3371,7 @@ void Player::ClientThink(void)
                 || g_medalbt1->modificationCount > 1 || g_medalbt2->modificationCount > 1
                 || g_medalbt3->modificationCount > 1 || g_medalbt4->modificationCount > 1
                 || g_medalbt5->modificationCount > 1
-                || g_eogmedal0->modificationCount > 1 | g_eogmedal1->modificationCount > 1
+                || g_eogmedal0->modificationCount > 1 || g_eogmedal1->modificationCount > 1
                 || g_eogmedal2->modificationCount > 1) {
                 gi.Cvar_Set("g_gotmedal", "0");
             } else {
@@ -4605,18 +4606,28 @@ void Player::GodCheat(Event *ev)
     if (ev->NumArgs() > 0) {
         if (ev->GetInteger(1)) {
             flags |= FL_GODMODE;
+            // Also enable the god mode for the vehicle
+            if (m_pVehicle) m_pVehicle->flags |= FL_GODMODE;
         } else {
-            flags &= ~FL_GODMODE;
+			flags &= ~FL_GODMODE;
+			// Also disable the god mode for the vehicle
+			if (m_pVehicle) m_pVehicle->flags &= ~FL_GODMODE;
         }
     } else {
-        flags ^= FL_GODMODE;
+        if (flags & FL_GODMODE) {
+			flags &= ~FL_GODMODE;
+			if (m_pVehicle) m_pVehicle->flags &= ~FL_GODMODE;
+        } else {
+            flags |= FL_GODMODE;
+            if (m_pVehicle) m_pVehicle->flags |= FL_GODMODE;
+        }
     }
 
-    if (!ev->IsFromScript()) {
+    if (ev->isSubclassOf(ConsoleEvent)) {
         if (!(flags & FL_GODMODE)) {
-            msg = "godmode OFF\n";
+            msg = "CHEAT: godmode OFF\n";
         } else {
-            msg = "godmode ON\n";
+            msg = "CHEAT: godmode ON\n";
         }
 
         gi.SendServerCommand(edict - g_entities, "print \"%s\"", msg);
@@ -8876,8 +8887,8 @@ const char *Player::GetBattleLanguageLocalFolks()
     static char buf[256];
     char       *p;
     char       *curP;
-    int         remaining;
-    int         length;
+    size_t      remaining;
+    size_t      length;
     Player     *pPlayer;
     Player     *pFolk;
     gentity_t  *ent;
