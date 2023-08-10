@@ -6224,7 +6224,7 @@ void Entity::ProcessHint(gentity_t *client, bool bShow)
                         ); //( player->IsTouching( this ) || player->CanSee( this, string->fov, 94 ) == 1 );
 
         if (bShow && can_see && !is_hidden && !player->IsDead() && !player->IsSpectator()) {
-            if (sv_reborn->integer) {
+            if (sv_specialgame->integer) {
                 // FIXME: delete
                 /*
 				gi.MSG_SetClient(client - g_entities);

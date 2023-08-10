@@ -244,8 +244,8 @@ void G_InitGame( int levelTime, int randomSeed )
 
 	// set some level globals
 	level.svsStartTime = levelTime;
-	level.reborn = sv_reborn->integer ? true : false;
-	if( level.reborn )
+	level.specialgame = sv_specialgame->integer ? true : false;
+	if( level.specialgame )
 	{
 		gi.Cvar_Set( "protocol", "9" );
 	}

@@ -1093,7 +1093,7 @@ void Hud::Refresh( int clientNumber )
 		gi.MSG_WriteBits( virtualSize, 1 );
 	gi.MSG_EndCGM();
 
-	if( sv_reborn->integer )
+	if( sv_specialgame->integer )
 	{
 		if( isDimensional )
 		{
@@ -1232,7 +1232,7 @@ void Hud::SetBroadcast( int clientNumber )
 
 void Hud::WriteNumber()
 {
-	if( sv_reborn->integer ) {
+	if(sv_specialgame->integer ) {
 		gi.MSG_WriteShort( number );
 	} else {
 		gi.MSG_WriteByte( number );

@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "gamecvars.h"
 
 cvar_t *developer;
-cvar_t *sv_reborn;
+cvar_t *sv_specialgame;
 
 cvar_t *deathmatch;
 cvar_t *dmflags;
@@ -35,10 +35,9 @@ cvar_t *fraglimit;
 cvar_t *timelimit;
 cvar_t *roundlimit;
 cvar_t *g_allowjointime;
-cvar_t *g_teamswitchdelay;
-
 cvar_t *password;
 cvar_t *sv_privatePassword;
+
 cvar_t *filterban;
 
 cvar_t *flood_msgs;
@@ -46,9 +45,7 @@ cvar_t *flood_persecond;
 cvar_t *flood_waitdelay;
 
 cvar_t *maxclients;
-cvar_t *maxbots;
 cvar_t *maxentities;
-cvar_t *nomonsters;
 cvar_t *precache;
 cvar_t *dedicated;
 cvar_t *detail;
@@ -62,6 +59,7 @@ cvar_t *sv_rollspeed;
 cvar_t *sv_rollangle;
 cvar_t *sv_cheats;
 cvar_t *sv_showbboxes;
+cvar_t *sv_showbtags;
 
 cvar_t *sv_testloc_num;
 cvar_t *sv_testloc_secondary;
@@ -87,7 +85,7 @@ cvar_t *sv_cinematic;
 cvar_t *sv_maplist;
 cvar_t *sv_nextmap;
 cvar_t *sv_runspeed;
-cvar_t *sv_walkspeed;
+cvar_t *sv_walkspeedmult;
 cvar_t *sv_dmspeedmult;
 cvar_t *sv_crouchspeedmult;
 
@@ -101,6 +99,7 @@ cvar_t *sv_team_spawn_interval;
 
 cvar_t *g_showmem;
 cvar_t *g_timeents;
+cvar_t *g_timescripts;
 
 cvar_t *g_showaxis;
 cvar_t *g_showplayerstate;
@@ -141,7 +140,8 @@ cvar_t *g_gametype;
 cvar_t *g_gametypestring;
 cvar_t *g_realismmode;
 cvar_t *g_teamdamage;
-cvar_t *g_rankedserver;
+cvar_t *g_healthdrop;
+cvar_t *g_healrate;
 
 cvar_t *g_allowvote;
 cvar_t *g_monitor;
@@ -173,6 +173,10 @@ cvar_t *pmove_msec;
 
 cvar_t *g_inactivespectate;
 cvar_t *g_inactivekick;
+
+cvar_t *g_teamkillwarn;
+cvar_t *g_teamkillkick;
+cvar_t *g_teamswitchdelay;
 
 cvar_t *g_viewkick_pitch;
 cvar_t *g_viewkick_yaw;
@@ -221,7 +225,7 @@ cvar_t *g_m6l2;
 cvar_t *g_m6l3;
 cvar_t *g_t2l1;
 cvar_t *g_t3l1;
-cvar_t* g_mission;
+cvar_t *g_mission;
 cvar_t *g_lastsave;
 
 cvar_t *g_forceteamspectate;
@@ -256,12 +260,15 @@ cvar_t *g_aistats;
 
 cvar_t *sv_scriptfiles;
 
+cvar_t *nomonsters;
+cvar_t *maxbots;
+cvar_t *g_rankedserver;
 cvar_t *g_spectatefollow_firstperson;
 
 void CVAR_Init(void)
 {
-    developer = gi.Cvar_Get("developer", "0", 0);
-    sv_reborn = gi.Cvar_Get("sv_reborn", "0", CVAR_LATCH | CVAR_SERVERINFO);
+    developer      = gi.Cvar_Get("developer", "0", 0);
+    sv_specialgame = gi.Cvar_Get("sv_specialgame", "0", CVAR_LATCH | CVAR_SERVERINFO);
 
     precache = gi.Cvar_Get("sv_precache", "1", 0);
 
@@ -270,7 +277,6 @@ void CVAR_Init(void)
     skill      = gi.Cvar_Get("skill", "1", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
 
     maxclients  = gi.Cvar_Get("sv_maxclients", "1", 0);
-    maxbots     = gi.Cvar_Get("sv_maxbots", "2", 0);
     maxentities = gi.Cvar_Get("maxentities", "1024", CVAR_LATCH);
 
     password           = gi.Cvar_Get("password", "", CVAR_USERINFO);
@@ -283,8 +289,6 @@ void CVAR_Init(void)
     roundlimit        = gi.Cvar_Get("roundlimit", "0", CVAR_SERVERINFO);
     g_allowjointime   = gi.Cvar_Get("g_allowjointime", "30", CVAR_SERVERINFO);
     g_teamswitchdelay = gi.Cvar_Get("g_teamswitchdelay", "15", 0);
-
-    nomonsters = gi.Cvar_Get("nomonsters", "0", CVAR_SERVERINFO);
 
     flood_msgs      = gi.Cvar_Get("flood_msgs", "4", 0);
     flood_persecond = gi.Cvar_Get("flood_persecond", "4", 0);
@@ -303,6 +307,7 @@ void CVAR_Init(void)
     sv_traceinfo  = gi.Cvar_Get("sv_traceinfo", "0", 0);
     sv_drawtrace  = gi.Cvar_Get("sv_drawtrace", "0", 0);
     sv_showbboxes = gi.Cvar_Get("sv_showbboxes", "0", 0);
+    sv_showbtags  = gi.Cvar_Get("sv_showtags", "0", 0);
 
     sv_testloc_num       = gi.Cvar_Get("sv_testloc_num", "0", 0);
     sv_testloc_secondary = gi.Cvar_Get("sv_testloc_secondary", "0", 0);
@@ -331,7 +336,7 @@ void CVAR_Init(void)
     sv_nextmap = gi.Cvar_Get("nextmap", "", 0);
 
     sv_runspeed        = gi.Cvar_Get("sv_runspeed", "250", CVAR_SERVERINFO);
-    sv_walkspeed       = gi.Cvar_Get("sv_walkspeed", "150", CVAR_SERVERINFO);
+    sv_walkspeedmult   = gi.Cvar_Get("sv_walkspeedmult", "150", CVAR_SERVERINFO);
     sv_dmspeedmult     = gi.Cvar_Get("sv_dmspeedmult", "1.1", CVAR_SERVERINFO);
     sv_crouchspeedmult = gi.Cvar_Get("sv_crouchspeedmult", "0.6", CVAR_SERVERINFO);
 
@@ -411,11 +416,13 @@ void CVAR_Init(void)
         gi.Cvar_Set("g_realismmode", "0");
     }
 
-    g_rankedserver = gi.Cvar_Get("g_rankedserver", "0", 0);
-    g_teamdamage   = gi.Cvar_Get("g_teamdamage", "0", 0);
-    g_allowvote    = gi.Cvar_Get("g_allowvote", "1", 0);
-    g_warmup       = gi.Cvar_Get("g_warmup", "20", CVAR_ARCHIVE);
-    g_doWarmup     = gi.Cvar_Get("g_doWarmup", "1", 0);
+    g_teamdamage         = gi.Cvar_Get("g_teamdamage", "0", 0);
+    g_healthdrop         = gi.Cvar_Get("g_healthdrop", "1", 0);
+    g_healrate           = gi.Cvar_Get("g_healrate", "10", 0);
+    g_allowvote          = gi.Cvar_Get("g_allowvote", "1", 0);
+    g_maprotation_filter = gi.Cvar_Get("g_maprotation_filter", "ffa", 0);
+    g_warmup             = gi.Cvar_Get("g_warmup", "20", CVAR_ARCHIVE);
+    g_doWarmup           = gi.Cvar_Get("g_doWarmup", "1", 0);
 
     g_forceready      = gi.Cvar_Get("g_forceready", "1", CVAR_ARCHIVE | CVAR_SERVERINFO);
     g_forcerespawn    = gi.Cvar_Get("g_forcerespawn", "0", CVAR_ARCHIVE | CVAR_SERVERINFO);
@@ -427,10 +434,16 @@ void CVAR_Init(void)
 
     g_inactivespectate = gi.Cvar_Get("g_inactiveSpectate", "60", CVAR_ARCHIVE);
     g_inactivekick     = gi.Cvar_Get("g_inactivekick", "900", CVAR_ARCHIVE);
+    g_teamkillwarn     = gi.Cvar_Get("g_teamkillwarn", "3", CVAR_ARCHIVE);
+    g_teamkillkick     = gi.Cvar_Get("g_teamkillkick", "5", CVAR_ARCHIVE);
+    g_teamswitchdelay  = gi.Cvar_Get("g_teamswitchdelay", "15", CVAR_ARCHIVE);
+    if (developer->integer) {
+        g_shownpc = gi.Cvar_Get("g_shownpc", "1", 0);
+    } else {
+        g_shownpc = gi.Cvar_Get("g_shownpc", "0", 0);
+    }
 
     s_debugmusic = gi.Cvar_Get("s_debugmusic", "0", 0);
-
-    sv_scriptfiles = gi.Cvar_Get("sv_scriptfiles", "0", 0);
 
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
         gi.Cvar_Set("deathmatch", "0");
@@ -568,5 +581,9 @@ void CVAR_Init(void)
     g_rifles_for_sweepers     = gi.Cvar_Get("g_rifles_for_sweepers", "0", 0);
     g_no_seasick              = gi.Cvar_Get("g_no_seasick", "0", 0);
 
+    sv_scriptfiles               = gi.Cvar_Get("sv_scriptfiles", "0", 0);
+    maxbots                      = gi.Cvar_Get("sv_maxbots", "2", 0);
+    nomonsters                   = gi.Cvar_Get("nomonsters", "0", CVAR_SERVERINFO);
+    g_rankedserver               = gi.Cvar_Get("g_rankedserver", "0", 0);
     g_spectatefollow_firstperson = gi.Cvar_Get("g_spectatefollow_firstperson", "0", 0);
 }

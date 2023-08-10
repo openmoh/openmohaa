@@ -930,7 +930,7 @@ void Item::EventViewModelPrefix(Event *ev)
 
 void Item::updatePrefix(Event *ev)
 {
-    if (!level.reborn) {
+    if (!level.specialgame) {
         return;
     }
 

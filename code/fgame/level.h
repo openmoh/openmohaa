@@ -286,7 +286,7 @@ public:
     // New Stuff
 
     // don't put in the game class because it can be changed in another level
-    qboolean reborn;
+    qboolean specialgame;
 
     bool m_bSpawnBot;
 
@@ -408,14 +408,7 @@ public:
     void AddEarthquake(earthquake_t *);
     void DoEarthquakes(void);
 
-    qboolean Reborn(void);
-
     void Archive(Archiver& arc) override;
 };
 
 extern Level level;
-
-inline qboolean Level::Reborn(void)
-{
-    return reborn;
-}

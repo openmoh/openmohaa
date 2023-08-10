@@ -31,7 +31,7 @@ extern "C" {
 #endif
 
 extern cvar_t *developer;
-extern cvar_t *sv_reborn;
+extern cvar_t *sv_specialgame;
 
 extern cvar_t *deathmatch;
 extern cvar_t *dmflags;
@@ -40,10 +40,9 @@ extern cvar_t *fraglimit;
 extern cvar_t *timelimit;
 extern cvar_t *roundlimit;
 extern cvar_t *g_allowjointime;
-extern cvar_t *g_teamswitchdelay;
-
 extern cvar_t *password;
 extern cvar_t *sv_privatePassword;
+
 extern cvar_t *filterban;
 
 extern cvar_t *flood_msgs;
@@ -51,9 +50,7 @@ extern cvar_t *flood_persecond;
 extern cvar_t *flood_waitdelay;
 
 extern cvar_t *maxclients;
-extern cvar_t *maxbots;
 extern cvar_t *maxentities;
-extern cvar_t *nomonsters;
 extern cvar_t *precache;
 extern cvar_t *dedicated;
 extern cvar_t *detail;
@@ -67,6 +64,7 @@ extern cvar_t *sv_rollspeed;
 extern cvar_t *sv_rollangle;
 extern cvar_t *sv_cheats;
 extern cvar_t *sv_showbboxes;
+extern cvar_t *sv_showbtags;
 
 extern cvar_t *sv_testloc_num;
 extern cvar_t *sv_testloc_secondary;
@@ -92,12 +90,10 @@ extern cvar_t *sv_cinematic;
 extern cvar_t *sv_maplist;
 extern cvar_t *sv_nextmap;
 extern cvar_t *sv_runspeed;
-extern cvar_t *sv_walkspeed;
+extern cvar_t *sv_walkspeedmult;
 extern cvar_t *sv_dmspeedmult;
 extern cvar_t *sv_crouchspeedmult;
 
-//====
-// Added in 2.0
 extern cvar_t *sv_sprinttime;
 extern cvar_t *sv_sprintmult;
 extern cvar_t *sv_sprinttime_dm;
@@ -105,10 +101,10 @@ extern cvar_t *sv_sprintmult_dm;
 extern cvar_t *sv_sprinton;
 extern cvar_t *sv_invulnerabletime;
 extern cvar_t *sv_team_spawn_interval;
-//
 
 extern cvar_t *g_showmem;
 extern cvar_t *g_timeents;
+extern cvar_t *g_timescripts;
 
 extern cvar_t *g_showaxis;
 extern cvar_t *g_showplayerstate;
@@ -148,8 +144,9 @@ extern cvar_t *g_vehicle;
 extern cvar_t *g_gametype;
 extern cvar_t *g_gametypestring;
 extern cvar_t *g_realismmode;
-extern cvar_t *g_rankedserver;
 extern cvar_t *g_teamdamage;
+extern cvar_t *g_healthdrop;
+extern cvar_t *g_healrate;
 
 extern cvar_t *g_allowvote;
 extern cvar_t *g_monitor;
@@ -182,6 +179,10 @@ extern cvar_t *pmove_msec;
 extern cvar_t *g_inactivespectate;
 extern cvar_t *g_inactivekick;
 
+extern cvar_t *g_teamkillwarn;
+extern cvar_t *g_teamkillkick;
+extern cvar_t *g_teamswitchdelay;
+
 extern cvar_t *g_viewkick_pitch;
 extern cvar_t *g_viewkick_yaw;
 extern cvar_t *g_viewkick_roll;
@@ -200,6 +201,12 @@ extern cvar_t *g_medal2;
 extern cvar_t *g_medal3;
 extern cvar_t *g_medal4;
 extern cvar_t *g_medal5;
+extern cvar_t *g_medalbt0;
+extern cvar_t *g_medalbt1;
+extern cvar_t *g_medalbt2;
+extern cvar_t *g_medalbt3;
+extern cvar_t *g_medalbt4;
+extern cvar_t *g_medalbt5;
 extern cvar_t *g_eogmedal0;
 extern cvar_t *g_eogmedal1;
 extern cvar_t *g_eogmedal2;
@@ -220,10 +227,10 @@ extern cvar_t *g_m5l2;
 extern cvar_t *g_m5l3;
 extern cvar_t *g_m6l1;
 extern cvar_t *g_m6l2;
-extern cvar_t* g_m6l3;
-extern cvar_t* g_t2l1;
-extern cvar_t* g_t3l1;
-extern cvar_t* g_mission;
+extern cvar_t *g_m6l3;
+extern cvar_t *g_t2l1;
+extern cvar_t *g_t3l1;
+extern cvar_t *g_mission;
 extern cvar_t *g_lastsave;
 
 extern cvar_t *g_forceteamspectate;
@@ -258,6 +265,9 @@ extern cvar_t *g_aistats;
 
 extern cvar_t *sv_scriptfiles;
 
+extern cvar_t *nomonsters;
+extern cvar_t *maxbots;
+extern cvar_t *g_rankedserver;
 extern cvar_t *g_spectatefollow_firstperson;
 
 void CVAR_Init(void);
