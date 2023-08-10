@@ -48,7 +48,7 @@ void G_WriteClientSessionData( gclient_t *client )
 	gi.Cvar_Set( va( "session%i", ( int )( client - game.clients ) ),
 		va( "%s %i %i", client->pers.dm_primary[ 0 ] ? client->pers.dm_primary : "-",
 		client->pers.team,
-		client->pers.kills ) );
+		client->pers.round_kills) );
 }
 
 /*
@@ -68,7 +68,7 @@ void G_ReadSessionData( gclient_t *client )
 
 	session = gi.Cvar_Get(va("session%zi", client - game.clients), "", 0);
 	
-	sscanf( session->string, "%s %i %i", client->pers.dm_primary, &client->pers.team, &client->pers.kills );
+	sscanf( session->string, "%s %i %i", client->pers.dm_primary, &client->pers.team, &client->pers.round_kills);
 	if( client->pers.dm_primary[ 0 ] == '-' )
 	{
 		client->pers.dm_primary[ 0 ] = 0;

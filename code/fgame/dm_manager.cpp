@@ -1371,8 +1371,8 @@ void DM_Manager::EventFinishRoundTransition(Event *ev)
             continue;
         }
 
-        Player *p             = (Player *)ent->entity;
-        p->client->pers.kills = p->GetNumDeaths();
+        Player *p                   = (Player *)ent->entity;
+        p->client->pers.round_kills = p->GetNumDeaths();
     }
 
     if (g_gametype->integer == GT_TOW) {

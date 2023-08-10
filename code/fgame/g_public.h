@@ -120,18 +120,18 @@ typedef struct {
 typedef struct {
 	char			userinfo[ MAX_INFO_STRING ];
 	char			netname[ MAX_NAME_LENGTH ];
-	char			playermodel[ MAX_QPATH ];
-	char			playergermanmodel[ MAX_QPATH ];
+	char			dm_playermodel[ MAX_QPATH ];
+	char			dm_playergermanmodel[ MAX_QPATH ];
 	char			dm_primary[ MAX_QPATH ];
 
 	float			enterTime;
 
 	teamtype_t		team;
-	int				kills;
+	int				round_kills;
 
 	char			ip[ 17 ];
 	int				port;
-} clientPersistant_t;
+} client_persistant_t;
 
 
 // this structure is cleared on each ClientSpawn(),
@@ -143,7 +143,7 @@ struct gclient_s {
 #ifdef GAME_DLL
 	// the rest of the structure is private to game
 	int						ping;
-	clientPersistant_t		pers;
+	client_persistant_t		pers;
 	float					cmd_angles[ 3 ];
 
 	int						lastActiveTime;

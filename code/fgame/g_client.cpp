@@ -772,7 +772,7 @@ void G_ClientUserinfoChanged( gentity_t *ent, const char *u ) {
 		return;
 	}
 
-	Q_strncpyz( client->pers.playermodel, s, sizeof( client->pers.playermodel ) );
+	Q_strncpyz( client->pers.dm_playermodel, s, sizeof( client->pers.dm_playermodel ) );
 
 	s = Info_ValueForKey( u, "dm_playergermanmodel" );
 
@@ -782,7 +782,7 @@ void G_ClientUserinfoChanged( gentity_t *ent, const char *u ) {
 		return;
 	}
 
-	Q_strncpyz( client->pers.playergermanmodel, s, sizeof( client->pers.playergermanmodel ) );
+	Q_strncpyz( client->pers.dm_playergermanmodel, s, sizeof( client->pers.dm_playergermanmodel ) );
 
 	gi.SetConfigstring( CS_PLAYERS + clientnum, va( "name\\%s", client->pers.netname ) );
 

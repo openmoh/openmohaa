@@ -2221,7 +2221,7 @@ void Player::InitSound(void)
 
 void Player::InitClient(void)
 {
-    clientPersistant_t saved;
+    client_persistant_t saved;
 
     // deathmatch wipes most client data every spawn
     if (g_gametype->integer) {
@@ -2229,7 +2229,7 @@ void Player::InitClient(void)
         char       dm_primary[MAX_QPATH];
         float      enterTime   = client->pers.enterTime;
         teamtype_t team        = client->pers.team;
-        int        round_kills = client->pers.kills;
+        int        round_kills = client->pers.round_kills;
 
         memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
         memcpy(dm_primary, client->pers.dm_primary, sizeof(dm_primary));
@@ -2237,9 +2237,9 @@ void Player::InitClient(void)
         G_ClientUserinfoChanged(edict, userinfo);
 
         memcpy(client->pers.dm_primary, dm_primary, sizeof(client->pers.dm_primary));
-        client->pers.enterTime = enterTime;
-        client->pers.team      = team;
-        client->pers.kills     = round_kills;
+        client->pers.enterTime   = enterTime;
+        client->pers.team        = team;
+        client->pers.round_kills = round_kills;
     }
 
     // clear everything but the persistant data and fov
@@ -2298,16 +2298,16 @@ void Player::InitModel(void)
     if (!g_gametype->integer) {
         setModel("models/player/" + str(g_playermodel->string) + ".tik");
     } else if (dm_team != TEAM_AXIS) {
-        if (Q_stricmpn(client->pers.playermodel, "american", 8) && Q_stricmpn(client->pers.playermodel, "allied", 6)) {
+        if (Q_stricmpn(client->pers.dm_playermodel, "american", 8) && Q_stricmpn(client->pers.dm_playermodel, "allied", 6)) {
             setModel("models/player/american_army.tik");
         } else {
-            setModel("models/player/" + str(client->pers.playermodel) + ".tik");
+            setModel("models/player/" + str(client->pers.dm_playermodel) + ".tik");
         }
     } else {
-        if (Q_stricmpn(client->pers.playermodel, "german", 6) && Q_stricmpn(client->pers.playermodel, "axis", 4)) {
+        if (Q_stricmpn(client->pers.dm_playermodel, "german", 6) && Q_stricmpn(client->pers.dm_playermodel, "axis", 4)) {
             setModel("models/player/german_wehrmacht_soldier.tik");
         } else {
-            setModel("models/player/" + str(client->pers.playergermanmodel) + ".tik");
+            setModel("models/player/" + str(client->pers.dm_playergermanmodel) + ".tik");
         }
     }
 
@@ -7798,9 +7798,9 @@ void Player::InitDeathmatch(void)
     }
 
     if (g_gametype->integer >= GT_TEAM_ROUNDS) {
-        if (client->pers.kills) {
-            num_deaths         = client->pers.kills;
-            client->pers.kills = 0;
+        if (client->pers.round_kills) {
+            num_deaths               = client->pers.round_kills;
+            client->pers.round_kills = 0;
         }
     }
 
@@ -8755,9 +8755,9 @@ void Player::GetNationalityPrefix(Event* ev)
     nationality_t nationality;
 
 	if (GetTeam() == TEAM_AXIS) {
-		nationality = GetPlayerTeamType(client->pers.playergermanmodel);
+		nationality = GetPlayerTeamType(client->pers.dm_playergermanmodel);
     } else {
-        nationality = GetPlayerTeamType(client->pers.playermodel);
+        nationality = GetPlayerTeamType(client->pers.dm_playermodel);
     }
 
     switch (nationality)
