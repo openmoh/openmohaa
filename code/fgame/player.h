@@ -85,8 +85,8 @@ typedef enum {
     PVT_ALLIED_RANGER,
     PVT_ALLIED_END,
     PVT_AXIS_START,
-	PVT_AXIS_AXIS1,
-	PVT_AXIS_ITALIAN = PVT_AXIS_AXIS1,
+    PVT_AXIS_AXIS1,
+    PVT_AXIS_ITALIAN = PVT_AXIS_AXIS1,
     PVT_AXIS_AXIS2,
     PVT_AXIS_AXIS3,
     PVT_AXIS_AXIS4,
@@ -518,8 +518,8 @@ public:
     void InitInventory(void);
     void InitDeathmatch(void);
     void InitStats(void);
-	//=======
-	// Added in 2.30
+    //=======
+    // Added in 2.30
     bool QueryLandminesAllowed() const;
     void EnsurePlayerHasAllowedWeapons();
     void EquipWeapons();
@@ -546,12 +546,12 @@ public:
     void TweakLadderPos(Event *ev);
     void EnsureOverLadder(Event *ev);
     void EnsureForwardOffLadder(Event *ev);
-	void TouchStuff(pmove_t* pm);
+    void TouchStuff(pmove_t *pm);
 
     //====
     // Added in 2.30
-	void EventForceLandmineMeasure(Event* ev);
-	str  GetCurrentDMWeaponType() const;
+    void EventForceLandmineMeasure(Event *ev);
+    str  GetCurrentDMWeaponType() const;
     //====
 
     void     GetMoveInfo(pmove_t *pm);
@@ -602,7 +602,7 @@ public:
     void GiveCheat(Event *ev);
     void GiveWeaponCheat(Event *ev);
     void GiveAllCheat(Event *ev);
-    void GiveNewWeaponsCheat(Event* ev); // Added in 2.0
+    void GiveNewWeaponsCheat(Event *ev); // Added in 2.0
     void GodCheat(Event *ev);
     void FullHeal(Event *ev);
     void NoTargetCheat(Event *ev);
@@ -731,7 +731,7 @@ public:
     void Holster(Event *ev);
     void HolsterToggle(Event *ev);
 
-	void            RemoveFromVehiclesAndTurretsInternal(void); // Added in 2.30
+    void            RemoveFromVehiclesAndTurretsInternal(void); // Added in 2.30
     void            RemoveFromVehiclesAndTurrets(void);
     void            WatchActor(Event *ev);
     void            StopWatchingActor(Event *ev);
@@ -748,36 +748,36 @@ public:
     void RemovedItem(Item *item) override;
     void AmmoAmountChanged(Ammo *ammo, int inclip = 0) override;
 
-    void       WaitForState(Event *ev);
-    void       SkipCinematic(Event *ev);
-    void       SetDamageMultiplier(Event *ev);
-    void       LogStats(Event *ev);
-    void       Loaded(void);
-    void       PlayerShowModel(Event *ev);
-    void       showModel(void) override;
-    void       ResetHaveItem(Event *ev);
-	void       ModifyHeight(Event* ev);
-	void       ModifyHeightFloat(Event* ev); // Added in mohaab 2.40
-    void       SetMovePosFlags(Event *ev);
-    void       GetPositionForScript(Event *ev);
-    void       GetMovementForScript(Event *ev);
-    void       EventStuffText(Event *ev);
-    void       EventSetVoiceType(Event *ev);
-    void       GetTeamDialogPrefix(str& outPrefix);
-    void       PlayInstantMessageSound(const char* name);
-    void       EventDMMessage(Event *ev);
+    void WaitForState(Event *ev);
+    void SkipCinematic(Event *ev);
+    void SetDamageMultiplier(Event *ev);
+    void LogStats(Event *ev);
+    void Loaded(void);
+    void PlayerShowModel(Event *ev);
+    void showModel(void) override;
+    void ResetHaveItem(Event *ev);
+    void ModifyHeight(Event *ev);
+    void ModifyHeightFloat(Event *ev); // Added in mohaab 2.40
+    void SetMovePosFlags(Event *ev);
+    void GetPositionForScript(Event *ev);
+    void GetMovementForScript(Event *ev);
+    void EventStuffText(Event *ev);
+    void EventSetVoiceType(Event *ev);
+    void GetTeamDialogPrefix(str& outPrefix);
+    void PlayInstantMessageSound(const char *name);
+    void EventDMMessage(Event *ev);
     //====
     // Added in 2.30
-    const char* GetBattleLanguageCondition() const;
-    const char* GetBattleLanguageDirection() const;
-    const char* GetBattleLanguageLocation() const;
-    const char* GetBattleLanguageLocalFolks();
-    const char* GetBattleLanguageWeapon() const;
-    const char* GetBattleLanguageDistance() const;
-    const char* GetBattleLanguageDistanceMeters(float dist) const;
-    const char* GetBattleLanguageDistanceFeet(float dist) const;
-    const char* GetBattleLanguageTarget() const;
-    const char* TranslateBattleLanguageTokens(const char* string);
+    const char *GetBattleLanguageCondition() const;
+    const char *GetBattleLanguageDirection() const;
+    const char *GetBattleLanguageLocation() const;
+    const char *GetBattleLanguageLocalFolks();
+    const char *GetBattleLanguageWeapon() const;
+    const char *GetBattleLanguageDistance() const;
+    const char *GetBattleLanguageDistanceMeters(float dist) const;
+    const char *GetBattleLanguageDistanceFeet(float dist) const;
+    const char *GetBattleLanguageTarget() const;
+    const char *TranslateBattleLanguageTokens(const char *string);
     //====
     void       EventIPrint(Event *ev);
     void       EventGetUseHeld(Event *ev);
@@ -798,7 +798,7 @@ public:
     void       SetPlayerSpectate(bool bNext);
     void       SetPlayerSpectateRandom(void); // Added in 2.0
     bool       IsValidSpectatePlayer(Player *pPlayer);
-    void       GetSpectateFollowOrientation(Player *pPlayer, Vector &vPos, Vector &vAng);
+    void       GetSpectateFollowOrientation(Player *pPlayer, Vector      &vPos, Vector      &vAng);
     void       UpdateStatus(const char *s);
     void       SetDM_Team(DM_Team *team);
     DM_Team   *GetDM_Team();
@@ -826,14 +826,14 @@ public:
     int  GetMatchesWon() const;
     int  GetMatchesLost() const;
 
-	//====
-	// Added in 2.30
-	void GetIsSpectator(Event* ev);
-	void EventSetInJail(Event* ev);
-	bool IsInJail() const;
-	void EventGetInJail(Event* ev);
-	void GetNationalityPrefix(Event* ev);
-	//====
+    //====
+    // Added in 2.30
+    void GetIsSpectator(Event *ev);
+    void EventSetInJail(Event *ev);
+    bool IsInJail() const;
+    void EventGetInJail(Event *ev);
+    void GetNationalityPrefix(Event *ev);
+    //====
     void GetIsDisguised(Event *ev);
     void GetHasDisguise(Event *ev);
     void SetHasDisguise(Event *ev);
@@ -848,11 +848,11 @@ public:
 
     PlayerStart *GetLastSpawnpoint() const { return m_pLastSpawnpoint; }
 
-	void Stats(Event* ev);
-	void ArmWithWeapons(Event *ev); // Added in 2.30
-	void EventGetCurrentDMWeaponType(Event *ev); // Added in 2.30
+    void Stats(Event *ev);
+    void ArmWithWeapons(Event *ev);              // Added in 2.30
+    void EventGetCurrentDMWeaponType(Event *ev); // Added in 2.30
     void PhysicsOn(Event *ev);
-	void PhysicsOff(Event* ev);
+    void PhysicsOff(Event *ev);
 
     void Think() override;
     bool IsReady(void) const;
@@ -868,34 +868,34 @@ public:
 
     bool BlocksAIMovement();
 
-	//====
-	// Added in 2.0
-    void TickSprint();
-	float GetRunSpeed() const;
-	void FireWeapon(int number, firemode_t mode) override;
-    void SetInvulnerable();
-    void TickInvulnerable();
-    void SetVulnerable();
-    bool IsInvulnerable();
-    void CancelInvulnerable();
-    void InitInvulnerable();
-    void TickTeamSpawn();
-    bool ShouldForceSpectatorOnDeath() const;
-    bool HasVehicle();
-    void setContentsSolid() override;
-    void UserSelectWeapon(bool bWait);
-    void PickWeaponEvent(Event* ev);
-	bool AllowTeamRespawn() const;
-	void EventUseWeaponClass(Event* ev);
-	void EventAddKills(Event* ev);
-    bool CanKnockback(float minHealth) const;
+    //====
+    // Added in 2.0
+    void  TickSprint();
+    float GetRunSpeed() const;
+    void  FireWeapon(int number, firemode_t mode) override;
+    void  SetInvulnerable();
+    void  TickInvulnerable();
+    void  SetVulnerable();
+    bool  IsInvulnerable();
+    void  CancelInvulnerable();
+    void  InitInvulnerable();
+    void  TickTeamSpawn();
+    bool  ShouldForceSpectatorOnDeath() const;
+    bool  HasVehicle();
+    void  setContentsSolid() override;
+    void  UserSelectWeapon(bool bWait);
+    void  PickWeaponEvent(Event *ev);
+    bool  AllowTeamRespawn() const;
+    void  EventUseWeaponClass(Event *ev);
+    void  EventAddKills(Event *ev);
+    bool  CanKnockback(float minHealth) const;
     //====
 
     //====
     // Added in 2.30
-    void EventKillAxis(Event* ev);
-    void EventGetTurret(Event* ev);
-    void EventGetVehicle(Event* ev);
+    void EventKillAxis(Event *ev);
+    void EventGetTurret(Event *ev);
+    void EventGetVehicle(Event *ev);
     //====
 
     void FindAlias(str& output, str name, AliasListNode_t **node);

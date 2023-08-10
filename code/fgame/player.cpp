@@ -57,152 +57,33 @@ const Vector bcolor(1.0, 0.0, 0.0);
 
 qboolean TryPush(int entnum, vec3_t move_origin, vec3_t move_end);
 
-Event EV_Player_DumpState
-(
-    "state",
-    EV_CHEAT,
-    NULL,
-    NULL,
-    "Dumps the player's state to the console.",
-    EV_NORMAL
+Event EV_Player_DumpState("state", EV_CHEAT, NULL, NULL, "Dumps the player's state to the console.", EV_NORMAL);
+Event EV_Player_ForceTorsoState(
+    "forcetorsostate", EV_DEFAULT, "s", "torsostate", "Force the player's torso to a certain state", EV_NORMAL
 );
-Event EV_Player_ForceTorsoState
-(
-    "forcetorsostate",
-    EV_DEFAULT,
-    "s",
-    "torsostate",
-    "Force the player's torso to a certain state",
-    EV_NORMAL
+Event EV_Player_ForceLegsState(
+    "forcelegsstate", EV_DEFAULT, "s", "legsstate", "Force the player's legs to a certain state", EV_NORMAL
 );
-Event EV_Player_ForceLegsState
-(
-    "forcelegsstate",
-    EV_DEFAULT,
-    "s",
-    "legsstate",
-    "Force the player's legs to a certain state",
-    EV_NORMAL
+Event EV_Player_GiveAllCheat("wuss", EV_CONSOLE | EV_CHEAT, NULL, NULL, "Gives player all weapons.", EV_NORMAL);
+Event EV_Player_GiveNewWeaponsCheat(
+    "giveweapon", EV_CONSOLE | EV_CHEAT, "s", "weapon_name", "Gives player all weapons.", EV_NORMAL
 );
-Event EV_Player_GiveAllCheat
-(
-    "wuss",
-    EV_CONSOLE | EV_CHEAT,
-    NULL,
-    NULL,
-    "Gives player all weapons.",
-    EV_NORMAL
+Event EV_Player_EndLevel(
+    "endlevel", EV_DEFAULT, NULL, NULL, "Called when the player gets to the end of the level.", EV_NORMAL
 );
-Event EV_Player_GiveNewWeaponsCheat
-(
-    "giveweapon",
-    EV_CONSOLE | EV_CHEAT,
-    "s",
-    "weapon_name",
-    "Gives player all weapons.",
-    EV_NORMAL
+Event EV_Player_DevGodCheat(
+    "dog", EV_CHEAT | EV_CONSOLE, "I", "god_mode", "Sets the god mode cheat or toggles it.", EV_NORMAL
 );
-Event EV_Player_EndLevel
-(
-    "endlevel",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Called when the player gets to the end of the level.",
-    EV_NORMAL
-);
-Event EV_Player_DevGodCheat
-(
-    "dog",
-    EV_CHEAT | EV_CONSOLE,
-    "I",
-    "god_mode",
-    "Sets the god mode cheat or toggles it.",
-    EV_NORMAL
-);
-Event EV_Player_FullHeal
-(
-    "fullheal",
-    EV_CHEAT | EV_CONSOLE,
-    NULL,
-    NULL,
-    "Heals player.",
-    EV_NORMAL
-);
-Event EV_Player_DevNoTargetCheat
-(
-    "notarget",
-    EV_CHEAT,
-    NULL,
-    NULL,
-    "Toggles the notarget cheat.",
-    EV_NORMAL
-);
-Event EV_Player_DevNoClipCheat
-(
-    "noclip",
-    EV_CHEAT | EV_CONSOLE,
-    NULL,
-    NULL,
-    "Toggles the noclip cheat.",
-    EV_NORMAL
-);
-Event EV_Player_PrevItem
-(
-    "invprev",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Cycle to player's previous item.",
-    EV_NORMAL
-);
-Event EV_Player_NextItem
-(
-    "invnext",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Cycle to player's next item.",
-    EV_NORMAL
-);
-Event EV_Player_PrevWeapon
-(
-    "weapprev",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Cycle to player's previous weapon.",
-    EV_NORMAL
-);
-Event EV_Player_NextWeapon
-(
-    "weapnext",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Cycle to player's next weapon.",
-    EV_NORMAL
-);
-Event EV_Player_DropWeapon
-(
-    "weapdrop",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Drops the player's current weapon.",
-    EV_NORMAL
-);
-Event EV_Player_Reload
-(
-    "reload",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Reloads the player's weapon",
-    EV_NORMAL
-);
-Event EV_Player_CorrectWeaponAttachments
-(
+Event EV_Player_FullHeal("fullheal", EV_CHEAT | EV_CONSOLE, NULL, NULL, "Heals player.", EV_NORMAL);
+Event EV_Player_DevNoTargetCheat("notarget", EV_CHEAT, NULL, NULL, "Toggles the notarget cheat.", EV_NORMAL);
+Event EV_Player_DevNoClipCheat("noclip", EV_CHEAT | EV_CONSOLE, NULL, NULL, "Toggles the noclip cheat.", EV_NORMAL);
+Event EV_Player_PrevItem("invprev", EV_CONSOLE, NULL, NULL, "Cycle to player's previous item.", EV_NORMAL);
+Event EV_Player_NextItem("invnext", EV_CONSOLE, NULL, NULL, "Cycle to player's next item.", EV_NORMAL);
+Event EV_Player_PrevWeapon("weapprev", EV_CONSOLE, NULL, NULL, "Cycle to player's previous weapon.", EV_NORMAL);
+Event EV_Player_NextWeapon("weapnext", EV_CONSOLE, NULL, NULL, "Cycle to player's next weapon.", EV_NORMAL);
+Event EV_Player_DropWeapon("weapdrop", EV_CONSOLE, NULL, NULL, "Drops the player's current weapon.", EV_NORMAL);
+Event EV_Player_Reload("reload", EV_CONSOLE, NULL, NULL, "Reloads the player's weapon", EV_NORMAL);
+Event EV_Player_CorrectWeaponAttachments(
     "correctweaponattachments",
     EV_CONSOLE,
     NULL,
@@ -210,8 +91,7 @@ Event EV_Player_CorrectWeaponAttachments
     "makes sure the weapons is properly attached when interupting a reload",
     EV_NORMAL
 );
-Event EV_Player_GiveCheat
-(
+Event EV_Player_GiveCheat(
     "give",
     EV_CONSOLE | EV_CHEAT,
     "sI",
@@ -219,44 +99,13 @@ Event EV_Player_GiveCheat
     "Gives the player the specified thing (weapon, ammo, item, etc.) and optionally the amount.",
     EV_NORMAL
 );
-Event EV_Player_GiveWeaponCheat
-(
-    "giveweapon",
-    EV_CONSOLE | EV_CHEAT,
-    "s",
-    "weapon_name",
-    "Gives the player the specified weapon.",
-    EV_NORMAL
+Event EV_Player_GiveWeaponCheat(
+    "giveweapon", EV_CONSOLE | EV_CHEAT, "s", "weapon_name", "Gives the player the specified weapon.", EV_NORMAL
 );
-Event EV_Player_GameVersion
-(
-    "gameversion",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Prints the game version.",
-    EV_NORMAL
-);
-Event EV_Player_Fov
-(
-    "fov",
-    EV_CONSOLE,
-    "F",
-    "fov",
-    "Sets the fov.",
-    EV_NORMAL
-);
-Event EV_Player_Dead
-(
-    "dead",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Called when the player is dead.",
-    EV_NORMAL
-);
-Event EV_Player_SpawnEntity
-(
+Event EV_Player_GameVersion("gameversion", EV_CONSOLE, NULL, NULL, "Prints the game version.", EV_NORMAL);
+Event EV_Player_Fov("fov", EV_CONSOLE, "F", "fov", "Sets the fov.", EV_NORMAL);
+Event EV_Player_Dead("dead", EV_DEFAULT, NULL, NULL, "Called when the player is dead.", EV_NORMAL);
+Event EV_Player_SpawnEntity(
     "spawn",
     EV_CHEAT,
     "sSSSSSSSS",
@@ -264,8 +113,7 @@ Event EV_Player_SpawnEntity
     "Spawns an entity.",
     EV_NORMAL
 );
-Event EV_Player_SpawnActor
-(
+Event EV_Player_SpawnActor(
     "actor",
     EV_CHEAT,
     "sSSSSSSSS",
@@ -273,80 +121,21 @@ Event EV_Player_SpawnActor
     "Spawns an actor.",
     EV_NORMAL
 );
-Event EV_Player_Respawn
-(
-    "respawn",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Respawns the player.",
-    EV_NORMAL
+Event EV_Player_Respawn("respawn", EV_DEFAULT, NULL, NULL, "Respawns the player.", EV_NORMAL);
+Event EV_Player_TestThread(
+    "testthread", EV_CHEAT, "sS", "scriptfile label", "Starts the named thread at label if provided.", EV_NORMAL
 );
-Event EV_Player_TestThread
-(
-    "testthread",
-    EV_CHEAT,
-    "sS",
-    "scriptfile label",
-    "Starts the named thread at label if provided.",
-    EV_NORMAL
+Event EV_Player_PowerupTimer(
+    "poweruptimer", EV_DEFAULT, "ii", "poweruptimer poweruptype", "Sets the powerup timer and powerup type.", EV_NORMAL
 );
-Event EV_Player_PowerupTimer
-(
-    "poweruptimer",
-    EV_DEFAULT,
-    "ii",
-    "poweruptimer poweruptype",
-    "Sets the powerup timer and powerup type.",
-    EV_NORMAL
+Event EV_Player_UpdatePowerupTimer(
+    "updatepoweruptime", EV_DEFAULT, NULL, NULL, "Called once a second to decrement powerup time.", EV_NORMAL
 );
-Event EV_Player_UpdatePowerupTimer
-(
-    "updatepoweruptime",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Called once a second to decrement powerup time.",
-    EV_NORMAL
-);
-Event EV_Player_ResetState
-(
-    "resetstate",
-    EV_CHEAT,
-    NULL,
-    NULL,
-    "Reset the player's state table.",
-    EV_NORMAL
-);
-Event EV_Player_WhatIs
-(
-    "whatis",
-    EV_CHEAT,
-    "i",
-    "entity_number",
-    "Prints info on the specified entity.",
-    EV_NORMAL
-);
-Event EV_Player_ActorInfo
-(
-    "actorinfo",
-    EV_CHEAT,
-    "i",
-    "actor_number",
-    "Prints info on the specified actor.",
-    EV_NORMAL
-);
-Event EV_Player_KillEnt
-(
-    "killent",
-    EV_CHEAT,
-    "i",
-    "entity_number",
-    "Kills the specified entity.",
-    EV_NORMAL
-);
-Event EV_Player_KillClass
-(
+Event EV_Player_ResetState("resetstate", EV_CHEAT, NULL, NULL, "Reset the player's state table.", EV_NORMAL);
+Event EV_Player_WhatIs("whatis", EV_CHEAT, "i", "entity_number", "Prints info on the specified entity.", EV_NORMAL);
+Event EV_Player_ActorInfo("actorinfo", EV_CHEAT, "i", "actor_number", "Prints info on the specified actor.", EV_NORMAL);
+Event EV_Player_KillEnt("killent", EV_CHEAT, "i", "entity_number", "Kills the specified entity.", EV_NORMAL);
+Event EV_Player_KillClass(
     "killclass",
     EV_CHEAT,
     "sI",
@@ -354,17 +143,8 @@ Event EV_Player_KillClass
     "Kills all of the entities in the specified class.",
     EV_NORMAL
 );
-Event EV_Player_RemoveEnt
-(
-    "removeent",
-    EV_CHEAT,
-    "i",
-    "entity_number",
-    "Removes the specified entity.",
-    EV_NORMAL
-);
-Event EV_Player_RemoveClass
-(
+Event EV_Player_RemoveEnt("removeent", EV_CHEAT, "i", "entity_number", "Removes the specified entity.", EV_NORMAL);
+Event EV_Player_RemoveClass(
     "removeclass",
     EV_CHEAT,
     "sI",
@@ -372,104 +152,30 @@ Event EV_Player_RemoveClass
     "Removes all of the entities in the specified class.",
     EV_NORMAL
 );
-Event EV_Player_Jump
-(
-    "jump",
-    EV_DEFAULT,
-    "f",
-    "height",
-    "Makes the player jump.",
-    EV_NORMAL
+Event EV_Player_Jump("jump", EV_DEFAULT, "f", "height", "Makes the player jump.", EV_NORMAL);
+Event EV_Player_AnimLoop_Torso(
+    "animloop_torso", EV_DEFAULT, NULL, NULL, "Called when the torso animation has finished.", EV_NORMAL
 );
-Event EV_Player_AnimLoop_Torso
-(
-    "animloop_torso",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Called when the torso animation has finished.",
-    EV_NORMAL
+Event EV_Player_AnimLoop_Legs(
+    "animloop_legs", EV_DEFAULT, NULL, NULL, "Called when the legs animation has finished.", EV_NORMAL
 );
-Event EV_Player_AnimLoop_Legs
-(
-    "animloop_legs",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Called when the legs animation has finished.",
-    EV_NORMAL
+Event EV_Player_AnimLoop_Pain(
+    "animloop_pain", EV_DEFAULT, NULL, NULL, "Called when the pain animation has finished.", EV_NORMAL
 );
-Event EV_Player_AnimLoop_Pain
-(
-    "animloop_pain",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Called when the pain animation has finished.",
-    EV_NORMAL
+Event EV_Player_DoUse(
+    "usestuff", EV_DEFAULT, NULL, NULL, "Makes the player try to use whatever is in front of her.", EV_NORMAL
 );
-Event EV_Player_DoUse
-(
-    "usestuff",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Makes the player try to use whatever is in front of her.",
-    EV_NORMAL
+Event EV_Player_ListInventory("listinventory", EV_CONSOLE, NULL, NULL, "List of the player's inventory.", EV_NORMAL);
+Event EV_Player_ActivateShield("activateshield", EV_DEFAULT, NULL, NULL, "Activates the player's shield", EV_NORMAL);
+Event EV_Player_DeactivateShield(
+    "deactivateshield", EV_DEFAULT, NULL, NULL, "Deactivates the player's shield", EV_NORMAL
 );
-Event EV_Player_ListInventory
-(
-    "listinventory",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "List of the player's inventory.",
-    EV_NORMAL
+Event EV_Player_Turn("turn", EV_DEFAULT, "f", "yawangle", "Causes player to turn the specified amount.", EV_NORMAL);
+Event EV_Player_TurnUpdate(
+    "turnupdate", EV_DEFAULT, "ff", "yaw timeleft", "Causes player to turn the specified amount.", EV_NORMAL
 );
-Event EV_Player_ActivateShield
-(
-    "activateshield",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Activates the player's shield",
-    EV_NORMAL
-);
-Event EV_Player_DeactivateShield
-(
-    "deactivateshield",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Deactivates the player's shield",
-    EV_NORMAL
-);
-Event EV_Player_Turn
-(
-    "turn",
-    EV_DEFAULT,
-    "f",
-    "yawangle",
-    "Causes player to turn the specified amount.",
-    EV_NORMAL
-);
-Event EV_Player_TurnUpdate
-(
-    "turnupdate",
-    EV_DEFAULT,
-    "ff",
-    "yaw timeleft",
-    "Causes player to turn the specified amount.",
-    EV_NORMAL
-);
-Event EV_Player_TurnLegs
-(
-    "turnlegs",
-    EV_DEFAULT,
-    "f",
-    "yawangle",
-    "Turns the players legs instantly by the specified amount.",
-    EV_NORMAL
+Event EV_Player_TurnLegs(
+    "turnlegs", EV_DEFAULT, "f", "yawangle", "Turns the players legs instantly by the specified amount.", EV_NORMAL
 );
 Event EV_Player_NextPainTime(
     "nextpaintime",
@@ -480,17 +186,10 @@ Event EV_Player_NextPainTime(
     EV_NORMAL
 );
 
-Event EV_Player_FinishUseAnim
-(
-    "finishuseanim",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Fires off all targets associated with a particular useanim.",
-    EV_NORMAL
+Event EV_Player_FinishUseAnim(
+    "finishuseanim", EV_DEFAULT, NULL, NULL, "Fires off all targets associated with a particular useanim.", EV_NORMAL
 );
-Event EV_Player_Holster
-(
+Event EV_Player_Holster(
     "holster",
     EV_CONSOLE,
     NULL,
@@ -498,8 +197,7 @@ Event EV_Player_Holster
     "Holsters all wielded weapons, or unholsters previously put away weapons",
     EV_NORMAL
 );
-Event EV_Player_SafeHolster
-(
+Event EV_Player_SafeHolster(
     "safeholster",
     EV_CONSOLE,
     "b",
@@ -516,26 +214,11 @@ Event EV_Player_SafeZoom(
     "0 turns off zoom,"
     "and 1 returns zoom to previous setting"
 );
-Event EV_Player_ZoomOff
-(
-    "zoomoff",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "makes sure that zoom is off",
-    EV_NORMAL
+Event EV_Player_ZoomOff("zoomoff", EV_DEFAULT, NULL, NULL, "makes sure that zoom is off", EV_NORMAL);
+Event EV_Player_StartUseObject(
+    "startuseobject", EV_DEFAULT, NULL, NULL, "starts up the useobject's animations.", EV_NORMAL
 );
-Event EV_Player_StartUseObject
-(
-    "startuseobject",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "starts up the useobject's animations.",
-    EV_NORMAL
-);
-Event EV_Player_FinishUseObject
-(
+Event EV_Player_FinishUseObject(
     "finishuseobject",
     EV_DEFAULT,
     NULL,
@@ -543,17 +226,10 @@ Event EV_Player_FinishUseObject
     "Fires off all targets associated with a particular useobject.",
     EV_NORMAL
 );
-Event EV_Player_WatchActor
-(
-    "watchactor",
-    EV_DEFAULT,
-    "e",
-    "actor_to_watch",
-    "Makes the player's camera watch the specified actor.",
-    EV_NORMAL
+Event EV_Player_WatchActor(
+    "watchactor", EV_DEFAULT, "e", "actor_to_watch", "Makes the player's camera watch the specified actor.", EV_NORMAL
 );
-Event EV_Player_StopWatchingActor
-(
+Event EV_Player_StopWatchingActor(
     "stopwatchingactor",
     EV_DEFAULT,
     "e",
@@ -561,17 +237,10 @@ Event EV_Player_StopWatchingActor
     "Makes the player's camera stop watching the specified actor.",
     EV_NORMAL
 );
-Event EV_Player_SetDamageMultiplier
-(
-    "damage_multiplier",
-    EV_DEFAULT,
-    "f",
-    "damage_multiplier",
-    "Sets the current damage multiplier",
-    EV_NORMAL
+Event EV_Player_SetDamageMultiplier(
+    "damage_multiplier", EV_DEFAULT, "f", "damage_multiplier", "Sets the current damage multiplier", EV_NORMAL
 );
-Event EV_Player_WaitForState
-(
+Event EV_Player_WaitForState(
     "waitForState",
     EV_DEFAULT,
     "s",
@@ -580,35 +249,10 @@ Event EV_Player_WaitForState
     "in the legs or torso.",
     EV_NORMAL
 );
-Event EV_Player_LogStats
-(
-    "logstats",
-    EV_CHEAT,
-    "b",
-    "state",
-    "Turn on/off the debugging playlog",
-    EV_NORMAL
-);
-Event EV_Player_TakePain
-(
-    "takepain",
-    EV_DEFAULT,
-    "b",
-    "bool",
-    "Set whether or not to take pain",
-    EV_NORMAL
-);
-Event EV_Player_SkipCinematic
-(
-    "skipcinematic",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Skip the current cinematic",
-    EV_NORMAL
-);
-Event EV_Player_ResetHaveItem
-(
+Event EV_Player_LogStats("logstats", EV_CHEAT, "b", "state", "Turn on/off the debugging playlog", EV_NORMAL);
+Event EV_Player_TakePain("takepain", EV_DEFAULT, "b", "bool", "Set whether or not to take pain", EV_NORMAL);
+Event EV_Player_SkipCinematic("skipcinematic", EV_CONSOLE, NULL, NULL, "Skip the current cinematic", EV_NORMAL);
+Event EV_Player_ResetHaveItem(
     "resethaveitem",
     EV_CONSOLE,
     "s",
@@ -616,8 +260,7 @@ Event EV_Player_ResetHaveItem
     "Resets the game var that keeps track that we have gotten this weapon",
     EV_NORMAL
 );
-Event EV_Player_ModifyHeight
-(
+Event EV_Player_ModifyHeight(
     "modheight",
     EV_DEFAULT,
     "s",
@@ -625,8 +268,7 @@ Event EV_Player_ModifyHeight
     "change the maximum height of the player\ncan specify 'stand', 'duck' or 'prone'.",
     EV_NORMAL
 );
-Event EV_Player_ModifyHeightFloat
-(
+Event EV_Player_ModifyHeightFloat(
     "modheightfloat",
     EV_DEFAULT,
     "ff",
@@ -634,8 +276,7 @@ Event EV_Player_ModifyHeightFloat
     "Specify the view height of the player and the height of his bounding box.",
     EV_NORMAL
 );
-Event EV_Player_SetMovePosFlags
-(
+Event EV_Player_SetMovePosFlags(
     "moveposflags",
     EV_DEFAULT,
     "sS",
@@ -643,80 +284,17 @@ Event EV_Player_SetMovePosFlags
     "used by the state files to tell the game dll what the player is doing",
     EV_NORMAL
 );
-Event EV_Player_GetPosition
-(
-    "getposition",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns the player current position",
-    EV_RETURN
+Event EV_Player_GetPosition("getposition", EV_DEFAULT, NULL, NULL, "returns the player current position", EV_RETURN);
+Event EV_Player_GetMovement("getmovement", EV_DEFAULT, NULL, NULL, "returns the player current movement", EV_RETURN);
+Event EV_Player_Score("score", EV_CONSOLE, NULL, NULL, "Show the score for the current deathmatch game", EV_NORMAL);
+Event EV_Player_JoinDMTeam("join_team", EV_CONSOLE, "s", "team", "Join the specified team (allies or axis)", EV_NORMAL);
+Event EV_Player_AutoJoinDMTeam("auto_join_team", EV_CONSOLE, NULL, NULL, "Join the team with fewer players", EV_NORMAL);
+Event EV_Player_PickWeapon("pickweapon", EV_CONSOLE, NULL, NULL, "Pick your weapon.", EV_NORMAL);
+Event EV_Player_SetInJail(
+    "injail", EV_DEFAULT, "i", "boolean", "set to 1 to indicate when player is in jail, 0 when they are free", EV_SETTER
 );
-Event EV_Player_GetMovement
-(
-    "getmovement",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns the player current movement",
-    EV_RETURN
-);
-Event EV_Player_Score
-(
-    "score",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Show the score for the current deathmatch game",
-    EV_NORMAL
-);
-Event EV_Player_JoinDMTeam
-(
-    "join_team",
-    EV_CONSOLE,
-    "s",
-    "team",
-    "Join the specified team (allies or axis)",
-    EV_NORMAL
-);
-Event EV_Player_AutoJoinDMTeam
-(
-    "auto_join_team",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Join the team with fewer players",
-    EV_NORMAL
-);
-Event EV_Player_PickWeapon
-(
-    "pickweapon",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Pick your weapon.",
-    EV_NORMAL
-);
-Event EV_Player_SetInJail
-(
-    "injail",
-    EV_DEFAULT,
-    "i",
-    "boolean",
-    "set to 1 to indicate when player is in jail, 0 when they are free",
-    EV_SETTER
-);
-Event EV_Player_GetInJail
-(
-    "injail",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns 1 if player is in jail, 0 if out",
-    EV_GETTER
-);
-Event EV_Player_GetNationalityPrefix
-(
+Event EV_Player_GetInJail("injail", EV_DEFAULT, NULL, NULL, "returns 1 if player is in jail, 0 if out", EV_GETTER);
+Event EV_Player_GetNationalityPrefix(
     "nationalityprefix",
     EV_DEFAULT,
     NULL,
@@ -724,179 +302,41 @@ Event EV_Player_GetNationalityPrefix
     "get the three or five letter prefix that denotes the player's nationality",
     EV_GETTER
 );
-Event EV_Player_IsSpectator
-(
-    "isSpectator",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Check to see if player is a spectator (non-zero return value)",
-    EV_GETTER
+Event EV_Player_IsSpectator(
+    "isSpectator", EV_DEFAULT, NULL, NULL, "Check to see if player is a spectator (non-zero return value)", EV_GETTER
 );
-Event EV_Player_Spectator
-(
-    "spectator",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Become a spectator",
-    EV_NORMAL
+Event EV_Player_Spectator("spectator", EV_CONSOLE, NULL, NULL, "Become a spectator", EV_NORMAL);
+Event EV_Player_JoinArena("join_arena", EV_CONSOLE, "i", "arena_id_num", "Join the specified arena", EV_NORMAL);
+Event EV_Player_LeaveArena("leave_arena", EV_CONSOLE, NULL, NULL, "Leave the current arena", EV_NORMAL);
+Event EV_Player_CreateTeam("create_team", EV_CONSOLE, NULL, NULL, "Create a team in the current arena", EV_NORMAL);
+Event EV_Player_LeaveTeam("leave_team", EV_CONSOLE, NULL, NULL, "Leave the current team", EV_NORMAL);
+Event EV_Player_RefreshArenaUI("arena_ui", EV_CONSOLE, NULL, NULL, "Refresh the arena UI", EV_NORMAL);
+Event EV_Player_CallVote("callvote", EV_CONSOLE, "ss", "arg1 arg2", "Player calls a vote", EV_NORMAL);
+Event EV_Player_Vote("vote", EV_CONSOLE, "s", "arg1", "Player votes either yes or no", EV_NORMAL);
+Event EV_Player_RetrieveVoteOptions(
+    "vote", EV_CONSOLE, NULL, NULL, "Retrieves the server's vote options file", EV_NORMAL
 );
-Event EV_Player_JoinArena
-(
-    "join_arena",
-    EV_CONSOLE,
-    "i",
-    "arena_id_num",
-    "Join the specified arena",
-    EV_NORMAL
+Event EV_Player_PrimaryDMWeapon(
+    "primarydmweapon", EV_CONSOLE, "s", "weaptype", "Sets the player's primary DM weapon", EV_NORMAL
 );
-Event EV_Player_LeaveArena
-(
-    "leave_arena",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Leave the current arena",
-    EV_NORMAL
+Event EV_Player_DeadBody("deadbody", EV_DEFAULT, NULL, NULL, "Spawn a dead body", EV_NORMAL);
+Event EV_Player_Physics_On("physics_on", EV_DEFAULT, NULL, NULL, "turn player physics on.", EV_NORMAL);
+Event EV_Player_Physics_Off("physics_off", EV_DEFAULT, NULL, NULL, "turn player physics off.", EV_NORMAL);
+Event EV_Player_ArmWithWeapons(
+    "armwithweapons", EV_DEFAULT, NULL, NULL, "give player their primary and secondary weapons.", EV_NORMAL
 );
-Event EV_Player_CreateTeam
-(
-    "create_team",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Create a team in the current arena",
-    EV_NORMAL
+Event EV_Player_GetCurrentDMWeaponType(
+    "getcurrentdmweapontype", EV_DEFAULT, NULL, NULL, "get the player's current DM weapon type.", EV_GETTER
 );
-Event EV_Player_LeaveTeam
-(
-    "leave_team",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Leave the current team",
-    EV_NORMAL
+Event
+    EV_Player_AttachToLadder("attachtoladder", EV_DEFAULT, NULL, NULL, "Attaches the sentient to a ladder", EV_NORMAL);
+Event EV_Player_UnattachFromLadder(
+    "unattachfromladder", EV_DEFAULT, NULL, NULL, "Unattaches the sentient from a ladder", EV_NORMAL
 );
-Event EV_Player_RefreshArenaUI
-(
-    "arena_ui",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Refresh the arena UI",
-    EV_NORMAL
+Event EV_Player_TweakLadderPos(
+    "tweakladderpos", EV_DEFAULT, NULL, NULL, "Tweaks the player's position on a ladder to be proper", EV_NORMAL
 );
-Event EV_Player_CallVote
-(
-    "callvote",
-    EV_CONSOLE,
-    "ss",
-    "arg1 arg2",
-    "Player calls a vote",
-    EV_NORMAL
-);
-Event EV_Player_Vote
-(
-    "vote",
-    EV_CONSOLE,
-    "s",
-    "arg1",
-    "Player votes either yes or no",
-    EV_NORMAL
-);
-Event EV_Player_RetrieveVoteOptions
-(
-    "vote",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Retrieves the server's vote options file",
-    EV_NORMAL
-);
-Event EV_Player_PrimaryDMWeapon
-(
-    "primarydmweapon",
-    EV_CONSOLE,
-    "s",
-    "weaptype",
-    "Sets the player's primary DM weapon",
-    EV_NORMAL
-);
-Event EV_Player_DeadBody
-(
-    "deadbody",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Spawn a dead body",
-    EV_NORMAL
-);
-Event EV_Player_Physics_On
-(
-    "physics_on",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "turn player physics on.",
-    EV_NORMAL
-);
-Event EV_Player_Physics_Off
-(
-    "physics_off",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "turn player physics off.",
-    EV_NORMAL
-);
-Event EV_Player_ArmWithWeapons
-(
-    "armwithweapons",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "give player their primary and secondary weapons.",
-    EV_NORMAL
-);
-Event EV_Player_GetCurrentDMWeaponType
-(
-    "getcurrentdmweapontype",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "get the player's current DM weapon type.",
-    EV_GETTER
-);
-Event EV_Player_AttachToLadder
-(
-    "attachtoladder",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Attaches the sentient to a ladder",
-    EV_NORMAL
-);
-Event EV_Player_UnattachFromLadder
-(
-    "unattachfromladder",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Unattaches the sentient from a ladder",
-    EV_NORMAL
-);
-Event EV_Player_TweakLadderPos
-(
-    "tweakladderpos",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Tweaks the player's position on a ladder to be proper",
-    EV_NORMAL
-);
-Event EV_Player_EnsureOverLadder
-(
+Event EV_Player_EnsureOverLadder(
     "ensureoverladder",
     EV_DEFAULT,
     NULL,
@@ -904,53 +344,20 @@ Event EV_Player_EnsureOverLadder
     "Ensures that the player is at the proper height when getting off the top of a ladder",
     EV_NORMAL
 );
-Event EV_Player_EnsureForwardOffLadder
-(
-    "ensureforwardoffladder",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Ensures that the player went forward off the ladder.",
-    EV_NORMAL
+Event EV_Player_EnsureForwardOffLadder(
+    "ensureforwardoffladder", EV_DEFAULT, NULL, NULL, "Ensures that the player went forward off the ladder.", EV_NORMAL
 );
-Event EV_Player_JailIsEscaping
-(
-    "isEscaping",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Return non-zero if escaping or assisting escape",
-    EV_GETTER
+Event EV_Player_JailIsEscaping(
+    "isEscaping", EV_DEFAULT, NULL, NULL, "Return non-zero if escaping or assisting escape", EV_GETTER
 );
-Event EV_Player_JailEscape
-(
-    "jailescape",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Start the escape from jail animation",
-    EV_NORMAL
+Event EV_Player_JailEscape("jailescape", EV_DEFAULT, NULL, NULL, "Start the escape from jail animation", EV_NORMAL);
+Event EV_Player_JailAssistEscape(
+    "jailassistescape", EV_DEFAULT, NULL, NULL, "Start the assist jail escape animation", EV_NORMAL
 );
-Event EV_Player_JailAssistEscape
-(
-    "jailassistescape",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Start the assist jail escape animation",
-    EV_NORMAL
+Event EV_Player_JailEscapeStop(
+    "jailescapestop", EV_DEFAULT, NULL, NULL, "Stop either the escape from jail or assist animation", EV_NORMAL
 );
-Event EV_Player_JailEscapeStop
-(
-    "jailescapestop",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Stop either the escape from jail or assist animation",
-    EV_NORMAL
-);
-Event EV_Player_GetIsDisguised
-(
+Event EV_Player_GetIsDisguised(
     "is_disguised",
     EV_DEFAULT,
     NULL,
@@ -959,8 +366,7 @@ Event EV_Player_GetIsDisguised
     "non-zero = disguised",
     EV_GETTER
 );
-Event EV_Player_GetHasDisguise
-(
+Event EV_Player_GetHasDisguise(
     "has_disguise",
     EV_DEFAULT,
     NULL,
@@ -970,8 +376,7 @@ Event EV_Player_GetHasDisguise
     EV_GETTER
 );
 
-Event EV_Player_SetHasDisguise
-(
+Event EV_Player_SetHasDisguise(
     "has_disguise",
     EV_DEFAULT,
     "i",
@@ -980,8 +385,7 @@ Event EV_Player_SetHasDisguise
     "non - zero = has a disguise",
     EV_SETTER
 );
-Event EV_Player_ObjectiveCount
-(
+Event EV_Player_ObjectiveCount(
     "objective",
     EV_DEFAULT,
     "ii",
@@ -989,71 +393,19 @@ Event EV_Player_ObjectiveCount
     "Sets the number of objectives completed and the total number of objectives",
     EV_NORMAL
 );
-Event EV_Player_Stats
-(
-    "stats",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Display the MissionLog.",
-    EV_NORMAL
+Event EV_Player_Stats("stats", EV_CONSOLE, NULL, NULL, "Display the MissionLog.", EV_NORMAL);
+Event EV_Player_Teleport("tele", EV_CHEAT | EV_CONSOLE, "v", "location", "Teleport to location", EV_NORMAL);
+Event EV_Player_Face("face", EV_CHEAT | EV_CONSOLE, "v", "angles", "Force angles to specified vector", EV_NORMAL);
+Event EV_Player_Coord("coord", EV_CONSOLE, NULL, NULL, "Prints out current location and angles", EV_NORMAL);
+Event EV_Player_TestAnim(
+    "testplayeranim", EV_CHEAT, "fS", "weight anim", "Plays a test animation on the player", EV_NORMAL
 );
-Event EV_Player_Teleport
-(
-    "tele",
-    EV_CHEAT | EV_CONSOLE,
-    "v",
-    "location",
-    "Teleport to location",
-    EV_NORMAL
+Event
+    EV_Player_StuffText("stufftext", EV_DEFAULT, "s", "stuffstrings", "Stuffs text to the player's console", EV_NORMAL);
+Event EV_Player_DMMessage(
+    "dmmessage", EV_CONSOLE, "is", "mode stuffstrings", "sends a DM message to the appropriate players", EV_NORMAL
 );
-Event EV_Player_Face
-(
-    "face",
-    EV_CHEAT | EV_CONSOLE,
-    "v",
-    "angles",
-    "Force angles to specified vector",
-    EV_NORMAL
-);
-Event EV_Player_Coord
-(
-    "coord",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "Prints out current location and angles",
-    EV_NORMAL
-);
-Event EV_Player_TestAnim
-(
-    "testplayeranim",
-    EV_CHEAT,
-    "fS",
-    "weight anim",
-    "Plays a test animation on the player",
-    EV_NORMAL
-);
-Event EV_Player_StuffText
-(
-    "stufftext",
-    EV_DEFAULT,
-    "s",
-    "stuffstrings",
-    "Stuffs text to the player's console",
-    EV_NORMAL
-);
-Event EV_Player_DMMessage
-(
-    "dmmessage",
-    EV_CONSOLE,
-    "is",
-    "mode stuffstrings",
-    "sends a DM message to the appropriate players",
-    EV_NORMAL
-);
-Event EV_Player_IPrint
-(
+Event EV_Player_IPrint(
     "iprint",
     EV_CONSOLE,
     "sI",
@@ -1062,26 +414,11 @@ Event EV_Player_IPrint
     "optionally in bold",
     EV_NORMAL
 );
-Event EV_SetViewangles
-(
-    "viewangles",
-    EV_DEFAULT,
-    "v",
-    "newAngles",
-    "set the view angles of the entity to newAngles.",
-    EV_SETTER
+Event EV_SetViewangles(
+    "viewangles", EV_DEFAULT, "v", "newAngles", "set the view angles of the entity to newAngles.", EV_SETTER
 );
-Event EV_GetViewangles
-(
-    "viewangles",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "get the angles of the entity.",
-    EV_GETTER
-);
-Event EV_GetUseHeld
-(
+Event EV_GetViewangles("viewangles", EV_DEFAULT, NULL, NULL, "get the angles of the entity.", EV_GETTER);
+Event EV_GetUseHeld(
     "useheld",
     EV_DEFAULT,
     NULL,
@@ -1090,8 +427,7 @@ Event EV_GetUseHeld
     "or 0 if he is not",
     EV_GETTER
 );
-Event EV_GetFireHeld
-(
+Event EV_GetFireHeld(
     "fireheld",
     EV_DEFAULT,
     NULL,
@@ -1100,8 +436,7 @@ Event EV_GetFireHeld
     "or 0 if he is not",
     EV_GETTER
 );
-Event EV_GetPrimaryFireHeld
-(
+Event EV_GetPrimaryFireHeld(
     "primaryfireheld",
     EV_DEFAULT,
     NULL,
@@ -1109,8 +444,7 @@ Event EV_GetPrimaryFireHeld
     "returns 1 if this player is holding the primary fire, or 0 if not",
     EV_GETTER
 );
-Event EV_GetSecondaryFireHeld
-(
+Event EV_GetSecondaryFireHeld(
     "secondaryfireheld",
     EV_DEFAULT,
     NULL,
@@ -1118,8 +452,7 @@ Event EV_GetSecondaryFireHeld
     "returns 1 if this player is holding the secondary fire, or 0 if not",
     EV_GETTER
 );
-Event EV_Player_GetReady
-(
+Event EV_Player_GetReady(
     "ready",
     EV_DEFAULT,
     NULL,
@@ -1128,35 +461,12 @@ Event EV_Player_GetReady
     "0 otherwise",
     EV_GETTER
 );
-Event EV_Player_SetReady
-(
-    "ready",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "makes this player ready for the round to start",
-    EV_NORMAL
+Event EV_Player_SetReady("ready", EV_CONSOLE, NULL, NULL, "makes this player ready for the round to start", EV_NORMAL);
+Event EV_Player_SetNotReady(
+    "notready", EV_CONSOLE, NULL, NULL, "makes this player not ready for the round to start", EV_NORMAL
 );
-Event EV_Player_SetNotReady
-(
-    "notready",
-    EV_CONSOLE,
-    NULL,
-    NULL,
-    "makes this player not ready for the round to start",
-    EV_NORMAL
-);
-Event EV_Player_GetName
-(
-    "netname",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns player's name",
-    EV_GETTER
-);
-Event EV_Player_GetDMTeam
-(
+Event EV_Player_GetName("netname", EV_DEFAULT, NULL, NULL, "returns player's name", EV_GETTER);
+Event EV_Player_GetDMTeam(
     "dmteam",
     EV_DEFAULT,
     NULL,
@@ -1167,26 +477,13 @@ Event EV_Player_GetDMTeam
     "or 'freeforall'",
     EV_GETTER
 );
-Event EV_Player_SetViewModelAnim
-(
-    "viewmodelanim",
-    EV_DEFAULT,
-    "sI",
-    "name force_restart",
-    "Sets the player's view model animation.",
-    EV_NORMAL
+Event EV_Player_SetViewModelAnim(
+    "viewmodelanim", EV_DEFAULT, "sI", "name force_restart", "Sets the player's view model animation.", EV_NORMAL
 );
-Event EV_Player_DMDeathDrop
-(
-    "dmdeathdrop",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Drops the player inventory in DM after's he's been killed",
-    EV_NORMAL
+Event EV_Player_DMDeathDrop(
+    "dmdeathdrop", EV_DEFAULT, NULL, NULL, "Drops the player inventory in DM after's he's been killed", EV_NORMAL
 );
-Event EV_Player_Stopwatch
-(
+Event EV_Player_Stopwatch(
     "stopwatch",
     EV_DEFAULT,
     "i",
@@ -1194,17 +491,8 @@ Event EV_Player_Stopwatch
     "Starts a stopwatch for a given duration... use 0 to clear the stopwatch",
     EV_NORMAL
 );
-Event EV_Player_EnterIntermission
-(
-    "_enterintermission",
-    EV_CODEONLY,
-    NULL,
-    NULL,
-    "CODE USE ONLY",
-    EV_NORMAL
-);
-Event EV_Player_SetPerferredWeapon
-(
+Event EV_Player_EnterIntermission("_enterintermission", EV_CODEONLY, NULL, NULL, "CODE USE ONLY", EV_NORMAL);
+Event EV_Player_SetPerferredWeapon(
     "perferredweapon",
     EV_DEFAULT,
     "s",
@@ -1212,28 +500,13 @@ Event EV_Player_SetPerferredWeapon
     "Overrides your perferred weapon that is displayed in the stats screen.",
     EV_NORMAL
 );
-Event EV_Player_SetVoiceType
-(
-    "voicetype",
-    EV_DEFAULT,
-    "s",
-    "voice_name",
-    "Sets the voice type to use the player.",
-    EV_NORMAL
+Event EV_Player_SetVoiceType(
+    "voicetype", EV_DEFAULT, "s", "voice_name", "Sets the voice type to use the player.", EV_NORMAL
 );
 
-Event EV_Player_AddKills
-(
-    "addkills",
-    EV_DEFAULT,
-    "i",
-    "kills",
-    "Give or take kills from the player",
-    EV_NORMAL
-);
+Event EV_Player_AddKills("addkills", EV_DEFAULT, "i", "kills", "Give or take kills from the player", EV_NORMAL);
 
-Event EV_Player_KillAxis
-(
+Event EV_Player_KillAxis(
     "killaxis",
     EV_CHEAT,
     "f",
@@ -1241,8 +514,7 @@ Event EV_Player_KillAxis
     "Kills all of the axis that are in the passed radius, or all of them if radius is 0.",
     EV_NORMAL
 );
-Event EV_Player_GetTurret
-(
+Event EV_Player_GetTurret(
     "turret",
     EV_DEFAULT,
     NULL,
@@ -1250,8 +522,7 @@ Event EV_Player_GetTurret
     "Returns the turret the player is using. NULL if player isn't using a turret.",
     EV_GETTER
 );
-Event EV_Player_GetVehicle
-(
+Event EV_Player_GetVehicle(
     "vehicle",
     EV_DEFAULT,
     NULL,
@@ -1261,38 +532,15 @@ Event EV_Player_GetVehicle
 );
 
 // reborn stuff
-Event EV_Player_AddDeaths
-(
-    "adddeaths",
-    EV_DEFAULT,
-    "i",
-    "deaths",
-    "adds deaths number to player",
-    EV_NORMAL
+Event EV_Player_AddDeaths("adddeaths", EV_DEFAULT, "i", "deaths", "adds deaths number to player", EV_NORMAL);
+
+Event EV_Player_AdminRights("adminrights", EV_DEFAULT, NULL, NULL, "returns client admin rights", EV_GETTER);
+
+Event EV_Player_BindWeap(
+    "bindweap", EV_DEFAULT, "ei", "weapon handnum", "binds weapon to player and sets him as weapon owner", EV_NORMAL
 );
 
-Event EV_Player_AdminRights
-(
-    "adminrights",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns client admin rights",
-    EV_GETTER
-);
-
-Event EV_Player_BindWeap
-(
-    "bindweap",
-    EV_DEFAULT,
-    "ei",
-    "weapon handnum",
-    "binds weapon to player and sets him as weapon owner",
-    EV_NORMAL
-);
-
-Event EV_Player_CanSwitchTeams
-(
+Event EV_Player_CanSwitchTeams(
     "canswitchteams",
     EV_DEFAULT,
     "bB",
@@ -1301,28 +549,15 @@ Event EV_Player_CanSwitchTeams
     EV_NORMAL
 );
 
-Event EV_Player_ClearCommand
-(
-    "clearcommand",
-    EV_DEFAULT,
-    "S",
-    "command",
-    "Clears any or a specific client command",
-    EV_NORMAL
+Event EV_Player_ClearCommand(
+    "clearcommand", EV_DEFAULT, "S", "command", "Clears any or a specific client command", EV_NORMAL
 );
 
-Event EV_Player_Dive
-(
-    "dive",
-    EV_DEFAULT,
-    "fF",
-    "height airborne_duration",
-    "Makes the player dive into prone position.",
-    EV_NORMAL
+Event EV_Player_Dive(
+    "dive", EV_DEFAULT, "fF", "height airborne_duration", "Makes the player dive into prone position.", EV_NORMAL
 );
 
-Event EV_Player_Earthquake
-(
+Event EV_Player_Earthquake(
     "earthquake2",
     EV_DEFAULT,
     "ffbbVF",
@@ -1331,38 +566,17 @@ Event EV_Player_Earthquake
     EV_NORMAL
 );
 
-Event EV_Player_FreezeControls
-(
-    "freezecontrols",
-    EV_DEFAULT,
-    "b",
-    "freeze_state",
-    "Blocks or unblocks control input from this player.",
-    EV_NORMAL
+Event EV_Player_FreezeControls(
+    "freezecontrols", EV_DEFAULT, "b", "freeze_state", "Blocks or unblocks control input from this player.", EV_NORMAL
 );
 
-Event EV_Player_GetConnState
-(
-    "getconnstate",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "gets connection state. [DEPRECATED]",
-    EV_RETURN
+Event EV_Player_GetConnState("getconnstate", EV_DEFAULT, NULL, NULL, "gets connection state. [DEPRECATED]", EV_RETURN);
+
+Event EV_Player_GetDamageMultiplier(
+    "damage_multiplier", EV_DEFAULT, "Gets the current damage multiplier", NULL, NULL, EV_GETTER
 );
 
-Event EV_Player_GetDamageMultiplier
-(
-    "damage_multiplier",
-    EV_DEFAULT,
-    "Gets the current damage multiplier",
-    NULL,
-    NULL,
-    EV_GETTER
-);
-
-Event EV_Player_GetKillHandler
-(
+Event EV_Player_GetKillHandler(
     "killhandler",
     EV_DEFAULT,
     "s",
@@ -1371,98 +585,29 @@ Event EV_Player_GetKillHandler
     EV_GETTER
 );
 
-Event EV_Player_GetKills
-(
-    "getkills",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "gets kills number of player",
-    EV_RETURN
+Event EV_Player_GetKills("getkills", EV_DEFAULT, NULL, NULL, "gets kills number of player", EV_RETURN);
+
+Event EV_Player_GetDeaths("getdeaths", EV_DEFAULT, NULL, NULL, "gets deaths number of player", EV_RETURN);
+
+Event EV_Player_GetLegsState(
+    "getlegsstate", EV_DEFAULT, NULL, NULL, "Gets the player's current legs state name", EV_RETURN
 );
 
-Event EV_Player_GetDeaths
-(
-    "getdeaths",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "gets deaths number of player",
-    EV_RETURN
+Event EV_Player_GetStateFile("statefile", EV_DEFAULT, NULL, NULL, "Gets the player's current state file.", EV_GETTER);
+
+Event EV_Player_GetTorsoState(
+    "gettorsostate", EV_DEFAULT, NULL, NULL, "Gets the player's current torso state name", EV_RETURN
 );
 
-Event EV_Player_GetLegsState
-(
-    "getlegsstate",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Gets the player's current legs state name",
-    EV_RETURN
-);
+Event EV_Player_HideEnt("hideent", EV_DEFAULT, "e", "entity", "Hides the specified entity to the player.", EV_NORMAL);
 
-Event EV_Player_GetStateFile
-(
-    "statefile",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Gets the player's current state file.",
-    EV_GETTER
-);
+Event EV_Player_Inventory("inventory", EV_DEFAULT, NULL, NULL, "returns player's inventory", EV_GETTER);
 
-Event EV_Player_GetTorsoState
-(
-    "gettorsostate",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Gets the player's current torso state name",
-    EV_RETURN
-);
+Event EV_Player_InventorySet("inventory", EV_DEFAULT, "e", "array", "Set up the player's inventory", EV_SETTER);
 
-Event EV_Player_HideEnt
-(
-    "hideent",
-    EV_DEFAULT,
-    "e",
-    "entity",
-    "Hides the specified entity to the player.",
-    EV_NORMAL
-);
+Event EV_Player_IsAdmin("isadmin", EV_DEFAULT, NULL, NULL, "checks if player is logged as admin", EV_RETURN);
 
-Event EV_Player_Inventory
-(
-    "inventory",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns player's inventory",
-    EV_GETTER
-);
-
-Event EV_Player_InventorySet
-(
-    "inventory",
-    EV_DEFAULT,
-    "e",
-    "array",
-    "Set up the player's inventory",
-    EV_SETTER
-);
-
-Event EV_Player_IsAdmin
-(
-    "isadmin",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "checks if player is logged as admin",
-    EV_RETURN
-);
-
-Event EV_Player_LeanLeftHeld
-(
+Event EV_Player_LeanLeftHeld(
     "leanleftheld",
     EV_DEFAULT,
     NULL,
@@ -1471,8 +616,7 @@ Event EV_Player_LeanLeftHeld
     EV_GETTER
 );
 
-Event EV_Player_LeanRightHeld
-(
+Event EV_Player_LeanRightHeld(
     "leanrightheld",
     EV_DEFAULT,
     NULL,
@@ -1481,28 +625,15 @@ Event EV_Player_LeanRightHeld
     EV_GETTER
 );
 
-Event EV_Player_MoveSpeedScale
-(
-    "moveSpeedScale",
-    EV_DEFAULT,
-    "f",
-    "speed",
-    "Sets the player's speed multiplier (default 1.0).",
-    EV_SETTER
+Event EV_Player_MoveSpeedScale(
+    "moveSpeedScale", EV_DEFAULT, "f", "speed", "Sets the player's speed multiplier (default 1.0).", EV_SETTER
 );
 
-Event EV_Player_MoveSpeedScaleGet
-(
-    "moveSpeedScale",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Gets the player's speed multiplier.",
-    EV_GETTER
+Event EV_Player_MoveSpeedScaleGet(
+    "moveSpeedScale", EV_DEFAULT, NULL, NULL, "Gets the player's speed multiplier.", EV_GETTER
 );
 
-Event EV_Player_PlayLocalSound
-(
+Event EV_Player_PlayLocalSound(
     "playlocalsound",
     EV_DEFAULT,
     "sBF",
@@ -1512,18 +643,11 @@ Event EV_Player_PlayLocalSound
     EV_NORMAL
 );
 
-Event EV_Player_Replicate
-(
-    "replicate",
-    EV_DEFAULT,
-    "s",
-    "variable",
-    "Replicate a variable to the client (needs patch 1.12).",
-    EV_NORMAL
+Event EV_Player_Replicate(
+    "replicate", EV_DEFAULT, "s", "variable", "Replicate a variable to the client (needs patch 1.12).", EV_NORMAL
 );
 
-Event EV_Player_RunHeld
-(
+Event EV_Player_RunHeld(
     "runheld",
     EV_DEFAULT,
     NULL,
@@ -1533,8 +657,7 @@ Event EV_Player_RunHeld
     EV_GETTER
 );
 
-Event EV_Player_SecFireHeld
-(
+Event EV_Player_SecFireHeld(
     "secfireheld",
     EV_DEFAULT,
     NULL,
@@ -1543,28 +666,13 @@ Event EV_Player_SecFireHeld
     EV_GETTER
 );
 
-Event EV_Player_SetAnimSpeed
-(
-    "setanimspeed",
-    EV_DEFAULT,
-    "f",
-    "speed",
-    "set the player's animation speed multiplier (default 1.0).",
-    EV_NORMAL
+Event EV_Player_SetAnimSpeed(
+    "setanimspeed", EV_DEFAULT, "f", "speed", "set the player's animation speed multiplier (default 1.0).", EV_NORMAL
 );
 
-Event EV_Player_SetFov
-(
-    "setfov",
-    EV_DEFAULT,
-    "f",
-    "fov",
-    "set the player's fov (default 80).",
-    EV_NORMAL
-);
+Event EV_Player_SetFov("setfov", EV_DEFAULT, "f", "fov", "set the player's fov (default 80).", EV_NORMAL);
 
-Event EV_Player_SetKillHandler
-(
+Event EV_Player_SetKillHandler(
     "killhandler",
     EV_DEFAULT,
     "s",
@@ -1574,18 +682,10 @@ Event EV_Player_SetKillHandler
     EV_SETTER
 );
 
-Event EV_Player_SetClientFlag
-(
-    "setclientflag",
-    EV_DEFAULT,
-    "s",
-    "name",
-    "Calls a flag to the script client.",
-    EV_NORMAL
-);
+Event
+    EV_Player_SetClientFlag("setclientflag", EV_DEFAULT, "s", "name", "Calls a flag to the script client.", EV_NORMAL);
 
-Event EV_Player_SetEntityShader
-(
+Event EV_Player_SetEntityShader(
     "setentshader",
     EV_DEFAULT,
     "es",
@@ -1594,18 +694,11 @@ Event EV_Player_SetEntityShader
     EV_NORMAL
 );
 
-Event EV_Player_SetLocalSoundRate
-(
-    "setlocalsoundrate",
-    EV_DEFAULT,
-    "sfF",
-    "name rate time",
-    "Sets the local sound rate.",
-    EV_NORMAL
+Event EV_Player_SetLocalSoundRate(
+    "setlocalsoundrate", EV_DEFAULT, "sfF", "name rate time", "Sets the local sound rate.", EV_NORMAL
 );
 
-Event EV_Player_SetSpeed
-(
+Event EV_Player_SetSpeed(
     "setspeed",
     EV_DEFAULT,
     "fI",
@@ -1614,8 +707,7 @@ Event EV_Player_SetSpeed
     EV_NORMAL
 );
 
-Event EV_Player_SetStateFile
-(
+Event EV_Player_SetStateFile(
     "statefile",
     EV_DEFAULT,
     "S",
@@ -1624,8 +716,7 @@ Event EV_Player_SetStateFile
     EV_SETTER
 );
 
-Event EV_Player_SetTeam
-(
+Event EV_Player_SetTeam(
     "setteam",
     EV_DEFAULT,
     "s",
@@ -1635,38 +726,17 @@ Event EV_Player_SetTeam
     EV_NORMAL
 );
 
-Event EV_Player_SetViewModelAnimSpeed
-(
-    "setvmaspeed",
-    EV_DEFAULT,
-    "sf",
-    "name speed",
-    "Sets the player's animation speed when playing it.",
-    EV_NORMAL
+Event EV_Player_SetViewModelAnimSpeed(
+    "setvmaspeed", EV_DEFAULT, "sf", "name speed", "Sets the player's animation speed when playing it.", EV_NORMAL
 );
 
-Event EV_Player_ShowEnt
-(
-    "showent",
-    EV_DEFAULT,
-    "e",
-    "entity",
-    "Shows the specified entity to the player.",
-    EV_NORMAL
+Event EV_Player_ShowEnt("showent", EV_DEFAULT, "e", "entity", "Shows the specified entity to the player.", EV_NORMAL);
+
+Event EV_Player_StopLocalSound(
+    "stoplocalsound", EV_DEFAULT, "sF", "soundName time", "Stops the specified sound.", EV_NORMAL
 );
 
-Event EV_Player_StopLocalSound
-(
-    "stoplocalsound",
-    EV_DEFAULT,
-    "sF",
-    "soundName time",
-    "Stops the specified sound.",
-    EV_NORMAL
-);
-
-Event EV_Player_UseHeld
-(
+Event EV_Player_UseHeld(
     "useheld",
     EV_DEFAULT,
     NULL,
@@ -1676,28 +746,13 @@ Event EV_Player_UseHeld
     EV_GETTER
 );
 
-Event EV_Player_Userinfo
-(
-    "userinfo",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns userinfo string",
-    EV_GETTER
+Event EV_Player_Userinfo("userinfo", EV_DEFAULT, NULL, NULL, "returns userinfo string", EV_GETTER);
+
+Event EV_Player_ViewModelGetAnim(
+    "viewmodelgetanim", EV_DEFAULT, "B", "fullanim", "Gets the player's current view model animation.", EV_RETURN
 );
 
-Event EV_Player_ViewModelGetAnim
-(
-    "viewmodelgetanim",
-    EV_DEFAULT,
-    "B",
-    "fullanim",
-    "Gets the player's current view model animation.",
-    EV_RETURN
-);
-
-Event EV_Player_ViewModelAnimFinished
-(
+Event EV_Player_ViewModelAnimFinished(
     "viewmodelanimfinished",
     EV_DEFAULT,
     NULL,
@@ -1706,18 +761,11 @@ Event EV_Player_ViewModelAnimFinished
     EV_RETURN
 );
 
-Event EV_Player_ViewModelAnimValid
-(
-    "viewmodelanimvalid",
-    EV_DEFAULT,
-    "sB",
-    "anim fullanim",
-    "True if the view model animation is valid.",
-    EV_RETURN
+Event EV_Player_ViewModelAnimValid(
+    "viewmodelanimvalid", EV_DEFAULT, "sB", "anim fullanim", "True if the view model animation is valid.", EV_RETURN
 );
 
-Event EV_Player_VisionSetBlur
-(
+Event EV_Player_VisionSetBlur(
     "visionsetblur",
     EV_DEFAULT,
     "fF",
@@ -1726,18 +774,11 @@ Event EV_Player_VisionSetBlur
     EV_NORMAL
 );
 
-Event EV_Player_VisionGetNaked
-(
-    "visiongetnaked",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "Gets the player's current naked-eye vision.",
-    EV_RETURN
+Event EV_Player_VisionGetNaked(
+    "visiongetnaked", EV_DEFAULT, NULL, NULL, "Gets the player's current naked-eye vision.", EV_RETURN
 );
 
-Event EV_Player_VisionSetNaked
-(
+Event EV_Player_VisionSetNaked(
     "visionsetnaked",
     EV_DEFAULT,
     "sFF",
@@ -2299,13 +1340,15 @@ void Player::InitModel(void)
     if (!g_gametype->integer) {
         setModel("models/player/" + str(g_playermodel->string) + ".tik");
     } else if (dm_team != TEAM_AXIS) {
-        if (Q_stricmpn(client->pers.dm_playermodel, "american", 8) && Q_stricmpn(client->pers.dm_playermodel, "allied", 6)) {
+        if (Q_stricmpn(client->pers.dm_playermodel, "american", 8)
+            && Q_stricmpn(client->pers.dm_playermodel, "allied", 6)) {
             setModel("models/player/american_army.tik");
         } else {
             setModel("models/player/" + str(client->pers.dm_playermodel) + ".tik");
         }
     } else {
-        if (Q_stricmpn(client->pers.dm_playermodel, "german", 6) && Q_stricmpn(client->pers.dm_playermodel, "axis", 4)) {
+        if (Q_stricmpn(client->pers.dm_playermodel, "german", 6)
+            && Q_stricmpn(client->pers.dm_playermodel, "axis", 4)) {
             setModel("models/player/german_wehrmacht_soldier.tik");
         } else {
             setModel("models/player/" + str(client->pers.dm_playergermanmodel) + ".tik");
@@ -2860,8 +1903,8 @@ void Player::Dead(Event *ev)
         // Clear pain blend
         StopAnimating(ANIMSLOT_PAIN);
         edict->s.frameInfo[ANIMSLOT_PAIN].weight = 0;
-        m_fPainBlend = 0;
-        animdone_Pain = false;
+        m_fPainBlend                             = 0;
+        animdone_Pain                            = false;
     }
 
     if (g_gametype->integer) {
@@ -2878,8 +1921,7 @@ void Player::Dead(Event *ev)
 
     ZoomOff();
 
-    if (ShouldForceSpectatorOnDeath())
-    {
+    if (ShouldForceSpectatorOnDeath()) {
         m_bDeathSpectator = true;
 
         Spectator();
@@ -3638,7 +2680,7 @@ void Player::ClientMove(usercmd_t *ucmd)
 
         // FIXME: delete
         /*
-        if (sv_reborn->integer)
+        if (sv_specialgame->integer)
         {
             gi.MSG_SetClient(edict - g_entities);
 
@@ -5248,24 +4290,23 @@ void Player::GiveAllCheat(Event *ev)
     }
 }
 
-void Player::GiveNewWeaponsCheat(Event* ev)
+void Player::GiveNewWeaponsCheat(Event *ev)
 {
-    char* buffer;
-    char* current;
-    const char* token;
+    char       *buffer;
+    char       *current;
+    const char *token;
 
     if (deadflag != DEAD_NO) {
         return;
     }
 
-    if (gi.FS_ReadFile("global/givenewweapons.scr",&(void*)buffer, qtrue) != -1) {
+    if (gi.FS_ReadFile("global/givenewweapons.scr", &(void *)buffer, qtrue) != -1) {
         return;
     }
 
     current = buffer;
-    for(;;)
-    {
-        Event* event;
+    for (;;) {
+        Event *event;
 
         token = COM_ParseExt(&current, qtrue);
         if (!token[0]) {
@@ -5274,8 +4315,7 @@ void Player::GiveNewWeaponsCheat(Event* ev)
 
         event = new Event(token);
 
-        for(;;)
-        {
+        for (;;) {
             token = COM_ParseExt(&current, qfalse);
             if (!token[0]) {
                 break;
@@ -5835,8 +4875,8 @@ void Player::SetPlayerView(
             //
             client->ps.camera_flags = client->ps.camera_flags & CF_CAMERA_CUT_BIT;
         } else if (camera->IsSubclassOfPlayer()) {
-            Vector vPos, vAng;
-            Player* pPlayer = (Player*)camera;
+            Vector  vPos, vAng;
+            Player *pPlayer = (Player *)camera;
 
             GetSpectateFollowOrientation(pPlayer, vPos, vAng);
 
@@ -7682,7 +6722,7 @@ void Player::EnsureForwardOffLadder(Event *ev)
     }
 }
 
-void Player::EventForceLandmineMeasure(Event* ev)
+void Player::EventForceLandmineMeasure(Event *ev)
 {
     MeasureLandmineDistances();
 }
@@ -7715,7 +6755,7 @@ nationality_t GetAlliedType(const char* name)
 }
 */
 
-nationality_t GetPlayerTeamType(const char* name)
+nationality_t GetPlayerTeamType(const char *name)
 {
     if (!Q_stricmpn(name, "american", 8)) {
         return NA_AMERICAN;
@@ -7766,21 +6806,20 @@ void Player::InitDeathmatch(void)
     m_fDamageMultipliers[18] = 0.50f;
 
     if (current_team) {
-        EndSpectator();
+        if (AllowTeamRespawn()) {
+            EndSpectator();
 
-        if (dmManager.GetMatchStartTime() > 0.0f && !dmManager.AllowRespawn() && g_allowjointime->value > 0.0f
-            && level.time - dmManager.GetMatchStartTime() > g_allowjointime->value) {
-            m_bTempSpectator = true;
-        }
-
-        if (g_gametype->integer >= GT_TEAM_ROUNDS && g_gametype->integer <= GT_OBJECTIVE && m_bTempSpectator) {
-            if (!IsSpectator()) {
-                respawn_time = level.time + 1.0f;
+            if (dmManager.GetMatchStartTime() > 0.0f && !dmManager.AllowRespawn() && g_allowjointime->value > 0.0f
+                && (level.time - dmManager.GetMatchStartTime()) > g_allowjointime->value) {
+                m_bTempSpectator = true;
             }
 
-            Spectator();
-        } else {
-            BeginFight();
+            if (g_gametype->integer == GT_TEAM || g_gametype->integer <= GT_FFA || g_gametype->integer > GT_LIBERATION
+                || !m_bTempSpectator) {
+                BeginFight();
+            } else {
+                Spectator();
+            }
         }
     } else {
         if (client->pers.team) {
@@ -7798,6 +6837,8 @@ void Player::InitDeathmatch(void)
         edict->s.eFlags |= TEAM_AXIS;
     }
 
+    G_SetClientConfigString(edict);
+
     if (g_gametype->integer >= GT_TEAM_ROUNDS) {
         if (client->pers.round_kills) {
             num_deaths               = client->pers.round_kills;
@@ -7806,72 +6847,7 @@ void Player::InitDeathmatch(void)
     }
 
     ChooseSpawnPoint();
-
-    // spectators should not have weapons
-    if (IsSpectator()) {
-        FreeInventory();
-    } else {
-        Event *ev = new Event("use");
-
-        if (!Q_stricmp(client->pers.dm_primary, "rifle")) {
-            if (dm_team == TEAM_ALLIES) {
-                giveItem("models/weapons/m1_garand.tik");
-                ev->AddString("models/weapons/m1_garand.tik");
-            } else {
-                giveItem("models/weapons/kar98.tik");
-                ev->AddString("models/weapons/kar98.tik");
-            }
-
-            GiveAmmo("rifle", 100);
-        } else if (!Q_stricmp(client->pers.dm_primary, "sniper")) {
-            if (dm_team == TEAM_ALLIES) {
-                giveItem("models/weapons/springfield.tik");
-                ev->AddString("models/weapons/springfield.tik");
-            } else {
-                giveItem("models/weapons/kar98sniper.tik");
-                ev->AddString("models/weapons/kar98sniper.tik");
-            }
-        } else if (!Q_stricmp(client->pers.dm_primary, "smg")) {
-            if (dm_team == TEAM_ALLIES) {
-                giveItem("models/weapons/thompsonsmg.tik");
-                ev->AddString("models/weapons/thompsonsmg.tik");
-            } else {
-                giveItem("models/weapons/mp40.tik");
-                ev->AddString("models/weapons/mp40.tik");
-            }
-        } else if (!Q_stricmp(client->pers.dm_primary, "mg")) {
-            if (dm_team == TEAM_ALLIES) {
-                giveItem("models/weapons/bar.tik");
-                ev->AddString("models/weapons/bar.tik");
-            } else {
-                giveItem("models/weapons/mp44.tik");
-                ev->AddString("models/weapons/mp44.tik");
-            }
-        } else if (!Q_stricmp(client->pers.dm_primary, "heavy")) {
-            if (dm_team == TEAM_ALLIES) {
-                giveItem("models/weapons/bazooka.tik");
-                ev->AddString("models/weapons/bazooka.tik");
-            } else {
-                giveItem("models/weapons/panzerschreck.tik");
-                ev->AddString("models/weapons/panzerschreck.tik");
-            }
-        } else if (!Q_stricmp(client->pers.dm_primary, "shotgun")) {
-            giveItem("models/weapons/shotgun.tik");
-            ev->AddString("models/weapons/shotgun.tik");
-        }
-
-        PostEvent(ev, 0.3f);
-
-        if (dm_team == TEAM_ALLIES) {
-            giveItem("models/weapons/colt45.tik");
-            giveItem("models/weapons/m2frag_grenade.tik");
-        } else {
-            giveItem("models/weapons/p38.tik");
-            giveItem("models/weapons/steilhandgranate.tik");
-        }
-
-        giveItem("models/items/binoculars.tik");
-    }
+    EquipWeapons();
 
     if (current_team) {
         current_team->m_bHasSpawnedPlayers = qtrue;
@@ -7880,7 +6856,7 @@ void Player::InitDeathmatch(void)
 
 bool Player::QueryLandminesAllowed() const
 {
-    const char* mapname;
+    const char *mapname;
 
     if (dmflags->integer & DF_WEAPON_NO_LANDMINE) {
         return qfalse;
@@ -7957,8 +6933,7 @@ void Player::EnsurePlayerHasAllowedWeapons()
         return;
     }
 
-    for (i = 0; i < 7; i++)
-    {
+    for (i = 0; i < 7; i++) {
         if (!Q_stricmp(client->pers.dm_primary, "sniper")) {
             if (!(dmflags->integer & DF_WEAPON_NO_SNIPER)) {
                 return;
@@ -8011,7 +6986,322 @@ void Player::EnsurePlayerHasAllowedWeapons()
 
 void Player::EquipWeapons()
 {
-    // FIXME: unimplemented
+    Event *event;
+
+    nationality_t nationality;
+
+    if (IsSpectator()) {
+        FreeInventory();
+        return;
+    }
+
+    if (GetTeam() == TEAM_AXIS) {
+        nationality = GetPlayerTeamType(client->pers.dm_playergermanmodel);
+    } else {
+        nationality = GetPlayerTeamType(client->pers.dm_playermodel);
+    }
+
+    event = new Event(EV_Use);
+
+    if (!m_sDmPrimary.length()) {
+        // Set the primary weapon
+        m_sDmPrimary = client->pers.dm_primary;
+    }
+
+    EnsurePlayerHasAllowedWeapons();
+
+    if (!Q_stricmp(client->pers.dm_primary, "sniper") && !(dmflags->integer & DF_WEAPON_NO_SNIPER)) {
+        switch (nationality) {
+        case NA_BRITISH:
+            giveItem("weapons/Uk_W_L42A1.tik");
+            event->AddString("Enfield L42A1");
+            break;
+        case NA_RUSSIAN:
+            if (dmflags->integer & DF_OLD_SNIPER) {
+                giveItem("weapons/springfield.tik");
+                event->AddString("Springfield '03 Sniper");
+            } else {
+                giveItem("weapons/svt_rifle.tik");
+                event->AddString("SVT 40");
+            }
+            break;
+        case NA_GERMAN:
+            if (dmflags->integer & DF_OLD_SNIPER) {
+                giveItem("weapons/kar98sniper.tik");
+                event->AddString("KAR98 - Sniper");
+            } else {
+                giveItem("weapons/g43.tik");
+                event->AddString("G 43");
+            }
+            break;
+        case NA_ITALIAN:
+            giveItem("weapons/kar98sniper.tik");
+            event->AddString("KAR98 - Sniper");
+            break;
+        default:
+            giveItem("weapons/kar98sniper.tik");
+            event->AddString("KAR98 - Sniper");
+            break;
+        }
+    } else if (!Q_stricmp(client->pers.dm_primary, "smg") && !(dmflags->integer & DF_WEAPON_NO_SMG)) {
+        switch (nationality) {
+        case NA_BRITISH:
+            giveItem("weapons/sten.tik");
+            event->AddString("Sten Mark II");
+            break;
+        case NA_RUSSIAN:
+            giveItem("weapons/ppsh_smg.tik");
+            event->AddString("PPSH SMG");
+            break;
+        case NA_GERMAN:
+            giveItem("weapons/mp40.tik");
+            event->AddString("MP40");
+            break;
+        case NA_ITALIAN:
+            giveItem("weapons/it_w_moschetto.tik");
+            event->AddString("Moschetto");
+            break;
+        default:
+            giveItem("weapons/thompsonsmg.tik");
+            event->AddString("Thompson");
+            break;
+        }
+    } else if (!Q_stricmp(client->pers.dm_primary, "mg") && !(dmflags->integer & DF_WEAPON_NO_MG)) {
+        switch (nationality) {
+        case NA_BRITISH:
+            giveItem("weapons/Uk_W_Vickers.tik");
+            event->AddString("Vickers-Berthier");
+            break;
+        case NA_GERMAN:
+            giveItem("weapons/mp44.tik");
+            event->AddString("StG 44");
+            break;
+        case NA_ITALIAN:
+            giveItem("weapons/It_W_Breda.tik");
+            event->AddString("MP40");
+            break;
+        default:
+            giveItem("weapons/bar.tik");
+            event->AddString("BAR");
+            break;
+        }
+    } else if (!Q_stricmp(client->pers.dm_primary, "heavy") && !(dmflags->integer & DF_WEAPON_NO_ROCKET)) {
+        switch (nationality) {
+        case NA_GERMAN:
+        case NA_ITALIAN:
+            giveItem("weapons/panzerschreck.tik");
+            event->AddString("Panzerschreck");
+            break;
+        case NA_BRITISH:
+            giveItem("weapons/Uk_W_Piat.tik");
+            event->AddString("PIAT");
+            break;
+        default:
+            giveItem("weapons/bazooka.tik");
+            event->AddString("Bazooka");
+            break;
+        }
+    } else if (!Q_stricmp(client->pers.dm_primary, "shotgun") && !(dmflags->integer & DF_WEAPON_NO_SHOTGUN)) {
+        switch (nationality) {
+        case NA_BRITISH:
+            giveItem("weapons/DeLisle.tik");
+            event->AddString("DeLisle");
+            break;
+        case NA_GERMAN:
+            if (dmflags->integer & DF_DISALLOW_KAR98_MORTAR) {
+                // Fallback to shotgun
+                giveItem("weapons/shotgun.tik");
+                event->AddString("Shotgun");
+            } else {
+                giveItem("weapons/kar98_mortar.tik");
+                event->AddString("Gewehrgranate");
+            }
+            break;
+        default:
+            giveItem("weapons/shotgun.tik");
+            event->AddString("Shotgun");
+            break;
+        }
+    } else if (!Q_stricmp(client->pers.dm_primary, "landmine") && QueryLandminesAllowed()) {
+        //gi.Cvar_Get("g_rifles_for_sweepers", "0", 0);
+
+        switch (nationality) {
+        case NA_BRITISH:
+            giveItem("weapons/US_W_Minedetector.tik");
+            event->AddString("Minedetector");
+
+            if (g_rifles_for_sweepers->integer) {
+                // Give a lite version of the rifle
+                giveItem("weapons/enfield_lite.tik");
+            } else {
+                // Just give some ammo for the pistol
+                GiveAmmo("pistol", 12);
+            }
+            break;
+        case NA_RUSSIAN:
+            giveItem("weapons/US_W_Minedetector.tik");
+            event->AddString("Minedetector");
+
+            if (g_rifles_for_sweepers->integer) {
+                // Give a lite version of the rifle
+                giveItem("weapons/Mosin_Nagant_Rifle_lite.tik");
+            } else {
+                // Just give some ammo for the pistol
+                GiveAmmo("pistol", 14);
+            }
+            break;
+        case NA_GERMAN:
+            giveItem("weapons/Gr_W_Minedetector.tik");
+            event->AddString("Minensuchgerat");
+
+            if (g_rifles_for_sweepers->integer) {
+                // Give a lite version of the rifle
+                giveItem("weapons/kar98_lite.tik");
+            } else {
+                // Just give some ammo for the pistol
+                GiveAmmo("pistol", 16);
+            }
+            break;
+        default:
+            giveItem("weapons/US_W_Minedetector.tik");
+            event->AddString("Minedetector");
+
+            if (g_rifles_for_sweepers->integer) {
+                // Give a lite version of the rifle
+                giveItem("weapons/m1_garand_lite.tik");
+            } else {
+                // Just give some ammo for the pistol
+                GiveAmmo("pistol", 14);
+            }
+            break;
+        }
+    } else if (!(dmflags->integer & DF_WEAPON_NO_RIFLE)) {
+        switch (nationality) {
+        case NA_BRITISH:
+            giveItem("weapons/enfield.tik");
+            event->AddString("Lee-Enfield");
+            break;
+        case NA_RUSSIAN:
+            giveItem("weapons/Mosin_Nagant_Rifle.tik");
+            event->AddString("Mosin Nagant Rifle");
+            break;
+        case NA_GERMAN:
+            giveItem("weapons/kar98.tik");
+            event->AddString("Mauser KAR 98K");
+            break;
+        case NA_ITALIAN:
+            giveItem("weapons/it_w_carcano.tik");
+            event->AddString("Carcano");
+            break;
+        default:
+            giveItem("weapons/m1_garand.tik");
+            event->AddString("M1 Garand");
+            break;
+        }
+    }
+
+    // Make the player switch to the weapon some time after spawning
+    PostEvent(EV_Use, 3.f);
+
+    //
+    // Pistols and grenades
+    //
+    switch (nationality) {
+    case NA_BRITISH:
+        giveItem("weapons/mills_grenade.tik");
+        giveItem("weapons/M18_smoke_grenade.tik");
+        giveItem("weapons/Webley_Revolver.tik");
+        break;
+    case NA_RUSSIAN:
+        giveItem("weapons/Russian_F1_grenade.tik");
+        giveItem("weapons/RDG-1_Smoke_grenade.tik");
+        giveItem("weapons/Nagant_revolver.tik");
+        break;
+    case NA_GERMAN:
+        giveItem("weapons/steilhandgranate.tik");
+        giveItem("weapons/nebelhandgranate.tik");
+        giveItem("weapons/p38.tik");
+        break;
+    case NA_ITALIAN:
+        giveItem("weapons/it_w_bomba.tik");
+        giveItem("weapons/it_w_bombabreda.tik");
+        giveItem("weapons/it_w_beretta.tik");
+        break;
+    default:
+        giveItem("weapons/m2frag_grenade.tik");
+        giveItem("weapons/M18_smoke_grenade.tik");
+        giveItem("weapons/colt45.tik");
+        break;
+    }
+}
+
+void Player::EquipWeapons_ver8()
+{
+    // spectators should not have weapons
+    if (IsSpectator()) {
+        FreeInventory();
+    } else {
+        Event *ev = new Event("use");
+
+        if (!Q_stricmp(client->pers.dm_primary, "rifle")) {
+            if (dm_team == TEAM_ALLIES) {
+                giveItem("models/weapons/m1_garand.tik");
+                ev->AddString("models/weapons/m1_garand.tik");
+            } else {
+                giveItem("models/weapons/kar98.tik");
+                ev->AddString("models/weapons/kar98.tik");
+            }
+
+            GiveAmmo("rifle", 100);
+        } else if (!Q_stricmp(client->pers.dm_primary, "sniper")) {
+            if (dm_team == TEAM_ALLIES) {
+                giveItem("models/weapons/springfield.tik");
+                ev->AddString("models/weapons/springfield.tik");
+            } else {
+                giveItem("models/weapons/kar98sniper.tik");
+                ev->AddString("models/weapons/kar98sniper.tik");
+            }
+        } else if (!Q_stricmp(client->pers.dm_primary, "smg")) {
+            if (dm_team == TEAM_ALLIES) {
+                giveItem("models/weapons/thompsonsmg.tik");
+                ev->AddString("models/weapons/thompsonsmg.tik");
+            } else {
+                giveItem("models/weapons/mp40.tik");
+                ev->AddString("models/weapons/mp40.tik");
+            }
+        } else if (!Q_stricmp(client->pers.dm_primary, "mg")) {
+            if (dm_team == TEAM_ALLIES) {
+                giveItem("models/weapons/bar.tik");
+                ev->AddString("models/weapons/bar.tik");
+            } else {
+                giveItem("models/weapons/mp44.tik");
+                ev->AddString("models/weapons/mp44.tik");
+            }
+        } else if (!Q_stricmp(client->pers.dm_primary, "heavy")) {
+            if (dm_team == TEAM_ALLIES) {
+                giveItem("models/weapons/bazooka.tik");
+                ev->AddString("models/weapons/bazooka.tik");
+            } else {
+                giveItem("models/weapons/panzerschreck.tik");
+                ev->AddString("models/weapons/panzerschreck.tik");
+            }
+        } else if (!Q_stricmp(client->pers.dm_primary, "shotgun")) {
+            giveItem("models/weapons/shotgun.tik");
+            ev->AddString("models/weapons/shotgun.tik");
+        }
+
+        PostEvent(ev, 0.3f);
+
+        if (dm_team == TEAM_ALLIES) {
+            giveItem("models/weapons/colt45.tik");
+            giveItem("models/weapons/m2frag_grenade.tik");
+        } else {
+            giveItem("models/weapons/p38.tik");
+            giveItem("models/weapons/steilhandgranate.tik");
+        }
+
+        giveItem("models/items/binoculars.tik");
+    }
 }
 
 void Player::Spectator(void)
@@ -8021,7 +7311,6 @@ void Player::Spectator(void)
     }
 
     RemoveFromVehiclesAndTurrets();
-    
 
     m_bSpectator        = !m_bTempSpectator;
     m_iPlayerSpectating = 0;
@@ -8030,7 +7319,7 @@ void Player::Spectator(void)
     health              = max_health;
 
     client->ps.feetfalling = 0;
-    movecontrol = MOVECONTROL_USER;
+    movecontrol            = MOVECONTROL_USER;
     client->ps.pm_flags |= PMF_SPECTATING;
 
     EvaluateState(statemap_Torso->FindState("STAND"), statemap_Legs->FindState("STAND"));
@@ -8067,13 +7356,10 @@ void Player::SetPlayerSpectate(bool bNext)
     gentity_t *ent;
     Player    *pPlayer;
 
-    if (bNext)
-    {
+    if (bNext) {
         dir = 1;
         num = m_iPlayerSpectating;
-    }
-    else
-    {
+    } else {
         dir = -1;
         if (m_iPlayerSpectating) {
             num = m_iPlayerSpectating - 2;
@@ -8087,14 +7373,13 @@ void Player::SetPlayerSpectate(bool bNext)
     }
 
     i = num;
-    while (i < game.maxclients && i >= 0)
-    {
+    while (i < game.maxclients && i >= 0) {
         ent = &g_entities[i];
         if (!ent->inuse || !ent->entity) {
             continue;
         }
 
-        pPlayer = (Player*)ent->entity;
+        pPlayer = (Player *)ent->entity;
 
         if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
             m_iPlayerSpectating = i + 1;
@@ -8111,8 +7396,7 @@ void Player::SetPlayerSpectate(bool bNext)
         i += dir;
     }
 
-    if (m_iPlayerSpectating)
-    {
+    if (m_iPlayerSpectating) {
         m_iPlayerSpectating = 0;
         SetPlayerSpectate(bNext);
     }
@@ -8120,27 +7404,26 @@ void Player::SetPlayerSpectate(bool bNext)
 
 void Player::SetPlayerSpectateRandom(void)
 {
-    Player* pPlayer;
-    int i;
-    int numvalid;
-    int iRandom;
+    Player *pPlayer;
+    int     i;
+    int     numvalid;
+    int     iRandom;
 
     numvalid = 0;
 
     for (i = 0; i < game.maxclients; i++) {
-        gentity_t* ent = &g_entities[i];
+        gentity_t *ent = &g_entities[i];
         if (!ent->inuse || !ent->entity) {
             continue;
         }
 
-        pPlayer = static_cast<Player*>(ent->entity);
+        pPlayer = static_cast<Player *>(ent->entity);
         if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
             numvalid++;
         }
     }
 
-    if (!numvalid)
-    {
+    if (!numvalid) {
         // There is no valid player to spectate
         return;
     }
@@ -8148,12 +7431,12 @@ void Player::SetPlayerSpectateRandom(void)
     iRandom = (int)(random() * numvalid);
 
     for (i = 0; i < game.maxclients; i++) {
-        gentity_t* ent = &g_entities[i];
+        gentity_t *ent = &g_entities[i];
         if (!ent->inuse || !ent->entity) {
             continue;
         }
 
-        pPlayer = static_cast<Player*>(ent->entity);
+        pPlayer = static_cast<Player *>(ent->entity);
         if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
             if (!iRandom) {
                 m_iPlayerSpectating = i + 1;
@@ -8168,7 +7451,7 @@ void Player::SetPlayerSpectateRandom(void)
     }
 }
 
-void Player::GetSpectateFollowOrientation(Player* pPlayer, Vector& vPos, Vector& vAng)
+void Player::GetSpectateFollowOrientation(Player *pPlayer, Vector& vPos, Vector& vAng)
 {
     Vector  forward, right, up;
     Vector  vCamOfs;
@@ -8198,9 +7481,8 @@ void Player::GetSpectateFollowOrientation(Player* pPlayer, Vector& vPos, Vector&
         Vector vMins = Vector(-2, -2, 2);
         Vector vMaxs = Vector(2, 2, 2);
 
-        trace = G_Trace(
-            start, vMins, vMaxs, vCamOfs, pPlayer, MASK_SHOT, false, "Player::GetSpectateFollowOrientation"
-        );
+        trace =
+            G_Trace(start, vMins, vMaxs, vCamOfs, pPlayer, MASK_SHOT, false, "Player::GetSpectateFollowOrientation");
 
         vAng[0] += g_spectatefollow_pitch->value * trace.fraction;
         vPos = trace.endpos;
@@ -8367,10 +7649,9 @@ void Player::EndFight(void)
     m_bAllowFighting = false;
 }
 
-void Player::WarpToPoint(Entity* spawnpoint)
+void Player::WarpToPoint(Entity *spawnpoint)
 {
-    if (spawnpoint)
-    {
+    if (spawnpoint) {
         setOrigin(spawnpoint->origin + Vector(0, 0, 1));
         setAngles(spawnpoint->angles);
         SetViewAngles(angles);
@@ -8389,7 +7670,7 @@ void Player::HUDPrint(const char *s)
     gi.SendServerCommand(edict - g_entities, "hudprint \"%s\"\n", s);
 }
 
-void Player::GibEvent(Event* ev)
+void Player::GibEvent(Event *ev)
 {
     qboolean hidemodel;
 
@@ -8397,7 +7678,7 @@ void Player::GibEvent(Event* ev)
 
     if (com_blood->integer) {
         if (hidemodel) {
-            gibbed = true;
+            gibbed     = true;
             takedamage = DAMAGE_NO;
             setSolidType(SOLID_NOT);
             hideModel();
@@ -8600,15 +7881,12 @@ void Player::Vote(Event *ev)
     }
 }
 
-void Player::RetrieveVoteOptions(Event* ev)
+void Player::RetrieveVoteOptions(Event *ev)
 {
-    if (m_fNextVoteOptionTime > level.time)
-    {
+    if (m_fNextVoteOptionTime > level.time) {
         gi.SendServerCommand(edict - g_entities, "vo0 \"\"\n");
         gi.SendServerCommand(edict - g_entities, "vo2 \"\"\n");
-    }
-    else
-    {
+    } else {
         m_fNextVoteOptionTime = level.time + 2.0;
         level.SendVoteOptionsFile(edict);
     }
@@ -8711,12 +7989,12 @@ void Player::LostMatch(void)
     num_lost_matches++;
 }
 
-void Player::ArmWithWeapons(Event* ev)
+void Player::ArmWithWeapons(Event *ev)
 {
     EquipWeapons();
 }
 
-void Player::EventGetCurrentDMWeaponType(Event* ev)
+void Player::EventGetCurrentDMWeaponType(Event *ev)
 {
     ev->AddString(GetCurrentDMWeaponType());
 }
@@ -8731,12 +8009,12 @@ void Player::PhysicsOn(Event *ev)
     flags &= ~FL_IMMOBILE;
 }
 
-void Player::GetIsSpectator(Event* ev)
+void Player::GetIsSpectator(Event *ev)
 {
     ev->AddInteger(IsSpectator());
 }
 
-void Player::EventSetInJail(Event* ev)
+void Player::EventSetInJail(Event *ev)
 {
     m_bIsInJail = ev->GetBoolean(1);
 }
@@ -8746,12 +8024,12 @@ bool Player::IsInJail() const
     return m_bIsInJail;
 }
 
-void Player::EventGetInJail(Event* ev)
+void Player::EventGetInJail(Event *ev)
 {
     ev->AddInteger(m_bIsInJail);
 }
 
-void Player::GetNationalityPrefix(Event* ev)
+void Player::GetNationalityPrefix(Event *ev)
 {
     nationality_t nationality;
 
@@ -8761,8 +8039,7 @@ void Player::GetNationalityPrefix(Event* ev)
         nationality = GetPlayerTeamType(client->pers.dm_playermodel);
     }
 
-    switch (nationality)
-    {
+    switch (nationality) {
     case NA_RUSSIAN:
         ev->AddString("dfrru");
         break;
@@ -8806,7 +8083,119 @@ void Player::SetObjectiveCount(Event *ev)
 
 void Player::Stats(Event *ev)
 {
-    // FIXME: unimplemented
+    char entry[2048];
+    int  i;
+    str  szPreferredWeapon;
+    str  szGunneryEvaluation;
+    int  iNumHeadShots;
+    int  iNumTorsoShots;
+    int  iNumLeftLegShots;
+    int  iNumRightLegShots;
+    int  iNumGroinShots;
+    int  iNumLeftArmShots;
+    int  iNumRightArmShots;
+    int  iNumShotsFired;
+    int  iNumHits;
+    int  iBestNumHits;
+
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
+        // Only works in singleplayer
+        return;
+    }
+
+    szPreferredWeapon   = "none";
+    szGunneryEvaluation = "none";
+    iNumHeadShots       = m_iNumHeadShots;
+    iNumTorsoShots      = m_iNumTorsoShots;
+    iNumLeftLegShots    = m_iNumLeftLegShots;
+    iNumRightLegShots   = m_iNumRightLegShots;
+    iNumGroinShots      = m_iNumGroinShots;
+    iNumLeftArmShots    = m_iNumLeftArmShots;
+    iNumRightArmShots   = m_iNumRightArmShots;
+    iNumShotsFired      = m_iNumShotsFired;
+    iNumHits            = m_iNumHits;
+    iBestNumHits        = 0;
+
+    for (i = 1; i <= inventory.NumObjects(); i++) {
+        Entity *pEnt = G_GetEntity(inventory.ObjectAt(i));
+        if (pEnt->IsSubclassOfWeapon()) {
+            Weapon *pWeap = static_cast<Weapon *>(pEnt);
+
+            iNumHeadShots += pWeap->m_iNumHeadShots;
+            iNumTorsoShots += pWeap->m_iNumTorsoShots;
+            iNumLeftLegShots += pWeap->m_iNumLeftLegShots;
+            iNumRightLegShots += pWeap->m_iNumRightLegShots;
+            iNumGroinShots += pWeap->m_iNumGroinShots;
+            iNumLeftArmShots += pWeap->m_iNumLeftArmShots;
+            iNumRightArmShots += pWeap->m_iNumRightArmShots;
+            iNumShotsFired += pWeap->m_iNumShotsFired;
+            iNumHits += pWeap->m_iNumHits;
+
+            if (pWeap->m_iNumHits > iBestNumHits) {
+                szPreferredWeapon = pWeap->item_name;
+                iBestNumHits      = pWeap->m_iNumHits;
+            }
+        }
+    }
+
+    szPreferredWeapon = m_sPerferredWeaponOverride;
+
+    if (iNumHits) {
+        Com_sprintf(
+            entry,
+            sizeof(entry),
+            "%i %i %i %i %.1f \"%s\" %i %i %i \"%.1f\" \"%.1f\" \"%.1f\" \"%.1f\" \"%.1f\" \"%.1f\" \"%.1f\" \"%s\" %i "
+            "%i %i",
+            m_iNumObjectives,
+            m_iObjectivesCompleted,
+            iNumShotsFired,
+            iNumHits,
+            (iNumHits / iNumShotsFired * 100.f),
+            szPreferredWeapon.c_str(),
+            m_iNumHitsTaken,
+            m_iNumObjectsDestroyed,
+            m_iNumEnemiesKilled,
+            iNumHeadShots * 100.f / iNumHits,
+            iNumTorsoShots * 100.f / iNumHits,
+            iNumLeftLegShots * 100.f / iNumHits,
+            iNumRightLegShots * 100.f / iNumHits,
+            iNumGroinShots * 100.f / iNumHits,
+            iNumLeftArmShots * 100.f / iNumHits,
+            iNumRightArmShots * 100.f / iNumHits,
+            szGunneryEvaluation.c_str(),
+            g_gotmedal->integer,
+            g_success->integer,
+            g_failed->integer
+        );
+    } else {
+        Com_sprintf(
+            entry,
+            sizeof(entry),
+            "%i %i %i %i %i \"%s\" %i %i %i \"%i\" \"%i\" \"%i\" \"%i\" \"%i\" \"%i\" \"%i\" \"%s\" %i %i %i",
+            m_iNumObjectives,
+            m_iObjectivesCompleted,
+            iNumShotsFired,
+            0,
+            0,
+            szPreferredWeapon.c_str(),
+            m_iNumHitsTaken,
+            m_iNumObjectsDestroyed,
+            m_iNumEnemiesKilled,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            szGunneryEvaluation.c_str(),
+            g_gotmedal->integer,
+            g_success->integer,
+            g_failed->integer
+        );
+    }
+
+    gi.SendServerCommand(edict - g_entities, "stats %s", entry);
 }
 
 void Player::EventStuffText(Event *ev)
@@ -8859,8 +8248,7 @@ void Player::GetTeamDialogPrefix(str& outPrefix)
         outPrefix = "allied_";
     }
 
-    switch (m_voiceType)
-    {
+    switch (m_voiceType) {
     case PVT_ALLIED_AMERICAN:
         outPrefix += "american_";
         break;
@@ -8886,12 +8274,11 @@ void Player::GetTeamDialogPrefix(str& outPrefix)
     }
 }
 
-void Player::PlayInstantMessageSound(const char* name)
+void Player::PlayInstantMessageSound(const char *name)
 {
     str soundName;
 
-    if (g_protocol < PROTOCOL_MOHTA_MIN)
-    {
+    if (g_protocol < PROTOCOL_MOHTA_MIN) {
         gi.DPrintf2("Instant message sound isn't supported on protocol below version 15");
         return;
     }
@@ -9158,7 +8545,7 @@ void Player::EventDMMessage(Event *ev)
     gi.SendServerCommand(mode - 1, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\"", string.c_str());
 }
 
-const char* Player::GetBattleLanguageCondition() const
+const char *Player::GetBattleLanguageCondition() const
 {
     int healthRatio;
 
@@ -9171,8 +8558,7 @@ const char* Player::GetBattleLanguageCondition() const
     }
 
     healthRatio = (health * 5.f) / max_health;
-    switch (healthRatio)
-    {
+    switch (healthRatio) {
     case 0:
         return "almost dead";
     case 1:
@@ -9187,11 +8573,10 @@ const char* Player::GetBattleLanguageCondition() const
     }
 }
 
-const char* Player::GetBattleLanguageDirection() const
+const char *Player::GetBattleLanguageDirection() const
 {
     int dir = ((m_vViewAng.y - world->m_fNorth) + 22.5f + 360.f) / 45.f;
-    switch (dir % 8)
-    {
+    switch (dir % 8) {
     case 0:
         return "North";
     case 1:
@@ -9213,27 +8598,27 @@ const char* Player::GetBattleLanguageDirection() const
     }
 }
 
-const char* Player::GetBattleLanguageLocation() const
+const char *Player::GetBattleLanguageLocation() const
 {
     return level.GetDMLocation(m_vViewPos).c_str();
 }
 
-const char* Player::GetBattleLanguageLocalFolks()
+const char *Player::GetBattleLanguageLocalFolks()
 {
     static char buf[256];
-    char* p;
-    char* curP;
-    int remaining;
-    int length;
-    Player* pPlayer;
-    Player* pFolk;
-    gentity_t* ent;
-    int i;
+    char       *p;
+    char       *curP;
+    int         remaining;
+    int         length;
+    Player     *pPlayer;
+    Player     *pFolk;
+    gentity_t  *ent;
+    int         i;
 
     remaining = ARRAY_LEN(buf) - 1;
-    p = buf;
-    curP = NULL;
-    pFolk = NULL;
+    p         = buf;
+    curP      = NULL;
+    pFolk     = NULL;
 
     for (i = 0; i < game.maxclients; i++) {
         ent = &g_entities[i];
@@ -9241,7 +8626,7 @@ const char* Player::GetBattleLanguageLocalFolks()
             continue;
         }
 
-        pPlayer = static_cast<Player*>(ent->entity);
+        pPlayer = static_cast<Player *>(ent->entity);
         if (pPlayer != this && pPlayer->GetTeam() == GetTeam() && CanSee(pPlayer, 360, 1600, false)) {
             if (p != buf) {
                 if (remaining < 2) {
@@ -9277,24 +8662,33 @@ const char* Player::GetBattleLanguageLocalFolks()
     return buf;
 }
 
-const char* Player::GetBattleLanguageWeapon() const
+const char *Player::GetBattleLanguageWeapon() const
 {
     return GetCurrentDMWeaponType().c_str();
 }
 
-const char* Player::GetBattleLanguageDistance() const
+const char *Player::GetBattleLanguageDistance() const
 {
-    Vector vStart, vEnd;
-    Vector vForward;
+    Vector  vStart, vEnd;
+    Vector  vForward;
     trace_t trace;
-    float dist;
+    float   dist;
 
     vStart = m_vViewPos;
     AngleVectors(m_vViewAng, vForward, NULL, NULL);
 
     vEnd = vStart + vForward * 10240;
 
-    trace = G_Trace(vStart, vec_zero, vec_zero, vEnd, static_cast<const Entity*>(this), MASK_BATTLELANGUAGE, qfalse, "Player::GetBattleLanguageDistance");
+    trace = G_Trace(
+        vStart,
+        vec_zero,
+        vec_zero,
+        vEnd,
+        static_cast<const Entity *>(this),
+        MASK_BATTLELANGUAGE,
+        qfalse,
+        "Player::GetBattleLanguageDistance"
+    );
 
     dist = (vStart - trace.endpos).length();
 
@@ -9305,13 +8699,12 @@ const char* Player::GetBattleLanguageDistance() const
     }
 }
 
-const char* Player::GetBattleLanguageDistanceMeters(float dist) const
+const char *Player::GetBattleLanguageDistanceMeters(float dist) const
 {
     int meters;
 
     meters = (int)((dist + 26.f) / 52.f);
-    if (meters >= 5)
-    {
+    if (meters >= 5) {
         if (meters < 21) {
             meters = 5 * ((meters + 2) / 5);
         } else if (meters < 101) {
@@ -9324,13 +8717,12 @@ const char* Player::GetBattleLanguageDistanceMeters(float dist) const
     return va("%d meters", meters);
 }
 
-const char* Player::GetBattleLanguageDistanceFeet(float dist) const
+const char *Player::GetBattleLanguageDistanceFeet(float dist) const
 {
     int ft;
 
     ft = (int)((dist + 26.f) / 52.f);
-    if (ft >= 11)
-    {
+    if (ft >= 11) {
         if (ft < 51) {
             ft = 5 * ((ft + 2) / 5);
         } else if (ft < 251) {
@@ -9343,10 +8735,10 @@ const char* Player::GetBattleLanguageDistanceFeet(float dist) const
     return va("%d feet", ft);
 }
 
-const char* Player::GetBattleLanguageTarget() const
+const char *Player::GetBattleLanguageTarget() const
 {
-    Vector vStart, vEnd;
-    Vector vForward;
+    Vector  vStart, vEnd;
+    Vector  vForward;
     trace_t trace;
 
     vStart = m_vViewPos;
@@ -9354,7 +8746,16 @@ const char* Player::GetBattleLanguageTarget() const
 
     vEnd = vStart + vForward * 10240;
 
-    trace = G_Trace(vStart, vec_zero, vec_zero, vEnd, static_cast<const Entity*>(this), MASK_BATTLELANGUAGE, qfalse, "Player::GetBattleLanguageDistance");
+    trace = G_Trace(
+        vStart,
+        vec_zero,
+        vec_zero,
+        vEnd,
+        static_cast<const Entity *>(this),
+        MASK_BATTLELANGUAGE,
+        qfalse,
+        "Player::GetBattleLanguageDistance"
+    );
 
     if (!trace.ent) {
         return "something";
@@ -9363,9 +8764,9 @@ const char* Player::GetBattleLanguageTarget() const
     if (!trace.ent->entity || trace.ent->entity == world) {
         return "something";
     }
-    
+
     if (trace.ent->entity->IsSubclassOfPlayer()) {
-        Player* pPlayer = static_cast<Player*>(trace.ent->entity);
+        Player *pPlayer = static_cast<Player *>(trace.ent->entity);
         return pPlayer->client->pers.netname;
     }
 
@@ -9376,10 +8777,10 @@ const char* Player::GetBattleLanguageTarget() const
     return "something";
 }
 
-const char* Player::TranslateBattleLanguageTokens(const char* string)
+const char *Player::TranslateBattleLanguageTokens(const char *string)
 {
-    const char* token;
-    int type;
+    const char *token;
+    int         type;
 
     if (!g_chat_expansions->integer) {
         return string;
@@ -9398,8 +8799,7 @@ const char* Player::TranslateBattleLanguageTokens(const char* string)
         return string;
     }
 
-    switch (type)
-    {
+    switch (type) {
     case 'a':
         token = GetBattleLanguageTarget();
         break;
@@ -9464,12 +8864,12 @@ void Player::EventGetFireHeld(Event *ev)
     ev->AddInteger(buttons & (BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT) ? qtrue : qfalse);
 }
 
-void Player::EventGetPrimaryFireHeld(Event* ev)
+void Player::EventGetPrimaryFireHeld(Event *ev)
 {
     ev->AddInteger(buttons & BUTTON_ATTACKLEFT ? true : false);
 }
 
-void Player::EventGetSecondaryFireHeld(Event* ev)
+void Player::EventGetSecondaryFireHeld(Event *ev)
 {
     ev->AddInteger(buttons & BUTTON_ATTACKRIGHT ? true : false);
 }
@@ -9528,7 +8928,7 @@ void Player::EventGetDMTeam(Event *ev)
     }
 }
 
-void Player::EventGetNetName(Event* ev)
+void Player::EventGetNetName(Event *ev)
 {
     ev->AddString(client->pers.netname);
 }
@@ -9569,27 +8969,24 @@ void Player::FullHeal(Event *ev)
 
 void Player::RemoveFromVehiclesAndTurretsInternal(void)
 {
-    if (m_pVehicle)
-	{
-        Event* event;
+    if (m_pVehicle) {
+        Event *event;
 
         m_pVehicle->flags &= ~FL_GODMODE;
 
         event = new Event(EV_Use);
         event->AddEntity(this);
         m_pVehicle->ProcessEvent(event);
-    }
-    else if (m_pTurret)
-    {
+    } else if (m_pTurret) {
         m_pTurret->TurretUsed(this);
     }
 }
 
 void Player::RemoveFromVehiclesAndTurrets(void)
 {
-    Weapon* activeWeap = GetActiveWeapon(WEAPON_MAIN);
+    Weapon *activeWeap = GetActiveWeapon(WEAPON_MAIN);
     if (activeWeap && activeWeap->IsCarryableTurret()) {
-        CarryableTurret* pTurret = static_cast<CarryableTurret*>(activeWeap);
+        CarryableTurret *pTurret = static_cast<CarryableTurret *>(activeWeap);
         pTurret->DropTurret(NULL);
     }
 
@@ -9619,8 +9016,8 @@ void Player::RemoveFromVehiclesAndTurrets(void)
         VehicleTurretGun *turret = (VehicleTurretGun *)m_pTurret.Pointer();
 
         if (turret->isLocked()) {
-			turret->UnLock();
-			RemoveFromVehiclesAndTurretsInternal();
+            turret->UnLock();
+            RemoveFromVehiclesAndTurretsInternal();
             turret->Lock();
         } else {
             RemoveFromVehiclesAndTurretsInternal();
@@ -9794,12 +9191,16 @@ void Player::TickSprint()
             m_fLastSprintTime = level.time;
         }
     } else {
-        timeHeld = 0;
+        timeHeld          = 0;
         m_fLastSprintTime = 0;
     }
 
-    if (last_ucmd.rightmove) m_fLastSprintTime = timeHeld;
-    if (last_ucmd.upmove) m_fLastSprintTime = timeHeld;
+    if (last_ucmd.rightmove) {
+        m_fLastSprintTime = timeHeld;
+    }
+    if (last_ucmd.upmove) {
+        m_fLastSprintTime = timeHeld;
+    }
 }
 
 float Player::GetRunSpeed() const
@@ -9809,8 +9210,7 @@ float Player::GetRunSpeed() const
 
     sprintTime = sv_sprinttime->value;
     sprintMult = sv_sprintmult->value;
-    if (g_gametype->integer != GT_SINGLE_PLAYER)
-    {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         sprintTime = sv_sprinttime_dm->value;
         sprintMult = sv_sprintmult_dm->value;
     }
@@ -9830,8 +9230,7 @@ void Player::FireWeapon(int number, firemode_t mode)
 
     Sentient::FireWeapon(number, mode);
 
-    if (g_gametype->integer != GT_SINGLE_PLAYER)
-    {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         //
         // Make sure to remove the player's invulnerability
         //
@@ -9864,18 +9263,17 @@ void Player::SetInvulnerable()
     //
     // The player can now be invulnerable
     //
-    takedamage = DAMAGE_NO;
+    takedamage                   = DAMAGE_NO;
     m_iInvulnerableTimeRemaining = sv_invulnerabletime->integer;
-    m_fLastInvulnerableTime = level.time;
-    m_fInvulnerableTimeElapsed = level.time;
+    m_fLastInvulnerableTime      = level.time;
+    m_fInvulnerableTimeElapsed   = level.time;
 
     TickInvulnerable();
 }
 
 void Player::TickInvulnerable()
 {
-    if (m_iInvulnerableTimeRemaining >= 0 && level.time >= m_fInvulnerableTimeElapsed)
-    {
+    if (m_iInvulnerableTimeRemaining >= 0 && level.time >= m_fInvulnerableTimeElapsed) {
         if (m_iInvulnerableTimeRemaining) {
             m_fInvulnerableTimeElapsed = m_fInvulnerableTimeElapsed + 1.f;
         } else {
@@ -9889,9 +9287,8 @@ void Player::TickInvulnerable()
 
 void Player::SetVulnerable()
 {
-    if (IsInvulnerable())
-    {
-        takedamage = DAMAGE_AIM;
+    if (IsInvulnerable()) {
+        takedamage              = DAMAGE_AIM;
         m_fLastInvulnerableTime = 0;
     }
 }
@@ -9903,8 +9300,7 @@ bool Player::IsInvulnerable()
 
 void Player::CancelInvulnerable()
 {
-    if (IsInvulnerable())
-    {
+    if (IsInvulnerable()) {
         SetVulnerable();
         m_iInvulnerableTimeRemaining = -1;
         gi.centerprintf(edict, " ");
@@ -9913,13 +9309,58 @@ void Player::CancelInvulnerable()
 
 void Player::InitInvulnerable()
 {
-    m_fLastInvulnerableTime = 0;
+    m_fLastInvulnerableTime      = 0;
     m_iInvulnerableTimeRemaining = -1;
 }
 
 void Player::TickTeamSpawn()
 {
-    // FIXME: unimplemented
+    int timeLeft;
+
+    if (!IsSpectator() && !IsDead() || (GetTeam() == TEAM_SPECTATOR || !client->pers.dm_primary[0])) {
+        return;
+    }
+
+    timeLeft = dmManager.GetTeamSpawnTimeLeft();
+    if (timeLeft == -1) {
+        // Can spawn
+        m_fSpawnTimeLeft = 0;
+        return;
+    }
+
+    if (timeLeft == m_fSpawnTimeLeft) {
+        // Still waiting
+        return;
+    }
+
+    if (m_bShouldRespawn) {
+        // The player can spawn
+        m_fSpawnTimeLeft = 0;
+        return;
+    }
+
+    m_fSpawnTimeLeft = timeLeft;
+    if (timeLeft) {
+        if (AllowTeamRespawn()) {
+            const char *string;
+
+            if (timeLeft == 1) {
+                string = va("Next respawn in 1 second");
+            } else {
+                string = va("Next respawn in %d seconds", timeLeft);
+            }
+
+            gi.centerprintf(edict, string);
+        }
+    } else if (m_bWaitingForRespawn && AllowTeamRespawn()) {
+        m_bWaitingForRespawn = false;
+        m_bDeathSpectator    = false;
+        EndSpectator();
+
+        PostEvent(EV_Player_Respawn, 0);
+    } else {
+        m_bShouldRespawn = true;
+    }
 }
 
 bool Player::ShouldForceSpectatorOnDeath() const
@@ -9939,10 +9380,52 @@ void Player::setContentsSolid()
 
 void Player::UserSelectWeapon(bool bWait)
 {
-    // FIXME: unimplemented
+    nationality_t nationality;
+    char          buf[256];
+
+    if (GetTeam() == TEAM_AXIS) {
+        nationality = GetPlayerTeamType(client->pers.dm_playergermanmodel);
+    } else {
+        nationality = GetPlayerTeamType(client->pers.dm_playermodel);
+    }
+
+    if (bWait) {
+        strcpy(buf, "stufftext \"wait 250;pushmenu ");
+    } else {
+        strcpy(buf, "stufftext \"pushmenu ");
+    }
+
+    if (dmflags->integer & DF_WEAPON_NO_RIFLE && dmflags->integer & DF_WEAPON_NO_SNIPER
+        && dmflags->integer & DF_WEAPON_NO_SMG && dmflags->integer & DF_WEAPON_NO_MG
+        && dmflags->integer & DF_WEAPON_NO_ROCKET && dmflags->integer & DF_WEAPON_NO_SHOTGUN
+        && dmflags->integer & DF_WEAPON_NO_LANDMINE && !QueryLandminesAllowed()) {
+        gi.Cvar_Set("dmflags", va("%i", dmflags->integer & ~DF_WEAPON_NO_RIFLE));
+        Com_Printf("No valid weapons -- re-allowing the rifle\n");
+        strcpy(client->pers.dm_primary, "rifle");
+    }
+
+    switch (nationality) {
+    case NA_BRITISH:
+        strcat(buf, "SelectPrimaryWeapon_british\"");
+        break;
+    case NA_RUSSIAN:
+        strcat(buf, "SelectPrimaryWeapon_russian\"");
+        break;
+    case NA_GERMAN:
+        strcat(buf, "SelectPrimaryWeapon_german\"");
+        break;
+    case NA_ITALIAN:
+        strcat(buf, "SelectPrimaryWeapon_italian\"");
+        break;
+    default:
+        strcat(buf, "SelectPrimaryWeapon\"");
+        break;
+    }
+
+    gi.SendServerCommand(edict - g_entities, buf);
 }
 
-void Player::PickWeaponEvent(Event* ev)
+void Player::PickWeaponEvent(Event *ev)
 {
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
@@ -9953,11 +9436,19 @@ void Player::PickWeaponEvent(Event* ev)
 
 bool Player::AllowTeamRespawn() const
 {
-    // FIXME: unimplemented
-    return true;
+    if (m_bSpectator && !m_bDeathSpectator
+        && (!dmManager.AllowTeamRespawn(TEAM_ALLIES) || !dmManager.AllowTeamRespawn(TEAM_AXIS))) {
+        return false;
+    }
+
+    if (GetTeam() > TEAM_AXIS || GetTeam() < TEAM_ALLIES) {
+        return false;
+    }
+
+    return dmManager.AllowTeamRespawn(GetTeam());
 }
 
-void Player::EventUseWeaponClass(Event* ev)
+void Player::EventUseWeaponClass(Event *ev)
 {
     if (m_pTurret || level.playerfrozen) {
         return;
@@ -9966,11 +9457,10 @@ void Player::EventUseWeaponClass(Event* ev)
     Sentient::EventUseWeaponClass(ev);
 }
 
-void Player::EventAddKills(Event* ev)
+void Player::EventAddKills(Event *ev)
 {
     SafePtr<DM_Team> pTeam = GetDM_Team();
-    if (pTeam)
-    {
+    if (pTeam) {
         // Add kills to the team
         pTeam->AddKills(this, ev->GetInteger(1));
     }
@@ -9985,17 +9475,32 @@ bool Player::CanKnockback(float minHealth) const
     }
 }
 
-void Player::EventKillAxis(Event* ev)
+void Player::EventKillAxis(Event *ev)
 {
-    // FIXME: unimplemented
+    float radius = 0;
+
+    if (ev->NumArgs() >= 1) {
+        radius = ev->GetFloat(1);
+    }
+
+    for (Sentient *pSent = level.m_HeadSentient[TEAM_GERMAN]; pSent; pSent = pSent->m_NextSentient) {
+        if (radius > 0) {
+            Vector delta = pSent->origin - origin;
+            if (radius < delta.length()) {
+                continue;
+            }
+        }
+
+        pSent->Damage(this, this, pSent->max_health + 25, origin, vec_zero, vec_zero, 0, 0, MOD_NONE);
+    }
 }
 
-void Player::EventGetTurret(Event* ev)
+void Player::EventGetTurret(Event *ev)
 {
     ev->AddEntity(m_pTurret);
 }
 
-void Player::EventGetVehicle(Event* ev)
+void Player::EventGetVehicle(Event *ev)
 {
     ev->AddEntity(m_pVehicle);
 }
@@ -10743,9 +10248,9 @@ qboolean Player::canUse()
     return num ? true : false;
 }
 
-qboolean Player::canUse(Entity* entity, bool requiresLookAt)
+qboolean Player::canUse(Entity *entity, bool requiresLookAt)
 {
-    gentity_t* hit;
+    gentity_t *hit;
     int        touch[MAX_GENTITIES];
     int        num;
     int        i;
@@ -10767,7 +10272,7 @@ qboolean Player::canUse(Entity* entity, bool requiresLookAt)
     return false;
 }
 
-int Player::getUseableEntities(int* touch, int maxcount, bool requiresLookAt)
+int Player::getUseableEntities(int *touch, int maxcount, bool requiresLookAt)
 {
     Vector  end;
     Vector  start;
@@ -10803,8 +10308,7 @@ int Player::getUseableEntities(int* touch, int maxcount, bool requiresLookAt)
 
         if (v_angle[0] <= 0.0f) {
             end[2] = start[2] + (offset[2] * 40.f);
-        }
-        else {
+        } else {
             end[2] = start[2] + (offset[2] * 88.f);
         }
 
@@ -10814,8 +10318,7 @@ int Player::getUseableEntities(int* touch, int maxcount, bool requiresLookAt)
 
         min = offset - Vector(16.f, 16.f, 16.f);
         max = offset + Vector(16.f, 16.f, 16.f);
-    }
-    else {
+    } else {
         min = start - Vector(31.f, 31.f, 31.f);
         max = start + Vector(31.f, 31.f, 31.f);
     }
