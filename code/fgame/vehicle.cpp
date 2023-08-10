@@ -2083,6 +2083,11 @@ void Vehicle::VehicleDestroyed
 {
 }
 
+void Vehicle::DetachRemoteOwner()
+{
+	// FIXME: unimplemented
+}
+
 /*
 ====================
 Vehicle::SetMoveInfo

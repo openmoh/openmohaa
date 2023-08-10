@@ -380,6 +380,7 @@ protected:
 		virtual void DetachPassengerSlot(Event* ev);
 		virtual void DetachDriverSlot(Event* ev);
 		virtual void DetachTurretSlot(Event* ev);
+		virtual void DetachRemoteOwner();
 		virtual void SetWheelCorners(Event* ev);
 		virtual void EventDriveInternal(Event* ev, bool wait);
 		virtual void EventDrive(Event* ev);
