@@ -4635,7 +4635,6 @@ void Player::GodCheat(Event *ev)
 }
 
 void Player::Kill(Event *ev)
-
 {
     if ((level.time - respawn_time) < 5) {
         return;
@@ -4647,7 +4646,6 @@ void Player::Kill(Event *ev)
 }
 
 void Player::NoTargetCheat(Event *ev)
-
 {
     const char *msg;
 
@@ -4784,11 +4782,23 @@ void Player::ProcessPmoveEvents(int event)
     case EV_FALL_FAR:
     case EV_FALL_FATAL:
         if (event == EV_FALL_FATAL) {
-            damage = max_health + 1.0f;
+			if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+				damage = 101;
+            } else {
+                damage = max_health + 1.0f;
+            }
         } else if (event == EV_FALL_FAR) {
-            damage = 20;
+			if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+				damage = 25;
+            } else {
+                damage = 20;
+            }
         } else if (event == EV_FALL_MEDIUM) {
-            damage = 10;
+			if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+				damage = 15;
+            } else {
+                damage = 10;
+            }
         } else {
             damage = 5;
         }
@@ -4799,50 +4809,6 @@ void Player::ProcessPmoveEvents(int event)
     case EV_TERMINAL_VELOCITY:
         Sound("snd_fall", CHAN_VOICE);
         break;
-
-        // fakk2 remnants
-        /*
-    case EV_WATER_TOUCH:   // foot touches
-        if( watertype & CONTENTS_LAVA )
-        {
-            Sound( "snd_burn", CHAN_LOCAL );
-        }
-        else
-        {
-            Animate *water;
-            trace_t trace;
-            Vector start;
-            float scale;
-
-            Sound( "impact_playersplash", CHAN_AUTO );
-
-            // Find the correct place to put the splash
-
-            start = origin + Vector( 0, 0, 90 );
-            trace = G_Trace( start, vec_zero, vec_zero, origin, NULL, MASK_WATER, false, "ProcessPmoveEvents" );
-
-            // Figure out a good scale for the splash
-
-            scale = 1 + ( velocity[ 2 ] + 400 ) / -1500;
-
-            if( scale < 1 )
-                scale = 1;
-            else if( scale > 1.5 )
-                scale = 1.5;
-
-            // Spawn in a water splash
-
-            water = new Animate;
-
-            water->setOrigin( trace.endpos );
-            water->setModel( "fx_splashsmall.tik" );
-            water->setScale( scale );
-            water->NewAnim( "idle" );
-            water->PostEvent( EV_Remove, 5 );
-
-        }
-        break;
-*/
     case EV_WATER_LEAVE: // foot leaves
         Sound("impact_playerleavewater", CHAN_AUTO);
         break;
@@ -4862,8 +4828,8 @@ WorldEffects
 */
 void Player::WorldEffects(void)
 {
-    if (deadflag == DEAD_DEAD) {
-        // if we are dead, no world effects
+    if (deadflag == DEAD_DEAD || getMoveType() == MOVETYPE_NOCLIP) {
+        // if we are dead or no-cliping, no world effects
         return;
     }
 
