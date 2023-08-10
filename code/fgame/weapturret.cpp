@@ -728,6 +728,11 @@ void TurretGun::ThinkIdle
 	}
 }
 
+void TurretGun::P_ThinkActive()
+{
+	// FIXME: unimplemented
+}
+
 void TurretGun::Think
 	(
 	void
@@ -741,6 +746,11 @@ void TurretGun::Think
 	{
 		ThinkIdle();
 	}
+}
+
+void TurretGun::P_UserAim(usercmd_t* cmd)
+{
+	// FIXME: unimplemented
 }
 
 qboolean TurretGun::UserAim
@@ -841,6 +851,16 @@ void TurretGun::TurretBeginUsed
 	CreateViewModel();
 }
 
+void TurretGun::P_TurretBeginUsed(Player* pEnt)
+{
+	// FIXME: unimplemented
+}
+
+void TurretGun::P_TurretEndUsed()
+{
+	// FIXME: unimplemented
+}
+
 void TurretGun::TurretEndUsed
 	(
 	void
@@ -878,6 +898,11 @@ void TurretGun::TurretEndUsed
 	m_fIdlePitchSpeed = 0;
 	m_iIdleHitCount = 0;
 	m_iFiring = 0;
+}
+
+void TurretGun::P_TurretUsed(Player* player)
+{
+	// FIXME: unimplemented
 }
 
 void TurretGun::TurretUsed

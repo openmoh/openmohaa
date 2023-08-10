@@ -84,12 +84,17 @@ public:
 
 	void Think( void ) override;
 
-	qboolean UserAim( usercmd_s *ucmd );
 	void PlaceTurret( Event *ev );
 
-	virtual void TurretBeginUsed( Sentient *pEnt );
-	virtual void TurretEndUsed( void );
-	virtual void TurretUsed( Sentient *pEnt );
+	virtual void P_ThinkActive();
+	virtual void P_UserAim(usercmd_t* cmd);
+	qboolean UserAim(usercmd_s* ucmd);
+	virtual void TurretBeginUsed(Sentient* pEnt);
+	virtual void P_TurretBeginUsed(Player* pEnt);
+	virtual void TurretEndUsed(void);
+	virtual void P_TurretEndUsed();
+	virtual void TurretUsed(Sentient* pEnt);
+	virtual void P_TurretUsed(Player* player);
 
 	void TurretUsed( Event *ev );
 	void SetPlayerUsable( Event *ev );
