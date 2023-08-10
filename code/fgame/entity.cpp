@@ -2018,7 +2018,7 @@ void Entity::setModel(const str& mdl)
     model = CanonicalTikiName(mdl);
 
     if (!setModel()) {
-        Com_Printf("^~^~^ Bad model name '%s'\n", mdl);
+        Com_Printf("^~^~^ Bad model name '%s'\n", mdl.c_str());
         return;
     }
 

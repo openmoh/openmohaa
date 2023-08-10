@@ -888,7 +888,7 @@ public:
     void  UserSelectWeapon(bool bWait);
     void  PickWeaponEvent(Event *ev);
     bool  AllowTeamRespawn() const;
-    void  EventUseWeaponClass(Event *ev);
+    void  EventUseWeaponClass(Event *ev) override;
     void  EventAddKills(Event *ev);
     bool  CanKnockback(float minHealth) const;
     //====

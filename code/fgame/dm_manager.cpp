@@ -1628,7 +1628,7 @@ int DM_Manager::GetTeamSpawnTimeLeft() const
 {
     int timeLeft;
 
-    if (sv_team_spawn_interval <= 0) {
+    if (sv_team_spawn_interval->integer <= 0) {
         return -1;
     }
 

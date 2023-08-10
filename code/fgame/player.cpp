@@ -4422,7 +4422,7 @@ void Player::GiveNewWeaponsCheat(Event *ev)
         return;
     }
 
-    if (gi.FS_ReadFile("global/givenewweapons.scr", &(void *)buffer, qtrue) != -1) {
+    if (gi.FS_ReadFile("global/givenewweapons.scr", (void**)&buffer, qtrue) != -1) {
         return;
     }
 

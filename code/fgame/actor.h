@@ -1178,7 +1178,7 @@ public:
 	bool ShortenPathToAttack( float fMinDist );
 	void StrafeToAttack( float fDist, vec3_t vDir );
 	virtual Vector GunTarget( bool bNoCollision ) override;
-	virtual qboolean setModel( void );
+	virtual qboolean setModel( void ) override;
 	void EventSetHeadModel( Event *ev );
 	void EventGetHeadModel( Event *ev );
 	void EventSetHeadSkin( Event *ev );
