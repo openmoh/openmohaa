@@ -1621,7 +1621,7 @@ G_PrintDeathMessageEmulated(const char *s1, const char *s2, char *attackerName, 
 }
 
 void G_PrintDeathMessage(
-    const char *s1, const char *s2, char *attackerName, const char *victimName, Player *victim, const char *type
+    const char *s1, const char *s2, const char *attackerName, const char *victimName, Player *victim, const char *type
 )
 {
     gentity_t *ent;
