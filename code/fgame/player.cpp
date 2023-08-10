@@ -1225,12 +1225,18 @@ void Player::InitEdict(void)
 {
     // entity state stuff
     setSolidType(SOLID_BBOX);
-    setMoveType(MOVETYPE_WALK);
-    edict->clipmask = MASK_PLAYERSOLID;
+    if (m_bSpectator) {
+        //
+        // 2.0: always noclip when spectating
+        //
+        setMoveType(MOVETYPE_NOCLIP);
+    } else {
+        setMoveType(MOVETYPE_WALK);
+    }
 
     setSize(Vector(-16, -16, 0), Vector(16, 16, 72));
 
-    edict->r.contents = CONTENTS_BODY;
+    edict->clipmask   = MASK_PLAYERSOLID;
     edict->r.ownerNum = ENTITYNUM_NONE;
 
     // clear entity state values
@@ -1330,39 +1336,75 @@ void Player::InitState(void)
 void Player::InitHealth(void)
 
 {
+    static cvar_t *pMaxHealth = gi.Cvar_Get("g_maxplayerhealth", "250", 0);
+    static cvar_t *pDMHealth  = gi.Cvar_Get("g_playerdmhealth", "100", 0);
+
     // Don't do anything if we're loading a server game.
     // This is either a loadgame or a restart
     if (LoadingSavegame) {
         return;
     }
 
-    // reset the health values
-    health     = 100;
-    max_health = 100;
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
+        if (pDMHealth->integer > 0) {
+            max_health = pDMHealth->integer;
+        } else {
+            max_health = 100.f;
+        }
+
+        health = max_health;
+    } else if (!g_realismmode->integer) {
+        max_health = pMaxHealth->integer;
+        health     = max_health;
+    } else {
+        // reset the health values
+        health     = 100;
+        max_health = health;
+    }
+
+    // 2.0:
+    //  Make sure to clear the heal rate and the dead flag when respawning
+    //
+    m_fHealRate = 0;
+    edict->s.eFlags &= ~EF_DEAD;
 }
 
 void Player::InitModel(void)
 {
+    // 2.0:
+    //  Make sure to detach from any object before initializing
+    //  To prevent any glitches
+    RemoveFromVehiclesAndTurrets();
+    UnattachFromLadder(NULL);
+
     gi.clearmodel(edict);
 
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         setModel("models/player/" + str(g_playermodel->string) + ".tik");
-    } else if (dm_team != TEAM_AXIS) {
+    } else if (dm_team == TEAM_AXIS) {
+        if (Q_stricmpn(client->pers.dm_playermodel, "german", 6)
+            && Q_stricmpn(client->pers.dm_playermodel, "axis", 4)
+            //
+            // 2.30 models
+            //
+            && Q_stricmpn(client->pers.dm_playergermanmodel, "it", 2)
+            && Q_stricmpn(client->pers.dm_playergermanmodel, "sc", 2)) {
+            setModel("models/player/german_wehrmacht_soldier.tik");
+        } else {
+            setModel("models/player/" + str(client->pers.dm_playergermanmodel) + ".tik");
+        }
+    } else {
         if (Q_stricmpn(client->pers.dm_playermodel, "american", 8)
             && Q_stricmpn(client->pers.dm_playermodel, "allied", 6)) {
             setModel("models/player/american_army.tik");
         } else {
             setModel("models/player/" + str(client->pers.dm_playermodel) + ".tik");
         }
-    } else {
-        if (Q_stricmpn(client->pers.dm_playermodel, "german", 6)
-            && Q_stricmpn(client->pers.dm_playermodel, "axis", 4)) {
-            setModel("models/player/german_wehrmacht_soldier.tik");
-        } else {
-            setModel("models/player/" + str(client->pers.dm_playergermanmodel) + ".tik");
-        }
     }
 
+    //
+    // Fallback to a default model if not found
+    //
     if (!edict->tiki) {
         if (dm_team == TEAM_AXIS) {
             setModel("models/player/german_wehrmacht_soldier.tik");
@@ -1376,17 +1418,14 @@ void Player::InitModel(void)
     SetControllerTag(ARMS_TAG, gi.Tag_NumForName(edict->tiki, "Bip01 Spine1"));
     SetControllerTag(PELVIS_TAG, gi.Tag_NumForName(edict->tiki, "Bip01 Pelvis"));
 
-    if (g_gametype->integer) {
-        if (IsSpectator()) {
-            hideModel();
-        } else {
-            showModel();
-        }
+    if (g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator()) {
+        hideModel();
     } else {
         showModel();
     }
 
     if (GetActiveWeapon(WEAPON_MAIN)) {
+        // Show the arms
         edict->s.eFlags &= ~EF_UNARMED;
     } else {
         edict->s.eFlags |= EF_UNARMED;
@@ -1400,16 +1439,30 @@ void Player::InitModel(void)
         edict->s.eFlags |= EF_AXIS;
     }
 
+    G_SetClientConfigString(edict);
+
     client->ps.iViewModelAnim        = 0;
     client->ps.iViewModelAnimChanged = 0;
 
-    if (dm_team == TEAM_AXIS) {
-        if (m_voiceType >= PVT_AXIS_END) {
-            m_voiceType = PVT_AXIS_AXIS4;
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        if (dm_team == TEAM_AXIS) {
+            if (m_voiceType <= PVT_AXIS_START || m_voiceType >= PVT_AXIS_END) {
+                m_voiceType = PVT_AXIS_GERMAN;
+            }
+        } else {
+            if (m_voiceType <= PVT_ALLIED_START || m_voiceType >= PVT_ALLIED_END) {
+                m_voiceType = PVT_ALLIED_AMERICAN;
+            }
         }
     } else {
-        if (m_voiceType >= PVT_ALLIED_END) {
-            m_voiceType = PVT_ALLIED_PILOT;
+        if (dm_team == TEAM_AXIS) {
+            if (m_voiceType >= PVT_AXIS_END) {
+                m_voiceType = PVT_AXIS_AXIS4;
+            }
+        } else {
+            if (m_voiceType >= PVT_ALLIED_END) {
+                m_voiceType = PVT_ALLIED_PILOT;
+            }
         }
     }
 
@@ -1556,6 +1609,8 @@ void Player::EndLevel(Event *ev)
 void Player::Respawn(Event *ev)
 {
     if (g_gametype->integer) {
+        bool bOldVoted;
+
         if (health <= 0.0f) {
             DeadBody(NULL);
             hideModel();
@@ -1568,9 +1623,18 @@ void Player::Respawn(Event *ev)
         RemoveFromVehiclesAndTurrets();
 
         FreeInventory();
-        Init();
 
+        // Save the previous vote value
+        bOldVoted = client->ps.voted;
+        Init();
+        client->ps.voted = bOldVoted;
         client->ps.pm_flags |= PMF_RESPAWNED;
+
+        SetInvulnerable();
+
+        // Clear the center message
+        gi.centerprintf(edict, " ");
+        m_bShouldRespawn = false;
     } else {
         if (g_lastsave->string && *g_lastsave->string) {
             gi.SendConsoleCommand("loadlastgame\n");
@@ -1581,6 +1645,9 @@ void Player::Respawn(Event *ev)
         logfile_started = qfalse;
     }
 
+    //
+    // Added in openmohaa
+    //
     Unregister(STRING_RESPAWN);
 }
 
