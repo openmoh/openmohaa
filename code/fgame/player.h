@@ -79,16 +79,16 @@ typedef enum {
     PVT_ALLIED_SAS,
     PVT_ALLIED_PILOT,
     PVT_ALLIED_ARMY,
-	PVT_ALLIED_RANGER,
-	PVT_ALLIED_AMERICAN,
-	PVT_ALLIED_BRITISH,
-	PVT_ALLIED_RUSSIAN,
+    PVT_ALLIED_RANGER,
+    PVT_ALLIED_AMERICAN,
+    PVT_ALLIED_BRITISH,
+    PVT_ALLIED_RUSSIAN,
     PVT_ALLIED_END,
     PVT_AXIS_START,
-	PVT_AXIS_AXIS1,
-	PVT_AXIS_GERMAN = PVT_AXIS_AXIS1,
-	PVT_AXIS_AXIS2,
-	PVT_AXIS_ITALIAN = PVT_AXIS_AXIS2,
+    PVT_AXIS_AXIS1,
+    PVT_AXIS_GERMAN = PVT_AXIS_AXIS1,
+    PVT_AXIS_AXIS2,
+    PVT_AXIS_ITALIAN = PVT_AXIS_AXIS2,
     PVT_AXIS_AXIS3,
     PVT_AXIS_AXIS4,
     PVT_AXIS_AXIS5,
@@ -741,7 +741,6 @@ public:
 
     inline Vector GetVAngles(void) { return v_angle; }
 
-    void SpawnDamageEffect(meansOfDeath_t mod);
     void GetStateAnims(Container<const char *> *c) override;
     void VelocityModified(void) override;
     int  GetKnockback(int original_knockback, qboolean blocked);

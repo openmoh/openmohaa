@@ -2288,14 +2288,6 @@ void Player::Pain(Event *ev)
         pain_dir = PAIN_REAR;
     }
 
-    // accumulate pain for animation purposes
-    if (take_pain) {
-        pain += damage;
-    }
-
-    // Spawn off any damage effect if we get hit with a certain type of damage
-    SpawnDamageEffect((meansOfDeath_t)meansofdeath);
-
     pain_type     = (meansOfDeath_t)meansofdeath;
     pain_location = iLocation;
 
@@ -2335,6 +2327,9 @@ void Player::Pain(Event *ev)
 
     if (g_voiceChat->integer) {
         if (m_voiceType == PVT_ALLIED_MANON) {
+            //
+            // Should have been removed since 2.0
+            //
             Sound("manon_pain", CHAN_DIALOG, -1, 160, NULL, -1, 1, 0, 1, 1200);
         } else {
             Sound("player_pain");
@@ -2359,13 +2354,12 @@ void Player::DoUse(Event *ev)
         return;
     }
 
-    if (m_pVehicle) {
-        Event *event = new Event(EV_Use);
-        event->AddEntity(this);
-        m_pVehicle->ProcessEvent(event);
-    } else if (m_pTurret) {
-        m_pTurret->TurretEndUsed();
-    } else {
+    if (m_pVehicle || m_pTurret) {
+        RemoveFromVehiclesAndTurretsInternal();
+    } else if (!(buttons & BUTTON_ATTACKLEFT) && !(buttons & BUTTON_ATTACKRIGHT)) {
+        //
+        // Allow use if the player isn't holding attack buttons
+        //
         num = getUseableEntities(touch, MAX_GENTITIES, true);
 
         for (i = 0; i < num; i++) {
@@ -2493,7 +2487,9 @@ void Player::GetMoveInfo(pmove_t *pm)
             m_vPushVelocity = vec_zero;
         }
 
-        // Disable predictions when the groundentity is moving up/down, looks like shaky otherwise
+        //
+        // Openmohaa fix
+        //  Disable predictions when the groundentity is moving up/down, looks like shaky otherwise
         if (groundentity->entity && groundentity->entity != this && groundentity->entity->velocity[2] != 0) {
             pm->ps->pm_flags |= PMF_NO_PREDICTION;
         }
@@ -2528,21 +2524,28 @@ void Player::SetMoveInfo(pmove_t *pm, usercmd_t *ucmd)
         pm->cmd = *ucmd;
     }
 
+    if (sv_drawtrace->integer <= 1) {
+        pm->trace = gi.Trace;
+    } else {
+        pm->trace = &G_PMDrawTrace;
+    }
+
     pm->tracemask     = MASK_PLAYERSOLID;
-    pm->trace         = gi.Trace;
     pm->pointcontents = gi.PointContents;
 
     pm->ps->origin[0] = origin.x;
     pm->ps->origin[1] = origin.y;
     pm->ps->origin[2] = origin.z;
 
-    pm->mins[0] = mins.x;
-    pm->mins[1] = mins.y;
-    pm->mins[2] = mins.z;
+    /*
+	pm->mins[0] = mins.x;
+	pm->mins[1] = mins.y;
+	pm->mins[2] = mins.z;
 
-    pm->maxs[0] = maxs.x;
-    pm->maxs[1] = maxs.y;
-    pm->maxs[2] = maxs.z;
+	pm->maxs[0] = maxs.x;
+	pm->maxs[1] = maxs.y;
+	pm->maxs[2] = maxs.z;
+    */
 
     pm->ps->velocity[0] = velocity.x;
     pm->ps->velocity[1] = velocity.y;
@@ -2555,6 +2558,18 @@ void Player::SetMoveInfo(pmove_t *pm, usercmd_t *ucmd)
         pm->pmove_msec = 8;
     } else if (pmove_msec->integer > 33) {
         pm->pmove_msec = 33;
+    }
+
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
+        //
+        // Added in 2.0
+        // In multiplayer mode, specify if the player can lean while moving
+        //
+        if (dmflags->integer & DF_ALLOW_LEAN_MOVEMENT) {
+            pm->alwaysAllowLean = qtrue;
+        } else {
+            pm->alwaysAllowLean = qfalse;
+        }
     }
 }
 
@@ -2783,6 +2798,7 @@ void Player::ClientMove(usercmd_t *ucmd)
     pmove_t pm;
     Vector  move;
 
+#if 0
     int  touch[MAX_GENTITIES];
     int  num        = getUseableEntities(touch, MAX_GENTITIES, true);
     bool bHintShown = false;
@@ -2801,7 +2817,6 @@ void Player::ClientMove(usercmd_t *ucmd)
         m_bShowingHint = false;
 
         // FIXME: delete
-        /*
         if (sv_specialgame->integer)
         {
             gi.MSG_SetClient(edict - g_entities);
@@ -2811,8 +2826,8 @@ void Player::ClientMove(usercmd_t *ucmd)
                 gi.MSG_WriteString("");
             gi.MSG_EndCGM();
         }
-        */
     }
+#endif
 
     oldorigin = origin;
 
@@ -2831,6 +2846,16 @@ void Player::ClientMove(usercmd_t *ucmd)
         client->ps.pm_flags |= PMF_NO_PREDICTION;
     }
 
+    if (m_pGlueMaster) {
+        //
+        // Added in 2.0.
+        // Disable movement prediction/movement if the player is glued to something
+        //
+        client->ps.pm_flags |= PMF_NO_PREDICTION;
+        client->ps.pm_flags |= PMF_NO_MOVE;
+    }
+
+    /*
     if (maxs.z == 60.0f) {
         client->ps.pm_flags |= PMF_DUCKED;
     } else if (maxs.z == 54.0f) {
@@ -2839,6 +2864,12 @@ void Player::ClientMove(usercmd_t *ucmd)
         client->ps.pm_flags |= PMF_VIEW_PRONE;
     } else if (maxs.z == 53.0f) {
         client->ps.pm_flags |= PMF_VIEW_DUCK_RUN;
+    } else if (viewheight == 52) {
+        client->ps.pm_flags |= PMF_VIEW_JUMP_START;
+    }
+    */
+    if (maxs.z == 54.0f) {
+        client->ps.pm_flags |= PMF_DUCKED;
     } else if (viewheight == 52) {
         client->ps.pm_flags |= PMF_VIEW_JUMP_START;
     }
@@ -2866,18 +2897,28 @@ void Player::ClientMove(usercmd_t *ucmd)
     } else if (!groundentity) {
         client->ps.speed = airspeed;
     } else {
-        int runspeed;
+        Weapon *pWeap;
 
-        if (m_iMovePosFlags & MPF_MOVEMENT_WALKING) {
-            runspeed = sv_runspeed->value * sv_walkspeedmult->value;
+        if (last_ucmd.buttons & BUTTON_RUN) {
+            client->ps.speed = GetRunSpeed();
         } else {
-            runspeed = sv_runspeed->value;
+            client->ps.speed = sv_runspeed->value * sv_walkspeedmult->value;
         }
 
         if (m_iMovePosFlags & MPF_POSITION_CROUCHING) {
-            client->ps.speed = (int)((float)runspeed * sv_crouchspeedmult->value);
-        } else {
-            client->ps.speed = runspeed;
+            client->ps.speed = (float)client->ps.speed * sv_crouchspeedmult->value;
+        }
+
+        pWeap = GetActiveWeapon(WEAPON_MAIN);
+        if (pWeap) {
+            //
+            // Also use the weapon movement speed
+            //
+            if (!IsZoomed()) {
+                client->ps.speed = (float)client->ps.speed * pWeap->m_fMovementSpeed;
+            } else {
+                client->ps.speed = (float)client->ps.speed * pWeap->m_fZoomMovement * pWeap->m_fMovementSpeed;
+            }
         }
     }
 
@@ -2885,15 +2926,12 @@ void Player::ClientMove(usercmd_t *ucmd)
         client->ps.speed = (int)((float)client->ps.speed * sv_dmspeedmult->value);
     }
 
+    //====
+    // Openmohaa addition
     for (int i = 0; i < MAX_SPEED_MULTIPLIERS; i++) {
         client->ps.speed = (int)((float)client->ps.speed * speed_multiplier[i]);
     }
-
-    for (int i = 0; i < MAX_ACTIVE_WEAPONS; i++) {
-        if (activeWeaponList[i] != NULL) {
-            client->ps.speed *= activeWeaponList[i]->m_fMovementSpeed;
-        }
-    }
+    //====
 
     client->ps.gravity = sv_gravity->value * gravity;
 
@@ -2904,10 +2942,21 @@ void Player::ClientMove(usercmd_t *ucmd)
         SetMoveInfo(&pm, ucmd);
         Pmove(&pm);
         GetMoveInfo(&pm);
+
+        if (g_gametype->integer != GT_SINGLE_PLAYER && groundentity && groundentity->entity
+            && groundentity->entity->IsSubclassOfSentient()) {
+            //
+            // Added in 2.0
+            // If the player is on another sentient, try to make it fall off
+            //
+            velocity -= Vector(orientation[0]) * (random() * 20.f);
+            velocity -= Vector(orientation[1]) * (random() * 10.f);
+        }
+
         ProcessPmoveEvents(pm.pmoveEvent);
 
         // if we're not moving, set the blocked flag in case the user is trying to move
-        if (ucmd->forwardmove && ((oldpos - origin).length() < 0.005f)) {
+        if ((ucmd->forwardmove || ucmd->rightmove) && ((oldpos - origin).length() < 0.005f)) {
             moveresult = MOVERESULT_BLOCKED;
         }
         if (client->ps.walking && moveresult >= MOVERESULT_BLOCKED) {
@@ -2959,10 +3008,6 @@ void Player::ClientMove(usercmd_t *ucmd)
     m_fLastDeltaTime = level.time;
 
     TouchStuff(&pm);
-
-    if ((whereami->integer) && (origin != oldorigin)) {
-        gi.DPrintf("x %8.2f y%8.2f z %8.2f area %2d\n", origin[0], origin[1], origin[2], edict->r.areanum);
-    }
 }
 
 void Player::VehicleMove(usercmd_t *ucmd)
@@ -2987,7 +3032,9 @@ void Player::VehicleMove(usercmd_t *ucmd)
         client->ps.pm_flags |= PMF_FROZEN;
     }
 
-    if (m_pVehicle->Drive(ucmd)) {
+    client->ps.gravity = gravity * sv_gravity->value;
+
+    if (m_pVehicle->Drive(current_ucmd)) {
         client->ps.commandTime = ucmd->serverTime;
     } else {
         ClientMove(ucmd);
@@ -3016,7 +3063,10 @@ void Player::TurretMove(usercmd_t *ucmd)
         client->ps.pm_flags |= PMF_FROZEN;
     }
 
-    if (!m_pTurret->IsSubclassOfTurretGun() || (m_pTurret->IsSubclassOfTurretGun() && m_pTurret->UserAim(ucmd))) {
+    client->ps.gravity = gravity * sv_gravity->value;
+
+    if (!m_pTurret->IsSubclassOfTurretGun()
+        || (m_pTurret->IsSubclassOfTurretGun() && m_pTurret->UserAim(current_ucmd))) {
         ClientMove(ucmd);
     } else {
         client->ps.commandTime = ucmd->serverTime;
@@ -3037,24 +3087,53 @@ void Player::ClientInactivityTimer(void)
         gi.Cvar_Set("g_inactiveSpectate", "20");
     }
 
+    if (num_team_kills >= g_teamkillkick->integer) {
+        const str message = gi.LV_ConvertString("was removed from the server for killing too many teammates.");
+
+        //
+        // The player reached maximum team kills
+        //
+        G_PrintToAllClients(va("%s %s", client->pers.netname, message.c_str()), qfalse);
+
+        if (Q_stricmp(Info_ValueForKey(client->pers.userinfo, "ip"), "localhost")) {
+            //
+            // Make sure to not kick the local host
+            //
+            gi.DropClient(client->ps.clientNum, message.c_str());
+        } else if (!m_bSpectator) {
+            // if it's the host, put it back in spectator mode
+            num_team_kills      = 0;
+            m_iLastNumTeamKills = 0;
+
+            PostEvent(EV_Player_Spectator, 0);
+        }
+
+        return;
+    }
+
+    if (num_team_kills >= g_teamkillwarn->integer && num_team_kills > m_iLastNumTeamKills) {
+        const str sWarning   = gi.LV_ConvertString("Warning:");
+        const str sTeamKills = gi.LV_ConvertString("more team kill(s) and you will be removed from the server.");
+
+        m_iLastNumTeamKills = num_team_kills;
+
+        gi.centerprintf(
+            edict, "%s %i %s", sWarning.c_str(), g_teamkillkick->integer - num_team_kills, sTeamKills.c_str()
+        );
+    }
+
     if (current_ucmd->buttons & BUTTON_MOUSE || (!g_inactivespectate->integer && !g_inactivekick->integer)
-        || current_ucmd->upmove) {
+        || current_ucmd->forwardmove || current_ucmd->rightmove || current_ucmd->upmove
+        || (m_bTempSpectator && client->lastActiveTime >= level.inttime - 5000)) {
         client->lastActiveTime = level.inttime;
         client->activeWarning  = 0;
         return;
     }
 
-    if (m_bTempSpectator) {
-        if (client->lastActiveTime >= level.inttime - 5000) {
-            client->lastActiveTime = level.inttime;
-            client->activeWarning  = 0;
-        }
-    }
-
     if (g_inactivekick->integer && client->lastActiveTime < level.inttime - 1000 * g_inactivekick->integer) {
         const char *s = Info_ValueForKey(client->pers.userinfo, "ip");
 
-        if (strcmp(s, "localhost")) {
+        if (Q_stricmp(s, "localhost")) {
             gi.DropClient(client->ps.clientNum, "was dropped for inactivity");
             return;
         }
@@ -3063,25 +3142,13 @@ void Player::ClientInactivityTimer(void)
             return;
         }
 
-        SetTeam(TEAM_SPECTATOR);
-
-        if (deadflag) {
-            deadflag = DEAD_DEAD;
-        }
-
-        PostEvent(EV_Player_Respawn, 0);
+        PostEvent(EV_Player_Spectator, 0);
         return;
     }
 
     if (g_inactivespectate->integer && client->lastActiveTime < level.inttime - g_inactivespectate->integer * 1000
         && !m_bSpectator) {
-        SetTeam(TEAM_SPECTATOR);
-
-        if (deadflag) {
-            deadflag = 2;
-        }
-
-        PostEvent(EV_Player_Respawn, 0);
+        PostEvent(EV_Player_Spectator, 0);
         return;
     }
 
@@ -3089,21 +3156,26 @@ void Player::ClientInactivityTimer(void)
         static struct {
             int iLevel;
             int iTime;
-        } warnkick[7] = {1, 30, 8, 15, 9, 5, 10, 4, 11, 3, 12, 2, 13, 1};
+        } warnkick[7] = {
+            {1,  30},
+            {8,  15},
+            {9,  5 },
+            {10, 4 },
+            {11, 3 },
+            {12, 2 },
+            {13, 1 }
+        };
 
         int iKickWait = g_inactivekick->integer - (level.inttime - client->lastActiveTime) / 1000 - 1;
 
         for (int i = 0; i < 7; i++) {
             if (client->activeWarning < warnkick[i].iLevel && iKickWait < warnkick[i].iTime) {
+                const str sActionIn = gi.LV_ConvertString("You will be kicked for inactivity in");
+                const str sSeconds  = gi.LV_ConvertString("seconds");
+
                 client->activeWarning = warnkick[i].iLevel;
 
-                gi.centerprintf(
-                    edict,
-                    "%s %i %s",
-                    gi.LV_ConvertString("You will be kicked for inactivity in"),
-                    warnkick[i].iTime,
-                    gi.LV_ConvertString("seconds")
-                );
+                gi.centerprintf(edict, "%s %i %s", sActionIn.c_str(), warnkick[i].iTime, sSeconds.c_str());
 
                 return;
             }
@@ -3120,15 +3192,12 @@ void Player::ClientInactivityTimer(void)
 
         for (int i = 0; i < 6; i++) {
             if (client->activeWarning < warnspectate[i].iLevel && iSpectateWait < warnspectate[i].iTime) {
+                const str sActionIn = gi.LV_ConvertString("You will be moved to spectator for inactivity in");
+                const str sSeconds  = gi.LV_ConvertString("seconds");
+
                 client->activeWarning = warnspectate[i].iLevel;
 
-                gi.centerprintf(
-                    edict,
-                    "%s %i %s",
-                    gi.LV_ConvertString("You will be moved to spectator for inactivity in"),
-                    warnspectate[i].iTime,
-                    gi.LV_ConvertString("seconds")
-                );
+                gi.centerprintf(edict, "%s %i %s", sActionIn.c_str(), warnspectate[i].iTime, sSeconds.c_str());
 
                 return;
             }
@@ -3214,6 +3283,8 @@ void Player::ClientThink(void)
         return;
     }
 
+    TickSprint();
+
     if (g_gametype->integer && dm_team == TEAM_SPECTATOR && !IsSpectator()) {
         Spectator();
     }
@@ -3238,8 +3309,45 @@ void Player::ClientThink(void)
 
     VectorCopy(m_vViewPos, client->ps.vEyePos);
 
-    if (level.intermissiontime) {
-        if (g_gametype->integer) {
+    if (!level.intermissiontime) {
+        if (new_buttons & BUTTON_ATTACKRIGHT) {
+            Weapon *weapon = GetActiveWeapon(WEAPON_MAIN);
+
+            if (weapon && (weapon->GetZoom())) {
+                ToggleZoom(weapon->GetZoom());
+            }
+        }
+
+        if (new_buttons & BUTTON_USE) {
+            DoUse(NULL);
+        }
+
+        moveresult = MOVERESULT_NONE;
+
+        if (m_pTurret) {
+            TurretMove(current_ucmd);
+        } else if (m_pVehicle) {
+            VehicleMove(current_ucmd);
+        } else {
+            ClientMove(current_ucmd);
+        }
+
+        // Save cmd angles so that we can get delta angle movements next frame
+        client->cmd_angles[0] = SHORT2ANGLE(current_ucmd->angles[0]);
+        client->cmd_angles[1] = SHORT2ANGLE(current_ucmd->angles[1]);
+        client->cmd_angles[2] = SHORT2ANGLE(current_ucmd->angles[2]);
+
+        if (g_gametype->integer && g_smoothClients->integer && !IsSubclassOfBot()) {
+            VectorCopy(client->ps.velocity, edict->s.pos.trDelta);
+            edict->s.pos.trTime = client->ps.commandTime;
+        } else {
+            VectorClear(edict->s.pos.trDelta);
+            edict->s.pos.trTime = 0;
+        }
+
+        ClientInactivityTimer();
+    } else {
+        if (g_gametype->integer != GT_SINGLE_PLAYER) {
             client->ps.pm_flags |= PMF_FROZEN;
             client->ps.pm_flags |= PMF_INTERMISSION;
 
@@ -3248,51 +3356,62 @@ void Player::ClientThink(void)
                 level.exitintermission = true;
             }
         } else {
-            if (level.intermissiontype == TRANS_MISSION_FAILED) {
+            if (level.intermissiontype == TRANS_MISSION_FAILED || IsDead()) {
                 gi.Cvar_Set("g_success", "0");
+                gi.Cvar_Set("g_failed", "1");
             } else {
                 gi.Cvar_Set("g_success", "1");
+                gi.Cvar_Set("g_failed", "0");
             }
-
-            gi.Cvar_Set("g_failed", "0");
 
             // prevent getting medals from cheats
             if (g_medal0->modificationCount > 1 || g_medal1->modificationCount > 1 || g_medal2->modificationCount > 1
                 || g_medal3->modificationCount > 1 || g_medal4->modificationCount > 1 || g_medal5->modificationCount > 1
-                || g_eogmedal0->modificationCount > 1 || g_eogmedal1->modificationCount > 1
+                || g_medalbt1->modificationCount > 1 || g_medalbt2->modificationCount > 1
+                || g_medalbt3->modificationCount > 1 || g_medalbt4->modificationCount > 1
+                || g_medalbt5->modificationCount > 1
+                || g_eogmedal0->modificationCount > 1 | g_eogmedal1->modificationCount > 1
                 || g_eogmedal2->modificationCount > 1) {
                 gi.Cvar_Set("g_gotmedal", "0");
             } else {
                 gi.Cvar_Set("g_gotmedal", "1");
             }
 
+            client->ps.pm_flags |= PMF_FROZEN;
+
             if (level.time - level.intermissiontime > 4.0f) {
                 if (level.intermissiontype) {
-                    if ((new_buttons & BUTTON_ATTACKLEFT) || (new_buttons & BUTTON_ATTACKRIGHT)) {
-                        if (level.intermissiontype == TRANS_MISSION_FAILED) {
+                    if (level.intermissiontype == TRANS_MISSION_FAILED) {
+                        if ((new_buttons & BUTTON_ATTACKLEFT) || (new_buttons & BUTTON_ATTACKRIGHT)) {
                             G_MissionFailed();
-                        } else {
-                            g_medal0->modificationCount    = 1;
-                            g_medal1->modificationCount    = 1;
-                            g_medal2->modificationCount    = 1;
-                            g_medal3->modificationCount    = 1;
-                            g_medal4->modificationCount    = 1;
-                            g_medal5->modificationCount    = 1;
-                            g_eogmedal0->modificationCount = 1;
-                            g_eogmedal1->modificationCount = 1;
-                            g_eogmedal2->modificationCount = 1;
-                            g_medal0->modified             = false;
-                            g_medal1->modified             = false;
-                            g_medal2->modified             = false;
-                            g_medal3->modified             = false;
-                            g_medal4->modified             = false;
-                            g_medal5->modified             = false;
-                            g_eogmedal0->modified          = false;
-                            g_eogmedal1->modified          = false;
-                            g_eogmedal2->modified          = false;
-
-                            level.exitintermission = true;
                         }
+                    } else if ((new_buttons & BUTTON_ATTACKLEFT) || (new_buttons & BUTTON_ATTACKRIGHT)) {
+                        g_medal0->modificationCount    = 1;
+                        g_medal1->modificationCount    = 1;
+                        g_medal2->modificationCount    = 1;
+                        g_medal3->modificationCount    = 1;
+                        g_medal4->modificationCount    = 1;
+                        g_medal5->modificationCount    = 1;
+                        g_medalbt0->modificationCount  = 1;
+                        g_medalbt1->modificationCount  = 1;
+                        g_medalbt2->modificationCount  = 1;
+                        g_medalbt3->modificationCount  = 1;
+                        g_medalbt4->modificationCount  = 1;
+                        g_medalbt5->modificationCount  = 1;
+                        g_eogmedal0->modificationCount = 1;
+                        g_eogmedal1->modificationCount = 1;
+                        g_eogmedal2->modificationCount = 1;
+                        g_medal0->modified             = false;
+                        g_medal1->modified             = false;
+                        g_medal2->modified             = false;
+                        g_medal3->modified             = false;
+                        g_medal4->modified             = false;
+                        g_medal5->modified             = false;
+                        g_eogmedal0->modified          = false;
+                        g_eogmedal1->modified          = false;
+                        g_eogmedal2->modified          = false;
+
+                        level.exitintermission = true;
                     }
                 } else {
                     level.exitintermission = true;
@@ -3301,55 +3420,11 @@ void Player::ClientThink(void)
         }
 
         // Save cmd angles so that we can get delta angle movements next frame
-        client->cmd_angles[0] = SHORT2ANGLE(current_ucmd->angles[0]);
-        client->cmd_angles[1] = SHORT2ANGLE(current_ucmd->angles[1]);
-        client->cmd_angles[2] = SHORT2ANGLE(current_ucmd->angles[2]);
-
-        return;
+        client->cmd_angles[0]  = SHORT2ANGLE(current_ucmd->angles[0]);
+        client->cmd_angles[1]  = SHORT2ANGLE(current_ucmd->angles[1]);
+        client->cmd_angles[2]  = SHORT2ANGLE(current_ucmd->angles[2]);
+        client->ps.commandTime = current_ucmd->serverTime;
     }
-
-    if (new_buttons & BUTTON_ATTACKRIGHT) {
-        Weapon *weapon = GetActiveWeapon(WEAPON_MAIN);
-
-        if ((weapon) && (weapon->GetZoom())) {
-            if ((weapon->GetZoom() == fov) && m_iInZoomMode == -1) {
-                SetFov(selectedfov);
-                m_iInZoomMode = 0;
-            } else {
-                SetFov(weapon->GetZoom());
-                m_iInZoomMode = -1;
-            }
-        }
-    }
-
-    if (new_buttons & BUTTON_USE) {
-        DoUse(NULL);
-    }
-
-    moveresult = MOVERESULT_NONE;
-
-    if (m_pTurret) {
-        TurretMove(current_ucmd);
-    } else if (m_pVehicle) {
-        VehicleMove(current_ucmd);
-    } else {
-        ClientMove(current_ucmd);
-    }
-
-    // Save cmd angles so that we can get delta angle movements next frame
-    client->cmd_angles[0] = SHORT2ANGLE(current_ucmd->angles[0]);
-    client->cmd_angles[1] = SHORT2ANGLE(current_ucmd->angles[1]);
-    client->cmd_angles[2] = SHORT2ANGLE(current_ucmd->angles[2]);
-
-    if (g_gametype->integer && g_smoothClients->integer && !IsSubclassOfBot()) {
-        VectorCopy(client->ps.velocity, edict->s.pos.trDelta);
-        edict->s.pos.trTime = client->ps.commandTime;
-    } else {
-        VectorClear(edict->s.pos.trDelta);
-        edict->s.pos.trTime = 0;
-    }
-
-    ClientInactivityTimer();
 }
 
 void Player::Think(void)
@@ -3359,12 +3434,6 @@ void Player::Think(void)
     int     m_iClientWeaponCommand;
     Event  *m_pWeaponCommand = NULL;
     Weapon *pWeap;
-
-    /*if (!this)
-    {
-        gi.DPrintf("Player::Think() : this is null\n");
-    }*/
-    //edict->s.eFlags &= ~EF_UNARMED; where did you get this @ley0k :3
 
     if (whereami->integer && origin != oldorigin) {
         gi.DPrintf("x %8.2f y %8.2f z %8.2f area %2d\n", origin[0], origin[1], origin[2], edict->r.areanum);
@@ -3419,56 +3488,72 @@ void Player::Think(void)
     old_v_angle = v_angle;
 
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
-        if (((server_new_buttons & BUTTON_ATTACKLEFT) || (server_new_buttons & BUTTON_ATTACKRIGHT))
-            && (!GetActiveWeapon(WEAPON_MAIN)) && (!IsDead()) && (!IsNewActiveWeapon()) && (!LoadingSavegame)) {
+        if ((server_new_buttons & BUTTON_ATTACKLEFT) && (!GetActiveWeapon(WEAPON_MAIN)) && !IsDead()
+            && !IsNewActiveWeapon() && !LoadingSavegame) {
             Event *ev = new Event("useweaponclass");
             ev->AddString("item1");
 
             ProcessEvent(ev);
         }
     } else {
+        // Added in 2.0: Invulnerability and team spawn
+        TickInvulnerable();
+        TickTeamSpawn();
+
         if (deadflag == DEAD_DEAD && level.time > respawn_time) {
-            if (dmManager.AllowRespawn()) {
+            if (dmManager.AllowRespawn() && AllowTeamRespawn()) {
                 if (((server_new_buttons & BUTTON_ATTACKLEFT) || (server_new_buttons & BUTTON_ATTACKRIGHT))
                     || (g_forcerespawn->integer > 0 && level.time > g_forcerespawn->integer + respawn_time)) {
-                    m_bSpectator     = false;
-                    m_bTempSpectator = false;
-                    client->ps.pm_flags &= ~PMF_SPECTATING;
-                    PostEvent(EV_Player_Respawn, 0);
+                    // 2.0
+                    //  Check for team respawn
+                    //
+                    if (!m_fSpawnTimeLeft) {
+                        if (AllowTeamRespawn()) {
+                            EndSpectator();
+                            PostEvent(EV_Player_Respawn, 0);
+                        }
+                    } else {
+                        m_bWaitingForRespawn = true;
+                    }
                 }
             } else if (!IsSpectator()) {
                 BeginTempSpectator();
             }
         }
 
-        if (IsSpectator() && !m_bTempSpectator) {
-            if (level.time <= respawn_time
-                || !((server_new_buttons & BUTTON_ATTACKLEFT) || (server_new_buttons & BUTTON_ATTACKRIGHT))) {
-                if (level.time - 10.0f > m_fWeapSelectTime) {
-                    m_fWeapSelectTime = level.time;
-                    gi.centerprintf(edict, gi.LV_ConvertString("Press fire to join the battle!"));
+        if (IsSpectator()) {
+            if (!m_bTempSpectator && level.time > respawn_time && (server_new_buttons & BUTTON_ATTACKLEFT)) {
+                if (current_team && dm_team != TEAM_SPECTATOR) {
+                    if (client->pers.dm_primary[0]) {
+                        if ((g_gametype->integer == GT_FFA
+                             || (g_gametype->integer >= GT_TEAM && dm_team > TEAM_FREEFORALL))
+                            && deadflag != DEAD_DEAD) {
+                            // 2.0
+                            //  Check for team respawn
+                            //
+                            if (!m_fSpawnTimeLeft) {
+                                if (AllowTeamRespawn()) {
+                                    EndSpectator();
+                                    PostEvent(EV_Player_Respawn, 0);
+                                }
+                            } else {
+                                m_bWaitingForRespawn = true;
+                            }
+                        }
+                    } else if (m_fWeapSelectTime < level.time) {
+                        m_fWeapSelectTime = level.time + 1.0;
+                        UserSelectWeapon(NULL);
+                    }
+                } else if (m_fWeapSelectTime < level.time) {
+                    m_fWeapSelectTime = level.time + 1.0;
+                    gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_teamselect\"");
                 }
-            } else if (!current_team || dm_team == TEAM_SPECTATOR) {
-                gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_teamselect\"");
-            } else if (!client->pers.dm_primary[0]) {
-                if (level.time > m_fWeapSelectTime) {
-                    m_fWeapSelectTime = level.time + 1.0f;
-                    gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_weaponselect\"");
-                }
-            } else if ((g_gametype->integer == GT_FFA || (g_gametype->integer && dm_team > TEAM_FREEFORALL)) && (deadflag != DEAD_DEAD)) {
-                m_bSpectator     = false;
-                m_bTempSpectator = false;
-                client->ps.pm_flags &= ~PMF_SPECTATING;
-
-                if (deadflag) {
-                    deadflag = DEAD_DEAD;
-                }
-
-                PostEvent(EV_Player_Respawn, 0);
             }
         } else if (!client->pers.dm_primary[0]) {
             Spectator();
-            gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_weaponselect\"");
+            if (m_fWeapSelectTime < level.time) {
+                gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_weaponselect\"");
+            }
         }
 
         if (IsSpectator()) {
@@ -3497,42 +3582,54 @@ void Player::Think(void)
                 }
             }
 
-            if ((g_gametype->integer <= GT_FFA) || (!g_forceteamspectate->integer) || (dm_team <= TEAM_FREEFORALL)) {
-                if (last_ucmd.upmove) {
-                    m_iPlayerSpectating = 0;
-                }
+            if (g_gametype->integer >= GT_TEAM && g_forceteamspectate->integer && GetTeam() > TEAM_FREEFORALL) {
+                if (!m_iPlayerSpectating) {
+                    SetPlayerSpectateRandom();
+                } else {
+                    gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
+                    Player    *player;
 
-                if (m_iPlayerSpectating) {
-                    gentity_t *ent    = g_entities + m_iPlayerSpectating - 1;
-                    Player    *player = (Player *)ent->entity;
+                    if (!ent->inuse || !ent->entity) {
+                        SetPlayerSpectateRandom();
+                    }
 
-                    if ((!ent->inuse) || (!player) || (player->deadflag >= DEAD_DEAD)
-                        || ((player->IsSpectator())
-                            || (g_gametype->integer > GT_FFA && g_forceteamspectate->integer
-                                && dm_team > TEAM_FREEFORALL && player->GetTeam() != GetTeam()))) {
+                    player = static_cast<Player *>(ent->entity);
+                    if (player->deadflag >= DEAD_DEAD || player->IsSpectator() || !IsValidSpectatePlayer(player)) {
                         SetPlayerSpectateRandom();
                     }
                 }
             } else {
-                if (!m_iPlayerSpectating) {
-                    SetPlayerSpectateRandom();
+                if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                    // Since 2.0, use = clear spectator
+                    if (m_iPlayerSpectating && (server_new_buttons & BUTTON_USE)) {
+                        m_iPlayerSpectating = 0;
+                    }
                 } else {
-                    gentity_t *ent    = g_entities + m_iPlayerSpectating - 1;
-                    Player    *player = (Player *)ent->entity;
+                    // On 1.11 and below, up = clear spectator
+                    if (last_ucmd.upmove) {
+                        m_iPlayerSpectating = 0;
+                    }
+                }
 
-                    if (!ent->inuse) {
+                if (m_iPlayerSpectating) {
+                    gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
+                    Player    *player;
+
+                    if (!ent->inuse || !ent->entity) {
+                        // Invalid spectate entity
                         SetPlayerSpectateRandom();
-                    } else if (!player) {
+                    }
+
+                    player = static_cast<Player *>(ent->entity);
+                    if (player->deadflag >= DEAD_DEAD || player->IsSpectator()) {
+                        // Dead player, spectate another player
                         SetPlayerSpectateRandom();
-                    } else if (player->deadflag >= DEAD_DEAD) {
+                    }
+
+                    if (g_gametype->integer >= GT_TEAM && g_forceteamspectate->integer && GetTeam() > TEAM_FREEFORALL
+                        && GetTeam() != player->GetTeam()) {
+                        // Spectate another player if the target player switched teams
                         SetPlayerSpectateRandom();
-                    } else if (player->IsSpectator()) {
-                        SetPlayerSpectateRandom();
-                    } else if (g_gametype->integer > GT_FFA) {
-                        if ((dm_team > TEAM_FREEFORALL) && (g_forceteamspectate->integer)
-                            && (GetDM_Team()->NumLivePlayers()) && (player->GetTeam() != GetTeam())) {
-                            SetPlayerSpectateRandom();
-                        }
                     }
                 }
             }
@@ -3549,63 +3646,64 @@ void Player::Think(void)
     }
 
     if (!IsDead()) {
-        m_iClientWeaponCommand = (server_new_buttons & 0x780) >> 7;
+        m_iClientWeaponCommand = (server_new_buttons & WEAPON_COMMAND_MASK) >> 7;
 
         switch (m_iClientWeaponCommand) {
         case 0:
+            // No command
             break;
-        case 1:
+        case WEAPON_COMMAND_USE_PISTOL:
             m_pWeaponCommand = new Event(EV_Sentient_UseWeaponClass);
             m_pWeaponCommand->AddString("pistol");
             break;
-        case 2:
+        case WEAPON_COMMAND_USE_RIFLE:
             m_pWeaponCommand = new Event(EV_Sentient_UseWeaponClass);
             m_pWeaponCommand->AddString("rifle");
             break;
-        case 3:
+        case WEAPON_COMMAND_USE_SMG:
             m_pWeaponCommand = new Event(EV_Sentient_UseWeaponClass);
             m_pWeaponCommand->AddString("smg");
             break;
-        case 4:
+        case WEAPON_COMMAND_USE_MG:
             m_pWeaponCommand = new Event(EV_Sentient_UseWeaponClass);
             m_pWeaponCommand->AddString("mg");
             break;
-        case 5:
+        case WEAPON_COMMAND_USE_GRENADE:
             m_pWeaponCommand = new Event(EV_Sentient_UseWeaponClass);
             m_pWeaponCommand->AddString("grenade");
             break;
-        case 6:
+        case WEAPON_COMMAND_USE_HEAVY:
             m_pWeaponCommand = new Event(EV_Sentient_UseWeaponClass);
             m_pWeaponCommand->AddString("heavy");
             break;
-        case 7:
+        case WEAPON_COMMAND_USE_ITEM1:
             m_pWeaponCommand = new Event(EV_Sentient_ToggleItemUse);
             break;
-        case 8:
+        case WEAPON_COMMAND_USE_ITEM2:
             m_pWeaponCommand = new Event(EV_Sentient_UseWeaponClass);
             m_pWeaponCommand->AddString("item2");
             break;
-        case 9:
+        case WEAPON_COMMAND_USE_ITEM3:
             m_pWeaponCommand = new Event(EV_Sentient_UseWeaponClass);
             m_pWeaponCommand->AddString("item3");
             break;
-        case 10:
+        case WEAPON_COMMAND_USE_ITEM4:
             m_pWeaponCommand = new Event(EV_Sentient_UseWeaponClass);
             m_pWeaponCommand->AddString("item4");
             break;
-        case 11:
+        case WEAPON_COMMAND_USE_PREV_WEAPON:
             m_pWeaponCommand = new Event(EV_Player_PrevWeapon);
             break;
-        case 12:
+        case WEAPON_COMMAND_USE_NEXT_WEAPON:
             m_pWeaponCommand = new Event(EV_Player_NextWeapon);
             break;
-        case 13:
+        case WEAPON_COMMAND_USE_LAST_WEAPON:
             m_pWeaponCommand = new Event(EV_Sentient_UseLastWeapon);
             break;
-        case 14:
+        case WEAPON_COMMAND_HOLSTER:
             m_pWeaponCommand = new Event(EV_Player_Holster);
             break;
-        case 15:
+        case WEAPON_COMMAND_DROP:
             m_pWeaponCommand = new Event(EV_Player_DropWeapon);
             break;
         default:
@@ -3613,25 +3711,72 @@ void Player::Think(void)
         }
 
         if (m_pWeaponCommand) {
-            ProcessEvent(m_pWeaponCommand);
+            PostEvent(m_pWeaponCommand, 0);
         }
     }
 
-    if (!g_aimLagTime) {
-        g_aimLagTime = gi.Cvar_Get("g_aimLagTime", "250", 0);
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        if (!g_aimLagTime) {
+            g_aimLagTime = gi.Cvar_Get("g_aimLagTime", "250", 0);
+        }
+
+        if (mLastTrailTime + g_aimLagTime->integer < level.inttime) {
+            mLastTrailTime = level.inttime;
+
+            mvTrail[0]        = centroid;
+            mvTrailEyes[0]    = centroid;
+            mvTrailEyes[0][0] = EyePosition()[0];
+        }
+
+        UpdateFootsteps();
     }
 
-    if (mLastTrailTime + g_aimLagTime->integer < level.inttime) {
-        mLastTrailTime = level.inttime;
+    //
+    // Added in 2.0
+    // Heal rate
+    //
+    if (m_fHealRate && !IsDead()) {
+        float newrate;
 
-        mvTrail[0]        = centroid;
-        mvTrailEyes[0]    = centroid;
-        mvTrailEyes[0][0] = EyePosition()[0];
+        if (g_healrate->value && g_gametype->integer != GT_SINGLE_PLAYER) {
+            newrate = max_health * (g_healrate->value / 100.f) * level.frametime;
+            if (newrate >= m_fHealRate) {
+                newrate     = m_fHealRate;
+                m_fHealRate = 0;
+            } else {
+                m_fHealRate -= newrate;
+            }
+        } else {
+            newrate     = 0;
+            m_fHealRate = 0;
+        }
+
+        // heal
+        health += newrate;
+        if (health > max_health) {
+            // make sure it doesn't go above the maximum player health
+            health = max_health;
+        }
     }
 
-    UpdateFootsteps();
+    //
+    // Added in 2.0: talk icon
+    //
+    if (buttons & BUTTON_TALK) {
+        edict->s.eFlags |= EF_PLAYER_TALKING;
+    } else {
+        edict->s.eFlags &= ~EF_PLAYER_TALKING;
+    }
 
-    // where did you get this @ley0k :3
+    if (m_fTalkTime > level.time) {
+        edict->s.eFlags |= EF_PLAYER_TALKING;
+    } else {
+        edict->s.eFlags &= ~EF_PLAYER_TALKING;
+    }
+
+    //
+    // Openmohaa additions
+    //
     if (!animDoneVM) {
         int    index;
         float  anim_time;
@@ -4422,7 +4567,7 @@ void Player::GiveNewWeaponsCheat(Event *ev)
         return;
     }
 
-    if (gi.FS_ReadFile("global/givenewweapons.scr", (void**)&buffer, qtrue) != -1) {
+    if (gi.FS_ReadFile("global/givenewweapons.scr", (void **)&buffer, qtrue) != -1) {
         return;
     }
 
@@ -6493,21 +6638,6 @@ void Player::ArchivePersistantData(Archiver& arc)
 
     // Force a re-evaluation of the player's state
     LoadStateTable();
-}
-
-void Player::SpawnDamageEffect(meansOfDeath_t mod)
-{
-    switch (mod) {
-    case MOD_ELECTRIC:
-    case MOD_ELECTRICWATER:
-        {
-            SpawnEffect("fx_elecstrike.tik", origin);
-            Sound("sound/weapons/sword/electric/hitmix2.wav", 0);
-        }
-    default:
-        {
-        }
-    }
 }
 
 void Player::VelocityModified(void) {}
