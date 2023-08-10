@@ -3678,9 +3678,9 @@ void Player::ClientMove(usercmd_t *ucmd)
 
     if (movetype == MOVETYPE_NOCLIP) {
         if (!(last_ucmd.buttons & BUTTON_RUN)) {
-            client->ps.speed = sv_walkspeed->integer;
+            client->ps.speed = sv_runspeed->value * sv_walkspeedmult->value;
         } else {
-            client->ps.speed = sv_runspeed->integer;
+            client->ps.speed = sv_runspeed->value;
         }
     } else if (!groundentity) {
         client->ps.speed = airspeed;
@@ -3688,9 +3688,9 @@ void Player::ClientMove(usercmd_t *ucmd)
         int runspeed;
 
         if (m_iMovePosFlags & MPF_MOVEMENT_WALKING) {
-            runspeed = sv_walkspeed->integer;
+            runspeed = sv_runspeed->value * sv_walkspeedmult->value;
         } else {
-            runspeed = sv_runspeed->integer;
+            runspeed = sv_runspeed->value;
         }
 
         if (m_iMovePosFlags & MPF_POSITION_CROUCHING) {
@@ -10246,7 +10246,7 @@ void Player::SetVMASpeed(Event *ev)
     str   name  = ev->GetString(1);
     float speed = ev->GetFloat(2);
 
-    if (!client || !level.reborn) {
+    if (!client || !level.specialgame) {
         return;
     }
 
