@@ -573,6 +573,26 @@ void Player::EventTeleport(Event *ev)
     }
 }
 
+void Player::EventGetIsEscaping(Event* ev)
+{
+    ev->AddInteger(m_jailstate == JAILSTATE_ESCAPE);
+}
+
+void Player::EventJailEscapeStop(Event* ev)
+{
+    m_jailstate = JAILSTATE_NONE;
+}
+
+void Player::EventJailAssistEscape(Event* ev)
+{
+	m_jailstate = JAILSTATE_ASSIST_ESCAPE;
+}
+
+void Player::EventJailEscape(Event* ev)
+{
+	m_jailstate = JAILSTATE_ESCAPE;
+}
+
 void Player::EventFace(Event *ev)
 {
     SetViewAngles(Vector(ev->GetFloat(1), ev->GetFloat(2), ev->GetFloat(3)));

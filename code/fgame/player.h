@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "characterstate.h"
 #include "actor.h"
 #include "vehicle.h"
-#include "dm_team.h"
+#include "dm_manager.h"
 
 extern Event EV_Player_EndLevel;
 extern Event EV_Player_GiveCheat;
@@ -91,6 +91,15 @@ typedef enum jailstate_e {
     JAILSTATE_ESCAPE,
     JAILSTATE_ASSIST_ESCAPE
 } jailstate_t;
+
+typedef enum nationality_e {
+    NA_NONE,
+    NA_AMERICAN,
+    NA_BRITISH,
+    NA_RUSSIAN,
+    NA_GERMAN,
+    NA_ITALIAN
+} nationality_t;
 
 typedef void (Player::*movecontrolfunc_t)(void);
 
@@ -498,7 +507,12 @@ public:
     void InitInventory(void);
     void InitDeathmatch(void);
     void InitStats(void);
+	//=======
+	// Added in 2.30
     bool QueryLandminesAllowed() const;
+    void EnsurePlayerHasAllowedWeapons();
+    void EquipWeapons();
+    //=======
     void ChooseSpawnPoint(void);
 
     void EndLevel(Event *ev);
@@ -521,7 +535,13 @@ public:
     void TweakLadderPos(Event *ev);
     void EnsureOverLadder(Event *ev);
     void EnsureForwardOffLadder(Event *ev);
-    void TouchStuff(pmove_t *pm);
+	void TouchStuff(pmove_t* pm);
+
+    //====
+    // Added in 2.30
+	void EventForceLandmineMeasure(Event* ev);
+	str  GetCurrentDMWeaponType() const;
+    //====
 
     void     GetMoveInfo(pmove_t *pm);
     void     SetMoveInfo(pmove_t *pm, usercmd_t *ucmd);
@@ -551,6 +571,7 @@ public:
 
     void EndAnim_Legs(Event *ev);
     void EndAnim_Torso(Event *ev);
+    void EndAnim_Pain(Event *ev);
     void SetPartAnim(const char *anim, bodypart_t slot = legs);
     void StopPartAnimating(bodypart_t part);
     void PausePartAnim(bodypart_t part);
@@ -570,6 +591,7 @@ public:
     void GiveCheat(Event *ev);
     void GiveWeaponCheat(Event *ev);
     void GiveAllCheat(Event *ev);
+    void GiveNewWeaponsCheat(Event* ev); // Added in 2.0
     void GodCheat(Event *ev);
     void FullHeal(Event *ev);
     void NoTargetCheat(Event *ev);
@@ -578,9 +600,14 @@ public:
     void SpawnEntity(Event *ev);
     void SpawnActor(Event *ev);
     void ListInventoryEvent(Event *ev);
+    void EventGetIsEscaping(Event *ev);
+    void EventJailEscapeStop(Event *ev);
+    void EventJailAssistEscape(Event *ev);
+    void EventJailEscape(Event *ev);
     void EventTeleport(Event *ev);
     void EventFace(Event *ev);
     void EventCoord(Event *ev);
+    void EventTestAnim(Event *ev);
 
     void GameVersion(Event *ev);
 
@@ -693,6 +720,7 @@ public:
     void Holster(Event *ev);
     void HolsterToggle(Event *ev);
 
+	void            RemoveFromVehiclesAndTurretsInternal(void); // Added in 2.30
     void            RemoveFromVehiclesAndTurrets(void);
     void            WatchActor(Event *ev);
     void            StopWatchingActor(Event *ev);
@@ -717,16 +745,34 @@ public:
     void       PlayerShowModel(Event *ev);
     void       showModel(void) override;
     void       ResetHaveItem(Event *ev);
-    void       ModifyHeight(Event *ev);
+	void       ModifyHeight(Event* ev);
+	void       ModifyHeightFloat(Event* ev); // Added in mohaab 2.40
     void       SetMovePosFlags(Event *ev);
     void       GetPositionForScript(Event *ev);
     void       GetMovementForScript(Event *ev);
     void       EventStuffText(Event *ev);
     void       EventSetVoiceType(Event *ev);
+    void       GetTeamDialogPrefix(str& outPrefix);
+    void       PlayInstantMessageSound(const char* name);
     void       EventDMMessage(Event *ev);
+    //====
+    // Added in 2.30
+    const char* GetBattleLanguageCondition() const;
+    const char* GetBattleLanguageDirection() const;
+    const char* GetBattleLanguageLocation() const;
+    const char* GetBattleLanguageLocalFolks() const;
+    const char* GetBattleLanguageWeapon() const;
+    const char* GetBattleLanguageDistance() const;
+    const char* GetBattleLanguageDistanceMeters(float dist) const;
+    const char* GetBattleLanguageDistanceFeet(float dist) const;
+    const char* GetBattleLanguageTarget() const;
+    const char* TranslateBattleLanguageTokens(const char* string) const;
+    //====
     void       EventIPrint(Event *ev);
     void       EventGetUseHeld(Event *ev);
     void       EventGetFireHeld(Event *ev);
+    void       EventGetPrimaryFireHeld(Event *ev);
+    void       EventGetSecondaryFireHeld(Event *ev);
     void       Score(Event *ev);
     void       Join_DM_Team(Event *ev);
     void       Auto_Join_DM_Team(Event *ev);
@@ -739,6 +785,7 @@ public:
     void       Spectator(void);
     void       Spectator(Event *ev);
     void       SetPlayerSpectate(void);
+    void       SetPlayerSpectateRandom(void); // Added in 2.0
     bool       IsValidSpectatePlayer(Player *pPlayer);
     void       GetSpectateFollowOrientation(Player *pPlayer, Vector      &vPos, Vector      &vAng);
     void       UpdateStatus(const char *s);
@@ -757,6 +804,7 @@ public:
     void AddDeaths(int num);
     void CallVote(Event *ev);
     void Vote(Event *ev);
+    void RetrieveVoteOptions(Event *ev); // Added in 2.0
     void EventPrimaryDMWeapon(Event *ev);
     void EventSecondaryDMWeapon(Event *ev);
     void ResetScore();
@@ -767,6 +815,14 @@ public:
     int  GetMatchesWon() const;
     int  GetMatchesLost() const;
 
+	//====
+	// Added in 2.30
+	void GetIsSpectator(Event* ev);
+	void EventSetInJail(Event* ev);
+	bool IsInJail() const;
+	void EventGetInJail(Event* ev);
+	void GetNationalityPrefix(Event* ev);
+	//====
     void GetIsDisguised(Event *ev);
     void GetHasDisguise(Event *ev);
     void SetHasDisguise(Event *ev);
@@ -781,9 +837,11 @@ public:
 
     PlayerStart *GetLastSpawnpoint() const { return m_pLastSpawnpoint; }
 
-    void Stats(Event *ev);
+	void Stats(Event* ev);
+	void ArmWithWeapons(Event *ev); // Added in 2.30
+	void EventGetCurrentDMWeaponType(Event *ev); // Added in 2.30
     void PhysicsOn(Event *ev);
-    void PhysicsOff(Event *ev);
+	void PhysicsOff(Event* ev);
 
     void Think() override;
     bool IsReady(void) const;
@@ -792,14 +850,42 @@ public:
     void EventSetReady(Event *ev);
     void EventSetNotReady(Event *ev);
     void EventGetDMTeam(Event *ev);
+    void EventGetNetName(Event *ev); // Added in 2.30
     void EventSetViewModelAnim(Event *ev);
     void EventEnterIntermission(Event *ev);
     void EventSetPerferredWeapon(Event *ev);
 
     bool BlocksAIMovement();
 
-    void EventForceLandmineMeasure(Event *ev);
-    str  GetCurrentDMWeaponType() const;
+	//====
+	// Added in 2.0
+    void TickSprint();
+	float GetRunSpeed() const;
+	void FireWeapon(int number, firemode_t mode) override;
+    void SetInvulnerable();
+    void TickInvulnerable();
+    void SetVulnerable();
+    bool IsInvulnerable();
+    void CancelInvulnerable();
+    void InitInvulnerable();
+    void TickTeamSpawn();
+    bool ShouldForceSpectatorOnDeath() const;
+    bool HasVehicle();
+    void setContentsSolid() override;
+    void UserSelectWeapon(bool bWait);
+    void PickWeaponEvent(Event* ev);
+	bool AllowTeamRespawn() const;
+	void EventUseWeaponClass(Event* ev);
+	void EventAddKills(Event* ev);
+    bool CanKnockback(float minHealth) const;
+    //====
+
+    //====
+    // Added in 2.30
+    void EventKillAxis(Event* ev);
+    void EventGetTurret(Event* ev);
+    void EventGetVehicle(Event* ev);
+    //====
 
     void FindAlias(str& output, str name, AliasListNode_t **node);
 
@@ -810,7 +896,6 @@ public:
     qboolean     ViewModelAnim(str anim, qboolean force_restart, qboolean bFullAnim);
     virtual void Spawned(void);
 
-    void AddKills(Event *ev);
     void AddDeaths(Event *ev);
     void AdminRights(Event *ev);
     void BindWeap(Event *ev);
@@ -818,7 +903,6 @@ public:
     void ClearCommand(Event *ev);
     void Dive(Event *ev);
     void EventEarthquake(Event *ev);
-    void EventIsSpectator(Event *ev);
     void EventSetTeam(Event *ev);
     void EventGetViewModelAnim(Event *ev);
     void EventGetViewModelAnimFinished(Event *ev);
@@ -841,7 +925,6 @@ public:
     void JoinDMTeam(Event *ev);
     void LeanLeftHeld(Event *ev);
     void LeanRightHeld(Event *ev);
-    void ModifyHeightFloat(Event *ev);
     void PlayLocalSound(Event *ev);
     void RunHeld(Event *ev);
     void SecFireHeld(Event *ev);
@@ -866,7 +949,6 @@ public:
     qboolean canUse();
     qboolean canUse(Entity *entity, bool requiresLookAt);
     int      getUseableEntities(int *touch, int maxcount, bool requiresLookAt = true);
-    bool     AllowTeamRespawn() const;
 };
 
 inline void Player::Archive(Archiver& arc)

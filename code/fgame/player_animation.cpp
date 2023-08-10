@@ -51,6 +51,11 @@ void Player::EndAnim_Torso(Event *ev)
     EvaluateState();
 }
 
+void Player::EndAnim_Pain(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
 void Player::SetPartAnim(const char *anim, bodypart_t slot)
 {
     int animnum;
@@ -285,4 +290,9 @@ void Player::PlayerAnimDelta(float *vDelta)
 
         VectorMA(vDelta, edict->s.frameInfo[m_iPartSlot[torso]].weight, vNewDelta, vDelta);
     }
+}
+
+void Player::EventTestAnim(Event* ev)
+{
+    // FIXME: unimplemented
 }
