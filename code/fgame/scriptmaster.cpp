@@ -52,7 +52,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "hud.h"
 
-#include "dm_team.h"
+#include "dm_manager.h"
 #include "player.h"
 #include "entity.h"
 #include "huddraw.h"
