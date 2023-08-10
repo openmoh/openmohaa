@@ -496,6 +496,10 @@ movement on the server game.
         MOD_IMPALE,
         MOD_BASH,
         MOD_SHOTGUN,
+        //
+        // Team assault
+        //
+        MOD_MINE,
         MOD_TOTAL_NUMBER,
 
     } meansOfDeath_t;
