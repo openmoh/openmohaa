@@ -6422,7 +6422,7 @@ void Player::NextPainTime(Event *ev)
     if (time >= 0.0f) {
         pain          = 0.0f;
         pain_type     = MOD_NONE;
-        pain_location = LOCATION_MISS;
+        pain_location = HITLOC_MISS;
 
         m_pLegsPainCond->clearCheck();
         m_pTorsoPainCond->clearCheck();
@@ -7010,25 +7010,25 @@ void Player::InitDeathmatch(void)
     m_fWeapSelectTime    = level.time - 9.0f;
 
     if (!g_realismmode->integer) {
-        m_fDamageMultipliers[LOCATION_HEAD]        = 2.0f;
-        m_fDamageMultipliers[LOCATION_HELMET]      = 2.0f;
-        m_fDamageMultipliers[LOCATION_NECK]        = 2.0f;
-        m_fDamageMultipliers[LOCATION_TORSO_UPPER] = 1.0f;
-        m_fDamageMultipliers[LOCATION_TORSO_MID]   = 0.95f;
-        m_fDamageMultipliers[LOCATION_TORSO_LOWER] = 0.90f;
-        m_fDamageMultipliers[LOCATION_PELVIS]      = 0.85f;
-        m_fDamageMultipliers[LOCATION_R_ARM_UPPER] = 0.80f;
-        m_fDamageMultipliers[LOCATION_L_ARM_UPPER] = 0.80f;
-        m_fDamageMultipliers[LOCATION_R_LEG_UPPER] = 0.80f;
-        m_fDamageMultipliers[LOCATION_L_LEG_UPPER] = 0.80f;
-        m_fDamageMultipliers[LOCATION_R_ARM_LOWER] = 0.60f;
-        m_fDamageMultipliers[LOCATION_L_ARM_LOWER] = 0.60f;
-        m_fDamageMultipliers[LOCATION_R_LEG_LOWER] = 0.60f;
-        m_fDamageMultipliers[LOCATION_L_LEG_LOWER] = 0.60f;
-        m_fDamageMultipliers[LOCATION_R_HAND]      = 0.50f;
-        m_fDamageMultipliers[LOCATION_L_HAND]      = 0.50f;
-        m_fDamageMultipliers[LOCATION_R_FOOT]      = 0.50f;
-        m_fDamageMultipliers[LOCATION_L_FOOT]      = 0.50f;
+        m_fDamageMultipliers[HITLOC_HEAD]        = 2.0f;
+        m_fDamageMultipliers[HITLOC_HELMET]      = 2.0f;
+        m_fDamageMultipliers[HITLOC_NECK]        = 2.0f;
+        m_fDamageMultipliers[HITLOC_TORSO_UPPER] = 1.0f;
+        m_fDamageMultipliers[HITLOC_TORSO_MID]   = 0.95f;
+        m_fDamageMultipliers[HITLOC_TORSO_LOWER] = 0.90f;
+        m_fDamageMultipliers[HITLOC_PELVIS]      = 0.85f;
+        m_fDamageMultipliers[HITLOC_R_ARM_UPPER] = 0.80f;
+        m_fDamageMultipliers[HITLOC_L_ARM_UPPER] = 0.80f;
+        m_fDamageMultipliers[HITLOC_R_LEG_UPPER] = 0.80f;
+        m_fDamageMultipliers[HITLOC_L_LEG_UPPER] = 0.80f;
+        m_fDamageMultipliers[HITLOC_R_ARM_LOWER] = 0.60f;
+        m_fDamageMultipliers[HITLOC_L_ARM_LOWER] = 0.60f;
+        m_fDamageMultipliers[HITLOC_R_LEG_LOWER] = 0.60f;
+        m_fDamageMultipliers[HITLOC_L_LEG_LOWER] = 0.60f;
+        m_fDamageMultipliers[HITLOC_R_HAND]      = 0.50f;
+        m_fDamageMultipliers[HITLOC_L_HAND]      = 0.50f;
+        m_fDamageMultipliers[HITLOC_R_FOOT]      = 0.50f;
+        m_fDamageMultipliers[HITLOC_L_FOOT]      = 0.50f;
     }
 
     if (current_team) {

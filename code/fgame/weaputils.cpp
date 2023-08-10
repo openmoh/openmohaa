@@ -2169,37 +2169,37 @@ void BulletAttack_Stat(Entity* owner, Entity* target, trace_t* trace, Weapon* we
 
 	switch (trace->location)
 	{
-	case LOCATION_HEAD:
-	case LOCATION_HELMET:
-	case LOCATION_NECK:
+	case HITLOC_HEAD:
+	case HITLOC_HELMET:
+	case HITLOC_NECK:
 		weap->m_iNumHeadShots++;
 		break;
-	case LOCATION_TORSO_UPPER:
-	case LOCATION_TORSO_MID:
-	case LOCATION_TORSO_LOWER:
+	case HITLOC_TORSO_UPPER:
+	case HITLOC_TORSO_MID:
+	case HITLOC_TORSO_LOWER:
 		weap->m_iNumTorsoShots++;
 		break;
-	case LOCATION_PELVIS:
+	case HITLOC_PELVIS:
 		weap->m_iNumGroinShots++;
 		break;
-	case LOCATION_R_ARM_UPPER:
-	case LOCATION_R_ARM_LOWER:
-	case LOCATION_R_HAND:
+	case HITLOC_R_ARM_UPPER:
+	case HITLOC_R_ARM_LOWER:
+	case HITLOC_R_HAND:
 		weap->m_iNumRightArmShots++;
         break;
-    case LOCATION_L_ARM_UPPER:
-    case LOCATION_L_ARM_LOWER:
-    case LOCATION_L_HAND:
+    case HITLOC_L_ARM_UPPER:
+    case HITLOC_L_ARM_LOWER:
+    case HITLOC_L_HAND:
         weap->m_iNumLeftArmShots++;
         break;
-	case LOCATION_R_LEG_UPPER:
-	case LOCATION_R_LEG_LOWER:
-	case LOCATION_R_FOOT:
+	case HITLOC_R_LEG_UPPER:
+	case HITLOC_R_LEG_LOWER:
+	case HITLOC_R_FOOT:
 		weap->m_iNumRightLegShots++;
         break;
-    case LOCATION_L_LEG_UPPER:
-    case LOCATION_L_LEG_LOWER:
-    case LOCATION_L_FOOT:
+    case HITLOC_L_LEG_UPPER:
+    case HITLOC_L_LEG_LOWER:
+    case HITLOC_L_FOOT:
         weap->m_iNumLeftLegShots++;
         break;
 	default:
@@ -2214,37 +2214,37 @@ void BulletAttack_Stat(Entity* owner, Entity* target, trace_t* trace, Weapon* we
 
         switch (trace->location)
         {
-        case LOCATION_HEAD:
-        case LOCATION_HELMET:
-        case LOCATION_NECK:
+        case HITLOC_HEAD:
+        case HITLOC_HELMET:
+        case HITLOC_NECK:
             p->m_iNumHeadShots++;
             break;
-        case LOCATION_TORSO_UPPER:
-        case LOCATION_TORSO_MID:
-        case LOCATION_TORSO_LOWER:
+        case HITLOC_TORSO_UPPER:
+        case HITLOC_TORSO_MID:
+        case HITLOC_TORSO_LOWER:
             p->m_iNumTorsoShots++;
             break;
-        case LOCATION_PELVIS:
+        case HITLOC_PELVIS:
             p->m_iNumGroinShots++;
             break;
-        case LOCATION_R_ARM_UPPER:
-        case LOCATION_R_ARM_LOWER:
-        case LOCATION_R_HAND:
+        case HITLOC_R_ARM_UPPER:
+        case HITLOC_R_ARM_LOWER:
+        case HITLOC_R_HAND:
             p->m_iNumRightArmShots++;
             break;
-        case LOCATION_L_ARM_UPPER:
-        case LOCATION_L_ARM_LOWER:
-        case LOCATION_L_HAND:
+        case HITLOC_L_ARM_UPPER:
+        case HITLOC_L_ARM_LOWER:
+        case HITLOC_L_HAND:
             p->m_iNumLeftArmShots++;
             break;
-        case LOCATION_R_LEG_UPPER:
-        case LOCATION_R_LEG_LOWER:
-        case LOCATION_R_FOOT:
+        case HITLOC_R_LEG_UPPER:
+        case HITLOC_R_LEG_LOWER:
+        case HITLOC_R_FOOT:
             p->m_iNumRightLegShots++;
             break;
-        case LOCATION_L_LEG_UPPER:
-        case LOCATION_L_LEG_LOWER:
-        case LOCATION_L_FOOT:
+        case HITLOC_L_LEG_UPPER:
+        case HITLOC_L_LEG_LOWER:
+        case HITLOC_L_FOOT:
             p->m_iNumLeftLegShots++;
             break;
         default:

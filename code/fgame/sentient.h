@@ -30,28 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "animate.h"
 #include "vehicle.h"
 
-#define LOCATION_MISS        -2
-#define LOCATION_GENERAL     -1
-#define LOCATION_HEAD        0
-#define LOCATION_HELMET      1
-#define LOCATION_NECK        2
-#define LOCATION_TORSO_UPPER 3
-#define LOCATION_TORSO_MID   4
-#define LOCATION_TORSO_LOWER 5
-#define LOCATION_PELVIS      6
-#define LOCATION_R_ARM_UPPER 7
-#define LOCATION_L_ARM_UPPER 8
-#define LOCATION_R_LEG_UPPER 9
-#define LOCATION_L_LEG_UPPER 10
-#define LOCATION_R_ARM_LOWER 11
-#define LOCATION_L_ARM_LOWER 12
-#define LOCATION_R_LEG_LOWER 13
-#define LOCATION_L_LEG_LOWER 14
-#define LOCATION_R_HAND      15
-#define LOCATION_L_HAND      16
-#define LOCATION_R_FOOT      17
-#define LOCATION_L_FOOT      18
-
 extern Event EV_Sentient_Attack;
 extern Event EV_Sentient_Charge;
 extern Event EV_Sentient_ReleaseAttack;

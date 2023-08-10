@@ -1404,6 +1404,31 @@ typedef struct cplane_s {
 	byte	pad[2];
 } cplane_t;
 
+// body hit location
+typedef enum hitloc_e {
+	HITLOC_MISS = -2,
+	HITLOC_GENERAL = -1,
+	HITLOC_HEAD = 0,
+	HITLOC_HELMET,
+	HITLOC_NECK,
+	HITLOC_TORSO_UPPER,
+	HITLOC_TORSO_MID,
+	HITLOC_TORSO_LOWER,
+	HITLOC_PELVIS,
+	HITLOC_R_ARM_UPPER,
+	HITLOC_L_ARM_UPPER,
+	HITLOC_R_LEG_UPPER,
+	HITLOC_L_LEG_UPPER,
+	HITLOC_R_ARM_LOWER,
+	HITLOC_L_ARM_LOWER,
+	HITLOC_R_LEG_LOWER,
+	HITLOC_L_LEG_LOWER,
+	HITLOC_R_HAND,
+	HITLOC_L_HAND,
+	HITLOC_R_FOOT,
+	HITLOC_L_FOOT,
+	NUMBODYLOCATIONS
+} hitloc_t;
 
 // a trace is returned when a box is swept through the world
 typedef struct {

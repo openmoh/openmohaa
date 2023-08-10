@@ -1235,47 +1235,47 @@ qboolean Player::CondPainLocation(Conditional& condition)
     sLocationName = condition.getParm(1);
 
     if (!sLocationName.icmp("miss")) {
-        iLocationNum = LOCATION_MISS;
+        iLocationNum = HITLOC_MISS;
     } else if (!sLocationName.icmp("general")) {
-        iLocationNum = LOCATION_GENERAL;
+        iLocationNum = HITLOC_GENERAL;
     } else if (!sLocationName.icmp("head")) {
-        iLocationNum = LOCATION_HEAD;
+        iLocationNum = HITLOC_HEAD;
     } else if (!sLocationName.icmp("helmet")) {
-        iLocationNum = LOCATION_HELMET;
+        iLocationNum = HITLOC_HELMET;
     } else if (!sLocationName.icmp("neck")) {
-        iLocationNum = LOCATION_NECK;
+        iLocationNum = HITLOC_NECK;
     } else if (!sLocationName.icmp("torso_upper")) {
-        iLocationNum = LOCATION_TORSO_UPPER;
+        iLocationNum = HITLOC_TORSO_UPPER;
     } else if (!sLocationName.icmp("torso_mid")) {
-        iLocationNum = LOCATION_TORSO_MID;
+        iLocationNum = HITLOC_TORSO_MID;
     } else if (!sLocationName.icmp("torso_lower")) {
-        iLocationNum = LOCATION_TORSO_LOWER;
+        iLocationNum = HITLOC_TORSO_LOWER;
     } else if (!sLocationName.icmp("pelvis")) {
-        iLocationNum = LOCATION_PELVIS;
+        iLocationNum = HITLOC_PELVIS;
     } else if (!sLocationName.icmp("r_arm_upper")) {
-        iLocationNum = LOCATION_R_ARM_UPPER;
+        iLocationNum = HITLOC_R_ARM_UPPER;
     } else if (!sLocationName.icmp("l_arm_upper")) {
-        iLocationNum = LOCATION_L_ARM_UPPER;
+        iLocationNum = HITLOC_L_ARM_UPPER;
     } else if (!sLocationName.icmp("r_leg_upper")) {
-        iLocationNum = LOCATION_R_LEG_UPPER;
+        iLocationNum = HITLOC_R_LEG_UPPER;
     } else if (!sLocationName.icmp("l_leg_upper")) {
-        iLocationNum = LOCATION_L_LEG_UPPER;
+        iLocationNum = HITLOC_L_LEG_UPPER;
     } else if (!sLocationName.icmp("r_arm_lower")) {
-        iLocationNum = LOCATION_R_ARM_LOWER;
+        iLocationNum = HITLOC_R_ARM_LOWER;
     } else if (!sLocationName.icmp("l_arm_lower")) {
-        iLocationNum = LOCATION_L_ARM_LOWER;
+        iLocationNum = HITLOC_L_ARM_LOWER;
     } else if (!sLocationName.icmp("r_leg_lower")) {
-        iLocationNum = LOCATION_R_LEG_LOWER;
+        iLocationNum = HITLOC_R_LEG_LOWER;
     } else if (!sLocationName.icmp("l_leg_lower")) {
-        iLocationNum = LOCATION_L_LEG_LOWER;
+        iLocationNum = HITLOC_L_LEG_LOWER;
     } else if (!sLocationName.icmp("r_hand")) {
-        iLocationNum = LOCATION_R_HAND;
+        iLocationNum = HITLOC_R_HAND;
     } else if (!sLocationName.icmp("l_hand")) {
-        iLocationNum = LOCATION_L_HAND;
+        iLocationNum = HITLOC_L_HAND;
     } else if (!sLocationName.icmp("r_foot")) {
-        iLocationNum = LOCATION_R_FOOT;
+        iLocationNum = HITLOC_R_FOOT;
     } else if (!sLocationName.icmp("l_foot")) {
-        iLocationNum = LOCATION_L_FOOT;
+        iLocationNum = HITLOC_L_FOOT;
     } else {
         Com_Printf("CondPainLocation: Unknown player hit location %s\n", sLocationName.c_str());
     }

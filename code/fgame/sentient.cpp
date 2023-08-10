@@ -1208,7 +1208,7 @@ int Sentient::CheckHitLocation(int iLocation)
         if (WearingHelmet()) {
             return iLocation;
         } else {
-            return LOCATION_HEAD;
+            return HITLOC_HEAD;
         }
     }
 

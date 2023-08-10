@@ -5873,7 +5873,7 @@ void Entity::EventNormalDamage(Event *ev)
     e1.AddInteger(0);                //knockback
     e1.AddInteger(DAMAGE_NONE);      //damageflags
     e1.AddInteger(MOD_NONE);         //meansofdeath
-    e1.AddInteger(LOCATION_GENERAL); //location
+    e1.AddInteger(HITLOC_GENERAL); //location
 
     ProcessEvent(e1);
 }
