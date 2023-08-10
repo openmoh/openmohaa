@@ -83,11 +83,12 @@ Event EV_Level_PreSpawnSentient
 
 Event EV_Level_GetAlarm
 (
-    "alarm", EV_DEFAULT,
+    "alarm",
+    EV_DEFAULT,
     NULL,
     NULL,
-    "zero = global level alarm off,
-    non-zero = alarm on",
+    "zero = global level alarm off,"
+    "non-zero = alarm on",
     EV_GETTER
 );
 
@@ -96,8 +97,8 @@ Event EV_Level_SetAlarm
     "alarm", EV_DEFAULT,
     "i",
     "alarm_status",
-    "zero = global level alarm off,
-    non-zero = alarm on",
+    "zero = global level alarm off,"
+    "non-zero = alarm on",
     EV_SETTER
 );
 
@@ -109,6 +110,26 @@ Event EV_Level_SetNoDropHealth
     "alarm_status",
     "zero = automatically drop health according to cvars, non-zero = don't autodrop health (like hard mode)",
     EV_SETTER
+);
+
+Event EV_Level_SetNoDropWeapons
+(
+    "nodropweapon",
+    EV_DEFAULT,
+    "i",
+    "alarm_status",
+    "zero = automatically drop weapons according to cvars, non-zero = don't autodrop weapons (like hard mode)",
+    EV_SETTER
+);
+
+Event EV_Level_GetRoundStarted
+(
+    "roundstarted",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "non-zero if round has started",
+    EV_GETTER
 );
 
 Event EV_Level_GetLoopProtection
@@ -177,8 +198,8 @@ Event EV_Level_SetDMRespawning2
     EV_DEFAULT,
     "i",
     "allow_respawn",
-    "set to 1 to turn on wave-based DM,
-    to 0 to disable respawns within a round"
+    "set to 1 to turn on wave-based DM,"
+    "to 0 to disable respawns within a round"
 );
 
 Event EV_Level_GetDMRoundLimit
@@ -207,8 +228,8 @@ Event EV_Level_SetDMRoundLimit2
     EV_DEFAULT,
     "i",
     "roundlimit",
-    "sets the default roundlimit,
-    in minutes; can be overridden by 'roundlimit' cvar"
+    "sets the default roundlimit,"
+    "in minutes; can be overridden by 'roundlimit' cvar"
 );
 
 Event EV_Level_GetClockSide
@@ -238,8 +259,8 @@ Event EV_Level_SetClockSide2
     "s",
     "axis_allies_draw_kills",
     "Sets which side the clock is on... 'axis' or 'allies' win when time is up, 'kills' gives the win to the team with "
-    "more live members,
-    'draw' no one wins"
+    "more live members,"
+    "'draw' no one wins"
 );
 
 Event EV_Level_GetBombPlantTeam
@@ -269,8 +290,8 @@ Event EV_Level_SetBombPlantTeam2
     EV_DEFAULT,
     "s",
     "axis_allies_draw_kills",
-    "which is planting the bomb,
-    'axis' or 'allies'"
+    "which is planting the bomb,"
+    "'axis' or 'allies'"
 );
 
 Event EV_Level_GetTargetsToDestroy
@@ -370,6 +391,16 @@ Event EV_Level_GetRoundBased
     NULL,
     NULL,
     "Gets wether or not the game is currently round based or not",
+    EV_GETTER
+);
+
+Event EV_Level_GetObjectiveBased
+(
+    "objectivebased",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Gets wether or not the game is currently objective based or not",
     EV_GETTER
 );
 
@@ -553,6 +584,36 @@ Event EV_Level_Rain_NumShaders_Get
     EV_GETTER
 );
 
+Event EV_Level_AddBadPlace
+(
+    "badplace",
+    EV_DEFAULT,
+    "svfSF",
+    "name origin radius [team] [duration]",
+    "Enables a 'bad place' for AI of team 'american', 'german', or (default) 'both' to avoid, and optionally gives it a duration",
+    EV_NORMAL
+);
+
+Event EV_Level_RemoveBadPlace
+(
+    "removebadplace",
+    EV_DEFAULT,
+    "s",
+    "name",
+    "Removes a 'bad place'",
+    EV_NORMAL
+);
+
+Event EV_Level_IgnoreClock
+(
+    "removebadplace",
+    EV_DEFAULT,
+    "i",
+    "ignoreclock",
+    "Tells a level weather or not to ignore the clock",
+    EV_NORMAL
+);
+
 extern Event EV_Entity_Start;
 
 CLASS_DECLARATION(Listener, Level, NULL) {
@@ -563,6 +624,8 @@ CLASS_DECLARATION(Listener, Level, NULL) {
     {&EV_Level_GetAlarm,             &Level::GetAlarm                },
     {&EV_Level_SetAlarm,             &Level::SetAlarm                },
     {&EV_Level_SetNoDropHealth,      &Level::SetNoDropHealth         },
+    {&EV_Level_SetNoDropWeapons,     &Level::SetNoDropWeapons        },
+    {&EV_Level_GetRoundStarted,      &Level::EventGetRoundStarted    },
     {&EV_Level_GetLoopProtection,    &Level::GetLoopProtection       },
     {&EV_Level_SetLoopProtection,    &Level::SetLoopProtection       },
     {&EV_Level_GetPapersLevel,       &Level::GetPapersLevel          },
@@ -589,6 +652,7 @@ CLASS_DECLARATION(Listener, Level, NULL) {
     {&EV_Level_SetBombsPlanted,      &Level::EventSetBombsPlanted    },
     {&EV_Level_SetBombsPlanted2,     &Level::EventSetBombsPlanted    },
     {&EV_Level_GetRoundBased,        &Level::EventGetRoundBased      },
+    {&EV_Level_GetObjectiveBased,    &Level::EventGetObjectiveBased  },
     {&EV_Level_Rain_Density_Set,     &Level::EventRainDensitySet     },
     {&EV_Level_Rain_Density_Get,     &Level::EventRainDensityGet     },
     {&EV_Level_Rain_Speed_Set,       &Level::EventRainSpeedSet       },
@@ -607,8 +671,26 @@ CLASS_DECLARATION(Listener, Level, NULL) {
     {&EV_Level_Rain_Shader_Get,      &Level::EventRainShaderGet      },
     {&EV_Level_Rain_NumShaders_Set,  &Level::EventRainShaderSet      },
     {&EV_Level_Rain_NumShaders_Get,  &Level::EventRainShaderGet      },
+    {&EV_Level_AddBadPlace,          &Level::EventAddBadPlace        },
+    {&EV_Level_RemoveBadPlace,       &Level::EventRemoveBadPlace     },
+    {&EV_Level_IgnoreClock,          &Level::EventIgnoreClock        },
     {NULL,                           NULL                            }
 };
+
+void Level::GetTime(Event* ev)
+{
+    ev->AddFloat(level.time);
+}
+
+void Level::GetTotalSecrets(Event* ev)
+{
+    ev->AddInteger(total_secrets);
+}
+
+void Level::GetFoundSecrets(Event* ev)
+{
+    ev->AddInteger(found_secrets);
+}
 
 Level::Level()
 {
@@ -708,6 +790,599 @@ void Level::Init(void)
     m_bSpawnBot    = false;
     m_bScriptSpawn = false;
     m_bRejectSpawn = false;
+}
+
+void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
+{
+    DisableListenerNotify++;
+
+    if (g_gametype->integer) {
+        dmManager.Reset();
+    }
+
+    Director.Reset(samemap);
+
+    ClearCachedStatemaps();
+
+    assert(active_edicts.next);
+    assert(active_edicts.next->prev == &active_edicts);
+    assert(active_edicts.prev);
+    assert(active_edicts.prev->next == &active_edicts);
+    assert(free_edicts.next);
+    assert(free_edicts.next->prev == &free_edicts);
+    assert(free_edicts.prev);
+    assert(free_edicts.prev->next == &free_edicts);
+
+    while (active_edicts.next != &active_edicts) {
+        assert(active_edicts.next != &free_edicts);
+        assert(active_edicts.prev != &free_edicts);
+
+        assert(active_edicts.next);
+        assert(active_edicts.next->prev == &active_edicts);
+        assert(active_edicts.prev);
+        assert(active_edicts.prev->next == &active_edicts);
+        assert(free_edicts.next);
+        assert(free_edicts.next->prev == &free_edicts);
+        assert(free_edicts.prev);
+        assert(free_edicts.prev->next == &free_edicts);
+
+        if (active_edicts.next->entity) {
+            delete active_edicts.next->entity;
+        }
+        else {
+            FreeEdict(active_edicts.next);
+        }
+    }
+
+    cinematic = false;
+    ai_on = true;
+    near_exit = false;
+
+    mission_failed = false;
+    died_already = false;
+
+    globals.num_entities = game.maxclients + 1;
+    gi.LocateGameData(g_entities, game.maxclients + 1, sizeof(gentity_t), &game.clients[0].ps, sizeof(gclient_t));
+
+    // clear up all AI node information
+    PathManager.ResetNodes();
+
+    // clear out automatic cameras
+    automatic_cameras.ClearObjectList();
+
+    // clear out level script variables
+    level.Vars()->ClearList();
+
+    // Clear out parm vars
+    parm.Vars()->ClearList();
+
+    // initialize the game variables
+    // these get restored by the persistant data, so we can safely clear them here
+    game.Vars()->ClearList();
+
+    // clearout any waiting events
+    L_ClearEventList();
+
+    // reset all edicts
+    ResetEdicts();
+
+    // reset all grenade hints
+    GrenadeHint::ResetHints();
+
+    // Reset the boss health cvar
+    gi.Cvar_Set("bosshealth", "0");
+
+    Actor::ResetBodyQueue();
+
+    if (world) {
+        world->FreeTargetList();
+    }
+
+    num_earthquakes = 0;
+
+    AddWaitTill(STRING_PRESPAWN);
+    AddWaitTill(STRING_SPAWN);
+    AddWaitTill(STRING_PLAYERSPAWN);
+    AddWaitTill(STRING_SKIP);
+    AddWaitTill(STRING_POSTTHINK);
+
+    if (g_gametype->integer <= GT_OBJECTIVE) {
+        AddWaitTill(STRING_ROUNDSTART);
+    }
+
+    if (g_gametype->integer > GT_FFA) {
+        AddWaitTill(STRING_ALLIESWIN);
+        AddWaitTill(STRING_AXISWIN);
+        AddWaitTill(STRING_DRAW);
+    }
+
+    classinfo()->RemoveWaitTill("prespawn");
+    classinfo()->RemoveWaitTill("spawn");
+    classinfo()->RemoveWaitTill("skip");
+    classinfo()->RemoveWaitTill("postthink");
+
+    if (g_gametype->integer >= GT_TEAM_ROUNDS) {
+        classinfo()->RemoveWaitTill("roundstart");
+        classinfo()->RemoveWaitTill("allieswin");
+        classinfo()->RemoveWaitTill("axiswin");
+        classinfo()->RemoveWaitTill("draw");
+    }
+
+    if (resetConfigStrings) {
+        gi.SetConfigstring(CS_RAIN_DENSITY, "0");
+        gi.SetConfigstring(CS_RAIN_SPEED, "2048");
+        gi.SetConfigstring(CS_RAIN_SPEEDVARY, "512");
+        gi.SetConfigstring(CS_RAIN_SLANT, "50");
+        gi.SetConfigstring(CS_RAIN_LENGTH, "90");
+        gi.SetConfigstring(CS_RAIN_MINDIST, "512");
+        gi.SetConfigstring(CS_RAIN_WIDTH, "1");
+        gi.SetConfigstring(CS_RAIN_SHADER, "textures/rain");
+        gi.SetConfigstring(CS_RAIN_NUMSHADERS, "0");
+        gi.SetConfigstring(CS_CURRENT_OBJECTIVE, "");
+
+        for (int i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; i++) {
+            gi.SetConfigstring(i, "");
+        }
+    }
+
+    DisableListenerNotify--;
+}
+
+/*
+==============
+ResetEdicts
+==============
+*/
+void Level::ResetEdicts(void)
+{
+    int i;
+
+    memset(g_entities, 0, game.maxentities * sizeof(g_entities[0]));
+
+    // Add all the edicts to the free list
+    LL_Reset(&free_edicts, next, prev);
+    LL_Reset(&active_edicts, next, prev);
+    for (i = 0; i < game.maxentities; i++) {
+        LL_Add(&free_edicts, &g_entities[i], next, prev);
+    }
+
+    for (i = 0; i < game.maxclients; i++) {
+        // set client fields on player ents
+        g_entities[i].client = game.clients + i;
+
+        G_InitClientPersistant(&game.clients[i]);
+    }
+
+    globals.num_entities = game.maxclients;
+}
+
+qboolean Level::inhibitEntity(int spawnflags)
+{
+    if (!developer->integer && (spawnflags & SPAWNFLAG_DEVELOPMENT)) {
+        return qtrue;
+    }
+
+    if (!detail->integer && (spawnflags & SPAWNFLAG_DETAIL)) {
+        return qtrue;
+    }
+
+#ifdef _CONSOLE
+    if (spawnflags & SPAWNFLAG_NOCONSOLE)
+#else
+    if (spawnflags & SPAWNFLAG_NOPC)
+#endif
+    {
+        return qtrue;
+    }
+
+    if (g_gametype->integer) {
+        if (spawnflags & SPAWNFLAG_NOT_DEATHMATCH) {
+            return qtrue;
+        }
+
+        return qfalse;
+    }
+
+    switch (skill->integer) {
+    case 0:
+        return (spawnflags & SPAWNFLAG_NOT_EASY) != 0;
+        break;
+
+    case 1:
+        return (spawnflags & SPAWNFLAG_NOT_MEDIUM) != 0;
+        break;
+
+    case 2:
+    case 3:
+        return (spawnflags & SPAWNFLAG_NOT_HARD);
+        break;
+    }
+
+    return qfalse;
+}
+
+void Level::setSkill(int value)
+{
+    int skill_level;
+
+    skill_level = floor((float)value);
+    skill_level = bound(skill_level, 0, 3);
+
+    gi.Cvar_Set("skill", va("%d", skill_level));
+}
+
+void Level::setTime(int levelTime)
+{
+    svsTime = levelTime;
+    inttime = levelTime - svsStartTime;
+    svsFloatTime = levelTime / 1000.0f;
+    time = inttime / 1000.0f;
+}
+
+void Level::setFrametime(int frametime)
+{
+    intframetime = frametime;
+    this->frametime = frametime / 1000.0f;
+}
+
+void Level::SpawnEntities(char* entities, int svsTime)
+{
+    int         inhibit, radnum = 0, count = 0;
+    int         enttime;
+    const char* value;
+    char        name[128];
+    SpawnArgs   args;
+    Listener* listener;
+    Entity* ent;
+
+    // Create the game variable list
+    game.CreateVars();
+
+    // Create the parm variable list
+    parm.CreateVars();
+
+    // Create the level variable list
+    CreateVars();
+
+    // set up time so functions still have valid times
+    setTime(svsTime);
+    setFrametime(50);
+
+    setSkill(skill->integer);
+
+    // reset out count of the number of game traces
+    sv_numtraces = 0;
+
+    // parse world
+    entities = args.Parse(entities);
+    spawn_entnum = ENTITYNUM_WORLD;
+    args.SpawnInternal();
+
+    // parse ents
+    inhibit = 0;
+    enttime = gi.Milliseconds();
+
+    // Set up for a new map
+    PathManager.LoadNodes();
+
+    Com_Printf("-------------------- Actual Spawning Entities -----------------------\n");
+
+    for (entities = args.Parse(entities); entities != NULL; entities = args.Parse(entities)) {
+        // remove things (except the world) from different skill levels or deathmatch
+        spawnflags = 0;
+        value = args.getArg("spawnflags");
+
+        if (value) {
+            spawnflags = atoi(value);
+
+            if (inhibitEntity(spawnflags)) {
+                inhibit++;
+                continue;
+            }
+        }
+
+        listener = args.SpawnInternal();
+
+        if (listener) {
+            radnum++;
+
+            if (listener->isSubclassOf(Entity)) {
+                count++;
+
+                ent = (Entity*)listener;
+                ent->radnum = radnum;
+
+                Q_strncpyz(ent->edict->entname, ent->getClassID(), sizeof(ent->edict->entname));
+
+                ent->PostEvent(EV_Entity_Start, -1.0, 0);
+                sprintf(name, "i%d", radnum);
+                gi.LoadResource(name);
+            }
+        }
+    }
+
+    Com_Printf(
+        "-------------------- Actual Spawning Entities Done ------------------ %i ms\n", gi.Milliseconds() - enttime
+    );
+
+    world->UpdateConfigStrings();
+
+    Event* ev = new Event(EV_Level_PreSpawnSentient);
+    PostEvent(ev, EV_SPAWNENTITIES);
+
+    L_ProcessPendingEvents();
+
+    if (g_gametype->integer) {
+        dmManager.InitGame();
+    }
+
+    if (game.maxclients == 1) {
+        spawn_entnum = 0;
+        new Player;
+    }
+
+    m_LoopProtection = false;
+    AddWaitTill(STRING_PRESPAWN);
+    Unregister(STRING_PRESPAWN);
+    m_LoopProtection = true;
+
+    Com_Printf("%i entities spawned\n", count);
+    Com_Printf("%i simple entities spawned\n", radnum);
+    Com_Printf("%i entities inhibited\n", inhibit);
+
+    Com_Printf("-------------------- Spawning Entities Done ------------------ %i ms\n", gi.Milliseconds() - enttime);
+}
+
+void Level::ComputeDMWaypoints()
+{
+    // FIXME: unimplemented
+}
+
+void Level::AddLandmarkOrigin(const Vector& origin)
+{
+    // FIXME: unimplemented
+}
+
+void Level::AddLandmarkName(const str& name, const Vector& origin)
+{
+    // FIXME: unimplemented
+}
+
+void Level::FreeLandmarks()
+{
+    // FIXME: unimplemented
+}
+
+str Level::GetDynamicDMLocations(const Vector& origin)
+{
+    // FIXME: unimplemented
+    return "";
+}
+
+str Level::GetDMLocation(const Vector& origin)
+{
+    // FIXME: unimplemented
+    return "";
+}
+
+void Level::PreSpawnSentient(Event* ev)
+{
+    GameScript* script;
+
+    // general initialization
+    FindTeams();
+
+    script = Director.GetScript(m_mapscript);
+    if (script) {
+        gi.DPrintf("Adding script: '%s'\n", m_mapscript.c_str());
+
+        m_LoopProtection = false;
+        Director.ExecuteThread(m_mapscript);
+        m_LoopProtection = true;
+    }
+
+    PathManager.CreatePaths();
+}
+
+bool Level::RoundStarted()
+{
+    return !WaitTillDefined(STRING_ROUNDSTART);
+}
+
+bool Level::PreSpawned(void)
+{
+    return WaitTillDefined("prespawn");
+}
+
+bool Level::Spawned(void)
+{
+    return WaitTillDefined("spawn");
+}
+
+void Level::ServerSpawned(void)
+{
+    int        i;
+    gclient_t* client;
+    gentity_t* ent;
+
+    for (i = 0, client = game.clients; i < game.maxclients; i++, client++) {
+        client->ps.commandTime = svsTime;
+    }
+
+    if (!WaitTillDisabled(STRING_SPAWN)) {
+        AddWaitTill(STRING_SPAWN);
+
+        Director.iPaused++;
+
+        for (ent = active_edicts.next; ent != &active_edicts; ent = ent->next) {
+            ent->entity->Unregister(STRING_SPAWN);
+        }
+
+        if (Director.iPaused-- == 1) {
+            Director.ExecuteRunning();
+        }
+
+        Unregister(STRING_SPAWN);
+    }
+    else {
+        Director.LoadMenus();
+    }
+
+    spawning = false;
+}
+
+void Level::SetMap(const char* themapname)
+{
+    char* spawnpos;
+    int   i;
+    str   text;
+
+    Init();
+
+    spawning = true;
+
+    // set a specific spawnpoint if the map was started with a $
+    spawnpos = strchr((char*)themapname, '$');
+    if (spawnpos) {
+        mapname = (const char*)(spawnpos - themapname);
+        spawnpoint = mapname;
+    }
+    else {
+        mapname = themapname;
+        spawnpoint = "";
+    }
+
+    current_map = (char*)themapname;
+
+    level_name = mapname;
+    for (i = 0; i < level_name.length(); i++) {
+        if (level_name[i] == '.') {
+            level_name[i] = 0;
+            break;
+        }
+    }
+
+    m_mapscript = "maps/" + level_name + ".scr";
+    m_precachescript = "maps/" + level_name + "_precache.scr";
+    m_pathfile = "maps/" + level_name + ".pth";
+    m_mapfile = "maps/" + level_name + ".bsp";
+}
+
+void Level::LoadAllScripts(const char* name, const char* extension)
+{
+    char** scriptFiles;
+    char   filename[MAX_QPATH];
+    int    numScripts;
+
+    scriptFiles = gi.FS_ListFiles(name, extension, qfalse, &numScripts);
+
+    if (!scriptFiles || !numScripts) {
+        return;
+    }
+
+    for (int i = 0; i < numScripts; i++) {
+        Com_sprintf(filename, sizeof(filename), "%s/%s", name, scriptFiles[i]);
+
+        // Compile the script
+        Director.GetScript(filename);
+    }
+
+    gi.FS_FreeFileList(scriptFiles);
+}
+
+void Level::Precache(void)
+{
+    setTime(svsStartTime);
+    setFrametime(50);
+
+    if (gi.FS_ReadFile(m_precachescript, NULL, qtrue) != -1) {
+        gi.DPrintf("Adding script: '%s'\n", m_precachescript.c_str());
+
+        // temporarily disable the loop protection
+        // because caching models require time
+        m_LoopProtection = false;
+        Director.ExecuteThread(m_precachescript);
+        m_LoopProtection = true;
+    }
+
+    if (!g_gametype->integer) {
+        LoadAllScripts("anim", ".scr");
+    }
+
+    LoadAllScripts("global", ".scr");
+}
+
+/*
+================
+FindTeams
+
+Chain together all entities with a matching team field.
+Entity teams are used for item groups and multi-entity mover groups.
+
+All but the first will have the FL_TEAMSLAVE flag set and teammaster field set
+All but the last will have the teamchain field set to the next one
+================
+*/
+void Level::FindTeams()
+{
+    gentity_t* ent, * ent2;
+    Entity* e, * e2;
+    int        i, j;
+    int        c, c2;
+
+    c = 0;
+    c2 = 0;
+    for (i = 1, ent = g_entities + i; i < globals.num_entities; i++, ent++) {
+        if (!ent->inuse) {
+            continue;
+        }
+
+        e = ent->entity;
+
+        if (!e->moveteam.length()) {
+            continue;
+        }
+
+        if (e->flags & FL_TEAMSLAVE) {
+            continue;
+        }
+
+        e->teammaster = e;
+        c++;
+        c2++;
+
+        for (j = i + 1, ent2 = ent + 1; j < globals.num_entities; j++, ent2++) {
+            if (!ent2->inuse) {
+                continue;
+            }
+
+            e2 = ent->entity;
+
+            if (!e2->moveteam.length()) {
+                continue;
+            }
+
+            if (e2->flags & FL_TEAMSLAVE) {
+                continue;
+            }
+
+            if (!strcmp(e->moveteam, e2->moveteam)) {
+                c2++;
+                e2->teamchain = e->teamchain;
+                e->teamchain = e2;
+                e2->teammaster = e;
+                e2->flags |= FL_TEAMSLAVE;
+
+                // make sure that targets only point at the master
+                if (e2->targetname) {
+                    e->targetname = e2->targetname;
+                    e2->targetname = NULL;
+                }
+            }
+        }
+    }
+
+    G_Printf("%i teams with %i entities\n", c, c2);
 }
 
 gentity_t *Level::AllocEdict(Entity *entity)
@@ -823,6 +1498,40 @@ void Level::AddAutomaticCamera(Camera *cam)
     automatic_cameras.AddUniqueObject(cam);
 }
 
+void Level::InitVoteOptions()
+{
+    // FIXME: unimplemented
+}
+
+void Level::SendVoteOptionsFile(gentity_t* ent)
+{
+    // FIXME: unimplemented
+}
+
+bool Level::GetVoteOptionMain(int index, str* outOptionCommand, voteoptiontype_t* outOptionType)
+{
+    // FIXME: unimplemented
+    return false;
+}
+
+bool Level::GetVoteOptionSub(int index, int listIndex, str* outCommand)
+{
+    // FIXME: unimplemented
+    return false;
+}
+
+bool Level::GetVoteOptionMainName(int index, str* outVoteName)
+{
+    // FIXME: unimplemented
+    return false;
+}
+
+bool Level::GetVoteOptionSubName(int index, int listIndex, str* outName)
+{
+    // FIXME: unimplemented
+    return false;
+}
+
 void Level::CheckVote(void)
 {
     // FIXME: show the vote HUD like in SH and BT
@@ -853,6 +1562,11 @@ void Level::CheckVote(void)
     }
 }
 
+void Level::SetupMaplist()
+{
+    // FIXME: unimplemented
+}
+
 void Level::GetAlarm(Event *ev)
 {
     ev->AddInteger(m_bAlarm);
@@ -866,6 +1580,11 @@ void Level::SetAlarm(Event *ev)
 void Level::SetNoDropHealth(Event *ev)
 {
     mbNoDropHealth = ev->GetInteger(1);
+}
+
+void Level::SetNoDropWeapons(Event* ev)
+{
+    mbNoDropWeapons = ev->GetInteger(1);
 }
 
 void Level::GetLoopProtection(Event *ev)
@@ -886,6 +1605,11 @@ void Level::GetPapersLevel(Event *ev)
 void Level::SetPapersLevel(Event *ev)
 {
     m_iPapersLevel = ev->GetInteger(1);
+}
+
+void Level::EventGetRoundStarted(Event* ev)
+{
+    ev->AddInteger(RoundStarted());
 }
 
 void Level::EventGetDMRespawning(Event *ev)
@@ -979,6 +1703,11 @@ void Level::EventSetBombsPlanted(Event *ev)
 void Level::EventGetRoundBased(Event *ev)
 {
     ev->AddInteger(g_gametype->integer >= GT_TEAM_ROUNDS);
+}
+
+void Level::EventGetObjectiveBased(Event* ev)
+{
+    ev->AddInteger(g_gametype->integer >= GT_OBJECTIVE);
 }
 
 str Level::GetRandomHeadModel(const char *model)
@@ -1163,562 +1892,30 @@ void Level::EventRainNumShadersGet(Event *ev)
     ev->AddString(gi.GetConfigstring(CS_RAIN_NUMSHADERS));
 }
 
-bool Level::RoundStarted()
+void Level::EventAddBadPlace(Event* ev)
 {
-    return !WaitTillDefined(STRING_ROUNDSTART);
+    // FIXME: unimplemented
 }
 
-bool Level::PreSpawned(void)
+void Level::EventRemoveBadPlace(Event* ev)
 {
-    return WaitTillDefined("prespawn");
+    // FIXME: unimplemented
 }
 
-bool Level::Spawned(void)
+void Level::EventIgnoreClock(Event* ev)
 {
-    return WaitTillDefined("spawn");
+    // FIXME: unimplemented
 }
 
-void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
+void Level::UpdateBadPlaces()
 {
-    DisableListenerNotify++;
-
-    if (g_gametype->integer) {
-        dmManager.Reset();
-    }
-
-    Director.Reset(samemap);
-
-    ClearCachedStatemaps();
-
-    assert(active_edicts.next);
-    assert(active_edicts.next->prev == &active_edicts);
-    assert(active_edicts.prev);
-    assert(active_edicts.prev->next == &active_edicts);
-    assert(free_edicts.next);
-    assert(free_edicts.next->prev == &free_edicts);
-    assert(free_edicts.prev);
-    assert(free_edicts.prev->next == &free_edicts);
-
-    while (active_edicts.next != &active_edicts) {
-        assert(active_edicts.next != &free_edicts);
-        assert(active_edicts.prev != &free_edicts);
-
-        assert(active_edicts.next);
-        assert(active_edicts.next->prev == &active_edicts);
-        assert(active_edicts.prev);
-        assert(active_edicts.prev->next == &active_edicts);
-        assert(free_edicts.next);
-        assert(free_edicts.next->prev == &free_edicts);
-        assert(free_edicts.prev);
-        assert(free_edicts.prev->next == &free_edicts);
-
-        if (active_edicts.next->entity) {
-            delete active_edicts.next->entity;
-        } else {
-            FreeEdict(active_edicts.next);
-        }
-    }
-
-    cinematic = false;
-    ai_on     = true;
-    near_exit = false;
-
-    mission_failed = false;
-    died_already   = false;
-
-    globals.num_entities = game.maxclients + 1;
-    gi.LocateGameData(g_entities, game.maxclients + 1, sizeof(gentity_t), &game.clients[0].ps, sizeof(gclient_t));
-
-    // clear up all AI node information
-    PathManager.ResetNodes();
-
-    // clear out automatic cameras
-    automatic_cameras.ClearObjectList();
-
-    // clear out level script variables
-    level.Vars()->ClearList();
-
-    // Clear out parm vars
-    parm.Vars()->ClearList();
-
-    // initialize the game variables
-    // these get restored by the persistant data, so we can safely clear them here
-    game.Vars()->ClearList();
-
-    // clearout any waiting events
-    L_ClearEventList();
-
-    // reset all edicts
-    ResetEdicts();
-
-    // reset all grenade hints
-    GrenadeHint::ResetHints();
-
-    // Reset the boss health cvar
-    gi.Cvar_Set("bosshealth", "0");
-
-    Actor::ResetBodyQueue();
-
-    if (world) {
-        world->FreeTargetList();
-    }
-
-    num_earthquakes = 0;
-
-    AddWaitTill(STRING_PRESPAWN);
-    AddWaitTill(STRING_SPAWN);
-    AddWaitTill(STRING_PLAYERSPAWN);
-    AddWaitTill(STRING_SKIP);
-    AddWaitTill(STRING_POSTTHINK);
-
-    if (g_gametype->integer <= GT_OBJECTIVE) {
-        AddWaitTill(STRING_ROUNDSTART);
-    }
-
-    if (g_gametype->integer > GT_FFA) {
-        AddWaitTill(STRING_ALLIESWIN);
-        AddWaitTill(STRING_AXISWIN);
-        AddWaitTill(STRING_DRAW);
-    }
-
-    classinfo()->RemoveWaitTill("prespawn");
-    classinfo()->RemoveWaitTill("spawn");
-    classinfo()->RemoveWaitTill("skip");
-    classinfo()->RemoveWaitTill("postthink");
-
-    if (g_gametype->integer >= GT_TEAM_ROUNDS) {
-        classinfo()->RemoveWaitTill("roundstart");
-        classinfo()->RemoveWaitTill("allieswin");
-        classinfo()->RemoveWaitTill("axiswin");
-        classinfo()->RemoveWaitTill("draw");
-    }
-
-    if (resetConfigStrings) {
-        gi.SetConfigstring(CS_RAIN_DENSITY, "0");
-        gi.SetConfigstring(CS_RAIN_SPEED, "2048");
-        gi.SetConfigstring(CS_RAIN_SPEEDVARY, "512");
-        gi.SetConfigstring(CS_RAIN_SLANT, "50");
-        gi.SetConfigstring(CS_RAIN_LENGTH, "90");
-        gi.SetConfigstring(CS_RAIN_MINDIST, "512");
-        gi.SetConfigstring(CS_RAIN_WIDTH, "1");
-        gi.SetConfigstring(CS_RAIN_SHADER, "textures/rain");
-        gi.SetConfigstring(CS_RAIN_NUMSHADERS, "0");
-        gi.SetConfigstring(CS_CURRENT_OBJECTIVE, "");
-
-        for (int i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; i++) {
-            gi.SetConfigstring(i, "");
-        }
-    }
-
-    DisableListenerNotify--;
+    // FIXME: unimplemented
 }
 
-/*
-==============
-ResetEdicts
-==============
-*/
-void Level::ResetEdicts(void)
+badplace_t* Level::GetNearestBadPlace(const Vector& org, float radius) const
 {
-    int i;
-
-    memset(g_entities, 0, game.maxentities * sizeof(g_entities[0]));
-
-    // Add all the edicts to the free list
-    LL_Reset(&free_edicts, next, prev);
-    LL_Reset(&active_edicts, next, prev);
-    for (i = 0; i < game.maxentities; i++) {
-        LL_Add(&free_edicts, &g_entities[i], next, prev);
-    }
-
-    for (i = 0; i < game.maxclients; i++) {
-        // set client fields on player ents
-        g_entities[i].client = game.clients + i;
-
-        G_InitClientPersistant(&game.clients[i]);
-    }
-
-    globals.num_entities = game.maxclients;
-}
-
-qboolean Level::inhibitEntity(int spawnflags)
-{
-    if (!developer->integer && (spawnflags & SPAWNFLAG_DEVELOPMENT)) {
-        return qtrue;
-    }
-
-    if (!detail->integer && (spawnflags & SPAWNFLAG_DETAIL)) {
-        return qtrue;
-    }
-
-#ifdef _CONSOLE
-    if (spawnflags & SPAWNFLAG_NOCONSOLE)
-#else
-    if (spawnflags & SPAWNFLAG_NOPC)
-#endif
-    {
-        return qtrue;
-    }
-
-    if (g_gametype->integer) {
-        if (spawnflags & SPAWNFLAG_NOT_DEATHMATCH) {
-            return qtrue;
-        }
-
-        return qfalse;
-    }
-
-    switch (skill->integer) {
-    case 0:
-        return (spawnflags & SPAWNFLAG_NOT_EASY) != 0;
-        break;
-
-    case 1:
-        return (spawnflags & SPAWNFLAG_NOT_MEDIUM) != 0;
-        break;
-
-    case 2:
-    case 3:
-        return (spawnflags & SPAWNFLAG_NOT_HARD);
-        break;
-    }
-
-    return qfalse;
-}
-
-void Level::setSkill(int value)
-{
-    int skill_level;
-
-    skill_level = floor((float)value);
-    skill_level = bound(skill_level, 0, 3);
-
-    gi.Cvar_Set("skill", va("%d", skill_level));
-}
-
-void Level::setTime(int levelTime)
-{
-    svsTime      = levelTime;
-    inttime      = levelTime - svsStartTime;
-    svsFloatTime = levelTime / 1000.0f;
-    time         = inttime / 1000.0f;
-}
-
-void Level::setFrametime(int frametime)
-{
-    intframetime    = frametime;
-    this->frametime = frametime / 1000.0f;
-}
-
-void Level::SetMap(const char *themapname)
-{
-    char *spawnpos;
-    int   i;
-    str   text;
-
-    Init();
-
-    spawning = true;
-
-    // set a specific spawnpoint if the map was started with a $
-    spawnpos = strchr((char *)themapname, '$');
-    if (spawnpos) {
-        mapname    = (const char *)(spawnpos - themapname);
-        spawnpoint = mapname;
-    } else {
-        mapname    = themapname;
-        spawnpoint = "";
-    }
-
-    current_map = (char *)themapname;
-
-    level_name = mapname;
-    for (i = 0; i < level_name.length(); i++) {
-        if (level_name[i] == '.') {
-            level_name[i] = 0;
-            break;
-        }
-    }
-
-    m_mapscript      = "maps/" + level_name + ".scr";
-    m_precachescript = "maps/" + level_name + "_precache.scr";
-    m_pathfile       = "maps/" + level_name + ".pth";
-    m_mapfile        = "maps/" + level_name + ".bsp";
-}
-
-void Level::LoadAllScripts(const char *name, const char *extension)
-{
-    char **scriptFiles;
-    char   filename[MAX_QPATH];
-    int    numScripts;
-
-    scriptFiles = gi.FS_ListFiles(name, extension, qfalse, &numScripts);
-
-    if (!scriptFiles || !numScripts) {
-        return;
-    }
-
-    for (int i = 0; i < numScripts; i++) {
-        Com_sprintf(filename, sizeof(filename), "%s/%s", name, scriptFiles[i]);
-
-        // Compile the script
-        Director.GetScript(filename);
-    }
-
-    gi.FS_FreeFileList(scriptFiles);
-}
-
-void Level::Precache(void)
-{
-    setTime(svsStartTime);
-    setFrametime(50);
-
-    if (gi.FS_ReadFile(m_precachescript, NULL, qtrue) != -1) {
-        gi.DPrintf("Adding script: '%s'\n", m_precachescript.c_str());
-
-        // temporarily disable the loop protection
-        // because caching models require time
-        m_LoopProtection = false;
-        Director.ExecuteThread(m_precachescript);
-        m_LoopProtection = true;
-    }
-
-    if (!g_gametype->integer) {
-        LoadAllScripts("anim", ".scr");
-    }
-
-    LoadAllScripts("global", ".scr");
-}
-
-void Level::SpawnEntities(char *entities, int svsTime)
-{
-    int         inhibit, radnum = 0, count = 0;
-    int         enttime;
-    const char *value;
-    char        name[128];
-    SpawnArgs   args;
-    Listener   *listener;
-    Entity     *ent;
-
-    // Create the game variable list
-    game.CreateVars();
-
-    // Create the parm variable list
-    parm.CreateVars();
-
-    // Create the level variable list
-    CreateVars();
-
-    // set up time so functions still have valid times
-    setTime(svsTime);
-    setFrametime(50);
-
-    setSkill(skill->integer);
-
-    // reset out count of the number of game traces
-    sv_numtraces = 0;
-
-    // parse world
-    entities     = args.Parse(entities);
-    spawn_entnum = ENTITYNUM_WORLD;
-    args.SpawnInternal();
-
-    // parse ents
-    inhibit = 0;
-    enttime = gi.Milliseconds();
-
-    // Set up for a new map
-    PathManager.LoadNodes();
-
-    Com_Printf("-------------------- Actual Spawning Entities -----------------------\n");
-
-    for (entities = args.Parse(entities); entities != NULL; entities = args.Parse(entities)) {
-        // remove things (except the world) from different skill levels or deathmatch
-        spawnflags = 0;
-        value      = args.getArg("spawnflags");
-
-        if (value) {
-            spawnflags = atoi(value);
-
-            if (inhibitEntity(spawnflags)) {
-                inhibit++;
-                continue;
-            }
-        }
-
-        listener = args.SpawnInternal();
-
-        if (listener) {
-            radnum++;
-
-            if (listener->isSubclassOf(Entity)) {
-                count++;
-
-                ent         = (Entity *)listener;
-                ent->radnum = radnum;
-
-                Q_strncpyz(ent->edict->entname, ent->getClassID(), sizeof(ent->edict->entname));
-
-                ent->PostEvent(EV_Entity_Start, -1.0, 0);
-                sprintf(name, "i%d", radnum);
-                gi.LoadResource(name);
-            }
-        }
-    }
-
-    Com_Printf(
-        "-------------------- Actual Spawning Entities Done ------------------ %i ms\n", gi.Milliseconds() - enttime
-    );
-
-    world->UpdateConfigStrings();
-
-    Event *ev = new Event(EV_Level_PreSpawnSentient);
-    PostEvent(ev, EV_SPAWNENTITIES);
-
-    L_ProcessPendingEvents();
-
-    if (g_gametype->integer) {
-        dmManager.InitGame();
-    }
-
-    if (game.maxclients == 1) {
-        spawn_entnum = 0;
-        new Player;
-    }
-
-    m_LoopProtection = false;
-    AddWaitTill(STRING_PRESPAWN);
-    Unregister(STRING_PRESPAWN);
-    m_LoopProtection = true;
-
-    Com_Printf("%i entities spawned\n", count);
-    Com_Printf("%i simple entities spawned\n", radnum);
-    Com_Printf("%i entities inhibited\n", inhibit);
-
-    Com_Printf("-------------------- Spawning Entities Done ------------------ %i ms\n", gi.Milliseconds() - enttime);
-}
-
-void Level::PreSpawnSentient(Event *ev)
-{
-    GameScript *script;
-
-    // general initialization
-    FindTeams();
-
-    script = Director.GetScript(m_mapscript);
-    if (script) {
-        gi.DPrintf("Adding script: '%s'\n", m_mapscript.c_str());
-
-        m_LoopProtection = false;
-        Director.ExecuteThread(m_mapscript);
-        m_LoopProtection = true;
-    }
-
-    PathManager.CreatePaths();
-}
-
-/*
-================
-FindTeams
-
-Chain together all entities with a matching team field.
-Entity teams are used for item groups and multi-entity mover groups.
-
-All but the first will have the FL_TEAMSLAVE flag set and teammaster field set
-All but the last will have the teamchain field set to the next one
-================
-*/
-void Level::FindTeams()
-{
-    gentity_t *ent, *ent2;
-    Entity    *e, *e2;
-    int        i, j;
-    int        c, c2;
-
-    c  = 0;
-    c2 = 0;
-    for (i = 1, ent = g_entities + i; i < globals.num_entities; i++, ent++) {
-        if (!ent->inuse) {
-            continue;
-        }
-
-        e = ent->entity;
-
-        if (!e->moveteam.length()) {
-            continue;
-        }
-
-        if (e->flags & FL_TEAMSLAVE) {
-            continue;
-        }
-
-        e->teammaster = e;
-        c++;
-        c2++;
-
-        for (j = i + 1, ent2 = ent + 1; j < globals.num_entities; j++, ent2++) {
-            if (!ent2->inuse) {
-                continue;
-            }
-
-            e2 = ent->entity;
-
-            if (!e2->moveteam.length()) {
-                continue;
-            }
-
-            if (e2->flags & FL_TEAMSLAVE) {
-                continue;
-            }
-
-            if (!strcmp(e->moveteam, e2->moveteam)) {
-                c2++;
-                e2->teamchain  = e->teamchain;
-                e->teamchain   = e2;
-                e2->teammaster = e;
-                e2->flags |= FL_TEAMSLAVE;
-
-                // make sure that targets only point at the master
-                if (e2->targetname) {
-                    e->targetname  = e2->targetname;
-                    e2->targetname = NULL;
-                }
-            }
-        }
-    }
-
-    G_Printf("%i teams with %i entities\n", c, c2);
-}
-
-void Level::ServerSpawned(void)
-{
-    int        i;
-    gclient_t *client;
-    gentity_t *ent;
-
-    for (i = 0, client = game.clients; i < game.maxclients; i++, client++) {
-        client->ps.commandTime = svsTime;
-    }
-
-    if (!WaitTillDisabled(STRING_SPAWN)) {
-        AddWaitTill(STRING_SPAWN);
-
-        Director.iPaused++;
-
-        for (ent = active_edicts.next; ent != &active_edicts; ent = ent->next) {
-            ent->entity->Unregister(STRING_SPAWN);
-        }
-
-        if (Director.iPaused-- == 1) {
-            Director.ExecuteRunning();
-        }
-
-        Unregister(STRING_SPAWN);
-    } else {
-        Director.LoadMenus();
-    }
-
-    spawning = false;
+    // FIXME: unimplemented
+    return NULL;
 }
 
 void Level::Archive(Archiver& arc)

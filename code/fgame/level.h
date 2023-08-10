@@ -63,6 +63,63 @@ typedef struct earthquake_s {
     SafePtr<ScriptThread> m_Thread;
 } earthquake_t;
 
+typedef enum voteoptiontype_e {
+	/** No input. */
+	VOTE_NO_CHOICES,
+	/** List of choices. */
+	VOTE_OPTION_LIST,
+	/** Text input type command. */
+	VOTE_OPTION_TEXT,
+	/** Accepts an integer as an input. */
+	VOTE_OPTION_INTEGER,
+	/** Accepts a float number as input. */
+	VOTE_OPTION_FLOAT,
+	/** A list of clients, one to choose. */
+	VOTE_OPTION_CLIENT,
+	/** A list of clients (excluding self), one to choose. */
+	VOTE_OPTION_CLIENT_NOT_SELF,
+} voteoptiontype_t;
+
+struct VoteOptionListItem {
+	str m_sItemName;
+	str m_sCommand;
+	struct VoteOptionListItem* m_pNext;
+};
+
+struct SingleVoteOption {
+	str m_sVoteName;
+	str m_sCommand;
+	voteoptiontype_t m_optionType;
+	VoteOptionListItem* m_pListItem;
+	struct SingleVoteOption* m_pNext;
+};
+
+struct VoteOptions {
+	Class _parent_Class;
+	str m_sFileName;
+	str m_sBuffer;
+	SingleVoteOption* m_pHeadOption;
+	int field_5;
+	float field_6;
+	float field_7;
+	float field_8;
+	float field_9;
+	float field_10;
+};
+
+struct badplace_t {
+	const_str m_name;
+	int m_iTeamSide;
+	Vector m_vOrigin;
+	float m_fRadius;
+	float m_fNotBadPlaceTime;
+};
+
+typedef struct {
+	str m_sName;
+	Vector m_vOrigin;
+} landmark_t;
+
 extern gclient_t *spawn_client;
 
 class Camera;
@@ -97,7 +154,8 @@ public:
     int   svsTime;
     float svsFloatTime;
     int   svsStartTime;
-    int   svsEndTime;
+	int   svsEndTime;
+	float svsStartFloatTime; // Added in 2.0
 
     // Level name variables
     str level_name;
@@ -134,6 +192,7 @@ public:
     qboolean ai_on;
     qboolean m_bAlarm;
     qboolean mbNoDropHealth;
+    qboolean mbNoDropWeapons; // Added in 2.0
     int      m_iPapersLevel;
 
     // Mission state
@@ -165,6 +224,10 @@ public:
     float          m_letterbox_time_start;
     letterboxdir_t m_letterbox_dir;
 
+    // Added in 2.0
+    // Bad places
+    Container<badplace_t> m_badPlaces;
+
     Container<Camera *> automatic_cameras;
 
     // Quake remnants ?
@@ -175,7 +238,10 @@ public:
     int   m_voteYes;
     int   m_voteNo;
     int   m_numVoters;
-    str   m_voteString;
+	str   m_voteString;
+    // Added in 2.0
+	str   m_voteCommand;
+	str   m_voteName;
 
     // Intermission locations
     Vector m_intermission_origin;
@@ -197,11 +263,25 @@ public:
     int          num_earthquakes;
 
     // Objective stuff
-    Vector m_vObjectiveLocation;
+	Vector m_vObjectiveLocation;
+	Vector m_vAlliedObjectiveLocation; // Added in 2.0
+	Vector m_vAxisObjectiveLocation; // Added in 2.0
 
     // Current level state
     bool spawning;
-    bool m_bIgnoreClock;
+	bool m_bIgnoreClock;
+    //====
+    // Added in 2.30
+    // Landmarks
+	float m_fLandmarkYDistMax;
+	float m_fLandmarkYDistMin;
+	float m_fLandmarkXDistMax;
+	float m_fLandmarkXDistMin;
+	landmark_t** m_pLandmarks;
+	int m_iMaxLandmarks;
+	int m_iLandmarksCount;
+    //====
+	void* m_pAIStats;
 
     // New Stuff
 
@@ -230,25 +310,52 @@ public:
     void       Precache();
     void       SetMap(const char *themapname);
     void       FindTeams();
+
     void       SpawnEntities(char *entities, int _svsTime_);
+    //====
+    // Added in 2.30
+    void       ComputeDMWaypoints();
+    void       AddLandmarkOrigin(const Vector& origin);
+    void       AddLandmarkName(const str& name, const Vector& origin);
+    void       FreeLandmarks();
+    str        GetDynamicDMLocations(const Vector& origin);
+    str        GetDMLocation(const Vector& origin);
+    //====
     void       PreSpawnSentient(Event *ev);
     void       ServerSpawned();
     qboolean   inhibitEntity(int spawnflags);
+
     void       setSkill(int value);
     void       setTime(int _svsTime_);
     void       setFrametime(int frameTime);
+
     void       AddAutomaticCamera(Camera *cam);
+
     void       GetTime(Event *ev);
     void       GetTotalSecrets(Event *ev);
     void       GetFoundSecrets(Event *ev);
+
+    //====
+    // Added in 2.0
+    void       InitVoteOptions();
+    void       SendVoteOptionsFile(gentity_t* ent);
+    bool       GetVoteOptionMain(int index, str* outOptionCommand, voteoptiontype_t* outOptionType);
+    bool       GetVoteOptionSub(int index, int listIndex, str* outCommand);
+    bool       GetVoteOptionMainName(int index, str* outVoteName);
+	bool       GetVoteOptionSubName(int index, int listIndex, str* outName);
+	//====
     void       CheckVote();
+    void       SetupMaplist(); // Added in 2.0
+
     void       GetAlarm(Event *ev);
     void       SetAlarm(Event *ev);
     void       SetNoDropHealth(Event *ev);
+    void       SetNoDropWeapons(Event *ev); // Added in 2.0
     void       GetLoopProtection(Event *ev);
     void       SetLoopProtection(Event *ev);
     void       GetPapersLevel(Event *ev);
     void       SetPapersLevel(Event *ev);
+    void       EventGetRoundStarted(Event *ev);
     void       EventGetDMRespawning(Event *ev);
     void       EventSetDMRespawning(Event *ev);
     void       EventGetDMRoundLimit(Event *ev);
@@ -264,6 +371,7 @@ public:
     void       EventGetBombsPlanted(Event *ev);
     void       EventSetBombsPlanted(Event *ev);
     void       EventGetRoundBased(Event *ev);
+    void       EventGetObjectiveBased(Event *ev);
     void       EventRainDensitySet(Event *ev);
     void       EventRainDensityGet(Event *ev);
     void       EventRainSpeedSet(Event *ev);
@@ -282,6 +390,14 @@ public:
     void       EventRainShaderGet(Event *ev);
     void       EventRainNumShadersSet(Event *ev);
     void       EventRainNumShadersGet(Event *ev);
+    //====
+    // Added in 2.0
+    void       EventAddBadPlace(Event *ev);
+    void       EventRemoveBadPlace(Event *ev);
+    void       EventIgnoreClock(Event *ev);
+    void       UpdateBadPlaces();
+    badplace_t *GetNearestBadPlace(const Vector& org, float radius) const;
+    //====
     str        GetRandomHeadModel(const char *model);
     str        GetRandomHeadSkin(const char *model);
 
@@ -298,21 +414,6 @@ public:
 };
 
 extern Level level;
-
-inline void Level::GetTime(Event *ev)
-{
-    ev->AddFloat(level.time);
-}
-
-inline void Level::GetTotalSecrets(Event *ev)
-{
-    ev->AddInteger(total_secrets);
-}
-
-inline void Level::GetFoundSecrets(Event *ev)
-{
-    ev->AddInteger(found_secrets);
-}
 
 inline qboolean Level::Reborn(void)
 {
