@@ -1081,6 +1081,23 @@ bool G_SightTrace(
     return result;
 }
 
+void G_PMDrawTrace(
+    trace_t     *results,
+    const vec3_t start,
+    const vec3_t mins,
+    const vec3_t maxs,
+    const vec3_t end,
+    int          passEntityNum,
+    int          contentMask,
+    qboolean     cylinder,
+    qboolean     traceDeep
+)
+{
+    gi.Trace(results, start, mins, maxs, end, passEntityNum, contentMask, cylinder, traceDeep);
+    sv_numpmtraces++;
+    G_DebugLine(start, end, 1.f, 0.75f, 0.5f, 1.f);
+}
+
 trace_t G_Trace(
     vec3_t      start,
     vec3_t      mins,

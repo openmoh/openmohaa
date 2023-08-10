@@ -237,6 +237,17 @@ bool G_SightTrace(
     qboolean      cylindrical,
     const char   *reason
 );
+void G_PMDrawTrace(
+    trace_t     *results,
+    const vec3_t start,
+    const vec3_t mins,
+    const vec3_t maxs,
+    const vec3_t end,
+    int          passEntityNum,
+    int          contentMask,
+    qboolean     cylinder,
+    qboolean     traceDeep
+);
 trace_t G_Trace(
     const Vector& start,
     const Vector& mins,
