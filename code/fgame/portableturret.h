@@ -21,3 +21,47 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #pragma once
+
+#include "inventoryitem.h"
+#include "weapturret.h"
+
+class CarryableTurret : public InventoryItem
+{
+public:
+    CLASS_PROTOTYPE(CarryableTurret);
+
+    CarryableTurret();
+
+    void EventPickup(Event *ev);
+
+    qboolean Removable(void) override;
+    void     DetachFromOwner(void);
+    void     AttachToHolster(weaponhand_t hand);
+    void     DropTurret(Event *ev);
+    qboolean Drop(void) override;
+    void     EventTurretTik(Event *ev);
+    void     EventPlaceTurret(Event *ev);
+    void     EventEnablePickup(Event *ev);
+};
+
+class PortableTurret : public TurretGun
+{
+public:
+    CLASS_PROTOTYPE(PortableTurret);
+
+public:
+    PortableTurret();
+
+    void SetGroundPitch(float pitch);
+    void SetOwnerPosition(const Vector& pos);
+    void PortablePlaceTurret(Event *ev);
+    void MakeBaseEntity();
+    void EventSetClipSize(Event *ev);
+    void AbortTurretSetup();
+
+    void P_UserAim(usercmd_t *cmd) override;
+    void P_TurretEndUsed() override;
+    void P_TurretBeginUsed(Player *pEnt) override;
+    void P_ThinkActive() override;
+    void P_TurretUsed(Player *player) override;
+};

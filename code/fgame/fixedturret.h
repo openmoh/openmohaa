@@ -21,3 +21,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #pragma once
+
+#include "vehicle.h"
+
+class FixedTurret : public VehicleTank
+{
+public:
+    CLASS_PROTOTYPE(FixedTurret);
+
+public:
+    FixedTurret();
+    void Archive(Archiver& arc) override;
+
+    qboolean Drive(usercmd_t *ucmd) override;
+    void     DetachRemoteOwner() override;
+    void     EventDamage(Event *ev);
+
+    void AttachDriverSlot(int slot, Entity *ent, Vector vExitPosition) override;
+    void DetachDriverSlot(int slot, Vector vExitPosition, Vector *vExitAngles) override;
+    void EventSetCollisionModel(Event *ev);
+};
