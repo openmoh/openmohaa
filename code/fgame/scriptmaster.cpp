@@ -289,9 +289,10 @@ const char *ScriptMaster::ConstStrings[] =
 	"turndone",
 	"anim/no_anim_killed.scr",
 	"mg42", "mp40",
-	"remove", "delete",
-	"respawn",
-	"none"
+	"auto",
+	"both",
+	"runandshoot",
+	"respawn"
 };
 
 ScriptMaster::~ScriptMaster()

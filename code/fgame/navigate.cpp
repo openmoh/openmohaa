@@ -3640,7 +3640,7 @@ AttractiveNode::AttractiveNode()
 	m_fMaxDistanceSquared	= m_fMaxDistance * m_fMaxDistance;
 	m_fRespawnTime			= 15.0f;	// set to default 15 seconds
 	m_bUse					= false;
-	m_csTeam				= STRING_NONE;
+	m_csTeam				= STRING_EMPTY;
 	m_iTeam					= TEAM_NONE;
 
 	attractiveNodes.AddObject( this );
@@ -3786,7 +3786,7 @@ void AttractiveNode::SetTeam
 {
 	if( ev->IsNilAt( 1 ) )
 	{
-		m_csTeam = STRING_NONE;
+		m_csTeam = STRING_EMPTY;
 		m_iTeam = TEAM_NONE;
 		return;
 	}
@@ -3795,7 +3795,7 @@ void AttractiveNode::SetTeam
 
 	switch( m_csTeam )
 	{
-	case STRING_NONE:
+	case STRING_EMPTY:
 		m_iTeam = TEAM_NONE;
 		break;
 	case STRING_SPECTATOR:

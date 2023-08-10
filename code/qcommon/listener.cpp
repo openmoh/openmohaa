@@ -3631,7 +3631,7 @@ void Listener::Unregister( const_str name )
 
 				if( listener )
 				{
-					if( listener == this && ( name == STRING_REMOVE || name == STRING_DELETE || bDeleteSelf ) )
+					if( listener == this && ( bDeleteSelf ) )
 					{
 						continue;
 					}
