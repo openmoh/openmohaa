@@ -263,6 +263,8 @@ extern cvar_t *g_no_seasick;
 
 extern cvar_t *g_aistats;
 
+extern cvar_t* g_obituarylocation;
+
 extern cvar_t *sv_scriptfiles;
 
 extern cvar_t *nomonsters;

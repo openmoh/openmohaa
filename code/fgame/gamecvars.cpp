@@ -258,6 +258,8 @@ cvar_t *g_no_seasick;
 
 cvar_t *g_aistats;
 
+cvar_t* g_obituarylocation;
+
 cvar_t *sv_scriptfiles;
 
 cvar_t *nomonsters;
@@ -580,6 +582,13 @@ void CVAR_Init(void)
     g_cinematics_off          = gi.Cvar_Get("g_cinematics_off", "0", 0);
     g_rifles_for_sweepers     = gi.Cvar_Get("g_rifles_for_sweepers", "0", 0);
     g_no_seasick              = gi.Cvar_Get("g_no_seasick", "0", 0);
+
+	if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+		g_obituarylocation = gi.Cvar_Get("g_obituarylocation", "0", 0);
+    } else {
+        // Defaults to 1 on vanilla mohaa
+		g_obituarylocation = gi.Cvar_Get("g_obituarylocation", "1", 0);
+    }
 
     sv_scriptfiles               = gi.Cvar_Get("sv_scriptfiles", "0", 0);
     maxbots                      = gi.Cvar_Get("sv_maxbots", "2", 0);
