@@ -2610,7 +2610,9 @@ void Com_InitTargetGameWithType(target_game_e target_game)
     default:
 		Com_Error(ERR_FATAL, "Invalid target game '%d'", target_game);
 		return;
-    }
+	}
+
+	Cvar_Set("protocol", Cvar_VariableString("com_protocol"));
 }
 
 /*
