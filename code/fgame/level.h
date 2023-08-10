@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "listener.h"
 #include "g_public.h"
+#include "bg_voteoptions.h"
 
 #define MAX_HEAD_SENTIENTS 2
 #define MAX_EARTHQUAKES    10
@@ -62,50 +63,6 @@ typedef struct earthquake_s {
     int                   endtime;
     SafePtr<ScriptThread> m_Thread;
 } earthquake_t;
-
-typedef enum voteoptiontype_e {
-	/** No input. */
-	VOTE_NO_CHOICES,
-	/** List of choices. */
-	VOTE_OPTION_LIST,
-	/** Text input type command. */
-	VOTE_OPTION_TEXT,
-	/** Accepts an integer as an input. */
-	VOTE_OPTION_INTEGER,
-	/** Accepts a float number as input. */
-	VOTE_OPTION_FLOAT,
-	/** A list of clients, one to choose. */
-	VOTE_OPTION_CLIENT,
-	/** A list of clients (excluding self), one to choose. */
-	VOTE_OPTION_CLIENT_NOT_SELF,
-} voteoptiontype_t;
-
-struct VoteOptionListItem {
-	str m_sItemName;
-	str m_sCommand;
-	struct VoteOptionListItem* m_pNext;
-};
-
-struct SingleVoteOption {
-	str m_sVoteName;
-	str m_sCommand;
-	voteoptiontype_t m_optionType;
-	VoteOptionListItem* m_pListItem;
-	struct SingleVoteOption* m_pNext;
-};
-
-struct VoteOptions {
-	Class _parent_Class;
-	str m_sFileName;
-	str m_sBuffer;
-	SingleVoteOption* m_pHeadOption;
-	int field_5;
-	float field_6;
-	float field_7;
-	float field_8;
-	float field_9;
-	float field_10;
-};
 
 struct badplace_t {
 	const_str m_name;
