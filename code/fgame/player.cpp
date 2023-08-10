@@ -1176,11 +1176,12 @@ void Player::Init(void)
     InitInventory();
     InitHealth();
     InitStats();
-
     InitModel();
+    InitInvulnerable();
+
     LoadStateTable();
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         InitDeathmatch();
     } else if (!LoadingSavegame) {
         ChooseSpawnPoint();
@@ -1494,7 +1495,7 @@ void Player::ChooseSpawnPoint(void)
 {
     // set up the player's spawn location
     PlayerStart *p = SelectSpawnPoint(this);
-    setOrigin(p->origin + Vector("0 0 1"));
+    setOrigin(p->origin + Vector(0, 0, 1));
     origin.copyTo(edict->s.origin2);
     edict->s.renderfx |= RF_FRAMELERP;
 
@@ -1504,6 +1505,10 @@ void Player::ChooseSpawnPoint(void)
 
     setAngles(p->angles);
     SetViewAngles(p->angles);
+    SetupView();
+
+    VectorCopy(origin, client->ps.vEyePos);
+    client->ps.vEyePos[2] += client->ps.viewheight;
 
     if (g_gametype->integer) {
         for (int i = 1; i <= 4; i++) {
@@ -6734,10 +6739,15 @@ str Player::GetCurrentDMWeaponType() const
 
 void Player::Score(Event *ev)
 {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        // Of course useless in single-player mode
+        return;
+    }
+
     dmManager.Score(this);
 }
 
-// Before 2.30
+// Was between 2.0 and 2.15
 /*
 nationality_t GetAlliedType(const char* name)
 {
@@ -6785,25 +6795,27 @@ void Player::InitDeathmatch(void)
     m_iInfoClient        = -1;
     m_fWeapSelectTime    = level.time - 9.0f;
 
-    m_fDamageMultipliers[0]  = 2.0f;
-    m_fDamageMultipliers[1]  = 2.0f;
-    m_fDamageMultipliers[2]  = 2.0f;
-    m_fDamageMultipliers[3]  = 1.0f;
-    m_fDamageMultipliers[4]  = 0.95f;
-    m_fDamageMultipliers[5]  = 0.90f;
-    m_fDamageMultipliers[6]  = 0.85f;
-    m_fDamageMultipliers[7]  = 0.80f;
-    m_fDamageMultipliers[8]  = 0.80f;
-    m_fDamageMultipliers[9]  = 0.80f;
-    m_fDamageMultipliers[10] = 0.80f;
-    m_fDamageMultipliers[11] = 0.60f;
-    m_fDamageMultipliers[12] = 0.60f;
-    m_fDamageMultipliers[13] = 0.60f;
-    m_fDamageMultipliers[14] = 0.60f;
-    m_fDamageMultipliers[15] = 0.50f;
-    m_fDamageMultipliers[16] = 0.50f;
-    m_fDamageMultipliers[17] = 0.50f;
-    m_fDamageMultipliers[18] = 0.50f;
+    if (!g_realismmode->integer) {
+        m_fDamageMultipliers[LOCATION_HEAD]        = 2.0f;
+        m_fDamageMultipliers[LOCATION_HELMET]      = 2.0f;
+        m_fDamageMultipliers[LOCATION_NECK]        = 2.0f;
+        m_fDamageMultipliers[LOCATION_TORSO_UPPER] = 1.0f;
+        m_fDamageMultipliers[LOCATION_TORSO_MID]   = 0.95f;
+        m_fDamageMultipliers[LOCATION_TORSO_LOWER] = 0.90f;
+        m_fDamageMultipliers[LOCATION_PELVIS]      = 0.85f;
+        m_fDamageMultipliers[LOCATION_R_ARM_UPPER] = 0.80f;
+        m_fDamageMultipliers[LOCATION_L_ARM_UPPER] = 0.80f;
+        m_fDamageMultipliers[LOCATION_R_LEG_UPPER] = 0.80f;
+        m_fDamageMultipliers[LOCATION_L_LEG_UPPER] = 0.80f;
+        m_fDamageMultipliers[LOCATION_R_ARM_LOWER] = 0.60f;
+        m_fDamageMultipliers[LOCATION_L_ARM_LOWER] = 0.60f;
+        m_fDamageMultipliers[LOCATION_R_LEG_LOWER] = 0.60f;
+        m_fDamageMultipliers[LOCATION_L_LEG_LOWER] = 0.60f;
+        m_fDamageMultipliers[LOCATION_R_HAND]      = 0.50f;
+        m_fDamageMultipliers[LOCATION_L_HAND]      = 0.50f;
+        m_fDamageMultipliers[LOCATION_R_FOOT]      = 0.50f;
+        m_fDamageMultipliers[LOCATION_L_FOOT]      = 0.50f;
+    }
 
     if (current_team) {
         if (AllowTeamRespawn()) {
@@ -6814,11 +6826,20 @@ void Player::InitDeathmatch(void)
                 m_bTempSpectator = true;
             }
 
-            if (g_gametype->integer == GT_TEAM || g_gametype->integer <= GT_FFA || g_gametype->integer > GT_LIBERATION
-                || !m_bTempSpectator) {
+            switch (g_gametype->integer) {
+            case GT_TEAM_ROUNDS:
+            case GT_OBJECTIVE:
+            case GT_TOW:
+            case GT_LIBERATION:
+                if (!m_bTempSpectator) {
+                    BeginFight();
+                } else {
+                    Spectator();
+                }
+                break;
+            default:
                 BeginFight();
-            } else {
-                Spectator();
+                break;
             }
         }
     } else {
