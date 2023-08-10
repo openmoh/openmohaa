@@ -68,6 +68,10 @@ enum painDirection_t {
 };
 
 typedef enum {
+    ANIMSLOT_PAIN = 4
+} playerAnimSlot_t;
+
+typedef enum {
     PVT_NONE_SET,
     PVT_ALLIED_START,
     PVT_ALLIED_AIRBORNE,
@@ -136,6 +140,8 @@ private:
     float m_fPartBlends[2];
     str   partOldAnim[2];
     float partBlendMult[2];
+    str   m_sPainAnim;
+    float m_fPainBlend;
 
     bool                     animdone_Legs;
     bool                     animdone_Torso;
@@ -266,6 +272,7 @@ private:
 
     bool m_bTempSpectator;
     bool m_bSpectator;
+    bool m_bSpectatorSwitching;
     bool m_bAllowFighting;
     bool m_bReady;
     int  m_iPlayerSpectating;
@@ -784,10 +791,10 @@ public:
     void       EndFight(void);
     void       Spectator(void);
     void       Spectator(Event *ev);
-    void       SetPlayerSpectate(void);
+    void       SetPlayerSpectate(bool bNext);
     void       SetPlayerSpectateRandom(void); // Added in 2.0
     bool       IsValidSpectatePlayer(Player *pPlayer);
-    void       GetSpectateFollowOrientation(Player *pPlayer, Vector      &vPos, Vector      &vAng);
+    void       GetSpectateFollowOrientation(Player *pPlayer, Vector &vPos, Vector &vAng);
     void       UpdateStatus(const char *s);
     void       SetDM_Team(DM_Team *team);
     DM_Team   *GetDM_Team();
