@@ -26,48 +26,51 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_public.h"
 
 typedef enum voteoptiontype_e {
-	/** No input. */
-	VOTE_NO_CHOICES,
-	/** List of choices. */
-	VOTE_OPTION_LIST,
-	/** Text input type command. */
-	VOTE_OPTION_TEXT,
-	/** Accepts an integer as an input. */
-	VOTE_OPTION_INTEGER,
-	/** Accepts a float number as input. */
-	VOTE_OPTION_FLOAT,
-	/** A list of clients, one to choose. */
-	VOTE_OPTION_CLIENT,
-	/** A list of clients (excluding self), one to choose. */
-	VOTE_OPTION_CLIENT_NOT_SELF,
+    /** No input. */
+    VOTE_NO_CHOICES,
+    /** List of choices. */
+    VOTE_OPTION_LIST,
+    /** Text input type command. */
+    VOTE_OPTION_TEXT,
+    /** Accepts an integer as an input. */
+    VOTE_OPTION_INTEGER,
+    /** Accepts a float number as input. */
+    VOTE_OPTION_FLOAT,
+    /** A list of clients, one to choose. */
+    VOTE_OPTION_CLIENT,
+    /** A list of clients (excluding self), one to choose. */
+    VOTE_OPTION_CLIENT_NOT_SELF,
 } voteoptiontype_t;
 
-class VoteOptionListItem {
-	str m_sItemName;
-	str m_sCommand;
-	class VoteOptionListItem* m_pNext;
+class VoteOptionListItem
+{
+    str                       m_sItemName;
+    str                       m_sCommand;
+    class VoteOptionListItem *m_pNext;
 };
 
-class SingleVoteOption {
-	str m_sVoteName;
-	str m_sCommand;
-	voteoptiontype_t m_optionType;
-	VoteOptionListItem* m_pListItem;
-	class SingleVoteOption* m_pNext;
+class SingleVoteOption
+{
+    str                     m_sVoteName;
+    str                     m_sCommand;
+    voteoptiontype_t        m_optionType;
+    VoteOptionListItem     *m_pListItem;
+    class SingleVoteOption *m_pNext;
 };
 
-class VoteOptions : public Class {
+class VoteOptions : public Class
+{
 public:
-	CLASS_PROTOTYPE(VoteOptions);
+    CLASS_PROTOTYPE(VoteOptions);
 
 public:
-	str m_sFileName;
-	str m_sBuffer;
-	SingleVoteOption* m_pHeadOption;
-	int field_5;
-	float field_6;
-	float field_7;
-	float field_8;
-	float field_9;
-	float field_10;
+    str               m_sFileName;
+    str               m_sBuffer;
+    SingleVoteOption *m_pHeadOption;
+    int               field_5;
+    float             field_6;
+    float             field_7;
+    float             field_8;
+    float             field_9;
+    float             field_10;
 };
