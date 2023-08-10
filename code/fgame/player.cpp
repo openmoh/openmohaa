@@ -94,12 +94,12 @@ Event EV_Player_GiveAllCheat
 );
 Event EV_Player_GiveNewWeaponsCheat
 (
-	"giveweapon",
-	EV_CONSOLE | EV_CHEAT,
-	"s",
+    "giveweapon",
+    EV_CONSOLE | EV_CHEAT,
+    "s",
     "weapon_name",
-	"Gives player all weapons.",
-	EV_NORMAL
+    "Gives player all weapons.",
+    EV_NORMAL
 );
 Event EV_Player_EndLevel
 (
@@ -400,12 +400,12 @@ Event EV_Player_AnimLoop_Legs
 );
 Event EV_Player_AnimLoop_Pain
 (
-	"animloop_pain",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Called when the pain animation has finished.",
-	EV_NORMAL
+    "animloop_pain",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Called when the pain animation has finished.",
+    EV_NORMAL
 );
 Event EV_Player_DoUse
 (
@@ -626,12 +626,12 @@ Event EV_Player_ModifyHeight
 );
 Event EV_Player_ModifyHeightFloat
 (
-	"modheightfloat",
-	EV_DEFAULT,
-	"ff",
-	"height max_z",
-	"Specify the view height of the player and the height of his bounding box.",
-	EV_NORMAL
+    "modheightfloat",
+    EV_DEFAULT,
+    "ff",
+    "height max_z",
+    "Specify the view height of the player and the height of his bounding box.",
+    EV_NORMAL
 );
 Event EV_Player_SetMovePosFlags
 (
@@ -689,47 +689,47 @@ Event EV_Player_AutoJoinDMTeam
 );
 Event EV_Player_PickWeapon
 (
-	"pickweapon",
-	EV_CONSOLE,
-	NULL,
-	NULL,
-	"Pick your weapon.",
-	EV_NORMAL
+    "pickweapon",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Pick your weapon.",
+    EV_NORMAL
 );
 Event EV_Player_SetInJail
 (
-	"injail",
+    "injail",
     EV_DEFAULT,
     "i",
-	"boolean",
-	"set to 1 to indicate when player is in jail, 0 when they are free",
-	EV_SETTER
+    "boolean",
+    "set to 1 to indicate when player is in jail, 0 when they are free",
+    EV_SETTER
 );
 Event EV_Player_GetInJail
 (
-	"injail",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"returns 1 if player is in jail, 0 if out",
-	EV_GETTER
+    "injail",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns 1 if player is in jail, 0 if out",
+    EV_GETTER
 );
 Event EV_Player_GetNationalityPrefix
 (
-	"nationalityprefix",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"get the three or five letter prefix that denotes the player's nationality",
-	EV_GETTER
+    "nationalityprefix",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the three or five letter prefix that denotes the player's nationality",
+    EV_GETTER
 );
 Event EV_Player_IsSpectator
 (
-	"isSpectator",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Check to see if player is a spectator (non-zero return value)",
+    "isSpectator",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Check to see if player is a spectator (non-zero return value)",
     EV_GETTER
 );
 Event EV_Player_Spectator
@@ -806,12 +806,12 @@ Event EV_Player_Vote
 );
 Event EV_Player_RetrieveVoteOptions
 (
-	"vote",
-	EV_CONSOLE,
-	NULL,
+    "vote",
+    EV_CONSOLE,
     NULL,
-	"Retrieves the server's vote options file",
-	EV_NORMAL
+    NULL,
+    "Retrieves the server's vote options file",
+    EV_NORMAL
 );
 Event EV_Player_PrimaryDMWeapon
 (
@@ -851,21 +851,21 @@ Event EV_Player_Physics_Off
 );
 Event EV_Player_ArmWithWeapons
 (
-	"armwithweapons",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"give player their primary and secondary weapons.",
-	EV_NORMAL
+    "armwithweapons",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "give player their primary and secondary weapons.",
+    EV_NORMAL
 );
 Event EV_Player_GetCurrentDMWeaponType
 (
-	"getcurrentdmweapontype",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"get the player's current DM weapon type.",
-	EV_GETTER
+    "getcurrentdmweapontype",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the player's current DM weapon type.",
+    EV_GETTER
 );
 Event EV_Player_AttachToLadder
 (
@@ -914,37 +914,37 @@ Event EV_Player_EnsureForwardOffLadder
 );
 Event EV_Player_JailIsEscaping
 (
-	"isEscaping",
-	EV_DEFAULT,
-	NULL,
-	NULL,
+    "isEscaping",
+    EV_DEFAULT,
+    NULL,
+    NULL,
     "Return non-zero if escaping or assisting escape",
-	EV_GETTER
+    EV_GETTER
 );
 Event EV_Player_JailEscape
 (
-	"jailescape",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Start the escape from jail animation",
-	EV_NORMAL
+    "jailescape",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Start the escape from jail animation",
+    EV_NORMAL
 );
 Event EV_Player_JailAssistEscape
 (
-	"jailassistescape",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Start the assist jail escape animation",
+    "jailassistescape",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Start the assist jail escape animation",
     EV_NORMAL
 );
 Event EV_Player_JailEscapeStop
 (
-	"jailescapestop",
-	EV_DEFAULT,
-	NULL,
-	NULL,
+    "jailescapestop",
+    EV_DEFAULT,
+    NULL,
+    NULL,
     "Stop either the escape from jail or assist animation",
     EV_NORMAL
 );
@@ -1026,12 +1026,12 @@ Event EV_Player_Coord
 );
 Event EV_Player_TestAnim
 (
-	"testplayeranim",
+    "testplayeranim",
     EV_CHEAT,
-	"fS",
-	"weight anim",
-	"Plays a test animation on the player",
-	EV_NORMAL
+    "fS",
+    "weight anim",
+    "Plays a test animation on the player",
+    EV_NORMAL
 );
 Event EV_Player_StuffText
 (
@@ -1101,21 +1101,21 @@ Event EV_GetFireHeld
 );
 Event EV_GetPrimaryFireHeld
 (
-	"primaryfireheld",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"returns 1 if this player is holding the primary fire, or 0 if not",
-	EV_GETTER
+    "primaryfireheld",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns 1 if this player is holding the primary fire, or 0 if not",
+    EV_GETTER
 );
 Event EV_GetSecondaryFireHeld
 (
-	"secondaryfireheld",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"returns 1 if this player is holding the secondary fire, or 0 if not",
-	EV_GETTER
+    "secondaryfireheld",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns 1 if this player is holding the secondary fire, or 0 if not",
+    EV_GETTER
 );
 Event EV_Player_GetReady
 (
@@ -1147,12 +1147,12 @@ Event EV_Player_SetNotReady
 );
 Event EV_Player_GetName
 (
-	"netname",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"returns player's name",
-	EV_GETTER
+    "netname",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns player's name",
+    EV_GETTER
 );
 Event EV_Player_GetDMTeam
 (
@@ -1242,21 +1242,21 @@ Event EV_Player_KillAxis
 );
 Event EV_Player_GetTurret
 (
-	"turret",
-	EV_DEFAULT,
-	NULL,
-	NULL,
+    "turret",
+    EV_DEFAULT,
+    NULL,
+    NULL,
     "Returns the turret the player is using. NULL if player isn't using a turret.",
     EV_GETTER
 );
 Event EV_Player_GetVehicle
 (
-	"vehicle",
-	EV_DEFAULT,
-	NULL,
-	NULL,
+    "vehicle",
+    EV_DEFAULT,
+    NULL,
+    NULL,
     "Returns the vehicle the player is using. NULL if player isn't using a vehicle.",
-	EV_GETTER
+    EV_GETTER
 );
 
 // reborn stuff
@@ -2866,8 +2866,8 @@ void Player::Dead(Event *ev)
     if (g_gametype->integer) {
         if (!dmManager.AllowRespawn()) {
             respawn_time = level.time + 1.0f;
-		} else {
-			respawn_time = level.time + 2.0f;
+        } else {
+            respawn_time = level.time + 2.0f;
         }
     } else if (level.current_map && *level.current_map) {
         G_BeginIntermission(level.current_map, TRANS_LEVEL);
@@ -2877,13 +2877,13 @@ void Player::Dead(Event *ev)
 
     ZoomOff();
 
-	if (ShouldForceSpectatorOnDeath())
-	{
-		m_bDeathSpectator = true;
+    if (ShouldForceSpectatorOnDeath())
+    {
+        m_bDeathSpectator = true;
 
-		Spectator();
-		SetPlayerSpectateRandom();
-	}
+        Spectator();
+        SetPlayerSpectateRandom();
+    }
 }
 
 void Player::Killed(Event *ev)
@@ -3220,22 +3220,22 @@ void Player::DoUse(Event *ev)
     // FIXME: special game feature
 #if 0
 
-	// Now retrieve entities that doesn't require to look at
-	num = getUseableEntities( touch, MAX_GENTITIES, false );
+    // Now retrieve entities that doesn't require to look at
+    num = getUseableEntities( touch, MAX_GENTITIES, false );
 
-	for( i = 0; i < num; i++ )
-	{
-		hit = &g_entities[ touch[ i ] ];
+    for( i = 0; i < num; i++ )
+    {
+        hit = &g_entities[ touch[ i ] ];
 
-		if( !hit->inuse || hit->entity == NULL || hit->entity == this ) {
-			continue;
-		}
+        if( !hit->inuse || hit->entity == NULL || hit->entity == this ) {
+            continue;
+        }
 
-		Event *event = new Event( EV_Use );
-		event->AddListener( this );
+        Event *event = new Event( EV_Use );
+        event->AddListener( this );
 
-		hit->entity->ProcessEvent( event );
-	}
+        hit->entity->ProcessEvent( event );
+    }
 #endif
 }
 
@@ -3637,16 +3637,16 @@ void Player::ClientMove(usercmd_t *ucmd)
 
         // FIXME: delete
         /*
-		if (sv_reborn->integer)
-		{
-			gi.MSG_SetClient(edict - g_entities);
+        if (sv_reborn->integer)
+        {
+            gi.MSG_SetClient(edict - g_entities);
 
-			// Send the hint string once
-			gi.MSG_StartCGM(CGM_HINTSTRING);
-				gi.MSG_WriteString("");
-			gi.MSG_EndCGM();
-		}
-		*/
+            // Send the hint string once
+            gi.MSG_StartCGM(CGM_HINTSTRING);
+                gi.MSG_WriteString("");
+            gi.MSG_EndCGM();
+        }
+        */
     }
 
     oldorigin = origin;
@@ -4196,9 +4196,9 @@ void Player::Think(void)
     Weapon *pWeap;
 
     /*if (!this)
-	{
-		gi.DPrintf("Player::Think() : this is null\n");
-	}*/
+    {
+        gi.DPrintf("Player::Think() : this is null\n");
+    }*/
     //edict->s.eFlags &= ~EF_UNARMED; where did you get this @ley0k :3
 
     if (whereami->integer && origin != oldorigin) {
@@ -4326,10 +4326,10 @@ void Player::Think(void)
                     SetPlayerSpectateRandom();
                     server_new_buttons &= ~BUTTON_USE;
                 }
-			} else {
-				if ((server_new_buttons & BUTTON_USE)) {
+            } else {
+                if ((server_new_buttons & BUTTON_USE)) {
                     SetPlayerSpectateRandom();
-				}
+                }
             }
 
             if ((g_gametype->integer <= GT_FFA) || (!g_forceteamspectate->integer) || (dm_team <= TEAM_FREEFORALL)) {
@@ -5274,11 +5274,11 @@ void Player::GiveNewWeaponsCheat(Event* ev)
         event = new Event(token);
 
         for(;;)
-		{
-			token = COM_ParseExt(&current, qfalse);
-			if (!token[0]) {
-				break;
-			}
+        {
+            token = COM_ParseExt(&current, qfalse);
+            if (!token[0]) {
+                break;
+            }
 
             event->AddToken(token);
         }
@@ -5406,18 +5406,18 @@ void Player::SetSelectedFov(float newFov)
     }
 
     /*
-	if( g_gametype->integer && !developer->integer )
-	{
-		if( selectedfov < 80 )
-		{
-			selectedfov = 80;
-		}
-		else if( selectedfov > 80 )
-		{
-			selectedfov = 80;
-		}
-	}
-	*/
+    if( g_gametype->integer && !developer->integer )
+    {
+        if( selectedfov < 80 )
+        {
+            selectedfov = 80;
+        }
+        else if( selectedfov > 80 )
+        {
+            selectedfov = 80;
+        }
+    }
+    */
 }
 
 /*
@@ -5483,46 +5483,46 @@ void Player::ProcessPmoveEvents(int event)
 
         // fakk2 remnants
         /*
-	case EV_WATER_TOUCH:   // foot touches
-		if( watertype & CONTENTS_LAVA )
-		{
-			Sound( "snd_burn", CHAN_LOCAL );
-		}
-		else
-		{
-			Animate *water;
-			trace_t trace;
-			Vector start;
-			float scale;
+    case EV_WATER_TOUCH:   // foot touches
+        if( watertype & CONTENTS_LAVA )
+        {
+            Sound( "snd_burn", CHAN_LOCAL );
+        }
+        else
+        {
+            Animate *water;
+            trace_t trace;
+            Vector start;
+            float scale;
 
-			Sound( "impact_playersplash", CHAN_AUTO );
+            Sound( "impact_playersplash", CHAN_AUTO );
 
-			// Find the correct place to put the splash
+            // Find the correct place to put the splash
 
-			start = origin + Vector( 0, 0, 90 );
-			trace = G_Trace( start, vec_zero, vec_zero, origin, NULL, MASK_WATER, false, "ProcessPmoveEvents" );
+            start = origin + Vector( 0, 0, 90 );
+            trace = G_Trace( start, vec_zero, vec_zero, origin, NULL, MASK_WATER, false, "ProcessPmoveEvents" );
 
-			// Figure out a good scale for the splash
+            // Figure out a good scale for the splash
 
-			scale = 1 + ( velocity[ 2 ] + 400 ) / -1500;
+            scale = 1 + ( velocity[ 2 ] + 400 ) / -1500;
 
-			if( scale < 1 )
-				scale = 1;
-			else if( scale > 1.5 )
-				scale = 1.5;
+            if( scale < 1 )
+                scale = 1;
+            else if( scale > 1.5 )
+                scale = 1.5;
 
-			// Spawn in a water splash
+            // Spawn in a water splash
 
-			water = new Animate;
+            water = new Animate;
 
-			water->setOrigin( trace.endpos );
-			water->setModel( "fx_splashsmall.tik" );
-			water->setScale( scale );
-			water->NewAnim( "idle" );
-			water->PostEvent( EV_Remove, 5 );
+            water->setOrigin( trace.endpos );
+            water->setModel( "fx_splashsmall.tik" );
+            water->setScale( scale );
+            water->NewAnim( "idle" );
+            water->PostEvent( EV_Remove, 5 );
 
-		}
-		break;
+        }
+        break;
 */
     case EV_WATER_LEAVE: // foot leaves
         Sound("impact_playerleavewater", CHAN_AUTO);
@@ -5806,11 +5806,11 @@ void Player::SetPlayerView(
     client->ps.velocity[2] = vel[2];
 
     /*
-	client->ps.blend[ 0 ] = camerablend[ 0 ];
-	client->ps.blend[ 1 ] = camerablend[ 1 ];
-	client->ps.blend[ 2 ] = camerablend[ 2 ];
-	client->ps.blend[ 3 ] = camerablend[ 3 ];
-	*/
+    client->ps.blend[ 0 ] = camerablend[ 0 ];
+    client->ps.blend[ 1 ] = camerablend[ 1 ];
+    client->ps.blend[ 2 ] = camerablend[ 2 ];
+    client->ps.blend[ 3 ] = camerablend[ 3 ];
+    */
 
     client->ps.fov = camerafov;
 
@@ -6958,22 +6958,22 @@ void Player::GotKill(Event *ev)
 
 {
     /*
-	Entity *victim;
+    Entity *victim;
    Entity *inflictor;
    float   damage;
    int     meansofdeath;
    qboolean gibbed;
 
    if ( deathmatch->integer )
-		{
+        {
       return;
-		}
+        }
 
-	victim = ev->GetEntity( 1 );
-	damage = ev->GetInteger( 2 );
-	inflictor = ev->GetEntity( 3 );
-	meansofdeath = ev->GetInteger( 4 );
-	gibbed = ev->GetInteger( 5 );
+    victim = ev->GetEntity( 1 );
+    damage = ev->GetInteger( 2 );
+    inflictor = ev->GetEntity( 3 );
+    meansofdeath = ev->GetInteger( 4 );
+    gibbed = ev->GetInteger( 5 );
 */
 }
 
@@ -7508,13 +7508,13 @@ void Player::ModifyHeightFloat(Event *ev)
 
     // FIXME...
     /*
-	gi.MSG_SetClient(edict - g_entities);
+    gi.MSG_SetClient(edict - g_entities);
 
-	gi.MSG_StartCGM(CGM_MODHEIGHTFLOAT);
-	gi.MSG_WriteLong(height);
-	gi.MSG_WriteFloat(max_z);
-	gi.MSG_EndCGM();
-	*/
+    gi.MSG_StartCGM(CGM_MODHEIGHTFLOAT);
+    gi.MSG_WriteLong(height);
+    gi.MSG_WriteFloat(max_z);
+    gi.MSG_EndCGM();
+    */
 }
 
 void Player::SetMovePosFlags(Event *ev)
@@ -7683,12 +7683,12 @@ void Player::EnsureForwardOffLadder(Event *ev)
 
 void Player::EventForceLandmineMeasure(Event* ev)
 {
-	MeasureLandmineDistances();
+    MeasureLandmineDistances();
 }
 
 str Player::GetCurrentDMWeaponType() const
 {
-	return m_sDmPrimary;
+    return m_sDmPrimary;
 }
 
 void Player::Score(Event *ev)
@@ -7881,66 +7881,66 @@ bool Player::QueryLandminesAllowed() const
 {
     const char* mapname;
 
-	if (dmflags->integer & DF_WEAPON_NO_LANDMINE) {
-		return qfalse;
-	}
+    if (dmflags->integer & DF_WEAPON_NO_LANDMINE) {
+        return qfalse;
+    }
 
-	if (dmflags->integer & DF_WEAPON_LANDMINE_ALWAYS) {
-		return qtrue;
-	}
+    if (dmflags->integer & DF_WEAPON_LANDMINE_ALWAYS) {
+        return qtrue;
+    }
 
     mapname = level.mapname.c_str();
 
-	if (!Q_stricmpn(mapname, "obj/obj_", 8u)) {
-		return qfalse;
-	}
-	if (!Q_stricmpn(mapname, "dm/mohdm", 8u)) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "DM/MP_Bahnhof_DM")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "obj/MP_Ardennes_TOW")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "DM/MP_Bazaar_DM")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "obj/MP_Berlin_TOW")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "DM/MP_Brest_DM")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "obj/MP_Druckkammern_TOW")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "DM/MP_Gewitter_DM")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "obj/MP_Flughafen_TOW")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "DM/MP_Holland_DM")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "DM/MP_Malta_DM")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "DM/MP_Stadt_DM")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "DM/MP_Unterseite_DM")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "DM/MP_Verschneit_DM")) {
-		return qfalse;
-	}
-	if (!Q_stricmp(mapname, "lib/mp_ship_lib")) {
-		return qfalse;
-	}
+    if (!Q_stricmpn(mapname, "obj/obj_", 8u)) {
+        return qfalse;
+    }
+    if (!Q_stricmpn(mapname, "dm/mohdm", 8u)) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Bahnhof_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "obj/MP_Ardennes_TOW")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Bazaar_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "obj/MP_Berlin_TOW")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Brest_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "obj/MP_Druckkammern_TOW")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Gewitter_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "obj/MP_Flughafen_TOW")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Holland_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Malta_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Stadt_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Unterseite_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "DM/MP_Verschneit_DM")) {
+        return qfalse;
+    }
+    if (!Q_stricmp(mapname, "lib/mp_ship_lib")) {
+        return qfalse;
+    }
 
-	return qtrue;
+    return qtrue;
 }
 
 void Player::EnsurePlayerHasAllowedWeapons()
@@ -8010,7 +8010,7 @@ void Player::EnsurePlayerHasAllowedWeapons()
 
 void Player::EquipWeapons()
 {
-	// FIXME: unimplemented
+    // FIXME: unimplemented
 }
 
 void Player::Spectator(void)
@@ -8028,8 +8028,8 @@ void Player::Spectator(void)
     deadflag            = DEAD_NO;
     health              = max_health;
 
-	client->ps.feetfalling = 0;
-	movecontrol = MOVECONTROL_USER;
+    client->ps.feetfalling = 0;
+    movecontrol = MOVECONTROL_USER;
     client->ps.pm_flags |= PMF_SPECTATING;
 
     EvaluateState(statemap_Torso->FindState("STAND"), statemap_Legs->FindState("STAND"));
@@ -8086,35 +8086,35 @@ void Player::SetPlayerSpectate(bool bNext)
     }
 
     i = num;
-	while (i < game.maxclients && i >= 0)
-	{
+    while (i < game.maxclients && i >= 0)
+    {
         ent = &g_entities[i];
-		if (!ent->inuse || !ent->entity) {
-			continue;
-		}
+        if (!ent->inuse || !ent->entity) {
+            continue;
+        }
 
-		pPlayer = (Player*)ent->entity;
+        pPlayer = (Player*)ent->entity;
 
-		if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
-			m_iPlayerSpectating = i + 1;
-			client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
-			client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
-			return;
-		}
+        if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
+            m_iPlayerSpectating = i + 1;
+            client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
+            client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
+            return;
+        }
 
-		if (!m_iPlayerSpectating) {
-			return;
-		}
+        if (!m_iPlayerSpectating) {
+            return;
+        }
 
-		m_iPlayerSpectating = 0;
+        m_iPlayerSpectating = 0;
         i += dir;
-	}
+    }
 
-	if (m_iPlayerSpectating)
-	{
-		m_iPlayerSpectating = 0;
-		SetPlayerSpectate(bNext);
-	}
+    if (m_iPlayerSpectating)
+    {
+        m_iPlayerSpectating = 0;
+        SetPlayerSpectate(bNext);
+    }
 }
 
 void Player::SetPlayerSpectateRandom(void)
@@ -8146,67 +8146,67 @@ void Player::SetPlayerSpectateRandom(void)
 
     iRandom = (int)(random() * numvalid);
 
-	for (i = 0; i < game.maxclients; i++) {
-		gentity_t* ent = &g_entities[i];
-		if (!ent->inuse || !ent->entity) {
-			continue;
-		}
+    for (i = 0; i < game.maxclients; i++) {
+        gentity_t* ent = &g_entities[i];
+        if (!ent->inuse || !ent->entity) {
+            continue;
+        }
 
-		pPlayer = static_cast<Player*>(ent->entity);
-		if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
+        pPlayer = static_cast<Player*>(ent->entity);
+        if (!pPlayer->IsDead() && !pPlayer->IsSpectator() && IsValidSpectatePlayer(pPlayer)) {
             if (!iRandom) {
                 m_iPlayerSpectating = i + 1;
 
-				client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
-				client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
+                client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
+                client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
                 break;
             }
 
             iRandom--;
-		}
-	}
+        }
+    }
 }
 
 void Player::GetSpectateFollowOrientation(Player* pPlayer, Vector& vPos, Vector& vAng)
 {
-	Vector  forward, right, up;
-	Vector  vCamOfs;
-	Vector  start;
-	trace_t trace;
+    Vector  forward, right, up;
+    Vector  vCamOfs;
+    Vector  start;
+    trace_t trace;
 
-	if (!g_spectatefollow_firstperson->integer) {
-		// spectating a player
-		vAng = pPlayer->GetVAngles();
+    if (!g_spectatefollow_firstperson->integer) {
+        // spectating a player
+        vAng = pPlayer->GetVAngles();
 
-		AngleVectors(vAng, forward, right, up);
+        AngleVectors(vAng, forward, right, up);
 
-		vCamOfs = pPlayer->origin;
-		vCamOfs[2] += pPlayer->viewheight;
+        vCamOfs = pPlayer->origin;
+        vCamOfs[2] += pPlayer->viewheight;
 
-		vCamOfs += forward * g_spectatefollow_forward->value;
-		vCamOfs += right * g_spectatefollow_right->value;
-		vCamOfs += up * g_spectatefollow_up->value;
+        vCamOfs += forward * g_spectatefollow_forward->value;
+        vCamOfs += right * g_spectatefollow_right->value;
+        vCamOfs += up * g_spectatefollow_up->value;
 
-		if (pPlayer->client->ps.fLeanAngle != 0.0f) {
-			vCamOfs += client->ps.fLeanAngle * 0.65f * forward;
-		}
+        if (pPlayer->client->ps.fLeanAngle != 0.0f) {
+            vCamOfs += client->ps.fLeanAngle * 0.65f * forward;
+        }
 
-		start = pPlayer->origin;
-		start[2] += pPlayer->maxs[2] - 2.0;
+        start = pPlayer->origin;
+        start[2] += pPlayer->maxs[2] - 2.0;
 
-		Vector vMins = Vector(-2, -2, 2);
-		Vector vMaxs = Vector(2, 2, 2);
+        Vector vMins = Vector(-2, -2, 2);
+        Vector vMaxs = Vector(2, 2, 2);
 
-		trace = G_Trace(
-			start, vMins, vMaxs, vCamOfs, pPlayer, MASK_SHOT, false, "Player::GetSpectateFollowOrientation"
-		);
+        trace = G_Trace(
+            start, vMins, vMaxs, vCamOfs, pPlayer, MASK_SHOT, false, "Player::GetSpectateFollowOrientation"
+        );
 
         vAng[0] += g_spectatefollow_pitch->value * trace.fraction;
         vPos = trace.endpos;
-	} else {
+    } else {
         vAng = pPlayer->angles;
         vPos = pPlayer->origin;
-	}
+    }
 }
 
 void Player::Spectator(Event *ev)
@@ -8306,7 +8306,7 @@ void Player::Auto_Join_DM_Team(Event *ev)
     ProcessEvent(event);
 }
 
-teamtype_t Player::GetTeam()
+teamtype_t Player::GetTeam() const
 {
     return dm_team;
 }
@@ -8372,9 +8372,9 @@ void Player::WarpToPoint(Entity* spawnpoint)
     {
         setOrigin(spawnpoint->origin + Vector(0, 0, 1));
         setAngles(spawnpoint->angles);
-		SetViewAngles(angles);
-		client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
-		client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
+        SetViewAngles(angles);
+        client->ps.camera_flags &= ~CF_CAMERA_CUT_BIT;
+        client->ps.camera_flags |= (client->ps.camera_flags & CF_CAMERA_CUT_BIT) ^ CF_CAMERA_CUT_BIT;
     }
 }
 
@@ -8390,20 +8390,20 @@ void Player::HUDPrint(const char *s)
 
 void Player::GibEvent(Event* ev)
 {
-	qboolean hidemodel;
+    qboolean hidemodel;
 
-	hidemodel = !ev->GetInteger(1);
+    hidemodel = !ev->GetInteger(1);
 
-	if (com_blood->integer) {
-		if (hidemodel) {
-			gibbed = true;
-			takedamage = DAMAGE_NO;
-			setSolidType(SOLID_NOT);
-			hideModel();
-		}
+    if (com_blood->integer) {
+        if (hidemodel) {
+            gibbed = true;
+            takedamage = DAMAGE_NO;
+            setSolidType(SOLID_NOT);
+            hideModel();
+        }
 
-		CreateGibs(this, health, 0.75f, 3);
-	}
+        CreateGibs(this, health, 0.75f, 3);
+    }
 }
 
 void Player::ArmorDamage(Event *ev)
@@ -8602,14 +8602,14 @@ void Player::Vote(Event *ev)
 void Player::RetrieveVoteOptions(Event* ev)
 {
     if (m_fNextVoteOptionTime > level.time)
-	{
-		gi.SendServerCommand(edict - g_entities, "vo0 \"\"\n");
-		gi.SendServerCommand(edict - g_entities, "vo2 \"\"\n");
+    {
+        gi.SendServerCommand(edict - g_entities, "vo0 \"\"\n");
+        gi.SendServerCommand(edict - g_entities, "vo2 \"\"\n");
     }
     else
     {
-		m_fNextVoteOptionTime = level.time + 2.0;
-		level.SendVoteOptionsFile(edict);
+        m_fNextVoteOptionTime = level.time + 2.0;
+        level.SendVoteOptionsFile(edict);
     }
 }
 
@@ -8732,7 +8732,7 @@ void Player::PhysicsOn(Event *ev)
 
 void Player::GetIsSpectator(Event* ev)
 {
-	ev->AddInteger(IsSpectator());
+    ev->AddInteger(IsSpectator());
 }
 
 void Player::EventSetInJail(Event* ev)
@@ -8754,8 +8754,8 @@ void Player::GetNationalityPrefix(Event* ev)
 {
     nationality_t nationality;
 
-	if (GetTeam() == TEAM_AXIS) {
-		nationality = GetPlayerTeamType(client->pers.dm_playergermanmodel);
+    if (GetTeam() == TEAM_AXIS) {
+        nationality = GetPlayerTeamType(client->pers.dm_playergermanmodel);
     } else {
         nationality = GetPlayerTeamType(client->pers.dm_playermodel);
     }
@@ -8764,21 +8764,21 @@ void Player::GetNationalityPrefix(Event* ev)
     {
     case NA_RUSSIAN:
         ev->AddString("dfrru");
-		break;
-	case NA_ITALIAN:
-		ev->AddString("denit");
-		break;
-	case NA_BRITISH:
-		ev->AddString("dfruk");
-		break;
-	case NA_AMERICAN:
-		ev->AddString("dfr");
-		break;
+        break;
+    case NA_ITALIAN:
+        ev->AddString("denit");
+        break;
+    case NA_BRITISH:
+        ev->AddString("dfruk");
+        break;
+    case NA_AMERICAN:
+        ev->AddString("dfr");
+        break;
 
     case NA_NONE:
-	default:
-		ev->AddString("dfr");
-		break;
+    default:
+        ev->AddString("dfr");
+        break;
     }
 }
 
@@ -8852,7 +8852,37 @@ void Player::EventSetVoiceType(Event *ev)
 
 void Player::GetTeamDialogPrefix(str& outPrefix)
 {
-    // FIXME: unimplemented
+    if (GetTeam() == TEAM_AXIS) {
+        outPrefix = "axis_";
+    } else {
+        outPrefix = "allied_";
+    }
+
+    switch (m_voiceType)
+    {
+    case PVT_ALLIED_AMERICAN:
+        outPrefix += "american_";
+        break;
+    case PVT_ALLIED_BRITISH:
+        outPrefix += "british_";
+        break;
+    case PVT_ALLIED_RUSSIAN:
+        outPrefix += "russian_";
+        break;
+    case PVT_AXIS_START:
+        outPrefix += "german_";
+        break;
+    case PVT_AXIS_ITALIAN:
+        outPrefix += "italian_";
+        break;
+    default:
+        if (GetTeam() == TEAM_AXIS) {
+            outPrefix += "german_";
+        } else {
+            outPrefix += "american_";
+        }
+        break;
+    }
 }
 
 void Player::PlayInstantMessageSound(const char* name)
@@ -9162,21 +9192,21 @@ const char* Player::GetBattleLanguageDirection() const
     switch (dir % 8)
     {
     case 0:
-		return "North";
-	case 1:
-		return "North West";
-	case 2:
-		return "West";
-	case 3:
-		return "South West";
-	case 4:
-		return "South";
-	case 5:
-		return "South East";
-	case 6:
-		return "East";
-	case 7:
-		return "North East";
+        return "North";
+    case 1:
+        return "North West";
+    case 2:
+        return "West";
+    case 3:
+        return "South West";
+    case 4:
+        return "South";
+    case 5:
+        return "South East";
+    case 6:
+        return "East";
+    case 7:
+        return "North East";
     default:
         return "???";
     }
@@ -9187,10 +9217,63 @@ const char* Player::GetBattleLanguageLocation() const
     return level.GetDMLocation(m_vViewPos).c_str();
 }
 
-const char* Player::GetBattleLanguageLocalFolks() const
+const char* Player::GetBattleLanguageLocalFolks()
 {
-	// FIXME: unimplemented
-	return "";
+    static char buf[256];
+    char* p;
+    char* curP;
+    int remaining;
+    int length;
+    Player* pPlayer;
+    Player* pFolk;
+    gentity_t* ent;
+    int i;
+
+    remaining = ARRAY_LEN(buf) - 1;
+    p = buf;
+    curP = NULL;
+    pFolk = NULL;
+
+    for (i = 0; i < game.maxclients; i++) {
+        ent = &g_entities[i];
+        if (!ent->inuse || !ent->entity) {
+            continue;
+        }
+
+        pPlayer = static_cast<Player*>(ent->entity);
+        if (pPlayer != this && pPlayer->GetTeam() == GetTeam() && CanSee(pPlayer, 360, 1600, false)) {
+            if (p != buf) {
+                if (remaining < 2) {
+                    // No more space remaining
+                    break;
+                }
+
+                strcpy(p, ", ");
+                p += 2;
+                curP = p;
+                remaining -= 2;
+            }
+
+            length = strlen(client->pers.netname);
+            if (remaining < length) {
+                break;
+            }
+
+            strcpy(p, client->pers.netname);
+            p += length;
+            remaining -= length;
+            pFolk = pPlayer;
+        }
+    }
+
+    if (curP && remaining >= 2) {
+        strcpy(curP, "and ");
+        strcpy(curP + strlen(curP), pFolk->client->pers.netname);
+    } else if (!pFolk) {
+        return "nobody";
+    }
+
+    return buf;
 }
 
 const char* Player::GetBattleLanguageWeapon() const
@@ -9200,8 +9283,25 @@ const char* Player::GetBattleLanguageWeapon() const
 
 const char* Player::GetBattleLanguageDistance() const
 {
-	// FIXME: unimplemented
-	return "";
+    Vector vStart, vEnd;
+    Vector vForward;
+    trace_t trace;
+    float dist;
+
+    vStart = m_vViewPos;
+    AngleVectors(m_vViewAng, vForward, NULL, NULL);
+
+    vEnd = vStart + vForward * 10240;
+
+    trace = G_Trace(vStart, vec_zero, vec_zero, vEnd, static_cast<const Entity*>(this), MASK_BATTLELANGUAGE, qfalse, "Player::GetBattleLanguageDistance");
+
+    dist = (vStart - trace.endpos).length();
+
+    if (g_qunits_to_feet->integer) {
+        return GetBattleLanguageDistanceFeet(dist);
+    } else {
+        return GetBattleLanguageDistanceMeters(dist);
+    }
 }
 
 const char* Player::GetBattleLanguageDistanceMeters(float dist) const
@@ -9244,11 +9344,38 @@ const char* Player::GetBattleLanguageDistanceFeet(float dist) const
 
 const char* Player::GetBattleLanguageTarget() const
 {
-	// FIXME: unimplemented
-	return "";
+    Vector vStart, vEnd;
+    Vector vForward;
+    trace_t trace;
+
+    vStart = m_vViewPos;
+    AngleVectors(m_vViewAng, vForward, NULL, NULL);
+
+    vEnd = vStart + vForward * 10240;
+
+    trace = G_Trace(vStart, vec_zero, vec_zero, vEnd, static_cast<const Entity*>(this), MASK_BATTLELANGUAGE, qfalse, "Player::GetBattleLanguageDistance");
+
+    if (!trace.ent) {
+        return "something";
+    }
+
+    if (!trace.ent->entity || trace.ent->entity == world) {
+        return "something";
+    }
+    
+    if (trace.ent->entity->IsSubclassOfPlayer()) {
+        Player* pPlayer = static_cast<Player*>(trace.ent->entity);
+        return pPlayer->client->pers.netname;
+    }
+
+    if (trace.ent->entity->IsSubclassOfSentient()) {
+        return "someone";
+    }
+
+    return "something";
 }
 
-const char* Player::TranslateBattleLanguageTokens(const char* string) const
+const char* Player::TranslateBattleLanguageTokens(const char* string)
 {
     const char* token;
     int type;
@@ -9270,34 +9397,34 @@ const char* Player::TranslateBattleLanguageTokens(const char* string) const
         return string;
     }
 
-	switch (type)
-	{
-	case 'a':
-		token = GetBattleLanguageTarget();
-		break;
-	case 'c':
-		token = GetBattleLanguageCondition();
-		break;
-	case 'd':
-		token = GetBattleLanguageDirection();
-		break;
-	case 'l':
-		token = GetBattleLanguageLocation();
-		break;
-	case 'n':
-		token = GetBattleLanguageLocalFolks();
-		break;
-	case 'r':
-		token = GetBattleLanguageDistance();
-		break;
-	case 'w':
-		token = GetBattleLanguageWeapon();
-		break;
-	default:
-		return string;
-	}
+    switch (type)
+    {
+    case 'a':
+        token = GetBattleLanguageTarget();
+        break;
+    case 'c':
+        token = GetBattleLanguageCondition();
+        break;
+    case 'd':
+        token = GetBattleLanguageDirection();
+        break;
+    case 'l':
+        token = GetBattleLanguageLocation();
+        break;
+    case 'n':
+        token = GetBattleLanguageLocalFolks();
+        break;
+    case 'r':
+        token = GetBattleLanguageDistance();
+        break;
+    case 'w':
+        token = GetBattleLanguageWeapon();
+        break;
+    default:
+        return string;
+    }
 
-	return gi.LV_ConvertString(token);
+    return gi.LV_ConvertString(token);
 }
 
 void Player::EventIPrint(Event *ev)
@@ -9343,7 +9470,7 @@ void Player::EventGetPrimaryFireHeld(Event* ev)
 
 void Player::EventGetSecondaryFireHeld(Event* ev)
 {
-	ev->AddInteger(buttons & BUTTON_ATTACKRIGHT ? true : false);
+    ev->AddInteger(buttons & BUTTON_ATTACKRIGHT ? true : false);
 }
 
 void Player::BeginTempSpectator(void)
@@ -9658,13 +9785,13 @@ float Player::GetRunSpeed() const
     float sprintTime;
     float sprintMult;
 
-	sprintTime = sv_sprinttime->value;
-	sprintMult = sv_sprintmult->value;
-	if (g_gametype->integer != GT_SINGLE_PLAYER)
-	{
-		sprintTime = sv_sprinttime_dm->value;
-		sprintMult = sv_sprintmult_dm->value;
-	}
+    sprintTime = sv_sprinttime->value;
+    sprintMult = sv_sprintmult->value;
+    if (g_gametype->integer != GT_SINGLE_PLAYER)
+    {
+        sprintTime = sv_sprinttime_dm->value;
+        sprintMult = sv_sprintmult_dm->value;
+    }
 
     if (sv_sprinton->integer == 1 && !m_fLastSprintTime && (level.time - m_fLastSprintTime) > sprintTime) {
         return sv_runspeed->value * sprintMult;
@@ -9725,17 +9852,17 @@ void Player::SetInvulnerable()
 
 void Player::TickInvulnerable()
 {
-	if (m_iInvulnerableTimeRemaining >= 0 && level.time >= m_fInvulnerableTimeElapsed)
-	{
-		if (m_iInvulnerableTimeRemaining) {
-			m_fInvulnerableTimeElapsed = m_fInvulnerableTimeElapsed + 1.f;
-		} else {
-			SetVulnerable();
-			m_fInvulnerableTimeElapsed = 0;
-		}
+    if (m_iInvulnerableTimeRemaining >= 0 && level.time >= m_fInvulnerableTimeElapsed)
+    {
+        if (m_iInvulnerableTimeRemaining) {
+            m_fInvulnerableTimeElapsed = m_fInvulnerableTimeElapsed + 1.f;
+        } else {
+            SetVulnerable();
+            m_fInvulnerableTimeElapsed = 0;
+        }
 
-		m_iInvulnerableTimeRemaining--;
-	}
+        m_iInvulnerableTimeRemaining--;
+    }
 }
 
 void Player::SetVulnerable()
@@ -9804,8 +9931,8 @@ void Player::PickWeaponEvent(Event* ev)
 
 bool Player::AllowTeamRespawn() const
 {
-	// FIXME: unimplemented
-	return true;
+    // FIXME: unimplemented
+    return true;
 }
 
 void Player::EventUseWeaponClass(Event* ev)
@@ -10254,17 +10381,17 @@ void Player::PlayLocalSound(Event *ev)
 
     // FIXME...
     /*
-		gi.MSG_SetClient( client->ps.clientNum );
+        gi.MSG_SetClient( client->ps.clientNum );
 
-		gi.MSG_StartCGM( CGM_PLAYLOCALSOUND );
-		gi.MSG_WriteString( found );
-		gi.MSG_WriteBits( !!loop, 1 );
-		gi.MSG_WriteFloat( time );
-		gi.MSG_WriteFloat( alias->volume );
-		gi.MSG_EndCGM();
+        gi.MSG_StartCGM( CGM_PLAYLOCALSOUND );
+        gi.MSG_WriteString( found );
+        gi.MSG_WriteBits( !!loop, 1 );
+        gi.MSG_WriteFloat( time );
+        gi.MSG_WriteFloat( alias->volume );
+        gi.MSG_EndCGM();
 
-		return;
-	*/
+        return;
+    */
 
     if (loop) {
         edict->s.loopSound        = gi.soundindex(found, alias->streamed);
@@ -10378,12 +10505,12 @@ void Player::SetLocalSoundRate(Event *ev)
 
     // FIXME...
     /*
-	gi.MSG_StartCGM( CGM_SETLOCALSOUNDRATE );
-		gi.MSG_WriteString( found );
-		gi.MSG_WriteFloat( rate );
-		gi.MSG_WriteFloat( time );
-	gi.MSG_EndCGM();
-	*/
+    gi.MSG_StartCGM( CGM_SETLOCALSOUNDRATE );
+        gi.MSG_WriteString( found );
+        gi.MSG_WriteFloat( rate );
+        gi.MSG_WriteFloat( time );
+    gi.MSG_EndCGM();
+    */
 }
 
 void Player::SetSpeed(Event *ev)
@@ -10456,13 +10583,13 @@ void Player::SetVMASpeed(Event *ev)
 
     // FIXME...
     /*
-	gi.MSG_SetClient( edict - g_entities );
+    gi.MSG_SetClient( edict - g_entities );
 
-	gi.MSG_StartCGM( CGM_SETVMASPEED );
-		gi.MSG_WriteString( name );
-		gi.MSG_WriteFloat( speed );
-	gi.MSG_EndCGM();
-	*/
+    gi.MSG_StartCGM( CGM_SETVMASPEED );
+        gi.MSG_WriteString( name );
+        gi.MSG_WriteFloat( speed );
+    gi.MSG_EndCGM();
+    */
 }
 
 void Player::StopLocalSound(Event *ev)
@@ -10588,95 +10715,95 @@ void Player::AddDeaths(int num)
 
 qboolean Player::canUse()
 {
-	int touch[MAX_GENTITIES];
-	int num = getUseableEntities(touch, MAX_GENTITIES);
+    int touch[MAX_GENTITIES];
+    int num = getUseableEntities(touch, MAX_GENTITIES);
 
-	return num ? true : false;
+    return num ? true : false;
 }
 
 qboolean Player::canUse(Entity* entity, bool requiresLookAt)
 {
-	gentity_t* hit;
-	int        touch[MAX_GENTITIES];
-	int        num;
-	int        i;
+    gentity_t* hit;
+    int        touch[MAX_GENTITIES];
+    int        num;
+    int        i;
 
-	num = getUseableEntities(touch, MAX_GENTITIES, requiresLookAt);
+    num = getUseableEntities(touch, MAX_GENTITIES, requiresLookAt);
 
-	for (i = 0; i < num; i++) {
-		hit = &g_entities[touch[i]];
+    for (i = 0; i < num; i++) {
+        hit = &g_entities[touch[i]];
 
-		if (!hit->inuse || hit->entity == NULL) {
-			continue;
-		}
+        if (!hit->inuse || hit->entity == NULL) {
+            continue;
+        }
 
-		if (hit->entity == entity) {
-			return true;
-		}
-	}
+        if (hit->entity == entity) {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 int Player::getUseableEntities(int* touch, int maxcount, bool requiresLookAt)
 {
-	Vector  end;
-	Vector  start;
-	trace_t trace;
-	Vector  offset;
-	Vector  max;
-	Vector  min;
+    Vector  end;
+    Vector  start;
+    trace_t trace;
+    Vector  offset;
+    Vector  max;
+    Vector  min;
 
-	if ((g_gametype->integer && IsSpectator()) || IsDead()) {
-		return 0;
-	}
+    if ((g_gametype->integer && IsSpectator()) || IsDead()) {
+        return 0;
+    }
 
-	if (m_pTurret) {
-		*touch = m_pTurret->entnum;
-		return 1;
-	}
+    if (m_pTurret) {
+        *touch = m_pTurret->entnum;
+        return 1;
+    }
 
-	if (m_pTurret) {
-		return 0;
-	}
+    if (m_pTurret) {
+        return 0;
+    }
 
-	AngleVectors(client->ps.viewangles, offset, NULL, NULL);
+    AngleVectors(client->ps.viewangles, offset, NULL, NULL);
 
-	start = origin;
-	start.z += client->ps.viewheight;
+    start = origin;
+    start.z += client->ps.viewheight;
 
-	if (requiresLookAt) {
-		min = Vector(-4.f, -4.f, -4.f);
-		max = Vector(4.f, 4.f, 4.f);
+    if (requiresLookAt) {
+        min = Vector(-4.f, -4.f, -4.f);
+        max = Vector(4.f, 4.f, 4.f);
 
-		end[0] = start[0] + (offset[0] * 64.f);
-		end[1] = start[1] + (offset[1] * 64.f);
+        end[0] = start[0] + (offset[0] * 64.f);
+        end[1] = start[1] + (offset[1] * 64.f);
 
-		if (v_angle[0] <= 0.0f) {
-			end[2] = start[2] + (offset[2] * 40.f);
-		}
-		else {
-			end[2] = start[2] + (offset[2] * 88.f);
-		}
+        if (v_angle[0] <= 0.0f) {
+            end[2] = start[2] + (offset[2] * 40.f);
+        }
+        else {
+            end[2] = start[2] + (offset[2] * 88.f);
+        }
 
-		trace = G_Trace(start, min, max, end, this, MASK_SOLID, false, "Player::getUseableEntity");
+        trace = G_Trace(start, min, max, end, this, MASK_SOLID, false, "Player::getUseableEntity");
 
-		offset = trace.endpos;
+        offset = trace.endpos;
 
-		min = offset - Vector(16.f, 16.f, 16.f);
-		max = offset + Vector(16.f, 16.f, 16.f);
-	}
-	else {
-		min = start - Vector(31.f, 31.f, 31.f);
-		max = start + Vector(31.f, 31.f, 31.f);
-	}
+        min = offset - Vector(16.f, 16.f, 16.f);
+        max = offset + Vector(16.f, 16.f, 16.f);
+    }
+    else {
+        min = start - Vector(31.f, 31.f, 31.f);
+        max = start + Vector(31.f, 31.f, 31.f);
+    }
 
-	return gi.AreaEntities(min, max, touch, maxcount);
+    return gi.AreaEntities(min, max, touch, maxcount);
 }
 
 void Player::Postthink(void)
 {
-	if (bindmaster) {
-		SetViewAngles(GetViewAngles() + Vector(0, bindmaster->avelocity[YAW] * level.frametime, 0));
-	}
+    if (bindmaster) {
+        SetViewAngles(GetViewAngles() + Vector(0, bindmaster->avelocity[YAW] * level.frametime, 0));
+    }
 }

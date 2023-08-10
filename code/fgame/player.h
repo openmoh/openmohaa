@@ -75,6 +75,9 @@ typedef enum {
     PVT_NONE_SET,
     PVT_ALLIED_START,
     PVT_ALLIED_AIRBORNE,
+    PVT_ALLIED_AMERICAN = PVT_ALLIED_AIRBORNE,
+    PVT_ALLIED_BRITISH,
+    PVT_ALLIED_RUSSIAN,
     PVT_ALLIED_MANON,
     PVT_ALLIED_SAS,
     PVT_ALLIED_PILOT,
@@ -82,7 +85,8 @@ typedef enum {
     PVT_ALLIED_RANGER,
     PVT_ALLIED_END,
     PVT_AXIS_START,
-    PVT_AXIS_AXIS1,
+	PVT_AXIS_AXIS1,
+	PVT_AXIS_ITALIAN = PVT_AXIS_AXIS1,
     PVT_AXIS_AXIS2,
     PVT_AXIS_AXIS3,
     PVT_AXIS_AXIS4,
@@ -767,13 +771,13 @@ public:
     const char* GetBattleLanguageCondition() const;
     const char* GetBattleLanguageDirection() const;
     const char* GetBattleLanguageLocation() const;
-    const char* GetBattleLanguageLocalFolks() const;
+    const char* GetBattleLanguageLocalFolks();
     const char* GetBattleLanguageWeapon() const;
     const char* GetBattleLanguageDistance() const;
     const char* GetBattleLanguageDistanceMeters(float dist) const;
     const char* GetBattleLanguageDistanceFeet(float dist) const;
     const char* GetBattleLanguageTarget() const;
-    const char* TranslateBattleLanguageTokens(const char* string) const;
+    const char* TranslateBattleLanguageTokens(const char* string);
     //====
     void       EventIPrint(Event *ev);
     void       EventGetUseHeld(Event *ev);
@@ -784,7 +788,7 @@ public:
     void       Join_DM_Team(Event *ev);
     void       Auto_Join_DM_Team(Event *ev);
     void       Leave_DM_Team(Event *ev);
-    teamtype_t GetTeam();
+    teamtype_t GetTeam() const;
     void       SetTeam(teamtype_t team);
     bool       IsSpectator(void);
     void       BeginFight(void);
