@@ -1227,7 +1227,7 @@ trace_t G_Trace
 	const Vector &mins,
 	const Vector &maxs,
 	const Vector &end,
-	Entity *passent,
+	const Entity *passent,
 	int contentmask,
 	qboolean cylinder,
 	const char *reason,
