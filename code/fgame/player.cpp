@@ -4974,10 +4974,12 @@ Handles color blends and view kicks
 void Player::DamageFeedback(void)
 {
     float realcount;
-    float count;
+	float count;
+	vec3_t vDir;
+    str painAnim;
 
     // if we are dead, don't setup any feedback
-    if (health <= 0) {
+    if (IsDead()) {
         damage_count = 0;
         damage_blood = 0;
         damage_alpha = 0;
@@ -4985,54 +4987,42 @@ void Player::DamageFeedback(void)
         return;
     }
 
-#define DAMAGE_MAX_PITCH_SCALE 0.3f
-#define DAMAGE_MAX_YAW_SCALE   0.3f
-
-    if (damage_blood > damage_count) {
-        float pitch_delta;
-        float yaw_delta;
-
-        damage_angles = damage_from.toAngles();
-        pitch_delta   = AngleDelta(angles.x, damage_angles.x) / 90.0f;
-        yaw_delta     = AngleDelta(angles.y, damage_angles.y) / 90.0f;
-
-        if (pitch_delta > DAMAGE_MAX_PITCH_SCALE) {
-            pitch_delta = DAMAGE_MAX_PITCH_SCALE;
-        } else if (pitch_delta < -DAMAGE_MAX_PITCH_SCALE) {
-            pitch_delta = -DAMAGE_MAX_PITCH_SCALE;
-        }
-
-        if (yaw_delta > DAMAGE_MAX_YAW_SCALE) {
-            yaw_delta = DAMAGE_MAX_YAW_SCALE;
-        } else if (yaw_delta < -DAMAGE_MAX_YAW_SCALE) {
-            yaw_delta = -DAMAGE_MAX_YAW_SCALE;
-        }
-
-        damage_angles[PITCH] = pitch_delta;
-        damage_angles[ROLL]  = yaw_delta;
-        damage_count         = damage_blood * 2.0f;
-    }
-
-    if (damage_count) {
-        // decay damage_count over time
-        damage_count *= 0.90f;
+    if (damage_count)
+	{
+		// decay damage_count over time
+        damage_count *= 0.8f;
+        damage_from *= 0.8f;
+        damage_angles *= 0.8f;
         if (damage_count < 0.1f) {
-            damage_count = 0;
+			damage_count = 0;
+            damage_from = Vector(0, 0, 0);
         }
-    }
+	}
 
-    // total points of damage shot at the player this frame
-    if (!damage_blood) {
-        // didn't take any damage
-        return;
-    }
+	// total points of damage shot at the player this frame
+	if (!damage_blood) {
+		// didn't take any damage
+		return;
+	}
 
-    count     = damage_blood;
-    realcount = count;
-    if (count < 10) {
-        // always make a visible effect
-        count = 10;
-    }
+	VectorNormalize2(damage_from, vDir);
+
+	damage_angles.x -= DotProduct(vDir, orientation[0]) * damage_blood * g_viewkick_pitch->value * g_viewkick_dmmult->value;
+	damage_angles.x = Q_clamp_float(damage_angles.x, -30, 30);
+
+	damage_angles.y -= DotProduct(vDir, orientation[1]) * damage_blood * g_viewkick_yaw->value * g_viewkick_dmmult->value;
+	damage_angles.y = Q_clamp_float(damage_angles.y, -30, 30);
+
+	damage_angles.z += DotProduct(vDir, orientation[2]) * damage_blood * g_viewkick_roll->value * g_viewkick_dmmult->value;
+	damage_angles.z = Q_clamp_float(damage_angles.y, -25, 25);
+
+	damage_count += damage_blood;
+    count        = damage_blood;
+    realcount    = count;
+	if (count < 10) {
+		// always make a visible effect
+		count = 10;
+	}
 
     // the total alpha of the blend is always proportional to count
     if (damage_alpha < 0) {
