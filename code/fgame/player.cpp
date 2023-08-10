@@ -1664,255 +1664,28 @@ void Player::SetDeltaAngles(void)
 
 void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int iLocation)
 {
-    const char *s1;
-    const char *s2;
-    qboolean    bDispLocation;
+    str      s1;
+    str      s2;
+    qboolean bDispLocation;
 
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
-    s1            = NULL;
-    s2            = NULL;
+    s1            = "x";
+    s2            = "x";
     bDispLocation = qfalse;
 
-    if (attacker != this) {
-        if (attacker && attacker->client) {
-            Weapon *pAttackerWeap = NULL;
-
-            if (attacker->IsSubclassOfPlayer()) {
-                pAttackerWeap = ((Player *)attacker)->GetActiveWeapon(WEAPON_MAIN);
-            }
-
-            switch (meansofdeath) {
-            case MOD_CRUSH:
-            case MOD_CRUSH_EVERY_FRAME:
-                s1 = "was crushes by";
-                break;
-            case MOD_TELEFRAG:
-                s1 = "was telefragged by";
-                break;
-            case MOD_FALLING:
-                s1 = "was pushed over the edge by";
-                break;
-            case MOD_EXPLOSION:
-                s1 = "was blown away by";
-                break;
-            case MOD_GRENADE:
-                if (G_Random() >= 0.5f) {
-                    s1 = "tripped on";
-                    s2 = "'s' grenade";
-                } else {
-                    s1 = "is picking";
-                    s2 = "'s' shrapnel out of his teeth";
-                }
-                break;
-            case MOD_ROCKET:
-                s1 = "took";
-                if (G_Random() >= 0.5f) {
-                    s2 = "'s rocket right in the kisser";
-                } else {
-                    s2 = "'s rocket in the face";
-                }
-                break;
-            case MOD_IMPACT:
-                s1 = "was knocked out by";
-                break;
-            case MOD_BULLET:
-            case MOD_FAST_BULLET:
-                s1 = "was shot by";
-
-                if (pAttackerWeap) {
-                    if (pAttackerWeap->GetWeaponClass() & WEAPON_CLASS_PISTOL) {
-                        s1 = "was gunned down by";
-                    } else if (pAttackerWeap->GetWeaponClass() & WEAPON_CLASS_RIFLE) {
-                        if (pAttackerWeap->m_iZoom) {
-                            s1 = "was sniped by";
-                        } else {
-                            s1 = "was rifled by";
-                        }
-                    } else if (pAttackerWeap->GetWeaponClass() & WEAPON_CLASS_SMG) {
-                        s1 = "was perforated by";
-                        s2 = "'s' SMG";
-                    } else if (pAttackerWeap->GetWeaponClass() & WEAPON_CLASS_MG) {
-                        s1 = "was machine-gunned by";
-                    }
-                }
-
-                if (iLocation > -1) {
-                    bDispLocation = qtrue;
-                }
-                break;
-            case MOD_VEHICLE:
-                s1 = "was run over by";
-                break;
-            case MOD_LAVA:
-            case MOD_SLIME:
-            case MOD_FIRE:
-            case MOD_ON_FIRE:
-                s1 = "was burned up by";
-                break;
-            case MOD_IMPALE:
-                s1 = "was impaled by";
-                break;
-            case MOD_BASH:
-                if (G_Random() >= 0.5f) {
-                    s1 = "was bashed by";
-                } else {
-                    s1 = "was clubbed by";
-                }
-                break;
-            case MOD_SHOTGUN:
-                if (G_Random() >= 0.5f) {
-                    s1 = "was hunted down by";
-                } else {
-                    s1 = "was pumped full of buckshot by";
-                }
-                break;
-            default:
-                s1 = "was killed by";
-                break;
-            }
-
-            if (bDispLocation) {
-                str szConv1 = gi.LV_ConvertString(s1);
-                str szConv2;
-                str szConv3;
-                str szArg1 = "in the " + str(G_LocationNumToDispString(iLocation));
-
-                szConv3 = gi.LV_ConvertString(szArg1);
-
-                if (s2) {
-                    szConv2 = gi.LV_ConvertString(s2);
-
-                    if (dedicated->integer) {
-                        gi.DPrintf(
-                            "%s %s %s%s %s\n",
-                            client->pers.netname,
-                            szConv1.c_str(),
-                            attacker->client->pers.netname,
-                            szConv2.c_str(),
-                            szConv3.c_str()
-                        );
-                    }
-
-                    G_PrintDeathMessage(
-                        va("%s %s %s%s %s\n",
-                           client->pers.netname,
-                           szConv1.c_str(),
-                           attacker->client->pers.netname,
-                           szConv2.c_str(),
-                           szConv3.c_str())
-                    );
-                } else {
-                    if (dedicated->integer) {
-                        gi.DPrintf(
-                            "%s %s %s %s\n",
-                            client->pers.netname,
-                            szConv1.c_str(),
-                            attacker->client->pers.netname,
-                            szConv3.c_str()
-                        );
-                    }
-
-                    G_PrintDeathMessage(
-                        va("%s %s %s %s\n",
-                           client->pers.netname,
-                           szConv1.c_str(),
-                           attacker->client->pers.netname,
-                           szConv3.c_str())
-                    );
-                }
-            } else {
-                str szConv1 = gi.LV_ConvertString(s1);
-                str szConv2;
-
-                if (s2) {
-                    szConv2 = gi.LV_ConvertString(s2);
-
-                    if (dedicated->integer) {
-                        gi.DPrintf(
-                            "%s %s %s %s\n",
-                            client->pers.netname,
-                            szConv1.c_str(),
-                            attacker->client->pers.netname,
-                            szConv2.c_str()
-                        );
-                    }
-
-                    G_PrintDeathMessage(
-                        va("%s %s %s %s\n",
-                           client->pers.netname,
-                           szConv1.c_str(),
-                           attacker->client->pers.netname,
-                           szConv2.c_str())
-                    );
-                } else {
-                    if (dedicated->integer) {
-                        gi.DPrintf("%s %s %s\n", client->pers.netname, szConv1.c_str(), attacker->client->pers.netname);
-                    }
-
-                    G_PrintDeathMessage(
-                        va("%s %s %s\n", client->pers.netname, szConv1.c_str(), attacker->client->pers.netname)
-                    );
-                }
-            }
-        } else {
-            switch (meansofdeath) {
-            case MOD_LAVA:
-            case MOD_SLIME:
-                s1 = "was burned to a crisp";
-                break;
-            case MOD_FALLING:
-                s1 = "cratered";
-                break;
-            case MOD_EXPLOSION:
-            case MOD_GRENADE:
-                s1 = "blew up";
-                break;
-            case MOD_ROCKET:
-                s1 = "caught a rocket";
-                break;
-            case MOD_BULLET:
-            case MOD_FAST_BULLET:
-                if (iLocation > -1) {
-                    s1 = "was shot in the";
-                } else {
-                    s1            = "was shot";
-                    bDispLocation = qtrue;
-                }
-                break;
-            default:
-                s1 = "died";
-                break;
-            }
-
-            if (bDispLocation) {
-                str szConv1 = gi.LV_ConvertString(s1 + str("in the ") + G_LocationNumToDispString(iLocation));
-
-                if (dedicated->integer) {
-                    gi.Printf("%s %s\n", client->pers.netname, szConv1.c_str());
-                }
-
-                G_PrintDeathMessage(va("%s %s", client->pers.netname, szConv1.c_str()));
-            } else {
-                str szConv1 = gi.LV_ConvertString(s1);
-
-                if (dedicated->integer) {
-                    gi.Printf("%s %s\n", client->pers.netname, szConv1.c_str());
-                }
-
-                G_PrintDeathMessage(va("%s %s", client->pers.netname, szConv1.c_str()));
-            }
-        }
-    } else {
+    if (attacker == this) {
         switch (meansofdeath) {
         case MOD_SUICIDE:
             s1 = "took himself out of commision";
             break;
         case MOD_LAVA:
-        case MOD_SLIME:
             s1 = "was burned to a crisp";
+            break;
+        case MOD_SLIME:
+            s1 = "was melted to nothing";
             break;
         case MOD_FALLING:
             s1 = "cratered";
@@ -1931,34 +1704,245 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
             s1 = "rocketed himself";
             break;
         case MOD_BULLET:
-        case MOD_FAST_BULLET:
             if (iLocation > -1) {
                 s1 = "shot himself";
             } else {
                 s1            = "shot himself in the";
                 bDispLocation = qtrue;
             }
+            break;
+        case MOD_FAST_BULLET:
+            if (iLocation == -1 || iLocation == -2) {
+                s1 = "shot himself";
+            } else {
+                s1            = "shot himself in the";
+                bDispLocation = qtrue;
+            }
+            break;
+        case MOD_MINE:
+            s1 = "was hoist on his own pitard";
+            break;
         default:
             s1 = "died";
             break;
         }
 
-        if (bDispLocation) {
-            str szConv1 = gi.LV_ConvertString(s1 + str(" ") + G_LocationNumToDispString(meansofdeath));
+        if (bDispLocation && g_obituarylocation->integer) {
+            str szConv1 = s1 + str(" ") + G_LocationNumToDispString(iLocation);
 
             if (dedicated->integer) {
-                gi.Printf("%s %s\n", client->pers.netname, szConv1.c_str());
+                gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(szConv1.c_str()));
             }
 
-            G_PrintDeathMessage(va("%s %s\n", client->pers.netname, szConv1.c_str()));
+            G_PrintDeathMessage(szConv1, s2.c_str(), "x", client->pers.netname, this, "s");
         } else {
-            str szConv1 = gi.LV_ConvertString(s1);
-
             if (dedicated->integer) {
-                gi.Printf("%s %s\n", client->pers.netname, szConv1.c_str());
+                gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(s1.c_str()));
             }
 
-            G_PrintDeathMessage(va("%s %s\n", client->pers.netname, szConv1.c_str()));
+            G_PrintDeathMessage(s1.c_str(), s2.c_str(), "x", client->pers.netname, this, "s");
+        }
+    } else if (attacker && attacker->client) {
+        Weapon *pAttackerWeap = NULL;
+
+        if (attacker->IsSubclassOfPlayer()) {
+            pAttackerWeap = ((Player *)attacker)->GetActiveWeapon(WEAPON_MAIN);
+        }
+
+        switch (meansofdeath) {
+        case MOD_CRUSH:
+        case MOD_CRUSH_EVERY_FRAME:
+            s1 = "was crushed by";
+            break;
+        case MOD_TELEFRAG:
+            s1 = "was telefragged by";
+            break;
+        case MOD_LAVA:
+        case MOD_FIRE:
+        case MOD_ON_FIRE:
+            s1 = "was burned up by";
+            break;
+        case MOD_SLIME:
+            s1 = "was melted by";
+            break;
+        case MOD_FALLING:
+            s1 = "was pushed over the edge by";
+            break;
+        case MOD_EXPLOSION:
+            s1 = "was blown away by";
+            break;
+        case MOD_GRENADE:
+            if (G_Random() >= 0.5f) {
+                s1 = "tripped on";
+                s2 = "'s' grenade";
+            } else {
+                s1 = "is picking";
+                s2 = "'s' shrapnel out of his teeth";
+            }
+            break;
+        case MOD_ROCKET:
+            s1 = "took";
+            if (G_Random() >= 0.5f) {
+                s2 = "'s rocket right in the kisser";
+            } else {
+                s2 = "'s rocket in the face";
+            }
+            break;
+        case MOD_IMPACT:
+            s1 = "was knocked out by";
+            break;
+        case MOD_BULLET:
+        case MOD_FAST_BULLET:
+            s1 = "was shot by";
+
+            if (pAttackerWeap) {
+                if (pAttackerWeap->GetWeaponClass() & WEAPON_CLASS_PISTOL) {
+                    s1 = "was gunned down by";
+                } else if (pAttackerWeap->GetWeaponClass() & WEAPON_CLASS_RIFLE) {
+                    if (pAttackerWeap->m_iZoom) {
+                        s1 = "was sniped by";
+                    } else {
+                        s1 = "was rifled by";
+                    }
+                } else if (pAttackerWeap->GetWeaponClass() & WEAPON_CLASS_SMG) {
+                    s1 = "was perforated by";
+                    s2 = "'s' SMG";
+                } else if (pAttackerWeap->GetWeaponClass() & WEAPON_CLASS_MG) {
+                    s1 = "was machine-gunned by";
+                }
+            }
+
+            if (iLocation > -1) {
+                bDispLocation = qtrue;
+            }
+            break;
+        case MOD_VEHICLE:
+            s1 = "was run over by";
+            break;
+        case MOD_IMPALE:
+            s1 = "was impaled by";
+            break;
+        case MOD_BASH:
+            if (G_Random() >= 0.5f) {
+                s1 = "was bashed by";
+            } else {
+                s1 = "was clubbed by";
+            }
+            break;
+        case MOD_SHOTGUN:
+            if (G_Random() >= 0.5f) {
+                s1 = "was hunted down by";
+            } else {
+                s1 = "was pumped full of buckshot by";
+            }
+            break;
+        case MOD_MINE:
+            s1 = "stepped on";
+            s2 = "'s landmine";
+            break;
+        default:
+            s1 = "was killed by";
+            break;
+        }
+
+        if (bDispLocation && g_obituarylocation->integer) {
+            str szConv1 = s1 + str(" ") + G_LocationNumToDispString(iLocation);
+
+            G_PrintDeathMessage(
+                szConv1.c_str(), s2.c_str(), attacker->client->pers.netname, client->pers.netname, this, "p"
+            );
+
+            if (dedicated->integer) {
+                str szLoc1, szLoc2;
+
+                szLoc1 = gi.LV_ConvertString(szConv1.c_str());
+                if (s2 == 'x') {
+                    gi.Printf("%s %s %s\n", client->pers.netname, szLoc1.c_str(), attacker->client->pers.netname);
+                } else {
+                    szLoc2 = gi.LV_ConvertString(s2.c_str());
+                    gi.Printf(
+                        "%s %s %s%s\n",
+                        client->pers.netname,
+                        szLoc1.c_str(),
+                        attacker->client->pers.netname,
+                        szLoc2.c_str()
+                    );
+                }
+            }
+        } else {
+            G_PrintDeathMessage(
+                s1.c_str(), s2.c_str(), attacker->client->pers.netname, client->pers.netname, this, "p"
+            );
+
+            if (dedicated->integer) {
+                str szLoc1, szLoc2;
+
+                szLoc1 = gi.LV_ConvertString(s1.c_str());
+                if (s2 == 'x') {
+                    gi.Printf("%s %s %s\n", client->pers.netname, szLoc1.c_str(), attacker->client->pers.netname);
+                } else {
+                    szLoc2 = gi.LV_ConvertString(s2.c_str());
+                    gi.Printf(
+                        "%s %s %s%s\n",
+                        client->pers.netname,
+                        szLoc1.c_str(),
+                        attacker->client->pers.netname,
+                        szLoc2.c_str()
+                    );
+                }
+            }
+        }
+    } else {
+        switch (meansofdeath) {
+        case MOD_LAVA:
+            s1 = "was burned to a crisp";
+            break;
+        case MOD_SLIME:
+            s1 = "was melted to nothing";
+            break;
+        case MOD_FALLING:
+            s1 = "cratered";
+            break;
+        case MOD_EXPLOSION:
+            s1 = "blew up";
+            break;
+        case MOD_GRENADE:
+            s1 = "caught some shrapnel";
+            break;
+        case MOD_ROCKET:
+            s1 = "caught a rocket";
+            break;
+        case MOD_BULLET:
+        case MOD_FAST_BULLET:
+            if (iLocation == -2 || iLocation == -1) {
+                s1 = "was shot";
+            } else {
+                s1            = "was shot in the";
+                bDispLocation = qtrue;
+            }
+            break;
+        case MOD_MINE:
+            s1 = "stepped on a land mine";
+            break;
+        default:
+            s1 = "died";
+            break;
+        }
+
+        if (bDispLocation && g_obituarylocation->integer) {
+            str szConv1 = s1 + str(" ") + G_LocationNumToDispString(iLocation);
+
+            G_PrintDeathMessage(szConv1.c_str(), s2.c_str(), "x", client->pers.netname, this, "w");
+
+            if (dedicated->integer) {
+                gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(s1.c_str()));
+            }
+        } else {
+            G_PrintDeathMessage(s1.c_str(), s2.c_str(), "x", client->pers.netname, this, "w");
+
+            if (dedicated->integer) {
+                gi.Printf("%s %s\n", client->pers.netname, gi.LV_ConvertString(s1.c_str()));
+            }
         }
     }
 }
