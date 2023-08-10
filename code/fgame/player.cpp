@@ -1716,7 +1716,7 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
             }
             break;
         case MOD_FAST_BULLET:
-            if (iLocation == -1 || iLocation == -2) {
+            if (iLocation == HITLOC_GENERAL || iLocation == HITLOC_MISS) {
                 s1 = "shot himself";
             } else {
                 s1            = "shot himself in the";
@@ -1924,7 +1924,7 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
             break;
         case MOD_BULLET:
         case MOD_FAST_BULLET:
-            if (iLocation == -2 || iLocation == -1) {
+            if (iLocation == HITLOC_GENERAL || iLocation == HITLOC_MISS) {
                 s1 = "was shot";
             } else {
                 s1            = "was shot in the";
@@ -3370,9 +3370,8 @@ void Player::ClientThink(void)
                 || g_medal3->modificationCount > 1 || g_medal4->modificationCount > 1 || g_medal5->modificationCount > 1
                 || g_medalbt1->modificationCount > 1 || g_medalbt2->modificationCount > 1
                 || g_medalbt3->modificationCount > 1 || g_medalbt4->modificationCount > 1
-                || g_medalbt5->modificationCount > 1
-                || g_eogmedal0->modificationCount > 1 || g_eogmedal1->modificationCount > 1
-                || g_eogmedal2->modificationCount > 1) {
+                || g_medalbt5->modificationCount > 1 || g_eogmedal0->modificationCount > 1
+                || g_eogmedal1->modificationCount > 1 || g_eogmedal2->modificationCount > 1) {
                 gi.Cvar_Set("g_gotmedal", "0");
             } else {
                 gi.Cvar_Set("g_gotmedal", "1");
@@ -4607,19 +4606,27 @@ void Player::GodCheat(Event *ev)
         if (ev->GetInteger(1)) {
             flags |= FL_GODMODE;
             // Also enable the god mode for the vehicle
-            if (m_pVehicle) m_pVehicle->flags |= FL_GODMODE;
+            if (m_pVehicle) {
+                m_pVehicle->flags |= FL_GODMODE;
+            }
         } else {
-			flags &= ~FL_GODMODE;
-			// Also disable the god mode for the vehicle
-			if (m_pVehicle) m_pVehicle->flags &= ~FL_GODMODE;
+            flags &= ~FL_GODMODE;
+            // Also disable the god mode for the vehicle
+            if (m_pVehicle) {
+                m_pVehicle->flags &= ~FL_GODMODE;
+            }
         }
     } else {
         if (flags & FL_GODMODE) {
-			flags &= ~FL_GODMODE;
-			if (m_pVehicle) m_pVehicle->flags &= ~FL_GODMODE;
+            flags &= ~FL_GODMODE;
+            if (m_pVehicle) {
+                m_pVehicle->flags &= ~FL_GODMODE;
+            }
         } else {
             flags |= FL_GODMODE;
-            if (m_pVehicle) m_pVehicle->flags |= FL_GODMODE;
+            if (m_pVehicle) {
+                m_pVehicle->flags |= FL_GODMODE;
+            }
         }
     }
 
@@ -4782,20 +4789,20 @@ void Player::ProcessPmoveEvents(int event)
     case EV_FALL_FAR:
     case EV_FALL_FATAL:
         if (event == EV_FALL_FATAL) {
-			if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-				damage = 101;
+            if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                damage = 101;
             } else {
                 damage = max_health + 1.0f;
             }
         } else if (event == EV_FALL_FAR) {
-			if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-				damage = 25;
+            if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                damage = 25;
             } else {
                 damage = 20;
             }
         } else if (event == EV_FALL_MEDIUM) {
-			if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-				damage = 15;
+            if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+                damage = 15;
             } else {
                 damage = 10;
             }
@@ -4973,10 +4980,11 @@ Handles color blends and view kicks
 
 void Player::DamageFeedback(void)
 {
-    float realcount;
-	float count;
-	vec3_t vDir;
-    str painAnim;
+    float  realcount;
+    float  count;
+    vec3_t vDir;
+    str    painAnim;
+    int    animnum;
 
     // if we are dead, don't setup any feedback
     if (IsDead()) {
@@ -4987,42 +4995,44 @@ void Player::DamageFeedback(void)
         return;
     }
 
-    if (damage_count)
-	{
-		// decay damage_count over time
+    if (damage_count) {
+        // decay damage_count over time
         damage_count *= 0.8f;
         damage_from *= 0.8f;
         damage_angles *= 0.8f;
         if (damage_count < 0.1f) {
-			damage_count = 0;
-            damage_from = Vector(0, 0, 0);
+            damage_count = 0;
+            damage_from  = Vector(0, 0, 0);
         }
-	}
+    }
 
-	// total points of damage shot at the player this frame
-	if (!damage_blood) {
-		// didn't take any damage
-		return;
-	}
+    // total points of damage shot at the player this frame
+    if (!damage_blood) {
+        // didn't take any damage
+        return;
+    }
 
-	VectorNormalize2(damage_from, vDir);
+    VectorNormalize2(damage_from, vDir);
 
-	damage_angles.x -= DotProduct(vDir, orientation[0]) * damage_blood * g_viewkick_pitch->value * g_viewkick_dmmult->value;
-	damage_angles.x = Q_clamp_float(damage_angles.x, -30, 30);
+    damage_angles.x -=
+        DotProduct(vDir, orientation[0]) * damage_blood * g_viewkick_pitch->value * g_viewkick_dmmult->value;
+    damage_angles.x = Q_clamp_float(damage_angles.x, -30, 30);
 
-	damage_angles.y -= DotProduct(vDir, orientation[1]) * damage_blood * g_viewkick_yaw->value * g_viewkick_dmmult->value;
-	damage_angles.y = Q_clamp_float(damage_angles.y, -30, 30);
+    damage_angles.y -=
+        DotProduct(vDir, orientation[1]) * damage_blood * g_viewkick_yaw->value * g_viewkick_dmmult->value;
+    damage_angles.y = Q_clamp_float(damage_angles.y, -30, 30);
 
-	damage_angles.z += DotProduct(vDir, orientation[2]) * damage_blood * g_viewkick_roll->value * g_viewkick_dmmult->value;
-	damage_angles.z = Q_clamp_float(damage_angles.y, -25, 25);
+    damage_angles.z +=
+        DotProduct(vDir, orientation[2]) * damage_blood * g_viewkick_roll->value * g_viewkick_dmmult->value;
+    damage_angles.z = Q_clamp_float(damage_angles.y, -25, 25);
 
-	damage_count += damage_blood;
-    count        = damage_blood;
-    realcount    = count;
-	if (count < 10) {
-		// always make a visible effect
-		count = 10;
-	}
+    damage_count += damage_blood;
+    count     = damage_blood;
+    realcount = count;
+    if (count < 10) {
+        // always make a visible effect
+        count = 10;
+    }
 
     // the total alpha of the blend is always proportional to count
     if (damage_alpha < 0) {
@@ -5046,9 +5056,155 @@ void Player::DamageFeedback(void)
     }
 
     //
+    // Since 2.0: Try to find and play pain animation
+    //
+    if (getMoveType() == MOVETYPE_PORTABLE_TURRET) {
+        // use mg42 pain animation
+        painAnim = "mg42_tripod_";
+    } else {
+        Weapon     *pWeap;
+        const char *itemName;
+        // try to find an animation
+
+        pWeap = GetActiveWeapon(WEAPON_MAIN);
+        if (pWeap) {
+            int weapon_class;
+
+            weapon_class = pWeap->GetWeaponClass();
+            if (weapon_class & WEAPON_CLASS_PISTOL) {
+                painAnim = "pistol_";
+            } else if (weapon_class & WEAPON_CLASS_RIFLE) {
+                painAnim = "rifle_";
+            } else if (weapon_class & WEAPON_CLASS_SMG) {
+                // get the animation name from the item name
+                itemName = pWeap->GetItemName();
+
+                if (!Q_stricmp(itemName, "MP40")) {
+                    painAnim = "mp40_";
+                } else if (!Q_stricmp(itemName, "Sten Mark II")) {
+                    painAnim = "sten_";
+                } else {
+                    painAnim = "smg_";
+                }
+            } else if (weapon_class & WEAPON_CLASS_MG) {
+                itemName = pWeap->GetItemName();
+
+                if (!Q_stricmp(itemName, "StG 44")) {
+                    painAnim = "mp44_";
+                } else {
+                    painAnim = "mg_";
+                }
+            } else if (weapon_class & WEAPON_CLASS_GRENADE) {
+                itemName = pWeap->GetItemName();
+
+                // 2.30: use landmine animations
+                if (!Q_stricmp(itemName, "Minedetector")) {
+                    painAnim = "minedetector_";
+                } else if (!Q_stricmp(itemName, "Minensuchgerat")) {
+                    painAnim = "minedetectoraxis_";
+                } else if (!Q_stricmp(itemName, "LandmineAllies")) {
+                    painAnim = "mine_";
+                } else if (!Q_stricmp(itemName, "LandmineAxis")) {
+                    painAnim = "mine_";
+                } else if (!Q_stricmp(itemName, "LandmineAxis")) {
+                    painAnim = "grenade_";
+                }
+            } else if (weapon_class & WEAPON_CLASS_HEAVY) {
+                itemName = pWeap->GetItemName();
+
+                if (!Q_stricmp(itemName, "Shotgun")) {
+                    painAnim = "shotgun_";
+                } else {
+                    // Defaults to bazooka
+                    painAnim = "bazooka_";
+                }
+            } else {
+                itemName = pWeap->GetItemName();
+
+                if (!Q_stricmp(itemName, "Packed MG42 Turret")) {
+                    painAnim = "mg42_";
+                } else {
+                    // Default animation if not found
+                    painAnim = "unarmed_";
+                }
+            }
+        } else {
+            painAnim = "unarmed_";
+        }
+
+        // use the animation based on the movement
+        if (m_iMovePosFlags & MPF_POSITION_CROUCHING) {
+            painAnim += "crouch_";
+        } else {
+            painAnim += "stand_";
+        }
+    }
+
+    painAnim += "hit_";
+
+    if (pain_dir == PAIN_REAR || pain_location == HITLOC_TORSO_MID || HITLOC_TORSO_LOWER) {
+        painAnim += "back";
+    } else {
+        switch (pain_location) {
+        case HITLOC_HEAD:
+        case HITLOC_HELMET:
+        case HITLOC_NECK:
+            painAnim += "head";
+            break;
+        case HITLOC_TORSO_UPPER:
+        case HITLOC_TORSO_MID:
+            painAnim += "uppertorso";
+            break;
+        case HITLOC_TORSO_LOWER:
+        case HITLOC_PELVIS:
+            painAnim += "lowertorso";
+            break;
+        case HITLOC_R_ARM_UPPER:
+        case HITLOC_R_ARM_LOWER:
+        case HITLOC_R_HAND:
+            painAnim += "rarm";
+            break;
+        case HITLOC_L_ARM_UPPER:
+        case HITLOC_L_ARM_LOWER:
+        case HITLOC_L_HAND:
+            painAnim += "larm";
+            break;
+        case HITLOC_R_LEG_UPPER:
+        case HITLOC_L_LEG_UPPER:
+        case HITLOC_R_LEG_LOWER:
+        case HITLOC_L_LEG_LOWER:
+        case HITLOC_R_FOOT:
+        case HITLOC_L_FOOT:
+            painAnim += "leg";
+            break;
+        default:
+            painAnim += "uppertorso";
+            break;
+        }
+    }
+
+    animnum = gi.Anim_NumForName(edict->tiki, painAnim.c_str());
+    if (animnum == -1) {
+        gi.DPrintf("WARNING: Could not find player pain animation '%s'\n", painAnim.c_str());
+    } else {
+        NewAnim(animnum, EV_Player_AnimLoop_Pain, ANIMSLOT_PAIN);
+        RestartAnimSlot(ANIMSLOT_PAIN);
+        m_sPainAnim   = painAnim;
+        m_fPainBlend  = 1.f;
+        animdone_Pain = false;
+    }
+
+    //
     // clear totals
     //
     damage_blood = 0;
+
+    if (IsSubclassOfPlayer()) {
+        damage_count  = 0;
+        damage_blood  = 0;
+        damage_alpha  = 0;
+        damage_angles = vec_zero;
+    }
 }
 
 void Player::GetPlayerView(Vector *pos, Vector *angle)
