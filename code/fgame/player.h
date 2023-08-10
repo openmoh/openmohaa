@@ -843,7 +843,7 @@ public:
     void EventDMDeathDrop(Event *ev);
     void EventStopwatch(Event *ev);
     void KilledPlayerInDeathmatch(Player *killed);
-    void SetStopwatch(int iDuration);
+    void SetStopwatch(int iDuration, stopWatchType_t type = SWT_NORMAL);
     void BeginTempSpectator(void);
     void EndSpectator(void);
 

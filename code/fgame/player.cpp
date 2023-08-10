@@ -1172,6 +1172,7 @@ void Player::Init(void)
     InitView();
     InitState();
     InitEdict();
+    InitMaxAmmo();
     InitWeapons();
     InitInventory();
     InitHealth();
@@ -1188,17 +1189,18 @@ void Player::Init(void)
         JoinNearbySquads();
     }
 
-    InitMaxAmmo();
+    // make sure we put the player back into the world
+    link();
+    logfile_started = qfalse;
 
     // notify scripts for the spawning player
     parm.other = this;
     parm.owner = this;
     level.Unregister(STRING_PLAYERSPAWN);
 
-    // make sure we put the player back into the world
-    link();
-    logfile_started = qfalse;
-
+    //
+    // Added for openmohaa
+    //
     if (!m_bConnected) {
         m_bConnected = true;
 
@@ -1295,25 +1297,30 @@ void Player::InitClient(void)
     client->lastActiveTime = level.inttime;
     client->ps.commandTime = level.svsTime;
 
-    gi.SendServerCommand(client - game.clients, "stopwatch 0 0");
+    SetStopwatch(0);
 
     m_bShowingHint = false;
 }
 
 void Player::InitState(void)
 {
-    gibbed          = false;
-    pain            = 0;
-    nextpaintime    = 0;
-    knockdown       = false;
-    pain_dir        = PAIN_NONE;
-    pain_type       = MOD_NONE;
-    pain_location   = -2;
-    m_iMovePosFlags = MPF_POSITION_STANDING;
-    takedamage      = DAMAGE_AIM;
-    deadflag        = DEAD_NO;
+    gibbed       = false;
+    pain         = 0;
+    nextpaintime = 0;
+
+    m_fMineDist      = 1000;
+    m_fMineCheckTime = 0;
+    m_sDmPrimary     = "";
+
+    knockdown     = false;
+    pain_dir      = PAIN_NONE;
+    pain_type     = MOD_NONE;
+    pain_location = -2;
+    takedamage    = DAMAGE_AIM;
+    deadflag      = DEAD_NO;
     flags &= ~FL_TEAMSLAVE;
     flags |= (FL_POSTTHINK | FL_THINK | FL_DIE_EXPLODE | FL_BLOOD);
+    m_iMovePosFlags = MPF_POSITION_STANDING;
 
     if (!com_blood->integer) {
         flags &= ~(FL_DIE_EXPLODE | FL_BLOOD);
@@ -1460,6 +1467,18 @@ void Player::InitMaxAmmo(void)
     GiveAmmo("agrenade", 0, 5);
     GiveAmmo("heavy", 0, 5);
     GiveAmmo("shotgun", 0, 50);
+
+    //
+    // Team tactics ammunition
+    //
+    GiveAmmo("landmine", 0, 5);
+
+    //
+    // Team assault ammunition
+    //
+    GiveAmmo("smokegrenade", 0, 1);
+    GiveAmmo("asmokegrenade", 0, 1);
+    GiveAmmo("riflegrenade", 0, 1);
 }
 
 void Player::InitWeapons(void)
@@ -1484,11 +1503,6 @@ void Player::InitView(void)
 
     // blend stuff
     damage_blend = vec_zero;
-
-    damage_count  = 0;
-    damage_blood  = 0;
-    damage_alpha  = 0;
-    damage_angles = vec_zero;
 }
 
 void Player::ChooseSpawnPoint(void)
@@ -2087,24 +2101,47 @@ void Player::EventDMDeathDrop(Event *ev)
 
 void Player::EventStopwatch(Event *ev)
 {
+    stopWatchType_t eType = SWT_NORMAL;
+
     int iDuration = ev->GetInteger(1);
     if (iDuration < 0) {
         ScriptError("duration < 0");
     }
 
-    SetStopwatch(iDuration);
-}
-
-void Player::SetStopwatch(int iDuration)
-{
-    int  iStartTime = 0;
-    char szCmd[256];
-
-    if (iDuration) {
-        iStartTime = (int)level.svsFloatTime;
+    if (ev->NumArgs() > 1) {
+        eType = static_cast<stopWatchType_t>(ev->GetInteger(2));
+    } else {
+        eType = SWT_NORMAL;
     }
 
-    sprintf(szCmd, "stopwatch %i %i", iStartTime, iDuration);
+    SetStopwatch(iDuration, eType);
+}
+
+void Player::SetStopwatch(int iDuration, stopWatchType_t type)
+{
+    int  iStartTime;
+    char szCmd[256];
+
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        if (type != SWT_NORMAL) {
+            iStartTime = (int)(level.svsFloatTime * 1000.f);
+        } else {
+            iStartTime = 0;
+            if (iDuration) {
+                iStartTime = ceil(level.svsFloatTime * 1000.f);
+            }
+        }
+
+        sprintf(szCmd, "stopwatch %i %i %i", iStartTime, iDuration, type);
+    } else {
+        iStartTime = 0;
+        if (iDuration) {
+            iStartTime = (int)level.svsFloatTime;
+        }
+
+        sprintf(szCmd, "stopwatch %i %i", iStartTime, iDuration);
+    }
+
     gi.SendServerCommand(edict - g_entities, szCmd);
 }
 
