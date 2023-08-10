@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // g_client.c -- client functions that don't happen every frame
 
-static vec3_t	playerMins = {-15, -15, -24};
-static vec3_t	playerMaxs = {15, 15, 32};
+static vec3_t playerMins = {-15, -15, -24};
+static vec3_t playerMaxs = {15, 15, 32};
 
 // FIXME: OLD Q3 CODE
 
@@ -439,7 +439,6 @@ void SetClientViewAngle( gentity_t *ent, vec3_t angle ) {
 
 #endif
 
-
 /*
 =======================================================================
 
@@ -455,30 +454,30 @@ SelectNearestDeathmatchSpawnPoint
 Find the spot that we DON'T want to use
 ================
 */
-#define	MAX_SPAWN_POINTS	128
-Entity *SelectNearestDeathmatchSpawnPoint( vec3_t from ) {
-	Entity		*spot;
-	vec3_t		delta;
-	float		dist, nearestDist;
-	Entity		*nearestSpot;
+#define MAX_SPAWN_POINTS 128
 
-	nearestDist = 999999;
-	nearestSpot = NULL;
-	spot = NULL;
+Entity *SelectNearestDeathmatchSpawnPoint(vec3_t from)
+{
+    Entity *spot;
+    vec3_t  delta;
+    float   dist, nearestDist;
+    Entity *nearestSpot;
 
-	while( ( spot = ( Entity * )G_FindClass( spot, "info_player_deathmatch" ) ) != NULL ) {
+    nearestDist = 999999;
+    nearestSpot = NULL;
+    spot        = NULL;
 
-		VectorSubtract( spot->origin, from, delta );
-		dist = VectorLength( delta );
-		if ( dist < nearestDist ) {
-			nearestDist = dist;
-			nearestSpot = spot;
-		}
-	}
+    while ((spot = (Entity *)G_FindClass(spot, "info_player_deathmatch")) != NULL) {
+        VectorSubtract(spot->origin, from, delta);
+        dist = VectorLength(delta);
+        if (dist < nearestDist) {
+            nearestDist = dist;
+            nearestSpot = spot;
+        }
+    }
 
-	return nearestSpot;
+    return nearestSpot;
 }
-
 
 /*
 ================
@@ -487,66 +486,57 @@ SelectRandomDeathmatchSpawnPoint
 go to a random point that doesn't telefrag
 ================
 */
-Entity *SelectRandomDeathmatchSpawnPoint( str spawnpoint_type )
+Entity *SelectRandomDeathmatchSpawnPoint(str spawnpoint_type)
 {
-	Entity *spot = NULL;
-	Entity *spot1 = NULL;
-	Entity *spot2 = NULL;
-	int count = 0;
-	int selection;
-	float range;
-	float range1 = 99999.0f;
-	float range2 = 99999.0f;
+    Entity *spot  = NULL;
+    Entity *spot1 = NULL;
+    Entity *spot2 = NULL;
+    int     count = 0;
+    int     selection;
+    float   range;
+    float   range1 = 99999.0f;
+    float   range2 = 99999.0f;
 
-	while( ( spot = ( Entity * )G_FindClass( spot, spawnpoint_type ) ) )
-	{
-		count++;
+    while ((spot = (Entity *)G_FindClass(spot, spawnpoint_type))) {
+        count++;
 
-		range = PlayersRangeFromSpot( spot );
-		if( range2 <= range )
-		{
-			if( range1 > range )
-			{
-				range1 = range;
-				spot1 = spot;
-			}
-		}
-		else
-		{
-			range2 = range;
-			spot2 = spot;
-		}
-	}
+        range = PlayersRangeFromSpot(spot);
+        if (range2 <= range) {
+            if (range1 > range) {
+                range1 = range;
+                spot1  = spot;
+            }
+        } else {
+            range2 = range;
+            spot2  = spot;
+        }
+    }
 
-	spot = NULL;
+    spot = NULL;
 
-	if( !count ) {
-		return NULL;
-	}
+    if (!count) {
+        return NULL;
+    }
 
-	if( count > 2 )
-	{
-		count -= 2;
-	}
-	else
-	{
-		spot1 = NULL;
-		spot2 = NULL;
-	}
+    if (count > 2) {
+        count -= 2;
+    } else {
+        spot1 = NULL;
+        spot2 = NULL;
+    }
 
-	for( selection = rand() % count; selection != -1; selection-- )
-	{
-		spot = ( Entity * )G_FindClass( spot, spawnpoint_type );
-		if( !spot ) {
-			break;
-		}
+    for (selection = rand() % count; selection != -1; selection--) {
+        spot = (Entity *)G_FindClass(spot, spawnpoint_type);
+        if (!spot) {
+            break;
+        }
 
-		if( spot == spot1 || spot == spot2 ) {
-			selection++;
-		}
-	}
+        if (spot == spot1 || spot == spot2) {
+            selection++;
+        }
+    }
 
-	return spot;
+    return spot;
 }
 
 /*
@@ -556,28 +546,26 @@ SelectRandomFurthestSpawnPoint
 Chooses a player start, deathmatch start, etc
 ============
 */
-Entity *SelectRandomFurthestSpawnPoint( void )
+Entity *SelectRandomFurthestSpawnPoint(void)
 {
-	Entity *spot = NULL;
-	Entity *bestspot = NULL;
-	float bestplayerdistance = 0.0f;
+    Entity *spot               = NULL;
+    Entity *bestspot           = NULL;
+    float   bestplayerdistance = 0.0f;
 
-	while( ( spot = ( Entity * )G_FindClass( spot, "info_player_deathmatch" ) ) )
-	{
-		float dist = PlayersRangeFromSpot( spot );
+    while ((spot = (Entity *)G_FindClass(spot, "info_player_deathmatch"))) {
+        float dist = PlayersRangeFromSpot(spot);
 
-		if( dist > bestplayerdistance )
-		{
-			bestplayerdistance = dist;
-			bestspot = spot;
-		}
-	}
+        if (dist > bestplayerdistance) {
+            bestplayerdistance = dist;
+            bestspot           = spot;
+        }
+    }
 
-	if( !bestspot ) {
-		bestspot = ( Entity * )G_FindClass( NULL, "info_player_deathmatch" );
-	}
+    if (!bestspot) {
+        bestspot = (Entity *)G_FindClass(NULL, "info_player_deathmatch");
+    }
 
-	return bestspot;
+    return bestspot;
 }
 
 /*
@@ -587,54 +575,50 @@ SelectSpawnPoint
 Chooses a player start, deathmatch start, etc
 ============
 */
-PlayerStart *SelectSpawnPoint( Player *player )
+PlayerStart *SelectSpawnPoint(Player *player)
 {
-	PlayerStart *spot = NULL;
+    PlayerStart *spot = NULL;
 
-	switch( g_gametype->integer )
-	{
-	case GT_FFA:
-		spot = player->GetDM_Team()->GetRandomFfaSpawnpoint( player );
-		break;
-	case GT_SINGLE_PLAYER:
-		break;
-	case GT_TEAM:
-	case GT_TEAM_ROUNDS:
-		spot = player->GetDM_Team()->GetRandomTeamSpawnpoint( player );
-		break;
-	case GT_OBJECTIVE:
-		spot = player->GetDM_Team()->GetRandomObjectiveSpawnpoint( player );
-		break;
-	default:
-		Com_Printf("SelectSpawnPoint: unknown game type '%i'\n", g_gametype->integer);
-		spot = player->GetDM_Team()->GetRandomFfaSpawnpoint( player );
-		break;
-	}
+    switch (g_gametype->integer) {
+    case GT_SINGLE_PLAYER:
+        break;
+    case GT_FFA:
+        spot = player->GetDM_Team()->GetRandomFfaSpawnpoint(player);
+        break;
+    case GT_TEAM:
+    case GT_TEAM_ROUNDS:
+    case GT_LIBERATION:
+        spot = player->GetDM_Team()->GetRandomTeamSpawnpoint(player);
+        break;
+    case GT_OBJECTIVE:
+    case GT_TOW:
+        spot = player->GetDM_Team()->GetRandomObjectiveSpawnpoint(player);
+        break;
+    default:
+        Com_Printf("SelectSpawnPoint: unknown game type '%i'\n", g_gametype->integer);
+        spot = player->GetDM_Team()->GetRandomFfaSpawnpoint(player);
+        break;
+    }
 
-	// find a single player start spot
-	if( !spot )
-	{
-		while( ( spot = ( PlayerStart * )G_FindArchivedClass( spot, "info_player_start" ) ) != NULL )
-		{
-			if( level.spawnpoint.icmp( spot->TargetName() ) == 0 )
-			{
-				break;
-			}
-		}
+    // find a single player start spot
+    if (!spot) {
+        while ((spot = (PlayerStart *)G_FindArchivedClass(spot, "info_player_start")) != NULL) {
+            if (level.spawnpoint.icmp(spot->TargetName()) == 0) {
+                break;
+            }
+        }
 
-		if( !spot && !level.spawnpoint.length() )
-		{
-			// there wasn't a spawnpoint without a target, so use any
-			spot = ( PlayerStart * )G_FindArchivedClass( NULL, "info_player_start" );
-		}
+        if (!spot && !level.spawnpoint.length()) {
+            // there wasn't a spawnpoint without a target, so use any
+            spot = (PlayerStart *)G_FindArchivedClass(NULL, "info_player_start");
+        }
 
-		if( !spot )
-		{
-			gi.Error( ERR_DROP, "No player spawn position named '%s'.  Can't spawn player.\n", level.spawnpoint.c_str() );
-		}
-	}
+        if (!spot) {
+            gi.Error(ERR_DROP, "No player spawn position named '%s'.  Can't spawn player.\n", level.spawnpoint.c_str());
+        }
+    }
 
-	return spot;
+    return spot;
 }
 
 //======================================================================
@@ -644,88 +628,86 @@ PlayerStart *SelectSpawnPoint( Player *player )
 ClientCheckName
 ============
 */
-static void ClientCleanName( const char *in, char *out, int outSize )
+static void ClientCleanName(const char *in, char *out, int outSize)
 {
-	int		len, colorlessLen;
-	char	ch;
-	char	*p;
-	int		spaces;
+    int   len, colorlessLen;
+    char  ch;
+    char *p;
+    int   spaces;
 
-	//save room for trailing null byte
-	outSize--;
+    //save room for trailing null byte
+    outSize--;
 
-	len = 0;
-	colorlessLen = 0;
-	p = out;
-	*p = 0;
-	spaces = 0;
+    len          = 0;
+    colorlessLen = 0;
+    p            = out;
+    *p           = 0;
+    spaces       = 0;
 
-	while( 1 ) {
-		ch = *in++;
-		if( !ch ) {
-			break;
-		}
+    while (1) {
+        ch = *in++;
+        if (!ch) {
+            break;
+        }
 
-		// don't allow leading spaces
-		if( colorlessLen == 0 && ch == ' ' ) {
-			continue;
-		}
+        // don't allow leading spaces
+        if (colorlessLen == 0 && ch == ' ') {
+            continue;
+        }
 
-		// check colors
-		if( ch == Q_COLOR_ESCAPE ) {
-			// solo trailing carat is not a color prefix
-			if( !*in ) {
-				break;
-			}
+        // check colors
+        if (ch == Q_COLOR_ESCAPE) {
+            // solo trailing carat is not a color prefix
+            if (!*in) {
+                break;
+            }
 
-			// don't allow black in a name, period
-			if( ColorIndex(*in) == 0 ) {
-				in++;
-				continue;
-			}
+            // don't allow black in a name, period
+            if (ColorIndex(*in) == 0) {
+                in++;
+                continue;
+            }
 
-			// make sure room in dest for both chars
-			if( len > outSize - 2 ) {
-				break;
-			}
+            // make sure room in dest for both chars
+            if (len > outSize - 2) {
+                break;
+            }
 
-			*out++ = ch;
-			*out++ = *in++;
-			len += 2;
-			continue;
-		}
+            *out++ = ch;
+            *out++ = *in++;
+            len += 2;
+            continue;
+        }
 
-		// don't allow too many consecutive spaces
-		// don't count spaces in colorlessLen
-		if( ch == ' ' ) {
-			spaces++;
-			if( spaces > 3 ) {
-				continue;
-			}
-			*out++ = ch;
-			len++;
-			continue;
-		}
-		else {
-			spaces = 0;
-		}
+        // don't allow too many consecutive spaces
+        // don't count spaces in colorlessLen
+        if (ch == ' ') {
+            spaces++;
+            if (spaces > 3) {
+                continue;
+            }
+            *out++ = ch;
+            len++;
+            continue;
+        } else {
+            spaces = 0;
+        }
 
-		if( len > outSize - 1 ) {
-			break;
-		}
+        if (len > outSize - 1) {
+            break;
+        }
 
-		*out++ = ch;
-		colorlessLen++;
-		len++;
-	}
-	*out = 0;
+        *out++ = ch;
+        colorlessLen++;
+        len++;
+    }
+    *out = 0;
 
-	// don't allow empty names
-	if( *p == 0 || colorlessLen == 0 ) {
-		Q_strncpyz( p, "UnnamedPlayer", outSize );
-	}
+    // don't allow empty names
+    if (*p == 0 || colorlessLen == 0) {
+        Q_strncpyz(p, "UnnamedPlayer", outSize);
+    }
 }
-
 
 /*
 ===========
@@ -738,102 +720,95 @@ The game can override any of the settings and call gi.SetUserinfo
 if desired.
 ============
 */
-void G_ClientUserinfoChanged( gentity_t *ent, const char *u ) {
-	char		*s;
-	gclient_t	*client;
-	int			clientnum;
+void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
+{
+    char      *s;
+    gclient_t *client;
+    int        clientnum;
 
-	if( !ent )
-	{
-		return;
-	}
+    if (!ent) {
+        return;
+    }
 
-	client = ent->client;
+    client = ent->client;
 
-	s = Info_ValueForKey( u, "name" );
+    s = Info_ValueForKey(u, "name");
 
-	if( !s )
-	{
-		return;
-	}
+    if (!s) {
+        return;
+    }
 
-	clientnum = ent - g_entities;
+    clientnum = ent - g_entities;
 
-	if( gi.SanitizeName( s, client->pers.netname ) )
-	{
-		gi.Printf( "WARNING: had to sanitize the name for client %i\n", clientnum );
-	}
+    if (gi.SanitizeName(s, client->pers.netname)) {
+        gi.Printf("WARNING: had to sanitize the name for client %i\n", clientnum);
+    }
 
-	s = Info_ValueForKey( u, "dm_playermodel" );
+    s = Info_ValueForKey(u, "dm_playermodel");
 
-	if( !s )
-	{
-		assert( 0 );
-		return;
-	}
+    if (!s) {
+        assert(0);
+        return;
+    }
 
-	Q_strncpyz( client->pers.dm_playermodel, s, sizeof( client->pers.dm_playermodel ) );
+    Q_strncpyz(client->pers.dm_playermodel, s, sizeof(client->pers.dm_playermodel));
 
-	s = Info_ValueForKey( u, "dm_playergermanmodel" );
+    s = Info_ValueForKey(u, "dm_playergermanmodel");
 
-	if( !s )
-	{
-		assert( 0 );
-		return;
-	}
+    if (!s) {
+        assert(0);
+        return;
+    }
 
-	Q_strncpyz( client->pers.dm_playergermanmodel, s, sizeof( client->pers.dm_playergermanmodel ) );
+    Q_strncpyz(client->pers.dm_playergermanmodel, s, sizeof(client->pers.dm_playergermanmodel));
 
-	gi.SetConfigstring( CS_PLAYERS + clientnum, va( "name\\%s", client->pers.netname ) );
+    gi.SetConfigstring(CS_PLAYERS + clientnum, va("name\\%s", client->pers.netname));
 
-	if( ent->entity )
-	{
-		float fov;
+    if (ent->entity) {
+        float fov;
 
-		s = Info_ValueForKey( u, "fov" );
+        s = Info_ValueForKey(u, "fov");
 
-		fov = atof( s );
+        fov = atof(s);
 
-		if( fov < 80.0f )
-		{
-			fov = 80.0f;
-		}
-		else if( fov > 160.0f )
-		{
-			fov = 160.0f;
-		}
+        if (fov < 80.0f) {
+            fov = 80.0f;
+        } else if (fov > 160.0f) {
+            fov = 160.0f;
+        }
 
-		Event *ev = new Event( EV_Player_Fov );
-		ev->AddFloat( fov );
+        Event *ev = new Event(EV_Player_Fov);
+        ev->AddFloat(fov);
 
-		ent->entity->ProcessEvent( ev );
-	}
+        ent->entity->ProcessEvent(ev);
+    }
 
-	Q_strncpyz( client->pers.userinfo, u, sizeof( client->pers.userinfo ) );
+    Q_strncpyz(client->pers.userinfo, u, sizeof(client->pers.userinfo));
 }
 
-void G_BotConnect( int clientNum ) {
-	gclient_t	*client;
-	gentity_t	*ent;
-	char		userinfo[ MAX_INFO_STRING ];
+void G_BotConnect(int clientNum)
+{
+    gclient_t *client;
+    gentity_t *ent;
+    char       userinfo[MAX_INFO_STRING];
 
-	ent = &g_entities[ clientNum ];
+    ent = &g_entities[clientNum];
 
-	ent->client = game.clients + clientNum;
-	ent->s.number = clientNum;
+    ent->client   = game.clients + clientNum;
+    ent->s.number = clientNum;
 
-	client = ent->client;
+    client = ent->client;
 
-	Q_strncpyz( userinfo, client->pers.userinfo, sizeof( userinfo ) );
+    Q_strncpyz(userinfo, client->pers.userinfo, sizeof(userinfo));
 
-	// read the session data
-	memset( client, 0, sizeof( *client ) );
-	G_InitSessionData( client, userinfo );
+    // read the session data
+    memset(client, 0, sizeof(*client));
+    G_InitSessionData(client, userinfo);
 
-	Q_strncpyz( client->pers.ip, "localhost", sizeof( client->pers.ip ) );
-	client->pers.port = 0;
+    Q_strncpyz(client->pers.ip, "localhost", sizeof(client->pers.ip));
+    client->pers.port = 0;
 
-	G_ClientUserinfoChanged( ent, userinfo );
+    G_ClientUserinfoChanged(ent, userinfo);
 }
 
 /*
@@ -856,64 +831,60 @@ to the server machine, but qfalse on map changes and tournement
 restarts.
 ============
 */
-const char *G_ClientConnect( int clientNum, qboolean firstTime ) {
-	char		*ip, *port, *value;
-	gclient_t	*client;
-	gentity_t	*ent;
-	char		userinfo[ MAX_INFO_STRING ];
+const char *G_ClientConnect(int clientNum, qboolean firstTime)
+{
+    char      *ip, *port, *value;
+    gclient_t *client;
+    gentity_t *ent;
+    char       userinfo[MAX_INFO_STRING];
 
-	gi.DPrintf("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
-	if( !g_gametype->integer ) {
-		return NULL;
-	}
+    gi.DPrintf("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\n");
+    if (!g_gametype->integer) {
+        return NULL;
+    }
 
-	ent = &g_entities[ clientNum ];
+    ent = &g_entities[clientNum];
 
-	gi.GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
+    gi.GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
- 	// IP filtering
- 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
- 	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
- 	// check to see if they are on the banned IP list
-	ip = Info_ValueForKey( userinfo, "ip" );
-	port = Info_ValueForKey( userinfo, "port" );
+    // IP filtering
+    // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
+    // recommanding PB based IP / GUID banning, the builtin system is pretty limited
+    // check to see if they are on the banned IP list
+    ip   = Info_ValueForKey(userinfo, "ip");
+    port = Info_ValueForKey(userinfo, "port");
 
-	// FIXME: what is fucking wrong with G_FilterPacket...
-	//if ( G_FilterPacket( value ) ) {
-	//	return "Banned IP";
-	//}
+    // FIXME: what is fucking wrong with G_FilterPacket...
+    //if ( G_FilterPacket( value ) ) {
+    //	return "Banned IP";
+    //}
 
-  // we don't check password for bots and local client
-  // NOTE: local client <-> "ip" "localhost"
-  //   this means this client is not running in our current process
-	if( ( strcmp( ip, "localhost" ) != 0 ) )
-	{
-		// check for a password
-		value = Info_ValueForKey( userinfo, "password" );
-		if ( password->string[ 0 ] && Q_stricmp( password->string, "none" ) &&
-			strcmp( password->string, value ) != 0 ) {
-			return "Invalid password";
-		}
-	}
+    // we don't check password for bots and local client
+    // NOTE: local client <-> "ip" "localhost"
+    //   this means this client is not running in our current process
+    if ((strcmp(ip, "localhost") != 0)) {
+        // check for a password
+        value = Info_ValueForKey(userinfo, "password");
+        if (password->string[0] && Q_stricmp(password->string, "none") && strcmp(password->string, value) != 0) {
+            return "Invalid password";
+        }
+    }
 
-	ent->client = game.clients + clientNum;
-	client = ent->client;
+    ent->client = game.clients + clientNum;
+    client      = ent->client;
 
-	// read or initialize the session data
-	if ( firstTime )
-	{
-		memset( client, 0, sizeof( *client ) );
-		G_InitSessionData( client, userinfo );
-	}
-	else
-	{
-		G_ReadSessionData( client );
-	}
+    // read or initialize the session data
+    if (firstTime) {
+        memset(client, 0, sizeof(*client));
+        G_InitSessionData(client, userinfo);
+    } else {
+        G_ReadSessionData(client);
+    }
 
-	Q_strncpyz( client->pers.ip, ip, sizeof( client->pers.ip ) );
-	client->pers.port = atoi( port );
+    Q_strncpyz(client->pers.ip, ip, sizeof(client->pers.ip));
+    client->pers.port = atoi(port);
 
-	G_ClientUserinfoChanged( ent, userinfo );
+    G_ClientUserinfoChanged(ent, userinfo);
 
 #if 0
 	if( isBot )
@@ -926,17 +897,15 @@ const char *G_ClientConnect( int clientNum, qboolean firstTime ) {
 	}
 #endif
 
-	// don't do the "xxx connected" messages if they were caried over from previous level
-	if ( firstTime && g_gametype->integer )
-	{
-		if( dedicated->integer )
-		{
-			gi.Printf( "%s is preparing for deployment\n", client->pers.netname );
-		}
+    // don't do the "xxx connected" messages if they were caried over from previous level
+    if (firstTime && g_gametype->integer) {
+        if (dedicated->integer) {
+            gi.Printf("%s is preparing for deployment\n", client->pers.netname);
+        }
 
-		G_PrintToAllClients( va( "%s is preparing for deployment\n", client->pers.netname ) );
-	}
-	return NULL;
+        G_PrintToAllClients(va("%s is preparing for deployment\n", client->pers.netname));
+    }
+    return NULL;
 }
 
 /*
@@ -948,68 +917,53 @@ to be placed into the level.  This will happen every level load,
 and on transition between teams, but doesn't happen on respawns
 ============
 */
-void G_ClientBegin( gentity_t *ent, usercmd_t *cmd )
+void G_ClientBegin(gentity_t *ent, usercmd_t *cmd)
 {
-	try
-	{
-		assert( ent->s.number < game.maxclients );
-		assert( ent->client != NULL );
+    try {
+        assert(ent->s.number < game.maxclients);
+        assert(ent->client != NULL);
 
-		if( ent->inuse && ent->entity )
-		{
-			VectorClear(ent->client->cmd_angles);
-			// the client has cleared the client side viewangles upon
-			// connecting to the server, which is different than the
-			// state when the game is saved, so we need to compensate
-			// with deltaangles
-			ent->entity->SetDeltaAngles();
-		}
-		else
-		{
-			// a spawn point will completely reinitialize the entity
-			level.spawn_entnum = ent->s.number;
+        if (ent->inuse && ent->entity) {
+            VectorClear(ent->client->cmd_angles);
+            // the client has cleared the client side viewangles upon
+            // connecting to the server, which is different than the
+            // state when the game is saved, so we need to compensate
+            // with deltaangles
+            ent->entity->SetDeltaAngles();
+        } else {
+            // a spawn point will completely reinitialize the entity
+            level.spawn_entnum = ent->s.number;
 
-			if( level.m_bSpawnBot )
-			{
-				level.m_bSpawnBot = false;
-				PlayerBot *player = new PlayerBot;
-			}
-			else
-			{
-				Player *player = new Player;
-			}
-		}
+            if (level.m_bSpawnBot) {
+                level.m_bSpawnBot = false;
+                PlayerBot *player = new PlayerBot;
+            } else {
+                Player *player = new Player;
+            }
+        }
 
-		if( level.intermissiontime && ent->entity )
-		{
-			G_MoveClientToIntermission( ent->entity );
-		}
-		else
-		{
-			ent->client->pers.enterTime = level.svsFloatTime;
+        if (level.intermissiontime && ent->entity) {
+            G_MoveClientToIntermission(ent->entity);
+        } else {
+            ent->client->pers.enterTime = level.svsFloatTime;
 
-			if( g_gametype->integer )
-			{
-				// send effect if in a multiplayer game
-				if( dedicated->integer )
-				{
-					gi.Printf( "%s has entered the battle\n", ent->client->pers.netname );
-				}
+            if (g_gametype->integer) {
+                // send effect if in a multiplayer game
+                if (dedicated->integer) {
+                    gi.Printf("%s has entered the battle\n", ent->client->pers.netname);
+                }
 
-				G_PrintToAllClients( va( "%s has entered the battle\n", ent->client->pers.netname ) );
-			}
-		}
+                G_PrintToAllClients(va("%s has entered the battle\n", ent->client->pers.netname));
+            }
+        }
 
-		// make sure all view stuff is valid
-		if( ent->entity )
-		{
-			ent->entity->EndFrame();
-		}
-	}
-	catch( const char *error )
-	{
-		G_ExitWithError( error );
-	}
+        // make sure all view stuff is valid
+        if (ent->entity) {
+            ent->entity->EndFrame();
+        }
+    } catch (const char *error) {
+        G_ExitWithError(error);
+    }
 }
 
 /*
@@ -1017,30 +971,26 @@ void G_ClientBegin( gentity_t *ent, usercmd_t *cmd )
 G_SetClientConfigString
 ============
 */
-void G_SetClientConfigString(gentity_t* ent)
+void G_SetClientConfigString(gentity_t *ent)
 {
-	int num;
-	const char* string;
+    int         num;
+    const char *string;
 
-	if (!ent)
-	{
-		return;
-	}
+    if (!ent) {
+        return;
+    }
 
-	num = ent - g_entities;
+    num = ent - g_entities;
 
-	if (ent->entity)
-	{
-		Player* pEnt = static_cast<Player*>(ent->entity);
-		string = va("name\\%s\\team\\%i", ent->client->pers.netname, pEnt->GetTeam());
-	}
-	else
-	{
-		// No team
-		string = va("name\\%s\\team\\0", ent->client->pers.netname);
-	}
+    if (ent->entity) {
+        Player *pEnt = static_cast<Player *>(ent->entity);
+        string       = va("name\\%s\\team\\%i", ent->client->pers.netname, pEnt->GetTeam());
+    } else {
+        // No team
+        string = va("name\\%s\\team\\0", ent->client->pers.netname);
+    }
 
-	gi.SetConfigstring(CS_PLAYERS + num, string);
+    gi.SetConfigstring(CS_PLAYERS + num, string);
 }
 
 /*
@@ -1055,26 +1005,24 @@ call gi.DropClient(), which will call this and do
 server system housekeeping.
 ============
 */
-void G_ClientDisconnect( gentity_t *ent ) {
-	try
-	{
-		if ( !ent || ( !ent->client ) || ( !ent->entity ) )
-		{
-			return;
-		}
+void G_ClientDisconnect(gentity_t *ent)
+{
+    try {
+        if (!ent || (!ent->client) || (!ent->entity)) {
+            return;
+        }
 
-		G_PrintToAllClients( va( "%s has left the battle\n", ent->client->pers.netname ) );
+        G_PrintToAllClients(va("%s has left the battle\n", ent->client->pers.netname));
 
-		( ( Player * )ent->entity )->Disconnect();
+        ((Player *)ent->entity)->Disconnect();
 
-		delete ent->entity;
-		ent->entity = NULL;
-	}
+        delete ent->entity;
+        ent->entity = NULL;
+    }
 
-	catch( const char *error )
-	{
-		G_ExitWithError( error );
-	}
+    catch (const char *error) {
+        G_ExitWithError(error);
+    }
 #if 0
 	int			i;
 
@@ -1102,12 +1050,12 @@ void G_ClientDisconnect( gentity_t *ent ) {
 		// They don't get to take powerups with them!
 		// Especially important for stuff like CTF flags
 		TossClientItems( ent );
-#ifdef MISSIONPACK
+#    ifdef MISSIONPACK
 		TossClientPersistantPowerups( ent );
 		if( g_gametype->integer == GT_HARVESTER ) {
 			TossClientCubes( ent );
 		}
-#endif
+#    endif
 
 	}
 
@@ -1131,5 +1079,3 @@ void G_ClientDisconnect( gentity_t *ent ) {
 	}
 #endif
 }
-
-
