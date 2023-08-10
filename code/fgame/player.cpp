@@ -1677,6 +1677,9 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
     bDispLocation = qfalse;
 
     if (attacker == this) {
+        //
+        // Player killed themselves
+        //
         switch (meansofdeath) {
         case MOD_SUICIDE:
             s1 = "took himself out of commision";
@@ -1743,6 +1746,9 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
             G_PrintDeathMessage(s1.c_str(), s2.c_str(), "x", client->pers.netname, this, "s");
         }
     } else if (attacker && attacker->client) {
+        //
+        // Killed by another player
+        //
         Weapon *pAttackerWeap = NULL;
 
         if (attacker->IsSubclassOfPlayer()) {
@@ -1893,6 +1899,9 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
             }
         }
     } else {
+        //
+        // No attacker and not self
+        //
         switch (meansofdeath) {
         case MOD_LAVA:
             s1 = "was burned to a crisp";
@@ -2007,7 +2016,10 @@ void Player::Killed(Event *ev)
     int     location;
     Event  *event;
 
-    // Custom killed event will do the job
+    //
+    // This one is openmohaa-specific
+    //  Custom killed event will do the job
+    //
     if (m_pKilledEvent) {
         event = new Event(m_pKilledEvent);
         for (int i = 1; i <= ev->NumArgs(); i++) {
@@ -2019,7 +2031,7 @@ void Player::Killed(Event *ev)
         return;
     }
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         current_team->AddDeaths(this, 1);
     } else {
         AddDeaths(1);
@@ -2030,9 +2042,7 @@ void Player::Killed(Event *ev)
     meansofdeath = ev->GetInteger(9);
     location     = ev->GetInteger(10);
 
-    pain_type = (meansOfDeath_t)meansofdeath;
-
-    if (attacker) {
+    if (attacker && inflictor) {
         Obituary(attacker, inflictor, meansofdeath, location);
     }
 
@@ -2072,7 +2082,7 @@ void Player::Killed(Event *ev)
     edict->clipmask = MASK_DEADSOLID;
     setContents(CONTENTS_CORPSE);
     setSolidType(SOLID_NOT);
-    setMoveType(MOVETYPE_FLY);
+    setMoveType(MOVETYPE_TOSS);
 
     angles.x = 0;
     angles.z = 0;
@@ -2091,6 +2101,10 @@ void Player::Killed(Event *ev)
 
     if (g_voiceChat->integer) {
         if (m_voiceType == PVT_ALLIED_MANON) {
+            //
+            // manon_death doesn't exist in 2.0 anymore.
+            // The code is left just in case
+            //
             Sound("manon_death", CHAN_VOICE, -1.0f, 160, NULL, -1.0f, 1, 0, 1, 1200);
         } else {
             Sound("player_death");
@@ -2099,6 +2113,16 @@ void Player::Killed(Event *ev)
         Sound("player_death");
     }
 
+    if (m_fPainBlend) {
+        //
+        // 2.0: No more pain animation after death
+        //
+        animdone_Pain = true;
+    }
+
+    //
+    // Openmohaa scripted events
+    //
     event = new Event;
 
     event->AddEntity(ev->GetEntity(1));
@@ -2208,10 +2232,15 @@ void Player::KilledPlayerInDeathmatch(Player *killed)
     } else {
         pDMTeam = killed->GetDM_Team();
 
-        if (pDMTeam != GetDM_Team() || g_gametype->integer <= GT_FFA || g_gametype->integer > GT_OBJECTIVE) {
+        if (pDMTeam != GetDM_Team() || g_gametype->integer <= GT_FFA || g_gametype->integer >= GT_MAX_GAME_TYPE) {
             current_team->AddKills(this, 1);
         } else {
+            //
+            // A teammate was killed
+            //
             current_team->AddKills(this, -1);
+
+            num_team_kills++;
         }
 
         gi.SendServerCommand(
