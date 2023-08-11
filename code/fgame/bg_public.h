@@ -545,8 +545,8 @@ movement on the server game.
         STAT_MAXCLIPAMMO,
         STAT_INZOOM,
         STAT_CROSSHAIR,
-        STAT_LAST_PAIN,
-        STAT_UNUSED_2,
+		STAT_LAST_PAIN,
+		STAT_NEXTHEALTH, // was unused until 2.0
         STAT_BOSSHEALTH,
         STAT_CINEMATIC,
         STAT_ADDFADE,
@@ -557,14 +557,15 @@ movement on the server game.
         STAT_OBJECTIVECENTER,
         STAT_TEAM,
         STAT_KILLS,
-        STAT_DEATHS,
-        STAT_UNUSED_3,
-        STAT_UNUSED_4,
+		STAT_DEATHS,
+		STAT_VEHICLE_HEALTH, // was unused until 2.0
+		STAT_VEHICLE_MAX_HEALTH, // was unused until 2.0
         STAT_HIGHEST_SCORE,
         STAT_ATTACKERCLIENT,
         STAT_INFOCLIENT,
         STAT_INFOCLIENT_HEALTH,
         STAT_DAMAGEDIR,
+        STAT_SECONDARY_AMMO, // added in 2.0
         STAT_LAST_STAT
     } playerstat_t;
 
