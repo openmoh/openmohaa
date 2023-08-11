@@ -88,7 +88,7 @@ public:
 
 	virtual void P_ThinkActive();
 	virtual void P_UserAim(usercmd_t* cmd);
-	qboolean UserAim(usercmd_s* ucmd);
+	qboolean UserAim(usercmd_t* ucmd);
 	virtual void TurretBeginUsed(Sentient* pEnt);
 	virtual void P_TurretBeginUsed(Player* pEnt);
 	virtual void TurretEndUsed(void);
