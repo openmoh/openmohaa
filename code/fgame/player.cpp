@@ -1807,7 +1807,7 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
                 if (pAttackerWeap->GetWeaponClass() & WEAPON_CLASS_PISTOL) {
                     s1 = "was gunned down by";
                 } else if (pAttackerWeap->GetWeaponClass() & WEAPON_CLASS_RIFLE) {
-                    if (pAttackerWeap->m_iZoom) {
+                    if (pAttackerWeap->GetZoom()) {
                         s1 = "was sniped by";
                     } else {
                         s1 = "was rifled by";
