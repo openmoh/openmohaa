@@ -176,6 +176,7 @@ inline void Animate::Archive(Archiver& arc)
     arc.ArchiveFloat(&syncTime);
     arc.ArchiveFloat(&syncRate);
     arc.ArchiveInteger(&pauseSyncTime);
+    arc.ArchiveBool(&is_paused);
     for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
         arc.ArchiveEventPointer(&doneEvents[i]);
     }
@@ -186,6 +187,7 @@ inline void Animate::Archive(Archiver& arc)
         arc.ArchiveFloat(&frametimes[i]);
     }
     arc.ArchiveVector(&frame_delta);
+    arc.ArchiveFloat(&angular_delta);
 }
 
 inline void Animate::SlotChanged(int slot)
