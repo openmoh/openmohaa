@@ -327,6 +327,7 @@ typedef struct gameImport_s
 	void ( *Anim_Delta )( dtiki_t *tiki, int animNum, float *delta );
 	qboolean ( *Anim_HasDelta )( dtiki_t *tiki, int animNum );
 	void ( *Anim_DeltaOverTime )( dtiki_t *tiki, int animNum, float time1, float time2, float *delta );
+	void ( *Anim_AngularDeltaOverTime )( dtiki_t *tiki, int animNum, float time1, float time2, float *delta );
 	int ( *Anim_Flags )( dtiki_t *tiki, int animNum );
 	int ( *Anim_FlagsSkel )( dtiki_t *tiki, int animNum );
 	qboolean ( *Anim_HasCommands )( dtiki_t *tiki, int animNum );

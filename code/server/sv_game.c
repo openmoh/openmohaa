@@ -698,6 +698,16 @@ void PF_Anim_DeltaOverTime( dtiki_t *tiki, int iAnimnum, float fTime1, float fTi
 
 /*
 ===============
+PF_Anim_AngularDeltaOverTime
+===============
+*/
+void PF_Anim_AngularDeltaOverTime(dtiki_t* tiki, int iAnimnum, float fTime1, float fTime2, float * fDelta)
+{
+	TIKI_Anim_AngularDeltaOverTime(tiki, iAnimnum, fTime1, fTime2, fDelta);
+}
+
+/*
+===============
 PF_Anim_Flags
 ===============
 */
@@ -1569,6 +1579,7 @@ void SV_InitGameProgs( void ) {
 	import.Anim_Delta					= PF_Anim_Delta;
 	import.Anim_HasDelta				= PF_Anim_HasDelta;
 	import.Anim_DeltaOverTime			= PF_Anim_DeltaOverTime;
+	import.Anim_AngularDeltaOverTime	= PF_Anim_AngularDeltaOverTime;
 	import.Anim_Flags					= PF_Anim_Flags;
 	import.Anim_FlagsSkel				= PF_Anim_FlagsSkel;
 	import.Anim_HasCommands				= PF_Anim_HasCommands;
