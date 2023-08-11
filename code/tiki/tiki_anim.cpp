@@ -359,11 +359,23 @@ qboolean TIKI_Anim_HasDelta( dtiki_t *pmdl, int animnum )
 TIKI_Anim_DeltaOverTime
 ===============
 */
-void TIKI_Anim_DeltaOverTime( dtiki_t *pTiki, int iAnimnum, float fTime1, float fTime2, float *vDelta )
+void TIKI_Anim_DeltaOverTime( dtiki_t *pTiki, int iAnimnum, float fTime1, float fTime2, vec3_t vDelta )
 {
 	int realAnimIndex;
 	skelAnimDataGameHeader_t *animData;
 	SkelVec3 absDelta;
+
+	if (!pTiki || !pTiki->a) {
+		return;
+	}
+
+	if (iAnimnum >= pTiki->a->num_anims || iAnimnum < 0) {
+		return;
+	}
+
+	if (fTime2 < fTime1) {
+		return;
+	}
 
 	realAnimIndex = pTiki->a->m_aliases[ iAnimnum ];
 	if( realAnimIndex != -1 )
@@ -376,6 +388,43 @@ void TIKI_Anim_DeltaOverTime( dtiki_t *pTiki, int iAnimnum, float fTime1, float 
 	{
 		TIKI_Error( "Skeletor GetDeltaOverTime: Couldn't find animation with index %i\n", iAnimnum );
 		VectorClear( vDelta );
+	}
+}
+
+/*
+===============
+TIKI_Anim_AngularDeltaOverTime
+===============
+*/
+void TIKI_Anim_AngularDeltaOverTime(dtiki_t* pTiki, int iAnimnum, float fTime1, float fTime2, float* fDelta)
+{
+	int realAnimIndex;
+	skelAnimDataGameHeader_t* animData;
+
+	*fDelta = 0;
+
+	if (!pTiki || !pTiki->a) {
+		return;
+	}
+
+	if (iAnimnum >= pTiki->a->num_anims || iAnimnum < 0) {
+		return;
+	}
+
+	if (fTime2 < fTime1) {
+		return;
+	}
+
+	realAnimIndex = pTiki->a->m_aliases[iAnimnum];
+	if (realAnimIndex != -1)
+	{
+		animData = SkeletorCacheGetData(realAnimIndex);
+		*fDelta = animData->GetAngularDeltaOverTime(fTime1, fTime2);
+	}
+	else
+	{
+		TIKI_Error("Skeletor GetAngularDeltaOverTime: Couldn't find animation with index %i\n", iAnimnum);
+		*fDelta = 0;
 	}
 }
 
