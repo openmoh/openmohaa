@@ -30,688 +30,557 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "gibs.h"
 #include "scriptexception.h"
 
-Event EV_VehicleTurretGun_SetBaseEntity
-	(
-	"setbaseentity",
-	EV_DEFAULT,
-	"e",
-	"base_entity",
-	"Sets the base entity to take its orientation from."
-	);
+Event EV_VehicleTurretGun_SetBaseEntity(
+    "setbaseentity", EV_DEFAULT, "e", "base_entity", "Sets the base entity to take its orientation from."
+);
 
-Event EV_VehicleTurretGun_RemoveOnDeath
-	(
-	"removeondeath",
-	EV_DEFAULT,
-	"i",
-	"removeondeath",
-	"If set to a non-zero value, vehicles will not be removed when they die"
-	);
+Event EV_VehicleTurretGun_RemoveOnDeath(
+    "removeondeath",
+    EV_DEFAULT,
+    "i",
+    "removeondeath",
+    "If set to a non-zero value, vehicles will not be removed when they die"
+);
 
-Event EV_VehicleTurretGun_SetCollisionEntity
-	(
-	"setcollisionentity",
-	EV_DEFAULT,
-	"e",
-	"entity",
-	"Sets the Collision Entity."
-	);
+Event EV_VehicleTurretGun_SetCollisionEntity(
+    "setcollisionentity", EV_DEFAULT, "e", "entity", "Sets the Collision Entity."
+);
 
-Event EV_VehicleTurretGun_Lock
-	(
-	"lock",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"The Turret can not be used."
-	);
+Event EV_VehicleTurretGun_Lock("lock", EV_DEFAULT, NULL, NULL, "The Turret can not be used.");
 
-Event EV_VehicleTurretGun_Unlock
-	(
-	"unlock",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"The Turret Can be used."
-	);
+Event EV_VehicleTurretGun_Unlock("unlock", EV_DEFAULT, NULL, NULL, "The Turret Can be used.");
 
-Event EV_VehicleTurretGun_SoundSet
-	(
-	"SoundSet",
-	EV_DEFAULT,
-	"s",
-	"soundset",
-	"Sets the Sound Set to use."
-	);
+Event EV_VehicleTurretGun_SoundSet("SoundSet", EV_DEFAULT, "s", "soundset", "Sets the Sound Set to use.");
 
-Event EV_VehicleTurretGun_CollisionEntitySetter
-	(
-	"collisionent",
-	EV_DEFAULT,
-	"s",
-	"entity",
-	"Sets the Collision Entity",
-	EV_SETTER
-	);
+Event EV_VehicleTurretGun_CollisionEntitySetter(
+    "collisionent", EV_DEFAULT, "s", "entity", "Sets the Collision Entity", EV_SETTER
+);
 
-Event EV_VehicleTurretGun_CollisionEntityGetter
-	(
-	"collisionent",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Gets the Collision Entity",
-	EV_GETTER
-	);
+Event EV_VehicleTurretGun_CollisionEntityGetter(
+    "collisionent", EV_DEFAULT, NULL, NULL, "Gets the Collision Entity", EV_GETTER
+);
 
-CLASS_DECLARATION( TurretGun, VehicleTurretGun, NULL )
-{
-	{ &EV_Item_DropToFloor,								&VehicleTurretGun::PlaceTurret },
-	{ &EV_Item_Pickup,									NULL },
-	{ &EV_Touch,										NULL },
-	{ &EV_Use,											&VehicleTurretGun::TurretUsed },
-	{ &EV_VehicleTurretGun_SetBaseEntity,				&VehicleTurretGun::SetBaseEntity },
-	{ &EV_VehicleTurretGun_RemoveOnDeath,				&VehicleTurretGun::EventRemoveOnDeath },
-	{ &EV_VehicleTurretGun_SetCollisionEntity,			&VehicleTurretGun::EventSetCollisionModel },
-	{ &EV_Damage,										&VehicleTurretGun::EventDamage },
-	{ &EV_Killed,										&VehicleTurretGun::EventKilled },
-	{ &EV_Turret_TurnSpeed,								&VehicleTurretGun::EventTurnSpeed },
-	{ &EV_VehicleTurretGun_Lock,						&VehicleTurretGun::EventLock },
-	{ &EV_VehicleTurretGun_Unlock,						&VehicleTurretGun::EventUnlock },
-	{ &EV_VehicleTurretGun_SoundSet,					&VehicleTurretGun::SetSoundSet },
-	{ &EV_VehicleTurretGun_CollisionEntitySetter,		&VehicleTurretGun::EventSetCollisionModel },
-	{ &EV_VehicleTurretGun_CollisionEntityGetter,		&VehicleTurretGun::EventGetCollisionModel },
-	{ NULL, NULL }
+CLASS_DECLARATION(TurretGun, VehicleTurretGun, NULL) {
+    {&EV_Item_DropToFloor,                       &VehicleTurretGun::PlaceTurret           },
+    {&EV_Item_Pickup,                            NULL                                     },
+    {&EV_Touch,                                  NULL                                     },
+    {&EV_Use,                                    &VehicleTurretGun::TurretUsed            },
+    {&EV_VehicleTurretGun_SetBaseEntity,         &VehicleTurretGun::SetBaseEntity         },
+    {&EV_VehicleTurretGun_RemoveOnDeath,         &VehicleTurretGun::EventRemoveOnDeath    },
+    {&EV_VehicleTurretGun_SetCollisionEntity,    &VehicleTurretGun::EventSetCollisionModel},
+    {&EV_Damage,                                 &VehicleTurretGun::EventDamage           },
+    {&EV_Killed,                                 &VehicleTurretGun::EventKilled           },
+    {&EV_Turret_TurnSpeed,                       &VehicleTurretGun::EventTurnSpeed        },
+    {&EV_VehicleTurretGun_Lock,                  &VehicleTurretGun::EventLock             },
+    {&EV_VehicleTurretGun_Unlock,                &VehicleTurretGun::EventUnlock           },
+    {&EV_VehicleTurretGun_SoundSet,              &VehicleTurretGun::SetSoundSet           },
+    {&EV_VehicleTurretGun_CollisionEntitySetter, &VehicleTurretGun::EventSetCollisionModel},
+    {&EV_VehicleTurretGun_CollisionEntityGetter, &VehicleTurretGun::EventGetCollisionModel},
+    {NULL,                                       NULL                                     }
 };
 
 // FIXME
 
 VehicleTurretGun::VehicleTurretGun()
 {
-	entflags |= EF_VEHICLETURRET;
+    entflags |= EF_VEHICLETURRET;
 
-	if( LoadingSavegame )
-	{
-		return;
-	}
+    if (LoadingSavegame) {
+        return;
+    }
 
-	edict->s.eType = ET_MODELANIM;
-	setRespawn( false );
-	respondto = TRIGGER_PLAYERS | TRIGGER_MONSTERS;
-	edict->clipmask = MASK_VEHICLETURRET;
-	m_iIdleHitCount = 0;
-	m_bUsable = true;
-	m_bPlayerUsable = true;
-	m_bRestable = false;
-	m_fIdlePitchSpeed = 0;
-	takedamage = DAMAGE_NO;
-	health = 100.0f;
-	max_health = 100.0f;
-	setSize( Vector( -16, -16, 0 ), Vector( 16, 16, 32 ) );
-	m_fTurnSpeed = 1001.0f;
-	m_fPitchUpCap = -45.0f;
-	m_fPitchDownCap = 45.0f;
-	m_fMaxYawOffset = 180.0f;
-	m_fUserDistance = 64.0f;
-	m_vIdleCheckOffset = Vector( -56, 0, 0 );
-	m_bBOIsSet = false;
-	m_iFiring = 0;
-	m_fFireToggleTime = 0;
-	m_pBaseEntity = NULL;
-	m_vLastBaseAngles = vec_zero;
-	m_vBaseAngles = vec_zero;
-	m_vBarrelPos = origin;
-	m_vLastBarrelPos = origin;
-	m_bUseRemoteControl = false;
-	m_pVehicleOwner = NULL;
-	m_bRemoveOnDeath = true;
-	m_eSoundState = ST_OFF;
-	m_bLocked = true;
-	m_fNextSoundState = level.time;
-	m_sSoundSet = "";
+    edict->s.eType = ET_MODELANIM;
+    setRespawn(false);
+    respondto         = TRIGGER_PLAYERS | TRIGGER_MONSTERS;
+    edict->clipmask   = MASK_VEHICLETURRET;
+    m_iIdleHitCount   = 0;
+    m_bUsable         = true;
+    m_bPlayerUsable   = true;
+    m_bRestable       = false;
+    m_fIdlePitchSpeed = 0;
+    takedamage        = DAMAGE_NO;
+    health            = 100.0f;
+    max_health        = 100.0f;
+    setSize(Vector(-16, -16, 0), Vector(16, 16, 32));
+    m_fTurnSpeed        = 1001.0f;
+    m_fPitchUpCap       = -45.0f;
+    m_fPitchDownCap     = 45.0f;
+    m_fMaxYawOffset     = 180.0f;
+    m_fUserDistance     = 64.0f;
+    m_vIdleCheckOffset  = Vector(-56, 0, 0);
+    m_bBOIsSet          = false;
+    m_iFiring           = 0;
+    m_fFireToggleTime   = 0;
+    m_pBaseEntity       = NULL;
+    m_vLastBaseAngles   = vec_zero;
+    m_vBaseAngles       = vec_zero;
+    m_vBarrelPos        = origin;
+    m_vLastBarrelPos    = origin;
+    m_bUseRemoteControl = false;
+    m_pVehicleOwner     = NULL;
+    m_bRemoveOnDeath    = true;
+    m_eSoundState       = ST_OFF;
+    m_bLocked           = true;
+    m_fNextSoundState   = level.time;
+    m_sSoundSet         = "";
 }
 
 VehicleTurretGun::~VehicleTurretGun()
 {
-	Unregister( STRING_ONTARGET );
+    Unregister(STRING_ONTARGET);
 
-	if( m_pCollisionEntity )
-	{
-		m_pCollisionEntity->PostEvent( EV_Remove, 0 );
-	}
+    if (m_pCollisionEntity) {
+        m_pCollisionEntity->PostEvent(EV_Remove, 0);
+    }
 
-	entflags &= ~EF_VEHICLETURRET;
+    entflags &= ~EF_VEHICLETURRET;
 }
 
-void VehicleTurretGun::Think
-	(
-	void
-	)
+void VehicleTurretGun::Think(void)
 {
-	// FIXME: stub
+    // FIXME: stub
 }
 
-void VehicleTurretGun::SetBaseOrientation
-	(
-	float( *borientation )[ 3 ],
-	float *bangles
-	)
+void VehicleTurretGun::SetBaseOrientation(float (*borientation)[3], float *bangles)
 {
-	m_bBOIsSet = true;
+    m_bBOIsSet = true;
 
-	VectorCopy( borientation[ 0 ], m_mBaseOrientation[ 0 ] );
-	VectorCopy( borientation[ 1 ], m_mBaseOrientation[ 1 ] );
-	VectorCopy( borientation[ 2 ], m_mBaseOrientation[ 2 ] );
-	m_vLastBaseAngles = m_vBaseAngles;
-	if( bangles )
-	{
-		m_vBaseAngles = bangles;
-	}
-	else
-	{
-		MatrixToEulerAngles( borientation,m_vBaseAngles );
-	}
+    VectorCopy(borientation[0], m_mBaseOrientation[0]);
+    VectorCopy(borientation[1], m_mBaseOrientation[1]);
+    VectorCopy(borientation[2], m_mBaseOrientation[2]);
+    m_vLastBaseAngles = m_vBaseAngles;
+    if (bangles) {
+        m_vBaseAngles = bangles;
+    } else {
+        MatrixToEulerAngles(borientation, m_vBaseAngles);
+    }
 
-	flags |= FL_THINK;
+    flags |= FL_THINK;
 }
 
-void VehicleTurretGun::SetBaseEntity
-	(
-	Entity *e
-	)
+void VehicleTurretGun::SetBaseEntity(Entity *e)
 {
-	m_pBaseEntity = e;
-	m_vLastBaseAngles = m_vBaseAngles;
+    m_pBaseEntity     = e;
+    m_vLastBaseAngles = m_vBaseAngles;
 
-	if( e )
-	{
-		m_vBaseAngles = e->angles;
-	}
-	else
-	{
-		m_vBaseAngles = vec_zero;
-	}
+    if (e) {
+        m_vBaseAngles = e->angles;
+    } else {
+        m_vBaseAngles = vec_zero;
+    }
 
-	flags |= FL_THINK;
+    flags |= FL_THINK;
 }
 
-void VehicleTurretGun::SetVehicleOwner
-	(
-	Entity *e
-	)
+void VehicleTurretGun::SetVehicleOwner(Entity *e)
 {
-	m_pVehicleOwner = e;
+    m_pVehicleOwner = e;
 }
 
-void VehicleTurretGun::SetRemoteOwner
-	(
-	Sentient *e
-	)
+void VehicleTurretGun::SetRemoteOwner(Sentient *e)
 {
-	m_bUseRemoteControl = true;
-	m_pRemoteOwner = e;
+    m_bUseRemoteControl = true;
+    m_pRemoteOwner      = e;
 }
 
-void VehicleTurretGun::RemoteControl
-	(
-	usercmd_t *ucmd,
-	Sentient *owner
-	)
-{
+void VehicleTurretGun::RemoteControl(usercmd_t *ucmd, Sentient *owner) {}
 
+void VehicleTurretGun::CollisionCorrect(trace_t *pTr) {}
+
+void VehicleTurretGun::UpdateOrientation(bool bCollisionCheck) {}
+
+void VehicleTurretGun::UpdateSound(void)
+{
+    if (level.time < m_fNextSoundState) {
+        return;
+    }
+
+    float fDiff = AngleSubtract(m_vTargetAngles[1], m_vLocalAngles[1]);
+
+    switch (m_eSoundState) {
+    case ST_OFF:
+        StopLoopSound();
+        m_fNextSoundState = level.time;
+        if (fabs(fDiff) > 0.5f) {
+            m_eSoundState = ST_OFF_TRANS_IDLE;
+        }
+        break;
+
+    case ST_OFF_TRANS_IDLE:
+        m_eSoundState     = ST_IDLE_TRANS_OFF;
+        m_fNextSoundState = level.time;
+        LoopSound(m_sSoundSet + "snd_move");
+        break;
+
+    case ST_IDLE_TRANS_OFF:
+        m_fNextSoundState = level.time;
+        if (fabs(fDiff) < 0.5f) {
+            m_eSoundState = ST_IDLE;
+        }
+
+        LoopSound(m_sSoundSet + "snd_move");
+        break;
+
+    case ST_IDLE:
+        m_eSoundState     = ST_OFF;
+        m_fNextSoundState = level.time;
+        LoopSound(m_sSoundSet + "snd_move");
+        break;
+
+    default:
+        // FIXME: default sound?
+        break;
+    }
 }
 
-void VehicleTurretGun::CollisionCorrect
-	(
-	trace_t *pTr
-	)
+void VehicleTurretGun::UpdateOwner(Sentient *pOwner)
 {
-
+    // FIXME: stub
+    STUB();
 }
 
-void VehicleTurretGun::UpdateOrientation
-	(
-	bool bCollisionCheck
-	)
+void VehicleTurretGun::SetBaseEntity(Event *ev)
 {
-
+    SetBaseEntity(ev->GetEntity(1));
 }
 
-void VehicleTurretGun::UpdateSound
-	(
-	void
-	)
+void VehicleTurretGun::PlaceTurret(Event *ev)
 {
-	if( level.time < m_fNextSoundState )
-	{
-		return;
-	}
+    setSolidType(SOLID_BBOX);
+    edict->r.contents = CONTENTS_UNKNOWN2;
+    setMoveType(MOVETYPE_NONE);
+    showModel();
+    groundentity = NULL;
+    m_fStartYaw  = angles[1];
+    flags |= FL_THINK;
+    m_vLastBaseAngles = angles;
+    m_vBaseAngles     = angles;
 
-	float fDiff = AngleSubtract( m_vTargetAngles[ 1 ], m_vLocalAngles[ 1 ] );
+    if (m_vBaseAngles.length() != 0.0f) {
+        AnglesToAxis(m_vBaseAngles, m_mBaseOrientation);
+        m_bBOIsSet = true;
+    }
 
-	switch( m_eSoundState )
-	{
-	case ST_OFF:
-		StopLoopSound();
-		m_fNextSoundState = level.time;
-		if( fabs( fDiff ) > 0.5f )
-		{
-			m_eSoundState = ST_OFF_TRANS_IDLE;
-		}
-		break;
+    m_iPitchBone = gi.Tag_NumForName(edict->tiki, "pitch");
+    SetControllerTag(0, m_iPitchBone);
+    m_iBarrelTag = gi.Tag_NumForName(edict->tiki, "tag_barrel");
+    m_iEyeBone   = gi.Tag_NumForName(edict->tiki, "eyebone");
 
-	case ST_OFF_TRANS_IDLE:
-		m_eSoundState = ST_IDLE_TRANS_OFF;
-		m_fNextSoundState = level.time;
-		LoopSound( m_sSoundSet + "snd_move" );
-		break;
-
-	case ST_IDLE_TRANS_OFF:
-		m_fNextSoundState = level.time;
-		if( fabs( fDiff ) < 0.5f )
-		{
-			m_eSoundState = ST_IDLE;
-		}
-
-		LoopSound( m_sSoundSet + "snd_move" );
-		break;
-
-	case ST_IDLE:
-		m_eSoundState = ST_OFF;
-		m_fNextSoundState = level.time;
-		LoopSound( m_sSoundSet + "snd_move" );
-		break;
-
-	default:
-		// FIXME: default sound?
-		break;
-	}
+    if (m_pRemoteOwner || owner) {
+        if (m_pRemoteOwner) {
+            UpdateOwner(m_pRemoteOwner);
+        } else {
+            UpdateOwner(owner);
+        }
+    }
 }
 
-void VehicleTurretGun::UpdateOwner
-	(
-	Sentient *pOwner
-	)
+void VehicleTurretGun::TurretBeginUsed(Sentient *pEnt)
 {
-	// FIXME: stub
-	STUB();
+    if (m_pVehicleOwner) {
+        Vehicle *pVehicle = (Vehicle *)m_pVehicleOwner.Pointer();
+        int      slot     = pVehicle->FindTurretSlotByEntity(this);
+
+        pVehicle->UpdateTurretSlot(slot);
+        m_vBaseAngles = m_pVehicleOwner->angles;
+    }
+
+    owner = pEnt;
+
+    edict->r.ownerNum = pEnt->entnum;
+    m_bHadOwner       = true;
+
+    Sound(sPickupSound);
+
+    owner->SetViewAngles(m_vBaseAngles);
+
+    m_vUserViewAng    = m_vBaseAngles;
+    m_vUserViewAng[0] = AngleNormalize180(m_vUserViewAng[0]);
+    m_vUserLastCmdAng = vec_zero;
+
+    setAngles(m_vBaseAngles);
+
+    if (owner->IsSubclassOfPlayer()) {
+        Player *player = (Player *)owner.Pointer();
+
+        player->EnterTurret(this);
+
+        if (!m_pUserCamera) {
+            m_pUserCamera = new Camera;
+        }
+
+        player->SetCamera(m_pUserCamera, 0.0f);
+        m_pUserCamera->setAngles(m_vBaseAngles);
+    }
+
+    UpdateOwner(owner);
+    flags &= ~FL_THINK;
+    current_attachToTag = "";
+    ForceIdle();
+    CreateViewModel();
 }
 
-void VehicleTurretGun::SetBaseEntity
-	(
-	Event *ev
-	)
+void VehicleTurretGun::TurretEndUsed(void)
 {
-	SetBaseEntity( ev->GetEntity( 1 ) );
+    if (owner->IsSubclassOfPlayer()) {
+        Player *player = (Player *)owner.Pointer();
+
+        if (m_pUserCamera) {
+            player->SetCamera(NULL, 0);
+            player->ZoomOff();
+            m_pUserCamera->PostEvent(EV_Remove, 0);
+            m_pUserCamera = NULL;
+        }
+
+        player->ExitTurret();
+        DeleteViewModel();
+    }
+
+    owner             = NULL;
+    edict->r.ownerNum = ENTITYNUM_NONE;
+    m_fIdlePitchSpeed = 0;
+    m_iIdleHitCount   = 0;
+    m_iFiring         = 0;
 }
 
-void VehicleTurretGun::PlaceTurret
-	(
-	Event *ev
-	)
+void VehicleTurretGun::TurretUsed(Sentient *pEnt)
 {
-	setSolidType( SOLID_BBOX );
-	edict->r.contents = CONTENTS_UNKNOWN2;
-	setMoveType( MOVETYPE_NONE );
-	showModel();
-	groundentity = NULL;
-	m_fStartYaw = angles[ 1 ];
-	flags |= FL_THINK;
-	m_vLastBaseAngles = angles;
-	m_vBaseAngles = angles;
-
-	if( m_vBaseAngles.length() != 0.0f )
-	{
-		AnglesToAxis( m_vBaseAngles, m_mBaseOrientation );
-		m_bBOIsSet = true;
-	}
-
-	m_iPitchBone = gi.Tag_NumForName( edict->tiki, "pitch" );
-	SetControllerTag( 0, m_iPitchBone );
-	m_iBarrelTag = gi.Tag_NumForName( edict->tiki, "tag_barrel" );
-	m_iEyeBone = gi.Tag_NumForName( edict->tiki, "eyebone" );
-
-	if( m_pRemoteOwner || owner )
-	{
-		if( m_pRemoteOwner )
-			UpdateOwner( m_pRemoteOwner );
-		else
-			UpdateOwner( owner );
-	}
+    if (owner) {
+        if (owner == pEnt) {
+            TurretEndUsed();
+            m_iFiring = 0;
+        }
+    } else {
+        TurretBeginUsed(pEnt);
+    }
 }
 
-void VehicleTurretGun::TurretBeginUsed
-	(
-	Sentient *pEnt
-	)
+void VehicleTurretGun::TurretUsed(Event *ev)
 {
-	if( m_pVehicleOwner )
-	{
-		Vehicle *pVehicle = ( Vehicle * )m_pVehicleOwner.Pointer();
-		int slot = pVehicle->FindTurretSlotByEntity( this );
+    Sentient *pEnt = (Sentient *)ev->GetEntity(1);
 
-		pVehicle->UpdateTurretSlot( slot );
-		m_vBaseAngles = m_pVehicleOwner->angles;
-	}
+    if (!pEnt || !pEnt->IsSubclassOfSentient()) {
+        return;
+    }
 
-	owner = pEnt;
+    if (!m_bUsable || m_bLocked) {
+        return;
+    }
 
-	edict->r.ownerNum = pEnt->entnum;
-	m_bHadOwner = true;
+    if (pEnt->IsSubclassOfPlayer() && !m_bPlayerUsable) {
+        return;
+    }
 
-	Sound( sPickupSound );
-
-	owner->SetViewAngles( m_vBaseAngles );
-
-	m_vUserViewAng = m_vBaseAngles;
-	m_vUserViewAng[ 0 ] = AngleNormalize180( m_vUserViewAng[ 0 ] );
-	m_vUserLastCmdAng = vec_zero;
-
-	setAngles( m_vBaseAngles );
-
-	if( owner->IsSubclassOfPlayer() )
-	{
-		Player *player = ( Player * )owner.Pointer();
-
-		player->EnterTurret( this );
-
-		if( !m_pUserCamera ) {
-			m_pUserCamera = new Camera;
-		}
-
-		player->SetCamera( m_pUserCamera, 0.0f );
-		m_pUserCamera->setAngles( m_vBaseAngles );
-	}
-
-	UpdateOwner( owner );
-	flags &= ~FL_THINK;
-	current_attachToTag = "";
-	ForceIdle();
-	CreateViewModel();
+    TurretUsed(pEnt);
 }
 
-void VehicleTurretGun::TurretEndUsed
-	(
-	void
-	)
+void VehicleTurretGun::EventKilled(Event *ev)
 {
-	if( owner->IsSubclassOfPlayer() )
-	{
-		Player *player = ( Player * )owner.Pointer();
+    Entity *ent;
+    Entity *attacker;
 
-		if( m_pUserCamera )
-		{
-			player->SetCamera( NULL, 0 );
-			player->ZoomOff();
-			m_pUserCamera->PostEvent( EV_Remove, 0 );
-			m_pUserCamera = NULL;
-		}
+    deadflag = DEAD_DEAD;
+    Unregister(STRING_DEATH);
 
-		player->ExitTurret();
-		DeleteViewModel();
-	}
+    if (!m_bRemoveOnDeath) {
+        return;
+    }
 
-	owner = NULL;
-	edict->r.ownerNum = ENTITYNUM_NONE;
-	m_fIdlePitchSpeed = 0;
-	m_iIdleHitCount = 0;
-	m_iFiring = 0;
+    takedamage = DAMAGE_NO;
+    setSolidType(SOLID_NOT);
+    hideModel();
+
+    attacker = ev->GetEntity(1);
+
+    if (flags & FL_DIE_EXPLODE) {
+        CreateExplosion(origin, 150 * edict->s.scale, this, this, this);
+    }
+
+    if (flags & FL_DIE_GIBS) {
+        setSolidType(SOLID_NOT);
+        hideModel();
+        CreateGibs(this, -150, edict->s.scale, 3);
+    }
+
+    if (*killtarget) {
+        ent = NULL;
+        while ((ent = (Entity *)G_FindTarget(ent, killtarget)) != NULL) {
+            ent->PostEvent(EV_Remove, 0);
+        }
+    }
+
+    if (*target) {
+        ent = NULL;
+        while ((ent = (Entity *)G_FindTarget(ent, target)) != NULL) {
+            ent->ProcessEvent(EV_Activate);
+        }
+    }
+
+    PostEvent(EV_Remove, 0);
 }
 
-void VehicleTurretGun::TurretUsed
-	(
-	Sentient *pEnt
-	)
+void VehicleTurretGun::EventDamage(Event *ev)
 {
-	if( owner )
-	{
-		if( owner == pEnt )
-		{
-			TurretEndUsed();
-			m_iFiring = 0;
-		}
-	}
-	else
-	{
-		TurretBeginUsed( pEnt );
-	}
+    Event *event = new Event(ev);
+
+    if (owner) {
+        owner->ProcessEvent(event);
+        return;
+    }
+
+    if (m_pVehicleOwner) {
+        m_pVehicleOwner->ProcessEvent(event);
+        return;
+    }
+
+    if (!m_bUseRemoteControl) {
+        DamageEvent(event);
+        return;
+    }
+
+    if (m_pRemoteOwner && m_pRemoteOwner->IsSubclassOfPlayer()) {
+        Player *player = (Player *)m_pRemoteOwner.Pointer();
+
+        if (player->m_pVehicle) {
+            player->m_pVehicle->ProcessEvent(event);
+            return;
+        }
+    }
 }
 
-void VehicleTurretGun::TurretUsed
-	(
-	Event *ev
-	)
+void VehicleTurretGun::EventRemoveOnDeath(Event *ev)
 {
-	Sentient *pEnt = ( Sentient *)ev->GetEntity( 1 );
-
-	if( !pEnt || !pEnt->IsSubclassOfSentient() )
-	{
-		return;
-	}
-
-	if( !m_bUsable || m_bLocked )
-	{
-		return;
-	}
-
-	if( pEnt->IsSubclassOfPlayer() && !m_bPlayerUsable )
-	{
-		return;
-	}
-
-	TurretUsed( pEnt );
+    m_bRemoveOnDeath = ev->GetBoolean(1);
 }
 
-void VehicleTurretGun::EventKilled
-	(
-	Event *ev
-	)
+void VehicleTurretGun::EventSetCollisionModel(Event *ev)
 {
-	Entity *ent;
-	Entity *attacker;
+    Entity *pColEnt = ev->GetEntity(1);
 
-	deadflag = DEAD_DEAD;
-	Unregister( STRING_DEATH );
-	
-	if( !m_bRemoveOnDeath )
-	{
-		return;
-	}
+    if (!pColEnt) {
+        ScriptError("Trying to set a collision model with a NULL entity.");
+    }
 
-	takedamage = DAMAGE_NO;
-	setSolidType( SOLID_NOT );
-	hideModel();
+    if (m_pCollisionEntity) {
+        m_pCollisionEntity->PostEvent(EV_Remove, EV_VEHICLE);
+    }
 
-	attacker = ev->GetEntity( 1 );
+    m_pCollisionEntity = new VehicleCollisionEntity(this);
+    m_pCollisionEntity->setModel(pColEnt->model);
 
-	if( flags & FL_DIE_EXPLODE )
-	{
-		CreateExplosion( origin, 150 * edict->s.scale, this, this, this );
-	}
+    if (!m_pCollisionEntity->model.length() || *m_pCollisionEntity->model != '*') {
+        // Re-post the event with the correct time
+        m_pCollisionEntity->CancelEventsOfType(EV_Remove);
+        m_pCollisionEntity->PostEvent(EV_Remove, EV_VEHICLE);
+        m_pCollisionEntity = NULL;
 
-	if( flags & FL_DIE_GIBS )
-	{
-		setSolidType( SOLID_NOT );
-		hideModel();
-		CreateGibs( this, -150, edict->s.scale, 3 );
-	}
+        ScriptError("Model for Entity not of a valid type. Must be B-Model.");
+    }
 
-	if( *killtarget )
-	{
-		ent = NULL;
-		while( ( ent = ( Entity * )G_FindTarget( ent, killtarget ) ) != NULL )
-		{
-			ent->PostEvent( EV_Remove, 0 );
-		}
-	}
-
-	if( *target )
-	{
-		ent = NULL;
-		while( ( ent = ( Entity * )G_FindTarget( ent, target ) ) != NULL )
-		{
-			ent->ProcessEvent( EV_Activate );
-		}
-	}
-
-	PostEvent( EV_Remove, 0 );
+    m_pCollisionEntity->setOrigin(origin);
+    m_pCollisionEntity->setAngles(angles);
 }
 
-void VehicleTurretGun::EventDamage
-	(
-	Event *ev
-	)
+void VehicleTurretGun::EventGetCollisionModel(Event *ev)
 {
-	Event *event = new Event( ev );
-
-	if( owner )
-	{
-		owner->ProcessEvent( event );
-		return;
-	}
-
-	if( m_pVehicleOwner )
-	{
-		m_pVehicleOwner->ProcessEvent( event );
-		return;
-	}
-
-	if( !m_bUseRemoteControl )
-	{
-		DamageEvent( event );
-		return;
-	}
-
-	if( m_pRemoteOwner && m_pRemoteOwner->IsSubclassOfPlayer() )
-	{
-		Player *player = ( Player * )m_pRemoteOwner.Pointer();
-
-		if( player->m_pVehicle )
-		{
-			player->m_pVehicle->ProcessEvent( event );
-			return;
-		}
-	}
+    ev->AddEntity(m_pCollisionEntity);
 }
 
-void VehicleTurretGun::EventRemoveOnDeath
-	(
-	Event *ev
-	)
+void VehicleTurretGun::EventTurnSpeed(Event *ev)
 {
-	m_bRemoveOnDeath = ev->GetBoolean( 1 );
+    TurnSpeed(ev->GetFloat(1));
 }
 
-void VehicleTurretGun::EventSetCollisionModel
-	(
-	Event *ev
-	)
+void VehicleTurretGun::EventLock(Event *ev)
 {
-	Entity *pColEnt = ev->GetEntity( 1 );
-
-	if( !pColEnt )
-	{
-		ScriptError( "Trying to set a collision model with a NULL entity." );
-	}
-
-	if( m_pCollisionEntity )
-	{
-		m_pCollisionEntity->PostEvent( EV_Remove, EV_VEHICLE );
-	}
-
-	m_pCollisionEntity = new VehicleCollisionEntity( this );
-	m_pCollisionEntity->setModel( pColEnt->model );
-
-	if( !m_pCollisionEntity->model.length() || *m_pCollisionEntity->model != '*' )
-	{
-		// Re-post the event with the correct time
-		m_pCollisionEntity->CancelEventsOfType( EV_Remove );
-		m_pCollisionEntity->PostEvent( EV_Remove, EV_VEHICLE );
-		m_pCollisionEntity = NULL;
-
-		ScriptError( "Model for Entity not of a valid type. Must be B-Model." );
-	}
-
-	m_pCollisionEntity->setOrigin( origin );
-	m_pCollisionEntity->setAngles( angles );
+    Lock();
 }
 
-void VehicleTurretGun::EventGetCollisionModel
-	(
-	Event *ev
-	)
+void VehicleTurretGun::EventUnlock(Event *ev)
 {
-	ev->AddEntity( m_pCollisionEntity );
+    UnLock();
 }
 
-void VehicleTurretGun::EventTurnSpeed
-	(
-	Event *ev
-	)
+void VehicleTurretGun::SetSoundSet(Event *ev)
 {
-	TurnSpeed( ev->GetFloat( 1 ) );
+    m_sSoundSet = ev->GetString(1);
 }
 
-void VehicleTurretGun::EventLock
-	(
-	Event *ev
-	)
+bool VehicleTurretGun::TurretHasBeenMounted()
 {
-	Lock();
+    // FIXME: unimplemented
+    return false;
 }
 
-void VehicleTurretGun::EventUnlock
-	(
-	Event *ev
-	)
+bool VehicleTurretGun::isLocked(void)
 {
-	UnLock();
+    return m_bLocked;
 }
 
-void VehicleTurretGun::SetSoundSet
-	(
-	Event *ev
-	)
+void VehicleTurretGun::Lock(void)
 {
-	m_sSoundSet = ev->GetString( 1 );
+    m_bLocked = true;
 }
 
-bool VehicleTurretGun::isLocked
-	(
-	void
-	)
+void VehicleTurretGun::UnLock(void)
 {
-	return m_bLocked;
+    m_bLocked = false;
 }
 
-void VehicleTurretGun::Lock
-	(
-	void
-	)
+bool VehicleTurretGun::UseRemoteControl(void)
 {
-	m_bLocked = true;
+    return m_bUseRemoteControl;
 }
 
-void VehicleTurretGun::UnLock
-	(
-	void
-	)
+void VehicleTurretGun::RestrictPitch()
 {
-	m_bLocked = false;
+    // FIXME: unimplemented
 }
 
-bool VehicleTurretGun::UseRemoteControl
-	(
-	void
-	)
+void VehicleTurretGun::RestrictYaw()
 {
-	return m_bUseRemoteControl;
+    // FIXME: unimplemented
 }
 
-Sentient* VehicleTurretGun::GetRemoteOwner
-	(
-	void
-	)
+void VehicleTurretGun::UpdateRemoteControl()
 {
-	return m_pRemoteOwner;
+    // FIXME: unimplemented
+}
+
+void VehicleTurretGun::UpdateAimTarget()
+{
+    // FIXME: unimplemented
+}
+
+Entity *VehicleTurretGun::GetParent() const
+{
+    // FIXME: unimplemented
+    return NULL;
+}
+
+SentientPtr VehicleTurretGun::GetRemoteOwner(void)
+{
+    return m_pRemoteOwner;
+}
+
+SentientPtr VehicleTurretGun::GetSentientOwner()
+{
+    // FIXME: unimplemented
+    return m_pRemoteOwner;
+}
+
+void VehicleTurretGun::EndRemoteControl()
+{
+    // FIXME: unimplemented
+}
+
+float VehicleTurretGun::GetWarmupFraction() const
+{
+    // FIXME: unimplemented
+    return 0;
+}
+
+void VehicleTurretGun::Archive(Archiver& arc)
+{
+    // FIXME: unimplemented
 }
