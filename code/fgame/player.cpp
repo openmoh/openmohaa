@@ -51,6 +51,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "weapturret.h"
 #include "vehicleturret.h"
 #include "portableturret.h"
+#include "fixedturret.h"
 
 const Vector power_color(0.0, 1.0, 0.0);
 const Vector acolor(1.0, 1.0, 1.0);
@@ -5376,13 +5377,14 @@ void Player::SetPlayerView(
 #define EARTHQUAKE_SCREENSHAKE_YAW   2
 #define EARTHQUAKE_SCREENSHAKE_ROLL  3
 
-    if (level.earthquake_magnitude > 0.0f) {
+    if (level.earthquake_magnitude != 0.0f) {
         client->ps.damage_angles[PITCH] = G_CRandom() * level.earthquake_magnitude * EARTHQUAKE_SCREENSHAKE_PITCH;
         client->ps.damage_angles[YAW]   = G_CRandom() * level.earthquake_magnitude * EARTHQUAKE_SCREENSHAKE_YAW;
         client->ps.damage_angles[ROLL]  = G_CRandom() * level.earthquake_magnitude * EARTHQUAKE_SCREENSHAKE_ROLL;
     } else if (damage_count) {
-        client->ps.damage_angles[PITCH] = damage_angles[PITCH] * damage_count;
-        client->ps.damage_angles[ROLL]  = damage_angles[ROLL] * damage_count;
+        client->ps.damage_angles[PITCH] = damage_angles[PITCH];
+        client->ps.damage_angles[YAW]   = damage_angles[YAW];
+        client->ps.damage_angles[ROLL]  = damage_angles[ROLL] ;
     } else {
         VectorClear(client->ps.damage_angles);
     }
@@ -5393,8 +5395,7 @@ void Player::SetPlayerView(
                 continue;
             }
 
-            client->ps.damage_angles[i] +=
-                ((rand() & 0x7FFF) * 0.00003f + (rand() & 0x7FFF) * 0.00003f - 1.0f) * m_vViewVariation[i];
+            client->ps.damage_angles[i] += G_CRandom() * m_vViewVariation[i];
 
             m_vViewVariation[i] = m_vViewVariation[i] - m_vViewVariation[i] * level.frametime * 8.0f;
 
@@ -5596,32 +5597,33 @@ void Player::SetupView(void)
             }
         }
     }
-
-    if (IsSpectator() && m_iPlayerSpectating != 0) {
-        gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
-
-        if (ent->inuse && ent->entity && ent->entity->deadflag <= DEAD_DYING) {
-            Player *m_player = (Player *)ent->entity;
-            Vector  vAngles;
-
-            m_player->GetPlayerView(NULL, &vAngles);
-
-            SetPlayerView(
-                (Camera *)m_player,
-                m_player->origin,
-                m_player->viewheight,
-                vAngles,
-                m_player->velocity,
-                blend,
-                m_player->fov
-            );
-            return;
-        }
-    }
-
+   
     // If there is no camera, use the player's view
-    if (!camera) {
-        SetPlayerView(NULL, origin, viewheight, v_angle, velocity, blend, fov);
+	if (!camera) {
+		if (g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator() && m_iPlayerSpectating != 0) {
+			gentity_t* ent = g_entities + m_iPlayerSpectating - 1;
+
+			if (ent->inuse && ent->entity && ent->entity->deadflag <= DEAD_DYING) {
+				Player* m_player = (Player*)ent->entity;
+				Vector  vAngles;
+
+				m_player->GetPlayerView(NULL, &vAngles);
+
+				SetPlayerView(
+					(Camera*)m_player,
+					m_player->origin,
+					m_player->viewheight,
+					vAngles,
+					m_player->velocity,
+					blend,
+					m_player->fov
+				);
+			} else {
+                SetPlayerView(NULL, origin, viewheight, v_angle, velocity, blend, fov);
+            }
+		} else {
+            SetPlayerView(NULL, origin, viewheight, v_angle, velocity, blend, fov);
+        }
     } else {
         SetPlayerView(camera, origin, viewheight, v_angle, velocity, blend, camera->Fov());
     }
@@ -5748,6 +5750,12 @@ PlayerAngles
 */
 void Player::PlayerAngles(void)
 {
+    if (getMoveType() == MOVETYPE_PORTABLE_TURRET)
+    {
+        // Addition in 2.0
+        //  FIXME: Set viewangles from m_pTurret
+    }
+
     PmoveAdjustAngleSettings(v_angle, angles, &client->ps, &edict->s);
 
     SetViewAngles(v_angle);
@@ -5897,12 +5905,18 @@ void Player::UpdateStats(void)
 {
     int    i, count;
     Vector vObjectiveLocation;
+    float healthfrac;
+    float healfrac;
 
     //
     // Health
     //
 
     if (g_spectatefollow_firstperson->integer && IsSpectator() && m_iPlayerSpectating != 0) {
+        //
+        // Openmohaa addition
+        // First-person spectate
+        //
         gentity_t *ent = g_entities + (m_iPlayerSpectating - 1);
 
         if (ent->inuse && ent->entity && ent->entity->deadflag <= DEAD_DYING) {
@@ -5911,7 +5925,7 @@ void Player::UpdateStats(void)
         }
     }
 
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         client->ps.stats[STAT_TEAM]              = TEAM_ALLIES;
         client->ps.stats[STAT_KILLS]             = 0;
         client->ps.stats[STAT_DEATHS]            = 0;
@@ -5932,7 +5946,7 @@ void Player::UpdateStats(void)
             client->ps.stats[STAT_DEATHS] = num_deaths;
         }
 
-        if (g_gametype->integer <= GT_FFA) {
+        if (g_gametype->integer < GT_TEAM) {
             gentity_t *ent;
             int        i;
             int        bestKills = -9999;
@@ -5960,7 +5974,7 @@ void Player::UpdateStats(void)
 
         if (!pAttackerDistPointer) {
             client->ps.stats[STAT_ATTACKERCLIENT] = -1;
-        } else if (fAttackerDispTime <= level.time && !deadflag) {
+        } else if (fAttackerDispTime <= level.time && deadflag == DEAD_NO) {
             pAttackerDistPointer                  = NULL;
             client->ps.stats[STAT_ATTACKERCLIENT] = -1;
         } else {
@@ -5970,11 +5984,11 @@ void Player::UpdateStats(void)
         client->ps.stats[STAT_INFOCLIENT]        = -1;
         client->ps.stats[STAT_INFOCLIENT_HEALTH] = 0;
 
-        if (IsSpectator() || g_gametype->integer > GT_FFA) {
-            if (IsSpectator() && m_iPlayerSpectating) {
+        if (IsSpectator() || g_gametype->integer >= GT_TEAM) {
+            if (m_iPlayerSpectating && IsSpectator()) {
                 gentity_t *ent = g_entities + (m_iPlayerSpectating - 1);
 
-                if (ent->inuse && ent->entity && !deadflag) {
+                if (ent->inuse && ent->entity && deadflag < DEAD_DEAD) {
                     m_iInfoClient       = ent - g_entities;
                     m_iInfoClientHealth = ent->entity->health;
                     m_fInfoClientTime   = level.time;
@@ -5998,9 +6012,9 @@ void Player::UpdateStats(void)
                 trace = G_Trace(m_vViewPos, vec_zero, vec_zero, vEnd, this, MASK_BEAM, qfalse, "infoclientcheck");
 
                 if (trace.ent && trace.ent->entity->IsSubclassOfPlayer()) {
-                    Player *p = (Player *)trace.ent->entity;
+                    Player *p = static_cast<Player*>(trace.ent->entity);
 
-                    if (IsSpectator() || p->dm_team == dm_team) {
+                    if (IsSpectator() || p->GetTeam() == GetTeam()) {
                         m_iInfoClient       = trace.ent - g_entities;
                         m_iInfoClientHealth = p->health;
                         m_fInfoClientTime   = level.time;
@@ -6026,49 +6040,86 @@ void Player::UpdateStats(void)
             }
         }
 
-        if (g_gametype->integer > GT_FFA && !IsDead() && !IsSpectator()) {
-            gentity_t *ent;
-            int        i;
-            Player    *p;
-            float      fNearest = 9999.0f;
-            float      fLength;
+        if (g_gametype->integer < GT_TOW) {
+            vObjectiveLocation = level.m_vObjectiveLocation;
+        }  else {
+            if (GetTeam() == TEAM_AXIS) {
+                vObjectiveLocation = level.m_vAxisObjectiveLocation;
+            }
+            else if (GetTeam() == TEAM_ALLIES) {
+                vObjectiveLocation = level.m_vAlliedObjectiveLocation;
+            }
+        }
 
-            vObjectiveLocation = vec_zero;
+        if (g_protocol < protocol_e::PROTOCOL_MOHTA_MIN && vObjectiveLocation == vec_zero) {
+            //
+            // try to use the nearest teammate instead.
+            // the reason is that mohaa 1.11 and below doesn't have a radar
+            // for teammates
+            //
+            if (g_gametype->integer > GT_FFA && !IsDead() && !IsSpectator()) {
+                gentity_t* ent;
+                int        i;
+                Player* p;
+                float      fNearest = 9999.0f;
+                float      fLength;
 
-            // match the compass direction to the nearest player
-            for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++) {
-                if (!ent->inuse || !ent->client || !ent->entity || ent->entity == this) {
-                    continue;
-                }
+                // match the compass direction to the nearest player
+                for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++) {
+                    if (!ent->inuse || !ent->client || !ent->entity || ent->entity == this) {
+                        continue;
+                    }
 
-                p = (Player *)ent->entity;
-                if (p->IsDead() || p->IsSpectator() || p->dm_team != dm_team) {
-                    continue;
-                }
+                    p = (Player*)ent->entity;
+                    if (p->IsDead() || p->IsSpectator() || p->dm_team != dm_team) {
+                        continue;
+                    }
 
-                fLength = (p->centroid - centroid).length();
+                    fLength = (p->centroid - centroid).length();
 
-                if (fLength < fNearest) {
-                    fNearest           = fLength;
-                    vObjectiveLocation = p->centroid;
+                    if (fLength < fNearest) {
+                        fNearest = fLength;
+                        vObjectiveLocation = p->centroid;
+                    }
                 }
             }
         }
     }
 
-    TurretGun *pTurret = NULL;
+    if (m_pVehicle && !m_pTurret) {
+        client->ps.stats[STAT_VEHICLE_HEALTH] = m_pVehicle->health;
+        client->ps.stats[STAT_VEHICLE_MAX_HEALTH] = m_pVehicle->max_health;
+	}
 
-    if (!m_pVehicle) {
-        pTurret = m_pTurret;
-    }
+    //
+    // Health fraction
+    //
+	healthfrac = (health / max_health * 100.0f);
 
-    if ((health < 1) && (health > 0)) {
-        client->ps.stats[STAT_HEALTH] = 1;
+	if (m_pVehicle && !m_pTurret) {
+		if (m_pVehicle->isSubclassOf(FixedTurret)) {
+			healthfrac = (m_pVehicle->health / m_pVehicle->max_health * 100.f);
+		}
+	}
+
+    if (healthfrac < 1 && healthfrac > 0) healthfrac = 1;
+    if (healthfrac < 0) healthfrac = 0;
+
+    client->ps.stats[STAT_HEALTH] = healthfrac;
+
+    //
+    // Healing
+    //
+    if (m_fHealRate && (!m_pVehicle || m_pTurret || m_pVehicle->isSubclassOf(FixedTurret))) {
+        healfrac = (m_pVehicle->health + m_fHealRate) / m_pVehicle->max_health * 100.f;
     } else {
-        client->ps.stats[STAT_HEALTH] = (int)(health / max_health * 100.0f);
-    }
+        healfrac = 0;
+	}
+	if (healfrac < 1 && healfrac > 0) healfrac = 1;
+	if (healfrac < 0) healfrac = 0;
 
-    client->ps.stats[STAT_MAXHEALTH] = 100;
+	client->ps.stats[STAT_NEXTHEALTH] = healfrac;
+	client->ps.stats[STAT_MAXHEALTH] = 100;
 
     Weapon *activeweap = GetActiveWeapon(WEAPON_MAIN);
 
@@ -6086,11 +6137,23 @@ void Player::UpdateStats(void)
     client->ps.activeItems[4]           = -1;
     client->ps.activeItems[5]           = -1;
 
-    if (pTurret) {
-        client->ps.activeItems[ITEM_WEAPON] = pTurret->getIndex();
+    if (m_pTurret) {
+        client->ps.activeItems[ITEM_WEAPON] = m_pTurret->getIndex();
+        if (getMoveType() == MOVETYPE_PORTABLE_TURRET || getMoveType() == MOVETYPE_TURRET) {
+            // Use the turret's ammo
+            client->ps.stats[STAT_CLIPAMMO] = m_pTurret->ammo_in_clip[FIRE_PRIMARY];
+            client->ps.stats[STAT_MAXCLIPAMMO] = m_pTurret->ammo_clip_size[FIRE_PRIMARY];
+        }
     } else if (activeweap) {
-        client->ps.stats[STAT_AMMO]        = AmmoCount(activeweap->GetAmmoType(FIRE_PRIMARY));
-        client->ps.stats[STAT_MAXAMMO]     = MaxAmmoCount(activeweap->GetAmmoType(FIRE_PRIMARY));
+        if (activeweap->m_bSecondaryAmmoInHud) {
+            client->ps.stats[STAT_AMMO] = AmmoCount(activeweap->GetAmmoType(FIRE_SECONDARY));
+            client->ps.stats[STAT_MAXAMMO] = MaxAmmoCount(activeweap->GetAmmoType(FIRE_SECONDARY));
+            client->ps.stats[STAT_SECONDARY_AMMO] = AmmoCount(activeweap->GetAmmoType(FIRE_PRIMARY));
+        } else {
+            client->ps.stats[STAT_AMMO] = AmmoCount(activeweap->GetAmmoType(FIRE_PRIMARY));
+            client->ps.stats[STAT_MAXAMMO] = MaxAmmoCount(activeweap->GetAmmoType(FIRE_PRIMARY));
+        }
+
         client->ps.stats[STAT_CLIPAMMO]    = activeweap->ClipAmmo(FIRE_PRIMARY);
         client->ps.stats[STAT_MAXCLIPAMMO] = activeweap->GetClipSize(FIRE_PRIMARY);
 
@@ -6107,6 +6170,16 @@ void Player::UpdateStats(void)
         }
 
         client->ps.activeItems[ITEM_WEAPON] = activeweap->getIndex();
+    } else if (m_pVehicle) {
+        Entity* pEnt = m_pVehicle->QueryTurretSlotEntity(0);
+        if (pEnt && pEnt->IsSubclassOfVehicleTurretGun()) {
+            VehicleTurretGun* vt = static_cast<VehicleTurretGun*>(pEnt);
+
+			client->ps.activeItems[ITEM_WEAPON] = vt->getIndex();
+            client->ps.stats[STAT_CLIPAMMO] = vt->ammo_in_clip[FIRE_PRIMARY];
+            client->ps.stats[STAT_MAXCLIPAMMO] = vt->ammo_clip_size[FIRE_PRIMARY];
+            client->ps.stats[STAT_SECONDARY_AMMO] = vt->GetWarmupFraction() * 100.f;
+        }
     }
 
     //
@@ -6200,8 +6273,8 @@ void Player::UpdateStats(void)
 
     client->ps.stats[STAT_CROSSHAIR] =
         ((!client->ps.stats[STAT_INZOOM] || client->ps.stats[STAT_INZOOM] > 30)
-         && (activeweap && !activeweap->IsSubclassOfInventoryItem() && activeweap->HasCrosshair()))
-        || pTurret || (m_pVehicle && m_pVehicle->IsSubclassOfVehicleTank());
+         && (activeweap && !activeweap->IsSubclassOfInventoryItem() && activeweap->GetUseCrosshair()))
+        || m_pTurret || (m_pVehicle && m_pVehicle->IsSubclassOfVehicleTank());
 
     client->ps.stats[STAT_COMPASSNORTH] = ANGLE2SHORT(world->m_fNorth);
 
