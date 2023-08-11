@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,10 +24,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef __ANIMATE_H__
 #define __ANIMATE_H__
 
-#if defined ( GAME_DLL )
-#include "entity.h"
-#elif defined ( CGAME_DLL )
-#include "script/canimate.h"
+#if defined(GAME_DLL)
+#    include "entity.h"
+#elif defined(CGAME_DLL)
+#    include "script/canimate.h"
 #endif
 
 #include "archive.h"
@@ -35,177 +35,177 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern Event EV_SetAnim;
 extern Event EV_SetSyncTime;
 
-#define ANIM_PAUSED				1
-#define ANIM_SYNC				2
-#define ANIM_FINISHED			4
-#define ANIM_NOEXIT				8
-#define ANIM_NODELTA			16
-#define ANIM_LOOP				32
-#define ANIM_NOACTION			64
+#define ANIM_PAUSED                      1
+#define ANIM_SYNC                        2
+#define ANIM_FINISHED                    4
+#define ANIM_NOEXIT                      8
+#define ANIM_NODELTA                     16
+#define ANIM_LOOP                        32
+#define ANIM_NOACTION                    64
 
-#define MINIMUM_DELTA_MOVEMENT 8
-#define MINIMUM_DELTA_MOVEMENT_PER_FRAME ( MINIMUM_DELTA_MOVEMENT / 20.0f )
+#define MINIMUM_DELTA_MOVEMENT           8
+#define MINIMUM_DELTA_MOVEMENT_PER_FRAME (MINIMUM_DELTA_MOVEMENT / 20.0f)
 
-#define FLAGGED_ANIMATE_SLOT		20
+#define FLAGGED_ANIMATE_SLOT             20
 
 class Animate;
 
 typedef SafePtr<Animate> AnimatePtr;
 
-class AnimationEvent : public Event
-{
-private:
-	short	anim_number;
-	short	anim_frame;
-
-public:
-	CLASS_PROTOTYPE( AnimationEvent );
-
-	void *operator new( size_t size );
-	void operator delete( void *ptr );
-
-	AnimationEvent( str name ) : Event( name ) { anim_number = 0; anim_frame = 0; }
-	AnimationEvent( const Event& ev ) : Event( ev ) { anim_number = 0; anim_frame = 0; }
-	AnimationEvent() {}
-
-	void			SetAnimationFrame( int frame ) { anim_frame = frame; };
-	void			SetAnimationNumber( int num ) { anim_number = num; };
-};
-
 class Animate : public Entity
 {
 protected:
-	int			animFlags[ MAX_FRAMEINFOS ];
+    int animFlags[MAX_FRAMEINFOS];
 
-	float		syncTime;
-	float		syncRate;
-	int			pauseSyncTime;
+    float syncTime;
+    float syncRate;
+    int   pauseSyncTime;
+    bool  is_paused;
 
-	Event		*doneEvents[ MAX_FRAMEINFOS ];
+    Event *doneEvents[MAX_FRAMEINFOS];
 
-	float		animtimes[ MAX_FRAMEINFOS ];
-	float		frametimes[ MAX_FRAMEINFOS ];
-
-public:
-	Vector		frame_delta;
+    float animtimes[MAX_FRAMEINFOS];
+    float frametimes[MAX_FRAMEINFOS];
 
 public:
-	CLASS_PROTOTYPE( Animate );
+    Vector frame_delta;
+    float  angular_delta;
 
-	Animate();
-	~Animate();
+public:
+    CLASS_PROTOTYPE(Animate);
 
-	void				DoExitCommands( int slot = 0 );
-	void				NewAnim( int animnum, int slot = 0, float weight = 1.0f );
-	void				NewAnim( int animnum, Event *endevent, int slot = 0, float weight = 1.0f );
-	void				NewAnim( int animnum, Event &endevent, int slot = 0, float weight = 1.0f );
-	void				NewAnim( const char *animname, int slot = 0, float weight = 1.0f );
-	void				NewAnim( const char *animname, Event *endevent, int slot = 0, float weight = 1.0f );
-	void				NewAnim( const char *animname, Event &endevent, int slot = 0, float weight = 1.0f );
-	void				SetFrame( void );
-	qboolean			HasAnim( const char *animname );
-	Event				*AnimDoneEvent( int slot = 0 );
-	void				SetAnimDoneEvent( Event &event, int slot = 0 );
-	void				SetAnimDoneEvent( Event *event, int slot = 0 );
-	int					NumFrames( int slot = 0 );
-	int					NumAnims( void );
-	const char			*AnimName( int slot = 0 );
-	float				AnimTime( int slot = 0 );
-	virtual void AnimFinished( int slot = 0 );
-	void				SetTime( int slot = 0, float time = 0.0f );
-	void				SetNormalTime( int slot = 0, float normal = 1.0f );
-	float				GetTime( int slot = 0 );
-	float				GetNormalTime( int slot = 0 );
-	void				SetWeight( int slot = 0, float weight = 1.0f );
-	float				GetWeight( int slot = 0 );
-	void				SetRepeatType( int slot = 0 );
-	void				SetOnceType( int slot = 0 );
-	void				SetSyncRate( float rate );
-	void				SetSyncTime( float s );
-	void				UseSyncTime(int slot, int sync);
+    Animate();
+    ~Animate();
 
-	void				Pause( int slot = 0, int pause = 1 );
-	void				StopAnimating( int slot = 0 );
-	void				StopAnimatingAtEnd( int slot = 0 );
-	
-	int CurrentAnim( int slot = 0 ) const override;
-	float CurrentTime( int slot = 0 ) const override;
+    void        NewAnim(int animnum, int slot = 0, float weight = 1.0f);
+    void        NewAnim(int animnum, Event *endevent, int slot = 0, float weight = 1.0f);
+    void        NewAnim(int animnum, Event       &endevent, int slot = 0, float weight = 1.0f);
+    void        NewAnim(const char *animname, int slot = 0, float weight = 1.0f);
+    void        NewAnim(const char *animname, Event *endevent, int slot = 0, float weight = 1.0f);
+    void        NewAnim(const char *animname, Event       &endevent, int slot = 0, float weight = 1.0f);
+    void        SetFrame(void);
+    qboolean    HasAnim(const char *animname);
+    Event      *AnimDoneEvent(int slot = 0);
+    void        SetAnimDoneEvent(Event       &event, int slot = 0);
+    void        SetAnimDoneEvent(Event *event, int slot = 0);
+    int         NumAnims(void);
+    const char *AnimName(int slot = 0);
+    float       AnimTime(int slot = 0);
 
-	void PreAnimate( void ) override;
-	void PostAnimate( void ) override;
+    int   CurrentAnim(int slot = 0) const override;
+    float CurrentTime(int slot = 0) const override;
 
-	virtual void DumpAnimInfo( void );
-	
-	void Archive( Archiver &arc ) override;
+    void         Archive(Archiver        &arc) override;
+    virtual void AnimFinished(int slot = 0);
 
-	void				FrameDeltaEvent( Event *ev );
-	void				ForwardExec( Event *ev );
-	void				EventSetSyncTime( Event *ev );
-	void				EventIsLoopingAnim( Event *ev );
-	void				StopAnimating( Event *ev );
+    void  PreAnimate(void) override;
+    void  PostAnimate(void) override;
+    void  SetTime(int slot = 0, float time = 0.0f);
+    void  SetNormalTime(int slot = 0, float normal = 1.0f);
+    float GetTime(int slot = 0);
+    float GetNormalTime(int slot = 0);
+    void  SetWeight(int slot = 0, float weight = 1.0f);
+    float GetWeight(int slot = 0);
+    void  SetRepeatType(int slot = 0);
+    void  SetOnceType(int slot = 0);
+    bool  IsRepeatType(int slot);
+    void  Pause(int slot = 0, int pause = 1);
+    void  StopAnimating(int slot = 0);
+    void  UseSyncTime(int slot, int sync);
+    void  SetSyncTime(float s);
+    float GetSyncTime();
+    void  SetSyncRate(float rate);
+
+    float GetSyncRate();
+    void  PauseSyncTime(int pause);
+    float GetYawOffset();
+    float GetCrossTime(int slot);
+
+    void         DoExitCommands(int slot = 0);
+    void         ForwardExec(Event *ev);
+    void         EventSetSyncTime(Event *ev);
+    void         EventIsLoopingAnim(Event *ev);
+    void         EventSetYawFromBone(Event *ev);
+    void         EventPlayerSpawn(Event *ev);
+    void         EventPlayerSpawnUtility(Event *ev);
+    void         EventPauseAnim(Event *ev);
+    virtual void DumpAnimInfo();
+    void         SlotChanged(int slot);
+
+    // FIXME: delete this, fakk2 remnant
+    int NumFrames(int slot = 0);
 };
 
-extern MEM_BlockAlloc<AnimationEvent> AnimationEvent_allocator;
-
-inline int Animate::CurrentAnim( int slot ) const
+inline void Animate::SetWeight(int slot, float weight)
 {
-	return edict->s.frameInfo[ slot ].index;
+    edict->s.frameInfo[slot].weight = weight;
 }
 
-inline float Animate::CurrentTime( int slot ) const
+inline float Animate::GetWeight(int slot)
 {
-	return edict->s.frameInfo[ slot ].time;
+    return edict->s.frameInfo[slot].weight;
 }
 
-inline int Animate::NumFrames( int slot )
+inline bool Animate::IsRepeatType(int slot)
 {
-	return gi.Anim_NumFrames( edict->tiki, edict->s.frameInfo[ slot ].index );
+    return (animFlags[slot] & ANIM_LOOP) != 0;
 }
 
-inline float Animate::AnimTime( int slot )
+inline float Animate::GetSyncTime()
 {
-	return animtimes[ slot ];
+    return syncTime;
 }
 
-inline int Animate::NumAnims( void )
+inline float Animate::GetSyncRate()
 {
-	return gi.TIKI_NumAnims( edict->tiki );
+    return syncRate;
 }
 
-inline const char *Animate::AnimName( int slot )
+inline void Animate::PauseSyncTime(int pause)
 {
-	return gi.Anim_NameForNum( edict->tiki, edict->s.frameInfo[ slot ].index );
+    pauseSyncTime = pause;
 }
 
-inline Event *Animate::AnimDoneEvent( int slot )
+inline void Animate::Archive(Archiver& arc)
 {
-	return doneEvents[ slot ];
+    Entity::Archive(arc);
+
+    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+        arc.ArchiveInteger(&animFlags[i]);
+    }
+    arc.ArchiveFloat(&syncTime);
+    arc.ArchiveFloat(&syncRate);
+    arc.ArchiveInteger(&pauseSyncTime);
+    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+        arc.ArchiveEventPointer(&doneEvents[i]);
+    }
+    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+        arc.ArchiveFloat(&animtimes[i]);
+    }
+    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+        arc.ArchiveFloat(&frametimes[i]);
+    }
+    arc.ArchiveVector(&frame_delta);
 }
 
-inline void Animate::Archive( Archiver &arc )
+inline void Animate::SlotChanged(int slot)
 {
-	Entity::Archive( arc );
+    animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
+}
 
-	for( int i = MAX_FRAMEINFOS - 1; i >= 0; i-- )
-	{
-		arc.ArchiveInteger( &animFlags[ i ] );
-	}
-	arc.ArchiveFloat( &syncTime );
-	arc.ArchiveFloat( &syncRate );
-	arc.ArchiveInteger( &pauseSyncTime );
-	for( int i = MAX_FRAMEINFOS - 1; i >= 0; i-- )
-	{
-		arc.ArchiveEventPointer( &doneEvents[ i ] );
-	}
-	for( int i = MAX_FRAMEINFOS - 1; i >= 0; i-- )
-	{
-		arc.ArchiveFloat( &animtimes[ i ] );
-	}
-	for( int i = MAX_FRAMEINFOS - 1; i >= 0; i-- )
-	{
-		arc.ArchiveFloat( &frametimes[ i ] );
-	}
-	arc.ArchiveVector( &frame_delta );
+inline float Animate::CurrentTime(int slot) const
+{
+    return edict->s.frameInfo[slot].time;
+}
+
+inline Event *Animate::AnimDoneEvent(int slot)
+{
+    return doneEvents[slot];
+}
+
+inline int Animate::NumFrames(int slot)
+{
+    return gi.Anim_NumFrames(edict->tiki, edict->s.frameInfo[slot].index);
 }
 
 #endif /* animate.h */

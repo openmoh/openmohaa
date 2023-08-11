@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -25,759 +25,862 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "player.h"
 #include "qfiles.h"
 #include "scriptexception.h"
+#include "g_spawn.h"
+#include "animationevent.h"
 #include <tiki.h>
 
+extern Event EV_Entity_Start;
+
 // Leg Animation events
-Event EV_SetAnim
-(
-	"anim",
-	0,
-	"sIF",
-	"animName slot weight",
-	"Exec anim commands on server or client.",
-	EV_NORMAL
+Event EV_SetAnim("anim", EV_ZERO, "s", "animName", "Exec anim commands on server or client.", EV_NORMAL);
+Event EV_SetSyncTime("setsynctime", EV_ZERO, "f", "synctime", "Set sync time for entity.");
+Event EV_SetFrame(
+    "setframe",
+    EV_ZERO,
+    "iS",
+    "frameNumber animName",
+    "Set the frame on the legs, if anim is not specified, current is assumed.",
+    EV_NORMAL
 );
-Event EV_SetSyncTime
-(
-	"setsynctime",
-	0,
-	"f",
-	"synctime",
-	"Set sync time for entity."
+Event EV_AnimDone("animdone", EV_ZERO, NULL, NULL, "Legs animation has finished, not for script use.", EV_NORMAL);
+Event EV_FrameDelta(
+    "setmovedelta", EV_ZERO, "vf", "moveDelta moveTime", "movement from animation, not for script use.", EV_NORMAL
 );
-Event EV_ViewAnim
-(
-	"viewanim",
-	EV_DEFAULT,
-	"s",
-	"anim",
-	"testing"
+Event EV_Torso_Anim("torso_anim", EV_ZERO, "s", "animName", "set the torso animation to animName.", EV_NORMAL);
+Event EV_Torso_SetFrame(
+    "torso_setframe",
+    EV_ZERO,
+    "iS",
+    "frameNumber animName",
+    "Set the frame on the torso, if anim is not specified, current is assumed.",
+    EV_NORMAL
 );
-Event EV_Animate_IsLoopingAnim
-(
-	"isloopinganim",
-	EV_DEFAULT,
-	"s",
-	"anim_name",
-	"returns 1 if the anim is a looping anim, or 0 otherwise",
-	EV_RETURN
+Event EV_Torso_AnimDone(
+    "torso_animdone", EV_ZERO, NULL, NULL, "Torso animation has finished, not for script use.", EV_NORMAL
 );
+Event EV_Torso_StopAnimating(
+    "torso_stopanimating",
+    EV_ZERO,
+    NULL,
+    NULL,
+    "stop the torso from animating.  Animation will end at the end of current cycle.",
+    EV_NORMAL
+);
+Event EV_NewAnim(
+    "animate_newanim", EV_ZERO, "ii", "animNum slot", "Start a new animation, not for script use.", EV_NORMAL
+);
+Event EV_ViewAnim("viewanim", EV_DEFAULT, "s", "anim", "testing");
+Event EV_Animate_IsLoopingAnim(
+    "isloopinganim", EV_DEFAULT, "s", "anim_name", "returns 1 if the anim is a looping anim, or 0 otherwise", EV_RETURN
+);
+Event EV_Animate_SetYawfromBone(
+    "setyawfrombone",
+    EV_DEFAULT,
+    "s",
+    "bone_name",
+    "Set the yaw of the model based on the current animation time",
+    EV_NORMAL
+);
+Event EV_Animate_PlayerSpawn(
+    "playerspawn",
+    EV_DEFAULT,
+    "sFVFF",
+    "model_name range vector_offset inFOV speed",
+    "spawn something near the player, either within the player's view or behind him\n"
+    "model - name of model to spawn\n"
+    "range - how close does this need to be to the player to actually get spawned, default 480 (30 foot radius).\n"
+    "vector_offset - oriented vector offset of where to spawn the item, default (0 0 0)\n"
+    "inFOV - \n"
+    "\t\t1 - Only spawn when this position is within the FOV of the player\n"
+    "\t   -1 - Only spawn when this position is outside the FOV of the player\n"
+    "       0 - (default) don't care, always spawn\n"
+    "speed - how fast the effect should travel, in other words, how long before the effect gets spawned.\n"
+    "\t     delay is calculated based on the distance between object and player divided by the speed\n"
+    "\t   0 - no delay\n"
+    "\t 960 - (default) 60 feet per second.  If the object is 60 feet from the player, the player effect will spawn "
+    "one second later.",
+    EV_NORMAL
+);
+Event EV_Animate_PlayerSpawn_Utility(
+    "testmojo", EV_DEFAULT, "sv", "model_name vector_offset", "INTERNAL EVENT", EV_NORMAL
+);
+Event EV_Animate_PauseAnim("pauseanims", EV_DEFAULT, "i", "pause", "Pause (or unpause) animations");
 
-MEM_BlockAlloc<AnimationEvent> AnimationEvent_allocator;
-
-void *AnimationEvent::operator new( size_t size )
-{
-	return AnimationEvent_allocator.Alloc();
-}
-
-void AnimationEvent::operator delete( void *ptr )
-{
-	return AnimationEvent_allocator.Free( ptr );
-}
-
-CLASS_DECLARATION( Event, AnimationEvent, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(Entity, Animate, "animate") {
+    {&EV_SetControllerAngles,         &Animate::SetControllerAngles    },
+    {&EV_SetAnim,                     &Animate::ForwardExec            },
+    {&EV_SetSyncTime,                 &Animate::EventSetSyncTime       },
+    {&EV_Animate_IsLoopingAnim,       &Animate::EventIsLoopingAnim     },
+    {&EV_Animate_SetYawfromBone,      &Animate::EventSetYawFromBone    },
+    {&EV_Animate_PlayerSpawn,         &Animate::EventPlayerSpawn       },
+    {&EV_Animate_PlayerSpawn_Utility, &Animate::EventPlayerSpawnUtility},
+    {&EV_Animate_PauseAnim,           &Animate::EventPauseAnim         },
+    {NULL,                            NULL                             }
 };
 
 Animate::Animate()
 {
-	entflags |= EF_ANIMATE;
+    entflags |= EF_ANIMATE;
 
-	pauseSyncTime = 0.0f;
-	syncTime = 0.0f;
-	syncRate = 1.0f;
+    pauseSyncTime = 0.0f;
+    syncTime      = 0.0f;
+    syncRate      = 1.0f;
 
-	frame_delta = vec_zero;
+    frame_delta = vec_zero;
 
-	if( !LoadingSavegame )
-	{
-		edict->s.actionWeight = 1.0f;
-		for( int i = 0; i < 16; i++ )
-		{
-			edict->s.frameInfo[ i ].index = 0;
-			edict->s.frameInfo[ i ].time = 0.0f;
-			edict->s.frameInfo[ i ].weight = 0.0f;
+    if (!LoadingSavegame) {
+        edict->s.actionWeight = 1.0f;
+        for (int i = 0; i < 16; i++) {
+            edict->s.frameInfo[i].index  = 0;
+            edict->s.frameInfo[i].time   = 0.0f;
+            edict->s.frameInfo[i].weight = 0.0f;
 
-			animFlags[ i ] = 57;
-			doneEvents[ i ] = NULL;
-			animtimes[ i ] = 0.0f;
-			frametimes[ i ] = 0.0f;
-		}
+            animFlags[i]  = 57;
+            doneEvents[i] = NULL;
+            animtimes[i]  = 0.0f;
+            frametimes[i] = 0.0f;
+        }
 
-		flags |= FL_ANIMATE;
-	}
+        flags |= FL_ANIMATE;
+    }
 }
 
 Animate::~Animate()
 {
-	entflags &= ~EF_ANIMATE;
+    entflags &= ~EF_ANIMATE;
 }
 
-void Animate::Pause( int slot, int pause )
+void Animate::ForwardExec(Event *ev)
 {
-	if( pause )
-	{
-		animFlags[ slot ] |= ANIM_PAUSED;
-	}
-	else
-	{
-		if( ( animFlags[ slot ] & ANIM_PAUSED ) )
-		{
-			if( ( animFlags[ slot ] & ANIM_SYNC ) )
-			{
-				animFlags[ slot ] = ( animFlags[ slot ] | ANIM_NODELTA ) & ~ANIM_FINISHED;
-			}
+    if (!edict->tiki) {
+        ScriptError(
+            "trying to play animation on( entnum: %d, targetname : '%s', classname : '%s' ) which does not have a "
+            "model",
+            entnum,
+            targetname.c_str(),
+            getClassname()
+        );
+    }
 
-			animFlags[ slot ] &= ~ANIM_PAUSED;
-		}
-	}
+
+    NewAnim(ev->GetString(1), 0);
+    RestartAnimSlot(0);
 }
 
-void Animate::StopAnimating( int slot )
+void Animate::SetSyncTime(float s)
 {
-	DoExitCommands( slot );
+    if (s < 0.0f || s > 1.0f) {
+        Com_Printf("\nERROR SetSyncTime:  synctime must be 0 to 1 - attempt to set to %f\n", s);
+        return;
+    }
 
-	if( doneEvents[ slot ] )
-	{
-		delete doneEvents[ slot ];
-		doneEvents[ slot ] = NULL;
-	}
+    syncTime = s;
 
-	CancelFlaggedEvents( 1 << slot );
+    for (int i = 0; i < MAX_FRAMEINFOS; i++) {
+        if (!(animFlags[i] & ANIM_SYNC)) {
+            continue;
+        }
 
-	if( edict->s.frameInfo[ slot ].index || gi.TIKI_NumAnims( edict->tiki ) <= 1 )
-	{
-		edict->s.frameInfo[ slot ].index = 0;
-	}
-	else
-	{
-		edict->s.frameInfo[ slot ].index = 1;
-	}
-
-	edict->s.frameInfo[ slot ].weight = 0.0f;
-
-	animFlags[ slot ] = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT | ANIM_PAUSED;
-	animtimes[ slot ] = 0.0f;
+        SlotChanged(i);
+    }
 }
 
-void Animate::StopAnimatingAtEnd( int slot )
+void Animate::EventSetSyncTime(Event *ev)
 {
+    SetSyncTime(ev->GetFloat(1));
 }
 
-void Animate::DoExitCommands( int slot )
+void Animate::NewAnim(int animnum, int slot, float weight)
 {
-	tiki_cmd_t cmds;
-	AnimationEvent *ev;
+    qboolean        newanim = edict->s.frameInfo[slot].index != animnum;
+    tiki_cmd_t      cmds;
+    float           time;
+    int             numframes;
+    AnimationEvent *ev;
+    int             i;
 
-	if( animFlags[ slot ] & ANIM_NOEXIT ) {
-		return;
-	}
+    if (newanim) {
+        DoExitCommands(slot);
+    }
 
-	// exit the previous animation
-	if( gi.Frame_Commands( edict->tiki, edict->s.frameInfo[ slot ].index, TIKI_FRAME_EXIT, &cmds ) )
-	{
-		int ii, j;
+    if (doneEvents[slot]) {
+        delete doneEvents[slot];
+        doneEvents[slot] = NULL;
+    }
 
-		for( ii = 0; ii < cmds.num_cmds; ii++ )
-		{
-			ev = new AnimationEvent( cmds.cmds[ ii ].args[ 0 ] );
+    CancelFlaggedEvents(1 << slot);
 
-			ev->SetAnimationNumber( edict->s.frameInfo[ slot ].index );
-			ev->SetAnimationFrame( 0 );
+    edict->s.frameInfo[slot].index = animnum;
 
-			for( j = 1; j < cmds.cmds[ ii ].num_args; j++ )
-			{
-				ev->AddToken( cmds.cmds[ ii ].args[ j ] );
-			}
+    animFlags[slot] = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT;
 
-			PostEvent( ev, 0 );
-		}
-	}
+    if (!(gi.Anim_FlagsSkel(edict->tiki, animnum) & ANIM_LOOP)) {
+        animFlags[slot] &= ~ANIM_LOOP;
+    }
 
-	animFlags[ slot ] |= ANIM_NOEXIT;
+    edict->s.frameInfo[slot].weight = weight;
+
+    animtimes[slot]  = gi.Anim_Time(edict->tiki, animnum);
+    frametimes[slot] = gi.Anim_Frametime(edict->tiki, animnum);
+
+    if (edict->s.eType == ET_GENERAL) {
+        edict->s.eType = ET_MODELANIM;
+    }
+
+    qboolean hascommands = gi.Anim_HasCommands(edict->tiki, animnum);
+
+    // enter this animation
+    if (newanim) {
+        if (!hascommands) {
+            return;
+        }
+
+        if (gi.Frame_Commands(edict->tiki, animnum, TIKI_FRAME_ENTRY, &cmds)) {
+            int ii, j;
+
+            for (ii = 0; ii < cmds.num_cmds; ii++) {
+                ev = new AnimationEvent(cmds.cmds[ii].args[0]);
+
+                ev->SetAnimationNumber(animnum);
+                ev->SetAnimationFrame(0);
+
+                for (j = 1; j < cmds.cmds[ii].num_args; j++) {
+                    ev->AddToken(cmds.cmds[ii].args[j]);
+                }
+
+                ProcessEvent(ev);
+            }
+        }
+    }
+
+    if (!hascommands) {
+        return;
+    }
+
+    if (!edict->tiki) {
+        return;
+    }
+
+    time      = 0.0f;
+    numframes = gi.Anim_NumFrames(edict->tiki, animnum);
+
+    for (i = 0; i < numframes; i++, time += frametimes[slot]) {
+        // we want normal frame commands to occur right on the frame
+        if (gi.Frame_Commands(edict->tiki, animnum, i, &cmds)) {
+            int ii, j;
+
+            for (ii = 0; ii < cmds.num_cmds; ii++) {
+                ev = new AnimationEvent(cmds.cmds[ii].args[0]);
+
+                ev->SetAnimationNumber(animnum);
+                ev->SetAnimationFrame(i);
+
+                for (j = 1; j < cmds.cmds[ii].num_args; j++) {
+                    ev->AddToken(cmds.cmds[ii].args[j]);
+                }
+
+                PostEvent(ev, time, 1 << slot);
+            }
+        }
+    }
 }
 
-void Animate::NewAnim( int animnum, int slot, float weight )
+void Animate::NewAnim(int animnum, Event& newevent, int slot, float weight)
 {
-	qboolean			newanim = edict->s.frameInfo[ slot ].index != animnum;
-	tiki_cmd_t			cmds;
-	float				time;
-	int					numframes;
-	AnimationEvent		*ev;
-	int					i;
+    if (animnum == -1) {
+        PostEvent(newevent, level.frametime);
+    }
 
-	if( newanim )
-	{
-		DoExitCommands( slot );
-	}
-
-	if( doneEvents[ slot ] )
-	{
-		delete doneEvents[ slot ];
-		doneEvents[ slot ] = NULL;
-	}
-
-	CancelFlaggedEvents( 1 << slot );
-
-	edict->s.frameInfo[ slot ].index = animnum;
-
-	animFlags[ slot ] = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT;
-
-	if( !( gi.Anim_FlagsSkel( edict->tiki, animnum ) & ANIM_LOOP ) )
-	{
-		animFlags[ slot ] &= ~ANIM_LOOP;
-	}
-
-	edict->s.frameInfo[ slot ].weight = weight;
-
-	animtimes[ slot ] = gi.Anim_Time( edict->tiki, animnum );
-	frametimes[ slot ] = gi.Anim_Frametime( edict->tiki, animnum );
-
-	if( edict->s.eType == ET_GENERAL )
-	{
-		edict->s.eType = ET_MODELANIM;
-	}
-
-	qboolean hascommands = gi.Anim_HasCommands( edict->tiki, animnum );
-
-	// enter this animation
-	if( newanim )
-	{
-		if( !hascommands ) {
-			return;
-		}
-
-		if( gi.Frame_Commands( edict->tiki, animnum, TIKI_FRAME_ENTRY, &cmds ) )
-		{
-			int ii, j;
-
-			for( ii = 0; ii < cmds.num_cmds; ii++ )
-			{
-				ev = new AnimationEvent( cmds.cmds[ ii ].args[ 0 ] );
-
-				ev->SetAnimationNumber( animnum );
-				ev->SetAnimationFrame( 0 );
-
-				for( j = 1; j < cmds.cmds[ ii ].num_args; j++ )
-				{
-					ev->AddToken( cmds.cmds[ ii ].args[ j ] );
-				}
-
-				ProcessEvent( ev );
-			}
-		}
-	}
-
-	if( !hascommands )
-	{
-		return;
-	}
-
-	if( !edict->tiki )
-	{
-		return;
-	}
-
-	time = 0.0f;
-	numframes = gi.Anim_NumFrames( edict->tiki, animnum );
-
-	for( i = 0; i < numframes; i++, time += frametimes[ slot ] )
-	{
-		// we want normal frame commands to occur right on the frame
-		if( gi.Frame_Commands( edict->tiki, animnum, i, &cmds ) )
-		{
-			int ii, j;
-
-			for( ii = 0; ii < cmds.num_cmds; ii++ )
-			{
-				ev = new AnimationEvent( cmds.cmds[ ii ].args[ 0 ] );
-
-				ev->SetAnimationNumber( animnum );
-				ev->SetAnimationFrame( i );
-
-				for( j = 1; j < cmds.cmds[ ii ].num_args; j++ )
-				{
-					ev->AddToken( cmds.cmds[ ii ].args[ j ] );
-				}
-
-				PostEvent( ev, time, 1 << slot );
-			}
-		}
-	}
+    NewAnim(animnum, slot);
+    SetAnimDoneEvent(newevent, slot);
 }
 
-void Animate::NewAnim( int animnum, Event &newevent, int slot, float weight )
+void Animate::NewAnim(int animnum, Event *newevent, int slot, float weight)
 {
-	if( animnum == -1 )
-	{
-		PostEvent( newevent, level.frametime );
-	}
+    if (animnum == -1) {
+        if (newevent) {
+            PostEvent(newevent, level.frametime);
+        }
+    }
 
-	NewAnim( animnum, slot );
-	SetAnimDoneEvent( newevent, slot );
+    NewAnim(animnum, slot);
+    SetAnimDoneEvent(newevent, slot);
 }
 
-void Animate::NewAnim( int animnum, Event *newevent, int slot, float weight )
+void Animate::NewAnim(const char *animname, int slot, float weight)
 {
-	if( animnum == -1 )
-	{
-		if( newevent )
-		{
-			PostEvent( newevent, level.frametime );
-		}
-	}
+    int animnum = gi.Anim_Random(edict->tiki, animname);
 
-	NewAnim( animnum, slot );
-	SetAnimDoneEvent( newevent, slot );
+    if (animnum != -1) {
+        NewAnim(animnum, slot);
+    }
 }
 
-void Animate::NewAnim( const char *animname, int slot, float weight )
+void Animate::NewAnim(const char *animname, Event *endevent, int slot, float weight)
 {
-	int animnum = gi.Anim_Random( edict->tiki, animname );
+    int animnum = gi.Anim_Random(edict->tiki, animname);
 
-	if( animnum != -1 )
-	{
-		NewAnim( animnum, slot );
-	}
+    if (animnum != -1) {
+        NewAnim(animnum, endevent, slot);
+    }
 }
 
-void Animate::NewAnim( const char *animname, Event *endevent, int slot, float weight )
+void Animate::NewAnim(const char *animname, Event& endevent, int slot, float weight)
 {
-	int animnum = gi.Anim_Random( edict->tiki, animname );
+    int animnum = gi.Anim_Random(edict->tiki, animname);
 
-	if( animnum != -1 )
-	{
-		NewAnim( animnum, endevent, slot );
-	}
+    if (animnum != -1) {
+        NewAnim(animnum, endevent, slot);
+    }
 }
 
-void Animate::NewAnim( const char *animname, Event &endevent, int slot, float weight )
+void Animate::SetAnimDoneEvent(Event *event, int slot)
 {
-	int animnum = gi.Anim_Random( edict->tiki, animname );
+    if (doneEvents[slot]) {
+        delete doneEvents[slot];
+    }
 
-	if( animnum != -1 )
-	{
-		NewAnim( animnum, endevent, slot );
-	}
+    doneEvents[slot] = event;
 }
 
-void Animate::FrameDeltaEvent( Event *ev )
+void Animate::SetAnimDoneEvent(Event& event, int slot)
 {
-
+    SetAnimDoneEvent(new Event(event), slot);
 }
 
-void Animate::SetAnimDoneEvent( Event *event, int slot )
+void Animate::SetFrame(void)
 {
-	if( doneEvents[ slot ] )
-	{
-		delete doneEvents[ slot ];
-	}
-
-	doneEvents[ slot ] = event;
+    edict->s.frameInfo[0].time = 0;
+    animFlags[0]               = (animFlags[0] | ANIM_NODELTA) & ~ANIM_FINISHED;
 }
 
-void Animate::SetAnimDoneEvent( Event &event, int slot )
+qboolean Animate::HasAnim(const char *animname)
 {
-	SetAnimDoneEvent( new Event( event ), slot );
+    int num;
+
+    num = gi.Anim_Random(edict->tiki, animname);
+    return (num >= 0);
 }
 
-void Animate::SetFrame( void )
+void Animate::StopAnimating(int slot)
 {
-	edict->s.frameInfo[ 0 ].time = 0;
-	animFlags[ 0 ] = ( animFlags[ 0 ] | ANIM_NODELTA ) & ~ANIM_FINISHED;
+    DoExitCommands(slot);
+
+    if (doneEvents[slot]) {
+        delete doneEvents[slot];
+        doneEvents[slot] = NULL;
+    }
+
+    CancelFlaggedEvents(1 << slot);
+
+    if (edict->s.frameInfo[slot].index || gi.TIKI_NumAnims(edict->tiki) <= 1) {
+        edict->s.frameInfo[slot].index = 0;
+    } else {
+        edict->s.frameInfo[slot].index = 1;
+    }
+
+    edict->s.frameInfo[slot].weight = 0.0f;
+
+    animFlags[slot] = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT | ANIM_PAUSED;
+    animtimes[slot] = 0.0f;
+
+    SlotChanged(slot);
 }
 
-qboolean Animate::HasAnim( const char *animname )
+void Animate::DoExitCommands(int slot)
 {
-	int num;
+    tiki_cmd_t      cmds;
+    AnimationEvent *ev;
 
-	num = gi.Anim_Random( edict->tiki, animname );
-	return ( num >= 0 );
+    if (animFlags[slot] & ANIM_NOEXIT) {
+        return;
+    }
+
+    // exit the previous animation
+    if (gi.Frame_Commands(edict->tiki, edict->s.frameInfo[slot].index, TIKI_FRAME_EXIT, &cmds)) {
+        int ii, j;
+
+        for (ii = 0; ii < cmds.num_cmds; ii++) {
+            ev = new AnimationEvent(cmds.cmds[ii].args[0]);
+
+            ev->SetAnimationNumber(edict->s.frameInfo[slot].index);
+            ev->SetAnimationFrame(0);
+
+            for (j = 1; j < cmds.cmds[ii].num_args; j++) {
+                ev->AddToken(cmds.cmds[ii].args[j]);
+            }
+
+            PostEvent(ev, 0);
+        }
+    }
+
+    animFlags[slot] |= ANIM_NOEXIT;
 }
 
-void Animate::AnimFinished( int slot )
+int Animate::CurrentAnim(int slot) const
 {
-	animFlags[ slot ] &= ~ANIM_FINISHED;
-
-	if( doneEvents[ slot ] )
-	{
-		Event *ev = doneEvents[ slot ];
-		doneEvents[ slot ] = NULL;
-
-		ProcessEvent( ev );
-	}
+    return edict->s.frameInfo[slot].index;
 }
 
-float Animate::GetTime( int slot )
+float Animate::AnimTime(int slot)
 {
-	return edict->s.frameInfo[ slot ].time;
+    return animtimes[slot];
 }
 
-void Animate::SetNormalTime( int slot, float normal )
+int Animate::NumAnims(void)
 {
-	if( normal < 0.0f || normal > 1.0f )
-	{
-		Com_Printf( "ERROR:  Animate::SetNormalTime: Normal must be between 0 and 1\n" );
-	}
-	else
-	{
-		edict->s.frameInfo[ slot ].time = animtimes[ slot ] * normal;
-	}
+    return gi.TIKI_NumAnims(edict->tiki);
 }
 
-float Animate::GetNormalTime( int slot )
+const char *Animate::AnimName(int slot)
 {
-	return edict->s.frameInfo[ slot ].time / animtimes[ slot ];
+    return gi.Anim_NameForNum(edict->tiki, edict->s.frameInfo[slot].index);
 }
 
-void Animate::SetWeight( int slot, float weight )
+void Animate::AnimFinished(int slot)
 {
-	edict->s.frameInfo[ slot ].weight = weight;
+    animFlags[slot] &= ~ANIM_FINISHED;
+
+    if (doneEvents[slot]) {
+        Event *ev        = doneEvents[slot];
+        doneEvents[slot] = NULL;
+
+        ProcessEvent(ev);
+    }
 }
 
-float Animate::GetWeight( int slot )
+void Animate::PreAnimate(void)
 {
-	return edict->s.frameInfo[ slot ].weight;
+    int i;
+
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
+        if (animFlags[i] & ANIM_FINISHED) {
+            AnimFinished(i);
+        }
+    }
 }
 
-void Animate::SetRepeatType( int slot )
+void Animate::PostAnimate(void)
 {
-	animFlags[ slot ] |= ANIM_LOOP;
+	float  startTime;
+	float  deltaSyncTime;
+	float  total_weight;
+	float  total_angular_delta;
+	Vector vFrameDelta;
+	bool   hasAction = false;
+
+    if (!edict->tiki) {
+        return;
+    }
+
+    deltaSyncTime = syncTime;
+
+    if (!pauseSyncTime) {
+        syncTime = 1.0f / syncRate * level.frametime + deltaSyncTime;
+    }
+
+    total_weight = 0;
+    total_angular_delta = 0;
+
+    for (int i = 0; i < MAX_FRAMEINFOS; i++) {
+        if (edict->s.frameInfo[i].weight > 0.0f) {
+            if (!(animFlags[i] & ANIM_NOACTION)) {
+                hasAction = true;
+            }
+        }
+
+        if (animFlags[i] & ANIM_PAUSED) {
+            continue;
+        }
+
+        if (animFlags[i] & ANIM_SYNC) {
+            startTime                  = deltaSyncTime * animtimes[i];
+            edict->s.frameInfo[i].time = animtimes[i] * syncTime;
+        } else {
+            startTime = edict->s.frameInfo[i].time;
+            edict->s.frameInfo[i].time += level.frametime;
+        }
+
+        if (animtimes[i] == 0.0f) {
+            animFlags[i] &= ~ANIM_NODELTA;
+            animFlags[i] |= ANIM_FINISHED;
+            RestartAnimSlot(i);
+        } else {
+            if (!(animFlags[i] & ANIM_NODELTA)) {
+                if (gi.Anim_HasDelta(edict->tiki, edict->s.frameInfo[i].index)) {
+                    float vDelta[3];
+                    float angleDelta;
+
+                    //
+                    // Get the animation's delta position from start time
+                    //
+                    gi.Anim_DeltaOverTime(edict->tiki, edict->s.frameInfo[i].index, startTime, edict->s.frameInfo[i].time, vDelta);
+                    vFrameDelta += Vector(vDelta) * edict->s.frameInfo[i].weight;
+                    total_weight += edict->s.frameInfo[i].weight;
+
+                    //
+                    // Get the animation's delta angle from start time
+                    //
+                    gi.Anim_AngularDeltaOverTime(edict->tiki, edict->s.frameInfo[i].index, startTime, edict->s.frameInfo[i].time, &angleDelta);
+                    total_angular_delta += angleDelta * edict->s.frameInfo[i].weight;
+
+                }
+            }
+
+            animFlags[i] &= ~ANIM_NODELTA;
+
+            float animTime;
+            if (animFlags[i] & ANIM_SYNC) {
+                animTime = animtimes[i];
+            } else {
+                animTime = animtimes[i] - 0.01f;
+            }
+
+            if (edict->s.frameInfo[i].time >= animTime) {
+                if (animFlags[i] & ANIM_LOOP) {
+                    animFlags[i] |= ANIM_FINISHED;
+
+                    do {
+                        edict->s.frameInfo[i].time -= animtimes[i];
+                    } while (edict->s.frameInfo[i].time >= animtimes[i]);
+
+                    if (edict->s.frameInfo[i].time < 0) {
+                        edict->s.frameInfo[i].time = 0;
+                    }
+
+                } else {
+                    if (startTime != animtimes[i]) {
+                        animFlags[i] |= ANIM_FINISHED;
+                    }
+
+                    edict->s.frameInfo[i].time = animtimes[i];
+                }
+            }
+        }
+
+        if (total_weight) {
+            vFrameDelta *= 1.f / total_weight;
+            total_angular_delta *= 1.f / total_weight;
+        }
+
+        MatrixTransformVector(vFrameDelta, orientation, frame_delta);
+        angular_delta = total_angular_delta;
+
+        while (syncTime > 1.0f) {
+            syncTime -= 1.0f;
+        }
+
+        total_weight = level.frametime * 4.0f;
+
+        if (hasAction) {
+            edict->s.actionWeight += total_weight;
+
+            if (edict->s.actionWeight > 1.0f) {
+                edict->s.actionWeight = 1.0f;
+            }
+        } else {
+            edict->s.actionWeight -= total_weight;
+
+            if (edict->s.actionWeight < 0.0f) {
+                edict->s.actionWeight = 0.0f;
+            }
+        }
+    }
 }
 
-void Animate::SetOnceType( int slot )
+void Animate::SetTime(int slot, float time)
 {
-	animFlags[ slot ] &= ~ANIM_LOOP;
+    if (time < 0.0) {
+        Com_Printf("ERROR:  SetTime %f lesser than anim length %f\n", time, animtimes[slot]);
+        return;
+    }
+
+    if (time > animtimes[slot]) {
+        Com_Printf("ERROR:  SetTime %f greater than anim length %f\n", time, animtimes[slot]);
+        return;
+    }
+
+    edict->s.frameInfo[slot].time = time;
 }
 
-void Animate::SetTime( int slot, float time )
+void Animate::SetNormalTime(int slot, float normal)
 {
-	if( time < 0.0 )
-	{
-		Com_Printf( "ERROR:  SetTime %f lesser than anim length %f\n", time, animtimes[ slot ] );
-		return;
-	}
-
-	if( time > animtimes[ slot ] )
-	{
-		Com_Printf( "ERROR:  SetTime %f greater than anim length %f\n", time, animtimes[ slot ] );
-		return;
-	}
-
-	edict->s.frameInfo[ slot ].time = time;
+    if (normal < 0.0f || normal > 1.0f) {
+        Com_Printf("ERROR:  Animate::SetNormalTime: Normal must be between 0 and 1\n");
+    } else {
+        edict->s.frameInfo[slot].time = animtimes[slot] * normal;
+    }
 }
 
-void Animate::SetSyncRate( float rate )
+float Animate::GetTime(int slot)
 {
-	if( rate < 0.001f )
-	{
-		Com_Printf( "ERROR SetSyncRate:  canot set syncrate below 0.001.\n" );
-		syncRate = 0.001f;
-	}
-	else
-	{
-		syncRate = rate;
-	}
+    return edict->s.frameInfo[slot].time;
 }
 
-void Animate::SetSyncTime( float s )
+float Animate::GetNormalTime(int slot)
 {
-	if( s < 0.0f || s > 1.0f )
-	{
-		Com_Printf("\nERROR SetSyncTime:  synctime must be 0 to 1 - attempt to set to %f\n", s);
-		return;
-	}
+    return edict->s.frameInfo[slot].time / animtimes[slot];
+}
 
-	syncTime = s;
+void Animate::Pause(int slot, int pause)
+{
+    if (pause) {
+        animFlags[slot] |= ANIM_PAUSED;
+    } else {
+        if ((animFlags[slot] & ANIM_PAUSED)) {
+            if ((animFlags[slot] & ANIM_SYNC)) {
+                SlotChanged(animFlags[slot]);
+            }
 
-	for( int i = 0; i < MAX_FRAMEINFOS; i++ )
-	{
-		if( !( animFlags[ i ] & ANIM_SYNC ) ) {
-			continue;
-		}
-
-		animFlags[ i ] = ( animFlags[ i ] | ANIM_NODELTA ) & ANIM_FINISHED;
-	}
+            animFlags[slot] &= ~ANIM_PAUSED;
+        }
+    }
 }
 
 void Animate::UseSyncTime(int slot, int sync)
 {
-	if (sync)
-	{
-		if (animFlags[slot] & ANIM_SYNC)
-			return;
-		
-		animFlags[slot] = (animFlags[slot] | (ANIM_SYNC | ANIM_NODELTA)) & ~ANIM_FINISHED;
-	}
-	else
-	{
-		if (animFlags[slot] & ANIM_SYNC)
-		{
-			animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~(ANIM_FINISHED | ANIM_SYNC);
-		}
-	}
+    if (sync) {
+        if (animFlags[slot] & ANIM_SYNC) {
+            return;
+        }
+
+        animFlags[slot] = (animFlags[slot] | (ANIM_SYNC | ANIM_NODELTA)) & ~ANIM_FINISHED;
+    } else {
+        if (animFlags[slot] & ANIM_SYNC) {
+            animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~(ANIM_FINISHED | ANIM_SYNC);
+        }
+    }
 }
 
-void Animate::PreAnimate( void )
+void Animate::SetSyncRate(float rate)
 {
-	int i;
-
-	for( i = 0; i < MAX_FRAMEINFOS; i++ )
-	{
-		if( animFlags[ i ] & ANIM_FINISHED ) {
-			AnimFinished( i );
-		}
-	}
+    if (rate < 0.001f) {
+        Com_Printf("ERROR SetSyncRate:  canot set syncrate below 0.001.\n");
+        syncRate = 0.001f;
+    } else {
+        syncRate = rate;
+    }
 }
 
-void Animate::PostAnimate( void )
+float Animate::GetCrossTime(int slot)
 {
-	if( !edict->tiki ) {
-		return;
-	}
-
-	float		startTime;
-	float		deltaSyncTime;
-	float		total_weight;
-	Vector		vFrameDelta;
-	bool		hasAction = false;
-
-	deltaSyncTime = syncTime;
-
-	if( !pauseSyncTime )
-	{
-		syncTime = 1.0f / syncRate * level.frametime + deltaSyncTime;
-	}
-
-	total_weight = 0.0f;
-
-	for( int i = 0; i < MAX_FRAMEINFOS; i++ )
-	{
-		if( edict->s.frameInfo[ i ].weight > 0.0f )
-		{
-			if( !( animFlags[ i ] & ANIM_NOACTION ) )
-			{
-				hasAction = true;
-			}
-		}
-
-		if( animFlags[ i ] & ANIM_PAUSED ) {
-			continue;
-		}
-
-		if( animFlags[ i ] & ANIM_SYNC )
-		{
-			startTime = deltaSyncTime * animtimes[ i ];
-			edict->s.frameInfo[ i ].time = animtimes[ i ] * syncTime;
-		}
-		else
-		{
-			startTime = edict->s.frameInfo[ i ].time;
-			edict->s.frameInfo[ i ].time += level.frametime;
-		}
-
-		if( animtimes[ i ] == 0.0f )
-		{
-			animFlags[i] &= ~ANIM_NODELTA;
-			animFlags[i] |= ANIM_FINISHED;
-			edict->s.frameInfo[ i ].time = 0.0f;
-		}
-		else
-		{
-			if( !( animFlags[ i ] & ANIM_NODELTA ) )
-			{
-				if( gi.Anim_HasDelta( edict->tiki, edict->s.frameInfo[ i ].index ) )
-				{
-					float vDelta[ 3 ];
-
-					gi.Anim_DeltaOverTime( edict->tiki,
-						edict->s.frameInfo[ i ].index,
-						startTime,
-						edict->s.frameInfo[ i ].time,
-						vDelta );
-
-					vFrameDelta += Vector( vDelta ) * edict->s.frameInfo[ i ].weight;
-
-					total_weight += edict->s.frameInfo[ i ].weight;
-				}
-			}
-
-			animFlags[ i ] &= ~ANIM_NODELTA;
-
-			bool bTemp;
-			if (animFlags[i] & ANIM_SYNC)
-			{
-				bTemp = edict->s.frameInfo[i].time < animtimes[i];
-			}
-			else
-			{
-				bTemp = edict->s.frameInfo[i].time < animtimes[i] - 0.01f;
-			}
-			if( !bTemp )
-			{
-				if (animFlags[i] & ANIM_LOOP)
-				{
-					animFlags[i] |= ANIM_FINISHED;
-
-					do 
-					{
-						edict->s.frameInfo[i].time -= animtimes[i];
-					} while (edict->s.frameInfo[i].time >= animtimes[i]);
-
-					if (edict->s.frameInfo[i].time < 0)
-					{
-						edict->s.frameInfo[i].time = 0;
-					}
-
-				}
-				else
-				{
-					if (startTime != animtimes[i])
-					{
-						animFlags[i] |= ANIM_FINISHED;
-					}
-
-					edict->s.frameInfo[i].time = animtimes[i];
-				}
-
-			}
-		}
-
-		if( total_weight != 0.0f )
-			vFrameDelta *= 1.0f / total_weight;
-
-		MatrixTransformVector( vFrameDelta, orientation, frame_delta );
-
-		while( syncTime > 1.0f )
-		{
-			syncTime -= 1.0f;
-		}
-
-		total_weight = level.frametime * 4.0f;
-
-		if( hasAction )
-		{
-			edict->s.actionWeight += total_weight;
-
-			if( edict->s.actionWeight > 1.0f )
-			{
-				edict->s.actionWeight = 1.0f;
-			}
-		}
-		else
-		{
-			edict->s.actionWeight -= total_weight;
-
-			if( edict->s.actionWeight < 0.0f )
-			{
-				edict->s.actionWeight = 0.0f;
-			}
-		}
-	}
+    return gi.Anim_CrossTime(edict->tiki, edict->s.frameInfo[slot].index);
 }
 
-void Animate::DumpAnimInfo
-	(
-	void
-	)
+void Animate::SetRepeatType(int slot)
 {
-	MPrintf( "----------------------------------------\n" );
-
-	for( int i = 0; i < MAX_FRAMEINFOS; i++ )
-	{
-		if( edict->s.frameInfo[ i ].weight <= 0.0f ) {
-			continue;
-		}
-
-		str animname = gi.Anim_NameForNum( edict->tiki, CurrentAnim( i ) );
-
-		MPrintf( "slot: %d  anim: %s weight: %f  time: %f  len: %f\n",
-			i, animname.c_str(), edict->s.frameInfo[ i ].weight, edict->s.frameInfo[ i ].time, animtimes[ i ] );
-	}
-
-	MPrintf( "actionWeight: %f\n", edict->s.actionWeight );
+    animFlags[slot] |= ANIM_LOOP;
 }
 
-void Animate::ForwardExec
-	(
-	Event *ev
-	)
+void Animate::SetOnceType(int slot)
 {
-	int slot = 0;
-	float weight = 1.0f;
-
-	if( !edict->tiki )
-	{
-		ScriptError( "trying to play animation on( entnum: %d, targetname : '%s', classname : '%s' ) which does not have a model",
-			entnum,
-			targetname.c_str(),
-			getClassname()
-			);
-	}
-
-	if( ev->NumArgs() > 1 )
-	{
-		slot = ev->GetInteger( 2 );
-	}
-
-	if( ev->NumArgs() > 2 )
-	{
-		weight = ev->GetFloat( 3 );
-	}
-
-	NewAnim( ev->GetString( 1 ), slot, weight );
-	SetTime( slot );
+    animFlags[slot] &= ~ANIM_LOOP;
 }
 
-
-void Animate::EventSetSyncTime
-	(
-	Event *ev
-	)
+void Animate::EventIsLoopingAnim(Event *ev)
 {
-	SetSyncTime( ev->GetFloat( 1 ) );
+    str anim_name = ev->GetString(1);
+    int animnum;
+
+    if (!edict->tiki) {
+        ScriptError("^~^~^ no tiki set");
+    }
+
+    animnum = gi.Anim_NumForName(edict->tiki, anim_name.c_str());
+    if (animnum < 0) {
+        ScriptError("anim '%s' not found, so can't tell if it is looping", anim_name.c_str());
+    }
+
+    if (gi.Anim_FlagsSkel(edict->tiki, animnum) & ANIM_LOOP) {
+        ev->AddInteger(1);
+    } else {
+        ev->AddInteger(0);
+    }
 }
 
-void Animate::EventIsLoopingAnim
-	(
-	Event *ev
-	)
+void Animate::EventSetYawFromBone(Event *ev)
 {
-	str anim_name = ev->GetString( 1 );
-	int animnum;
+    str           bonename;
+    int           tagnum;
+    orientation_t ori;
+    vec3_t        vAngles;
 
-	if( !edict->tiki )
-	{
-		ScriptError( "^~^~^ no tiki set" );
-	}
+    bonename = ev->GetString(1);
+    tagnum   = gi.Tag_NumForName(edict->tiki, bonename.c_str());
+    if (tagnum < 0) {
+        ScriptError("Could not find tag '%s' in '%s'", bonename.c_str(), edict->tiki->name);
+    }
 
-	animnum = gi.Anim_NumForName( edict->tiki, anim_name.c_str() );
-	if( animnum < 0 )
-	{
-		ScriptError( "anim '%s' not found, so can't tell if it is looping", anim_name.c_str() );
-	}
+    GetTagPositionAndOrientation(tagnum, &ori);
+    MatrixToEulerAngles(ori.axis, vAngles);
+    angles.y += vAngles[1];
+    setAngles(angles);
 
-	if( gi.Anim_FlagsSkel( edict->tiki, animnum ) & ANIM_LOOP )
-	{
-		ev->AddInteger( 1 );
-	}
-	else
-	{
-		ev->AddInteger( 0 );
-	}
+    NoLerpThisFrame();
 }
 
-void Animate::StopAnimating( Event *ev )
+void Animate::EventPlayerSpawn(Event *ev)
 {
-	StopAnimating( ev->GetInteger( 1 ) );
+    Player *player;
+    float   range;
+    Vector  vector_offset;
+    float   inFOV;
+    float   speed;
+    Vector  delta;
+    float   dist;
+    float   time;
+    float   dot;
+    Event  *event;
+
+    player = static_cast<Player *>(G_FindTarget(this, "player"));
+    if (!player) {
+        ScriptError("Could not find player!");
+    }
+
+    if (ev->NumArgs() > 1) {
+        range = ev->GetFloat(2);
+    } else {
+        range = 480;
+    }
+
+    if (ev->NumArgs() > 2) {
+        vector_offset = ev->GetVector(3);
+    } else {
+        vector_offset = vec_zero;
+    }
+
+    if (ev->NumArgs() > 3) {
+        inFOV = ev->GetFloat(4);
+    } else {
+        inFOV = 0;
+    }
+
+    if (ev->NumArgs() > 4) {
+        speed = ev->GetFloat(5);
+    } else {
+        speed = 960;
+    }
+
+    delta = origin - player->origin;
+    dist  = delta.length();
+    if (dist > range) {
+        // above the range, won't spawn
+        return;
+    }
+
+    time = dist / speed;
+    dot  = DotProduct(delta, player->orientation[0]);
+
+    if (inFOV < 0) {
+        if (dot > cos(DEG2RAD(45))) {
+            return;
+        }
+    } else if (inFOV > 0) {
+        if (dot < cos(DEG2RAD(45))) {
+            return;
+        }
+    }
+
+    event = new Event(EV_Animate_PlayerSpawn_Utility);
+    event->AddString(ev->GetString(1));
+    event->AddVector(vector_offset);
+    player->PostEvent(event, time);
 }
 
-CLASS_DECLARATION( Entity, Animate, "animate" )
+void Animate::EventPlayerSpawnUtility(Event *ev)
 {
-	{ &EV_SetControllerAngles,			&Animate::SetControllerAngles },
-	{ &EV_SetAnim,						&Animate::ForwardExec },
-	{ &EV_SetSyncTime,					&Animate::EventSetSyncTime },
-	{ &EV_Animate_IsLoopingAnim,		&Animate::EventIsLoopingAnim },
-	{ NULL, NULL }
-};
+    Player   *player;
+    str       modelname;
+    Vector    vector_offset;
+    Vector    transformed;
+    SpawnArgs args;
+    ClassDef *cls;
+    Entity   *newEnt;
+    Event    *event;
+
+    player = static_cast<Player *>(G_FindTarget(this, "player"));
+    if (!player) {
+        ScriptError("Could not find player!");
+    }
+
+    modelname     = ev->GetString(1);
+    vector_offset = ev->GetVector(2);
+
+    MatrixTransformVector(vector_offset, player->orientation, transformed);
+    transformed += player->origin;
+
+    args.setArg("classname", modelname.c_str());
+    args.setArg("model", modelname.c_str());
+    cls = args.getClassDef();
+    if (!cls) {
+        cls = Entity::classinfostatic();
+    }
+
+    // Spawn the new entity
+    newEnt = static_cast<Entity *>(cls->newInstance());
+
+    event = new Event(EV_Model);
+    event->AddString(modelname);
+    newEnt->PostEvent(event, EV_SETUP_ROPEPIECE);
+
+    event = new Event(EV_SetOrigin);
+    event->AddVector(transformed);
+    newEnt->PostEvent(event, EV_SETUP_ROPEBASE);
+
+    event = new Event(EV_SetAngles);
+    event->AddVector(transformed.toAngles());
+    newEnt->PostEvent(event, EV_SETUP_ROPEBASE);
+
+    newEnt->ProcessPendingEvents();
+    newEnt->ProcessEvent(EV_Entity_Start);
+}
+
+float Animate::GetYawOffset()
+{
+    SkelMat4 *transform;
+    int       boneNum;
+
+    boneNum = gi.Tag_NumForName(edict->tiki, "Bip01");
+    if (boneNum == -1) {
+        return 0.0;
+    }
+
+    transform = G_TIKI_Transform(edict, boneNum);
+    if (transform->val[0][0] != 0) {
+        return RAD2DEG(atan2(transform->val[0][1], transform->val[0][0]));
+    } else {
+        return 0;
+    }
+}
+
+void Animate::DumpAnimInfo(void)
+{
+    MPrintf("----------------------------------------\n");
+
+    for (int i = 0; i < MAX_FRAMEINFOS; i++) {
+        if (edict->s.frameInfo[i].weight <= 0.0f) {
+            continue;
+        }
+
+        str animname = gi.Anim_NameForNum(edict->tiki, CurrentAnim(i));
+
+        MPrintf(
+            "slot: %d  anim: %s weight: %f  time: %f  len: %f\n",
+            i,
+            animname.c_str(),
+            edict->s.frameInfo[i].weight,
+            edict->s.frameInfo[i].time,
+            animtimes[i]
+        );
+    }
+
+    MPrintf("actionWeight: %f\n", edict->s.actionWeight);
+}
+
+void Animate::EventPauseAnim(Event *ev)
+{
+    is_paused = ev->GetInteger(1) ? true : false;
+    for (int i = 0; i < MAX_FRAMEINFOS; i++) {
+        Pause(i, is_paused);
+    }
+}
