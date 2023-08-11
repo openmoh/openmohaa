@@ -106,9 +106,9 @@ SkelVec3 skelAnimDataGameHeader_s::GetDeltaOverTime( float time1, float time2 )
 	deltaWeight2 = time2 / frameTime;
 	frameNum1 = ( int )( deltaWeight1 + 1.0 );
 	frameNum2 = ( int )( deltaWeight2 + 1.0 );
-
-	d = frameNum1 - ( time1 / frameTime );
-	s = 1.0 - ( frameNum2 - ( time2 / frameTime ) );
+	
+	d = frameNum1 - deltaWeight1;
+	s = 1.0 - (frameNum2 - deltaWeight2);
 
 	if( frameNum1 < frameNum2 )
 	{
@@ -136,6 +136,46 @@ SkelVec3 skelAnimDataGameHeader_s::GetDeltaOverTime( float time1, float time2 )
 	}
 	if( delta.z > -0.001f && delta.z < 0.001f ) {
 		delta.z = 0;
+	}
+
+	return delta;
+}
+
+float skelAnimDataGameHeader_s::GetAngularDeltaOverTime(float time1, float time2)
+{
+	float deltaWeight1;
+	int frameNum1;
+	float deltaWeight2;
+	int frameNum2;
+	float delta;
+	int currFrame;
+	float s, d;
+
+	deltaWeight1 = time1 / frameTime;
+	deltaWeight2 = time2 / frameTime;
+	frameNum1 = (int)(deltaWeight1 + 1.0);
+	frameNum2 = (int)(deltaWeight2 + 1.0);
+
+	d = frameNum1 - deltaWeight1;
+	s = 1.0 - (frameNum2 - deltaWeight2);
+
+	if (frameNum2 > frameNum1) {
+		delta = m_frame[frameNum1 % numFrames].angleDelta;
+
+		for (currFrame = frameNum1 + 1; currFrame < frameNum2; currFrame++)
+		{
+			delta += m_frame[currFrame % numFrames].angleDelta;
+		}
+	}
+	else
+	{
+		s = s - (1.0 - d);
+	}
+
+	delta += m_frame[frameNum2 % numFrames].angleDelta * s;
+
+	if (delta > -0.001f && delta < 0.001f) {
+		delta = 0;
 	}
 
 	return delta;

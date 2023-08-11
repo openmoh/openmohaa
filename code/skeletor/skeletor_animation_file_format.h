@@ -99,7 +99,8 @@ typedef struct skelAnimDataGameHeader_s {
 
 	static skelAnimDataGameHeader_t		*AllocRLEChannelData(size_t numChannels);
 	int									GetFrameNums( float timeSeconds, float timeTolerance, int *beforeFrame, int *afterFrame, float *beforeWeight, float *afterWeight );
-	SkelVec3							GetDeltaOverTime( float, float );
+	SkelVec3							GetDeltaOverTime( float time1, float time2 );
+	float								GetAngularDeltaOverTime( float time1, float time2 );
 	static skelAnimDataGameHeader_t		*AllocAnimData(size_t numFrames, size_t numChannels );
 	static void							DeallocAnimData( skelAnimDataGameHeader_t *data );
 } skelAnimDataGameHeader_t;
