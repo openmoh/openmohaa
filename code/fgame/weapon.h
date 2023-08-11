@@ -155,7 +155,6 @@ protected:
     float          min_charge_time[MAX_FIREMODES];        // The min amount of time the weapon may be charged.
     meansOfDeath_t meansofdeath[MAX_FIREMODES];           // The means of death for this mode
     qboolean       loopfire[MAX_FIREMODES];               // The weapon loopfires and will not idle when shooting
-    int            action_level_increment[MAX_FIREMODES]; // Increments the action level everytime the weapon is fired
     str            worldhitspawn[MAX_FIREMODES];          // The models to spawn when the weapon strikes the world
     int            tracerfrequency[MAX_FIREMODES];
     int            tracercount[MAX_FIREMODES];
@@ -206,6 +205,9 @@ protected:
     qboolean   m_bSecondaryAmmoInHud;
 
 public:
+    //
+    // Stats variables
+    //
     int             m_iNumShotsFired;
     int             m_iNumHits;
     int             m_iNumHeadShots;
@@ -218,18 +220,26 @@ public:
     AIRanges        mAIRange;
     SafePtr<Entity> aim_target;
 
+protected:
+	friend class Player;
+	friend class PlayerBot;
+	friend class Sentient;
+
     void SetMaxRangeEvent(Event *ev);
     void SetMinRangeEvent(Event *ev);
     void SetSecondaryAmmo(const char *type, int amount, int startamount);
-    friend class Player;
+
     void         DetachGun(void);
-    void         AttachGun(weaponhand_t hand, qboolean holstering = qfalse);
+	void         AttachGun(weaponhand_t hand, qboolean holstering = qfalse);
+	qboolean     IsSecondaryWeapon(void);
     void         PickupWeapon(Event *ev);
     void         DoneRaising(Event *ev);
     void         DoneFiring(Event *ev);
     void         Idle(Event *ev);
-    void         IdleInit(Event *ev);
-    qboolean     CheckReload(firemode_t mode);
+	void         IdleInit(Event* ev);
+	void         FillAmmoClip(Event* ev);
+	void         EmptyAmmoClip(Event* ev);
+	void         AddToAmmoClip(Event* ev);
     void         DoneReloading(Event *ev);
     void         ApplyFireKickback(const Vector& org, float kickback);
     void         SetAimAnim(Event *ev);
@@ -240,15 +250,15 @@ public:
     void         SetProjectile(Event *ev);
     void         SetDMProjectile(Event *ev);
     void         SetBulletDamage(Event *ev);
-    void         SetBulletLarge(Event *ev);
-    void         SetTracerSpeed(Event *ev);
+    void         SetBulletLarge(Event *ev); // Added in 2.0
+    void         SetTracerSpeed(Event *ev); // Added in 2.0
     void         SetDMBulletDamage(Event *ev);
     void         SetBulletRange(Event *ev);
     void         SetDMBulletRange(Event *ev);
     void         SetBulletKnockback(Event *ev);
     void         SetDMBulletKnockback(Event *ev);
-    void         SetBulletThroughWood(Event *ev);
-    void         SetBulletThroughMetal(Event *ev);
+    void         SetBulletThroughWood(Event *ev); // Added in 2.0
+    void         SetBulletThroughMetal(Event *ev); // Added in 2.0
     void         SetBulletCount(Event *ev);
     void         SetDMBulletCount(Event *ev);
     void         SetBulletSpread(Event *ev);
@@ -259,11 +269,12 @@ public:
     void         SetDMFireSpreadMult(Event *ev);
     void         SetTracerFrequency(Event *ev);
     void         SetAutoPutaway(Event *ev);
-    void         SetRange(Event *ev);
-    void         SetSpecialMove(Event *ev);
-    void         SetUseNoAmmo(Event *ev);
+	void         SetRange(Event* ev);
+	void         SetWeaponType(Event* ev);
+	void         SetWeaponGroup(Event* ev);
+	void         SetUseNoAmmo(Event* ev);
+	void         MainAttachToTag(Event* ev);
     void         OffHandAttachToTag(Event *ev);
-    void         MainAttachToTag(Event *ev);
     void         HolsterAttachToTag(Event *ev);
     void         SetHolsterOffset(Event *ev);
     void         SetHolsterAngles(Event *ev);
@@ -272,51 +283,48 @@ public:
     void         SetViewKick(Event *ev);
     void         SetMovementSpeed(Event *ev);
     void         SetDMMovementSpeed(Event *ev);
-    void         SetMaxFireMovement(Event *ev);
-    void         SetZoomMovement(Event *ev);
+    void         SetMaxFireMovement(Event *ev); // Added in 2.0
+    void         SetZoomMovement(Event *ev); // Added in 2.0
     void         EventAmmoPickupSound(Event *ev);
     void         EventNoAmmoSound(Event *ev);
-    void         EventMaxMovementSound(Event *ev);
+    void         EventMaxMovementSound(Event *ev); // Added in 2.0
+    //====
+    // Added in 2.0
     void         SetNumFireAnims(Event *ev);
     void         SetWeaponSubtype(Event *ev);
     void         SetCookTime(Event *ev);
     void         SetCurrentFireAnim(Event *ev);
-    void         SetSecondaryAmmoInHud(Event *ev);
-    void         SetWeaponGroup(Event *ev);
-    void         SetWeaponType(Event *ev);
-    void         EventClipAdd(Event *ev);
-    void         EventClipEmpty(Event *ev);
-    void         EventClipFill(Event *ev);
-    float        GetBulletRange(firemode_t firemode);
+	void         SetSecondaryAmmoInHud(Event* ev);
+    //====
+    virtual void ShowInfo(float fDot, float fDist);
 
 public:
     CLASS_PROTOTYPE(Weapon);
 
     Weapon();
-    Weapon(const char *file);
+    Weapon(const char* file);
     ~Weapon();
 
     void      Delete(void) override;
-    Listener *GetScriptOwner(void) override;
     int       GetRank(void);
     int       GetOrder(void);
 
-    int GetWeaponClass(void) const { return weapon_class; };
+    int GetWeaponClass(void) const;
 
-    const_str GetWeaponGroup(void) const { return m_csWeaponGroup; };
+    const_str GetWeaponGroup(void) const;
 
+    void SetItemSlot(int slot);
     void  SetRank(int order, int rank);
     void  SetRankEvent(Event *ev);
     float GetMaxRange(void);
     float GetMinRange(void);
 
-    inline qboolean GetPutaway(void) { return putaway; };
+    qboolean GetPutaway(void);
 
-    inline void SetPutAway(qboolean p) { putaway = p; };
+    void SetPutAway(qboolean p);
 
     void             SetMaxRange(float val);
     void             SetMinRange(float val);
-    qboolean         IsSecondaryWeapon(void);
     void             ForceIdle(void);
     virtual qboolean SetWeaponAnim(const char *anim, Event *ev = NULL);
     qboolean         SetWeaponAnim(const char *anim, Event        &ev);
@@ -333,15 +341,14 @@ public:
     int        GetMaxAmmo(firemode_t mode);
     str        GetAmmoType(firemode_t mode);
     firetype_t GetFireType(firemode_t mode);
-    firemode_t GetFireMode(void);
     void       SetAmmoType(Event *ev);
     void       SetAmmoAmount(int amount, firemode_t mode);
     void       UseAmmo(int amount, firemode_t mode);
     void       SetAmmoClipSize(Event *ev);
     void       SetAmmoInClip(Event *ev);
     void       SetShareClip(Event *ev);
-    void       SetTagBarrel(const char* tagBarrel);
-    str        GetTagBarrel() const;
+    void       SetTagBarrel(const char* tagBarrel); // Added in 2.0
+    str        GetTagBarrel() const; // Added in 2.0
     void       SetModels(const char *world, const char *view);
     void       SetOwner(Sentient *ent) override;
     void       SetMaxChargeTime(Event *ev);
@@ -352,18 +359,24 @@ public:
     qboolean   UnlimitedAmmo(firemode_t mode);
     qboolean   HasAmmo(firemode_t mode);
     qboolean   HasAmmoInClip(firemode_t mode);
-    qboolean   IsSemiAuto(void);
     int        GetClipSize(firemode_t mode);
+
+	qboolean CheckReload(firemode_t mode);
+    qboolean ShouldReload(void);
+	void SetShouldReload(qboolean should_reload);
+	void StartReloading(void);
+
     qboolean   ReadyToFire(firemode_t mode, qboolean playsound = qtrue);
     qboolean   MuzzleClear(void);
+
     void       PutAway(void);
     qboolean   Drop(void) override;
     void       Fire(firemode_t mode);
     void       Charge(firemode_t mode);
-    void       OnOverCookedWarning(Event *ev);
-    void       OnOverCooked(Event *ev);
+    void       OnOverCookedWarning(Event *ev); // Added in 2.0
+    void       OnOverCooked(Event *ev); // Added in 2.0
     void       ReleaseFire(firemode_t mode, float chargetime);
-    const char* GetFireAnim() const;
+    const char* GetFireAnim() const; // Added in 2.0
     void       ClientFireDone(void);
     qboolean   Removable(void) override;
     qboolean   Pickupable(Entity *other) override;
@@ -374,19 +387,15 @@ public:
               Vector *position, Vector *forward = NULL, Vector *right = NULL, Vector *up = NULL, Vector *vBarrelPos = NULL
           );
     qboolean AutoChange(void);
-    int      ClipAmmo(firemode_t mode);
-    void     ProcessWeaponCommandsEvent(Event *ev);
-    qboolean IsDroppable(void);
+	int      ClipAmmo(firemode_t mode);
+	qboolean IsDroppable(void);
     float    FireDelay(firemode_t mode);
-    void     EventSetFireDelay(Event *ev);
-    void     EventSetDMFireDelay(Event *ev);
+    void     SetFireDelay(Event *ev);
+	void     SetDMFireDelay(Event* ev);
 
-    qboolean HasCrosshair() { return crosshair; }
-
-    int                 ActionLevelIncrement(firemode_t mode);
-    void                SetActionLevelIncrement(Event *ev);
-    weaponstate_t       GetState(void);
+	weaponstate_t GetState(void);
     void                ForceState(weaponstate_t state);
+
     void                NotDroppableEvent(Event *ev);
     void                GiveStartingAmmoToOwner(Event *ev);
     void                AutoAim(Event *ev);
@@ -397,37 +406,43 @@ public:
     void                AttachToHand(Event *ev);
     void                SetCantPartialReload(Event *ev);
     void                SetDMCantPartialReload(Event *ev);
-    void                AddAdditionalStartAmmo(Event *ev);
-    void                AddStartItem(Event *ev);
+    void                AddAdditionalStartAmmo(Event *ev); // Added in 2.0
+    void                AddStartItem(Event *ev); // Added in 2.0
     void                SetQuiet(Event *ev);
     void                SetLoopFire(Event *ev);
-    inline virtual void SpecialFireProjectile(
+    virtual void SpecialFireProjectile(
         Vector pos, Vector forward, Vector right, Vector up, Entity *owner, str projectileModel, float charge_fraction
-    ) {};
-    void         AttachToHolster(weaponhand_t hand);
-    virtual bool IsCarryableTurret();
+    );
 
-    inline str GetCurrentAttachToTag(void) { return current_attachToTag; };
-
-    inline void SetCurrentAttachToTag(str s) { current_attachToTag = s; };
-
-    inline str GetHolsterTag(void) { return holster_attachToTag; };
-
-    inline qboolean GetUseNoAmmo(void) { return use_no_ammo; };
+	void AttachToHolster(weaponhand_t hand);
+    str GetCurrentAttachToTag(void);
+    void SetCurrentAttachToTag(str s);
+    str GetHolsterTag(void);
+    qboolean GetUseNoAmmo(void);
 
     int            GetZoom(void);
     qboolean       GetAutoZoom(void);
     void           SetMeansOfDeath(Event *ev);
     meansOfDeath_t GetMeansOfDeath(firemode_t mode);
-    void           SetAimTarget(Entity *);
-    qboolean       ShouldReload(void);
-    void           SetShouldReload(qboolean should_reload);
-    void           StartReloading(void);
+	void           SetAimTarget(Entity*);
+    void           SetIdleState(int state); // Added in 2.0
     void           WorldHitSpawn(firemode_t mode, Vector org, Vector angles, float life);
     void           MakeNoise(Event *ev);
     void           FallingAngleAdjust(Event *ev);
-    qboolean       GetUseCrosshair() const;
+    float          GetMovementSpeed() const;
+	qboolean       GetUseCrosshair() const;
+
+	virtual bool IsCarryableTurret(); // Added in 2.0
+
     void           Archive(Archiver          &arc) override;
+
+    //
+    // Added in openmohaa
+	//
+	Listener* GetScriptOwner(void) override;
+	float GetBulletRange(firemode_t firemode);
+	firemode_t GetFireMode(void);
+	qboolean   IsSemiAuto(void);
 };
 
 inline void Weapon::Archive(Archiver& arc)
