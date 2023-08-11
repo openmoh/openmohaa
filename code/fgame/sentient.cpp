@@ -96,6 +96,33 @@ Event EV_Sentient_GiveWeapon
     "Gives the sentient the weapon specified.",
     EV_NORMAL
 );
+Event EV_Sentient_SetWeaponIdleState
+(
+    "setweaponidlestate",
+    EV_DEFAULT,
+    "i",
+    "state",
+    "set the idle state of the given weapon.",
+    EV_NORMAL
+);
+Event EV_Sentient_PingForMines
+(
+    "pingformines",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "actively uncover mines nearby.",
+    EV_NORMAL
+);
+Event EV_Sentient_ForceLandmineMeasure
+(
+    "forcelandminemeasure",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Force a remeasurement to all landmines",
+    EV_NORMAL
+);
 Event EV_Sentient_Take
 (
     "take",
@@ -465,15 +492,6 @@ Event EV_Sentient_PopHelmet
     "Pops a sentient's helmet off if he's got one",
     EV_NORMAL
 );
-Event EV_Sentient_DontDropWeapons
-(
-    "dontdropweapons",
-    EV_DEFAULT,
-    "B",
-    "dont_drop",
-    "Make the sentient not drop weapons",
-    EV_NORMAL
-);
 Event EV_Sentient_DropItems
 (
     "dropitems",
@@ -483,7 +501,69 @@ Event EV_Sentient_DropItems
     "drops inventory items",
     EV_NORMAL
 );
-
+Event EV_Sentient_DontDropWeapons
+(
+    "dontdropweapons",
+    EV_DEFAULT,
+    "B",
+    "dont_drop",
+    "Make the sentient not drop weapons",
+    EV_NORMAL
+);
+Event EV_Sentient_ForceDropWeapon
+(
+    "forcedropweapon",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Force the sentient to drop weapons no matter what level.nodropweapon is.",
+    EV_NORMAL
+);
+Event EV_Sentient_ForceDropWeapon2
+(
+    "forcedropweapon",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Force the sentient to drop weapons no matter what level.nodropweapon is.",
+    EV_SETTER
+);
+Event EV_Sentient_ForceDropHealth
+(
+    "forcedropweapon",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Force the sentient to drop health no matter what level.nodrophealth is.",
+    EV_NORMAL
+);
+Event EV_Sentient_ForceDropHealth2
+(
+    "forcedropweapon",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Force the sentient to drop health no matter what level.nodrophealth is.",
+    EV_SETTER
+);
+Event EV_Sentient_GetForceDropHealth
+(
+    "forcedrophealth",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Get if the sentient is forced to drop health no matter what level.nodrophealth is.",
+    EV_GETTER
+);
+Event EV_Sentient_GetForceDropWeapon
+(
+    "forcedropweapon",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Get if the sentient is forced to drop health no matter what level.nodrophealth is.",
+    EV_GETTER
+);
 Event EV_Sentient_GetNewActiveWeap
 (
     "getnewactiveweap",
@@ -504,58 +584,68 @@ Event EV_Sentient_GetActiveWeap
 );
 
 CLASS_DECLARATION(Animate, Sentient, NULL) {
-    {&EV_Sentient_ReloadWeapon,      &Sentient::ReloadWeapon                 },
-    {&EV_Sentient_Attack,            &Sentient::FireWeapon                   },
-    {&EV_Sentient_StopFire,          &Sentient::StopFireWeapon               },
-    {&EV_Sentient_Charge,            &Sentient::ChargeWeapon                 },
-    {&EV_Sentient_ReleaseAttack,     &Sentient::ReleaseFireWeapon            },
-    {&EV_Sentient_GiveAmmo,          &Sentient::EventGiveAmmo                },
-    {&EV_Sentient_GiveWeapon,        &Sentient::EventGiveItem                },
-    {&EV_Sentient_GiveArmor,         &Sentient::EventGiveItem                },
-    {&EV_Sentient_GiveItem,          &Sentient::EventGiveItem                },
-    {&EV_Sentient_GiveDynItem,       &Sentient::EventGiveDynItem             },
-    {&EV_Sentient_UseItem,           &Sentient::EventUseItem                 },
-    {&EV_Sentient_Take,              &Sentient::EventTake                    },
-    {&EV_Sentient_TakeAll,           &Sentient::EventFreeInventory           },
-    {&EV_Sentient_SetBloodModel,     &Sentient::SetBloodModel                },
-    {&EV_Sentient_GiveTargetname,    &Sentient::EventGiveTargetname          },
-    {&EV_Damage,                     &Sentient::ArmorDamage                  },
-    {&EV_Sentient_TurnOffShadow,     &Sentient::TurnOffShadow                },
-    {&EV_Sentient_TurnOnShadow,      &Sentient::TurnOnShadow                 },
-    {&EV_Sentient_JumpXY,            &Sentient::JumpXY                       },
-    {&EV_Sentient_MeleeAttackStart,  &Sentient::MeleeAttackStart             },
-    {&EV_Sentient_MeleeAttackEnd,    &Sentient::MeleeAttackEnd               },
-    {&EV_Sentient_BlockStart,        &Sentient::BlockStart                   },
-    {&EV_Sentient_BlockEnd,          &Sentient::BlockEnd                     },
-    {&EV_Sentient_StunStart,         &Sentient::StunStart                    },
-    {&EV_Sentient_StunEnd,           &Sentient::StunEnd                      },
-    {&EV_Sentient_SetMaxMouthAngle,  &Sentient::SetMaxMouthAngle             },
-    {&EV_Sentient_OnFire,            &Sentient::OnFire                       },
-    {&EV_Sentient_StopOnFire,        &Sentient::StopOnFire                   },
-    {&EV_Sentient_SpawnBloodyGibs,   &Sentient::SpawnBloodyGibs              },
-    {&EV_Sentient_SetMaxGibs,        &Sentient::SetMaxGibs                   },
-    {&EV_Sentient_CheckAnimations,   &Sentient::CheckAnimations              },
-    {&EV_Sentient_German,            &Sentient::EventGerman                  },
-    {&EV_Sentient_American,          &Sentient::EventAmerican                },
-    {&EV_Sentient_GetTeam,           &Sentient::EventGetTeam                 },
-    {&EV_Sentient_SetDamageMult,     &Sentient::SetDamageMult                },
-    {&EV_Sentient_SetupHelmet,       &Sentient::EventSetupHelmet             },
-    {&EV_Sentient_PopHelmet,         &Sentient::EventPopHelmet               },
-    {&EV_Sentient_GetThreatBias,     &Sentient::EventGetThreatBias           },
-    {&EV_Sentient_SetThreatBias,     &Sentient::EventSetThreatBias           },
-    {&EV_Sentient_SetThreatBias2,    &Sentient::EventSetThreatBias           },
-    {&EV_Sentient_DeactivateWeapon,  &Sentient::EventDeactivateWeapon        },
-    {&EV_Sentient_ActivateNewWeapon, &Sentient::ActivateNewWeapon            },
-    {&EV_Sentient_PutawayWeapon,     &Sentient::PutawayWeapon                },
-    {&EV_Sentient_Weapon,            &Sentient::WeaponCommand                },
-    {&EV_Sentient_UseWeaponClass,    &Sentient::EventUseWeaponClass          },
-    {&EV_Sentient_UseLastWeapon,     &Sentient::EventActivateLastActiveWeapon},
-    {&EV_Sentient_ToggleItemUse,     &Sentient::EventToggleItemUse           },
-    {&EV_Sentient_DropItems,         &Sentient::EventDropItems               },
-    {&EV_Sentient_DontDropWeapons,   &Sentient::EventDontDropWeapons         },
-    {&EV_Sentient_GetActiveWeap,     &Sentient::GetActiveWeap                },
-    {&EV_Sentient_GetNewActiveWeap,  &Sentient::GetNewActiveWeapon           },
-    {NULL,                           NULL                                    }
+    {&EV_Sentient_ReloadWeapon,         &Sentient::ReloadWeapon                 },
+    {&EV_Sentient_Attack,               &Sentient::FireWeapon                   },
+    {&EV_Sentient_StopFire,             &Sentient::StopFireWeapon               },
+    {&EV_Sentient_Charge,               &Sentient::ChargeWeapon                 },
+    {&EV_Sentient_ReleaseAttack,        &Sentient::ReleaseFireWeapon            },
+    {&EV_Sentient_GiveAmmo,             &Sentient::EventGiveAmmo                },
+    {&EV_Sentient_GiveWeapon,           &Sentient::EventGiveItem                },
+    {&EV_Sentient_GiveArmor,            &Sentient::EventGiveItem                },
+    {&EV_Sentient_GiveItem,             &Sentient::EventGiveItem                },
+    {&EV_Sentient_GiveDynItem,          &Sentient::EventGiveDynItem             },
+    {&EV_Sentient_UseItem,              &Sentient::EventUseItem                 },
+    {&EV_Sentient_Take,                 &Sentient::EventTake                    },
+    {&EV_Sentient_TakeAll,              &Sentient::EventFreeInventory           },
+    {&EV_Sentient_SetBloodModel,        &Sentient::SetBloodModel                },
+    {&EV_Sentient_GiveTargetname,       &Sentient::EventGiveTargetname          },
+    {&EV_Sentient_SetWeaponIdleState,   &Sentient::EventSetWeaponIdleState      },
+    {&EV_Sentient_PingForMines,         &Sentient::EventPingForMines            },
+    {&EV_Sentient_ForceLandmineMeasure, &Sentient::EventForceLandmineMeasure    },
+    {&EV_Damage,                        &Sentient::ArmorDamage                  },
+    {&EV_Sentient_TurnOffShadow,        &Sentient::TurnOffShadow                },
+    {&EV_Sentient_TurnOnShadow,         &Sentient::TurnOnShadow                 },
+    {&EV_Sentient_JumpXY,               &Sentient::JumpXY                       },
+    {&EV_Sentient_MeleeAttackStart,     &Sentient::MeleeAttackStart             },
+    {&EV_Sentient_MeleeAttackEnd,       &Sentient::MeleeAttackEnd               },
+    {&EV_Sentient_BlockStart,           &Sentient::BlockStart                   },
+    {&EV_Sentient_BlockEnd,             &Sentient::BlockEnd                     },
+    {&EV_Sentient_StunStart,            &Sentient::StunStart                    },
+    {&EV_Sentient_StunEnd,              &Sentient::StunEnd                      },
+    {&EV_Sentient_SetMaxMouthAngle,     &Sentient::SetMaxMouthAngle             },
+    {&EV_Sentient_OnFire,               &Sentient::OnFire                       },
+    {&EV_Sentient_StopOnFire,           &Sentient::StopOnFire                   },
+    {&EV_Sentient_SpawnBloodyGibs,      &Sentient::SpawnBloodyGibs              },
+    {&EV_Sentient_SetMaxGibs,           &Sentient::SetMaxGibs                   },
+    {&EV_Sentient_CheckAnimations,      &Sentient::CheckAnimations              },
+    {&EV_Sentient_German,               &Sentient::EventGerman                  },
+    {&EV_Sentient_American,             &Sentient::EventAmerican                },
+    {&EV_Sentient_GetTeam,              &Sentient::EventGetTeam                 },
+    {&EV_Sentient_SetDamageMult,        &Sentient::SetDamageMult                },
+    {&EV_Sentient_SetupHelmet,          &Sentient::EventSetupHelmet             },
+    {&EV_Sentient_PopHelmet,            &Sentient::EventPopHelmet               },
+    {&EV_Sentient_GetThreatBias,        &Sentient::EventGetThreatBias           },
+    {&EV_Sentient_SetThreatBias,        &Sentient::EventSetThreatBias           },
+    {&EV_Sentient_SetThreatBias2,       &Sentient::EventSetThreatBias           },
+    {&EV_Sentient_DeactivateWeapon,     &Sentient::EventDeactivateWeapon        },
+    {&EV_Sentient_ActivateNewWeapon,    &Sentient::ActivateNewWeapon            },
+    {&EV_Sentient_PutawayWeapon,        &Sentient::PutawayWeapon                },
+    {&EV_Sentient_Weapon,               &Sentient::WeaponCommand                },
+    {&EV_Sentient_UseWeaponClass,       &Sentient::EventUseWeaponClass          },
+    {&EV_Sentient_UseLastWeapon,        &Sentient::EventActivateLastActiveWeapon},
+    {&EV_Sentient_ToggleItemUse,        &Sentient::EventToggleItemUse           },
+    {&EV_Sentient_DropItems,            &Sentient::EventDropItems               },
+    {&EV_Sentient_DontDropWeapons,      &Sentient::EventDontDropWeapons         },
+    {&EV_Sentient_ForceDropHealth,      &Sentient::EventForceDropHealth         },
+    {&EV_Sentient_ForceDropHealth2,     &Sentient::EventForceDropHealth         },
+    {&EV_Sentient_GetForceDropHealth,   &Sentient::EventGetForceDropHealth      },
+    {&EV_Sentient_ForceDropWeapon,      &Sentient::EventForceDropWeapon         },
+    {&EV_Sentient_ForceDropWeapon2,     &Sentient::EventForceDropWeapon         },
+    {&EV_Sentient_GetForceDropWeapon,   &Sentient::EventGetForceDropWeapon      },
+
+    {&EV_Sentient_GetActiveWeap,        &Sentient::GetActiveWeap                },
+    {&EV_Sentient_GetNewActiveWeap,     &Sentient::GetNewActiveWeapon           },
+    {NULL,                              NULL                                    }
 };
 
 Container<Sentient *> SentientList;
@@ -586,15 +676,32 @@ void Sentient::EventGiveDynItem(Event *ev)
 }
 
 Sentient::Sentient()
+    : m_bIsAnimal(false)
 {
     SentientList.AddObject((Sentient *)this);
     entflags |= EF_SENTIENT;
+
+    m_bOvercookDied = false;
 
     if (LoadingSavegame) {
         return;
     }
 
-    setContents(CONTENTS_BODY);
+    viewheight              = 0;
+    means_of_death          = MOD_NONE;
+    LMRF                    = 0;
+    in_melee_attack         = false;
+    in_block                = false;
+    in_stun                 = false;
+    on_fire                 = 0;
+    on_fire_stop_time       = 0;
+    next_catch_on_fire_time = 0;
+    on_fire_tagnums[0]      = -1;
+    on_fire_tagnums[1]      = -1;
+    on_fire_tagnums[2]      = -1;
+    attack_blocked_time     = 0;
+    m_fHelmetSpeed          = 0;
+
     inventory.ClearObjectList();
 
     m_pNextSquadMate = this;
@@ -603,8 +710,9 @@ Sentient::Sentient()
     m_Enemy.Clear();
 
     m_fPlayerSightLevel = 0;
+    newWeapon           = NULL;
 
-    eyeposition       = "0 0 64";
+    eyeposition       = Vector(0, 0, 64);
     charge_start_time = 0;
     poweruptype       = 0;
     poweruptimer      = 0;
@@ -614,62 +722,83 @@ Sentient::Sentient()
     // sentients have precise shadows
     edict->s.renderfx |= RF_SHADOW_PRECISE;
 
-    m_vViewVariation = "0 0 0";
-    in_melee_attack  = false;
-    in_block         = false;
-    in_stun          = false;
-    attack_blocked   = qfalse;
-    max_mouth_angle  = 10;
+    m_vViewVariation = Vector(0, 0, 0);
+    for (int i = 0; i < MAX_ACTIVE_WEAPONS; i++) {
+        activeWeaponList[i] = NULL;
+    }
+
+    in_melee_attack = false;
+    in_block        = false;
+    in_stun         = false;
+    attack_blocked  = qfalse;
+    max_mouth_angle = 10;
+
     // touch triggers by default
     flags |= FL_TOUCH_TRIGGERS;
+
+    on_fire         = false;
+    max_gibs        = 0;
+    next_bleed_time = 0;
+
+    ClearNewActiveWeapon();
+    newActiveWeapon.weapon    = NULL;
+    holsteredWeapon           = NULL;
+    weapons_holstered_by_code = false;
+    lastActiveWeapon.weapon   = NULL;
+    edict->s.eFlags |= EF_UNARMED;
 
     m_pVehicle.Clear();
     m_pTurret.Clear();
     m_pLadder.Clear();
+    m_iAttackerCount = 0;
     m_pLastAttacker.Clear();
 
     m_bIsDisguised        = false;
-    m_iLastHitTime        = 0;
     m_bHasDisguise        = false;
     m_ShowPapersTime      = 0;
+    m_iLastHitTime        = 0;
     m_Team                = TEAM_AMERICAN;
     m_iThreatBias         = 0;
     m_bFootOnGround_Right = true;
     m_bFootOnGround_Left  = true;
     m_bDontDropWeapons    = false;
 
-    m_fDamageMultipliers[0]  = 4.0f;
-    m_fDamageMultipliers[1]  = 4.0f;
-    m_fDamageMultipliers[2]  = 4.0f;
-    m_fDamageMultipliers[3]  = 1.0f;
-    m_fDamageMultipliers[4]  = 1.0f;
-    m_fDamageMultipliers[5]  = 1.0f;
-    m_fDamageMultipliers[6]  = 0.9f;
-    m_fDamageMultipliers[7]  = 0.8f;
-    m_fDamageMultipliers[8]  = 0.8f;
-    m_fDamageMultipliers[9]  = 0.8f;
-    m_fDamageMultipliers[10] = 0.8f;
-    m_fDamageMultipliers[11] = 0.6f;
-    m_fDamageMultipliers[12] = 0.6f;
-    m_fDamageMultipliers[13] = 0.6f;
-    m_fDamageMultipliers[14] = 0.6f;
-    m_fDamageMultipliers[15] = 0.5f;
-    m_fDamageMultipliers[16] = 0.5f;
-    m_fDamageMultipliers[17] = 0.5f;
-    m_fDamageMultipliers[18] = 0.5f;
-
-    m_PrevSentient = NULL;
-    m_NextSentient = level.m_HeadSentient[m_Team];
-
-    if (m_NextSentient) {
-        m_NextSentient->m_PrevSentient = this;
+    if (g_realismmode->integer) {
+        m_fDamageMultipliers[HITLOC_HEAD]        = 5.0f;
+        m_fDamageMultipliers[HITLOC_HELMET]      = 5.0f;
+        m_fDamageMultipliers[HITLOC_NECK]        = 5.0f;
+        m_fDamageMultipliers[HITLOC_TORSO_UPPER] = 1.0f;
+        m_fDamageMultipliers[HITLOC_TORSO_MID]   = 0.95f;
+        m_fDamageMultipliers[HITLOC_TORSO_LOWER] = 0.9f;
+        m_fDamageMultipliers[HITLOC_PELVIS]      = 0.85f;
+    } else {
+        m_fDamageMultipliers[HITLOC_HEAD]        = 4.0f;
+        m_fDamageMultipliers[HITLOC_HELMET]      = 4.0f;
+        m_fDamageMultipliers[HITLOC_NECK]        = 4.0f;
+        m_fDamageMultipliers[HITLOC_TORSO_UPPER] = 1.0f;
+        m_fDamageMultipliers[HITLOC_TORSO_MID]   = 1.0f;
+        m_fDamageMultipliers[HITLOC_TORSO_LOWER] = 1.0f;
+        m_fDamageMultipliers[HITLOC_PELVIS]      = 0.9f;
     }
 
-    level.m_HeadSentient[m_Team] = this;
+    m_fDamageMultipliers[HITLOC_R_ARM_UPPER] = 0.8f;
+    m_fDamageMultipliers[HITLOC_L_ARM_UPPER] = 0.8f;
+    m_fDamageMultipliers[HITLOC_R_LEG_UPPER] = 0.8f;
+    m_fDamageMultipliers[HITLOC_L_LEG_UPPER] = 0.8f;
+    m_fDamageMultipliers[HITLOC_R_ARM_LOWER] = 0.6f;
+    m_fDamageMultipliers[HITLOC_L_ARM_LOWER] = 0.6f;
+    m_fDamageMultipliers[HITLOC_R_LEG_LOWER] = 0.6f;
+    m_fDamageMultipliers[HITLOC_L_LEG_LOWER] = 0.6f;
+    m_fDamageMultipliers[HITLOC_R_HAND]      = 0.5f;
+    m_fDamageMultipliers[HITLOC_L_HAND]      = 0.5f;
+    m_fDamageMultipliers[HITLOC_R_FOOT]      = 0.5f;
+    m_fDamageMultipliers[HITLOC_L_FOOT]      = 0.5f;
 
-    on_fire         = false;
-    max_gibs        = 0;
-    next_bleed_time = 0;
+    m_PrevSentient = m_NextSentient = NULL;
+    m_bForceDropHealth              = false;
+    m_bForceDropWeapon              = false;
+
+    Link();
 }
 
 Sentient::~Sentient()
@@ -1854,7 +1983,7 @@ qboolean Sentient::PowerupActive(void)
     return poweruptype;
 }
 
-void Sentient::setModel(const char* mdl)
+void Sentient::setModel(const char *mdl)
 {
     // Rebind all active weapons
 
@@ -1911,7 +2040,6 @@ void Sentient::Archive(Archiver& arc)
 
     arc.ArchiveVector(&offset_color);
     arc.ArchiveVector(&offset_delta);
-    arc.ArchiveFloat(&offset_time);
     arc.ArchiveFloat(&charge_start_time);
     arc.ArchiveString(&blood_model);
 
@@ -1988,6 +2116,9 @@ void Sentient::Archive(Archiver& arc)
     arc.ArchiveInteger(&m_iThreatBias);
 
     arc.ArchiveBool(&m_bDontDropWeapons);
+    arc.ArchiveBool(&m_bIsAnimal);
+    arc.ArchiveBool(&m_bForceDropHealth);
+    arc.ArchiveBool(&m_bForceDropWeapon);
 
     if (arc.Loading()) {
         if (WeaponsOut()) {
@@ -2769,6 +2900,34 @@ void Sentient::EventDontDropWeapons(Event *ev)
     } else {
         m_bDontDropWeapons = true;
     }
+}
+
+void Sentient::EventForceDropWeapon(Event *ev)
+{
+    if (ev->NumArgs() > 0) {
+        m_bForceDropWeapon = ev->GetBoolean(1);
+    } else {
+        m_bForceDropWeapon = true;
+    }
+}
+
+void Sentient::EventForceDropHealth(Event *ev)
+{
+    if (ev->NumArgs() > 0) {
+        m_bForceDropHealth = ev->GetBoolean(1);
+    } else {
+        m_bForceDropHealth = true;
+    }
+}
+
+void Sentient::EventGetForceDropWeapon(Event *ev)
+{
+    ev->AddInteger(m_bForceDropWeapon);
+}
+
+void Sentient::EventGetForceDropHealth(Event *ev)
+{
+    ev->AddInteger(m_bForceDropHealth);
 }
 
 void Sentient::SetViewAngles(Vector angles) {}

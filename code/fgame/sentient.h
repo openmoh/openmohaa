@@ -97,7 +97,6 @@ protected:
     int                    poweruptimer;
     Vector                 offset_color;
     Vector                 offset_delta;
-    float                  offset_time;
     float                  charge_start_time;
     str                    blood_model;
     SafePtr<Weapon>        activeWeaponList[MAX_ACTIVE_WEAPONS];
@@ -150,24 +149,28 @@ protected:
     virtual void     TurnOnShadow(Event *ev);
     virtual void     WeaponKnockedFromHands(void);
 
-	void         EventDropItems(Event* ev);
-	void         EventDontDropWeapons(Event* ev);
-	void         DetachAllActiveWeapons(void);
-	void         AttachAllActiveWeapons(void);
-	qboolean     WeaponsOut(void);
-	qboolean     IsActiveWeapon(Weapon* weapon);
-	void         ActivateWeapon(Weapon* weapon, weaponhand_t hand);
-	void         ActivateLastActiveWeapon(void);
-	void         EventActivateLastActiveWeapon(Event* ev);
-	void         EventToggleItemUse(Event* ev);
-	void         DeactivateWeapon(Weapon* weapon);
-	void         DeactivateWeapon(weaponhand_t hand);
-	void         CheckAnimations(Event* ev);
-	void         ChargeWeapon(weaponhand_t hand, firemode_t mode);
-	virtual void FireWeapon(int number, firemode_t mode);
-	void         ReleaseFireWeapon(int number, firemode_t mode);
-	void         Link();
-	void         Unlink();
+    void         EventDropItems(Event *ev);
+    void         EventDontDropWeapons(Event *ev);
+    void         EventForceDropWeapon(Event *ev);
+    void         EventForceDropHealth(Event *ev);
+    void         EventGetForceDropWeapon(Event *ev);
+    void         EventGetForceDropHealth(Event *ev);
+    void         DetachAllActiveWeapons(void);
+    void         AttachAllActiveWeapons(void);
+    qboolean     WeaponsOut(void);
+    qboolean     IsActiveWeapon(Weapon *weapon);
+    void         ActivateWeapon(Weapon *weapon, weaponhand_t hand);
+    void         ActivateLastActiveWeapon(void);
+    void         EventActivateLastActiveWeapon(Event *ev);
+    void         EventToggleItemUse(Event *ev);
+    void         DeactivateWeapon(Weapon *weapon);
+    void         DeactivateWeapon(weaponhand_t hand);
+    void         CheckAnimations(Event *ev);
+    void         ChargeWeapon(weaponhand_t hand, firemode_t mode);
+    virtual void FireWeapon(int number, firemode_t mode);
+    void         ReleaseFireWeapon(int number, firemode_t mode);
+    void         Link();
+    void         Unlink();
 
 public:
     Vector            mTargetPos;
@@ -187,6 +190,7 @@ public:
     int               m_ShowPapersTime;
     int               m_iLastHitTime;
     int               m_iThreatBias;
+    bool              m_bIsAnimal;
     Vector            gunoffset;
     Vector            eyeposition;
     int               viewheight;
@@ -205,6 +209,8 @@ public:
     float             max_mouth_angle;
     int               max_gibs;
     float             next_bleed_time;
+    bool              m_bForceDropHealth;
+    bool              m_bForceDropWeapon;
     bool              m_bFootOnGround_Right;
     bool              m_bFootOnGround_Left;
 
@@ -226,6 +232,9 @@ public:
     void           FireWeapon(Event *ev);
     void           StopFireWeapon(Event *ev);
     void           ChargeWeapon(Event *ev);
+    virtual void   EventForceLandmineMeasure(Event *ev);
+    void           EventSetWeaponIdleState(Event *ev);
+    void           EventPingForMines(Event *ev);
     void           ReleaseFireWeapon(Event *ev);
     void           ChangeWeapon(Weapon *weapon, weaponhand_t hand);
     Weapon        *GetActiveWeapon(weaponhand_t hand) const;
@@ -269,7 +278,7 @@ public:
 
     qboolean PowerupActive(void);
 
-    void             setModel(const char* mdl);
+    void             setModel(const char *mdl);
     void             Archive(Archiver            &arc) override;
     void             ArchivePersistantData(Archiver            &arc);
     void             DoubleArmor(void);

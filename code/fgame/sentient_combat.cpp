@@ -347,6 +347,45 @@ void Sentient::ChargeWeapon(Event *ev)
     ChargeWeapon(hand, mode);
 }
 
+void Sentient::EventForceLandmineMeasure(Event *ev)
+{
+    // Can be inherited by child classes
+}
+
+void Sentient::EventSetWeaponIdleState(Event *ev)
+{
+    Weapon      *weapon;
+    weaponhand_t hand = WEAPON_MAIN;
+    int          state;
+
+    if (ev->NumArgs() > 2) {
+        warning("Sentient::PingForMines", "Wrong number of arguments (setweaponidlestate # [weaponhand])\n");
+        return;
+    }
+
+    if (ev->NumArgs() == 2) {
+        hand = WeaponHandNameToNum(ev->GetString(1));
+        if (hand == WEAPON_ERROR) {
+            hand = WEAPON_MAIN;
+        }
+    }
+
+    state  = ev->GetInteger(1);
+    weapon = GetActiveWeapon(hand);
+    if (weapon) {
+        weapon->SetIdleState(state);
+    }
+}
+
+void Sentient::EventPingForMines(Event *ev)
+{
+    if (ev->NumArgs() > 0) {
+        warning("Sentient::PingForMines", "Wrong number of arguments, none expected\n");
+        return;
+    }
+    // Not sure why this is empty
+}
+
 void Sentient::ReloadWeapon(Event *ev)
 {
     Weapon      *weapon;
