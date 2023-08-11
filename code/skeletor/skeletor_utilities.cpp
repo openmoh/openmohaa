@@ -157,6 +157,9 @@ int skelChannelList_s::AddChannel( int newGlobalChannelNum )
 
 	if( newGlobalChannelNum == -1 )
 	{
+		// Fixed in 2.0
+		// Set the global from local to -1
+		m_chanGlobalFromLocal[m_numChannels] = -1;
 		return m_numChannels++;
 	}
 
