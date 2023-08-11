@@ -1407,7 +1407,7 @@ void Projectile::Touch
 			if( weap->IsSubclassOfVehicleTurretGun() )
 			{
 				VehicleTurretGun *t = ( VehicleTurretGun * )weap.Pointer();
-				Player *p = ( Player * )t->GetRemoteOwner();
+				Player *p = ( Player * )t->GetRemoteOwner().Pointer();
 
 				if( p && p->IsSubclassOfPlayer() )
 				{

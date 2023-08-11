@@ -1700,7 +1700,7 @@ void Weapon::GetMuzzlePosition
 		if( IsSubclassOfVehicleTurretGun() )
 		{
 			VehicleTurretGun *t = ( VehicleTurretGun * )this;
-			owner = ( Player * )t->GetRemoteOwner();
+			owner = ( Player * )t->GetRemoteOwner().Pointer();
 		}
 	}
 
