@@ -74,6 +74,7 @@ class EventQueueNode;
 #define EV_SCRIPTONLY			(1<<5)		// This command only applies to SCRIPT files
 #define EV_SERVERCMD			(1<<6)		// Client : server command
 #define EV_DEFAULT				-1			// default flag
+#define EV_ZERO                 0
 
 // Event types
 #define EV_NORMAL				0	// Normal command

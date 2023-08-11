@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "../fgame/player.h"
 #include "../fgame/consoleevent.h"
-#include "../fgame/animate.h"
+#include "../fgame/animationevent.h"
 
 #define LISTENER_Cvar_Get gi.Cvar_Get
 
