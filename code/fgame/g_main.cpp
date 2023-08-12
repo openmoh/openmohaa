@@ -545,14 +545,8 @@ void G_RunFrame( int levelTime, int frameTime )
 			}
 		}
 
-		Director.iPaused--;
 		g_iInThinks++;
-
-		if( !Director.iPaused )
-		{
-			Director.ExecuteRunning();
-		}
-
+		Director.Unpause();
 		g_iInThinks--;
 
 		// Process any pending events that got posted during the script code

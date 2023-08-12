@@ -4512,12 +4512,8 @@ void Actor::UpdateAnim
 		Com_Printf("ChangeAnim\n");
 		ChangeAnim();
 	}
-	Director.iPaused--;
-	if (!Director.iPaused)
-	{
-		Director.ExecuteRunning();
-	}
-	Director.iPaused++;
+	Director.Unpause();
+	Director.Pause();
 
 	if (m_csSayAnim != STRING_EMPTY)
 	{
@@ -5534,9 +5530,7 @@ void Actor::Think
 
 		m_bNeedReload = false;
 		mbBreakSpecialAttack = false;
-		Director.iPaused--;
-		if (!Director.iPaused)
-			Director.ExecuteRunning();
+		Director.Unpause();
 		
 		//gi.DPrintf("Actor::Think 5: entnum %d, classname: %s\n", entnum, G_GetEntity(0) ? G_GetEntity(0)->getClassname() : "");
 	}
@@ -8234,13 +8228,9 @@ void Actor::IdleTurn
 
 			SafePtr<SimpleEntity> prevTurnEntity = m_pTurnEntity;
 
-			Director.iPaused--;
-			if (!Director.iPaused)
-			{
-				Director.ExecuteRunning();
-			}
+			Director.Unpause();
 			Unregister(STRING_TURNDONE);
-			Director.iPaused++;
+			Director.Pause();
 
 
 			if (m_pTurnEntity == prevTurnEntity)

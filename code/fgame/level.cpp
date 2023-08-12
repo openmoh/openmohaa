@@ -1218,9 +1218,7 @@ void Level::ServerSpawned(void)
             ent->entity->Unregister(STRING_SPAWN);
         }
 
-        if (Director.iPaused-- == 1) {
-            Director.ExecuteRunning();
-        }
+        Director.Unpause();
 
         Unregister(STRING_SPAWN);
     }
