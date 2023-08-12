@@ -1218,7 +1218,7 @@ Event EV_CanSee
 );
 Event EV_CanSeeNoEnts
 (
-    "cansee",
+    "canseenoents",
     EV_DEFAULT,
     "eFF",
     "entity fov vision_distance",
