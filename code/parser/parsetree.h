@@ -35,48 +35,48 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 typedef enum {
-    sval_none,
-    sval_next,
-    sval_statement_list,
-    sval_label,
-    sval_case,
-    sval_negative,
-    sval_assignment,
-    sval_if,
-    sval_ifelse,
-    sval_while,
-    sval_and,
-    sval_or,
-    sval_cmd_method,
-    sval_cmd_method_ret,
-    sval_cmd,
-    sval_cmd_default_ret,
-    sval_field,
-    sval_store_method,
-    sval_store_string,
-    sval_store_integer,
-    sval_store_float,
-    sval_calc_vector,
-    sval_store_null,
-    sval_store_nil,
-    sval_func1,
-    sval_operation,
-    sval_not,
-    sval_array,
-    sval_constarray,
-    sval_makearray,
-    sval_catch,
-    sval_switch,
-    sval_break,
-    sval_continue,
-    sval_do,
-    sval_privatelabel,
-    sval_define
+    ENUM_NOP,
+    ENUM_ptr,
+    ENUM_statement_list,
+    ENUM_labeled_statement,
+    ENUM_int_labeled_statement,
+    ENUM_neg_int_labeled_statement,
+    ENUM_assignment_statement,
+    ENUM_if_statement,
+    ENUM_if_else_statement,
+    ENUM_while_statement,
+    ENUM_logical_and,
+    ENUM_logical_or,
+    ENUM_method_event_statement,
+    ENUM_method_event_expr,
+    ENUM_cmd_event_statement,
+    ENUM_cmd_event_expr,
+    ENUM_field,
+    ENUM_listener,
+    ENUM_string,
+    ENUM_integer,
+    ENUM_float,
+    ENUM_vector,
+    ENUM_NULL,
+    ENUM_NIL,
+    ENUM_func1_expr,
+    ENUM_func2_expr,
+    ENUM_bool_not,
+    ENUM_array_expr,
+    ENUM_const_array_expr,
+    ENUM_makearray,
+    ENUM_try,
+    ENUM_switch,
+    ENUM_break,
+    ENUM_continue,
+    ENUM_do,
+    ENUM_privatelabel,
+    ENUM_define
 } sval_type_e;
 
 typedef union sval_u {
     int            type;
-    char          *stringValue;
+    const char     *stringValue;
     float          floatValue;
     int            intValue;
     char           charValue;
@@ -88,10 +88,16 @@ typedef union sval_u {
     unsigned int   sourcePosValue;
 } sval_t;
 
-typedef struct {
+struct stype_t {
     sval_t       val;
     unsigned int sourcePos;
-} stype_t;
+};
+
+enum parseStage_e {
+	PS_TYPE,
+	PS_BODY,
+	PS_BODY_END
+};
 
 void   parsetree_freeall();
 void   parsetree_init();
@@ -116,6 +122,14 @@ sval_u node3(int type, sval_u val1, sval_u val2, sval_u val3);
 sval_u node4(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4);
 sval_u node5(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4, sval_u val5);
 sval_u node6(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4, sval_u val5, sval_u val6);
+
+typedef struct parse_pos_s {
+    int sourcePos;
+	int first_line;
+	int first_column;
+	int last_line;
+	int last_column;
+} parse_pos_t;
 
 struct yyexception {
     int yylineno;

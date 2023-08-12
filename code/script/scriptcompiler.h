@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ScriptVariable;
 
+typedef void (*ScriptDisplayTokenFunc)(const char* type, const char* name);
+
 enum {
     method_game,
     method_level,
@@ -118,7 +120,7 @@ public:
     void EmitField(sval_t listener_val, sval_t field_val, unsigned int sourcePos);
     void EmitFloat(float value, unsigned int sourcePos);
     void EmitFunc1(int opcode, unsigned int sourcePos);
-    void EmitFunction(int iParamCount, sval_t val, unsigned int sourcePos);
+    //void EmitFunction(int iParamCount, sval_t val, unsigned int sourcePos);
     void EmitIfElseJump(sval_t if_stmt, sval_t else_stmt, unsigned int sourcePos);
     void EmitIfJump(sval_t if_stmt, unsigned int sourcePos);
     void EmitInteger(unsigned int value, unsigned int sourcePos);

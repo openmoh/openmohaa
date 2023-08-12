@@ -16,7 +16,14 @@ set(SOURCES_SHARED
 	"../qcommon/str.cpp"
 )
 
-file(GLOB_RECURSE SOURCES_GAME "./*.c*" "../parser/*.c*" "../script/*.c*")
+file(
+	GLOB_RECURSE
+	SOURCES_GAME
+	"./*.c*"
+	"../script/*.c*"
+	"../parser/generated/*.c*"
+	"../parser/parsetree.cpp"
+)
 
 add_library(fgame SHARED ${SOURCES_GAME})
 

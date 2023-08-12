@@ -43,14 +43,61 @@ void fprintf2( FILE *f, const char *format, ... )
 
 #define fprintf fprintf2
 
-int prev_yylex = 0;
+extern int prev_yylex;
+extern int out_pos;
+extern int success_pos;
+parseStage_e parseStage;
+
+/*
+extern "C" int yywrap(void);
+
+int yywrap(void) {
+	if (parseStage == PS_TYPE) {
+		parseStage = PS_BODY;
+		out_pos = 0;
+		success_pos = 0;
+		return 0;
+	}
+
+	if (parseStage == PS_BODY)
+	{
+		if (YY_START != 0)
+		{
+			parseStage = PS_BODY_END;
+			return 0;
+		}
+
+		Compiler.CompileError(success_pos, "unexpected end of file found in comment");
+	}
+
+	return 1;
+}
+*/
 
 extern yyparsedata parsedata;
 
-#define YYLLOCSET { yylval.s.sourcePos = parsedata.pos - yyleng; }
-#define YYLEX(n) { prev_yylex = n; return n; }
+void yyllocset(YYLTYPE *loc, uint32_t off)
+{
+	success_pos = out_pos - yyleng + off;
+	loc->sourcePos = success_pos;
+	parsedata.pos = success_pos;
+}
 
-#define YY_USER_ACTION parsedata.pos; parsedata.pos += yyleng;
+void yyreducepos(uint32_t off)
+{
+	out_pos -= off;
+}
+
+#define YYLEX(n) { yyllocset(&yylloc, 0); prev_yylex = n; return n; }
+#define YYLEXOFF(n, off) { yyllocset(&yylloc, off); prev_yylex = n; return n; }
+
+#define YY_USER_ACTION \
+{ \
+	out_pos += yyleng - yy_more_len; \
+	yylloc.sourcePos = out_pos; \
+	parsedata.pos = out_pos; \
+}
+
 #define YY_FATAL_ERROR( n ) yylexerror( n )
 
 void yylexerror( const char *msg )
@@ -108,22 +155,16 @@ static void TextEscapeValue( char *str, size_t len )
 
 static void TextValue( char *str, size_t len )
 {
-	yylval.s.val.stringValue = parsetree_malloc( len + 1 );
-	strncpy( yylval.s.val.stringValue, str, len );
-	yylval.s.val.stringValue[ len ] = 0;
+	char* s = parsetree_malloc(len + 1);
+	strncpy(s, str, len);
+	s[len] = 0;
+	yylval.s.val.stringValue = s;
 }
 
 static bool UseField( void )
 {
-	//return prev_yylex == TOKEN_PERIOD || prev_yylex == TOKEN_DOLLAR;
-	return ( !strncmp( yytext, "game.", 5 ) ||
-	!strncmp( yytext, "group.", 6 ) ||
-	!strncmp( yytext, "level.", 6 ) ||
-	!strncmp( yytext, "local.", 6 ) ||
-	!strncmp( yytext, "parm.", 5 ) ||
-	!strncmp( yytext, "owner.", 6 ) ||
-	!strncmp( yytext, "self.", 5 ) ||
-	*yytext == '$' || *yytext == '-' || *yytext == '/' );
+	return prev_yylex == TOKEN_PERIOD
+		|| prev_yylex == TOKEN_DOLLAR;
 }
 
 %}
@@ -132,8 +173,9 @@ static bool UseField( void )
 
 %option warn nodefault
 
-%option noyywrap never-interactive
+%option never-interactive
 %option yylineno
+%option noyywrap
 
 %x C_COMMENT
 %x C_LINE_COMMENT
@@ -153,28 +195,28 @@ varname		[a-zA-Z0-9_\"]+
 <C_COMMENT>.					{ ; }
 "*/"							{ Compiler.CompileError( parsedata.pos - yyleng, "'*/' found outside of comment" ); }
 
-
 \\[\r\n]+						{ ; }
 "//"[^\r\n]*					{ if( prev_yylex != TOKEN_EOL ) YYLEX( TOKEN_EOL ); }
 
-<VARIABLES>[\r\n]*				{ BEGIN( INITIAL ); YYLEX( TOKEN_EOL ); }
-<VARIABLES>"size"				{ YYLEX( TOKEN_SIZE ); }
-<VARIABLES>"."					{ YYLEX( TOKEN_PERIOD ); }
-<VARIABLES>\"([^\\\"]|\\.)*\"	{ YYLLOCSET; TextEscapeValue( yytext + 1, strlen( yytext ) - 2 ); YYLEX( TOKEN_STRING ); }
-<VARIABLES>[a-zA-Z0-9_\"]+		{ YYLLOCSET; TextValue( yytext, strlen( yytext ) ); YYLEX( TOKEN_IDENTIFIER ); }
+<VARIABLES>"size"				{ BEGIN(INITIAL); YYLEX(TOKEN_SIZE); }
+<VARIABLES>"."					{ YYLEX(TOKEN_PERIOD); }
+<VARIABLES>\"{string}\"			{ BEGIN(INITIAL); TextEscapeValue(yytext + 1, strlen( yytext ) - 2 ); YYLEX(TOKEN_STRING); }
+<VARIABLES>{varname}			{
+									TextValue(yytext, strlen(yytext));
+									YYLEX(TOKEN_IDENTIFIER);
+								}
+<VARIABLES>[ \t\r\n]			{
+									BEGIN(INITIAL);
+									unput(yytext[yyleng - 1]);
+									yyreducepos(1);
+								}
 <VARIABLES>.					{
-									for ( int i = yyleng - 1; i >= 0; --i )
-										unput( yytext[ i ] );
-
-									parsedata.pos -= yyleng;
-
-									BEGIN( INITIAL );
+									BEGIN(INITIAL);
+									unput(yytext[yyleng - 1]);
+									yyreducepos(1);
 								}
 
-[\r\n]*							{ if( prev_yylex != TOKEN_EOL ) YYLEX( TOKEN_EOL ); }
-[ \t]*							{ ; }
-
-\"{string}\"					{ YYLLOCSET; TextEscapeValue( yytext + 1, strlen( yytext ) - 2 ); YYLEX( TOKEN_STRING ); }
+\"{string}\"					{ TextEscapeValue( yytext + 1, strlen( yytext ) - 2 ); YYLEX( TOKEN_STRING ); }
 
 
 "?"								{ YYLEX( TOKEN_TERNARY ); }
@@ -192,12 +234,12 @@ varname		[a-zA-Z0-9_\"]+
 "owner"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_owner ); YYLEX( TOKEN_LISTENER ); }
 "self"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_self ); YYLEX( TOKEN_LISTENER ); }
 
-"{"								{ parsedata.braces_count++; YYLEX( TOKEN_LBRACKET ); }
-"}"								{ parsedata.braces_count--; YYLEX( TOKEN_RBRACKET ); }
-"("								{ YYLLOCSET; YYLEX( TOKEN_LPAREN ); }
-")"								{ BEGIN( VARIABLES ); YYLLOCSET; YYLEX( TOKEN_RPAREN ); }
-"["								{ YYLEX( TOKEN_LSQUARE ); }
-"]"								{ BEGIN( VARIABLES ); YYLEX( TOKEN_RSQUARE ); }
+"{"								{ parsedata.braces_count++; YYLEX( TOKEN_LEFT_BRACES ); }
+"}"								{ parsedata.braces_count--; YYLEX( TOKEN_RIGHT_BRACES ); }
+"("								{ YYLEX(TOKEN_LEFT_BRACKET); }
+")"								{ BEGIN(VARIABLES); YYLEX(TOKEN_RIGHT_BRACKET); }
+"["								{ YYLEX(TOKEN_LEFT_SQUARE_BRACKET); }
+"]"								{ BEGIN(VARIABLES); YYLEX(TOKEN_RIGHT_SQUARE_BRACKET); }
 
 "="								{ YYLEX( TOKEN_ASSIGNMENT ); }
 ":"								{ YYLEX( TOKEN_COLON ); }
@@ -250,17 +292,6 @@ varname		[a-zA-Z0-9_\"]+
 "NULL"							{ YYLEX( TOKEN_NULL ); }
 "NIL"							{ YYLEX( TOKEN_NIL ); }
 
-[0-9]+									{
-											char* p = nullptr;
-											yylval.s.val.intValue = std::strtoll(yytext, &p, 10);
-											YYLEX(TOKEN_INTEGER);
-										}
-[0-9\.]+|[0-9\.]+("e+"|"e-")+[0-9\.]	{
-											char* p = nullptr;
-											yylval.s.val.floatValue = std::strtof(yytext, &p);
-											YYLEX(TOKEN_FLOAT);
-										}
-
 "try"							{ YYLEX( TOKEN_TRY ); }
 "catch"							{ YYLEX( TOKEN_CATCH ); }
 "switch"						{ YYLEX( TOKEN_SWITCH ); }
@@ -272,21 +303,53 @@ varname		[a-zA-Z0-9_\"]+
 "makearray"|"makeArray"			{ YYLEX( TOKEN_MAKEARRAY ); }
 "endarray"|"endArray"			{ YYLEX( TOKEN_ENDARRAY ); }
 
-[a-zA-Z0-9_\./\\-]+				{
-									if( UseField() )
-									{
-										parsedata.pos -= yyleng;
-										REJECT;
-									}
-									else
-									{
-										YYLLOCSET;
-										TextEscapeValue( yytext, yyleng );
-										YYLEX( TOKEN_IDENTIFIER );
-									}
+[\r\n]*							{ if (prev_yylex != TOKEN_EOL) YYLEX(TOKEN_EOL); }
+[ \t]							{ ; }
+
+[0-9]+									{
+											char* p = nullptr;
+											yylval.s.val.intValue = std::strtol(yytext, &p, 10);
+											YYLEX(TOKEN_INTEGER);
+										}
+[0-9\.]+|[0-9\.]+("e+"|"e-")+[0-9\.]	{
+											char* p = nullptr;
+											yylval.s.val.floatValue = std::strtof(yytext, &p);
+											YYLEX(TOKEN_FLOAT);
+										}
+
+<IDENTIFIER>{identifier}*		{
+									BEGIN(INITIAL);
+									TextEscapeValue(yytext, yyleng);
+									YYLEX(TOKEN_IDENTIFIER);
+								}
+<IDENTIFIER>[ \t\r\n]			{
+									BEGIN(INITIAL);
+									unput(yytext[yyleng - 1]);
+									yyreducepos(1);
+									TextEscapeValue(yytext, yyleng - 1);
+									YYLEXOFF(TOKEN_IDENTIFIER, 1);
+								}
+<IDENTIFIER>.					{
+									BEGIN(INITIAL);
+									unput(yytext[yyleng - 1]);
+									yyreducepos(1);
+									TextEscapeValue(yytext, yyleng - 1);
+									YYLEXOFF(TOKEN_IDENTIFIER, 1);
 								}
 
-.								{ yylexerror( "bad token:\n" ); }
+{identifier}					{
+									BEGIN(IDENTIFIER);
+									yymore();
+								}
+
+[a-zA-Z0-9]+					{
+									BEGIN(IDENTIFIER);
+									yymore();
+								}
+
+<<EOF>>							{ YYLEX(TOKEN_EOF); }
+
+.								{ YY_FATAL_ERROR("bad token:\n"); }
 
 %{
 

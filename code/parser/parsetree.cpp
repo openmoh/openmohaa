@@ -233,7 +233,7 @@ sval_u node0(int type)
 {
     sval_u val;
 
-    if (type == sval_none) {
+    if (type == ENUM_NOP) {
         // memory optimization
         val.node = &node_none;
     } else {
@@ -262,7 +262,7 @@ sval_u node2(int type, sval_u val1, sval_u val2)
 {
     sval_u val;
 
-    assert(type != sval_none);
+    assert(type != ENUM_NOP);
 
     val.node = (sval_u *)parsetree_malloc(sizeof(sval_t[3]));
 
@@ -277,7 +277,7 @@ sval_u node3(int type, sval_u val1, sval_u val2, sval_u val3)
 {
     sval_u val;
 
-    assert(type != sval_none);
+    assert(type != ENUM_NOP);
 
     val.node = (sval_u *)parsetree_malloc(sizeof(sval_t[4]));
 
@@ -293,7 +293,7 @@ sval_u node4(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4)
 {
     sval_u val;
 
-    assert(type != sval_none);
+    assert(type != ENUM_NOP);
 
     val.node = (sval_u *)parsetree_malloc(sizeof(sval_t[5]));
 
@@ -310,7 +310,7 @@ sval_u node5(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4, sval_
 {
     sval_u val;
 
-    assert(type != sval_none);
+    assert(type != ENUM_NOP);
 
     val.node = (sval_u *)parsetree_malloc(sizeof(sval_t[6]));
 
@@ -328,7 +328,7 @@ sval_u node6(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4, sval_
 {
     sval_u val;
 
-    assert(type != sval_none);
+    assert(type != ENUM_NOP);
 
     val.node = (sval_u *)parsetree_malloc(sizeof(sval_t[7]));
 

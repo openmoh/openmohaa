@@ -236,20 +236,19 @@ void ScriptCompiler::EmitAssignmentStatement(sval_t lhs, unsigned int sourcePos)
 {
     int    eventnum;
     sval_t listener_val;
-    char  *name  = lhs.node[2].stringValue;
+    const char  *name  = lhs.node[2].stringValue;
     str    name2 = name;
     name2.tolower();
 
-    if (lhs.node[0].type != sval_field) {
-        if (lhs.node[0].type == sval_array) {
+    if (lhs.node[0].type != ENUM_field) {
+        if (lhs.node[0].type == ENUM_array_expr) {
             EmitRef(lhs.node[1], sourcePos);
             EmitValue(lhs.node[2]);
             EmitOpcode(OP_LOAD_ARRAY_VAR, lhs.node[3].sourcePosValue);
-
-            return;
         } else {
             CompileError(sourcePos, "bad lvalue: %d (expecting field or array)", lhs.node[0].type);
-        }
+		}
+		return;
     }
 
     unsigned int index = Director.AddString(name);
@@ -262,7 +261,7 @@ void ScriptCompiler::EmitAssignmentStatement(sval_t lhs, unsigned int sourcePos)
 
     listener_val = lhs.node[1];
 
-    if (listener_val.node[0].type != sval_store_method
+    if (listener_val.node[0].type != ENUM_listener
         || (eventnum && BuiltinWriteVariable(sourcePos, listener_val.node[1].byteValue, eventnum))) {
         EmitValue(listener_val);
         EmitOpcode(OP_LOAD_FIELD_VAR, sourcePos);
@@ -368,22 +367,15 @@ void ScriptCompiler::EmitCatch(sval_t val, unsigned char *try_begin_code_pos, un
 
 void ScriptCompiler::EmitConstArray(sval_t lhs, sval_t rhs, unsigned int sourcePos)
 {
-    int iCount = 1;
+	uint32_t iCount = 1;
 
-    while (1) {
-        iCount++;
+	EmitValue(lhs);
 
-        EmitValue(lhs);
+	for (const sval_t* node = rhs.node[0].node; node; node = node[1].node, iCount++)
+	{
+		EmitValue(*node);
+	}
 
-        if (rhs.node[0].type != sval_constarray) {
-            break;
-        }
-
-        lhs = rhs.node[1];
-        rhs = rhs.node[2];
-    }
-
-    EmitValue(rhs);
     EmitConstArrayOpcode(iCount);
 }
 
@@ -491,7 +483,7 @@ void ScriptCompiler::EmitField(sval_t listener_val, sval_t field_val, unsigned i
 
     prev_index = GetOpcodeValue<unsigned int>(sizeof(unsigned int), sizeof(unsigned int));
 
-    if (listener_val.node[0].type != sval_store_method
+    if (listener_val.node[0].type != ENUM_listener
         || (eventnum && BuiltinReadVariable(sourcePos, listener_val.node[1].byteValue, eventnum))) {
         EmitValue(listener_val);
         EmitOpcode(OP_STORE_FIELD, sourcePos);
@@ -534,9 +526,10 @@ void ScriptCompiler::EmitFunc1(int opcode, unsigned int sourcePos)
     EmitOpcode(opcode, sourcePos);
 }
 
+/*
 void ScriptCompiler::EmitFunction(int iParamCount, sval_t val, unsigned int sourcePos)
 {
-    char *p = val.stringValue;
+    const char *p = val.stringValue;
 
     str  filename;
     str  label;
@@ -573,6 +566,7 @@ void ScriptCompiler::EmitFunction(int iParamCount, sval_t val, unsigned int sour
 
     EmitOpcodeValue(iParamCount, sizeof(uint8_t));
 }
+*/
 
 void ScriptCompiler::EmitIfElseJump(sval_t if_stmt, sval_t else_stmt, unsigned int sourcePos)
 {
@@ -674,22 +668,16 @@ void ScriptCompiler::EmitLabel(str name, unsigned int sourcePos)
 
 void ScriptCompiler::EmitLabelParameterList(sval_t parameter_list, unsigned int sourcePos)
 {
-    sval_u param;
+	if (parameter_list.node)
+	{
+		EmitOpcode(OP_MARK_STACK_POS, sourcePos);
 
-    ClearPrevOpcode();
+		for (const sval_t* param = parameter_list.node->node; param; param = param[1].node) {
+			EmitParameter(*param, sourcePos);
+		};
 
-    param = parameter_list.node[0];
-
-    if (param.node && param.node[0].node[0].type != sval_none) {
-        EmitOpcode(OP_MARK_STACK_POS, sourcePos);
-
-        while (param.node) {
-            EmitParameter(param.node[0], param.node[2].sourcePosValue);
-            param = param.node[1];
-        }
-
-        EmitOpcode(OP_RESTORE_STACK_POS, sourcePos);
-    }
+		EmitOpcode(OP_RESTORE_STACK_POS, sourcePos);
+	}
 }
 
 void ScriptCompiler::EmitLabelPrivate(str name, unsigned int sourcePos)
@@ -867,60 +855,59 @@ void ScriptCompiler::EmitOpcode(int opcode, unsigned int sourcePos)
 
 void ScriptCompiler::EmitParameter(sval_t lhs, unsigned int sourcePos)
 {
-    if (lhs.node[0].type != sval_field) {
+    if (lhs.node[0].type != ENUM_field) {
         CompileError(sourcePos, "bad parameter lvalue: %d (expecting field)", lhs.node[0].type);
     }
 
     sval_u       listener_val = lhs.node[1];
     const char  *name         = lhs.node[2].stringValue;
-    unsigned int index        = Director.AddString(name);
 
     int eventnum = Event::FindSetterEventNum(name);
 
-    if (listener_val.node[0].type != sval_store_method
+    if (listener_val.node[0].type != ENUM_listener
         || (eventnum && BuiltinWriteVariable(sourcePos, listener_val.node[1].byteValue, eventnum))) {
         CompileError(sourcePos, "built-in field '%s' not allowed", name);
     } else {
         EmitOpcode(OP_STORE_PARAM, sourcePos);
         EmitOpcode(OP_LOAD_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
 
+		unsigned int index = Director.AddString(name);
         EmitOpcodeValue(index, sizeof(unsigned int));
     }
 }
 
 int ScriptCompiler::EmitParameterList(sval_t event_parameter_list)
 {
-    sval_t *node;
-    int     iParamCount = 0;
+	sval_t* node;
+	uint32_t iParamCount = 0;
 
-    for (node = event_parameter_list.node[1].node[0].node; node != NULL; node = node[1].node) {
-        if (node[0].node[0].type == sval_none) {
-            continue;
-        }
+	if (!event_parameter_list.node) {
+		return 0;
+	}
 
-        EmitValue(*node);
+	for (node = event_parameter_list.node->node; node; node = node[1].node)
+	{
+		EmitValue(*node);
 
-        iParamCount++;
-    }
+		iParamCount++;
+	}
 
-    return iParamCount;
+	return iParamCount;
 }
 
 void ScriptCompiler::EmitRef(sval_t val, unsigned int sourcePos)
 {
     unsigned int index;
 
-    if (val.node[0].type != sval_field) {
-        if (val.node[0].type == sval_array) {
+    if (val.node[0].type != ENUM_field) {
+        if (val.node[0].type == ENUM_array_expr) {
             EmitRef(val.node[1], sourcePos);
             EmitValue(val.node[2]);
             EmitOpcode(OP_STORE_ARRAY_REF, val.node[3].sourcePosValue);
-
-            return;
         } else {
             CompileError(sourcePos, "bad lvalue: %d (expecting field or array)", val.node[0].type);
-            return;
-        }
+		}
+		return;
     }
 
     index = Director.AddString(val.node[2].stringValue);
@@ -993,48 +980,48 @@ void ScriptCompiler::EmitValue(sval_t val)
 __emit:
 
     switch (val.node[0].type) {
-    case sval_none:
+    case ENUM_NOP:
         break;
 
-    case sval_and:
-    case sval_or:
+    case ENUM_logical_and:
+    case ENUM_logical_or:
         EmitValue(val.node[1]);
         EmitVarToBool(val.node[3].sourcePosValue);
-        EmitLogicJump(val.node[2], val.node[0].type == sval_or, val.node[3].sourcePosValue);
+        EmitLogicJump(val.node[2], val.node[0].type == ENUM_logical_or, val.node[3].sourcePosValue);
         break;
 
-    case sval_array:
+    case ENUM_array_expr:
         EmitValue(val.node[1]);
         EmitValue(val.node[2]);
         EmitOpcode(OP_STORE_ARRAY, val.node[3].sourcePosValue);
         break;
 
-    case sval_assignment:
+    case ENUM_assignment_statement:
         EmitValue(val.node[2]);
         EmitAssignmentStatement(val.node[1], val.node[3].sourcePosValue);
         break;
 
-    case sval_break:
+    case ENUM_break:
         return EmitBreak(val.node[1].sourcePosValue);
 
-    case sval_calc_vector:
+    case ENUM_vector:
         EmitValue(val.node[1]);
         EmitValue(val.node[2]);
         EmitValue(val.node[3]);
         EmitOpcode(OP_CALC_VECTOR, val.node[4].sourcePosValue);
         break;
 
-    case sval_negative:
+    case ENUM_neg_int_labeled_statement:
         val.node[1].intValue = -val.node[1].intValue;
-    case sval_case:
+    case ENUM_int_labeled_statement:
         {
             sval_u case_parm = val.node[1];
 
-            if (case_parm.node[0].type == sval_store_integer) {
+            if (case_parm.node[0].type == ENUM_integer) {
                 EmitLabel(case_parm.node[1].intValue, val.node[3].sourcePosValue);
-            } else if (case_parm.node[0].type == sval_store_string) {
+            } else if (case_parm.node[0].type == ENUM_string) {
                 EmitLabel(case_parm.node[1].stringValue, val.node[3].sourcePosValue);
-            } else if (case_parm.node[0].type == sval_func1 && case_parm.node[1].byteValue == OP_UN_MINUS) {
+            } else if (case_parm.node[0].type == ENUM_func1_expr && case_parm.node[1].byteValue == OP_UN_MINUS) {
                 EmitLabel(-case_parm.node[2].node[1].intValue, val.node[3].sourcePosValue);
             } else {
                 CompileError(
@@ -1049,7 +1036,7 @@ __emit:
             break;
         }
 
-    case sval_catch:
+    case ENUM_try:
         {
             unsigned char *old_code_pos = code_pos;
 
@@ -1059,197 +1046,185 @@ __emit:
             break;
         }
 
-    case sval_cmd:
+    case ENUM_cmd_event_statement:
+	{
+		const int eventnum = Event::FindNormalEventNum(val.node[1].stringValue);
+		sval_t parameter_list = val.node[2];
+		const uint32_t iParamCount = EmitParameterList(parameter_list);
+
+		if (!eventnum) {
+			CompileError(val.node[3].sourcePosValue, "unknown command: %s", val.node[1].stringValue);
+		}
+
+		if (iParamCount > 5)
+		{
+			SetOpcodeVarStackOffset(OP_EXEC_CMD_COUNT1, -(int32_t)iParamCount);
+			EmitOpcode(OP_EXEC_CMD_COUNT1, val.node[3].sourcePosValue);
+
+			EmitOpcodeValue(iParamCount, sizeof(byte));
+		}
+		else
+		{
+			EmitOpcode(OP_EXEC_CMD0 + iParamCount, val.node[3].sourcePosValue);
+		}
+
+		EmitOpcodeValue((op_ev_t)eventnum, sizeof(unsigned int));
+		break;
+	}
+
+    case ENUM_cmd_event_expr:
         {
-            str cmd = val.node[1].stringValue;
-            cmd.tolower();
-            int eventnum    = Event::FindNormalEventNum(cmd);
-            int iParamCount = EmitParameterList(val.node[2]);
+		const int eventnum = Event::FindReturnEventNum(val.node[1].stringValue);
+        sval_t parameter_list = val.node[2];
+		const uint32_t iParamCount = EmitParameterList(parameter_list);
 
-            if (!eventnum) {
-                CompileError(val.node[3].sourcePosValue, "unknown command: %s", val.node[1].stringValue);
+		EmitOpcode(OP_STORE_LOCAL, val.node[3].sourcePosValue);
 
-                /*EmitOpcode( OP_STORE_LOCAL, val.node[ 3 ].sourcePosValue );
-			EmitFunction( iParamCount, val.node[ 1 ], val.node[ 3 ].sourcePosValue );
-			EmitOpcode( OP_LOAD_LOCAL_VAR, val.node[ 3 ].sourcePosValue );
+		if (!eventnum) {
+			CompileError(val.node[3].sourcePosValue, "unknown command: %s", val.node[1].stringValue);
+		}
 
-			*reinterpret_cast< unsigned int * >( code_pos ) = Director.AddString( "" );
-			code_pos += sizeof( unsigned int );*/
-            } else {
-                if (iParamCount > 5) {
-                    SetOpcodeVarStackOffset(OP_EXEC_CMD_COUNT1, -iParamCount);
-                    EmitOpcode(OP_EXEC_CMD_COUNT1, val.node[3].sourcePosValue);
+		EmitMethodExpression(iParamCount, eventnum, val.node[3].sourcePosValue);
 
-                    EmitOpcodeValue(iParamCount, sizeof(byte));
-                } else {
-                    EmitOpcode(OP_EXEC_CMD0 + iParamCount, val.node[3].sourcePosValue);
-                }
-
-                EmitOpcodeValue(eventnum, sizeof(unsigned int));
-            }
-            break;
+		EmitOpcodeValue((op_ev_t)eventnum, sizeof(unsigned int));
+        break;
         }
 
-    case sval_cmd_default_ret:
+    case ENUM_method_event_statement:
         {
-            str cmd = val.node[1].stringValue;
-            cmd.tolower();
-            int eventnum    = Event::FindReturnEventNum(cmd);
-            int iParamCount = EmitParameterList(val.node[2]);
+		const int eventnum = Event::FindNormalEventNum(val.node[2].stringValue);
+		sval_t parameter_list = val.node[3];
+		const uint32_t iParamCount = EmitParameterList(parameter_list);
 
-            EmitOpcode(OP_STORE_LOCAL, val.node[3].sourcePosValue);
+		if (!eventnum) {
+			CompileError(val.node[3].sourcePosValue, "unknown command: %s", val.node[2].stringValue);
+		}
 
-            if (!eventnum) {
-                CompileError(val.node[3].sourcePosValue, "unknown return command: %s", val.node[1].stringValue);
-                //EmitFunction( iParamCount, val.node[ 1 ], val.node[ 3 ].sourcePosValue );
-            } else {
-                EmitMethodExpression(iParamCount, eventnum, val.node[3].sourcePosValue);
-            }
-            break;
+        EmitValue(val.node[1]);
+
+		if (iParamCount > 5)
+		{
+			SetOpcodeVarStackOffset(OP_EXEC_CMD_COUNT1, -(int32_t)iParamCount);
+			EmitOpcode(OP_EXEC_CMD_COUNT1, val.node[4].sourcePosValue);
+
+			EmitOpcodeValue(iParamCount, sizeof(byte));
+		}
+		else
+		{
+			EmitOpcode(OP_EXEC_CMD_METHOD0 + iParamCount, val.node[4].sourcePosValue);
+		}
+
+		EmitOpcodeValue(eventnum, sizeof(unsigned int));
+		break;
         }
 
-    case sval_cmd_method:
-        {
-            str cmd = val.node[2].stringValue;
-            cmd.tolower();
-            int eventnum    = Event::FindNormalEventNum(cmd);
-            int iParamCount = EmitParameterList(val.node[3]);
+    case ENUM_method_event_expr:
+	{
+		const int eventnum = Event::FindReturnEventNum(val.node[2].stringValue);
+		sval_t parameter_list = val.node[3];
+		const uint32_t iParamCount = EmitParameterList(parameter_list);
 
-            EmitValue(val.node[1]);
+		if (!eventnum) {
+			CompileError(val.node[4].sourcePosValue, "unknown command: %s", val.node[2].stringValue);
+		}
 
-            if (!eventnum) {
-                CompileError(val.node[4].sourcePosValue, "unknown command: %s", val.node[2].stringValue);
+		EmitValue(val.node[1]);
+		EmitMethodExpression(iParamCount, eventnum, val.node[4].sourcePosValue);
+		break;
+	}
 
-                /*EmitFunction( iParamCount, val.node[ 2 ], val.node[ 4 ].sourcePosValue );
-			EmitOpcode( OP_LOAD_LOCAL_VAR, val.node[ 3 ].sourcePosValue );
-
-			*reinterpret_cast< unsigned int * >( code_pos ) = Director.AddString( "" );
-			code_pos += sizeof( unsigned int );*/
-            } else {
-                if (iParamCount > 5) {
-                    SetOpcodeVarStackOffset(OP_EXEC_CMD_METHOD_COUNT1, -iParamCount - 1);
-                    EmitOpcode(OP_EXEC_CMD_METHOD_COUNT1, val.node[4].sourcePosValue);
-
-                    EmitOpcodeValue(iParamCount, sizeof(byte));
-                } else {
-                    EmitOpcode(OP_EXEC_CMD_METHOD0 + iParamCount, val.node[4].sourcePosValue);
-                }
-
-                EmitOpcodeValue(eventnum, sizeof(unsigned int));
-            }
-            break;
-        }
-
-    case sval_cmd_method_ret:
-        {
-            str cmd = val.node[2].stringValue;
-            cmd.tolower();
-            int eventnum    = Event::FindReturnEventNum(cmd);
-            int iParamCount = EmitParameterList(val.node[3]);
-
-            EmitValue(val.node[1]);
-
-            if (!eventnum) {
-                CompileError(val.node[4].sourcePosValue, "unknown return command: %s", val.node[2].stringValue);
-                //EmitFunction( iParamCount ,val.node[ 2 ], val.node[ 4 ].sourcePosValue );
-            } else {
-                EmitMethodExpression(iParamCount, eventnum, val.node[4].sourcePosValue);
-            }
-            break;
-        }
-
-    case sval_constarray:
+    case ENUM_const_array_expr:
         return EmitConstArray(val.node[1], val.node[2], val.node[3].sourcePosValue);
 
-    case sval_continue:
+    case ENUM_continue:
         return EmitContinue(val.node[1].sourcePosValue);
 
-    case sval_do:
+    case ENUM_do:
         return EmitDoWhileJump(val.node[1], val.node[2], val.node[3].sourcePosValue);
 
-    case sval_field:
+    case ENUM_field:
         return EmitField(val.node[1], val.node[2], val.node[3].sourcePosValue);
 
-    case sval_func1:
+    case ENUM_func1_expr:
         EmitValue(val.node[2]);
         EmitFunc1(val.node[1].byteValue, val.node[3].sourcePosValue);
         break;
 
-    case sval_if:
+    case ENUM_if_statement:
         EmitValue(val.node[1]);
         EmitVarToBool(val.node[4].sourcePosValue);
         EmitIfJump(val.node[2], val.node[3].sourcePosValue);
         break;
 
-    case sval_ifelse:
+    case ENUM_if_else_statement:
         EmitValue(val.node[1]);
         EmitVarToBool(val.node[4].sourcePosValue);
         EmitIfElseJump(val.node[2], val.node[3], val.node[4].sourcePosValue);
         break;
 
-    case sval_label:
+    case ENUM_labeled_statement:
         EmitLabel(val.node[1].stringValue, val.node[3].sourcePosValue);
         EmitLabelParameterList(val.node[2], val.node[3].sourcePosValue);
         break;
 
-    case sval_privatelabel:
+    case ENUM_privatelabel:
         EmitLabelPrivate(val.node[1].stringValue, val.node[3].sourcePosValue);
         EmitLabelParameterList(val.node[2], val.node[3].sourcePosValue);
         break;
 
-    case sval_makearray:
+    case ENUM_makearray:
         return EmitMakeArray(val.node[1]);
 
-    case sval_not:
+    case ENUM_bool_not:
         EmitValue(val.node[1]);
         EmitVarToBool(val.node[2].sourcePosValue);
         EmitBoolNot(val.node[2].sourcePosValue);
         EmitBoolToVar(val.node[2].sourcePosValue);
         break;
 
-    case sval_operation:
+    case ENUM_func2_expr:
         EmitValue(val.node[2]);
         EmitValue(val.node[3]);
         EmitOpcode(val.node[1].byteValue, val.node[4].sourcePosValue);
         break;
 
-    case sval_statement_list:
+    case ENUM_statement_list:
         return EmitStatementList(val.node[1]);
 
-    case sval_store_float:
+    case ENUM_float:
         EmitFloat(val.node[1].floatValue, val.node[2].sourcePosValue);
         break;
 
-    case sval_store_integer:
+    case ENUM_integer:
         EmitInteger(val.node[1].intValue, val.node[2].sourcePosValue);
         break;
 
-    case sval_store_method:
+    case ENUM_listener:
         EmitOpcode(OP_STORE_GAME + val.node[1].byteValue, val.node[2].sourcePosValue);
         break;
 
-    case sval_store_nil:
+    case ENUM_NIL:
         EmitOpcode(OP_STORE_NIL, val.node[1].sourcePosValue);
         break;
 
-    case sval_store_null:
+    case ENUM_NULL:
         EmitOpcode(OP_STORE_NULL, val.node[1].sourcePosValue);
         break;
 
-    case sval_store_string:
+    case ENUM_string:
         EmitString(val.node[1].stringValue, val.node[2].sourcePosValue);
         break;
 
-    case sval_switch:
+    case ENUM_switch:
         EmitValue(val.node[1]);
         EmitSwitch(val.node[2], val.node[3].sourcePosValue);
         break;
 
-    case sval_next:
+    case ENUM_ptr:
         val = val.node[1];
         goto __emit; // prevent stack overflow
 
-    case sval_while:
+    case ENUM_while_statement:
         return EmitWhileJump(val.node[1], val.node[2], val.node[3], val.node[4].sourcePosValue);
 
     default:
@@ -1428,14 +1403,15 @@ int yyparse();
 
 char *ScriptCompiler::Preprocess(char *sourceBuffer)
 {
-    // FIXME (ley0k): Preprocessor (#defines and #includes)
-
     return sourceBuffer;
 }
 
 void ScriptCompiler::Preclean(char *processedBuffer) {}
 
 extern int prev_yylex;
+extern int out_pos;
+extern int success_pos;
+extern parseStage_e parseStage;
 
 int yyerror(const char *msg)
 {
@@ -1463,6 +1439,10 @@ size_t ScriptCompiler::Parse(GameScript *gameScript, char *sourceBuffer)
     parsedata.braces_count = 0;
 
     prev_yylex  = 0;
+    out_pos = 0;
+    success_pos = 0;
+    parseStage = PS_TYPE;
+
     script      = gameScript;
     stateScript = &gameScript->m_State;
     yy_scan_string(sourceBuffer);
