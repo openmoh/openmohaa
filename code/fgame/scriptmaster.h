@@ -33,8 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_COMMANDS			20
 #define MAX_EXECUTION_TIME		3000
 
-void Showmenu( str name, qboolean bForce );
-void Hidemenu( str name, qboolean bForce );
+void Showmenu( const str& name, qboolean bForce );
+void Hidemenu( const str& name, qboolean bForce );
 
 #define MAX_VAR_STACK		1024
 #define MAX_FASTEVENT		10

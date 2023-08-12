@@ -1053,3 +1053,24 @@ void ScriptMaster::Cache
 	CacheResource( ev->GetString( 1 ) );
 #endif
 }
+
+void ScriptMaster::AddMenu( str name )
+{
+	m_menus.AddUniqueObject( name );
+}
+
+void ScriptMaster::RemoveMenu( str name )
+{
+	if( m_menus.IndexOfObject( name ) )
+	{
+		m_menus.RemoveObject( name );
+	}
+}
+
+void ScriptMaster::LoadMenus( void )
+{
+	for( int i = 1; i <= m_menus.NumObjects(); i++ )
+	{
+		Showmenu( m_menus.ObjectAt( i ), true );
+	}
+}
