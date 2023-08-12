@@ -212,8 +212,6 @@ void CLASS_Print(FILE *class_file, const char *fmt, ...)
     }
 }
 
-
-
 Class::Class()
 {
     SafePtrList = NULL;
@@ -269,6 +267,59 @@ void Class::error(const char *function, const char *fmt, ...) const
     } else {
         CLASS_Error(ERR_DROP, "%s::%s : %s\n", getClassname(), function, text);
     }
+}
+
+qboolean Class::inheritsFrom(ClassDef *c) const
+{
+    return checkInheritance(c, classinfo());
+}
+
+qboolean Class::inheritsFrom(const char *name) const
+{
+    ClassDef *c;
+
+    c = getClass(name);
+
+    if (c == NULL) {
+        CLASS_Printf("Unknown class: %s\n", name);
+        return false;
+    }
+
+    return checkInheritance(c, classinfo());
+}
+
+qboolean Class::isInheritedBy(const char *name) const
+{
+    ClassDef *c;
+
+    c = getClass(name);
+
+    if (c == NULL) {
+        CLASS_DPrintf("Unknown class: %s\n", name);
+        return false;
+    }
+
+    return checkInheritance(classinfo(), c);
+}
+
+qboolean Class::isInheritedBy(ClassDef *c) const
+{
+    return checkInheritance(classinfo(), c);
+}
+
+const char *Class::getClassname(void) const
+{
+    return classinfo()->classname;
+}
+
+const char *Class::getClassID(void) const
+{
+    return classinfo()->classID;
+}
+
+const char *Class::getSuperclass(void) const
+{
+    return classinfo()->superclass;
 }
 
 ClassDef::ClassDef()
@@ -441,7 +492,7 @@ void ClassDef::BuildResponseList(void)
     }
 
     num = Event::NumEventCommands(
-    );  //size will be total event count, because it WAS faster to look for an event via eventnum
+    ); //size will be total event count, because it WAS faster to look for an event via eventnum
         //nowadays there's not much overhead in performance, TODO: change size to appropriate.
     responseLookup = (ResponseDef<Class> **)new char[sizeof(ResponseDef<Class> *) * num];
     memset(responseLookup, 0, sizeof(ResponseDef<Class> *) * num);
@@ -498,21 +549,6 @@ void ClassDef::BuildEventResponses(void)
         Event::NumEventCommands(),
         amount
     );
-}
-
-const char *Class::getClassID(void) const
-{
-    return classinfo()->classID;
-}
-
-const char *Class::getClassname(void) const
-{
-    return classinfo()->classname;
-}
-
-const char *Class::getSuperclass(void) const
-{
-    return classinfo()->superclass;
 }
 
 #define MAX_INHERITANCE 64
@@ -756,44 +792,6 @@ void DumpAllClasses(void)
         CLASS_DPrintf("Dumped all classes to file %s\n", class_filename.c_str());
         fclose(class_file);
     }
-}
-
-qboolean Class::inheritsFrom(ClassDef *c) const
-{
-    return checkInheritance(c, classinfo());
-}
-
-qboolean Class::inheritsFrom(const char *name) const
-{
-    ClassDef *c;
-
-    c = getClass(name);
-
-    if (c == NULL) {
-        CLASS_Printf("Unknown class: %s\n", name);
-        return false;
-    }
-
-    return checkInheritance(c, classinfo());
-}
-
-qboolean Class::isInheritedBy(const char *name) const
-{
-    ClassDef *c;
-
-    c = getClass(name);
-
-    if (c == NULL) {
-        CLASS_DPrintf("Unknown class: %s\n", name);
-        return false;
-    }
-
-    return checkInheritance(classinfo(), c);
-}
-
-qboolean Class::isInheritedBy(ClassDef *c) const
-{
-    return checkInheritance(classinfo(), c);
 }
 
 ClassDefHook::ClassDefHook()
