@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "consoleevent.h"
 #include "player.h"
 #include "lightstyleclass.h"
+#include "debuglines.h"
 
 #include "scriptflags.h"
 
@@ -90,6 +91,54 @@ Event EV_ScriptThread_GetAbs
     "Absolute value of int or float",
     EV_RETURN
 );
+//////////
+// Added in 2.30
+Event EV_ScriptThread_GetCos
+(
+    "cos",
+    EV_DEFAULT,
+    "f",
+    "arg",
+    "Cosine of float (expects degrees not radians)",
+    EV_RETURN
+);
+Event EV_ScriptThread_GetSin
+(
+    "sin",
+    EV_DEFAULT,
+    "f",
+    "arg",
+    "Sine of float (expects degrees not radians)",
+    EV_RETURN
+);
+Event EV_ScriptThread_GetTan
+(
+    "tan",
+    EV_DEFAULT,
+    "f",
+    "arg",
+    "Tangent of float (expects degrees not radians)",
+    EV_RETURN
+);
+Event EV_ScriptThread_GetATan
+(
+    "atan",
+    EV_DEFAULT,
+    "fF",
+    "arg arg2",
+    "ArcTangent of float (in degrees not radians)",
+    EV_RETURN
+);
+Event EV_ScriptThread_GetSqrt
+(
+    "sqrt",
+    EV_DEFAULT,
+    "f",
+    "arg",
+    "Sqrt of float",
+    EV_RETURN
+);
+//////////
 Event EV_ScriptThread_GetSelf
 (
     "self",
@@ -160,6 +209,15 @@ Event EV_ScriptThread_Println
     "s",
     "string",
     "Prints a string. followed by a newline.",
+    EV_NORMAL
+);
+Event EV_ScriptThread_DPrintln // Added in 2.0
+(
+    "dprintln",
+    EV_DEFAULT,
+    "s",
+    "string",
+    "Prints a debug string.followed by a newline.",
     EV_NORMAL
 );
 Event EV_ScriptThread_IPrintln
@@ -320,7 +378,16 @@ Event EV_ScriptThread_SetCvar
     "cvar_name value",
     "Sets the value of the specified cvar."
 );
-Event EV_ScriptThread_CueCamera(
+Event EV_ScriptThread_DebugLine // Added in 2.0
+(
+    "debugline",
+     EV_DEFAULT,
+     "vvFFFF",
+     "start end red green blue alpha",
+     "Draws a debug line from start to end using the given color and alpha for g_numdebuglinedelays server frames"
+);
+Event EV_ScriptThread_CueCamera
+(
     "cuecamera",
     EV_DEFAULT,
     "eF",
@@ -328,7 +395,8 @@ Event EV_ScriptThread_CueCamera(
     "Cue the camera. If switchTime is specified, then the camera\n"
     "will switch over that length of time."
 );
-Event EV_ScriptThread_CuePlayer(
+Event EV_ScriptThread_CuePlayer
+(
     "cueplayer",
     EV_DEFAULT,
     "F",
@@ -362,8 +430,7 @@ Event EV_ScriptThread_KillEnt
 );
 Event EV_ScriptThread_IsAlive
 (
-    "isalive",
-    EV_DEFAULT,
+    "IsAlive", EV_DEFAULT,
     "e",
     "ent",
     "Returns true if the specified entity exists and has health > 0.",
@@ -376,6 +443,15 @@ Event EV_ScriptThread_KillClass
     "sI",
     "class_name except",
     "Kills everything in the specified class except for the specified entity (optional)."
+);
+Event EV_ScriptThread_GetEntByEntnum // Added in 2.30
+(
+    "getentbyentnum",
+     EV_CHEAT,
+     "i",
+     "ent_num",
+     "Gets the specified entity",
+     EV_RETURN
 );
 Event EV_ScriptThread_RemoveEnt
 (
@@ -570,9 +646,13 @@ Event EV_ScriptThread_ClearLetterbox
     "time",
     "Clears letterbox mode."
 );
-Event EV_ScriptThread_SetDialogScript(
+Event EV_ScriptThread_SetDialogScript
+(
     "setdialogscript",
-    EV_DEFAULT, "s", "dialog_script", "Set the script to be used when dialog:: is used"
+    EV_DEFAULT,
+    "s",
+    "dialog_script",
+    "Set the script to be used when dialog:: is used"
 );
 Event EV_ScriptThread_SetLightStyle
 (
@@ -627,8 +707,7 @@ Event EV_ScriptThread_Vector_Normalize
 );
 Event EV_ScriptThread_Vector_Add
 (
-    "vector_add",
-    EV_DEFAULT,
+    "vector_add", EV_DEFAULT,
     "vv",
     "vector1 vector2",
     "Returns vector1 + vector2.",
@@ -645,8 +724,7 @@ Event EV_ScriptThread_Vector_Subtract
 );
 Event EV_ScriptThread_Vector_Scale
 (
-    "vector_scale",
-    EV_DEFAULT,
+    "vector_scale", EV_DEFAULT,
     "vf",
     "vector1 scale_factor",
     "Returns vector1 * scale_factor.",
@@ -654,8 +732,7 @@ Event EV_ScriptThread_Vector_Scale
 );
 Event EV_ScriptThread_Vector_DotProduct
 (
-    "vector_dot",
-    EV_DEFAULT,
+    "vector_dot", EV_DEFAULT,
     "vv",
     "vector1 vector2",
     "Returns vector1 * vector2.",
@@ -725,7 +802,8 @@ Event EV_ScriptThread_AIsCloserThanBToC
     "returns 1 if the first vector is closer than the second vector to the third vector.",
     EV_RETURN
 );
-Event EV_ScriptThread_PointsWithinDist(
+Event EV_ScriptThread_PointsWithinDist
+(
     "vector_within",
     EV_DEFAULT,
     "vvf",
@@ -758,6 +836,14 @@ Event EV_ScriptThread_Hidemenu
     "name bForce",
     "hide menu,"
     "with option to force it off"
+);
+Event EV_ScriptThread_PlayMovie // Added in 2.0
+(
+    "PlayMovie",
+    EV_DEFAULT,
+    "sI",
+    "name",
+    "Play a Movie..."
 );
 Event EV_ScriptThread_Pushmenu
 (
@@ -915,6 +1001,15 @@ Event EV_ScriptThread_Error
     "Ends the script",
     EV_NORMAL
 );
+Event EV_ScriptThread_DebugInt3 // Added in 2.0
+(
+    "debug_int3",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Generate an asm int 3",
+    EV_NORMAL
+);
 Event EV_ScriptThread_Timeout
 (
     "timeout",
@@ -931,6 +1026,14 @@ Event EV_ScriptThread_RadiusDamage
     "viiI",
     "origin damage radius constant_damage",
     "radius damage at origin"
+);
+Event EV_ScriptThread_LandmineDamage // Added in 2.30
+(
+    "landminedamage",
+    EV_DEFAULT,
+    "eff",
+    "landmine damage radius",
+    "radius damage at landmine"
 );
 Event EV_ScriptThread_BspTransition
 (
@@ -975,6 +1078,14 @@ Event EV_ScriptThread_TeamWin
     "axis_or_allies",
     "Sets that the 'axis' or the 'allies' have won the map."
 );
+Event EV_ScriptThread_StopTeamRespawn // Added in 2.30
+(
+    "stopteamrespawn",
+     EV_DEFAULT,
+     "s",
+     "team",
+     "Stops a team (anerican, german, both) from spawning in non-wave deathmatches"
+);
 Event EV_ScriptThread_GetBoundKey1
 (
     "getboundkey1",
@@ -1002,6 +1113,15 @@ Event EV_ScriptThread_LocConvertString
     "returns a localized version of the string.",
     EV_RETURN
 );
+Event EV_ScriptThread_SetScoreboardToggle // Added in 2.30
+(
+    "setscoreboardtoggle",
+    EV_DEFAULT,
+    "si",
+    "team value",
+    "Sets the specified team's scoreboard toggle",
+    EV_NORMAL
+);
 Event EV_ScriptThread_AddObjective
 (
     "addobjective",
@@ -1026,8 +1146,7 @@ Event EV_ScriptThread_SetObjectiveLocation
     "pos",
     "Sets the position in the world of the current objective"
 );
-Event EV_ScriptThread_ClearObjectiveLocation
-(
+Event EV_ScriptThread_ClearObjectiveLocation(
     "clear_objective_pos",
     EV_DEFAULT,
     NULL,
@@ -1082,8 +1201,7 @@ Event EV_ScriptThread_RemoveArchivedClass
     "Removes all of the simple archived entities in the specified class.",
     EV_NORMAL
 );
-Event EV_ScriptThread_RestoreSound
-(
+Event EV_ScriptThread_RestoreSound(
     "restoresound",
     -1,
     "fFE",
@@ -1286,8 +1404,7 @@ Event EV_ScriptThread_IsOutOfBounds
     "Returns 1 if the entity is out of bounds. 0 otherwise",
     EV_RETURN
 );
-Event EV_ScriptThread_FileOpen
-(
+Event EV_ScriptThread_FileOpen(
     "fopen",
     EV_DEFAULT,
     "ss",
@@ -1664,34 +1781,7 @@ Event EV_ScriptThread_FileRemoveDirectory
     "Removes a directory",
     EV_RETURN
 );
-Event EV_ScriptThread_MathCos
-(
-    "cos",
-    EV_DEFAULT,
-    "f",
-    "x",
-    "Compute cosine",
-    EV_RETURN
-);
-Event EV_ScriptThread_MathSin
-(
-    "sin",
-    EV_DEFAULT,
-    "f",
-    "x",
-    "Compute sine",
-    EV_RETURN
-);
-Event EV_ScriptThread_MathTan
-(
-    "tan",
-    EV_DEFAULT,
-    "f",
-    "x",
-    "Compute tangent",
-    EV_RETURN
-);
-Event EV_ScriptThread_MathACos
+Event EV_ScriptThread_GetACos
 (
     "acos",
     EV_DEFAULT,
@@ -1700,7 +1790,7 @@ Event EV_ScriptThread_MathACos
     "Compute arc cosine",
     EV_RETURN
 );
-Event EV_ScriptThread_MathASin
+Event EV_ScriptThread_GetASin
 (
     "asin",
     EV_DEFAULT,
@@ -1709,16 +1799,7 @@ Event EV_ScriptThread_MathASin
     "Compute arc sine",
     EV_RETURN
 );
-Event EV_ScriptThread_MathATan
-(
-    "atan",
-    EV_DEFAULT,
-    "f",
-    "x",
-    "Compute arc tangent",
-    EV_RETURN
-);
-Event EV_ScriptThread_MathATan2
+Event EV_ScriptThread_GetATan2
 (
     "atan2",
     EV_DEFAULT,
@@ -1727,7 +1808,7 @@ Event EV_ScriptThread_MathATan2
     "Compute arc tangent with two parameters",
     EV_RETURN
 );
-Event EV_ScriptThread_MathCosH
+Event EV_ScriptThread_GetCosH
 (
     "cosh",
     EV_DEFAULT,
@@ -1736,7 +1817,7 @@ Event EV_ScriptThread_MathCosH
     "Compute hyperbolic cosine",
     EV_RETURN
 );
-Event EV_ScriptThread_MathSinH
+Event EV_ScriptThread_GetSinH
 (
     "sinh",
     EV_DEFAULT,
@@ -1745,7 +1826,7 @@ Event EV_ScriptThread_MathSinH
     "Compute hyperbolic sine",
     EV_RETURN
 );
-Event EV_ScriptThread_MathTanH
+Event EV_ScriptThread_GetTanH
 (
     "tanh",
     EV_DEFAULT,
@@ -1754,7 +1835,7 @@ Event EV_ScriptThread_MathTanH
     "Compute hyperbolic tangent",
     EV_RETURN
 );
-Event EV_ScriptThread_MathExp
+Event EV_ScriptThread_GetExp
 (
     "exp",
     EV_DEFAULT,
@@ -1763,7 +1844,7 @@ Event EV_ScriptThread_MathExp
     "Compute exponential function",
     EV_RETURN
 );
-Event EV_ScriptThread_MathFrexp
+Event EV_ScriptThread_GetFrexp
 (
     "frexp",
     EV_DEFAULT,
@@ -1772,7 +1853,7 @@ Event EV_ScriptThread_MathFrexp
     "Get significand and exponent",
     EV_RETURN
 );
-Event EV_ScriptThread_MathLdexp
+Event EV_ScriptThread_GetLdexp
 (
     "ldexp",
     EV_DEFAULT,
@@ -1781,7 +1862,7 @@ Event EV_ScriptThread_MathLdexp
     "Generate number from significand and exponent",
     EV_RETURN
 );
-Event EV_ScriptThread_MathLog
+Event EV_ScriptThread_GetLog
 (
     "log",
     EV_DEFAULT,
@@ -1790,7 +1871,7 @@ Event EV_ScriptThread_MathLog
     "Compute natural logarithm",
     EV_RETURN
 );
-Event EV_ScriptThread_MathLog10
+Event EV_ScriptThread_GetLog10
 (
     "log10",
     EV_DEFAULT,
@@ -1799,7 +1880,7 @@ Event EV_ScriptThread_MathLog10
     "Compute common logarithm",
     EV_RETURN
 );
-Event EV_ScriptThread_MathModf
+Event EV_ScriptThread_GetModf
 (
     "modf",
     EV_DEFAULT,
@@ -1808,7 +1889,7 @@ Event EV_ScriptThread_MathModf
     "Break into fractional and integral parts",
     EV_RETURN
 );
-Event EV_ScriptThread_MathPow
+Event EV_ScriptThread_GetPow
 (
     "pow",
     EV_DEFAULT,
@@ -1817,16 +1898,7 @@ Event EV_ScriptThread_MathPow
     "Raise to power",
     EV_RETURN
 );
-Event EV_ScriptThread_MathSqrt
-(
-    "sqrt",
-    EV_DEFAULT,
-    "f",
-    "x",
-    "Compute square root",
-    EV_RETURN
-);
-Event EV_ScriptThread_MathCeil
+Event EV_ScriptThread_GetCeil
 (
     "ceil",
     EV_DEFAULT,
@@ -1835,7 +1907,7 @@ Event EV_ScriptThread_MathCeil
     "Round up value",
     EV_RETURN
 );
-Event EV_ScriptThread_MathFloor
+Event EV_ScriptThread_GetFloor
 (
     "floor",
     EV_DEFAULT,
@@ -1844,7 +1916,7 @@ Event EV_ScriptThread_MathFloor
     "Round down value",
     EV_RETURN
 );
-Event EV_ScriptThread_MathFmod
+Event EV_ScriptThread_GetFmod
 (
     "fmod",
     EV_DEFAULT,
@@ -1871,8 +1943,7 @@ Event EV_ScriptThread_CreateHUD
     "Create a new HUD element. Optionally for a particular client",
     EV_RETURN
 );
-Event EV_ScriptThread_TraceDetails
-(
+Event EV_ScriptThread_TraceDetails(
     "traced",
     EV_DEFAULT,
     "vvIVVI",
@@ -1896,15 +1967,6 @@ Event EV_ScriptThread_Md5String
     "s",
     "text",
     "generates MD5 hash of given text",
-    EV_RETURN
-);
-Event EV_ScriptThread_GetEntity
-(
-    "getentity",
-    EV_DEFAULT,
-    "i",
-    "entnum",
-    "returns entity with given entnum",
     EV_RETURN
 );
 Event EV_ScriptThread_SetTimer
@@ -1960,6 +2022,11 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_GetRandomInt,            &ScriptThread::GetRandomInt            },
     {&EV_ScriptThread_GetAbs,                  &ScriptThread::GetAbs                  },
     {&EV_ScriptThread_GetSelf,                 &ScriptThread::GetSelf                 },
+    {&EV_ScriptThread_GetCos,                  &ScriptThread::EventCos                },
+    {&EV_ScriptThread_GetSin,                  &ScriptThread::EventSin                },
+    {&EV_ScriptThread_GetTan,                  &ScriptThread::EventTan                },
+    {&EV_ScriptThread_GetATan,                 &ScriptThread::EventATan               },
+    {&EV_ScriptThread_GetSqrt,                 &ScriptThread::EventSqrt               },
     {&EV_ScriptThread_Vector_Length,           &ScriptThread::Vector_Length           },
     {&EV_ScriptThread_Vector_Normalize,        &ScriptThread::Vector_Normalize        },
     {&EV_ScriptThread_Vector_Add,              &ScriptThread::Vector_Add              },
@@ -1987,6 +2054,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_End,                     &ScriptThread::EventEnd                },
     {&EV_ScriptThread_Print,                   &ScriptThread::Print                   },
     {&EV_ScriptThread_Println,                 &ScriptThread::Println                 },
+    {&EV_ScriptThread_DPrintln,                &ScriptThread::DPrintln                },
     {&EV_ScriptThread_IPrintln,                &ScriptThread::IPrintln                },
     {&EV_ScriptThread_IPrintlnBold,            &ScriptThread::IPrintlnBold            },
     {&EV_ScriptThread_IPrintln_NoLoc,          &ScriptThread::IPrintln_NoLoc          },
@@ -2008,6 +2076,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_AliasCache,              &ScriptThread::RegisterAliasAndCache   },
     {&EV_ScriptThread_Precache_Cache,          &ScriptThread::CacheResourceEvent      },
     {&EV_ScriptThread_SetCvar,                 &ScriptThread::SetCvarEvent            },
+    {&EV_ScriptThread_DebugLine,               &ScriptThread::EventDebugLine          },
     {&EV_ScriptThread_CueCamera,               &ScriptThread::CueCamera               },
     {&EV_ScriptThread_CuePlayer,               &ScriptThread::CuePlayer               },
     {&EV_ScriptThread_FreezePlayer,            &ScriptThread::FreezePlayer            },
@@ -2030,6 +2099,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_AllAIOff,                &ScriptThread::SetAllAIOff             },
     {&EV_ScriptThread_AllAIOn,                 &ScriptThread::SetAllAIOn              },
     {&EV_ScriptThread_KillEnt,                 &ScriptThread::KillEnt                 },
+    {&EV_ScriptThread_GetEntByEntnum,          &ScriptThread::GetEntByEntnum          },
     {&EV_ScriptThread_RemoveEnt,               &ScriptThread::RemoveEnt               },
     {&EV_ScriptThread_KillClass,               &ScriptThread::KillClass               },
     {&EV_ScriptThread_RemoveClass,             &ScriptThread::RemoveClass             },
@@ -2041,6 +2111,7 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_Popmenu,                 &ScriptThread::EventPopmenu            },
     {&EV_ScriptThread_Showmenu,                &ScriptThread::EventPopmenu            },
     {&EV_ScriptThread_Hidemenu,                &ScriptThread::EventHidemenu           },
+    {&EV_ScriptThread_PlayMovie,               &ScriptThread::EventPlayMovie          },
     {&EV_ScriptThread_Pushmenu,                &ScriptThread::EventPushmenu           },
     {&EV_ScriptThread_HideMouse,               &ScriptThread::EventHideMouse          },
     {&EV_ScriptThread_CreateListener,          &ScriptThread::EventCreateListener     },
@@ -2057,15 +2128,19 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_HudDraw_Font,            &ScriptThread::EventHudDrawFont        },
     {&EV_ScriptThread_Timeout,                 &ScriptThread::EventTimeout            },
     {&EV_ScriptThread_Error,                   &ScriptThread::EventError              },
+    {&EV_ScriptThread_DebugInt3,               &ScriptThread::EventDebugInt3          },
     {&EV_ScriptThread_RadiusDamage,            &ScriptThread::EventRadiusDamage       },
+    {&EV_ScriptThread_LandmineDamage,          &ScriptThread::EventLandmineDamage     },
     {&EV_ScriptThread_BspTransition,           &ScriptThread::EventBspTransition      },
     {&EV_ScriptThread_LevelTransition,         &ScriptThread::EventLevelTransition    },
     {&EV_ScriptThread_MissionTransition,       &ScriptThread::EventMissionTransition  },
     {&EV_ScriptThread_Earthquake,              &ScriptThread::EventEarthquake         },
     {&EV_ScriptThread_TeamWin,                 &ScriptThread::EventTeamWin            },
+    {&EV_ScriptThread_StopTeamRespawn,         &ScriptThread::EventStopTeamRespawn    },
     {&EV_ScriptThread_GetBoundKey1,            &ScriptThread::EventGetBoundKey1       },
     {&EV_ScriptThread_GetBoundKey2,            &ScriptThread::EventGetBoundKey2       },
     {&EV_ScriptThread_LocConvertString,        &ScriptThread::EventLocConvertString   },
+    {&EV_ScriptThread_SetScoreboardToggle,     &ScriptThread::EventSetScoreboardToggle},
     {&EV_ScriptThread_AddObjective,            &ScriptThread::EventAddObjective       },
     {&EV_ScriptThread_SetCurrentObjective,     &ScriptThread::EventSetCurrentObjective},
     {&EV_ScriptThread_SetObjectiveLocation,    &ScriptThread::SetObjectiveLocation    },
@@ -2075,27 +2150,22 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_RegisterCommand,         &ScriptThread::EventRegisterCommand    },
     {&EV_ScriptThread_IsArray,                 &ScriptThread::EventIsArray            },
     {&EV_ScriptThread_IsDefined,               &ScriptThread::EventIsDefined          },
-    {&EV_ScriptThread_MathACos,                &ScriptThread::MathACos                },
-    {&EV_ScriptThread_MathASin,                &ScriptThread::MathASin                },
-    {&EV_ScriptThread_MathATan,                &ScriptThread::MathATan                },
-    {&EV_ScriptThread_MathATan2,               &ScriptThread::MathATan2               },
-    {&EV_ScriptThread_MathCeil,                &ScriptThread::MathCeil                },
-    {&EV_ScriptThread_MathCos,                 &ScriptThread::MathCos                 },
-    {&EV_ScriptThread_MathCosH,                &ScriptThread::MathCosH                },
-    {&EV_ScriptThread_MathExp,                 &ScriptThread::MathExp                 },
-    {&EV_ScriptThread_MathFloor,               &ScriptThread::MathFloor               },
-    {&EV_ScriptThread_MathFmod,                &ScriptThread::MathFmod                },
-    {&EV_ScriptThread_MathFrexp,               &ScriptThread::MathFrexp               },
-    {&EV_ScriptThread_MathLdexp,               &ScriptThread::MathLdexp               },
-    {&EV_ScriptThread_MathLog,                 &ScriptThread::MathLog                 },
-    {&EV_ScriptThread_MathLog10,               &ScriptThread::MathLog10               },
-    {&EV_ScriptThread_MathModf,                &ScriptThread::MathModf                },
-    {&EV_ScriptThread_MathPow,                 &ScriptThread::MathPow                 },
-    {&EV_ScriptThread_MathSin,                 &ScriptThread::MathSin                 },
-    {&EV_ScriptThread_MathSinH,                &ScriptThread::MathSinH                },
-    {&EV_ScriptThread_MathSqrt,                &ScriptThread::MathSqrt                },
-    {&EV_ScriptThread_MathTan,                 &ScriptThread::MathTan                 },
-    {&EV_ScriptThread_MathTanH,                &ScriptThread::MathTanH                },
+    {&EV_ScriptThread_GetACos,                 &ScriptThread::EventACos               },
+    {&EV_ScriptThread_GetASin,                 &ScriptThread::EventASin               },
+    {&EV_ScriptThread_GetATan2,                &ScriptThread::EventATan2              },
+    {&EV_ScriptThread_GetCeil,                 &ScriptThread::EventCeil               },
+    {&EV_ScriptThread_GetCosH,                 &ScriptThread::EventCosH               },
+    {&EV_ScriptThread_GetExp,                  &ScriptThread::EventExp                },
+    {&EV_ScriptThread_GetFloor,                &ScriptThread::EventFloor              },
+    {&EV_ScriptThread_GetFmod,                 &ScriptThread::EventFmod               },
+    {&EV_ScriptThread_GetFrexp,                &ScriptThread::EventFrexp              },
+    {&EV_ScriptThread_GetLdexp,                &ScriptThread::EventLdexp              },
+    {&EV_ScriptThread_GetLog,                  &ScriptThread::EventLog                },
+    {&EV_ScriptThread_GetLog10,                &ScriptThread::EventLog10              },
+    {&EV_ScriptThread_GetModf,                 &ScriptThread::EventModf               },
+    {&EV_ScriptThread_GetPow,                  &ScriptThread::EventPow                },
+    {&EV_ScriptThread_GetSinH,                 &ScriptThread::EventSinH               },
+    {&EV_ScriptThread_GetTanH,                 &ScriptThread::EventTanH               },
     {&EV_ScriptThread_strncpy,                 &ScriptThread::StringBytesCopy         },
     {&EV_ScriptThread_Md5String,               &ScriptThread::Md5String               },
     {&EV_ScriptThread_TypeOf,                  &ScriptThread::TypeOfVariable          },
@@ -2145,7 +2215,6 @@ CLASS_DECLARATION(Listener, ScriptThread, NULL) {
     {&EV_ScriptThread_GetArrayValues,          &ScriptThread::GetArrayValues          },
     {&EV_ScriptThread_GetDate,                 &ScriptThread::GetDate                 },
     {&EV_ScriptThread_GetEntArray,             &ScriptThread::GetEntArray             },
-    {&EV_ScriptThread_GetEntity,               &ScriptThread::GetEntity               },
     {&EV_ScriptThread_GetPlayerClientNum,      &ScriptThread::GetPlayerClientNum      },
     {&EV_ScriptThread_GetPlayerIP,             &ScriptThread::GetPlayerIP             },
     {&EV_ScriptThread_GetPlayerNetname,        &ScriptThread::GetPlayerNetname        },
@@ -2434,6 +2503,85 @@ void ScriptThread::GetAbs(Event *ev)
     }
 }
 
+void ScriptThread::EventCos(Event *ev)
+{
+    float arg;
+    float value;
+
+    arg   = ev->GetFloat(1);
+    value = cos(DEG2RAD(arg));
+    if (isnan(value)) {
+        ScriptError("cos(%f) = NaN", arg);
+    }
+
+    ev->AddFloat(value);
+}
+
+void ScriptThread::EventSin(Event *ev)
+{
+    float arg;
+    float value;
+
+    arg   = ev->GetFloat(1);
+    value = sin(DEG2RAD(arg));
+    if (isnan(value)) {
+        ScriptError("sin(%f) = NaN", arg);
+    }
+
+    ev->AddFloat(value);
+}
+
+void ScriptThread::EventTan(Event *ev)
+{
+    float arg;
+    float value;
+
+    arg   = ev->GetFloat(1);
+    value = tan(DEG2RAD(arg));
+    if (isnan(value)) {
+        ScriptError("tan(%f) = NaN", arg);
+    }
+
+    ev->AddFloat(value);
+}
+
+void ScriptThread::EventATan(Event *ev)
+{
+    float arg, arg2;
+    float value;
+
+    if (ev->NumArgs() > 1) {
+        arg   = ev->GetFloat(1);
+        arg2  = ev->GetFloat(2);
+        value = RAD2DEG(atan2(arg, arg2));
+        if (isnan(value)) {
+            ScriptError("atan(%f, %f) = NaN", arg, arg2);
+        }
+    } else {
+        arg   = ev->GetFloat(1);
+        value = RAD2DEG(atan(arg));
+        if (isnan(value)) {
+            ScriptError("atan(%f) = NaN", arg);
+        }
+    }
+
+    ev->AddFloat(value);
+}
+
+void ScriptThread::EventSqrt(Event *ev)
+{
+    float arg;
+    float value;
+
+    arg   = ev->GetFloat(1);
+    value = sqrtf(DEG2RAD(arg));
+    if (isnan(value)) {
+        ScriptError("sqrt(%f) = NaN", arg);
+    }
+
+    ev->AddFloat(value);
+}
+
 void ScriptThread::GetSelf(Event *ev)
 {
     ev->AddListener(m_ScriptVM->GetScriptClass()->GetSelf());
@@ -2549,7 +2697,7 @@ void ScriptThread::EventResume(Event *ev)
 
 void ScriptThread::EventPause(Event *ev)
 {
-    // FIXME: unimplemented
+    Pause();
 }
 
 void ScriptThread::EventEnd(Event *ev)
@@ -2572,7 +2720,7 @@ void ScriptThread::Print(Event *ev)
     }
 
     for (int i = 1; i <= ev->NumArgs(); i++) {
-        gi.DPrintf(ev->GetString(i).c_str());
+        gi.DPrintf2(ev->GetString(i).c_str());
     }
 }
 
@@ -2583,7 +2731,30 @@ void ScriptThread::Println(Event *ev)
     }
 
     Print(ev);
-    gi.DPrintf("\n");
+    gi.DPrintf2("\n");
+}
+
+void ScriptThread::DPrintln(Event *ev)
+{
+    gentity_t *ent;
+    int        i;
+    str        message;
+
+    if (!developer->integer) {
+        return;
+    }
+
+    for (i = 1; i <= ev->NumArgs(); i++) {
+        message += ev->GetString(i);
+    }
+
+    for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++) {
+        if (!ent->inuse || !ent->client) {
+            continue;
+        }
+
+        gi.SendServerCommand(i, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", message.c_str());
+    }
 }
 
 void ScriptThread::IPrintln(Event *ev)
@@ -2701,6 +2872,48 @@ void ScriptThread::MapEvent(Event *ev)
 void ScriptThread::SetCvarEvent(Event *ev)
 {
     gi.Cvar_Set(ev->GetString(1), ev->GetString(2));
+}
+
+void ScriptThread::EventDebugLine(Event *ev)
+{
+    Vector start, end;
+    float  red, green, blue, alpha;
+
+    red   = 1;
+    green = 1;
+    blue  = 1;
+    alpha = 1;
+
+    if (ev->NumArgs() == 5) {
+        red   = ev->GetFloat(3);
+        green = ev->GetFloat(4);
+        blue  = ev->GetFloat(5);
+    } else if (ev->NumArgs() == 6) {
+        red   = ev->GetFloat(3);
+        green = ev->GetFloat(4);
+        blue  = ev->GetFloat(5);
+        alpha = ev->GetFloat(6);
+    } else if (ev->NumArgs() != 2) {
+        ScriptError("debugline should have 2, 5, or 6 arguments");
+    }
+
+    if (ev->IsVectorAt(1)) {
+        start = ev->GetVector(1);
+    } else if (ev->GetEntity(1)) {
+        start = ev->GetEntity(1)->centroid;
+    } else {
+        ScriptError("argument 1 to debugline should be an entity or vector");
+    }
+
+    if (ev->IsVectorAt(2)) {
+        end = ev->GetVector(2);
+    } else if (ev->GetEntity(2)) {
+        end = ev->GetEntity(2)->centroid;
+    } else {
+        ScriptError("argument 2 to debugline should be an entity or vector");
+    }
+
+    G_DebugLine(start, end, red, green, blue, alpha);
 }
 
 void ScriptThread::CueCamera(Event *ev)
@@ -3061,6 +3274,21 @@ void ScriptThread::KillEnt(Event *ev)
     ent->Damage(world, world, ent->max_health + 25, vec_zero, vec_zero, vec_zero, 0, 0, 0);
 }
 
+void ScriptThread::GetEntByEntnum(Event *ev)
+{
+    int     entnum = -1;
+    Entity *ent;
+
+    entnum = ev->GetInteger(1);
+
+    if (entnum < 0 || entnum > globals.max_entities) {
+        throw ScriptException("Entity number %d out of scope!\n", entnum);
+    }
+
+    ent = G_GetEntity(entnum);
+    ev->AddEntity(ent);
+}
+
 void ScriptThread::RemoveEnt(Event *ev)
 {
     int     num;
@@ -3384,6 +3612,11 @@ void ScriptThread::EventHidemenu(Event *ev)
     } else {
         Hidemenu(name, false);
     }
+}
+
+void ScriptThread::EventPlayMovie(Event *ev)
+{
+    gi.SendConsoleCommand(va("cinematic %s", ev->GetString(1).c_str()));
 }
 
 void ScriptThread::EventPushmenu(Event *ev)
@@ -3718,17 +3951,49 @@ void ScriptThread::EventError(Event *ev)
     throw ScriptException(ev->GetString(1));
 }
 
+void ScriptThread::EventDebugInt3(Event *ev)
+{
+#ifdef _MSC_VER
+    __debugbreak();
+#endif
+    // FIXME: break on other platforms?
+}
+
 void ScriptThread::EventTimeout(Event *ev)
 {
     Director.maxTime = ev->GetFloat(1) * 1000.0f + 0.5f;
 }
 
+void ScriptThread::EventLandmineDamage(Event *ev)
+{
+    Entity *landmine;
+    float   damage;
+    float   radius;
+    Entity *owner;
+
+    landmine = ev->GetEntity(1);
+    damage   = ev->GetFloat(2);
+    radius   = ev->GetFloat(3);
+
+    if (!landmine || !landmine->edict) {
+        ScriptError("Landmine doesn't exist, yet explodes!.\n");
+    }
+
+    owner = G_GetEntity(landmine->edict->r.ownerNum);
+
+    RadiusDamage(landmine->origin, landmine, owner, damage, NULL, MOD_MINE_EXPLOSION, radius);
+}
+
 void ScriptThread::EventRadiusDamage(Event *ev)
 {
-    Vector origin = ev->GetVector(1);
-    float  damage = ev->GetFloat(2);
-    float  radius = ev->GetFloat(3);
+    Vector origin;
+    float  damage;
+    float  radius;
     int    constant_damage;
+
+    origin = ev->GetVector(1);
+    damage = ev->GetFloat(2);
+    radius = ev->GetFloat(3);
 
     if (ev->NumArgs() > 3) {
         constant_damage = ev->GetInteger(4);
@@ -3763,6 +4028,26 @@ void ScriptThread::EventMissionTransition(Event *ev)
 
     if (level.intermissiontime == 0.0f) {
         G_BeginIntermission(map, TRANS_MISSION);
+    }
+}
+
+void ScriptThread::EventStopTeamRespawn(Event *ev)
+{
+    const_str team = ev->GetConstString(1);
+    switch (team) {
+    case STRING_GERMAN:
+        dmManager.StopTeamRespawn(CONTROLLER_AXIS);
+        break;
+    case STRING_AMERICAN:
+        dmManager.StopTeamRespawn(CONTROLLER_ALLIED);
+        break;
+    case STRING_BOTH:
+        dmManager.StopTeamRespawn(CONTROLLER_AXIS);
+        dmManager.StopTeamRespawn(CONTROLLER_ALLIED);
+        break;
+    default:
+        ScriptError("stopteamrespawn must belong to 'american' or 'german' or 'both'");
+        break;
     }
 }
 
@@ -3970,6 +4255,30 @@ void ScriptThread::EventAddObjective(Event *ev)
     }
 
     AddObjective(index, status, text, location);
+}
+
+void ScriptThread::EventSetScoreboardToggle(Event *ev)
+{
+    int       value;
+    const_str team;
+
+    if (ev->NumArgs() != 2) {
+        ScriptError("wrong number of arguments: setscoreboardtoggle (axis|allies) (0|1)");
+    }
+
+    value = ev->GetInteger(2);
+    team  = ev->GetConstString(1);
+    switch (team) {
+    case STRING_AXIS:
+        gi.Cvar_Set("scoreboard_toggle2", va("%i", value));
+        break;
+    case STRING_ALLIES:
+        gi.Cvar_Set("scoreboard_toggle1", va("%i", value));
+        break;
+    default:
+        ScriptError("1st argument can only be \"axis\" or \"allies\"");
+        break;
+    }
 }
 
 void ScriptThread::EventSetCurrentObjective(Event *ev)
@@ -4265,21 +4574,6 @@ void ScriptThread::CanSwitchTeams(Event *ev)
 
         disable_team_spectate = !bAllow2;
     }
-}
-
-void ScriptThread::GetEntity(Event *ev)
-{
-    int     entnum = -1;
-    Entity *ent;
-
-    entnum = ev->GetInteger(1);
-
-    if (entnum < 0 || entnum > globals.max_entities) {
-        throw ScriptException("Entity number %d out of scope!\n", entnum);
-    }
-
-    ent = G_GetEntity(entnum);
-    ev->AddEntity(ent);
 }
 
 void ScriptThread::GetPlayerNetname(Event *ev)
@@ -5879,109 +6173,7 @@ void ScriptThread::FlagWait(Event *ev)
     flag->Wait(this);
 }
 
-void ScriptThread::MathCos(Event *ev)
-{
-    int    numArgs = 0;
-    double x = 0.0f, res = 0.0f;
-
-    numArgs = ev->NumArgs();
-
-    if (numArgs != 1) {
-        throw ScriptException("Wrong arguments count for cos!\n");
-    }
-
-    x   = (double)ev->GetFloat(1);
-    res = cos(x);
-
-    ev->AddFloat((float)res);
-}
-
-void ScriptThread::MathSin(Event *ev)
-{
-    int    numArgs = 0;
-    double x = 0.0f, res = 0.0f;
-
-    numArgs = ev->NumArgs();
-
-    if (numArgs != 1) {
-        throw ScriptException("Wrong arguments count for sin!\n");
-    }
-
-    x   = ev->GetFloat(1);
-    res = sin(x);
-
-    ev->AddFloat((float)res);
-}
-
-void ScriptThread::MathTan(Event *ev)
-{
-    int    numArgs = 0;
-    double x = 0.0f, res = 0.0f;
-
-    numArgs = ev->NumArgs();
-
-    if (numArgs != 1) {
-        throw ScriptException("Wrong arguments count for tan!\n");
-    }
-
-    x   = ev->GetFloat(1);
-    res = tan(x);
-
-    ev->AddFloat((float)res);
-}
-
-void ScriptThread::MathACos(Event *ev)
-{
-    int    numArgs = 0;
-    double x = 0.0f, res = 0.0f;
-
-    numArgs = ev->NumArgs();
-
-    if (numArgs != 1) {
-        throw ScriptException("Wrong arguments count for acos!\n");
-    }
-
-    x   = ev->GetFloat(1);
-    res = acos(x);
-
-    ev->AddFloat((float)res);
-}
-
-void ScriptThread::MathASin(Event *ev)
-{
-    int    numArgs = 0;
-    double x = 0.0f, res = 0.0f;
-
-    numArgs = ev->NumArgs();
-
-    if (numArgs != 1) {
-        throw ScriptException("Wrong arguments count for asin!\n");
-    }
-
-    x   = ev->GetFloat(1);
-    res = asin(x);
-
-    ev->AddFloat((float)res);
-}
-
-void ScriptThread::MathATan(Event *ev)
-{
-    int    numArgs = 0;
-    double x = 0.0f, res = 0.0f;
-
-    numArgs = ev->NumArgs();
-
-    if (numArgs != 1) {
-        throw ScriptException("Wrong arguments count for atan!\n");
-    }
-
-    x   = ev->GetFloat(1);
-    res = atan(x);
-
-    ev->AddFloat((float)res);
-}
-
-void ScriptThread::MathATan2(Event *ev)
+void ScriptThread::EventATan2(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, y = 0.0f, res = 0.0f;
@@ -6000,7 +6192,7 @@ void ScriptThread::MathATan2(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathCosH(Event *ev)
+void ScriptThread::EventCosH(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6017,7 +6209,7 @@ void ScriptThread::MathCosH(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathSinH(Event *ev)
+void ScriptThread::EventSinH(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6034,7 +6226,7 @@ void ScriptThread::MathSinH(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathTanH(Event *ev)
+void ScriptThread::EventTanH(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6051,7 +6243,7 @@ void ScriptThread::MathTanH(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathExp(Event *ev)
+void ScriptThread::EventExp(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6068,7 +6260,7 @@ void ScriptThread::MathExp(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathFrexp(Event *ev)
+void ScriptThread::EventFrexp(Event *ev)
 {
     int             numArgs = 0;
     double          x = 0.0f, res = 0.0f;
@@ -6103,7 +6295,7 @@ void ScriptThread::MathFrexp(Event *ev)
     ev->AddValue(*array);
 }
 
-void ScriptThread::MathLdexp(Event *ev)
+void ScriptThread::EventLdexp(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6123,7 +6315,7 @@ void ScriptThread::MathLdexp(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathLog(Event *ev)
+void ScriptThread::EventLog(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6140,7 +6332,7 @@ void ScriptThread::MathLog(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathLog10(Event *ev)
+void ScriptThread::EventLog10(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6157,7 +6349,7 @@ void ScriptThread::MathLog10(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathModf(Event *ev)
+void ScriptThread::EventModf(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6192,7 +6384,7 @@ void ScriptThread::MathModf(Event *ev)
     ev->AddValue(*array);
 }
 
-void ScriptThread::MathPow(Event *ev)
+void ScriptThread::EventPow(Event *ev)
 {
     int    numArgs = 0;
     double base = 0.0f, res = 0.0f;
@@ -6211,7 +6403,7 @@ void ScriptThread::MathPow(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathSqrt(Event *ev)
+void ScriptThread::EventACos(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6219,16 +6411,33 @@ void ScriptThread::MathSqrt(Event *ev)
     numArgs = ev->NumArgs();
 
     if (numArgs != 1) {
-        throw ScriptException("Wrong arguments count for sqrt!\n");
+        throw ScriptException("Wrong arguments count for acos!\n");
     }
 
     x   = ev->GetFloat(1);
-    res = sqrt(x);
+    res = acos(x);
 
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathCeil(Event *ev)
+void ScriptThread::EventASin(Event *ev)
+{
+    int    numArgs = 0;
+    double x = 0.0f, res = 0.0f;
+
+    numArgs = ev->NumArgs();
+
+    if (numArgs != 1) {
+        throw ScriptException("Wrong arguments count for asin!\n");
+    }
+
+    x   = ev->GetFloat(1);
+    res = asin(x);
+
+    ev->AddFloat((float)res);
+}
+
+void ScriptThread::EventCeil(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6245,7 +6454,7 @@ void ScriptThread::MathCeil(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathFloor(Event *ev)
+void ScriptThread::EventFloor(Event *ev)
 {
     int    numArgs = 0;
     double x = 0.0f, res = 0.0f;
@@ -6262,7 +6471,7 @@ void ScriptThread::MathFloor(Event *ev)
     ev->AddFloat((float)res);
 }
 
-void ScriptThread::MathFmod(Event *ev)
+void ScriptThread::EventFmod(Event *ev)
 {
     int    numArgs   = 0;
     double numerator = 0.0f, denominator = 0.0f, res = 0.0f;

@@ -51,6 +51,7 @@ protected:
     void EventEnd(Event *ev);
     void Print(Event *ev);
     void Println(Event *ev);
+    void DPrintln(Event *ev); // Added in 2.0
     void IPrintln(Event *ev);
     void IPrintln_NoLoc(Event *ev);
     void IPrintlnBold(Event *ev);
@@ -75,6 +76,7 @@ protected:
     void      Spawn(Event *ev);
     void      SpawnReturn(Event *ev);
 
+    void EventDebugLine(Event *ev); // Added in 2.0
     void CueCamera(Event *ev);
     void CuePlayer(Event *ev);
     void FreezePlayer(Event *ev);
@@ -106,6 +108,7 @@ protected:
     void ServerEvent(Event *ev);
     void StuffCommand(Event *ev);
     void KillEnt(Event *ev);
+    void GetEntByEntnum(Event *ev); // Added in 2.30
     void RemoveEnt(Event *ev);
     void KillClass(Event *ev);
     void RemoveClass(Event *ev);
@@ -120,6 +123,7 @@ protected:
     void EventPopmenu(Event *ev);
     void EventShowmenu(Event *ev);
     void EventHidemenu(Event *ev);
+    void EventPlayMovie(Event *ev); // Added in 2.0
     void EventPushmenu(Event *ev);
     void EventHideMouse(Event *ev);
     void Getcvar(Event *ev);
@@ -127,7 +131,15 @@ protected:
     void GetRandomFloat(Event *ev);
     void GetRandomInt(Event *ev);
 
-    void GetAbs(Event *ev);
+	void GetAbs(Event* ev);
+    //////////
+    // Added in 2.30
+	void EventCos(Event* ev);
+	void EventSin(Event* ev);
+	void EventTan(Event* ev);
+	void EventATan(Event* ev);
+	void EventSqrt(Event* ev);
+    //////////
     void GetSelf(Event *ev);
     void Vector_Length(Event *ev);
     void Vector_Normalize(Event *ev);
@@ -158,11 +170,13 @@ protected:
     void EventHudDrawFont(Event *ev);
 
     void EventError(Event *ev);
+    void EventLandmineDamage(Event *ev); // Added in 2.30
     void EventRadiusDamage(Event *ev);
 
     void EventBspTransition(Event *ev);
     void EventLevelTransition(Event *ev);
     void EventMissionTransition(Event *ev);
+    void EventStopTeamRespawn(Event *ev); // Added in 2.30
     void EventEarthquake(Event *ev);
     void EventTeamWin(Event *ev);
     void EventGetBoundKey1(Event *ev);
@@ -201,6 +215,7 @@ public:
     str          FileName(void);
 
     void EventCreateListener(Event *ev);
+    void EventDebugInt3(Event *ev); // Added in 2.0
     void EventTimeout(Event *ev);
 
     bool CanScriptTracePrint();
@@ -214,6 +229,7 @@ public:
     void SendObjectives();
     void ClearObjectives();
     void EventAddObjective(Event *ev);
+    void EventSetScoreboardToggle(Event *ev); // Added in 2.30
     void EventSetCurrentObjective(Event *ev);
     void EventClearObjectives(Event *ev);
     void SetObjectiveLocation(Vector vLocation);
@@ -298,28 +314,22 @@ public:
     void EventIsDefined(Event *ev);
     void EventIsOnGround(Event *ev);
     void EventIsOutOfBounds(Event *ev);
-    void GetEntity(Event *ev);
-    void MathCos(Event *ev);
-    void MathSin(Event *ev);
-    void MathTan(Event *ev);
-    void MathACos(Event *ev);
-    void MathASin(Event *ev);
-    void MathATan(Event *ev);
-    void MathATan2(Event *ev);
-    void MathCosH(Event *ev);
-    void MathSinH(Event *ev);
-    void MathTanH(Event *ev);
-    void MathExp(Event *ev);
-    void MathFrexp(Event *ev);
-    void MathLdexp(Event *ev);
-    void MathLog(Event *ev);
-    void MathLog10(Event *ev);
-    void MathModf(Event *ev);
-    void MathPow(Event *ev);
-    void MathSqrt(Event *ev);
-    void MathCeil(Event *ev);
-    void MathFloor(Event *ev);
-    void MathFmod(Event *ev);
+    void EventACos(Event *ev);
+    void EventASin(Event *ev);
+    void EventATan2(Event *ev);
+    void EventCosH(Event *ev);
+    void EventSinH(Event *ev);
+    void EventTanH(Event *ev);
+    void EventExp(Event *ev);
+    void EventFrexp(Event *ev);
+    void EventLdexp(Event *ev);
+    void EventLog(Event *ev);
+    void EventLog10(Event *ev);
+    void EventModf(Event *ev);
+    void EventPow(Event *ev);
+    void EventCeil(Event *ev);
+    void EventFloor(Event *ev);
+    void EventFmod(Event *ev);
     void StringBytesCopy(Event *ev);
     void Md5File(Event *ev);
     void Md5String(Event *ev);
