@@ -36,7 +36,8 @@ Game game;
 void G_BeginIntermission
 	(
 	const char *map_name,
-	INTTYPE_e transtype
+	INTTYPE_e transtype,
+	bool no_fade 
 	)
 {
 	Entity *camera;
@@ -52,7 +53,10 @@ void G_BeginIntermission
 	level.intermissiontime = level.time;
 	level.intermissiontype = transtype;
 
-	G_FadeOut( 2.0f );
+	if (!no_fade) {
+		G_FadeOut(2.0f);
+	}
+
 	G_FadeSound( 4.0f );
 
 	level.nextmap = map_name;

@@ -58,7 +58,8 @@ class SimpleArchivedEntity;
 */
 void G_BeginIntermission(
 	const char *map_name,
-	INTTYPE_e transtype = TRANS_BSP
+	INTTYPE_e transtype = TRANS_BSP,
+	bool no_fade = false
 );
 
 /* G_BeginIntermission2
