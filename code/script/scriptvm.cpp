@@ -1992,15 +1992,29 @@ EventGoto
 */
 void ScriptVM::EventGoto(Event *ev)
 {
-    str label = ev->GetString(1);
+    unsigned char* codePos;
+    const ScriptVariable& value = ev->GetValue(1);
+    if (value.type == VARIABLE_CONSTSTRING)
+    {
+        const_str label = value.constStringValue();
+		codePos = m_ScriptClass->FindLabel(label);
+
+		if (!codePos) {
+			ScriptError("ScriptVM::EventGoto: label '%s' does not exist in '%s'.", value.stringValue().c_str(), Filename().c_str());
+		}
+
+    }
+    else
+    {
+        str label = value.stringValue();
+		codePos = m_ScriptClass->FindLabel(label);
+
+		if (!codePos) {
+			ScriptError("ScriptVM::EventGoto: label '%s' does not exist in '%s'.", label.c_str(), Filename().c_str());
+		}
+    }
 
     SetFastData(ev->data + 1, ev->dataSize - 1);
-
-    unsigned char *codePos = m_ScriptClass->FindLabel(label);
-
-    if (!codePos) {
-        ScriptError("ScriptVM::EventGoto: label '%s' does not exist in '%s'.", label.c_str(), Filename().c_str());
-    }
 
     m_CodePos = codePos;
 }
