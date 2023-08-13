@@ -448,6 +448,28 @@ ScriptVariable *ScriptVM::storeTopInternal(Listener *listener)
     return listenerVar;
 }
 
+void ScriptVM::loadStoreTop(Listener* listener)
+{
+    const const_str variable = fetchOpcodeValue<op_name_t>();
+
+    if (!executeSetter(listener, variable)) {
+        // just set the variable
+        const uintptr_t varIndex = m_VMStack.GetIndex();
+        ScriptVariable& pTop = m_VMStack.GetTop();
+        if (varIndex < m_VMStack.GetStackSize()) {
+            ScriptVariable* const listenerVar = m_VMStack.GetListenerVar(varIndex);
+            if (!listenerVar || listenerVar->GetKey() != short3(variable)) {
+                listener->Vars()->SetVariable(variable, pTop);
+            } else {
+                *listenerVar = pTop;
+            }
+        }
+        else {
+            listener->Vars()->SetVariable(variable, pTop);
+        }
+    }
+}
+
 template<>
 void ScriptVM::loadTop<false>(Listener *listener)
 {
@@ -472,8 +494,6 @@ ScriptVariable *ScriptVM::storeTop<false>(Listener *listener)
 template<>
 ScriptVariable *ScriptVM::storeTop<true>(Listener *listener)
 {
-    m_VMStack.Push();
-
     return storeTopInternal(listener);
 }
 
@@ -1384,19 +1404,19 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 break;
 
             case OP_LOAD_STORE_GAME_VAR:
-                loadTop<true>(&game);
+                loadStoreTop(&game);
                 break;
 
             case OP_LOAD_STORE_GROUP_VAR:
-                loadTop<true>(m_ScriptClass);
+                loadStoreTop(m_ScriptClass);
                 break;
 
             case OP_LOAD_STORE_LEVEL_VAR:
-                loadTop<true>(&level);
+                loadStoreTop(&level);
                 break;
 
             case OP_LOAD_STORE_LOCAL_VAR:
-                loadTop<true>(m_Thread);
+                loadStoreTop(m_Thread);
                 break;
 
             case OP_LOAD_STORE_OWNER_VAR:
@@ -1410,11 +1430,11 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                     ScriptError("self.owner is NULL");
                 }
 
-                loadTop<true>(m_ScriptClass->m_Self->GetScriptOwner());
+                loadStoreTop(m_ScriptClass->m_Self->GetScriptOwner());
                 break;
 
             case OP_LOAD_STORE_PARM_VAR:
-                loadTop<true>(&parm);
+                loadStoreTop(&parm);
                 break;
 
             case OP_LOAD_STORE_SELF_VAR:
@@ -1422,7 +1442,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                     ScriptError("self is NULL");
                 }
 
-                loadTop<true>(m_ScriptClass->m_Self);
+                loadStoreTop(m_ScriptClass->m_Self);
                 break;
 
             case OP_MARK_STACK_POS:
