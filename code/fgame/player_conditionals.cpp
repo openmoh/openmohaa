@@ -819,9 +819,13 @@ qboolean Player::CondAnimDoneTorso(Conditional& condition)
 
 qboolean Player::CondAttackPrimary(Conditional& condition)
 {
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE) || (g_gametype->integer && !m_bAllowFighting)) {
+    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
-    }
+	}
+
+	if (g_gametype->integer != GT_SINGLE_PLAYER && !m_bAllowFighting) {
+		return false;
+	}
 
     if (last_ucmd.buttons & BUTTON_ATTACKLEFT) {
         Weapon *weapon;
@@ -842,16 +846,24 @@ qboolean Player::CondAttackPrimary(Conditional& condition)
 
 qboolean Player::CondAttackButtonPrimary(Conditional& condition)
 {
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE) || !m_bAllowFighting) {
+    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
-    }
+	}
+
+	if (g_gametype->integer != GT_SINGLE_PLAYER && !m_bAllowFighting) {
+		return false;
+	}
 
     return (last_ucmd.buttons & BUTTON_ATTACKLEFT);
 }
 
 qboolean Player::CondAttackSecondary(Conditional& condition)
 {
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE) || !m_bAllowFighting) {
+    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
+        return false;
+    }
+
+    if (g_gametype->integer != GT_SINGLE_PLAYER && !m_bAllowFighting) {
         return false;
     }
 
@@ -874,9 +886,13 @@ qboolean Player::CondAttackSecondary(Conditional& condition)
 
 qboolean Player::CondAttackButtonSecondary(Conditional& condition)
 {
-    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE) || !m_bAllowFighting) {
+    if (level.playerfrozen || m_bFrozen || (flags & FL_IMMOBILE)) {
         return false;
-    }
+	}
+
+	if (g_gametype->integer != GT_SINGLE_PLAYER && !m_bAllowFighting) {
+		return false;
+	}
 
     return (last_ucmd.buttons & BUTTON_ATTACKRIGHT);
 }
