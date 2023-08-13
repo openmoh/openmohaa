@@ -59,33 +59,152 @@ const Vector bcolor(1.0, 0.0, 0.0);
 
 qboolean TryPush(int entnum, vec3_t move_origin, vec3_t move_end);
 
-Event EV_Player_DumpState("state", EV_CHEAT, NULL, NULL, "Dumps the player's state to the console.", EV_NORMAL);
-Event EV_Player_ForceTorsoState(
-    "forcetorsostate", EV_DEFAULT, "s", "torsostate", "Force the player's torso to a certain state", EV_NORMAL
+Event EV_Player_DumpState
+(
+    "state",
+    EV_CHEAT,
+    NULL,
+    NULL,
+    "Dumps the player's state to the console.",
+    EV_NORMAL
 );
-Event EV_Player_ForceLegsState(
-    "forcelegsstate", EV_DEFAULT, "s", "legsstate", "Force the player's legs to a certain state", EV_NORMAL
+Event EV_Player_ForceTorsoState
+(
+    "forcetorsostate",
+    EV_DEFAULT,
+    "s",
+    "torsostate",
+    "Force the player's torso to a certain state",
+    EV_NORMAL
 );
-Event EV_Player_GiveAllCheat("wuss", EV_CONSOLE | EV_CHEAT, NULL, NULL, "Gives player all weapons.", EV_NORMAL);
-Event EV_Player_GiveNewWeaponsCheat(
-    "giveweapon", EV_CONSOLE | EV_CHEAT, "s", "weapon_name", "Gives player all weapons.", EV_NORMAL
+Event EV_Player_ForceLegsState
+(
+    "forcelegsstate",
+    EV_DEFAULT,
+    "s",
+    "legsstate",
+    "Force the player's legs to a certain state",
+    EV_NORMAL
 );
-Event EV_Player_EndLevel(
-    "endlevel", EV_DEFAULT, NULL, NULL, "Called when the player gets to the end of the level.", EV_NORMAL
+Event EV_Player_GiveAllCheat
+(
+    "wuss",
+    EV_CONSOLE | EV_CHEAT,
+    NULL,
+    NULL,
+    "Gives player all weapons.",
+    EV_NORMAL
 );
-Event EV_Player_DevGodCheat(
-    "dog", EV_CHEAT | EV_CONSOLE, "I", "god_mode", "Sets the god mode cheat or toggles it.", EV_NORMAL
+Event EV_Player_GiveNewWeaponsCheat
+(
+    "giveweapon",
+    EV_CONSOLE | EV_CHEAT,
+    "s",
+    "weapon_name",
+    "Gives player all weapons.",
+    EV_NORMAL
 );
-Event EV_Player_FullHeal("fullheal", EV_CHEAT | EV_CONSOLE, NULL, NULL, "Heals player.", EV_NORMAL);
-Event EV_Player_DevNoTargetCheat("notarget", EV_CHEAT, NULL, NULL, "Toggles the notarget cheat.", EV_NORMAL);
-Event EV_Player_DevNoClipCheat("noclip", EV_CHEAT | EV_CONSOLE, NULL, NULL, "Toggles the noclip cheat.", EV_NORMAL);
-Event EV_Player_PrevItem("invprev", EV_CONSOLE, NULL, NULL, "Cycle to player's previous item.", EV_NORMAL);
-Event EV_Player_NextItem("invnext", EV_CONSOLE, NULL, NULL, "Cycle to player's next item.", EV_NORMAL);
-Event EV_Player_PrevWeapon("weapprev", EV_CONSOLE, NULL, NULL, "Cycle to player's previous weapon.", EV_NORMAL);
-Event EV_Player_NextWeapon("weapnext", EV_CONSOLE, NULL, NULL, "Cycle to player's next weapon.", EV_NORMAL);
-Event EV_Player_DropWeapon("weapdrop", EV_CONSOLE, NULL, NULL, "Drops the player's current weapon.", EV_NORMAL);
-Event EV_Player_Reload("reload", EV_CONSOLE, NULL, NULL, "Reloads the player's weapon", EV_NORMAL);
-Event EV_Player_CorrectWeaponAttachments(
+Event EV_Player_EndLevel
+(
+    "endlevel",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Called when the player gets to the end of the level.",
+    EV_NORMAL
+);
+Event EV_Player_DevGodCheat
+(
+    "dog",
+    EV_CHEAT | EV_CONSOLE,
+    "I",
+    "god_mode",
+    "Sets the god mode cheat or toggles it.",
+    EV_NORMAL
+);
+Event EV_Player_FullHeal
+(
+    "fullheal",
+    EV_CHEAT | EV_CONSOLE,
+    NULL,
+    NULL,
+    "Heals player.",
+    EV_NORMAL
+);
+Event EV_Player_DevNoTargetCheat
+(
+    "notarget",
+    EV_CHEAT,
+    NULL,
+    NULL,
+    "Toggles the notarget cheat.",
+    EV_NORMAL
+);
+Event EV_Player_DevNoClipCheat
+(
+    "noclip",
+    EV_CHEAT | EV_CONSOLE,
+    NULL,
+    NULL,
+    "Toggles the noclip cheat.",
+    EV_NORMAL
+);
+Event EV_Player_PrevItem
+(
+    "invprev",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Cycle to player's previous item.",
+    EV_NORMAL
+);
+Event EV_Player_NextItem
+(
+    "invnext",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Cycle to player's next item.",
+    EV_NORMAL
+);
+Event EV_Player_PrevWeapon
+(
+    "weapprev",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Cycle to player's previous weapon.",
+    EV_NORMAL
+);
+Event EV_Player_NextWeapon
+(
+    "weapnext",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Cycle to player's next weapon.",
+    EV_NORMAL
+);
+Event EV_Player_DropWeapon
+(
+    "weapdrop",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Drops the player's current weapon.",
+    EV_NORMAL
+);
+Event EV_Player_Reload
+(
+    "reload",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Reloads the player's weapon",
+    EV_NORMAL
+);
+Event EV_Player_CorrectWeaponAttachments
+(
     "correctweaponattachments",
     EV_CONSOLE,
     NULL,
@@ -93,7 +212,8 @@ Event EV_Player_CorrectWeaponAttachments(
     "makes sure the weapons is properly attached when interupting a reload",
     EV_NORMAL
 );
-Event EV_Player_GiveCheat(
+Event EV_Player_GiveCheat
+(
     "give",
     EV_CONSOLE | EV_CHEAT,
     "sI",
@@ -101,13 +221,44 @@ Event EV_Player_GiveCheat(
     "Gives the player the specified thing (weapon, ammo, item, etc.) and optionally the amount.",
     EV_NORMAL
 );
-Event EV_Player_GiveWeaponCheat(
-    "giveweapon", EV_CONSOLE | EV_CHEAT, "s", "weapon_name", "Gives the player the specified weapon.", EV_NORMAL
+Event EV_Player_GiveWeaponCheat
+(
+    "giveweapon",
+    EV_CONSOLE | EV_CHEAT,
+    "s",
+    "weapon_name",
+    "Gives the player the specified weapon.",
+    EV_NORMAL
 );
-Event EV_Player_GameVersion("gameversion", EV_CONSOLE, NULL, NULL, "Prints the game version.", EV_NORMAL);
-Event EV_Player_Fov("fov", EV_CONSOLE, "F", "fov", "Sets the fov.", EV_NORMAL);
-Event EV_Player_Dead("dead", EV_DEFAULT, NULL, NULL, "Called when the player is dead.", EV_NORMAL);
-Event EV_Player_SpawnEntity(
+Event EV_Player_GameVersion
+(
+    "gameversion",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Prints the game version.",
+    EV_NORMAL
+);
+Event EV_Player_Fov
+(
+    "fov",
+    EV_CONSOLE,
+    "F",
+    "fov",
+    "Sets the fov.",
+    EV_NORMAL
+);
+Event EV_Player_Dead
+(
+    "dead",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Called when the player is dead.",
+    EV_NORMAL
+);
+Event EV_Player_SpawnEntity
+(
     "spawn",
     EV_CHEAT,
     "sSSSSSSSS",
@@ -115,7 +266,8 @@ Event EV_Player_SpawnEntity(
     "Spawns an entity.",
     EV_NORMAL
 );
-Event EV_Player_SpawnActor(
+Event EV_Player_SpawnActor
+(
     "actor",
     EV_CHEAT,
     "sSSSSSSSS",
@@ -123,21 +275,80 @@ Event EV_Player_SpawnActor(
     "Spawns an actor.",
     EV_NORMAL
 );
-Event EV_Player_Respawn("respawn", EV_DEFAULT, NULL, NULL, "Respawns the player.", EV_NORMAL);
-Event EV_Player_TestThread(
-    "testthread", EV_CHEAT, "sS", "scriptfile label", "Starts the named thread at label if provided.", EV_NORMAL
+Event EV_Player_Respawn
+(
+    "respawn",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Respawns the player.",
+    EV_NORMAL
 );
-Event EV_Player_PowerupTimer(
-    "poweruptimer", EV_DEFAULT, "ii", "poweruptimer poweruptype", "Sets the powerup timer and powerup type.", EV_NORMAL
+Event EV_Player_TestThread
+(
+    "testthread",
+    EV_CHEAT,
+    "sS",
+    "scriptfile label",
+    "Starts the named thread at label if provided.",
+    EV_NORMAL
 );
-Event EV_Player_UpdatePowerupTimer(
-    "updatepoweruptime", EV_DEFAULT, NULL, NULL, "Called once a second to decrement powerup time.", EV_NORMAL
+Event EV_Player_PowerupTimer
+(
+    "poweruptimer",
+    EV_DEFAULT,
+    "ii",
+    "poweruptimer poweruptype",
+    "Sets the powerup timer and powerup type.",
+    EV_NORMAL
 );
-Event EV_Player_ResetState("resetstate", EV_CHEAT, NULL, NULL, "Reset the player's state table.", EV_NORMAL);
-Event EV_Player_WhatIs("whatis", EV_CHEAT, "i", "entity_number", "Prints info on the specified entity.", EV_NORMAL);
-Event EV_Player_ActorInfo("actorinfo", EV_CHEAT, "i", "actor_number", "Prints info on the specified actor.", EV_NORMAL);
-Event EV_Player_KillEnt("killent", EV_CHEAT, "i", "entity_number", "Kills the specified entity.", EV_NORMAL);
-Event EV_Player_KillClass(
+Event EV_Player_UpdatePowerupTimer
+(
+    "updatepoweruptime",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Called once a second to decrement powerup time.",
+    EV_NORMAL
+);
+Event EV_Player_ResetState
+(
+    "resetstate",
+    EV_CHEAT,
+    NULL,
+    NULL,
+    "Reset the player's state table.",
+    EV_NORMAL
+);
+Event EV_Player_WhatIs
+(
+    "whatis",
+    EV_CHEAT,
+    "i",
+    "entity_number",
+    "Prints info on the specified entity.",
+    EV_NORMAL
+);
+Event EV_Player_ActorInfo
+(
+    "actorinfo",
+    EV_CHEAT,
+    "i",
+    "actor_number",
+    "Prints info on the specified actor.",
+    EV_NORMAL
+);
+Event EV_Player_KillEnt
+(
+    "killent",
+    EV_CHEAT,
+    "i",
+    "entity_number",
+    "Kills the specified entity.",
+    EV_NORMAL
+);
+Event EV_Player_KillClass
+(
     "killclass",
     EV_CHEAT,
     "sI",
@@ -145,8 +356,17 @@ Event EV_Player_KillClass(
     "Kills all of the entities in the specified class.",
     EV_NORMAL
 );
-Event EV_Player_RemoveEnt("removeent", EV_CHEAT, "i", "entity_number", "Removes the specified entity.", EV_NORMAL);
-Event EV_Player_RemoveClass(
+Event EV_Player_RemoveEnt
+(
+    "removeent",
+    EV_CHEAT,
+    "i",
+    "entity_number",
+    "Removes the specified entity.",
+    EV_NORMAL
+);
+Event EV_Player_RemoveClass
+(
     "removeclass",
     EV_CHEAT,
     "sI",
@@ -154,30 +374,97 @@ Event EV_Player_RemoveClass(
     "Removes all of the entities in the specified class.",
     EV_NORMAL
 );
-Event EV_Player_Jump("jump", EV_DEFAULT, "f", "height", "Makes the player jump.", EV_NORMAL);
-Event EV_Player_AnimLoop_Torso(
-    "animloop_torso", EV_DEFAULT, NULL, NULL, "Called when the torso animation has finished.", EV_NORMAL
+Event EV_Player_Jump
+(
+    "jump",
+    EV_DEFAULT,
+    "f",
+    "height",
+    "Makes the player jump.",
+    EV_NORMAL
 );
-Event EV_Player_AnimLoop_Legs(
-    "animloop_legs", EV_DEFAULT, NULL, NULL, "Called when the legs animation has finished.", EV_NORMAL
+Event EV_Player_AnimLoop_Torso
+(
+    "animloop_torso",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Called when the torso animation has finished.",
+    EV_NORMAL
 );
-Event EV_Player_AnimLoop_Pain(
-    "animloop_pain", EV_DEFAULT, NULL, NULL, "Called when the pain animation has finished.", EV_NORMAL
+Event EV_Player_AnimLoop_Legs
+(
+    "animloop_legs",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Called when the legs animation has finished.",
+    EV_NORMAL
 );
-Event EV_Player_DoUse(
-    "usestuff", EV_DEFAULT, NULL, NULL, "Makes the player try to use whatever is in front of her.", EV_NORMAL
+Event EV_Player_AnimLoop_Pain // Added in 2.0
+    ("animloop_pain", EV_DEFAULT, NULL, NULL, "Called when the pain animation has finished.", EV_NORMAL);
+Event EV_Player_DoUse
+(
+    "usestuff",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Makes the player try to use whatever is in front of her.",
+    EV_NORMAL
 );
-Event EV_Player_ListInventory("listinventory", EV_CONSOLE, NULL, NULL, "List of the player's inventory.", EV_NORMAL);
-Event EV_Player_ActivateShield("activateshield", EV_DEFAULT, NULL, NULL, "Activates the player's shield", EV_NORMAL);
-Event EV_Player_DeactivateShield(
-    "deactivateshield", EV_DEFAULT, NULL, NULL, "Deactivates the player's shield", EV_NORMAL
+Event EV_Player_ListInventory
+(
+    "listinventory",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "List of the player's inventory.",
+    EV_NORMAL
 );
-Event EV_Player_Turn("turn", EV_DEFAULT, "f", "yawangle", "Causes player to turn the specified amount.", EV_NORMAL);
-Event EV_Player_TurnUpdate(
-    "turnupdate", EV_DEFAULT, "ff", "yaw timeleft", "Causes player to turn the specified amount.", EV_NORMAL
+Event EV_Player_ActivateShield
+(
+    "activateshield",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Activates the player's shield",
+    EV_NORMAL
 );
-Event EV_Player_TurnLegs(
-    "turnlegs", EV_DEFAULT, "f", "yawangle", "Turns the players legs instantly by the specified amount.", EV_NORMAL
+Event EV_Player_DeactivateShield
+(
+    "deactivateshield",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Deactivates the player's shield",
+    EV_NORMAL
+);
+Event EV_Player_Turn
+(
+    "turn",
+    EV_DEFAULT,
+    "f",
+    "yawangle",
+    "Causes player to turn the specified amount.",
+    EV_NORMAL
+);
+Event EV_Player_TurnUpdate
+(
+    "turnupdate",
+    EV_DEFAULT,
+    "ff",
+    "yaw timeleft",
+    "Causes player to turn the specified amount.",
+    EV_NORMAL
+);
+Event EV_Player_TurnLegs
+(
+    "turnlegs",
+    EV_DEFAULT,
+    "f",
+    "yawangle",
+    "Turns the players legs instantly by the specified amount.",
+    EV_NORMAL
 );
 Event EV_Player_NextPainTime(
     "nextpaintime",
@@ -188,10 +475,17 @@ Event EV_Player_NextPainTime(
     EV_NORMAL
 );
 
-Event EV_Player_FinishUseAnim(
-    "finishuseanim", EV_DEFAULT, NULL, NULL, "Fires off all targets associated with a particular useanim.", EV_NORMAL
+Event EV_Player_FinishUseAnim
+(
+    "finishuseanim",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Fires off all targets associated with a particular useanim.",
+    EV_NORMAL
 );
-Event EV_Player_Holster(
+Event EV_Player_Holster
+(
     "holster",
     EV_CONSOLE,
     NULL,
@@ -199,7 +493,8 @@ Event EV_Player_Holster(
     "Holsters all wielded weapons, or unholsters previously put away weapons",
     EV_NORMAL
 );
-Event EV_Player_SafeHolster(
+Event EV_Player_SafeHolster
+(
     "safeholster",
     EV_CONSOLE,
     "b",
@@ -216,11 +511,26 @@ Event EV_Player_SafeZoom(
     "0 turns off zoom,"
     "and 1 returns zoom to previous setting"
 );
-Event EV_Player_ZoomOff("zoomoff", EV_DEFAULT, NULL, NULL, "makes sure that zoom is off", EV_NORMAL);
-Event EV_Player_StartUseObject(
-    "startuseobject", EV_DEFAULT, NULL, NULL, "starts up the useobject's animations.", EV_NORMAL
+Event EV_Player_ZoomOff
+(
+    "zoomoff",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "makes sure that zoom is off",
+    EV_NORMAL
 );
-Event EV_Player_FinishUseObject(
+Event EV_Player_StartUseObject
+(
+    "startuseobject",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "starts up the useobject's animations.",
+    EV_NORMAL
+);
+Event EV_Player_FinishUseObject
+(
     "finishuseobject",
     EV_DEFAULT,
     NULL,
@@ -228,10 +538,17 @@ Event EV_Player_FinishUseObject(
     "Fires off all targets associated with a particular useobject.",
     EV_NORMAL
 );
-Event EV_Player_WatchActor(
-    "watchactor", EV_DEFAULT, "e", "actor_to_watch", "Makes the player's camera watch the specified actor.", EV_NORMAL
+Event EV_Player_WatchActor
+(
+    "watchactor",
+    EV_DEFAULT,
+    "e",
+    "actor_to_watch",
+    "Makes the player's camera watch the specified actor.",
+    EV_NORMAL
 );
-Event EV_Player_StopWatchingActor(
+Event EV_Player_StopWatchingActor
+(
     "stopwatchingactor",
     EV_DEFAULT,
     "e",
@@ -239,10 +556,17 @@ Event EV_Player_StopWatchingActor(
     "Makes the player's camera stop watching the specified actor.",
     EV_NORMAL
 );
-Event EV_Player_SetDamageMultiplier(
-    "damage_multiplier", EV_DEFAULT, "f", "damage_multiplier", "Sets the current damage multiplier", EV_NORMAL
+Event EV_Player_SetDamageMultiplier
+(
+    "damage_multiplier",
+    EV_DEFAULT,
+    "f",
+    "damage_multiplier",
+    "Sets the current damage multiplier",
+    EV_NORMAL
 );
-Event EV_Player_WaitForState(
+Event EV_Player_WaitForState
+(
     "waitForState",
     EV_DEFAULT,
     "s",
@@ -251,10 +575,35 @@ Event EV_Player_WaitForState(
     "in the legs or torso.",
     EV_NORMAL
 );
-Event EV_Player_LogStats("logstats", EV_CHEAT, "b", "state", "Turn on/off the debugging playlog", EV_NORMAL);
-Event EV_Player_TakePain("takepain", EV_DEFAULT, "b", "bool", "Set whether or not to take pain", EV_NORMAL);
-Event EV_Player_SkipCinematic("skipcinematic", EV_CONSOLE, NULL, NULL, "Skip the current cinematic", EV_NORMAL);
-Event EV_Player_ResetHaveItem(
+Event EV_Player_LogStats
+(
+    "logstats",
+    EV_CHEAT,
+    "b",
+    "state",
+    "Turn on/off the debugging playlog",
+    EV_NORMAL
+);
+Event EV_Player_TakePain
+(
+    "takepain",
+    EV_DEFAULT,
+    "b",
+    "bool",
+    "Set whether or not to take pain",
+    EV_NORMAL
+);
+Event EV_Player_SkipCinematic
+(
+    "skipcinematic",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Skip the current cinematic",
+    EV_NORMAL
+);
+Event EV_Player_ResetHaveItem
+(
     "resethaveitem",
     EV_CONSOLE,
     "s",
@@ -262,7 +611,8 @@ Event EV_Player_ResetHaveItem(
     "Resets the game var that keeps track that we have gotten this weapon",
     EV_NORMAL
 );
-Event EV_Player_ModifyHeight(
+Event EV_Player_ModifyHeight
+(
     "modheight",
     EV_DEFAULT,
     "s",
@@ -270,15 +620,15 @@ Event EV_Player_ModifyHeight(
     "change the maximum height of the player\ncan specify 'stand', 'duck' or 'prone'.",
     EV_NORMAL
 );
-Event EV_Player_ModifyHeightFloat(
-    "modheightfloat",
-    EV_DEFAULT,
-    "ff",
-    "height max_z",
-    "Specify the view height of the player and the height of his bounding box.",
-    EV_NORMAL
-);
-Event EV_Player_SetMovePosFlags(
+Event EV_Player_ModifyHeightFloat // Added in 2.40
+    ("modheightfloat",
+     EV_DEFAULT,
+     "ff",
+     "height max_z",
+     "Specify the view height of the player and the height of his bounding box.",
+     EV_NORMAL);
+Event EV_Player_SetMovePosFlags
+(
     "moveposflags",
     EV_DEFAULT,
     "sS",
@@ -286,59 +636,228 @@ Event EV_Player_SetMovePosFlags(
     "used by the state files to tell the game dll what the player is doing",
     EV_NORMAL
 );
-Event EV_Player_GetPosition("getposition", EV_DEFAULT, NULL, NULL, "returns the player current position", EV_RETURN);
-Event EV_Player_GetMovement("getmovement", EV_DEFAULT, NULL, NULL, "returns the player current movement", EV_RETURN);
-Event EV_Player_Score("score", EV_CONSOLE, NULL, NULL, "Show the score for the current deathmatch game", EV_NORMAL);
-Event EV_Player_JoinDMTeam("join_team", EV_CONSOLE, "s", "team", "Join the specified team (allies or axis)", EV_NORMAL);
-Event EV_Player_AutoJoinDMTeam("auto_join_team", EV_CONSOLE, NULL, NULL, "Join the team with fewer players", EV_NORMAL);
-Event EV_Player_PickWeapon("pickweapon", EV_CONSOLE, NULL, NULL, "Pick your weapon.", EV_NORMAL);
-Event EV_Player_SetInJail(
-    "injail", EV_DEFAULT, "i", "boolean", "set to 1 to indicate when player is in jail, 0 when they are free", EV_SETTER
-);
-Event EV_Player_GetInJail("injail", EV_DEFAULT, NULL, NULL, "returns 1 if player is in jail, 0 if out", EV_GETTER);
-Event EV_Player_GetNationalityPrefix(
-    "nationalityprefix",
+Event EV_Player_GetPosition
+(
+    "getposition",
     EV_DEFAULT,
     NULL,
     NULL,
-    "get the three or five letter prefix that denotes the player's nationality",
-    EV_GETTER
+    "returns the player current position",
+    EV_RETURN
 );
-Event EV_Player_IsSpectator(
-    "isSpectator", EV_DEFAULT, NULL, NULL, "Check to see if player is a spectator (non-zero return value)", EV_GETTER
+Event EV_Player_GetMovement
+(
+    "getmovement",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns the player current movement",
+    EV_RETURN
 );
-Event EV_Player_Spectator("spectator", EV_CONSOLE, NULL, NULL, "Become a spectator", EV_NORMAL);
-Event EV_Player_JoinArena("join_arena", EV_CONSOLE, "i", "arena_id_num", "Join the specified arena", EV_NORMAL);
-Event EV_Player_LeaveArena("leave_arena", EV_CONSOLE, NULL, NULL, "Leave the current arena", EV_NORMAL);
-Event EV_Player_CreateTeam("create_team", EV_CONSOLE, NULL, NULL, "Create a team in the current arena", EV_NORMAL);
-Event EV_Player_LeaveTeam("leave_team", EV_CONSOLE, NULL, NULL, "Leave the current team", EV_NORMAL);
-Event EV_Player_RefreshArenaUI("arena_ui", EV_CONSOLE, NULL, NULL, "Refresh the arena UI", EV_NORMAL);
-Event EV_Player_CallVote("callvote", EV_CONSOLE, "ss", "arg1 arg2", "Player calls a vote", EV_NORMAL);
-Event EV_Player_Vote("vote", EV_CONSOLE, "s", "arg1", "Player votes either yes or no", EV_NORMAL);
-Event EV_Player_RetrieveVoteOptions(
-    "vote", EV_CONSOLE, NULL, NULL, "Retrieves the server's vote options file", EV_NORMAL
+Event EV_Player_Score
+(
+    "score",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Show the score for the current deathmatch game",
+    EV_NORMAL
 );
-Event EV_Player_PrimaryDMWeapon(
-    "primarydmweapon", EV_CONSOLE, "s", "weaptype", "Sets the player's primary DM weapon", EV_NORMAL
+Event EV_Player_JoinDMTeam
+(
+    "join_team",
+    EV_CONSOLE,
+    "s",
+    "team",
+    "Join the specified team (allies or axis)",
+    EV_NORMAL
 );
-Event EV_Player_DeadBody("deadbody", EV_DEFAULT, NULL, NULL, "Spawn a dead body", EV_NORMAL);
-Event EV_Player_Physics_On("physics_on", EV_DEFAULT, NULL, NULL, "turn player physics on.", EV_NORMAL);
-Event EV_Player_Physics_Off("physics_off", EV_DEFAULT, NULL, NULL, "turn player physics off.", EV_NORMAL);
-Event EV_Player_ArmWithWeapons(
-    "armwithweapons", EV_DEFAULT, NULL, NULL, "give player their primary and secondary weapons.", EV_NORMAL
+Event EV_Player_AutoJoinDMTeam
+(
+    "auto_join_team",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Join the team with fewer players",
+    EV_NORMAL
 );
-Event EV_Player_GetCurrentDMWeaponType(
-    "getcurrentdmweapontype", EV_DEFAULT, NULL, NULL, "get the player's current DM weapon type.", EV_GETTER
+Event EV_Player_PickWeapon
+(
+    "pickweapon",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Pick your weapon.",
+    EV_NORMAL
 );
-Event
-    EV_Player_AttachToLadder("attachtoladder", EV_DEFAULT, NULL, NULL, "Attaches the sentient to a ladder", EV_NORMAL);
-Event EV_Player_UnattachFromLadder(
-    "unattachfromladder", EV_DEFAULT, NULL, NULL, "Unattaches the sentient from a ladder", EV_NORMAL
+Event EV_Player_SetInJail // Added in 2.30
+    ("injail",
+     EV_DEFAULT,
+     "i",
+     "boolean",
+     "set to 1 to indicate when player is in jail,"
+     "0 when they are free",
+     EV_SETTER);
+Event EV_Player_GetInJail // Added in 2.30
+    ("injail",
+     EV_DEFAULT,
+     NULL,
+     NULL,
+     "returns 1 if player is in jail,"
+     "0 if out",
+     EV_GETTER);
+Event EV_Player_GetNationalityPrefix // Added in 2.30
+    ("nationalityprefix",
+     EV_DEFAULT,
+     NULL,
+     NULL,
+     "get the three or five letter prefix that denotes the player's nationality",
+     EV_GETTER);
+Event EV_Player_IsSpectator // Added in 2.30
+    ("isSpectator", EV_DEFAULT, NULL, NULL, "Check to see if player is a spectator (non-zero return value)", EV_GETTER);
+Event EV_Player_Spectator
+(
+    "spectator",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Become a spectator",
+    EV_NORMAL
 );
-Event EV_Player_TweakLadderPos(
-    "tweakladderpos", EV_DEFAULT, NULL, NULL, "Tweaks the player's position on a ladder to be proper", EV_NORMAL
+Event EV_Player_JoinArena
+(
+    "join_arena",
+    EV_CONSOLE,
+    "i",
+    "arena_id_num",
+    "Join the specified arena",
+    EV_NORMAL
 );
-Event EV_Player_EnsureOverLadder(
+Event EV_Player_LeaveArena
+(
+    "leave_arena",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Leave the current arena",
+    EV_NORMAL
+);
+Event EV_Player_CreateTeam
+(
+    "create_team",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Create a team in the current arena",
+    EV_NORMAL
+);
+Event EV_Player_LeaveTeam
+(
+    "leave_team",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Leave the current team",
+    EV_NORMAL
+);
+Event EV_Player_RefreshArenaUI
+(
+    "arena_ui",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Refresh the arena UI",
+    EV_NORMAL
+);
+Event EV_Player_CallVote
+(
+    "callvote",
+    EV_CONSOLE,
+    "ss",
+    "arg1 arg2",
+    "Player calls a vote",
+    EV_NORMAL
+);
+Event EV_Player_Vote
+(
+    "vote",
+    EV_CONSOLE,
+    "s",
+    "arg1",
+    "Player votes either yes or no",
+    EV_NORMAL
+);
+Event EV_Player_RetrieveVoteOptions // Added in 2.0
+    ("gvo", EV_CONSOLE, NULL, NULL, "Retrieves the server's vote options file", EV_NORMAL);
+Event EV_Player_PrimaryDMWeapon
+(
+    "primarydmweapon",
+    EV_CONSOLE,
+    "s",
+    "weaptype",
+    "Sets the player's primary DM weapon",
+    EV_NORMAL
+);
+Event EV_Player_DeadBody
+(
+    "deadbody",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Spawn a dead body",
+    EV_NORMAL
+);
+Event EV_Player_Physics_On
+(
+    "physics_on",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "turn player physics on.",
+    EV_NORMAL
+);
+Event EV_Player_Physics_Off
+(
+    "physics_off",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "turn player physics off.",
+    EV_NORMAL
+);
+Event EV_Player_ArmWithWeapons // Added in 2.30
+    ("armwithweapons", EV_DEFAULT, NULL, NULL, "give player their primary and secondary weapons.", EV_NORMAL);
+Event EV_Player_GetCurrentDMWeaponType // Added in 2.30
+    ("getcurrentdmweapontype", EV_DEFAULT, NULL, NULL, "get the player's current DM weapon type.", EV_GETTER);
+Event EV_Player_AttachToLadder
+(
+    "attachtoladder",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Attaches the sentient to a ladder",
+    EV_NORMAL
+);
+Event EV_Player_UnattachFromLadder
+(
+    "unattachfromladder",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Unattaches the sentient from a ladder",
+    EV_NORMAL
+);
+Event EV_Player_TweakLadderPos
+(
+    "tweakladderpos",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Tweaks the player's position on a ladder to be proper",
+    EV_NORMAL
+);
+Event EV_Player_EnsureOverLadder
+(
     "ensureoverladder",
     EV_DEFAULT,
     NULL,
@@ -346,20 +865,25 @@ Event EV_Player_EnsureOverLadder(
     "Ensures that the player is at the proper height when getting off the top of a ladder",
     EV_NORMAL
 );
-Event EV_Player_EnsureForwardOffLadder(
-    "ensureforwardoffladder", EV_DEFAULT, NULL, NULL, "Ensures that the player went forward off the ladder.", EV_NORMAL
+Event EV_Player_EnsureForwardOffLadder
+(
+    "ensureforwardoffladder",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Ensures that the player went forward off the ladder.",
+    EV_NORMAL
 );
-Event EV_Player_JailIsEscaping(
-    "isEscaping", EV_DEFAULT, NULL, NULL, "Return non-zero if escaping or assisting escape", EV_GETTER
-);
-Event EV_Player_JailEscape("jailescape", EV_DEFAULT, NULL, NULL, "Start the escape from jail animation", EV_NORMAL);
-Event EV_Player_JailAssistEscape(
-    "jailassistescape", EV_DEFAULT, NULL, NULL, "Start the assist jail escape animation", EV_NORMAL
-);
-Event EV_Player_JailEscapeStop(
-    "jailescapestop", EV_DEFAULT, NULL, NULL, "Stop either the escape from jail or assist animation", EV_NORMAL
-);
-Event EV_Player_GetIsDisguised(
+Event EV_Player_JailIsEscaping // Added in 2.30
+    ("isEscaping", EV_DEFAULT, NULL, NULL, "Return non-zero if escaping or assisting escape", EV_GETTER);
+Event EV_Player_JailEscape // Added in 2.30
+    ("jailescape", EV_DEFAULT, NULL, NULL, "Start the escape from jail animation", EV_NORMAL);
+Event EV_Player_JailAssistEscape // Added in 2.30
+    ("jailassistescape", EV_DEFAULT, NULL, NULL, "Start the assist jail escape animation", EV_NORMAL);
+Event EV_Player_JailEscapeStop // Added in 2.30
+    ("jailescapestop", EV_DEFAULT, NULL, NULL, "Stop either the escape from jail or assist animation", EV_NORMAL);
+Event EV_Player_GetIsDisguised
+(
     "is_disguised",
     EV_DEFAULT,
     NULL,
@@ -368,7 +892,8 @@ Event EV_Player_GetIsDisguised(
     "non-zero = disguised",
     EV_GETTER
 );
-Event EV_Player_GetHasDisguise(
+Event EV_Player_GetHasDisguise
+(
     "has_disguise",
     EV_DEFAULT,
     NULL,
@@ -378,7 +903,8 @@ Event EV_Player_GetHasDisguise(
     EV_GETTER
 );
 
-Event EV_Player_SetHasDisguise(
+Event EV_Player_SetHasDisguise
+(
     "has_disguise",
     EV_DEFAULT,
     "i",
@@ -387,7 +913,8 @@ Event EV_Player_SetHasDisguise(
     "non - zero = has a disguise",
     EV_SETTER
 );
-Event EV_Player_ObjectiveCount(
+Event EV_Player_ObjectiveCount
+(
     "objective",
     EV_DEFAULT,
     "ii",
@@ -395,19 +922,71 @@ Event EV_Player_ObjectiveCount(
     "Sets the number of objectives completed and the total number of objectives",
     EV_NORMAL
 );
-Event EV_Player_Stats("stats", EV_CONSOLE, NULL, NULL, "Display the MissionLog.", EV_NORMAL);
-Event EV_Player_Teleport("tele", EV_CHEAT | EV_CONSOLE, "v", "location", "Teleport to location", EV_NORMAL);
-Event EV_Player_Face("face", EV_CHEAT | EV_CONSOLE, "v", "angles", "Force angles to specified vector", EV_NORMAL);
-Event EV_Player_Coord("coord", EV_CONSOLE, NULL, NULL, "Prints out current location and angles", EV_NORMAL);
-Event EV_Player_TestAnim(
-    "testplayeranim", EV_CHEAT, "fS", "weight anim", "Plays a test animation on the player", EV_NORMAL
+Event EV_Player_Stats
+(
+    "stats",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Display the MissionLog.",
+    EV_NORMAL
 );
-Event
-    EV_Player_StuffText("stufftext", EV_DEFAULT, "s", "stuffstrings", "Stuffs text to the player's console", EV_NORMAL);
-Event EV_Player_DMMessage(
-    "dmmessage", EV_CONSOLE, "is", "mode stuffstrings", "sends a DM message to the appropriate players", EV_NORMAL
+Event EV_Player_Teleport
+(
+    "tele",
+    EV_CHEAT | EV_CONSOLE,
+    "v",
+    "location",
+    "Teleport to location",
+    EV_NORMAL
 );
-Event EV_Player_IPrint(
+Event EV_Player_Face
+(
+    "face",
+    EV_CHEAT | EV_CONSOLE,
+    "v",
+    "angles",
+    "Force angles to specified vector",
+    EV_NORMAL
+);
+Event EV_Player_Coord
+(
+    "coord",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "Prints out current location and angles",
+    EV_NORMAL
+);
+Event EV_Player_TestAnim
+(
+    "testplayeranim",
+    EV_CHEAT,
+    "fS",
+    "weight anim",
+    "Plays a test animation on the player",
+    EV_NORMAL
+);
+Event EV_Player_StuffText
+(
+    "stufftext",
+    EV_DEFAULT,
+    "s",
+    "stuffstrings",
+    "Stuffs text to the player's console",
+    EV_NORMAL
+);
+Event EV_Player_DMMessage
+(
+    "dmmessage",
+    EV_CONSOLE,
+    "is",
+    "mode stuffstrings",
+    "sends a DM message to the appropriate players",
+    EV_NORMAL
+);
+Event EV_Player_IPrint
+(
     "iprint",
     EV_CONSOLE,
     "sI",
@@ -416,11 +995,26 @@ Event EV_Player_IPrint(
     "optionally in bold",
     EV_NORMAL
 );
-Event EV_SetViewangles(
-    "viewangles", EV_DEFAULT, "v", "newAngles", "set the view angles of the entity to newAngles.", EV_SETTER
+Event EV_SetViewangles
+(
+    "viewangles",
+    EV_DEFAULT,
+    "v",
+    "newAngles",
+    "set the view angles of the entity to newAngles.",
+    EV_SETTER
 );
-Event EV_GetViewangles("viewangles", EV_DEFAULT, NULL, NULL, "get the angles of the entity.", EV_GETTER);
-Event EV_GetUseHeld(
+Event EV_GetViewangles
+(
+    "viewangles",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "get the angles of the entity.",
+    EV_GETTER
+);
+Event EV_GetUseHeld
+(
     "useheld",
     EV_DEFAULT,
     NULL,
@@ -429,7 +1023,8 @@ Event EV_GetUseHeld(
     "or 0 if he is not",
     EV_GETTER
 );
-Event EV_GetFireHeld(
+Event EV_GetFireHeld
+(
     "fireheld",
     EV_DEFAULT,
     NULL,
@@ -438,23 +1033,22 @@ Event EV_GetFireHeld(
     "or 0 if he is not",
     EV_GETTER
 );
-Event EV_GetPrimaryFireHeld(
-    "primaryfireheld",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns 1 if this player is holding the primary fire, or 0 if not",
-    EV_GETTER
-);
-Event EV_GetSecondaryFireHeld(
-    "secondaryfireheld",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns 1 if this player is holding the secondary fire, or 0 if not",
-    EV_GETTER
-);
-Event EV_Player_GetReady(
+Event EV_GetPrimaryFireHeld // Added in 2.30
+    ("primaryfireheld",
+     EV_DEFAULT,
+     NULL,
+     NULL,
+     "returns 1 if this player is holding the primary fire, or 0 if not",
+     EV_GETTER);
+Event EV_GetSecondaryFireHeld // Added in 2.30
+    ("secondaryfireheld",
+     EV_DEFAULT,
+     NULL,
+     NULL,
+     "returns 1 if this player is holding the secondary fire, or 0 if not",
+     EV_GETTER);
+Event EV_Player_GetReady
+(
     "ready",
     EV_DEFAULT,
     NULL,
@@ -463,12 +1057,35 @@ Event EV_Player_GetReady(
     "0 otherwise",
     EV_GETTER
 );
-Event EV_Player_SetReady("ready", EV_CONSOLE, NULL, NULL, "makes this player ready for the round to start", EV_NORMAL);
-Event EV_Player_SetNotReady(
-    "notready", EV_CONSOLE, NULL, NULL, "makes this player not ready for the round to start", EV_NORMAL
+Event EV_Player_SetReady
+(
+    "ready",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "makes this player ready for the round to start",
+    EV_NORMAL
 );
-Event EV_Player_GetName("netname", EV_DEFAULT, NULL, NULL, "returns player's name", EV_GETTER);
-Event EV_Player_GetDMTeam(
+Event EV_Player_SetNotReady
+(
+    "notready",
+    EV_CONSOLE,
+    NULL,
+    NULL,
+    "makes this player not ready for the round to start",
+    EV_NORMAL
+);
+Event EV_Player_GetName
+(
+    "netname",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns player's name",
+    EV_GETTER
+);
+Event EV_Player_GetDMTeam
+(
     "dmteam",
     EV_DEFAULT,
     NULL,
@@ -479,13 +1096,26 @@ Event EV_Player_GetDMTeam(
     "or 'freeforall'",
     EV_GETTER
 );
-Event EV_Player_SetViewModelAnim(
-    "viewmodelanim", EV_DEFAULT, "sI", "name force_restart", "Sets the player's view model animation.", EV_NORMAL
+Event EV_Player_SetViewModelAnim
+(
+    "viewmodelanim",
+    EV_DEFAULT,
+    "sI",
+    "name force_restart",
+    "Sets the player's view model animation.",
+    EV_NORMAL
 );
-Event EV_Player_DMDeathDrop(
-    "dmdeathdrop", EV_DEFAULT, NULL, NULL, "Drops the player inventory in DM after's he's been killed", EV_NORMAL
+Event EV_Player_DMDeathDrop
+(
+    "dmdeathdrop",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Drops the player inventory in DM after's he's been killed",
+    EV_NORMAL
 );
-Event EV_Player_Stopwatch(
+Event EV_Player_Stopwatch
+(
     "stopwatch",
     EV_DEFAULT,
     "i",
@@ -493,8 +1123,17 @@ Event EV_Player_Stopwatch(
     "Starts a stopwatch for a given duration... use 0 to clear the stopwatch",
     EV_NORMAL
 );
-Event EV_Player_EnterIntermission("_enterintermission", EV_CODEONLY, NULL, NULL, "CODE USE ONLY", EV_NORMAL);
-Event EV_Player_SetPerferredWeapon(
+Event EV_Player_EnterIntermission
+(
+    "_enterintermission",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "CODE USE ONLY",
+    EV_NORMAL
+);
+Event EV_Player_SetPerferredWeapon
+(
     "perferredweapon",
     EV_DEFAULT,
     "s",
@@ -502,47 +1141,78 @@ Event EV_Player_SetPerferredWeapon(
     "Overrides your perferred weapon that is displayed in the stats screen.",
     EV_NORMAL
 );
-Event EV_Player_SetVoiceType(
-    "voicetype", EV_DEFAULT, "s", "voice_name", "Sets the voice type to use the player.", EV_NORMAL
-);
-
-Event EV_Player_AddKills("addkills", EV_DEFAULT, "i", "kills", "Give or take kills from the player", EV_NORMAL);
-
-Event EV_Player_KillAxis(
-    "killaxis",
-    EV_CHEAT,
-    "f",
-    "radius",
-    "Kills all of the axis that are in the passed radius, or all of them if radius is 0.",
+Event EV_Player_SetVoiceType
+(
+    "voicetype",
+    EV_DEFAULT,
+    "s",
+    "voice_name",
+    "Sets the voice type to use the player.",
     EV_NORMAL
 );
-Event EV_Player_GetTurret(
-    "turret",
+
+Event EV_Player_AddKills // Added in 2.0
+    ("addkills", EV_DEFAULT, "i", "kills", "Give or take kills from the player", EV_NORMAL);
+
+Event EV_Player_KillAxis // Added in 2.30
+    ("killaxis",
+     EV_CHEAT,
+     "f",
+     "radius",
+     "Kills all of the axis that are in the passed radius, or all of them if radius is 0.",
+     EV_NORMAL);
+Event EV_Player_GetTurret // Added in 2.30
+    ("turret",
+     EV_DEFAULT,
+     NULL,
+     NULL,
+     "Returns the turret the player is using. NULL if player isn't using a turret.",
+     EV_GETTER);
+Event EV_Player_GetVehicle // Added in 2.30
+    ("vehicle",
+     EV_DEFAULT,
+     NULL,
+     NULL,
+     "Returns the vehicle the player is using. NULL if player isn't using a vehicle.",
+     EV_GETTER);
+
+////////////////////////////
+//
+// Openmohaa additions
+//
+////////////////////////////
+Event EV_Player_AddDeaths
+(
+    "adddeaths",
+    EV_DEFAULT,
+    "i",
+    "deaths",
+    "adds deaths number to player",
+    EV_NORMAL
+);
+
+Event EV_Player_AdminRights
+(
+    "adminrights",
     EV_DEFAULT,
     NULL,
     NULL,
-    "Returns the turret the player is using. NULL if player isn't using a turret.",
+    "returns client admin rights",
     EV_GETTER
 );
-Event EV_Player_GetVehicle(
-    "vehicle",
+
+Event EV_Player_BindWeap
+(
+    "bindweap",
     EV_DEFAULT,
-    NULL,
-    NULL,
-    "Returns the vehicle the player is using. NULL if player isn't using a vehicle.",
-    EV_GETTER
+    "ei",
+    "weapon handnum",
+    "binds weapon to player and sets him as weapon owner",
+    EV_NORMAL
 );
 
-// reborn stuff
-Event EV_Player_AddDeaths("adddeaths", EV_DEFAULT, "i", "deaths", "adds deaths number to player", EV_NORMAL);
-
-Event EV_Player_AdminRights("adminrights", EV_DEFAULT, NULL, NULL, "returns client admin rights", EV_GETTER);
-
-Event EV_Player_BindWeap(
-    "bindweap", EV_DEFAULT, "ei", "weapon handnum", "binds weapon to player and sets him as weapon owner", EV_NORMAL
-);
-
-Event EV_Player_CanSwitchTeams(
+Event EV_Player_CanSwitchTeams
+(
     "canswitchteams",
     EV_DEFAULT,
     "bB",
@@ -551,15 +1221,28 @@ Event EV_Player_CanSwitchTeams(
     EV_NORMAL
 );
 
-Event EV_Player_ClearCommand(
-    "clearcommand", EV_DEFAULT, "S", "command", "Clears any or a specific client command", EV_NORMAL
+Event EV_Player_ClearCommand
+(
+    "clearcommand",
+    EV_DEFAULT,
+    "S",
+    "command",
+    "Clears any or a specific client command",
+    EV_NORMAL
 );
 
-Event EV_Player_Dive(
-    "dive", EV_DEFAULT, "fF", "height airborne_duration", "Makes the player dive into prone position.", EV_NORMAL
+Event EV_Player_Dive
+(
+    "dive",
+    EV_DEFAULT,
+    "fF",
+    "height airborne_duration",
+    "Makes the player dive into prone position.",
+    EV_NORMAL
 );
 
-Event EV_Player_Earthquake(
+Event EV_Player_Earthquake
+(
     "earthquake2",
     EV_DEFAULT,
     "ffbbVF",
@@ -568,17 +1251,38 @@ Event EV_Player_Earthquake(
     EV_NORMAL
 );
 
-Event EV_Player_FreezeControls(
-    "freezecontrols", EV_DEFAULT, "b", "freeze_state", "Blocks or unblocks control input from this player.", EV_NORMAL
+Event EV_Player_FreezeControls
+(
+    "freezecontrols",
+    EV_DEFAULT,
+    "b",
+    "freeze_state",
+    "Blocks or unblocks control input from this player.",
+    EV_NORMAL
 );
 
-Event EV_Player_GetConnState("getconnstate", EV_DEFAULT, NULL, NULL, "gets connection state. [DEPRECATED]", EV_RETURN);
-
-Event EV_Player_GetDamageMultiplier(
-    "damage_multiplier", EV_DEFAULT, "Gets the current damage multiplier", NULL, NULL, EV_GETTER
+Event EV_Player_GetConnState
+(
+    "getconnstate",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "gets connection state. [DEPRECATED]",
+    EV_RETURN
 );
 
-Event EV_Player_GetKillHandler(
+Event EV_Player_GetDamageMultiplier
+(
+    "damage_multiplier",
+    EV_DEFAULT,
+    "Gets the current damage multiplier",
+    NULL,
+    NULL,
+    EV_GETTER
+);
+
+Event EV_Player_GetKillHandler
+(
     "killhandler",
     EV_DEFAULT,
     "s",
@@ -587,29 +1291,98 @@ Event EV_Player_GetKillHandler(
     EV_GETTER
 );
 
-Event EV_Player_GetKills("getkills", EV_DEFAULT, NULL, NULL, "gets kills number of player", EV_RETURN);
-
-Event EV_Player_GetDeaths("getdeaths", EV_DEFAULT, NULL, NULL, "gets deaths number of player", EV_RETURN);
-
-Event EV_Player_GetLegsState(
-    "getlegsstate", EV_DEFAULT, NULL, NULL, "Gets the player's current legs state name", EV_RETURN
+Event EV_Player_GetKills
+(
+    "getkills",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "gets kills number of player",
+    EV_RETURN
 );
 
-Event EV_Player_GetStateFile("statefile", EV_DEFAULT, NULL, NULL, "Gets the player's current state file.", EV_GETTER);
-
-Event EV_Player_GetTorsoState(
-    "gettorsostate", EV_DEFAULT, NULL, NULL, "Gets the player's current torso state name", EV_RETURN
+Event EV_Player_GetDeaths
+(
+    "getdeaths",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "gets deaths number of player",
+    EV_RETURN
 );
 
-Event EV_Player_HideEnt("hideent", EV_DEFAULT, "e", "entity", "Hides the specified entity to the player.", EV_NORMAL);
+Event EV_Player_GetLegsState
+(
+    "getlegsstate",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Gets the player's current legs state name",
+    EV_RETURN
+);
 
-Event EV_Player_Inventory("inventory", EV_DEFAULT, NULL, NULL, "returns player's inventory", EV_GETTER);
+Event EV_Player_GetStateFile
+(
+    "statefile",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Gets the player's current state file.",
+    EV_GETTER
+);
 
-Event EV_Player_InventorySet("inventory", EV_DEFAULT, "e", "array", "Set up the player's inventory", EV_SETTER);
+Event EV_Player_GetTorsoState
+(
+    "gettorsostate",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Gets the player's current torso state name",
+    EV_RETURN
+);
 
-Event EV_Player_IsAdmin("isadmin", EV_DEFAULT, NULL, NULL, "checks if player is logged as admin", EV_RETURN);
+Event EV_Player_HideEnt
+(
+    "hideent",
+    EV_DEFAULT,
+    "e",
+    "entity",
+    "Hides the specified entity to the player.",
+    EV_NORMAL
+);
 
-Event EV_Player_LeanLeftHeld(
+Event EV_Player_Inventory
+(
+    "inventory",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns player's inventory",
+    EV_GETTER
+);
+
+Event EV_Player_InventorySet
+(
+    "inventory",
+    EV_DEFAULT,
+    "e",
+    "array",
+    "Set up the player's inventory",
+    EV_SETTER
+);
+
+Event EV_Player_IsAdmin
+(
+    "isadmin",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "checks if player is logged as admin",
+    EV_RETURN
+);
+
+Event EV_Player_LeanLeftHeld
+(
     "leanleftheld",
     EV_DEFAULT,
     NULL,
@@ -618,7 +1391,8 @@ Event EV_Player_LeanLeftHeld(
     EV_GETTER
 );
 
-Event EV_Player_LeanRightHeld(
+Event EV_Player_LeanRightHeld
+(
     "leanrightheld",
     EV_DEFAULT,
     NULL,
@@ -627,15 +1401,28 @@ Event EV_Player_LeanRightHeld(
     EV_GETTER
 );
 
-Event EV_Player_MoveSpeedScale(
-    "moveSpeedScale", EV_DEFAULT, "f", "speed", "Sets the player's speed multiplier (default 1.0).", EV_SETTER
+Event EV_Player_MoveSpeedScale
+(
+    "moveSpeedScale",
+    EV_DEFAULT,
+    "f",
+    "speed",
+    "Sets the player's speed multiplier (default 1.0).",
+    EV_SETTER
 );
 
-Event EV_Player_MoveSpeedScaleGet(
-    "moveSpeedScale", EV_DEFAULT, NULL, NULL, "Gets the player's speed multiplier.", EV_GETTER
+Event EV_Player_MoveSpeedScaleGet
+(
+    "moveSpeedScale",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Gets the player's speed multiplier.",
+    EV_GETTER
 );
 
-Event EV_Player_PlayLocalSound(
+Event EV_Player_PlayLocalSound
+(
     "playlocalsound",
     EV_DEFAULT,
     "sBF",
@@ -645,11 +1432,18 @@ Event EV_Player_PlayLocalSound(
     EV_NORMAL
 );
 
-Event EV_Player_Replicate(
-    "replicate", EV_DEFAULT, "s", "variable", "Replicate a variable to the client (needs patch 1.12).", EV_NORMAL
+Event EV_Player_Replicate
+(
+    "replicate",
+    EV_DEFAULT,
+    "s",
+    "variable",
+    "Replicate a variable to the client (needs patch 1.12).",
+    EV_NORMAL
 );
 
-Event EV_Player_RunHeld(
+Event EV_Player_RunHeld
+(
     "runheld",
     EV_DEFAULT,
     NULL,
@@ -659,7 +1453,8 @@ Event EV_Player_RunHeld(
     EV_GETTER
 );
 
-Event EV_Player_SecFireHeld(
+Event EV_Player_SecFireHeld
+(
     "secfireheld",
     EV_DEFAULT,
     NULL,
@@ -668,13 +1463,28 @@ Event EV_Player_SecFireHeld(
     EV_GETTER
 );
 
-Event EV_Player_SetAnimSpeed(
-    "setanimspeed", EV_DEFAULT, "f", "speed", "set the player's animation speed multiplier (default 1.0).", EV_NORMAL
+Event EV_Player_SetAnimSpeed
+(
+    "setanimspeed",
+    EV_DEFAULT,
+    "f",
+    "speed",
+    "set the player's animation speed multiplier (default 1.0).",
+    EV_NORMAL
 );
 
-Event EV_Player_SetFov("setfov", EV_DEFAULT, "f", "fov", "set the player's fov (default 80).", EV_NORMAL);
+Event EV_Player_SetFov
+(
+    "setfov",
+    EV_DEFAULT,
+    "f",
+    "fov",
+    "set the player's fov (default 80).",
+    EV_NORMAL
+);
 
-Event EV_Player_SetKillHandler(
+Event EV_Player_SetKillHandler
+(
     "killhandler",
     EV_DEFAULT,
     "s",
@@ -684,10 +1494,18 @@ Event EV_Player_SetKillHandler(
     EV_SETTER
 );
 
-Event
-    EV_Player_SetClientFlag("setclientflag", EV_DEFAULT, "s", "name", "Calls a flag to the script client.", EV_NORMAL);
+Event EV_Player_SetClientFlag
+(
+    "setclientflag",
+    EV_DEFAULT,
+    "s",
+    "name",
+    "Calls a flag to the script client.",
+    EV_NORMAL
+);
 
-Event EV_Player_SetEntityShader(
+Event EV_Player_SetEntityShader
+(
     "setentshader",
     EV_DEFAULT,
     "es",
@@ -696,11 +1514,18 @@ Event EV_Player_SetEntityShader(
     EV_NORMAL
 );
 
-Event EV_Player_SetLocalSoundRate(
-    "setlocalsoundrate", EV_DEFAULT, "sfF", "name rate time", "Sets the local sound rate.", EV_NORMAL
+Event EV_Player_SetLocalSoundRate
+(
+    "setlocalsoundrate",
+    EV_DEFAULT,
+    "sfF",
+    "name rate time",
+    "Sets the local sound rate.",
+    EV_NORMAL
 );
 
-Event EV_Player_SetSpeed(
+Event EV_Player_SetSpeed
+(
     "setspeed",
     EV_DEFAULT,
     "fI",
@@ -709,7 +1534,8 @@ Event EV_Player_SetSpeed(
     EV_NORMAL
 );
 
-Event EV_Player_SetStateFile(
+Event EV_Player_SetStateFile
+(
     "statefile",
     EV_DEFAULT,
     "S",
@@ -718,7 +1544,8 @@ Event EV_Player_SetStateFile(
     EV_SETTER
 );
 
-Event EV_Player_SetTeam(
+Event EV_Player_SetTeam
+(
     "setteam",
     EV_DEFAULT,
     "s",
@@ -728,17 +1555,38 @@ Event EV_Player_SetTeam(
     EV_NORMAL
 );
 
-Event EV_Player_SetViewModelAnimSpeed(
-    "setvmaspeed", EV_DEFAULT, "sf", "name speed", "Sets the player's animation speed when playing it.", EV_NORMAL
+Event EV_Player_SetViewModelAnimSpeed
+(
+    "setvmaspeed",
+    EV_DEFAULT,
+    "sf",
+    "name speed",
+    "Sets the player's animation speed when playing it.",
+    EV_NORMAL
 );
 
-Event EV_Player_ShowEnt("showent", EV_DEFAULT, "e", "entity", "Shows the specified entity to the player.", EV_NORMAL);
-
-Event EV_Player_StopLocalSound(
-    "stoplocalsound", EV_DEFAULT, "sF", "soundName time", "Stops the specified sound.", EV_NORMAL
+Event EV_Player_ShowEnt
+(
+    "showent",
+    EV_DEFAULT,
+    "e",
+    "entity",
+    "Shows the specified entity to the player.",
+    EV_NORMAL
 );
 
-Event EV_Player_UseHeld(
+Event EV_Player_StopLocalSound
+(
+    "stoplocalsound",
+    EV_DEFAULT,
+    "sF",
+    "soundName time",
+    "Stops the specified sound.",
+    EV_NORMAL
+);
+
+Event EV_Player_UseHeld
+(
     "useheld",
     EV_DEFAULT,
     NULL,
@@ -748,13 +1596,28 @@ Event EV_Player_UseHeld(
     EV_GETTER
 );
 
-Event EV_Player_Userinfo("userinfo", EV_DEFAULT, NULL, NULL, "returns userinfo string", EV_GETTER);
-
-Event EV_Player_ViewModelGetAnim(
-    "viewmodelgetanim", EV_DEFAULT, "B", "fullanim", "Gets the player's current view model animation.", EV_RETURN
+Event EV_Player_Userinfo
+(
+    "userinfo",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "returns userinfo string",
+    EV_GETTER
 );
 
-Event EV_Player_ViewModelAnimFinished(
+Event EV_Player_ViewModelGetAnim
+(
+    "viewmodelgetanim",
+    EV_DEFAULT,
+    "B",
+    "fullanim",
+    "Gets the player's current view model animation.",
+    EV_RETURN
+);
+
+Event EV_Player_ViewModelAnimFinished
+(
     "viewmodelanimfinished",
     EV_DEFAULT,
     NULL,
@@ -763,11 +1626,18 @@ Event EV_Player_ViewModelAnimFinished(
     EV_RETURN
 );
 
-Event EV_Player_ViewModelAnimValid(
-    "viewmodelanimvalid", EV_DEFAULT, "sB", "anim fullanim", "True if the view model animation is valid.", EV_RETURN
+Event EV_Player_ViewModelAnimValid
+(
+    "viewmodelanimvalid",
+    EV_DEFAULT,
+    "sB",
+    "anim fullanim",
+    "True if the view model animation is valid.",
+    EV_RETURN
 );
 
-Event EV_Player_VisionSetBlur(
+Event EV_Player_VisionSetBlur
+(
     "visionsetblur",
     EV_DEFAULT,
     "fF",
@@ -776,11 +1646,18 @@ Event EV_Player_VisionSetBlur(
     EV_NORMAL
 );
 
-Event EV_Player_VisionGetNaked(
-    "visiongetnaked", EV_DEFAULT, NULL, NULL, "Gets the player's current naked-eye vision.", EV_RETURN
+Event EV_Player_VisionGetNaked
+(
+    "visiongetnaked",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Gets the player's current naked-eye vision.",
+    EV_RETURN
 );
 
-Event EV_Player_VisionSetNaked(
+Event EV_Player_VisionSetNaked
+(
     "visionsetnaked",
     EV_DEFAULT,
     "sFF",
@@ -1017,29 +1894,82 @@ Player::Player()
     entflags |= EF_PLAYER;
 
     mCurTrailOrigin   = 0;
+    mLastTrailTime    = 0;
     m_pLastSpawnpoint = NULL;
+
+    voted                      = false;
+    m_fInvulnerableTimeElapsed = 0;
+    m_voiceType                = PVT_NONE_SET;
+    m_fTalkTime                = 0;
+    num_deaths                 = 0;
+    num_kills                  = 0;
+    num_won_matches            = 0;
+    num_lost_matches           = 0;
+    num_team_kills             = 0;
+    m_iLastNumTeamKills        = 0;
+    m_bTempSpectator           = false;
+    m_bSpectator               = false;
+    m_bSpectatorSwitching      = false;
+    m_bAllowFighting           = false;
+    m_bReady                   = false;
+    m_iPlayerSpectating        = 0;
+    dm_team                    = TEAM_NONE;
+    m_fTeamSelectTime          = -30;
+    votecount                  = 0;
+    m_fNextVoteOptionTime      = 0;
+    m_fWeapSelectTime          = 0;
+
+    fAttackerDispTime   = 0;
+    m_iInfoClient       = 0;
+    m_iInfoClientHealth = 0;
+    m_fInfoClientTime   = 0;
+
+    m_bDeathSpectator            = false;
+    m_fSpawnTimeLeft             = 0;
+    m_bWaitingForRespawn         = 0;
+    m_bShouldRespawn             = false;
+    last_camera_type             = -1;
+    m_fLastInvulnerableTime      = 0;
+    m_iInvulnerableTimeRemaining = 0;
+    m_fLastVoteTime              = 0;
 
     if (LoadingSavegame) {
         return;
     }
 
-    edict->s.eType = ET_PLAYER;
+    actor_camera_right          = false;
+    starting_actor_camera_right = false;
+    useanim_numloops            = 1;
+    move_right_vel              = 0;
 
+    m_iInfoClient       = -1;
+    m_iInfoClientHealth = 0;
+    m_fInfoClientTime   = 0.0;
+
+    music_current_volume   = -1;
+    music_saved_volume     = -1;
+    music_volume_fade_time = -1;
+
+    feetfalling        = false;
+    edict->s.eType     = ET_PLAYER;
     buttons            = 0;
+    new_buttons        = 0;
     server_new_buttons = 0;
+    respawn_time       = -1.0;
+
+    //
+    // State
+    //
     statemap_Legs      = NULL;
     statemap_Torso     = NULL;
-    new_buttons        = 0;
-
-    m_iPartSlot[1] = 2;
-
-    respawn_time     = -1.0f;
-    m_fPartBlends[0] = 0;
-    m_fPartBlends[1] = 0;
-
-    m_iPartSlot[0]   = 0;
-    partBlendMult[0] = 0;
-    partBlendMult[1] = 0;
+    m_fPartBlends[0]   = 0;
+    m_fPartBlends[1]   = 0;
+    m_iPartSlot[legs]  = 0;
+    m_iPartSlot[torso] = 2;
+    partBlendMult[0]   = 0;
+    partBlendMult[1]   = 0;
+    m_fPainBlend       = 0;
+    animdone_Pain      = false;
 
     m_fLastDeltaTime = level.time;
 
@@ -1057,7 +1987,6 @@ Player::Player()
 
     fAttackerDispTime    = 0;
     pAttackerDistPointer = NULL;
-    moveresult           = 0;
     last_attack_button   = 0;
     attack_blocked       = false;
     canfall              = false;
@@ -1068,50 +1997,86 @@ Player::Player()
     move_forward_vel  = 0;
     move_up_vel       = 0;
     move_down_vel     = 0;
-    animspeed         = 0;
-    airspeed          = 200.0f;
 
+    moveresult                = 0;
+    animspeed                 = 0;
+    airspeed                  = 200.0f;
     weapons_holstered_by_code = false;
+    actor_camera              = NULL;
 
-    actor_camera      = NULL;
-    dm_team           = TEAM_NONE;
     damage_multiplier = 1.0f;
     take_pain         = true;
+    m_bIsInJail       = false;
+    dm_team           = TEAM_NONE;
     current_team      = NULL;
 
-    num_deaths          = 0;
-    num_kills           = 0;
-    num_won_matches     = 0;
-    m_bTempSpectator    = false;
-    m_bSpectator        = false;
-    m_iPlayerSpectating = 0;
-    m_bAllowFighting    = false;
-    m_bReady            = true;
-    m_fTeamSelectTime   = -30.0f;
-    voted               = false;
-    votecount           = 0;
-    m_fWeapSelectTime   = 0;
+    m_bTempSpectator      = false;
+    m_bSpectator          = false;
+    m_bSpectatorSwitching = false;
+    m_bAllowFighting      = false;
+    m_bReady              = true;
+    m_fTeamSelectTime     = -30;
+    m_fTalkTime           = 0;
+
+    num_deaths            = 0;
+    num_kills             = 0;
+    num_team_kills        = 0;
+    m_iLastNumTeamKills   = 0;
+    num_won_matches       = 0;
+    num_lost_matches      = 0;
+    client->ps.voted      = false;
+    votecount             = 0;
+    m_fLastVoteTime       = 0;
+    m_fNextVoteOptionTime = 0;
+    m_fWeapSelectTime     = 0;
+    m_jailstate           = JAILSTATE_NONE;
 
     SetSelectedFov(atof(Info_ValueForKey(client->pers.userinfo, "fov")));
     SetFov(selectedfov);
 
     m_iInZoomMode       = 0;
     m_iNumShotsFired    = 0;
+    m_iNumHits          = 0;
     m_iNumGroinShots    = 0;
     m_iNumHeadShots     = 0;
-    m_iNumHits          = 0;
     m_iNumLeftArmShots  = 0;
     m_iNumLeftLegShots  = 0;
     m_iNumRightArmShots = 0;
     m_iNumRightLegShots = 0;
     m_iNumTorsoShots    = 0;
 
-    m_bShowingHint = false;
-
     m_sPerferredWeaponOverride = "";
 
     SetTargetName("player");
 
+    Init();
+
+    for (int i = 0; i < MAX_TRAILS; i++) {
+        mvTrail[i] = Vector(0, 0, 0);
+    }
+
+    for (int i = 0; i < MAX_TRAILS; i++) {
+        mvTrailEyes[i] = Vector(0, 0, 0);
+    }
+
+    client->ps.pm_flags &= ~PMF_NO_HUD;
+
+    m_fLastSprintTime = 0;
+    m_bHasJumped      = false;
+
+    m_fLastInvulnerableTime      = 0;
+    m_iInvulnerableTimeRemaining = -1;
+    m_fSpawnTimeLeft             = 0;
+    m_bWaitingForRespawn         = false;
+    m_bShouldRespawn             = false;
+    m_bDeathSpectator            = false;
+
+    m_vViewPos = vec_zero;
+
+    //
+    // Openmohaa additions
+    //
+    m_bShowingHint      = false;
     disable_spectate    = false;
     disable_team_change = false;
     m_bFrozen           = false;
@@ -1125,18 +2090,6 @@ Player::Player()
 
     m_pKilledEvent = NULL;
     m_bConnected   = false;
-
-    Init();
-
-    for (int i = 0; i < MAX_TRAILS; i++) {
-        mvTrail[i] = vec_zero;
-    }
-
-    for (int i = 0; i < MAX_TRAILS; i++) {
-        mvTrailEyes[i] = vec_zero;
-    }
-
-    client->ps.pm_flags &= ~PMF_NO_HUD;
 }
 
 Player::~Player()
@@ -1988,8 +2941,8 @@ void Player::Dead(Event *ev)
         animdone_Pain                            = false;
     }
 
-    if (g_gametype->integer) {
-        if (!dmManager.AllowRespawn()) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
+        if (dmManager.AllowRespawn()) {
             respawn_time = level.time + 1.0f;
         } else {
             respawn_time = level.time + 2.0f;
@@ -5384,7 +6337,7 @@ void Player::SetPlayerView(
     } else if (damage_count) {
         client->ps.damage_angles[PITCH] = damage_angles[PITCH];
         client->ps.damage_angles[YAW]   = damage_angles[YAW];
-        client->ps.damage_angles[ROLL]  = damage_angles[ROLL] ;
+        client->ps.damage_angles[ROLL]  = damage_angles[ROLL];
     } else {
         VectorClear(client->ps.damage_angles);
     }
@@ -5597,31 +6550,31 @@ void Player::SetupView(void)
             }
         }
     }
-   
+
     // If there is no camera, use the player's view
-	if (!camera) {
-		if (g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator() && m_iPlayerSpectating != 0) {
-			gentity_t* ent = g_entities + m_iPlayerSpectating - 1;
+    if (!camera) {
+        if (g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator() && m_iPlayerSpectating != 0) {
+            gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
 
-			if (ent->inuse && ent->entity && ent->entity->deadflag <= DEAD_DYING) {
-				Player* m_player = (Player*)ent->entity;
-				Vector  vAngles;
+            if (ent->inuse && ent->entity && ent->entity->deadflag <= DEAD_DYING) {
+                Player *m_player = (Player *)ent->entity;
+                Vector  vAngles;
 
-				m_player->GetPlayerView(NULL, &vAngles);
+                m_player->GetPlayerView(NULL, &vAngles);
 
-				SetPlayerView(
-					(Camera*)m_player,
-					m_player->origin,
-					m_player->viewheight,
-					vAngles,
-					m_player->velocity,
-					blend,
-					m_player->fov
-				);
-			} else {
+                SetPlayerView(
+                    (Camera *)m_player,
+                    m_player->origin,
+                    m_player->viewheight,
+                    vAngles,
+                    m_player->velocity,
+                    blend,
+                    m_player->fov
+                );
+            } else {
                 SetPlayerView(NULL, origin, viewheight, v_angle, velocity, blend, fov);
             }
-		} else {
+        } else {
             SetPlayerView(NULL, origin, viewheight, v_angle, velocity, blend, fov);
         }
     } else {
@@ -5750,8 +6703,7 @@ PlayerAngles
 */
 void Player::PlayerAngles(void)
 {
-    if (getMoveType() == MOVETYPE_PORTABLE_TURRET)
-    {
+    if (getMoveType() == MOVETYPE_PORTABLE_TURRET) {
         // Addition in 2.0
         //  FIXME: Set viewangles from m_pTurret
     }
@@ -5905,8 +6857,8 @@ void Player::UpdateStats(void)
 {
     int    i, count;
     Vector vObjectiveLocation;
-    float healthfrac;
-    float healfrac;
+    float  healthfrac;
+    float  healfrac;
 
     //
     // Health
@@ -6012,7 +6964,7 @@ void Player::UpdateStats(void)
                 trace = G_Trace(m_vViewPos, vec_zero, vec_zero, vEnd, this, MASK_BEAM, qfalse, "infoclientcheck");
 
                 if (trace.ent && trace.ent->entity->IsSubclassOfPlayer()) {
-                    Player *p = static_cast<Player*>(trace.ent->entity);
+                    Player *p = static_cast<Player *>(trace.ent->entity);
 
                     if (IsSpectator() || p->GetTeam() == GetTeam()) {
                         m_iInfoClient       = trace.ent - g_entities;
@@ -6042,11 +6994,10 @@ void Player::UpdateStats(void)
 
         if (g_gametype->integer < GT_TOW) {
             vObjectiveLocation = level.m_vObjectiveLocation;
-        }  else {
+        } else {
             if (GetTeam() == TEAM_AXIS) {
                 vObjectiveLocation = level.m_vAxisObjectiveLocation;
-            }
-            else if (GetTeam() == TEAM_ALLIES) {
+            } else if (GetTeam() == TEAM_ALLIES) {
                 vObjectiveLocation = level.m_vAlliedObjectiveLocation;
             }
         }
@@ -6058,9 +7009,9 @@ void Player::UpdateStats(void)
             // for teammates
             //
             if (g_gametype->integer > GT_FFA && !IsDead() && !IsSpectator()) {
-                gentity_t* ent;
+                gentity_t *ent;
                 int        i;
-                Player* p;
+                Player    *p;
                 float      fNearest = 9999.0f;
                 float      fLength;
 
@@ -6070,7 +7021,7 @@ void Player::UpdateStats(void)
                         continue;
                     }
 
-                    p = (Player*)ent->entity;
+                    p = (Player *)ent->entity;
                     if (p->IsDead() || p->IsSpectator() || p->dm_team != dm_team) {
                         continue;
                     }
@@ -6078,7 +7029,7 @@ void Player::UpdateStats(void)
                     fLength = (p->centroid - centroid).length();
 
                     if (fLength < fNearest) {
-                        fNearest = fLength;
+                        fNearest           = fLength;
                         vObjectiveLocation = p->centroid;
                     }
                 }
@@ -6087,23 +7038,27 @@ void Player::UpdateStats(void)
     }
 
     if (m_pVehicle && !m_pTurret) {
-        client->ps.stats[STAT_VEHICLE_HEALTH] = m_pVehicle->health;
+        client->ps.stats[STAT_VEHICLE_HEALTH]     = m_pVehicle->health;
         client->ps.stats[STAT_VEHICLE_MAX_HEALTH] = m_pVehicle->max_health;
-	}
+    }
 
     //
     // Health fraction
     //
-	healthfrac = (health / max_health * 100.0f);
+    healthfrac = (health / max_health * 100.0f);
 
-	if (m_pVehicle && !m_pTurret) {
-		if (m_pVehicle->isSubclassOf(FixedTurret)) {
-			healthfrac = (m_pVehicle->health / m_pVehicle->max_health * 100.f);
-		}
-	}
+    if (m_pVehicle && !m_pTurret) {
+        if (m_pVehicle->isSubclassOf(FixedTurret)) {
+            healthfrac = (m_pVehicle->health / m_pVehicle->max_health * 100.f);
+        }
+    }
 
-    if (healthfrac < 1 && healthfrac > 0) healthfrac = 1;
-    if (healthfrac < 0) healthfrac = 0;
+    if (healthfrac < 1 && healthfrac > 0) {
+        healthfrac = 1;
+    }
+    if (healthfrac < 0) {
+        healthfrac = 0;
+    }
 
     client->ps.stats[STAT_HEALTH] = healthfrac;
 
@@ -6114,12 +7069,16 @@ void Player::UpdateStats(void)
         healfrac = (m_pVehicle->health + m_fHealRate) / m_pVehicle->max_health * 100.f;
     } else {
         healfrac = 0;
-	}
-	if (healfrac < 1 && healfrac > 0) healfrac = 1;
-	if (healfrac < 0) healfrac = 0;
+    }
+    if (healfrac < 1 && healfrac > 0) {
+        healfrac = 1;
+    }
+    if (healfrac < 0) {
+        healfrac = 0;
+    }
 
-	client->ps.stats[STAT_NEXTHEALTH] = healfrac;
-	client->ps.stats[STAT_MAXHEALTH] = 100;
+    client->ps.stats[STAT_NEXTHEALTH] = healfrac;
+    client->ps.stats[STAT_MAXHEALTH]  = 100;
 
     Weapon *activeweap = GetActiveWeapon(WEAPON_MAIN);
 
@@ -6141,16 +7100,16 @@ void Player::UpdateStats(void)
         client->ps.activeItems[ITEM_WEAPON] = m_pTurret->getIndex();
         if (getMoveType() == MOVETYPE_PORTABLE_TURRET || getMoveType() == MOVETYPE_TURRET) {
             // Use the turret's ammo
-            client->ps.stats[STAT_CLIPAMMO] = m_pTurret->ammo_in_clip[FIRE_PRIMARY];
+            client->ps.stats[STAT_CLIPAMMO]    = m_pTurret->ammo_in_clip[FIRE_PRIMARY];
             client->ps.stats[STAT_MAXCLIPAMMO] = m_pTurret->ammo_clip_size[FIRE_PRIMARY];
         }
     } else if (activeweap) {
         if (activeweap->m_bSecondaryAmmoInHud) {
-            client->ps.stats[STAT_AMMO] = AmmoCount(activeweap->GetAmmoType(FIRE_SECONDARY));
-            client->ps.stats[STAT_MAXAMMO] = MaxAmmoCount(activeweap->GetAmmoType(FIRE_SECONDARY));
+            client->ps.stats[STAT_AMMO]           = AmmoCount(activeweap->GetAmmoType(FIRE_SECONDARY));
+            client->ps.stats[STAT_MAXAMMO]        = MaxAmmoCount(activeweap->GetAmmoType(FIRE_SECONDARY));
             client->ps.stats[STAT_SECONDARY_AMMO] = AmmoCount(activeweap->GetAmmoType(FIRE_PRIMARY));
         } else {
-            client->ps.stats[STAT_AMMO] = AmmoCount(activeweap->GetAmmoType(FIRE_PRIMARY));
+            client->ps.stats[STAT_AMMO]    = AmmoCount(activeweap->GetAmmoType(FIRE_PRIMARY));
             client->ps.stats[STAT_MAXAMMO] = MaxAmmoCount(activeweap->GetAmmoType(FIRE_PRIMARY));
         }
 
@@ -6171,13 +7130,13 @@ void Player::UpdateStats(void)
 
         client->ps.activeItems[ITEM_WEAPON] = activeweap->getIndex();
     } else if (m_pVehicle) {
-        Entity* pEnt = m_pVehicle->QueryTurretSlotEntity(0);
+        Entity *pEnt = m_pVehicle->QueryTurretSlotEntity(0);
         if (pEnt && pEnt->IsSubclassOfVehicleTurretGun()) {
-            VehicleTurretGun* vt = static_cast<VehicleTurretGun*>(pEnt);
+            VehicleTurretGun *vt = static_cast<VehicleTurretGun *>(pEnt);
 
-			client->ps.activeItems[ITEM_WEAPON] = vt->getIndex();
-            client->ps.stats[STAT_CLIPAMMO] = vt->ammo_in_clip[FIRE_PRIMARY];
-            client->ps.stats[STAT_MAXCLIPAMMO] = vt->ammo_clip_size[FIRE_PRIMARY];
+            client->ps.activeItems[ITEM_WEAPON]   = vt->getIndex();
+            client->ps.stats[STAT_CLIPAMMO]       = vt->ammo_in_clip[FIRE_PRIMARY];
+            client->ps.stats[STAT_MAXCLIPAMMO]    = vt->ammo_clip_size[FIRE_PRIMARY];
             client->ps.stats[STAT_SECONDARY_AMMO] = vt->GetWarmupFraction() * 100.f;
         }
     }
@@ -7465,7 +8424,7 @@ void Player::EquipWeapons()
         nationality = GetPlayerTeamType(client->pers.dm_playermodel);
     }
 
-    event = new Event(EV_Use);
+    event = new Event(EV_Sentient_UseItem);
 
     if (!m_sDmPrimary.length()) {
         // Set the primary weapon
@@ -7665,7 +8624,7 @@ void Player::EquipWeapons()
     }
 
     // Make the player switch to the weapon some time after spawning
-    PostEvent(EV_Use, 3.f);
+    PostEvent(event, 0.3f);
 
     //
     // Pistols and grenades
@@ -7982,6 +8941,8 @@ void Player::Join_DM_Team(Event *ev)
     teamtype_t  team;
     str         teamname;
     const char *join_message;
+    float       startTime;
+    Entity     *ent;
 
     teamname = ev->GetString(1);
 
@@ -7994,18 +8955,28 @@ void Player::Join_DM_Team(Event *ev)
     }
 
     if (current_team && current_team->m_teamnumber == team) {
+        //
+        // don't switch if on same team
+        //
         return;
     }
 
-    float startTime = dmManager.GetMatchStartTime();
+    if (deadflag && deadflag != DEAD_DEAD) {
+        // ignore team switching if the player is dying and not dead
+        return;
+    }
 
-    if (startTime >= 0.0f && (level.time - startTime) > 20.0f
-        && (level.time - m_fTeamSelectTime) < g_teamswitchdelay->integer && team != TEAM_SPECTATOR) {
+    startTime = dmManager.GetMatchStartTime();
+
+    if (startTime >= 0.0f && (level.time - startTime) > 30.0
+        && (level.time - m_fTeamSelectTime) < g_teamswitchdelay->integer) {
+        int seconds = g_teamswitchdelay->integer - (level.time - m_fTeamSelectTime);
+
         gi.SendServerCommand(
             edict - g_entities,
             "print \"" HUD_MESSAGE_WHITE "%s %i %s\n\"",
             gi.LV_ConvertString("Can not change teams again for another"),
-            (int)(g_teamswitchdelay->integer - (level.time - m_fTeamSelectTime) + 1.0f),
+            seconds + 1,
             gi.LV_ConvertString("seconds")
         );
         return;
@@ -8013,21 +8984,48 @@ void Player::Join_DM_Team(Event *ev)
 
     m_fTeamSelectTime = level.time;
     SetTeam(team);
+    // Make sure to remove player from turret
+    RemoveFromVehiclesAndTurrets();
+
+    //
+    // Since 2.0: Remove projectiles the player shot
+    //
+    for (ent = G_NextEntity(NULL); ent; ent = G_NextEntity(ent)) {
+        if (ent->IsSubclassOfProjectile() && ent->edict->r.ownerNum == edict->r.ownerNum) {
+            ent->PostEvent(EV_Remove, 0);
+        }
+    }
 
     if (client->pers.dm_primary[0]) {
         if (IsSpectator()) {
-            EndSpectator();
-            PostEvent(EV_Player_Respawn, 0);
-        } else if (g_gametype->integer <= 1) {
-            PostEvent(EV_Kill, 0);
+            if (m_fSpawnTimeLeft) {
+                m_bWaitingForRespawn = true;
+            } else if (AllowTeamRespawn()) {
+                EndSpectator();
+
+                if (deadflag) {
+                    deadflag = DEAD_DEAD;
+                }
+
+                PostEvent(EV_Player_Respawn, 0);
+                gi.centerprintf(edict, " ");
+            }
+        } else if (g_gametype->integer >= GT_TEAM) {
+            client->pers.dm_primary[0] = 0;
+            UserSelectWeapon(false);
+            Spectator();
         } else {
             PostEvent(EV_Player_Respawn, 0);
         }
-    } else {
-        gi.SendServerCommand(edict - g_entities, "stufftext \"wait 250;pushmenu_weaponselect\"");
+    } else if (IsSpectator()) {
+        UserSelectWeapon(true);
     }
 
-    if (g_gametype->integer > 1) {
+    if (g_gametype->integer >= GT_TEAM) {
+        //
+        // in team game modes, display a message to indicate
+        // a player joined a team
+        //
         if (GetTeam() == TEAM_ALLIES) {
             join_message = "has joined the Allies";
         } else if (GetTeam() == TEAM_AXIS) {
@@ -8940,11 +9938,6 @@ void Player::EventDMMessage(Event *ev)
         }
     }
 
-    cvar_t *sv_chatter = gi.Cvar_Get("sv_chatter", "0", 0);
-    if (sv_chatter && sv_chatter->integer) {
-        gi.Printf("CHAT: %s", string.c_str());
-    }
-
     if (voiceName.length()) {
         if (!IsDead() && (!IsSpectator() || g_spectate_allow_full_chat->integer)) {
             gentity_t *ent;
@@ -9566,48 +10559,64 @@ qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullA
 
     int            viewModelAnim;
     playerState_t *playerState = &client->ps;
+    Weapon        *weapon;
 
     if (!anim.length()) {
         anim = "";
     }
 
-    if (Q_stricmp(anim, "charge") == 0) {
+    if (!Q_stricmp(anim, "charge")) {
         viewModelAnim = VM_ANIM_CHARGE;
-    } else if (Q_stricmp(anim, "fire") == 0) {
+    } else if (!Q_stricmp(anim, "fire")) {
         viewModelAnim = VM_ANIM_FIRE;
-    } else if (Q_stricmp(anim, "fire_secondary") == 0) {
+    } else if (!Q_stricmp(anim, "fire_secondary")) {
         viewModelAnim = VM_ANIM_FIRE_SECONDARY;
-    } else if (Q_stricmp(anim, "rechamber") == 0) {
+    } else if (!Q_stricmp(anim, "rechamber")) {
         viewModelAnim = VM_ANIM_RECHAMBER;
-    } else if (Q_stricmp(anim, "reload") == 0) {
+    } else if (!Q_stricmp(anim, "reload")) {
         viewModelAnim = VM_ANIM_RELOAD;
-    } else if (Q_stricmp(anim, "reload_single") == 0) {
+    } else if (!Q_stricmp(anim, "reload_single")) {
         viewModelAnim = VM_ANIM_RELOAD_SINGLE;
-    } else if (Q_stricmp(anim, "reload_end") == 0) {
+    } else if (!Q_stricmp(anim, "reload_end")) {
         viewModelAnim = VM_ANIM_RELOAD_END;
-    } else if (Q_stricmp(anim, "pullout") == 0) {
+    } else if (!Q_stricmp(anim, "pullout")) {
         viewModelAnim = VM_ANIM_PULLOUT;
-    } else if (Q_stricmp(anim, "putaway") == 0) {
+    } else if (!Q_stricmp(anim, "putaway")) {
         viewModelAnim = VM_ANIM_PUTAWAY;
-    } else if (Q_stricmp(anim, "ladderstep") == 0) {
+    } else if (!Q_stricmp(anim, "ladderstep")) {
         viewModelAnim = VM_ANIM_LADDERSTEP;
-    } else if (Q_stricmp(anim, "idle") == 0) {
+    } else if (!Q_stricmp(anim, "idle")) {
         viewModelAnim = VM_ANIM_IDLE;
+    } else if (!Q_stricmp(anim, "idle0")) {
+        viewModelAnim = VM_ANIM_IDLE_0;
+    } else if (!Q_stricmp(anim, "idle1")) {
+        viewModelAnim = VM_ANIM_IDLE_1;
+    } else if (!Q_stricmp(anim, "idle2")) {
+        viewModelAnim = VM_ANIM_IDLE_2;
     } else {
-        ScriptError("Invalid view model animation %s !\n", anim.c_str());
-
-        return false;
+        // Defaults to idle
+        viewModelAnim = VM_ANIM_IDLE;
     }
 
     // Copy the item prefix and the anim name
-    Item *item = GetActiveWeapon(WEAPON_MAIN);
+    weapon = GetActiveWeapon(WEAPON_MAIN);
 
-    if (!item) {
-        item = (Item *)newActiveWeapon.weapon.Pointer();
+    if (weapon && weapon->m_fMaxFireMovement) {
+        float length;
+
+        // check the fire movement speed
+        length = velocity.length();
+        if (length / sv_runspeed->value > ((weapon->m_fMaxFireMovement * weapon->m_fMovementSpeed) + 0.1f)) {
+            viewModelAnim = VM_ANIM_DISABLED;
+        }
     }
 
-    if (item) {
-        m_sVMAcurrent = GetItemPrefix(item->getName()) + str("_") + anim;
+    if (!weapon) {
+        weapon = newActiveWeapon.weapon;
+    }
+
+    if (weapon) {
+        m_sVMAcurrent = GetItemPrefix(weapon->getName()) + str("_") + anim;
     } else {
         m_sVMAcurrent = "unarmed_" + anim;
     }
@@ -9846,6 +10855,18 @@ void Player::UserSelectWeapon(bool bWait)
 {
     nationality_t nationality;
     char          buf[256];
+
+    if (g_protocol < PROTOCOL_MOHTA_MIN) {
+        //
+        // nationality was first introduced in 2.0
+        //
+        if (bWait) {
+            gi.SendServerCommand(edict - g_entities, "stufftext \"wait 250;pushmenu_weaponselect\"");
+        } else {
+            gi.SendServerCommand(edict - g_entities, "stufftext \"pushmenu_weaponselect\"");
+        }
+        return;
+    }
 
     if (GetTeam() == TEAM_AXIS) {
         nationality = GetPlayerTeamType(client->pers.dm_playergermanmodel);
