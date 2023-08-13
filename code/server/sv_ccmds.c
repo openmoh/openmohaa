@@ -1364,32 +1364,39 @@ qboolean SV_AllowSaveGame( void )
 	if( !com_sv_running || !com_sv_running->integer )
 	{
 		Com_DPrintf( "You must be in a game with a server to save.\n" );
+		return qfalse;
 	}
 	else if( !com_cl_running || !com_cl_running->integer )
 	{
 		Com_DPrintf( "You must be in a game with a client to save.\n" );
+		return qfalse;
 	}
 	else if( sv.state != SS_GAME )
 	{
 		Com_DPrintf( "You must be in game to save.\n" );
+		return qfalse;
 	}
 #ifdef CLIENT
 	else if( clc.state != CA_DISCONNECTED && cg_gametype->integer )
 	{
 		Com_DPrintf( "Can't savegame in a multiplayer game\n" );
+		return qfalse;
 	}
 #endif
 	else if( g_gametype->integer )
 	{
 		Com_DPrintf( "Can't savegame in a multiplayer game\n" );
+		return qfalse;
 	}
-	else if( !svs.clients || svs.clients->gentity == NULL || svs.clients->gentity->client == NULL || svs.clients->gentity->client->ps.stats[ 0 ] )
+	else if( !svs.clients || svs.clients->gentity == NULL || svs.clients->gentity->client == NULL || !svs.clients->gentity->client->ps.stats[ 0 ] )
 	{
 		Com_DPrintf( "Can't savegame when dead\n" );
+		return qfalse;
 	}
 	else if( sv.state == SS_LOADING || sv.state == SS_LOADING2 )
 	{
 		Com_DPrintf( "Can't save game when loading\n" );
+		return qfalse;
 	}
 
 	return qtrue;
