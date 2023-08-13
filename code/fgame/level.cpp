@@ -1212,7 +1212,7 @@ void Level::ServerSpawned(void)
     if (!WaitTillDisabled(STRING_SPAWN)) {
         AddWaitTill(STRING_SPAWN);
 
-        Director.iPaused++;
+        Director.Pause();
 
         for (ent = active_edicts.next; ent != &active_edicts; ent = ent->next) {
             ent->entity->Unregister(STRING_SPAWN);
