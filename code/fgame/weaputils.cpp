@@ -1608,12 +1608,20 @@ bool Projectile::CheckTeams
 	void
 	)
 {
-	Player *pOwner = ( Player * )m_pOwnerPtr.Pointer();
+	Player* pOwner;
 
-	if( !pOwner )
+	if (g_gametype->integer == GT_SINGLE_PLAYER)
+	{
+		// Ignore in single-player mode
+		return true;
+	}
+
+	pOwner = (Player*)m_pOwnerPtr.Pointer();
+
+	if (!pOwner)
 	{
 		// Owner disconnected
-		if( m_bHadPlayerOwner )
+		if (m_bHadPlayerOwner)
 		{
 			return false;
 		}
@@ -1623,16 +1631,16 @@ bool Projectile::CheckTeams
 		}
 	}
 
-	if( pOwner->IsSubclassOfPlayer() )
+	if (pOwner->IsSubclassOfPlayer())
 	{
-		if( ( ( m_iTeam != pOwner->GetTeam() && g_gametype->integer >= GT_TEAM ) || pOwner->GetTeam() <= TEAM_SPECTATOR ) )
+		if (m_iTeam != TEAM_NONE && m_iTeam != pOwner->GetTeam())
 		{
 			return false;
 		}
 	}
-	else if( pOwner->IsSubclassOfSentient() )
+	else if (pOwner->IsSubclassOfSentient())
 	{
-		if( m_iTeam != pOwner->m_Team )
+		if (m_iTeam != pOwner->m_Team)
 		{
 			return false;
 		}
@@ -2436,8 +2444,8 @@ float BulletAttack
 		while (!bBulletDone && iTravelDist < MAX_TRAVEL_DIST)
 		{
 			iTravelDist += MAX_TRAVEL_DIST;
+			vTraceStart = start;
 			vTraceEnd = start + vDir * iTravelDist;
-			vTraceStart = vTraceEnd;
 
 			memset(&trace, 0, sizeof(trace_t));
 
