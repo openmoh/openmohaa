@@ -158,6 +158,7 @@ float skelAnimDataGameHeader_s::GetAngularDeltaOverTime(float time1, float time2
 
 	d = frameNum1 - deltaWeight1;
 	s = 1.0 - (frameNum2 - deltaWeight2);
+	delta = 0;
 
 	if (frameNum2 > frameNum1) {
 		delta = m_frame[frameNum1 % numFrames].angleDelta;
