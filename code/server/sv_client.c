@@ -1709,7 +1709,8 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 	if ( serverId != sv.serverId && !*cl->downloadName ) {
 		// if we can tell that the client has dropped the last
 		// gamestate we sent them, resend it
-		if ( cl->messageAcknowledge > cl->gamestateMessageNum ) {
+		// also, don't resend the gamestate if the server just restarted
+		if ( serverId != sv.restartedServerId && cl->messageAcknowledge > cl->gamestateMessageNum ) {
 			Com_DPrintf( "%s : dropped gamestate, resending\n", cl->name );
 			SV_SendClientGameState( cl );
 		}
