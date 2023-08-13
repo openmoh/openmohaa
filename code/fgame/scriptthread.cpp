@@ -2759,22 +2759,54 @@ void ScriptThread::DPrintln(Event *ev)
 
 void ScriptThread::IPrintln(Event *ev)
 {
-    G_PrintToAllClients(gi.LV_ConvertString(ev->GetString(1)), false);
+	str sString;
+	int num = ev->NumArgs();
+	int i;
+
+	for (i = 1; i <= ev->NumArgs(); i++) {
+		sString += ev->GetString(i);
+	}
+
+	G_PrintToAllClients(gi.LV_ConvertString(sString), false);
 }
 
 void ScriptThread::IPrintlnBold(Event *ev)
 {
-    G_PrintToAllClients(gi.LV_ConvertString(ev->GetString(1)), true);
+	str sString;
+	int num = ev->NumArgs();
+	int i;
+
+	for (i = 1; i <= ev->NumArgs(); i++) {
+		sString += ev->GetString(i);
+	}
+
+	G_PrintToAllClients(gi.LV_ConvertString(sString), true);
 }
 
 void ScriptThread::IPrintln_NoLoc(Event *ev)
 {
-    G_PrintToAllClients(ev->GetString(1), false);
+	str sString;
+	int num = ev->NumArgs();
+	int i;
+
+	for (i = 1; i <= ev->NumArgs(); i++) {
+		sString += ev->GetString(i);
+	}
+
+	G_PrintToAllClients(sString, false);
 }
 
 void ScriptThread::IPrintlnBold_NoLoc(Event *ev)
 {
-    G_PrintToAllClients(ev->GetString(1), true);
+    str sString;
+    int num = ev->NumArgs();
+    int i;
+
+	for (i = 1; i <= ev->NumArgs(); i++) {
+		sString += ev->GetString(i);
+    }
+
+    G_PrintToAllClients(sString, true);
 }
 
 void ScriptThread::MPrint(Event *ev)
