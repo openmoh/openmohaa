@@ -294,6 +294,11 @@ void Sentient::ChargeWeapon(weaponhand_t hand, firemode_t mode)
 {
     Weapon *activeWeapon;
 
+    if (charge_start_time != 0) {
+        // Already charging
+        return;
+    }
+
     if (hand > MAX_ACTIVE_WEAPONS) {
         warning(
             "Sentient::ChargeWeapon",
@@ -307,14 +312,9 @@ void Sentient::ChargeWeapon(weaponhand_t hand, firemode_t mode)
     // start charging the active weapon
     activeWeapon = activeWeaponList[(int)hand];
 
-    if ((activeWeapon) && activeWeapon->ReadyToFire(mode) && activeWeapon->MuzzleClear()) {
+    if (activeWeapon && activeWeapon->ReadyToFire(mode) && activeWeapon->MuzzleClear()) {
         charge_start_time = level.time;
-
-        if (mode == FIRE_PRIMARY) {
-            activeWeapon->SetWeaponAnim("charge");
-        } else if (mode == FIRE_SECONDARY) {
-            activeWeapon->SetWeaponAnim("secondarycharge");
-        }
+        activeWeapon->Charge(mode);
     }
 }
 
