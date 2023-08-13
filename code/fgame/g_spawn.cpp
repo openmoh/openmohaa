@@ -564,7 +564,7 @@ Listener *SpawnArgs::SpawnInternal( void )
 			}
 			else
 			{
-				ev = new Event( keyname, EV_SETTER );
+				ev = new Event(eventnum);
 				ev->AddString( value );
 
 				obj->PostEvent( ev, EV_SPAWNARG );
