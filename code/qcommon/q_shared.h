@@ -1538,6 +1538,8 @@ typedef enum {
 	CHAN_MAX
 } soundChannel_t;
 
+#define S_FLAG_DO_CALLBACK 0x400
+
 #define DEFAULT_MIN_DIST  -1.0
 #define DEFAULT_VOL  -1.0
 
