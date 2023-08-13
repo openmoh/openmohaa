@@ -271,6 +271,15 @@ Event EV_Projectile_ChargeLife
    "set the projectile's life to be determined by the charge time",
    EV_NORMAL
    );
+Event EV_Projectile_SetFuse // Added in 2.0
+   (
+   "fuse",
+   EV_DEFAULT,
+   "i",
+   "fuse",
+   "set the projectile's life to be determined by the charge time",
+   EV_NORMAL
+   );
 Event EV_Projectile_Knockback
    (
    "knockback", 
@@ -523,6 +532,33 @@ Event EV_Projectile_SmashThroughGlass
 	"Think function for smashing through glass",
 	EV_NORMAL
 	);
+Event EV_Projectile_ArcToTarget // Added in 2.0
+	(
+	"arctotarget",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Make the projectile follow a normal arc on its way to its target",
+	EV_NORMAL
+	);
+Event EV_Projectile_BecomeBomb // Added in 2.0
+	(
+	"becomebomb",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Make the projectile into a bomb",
+	EV_NORMAL
+	);
+Event EV_Projectile_DieInWater // Added in 2.30
+	(
+	"dieinwater",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Make the projectile die when gets wet",
+	EV_NORMAL
+	);
 
 
 CLASS_DECLARATION( Animate, Projectile, NULL )
@@ -536,6 +572,7 @@ CLASS_DECLARATION( Animate, Projectile, NULL )
 	{ &EV_Projectile_DMLife,					&Projectile::SetDMLife },
 	{ &EV_Projectile_MinLife,					&Projectile::SetMinLife },
 	{ &EV_Projectile_ChargeLife,				&Projectile::SetChargeLife },
+	{ &EV_Projectile_SetFuse,					&Projectile::SetFuse },
 	{ &EV_Projectile_Knockback,					&Projectile::SetKnockback },
 	{ &EV_Projectile_DLight,					&Projectile::SetDLight },
 	{ &EV_Projectile_Avelocity,					&Projectile::SetAvelocity },
@@ -564,8 +601,11 @@ CLASS_DECLARATION( Animate, Projectile, NULL )
 	{ &EV_Projectile_NoTouchDamage,				&Projectile::SetNoTouchDamage },
 	{ &EV_Projectile_SetSmashThroughGlass,		&Projectile::SetSmashThroughGlass },
 	{ &EV_Projectile_SmashThroughGlass,			&Projectile::SmashThroughGlassThink },
+	{ &EV_Projectile_BecomeBomb,				&Projectile::BecomeBomb },
 	{ &EV_Killed,		      					&Projectile::Explode },
 	{ &EV_Stop,									&Projectile::Stopped },
+	{ &EV_Projectile_ArcToTarget,				&Projectile::ArcToTarget },
+	{ &EV_Projectile_DieInWater,				&Projectile::DieInWater },
 	{ NULL, NULL }
 };
 
@@ -609,7 +649,7 @@ Projectile::Projectile()
 	takedamage = DAMAGE_NO;
 	owner = ENTITYNUM_NONE;
 	edict->r.ownerNum = ENTITYNUM_NONE;
-	m_iOwnerTeam = 0;
+	m_iTeam = 0;
 	m_bHadPlayerOwner = false;
 
 	// make this shootable but non-solid on the client
@@ -1112,6 +1152,15 @@ void Projectile::SetChargeLife
    projFlags   |= P_CHARGE_LIFE;
    }
 
+void Projectile::SetFuse(Event* ev)
+{
+	if (ev->GetInteger(1)) {
+		projFlags |= P_FUSE;
+	} else {
+		projFlags &= ~P_FUSE;
+	}
+}
+
 void Projectile::SetMinLife
    (
    Event *ev
@@ -1488,6 +1537,62 @@ Sentient *Projectile::GetOwner
 		return pOwner;
 }
 
+void Projectile::SetOwner
+	(
+	Entity *owner
+	)
+{
+	if (owner)
+	{
+		this->owner = owner->entnum;
+		edict->r.ownerNum = owner->entnum;
+
+		if (owner->IsSubclassOfPlayer())
+		{
+			Player* p = (Player*)owner;
+			m_iTeam = p->GetTeam();
+			// this was added in openmohaa to prevent glitches
+			// like when the player disconnects or when the player spectates
+			m_bHadPlayerOwner = true;
+		}
+
+		m_pOwnerPtr = owner;
+	}
+}
+
+void Projectile::ArcToTarget(Event* ev)
+{
+	m_bArcToTarget = true;
+	PostEvent(EV_Projectile_Prethink, 0);
+}
+
+void Projectile::BecomeBomb(Event* ev)
+{
+	if (ev->NumArgs() > 0)
+	{
+		Entity* ent = ev->GetEntity(1);
+		if (ent)
+		{
+			owner = ent->entnum;
+			setOrigin(ent->origin - Vector(0, 0, 48));
+			setAngles(ent->angles);
+			velocity = ent->velocity;
+		}
+	}
+
+	m_bExplodeOnTouch = true;
+	gravity = 1.f;
+	setMoveType(MOVETYPE_BOUNCE);
+	setSolidType(SOLID_BBOX);
+	edict->clipmask = MASK_PROJECTILE;
+	setSize(mins, maxs);
+}
+
+void Projectile::DieInWater(Event* ev)
+{
+	m_bDieInWater = true;
+}
+
 void Projectile::Stopped
    (
    Event *ev
@@ -1520,42 +1625,20 @@ bool Projectile::CheckTeams
 
 	if( pOwner->IsSubclassOfPlayer() )
 	{
-		if( ( ( m_iOwnerTeam != pOwner->GetTeam() && g_gametype->integer >= GT_TEAM ) || pOwner->GetTeam() <= TEAM_SPECTATOR ) )
+		if( ( ( m_iTeam != pOwner->GetTeam() && g_gametype->integer >= GT_TEAM ) || pOwner->GetTeam() <= TEAM_SPECTATOR ) )
 		{
 			return false;
 		}
 	}
 	else if( pOwner->IsSubclassOfSentient() )
 	{
-		if( m_iOwnerTeam != pOwner->m_Team )
+		if( m_iTeam != pOwner->m_Team )
 		{
 			return false;
 		}
 	}
 
 	return true;
-}
-
-void Projectile::SetOwner
-	(
-	Entity *owner
-	)
-{
-	this->owner = owner->entnum;
-	m_pOwnerPtr = owner;
-
-	if( owner->IsSubclassOfPlayer() )
-	{
-		Player *p = ( Player * )owner;
-
-		m_iOwnerTeam = p->GetTeam();
-		m_bHadPlayerOwner = true;
-	}
-	else if( owner->IsSubclassOfSentient() )
-	{
-		Sentient *s = ( Sentient * )owner;
-		m_iOwnerTeam = s->m_Team;
-	}
 }
 
 Event EV_Explosion_Radius
@@ -2043,7 +2126,7 @@ Projectile *ProjectileAttack
 		return NULL;
 	}
 
-	if( obj->IsSubclassOfProjectile() )
+	if( obj->isSubclassOf(Projectile) )
 		proj = ( Projectile * )obj;
 	else
 		gi.DPrintf( "%s is not of class projectile\n", projectileModel.c_str() );
@@ -2052,7 +2135,6 @@ Projectile *ProjectileAttack
 		return NULL;
 
 	// Create a new projectile entity and set it off
-	proj->setModel( projectileModel );
 	proj->setMoveType( MOVETYPE_BOUNCE );
 	proj->ProcessInitCommands();
 	proj->SetOwner( owner );
@@ -2060,20 +2142,15 @@ Projectile *ProjectileAttack
 	proj->angles = dir.toAngles();
 	proj->charge_fraction = fraction;
 
-	if( proj->projFlags & P_CHARGE_SPEED )
-	{
-		newspeed = proj->speed * fraction;
-
-		if( newspeed < proj->minspeed )
-			newspeed = proj->minspeed;
-	}
-	else
-	{
-		newspeed = proj->speed;
-	}
-
-	if( real_speed )
+	if (!real_speed) {
+		if (proj->projFlags & P_CHARGE_SPEED) {
+			newspeed = proj->minspeed + (proj->speed - proj->minspeed) * fraction;
+		} else {
+			newspeed = proj->speed;
+		}
+	} else {
 		newspeed = real_speed;
+	}
 
 	if( proj->addownervelocity )
 	{
@@ -2112,17 +2189,17 @@ Projectile *ProjectileAttack
 	// Calc the life of the projectile
 	if( proj->projFlags & P_CHARGE_LIFE )
 	{
-		if( g_gametype->integer && proj->dmlife )
-			newlife = proj->dmlife * fraction;
+		if( g_gametype->integer != GT_SINGLE_PLAYER && proj->dmlife )
+			newlife = proj->dmlife * (1 - fraction);
 		else
-			newlife = proj->life * fraction;
+			newlife = proj->life * (1 - fraction);
 
 		if( newlife < proj->minlife )
 			newlife = proj->minlife;
 	}
 	else
 	{
-		if( g_gametype->integer && proj->dmlife )
+		if( g_gametype->integer != GT_SINGLE_PLAYER && proj->dmlife )
 			newlife = proj->dmlife;
 		else
 			newlife = proj->life;
@@ -2139,7 +2216,20 @@ Projectile *ProjectileAttack
 	if( proj->can_hit_owner )
 		proj->PostEvent( EV_Projectile_ClearOwner, 1 );
 
-	if( !g_gametype->integer )
+	if (owner)
+	{
+		if (owner->IsDead() || owner == world) {
+			// clear the weapon as the owner died
+			weap = NULL;
+		}
+	}
+	else
+	{
+		// clear the weapon as there is no owner
+		weap = NULL;
+	}
+
+	if( g_gametype->integer == GT_SINGLE_PLAYER )
 	{
 		if( weap )
 		{

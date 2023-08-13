@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define P_CHARGE_LIFE		0x00000002
 #define P_CHARGE_SPEED		0x00000004
 #define P_NO_TOUCH_DAMAGE	0x00000008
+#define P_FUSE				0x00000010
 
 extern Event EV_Projectile_Explode;
 extern Event EV_Projectile_UpdateBeam;
@@ -81,9 +82,9 @@ public:
 	bool m_bExplodeOnTouch;
 	bool m_bHurtOwnerOnly;
 	int m_iSmashThroughGlass;
-
-	// Fix for owner changing team
-	int m_iOwnerTeam;
+	bool m_bArcToTarget;
+	bool m_bDieInWater;
+	int m_iTeam;
 	bool m_bHadPlayerOwner;
 	SafePtr<Entity> m_pOwnerPtr;
 
@@ -100,6 +101,7 @@ public:
 	void			SetDMLife( Event *ev );
 	void			SetMinLife( Event *ev );
 	void			SetChargeLife( Event *ev );
+	void			SetFuse( Event *ev ); // Added in 2.0
 	void			SetSpeed( Event *ev );
 	void			SetMinSpeed( Event *ev );
 	void			SetChargeSpeed( Event *ev );
@@ -133,9 +135,15 @@ public:
 	void			ExplodeOnTouch( Event *ev );
 	void			Stopped( Event *ev );
 	Sentient		*GetOwner( void );
+	void			SetOwner(Entity* owner); // Added in 2.0
 	void			SetMartyr( int entnum );
+	void			ArcToTarget(Event* ev);
+	void			BecomeBomb(Event* ev);
+	void			DieInWater(Event* ev);
+	//
+	// Openmohaa additions
+	//
 	bool			CheckTeams( void );
-	void			SetOwner( Entity *owner );
 };
 
 inline void Projectile::Archive
