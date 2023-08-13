@@ -1431,10 +1431,24 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 		}
 	}
 
+	if (!Q_stricmp(s, "dmmessage")) {
+		//
+		// Since 2.0, displays chat messages
+		// NOTE: this should be handled by fgame, not server
+		//
+		Com_Printf("%s (%d): %s", cl->name, cl - svs.clients, s);
+	}
+
 	if (clientOK) {
 		// pass unknown strings to the game
 		if (!u->name && sv.state == SS_GAME) {
 			ge->ClientCommand( ( gentity_t * )SV_GentityNum( cl - svs.clients ) );
+
+			if (ge->errorMessage)
+			{
+				// if an error has occured while processing the command, halt the server
+				Com_Error(ERR_DROP, ge->errorMessage);
+			}
 		}
 	}
 	else if (!bProcessed)
@@ -1478,8 +1492,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	// but not other people
 	// We don't do this when the client hasn't been active yet since its
 	// normal to spam a lot of commands when downloading
-	if ( !com_cl_running->integer && 
-		cl->state >= CS_ACTIVE &&
+	if ( cl->state >= CS_ACTIVE &&
 		sv_floodProtect->integer && 
 		svs.time < cl->nextReliableTime ) {
 		// ignore any other text messages from this client but let them keep playing
