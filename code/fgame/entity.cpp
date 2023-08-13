@@ -3614,7 +3614,7 @@ void Entity::Sound(
                     VectorCopy(edict->s.origin, org);
 
                     if (doCallback) {
-                        num |= 0x400;
+                        num |= S_FLAG_DO_CALLBACK;
                     }
                 }
 
@@ -5813,7 +5813,7 @@ void Entity::Archive(Archiver& arc)
 
     arc.ArchiveInteger(&m_iNumGlues);
 
-    for (i = 0; i < MAX_MODEL_CHILDREN; i++) {
+    for (i = 0; i < MAX_GLUE_CHILDREN; i++) {
         arc.ArchiveSafePointer(&m_pGlues[i]);
         arc.ArchiveInteger(&m_pGluesFlags[i]);
     }
