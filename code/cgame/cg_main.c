@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 #include "cg_parsemsg.h"
+#include "cg_archive.h"
+#include "cg_radar.h"
 
 #ifdef _WIN32
 #    include <windows.h>
@@ -677,6 +679,11 @@ clientGameExport_t *GetCGameAPI(void)
     cge.CG_GetObjectiveAlpha        = CG_GetObjectiveAlpha;
     cge.CG_WeaponCommandButtonBits  = CG_WeaponCommandButtonBits;
     cge.CG_CheckCaptureKey          = CG_CheckCaptureKey;
+    cge.CG_ReadNonPVSClient         = CG_ReadNonPVSClient;
+    cge.CG_UpdateRadar              = CG_UpdateRadar;
+    cge.CG_SaveStateToBuffer        = CG_SaveStateToBuffer;
+    cge.CG_LoadStateToBuffer        = CG_LoadStateToBuffer;
+    cge.CG_CleanUpTempModels        = CG_CleanUpTempModels;
 
     // FIXME
     //cge.profStruct = NULL;

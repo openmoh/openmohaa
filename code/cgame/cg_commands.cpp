@@ -4548,6 +4548,11 @@ void ClientGameCommandManager::FreeAllTempModels(void)
     }
 }
 
+void ClientGameCommandManager::FreeSomeTempModels(void)
+{
+    // FIXME: unimplemented
+}
+
 //===============
 // FreeAllEmitters
 //===============
@@ -4562,6 +4567,11 @@ void ClientGameCommandManager::RestartAllEmitters(void)
 void CG_RestartCommandManager()
 {
     commandManager.FreeAllTempModels();
+}
+
+void CG_CleanUpTempModels()
+{
+    commandManager.FreeSomeTempModels();
 }
 
 //=================

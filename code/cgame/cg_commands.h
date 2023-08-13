@@ -883,6 +883,7 @@ public:
     spawnthing_t *InitializeSpawnthing(spawnthing_t *ep);
     void          SpawnEffect(int count, spawnthing_t *sp);
     void          FreeAllTempModels(void);
+    void          FreeSomeTempModels(void);
     void          RestartAllEmitters(void);
 
     void InitializeTempModels(void);

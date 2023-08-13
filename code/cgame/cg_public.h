@@ -491,6 +491,15 @@ functions exported to the main executable
         int (*CG_WeaponCommandButtonBits)();
         int (*CG_CheckCaptureKey)(int key, qboolean down, unsigned int time);
 
+        //
+        // Added in 2.0
+        //
+		void (*CG_ReadNonPVSClient)(entityState_t* ent);
+		void (*CG_UpdateRadar)();
+		void (*CG_SaveStateToBuffer)(void** out, int svsTime);
+		void (*CG_LoadStateToBuffer)(void** state, int size, int svsTime);
+		void (*CG_CleanUpTempModels)();
+
         // FIXME
         //prof_cgame_t* profStruct;
 

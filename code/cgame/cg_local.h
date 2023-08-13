@@ -519,6 +519,7 @@ extern "C" {
     void     CG_EndTiki(dtiki_t *tiki);
     qboolean CG_Command_ProcessFile(const char *filename, qboolean quiet, dtiki_t *curTiki);
     void     CG_RestartCommandManager();
+    void     CG_CleanUpTempModels();
     qboolean CG_ProcessEntityCommands(int frame, int anim, int entnum, refEntity_t *ent, centity_t *cent);
     void     CG_ClientCommands(refEntity_t *ent, centity_t *cent, int slot);
     float    RandomizeRange(float start, float end);
