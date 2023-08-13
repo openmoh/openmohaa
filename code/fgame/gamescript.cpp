@@ -193,7 +193,7 @@ bool StateScript::AddLabel( const_str label, unsigned char *pos, bool private_se
 {
 	if( label_list.findKeyValue( label ) )
 	{
-		return true;
+		return false;
 	}
 
 	script_label_t &s = label_list.addKeyValue( label );
@@ -209,7 +209,7 @@ bool StateScript::AddLabel( const_str label, unsigned char *pos, bool private_se
 
 	reverse_label_list.AddObject( &s );
 
-	return false;
+	return true;
 }
 
 bool StateScript::AddLabel( str label, unsigned char *pos, bool private_section )
@@ -717,17 +717,21 @@ void GameScript::Load( const void *sourceBuffer, size_t sourceLength )
 	size_t nodeLength;
 	char *m_PreprocessedBuffer;
 
-	m_SourceBuffer = ( char * )glbs.Malloc( sourceLength + 1 );
+	m_SourceBuffer = ( char * )glbs.Malloc( sourceLength + 2 );
 	m_SourceLength = sourceLength;
 
-	m_SourceBuffer[ sourceLength ] = 0;
+	// Original mohaa doesn't reallocate the input string to append a newline
+	// This is a temporary workaround to handle the absolute disaster of newlines
+	// Both the lexer and grammar are extremely abhorrent at handling newlines followed by an EOF
+	m_SourceBuffer[ sourceLength ] = '\n';
+	m_SourceBuffer[ sourceLength + 1] = 0;
 
 	memcpy( m_SourceBuffer, sourceBuffer, sourceLength );
 
 	Compiler.Reset();
 
 	m_PreprocessedBuffer = Compiler.Preprocess( m_SourceBuffer );
-	nodeLength = Compiler.Parse( this, m_PreprocessedBuffer );
+	nodeLength = Compiler.Parse( this, m_PreprocessedBuffer, "script" );
 	Compiler.Preclean( m_PreprocessedBuffer );
 
 	if( !nodeLength )

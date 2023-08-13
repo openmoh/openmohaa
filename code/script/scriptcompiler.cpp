@@ -234,10 +234,10 @@ bool ScriptCompiler::BuiltinWriteVariable(unsigned int sourcePos, int type, int 
 
 void ScriptCompiler::EmitAssignmentStatement(sval_t lhs, unsigned int sourcePos)
 {
-    int    eventnum;
-    sval_t listener_val;
-    const char  *name  = lhs.node[2].stringValue;
-    str    name2 = name;
+    int         eventnum;
+    sval_t      listener_val;
+    const char *name  = lhs.node[2].stringValue;
+    str         name2 = name;
     name2.tolower();
 
     if (lhs.node[0].type != ENUM_field) {
@@ -247,8 +247,8 @@ void ScriptCompiler::EmitAssignmentStatement(sval_t lhs, unsigned int sourcePos)
             EmitOpcode(OP_LOAD_ARRAY_VAR, lhs.node[3].sourcePosValue);
         } else {
             CompileError(sourcePos, "bad lvalue: %d (expecting field or array)", lhs.node[0].type);
-		}
-		return;
+        }
+        return;
     }
 
     unsigned int index = Director.AddString(name);
@@ -367,14 +367,13 @@ void ScriptCompiler::EmitCatch(sval_t val, unsigned char *try_begin_code_pos, un
 
 void ScriptCompiler::EmitConstArray(sval_t lhs, sval_t rhs, unsigned int sourcePos)
 {
-	uint32_t iCount = 1;
+    uint32_t iCount = 1;
 
-	EmitValue(lhs);
+    EmitValue(lhs);
 
-	for (const sval_t* node = rhs.node[0].node; node; node = node[1].node, iCount++)
-	{
-		EmitValue(*node);
-	}
+    for (const sval_t *node = rhs.node[0].node; node; node = node[1].node, iCount++) {
+        EmitValue(*node);
+    }
 
     EmitConstArrayOpcode(iCount);
 }
@@ -661,23 +660,22 @@ void ScriptCompiler::EmitLabel(str name, unsigned int sourcePos)
         glbs.DPrintf("<%s>:\n", name.c_str());
     }
 
-    if (stateScript->AddLabel(name, code_pos)) {
+    if (!stateScript->AddLabel(name, code_pos)) {
         CompileError(sourcePos, "Duplicate label '%s'", name.c_str());
     }
 }
 
 void ScriptCompiler::EmitLabelParameterList(sval_t parameter_list, unsigned int sourcePos)
 {
-	if (parameter_list.node)
-	{
-		EmitOpcode(OP_MARK_STACK_POS, sourcePos);
+    if (parameter_list.node) {
+        EmitOpcode(OP_MARK_STACK_POS, sourcePos);
 
-		for (const sval_t* param = parameter_list.node->node; param; param = param[1].node) {
-			EmitParameter(*param, sourcePos);
-		};
+        for (const sval_t *param = parameter_list.node->node; param; param = param[1].node) {
+            EmitParameter(*param, sourcePos);
+        };
 
-		EmitOpcode(OP_RESTORE_STACK_POS, sourcePos);
-	}
+        EmitOpcode(OP_RESTORE_STACK_POS, sourcePos);
+    }
 }
 
 void ScriptCompiler::EmitLabelPrivate(str name, unsigned int sourcePos)
@@ -686,7 +684,7 @@ void ScriptCompiler::EmitLabelPrivate(str name, unsigned int sourcePos)
         glbs.DPrintf("<%s>:\n", name.c_str());
     }
 
-    if (stateScript->AddLabel(name, code_pos, true)) {
+    if (!stateScript->AddLabel(name, code_pos, true)) {
         CompileError(sourcePos, "Duplicate label '%s'", name.c_str());
     }
 }
@@ -859,8 +857,8 @@ void ScriptCompiler::EmitParameter(sval_t lhs, unsigned int sourcePos)
         CompileError(sourcePos, "bad parameter lvalue: %d (expecting field)", lhs.node[0].type);
     }
 
-    sval_u       listener_val = lhs.node[1];
-    const char  *name         = lhs.node[2].stringValue;
+    sval_u      listener_val = lhs.node[1];
+    const char *name         = lhs.node[2].stringValue;
 
     int eventnum = Event::FindSetterEventNum(name);
 
@@ -871,28 +869,27 @@ void ScriptCompiler::EmitParameter(sval_t lhs, unsigned int sourcePos)
         EmitOpcode(OP_STORE_PARAM, sourcePos);
         EmitOpcode(OP_LOAD_GAME_VAR + listener_val.node[1].byteValue, sourcePos);
 
-		unsigned int index = Director.AddString(name);
+        unsigned int index = Director.AddString(name);
         EmitOpcodeValue(index, sizeof(unsigned int));
     }
 }
 
 int ScriptCompiler::EmitParameterList(sval_t event_parameter_list)
 {
-	sval_t* node;
-	uint32_t iParamCount = 0;
+    sval_t  *node;
+    uint32_t iParamCount = 0;
 
-	if (!event_parameter_list.node) {
-		return 0;
-	}
+    if (!event_parameter_list.node) {
+        return 0;
+    }
 
-	for (node = event_parameter_list.node->node; node; node = node[1].node)
-	{
-		EmitValue(*node);
+    for (node = event_parameter_list.node->node; node; node = node[1].node) {
+        EmitValue(*node);
 
-		iParamCount++;
-	}
+        iParamCount++;
+    }
 
-	return iParamCount;
+    return iParamCount;
 }
 
 void ScriptCompiler::EmitRef(sval_t val, unsigned int sourcePos)
@@ -906,8 +903,8 @@ void ScriptCompiler::EmitRef(sval_t val, unsigned int sourcePos)
             EmitOpcode(OP_STORE_ARRAY_REF, val.node[3].sourcePosValue);
         } else {
             CompileError(sourcePos, "bad lvalue: %d (expecting field or array)", val.node[0].type);
-		}
-		return;
+        }
+        return;
     }
 
     index = Director.AddString(val.node[2].stringValue);
@@ -1047,91 +1044,85 @@ __emit:
         }
 
     case ENUM_cmd_event_statement:
-	{
-		const int eventnum = Event::FindNormalEventNum(val.node[1].stringValue);
-		sval_t parameter_list = val.node[2];
-		const uint32_t iParamCount = EmitParameterList(parameter_list);
+        {
+            const int      eventnum       = Event::FindNormalEventNum(val.node[1].stringValue);
+            sval_t         parameter_list = val.node[2];
+            const uint32_t iParamCount    = EmitParameterList(parameter_list);
 
-		if (!eventnum) {
-			CompileError(val.node[3].sourcePosValue, "unknown command: %s", val.node[1].stringValue);
-		}
+            if (!eventnum) {
+                CompileError(val.node[3].sourcePosValue, "unknown command: %s", val.node[1].stringValue);
+            }
 
-		if (iParamCount > 5)
-		{
-			SetOpcodeVarStackOffset(OP_EXEC_CMD_COUNT1, -(int32_t)iParamCount);
-			EmitOpcode(OP_EXEC_CMD_COUNT1, val.node[3].sourcePosValue);
+            if (iParamCount > 5) {
+                SetOpcodeVarStackOffset(OP_EXEC_CMD_COUNT1, -(int32_t)iParamCount);
+                EmitOpcode(OP_EXEC_CMD_COUNT1, val.node[3].sourcePosValue);
 
-			EmitOpcodeValue(iParamCount, sizeof(byte));
-		}
-		else
-		{
-			EmitOpcode(OP_EXEC_CMD0 + iParamCount, val.node[3].sourcePosValue);
-		}
+                EmitOpcodeValue(iParamCount, sizeof(byte));
+            } else {
+                EmitOpcode(OP_EXEC_CMD0 + iParamCount, val.node[3].sourcePosValue);
+            }
 
-		EmitOpcodeValue((op_ev_t)eventnum, sizeof(unsigned int));
-		break;
-	}
+            EmitOpcodeValue((op_ev_t)eventnum, sizeof(unsigned int));
+            break;
+        }
 
     case ENUM_cmd_event_expr:
         {
-		const int eventnum = Event::FindReturnEventNum(val.node[1].stringValue);
-        sval_t parameter_list = val.node[2];
-		const uint32_t iParamCount = EmitParameterList(parameter_list);
+            const int      eventnum       = Event::FindReturnEventNum(val.node[1].stringValue);
+            sval_t         parameter_list = val.node[2];
+            const uint32_t iParamCount    = EmitParameterList(parameter_list);
 
-		EmitOpcode(OP_STORE_LOCAL, val.node[3].sourcePosValue);
+            EmitOpcode(OP_STORE_LOCAL, val.node[3].sourcePosValue);
 
-		if (!eventnum) {
-			CompileError(val.node[3].sourcePosValue, "unknown command: %s", val.node[1].stringValue);
-		}
+            if (!eventnum) {
+                CompileError(val.node[3].sourcePosValue, "unknown command: %s", val.node[1].stringValue);
+            }
 
-		EmitMethodExpression(iParamCount, eventnum, val.node[3].sourcePosValue);
+            EmitMethodExpression(iParamCount, eventnum, val.node[3].sourcePosValue);
 
-		EmitOpcodeValue((op_ev_t)eventnum, sizeof(unsigned int));
-        break;
+            EmitOpcodeValue((op_ev_t)eventnum, sizeof(unsigned int));
+            break;
         }
 
     case ENUM_method_event_statement:
         {
-		const int eventnum = Event::FindNormalEventNum(val.node[2].stringValue);
-		sval_t parameter_list = val.node[3];
-		const uint32_t iParamCount = EmitParameterList(parameter_list);
+            const int      eventnum       = Event::FindNormalEventNum(val.node[2].stringValue);
+            sval_t         parameter_list = val.node[3];
+            const uint32_t iParamCount    = EmitParameterList(parameter_list);
 
-		if (!eventnum) {
-			CompileError(val.node[3].sourcePosValue, "unknown command: %s", val.node[2].stringValue);
-		}
+            if (!eventnum) {
+                CompileError(val.node[4].sourcePosValue, "unknown command: %s", val.node[2].stringValue);
+            }
 
-        EmitValue(val.node[1]);
+            EmitValue(val.node[1]);
 
-		if (iParamCount > 5)
-		{
-			SetOpcodeVarStackOffset(OP_EXEC_CMD_COUNT1, -(int32_t)iParamCount);
-			EmitOpcode(OP_EXEC_CMD_COUNT1, val.node[4].sourcePosValue);
+            if (iParamCount > 5) {
+                SetOpcodeVarStackOffset(OP_EXEC_CMD_COUNT1, -(int32_t)iParamCount);
+                EmitOpcode(OP_EXEC_CMD_COUNT1, val.node[4].sourcePosValue);
 
-			EmitOpcodeValue(iParamCount, sizeof(byte));
-		}
-		else
-		{
-			EmitOpcode(OP_EXEC_CMD_METHOD0 + iParamCount, val.node[4].sourcePosValue);
-		}
+                EmitOpcodeValue(iParamCount, sizeof(byte));
+            } else {
+                EmitOpcode(OP_EXEC_CMD_METHOD0 + iParamCount, val.node[4].sourcePosValue);
+            }
 
-		EmitOpcodeValue(eventnum, sizeof(unsigned int));
-		break;
+            EmitOpcodeValue(eventnum, sizeof(unsigned int));
+            break;
         }
 
     case ENUM_method_event_expr:
-	{
-		const int eventnum = Event::FindReturnEventNum(val.node[2].stringValue);
-		sval_t parameter_list = val.node[3];
-		const uint32_t iParamCount = EmitParameterList(parameter_list);
+        {
+            const int      eventnum       = Event::FindReturnEventNum(val.node[2].stringValue);
+            sval_t         parameter_list = val.node[3];
+            const uint32_t iParamCount    = EmitParameterList(parameter_list);
 
-		if (!eventnum) {
-			CompileError(val.node[4].sourcePosValue, "unknown command: %s", val.node[2].stringValue);
-		}
+            if (!eventnum) {
+                CompileError(val.node[4].sourcePosValue, "unknown command: %s", val.node[2].stringValue);
+            }
 
-		EmitValue(val.node[1]);
-		EmitMethodExpression(iParamCount, eventnum, val.node[4].sourcePosValue);
-		break;
-	}
+            EmitValue(val.node[1]);
+            EmitMethodExpression(iParamCount, eventnum, val.node[4].sourcePosValue);
+            break;
+        }
 
     case ENUM_const_array_expr:
         return EmitConstArray(val.node[1], val.node[2], val.node[3].sourcePosValue);
@@ -1408,10 +1399,14 @@ char *ScriptCompiler::Preprocess(char *sourceBuffer)
 
 void ScriptCompiler::Preclean(char *processedBuffer) {}
 
-extern int prev_yylex;
-extern int out_pos;
-extern int success_pos;
+extern int          prev_yylex;
+extern int          out_pos;
+extern int          success_pos;
+extern const char  *start_ptr;
+extern const char  *in_ptr;
 extern parseStage_e parseStage;
+
+void yy_init_script();
 
 int yyerror(const char *msg)
 {
@@ -1424,13 +1419,13 @@ int yyerror(const char *msg)
 
     glbs.Printf("parse error:\n%s:\n", parsedata.exc.yytoken.c_str());
 
-    parsedata.gameScript->PrintSourcePos(parsedata.pos - yyleng, false);
+    parsedata.gameScript->PrintSourcePos(success_pos, false);
     parsedata.pos++;
 
     return 1;
 }
 
-size_t ScriptCompiler::Parse(GameScript *gameScript, char *sourceBuffer)
+size_t ScriptCompiler::Parse(GameScript *gameScript, char *sourceBuffer, const char *type)
 {
     parsedata = yyparsedata();
 
@@ -1438,22 +1433,22 @@ size_t ScriptCompiler::Parse(GameScript *gameScript, char *sourceBuffer)
     parsedata.gameScript   = gameScript;
     parsedata.braces_count = 0;
 
+    start_ptr   = sourceBuffer;
     prev_yylex  = 0;
-    out_pos = 0;
+    out_pos     = 0;
     success_pos = 0;
-    parseStage = PS_TYPE;
+    parseStage  = PS_TYPE;
+    in_ptr      = type;
 
     script      = gameScript;
     stateScript = &gameScript->m_State;
-    yy_scan_string(sourceBuffer);
 
+    yy_init_script();
     parsetree_init();
 
     try {
         if (yyparse() != 0 || parsedata.exc.yytoken != "") {
             // an error occured
-
-            yylex_destroy();
 
             if (!parsedata.exc.yytext) {
                 if (parsedata.braces_count) {
@@ -1463,9 +1458,11 @@ size_t ScriptCompiler::Parse(GameScript *gameScript, char *sourceBuffer)
                 }
             }
 
+            yylex_destroy();
             return 0;
         }
     } catch (ScriptException& exc) {
+        yylex_destroy();
         exc;
         return 0;
     }

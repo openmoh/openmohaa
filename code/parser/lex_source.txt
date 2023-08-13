@@ -43,36 +43,12 @@ void fprintf2( FILE *f, const char *format, ... )
 
 #define fprintf fprintf2
 
+const char* start_ptr;
+const char* in_ptr;
 extern int prev_yylex;
 extern int out_pos;
 extern int success_pos;
 parseStage_e parseStage;
-
-/*
-extern "C" int yywrap(void);
-
-int yywrap(void) {
-	if (parseStage == PS_TYPE) {
-		parseStage = PS_BODY;
-		out_pos = 0;
-		success_pos = 0;
-		return 0;
-	}
-
-	if (parseStage == PS_BODY)
-	{
-		if (YY_START != 0)
-		{
-			parseStage = PS_BODY_END;
-			return 0;
-		}
-
-		Compiler.CompileError(success_pos, "unexpected end of file found in comment");
-	}
-
-	return 1;
-}
-*/
 
 extern yyparsedata parsedata;
 
@@ -167,6 +143,34 @@ static bool UseField( void )
 		|| prev_yylex == TOKEN_DOLLAR;
 }
 
+#define YY_INPUT(buf,result,max_size) \
+{										\
+	char c;								\
+	int n;								\
+										\
+	c = '*';							\
+	for(n = 0; n < max_size; n++)		\
+	{									\
+		c = *in_ptr++;					\
+		if (!c || c == '\n') {			\
+			break;						\
+		}								\
+										\
+		buf[n] = c;						\
+	}									\
+										\
+	if (c == '\n')						\
+	{									\
+		buf[n++] = c;					\
+	}									\
+	else if (!c)						\
+	{									\
+		in_ptr--;						\
+	}									\
+										\
+	result = n;							\
+}
+
 %}
 
 /*%option debug*/
@@ -175,8 +179,8 @@ static bool UseField( void )
 
 %option never-interactive
 %option yylineno
-%option noyywrap
 
+%x SCRIPT
 %x C_COMMENT
 %x C_LINE_COMMENT
 %x VARIABLES
@@ -226,7 +230,7 @@ varname		[a-zA-Z0-9_\"]+
 "for"							{ YYLEX( TOKEN_FOR ); }
 "do"							{ YYLEX( TOKEN_DO ); }
 
-"game"?							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_game ); YYLEX( TOKEN_LISTENER ); }
+"game"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_game ); YYLEX( TOKEN_LISTENER ); }
 "group"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_group ); YYLEX( TOKEN_LISTENER ); }
 "level"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_level ); YYLEX( TOKEN_LISTENER ); }
 "local"							{ BEGIN( VARIABLES ); yylval.s.val = node1_( method_local ); YYLEX( TOKEN_LISTENER ); }
@@ -303,7 +307,7 @@ varname		[a-zA-Z0-9_\"]+
 "makearray"|"makeArray"			{ YYLEX( TOKEN_MAKEARRAY ); }
 "endarray"|"endArray"			{ YYLEX( TOKEN_ENDARRAY ); }
 
-[\r\n]*							{ if (prev_yylex != TOKEN_EOL) YYLEX(TOKEN_EOL); }
+[\r\n]+							{ if (prev_yylex != TOKEN_EOL) YYLEX(TOKEN_EOL); }
 [ \t]							{ ; }
 
 [0-9]+									{
@@ -347,7 +351,7 @@ varname		[a-zA-Z0-9_\"]+
 									yymore();
 								}
 
-<<EOF>>							{ YYLEX(TOKEN_EOF); }
+<SCRIPT>[a-zA-Z0-9]+			{ BEGIN(INITIAL); }
 
 .								{ YY_FATAL_ERROR("bad token:\n"); }
 
@@ -358,3 +362,35 @@ varname		[a-zA-Z0-9_\"]+
 %}
 
 %%
+
+//
+// Implements yywrap to always append a newline to the source
+//
+int yywrap(void) {
+	if (parseStage == PS_TYPE) {
+		parseStage = PS_BODY;
+		in_ptr = start_ptr;
+		out_pos = 0;
+		success_pos = 0;
+		return 0;
+	}
+
+	if (parseStage == PS_BODY)
+	{
+		if (YY_START == C_COMMENT)
+		{
+			Compiler.CompileError(success_pos, "unexpected end of file found in comment");
+			return 1;
+		}
+		
+		parseStage = PS_BODY_END;
+		in_ptr = "\n";
+		return 0;
+	}
+
+	return 1;
+}
+
+void yy_init_script() {
+	BEGIN(SCRIPT);
+}

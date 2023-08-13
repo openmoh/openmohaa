@@ -76,7 +76,7 @@ typedef enum {
 
 typedef union sval_u {
     int            type;
-    const char     *stringValue;
+    const char    *stringValue;
     float          floatValue;
     int            intValue;
     char           charValue;
@@ -94,9 +94,9 @@ struct stype_t {
 };
 
 enum parseStage_e {
-	PS_TYPE,
-	PS_BODY,
-	PS_BODY_END
+    PS_TYPE,
+    PS_BODY,
+    PS_BODY_END
 };
 
 void   parsetree_freeall();
@@ -125,10 +125,10 @@ sval_u node6(int type, sval_u val1, sval_u val2, sval_u val3, sval_u val4, sval_
 
 typedef struct parse_pos_s {
     int sourcePos;
-	int first_line;
-	int first_column;
-	int last_line;
-	int last_column;
+    int first_line;
+    int first_column;
+    int last_line;
+    int last_column;
 } parse_pos_t;
 
 struct yyexception {

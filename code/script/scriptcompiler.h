@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ScriptVariable;
 
-typedef void (*ScriptDisplayTokenFunc)(const char* type, const char* name);
+typedef void (*ScriptDisplayTokenFunc)(const char *type, const char *name);
 
 enum {
     method_game,
@@ -161,7 +161,7 @@ public:
 
     char  *Preprocess(char *sourceBuffer);
     void   Preclean(char *processedBuffer);
-    size_t Parse(GameScript *m_GameScript, char *sourceBuffer);
+    size_t Parse(GameScript *m_GameScript, char *sourceBuffer, const char *type);
     size_t Compile(GameScript *m_GameScript, unsigned char *progBuffer);
 
     static str GetLine(str content, int line);

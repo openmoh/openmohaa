@@ -4,8 +4,8 @@ typedef int yy_state_type;
 
 static int braces_count;
 static sval_t parseValue;
-static int prev_yylex;
-static ScriptDisplayTokenFunc* _scriptDisplayToken;
+int prev_yylex;
+ScriptDisplayTokenFunc* _scriptDisplayToken;
 static unsigned int out_pos;
 static unsigned int success_pos;
 static char* in_ptr;
@@ -25,9 +25,9 @@ static char yy_hold_char;
 static int yy_n_chars;
 static int yy_did_buffer_switch_on_eof;
 char* yytext;
-static yy_state_type yy_last_accepting_state;
-static char* yy_last_accepting_cpos;
-static parseStage_e parseStage;
+yy_state_type yy_last_accepting_state;
+char* yy_last_accepting_cpos;
+parseStage_e parseStage;
 
 void TextValue(const char* str, int len)
 {

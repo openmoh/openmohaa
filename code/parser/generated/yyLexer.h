@@ -203,9 +203,6 @@ void yyfree ( void *  );
 
 /* Begin user sect3 */
 
-#define yywrap() (/*CONSTCOND*/1)
-#define YY_SKIP_YYWRAP
-
 extern int yylineno;
 
 extern char *yytext;
@@ -216,10 +213,11 @@ extern char *yytext;
 
 #ifdef YY_HEADER_EXPORT_START_CONDITIONS
 #define INITIAL 0
-#define C_COMMENT 1
-#define C_LINE_COMMENT 2
-#define VARIABLES 3
-#define IDENTIFIER 4
+#define SCRIPT 1
+#define C_COMMENT 2
+#define C_LINE_COMMENT 3
+#define VARIABLES 4
+#define IDENTIFIER 5
 
 #endif
 
@@ -465,9 +463,9 @@ extern int yylex (void);
 #undef yyTABLES_NAME
 #endif
 
-#line 360 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 364 "E:/Src/openmohaa/code/parser/lex_source.txt"
 
 
-#line 471 "E:/Src/openmohaa/code/parser/generated/yyLexer.h"
+#line 469 "E:/Src/openmohaa/code/parser/generated/yyLexer.h"
 #undef yyIN_HEADER
 #endif /* yyHEADER_H */

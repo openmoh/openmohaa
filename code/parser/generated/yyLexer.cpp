@@ -342,9 +342,6 @@ void yyfree ( void *  );
 #define YY_AT_BOL() (YY_CURRENT_BUFFER_LVALUE->yy_at_bol)
 
 /* Begin user sect3 */
-
-#define yywrap() (/*CONSTCOND*/1)
-#define YY_SKIP_YYWRAP
 typedef flex_uint8_t YY_CHAR;
 
 FILE *yyin = NULL, *yyout = NULL;
@@ -375,8 +372,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 96
-#define YY_END_OF_BUFFER 97
+#define YY_NUM_RULES 97
+#define YY_END_OF_BUFFER 98
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -384,32 +381,33 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[218] =
+static const flex_int16_t yy_accept[222] =
     {   0,
-       21,   21,    0,    0,    0,    0,    0,    0,   90,   90,
-       97,   93,   87,   86,   86,   87,   71,   93,   75,   70,
-       61,   43,   30,   31,   57,   50,   74,   53,   73,   59,
-       88,   35,   37,   45,   34,   46,   15,   93,   93,   32,
-       93,   33,   42,   93,   93,   93,   93,   93,   93,   93,
-       93,   93,   93,   93,   93,   93,   93,   28,   41,   29,
-       72,    4,    3,    4,   96,   13,   12,   12,   11,    9,
-       11,   11,   90,   91,   91,   92,   86,    0,   49,   44,
-        0,   14,    0,   62,   40,   67,    5,   58,   52,   51,
-       53,   56,   54,   89,    0,    1,    7,   60,   88,   94,
+        0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+       90,   90,   98,   93,   87,   86,   86,   87,   71,   93,
+       75,   70,   61,   43,   30,   31,   57,   50,   74,   53,
+       73,   59,   88,   35,   37,   45,   34,   46,   15,   93,
+       93,   32,   93,   33,   42,   93,   93,   93,   93,   93,
+       93,   93,   93,   93,   93,   93,   93,   93,   93,   28,
+       41,   29,   72,   97,   95,    4,    3,    4,   13,   12,
+       12,   11,    9,   11,   11,   90,   91,   91,   92,   86,
+        0,   49,   44,    0,   14,    0,   62,   40,   67,    5,
+       58,   52,   51,   53,   56,   54,   89,    0,    1,    7,
 
-       94,   36,   63,   47,   38,   48,   65,   94,   94,    6,
-       68,   94,   94,   94,   20,   94,   94,   94,   94,   94,
-       16,   94,   94,   94,   94,   94,   94,   94,   94,   94,
-       69,   39,    2,    0,   10,   11,    0,   11,   11,   90,
-       55,    0,    7,   64,   66,   77,   94,   94,   94,   94,
-       94,   94,   94,   19,   94,   94,   94,   94,   94,   94,
-       94,   94,   94,   78,   94,   10,   11,   89,   76,   94,
-       81,   94,   94,   17,   94,   94,   21,   94,   94,   94,
-       94,   94,   25,   27,   94,   94,    8,   82,   79,   94,
-       94,   94,   22,   23,   24,   94,   94,   26,   94,   18,
+       60,   88,   94,   94,   36,   63,   47,   38,   48,   65,
+       94,   94,    6,   68,   94,   94,   94,   20,   94,   94,
+       94,   94,   94,   16,   94,   94,   94,   94,   94,   94,
+       94,   94,   94,   69,   39,   95,    2,    0,   10,   11,
+        0,   11,   11,   90,   55,    0,    7,   64,   66,   77,
+       94,   94,   94,   94,   94,   94,   94,   19,   94,   94,
+       94,   94,   94,   94,   94,   94,   94,   78,   94,   10,
+       11,   89,   76,   94,   81,   94,   94,   17,   94,   94,
+       21,   94,   94,   94,   94,   94,   25,   27,   94,   94,
+        8,   82,   79,   94,   94,   94,   22,   23,   24,   94,
 
-       94,   94,   94,   94,   94,   80,   94,   94,   94,   94,
-       94,   83,   85,   94,   94,   84,    0
+       94,   26,   94,   18,   94,   94,   94,   94,   94,   80,
+       94,   94,   94,   94,   94,   83,   85,   94,   94,   84,
+        0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -455,140 +453,148 @@ static const YY_CHAR yy_meta[65] =
         2,    1,    2,    1
     } ;
 
-static const flex_int16_t yy_base[226] =
+static const flex_int16_t yy_base[230] =
     {   0,
-        0,    0,   62,   63,    0,    0,   77,    0,  140,  202,
-      520,  582,  582,   64,   66,   56,  495,  140,  582,  582,
-      493,  135,  582,  582,  130,  133,  582,  146,  140,  152,
-      147,  495,  582,   51,  491,  144,  582,  494,  154,  582,
-      174,  582,  487,  132,  146,  137,  161,  162,  172,  169,
-      175,  178,  163,  181,  180,  174,  184,  582,  170,  582,
-      582,  582,  582,  491,  582,  582,  582,  582,  265,  582,
-        0,  463,    0,  582,  582,  582,  227,  493,  223,  582,
-      226,  582,  503,  582,  582,  582,  582,  582,  582,  582,
-      582,  582,  582,  216,  224,  582,    0,  582,  312,  485,
+        0,    0,   64,    0,  126,  127,  122,    0,  182,    0,
+      245,  307,  649,  650,  650,  128,  130,  120,  624,  245,
+      650,  650,  623,  132,  650,  650,  120,  121,  650,  246,
+      235,  240,  242,  622,  650,  123,  613,  133,  650,  618,
+      253,  650,  265,  650,  609,  238,  254,  247,  265,  256,
+      263,  257,  275,  258,  269,  276,  279,  271,  277,  650,
+      279,  650,  650,  650,    0,  650,  650,  591,  650,  650,
+      650,  370,  650,    0,  563,    0,  650,  650,  650,  327,
+      591,  327,  650,  311,  650,  602,  650,  650,  650,  650,
+      650,  650,  650,  650,  650,  650,  315,  271,  650,    0,
 
-      227,  582,  478,  582,  582,  582,  476,  190,  225,  245,
-      582,  313,  315,  316,  388,  317,  318,  319,  324,  323,
-      387,  320,  321,  328,  326,  325,  331,  322,  327,  334,
-      582,  582,  582,  380,    0,    0,  350,    0,  344,    0,
-      582,  340,    0,  582,  582,  384,  232,  329,  346,  345,
-      338,  347,  363,  380,  373,  385,  374,  376,  424,  425,
-      395,  427,  344,  379,  428,  582,  354,  582,  377,  430,
-      333,  429,  432,  332,  330,  431,  246,  433,  434,  435,
-      437,  436,  243,  241,  439,  438,    0,  239,  238,  440,
-      441,  442,  236,  235,  234,  443,  444,  233,  447,  228,
+      650,  316,  586,  331,  650,  578,  650,  650,  650,  577,
+      272,  320,  349,  650,  321,  307,  417,  582,  418,  325,
+      420,  255,  419,  579,  421,  329,  422,  424,  423,  427,
+      425,  426,  431,  650,  650,    0,  650,  479,    0,    0,
+      445,    0,  534,    0,  650,  438,    0,  650,  650,  575,
+      337,  428,  439,  442,  429,  441,  474,  574,  445,  432,
+      447,  475,  472,  473,  446,  522,  443,  557,  523,  650,
+      463,  650,  486,  450,  485,  524,  526,  484,  525,  527,
+      482,  444,  528,  529,  530,  531,  437,  436,  533,  532,
+        0,  433,  347,  535,  534,  536,  346,  342,  341,  537,
 
-      445,  450,  453,  451,  454,  182,  463,  455,  468,  475,
-      480,  177,  173,  469,  481,   54,  582,  540,  546,  552,
-      558,  560,  563,  569,  575
+      538,  338,  541,  336,  540,  543,  544,  542,  545,  281,
+      546,  435,  548,  561,  565,  141,  137,  549,  552,  130,
+      650,  611,  617,  623,  625,  132,  628,  634,  640
     } ;
 
-static const flex_int16_t yy_def[226] =
+static const flex_int16_t yy_def[230] =
     {   0,
-      217,    1,  218,  218,  219,  219,  217,    7,  220,  220,
-      217,  217,  217,  217,  217,  217,  217,  221,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      222,  217,  217,  217,  217,  217,  217,  222,  222,  217,
-      217,  217,  217,  222,  222,  222,  222,  222,  222,  222,
-      222,  222,  222,  222,  222,  222,  222,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      223,  223,  224,  217,  217,  217,  217,  217,  217,  217,
-      221,  217,  221,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  225,  217,  222,  222,
+      221,    1,  221,    3,  222,  222,    3,    7,  221,    9,
+      223,  223,  221,  221,  221,  221,  221,  221,  221,  224,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  225,  221,  221,  221,  221,  221,  221,  225,
+      225,  221,  221,  221,  221,  225,  225,  225,  225,  225,
+      225,  225,  225,  225,  225,  225,  225,  225,  225,  221,
+      221,  221,  221,  221,  226,  221,  221,  221,  221,  221,
+      221,  221,  221,  227,  227,  228,  221,  221,  221,  221,
+      221,  221,  221,  224,  221,  224,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  229,
 
-      222,  217,  217,  217,  217,  217,  217,  222,  222,  217,
-      217,  222,  222,  222,  222,  222,  222,  222,  222,  222,
-      222,  222,  222,  222,  222,  222,  222,  222,  222,  222,
-      217,  217,  217,   69,  223,   69,  134,  223,  223,  224,
-      217,  217,  225,  217,  217,  222,  222,  222,  222,  222,
-      222,  222,  222,  222,  222,  222,  222,  222,  222,  222,
-      222,  222,  222,  222,  222,  217,  223,  217,  222,  222,
-      222,  222,  222,  222,  222,  222,  222,  222,  222,  222,
-      222,  222,  222,  222,  222,  222,  223,  222,  222,  222,
-      222,  222,  222,  222,  222,  222,  222,  222,  222,  222,
+      221,  225,  225,  225,  221,  221,  221,  221,  221,  221,
+      225,  225,  221,  221,  225,  225,  225,  225,  225,  225,
+      225,  225,  225,  225,  225,  225,  225,  225,  225,  225,
+      225,  225,  225,  221,  221,  226,  221,   72,  227,   72,
+      138,  227,  227,  228,  221,  221,  229,  221,  221,  225,
+      225,  225,  225,  225,  225,  225,  225,  225,  225,  225,
+      225,  225,  225,  225,  225,  225,  225,  225,  225,  221,
+      227,  221,  225,  225,  225,  225,  225,  225,  225,  225,
+      225,  225,  225,  225,  225,  225,  225,  225,  225,  225,
+      227,  225,  225,  225,  225,  225,  225,  225,  225,  225,
 
-      222,  222,  222,  222,  222,  222,  222,  222,  222,  222,
-      222,  222,  222,  222,  222,  222,    0,  217,  217,  217,
-      217,  217,  217,  217,  217
+      225,  225,  225,  225,  225,  225,  225,  225,  225,  225,
+      225,  225,  225,  225,  225,  225,  225,  225,  225,  225,
+        0,  221,  221,  221,  221,  221,  221,  221,  221
     } ;
 
-static const flex_int16_t yy_nxt[647] =
+static const flex_int16_t yy_nxt[715] =
     {   0,
-       12,   13,   14,   15,   16,   17,   18,   19,   20,   21,
-       22,   23,   24,   25,   26,   27,   28,   29,   30,   31,
-       32,   33,   34,   35,   36,   37,   38,   38,   38,   38,
-       39,   38,   40,   41,   42,   43,   12,   38,   44,   45,
-       46,   47,   48,   49,   38,   50,   38,   51,   52,   38,
-       53,   54,   38,   55,   56,   38,   38,   57,   38,   38,
-       58,   59,   60,   61,   63,   63,   77,   77,   77,   77,
-       78,  217,   79,  103,  104,   64,   64,   66,   67,   68,
-       67,   67,   66,   69,   66,   66,   66,   66,   66,   66,
-       66,   66,   66,   66,   70,   66,   71,   66,   66,   66,
+       14,   15,   16,   17,   18,   19,   20,   21,   22,   23,
+       24,   25,   26,   27,   28,   29,   30,   31,   32,   33,
+       34,   35,   36,   37,   38,   39,   40,   40,   40,   40,
+       41,   40,   42,   43,   44,   45,   14,   40,   46,   47,
+       48,   49,   50,   51,   40,   52,   40,   53,   54,   40,
+       55,   56,   40,   57,   58,   40,   40,   59,   40,   40,
+       60,   61,   62,   63,   64,   64,   64,   64,   64,   64,
+       64,   64,   64,   64,   64,   64,   64,   64,   64,   64,
+       64,   64,   64,   65,   64,   64,   64,   64,   64,   64,
+       65,   65,   65,   65,   65,   65,   64,   64,   64,   64,
 
-       66,   66,   66,   71,   71,   71,   71,   71,   71,   66,
-       66,   66,   66,   71,   71,   71,   71,   71,   71,   71,
-       71,   71,   71,   71,   71,   71,   71,   71,   71,   71,
-       72,   71,   71,   71,   71,   71,   71,   66,   66,   66,
-       66,   74,   75,   74,   74,   85,   82,   89,   87,  217,
-       91,   76,   76,   88,  217,   76,   90,   94,   86,   94,
-       76,   76,   92,  217,   94,   96,   99,  106,  107,   93,
-       97,  217,   76,   83,   76,   98,  110,  110,  217,  217,
-      217,   95,  108,  113,  112,  109,  217,  115,  101,  217,
-      217,  217,  217,  131,  217,  217,  114,  217,  217,  217,
+       64,   65,   65,   65,   65,   65,   65,   65,   65,   65,
+       65,   65,   65,   65,   65,   65,   65,   65,   65,   65,
+       65,   65,   65,   65,   64,   64,   64,   64,   67,   67,
+       80,   80,   80,   80,   81,   92,   82,  136,   90,   68,
+       68,   64,   88,   91,   93,  106,  107,  221,   64,   64,
+       64,   64,   64,   64,  221,   89,  109,  110,  221,   64,
+       64,   64,   64,   64,   64,   64,   64,   64,   64,   64,
+       64,   64,   64,   64,   64,   64,   64,   64,   64,   64,
+       64,   64,   69,   70,   71,   70,   70,   69,   72,   69,
+       69,   69,   69,   69,   69,   69,   69,   69,   69,   73,
 
-       76,  217,   76,   74,   75,   74,   74,  217,  116,  119,
-      117,  121,  118,   76,   76,  124,  122,   76,  126,  146,
-      125,  127,   76,   76,  120,  123,  129,   91,  130,   77,
-       77,  132,   82,   94,   76,   94,   76,  128,  142,   92,
-      142,  142,  217,  142,  217,  217,  141,  110,  110,  217,
-      217,  217,  217,  217,  147,  217,  217,   95,  217,   83,
-      217,  169,   76,  217,   76,  134,  134,  134,  134,  134,
-      134,  135,  134,  134,  134,  134,  134,  134,  134,  134,
-      134,  134,  134,  134,  136,  134,  134,  134,  134,  134,
-      134,  136,  136,  136,  136,  136,  136,  134,  137,  134,
+       69,   74,   69,   69,   69,   69,   69,   69,   74,   74,
+       74,   74,   74,   74,   69,   69,   69,   69,   74,   74,
+       74,   74,   74,   74,   74,   74,   74,   74,   74,   74,
+       74,   74,   74,   74,   74,   75,   74,   74,   74,   74,
+       74,   74,   69,   69,   69,   69,   77,   78,   77,   77,
+       94,   85,   97,   99,   97,  221,   79,   79,  100,   97,
+       79,  102,   95,  101,  221,   79,   79,  113,  113,   96,
+      221,  221,  221,  221,  221,  221,   98,   79,   86,   79,
+      221,  111,  221,  104,  112,  146,  221,  146,  221,  221,
+      115,  116,  221,  221,  221,  127,  221,  118,  221,  124,
 
-      134,  136,  136,  136,  136,  136,  136,  136,  136,  136,
-      136,  136,  136,  136,  136,  136,  136,  136,  136,  136,
-      136,  136,  136,  136,  136,  134,  134,  134,  134,   94,
-      217,   99,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  101,  148,  217,  134,  168,  153,  168,
-      158,  217,  217,  217,  217,  151,  170,  163,  149,  150,
-      152,  154,  155,  156,  159,  160,  157,  161,  162,  165,
-      217,   95,  191,  134,  172,  164,  166,  171,  174,  175,
-      217,  217,  173,  217,  217,  187,  217,  217,  185,  134,
+      122,  150,  134,  159,  117,   79,  121,   79,   77,   78,
+       77,   77,  119,  129,  120,  123,  125,   85,   79,   79,
+      130,  133,   79,  132,  221,  126,  128,   79,   79,   80,
+       80,   94,   97,   97,   97,  102,  131,  221,  221,   79,
+      135,   79,  221,   95,   86,  146,  221,  146,  221,  151,
+      145,  113,  113,  221,  221,  221,   98,  104,  221,  221,
+      153,  154,  152,  221,  221,  157,  173,   79,  162,   79,
+      138,  138,  138,  138,  138,  138,  139,  138,  138,  138,
+      138,  138,  138,  138,  138,  138,  138,  138,  138,  140,
+      138,  138,  138,  138,  138,  138,  140,  140,  140,  140,
 
-      176,  217,  217,  167,  217,  217,  134,  134,  134,  134,
-      134,  134,  217,  180,  177,  179,  134,  134,  134,  134,
-      134,  134,  134,  134,  134,  134,  134,  134,  134,  134,
-      134,  134,  134,  134,  134,  134,  134,  134,  134,  134,
-      178,  217,  217,  183,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  196,  217,  181,  182,  217,  217,  184,
-      217,  217,  217,  189,  197,  186,  188,  190,  199,  200,
-      217,  194,  195,  192,  193,  217,  217,  208,  198,  201,
-      209,  206,  217,  202,  203,  204,  205,  217,  217,  145,
+      140,  140,  138,  141,  138,  138,  140,  140,  140,  140,
+      140,  140,  140,  140,  140,  140,  140,  140,  140,  140,
+      140,  140,  140,  140,  140,  140,  140,  140,  140,  140,
+      138,  138,  138,  138,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  138,  221,  221,  221,  172,  221,  172,  221,  221,
+      221,  221,  221,  221,  221,  174,  155,  221,  163,  160,
+      167,  156,  158,  164,  166,  165,  169,  161,  138,   98,
+      175,  176,  178,  177,  168,  170,  181,  182,  183,  221,
+      221,  221,  221,  217,  187,  197,  192,  189,  138,  221,
 
-      207,  144,  217,  210,  212,  217,  211,   89,  139,  133,
-      111,  217,  214,  213,  105,  102,   84,  215,   80,  217,
-      217,  217,  217,  217,  217,  217,  213,  216,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  216,
-       62,   62,   62,   62,   62,   62,   65,   65,   65,   65,
-       65,   65,   73,   73,   73,   73,   73,   73,   81,   81,
-       81,   81,   81,   81,  100,  100,  138,  217,  138,  140,
-      217,  217,  140,  140,  140,  143,  143,  217,  143,  143,
-      143,   11,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
+      179,  221,  221,  221,  191,  138,  138,  138,  138,  138,
+      138,  180,  184,  185,  186,  138,  138,  138,  138,  138,
+      138,  138,  138,  138,  138,  138,  138,  138,  138,  138,
+      138,  138,  138,  138,  138,  138,  138,  138,  138,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  200,  221,  221,  221,
+      221,  221,  221,  221,  188,  221,  221,  201,  193,  221,
+      190,  194,  203,  204,  221,  198,  199,  195,  221,  196,
+      212,  213,  221,  202,  205,  210,  206,  216,  207,  208,
+      209,  221,  221,  171,  214,  211,  221,  215,  218,  221,
 
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217
+      149,  148,  219,  221,  221,   92,  217,  220,  143,  137,
+      220,   66,   66,   66,   66,   66,   66,   76,   76,   76,
+       76,   76,   76,   84,   84,   84,   84,   84,   84,  103,
+      103,  142,  114,  142,  144,  221,  108,  144,  144,  144,
+      147,  147,  105,  147,  147,  147,   87,   83,  221,   13,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221
     } ;
 
-static const flex_int16_t yy_chk[647] =
+static const flex_int16_t yy_chk[715] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -596,81 +602,89 @@ static const flex_int16_t yy_chk[647] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,    1,    3,    4,   14,   14,   15,   15,
-       16,  216,   16,   34,   34,    3,    4,    7,    7,    7,
+        1,    1,    1,    1,    3,    3,    3,    3,    3,    3,
+        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+
+        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+        3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
+        3,    3,    3,    3,    3,    3,    3,    3,    5,    6,
+       16,   16,   17,   17,   18,   28,   18,  226,   27,    5,
+        6,    7,   24,   27,   28,   36,   36,  220,    7,    7,
+        7,    7,    7,    7,  217,   24,   38,   38,  216,    7,
         7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
         7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
+        7,    7,    9,    9,    9,    9,    9,    9,    9,    9,
+        9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
 
-        7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
-        7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
-        7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
-        7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
-        7,    9,    9,    9,    9,   22,   18,   26,   25,   44,
-       28,    9,    9,   25,   46,    9,   26,   29,   22,   29,
-        9,    9,   28,   45,   31,   30,   31,   36,   36,   28,
-       30,   39,    9,   18,    9,   30,   41,   41,   47,   48,
-       53,   29,   39,   45,   44,   39,   50,   46,   31,   49,
-      213,   56,   51,   59,  212,   52,   45,   55,   54,  206,
+        9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+        9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+        9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+        9,    9,    9,    9,    9,    9,    9,    9,    9,    9,
+        9,    9,    9,    9,    9,    9,   11,   11,   11,   11,
+       30,   20,   31,   32,   31,   46,   11,   11,   32,   33,
+       11,   33,   30,   32,   48,   11,   11,   43,   43,   30,
+       41,   47,  122,   50,   52,   54,   31,   11,   20,   11,
+       51,   41,   49,   33,   41,   98,   55,   98,   58,  111,
+       46,   47,   53,   56,   59,   54,   57,   48,  210,   52,
 
-        9,   57,    9,   10,   10,   10,   10,  108,   47,   49,
-       47,   50,   48,   10,   10,   52,   51,   10,   54,  108,
-       53,   55,   10,   10,   49,   51,   56,   79,   57,   77,
-       77,   59,   81,   94,   10,   94,   10,   55,   95,   79,
-       95,  101,  109,  101,  101,  200,   79,  110,  110,  147,
-      198,  195,  194,  193,  109,  189,  188,   94,  184,   81,
-      183,  147,   10,  177,   10,   69,   69,   69,   69,   69,
-       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
-       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
-       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
+       51,  111,   61,  122,   47,   11,   50,   11,   12,   12,
+       12,   12,   49,   56,   49,   51,   53,   84,   12,   12,
+       57,   59,   12,   58,  116,   53,   55,   12,   12,   80,
+       80,   82,   97,  102,   97,  102,   57,  112,  115,   12,
+       61,   12,  120,   82,   84,  104,  126,  104,  104,  112,
+       82,  113,  113,  204,  151,  202,   97,  102,  199,  198,
+      116,  116,  115,  197,  193,  120,  151,   12,  126,   12,
+       72,   72,   72,   72,   72,   72,   72,   72,   72,   72,
+       72,   72,   72,   72,   72,   72,   72,   72,   72,   72,
+       72,   72,   72,   72,   72,   72,   72,   72,   72,   72,
 
-       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
-       69,   69,   69,   69,   69,   69,   69,   69,   69,   69,
-       69,   69,   69,   69,   69,   69,   69,   69,   69,   99,
-      112,   99,  113,  114,  116,  117,  118,  122,  123,  128,
-      120,  119,  126,  125,  129,  124,  148,  175,  127,  174,
-      171,  130,  137,   99,  112,  151,  137,  142,  117,  142,
-      123,  163,  150,  149,  152,  114,  148,  128,  113,  113,
-      116,  118,  119,  120,  124,  125,  122,  126,  127,  130,
-      153,  142,  175,  137,  150,  129,  134,  149,  152,  153,
-      155,  157,  151,  158,  169,  167,  164,  154,  163,  134,
+       72,   72,   72,   72,   72,   72,   72,   72,   72,   72,
+       72,   72,   72,   72,   72,   72,   72,   72,   72,   72,
+       72,   72,   72,   72,   72,   72,   72,   72,   72,   72,
+       72,   72,   72,   72,  117,  119,  123,  121,  125,  127,
+      129,  128,  131,  132,  130,  152,  155,  141,  133,  160,
+      192,  141,  212,  188,  187,  146,  153,  146,  156,  154,
+      167,  182,  159,  165,  161,  152,  117,  174,  127,  123,
+      131,  119,  121,  128,  130,  129,  133,  125,  141,  146,
+      153,  154,  156,  155,  132,  138,  159,  160,  161,  163,
+      164,  157,  162,  212,  165,  182,  174,  167,  138,  181,
 
-      153,  146,  156,  139,  121,  115,  134,  134,  134,  134,
-      134,  134,  161,  158,  155,  157,  134,  134,  134,  134,
-      134,  134,  134,  134,  134,  134,  134,  134,  134,  134,
-      134,  134,  134,  134,  134,  134,  134,  134,  134,  134,
-      156,  159,  160,  161,  162,  165,  172,  170,  176,  173,
-      178,  179,  180,  182,  181,  186,  185,  190,  191,  192,
-      196,  197,  201,  181,  199,  159,  160,  202,  204,  162,
-      203,  205,  208,  172,  181,  165,  170,  173,  185,  186,
-      207,  179,  180,  176,  178,  209,  214,  202,  182,  190,
-      203,  199,  210,  191,  192,  196,  197,  211,  215,  107,
+      157,  178,  175,  173,  171,  138,  138,  138,  138,  138,
+      138,  157,  162,  163,  164,  138,  138,  138,  138,  138,
+      138,  138,  138,  138,  138,  138,  138,  138,  138,  138,
+      138,  138,  138,  138,  138,  138,  138,  138,  138,  166,
+      169,  176,  179,  177,  180,  183,  184,  185,  186,  190,
+      189,  195,  194,  196,  200,  201,  185,  205,  203,  208,
+      206,  207,  209,  211,  166,  213,  218,  185,  176,  219,
+      169,  177,  189,  190,  168,  183,  184,  179,  214,  180,
+      206,  207,  215,  186,  194,  203,  195,  211,  196,  200,
+      201,  158,  150,  143,  208,  205,  124,  209,  214,  118,
 
-      201,  103,  100,  204,  207,   83,  205,   78,   72,   64,
-       43,   38,  210,  208,   35,   32,   21,  211,   17,   11,
-        0,    0,    0,    0,    0,    0,  209,  214,    0,    0,
-        0,    0,    0,    0,    0,    0,    0,    0,    0,  215,
-      218,  218,  218,  218,  218,  218,  219,  219,  219,  219,
-      219,  219,  220,  220,  220,  220,  220,  220,  221,  221,
-      221,  221,  221,  221,  222,  222,  223,    0,  223,  224,
-        0,    0,  224,  224,  224,  225,  225,    0,  225,  225,
-      225,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
+      110,  106,  215,  103,   86,   81,  213,  218,   75,   68,
+      219,  222,  222,  222,  222,  222,  222,  223,  223,  223,
+      223,  223,  223,  224,  224,  224,  224,  224,  224,  225,
+      225,  227,   45,  227,  228,   40,   37,  228,  228,  228,
+      229,  229,   34,  229,  229,  229,   23,   19,   13,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
 
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217,  217,  217,  217,  217,
-      217,  217,  217,  217,  217,  217
+      221,  221,  221,  221,  221,  221,  221,  221,  221,  221,
+      221,  221,  221,  221
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[97] =
+static const flex_int32_t yy_rule_can_match_eol[98] =
     {   0,
 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,     };
+    0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,     };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -734,36 +748,12 @@ void fprintf2( FILE *f, const char *format, ... )
 
 #define fprintf fprintf2
 
+const char* start_ptr;
+const char* in_ptr;
 extern int prev_yylex;
 extern int out_pos;
 extern int success_pos;
 parseStage_e parseStage;
-
-/*
-extern "C" int yywrap(void);
-
-int yywrap(void) {
-	if (parseStage == PS_TYPE) {
-		parseStage = PS_BODY;
-		out_pos = 0;
-		success_pos = 0;
-		return 0;
-	}
-
-	if (parseStage == PS_BODY)
-	{
-		if (YY_START != 0)
-		{
-			parseStage = PS_BODY_END;
-			return 0;
-		}
-
-		Compiler.CompileError(success_pos, "unexpected end of file found in comment");
-	}
-
-	return 1;
-}
-*/
 
 extern yyparsedata parsedata;
 
@@ -858,16 +848,45 @@ static bool UseField( void )
 		|| prev_yylex == TOKEN_DOLLAR;
 }
 
-#line 861 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+#define YY_INPUT(buf,result,max_size) \
+{										\
+	char c;								\
+	int n;								\
+										\
+	c = '*';							\
+	for(n = 0; n < max_size; n++)		\
+	{									\
+		c = *in_ptr++;					\
+		if (!c || c == '\n') {			\
+			break;						\
+		}								\
+										\
+		buf[n] = c;						\
+	}									\
+										\
+	if (c == '\n')						\
+	{									\
+		buf[n++] = c;					\
+	}									\
+	else if (!c)						\
+	{									\
+		in_ptr--;						\
+	}									\
+										\
+	result = n;							\
+}
+
+#line 879 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
 /*%option debug*/
 
-#line 864 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+#line 882 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
 
 #define INITIAL 0
-#define C_COMMENT 1
-#define C_LINE_COMMENT 2
-#define VARIABLES 3
-#define IDENTIFIER 4
+#define SCRIPT 1
+#define C_COMMENT 2
+#define C_LINE_COMMENT 3
+#define VARIABLES 4
+#define IDENTIFIER 5
 
 #ifndef YY_EXTRA_TYPE
 #define YY_EXTRA_TYPE void *
@@ -1074,10 +1093,10 @@ YY_DECL
 		}
 
 	{
-#line 190 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 194 "E:/Src/openmohaa/code/parser/lex_source.txt"
 
 
-#line 1080 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+#line 1099 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1110,13 +1129,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 218 )
+				if ( yy_current_state >= 222 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_current_state != 217 );
+		while ( yy_current_state != 221 );
 		yy_cp = (yy_last_accepting_cpos);
 		yy_current_state = (yy_last_accepting_state);
 
@@ -1148,60 +1167,60 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 192 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 196 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( C_COMMENT ); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 193 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 197 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( INITIAL ); }
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 194 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 198 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 195 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 199 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 196 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 200 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { Compiler.CompileError( parsedata.pos - yyleng, "'*/' found outside of comment" ); }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 198 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 202 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 199 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 203 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { if( prev_yylex != TOKEN_EOL ) YYLEX( TOKEN_EOL ); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 201 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 205 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN(INITIAL); YYLEX(TOKEN_SIZE); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 202 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 206 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX(TOKEN_PERIOD); }
 	YY_BREAK
 case 10:
 /* rule 10 can match eol */
 YY_RULE_SETUP
-#line 203 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 207 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN(INITIAL); TextEscapeValue(yytext + 1, strlen( yytext ) - 2 ); YYLEX(TOKEN_STRING); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 204 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 208 "E:/Src/openmohaa/code/parser/lex_source.txt"
 {
 									TextValue(yytext, strlen(yytext));
 									YYLEX(TOKEN_IDENTIFIER);
@@ -1210,7 +1229,7 @@ YY_RULE_SETUP
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-#line 208 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 212 "E:/Src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(INITIAL);
 									unput(yytext[yyleng - 1]);
@@ -1219,7 +1238,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 213 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 217 "E:/Src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(INITIAL);
 									unput(yytext[yyleng - 1]);
@@ -1229,378 +1248,378 @@ YY_RULE_SETUP
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 219 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 223 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { TextEscapeValue( yytext + 1, strlen( yytext ) - 2 ); YYLEX( TOKEN_STRING ); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 222 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 226 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_TERNARY ); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 223 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 227 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_IF ); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 224 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 228 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_ELSE ); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 225 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 229 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_WHILE ); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 226 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 230 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_FOR ); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 227 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 231 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DO ); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 229 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 233 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_game ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 230 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 234 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_group ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 231 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 235 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_level ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 232 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 236 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_local ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 233 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 237 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_parm ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 234 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 238 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_owner ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 235 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 239 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_self ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 237 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 241 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { parsedata.braces_count++; YYLEX( TOKEN_LEFT_BRACES ); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 238 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 242 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { parsedata.braces_count--; YYLEX( TOKEN_RIGHT_BRACES ); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 239 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 243 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX(TOKEN_LEFT_BRACKET); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 240 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 244 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN(VARIABLES); YYLEX(TOKEN_RIGHT_BRACKET); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 241 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 245 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX(TOKEN_LEFT_SQUARE_BRACKET); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 242 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 246 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN(VARIABLES); YYLEX(TOKEN_RIGHT_SQUARE_BRACKET); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 244 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 248 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_ASSIGNMENT ); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 245 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 249 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_COLON ); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 246 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 250 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DOUBLE_COLON ); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 247 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 251 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SEMICOLON ); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 249 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 253 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_EQUALITY ); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 250 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 254 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LOGICAL_OR ); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 251 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 255 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LOGICAL_AND ); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 253 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 257 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BITWISE_OR ); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 254 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 258 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BITWISE_EXCL_OR ); }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 255 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 259 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BITWISE_AND ); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 256 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 260 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_INEQUALITY ); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 257 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 261 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LESS_THAN ); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 258 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 262 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_GREATER_THAN ); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 259 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 263 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LESS_THAN_OR_EQUAL ); }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 260 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 264 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_GREATER_THAN_OR_EQUAL ); }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 261 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 265 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NEG ); }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 263 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 267 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_PLUS ); }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 264 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 268 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_PLUS_EQUALS ); }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 265 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 269 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_INCREMENT ); }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 266 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 270 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MINUS ); }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 267 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 271 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MINUS_EQUALS ); }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 268 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 272 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MINUS_EQUALS ); }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 269 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 273 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DECREMENT ); }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 270 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 274 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MULTIPLY ); }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 271 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 275 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MULTIPLY_EQUALS ); }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 272 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 276 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DIVIDE ); }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 273 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 277 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DIVIDE_EQUALS ); }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 274 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 278 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MODULUS ); }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 275 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 279 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MODULUS_EQUALS ); }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 276 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 280 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_LEFT ); }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 277 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 281 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_LEFT_EQUALS ); }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 278 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 282 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_RIGHT ); }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 279 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 283 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_RIGHT_EQUALS ); }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 280 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 284 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_AND_EQUALS ); }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 281 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 285 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_EXCL_OR_EQUALS ); }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 282 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 286 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_OR_EQUALS ); }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 283 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 287 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); YYLEX( TOKEN_DOLLAR ); }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 284 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 288 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NOT ); }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 285 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 289 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_COMPLEMENT ); }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 287 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 291 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_PERIOD ); }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 289 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 293 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_COMMA ); }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 290 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 294 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NUMBER ); }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 292 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 296 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NULL ); }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 293 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 297 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NIL ); }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 295 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 299 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_TRY ); }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 296 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 300 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_CATCH ); }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 297 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 301 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SWITCH ); }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 299 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 303 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_CASE ); }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 300 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 304 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BREAK ); }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 301 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 305 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_CONTINUE ); }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 303 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 307 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MAKEARRAY ); }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 304 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 308 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_ENDARRAY ); }
 	YY_BREAK
 case 86:
 /* rule 86 can match eol */
 YY_RULE_SETUP
-#line 306 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 310 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { if (prev_yylex != TOKEN_EOL) YYLEX(TOKEN_EOL); }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 307 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 311 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 309 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 313 "E:/Src/openmohaa/code/parser/lex_source.txt"
 {
 											char* p = nullptr;
 											yylval.s.val.intValue = std::strtol(yytext, &p, 10);
@@ -1609,7 +1628,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 314 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 318 "E:/Src/openmohaa/code/parser/lex_source.txt"
 {
 											char* p = nullptr;
 											yylval.s.val.floatValue = std::strtof(yytext, &p);
@@ -1618,7 +1637,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 320 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 324 "E:/Src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(INITIAL);
 									TextEscapeValue(yytext, yyleng);
@@ -1628,7 +1647,7 @@ YY_RULE_SETUP
 case 91:
 /* rule 91 can match eol */
 YY_RULE_SETUP
-#line 325 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 329 "E:/Src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(INITIAL);
 									unput(yytext[yyleng - 1]);
@@ -1639,7 +1658,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 332 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 336 "E:/Src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(INITIAL);
 									unput(yytext[yyleng - 1]);
@@ -1650,7 +1669,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 340 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 344 "E:/Src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(IDENTIFIER);
 									yymore();
@@ -1658,23 +1677,20 @@ YY_RULE_SETUP
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 345 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 349 "E:/Src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(IDENTIFIER);
 									yymore();
 								}
 	YY_BREAK
-case YY_STATE_EOF(INITIAL):
-case YY_STATE_EOF(C_COMMENT):
-case YY_STATE_EOF(C_LINE_COMMENT):
-case YY_STATE_EOF(VARIABLES):
-case YY_STATE_EOF(IDENTIFIER):
-#line 350 "E:/Src/openmohaa/code/parser/lex_source.txt"
-{ YYLEX(TOKEN_EOF); }
-	YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 352 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 354 "E:/Src/openmohaa/code/parser/lex_source.txt"
+{ BEGIN(INITIAL); }
+	YY_BREAK
+case 96:
+YY_RULE_SETUP
+#line 356 "E:/Src/openmohaa/code/parser/lex_source.txt"
 { YY_FATAL_ERROR("bad token:\n"); }
 	YY_BREAK
 
@@ -1682,12 +1698,19 @@ YY_RULE_SETUP
 #undef fprintf
 
 
-case 96:
+case 97:
 YY_RULE_SETUP
-#line 360 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 364 "E:/Src/openmohaa/code/parser/lex_source.txt"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 1690 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+#line 1706 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+case YY_STATE_EOF(INITIAL):
+case YY_STATE_EOF(SCRIPT):
+case YY_STATE_EOF(C_COMMENT):
+case YY_STATE_EOF(C_LINE_COMMENT):
+case YY_STATE_EOF(VARIABLES):
+case YY_STATE_EOF(IDENTIFIER):
+	yyterminate();
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1983,7 +2006,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 218 )
+			if ( yy_current_state >= 222 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -2011,11 +2034,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 218 )
+		if ( yy_current_state >= 222 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 217);
+	yy_is_jam = (yy_current_state == 221);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -2703,6 +2726,38 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 360 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 364 "E:/Src/openmohaa/code/parser/lex_source.txt"
 
+
+//
+// Implements yywrap to always append a newline to the source
+//
+int yywrap(void) {
+	if (parseStage == PS_TYPE) {
+		parseStage = PS_BODY;
+		in_ptr = start_ptr;
+		out_pos = 0;
+		success_pos = 0;
+		return 0;
+	}
+
+	if (parseStage == PS_BODY)
+	{
+		if (YY_START == C_COMMENT)
+		{
+			Compiler.CompileError(success_pos, "unexpected end of file found in comment");
+			return 1;
+		}
+		
+		parseStage = PS_BODY_END;
+		in_ptr = "\n";
+		return 0;
+	}
+
+	return 1;
+}
+
+void yy_init_script() {
+	BEGIN(SCRIPT);
+}
 
