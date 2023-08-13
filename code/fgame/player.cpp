@@ -3825,7 +3825,7 @@ void Player::ClientMove(usercmd_t *ucmd)
         client->ps.pm_flags |= PMF_VIEW_JUMP_START;
     }
     */
-    if (maxs.z == 54.0f) {
+    if (maxs.z == 54.0f ||maxs.z == 60.0f) {
         client->ps.pm_flags |= PMF_DUCKED;
     } else if (viewheight == 52) {
         client->ps.pm_flags |= PMF_VIEW_JUMP_START;
