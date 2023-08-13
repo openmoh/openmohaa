@@ -335,6 +335,11 @@ movement on the server game.
             qboolean     traceDeep
         );
         int (*pointcontents)(const vec3_t point, int passEntityNum);
+
+        //
+        // Openmohaa addition
+        //
+        int protocol;
     } pmove_t;
 
     // if a full pmove isn't done on the client, you can just update the angles

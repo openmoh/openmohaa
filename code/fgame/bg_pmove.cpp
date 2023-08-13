@@ -50,7 +50,6 @@ float	PM_NOCLIPfriction = 5.0f;
 
 int		c_pmove = 0;
 
-
 /*
 ===============
 PM_AddEvent
@@ -1100,35 +1099,57 @@ static void PM_CheckDuck( void )
 		return;
 	}
 
-	if( ( pm->ps->pm_flags & ( PMF_DUCKED | PMF_VIEW_PRONE ) ) == ( PMF_DUCKED | PMF_VIEW_PRONE ) )
-	{
-		pm->maxs[ 2 ] = 54.0f;
-	}
-	else if( pm->ps->pm_flags & PMF_DUCKED )
-	{
-		pm->maxs[ 2 ] = 60.0f;
-		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
-	}
-	else if( pm->ps->pm_flags & PMF_VIEW_PRONE )
-	{
-		pm->maxs[ 2 ] = 20.0f;
-		pm->ps->viewheight = PRONE_VIEWHEIGHT;
-	}
-	else if( pm->ps->pm_flags & PMF_VIEW_DUCK_RUN )
-	{
-		pm->maxs[ 2 ] = 94.0f;
-		pm->mins[ 2 ] = 54.0f;
-		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
-	}
-	else if( pm->ps->pm_flags & PMF_VIEW_JUMP_START )
-	{
-		pm->maxs[ 2 ] = 94.0f;
-		pm->ps->viewheight = JUMP_START_VIEWHEIGHT;
-	}
-	else
-	{
-		pm->maxs[ 2 ] = 94.0f;
-		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+	if (pm->protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+		//
+		// Prone was removed in 2.0
+		//
+		if (pm->ps->pm_flags & PMF_DUCKED)
+		{
+			pm->maxs[2] = 54.f;
+			pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+		}
+		else if (pm->ps->pm_flags & PMF_VIEW_JUMP_START)
+		{
+			pm->maxs[2] = 94.0f;
+			pm->ps->viewheight = JUMP_START_VIEWHEIGHT;
+		}
+		else
+		{
+			pm->maxs[2] = 94.0f;
+			pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+		}
+	} else {
+		if ((pm->ps->pm_flags & (PMF_DUCKED | PMF_VIEW_PRONE)) == (PMF_DUCKED | PMF_VIEW_PRONE))
+		{
+			pm->maxs[2] = 54.0f;
+			pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+		}
+		else if (pm->ps->pm_flags & PMF_DUCKED)
+		{
+			pm->maxs[2] = 60.0f;
+			pm->ps->viewheight = CROUCH_VIEWHEIGHT;
+		}
+		else if (pm->ps->pm_flags & PMF_VIEW_PRONE)
+		{
+			pm->maxs[2] = 20.0f;
+			pm->ps->viewheight = PRONE_VIEWHEIGHT;
+		}
+		else if (pm->ps->pm_flags & PMF_VIEW_DUCK_RUN)
+		{
+			pm->maxs[2] = 94.0f;
+			pm->mins[2] = 54.0f;
+			pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+		}
+		else if (pm->ps->pm_flags & PMF_VIEW_JUMP_START)
+		{
+			pm->maxs[2] = 94.0f;
+			pm->ps->viewheight = JUMP_START_VIEWHEIGHT;
+		}
+		else
+		{
+			pm->maxs[2] = 94.0f;
+			pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
+		}
 	}
 }
 
