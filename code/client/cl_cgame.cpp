@@ -904,8 +904,6 @@ qboolean CL_GameCommand( void ) {
 	return cge->CG_ConsoleCommand();
 }
 
-
-
 /*
 =====================
 CL_CGameRendering
@@ -920,6 +918,10 @@ void CL_CGameRendering( stereoFrame_t stereo ) {
 	cge->CG_DrawActiveFrame( cl.serverTime, cl.serverTime - cl.oldServerTime, stereo, clc.demoplaying );
 
 	cl.oldServerTime = cl.serverTime;
+	//
+	// Let cgame clean up temp models
+	//
+	cge->CG_CleanUpTempModels();
 }
 
 /*
@@ -1095,16 +1097,14 @@ void CL_SetCGameTime( void ) {
 		return;
 	}
 
-	// FIXME
-	//if( ( cl.snap.snapFlags ^ lastSnapFlags ) & SNAPFLAG_SERVERCOUNT ) {
-	//	CL_ServerRestarted();
-	//} else {
-
+	if( ( cl.snap.snapFlags ^ lastSnapFlags ) & SNAPFLAG_SERVERCOUNT ) {
+		CL_ServerRestarted();
+	} else {
 		if( cl.snap.serverTime < cl.oldFrameServerTime ) {
 			assert( 0 );
 			Com_Error( ERR_DROP, "cl.snap.serverTime < cl.oldFrameServerTime" );
 		}
-	//}
+	}
 
 	cl.oldFrameServerTime = cl.snap.serverTime;
 
