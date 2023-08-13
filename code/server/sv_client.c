@@ -1431,7 +1431,10 @@ void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
 		}
 	}
 
-	if (!Q_stricmp(s, "dmmessage")) {
+	//if (!Q_stricmp(s, "dmmessage")) {
+	// 2.0 has it wrong, it uses Q_stricmp, but it never works
+	// because `s` is the full command string with arguments
+	if (!Q_stricmpn(s, "dmmessage ", 10)) {
 		//
 		// Since 2.0, displays chat messages
 		// NOTE: this should be handled by fgame, not server
