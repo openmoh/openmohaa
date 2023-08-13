@@ -2953,9 +2953,9 @@ CLASS_DECLARATION(Trigger, TriggerEntity, "trigger_entity") {
     {NULL, NULL}
 };
 
-Event EV_Trigger_IsAbandonned
+Event EV_Trigger_IsAbandoned
 (
-    "isabandonned",
+    "isabandoned",
     EV_DEFAULT,
     "e",
     "owner",
@@ -2984,7 +2984,7 @@ Event EV_Trigger_SetDamageable
 );
 
 CLASS_DECLARATION(TriggerEntity, TriggerLandmine, "trigger_landmine") {
-    {&EV_Trigger_IsAbandonned,  &TriggerLandmine::EventIsAbandoned  },
+    {&EV_Trigger_IsAbandoned,   &TriggerLandmine::EventIsAbandoned  },
     {&EV_Trigger_IsImmune,      &TriggerLandmine::EventIsImmune     },
     {&EV_Trigger_SetDamageable, &TriggerLandmine::EventSetDamageable},
     {NULL,                      NULL                                }
