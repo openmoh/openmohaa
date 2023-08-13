@@ -687,10 +687,11 @@ void CG_DrawObjectives()
 
     iCurrentObjective = atoi(CG_ConfigString(CS_CURRENT_OBJECTIVE));
     fTimeDelta        = cg.ObjectivesAlphaTime - cg.time;
-    if (fTimeDelta > 0.0) {
+    cg.ObjectivesCurrentAlpha = cg.ObjectivesDesiredAlpha;
+    if (fTimeDelta > 0) {
         cg.ObjectivesCurrentAlpha =
-            (cg.ObjectivesBaseAlpha - cg.ObjectivesDesiredAlpha) * sin(fTimeDelta * 0.0062831854)
-            + cg.ObjectivesCurrentAlpha;
+            (cg.ObjectivesBaseAlpha - cg.ObjectivesDesiredAlpha) * sin(fTimeDelta / (M_PI * 50.f + 2.f))
+            + cg.ObjectivesDesiredAlpha;
     }
 
     if (cg.ObjectivesCurrentAlpha < 0.02) {

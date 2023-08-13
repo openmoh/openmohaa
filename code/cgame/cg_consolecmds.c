@@ -110,8 +110,8 @@ void CG_ScoresDown_f(void)
 void CG_ScoresUp_f(void)
 {
     if (cgs.gametype == GT_SINGLE_PLAYER) {
-        if (!cg.scoresRequestTime) {
-            cg.scoresRequestTime = cg.time;
+        if (cg.scoresRequestTime) {
+            cg.scoresRequestTime = 0;
             CG_SetDesiredObjectiveAlpha(0.0f);
         }
 
