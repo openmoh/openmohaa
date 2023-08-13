@@ -3493,13 +3493,13 @@ void Player::SetMoveInfo(pmove_t *pm, usercmd_t *ucmd)
     pm->ps->origin[2] = origin.z;
 
     /*
-	pm->mins[0] = mins.x;
-	pm->mins[1] = mins.y;
-	pm->mins[2] = mins.z;
+    pm->mins[0] = mins.x;
+    pm->mins[1] = mins.y;
+    pm->mins[2] = mins.z;
 
-	pm->maxs[0] = maxs.x;
-	pm->maxs[1] = maxs.y;
-	pm->maxs[2] = maxs.z;
+    pm->maxs[0] = maxs.x;
+    pm->maxs[1] = maxs.y;
+    pm->maxs[2] = maxs.z;
     */
 
     pm->ps->velocity[0] = velocity.x;
@@ -3525,7 +3525,9 @@ void Player::SetMoveInfo(pmove_t *pm, usercmd_t *ucmd)
         } else {
             pm->alwaysAllowLean = qfalse;
         }
-    }
+	}
+
+	pm->protocol = g_protocol;
 }
 
 pmtype_t Player::GetMovePlayerMoveType(void)
@@ -7907,10 +7909,11 @@ void Player::ModifyHeight(Event *ev)
     str height = ev->GetString(1);
 
     if (!height.icmp("stand")) {
-        viewheight = DEFAULT_VIEWHEIGHT;
-        maxs.z     = 94.0f;
+        viewheight   = DEFAULT_VIEWHEIGHT;
+        maxs.z       = 94.0f;
+        m_bHasJumped = false;
     } else if (!height.icmp("jumpstart")) {
-        viewheight = JUMP_START_VIEWHEIGHT;
+        //viewheight = JUMP_START_VIEWHEIGHT;
         maxs.z     = 94.0f;
     } else if (!height.icmp("duck")) {
         viewheight = CROUCH_VIEWHEIGHT;
@@ -7919,6 +7922,9 @@ void Player::ModifyHeight(Event *ev)
         viewheight = CROUCH_RUN_VIEWHEIGHT;
         maxs.z     = 60.0f;
     } else if (!height.icmp("prone")) {
+        //
+        // Prone was added in openmohaa
+        //
         viewheight = PRONE_VIEWHEIGHT;
         maxs.z     = 20.0f;
     } else {
@@ -10563,7 +10569,10 @@ qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullA
 
     if (!anim.length()) {
         anim = "";
-    }
+	}
+
+	// Copy the item prefix and the anim name
+	weapon = GetActiveWeapon(WEAPON_MAIN);
 
     if (!Q_stricmp(anim, "charge")) {
         viewModelAnim = VM_ANIM_CHARGE;
@@ -10585,29 +10594,31 @@ qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullA
         viewModelAnim = VM_ANIM_PUTAWAY;
     } else if (!Q_stricmp(anim, "ladderstep")) {
         viewModelAnim = VM_ANIM_LADDERSTEP;
-    } else if (!Q_stricmp(anim, "idle")) {
-        viewModelAnim = VM_ANIM_IDLE;
-    } else if (!Q_stricmp(anim, "idle0")) {
-        viewModelAnim = VM_ANIM_IDLE_0;
-    } else if (!Q_stricmp(anim, "idle1")) {
-        viewModelAnim = VM_ANIM_IDLE_1;
-    } else if (!Q_stricmp(anim, "idle2")) {
-        viewModelAnim = VM_ANIM_IDLE_2;
     } else {
-        // Defaults to idle
-        viewModelAnim = VM_ANIM_IDLE;
-    }
+        if (!Q_stricmp(anim, "idle")) {
+            viewModelAnim = VM_ANIM_IDLE;
+        } else if (!Q_stricmp(anim, "idle0")) {
+            viewModelAnim = VM_ANIM_IDLE_0;
+        } else if (!Q_stricmp(anim, "idle1")) {
+            viewModelAnim = VM_ANIM_IDLE_1;
+        } else if (!Q_stricmp(anim, "idle2")) {
+            viewModelAnim = VM_ANIM_IDLE_2;
+        } else {
+            // Defaults to idle
+            viewModelAnim = VM_ANIM_IDLE;
+        }
 
-    // Copy the item prefix and the anim name
-    weapon = GetActiveWeapon(WEAPON_MAIN);
+        //
+        // check the fire movement speed if the weapon has a max fire movement
+        //
+        if (weapon && weapon->m_fMaxFireMovement < 1) {
+            float length;
 
-    if (weapon && weapon->m_fMaxFireMovement) {
-        float length;
-
-        // check the fire movement speed
-        length = velocity.length();
-        if (length / sv_runspeed->value > ((weapon->m_fMaxFireMovement * weapon->m_fMovementSpeed) + 0.1f)) {
-            viewModelAnim = VM_ANIM_DISABLED;
+            length = velocity.length();
+            if (length / sv_runspeed->value > ((weapon->m_fMaxFireMovement * weapon->m_fMovementSpeed) + 0.1f)) {
+                // Set the view model animation to disabled
+                viewModelAnim = VM_ANIM_DISABLED;
+            }
         }
     }
 
