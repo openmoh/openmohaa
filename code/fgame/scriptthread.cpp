@@ -2759,41 +2759,41 @@ void ScriptThread::DPrintln(Event *ev)
 
 void ScriptThread::IPrintln(Event *ev)
 {
-	str sString;
-	int num = ev->NumArgs();
-	int i;
+    str sString;
+    int num = ev->NumArgs();
+    int i;
 
-	for (i = 1; i <= ev->NumArgs(); i++) {
-		sString += ev->GetString(i);
-	}
+    for (i = 1; i <= ev->NumArgs(); i++) {
+        sString += ev->GetString(i);
+    }
 
-	G_PrintToAllClients(gi.LV_ConvertString(sString), false);
+    G_PrintToAllClients(gi.LV_ConvertString(sString), false);
 }
 
 void ScriptThread::IPrintlnBold(Event *ev)
 {
-	str sString;
-	int num = ev->NumArgs();
-	int i;
+    str sString;
+    int num = ev->NumArgs();
+    int i;
 
-	for (i = 1; i <= ev->NumArgs(); i++) {
-		sString += ev->GetString(i);
-	}
+    for (i = 1; i <= ev->NumArgs(); i++) {
+        sString += ev->GetString(i);
+    }
 
-	G_PrintToAllClients(gi.LV_ConvertString(sString), true);
+    G_PrintToAllClients(gi.LV_ConvertString(sString), true);
 }
 
 void ScriptThread::IPrintln_NoLoc(Event *ev)
 {
-	str sString;
-	int num = ev->NumArgs();
-	int i;
+    str sString;
+    int num = ev->NumArgs();
+    int i;
 
-	for (i = 1; i <= ev->NumArgs(); i++) {
-		sString += ev->GetString(i);
-	}
+    for (i = 1; i <= ev->NumArgs(); i++) {
+        sString += ev->GetString(i);
+    }
 
-	G_PrintToAllClients(sString, false);
+    G_PrintToAllClients(sString, false);
 }
 
 void ScriptThread::IPrintlnBold_NoLoc(Event *ev)
@@ -2802,8 +2802,8 @@ void ScriptThread::IPrintlnBold_NoLoc(Event *ev)
     int num = ev->NumArgs();
     int i;
 
-	for (i = 1; i <= ev->NumArgs(); i++) {
-		sString += ev->GetString(i);
+    for (i = 1; i <= ev->NumArgs(); i++) {
+        sString += ev->GetString(i);
     }
 
     G_PrintToAllClients(sString, true);
@@ -4257,10 +4257,10 @@ void ScriptThread::EventAddObjective(Event *ev)
     str    text = "";
     Vector location;
 
-    index  = ev->GetInteger(1);
+    index  = ev->GetInteger(1) - 1;
     status = ev->GetInteger(2);
 
-    if (index > 20) {
+    if (index >= MAX_OBJECTIVES) {
         throw ScriptException("Index Out Of Range");
     }
 
@@ -4269,14 +4269,14 @@ void ScriptThread::EventAddObjective(Event *ev)
     }
 
     if (ev->IsNilAt(3)) {
-        text = Info_ValueForKey(gi.GetConfigstring(index - 1 + CS_OBJECTIVES), "text");
+        text = Info_ValueForKey(gi.GetConfigstring(index + CS_OBJECTIVES), "text");
     } else {
         text = ev->GetString(3);
     }
 
     if (ev->IsNilAt(4)) {
         sscanf(
-            Info_ValueForKey(gi.GetConfigstring(index - 1 + CS_OBJECTIVES), "loc"),
+            Info_ValueForKey(gi.GetConfigstring(index + CS_OBJECTIVES), "loc"),
             "%f %f %f",
             &location.x,
             &location.y,
@@ -5293,28 +5293,28 @@ void ScriptThread::FileClose(Event *ev)
     id = ev->GetInteger(1);
 
     /*if( (int)scriptFiles[0].f != id && (int)scriptFiles[1].f != id )
-	{
-	gi.Printf("Wrong file handle for fclose!\n");
-	return;
-	}
+    {
+    gi.Printf("Wrong file handle for fclose!\n");
+    return;
+    }
 
-	if( (int)scriptFiles[0].f == id )
-	{
-	scriptFiles[0].inUse = 0;
-	fclose( scriptFiles[0].f );
-	return;
-	}
-	else if( (int)scriptFiles[1].f == id )
-	{
-	scriptFiles[1].inUse = 0;
-	fclose( scriptFiles[1].f );
-	return;
-	}
-	else
-	{
-	gi.Printf("Unknown error while closing file - fclose!\n");
-	return;
-	}*/
+    if( (int)scriptFiles[0].f == id )
+    {
+    scriptFiles[0].inUse = 0;
+    fclose( scriptFiles[0].f );
+    return;
+    }
+    else if( (int)scriptFiles[1].f == id )
+    {
+    scriptFiles[1].inUse = 0;
+    fclose( scriptFiles[1].f );
+    return;
+    }
+    else
+    {
+    gi.Printf("Unknown error while closing file - fclose!\n");
+    return;
+    }*/
 
     f = (FILE *)id;
 
