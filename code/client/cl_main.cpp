@@ -817,6 +817,11 @@ void CL_MapLoading( qboolean flush, const char *pszMapName ) {
 	UI_ClearState();
 	UI_ForceMenuOff(false);
 
+	if (!flush) {
+		// Don't do anything if it's not flushingb
+		return;
+	}
+
 	if (pszMapName) {
 		// if we are already connected to the local host, stay connected
 		if (clc.state >= CA_CONNECTED && !Q_stricmp(cls.servername, "localhost")) {
