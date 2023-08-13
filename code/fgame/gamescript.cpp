@@ -859,7 +859,7 @@ bool GameScript::ScriptCheck(void)
 		return true;
 	}
 
-	if (g_scriptcheck->integer <= 3)
+	if (g_scriptcheck->integer == 2 || g_scriptcheck->integer == 3)
 	{
 		if (strstr(Filename().c_str(), "anim/") != Filename().c_str())
 		{
