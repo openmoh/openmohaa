@@ -612,8 +612,8 @@ void SV_SendClientGameState( client_t *client ) {
 	msg_t		msg;
 	byte		msgBuffer[MAX_MSGLEN];
 
-	if ( client->state != CS_CONNECTED && Cvar_VariableValue( "g_gametype" ) == 0 ) {
-		Com_Printf( "SV_SendClientGameState: Aborting\nASK WOMBAT WHY\n" );
+	if ( client->state != CS_CONNECTED && g_gametype->integer == GT_SINGLE_PLAYER ) {
+		Com_Printf( "SV_SendClientGameState: Aborting\n" );
 		return;
 	}
  	Com_DPrintf ("SV_SendClientGameState() for %s\n", client->name);
