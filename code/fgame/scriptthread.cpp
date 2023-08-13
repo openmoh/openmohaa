@@ -4160,7 +4160,11 @@ void ScriptThread::EventGetBoundKey1(Event *ev)
     str         sCommand = ev->GetString(1);
 
     gi.Key_GetKeysForCommand(sCommand, &iKey1, &iKey2);
-    pszKeyName = gi.Key_KeynumToBindString(iKey1);
+    if (iKey1) {
+        pszKeyName = gi.Key_KeynumToBindString(iKey1);
+    } else {
+        pszKeyName = "";
+    }
 
     ev->AddString(pszKeyName);
 }
@@ -4173,7 +4177,11 @@ void ScriptThread::EventGetBoundKey2(Event *ev)
     str         sCommand = ev->GetString(1);
 
     gi.Key_GetKeysForCommand(sCommand, &iKey1, &iKey2);
-    pszKeyName = gi.Key_KeynumToBindString(iKey2);
+    if (iKey2) {
+        pszKeyName = gi.Key_KeynumToBindString(iKey2);
+    } else {
+        pszKeyName = "";
+    }
 
     ev->AddString(pszKeyName);
 }
