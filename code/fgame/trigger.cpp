@@ -343,11 +343,13 @@ void Trigger::SetTriggerDir(Event *ev)
 }
 
 void Trigger::SetModelEvent(Event *ev)
-
 {
     Animate::SetModelEvent(ev);
-    setContents(0);
-    //edict->contents = CONTENTS_TRIGGER;        // replaces the -1 from gi.SetBrushModel
+    if (spawnflags & TRIGGER_DAMAGE) {
+        setContents(CONTENTS_TRIGGER);
+    } else {
+        setContents(0);
+    }
     edict->r.svFlags |= SVF_NOCLIENT;
     link();
 }
