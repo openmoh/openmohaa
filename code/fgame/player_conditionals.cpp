@@ -1585,8 +1585,24 @@ qboolean Player::CondDuckedViewInWater(Conditional& condition)
 
 qboolean Player::CondCheckMovementSpeed(Conditional& condition)
 {
-    int speed = atoi(condition.getParm(1));
-    return client->ps.speed >= speed;
+    weaponhand_t hand;
+    Weapon* weapon;
+
+    hand = WeaponHandNameToNum(condition.getParm(1));
+    if (hand == WEAPON_ERROR) {
+        return false;
+    }
+
+    weapon = GetActiveWeapon(hand);
+    if (!weapon) {
+        return false;
+    }
+
+    if (weapon->m_fMaxFireMovement == 1.f) {
+        return true;
+    }
+
+    return (velocity.length() / sv_runspeed->value) <= (weapon->m_fMaxFireMovement * weapon->m_fMovementSpeed + 0.1f);
 }
 
 qboolean Player::CondActionAnimDone(Conditional& condition)
