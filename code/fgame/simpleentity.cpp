@@ -474,9 +474,7 @@ void SimpleEntity::SetAngleEvent(Event *ev)
     float  angle = ev->GetFloat(1);
 
     dir = G_GetMovedir(angle);
-    dir.toAngles();
-
-    setAngles(dir);
+    setAngles(dir.toAngles());
 }
 
 void SimpleEntity::GetAngleEvent(Event *ev)
