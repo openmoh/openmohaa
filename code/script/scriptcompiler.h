@@ -127,9 +127,10 @@ public:
     void EmitInteger(unsigned int value, unsigned int sourcePos);
     void EmitJump(unsigned char *pos, unsigned int sourcePos);
     void EmitJumpBack(unsigned char *pos, unsigned int sourcePos);
-    void EmitLabel(str name, unsigned int sourcePos);
+    void EmitLabel(const char* name, unsigned int sourcePos);
+    void EmitLabel(int name, unsigned int sourcePos);
     void EmitLabelParameterList(sval_t parameter_list, unsigned int sourcePos);
-    void EmitLabelPrivate(str name, unsigned int sourcePos);
+    void EmitLabelPrivate(const char* name, unsigned int sourcePos);
     void EmitAndJump(sval_t logic_stmt, unsigned int sourcePos);
     void EmitOrJump(sval_t logic_stmt, unsigned int sourcePos);
     void EmitMakeArray(sval_t val);

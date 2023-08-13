@@ -481,6 +481,7 @@ void ScriptCompiler::EmitField(sval_t listener_val, sval_t field_val, unsigned i
     unsigned int index    = -1;
     unsigned int prev_index;
 
+    /*
     if (field_val.node[0].stringValue) {
         str name  = field_val.stringValue;
         str name2 = field_val.stringValue;
@@ -493,6 +494,10 @@ void ScriptCompiler::EmitField(sval_t listener_val, sval_t field_val, unsigned i
             index = Director.GetString(name2);
         }
     }
+    */
+
+    index = Director.AddString(field_val.stringValue);
+    eventnum = Event::FindGetterEventNum(field_val.stringValue);
 
     prev_index = GetOpcodeValue<unsigned int>(sizeof(unsigned int), sizeof(unsigned int));
 
@@ -668,15 +673,32 @@ void ScriptCompiler::EmitJumpBack(unsigned char *pos, unsigned int sourcePos)
     AddJumpBackLocation(pos);
 }
 
-void ScriptCompiler::EmitLabel(str name, unsigned int sourcePos)
+void ScriptCompiler::EmitLabel(const char* name, unsigned int sourcePos)
 {
     if (showopcodes->integer) {
-        glbs.DPrintf("<%s>:\n", name.c_str());
+        glbs.DPrintf("<%s>:\n", name);
     }
 
     if (!stateScript->AddLabel(name, code_pos)) {
-        CompileError(sourcePos, "Duplicate label '%s'", name.c_str());
+        CompileError(sourcePos, "Duplicate label '%s'", name);
     }
+
+    // Make sure to clear the previous opcode since it's a new context
+    ClearPrevOpcode();
+}
+
+void ScriptCompiler::EmitLabel(int name, unsigned int sourcePos)
+{
+	if (showopcodes->integer) {
+		glbs.DPrintf("<%d>:\n", name);
+	}
+
+	if (!stateScript->AddLabel(str(name), code_pos)) {
+		CompileError(sourcePos, "Duplicate label '%d'", name);
+	}
+
+	// Make sure to clear the previous opcode since it's a new context
+	ClearPrevOpcode();
 }
 
 void ScriptCompiler::EmitLabelParameterList(sval_t parameter_list, unsigned int sourcePos)
@@ -692,15 +714,18 @@ void ScriptCompiler::EmitLabelParameterList(sval_t parameter_list, unsigned int 
     }
 }
 
-void ScriptCompiler::EmitLabelPrivate(str name, unsigned int sourcePos)
+void ScriptCompiler::EmitLabelPrivate(const char* name, unsigned int sourcePos)
 {
     if (showopcodes->integer) {
-        glbs.DPrintf("<%s>:\n", name.c_str());
+        glbs.DPrintf("<%s>:\n", name);
     }
 
     if (!stateScript->AddLabel(name, code_pos, true)) {
-        CompileError(sourcePos, "Duplicate label '%s'", name.c_str());
-    }
+        CompileError(sourcePos, "Duplicate label '%s'", name);
+	}
+
+	// Make sure to clear the previous opcode since it's a new context
+	ClearPrevOpcode();
 }
 
 void ScriptCompiler::EmitAndJump(sval_t logic_stmt, unsigned int sourcePos)
