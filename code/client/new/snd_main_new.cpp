@@ -1,3 +1,25 @@
+/*
+===========================================================================
+Copyright (C) 2023 the OpenMoHAA team
+
+This file is part of OpenMoHAA source code.
+
+OpenMoHAA source code is free software; you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+OpenMoHAA source code is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with OpenMoHAA source code; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+===========================================================================
+*/
+
 #include "../snd_local.h"
 
 void S_Init2()
@@ -90,11 +112,16 @@ void S_StopSound(int entnum, int channel)
 S_IsSoundPlaying
 =================
 */
-int S_IsSoundPlaying(int channelNumber, const char* name)
+qboolean S_IsSoundPlaying(int channelNumber, const char* name)
 {
-    // FIXME: unimplemented
-    STUB();
-    return 0;
+    channel_t* v;
+    if (channelNumber >= MAX_CHANNELS) {
+        return qfalse;
+    }
+
+	v = &s_channels[channelNumber];
+
+    return v->thesfx ? qtrue : qfalse;
 }
 
 /*
@@ -379,4 +406,16 @@ void S_FadeSound(float fTime)
 
 void S_TriggeredMusic_PlayIntroMusic() {
     // FIXME: unimplemented
+}
+
+void callbackServer(int entnum, int channel_number, const char* name) {
+    if (com_sv_running->integer) {
+        SV_SoundCallback(entnum, channel_number, name);
+    }
+}
+
+void S_ChannelFree_Callback(channel_t* v) {
+    if (v->entnum & S_FLAG_DO_CALLBACK) {
+        callbackServer(v->entnum & ~S_FLAG_DO_CALLBACK, v - s_channels, v->thesfx->soundName);
+    }
 }

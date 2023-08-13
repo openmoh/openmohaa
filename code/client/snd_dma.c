@@ -181,6 +181,7 @@ void S_Base_SoundList( void ) {
 
 
 void S_ChannelFree(channel_t *v) {
+	S_ChannelFree_Callback(v);
 	v->thesfx = NULL;
 	*(channel_t **)v = freelist;
 	freelist = (channel_t*)v;

@@ -275,6 +275,8 @@ qboolean S_AL_Init( soundInterface_t *si );
 void S_PaintChannelFrom16_altivec( portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE], int snd_vol, channel_t *ch, const sfx_t *sc, int count, int sampleOffset, int bufferOffset );
 #endif
 
+#include "new/snd_local_new.h"
+
 #ifdef __cplusplus
 }
 #endif
