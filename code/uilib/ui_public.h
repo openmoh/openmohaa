@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UI_PUBLIC_H__
-#define __UI_PUBLIC_H__
+#pragma once
 
 class Event;
 class Listener;
@@ -221,7 +220,6 @@ extern uiimport_t uii;
 void UI_Init(void);
 void UI_Shutdown(void);
 void UI_InitExports();
-qboolean CL_FinishedIntro(void);
 void UI_StartStageKeyEvent(void);
 void UI_GetMouseState( int *mouseX, int *mouseY, int *flags );
 int UI_GetCvarInt( const char *name, int def );
@@ -234,5 +232,3 @@ void UI_ListFiles( const char *filespec );
 const char *UI_ConfigString( int index );
 void UI_UpdateCenterPrint(const char* s, float alpha);
 void UI_UpdateLocationPrint(int x, int y, const char* s, float alpha);
-
-#endif

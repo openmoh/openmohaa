@@ -1102,6 +1102,7 @@ void CL_InitKeyCommands( void );
 void CL_Init( void );
 void CL_Disconnect();
 void CL_Shutdown(const char *finalmsg, qboolean disconnect, qboolean quit);
+qboolean CL_FinishedIntro(void);
 void CL_SetFrameNumber(int frameNumber);
 void CL_Frame( int msec );
 qboolean CL_GameCommand( void );
@@ -1175,6 +1176,7 @@ void SV_SetFrameNumber(int frameNumber);
 void SV_Frame( int msec );
 void SV_PacketEvent( netadr_t from, msg_t *msg );
 int SV_FrameMsec(void);
+void SV_CheckSaveGame(void);
 qboolean SV_GameCommand(void);
 int SV_SendQueuedPackets(void);
 

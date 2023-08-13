@@ -399,7 +399,6 @@ qboolean SV_AllowSaveGame( void );
 qboolean SV_DoSaveGame();
 void SV_SaveGame( const char *gamename, qboolean autosave );
 void SV_Savegame_f( void );
-void SV_CheckSaveGame( void );
 void SV_Autosavegame_f( void );
 
 //
