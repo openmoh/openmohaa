@@ -2066,7 +2066,11 @@ void Com_Frame( void ) {
 
     msec = com_frameTime - lastTime;
 
-    Cbuf_Execute(0);
+	if (com_dedicated->integer || CL_FinishedIntro())
+	{
+		Cbuf_Execute(0);
+		SV_CheckSaveGame();
+	}
 
     if (com_altivec->modified)
     {
