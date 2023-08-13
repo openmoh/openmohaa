@@ -2508,7 +2508,35 @@ qboolean Weapon::Drop(void)
 //======================
 //Weapon::Charge
 //======================
-void Weapon::Charge(firemode_t mode) {}
+void Weapon::Charge(firemode_t mode)
+{
+    if (mode == FIRE_PRIMARY)
+    {
+        if (m_fCookTime > 0)
+        {
+            m_eCookModeIndex = mode;
+            //
+            // Post cook event
+            //
+            PostEvent(EV_OverCooked, m_fCookTime);
+            PostEvent(EV_OverCooked_Warning, m_fCookTime - 1);
+        }
+        SetWeaponAnim("charge");
+    }
+    else if (mode == FIRE_SECONDARY)
+	{
+		if (m_fCookTime > 0)
+		{
+			m_eCookModeIndex = mode;
+			//
+			// Post cook event
+			//
+			PostEvent(EV_OverCooked, m_fCookTime);
+			PostEvent(EV_OverCooked_Warning, m_fCookTime - 1);
+		}
+		SetWeaponAnim("secondary_charge");
+    }
+}
 
 //======================
 //Weapon::OnOverCookedWarning
@@ -2576,6 +2604,10 @@ void Weapon::OnOverCooked(Event *ev)
 //======================
 void Weapon::ReleaseFire(firemode_t mode, float charge_time)
 {
+    // Make sure to stop the wepaon from cooking
+	CancelEventsOfType(EV_OverCooked);
+	CancelEventsOfType(EV_OverCooked_Warning);
+
     // Calculate and store off the charge fraction to use when the weapon actually shoots
 
     // Clamp to max_charge_time
