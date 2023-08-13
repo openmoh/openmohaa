@@ -703,12 +703,12 @@ void CG_DrawObjectives()
             iNumLines[i] = 0;
 
             for (ii = 0; ii < MAX_STRING_CHARS; ii++) {
-                if (cg.Objectives[i].text[ii] == 10) {
+                if (cg.Objectives[i].text[ii] == '\n') {
                     iTotalNumLines++;
-                    iNumLines[ii]++;
+                    iNumLines[i]++;
                 } else if (!cg.Objectives[i].text[ii]) {
                     iTotalNumLines++;
-                    iNumLines[ii]++;
+                    iNumLines[i]++;
                     break;
                 }
             }
