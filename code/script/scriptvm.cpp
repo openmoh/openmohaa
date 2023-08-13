@@ -67,9 +67,9 @@ ScriptCommandEvent::ScriptCommandEvent(unsigned int eventNum)
 }
 
 ScriptCommandEvent::ScriptCommandEvent(unsigned int eventNum, size_t numArgs)
-    : Event(eventNum, numArgs)
+	: Event(eventNum)
 {
-    fromScript = true;
+	fromScript = true;
 }
 
 ScriptVMStack::ScriptVMStack()
