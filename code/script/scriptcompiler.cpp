@@ -100,6 +100,20 @@ void ScriptCompiler::ClearPrevOpcode()
     prev_opcodes[prev_opcode_pos].opcode = OP_PREVIOUS;
 }
 
+void ScriptCompiler::AccumulatePrevOpcode(int opcode, int iVarStackOffset)
+{
+	if (showopcodes->integer) {
+		glbs.DPrintf("\t\t%08d: %s (%d)\n", code_pos - code_ptr, OpcodeName(OP_BOOL_TO_VAR), m_iVarStackOffset);
+	}
+
+	int pos = (prev_opcode_pos + 1) % 100;
+
+	prev_opcode_pos = pos;
+	prev_opcodes[pos].opcode = OP_BOOL_TO_VAR;
+	prev_opcodes[pos].VarStackOffset = 0;
+	prev_opcodes[(pos + 1) % 100].opcode = OP_PREVIOUS;
+}
+
 void ScriptCompiler::AddBreakJumpLocation(unsigned char *pos)
 {
     if (iBreakJumpLocCount < BREAK_JUMP_LOCATION_COUNT) {
@@ -124,7 +138,7 @@ void ScriptCompiler::AddJumpLocation(unsigned char *pos)
 {
     unsigned int offset = code_pos - sizeof(unsigned int) - pos;
 
-    SetOpcodeValue(offset);
+    EmitAt(pos, offset, sizeof(offset));
     ClearPrevOpcode();
 }
 
@@ -689,22 +703,18 @@ void ScriptCompiler::EmitLabelPrivate(str name, unsigned int sourcePos)
     }
 }
 
-void ScriptCompiler::EmitLogicJump(sval_t logic_stmt, bool isOr, unsigned int sourcePos)
+void ScriptCompiler::EmitAndJump(sval_t logic_stmt, unsigned int sourcePos)
 {
-    unsigned char *jmp;
+    unsigned char* jmp;
     int            label;
 
     if (showopcodes->integer) {
         label = current_label++;
 
-        if (isOr) {
-            glbs.DPrintf("BOOL_LOGICAL_OR <LABEL%d>\n", label);
-        } else {
-            glbs.DPrintf("BOOL_LOGICAL_AND <LABEL%d>\n", label);
-        }
+        glbs.DPrintf("BOOL_LOGICAL_AND <LABEL%d>\n", label);
     }
 
-    EmitOpcode(OP_BOOL_LOGICAL_AND + isOr, sourcePos);
+    EmitOpcode(OP_BOOL_LOGICAL_AND, sourcePos);
     jmp = code_pos;
     code_pos += sizeof(unsigned int);
 
@@ -717,8 +727,36 @@ void ScriptCompiler::EmitLogicJump(sval_t logic_stmt, bool isOr, unsigned int so
         glbs.DPrintf("<LABEL%d>:\n", label);
     }
 
-    AddJumpLocation(jmp);
-    EmitBoolToVar(sourcePos);
+	AddJumpLocation(jmp);
+	AccumulatePrevOpcode(OP_BOOL_LOGICAL_AND, 0);
+}
+
+void ScriptCompiler::EmitOrJump(sval_t logic_stmt, unsigned int sourcePos)
+{
+    unsigned char *jmp;
+    int            label;
+
+    if (showopcodes->integer) {
+        label = current_label++;
+
+		glbs.DPrintf("BOOL_LOGICAL_OR <LABEL%d>\n", label);
+    }
+
+    EmitOpcode(OP_BOOL_LOGICAL_OR, sourcePos);
+    jmp = code_pos;
+    code_pos += sizeof(unsigned int);
+
+    ClearPrevOpcode();
+
+    EmitValue(logic_stmt);
+    EmitVarToBool(sourcePos);
+
+    if (showopcodes->integer) {
+        glbs.DPrintf("<LABEL%d>:\n", label);
+    }
+
+	AddJumpLocation(jmp);
+	AccumulatePrevOpcode(OP_BOOL_LOGICAL_OR, 0);
 }
 
 void ScriptCompiler::EmitMakeArray(sval_t val)
@@ -980,11 +1018,16 @@ __emit:
     case ENUM_NOP:
         break;
 
-    case ENUM_logical_and:
+	case ENUM_logical_and:
+		EmitValue(val.node[1]);
+		EmitVarToBool(val.node[3].sourcePosValue);
+		EmitAndJump(val.node[2], val.node[3].sourcePosValue);
+		break;
+
     case ENUM_logical_or:
         EmitValue(val.node[1]);
         EmitVarToBool(val.node[3].sourcePosValue);
-        EmitLogicJump(val.node[2], val.node[0].type == ENUM_logical_or, val.node[3].sourcePosValue);
+        EmitOrJump(val.node[2], val.node[3].sourcePosValue);
         break;
 
     case ENUM_array_expr:
@@ -1072,15 +1115,12 @@ __emit:
             sval_t         parameter_list = val.node[2];
             const uint32_t iParamCount    = EmitParameterList(parameter_list);
 
-            EmitOpcode(OP_STORE_LOCAL, val.node[3].sourcePosValue);
-
             if (!eventnum) {
                 CompileError(val.node[3].sourcePosValue, "unknown command: %s", val.node[1].stringValue);
             }
 
+			EmitOpcode(OP_STORE_LOCAL, val.node[3].sourcePosValue);
             EmitMethodExpression(iParamCount, eventnum, val.node[3].sourcePosValue);
-
-            EmitOpcodeValue((op_ev_t)eventnum, sizeof(unsigned int));
             break;
         }
 
@@ -1125,16 +1165,20 @@ __emit:
         }
 
     case ENUM_const_array_expr:
-        return EmitConstArray(val.node[1], val.node[2], val.node[3].sourcePosValue);
+		EmitConstArray(val.node[1], val.node[2], val.node[3].sourcePosValue);
+		break;
 
     case ENUM_continue:
-        return EmitContinue(val.node[1].sourcePosValue);
+		EmitContinue(val.node[1].sourcePosValue);
+		break;
 
     case ENUM_do:
-        return EmitDoWhileJump(val.node[1], val.node[2], val.node[3].sourcePosValue);
+		EmitDoWhileJump(val.node[1], val.node[2], val.node[3].sourcePosValue);
+		break;
 
     case ENUM_field:
-        return EmitField(val.node[1], val.node[2], val.node[3].sourcePosValue);
+		EmitField(val.node[1], val.node[2], val.node[3].sourcePosValue);
+		break;
 
     case ENUM_func1_expr:
         EmitValue(val.node[2]);
@@ -1180,7 +1224,8 @@ __emit:
         break;
 
     case ENUM_statement_list:
-        return EmitStatementList(val.node[1]);
+        EmitStatementList(val.node[1]);
+        break;
 
     case ENUM_float:
         EmitFloat(val.node[1].floatValue, val.node[2].sourcePosValue);
@@ -1216,7 +1261,8 @@ __emit:
         goto __emit; // prevent stack overflow
 
     case ENUM_while_statement:
-        return EmitWhileJump(val.node[1], val.node[2], val.node[3], val.node[4].sourcePosValue);
+        EmitWhileJump(val.node[1], val.node[2], val.node[3], val.node[4].sourcePosValue);
+        break;
 
     default:
         CompileError(-1, "unknown type %d\n", val.node[0].type);

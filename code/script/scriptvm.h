@@ -167,46 +167,12 @@ private:
     bool executeSetter(Listener *listener, op_evName_t eventName);
     void transferVarsToEvent(Event& ev, ScriptVariable *fromVar, op_parmNum_t count);
 
-    void            jump(int offset);
-    void            jumpBool(int offset, bool value);
     void            loadTopInternal(Listener *listener);
     ScriptVariable *storeTopInternal(Listener *listener);
     template<bool noTop = false>
     void loadTop(Listener *listener);
     template<bool noTop = false>
     ScriptVariable *storeTop(Listener *listener);
-
-    void fetchOpcodeValue(void *outValue, size_t size);
-    void fetchActualOpcodeValue(void *outValue, size_t size);
-
-    template<typename T>
-    T fetchOpcodeValue()
-    {
-        T value;
-        fetchOpcodeValue(&value, sizeof(T));
-        return value;
-    }
-
-    template<typename T>
-    T fetchOpcodeValue(size_t offset)
-    {
-        T value;
-        fetchOpcodeValue(&value, sizeof(T));
-        return value;
-    }
-
-    template<typename T>
-    T fetchActualOpcodeValue()
-    {
-        T value;
-        fetchActualOpcodeValue(&value, sizeof(T));
-        return value;
-    }
-
-    void execCmdCommon(op_parmNum_t param);
-    void execCmdMethodCommon(op_parmNum_t param);
-    void execMethodCommon(op_parmNum_t param);
-    void execFunction(ScriptMaster& Director);
 
     void SetFastData(ScriptVariable *data, int dataSize);
 
@@ -249,6 +215,46 @@ public:
     bool EventThrow(Event *ev);
 
     bool CanScriptTracePrint(void);
+
+private:
+	void jump(unsigned int offset);
+	void jumpBack(unsigned int offset);
+	void jumpBool(unsigned int offset, bool booleanValue);
+	bool jumpVar(unsigned int offset, bool booleanValue);
+	void doJumpIf(bool booleanValue);
+	bool doJumpVarIf(bool booleanValue);
+
+	void fetchOpcodeValue(void* outValue, size_t size);
+	void fetchActualOpcodeValue(void* outValue, size_t size);
+
+	template<typename T>
+	T fetchOpcodeValue()
+	{
+		T value;
+		fetchOpcodeValue(&value, sizeof(T));
+		return value;
+	}
+
+	template<typename T>
+	T fetchOpcodeValue(size_t offset)
+	{
+		T value;
+		fetchOpcodeValue(&value, sizeof(T));
+		return value;
+	}
+
+	template<typename T>
+	T fetchActualOpcodeValue()
+	{
+		T value;
+		fetchActualOpcodeValue(&value, sizeof(T));
+		return value;
+	}
+
+	void execCmdCommon(op_parmNum_t param);
+	void execCmdMethodCommon(op_parmNum_t param);
+	void execMethodCommon(op_parmNum_t param);
+	void execFunction(ScriptMaster& Director);
 };
 
 extern MEM_BlockAlloc<ScriptClass> ScriptClass_allocator;

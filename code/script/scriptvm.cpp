@@ -361,28 +361,48 @@ void ScriptVM::error(const char *format, ...)
     m_ReturnValue.setStringValue("$.INTERRUPTED");
 }
 
-/*
-====================
-jump
-====================
-*/
-void ScriptVM::jump(int offset)
+void ScriptVM::jump(unsigned int offset)
 {
-    m_CodePos += offset;
+	m_CodePos += offset;
 }
 
-/*
-====================
-jumpBool
-====================
-*/
-void ScriptVM::jumpBool(int offset, bool booleanValue)
+void ScriptVM::jumpBack(unsigned int offset)
 {
-    if (booleanValue) {
-        jump(offset);
-    } else {
-        m_CodePos += sizeof(unsigned int);
-    }
+	m_CodePos -= offset;
+}
+
+void ScriptVM::jumpBool(unsigned int offset, bool booleanValue)
+{
+	if (booleanValue)
+	{
+		jump(offset);
+	}
+}
+
+bool ScriptVM::jumpVar(unsigned int offset, bool booleanValue)
+{
+	if (booleanValue)
+	{
+		jump(offset);
+		return true;
+	}
+	else
+	{
+        m_VMStack.Pop();
+		return false;
+	}
+}
+
+void ScriptVM::doJumpIf(bool booleanValue)
+{
+	const unsigned int offset = fetchOpcodeValue<unsigned int>();
+	jumpBool(offset, booleanValue);
+}
+
+bool ScriptVM::doJumpVarIf(bool booleanValue)
+{
+	const unsigned int offset = fetchOpcodeValue<unsigned int>();
+	return jumpVar(offset, booleanValue);
 }
 
 void ScriptVM::loadTopInternal(Listener *listener)
@@ -956,7 +976,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 				}
 				*/
             }
-
+            
             index       = 0;
             eventCalled = false;
 
@@ -1075,63 +1095,42 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 break;
 
             case OP_BOOL_JUMP_FALSE4:
-                jumpBool(fetchOpcodeValue<unsigned int>() + sizeof(unsigned int), !m_VMStack.Pop().m_data.intValue);
+				doJumpIf(!m_VMStack.Pop().m_data.intValue);
+				break;
+
+			case OP_BOOL_JUMP_TRUE4:
+				doJumpIf(m_VMStack.Pop().m_data.intValue);
+				break;
+
+			case OP_VAR_JUMP_FALSE4:
+				doJumpIf(!m_VMStack.Pop().booleanValue());
                 break;
 
-            case OP_BOOL_JUMP_TRUE4:
-                jumpBool(
-                    fetchOpcodeValue<unsigned int>() + sizeof(unsigned int),
-                    m_VMStack.Pop().m_data.intValue ? true : false
-                );
-                break;
-
-            case OP_VAR_JUMP_FALSE4:
-                jumpBool(fetchOpcodeValue<unsigned int>() + sizeof(unsigned int), !m_VMStack.Pop().booleanValue());
-                break;
-
-            case OP_VAR_JUMP_TRUE4:
-                jumpBool(fetchOpcodeValue<unsigned int>() + sizeof(unsigned int), m_VMStack.Pop().booleanValue());
+			case OP_VAR_JUMP_TRUE4:
+				doJumpIf(m_VMStack.Pop().booleanValue());
                 break;
 
             case OP_BOOL_LOGICAL_AND:
-                if (m_VMStack.GetTop().m_data.intValue) {
-                    m_VMStack.Pop();
-                    m_CodePos += sizeof(unsigned int);
-                } else {
-                    m_CodePos += fetchOpcodeValue<unsigned int>() + sizeof(unsigned int);
-                }
-
-                break;
+				doJumpVarIf(!m_VMStack.GetTop().m_data.intValue);
+				break;
 
             case OP_BOOL_LOGICAL_OR:
-                if (!m_VMStack.GetTop().m_data.intValue) {
-                    m_VMStack.Pop();
-                    m_CodePos += sizeof(unsigned int);
-                } else {
-                    m_CodePos += fetchOpcodeValue<unsigned int>() + sizeof(unsigned int);
-                }
-
-                break;
+				doJumpVarIf(m_VMStack.GetTop().m_data.intValue);
+				break;
 
             case OP_VAR_LOGICAL_AND:
-                if (m_VMStack.GetTop().booleanValue()) {
-                    m_VMStack.Pop();
-                    m_CodePos += sizeof(unsigned int);
-                } else {
+				if (!doJumpVarIf(m_VMStack.GetTop().booleanValue()))
+				{
                     m_VMStack.GetTop().SetFalse();
-                    m_CodePos += fetchOpcodeValue<unsigned int>() + sizeof(unsigned int);
-                }
-                break;
+				}
+				break;
 
             case OP_VAR_LOGICAL_OR:
-                if (!m_VMStack.GetTop().booleanValue()) {
-                    m_VMStack.Pop();
-                    m_CodePos += sizeof(unsigned int);
-                } else {
+				if (!doJumpVarIf(!m_VMStack.GetTop().booleanValue()))
+				{
                     m_VMStack.GetTop().SetTrue();
-                    m_CodePos += fetchOpcodeValue<unsigned int>() + sizeof(unsigned int);
-                }
-                break;
+				}
+				break;
 
             case OP_BOOL_STORE_FALSE:
                 m_VMStack.PushAndGet().SetFalse();
@@ -1288,12 +1287,12 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                     break;
                 }
 
-            case OP_JUMP4:
-                m_CodePos += *reinterpret_cast<int *>(m_CodePos) + sizeof(unsigned int);
+			case OP_JUMP4:
+				jump(fetchOpcodeValue<unsigned int>());
                 break;
 
-            case OP_JUMP_BACK4:
-                m_CodePos -= *reinterpret_cast<int *>(m_CodePos);
+			case OP_JUMP_BACK4:
+				jumpBack(fetchActualOpcodeValue<unsigned int>());
                 break;
 
             case OP_LOAD_ARRAY_VAR:

@@ -93,6 +93,7 @@ public:
     char          PrevVarStackOffset();
     void          AbsorbPrevOpcode();
     void          ClearPrevOpcode();
+    void          AccumulatePrevOpcode(int opcode, int iVarStackOffset);
 
     void AddBreakJumpLocation(unsigned char *pos);
     void AddContinueJumpLocation(unsigned char *pos);
@@ -129,7 +130,8 @@ public:
     void EmitLabel(str name, unsigned int sourcePos);
     void EmitLabelParameterList(sval_t parameter_list, unsigned int sourcePos);
     void EmitLabelPrivate(str name, unsigned int sourcePos);
-    void EmitLogicJump(sval_t logic_stmt, bool isOr, unsigned int sourcePos);
+    void EmitAndJump(sval_t logic_stmt, unsigned int sourcePos);
+    void EmitOrJump(sval_t logic_stmt, unsigned int sourcePos);
     void EmitMakeArray(sval_t val);
     void EmitMethodExpression(int iParamCount, int eventnum, unsigned int sourcePos);
     void EmitNil(unsigned int sourcePos);
