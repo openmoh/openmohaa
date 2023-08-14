@@ -812,6 +812,11 @@ void Objective::SetText(Event *ev)
     m_sText = ev->GetString(2);
 }
 
+int Objective::GetObjectiveIndex() const
+{
+    return m_iObjectiveIndex;
+}
+
 CLASS_DECLARATION(Entity, FencePost, "func_fencepost") {
     {&EV_Killed, NULL},
     {NULL,       NULL}

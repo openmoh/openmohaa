@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 typedef enum {
 	CONTROLLER_ALLIES,
 	CONTROLLER_AXIS,
-    CONTROLLER_BOTH
+    CONTROLLER_DRAW
 } eController;
 
 class ProjectileTarget : public Entity
@@ -306,6 +306,7 @@ public:
     Vector GetOrigin() const;
     void   SetObjectiveNbr(Event *ev);
     void   SetText(Event *ev);
+    int    GetObjectiveIndex() const;
 };
 
 class FencePost : public Entity
