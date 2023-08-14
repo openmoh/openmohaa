@@ -4071,11 +4071,11 @@ void ScriptThread::EventStopTeamRespawn(Event *ev)
         dmManager.StopTeamRespawn(CONTROLLER_AXIS);
         break;
     case STRING_AMERICAN:
-        dmManager.StopTeamRespawn(CONTROLLER_ALLIED);
+        dmManager.StopTeamRespawn(CONTROLLER_ALLIES);
         break;
     case STRING_BOTH:
         dmManager.StopTeamRespawn(CONTROLLER_AXIS);
-        dmManager.StopTeamRespawn(CONTROLLER_ALLIED);
+        dmManager.StopTeamRespawn(CONTROLLER_ALLIES);
         break;
     default:
         ScriptError("stopteamrespawn must belong to 'american' or 'german' or 'both'");

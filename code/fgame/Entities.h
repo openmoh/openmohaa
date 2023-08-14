@@ -25,6 +25,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "entity.h"
 #include "animate.h"
 
+typedef enum {
+	CONTROLLER_ALLIES,
+	CONTROLLER_AXIS,
+    CONTROLLER_BOTH
+} eController;
+
 class ProjectileTarget : public Entity
 {
 private:
