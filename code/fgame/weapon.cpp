@@ -176,7 +176,7 @@ Event EV_Weapon_SetMinRange
     "Set the minimum range of a weapon so the AI knows how to use it",
     EV_NORMAL
 );
-Event EV_Weapon_SetFireDelay
+Event EV_Weapon_FireDelay
 (
     "firedelay",
     EV_DEFAULT,
@@ -886,7 +886,7 @@ CLASS_DECLARATION(Item, Weapon, NULL) {
     {&EV_Weapon_AddToClip,              &Weapon::AddToAmmoClip          },
     {&EV_Weapon_SetMaxRange,            &Weapon::SetMaxRangeEvent       },
     {&EV_Weapon_SetMinRange,            &Weapon::SetMinRangeEvent       },
-    {&EV_Weapon_SetFireDelay,           &Weapon::SetFireDelay           },
+    {&EV_Weapon_FireDelay,           &Weapon::SetFireDelay           },
     {&EV_Weapon_NotDroppable,           &Weapon::NotDroppableEvent      },
     {&EV_Weapon_SetAimAnim,             &Weapon::SetAimAnim             },
     {&EV_Weapon_Shoot,                  &Weapon::Shoot                  },

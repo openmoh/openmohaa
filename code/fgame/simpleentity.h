@@ -29,6 +29,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern Event EV_SetAngles;
 extern Event EV_SetAngle;
 extern Event EV_SetOrigin;
+extern Event EV_SetTarget;
+extern Event EV_SetTarget2;
+extern Event EV_GetTarget;
 
 typedef int entflags_t;
 

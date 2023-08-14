@@ -57,6 +57,11 @@ extern Event EV_Sentient_UseItem;
 extern Event EV_Sentient_UseLastWeapon;
 extern Event EV_Sentient_UseWeaponClass;
 extern Event EV_Sentient_ToggleItemUse;
+extern Event EV_Sentient_DontDropWeapons;
+extern Event EV_Sentient_ForceDropWeapon;
+extern Event EV_Sentient_ForceDropHealth;
+extern Event EV_Sentient_GetForceDropHealth;
+extern Event EV_Sentient_GetForceDropWeapon;
 
 // Shutup compiler
 class Weapon;

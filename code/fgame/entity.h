@@ -116,6 +116,7 @@ extern Event EV_NoDamage;
 
 // script stuff
 extern Event EV_Model;
+extern Event EV_GetModel;
 extern Event EV_Hide;
 extern Event EV_Show;
 extern Event EV_BecomeSolid;
@@ -129,6 +130,8 @@ extern Event EV_Unglue;
 extern Event EV_JoinTeam;
 extern Event EV_QuitTeam;
 extern Event EV_SetHealth;
+extern Event EV_SetHealth2;
+extern Event EV_Entity_GetHealth;
 extern Event EV_SetSize;
 extern Event EV_SetAlpha;
 extern Event EV_SetTargetName;

@@ -38,8 +38,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern Event EV_Weapon_Shoot;
 extern Event EV_Weapon_SetAmmoClipSize;
 extern Event EV_Weapon_SetAmmoInClip;
+extern Event EV_Weapon_FireDelay;
 extern Event EV_Weapon_SetProjectile;
+extern Event EV_Weapon_SetBulletDamage;
+extern Event EV_Weapon_SetBulletLarge;
+extern Event EV_Weapon_SetTracerSpeed;
+extern Event EV_Weapon_SetBulletKnockback;
+extern Event EV_Weapon_SetBulletThroughWood;
+extern Event EV_Weapon_SetBulletThroughMetal;
+extern Event EV_Weapon_SetBulletCount;
+extern Event EV_Weapon_SetBulletRange;
+extern Event EV_Weapon_SetBulletSpread;
+extern Event EV_Weapon_SetTracerFrequency;
 extern Event EV_Weapon_GiveStartingAmmo;
+extern Event EV_Weapon_SetMeansOfDeath;
 
 typedef enum {
     FT_NONE,
