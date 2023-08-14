@@ -52,7 +52,7 @@ public:
 
     int GetController() const;
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 };
 
 class TOWObjectiveMan

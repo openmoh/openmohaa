@@ -79,6 +79,8 @@ void TOWObjectiveMan::TakeOverObjective(eController controller, eController cont
         }
         dmManager.CheckEndMatch();
         break;
+    default:
+        break;
     }
 
     for (i = 0; i < game.maxclients; i++) {
@@ -98,6 +100,8 @@ void TOWObjectiveMan::TakeOverObjective(eController controller, eController cont
             break;
         case CONTROLLER_AXIS:
             bSameTeam = player->GetTeam() == TEAM_AXIS;
+            break;
+        default:
             break;
         }
 
@@ -179,12 +183,14 @@ void TOWObjective::TakeOver(Event *ev)
 
     switch (controller) {
     case CONTROLLER_ALLIES:
-        gi.Cvar_Set(m_sAxisObjName.c_str(), "1");
-        gi.Cvar_Set(m_sAlliesObjName.c_str(), "0");
+        gi.cvar_set(m_sAxisObjName.c_str(), "1");
+        gi.cvar_set(m_sAlliesObjName.c_str(), "0");
         break;
     case CONTROLLER_AXIS:
-        gi.Cvar_Set(m_sAxisObjName.c_str(), "0");
-        gi.Cvar_Set(m_sAlliesObjName.c_str(), "1");
+        gi.cvar_set(m_sAxisObjName.c_str(), "0");
+        gi.cvar_set(m_sAlliesObjName.c_str(), "1");
+        break;
+    default:
         break;
     }
 
@@ -210,21 +216,21 @@ void TOWObjective::SetAxisObjNum(Event *ev)
 
 void TOWObjective::OnInitialize(Event *ev)
 {
-    m_sAlliesObjName = "tow_allied_obj" + m_iAlliesObjNum;
-    m_sAxisObjName   = "tow_allied_obj" + m_iAxisObjNum;
+	m_sAlliesObjName = "tow_allied_obj" + str(m_iAlliesObjNum);
+	m_sAxisObjName = "tow_allied_obj" + str(m_iAxisObjNum);
 
     switch (m_eController) {
     case CONTROLLER_ALLIES:
-        gi.Cvar_Set(m_sAxisObjName.c_str(), "1");
-        gi.Cvar_Set(m_sAlliesObjName.c_str(), "0");
+        gi.cvar_set(m_sAxisObjName.c_str(), "1");
+        gi.cvar_set(m_sAlliesObjName.c_str(), "0");
         break;
     case CONTROLLER_AXIS:
-        gi.Cvar_Set(m_sAxisObjName.c_str(), "0");
-        gi.Cvar_Set(m_sAlliesObjName.c_str(), "1");
+        gi.cvar_set(m_sAxisObjName.c_str(), "0");
+        gi.cvar_set(m_sAlliesObjName.c_str(), "1");
         break;
     case CONTROLLER_DRAW:
-        gi.Cvar_Set(m_sAxisObjName.c_str(), "0");
-        gi.Cvar_Set(m_sAlliesObjName.c_str(), "0");
+        gi.cvar_set(m_sAxisObjName.c_str(), "0");
+        gi.cvar_set(m_sAlliesObjName.c_str(), "0");
         break;
     }
 

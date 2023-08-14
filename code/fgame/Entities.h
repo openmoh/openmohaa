@@ -255,7 +255,7 @@ public:
     void OnBlowUp(Event *ev);
     void OnUse(Event *ev);
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 };
 
 class ThrobbingBox_ExplodePlayerFlak88 : public ThrobbingBox_Explosive
@@ -296,7 +296,7 @@ public:
     void OnStickyBombWet(Event *ev);
     void OnStickyBombUse(Event *ev);
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 };
 
 #define OBJECTIVE_SPAWNFLAG_TURN_ON 1
@@ -312,7 +312,7 @@ public:
 
     Objective();
 
-    void   Archive(Archiver  &arc);
+    void   Archive(Archiver  &arc) override;
     void   TurnOn(Event *ev);
     void   TurnOff(Event *ev);
     void   Complete(Event *ev);
@@ -456,5 +456,5 @@ public:
     void GetModel(Event *ev);
     void SetModel(Event *ev);
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 };
