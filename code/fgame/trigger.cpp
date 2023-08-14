@@ -1812,7 +1812,7 @@ void TriggerChangeLevel::ChangeLevel(Event *ev)
     if (spawnspot != STRING_EMPTY) {
         G_BeginIntermission(Director.GetString(map) + "$" + Director.GetString(spawnspot), TRANS_BSP);
     } else {
-        G_BeginIntermission(Director.GetString(map));
+        G_BeginIntermission(Director.GetString(map), TRANS_BSP);
     }
 }
 
