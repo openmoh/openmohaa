@@ -1562,12 +1562,22 @@ void G_CenterPrintToAllClients(const char *pszString)
     }
 }
 
-void G_PrintToAllClients(const char *pszString, qboolean bBold)
+void G_PrintToAllClients(const char *pszString, int iType)
 {
-    if (bBold) {
-        gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\n\"", pszString);
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        if (iType == 0) {
+            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\"", pszString);
+        } else if (iType == 1) {
+			gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\"", pszString);
+        } else if (iType == 2) {
+            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_CHAT_WHITE "%s\"", pszString);
+        }
     } else {
-        gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", pszString);
+        if (iType == 0) {
+            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_YELLOW "%s\n\"", pszString);
+        } else {
+            gi.SendServerCommand(-1, "print \"" HUD_MESSAGE_WHITE "%s\n\"", pszString);
+        }
     }
 }
 

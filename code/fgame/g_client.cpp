@@ -953,7 +953,7 @@ void G_ClientBegin(gentity_t *ent, usercmd_t *cmd)
                     gi.Printf("%s has entered the battle\n", ent->client->pers.netname);
                 }
 
-                G_PrintToAllClients(va("%s has entered the battle\n", ent->client->pers.netname));
+                G_PrintToAllClients(va("%s has entered the battle\n", ent->client->pers.netname), 2);
             }
         }
 

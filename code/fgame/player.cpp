@@ -9045,7 +9045,7 @@ void Player::Join_DM_Team(Event *ev)
             return;
         }
 
-        G_PrintToAllClients(va("%s %s\n", client->pers.netname, gi.LV_ConvertString(join_message)));
+        G_PrintToAllClients(va("%s %s\n", client->pers.netname, gi.LV_ConvertString(join_message)), 2);
     }
 }
 

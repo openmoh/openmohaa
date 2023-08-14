@@ -304,7 +304,7 @@ void G_StartCinematic(void);
 void G_StopCinematic(void);
 
 void G_CenterPrintToAllClients(const char *pszString);
-void G_PrintToAllClients(const char *pszString, qboolean bBold = qtrue);
+void G_PrintToAllClients(const char *pszString, int iType = 1);
 void G_PrintDeathMessage(
     const char *s1, const char *s2, const char *attackerName, const char *victimName, Player *victim, const char *type
 );
