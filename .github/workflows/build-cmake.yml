@@ -85,8 +85,7 @@ jobs:
         -DCMAKE_C_FLAGS=--target=${{ matrix.architecture.triple }} \
         -DCMAKE_CXX_FLAGS=--target=${{ matrix.architecture.triple }} \
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} \
-        -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL-install/lib/cmake/SDL2' \
-        -DWITH_CLIENT=1" >> $GITHUB_ENV
+        -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL-install/lib/cmake/SDL2'" >> $GITHUB_ENV
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
@@ -166,8 +165,7 @@ jobs:
         -DGIT_REVISION_BUILD_NUMBER=${{ github.run_number }} `
         -DSDL2_DIR='${{github.workspace}}/thirdparties/SDL-install/cmake' `
         -DBISON_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_bison.exe' `
-        -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe' `
-        -DWITH_CLIENT=1".Replace("`r", "").Replace("`n", "") >> $env:GITHUB_ENV
+        -DFLEX_EXECUTABLE='${{github.workspace}}/thirdparties/winflexbison-install/win_flex.exe'".Replace("`r", "").Replace("`n", "") >> $env:GITHUB_ENV
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}

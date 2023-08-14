@@ -82,7 +82,7 @@ endif()
 
 INSTALL(TARGETS omohaaded DESTINATION "./")
 
-if (WITH_CLIENT)
+if (NOT BUILD_NO_CLIENT)
 	## Client app
 
 	add_subdirectory("code/renderer")
