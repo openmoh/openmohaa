@@ -1102,32 +1102,94 @@ void DM_Manager::InitGame(void)
 
 bool DM_Manager::CheckEndMatch()
 {
-    if (!m_bRoundBasedGame) {
-        if (fraglimit->integer) {
-            if (g_gametype->integer <= GT_TEAM) {
-                if (!PlayerHitScoreLimit()) {
-                    if (timelimit->integer && level.inttime >= 60000 * timelimit->integer) {
-                        G_BeginIntermission2();
-                        return true;
-                    }
-                }
-            } else {
-                for (int i = 1; i <= m_teams.NumObjects(); i++) {
-                    DM_Team *pDMTeam = m_teams.ObjectAt(i);
+    if (fraglimit) {
+        if (fraglimit->integer < 0) {
+            gi.Cvar_Set("fraglimit", "0");
+        }
+        if (fraglimit->integer > 10000) {
+            gi.Cvar_Set("fraglimit", "10000");
+        }
+        fraglimit = gi.Cvar_Get("fraglimit", "0", CVAR_SERVERINFO);
+    }
 
-                    if (pDMTeam->m_teamwins >= fraglimit->integer) {
-                        if (timelimit->integer && level.inttime >= 60000 * timelimit->integer) {
-                            G_BeginIntermission2();
-                            return true;
-                        }
+    if (timelimit) {
+        if (timelimit->integer < 0) {
+            gi.Cvar_Set("timelimit", "0");
+        }
+        // 180 minutes maximum
+        if (timelimit->integer > 10800) {
+            gi.Cvar_Set("timelimit", "10800");
+        }
+        timelimit = gi.Cvar_Get("timelimit", "0", CVAR_SERVERINFO);
+    }
+
+    if (!m_bRoundBasedGame || g_gametype->integer == GT_TOW || g_gametype->integer == GT_LIBERATION) {
+        if (g_gametype->integer == GT_TOW) {
+            cvar_t *g_TOW_winstate = gi.Cvar_Get("g_TOW_winstate", "", 0);
+            if (!g_TOW_winstate || !g_TOW_winstate->integer) {
+                int roundLimit = GetRoundLimit();
+
+                if (!level.m_bIgnoreClock && roundLimit > 0 && level.time >= m_iDefaultRoundLimit * 60 + m_fRoundTime) {
+                    switch (m_csTeamClockSide) {
+                    case STRING_AXIS:
+                        gi.Cvar_Set("g_TOW_winstate", "1");
+                        TeamWin(TEAM_AXIS);
+                        break;
+                    case STRING_ALLIES:
+                        gi.Cvar_Set("g_TOW_winstate", "2");
+                        TeamWin(TEAM_ALLIES);
+                        break;
+                    default:
+                        gi.Cvar_Set("g_TOW_winstate", "3");
+                        TeamWin(TEAM_NONE);
                     }
+
+                    return true;
+                }
+
+                if (m_team_allies.IsDead()) {
+                    gi.Cvar_Set("g_TOW_winstate", "1");
+                    TeamWin(TEAM_AXIS);
+                    return true;
+                }
+
+                if (m_team_axis.IsDead()) {
+                    gi.Cvar_Set("g_TOW_winstate", "2");
+                    TeamWin(TEAM_ALLIES);
+                    return true;
                 }
             }
-        } else {
-            if (timelimit->integer && level.inttime >= 60000 * timelimit->integer) {
+
+            if (fraglimit->integer && TeamHitScoreLimit()) {
+                G_BeginIntermission2();
+                return true;
+            } else {
+                return false;
+            }
+        } else if (g_gametype->integer == GT_LIBERATION) {
+            if (fraglimit->integer && TeamHitScoreLimit()) {
+                G_BeginIntermission2();
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        if (fraglimit->integer) {
+            if (g_gametype->integer >= GT_TEAM) {
+                if (TeamHitScoreLimit()) {
+                    G_BeginIntermission2();
+                    return true;
+                }
+            } else if (PlayerHitScoreLimit()) {
                 G_BeginIntermission2();
                 return true;
             }
+        } else if (timelimit->integer && level.inttime >= 60000 * timelimit->integer) {
+            G_BeginIntermission2();
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -1135,80 +1197,19 @@ bool DM_Manager::CheckEndMatch()
         return true;
     }
 
-    if (m_fRoundTime > 0.0f) {
-        qboolean bCheckWin = qfalse;
+    if (m_fRoundTime <= 0.f) {
+        return false;
+    }
 
-        if (fraglimit->integer) {
-            for (int i = 1; i <= m_teams.NumObjects(); i++) {
-                DM_Team *pDMTeam = m_teams.ObjectAt(i);
+    if (fraglimit->integer && TeamHitScoreLimit()) {
+        G_BeginIntermission2();
+        return true;
+    }
 
-                if (pDMTeam->m_teamwins >= fraglimit->integer) {
-                    bCheckWin = qtrue;
-                    break;
-                }
-            }
-        } else {
-            bCheckWin = qtrue;
-        }
+    if (AllowRespawn() || (!m_team_axis.IsDead() && !m_team_allies.IsDead())) {
+        int roundLimit = GetRoundLimit();
 
-        if (bCheckWin) {
-            if (!AllowRespawn()) {
-                if (m_team_axis.IsDead() || m_team_allies.IsDead()) {
-                    if (g_gametype->integer == GT_OBJECTIVE) {
-                        if (m_csTeamBombPlantSide != STRING_DRAW) {
-                            DM_Team *pBombTeam;
-                            DM_Team *pNonBombTeam;
-
-                            if (m_csTeamBombPlantSide == STRING_AXIS) {
-                                pBombTeam    = &m_team_axis;
-                                pNonBombTeam = &m_team_allies;
-                            } else {
-                                pBombTeam    = &m_team_allies;
-                                pNonBombTeam = &m_team_axis;
-                            }
-
-                            if (pBombTeam->IsDead()) {
-                                if (m_iNumBombsPlanted <= 0) {
-                                    m_bRoundBasedGame = qfalse;
-
-                                    if (pNonBombTeam->IsDead() && m_iNumTargetsDestroyed < m_iNumTargetsToDestroy) {
-                                        TeamWin(pNonBombTeam->m_teamnumber);
-                                    }
-                                } else {
-                                    if (pNonBombTeam->IsDead()) {
-                                        if (m_iNumBombsPlanted >= m_iNumTargetsToDestroy - m_iNumTargetsDestroyed) {
-                                            TeamWin(pBombTeam->m_teamnumber);
-                                        } else {
-                                            TeamWin(pNonBombTeam->m_teamnumber);
-                                        }
-                                    } else if (m_iNumBombsPlanted >= m_iNumTargetsToDestroy - m_iNumTargetsDestroyed) {
-                                        if (m_bIgnoringClockForBomb) {
-                                            return false;
-                                        } else {
-                                            G_PrintToAllClients("A bomb is still set!");
-                                            m_bIgnoringClockForBomb = true;
-                                            return false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    EndRound();
-                    return true;
-                }
-            }
-
-            int iRoundLimit = roundlimit->integer;
-            if (!iRoundLimit) {
-                iRoundLimit = m_iDefaultRoundLimit;
-            }
-
-            if (iRoundLimit <= 0 || level.time < (60 * iRoundLimit) + m_fRoundTime) {
-                return false;
-            }
-
+        if (roundLimit > 0 && level.time >= m_iDefaultRoundLimit * 60 + m_fRoundTime) {
             if (m_csTeamBombPlantSide != STRING_DRAW) {
                 if (m_bIgnoringClockForBomb) {
                     if (m_iNumBombsPlanted > 0) {
@@ -1223,30 +1224,83 @@ bool DM_Manager::CheckEndMatch()
                 }
             }
 
-            if (m_csTeamClockSide == STRING_ALLIES) {
+            switch (m_csTeamClockSide) {
+            case STRING_ALLIES:
                 TeamWin(TEAM_ALLIES);
                 return true;
-            } else if (m_csTeamClockSide == STRING_AXIS) {
+            case STRING_AXIS:
                 TeamWin(TEAM_AXIS);
                 return true;
-            } else if (m_csTeamClockSide == STRING_KILLS) {
+            case STRING_KILLS:
                 if (m_team_allies.TotalPlayersKills() > m_team_axis.TotalPlayersKills()) {
                     TeamWin(TEAM_ALLIES);
-                    return true;
                 } else if (m_team_axis.TotalPlayersKills() > m_team_allies.TotalPlayersKills()) {
                     TeamWin(TEAM_AXIS);
                 } else {
                     TeamWin(TEAM_NONE);
                 }
-            } else {
+                return true;
+            default:
                 TeamWin(TEAM_NONE);
+                return true;
             }
         }
+    } else {
+        DM_Team *pBombTeam;
+        DM_Team *pNonBombTeam;
 
-        return false;
+        if (g_gametype->integer != GT_OBJECTIVE) {
+            EndRound();
+            return true;
+        }
+
+        if (m_csTeamBombPlantSide == STRING_DRAW) {
+            EndRound();
+            return true;
+        }
+
+        if (m_csTeamBombPlantSide == STRING_AXIS) {
+            pBombTeam    = &m_team_axis;
+            pNonBombTeam = &m_team_allies;
+        } else {
+            pBombTeam    = &m_team_allies;
+            pNonBombTeam = &m_team_axis;
+        }
+
+        if (!pBombTeam->IsDead()) {
+            EndRound();
+            return true;
+        }
+
+        if (m_iNumBombsPlanted <= 0) {
+            m_bIgnoringClockForBomb = qfalse;
+
+            if (pNonBombTeam->IsDead() && m_iNumTargetsDestroyed < m_iNumTargetsToDestroy) {
+                TeamWin(pNonBombTeam->m_teamnumber);
+                return true;
+            } else {
+                EndRound();
+                return true;
+            }
+
+        } else if (pNonBombTeam->IsDead()) {
+            if (m_iNumBombsPlanted >= m_iNumTargetsToDestroy - m_iNumTargetsDestroyed) {
+                TeamWin(pBombTeam->m_teamnumber);
+            } else {
+                TeamWin(pNonBombTeam->m_teamnumber);
+            }
+            return true;
+        } else if (m_iNumBombsPlanted >= m_iNumTargetsToDestroy - m_iNumTargetsDestroyed) {
+            if (!m_bIgnoringClockForBomb) {
+                G_PrintToAllClients("A bomb is still set!");
+                m_bIgnoringClockForBomb = true;
+            }
+        } else {
+            EndRound();
+            return true;
+        }
     }
 
-    // FIXME: TODO
     return false;
 }
 
