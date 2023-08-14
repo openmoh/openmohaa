@@ -210,12 +210,6 @@ static void SV_Map_f( void ) {
 		return;
 	}
 
-	if( !Q_stricmpn( map, "obj/", 4 ) && g_gametype->integer != GT_OBJECTIVE )
-	{
-		Com_Printf( "Can't load objective map in non-objective game type\n" );
-		return;
-	}
-
 	if( !developer->integer )
 	{
 		if( svs.iNumClients == 1 )
