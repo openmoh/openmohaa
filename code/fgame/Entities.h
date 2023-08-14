@@ -31,6 +31,16 @@ typedef enum {
     CONTROLLER_DRAW
 } eController;
 
+#define PT_SPAWNFLAG_PLAY_FIRE_SOUND    1
+#define PT_SPAWNFLAG_TARGET_RANDOM      4
+#define PT_SPAWNFLAG_TURN_ON            8
+#define PT_SPAWNFLAG_SET_YAW            16
+#define PT_SPAWNFLAG_SET_ROLL           32
+#define PT_SPAWNFLAG_TARGET_PLAYER      64
+#define PT_SPAWNFLAG_HIDDEN             128
+
+void ClearProjectileTargets();
+
 class ProjectileTarget : public Entity
 {
 private:
@@ -42,13 +52,14 @@ public:
     ProjectileTarget();
 
     void EventSetId(Event *ev);
+    int GetTarget() const;
 };
 
 #define MAX_PROJECTILE_GENERATOR_TARGETS 16
 
 class ProjectileGenerator : public Animate
 {
-private:
+protected:
     int                           m_iId;
     int                           m_iCycles;
     float                         m_fMinDuration;
@@ -87,9 +98,9 @@ public:
     virtual void TickCycle(Event *ev);
     virtual void EndCycle(Event *ev);
 
-    void ShouldStartOn();
-    void ShouldHideModel();
-    void ShouldPlayFireSound();
+    bool ShouldStartOn() const;
+    bool ShouldHideModel() const;
+    bool ShouldPlayFireSound() const;
 
     void EventIsTurnedOn(Event *ev);
     void EventGetTargetEntity(Event *ev);
@@ -98,11 +109,11 @@ public:
     void OnInitialize(Event *ev);
     void TurnOff(Event *ev);
     void TurnOn(Event *ev);
-    void ShouldTargetRandom();
+    bool ShouldTargetRandom() const;
     void ChooseTarget();
 
     void         GetLocalTargets();
-    void         ShouldTargetPlayer();
+    bool         ShouldTargetPlayer() const;
     void         GetTargetPos(Entity *target);
     void         EventAccuracy(Event *ev);
     void         EventMaxDelay(Event *ev);
@@ -114,12 +125,12 @@ public:
     void         EventMaxDuration(Event *ev);
     void         EventMinDuration(Event *ev);
     void         SetWeaponModel(Event *ev);
-    void         EventSetId(Event *ev);
-    virtual void Attack(int count);
-    void         EventarcDonut(Event *ev);
-    void         EventmaxDonut(Event *ev);
-    void         EventminDonut(Event *ev);
-    void         EventisDonut(Event *ev);
+	void         EventSetId(Event* ev);
+	void         EventmaxDonut(Event* ev);
+	void         EventminDonut(Event* ev);
+	void         EventarcDonut(Event* ev);
+	void         EventisDonut(Event* ev);
+    virtual bool Attack(int count);
 
     void Archive(Archiver& arc) override;
 };
@@ -143,7 +154,7 @@ public:
     void PlayPreImpactSound(Event *ev);
     void SetProjectileModel(Event *ev);
 
-    void Attack(int count) override;
+    bool Attack(int count) override;
     void Archive(Archiver& arc) override;
 };
 
@@ -184,7 +195,7 @@ public:
     void SetBulletSpread(Event *ev);
     void SetBulletRange(Event *ev);
 
-    void Attack(int count) override;
+    bool Attack(int count) override;
     void TickCycle(Event *ev) override;
     void Archive(Archiver& arc) override;
 };
@@ -201,13 +212,13 @@ public:
 
     void SetProjectileModel(Event *ev);
 
-    void Attack(int count) override;
+    bool Attack(int count) override;
     void Archive(Archiver& arc) override;
 };
 
 class ThrobbingBox_Explosive : public Animate
 {
-private:
+protected:
     str               m_sUsedModel;
     str               m_sSound;
     bool              m_bUsed;
@@ -270,6 +281,9 @@ class ThrobbingBox_ExplodePlayerNebelwerfer : public ThrobbingBox_Explosive
 public:
     CLASS_PROTOTYPE(ThrobbingBox_ExplodePlayerNebelwerfer);
 };
+
+#define TBE_SPAWNFLAG_DESTROYED_MODEL 1
+#define TBE_SPAWNFLAG_MAKE_WET        2
 
 class ThrobbingBox_Stickybomb : public ThrobbingBox_Explosive
 {

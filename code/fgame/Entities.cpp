@@ -21,12 +21,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Entities.h"
+#include "g_phys.h"
+#include "g_spawn.h"
 #include "scriptthread.h"
 #include "game.h"
 #include "weapon.h"
 #include "weaputils.h"
 #include "actor.h"
 #include "sentient.h"
+#include "player.h"
+
+Container<ProjectileTarget*> g_projectileTargets;
 
 Event EV_PG_SetID("ID", EV_DEFAULT, "i", "ID", "Sets the ID for this projectile generator\nDefault=0:");
 Event EV_PG_SetModel(
@@ -88,14 +93,29 @@ CLASS_DECLARATION(Entity, ProjectileTarget, "ProjectileGenerator_Target") {
     {NULL,         NULL                         }
 };
 
+void ClearProjectileTargets()
+{
+    g_projectileTargets.ClearObjectList();
+}
+
 ProjectileTarget::ProjectileTarget()
 {
-    // FIXME: unimplemented
+    m_iTarget = -1;
+    setMoveType(MOVETYPE_NONE);
+    setSolidType(SOLID_NOT);
+    hideModel();
+
+    g_projectileTargets.AddObject(this);
 }
 
 void ProjectileTarget::EventSetId(Event *ev)
 {
-    // FIXME: unimplemented
+    m_iTarget = ev->GetInteger(1);
+}
+
+int ProjectileTarget::GetTarget() const
+{
+    return m_iTarget;
 }
 
 CLASS_DECLARATION(Animate, ProjectileGenerator, "ProjectileGenerator") {
@@ -126,57 +146,121 @@ CLASS_DECLARATION(Animate, ProjectileGenerator, "ProjectileGenerator") {
 
 ProjectileGenerator::ProjectileGenerator()
 {
-    // FIXME: unimplemented
+	m_iId = -1;
+	m_fMinDuration = 1;
+	m_fMaxDuration = 3;
+	m_iCycles = 0;
+	m_fMinDelay = 3.0;
+	m_fMaxDelay = 10;
+	m_fAccuracy = 10;
+	m_iCurrentCycle = 0;
+	m_iMinNumShots = 1;
+	m_iMaxNumShots = 1;
+	m_fCurrentTime = 0;
+	m_fShotsPerSec = 0;
+	m_iTargetIndex = -1;
+	m_fLastShotTime = 0;
+	m_iAnimSlot = 0;
+	m_bIsTurnedOn = 0;
+	m_bFireOnStartUp = 1;
+	m_bIsDonut = 0;
+	m_fArcDonut = 0;
+	m_fMinDonut = 0;
+	m_fMaxDonut = 0;
+	m_pTarget = 0;
+
+    m_fCycleTime = 1;
+    setMoveType(MOVETYPE_NONE);
+    setSolidType(SOLID_NOT);
+    if (spawnflags & PT_SPAWNFLAG_PLAY_FIRE_SOUND)
+    {
+        if (spawnflags & PT_SPAWNFLAG_HIDDEN)
+        {
+            hideModel();
+            edict->r.svFlags |= SVF_NOCLIENT;
+        }
+    }
+    else
+    {
+        hideModel();
+    }
+
+    if (!LoadingSavegame && spawnflags & PT_SPAWNFLAG_TURN_ON)
+    {
+        PostEvent(EV_TurnOn, 0.1f);
+    }
+
+    m_pCurrent = NULL;
+    if (!LoadingSavegame)
+    {
+        PostEvent(EV_Initialize, 0.001f);
+    }
 }
 
-void ProjectileGenerator::ShouldStartOn()
+bool ProjectileGenerator::ShouldStartOn() const
 {
-    // FIXME: unimplemented
+    return (spawnflags & PT_SPAWNFLAG_TURN_ON) ? true : false;
 }
 
-void ProjectileGenerator::ShouldHideModel()
+bool ProjectileGenerator::ShouldHideModel() const
 {
-    // FIXME: unimplemented
+    return (spawnflags & PT_SPAWNFLAG_HIDDEN) ? true : false;
 }
 
-void ProjectileGenerator::ShouldPlayFireSound()
+bool ProjectileGenerator::ShouldPlayFireSound() const
 {
-    // FIXME: unimplemented
+	return (spawnflags & PT_SPAWNFLAG_PLAY_FIRE_SOUND) ? true : false;
 }
 
 void ProjectileGenerator::EventIsTurnedOn(Event *ev)
 {
-    // FIXME: unimplemented
+    ev->AddInteger(m_bIsTurnedOn);
 }
 
 void ProjectileGenerator::EventGetTargetEntity(Event *ev)
 {
-    // FIXME: unimplemented
+    ev->AddEntity(m_pCurrent);
 }
 
 void ProjectileGenerator::EventLaunchSound(Event *ev)
 {
-    // FIXME: unimplemented
+    m_sLaunchSound = ev->GetString(1);;
 }
 
 void ProjectileGenerator::SetTarget(Event *ev)
 {
-    // FIXME: unimplemented
+    m_pTarget = ev->GetEntity(1);
 }
 
 void ProjectileGenerator::OnInitialize(Event *ev)
 {
-    // FIXME: unimplemented
+    if (spawnflags & PT_SPAWNFLAG_SET_YAW)
+    {
+        angles.y += 180;
+        setAngles(angles);
+	}
+	if (spawnflags & PT_SPAWNFLAG_SET_ROLL)
+	{
+		angles.z += 180;
+		setAngles(angles);
+	}
 }
 
 void ProjectileGenerator::TurnOff(Event *ev)
 {
-    // FIXME: unimplemented
+    CancelEventsOfType(EV_PG_BeginCycle);
+    CancelEventsOfType(EV_TickCycle);
+    m_bIsTurnedOn = false;
 }
 
 void ProjectileGenerator::TurnOn(Event *ev)
 {
-    // FIXME: unimplemented
+    if (!m_bIsTurnedOn)
+	{
+		CancelEventsOfType(EV_PG_BeginCycle);
+		CancelEventsOfType(EV_TickCycle);
+		m_bIsTurnedOn = true;
+    }
 }
 
 void ProjectileGenerator::SetupNextCycle()
@@ -184,9 +268,9 @@ void ProjectileGenerator::SetupNextCycle()
     // FIXME: unimplemented
 }
 
-void ProjectileGenerator::ShouldTargetRandom()
+bool ProjectileGenerator::ShouldTargetRandom() const
 {
-    // FIXME: unimplemented
+    return (spawnflags & PT_SPAWNFLAG_TARGET_RANDOM) ? true : false;
 }
 
 void ProjectileGenerator::ChooseTarget()
@@ -196,12 +280,22 @@ void ProjectileGenerator::ChooseTarget()
 
 void ProjectileGenerator::GetLocalTargets()
 {
-    // FIXME: unimplemented
+    int i;
+
+    m_projectileTargets.ClearObjectList();
+    for (i = 1; i <= g_projectileTargets.NumObjects(); i++)
+    {
+        ProjectileTarget* target = g_projectileTargets.ObjectAt(i);
+        if (m_iId == target->GetTarget())
+        {
+            m_projectileTargets.AddObject(target);
+        }
+    }
 }
 
-void ProjectileGenerator::ShouldTargetPlayer()
+bool ProjectileGenerator::ShouldTargetPlayer() const
 {
-    // FIXME: unimplemented
+    return (spawnflags & PT_SPAWNFLAG_TARGET_PLAYER) ? true : false;
 }
 
 void ProjectileGenerator::GetTargetPos(Entity *target)
@@ -211,57 +305,57 @@ void ProjectileGenerator::GetTargetPos(Entity *target)
 
 void ProjectileGenerator::EventAccuracy(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fAccuracy = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::EventMaxDelay(Event *ev)
 {
-    // FIXME: unimplemented
+	m_fMaxDelay = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::EventMinDelay(Event *ev)
 {
-    // FIXME: unimplemented
+	m_fMinDelay = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::EventFireOnStartUp(Event *ev)
 {
-    // FIXME: unimplemented
+    m_bFireOnStartUp = ev->GetBoolean(1);
 }
 
 void ProjectileGenerator::EventMaxNumShots(Event *ev)
 {
-    // FIXME: unimplemented
+    m_iMaxNumShots = ev->GetInteger(1);
 }
 
 void ProjectileGenerator::EventMinNumShots(Event *ev)
 {
-    // FIXME: unimplemented
+	m_iMinNumShots = ev->GetInteger(1);
 }
 
 void ProjectileGenerator::EventCycles(Event *ev)
 {
-    // FIXME: unimplemented
+	m_iCycles = ev->GetInteger(1);
 }
 
 void ProjectileGenerator::EventMaxDuration(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fMaxDuration = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::EventMinDuration(Event *ev)
 {
-    // FIXME: unimplemented
+	m_fMinDuration = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::SetWeaponModel(Event *ev)
 {
-    // FIXME: unimplemented
+    setModel(ev->GetString(1));
 }
 
 void ProjectileGenerator::EventSetId(Event *ev)
 {
-    // FIXME: unimplemented
+    m_iId = ev->GetInteger(1);
 }
 
 void ProjectileGenerator::BeginCycle(Event *ev)
@@ -271,37 +365,53 @@ void ProjectileGenerator::BeginCycle(Event *ev)
 
 void ProjectileGenerator::TickCycle(Event *ev)
 {
-    // FIXME: unimplemented
-}
+	if (!m_bIsTurnedOn) {
+		return;
+	}
 
-void ProjectileGenerator::Attack(int count)
-{
-    // FIXME: unimplemented
+	m_fCurrentTime += level.frametime * m_fShotsPerSec;
+	if (m_fCurrentTime >= 1.f)
+	{
+		float f = floor(m_fCurrentTime);
+		if (Attack(floor(f)))
+		{
+			m_fCurrentTime -= floor(f);
+		}
+
+	}
+
+	PostEvent(EV_TickCycle, 0.01f);
 }
 
 void ProjectileGenerator::EndCycle(Event *ev)
 {
-    // FIXME: unimplemented
+    CancelEventsOfType(EV_TickCycle);
+    SetupNextCycle();
+}
+
+void ProjectileGenerator::EventmaxDonut(Event* ev)
+{
+    m_fMaxDonut = ev->GetFloat(1);
+}
+
+void ProjectileGenerator::EventminDonut(Event* ev)
+{
+	m_fMinDonut = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::EventarcDonut(Event *ev)
 {
-    // FIXME: unimplemented
-}
-
-void ProjectileGenerator::EventmaxDonut(Event *ev)
-{
-    // FIXME: unimplemented
-}
-
-void ProjectileGenerator::EventminDonut(Event *ev)
-{
-    // FIXME: unimplemented
+    m_fArcDonut = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::EventisDonut(Event *ev)
 {
-    // FIXME: unimplemented
+    m_bIsDonut = ev->GetBoolean(1);
+}
+
+bool ProjectileGenerator::Attack(int count)
+{
+    return true;
 }
 
 void ProjectileGenerator::Archive(Archiver& arc)
@@ -350,37 +460,46 @@ CLASS_DECLARATION(ProjectileGenerator, ProjectileGenerator_Projectile, "Projecti
 
 ProjectileGenerator_Projectile::ProjectileGenerator_Projectile()
 {
-    // FIXME: unimplemented
+    if (LoadingSavegame) {
+        return;
+    }
+
+    m_sProjectileModel = "models/projectiles/bazookashell.tik";
+    setModel("models/weapons/bazooka.tik");
+    m_sPreImpactSound = "";
+    m_fImpactSoundTime = 1;
+    m_fImpactSoundProbability = 0;
 }
 
 void ProjectileGenerator_Projectile::SetPreImpactSoundProbability(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fImpactSoundProbability = ev->GetFloat(1);
 }
 
 void ProjectileGenerator_Projectile::SetPreImpactSoundTime(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fImpactSoundTime = ev->GetFloat(1);
 }
 
 void ProjectileGenerator_Projectile::SetPreImpactSound(Event *ev)
 {
-    // FIXME: unimplemented
+    m_sPreImpactSound = ev->GetString(1);
 }
 
 void ProjectileGenerator_Projectile::PlayPreImpactSound(Event *ev)
 {
-    // FIXME: unimplemented
+    Sound(m_sPreImpactSound, CHAN_AUTO);
 }
 
 void ProjectileGenerator_Projectile::SetProjectileModel(Event *ev)
 {
-    // FIXME: unimplemented
+    m_sProjectileModel = ev->GetString(1);
 }
 
-void ProjectileGenerator_Projectile::Attack(int count)
+bool ProjectileGenerator_Projectile::Attack(int count)
 {
     // FIXME: unimplemented
+    return true;
 }
 
 void ProjectileGenerator_Projectile::Archive(Archiver& arc)
@@ -421,82 +540,112 @@ CLASS_DECLARATION(ProjectileGenerator, ProjectileGenerator_Gun, "ProjectileGener
 
 ProjectileGenerator_Gun::ProjectileGenerator_Gun()
 {
-    // FIXME: unimplemented
+	m_fBulletRange = 4000;
+	m_fBulletDamage = 40;
+	m_iBulletCount = 1;
+    m_vBulletSpread = Vector(40, 40, 0);
+	m_iTracerFrequency = 0;
+	m_iBulletLarge = 0;
+	m_iMeansOfDeath = MOD_BULLET;
+	m_fBulletThroughWood = 0;
+	m_fBulletThroughMetal = 0;
+	m_iBulletKnockback = 0;
+	m_iAttackCount = 0;
+	m_fFireDelay = 1;
+	m_fTracerSpeed = 1.0;
+	m_bFakeBullets = 0;
 }
 
 void ProjectileGenerator_Gun::SetFireDelay(Event *ev)
 {
-    // FIXME: unimplemented
+	m_fFireDelay = ev->GetFloat(1);
 }
 
 void ProjectileGenerator_Gun::SetMeansOfDeath(Event *ev)
 {
-    // FIXME: unimplemented
+    m_iMeansOfDeath = MOD_NameToNum(ev->GetString(1));
 }
 
 void ProjectileGenerator_Gun::SetBulletThroughWood(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fBulletThroughWood = ev->GetFloat(1);
 }
 
 void ProjectileGenerator_Gun::SetBulletThroughMetal(Event *ev)
 {
-    // FIXME: unimplemented
+	m_fBulletThroughMetal = ev->GetFloat(1);
 }
 
 void ProjectileGenerator_Gun::SetBulletKnockback(Event *ev)
 {
-    // FIXME: unimplemented
+    m_iBulletKnockback = ev->GetInteger(1);
 }
 
 void ProjectileGenerator_Gun::SetTracerSpeed(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fTracerSpeed = ev->GetFloat(1);
 }
 
 void ProjectileGenerator_Gun::SetBulletLarge(Event *ev)
 {
-    // FIXME: unimplemented
+    m_iBulletLarge = ev->GetFloat(1);
 }
 
 void ProjectileGenerator_Gun::SetFakeBullets(Event *ev)
 {
-    // FIXME: unimplemented
+    m_bFakeBullets = ev->GetInteger(1);
 }
 
 void ProjectileGenerator_Gun::SetBulletCount(Event *ev)
 {
-    // FIXME: unimplemented
+    m_iBulletCount = ev->GetInteger(1);
 }
 
 void ProjectileGenerator_Gun::SetBulletDamage(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fBulletDamage = ev->GetFloat(1);
 }
 
 void ProjectileGenerator_Gun::SetTracerFrequency(Event *ev)
 {
-    // FIXME: unimplemented
+    m_iTracerFrequency = ev->GetInteger(1);
 }
 
 void ProjectileGenerator_Gun::SetBulletSpread(Event *ev)
 {
-    // FIXME: unimplemented
+    m_vBulletSpread.x = ev->GetFloat(1);
+    m_vBulletSpread.y = ev->GetFloat(2);
 }
 
 void ProjectileGenerator_Gun::SetBulletRange(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fBulletRange = ev->GetFloat(1);
 }
 
-void ProjectileGenerator_Gun::Attack(int count)
+bool ProjectileGenerator_Gun::Attack(int count)
 {
-    // FIXME: unimplemented
+	// FIXME: unimplemented
+	return true;
 }
 
 void ProjectileGenerator_Gun::TickCycle(Event *ev)
 {
-    // FIXME: unimplemented
+    if (!m_bIsTurnedOn) {
+        return;
+    }
+
+    m_fCurrentTime += level.frametime * m_fShotsPerSec;
+    if (m_fCurrentTime >= 1.f)
+    {
+        float f = floor(m_fCurrentTime);
+        if (Attack(floor(f)))
+        {
+            m_fCurrentTime -= floor(f);
+        }
+
+	}
+
+	PostEvent(EV_TickCycle, 0.01f);
 }
 
 void ProjectileGenerator_Gun::Archive(Archiver& arc)
@@ -526,17 +675,23 @@ CLASS_DECLARATION(ProjectileGenerator, ProjectileGenerator_Heavy, "ProjectileGen
 
 ProjectileGenerator_Heavy::ProjectileGenerator_Heavy()
 {
-    // FIXME: unimplemented
+    if (LoadingSavegame) {
+        return;
+    }
+
+    setModel("models/weapons/bazooka.tik");
+    m_sProjectileModel = "models/projectiles/bazookashell.tik";
 }
 
 void ProjectileGenerator_Heavy::SetProjectileModel(Event *ev)
 {
-    // FIXME: unimplemented
+    m_sProjectileModel = ev->GetString(1);
 }
 
-void ProjectileGenerator_Heavy::Attack(int count)
+bool ProjectileGenerator_Heavy::Attack(int count)
 {
-    // FIXME: unimplemented
+	// FIXME: unimplemented
+	return true;
 }
 
 void ProjectileGenerator_Heavy::Archive(Archiver& arc)
@@ -583,87 +738,279 @@ CLASS_DECLARATION(Animate, ThrobbingBox_Explosive, "ThrobbingBox_Explosive") {
 
 ThrobbingBox_Explosive::ThrobbingBox_Explosive()
 {
-    // FIXME: unimplemented
+    if (LoadingSavegame) {
+        return;
+	}
+
+	setModel("items\\\\pulse_explosive.tik");
+    m_sUsedModel = "items/explosive.tik";
+    m_sSound = "explose_flak88";
+    m_sActivateSound = "plantbomb";
+    m_sTickSound = "bombtick";
+
+    m_bUsed = false;
+    m_fExplosionDamage = 300;
+    m_fRadius = 300;
+    m_fStopwatchDuration = 5;
+
+    m_sEffect = "emitters/mortar_higgins.tik";
+    m_vOffset = Vector(0, 0, 0);
 }
 
 void ThrobbingBox_Explosive::SetExplosionOffset(Event *ev)
 {
-    // FIXME: unimplemented
+    m_vOffset = ev->GetVector(1);
 }
 
 void ThrobbingBox_Explosive::SetExplosionEffect(Event *ev)
 {
-    // FIXME: unimplemented
+    m_sEffect = ev->GetString(1);
 }
 
 void ThrobbingBox_Explosive::SetTriggered(Event *ev)
 {
-    // FIXME: unimplemented
+    m_bUsed = ev->GetInteger(1) ? true : false;
 }
 
 void ThrobbingBox_Explosive::DoExplosion(Event *ev)
 {
-    // FIXME: unimplemented
+    SpawnArgs sp;
+    ScriptModel* spawned;
+
+    sp.setArg("model", m_sEffect);
+    sp.setArg("origin", va("%f %f %f", origin.x, origin.y, origin.z));
+    sp.setArg("classname", "ScriptModel");
+
+    if (target.length())
+    {
+        SimpleEntity* targetEnt = G_FindTarget(NULL, target.c_str());
+        if (targetEnt)
+        {
+            sp.setArg("origin", va("%f %f %f", targetEnt->origin.x, targetEnt->origin.y, targetEnt->origin.z));
+        }
+    }
+
+    spawned = static_cast<ScriptModel*>(sp.Spawn());
+    if (spawned)
+    {
+        spawned->NewAnim("start");
+        spawned->setSolidType(SOLID_NOT);
+    }
+
+    RadiusDamage(
+        origin + Vector(0, 0, 128),
+        this,
+        this,
+        m_fExplosionDamage,
+        this,
+        MOD_EXPLOSION,
+        m_fRadius
+    );
+
+    Sound(m_sSound, CHAN_BODY);
+
+    m_thread.Execute(this);
+    PostEvent(EV_Remove, 0);
 }
 
 void ThrobbingBox_Explosive::SetUseThread(Event *ev)
 {
-    // FIXME: unimplemented
+    if (ev->IsFromScript())
+    {
+        m_useThread.SetThread(ev->GetValue(1));
+    }
+    else
+    {
+        m_useThread.Set(ev->GetString(1));
+    }
 }
 
 void ThrobbingBox_Explosive::SetThread(Event *ev)
 {
-    // FIXME: unimplemented
+	if (ev->IsFromScript())
+	{
+		m_thread.SetThread(ev->GetValue(1));
+	}
+	else
+	{
+        m_thread.Set(ev->GetString(1));
+	}
 }
 
 void ThrobbingBox_Explosive::SetStopWatchDuration(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fStopwatchDuration = ev->GetFloat(1);
 }
 
 void ThrobbingBox_Explosive::SetRadius(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fRadius = ev->GetFloat(1);
 }
 
 void ThrobbingBox_Explosive::SetDamage(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fExplosionDamage = ev->GetFloat(1);
 }
 
 void ThrobbingBox_Explosive::TickSound(Event *ev)
 {
-    // FIXME: unimplemented
+    m_sTickSound = ev->GetString(1);
 }
 
 void ThrobbingBox_Explosive::ActivateSound(Event *ev)
 {
-    // FIXME: unimplemented
+	m_sActivateSound = ev->GetString(1);
 }
 
 void ThrobbingBox_Explosive::ExplosionSound(Event *ev)
 {
-    // FIXME: unimplemented
+	m_sSound = ev->GetString(1);
 }
 
 void ThrobbingBox_Explosive::UsedModel(Event *ev)
 {
-    // FIXME: unimplemented
+	m_sUsedModel = ev->GetString(1);
 }
 
 void ThrobbingBox_Explosive::SetDestroyModel(Event *ev)
 {
-    // FIXME: unimplemented
+	m_sDestroyedModel = ev->GetString(1);
 }
 
 void ThrobbingBox_Explosive::OnBlowUp(Event *ev)
 {
-    // FIXME: unimplemented
+    Player* player;
+	Entity* targetEnt;
+	ScriptModel* mdl;
+
+    StopLoopSound();
+    setSolidType(SOLID_NOT);
+
+    player = static_cast<Player*>(G_FindTarget(this, "player"));
+    if (player) {
+        // clear the player's stopwatch
+        player->SetStopwatch(0);
+    }
+
+    if (target.length() && (targetEnt = static_cast<Entity*>(G_FindTarget(NULL, target.c_str()))) && m_sDestroyedModel.length())
+    {
+        if (spawnflags & TBE_SPAWNFLAG_DESTROYED_MODEL)
+		{
+			SpawnArgs sp;
+
+            sp.setArg("model", m_sDestroyedModel.c_str());
+            sp.setArg("origin", va("%f %f %f", targetEnt->origin.x, targetEnt->origin.y, targetEnt->origin.z));
+            sp.setArg("angles", va("%f %f %f", targetEnt->angles.x, targetEnt->angles.y, targetEnt->angles.z));
+            sp.setArg("classname", "ScriptModel");
+
+            mdl = static_cast<ScriptModel*>(sp.Spawn());
+            if (mdl)
+            {
+                mdl->NewAnim("start");
+                mdl->setSolidType(targetEnt->edict->solid);
+            }
+
+            if (targetEnt->IsSubclassOfVehicle())
+            {
+                Vehicle* veh = static_cast<Vehicle*>(targetEnt);
+                Entity* ent;
+                int i;
+
+                // remove all turrets
+                for (i = 0; i < 8; i++)
+                {
+                    ent = veh->QueryTurretSlotEntity(i);
+                    if (ent)
+                    {
+                        ent->PostEvent(EV_Remove, 0);
+                    }
+                }
+
+                for (i = 0; i < 32; i++)
+                {
+                    ent = veh->QueryPassengerSlotEntity(i);
+                    if (ent)
+                    {
+                        ent->Damage(this, this, ent->health * 2.f, vec_zero, vec_zero, vec_zero, 50, 0, MOD_VEHICLE);
+                    }
+                }
+
+                ent = veh->QueryDriverSlotEntity(0);
+                if (ent)
+				{
+					ent->Damage(this, this, ent->health * 2.f, vec_zero, vec_zero, vec_zero, 50, 0, MOD_VEHICLE);
+                }
+            }
+
+            targetEnt->PostEvent(EV_Remove, 0);
+        }
+        else
+        {
+            targetEnt->setModel(m_sDestroyedModel.c_str());
+        }
+    }
+
+    if (m_fStopwatchDuration)
+    {
+        SpawnArgs sp;
+
+        sp.setArg("model", m_sEffect.c_str());
+        sp.setArg("origin", va("%f %f %f", origin.x, origin.y, origin.z));
+        sp.setArg("classname", "ScriptModel");
+
+        if (target.length() > 0 && (targetEnt = static_cast<Entity*>(G_FindTarget(NULL, target.c_str()))))
+        {
+            sp.setArg("origin", va("%f %f %f", targetEnt->origin.x, targetEnt->origin.y, targetEnt->origin.z));
+        }
+
+        mdl = static_cast<ScriptModel*>(sp.Spawn());
+        if (mdl)
+        {
+            mdl->NewAnim("start");
+            mdl->setSolidType(targetEnt->edict->solid);
+        }
+
+        RadiusDamage(Vector(), this, this, m_fExplosionDamage, this, MOD_EXPLOSION, m_fRadius);
+        Sound(m_sSound, CHAN_BODY);
+
+        m_thread.Execute(this);
+        PostEvent(EV_Remove, 0);
+    }
 }
 
 void ThrobbingBox_Explosive::OnUse(Event *ev)
 {
-    // FIXME: unimplemented
+    if (m_bUsed) {
+        // don't use more than once
+        return;
+    }
+
+    if (edict->s.renderfx & RF_DONTDRAW) {
+        // ignore if invisible
+        return;
+    }
+
+	m_bUsed = true;
+
+	setModel(m_sUsedModel);
+
+	if (m_fStopwatchDuration > 0)
+	{
+		Player* player = static_cast<Player*>(G_FindTarget(this, "player"));
+		player->SetStopwatch(m_fStopwatchDuration, SWT_FUSE);
+		LoopSound(m_sTickSound);
+	}
+
+	// Play the activation sound
+	Sound(m_sActivateSound, CHAN_BODY);
+
+	Unregister(STRING_TRIGGER);
+	m_useThread.Execute(this);
+
+    if (m_fStopwatchDuration > 0)
+    {
+        PostEvent(EV_BlowUp, m_fStopwatchDuration);
+    }
 }
 
 void ThrobbingBox_Explosive::Archive(Archiver& arc)
@@ -712,12 +1059,50 @@ CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_Stickybomb, "ThrobbingBox
 
 void ThrobbingBox_Stickybomb::OnStickyBombWet(Event *ev)
 {
-    // FIXME: unimplemented
+    Player* player;
+
+    CancelEventsOfType(EV_BlowUp);
+    NewAnim("idle_fuse_wet");
+    Sound("stickybomb_fuse_out", CHAN_BODY);
+
+    player = static_cast<Player*>(G_FindTarget(this, "player"));
+    player->SetStopwatch(0, SWT_NORMAL);
+    player->SetStopwatch(m_fStopwatchDuration - (level.svsFloatTime - m_fStopwatchStartTime), SWT_FUSE);
 }
 
 void ThrobbingBox_Stickybomb::OnStickyBombUse(Event *ev)
 {
-    // FIXME: unimplemented
+    if (m_bUsed) {
+        return;
+    }
+
+    setSolidType(SOLID_BBOX);
+    takedamage = DAMAGE_YES;
+    m_bUsed = true;
+
+    setModel(m_sUsedModel);
+
+    if (m_fStopwatchDuration > 0)
+    {
+        Player* player = static_cast<Player*>(G_FindTarget(this, "player"));
+        player->SetStopwatch(m_fStopwatchDuration, SWT_FUSE);
+        LoopSound(m_sTickSound);
+        m_fStopwatchStartTime = level.svsFloatTime;
+    }
+
+    // Play the activation sound
+    Sound(m_sActivateSound, CHAN_BODY);
+
+    Unregister(STRING_TRIGGER);
+    m_useThread.Execute(this);
+    PostEvent(EV_BlowUp, m_fStopwatchDuration);
+
+    if (spawnflags & TBE_SPAWNFLAG_MAKE_WET)
+    {
+        PostEvent(EV_StickyBombWet, m_fStopwatchDuration * 0.5f * random() + m_fStopwatchDuration * 0.25f);
+    }
+
+    NewAnim("idle_fuse_lit");
 }
 
 void ThrobbingBox_Stickybomb::Archive(Archiver& arc)
@@ -917,7 +1302,31 @@ CLASS_DECLARATION(SimpleArchivedEntity, AISpawnPoint, "info_aispawnpoint") {
 
 AISpawnPoint::AISpawnPoint()
 {
-    // FIXME: unimplemented
+	m_iHealth = 100;
+	m_iAccuracy = 20;
+	m_iAmmoGrenade = 0;
+	m_iBalconyHeight = 128;
+	m_iDisguiseLevel = 1;
+	m_fDisguisePeriod = 30000;
+	m_fDisguiseRange = 256;
+	m_fEnemyShareRange = 0;
+	m_fFixedLeash = 0.0;
+	m_fGrenadeAwareness = 20.0;
+	m_fMaxNoticeTimeScale = 1;
+	m_fSoundAwareness = 100;
+	m_bPatrolWaitTrigger = 0;
+	m_fHearing = 2048;
+	m_fSight = world->m_fAIVisionDistance;
+	m_fFov = 90;
+	m_fLeash = 512;
+	m_fMinDist = 128.0;
+	m_fMaxDist = 1024;
+	m_fInterval = 128.0;
+	m_bDontDropWeapons = 0;
+	m_bDontDropHealth = 0;
+	m_bNoSurprise = 0;
+	m_bForceDropWeapon = 0;
+	m_bForceDropHealth = 0;
 }
 
 void AISpawnPoint::GetForceDropHealth(Event *ev)
