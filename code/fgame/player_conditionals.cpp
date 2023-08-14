@@ -1227,7 +1227,7 @@ qboolean Player::CondKnockDown(Conditional& condition)
 
 qboolean Player::CondPainType(Conditional& condition)
 {
-    if (pain_type == MOD_NameToNum(condition.getParm(1))) {
+    if (pain_type == MOD_string_to_int(condition.getParm(1))) {
         return qtrue;
     } else {
         return qfalse;
@@ -1588,7 +1588,7 @@ qboolean Player::CondCheckHeight(Conditional& condition)
 
 qboolean Player::CondViewInWater(Conditional& condition)
 {
-    return (gi.PointContents(m_vViewPos, 0) & MASK_WATER) != 0;
+    return (gi.pointcontents(m_vViewPos, 0) & MASK_WATER) != 0;
 }
 
 qboolean Player::CondDuckedViewInWater(Conditional& condition)
@@ -1596,7 +1596,7 @@ qboolean Player::CondDuckedViewInWater(Conditional& condition)
 	Vector vPos = origin;
 	vPos[2] += 48.0f;
 
-	return (gi.PointContents(vPos, 0) & MASK_WATER) != 0;
+	return (gi.pointcontents(vPos, 0) & MASK_WATER) != 0;
 }
 
 qboolean Player::CondCheckMovementSpeed(Conditional& condition)

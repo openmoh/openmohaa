@@ -172,7 +172,7 @@ qboolean MM_SlideMove
 		VectorMA( mm->origin, time_left, mm->velocity, end );
 
 		// see if we can make it there
-		gi.Trace( &trace, mm->origin, mm->mins, mm->maxs, end, mm->entityNum, mm->tracemask, qtrue, qfalse );
+		gi.trace( &trace, mm->origin, mm->mins, mm->maxs, end, mm->entityNum, mm->tracemask, qtrue, qfalse );
 
 		if( trace.allsolid )
 			break;
@@ -379,7 +379,7 @@ void MM_GroundTrace
 	point[ 1 ] = mm->origin[ 1 ];
 	point[ 2 ] = mm->origin[ 2 ] - 0.25f;
 
-	gi.Trace( &mml.groundTrace, mm->origin, mm->mins, mm->maxs, point, mm->entityNum, mm->tracemask, qtrue, qfalse );
+	gi.trace( &mml.groundTrace, mm->origin, mm->mins, mm->maxs, point, mm->entityNum, mm->tracemask, qtrue, qfalse );
 	MM_GroundTraceInternal();
 }
 
@@ -420,7 +420,7 @@ void MM_StepSlideMove
 
 	VectorCopy( start_o, down );
 	down[ 2 ] -= STEPSIZE;
-	gi.Trace( &trace, start_o, mm->mins, mm->maxs, down, mm->entityNum, mm->tracemask, qtrue, qfalse );
+	gi.trace( &trace, start_o, mm->mins, mm->maxs, down, mm->entityNum, mm->tracemask, qtrue, qfalse );
 	VectorSet( up, 0, 0, 1 );
 
 	// never step up when you still have up velocity
@@ -460,7 +460,7 @@ void MM_StepSlideMove
 	down[ 2 ] -= STEPSIZE * 2;
 
 	// test the player position if they were a stepheight higher
-	gi.Trace( &trace, up, mm->mins, mm->maxs, up, mm->entityNum, mm->tracemask, qtrue, qfalse );
+	gi.trace( &trace, up, mm->mins, mm->maxs, up, mm->entityNum, mm->tracemask, qtrue, qfalse );
 	if( trace.entityNum > ENTITYNUM_NONE )
 	{
 		VectorCopy( nostep_o, mm->origin );
@@ -607,7 +607,7 @@ void MmoveSingle
 		point[ 1 ] = mmove->origin[ 1 ];
 		point[ 2 ] = mmove->origin[ 2 ] - 18.0f;
 
-		gi.Trace( &trace, mm->origin, mm->mins, mm->maxs, point, mm->entityNum, mm->tracemask, qtrue, qfalse );
+		gi.trace( &trace, mm->origin, mm->mins, mm->maxs, point, mm->entityNum, mm->tracemask, qtrue, qfalse );
 
 		if( trace.fraction < 1.0f && !trace.allsolid )
 		{

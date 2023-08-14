@@ -147,7 +147,7 @@ void Bullet_Fire (gentity_t *ent, float spread, int damage ) {
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
 
-		gi.Trace (&tr, g_muzzle, NULL, NULL, end, passent, MASK_SHOT);
+		gi.trace (&tr, g_muzzle, NULL, NULL, end, passent, MASK_SHOT);
 		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 			return;
 		}
@@ -225,7 +225,7 @@ qboolean ShotgunPellet( vec3_t start, vec3_t end, gentity_t *ent ) {
 	VectorCopy( start, tr_start );
 	VectorCopy( end, tr_end );
 	for (i = 0; i < 10; i++) {
-		gi.Trace (&tr, tr_start, NULL, NULL, tr_end, passent, MASK_SHOT);
+		gi.trace (&tr, tr_start, NULL, NULL, tr_end, passent, MASK_SHOT);
 		traceEnt = &g_entities[ tr.entityNum ];
 
 		// send bullet impact
@@ -412,7 +412,7 @@ void weapon_railgun_fire (gentity_t *ent) {
 	hits = 0;
 	passent = ent->s.number;
 	do {
-		gi.Trace (&trace, g_muzzle, NULL, NULL, end, passent, MASK_SHOT );
+		gi.trace (&trace, g_muzzle, NULL, NULL, end, passent, MASK_SHOT );
 		if ( trace.entityNum >= ENTITYNUM_MAX_NORMAL ) {
 			break;
 		}
@@ -574,7 +574,7 @@ void Weapon_LightningFire( gentity_t *ent ) {
 	for (i = 0; i < 10; i++) {
 		VectorMA( g_muzzle, LIGHTNING_RANGE, forward, end );
 
-		gi.Trace( &tr, g_muzzle, NULL, NULL, end, passent, MASK_SHOT );
+		gi.trace( &tr, g_muzzle, NULL, NULL, end, passent, MASK_SHOT );
 
 #ifdef MISSIONPACK
 		// if not the first trace (the lightning bounced of an invulnerability sphere)

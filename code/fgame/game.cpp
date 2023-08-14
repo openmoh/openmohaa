@@ -183,7 +183,7 @@ void G_ExitLevel
 		{
 			// The nextmap cvar was set (possibly by a vote - so go ahead and use it)
 			level.nextmap = sv_nextmap->string;
-			gi.Cvar_Set( "nextmap", "" );
+			gi.cvar_set( "nextmap", "" );
 		}
 		else // Use the next map in the maplist
 		{
@@ -305,7 +305,7 @@ void G_UpdateMatchEndTime( void )
 	if( level.svsEndTime != endtime )
 	{
 		level.svsEndTime = endtime;
-		gi.SetConfigstring( CS_MATCHEND, va( "%i", endtime ) );
+		gi.setConfigstring( CS_MATCHEND, va( "%i", endtime ) );
 	}
 }
 
@@ -344,48 +344,6 @@ SimpleArchivedEntity *G_FindArchivedClass( SimpleArchivedEntity *ent, const char
 	}
 
 	return NULL;
-}
-
-Entity *G_FindClass( Entity *ent, const char *classname )
-{
-	int         entnum;
-	gentity_t   *from;
-
-	if( ent )
-	{
-		entnum = ent->entnum;
-	}
-	else
-	{
-		entnum = -1;
-	}
-
-	for( from = &g_entities[ entnum + 1 ]; from < &g_entities[ globals.num_entities ]; from++ )
-	{
-		if( !from->inuse )
-		{
-			continue;
-		}
-		if( !Q_stricmp( from->entity->getClassID(), classname ) )
-		{
-			return from->entity;
-		}
-	}
-
-	return NULL;
-}
-
-Entity *G_GetEntity( int ent_num )
-{
-	gentity_t * ent = &globals.gentities[ ent_num ];
-
-	if( ent_num < 0 || ent_num > globals.max_entities )
-	{
-		gi.DPrintf( "G_GetEntity: %d out of valid range.\n", ent_num );
-		return NULL;
-	}
-
-	return ent->entity;
 }
 
 Entity *G_GetEntityByClient( int clientNum )
@@ -508,40 +466,6 @@ Entity *G_FindRandomTarget( const char *name )
 		}
 	}
 	return (Entity *)found;
-}
-
-void G_TouchTriggers( Entity *ent )
-{
-	int		i;
-	int		num;
-	int      touch[ MAX_GENTITIES ];
-	gentity_t  *hit;
-	Event		*ev;
-
-	// dead things don't activate triggers!
-	if( ( ent->client || ( ent->edict->r.svFlags & SVF_BOT ) ) && ( ent->IsDead() ) )
-	{
-		return;
-	}
-
-	num = gi.AreaEntities( ent->absmin, ent->absmax, touch, MAX_GENTITIES );
-
-	// be careful, it is possible to have an entity in this
-	// list removed before we get to it (killtriggered)
-	for( i = 0; i < num; i++ )
-	{
-		hit = &g_entities[ touch[ i ] ];
-		if( !hit->inuse || ( hit->entity == ent ) || ( hit->solid != SOLID_TRIGGER ) )
-		{
-			continue;
-		}
-
-		assert( hit->entity );
-
-		ev = new Event( EV_Touch );
-		ev->AddEntity( ent );
-		hit->entity->ProcessEvent( ev );
-	}
 }
 
 Game::Game()

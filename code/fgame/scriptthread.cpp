@@ -2903,7 +2903,7 @@ void ScriptThread::MapEvent(Event *ev)
 
 void ScriptThread::SetCvarEvent(Event *ev)
 {
-    gi.Cvar_Set(ev->GetString(1), ev->GetString(2));
+    gi.cvar_set(ev->GetString(1), ev->GetString(2));
 }
 
 void ScriptThread::EventDebugLine(Event *ev)
@@ -4199,7 +4199,7 @@ void ScriptThread::AddObjective(int index, int status, str text, Vector location
     char      *sTmp;
 
     flags = OBJ_FLAG_NONE;
-    sTmp  = gi.GetConfigstring(CS_OBJECTIVES + index);
+    sTmp  = gi.getConfigstring(CS_OBJECTIVES + index);
 
     switch (status) {
     case OBJ_STATUS_HIDDEN:
@@ -4235,19 +4235,19 @@ void ScriptThread::AddObjective(int index, int status, str text, Vector location
     Info_SetValueForKey(szSend, "text", text.c_str());
     Info_SetValueForKey(szSend, "loc", va("%f %f %f", location[0], location[1], location[2]));
 
-    gi.SetConfigstring(CS_OBJECTIVES + index, szSend);
+    gi.setConfigstring(CS_OBJECTIVES + index, szSend);
 }
 
 void ScriptThread::SetCurrentObjective(int iObjective, int iTeam)
 {
-    gi.SetConfigstring(CS_CURRENT_OBJECTIVE, va("%i", iObjective));
+    gi.setConfigstring(CS_CURRENT_OBJECTIVE, va("%i", iObjective));
 
     if (iObjective == -1) {
         level.m_vObjectiveLocation = vec_zero;
         level.m_vAlliedObjectiveLocation = vec_zero;
         level.m_vAxisObjectiveLocation = vec_zero;
     } else {
-        const char *s   = gi.GetConfigstring(CS_OBJECTIVES + iObjective);
+        const char *s   = gi.getConfigstring(CS_OBJECTIVES + iObjective);
         const char *loc = Info_ValueForKey(s, "loc");
         Vector v;
 
@@ -4297,14 +4297,14 @@ void ScriptThread::EventAddObjective(Event *ev)
     }
 
     if (ev->IsNilAt(3)) {
-        text = Info_ValueForKey(gi.GetConfigstring(index + CS_OBJECTIVES), "text");
+        text = Info_ValueForKey(gi.getConfigstring(index + CS_OBJECTIVES), "text");
     } else {
         text = ev->GetString(3);
     }
 
     if (ev->IsNilAt(4)) {
         sscanf(
-            Info_ValueForKey(gi.GetConfigstring(index + CS_OBJECTIVES), "loc"),
+            Info_ValueForKey(gi.getConfigstring(index + CS_OBJECTIVES), "loc"),
             "%f %f %f",
             &location.x,
             &location.y,
@@ -4330,10 +4330,10 @@ void ScriptThread::EventSetScoreboardToggle(Event *ev)
     team  = ev->GetConstString(1);
     switch (team) {
     case STRING_AXIS:
-        gi.Cvar_Set("scoreboard_toggle2", va("%i", value));
+        gi.cvar_set("scoreboard_toggle2", va("%i", value));
         break;
     case STRING_ALLIES:
-        gi.Cvar_Set("scoreboard_toggle1", va("%i", value));
+        gi.cvar_set("scoreboard_toggle1", va("%i", value));
         break;
     default:
         ScriptError("1st argument can only be \"axis\" or \"allies\"");
@@ -5308,7 +5308,7 @@ void ScriptThread::FileOpen(Event *ev)
     } else {
         ev->AddInteger((int)(size_t)f);
         sprintf(buf, "%i", scriptfiles->integer + 1);
-        gi.Cvar_Set("sv_scriptfiles", buf);
+        gi.cvar_set("sv_scriptfiles", buf);
         return;
     }
 }
@@ -5368,7 +5368,7 @@ void ScriptThread::FileClose(Event *ev)
     if (ret == 0) {
         ev->AddInteger(0);
         sprintf(buf, "%i", scriptfiles->integer - 1);
-        gi.Cvar_Set("sv_scriptfiles", buf);
+        gi.cvar_set("sv_scriptfiles", buf);
         return;
     } else {
         ev->AddInteger(ret);
@@ -6777,9 +6777,9 @@ void ScriptThread::RegisterEvent(Event *ev)
     scriptedEvents[evType].label.SetThread(ev->GetValue(2));
 
     if (evType == SE_KEYPRESS) {
-        gi.Cvar_Set("sv_keypressevents", "1");
+        gi.cvar_set("sv_keypressevents", "1");
     } else if (evType == SE_SERVERCOMMAND) {
-        gi.Cvar_Set("sv_servercmdevents", "1");
+        gi.cvar_set("sv_servercmdevents", "1");
     }
 
     ev->AddInteger(0);
@@ -6816,9 +6816,9 @@ void ScriptThread::UnregisterEvent(Event *ev)
     scriptedEvents[evType].label.Set("");
 
     if (evType == SE_KEYPRESS) {
-        gi.Cvar_Set("sv_keypressevents", "0");
+        gi.cvar_set("sv_keypressevents", "0");
     } else if (evType == SE_SERVERCOMMAND) {
-        gi.Cvar_Set("sv_servercmdevents", "0");
+        gi.cvar_set("sv_servercmdevents", "0");
     }
 
     ev->AddInteger(0);
@@ -6948,7 +6948,7 @@ void ScriptThread::TraceDetails(Event *ev)
         mask = ev->GetInteger(6);
     }
 
-    gi.Trace(&trace, vecStart, vecMins, vecMaxs, vecEnd, pass_entity, mask, 0, 0);
+    gi.trace(&trace, vecStart, vecMins, vecMaxs, vecEnd, pass_entity, mask, 0, 0);
 
     allSolidIndex.setStringValue("allSolid");
     startSolidIndex.setStringValue("startSolid");

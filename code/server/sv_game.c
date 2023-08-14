@@ -1503,23 +1503,23 @@ void SV_InitGameProgs( void ) {
 	import.SetBroadcastHearable			= MSG_SetBroadcastHearable;
 	import.SetBroadcastAll				= MSG_SetBroadcastAll;
 
-	import.LinkEntity					= SV_LinkEntity;
-	import.UnlinkEntity					= SV_UnlinkEntity;
+	import.linkentity					= SV_LinkEntity;
+	import.unlinkentity					= SV_UnlinkEntity;
 
 	import.AreaEntities					= SV_AreaEntities;
 	
 	import.SightTraceEntity				= SV_SightTraceEntity;
 	import.SightTrace					= SV_SightTrace;
-	import.Trace						= SV_Trace;
+	import.trace						= SV_Trace;
 	import.GetShader					= SV_GetShaderPointer;
-	import.PointContents				= SV_PointContents;
+	import.pointcontents				= SV_PointContents;
 	import.PointBrushnum				= CM_PointBrushNum;
 	import.SetBrushModel				= SV_SetBrushModel;
 	import.ModelBoundsFromName			= CM_ModelBoundsFromName;
 	import.ClipToEntity					= SV_ClipToEntity;
 	import.HitEntity					= SV_HitEntity;
-	import.SetConfigstring				= SV_SetConfigstring;
-	import.GetConfigstring				= SV_GetConfigstring;
+	import.setConfigstring				= SV_SetConfigstring;
+	import.getConfigstring				= SV_GetConfigstring;
 	import.GetUserinfo					= SV_GetUserinfo;
 	import.SetUserinfo					= SV_SetUserinfo;
 
@@ -1527,7 +1527,7 @@ void SV_InitGameProgs( void ) {
 	import.Free							= SV_Free;
 
 	import.Cvar_Get						= Cvar_Get;
-	import.Cvar_Set						= Cvar_Set;
+	import.cvar_set						= Cvar_Set;
 	import.cvar_set2					= Cvar_Set2;
 	import.NextCvar						= Cvar_Next;
 

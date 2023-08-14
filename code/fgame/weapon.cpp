@@ -4139,7 +4139,7 @@ void Weapon::SetMeansOfDeath(Event *ev)
 
 {
     assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
-    meansofdeath[firemodeindex] = (meansOfDeath_t)MOD_NameToNum(ev->GetString(1));
+    meansofdeath[firemodeindex] = (meansOfDeath_t)MOD_string_to_int(ev->GetString(1));
 }
 
 //======================

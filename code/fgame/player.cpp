@@ -3480,13 +3480,13 @@ void Player::SetMoveInfo(pmove_t *pm, usercmd_t *ucmd)
     }
 
     if (sv_drawtrace->integer <= 1) {
-        pm->trace = gi.Trace;
+        pm->trace = gi.trace;
     } else {
         pm->trace = &G_PMDrawTrace;
     }
 
     pm->tracemask     = MASK_PLAYERSOLID;
-    pm->pointcontents = gi.PointContents;
+    pm->pointcontents = gi.pointcontents;
 
     pm->ps->origin[0] = origin.x;
     pm->ps->origin[1] = origin.y;
@@ -4042,11 +4042,11 @@ void Player::ClientInactivityTimer(void)
     }
 
     if (g_inactivekick->integer && g_inactivekick->integer < 60) {
-        gi.Cvar_Set("g_inactiveKick", "60");
+        gi.cvar_set("g_inactiveKick", "60");
     }
 
     if (g_inactivespectate->integer && g_inactivespectate->integer < 20) {
-        gi.Cvar_Set("g_inactiveSpectate", "20");
+        gi.cvar_set("g_inactiveSpectate", "20");
     }
 
     if (num_team_kills >= g_teamkillkick->integer) {
@@ -4319,11 +4319,11 @@ void Player::ClientThink(void)
             }
         } else {
             if (level.intermissiontype == TRANS_MISSION_FAILED || IsDead()) {
-                gi.Cvar_Set("g_success", "0");
-                gi.Cvar_Set("g_failed", "1");
+                gi.cvar_set("g_success", "0");
+                gi.cvar_set("g_failed", "1");
             } else {
-                gi.Cvar_Set("g_success", "1");
-                gi.Cvar_Set("g_failed", "0");
+                gi.cvar_set("g_success", "1");
+                gi.cvar_set("g_failed", "0");
             }
 
             // prevent getting medals from cheats
@@ -4333,9 +4333,9 @@ void Player::ClientThink(void)
                 || g_medalbt3->modificationCount > 1 || g_medalbt4->modificationCount > 1
                 || g_medalbt5->modificationCount > 1 || g_eogmedal0->modificationCount > 1
                 || g_eogmedal1->modificationCount > 1 || g_eogmedal2->modificationCount > 1) {
-                gi.Cvar_Set("g_gotmedal", "0");
+                gi.cvar_set("g_gotmedal", "0");
             } else {
-                gi.Cvar_Set("g_gotmedal", "1");
+                gi.cvar_set("g_gotmedal", "1");
             }
 
             client->ps.pm_flags |= PMF_FROZEN;
@@ -4503,7 +4503,7 @@ void Player::Think(void)
                         }
                     } else if (m_fWeapSelectTime < level.time) {
                         m_fWeapSelectTime = level.time + 1.0;
-                        UserSelectWeapon(NULL);
+                        UserSelectWeapon(false);
                     }
                 } else if (m_fWeapSelectTime < level.time) {
                     m_fWeapSelectTime = level.time + 1.0;
@@ -5856,7 +5856,7 @@ void Player::CalcBlend(void)
     // add for contents
     vieworg = m_vViewPos;
 
-    contents = gi.PointContents(vieworg, 0);
+    contents = gi.pointcontents(vieworg, 0);
 
     if (contents & CONTENTS_SOLID) {
         // Outside of world
@@ -7775,7 +7775,7 @@ void Player::ArchivePersistantData(Archiver& arc)
 
     if (arc.Loading()) {
         // set the cvar
-        gi.Cvar_Set("g_playermodel", model_name.c_str());
+        gi.cvar_set("g_playermodel", model_name.c_str());
 
         model_name += ".tik";
         setModel(model_name.c_str());
@@ -8413,7 +8413,7 @@ void Player::EnsurePlayerHasAllowedWeapons()
         }
     }
 
-    gi.Cvar_Set("dmflags", va("%i", dmflags->integer & ~DF_WEAPON_NO_RIFLE));
+    gi.cvar_set("dmflags", va("%i", dmflags->integer & ~DF_WEAPON_NO_RIFLE));
     Com_Printf("No valid weapons -- re-allowing the rifle\n");
     strcpy(client->pers.dm_primary, "rifle");
 }
@@ -10505,11 +10505,11 @@ void Player::EventEnterIntermission(Event *ev)
         G_DisplayScores(this);
 
         if (level.intermissiontype == TRANS_MISSION_FAILED || IsDead()) {
-            gi.Cvar_Set("g_success", "0");
-            gi.Cvar_Set("g_failed", "1");
+            gi.cvar_set("g_success", "0");
+            gi.cvar_set("g_failed", "1");
         } else {
-            gi.Cvar_Set("g_success", "1");
-            gi.Cvar_Set("g_failed", "0");
+            gi.cvar_set("g_success", "1");
+            gi.cvar_set("g_failed", "0");
         }
     } else {
         G_HideScores(this);
@@ -10900,7 +10900,7 @@ void Player::UserSelectWeapon(bool bWait)
         && dmflags->integer & DF_WEAPON_NO_SMG && dmflags->integer & DF_WEAPON_NO_MG
         && dmflags->integer & DF_WEAPON_NO_ROCKET && dmflags->integer & DF_WEAPON_NO_SHOTGUN
         && dmflags->integer & DF_WEAPON_NO_LANDMINE && !QueryLandminesAllowed()) {
-        gi.Cvar_Set("dmflags", va("%i", dmflags->integer & ~DF_WEAPON_NO_RIFLE));
+        gi.cvar_set("dmflags", va("%i", dmflags->integer & ~DF_WEAPON_NO_RIFLE));
         Com_Printf("No valid weapons -- re-allowing the rifle\n");
         strcpy(client->pers.dm_primary, "rifle");
     }

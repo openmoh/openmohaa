@@ -1986,7 +1986,7 @@ void PathSearch::CreatePaths
 	for( i = 0, ent = g_entities; i < game.maxentities; i++, ent++ )
 	{
 		if( ent->entity && ent->entity->IsSubclassOfDoor() )
-			gi.UnlinkEntity( ent );
+			gi.unlinkentity( ent );
 	}
 
 	for( x = 0; x < PATHMAP_GRIDSIZE; x++ )

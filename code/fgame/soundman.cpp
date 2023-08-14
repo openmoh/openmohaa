@@ -280,14 +280,14 @@ void SoundManager::UpdateUI
    {
    if ( current )
       {
-      gi.Cvar_Set( "snd_multifaceted", "" );
-      gi.Cvar_Set( "snd_currentfacet", "" );
-      gi.Cvar_Set( "snd_onetime", "0" );
-      gi.Cvar_Set( "snd_useangles", "0" );
-      gi.Cvar_Set( "snd_yaw", "0" );
+      gi.cvar_set( "snd_multifaceted", "" );
+      gi.cvar_set( "snd_currentfacet", "" );
+      gi.cvar_set( "snd_onetime", "0" );
+      gi.cvar_set( "snd_useangles", "0" );
+      gi.cvar_set( "snd_yaw", "0" );
 
-      gi.Cvar_Set( "snd_origin", va( "%.2f %.2f %.2f", current->origin[ 0 ], current->origin[ 1 ], current->origin[ 2 ] ) );
-      gi.Cvar_Set( "snd_targetname", current->targetname.c_str() );
+      gi.cvar_set( "snd_origin", va( "%.2f %.2f %.2f", current->origin[ 0 ], current->origin[ 1 ], current->origin[ 2 ] ) );
+      gi.cvar_set( "snd_targetname", current->targetname.c_str() );
       if ( current->isSubclassOf( TriggerSpeaker ) )
          {
          TriggerSpeaker * speaker;
@@ -295,38 +295,38 @@ void SoundManager::UpdateUI
          speaker = ( TriggerSpeaker * )current;
          if ( speaker->volume != DEFAULT_VOL )
             {
-            gi.Cvar_Set( "snd_volume", va( "%.1f", speaker->volume ) );
+            gi.cvar_set( "snd_volume", va( "%.1f", speaker->volume ) );
             }
          else
             {
-            gi.Cvar_Set( "snd_volume", "Default" );
+            gi.cvar_set( "snd_volume", "Default" );
             }
          if ( speaker->min_dist != DEFAULT_MIN_DIST )
             {
-            gi.Cvar_Set( "snd_mindist", va( "%.1f", speaker->min_dist ) );
+            gi.cvar_set( "snd_mindist", va( "%.1f", speaker->min_dist ) );
             }
          else
             {
-            gi.Cvar_Set( "snd_mindist", "Default" );
+            gi.cvar_set( "snd_mindist", "Default" );
             }
 
          // setup the sound
-         gi.Cvar_Set( "ui_pickedsound", speaker->Noise().c_str() );
+         gi.cvar_set( "ui_pickedsound", speaker->Noise().c_str() );
 
          if ( current->isSubclassOf( RandomSpeaker ) )
             {
             RandomSpeaker * random;
 
             random = ( RandomSpeaker * )current;
-            gi.Cvar_Set( "snd_mindelay", va( "%.1f", random->mindelay ) );
-            gi.Cvar_Set( "snd_maxdelay", va( "%.1f", random->maxdelay ) );
-            gi.Cvar_Set( "snd_channel", va( "%d", random->channel ) );
-            gi.Cvar_Set( "snd_chance", va( "%.1f", random->chance ) );
-            gi.Cvar_Set( "snd_type", "RandomSpeaker" );
+            gi.cvar_set( "snd_mindelay", va( "%.1f", random->mindelay ) );
+            gi.cvar_set( "snd_maxdelay", va( "%.1f", random->maxdelay ) );
+            gi.cvar_set( "snd_channel", va( "%d", random->channel ) );
+            gi.cvar_set( "snd_chance", va( "%.1f", random->chance ) );
+            gi.cvar_set( "snd_type", "RandomSpeaker" );
             }
          else
             {
-            gi.Cvar_Set( "snd_type", "Speaker" );
+            gi.cvar_set( "snd_type", "Speaker" );
             }
          }
       else if ( current->isSubclassOf( TriggerMusic )  || current->isSubclassOf( TriggerReverb ) )
@@ -335,49 +335,49 @@ void SoundManager::UpdateUI
          Trigger  *trigger;
 
          trigger = ( Trigger * )current;
-         gi.Cvar_Set( "snd_width", va( "%.0f", trigger->maxs[ 0 ] ) );
-         gi.Cvar_Set( "snd_length", va( "%.0f", trigger->maxs[ 1 ] ) );
-         gi.Cvar_Set( "snd_height", va( "%.0f", trigger->maxs[ 2 ] ) );
+         gi.cvar_set( "snd_width", va( "%.0f", trigger->maxs[ 0 ] ) );
+         gi.cvar_set( "snd_length", va( "%.0f", trigger->maxs[ 1 ] ) );
+         gi.cvar_set( "snd_height", va( "%.0f", trigger->maxs[ 2 ] ) );
          if ( trigger->UsingTriggerDir() )
             {
-            gi.Cvar_Set( "snd_useangles", "1" );
+            gi.cvar_set( "snd_useangles", "1" );
             }
          else
             {
-            gi.Cvar_Set( "snd_useangles", "0" );
+            gi.cvar_set( "snd_useangles", "0" );
             }
-         gi.Cvar_Set( "snd_yaw", va( "%.0f", trigger->angles[ 1 ] ) );
+         gi.cvar_set( "snd_yaw", va( "%.0f", trigger->angles[ 1 ] ) );
          multiFaceted = trigger->GetMultiFaceted();
          if ( multiFaceted )
             {
             if ( multiFaceted == 1 )
                {
-               gi.Cvar_Set( "snd_multifaceted", "North/South" );
+               gi.cvar_set( "snd_multifaceted", "North/South" );
                if ( currentFacet )
                   {
-                  gi.Cvar_Set( "snd_currentfacet", "South" );
+                  gi.cvar_set( "snd_currentfacet", "South" );
                   }
                else
                   {
-                  gi.Cvar_Set( "snd_currentfacet", "North" );
+                  gi.cvar_set( "snd_currentfacet", "North" );
                   }
                }
             else
                {
-               gi.Cvar_Set( "snd_multifaceted", "East/West" );
+               gi.cvar_set( "snd_multifaceted", "East/West" );
                if ( currentFacet )
                   {
-                  gi.Cvar_Set( "snd_currentfacet", "West" );
+                  gi.cvar_set( "snd_currentfacet", "West" );
                   }
                else
                   {
-                  gi.Cvar_Set( "snd_currentfacet", "East" );
+                  gi.cvar_set( "snd_currentfacet", "East" );
                   }
                }
             }
          else
             {
-            gi.Cvar_Set( "snd_multifaceted", "Not" );
+            gi.cvar_set( "snd_multifaceted", "Not" );
             }
 
          if ( current->isSubclassOf( TriggerMusic ) )
@@ -386,25 +386,25 @@ void SoundManager::UpdateUI
 
             music = ( TriggerMusic * )trigger;
 
-            gi.Cvar_Set( "snd_type", "MusicTrigger" );
+            gi.cvar_set( "snd_type", "MusicTrigger" );
             if ( music->oneshot )
                {
-               gi.Cvar_Set( "snd_onetime", "1" );
+               gi.cvar_set( "snd_onetime", "1" );
                }
             else
                {
-               gi.Cvar_Set( "snd_onetime", "0" );
+               gi.cvar_set( "snd_onetime", "0" );
                }
 
             if ( !currentFacet )
                {
-               gi.Cvar_Set( "snd_currentmood", Director.GetString(music->current).c_str() );
-               gi.Cvar_Set( "snd_fallbackmood", Director.GetString(music->fallback).c_str() );
+               gi.cvar_set( "snd_currentmood", Director.GetString(music->current).c_str() );
+               gi.cvar_set( "snd_fallbackmood", Director.GetString(music->fallback).c_str() );
                }
             else
                {
-               gi.Cvar_Set( "snd_currentmood", Director.GetString(music->altcurrent).c_str() );
-               gi.Cvar_Set( "snd_fallbackmood", Director.GetString(music->altfallback).c_str() );
+               gi.cvar_set( "snd_currentmood", Director.GetString(music->altcurrent).c_str() );
+               gi.cvar_set( "snd_fallbackmood", Director.GetString(music->altfallback).c_str() );
                }
             }
          else if ( current->isSubclassOf( TriggerReverb ) )
@@ -413,39 +413,39 @@ void SoundManager::UpdateUI
 
             reverb = ( TriggerReverb * )trigger;
 
-            gi.Cvar_Set( "snd_type", "ReverbTrigger" );
+            gi.cvar_set( "snd_type", "ReverbTrigger" );
             if ( reverb->oneshot )
                {
-               gi.Cvar_Set( "snd_onetime", "1" );
+               gi.cvar_set( "snd_onetime", "1" );
                }
             else
                {
-               gi.Cvar_Set( "snd_onetime", "0" );
+               gi.cvar_set( "snd_onetime", "0" );
                }
 
             if ( !currentFacet )
                {
-               gi.Cvar_Set( "snd_reverbtypedisplay", EAXMode_NumToName( reverb->reverbtype ) );
-               gi.Cvar_Set( "snd_reverbtype", va( "%d", reverb->reverbtype ) );
-               gi.Cvar_Set( "snd_reverblevel", va( "%.2f", reverb->reverblevel ) );
+               gi.cvar_set( "snd_reverbtypedisplay", EAXMode_NumToName( reverb->reverbtype ) );
+               gi.cvar_set( "snd_reverbtype", va( "%d", reverb->reverbtype ) );
+               gi.cvar_set( "snd_reverblevel", va( "%.2f", reverb->reverblevel ) );
                }
             else
                {
-               gi.Cvar_Set( "snd_reverbtypedisplay", EAXMode_NumToName( reverb->altreverbtype ) );
-               gi.Cvar_Set( "snd_reverbtype", va( "%d", reverb->altreverbtype ) );
-               gi.Cvar_Set( "snd_reverblevel", va( "%.2f", reverb->altreverblevel ) );
+               gi.cvar_set( "snd_reverbtypedisplay", EAXMode_NumToName( reverb->altreverbtype ) );
+               gi.cvar_set( "snd_reverbtype", va( "%d", reverb->altreverbtype ) );
+               gi.cvar_set( "snd_reverblevel", va( "%.2f", reverb->altreverblevel ) );
                }
             }
          }
       if ( EventPending( EV_SoundManager_ShowingSounds ) )
          {
-         gi.Cvar_Set( "snd_hiddenstate", "visible" );
+         gi.cvar_set( "snd_hiddenstate", "visible" );
          }
       else
          {
-         gi.Cvar_Set( "snd_hiddenstate", "hidden" );
+         gi.cvar_set( "snd_hiddenstate", "hidden" );
          }
-      gi.Cvar_Set( "snd_speakernum", va( "%d", soundList.IndexOfObject( current ) - 1 ) );
+      gi.cvar_set( "snd_speakernum", va( "%d", soundList.IndexOfObject( current ) - 1 ) );
       }
    }
 

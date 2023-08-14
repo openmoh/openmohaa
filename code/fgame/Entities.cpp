@@ -563,7 +563,7 @@ void ProjectileGenerator_Gun::SetFireDelay(Event *ev)
 
 void ProjectileGenerator_Gun::SetMeansOfDeath(Event *ev)
 {
-    m_iMeansOfDeath = MOD_NameToNum(ev->GetString(1));
+    m_iMeansOfDeath = MOD_string_to_int(ev->GetString(1));
 }
 
 void ProjectileGenerator_Gun::SetBulletThroughWood(Event *ev)

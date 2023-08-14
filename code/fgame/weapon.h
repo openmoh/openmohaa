@@ -309,7 +309,7 @@ protected:
     void         SetCurrentFireAnim(Event *ev);
 	void         SetSecondaryAmmoInHud(Event* ev);
     //====
-    virtual void ShowInfo(float fDot, float fDist);
+    void ShowInfo(float fDot, float fDist) override;
 
 public:
     CLASS_PROTOTYPE(Weapon);

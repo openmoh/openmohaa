@@ -2299,7 +2299,7 @@ Vector Entity::getLocalVector(Vector vec)
 
 void Entity::link(void)
 {
-    gi.LinkEntity(edict);
+    gi.linkentity(edict);
     absmin   = edict->r.absmin;
     absmax   = edict->r.absmax;
     centroid = (absmin + absmax) * 0.5;
@@ -2654,7 +2654,7 @@ void Entity::DamageType(Event *ev)
     if (damage == "all") {
         damage_type = -1;
     } else {
-        damage_type = MOD_NameToNum(damage);
+        damage_type = MOD_string_to_int(damage);
     }
 }
 
@@ -3661,8 +3661,8 @@ void Entity::Sound(
                     if (g_subtitle->integer == 2 || max_dist * max_dist > DistanceSquared(org, p->edict->s.origin)) {
                         cvar_t *curSubtitle = gi.Cvar_Get("curSubtitle", "0", 0);
 
-                        gi.Cvar_Set(va("subtitle%d", curSubtitle->integer), va("%s", ret->subtitle));
-                        gi.Cvar_Set("curSubtitle", va("%d", curSubtitle->integer + 1));
+                        gi.cvar_set(va("subtitle%d", curSubtitle->integer), va("%s", ret->subtitle));
+                        gi.cvar_set("curSubtitle", va("%d", curSubtitle->integer + 1));
                     }
                 }
 
@@ -4093,7 +4093,7 @@ void Entity::SetWaterType(void)
 {
     qboolean isinwater;
 
-    watertype = gi.PointContents(origin, 0);
+    watertype = gi.pointcontents(origin, 0);
     isinwater = watertype & MASK_WATER;
 
     if (isinwater) {
@@ -4497,7 +4497,7 @@ void Entity::HurtEvent(Event *ev)
     }
 
     if (ev->NumArgs() > 1) {
-        means_of_death = MOD_NameToNum(ev->GetString(2));
+        means_of_death = MOD_string_to_int(ev->GetString(2));
     } else {
         means_of_death = MOD_CRUSH;
     }
@@ -5114,7 +5114,7 @@ qboolean Entity::CheckEventFlags(Event *event)
         }
 
         if (!thereisnomonkey->integer) {
-            gi.Cvar_Set("cheats", "0");
+            gi.cvar_set("cheats", "0");
         }
 
         if (!sv_cheats->integer) {
@@ -5942,7 +5942,7 @@ void Entity::AddImmunity(Event *ev)
     for (i = 1; i <= number_of_immunities; i++) {
         immune_string = ev->GetString(i);
 
-        new_immunity = MOD_NameToNum(immune_string);
+        new_immunity = MOD_string_to_int(immune_string);
 
         if (new_immunity != -1) {
             immunities.AddUniqueObject(new_immunity);
@@ -5962,7 +5962,7 @@ void Entity::RemoveImmunity(Event *ev)
     for (i = 1; i <= number_of_immunities; i++) {
         immune_string = ev->GetString(i);
 
-        old_immunity = MOD_NameToNum(immune_string);
+        old_immunity = MOD_string_to_int(immune_string);
 
         if (old_immunity != -1 && immunities.ObjectInList(old_immunity)) {
             immunities.RemoveObject(old_immunity);

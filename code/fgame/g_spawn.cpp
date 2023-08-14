@@ -1039,7 +1039,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 		}
 		ent->s.frameInfo[0].weight = 1.f;
 		G_SetOrigin( ent, ent->s.origin );
-		gi.LinkEntity (ent);
+		gi.linkentity (ent);
 		return qtrue;
 #endif
 	}
@@ -1332,13 +1332,13 @@ void SP_worldspawn( void ) {
 	gi.SetConfigstring( CS_MOTD, g_motd.string );		// message of the day
 
 	G_SpawnString( "gravity", "800", &s );
-	gi.Cvar_Set( "g_gravity", s );
+	gi.cvar_set( "g_gravity", s );
 
 	G_SpawnString( "enableDust", "0", &s );
-	gi.Cvar_Set( "g_enableDust", s );
+	gi.cvar_set( "g_enableDust", s );
 
 	G_SpawnString( "enableBreath", "0", &s );
-	gi.Cvar_Set( "g_enableBreath", s );
+	gi.cvar_set( "g_enableBreath", s );
 
 	for( i = 0; i < level.numSpawnVars; i++ )
 	{
@@ -1354,7 +1354,7 @@ void SP_worldspawn( void ) {
 	// see if we want a warmup time
 	gi.SetConfigstring( CS_WARMUP, "" );
 	if ( g_restarted.integer ) {
-		gi.Cvar_Set( "g_restarted", "0" );
+		gi.cvar_set( "g_restarted", "0" );
 		level.warmupTime = 0;
 	} else if ( g_doWarmup.integer ) { // Turn it on
 		level.warmupTime = -1;

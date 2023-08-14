@@ -758,7 +758,7 @@ inline int Entity::getMoveType(void)
 inline void Entity::unlink(void)
 
 {
-    gi.UnlinkEntity(edict);
+    gi.unlinkentity(edict);
 }
 
 inline void Entity::setContents(int type)

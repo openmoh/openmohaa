@@ -240,9 +240,9 @@ void DM_Team::TeamWin(void)
     UpdateTeamStatus();
 
     if (m_teamnumber == TEAM_ALLIES) {
-        gi.Cvar_Set("g_scoreboardpicover", "textures/hud/allieswin");
+        gi.cvar_set("g_scoreboardpicover", "textures/hud/allieswin");
     } else if (m_teamnumber == TEAM_AXIS) {
-        gi.Cvar_Set("g_scoreboardpicover", "textures/hud/axiswin");
+        gi.cvar_set("g_scoreboardpicover", "textures/hud/axiswin");
     }
 }
 
@@ -755,7 +755,7 @@ void DM_Manager::Reset(void)
     m_players.ClearObjectList();
     m_teams.ClearObjectList();
 
-    gi.Cvar_Set("g_scoreboardpicover", "");
+    gi.cvar_set("g_scoreboardpicover", "");
 
     //
     // Added in 2.0
@@ -768,10 +768,10 @@ void DM_Manager::Reset(void)
     if (g_gametype->integer == GT_TOW) {
         // FIXME: unimplemented
         //g_TOWObjectiveMan.Reset();
-        gi.Cvar_Set("g_TOW_winstate", "0");
+        gi.cvar_set("g_TOW_winstate", "0");
     } else if (g_gametype->integer == GT_LIBERATION) {
-        gi.Cvar_Set("scoreboard_toggle1", "0");
-        gi.Cvar_Set("scoreboard_toggle2", "0");
+        gi.cvar_set("scoreboard_toggle1", "0");
+        gi.cvar_set("scoreboard_toggle2", "0");
     }
 }
 
@@ -876,13 +876,13 @@ void DM_Manager::RebuildTeamConfigstrings(void)
     for (int i = 1; i <= teamcount; i++) {
         team = m_teams.ObjectAt(i);
 
-        gi.SetConfigstring(
+        gi.setConfigstring(
             CS_GENERAL_STRINGS + i,
             va("%d %s %d player(s)", team->m_teamnumber, team->m_teamname.c_str(), team->m_players.NumObjects())
         );
     }
 
-    gi.SetConfigstring(CS_TEAMS, va("%d", teamcount));
+    gi.setConfigstring(CS_TEAMS, va("%d", teamcount));
 }
 
 int DM_Manager::compareScores(const void *elem1, const void *elem2)
@@ -1089,13 +1089,13 @@ void DM_Manager::InitGame(void)
             m_team_allies.m_teamwins      = g_tempalliesscore->integer;
             m_team_allies.m_wins_in_a_row = g_tempallieswinsinrow->integer;
 
-            gi.Cvar_Set("g_tempaxisscore", "0");
-            gi.Cvar_Set("g_tempaxiswinsinrow", "0");
-            gi.Cvar_Set("g_tempalliesscore", "0");
-            gi.Cvar_Set("g_tempaxiswinsinrow", "0");
+            gi.cvar_set("g_tempaxisscore", "0");
+            gi.cvar_set("g_tempaxiswinsinrow", "0");
+            gi.cvar_set("g_tempalliesscore", "0");
+            gi.cvar_set("g_tempaxiswinsinrow", "0");
 
             m_iTotalMapTime = gi.Cvar_Get("g_tempmaptime", "0", 0)->integer;
-            gi.Cvar_Set("g_tempmaptime", "0");
+            gi.cvar_set("g_tempmaptime", "0");
         }
     }
 }
@@ -1104,21 +1104,21 @@ bool DM_Manager::CheckEndMatch()
 {
     if (fraglimit) {
         if (fraglimit->integer < 0) {
-            gi.Cvar_Set("fraglimit", "0");
+            gi.cvar_set("fraglimit", "0");
         }
         if (fraglimit->integer > 10000) {
-            gi.Cvar_Set("fraglimit", "10000");
+            gi.cvar_set("fraglimit", "10000");
         }
         fraglimit = gi.Cvar_Get("fraglimit", "0", CVAR_SERVERINFO);
     }
 
     if (timelimit) {
         if (timelimit->integer < 0) {
-            gi.Cvar_Set("timelimit", "0");
+            gi.cvar_set("timelimit", "0");
         }
         // 180 minutes maximum
         if (timelimit->integer > 10800) {
-            gi.Cvar_Set("timelimit", "10800");
+            gi.cvar_set("timelimit", "10800");
         }
         timelimit = gi.Cvar_Get("timelimit", "0", CVAR_SERVERINFO);
     }
@@ -1132,15 +1132,15 @@ bool DM_Manager::CheckEndMatch()
                 if (!level.m_bIgnoreClock && roundLimit > 0 && level.time >= m_iDefaultRoundLimit * 60 + m_fRoundTime) {
                     switch (m_csTeamClockSide) {
                     case STRING_AXIS:
-                        gi.Cvar_Set("g_TOW_winstate", "1");
+                        gi.cvar_set("g_TOW_winstate", "1");
                         TeamWin(TEAM_AXIS);
                         break;
                     case STRING_ALLIES:
-                        gi.Cvar_Set("g_TOW_winstate", "2");
+                        gi.cvar_set("g_TOW_winstate", "2");
                         TeamWin(TEAM_ALLIES);
                         break;
                     default:
-                        gi.Cvar_Set("g_TOW_winstate", "3");
+                        gi.cvar_set("g_TOW_winstate", "3");
                         TeamWin(TEAM_NONE);
                     }
 
@@ -1148,13 +1148,13 @@ bool DM_Manager::CheckEndMatch()
                 }
 
                 if (m_team_allies.IsDead()) {
-                    gi.Cvar_Set("g_TOW_winstate", "1");
+                    gi.cvar_set("g_TOW_winstate", "1");
                     TeamWin(TEAM_AXIS);
                     return true;
                 }
 
                 if (m_team_axis.IsDead()) {
-                    gi.Cvar_Set("g_TOW_winstate", "2");
+                    gi.cvar_set("g_TOW_winstate", "2");
                     TeamWin(TEAM_ALLIES);
                     return true;
                 }
@@ -1414,11 +1414,11 @@ void DM_Manager::EventFinishRoundTransition(Event *ev)
         return;
     }
 
-    gi.Cvar_Set("g_tempaxisscore", va("%d", m_team_axis.m_teamwins));
-    gi.Cvar_Set("g_tempaxiswinsinrow", va("%d", m_team_axis.m_wins_in_a_row));
-    gi.Cvar_Set("g_tempalliesscore", va("%d", m_team_allies.m_teamwins));
-    gi.Cvar_Set("g_tempallieswinsinrow", va("%d", m_team_allies.m_wins_in_a_row));
-    gi.Cvar_Set("g_tempmaptime", va("%d", m_iTotalMapTime + level.inttime));
+    gi.cvar_set("g_tempaxisscore", va("%d", m_team_axis.m_teamwins));
+    gi.cvar_set("g_tempaxiswinsinrow", va("%d", m_team_axis.m_wins_in_a_row));
+    gi.cvar_set("g_tempalliesscore", va("%d", m_team_allies.m_teamwins));
+    gi.cvar_set("g_tempallieswinsinrow", va("%d", m_team_allies.m_wins_in_a_row));
+    gi.cvar_set("g_tempmaptime", va("%d", m_iTotalMapTime + level.inttime));
 
     for (i = 0, ent = g_entities; i < game.maxclients; ent++, i++) {
         if (!ent->inuse || !ent->entity) {
@@ -1523,7 +1523,7 @@ void DM_Manager::StartRound(void)
     }
 
     level.Unregister("roundstart");
-    gi.SetConfigstring(CS_WARMUP, va("%.0f", GetMatchStartTime()));
+    gi.setConfigstring(CS_WARMUP, va("%.0f", GetMatchStartTime()));
 }
 
 void DM_Manager::EndRound()

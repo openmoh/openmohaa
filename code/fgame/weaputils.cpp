@@ -1284,7 +1284,7 @@ void Projectile::SetMeansOfDeath
    )
 
    {
-	meansofdeath = (meansOfDeath_t )MOD_NameToNum( ev->GetString( 1 ) );
+	meansofdeath = (meansOfDeath_t )MOD_string_to_int( ev->GetString( 1 ) );
    }
 
 void Projectile::DoDecal
@@ -1352,7 +1352,7 @@ void Projectile::Touch
 			return;
 		}
 
-		if( level.impact_trace.surfaceFlags & CONTENTS_WATER || ( gi.PointContents( level.impact_trace.endpos, 0 ) & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) )
+		if( level.impact_trace.surfaceFlags & CONTENTS_WATER || ( gi.pointcontents( level.impact_trace.endpos, 0 ) & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) )
 		{
 			if( bouncesound_water.length() )
 				this->Sound( bouncesound_water, CHAN_BODY );
@@ -3492,4 +3492,53 @@ void FlashPlayers
 //      gi.SendServerCommand( NULL, va( "fadein %0.2f %0.2f %0.2f %0.2f %i",time*1000,r*newa,g*newa,b*newa,type ) );
       }
    }
+
+const char *G_LocationNumToDispString(int iLocation)
+{
+    switch (iLocation) {
+    case -2:
+    case -1:
+        return "";
+    case 0:
+        return "head";
+    case 1:
+        return "helmet";
+    case 2:
+        return "neck";
+    case 3:
+        return "upper torso";
+    case 4:
+        return "middle torso";
+    case 5:
+        return "lower torso";
+    case 6:
+        return "pelvis";
+    case 7:
+        return "upper right arm";
+    case 8:
+        return "upper left arm";
+    case 9:
+        return "upper right leg";
+    case 10:
+        return "upper left leg";
+    case 11:
+        return "lower right arm";
+    case 12:
+        return "lower left arm";
+    case 13:
+        return "lower right leg";
+    case 14:
+        return "lower left leg";
+    case 15:
+        return "right hand";
+    case 16:
+        return "left hand";
+    case 17:
+        return "right foot";
+    case 18:
+        return "left foot";
+    default:
+        return "";
+    }
+}
 

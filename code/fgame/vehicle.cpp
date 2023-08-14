@@ -1274,19 +1274,19 @@ void Vehicle::CheckWater
 
 	point = origin;
 	point[ 2 ] += mins[ 2 ];
-	cont = gi.PointContents( point, 0 );
+	cont = gi.pointcontents( point, 0 );
 
 	if( cont & MASK_WATER )
 	{
 		watertype = cont;
 		waterlevel = 1;
 		point[ 2 ] = origin[ 2 ] + mins[ 2 ] + sample1;
-		cont = gi.PointContents( point, 0 );
+		cont = gi.pointcontents( point, 0 );
 		if( cont & MASK_WATER )
 		{
 			waterlevel = 2;
 			point[ 2 ] = origin[ 2 ] + mins[ 2 ] + sample2;
-			cont = gi.PointContents( point, 0 );
+			cont = gi.pointcontents( point, 0 );
 			if( cont & MASK_WATER )
 			{
 				waterlevel = 3;

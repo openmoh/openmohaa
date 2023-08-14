@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SVF_CLIENTMASK 0x00000002
 
 #define	SVF_BROADCAST			0x00000004	// send to all connected clients
-#define SVF_BOT					0x00000008	// set if the entity is a bot
+#define SVF_MONSTER					0x00000008	// set if the entity is a bot
 #define	SVF_PORTAL				0x00000040	// merge a second pvs at origin2 into snapshots
 #define	SVF_USE_CURRENT_ORIGIN	0x00000080	// entity->r.currentOrigin instead of entity->s.origin
 											// for link position (missiles and movers)
@@ -235,7 +235,7 @@ typedef struct gameImport_s
 	void * ( *Malloc )( size_t size );
 	void ( *Free )( void *ptr );
 	cvar_t * ( *Cvar_Get )( const char *varName, const char *varValue, int varFlags );
-	void ( *Cvar_Set )( const char *varName, const char *varValue );
+	void ( *cvar_set )( const char *varName, const char *varValue );
 	cvar_t *( *cvar_set2 )( const char *varName, const char *varValue, qboolean force );
 	cvar_t *( *NextCvar )( cvar_t *var );
 	int ( *Argc )( );
@@ -281,24 +281,24 @@ typedef struct gameImport_s
 	void ( *SetBroadcastVisible )( const vec3_t pos, const vec3_t posB );
 	void ( *SetBroadcastHearable )(const vec3_t pos, const vec3_t posB );
 	void ( *SetBroadcastAll )( );
-	void ( *SetConfigstring )( int index, const char *val );
-	char *( *GetConfigstring )( int index );
+	void ( *setConfigstring )( int index, const char *val );
+	char *( *getConfigstring )( int index );
 	void ( *SetUserinfo )( int index, const char *val );
 	void ( *GetUserinfo )( int index, char *buffer, int bufferSize );
 	void ( *SetBrushModel )( gentity_t *ent, const char *name );
 	void ( *ModelBoundsFromName )(const char *name, vec3_t mins, vec3_t maxs );
 	qboolean ( *SightTraceEntity )( gentity_t *touch, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int contentMask, qboolean cylinder );
 	qboolean ( *SightTrace )( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int passEntityNum2, int contentMask, qboolean cylinder );
-	void ( *Trace )( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask, qboolean cylinder, qboolean traceDeep );
+	void ( *trace )( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentMask, qboolean cylinder, qboolean traceDeep );
 	baseshader_t * ( *GetShader )( int shaderNum );
-	int ( *PointContents )( const vec3_t p, int passEntityNum );
+	int ( *pointcontents )( const vec3_t p, int passEntityNum );
 	int ( *PointBrushnum )(const vec3_t p, clipHandle_t model );
 	void ( *AdjustAreaPortalState )( gentity_t *ent, qboolean open );
 	int ( *AreaForPoint )( vec3_t pos );
 	qboolean ( *AreasConnected )( int area1, int area2);
 	qboolean ( *InPVS )( float *p1, float *p2 );
-	void ( *LinkEntity )( gentity_t *gEnt );
-	void ( *UnlinkEntity )( gentity_t *gEnt );
+	void ( *linkentity )( gentity_t *gEnt );
+	void ( *unlinkentity )( gentity_t *gEnt );
 	int ( *AreaEntities )( const vec3_t mins, const vec3_t maxs, int *list, int maxcount );
 	void ( *ClipToEntity )( trace_t *tr, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentMask );
 	qboolean (*HitEntity)(gentity_t* pEnt, gentity_t* pOther);

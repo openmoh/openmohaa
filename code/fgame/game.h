@@ -126,15 +126,6 @@ Entity *G_FindClass(
 	const char *classname
 );
 
-/* G_FindTarget
-*
-* Find an entity with the specified targetname.
-*/
-SimpleEntity *G_FindTarget(
-	SimpleEntity *ent,
-	const char *name
-);
-
 /* G_FindRandomSimpleTarget
 *
 * Find a random simple entity with the specified targetname.
@@ -218,25 +209,5 @@ gentity_t * G_GetGEntity(
 	int id
 );
 
-/* G_StartCinematic
-*
-* Turns on cinematic.
-*/
-void G_StartCinematic( void );
-
-
-/* G_StopCinematic
-*
-* Turns off cinematic.
-*/
-void G_StopCinematic( void );
-
-/* G_TouchTriggers
-*
-* Makes the entity touch triggers
-*/
-void G_TouchTriggers(
-	Entity *entity
-);
 
 extern Game game;

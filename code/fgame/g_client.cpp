@@ -762,7 +762,7 @@ void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
 
     Q_strncpyz(client->pers.dm_playergermanmodel, s, sizeof(client->pers.dm_playergermanmodel));
 
-    gi.SetConfigstring(CS_PLAYERS + clientnum, va("name\\%s", client->pers.netname));
+    gi.setConfigstring(CS_PLAYERS + clientnum, va("name\\%s", client->pers.netname));
 
     if (ent->entity) {
         float fov;
@@ -990,7 +990,7 @@ void G_SetClientConfigString(gentity_t *ent)
         string = va("name\\%s\\team\\0", ent->client->pers.netname);
     }
 
-    gi.SetConfigstring(CS_PLAYERS + num, string);
+    gi.setConfigstring(CS_PLAYERS + num, string);
 }
 
 /*

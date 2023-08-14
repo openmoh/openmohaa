@@ -4655,32 +4655,3 @@ CLASS_DECLARATION( Class, Listener, NULL )
 #endif
 	{ NULL, NULL }
 };
-
-qboolean IsNumeric( const char *str )
-{
-	size_t len;
-	size_t i;
-	qboolean dot;
-
-	if( *str == '-' )
-	{
-		str++;
-	}
-
-	dot = qfalse;
-	len = strlen( str );
-	for( i = 0; i < len; i++ )
-	{
-		if( !isdigit( str[ i ] ) )
-		{
-			if( ( str[ i ] == '.' ) && !dot )
-			{
-				dot = qtrue;
-				continue;
-			}
-			return qfalse;
-		}
-	}
-
-	return qtrue;
-}

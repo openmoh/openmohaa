@@ -1328,7 +1328,7 @@ void G_Physics_Toss
 
 	// check for water transition
 	wasinwater = ( ent->watertype & MASK_WATER );
-	ent->watertype = gi.PointContents( ent->origin, 0 );
+	ent->watertype = gi.pointcontents( ent->origin, 0 );
 	isinwater = ent->watertype & MASK_WATER;
 
 	if( isinwater )
@@ -1418,7 +1418,7 @@ void G_CheckWater
 	Entity *ent
 	)
 {
-	ent->watertype = gi.PointContents( ent->origin, 0 );
+	ent->watertype = gi.pointcontents( ent->origin, 0 );
 	if( ent->watertype & MASK_WATER )
 	{
 		ent->waterlevel = 1;

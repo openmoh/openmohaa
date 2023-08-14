@@ -118,7 +118,7 @@ void InteractObject::Damaged(Event *ev)
 
 void InteractObject::Killed(Event *ev)
 {
-    SimpleEntity *ent;
+    Entity       *ent;
     Entity       *attacker;
     Vector        dir;
     const char   *name;

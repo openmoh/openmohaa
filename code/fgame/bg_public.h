@@ -502,9 +502,12 @@ movement on the server game.
         MOD_BASH,
         MOD_SHOTGUN,
         //
-        // Team tactics
+        // Team assault
         //
         MOD_AAGUN,
+        //
+        // Team tactics
+        //
         MOD_LANDMINE,
         MOD_TOTAL_NUMBER,
 

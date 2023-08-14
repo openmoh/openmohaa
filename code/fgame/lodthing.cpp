@@ -125,8 +125,8 @@ void LODMaster::Spawn
 		ScriptError( "Must specify a model name" );
 	}
 
-	gi.Cvar_Set( "lod_tikiname", mdl );
-	gi.Cvar_Set( "lod_tool", "1" );
+	gi.cvar_set( "lod_tikiname", mdl );
+	gi.cvar_set( "lod_tool", "1" );
 
 	ent = g_entities->entity;
 

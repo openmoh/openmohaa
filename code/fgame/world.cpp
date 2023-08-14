@@ -417,7 +417,7 @@ World::World()
 	ChangeSoundtrack( "" );
 
 	// set the default gravity
-	gi.Cvar_Set( "sv_gravity", "800" );
+	gi.cvar_set( "sv_gravity", "800" );
 
 	// set the default farplane parameters
 	farplane_distance = 0;
@@ -453,9 +453,9 @@ World::World()
 	level.cinematic = spawnflags & WORLD_CINEMATIC;
 
 	if( level.cinematic )
-		gi.Cvar_Set( "sv_cinematic", "1" );
+		gi.cvar_set( "sv_cinematic", "1" );
 	else
-		gi.Cvar_Set( "sv_cinematic", "0" );
+		gi.cvar_set( "sv_cinematic", "0" );
 
 	level.nextmap = "";
 	level.level_name = level.mapname;
@@ -481,17 +481,17 @@ void World::UpdateConfigStrings( void )
 	//
 	// make some data visible to connecting client
 	//
-	gi.SetConfigstring( CS_GAME_VERSION, GAME_VERSION );
-	gi.SetConfigstring( CS_LEVEL_START_TIME, va( "%i", level.svsStartTime ) );
+	gi.setConfigstring( CS_GAME_VERSION, GAME_VERSION );
+	gi.setConfigstring( CS_LEVEL_START_TIME, va( "%i", level.svsStartTime ) );
 
 	// make some data visible to the server
-	gi.SetConfigstring( CS_MESSAGE, level.level_name.c_str() );
+	gi.setConfigstring( CS_MESSAGE, level.level_name.c_str() );
 };
 
 void World::UpdateSky( void )
 {
 	gi.SetSkyPortal( sky_portal );
-	gi.SetConfigstring( CS_SKYINFO, va( "%.4f %d", sky_alpha, sky_portal ) );
+	gi.setConfigstring( CS_SKYINFO, va( "%.4f %d", sky_alpha, sky_portal ) );
 }
 
 void World::SetSoundtrack( Event *ev )
@@ -504,7 +504,7 @@ void World::SetSoundtrack( Event *ev )
 
 void World::SetGravity( Event *ev )
 {
-	gi.Cvar_Set( "sv_gravity", ev->GetString( 1 ) );
+	gi.cvar_set( "sv_gravity", ev->GetString( 1 ) );
 }
 
 void World::SetFarPlane( Event *ev )
@@ -548,7 +548,7 @@ void World::SetMessage( Event *ev )
 
 	text = ev->GetString( 1 );
 	level.level_name = text;
-	gi.SetConfigstring( CS_MESSAGE, text );
+	gi.setConfigstring( CS_MESSAGE, text );
 }
 
 void World::SetWaterColor( Event *ev )
@@ -608,7 +608,7 @@ void World::UpdateFog(void)
 		);
 	}
 
-	gi.SetConfigstring(CS_FOGINFO, fogInfoString);
+	gi.setConfigstring(CS_FOGINFO, fogInfoString);
 }
 
 CLASS_DECLARATION( Entity, World, "worldspawn" )

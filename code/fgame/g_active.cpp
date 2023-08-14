@@ -242,10 +242,10 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	if ( pmove_msec.integer < 8 ) {
-		gi.Cvar_Set("pmove_msec", "8");
+		gi.cvar_set("pmove_msec", "8");
 	}
 	else if (pmove_msec.integer > 33) {
-		gi.Cvar_Set("pmove_msec", "33");
+		gi.cvar_set("pmove_msec", "33");
 	}
 
 	if ( pmove_fixed.integer || client->pers.pmoveFixed ) {
@@ -341,8 +341,8 @@ void ClientThink_real( gentity_t *ent ) {
 	else {
 		pm.tracemask = MASK_PLAYERSOLID;
 	}
-	pm.trace = gi.Trace;
-	pm.pointcontents = gi.PointContents;
+	pm.trace = gi.trace;
+	pm.pointcontents = gi.pointcontents;
 	pm.debugLevel = g_debugMove.integer;
 	pm.noFootsteps = ( dmflags->integer & DF_NO_FOOTSTEPS ) > 0;
 
@@ -707,7 +707,7 @@ void ClientUse(gentity_t *ent) {
 	CalcMuzzlePoint(ent, forward, right, up, g_muzzle);
 
 	VectorMA(g_muzzle, 96.f, forward, right);
-	gi.Trace(&tr, g_muzzle, NULL, NULL, right, ent - g_entities, MASK_SOLID,0,false);
+	gi.trace(&tr, g_muzzle, NULL, NULL, right, ent - g_entities, MASK_SOLID,0,false);
 
 	if (tr.fraction == 1.f || tr.entityNum == ENTITYNUM_NONE || tr.entityNum == ENTITYNUM_WORLD) {
 		ent->lastUseEntity = tr.entityNum;
@@ -763,8 +763,8 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 		pm.ps = &client->ps;
 		pm.cmd = *ucmd;
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	// spectators can fly through bodies
-		pm.trace = gi.Trace;
-		pm.pointcontents = gi.PointContents;
+		pm.trace = gi.trace;
+		pm.pointcontents = gi.pointcontents;
 
 		// perform a pmove
 		Pmove (&pm);
@@ -875,7 +875,7 @@ void	G_TouchTriggers( gentity_t *ent )
 	Event		*ev;
 
 	// dead things don't activate triggers!
-	if( ( ent->client || ( ent->r.svFlags & SVF_BOT ) ) && ( ent->entity->health <= 0 ) )
+	if( ( ent->client || ( ent->r.svFlags & SVF_MONSTER ) ) && ( ent->entity->health <= 0 ) )
 	{
 		return;
 	}
@@ -927,30 +927,6 @@ void G_ClientThink( gentity_t *ent, usercmd_t *cmd, usereyes_t *eyeinfo )
 	catch( const char *error )
 	{
 		G_ExitWithError( error );
-	}
-}
-
-/*
-=================
-G_ClientEndServerFrames
-=================
-*/
-void G_ClientEndServerFrames( void )
-{
-	int		i;
-	gentity_t  *ent;
-
-	// calc the player views now that all pushing
-	// and damage has been added
-	for( i = 0; i < game.maxclients; i++ )
-	{
-		ent = g_entities + i;
-		if( !ent->inuse || !ent->client || !ent->entity )
-		{
-			continue;
-		}
-
-		ent->entity->EndFrame();
 	}
 }
 

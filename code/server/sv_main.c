@@ -614,7 +614,7 @@ void SV_CalcPings( void ) {
 			cl->ping = 999;
 			continue;
 		}
-		if ( cl->gentity->r.svFlags & SVF_BOT ) {
+		if ( cl->gentity->r.svFlags & SVF_MONSTER ) {
 			cl->ping = 0;
 			continue;
 		}

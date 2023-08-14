@@ -984,11 +984,11 @@ void Archiver::ArchiveConfigString( int cs )
 	if( archivemode == ARCHIVE_READ )
 	{
 		ArchiveString( &s );
-		glbs.SetConfigstring( cs, s.c_str() );
+		glbs.setConfigstring( cs, s.c_str() );
 	}
 	else
 	{
-		s = glbs.GetConfigstring( cs );
+		s = glbs.getConfigstring( cs );
 		ArchiveString( &s );
 	}
 #endif

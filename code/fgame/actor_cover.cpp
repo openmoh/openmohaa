@@ -465,7 +465,7 @@ void Actor::State_Cover_Shoot
 
 	if (level.inttime > m_iStateTime + 10000)
 	{
-		gi.Cvar_Set("g_monitornum", va("%i", entnum));
+		gi.cvar_set("g_monitornum", va("%i", entnum));
 		assert(!"anim/shoot.scr took over 10 seconds");
 		Com_Error(ERR_DROP, "anim/shoot.scr took over 10 seconds, entnum = %i, targetname = %s", entnum, targetname.c_str());
 	}

@@ -143,21 +143,6 @@ typedef enum {
 
 } clientState_t;
 
-typedef enum {
-    WEAPON_MAIN,
-    WEAPON_OFFHAND,
-    WEAPON_ERROR
-} weaponhand_t;
-
-#define NUM_ACTIVE_WEAPONS WEAPON_ERROR
-
-typedef enum {
-    FIRE_PRIMARY,
-    FIRE_SECONDARY,
-    MAX_FIREMODES,
-    FIRE_ERROR
-} firemode_t;
-
 //
 // g_spawn.c
 //
@@ -200,7 +185,6 @@ void       G_KillBox(gentity_t *ent);
 qboolean   M_CheckBottom(Entity *ent);
 gentity_t *G_PickTarget(char *targetname);
 void       G_UseTargets(gentity_t *ent, gentity_t *activator);
-Vector     G_GetMovedir(float angle);
 void       G_SetMovedir(vec3_t angles, vec3_t movedir);
 
 void       G_InitGentity(gentity_t *e);
@@ -214,94 +198,13 @@ Entity *G_NextEntity(Entity *ent);
 
 void G_CalcBoundsOfMove(Vector& start, Vector& end, Vector& mins, Vector& maxs, Vector *minbounds, Vector *maxbounds);
 
-void G_ShowTrace(trace_t *trace, gentity_t *passent, const char *reason);
-bool G_SightTrace(
-    const Vector& start,
-    const Vector& mins,
-    const Vector& maxs,
-    const Vector& end,
-    Entity       *passent,
-    Entity       *passent2,
-    int           contentmask,
-    qboolean      cylindrical,
-    const char   *reason
-);
-bool G_SightTrace(
-    const Vector& start,
-    const Vector& mins,
-    const Vector& maxs,
-    const Vector& end,
-    gentity_t    *passent,
-    gentity_t    *passent2,
-    int           contentmask,
-    qboolean      cylindrical,
-    const char   *reason
-);
-void G_PMDrawTrace(
-    trace_t     *results,
-    const vec3_t start,
-    const vec3_t mins,
-    const vec3_t maxs,
-    const vec3_t end,
-    int          passEntityNum,
-    int          contentMask,
-    qboolean     cylinder,
-    qboolean     traceDeep
-);
-trace_t G_Trace(
-    const Vector& start,
-    const Vector& mins,
-    const Vector& maxs,
-    const Vector& end,
-    const Entity *passent,
-    int           contentmask,
-    qboolean      cylindrical,
-    const char   *reason,
-    qboolean      tracedeep = qfalse
-);
-trace_t G_Trace(
-    vec3_t      start,
-    vec3_t      mins,
-    vec3_t      maxs,
-    vec3_t      end,
-    gentity_t  *passent,
-    int         contentmask,
-    qboolean    cylindrical,
-    const char *reason,
-    qboolean    tracedeep = qfalse
-);
-void G_TraceEntities(
-    Vector             & start,
-    Vector             & mins,
-    Vector             & maxs,
-    Vector             & end,
-    Container<Entity *> *victimlist,
-    int                  contentmask,
-    qboolean             bIncludeTriggers = qfalse
-);
-
 float PlayersRangeFromSpot(Entity *ent);
 
 Entity *findradius(Entity *startent, Vector org, float rad);
 Entity *findclientsinradius(Entity *startent, Vector org, float rad);
 
-Vector G_CalculateImpulse(const Vector& start, const Vector& end, float speed, float gravity);
-
 void G_TouchTriggers(gentity_t *ent);
 void G_TouchSolids(gentity_t *ent);
-
-int         MOD_NameToNum(const str        &meansOfDeath);
-const char *MOD_NumToName(int meansOfDeath);
-qboolean    MOD_matches(int incoming_damage, int damage_type);
-
-void G_MissionFailed(void);
-void G_FadeOut(float delaytime);
-void G_FadeSound(float delaytime);
-void G_PlayerDied(float delaytime);
-void G_AutoFadeIn(void);
-void G_ClearFade(void);
-void G_StartCinematic(void);
-void G_StopCinematic(void);
 
 void G_CenterPrintToAllClients(const char *pszString);
 void G_PrintToAllClients(const char *pszString, int iType = 1);
@@ -326,15 +229,10 @@ char *CanonicalTikiName(const char *szInName);
 float *tv(float x, float y, float z);
 char  *vtos(const vec3_t v);
 
-float vectoyaw(const vec3_t vec);
-
 void        G_SetOrigin(gentity_t *ent, vec3_t origin);
 void        AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char *BuildShaderStateConfig(void);
 
-firemode_t   WeaponModeNameToNum(str mode);
-const char  *WeaponHandNumToName(weaponhand_t hand);
-weaponhand_t WeaponHandNameToNum(str side);
 void         G_DebugTargets(Entity *e, const str        &from);
 void         G_DebugDamage(float damage, Entity *victim, Entity *attacker, Entity *inflictor);
 void         G_DebugString(Vector pos, float scale, float r, float g, float b, const char *pszText, ...);
@@ -369,12 +267,8 @@ void G_HideScoresToAllClients(void);
 // caching commands
 //
 void G_ProcessCacheInitCommands(dtiki_t *tiki);
-void CacheResource(const char *stuff);
 
 void G_SetTrajectory(gentity_t *ent, vec3_t org);
-void G_SetConstantLight(
-    int *constantlight, float *red, float *green, float *blue, float *radius, int *lightstyle = NULL
-);
 
 //
 // g_combat.c
@@ -629,5 +523,7 @@ void BotTestAAS(vec3_t origin);
 
 extern gentity_t *g_entities;
 #define FOFS(x) ((size_t) & (((gentity_t *)0)->x))
+
+#include "g_utils.h"
 
 #endif /* g_local.h */

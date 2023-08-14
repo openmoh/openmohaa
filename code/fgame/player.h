@@ -552,7 +552,7 @@ public:
 
     //====
     // Added in 2.30
-    void EventForceLandmineMeasure(Event *ev);
+    void EventForceLandmineMeasure(Event *ev) override;
     str  GetCurrentDMWeaponType() const;
     //====
 

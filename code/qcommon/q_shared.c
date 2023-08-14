@@ -77,6 +77,29 @@ static char eaxmodes[ eax_totalnumber ][ 16 ] =
 	"psychotic"
 };
 
+float vectoyaw(const vec3_t vec)
+{
+	float yaw;
+
+	if (vec[YAW] == 0 && vec[PITCH] == 0) {
+		yaw = 0;
+	}
+	else {
+		//if (vec[PITCH]) {
+		yaw = (atan2(vec[YAW], vec[PITCH]) * 180 / M_PI);
+		//} else if (vec[YAW] > 0) {
+		//	yaw = 90;
+		//} else {
+		//	yaw = 270;
+		//}
+		if (yaw < 0) {
+			yaw += 360;
+		}
+	}
+
+	return yaw;
+}
+
 /*
 =================
 MusicMood_NameToNum

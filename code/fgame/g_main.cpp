@@ -76,6 +76,8 @@ void ( *SV_Error )( int type, const char *fmt, ... );
 void *( *SV_Malloc )( int size );
 void ( *SV_Free )( void *ptr );
 
+qboolean LevelArchiveValid(Archiver& arc);
+
 void QDECL G_Printf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		text[1024];
@@ -141,7 +143,7 @@ void G_RemapTeamShaders( void ) {
 	Com_sprintf( string, sizeof(string), "team_icon/%s_blue", g_blueteam.string );
 	AddRemap("textures/ctf2/blueteam01", string, f);
 	AddRemap("textures/ctf2/blueteam02", string, f);
-	gi.SetConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
+	gi.setConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 #endif
 }
 
@@ -247,7 +249,7 @@ void G_InitGame( int levelTime, int randomSeed )
 	level.specialgame = sv_specialgame->integer ? true : false;
 	if( level.specialgame )
 	{
-		gi.Cvar_Set( "protocol", "9" );
+		gi.cvar_set( "protocol", "9" );
 	}
 
 	G_InitConsoleCommands();
@@ -620,7 +622,7 @@ void G_RunFrame( int levelTime, int frameTime )
 
 		if( g_timeents->integer )
 		{
-			gi.Cvar_Set( "g_timeents", va( "%d", g_timeents->integer - 1 ) );
+			gi.cvar_set( "g_timeents", va( "%d", g_timeents->integer - 1 ) );
 			end = clock();
 
 			gi.DebugPrintf( "\n%i total: %d (%.1f)\n-----------------------\n",
@@ -681,7 +683,7 @@ void G_RunFrame( int levelTime, int frameTime )
 		G_CheckExitRules();
 		G_CheckStartRules();
 
-		gi.SetConfigstring( CS_WARMUP, va( "%.0f", dmManager.GetMatchStartTime() ) );
+		gi.setConfigstring( CS_WARMUP, va( "%.0f", dmManager.GetMatchStartTime() ) );
 
 		if( g_gametype->integer ) {
 			level.CheckVote();
@@ -744,6 +746,45 @@ void G_ClientDrawBoundingBoxes
 	}
 }
 
+// Used to tell the server about the edict pose, such as the player pose
+// so that G_Trace with tracedeep will set the location
+void G_UpdatePoseInternal(gentity_t *edict)
+{
+    if (edict->s.number == ENTITYNUM_NONE || level.frame_skel_index != level.skel_index[edict->s.number]) {
+        gi.TIKI_SetPoseInternal(
+            edict->tiki,
+            edict->s.number,
+            edict->s.frameInfo,
+            edict->s.bone_tag,
+            edict->s.bone_quat,
+            edict->s.actionWeight
+        );
+    }
+}
+
+orientation_t G_TIKI_Orientation(gentity_t *edict, int num)
+{
+    orientation_t orient;
+
+    G_UpdatePoseInternal(edict);
+
+    orient = gi.TIKI_OrientationInternal(edict->tiki, edict->s.number, num, edict->s.scale);
+
+    return orient;
+}
+
+SkelMat4 *G_TIKI_Transform(gentity_t *edict, int num)
+{
+    G_UpdatePoseInternal(edict);
+    return (SkelMat4 *)gi.TIKI_TransformInternal(edict->tiki, edict->s.number, num);
+}
+
+qboolean G_TIKI_IsOnGround(gentity_t *edict, int num, float threshold)
+{
+    G_UpdatePoseInternal(edict);
+    return gi.TIKI_IsOnGroundInternal(edict->tiki, edict->s.number, num, threshold);
+}
+
 void G_PrepFrame( void )
 {
 
@@ -793,11 +834,46 @@ void G_SetTime( int svsStartTime, int svsTime )
 {
 	if( level.svsStartTime != svsTime )
 	{
-		gi.SetConfigstring( CS_LEVEL_START_TIME, va( "%i", svsTime ) );
+		gi.setConfigstring( CS_LEVEL_START_TIME, va( "%i", svsTime ) );
 	}
 
 	level.svsStartTime = svsStartTime;
 	level.setTime( svsTime );
+}
+
+/*
+=================
+G_LevelArchiveValid
+=================
+*/
+qboolean G_LevelArchiveValid
+	(
+	const char *filename
+	)
+{
+	try
+	{
+		qboolean ret;
+
+		Archiver arc;
+
+		if( !arc.Read( filename ) )
+		{
+			return qfalse;
+		}
+
+		ret = LevelArchiveValid( arc );
+
+		arc.Close();
+
+		return ret;
+	}
+
+	catch( const char *error )
+	{
+		G_ExitWithError( error );
+		return qfalse;
+	}
 }
 
 void G_SoundCallback( int entNum, soundChannel_t channelNumber, const char *name )
@@ -816,6 +892,62 @@ void G_SoundCallback( int entNum, soundChannel_t channelNumber, const char *name
 	ev->AddInteger( channelNumber );
 	ev->AddString( name );
 	entity->PostEvent( ev, level.frametime );
+}
+
+qboolean G_Command_ProcessFile(const char *filename, qboolean quiet)
+{
+    char       *buffer;
+    const char *bufstart;
+    const char *token;
+    int         numTokens = 0;
+
+    if (gi.FS_ReadFile(filename, (void **)&buffer, quiet) == -1) {
+        return qfalse;
+    }
+
+    if (!quiet) {
+        gi.DPrintf("G_Command_ProcessFile: %s\n", filename);
+    }
+
+    bufstart = buffer;
+
+    while (1) {
+        // grab each line as we go
+        token = COM_ParseExt(&buffer, qtrue);
+        if (!token[0]) {
+            break;
+        }
+
+        if (!Q_stricmp(token, "end") || !Q_stricmp(token, "server")) {
+            // skip the line
+            while (1) {
+                token = COM_ParseExt(&buffer, qfalse);
+                if (!token[0]) {
+                    break;
+                }
+            }
+            continue;
+        }
+
+        // Create the event
+        Event ev(token);
+
+        // get the rest of the line
+        while (1) {
+            token = COM_ParseExt(&buffer, qfalse);
+            if (!token[0]) {
+                break;
+            }
+
+            ev.AddToken(token);
+        }
+
+        Director.ProcessEvent(ev);
+    }
+
+    gi.FS_FreeFile((void *)bufstart);
+
+    return qtrue;
 }
 
 qboolean G_AllowPaused( void )
@@ -965,48 +1097,6 @@ void G_WritePersistant
 	}
 }
 
-
-/*
-=================
-LevelArchiveValid
-=================
-*/
-qboolean LevelArchiveValid
-	(
-	Archiver &arc
-	)
-{
-	int      version;
-	int      savegame_version;
-
-	// read the version number
-	arc.ArchiveInteger( &version );
-	arc.ArchiveInteger( &savegame_version );
-
-	if( version < GAME_API_VERSION )
-	{
-		gi.Printf( "Savegame from an older version (%d) of MOHAA.\n", version );
-		return qfalse;
-	}
-	else if( version > GAME_API_VERSION )
-	{
-		gi.Printf( "Savegame from version %d of MOHAA.\n", version );
-		return qfalse;
-	}
-
-	if( savegame_version < SAVEGAME_VERSION )
-	{
-		gi.Printf( "Savegame from an older version (%d) of MoHAA.\n", version );
-		return qfalse;
-	}
-	else if( savegame_version > SAVEGAME_VERSION )
-	{
-		gi.Printf( "Savegame from version %d of MoHAA.\n", version );
-		return qfalse;
-	}
-	return qtrue;
-}
-
 void G_Cleanup( qboolean samemap )
 {
 	gi.Printf( "==== CleanupGame ====\n" );
@@ -1035,7 +1125,7 @@ void ArchiveAliases
 	{
 		for( i = 0; i < MAX_MODELS; i++ )
 		{
-			name = gi.GetConfigstring( CS_MODELS + i );
+			name = gi.getConfigstring( CS_MODELS + i );
 			if( name && *name && *name != '*' )
 			{
 				const char *p = name;
@@ -1116,6 +1206,46 @@ void ArchiveAliases
 	}
 }
 
+/*
+=================
+LevelArchiveValid
+=================
+*/
+qboolean LevelArchiveValid
+	(
+	Archiver &arc
+	)
+{
+	int      version;
+	int      savegame_version;
+
+	// read the version number
+	arc.ArchiveInteger( &version );
+	arc.ArchiveInteger( &savegame_version );
+
+	if( version < GAME_API_VERSION )
+	{
+		gi.Printf( "Savegame from an older version (%d) of MOHAA.\n", version );
+		return qfalse;
+	}
+	else if( version > GAME_API_VERSION )
+	{
+		gi.Printf( "Savegame from version %d of MOHAA.\n", version );
+		return qfalse;
+	}
+
+	if( savegame_version < SAVEGAME_VERSION )
+	{
+		gi.Printf( "Savegame from an older version (%d) of MoHAA.\n", version );
+		return qfalse;
+	}
+	else if( savegame_version > SAVEGAME_VERSION )
+	{
+		gi.Printf( "Savegame from version %d of MoHAA.\n", version );
+		return qfalse;
+	}
+	return qtrue;
+}
 
 /*
 =================
@@ -1143,7 +1273,7 @@ qboolean G_ArchiveLevel
 		COM_StripExtension( filename, szSaveName, sizeof( szSaveName ) );
 		pszSaveName = COM_SkipPath( szSaveName );
 
-		gi.Cvar_Set( "g_lastsave", pszSaveName );
+		gi.cvar_set( "g_lastsave", pszSaveName );
 
 		if( loading )
 		{
@@ -1392,41 +1522,6 @@ qboolean G_ReadLevel
 }
 
 /*
-=================
-G_LevelArchiveValid
-=================
-*/
-qboolean G_LevelArchiveValid
-	(
-	const char *filename
-	)
-{
-	try
-	{
-		qboolean ret;
-
-		Archiver arc;
-
-		if( !arc.Read( filename ) )
-		{
-			return qfalse;
-		}
-
-		ret = LevelArchiveValid( arc );
-
-		arc.Close();
-
-		return ret;
-	}
-
-	catch( const char *error )
-	{
-		G_ExitWithError( error );
-		return qfalse;
-	}
-}
-
-/*
 ================
 GetGameAPI
 
@@ -1507,6 +1602,84 @@ game_export_t * GetGameAPI(game_import_t * import)
 	globals.TIKI_Orientation		= G_TIKI_Orientation;
 
 	return &globals;
+}
+
+/*
+=================
+G_ClientEndServerFrames
+=================
+*/
+void G_ClientEndServerFrames(void)
+{
+	int		i;
+	gentity_t* ent;
+
+	// calc the player views now that all pushing
+	// and damage has been added
+	for (i = 0; i < game.maxclients; i++)
+	{
+		ent = g_entities + i;
+		if (!ent->inuse || !ent->client || !ent->entity)
+		{
+			continue;
+		}
+
+		ent->entity->EndFrame();
+	}
+}
+
+void G_ClientDoBlends()
+{
+	// FIXME: unimplemented
+}
+
+void FindIntermissionPoint()
+{
+	// FIXME: unimplemented
+}
+
+void G_MoveClientToIntermission(Entity *ent)
+{
+    G_DisplayScores(ent);
+    ent->flags |= FL_IMMOBILE;
+}
+
+void G_DisplayScores(Entity *ent)
+{
+    ent->client->ps.pm_flags |= PMF_INTERMISSION;
+}
+
+void G_HideScores(Entity *ent)
+{
+    ent->client->ps.pm_flags &= ~PMF_INTERMISSION;
+}
+
+void G_DisplayScoresToAllClients(void)
+{
+    gentity_t *ent;
+    int        i;
+
+    for (i = 0, ent = g_entities; i < game.maxclients; ent++, i++) {
+        if (!ent->inuse || !ent->entity) {
+            continue;
+        }
+
+        G_DisplayScores(ent->entity);
+    }
+}
+
+void G_HideScoresToAllClients(void)
+{
+    gentity_t *ent;
+    int        i;
+
+    for (i = 0, ent = g_entities; i < game.maxclients; ent++, i++) {
+        if (!ent->inuse || !ent->entity) {
+            continue;
+        }
+
+        G_HideScores(ent->entity);
+    }
 }
 
 #ifndef WIN32

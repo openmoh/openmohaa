@@ -349,6 +349,7 @@ void RadiusDamage
 	bool		hurtOwnerOnly = false
 	);
 
+const char* G_LocationNumToDispString(int iLocation);
 Entity* FindDefusableObject(const Vector& dir, Entity* owner, float maxdist);
 void DefuseObject(const Vector& dir, Entity* owner, float maxdist);
 qboolean CanPlaceLandmine(const Vector& origin, Entity* owner);

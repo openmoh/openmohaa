@@ -1486,7 +1486,7 @@ void ScriptSlave::SetMeansOfDeath
 	)
 
 	{
-	dmg_means_of_death = MOD_NameToNum( ev->GetString( 1 ) );
+	dmg_means_of_death = MOD_string_to_int( ev->GetString( 1 ) );
 	}
 
 void ScriptSlave::CreatePath

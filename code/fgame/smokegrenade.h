@@ -43,7 +43,7 @@ public:
     void EventSetFadedelay(Event* ev);
     void EventSetMaxAlpha(Event* ev);
 
-    void Think();
+    void Think() override;
 
 private:
     float nextRemoveTime;

@@ -607,7 +607,7 @@ void Viewthing::UpdateCvars
    )
 
 {
-	gi.Cvar_Set("viewmodelentity", va("%d", edict->s.number));
+	gi.cvar_set("viewmodelentity", va("%d", edict->s.number));
 }
 
 
@@ -628,7 +628,7 @@ void Viewthing::ThinkEvent
         angles.AngleVectors(&forward, &left, &up);
         realmove = left * accel[1] + up * accel[2] + forward * accel[0];
         setOrigin(baseorigin + realmove);
-        gi.Cvar_Set("viewthingorigin", va("%0.2f,%0.2f,%0.2f", edict->s.origin[0], edict->s.origin[1], edict->s.origin[2]));
+        gi.cvar_set("viewthingorigin", va("%0.2f,%0.2f,%0.2f", edict->s.origin[0], edict->s.origin[1], edict->s.origin[2]));
     }
     PostEvent(EV_ViewThing_Think, FRAMETIME);
     if ((animstate > 0) && (Viewmodel.current_viewthing == this))
@@ -640,9 +640,9 @@ void Viewthing::ThinkEvent
             lastframe = f;
             time = f * AnimTime() / NumFrames();
             gi.Printf("current frame %d time %.2f\n", f, time);
-            gi.Cvar_Set("viewmodeltime", va("%.2f", time));
-            gi.Cvar_Set("viewmodelframe", va("%d", f));
-            gi.Cvar_Set("viewmodelanim", AnimName());
+            gi.cvar_set("viewmodeltime", va("%.2f", time));
+            gi.cvar_set("viewmodelframe", va("%d", f));
+            gi.cvar_set("viewmodelanim", AnimName());
         }
     }
 }
@@ -669,22 +669,22 @@ void Viewthing::ToggleAnimateEvent
       case 0:
          SetFrame();         
          gi.Printf( "Animation stopped.\n" );
-         gi.Cvar_Set( "viewmodelanimmode", "Stopped" );
+         gi.cvar_set( "viewmodelanimmode", "Stopped" );
          break;
       case 1:
          NewAnim( CurrentAnim() );
          gi.Printf( "Animation no motion.\n" );
-         gi.Cvar_Set( "viewmodelanimmode", "No Motion" );
+         gi.cvar_set( "viewmodelanimmode", "No Motion" );
          break;
       case 2:
          NewAnim( CurrentAnim(), EV_ViewThing_LastFrame );
          gi.Printf( "Animation with motion and looping.\n" );
-         gi.Cvar_Set( "viewmodelanimmode", "Motion and Looping" );
+         gi.cvar_set( "viewmodelanimmode", "Motion and Looping" );
          break;
       case 3:
          NewAnim( CurrentAnim(), EV_ViewThing_LastFrame );
          gi.Printf( "Animation with motion no looping.\n" );
-         gi.Cvar_Set( "viewmodelanimmode", "Motion and No Looping" );
+         gi.cvar_set( "viewmodelanimmode", "Motion and No Looping" );
          break;
       }
    UpdateCvars( qtrue );

@@ -874,7 +874,7 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
     ClearProjectileTargets();
 
     // Reset the boss health cvar
-    gi.Cvar_Set("bosshealth", "0");
+    gi.cvar_set("bosshealth", "0");
 
     Actor::ResetBodyQueue();
 
@@ -913,19 +913,19 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
     }
 
     if (resetConfigStrings) {
-        gi.SetConfigstring(CS_RAIN_DENSITY, "0");
-        gi.SetConfigstring(CS_RAIN_SPEED, "2048");
-        gi.SetConfigstring(CS_RAIN_SPEEDVARY, "512");
-        gi.SetConfigstring(CS_RAIN_SLANT, "50");
-        gi.SetConfigstring(CS_RAIN_LENGTH, "90");
-        gi.SetConfigstring(CS_RAIN_MINDIST, "512");
-        gi.SetConfigstring(CS_RAIN_WIDTH, "1");
-        gi.SetConfigstring(CS_RAIN_SHADER, "textures/rain");
-        gi.SetConfigstring(CS_RAIN_NUMSHADERS, "0");
-        gi.SetConfigstring(CS_CURRENT_OBJECTIVE, "");
+        gi.setConfigstring(CS_RAIN_DENSITY, "0");
+        gi.setConfigstring(CS_RAIN_SPEED, "2048");
+        gi.setConfigstring(CS_RAIN_SPEEDVARY, "512");
+        gi.setConfigstring(CS_RAIN_SLANT, "50");
+        gi.setConfigstring(CS_RAIN_LENGTH, "90");
+        gi.setConfigstring(CS_RAIN_MINDIST, "512");
+        gi.setConfigstring(CS_RAIN_WIDTH, "1");
+        gi.setConfigstring(CS_RAIN_SHADER, "textures/rain");
+        gi.setConfigstring(CS_RAIN_NUMSHADERS, "0");
+        gi.setConfigstring(CS_CURRENT_OBJECTIVE, "");
 
         for (int i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; i++) {
-            gi.SetConfigstring(i, "");
+            gi.setConfigstring(i, "");
         }
     }
 
@@ -1012,7 +1012,7 @@ void Level::setSkill(int value)
     skill_level = floor((float)value);
     skill_level = bound(skill_level, 0, 3);
 
-    gi.Cvar_Set("skill", va("%d", skill_level));
+    gi.cvar_set("skill", va("%d", skill_level));
 }
 
 void Level::setTime(int levelTime)
@@ -1455,7 +1455,7 @@ void Level::FreeEdict(gentity_t *ed)
     gclient_t *client;
 
     // unlink from world
-    gi.UnlinkEntity(ed);
+    gi.unlinkentity(ed);
 
     LL_Remove(ed, next, prev);
 
@@ -1806,92 +1806,92 @@ void Level::DoEarthquakes(void)
 
 void Level::EventRainDensitySet(Event *ev)
 {
-    gi.SetConfigstring(CS_RAIN_DENSITY, ev->GetString(1));
+    gi.setConfigstring(CS_RAIN_DENSITY, ev->GetString(1));
 }
 
 void Level::EventRainDensityGet(Event *ev)
 {
-    ev->AddString(gi.GetConfigstring(CS_RAIN_DENSITY));
+    ev->AddString(gi.getConfigstring(CS_RAIN_DENSITY));
 }
 
 void Level::EventRainSpeedSet(Event *ev)
 {
-    gi.SetConfigstring(CS_RAIN_SPEED, ev->GetString(1));
+    gi.setConfigstring(CS_RAIN_SPEED, ev->GetString(1));
 }
 
 void Level::EventRainSpeedGet(Event *ev)
 {
-    ev->AddString(gi.GetConfigstring(CS_RAIN_SPEED));
+    ev->AddString(gi.getConfigstring(CS_RAIN_SPEED));
 }
 
 void Level::EventRainSpeedVarySet(Event *ev)
 {
-    gi.SetConfigstring(CS_RAIN_SPEEDVARY, ev->GetString(1));
+    gi.setConfigstring(CS_RAIN_SPEEDVARY, ev->GetString(1));
 }
 
 void Level::EventRainSpeedVaryGet(Event *ev)
 {
-    ev->AddString(gi.GetConfigstring(CS_RAIN_SPEEDVARY));
+    ev->AddString(gi.getConfigstring(CS_RAIN_SPEEDVARY));
 }
 
 void Level::EventRainSlantSet(Event *ev)
 {
-    gi.SetConfigstring(CS_RAIN_SLANT, ev->GetString(1));
+    gi.setConfigstring(CS_RAIN_SLANT, ev->GetString(1));
 }
 
 void Level::EventRainSlantGet(Event *ev)
 {
-    ev->AddString(gi.GetConfigstring(CS_RAIN_SLANT));
+    ev->AddString(gi.getConfigstring(CS_RAIN_SLANT));
 }
 
 void Level::EventRainLengthSet(Event *ev)
 {
-    gi.SetConfigstring(CS_RAIN_LENGTH, ev->GetString(1));
+    gi.setConfigstring(CS_RAIN_LENGTH, ev->GetString(1));
 }
 
 void Level::EventRainLengthGet(Event *ev)
 {
-    ev->AddString(gi.GetConfigstring(CS_RAIN_LENGTH));
+    ev->AddString(gi.getConfigstring(CS_RAIN_LENGTH));
 }
 
 void Level::EventRainMin_DistSet(Event *ev)
 {
-    gi.SetConfigstring(CS_RAIN_MINDIST, ev->GetString(1));
+    gi.setConfigstring(CS_RAIN_MINDIST, ev->GetString(1));
 }
 
 void Level::EventRainMin_DistGet(Event *ev)
 {
-    ev->AddString(gi.GetConfigstring(CS_RAIN_MINDIST));
+    ev->AddString(gi.getConfigstring(CS_RAIN_MINDIST));
 }
 
 void Level::EventRainWidthSet(Event *ev)
 {
-    gi.SetConfigstring(CS_RAIN_WIDTH, ev->GetString(1));
+    gi.setConfigstring(CS_RAIN_WIDTH, ev->GetString(1));
 }
 
 void Level::EventRainWidthGet(Event *ev)
 {
-    ev->AddString(gi.GetConfigstring(CS_RAIN_WIDTH));
+    ev->AddString(gi.getConfigstring(CS_RAIN_WIDTH));
 }
 
 void Level::EventRainShaderSet(Event *ev)
 {
-    gi.SetConfigstring(CS_RAIN_SHADER, ev->GetString(1));
+    gi.setConfigstring(CS_RAIN_SHADER, ev->GetString(1));
 }
 
 void Level::EventRainShaderGet(Event *ev)
 {
-    ev->AddString(gi.GetConfigstring(CS_RAIN_SHADER));
+    ev->AddString(gi.getConfigstring(CS_RAIN_SHADER));
 }
 
 void Level::EventRainNumShadersSet(Event *ev)
 {
-    gi.SetConfigstring(CS_RAIN_NUMSHADERS, ev->GetString(1));
+    gi.setConfigstring(CS_RAIN_NUMSHADERS, ev->GetString(1));
 }
 
 void Level::EventRainNumShadersGet(Event *ev)
 {
-    ev->AddString(gi.GetConfigstring(CS_RAIN_NUMSHADERS));
+    ev->AddString(gi.getConfigstring(CS_RAIN_NUMSHADERS));
 }
 
 void Level::EventAddBadPlace(Event* ev)

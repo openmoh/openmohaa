@@ -865,3 +865,36 @@ void G_DebugHighlightFacet
          break;
       }
    }
+
+   void G_DebugString(Vector pos, float scale, float r, float g, float b, const char* pszText, ...)
+   {
+	   debugstring_t* string;
+	   va_list        va;
+	   char           szTemp[32768];
+
+	   if (!g_numdebugstrings) {
+		   return;
+	   }
+
+	   if (*gi.numDebugStrings < g_numdebugstrings->integer) {
+		   string = (debugstring_t*)&DebugStrings[*gi.numDebugStrings];
+
+		   (*gi.numDebugStrings)++;
+
+		   va_start(va, pszText);
+		   vsprintf(szTemp, pszText, va);
+		   va_end(va);
+
+		   VectorCopy(pos, string->pos);
+		   string->scale = scale;
+		   string->color[0] = r;
+		   string->color[1] = g;
+		   string->color[2] = b;
+		   string->color[3] = 1.0f;
+		   strncpy(string->szText, szTemp, sizeof(string->szText));
+		   string->szText[sizeof(string->szText) - 1] = 0;
+	   }
+	   else {
+		   gi.DPrintf("G_DebugString: Exceeded g_numdebugstrings\n");
+	   }
+   }

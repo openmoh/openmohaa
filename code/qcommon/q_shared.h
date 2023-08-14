@@ -1240,6 +1240,7 @@ void Com_TruncateLongString( char *buffer, const char *s );
 
 //=============================================
 
+float vectoyaw(const vec3_t vec);
 int MusicMood_NameToNum( const char * name );
 const char * MusicMood_NumToName( int num );
 int EAXMode_NameToNum( const char * name );

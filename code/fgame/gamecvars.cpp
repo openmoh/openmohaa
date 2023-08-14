@@ -349,7 +349,7 @@ void CVAR_Init(void)
     sv_sprinton      = gi.Cvar_Get("sv_sprinton", "1", 0);
 
     if (!sv_sprinton->integer && sv_runspeed->integer == 287) {
-        gi.Cvar_Set("sv_runspeed", "250");
+        gi.cvar_set("sv_runspeed", "250");
     }
 
     sv_invulnerabletime    = gi.Cvar_Get("sv_invulnerabletime", "3.0", CVAR_ARCHIVE | CVAR_SERVERINFO);
@@ -415,7 +415,7 @@ void CVAR_Init(void)
     g_gametypestring = gi.Cvar_Get("g_gametypestring", "Free-For-All", CVAR_SERVERINFO);
     g_realismmode    = gi.Cvar_Get("g_realismmode", "0", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
     if (!g_gametype->integer) {
-        gi.Cvar_Set("g_realismmode", "0");
+        gi.cvar_set("g_realismmode", "0");
     }
 
     g_teamdamage         = gi.Cvar_Get("g_teamdamage", "0", 0);
@@ -448,40 +448,40 @@ void CVAR_Init(void)
     s_debugmusic = gi.Cvar_Get("s_debugmusic", "0", 0);
 
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
-        gi.Cvar_Set("deathmatch", "0");
+        gi.cvar_set("deathmatch", "0");
     } else {
-        gi.Cvar_Set("deathmatch", "1");
+        gi.cvar_set("deathmatch", "1");
     }
 
     if (g_protocol >= PROTOCOL_MOHTA_MIN) {
         if (gi.Cvar_Get("com_target_game", "", 0)->integer == target_game_e::TG_MOHTT) {
             // Set the server type to mohaab
-            gi.Cvar_Set("g_servertype", va("%d", target_game_e::TG_MOHTT));
+            gi.cvar_set("g_servertype", va("%d", target_game_e::TG_MOHTT));
         }
     }
 
     switch (g_gametype->integer) {
     default:
     case GT_FFA:
-        gi.Cvar_Set("g_gametypestring", "Free-For-All");
+        gi.cvar_set("g_gametypestring", "Free-For-All");
         break;
     case GT_TEAM:
-        gi.Cvar_Set("g_gametypestring", "Team-Match");
+        gi.cvar_set("g_gametypestring", "Team-Match");
         break;
     case GT_TEAM_ROUNDS:
-        gi.Cvar_Set("g_gametypestring", "Round-Based-Match");
+        gi.cvar_set("g_gametypestring", "Round-Based-Match");
         break;
     case GT_OBJECTIVE:
-        gi.Cvar_Set("g_gametypestring", "Objective-Match");
+        gi.cvar_set("g_gametypestring", "Objective-Match");
         break;
     case GT_TOW:
-        gi.Cvar_Set("g_gametypestring", "Tug-of-War");
+        gi.cvar_set("g_gametypestring", "Tug-of-War");
         break;
     case GT_LIBERATION:
-        gi.Cvar_Set("g_gametypestring", "Liberation");
+        gi.cvar_set("g_gametypestring", "Liberation");
         break;
     case GT_SINGLE_PLAYER:
-        gi.Cvar_Set("g_gametypestring", "Multiplayer");
+        gi.cvar_set("g_gametypestring", "Multiplayer");
         break;
     }
 
@@ -563,12 +563,12 @@ void CVAR_Init(void)
     gi.Cvar_Get("g_scoreboardpicover", "", CVAR_SERVERINFO);
 
     if (g_gametype->integer > GT_TEAM) {
-        gi.Cvar_Set("g_tempaxisscore", "0");
-        gi.Cvar_Set("g_tempaxiswinsinrow", "0");
-        gi.Cvar_Set("g_tempalliesscore", "0");
-        gi.Cvar_Set("g_tempallieswinsinrow", "0");
-        gi.Cvar_Set("g_tempmaptime", "0");
-        gi.Cvar_Set("g_scoreboardpicover", "");
+        gi.cvar_set("g_tempaxisscore", "0");
+        gi.cvar_set("g_tempaxiswinsinrow", "0");
+        gi.cvar_set("g_tempalliesscore", "0");
+        gi.cvar_set("g_tempallieswinsinrow", "0");
+        gi.cvar_set("g_tempmaptime", "0");
+        gi.cvar_set("g_scoreboardpicover", "");
     }
 
     g_turret_convergetime     = gi.Cvar_Get("g_turret_convergetime", "2", 0);

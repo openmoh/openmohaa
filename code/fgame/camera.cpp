@@ -115,7 +115,7 @@ void CameraMoveState::DoNodeEvents
 			ent = NULL;
 			do
 			{
-				ent = ( Entity * )G_FindTarget( ( SimpleEntity * )ent, node->triggertarget.c_str() );
+				ent = G_FindTarget( ent, node->triggertarget.c_str() );
 				if( !ent )
 				{
 					break;
@@ -2630,36 +2630,36 @@ void CameraManager::UpdateUI
    //
    // set path name
    //
-   gi.Cvar_Set( "cam_filename", pathName );
+   gi.cvar_set( "cam_filename", pathName );
    if ( current )
       {
 
-      gi.Cvar_Set( "cam_origin", va( "%.2f %.2f %.2f", current->origin[ 0 ], current->origin[ 1 ], current->origin[ 2 ] ) );
-      gi.Cvar_Set( "cam_angles_yaw", va( "%.1f", current->angles[ YAW ] ) );
-      gi.Cvar_Set( "cam_angles_pitch", va( "%.1f", current->angles[ PITCH ] ) );
-      gi.Cvar_Set( "cam_angles_roll", va( "%.1f", current->angles[ ROLL ] ) );
-      gi.Cvar_Set( "cam_thread", current->thread.c_str() );
-      gi.Cvar_Set( "cam_target", current->triggertarget.c_str() );
-      gi.Cvar_Set( "cam_watch", current->watchEnt.c_str() );
+      gi.cvar_set( "cam_origin", va( "%.2f %.2f %.2f", current->origin[ 0 ], current->origin[ 1 ], current->origin[ 2 ] ) );
+      gi.cvar_set( "cam_angles_yaw", va( "%.1f", current->angles[ YAW ] ) );
+      gi.cvar_set( "cam_angles_pitch", va( "%.1f", current->angles[ PITCH ] ) );
+      gi.cvar_set( "cam_angles_roll", va( "%.1f", current->angles[ ROLL ] ) );
+      gi.cvar_set( "cam_thread", current->thread.c_str() );
+      gi.cvar_set( "cam_target", current->triggertarget.c_str() );
+      gi.cvar_set( "cam_watch", current->watchEnt.c_str() );
       temp = current->GetFov();
       if ( temp )
          {
-         gi.Cvar_Set( "cam_fov", va( "%.1f", temp ) );
+         gi.cvar_set( "cam_fov", va( "%.1f", temp ) );
          }
       else
          {
-         gi.Cvar_Set( "cam_fov", "Default" );
+         gi.cvar_set( "cam_fov", "Default" );
          }
       temp = current->GetFadeTime();
       if ( temp != -1 )
          {
-         gi.Cvar_Set( "cam_fadetime", va( "%.2f", temp ) );
+         gi.cvar_set( "cam_fadetime", va( "%.2f", temp ) );
          }
       else
          {
-         gi.Cvar_Set( "cam_fadetime", "Default" );
+         gi.cvar_set( "cam_fadetime", "Default" );
          }
-      gi.Cvar_Set( "cam_speed", va( "%.1f", current->speed ) );
+      gi.cvar_set( "cam_speed", va( "%.1f", current->speed ) );
 
       //
       // set node num
@@ -2671,7 +2671,7 @@ void CameraManager::UpdateUI
          next = next->GetNext();
          num++;
          }
-      gi.Cvar_Set( "cam_nodenum", va( "%d", num ) );
+      gi.cvar_set( "cam_nodenum", va( "%d", num ) );
       }
    }
 

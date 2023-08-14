@@ -200,7 +200,7 @@ qboolean cMoveGrid::CheckStuck
 		{
 			for( z = 0; z < m_iZRes; z++ )
 			{
-				gi.Trace( &trace, v.vs->origin, v.mins, v.maxs, v.vs->origin, v.vs->entityNum, v.tracemask, false, false );
+				gi.trace( &trace, v.vs->origin, v.mins, v.maxs, v.vs->origin, v.vs->entityNum, v.tracemask, false, false );
 
 				if( trace.allsolid || trace.startsolid || trace.fraction == 0.0f )
 				{

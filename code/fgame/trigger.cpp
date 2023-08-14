@@ -582,7 +582,7 @@ void Trigger::ActivateTargets(Event *ev)
     if (name && strcmp(name, "")) {
         ent = NULL;
         do {
-            ent = (Entity *)G_FindTarget((SimpleEntity *)ent, name);
+            ent = G_FindTarget(ent, name);
             if (!ent) {
                 break;
             }
@@ -597,7 +597,7 @@ void Trigger::ActivateTargets(Event *ev)
     if (name && strcmp(name, "")) {
         ent = NULL;
         do {
-            ent = (Entity *)G_FindTarget((SimpleEntity *)ent, name);
+            ent = G_FindTarget(ent, name);
             if (!ent) {
                 break;
             }
@@ -1129,7 +1129,7 @@ Event EV_TriggerSave_SaveName(
 
 void TriggerSave::SaveGame(Event *ev)
 {
-    gi.SetConfigstring(CS_SAVENAME, m_sSaveName);
+    gi.setConfigstring(CS_SAVENAME, m_sSaveName);
     gi.SendConsoleCommand("savegame");
 }
 
@@ -2043,7 +2043,7 @@ void TriggerDamageTargets::PassDamage(Event *ev)
     if (name && strcmp(name, "")) {
         ent = NULL;
         do {
-            ent = (Entity *)G_FindTarget((SimpleEntity *)ent, name);
+            ent = G_FindTarget(ent, name);
             if (!ent) {
                 break;
             }
@@ -2098,7 +2098,7 @@ void TriggerDamageTargets::DamageTargets(Event *ev)
     if (name && strcmp(name, "")) {
         ent = NULL;
         do {
-            ent = (Entity *)G_FindTarget((SimpleEntity *)ent, name);
+            ent = G_FindTarget(ent, name);
             if (!ent) {
                 break;
             }

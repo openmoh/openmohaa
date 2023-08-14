@@ -99,7 +99,7 @@ PortalSurface::PortalSurface
    VectorClear( edict->r.mins );
    VectorClear( edict->r.maxs );
 
-	gi.LinkEntity( edict );
+	gi.linkentity( edict );
 
 	edict->r.svFlags = SVF_PORTAL | SVF_SENDPVS;
 	edict->s.eType = ET_PORTAL;
@@ -158,5 +158,5 @@ PortalCamera::PortalCamera
    // No roll on the camera by default
    edict->s.skinNum = 0;
    
-   gi.LinkEntity( edict );
+   gi.linkentity( edict );
    }

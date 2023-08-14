@@ -45,7 +45,7 @@ Called on game shutdown
 */
 void G_WriteClientSessionData( gclient_t *client )
 {
-	gi.Cvar_Set( va( "session%i", ( int )( client - game.clients ) ),
+	gi.cvar_set( va( "session%i", ( int )( client - game.clients ) ),
 		va( "%s %i %i", client->pers.dm_primary[ 0 ] ? client->pers.dm_primary : "-",
 		client->pers.teamnum,
 		client->pers.round_kills) );
@@ -119,7 +119,7 @@ G_WriteSessionData
 void G_WriteSessionData( void ) {
 	int		i;
 
-	gi.Cvar_Set( "session", va( "%i", g_gametype->integer ) );
+	gi.cvar_set( "session", va( "%i", g_gametype->integer ) );
 
 	for ( i = 0 ; i < game.maxclients ; i++ )
 	{

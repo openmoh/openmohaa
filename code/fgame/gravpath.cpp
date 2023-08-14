@@ -103,7 +103,7 @@ Vector GravPathManager::CalculateGravityPull(Entity &ent, Vector pos, qboolean *
       return vec_zero;
       }
 
-   entity_contents = gi.PointContents( ent.origin, 0 );
+   entity_contents = gi.pointcontents( ent.origin, 0 );
 
    for( i = 1; i <= num; i++ )
 		{
@@ -118,7 +118,7 @@ Vector GravPathManager::CalculateGravityPull(Entity &ent, Vector pos, qboolean *
          continue;
 
       // Check to see if the contents are the same
-      grav_contents = gi.PointContents( node->origin, 0 );
+      grav_contents = gi.pointcontents( node->origin, 0 );
 
       // If grav node is in water, make sure ent is too.
       if ( ( grav_contents & CONTENTS_WATER ) && !( entity_contents & CONTENTS_WATER ) )
