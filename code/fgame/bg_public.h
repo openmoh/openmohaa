@@ -827,4 +827,18 @@ movement on the server game.
 }
 #endif
 
+typedef enum {
+	OBJ_FLAG_NONE,
+	OBJ_FLAG_HIDDEN = 1,
+	OBJ_FLAG_CURRENT = 2,
+	OBJ_FLAG_COMPLETED = 4
+} objective_flags_t;
+
+typedef enum {
+    OBJ_STATUS_NONE = 0,
+    OBJ_STATUS_HIDDEN,
+    OBJ_STATUS_CURRENT,
+    OBJ_STATUS_COMPLETED
+} objective_status_t;
+
 #endif /* bg_public.h */
