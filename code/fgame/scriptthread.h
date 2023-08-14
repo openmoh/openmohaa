@@ -224,7 +224,7 @@ public:
     // Objectives
     //
     void AddObjective(int index, int status, str text, Vector location);
-    void SetCurrentObjective(int iObjective);
+    void SetCurrentObjective(int iObjective, int iTeam);
     void SendObjective();
     void SendObjectives();
     void ClearObjectives();

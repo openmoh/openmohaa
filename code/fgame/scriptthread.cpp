@@ -4238,23 +4238,43 @@ void ScriptThread::AddObjective(int index, int status, str text, Vector location
     gi.SetConfigstring(CS_OBJECTIVES + index, szSend);
 }
 
-void ScriptThread::SetCurrentObjective(int iObjective)
+void ScriptThread::SetCurrentObjective(int iObjective, int iTeam)
 {
     gi.SetConfigstring(CS_CURRENT_OBJECTIVE, va("%i", iObjective));
 
     if (iObjective == -1) {
         level.m_vObjectiveLocation = vec_zero;
+        level.m_vAlliedObjectiveLocation = vec_zero;
+        level.m_vAxisObjectiveLocation = vec_zero;
     } else {
         const char *s   = gi.GetConfigstring(CS_OBJECTIVES + iObjective);
         const char *loc = Info_ValueForKey(s, "loc");
+        Vector v;
 
         sscanf(
             loc,
             "%f %f %f",
-            &level.m_vObjectiveLocation[0],
-            &level.m_vObjectiveLocation[1],
-            &level.m_vObjectiveLocation[2]
+            &v[0],
+            &v[1],
+            &v[2]
         );
+
+        //
+        // Since 2.0, allow objective location per team
+        //
+        switch (iTeam)
+        {
+        case TEAM_NONE:
+        default:
+            level.m_vObjectiveLocation = v;
+            break;
+        case TEAM_ALLIES:
+            level.m_vAlliedObjectiveLocation = v;
+            break;
+        case TEAM_AXIS:
+            level.m_vAxisObjectiveLocation = v;
+            break;
+        }
     }
 }
 
@@ -4324,12 +4344,25 @@ void ScriptThread::EventSetScoreboardToggle(Event *ev)
 void ScriptThread::EventSetCurrentObjective(Event *ev)
 {
     int iObjective = ev->GetInteger(1);
+    int iTeam = 0;
 
     if (iObjective > MAX_OBJECTIVES) {
         throw ScriptException("Index Out Of Range");
     }
 
-    SetCurrentObjective(iObjective);
+    if (ev->NumArgs() >= 2)
+    {
+        const_str teamStr = ev->GetConstString(1);
+        if (teamStr == STRING_ALLIES) {
+            iTeam = TEAM_ALLIES;
+        } else if (teamStr == STRING_AXIS) {
+            iTeam = TEAM_AXIS;
+        } else {
+            throw("Option 2nd argument can only be \"allies\" or \"axis\"");
+        }
+    }
+
+    SetCurrentObjective(iObjective - 1, iTeam);
 }
 
 void ScriptThread::SetObjectiveLocation(Vector vLocation)
