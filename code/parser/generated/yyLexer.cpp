@@ -1,6 +1,6 @@
-#line 1 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+#line 2 "/usr/src/openmohaa/code/parser/generated/yyLexer.cpp"
 
-#line 3 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+#line 4 "/usr/src/openmohaa/code/parser/generated/yyLexer.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -702,8 +702,8 @@ static int yy_more_len = 0;
 #define YY_MORE_ADJ (yy_more_len)
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "E:/Src/openmohaa/code/parser/lex_source.txt"
-#line 2 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 1 "/usr/src/openmohaa/code/parser/lex_source.txt"
+#line 2 "/usr/src/openmohaa/code/parser/lex_source.txt"
 /*
 * ===========================================================================
 * Copyright (C) 2015 the OpenMoHAA team
@@ -876,10 +876,10 @@ static bool UseField( void )
 	result = n;							\
 }
 
-#line 879 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+#line 880 "/usr/src/openmohaa/code/parser/generated/yyLexer.cpp"
 /*%option debug*/
 
-#line 882 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+#line 883 "/usr/src/openmohaa/code/parser/generated/yyLexer.cpp"
 
 #define INITIAL 0
 #define SCRIPT 1
@@ -1093,10 +1093,10 @@ YY_DECL
 		}
 
 	{
-#line 194 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 194 "/usr/src/openmohaa/code/parser/lex_source.txt"
 
 
-#line 1099 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+#line 1100 "/usr/src/openmohaa/code/parser/generated/yyLexer.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1167,60 +1167,60 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 196 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 196 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( C_COMMENT ); }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 197 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 197 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( INITIAL ); }
 	YY_BREAK
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 198 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 198 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 199 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 199 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 200 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 200 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { Compiler.CompileError( parsedata.pos - yyleng, "'*/' found outside of comment" ); }
 	YY_BREAK
 case 6:
 /* rule 6 can match eol */
 YY_RULE_SETUP
-#line 202 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 202 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 203 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 203 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { if( prev_yylex != TOKEN_EOL ) YYLEX( TOKEN_EOL ); }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 205 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 205 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN(INITIAL); YYLEX(TOKEN_SIZE); }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 206 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 206 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX(TOKEN_PERIOD); }
 	YY_BREAK
 case 10:
 /* rule 10 can match eol */
 YY_RULE_SETUP
-#line 207 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 207 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN(INITIAL); TextEscapeValue(yytext + 1, strlen( yytext ) - 2 ); YYLEX(TOKEN_STRING); }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 208 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 208 "/usr/src/openmohaa/code/parser/lex_source.txt"
 {
 									TextValue(yytext, strlen(yytext));
 									YYLEX(TOKEN_IDENTIFIER);
@@ -1229,7 +1229,7 @@ YY_RULE_SETUP
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-#line 212 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 212 "/usr/src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(INITIAL);
 									unput(yytext[yyleng - 1]);
@@ -1238,7 +1238,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 217 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 217 "/usr/src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(INITIAL);
 									unput(yytext[yyleng - 1]);
@@ -1248,378 +1248,378 @@ YY_RULE_SETUP
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 223 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 223 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { TextEscapeValue( yytext + 1, strlen( yytext ) - 2 ); YYLEX( TOKEN_STRING ); }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 226 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 226 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_TERNARY ); }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 227 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 227 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_IF ); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 228 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 228 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_ELSE ); }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 229 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 229 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_WHILE ); }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 230 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 230 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_FOR ); }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 231 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 231 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DO ); }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 233 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 233 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_game ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 234 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 234 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_group ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 235 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 235 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_level ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 236 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 236 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_local ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 237 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 237 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_parm ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 238 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 238 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_owner ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 239 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 239 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); yylval.s.val = node1_( method_self ); YYLEX( TOKEN_LISTENER ); }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 241 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 241 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { parsedata.braces_count++; YYLEX( TOKEN_LEFT_BRACES ); }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 242 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 242 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { parsedata.braces_count--; YYLEX( TOKEN_RIGHT_BRACES ); }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 243 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 243 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX(TOKEN_LEFT_BRACKET); }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 244 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 244 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN(VARIABLES); YYLEX(TOKEN_RIGHT_BRACKET); }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 245 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 245 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX(TOKEN_LEFT_SQUARE_BRACKET); }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 246 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 246 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN(VARIABLES); YYLEX(TOKEN_RIGHT_SQUARE_BRACKET); }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 248 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 248 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_ASSIGNMENT ); }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 249 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 249 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_COLON ); }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 250 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 250 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DOUBLE_COLON ); }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 251 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 251 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SEMICOLON ); }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 253 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 253 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_EQUALITY ); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 254 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 254 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LOGICAL_OR ); }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 255 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 255 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LOGICAL_AND ); }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 257 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 257 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BITWISE_OR ); }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 258 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 258 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BITWISE_EXCL_OR ); }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 259 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 259 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BITWISE_AND ); }
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 260 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 260 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_INEQUALITY ); }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 261 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 261 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LESS_THAN ); }
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 262 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 262 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_GREATER_THAN ); }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 263 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 263 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_LESS_THAN_OR_EQUAL ); }
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 264 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 264 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_GREATER_THAN_OR_EQUAL ); }
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 265 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 265 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NEG ); }
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 267 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 267 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_PLUS ); }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 268 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 268 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_PLUS_EQUALS ); }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 269 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 269 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_INCREMENT ); }
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 270 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 270 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MINUS ); }
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 271 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 271 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MINUS_EQUALS ); }
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 272 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 272 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MINUS_EQUALS ); }
 	YY_BREAK
 case 56:
 YY_RULE_SETUP
-#line 273 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 273 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DECREMENT ); }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 274 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 274 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MULTIPLY ); }
 	YY_BREAK
 case 58:
 YY_RULE_SETUP
-#line 275 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 275 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MULTIPLY_EQUALS ); }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 276 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 276 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DIVIDE ); }
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 277 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 277 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_DIVIDE_EQUALS ); }
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 278 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 278 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MODULUS ); }
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 279 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 279 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MODULUS_EQUALS ); }
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 280 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 280 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_LEFT ); }
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 281 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 281 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_LEFT_EQUALS ); }
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 282 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 282 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_RIGHT ); }
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 283 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 283 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SHIFT_RIGHT_EQUALS ); }
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 284 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 284 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_AND_EQUALS ); }
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 285 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 285 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_EXCL_OR_EQUALS ); }
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 286 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 286 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_OR_EQUALS ); }
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 287 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 287 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN( VARIABLES ); YYLEX( TOKEN_DOLLAR ); }
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 288 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 288 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NOT ); }
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 289 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 289 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_COMPLEMENT ); }
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 291 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 291 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_PERIOD ); }
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 293 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 293 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_COMMA ); }
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 294 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 294 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NUMBER ); }
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 296 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 296 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NULL ); }
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 297 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 297 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_NIL ); }
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 299 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 299 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_TRY ); }
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 300 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 300 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_CATCH ); }
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 301 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 301 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_SWITCH ); }
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 303 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 303 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_CASE ); }
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 304 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 304 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_BREAK ); }
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 305 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 305 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_CONTINUE ); }
 	YY_BREAK
 case 84:
 YY_RULE_SETUP
-#line 307 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 307 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_MAKEARRAY ); }
 	YY_BREAK
 case 85:
 YY_RULE_SETUP
-#line 308 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 308 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YYLEX( TOKEN_ENDARRAY ); }
 	YY_BREAK
 case 86:
 /* rule 86 can match eol */
 YY_RULE_SETUP
-#line 310 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 310 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { if (prev_yylex != TOKEN_EOL) YYLEX(TOKEN_EOL); }
 	YY_BREAK
 case 87:
 YY_RULE_SETUP
-#line 311 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 311 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { ; }
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 313 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 313 "/usr/src/openmohaa/code/parser/lex_source.txt"
 {
 											char* p = nullptr;
 											yylval.s.val.intValue = std::strtol(yytext, &p, 10);
@@ -1628,7 +1628,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 318 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 318 "/usr/src/openmohaa/code/parser/lex_source.txt"
 {
 											char* p = nullptr;
 											yylval.s.val.floatValue = std::strtof(yytext, &p);
@@ -1637,7 +1637,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 324 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 324 "/usr/src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(INITIAL);
 									TextEscapeValue(yytext, yyleng);
@@ -1647,7 +1647,7 @@ YY_RULE_SETUP
 case 91:
 /* rule 91 can match eol */
 YY_RULE_SETUP
-#line 329 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 329 "/usr/src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(INITIAL);
 									unput(yytext[yyleng - 1]);
@@ -1658,7 +1658,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 336 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 336 "/usr/src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(INITIAL);
 									unput(yytext[yyleng - 1]);
@@ -1669,7 +1669,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 344 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 344 "/usr/src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(IDENTIFIER);
 									yymore();
@@ -1677,7 +1677,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 349 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 349 "/usr/src/openmohaa/code/parser/lex_source.txt"
 {
 									BEGIN(IDENTIFIER);
 									yymore();
@@ -1685,12 +1685,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 95:
 YY_RULE_SETUP
-#line 354 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 354 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { BEGIN(INITIAL); }
 	YY_BREAK
 case 96:
 YY_RULE_SETUP
-#line 356 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 356 "/usr/src/openmohaa/code/parser/lex_source.txt"
 { YY_FATAL_ERROR("bad token:\n"); }
 	YY_BREAK
 
@@ -1700,10 +1700,10 @@ YY_RULE_SETUP
 
 case 97:
 YY_RULE_SETUP
-#line 364 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 364 "/usr/src/openmohaa/code/parser/lex_source.txt"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 1706 "E:/Src/openmohaa/code/parser/generated/yyLexer.cpp"
+#line 1707 "/usr/src/openmohaa/code/parser/generated/yyLexer.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SCRIPT):
 case YY_STATE_EOF(C_COMMENT):
@@ -2726,7 +2726,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 364 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 364 "/usr/src/openmohaa/code/parser/lex_source.txt"
 
 
 //

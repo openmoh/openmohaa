@@ -67,7 +67,7 @@
 
 
 /* First part of user prologue.  */
-#line 1 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 1 "/usr/src/openmohaa/code/parser/bison_source.txt"
 
 /*
 * ===========================================================================
@@ -112,7 +112,7 @@ int success_pos;
 #define TOKPOS(pos) node_pos(pos.sourcePos)
 
 
-#line 116 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 116 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -1869,618 +1869,618 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: statement_list  */
-#line 130 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 130 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                { parsedata.val = node1(ENUM_statement_list, (yyvsp[0].s.val)); }
-#line 1875 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1875 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 3: /* program: line_opt  */
-#line 131 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 131 "/usr/src/openmohaa/code/parser/bison_source.txt"
                    { parsedata.val = node0(ENUM_NOP); }
-#line 1881 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1881 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 4: /* statement_list: statement  */
-#line 135 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 135 "/usr/src/openmohaa/code/parser/bison_source.txt"
                     { (yyval.s.val) = linked_list_end((yyvsp[0].s.val)); }
-#line 1887 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1887 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 5: /* statement_list: statement_list statement  */
-#line 136 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 136 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                          { (yyval.s.val) = append_node((yyvsp[-1].s.val), (yyvsp[0].s.val)); }
-#line 1893 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1893 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 6: /* statement: line_opt statement_declaration line_opt  */
-#line 140 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 140 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                              { (yyval.s.val) = (yyvsp[-1].s.val); }
-#line 1899 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1899 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 7: /* statement_declaration: TOKEN_IDENTIFIER event_parameter_list TOKEN_COLON  */
-#line 144 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 144 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                             { (yyval.s.val) = node3(ENUM_labeled_statement, (yyvsp[-2].s.val), (yyvsp[-1].s.val), TOKPOS((yylsp[-2]))); }
-#line 1905 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1905 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 8: /* statement_declaration: TOKEN_CASE prim_expr event_parameter_list TOKEN_COLON  */
-#line 145 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 145 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                 { (yyval.s.val) = node3(ENUM_int_labeled_statement, (yyvsp[-2].s.val), (yyvsp[-1].s.val), TOKPOS((yylsp[-3]))); }
-#line 1911 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1911 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 12: /* statement_declaration: TOKEN_TRY compound_statement TOKEN_CATCH compound_statement  */
-#line 149 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 149 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                               { (yyval.s.val) = node3(ENUM_try, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-3]))); }
-#line 1917 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1917 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 13: /* statement_declaration: TOKEN_BREAK  */
-#line 150 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 150 "/usr/src/openmohaa/code/parser/bison_source.txt"
                       { (yyval.s.val) = node1(ENUM_break, TOKPOS((yylsp[0]))); }
-#line 1923 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1923 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 14: /* statement_declaration: TOKEN_CONTINUE  */
-#line 151 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 151 "/usr/src/openmohaa/code/parser/bison_source.txt"
                          { (yyval.s.val) = node1(ENUM_continue, TOKPOS((yylsp[0]))); }
-#line 1929 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1929 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 15: /* statement_declaration: TOKEN_IDENTIFIER event_parameter_list  */
-#line 152 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 152 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                 { (yyval.s.val) = node3(ENUM_cmd_event_statement, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 1935 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1935 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 16: /* statement_declaration: nonident_prim_expr TOKEN_IDENTIFIER event_parameter_list  */
-#line 153 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 153 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                    { (yyval.s.val) = node4(ENUM_method_event_statement, (yyvsp[-2].s.val), (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 1941 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1941 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 17: /* statement_declaration: nonident_prim_expr TOKEN_ASSIGNMENT expr  */
-#line 154 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 154 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 1947 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1947 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 18: /* statement_declaration: nonident_prim_expr TOKEN_PLUS_EQUALS expr  */
-#line 155 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 155 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                     { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_PLUS), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1953 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1953 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 19: /* statement_declaration: nonident_prim_expr TOKEN_MINUS_EQUALS expr  */
-#line 156 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 156 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                      { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_MINUS), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1959 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1959 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 20: /* statement_declaration: nonident_prim_expr TOKEN_MULTIPLY_EQUALS expr  */
-#line 157 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 157 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                         { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_MULTIPLY), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1965 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1965 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 21: /* statement_declaration: nonident_prim_expr TOKEN_DIVIDE_EQUALS expr  */
-#line 158 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 158 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                       { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_DIVIDE), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1971 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1971 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 22: /* statement_declaration: nonident_prim_expr TOKEN_MODULUS_EQUALS expr  */
-#line 159 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 159 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                        { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_PERCENTAGE), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1977 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1977 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 23: /* statement_declaration: nonident_prim_expr TOKEN_AND_EQUALS expr  */
-#line 160 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 160 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_BITWISE_AND), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1983 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1983 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 24: /* statement_declaration: nonident_prim_expr TOKEN_EXCL_OR_EQUALS expr  */
-#line 161 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 161 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                        { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_BITWISE_EXCL_OR), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1989 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1989 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 25: /* statement_declaration: nonident_prim_expr TOKEN_OR_EQUALS expr  */
-#line 162 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 162 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                   { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_BITWISE_OR), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1995 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1995 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 26: /* statement_declaration: nonident_prim_expr TOKEN_SHIFT_LEFT_EQUALS expr  */
-#line 163 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 163 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                           { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_SHIFT_LEFT), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 2001 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2001 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 27: /* statement_declaration: nonident_prim_expr TOKEN_SHIFT_RIGHT_EQUALS expr  */
-#line 164 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 164 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                            { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_SHIFT_RIGHT), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 2007 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2007 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 28: /* statement_declaration: nonident_prim_expr TOKEN_INCREMENT  */
-#line 165 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 165 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-1].s.val), node3(ENUM_func1_expr, node1b(OP_UN_INC), (yyvsp[-1].s.val), TOKPOS((yylsp[0]))), TOKPOS((yylsp[0]))); }
-#line 2013 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2013 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 29: /* statement_declaration: nonident_prim_expr TOKEN_DECREMENT  */
-#line 166 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 166 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-1].s.val), node3(ENUM_func1_expr, node1b(OP_UN_DEC), (yyvsp[-1].s.val), TOKPOS((yylsp[0]))), TOKPOS((yylsp[0]))); }
-#line 2019 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2019 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 30: /* statement_declaration: TOKEN_SEMICOLON  */
-#line 167 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 167 "/usr/src/openmohaa/code/parser/bison_source.txt"
                           { (yyval.s.val) = node0(ENUM_NOP); }
-#line 2025 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2025 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 31: /* compound_statement: TOKEN_LEFT_BRACES statement_list TOKEN_RIGHT_BRACES  */
-#line 173 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 173 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                               { (yyval.s.val) = node1(ENUM_statement_list, (yyvsp[-1].s.val)); }
-#line 2031 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2031 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 32: /* compound_statement: TOKEN_LEFT_BRACES line_opt TOKEN_RIGHT_BRACES  */
-#line 174 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 174 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                         { (yyval.s.val) = node0(ENUM_NOP); }
-#line 2037 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2037 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 33: /* compound_statement: line_opt compound_statement line_opt  */
-#line 175 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 175 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                           { (yyval.s.val) = (yyvsp[-1].s.val); }
-#line 2043 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2043 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 34: /* selection_statement: TOKEN_IF prim_expr statement  */
-#line 179 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 179 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                   { (yyval.s.val) = node3(ENUM_if_statement, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-2]))); }
-#line 2049 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2049 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 35: /* selection_statement: TOKEN_IF prim_expr statement TOKEN_ELSE statement  */
-#line 180 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 180 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                                      { (yyval.s.val) = node4(ENUM_if_else_statement, (yyvsp[-3].s.val), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-4]))); }
-#line 2055 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2055 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 36: /* selection_statement: TOKEN_SWITCH prim_expr compound_statement  */
-#line 181 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 181 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                     { (yyval.s.val) = node3(ENUM_switch, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-2]))); }
-#line 2061 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2061 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 37: /* iteration_statement: TOKEN_WHILE prim_expr statement  */
-#line 185 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 185 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                     { (yyval.s.val) = node4(ENUM_while_statement, (yyvsp[-1].s.val), (yyvsp[0].s.val), node0(ENUM_NOP), TOKPOS((yylsp[-2]))); }
-#line 2067 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2067 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 38: /* iteration_statement: TOKEN_FOR TOKEN_LEFT_BRACKET statement TOKEN_SEMICOLON expr TOKEN_SEMICOLON statement_list TOKEN_RIGHT_BRACKET statement  */
-#line 187 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 187 "/usr/src/openmohaa/code/parser/bison_source.txt"
         {
 		sval_t while_stmt = node4(ENUM_while_statement, (yyvsp[-4].s.val), (yyvsp[0].s.val), node1(ENUM_statement_list, (yyvsp[-2].s.val)), TOKPOS((yylsp[-8])));
 		(yyval.s.val) = node1(ENUM_statement_list, append_node(linked_list_end((yyvsp[-6].s.val)), while_stmt));
 	}
-#line 2076 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2076 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 39: /* iteration_statement: TOKEN_FOR TOKEN_LEFT_BRACKET TOKEN_SEMICOLON expr TOKEN_SEMICOLON statement_list TOKEN_RIGHT_BRACKET statement  */
-#line 192 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 192 "/usr/src/openmohaa/code/parser/bison_source.txt"
         {
 		(yyval.s.val) = node4(ENUM_while_statement, (yyvsp[-4].s.val), (yyvsp[0].s.val), node1(ENUM_statement_list, (yyvsp[-2].s.val)), TOKPOS((yylsp[-7])));
 	}
-#line 2084 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2084 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 40: /* iteration_statement: TOKEN_DO statement TOKEN_WHILE prim_expr  */
-#line 195 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 195 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                              { (yyval.s.val) = node3(ENUM_do, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-3]))); }
-#line 2090 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2090 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 41: /* expr: expr TOKEN_LOGICAL_AND expr  */
-#line 199 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 199 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                     { (yyval.s.val) = node3( ENUM_logical_and, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2096 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2096 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 42: /* expr: expr TOKEN_LOGICAL_OR expr  */
-#line 200 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 200 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                      { (yyval.s.val) = node3( ENUM_logical_or, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2102 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2102 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 43: /* expr: expr TOKEN_BITWISE_AND expr  */
-#line 201 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 201 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                       { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_BITWISE_AND ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2108 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2108 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 44: /* expr: expr TOKEN_BITWISE_OR expr  */
-#line 202 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 202 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                      { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_BITWISE_OR ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2114 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2114 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 45: /* expr: expr TOKEN_BITWISE_EXCL_OR expr  */
-#line 203 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 203 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                           { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_BITWISE_EXCL_OR ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2120 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2120 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 46: /* expr: expr TOKEN_EQUALITY expr  */
-#line 204 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 204 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                    { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_EQUALITY ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2126 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2126 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 47: /* expr: expr TOKEN_INEQUALITY expr  */
-#line 205 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 205 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                      { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_INEQUALITY ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2132 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2132 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 48: /* expr: expr TOKEN_LESS_THAN expr  */
-#line 206 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 206 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                     { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_LESS_THAN ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2138 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2138 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 49: /* expr: expr TOKEN_GREATER_THAN expr  */
-#line 207 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 207 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                        { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_GREATER_THAN ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2144 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2144 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 50: /* expr: expr TOKEN_LESS_THAN_OR_EQUAL expr  */
-#line 208 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 208 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_LESS_THAN_OR_EQUAL ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2150 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2150 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 51: /* expr: expr TOKEN_GREATER_THAN_OR_EQUAL expr  */
-#line 209 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 209 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                 { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_GREATER_THAN_OR_EQUAL ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2156 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2156 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 52: /* expr: expr TOKEN_PLUS expr  */
-#line 210 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 210 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_PLUS ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2162 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2162 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 53: /* expr: expr TOKEN_MINUS expr  */
-#line 211 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 211 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                 { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_MINUS ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2168 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2168 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 54: /* expr: expr TOKEN_MULTIPLY expr  */
-#line 212 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 212 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                    { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_MULTIPLY ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2174 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2174 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 55: /* expr: expr TOKEN_DIVIDE expr  */
-#line 213 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 213 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                  { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_DIVIDE ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2180 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2180 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 56: /* expr: expr TOKEN_MODULUS expr  */
-#line 214 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 214 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                   { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_PERCENTAGE ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2186 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2186 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 57: /* expr: expr TOKEN_SHIFT_LEFT expr  */
-#line 215 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 215 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                      { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_SHIFT_LEFT ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2192 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2192 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 58: /* expr: expr TOKEN_SHIFT_RIGHT expr  */
-#line 216 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 216 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                       { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_SHIFT_RIGHT ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2198 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2198 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 59: /* expr: expr TOKEN_TERNARY expr TOKEN_COLON expr  */
-#line 217 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 217 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node4( ENUM_if_else_statement, (yyvsp[-4].s.val), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-3])) ); }
-#line 2204 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2204 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 60: /* expr: TOKEN_EOL expr  */
-#line 218 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 218 "/usr/src/openmohaa/code/parser/bison_source.txt"
                               { (yyval.s.val) = (yyvsp[0].s.val); }
-#line 2210 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2210 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 63: /* expr: TOKEN_IDENTIFIER  */
-#line 221 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 221 "/usr/src/openmohaa/code/parser/bison_source.txt"
                            { (yyval.s.val) = node2(ENUM_string, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2216 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2216 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 64: /* func_prim_expr: TOKEN_IDENTIFIER event_parameter_list_need  */
-#line 225 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 225 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node3(ENUM_cmd_event_expr, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2222 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2222 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 65: /* func_prim_expr: nonident_prim_expr TOKEN_IDENTIFIER event_parameter_list  */
-#line 226 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 226 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                    { (yyval.s.val) = node4(ENUM_method_event_expr, (yyvsp[-2].s.val), (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2228 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2228 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 66: /* func_prim_expr: func_expr func_prim_expr  */
-#line 227 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 227 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                    { (yyval.s.val) = node3(ENUM_func1_expr, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2234 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2234 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 67: /* func_prim_expr: TOKEN_NOT func_prim_expr  */
-#line 228 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 228 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                    { (yyval.s.val) = node2(ENUM_bool_not, (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2240 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2240 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 68: /* func_prim_expr: TOKEN_IDENTIFIER TOKEN_DOUBLE_COLON const_array_list  */
-#line 230 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 230 "/usr/src/openmohaa/code/parser/bison_source.txt"
                 {
 			(yyval.s.val) = node3(ENUM_const_array_expr, node2(ENUM_string, (yyvsp[-2].s.val), TOKPOS((yylsp[-2]))), (yyvsp[0].s.val), TOKPOS((yylsp[-1])));
 		}
-#line 2248 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2248 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 69: /* func_prim_expr: nonident_prim_expr TOKEN_DOUBLE_COLON const_array_list  */
-#line 234 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 234 "/usr/src/openmohaa/code/parser/bison_source.txt"
                 {
 			(yyval.s.val) = node3(ENUM_const_array_expr, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])));
 		}
-#line 2256 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2256 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 70: /* func_prim_expr: TOKEN_MAKEARRAY makearray_statement_list TOKEN_ENDARRAY  */
-#line 238 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 238 "/usr/src/openmohaa/code/parser/bison_source.txt"
                 {
 			(yyval.s.val) = node2(ENUM_makearray, (yyvsp[-1].s.val), TOKPOS((yylsp[-2])));
 		}
-#line 2264 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2264 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 71: /* event_parameter_list: %empty  */
-#line 244 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 244 "/usr/src/openmohaa/code/parser/bison_source.txt"
           { (yyval.s.val) = sval_u{}; }
-#line 2270 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2270 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 72: /* event_parameter_list: event_parameter  */
-#line 245 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 245 "/usr/src/openmohaa/code/parser/bison_source.txt"
                           { (yyval.s.val) = (yyvsp[0].s.val); }
-#line 2276 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2276 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 73: /* event_parameter_list_need: event_parameter  */
-#line 249 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 249 "/usr/src/openmohaa/code/parser/bison_source.txt"
                           { (yyval.s.val) = (yyvsp[0].s.val); }
-#line 2282 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2282 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 74: /* event_parameter: prim_expr  */
-#line 253 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 253 "/usr/src/openmohaa/code/parser/bison_source.txt"
                     { (yyval.s.val) = linked_list_end((yyvsp[0].s.val)); }
-#line 2288 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2288 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 75: /* event_parameter: event_parameter prim_expr  */
-#line 254 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 254 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                     { (yyval.s.val) = append_node((yyvsp[-1].s.val), (yyvsp[0].s.val)); }
-#line 2294 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2294 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 76: /* const_array_list: const_array  */
-#line 258 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 258 "/usr/src/openmohaa/code/parser/bison_source.txt"
                       { (yyval.s.val) = linked_list_end((yyvsp[0].s.val)); }
-#line 2300 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2300 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 77: /* const_array_list: const_array_list TOKEN_DOUBLE_COLON const_array  */
-#line 259 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 259 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                           { (yyval.s.val) = append_node((yyvsp[-2].s.val), (yyvsp[0].s.val)); }
-#line 2306 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2306 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 79: /* const_array: identifier_prim  */
-#line 264 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 264 "/usr/src/openmohaa/code/parser/bison_source.txt"
                           { (yyval.s.val) = node2(ENUM_string, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2312 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2312 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 81: /* prim_expr: identifier_prim  */
-#line 269 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 269 "/usr/src/openmohaa/code/parser/bison_source.txt"
                           { (yyval.s.val) = node2(ENUM_string, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2318 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2318 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 82: /* prim_expr: prim_expr TOKEN_DOUBLE_COLON const_array_list  */
-#line 270 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 270 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                         { (yyval.s.val) = node3(ENUM_const_array_expr, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2324 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2324 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 83: /* identifier_prim: TOKEN_IDENTIFIER  */
-#line 274 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 274 "/usr/src/openmohaa/code/parser/bison_source.txt"
                          { (yyval.s.val) = (yyvsp[0].s.val); (yyloc) = (yylsp[0]); }
-#line 2330 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2330 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 84: /* identifier: TOKEN_IDENTIFIER  */
-#line 278 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 278 "/usr/src/openmohaa/code/parser/bison_source.txt"
                            { (yyval.s.val) = (yyvsp[0].s.val); (yyloc) = (yylsp[0]); }
-#line 2336 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2336 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 85: /* identifier: TOKEN_STRING  */
-#line 279 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 279 "/usr/src/openmohaa/code/parser/bison_source.txt"
                        { (yyval.s.val) = (yyvsp[0].s.val); (yyloc) = (yylsp[0]); }
-#line 2342 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2342 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 86: /* nonident_prim_expr: TOKEN_DOLLAR prim_expr  */
-#line 283 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 283 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                  { (yyval.s.val) = node3(ENUM_func1_expr, node1b(OP_UN_TARGETNAME), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2348 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2348 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 87: /* nonident_prim_expr: nonident_prim_expr TOKEN_PERIOD identifier  */
-#line 284 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 284 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                      { (yyval.s.val) = node3(ENUM_field, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2354 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2354 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 88: /* nonident_prim_expr: nonident_prim_expr TOKEN_PERIOD TOKEN_SIZE  */
-#line 285 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 285 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                      { (yyval.s.val) = node3(ENUM_func1_expr, node1b(OP_UN_SIZE), (yyvsp[-2].s.val), TOKPOS((yylsp[0]))); }
-#line 2360 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2360 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 89: /* nonident_prim_expr: nonident_prim_expr TOKEN_LEFT_SQUARE_BRACKET expr TOKEN_RIGHT_SQUARE_BRACKET  */
-#line 286 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 286 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                                        { (yyval.s.val) = node3(ENUM_array_expr, (yyvsp[-3].s.val), (yyvsp[-1].s.val), TOKPOS((yylsp[-2]))); }
-#line 2366 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2366 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 90: /* nonident_prim_expr: TOKEN_STRING  */
-#line 287 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 287 "/usr/src/openmohaa/code/parser/bison_source.txt"
                        { (yyval.s.val) = node2(ENUM_string, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2372 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2372 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 91: /* nonident_prim_expr: TOKEN_INTEGER  */
-#line 288 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 288 "/usr/src/openmohaa/code/parser/bison_source.txt"
                         { (yyval.s.val) = node2(ENUM_integer, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2378 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2378 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 92: /* nonident_prim_expr: TOKEN_FLOAT  */
-#line 289 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 289 "/usr/src/openmohaa/code/parser/bison_source.txt"
                       { (yyval.s.val) = node2(ENUM_float, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2384 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2384 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 93: /* nonident_prim_expr: TOKEN_LEFT_BRACKET expr expr expr TOKEN_RIGHT_BRACKET  */
-#line 290 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 290 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                                   { (yyval.s.val) = node4(ENUM_vector, (yyvsp[-3].s.val), (yyvsp[-2].s.val), (yyvsp[-1].s.val), TOKPOS((yylsp[-4]))); }
-#line 2390 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2390 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 94: /* nonident_prim_expr: TOKEN_LISTENER  */
-#line 291 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 291 "/usr/src/openmohaa/code/parser/bison_source.txt"
                          { (yyval.s.val) = node2(ENUM_listener, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2396 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2396 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 95: /* nonident_prim_expr: TOKEN_LEFT_BRACKET expr TOKEN_RIGHT_BRACKET  */
-#line 292 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 292 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                       { (yyval.s.val) = (yyvsp[-1].s.val); }
-#line 2402 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2402 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 96: /* nonident_prim_expr: func_expr nonident_prim_expr  */
-#line 293 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 293 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                        { (yyval.s.val) = node3(ENUM_func1_expr, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2408 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2408 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 97: /* nonident_prim_expr: TOKEN_NOT nonident_prim_expr  */
-#line 294 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 294 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                        { (yyval.s.val) = node2(ENUM_bool_not, (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2414 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2414 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 98: /* nonident_prim_expr: TOKEN_NULL  */
-#line 295 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 295 "/usr/src/openmohaa/code/parser/bison_source.txt"
                      { (yyval.s.val) = node1(ENUM_NULL, TOKPOS((yylsp[0]))); }
-#line 2420 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2420 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 99: /* nonident_prim_expr: TOKEN_NIL  */
-#line 296 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 296 "/usr/src/openmohaa/code/parser/bison_source.txt"
                     { (yyval.s.val) = node1(ENUM_NIL, TOKPOS((yylsp[0]))); }
-#line 2426 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2426 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 100: /* func_expr: TOKEN_NEG  */
-#line 300 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 300 "/usr/src/openmohaa/code/parser/bison_source.txt"
                     { (yyval.s.val) = node1b(OP_UN_MINUS); }
-#line 2432 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2432 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 101: /* func_expr: TOKEN_COMPLEMENT  */
-#line 301 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 301 "/usr/src/openmohaa/code/parser/bison_source.txt"
                            { (yyval.s.val) = node1b(OP_UN_COMPLEMENT); }
-#line 2438 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2438 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 102: /* makearray_statement_list: %empty  */
-#line 305 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 305 "/usr/src/openmohaa/code/parser/bison_source.txt"
         { (yyval.s.val) = node0(ENUM_NOP); }
-#line 2444 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2444 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 103: /* makearray_statement_list: makearray_statement_list makearray_statement TOKEN_EOL  */
-#line 306 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 306 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                                 { (yyval.s.val) = append_node((yyvsp[-2].s.val), node2(ENUM_makearray, (yyvsp[-1].s.val), TOKPOS((yylsp[-1])))); }
-#line 2450 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2450 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 104: /* makearray_statement_list: makearray_statement TOKEN_EOL  */
-#line 307 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 307 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                  { (yyval.s.val) = linked_list_end(node2(ENUM_makearray, (yyvsp[-1].s.val), TOKPOS((yylsp[-1])))); }
-#line 2456 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2456 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 105: /* makearray_statement_list: TOKEN_EOL makearray_statement_list  */
-#line 308 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 308 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = (yyvsp[0].s.val); (yyloc) = (yylsp[0]); }
-#line 2462 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2462 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 106: /* makearray_statement: prim_expr  */
-#line 312 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 312 "/usr/src/openmohaa/code/parser/bison_source.txt"
                   { (yyval.s.val) = linked_list_end( (yyvsp[0].s.val) ); }
-#line 2468 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2468 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 107: /* makearray_statement: makearray_statement prim_expr  */
-#line 313 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 313 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                         { (yyval.s.val) = append_node( (yyvsp[-1].s.val), (yyvsp[0].s.val) ); }
-#line 2474 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2474 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 108: /* line_opt: %empty  */
-#line 317 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 317 "/usr/src/openmohaa/code/parser/bison_source.txt"
           {}
-#line 2480 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2480 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
 
-#line 2484 "E:/Src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2484 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
 
       default: break;
     }
@@ -2709,5 +2709,5 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 321 "E:/Src/openmohaa/code/parser/bison_source.txt"
+#line 321 "/usr/src/openmohaa/code/parser/bison_source.txt"
 

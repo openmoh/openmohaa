@@ -2,9 +2,9 @@
 #define yyHEADER_H 1
 #define yyIN_HEADER 1
 
-#line 5 "E:/Src/openmohaa/code/parser/generated/yyLexer.h"
+#line 6 "/usr/src/openmohaa/code/parser/generated/yyLexer.h"
 
-#line 7 "E:/Src/openmohaa/code/parser/generated/yyLexer.h"
+#line 8 "/usr/src/openmohaa/code/parser/generated/yyLexer.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -463,9 +463,9 @@ extern int yylex (void);
 #undef yyTABLES_NAME
 #endif
 
-#line 364 "E:/Src/openmohaa/code/parser/lex_source.txt"
+#line 364 "/usr/src/openmohaa/code/parser/lex_source.txt"
 
 
-#line 469 "E:/Src/openmohaa/code/parser/generated/yyLexer.h"
+#line 470 "/usr/src/openmohaa/code/parser/generated/yyLexer.h"
 #undef yyIN_HEADER
 #endif /* yyHEADER_H */
