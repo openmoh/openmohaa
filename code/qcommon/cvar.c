@@ -468,9 +468,6 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			// we don't have a reset string yet
 			Z_Free( var->resetString );
 			var->resetString = CopyString( var_value );
-		} else if ( var_value[0] && strcmp( var->resetString, var_value ) ) {
-			Com_DPrintf( "Warning: cvar \"%s\" given initial values: \"%s\" and \"%s\"\n",
-				var_name, var->resetString, var_value );
 		}
 		// if we have a latched string, take that value now
 		if ( var->latchedString ) {
