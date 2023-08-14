@@ -2677,7 +2677,7 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
                 bDispLocation = qtrue;
             }
             break;
-        case MOD_MINE:
+        case MOD_LANDMINE:
             s1 = "was hoist on his own pitard";
             break;
         default:
@@ -2797,7 +2797,7 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
                 s1 = "was pumped full of buckshot by";
             }
             break;
-        case MOD_MINE:
+        case MOD_LANDMINE:
             s1 = "stepped on";
             s2 = "'s landmine";
             break;
@@ -2885,7 +2885,7 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
                 bDispLocation = qtrue;
             }
             break;
-        case MOD_MINE:
+        case MOD_LANDMINE:
             s1 = "stepped on a land mine";
             break;
         default:

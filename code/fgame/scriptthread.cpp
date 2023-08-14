@@ -4013,7 +4013,7 @@ void ScriptThread::EventLandmineDamage(Event *ev)
 
     owner = G_GetEntity(landmine->edict->r.ownerNum);
 
-    RadiusDamage(landmine->origin, landmine, owner, damage, NULL, MOD_MINE_EXPLOSION, radius);
+    RadiusDamage(landmine->origin, landmine, owner, damage, NULL, MOD_LANDMINE, radius);
 }
 
 void ScriptThread::EventRadiusDamage(Event *ev)

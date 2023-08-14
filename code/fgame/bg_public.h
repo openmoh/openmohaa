@@ -504,8 +504,8 @@ movement on the server game.
         //
         // Team tactics
         //
-        MOD_MINE,
-        MOD_MINE_EXPLOSION,
+        MOD_AAGUN,
+        MOD_LANDMINE,
         MOD_TOTAL_NUMBER,
 
     } meansOfDeath_t;

@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "entity.h"
 #include "dm_manager.h"
 #include "player.h"
+#include "Entities.h"
 
 #include "scriptmaster.h"
 #include "scriptthread.h"
@@ -868,6 +869,9 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
 
     // reset all grenade hints
     GrenadeHint::ResetHints();
+
+    // reset projectile targets
+    ClearProjectileTargets();
 
     // Reset the boss health cvar
     gi.Cvar_Set("bosshealth", "0");
