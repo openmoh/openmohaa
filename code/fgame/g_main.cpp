@@ -38,82 +38,84 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <tiki.h>
 
 #ifdef WIN32
-#include <intrin.h>
+#    include <intrin.h>
 #endif
 
-#define SAVEGAME_VERSION 80
+#define SAVEGAME_VERSION   80
 #define PERSISTANT_VERSION 2
 
-static char		G_ErrorMessage[ 4096 ];
-profGame_t		G_profStruct;
+static char G_ErrorMessage[4096];
+profGame_t  G_profStruct;
 
-qboolean		LoadingSavegame = false;
-qboolean		LoadingServer = false;
-Archiver		*currentArc = NULL;
+qboolean  LoadingSavegame = false;
+qboolean  LoadingServer   = false;
+Archiver *currentArc      = NULL;
 
-game_export_t	globals;
-game_import_t	gi;
+game_export_t globals;
+game_import_t gi;
 
 gentity_t active_edicts;
 gentity_t free_edicts;
 
-int					sv_numtraces = 0;
-int					sv_numpmtraces = 0;
+int sv_numtraces   = 0;
+int sv_numpmtraces = 0;
 
-int					g_protocol = 0;
-gentity_t			*g_entities;
-qboolean			g_iInThinks = 0;
-qboolean			g_bBeforeThinks = qfalse;
-static				float g_fMsecPerClock = 0;
+int          g_protocol = 0;
+gentity_t   *g_entities;
+qboolean     g_iInThinks     = 0;
+qboolean     g_bBeforeThinks = qfalse;
+static float g_fMsecPerClock = 0;
 
-usercmd_t			*current_ucmd;
-usereyes_t			*current_eyeinfo;
-Player				*g_pPlayer;
+usercmd_t  *current_ucmd;
+usereyes_t *current_eyeinfo;
+Player     *g_pPlayer;
 
-gclient_t			g_clients[ MAX_CLIENTS ];
+gclient_t g_clients[MAX_CLIENTS];
 
-void ( *SV_Error )( int type, const char *fmt, ... );
-void *( *SV_Malloc )( int size );
-void ( *SV_Free )( void *ptr );
+void (*SV_Error)(int type, const char *fmt, ...);
+void *(*SV_Malloc)(int size);
+void (*SV_Free)(void *ptr);
 
 qboolean LevelArchiveValid(Archiver& arc);
+void     ClosePlayerLogFile(void);
 
-void QDECL G_Printf( const char *fmt, ... ) {
-	va_list		argptr;
-	char		text[1024];
+void QDECL G_Printf(const char *fmt, ...)
+{
+    va_list argptr;
+    char    text[1024];
 
-	va_start (argptr, fmt);
-	vsprintf (text, fmt, argptr);
-	va_end (argptr);
+    va_start(argptr, fmt);
+    vsprintf(text, fmt, argptr);
+    va_end(argptr);
 
-	gi.Printf( text );
+    gi.Printf(text);
 }
 
-void QDECL G_Error( const char *fmt, ... )
+void QDECL G_Error(const char *fmt, ...)
 {
-	va_list		argptr;
-	char		text[ 1024 ];
+    va_list argptr;
+    char    text[1024];
 
-	va_start( argptr, fmt );
-	vsprintf( text, fmt, argptr );
-	va_end( argptr );
+    va_start(argptr, fmt);
+    vsprintf(text, fmt, argptr);
+    va_end(argptr);
 
-	gi.Error( ERR_DROP, text );
+    gi.Error(ERR_DROP, text);
 }
 
-void QDECL G_Error( int type, const char *fmt, ... )
+void QDECL G_Error(int type, const char *fmt, ...)
 {
-	va_list		argptr;
-	char		text[ 1024 ];
+    va_list argptr;
+    char    text[1024];
 
-	va_start( argptr, fmt );
-	vsprintf( text, fmt, argptr );
-	va_end( argptr );
+    va_start(argptr, fmt);
+    vsprintf(text, fmt, argptr);
+    va_end(argptr);
 
-	// need to manually crash otherwise visual studio fuck up with the stack pointer...
-	//*( int * )0 = 0;
+    // need to manually crash otherwise visual studio fuck up with the stack pointer...
+    //*( int * )0 = 0;
 
-	assert( !text );
+    assert(!text);
 }
 
 /*
@@ -124,104 +126,102 @@ Calls the server's error function with the last error that occurred.
 Should only be called after an exception.
 ===============
 */
-void G_ExitWithError( const char *error )
+void G_ExitWithError(const char *error)
 {
-	//ServerError( ERR_DROP, error );
+    //ServerError( ERR_DROP, error );
 
-	Q_strncpyz( G_ErrorMessage, error, sizeof( G_ErrorMessage ) );
+    Q_strncpyz(G_ErrorMessage, error, sizeof(G_ErrorMessage));
 
-	globals.errorMessage = G_ErrorMessage;
+    globals.errorMessage = G_ErrorMessage;
 }
 
-void G_RemapTeamShaders( void ) {
+void G_RemapTeamShaders(void)
+{
 #ifdef MISSIONPACK
-	char string[1024];
-	float f = level.time * 0.001;
-	Com_sprintf( string, sizeof(string), "team_icon/%s_red", g_redteam.string );
-	AddRemap("textures/ctf2/redteam01", string, f);
-	AddRemap("textures/ctf2/redteam02", string, f);
-	Com_sprintf( string, sizeof(string), "team_icon/%s_blue", g_blueteam.string );
-	AddRemap("textures/ctf2/blueteam01", string, f);
-	AddRemap("textures/ctf2/blueteam02", string, f);
-	gi.setConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
+    char  string[1024];
+    float f = level.time * 0.001;
+    Com_sprintf(string, sizeof(string), "team_icon/%s_red", g_redteam.string);
+    AddRemap("textures/ctf2/redteam01", string, f);
+    AddRemap("textures/ctf2/redteam02", string, f);
+    Com_sprintf(string, sizeof(string), "team_icon/%s_blue", g_blueteam.string);
+    AddRemap("textures/ctf2/blueteam01", string, f);
+    AddRemap("textures/ctf2/blueteam02", string, f);
+    gi.setConfigstring(CS_SHADERSTATE, BuildShaderStateConfig());
 #endif
 }
 
-void G_SetFogInfo(int cull, float distance, vec3_t farplane_color) {
-	// cg.farplane_cull cg.farplane_distance cg.farplane_color[3]
-//	gi.SetConfigstring(CS_FOGINFO,va("%i %f %f %f %f",0,4096.f,1.f,1.f,1.f));
-
-	
+void G_SetFogInfo(int cull, float distance, vec3_t farplane_color)
+{
+    // cg.farplane_cull cg.farplane_distance cg.farplane_color[3]
+    //	gi.SetConfigstring(CS_FOGINFO,va("%i %f %f %f %f",0,4096.f,1.f,1.f,1.f));
 }
 
-void G_AllocGameData( void )
+void G_AllocGameData(void)
 {
-	int i;
+    int i;
 
-	// de-allocate from previous level
-	G_DeAllocGameData();
+    // de-allocate from previous level
+    G_DeAllocGameData();
 
-	// Initialize debug lines
-	G_AllocDebugLines();
+    // Initialize debug lines
+    G_AllocDebugLines();
 
-	// Initialize debug strings
-	G_AllocDebugStrings();
+    // Initialize debug strings
+    G_AllocDebugStrings();
 
-	// initialize all entities for this game
-	game.maxentities = maxentities->integer;
+    // initialize all entities for this game
+    game.maxentities = maxentities->integer;
 
-	g_entities = (gentity_t*)gi.Malloc(game.maxentities * sizeof(g_entities[0]));
+    g_entities = (gentity_t *)gi.Malloc(game.maxentities * sizeof(g_entities[0]));
 
-	// clear out the entities
-	memset(g_entities, 0, game.maxentities * sizeof(g_entities[0]));
-	globals.gentities = g_entities;
-	globals.max_entities = game.maxentities;
+    // clear out the entities
+    memset(g_entities, 0, game.maxentities * sizeof(g_entities[0]));
+    globals.gentities    = g_entities;
+    globals.max_entities = game.maxentities;
 
-	// Add all the edicts to the free list
-	LL_Reset( &free_edicts, next, prev );
-	LL_Reset( &active_edicts, next, prev );
+    // Add all the edicts to the free list
+    LL_Reset(&free_edicts, next, prev);
+    LL_Reset(&active_edicts, next, prev);
 
-	for( i = 0; i < game.maxentities; i++ )
-	{
-		LL_Add( &free_edicts, &g_entities[ i ], next, prev );
-	}
+    for (i = 0; i < game.maxentities; i++) {
+        LL_Add(&free_edicts, &g_entities[i], next, prev);
+    }
 
-	// initialize all clients for this game
-	game.clients = ( gclient_t * )gi.Malloc( game.maxclients * sizeof( game.clients[ 0 ] ) );
-	memset( game.clients, 0, game.maxclients * sizeof( game.clients[ 0 ] ) );
+    // initialize all clients for this game
+    game.clients = (gclient_t *)gi.Malloc(game.maxclients * sizeof(game.clients[0]));
+    memset(game.clients, 0, game.maxclients * sizeof(game.clients[0]));
 
-	for( i = 0; i < game.maxclients; i++ )
-	{
-		// set client fields on player ents
-		g_entities[ i ].client = game.clients + i;
+    for (i = 0; i < game.maxclients; i++) {
+        // set client fields on player ents
+        g_entities[i].client = game.clients + i;
 
-		G_InitClientPersistant( &game.clients[ i ] );
-	}
+        G_InitClientPersistant(&game.clients[i]);
+    }
 
-	globals.num_entities = game.maxclients;
+    globals.num_entities = game.maxclients;
 
-	// Tell the server about our data
-	gi.LocateGameData( g_entities, globals.num_entities, sizeof( gentity_t ), &game.clients[ 0 ].ps, sizeof( game.clients[ 0 ] ) );
+    // Tell the server about our data
+    gi.LocateGameData(
+        g_entities, globals.num_entities, sizeof(gentity_t), &game.clients[0].ps, sizeof(game.clients[0])
+    );
 }
 
-void G_DeAllocGameData( void )
+void G_DeAllocGameData(void)
 {
-	// Initialize debug lines
-	G_DeAllocDebugLines();
+    // Initialize debug lines
+    G_DeAllocDebugLines();
 
-	// free up the entities
-	if( g_entities )
-	{
-		gi.Free( g_entities );
-		g_entities = NULL;
-	}
+    // free up the entities
+    if (g_entities) {
+        gi.Free(g_entities);
+        g_entities = NULL;
+    }
 
-	// free up the clients
-	if( game.clients )
-	{
-		gi.Free( game.clients );
-		game.clients = NULL;
-	}
+    // free up the clients
+    if (game.clients) {
+        gi.Free(game.clients);
+        game.clients = NULL;
+    }
 }
 
 /*
@@ -230,54 +230,51 @@ G_InitGame
 
 ============
 */
-void G_InitGame( int levelTime, int randomSeed )
+void G_InitGame(int levelTime, int randomSeed)
 {
-	G_Printf( "==== InitGame ====\n" );
-	G_Printf( "gamename: %s\n", GAMEVERSION );
-	G_Printf( "gamedate: %s\n", __DATE__ );
+    G_Printf("==== InitGame ====\n");
+    G_Printf("gamename: %s\n", GAMEVERSION);
+    G_Printf("gamedate: %s\n", __DATE__);
 
-	g_protocol = gi.Cvar_Get("com_protocol", "", 0)->integer;
+    g_protocol = gi.Cvar_Get("com_protocol", "", 0)->integer;
 
-	srand( randomSeed );
+    srand(randomSeed);
 
-	CVAR_Init();
+    CVAR_Init();
 
-	game.Vars()->ClearList();
+    game.Vars()->ClearList();
 
-	// set some level globals
-	level.svsStartTime = levelTime;
-	level.specialgame = sv_specialgame->integer ? true : false;
-	if( level.specialgame )
-	{
-		gi.cvar_set( "protocol", "9" );
-	}
+    // set some level globals
+    level.svsStartTime = levelTime;
+    level.specialgame  = sv_specialgame->integer ? true : false;
+    if (level.specialgame) {
+        gi.cvar_set("protocol", "9");
+    }
 
-	G_InitConsoleCommands();
+    G_InitConsoleCommands();
 
-	Director.Reset();
-	Actor::Init();
-	PlayerBot::Init();
+    Director.Reset();
+    Actor::Init();
+    PlayerBot::Init();
 
-	sv_numtraces = 0;
-	sv_numpmtraces = 0;
+    sv_numtraces   = 0;
+    sv_numpmtraces = 0;
 
-	if( developer->integer && !g_gametype->integer )
-	{
-		Viewmodel.Init();
-		LODModel.Init();
-	}
+    if (developer->integer && !g_gametype->integer) {
+        Viewmodel.Init();
+        LODModel.Init();
+    }
 
-	game.maxentities = maxentities->integer;
-	if( game.maxclients * 8 > maxentities->integer )
-	{
-		game.maxentities = game.maxclients * 8;
-	}
+    game.maxentities = maxentities->integer;
+    if (game.maxclients * 8 > maxentities->integer) {
+        game.maxentities = game.maxclients * 8;
+    }
 
-	game.maxclients = maxclients->integer + maxbots->integer;
+    game.maxclients = maxclients->integer + maxbots->integer;
 
-	L_InitEvents();
+    L_InitEvents();
 
-	G_AllocGameData();
+    G_AllocGameData();
 }
 
 /*
@@ -286,9 +283,9 @@ G_SpawnEntities
 
 ============
 */
-void G_SpawnEntities( char *entities, int svsTime )
+void G_SpawnEntities(char *entities, int svsTime)
 {
-	level.SpawnEntities( entities, svsTime );
+    level.SpawnEntities(entities, svsTime);
 }
 
 /*
@@ -296,17 +293,18 @@ void G_SpawnEntities( char *entities, int svsTime )
 G_ShutdownGame
 =================
 */
-void G_ShutdownGame() {
-	gi.Printf( "==== ShutdownGame ====\n" );
+void G_ShutdownGame()
+{
+    gi.Printf("==== ShutdownGame ====\n");
 
-	// write all the client session data so we can get it back
-	G_WriteSessionData();
+    // write all the client session data so we can get it back
+    G_WriteSessionData();
 
-	level.CleanUp();
+    level.CleanUp();
 
-	G_DeAllocDebugLines();
+    G_DeAllocDebugLines();
 
-/*
+    /*
 	if( g_entities )
 	{
 		gi.Free( g_entities );
@@ -314,37 +312,36 @@ void G_ShutdownGame() {
 	}
 */
 
-	if( game.clients )
-	{
-		gi.Free( game.clients );
-		game.clients = NULL;
-	}
+    if (game.clients) {
+        gi.Free(game.clients);
+        game.clients = NULL;
+    }
 }
-
-
 
 //===================================================================
 
-void QDECL Com_Error ( int level, const char *error, ... ) {
-	va_list		argptr;
-	char		text[1024];
+void QDECL Com_Error(int level, const char *error, ...)
+{
+    va_list argptr;
+    char    text[1024];
 
-	va_start (argptr, error);
-	vsprintf (text, error, argptr);
-	va_end (argptr);
+    va_start(argptr, error);
+    vsprintf(text, error, argptr);
+    va_end(argptr);
 
-	G_Error( "%s", text);
+    G_Error("%s", text);
 }
 
-void QDECL Com_Printf( const char *msg, ... ) {
-	va_list		argptr;
-	char		text[1024];
+void QDECL Com_Printf(const char *msg, ...)
+{
+    va_list argptr;
+    char    text[1024];
 
-	va_start (argptr, msg);
-	vsprintf (text, msg, argptr);
-	va_end (argptr);
+    va_start(argptr, msg);
+    vsprintf(text, msg, argptr);
+    va_end(argptr);
 
-	G_Printf ("%s", text);
+    G_Printf("%s", text);
 }
 
 /*
@@ -354,9 +351,9 @@ G_Precache
 Calls precache scripts
 ================
 */
-void G_Precache( void )
+void G_Precache(void)
 {
-	level.Precache();
+    level.Precache();
 }
 
 /*
@@ -366,32 +363,9 @@ G_Precache
 Called when server finished initializating
 ================
 */
-void G_ServerSpawned( void )
+void G_ServerSpawned(void)
 {
-	level.ServerSpawned();
-}
-
-void G_CheckExitRules( void )
-{
-	if( g_gametype->integer )
-	{
-		if( level.intermissiontime == 0.0f )
-		{
-			dmManager.CheckEndMatch();
-		}
-		else
-		{
-			G_CheckIntermissionExit();
-		}
-	}
-}
-
-void G_CheckStartRules( void )
-{
-	if( ( !dmManager.IsGameActive() ) && ( !dmManager.WaitingForPlayers() ) )
-	{
-		dmManager.StartRound();
-	}
+    level.ServerSpawned();
 }
 
 /*
@@ -401,48 +375,46 @@ G_AddGEntity
 
 ================
 */
-void G_AddGEntity( gentity_t *edict, qboolean showentnums )
+void G_AddGEntity(gentity_t *edict, qboolean showentnums)
 {
-	unsigned long long start, end;
-	Entity *ent = edict->entity;
+    unsigned long long start, end;
+    Entity            *ent = edict->entity;
 
-	if( g_timeents->integer )
-	{
-		start = clock();
-		G_RunEntity( ent );
-		end = clock();
+    if (g_timeents->integer) {
+        start = clock();
+        G_RunEntity(ent);
+        end = clock();
 
-		gi.DebugPrintf( "%d: <%s> '%s'(%d) : %d clocks, %.1f msec\n",
-			level.framenum, ent->getClassname(), ent->targetname.c_str(), end - start, g_fMsecPerClock );
-	}
-	else
-	{
-		G_RunEntity( ent );
-	}
+        gi.DebugPrintf(
+            "%d: <%s> '%s'(%d) : %d clocks, %.1f msec\n",
+            level.framenum,
+            ent->getClassname(),
+            ent->targetname.c_str(),
+            end - start,
+            g_fMsecPerClock
+        );
+    } else {
+        G_RunEntity(ent);
+    }
 
-	// remove the entity in case of invalid server flags
-	if( ( edict->r.svFlags & SVF_NOTSINGLECLIENT ) && ( edict->r.svFlags & SVF_CAPSULE ) )
-	{
-		ent->PostEvent( EV_Remove, 0 );
-	}
+    // remove the entity in case of invalid server flags
+    if ((edict->r.svFlags & SVF_NOTSINGLECLIENT) && (edict->r.svFlags & SVF_CAPSULE)) {
+        ent->PostEvent(EV_Remove, 0);
+    }
 
-	if( showentnums )
-	{
-		G_DrawDebugNumber( ent->origin, ent->entnum, 2.0f, 1.0f, 1.0f, 0.0f );
-	}
+    if (showentnums) {
+        G_DrawDebugNumber(ent->origin, ent->entnum, 2.0f, 1.0f, 1.0f, 0.0f);
+    }
 
-	if( g_entinfo->integer &&
-		( g_pPlayer &&
-		( edict->r.lastNetTime >= level.inttime - 200 || ent->IsSubclassOfPlayer() ) ) )
-	{
-		float fDist = ( g_pPlayer->centroid - g_pPlayer->EyePosition() ).length();
+    if (g_entinfo->integer
+        && (g_pPlayer && (edict->r.lastNetTime >= level.inttime - 200 || ent->IsSubclassOfPlayer()))) {
+        float fDist = (g_pPlayer->centroid - g_pPlayer->EyePosition()).length();
 
-		if( fDist != 0.0f )
-		{
-			float fDot = _DotProduct( g_vEyeDir, ( g_pPlayer->centroid - g_pPlayer->EyePosition() ) );
-			ent->ShowInfo( 0, fDist );
-		}
-	}
+        if (fDist != 0.0f) {
+            float fDot = _DotProduct(g_vEyeDir, (g_pPlayer->centroid - g_pPlayer->EyePosition()));
+            ent->ShowInfo(0, fDist);
+        }
+    }
 }
 
 /*
@@ -452,261 +424,238 @@ G_RunFrame
 Advances the non-player objects in the world
 ================
 */
-void G_RunFrame( int levelTime, int frameTime )
+void G_RunFrame(int levelTime, int frameTime)
 {
-	gentity_t	*edict;
-	int			num;
-	qboolean	showentnums;
-	unsigned long long	start;
-	unsigned long long	end;
-	int			i;
-	static		int processed[ MAX_GENTITIES ] = { 0 };
-	static		int processedFrameID = 0;
+    gentity_t         *edict;
+    int                num;
+    qboolean           showentnums;
+    unsigned long long start;
+    unsigned long long end;
+    int                i;
+    static int         processed[MAX_GENTITIES] = {0};
+    static int         processedFrameID         = 0;
 
-	try
-	{
+    try {
         g_iInThinks = 0;
 
-		if (g_showmem->integer) {
-			DisplayMemoryUsage();
-		}
+        if (g_showmem->integer) {
+            DisplayMemoryUsage();
+        }
 
-		// exit intermissions
-		if( level.exitintermission )
-		{
-			if( level.nextmap != level.current_map )
-			{
-				G_ExitLevel();
-			}
-			else
-			{
-				G_RestartLevelWithDelay( 0.1f );
-				level.nextmap = "";
-				level.intermissiontime = 0;
-				level.exitintermission = qfalse;
-			}
+        // exit intermissions
+        if (level.exitintermission) {
+            if (level.nextmap != level.current_map) {
+                G_ExitLevel();
+            } else {
+                G_RestartLevelWithDelay(0.1f);
+                level.nextmap          = "";
+                level.intermissiontime = 0;
+                level.exitintermission = qfalse;
+            }
 
-			return;
-		}
+            return;
+        }
 
-		level.setFrametime( frameTime );
-		level.setTime( levelTime );
+        level.setFrametime(frameTime);
+        level.setTime(levelTime);
 
-		if( level.intermissiontime || level.died_already )
-		{
-			L_ProcessPendingEvents();
+        if (level.intermissiontime || level.died_already) {
+            L_ProcessPendingEvents();
 
-			for( i = 0, edict = g_entities; i < game.maxclients; i++, edict++ )
-			{
-				if( !edict->inuse || !edict->client || !edict->entity ) {
-					continue;
-				}
+            for (i = 0, edict = g_entities; i < game.maxclients; i++, edict++) {
+                if (!edict->inuse || !edict->client || !edict->entity) {
+                    continue;
+                }
 
-				edict->entity->CalcBlend();
-			}
+                edict->entity->CalcBlend();
+            }
 
-			if( g_gametype->integer && g_maxintermission->value != 0.0f )
-			{
-				if( level.time - level.intermissiontime > g_maxintermission->value ) {
-					level.exitintermission = true;
-				}
-			}
+            if (g_gametype->integer && g_maxintermission->value != 0.0f) {
+                if (level.time - level.intermissiontime > g_maxintermission->value) {
+                    level.exitintermission = true;
+                }
+            }
 
-			return;
-		}
+            return;
+        }
 
-		if( g_scripttrace->integer ) {
-			gi.DPrintf2( "====SERVER FRAME==========================================================================\n" );
-		}
+        if (g_scripttrace->integer) {
+            gi.DPrintf2("====SERVER FRAME==========================================================================\n");
+        }
 
-		g_bBeforeThinks = true;
-		Director.iPaused = -1;
+        g_bBeforeThinks  = true;
+        Director.iPaused = -1;
 
-		// Process most of the events before the physics are run
-		// so that we can affect the physics immediately
-		L_ProcessPendingEvents();
+        // Process most of the events before the physics are run
+        // so that we can affect the physics immediately
+        L_ProcessPendingEvents();
 
-		Director.iPaused = 1;
-		Director.SetTime( level.inttime );
+        Director.iPaused = 1;
+        Director.SetTime(level.inttime);
 
-		//
-		// treat each object in turn
-		//
-		for( edict = active_edicts.next, num = 0; edict != &active_edicts; edict = edict->next, num++ )
-		{
-			assert( edict );
-			assert( edict->inuse );
-			assert( edict->entity );
+        //
+        // treat each object in turn
+        //
+        for (edict = active_edicts.next, num = 0; edict != &active_edicts; edict = edict->next, num++) {
+            assert(edict);
+            assert(edict->inuse);
+            assert(edict->entity);
 
-			Actor *actor = ( Actor * )edict->entity;
-			if( actor->IsSubclassOfActor() )
-			{
-				actor->m_bUpdateAnimDoneFlags = 0;
-				if( actor->m_bAnimating )
-					actor->PreAnimate();
-			}
-		}
+            Actor *actor = (Actor *)edict->entity;
+            if (actor->IsSubclassOfActor()) {
+                actor->m_bUpdateAnimDoneFlags = 0;
+                if (actor->m_bAnimating) {
+                    actor->PreAnimate();
+                }
+            }
+        }
 
-		g_iInThinks++;
-		Director.Unpause();
-		g_iInThinks--;
+        g_iInThinks++;
+        Director.Unpause();
+        g_iInThinks--;
 
-		// Process any pending events that got posted during the script code
-		L_ProcessPendingEvents();
+        // Process any pending events that got posted during the script code
+        L_ProcessPendingEvents();
 
-		path_checksthisframe = 0;
+        path_checksthisframe = 0;
 
-		// Reset debug lines
-		G_InitDebugLines();
-		G_InitDebugStrings();
+        // Reset debug lines
+        G_InitDebugLines();
+        G_InitDebugStrings();
 
-		PathManager.ShowNodes();
+        PathManager.ShowNodes();
 
-		showentnums = ( sv_showentnums->integer && ( !g_gametype->integer || sv_cheats->integer ) );
+        showentnums = (sv_showentnums->integer && (!g_gametype->integer || sv_cheats->integer));
 
-		g_iInThinks++;
-		processedFrameID++;
+        g_iInThinks++;
+        processedFrameID++;
 
-		if( g_entinfo->integer )
-		{
-			g_pPlayer = ( Player * )G_GetEntity( 0 );
+        if (g_entinfo->integer) {
+            g_pPlayer = (Player *)G_GetEntity(0);
 
-			if( !g_pPlayer->IsSubclassOfPlayer() )
-			{
-				g_pPlayer = NULL;
-			}
-			else
-			{
-				Vector vAngles = g_pPlayer->GetViewAngles();
-				vAngles.AngleVectorsLeft( &g_vEyeDir );
-			}
-		}
+            if (!g_pPlayer->IsSubclassOfPlayer()) {
+                g_pPlayer = NULL;
+            } else {
+                Vector vAngles = g_pPlayer->GetViewAngles();
+                vAngles.AngleVectorsLeft(&g_vEyeDir);
+            }
+        }
 
-		if( g_timeents->integer )
-		{
-			g_fMsecPerClock = 1.0f / gi.Cvar_Get( "CPS", "1", 0 )->value;
-			start = clock();
-		}
+        if (g_timeents->integer) {
+            g_fMsecPerClock = 1.0f / gi.Cvar_Get("CPS", "1", 0)->value;
+            start           = clock();
+        }
 
-		for( edict = active_edicts.next; edict != &active_edicts; edict = edict->next )
-		{
-			if( edict->entity->IsSubclassOfBot() )
-				G_BotThink( edict, frameTime );
-		}
+        for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
+            if (edict->entity->IsSubclassOfBot()) {
+                G_BotThink(edict, frameTime);
+            }
+        }
 
-		for( edict = active_edicts.next; edict != &active_edicts; edict = edict->next )
-		{
-			num = edict->s.parent;
+        for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
+            num = edict->s.parent;
 
-			if( num != ENTITYNUM_NONE )
-			{
-				while( 1 )
-				{
-					if( processed[ num ] == processedFrameID )
-						break;
+            if (num != ENTITYNUM_NONE) {
+                while (1) {
+                    if (processed[num] == processedFrameID) {
+                        break;
+                    }
 
-					processed[ num ] = processedFrameID;
-					G_AddGEntity( edict, showentnums );
+                    processed[num] = processedFrameID;
+                    G_AddGEntity(edict, showentnums);
 
-					if( edict->s.parent == ENTITYNUM_NONE )
-						break;
-				}
-			}
+                    if (edict->s.parent == ENTITYNUM_NONE) {
+                        break;
+                    }
+                }
+            }
 
-			if( processed[ edict - g_entities ] != processedFrameID )
-			{
-				processed[ edict - g_entities ] = processedFrameID;
-				G_AddGEntity( edict, showentnums );
-			}
-		}
+            if (processed[edict - g_entities] != processedFrameID) {
+                processed[edict - g_entities] = processedFrameID;
+                G_AddGEntity(edict, showentnums);
+            }
+        }
 
-		if( g_timeents->integer )
-		{
-			gi.cvar_set( "g_timeents", va( "%d", g_timeents->integer - 1 ) );
-			end = clock();
+        if (g_timeents->integer) {
+            gi.cvar_set("g_timeents", va("%d", g_timeents->integer - 1));
+            end = clock();
 
-			gi.DebugPrintf( "\n%i total: %d (%.1f)\n-----------------------\n",
-				level.framenum, end - start, static_cast<float>(end - start) * g_fMsecPerClock );
-		}
+            gi.DebugPrintf(
+                "\n%i total: %d (%.1f)\n-----------------------\n",
+                level.framenum,
+                end - start,
+                static_cast<float>(end - start) * g_fMsecPerClock
+            );
+        }
 
-		g_iInThinks--;
-		g_bBeforeThinks = qfalse;
+        g_iInThinks--;
+        g_bBeforeThinks = qfalse;
 
-		// Process any pending events that got posted during the physics code.
-		L_ProcessPendingEvents();
-		level.DoEarthquakes();
-		
-		// build the playerstate_t structures for all players
-		G_ClientEndServerFrames();
+        // Process any pending events that got posted during the physics code.
+        L_ProcessPendingEvents();
+        level.DoEarthquakes();
 
-		level.Unregister( STRING_POSTTHINK );
+        // build the playerstate_t structures for all players
+        G_ClientEndServerFrames();
 
-		// Process any pending events that got posted during the script code
-		L_ProcessPendingEvents();
+        level.Unregister(STRING_POSTTHINK);
 
-		// show how many traces the game code is doing
-		if( sv_traceinfo->integer )
-		{
-			if( sv_traceinfo->integer == 3 )
-			{
-				if( sv_drawtrace->integer <= 1 )
-				{
-					gi.DebugPrintf( "%0.2f : Total traces %3d\n", level.time, sv_numtraces );
-				}
-				else
-				{
-					gi.DebugPrintf( "%0.2f : Total traces %3d    pmove traces %3d\n", level.time, sv_numtraces, sv_numpmtraces );
-				}
-			}
-			else
-			{
-				if( sv_drawtrace->integer <= 1 )
-				{
-					gi.DebugPrintf( "%0.2f : Total traces %3d\n", level.time, sv_numtraces );
-				}
-				else
-				{
-					gi.DebugPrintf( "%0.2f : Total traces %3d    pmove traces %3d\n", level.time, sv_numtraces, sv_numpmtraces );
-				}
-			}
-		}
+        // Process any pending events that got posted during the script code
+        L_ProcessPendingEvents();
 
-		level.framenum++;
+        // show how many traces the game code is doing
+        if (sv_traceinfo->integer) {
+            if (sv_traceinfo->integer == 3) {
+                if (sv_drawtrace->integer <= 1) {
+                    gi.DebugPrintf("%0.2f : Total traces %3d\n", level.time, sv_numtraces);
+                } else {
+                    gi.DebugPrintf(
+                        "%0.2f : Total traces %3d    pmove traces %3d\n", level.time, sv_numtraces, sv_numpmtraces
+                    );
+                }
+            } else {
+                if (sv_drawtrace->integer <= 1) {
+                    gi.DebugPrintf("%0.2f : Total traces %3d\n", level.time, sv_numtraces);
+                } else {
+                    gi.DebugPrintf(
+                        "%0.2f : Total traces %3d    pmove traces %3d\n", level.time, sv_numtraces, sv_numpmtraces
+                    );
+                }
+            }
+        }
 
-		// reset out count of the number of game traces
-		sv_numtraces = 0;
-		sv_numpmtraces = 0;
+        level.framenum++;
 
-		G_ClientDrawBoundingBoxes();
+        // reset out count of the number of game traces
+        sv_numtraces   = 0;
+        sv_numpmtraces = 0;
 
-		G_UpdateMatchEndTime();
-		G_CheckExitRules();
-		G_CheckStartRules();
+        G_ClientDrawBoundingBoxes();
 
-		gi.setConfigstring( CS_WARMUP, va( "%.0f", dmManager.GetMatchStartTime() ) );
+        G_UpdateMatchEndTime();
+        G_CheckExitRules();
+        G_CheckStartRules();
 
-		if( g_gametype->integer ) {
-			level.CheckVote();
-		}
+        gi.setConfigstring(CS_WARMUP, va("%.0f", dmManager.GetMatchStartTime()));
 
-		if( g_animdump->integer )
-		{
-			for( edict = active_edicts.next; edict != &active_edicts; edict = edict->next )
-			{
-				Animate *anim = ( Animate * )edict->entity;
+        if (g_gametype->integer) {
+            level.CheckVote();
+        }
 
-				if( anim->IsSubclassOfAnimate() )
-				{
-					anim->DumpAnimInfo();
-				}
-			}
-		}
-	}
+        if (g_animdump->integer) {
+            for (edict = active_edicts.next; edict != &active_edicts; edict = edict->next) {
+                Animate *anim = (Animate *)edict->entity;
 
-	catch( const char *error )
-	{
-		G_ExitWithError( error );
-	}
+                if (anim->IsSubclassOfAnimate()) {
+                    anim->DumpAnimInfo();
+                }
+            }
+        }
+    }
+
+    catch (const char *error) {
+        G_ExitWithError(error);
+    }
 }
 
 /*
@@ -714,36 +663,29 @@ void G_RunFrame( int levelTime, int frameTime )
 G_ClientDrawBoundingBoxes
 =================
 */
-void G_ClientDrawBoundingBoxes
-	(
-	void
-	)
+void G_ClientDrawBoundingBoxes(void)
 {
-	gentity_t  *edict;
-	Entity	*ent;
-	Vector	eye;
+    gentity_t *edict;
+    Entity    *ent;
+    Vector     eye;
 
-	// don't show bboxes during deathmatch
-	if( ( !sv_showbboxes->integer ) || ( g_gametype->integer && !sv_cheats->integer ) )
-	{
-		return;
-	}
+    // don't show bboxes during deathmatch
+    if ((!sv_showbboxes->integer) || (g_gametype->integer && !sv_cheats->integer)) {
+        return;
+    }
 
-	if( sv_showbboxes->integer )
-	{
-		edict = g_entities;
-		ent = edict->entity;
-		if( ent )
-		{
-			eye = ent->origin;
-			ent = findradius( NULL, eye, 1000 );
-			while( ent )
-			{
-				ent->DrawBoundingBox( sv_showbboxes->integer );
-				ent = findradius( ent, eye, 1000 );
-			}
-		}
-	}
+    if (sv_showbboxes->integer) {
+        edict = g_entities;
+        ent   = edict->entity;
+        if (ent) {
+            eye = ent->origin;
+            ent = findradius(NULL, eye, 1000);
+            while (ent) {
+                ent->DrawBoundingBox(sv_showbboxes->integer);
+                ent = findradius(ent, eye, 1000);
+            }
+        }
+    }
 }
 
 // Used to tell the server about the edict pose, such as the player pose
@@ -785,60 +727,62 @@ qboolean G_TIKI_IsOnGround(gentity_t *edict, int num, float threshold)
     return gi.TIKI_IsOnGroundInternal(edict->tiki, edict->s.number, num, threshold);
 }
 
-void G_PrepFrame( void )
-{
+void G_PrepFrame(void) {}
 
+void G_RegisterSounds(void)
+{
+    int startTime;
+    int endTime;
+
+    Com_Printf("\n\n-----------PARSING UBERSOUND (SERVER)------------\n");
+    Com_Printf(
+        "Any SetCurrentTiki errors means that tiki wasn't prefetched and tiki-specific sounds for it won't work. To "
+        "fix prefetch the tiki. Ignore if you don't use that tiki on this level.\n"
+    );
+
+    startTime = gi.Milliseconds();
+    G_Command_ProcessFile("ubersound/ubersound.scr", qfalse);
+    endTime = gi.Milliseconds();
+
+    Com_Printf("Parse/Load time: %f seconds.\n", (float)(endTime - startTime) / 1000.0);
+    Com_Printf("-------------UBERSOUND DONE (SERVER)---------------\n\n");
+    Com_Printf("\n\n-----------PARSING UBERDIALOG (SERVER)------------\n");
+    Com_Printf(
+        "Any SetCurrentTiki errors means that tiki wasn't prefetched and tiki-specific sounds for it won't work. To "
+        "fix prefetch the tiki. Ignore if you don't use that tiki on this level.\n"
+    );
+
+    startTime = gi.Milliseconds();
+    G_Command_ProcessFile("ubersound/uberdialog.scr", qfalse);
+    endTime = gi.Milliseconds();
+
+    Com_Printf("Parse/Load time: %f seconds.\n", (float)(endTime - startTime) / 1000.0);
+    Com_Printf("-------------UBERDIALOG DONE (SERVER)---------------\n\n");
 }
 
-void G_RegisterSounds( void )
+void G_Restart(void)
 {
-	int startTime;
-	int endTime;
-
-	Com_Printf( "\n\n-----------PARSING UBERSOUND (SERVER)------------\n" );
-	Com_Printf( "Any SetCurrentTiki errors means that tiki wasn't prefetched and tiki-specific sounds for it won't work. To fix prefetch the tiki. Ignore if you don't use that tiki on this level.\n" );
-
-	startTime = gi.Milliseconds();
-	G_Command_ProcessFile( "ubersound/ubersound.scr", qfalse );
-	endTime = gi.Milliseconds();
-
-	Com_Printf( "Parse/Load time: %f seconds.\n", ( float )( endTime - startTime ) / 1000.0 );
-	Com_Printf( "-------------UBERSOUND DONE (SERVER)---------------\n\n" );
-	Com_Printf( "\n\n-----------PARSING UBERDIALOG (SERVER)------------\n" );
-	Com_Printf( "Any SetCurrentTiki errors means that tiki wasn't prefetched and tiki-specific sounds for it won't work. To fix prefetch the tiki. Ignore if you don't use that tiki on this level.\n" );
-
-	startTime = gi.Milliseconds();
-	G_Command_ProcessFile( "ubersound/uberdialog.scr", qfalse );
-	endTime = gi.Milliseconds();
-
-	Com_Printf( "Parse/Load time: %f seconds.\n", ( float )( endTime - startTime ) / 1000.0 );
-	Com_Printf( "-------------UBERDIALOG DONE (SERVER)---------------\n\n" );
+    G_InitWorldSession();
 }
 
-void G_Restart( void )
+void G_SetFrameNumber(int framenum)
 {
-	G_InitWorldSession();
+    level.frame_skel_index = framenum;
 }
 
-void G_SetFrameNumber( int framenum )
+void G_SetMap(const char *mapname)
 {
-	level.frame_skel_index = framenum;
+    level.SetMap(mapname);
 }
 
-void G_SetMap( const char *mapname )
+void G_SetTime(int svsStartTime, int svsTime)
 {
-	level.SetMap( mapname );
-}
+    if (level.svsStartTime != svsTime) {
+        gi.setConfigstring(CS_LEVEL_START_TIME, va("%i", svsTime));
+    }
 
-void G_SetTime( int svsStartTime, int svsTime )
-{
-	if( level.svsStartTime != svsTime )
-	{
-		gi.setConfigstring( CS_LEVEL_START_TIME, va( "%i", svsTime ) );
-	}
-
-	level.svsStartTime = svsStartTime;
-	level.setTime( svsTime );
+    level.svsStartTime = svsStartTime;
+    level.setTime(svsTime);
 }
 
 /*
@@ -846,52 +790,46 @@ void G_SetTime( int svsStartTime, int svsTime )
 G_LevelArchiveValid
 =================
 */
-qboolean G_LevelArchiveValid
-	(
-	const char *filename
-	)
+qboolean G_LevelArchiveValid(const char *filename)
 {
-	try
-	{
-		qboolean ret;
+    try {
+        qboolean ret;
 
-		Archiver arc;
+        Archiver arc;
 
-		if( !arc.Read( filename ) )
-		{
-			return qfalse;
-		}
+        if (!arc.Read(filename)) {
+            return qfalse;
+        }
 
-		ret = LevelArchiveValid( arc );
+        ret = LevelArchiveValid(arc);
 
-		arc.Close();
+        arc.Close();
 
-		return ret;
-	}
+        return ret;
+    }
 
-	catch( const char *error )
-	{
-		G_ExitWithError( error );
-		return qfalse;
-	}
+    catch (const char *error) {
+        G_ExitWithError(error);
+        return qfalse;
+    }
 }
 
-void G_SoundCallback( int entNum, soundChannel_t channelNumber, const char *name )
+void G_SoundCallback(int entNum, soundChannel_t channelNumber, const char *name)
 {
-	gentity_t *ent = &g_entities[ entNum ];
-	Entity *entity = ent->entity;
+    gentity_t *ent    = &g_entities[entNum];
+    Entity    *entity = ent->entity;
 
-	if( !entity )
-	{
-		ScriptError( "ERROR:  wait on playsound only works on entities that still exist when the sound is done playing." );
-	}
+    if (!entity) {
+        ScriptError("ERROR:  wait on playsound only works on entities that still exist when the sound is done playing."
+        );
+    }
 
-	entity->CancelEventsOfType( EV_SoundDone );
+    entity->CancelEventsOfType(EV_SoundDone);
 
-	Event *ev = new Event( EV_SoundDone );
-	ev->AddInteger( channelNumber );
-	ev->AddString( name );
-	entity->PostEvent( ev, level.frametime );
+    Event *ev = new Event(EV_SoundDone);
+    ev->AddInteger(channelNumber);
+    ev->AddString(name);
+    entity->PostEvent(ev, level.frametime);
 }
 
 qboolean G_Command_ProcessFile(const char *filename, qboolean quiet)
@@ -950,124 +888,122 @@ qboolean G_Command_ProcessFile(const char *filename, qboolean quiet)
     return qtrue;
 }
 
-qboolean G_AllowPaused( void )
+qboolean G_AllowPaused(void)
 {
 #ifdef _DEBUG
-	return false;
+    return false;
 #endif
-	return ( !level.exitintermission ) && ( level.intermissiontime == 0.0f ) && ( !level.died_already );
+    return (!level.exitintermission) && (level.intermissiontime == 0.0f) && (!level.died_already);
 }
 
-void G_ArchiveFloat( float *fl )
+void G_UpdateMatchEndTime(void)
 {
-	currentArc->ArchiveFloat( fl );
+    int endtime = 0;
+
+    if (dmManager.GameHasRounds() && dmManager.GetRoundLimit()) {
+        endtime = dmManager.GetMatchStartTime() * 1000.0f + (level.svsStartTime + 60000 * dmManager.GetRoundLimit());
+    } else if (timelimit->integer) {
+        endtime = level.svsStartTime + 60000 * timelimit->integer;
+    }
+
+    if (level.svsEndTime != endtime) {
+        level.svsEndTime = endtime;
+        gi.setConfigstring(CS_MATCHEND, va("%i", endtime));
+    }
 }
 
-void G_ArchiveInteger( int *i )
+void G_ArchiveFloat(float *fl)
 {
-	currentArc->ArchiveInteger( i );
+    currentArc->ArchiveFloat(fl);
 }
 
-void G_ArchiveString( char *s )
+void G_ArchiveInteger(int *i)
 {
-	if( currentArc->Loading() )
-	{
-		str string;
-		currentArc->ArchiveString( &string );
-		strcpy( s, string.c_str() );
-	}
-	else
-	{
-		str string = s;
-		currentArc->ArchiveString( &string );
-	}
+    currentArc->ArchiveInteger(i);
 }
 
-void G_ArchiveSvsTime( int *pi )
+void G_ArchiveString(char *s)
 {
-	currentArc->ArchiveSvsTime( pi );
+    if (currentArc->Loading()) {
+        str string;
+        currentArc->ArchiveString(&string);
+        strcpy(s, string.c_str());
+    } else {
+        str string = s;
+        currentArc->ArchiveString(&string);
+    }
 }
 
-void G_ArchivePersistantData
-	(
-	Archiver &arc
-	)
+void G_ArchiveSvsTime(int *pi)
 {
-	gentity_t   *ed;
-	int         i;
-
-	for( i = 0; i < game.maxclients; i++ )
-	{
-		Entity   *ent;
-
-		ed = &g_entities[ i ];
-		if( !ed->inuse || !ed->entity )
-			continue;
-
-		ent = ed->entity;
-		if( !ent->IsSubclassOfPlayer() )
-			continue;
-		( ( Player * )ent )->ArchivePersistantData( arc );
-	}
+    currentArc->ArchiveSvsTime(pi);
 }
 
-void G_ArchivePersistant( const char *name, qboolean loading )
+void G_ArchivePersistantData(Archiver& arc)
 {
-	int version;
-	Archiver arc;
+    gentity_t *ed;
+    int        i;
 
-	if( loading )
-	{
-		if( !arc.Read( name, qfalse ) )
-		{
-			return;
-		}
+    for (i = 0; i < game.maxclients; i++) {
+        Entity *ent;
 
-		arc.ArchiveInteger( &version );
-		if( version < PERSISTANT_VERSION )
-		{
-			gi.Printf( "Persistant data from an older version (%d) of MOHAA.\n", version );
-			arc.Close();
-			return;
-		}
-		else if( version > PERSISTANT_VERSION )
-		{
-			gi.DPrintf( "Persistant data from newer version %d of MOHAA.\n", version );
-			arc.Close();
-			return;
-		}
-	}
-	else
-	{
-		arc.Create( name );
+        ed = &g_entities[i];
+        if (!ed->inuse || !ed->entity) {
+            continue;
+        }
 
-		version = PERSISTANT_VERSION;
-		arc.ArchiveInteger( &version );
-	}
-
-
-	arc.ArchiveObject( game.Vars() );
-	G_ArchivePersistantData( arc );
-
-	arc.Close();
-	return;
+        ent = ed->entity;
+        if (!ent->IsSubclassOfPlayer()) {
+            continue;
+        }
+        ((Player *)ent)->ArchivePersistantData(arc);
+    }
 }
 
-qboolean G_ReadPersistant
-	(
-	const char *name
-	)
+void G_ArchivePersistant(const char *name, qboolean loading)
 {
-	try
-	{
-		G_ArchivePersistant( name, qtrue );
-	}
+    int      version;
+    Archiver arc;
 
-	catch( const char *error )
-	{
-		G_ExitWithError( error );
-	}
-	return qfalse;
+    if (loading) {
+        if (!arc.Read(name, qfalse)) {
+            return;
+        }
+
+        arc.ArchiveInteger(&version);
+        if (version < PERSISTANT_VERSION) {
+            gi.Printf("Persistant data from an older version (%d) of MOHAA.\n", version);
+            arc.Close();
+            return;
+        } else if (version > PERSISTANT_VERSION) {
+            gi.DPrintf("Persistant data from newer version %d of MOHAA.\n", version);
+            arc.Close();
+            return;
+        }
+    } else {
+        arc.Create(name);
+
+        version = PERSISTANT_VERSION;
+        arc.ArchiveInteger(&version);
+    }
+
+    arc.ArchiveObject(game.Vars());
+    G_ArchivePersistantData(arc);
+
+    arc.Close();
+    return;
+}
+
+qboolean G_ReadPersistant(const char *name)
+{
+    try {
+        G_ArchivePersistant(name, qtrue);
+    }
+
+    catch (const char *error) {
+        G_ExitWithError(error);
+    }
+    return qfalse;
 }
 
 /*
@@ -1081,129 +1017,108 @@ last save position.
 ============
 */
 
-void G_WritePersistant
-	(
-	const char *name
-	)
+void G_WritePersistant(const char *name)
 {
-	try
-	{
-		G_ArchivePersistant( name, qfalse );
-	}
+    try {
+        G_ArchivePersistant(name, qfalse);
+    }
 
-	catch( const char *error )
-	{
-		G_ExitWithError( error );
-	}
+    catch (const char *error) {
+        G_ExitWithError(error);
+    }
 }
 
-void G_Cleanup( qboolean samemap )
+void G_Cleanup(qboolean samemap)
 {
-	gi.Printf( "==== CleanupGame ====\n" );
+    gi.Printf("==== CleanupGame ====\n");
 
-	G_WriteSessionData();
+    G_WriteSessionData();
 
-	level.CleanUp( samemap, qtrue );
+    level.CleanUp(samemap, qtrue);
 }
 
-void ArchiveAliases
-	(
-	Archiver &arc
-	)
+void ArchiveAliases(Archiver& arc)
 {
-	int i;
-	byte another;
-	AliasList_t *alias_list;
-	AliasListNode_t *alias_node;
-	str alias_name;
-	str model_name;
-	const char *name;
-	dtikianim_t *modelanim;
-	Container< dtikianim_t * > animlist;
+    int                      i;
+    byte                     another;
+    AliasList_t             *alias_list;
+    AliasListNode_t         *alias_node;
+    str                      alias_name;
+    str                      model_name;
+    const char              *name;
+    dtikianim_t             *modelanim;
+    Container<dtikianim_t *> animlist;
 
-	if( arc.Saving() )
-	{
-		for( i = 0; i < MAX_MODELS; i++ )
-		{
-			name = gi.getConfigstring( CS_MODELS + i );
-			if( name && *name && *name != '*' )
-			{
-				const char *p = name;
+    if (arc.Saving()) {
+        for (i = 0; i < MAX_MODELS; i++) {
+            name = gi.getConfigstring(CS_MODELS + i);
+            if (name && *name && *name != '*') {
+                const char *p = name;
 
-				while( true)
-				{
-					p = strchr( name, '|' );
-					if (!p)
-					{
-						return;
-					}
-					name = p + 1;
-				}
+                while (true) {
+                    p = strchr(name, '|');
+                    if (!p) {
+                        return;
+                    }
+                    name = p + 1;
+                }
 
-				modelanim = gi.modeltikianim( name );
-				if( modelanim && !animlist.IndexOfObject( modelanim ) )
-				{
-					animlist.AddObject( modelanim );
+                modelanim = gi.modeltikianim(name);
+                if (modelanim && !animlist.IndexOfObject(modelanim)) {
+                    animlist.AddObject(modelanim);
 
-					alias_list = ( AliasList_t * )modelanim->alias_list;
-					if( alias_list )
-					{
-						alias_node = alias_list->data_list;
+                    alias_list = (AliasList_t *)modelanim->alias_list;
+                    if (alias_list) {
+                        alias_node = alias_list->data_list;
 
-						if( alias_node )
-						{
-							another = true;
-							arc.ArchiveByte( &another );
+                        if (alias_node) {
+                            another = true;
+                            arc.ArchiveByte(&another);
 
-							alias_name = name;
-							arc.ArchiveString( &alias_name );
+                            alias_name = name;
+                            arc.ArchiveString(&alias_name);
 
-							for( ; alias_node != NULL; alias_node = alias_node->next )
-							{
-								another = true;
-								arc.ArchiveByte( &another );
+                            for (; alias_node != NULL; alias_node = alias_node->next) {
+                                another = true;
+                                arc.ArchiveByte(&another);
 
-								alias_name = alias_node->alias_name;
-								arc.ArchiveString( &alias_name );
-							}
+                                alias_name = alias_node->alias_name;
+                                arc.ArchiveString(&alias_name);
+                            }
 
-							another = false;
-							arc.ArchiveByte( &another );
-						}
-					}
-				}
-			}
-		}
+                            another = false;
+                            arc.ArchiveByte(&another);
+                        }
+                    }
+                }
+            }
+        }
 
-		another = false;
-		arc.ArchiveByte( &another );
-	}
-	else
-	{
-		arc.ArchiveByte( &another );
+        another = false;
+        arc.ArchiveByte(&another);
+    } else {
+        arc.ArchiveByte(&another);
 
-		while( another )
-		{
-			arc.ArchiveString( &model_name );
+        while (another) {
+            arc.ArchiveString(&model_name);
 
-			modelanim = gi.modeltikianim( model_name.c_str() );
+            modelanim = gi.modeltikianim(model_name.c_str());
 
-			arc.ArchiveByte( &another );
+            arc.ArchiveByte(&another);
 
-			while( another )
-			{
-				// Read in aliases
+            while (another) {
+                // Read in aliases
 
-				arc.ArchiveString( &alias_name );
+                arc.ArchiveString(&alias_name);
 
-				gi.Alias_UpdateDialog( modelanim, alias_name.c_str() );
+                gi.Alias_UpdateDialog(modelanim, alias_name.c_str());
 
-				arc.ArchiveByte( &another );
-			}
+                arc.ArchiveByte(&another);
+            }
 
-			arc.ArchiveByte( &another );
-		}
-	}
+            arc.ArchiveByte(&another);
+        }
+    }
 }
 
 /*
@@ -1211,40 +1126,31 @@ void ArchiveAliases
 LevelArchiveValid
 =================
 */
-qboolean LevelArchiveValid
-	(
-	Archiver &arc
-	)
+qboolean LevelArchiveValid(Archiver& arc)
 {
-	int      version;
-	int      savegame_version;
+    int version;
+    int savegame_version;
 
-	// read the version number
-	arc.ArchiveInteger( &version );
-	arc.ArchiveInteger( &savegame_version );
+    // read the version number
+    arc.ArchiveInteger(&version);
+    arc.ArchiveInteger(&savegame_version);
 
-	if( version < GAME_API_VERSION )
-	{
-		gi.Printf( "Savegame from an older version (%d) of MOHAA.\n", version );
-		return qfalse;
-	}
-	else if( version > GAME_API_VERSION )
-	{
-		gi.Printf( "Savegame from version %d of MOHAA.\n", version );
-		return qfalse;
-	}
+    if (version < GAME_API_VERSION) {
+        gi.Printf("Savegame from an older version (%d) of MOHAA.\n", version);
+        return qfalse;
+    } else if (version > GAME_API_VERSION) {
+        gi.Printf("Savegame from version %d of MOHAA.\n", version);
+        return qfalse;
+    }
 
-	if( savegame_version < SAVEGAME_VERSION )
-	{
-		gi.Printf( "Savegame from an older version (%d) of MoHAA.\n", version );
-		return qfalse;
-	}
-	else if( savegame_version > SAVEGAME_VERSION )
-	{
-		gi.Printf( "Savegame from version %d of MoHAA.\n", version );
-		return qfalse;
-	}
-	return qtrue;
+    if (savegame_version < SAVEGAME_VERSION) {
+        gi.Printf("Savegame from an older version (%d) of MoHAA.\n", version);
+        return qfalse;
+    } else if (savegame_version > SAVEGAME_VERSION) {
+        gi.Printf("Savegame from version %d of MoHAA.\n", version);
+        return qfalse;
+    }
+    return qtrue;
 }
 
 /*
@@ -1253,223 +1159,192 @@ G_ArchiveLevel
 
 =================
 */
-qboolean G_ArchiveLevel
-	(
-	const char *filename,
-	qboolean autosave,
-	qboolean loading
-	)
+qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loading)
 {
-	try
-	{
-		int		i;
-		int      num;
-		Archiver arc;
-		gentity_t  *edict;
-		char szSaveName[ MAX_STRING_TOKENS ];
-		const char *pszSaveName;
-		cvar_t *cvar;
+    try {
+        int         i;
+        int         num;
+        Archiver    arc;
+        gentity_t  *edict;
+        char        szSaveName[MAX_STRING_TOKENS];
+        const char *pszSaveName;
+        cvar_t     *cvar;
 
-		COM_StripExtension( filename, szSaveName, sizeof( szSaveName ) );
-		pszSaveName = COM_SkipPath( szSaveName );
+        COM_StripExtension(filename, szSaveName, sizeof(szSaveName));
+        pszSaveName = COM_SkipPath(szSaveName);
 
-		gi.cvar_set( "g_lastsave", pszSaveName );
+        gi.cvar_set("g_lastsave", pszSaveName);
 
-		if( loading )
-		{
-			LoadingSavegame = true;
+        if (loading) {
+            LoadingSavegame = true;
 
-			arc.Read( filename );
-			if( !LevelArchiveValid( arc ) )
-			{
-				arc.Close();
-				return qfalse;
-			}
+            arc.Read(filename);
+            if (!LevelArchiveValid(arc)) {
+                arc.Close();
+                return qfalse;
+            }
 
-			// Read in the pending events.  These are read in first in case
-			// later objects need to post events.
-			L_UnarchiveEvents( arc );
-		}
-		else
-		{
-			int temp;
+            // Read in the pending events.  These are read in first in case
+            // later objects need to post events.
+            L_UnarchiveEvents(arc);
+        } else {
+            int temp;
 
-			arc.Create( filename );
+            arc.Create(filename);
 
-			// write out the version number
-			temp = GAME_API_VERSION;
-			arc.ArchiveInteger( &temp );
-			temp = SAVEGAME_VERSION;
-			arc.ArchiveInteger( &temp );
+            // write out the version number
+            temp = GAME_API_VERSION;
+            arc.ArchiveInteger(&temp);
+            temp = SAVEGAME_VERSION;
+            arc.ArchiveInteger(&temp);
 
-			// Write out the pending events.  These are written first in case
-			// later objects need to post events when reading the archive.
-			L_ArchiveEvents( arc );
-		}
+            // Write out the pending events.  These are written first in case
+            // later objects need to post events when reading the archive.
+            L_ArchiveEvents(arc);
+        }
 
-		if( arc.Saving() )
-		{
-			str s;
+        if (arc.Saving()) {
+            str s;
 
-			num = 0;
-			for( cvar = gi.NextCvar( NULL ); cvar != NULL; cvar = gi.NextCvar( cvar ) )
-			{
-				if( cvar->flags & CVAR_ROM ) {
-					num++;
-				}
-			}
+            num = 0;
+            for (cvar = gi.NextCvar(NULL); cvar != NULL; cvar = gi.NextCvar(cvar)) {
+                if (cvar->flags & CVAR_ROM) {
+                    num++;
+                }
+            }
 
-			arc.ArchiveInteger( &num );
-			for( cvar = gi.NextCvar( NULL ); cvar != NULL; cvar = gi.NextCvar( cvar ) )
-			{
-				if( cvar->flags & CVAR_ROM )
-				{
-					s = cvar->name;
-					arc.ArchiveString( &s );
+            arc.ArchiveInteger(&num);
+            for (cvar = gi.NextCvar(NULL); cvar != NULL; cvar = gi.NextCvar(cvar)) {
+                if (cvar->flags & CVAR_ROM) {
+                    s = cvar->name;
+                    arc.ArchiveString(&s);
 
-					s = cvar->string;
-					arc.ArchiveString( &s );
+                    s = cvar->string;
+                    arc.ArchiveString(&s);
 
-					arc.ArchiveBoolean( &cvar->modified );
-					arc.ArchiveInteger( &cvar->modificationCount );
-					arc.ArchiveFloat( &cvar->value );
-					arc.ArchiveInteger( &cvar->integer );
-				}
-			}
-		}
-		else
-		{
-			str sName, sValue;
+                    arc.ArchiveBoolean(&cvar->modified);
+                    arc.ArchiveInteger(&cvar->modificationCount);
+                    arc.ArchiveFloat(&cvar->value);
+                    arc.ArchiveInteger(&cvar->integer);
+                }
+            }
+        } else {
+            str sName, sValue;
 
-			arc.ArchiveInteger( &num );
-			for( int i = 0; i < num; i++ )
-			{
-				arc.ArchiveString( &sName );
-				arc.ArchiveString( &sValue );
+            arc.ArchiveInteger(&num);
+            for (int i = 0; i < num; i++) {
+                arc.ArchiveString(&sName);
+                arc.ArchiveString(&sValue);
 
-				cvar = gi.cvar_set2( sName, sValue, qfalse );
+                cvar = gi.cvar_set2(sName, sValue, qfalse);
 
-				arc.ArchiveBoolean( &cvar->modified );
-				arc.ArchiveInteger( &cvar->modificationCount );
-				arc.ArchiveFloat( &cvar->value );
-				arc.ArchiveInteger( &cvar->integer );
-			}
-		}
+                arc.ArchiveBoolean(&cvar->modified);
+                arc.ArchiveInteger(&cvar->modificationCount);
+                arc.ArchiveFloat(&cvar->value);
+                arc.ArchiveInteger(&cvar->integer);
+            }
+        }
 
-		// archive the game object
-		arc.ArchiveObject( &game );
+        // archive the game object
+        arc.ArchiveObject(&game);
 
-		// archive Level
-		arc.ArchiveObject( &level );
+        // archive Level
+        arc.ArchiveObject(&level);
 
-		// archive camera paths
-		arc.ArchiveObject( &CameraMan );
+        // archive camera paths
+        arc.ArchiveObject(&CameraMan);
 
-		// archive paths
-		arc.ArchiveObject( &PathManager );
+        // archive paths
+        arc.ArchiveObject(&PathManager);
 
-		// archive script controller
-		arc.ArchiveObject( &Director );
+        // archive script controller
+        arc.ArchiveObject(&Director);
 
-		// archive lightstyles
-		arc.ArchiveObject( &lightStyles );
+        // archive lightstyles
+        arc.ArchiveObject(&lightStyles);
 
-		if( arc.Saving() )
-		{
-			// count the entities
-			num = 0;
-			for( i = 0; i < globals.num_entities; i++ )
-			{
-				edict = &g_entities[ i ];
-				if( edict->inuse && edict->entity && !( edict->entity->flags & FL_DONTSAVE ) )
-				{
-					num++;
-				}
-			}
-		}
+        if (arc.Saving()) {
+            // count the entities
+            num = 0;
+            for (i = 0; i < globals.num_entities; i++) {
+                edict = &g_entities[i];
+                if (edict->inuse && edict->entity && !(edict->entity->flags & FL_DONTSAVE)) {
+                    num++;
+                }
+            }
+        }
 
-		// archive all the entities
-		arc.ArchiveInteger( &globals.num_entities );
-		arc.ArchiveInteger( &num );
+        // archive all the entities
+        arc.ArchiveInteger(&globals.num_entities);
+        arc.ArchiveInteger(&num);
 
-		if( arc.Saving() )
-		{
-			// write out the world
-			arc.ArchiveObject( world );
+        if (arc.Saving()) {
+            // write out the world
+            arc.ArchiveObject(world);
 
-			for( i = 0; i < globals.num_entities; i++ )
-			{
-				edict = &g_entities[ i ];
-				if( !edict->inuse || !edict->entity || ( edict->entity->flags & FL_DONTSAVE ) )
-				{
-					continue;
-				}
+            for (i = 0; i < globals.num_entities; i++) {
+                edict = &g_entities[i];
+                if (!edict->inuse || !edict->entity || (edict->entity->flags & FL_DONTSAVE)) {
+                    continue;
+                }
 
-				arc.ArchiveObject( edict->entity );
-			}
-		}
-		else
-		{
-			// Tell the server about our data
-			gi.LocateGameData( g_entities, globals.num_entities, sizeof( gentity_t ), &game.clients[ 0 ].ps, sizeof( game.clients[ 0 ] ) );
+                arc.ArchiveObject(edict->entity);
+            }
+        } else {
+            // Tell the server about our data
+            gi.LocateGameData(
+                g_entities, globals.num_entities, sizeof(gentity_t), &game.clients[0].ps, sizeof(game.clients[0])
+            );
 
-			// read in the world
-			arc.ReadObject();
+            // read in the world
+            arc.ReadObject();
 
-			// FIXME: PathSearch::LoadNodes();
-			//PathSearch::LoadNodes();
+            // FIXME: PathSearch::LoadNodes();
+            //PathSearch::LoadNodes();
 
-			for( i = 0; i < num; i++ )
-			{
-				arc.ReadObject();
-			}
-		}
+            for (i = 0; i < num; i++) {
+                arc.ReadObject();
+            }
+        }
 
-		ArchiveAliases( arc );
+        ArchiveAliases(arc);
 
-		currentArc = &arc;
-		gi.ArchiveLevel( arc.Loading() );
-		currentArc = NULL;
+        currentArc = &arc;
+        gi.ArchiveLevel(arc.Loading());
+        currentArc = NULL;
 
-		// FIXME: PathSearch::ArchiveDynamic();
-		//PathSearch::ArchiveDynamic();
+        // FIXME: PathSearch::ArchiveDynamic();
+        //PathSearch::ArchiveDynamic();
 
-		arc.Close();
+        arc.Close();
 
-		if( arc.Loading() )
-		{
-			LoadingSavegame = false;
-			gi.Printf( HUD_MESSAGE_YELLOW "%s\n", gi.LV_ConvertString( "Game Loaded" ) );
-		}
-		else
-		{
-			gi.Printf( HUD_MESSAGE_YELLOW "%s\n", gi.LV_ConvertString( "Game Saved" ) );
-		}
+        if (arc.Loading()) {
+            LoadingSavegame = false;
+            gi.Printf(HUD_MESSAGE_YELLOW "%s\n", gi.LV_ConvertString("Game Loaded"));
+        } else {
+            gi.Printf(HUD_MESSAGE_YELLOW "%s\n", gi.LV_ConvertString("Game Saved"));
+        }
 
-		if( arc.Loading() )
-		{
-			// Make sure all code that needs to setup the player after they have been loaded is run
+        if (arc.Loading()) {
+            // Make sure all code that needs to setup the player after they have been loaded is run
 
-			for( i = 0; i < game.maxclients; i++ )
-			{
-				edict = &g_entities[ i ];
+            for (i = 0; i < game.maxclients; i++) {
+                edict = &g_entities[i];
 
-				if( edict->inuse && edict->entity )
-				{
-					Player *player = ( Player * )edict->entity;
-					player->Loaded();
-				}
-			}
-		}
+                if (edict->inuse && edict->entity) {
+                    Player *player = (Player *)edict->entity;
+                    player->Loaded();
+                }
+            }
+        }
 
-		return qtrue;
-	}
+        return qtrue;
+    }
 
-	catch( const char *error )
-	{
-		G_ExitWithError( error );
-	}
-	return qfalse;
+    catch (const char *error) {
+        G_ExitWithError(error);
+    }
+    return qfalse;
 }
 
 /*
@@ -1478,15 +1353,11 @@ G_WriteLevel
 
 =================
 */
-void G_WriteLevel
-	(
-	const char *filename,
-	qboolean autosave
-	)
+void G_WriteLevel(const char *filename, qboolean autosave)
 {
-	game.autosaved = autosave;
-	G_ArchiveLevel( filename, autosave, qfalse );
-	game.autosaved = false;
+    game.autosaved = autosave;
+    G_ArchiveLevel(filename, autosave, qfalse);
+    game.autosaved = false;
 }
 
 /*
@@ -1504,21 +1375,17 @@ calling ReadLevel.
 No clients are connected yet.
 =================
 */
-qboolean G_ReadLevel
-	(
-	const char *filename
-	)
+qboolean G_ReadLevel(const char *filename)
 {
-	qboolean status;
+    qboolean status;
 
-	status = G_ArchiveLevel( filename, qfalse, qtrue );
-	// if the level load failed make sure that these variables are not set
-	if( !status )
-	{
-		LoadingSavegame = false;
-		LoadingServer = false;
-	}
-	return status;
+    status = G_ArchiveLevel(filename, qfalse, qtrue);
+    // if the level load failed make sure that these variables are not set
+    if (!status) {
+        LoadingSavegame = false;
+        LoadingServer   = false;
+    }
+    return status;
 }
 
 /*
@@ -1528,80 +1395,73 @@ GetGameAPI
 Gets game imports and returns game exports
 ================
 */
-extern "C"
-game_export_t * GetGameAPI(game_import_t * import)
+extern "C" game_export_t *GetGameAPI(game_import_t *import)
 {
-	gi = *import;
+    gi = *import;
 
-	globals.apiversion				= GAME_API_VERSION;
+    globals.apiversion = GAME_API_VERSION;
 
-	globals.AllowPaused				= G_AllowPaused;	
-	globals.ArchiveFloat			= G_ArchiveFloat;
-	globals.ArchiveInteger			= G_ArchiveInteger;
-	globals.ArchivePersistant		= G_ArchivePersistant;
-	globals.ArchiveString			= G_ArchiveString;
-	globals.ArchiveSvsTime			= G_ArchiveSvsTime;
+    globals.AllowPaused       = G_AllowPaused;
+    globals.ArchiveFloat      = G_ArchiveFloat;
+    globals.ArchiveInteger    = G_ArchiveInteger;
+    globals.ArchivePersistant = G_ArchivePersistant;
+    globals.ArchiveString     = G_ArchiveString;
+    globals.ArchiveSvsTime    = G_ArchiveSvsTime;
 
-	globals.BotBegin				= G_BotBegin;
-	globals.BotThink				= G_BotThink;
+    globals.BotBegin = G_BotBegin;
+    globals.BotThink = G_BotThink;
 
-	globals.Cleanup					= G_Cleanup;
+    globals.Cleanup = G_Cleanup;
 
-	globals.ClientCommand			= G_ClientCommand;
-	globals.ClientConnect			= G_ClientConnect;
+    globals.ClientCommand = G_ClientCommand;
+    globals.ClientConnect = G_ClientConnect;
 
-	globals.ClientBegin				= G_ClientBegin;
-	globals.ClientThink				= G_ClientThink;
+    globals.ClientBegin = G_ClientBegin;
+    globals.ClientThink = G_ClientThink;
 
-	globals.ClientDisconnect		= G_ClientDisconnect;
-	globals.ClientThink				= G_ClientThink;
+    globals.ClientDisconnect = G_ClientDisconnect;
+    globals.ClientThink      = G_ClientThink;
 
-	globals.ClientUserinfoChanged	= G_ClientUserinfoChanged;
+    globals.ClientUserinfoChanged = G_ClientUserinfoChanged;
 
-	globals.ConsoleCommand			= G_ConsoleCommand;
+    globals.ConsoleCommand = G_ConsoleCommand;
 
-	globals.DebugCircle				= G_DebugCircle;
-	globals.errorMessage			= NULL;
+    globals.DebugCircle  = G_DebugCircle;
+    globals.errorMessage = NULL;
 
+    globals.gentities   = g_entities;
+    globals.gentitySize = sizeof(g_entities[0]);
 
-	globals.gentities				= g_entities;
-	globals.gentitySize				= sizeof(g_entities[0]);
+    globals.Init = G_InitGame;
 
-	globals.Init					= G_InitGame;
+    globals.LevelArchiveValid = G_LevelArchiveValid;
 
-	globals.LevelArchiveValid		= G_LevelArchiveValid;
+    globals.Precache      = G_Precache;
+    globals.SpawnEntities = G_SpawnEntities;
 
-	globals.Precache				= G_Precache;
-	globals.SpawnEntities			= G_SpawnEntities;
+    globals.PrepFrame = G_PrepFrame;
 
+    globals.profStruct     = &G_profStruct;
+    globals.ReadLevel      = G_ReadLevel;
+    globals.WriteLevel     = G_WriteLevel;
+    globals.RegisterSounds = G_RegisterSounds;
+    globals.Restart        = G_Restart;
 
-	globals.PrepFrame				= G_PrepFrame;
+    globals.RunFrame = G_RunFrame;
 
-	globals.profStruct				= &G_profStruct;
-	globals.ReadLevel				= G_ReadLevel;
-	globals.WriteLevel				= G_WriteLevel;
-	globals.RegisterSounds			= G_RegisterSounds;
-	globals.Restart					= G_Restart;
+    globals.ServerSpawned = G_ServerSpawned;
 
+    globals.SetFrameNumber = G_SetFrameNumber;
+    globals.SetMap         = G_SetMap;
+    globals.SetTime        = G_SetTime;
 
-	globals.RunFrame				= G_RunFrame;
+    globals.Shutdown = G_ShutdownGame;
 
+    globals.SoundCallback    = G_SoundCallback;
+    globals.SpawnEntities    = G_SpawnEntities;
+    globals.TIKI_Orientation = G_TIKI_Orientation;
 
-	globals.ServerSpawned			= G_ServerSpawned;
-
-
-	globals.SetFrameNumber			= G_SetFrameNumber;
-	globals.SetMap					= G_SetMap;
-	globals.SetTime					= G_SetTime;
-
-	globals.Shutdown				= G_ShutdownGame;
-
-
-	globals.SoundCallback			= G_SoundCallback;
-	globals.SpawnEntities			= G_SpawnEntities;
-	globals.TIKI_Orientation		= G_TIKI_Orientation;
-
-	return &globals;
+    return &globals;
 }
 
 /*
@@ -1611,31 +1471,29 @@ G_ClientEndServerFrames
 */
 void G_ClientEndServerFrames(void)
 {
-	int		i;
-	gentity_t* ent;
+    int        i;
+    gentity_t *ent;
 
-	// calc the player views now that all pushing
-	// and damage has been added
-	for (i = 0; i < game.maxclients; i++)
-	{
-		ent = g_entities + i;
-		if (!ent->inuse || !ent->client || !ent->entity)
-		{
-			continue;
-		}
+    // calc the player views now that all pushing
+    // and damage has been added
+    for (i = 0; i < game.maxclients; i++) {
+        ent = g_entities + i;
+        if (!ent->inuse || !ent->client || !ent->entity) {
+            continue;
+        }
 
-		ent->entity->EndFrame();
-	}
+        ent->entity->EndFrame();
+    }
 }
 
 void G_ClientDoBlends()
 {
-	// FIXME: unimplemented
+    // FIXME: unimplemented
 }
 
 void FindIntermissionPoint()
 {
-	// FIXME: unimplemented
+    // FIXME: unimplemented
 }
 
 void G_MoveClientToIntermission(Entity *ent)
@@ -1652,6 +1510,221 @@ void G_DisplayScores(Entity *ent)
 void G_HideScores(Entity *ent)
 {
     ent->client->ps.pm_flags &= ~PMF_INTERMISSION;
+}
+
+void G_BeginIntermission2(void)
+{
+    gentity_t *client;
+    Entity    *ent;
+    int        i;
+
+    if (level.intermissiontime) {
+        return;
+    }
+
+    level.playerfrozen     = qtrue;
+    level.intermissiontime = level.time;
+
+    ent = (Entity *)G_FindClass(NULL, "info_player_intermission");
+
+    G_FadeSound(4.0f);
+
+    if (ent) {
+        SetCamera(ent, 0.5f);
+    } else {
+        G_FadeOut(2.0f);
+    }
+
+    for (i = 0, client = g_entities; i < game.maxclients; i++, client++) {
+        if (!client->inuse || !client->entity || !client->client) {
+            continue;
+        }
+
+        ent = client->entity;
+
+        G_DisplayScores(ent);
+        ent->flags |= FL_IMMOBILE;
+    }
+}
+
+void G_BeginIntermission(const char *map_name, INTTYPE_e transtype, bool no_fade)
+{
+    Entity    *camera;
+    Entity    *node;
+    Event     *ev;
+    gentity_t *client;
+    int        i;
+
+    if (level.intermissiontime || g_gametype->integer) {
+        return;
+    }
+
+    level.intermissiontime = level.time;
+    level.intermissiontype = transtype;
+
+    if (!no_fade) {
+        G_FadeOut(2.0f);
+    }
+
+    G_FadeSound(4.0f);
+
+    level.nextmap = map_name;
+
+    camera = (Entity *)G_FindClass(NULL, "info_player_intermission");
+    if (camera) {
+        SetCamera(camera, 0.5f);
+
+        ev = new Event(EV_Camera_Orbit);
+
+        node = (Entity *)G_FindTarget(NULL, "endnode1");
+        if (node && node->IsSubclassOfEntity()) {
+            ev->AddEntity(node);
+            camera->ProcessEvent(ev);
+            camera->ProcessEvent(EV_Camera_Cut);
+        }
+    }
+
+    for (i = 0, client = g_entities; i < game.maxclients; client++, i++) {
+        if (!client->inuse || !client->entity) {
+            continue;
+        }
+
+        client->entity->flags |= FL_IMMOBILE;
+        client->entity->PostEvent(EV_Player_EnterIntermission, 3.0f);
+    }
+}
+
+void G_ExitLevel(void)
+{
+    static const char *seps = " ,\n\r";
+    char               command[256];
+    int                j;
+    gentity_t         *ent;
+
+    // Don't allow exit level if the mission was failed
+
+    if (level.mission_failed) {
+        return;
+    }
+
+    // close the player log file if necessary
+    ClosePlayerLogFile();
+
+    // kill the sounds
+    Com_sprintf(command, sizeof(command), "stopsound\n");
+    gi.SendConsoleCommand(command);
+
+    if (g_gametype->integer) {
+        if (strlen(sv_nextmap->string)) {
+            // The nextmap cvar was set (possibly by a vote - so go ahead and use it)
+            level.nextmap = sv_nextmap->string;
+            gi.cvar_set("nextmap", "");
+        } else // Use the next map in the maplist
+        {
+            char *s, *f, *t;
+
+            f = NULL;
+            s = strdup(sv_maplist->string);
+            t = strtok(s, seps);
+            while (t != NULL) {
+                if (!Q_stricmp(t, level.mapname.c_str())) {
+                    // it's in the list, go to the next one
+                    t = strtok(NULL, seps);
+                    if (t == NULL) // end of list, go to first one
+                    {
+                        if (f == NULL) // there isn't a first one, same level
+                        {
+                            level.nextmap = level.mapname;
+                        } else {
+                            level.nextmap = f;
+                        }
+                    } else {
+                        level.nextmap = t;
+                    }
+                    free(s);
+                    goto out;
+                }
+
+                // set the first map
+                if (!f) {
+                    f = t;
+                }
+                t = strtok(NULL, seps);
+            }
+            free(s);
+        }
+    out:
+        // level.nextmap should be set now, but if it isn't use the same map
+        if (level.nextmap.length() == 0) {
+            // Stay on the same map since no nextmap was set
+            Com_sprintf(command, sizeof(command), "restart\n");
+            gi.SendConsoleCommand(command);
+        } else // use the level.nextmap variable
+        {
+            Com_sprintf(command, sizeof(command), "gamemap \"%s\"\n", level.nextmap.c_str());
+            gi.SendConsoleCommand(command);
+        }
+    } else {
+        Com_sprintf(command, sizeof(command), "gamemap \"%s\"\n", level.nextmap.c_str());
+        gi.SendConsoleCommand(command);
+    }
+
+    // Tell all the clients that the level is done
+    for (j = 0; j < game.maxclients; j++) {
+        ent = &g_entities[j];
+        if (!ent->inuse || !ent->entity) {
+            continue;
+        }
+
+        ent->entity->ProcessEvent(EV_Player_EndLevel);
+    }
+
+    level.nextmap = "";
+
+    level.exitintermission = 0;
+    level.intermissiontime = 0;
+
+    G_ClientEndServerFrames();
+}
+
+void G_CheckIntermissionExit(void)
+{
+    if (!level.exitintermission && g_maxintermission->value > level.time - level.intermissiontime) {
+        return;
+    }
+
+    if (level.nextmap != level.current_map) {
+        G_ExitLevel();
+    } else {
+        G_RestartLevelWithDelay(0.1f);
+
+        level.nextmap          = "";
+        level.intermissiontime = 0;
+        level.exitintermission = qfalse;
+    }
+}
+
+void G_ExitIntermission(void)
+{
+    level.exitintermission = qtrue;
+}
+
+void G_CheckStartRules(void)
+{
+    if ((!dmManager.IsGameActive()) && (!dmManager.WaitingForPlayers())) {
+        dmManager.StartRound();
+    }
+}
+
+void G_CheckExitRules(void)
+{
+    if (g_gametype->integer) {
+        if (level.intermissiontime == 0.0f) {
+            dmManager.CheckEndMatch();
+        } else {
+            G_CheckIntermissionExit();
+        }
+    }
 }
 
 void G_DisplayScoresToAllClients(void)
@@ -1684,95 +1757,104 @@ void G_HideScoresToAllClients(void)
 
 #ifndef WIN32
 
-#include <signal.h>
-#include <sys/mman.h>
+#    include <signal.h>
+#    include <sys/mman.h>
 
 struct sigaction origSignalActions[NSIG];
 
-int backtrace(void **buffer, int size) { return 0; }
-char** backtrace_symbols(void* const* buffer, int size) { return nullptr; }
+int backtrace(void **buffer, int size)
+{
+    return 0;
+}
+
+char **backtrace_symbols(void *const *buffer, int size)
+{
+    return nullptr;
+}
+
 void backtrace_symbols_fd(void *const *buffer, int size, int fd) {}
 
-void resetsighandlers( void ){
-	sigaction( SIGSEGV, &origSignalActions[ SIGSEGV ], NULL );
-	sigaction( SIGFPE, &origSignalActions[ SIGFPE ], NULL );
-	sigaction( SIGILL, &origSignalActions[ SIGILL ], NULL );
-	sigaction( SIGBUS, &origSignalActions[ SIGBUS ], NULL );
-	sigaction( SIGABRT, &origSignalActions[ SIGABRT ], NULL );
-	sigaction( SIGSYS, &origSignalActions[ SIGSYS ], NULL );
-}
-
-void sighandler( int sig, siginfo_t *info, void *secret ) {
-
-	void *trace[ 100 ];
-	char **messages = ( char ** )NULL;
-	int i, trace_size = 0;
-	//ucontext_t *uc = (ucontext_t *)secret;
-
-	char * signame = strsignal( sig );
-
-	/* Do something useful with siginfo_t */
-	if( sig == SIGSEGV ){
-		printf( "Got signal %d - %s, faulty address is %p\n", sig, signame, info->si_addr );
-
-		if( gi.Printf != NULL ){
-			gi.Printf( "Got signal %d - %s, faulty address is %p\n", sig, signame, info->si_addr );
-		}
-	}
-	else {
-		if( gi.Printf != NULL ){
-			gi.Printf( "Got signal %d - %s\n", sig, signame );
-		}
-		else {
-			printf( "Got signal %d - %s\n", sig, signame );
-		}
-	}
-
-	trace_size = backtrace( trace, 100 );
-
-	/* overwrite sigaction with caller's address */
-	//trace[1] = (void *) uc->uc_mcontext.gregs[REG_EIP];
-
-	messages = ( char** )( long )backtrace_symbols( trace, trace_size );
-
-	printf( "Execution path:\n" );
-
-	if( gi.Printf != NULL ){
-		gi.Printf( "Execution path:\n" );
-	}
-
-	for( i = 1; i<trace_size; ++i ){ /* skip first stack frame (points here) */
-		printf( " --> %s\n", messages[ i ] );
-
-		if( gi.Printf != NULL ){
-			gi.Printf( " --> %s\n", messages[ i ] );
-		}
-	}
-
-	resetsighandlers();  // reset original MOHAA or default signal handlers, so no more signals are handled by this handler (a signal is considered to be a fatal program error, the original implementations should exit)
-
-	raise( sig );
-}
-
-void initsighandlers( void ){
-	/* Install our signal handlers */
-	struct sigaction sa;
-
-	sa.sa_sigaction = sighandler;
-	sigemptyset( &sa.sa_mask );
-	sa.sa_flags = SA_RESTART | SA_SIGINFO;
-
-	sigaction( SIGSEGV, &sa, &origSignalActions[ SIGSEGV ] );
-	sigaction( SIGFPE, &sa, &origSignalActions[ SIGFPE ] );
-	sigaction( SIGILL, &sa, &origSignalActions[ SIGILL ] );
-	sigaction( SIGBUS, &sa, &origSignalActions[ SIGBUS ] );
-	sigaction( SIGABRT, &sa, &origSignalActions[ SIGABRT ] );
-	sigaction( SIGSYS, &sa, &origSignalActions[ SIGSYS ] );
-}
-
-void __attribute__((constructor)) load( void )
+void resetsighandlers(void)
 {
-	initsighandlers();
+    sigaction(SIGSEGV, &origSignalActions[SIGSEGV], NULL);
+    sigaction(SIGFPE, &origSignalActions[SIGFPE], NULL);
+    sigaction(SIGILL, &origSignalActions[SIGILL], NULL);
+    sigaction(SIGBUS, &origSignalActions[SIGBUS], NULL);
+    sigaction(SIGABRT, &origSignalActions[SIGABRT], NULL);
+    sigaction(SIGSYS, &origSignalActions[SIGSYS], NULL);
+}
+
+void sighandler(int sig, siginfo_t *info, void *secret)
+{
+    void  *trace[100];
+    char **messages = (char **)NULL;
+    int    i, trace_size = 0;
+    //ucontext_t *uc = (ucontext_t *)secret;
+
+    char *signame = strsignal(sig);
+
+    /* Do something useful with siginfo_t */
+    if (sig == SIGSEGV) {
+        printf("Got signal %d - %s, faulty address is %p\n", sig, signame, info->si_addr);
+
+        if (gi.Printf != NULL) {
+            gi.Printf("Got signal %d - %s, faulty address is %p\n", sig, signame, info->si_addr);
+        }
+    } else {
+        if (gi.Printf != NULL) {
+            gi.Printf("Got signal %d - %s\n", sig, signame);
+        } else {
+            printf("Got signal %d - %s\n", sig, signame);
+        }
+    }
+
+    trace_size = backtrace(trace, 100);
+
+    /* overwrite sigaction with caller's address */
+    //trace[1] = (void *) uc->uc_mcontext.gregs[REG_EIP];
+
+    messages = (char **)(long)backtrace_symbols(trace, trace_size);
+
+    printf("Execution path:\n");
+
+    if (gi.Printf != NULL) {
+        gi.Printf("Execution path:\n");
+    }
+
+    for (i = 1; i < trace_size; ++i) { /* skip first stack frame (points here) */
+        printf(" --> %s\n", messages[i]);
+
+        if (gi.Printf != NULL) {
+            gi.Printf(" --> %s\n", messages[i]);
+        }
+    }
+
+    resetsighandlers(
+    ); // reset original MOHAA or default signal handlers, so no more signals are handled by this handler (a signal is considered to be a fatal program error, the original implementations should exit)
+
+    raise(sig);
+}
+
+void initsighandlers(void)
+{
+    /* Install our signal handlers */
+    struct sigaction sa;
+
+    sa.sa_sigaction = sighandler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART | SA_SIGINFO;
+
+    sigaction(SIGSEGV, &sa, &origSignalActions[SIGSEGV]);
+    sigaction(SIGFPE, &sa, &origSignalActions[SIGFPE]);
+    sigaction(SIGILL, &sa, &origSignalActions[SIGILL]);
+    sigaction(SIGBUS, &sa, &origSignalActions[SIGBUS]);
+    sigaction(SIGABRT, &sa, &origSignalActions[SIGABRT]);
+    sigaction(SIGSYS, &sa, &origSignalActions[SIGSYS]);
+}
+
+void __attribute__((constructor)) load(void)
+{
+    initsighandlers();
 }
 
 #endif

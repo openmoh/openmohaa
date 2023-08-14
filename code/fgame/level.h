@@ -368,4 +368,16 @@ public:
     void Archive(Archiver& arc) override;
 };
 
+// Called when a restart/change was issued
+void G_BeginIntermission2(void);
+
+// Change the current map to the specified map with the possibility to fade the screen with fadetime.
+void G_BeginIntermission(const char* map_name, INTTYPE_e transtype, bool no_fade = false);
+
+//Exit the intermission screen.
+void G_ExitIntermission(void);
+
+// Exits the level
+void G_ExitLevel(void);
+
 extern Level level;

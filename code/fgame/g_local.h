@@ -233,9 +233,9 @@ void        G_SetOrigin(gentity_t *ent, vec3_t origin);
 void        AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char *BuildShaderStateConfig(void);
 
-void         G_DebugTargets(Entity *e, const str        &from);
-void         G_DebugDamage(float damage, Entity *victim, Entity *attacker, Entity *inflictor);
-void         G_DebugString(Vector pos, float scale, float r, float g, float b, const char *pszText, ...);
+void G_DebugTargets(Entity *e, const str& from);
+void G_DebugDamage(float damage, Entity *victim, Entity *attacker, Entity *inflictor);
+void G_DebugString(Vector pos, float scale, float r, float g, float b, const char *pszText, ...);
 
 qboolean KillBox(Entity *ent);
 
@@ -256,6 +256,14 @@ void G_ArchiveEdict(Archiver& arc, gentity_t *edict);
 const char *G_LocationNumToDispString(int iLocation);
 str         G_WeaponClassNumToName(int num);
 int         G_WeaponClassNameToNum(str name);
+
+//Checks for the intermission to exit.
+void G_CheckIntermissionExit(void);
+void G_CheckStartRules(void);
+void G_CheckExitRules(void);
+
+// Update the time limit
+void G_UpdateMatchEndTime(void);
 
 void G_MoveClientToIntermission(Entity *ent);
 void G_DisplayScores(Entity *ent);
