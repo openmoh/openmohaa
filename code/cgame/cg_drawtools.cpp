@@ -741,17 +741,17 @@ void CG_DrawObjectives()
     for (i = 0; i < MAX_OBJECTIVES; ++i) {
         qhandle_t hBoxShader;
 
-        if ((cg.Objectives[i].flags & 1) || !cg.Objectives[i].flags) {
+        if ((cg.Objectives[i].flags & OBJ_FLAG_HIDDEN) || !cg.Objectives[i].flags) {
             continue;
         }
 
-        if ((cg.Objectives[i].flags & 2) != 0) {
+        if ((cg.Objectives[i].flags & OBJ_FLAG_CURRENT) != 0) {
             vColor[0]  = 1.0;
             vColor[1]  = 1.0;
             vColor[2]  = 1.0;
             vColor[3]  = cg.ObjectivesCurrentAlpha;
             hBoxShader = cgs.media.uncheckedBoxShader;
-        } else if ((cg.Objectives[i].flags & 4) != 0) {
+        } else if ((cg.Objectives[i].flags & OBJ_FLAG_COMPLETED) != 0) {
             vColor[0]  = 0.75;
             vColor[1]  = 0.75;
             vColor[2]  = 0.75;
@@ -764,7 +764,7 @@ void CG_DrawObjectives()
             vColor[3]  = cg.ObjectivesCurrentAlpha;
             hBoxShader = cgs.media.uncheckedBoxShader;
         }
-        if (i == iCurrentObjective && (cg.Objectives[i].flags & 4) == 0) {
+        if (i == iCurrentObjective && !(cg.Objectives[i].flags & OBJ_FLAG_COMPLETED)) {
             vColor[0] = 1.0;
             vColor[1] = 1.0;
             vColor[2] = 0.0;
