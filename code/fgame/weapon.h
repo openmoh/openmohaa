@@ -35,10 +35,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sentient.h"
 #include "../fgame/scriptmaster.h"
 
-extern Event EV_Weapon_GiveStartingAmmo;
+extern Event EV_Weapon_Shoot;
 extern Event EV_Weapon_SetAmmoClipSize;
 extern Event EV_Weapon_SetAmmoInClip;
-extern Event EV_Weapon_Shoot;
+extern Event EV_Weapon_SetProjectile;
+extern Event EV_Weapon_GiveStartingAmmo;
 
 typedef enum {
     FT_NONE,
