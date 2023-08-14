@@ -261,9 +261,10 @@ given client
 void SV_SendConfigstring(client_t *client, int index)
 {
 	int maxChunkSize = MAX_STRING_CHARS - 24;
+	int denormalized;
 	size_t len;
 
-	index = CPT_DenormalizeConfigstring(index);
+	denormalized = CPT_DenormalizeConfigstring(index);
 	len = strlen(sv.configstrings[index]);
 
 	if( len >= maxChunkSize ) {
@@ -286,14 +287,14 @@ void SV_SendConfigstring(client_t *client, int index)
 				maxChunkSize );
 
 			SV_SendServerCommand( client, "%s %i \"%s\"\n", cmd,
-				index, buf );
+				denormalized, buf );
 
 			sent += (maxChunkSize - 1);
 			remaining -= (maxChunkSize - 1);
 		}
 	} else {
 		// standard cs, just send it
-		SV_SendServerCommand( client, "cs %i \"%s\"\n", index,
+		SV_SendServerCommand( client, "cs %i \"%s\"\n", denormalized,
 			sv.configstrings[index] );
 	}
 }
