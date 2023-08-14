@@ -21,3 +21,51 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #pragma once
+
+#include "Entities.h"
+
+#define TOWOBJECTIVE_SPAWNFLAG_NO_RESPAWN 2
+
+class TOWObjective : public Objective
+{
+private:
+    int         m_iAxisObjNum;
+    int         m_iAlliesObjNum;
+    eController m_eController;
+    eController m_eLeadingController;
+    bool        m_bNoRespawnForLeading;
+    str         m_sAxisObjName;
+    str         m_sAlliesObjName;
+
+public:
+    CLASS_PROTOTYPE(TOWObjective);
+
+    TOWObjective();
+
+    void SetController(Event *ev);
+    void GetController(Event *ev);
+    void TakeOver(Event *ev);
+    void SetAlliesObjNum(Event *ev);
+    void SetAxisObjNum(Event *ev);
+    void OnInitialize(Event *ev);
+    void SetCurrent(Event *ev);
+
+    int GetController() const;
+
+    void Archive(Archiver& arc);
+};
+
+class TOWObjectiveMan
+{
+private:
+    Container<TOWObjective *> m_towObjectives;
+    int                       m_iNumAxisObjectives;
+    int                       m_iNumAlliesObjectives;
+
+public:
+    TOWObjectiveMan();
+
+    void Reset();
+    void AddObjective(TOWObjective *objective);
+    void TakeOverObjective(eController controller, eController controllingTeam);
+};
