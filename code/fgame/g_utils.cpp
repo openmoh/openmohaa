@@ -69,6 +69,8 @@ const char *means_of_death_strings[MOD_TOTAL_NUMBER] = {
     "impale",
     "bash",
     "shotgun",
+    "aagun",
+    "landmine"
 };
 
 // FIXME: OLD Q3 CODE
