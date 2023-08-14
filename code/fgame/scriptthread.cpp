@@ -4198,34 +4198,34 @@ void ScriptThread::AddObjective(int index, int status, str text, Vector location
     char       szSend[2048];
     char      *sTmp;
 
-    flags = 0;
+    flags = OBJ_FLAG_NONE;
     sTmp  = gi.GetConfigstring(CS_OBJECTIVES + index);
 
     switch (status) {
-    case 1:
-        flags = 1;
+    case OBJ_STATUS_HIDDEN:
+        flags = OBJ_FLAG_HIDDEN;
         break;
-    case 2:
+    case OBJ_STATUS_CURRENT:
         sTmp = Info_ValueForKey(sTmp, "flags");
-        if (!(atoi(sTmp) & 2)) {
+        if (!(atoi(sTmp) & OBJ_FLAG_CURRENT)) {
             if (last_time != level.inttime) {
                 gi.Printf("An objective has been added!\n");
                 last_time = level.inttime;
             }
         }
-        flags = 2;
+        flags = OBJ_FLAG_CURRENT;
         break;
-    case 3:
+    case OBJ_STATUS_COMPLETED:
         if (last_time != level.inttime) {
             gi.Printf("An objective has been completed!\n");
             last_time = level.inttime;
         }
-        if (!g_gametype->integer) {
+        if (g_gametype->integer == GT_SINGLE_PLAYER) {
             if (g_entities->entity->IsSubclassOfPlayer()) {
                 ((Player *)g_entities->entity)->m_iObjectivesCompleted++;
             }
         }
-        flags = 4;
+        flags = OBJ_FLAG_COMPLETED;
         break;
     }
 
