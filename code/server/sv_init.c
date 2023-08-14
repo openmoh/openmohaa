@@ -1106,6 +1106,6 @@ void SV_Shutdown( const char *finalmsg ) {
 
 	// disconnect any local clients
 	if( sv_killserver->integer != 2 )
-		CL_Disconnect( qfalse );
+		CL_Disconnect();
 }
 
