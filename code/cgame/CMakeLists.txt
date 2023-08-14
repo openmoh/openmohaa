@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(fgame)
+project(cgame)
 
 # Shared source files for modules
 set(SOURCES_SHARED
@@ -28,7 +28,7 @@ target_compile_features(cgame PUBLIC c_variadic_macros)
 target_link_libraries(cgame PUBLIC qcommon)
 
 set_target_properties(cgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
-set_target_properties(cgame PROPERTIES OUTPUT_NAME "cgame${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
+set_target_properties(cgame PROPERTIES OUTPUT_NAME "cgame${TARGET_ARCH_SUFFIX}")
 set_target_properties(cgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_BASE_GAME}")
 
 INSTALL(
