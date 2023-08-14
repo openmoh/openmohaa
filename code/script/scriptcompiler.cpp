@@ -518,11 +518,6 @@ void ScriptCompiler::EmitField(sval_t listener_val, sval_t field_val, unsigned i
 
 void ScriptCompiler::EmitFloat(float value, unsigned int sourcePos)
 {
-    // ley0k: optimization
-    if (value == (float)(int)value) {
-        return EmitInteger((unsigned int)value, sourcePos);
-    }
-
     EmitOpcode(OP_STORE_FLOAT, sourcePos);
 
     EmitOpcodeValue(value, sizeof(float));
