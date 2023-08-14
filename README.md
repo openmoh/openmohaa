@@ -17,7 +17,7 @@
 
 ## Current State
 
-OpenMoHAA is still in its early days. The singleplayer part is not working correctly, the current usage is multiplayer.
+OpenMoHAA is still in its early days. The singleplayer part is not working correctly, but the `training`` map can be fully played from start to end, the current usage is multiplayer.
 
 ## Running
 
