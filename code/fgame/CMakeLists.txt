@@ -51,7 +51,7 @@ target_compile_features(fgame PUBLIC c_variadic_macros)
 target_link_libraries(fgame PUBLIC qcommon)
 
 set_target_properties(fgame PROPERTIES PREFIX "${TARGET_PLATFORM_PREFIX}")
-set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
+set_target_properties(fgame PROPERTIES OUTPUT_NAME "game${TARGET_ARCH_SUFFIX}")
 set_target_properties(fgame PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TARGET_BASE_GAME}")
 
 INSTALL(

@@ -12,6 +12,7 @@ endif()
 
 
 set(TARGET_BASE_GAME "main")
+set(CMAKE_DEBUG_POSTFIX "-dbg")
 
 if(MSVC)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE)
@@ -40,7 +41,6 @@ ELSE()
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
-	set(TARGET_CONFIG_SUFFIX "-dbg")
 	add_definitions(-D_DEBUG)
 
 	#if(UNIX)
@@ -48,8 +48,6 @@ IF(CMAKE_BUILD_TYPE MATCHES Debug)
 	#	set(CMAKE_ENABLE_EXPORTS ON)
 	#	message(STATUS "Enabling exports on Unix for backtrace")
 	#endif()
-ELSE()
-	set(TARGET_CONFIG_SUFFIX "")
 ENDIF()
 
 # Common stuff
@@ -73,7 +71,8 @@ target_link_libraries(omohaaded PRIVATE syslib)
 target_link_libraries(omohaaded PRIVATE qcommon qcommon_standalone)
 # Gamespy dependency
 target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server")
-set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
+set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}")
+set_target_properties(omohaaded PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 if (MSVC)
 	target_link_options(omohaaded PRIVATE "/MANIFEST:NO")
@@ -103,7 +102,8 @@ if (NOT BUILD_NO_CLIENT)
 
 	### Gamespy dependency
 	target_include_directories(openmohaa PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server" "code/client" "code/uilib" "code/jpeg-8c")
-	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}${TARGET_CONFIG_SUFFIX}")
+	set_target_properties(openmohaa PROPERTIES OUTPUT_NAME "openmohaa${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}")
+	set_target_properties(openmohaa PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 	target_link_libraries(openmohaa PRIVATE jpeg8)
 	if (USE_OPENAL)
