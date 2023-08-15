@@ -341,7 +341,9 @@ extern "C" {
 
         // misc
         crain_t      rain;
-        clientInfo_t clientinfo[MAX_CLIENTS];
+		clientInfo_t clientinfo[MAX_CLIENTS];
+		radarClient_t radars[MAX_CLIENTS];
+		qhandle_t radarShaders[2];
     } cg_t;
 
     typedef struct {
