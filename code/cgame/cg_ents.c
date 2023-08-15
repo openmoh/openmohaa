@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cg_ents.c -- present snapshot entities, happens every single frame
 
 #include "cg_local.h"
+#include "cg_radar.h"
 
 /*
 ==========================================================================
@@ -551,7 +552,10 @@ void CG_AddCEntity(centity_t *cent)
         break;
     case ET_PLAYER:
         CG_Player(cent);
-        CG_Splash(cent);
+		CG_Splash(cent);
+		CG_ModelAnim(cent, qfalse);
+        CG_UpdateRadarClient(cent);
+        break;
     case ET_ITEM:
         CG_ModelAnim(cent, qfalse);
         break;
