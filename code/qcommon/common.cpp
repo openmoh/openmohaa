@@ -215,9 +215,8 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 
 	va_start (argptr,fmt);
 	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
-	va_end (argptr);
+	va_end(argptr);
 
-	console_spam_filter = Cvar_Get("spam", "1", 0);
 	if ( rd_buffer ) {
 		if ((strlen (msg) + strlen(rd_buffer)) > (rd_buffersize - 1)) {
 			rd_flush(rd_buffer);
@@ -1698,6 +1697,7 @@ void Com_Init( char *commandLine ) {
 	//
 	// init commands and vars
 	//
+	console_spam_filter = Cvar_Get("spam", "1", 0); // why is this in Com_Printf in mohaas/mohaab??
 	dumploadedanims = Cvar_Get( "dumploadedanims", "0", 0 );
 	low_anim_memory = Cvar_Get( "low_anim_memory", "0", 0 );
 	showLoad = Cvar_Get( "showLoad", "0", 0 );
