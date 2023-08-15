@@ -37,20 +37,20 @@ https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=ms
 
 You can now start a local OpenMOHAA server or play on a server.
 
-To play expansions, append to the executable `+set com_target_game 1` for Spearhead, and `+set com_target_game 2` for Breakthrough. On windows you can make a shortcut.
+**Medal of Honor: Allied Assault Spearhead** and **Medal of Honor: Allied Assault Breakthrough** are supported in OpenMoHAA with the `com_target_game` variable. To play an expension, append to the executable `+set com_target_game 1` for Spearhead (mohaas/mohta), and `+set com_target_game 2` for Breakthrough (mohaab/mohtt). On windows you can create a shortcut to OpenMOHAA with this command-line argument.
 
 ## Builds
 
 ### Server
 
 The server version can successfully be built.
-Some stuff are not working as intended, such as Actor or Vehicle. These systems are both almost fully implemented, but not really in stable state.
+Some stuff are not working as intended, such as Actor or Vehicle. These systems are both almost fully implemented, but not stable.
 
-Overall the server part and the game module are almost fully implemented, but the stability may vary, there may be some minor bugs and crashes.
+Overall, the server part and the fgame module are almost fully implemented, but the stability may vary, there may be some minor bugs and crashes.
 
 ### Client
 
-The client version of OpenMoHAA is partially implemented and not stable currently. The cgame module is partially implemented as well, but is compatible with the original MOH:AA game. Credits to **Heavy Metal: F.A.K.K. 2**'s SDK for the cgame and fgame module.
+The client version of OpenMoHAA is partially implemented. The cgame module is almost fully implemented. Credits to **Heavy Metal: F.A.K.K. 2**'s SDK for the cgame and fgame module.
 
 Here is the current working state for each part of the engine:
 
@@ -66,11 +66,9 @@ Here is the current working state for each part of the engine:
 | Server module (fgame)   |      | x      |      |       |     |             | Actor, vehicle, and few gameplay bugs                             |
 | UI                      |      |        | x    |       |     |             | Has core features only (menu, widgets, console, hud, urc loading) |
 
-**Medal of Honor: Allied Assault Spearhead** and **Medal of Honor: Allied Assault Breakthrough** are supported in OpenMoHAA with the `com_target_game` variable. See the **Running** section for the usage.
-
 ## Compiling
 
-OpenMoHAA supports both x86 and x64 architectures, and although the target platform is Windows, it still can be compiled for other platforms, and even other architectures.
+OpenMoHAA supports any architecture, thanks to the CMake build system and cross-platform code/libraries. Although the most common Little-Endian architectures (arm, aarch64, x86, x86_64) has been tested to work, big-Endian architectures should be supported but they remain untested.
 
 These are the tools required for all platforms :
 - CMake >= 3.5
@@ -79,11 +77,11 @@ These are the tools required for all platforms :
 
 The installation directory can be set to MOHAA directory.
 
-The client build can be built by adding `-DWITH_CLIENT=1` to the CMake command line. This will compile the cgame module and the full app with rendering, ui and sound suppport, alongside the dedicated server version.
+By default, the build will produce the client and dedicated server version. The client build can be excluded by appending `-DBUILD_NO_CLIENT=1` to the CMake command-line arguments. With this parameter, only the server portion will be built.
 
 ### Linux
 
-These are the tools required on Unix :
+These are the tools required on Linux :
 - Clang >= 3.3 or GCC >= 4.8.1
 
 **clang-3.5** and **gcc-4.8.5** should work (tested on Ubuntu 16.04). Use the latest possible version of those compilers.
@@ -95,7 +93,7 @@ SDL2 library is required (libsdl2-dev).
 Example with **CMake**, **clang-15** and **ninja-build** installed:
 ```sh
 mkdir .cmake && cd .cmake
-cmake -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -DWITH_CLIENT=1 -G Ninja
+cmake -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -G Ninja
 ```
 
 ### Windows
@@ -116,19 +114,13 @@ Visual Studio (2019 or 2022) is generally preferred.
 
 http://www.libsdl.org/
 
-download Source code, compile
-
 ### OpenAL
 
-https://www.openal.org/ download OpenAL soft source
-
-run cmake on OpenAL, compile
+https://www.openal.org/
 
 ### LibMAD
 
 http://www.underbit.com/products/mad/
-
-download source code, compile
 
 ### cURL
 
