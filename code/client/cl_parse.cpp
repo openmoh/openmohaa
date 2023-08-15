@@ -194,6 +194,70 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 	}
 }
 
+/*
+================
+CL_UnpackNonPVSClient
+
+Unpack info about non-visible client.
+================
+*/
+qboolean CL_UnpackNonPVSClient(int* packed, radarUnpacked_t* unpacked) {
+	int clientNum;
+	int x, y;
+	int yaw;
+	qboolean bValid;
+	float range;
+
+	clientNum = *packed & (MAX_CLIENTS - 1);
+	if (clientNum == cl.snap.ps.clientNum) {
+		return 0;
+	}
+
+	x = ((*packed >> 6) & 0x7F) - (MAX_CLIENTS - 1);
+	y = ((*packed >> 13) & 0x7F) - (MAX_CLIENTS - 1);
+	yaw = (*packed >> 20) & 0x1F;
+	bValid = (*packed >> 25) & 1;
+
+	if (com_radar_range && com_radar_range->value) {
+		range = com_radar_range->value;
+	} else {
+		range = 0;
+	}
+
+	unpacked->x = x * range * 63;
+	unpacked->y = y * range * 63;
+
+	if (!bValid)
+	{
+		unpacked->x = x * range * 63 * 1024;
+		unpacked->y = y * range * 63 * 1024;
+	}
+
+	unpacked->yaw = yaw * 11.25f;
+
+	return qtrue;
+}
+
+/*
+================
+CL_ReadNonPVSClient
+
+Reads packed info about non-visible client.
+================
+*/
+void CL_ReadNonPVSClient(int radarInfo) {
+	radarUnpacked_t unpacked;
+
+	if (!cge) {
+		return;
+	}
+
+	if (CL_UnpackNonPVSClient(&radarInfo, &unpacked)) {
+		unpacked.x += cl.snap.ps.origin[0];
+		unpacked.y += cl.snap.ps.origin[1];
+		cge->CG_ReadNonPVSClient(&unpacked);
+	}
+}
 
 /*
 ================
@@ -332,6 +396,9 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	}
 
 	cl.newSnapshots = qtrue;
+	
+	// read radar info about invisible clients
+	CL_ReadNonPVSClient(cl.snap.ps.radarInfo);
 }
 
 
