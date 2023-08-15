@@ -1688,7 +1688,7 @@ void	GL_Cull( int cullType );
 
 void Draw_SetColor(const vec4_t rgba);
 void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader);
-void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a1, float sx, float sy, qhandle_t hShader);
+void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float sx, float sy, qhandle_t hShader);
 void Draw_TilePic(float x, float y, float w, float h, qhandle_t hShader);
 void Draw_TilePicOffset(float x, float y, float w, float h, qhandle_t hShader, int offsetX, int offsetY);
 void Draw_TrianglePic(const vec2_t vPoints[3], const vec2_t vTexCoords[3], qhandle_t hShader);

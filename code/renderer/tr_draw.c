@@ -96,7 +96,7 @@ void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, flo
 Draw_StretchPic2
 ================
 */
-void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a1, float sx, float sy, qhandle_t hShader) {
+void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float sx, float sy, qhandle_t hShader) {
 	shader_t* shader;
 	float halfWidth, halfHeight;
 	float scaledWidth1, scaledHeight1;
@@ -130,14 +130,14 @@ void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, fl
 	RB_Texcoord2f(s1, t1);
 	RB_Vertex3f(x + halfWidth - (scaledWidth2 + -scaledHeight2), y + halfWidth - scaledHeight1 - scaledWidth1, 0);
 
-	RB_Texcoord2f(s2, t1);
-	RB_Vertex3f(scaledWidth2 - -scaledHeight2 + x * halfWidth, scaledWidth1 - scaledHeight1 + y * halfWidth, 0);
+	RB_Texcoord2f(t2, t1);
+	RB_Vertex3f(scaledWidth2 - -scaledHeight2 + x + halfWidth, scaledWidth1 - scaledHeight1 + y + halfWidth, 0);
 
-	RB_Texcoord2f(s1, t2);
-	RB_Vertex3f(x+ halfWidth - (scaledWidth2 + scaledHeight2), scaledHeight1 - scaledWidth1 + y * halfWidth, 0);
+	RB_Texcoord2f(s1, s2);
+	RB_Vertex3f(x+ halfWidth - (scaledWidth2 + scaledHeight2), scaledHeight1 - scaledWidth1 + y + halfWidth, 0);
 
-	RB_Texcoord2f(s2, t2);
-	RB_Vertex3f(scaledWidth2 - scaledHeight2 + x * halfWidth, scaledWidth1 + scaledHeight1 + y * halfWidth, 0);
+	RB_Texcoord2f(t2, s2);
+	RB_Vertex3f(scaledWidth2 - scaledHeight2 + x + halfWidth, scaledWidth1 + scaledHeight1 + y + halfWidth, 0);
 
 	RB_StreamEnd();
 }
