@@ -69,3 +69,5 @@ public:
     void AddObjective(TOWObjective *objective);
     void TakeOverObjective(eController controller, eController controllingTeam);
 };
+
+extern TOWObjectiveMan g_TOWObjectiveMan;
