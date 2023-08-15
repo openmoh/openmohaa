@@ -3177,16 +3177,16 @@ void Player::SetStopwatch(int iDuration, stopWatchType_t type)
 
 void Player::KilledPlayerInDeathmatch(Player *killed)
 {
-    DM_Team *pDMTeam;
+	DM_Team* pDMTeam;
+
+	pDMTeam = killed->GetDM_Team();
 
     if (killed == this) {
-        AddKills(-1);
+        pDMTeam->AddKills(this, -1);
         gi.SendServerCommand(
             edict - g_entities, "print \"" HUD_MESSAGE_WHITE "%s\n\"", gi.LV_ConvertString("You killed yourself")
         );
     } else {
-        pDMTeam = killed->GetDM_Team();
-
         if (pDMTeam != GetDM_Team() || g_gametype->integer <= GT_FFA || g_gametype->integer >= GT_MAX_GAME_TYPE) {
             current_team->AddKills(this, 1);
         } else {
