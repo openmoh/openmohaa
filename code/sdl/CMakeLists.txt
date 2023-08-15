@@ -7,6 +7,11 @@ add_library(omohsdl STATIC ${SOURCES_SDL})
 target_compile_features(omohsdl PUBLIC c_variadic_macros)
 target_link_libraries(omohsdl PRIVATE qcommon qcommon_standalone)
 
+
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
+	cmake_policy(SET CMP0074 NEW)
+endif()
+
 if(WIN32)
 	find_package(SDL2)
 
