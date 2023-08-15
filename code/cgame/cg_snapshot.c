@@ -161,6 +161,9 @@ void CG_SetInitialSnapshot(snapshot_t *snap)
     cgi.MUSIC_UpdateMood(snap->ps.current_music_mood, snap->ps.fallback_music_mood);
     cgi.MUSIC_UpdateVolume(snap->ps.music_volume, snap->ps.music_volume_fade_time);
     cgi.S_SetReverb(snap->ps.reverb_type, snap->ps.reverb_level);
+
+    CG_InitRadar();
+    cgi.CL_RestoreSavedCgameState();
 }
 
 /*
