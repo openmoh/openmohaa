@@ -186,35 +186,41 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define PATH_SEP '/'
 
 #if defined(__i386) || defined(__i386__) || defined(_M_IX86)
-#define ARCH_STRING "x86"
+#  define ARCH_STRING "x86"
 #elif defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(_M_X64)
-#define ARCH_STRING "x86_64"
+#  define ARCH_STRING "x86_64"
 #elif defined(__ppc64__) || defined(__powerpc64__)
-#define ARCH_STRING "ppc64"
+#  define ARCH_STRING "ppc64"
 #elif defined(__ppc__) || defined(__ppc) || defined(__powerpc__)
-#define ARCH_STRING "ppc"
+#  define ARCH_STRING "ppc"
 #elif defined __s390__
-#define ARCH_STRING "s390"
+#  define ARCH_STRING "s390"
 #elif defined __s390x__
-#define ARCH_STRING "s390x"
+#  define ARCH_STRING "s390x"
 #elif defined __ia64__
-#define ARCH_STRING "ia64"
+#  define ARCH_STRING "ia64"
 #elif defined __alpha__
-#define ARCH_STRING "alpha"
+#  define ARCH_STRING "alpha"
 #elif defined __sparc__
-#define ARCH_STRING "sparc"
+#  define ARCH_STRING "sparc"
 #elif defined __arm__
-#define ARCH_STRING "arm"
+#  define ARCH_STRING "arm"
 #elif defined(__aarch64__) || defined(__ARM64__)
-#define ARCH_STRING "aarch64"
+#  define ARCH_STRING "aarch64"
 #elif defined __cris__
-#define ARCH_STRING "cris"
+#  define ARCH_STRING "cris"
 #elif defined __hppa__
-#define ARCH_STRING "hppa"
+#  define ARCH_STRING "hppa"
 #elif defined __mips__
-#define ARCH_STRING "mips"
+#  define ARCH_STRING "mips"
 #elif defined __sh__
-#define ARCH_STRING "sh"
+#  define ARCH_STRING "sh"
+#elif defined __riscv
+#  if __UINTPTR_MAX__ == __UINT64_MAX__
+#    define ARCH_STRING "riscv64"
+#  else
+#    define ARCH_STRING "riscv"
+#  endif
 #endif
 
 #if __FLOAT_WORD_ORDER == __BIG_ENDIAN
