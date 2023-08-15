@@ -608,6 +608,8 @@ void SV_UpdateRadar(client_t* client) {
 	int bestTime;
 	int i;
 
+	mate = NULL;
+
 	if (!SV_IsTeamGame()) {
 		SV_ClearNonPVSClient(client);
 		return;
