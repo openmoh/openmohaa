@@ -202,15 +202,14 @@ Unpack info about non-visible client.
 ================
 */
 qboolean CL_UnpackNonPVSClient(int* packed, radarUnpacked_t* unpacked) {
-	int clientNum;
 	int x, y;
 	int yaw;
 	qboolean bValid;
 	float range;
 
-	clientNum = *packed & (MAX_CLIENTS - 1);
-	if (clientNum == cl.snap.ps.clientNum) {
-		return 0;
+	unpacked->clientNum = *packed & (MAX_CLIENTS - 1);
+	if (unpacked->clientNum == cl.snap.ps.clientNum) {
+		return qfalse;
 	}
 
 	x = ((*packed >> 6) & 0x7F) - (MAX_CLIENTS - 1);
@@ -224,13 +223,13 @@ qboolean CL_UnpackNonPVSClient(int* packed, radarUnpacked_t* unpacked) {
 		range = 0;
 	}
 
-	unpacked->x = x * range * 63;
-	unpacked->y = y * range * 63;
+	unpacked->x = x * range / 63.f;
+	unpacked->y = y * range / 63.f;
 
 	if (!bValid)
 	{
-		unpacked->x = x * range * 63 * 1024;
-		unpacked->y = y * range * 63 * 1024;
+		unpacked->x = x * range / 63.f * 1024;
+		unpacked->y = y * range / 63.f * 1024;
 	}
 
 	unpacked->yaw = yaw * 11.25f;
