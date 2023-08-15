@@ -46,7 +46,7 @@ bool CG_InTeamGame(centity_t *ent)
 
 bool CG_SameTeam(centity_t *ent)
 {
-	return cg.clientinfo[ent->currentState.clientNum].team == cg.clientinfo[cg.snap->ps.clientNum].team;
+	return cg.clientinfo[ent->currentState.number].team == cg.clientinfo[cg.snap->ps.clientNum].team;
 }
 
 bool CG_IsTeamGame()
