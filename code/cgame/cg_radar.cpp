@@ -27,8 +27,8 @@ void CG_InitRadar()
 {
 	int i;
 
-	cg.radarShaders[0] = cgi.R_RegisterSkin("textures/hud/radar_allies.tga");
-	cg.radarShaders[1] = cgi.R_RegisterSkin("textures/hud/radar_axis.tga");
+	cg.radarShaders[0] = cgi.R_RegisterShader("textures/hud/radar_allies.tga");
+	cg.radarShaders[1] = cgi.R_RegisterShader("textures/hud/radar_axis.tga");
 
 	for (i = 0; i < MAX_CLIENTS; i++)
 	{

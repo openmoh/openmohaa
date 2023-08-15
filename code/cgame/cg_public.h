@@ -284,7 +284,6 @@ functions exported to the main executable
         qhandle_t (*R_SpawnEffectModel)(const char *name, vec3_t pos, vec3_t axis[3]);
         qhandle_t (*R_RegisterServerModel)(const char *name);
         void (*R_UnregisterServerModel)(qhandle_t hModel);
-        qhandle_t (*R_RegisterSkin)(const char *name);
         qhandle_t (*R_RegisterShader)(const char *name);
         qhandle_t (*R_RegisterShaderNoMip)(const char *name);
         void (*R_AddRefEntityToScene)(const refEntity_t *ent, int parentEntityNumber);
