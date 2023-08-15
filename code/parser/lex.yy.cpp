@@ -1,3 +1,4 @@
+#include "scriptcompiler.h"
 #include <stdio.h>
 
 typedef struct yy_buffer_state* YY_BUFFER_STATE;
@@ -98,6 +99,8 @@ static const char* token_names[] =
 
 extern yy_state_type yy_last_accepting_state;
 extern char* yy_last_accepting_cpos;
+extern char* yytext;
+extern stype_t yylval;
 
 enum yytokentype
 {
@@ -166,19 +169,19 @@ enum yytokentype
 };
 typedef enum yytokentype yytoken_kind_t;
 
-extern ScriptDisplayTokenFunc* _scriptDisplayToken;
+extern ScriptDisplayTokenFunc* scriptDisplayToken;
 extern int prev_yylex;
 
 static void DisplayToken()
 {
-	scriptDisplayToken(token_names[prev_yylex - TOKEN_EOL], yytext);
+	(*scriptDisplayToken)(token_names[prev_yylex - TOKEN_EOL], yytext);
 }
 
 static void TextEscapeValue(char* str, int len)
 {
 	char *to = parsetree_malloc( len + 1 );
 
-	yylval.s.val.stringValue = to;
+	yylval.val.stringValue = to;
 
 	while( len )
 	{
