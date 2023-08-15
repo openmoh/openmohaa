@@ -45,6 +45,8 @@ You can now start a local OpenMOHAA server or play on a server.
 On Windows, you can create a shortcut to OpenMoHAA with these command-line arguments.
 The default value of `com_target_game` is 0 for the base game.
 
+With `com_target_game`, OpenMoHAA will support the network protocol accordingly.
+
 ## Builds
 
 ### Server
@@ -57,9 +59,9 @@ Overall, the server and the fgame components are almost fully implemented, but t
 
 The client version of OpenMoHAA has undergone partial implementation, with the cgame module being nearly completed. Credits to the SDK of **Heavy Metal: F.A.K.K. 2** both the cgame and fgame modules.
 
-The current operational status of each engine component is as follows:
+The current operational status for each component is as follow:
 
-| Part name               | Full | Almost | Half | Early | Bad | Not working | Comment                                                           |
+| Component               | Full | Almost | Half | Early | Bad | Not working | Comment                                                           |
 |-------------------------|------|--------|------|-------|-----|-------------|-------------------------------------------------------------------|
 | Audio                   |      |        |      |       | x   |             | Very basic implementation from Quake III                          |
 | CG Module               |      | x      |      |       |     |             | Missing FX, Marks and decals                                      |
@@ -73,7 +75,7 @@ The current operational status of each engine component is as follows:
 
 ## Compiling
 
-OpenMoHAA supports any architecture, thanks to the CMake build system and cross-platform code/libraries. While the most common Little-Endian architectures (arm, aarch64, x86, x86_64) have been tested and confirmed to work, big-Endian architectures should be supported as well; however, they remain untested.
+OpenMoHAA supports any architecture, thanks to the CMake build system and cross-platform code/libraries. While the most common little-Endian architectures (arm, aarch64, x86, x86_64) have been tested and confirmed to work, big-Endian architectures should be supported as well; however, they remain untested.
 
 The following tools are required for all platforms:
 - CMake >= 3.5
