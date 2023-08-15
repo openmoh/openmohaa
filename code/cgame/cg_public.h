@@ -424,6 +424,8 @@ functions exported to the main executable
         dtiki_t *(*TIKI_FindTiki)(const char *path);
         void (*LoadResource)(const char *name);
         void (*FS_CanonicalFilename)(char *name);
+        void (*CL_RestoreSavedCgameState)();
+        void (*CL_ClearSavedCgameState)();
 
         cvar_t       *fsDebug;
         hdelement_t  *HudDrawElements;

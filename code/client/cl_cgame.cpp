@@ -543,6 +543,29 @@ void CL_StartLocalSound(const char* soundName, qboolean forceLoad) {
 
 /*
 ====================
+CL_RestoreSavedCgameState
+====================
+*/
+void CL_RestoreSavedCgameState() {
+	if (cls.savedCgameState) {
+		cge->CG_LoadStateToBuffer(&cls.savedCgameState, cls.savedCgameStateSize, cl.snap.serverTime);
+	}
+}
+
+/*
+====================
+CL_ClearSavedCgameState
+====================
+*/
+void CL_ClearSavedCgameState() {
+	if (cls.savedCgameState) {
+		cls.savedCgameState = NULL;
+		cls.savedCgameStateSize = 0;
+	}
+}
+
+/*
+====================
 CL_InitCGameDLL
 ====================
 */
@@ -752,6 +775,8 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 
 	cgi->LoadResource				= UI_LoadResource;
 	cgi->FS_CanonicalFilename		= FS_CanonicalFilename;
+	cgi->CL_RestoreSavedCgameState	= CL_RestoreSavedCgameState;
+	cgi->CL_ClearSavedCgameState	= CL_ClearSavedCgameState;
 
 	cgi->fsDebug					= fs_debug;
 	cgi->HudDrawElements			= cls.HudDrawElements;
