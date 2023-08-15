@@ -91,13 +91,6 @@ typedef struct {
 } server_t;
 
 typedef struct {
-	int clientNum;
-	float x;
-	float y;
-	float yaw;
-} radarUnpacked_t;
-
-typedef struct {
 	int				areabytes;
 	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
 	playerState_t	ps;

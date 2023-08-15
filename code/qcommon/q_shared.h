@@ -828,7 +828,8 @@ float erandom( float mean );
 
 void vectoangles( const vec3_t value1, vec3_t angles );
 void VectorToAngles( const vec3_t vec, vec3_t angles );
-void AnglesToAxis( const vec3_t angles, vec3_t axis[3] );
+void AnglesToAxis(const vec3_t angles, vec3_t axis[3]);
+void YawToAxis(float yaw, float axis[2]);
 static  void init( void );
 float	noise1(float arg);
 
@@ -2179,6 +2180,24 @@ typedef enum _flag_status {
 	FLAG_TAKEN_BLUE,	// One Flag CTF
 	FLAG_DROPPED
 } flagStatus_t;
+
+//
+// Radar system
+//
+typedef struct {
+	int time;
+	int lastSpeakTime;
+	qboolean bValid;
+	float origin[2];
+	float axis[2];
+} radarClient_t;
+
+typedef struct {
+	int clientNum;
+	float x;
+	float y;
+	float yaw;
+} radarUnpacked_t;
 
 #define	MAX_GLOBAL_SERVERS				2048
 #define	MAX_OTHER_SERVERS					128
