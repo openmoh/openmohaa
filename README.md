@@ -17,7 +17,7 @@
 
 ## Current State
 
-OpenMoHAA is still in its early days. The singleplayer part is not working correctly, but the `training`` map can be fully played from start to end, the current usage is multiplayer.
+OpenMoHAA is still in its early days. The singleplayer part is not working correctly, but the `training` map can be fully played from start to end, the current usage is multiplayer.
 
 ## Running
 
@@ -104,10 +104,10 @@ Visual Studio (2019 or 2022) is generally preferred.
 
 ## Screenshots
 
-|                                                                               |                                                                 |
-|-------------------------------------------------------------------------------|-----------------------------------------------------------------|
-| ![](docs/images/opmtt-x86_64_0.56.0_1.png "Playing on a Breakthrough server") | ![](docs/images/opmtt-x86_64_0.56.0_2.png)                      |
-| ![](docs/images/opmtt-x86_64_0.56.0_3.png)                                    | ![](docs/images/opm-arm_53_tt_1.png "OpenMoHAA on Raspberry")   |
+|                                                                               |                                                                      |
+|-------------------------------------------------------------------------------|----------------------------------------------------------------------|
+| ![](docs/images/opmtt-x86_64_0.56.0_1.png "Playing on a Breakthrough server") | ![](docs/images/opmtt-x86_64_0.56.0_2.png)                           |
+| ![](docs/images/opmtt-x86_64_0.56.0_3.png)                                    | ![](docs/images/opm-arm_53_tt_1.png "OpenMoHAA on Raspberry Pi 4 B") |
 
 
 ## Third party
