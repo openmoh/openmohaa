@@ -790,6 +790,11 @@ void AnglesToAxis( const vec3_t angles, vec3_t axis[3] ) {
 	axis[ 2 ][ 2 ] = cr*cp;
 }
 
+void YawToAxis(float yaw, float axis[2]) {
+	axis[0] = cos(DEG2RAD(yaw));
+	axis[1] = sin(DEG2RAD(yaw));
+}
+
 void AxisClear( vec3_t axis[3] ) {
 	axis[0][0] = 1;
 	axis[0][1] = 0;
