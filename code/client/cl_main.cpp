@@ -103,6 +103,9 @@ cvar_t	*cl_inGameVideo;
 cvar_t	*cl_serverStatusResendTime;
 cvar_t	*cl_trn;
 cvar_t	*cl_langamerefreshstatus;
+cvar_t	*cl_radar_icon_size;
+cvar_t	*cl_radar_speak_time;
+cvar_t	*cl_radar_blink_time;
 
 cvar_t	*cl_lanForcePackets;
 
@@ -3246,6 +3249,9 @@ void CL_Init( void ) {
 	cl_motdString = Cvar_Get( "cl_motdString", "", CVAR_ROM );
 
 	cl_langamerefreshstatus = Cvar_Get( "cl_langamerefreshstatus", "Ready", 0 );
+	cl_radar_icon_size = Cvar_Get("cl_radar_icon_size", "10", CVAR_ARCHIVE);
+	cl_radar_speak_time = Cvar_Get("cl_radar_speak_time", "3", CVAR_ARCHIVE);
+	cl_radar_blink_time = Cvar_Get("cl_radar_blink_time", "0.333", CVAR_ARCHIVE);
 	cg_gametype = Cvar_Get( "cg_gametype", "0", 0 );
 
 	cl_lanForcePackets = Cvar_Get ("cl_lanForcePackets", "1", CVAR_ARCHIVE);
