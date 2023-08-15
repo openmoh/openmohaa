@@ -3732,6 +3732,7 @@ CL_FillUIImports
 void CL_FillUIImports( void ) {
 	uii.Rend_DrawBox			= re.DrawBox;
 	uii.Rend_DrawPicStretched	= re.DrawStretchPic;
+	uii.Rend_DrawPicStretched2	= re.DrawStretchPic2;
 	uii.Rend_DrawPicTiled		= re.DrawTilePic;
 	uii.Rend_GetShaderHeight	= re.GetShaderHeight;
 	uii.Rend_GetShaderWidth		= re.GetShaderWidth;

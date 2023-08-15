@@ -1522,6 +1522,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
     re.R_Model_GetHandle = R_Model_GetHandle;
     re.SetColor = Draw_SetColor;
     re.DrawStretchPic = Draw_StretchPic;
+    re.DrawStretchPic2 = Draw_StretchPic2;
     re.DrawStretchRaw = RE_StretchRaw;
     re.DebugLine = R_DebugLine;
     re.DrawTilePic = Draw_TilePic;

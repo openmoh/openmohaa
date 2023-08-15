@@ -93,6 +93,51 @@ void Draw_StretchPic(float x, float y, float w, float h, float s1, float t1, flo
 
 /*
 ================
+Draw_StretchPic2
+================
+*/
+void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a1, float sx, float sy, qhandle_t hShader) {
+	shader_t* shader;
+
+	// sx: ¯\_(?)_/¯
+	// sy: ¯\_(?)_/¯
+
+	R_SyncRenderThread();
+
+	if (hShader) {
+		shader = R_GetShaderByHandle(hShader);
+	}
+	else {
+		shader = tr.defaultShader;
+	}
+
+	if (w <= 0) {
+		w = shader->unfoggedStages[0]->bundle[0].image[0]->width;
+		h = shader->unfoggedStages[0]->bundle[0].image[0]->height;
+	}
+
+	// draw the pic
+	RB_Color4f(backEnd.color2D[0], backEnd.color2D[1], backEnd.color2D[2], backEnd.color2D[3]);
+	RB_BeginSurface(shader);
+
+	RB_Texcoord2f(s1, t1);
+	RB_Vertex2f(x, y);
+
+	RB_Texcoord2f(s2, t1);
+	RB_Vertex2f(x + w, y);
+
+	RB_Texcoord2f(s1, t2);
+	RB_Vertex2f(x, y + h);
+
+	RB_Texcoord2f(s2, t2);
+	RB_Vertex2f(x + w, y + h);
+
+	RB_StreamEnd();
+}
+
+
+/*
+================
 Draw_TilePic
 ================
 */

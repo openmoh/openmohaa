@@ -66,6 +66,7 @@ typedef struct uiimport_s {
 	void( *Rend_SetColor )( const vec4_t rgba );
 	void( *Rend_Scissor )( int x, int y, int width, int height );
 	void( *Rend_DrawPicStretched )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
+	void( *Rend_DrawPicStretched2 )( float x, float y, float w, float h, float s1, float t1, float s2, float t2, float sx, float sy, qhandle_t hShader );
 	void( *Rend_DrawPicTiled )( float x, float y, float w, float h, qhandle_t hShader );
 	fontheader_t *( *Rend_LoadFont )( const char *name );
 	void( *Rend_DrawString )( fontheader_t *font, const char *text, float x, float y, int maxlen, qboolean bVirtualScreen );
@@ -105,74 +106,6 @@ typedef struct uiimport_s {
 	const char *( *Key_KeynumToString )( int keynum );
 	const char *( *GetConfigstring )( int index );
 	void ( *UI_CloseDMConsole )( void );
-
-	/*
-	cvar_t*			(*Cvar_Get)( const char *var_name, const char *var_value, int flags );
-	int				(*Argc)( void );
-	char*			(*Argv)( int arg );
-	void			(*Cmd_ExecuteText)( int exec_when, const char *text );	// don't use EXEC_NOW!
-	int				(*FS_FOpenFile)( const char *qpath, fileHandle_t *f, fsMode_t mode );
-	int				(*FS_Read)( void *buffer, int len, fileHandle_t f );
-	int				(*FS_Write)( const void *buffer, int len, fileHandle_t f );
-	void			(*FS_FCloseFile)( fileHandle_t f );
-	int				(*FS_GetFileList)( const char *path, const char *extension, char *listbuf, int bufsize );
-	int				(*FS_Seek)( fileHandle_t f, long offset, fsOrigin_t origin ); // fsOrigin_t
-	qhandle_t		(*R_RegisterModel)( const char *name );
-	qhandle_t		(*R_RegisterSkin)( const char *name );
-	qhandle_t		(*R_RegisterShader)( const char *name );
-	qhandle_t		(*R_RegisterShaderNoMip)( const char *name );
-	void			(*R_ClearScene)( void );
-	void			(*R_AddRefEntityToScene)( const refEntity_t *re, int parentEntityNumber );
-	qboolean		(*R_AddPolyToScene)( qhandle_t hShader, int numVerts, const polyVert_t *verts, int renderfx );
-	void			(*R_AddLightToScene)( const vec3_t org, float intensity, float r, float g, float b, int type );
-	void			(*R_RenderScene)( const refdef_t *fd );
-	void			(*R_SetColor)( const float *rgba );
-	void			(*R_DrawStretchPic)( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-	void			(*R_RotatedPic)( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader, float angle );
-	void			(*UpdateScreen)( void );
-	int				(*CM_LerpTag)( orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame, float frac, const char *tagName );
-	void			(*S_StartLocalSound)( const char *sound_name, qboolean force_load );
-	sfxHandle_t		(*S_RegisterSound)( const char *sample, qboolean compressed, qboolean force_load );
-	void			(*Key_KeynumToStringBuf)( int keynum, char *buf, int buflen );
-	void			(*Key_GetBindingBuf)( int keynum, char *buf, int buflen );
-	qboolean		(*Key_IsDown)( int keynum );
-	qboolean		(*Key_GetOverstrikeMode)( void );
-	void			(*Key_SetOverstrikeMode)( qboolean state );
-	void			(*Key_ClearStates)( void );
-	int				(*Key_GetCatcher)( void );
-	void			(*Key_SetCatcher)( int catcher );
-	void			(*GetClipboardData)( char *buf, int bufsize );
-	void			(*GetClientState)( uiClientState_t *state );
-	void			(*GetGlconfig)( glconfig_t *glconfig );
-	int				(*LAN_GetServerCount)( int source );
-	void			(*LAN_GetServerAddressString)( int source, int n, char *buf, int buflen );
-	void			(*LAN_GetServerInfo)( int source, int n, char *buf, int buflen );
-	int				(*LAN_GetPingQueueCount)( void );
-	int				(*LAN_ServerStatus)( const char *serverAddress, char *serverStatus, int maxLen );
-	void			(*LAN_ClearPing)( int n );
-	void			(*LAN_GetPing)( int n, char *buf, int buflen, int *pingtime );
-	void			(*LAN_GetPingInfo)( int n, char *buf, int buflen );
-	int				(*LAN_GetServerPing)( int source, int n );
-	void			(*LAN_MarkServerVisible)( int source, int n, qboolean visible );
-	qboolean		(*LAN_UpdateVisiblePings)( int source );
-	int				(*MemoryRemaining)( void );
-	void			(*GetCDKey)( char *buf, int buflen );
-	void			(*SetCDKey)( char *buf );
-	qboolean		(*VerifyCDKey)( const char *key, const char *chksum );
-	void			(*SetPbClStatus)( int status );
-	void			(*R_RegisterFont)( const char *fontName, int pointSize, fontInfo_t *font );
-	int				(*R_Text_Width)( fontInfo_t *font, const char *text, int limit, qboolean useColourCodes );
-	int				(*R_Text_Height)( fontInfo_t *font, const char *text, int limit, qboolean useColourCodes );
-	void			(*R_Text_Paint)( fontInfo_t *font, float x, float y, float scale, float alpha, const char *text, float adjust, int limit, qboolean useColourCodes, qboolean is640 );
-	void			(*R_Text_PaintChar)( fontInfo_t *font, float x, float y, float scale, int c, qboolean is640 );
-	dtiki_t*		(*TIKI_RegisterModel)( const char *fname );
-	bone_t*			(*TIKI_GetBones)( int numBones );
-	void			(*TIKI_SetChannels)( tiki_t *tiki, int animIndex, float animTime, float animWeight, bone_t *bones );
-	void			(*TIKI_AppendFrameBoundsAndRadius)( struct tiki_s *tiki, int animIndex, float animTime, float *outRadius, vec3_t outBounds[ 2 ] );
-	void			(*TIKI_Animate)( tiki_t *tiki, bone_t *bones );
-	int				(*TIKI_GetBoneNameIndex)( const char *boneName );
-	const char*		(*R_GetShaderName)( qhandle_t shader );
-	*/
 } uiimport_t;
 
 #if 1
