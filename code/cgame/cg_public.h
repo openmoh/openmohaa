@@ -23,8 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // DESCRIPTION:
 // client game public interfaces
 
-#ifndef __CG_PUBLIC_H__
-#define __CG_PUBLIC_H__
+#pragma once
+
+#include "../renderercommon/tr_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -419,6 +420,7 @@ functions exported to the main executable
         );
         void (*UI_DeleteScoreBoardItems)(int maxIndex);
         void (*UI_ToggleDMMessageConsole)(int consoleMode);
+        void (*CL_InitRadar)(radarClient_t* radars, qhandle_t* shaders, int clientNum); // Added in 2.0
         dtiki_t *(*TIKI_FindTiki)(const char *path);
         void (*LoadResource)(const char *name);
         void (*FS_CanonicalFilename)(char *name);
@@ -494,7 +496,7 @@ functions exported to the main executable
         //
         // Added in 2.0
         //
-		void (*CG_ReadNonPVSClient)(entityState_t* ent);
+		void (*CG_ReadNonPVSClient)(radarUnpacked_t* radarUnpacked);
 		void (*CG_UpdateRadar)();
 		void (*CG_SaveStateToBuffer)(void** out, int svsTime);
 		void (*CG_LoadStateToBuffer)(void** state, int size, int svsTime);
@@ -519,5 +521,3 @@ functions exported to the main executable
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __CG_PUBLIC_H__

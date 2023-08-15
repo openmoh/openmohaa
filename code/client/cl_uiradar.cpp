@@ -22,6 +22,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cl_uiradar.h"
 
+radarClient_t* g_radarClients;
+qhandle_t* g_radarShaders;
+int g_radarClientNum;
+
+void CL_InitRadar(radarClient_t* radars, qhandle_t* shaders, int clientNum)
+{
+	g_radarClients = radars;
+	g_radarShaders = shaders;
+	g_radarClientNum = clientNum;
+}
+
 CLASS_DECLARATION( UIWidget, UIRadar, NULL )
 {
 	{ NULL, NULL }

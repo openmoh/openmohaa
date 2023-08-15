@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 #include "cl_ui.h"
+#include "cl_uiradar.h"
 #include "../qcommon/tiki.h"
 #include "../qcommon/localization.h"
 #include "../qcommon/bg_compat.h"
@@ -745,6 +746,7 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->UI_SetScoreBoardItem		= UI_SetScoreBoardItem;
 	cgi->UI_DeleteScoreBoardItems	= UI_DeleteScoreBoardItems;
 	cgi->UI_ToggleDMMessageConsole	= UI_ToggleDMConsole;
+	cgi->CL_InitRadar				= CL_InitRadar;
 
 	cgi->TIKI_FindTiki				= TIKI_FindTiki;
 
