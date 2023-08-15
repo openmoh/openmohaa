@@ -99,6 +99,8 @@ cvar_t	*autopaused;
 cvar_t	*deathmatch;
 cvar_t	*com_blood;
 cvar_t	*com_buildScript;	// for automated data building scripts
+cvar_t	*com_radar_range;
+cvar_t	*console_spam_filter;
 cvar_t	*com_introPlayed;
 cvar_t  *cl_packetdelay;
 cvar_t  *sv_packetdelay;
@@ -215,6 +217,7 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
 	va_end (argptr);
 
+	console_spam_filter = Cvar_Get("spam", "1", 0);
 	if ( rd_buffer ) {
 		if ((strlen (msg) + strlen(rd_buffer)) > (rd_buffersize - 1)) {
 			rd_flush(rd_buffer);
@@ -1719,6 +1722,7 @@ void Com_Init( char *commandLine ) {
 	com_sv_running = Cvar_Get( "sv_running", "0", CVAR_ROM );
 	com_cl_running = Cvar_Get( "cl_running", "0", CVAR_ROM );
 	com_buildScript = Cvar_Get( "com_buildScript", "0", 0 );
+	com_radar_range = Cvar_Get( "com_radar_range", "1024", CVAR_ARCHIVE | CVAR_SYSTEMINFO );
 	com_ansiColor = Cvar_Get( "com_ansiColor", "0", CVAR_ARCHIVE );
 
 	com_unfocused = Cvar_Get( "com_unfocused", "0", CVAR_ROM );

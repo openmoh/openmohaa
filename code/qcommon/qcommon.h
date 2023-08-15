@@ -954,6 +954,8 @@ extern	cvar_t	*autopaused;
 extern	cvar_t	*deathmatch;
 extern	cvar_t	*com_blood;
 extern	cvar_t	*com_buildScript;		// for building release pak files
+extern	cvar_t	*com_radar_range;
+extern	cvar_t	*console_spam_filter;
 extern	cvar_t	*com_journal;
 extern	cvar_t	*com_cameraMode;
 extern	cvar_t	*com_ansiColor;
