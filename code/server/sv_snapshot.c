@@ -465,6 +465,205 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 
 /*
 =============
+SV_ClearNonPVSClient
+
+Clears the client's radar.
+=============
+*/
+void SV_ClearNonPVSClient(client_t* client) {
+	client->radarInfo = client - svs.clients;
+}
+
+/*
+=============
+SV_InitRadar
+
+Initializes radar for all clients.
+=============
+*/
+void SV_InitRadar() {
+	int i;
+
+	for (i = 0; i < svs.iNumClients; i++) {
+		SV_ClearNonPVSClient(&svs.clients[i]);
+	}
+}
+
+/*
+=============
+SV_PackNonPVSClient
+
+Pack radar information into a 32-bit integer for a client.
+=============
+*/
+void SV_PackNonPVSClient(radarUnpacked_t* unpacked, int* packed) {
+	float inv;
+	float x, y;
+	float length;
+	int packedX, packedY;
+	int valid;
+
+	if (com_radar_range && com_radar_range->value) {
+		inv = 1.f / com_radar_range->value;
+	} else {
+		inv = 0;
+	}
+
+	x = inv * unpacked->x;
+	y = inv * unpacked->y;
+
+	length = sqrt(x * x + y * y);
+	if (length > 0) {
+		valid = 1;
+		x *= 1.f / length;
+		y *= 1.f / length;
+	} else {
+		valid = 0;
+	}
+
+	packedX = (int)((x * 63.f) + 63.5f);
+	packedY = (int)((y * 63.f) + 63.5f);
+	if (packedX < 0) {
+		packedX = 0;
+	} else if (packedX > 126) {
+		packedX = 126;
+	}
+
+	if (packedY < 0) {
+		packedY = 0;
+	} else if (packedY > 126) {
+		packedY = 126;
+	}
+
+	*packed = (packedY << 13) | unpacked->clientNum | (packedX << 6) | (((valid << 5) | (int)(unpacked->yaw
+		* 0.088f
+		+ 32.5f) & 0x1F) << 20);
+}
+
+/*
+=============
+SV_SetNonPVSClient
+
+Pack an invisible client (other) into the client's radar information.
+=============
+*/
+void SV_SetNonPVSClient(client_t* client, client_t* other) {
+	radarUnpacked_t radar;
+
+	radar.clientNum = other - svs.clients;
+	radar.x = other->gentity->s.origin[0] - client->gentity->s.origin[0];
+	radar.y = other->gentity->s.origin[1] - client->gentity->s.origin[1];
+	radar.yaw = other->gentity->s.angles[1];
+
+	SV_PackNonPVSClient(&radar, &client->radarInfo);
+	client->lastRadarTime[radar.clientNum] = svs.time;
+}
+
+/*
+=============
+SV_InTeamGame
+
+Returns true if the client is in game and joined a team.
+=============
+*/
+qboolean SV_InTeamGame(client_t* client) {
+	return (client->state != CS_FREE && client->gentity && client->gentity->s.solid && client->gentity->s.eFlags & EF_ANY_TEAM);
+}
+
+/*
+=============
+SV_SameTeam
+
+Returns true if both clients are on the same team.
+=============
+*/
+qboolean SV_SameTeam(client_t* client1, client_t* client2) {
+	return (client1->gentity->s.eFlags & EF_ANY_TEAM) == (client2->gentity->s.eFlags & EF_ANY_TEAM);
+}
+
+/*
+=============
+SV_IsTeamGame
+
+Returns true if it's a team game.
+=============
+*/
+qboolean SV_IsTeamGame() {
+	return g_gametype->integer >= GT_TEAM;
+}
+
+/*
+=============
+SV_UpdateRadar
+
+Updates the radar information for the specified client.
+=============
+*/
+void SV_UpdateRadar(client_t* client) {
+	client_t* other;
+	client_t* mate;
+	float deltaX, deltaY;
+	float dist;
+	int deltaTime;
+	int bestTime;
+	int i;
+
+	if (!SV_IsTeamGame()) {
+		SV_ClearNonPVSClient(client);
+		return;
+	}
+
+	if (!SV_InTeamGame(client)) {
+		SV_ClearNonPVSClient(client);
+		return;
+	}
+
+	bestTime = svs.time;
+
+	for (i = 0; i < svs.iNumClients; i++) {
+		other = &svs.clients[i];
+
+		if (other == client) {
+			continue;
+		}
+
+		if (!SV_InTeamGame(other)) {
+			continue;
+		}
+
+		if (!SV_SameTeam(client, other)) {
+			continue;
+		}
+
+		deltaX = other->gentity->s.origin[0] - client->gentity->s.origin[0];
+		deltaY = other->gentity->s.origin[1] - client->gentity->s.origin[1];
+		deltaTime = svs.time - client->lastRadarTime[i];
+		dist = sqrt(deltaX * deltaX + deltaY * deltaY);
+
+		if (dist > com_radar_range->value) {
+			if (deltaTime < 1000) {
+				continue;
+			}
+
+			deltaTime /= 2;
+		}
+
+		if (deltaTime > svs.time - bestTime) {
+			bestTime = client->lastRadarTime[i];
+			mate = other;
+		}
+	}
+
+	if (!mate) {
+		SV_ClearNonPVSClient(client);
+		return;
+	}
+
+	SV_SetNonPVSClient(client, mate);
+}
+
+/*
+=============
 SV_BuildClientSnapshot
 
 Decides which entities are going to be visible to the client, and
@@ -569,6 +768,9 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 		}
 		frame->num_entities++;
 	}
+
+	SV_UpdateRadar(client);
+	frame->ps.radarInfo = client->radarInfo;
 }
 
 /*

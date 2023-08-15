@@ -90,9 +90,12 @@ typedef struct {
 	int				gameClientSize;		// will be > sizeof(playerState_t) due to game private data
 } server_t;
 
-
-
-
+typedef struct {
+	int clientNum;
+	float x;
+	float y;
+	float yaw;
+} radarUnpacked_t;
 
 typedef struct {
 	int				areabytes;
@@ -192,6 +195,8 @@ typedef struct client_s {
 	int XOffset;
 	int YOffset;
     char centerprint[256];
+	int radarInfo;
+	int lastRadarTime[128];
 
 #ifdef LEGACY_PROTOCOL
     qboolean		compat;
