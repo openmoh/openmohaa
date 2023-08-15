@@ -17,7 +17,7 @@
 
 ## Current State
 
-OpenMoHAA is still in its early days. The singleplayer part is not working correctly, but the `training` map can be fully played from start to end, the current usage is multiplayer.
+OpenMoHAA is still under development. The single-player campaign is not yet fully functional, but the `training` map can be played from start to end. The current focus is on multiplayer.
 
 ## Running
 
@@ -37,22 +37,27 @@ https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=ms
 
 You can now start a local OpenMOHAA server or play on a server.
 
-**Medal of Honor: Allied Assault Spearhead** and **Medal of Honor: Allied Assault Breakthrough** are supported in OpenMoHAA with the `com_target_game` variable. To play an expension, append to the executable `+set com_target_game 1` for Spearhead (mohaas/mohta), and `+set com_target_game 2` for Breakthrough (mohaab/mohtt). On windows you can create a shortcut to OpenMOHAA with this command-line argument.
+**Medal of Honor: Allied Assault Spearhead** and **Medal of Honor: Allied Assault Breakthrough** are supported in OpenMoHAA using the `com_target_game` variable. To play an expansion, append the following command-line arguments to the executable:
+
+- `+set com_target_game 1` for Spearhead (mohaas/mohta)
+- `+set com_target_game 2` for Breakthrough (mohaab/mohtt)
+
+On Windows, you can create a shortcut to OpenMoHAA with these command-line arguments.
+The default value of `com_target_game` is 0 for the base game.
 
 ## Builds
 
 ### Server
 
-The server version can successfully be built.
-Some stuff are not working as intended, such as Actor or Vehicle. These systems are both almost fully implemented, but not stable.
+The server version can be built successfully, but some features are not functional. For example, the Actor and Vehicle systems are almost fully implemented, but they are not yet stable. This means that they may not work as expected and could cause crashes.
 
-Overall, the server part and the fgame module are almost fully implemented, but the stability may vary, there may be some minor bugs and crashes.
+Overall, the server and the fgame components are almost fully implemented, but they may not be completely stable. There could be some minor bugs (and rare crashes), but the game should be playable.
 
 ### Client
 
-The client version of OpenMoHAA is partially implemented. The cgame module is almost fully implemented. Credits to **Heavy Metal: F.A.K.K. 2**'s SDK for the cgame and fgame module.
+The client version of OpenMoHAA has undergone partial implementation, with the cgame module being nearly completed. Credits to the SDK of **Heavy Metal: F.A.K.K. 2** both the cgame and fgame modules.
 
-Here is the current working state for each part of the engine:
+The current operational status of each engine component is as follows:
 
 | Part name               | Full | Almost | Half | Early | Bad | Not working | Comment                                                           |
 |-------------------------|------|--------|------|-------|-----|-------------|-------------------------------------------------------------------|
@@ -68,16 +73,16 @@ Here is the current working state for each part of the engine:
 
 ## Compiling
 
-OpenMoHAA supports any architecture, thanks to the CMake build system and cross-platform code/libraries. Although the most common Little-Endian architectures (arm, aarch64, x86, x86_64) has been tested to work, big-Endian architectures should be supported but they remain untested.
+OpenMoHAA supports any architecture, thanks to the CMake build system and cross-platform code/libraries. While the most common Little-Endian architectures (arm, aarch64, x86, x86_64) have been tested and confirmed to work, big-Endian architectures should be supported as well; however, they remain untested.
 
-These are the tools required for all platforms :
+The following tools are required for all platforms:
 - CMake >= 3.5
 - Flex and Bison (currently not used)
-- A C++11 compiler is required.
+- A C++11 compiler is also required.
 
-The installation directory can be set to MOHAA directory.
+The installation directory can be set to the MOHAA directory.
 
-By default, the build will produce the client and dedicated server version. The client build can be excluded by appending `-DBUILD_NO_CLIENT=1` to the CMake command-line arguments. With this parameter, only the server portion will be built.
+By default, the build will produce both the client and dedicated server versions. The client build can be excluded by appending `-DBUILD_NO_CLIENT=1` to the CMake command-line arguments. Using this parameter will result in only the server portion being built.
 
 ### Linux
 
