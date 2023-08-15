@@ -38,7 +38,7 @@ extern "C" {
 #endif
 
 void CG_SaveStateToBuffer(void** out, int svsTime);
-void CG_LoadStateToBuffer(void** state, int size, int svsTime);
+void CG_LoadStateToBuffer(void* state, int size, int svsTime);
 
 #ifdef __cplusplus
 void CG_ArchiveStuff(MemArchiver& archiver, int svsTime);

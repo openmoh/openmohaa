@@ -33,7 +33,7 @@ void CG_SaveStateToBuffer(void** out, int svsTime)
 	// FIXME: unimplemented
 }
 
-void CG_LoadStateToBuffer(void** state, int size, int svsTime)
+void CG_LoadStateToBuffer(void* state, int size, int svsTime)
 {
 	// FIXME: unimplemented
 }
