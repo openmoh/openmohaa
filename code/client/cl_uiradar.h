@@ -29,6 +29,9 @@ public:
 
 public:
     UIRadar();
+    ~UIRadar();
+
+    void Draw(void) override;
 
 private:
     float m_fRadius;
