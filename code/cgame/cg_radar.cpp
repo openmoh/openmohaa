@@ -75,9 +75,16 @@ bool CG_ValidRadarClient(centity_t *ent)
 	return CG_SameTeam(ent);
 }
 
-bool CG_RadarIcon()
+int CG_RadarIcon()
 {
-	return cg.clientinfo[cg.snap->ps.clientNum].team != TEAM_ALLIES;
+	switch (cg.clientinfo[cg.snap->ps.clientNum].team)
+	{
+	case TEAM_ALLIES:
+		return 0;
+	default:
+	case TEAM_AXIS:
+		return 1;
+	}
 }
 
 void CG_UpdateRadarClient(centity_t* ent)
@@ -91,7 +98,7 @@ void CG_UpdateRadarClient(centity_t* ent)
 	}
 
 	radar->time = cg.time;
-	radar->bValid = CG_RadarIcon();
+	radar->teamShader = CG_RadarIcon();
 	if (cg.snap->ps.clientNum == ent->currentState.number)
 	{
 		radar->origin[0] = cg.refdef.vieworg[0];
@@ -125,7 +132,7 @@ void CG_ReadNonPVSClient(radarUnpacked_t* radarUnpacked)
 
 	radar = &cg.radars[radarUnpacked->clientNum];
 	radar->time = cg.time;
-	radar->bValid = CG_RadarIcon();
+	radar->teamShader = CG_RadarIcon();
 	// copy origin
 	radar->origin[0] = radarUnpacked->x;
 	radar->origin[1] = radarUnpacked->y;

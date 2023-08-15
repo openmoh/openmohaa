@@ -2187,7 +2187,7 @@ typedef enum _flag_status {
 typedef struct {
 	int time;
 	int lastSpeakTime;
-	qboolean bValid;
+	int teamShader;
 	float origin[2];
 	float axis[2];
 } radarClient_t;
