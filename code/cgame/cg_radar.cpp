@@ -25,50 +25,137 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void CG_InitRadar()
 {
-	// FIXME: unimplemented
+	int i;
+
+	cg.radarShaders[0] = cgi.R_RegisterSkin("textures/hud/radar_allies.tga");
+	cg.radarShaders[1] = cgi.R_RegisterSkin("textures/hud/radar_axis.tga");
+
+	for (i = 0; i < MAX_CLIENTS; i++)
+	{
+		cg.radars[i].time = 0;
+		cg.radars[i].lastSpeakTime = 0;
+	}
+
+	cgi.CL_InitRadar(cg.radars, cg.radarShaders, cg.snap->ps.clientNum);
 }
 
-void CG_InTeamGame(centity_t *ent)
+bool CG_InTeamGame(centity_t *ent)
 {
-	// FIXME: unimplemented
+	return ent->currentState.solid && cg.clientinfo[ent->currentState.number].team;
 }
 
-void CG_SameTeam(centity_t *ent)
+bool CG_SameTeam(centity_t *ent)
 {
-	// FIXME: unimplemented
+	return cg.clientinfo[ent->currentState.clientNum].team == cg.clientinfo[cg.snap->ps.clientNum].team;
 }
 
-void CG_IsTeamGame()
+bool CG_IsTeamGame()
 {
-	// FIXME: unimplemented
+	return cgs.gametype >= GT_TEAM;
 }
 
-void CG_ValidRadarClient(centity_t *ent)
+bool CG_ValidRadarClient(centity_t *ent)
 {
-	// FIXME: unimplemented
+	if (!cg.snap) {
+		return qfalse;
+	}
+
+	if (!CG_IsTeamGame()) {
+		return false;
+	}
+
+	if (!CG_InTeamGame(&cg_entities[cg.snap->ps.clientNum])) {
+		return false;
+	}
+
+	if (!CG_InTeamGame(ent)) {
+		return false;
+	}
+
+	return CG_SameTeam(ent);
 }
 
-void CG_RadarIcon()
+bool CG_RadarIcon()
 {
-	// FIXME: unimplemented
+	return cg.clientinfo[cg.snap->ps.clientNum].team != TEAM_ALLIES;
 }
 
 void CG_UpdateRadarClient(centity_t* ent)
 {
-	// FIXME: unimplemented
+	radarClient_t* radar;
+
+	radar = &cg.radars[ent->currentState.number];
+	if (!CG_ValidRadarClient(ent)) {
+		radar->time = 0;
+		return;
+	}
+
+	radar->time = cg.time;
+	radar->bValid = CG_RadarIcon();
+	if (cg.snap->ps.clientNum == ent->currentState.number)
+	{
+		radar->origin[0] = cg.refdef.vieworg[0];
+		radar->origin[1] = cg.refdef.vieworg[1];
+		radar->axis[0] = cg.refdef.viewaxis[0][0];
+		radar->axis[1] = cg.refdef.viewaxis[0][1];
+		VectorNormalize2D(radar->axis);
+	}
+	else
+	{
+		float axis[2];
+
+		radar->origin[0] = ent->currentState.origin[0];
+		radar->origin[1] = ent->currentState.origin[1];
+		YawToAxis(ent->currentState.angles[1], axis);
+
+		radar->axis[0] = axis[0];
+		radar->axis[1] = axis[1];
+		VectorNormalize2D(radar->axis);
+	}
 }
 
-void CG_ReadNonPVSClient(entityState_t* ent)
+void CG_ReadNonPVSClient(radarUnpacked_t* radarUnpacked)
 {
-	// FIXME: unimplemented
+	radarClient_t* radar;
+	float axis[2];
+
+	if (!CG_ValidRadarClient(&cg_entities[radarUnpacked->clientNum])) {
+		return;
+	}
+
+	radar = &cg.radars[radarUnpacked->clientNum];
+	radar->time = cg.time;
+	radar->bValid = CG_RadarIcon();
+	// copy origin
+	radar->origin[0] = radarUnpacked->x;
+	radar->origin[1] = radarUnpacked->y;
+	// copy yaw
+	YawToAxis(radarUnpacked->yaw, axis);
+	radar->axis[0] = axis[0];
+	radar->axis[1] = axis[1];
+	VectorNormalize2D(radar->axis);
 }
 
 void CG_UpdateRadar()
 {
-	// FIXME: unimplemented
+	int i;
+
+	for (i = 0; i < MAX_CLIENTS; i++)
+	{
+		if (cg.radars[i].time)
+		{
+			if (!CG_ValidRadarClient(&cg_entities[i])) {
+				cg.radars[i].time = 0;
+			}
+		}
+	}
 }
 
-void CG_RadarClientSpeaks()
+void CG_RadarClientSpeaks(int num)
 {
-	// FIXME: unimplemented
+	if (!CG_ValidRadarClient(&cg_entities[num])) {
+		return;
+	}
+
+	cg.radars[num].lastSpeakTime = cg.time;
 }

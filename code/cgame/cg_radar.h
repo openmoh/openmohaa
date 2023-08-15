@@ -25,20 +25,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
+#include "cg_local.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void CG_InitRadar();
-void CG_InTeamGame(centity_t* ent);
-void CG_SameTeam(centity_t* ent);
-void CG_IsTeamGame();
-void CG_ValidRadarClient(centity_t* ent);
-void CG_RadarIcon();
 void CG_UpdateRadarClient(centity_t* ent);
-void CG_ReadNonPVSClient(entityState_t* ent);
+void CG_ReadNonPVSClient(radarUnpacked_t* radarUnpacked);
 void CG_UpdateRadar();
-void CG_RadarClientSpeaks();
+void CG_RadarClientSpeaks(int num);
 
 #ifdef __cplusplus
 }
