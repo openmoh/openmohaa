@@ -98,9 +98,9 @@ Draw_StretchPic2
 */
 void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float a1, float sx, float sy, qhandle_t hShader) {
 	shader_t* shader;
-
-	// sx: ¯\_(?)_/¯
-	// sy: ¯\_(?)_/¯
+	float halfWidth, halfHeight;
+	float scaledWidth1, scaledHeight1;
+	float scaledWidth2, scaledHeight2;
 
 	R_SyncRenderThread();
 
@@ -116,21 +116,28 @@ void Draw_StretchPic2(float x, float y, float w, float h, float s1, float t1, fl
 		h = shader->unfoggedStages[0]->bundle[0].image[0]->height;
 	}
 
+	halfWidth = w * 0.5f;
+	halfHeight = h * 0.5f;
+	scaledWidth1 = halfWidth * sy;
+	scaledHeight1 = halfHeight * sx;
+	scaledWidth2 = halfWidth * sx;
+	scaledHeight2 = halfHeight * sy;
+
 	// draw the pic
 	RB_Color4f(backEnd.color2D[0], backEnd.color2D[1], backEnd.color2D[2], backEnd.color2D[3]);
 	RB_BeginSurface(shader);
 
 	RB_Texcoord2f(s1, t1);
-	RB_Vertex2f(x, y);
+	RB_Vertex3f(x + halfWidth - (scaledWidth2 + -scaledHeight2), y + halfWidth - scaledHeight1 - scaledWidth1, 0);
 
 	RB_Texcoord2f(s2, t1);
-	RB_Vertex2f(x + w, y);
+	RB_Vertex3f(scaledWidth2 - -scaledHeight2 + x * halfWidth, scaledWidth1 - scaledHeight1 + y * halfWidth, 0);
 
 	RB_Texcoord2f(s1, t2);
-	RB_Vertex2f(x, y + h);
+	RB_Vertex3f(x+ halfWidth - (scaledWidth2 + scaledHeight2), scaledHeight1 - scaledWidth1 + y * halfWidth, 0);
 
 	RB_Texcoord2f(s2, t2);
-	RB_Vertex2f(x + w, y + h);
+	RB_Vertex3f(scaledWidth2 - scaledHeight2 + x * halfWidth, scaledWidth1 + scaledHeight1 + y * halfWidth, 0);
 
 	RB_StreamEnd();
 }
