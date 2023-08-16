@@ -589,20 +589,22 @@ inline int str::cmpn(const str& text, size_t n) const
 
 inline void str::tolower(void)
 {
-    assert(m_data);
+    if (m_data)
+    {
+        EnsureDataWritable();
 
-    EnsureDataWritable();
-
-    str::tolower(m_data->data);
+        str::tolower(m_data->data);
+    }
 }
 
 inline void str::toupper(void)
 {
-    assert(m_data);
+    if (m_data)
+    {
+        EnsureDataWritable();
 
-    EnsureDataWritable();
-
-    str::toupper(m_data->data);
+        str::toupper(m_data->data);
+    }
 }
 
 inline bool str::isNumeric(void) const
