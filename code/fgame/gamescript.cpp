@@ -659,13 +659,8 @@ void GameScript::ArchiveCodePos( Archiver& arc, unsigned char **codePos )
 	int pos = 0;
 	str filename;
 
-	if( !arc.Saving() )
-	{
-		pos = *codePos - m_ProgBuffer;
-		if( pos >= 0 && pos < m_ProgLength )
-		{
-			filename = Filename();
-		}
+	if( arc.Saving() ) {
+		GetCodePos(*codePos, filename, pos);
 	}
 
 	arc.ArchiveInteger( &pos );
@@ -673,10 +668,7 @@ void GameScript::ArchiveCodePos( Archiver& arc, unsigned char **codePos )
 
 	if( arc.Loading() )
 	{
-		if( Filename() == filename )
-		{
-			*codePos = m_ProgBuffer + pos;
-		}
+		SetCodePos(*codePos, filename, pos);
 	}
 }
 

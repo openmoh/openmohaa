@@ -486,7 +486,6 @@ void L_UnarchiveEvents
 )
 {
 	EventQueueNode* node;
-	Event* e;
 	int i, numEvents;
 
 	// the FreeEvents list would already be allocated at this point
@@ -497,8 +496,8 @@ void L_UnarchiveEvents
 	for (i = 0; i < numEvents; i++)
 	{
 		node = new EventQueueNode();
-		e = new Event();
-		e->Archive(arc);
+		node->event = new Event();
+		node->event->Archive(arc);
 
 		arc.ArchiveInteger(&node->inttime);
 		arc.ArchiveInteger(&node->flags);
