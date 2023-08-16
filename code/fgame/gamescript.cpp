@@ -99,7 +99,7 @@ void AbstractScript::PrintSourcePos( sourceinfo_t *sourcePos, bool dev )
 	}
 	else
 	{
-		glbs.Printf( "file '%s', source pos %d line %d column %d:\n", Filename().c_str(), sourcePos->sourcePos, sourcePos->line, sourcePos->column );
+		glbs.DPrintf( "file '%s', source pos %d line %d column %d:\n", Filename().c_str(), sourcePos->sourcePos, sourcePos->line, sourcePos->column );
 	}
 }
 
@@ -115,7 +115,7 @@ void AbstractScript::PrintSourcePos( size_t sourcePos, bool dev )
 	}
 	else
 	{
-		glbs.Printf( "file '%s', source pos %d:\n", Filename().c_str(), sourcePos );
+		glbs.DPrintf( "file '%s', source pos %d:\n", Filename().c_str(), sourcePos );
 	}
 }
 
@@ -147,7 +147,7 @@ void AbstractScript::PrintSourcePos( str sourceLine, int column, int line, bool 
 
 	markerLine.append( "^" );
 
-	glbs.Printf( "(%s, %d):\n%s\n%s\n", Filename().c_str(), line, sourceLine.c_str(), markerLine.c_str() );
+	glbs.DPrintf( "(%s, %d):\n%s\n%s\n", Filename().c_str(), line, sourceLine.c_str(), markerLine.c_str() );
 }
 
 AbstractScript::AbstractScript()
@@ -736,7 +736,7 @@ void GameScript::Load( const void *sourceBuffer, size_t sourceLength )
 
 	if( !nodeLength )
 	{
-		glbs.Printf( "^~^~^ Script file compile error:  Couldn't parse '%s'\n", Filename().c_str() );
+		glbs.DPrintf2( "^~^~^ Script file compile error:  Couldn't parse '%s'\n", Filename().c_str() );
 		return Close();
 	}
 
@@ -745,7 +745,7 @@ void GameScript::Load( const void *sourceBuffer, size_t sourceLength )
 
 	if( !m_ProgLength )
 	{
-		glbs.Printf( "^~^~^ Script file compile error:  Couldn't compile '%s'\n", Filename().c_str() );
+		glbs.DPrintf2( "^~^~^ Script file compile error:  Couldn't compile '%s'\n", Filename().c_str() );
 		return Close();
 	}
 

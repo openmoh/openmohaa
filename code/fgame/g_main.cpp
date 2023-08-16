@@ -341,7 +341,7 @@ void QDECL Com_Printf(const char *msg, ...)
     vsprintf(text, msg, argptr);
     va_end(argptr);
 
-    G_Printf("%s", text);
+    gi.DPrintf("%s", text);
 }
 
 /*

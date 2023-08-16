@@ -783,7 +783,7 @@ void yyreducepos(uint32_t off)
 
 void yylexerror( const char *msg )
 {
-	gi.Printf( "%s\n%s", msg, yytext );
+	gi.DPrintf( "%s\n%s", msg, yytext );
 	assert( 0 );
 }
 

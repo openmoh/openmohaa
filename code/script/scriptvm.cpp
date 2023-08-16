@@ -1781,7 +1781,7 @@ void ScriptVM::HandleScriptException(ScriptException& exc)
         throw e;
     }
 
-    glbs.Printf("^~^~^ Script Error : %s\n\n", exc.string.c_str());
+    gi.DPrintf2("^~^~^ Script Error : %s\n\n", exc.string.c_str());
 
     if (m_ScriptClass->GetScript()->ScriptCheck()) {
         if (g_scriptcheck->integer != 2 || !exc.bIsForAnim) {
