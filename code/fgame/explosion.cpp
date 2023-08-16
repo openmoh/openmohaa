@@ -105,7 +105,7 @@ void CreateExplosion
 
 	if( !explosionModel )
 	{
-		explosionModel = "fx_explosion.tik";
+		explosionModel = "fx/fx_explosion.tik";
 	}
 
 	explosion = new Explosion;
