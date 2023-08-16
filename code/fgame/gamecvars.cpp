@@ -337,8 +337,8 @@ void CVAR_Init(void)
     sv_maplist = gi.Cvar_Get("sv_maplist", "", CVAR_ARCHIVE | CVAR_SERVERINFO);
     sv_nextmap = gi.Cvar_Get("nextmap", "", 0);
 
-    sv_runspeed        = gi.Cvar_Get("sv_runspeed", "250", CVAR_SERVERINFO);
-    sv_walkspeedmult   = gi.Cvar_Get("sv_walkspeedmult", "150", CVAR_SERVERINFO);
+    sv_runspeed        = gi.Cvar_Get("sv_runspeed", "287", CVAR_SERVERINFO); // 250 in mohaa
+    sv_walkspeedmult   = gi.Cvar_Get("sv_walkspeedmult", "0.6", CVAR_SERVERINFO);
     sv_dmspeedmult     = gi.Cvar_Get("sv_dmspeedmult", "1.1", CVAR_SERVERINFO);
     sv_crouchspeedmult = gi.Cvar_Get("sv_crouchspeedmult", "0.6", CVAR_SERVERINFO);
 
@@ -346,7 +346,13 @@ void CVAR_Init(void)
     sv_sprintmult    = gi.Cvar_Get("sv_sprintmult", "1.20", 0);
     sv_sprinttime_dm = gi.Cvar_Get("sv_sprinttime_dm", "5.0", 0);
     sv_sprintmult_dm = gi.Cvar_Get("sv_sprintmult_dm", "1.20", 0);
-    sv_sprinton      = gi.Cvar_Get("sv_sprinton", "1", 0);
+
+	if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+		sv_sprinton = gi.Cvar_Get("sv_sprinton", "1", 0);
+    } else {
+        // mohaa doesn't have sprint support
+        sv_sprinton = gi.Cvar_Get("sv_sprinton", "0", 0);
+    }
 
     if (!sv_sprinton->integer && sv_runspeed->integer == 287) {
         gi.cvar_set("sv_runspeed", "250");
