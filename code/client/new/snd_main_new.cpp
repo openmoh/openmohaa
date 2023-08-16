@@ -419,3 +419,7 @@ void S_ChannelFree_Callback(channel_t* v) {
         callbackServer(v->entnum & ~S_FLAG_DO_CALLBACK, v - s_channels, v->thesfx->soundName);
     }
 }
+
+void S_LoadData(soundsystemsavegame_t* pSave) {
+    // FIXME: unimplemented
+}

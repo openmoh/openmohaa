@@ -26,7 +26,38 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern "C" {
 #endif
 
+typedef struct {
+	int iFlags;
+	char szName[64];
+} soundSfx_t;
+
+typedef struct {
+	qboolean bPlaying;
+	int iStatus;
+	soundSfx_t sfx;
+	int iEntNum;
+	int iEntChannel;
+	float vOrigin[3];
+	float fVolume;
+	int iBaseRate;
+	float fNewPitchMult;
+	float fMinDist;
+	float fMaxDist;
+	int iStartTime;
+	int iTime;
+	int iNextCheckObstructionTime;
+	int iEndTime;
+	int iFlags;
+	int iOffset;
+	int iLoopCount;
+} channelbasesavegame_t;
+
+typedef struct {
+	channelbasesavegame_t Channels[MAX_CHANNELS];
+} soundsystemsavegame_t;
+
 void S_ChannelFree_Callback(channel_t* v);
+void S_LoadData(soundsystemsavegame_t* pSave);
 
 #ifdef __cplusplus
 }

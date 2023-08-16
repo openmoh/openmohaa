@@ -1130,10 +1130,9 @@ S_Load
 */
 void S_Load( fileHandle_t f )
 {
-	FS_Read( &svs, sizeof( serverStatic_t ), f );
-#ifdef CLIENT
-	// FIXME...
-	//S_InitBase( &svs.soundSystem );
+#ifndef DEDICATED
+	FS_Read( &svs.soundSystem, sizeof( svs.soundSystem ), f );
+	S_LoadData(&svs.soundSystem);
 #endif
 }
 
