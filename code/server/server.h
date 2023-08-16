@@ -28,6 +28,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/qcommon.h"
 #include "../fgame/bg_public.h"
 #include "../fgame/g_public.h"
+#ifndef DEDICATED
+#  include "../client/snd_local.h"
+#endif
 
 //=============================================================================
 
@@ -220,36 +223,6 @@ typedef struct {
 
 #define	MAX_MASTERS	8				// max recipients for heartbeat packets
 
-typedef struct {
-	int iFlags;
-	char szName[ 64 ];
-} soundSfx_t;
-
-typedef struct {
-	qboolean bPlaying;
-	int iStatus;
-	soundSfx_t sfx;
-	int iEntNum;
-	int iEntChannel;
-	float vOrigin[ 3 ];
-	float fVolume;
-	int iBaseRate;
-	float fNewPitchMult;
-	float fMinDist;
-	float fMaxDist;
-	int iStartTime;
-	int iTime;
-	int iNextCheckObstructionTime;
-	int iEndTime;
-	int iFlags;
-	int iOffset;
-	int iLoopCount;
-} soundChan_t;
-
-typedef struct {
-	soundChan_t Channels[ 96 ];
-} soundSystem_t;
-
 // this structure will be cleared only when the game dll changes
 typedef struct {
 	qboolean		initialized;				// sv_init has completed
@@ -281,7 +254,9 @@ typedef struct {
 	int				tm_loopcount;
 	int				tm_offset;
 
-	soundSystem_t	soundSystem;
+#ifndef DEDICATED
+	soundsystemsavegame_t	soundSystem;
+#endif
 } serverStatic_t;
 
 //=============================================================================
