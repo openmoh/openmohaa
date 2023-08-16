@@ -20,4 +20,3 @@ target_compile_definitions(omohclient INTERFACE USE_CODEC_MP3)
 
 add_subdirectory("../libmad-0.15.1b" "./libmad")
 target_link_libraries(omohclient INTERFACE libmad)
-target_include_directories(omohclient INTERFACE "../libmad-0.15.1b")
