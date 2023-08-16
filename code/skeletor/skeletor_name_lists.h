@@ -22,11 +22,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // skeletor_name_lists.h : Skeletor name lists
 
-#ifndef __SKELETOR_NAME_LISTS_FORMAT_H__
-#define __SKELETOR_NAME_LISTS_FORMAT_H__
+#pragma once
 
-#define MAX_CHANNELS			16384
-#define MAX_CHANNEL_NAME		32
+#define MAX_SKELETOR_CHANNELS 16384
+#define MAX_CHANNEL_NAME      32
 
 typedef struct ChannelName_s {
 	char		name[ MAX_CHANNEL_NAME ];
@@ -37,8 +36,8 @@ typedef struct ChannelName_s {
 
 class ChannelNameTable {
 	short int m_iNumChannels;
-	ChannelName_t m_Channels[ MAX_CHANNELS ];
-	short int m_lookup[ MAX_CHANNELS ];
+	ChannelName_t m_Channels[MAX_SKELETOR_CHANNELS];
+	short int m_lookup[MAX_SKELETOR_CHANNELS];
 
 public:
 	ChannelNameTable();
@@ -63,10 +62,8 @@ int GetChannelTypeFromName( const char *name );
 
 typedef struct {
 	short int m_iNumChannels;
-	ChannelName_t m_Channels[ MAX_CHANNELS ];
-	short int m_lookup[ MAX_CHANNELS ];
+	ChannelName_t m_Channels[MAX_SKELETOR_CHANNELS];
+	short int m_lookup[MAX_SKELETOR_CHANNELS];
 } ChannelNameTable;
 
 #endif
-
-#endif // __SKELETOR_NAME_LISTS_FORMAT_H__

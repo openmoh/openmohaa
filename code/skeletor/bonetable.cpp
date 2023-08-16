@@ -330,18 +330,18 @@ int ChannelNameTable::RegisterChannel( const char *name )
 		return m_Channels[ index ].channelNum;
 	}
 
-	if( m_iNumChannels >= MAX_CHANNELS )
+	if( m_iNumChannels >= MAX_SKELETOR_CHANNELS)
 	{
 		Com_Printf( "==========================================================================\n" );
 		Com_Printf( "Skeletor channel name table, contents (in order of addition):\n" );
 
-		for( index = 0; index < MAX_CHANNELS; index++ )
+		for( index = 0; index < MAX_SKELETOR_CHANNELS; index++ )
 		{
 			Com_Printf( "%s\n", m_Channels[ m_lookup [ index ] ].name );
 		}
 
 		Com_Printf( "==========================================================================\n" );
-		SKEL_Error( "Channel name table already has %i channels, can't add any more.", MAX_CHANNELS );
+		SKEL_Error( "Channel name table already has %i channels, can't add any more.", MAX_SKELETOR_CHANNELS );
 		return -1;
 	}
 	else

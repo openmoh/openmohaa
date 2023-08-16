@@ -93,10 +93,10 @@ void skelChannelList_s::ZeroChannels()
 	int i;
 
 	m_numChannels = 0;
-	m_chanLocalFromGlobal = ( short * )Skel_Alloc( MAX_CHANNELS * sizeof( short ) );
-	m_numLocalFromGlobal = MAX_CHANNELS;
+	m_chanLocalFromGlobal = ( short * )Skel_Alloc( MAX_SKELETOR_CHANNELS * sizeof( short ) );
+	m_numLocalFromGlobal = MAX_SKELETOR_CHANNELS;
 
-	for( i = 0; i < MAX_CHANNELS; i++ )
+	for( i = 0; i < MAX_SKELETOR_CHANNELS; i++ )
 	{
 		m_chanLocalFromGlobal[ i ] = -1;
 	}
@@ -104,7 +104,7 @@ void skelChannelList_s::ZeroChannels()
 
 void skelChannelList_s::PackChannels()
 {
-	m_numLocalFromGlobal = MAX_CHANNELS - 1;
+	m_numLocalFromGlobal = MAX_SKELETOR_CHANNELS - 1;
 
 	if( m_chanLocalFromGlobal[ m_numLocalFromGlobal ] == -1 )
 	{
@@ -114,7 +114,7 @@ void skelChannelList_s::PackChannels()
 		} while( m_chanLocalFromGlobal[ m_numLocalFromGlobal ] == -1 && m_numLocalFromGlobal >= 0 );
 	}
 
-	if( m_numLocalFromGlobal < MAX_CHANNELS )
+	if( m_numLocalFromGlobal < MAX_SKELETOR_CHANNELS )
 	{
 		m_numLocalFromGlobal++;
 	}
