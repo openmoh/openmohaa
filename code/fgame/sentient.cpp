@@ -803,19 +803,7 @@ Sentient::Sentient()
 
 Sentient::~Sentient()
 {
-    if (m_NextSentient) {
-        m_NextSentient->m_PrevSentient = m_PrevSentient;
-    }
-
-    if (m_PrevSentient) {
-        m_PrevSentient->m_NextSentient = m_NextSentient;
-    } else {
-        level.m_HeadSentient[m_Team] = m_NextSentient;
-    }
-
-    m_PrevSentient = NULL;
-    m_NextSentient = NULL;
-
+    Unlink();
     DisbandSquadMate(this);
 
     SentientList.RemoveObject((Sentient *)this);
@@ -829,7 +817,7 @@ void Sentient::Link()
     m_PrevSentient = NULL;
     m_NextSentient = level.m_HeadSentient[m_Team];
     if (m_NextSentient) {
-        m_PrevSentient = this;
+        m_NextSentient->m_PrevSentient = this;
     }
     level.m_HeadSentient[m_Team] = this;
 }
@@ -2500,26 +2488,9 @@ void Sentient::EventGerman(Event *ev)
         DisbandSquadMate(this);
     }
 
-    if (m_NextSentient) {
-        m_NextSentient->m_PrevSentient = m_PrevSentient;
-    }
-
-    if (m_PrevSentient) {
-        m_PrevSentient->m_NextSentient = m_NextSentient;
-    } else {
-        level.m_HeadSentient[m_Team] = m_NextSentient;
-    }
-
-    m_NextSentient = NULL;
-    m_Team         = TEAM_GERMAN;
-    m_PrevSentient = NULL;
-
-    m_NextSentient = level.m_HeadSentient[TEAM_GERMAN];
-    if (m_NextSentient) {
-        m_NextSentient->m_PrevSentient = this;
-    }
-
-    level.m_HeadSentient[m_Team] = this;
+    Unlink();
+    m_Team = TEAM_GERMAN;
+    Link();
 
     if (bRejoinSquads) {
         JoinNearbySquads(1024.0f);
@@ -2541,26 +2512,10 @@ void Sentient::EventAmerican(Event *ev)
         DisbandSquadMate(this);
     }
 
-    if (m_NextSentient) {
-        m_NextSentient->m_PrevSentient = m_PrevSentient;
-    }
 
-    if (m_PrevSentient) {
-        m_PrevSentient->m_NextSentient = m_NextSentient;
-    } else {
-        level.m_HeadSentient[m_Team] = m_NextSentient;
-    }
-
-    m_NextSentient = NULL;
-    m_PrevSentient = NULL;
-    m_Team         = TEAM_AMERICAN;
-
-    m_NextSentient = level.m_HeadSentient[TEAM_AMERICAN];
-    if (m_NextSentient) {
-        m_NextSentient->m_PrevSentient = this;
-    }
-
-    level.m_HeadSentient[m_Team] = this;
+    Unlink();
+    m_Team = TEAM_AMERICAN;
+    Link();
 
     if (bRejoinSquads) {
         JoinNearbySquads(1024);
