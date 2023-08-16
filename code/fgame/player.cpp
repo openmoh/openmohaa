@@ -7073,7 +7073,7 @@ void Player::UpdateStats(void)
     // Healing
     //
     if (m_fHealRate && (!m_pVehicle || m_pTurret || m_pVehicle->isSubclassOf(FixedTurret))) {
-        healfrac = (m_pVehicle->health + m_fHealRate) / m_pVehicle->max_health * 100.f;
+        healfrac = (health + m_fHealRate) / max_health * 100.f;
     } else {
         healfrac = 0;
     }
