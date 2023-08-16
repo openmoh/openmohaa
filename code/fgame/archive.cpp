@@ -814,7 +814,7 @@ SafePtrBase * ptr
 	{
 		pointer_fixup_t *fixup;
 
-		ArchiveData( ARC_SafePointer, &index, sizeof( &index ) );
+		ArchiveData( ARC_SafePointer, &index, sizeof( index ) );
 
 		// Check for a NULL pointer
 		assert( ptr );
