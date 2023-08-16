@@ -10704,7 +10704,7 @@ float Player::GetRunSpeed() const
         sprintMult = sv_sprintmult_dm->value;
     }
 
-    if (sv_sprinton->integer == 1 && !m_fLastSprintTime && (level.time - m_fLastSprintTime) > sprintTime) {
+    if (sv_sprinton->integer == 1 && m_fLastSprintTime && (level.time - m_fLastSprintTime) > sprintTime) {
         return sv_runspeed->value * sprintMult;
     } else {
         return sv_runspeed->value;
