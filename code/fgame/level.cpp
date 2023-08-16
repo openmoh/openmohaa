@@ -607,7 +607,7 @@ Event EV_Level_RemoveBadPlace
 
 Event EV_Level_IgnoreClock
 (
-    "removebadplace",
+    "ignoreclock",
     EV_DEFAULT,
     "i",
     "ignoreclock",
@@ -1906,7 +1906,7 @@ void Level::EventRemoveBadPlace(Event* ev)
 
 void Level::EventIgnoreClock(Event* ev)
 {
-    // FIXME: unimplemented
+    m_bIgnoreClock = ev->GetBoolean(1);
 }
 
 void Level::UpdateBadPlaces()
