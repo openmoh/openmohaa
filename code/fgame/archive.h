@@ -226,7 +226,7 @@ inline void Container<Type>::Archive
 			numobjects = num;
 		}
 
-		ArchiveFunc( arc, &objlist[ i ] );
+		ArchiveFunc( arc, &objlist[ i - 1 ] );
 	}
 }
 
