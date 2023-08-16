@@ -192,9 +192,13 @@ private:
 
 private:
     void BuildTeamInfo(DM_Team *dmTeam);
+    void BuildTeamInfo_ver6(DM_Team *dmTeam);
+    void BuildTeamInfo_ver15(DM_Team *dmTeam);
     void BuildPlayerTeamInfo(DM_Team *dmTeam, int *iPlayerList, DM_Team *ignoreTeam = NULL);
     void InsertEntry(const char *entry);
+    void InsertEntryNoCount(const char *entry);
     void InsertEmpty(void);
+    bool IsAlivePlayer(Player* player) const;
 
 public:
     CLASS_PROTOTYPE(DM_Manager);

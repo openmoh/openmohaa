@@ -696,11 +696,7 @@ Event EV_DM_Manager_DoRoundTransition
 );
 Event EV_DM_Manager_FinishRoundTransition
 (
-    "finishroundtransition",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "delayed function call to do the actual restart for the next round"
+    "finishroundtransition", EV_DEFAULT, NULL, NULL, "delayed function call to do the actual restart for the next round"
 );
 
 CLASS_DECLARATION(Listener, DM_Manager, NULL) {
@@ -766,8 +762,7 @@ void DM_Manager::Reset(void)
     level.m_bIgnoreClock  = false;
 
     if (g_gametype->integer == GT_TOW) {
-        // FIXME: unimplemented
-        //g_TOWObjectiveMan.Reset();
+        g_TOWObjectiveMan.Reset();
         gi.cvar_set("g_TOW_winstate", "0");
     } else if (g_gametype->integer == GT_LIBERATION) {
         gi.cvar_set("scoreboard_toggle1", "0");
@@ -924,6 +919,11 @@ void DM_Manager::Score(Player *player)
     int      iPlayerList[MAX_CLIENTS];
     DM_Team *pDMTeam;
 
+    //
+    // Since 2.0, added the player count for individual team, and added new indices for GT_TOW
+    // Since 2.30, added booleans for liberation scoreboard toggle
+    //
+
     assert(player);
 
     scoreString[0] = 0;
@@ -988,6 +988,49 @@ void DM_Manager::Score(Player *player)
 
     // sort players by kills
     qsort(iPlayerList, j, sizeof(int), compareScores);
+
+    switch (g_gametype->integer) {
+    case GT_TOW:
+        {
+            char buffer[1024];
+
+            // send the number for all tow objectives
+            Com_sprintf(
+                buffer,
+                sizeof(buffer),
+                "%i %i %i %i %i %i %i %i %i %i ",
+                gi.Cvar_Get("tow_allied_obj1", "", 0)->integer,
+                gi.Cvar_Get("tow_allied_obj2", "", 0)->integer,
+                gi.Cvar_Get("tow_allied_obj3", "", 0)->integer,
+                gi.Cvar_Get("tow_allied_obj4", "", 0)->integer,
+                gi.Cvar_Get("tow_allied_obj5", "", 0)->integer,
+                gi.Cvar_Get("tow_axis_obj1", "", 0)->integer,
+                gi.Cvar_Get("tow_axis_obj2", "", 0)->integer,
+                gi.Cvar_Get("tow_axis_obj3", "", 0)->integer,
+                gi.Cvar_Get("tow_axis_obj4", "", 0)->integer,
+                gi.Cvar_Get("tow_axis_obj5", "", 0)->integer
+            );
+
+            InsertEntryNoCount(buffer);
+            break;
+        }
+    case GT_LIBERATION:
+        {
+            char buffer[1024];
+
+            // scoreboard index
+            Com_sprintf(
+                buffer,
+                sizeof(buffer),
+                "%i %i ",
+                gi.Cvar_Get("scoreboard_toggle1", "", 0),
+                gi.Cvar_Get("scoreboard_toggle2", "", 0)
+            );
+
+            InsertEntryNoCount(buffer);
+            break;
+        }
+    }
 
     // build team info
     if (g_gametype->integer > GT_FFA) {
@@ -1430,8 +1473,7 @@ void DM_Manager::EventFinishRoundTransition(Event *ev)
     }
 
     if (g_gametype->integer == GT_TOW) {
-        // FIXME: unimplemented
-        //g_TOWObjectiveMan.Reset();
+        g_TOWObjectiveMan.Reset();
     }
 
     gi.SendConsoleCommand("restart\n");
@@ -1752,6 +1794,17 @@ void DM_Manager::InsertEntry(const char *entry)
     }
 }
 
+void DM_Manager::InsertEntryNoCount(const char* entry)
+{
+	size_t len = strlen(entry);
+
+	if (scoreLength + len < MAX_STRING_CHARS) {
+		strcpy(scoreString + scoreLength, entry);
+
+		scoreLength += len;
+	}
+}
+
 void DM_Manager::InsertEmpty(void)
 {
     if (g_gametype->integer > GT_FFA) {
@@ -1762,6 +1815,15 @@ void DM_Manager::InsertEmpty(void)
 }
 
 void DM_Manager::BuildTeamInfo(DM_Team *dmTeam)
+{
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        BuildTeamInfo_ver15(dmTeam);
+    } else {
+        BuildTeamInfo_ver6(dmTeam);
+    }
+}
+
+void DM_Manager::BuildTeamInfo_ver6(DM_Team *dmTeam)
 {
     int     iPing = 0;
     int     iKills;
@@ -1806,6 +1868,61 @@ void DM_Manager::BuildTeamInfo(DM_Team *dmTeam)
     InsertEntry(entry);
 }
 
+void DM_Manager::BuildTeamInfo_ver15(DM_Team *dmTeam)
+{
+    int     iPing = 0;
+    int     iKills;
+    int     iDeaths;
+    int     iNumPlayers = 0;
+    Player *pTeamPlayer;
+    char    entry[MAX_STRING_TOKENS];
+
+    for (int i = iNumPlayers; i > 0; i--) {
+        pTeamPlayer = dmTeam->m_players.ObjectAt(i);
+
+        if (pTeamPlayer->IsSubclassOfBot()) {
+            continue;
+        }
+
+        iNumPlayers++;
+        iPing += pTeamPlayer->client->ps.ping;
+    }
+
+    if (iNumPlayers > 0) {
+        iPing /= iNumPlayers;
+    }
+
+    if (g_gametype->integer >= GT_TEAM_ROUNDS) {
+        iKills  = dmTeam->m_wins_in_a_row;
+        iDeaths = dmTeam->m_teamwins;
+    } else {
+        iKills  = dmTeam->m_iKills;
+        iDeaths = dmTeam->m_iDeaths;
+    }
+
+    if (g_gametype->integer > GT_FFA) {
+        if (dmTeam->m_teamnumber > TEAM_FREEFORALL) {
+            Com_sprintf(
+                entry,
+                sizeof(entry),
+                "%i %i %i %i %i \"\" %i ",
+                -1,
+                dmTeam->m_teamnumber,
+                dmTeam->m_players.NumObjects(),
+                iKills,
+                iDeaths,
+                iPing
+            );
+        } else {
+            Com_sprintf(entry, sizeof(entry), "%i %i \"\" \"\" \"\" \"\" ", -1, dmTeam->m_teamnumber);
+        }
+    } else {
+        Com_sprintf(entry, sizeof(entry), "%i \"\" \"\" \"\" \"\" \"\" ", -1 - dmTeam->m_teamnumber);
+    }
+
+    InsertEntry(entry);
+}
+
 void DM_Manager::BuildPlayerTeamInfo(DM_Team *dmTeam, int *iPlayerList, DM_Team *ignoreTeam)
 {
     char    entry[MAX_STRING_CHARS];
@@ -1832,7 +1949,8 @@ void DM_Manager::BuildPlayerTeamInfo(DM_Team *dmTeam, int *iPlayerList, DM_Team 
                 sizeof(entry),
                 "%i %i %i %i %s %s ",
                 pTeamPlayer->client->ps.clientNum,
-                pTeamPlayer->IsDead() ? -pTeamPlayer->GetTeam() : pTeamPlayer->GetTeam(), // negative team means death
+                IsAlivePlayer(pTeamPlayer) ? pTeamPlayer->GetTeam()
+                                           : -pTeamPlayer->GetTeam(), // negative team means death
                 pTeamPlayer->GetNumKills(),
                 pTeamPlayer->GetNumDeaths(),
                 G_TimeString(level.svsFloatTime - pTeamPlayer->edict->client->pers.enterTime),
@@ -1853,4 +1971,9 @@ void DM_Manager::BuildPlayerTeamInfo(DM_Team *dmTeam, int *iPlayerList, DM_Team 
 
         InsertEntry(entry);
     }
+}
+
+bool DM_Manager::IsAlivePlayer(Player *player) const
+{
+    return !player->IsDead() && !player->IsSpectator() && !player->IsInJail() || player->GetDM_Team() == &m_team_spectator;
 }
