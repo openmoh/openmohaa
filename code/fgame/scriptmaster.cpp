@@ -893,38 +893,39 @@ void ScriptMaster::Archive(Archiver& arc)
     ScriptClass  *scr;
     ScriptVM     *m_current;
     ScriptThread *m_thread;
-    int           num;
+    int           numClasses;
+    int           numThreads;
     int           i, j;
 
     if (arc.Saving()) {
-        num = (int)ScriptClass_allocator.Count();
-        arc.ArchiveInteger(&num);
+        numClasses = (int)ScriptClass_allocator.Count();
+        arc.ArchiveInteger(&numClasses);
 
         MEM_BlockAlloc_enum<ScriptClass> en = ScriptClass_allocator;
         for (scr = en.NextElement(); scr != NULL; scr = en.NextElement()) {
             scr->ArchiveInternal(arc);
 
-            num = 0;
+            numThreads = 0;
             for (m_current = scr->m_Threads; m_current != NULL; m_current = m_current->next) {
-                num++;
+                numThreads++;
             }
 
-            arc.ArchiveInteger(&num);
+            arc.ArchiveInteger(&numThreads);
 
             for (m_current = scr->m_Threads; m_current != NULL; m_current = m_current->next) {
                 m_current->m_Thread->ArchiveInternal(arc);
             }
         }
     } else {
-        arc.ArchiveInteger(&num);
+        arc.ArchiveInteger(&numClasses);
 
-        for (i = 0; i < num; i++) {
+        for (i = 0; i < numClasses; i++) {
             scr = new ScriptClass();
             scr->ArchiveInternal(arc);
 
-            arc.ArchiveInteger(&num);
+            arc.ArchiveInteger(&numThreads);
 
-            for (j = 0; j < num; j++) {
+            for (j = 0; j < numThreads; j++) {
                 m_thread = new ScriptThread(scr, NULL);
                 m_thread->ArchiveInternal(arc);
             }
