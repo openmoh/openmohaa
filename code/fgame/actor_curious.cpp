@@ -224,7 +224,7 @@ void Actor::Think_Curious
 			return;
 		}
 
-		if (m_Enemy || CanSeeEnemy(100))
+		if (!m_Enemy || CanSeeEnemy(100))
 		{
 			ClearPath();
 			Anim_Stand();
