@@ -1194,7 +1194,7 @@ void Objective::SetObjectiveNbr(Event *ev)
 
 void Objective::SetText(Event *ev)
 {
-    m_sText = ev->GetString(2);
+    m_sText = ev->GetString(1);
 }
 
 int Objective::GetObjectiveIndex() const
