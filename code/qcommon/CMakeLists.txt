@@ -71,6 +71,11 @@ add_subdirectory("../tiki" "./tiki")
 add_library(qcommon_standalone INTERFACE)
 target_sources(qcommon_standalone INTERFACE ${SOURCES_COMMON})
 target_compile_definitions(qcommon_standalone INTERFACE APP_MODULE)
+
+if(DEBUG_DROP_ASSERT)
+    target_compile_definitions(qcommon_standalone INTERFACE COM_ERROR_DROP_ASSERT)
+endif()
+
 target_compile_features(qcommon_standalone INTERFACE cxx_nullptr)
 target_compile_features(qcommon_standalone INTERFACE c_variadic_macros)
 target_link_libraries(qcommon_standalone INTERFACE omohtiki omohskeletor)
