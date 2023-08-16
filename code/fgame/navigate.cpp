@@ -1712,6 +1712,33 @@ void PathSearch::ArchiveStaticSave
 	}
 }
 
+bool PathSearch::ArchiveDynamic(Archiver& arc)
+{
+	PathNode* node;
+	int i;
+	int count;
+
+	if (arc.Loading())
+	{
+		arc.ArchiveInteger(&count);
+		if (count != nodecount) {
+			Com_Printf("Path file invalid - cannot load save game\n");
+			return false;
+		}
+	}
+	else
+	{
+		arc.ArchiveInteger(&nodecount);
+	}
+
+	for (i = 0; i < nodecount; i++) {
+		node = PathSearch::pathnodes[i];
+		node->ArchiveDynamic(arc);
+	}
+
+	return true;
+}
+
 void PathSearch::ArchiveLoadNodes
 	(
 	void
@@ -1932,16 +1959,7 @@ void PathSearch::LoadNodes
 	void
 	)
 {
-	ai_showroutes				= gi.Cvar_Get( "ai_showroutes", "0", 0 );
-	ai_showroutes_distance		= gi.Cvar_Get( "ai_showroutes_distance", "1000", 0 );
-	ai_shownodenums				= gi.Cvar_Get( "ai_shownodenums", "0", 0 );
-	ai_shownode					= gi.Cvar_Get( "ai_shownode", "0", 0 );
-	ai_showallnode				= gi.Cvar_Get( "ai_showallnode", "0", 0 );
-	ai_showpath					= gi.Cvar_Get( "ai_showpath", "0", 0 );
-	ai_fallheight				= gi.Cvar_Get( "ai_fallheight", "96", 0 );
-	ai_debugpath				= gi.Cvar_Get( "ai_debugpath", "0", 0 );
-	ai_pathchecktime			= gi.Cvar_Get( "ai_pathchecktime", "1.5", CVAR_CHEAT );
-	ai_pathcheckdist			= gi.Cvar_Get( "ai_pathcheckdist", "4096", CVAR_CHEAT );
+	Init();
 
 	ArchiveLoadNodes();
 }
@@ -3498,7 +3516,7 @@ void PathSearch::Init
 	ai_shownode					= gi.Cvar_Get( "ai_shownode", "0", 0 );
 	ai_showallnode				= gi.Cvar_Get( "ai_showallnode", "0", 0 );
 	ai_showpath					= gi.Cvar_Get( "ai_showpath", "0", 0 );
-	ai_fallheight				= gi.Cvar_Get( "ai_fallheight", "4096", 0 );
+	ai_fallheight				= gi.Cvar_Get( "ai_fallheight", "96", 0 );
 	ai_debugpath				= gi.Cvar_Get( "ai_debugpath", "0", 0 );
 	ai_pathchecktime			= gi.Cvar_Get( "ai_pathchecktime", "1.5", CVAR_CHEAT );
 	ai_pathcheckdist			= gi.Cvar_Get( "ai_pathcheckdist", "4096", CVAR_CHEAT );
