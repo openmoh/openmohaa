@@ -74,7 +74,7 @@ typedef enum {
     ENUM_define
 } sval_type_e;
 
-typedef union sval_u {
+union sval_u {
     int            type;
     const char    *stringValue;
     float          floatValue;
@@ -86,7 +86,9 @@ typedef union sval_u {
     int            HasExternal;
     union sval_u  *node;
     unsigned int   sourcePosValue;
-} sval_t;
+};
+
+using sval_t = sval_u;
 
 struct stype_t {
     sval_t       val;

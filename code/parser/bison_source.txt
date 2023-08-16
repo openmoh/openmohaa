@@ -241,7 +241,7 @@ func_prim_expr:
 	;
 
 event_parameter_list
-	: { $$ = sval_u{}; }
+	: { $$ = sval_u{}; $$.node = NULL; }
 	| event_parameter { $$ = $1; }
 	;
 

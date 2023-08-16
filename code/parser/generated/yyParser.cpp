@@ -2265,7 +2265,7 @@ yyreduce:
 
   case 71: /* event_parameter_list: %empty  */
 #line 244 "/usr/src/openmohaa/code/parser/bison_source.txt"
-          { (yyval.s.val) = sval_u{}; }
+          { (yyval.s.val) = sval_u{}; (yyval.s.val).node = NULL; }
 #line 2270 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
