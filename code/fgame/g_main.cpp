@@ -1058,7 +1058,7 @@ void ArchiveAliases(Archiver& arc)
                 while (true) {
                     p = strchr(name, '|');
                     if (!p) {
-                        return;
+                        break;
                     }
                     name = p + 1;
                 }
@@ -1283,12 +1283,10 @@ qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loadin
             arc.ArchiveObject(world);
 
             for (i = 0; i < globals.num_entities; i++) {
-                edict = &g_entities[i];
-                if (!edict->inuse || !edict->entity || (edict->entity->flags & FL_DONTSAVE)) {
-                    continue;
+				edict = &g_entities[i];
+                if (edict->inuse && edict->entity && !(edict->entity->flags & FL_DONTSAVE)) {
+                    arc.ArchiveObject(edict->entity);
                 }
-
-                arc.ArchiveObject(edict->entity);
             }
         } else {
             // Tell the server about our data
@@ -1299,8 +1297,8 @@ qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loadin
             // read in the world
             arc.ReadObject();
 
-            // FIXME: PathSearch::LoadNodes();
-            //PathSearch::LoadNodes();
+            // load pathnodes
+            PathSearch::LoadNodes();
 
             for (i = 0; i < num; i++) {
                 arc.ReadObject();
@@ -1313,8 +1311,7 @@ qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loadin
         gi.ArchiveLevel(arc.Loading());
         currentArc = NULL;
 
-        // FIXME: PathSearch::ArchiveDynamic();
-        //PathSearch::ArchiveDynamic();
+        PathSearch::ArchiveDynamic(arc);
 
         arc.Close();
 
