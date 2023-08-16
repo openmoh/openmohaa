@@ -98,6 +98,10 @@
 #include "./yyParser.hpp"
 #include "./yyLexer.h"
 
+// the value was increased because some scripts have a lot of if/else statements
+// which ends up with an high depth
+#define YYINITDEPTH 500
+
 int yyerror( const char *msg );
 
 extern int prev_yylex;
@@ -112,7 +116,7 @@ int success_pos;
 #define TOKPOS(pos) node_pos(pos.sourcePos)
 
 
-#line 116 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 120 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -147,98 +151,100 @@ enum yysymbol_kind_t
   YYSYMBOL_TOKEN_EOL = 4,                  /* TOKEN_EOL  */
   YYSYMBOL_TOKEN_COMMA = 5,                /* TOKEN_COMMA  */
   YYSYMBOL_TOKEN_IF = 6,                   /* TOKEN_IF  */
-  YYSYMBOL_TOKEN_ELSE = 7,                 /* TOKEN_ELSE  */
-  YYSYMBOL_TOKEN_WHILE = 8,                /* TOKEN_WHILE  */
-  YYSYMBOL_TOKEN_FOR = 9,                  /* TOKEN_FOR  */
-  YYSYMBOL_TOKEN_DO = 10,                  /* TOKEN_DO  */
-  YYSYMBOL_TOKEN_IDENTIFIER = 11,          /* TOKEN_IDENTIFIER  */
-  YYSYMBOL_TOKEN_LEFT_BRACES = 12,         /* TOKEN_LEFT_BRACES  */
-  YYSYMBOL_TOKEN_RIGHT_BRACES = 13,        /* TOKEN_RIGHT_BRACES  */
-  YYSYMBOL_TOKEN_LEFT_BRACKET = 14,        /* TOKEN_LEFT_BRACKET  */
-  YYSYMBOL_TOKEN_RIGHT_BRACKET = 15,       /* TOKEN_RIGHT_BRACKET  */
-  YYSYMBOL_TOKEN_LEFT_SQUARE_BRACKET = 16, /* TOKEN_LEFT_SQUARE_BRACKET  */
-  YYSYMBOL_TOKEN_RIGHT_SQUARE_BRACKET = 17, /* TOKEN_RIGHT_SQUARE_BRACKET  */
-  YYSYMBOL_TOKEN_ASSIGNMENT = 18,          /* TOKEN_ASSIGNMENT  */
-  YYSYMBOL_TOKEN_PLUS_EQUALS = 19,         /* TOKEN_PLUS_EQUALS  */
-  YYSYMBOL_TOKEN_MINUS_EQUALS = 20,        /* TOKEN_MINUS_EQUALS  */
-  YYSYMBOL_TOKEN_MULTIPLY_EQUALS = 21,     /* TOKEN_MULTIPLY_EQUALS  */
-  YYSYMBOL_TOKEN_DIVIDE_EQUALS = 22,       /* TOKEN_DIVIDE_EQUALS  */
-  YYSYMBOL_TOKEN_MODULUS_EQUALS = 23,      /* TOKEN_MODULUS_EQUALS  */
-  YYSYMBOL_TOKEN_AND_EQUALS = 24,          /* TOKEN_AND_EQUALS  */
-  YYSYMBOL_TOKEN_EXCL_OR_EQUALS = 25,      /* TOKEN_EXCL_OR_EQUALS  */
-  YYSYMBOL_TOKEN_OR_EQUALS = 26,           /* TOKEN_OR_EQUALS  */
-  YYSYMBOL_TOKEN_SHIFT_LEFT_EQUALS = 27,   /* TOKEN_SHIFT_LEFT_EQUALS  */
-  YYSYMBOL_TOKEN_SHIFT_RIGHT_EQUALS = 28,  /* TOKEN_SHIFT_RIGHT_EQUALS  */
-  YYSYMBOL_TOKEN_TERNARY = 29,             /* TOKEN_TERNARY  */
-  YYSYMBOL_TOKEN_COLON = 30,               /* TOKEN_COLON  */
-  YYSYMBOL_TOKEN_LOGICAL_OR = 31,          /* TOKEN_LOGICAL_OR  */
-  YYSYMBOL_TOKEN_LOGICAL_AND = 32,         /* TOKEN_LOGICAL_AND  */
-  YYSYMBOL_TOKEN_BITWISE_OR = 33,          /* TOKEN_BITWISE_OR  */
-  YYSYMBOL_TOKEN_BITWISE_EXCL_OR = 34,     /* TOKEN_BITWISE_EXCL_OR  */
-  YYSYMBOL_TOKEN_BITWISE_AND = 35,         /* TOKEN_BITWISE_AND  */
-  YYSYMBOL_TOKEN_EQUALITY = 36,            /* TOKEN_EQUALITY  */
-  YYSYMBOL_TOKEN_INEQUALITY = 37,          /* TOKEN_INEQUALITY  */
-  YYSYMBOL_TOKEN_LESS_THAN = 38,           /* TOKEN_LESS_THAN  */
-  YYSYMBOL_TOKEN_LESS_THAN_OR_EQUAL = 39,  /* TOKEN_LESS_THAN_OR_EQUAL  */
-  YYSYMBOL_TOKEN_GREATER_THAN = 40,        /* TOKEN_GREATER_THAN  */
-  YYSYMBOL_TOKEN_GREATER_THAN_OR_EQUAL = 41, /* TOKEN_GREATER_THAN_OR_EQUAL  */
-  YYSYMBOL_TOKEN_SHIFT_LEFT = 42,          /* TOKEN_SHIFT_LEFT  */
-  YYSYMBOL_TOKEN_SHIFT_RIGHT = 43,         /* TOKEN_SHIFT_RIGHT  */
-  YYSYMBOL_TOKEN_PLUS = 44,                /* TOKEN_PLUS  */
-  YYSYMBOL_TOKEN_MINUS = 45,               /* TOKEN_MINUS  */
-  YYSYMBOL_TOKEN_MULTIPLY = 46,            /* TOKEN_MULTIPLY  */
-  YYSYMBOL_TOKEN_DIVIDE = 47,              /* TOKEN_DIVIDE  */
-  YYSYMBOL_TOKEN_MODULUS = 48,             /* TOKEN_MODULUS  */
-  YYSYMBOL_TOKEN_NEG = 49,                 /* TOKEN_NEG  */
-  YYSYMBOL_TOKEN_NOT = 50,                 /* TOKEN_NOT  */
-  YYSYMBOL_TOKEN_COMPLEMENT = 51,          /* TOKEN_COMPLEMENT  */
-  YYSYMBOL_TOKEN_STRING = 52,              /* TOKEN_STRING  */
-  YYSYMBOL_TOKEN_INTEGER = 53,             /* TOKEN_INTEGER  */
-  YYSYMBOL_TOKEN_FLOAT = 54,               /* TOKEN_FLOAT  */
-  YYSYMBOL_TOKEN_LISTENER = 55,            /* TOKEN_LISTENER  */
-  YYSYMBOL_TOKEN_NIL = 56,                 /* TOKEN_NIL  */
-  YYSYMBOL_TOKEN_NULL = 57,                /* TOKEN_NULL  */
-  YYSYMBOL_TOKEN_DOUBLE_COLON = 58,        /* TOKEN_DOUBLE_COLON  */
-  YYSYMBOL_TOKEN_SEMICOLON = 59,           /* TOKEN_SEMICOLON  */
-  YYSYMBOL_TOKEN_DOLLAR = 60,              /* TOKEN_DOLLAR  */
-  YYSYMBOL_TOKEN_NUMBER = 61,              /* TOKEN_NUMBER  */
-  YYSYMBOL_TOKEN_INCREMENT = 62,           /* TOKEN_INCREMENT  */
-  YYSYMBOL_TOKEN_DECREMENT = 63,           /* TOKEN_DECREMENT  */
-  YYSYMBOL_TOKEN_PERIOD = 64,              /* TOKEN_PERIOD  */
-  YYSYMBOL_TOKEN_CATCH = 65,               /* TOKEN_CATCH  */
-  YYSYMBOL_TOKEN_TRY = 66,                 /* TOKEN_TRY  */
-  YYSYMBOL_TOKEN_SWITCH = 67,              /* TOKEN_SWITCH  */
-  YYSYMBOL_TOKEN_CASE = 68,                /* TOKEN_CASE  */
-  YYSYMBOL_TOKEN_BREAK = 69,               /* TOKEN_BREAK  */
-  YYSYMBOL_TOKEN_CONTINUE = 70,            /* TOKEN_CONTINUE  */
-  YYSYMBOL_TOKEN_SIZE = 71,                /* TOKEN_SIZE  */
-  YYSYMBOL_TOKEN_END = 72,                 /* TOKEN_END  */
-  YYSYMBOL_TOKEN_RETURN = 73,              /* TOKEN_RETURN  */
-  YYSYMBOL_TOKEN_MAKEARRAY = 74,           /* TOKEN_MAKEARRAY  */
-  YYSYMBOL_TOKEN_ENDARRAY = 75,            /* TOKEN_ENDARRAY  */
-  YYSYMBOL_YYACCEPT = 76,                  /* $accept  */
-  YYSYMBOL_program = 77,                   /* program  */
-  YYSYMBOL_statement_list = 78,            /* statement_list  */
-  YYSYMBOL_statement = 79,                 /* statement  */
-  YYSYMBOL_statement_declaration = 80,     /* statement_declaration  */
-  YYSYMBOL_compound_statement = 81,        /* compound_statement  */
-  YYSYMBOL_selection_statement = 82,       /* selection_statement  */
-  YYSYMBOL_iteration_statement = 83,       /* iteration_statement  */
-  YYSYMBOL_expr = 84,                      /* expr  */
-  YYSYMBOL_func_prim_expr = 85,            /* func_prim_expr  */
-  YYSYMBOL_event_parameter_list = 86,      /* event_parameter_list  */
-  YYSYMBOL_event_parameter_list_need = 87, /* event_parameter_list_need  */
-  YYSYMBOL_event_parameter = 88,           /* event_parameter  */
-  YYSYMBOL_const_array_list = 89,          /* const_array_list  */
-  YYSYMBOL_const_array = 90,               /* const_array  */
-  YYSYMBOL_prim_expr = 91,                 /* prim_expr  */
-  YYSYMBOL_identifier_prim = 92,           /* identifier_prim  */
-  YYSYMBOL_identifier = 93,                /* identifier  */
-  YYSYMBOL_nonident_prim_expr = 94,        /* nonident_prim_expr  */
-  YYSYMBOL_func_expr = 95,                 /* func_expr  */
-  YYSYMBOL_makearray_statement_list = 96,  /* makearray_statement_list  */
-  YYSYMBOL_makearray_statement = 97,       /* makearray_statement  */
-  YYSYMBOL_line_opt = 98                   /* line_opt  */
+  YYSYMBOL_THEN = 7,                       /* THEN  */
+  YYSYMBOL_TOKEN_ELSE = 8,                 /* TOKEN_ELSE  */
+  YYSYMBOL_TOKEN_WHILE = 9,                /* TOKEN_WHILE  */
+  YYSYMBOL_TOKEN_FOR = 10,                 /* TOKEN_FOR  */
+  YYSYMBOL_TOKEN_DO = 11,                  /* TOKEN_DO  */
+  YYSYMBOL_TOKEN_IDENTIFIER = 12,          /* TOKEN_IDENTIFIER  */
+  YYSYMBOL_TOKEN_LEFT_BRACES = 13,         /* TOKEN_LEFT_BRACES  */
+  YYSYMBOL_TOKEN_RIGHT_BRACES = 14,        /* TOKEN_RIGHT_BRACES  */
+  YYSYMBOL_TOKEN_LEFT_BRACKET = 15,        /* TOKEN_LEFT_BRACKET  */
+  YYSYMBOL_TOKEN_RIGHT_BRACKET = 16,       /* TOKEN_RIGHT_BRACKET  */
+  YYSYMBOL_TOKEN_LEFT_SQUARE_BRACKET = 17, /* TOKEN_LEFT_SQUARE_BRACKET  */
+  YYSYMBOL_TOKEN_RIGHT_SQUARE_BRACKET = 18, /* TOKEN_RIGHT_SQUARE_BRACKET  */
+  YYSYMBOL_TOKEN_ASSIGNMENT = 19,          /* TOKEN_ASSIGNMENT  */
+  YYSYMBOL_TOKEN_PLUS_EQUALS = 20,         /* TOKEN_PLUS_EQUALS  */
+  YYSYMBOL_TOKEN_MINUS_EQUALS = 21,        /* TOKEN_MINUS_EQUALS  */
+  YYSYMBOL_TOKEN_MULTIPLY_EQUALS = 22,     /* TOKEN_MULTIPLY_EQUALS  */
+  YYSYMBOL_TOKEN_DIVIDE_EQUALS = 23,       /* TOKEN_DIVIDE_EQUALS  */
+  YYSYMBOL_TOKEN_MODULUS_EQUALS = 24,      /* TOKEN_MODULUS_EQUALS  */
+  YYSYMBOL_TOKEN_AND_EQUALS = 25,          /* TOKEN_AND_EQUALS  */
+  YYSYMBOL_TOKEN_EXCL_OR_EQUALS = 26,      /* TOKEN_EXCL_OR_EQUALS  */
+  YYSYMBOL_TOKEN_OR_EQUALS = 27,           /* TOKEN_OR_EQUALS  */
+  YYSYMBOL_TOKEN_SHIFT_LEFT_EQUALS = 28,   /* TOKEN_SHIFT_LEFT_EQUALS  */
+  YYSYMBOL_TOKEN_SHIFT_RIGHT_EQUALS = 29,  /* TOKEN_SHIFT_RIGHT_EQUALS  */
+  YYSYMBOL_TOKEN_TERNARY = 30,             /* TOKEN_TERNARY  */
+  YYSYMBOL_TOKEN_COLON = 31,               /* TOKEN_COLON  */
+  YYSYMBOL_TOKEN_LOGICAL_OR = 32,          /* TOKEN_LOGICAL_OR  */
+  YYSYMBOL_TOKEN_LOGICAL_AND = 33,         /* TOKEN_LOGICAL_AND  */
+  YYSYMBOL_TOKEN_BITWISE_OR = 34,          /* TOKEN_BITWISE_OR  */
+  YYSYMBOL_TOKEN_BITWISE_EXCL_OR = 35,     /* TOKEN_BITWISE_EXCL_OR  */
+  YYSYMBOL_TOKEN_BITWISE_AND = 36,         /* TOKEN_BITWISE_AND  */
+  YYSYMBOL_TOKEN_EQUALITY = 37,            /* TOKEN_EQUALITY  */
+  YYSYMBOL_TOKEN_INEQUALITY = 38,          /* TOKEN_INEQUALITY  */
+  YYSYMBOL_TOKEN_LESS_THAN = 39,           /* TOKEN_LESS_THAN  */
+  YYSYMBOL_TOKEN_LESS_THAN_OR_EQUAL = 40,  /* TOKEN_LESS_THAN_OR_EQUAL  */
+  YYSYMBOL_TOKEN_GREATER_THAN = 41,        /* TOKEN_GREATER_THAN  */
+  YYSYMBOL_TOKEN_GREATER_THAN_OR_EQUAL = 42, /* TOKEN_GREATER_THAN_OR_EQUAL  */
+  YYSYMBOL_TOKEN_SHIFT_LEFT = 43,          /* TOKEN_SHIFT_LEFT  */
+  YYSYMBOL_TOKEN_SHIFT_RIGHT = 44,         /* TOKEN_SHIFT_RIGHT  */
+  YYSYMBOL_TOKEN_PLUS = 45,                /* TOKEN_PLUS  */
+  YYSYMBOL_TOKEN_MINUS = 46,               /* TOKEN_MINUS  */
+  YYSYMBOL_TOKEN_MULTIPLY = 47,            /* TOKEN_MULTIPLY  */
+  YYSYMBOL_TOKEN_DIVIDE = 48,              /* TOKEN_DIVIDE  */
+  YYSYMBOL_TOKEN_MODULUS = 49,             /* TOKEN_MODULUS  */
+  YYSYMBOL_TOKEN_NEG = 50,                 /* TOKEN_NEG  */
+  YYSYMBOL_TOKEN_NOT = 51,                 /* TOKEN_NOT  */
+  YYSYMBOL_TOKEN_COMPLEMENT = 52,          /* TOKEN_COMPLEMENT  */
+  YYSYMBOL_TOKEN_STRING = 53,              /* TOKEN_STRING  */
+  YYSYMBOL_TOKEN_INTEGER = 54,             /* TOKEN_INTEGER  */
+  YYSYMBOL_TOKEN_FLOAT = 55,               /* TOKEN_FLOAT  */
+  YYSYMBOL_TOKEN_LISTENER = 56,            /* TOKEN_LISTENER  */
+  YYSYMBOL_TOKEN_NIL = 57,                 /* TOKEN_NIL  */
+  YYSYMBOL_TOKEN_NULL = 58,                /* TOKEN_NULL  */
+  YYSYMBOL_TOKEN_DOUBLE_COLON = 59,        /* TOKEN_DOUBLE_COLON  */
+  YYSYMBOL_TOKEN_SEMICOLON = 60,           /* TOKEN_SEMICOLON  */
+  YYSYMBOL_TOKEN_DOLLAR = 61,              /* TOKEN_DOLLAR  */
+  YYSYMBOL_TOKEN_NUMBER = 62,              /* TOKEN_NUMBER  */
+  YYSYMBOL_TOKEN_INCREMENT = 63,           /* TOKEN_INCREMENT  */
+  YYSYMBOL_TOKEN_DECREMENT = 64,           /* TOKEN_DECREMENT  */
+  YYSYMBOL_TOKEN_PERIOD = 65,              /* TOKEN_PERIOD  */
+  YYSYMBOL_TOKEN_CATCH = 66,               /* TOKEN_CATCH  */
+  YYSYMBOL_TOKEN_TRY = 67,                 /* TOKEN_TRY  */
+  YYSYMBOL_TOKEN_SWITCH = 68,              /* TOKEN_SWITCH  */
+  YYSYMBOL_TOKEN_CASE = 69,                /* TOKEN_CASE  */
+  YYSYMBOL_TOKEN_BREAK = 70,               /* TOKEN_BREAK  */
+  YYSYMBOL_TOKEN_CONTINUE = 71,            /* TOKEN_CONTINUE  */
+  YYSYMBOL_TOKEN_SIZE = 72,                /* TOKEN_SIZE  */
+  YYSYMBOL_TOKEN_END = 73,                 /* TOKEN_END  */
+  YYSYMBOL_TOKEN_RETURN = 74,              /* TOKEN_RETURN  */
+  YYSYMBOL_TOKEN_MAKEARRAY = 75,           /* TOKEN_MAKEARRAY  */
+  YYSYMBOL_TOKEN_ENDARRAY = 76,            /* TOKEN_ENDARRAY  */
+  YYSYMBOL_YYACCEPT = 77,                  /* $accept  */
+  YYSYMBOL_program = 78,                   /* program  */
+  YYSYMBOL_statement_list = 79,            /* statement_list  */
+  YYSYMBOL_statement = 80,                 /* statement  */
+  YYSYMBOL_statement_declaration = 81,     /* statement_declaration  */
+  YYSYMBOL_compound_statement = 82,        /* compound_statement  */
+  YYSYMBOL_selection_statement = 83,       /* selection_statement  */
+  YYSYMBOL_iteration_statement = 84,       /* iteration_statement  */
+  YYSYMBOL_expr = 85,                      /* expr  */
+  YYSYMBOL_func_prim_expr = 86,            /* func_prim_expr  */
+  YYSYMBOL_event_parameter_list = 87,      /* event_parameter_list  */
+  YYSYMBOL_event_parameter_list_need = 88, /* event_parameter_list_need  */
+  YYSYMBOL_event_parameter = 89,           /* event_parameter  */
+  YYSYMBOL_const_array_list = 90,          /* const_array_list  */
+  YYSYMBOL_const_array = 91,               /* const_array  */
+  YYSYMBOL_prim_expr = 92,                 /* prim_expr  */
+  YYSYMBOL_identifier_prim = 93,           /* identifier_prim  */
+  YYSYMBOL_identifier = 94,                /* identifier  */
+  YYSYMBOL_listener_identifier = 95,       /* listener_identifier  */
+  YYSYMBOL_nonident_prim_expr = 96,        /* nonident_prim_expr  */
+  YYSYMBOL_func_expr = 97,                 /* func_expr  */
+  YYSYMBOL_makearray_statement_list = 98,  /* makearray_statement_list  */
+  YYSYMBOL_makearray_statement = 99,       /* makearray_statement  */
+  YYSYMBOL_line_opt = 100                  /* line_opt  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -569,19 +575,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  6
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   864
+#define YYLAST   978
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  76
+#define YYNTOKENS  77
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  23
+#define YYNNTS  24
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  109
+#define YYNRULES  112
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  205
+#define YYNSTATES  211
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   330
+#define YYMAXUTOK   331
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -628,24 +634,25 @@ static const yytype_int8 yytranslate[] =
       45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
       55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
       65,    66,    67,    68,    69,    70,    71,    72,    73,    74,
-      75
+      75,    76
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   130,   130,   131,   135,   136,   140,   144,   145,   146,
-     147,   148,   149,   150,   151,   152,   153,   154,   155,   156,
-     157,   158,   159,   160,   161,   162,   163,   164,   165,   166,
-     167,   173,   174,   175,   179,   180,   181,   185,   186,   191,
-     195,   199,   200,   201,   202,   203,   204,   205,   206,   207,
-     208,   209,   210,   211,   212,   213,   214,   215,   216,   217,
-     218,   219,   220,   221,   225,   226,   227,   228,   229,   233,
-     237,   244,   245,   249,   253,   254,   258,   259,   263,   264,
-     268,   269,   270,   274,   278,   279,   283,   284,   285,   286,
-     287,   288,   289,   290,   291,   292,   293,   294,   295,   296,
-     300,   301,   305,   306,   307,   308,   312,   313,   317,   318
+       0,   135,   135,   136,   140,   141,   145,   149,   150,   151,
+     152,   153,   154,   155,   156,   157,   158,   159,   160,   161,
+     162,   163,   164,   165,   166,   167,   168,   169,   170,   171,
+     172,   178,   179,   180,   184,   185,   186,   190,   191,   196,
+     200,   204,   205,   206,   207,   208,   209,   210,   211,   212,
+     213,   214,   215,   216,   217,   218,   219,   220,   221,   222,
+     223,   224,   225,   226,   230,   231,   232,   233,   234,   238,
+     242,   249,   250,   254,   258,   259,   263,   264,   268,   269,
+     273,   274,   275,   279,   283,   284,   288,   289,   293,   294,
+     295,   296,   297,   298,   299,   300,   301,   302,   303,   304,
+     305,   306,   307,   311,   312,   316,   317,   318,   319,   323,
+     324,   328,   329
 };
 #endif
 
@@ -662,15 +669,15 @@ static const char *yysymbol_name (yysymbol_kind_t yysymbol) YY_ATTRIBUTE_UNUSED;
 static const char *const yytname[] =
 {
   "TOKEN_EOF", "error", "\"invalid token\"", "\"end of file\"",
-  "TOKEN_EOL", "TOKEN_COMMA", "TOKEN_IF", "TOKEN_ELSE", "TOKEN_WHILE",
-  "TOKEN_FOR", "TOKEN_DO", "TOKEN_IDENTIFIER", "TOKEN_LEFT_BRACES",
-  "TOKEN_RIGHT_BRACES", "TOKEN_LEFT_BRACKET", "TOKEN_RIGHT_BRACKET",
-  "TOKEN_LEFT_SQUARE_BRACKET", "TOKEN_RIGHT_SQUARE_BRACKET",
-  "TOKEN_ASSIGNMENT", "TOKEN_PLUS_EQUALS", "TOKEN_MINUS_EQUALS",
-  "TOKEN_MULTIPLY_EQUALS", "TOKEN_DIVIDE_EQUALS", "TOKEN_MODULUS_EQUALS",
-  "TOKEN_AND_EQUALS", "TOKEN_EXCL_OR_EQUALS", "TOKEN_OR_EQUALS",
-  "TOKEN_SHIFT_LEFT_EQUALS", "TOKEN_SHIFT_RIGHT_EQUALS", "TOKEN_TERNARY",
-  "TOKEN_COLON", "TOKEN_LOGICAL_OR", "TOKEN_LOGICAL_AND",
+  "TOKEN_EOL", "TOKEN_COMMA", "TOKEN_IF", "THEN", "TOKEN_ELSE",
+  "TOKEN_WHILE", "TOKEN_FOR", "TOKEN_DO", "TOKEN_IDENTIFIER",
+  "TOKEN_LEFT_BRACES", "TOKEN_RIGHT_BRACES", "TOKEN_LEFT_BRACKET",
+  "TOKEN_RIGHT_BRACKET", "TOKEN_LEFT_SQUARE_BRACKET",
+  "TOKEN_RIGHT_SQUARE_BRACKET", "TOKEN_ASSIGNMENT", "TOKEN_PLUS_EQUALS",
+  "TOKEN_MINUS_EQUALS", "TOKEN_MULTIPLY_EQUALS", "TOKEN_DIVIDE_EQUALS",
+  "TOKEN_MODULUS_EQUALS", "TOKEN_AND_EQUALS", "TOKEN_EXCL_OR_EQUALS",
+  "TOKEN_OR_EQUALS", "TOKEN_SHIFT_LEFT_EQUALS", "TOKEN_SHIFT_RIGHT_EQUALS",
+  "TOKEN_TERNARY", "TOKEN_COLON", "TOKEN_LOGICAL_OR", "TOKEN_LOGICAL_AND",
   "TOKEN_BITWISE_OR", "TOKEN_BITWISE_EXCL_OR", "TOKEN_BITWISE_AND",
   "TOKEN_EQUALITY", "TOKEN_INEQUALITY", "TOKEN_LESS_THAN",
   "TOKEN_LESS_THAN_OR_EQUAL", "TOKEN_GREATER_THAN",
@@ -688,8 +695,8 @@ static const char *const yytname[] =
   "expr", "func_prim_expr", "event_parameter_list",
   "event_parameter_list_need", "event_parameter", "const_array_list",
   "const_array", "prim_expr", "identifier_prim", "identifier",
-  "nonident_prim_expr", "func_expr", "makearray_statement_list",
-  "makearray_statement", "line_opt", YY_NULLPTR
+  "listener_identifier", "nonident_prim_expr", "func_expr",
+  "makearray_statement_list", "makearray_statement", "line_opt", YY_NULLPTR
 };
 
 static const char *
@@ -699,7 +706,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-98)
+#define YYPACT_NINF (-100)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -713,27 +720,28 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      15,   -98,    38,    39,   -98,   449,   -98,   -98,   449,   608,
-     608,     4,    15,   608,    15,   158,   -98,   170,   -98,   -98,
-     -98,   -98,   -98,   -98,   -98,   -98,   608,    53,   608,   608,
-     -98,   -98,    15,   -98,   -98,   -98,   580,   170,    53,   -98,
-      12,   -98,    14,    12,    10,    50,    36,   608,     1,    29,
-     382,   158,   560,   479,   231,   315,   -98,    18,   479,    20,
-       1,    26,    16,   581,   -98,   608,   158,   158,   158,   158,
-     158,   158,   158,   158,   158,   158,   158,   158,   -98,   -98,
-       2,    14,    15,   608,    89,   -98,   158,    28,   608,   -98,
-       1,   -98,   -98,   770,   608,   -98,   608,   560,   -98,    46,
-     231,     1,   432,   509,   -98,   158,   158,   158,   158,   158,
-     158,   158,   158,   158,   158,   158,   158,   158,   158,   158,
-     158,   158,   158,   158,   370,   608,   608,   -98,    18,    53,
-     -98,    75,   -98,   670,   770,   770,   770,   770,   770,   770,
-     770,   770,   770,   770,   770,   -98,   -98,   -98,   -98,   -98,
-      49,   -98,   -98,    14,    15,   690,   158,     1,    49,   608,
-     -98,   533,   -98,     1,   750,   787,   431,   802,   816,   295,
-     650,   650,   603,   603,   603,   603,    91,    91,    65,    65,
-     -98,   -98,   -98,   638,   -98,    49,   -98,   -98,   -98,   608,
-     -98,    15,   719,   -98,   158,   -98,   -98,    56,    15,   770,
-      15,    68,   -98,    15,   -98
+      28,  -100,    53,    58,  -100,   480,  -100,  -100,   480,   666,
+     666,    46,    28,   666,    28,   399,  -100,   687,  -100,  -100,
+    -100,  -100,  -100,  -100,  -100,  -100,    64,    30,   666,   666,
+    -100,  -100,    28,  -100,  -100,  -100,   612,   687,    30,  -100,
+       0,  -100,     3,     0,    12,    75,    38,   666,    26,    25,
+     412,   399,   613,   510,   540,   276,  -100,    21,   510,    33,
+     399,  -100,  -100,    23,    15,   642,  -100,   666,   399,   399,
+     399,   399,   399,   399,   399,   399,   399,   399,   399,   399,
+    -100,  -100,     1,     3,    28,   666,    85,  -100,   399,    55,
+     666,  -100,    26,  -100,  -100,   883,   666,  -100,   666,   613,
+    -100,   -23,   540,    26,   463,   565,   386,  -100,   399,   399,
+     399,   399,   399,   399,   399,   399,   399,   399,   399,   399,
+     399,   399,   399,   399,   399,   399,   399,   331,   666,   666,
+    -100,    21,   717,    30,  -100,    86,  -100,   783,   883,   883,
+     883,   883,   883,   883,   883,   883,   883,   883,   883,  -100,
+    -100,  -100,  -100,  -100,    59,  -100,  -100,     3,    28,   803,
+     399,    26,    59,   666,  -100,   595,  -100,    26,  -100,   863,
+     900,   462,   915,   929,   256,   665,   665,    94,    94,    94,
+      94,    60,    60,    65,    65,  -100,  -100,  -100,   751,  -100,
+      59,  -100,  -100,  -100,  -100,   666,  -100,    28,   832,  -100,
+     399,  -100,  -100,    14,    28,   883,    28,    62,  -100,    28,
+    -100
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -741,43 +749,44 @@ static const yytype_int16 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-     108,   109,     0,   108,     4,     3,     1,     5,     0,     0,
-       0,     0,   108,    71,   108,     0,   100,     0,   101,    90,
-      91,    92,    94,    99,    98,    30,     0,     0,     0,     0,
-      13,    14,   108,     9,    10,    11,     0,     0,     0,    83,
-     108,    81,    80,   108,   108,     0,    15,    72,    74,   108,
-       0,     0,    63,     0,   102,     0,    62,    61,     0,    97,
-      86,     0,     0,    71,     6,    71,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,    28,    29,
-       0,    96,   108,     0,    34,    37,     0,     0,     0,     7,
-      75,    31,    32,    60,     0,    64,    73,     0,    67,    97,
-     102,   106,     0,     0,    95,     0,     0,     0,     0,     0,
+     111,   112,     0,   111,     4,     3,     1,     5,     0,     0,
+       0,     0,   111,    71,   111,     0,   103,     0,   104,    92,
+      93,    94,    96,   102,   101,    30,     0,     0,     0,     0,
+      13,    14,   111,     9,    10,    11,     0,     0,     0,    83,
+     111,    81,    80,   111,   111,     0,    15,    72,    74,   111,
+       0,     0,    63,     0,   105,     0,    62,    61,     0,   100,
+       0,    86,    88,     0,     0,    71,     6,    71,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    71,     0,    66,    96,     0,
-      36,     0,    16,     0,    17,    18,    19,    20,    21,    22,
-      23,    24,    25,    26,    27,    84,    85,    88,    87,    33,
-      82,    76,    79,    78,   108,     0,     0,    40,    68,   105,
-      70,     0,   104,   107,     0,    42,    41,    44,    45,    43,
-      46,    47,    48,    50,    49,    51,    57,    58,    52,    53,
-      54,    55,    56,     0,    65,    69,    12,     8,    89,     0,
-      35,   108,     0,   103,     0,    93,    77,   108,   108,    59,
-     108,   108,    39,   108,    38
+      28,    29,     0,    99,   111,     0,    34,    37,     0,     0,
+       0,     7,    75,    31,    32,    60,     0,    64,    73,     0,
+      67,   100,   105,   109,     0,     0,     0,    97,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,    71,     0,
+      66,    99,     0,     0,    36,     0,    16,     0,    17,    18,
+      19,    20,    21,    22,    23,    24,    25,    26,    27,    84,
+      85,    90,    89,    33,    82,    76,    79,    78,   111,     0,
+       0,    40,    68,   108,    70,     0,   107,   110,    98,     0,
+      42,    41,    44,    45,    43,    46,    47,    48,    50,    49,
+      51,    57,    58,    52,    53,    54,    55,    56,     0,    65,
+      69,    87,    12,     8,    91,     0,    35,   111,     0,   106,
+       0,    95,    77,   111,   111,    59,   111,   111,    39,   111,
+      38
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-     -98,   -98,   -13,    -3,   -98,   -15,   -98,   -98,   189,    22,
-     -61,   -98,   -20,   -58,   -74,    93,   -73,   -98,    -2,    80,
-      25,   -97,    17
+    -100,  -100,   -12,    -3,  -100,   -17,  -100,  -100,   147,    24,
+     -53,  -100,   -29,   -72,   -75,   185,   -25,  -100,  -100,    -2,
+      82,    19,   -99,    17
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_uint8 yydefgoto[] =
 {
-       0,     2,     3,     4,    32,    33,    34,    35,    55,    56,
-      46,    95,    47,   150,   151,    48,    41,   148,    57,    58,
-     102,   103,     8
+       0,     2,     3,     4,    32,    33,    34,    35,    95,    56,
+      46,    97,    47,   154,   155,    48,    41,   152,    62,    57,
+      58,   104,   105,     8
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -785,227 +794,251 @@ static const yytype_uint8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-       7,    49,   131,    36,   132,   161,    36,    42,    42,    45,
-     152,    42,    61,   145,     1,    59,     1,     5,    44,     1,
-       1,   152,    38,    82,    42,    38,    42,    42,    14,   125,
-      66,    50,    96,     1,    66,    81,   158,    84,     6,    -2,
-      85,    87,    91,     1,    38,    42,     7,   130,    36,    64,
-      42,    99,    42,   152,   146,    38,   128,     1,    88,    83,
-       1,    42,   161,    42,   184,    14,    89,    38,   185,    86,
-      83,   200,     1,   147,    83,    98,   126,    96,    80,    38,
-     127,   153,    80,   203,    80,    37,    42,   156,    37,    37,
-      37,   129,   153,    37,    42,    42,   154,    37,    42,   149,
-      42,    42,    40,    43,   126,   187,    37,   189,    37,    37,
-      80,   121,   122,   123,   186,   196,   152,    37,     0,    60,
-       0,    62,    63,    42,   153,   159,     0,    37,     0,     0,
-      37,     0,    37,     0,    37,   119,   120,   121,   122,   123,
-      90,     0,     0,    37,     0,    37,    38,   101,     0,     0,
-       0,   190,     0,     0,     0,     0,     0,    42,     0,    42,
-       0,     0,    51,    37,     0,     0,     0,     0,    37,    52,
-       0,     0,    15,     0,    37,     0,    37,    37,   197,     0,
-      37,   157,    37,    37,    15,   201,     0,   153,     0,    90,
-       0,     0,     0,   101,     7,   101,   163,   202,     7,     0,
-     204,     0,     0,     0,     0,    37,    37,    16,    53,    18,
-      19,    20,    21,    22,    23,    24,     0,     0,    26,    16,
-      17,    18,    19,    20,    21,    22,    23,    24,     0,     0,
-      26,     0,    54,     0,     0,   100,     0,     0,     0,    37,
-      93,    37,    39,     0,   124,    15,     0,     0,     0,     0,
-       0,     0,   101,     0,   163,   133,   134,   135,   136,   137,
-     138,   139,   140,   141,   142,   143,   144,     0,     0,    37,
-       0,     0,     0,     0,     0,   155,     0,     0,     0,     0,
-      16,    17,    18,    19,    20,    21,    22,    23,    24,     0,
-       0,    26,     0,     0,   164,   165,   166,   167,   168,   169,
-     170,   171,   172,   173,   174,   175,   176,   177,   178,   179,
-     180,   181,   182,   183,     0,     0,     0,     0,     0,    51,
-       0,     0,     0,     0,     0,     0,    52,     0,     0,    15,
-     104,   111,   112,   113,   114,   115,   116,   117,   118,   119,
-     120,   121,   122,   123,   105,   192,   106,   107,   108,   109,
-     110,   111,   112,   113,   114,   115,   116,   117,   118,   119,
-     120,   121,   122,   123,    16,    53,    18,    19,    20,    21,
-      22,    23,    24,     0,    51,    26,     0,     0,     0,     0,
-       0,    52,     0,   199,    15,     0,     1,     0,     9,    54,
-      10,    11,    12,    13,    14,    92,    15,     0,     0,   105,
-       0,   106,   107,   108,   109,   110,   111,   112,   113,   114,
-     115,   116,   117,   118,   119,   120,   121,   122,   123,    16,
+       7,    61,    49,    36,     1,   165,    36,    42,    42,    45,
+      63,    42,   135,   149,   136,    59,     1,     5,     1,     1,
+      68,    84,    38,    98,   162,    38,    42,    42,    14,     1,
+     206,    50,     1,   128,     1,    83,   129,    86,    68,    93,
+      87,    89,    82,    14,    38,    42,     7,   134,    36,    66,
+      42,   101,    42,     6,   150,    38,   131,   190,    -2,    85,
+     156,    44,     1,    42,   165,    42,     1,    38,    82,    91,
+      98,   156,    88,   151,    85,   189,    39,   100,   209,    60,
+     129,    38,   130,   157,    90,    85,    82,    37,    42,   133,
+      37,    37,    37,   158,   157,    37,    42,    42,    82,    37,
+      42,   153,    42,    42,   156,   122,   123,   124,   125,   126,
+      37,    37,   124,   125,   126,   160,   192,   193,   195,    37,
+     202,   163,     0,     0,     0,     0,    42,   157,     0,    37,
+       0,     0,    37,     0,    37,     0,    37,   120,   121,   122,
+     123,   124,   125,   126,     0,     0,     0,    37,     0,    37,
+      38,     0,     0,     0,     0,   196,     0,     0,     0,     0,
+       0,    42,    55,    42,     0,     0,     0,    37,     0,     0,
+     156,     0,    37,     0,     0,     0,     0,     0,    37,     0,
+      37,    37,     0,     0,    37,   203,    37,    37,     0,     0,
+       0,     0,   207,   157,    40,    43,     0,     0,     0,     0,
+       7,     0,   127,   208,     7,     0,   210,   132,     0,     0,
+      37,    37,     0,    64,    65,   137,   138,   139,   140,   141,
+     142,   143,   144,   145,   146,   147,   148,     0,     0,     0,
+       0,     0,    92,     0,     0,   159,     0,     0,     0,   103,
+       0,     0,     0,     0,     0,    37,     0,    37,     0,     0,
+       0,     0,     0,     0,     0,   169,   170,   171,   172,   173,
+     174,   175,   176,   177,   178,   179,   180,   181,   182,   183,
+     184,   185,   186,   187,   188,   161,     0,    37,     0,     0,
+     106,     0,     0,    92,     0,     0,     0,   103,    52,   103,
+     167,    15,   107,   114,   115,   116,   117,   118,   119,   120,
+     121,   122,   123,   124,   125,   126,   108,   198,   109,   110,
+     111,   112,   113,   114,   115,   116,   117,   118,   119,   120,
+     121,   122,   123,   124,   125,   126,    16,    53,    18,    19,
+      20,    21,    22,    23,    24,    51,     0,    26,     0,     0,
+       0,     0,     0,    52,     0,     0,    15,   205,   103,     0,
+     167,    54,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,   108,     0,   109,   110,   111,   112,   113,   114,   115,
+     116,   117,   118,   119,   120,   121,   122,   123,   124,   125,
+     126,    16,    53,    18,    19,    20,    21,    22,    23,    24,
+      51,     0,    26,     0,     0,     0,     0,     0,    52,     0,
+       0,    15,   168,    51,     0,     0,    54,     0,     0,     0,
+       0,    52,     0,     0,    15,     0,     1,     0,     9,     0,
+       0,    10,    11,    12,    13,    14,    94,    15,     0,     0,
+       0,     0,     0,     0,     0,     0,    16,    53,    18,    19,
+      20,    21,    22,    23,    24,     0,     0,    26,     0,    16,
       53,    18,    19,    20,    21,    22,    23,    24,     0,     0,
-      26,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-       0,    25,    26,    39,    54,     0,    15,     0,    27,    28,
-      29,    30,    31,     1,     0,     9,     0,    10,    11,    12,
-      13,    14,     0,    15,   108,   109,   110,   111,   112,   113,
-     114,   115,   116,   117,   118,   119,   120,   121,   122,   123,
-       0,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      97,     0,    26,    15,     0,     0,     0,     0,    16,    17,
-      18,    19,    20,    21,    22,    23,    24,   160,    25,    26,
-       0,     0,     0,   162,     0,    27,    28,    29,    30,    31,
-      39,     0,     0,    15,     0,     0,     0,     0,    16,    53,
-      18,    19,    20,    21,    22,    23,    24,   193,     0,    26,
-       0,     0,     0,     0,    39,     0,     0,    15,     0,     0,
-       0,     0,     0,    54,     0,     0,     0,     0,    16,    17,
-      18,    19,    20,    21,    22,    23,    24,     0,     0,    26,
-       0,    39,     0,     0,    15,     0,     0,     0,     0,     0,
+      26,    54,    16,    17,    18,    19,    20,    21,    22,    23,
+      24,     0,    25,    26,    54,    39,     0,     0,    15,    27,
+      28,    29,    30,    31,     1,     0,     9,     0,     0,    10,
+      11,    12,    13,    14,     0,    15,   111,   112,   113,   114,
+     115,   116,   117,   118,   119,   120,   121,   122,   123,   124,
+     125,   126,     0,    16,    17,    18,    19,    20,    21,    22,
+      23,    24,    99,     0,    26,    15,     0,     0,     0,     0,
+      16,    17,    18,    19,    20,    21,    22,    23,    24,   164,
+      25,    26,     0,     0,   102,     0,     0,    27,    28,    29,
+      30,    31,    39,     0,     0,    15,     0,     0,     0,     0,
+      16,    53,    18,    19,    20,    21,    22,    23,    24,   166,
+       0,    26,     0,     0,     0,     0,     0,    39,     0,     0,
+      15,     0,     0,     0,     0,    54,     0,     0,     0,     0,
+      16,    17,    18,    19,    20,    21,    22,    23,    24,   199,
+       0,    26,     0,     0,     0,     0,     0,    39,     0,     0,
+      15,     0,     0,     0,     0,    16,    17,    18,    19,    20,
+      21,    22,    23,    24,    67,    39,    26,     0,    15,    68,
+       0,    69,    70,    71,    72,    73,    74,    75,    76,    77,
+      78,    79,     0,     0,     0,    16,    17,    18,    19,    20,
+      21,    22,    23,    24,    39,     0,    26,    15,     0,     0,
+       0,     0,     0,    16,    17,    18,    19,    20,    21,    22,
+      23,    24,    96,     0,    26,    80,    81,    82,    39,     0,
+       0,    15,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,    16,    17,    18,    19,    20,    21,    22,    23,
-      24,    65,    39,    26,     0,    15,    66,     0,    67,    68,
-      69,    70,    71,    72,    73,    74,    75,    76,    77,    16,
-      17,    18,    19,    20,    21,    22,    23,    24,    94,    39,
-      26,     0,    15,     0,     0,     0,     0,     0,     0,     0,
-      16,    17,    18,    19,    20,    21,    22,    23,    24,    83,
-       0,    26,    78,    79,    80,   117,   118,   119,   120,   121,
-     122,   123,     0,   195,     0,     0,     0,    16,    17,    18,
-      19,    20,    21,    22,    23,    24,     0,   105,    26,   106,
-     107,   108,   109,   110,   111,   112,   113,   114,   115,   116,
-     117,   118,   119,   120,   121,   122,   123,   188,   113,   114,
-     115,   116,   117,   118,   119,   120,   121,   122,   123,   105,
-       0,   106,   107,   108,   109,   110,   111,   112,   113,   114,
-     115,   116,   117,   118,   119,   120,   121,   122,   123,   105,
-       0,   106,   107,   108,   109,   110,   111,   112,   113,   114,
-     115,   116,   117,   118,   119,   120,   121,   122,   123,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,   105,   191,
-     106,   107,   108,   109,   110,   111,   112,   113,   114,   115,
-     116,   117,   118,   119,   120,   121,   122,   123,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,   198,   105,
-     194,   106,   107,   108,   109,   110,   111,   112,   113,   114,
-     115,   116,   117,   118,   119,   120,   121,   122,   123,   105,
-       0,   106,   107,   108,   109,   110,   111,   112,   113,   114,
-     115,   116,   117,   118,   119,   120,   121,   122,   123,   107,
-     108,   109,   110,   111,   112,   113,   114,   115,   116,   117,
-     118,   119,   120,   121,   122,   123,   109,   110,   111,   112,
-     113,   114,   115,   116,   117,   118,   119,   120,   121,   122,
-     123,   110,   111,   112,   113,   114,   115,   116,   117,   118,
-     119,   120,   121,   122,   123
+      24,    85,    15,    26,   116,   117,   118,   119,   120,   121,
+     122,   123,   124,   125,   126,     0,    16,    17,    18,    19,
+      20,    21,    22,    23,    24,     0,     0,    26,     0,     0,
+       0,     0,     0,   191,     0,     0,     0,    16,    17,    18,
+      19,    20,    21,    22,    23,    24,     0,   108,    26,   109,
+     110,   111,   112,   113,   114,   115,   116,   117,   118,   119,
+     120,   121,   122,   123,   124,   125,   126,   201,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,   108,     0,   109,   110,   111,   112,   113,   114,   115,
+     116,   117,   118,   119,   120,   121,   122,   123,   124,   125,
+     126,   194,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,   108,     0,   109,   110,   111,   112,   113,
+     114,   115,   116,   117,   118,   119,   120,   121,   122,   123,
+     124,   125,   126,   108,     0,   109,   110,   111,   112,   113,
+     114,   115,   116,   117,   118,   119,   120,   121,   122,   123,
+     124,   125,   126,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,   108,   197,   109,   110,   111,   112,   113,   114,
+     115,   116,   117,   118,   119,   120,   121,   122,   123,   124,
+     125,   126,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,   204,   108,   200,   109,   110,   111,   112,   113,
+     114,   115,   116,   117,   118,   119,   120,   121,   122,   123,
+     124,   125,   126,   108,     0,   109,   110,   111,   112,   113,
+     114,   115,   116,   117,   118,   119,   120,   121,   122,   123,
+     124,   125,   126,   110,   111,   112,   113,   114,   115,   116,
+     117,   118,   119,   120,   121,   122,   123,   124,   125,   126,
+     112,   113,   114,   115,   116,   117,   118,   119,   120,   121,
+     122,   123,   124,   125,   126,   113,   114,   115,   116,   117,
+     118,   119,   120,   121,   122,   123,   124,   125,   126
 };
 
 static const yytype_int16 yycheck[] =
 {
-       3,    14,    63,     5,    65,   102,     8,     9,    10,    12,
-      83,    13,    27,    11,     4,    17,     4,     0,    14,     4,
-       4,    94,     5,    38,    26,     8,    28,    29,    12,    11,
-      16,    14,    52,     4,    16,    37,    94,    40,     0,     0,
-      43,    44,    13,     4,    27,    47,    49,    62,    50,    32,
-      52,    53,    54,   126,    52,    38,    58,     4,     8,    58,
-       4,    63,   159,    65,   125,    12,    30,    50,   126,    59,
-      58,    15,     4,    71,    58,    53,    58,    97,    64,    62,
-      58,    83,    64,    15,    64,     5,    88,    59,     8,     9,
-      10,    65,    94,    13,    96,    97,     7,    17,   100,    82,
-     102,   103,     9,    10,    58,    30,    26,    58,    28,    29,
-      64,    46,    47,    48,   129,   189,   189,    37,    -1,    26,
-      -1,    28,    29,   125,   126,   100,    -1,    47,    -1,    -1,
-      50,    -1,    52,    -1,    54,    44,    45,    46,    47,    48,
-      47,    -1,    -1,    63,    -1,    65,   129,    54,    -1,    -1,
-      -1,   154,    -1,    -1,    -1,    -1,    -1,   159,    -1,   161,
-      -1,    -1,     4,    83,    -1,    -1,    -1,    -1,    88,    11,
-      -1,    -1,    14,    -1,    94,    -1,    96,    97,   191,    -1,
-     100,    88,   102,   103,    14,   198,    -1,   189,    -1,    96,
-      -1,    -1,    -1,   100,   197,   102,   103,   200,   201,    -1,
-     203,    -1,    -1,    -1,    -1,   125,   126,    49,    50,    51,
-      52,    53,    54,    55,    56,    57,    -1,    -1,    60,    49,
-      50,    51,    52,    53,    54,    55,    56,    57,    -1,    -1,
-      60,    -1,    74,    -1,    -1,     4,    -1,    -1,    -1,   159,
-      51,   161,    11,    -1,    55,    14,    -1,    -1,    -1,    -1,
-      -1,    -1,   159,    -1,   161,    66,    67,    68,    69,    70,
-      71,    72,    73,    74,    75,    76,    77,    -1,    -1,   189,
-      -1,    -1,    -1,    -1,    -1,    86,    -1,    -1,    -1,    -1,
-      49,    50,    51,    52,    53,    54,    55,    56,    57,    -1,
-      -1,    60,    -1,    -1,   105,   106,   107,   108,   109,   110,
-     111,   112,   113,   114,   115,   116,   117,   118,   119,   120,
-     121,   122,   123,   124,    -1,    -1,    -1,    -1,    -1,     4,
-      -1,    -1,    -1,    -1,    -1,    -1,    11,    -1,    -1,    14,
-      15,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    47,    48,    29,   156,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    47,    48,    49,    50,    51,    52,    53,    54,
-      55,    56,    57,    -1,     4,    60,    -1,    -1,    -1,    -1,
-      -1,    11,    -1,   194,    14,    -1,     4,    -1,     6,    74,
-       8,     9,    10,    11,    12,    13,    14,    -1,    -1,    29,
-      -1,    31,    32,    33,    34,    35,    36,    37,    38,    39,
-      40,    41,    42,    43,    44,    45,    46,    47,    48,    49,
-      50,    51,    52,    53,    54,    55,    56,    57,    -1,    -1,
-      60,    49,    50,    51,    52,    53,    54,    55,    56,    57,
-      -1,    59,    60,    11,    74,    -1,    14,    -1,    66,    67,
-      68,    69,    70,     4,    -1,     6,    -1,     8,     9,    10,
-      11,    12,    -1,    14,    33,    34,    35,    36,    37,    38,
+       3,    26,    14,     5,     4,   104,     8,     9,    10,    12,
+      27,    13,    65,    12,    67,    17,     4,     0,     4,     4,
+      17,    38,     5,    52,    96,     8,    28,    29,    13,     4,
+      16,    14,     4,    12,     4,    37,    59,    40,    17,    14,
+      43,    44,    65,    13,    27,    47,    49,    64,    50,    32,
+      52,    53,    54,     0,    53,    38,    58,   129,     0,    59,
+      85,    15,     4,    65,   163,    67,     4,    50,    65,    31,
+      99,    96,    60,    72,    59,   128,    12,    53,    16,    15,
+      59,    64,    58,    85,     9,    59,    65,     5,    90,    66,
+       8,     9,    10,     8,    96,    13,    98,    99,    65,    17,
+     102,    84,   104,   105,   129,    45,    46,    47,    48,    49,
+      28,    29,    47,    48,    49,    60,   133,    31,    59,    37,
+     195,   102,    -1,    -1,    -1,    -1,   128,   129,    -1,    47,
+      -1,    -1,    50,    -1,    52,    -1,    54,    43,    44,    45,
+      46,    47,    48,    49,    -1,    -1,    -1,    65,    -1,    67,
+     133,    -1,    -1,    -1,    -1,   158,    -1,    -1,    -1,    -1,
+      -1,   163,    15,   165,    -1,    -1,    -1,    85,    -1,    -1,
+     195,    -1,    90,    -1,    -1,    -1,    -1,    -1,    96,    -1,
+      98,    99,    -1,    -1,   102,   197,   104,   105,    -1,    -1,
+      -1,    -1,   204,   195,     9,    10,    -1,    -1,    -1,    -1,
+     203,    -1,    55,   206,   207,    -1,   209,    60,    -1,    -1,
+     128,   129,    -1,    28,    29,    68,    69,    70,    71,    72,
+      73,    74,    75,    76,    77,    78,    79,    -1,    -1,    -1,
+      -1,    -1,    47,    -1,    -1,    88,    -1,    -1,    -1,    54,
+      -1,    -1,    -1,    -1,    -1,   163,    -1,   165,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,   108,   109,   110,   111,   112,
+     113,   114,   115,   116,   117,   118,   119,   120,   121,   122,
+     123,   124,   125,   126,   127,    90,    -1,   195,    -1,    -1,
+       4,    -1,    -1,    98,    -1,    -1,    -1,   102,    12,   104,
+     105,    15,    16,    37,    38,    39,    40,    41,    42,    43,
+      44,    45,    46,    47,    48,    49,    30,   160,    32,    33,
+      34,    35,    36,    37,    38,    39,    40,    41,    42,    43,
+      44,    45,    46,    47,    48,    49,    50,    51,    52,    53,
+      54,    55,    56,    57,    58,     4,    -1,    61,    -1,    -1,
+      -1,    -1,    -1,    12,    -1,    -1,    15,   200,   163,    -1,
+     165,    75,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    30,    -1,    32,    33,    34,    35,    36,    37,    38,
       39,    40,    41,    42,    43,    44,    45,    46,    47,    48,
-      -1,    49,    50,    51,    52,    53,    54,    55,    56,    57,
-      11,    -1,    60,    14,    -1,    -1,    -1,    -1,    49,    50,
-      51,    52,    53,    54,    55,    56,    57,    75,    59,    60,
-      -1,    -1,    -1,     4,    -1,    66,    67,    68,    69,    70,
-      11,    -1,    -1,    14,    -1,    -1,    -1,    -1,    49,    50,
-      51,    52,    53,    54,    55,    56,    57,     4,    -1,    60,
-      -1,    -1,    -1,    -1,    11,    -1,    -1,    14,    -1,    -1,
-      -1,    -1,    -1,    74,    -1,    -1,    -1,    -1,    49,    50,
-      51,    52,    53,    54,    55,    56,    57,    -1,    -1,    60,
-      -1,    11,    -1,    -1,    14,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    49,    50,    51,    52,    53,    54,    55,    56,
-      57,    11,    11,    60,    -1,    14,    16,    -1,    18,    19,
-      20,    21,    22,    23,    24,    25,    26,    27,    28,    49,
-      50,    51,    52,    53,    54,    55,    56,    57,    58,    11,
-      60,    -1,    14,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       49,    50,    51,    52,    53,    54,    55,    56,    57,    58,
-      -1,    60,    62,    63,    64,    42,    43,    44,    45,    46,
-      47,    48,    -1,    15,    -1,    -1,    -1,    49,    50,    51,
-      52,    53,    54,    55,    56,    57,    -1,    29,    60,    31,
-      32,    33,    34,    35,    36,    37,    38,    39,    40,    41,
-      42,    43,    44,    45,    46,    47,    48,    17,    38,    39,
-      40,    41,    42,    43,    44,    45,    46,    47,    48,    29,
-      -1,    31,    32,    33,    34,    35,    36,    37,    38,    39,
-      40,    41,    42,    43,    44,    45,    46,    47,    48,    29,
-      -1,    31,    32,    33,    34,    35,    36,    37,    38,    39,
-      40,    41,    42,    43,    44,    45,    46,    47,    48,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    29,    59,
-      31,    32,    33,    34,    35,    36,    37,    38,    39,    40,
-      41,    42,    43,    44,    45,    46,    47,    48,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    59,    29,
-      30,    31,    32,    33,    34,    35,    36,    37,    38,    39,
-      40,    41,    42,    43,    44,    45,    46,    47,    48,    29,
-      -1,    31,    32,    33,    34,    35,    36,    37,    38,    39,
-      40,    41,    42,    43,    44,    45,    46,    47,    48,    32,
-      33,    34,    35,    36,    37,    38,    39,    40,    41,    42,
-      43,    44,    45,    46,    47,    48,    34,    35,    36,    37,
+       4,    -1,    61,    -1,    -1,    -1,    -1,    -1,    12,    -1,
+      -1,    15,    16,     4,    -1,    -1,    75,    -1,    -1,    -1,
+      -1,    12,    -1,    -1,    15,    -1,     4,    -1,     6,    -1,
+      -1,     9,    10,    11,    12,    13,    14,    15,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    50,    51,    52,    53,
+      54,    55,    56,    57,    58,    -1,    -1,    61,    -1,    50,
+      51,    52,    53,    54,    55,    56,    57,    58,    -1,    -1,
+      61,    75,    50,    51,    52,    53,    54,    55,    56,    57,
+      58,    -1,    60,    61,    75,    12,    -1,    -1,    15,    67,
+      68,    69,    70,    71,     4,    -1,     6,    -1,    -1,     9,
+      10,    11,    12,    13,    -1,    15,    34,    35,    36,    37,
       38,    39,    40,    41,    42,    43,    44,    45,    46,    47,
-      48,    35,    36,    37,    38,    39,    40,    41,    42,    43,
-      44,    45,    46,    47,    48
+      48,    49,    -1,    50,    51,    52,    53,    54,    55,    56,
+      57,    58,    12,    -1,    61,    15,    -1,    -1,    -1,    -1,
+      50,    51,    52,    53,    54,    55,    56,    57,    58,    76,
+      60,    61,    -1,    -1,     4,    -1,    -1,    67,    68,    69,
+      70,    71,    12,    -1,    -1,    15,    -1,    -1,    -1,    -1,
+      50,    51,    52,    53,    54,    55,    56,    57,    58,     4,
+      -1,    61,    -1,    -1,    -1,    -1,    -1,    12,    -1,    -1,
+      15,    -1,    -1,    -1,    -1,    75,    -1,    -1,    -1,    -1,
+      50,    51,    52,    53,    54,    55,    56,    57,    58,     4,
+      -1,    61,    -1,    -1,    -1,    -1,    -1,    12,    -1,    -1,
+      15,    -1,    -1,    -1,    -1,    50,    51,    52,    53,    54,
+      55,    56,    57,    58,    12,    12,    61,    -1,    15,    17,
+      -1,    19,    20,    21,    22,    23,    24,    25,    26,    27,
+      28,    29,    -1,    -1,    -1,    50,    51,    52,    53,    54,
+      55,    56,    57,    58,    12,    -1,    61,    15,    -1,    -1,
+      -1,    -1,    -1,    50,    51,    52,    53,    54,    55,    56,
+      57,    58,    59,    -1,    61,    63,    64,    65,    12,    -1,
+      -1,    15,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    50,    51,    52,    53,    54,    55,    56,    57,
+      58,    59,    15,    61,    39,    40,    41,    42,    43,    44,
+      45,    46,    47,    48,    49,    -1,    50,    51,    52,    53,
+      54,    55,    56,    57,    58,    -1,    -1,    61,    -1,    -1,
+      -1,    -1,    -1,    16,    -1,    -1,    -1,    50,    51,    52,
+      53,    54,    55,    56,    57,    58,    -1,    30,    61,    32,
+      33,    34,    35,    36,    37,    38,    39,    40,    41,    42,
+      43,    44,    45,    46,    47,    48,    49,    16,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    30,    -1,    32,    33,    34,    35,    36,    37,    38,
+      39,    40,    41,    42,    43,    44,    45,    46,    47,    48,
+      49,    18,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    30,    -1,    32,    33,    34,    35,    36,
+      37,    38,    39,    40,    41,    42,    43,    44,    45,    46,
+      47,    48,    49,    30,    -1,    32,    33,    34,    35,    36,
+      37,    38,    39,    40,    41,    42,    43,    44,    45,    46,
+      47,    48,    49,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    30,    60,    32,    33,    34,    35,    36,    37,
+      38,    39,    40,    41,    42,    43,    44,    45,    46,    47,
+      48,    49,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    60,    30,    31,    32,    33,    34,    35,    36,
+      37,    38,    39,    40,    41,    42,    43,    44,    45,    46,
+      47,    48,    49,    30,    -1,    32,    33,    34,    35,    36,
+      37,    38,    39,    40,    41,    42,    43,    44,    45,    46,
+      47,    48,    49,    33,    34,    35,    36,    37,    38,    39,
+      40,    41,    42,    43,    44,    45,    46,    47,    48,    49,
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,    47,    48,    49,    36,    37,    38,    39,    40,
+      41,    42,    43,    44,    45,    46,    47,    48,    49
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     4,    77,    78,    79,    98,     0,    79,    98,     6,
-       8,     9,    10,    11,    12,    14,    49,    50,    51,    52,
-      53,    54,    55,    56,    57,    59,    60,    66,    67,    68,
-      69,    70,    80,    81,    82,    83,    94,    95,    98,    11,
-      91,    92,    94,    91,    14,    79,    86,    88,    91,    78,
-      98,     4,    11,    50,    74,    84,    85,    94,    95,    94,
-      91,    81,    91,    91,    98,    11,    16,    18,    19,    20,
-      21,    22,    23,    24,    25,    26,    27,    28,    62,    63,
-      64,    94,    81,    58,    79,    79,    59,    79,     8,    30,
-      91,    13,    13,    84,    58,    87,    88,    11,    85,    94,
-       4,    91,    96,    97,    15,    29,    31,    32,    33,    34,
-      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
-      45,    46,    47,    48,    84,    11,    58,    85,    94,    65,
-      81,    86,    86,    84,    84,    84,    84,    84,    84,    84,
-      84,    84,    84,    84,    84,    11,    52,    71,    93,    98,
-      89,    90,    92,    94,     7,    84,    59,    91,    89,    96,
-      75,    97,     4,    91,    84,    84,    84,    84,    84,    84,
-      84,    84,    84,    84,    84,    84,    84,    84,    84,    84,
-      84,    84,    84,    84,    86,    89,    81,    30,    17,    58,
-      79,    59,    84,     4,    30,    15,    90,    78,    59,    84,
-      15,    78,    79,    15,    79
+       0,     4,    78,    79,    80,   100,     0,    80,   100,     6,
+       9,    10,    11,    12,    13,    15,    50,    51,    52,    53,
+      54,    55,    56,    57,    58,    60,    61,    67,    68,    69,
+      70,    71,    81,    82,    83,    84,    96,    97,   100,    12,
+      92,    93,    96,    92,    15,    80,    87,    89,    92,    79,
+     100,     4,    12,    51,    75,    85,    86,    96,    97,    96,
+      15,    93,    95,    82,    92,    92,   100,    12,    17,    19,
+      20,    21,    22,    23,    24,    25,    26,    27,    28,    29,
+      63,    64,    65,    96,    82,    59,    80,    80,    60,    80,
+       9,    31,    92,    14,    14,    85,    59,    88,    89,    12,
+      86,    96,     4,    92,    98,    99,     4,    16,    30,    32,
+      33,    34,    35,    36,    37,    38,    39,    40,    41,    42,
+      43,    44,    45,    46,    47,    48,    49,    85,    12,    59,
+      86,    96,    85,    66,    82,    87,    87,    85,    85,    85,
+      85,    85,    85,    85,    85,    85,    85,    85,    85,    12,
+      53,    72,    94,   100,    90,    91,    93,    96,     8,    85,
+      60,    92,    90,    98,    76,    99,     4,    92,    16,    85,
+      85,    85,    85,    85,    85,    85,    85,    85,    85,    85,
+      85,    85,    85,    85,    85,    85,    85,    85,    85,    87,
+      90,    16,    82,    31,    18,    59,    80,    60,    85,     4,
+      31,    16,    91,    79,    60,    85,    16,    79,    80,    16,
+      80
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    76,    77,    77,    78,    78,    79,    80,    80,    80,
-      80,    80,    80,    80,    80,    80,    80,    80,    80,    80,
-      80,    80,    80,    80,    80,    80,    80,    80,    80,    80,
-      80,    81,    81,    81,    82,    82,    82,    83,    83,    83,
-      83,    84,    84,    84,    84,    84,    84,    84,    84,    84,
-      84,    84,    84,    84,    84,    84,    84,    84,    84,    84,
-      84,    84,    84,    84,    85,    85,    85,    85,    85,    85,
-      85,    86,    86,    87,    88,    88,    89,    89,    90,    90,
-      91,    91,    91,    92,    93,    93,    94,    94,    94,    94,
-      94,    94,    94,    94,    94,    94,    94,    94,    94,    94,
-      95,    95,    96,    96,    96,    96,    97,    97,    98,    98
+       0,    77,    78,    78,    79,    79,    80,    81,    81,    81,
+      81,    81,    81,    81,    81,    81,    81,    81,    81,    81,
+      81,    81,    81,    81,    81,    81,    81,    81,    81,    81,
+      81,    82,    82,    82,    83,    83,    83,    84,    84,    84,
+      84,    85,    85,    85,    85,    85,    85,    85,    85,    85,
+      85,    85,    85,    85,    85,    85,    85,    85,    85,    85,
+      85,    85,    85,    85,    86,    86,    86,    86,    86,    86,
+      86,    87,    87,    88,    89,    89,    90,    90,    91,    91,
+      92,    92,    92,    93,    94,    94,    95,    95,    96,    96,
+      96,    96,    96,    96,    96,    96,    96,    96,    96,    96,
+      96,    96,    96,    97,    97,    98,    98,    98,    98,    99,
+      99,   100,   100
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
@@ -1019,9 +1052,10 @@ static const yytype_int8 yyr2[] =
        3,     3,     3,     3,     3,     3,     3,     3,     3,     5,
        2,     1,     1,     1,     2,     3,     2,     2,     3,     3,
        3,     0,     1,     1,     1,     2,     1,     3,     1,     1,
-       1,     1,     3,     1,     1,     1,     2,     3,     3,     4,
-       1,     1,     1,     5,     1,     3,     2,     2,     1,     1,
-       1,     1,     0,     3,     2,     2,     1,     2,     0,     1
+       1,     1,     3,     1,     1,     1,     1,     3,     2,     3,
+       3,     4,     1,     1,     1,     5,     1,     3,     4,     2,
+       2,     1,     1,     1,     1,     0,     3,     2,     2,     1,
+       2,     0,     1
 };
 
 
@@ -1869,618 +1903,636 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* program: statement_list  */
-#line 130 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 135 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                { parsedata.val = node1(ENUM_statement_list, (yyvsp[0].s.val)); }
-#line 1875 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1909 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 3: /* program: line_opt  */
-#line 131 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 136 "/usr/src/openmohaa/code/parser/bison_source.txt"
                    { parsedata.val = node0(ENUM_NOP); }
-#line 1881 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1915 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 4: /* statement_list: statement  */
-#line 135 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 140 "/usr/src/openmohaa/code/parser/bison_source.txt"
                     { (yyval.s.val) = linked_list_end((yyvsp[0].s.val)); }
-#line 1887 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1921 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 5: /* statement_list: statement_list statement  */
-#line 136 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 141 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                          { (yyval.s.val) = append_node((yyvsp[-1].s.val), (yyvsp[0].s.val)); }
-#line 1893 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1927 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 6: /* statement: line_opt statement_declaration line_opt  */
-#line 140 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 145 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                              { (yyval.s.val) = (yyvsp[-1].s.val); }
-#line 1899 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1933 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 7: /* statement_declaration: TOKEN_IDENTIFIER event_parameter_list TOKEN_COLON  */
-#line 144 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 149 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                             { (yyval.s.val) = node3(ENUM_labeled_statement, (yyvsp[-2].s.val), (yyvsp[-1].s.val), TOKPOS((yylsp[-2]))); }
-#line 1905 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1939 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 8: /* statement_declaration: TOKEN_CASE prim_expr event_parameter_list TOKEN_COLON  */
-#line 145 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 150 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                 { (yyval.s.val) = node3(ENUM_int_labeled_statement, (yyvsp[-2].s.val), (yyvsp[-1].s.val), TOKPOS((yylsp[-3]))); }
-#line 1911 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1945 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 12: /* statement_declaration: TOKEN_TRY compound_statement TOKEN_CATCH compound_statement  */
-#line 149 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 154 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                               { (yyval.s.val) = node3(ENUM_try, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-3]))); }
-#line 1917 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1951 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 13: /* statement_declaration: TOKEN_BREAK  */
-#line 150 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 155 "/usr/src/openmohaa/code/parser/bison_source.txt"
                       { (yyval.s.val) = node1(ENUM_break, TOKPOS((yylsp[0]))); }
-#line 1923 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1957 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 14: /* statement_declaration: TOKEN_CONTINUE  */
-#line 151 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 156 "/usr/src/openmohaa/code/parser/bison_source.txt"
                          { (yyval.s.val) = node1(ENUM_continue, TOKPOS((yylsp[0]))); }
-#line 1929 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1963 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 15: /* statement_declaration: TOKEN_IDENTIFIER event_parameter_list  */
-#line 152 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 157 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                 { (yyval.s.val) = node3(ENUM_cmd_event_statement, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 1935 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1969 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 16: /* statement_declaration: nonident_prim_expr TOKEN_IDENTIFIER event_parameter_list  */
-#line 153 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 158 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                    { (yyval.s.val) = node4(ENUM_method_event_statement, (yyvsp[-2].s.val), (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 1941 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1975 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 17: /* statement_declaration: nonident_prim_expr TOKEN_ASSIGNMENT expr  */
-#line 154 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 159 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 1947 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1981 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 18: /* statement_declaration: nonident_prim_expr TOKEN_PLUS_EQUALS expr  */
-#line 155 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 160 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                     { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_PLUS), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1953 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1987 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 19: /* statement_declaration: nonident_prim_expr TOKEN_MINUS_EQUALS expr  */
-#line 156 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 161 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                      { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_MINUS), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1959 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1993 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 20: /* statement_declaration: nonident_prim_expr TOKEN_MULTIPLY_EQUALS expr  */
-#line 157 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 162 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                         { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_MULTIPLY), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1965 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 1999 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 21: /* statement_declaration: nonident_prim_expr TOKEN_DIVIDE_EQUALS expr  */
-#line 158 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 163 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                       { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_DIVIDE), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1971 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2005 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 22: /* statement_declaration: nonident_prim_expr TOKEN_MODULUS_EQUALS expr  */
-#line 159 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 164 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                        { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_PERCENTAGE), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1977 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2011 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 23: /* statement_declaration: nonident_prim_expr TOKEN_AND_EQUALS expr  */
-#line 160 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 165 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_BITWISE_AND), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1983 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2017 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 24: /* statement_declaration: nonident_prim_expr TOKEN_EXCL_OR_EQUALS expr  */
-#line 161 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 166 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                        { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_BITWISE_EXCL_OR), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1989 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2023 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 25: /* statement_declaration: nonident_prim_expr TOKEN_OR_EQUALS expr  */
-#line 162 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 167 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                   { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_BITWISE_OR), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 1995 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2029 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 26: /* statement_declaration: nonident_prim_expr TOKEN_SHIFT_LEFT_EQUALS expr  */
-#line 163 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 168 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                           { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_SHIFT_LEFT), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 2001 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2035 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 27: /* statement_declaration: nonident_prim_expr TOKEN_SHIFT_RIGHT_EQUALS expr  */
-#line 164 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 169 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                            { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-2].s.val), node4(ENUM_func2_expr, node1b(OP_BIN_SHIFT_RIGHT), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))), TOKPOS((yylsp[-1]))); }
-#line 2007 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2041 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 28: /* statement_declaration: nonident_prim_expr TOKEN_INCREMENT  */
-#line 165 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 170 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-1].s.val), node3(ENUM_func1_expr, node1b(OP_UN_INC), (yyvsp[-1].s.val), TOKPOS((yylsp[0]))), TOKPOS((yylsp[0]))); }
-#line 2013 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2047 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 29: /* statement_declaration: nonident_prim_expr TOKEN_DECREMENT  */
-#line 166 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 171 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node3(ENUM_assignment_statement, (yyvsp[-1].s.val), node3(ENUM_func1_expr, node1b(OP_UN_DEC), (yyvsp[-1].s.val), TOKPOS((yylsp[0]))), TOKPOS((yylsp[0]))); }
-#line 2019 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2053 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 30: /* statement_declaration: TOKEN_SEMICOLON  */
-#line 167 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 172 "/usr/src/openmohaa/code/parser/bison_source.txt"
                           { (yyval.s.val) = node0(ENUM_NOP); }
-#line 2025 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2059 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 31: /* compound_statement: TOKEN_LEFT_BRACES statement_list TOKEN_RIGHT_BRACES  */
-#line 173 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 178 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                               { (yyval.s.val) = node1(ENUM_statement_list, (yyvsp[-1].s.val)); }
-#line 2031 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2065 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 32: /* compound_statement: TOKEN_LEFT_BRACES line_opt TOKEN_RIGHT_BRACES  */
-#line 174 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 179 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                         { (yyval.s.val) = node0(ENUM_NOP); }
-#line 2037 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2071 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 33: /* compound_statement: line_opt compound_statement line_opt  */
-#line 175 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 180 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                           { (yyval.s.val) = (yyvsp[-1].s.val); }
-#line 2043 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2077 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 34: /* selection_statement: TOKEN_IF prim_expr statement  */
-#line 179 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                                  { (yyval.s.val) = node3(ENUM_if_statement, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-2]))); }
-#line 2049 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 184 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                                             { (yyval.s.val) = node3(ENUM_if_statement, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-2]))); }
+#line 2083 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 35: /* selection_statement: TOKEN_IF prim_expr statement TOKEN_ELSE statement  */
-#line 180 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 185 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                                      { (yyval.s.val) = node4(ENUM_if_else_statement, (yyvsp[-3].s.val), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-4]))); }
-#line 2055 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2089 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 36: /* selection_statement: TOKEN_SWITCH prim_expr compound_statement  */
-#line 181 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 186 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                                     { (yyval.s.val) = node3(ENUM_switch, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-2]))); }
-#line 2061 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2095 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 37: /* iteration_statement: TOKEN_WHILE prim_expr statement  */
-#line 185 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 190 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                     { (yyval.s.val) = node4(ENUM_while_statement, (yyvsp[-1].s.val), (yyvsp[0].s.val), node0(ENUM_NOP), TOKPOS((yylsp[-2]))); }
-#line 2067 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2101 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 38: /* iteration_statement: TOKEN_FOR TOKEN_LEFT_BRACKET statement TOKEN_SEMICOLON expr TOKEN_SEMICOLON statement_list TOKEN_RIGHT_BRACKET statement  */
-#line 187 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 192 "/usr/src/openmohaa/code/parser/bison_source.txt"
         {
 		sval_t while_stmt = node4(ENUM_while_statement, (yyvsp[-4].s.val), (yyvsp[0].s.val), node1(ENUM_statement_list, (yyvsp[-2].s.val)), TOKPOS((yylsp[-8])));
 		(yyval.s.val) = node1(ENUM_statement_list, append_node(linked_list_end((yyvsp[-6].s.val)), while_stmt));
 	}
-#line 2076 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2110 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 39: /* iteration_statement: TOKEN_FOR TOKEN_LEFT_BRACKET TOKEN_SEMICOLON expr TOKEN_SEMICOLON statement_list TOKEN_RIGHT_BRACKET statement  */
-#line 192 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 197 "/usr/src/openmohaa/code/parser/bison_source.txt"
         {
 		(yyval.s.val) = node4(ENUM_while_statement, (yyvsp[-4].s.val), (yyvsp[0].s.val), node1(ENUM_statement_list, (yyvsp[-2].s.val)), TOKPOS((yylsp[-7])));
 	}
-#line 2084 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2118 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 40: /* iteration_statement: TOKEN_DO statement TOKEN_WHILE prim_expr  */
-#line 195 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 200 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                              { (yyval.s.val) = node3(ENUM_do, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-3]))); }
-#line 2090 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2124 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 41: /* expr: expr TOKEN_LOGICAL_AND expr  */
-#line 199 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 204 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                     { (yyval.s.val) = node3( ENUM_logical_and, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2096 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2130 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 42: /* expr: expr TOKEN_LOGICAL_OR expr  */
-#line 200 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 205 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                      { (yyval.s.val) = node3( ENUM_logical_or, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2102 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2136 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 43: /* expr: expr TOKEN_BITWISE_AND expr  */
-#line 201 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 206 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                       { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_BITWISE_AND ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2108 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2142 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 44: /* expr: expr TOKEN_BITWISE_OR expr  */
-#line 202 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 207 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                      { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_BITWISE_OR ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2114 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2148 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 45: /* expr: expr TOKEN_BITWISE_EXCL_OR expr  */
-#line 203 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 208 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                           { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_BITWISE_EXCL_OR ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2120 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2154 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 46: /* expr: expr TOKEN_EQUALITY expr  */
-#line 204 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 209 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                    { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_EQUALITY ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2126 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2160 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 47: /* expr: expr TOKEN_INEQUALITY expr  */
-#line 205 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 210 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                      { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_INEQUALITY ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2132 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2166 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 48: /* expr: expr TOKEN_LESS_THAN expr  */
-#line 206 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 211 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                     { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_LESS_THAN ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2138 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2172 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 49: /* expr: expr TOKEN_GREATER_THAN expr  */
-#line 207 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 212 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                        { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_GREATER_THAN ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2144 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2178 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 50: /* expr: expr TOKEN_LESS_THAN_OR_EQUAL expr  */
-#line 208 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 213 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                              { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_LESS_THAN_OR_EQUAL ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2150 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2184 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 51: /* expr: expr TOKEN_GREATER_THAN_OR_EQUAL expr  */
-#line 209 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 214 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                 { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_GREATER_THAN_OR_EQUAL ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2156 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2190 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 52: /* expr: expr TOKEN_PLUS expr  */
-#line 210 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 215 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_PLUS ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2162 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2196 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 53: /* expr: expr TOKEN_MINUS expr  */
-#line 211 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 216 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                 { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_MINUS ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2168 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2202 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 54: /* expr: expr TOKEN_MULTIPLY expr  */
-#line 212 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 217 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                    { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_MULTIPLY ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2174 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2208 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 55: /* expr: expr TOKEN_DIVIDE expr  */
-#line 213 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 218 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                  { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_DIVIDE ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2180 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2214 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 56: /* expr: expr TOKEN_MODULUS expr  */
-#line 214 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 219 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                   { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_PERCENTAGE ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2186 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2220 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 57: /* expr: expr TOKEN_SHIFT_LEFT expr  */
-#line 215 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 220 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                      { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_SHIFT_LEFT ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2192 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2226 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 58: /* expr: expr TOKEN_SHIFT_RIGHT expr  */
-#line 216 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 221 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                       { (yyval.s.val) = node4( ENUM_func2_expr, node1b( OP_BIN_SHIFT_RIGHT ), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])) ); }
-#line 2198 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2232 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 59: /* expr: expr TOKEN_TERNARY expr TOKEN_COLON expr  */
-#line 217 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 222 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                    { (yyval.s.val) = node4( ENUM_if_else_statement, (yyvsp[-4].s.val), (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-3])) ); }
-#line 2204 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2238 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 60: /* expr: TOKEN_EOL expr  */
-#line 218 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 223 "/usr/src/openmohaa/code/parser/bison_source.txt"
                               { (yyval.s.val) = (yyvsp[0].s.val); }
-#line 2210 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2244 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 63: /* expr: TOKEN_IDENTIFIER  */
-#line 221 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 226 "/usr/src/openmohaa/code/parser/bison_source.txt"
                            { (yyval.s.val) = node2(ENUM_string, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2216 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2250 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 64: /* func_prim_expr: TOKEN_IDENTIFIER event_parameter_list_need  */
-#line 225 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                                   { (yyval.s.val) = node3(ENUM_cmd_event_expr, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2222 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 65: /* func_prim_expr: nonident_prim_expr TOKEN_IDENTIFIER event_parameter_list  */
-#line 226 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                                                   { (yyval.s.val) = node4(ENUM_method_event_expr, (yyvsp[-2].s.val), (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2228 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 66: /* func_prim_expr: func_expr func_prim_expr  */
-#line 227 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                   { (yyval.s.val) = node3(ENUM_func1_expr, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2234 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 67: /* func_prim_expr: TOKEN_NOT func_prim_expr  */
-#line 228 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                   { (yyval.s.val) = node2(ENUM_bool_not, (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2240 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 68: /* func_prim_expr: TOKEN_IDENTIFIER TOKEN_DOUBLE_COLON const_array_list  */
 #line 230 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                {
-			(yyval.s.val) = node3(ENUM_const_array_expr, node2(ENUM_string, (yyvsp[-2].s.val), TOKPOS((yylsp[-2]))), (yyvsp[0].s.val), TOKPOS((yylsp[-1])));
-		}
-#line 2248 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 69: /* func_prim_expr: nonident_prim_expr TOKEN_DOUBLE_COLON const_array_list  */
-#line 234 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                {
-			(yyval.s.val) = node3(ENUM_const_array_expr, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])));
-		}
+                                                   { (yyval.s.val) = node3(ENUM_cmd_event_expr, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
 #line 2256 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 70: /* func_prim_expr: TOKEN_MAKEARRAY makearray_statement_list TOKEN_ENDARRAY  */
-#line 238 "/usr/src/openmohaa/code/parser/bison_source.txt"
+  case 65: /* func_prim_expr: nonident_prim_expr TOKEN_IDENTIFIER event_parameter_list  */
+#line 231 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                                                   { (yyval.s.val) = node4(ENUM_method_event_expr, (yyvsp[-2].s.val), (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
+#line 2262 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 66: /* func_prim_expr: func_expr func_prim_expr  */
+#line 232 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                   { (yyval.s.val) = node3(ENUM_func1_expr, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
+#line 2268 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 67: /* func_prim_expr: TOKEN_NOT func_prim_expr  */
+#line 233 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                   { (yyval.s.val) = node2(ENUM_bool_not, (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
+#line 2274 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 68: /* func_prim_expr: TOKEN_IDENTIFIER TOKEN_DOUBLE_COLON const_array_list  */
+#line 235 "/usr/src/openmohaa/code/parser/bison_source.txt"
                 {
-			(yyval.s.val) = node2(ENUM_makearray, (yyvsp[-1].s.val), TOKPOS((yylsp[-2])));
+			(yyval.s.val) = node3(ENUM_const_array_expr, node2(ENUM_string, (yyvsp[-2].s.val), TOKPOS((yylsp[-2]))), (yyvsp[0].s.val), TOKPOS((yylsp[-1])));
 		}
-#line 2264 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 71: /* event_parameter_list: %empty  */
-#line 244 "/usr/src/openmohaa/code/parser/bison_source.txt"
-          { (yyval.s.val) = sval_u{}; (yyval.s.val).node = NULL; }
-#line 2270 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 72: /* event_parameter_list: event_parameter  */
-#line 245 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                          { (yyval.s.val) = (yyvsp[0].s.val); }
-#line 2276 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 73: /* event_parameter_list_need: event_parameter  */
-#line 249 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                          { (yyval.s.val) = (yyvsp[0].s.val); }
 #line 2282 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
+  case 69: /* func_prim_expr: nonident_prim_expr TOKEN_DOUBLE_COLON const_array_list  */
+#line 239 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                {
+			(yyval.s.val) = node3(ENUM_const_array_expr, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1])));
+		}
+#line 2290 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 70: /* func_prim_expr: TOKEN_MAKEARRAY makearray_statement_list TOKEN_ENDARRAY  */
+#line 243 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                {
+			(yyval.s.val) = node2(ENUM_makearray, (yyvsp[-1].s.val), TOKPOS((yylsp[-2])));
+		}
+#line 2298 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 71: /* event_parameter_list: %empty  */
+#line 249 "/usr/src/openmohaa/code/parser/bison_source.txt"
+          { (yyval.s.val) = sval_u{}; (yyval.s.val).node = NULL; }
+#line 2304 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 72: /* event_parameter_list: event_parameter  */
+#line 250 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                          { (yyval.s.val) = (yyvsp[0].s.val); }
+#line 2310 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 73: /* event_parameter_list_need: event_parameter  */
+#line 254 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                          { (yyval.s.val) = (yyvsp[0].s.val); }
+#line 2316 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
   case 74: /* event_parameter: prim_expr  */
-#line 253 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 258 "/usr/src/openmohaa/code/parser/bison_source.txt"
                     { (yyval.s.val) = linked_list_end((yyvsp[0].s.val)); }
-#line 2288 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2322 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 75: /* event_parameter: event_parameter prim_expr  */
-#line 254 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 259 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                     { (yyval.s.val) = append_node((yyvsp[-1].s.val), (yyvsp[0].s.val)); }
-#line 2294 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2328 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 76: /* const_array_list: const_array  */
-#line 258 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 263 "/usr/src/openmohaa/code/parser/bison_source.txt"
                       { (yyval.s.val) = linked_list_end((yyvsp[0].s.val)); }
-#line 2300 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2334 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 77: /* const_array_list: const_array_list TOKEN_DOUBLE_COLON const_array  */
-#line 259 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 264 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                           { (yyval.s.val) = append_node((yyvsp[-2].s.val), (yyvsp[0].s.val)); }
-#line 2306 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2340 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 79: /* const_array: identifier_prim  */
-#line 264 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 269 "/usr/src/openmohaa/code/parser/bison_source.txt"
                           { (yyval.s.val) = node2(ENUM_string, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2312 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2346 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 81: /* prim_expr: identifier_prim  */
-#line 269 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 274 "/usr/src/openmohaa/code/parser/bison_source.txt"
                           { (yyval.s.val) = node2(ENUM_string, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2318 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2352 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 82: /* prim_expr: prim_expr TOKEN_DOUBLE_COLON const_array_list  */
-#line 270 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 275 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                         { (yyval.s.val) = node3(ENUM_const_array_expr, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2324 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2358 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 83: /* identifier_prim: TOKEN_IDENTIFIER  */
-#line 274 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 279 "/usr/src/openmohaa/code/parser/bison_source.txt"
                          { (yyval.s.val) = (yyvsp[0].s.val); (yyloc) = (yylsp[0]); }
-#line 2330 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2364 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 84: /* identifier: TOKEN_IDENTIFIER  */
-#line 278 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 283 "/usr/src/openmohaa/code/parser/bison_source.txt"
                            { (yyval.s.val) = (yyvsp[0].s.val); (yyloc) = (yylsp[0]); }
-#line 2336 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2370 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
   case 85: /* identifier: TOKEN_STRING  */
-#line 279 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                       { (yyval.s.val) = (yyvsp[0].s.val); (yyloc) = (yylsp[0]); }
-#line 2342 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 86: /* nonident_prim_expr: TOKEN_DOLLAR prim_expr  */
-#line 283 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                 { (yyval.s.val) = node3(ENUM_func1_expr, node1b(OP_UN_TARGETNAME), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2348 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 87: /* nonident_prim_expr: nonident_prim_expr TOKEN_PERIOD identifier  */
 #line 284 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                                     { (yyval.s.val) = node3(ENUM_field, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2354 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                       { (yyval.s.val) = (yyvsp[0].s.val); (yyloc) = (yylsp[0]); }
+#line 2376 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 88: /* nonident_prim_expr: nonident_prim_expr TOKEN_PERIOD TOKEN_SIZE  */
-#line 285 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                                     { (yyval.s.val) = node3(ENUM_func1_expr, node1b(OP_UN_SIZE), (yyvsp[-2].s.val), TOKPOS((yylsp[0]))); }
-#line 2360 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 89: /* nonident_prim_expr: nonident_prim_expr TOKEN_LEFT_SQUARE_BRACKET expr TOKEN_RIGHT_SQUARE_BRACKET  */
-#line 286 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                                                                       { (yyval.s.val) = node3(ENUM_array_expr, (yyvsp[-3].s.val), (yyvsp[-1].s.val), TOKPOS((yylsp[-2]))); }
-#line 2366 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 90: /* nonident_prim_expr: TOKEN_STRING  */
-#line 287 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                       { (yyval.s.val) = node2(ENUM_string, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2372 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 91: /* nonident_prim_expr: TOKEN_INTEGER  */
+  case 86: /* listener_identifier: identifier_prim  */
 #line 288 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                        { (yyval.s.val) = node2(ENUM_integer, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2378 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                          { (yyval.s.val) = node2(ENUM_string, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
+#line 2382 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 92: /* nonident_prim_expr: TOKEN_FLOAT  */
+  case 87: /* listener_identifier: TOKEN_LEFT_BRACKET expr TOKEN_RIGHT_BRACKET  */
 #line 289 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                      { (yyval.s.val) = node2(ENUM_float, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2384 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 93: /* nonident_prim_expr: TOKEN_LEFT_BRACKET expr expr expr TOKEN_RIGHT_BRACKET  */
-#line 290 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                                                                  { (yyval.s.val) = node4(ENUM_vector, (yyvsp[-3].s.val), (yyvsp[-2].s.val), (yyvsp[-1].s.val), TOKPOS((yylsp[-4]))); }
-#line 2390 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 94: /* nonident_prim_expr: TOKEN_LISTENER  */
-#line 291 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                         { (yyval.s.val) = node2(ENUM_listener, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
-#line 2396 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 95: /* nonident_prim_expr: TOKEN_LEFT_BRACKET expr TOKEN_RIGHT_BRACKET  */
-#line 292 "/usr/src/openmohaa/code/parser/bison_source.txt"
                                                       { (yyval.s.val) = (yyvsp[-1].s.val); }
-#line 2402 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+#line 2388 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 96: /* nonident_prim_expr: func_expr nonident_prim_expr  */
+  case 88: /* nonident_prim_expr: TOKEN_DOLLAR listener_identifier  */
 #line 293 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                       { (yyval.s.val) = node3(ENUM_func1_expr, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2408 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                                           { (yyval.s.val) = node3(ENUM_func1_expr, node1b(OP_UN_TARGETNAME), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
+#line 2394 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 97: /* nonident_prim_expr: TOKEN_NOT nonident_prim_expr  */
+  case 89: /* nonident_prim_expr: nonident_prim_expr TOKEN_PERIOD identifier  */
 #line 294 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                       { (yyval.s.val) = node2(ENUM_bool_not, (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
-#line 2414 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                                                     { (yyval.s.val) = node3(ENUM_field, (yyvsp[-2].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
+#line 2400 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 98: /* nonident_prim_expr: TOKEN_NULL  */
+  case 90: /* nonident_prim_expr: nonident_prim_expr TOKEN_PERIOD TOKEN_SIZE  */
 #line 295 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                     { (yyval.s.val) = node1(ENUM_NULL, TOKPOS((yylsp[0]))); }
-#line 2420 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                                                     { (yyval.s.val) = node3(ENUM_func1_expr, node1b(OP_UN_SIZE), (yyvsp[-2].s.val), TOKPOS((yylsp[0]))); }
+#line 2406 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 99: /* nonident_prim_expr: TOKEN_NIL  */
+  case 91: /* nonident_prim_expr: nonident_prim_expr TOKEN_LEFT_SQUARE_BRACKET expr TOKEN_RIGHT_SQUARE_BRACKET  */
 #line 296 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                    { (yyval.s.val) = node1(ENUM_NIL, TOKPOS((yylsp[0]))); }
-#line 2426 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                                                                                       { (yyval.s.val) = node3(ENUM_array_expr, (yyvsp[-3].s.val), (yyvsp[-1].s.val), TOKPOS((yylsp[-2]))); }
+#line 2412 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 100: /* func_expr: TOKEN_NEG  */
+  case 92: /* nonident_prim_expr: TOKEN_STRING  */
+#line 297 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                       { (yyval.s.val) = node2(ENUM_string, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
+#line 2418 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 93: /* nonident_prim_expr: TOKEN_INTEGER  */
+#line 298 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                        { (yyval.s.val) = node2(ENUM_integer, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
+#line 2424 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 94: /* nonident_prim_expr: TOKEN_FLOAT  */
+#line 299 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                      { (yyval.s.val) = node2(ENUM_float, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
+#line 2430 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 95: /* nonident_prim_expr: TOKEN_LEFT_BRACKET expr expr expr TOKEN_RIGHT_BRACKET  */
 #line 300 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                    { (yyval.s.val) = node1b(OP_UN_MINUS); }
-#line 2432 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                                                                                  { (yyval.s.val) = node4(ENUM_vector, (yyvsp[-3].s.val), (yyvsp[-2].s.val), (yyvsp[-1].s.val), TOKPOS((yylsp[-4]))); }
+#line 2436 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 101: /* func_expr: TOKEN_COMPLEMENT  */
+  case 96: /* nonident_prim_expr: TOKEN_LISTENER  */
 #line 301 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                           { (yyval.s.val) = node1b(OP_UN_COMPLEMENT); }
-#line 2438 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                         { (yyval.s.val) = node2(ENUM_listener, (yyvsp[0].s.val), TOKPOS((yylsp[0]))); }
+#line 2442 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 102: /* makearray_statement_list: %empty  */
+  case 97: /* nonident_prim_expr: TOKEN_LEFT_BRACKET expr TOKEN_RIGHT_BRACKET  */
+#line 302 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                                      { (yyval.s.val) = (yyvsp[-1].s.val); }
+#line 2448 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 98: /* nonident_prim_expr: TOKEN_LEFT_BRACKET expr TOKEN_EOL TOKEN_RIGHT_BRACKET  */
+#line 303 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                                                { (yyval.s.val) = (yyvsp[-2].s.val); }
+#line 2454 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 99: /* nonident_prim_expr: func_expr nonident_prim_expr  */
+#line 304 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                       { (yyval.s.val) = node3(ENUM_func1_expr, (yyvsp[-1].s.val), (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
+#line 2460 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 100: /* nonident_prim_expr: TOKEN_NOT nonident_prim_expr  */
 #line 305 "/usr/src/openmohaa/code/parser/bison_source.txt"
-        { (yyval.s.val) = node0(ENUM_NOP); }
-#line 2444 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                                       { (yyval.s.val) = node2(ENUM_bool_not, (yyvsp[0].s.val), TOKPOS((yylsp[-1]))); }
+#line 2466 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 103: /* makearray_statement_list: makearray_statement_list makearray_statement TOKEN_EOL  */
+  case 101: /* nonident_prim_expr: TOKEN_NULL  */
 #line 306 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                                                                { (yyval.s.val) = append_node((yyvsp[-2].s.val), node2(ENUM_makearray, (yyvsp[-1].s.val), TOKPOS((yylsp[-1])))); }
-#line 2450 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                     { (yyval.s.val) = node1(ENUM_NULL, TOKPOS((yylsp[0]))); }
+#line 2472 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 104: /* makearray_statement_list: makearray_statement TOKEN_EOL  */
+  case 102: /* nonident_prim_expr: TOKEN_NIL  */
 #line 307 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                                 { (yyval.s.val) = linked_list_end(node2(ENUM_makearray, (yyvsp[-1].s.val), TOKPOS((yylsp[-1])))); }
-#line 2456 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+                    { (yyval.s.val) = node1(ENUM_NIL, TOKPOS((yylsp[0]))); }
+#line 2478 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
     break;
 
-  case 105: /* makearray_statement_list: TOKEN_EOL makearray_statement_list  */
-#line 308 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                             { (yyval.s.val) = (yyvsp[0].s.val); (yyloc) = (yylsp[0]); }
-#line 2462 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 106: /* makearray_statement: prim_expr  */
-#line 312 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                  { (yyval.s.val) = linked_list_end( (yyvsp[0].s.val) ); }
-#line 2468 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 107: /* makearray_statement: makearray_statement prim_expr  */
-#line 313 "/usr/src/openmohaa/code/parser/bison_source.txt"
-                                        { (yyval.s.val) = append_node( (yyvsp[-1].s.val), (yyvsp[0].s.val) ); }
-#line 2474 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-  case 108: /* line_opt: %empty  */
-#line 317 "/usr/src/openmohaa/code/parser/bison_source.txt"
-          {}
-#line 2480 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
-    break;
-
-
+  case 103: /* func_expr: TOKEN_NEG  */
+#line 311 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                    { (yyval.s.val) = node1b(OP_UN_MINUS); }
 #line 2484 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 104: /* func_expr: TOKEN_COMPLEMENT  */
+#line 312 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                           { (yyval.s.val) = node1b(OP_UN_COMPLEMENT); }
+#line 2490 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 105: /* makearray_statement_list: %empty  */
+#line 316 "/usr/src/openmohaa/code/parser/bison_source.txt"
+        { (yyval.s.val) = node0(ENUM_NOP); }
+#line 2496 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 106: /* makearray_statement_list: makearray_statement_list makearray_statement TOKEN_EOL  */
+#line 317 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                                                                { (yyval.s.val) = append_node((yyvsp[-2].s.val), node2(ENUM_makearray, (yyvsp[-1].s.val), TOKPOS((yylsp[-1])))); }
+#line 2502 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 107: /* makearray_statement_list: makearray_statement TOKEN_EOL  */
+#line 318 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                                 { (yyval.s.val) = linked_list_end(node2(ENUM_makearray, (yyvsp[-1].s.val), TOKPOS((yylsp[-1])))); }
+#line 2508 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 108: /* makearray_statement_list: TOKEN_EOL makearray_statement_list  */
+#line 319 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                             { (yyval.s.val) = (yyvsp[0].s.val); (yyloc) = (yylsp[0]); }
+#line 2514 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 109: /* makearray_statement: prim_expr  */
+#line 323 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                  { (yyval.s.val) = linked_list_end( (yyvsp[0].s.val) ); }
+#line 2520 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 110: /* makearray_statement: makearray_statement prim_expr  */
+#line 324 "/usr/src/openmohaa/code/parser/bison_source.txt"
+                                        { (yyval.s.val) = append_node( (yyvsp[-1].s.val), (yyvsp[0].s.val) ); }
+#line 2526 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+  case 111: /* line_opt: %empty  */
+#line 328 "/usr/src/openmohaa/code/parser/bison_source.txt"
+          {}
+#line 2532 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
+    break;
+
+
+#line 2536 "/usr/src/openmohaa/code/parser/generated/yyParser.cpp"
 
       default: break;
     }
@@ -2709,5 +2761,5 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 321 "/usr/src/openmohaa/code/parser/bison_source.txt"
+#line 332 "/usr/src/openmohaa/code/parser/bison_source.txt"
 
