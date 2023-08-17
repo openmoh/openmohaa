@@ -828,7 +828,7 @@ void TurretGun::TurretBeginUsed
 	Sound( sPickupSound );
 
 	if( m_vUserViewAng[ 0 ] > 180.0f ) {
-		m_vUserViewAng[ 0 ] -= -360.0f;
+		m_vUserViewAng[ 0 ] -= 360.0f;
 	}
 
 	m_vUserLastCmdAng = vec_zero;
@@ -881,15 +881,7 @@ void TurretGun::TurretEndUsed
 		}
 
 		player->ExitTurret();
-
-		if( m_pViewModel )
-		{
-			delete m_pViewModel;
-			m_pViewModel = NULL;
-
-			// Make the turret visible to everyone
-			edict->r.svFlags &= ~SVF_PORTAL;
-		}
+		DeleteViewModel();
 	}
 
 	owner = NULL;
@@ -1126,17 +1118,15 @@ void TurretGun::CreateViewModel
 	}
 	else if( !m_pViewModel->attach( owner->entnum, tagnum ) )
 	{
-		delete m_pViewModel;
-		m_pViewModel = NULL;
-
 		warning( "CreateViewModel", "Could not attach model %s", newmodel );
+		DeleteViewModel();
 		return;
 	}
 
 	m_pViewModel->NewAnim( "idle" );
 
 	// Make the world model invisible to the owner
-	edict->r.svFlags |= SVF_PORTAL;
+	edict->r.svFlags |= SVF_NOTSINGLECLIENT;
 	edict->r.singleClient |= owner->edict->s.number;
 
 	// Make the viewmodel visible only to the owner
@@ -1152,7 +1142,7 @@ void TurretGun::DeleteViewModel
 	delete m_pViewModel;
 	m_pViewModel = NULL;
 
-	edict->r.svFlags &= ~SVF_PORTAL;
+	edict->r.svFlags &= ~SVF_NOTSINGLECLIENT;
 }
 
 qboolean TurretGun::SetWeaponAnim
