@@ -547,11 +547,18 @@ void ScriptVariable::ClearInternal()
         m_data.constArrayValue = NULL;
         break;
 
-    case VARIABLE_LISTENER:
+	case VARIABLE_LISTENER:
+		if (m_data.listenerValue) {
+			delete m_data.listenerValue;
+			m_data.listenerValue = NULL;
+		}
+
+		break;
+
     case VARIABLE_SAFECONTAINER:
-        if (m_data.listenerValue) {
-            delete m_data.listenerValue;
-            m_data.listenerValue = NULL;
+        if (m_data.safeContainerValue) {
+            delete m_data.safeContainerValue;
+            m_data.safeContainerValue = NULL;
         }
 
         break;
@@ -970,7 +977,7 @@ void ScriptVariable::evalArrayAt(ScriptVariable& var)
     case VARIABLE_CONTAINER:
         index = var.intValue();
 
-        if (!index || index > m_data.constArrayValue->size) {
+        if (!index || index > m_data.containerValue->NumObjects()) {
             throw ScriptException("array index %d out of range", index);
         }
 
@@ -2051,10 +2058,6 @@ ScriptVariable& ScriptVariable::operator=(const ScriptVariable& variable)
     case VARIABLE_CONSTARRAY:
         m_data.constArrayValue = variable.m_data.constArrayValue;
         m_data.constArrayValue->refCount++;
-        break;
-
-    case VARIABLE_CONTAINER:
-        m_data.containerValue = new Container<SafePtr<Listener>>(*variable.m_data.containerValue);
         break;
 
     case VARIABLE_SAFECONTAINER:
