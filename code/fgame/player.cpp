@@ -4004,8 +4004,8 @@ void Player::VehicleMove(usercmd_t *ucmd)
         ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_NO_GRAVITY | PMF_VIEW_PRONE
           | PMF_VIEW_DUCK_RUN | PMF_VIEW_JUMP_START);
 
-    // disable HUD and prediction
-    client->ps.pm_flags |= PMF_NO_HUD | PMF_NO_PREDICTION;
+    // disable prediction
+    client->ps.pm_flags |= PMF_NO_GRAVITY | PMF_NO_PREDICTION;
 
     if (level.playerfrozen || m_bFrozen) {
         client->ps.pm_flags |= PMF_FROZEN;
@@ -4035,8 +4035,11 @@ void Player::TurretMove(usercmd_t *ucmd)
         ~(PMF_FROZEN | PMF_NO_PREDICTION | PMF_NO_MOVE | PMF_DUCKED | PMF_NO_GRAVITY | PMF_VIEW_PRONE
           | PMF_VIEW_DUCK_RUN | PMF_VIEW_JUMP_START);
 
-    // disable HUD and prediction
-    client->ps.pm_flags |= PMF_NO_HUD | PMF_NO_PREDICTION;
+    // disable prediction
+    client->ps.pm_flags |= PMF_NO_GRAVITY | PMF_NO_PREDICTION;
+    if (getMoveType() == MOVETYPE_PORTABLE_TURRET) {
+        client->ps.pm_flags |= PMF_NO_GRAVITY;
+    }
 
     if (level.playerfrozen || m_bFrozen) {
         client->ps.pm_flags |= PMF_FROZEN;
