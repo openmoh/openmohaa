@@ -765,7 +765,7 @@ qboolean TurretGun::UserAim
 		return qfalse;
 	}
 
-	vNewCmdAng = Vector( ucmd->angles[ 0 ], ucmd->angles[ 1 ], ucmd->angles[ 2 ] ) * 0.005493f;
+	vNewCmdAng = Vector(SHORT2ANGLE(ucmd->angles[0]), SHORT2ANGLE(ucmd->angles[1]), SHORT2ANGLE(ucmd->angles[2]));
 
 	if( vNewCmdAng[ 0 ] || vNewCmdAng[ 1 ] || vNewCmdAng[ 2 ] )
 	{
