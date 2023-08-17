@@ -92,8 +92,11 @@ typedef struct {
 	byte *datatypes;
 	int dtindex;
 } cgm_t;
+
 cgm_t g_CGMessages[MAX_CLIENTS];
 qboolean g_CGMRecieve[MAX_CLIENTS];
+int nextTime[MAX_CLIENTS];
+
 void SV_ClearCGMessage (int iClient)
 {
 	g_CGMessages[iClient].cursize = 0;
@@ -156,14 +159,29 @@ void SV_InitAllCGMessages ()
 		SV_InitCGMessage(i);
 }
 
+static void MSG_HandleCGMBufferOverflow(cgm_t* pCGM, qboolean isDatum) {
+	int index;
+
+	index = pCGM - g_CGMessages;
+	if (!nextTime[index] || nextTime < svs.time)
+	{
+		if (isDatum) {
+			Com_DPrintf("CGM buffer for client %i overflowed number of datum\n", index);
+		} else {
+			Com_DPrintf("CGM buffer for client %i overflowed size of data\n", index);
+		}
+		nextTime[index] = svs.time + 5000;
+	}
+}
+
 static void MSG_WriteCGMBits (cgm_t *pCGM, int value, int bits)
 {
-	if(CGM_DATA_SIZE - pCGM->cursize <= 3) {
-		Com_DPrintf("CGM buffer for client %zu overflowed\n", pCGM - g_CGMessages);
+	if (CGM_DATA_SIZE - pCGM->cursize < 4) {
+		MSG_HandleCGMBufferOverflow(pCGM, qfalse);
 		return;
 	}
-	if(CGM_DATATYPES_SIZE - pCGM->dtindex <= 0) {
-		Com_DPrintf("CGM buffer for client %zu overflowed number of datum\n", pCGM - g_CGMessages);
+	if(CGM_DATATYPES_SIZE - pCGM->dtindex < 1) {
+		MSG_HandleCGMBufferOverflow(pCGM, qtrue);
 		return;
 	}
 
@@ -382,11 +400,20 @@ void PF_MSG_SetClient (int iClient)
 void MSG_SetBroadcastAll ()
 {
 	cgm_t *pCGM;
+	client_t* client;
 	int i;
 
 	pCGM = g_CGMessages;
 	for(i = 0; i < svs.iNumClients; i++,pCGM++) {
-		g_CGMRecieve[i] = qtrue;
+		client = &svs.clients[i];
+
+		if (client->gentity && client->gentity->inuse && client->state != CS_FREE) {
+			if (pCGM->data && pCGM->cursize < 3968) {
+				g_CGMRecieve[i] = qtrue;
+			} else {
+				MSG_HandleCGMBufferOverflow(pCGM, 0);
+			}
+		}
 	}
 }
 void MSG_SetBroadcastVisible( const vec_t *vPos, const vec_t *vPosB)
