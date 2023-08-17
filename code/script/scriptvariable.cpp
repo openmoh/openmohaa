@@ -350,7 +350,7 @@ void ScriptPointer::remove(ScriptVariable *var)
 {
     list.RemoveObject(var);
 
-    if (!list.NumObjects()) {
+    if (list.NumObjects() == 0) {
         delete this;
     }
 }
@@ -360,11 +360,23 @@ void ScriptPointer::setValue(const ScriptVariable& var)
     int             i;
     ScriptVariable *pVar;
 
-    for (i = list.NumObjects(); i > 0; i--) {
-        pVar = list.ObjectAt(i);
+    if (var.type == VARIABLE_POINTER)
+    {
+        for (i = list.NumObjects(); i > 0; i--) {
+            pVar = list.ObjectAt(i);
 
-        pVar->type = 0;
-        *pVar      = var;
+            pVar->m_data.pointerValue = var.m_data.pointerValue;
+            var.m_data.pointerValue->add(pVar);
+        }
+    }
+    else
+    {
+        for (i = list.NumObjects(); i > 0; i--) {
+            pVar = list.ObjectAt(i);
+
+            pVar->type = 0;
+            *pVar = var;
+        }
     }
 
     delete this;
@@ -2075,6 +2087,13 @@ ScriptVariable& ScriptVariable::operator=(ScriptVariable&& variable)
     type          = variable.GetType();
     m_data        = variable.m_data;
     variable.type = VARIABLE_NONE;
+
+    if (type == VARIABLE_POINTER)
+    {
+        // if it's a pointer, make sure to properly point
+        m_data.pointerValue->add(this);
+        m_data.pointerValue->remove(&variable);
+    }
 
     return *this;
 }
