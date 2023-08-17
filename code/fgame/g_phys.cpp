@@ -588,7 +588,7 @@ retry:
 		mask = MASK_SOLID;
 	}
 
-	trace = G_Trace( start, ent->mins, ent->maxs, end, ent, mask, false, "G_PushEntity" );
+	trace = G_Trace( start, ent->mins, ent->maxs, end, ent, mask, true, "G_PushEntity" );
 
 	edict = ent->edict;
 
