@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "simpleentity.h"
 #include "world.h"
 #include "level.h"
+#include "../script/scriptexception.h"
 
 Event EV_SetTargetname
 (
@@ -362,6 +363,10 @@ int SimpleEntity::IsSubclassOfBot(void) const
 
 void SimpleEntity::SetTargetName(str targetname)
 {
+    if (!world) {
+        Com_Error(ERR_FATAL, "world spawn entity does not exist. Blame Galactus.");
+    }
+
     world->RemoveTargetEntity(this);
 
     this->targetname = targetname;
@@ -371,6 +376,13 @@ void SimpleEntity::SetTargetName(str targetname)
 
 void SimpleEntity::SetTargetname(Event *ev)
 {
+	if (this == world)
+	{
+		// not sure why this code is not directly handled by World
+        // as SetTargetName can be overridden
+		ScriptError("world was re-targeted with targetname '%s'", targetname.c_str());
+	}
+
     SetTargetName(ev->GetString(1));
 }
 
