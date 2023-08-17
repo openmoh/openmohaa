@@ -2157,7 +2157,11 @@ int MSG_PackAlpha(float alpha, int bits)
 int MSG_PackCoord(float coord)
 {
 	unsigned int packed = (unsigned int)round(coord * 4.0 + MAX_PACKED_COORD_HALF);
-	coordstats[packed]++;
+	if (packed >= MAX_PACKED_COORD) {
+		Com_DPrintf("Illegal XYZ coordinates for an entity, small information lost in transmission\n");
+	} else {
+		coordstats[packed]++;
+	}
 
 	return packed;
 }
