@@ -1216,7 +1216,7 @@ void G_Physics_Toss
 	onconveyor = ( basevel != vec_zero );
 
 	// if onground, return without moving
-	if( ent->groundentity && !onconveyor && ( ent->movetype != MOVETYPE_VEHICLE ) )
+	if( ent->groundentity && ent->groundentity->entity->movetype == MOVETYPE_NONE && !onconveyor && ( ent->movetype != MOVETYPE_VEHICLE ) )
 	{
 		if( ent->avelocity.length() )
 		{
