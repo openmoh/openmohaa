@@ -51,7 +51,7 @@ int success_pos;
 %locations
 %define api.location.type { parse_pos_t }
 
-%expect 126
+%expect 131
 
 %precedence TOKEN_EOF 0 "end of file"
 %precedence TOKEN_EOL
@@ -114,7 +114,7 @@ int success_pos;
 				TOKEN_MAKEARRAY TOKEN_ENDARRAY
 
 %type <s.val> event_parameter_list event_parameter_list_need event_parameter
-%type <s.val> statement_list statement statement_declaration makearray_statement_list makearray_statement
+%type <s.val> statement_list statement statement_declaration makearray_statement_list makearray_statement statement_for_condition
 %type <s.val> compound_statement selection_statement iteration_statement
 %type <s.val> expr
 %type <s.val> func_prim_expr
@@ -173,6 +173,11 @@ statement_declaration
 	//| TOKEN_IDENTIFIER TOKEN_DOUBLE_COLON TOKEN_IDENTIFIER event_parameter_list { $$ = node3( ENUM_method_event_statement, node_string( parsetree_string( str( $1.stringValue ) + "::" + $3.stringValue ) ), node1( ENUM_NOP, $4 ), TOKPOS(@1) ); }
 	//| nonident_prim_expr TOKEN_IDENTIFIER TOKEN_DOUBLE_COLON TOKEN_IDENTIFIER event_parameter_list { $$ = node4( ENUM_method_event_statement, $1, node_string( parsetree_string( str( $2.stringValue ) + "::" + $4.stringValue ) ), node1( ENUM_NOP, $5 ), TOKPOS(@2) ); }
 	;
+	
+statement_for_condition
+	: line_opt statement_declaration[stmt_decl] line_opt { $$ = $stmt_decl; }
+	| line_opt statement_declaration[stmt_decl] TOKEN_SEMICOLON line_opt { $$ = $stmt_decl; }
+	;
 
 compound_statement
 	: TOKEN_LEFT_BRACES statement_list TOKEN_RIGHT_BRACES { $$ = node1(ENUM_statement_list, $2); }
@@ -181,23 +186,23 @@ compound_statement
 	;
 
 selection_statement
-	: TOKEN_IF prim_expr[exp] statement[stmt] %prec THEN { $$ = node3(ENUM_if_statement, $exp, $stmt, TOKPOS(@1)); }
-	| TOKEN_IF prim_expr[exp] statement[if_stmt] TOKEN_ELSE statement[else_stmt] { $$ = node4(ENUM_if_else_statement, $exp, $if_stmt, $else_stmt, TOKPOS(@1)); }
+	: TOKEN_IF prim_expr[exp] statement_for_condition[stmt] %prec THEN { $$ = node3(ENUM_if_statement, $exp, $stmt, TOKPOS(@1)); }
+	| TOKEN_IF prim_expr[exp] statement_for_condition[if_stmt] TOKEN_ELSE statement_for_condition[else_stmt] { $$ = node4(ENUM_if_else_statement, $exp, $if_stmt, $else_stmt, TOKPOS(@1)); }
 	| TOKEN_SWITCH prim_expr[exp] compound_statement[comp_stmt] { $$ = node3(ENUM_switch, $exp, $comp_stmt, TOKPOS(@1)); }
 	;
 
 iteration_statement
-	: TOKEN_WHILE prim_expr[exp] statement[stmt]{ $$ = node4(ENUM_while_statement, $exp, $stmt, node0(ENUM_NOP), TOKPOS(@1)); }
-	| TOKEN_FOR TOKEN_LEFT_BRACKET statement[init_stmt] TOKEN_SEMICOLON expr[exp] TOKEN_SEMICOLON statement_list[inc_stmt] TOKEN_RIGHT_BRACKET statement[stmt]
+	: TOKEN_WHILE prim_expr[exp] statement_for_condition[stmt]{ $$ = node4(ENUM_while_statement, $exp, $stmt, node0(ENUM_NOP), TOKPOS(@1)); }
+	| TOKEN_FOR TOKEN_LEFT_BRACKET statement[init_stmt] TOKEN_SEMICOLON expr[exp] TOKEN_SEMICOLON statement_list[inc_stmt] TOKEN_RIGHT_BRACKET statement_for_condition[stmt]
 	{
 		sval_t while_stmt = node4(ENUM_while_statement, $exp, $stmt, node1(ENUM_statement_list, $inc_stmt), TOKPOS(@1));
 		$$ = node1(ENUM_statement_list, append_node(linked_list_end($init_stmt), while_stmt));
 	}
-	| TOKEN_FOR TOKEN_LEFT_BRACKET TOKEN_SEMICOLON expr[exp] TOKEN_SEMICOLON statement_list[inc_stmt] TOKEN_RIGHT_BRACKET statement[stmt]
+	| TOKEN_FOR TOKEN_LEFT_BRACKET TOKEN_SEMICOLON expr[exp] TOKEN_SEMICOLON statement_list[inc_stmt] TOKEN_RIGHT_BRACKET statement_for_condition[stmt]
 	{
 		$$ = node4(ENUM_while_statement, $exp, $stmt, node1(ENUM_statement_list, $inc_stmt), TOKPOS(@1));
 	}
-	| TOKEN_DO statement[stmt] TOKEN_WHILE prim_expr[exp]{ $$ = node3(ENUM_do, $stmt, $exp, TOKPOS(@1)); }
+	| TOKEN_DO statement_for_condition[stmt] TOKEN_WHILE prim_expr[exp]{ $$ = node3(ENUM_do, $stmt, $exp, TOKPOS(@1)); }
 	;
 
 expr:
