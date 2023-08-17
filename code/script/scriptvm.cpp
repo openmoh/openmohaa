@@ -470,6 +470,11 @@ void ScriptVM::loadStoreTop(Listener* listener)
     }
 }
 
+void ScriptVM::skipField()
+{
+    m_CodePos += sizeof(unsigned int);
+}
+
 template<>
 void ScriptVM::loadTop<false>(Listener *listener)
 {
@@ -1483,32 +1488,56 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 break;
 
             case OP_STORE_FIELD_REF:
+            {
+                try
+                {
+                    Listener* listener = m_VMStack.GetTop().listenerValue();
+
+                    if (listener == nullptr)
+                    {
+                        const op_name_t fieldName = fetchActualOpcodeValue<op_name_t>();
+						skipField();
+						ScriptError("Field '%s' applied to NULL listener", value.c_str());
+                    }
+                    else
+                    {
+                        ScriptVariable* const listenerVar = storeTop<true>(listener);
+
+                        if (listenerVar)
+                        {
+                            // having a listener variable means the variable was just created
+                            m_VMStack.GetTop().setRefValue(listenerVar);
+                        }
+                    }
+                }
+                catch (...)
+                {
+                    ScriptVariable* const pTop = m_VMStack.GetTopPtr();
+                    pTop->setRefValue(pTop);
+                    throw;
+                }
+                break;
+            }
+
             case OP_STORE_FIELD:
-                try {
-                    value = Director.GetString(*reinterpret_cast<int *>(m_CodePos));
+                try
+                {
+                    Listener* listener = m_VMStack.GetTop().listenerValue();
 
-                    listener = m_VMStack.GetTop().listenerValue();
-
-                    if (listener == NULL) {
-                        ScriptError("Field '%s' applied to NULL listener", value.c_str());
-                    } else {
-                        eventCalled = true;
+                    if (listener == nullptr)
+					{
+						ScriptError("Field '%s' applied to NULL listener", value.c_str());
+                    }
+                    else
+                    {
                         storeTop<true>(listener);
                     }
-
-                    if (*opcode == OP_STORE_FIELD_REF) {
-                        m_VMStack.GetTop().setRefValue(listener->vars->GetOrCreateVariable(value));
-                    }
-                } catch (ScriptException& exc) {
-                    if (*opcode == OP_STORE_FIELD_REF) {
-                        m_VMStack.GetTop().setRefValue(m_VMStack.GetTopPtr());
-                    }
-
-                    if (!eventCalled) {
-                        m_CodePos += sizeof(unsigned int);
-                    }
-
-                    throw exc;
+                    break;
+                }
+                catch (...)
+                {
+                    skipField();
+                    throw;
                 }
                 break;
 

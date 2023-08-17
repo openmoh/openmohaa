@@ -174,6 +174,7 @@ private:
     template<bool noTop = false>
 	ScriptVariable* storeTop(Listener* listener);
 	void loadStoreTop(Listener* listener);
+    void skipField();
 
     void SetFastData(ScriptVariable *data, int dataSize);
 
