@@ -3301,7 +3301,7 @@ void Player::DoUse(Event *ev)
     int        num;
     int        i;
 
-    if (g_gametype->integer && IsSpectator()) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator()) {
         return;
     }
 
@@ -3320,7 +3320,7 @@ void Player::DoUse(Event *ev)
         for (i = 0; i < num; i++) {
             hit = &g_entities[touch[i]];
 
-            if (!hit->inuse || hit->entity == NULL || hit->entity == this) {
+            if (!hit->inuse) {
                 continue;
             }
 
@@ -3328,6 +3328,23 @@ void Player::DoUse(Event *ev)
             event->AddListener(this);
 
             hit->entity->ProcessEvent(event);
+
+            if (m_pVehicle || m_pTurret)
+            {
+                if (m_pVehicle)
+                {
+                    //
+                    // transmit the godmode to the vehicle
+                    //
+                    if (flags & FL_GODMODE) {
+                        m_pVehicle->flags |= FL_GODMODE;
+                    } else {
+                        m_pVehicle->flags &= ~FL_GODMODE;
+                    }
+                }
+
+                return;
+            }
         }
     }
 
