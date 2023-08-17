@@ -2484,9 +2484,9 @@ void Player::InitMaxAmmo(void)
     //
     // Team assault ammunition
     //
-    GiveAmmo("smokegrenade", 0, 1);
-    GiveAmmo("asmokegrenade", 0, 1);
-    GiveAmmo("riflegrenade", 0, 1);
+    GiveAmmo("smokegrenade", 0, 5);
+    GiveAmmo("asmokegrenade", 0, 5);
+    GiveAmmo("riflegrenade", 0, 3);
 }
 
 void Player::InitWeapons(void)
