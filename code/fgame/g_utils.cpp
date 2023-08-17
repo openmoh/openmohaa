@@ -2058,7 +2058,7 @@ void SanitizeName(const char *oldName, char *newName, size_t maxLen)
     j   = 0;
     p   = oldName;
 
-    for (i = 0; i < len && i < maxLen - 1; i++) {
+    for (i = 0; i < len && i < maxLen - 1; i++, p++) {
         if (i >= len - 1 && *p <= ' ') {
             newName[j++] = '?';
         } else {
