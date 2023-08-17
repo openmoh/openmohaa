@@ -2467,12 +2467,18 @@ void ScriptThread::Pause()
 
 void ScriptThread::Getcvar(Event *ev)
 {
-    str s = gi.Cvar_Get(ev->GetString(1), "", 0)->string;
+    str varName = ev->GetString(1);
+    str s = gi.Cvar_Get(varName.c_str(), "", 0)->string;
 
-    if (strchr(s.c_str(), '.')) {
-        for (int i = 0; i < s.length(); i++) {
-            if (s[i] == '.') {
+    if (strstr(s.c_str(), ".")) {
+        for (int i = s.length() - 1; i >= 0; i--) {
+            if (s[i] == '0') {
                 s[i] = 0;
+            } else {
+                if (s[i] == '.') {
+                    s[i] = 0;
+                }
+                break;
             }
         }
     }
@@ -2881,7 +2887,7 @@ void ScriptThread::TriggerEvent(Event *ev)
 void ScriptThread::RegisterAliasAndCache(Event *ev)
 {
     //assert(!"ScriptThread::RegisterAliasAndCache needs to be implemented like ClientGameCommandManager::AliasCache");
-    gi.DPrintf("ScriptThread::RegisterAliasAndCache needs to be implemented like ClientGameCommandManager::AliasCache");
+    gi.DPrintf("ScriptThread::RegisterAliasAndCache needs to be implemented like ClientGameCommandManager::AliasCache\n");
 }
 
 void ScriptThread::CacheResourceEvent(Event *ev)
