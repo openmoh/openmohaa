@@ -2005,12 +2005,7 @@ void Entity::setModel(const str& mdl)
                 setSolidType(SOLID_NOT);
             }
 
-            mins = edict->r.mins;
-            maxs = edict->r.maxs;
-
-            size            = maxs - mins;
-            edict->r.radius = size.length() * 0.5f;
-            edict->radius2  = edict->r.radius * edict->r.radius;
+            SetSize();
             return;
         }
     }
