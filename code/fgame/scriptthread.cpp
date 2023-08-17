@@ -4350,18 +4350,18 @@ void ScriptThread::EventSetCurrentObjective(Event *ev)
     int iTeam = 0;
 
     if (iObjective > MAX_OBJECTIVES) {
-        throw ScriptException("Index Out Of Range");
+        ScriptError("Index Out Of Range");
     }
 
     if (ev->NumArgs() >= 2)
     {
-        const_str teamStr = ev->GetConstString(1);
+        const_str teamStr = ev->GetConstString(2);
         if (teamStr == STRING_ALLIES) {
             iTeam = TEAM_ALLIES;
         } else if (teamStr == STRING_AXIS) {
             iTeam = TEAM_AXIS;
         } else {
-            throw("Option 2nd argument can only be \"allies\" or \"axis\"");
+            ScriptError("Option 2nd argument can only be \"allies\" or \"axis\"");
         }
     }
 
