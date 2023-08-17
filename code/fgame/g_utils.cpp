@@ -117,6 +117,12 @@ void G_TouchTriggers(Entity *ent)
             continue;
         }
 
+        // Added in 2.0
+        // check if the ent is inside edict
+        if (hit->r.bmodel && gi.HitEntity(ent->edict, hit)) {
+            continue;
+        }
+
         assert(hit->entity);
 
         ev = new Event(EV_Touch);
