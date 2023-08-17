@@ -243,6 +243,8 @@ public:
     unsigned int                            refCount;
 
 public:
+    ScriptArrayHolder();
+
     void        Archive(Archiver       &arc);
     static void Archive(Archiver& arc, ScriptArrayHolder *& arrayValue);
 };

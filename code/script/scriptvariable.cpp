@@ -295,6 +295,11 @@ void ScriptVariable::ArchiveInternal(Archiver& arc)
 }
 #endif
 
+ScriptArrayHolder::ScriptArrayHolder()
+	: refCount(0)
+{
+}
+
 ScriptConstArrayHolder::ScriptConstArrayHolder(ScriptVariable *pVar, unsigned int size)
 {
     refCount   = 0;
