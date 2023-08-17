@@ -534,9 +534,10 @@ Event EV_ScriptSlave_PhysicsOn
 	( 
 	"physics_on",
 	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Turn physics on this script object on",
+	"I",
+	"no_collide_entity",
+	"Turn physics on this script object on\n"
+	"If no_collide_entity is set to 1 then the script slave will not collide with other entities",
 	EV_NORMAL
 	);
 
@@ -1904,13 +1905,17 @@ void ScriptSlave::PhysicsOn
 	(
 	Event *ev
 	)
-	{
+{
 	commandswaiting = false;
-   setMoveType( MOVETYPE_BOUNCE );
-   setSolidType( SOLID_BBOX );
-   velocity = "0 0 1";
-   edict->clipmask = MASK_SOLID|CONTENTS_BODY;
-   }
+	setMoveType(MOVETYPE_BOUNCE);
+	setSolidType(SOLID_BBOX);
+	velocity = Vector(0, 0, 1);
+	edict->clipmask = MASK_SOLID | CONTENTS_BODY;
+	if (ev->NumArgs() == 1 && ev->GetInteger(1))
+	{
+		edict->clipmask &= ~MASK_SCRIPT_SLAVE;
+	}
+}
 
 void ScriptSlave::PhysicsOff
 	(
