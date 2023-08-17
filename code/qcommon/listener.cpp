@@ -168,7 +168,7 @@ Event EV_Delete
 
 Event EV_Remove
 (
-	"imediateremove",
+	"immediateremove",
 	EV_DEFAULT,
 	NULL,
 	NULL,
