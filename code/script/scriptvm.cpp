@@ -89,8 +89,6 @@ ScriptVMStack::ScriptVMStack(size_t stackSize)
     localStack    = new (data) ScriptVariable[stackSize];
     data += sizeof(ScriptVariable) * stackSize;
 
-    listenerVarPtr = new (data) ScriptVariable *[stackSize]();
-
     pTop        = localStack;
     stackBottom = localStack + stackSize;
 }
@@ -99,11 +97,9 @@ ScriptVMStack::ScriptVMStack(ScriptVMStack&& other)
     : localStack(other.localStack)
     , stackBottom(other.stackBottom)
     , pTop(other.pTop)
-    , listenerVarPtr(other.listenerVarPtr)
 {
     other.localStack = other.stackBottom = nullptr;
     other.pTop                           = nullptr;
-    other.listenerVarPtr                 = nullptr;
 }
 
 ScriptVMStack& ScriptVMStack::operator=(ScriptVMStack&& other)
@@ -111,10 +107,8 @@ ScriptVMStack& ScriptVMStack::operator=(ScriptVMStack&& other)
     localStack       = other.localStack;
     stackBottom      = other.stackBottom;
     pTop             = other.pTop;
-    listenerVarPtr   = other.listenerVarPtr;
     other.localStack = other.stackBottom = nullptr;
     other.pTop                           = nullptr;
-    other.listenerVarPtr                 = nullptr;
 
     return *this;
 }
@@ -221,16 +215,6 @@ ScriptVariable& ScriptVMStack::PushAndGet(size_t offset)
 void ScriptVMStack::MoveTop(ScriptVariable&& other)
 {
     *pTop = std::move(other);
-}
-
-ScriptVariable *ScriptVMStack::GetListenerVar(uintptr_t index)
-{
-    return listenerVarPtr[index];
-}
-
-void ScriptVMStack::SetListenerVar(uintptr_t index, ScriptVariable *newVar)
-{
-    listenerVarPtr[index] = newVar;
 }
 
 //====================
@@ -411,18 +395,8 @@ void ScriptVM::loadTopInternal(Listener *listener)
 
     if (!executeSetter(listener, variable)) {
         // just set the variable
-        const uintptr_t varIndex = m_VMStack.GetIndex();
         ScriptVariable& pTop     = m_VMStack.GetTop();
-        if (varIndex < m_VMStack.GetStackSize()) {
-            ScriptVariable *const listenerVar = m_VMStack.GetListenerVar(varIndex);
-            if (!listenerVar || listenerVar->GetKey() != short3(variable)) {
-                listener->Vars()->SetVariable(variable, std::move(pTop));
-            } else {
-                *listenerVar = std::move(pTop);
-            }
-        } else {
-            listener->Vars()->SetVariable(variable, std::move(pTop));
-        }
+        listener->Vars()->SetVariable(variable, std::move(pTop));
     }
 }
 
@@ -432,13 +406,8 @@ ScriptVariable *ScriptVM::storeTopInternal(Listener *listener)
     ScriptVariable *listenerVar;
 
     if (!executeGetter(listener, variable)) {
-        const uintptr_t varIndex = m_VMStack.GetIndex();
         ScriptVariable& pTop     = m_VMStack.GetTop();
-        listenerVar              = m_VMStack.GetListenerVar(varIndex);
-        if (!listenerVar || listenerVar->GetKey() != short3(variable)) {
-            listenerVar = listener->Vars()->GetOrCreateVariable(variable);
-            m_VMStack.SetListenerVar(varIndex, listenerVar);
-        }
+        listenerVar              = listener->Vars()->GetOrCreateVariable(variable);
 
         pTop = *listenerVar;
     } else {
@@ -454,19 +423,8 @@ void ScriptVM::loadStoreTop(Listener* listener)
 
     if (!executeSetter(listener, variable)) {
         // just set the variable
-        const uintptr_t varIndex = m_VMStack.GetIndex();
         ScriptVariable& pTop = m_VMStack.GetTop();
-        if (varIndex < m_VMStack.GetStackSize()) {
-            ScriptVariable* const listenerVar = m_VMStack.GetListenerVar(varIndex);
-            if (!listenerVar || listenerVar->GetKey() != short3(variable)) {
-                listener->Vars()->SetVariable(variable, pTop);
-            } else {
-                *listenerVar = pTop;
-            }
-        }
-        else {
-            listener->Vars()->SetVariable(variable, pTop);
-        }
+        listener->Vars()->SetVariable(variable, pTop);
     }
 }
 

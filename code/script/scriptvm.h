@@ -96,8 +96,6 @@ public:
     ScriptVariable *GetTopArray(size_t offset = 0) const;
     uintptr_t       GetIndex() const;
     void            MoveTop(ScriptVariable           &&other);
-    ScriptVariable *GetListenerVar(uintptr_t index);
-    void            SetListenerVar(uintptr_t index, ScriptVariable *newVar);
 
     /** Pop and return the previous value. */
     ScriptVariable& Pop();
@@ -117,7 +115,6 @@ private:
     ScriptVariable *stackBottom;
     /** Variable from the top stack of the local stack. */
     ScriptVariable  *pTop;
-    ScriptVariable **listenerVarPtr;
 };
 
 class ScriptVM
