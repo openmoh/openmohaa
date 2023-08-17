@@ -1391,7 +1391,7 @@ bool ScriptCompiler::EvalPrevValue(ScriptVariable& var)
         break;
 
     case OP_STORE_FLOAT:
-        intValue = GetOpcodeValue<float>(sizeof(float), sizeof(float));
+        floatValue = GetOpcodeValue<float>(sizeof(float), sizeof(float));
         var.setFloatValue(floatValue);
         return true;
 
