@@ -40,11 +40,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 typedef Container< SafePtr< SimpleEntity > > ConSimple;
 
-#if defined ( GAME_DLL ) || defined ( CGAME_DLL )
 class World : public Entity {
-#else
-class World : public SimpleEntity {
-#endif
 	con_set < const_str, ConSimple > m_targetList; // moh could have used con_set instead of TargetList
 	qboolean world_dying;
 
@@ -104,6 +100,8 @@ public:
 	ConSimple		*GetTargetList( str& targetname );
 	ConSimple		*GetTargetList( const_str targetname );
 
+	void			SetFarClipOverride(Event* ev);
+	void			SetFarPlaneColorOverride(Event* ev);
 	void			SetSoundtrack( Event *ev );
 	void			SetGravity( Event *ev );
 	void			SetNextMap( Event *ev );
@@ -112,11 +110,27 @@ public:
 	void			SetWaterAlpha( Event *ev );
 	void			SetLavaColor( Event *ev );
 	void			SetLavaAlpha( Event *ev );
+	void			GetFarPlane_Color(Event* ev);
 	void			SetFarPlane_Color( Event *ev );
+	void			GetFarPlaneBias(Event* ev);
+	void			SetFarPlaneBias(Event* ev);
 	void			SetFarPlane_Cull( Event *ev );
+	void			GetSkyboxFarplane( Event *ev );
+	void			SetSkyboxFarplane(Event* ev);
+	void			SetAnimatedFarplaneColor(Event* ev);
+	void			SetAnimatedFarplane(Event* ev);
+	void			SetAnimatedFarplaneBias(Event* ev);
+	void			UpdateAnimatedFarplane(Event* ev);
+	void			GetRenderTerrain(Event* ev);
+	void			SetRenderTerrain(Event* ev);
+	void			GetSkyboxSpeed(Event* ev);
+	void			SetSkyboxSpeed(Event* ev);
+	void			GetFarPlane( Event *ev );
 	void			SetFarPlane( Event *ev );
 	void			SetSkyAlpha( Event *ev );
 	void			SetSkyPortal( Event *ev );
+	void			SetNumArenas(Event* ev);
+	void			SetAIVisionDistance(Event* ev);
 	void			SetNorthYaw( Event *ev );
 	void			UpdateConfigStrings( void );
 	void			UpdateFog( void );

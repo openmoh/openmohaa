@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "level.h"
 #include "scriptmaster.h"
 #include "scriptexception.h"
+#include "player.h"
 
 #ifdef GAME_DLL
 #include "../fgame/soundman.h"
@@ -106,21 +107,61 @@ Event EV_World_SetLavaAlpha
 	"lavaAlpha",
 	"Set the alpha of lava screen blend"
 );
+Event EV_World_GetFarPlane_Color
+(
+	"farplane_color",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Get the color of the far clipping plane fog",
+	EV_GETTER
+);
 Event EV_World_SetFarPlane_Color
 (
 	"farplane_color",
 	EV_DEFAULT,
 	"v",
 	"farplaneColor",
-	"Set the color of the far clipping plane fog"
+	"Set the color of the far clipping plane fog",
+	EV_SETTER
+);
+Event EV_World_SetFarPlane_Color2
+(
+	"farplane_color",
+	EV_DEFAULT,
+	"v",
+	"farplaneColor",
+	"Set the color of the far clipping plane fog",
+	EV_NORMAL
+);
+Event EV_World_SetAnimatedFarPlaneColor
+(
+	"animated_farplane_color",
+	EV_DEFAULT,
+	"vvff",
+	"colorStart colorEnd ZStart ZEnd",
+	"Set the color of the far clipping plane based on a color range and a Z range",
+	EV_NORMAL
 );
 Event EV_World_SetFarPlane_Cull
 (
 	"farplane_cull",
 	EV_DEFAULT,
-	"b",
+	"i",
 	"farplaneCull",
-	"Whether or not the far clipping plane should cull things out of the world"
+	"Whether or not the far clipping plane should cull things out of the world\n"
+	"0 - no cull\n"
+	"1 - normal cull\n"
+	"2 - cull but no bsp culling"
+);
+Event EV_World_GetFarPlane
+(
+	"farplane",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Get the distance of the far clipping plane",
+	EV_GETTER
 );
 Event EV_World_SetFarPlane
 (
@@ -128,7 +169,161 @@ Event EV_World_SetFarPlane
 	EV_DEFAULT,
 	"f",
 	"farplaneDistance",
-	"Set the distance of the far clipping plane"
+	"Set the distance of the far clipping plane",
+	EV_SETTER
+);
+Event EV_World_SetFarClipOverride
+(
+	"farclipoverride",
+	EV_DEFAULT,
+	"f",
+	"farclipoverride",
+	"Override the min config default for the far clip distance",
+	EV_NORMAL
+);
+Event EV_World_SetFarPlaneColorOverride
+(
+	"farplaneclipcolor",
+	EV_DEFAULT,
+	"v",
+	"farplaneclipcolor",
+	"Override the fog color for the min config",
+	EV_NORMAL
+);
+Event EV_World_SetFarPlane2
+(
+	"farplane",
+	EV_DEFAULT,
+	"f",
+	"farplaneDistance",
+	"Set the distance of the far clipping plane",
+	EV_NORMAL
+);
+Event EV_World_SetAnimatedFarPlane
+(
+	"animated_farplane",
+	EV_DEFAULT,
+	"ffff",
+	"farplaneStart farplaneEnd ZStart ZEnd",
+	"Set the distance of the far clipping plane based on a farplane range and a Z range",
+	EV_NORMAL
+);
+Event EV_World_GetFarPlaneBias
+(
+	"farplane_bias",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Get the distance bias of the far clipping plane",
+	EV_GETTER
+);
+Event EV_World_SetFarPlaneBias
+(
+	"farplane_bias",
+	EV_DEFAULT,
+	"f",
+	"farplaneDistanceBias",
+	"Set the distance bias of the far clipping plane",
+	EV_SETTER
+);
+Event EV_World_SetFarPlaneBias2
+(
+	"farplane_bias",
+	EV_DEFAULT,
+	"f",
+	"farplaneDistanceBias",
+	"Set the distance bias of the far clipping plane",
+	EV_NORMAL
+);
+Event EV_World_SetAnimatedFarPlaneBias
+(
+	"animated_farplane_bias",
+	EV_DEFAULT,
+	"ffff",
+	"biasStart biasEnd ZStart ZEnd",
+	"Set the bias of the far clipping plane based on a bias range and a Z range",
+	EV_NORMAL
+);
+Event EV_World_UpdateAnimatedFarplane
+(
+	"_update_animated_farplane",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Updates the farplane if it is being animated.",
+	EV_NORMAL
+);
+Event EV_World_GetSkyboxFarPlane
+(
+	"skybox_farplane",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Get the distance of the skybox far clipping plane",
+	EV_GETTER
+);
+Event EV_World_SetSkyboxFarPlane
+(
+	"skybox_farplane",
+	EV_DEFAULT,
+	"f",
+	"farplaneDistance",
+	"Set the distance of the skybox far clipping plane",
+	EV_SETTER
+);
+Event EV_World_SetSkyboxFarPlane2
+(
+	"skybox_farplane",
+	EV_DEFAULT,
+	"f",
+	"farplaneDistance",
+	"Set the distance of the skybox far clipping plane",
+	EV_NORMAL
+);
+Event EV_World_GetSkyboxSpeed
+(
+	"skybox_speed",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Get the speed of the skybox",
+	EV_GETTER
+);
+Event EV_World_SetSkyboxSpeed
+(
+	"skybox_speed",
+	EV_DEFAULT,
+	"f",
+	"speed",
+	"Set the speed of the skybox",
+	EV_SETTER
+);
+Event EV_World_SetSkyboxSpeed2
+(
+	"skybox_speed",
+	EV_DEFAULT,
+	"f",
+	"speed",
+	"Set the speed of the skybox",
+	EV_NORMAL
+);
+Event EV_World_SetRenderTerrain
+(
+	"render_terrain",
+	EV_DEFAULT,
+	"b",
+	"render_terrain",
+	"Set to draw or not draw terrain",
+	EV_NORMAL
+);
+Event EV_World_GetRenderTerrain
+(
+	"get_render_terrain",
+	EV_DEFAULT,
+	NULL,
+	NULL,
+	"Get the render terrain switch",
+	EV_GETTER
 );
 Event EV_World_SetAmbientLight
 (
@@ -178,21 +373,21 @@ Event EV_World_LightmapDensity
 	"density",
 	"Set the default lightmap density for all world surfaces"
 );
-Event EV_World_SunFlare
+Event EV_World_SunFlareName
 (
-	"sunflare",
+	"sunflarename",
+	EV_DEFAULT,
+	"s",
+	"flarename",
+	"Set the flare to use for the sunflare"
+);
+Event EV_World_SunFlareDirection
+(
+	"sunflaredirection",
 	EV_DEFAULT,
 	"v",
-	"position_of_sun",
-	"Set the position of the sun for the purposes of the sunflare"
-);
-Event EV_World_SunFlareInPortalSky
-(
-	"sunflare_inportalsky",
-	EV_DEFAULT,
-	NULL,
-	NULL,
-	"Let the renderer know that the sun is in the portal sky"
+	"angles",
+	"Set the direction of the sunflare"
 );
 Event EV_World_SetSkyAlpha
 (
@@ -209,6 +404,24 @@ Event EV_World_SetSkyPortal
 	"b",
 	"newSkyPortalState",
 	"Whether or not to use the sky portal at all"
+);
+Event EV_World_SetNumArenas
+(
+	"numarenas",
+	EV_DEFAULT,
+	"i",
+	"numarenas",
+	"Set the number of arenas in the world",
+	EV_NORMAL
+);
+Event EV_World_SetAIVisionDistance
+(
+	"ai_visiondistance",
+	EV_DEFAULT,
+	"f",
+	"vision_distance",
+	"Sets the default AI Vision Distance",
+	EV_NORMAL
 );
 Event EV_World_SetNorthYaw
 (
@@ -235,161 +448,79 @@ Event EV_World_SetSunDiffuseColor
 	"diffusecolor",
 	"Sets an alternate sun color to use for clcing diffuse sun"
 );
+Event EV_World_Overbright
+(
+	"overbright",
+	EV_DEFAULT,
+	"i",
+	"use",
+	"When set to non-zero, removes the overbright cutoff of lightmaps",
+	EV_NORMAL
+);
+Event EV_World_VisDerived
+(
+	"vis_derived",
+	EV_DEFAULT,
+	"i",
+	"use",
+	"whether or not the vis compiler derives additional vis info from the manual vis",
+	EV_NORMAL
+);
 
-void World::AddTargetEntity( SimpleEntity *ent )
+CLASS_DECLARATION( Entity, World, "worldspawn" )
 {
-	str targetname = ent->TargetName();
-
-	if( !targetname.length() )
-	{
-		return;
-	}
-
-	ConSimple* list = GetTargetList( targetname );
-
-	list->AddObject( ent );
-}
-
-void World::AddTargetEntityAt( SimpleEntity *ent, int index )
-{
-	str targetname = ent->TargetName();
-
-	if( !targetname.length() )
-	{
-		return;
-	}
-
-	ConSimple* list = GetTargetList( targetname );
-
-	list->AddObjectAt( index, ent );
-}
-
-void World::RemoveTargetEntity( SimpleEntity *ent )
-{
-	str targetname = ent->TargetName();
-
-	if( !targetname.length() )
-	{
-		return;
-	}
-
-	ConSimple* list = GetExistingTargetList( targetname );
-
-	if( list )
-	{
-		list->RemoveObject( ent );
-
-		if( list->NumObjects() <= 0 )
-		{
-			m_targetList.remove( Director.AddString( targetname ) );
-		}
-	}
-}
-
-void World::FreeTargetList()
-{
-	m_targetList.clear();
-}
-
-SimpleEntity *World::GetNextEntity( str targetname, SimpleEntity *ent )
-{
-	return GetNextEntity( Director.AddString( targetname ), ent );
-}
-
-SimpleEntity *World::GetNextEntity( const_str targetname, SimpleEntity *ent )
-{
-	ConSimple* list = GetTargetList( targetname );
-	int index;
-
-	if( ent )
-	{
-		index = list->IndexOfObject( ent ) + 1;
-	}
-	else
-	{
-		index = 1;
-	}
-
-	if( list->NumObjects() >= index )
-	{
-		return list->ObjectAt( index );
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-SimpleEntity *World::GetScriptTarget( str targetname )
-{
-	return GetScriptTarget( Director.AddString( targetname ) );
-}
-
-SimpleEntity *World::GetScriptTarget( const_str targetname )
-{
-	ConSimple* list = GetTargetList( targetname );
-
-	if( list->NumObjects() == 1 )
-	{
-		return list->ObjectAt( 1 );
-	}
-	else if( list->NumObjects() > 1 )
-	{
-		ScriptError( "There are %d entities with targetname '%s'. You are using a command that requires exactly one.", list->NumObjects(), Director.GetString( targetname ).c_str() );
-	}
-
-	return NULL;
-}
-
-SimpleEntity *World::GetTarget( str targetname, bool quiet )
-{
-	return GetTarget( Director.AddString( targetname ), quiet );
-}
-
-SimpleEntity *World::GetTarget( const_str targetname, bool quiet )
-{
-	ConSimple* list = GetTargetList( targetname );
-
-	if( list->NumObjects() == 1 )
-	{
-		return list->ObjectAt( 1 );
-	}
-	else if( list->NumObjects() > 1 )
-	{
-		if( !quiet ) {
-			warning( "World::GetTarget", "There are %d entities with targetname '%s'. You are using a command that requires exactly one.", list->NumObjects(), Director.GetString( targetname ).c_str() );
-		}
-	}
-
-	return NULL;
-}
-
-int World::GetTargetnameIndex( SimpleEntity *ent )
-{
-	ConSimple* list = GetTargetList( ent->TargetName() );
-
-	return list->IndexOfObject( ent );
-}
-
-ConSimple *World::GetExistingTargetList( const str& targetname )
-{
-	return GetExistingTargetList( Director.AddString( targetname ) );
-}
-
-ConSimple *World::GetExistingTargetList( const_str targetname )
-{
-	return m_targetList.findKeyValue( targetname );
-}
-
-ConSimple *World::GetTargetList( str& targetname )
-{
-	return GetTargetList( Director.AddString( targetname ) );
-}
-
-ConSimple *World::GetTargetList( const_str targetname )
-{
-	return &m_targetList.addKeyValue( targetname );
-}
+	{ &EV_World_SetSoundtrack,				&World::SetSoundtrack },
+	{ &EV_World_SetGravity,					&World::SetGravity },
+	{ &EV_World_SetNextMap,					&World::SetNextMap },
+	{ &EV_World_SetMessage,					&World::SetMessage },
+	{ &EV_World_SetWaterColor,				&World::SetWaterColor },
+	{ &EV_World_SetWaterAlpha,				&World::SetWaterAlpha },
+	{ &EV_World_SetLavaColor,				&World::SetLavaColor },
+	{ &EV_World_SetLavaAlpha,				&World::SetLavaAlpha },
+	{ &EV_World_GetFarPlane_Color,			&World::GetFarPlane_Color },
+	{ &EV_World_SetFarPlane_Color,			&World::SetFarPlane_Color },
+	{ &EV_World_SetFarPlane_Color2,			&World::SetFarPlane_Color },
+	{ &EV_World_SetFarPlane_Cull,			&World::SetFarPlane_Cull },
+	{ &EV_World_GetFarPlane,				&World::GetFarPlane },
+	{ &EV_World_SetFarPlane,				&World::SetFarPlane },
+	{ &EV_World_SetFarClipOverride,			&World::SetFarClipOverride },
+	{ &EV_World_SetFarPlaneColorOverride,	&World::SetFarPlaneColorOverride },
+	{ &EV_World_SetFarPlane2,				&World::SetFarPlane },
+	{ &EV_World_GetFarPlaneBias,			&World::GetFarPlaneBias },
+	{ &EV_World_SetFarPlaneBias,			&World::SetFarPlaneBias },
+	{ &EV_World_SetFarPlaneBias2,			&World::SetFarPlaneBias },
+	{ &EV_World_GetSkyboxFarPlane,			&World::GetSkyboxFarplane },
+	{ &EV_World_SetSkyboxFarPlane,			&World::SetSkyboxFarplane },
+	{ &EV_World_SetSkyboxFarPlane2,			&World::SetSkyboxFarplane },
+	{ &EV_World_GetSkyboxSpeed,				&World::GetSkyboxSpeed },
+	{ &EV_World_SetSkyboxSpeed,				&World::SetSkyboxSpeed },
+	{ &EV_World_SetSkyboxSpeed2,			&World::SetSkyboxSpeed },
+	{ &EV_World_GetRenderTerrain,			&World::GetRenderTerrain },
+	{ &EV_World_SetRenderTerrain,			&World::SetRenderTerrain },
+	{ &EV_World_SetSkyAlpha,				&World::SetSkyAlpha },
+	{ &EV_World_SetSkyPortal,				&World::SetSkyPortal },
+	{ &EV_World_SetNorthYaw,				&World::SetNorthYaw },
+	{ &EV_World_SetAmbientLight,			NULL },
+	{ &EV_World_SetAmbientIntensity,		NULL },
+	{ &EV_World_SetSunColor,				NULL },
+	{ &EV_World_SetSunLight,				NULL },
+	{ &EV_World_SetSunDirection,			NULL },
+	{ &EV_World_LightmapDensity,			NULL },
+	{ &EV_World_SunFlareName,				NULL },
+	{ &EV_World_SunFlareDirection,			NULL },
+	{ &EV_World_SetNumArenas,				NULL },
+	{ &EV_World_SetSunDiffuse,				NULL },
+	{ &EV_World_SetSunDiffuseColor,			NULL },
+	{ &EV_World_Overbright,					NULL },
+	{ &EV_World_VisDerived,					NULL },
+	{ &EV_World_SetAIVisionDistance,		&World::SetAIVisionDistance },
+	{ &EV_World_SetNorthYaw,				&World::SetNorthYaw },
+	{ &EV_World_SetAnimatedFarPlaneColor,	&World::SetAnimatedFarplaneColor },
+	{ &EV_World_SetAnimatedFarPlane,		&World::SetAnimatedFarplane },
+	{ &EV_World_SetAnimatedFarPlaneBias,	&World::SetAnimatedFarplaneBias },
+	{ &EV_World_UpdateAnimatedFarplane,		&World::UpdateAnimatedFarplane },
+	{ NULL,									NULL }
+};
 
 World::World()
 {
@@ -488,6 +619,54 @@ void World::UpdateConfigStrings( void )
 	gi.setConfigstring( CS_MESSAGE, level.level_name.c_str() );
 };
 
+void World::UpdateFog(void)
+{
+	const char* fogInfoString;
+	gi.SetFarPlane(farplane_distance);
+
+	if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+		fogInfoString = va(
+			"%d %.0f %.0f %.0f %.6f %.4f %.4f %.4f %d %.0f %.2f %.2f %.2f",
+			farplane_cull,
+			farplane_distance,
+			farplane_bias,
+			skybox_farplane,
+			skybox_speed,
+			farplane_color.x,
+			farplane_color.y,
+			farplane_color.z,
+			render_terrain,
+			farclip_override,
+			farplane_color_override.x,
+			farplane_color_override.y,
+			farplane_color_override.z
+		);
+	} else {
+		fogInfoString = va(
+			"%d %.0f %.4f %.4f %.4f",
+			farplane_cull,
+			farplane_distance,
+			farplane_color.x,
+			farplane_color.y,
+			farplane_color.z
+		);
+	}
+
+	gi.setConfigstring(CS_FOGINFO, fogInfoString);
+}
+
+void World::SetFarClipOverride(Event* ev)
+{
+	farplane_color_override = ev->GetVector(1);
+	UpdateFog();
+}
+
+void World::SetFarPlaneColorOverride(Event* ev)
+{
+	farclip_override = ev->GetFloat(1);
+	UpdateFog();
+}
+
 void World::UpdateSky( void )
 {
 	gi.SetSkyPortal( sky_portal );
@@ -507,15 +686,35 @@ void World::SetGravity( Event *ev )
 	gi.cvar_set( "sv_gravity", ev->GetString( 1 ) );
 }
 
+void World::GetFarPlane(Event* ev)
+{
+	ev->AddFloat(farplane_distance);
+}
+
 void World::SetFarPlane( Event *ev )
 {
 	farplane_distance = ev->GetFloat( 1 );
 	UpdateFog();
 }
 
-void World::SetFarPlane_Color( Event *ev )
+void World::GetFarPlaneBias(Event* ev)
 {
-	farplane_color = ev->GetVector( 1 );
+	ev->AddFloat(farplane_bias);
+}
+
+void World::SetFarPlaneBias(Event* ev)
+{
+	farplane_bias = ev->GetFloat(1);
+}
+
+void World::GetFarPlane_Color(Event* ev)
+{
+	ev->AddVector(farplane_color);
+}
+
+void World::SetFarPlane_Color(Event* ev)
+{
+	farplane_color = ev->GetVector(1);
 	UpdateFog();
 }
 
@@ -523,6 +722,187 @@ void World::SetFarPlane_Cull( Event *ev )
 {
 	farplane_cull = ev->GetBoolean( 1 );
 	UpdateFog();
+}
+
+void World::GetSkyboxFarplane(Event* ev)
+{
+	ev->AddFloat(skybox_farplane);
+}
+
+void World::SetSkyboxFarplane(Event* ev)
+{
+	skybox_farplane = ev->GetFloat(1);
+}
+
+void World::SetAnimatedFarplaneColor(Event* ev)
+{
+
+	animated_farplane_color_start = ev->GetVector(1);
+	animated_farplane_color_end = ev->GetVector(2);
+	animated_farplane_color_start_z = ev->GetFloat(3);
+	animated_farplane_color_end_z = ev->GetFloat(4);
+
+	if (animated_farplane_color_start_z > animated_farplane_color_end_z)
+	{
+		float end_z = animated_farplane_color_end_z;
+		animated_farplane_color_end_z = animated_farplane_color_start_z;
+		animated_farplane_color_start_z = end_z;
+
+		Vector end = animated_farplane_color_end;
+		animated_farplane_color_end = animated_farplane_color_start;
+		animated_farplane_color_start = end;
+	}
+
+	PostEvent(EV_World_UpdateAnimatedFarplane, 0);
+}
+
+void World::SetAnimatedFarplane(Event* ev)
+{
+	animated_farplane_start = ev->GetFloat(1);
+	animated_farplane_end = ev->GetFloat(2);
+	animated_farplane_start_z = ev->GetFloat(3);
+	animated_farplane_end_z = ev->GetFloat(4);
+
+	if (animated_farplane_start_z > animated_farplane_end_z)
+	{
+		float end_z = animated_farplane_end_z;
+		animated_farplane_end_z = animated_farplane_start_z;
+		animated_farplane_start_z = end_z;
+
+		float end = animated_farplane_end;
+		animated_farplane_end = animated_farplane_start;
+		animated_farplane_start = end;
+	}
+
+	PostEvent(EV_World_UpdateAnimatedFarplane, 0);
+}
+
+void World::SetAnimatedFarplaneBias(Event* ev)
+{
+	animated_farplane_bias_start = ev->GetFloat(1);
+	animated_farplane_bias_end = ev->GetFloat(2);
+	animated_farplane_bias_start_z = ev->GetFloat(3);
+	animated_farplane_bias_end_z = ev->GetFloat(4);
+
+	if (animated_farplane_bias_start_z > animated_farplane_bias_end_z)
+	{
+		float end_z = animated_farplane_bias_end_z;
+		animated_farplane_bias_end_z = animated_farplane_bias_start_z;
+		animated_farplane_bias_start_z = end_z;
+
+		float end = animated_farplane_end;
+		animated_farplane_bias_end = animated_farplane_bias_start;
+		animated_farplane_bias_start = end;
+	}
+
+	PostEvent(EV_World_UpdateAnimatedFarplane, 0);
+}
+
+void World::UpdateAnimatedFarplane(Event* ev)
+{
+	Entity* player;
+
+	CancelEventsOfType(EV_World_UpdateAnimatedFarplane);
+
+	if (g_gametype->integer != GT_SINGLE_PLAYER) {
+		return;
+	}
+
+	PostEvent(EV_World_UpdateAnimatedFarplane, level.frametime);
+
+	player = g_entities[0].entity;
+	if (!player) {
+		return;
+	}
+
+	if (animated_farplane_start_z != 8192)
+	{
+		float alpha;
+
+		if (player->origin.z < animated_farplane_start_z)
+		{
+			alpha = 0;
+		} else if (player->origin.z > animated_farplane_end_z) {
+			alpha = 1;
+		} else {
+			alpha = (player->origin.z - animated_farplane_start_z) / (animated_farplane_end_z - animated_farplane_start_z);
+		}
+
+		farplane_distance = alpha * (animated_farplane_end - animated_farplane_start) + animated_farplane_start;
+	}
+
+	if (animated_farplane_bias_start_z != 8192)
+	{
+		float alpha;
+
+		if (player->origin.z < animated_farplane_bias_start_z)
+		{
+			alpha = 0;
+		} else if (player->origin.z > animated_farplane_bias_end_z) {
+			alpha = 1;
+		} else {
+			alpha = (player->origin.z - animated_farplane_bias_start_z) / (animated_farplane_bias_end_z - animated_farplane_bias_start_z);
+		}
+
+		farplane_bias = alpha * (animated_farplane_bias_end - animated_farplane_bias_start) + animated_farplane_bias_start;
+	}
+
+	if (animated_farplane_color_start_z != 8192)
+	{
+		float alpha, startAlpha, endAlpha;
+		Vector start, end;
+		float dot;
+
+		if (player->origin.z < animated_farplane_color_start_z)
+		{
+			alpha = 0;
+		} else if (player->origin.z > animated_farplane_color_end_z) {
+			alpha = 1;
+		} else {
+			alpha = (player->origin.z - animated_farplane_color_start_z) / (animated_farplane_color_end_z - animated_farplane_color_start_z);
+		}
+		
+		start = animated_farplane_color_start;
+		end = animated_farplane_color_end;
+		VectorNormalize(start);
+		VectorNormalize(end);
+
+		dot = Vector::Dot(start, end);
+		if (1.f - dot > 0.000001)
+		{
+			startAlpha = sin((1.f - alpha) * acos(dot)) / sin(acos(dot));
+			endAlpha = sin(acos(dot) * alpha) / sin(acos(dot));
+		}
+		else
+		{
+			startAlpha = 1.f - alpha;
+			endAlpha = alpha;
+		}
+
+		farplane_color = end * endAlpha + start * startAlpha;
+	}
+
+	UpdateFog();
+}
+
+void World::GetRenderTerrain(Event* ev)
+{
+	ev->AddInteger(render_terrain);
+}
+
+void World::SetRenderTerrain(Event* ev)
+{
+	render_terrain = ev->GetInteger(1);
+}
+
+void World::GetSkyboxSpeed(Event* ev)
+{
+	ev->AddInteger(skybox_speed);
+}
+
+void World::SetSkyboxSpeed(Event* ev)
+{
+	skybox_speed = ev->GetInteger(1);
 }
 
 void World::SetSkyAlpha( Event *ev )
@@ -570,72 +950,176 @@ void World::SetLavaAlpha( Event *ev )
 	level.lava_alpha = ev->GetFloat( 1 );
 }
 
+void World::SetNumArenas(Event* ev)
+{
+	level.m_numArenas = ev->GetInteger(1);
+}
+
+void World::SetAIVisionDistance(Event* ev)
+{
+	m_fAIVisionDistance = ev->GetFloat(1);
+}
+
 void World::SetNorthYaw( Event *ev )
 {
 	m_fNorth = anglemod( ev->GetFloat( 1 ) );
 }
 
-void World::UpdateFog(void)
+SimpleEntity *World::GetTarget( str targetname, bool quiet )
 {
-	const char* fogInfoString;
-	gi.SetFarPlane(farplane_distance);
-
-	if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
-		fogInfoString = va(
-			"%d %.0f %.0f %.0f %.6f %.4f %.4f %.4f %d %.0f %.2f %.2f %.2f",
-			farplane_cull,
-			farplane_distance,
-			farplane_bias,
-			skybox_farplane,
-			skybox_speed,
-			farplane_color.x,
-			farplane_color.y,
-			farplane_color.z,
-			render_terrain,
-			farclip_override,
-			farplane_color_override.x,
-			farplane_color_override.y,
-			farplane_color_override.z
-		);
-	} else {
-		fogInfoString = va(
-			"%d %.0f %.4f %.4f %.4f",
-			farplane_cull,
-			farplane_distance,
-			farplane_color.x,
-			farplane_color.y,
-			farplane_color.z
-		);
-	}
-
-	gi.setConfigstring(CS_FOGINFO, fogInfoString);
+	return GetTarget( Director.AddString( targetname ), quiet );
 }
 
-CLASS_DECLARATION( Entity, World, "worldspawn" )
+SimpleEntity *World::GetTarget( const_str targetname, bool quiet )
 {
-	{ &EV_World_SetSoundtrack,			&World::SetSoundtrack },
-	{ &EV_World_SetGravity,				&World::SetGravity },
-	{ &EV_World_SetNextMap,				&World::SetNextMap },
-	{ &EV_World_SetMessage,				&World::SetMessage },
-	{ &EV_World_SetWaterColor,			&World::SetWaterColor },
-	{ &EV_World_SetWaterAlpha,			&World::SetWaterAlpha },
-	{ &EV_World_SetLavaColor,			&World::SetLavaColor },
-	{ &EV_World_SetLavaAlpha,			&World::SetLavaAlpha },
-	{ &EV_World_SetFarPlane_Color,		&World::SetFarPlane_Color },
-	{ &EV_World_SetFarPlane_Cull,		&World::SetFarPlane_Cull },
-	{ &EV_World_SetFarPlane,			&World::SetFarPlane },
-	{ &EV_World_SetSkyAlpha,			&World::SetSkyAlpha },
-	{ &EV_World_SetSkyPortal,			&World::SetSkyPortal },
-	{ &EV_World_SetNorthYaw,			&World::SetNorthYaw },
-	{ &EV_World_SetAmbientLight,		NULL },
-	{ &EV_World_SetAmbientIntensity,	NULL },
-	{ &EV_World_SetSunColor,			NULL },
-	{ &EV_World_SetSunLight,			NULL },
-	{ &EV_World_SetSunDirection,		NULL },
-	{ &EV_World_LightmapDensity,		NULL },
-	{ &EV_World_SunFlare,				NULL },
-	{ &EV_World_SunFlareInPortalSky,	NULL },
-	{ &EV_World_SetSunDiffuse,			NULL },
-	{ &EV_World_SetSunDiffuseColor,		NULL },
-	{ NULL,								NULL }
-};
+	ConSimple* list = GetTargetList( targetname );
+
+	if( list->NumObjects() == 1 )
+	{
+		return list->ObjectAt( 1 );
+	}
+	else if( list->NumObjects() > 1 )
+	{
+		if( !quiet ) {
+			warning( "World::GetTarget", "There are %d entities with targetname '%s'. You are using a command that requires exactly one.", list->NumObjects(), Director.GetString( targetname ).c_str() );
+		}
+	}
+
+	return NULL;
+}
+
+SimpleEntity *World::GetScriptTarget( str targetname )
+{
+	return GetScriptTarget( Director.AddString( targetname ) );
+}
+
+SimpleEntity *World::GetScriptTarget( const_str targetname )
+{
+	ConSimple* list = GetTargetList( targetname );
+
+	if( list->NumObjects() == 1 )
+	{
+		return list->ObjectAt( 1 );
+	}
+	else if( list->NumObjects() > 1 )
+	{
+		ScriptError( "There are %d entities with targetname '%s'. You are using a command that requires exactly one.", list->NumObjects(), Director.GetString( targetname ).c_str() );
+	}
+
+	return NULL;
+}
+
+ConSimple *World::GetExistingTargetList( const str& targetname )
+{
+	return GetExistingTargetList( Director.AddString( targetname ) );
+}
+
+ConSimple *World::GetExistingTargetList( const_str targetname )
+{
+	return m_targetList.findKeyValue( targetname );
+}
+
+ConSimple *World::GetTargetList( str& targetname )
+{
+	return GetTargetList( Director.AddString( targetname ) );
+}
+
+ConSimple *World::GetTargetList( const_str targetname )
+{
+	return &m_targetList.addKeyValue( targetname );
+}
+
+void World::AddTargetEntity( SimpleEntity *ent )
+{
+	str targetname = ent->TargetName();
+
+	if( !targetname.length() )
+	{
+		return;
+	}
+
+	ConSimple* list = GetTargetList( targetname );
+
+	list->AddObject( ent );
+}
+
+void World::AddTargetEntityAt( SimpleEntity *ent, int index )
+{
+	str targetname = ent->TargetName();
+
+	if( !targetname.length() )
+	{
+		return;
+	}
+
+	ConSimple* list = GetTargetList( targetname );
+
+	list->AddObjectAt( index, ent );
+}
+
+int World::GetTargetnameIndex(SimpleEntity* ent)
+{
+	ConSimple* list = GetTargetList(ent->TargetName());
+
+	return list->IndexOfObject(ent);
+}
+
+void World::RemoveTargetEntity( SimpleEntity *ent )
+{
+	if (world->world_dying) {
+		return;
+	}
+
+	const str targetname = ent->TargetName();
+
+	if( !targetname.length() )
+	{
+		return;
+	}
+
+	ConSimple* list = GetExistingTargetList( targetname );
+
+	if( list )
+	{
+		list->RemoveObject( ent );
+
+		if( list->NumObjects() <= 0 )
+		{
+			m_targetList.remove( Director.AddString( targetname ) );
+		}
+	}
+}
+
+SimpleEntity *World::GetNextEntity( str targetname, SimpleEntity *ent )
+{
+	return GetNextEntity( Director.AddString( targetname ), ent );
+}
+
+SimpleEntity *World::GetNextEntity( const_str targetname, SimpleEntity *ent )
+{
+	ConSimple* list = GetTargetList( targetname );
+	int index;
+
+	if( ent )
+	{
+		index = list->IndexOfObject( ent ) + 1;
+	}
+	else
+	{
+		index = 1;
+	}
+
+	if( list->NumObjects() >= index )
+	{
+		return list->ObjectAt( index );
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+void World::FreeTargetList()
+{
+	m_targetList.clear();
+}
