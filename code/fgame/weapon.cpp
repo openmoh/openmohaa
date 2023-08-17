@@ -1427,7 +1427,7 @@ void Weapon::UseAmmo(int amount, firemode_t mode)
 {
     mode = m_bShareClip ? FIRE_PRIMARY : mode;
 
-    if (UnlimitedAmmo(mode)) {
+    if (UnlimitedAmmo(mode) && (!owner || !owner->isClient())) {
         return;
     }
 
@@ -1661,7 +1661,7 @@ void Weapon::GetMuzzlePosition(Vector *position, Vector *forward, Vector *right,
         AnglesToAxis(angles, weap_or.axis);
     }
 
-    if (!IsSubclassOfInventoryItem()) {
+    if (!IsSubclassOfTurretGun()) {
         if ((weapon_class & WEAPON_CLASS_THROWABLE)) {
             AngleVectors(owner->GetViewAngles(), mat[0], mat[1], mat[2]);
         }
@@ -2246,6 +2246,11 @@ qboolean Weapon::HasAmmo(firemode_t mode)
     if (!((mode >= 0) && (mode < MAX_FIREMODES))) {
         warning("Weapon::HasAmmo", "Invalid mode %d\n", mode);
         return false;
+    }
+
+    if (m_bShareClip) {
+        // share the clip
+        mode = FIRE_PRIMARY;
     }
 
     if (UnlimitedAmmo(mode)) {
@@ -3290,28 +3295,27 @@ void Weapon::FillAmmoClip(Event *ev)
     int amount;
     int amount_used;
 
-    // Calc the amount the clip should get
-    amount = ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY];
-
-    assert(owner);
-    if (owner && owner->isClient() && !UnlimitedAmmo(FIRE_PRIMARY)) {
-        // use up the ammo from the player
-        amount_used = owner->UseAmmo(ammo_type[FIRE_PRIMARY], amount);
-
-        // Stick it in the clip
-        if (ammo_clip_size[FIRE_PRIMARY]) {
-            ammo_in_clip[FIRE_PRIMARY] = amount_used + ammo_in_clip[FIRE_PRIMARY];
-        }
-
-        assert(ammo_in_clip[FIRE_PRIMARY] <= ammo_clip_size[FIRE_PRIMARY]);
-        if (ammo_in_clip[FIRE_PRIMARY] > ammo_clip_size[FIRE_PRIMARY]) {
-            ammo_in_clip[FIRE_PRIMARY] = ammo_clip_size[FIRE_PRIMARY];
-        }
+    if (!ammo_clip_size[0] || !owner) {
+        return;
     }
 
-    owner->AmmoAmountInClipChanged(ammo_type[FIRE_PRIMARY], ammo_in_clip[FIRE_PRIMARY]);
+    if (UnlimitedAmmo(FIRE_PRIMARY)) {
+        // reload directly
+		ammo_in_clip[FIRE_PRIMARY] = ammo_clip_size[0];
+    } else {
+        // Calc the amount the clip should get
+		amount = ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY];
 
-    SetShouldReload(qfalse);
+		// use up the ammo from the player
+		amount_used = owner->UseAmmo(ammo_type[FIRE_PRIMARY], amount);
+
+		// Stick it in the clip
+		ammo_in_clip[FIRE_PRIMARY] = amount_used + ammo_in_clip[FIRE_PRIMARY];
+	}
+
+	owner->AmmoAmountInClipChanged(ammo_type[FIRE_PRIMARY], ammo_in_clip[FIRE_PRIMARY]);
+
+	SetShouldReload(qfalse);
 }
 
 //======================
@@ -3343,31 +3347,31 @@ void Weapon::AddToAmmoClip(Event *ev)
     int amount;
     int amount_used;
 
-    // Calc the amount the clip should get
-    amount = ev->GetInteger(1);
+    if (!ammo_clip_size[FIRE_PRIMARY] || !owner) {
+        return;
+	}
 
-    assert(owner);
-    if (owner && owner->isClient() && !UnlimitedAmmo(FIRE_PRIMARY)) {
-        if (amount > ammo_clip_size[FIRE_PRIMARY]) {
-            amount = ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY];
-        }
+	// Calc the amount the clip should get
+	amount = ev->GetInteger(1);
 
+	if (amount > ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY]) {
+		amount = ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY];
+	}
+
+    if (UnlimitedAmmo(FIRE_PRIMARY)) {
+        // Stick it in the clip
+        ammo_in_clip[FIRE_PRIMARY] = amount_used + ammo_in_clip[FIRE_PRIMARY];
+    } else {
         // use up the ammo from the player
         amount_used = owner->UseAmmo(ammo_type[FIRE_PRIMARY], amount);
 
         // Stick it in the clip
-        if (ammo_clip_size[FIRE_PRIMARY]) {
-            ammo_in_clip[FIRE_PRIMARY] = amount_used + ammo_in_clip[FIRE_PRIMARY];
-        }
+        ammo_in_clip[FIRE_PRIMARY] = amount_used + ammo_in_clip[FIRE_PRIMARY];
+	}
 
-        if (ammo_in_clip[FIRE_PRIMARY] > ammo_clip_size[FIRE_PRIMARY]) {
-            ammo_in_clip[FIRE_PRIMARY] = ammo_clip_size[FIRE_PRIMARY];
-        }
+	owner->AmmoAmountInClipChanged(ammo_type[FIRE_PRIMARY], ammo_in_clip[FIRE_PRIMARY]);
 
-        owner->AmmoAmountInClipChanged(ammo_type[FIRE_PRIMARY], ammo_in_clip[FIRE_PRIMARY]);
-
-        SetShouldReload(qfalse);
-    }
+	SetShouldReload(qfalse);
 }
 
 //======================
@@ -3402,9 +3406,7 @@ void Weapon::StartReloading(void)
         return;
     }
 
-    Event ev(EV_Weapon_DoneReloading);
-
-    if (SetWeaponAnim("reload", ev)) {
+    if (SetWeaponAnim("reload", EV_Weapon_DoneReloading)) {
         weaponstate = WEAPON_RELOADING;
     } else {
         ProcessEvent(EV_Weapon_FillClip);
