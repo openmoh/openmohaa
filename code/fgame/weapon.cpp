@@ -2539,7 +2539,7 @@ void Weapon::Charge(firemode_t mode)
 			PostEvent(EV_OverCooked, m_fCookTime);
 			PostEvent(EV_OverCooked_Warning, m_fCookTime - 1);
 		}
-		SetWeaponAnim("secondary_charge");
+		SetWeaponAnim("secondarycharge");
     }
 }
 
@@ -2695,7 +2695,7 @@ void Weapon::Fire(firemode_t mode)
     } else if (mode == FIRE_SECONDARY) {
         if (((!m_bShareClip && ammo_clip_size[FIRE_SECONDARY] && !ammo_in_clip[FIRE_SECONDARY])
              || (m_bShareClip && ammo_clip_size[FIRE_PRIMARY] && !ammo_in_clip[FIRE_PRIMARY]))
-            && HasAnim("fire_empty")) {
+            && HasAnim("secondaryfire_empty")) {
             SetWeaponAnim("secondaryfire_empty", done_event);
         } else {
             SetWeaponAnim("secondaryfire", done_event);
@@ -3360,7 +3360,7 @@ void Weapon::AddToAmmoClip(Event *ev)
 
     if (UnlimitedAmmo(FIRE_PRIMARY)) {
         // Stick it in the clip
-        ammo_in_clip[FIRE_PRIMARY] = amount_used + ammo_in_clip[FIRE_PRIMARY];
+        ammo_in_clip[FIRE_PRIMARY] = amount + ammo_in_clip[FIRE_PRIMARY];
     } else {
         // use up the ammo from the player
         amount_used = owner->UseAmmo(ammo_type[FIRE_PRIMARY], amount);
