@@ -1158,7 +1158,7 @@ __emit:
 
             if (iParamCount > 5) {
                 SetOpcodeVarStackOffset(OP_EXEC_CMD_COUNT1, -(int32_t)iParamCount);
-                EmitOpcode(OP_EXEC_CMD_COUNT1, val.node[4].sourcePosValue);
+                EmitOpcode(OP_EXEC_CMD_METHOD_COUNT1, val.node[4].sourcePosValue);
 
                 EmitOpcodeValue(iParamCount, sizeof(byte));
             } else {
