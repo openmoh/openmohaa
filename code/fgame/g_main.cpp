@@ -403,7 +403,7 @@ void G_AddGEntity(gentity_t *edict, qboolean showentnums)
     }
 
     if (showentnums) {
-        G_DrawDebugNumber(ent->origin, ent->entnum, 2.0f, 1.0f, 1.0f, 0.0f);
+        G_DrawDebugNumber(ent->origin + Vector(0, 0, ent->maxs.z), ent->entnum, 2.0f, 1.0f, 1.0f, 0.0f);
     }
 
     if (g_entinfo->integer
