@@ -364,10 +364,10 @@ void Trigger::StartThread(Event *ev)
         parm.owner = ev->GetEntity(2);
     }
 
-    Unregister("trigger");
+    Unregister(STRING_TRIGGER);
 
     if (This) {
-        label.Execute(this);
+        m_Thread.Execute(this);
     }
 }
 
@@ -626,9 +626,9 @@ void Trigger::EventSetDelay(Event *ev)
 void Trigger::EventSetThread(Event *ev)
 {
     if (ev->IsFromScript()) {
-        label.SetThread(ev->GetValue(1));
+        m_Thread.SetThread(ev->GetValue(1));
     } else {
-        label.Set(ev->GetString(1));
+        m_Thread.Set(ev->GetString(1));
     }
 }
 void Trigger::EventSetCount(Event *ev)
@@ -1794,7 +1794,7 @@ void TriggerChangeLevel::ChangeLevel(Event *ev)
     //
     // make sure we execute the thread before changing
     //
-    label.Execute();
+    m_Thread.Execute();
 
     if (g_gametype->integer) {
         G_BeginIntermission2();

@@ -58,7 +58,7 @@ protected:
     int               count;
 	const_str         noise;
 	const_str         message;
-    ScriptThreadLabel label;
+    ScriptThreadLabel m_Thread;
     EntityPtr         activator;
     int               respondto;
     qboolean          useTriggerDir;
