@@ -2703,11 +2703,7 @@ void ScriptThread::EventPause(Event *ev)
 void ScriptThread::EventEnd(Event *ev)
 {
     if (ev->NumArgs() > 0) {
-        ScriptVariable value = ev->GetValue(1);
-
-        m_ScriptVM->End(value);
-
-        ev->AddValue(value);
+        m_ScriptVM->End(ev->GetValue(1));
     } else {
         m_ScriptVM->End();
     }
@@ -2884,7 +2880,8 @@ void ScriptThread::TriggerEvent(Event *ev)
 
 void ScriptThread::RegisterAliasAndCache(Event *ev)
 {
-    assert(!"ScriptThread::RegisterAliasAndCache needs to be implemented like ClientGameCommandManager::AliasCache");
+    //assert(!"ScriptThread::RegisterAliasAndCache needs to be implemented like ClientGameCommandManager::AliasCache");
+    gi.DPrintf("ScriptThread::RegisterAliasAndCache needs to be implemented like ClientGameCommandManager::AliasCache");
 }
 
 void ScriptThread::CacheResourceEvent(Event *ev)
