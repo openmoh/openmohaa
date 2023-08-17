@@ -94,8 +94,8 @@ typedef struct {
 } cgm_t;
 
 cgm_t g_CGMessages[MAX_CLIENTS];
-qboolean g_CGMRecieve[MAX_CLIENTS];
-int nextTime[MAX_CLIENTS];
+qboolean g_CGMRecieve[MAX_CLIENTS] = { qfalse };
+int nextTime[MAX_CLIENTS] = { 0 };
 
 void SV_ClearCGMessage (int iClient)
 {
@@ -163,7 +163,7 @@ static void MSG_HandleCGMBufferOverflow(cgm_t* pCGM, qboolean isDatum) {
 	int index;
 
 	index = pCGM - g_CGMessages;
-	if (!nextTime[index] || nextTime < svs.time)
+	if (!nextTime[index] || nextTime[index] < svs.time)
 	{
 		if (isDatum) {
 			Com_DPrintf("CGM buffer for client %i overflowed number of datum\n", index);
