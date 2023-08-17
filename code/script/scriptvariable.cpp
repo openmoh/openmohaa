@@ -2058,7 +2058,11 @@ ScriptVariable& ScriptVariable::operator=(const ScriptVariable& variable)
     case VARIABLE_CONSTARRAY:
         m_data.constArrayValue = variable.m_data.constArrayValue;
         m_data.constArrayValue->refCount++;
-        break;
+		break;
+
+	case VARIABLE_CONTAINER:
+        m_data.containerValue = variable.m_data.containerValue;
+		break;
 
     case VARIABLE_SAFECONTAINER:
         m_data.safeContainerValue = new SafePtr<ConList>(*variable.m_data.safeContainerValue);
