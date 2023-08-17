@@ -1152,7 +1152,7 @@ bool DM_Manager::CheckEndMatch()
         if (fraglimit->integer > 10000) {
             gi.cvar_set("fraglimit", "10000");
         }
-        fraglimit = gi.Cvar_Get("fraglimit", "0", CVAR_SERVERINFO);
+        fraglimit = gi.Cvar_Get("fraglimit", "0", 0);
     }
 
     if (timelimit) {
@@ -1163,7 +1163,7 @@ bool DM_Manager::CheckEndMatch()
         if (timelimit->integer > 10800) {
             gi.cvar_set("timelimit", "10800");
         }
-        timelimit = gi.Cvar_Get("timelimit", "0", CVAR_SERVERINFO);
+        timelimit = gi.Cvar_Get("timelimit", "0", 0);
     }
 
     if (!m_bRoundBasedGame || g_gametype->integer == GT_TOW || g_gametype->integer == GT_LIBERATION) {
