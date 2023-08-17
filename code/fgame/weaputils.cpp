@@ -2459,7 +2459,7 @@ float BulletAttack
 					vec_zero,
 					vTraceEnd,
 					newowner,
-					MASK_SHOT,
+					MASK_SHOT_TRIG,
 					false,
 					"BulletAttack",
 					true
