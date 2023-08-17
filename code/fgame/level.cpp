@@ -1031,26 +1031,25 @@ void Level::setFrametime(int frametime)
 
 void Level::SpawnEntities(char* entities, int svsTime)
 {
-    int         inhibit, radnum = 0, count = 0;
-    int         enttime;
+    int inhibit, radnum = 0, count = 0;
     const char* value;
-    char        name[128];
-    SpawnArgs   args;
+    SpawnArgs args;
     Listener* listener;
-    Entity* ent;
+	Entity* ent;
+    int t1, t2;
+    int start, end;
+	char name[128];
 
-    // Create the game variable list
-    game.CreateVars();
+    Com_Printf("-------------------- Spawning Entities -----------------------\n");
 
-    // Create the parm variable list
-    parm.CreateVars();
-
-    // Create the level variable list
-    CreateVars();
+    t1 = gi.Milliseconds();
+    memset(skel_index, 0xff, sizeof(skel_index));
 
     // set up time so functions still have valid times
     setTime(svsTime);
-    setFrametime(50);
+	setFrametime(50);
+
+	gi.LoadResource("*144");
 
     setSkill(skill->integer);
 
@@ -1062,14 +1061,19 @@ void Level::SpawnEntities(char* entities, int svsTime)
     spawn_entnum = ENTITYNUM_WORLD;
     args.SpawnInternal();
 
-    // parse ents
-    inhibit = 0;
-    enttime = gi.Milliseconds();
+	gi.LoadResource("*147");
 
     // Set up for a new map
-    PathManager.LoadNodes();
+	PathManager.LoadNodes();
+
+	gi.LoadResource("*147a");
 
     Com_Printf("-------------------- Actual Spawning Entities -----------------------\n");
+
+	start = gi.Milliseconds();
+
+	// parse ents
+	inhibit = 0;
 
     for (entities = args.Parse(entities); entities != NULL; entities = args.Parse(entities)) {
         // remove things (except the world) from different skill levels or deathmatch
@@ -1105,36 +1109,50 @@ void Level::SpawnEntities(char* entities, int svsTime)
         }
     }
 
+    end = gi.Milliseconds();
+
     Com_Printf(
-        "-------------------- Actual Spawning Entities Done ------------------ %i ms\n", gi.Milliseconds() - enttime
+        "-------------------- Actual Spawning Entities Done ------------------ %i ms\n", end - start
     );
+
+	gi.LoadResource("*147b");
 
     world->UpdateConfigStrings();
 
     Event* ev = new Event(EV_Level_PreSpawnSentient);
     PostEvent(ev, EV_SPAWNENTITIES);
 
-    L_ProcessPendingEvents();
+	L_ProcessPendingEvents();
+
+	gi.LoadResource("*148");
 
     if (g_gametype->integer) {
         dmManager.InitGame();
-    }
+	}
+
+	gi.LoadResource("*148a");
 
     if (game.maxclients == 1) {
         spawn_entnum = 0;
         new Player;
-    }
+	}
+
+	gi.LoadResource("*148b");
 
     m_LoopProtection = false;
     AddWaitTill(STRING_PRESPAWN);
     Unregister(STRING_PRESPAWN);
     m_LoopProtection = true;
 
+    gi.LoadResource("*150");
+
+    t2 = gi.Milliseconds();
+
     Com_Printf("%i entities spawned\n", count);
     Com_Printf("%i simple entities spawned\n", radnum);
     Com_Printf("%i entities inhibited\n", inhibit);
 
-    Com_Printf("-------------------- Spawning Entities Done ------------------ %i ms\n", gi.Milliseconds() - enttime);
+    Com_Printf("-------------------- Spawning Entities Done ------------------ %i ms\n", t2 - t1);
 }
 
 void Level::ComputeDMWaypoints()
