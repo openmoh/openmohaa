@@ -460,6 +460,9 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			if(flags & CVAR_SERVER_CREATED)
 				flags &= ~CVAR_SERVER_CREATED;
 		}
+
+		// Only set modified flags once
+		cvar_modifiedFlags |= flags & ~var->flags;
 		
 		var->flags |= flags;
 
@@ -478,10 +481,6 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			Cvar_Set2( var_name, s, qtrue );
 			Z_Free( s );
 		}
-
-		// ZOID--needs to be set so that cvars the game sets as 
-		// SERVERINFO get sent to clients
-		cvar_modifiedFlags |= flags;
 
 		return var;
 	}
