@@ -90,14 +90,14 @@ class EventQueueNode;
 // are parsed.
 
 #define EV_REMOVE					-12.0f		// remove any unused entities before spawnargs are parsed
-#define EV_PRIORITY_SPAWNARG		-11.0f		// for priority spawn args passed in by the bsp file
-#define EV_SPAWNARG					-10.0f		// for spawn args passed in by the bsp file
-#define EV_LINKDOORS				-9.0f		// for finding out which doors are linked together
 #define EV_LINKBEAMS				-9.0f		// for finding out the endpoints of beams
 #define EV_VEHICLE					-9.0f
+#define EV_PRIORITY_SPAWNARG		-8.0f		// for priority spawn args passed in by the bsp file
 #define EV_SETUP_ROPEPIECE			-8.0f
+#define EV_SPAWNARG					-7.0f		// for spawn args passed in by the bsp file
 #define EV_SETUP_ROPEBASE			-7.0f
 #define EV_PROCESS_INIT				-6.0f
+#define EV_LINKDOORS				-5.0f		// for finding out which doors are linked together
 #define EV_POSTSPAWN				-5.0f		// for any processing that must occur after all objects are spawned
 #define EV_SPAWNENTITIES			-4.0f
 #define EV_PRIORITY_SPAWNACTOR		-3.0f
