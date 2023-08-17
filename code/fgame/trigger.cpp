@@ -1925,7 +1925,7 @@ Event EV_TriggerHurt_SetDamageType
     EV_NORMAL
 );
 
-CLASS_DECLARATION(TriggerUse, TriggerHurt, "trigger_hurt") {
+CLASS_DECLARATION(Trigger, TriggerHurt, "trigger_hurt") {
     {&EV_Trigger_Effect,            &TriggerHurt::Hurt      },
     {&EV_TriggerHurt_SetDamage,     &TriggerHurt::SetDamage },
     {&EV_TriggerHurt_SetDamageType, &TriggerHurt::DamageType},

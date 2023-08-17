@@ -406,7 +406,7 @@ public:
     TriggerUseOnce();
 };
 
-class TriggerHurt : public TriggerUse
+class TriggerHurt : public Trigger
 {
 protected:
     float damage;
@@ -423,7 +423,7 @@ public:
 
 inline void TriggerHurt::Archive(Archiver& arc)
 {
-    TriggerUse::Archive(arc);
+    Trigger::Archive(arc);
 
     arc.ArchiveFloat(&damage);
 }
