@@ -628,8 +628,8 @@ void ScriptVM::execCmdCommon(op_parmNum_t param)
 
 void ScriptVM::execCmdMethodCommon(op_parmNum_t param)
 {
-    const ScriptVariable& a        = m_VMStack.Pop();
-    const op_ev_t         eventNum = fetchOpcodeValue<op_ev_t>();
+	const ScriptVariable& a = m_VMStack.Pop();
+	const op_ev_t         eventNum = fetchOpcodeValue<op_ev_t>();
 
     m_VMStack.Pop(param);
 
@@ -639,9 +639,15 @@ void ScriptVM::execCmdMethodCommon(op_parmNum_t param)
     }
 
     if (arraysize > 1) {
-        if (a.IsConstArray()) {
-            for (uintptr_t i = 1; i <= arraysize; i++) {
-                Listener *const listener = a.listenerAt(i);
+		if (a.IsConstArray()) {
+            // copy the variable
+            // because if it's a targetlist, the container object can be modified
+            // while iterating
+			ScriptVariable array = a;
+
+            for (uintptr_t i = arraysize; i > 0; i--) {
+                Listener *const listener = array.listenerAt(i);
+
                 // if the listener is NULL, don't throw an exception
                 // it would be unfair if the other listeners executed the command
                 if (listener) {
