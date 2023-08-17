@@ -67,7 +67,7 @@ public:
     str        & Target();
     qboolean     Targeted(void);
     str        & TargetName();
-    void         SetTargetName(str targetname);
+    virtual void SetTargetName(str targetname);
     void         Archive(Archiver        &arc) override;
 
     int IsSubclassOfEntity(void) const;
