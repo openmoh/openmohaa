@@ -262,7 +262,6 @@ cvar_t* g_obituarylocation;
 
 cvar_t *sv_scriptfiles;
 
-cvar_t *nomonsters;
 cvar_t *maxbots;
 cvar_t *g_rankedserver;
 cvar_t *g_spectatefollow_firstperson;
@@ -325,22 +324,22 @@ void CVAR_Init(void)
     sv_showcameras = gi.Cvar_Get("sv_showcameras", "0", 0);
     sv_showentnums = gi.Cvar_Get("sv_showentnums", "0", 0);
 
-    sv_friction      = gi.Cvar_Get("sv_friction", "4", CVAR_SERVERINFO);
-    sv_stopspeed     = gi.Cvar_Get("sv_stopspeed", "100", CVAR_SERVERINFO);
-    sv_waterfriction = gi.Cvar_Get("sv_waterfriction", "1", CVAR_SERVERINFO);
-    sv_waterspeed    = gi.Cvar_Get("sv_waterspeed", "400", CVAR_SERVERINFO);
+    sv_friction      = gi.Cvar_Get("sv_friction", "4", 0);
+    sv_stopspeed     = gi.Cvar_Get("sv_stopspeed", "100", 0);
+    sv_waterfriction = gi.Cvar_Get("sv_waterfriction", "1", 0);
+    sv_waterspeed    = gi.Cvar_Get("sv_waterspeed", "400", 0);
 
     sv_cheats    = gi.Cvar_Get("cheats", "0", CVAR_USERINFO | CVAR_SERVERINFO | CVAR_LATCH);
-    sv_fps       = gi.Cvar_Get("sv_fps", "20", CVAR_SERVERINFO | CVAR_SAVEGAME);
-    sv_cinematic = gi.Cvar_Get("sv_cinematic", "0", CVAR_SYSTEMINFO | CVAR_ROM);
+    sv_fps       = gi.Cvar_Get("sv_fps", "20",  CVAR_SAVEGAME);
+    sv_cinematic = gi.Cvar_Get("sv_cinematic", "0", CVAR_ROM);
 
     sv_maplist = gi.Cvar_Get("sv_maplist", "", CVAR_ARCHIVE | CVAR_SERVERINFO);
     sv_nextmap = gi.Cvar_Get("nextmap", "", 0);
 
-    sv_runspeed        = gi.Cvar_Get("sv_runspeed", "287", CVAR_SERVERINFO); // 250 in mohaa
-    sv_walkspeedmult   = gi.Cvar_Get("sv_walkspeedmult", "0.6", CVAR_SERVERINFO);
-    sv_dmspeedmult     = gi.Cvar_Get("sv_dmspeedmult", "1.1", CVAR_SERVERINFO);
-    sv_crouchspeedmult = gi.Cvar_Get("sv_crouchspeedmult", "0.6", CVAR_SERVERINFO);
+    sv_runspeed        = gi.Cvar_Get("sv_runspeed", "287", 0); // 250 in mohaa
+    sv_walkspeedmult   = gi.Cvar_Get("sv_walkspeedmult", "0.6", 0);
+    sv_dmspeedmult     = gi.Cvar_Get("sv_dmspeedmult", "1.1", 0);
+    sv_crouchspeedmult = gi.Cvar_Get("sv_crouchspeedmult", "0.6", 0);
 
     sv_sprinttime    = gi.Cvar_Get("sv_sprinttime", "5.0", 0);
     sv_sprintmult    = gi.Cvar_Get("sv_sprintmult", "1.20", 0);
@@ -598,7 +597,6 @@ void CVAR_Init(void)
 
     sv_scriptfiles               = gi.Cvar_Get("sv_scriptfiles", "0", 0);
     maxbots                      = gi.Cvar_Get("sv_maxbots", "2", 0);
-    nomonsters                   = gi.Cvar_Get("nomonsters", "0", CVAR_SERVERINFO);
     g_rankedserver               = gi.Cvar_Get("g_rankedserver", "0", 0);
     g_spectatefollow_firstperson = gi.Cvar_Get("g_spectatefollow_firstperson", "0", 0);
 }
