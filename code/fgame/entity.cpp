@@ -5469,7 +5469,7 @@ void Entity::ForceActivate(Event *ev)
 void Entity::EventTrace(Event *ev)
 {
     Vector  start, end, mins, maxs;
-    int     mask = 0x2000B01;
+    int     mask = MASK_SOLID;
     Entity *ent;
     trace_t trace;
 
@@ -5499,7 +5499,7 @@ void Entity::EventTrace(Event *ev)
     }
 
     // call trace
-    G_Trace(start, mins, maxs, end, ent, mask, qfalse, "Entity::EventTrace");
+    trace = G_Trace(start, mins, maxs, end, ent, mask, qfalse, "Entity::EventTrace");
 
     ev->AddVector(trace.endpos);
 }
@@ -5507,7 +5507,7 @@ void Entity::EventTrace(Event *ev)
 void Entity::EventSightTrace(Event *ev)
 {
     Vector   start, end, mins, maxs;
-    int      mask = 0x2000B01;
+    int      mask = MASK_SOLID;
     Entity  *ent  = nullptr;
     qboolean hit  = qfalse;
 
