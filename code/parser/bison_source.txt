@@ -51,7 +51,7 @@ int success_pos;
 %locations
 %define api.location.type { parse_pos_t }
 
-%expect 129
+%expect 123
 
 %precedence TOKEN_EOF 0 "end of file"
 %precedence TOKEN_EOL
@@ -238,7 +238,8 @@ expr:
 func_prim_expr:
 	TOKEN_IDENTIFIER event_parameter_list_need { $$ = node3(ENUM_cmd_event_expr, $1, $2, TOKPOS(@1)); }
 	| nonident_prim_expr TOKEN_IDENTIFIER event_parameter_list { $$ = node4(ENUM_method_event_expr, $1, $2, $3, TOKPOS(@2)); }
-	| func_expr func_prim_expr { $$ = node3(ENUM_func1_expr, $1, $2, TOKPOS(@1)); }
+	| TOKEN_NEG func_prim_expr { $$ = node3(ENUM_func1_expr, node1b(OP_UN_MINUS), $2, TOKPOS(@1)); }
+	| TOKEN_COMPLEMENT func_prim_expr { $$ = node3(ENUM_func1_expr, node1b(OP_UN_COMPLEMENT), $2, TOKPOS(@1)); }
 	| TOKEN_NOT func_prim_expr { $$ = node2(ENUM_bool_not, $2, TOKPOS(@1)); }
 	| TOKEN_IDENTIFIER TOKEN_DOUBLE_COLON const_array_list
 		{
@@ -310,15 +311,11 @@ nonident_prim_expr
 	| TOKEN_LISTENER { $$ = node2(ENUM_listener, $1, TOKPOS(@1)); }
 	| TOKEN_LEFT_BRACKET expr TOKEN_RIGHT_BRACKET { $$ = $2; }
 	| TOKEN_LEFT_BRACKET expr TOKEN_EOL TOKEN_RIGHT_BRACKET { $$ = $2; }
-	| func_expr nonident_prim_expr { $$ = node3(ENUM_func1_expr, $1, $2, TOKPOS(@1)); }
+	| TOKEN_NEG nonident_prim_expr { $$ = node3(ENUM_func1_expr, node1b(OP_UN_MINUS), $2, TOKPOS(@1)); }
+	| TOKEN_COMPLEMENT nonident_prim_expr { $$ = node3(ENUM_func1_expr, node1b(OP_UN_COMPLEMENT), $2, TOKPOS(@1)); }
 	| TOKEN_NOT nonident_prim_expr { $$ = node2(ENUM_bool_not, $2, TOKPOS(@1)); }
 	| TOKEN_NULL { $$ = node1(ENUM_NULL, TOKPOS(@1)); }
 	| TOKEN_NIL { $$ = node1(ENUM_NIL, TOKPOS(@1)); }
-	;
-
-func_expr
-	: TOKEN_NEG { $$ = node1b(OP_UN_MINUS); }
-	| TOKEN_COMPLEMENT { $$ = node1b(OP_UN_COMPLEMENT); }
 	;
 
 makearray_statement_list:
