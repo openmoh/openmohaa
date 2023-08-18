@@ -101,7 +101,7 @@ public:
 
 private:
     void ClearInternal();
-    void ClearPointerInternal();
+    void ClearPointerInternal() const;
 
 public:
     ScriptVariable();

@@ -590,12 +590,9 @@ void ScriptVariable::ClearPointer()
     }
 }
 
-void ScriptVariable::ClearPointerInternal()
+void ScriptVariable::ClearPointerInternal() const
 {
-    type = VARIABLE_NONE;
-
     m_data.pointerValue->Clear();
-    m_data.pointerValue = NULL;
 }
 
 const char *ScriptVariable::GetTypeName() const
@@ -728,11 +725,6 @@ void ScriptVariable::SetTrue(void)
 int ScriptVariable::arraysize(void) const
 {
     switch (GetType()) {
-    case VARIABLE_POINTER:
-        m_data.pointerValue->Clear();
-        delete m_data.pointerValue;
-
-        return -1;
 
     case VARIABLE_NONE:
         return -1;
@@ -751,7 +743,11 @@ int ScriptVariable::arraysize(void) const
             return (*m_data.safeContainerValue)->NumObjects();
         } else {
             return 0;
-        }
+		}
+
+	case VARIABLE_POINTER:
+        ClearPointerInternal();
+		return -1;
 
     default:
         return 1;
@@ -763,10 +759,7 @@ int ScriptVariable::arraysize(void) const
 size_t ScriptVariable::size(void) const
 {
     switch (GetType()) {
-    case VARIABLE_POINTER:
-        m_data.pointerValue->Clear();
-        delete m_data.pointerValue;
-
+    case VARIABLE_NONE:
         return -1;
 
     case VARIABLE_CONSTSTRING:
@@ -790,7 +783,11 @@ size_t ScriptVariable::size(void) const
             return (*m_data.safeContainerValue)->NumObjects();
         } else {
             return 0;
-        }
+		}
+
+	case VARIABLE_POINTER:
+        ClearPointerInternal();
+		return -1;
 
     default:
         return 1;
