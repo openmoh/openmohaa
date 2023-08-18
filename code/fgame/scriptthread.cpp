@@ -4142,7 +4142,7 @@ void ScriptThread::EventAIsCloserThanBToC(Event *ev)
 void ScriptThread::EventPointsWithinDist(Event *ev)
 {
     Vector delta;
-    float  dist = ev->GetFloat(2);
+    float  dist = ev->GetFloat(3);
 
     delta = ev->GetVector(1) - ev->GetVector(2);
 
