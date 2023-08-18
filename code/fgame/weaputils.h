@@ -134,6 +134,7 @@ public:
 	void			RemoveWhenStopped( Event *ev );
 	void			ExplodeOnTouch( Event *ev );
 	void			Stopped( Event *ev );
+	void			Think() override;
 	Sentient		*GetOwner( void );
 	void			SetOwner(Entity* owner); // Added in 2.0
 	void			SetMartyr( int entnum );
