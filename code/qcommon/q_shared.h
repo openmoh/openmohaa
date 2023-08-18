@@ -37,7 +37,7 @@ extern "C" {
 #define LEGACY_PROTOCOL
 
 #define GAME_EXTENSION_MOH			"main"
-#define PRODUCT_EXTENSION_MOH		"base"
+#define PRODUCT_EXTENSION_MOH		"Base"
 #define TARGET_GAME_VERSION_MOH		"1.12"
 #define TARGET_GAME_PROTOCOL_MOH	8
 #define TARGET_GAME_NAME_MOH		"mohaa"
@@ -47,7 +47,7 @@ extern "C" {
 #define HOMEPATH_NAME_MACOSX_MOH	HOMEPATH_NAME_WIN_MOH
 
 #define GAME_EXTENSION_MOHTA		"mainta"
-#define PRODUCT_EXTENSION_MOHTA		"spearhead"
+#define PRODUCT_EXTENSION_MOHTA		"Spearhead"
 #define TARGET_GAME_VERSION_MOHTA	"2.16"
 #define TARGET_GAME_PROTOCOL_MOHTA	17
 #define TARGET_GAME_NAME_MOHTA		"mohaas"
@@ -57,7 +57,7 @@ extern "C" {
 #define HOMEPATH_NAME_MACOSX_MOHTA	HOMEPATH_NAME_WIN_MOHTA
 
 #define GAME_EXTENSION_BASE_MOHTT	"maintt"
-#define PRODUCT_EXTENSION_MOHTT		"breakthrough"
+#define PRODUCT_EXTENSION_MOHTT		"Breakthrough"
 // The version string must be equal or above 2.0 to be able to connect to breakthrough servers
 #define	TARGET_GAME_VERSION_MOHTT	"2.41"
 #define TARGET_GAME_PROTOCOL_MOHTT	17
