@@ -1311,7 +1311,7 @@ void PF_centerprintf( gentity_t *ent, const char *fmt, ... )
 		Com_DPrintf( "Centerprint text exceeds buffer size\n" );
 	}
 
-	strncpy( svs.clients[ ent->s.number ].centerprint, msg, sizeof(svs.clients[ent->s.number].centerprint));
+	strncpy( svs.clients[ ent->s.number ].stringToPrint, msg, sizeof(svs.clients[ent->s.number].stringToPrint));
 }
 
 /*
@@ -1337,7 +1337,7 @@ void PF_locationprintf( gentity_t *ent, int x, int y, const char *fmt, ... )
 		Com_DPrintf( "Locationprint text exceeds buffer size\n" );
 	}
 
-	strncpy( svs.clients[ ent->s.number ].centerprint, msg, 256 );
+	strncpy( svs.clients[ ent->s.number ].stringToPrint, msg, sizeof(svs.clients[ent->s.number].stringToPrint) );
 	svs.clients[ ent->s.number ].XOffset = x;
 	svs.clients[ ent->s.number ].YOffset = y;
 	svs.clients[ ent->s.number ].locprint = qtrue;

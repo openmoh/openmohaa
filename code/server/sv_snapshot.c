@@ -213,16 +213,16 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 
 	MSG_WriteSounds( msg, client->server_sounds, client->number_of_server_sounds );
 
-	if ( client->centerprint[0] ) {
+	if ( client->stringToPrint[0] ) {
 		if ( client->locprint ) {
 			MSG_WriteSVC( msg, svc_locprint );
 			MSG_WriteShort( msg, client->XOffset );
 			MSG_WriteShort( msg, client->YOffset );
-			MSG_WriteScrambledString( msg, client->centerprint );
+			MSG_WriteScrambledString( msg, client->stringToPrint );
 		}
 		else {
 			MSG_WriteSVC( msg, svc_centerprint );
-			MSG_WriteScrambledString( msg, client->centerprint );
+			MSG_WriteScrambledString( msg, client->stringToPrint);
 		}
 	}
 
@@ -832,7 +832,7 @@ void SV_SendClientSnapshot( client_t *client ) {
 	SV_ClearSounds( client );
 
 	// clear center print, preventing it to be sent at each packet
-	client->centerprint[ 0 ] = 0;
+	client->stringToPrint[ 0 ] = 0;
 
 	// su44: write any pending MoHAA cg messages
 	SV_WriteCGMToClient( client, &msg );

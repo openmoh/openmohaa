@@ -190,7 +190,7 @@ typedef struct client_s {
 	qboolean locprint;
 	int XOffset;
 	int YOffset;
-    char centerprint[256];
+    char stringToPrint[256];
 	int radarInfo;
 	int lastRadarTime[128];
 
