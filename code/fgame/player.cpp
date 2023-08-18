@@ -2735,10 +2735,10 @@ void Player::Obituary(Entity *attacker, Entity *inflictor, int meansofdeath, int
         case MOD_GRENADE:
             if (G_Random() >= 0.5f) {
                 s1 = "tripped on";
-                s2 = "'s' grenade";
+                s2 = "'s grenade";
             } else {
                 s1 = "is picking";
-                s2 = "'s' shrapnel out of his teeth";
+                s2 = "'s shrapnel out of his teeth";
             }
             break;
         case MOD_ROCKET:
