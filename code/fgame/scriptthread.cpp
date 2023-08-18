@@ -4098,7 +4098,7 @@ void ScriptThread::EventTeamWin(Event *ev)
     team = ev->GetConstString(1);
     if (team == STRING_ALLIES) {
         teamnum = TEAM_ALLIES;
-    } else if (team == TEAM_AXIS) {
+    } else if (team == STRING_AXIS) {
         teamnum = TEAM_AXIS;
     } else {
         throw ScriptException("'teamwin' must be called with 'axis' or 'allies' as its argument");
