@@ -1352,7 +1352,7 @@ void Projectile::Touch
 			return;
 		}
 
-		if( level.impact_trace.surfaceFlags & CONTENTS_WATER || ( gi.pointcontents( level.impact_trace.endpos, 0 ) & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) )
+		if( level.impact_trace.surfaceFlags & SURF_PUDDLE || ( gi.pointcontents( level.impact_trace.endpos, 0 ) & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) )
 		{
 			if( bouncesound_water.length() )
 				this->Sound( bouncesound_water, CHAN_BODY );
