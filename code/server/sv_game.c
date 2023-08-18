@@ -1311,7 +1311,7 @@ void PF_centerprintf( gentity_t *ent, const char *fmt, ... )
 		Com_DPrintf( "Centerprint text exceeds buffer size\n" );
 	}
 
-	strncpy( svs.clients[ ent->s.number ].centerprint, msg, 256 );
+	strncpy( svs.clients[ ent->s.number ].centerprint, msg, sizeof(svs.clients[ent->s.number].centerprint));
 }
 
 /*

@@ -213,7 +213,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 
 	MSG_WriteSounds( msg, client->server_sounds, client->number_of_server_sounds );
 
-	if ( client->centerprint ) {
+	if ( client->centerprint[0] ) {
 		if ( client->locprint ) {
 			MSG_WriteSVC( msg, svc_locprint );
 			MSG_WriteShort( msg, client->XOffset );
