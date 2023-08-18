@@ -2573,7 +2573,7 @@ Actor::Actor()
 	setMoveType( MOVETYPE_WALK );
 	mass = 175;
 	flags |= FL_THINK;
-	flags &= ~FL_UNKNOWN;
+	flags &= ~FL_ANIMATE;
 	setContentsSolid();
 	setSolidType( SOLID_BBOX );
 	m_fFov = 90.0f;

@@ -62,11 +62,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define FL_DONTSAVE         (1 << 13) // don't add to the savegame
 #define FL_IMMOBILE         (1 << 14) // entity has been immobolized somehow
 #define FL_PARTIAL_IMMOBILE (1 << 15) // entity has been immobolized somehow
-#define FL_ANIMATE          (1 << 16) // entity has been immobolized somehow
 #define FL_POSTTHINK        (1 << 17) // call a think function after the physics have been run
 #define FL_TOUCH_TRIGGERS   (1 << 18) // should this entity touch triggers
 #define FL_AUTOAIM          (1 << 19) // Autoaim on this entity
-#define FL_UNKNOWN          (1 << 20)
+#define FL_ANIMATE          (1 << 20) // entity has been immobolized somehow
 #define FL_UNKNOWN2         (1 << 21)
 
 #define SOUND_RADIUS        1500.0f // Sound travel distance for AI
