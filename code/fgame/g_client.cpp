@@ -903,7 +903,7 @@ const char *G_ClientConnect(int clientNum, qboolean firstTime)
             gi.Printf("%s is preparing for deployment\n", client->pers.netname);
         }
 
-        G_PrintToAllClients(va("%s is preparing for deployment\n", client->pers.netname));
+        G_PrintToAllClients(va("%s is preparing for deployment\n", client->pers.netname), 2);
     }
     return NULL;
 }
