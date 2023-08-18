@@ -1407,7 +1407,8 @@ void CL_Rcon_f( void ) {
 	message[1] = -1;
 	message[2] = -1;
 	message[3] = -1;
-	message[4] = 0;
+	message[4] = 2; // direction
+	message[5] = 0;
 
 	Q_strcat (message, MAX_RCON_MESSAGE, "rcon ");
 
