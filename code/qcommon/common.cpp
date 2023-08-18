@@ -1739,7 +1739,7 @@ void Com_Init( char *commandLine ) {
 		}
 	}
 
-	s = va( "%s %s %s", PRODUCT_VERSION_FULL, PLATFORM_STRING, PRODUCT_VERSION_DATE );
+	s = va( "%s %s %s (%s)", PRODUCT_VERSION_FULL, PLATFORM_STRING, PRODUCT_VERSION_DATE, Cvar_VariableString("com_target_extension"));
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
 	com_shortversion = Cvar_Get( "shortversion", PRODUCT_VERSION, CVAR_ROM );
 	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_INIT);
@@ -2596,6 +2596,7 @@ void Com_InitTargetGameWithType(target_game_e target_game)
         Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOH));
         Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOH));
 		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOH);
+		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOH);
 		// "main" is already used as first argument of FS_Startup
 		Cvar_Set("fs_basegame", "");
         break;
@@ -2603,7 +2604,8 @@ void Com_InitTargetGameWithType(target_game_e target_game)
     case target_game_e::TG_MOHTA:
         Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOHTA));
         Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOHTA));
-        Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTA);
+		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTA);
+		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTA);
         Cvar_Set("fs_basegame", "mainta");
         break;
 
@@ -2611,7 +2613,8 @@ void Com_InitTargetGameWithType(target_game_e target_game)
 		// mohta and mohtt use the same protocol version number
         Cvar_Set("com_protocol", va("%i", protocol_e::PROTOCOL_MOHTA));
         Cvar_Set("com_legacyprotocol", va("%i", protocol_e::PROTOCOL_MOHTA));
-        Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT);
+		Cvar_Set("com_target_version", TARGET_GAME_VERSION_MOHTT);
+		Cvar_Set("com_target_extension", PRODUCT_EXTENSION_MOHTT);
         Cvar_Set("fs_basegame", "maintt");
         break;
 
