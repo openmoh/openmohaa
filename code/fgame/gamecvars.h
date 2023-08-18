@@ -267,7 +267,6 @@ extern cvar_t* g_obituarylocation;
 
 extern cvar_t *sv_scriptfiles;
 
-extern cvar_t *nomonsters;
 extern cvar_t *maxbots;
 extern cvar_t *g_rankedserver;
 extern cvar_t *g_spectatefollow_firstperson;
