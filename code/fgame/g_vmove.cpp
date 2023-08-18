@@ -432,7 +432,7 @@ void VM_StepSlideMove
 	down[ 2 ] -= STEPSIZE * 2;
 
 	// test the player position if they were a stepheight higher
-	gi.trace( &trace, up, vm->mins, vm->maxs, up, vm->vs->entityNum, vm->tracemask, qtrue, qfalse );
+	gi.trace( &trace, vm->vs->origin, vm->mins, vm->maxs, down, vm->vs->entityNum, vm->tracemask, qtrue, qfalse );
 	if( trace.entityNum > ENTITYNUM_NONE )
 	{
 		VectorCopy( nostep_o, vm->vs->origin );
