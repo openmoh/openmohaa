@@ -337,10 +337,9 @@ qboolean TIKI_ParseIncludes( dloaddef_t *ld )
 	static cvar_t* pServerType = Cvar_Get("g_servertype", "2", 0);
 	static cvar_t* pGameType = Cvar_Get("cg_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH);
 
-	if (pGameType->integer && pServerType->integer == 1) {
+	if (pGameType->integer != GT_SINGLE_PLAYER && pServerType->integer == 1) {
 		servertype = "spearheadserver";
-	}
-	else {
+	} else {
 		servertype = "breakthroughserver";
 	}
 
