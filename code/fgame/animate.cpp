@@ -126,19 +126,21 @@ Animate::Animate()
     syncTime      = 0.0f;
     syncRate      = 1.0f;
 
-    frame_delta = vec_zero;
+    frame_delta   = vec_zero;
+    angular_delta = 0;
 
     if (!LoadingSavegame) {
         edict->s.actionWeight = 1.0f;
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < MAX_FRAMEINFOS; i++) {
             edict->s.frameInfo[i].index  = 0;
             edict->s.frameInfo[i].time   = 0.0f;
             edict->s.frameInfo[i].weight = 0.0f;
 
-            animFlags[i]  = 57;
+            animtimes[i]  = 0;
+            frametimes[i] = 0;
             doneEvents[i] = NULL;
-            animtimes[i]  = 0.0f;
-            frametimes[i] = 0.0f;
+            animFlags[i]  = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT | ANIM_PAUSED;
+            ClearAnimSlot(i);
         }
 
         flags |= FL_ANIMATE;
