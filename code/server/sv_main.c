@@ -392,6 +392,9 @@ void SVC_Info( netadr_t from ) {
 		Info_SetValueForKey( infostring, "game", gamedir );
 	}
 
+	Info_SetValueForKey(infostring, "gamever", com_target_version->string);
+	Info_SetValueForKey(infostring, "serverType", com_target_game->string);
+
 	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
 }
 
