@@ -1901,7 +1901,7 @@ bool ScriptVM::Switch(StateScript *stateScript, ScriptVariable& var)
     pos = stateScript->FindLabel(var.stringValue());
 
     if (!pos) {
-        pos = stateScript->FindLabel("");
+        pos = stateScript->FindLabel(STRING_DEFAULT);
 
         if (!pos) {
             return false;
