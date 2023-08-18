@@ -248,11 +248,10 @@ bool ScriptCompiler::BuiltinWriteVariable(unsigned int sourcePos, int type, int 
 
 void ScriptCompiler::EmitAssignmentStatement(sval_t lhs, unsigned int sourcePos)
 {
-    int         eventnum;
-    sval_t      listener_val;
-    const char *name  = lhs.node[2].stringValue;
-    str         name2 = name;
-    name2.tolower();
+    int          eventnum;
+    unsigned int index;
+    sval_t       listener_val;
+    const char   *name  = lhs.node[2].stringValue;
 
     if (lhs.node[0].type != ENUM_field) {
         if (lhs.node[0].type == ENUM_array_expr) {
@@ -265,13 +264,8 @@ void ScriptCompiler::EmitAssignmentStatement(sval_t lhs, unsigned int sourcePos)
         return;
     }
 
-    unsigned int index = Director.AddString(name);
-
-    eventnum = Event::FindSetterEventNum(name2);
-
-    if (eventnum) {
-        index = Director.GetString(name2);
-    }
+    index = Director.AddString(name);
+    eventnum = Event::FindSetterEventNum(name);
 
     listener_val = lhs.node[1];
 
