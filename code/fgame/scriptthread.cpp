@@ -3494,7 +3494,7 @@ void ScriptThread::Vector_DotProduct(Event *ev)
 {
     Vector vector1 = ev->GetVector(1), vector2 = ev->GetVector(2);
 
-    ev->AddVector(Vector(vector1.x * vector2.x, vector1.y * vector2.y, vector1.z * vector2.z));
+    ev->AddFloat(Vector::Dot(vector1, vector2));
 }
 
 void ScriptThread::Vector_CrossProduct(Event *ev)
