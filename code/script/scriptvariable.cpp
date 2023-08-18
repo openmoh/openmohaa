@@ -2013,6 +2013,9 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
             return (!lval.length() && !rval.length()) || (lval == rval);
         }
 
+    case VARIABLE_CHAR + VARIABLE_CHAR * VARIABLE_MAX: // ( char ) == ( char )
+        return m_data.charValue == value.m_data.charValue;
+
     case VARIABLE_VECTOR + VARIABLE_VECTOR *VARIABLE_MAX: // ( vector ) == ( vector )
         return VectorCompare(m_data.vectorValue, value.m_data.vectorValue) ? true : false;
     }
@@ -2188,6 +2191,11 @@ void ScriptVariable::greaterthan(ScriptVariable& variable)
         type            = VARIABLE_INTEGER;
         m_data.intValue = m_data.floatValue > variable.m_data.intValue;
         break;
+
+    case VARIABLE_CHAR + VARIABLE_CHAR *VARIABLE_MAX: // ( char ) >= ( char )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.charValue >= variable.m_data.charValue;
+        break;
     }
 }
 
@@ -2221,6 +2229,11 @@ void ScriptVariable::greaterthanorequal(ScriptVariable& variable)
     case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) >= ( int )
         type            = VARIABLE_INTEGER;
         m_data.intValue = m_data.floatValue >= variable.m_data.intValue;
+        break;
+
+    case VARIABLE_CHAR + VARIABLE_CHAR *VARIABLE_MAX: // ( char ) >= ( char )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.charValue >= variable.m_data.charValue;
         break;
     }
 }
@@ -2256,6 +2269,11 @@ void ScriptVariable::lessthan(ScriptVariable& variable)
         type            = VARIABLE_INTEGER;
         m_data.intValue = m_data.floatValue < variable.m_data.intValue;
         break;
+
+    case VARIABLE_CHAR + VARIABLE_CHAR *VARIABLE_MAX: // ( char ) < ( char )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.charValue < variable.m_data.charValue;
+        break;
     }
 }
 
@@ -2289,6 +2307,11 @@ void ScriptVariable::lessthanorequal(ScriptVariable& variable)
     case VARIABLE_FLOAT + VARIABLE_INTEGER *VARIABLE_MAX: // ( float ) <= ( int )
         type            = VARIABLE_INTEGER;
         m_data.intValue = m_data.floatValue <= variable.m_data.intValue;
+        break;
+
+    case VARIABLE_CHAR + VARIABLE_CHAR *VARIABLE_MAX: // ( char ) <= ( char )
+        type            = VARIABLE_INTEGER;
+        m_data.intValue = m_data.charValue <= variable.m_data.charValue;
         break;
     }
 }
