@@ -829,7 +829,7 @@ void ScriptSlave::SetAnglesEvent
 
 	{
 	commandswaiting = true;
-   setAngles( ev->GetVector( 1 ) );
+	SetAngles(ev);
 	NewAngles = localangles;
 	}
 
