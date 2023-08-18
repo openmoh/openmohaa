@@ -107,6 +107,11 @@ void G_UpdateSmokeSprites() {
     }
 }
 
+void G_AddSmokeSprite(const SmokeSprite* sprite)
+{
+    g_Sprites.AddObject(*sprite);
+}
+
 float G_ObfuscationForSmokeSprites(float, const Vector& end, const Vector& start) {
     // FIXME: unimplemented
     return 0;
@@ -124,9 +129,4 @@ SmokeSprite* G_GetRandomSmokeSprite() {
     randVal = rand();
 
     return &g_Sprites.ObjectAt(randVal - randVal / numObjects * numObjects + 1);
-}
-
-void G_AddSmokeSprite(const SmokeSprite* sprite)
-{
-    g_Sprites.AddObject(*sprite);
 }

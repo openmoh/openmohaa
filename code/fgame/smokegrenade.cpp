@@ -146,6 +146,7 @@ CLASS_DECLARATION(EffectEntity, SmokeGrenade, "smokegrenade")
     { &EV_SmokeGrenade_SetFadein,           &SmokeGrenade::EventSetFadein },
     { &EV_SmokeGrenade_SetFadedelay,        &SmokeGrenade::EventSetFadedelay },
     { &EV_SmokeGrenade_SetMaxAlpha,         &SmokeGrenade::EventSetMaxAlpha },
+    { NULL, NULL }
 };
 
 void SmokeGrenade::EventSetSpawnrate(Event* ev)
