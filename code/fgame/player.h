@@ -950,7 +950,6 @@ public:
     void SetVMASpeed(Event *ev);
     void ShowEntity(Event *ev);
     void StopLocalSound(Event *ev);
-    void UseHeld(Event *ev);
     void Userinfo(Event *ev);
     void VisionGetNaked(Event *ev);
     void VisionSetBlur(Event *ev);

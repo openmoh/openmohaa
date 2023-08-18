@@ -1585,17 +1585,6 @@ Event EV_Player_StopLocalSound
     EV_NORMAL
 );
 
-Event EV_Player_UseHeld
-(
-    "useheld",
-    EV_DEFAULT,
-    NULL,
-    NULL,
-    "returns 1 if this player is holding use key,"
-    "or 0 if he is not",
-    EV_GETTER
-);
-
 Event EV_Player_Userinfo
 (
     "userinfo",
@@ -1855,7 +1844,6 @@ CLASS_DECLARATION(Sentient, Player, "player") {
     {&EV_Player_ShowEnt,                  &Player::ShowEntity                   },
     {&EV_Player_Spectator,                &Player::Spectator                    },
     {&EV_Player_StopLocalSound,           &Player::StopLocalSound               },
-    {&EV_Player_UseHeld,                  &Player::UseHeld                      },
     {&EV_Player_Userinfo,                 &Player::Userinfo                     },
     {&EV_Player_ViewModelAnimFinished,    &Player::EventGetViewModelAnimFinished},
     {&EV_Player_ViewModelGetAnim,         &Player::EventGetViewModelAnim        },
@@ -10344,7 +10332,7 @@ void Player::GetViewangles(Event *ev)
 
 void Player::EventGetUseHeld(Event *ev)
 {
-    ev->AddInteger(buttons & BUTTON_USE ? qtrue : qfalse);
+    ev->AddInteger((buttons & BUTTON_USE) ? true : false);
 }
 
 void Player::EventGetFireHeld(Event *ev)
@@ -11661,15 +11649,6 @@ void Player::StopLocalSound(Event *ev)
 
     edict->s.loopSound = 0;
     gi.StopSound(entnum, CHAN_LOCAL);
-}
-
-void Player::UseHeld(Event *ev)
-{
-    int buttonheld = 0;
-
-    buttonheld = !!(buttons & BUTTON_USE);
-
-    ev->AddInteger(buttonheld);
 }
 
 void Player::Userinfo(Event *ev)
