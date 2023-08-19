@@ -1402,7 +1402,7 @@ void G_ProcessCacheInitCommands(dtiki_t *tiki)
 
         for (i = 0; i < tiki->a->num_server_initcmds; i++) {
             pcmd  = &tiki->a->server_initcmds[i];
-            event = new Event(pcmd->args[0]);
+            event = new Event(pcmd->args[0], pcmd->num_args);
 
             if (Director.GetFlags(event) & EV_CACHE) {
                 for (j = 1; j < pcmd->num_args; j++) {
