@@ -155,7 +155,7 @@ const char *ScriptMaster::ConstStrings[] = {
     "spawn",
     "playerspawn",
     "skip",
-    "roudstart",
+    "roundstart",
     "visible",
     "not_visible",
     "done",
