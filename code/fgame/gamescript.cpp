@@ -43,7 +43,7 @@ const_str AbstractScript::ConstFilename( void )
 	return m_Filename;
 }
 
-bool AbstractScript::GetSourceAt( size_t sourcePos, str &sourceLine, int &column, int &line )
+bool AbstractScript::GetSourceAt( size_t sourcePos, str *sourceLine, int &column, int &line )
 {
 	if( !m_SourceBuffer || sourcePos >= m_SourceLength ) {
 		return false;
@@ -80,7 +80,9 @@ bool AbstractScript::GetSourceAt( size_t sourcePos, str &sourceLine, int &column
 	old_token = *p;
 	*p = '\0';
 
-	sourceLine = ( m_SourceBuffer + posLine );
+	if (sourceLine) {
+		*sourceLine = (m_SourceBuffer + posLine);
+	}
 
 	*p = old_token;
 
@@ -93,7 +95,7 @@ void AbstractScript::PrintSourcePos( sourceinfo_t *sourcePos, bool dev )
 	int column;
 	str sourceLine;
 
-	if( GetSourceAt( sourcePos->sourcePos, sourceLine, column, line ) )
+	if( GetSourceAt( sourcePos->sourcePos, &sourceLine, column, line ) )
 	{
 		PrintSourcePos( sourceLine, column, line, dev );
 	}
@@ -109,7 +111,7 @@ void AbstractScript::PrintSourcePos( size_t sourcePos, bool dev )
 	int column;
 	str sourceLine;
 
-	if( GetSourceAt( sourcePos, sourceLine, column, line ) )
+	if( GetSourceAt( sourcePos, &sourceLine, column, line ) )
 	{
 		PrintSourcePos( sourceLine, column, line, dev );
 	}

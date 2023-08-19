@@ -62,7 +62,7 @@ public:
 
 	str&					Filename( void );
 	const_str				ConstFilename( void );
-	bool					GetSourceAt( size_t sourcePos, str &sourceLine, int &column, int &line );
+	bool					GetSourceAt( size_t sourcePos, str *sourceLine, int &column, int &line );
 	void					PrintSourcePos( sourceinfo_t *sourcePos, bool dev );
 	void					PrintSourcePos( size_t sourcePos, bool dev );
 	void					PrintSourcePos( unsigned char *m_pCodePos, bool dev );

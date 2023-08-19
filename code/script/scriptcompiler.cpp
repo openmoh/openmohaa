@@ -847,12 +847,11 @@ void ScriptCompiler::EmitOpcode(int opcode, unsigned int sourcePos)
     }
 
     if (script->m_ProgToSource) {
-        str          sourceLine;
         sourceinfo_t info;
 
         info.sourcePos = sourcePos;
 
-        script->GetSourceAt(sourcePos, sourceLine, info.column, info.line);
+        script->GetSourceAt(sourcePos, NULL, info.column, info.line);
         script->m_ProgToSource->addKeyValue(code_pos) = info;
     }
 
