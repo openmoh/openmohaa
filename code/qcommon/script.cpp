@@ -502,8 +502,8 @@ qboolean Script::AtAssignment(qboolean crossline)
 
 const char *Script::GetToken(qboolean crossline)
 {
-    str      token_p  = token;
-    qboolean is_Macro = false;
+    const char* token_p  = token;
+    qboolean    is_Macro = false;
 
     // is a token already waiting?
     if (tokenready) {
@@ -515,9 +515,9 @@ const char *Script::GetToken(qboolean crossline)
 
     token_p = GrabNextToken(crossline);
 
-    if (is_Macro && (token_p != "$include")) {
+    if (is_Macro && (strcmp(token_p, "$include") != 0)) {
         // Check to see if we need to add any definitions
-        while ((token_p == "$define") || (token_p == "$Define")) {
+        while ((!strcmp(token_p, "$define")) || (!strcmp(token_p, "$Define"))) {
             AddMacroDefinition(crossline);
             is_Macro = isMacro();
             // if ( !is_Macro )
@@ -526,7 +526,7 @@ const char *Script::GetToken(qboolean crossline)
         }
 
         // Check to see if we need return any defines strings
-        if (is_Macro && (token_p != "$include") && (token_p[token_p.length() - 1] == '$')) {
+        if (is_Macro && (strcmp(token_p, "$include") != 0) && (token_p[strlen(token_p) - 1] == '$')) {
             return GetMacroString(token_p);
         }
     }
