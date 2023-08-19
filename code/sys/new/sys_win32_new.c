@@ -23,11 +23,33 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../sys_local.h"
 
 #include <Windows.h>
+#ifdef _MSC_VER
+#  ifdef _DEBUG_MEM
+#    include <crtdbg.h>
+#  endif
+#endif
 
+void Sys_PlatformInit_New() {
+#ifdef _MSC_VER
+#  ifdef _DEBUG_MEM
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF | _CRTDBG_CHECK_ALWAYS_DF);
+#  endif
+#endif
+}
 
+/*
+==============
+Sys_PrepareBackTrace
+==============
+*/
 void Sys_PrepareBackTrace() {
 }
 
+/*
+==============
+Sys_PrintBackTrace
+==============
+*/
 void Sys_PrintBackTrace() {
 }
 

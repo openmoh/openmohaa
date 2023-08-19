@@ -31,3 +31,4 @@ void Sys_InitEx();
 
 void Sys_PrepareBackTrace();
 void Sys_PrintBackTrace();
+void Sys_PlatformInit_New();

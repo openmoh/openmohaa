@@ -29,6 +29,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static void* backtrace_arr[20];
 static size_t backtrace_size;
 
+/*
+==================
+Sys_PlatformInit_New
+==================
+*/
+void Sys_PlatformInit_New() {
+
+}
+
+/*
+==================
+Sys_PrepareBackTrace
+==================
+*/
 void Sys_PrepareBackTrace() {
     void* backtrace_arr[20];
 
@@ -36,6 +50,11 @@ void Sys_PrepareBackTrace() {
     backtrace_size = backtrace(backtrace_arr, sizeof(backtrace_arr) / sizeof(backtrace_arr[0]));
 }
 
+/*
+==================
+Sys_PrintBackTrace
+==================
+*/
 void Sys_PrintBackTrace() {
     backtrace_symbols_fd(backtrace_arr, backtrace_size, STDERR_FILENO);
 }

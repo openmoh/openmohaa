@@ -840,6 +840,8 @@ void Sys_PlatformInit( void )
 	else
 		timerResolution = 0;
 #endif
+
+	Sys_PlatformInit_New();
 }
 
 /*
