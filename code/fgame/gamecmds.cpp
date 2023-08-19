@@ -62,10 +62,10 @@ consolecmd_t G_ConsoleCmds[] =
       { "levelvars",		G_LevelVarsCmd,			qfalse },
       { "gamevars",			G_GameVarsCmd,			qfalse },
 	  { "compilescript",	G_CompileScript,		qfalse },
-	  { "addbot",			G_AddBot,				qtrue },
-	  { "removebot",		G_RemoveBot,			qtrue },
+	  { "addbot",			G_AddBot,				qfalse },
+	  { "removebot",		G_RemoveBot,			qfalse },
 #ifdef _DEBUG
-	  { "bot",				G_BotCommand,			qtrue },
+	  { "bot",				G_BotCommand,			qfalse },
 #endif
       { NULL,				NULL,					qfalse }
    };
@@ -631,7 +631,7 @@ qboolean G_AddBot
 	gentity_t *ent
 	)
 {
-	int numbots;
+	unsigned int numbots;
 	int n;
 	int i;
 	int clientNum = -1;
@@ -646,7 +646,7 @@ qboolean G_AddBot
 	}
 
 	numbots = atoi( gi.Argv( 1 ) );
-	if( numbots <= 0 || numbots > maxbots->integer )
+	if(numbots > maxbots->integer)
 	{
 		gi.Printf( "addbot must be between 1-%d\n", maxbots->integer );
 		return qfalse;
@@ -720,15 +720,19 @@ qboolean G_RemoveBot
 	gentity_t *ent
 	)
 {
+    unsigned int numbots;
+
 	if( gi.Argc() <= 1 )
 	{
 		gi.Printf( "Usage: removebot [numbots]\n" );
 		return qfalse;
-	}
+    }
 
-	for( int n = game.maxclients - 1; n >= maxclients->integer; n-- )
+    numbots = Q_min(atoi(gi.Argv(1)), maxbots->integer);
+
+	for( int n = 0; n < numbots; n++ )
 	{
-		gentity_t *e = &g_entities[ n ];
+		gentity_t *e = &g_entities[ game.maxclients - 1 - n ];
 		if( e->inuse && e->client )
 		{
 			G_ClientDisconnect( e );
@@ -756,7 +760,7 @@ qboolean G_BotCommand
 
 	if( gi.Argc() <= 1 )
 	{
-		gi.Printf( "Usage: bot [cmd] (arg1) (arg2) (arg3) ..." );
+		gi.Printf( "Usage: bot [cmd] (arg1) (arg2) (arg3) ...\n" );
 		return qfalse;
 	}
 
