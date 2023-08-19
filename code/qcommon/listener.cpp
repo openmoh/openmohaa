@@ -3993,15 +3993,7 @@ Returns true if the specified waittill is disabled
 */
 bool Listener::WaitTillDisabled( const_str s )
 {
-	for( ClassDef *c = classinfo(); c != NULL; c = c->super )
-	{
-		if( c->WaitTillDefined( s ) )
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return !WaitTillAllowed(s);
 }
 
 #endif
@@ -4211,7 +4203,7 @@ void Listener::WaitTill( Event *ev )
 
 	name = ev->GetConstString( 1 );
 
-	if( WaitTillDefined( name ) )
+	if( !WaitTillAllowed( name ) )
 	{
 		ScriptError( "invalid waittill %s for '%s'", Director.GetString( name ).c_str(), getClassname() );
 	}
