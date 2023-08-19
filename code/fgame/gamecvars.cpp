@@ -602,6 +602,15 @@ void CVAR_Init(void)
     g_rankedserver               = gi.Cvar_Get("g_rankedserver", "0", 0);
     g_spectatefollow_firstperson = gi.Cvar_Get("g_spectatefollow_firstperson", "0", 0);
 
+    if (maxclients->integer + sv_maxbots->integer > MAX_CLIENTS) {
+        unsigned int lowered;
+
+        lowered = MAX_CLIENTS - maxclients->integer;
+
+        gi.cvar_set("sv_maxbots", va("%d", lowered));
+        gi.Printf("sv_maxbots reached max clients, lowering the value to %u\n", lowered);
+    }
+
     if (sv_numbots->integer > sv_maxbots->integer) {
         gi.Printf("numbots overflow, setting to %d\n", sv_maxbots->integer);
         gi.cvar_set("sv_numbots", sv_maxbots->string);
