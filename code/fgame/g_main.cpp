@@ -1653,6 +1653,15 @@ void G_ExitLevel(void)
             // Stay on the same map since no nextmap was set
             Com_sprintf(command, sizeof(command), "restart\n");
             gi.SendConsoleCommand(command);
+        }
+        else if (level.nextmap == level.mapname) {
+            // Stay on the same map if it's the same as the current map
+            Com_sprintf(command, sizeof(command), "restart\n");
+            gi.SendConsoleCommand(command);
+        } else if (!Q_stricmpn(level.nextmap, "vstr", 4) ) {
+            // alias on another map
+            strcpy(command, level.nextmap);
+            gi.SendConsoleCommand(command);
         } else // use the level.nextmap variable
         {
             Com_sprintf(command, sizeof(command), "gamemap \"%s\"\n", level.nextmap.c_str());
