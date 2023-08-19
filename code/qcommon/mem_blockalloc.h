@@ -34,6 +34,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 void *MEM_Alloc(int size);
 void  MEM_Free(void *ptr);
 
+#ifdef _DEBUG_MEM
+#  define _DEBUG_MEMBLOCK 1
+#endif
+
 static constexpr size_t DefaultBlock = 256;
 
 enum class alloc_source_e {
@@ -244,20 +248,20 @@ MEM_BlockAlloc<a, b>::MEM_BlockAlloc()
 template<typename a, size_t b>
 MEM_BlockAlloc<a, b>::~MEM_BlockAlloc()
 {
-    FreeAll();
+    // due to the randomized order of initialization and destruction
+    // MEM_BlockAlloc shouldn't automatically free memory
+    // because con_set and other stuff could handle destruction
+    // after memory was freed
+    //FreeAll();
 }
 
 template<typename a, size_t b>
 void *MEM_BlockAlloc<a, b>::Alloc()
 {
-#ifdef _DEBUG_MEM
-    return malloc(sizeof(a));
-#endif
-
 #if _DEBUG_MEMBLOCK
     block_t *block = new (MEM_Alloc(sizeof(block_t))) block_t();
 
-    m_Block.AddFirst(block);
+    LL_SafeAddFirst(m_Block, block, next_block, prev_block);
 
     m_BlockCount++;
     return (void *)block->data;
@@ -337,17 +341,13 @@ void *MEM_BlockAlloc<aclass, blocksize>::TakeFree(block_t *block, uintptr_t free
 template<typename a, size_t b>
 void MEM_BlockAlloc<a, b>::Free(void *ptr) noexcept
 {
-#ifdef _DEBUG_MEM
-    return free(ptr);
-#endif
-
 #if _DEBUG_MEMBLOCK
     block_s<a, b> *block = (block_s<a, b> *)ptr;
 
-    m_Block.Remove(block);
+    LL_SafeRemoveRoot(m_Block, block, next_block, prev_block);
 
     m_BlockCount--;
-    MEM::Free(block);
+    MEM_Free(block);
 #else
     // get the header of the pointer
     typename block_t::info_t *header =
@@ -415,15 +415,16 @@ void MEM_BlockAlloc<a, b>::FreeAll() noexcept
 {
     block_t *block;
 #if _DEBUG_MEMBLOCK
-    block_t *next = m_Block.Root();
+    block_t *next = m_Block;
     for (block = next; block; block = next) {
         next = block->next_block;
         m_BlockCount--;
         a *ptr = (a *)block->data;
         ptr->~a();
-        MEM::Free(block);
+        MEM_Free(block);
     }
-    m_Block.Reset();
+
+    m_Block = NULL;
 #else
     while ((block = m_StartFullBlock) != nullptr) {
         if (block->usedDataAvailable()) {
@@ -516,7 +517,7 @@ a *MEM_BlockAlloc_enum<a, b>::NextElement()
 {
 #if _DEBUG_MEMBLOCK
     if (!m_CurrentBlock) {
-        m_CurrentBlock = m_Owner->m_Block.Root();
+        m_CurrentBlock = m_Owner->m_Block;
     } else {
         m_CurrentBlock = m_CurrentBlock->next_block;
     }
