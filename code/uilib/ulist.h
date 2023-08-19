@@ -339,6 +339,7 @@ void *UList< type >::getPosition
 
 {
 	// FIXME: stub
+	return NULL;
 }
 
 template< typename type >
