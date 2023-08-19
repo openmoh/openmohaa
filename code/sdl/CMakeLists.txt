@@ -55,7 +55,7 @@ elseif(UNIX)
 	find_package(SDL2 REQUIRED)
 	
 	if (SDL2_FOUND)
-		string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
+		string(STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
 		target_include_directories(omohsdl PUBLIC ${SDL2_INCLUDE_DIRS})
 		target_link_libraries(omohsdl PRIVATE ${SDL2_LIBRARIES})
 	endif()
