@@ -97,13 +97,13 @@ MEM_BlockAlloc<typename con_arrayset<k, v>::Entry> con_arrayset<k, v>::Entry_all
 template<typename k, typename v>
 void *con_arrayset<k, v>::Entry::operator new(size_t size)
 {
-    return con_arrayset<k, v>::Entry_allocator.Alloc();
+    return Entry_allocator.Alloc();
 }
 
 template<typename k, typename v>
 void con_arrayset<k, v>::Entry::operator delete(void *ptr)
 {
-    con_arrayset<k, v>::Entry_allocator.Free(ptr);
+    Entry_allocator.Free(ptr);
 }
 
 template<typename k, typename v>

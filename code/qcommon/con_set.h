@@ -119,13 +119,13 @@ int HashCode(const k& key);
 template<typename k, typename v>
 void *con_set<k, v>::Entry::operator new(size_t size)
 {
-    return con_set<k, v>::Entry_allocator.Alloc();
+    return Entry_allocator.Alloc();
 }
 
 template<typename k, typename v>
 void con_set<k, v>::Entry::operator delete(void *ptr)
 {
-    con_set<k, v>::Entry_allocator.Free(ptr);
+    Entry_allocator.Free(ptr);
 }
 
 template<typename k, typename v>
