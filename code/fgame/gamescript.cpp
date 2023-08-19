@@ -1008,6 +1008,11 @@ void ScriptThreadLabel::Set(const char *label)
 	}
 }
 
+void ScriptThreadLabel::Set(const_str label)
+{
+	return Set(Director.GetString(label));
+}
+
 void ScriptThreadLabel::SetScript( const ScriptVariable& label )
 {
 	if( label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING )
@@ -1101,6 +1106,11 @@ void ScriptThreadLabel::SetScript( const char *label )
 	}
 }
 
+void ScriptThreadLabel::SetScript(const_str label)
+{
+	SetScript(Director.GetString(label));
+}
+
 void ScriptThreadLabel::SetThread( const ScriptVariable& label )
 {
 	ScriptThread *thread = NULL;
@@ -1138,10 +1148,9 @@ bool ScriptThreadLabel::TrySet( const char *label )
 	{
 		Set( label );
 	}
-	catch( const char *string )
+	catch(const ScriptException& exc)
 	{
-		Com_Printf( "%s\n", string );
-
+		Com_Printf( "%s\n", exc.string.c_str() );
 		return false;
 	}
 
@@ -1150,7 +1159,17 @@ bool ScriptThreadLabel::TrySet( const char *label )
 
 bool ScriptThreadLabel::TrySet( const_str label )
 {
-	return TrySet( Director.GetString( label ) );
+	try
+	{
+		Set( label );
+	}
+	catch(const ScriptException& exc)
+	{
+		Com_Printf( "%s\n", exc.string.c_str() );
+		return false;
+	}
+
+	return true;
 }
 
 bool ScriptThreadLabel::TrySetScript( const char *label )
@@ -1159,10 +1178,9 @@ bool ScriptThreadLabel::TrySetScript( const char *label )
 	{
 		SetScript( label );
 	}
-	catch( const char *string )
+	catch(const ScriptException &exc)
 	{
-		Com_Printf( "%s\n", string );
-
+		Com_Printf( "%s\n", exc.string.c_str() );
 		return false;
 	}
 
@@ -1171,7 +1189,17 @@ bool ScriptThreadLabel::TrySetScript( const char *label )
 
 bool ScriptThreadLabel::TrySetScript( const_str label )
 {
-	return TrySetScript( Director.GetString( label ) );
+    try
+    {
+        SetScript(label);
+    }
+    catch (const ScriptException& exc)
+    {
+        Com_Printf("%s\n", exc.string.c_str());
+        return false;
+    }
+
+    return true;
 }
 
 void ScriptThreadLabel::GetScriptValue(ScriptVariable *var)

@@ -165,8 +165,10 @@ public:
 	void				Execute(const SafePtr<Listener>& listener, const SafePtr<Listener>& param);
 
 	void				Set( const char *label );
+	void				Set( const_str label );
 	void				SetScript( const ScriptVariable& label );
 	void				SetScript( const char *label );
+	void				SetScript( const_str label );
 	void				SetThread( const ScriptVariable& label );
 
 	bool				TrySet( const_str label );
