@@ -268,7 +268,7 @@ void DM_Team::AddKills(Player *player, int numKills)
     if (m_teamnumber > TEAM_FREEFORALL) {
         m_iKills += numKills;
 
-        if (g_gametype->integer == GT_TEAM_ROUNDS || g_gametype->integer == GT_OBJECTIVE) {
+        if ((g_gametype->integer >= GT_TEAM_ROUNDS && g_gametype->integer <= GT_TOW) || g_gametype->integer == GT_LIBERATION) {
             player->AddDeaths(numKills);
         } else {
             m_teamwins += numKills;
@@ -282,7 +282,7 @@ void DM_Team::AddDeaths(Player *player, int numDeaths)
         return;
     }
 
-    if (g_gametype->integer == GT_TEAM_ROUNDS || g_gametype->integer == GT_OBJECTIVE) {
+    if ((g_gametype->integer >= GT_TEAM_ROUNDS && g_gametype->integer <= GT_TOW) || g_gametype->integer == GT_LIBERATION) {
         return;
     }
 
@@ -1116,11 +1116,16 @@ void DM_Manager::InitGame(void)
 
     if (g_gametype->integer >= 0 && g_gametype->integer < GT_MAX_GAME_TYPE) {
         if (g_gametype->integer <= GT_TEAM) {
-            m_bAllowRespawns  = qtrue;
-            m_bRoundBasedGame = qfalse;
+            m_bAllowRespawns  = true;
+            m_bRoundBasedGame = false;
         } else {
-            m_bAllowRespawns  = qfalse;
-            m_bRoundBasedGame = qtrue;
+            if (g_gametype->integer == GT_TOW || g_gametype->integer == GT_LIBERATION) {
+                m_bAllowRespawns = true;
+                m_bRoundBasedGame = true;
+            } else {
+                m_bAllowRespawns = false;
+                m_bRoundBasedGame = true;
+            }
 
             g_tempaxisscore       = gi.Cvar_Get("g_tempaxisscore", "0", 0);
             g_tempaxiswinsinrow   = gi.Cvar_Get("g_tempaxiswinsinrow", "0", 0);
@@ -1354,7 +1359,7 @@ bool DM_Manager::TeamHitScoreLimit(void)
     }
 
     for (int i = 1; i <= m_teams.NumObjects(); i++) {
-        if (m_teams.ObjectAt(i)->m_iKills >= fraglimit->integer) {
+        if (m_teams.ObjectAt(i)->m_teamwins >= fraglimit->integer) {
             return true;
         }
     }
@@ -1428,7 +1433,7 @@ void DM_Manager::EventDoRoundTransition(Event *ev)
         Unregister(STRING_AXISWIN);
     } else if (m_iTeamWin == TEAM_ALLIES) {
         G_CenterPrintToAllClients(va("\n\n\n%s\n", gi.LV_ConvertString("Allies win!\n")));
-        G_PrintToAllClients(va("\%s\n", gi.LV_ConvertString("Allies win!\n")));
+        G_PrintToAllClients(va("%s\n", gi.LV_ConvertString("Allies win!\n")));
 
         // Play the allies victory sound
         world->Sound("dfr_victory_v");
