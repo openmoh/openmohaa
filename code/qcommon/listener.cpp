@@ -4171,8 +4171,8 @@ void Listener::WaitTillTimeout( Event *ev )
 
 	timeout_time = ev->GetFloat( 1 );
 	name = ev->GetConstString( 2 );
-
-	if( WaitTillDefined( name ) )
+	
+	if( !WaitTillAllowed( name ) )
 	{
 		ScriptError( "invalid waittill %s for '%s'", Director.GetString( name ).c_str(), getClassname() );
 	}
@@ -4200,8 +4200,8 @@ void Listener::WaitTillAny( Event *ev )
 	for( int i = 1; i <= ev->NumArgs(); i++ )
 	{
 		name = ev->GetConstString( i );
-
-		if( WaitTillDefined( name ) )
+		
+		if( !WaitTillAllowed( name ) )
 		{
 			ScriptError( "invalid waittill %s for '%s'", Director.GetString( name ).c_str(), getClassname() );
 		}
@@ -4232,8 +4232,8 @@ void Listener::WaitTillAnyTimeout( Event *ev )
 	for( int i = 1; i <= ev->NumArgs(); i++ )
 	{
 		name = ev->GetConstString( i );
-
-		if( WaitTillDefined( name ) )
+		
+		if( !WaitTillAllowed( name ) )
 		{
 			ScriptError( "invalid waittill %s for '%s'", Director.GetString( name ).c_str(), getClassname() );
 		}
