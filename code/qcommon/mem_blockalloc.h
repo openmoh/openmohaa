@@ -250,6 +250,10 @@ MEM_BlockAlloc<a, b>::~MEM_BlockAlloc()
 template<typename a, size_t b>
 void *MEM_BlockAlloc<a, b>::Alloc()
 {
+#ifdef _DEBUG_MEM
+    return malloc(sizeof(a));
+#endif
+
 #if _DEBUG_MEMBLOCK
     block_t *block = new (MEM_Alloc(sizeof(block_t))) block_t();
 
@@ -333,6 +337,10 @@ void *MEM_BlockAlloc<aclass, blocksize>::TakeFree(block_t *block, uintptr_t free
 template<typename a, size_t b>
 void MEM_BlockAlloc<a, b>::Free(void *ptr) noexcept
 {
+#ifdef _DEBUG_MEM
+    return free(ptr);
+#endif
+
 #if _DEBUG_MEMBLOCK
     block_s<a, b> *block = (block_s<a, b> *)ptr;
 
