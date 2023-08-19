@@ -397,7 +397,12 @@ const char *ScriptMaster::ConstStrings[] = {
     "auto",
     "both",
     "runandshoot",
-    "respawn"};
+    //
+    // Openmohaa additions
+    //
+    "respawn",
+    "viewmodelanim_done"
+};
 
 ScriptMaster::~ScriptMaster()
 {

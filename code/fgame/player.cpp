@@ -10570,7 +10570,7 @@ int Player::GetMoveResult(void)
 
 qboolean Player::ViewModelAnim(str anim, qboolean force_restart, qboolean bFullAnim)
 {
-    Unregister("viewmodelanim_done");
+    Unregister(STRING_VIEWMODELANIM_DONE);
 
     if (client == NULL) {
         return true;
