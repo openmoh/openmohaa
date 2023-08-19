@@ -13,6 +13,8 @@ set(archdetect_c_code "
 #  error cmake_ARCH s390x
 #elif defined __ia64__
 #  error cmake_ARCH ia64
+#elif defined __e2k__
+#  error cmake_ARCH e2k
 #elif defined __alpha__
 #  error cmake_ARCH alpha
 #elif defined __sparc__
