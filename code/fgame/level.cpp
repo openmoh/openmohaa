@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 #include "g_spawn.h"
+#include "g_bot.h"
 #include "level.h"
 #include "parm.h"
 #include "navigate.h"
@@ -797,13 +798,16 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
 {
     DisableListenerNotify++;
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         dmManager.Reset();
     }
 
     Director.Reset(samemap);
 
     ClearCachedStatemaps();
+
+    // clear active current bots
+    G_ResetBots();
 
     assert(active_edicts.next);
     assert(active_edicts.next->prev == &active_edicts);
@@ -890,7 +894,7 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
     AddWaitTill(STRING_SKIP);
     AddWaitTill(STRING_POSTTHINK);
 
-    if (g_gametype->integer <= GT_OBJECTIVE) {
+    if (g_gametype->integer >= GT_TEAM_ROUNDS && g_gametype->integer <= GT_LIBERATION) {
         AddWaitTill(STRING_ROUNDSTART);
     }
 
@@ -898,18 +902,6 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
         AddWaitTill(STRING_ALLIESWIN);
         AddWaitTill(STRING_AXISWIN);
         AddWaitTill(STRING_DRAW);
-    }
-
-    classinfo()->RemoveWaitTill("prespawn");
-    classinfo()->RemoveWaitTill("spawn");
-    classinfo()->RemoveWaitTill("skip");
-    classinfo()->RemoveWaitTill("postthink");
-
-    if (g_gametype->integer >= GT_TEAM_ROUNDS) {
-        classinfo()->RemoveWaitTill("roundstart");
-        classinfo()->RemoveWaitTill("allieswin");
-        classinfo()->RemoveWaitTill("axiswin");
-        classinfo()->RemoveWaitTill("draw");
     }
 
     if (resetConfigStrings) {
@@ -1140,7 +1132,7 @@ void Level::SpawnEntities(char* entities, int svsTime)
 	gi.LoadResource("*148b");
 
     m_LoopProtection = false;
-    AddWaitTill(STRING_PRESPAWN);
+    RemoveWaitTill(STRING_PRESPAWN);
     Unregister(STRING_PRESPAWN);
     m_LoopProtection = true;
 
@@ -1213,12 +1205,12 @@ bool Level::RoundStarted()
 
 bool Level::PreSpawned(void)
 {
-    return WaitTillDefined("prespawn");
+    return !WaitTillDefined(STRING_PRESPAWN);
 }
 
 bool Level::Spawned(void)
 {
-    return WaitTillDefined("spawn");
+    return !WaitTillDefined(STRING_SPAWN);
 }
 
 void Level::ServerSpawned(void)
@@ -1231,8 +1223,8 @@ void Level::ServerSpawned(void)
         client->ps.commandTime = svsTime;
     }
 
-    if (!WaitTillDisabled(STRING_SPAWN)) {
-        AddWaitTill(STRING_SPAWN);
+    if (!Spawned()) {
+        RemoveWaitTill(STRING_SPAWN);
 
         Director.Pause();
 
@@ -1955,11 +1947,11 @@ void Level::Archive(Archiver& arc)
 
     if (arc.Loading()) {
         if (prespawn) {
-            AddWaitTill(STRING_PRESPAWN);
+            RemoveWaitTill(STRING_PRESPAWN);
         }
 
         if (spawn) {
-            AddWaitTill(STRING_SPAWN);
+            RemoveWaitTill(STRING_SPAWN);
         }
     }
 
