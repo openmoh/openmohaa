@@ -1569,6 +1569,7 @@ void DM_Manager::StartRound(void)
         }
     }
 
+    level.RemoveWaitTill(STRING_ROUNDSTART);
     level.Unregister(STRING_ROUNDSTART);
     gi.setConfigstring(CS_WARMUP, va("%.0f", GetMatchStartTime()));
 }
