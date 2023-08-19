@@ -76,7 +76,6 @@ class StateScript : public Class
 private:
 	// Label list
 	con_set< const_str, script_label_t > label_list;
-	Container< script_label_t * > reverse_label_list;
 
 public:
 	// Parent gamescript

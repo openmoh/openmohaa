@@ -207,8 +207,6 @@ bool StateScript::AddLabel( const_str label, unsigned char *pos, bool private_se
 		label_list.addKeyValue(STRING_NULL) = s;
 	}
 
-	reverse_label_list.AddObject( &s );
-
 	return true;
 }
 
@@ -263,22 +261,23 @@ const_str StateScript::NearestLabel( unsigned char *pos )
 	unsigned int offset = pos - m_Parent->m_ProgBuffer;
 	unsigned int bestOfs = 0;
 	const_str label = STRING_NULL;
+	con_set_enum< const_str, script_label_t > en = label_list;
+	con_set_enum< const_str, script_label_t >::Entry* entry;
 
-	for( int i = 1; i <= reverse_label_list.NumObjects(); i++ )
-	{
-		script_label_t *l = reverse_label_list.ObjectAt( i );
+    for (entry = en.NextElement(); entry; entry = en.NextElement()) {
+        const script_label_t& l = entry->value;
 
-		if( ( l->codepos - m_Parent->m_ProgBuffer ) >= bestOfs )
-		{
-			bestOfs = l->codepos - m_Parent->m_ProgBuffer;
+        if ((l.codepos - m_Parent->m_ProgBuffer) >= bestOfs)
+        {
+            bestOfs = l.codepos - m_Parent->m_ProgBuffer;
 
-			if( bestOfs > offset )
-			{
-				break;
-			}
+            if (bestOfs > offset)
+            {
+                break;
+            }
 
-			label = l->key;
-		}
+            label = l.key;
+        }
 	}
 
 	return label;
