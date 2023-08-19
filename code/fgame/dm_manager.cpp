@@ -1023,8 +1023,8 @@ void DM_Manager::Score(Player *player)
                 buffer,
                 sizeof(buffer),
                 "%i %i ",
-                gi.Cvar_Get("scoreboard_toggle1", "", 0),
-                gi.Cvar_Get("scoreboard_toggle2", "", 0)
+                gi.Cvar_Get("scoreboard_toggle1", "", 0)->integer,
+                gi.Cvar_Get("scoreboard_toggle2", "", 0)->integer
             );
 
             InsertEntryNoCount(buffer);
