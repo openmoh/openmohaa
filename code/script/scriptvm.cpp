@@ -1815,7 +1815,7 @@ void ScriptVM::SetFastData(ScriptVariable *data, int dataSize)
         fastEvent.dataSize = dataSize;
 
         for (int i = 0; i < dataSize; i++) {
-            fastEvent.data[i] = data[i];
+            fastEvent.data[i] = std::move(data[i]);
         }
 
         m_pOldData    = fastEvent.data;
