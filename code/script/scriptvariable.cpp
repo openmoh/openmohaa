@@ -2023,65 +2023,134 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
 
 ScriptVariable& ScriptVariable::operator=(const ScriptVariable& variable)
 {
-    ClearInternal();
+    if (type == variable.GetType() && m_data.anyValue == variable.m_data.anyValue) {
+        return *this;
+    }
 
-    type = variable.GetType();
+    if (type != variable.GetType()) {
+        ClearInternal();
 
-    switch (type) {
-    case VARIABLE_NONE:
-        break;
+        type = variable.GetType();
 
-    case VARIABLE_CONSTSTRING:
-        m_data.intValue = variable.m_data.intValue;
-        break;
+        switch (type) {
+        case VARIABLE_NONE:
+            break;
 
-    case VARIABLE_STRING:
-        m_data.stringValue = new str(variable.stringValue());
-        break;
+        case VARIABLE_CONSTSTRING:
+            m_data.intValue = variable.m_data.intValue;
+            break;
 
-    case VARIABLE_FLOAT:
-        m_data.floatValue = variable.m_data.floatValue;
-        break;
+        case VARIABLE_STRING:
+            m_data.stringValue = new str(variable.stringValue());
+            break;
 
-    case VARIABLE_CHAR:
-        m_data.charValue = variable.m_data.charValue;
-        break;
+        case VARIABLE_FLOAT:
+            m_data.floatValue = variable.m_data.floatValue;
+            break;
 
-    case VARIABLE_INTEGER:
-        m_data.intValue = variable.m_data.intValue;
-        break;
+        case VARIABLE_CHAR:
+            m_data.charValue = variable.m_data.charValue;
+            break;
 
-    case VARIABLE_LISTENER:
-        m_data.listenerValue = new SafePtr<Listener>(*variable.m_data.listenerValue);
-        break;
+        case VARIABLE_INTEGER:
+            m_data.intValue = variable.m_data.intValue;
+            break;
 
-    case VARIABLE_ARRAY:
-        m_data.arrayValue = variable.m_data.arrayValue;
-        m_data.arrayValue->refCount++;
-        break;
+        case VARIABLE_LISTENER:
+            m_data.listenerValue = new SafePtr<Listener>(*variable.m_data.listenerValue);
+            break;
 
-    case VARIABLE_CONSTARRAY:
-        m_data.constArrayValue = variable.m_data.constArrayValue;
-        m_data.constArrayValue->refCount++;
-		break;
+        case VARIABLE_ARRAY:
+            m_data.arrayValue = variable.m_data.arrayValue;
+            m_data.arrayValue->refCount++;
+            break;
 
-	case VARIABLE_CONTAINER:
-        m_data.containerValue = variable.m_data.containerValue;
-		break;
+        case VARIABLE_CONSTARRAY:
+            m_data.constArrayValue = variable.m_data.constArrayValue;
+            m_data.constArrayValue->refCount++;
+            break;
 
-    case VARIABLE_SAFECONTAINER:
-        m_data.safeContainerValue = new SafePtr<ConList>(*variable.m_data.safeContainerValue);
-        break;
+        case VARIABLE_CONTAINER:
+            m_data.containerValue = variable.m_data.containerValue;
+            break;
 
-    case VARIABLE_POINTER:
-        m_data.pointerValue = variable.m_data.pointerValue;
-        m_data.pointerValue->add(this);
-        break;
+        case VARIABLE_SAFECONTAINER:
+            m_data.safeContainerValue = new SafePtr<ConList>(*variable.m_data.safeContainerValue);
+            break;
 
-    case VARIABLE_VECTOR:
-        m_data.vectorValue = (float *)new float[3];
-        VectorCopy(variable.m_data.vectorValue, m_data.vectorValue);
-        break;
+        case VARIABLE_POINTER:
+            m_data.pointerValue = variable.m_data.pointerValue;
+            m_data.pointerValue->add(this);
+            break;
+
+        case VARIABLE_VECTOR:
+            m_data.vectorValue = (float*)new float[3];
+            VectorCopy(variable.m_data.vectorValue, m_data.vectorValue);
+            break;
+        }
+    } else {
+        type = variable.GetType();
+
+        switch (type) {
+        case VARIABLE_NONE:
+            break;
+
+        case VARIABLE_CONSTSTRING:
+            m_data.intValue = variable.m_data.intValue;
+            break;
+
+        case VARIABLE_STRING:
+            m_data.stringValue = new str(variable.stringValue());
+            break;
+
+        case VARIABLE_FLOAT:
+            m_data.floatValue = variable.m_data.floatValue;
+            break;
+
+        case VARIABLE_CHAR:
+            m_data.charValue = variable.m_data.charValue;
+            break;
+
+        case VARIABLE_INTEGER:
+            m_data.intValue = variable.m_data.intValue;
+            break;
+
+        case VARIABLE_LISTENER:
+            *m_data.listenerValue = *variable.m_data.listenerValue;
+            break;
+
+        case VARIABLE_ARRAY:
+            ClearInternal();
+            m_data.arrayValue = variable.m_data.arrayValue;
+            m_data.arrayValue->refCount++;
+            break;
+
+        case VARIABLE_CONSTARRAY:
+            ClearInternal();
+            m_data.constArrayValue = variable.m_data.constArrayValue;
+            m_data.constArrayValue->refCount++;
+            break;
+
+        case VARIABLE_CONTAINER:
+            ClearInternal();
+            m_data.containerValue = variable.m_data.containerValue;
+            break;
+
+        case VARIABLE_SAFECONTAINER:
+            ClearInternal();
+            m_data.safeContainerValue = new SafePtr<ConList>(*variable.m_data.safeContainerValue);
+            break;
+
+        case VARIABLE_POINTER:
+            ClearInternal();
+            m_data.pointerValue = variable.m_data.pointerValue;
+            m_data.pointerValue->add(this);
+            break;
+
+        case VARIABLE_VECTOR:
+            VectorCopy(variable.m_data.vectorValue, m_data.vectorValue);
+            break;
+        }
     }
 
     return *this;
