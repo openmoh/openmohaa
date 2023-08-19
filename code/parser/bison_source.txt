@@ -125,7 +125,6 @@ int success_pos;
 %type <s.val> prim_expr
 %type <s.val> listener_identifier
 %type <s.val> nonident_prim_expr
-%type <s.val> func_expr
 %type <s.val> const_array_list
 %type <s.val> const_array
 %type <s.val> identifier_prim
