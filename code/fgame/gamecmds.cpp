@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <scriptcompiler.h>
 #include "playerbot.h"
 #include "consoleevent.h"
+#include "g_bot.h"
 
 typedef struct
    {
@@ -630,6 +631,7 @@ qboolean G_AddBotCommand
 	)
 {
 	unsigned int numbots;
+	unsigned int totalnumbots;
 	int clientNum = -1;
 
 	if( gi.Argc() <= 1 )
@@ -639,13 +641,15 @@ qboolean G_AddBotCommand
 	}
 
 	numbots = atoi( gi.Argv( 1 ) );
-	if(numbots > maxbots->integer)
+	if(numbots > sv_maxbots->integer)
 	{
-		gi.Printf( "addbot must be between 1-%d\n", maxbots->integer );
+		gi.Printf( "addbot must be between 1-%d\n", sv_maxbots->integer );
 		return qfalse;
 	}
 
-	G_AddBot(numbots);
+	totalnumbots = Q_min(numbots + sv_numbots->integer, sv_maxbots->integer);
+
+	gi.cvar_set("sv_numbots", va("%d", totalnumbots));
 	return qtrue;
 }
 
@@ -655,6 +659,7 @@ qboolean G_RemoveBotCommand
 	)
 {
     unsigned int numbots;
+    unsigned int totalnumbots;
 
 	if( gi.Argc() <= 1 )
 	{
@@ -662,18 +667,10 @@ qboolean G_RemoveBotCommand
 		return qfalse;
     }
 
-    numbots = Q_min(atoi(gi.Argv(1)), maxbots->integer);
+	numbots = atoi(gi.Argv(1));
+	totalnumbots = Q_min(numbots, sv_numbots->integer);
 
-	for( int n = 0; n < numbots; n++ )
-	{
-		gentity_t *e = &g_entities[ game.maxclients - 1 - n ];
-		if( e->inuse && e->client )
-		{
-			G_ClientDisconnect( e );
-		}
-	}
-
-	G_RemoveBot(numbots);
+    gi.cvar_set("sv_numbots", va("%d", totalnumbots));
 	return qtrue;
 }
 

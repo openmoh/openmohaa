@@ -786,11 +786,10 @@ void G_ClientUserinfoChanged(gentity_t *ent, const char *u)
     Q_strncpyz(client->pers.userinfo, u, sizeof(client->pers.userinfo));
 }
 
-void G_BotConnect(int clientNum)
+void G_BotConnect(int clientNum, const char* userinfo)
 {
     gclient_t *client;
     gentity_t *ent;
-    char       userinfo[MAX_INFO_STRING];
 
     ent = &g_entities[clientNum];
 
@@ -798,8 +797,6 @@ void G_BotConnect(int clientNum)
     ent->s.number = clientNum;
 
     client = ent->client;
-
-    Q_strncpyz(userinfo, client->pers.userinfo, sizeof(userinfo));
 
     // read the session data
     memset(client, 0, sizeof(*client));

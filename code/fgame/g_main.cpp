@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "lodthing.h"
 #include "viewthing.h"
 #include "playerbot.h"
+#include "g_bot.h"
 #include <tiki.h>
 
 #ifdef WIN32
@@ -270,7 +271,7 @@ void G_InitGame(int levelTime, int randomSeed)
         game.maxentities = game.maxclients * 8;
     }
 
-    game.maxclients = maxclients->integer + maxbots->integer;
+    game.maxclients = maxclients->integer + sv_maxbots->integer;
 
     L_InitEvents();
 
@@ -286,6 +287,8 @@ G_SpawnEntities
 void G_SpawnEntities(char *entities, int svsTime)
 {
     level.SpawnEntities(entities, svsTime);
+
+    G_SpawnBots();
 }
 
 /*
@@ -642,6 +645,9 @@ void G_RunFrame(int levelTime, int frameTime)
                 }
             }
         }
+
+        // Add or delete bots that were added using addbot/removebot
+        G_SpawnBots();
     }
 
     catch (const char *error) {

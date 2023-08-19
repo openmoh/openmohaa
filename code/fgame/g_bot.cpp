@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,8 +24,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 #include "entity.h"
 #include "playerbot.h"
+#include "g_bot.h"
 
 static gentity_t* firstBot = NULL;
+static saved_bot_t* saved_bots = NULL;
+static unsigned int current_bot_count = 0;
 
 void G_BotBegin
 	(
@@ -64,7 +67,7 @@ gentity_t* G_GetFirstBot()
 	return firstBot;
 }
 
-void G_AddBot(unsigned int num)
+void G_AddBot(unsigned int num, saved_bot_t* saved)
 {
 	int n;
 	int i;
@@ -72,8 +75,10 @@ void G_AddBot(unsigned int num)
 	gentity_t *e;
 	char botName[ MAX_NETNAME ];
 	char challenge[ MAX_STRING_TOKENS ];
+	char userinfo[MAX_INFO_STRING]{ 0 };
+	Event* teamEv;
 
-	num = Q_min(num, maxbots->integer);
+	num = Q_min(num, sv_maxbots->integer);
 	for( n = 0; n < num; n++ )
 	{
 		for( i = maxclients->integer; i < game.maxclients; i++ )
@@ -107,37 +112,67 @@ void G_AddBot(unsigned int num)
 		e->s.clientNum = clientNum;
 		e->s.number = clientNum;
 
-		Info_SetValueForKey( e->client->pers.userinfo, "name", botName );
-		Info_SetValueForKey( e->client->pers.userinfo, "dm_playermodel", "allied_pilot" );
-		Info_SetValueForKey( e->client->pers.userinfo, "dm_playergermanmodel", "german_afrika_officer" );
-		Info_SetValueForKey( e->client->pers.userinfo, "fov", "80" );
-		Info_SetValueForKey( e->client->pers.userinfo, "protocol", "8" );
-		Info_SetValueForKey( e->client->pers.userinfo, "ip", "0.0.0.0" );
-		Info_SetValueForKey( e->client->pers.userinfo, "qport", "0" );
-		Info_SetValueForKey( e->client->pers.userinfo, "challenge", challenge );
-		Info_SetValueForKey( e->client->pers.userinfo, "snaps", "1" );
-		Info_SetValueForKey( e->client->pers.userinfo, "rate", "1" );
-		Info_SetValueForKey( e->client->pers.userinfo, "dmprimary", "smg" );
+        if (saved) {
+			strncpy(userinfo, saved->pers.userinfo, ARRAY_LEN(userinfo));
+		} else {
+            Info_SetValueForKey(userinfo, "name", botName);
+            Info_SetValueForKey(userinfo, "dm_playermodel", "allied_pilot");
+            Info_SetValueForKey(userinfo, "dm_playergermanmodel", "german_afrika_officer");
+            Info_SetValueForKey(userinfo, "fov", "80");
+            Info_SetValueForKey(userinfo, "protocol", "8");
+            Info_SetValueForKey(userinfo, "ip", "0.0.0.0");
+            Info_SetValueForKey(userinfo, "qport", "0");
+            Info_SetValueForKey(userinfo, "challenge", challenge);
+            Info_SetValueForKey(userinfo, "snaps", "1");
+            Info_SetValueForKey(userinfo, "rate", "1");
+            Info_SetValueForKey(userinfo, "dmprimary", "smg");
+		}
 
-		G_BotConnect( clientNum );
+		current_bot_count++;
+
+		G_BotConnect( clientNum, userinfo );
+
+		if (saved) {
+			e->client->pers = saved->pers;
+		}
 
 		if( !firstBot )
 			firstBot = e;
 
 		G_BotBegin( e );
 
-		e->entity->PostEvent( EV_Player_AutoJoinDMTeam, level.frametime );
+		if (saved) {
+			/*
+			switch (saved->team)
+			{
+            case TEAM_ALLIES:
+                teamEv = new Event(EV_Player_JoinDMTeam);
+				teamEv->AddString("allies");
+				break;
+            case TEAM_AXIS:
+                teamEv = new Event(EV_Player_JoinDMTeam);
+                teamEv->AddString("axis");
+				break;
+            default:
+				teamEv = new Event(EV_Player_AutoJoinDMTeam);
+				break;
+			}
+			*/
+		} else {
+            teamEv = new Event(EV_Player_AutoJoinDMTeam);
+            e->entity->PostEvent(teamEv, level.frametime);
 
-		Event *ev = new Event( EV_Player_PrimaryDMWeapon );
-		ev->AddString( "smg" );
+            Event* ev = new Event(EV_Player_PrimaryDMWeapon);
+            ev->AddString("smg");
 
-		e->entity->PostEvent( ev, level.frametime );
+            e->entity->PostEvent(ev, level.frametime);
+        }
 	}
 }
 
 void G_RemoveBot(unsigned int num)
 {
-	num = Q_min(atoi(gi.Argv(1)), maxbots->integer);
+	num = Q_min(atoi(gi.Argv(1)), sv_maxbots->integer);
 
 	for( int n = 0; n < num; n++ )
 	{
@@ -145,6 +180,70 @@ void G_RemoveBot(unsigned int num)
 		if( e->inuse && e->client )
 		{
 			G_ClientDisconnect( e );
+			current_bot_count--;
 		}
+	}
+}
+
+void G_SaveBots() {
+	unsigned int n;
+
+    if (saved_bots) {
+        delete[] saved_bots;
+		saved_bots = NULL;
+    }
+
+	if (!current_bot_count) {
+		return;
+	}
+
+	saved_bots = new saved_bot_t[current_bot_count];
+    for (n = 0; n < current_bot_count; n++) {
+        gentity_t* e = &g_entities[game.maxclients - sv_maxbots->integer + n];
+		saved_bot_t& saved = saved_bots[n];
+
+		if (e->inuse && e->client)
+		{
+			Player* player = static_cast<Player*>(e->entity);
+
+			saved.bValid = true;
+			//saved.team = player->GetTeam();
+			saved.pers = player->client->pers;
+		}
+	}
+}
+
+void G_RestoreBots() {
+	unsigned int n;
+
+    if (!saved_bots) {
+		return;
+    }
+
+    for (n = 0; n < sv_numbots->integer; n++) {
+        saved_bot_t& saved = saved_bots[n];
+
+		G_AddBot(1, &saved);
+	}
+
+	delete[] saved_bots;
+	saved_bots = NULL;
+}
+
+void G_ResetBots() {
+	G_SaveBots();
+
+	current_bot_count = 0;
+}
+
+void G_SpawnBots() {
+	if (saved_bots) {
+		G_RestoreBots();
+	}
+
+	if (sv_numbots->integer > current_bot_count) {
+		G_AddBot(sv_numbots->integer - current_bot_count);
+	} else if (sv_numbots->integer < current_bot_count) {
+		G_RemoveBot(current_bot_count - sv_numbots->integer);
 	}
 }

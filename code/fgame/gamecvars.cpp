@@ -262,7 +262,8 @@ cvar_t* g_obituarylocation;
 
 cvar_t *sv_scriptfiles;
 
-cvar_t *maxbots;
+cvar_t *sv_maxbots;
+cvar_t *sv_numbots;
 cvar_t *g_rankedserver;
 cvar_t *g_spectatefollow_firstperson;
 
@@ -596,7 +597,13 @@ void CVAR_Init(void)
     }
 
     sv_scriptfiles               = gi.Cvar_Get("sv_scriptfiles", "0", 0);
-    maxbots                      = gi.Cvar_Get("sv_maxbots", "2", 0);
+    sv_maxbots                   = gi.Cvar_Get("sv_maxbots", "0", CVAR_LATCH);
+    sv_numbots                   = gi.Cvar_Get("sv_numbots", "0", CVAR_LATCH);
     g_rankedserver               = gi.Cvar_Get("g_rankedserver", "0", 0);
     g_spectatefollow_firstperson = gi.Cvar_Get("g_spectatefollow_firstperson", "0", 0);
+
+    if (sv_numbots->integer > sv_maxbots->integer) {
+        gi.Printf("numbots overflow, setting to %d\n", sv_maxbots->integer);
+        gi.cvar_set("sv_numbots", sv_maxbots->string);
+    }
 }

@@ -83,7 +83,7 @@ G_InitSessionData
 Called on a first-time connect
 ================
 */
-void G_InitSessionData( gclient_t *client, char *userinfo )
+void G_InitSessionData( gclient_t *client, const char *userinfo )
 {
 	G_WriteClientSessionData( client );
 }

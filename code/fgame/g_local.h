@@ -423,7 +423,7 @@ void QDECL G_Error(errorParm_t type, const char *fmt, ...);
 //
 // g_client.c
 //
-void        G_BotConnect(int clientNum);
+void        G_BotConnect(int clientNum, const char* userinfo);
 const char *G_ClientConnect(int clientNum, qboolean firstTime);
 void        G_ClientUserinfoChanged(gentity_t *ent, const char *userinfo);
 void        G_ClientDisconnect(gentity_t *ent);
@@ -457,7 +457,7 @@ void  Svcmd_GameMem_f(void);
 // g_session.c
 //
 void G_ReadSessionData(gclient_t *client);
-void G_InitSessionData(gclient_t *client, char *userinfo);
+void G_InitSessionData(gclient_t *client, const char *userinfo);
 
 void G_InitWorldSession(void);
 void G_WriteSessionData(void);
@@ -472,11 +472,6 @@ void Svcmd_AbortPodium_f(void);
 //
 // g_bot.c
 //
-void G_BotBegin(gentity_t *ent);
-void G_BotThink(gentity_t *ent, int msec);
-gentity_t* G_GetFirstBot();
-void G_AddBot(unsigned int num);
-void G_RemoveBot(unsigned int num);
 
 typedef struct mmove_s {
     vec3_t origin;
