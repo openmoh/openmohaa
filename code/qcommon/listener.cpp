@@ -1862,7 +1862,7 @@ Event::Event()
 ErrorInternal
 =======================
 */
-void Event::ErrorInternal( Listener *l, str text )
+void Event::ErrorInternal( Listener *l, str text ) const
 {
 	str classname;
 	str eventname;
@@ -2533,7 +2533,7 @@ EventDef *Event::getInfo()
 getName
 =======================
 */
-str& Event::getName()
+str& Event::getName() const
 {
 	return GetEventName( eventnum );
 }
@@ -2926,48 +2926,18 @@ ProcessEvent
 */
 bool Listener::ProcessEvent( Event *ev )
 {
-	ClassDef *c = classinfo();
-	ResponseDef<Class> *responses = NULL;
-	Response response = NULL;
-
-	if( !ev->eventnum )
-	{
-#ifdef _DEBUG
-		EVENT_DPrintf( "^~^~^ Failed execution of event '%s' for class '%s'\n", ev->name.c_str(), c->classname );
-#else
-		EVENT_DPrintf( "^~^~^ Failed execution of event for class '%s'\n", c->classname );
-#endif
-
-		delete ev;
-		return false;
-	}
-
-	responses = c->responseLookup[ ev->eventnum ];
-
-	if( responses == NULL )
-	{
-		delete ev;
-		return true;
-	}
-
-	response = responses->response;
-
-	try
-	{
-		if( response )
-		{
-			( this->*response )( ev );
-		}
-	}
-	catch( ScriptException& exc )
-	{
-		ev->ErrorInternal( this, exc.string );
-		EVENT_DPrintf( "%s\n", exc.string.c_str() );
-	}
-
-	delete ev;
-
-	return true;
+    try
+    {
+        return ProcessScriptEvent(ev);
+    }
+    catch (ScriptException& exc)
+    {
+        ev->ErrorInternal(this, exc.string);
+        EVENT_DPrintf("%s\n", exc.string.c_str());
+		// at this point the event didn't get deleted
+        delete ev;
+        return false;
+    }
 }
 
 /*
@@ -2977,7 +2947,35 @@ ProcessEvent
 */
 bool Listener::ProcessEvent( Event &ev )
 {
-	return ProcessScriptEvent( ev );
+    try
+    {
+        return ProcessScriptEvent(ev);
+    }
+    catch (ScriptException& exc)
+    {
+        ev.ErrorInternal(this, exc.string);
+        EVENT_DPrintf("%s\n", exc.string.c_str());
+		return false;
+    }
+}
+
+/*
+=======================
+ProcessEvent
+=======================
+*/
+bool Listener::ProcessEvent( const Event &ev )
+{
+	try
+	{
+		return ProcessScriptEvent(Event(ev));
+	}
+	catch (ScriptException& exc)
+	{
+		ev.ErrorInternal(this, exc.string);
+        EVENT_DPrintf("%s\n", exc.string.c_str());
+        return false;
+	}
 }
 
 /*
@@ -3031,17 +3029,6 @@ ScriptVariable& Listener::ProcessEventReturn( Event *ev )
 	delete ev;
 
 	return m_Return;
-}
-
-/*
-=======================
-ProcessEvent
-=======================
-*/
-bool Listener::ProcessEvent( const Event &ev )
-{
-	Event *event = new Event( ev );
-	return ProcessEvent( event );
 }
 
 /*

@@ -19,9 +19,9 @@ public:
 	ConsoleEvent(str name) : Event(name) { m_consoleedict = NULL; }
 
 	void			SetConsoleEdict(gentity_t* edict);
-	gentity_t* GetConsoleEdict(void);
+	gentity_t* GetConsoleEdict(void) const;
 
-	void ErrorInternal(Listener* l, str text) override;
+	void ErrorInternal(Listener* l, str text) const override;
 };
 
 extern MEM_BlockAlloc<ConsoleEvent> ConsoleEvent_allocator;

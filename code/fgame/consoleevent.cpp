@@ -57,7 +57,7 @@ void ConsoleEvent::SetConsoleEdict(gentity_t* edict)
 GetConsoleEdict
 =======================
 */
-gentity_t* ConsoleEvent::GetConsoleEdict(void)
+gentity_t* ConsoleEvent::GetConsoleEdict(void) const
 {
 	if (m_consoleedict)
 		return m_consoleedict;
@@ -70,7 +70,7 @@ gentity_t* ConsoleEvent::GetConsoleEdict(void)
 ErrorInternal
 =======================
 */
-void ConsoleEvent::ErrorInternal(Listener* l, str text)
+void ConsoleEvent::ErrorInternal(Listener* l, str text) const
 {
 	gentity_t* edict = GetConsoleEdict();
 	str eventname = getName();

@@ -291,7 +291,7 @@ public:
 	static int compareEvents( const void *arg1, const void *arg2 );
 	static void SortEventList( Container< int > *sortedList );
 
-	virtual void ErrorInternal( Listener *l, str text );
+	virtual void ErrorInternal( Listener *l, str text ) const;
 
 	static unsigned int	FindEventNum( str s );
 	static unsigned int FindNormalEventNum( const_str s );
@@ -340,7 +340,7 @@ public:
 	EventDef		*getInfo();
 #endif
 
-	str&			getName();
+	str&			getName() const;
 
 	void		AddContainer( Container< SafePtr< Listener > > *container );
 	void		AddEntity( Entity * ent );
