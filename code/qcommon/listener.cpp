@@ -2968,7 +2968,8 @@ bool Listener::ProcessEvent( const Event &ev )
 {
 	try
 	{
-		return ProcessScriptEvent(Event(ev));
+		Event event(ev);
+		return ProcessScriptEvent(event);
 	}
 	catch (ScriptException& exc)
 	{
