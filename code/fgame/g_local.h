@@ -474,6 +474,9 @@ void Svcmd_AbortPodium_f(void);
 //
 void G_BotBegin(gentity_t *ent);
 void G_BotThink(gentity_t *ent, int msec);
+gentity_t* G_GetFirstBot();
+void G_AddBot(unsigned int num);
+void G_RemoveBot(unsigned int num);
 
 typedef struct mmove_s {
     vec3_t origin;

@@ -50,8 +50,8 @@ qboolean G_ScriptCmd( gentity_t *ent );
 qboolean G_LevelVarsCmd( gentity_t *ent );
 qboolean G_GameVarsCmd( gentity_t *ent );
 qboolean G_CompileScript( gentity_t *ent );
-qboolean G_AddBot( gentity_t *ent );
-qboolean G_RemoveBot( gentity_t *ent );
+qboolean G_AddBotCommand( gentity_t *ent );
+qboolean G_RemoveBotCommand( gentity_t *ent );
 #ifdef _DEBUG
 qboolean G_BotCommand( gentity_t *ent );
 #endif

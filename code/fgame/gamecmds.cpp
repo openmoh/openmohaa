@@ -62,8 +62,8 @@ consolecmd_t G_ConsoleCmds[] =
       { "levelvars",		G_LevelVarsCmd,			qfalse },
       { "gamevars",			G_GameVarsCmd,			qfalse },
 	  { "compilescript",	G_CompileScript,		qfalse },
-	  { "addbot",			G_AddBot,				qfalse },
-	  { "removebot",		G_RemoveBot,			qfalse },
+	  { "addbot",			G_AddBotCommand,		qfalse },
+	  { "removebot",		G_RemoveBotCommand,		qfalse },
 #ifdef _DEBUG
 	  { "bot",				G_BotCommand,			qfalse },
 #endif
@@ -624,20 +624,13 @@ qboolean G_CompileScript
 	return qtrue;
 }
 
-static gentity_t *firstBot = NULL;
-
-qboolean G_AddBot
+qboolean G_AddBotCommand
 	(
 	gentity_t *ent
 	)
 {
 	unsigned int numbots;
-	int n;
-	int i;
 	int clientNum = -1;
-	gentity_t *e;
-	char botName[ MAX_NETNAME ];
-	char challenge[ MAX_STRING_TOKENS ];
 
 	if( gi.Argc() <= 1 )
 	{
@@ -652,70 +645,11 @@ qboolean G_AddBot
 		return qfalse;
 	}
 
-	for( n = 0; n < numbots; n++ )
-	{
-		for( i = maxclients->integer; i < game.maxclients; i++ )
-		{
-			e = &g_entities[ i ];
-
-			if( !e->inuse && e->client )
-			{
-				clientNum = i;
-				break;
-			}
-		}
-
-		if( clientNum == -1 )
-		{
-			gi.Printf( "No free slot for a bot\n" );
-			return qfalse;
-		}
-
-		if( gi.Argc() > 2 )
-		{
-			Q_strncpyz( botName, gi.Argv( 2 ), sizeof( botName ) );
-		}
-		else
-		{
-			sprintf( botName, "bot%d", clientNum - maxclients->integer + 1 );
-		}
-
-		sprintf( challenge, "%d", clientNum - maxclients->integer + 1 );
-
-		e->s.clientNum = clientNum;
-		e->s.number = clientNum;
-
-		Info_SetValueForKey( e->client->pers.userinfo, "name", botName );
-		Info_SetValueForKey( e->client->pers.userinfo, "dm_playermodel", "allied_pilot" );
-		Info_SetValueForKey( e->client->pers.userinfo, "dm_playergermanmodel", "german_afrika_officer" );
-		Info_SetValueForKey( e->client->pers.userinfo, "fov", "80" );
-		Info_SetValueForKey( e->client->pers.userinfo, "protocol", "8" );
-		Info_SetValueForKey( e->client->pers.userinfo, "ip", "0.0.0.0" );
-		Info_SetValueForKey( e->client->pers.userinfo, "qport", "0" );
-		Info_SetValueForKey( e->client->pers.userinfo, "challenge", challenge );
-		Info_SetValueForKey( e->client->pers.userinfo, "snaps", "1" );
-		Info_SetValueForKey( e->client->pers.userinfo, "rate", "1" );
-		Info_SetValueForKey( e->client->pers.userinfo, "dmprimary", "smg" );
-
-		G_BotConnect( clientNum );
-
-		if( !firstBot )
-			firstBot = e;
-
-		G_BotBegin( e );
-
-		e->entity->PostEvent( EV_Player_AutoJoinDMTeam, level.frametime );
-
-		Event *ev = new Event( EV_Player_PrimaryDMWeapon );
-		ev->AddString( "smg" );
-
-		e->entity->PostEvent( ev, level.frametime );
-	}
-
+	G_AddBot(numbots);
 	return qtrue;
 }
 
-qboolean G_RemoveBot
+qboolean G_RemoveBotCommand
 	(
 	gentity_t *ent
 	)
@@ -739,6 +673,7 @@ qboolean G_RemoveBot
 		}
 	}
 
+	G_RemoveBot(numbots);
 	return qtrue;
 }
 
@@ -752,7 +687,7 @@ qboolean G_BotCommand
 	const char *command;
 	PlayerBot *bot;
 
-	if( !firstBot || !firstBot->entity )
+	if( !G_GetFirstBot() || !G_GetFirstBot()->entity )
 	{
 		gi.Printf( "No bot spawned.\n" );
 		return qfalse;
@@ -764,7 +699,7 @@ qboolean G_BotCommand
 		return qfalse;
 	}
 
-	bot = ( PlayerBot * )firstBot->entity;
+	bot = ( PlayerBot * )G_GetFirstBot()->entity;
 
 	command = gi.Argv( 1 );
 

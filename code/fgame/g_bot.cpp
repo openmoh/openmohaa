@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "entity.h"
 #include "playerbot.h"
 
+static gentity_t* firstBot = NULL;
+
 void G_BotBegin
 	(
 	gentity_t *ent
@@ -55,4 +57,94 @@ void G_BotThink
 	bot->GetEyeInfo( &eyeinfo );
 
 	G_ClientThink( ent, &ucmd, &eyeinfo );
+}
+
+gentity_t* G_GetFirstBot()
+{
+	return firstBot;
+}
+
+void G_AddBot(unsigned int num)
+{
+	int n;
+	int i;
+	int clientNum = -1;
+	gentity_t *e;
+	char botName[ MAX_NETNAME ];
+	char challenge[ MAX_STRING_TOKENS ];
+
+	num = Q_min(num, maxbots->integer);
+	for( n = 0; n < num; n++ )
+	{
+		for( i = maxclients->integer; i < game.maxclients; i++ )
+		{
+			e = &g_entities[ i ];
+
+			if( !e->inuse && e->client )
+			{
+				clientNum = i;
+				break;
+			}
+		}
+
+		if( clientNum == -1 )
+		{
+			gi.Printf( "No free slot for a bot\n" );
+			return;
+		}
+
+		if( gi.Argc() > 2 )
+		{
+			Q_strncpyz( botName, gi.Argv( 2 ), sizeof( botName ) );
+		}
+		else
+		{
+			sprintf( botName, "bot%d", clientNum - maxclients->integer + 1 );
+		}
+
+		sprintf( challenge, "%d", clientNum - maxclients->integer + 1 );
+
+		e->s.clientNum = clientNum;
+		e->s.number = clientNum;
+
+		Info_SetValueForKey( e->client->pers.userinfo, "name", botName );
+		Info_SetValueForKey( e->client->pers.userinfo, "dm_playermodel", "allied_pilot" );
+		Info_SetValueForKey( e->client->pers.userinfo, "dm_playergermanmodel", "german_afrika_officer" );
+		Info_SetValueForKey( e->client->pers.userinfo, "fov", "80" );
+		Info_SetValueForKey( e->client->pers.userinfo, "protocol", "8" );
+		Info_SetValueForKey( e->client->pers.userinfo, "ip", "0.0.0.0" );
+		Info_SetValueForKey( e->client->pers.userinfo, "qport", "0" );
+		Info_SetValueForKey( e->client->pers.userinfo, "challenge", challenge );
+		Info_SetValueForKey( e->client->pers.userinfo, "snaps", "1" );
+		Info_SetValueForKey( e->client->pers.userinfo, "rate", "1" );
+		Info_SetValueForKey( e->client->pers.userinfo, "dmprimary", "smg" );
+
+		G_BotConnect( clientNum );
+
+		if( !firstBot )
+			firstBot = e;
+
+		G_BotBegin( e );
+
+		e->entity->PostEvent( EV_Player_AutoJoinDMTeam, level.frametime );
+
+		Event *ev = new Event( EV_Player_PrimaryDMWeapon );
+		ev->AddString( "smg" );
+
+		e->entity->PostEvent( ev, level.frametime );
+	}
+}
+
+void G_RemoveBot(unsigned int num)
+{
+	num = Q_min(atoi(gi.Argv(1)), maxbots->integer);
+
+	for( int n = 0; n < num; n++ )
+	{
+		gentity_t *e = &g_entities[ game.maxclients - 1 - n ];
+		if( e->inuse && e->client )
+		{
+			G_ClientDisconnect( e );
+		}
+	}
 }
