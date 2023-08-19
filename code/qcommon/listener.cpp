@@ -1828,6 +1828,7 @@ Event::Event
 
 	fromScript = false;
 	dataSize = 0;
+	maxDataSize = 0;
 	data = NULL;
 	eventnum = 0;
 }
@@ -1852,7 +1853,8 @@ Event::Event()
 	fromScript = false;
 	eventnum = 0;
 	data = NULL;
-	dataSize = 0;
+    dataSize = 0;
+    maxDataSize = 0;
 }
 
 /*
@@ -1882,7 +1884,8 @@ Event::Event( const Event *ev )
 {
 	fromScript = ev->fromScript;
 	eventnum = ev->eventnum;
-	dataSize = ev->dataSize;
+    dataSize = ev->dataSize;
+    maxDataSize = ev->maxDataSize;
 
 	if( dataSize )
 	{
@@ -1912,7 +1915,8 @@ Event::Event( const Event &ev )
 {
 	fromScript = ev.fromScript;
 	eventnum = ev.eventnum;
-	dataSize = ev.dataSize;
+    dataSize = ev.dataSize;
+    maxDataSize = ev.maxDataSize;
 
 	if( dataSize )
 	{
@@ -1945,7 +1949,8 @@ Event::Event( int index )
 	fromScript = false;
 	eventnum = index;
 	data = NULL;
-	dataSize = 0;
+    dataSize = 0;
+    maxDataSize = 0;
 
 #ifdef _DEBUG
 	name = GetEventName( index );
@@ -1964,7 +1969,8 @@ Event::Event(int index, int numArgs)
     fromScript = false;
     eventnum = index;
     data = new ScriptVariable[numArgs];
-    dataSize = numArgs;
+    dataSize = 0;
+    maxDataSize = numArgs;
 
 #ifdef _DEBUG
     name = GetEventName(index);
@@ -1994,10 +2000,12 @@ Event::Event( str command, int numArgs )
 		EVENT_DPrintf( "^~^~^ Event '%s' does not exist.\n", command.c_str() );
 	}
 
-	fromScript = qfalse;
+    fromScript = qfalse;
+    maxDataSize = numArgs;
+
     if (numArgs) {
         data = new ScriptVariable[numArgs];
-        dataSize = numArgs;
+        dataSize = 0;
 	} else {
 		dataSize = 0;
 		data = NULL;
@@ -2007,65 +2015,6 @@ Event::Event( str command, int numArgs )
 	name = command;
 #endif
 }
-
-#ifdef WITH_SCRIPT_ENGINE
-
-/*
-=======================
-Event
-
-Initializes the event with the specified command and type
-=======================
-*/
-Event::Event( str command, uchar type )
-{
-	unsigned int *index;
-
-	if( type == EV_NORMAL )
-	{
-		index = normalCommandList.find( Director.AddString( command ) );
-	}
-	else if( type == EV_RETURN )
-	{
-		index = returnCommandList.find( Director.AddString( command ) );
-	}
-	else if( type == EV_GETTER )
-	{
-		index = getterCommandList.find( Director.AddString( command ) );
-	}
-	else if( type == EV_SETTER )
-	{
-		index = setterCommandList.find( Director.AddString( command ) );
-	}
-	else
-	{
-		index = NULL;
-	}
-
-	if( index )
-	{
-		eventnum = *index;
-	}
-	else
-	{
-		eventnum = 0;
-	}
-
-	if( !eventnum )
-	{
-		EVENT_DPrintf( "^~^~^ Event '%s' does not exist.\n", command.c_str() );
-	}
-
-	fromScript = qfalse;
-	dataSize = 0;
-	data = NULL;
-
-#ifdef _DEBUG
-	name = command;
-#endif
-}
-
-#endif
 
 /*
 =======================
@@ -2217,7 +2166,8 @@ void Event::Clear( void )
 		delete[] data;
 
 		data = NULL;
-		dataSize = 0;
+        dataSize = 0;
+        maxDataSize = 0;
 	}
 }
 
@@ -2374,17 +2324,20 @@ GetValue
 */
 ScriptVariable& Event::GetValue( void )
 {
-	ScriptVariable *tmp = data;
+    if (dataSize == maxDataSize) {
+        ScriptVariable* tmp = data;
 
-	data = new ScriptVariable[ dataSize + 1 ];
+		maxDataSize++;
+		data = new ScriptVariable[maxDataSize];
 
-	if( tmp != NULL )
-	{
-		for( int i = 0; i < dataSize; i++ ) {
-			data[ i ] = std::move(tmp[ i ]);
+		if (tmp != NULL)
+		{
+			for (int i = 0; i < dataSize; i++) {
+				data[i] = std::move(tmp[i]);
+			}
+
+			delete[] tmp;
 		}
-
-		delete[] tmp;
 	}
 
 	dataSize++;

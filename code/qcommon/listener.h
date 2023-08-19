@@ -251,6 +251,7 @@ public:
 	qboolean			fromScript;
 	short unsigned int	eventnum;
 	short unsigned int	dataSize;
+	short unsigned int	maxDataSize;
 	ScriptVariable		*data;
 
 #ifdef _DEBUG
@@ -316,7 +317,6 @@ public:
 	Event( int index );
 	Event( int index, int numArgs );
 	Event( str command, int numArgs = 0 );
-	Event( str command, uchar type );
 	Event
 	(
 		const char *command,
