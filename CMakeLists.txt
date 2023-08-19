@@ -22,6 +22,10 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	add_compile_options(-Wno-pointer-bool-conversion)
 endif()
 
+if(DEBUG_MEMORY)
+	add_definitions(-D_DEBUG_MEM)
+endif()
+
 IF("${TARGET_ARCH}" STREQUAL "i386")
 	set(TARGET_ARCH_SUFFIX "x86")
 ELSE()
