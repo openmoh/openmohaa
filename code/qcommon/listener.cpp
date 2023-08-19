@@ -2617,12 +2617,11 @@ Listener::Listener()
 */
 Listener::~Listener()
 {
-	CancelPendingEvents();
+	if (EventSystemStarted) {
+		CancelPendingEvents();
+	}
 
 #ifdef WITH_SCRIPT_ENGINE
-
-	Unregister( "delete" );
-	Unregister( "remove" );
 
 	UnregisterAll();
 	CancelWaitingAll();
