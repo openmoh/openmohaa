@@ -85,6 +85,20 @@ class Event;
         {                                                      \
             return classname::ClassInfo.WaitTillDefined(s);    \
         }                                                      \
+        bool classname::WaitTillAllowed(str s)                 \
+        {                                                      \
+            for(ClassDef* c = classinfo(); c; c = c->super) {  \
+                if (c->WaitTillDefined(s)) { return true; }    \
+            }                                                  \
+            return false;                                      \
+        }                                                      \
+        bool classname::WaitTillAllowed(const_str s)           \
+        {                                                      \
+            for(ClassDef* c = classinfo(); c; c = c->super) {  \
+                if (c->WaitTillDefined(s)) { return true; }    \
+            }                                                  \
+            return false;                                      \
+        }                                                      \
         ResponseDef<classname> classname::Responses[] =
 
 #    define CLASS_PROTOTYPE(classname)                                \
@@ -101,6 +115,8 @@ class Event;
         static void                   RemoveWaitTill(const_str s);    \
         static bool                   WaitTillDefined(str s);         \
         static bool                   WaitTillDefined(const_str s);   \
+        bool                          WaitTillAllowed(str s);         \
+        bool                          WaitTillAllowed(const_str s);   \
         static ResponseDef<classname> Responses[]
 
 #else
