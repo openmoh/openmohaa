@@ -1298,7 +1298,7 @@ void PF_centerprintf( gentity_t *ent, const char *fmt, ... )
 	va_list va;
 	char msg[ 2048 ];
 
-	if( ent->s.number > svs.iNumClients )
+	if( ent->s.number >= svs.iNumClients )
 	{
 		return;
 	}
@@ -1324,7 +1324,7 @@ void PF_locationprintf( gentity_t *ent, int x, int y, const char *fmt, ... )
 	va_list va;
 	char msg[ 2048 ];
 
-	if( ent->s.number > svs.iNumClients )
+	if( ent->s.number >= svs.iNumClients )
 	{
 		return;
 	}
