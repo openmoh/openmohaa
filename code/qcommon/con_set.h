@@ -29,634 +29,597 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class Class;
 class Archiver;
 
-template< typename key, typename value >
+template<typename key, typename value>
 class con_map_enum;
 
-template< typename key, typename value >
+template<typename key, typename value>
 class con_set_enum;
 
 template<typename T>
-struct con_set_is_pointer { static const bool con_value = false; };
+struct con_set_is_pointer {
+    static const bool con_value = false;
+};
 
 template<typename T>
-struct con_set_is_pointer<T*> { static const bool con_value = true; };
+struct con_set_is_pointer<T *> {
+    static const bool con_value = true;
+};
 
-template< typename k, typename v >
+template<typename k, typename v>
 class con_set
 {
-	friend class con_set_enum < k, v > ;
+    friend class con_set_enum<k, v>;
 
 public:
-	class Entry
-	{
-	public:
-		k						key;
-		v						value;
+    class Entry
+    {
+    public:
+        k key;
+        v value;
 
-		Entry* next;
+        Entry *next;
 
-	public:
-		void* operator new(size_t size);
-		void operator delete(void* ptr);
+    public:
+        void *operator new(size_t size);
+        void  operator delete(void *ptr);
 
-		Entry();
+        Entry();
 
 #ifdef ARCHIVE_SUPPORTED
-		void			Archive(Archiver& arc);
+        void Archive(Archiver& arc);
 #endif
-	};
+    };
 
 public:
-	static MEM_BlockAlloc<Entry> Entry_allocator;
+    static MEM_BlockAlloc<Entry> Entry_allocator;
 
 protected:
-	Entry						**table;			// hashtable
-	unsigned int				tableLength;
-	unsigned int				threshold;
-	unsigned int				count;				// num of entries
-	short unsigned int			tableLengthIndex;
-	Entry						*defaultEntry;
+    Entry            **table; // hashtable
+    unsigned int       tableLength;
+    unsigned int       threshold;
+    unsigned int       count; // num of entries
+    short unsigned int tableLengthIndex;
+    Entry             *defaultEntry;
 
 protected:
-	Entry						*findKeyEntry( const k& key ) const;
-	Entry						*addKeyEntry( const k& key );
-	Entry						*addNewKeyEntry( const k& key );
+    Entry *findKeyEntry(const k& key) const;
+    Entry *addKeyEntry(const k& key);
+    Entry *addNewKeyEntry(const k& key);
 
 public:
-	con_set();
-	~con_set();
+    con_set();
+    ~con_set();
 
 #ifdef ARCHIVE_SUPPORTED
-	void						Archive( Archiver& arc );
+    void Archive(Archiver& arc);
 #endif
 
-	void						clear();
-	void						resize( int count = 0 );
+    void clear();
+    void resize(int count = 0);
 
-	v							*findKeyValue( const k& key ) const;
-	k							*firstKeyValue();
+    v *findKeyValue(const k& key) const;
+    k *firstKeyValue();
 
-	v&							addKeyValue( const k& key );
-	v&							addNewKeyValue( const k& key );
+    v& addKeyValue(const k& key);
+    v& addNewKeyValue(const k& key);
 
-	bool						keyExists( const k& key );
-	bool						isEmpty();
-	bool						remove( const k& key );
+    bool keyExists(const k& key);
+    bool isEmpty();
+    bool remove(const k& key);
 
-	unsigned int				size();
+    unsigned int size();
 };
 
-template< typename k, typename v >
-MEM_BlockAlloc<typename con_set<k, v>::Entry> con_set< k, v >::Entry_allocator;
+template<typename k, typename v>
+MEM_BlockAlloc<typename con_set<k, v>::Entry> con_set<k, v>::Entry_allocator;
 
-template< typename k >
-int HashCode( const k& key );
+template<typename k>
+int HashCode(const k& key);
 
-template< typename k, typename v >
-void *con_set<k, v>::Entry::operator new( size_t size )
+template<typename k, typename v>
+void *con_set<k, v>::Entry::operator new(size_t size)
 {
-	return con_set< k, v >::Entry_allocator.Alloc();
+    return con_set<k, v>::Entry_allocator.Alloc();
 }
 
-template< typename k, typename v >
-void con_set<k, v>::Entry::operator delete( void *ptr )
+template<typename k, typename v>
+void con_set<k, v>::Entry::operator delete(void *ptr)
 {
-	con_set< k, v >::Entry_allocator.Free( ptr );
+    con_set<k, v>::Entry_allocator.Free(ptr);
 }
 
-template< typename k, typename v >
+template<typename k, typename v>
 con_set<k, v>::Entry::Entry()
 {
-	this->key = k();
-	this->value = v();
+    this->key   = k();
+    this->value = v();
 
-	next = NULL;
+    next = NULL;
 }
 
-template< typename key, typename value >
+template<typename key, typename value>
 con_set<key, value>::con_set()
 {
-	tableLength = 1;
-	table = &defaultEntry;
+    tableLength = 1;
+    table       = &defaultEntry;
 
-	threshold = 1;
-	count = 0;
-	tableLengthIndex = 0;
+    threshold        = 1;
+    count            = 0;
+    tableLengthIndex = 0;
 
-	defaultEntry = NULL;
+    defaultEntry = NULL;
 }
 
-template< typename key, typename value >
+template<typename key, typename value>
 con_set<key, value>::~con_set()
 {
-	clear();
+    clear();
 }
 
-template< typename key, typename value >
-void con_set< key, value >::clear()
+template<typename key, typename value>
+void con_set<key, value>::clear()
 {
-    Entry* entry = NULL;
-    Entry* next = NULL;
-	unsigned int i;
+    Entry       *entry = NULL;
+    Entry       *next  = NULL;
+    unsigned int i;
 
-	for( i = 0; i < tableLength; i++ )
-	{
-		for( entry = table[ i ]; entry != NULL; entry = next )
-		{
-			next = entry->next;
-			delete entry;
-		}
-	}
+    for (i = 0; i < tableLength; i++) {
+        for (entry = table[i]; entry != NULL; entry = next) {
+            next = entry->next;
+            delete entry;
+        }
+    }
 
-	if( tableLength > 1 )
-	{
-		delete[] table;
-	}
+    if (tableLength > 1) {
+        delete[] table;
+    }
 
-	tableLength = 1;
-	table = &defaultEntry;
+    tableLength = 1;
+    table       = &defaultEntry;
 
-	threshold = 1;
-	count = 0;
-	tableLengthIndex = 0;
+    threshold        = 1;
+    count            = 0;
+    tableLengthIndex = 0;
 
-	defaultEntry = NULL;
+    defaultEntry = NULL;
 }
 
-template< typename key, typename value >
-void con_set< key, value >::resize( int count )
+template<typename key, typename value>
+void con_set<key, value>::resize(int count)
 {
-	Entry **oldTable = table;
-	Entry *e, *old;
-	unsigned int oldTableLength = tableLength;
-	unsigned int i;
-	unsigned int index;
+    Entry      **oldTable = table;
+    Entry       *e, *old;
+    unsigned int oldTableLength = tableLength;
+    unsigned int i;
+    unsigned int index;
 
-	if( count > 0 )
-	{
-		tableLength += count;
-		threshold = tableLength;
-	}
-	else
-	{
-		//threshold = ( unsigned int )( ( float )tableLength * 0.75f );
-		threshold = ( unsigned int )( ( float )tableLength * 0.75 );
-		if( threshold < 1 )
-		{
-			threshold = 1;
-		}
+    if (count > 0) {
+        tableLength += count;
+        threshold = tableLength;
+    } else {
+        //threshold = ( unsigned int )( ( float )tableLength * 0.75f );
+        threshold = (unsigned int)((float)tableLength * 0.75);
+        if (threshold < 1) {
+            threshold = 1;
+        }
 
-		tableLength += threshold;
-	}
+        tableLength += threshold;
+    }
 
-	// allocate a new table
-	table = new Entry *[ tableLength ]();
-	memset( table, 0, tableLength * sizeof( Entry* ) );
+    // allocate a new table
+    table = new Entry *[tableLength]();
+    memset(table, 0, tableLength * sizeof(Entry *));
 
-	// rehash the table
-	for( i = oldTableLength; i > 0; i-- )
-	{
-		// rehash all entries from the old table
-		for( e = oldTable[ i - 1 ]; e != NULL; e = old )
-		{
-			old = e->next;
+    // rehash the table
+    for (i = oldTableLength; i > 0; i--) {
+        // rehash all entries from the old table
+        for (e = oldTable[i - 1]; e != NULL; e = old) {
+            old = e->next;
 
-			// insert the old entry to the table hashindex
-			index = HashCode< key >( e->key ) % tableLength;
+            // insert the old entry to the table hashindex
+            index = HashCode<key>(e->key) % tableLength;
 
-			e->next = table[ index ];
-			table[ index ] = e;
-		}
-	}
+            e->next      = table[index];
+            table[index] = e;
+        }
+    }
 
-	if( oldTableLength > 1 )
-	{
-		// delete the previous table
-		delete[] oldTable;
-	}
+    if (oldTableLength > 1) {
+        // delete the previous table
+        delete[] oldTable;
+    }
 }
 
-template< typename k, typename v >
-typename con_set< k, v >::Entry *con_set< k, v >::findKeyEntry( const k& key ) const
+template<typename k, typename v>
+typename con_set<k, v>::Entry *con_set<k, v>::findKeyEntry(const k& key) const
 {
-	Entry *entry;
+    Entry *entry;
 
-	entry = table[ HashCode< k >( key ) % tableLength ];
+    entry = table[HashCode<k>(key) % tableLength];
 
-	for( ; entry != NULL; entry = entry->next )
-	{
-		if( entry->key == key ) {
-			return entry;
-		}
-	}
+    for (; entry != NULL; entry = entry->next) {
+        if (entry->key == key) {
+            return entry;
+        }
+    }
 
-	return NULL;
+    return NULL;
 }
 
-template< typename k, typename v >
-typename con_set< k, v >::Entry*con_set< k, v >::addKeyEntry( const k& key )
+template<typename k, typename v>
+typename con_set<k, v>::Entry *con_set<k, v>::addKeyEntry(const k& key)
 {
-	Entry *entry;
+    Entry *entry;
 
-	entry = findKeyEntry( key );
+    entry = findKeyEntry(key);
 
-	if( entry != NULL ) {
-		return entry;
-	} else {
-		return addNewKeyEntry( key );
-	}
+    if (entry != NULL) {
+        return entry;
+    } else {
+        return addNewKeyEntry(key);
+    }
 }
 
-template< typename k, typename v >
-typename con_set< k, v >::Entry *con_set< k, v >::addNewKeyEntry( const k& key )
+template<typename k, typename v>
+typename con_set<k, v>::Entry *con_set<k, v>::addNewKeyEntry(const k& key)
 {
-	Entry *entry;
-	int index;
+    Entry *entry;
+    int    index;
 
-	if( count >= threshold )
-	{
-		resize();
-	}
+    if (count >= threshold) {
+        resize();
+    }
 
-	index = HashCode< k >( key ) % tableLength;
+    index = HashCode<k>(key) % tableLength;
 
-	count++;
+    count++;
 
-	entry = new Entry;
+    entry = new Entry;
 
-	if( defaultEntry == NULL )
-	{
-		defaultEntry = entry;
-		entry->next = NULL;
-	}
-	else
-	{
-		entry->next = table[ index ];
-	}
+    if (defaultEntry == NULL) {
+        defaultEntry = entry;
+        entry->next  = NULL;
+    } else {
+        entry->next = table[index];
+    }
 
-	entry->key = key;
+    entry->key = key;
 
-	table[ index ] = entry;
+    table[index] = entry;
 
-	return entry;
+    return entry;
 }
 
-template< typename key, typename value >
-bool con_set< key, value >::isEmpty( void )
+template<typename key, typename value>
+bool con_set<key, value>::isEmpty(void)
 {
-	return count == 0;
+    return count == 0;
 }
 
-template< typename k, typename v >
-bool con_set< k, v >::remove( const k& key )
+template<typename k, typename v>
+bool con_set<k, v>::remove(const k& key)
 {
-	int index = HashCode< k >( key ) % tableLength;
-	Entry *prev = NULL;
-	Entry *entry;
+    int    index = HashCode<k>(key) % tableLength;
+    Entry *prev  = NULL;
+    Entry *entry;
 
-	for( entry = table[ index ]; entry != NULL; entry = entry->next )
-	{
-		// just to make sure we're using the correct overloaded operator
-		if( !( entry->key == key ) )
-		{
-			prev = entry;
-			continue;
-		}
+    for (entry = table[index]; entry != NULL; entry = entry->next) {
+        // just to make sure we're using the correct overloaded operator
+        if (!(entry->key == key)) {
+            prev = entry;
+            continue;
+        }
 
-		if( defaultEntry == entry )
-		{
-			defaultEntry = prev;
-		}
+        if (defaultEntry == entry) {
+            defaultEntry = prev;
+        }
 
-		if( prev )
-		{
-			prev->next = entry->next;
-		}
-		else
-		{
-			table[ index ] = entry->next;
-		}
+        if (prev) {
+            prev->next = entry->next;
+        } else {
+            table[index] = entry->next;
+        }
 
-		count--;
-		delete entry;
+        count--;
+        delete entry;
 
-		return true;
-	}
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
-template< typename k, typename v >
-v *con_set< k, v >::findKeyValue( const k& key ) const
+template<typename k, typename v>
+v *con_set<k, v>::findKeyValue(const k& key) const
 {
-	Entry *entry = findKeyEntry( key );
+    Entry *entry = findKeyEntry(key);
 
-	if( entry != NULL ) {
-		return &entry->value;
-	} else {
-		return NULL;
-	}
+    if (entry != NULL) {
+        return &entry->value;
+    } else {
+        return NULL;
+    }
 }
 
-template< typename key, typename value >
-key *con_set< key, value >::firstKeyValue( void )
+template<typename key, typename value>
+key *con_set<key, value>::firstKeyValue(void)
 {
-	if( defaultEntry )
-	{
-		return &defaultEntry->key;
-	}
-	else
-	{
-		return NULL;
-	}
+    if (defaultEntry) {
+        return &defaultEntry->key;
+    } else {
+        return NULL;
+    }
 }
 
-template< typename k, typename v >
-v& con_set< k, v >::addKeyValue( const k& key )
+template<typename k, typename v>
+v& con_set<k, v>::addKeyValue(const k& key)
 {
-	Entry *entry = addKeyEntry( key );
+    Entry *entry = addKeyEntry(key);
 
-	return entry->value;
+    return entry->value;
 }
 
-template< typename k, typename v >
-v& con_set< k, v >::addNewKeyValue( const k& key )
+template<typename k, typename v>
+v& con_set<k, v>::addNewKeyValue(const k& key)
 {
-	Entry *entry = addNewKeyEntry( key );
+    Entry *entry = addNewKeyEntry(key);
 
-	return entry->value;
+    return entry->value;
 }
 
-template< typename k, typename v >
-bool con_set< k, v >::keyExists( const k& key )
+template<typename k, typename v>
+bool con_set<k, v>::keyExists(const k& key)
 {
-	Entry *entry;
+    Entry *entry;
 
-	for( entry = table; entry != NULL; entry = entry->next )
-	{
-		if( entry->key == key ) {
-			return true;
-		}
-	}
+    for (entry = table; entry != NULL; entry = entry->next) {
+        if (entry->key == key) {
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
-template< typename key, typename value >
-unsigned int con_set< key, value >::size()
+template<typename key, typename value>
+unsigned int con_set<key, value>::size()
 {
-	return count;
+    return count;
 }
 
-template<typename key, typename value >
+template<typename key, typename value>
 class con_set_enum
 {
-	friend class con_map_enum < key, value >;
+    friend class con_map_enum<key, value>;
 
 public:
-	using Entry = typename con_set<key, value>::Entry;
+    using Entry = typename con_set<key, value>::Entry;
 
 protected:
-	con_set< key, value >* m_Set;
-    unsigned int m_Index;
-    Entry* m_CurrentEntry;
-    Entry* m_NextEntry;
+    con_set<key, value> *m_Set;
+    unsigned int         m_Index;
+    Entry               *m_CurrentEntry;
+    Entry               *m_NextEntry;
 
 public:
+    con_set_enum();
+    con_set_enum(con_set<key, value>& set);
 
-	con_set_enum();
-	con_set_enum(con_set< key, value >& set );
+    bool operator=(con_set<key, value>& set);
 
-	bool					operator=(con_set< key, value >& set );
-
-	Entry		*NextElement( void );
-	Entry		*CurrentElement( void );
+    Entry *NextElement(void);
+    Entry *CurrentElement(void);
 };
 
-template< typename key, typename value >
-con_set_enum< key, value >::con_set_enum()
+template<typename key, typename value>
+con_set_enum<key, value>::con_set_enum()
 {
-	m_Set = NULL;
-	m_Index = 0;
-	m_CurrentEntry = NULL;
-	m_NextEntry = NULL;
+    m_Set          = NULL;
+    m_Index        = 0;
+    m_CurrentEntry = NULL;
+    m_NextEntry    = NULL;
 }
 
-template< typename key, typename value >
-con_set_enum< key, value >::con_set_enum( con_set< key, value > &set )
+template<typename key, typename value>
+con_set_enum<key, value>::con_set_enum(con_set<key, value>& set)
 {
-	*this = set;
+    *this = set;
 }
 
-template< typename key, typename value >
-bool con_set_enum< key, value >::operator=( con_set< key, value > &set )
+template<typename key, typename value>
+bool con_set_enum<key, value>::operator=(con_set<key, value>& set)
 {
-	m_Set = &set;
-	m_Index = m_Set->tableLength;
-	m_CurrentEntry = NULL;
-	m_NextEntry = NULL;
+    m_Set          = &set;
+    m_Index        = m_Set->tableLength;
+    m_CurrentEntry = NULL;
+    m_NextEntry    = NULL;
 
-	return true;
+    return true;
 }
 
-template< typename key, typename value >
-typename con_set_enum< key, value >::Entry* con_set_enum< key, value >::CurrentElement( void )
+template<typename key, typename value>
+typename con_set_enum<key, value>::Entry *con_set_enum<key, value>::CurrentElement(void)
 {
-	return m_CurrentEntry;
+    return m_CurrentEntry;
 }
 
-template< typename key, typename value >
-typename con_set_enum< key, value >::Entry* con_set_enum< key, value >::NextElement( void )
+template<typename key, typename value>
+typename con_set_enum<key, value>::Entry *con_set_enum<key, value>::NextElement(void)
 {
-	if( !m_NextEntry )
-	{
-		while( 1 )
-		{
-			if( !m_Index ) {
-				break;
-			}
+    if (!m_NextEntry) {
+        while (1) {
+            if (!m_Index) {
+                break;
+            }
 
-			m_Index--;
-			m_NextEntry = m_Set->table[ m_Index ];
+            m_Index--;
+            m_NextEntry = m_Set->table[m_Index];
 
-			if( m_NextEntry ) {
-				break;
-			}
-		}
+            if (m_NextEntry) {
+                break;
+            }
+        }
 
-		if( !m_NextEntry )
-		{
-			m_CurrentEntry = NULL;
-			return NULL;
-		}
-	}
+        if (!m_NextEntry) {
+            m_CurrentEntry = NULL;
+            return NULL;
+        }
+    }
 
-	m_CurrentEntry = m_NextEntry;
-	m_NextEntry = m_NextEntry->next;
+    m_CurrentEntry = m_NextEntry;
+    m_NextEntry    = m_NextEntry->next;
 
-	return m_CurrentEntry;
+    return m_CurrentEntry;
 }
 
-template< typename key, typename value >
-class con_map {
-	friend class con_map_enum < key, value >;
+template<typename key, typename value>
+class con_map
+{
+    friend class con_map_enum<key, value>;
 
 private:
-	con_set< key, value > m_con_set;
+    con_set<key, value> m_con_set;
 
 public:
 #ifdef ARCHIVE_SUPPORTED
-	void		Archive( Archiver& arc );
+    void Archive(Archiver& arc);
 #endif
 
-	void			clear();
-	virtual void	resize( int count = 0 );
+    void         clear();
+    virtual void resize(int count = 0);
 
-	value&		operator[]( const key& index );
+    value& operator[](const key& index);
 
-	value*		find( const key& index );
-	bool		remove( const key& index );
+    value *find(const key& index);
+    bool   remove(const key  &index);
 
-	unsigned int	size();
+    unsigned int size();
 };
 
-template< typename key, typename value >
-void con_map< key, value >::clear()
+template<typename key, typename value>
+void con_map<key, value>::clear()
 {
-	m_con_set.clear();
+    m_con_set.clear();
 }
 
-template< typename key, typename value >
-void con_map< key, value >::resize( int count )
+template<typename key, typename value>
+void con_map<key, value>::resize(int count)
 {
-	m_con_set.resize( count );
+    m_con_set.resize(count);
 }
 
-template< typename key, typename value >
-value& con_map< key, value >::operator[]( const key& index )
+template<typename key, typename value>
+value& con_map<key, value>::operator[](const key& index)
 {
-	return m_con_set.addKeyValue( index );
+    return m_con_set.addKeyValue(index);
 }
 
-template< typename key, typename value >
-value* con_map< key, value >::find( const key& index )
+template<typename key, typename value>
+value *con_map<key, value>::find(const key& index)
 {
-	return m_con_set.findKeyValue( index );
+    return m_con_set.findKeyValue(index);
 }
 
-template< typename key, typename value >
-bool con_map< key, value >::remove( const key& index )
+template<typename key, typename value>
+bool con_map<key, value>::remove(const key& index)
 {
-	return m_con_set.remove( index );
+    return m_con_set.remove(index);
 }
 
-template< typename key, typename value >
-unsigned int con_map< key, value >::size( void )
+template<typename key, typename value>
+unsigned int con_map<key, value>::size(void)
 {
-	return m_con_set.size();
+    return m_con_set.size();
 }
 
-template< typename key, typename value >
+template<typename key, typename value>
 class con_map_enum
 {
 public:
-	using Entry = typename con_set_enum<key, value>::Entry;
+    using Entry = typename con_set_enum<key, value>::Entry;
 
 private:
-	con_set_enum< key, value >	m_Set_Enum;
+    con_set_enum<key, value> m_Set_Enum;
 
 public:
+    con_map_enum();
+    con_map_enum(con_map<key, value>& map);
 
-	con_map_enum();
-	con_map_enum( con_map< key, value >& map );
+    bool operator=(con_map<key, value>& map);
 
-	bool	operator=( con_map< key, value >& map );
-
-	key		*NextKey( void );
-	value	*NextValue( void );
-	key		*CurrentKey( void );
-	value	*CurrentValue( void );
+    key   *NextKey(void);
+    value *NextValue(void);
+    key   *CurrentKey(void);
+    value *CurrentValue(void);
 };
 
-template< typename key, typename value >
-con_map_enum< key, value >::con_map_enum()
+template<typename key, typename value>
+con_map_enum<key, value>::con_map_enum()
 {
-	m_Set_Enum.m_Set = NULL;
-	m_Set_Enum.m_Index = 0;
-	m_Set_Enum.m_CurrentEntry = NULL;
-	m_Set_Enum.m_NextEntry = NULL;
+    m_Set_Enum.m_Set          = NULL;
+    m_Set_Enum.m_Index        = 0;
+    m_Set_Enum.m_CurrentEntry = NULL;
+    m_Set_Enum.m_NextEntry    = NULL;
 }
 
-template< typename key, typename value >
-con_map_enum< key, value >::con_map_enum( con_map< key, value >& map )
+template<typename key, typename value>
+con_map_enum<key, value>::con_map_enum(con_map<key, value>& map)
 {
-	*this = map;
+    *this = map;
 }
 
-template< typename key, typename value >
-bool con_map_enum< key, value >::operator=( con_map< key, value >& map )
+template<typename key, typename value>
+bool con_map_enum<key, value>::operator=(con_map<key, value>& map)
 {
-	m_Set_Enum = map.m_con_set;
+    m_Set_Enum = map.m_con_set;
 
-	return true;
+    return true;
 }
 
-template< typename key, typename value >
-key *con_map_enum< key, value >::CurrentKey( void )
+template<typename key, typename value>
+key *con_map_enum<key, value>::CurrentKey(void)
 {
-	Entry *entry = m_Set_Enum.CurrentElement();
+    Entry *entry = m_Set_Enum.CurrentElement();
 
-	if( entry )
-	{
-		return &entry->key;
-	}
-	else
-	{
-		return NULL;
-	}
+    if (entry) {
+        return &entry->key;
+    } else {
+        return NULL;
+    }
 }
 
-template< typename key, typename value >
-value *con_map_enum< key, value >::CurrentValue( void )
+template<typename key, typename value>
+value *con_map_enum<key, value>::CurrentValue(void)
 {
-	Entry *entry = m_Set_Enum.CurrentElement();
+    Entry *entry = m_Set_Enum.CurrentElement();
 
-	if( entry )
-	{
-		return &entry->value;
-	}
-	else
-	{
-		return NULL;
-	}
+    if (entry) {
+        return &entry->value;
+    } else {
+        return NULL;
+    }
 }
 
-template< typename key, typename value >
-key *con_map_enum< key, value >::NextKey( void )
+template<typename key, typename value>
+key *con_map_enum<key, value>::NextKey(void)
 {
-	Entry *entry = m_Set_Enum.NextElement();
+    Entry *entry = m_Set_Enum.NextElement();
 
-	if( entry )
-	{
-		return &entry->key;
-	}
-	else
-	{
-		return NULL;
-	}
+    if (entry) {
+        return &entry->key;
+    } else {
+        return NULL;
+    }
 }
 
-template< typename key, typename value >
-value *con_map_enum< key, value >::NextValue( void )
+template<typename key, typename value>
+value *con_map_enum<key, value>::NextValue(void)
 {
-	Entry *entry = m_Set_Enum.NextElement();
+    Entry *entry = m_Set_Enum.NextElement();
 
-	if( entry )
-	{
-		return &entry->value;
-	}
-	else
-	{
-		return NULL;
-	}
+    if (entry) {
+        return &entry->value;
+    } else {
+        return NULL;
+    }
 }
