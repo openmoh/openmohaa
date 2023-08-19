@@ -1382,6 +1382,9 @@ void SV_ShutdownGameProgs( void ) {
 	ge->Shutdown();
 	Sys_UnloadGame();
 
+	// Free all memory allocated by the game module
+	Z_FreeTags(TAG_GAME);
+
 	ge = NULL;
 }
 
