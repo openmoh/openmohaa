@@ -199,6 +199,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #  define ARCH_STRING "s390x"
 #elif defined __ia64__
 #  define ARCH_STRING "ia64"
+#elif defined __e2k__
+#  define ARCH_STRING "e2k"
 #elif defined __alpha__
 #  define ARCH_STRING "alpha"
 #elif defined __sparc__
