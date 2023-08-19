@@ -300,22 +300,13 @@ void G_ShutdownGame()
     // write all the client session data so we can get it back
     G_WriteSessionData();
 
+    ClosePlayerLogFile();
+
     level.CleanUp();
 
-    G_DeAllocDebugLines();
+    L_ShutdownEvents();
 
-    /*
-	if( g_entities )
-	{
-		gi.Free( g_entities );
-		g_entities = NULL;
-	}
-*/
-
-    if (game.clients) {
-        gi.Free(game.clients);
-        game.clients = NULL;
-    }
+    G_DeAllocGameData();
 }
 
 //===================================================================
