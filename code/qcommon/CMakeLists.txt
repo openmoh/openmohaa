@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(qcommon)
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13.0")
+if(${CMAKE_VERSION} VERSION_GREATER "3.12")
 	cmake_policy(SET CMP0076 NEW)
 endif()
 

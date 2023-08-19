@@ -8,7 +8,7 @@ target_compile_features(omohsdl PUBLIC c_variadic_macros)
 target_link_libraries(omohsdl PRIVATE qcommon qcommon_standalone)
 
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
+if(${CMAKE_VERSION} VERSION_GREATER "3.11")
 	cmake_policy(SET CMP0074 NEW)
 endif()
 
@@ -16,6 +16,7 @@ if(WIN32)
 	find_package(SDL2)
 
 	if (SDL2_FOUND)
+		string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
 		target_include_directories(omohsdl PUBLIC ${SDL2_INCLUDE_DIRS})
 		target_link_libraries(omohsdl PRIVATE ${SDL2_LIBRARIES})
 	else()
@@ -52,7 +53,8 @@ if(WIN32)
 
 elseif(UNIX)
 	find_package(SDL2 REQUIRED)
-
+	
+	string(STRIP ${SDL2_LIBRARIES} SDL2_LIBRARIES)
 	target_include_directories(omohsdl PUBLIC ${SDL2_INCLUDE_DIRS})
 	target_link_libraries(omohsdl PRIVATE ${SDL2_LIBRARIES})
 endif()
