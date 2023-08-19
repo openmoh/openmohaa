@@ -181,10 +181,8 @@ private:
     void           HandleScriptException(ScriptException          &exc);
 
 public:
-#ifndef _DEBUG_MEM
     void *operator new(size_t size);
     void  operator delete(void *ptr);
-#endif
 
     ScriptVM(ScriptClass *scriptClass, unsigned char *pCodePos, ScriptThread *thread);
     ~ScriptVM();

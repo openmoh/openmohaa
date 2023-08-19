@@ -186,10 +186,9 @@ protected:
 public:
     CLASS_PROTOTYPE(ScriptThread);
 
-#ifndef _DEBUG_MEM
     void *operator new(size_t size);
     void  operator delete(void *ptr);
-#endif
+
     ScriptThread(ScriptClass *scriptClass, unsigned char *pCodePos);
     virtual ~ScriptThread();
 

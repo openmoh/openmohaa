@@ -49,10 +49,8 @@ public:
 public:
     CLASS_PROTOTYPE(ScriptClass);
 
-#ifndef _DEBUG_MEM
     void *operator new(size_t size);
     void  operator delete(void *ptr);
-#endif
 
     ScriptClass(GameScript *gameScript, Listener *self);
     ScriptClass();
