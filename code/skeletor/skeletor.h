@@ -166,11 +166,11 @@ void TIKI_GetSkelAnimFrameInternal( dtiki_t *tiki, skelBoneCache_t *bones, skelA
 void Skel_DPrintf( const char *fmt, ... );
 
 #ifndef _DEBUG_MEM
-void Skel_Free( void *ptr );
-void *Skel_Alloc( size_t size );
+  void Skel_Free( void *ptr );
+  void *Skel_Alloc( size_t size );
 #else
-#define Skel_Free(ptr) free(ptr)
-#define Skel_Alloc(size) malloc(size)
+#  define Skel_Free(ptr) free(ptr)
+#  define Skel_Alloc(size) malloc(size)
 #endif
 
 void Skel_FreeFile( void *buffer );

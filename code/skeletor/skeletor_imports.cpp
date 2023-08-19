@@ -38,6 +38,8 @@ void Skel_DPrintf( const char *fmt, ... )
 	Com_DPrintf( "%s", msg );
 }
 
+#ifndef _DEBUG_MEM
+
 void Skel_Free( void *ptr )
 {
 	Z_Free( ptr );
@@ -47,6 +49,8 @@ void *Skel_Alloc( size_t size )
 {
 	return Z_TagMalloc( size, TAG_SKEL );
 }
+
+#endif
 
 void Skel_FreeFile( void *buffer )
 {
