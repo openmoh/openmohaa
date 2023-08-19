@@ -85,6 +85,7 @@ PlayerBot::PlayerBot()
 	m_iAttackTime = 0;
 
 	m_StateFlags = 0;
+	m_RunLabel.TrySetScript("global/bot_run.scr");
 }
 
 void PlayerBot::Init
@@ -326,13 +327,11 @@ void PlayerBot::MoveThink
 	m_botCmd.rightmove = ( signed char )( y > 127 ? 127 : y < -127 ? -127 : y );
 	CheckJump();
 
-	Event params;
-
 	Weapon *pWeap = GetActiveWeapon( WEAPON_MAIN );
 
 	if( pWeap && !pWeap->ShouldReload() )
 	{
-		ExecuteThread( "global/bot_run.scr", "", params );
+		m_RunLabel.Execute(this);
 	}
 }
 

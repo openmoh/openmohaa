@@ -83,8 +83,9 @@ private:
 	float	m_fYawSpeedMult;
 
 	// States
-	int				m_StateCount;
-	unsigned int	m_StateFlags;
+	int					m_StateCount;
+	unsigned int		m_StateFlags;
+	ScriptThreadLabel	m_RunLabel;
 
 private:
 	void			CheckAttractiveNodes( void );
