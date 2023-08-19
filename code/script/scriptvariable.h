@@ -87,6 +87,7 @@ public:
         SafePtr<Listener> *listenerValue;
         str               *stringValue;
         float             *vectorValue;
+        void              *anyValue;
 
         ScriptVariable *refValue;
 
