@@ -288,8 +288,9 @@ str& str::operator-=(int c)
         return *this;
     }
 
-    m_data->len -= c;
-    if (m_data->len < 0) {
+    if (m_data->len >= c) {
+        m_data->len -= c;
+    } else {
         m_data->len = 0;
     }
 
