@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // con_set.h: C++ map/set classes. Contains an hash table to improve the speed of finding a key
 
-#ifndef __CON_SET_H__
-#define __CON_SET_H__
+#pragma once
 
 #include "mem_blockalloc.h"
 
@@ -43,46 +42,45 @@ template<typename T>
 struct con_set_is_pointer<T*> { static const bool con_value = true; };
 
 template< typename k, typename v >
-class Entry
-{
-public:
-	k						key;
-	v						value;
-	unsigned int			index;
-
-	Entry					*next;
-
-public:
-	//void *operator new( size_t size );
-	//void operator delete( void *ptr );
-
-	Entry();
-
-#ifdef ARCHIVE_SUPPORTED
-	void			Archive( Archiver& arc );
-#endif
-};
-
-template< typename k, typename v >
 class con_set
 {
 	friend class con_set_enum < k, v > ;
 
 public:
-	static MEM_BlockAlloc<Entry<k, v >> Entry_allocator;
+	class Entry
+	{
+	public:
+		k						key;
+		v						value;
+
+		Entry* next;
+
+	public:
+		void* operator new(size_t size);
+		void operator delete(void* ptr);
+
+		Entry();
+
+#ifdef ARCHIVE_SUPPORTED
+		void			Archive(Archiver& arc);
+#endif
+	};
+
+public:
+	static MEM_BlockAlloc<Entry> Entry_allocator;
 
 protected:
-	Entry< k, v >				**table;			// hashtable
+	Entry						**table;			// hashtable
 	unsigned int				tableLength;
 	unsigned int				threshold;
 	unsigned int				count;				// num of entries
 	short unsigned int			tableLengthIndex;
-	Entry< k, v >				*defaultEntry;
+	Entry						*defaultEntry;
 
 protected:
-	Entry< k, v >				*findKeyEntry( const k& key ) const;
-	Entry< k, v >				*addKeyEntry( const k& key );
-	virtual Entry< k, v >		*addNewKeyEntry( const k& key );
+	Entry						*findKeyEntry( const k& key ) const;
+	Entry						*addKeyEntry( const k& key );
+	Entry						*addNewKeyEntry( const k& key );
 
 public:
 	con_set();
@@ -92,8 +90,8 @@ public:
 	void						Archive( Archiver& arc );
 #endif
 
-	virtual void				clear();
-	virtual void				resize( int count = 0 );
+	void						clear();
+	void						resize( int count = 0 );
 
 	v							*findKeyValue( const k& key ) const;
 	k							*firstKeyValue();
@@ -108,111 +106,30 @@ public:
 	unsigned int				size();
 };
 
-template< typename key, typename value >
-class con_set_enum
-{
-	friend class con_map_enum < key, value >;
-
-protected:
-	con_set< key, value >	*m_Set;
-	unsigned int			m_Index;
-	Entry< key, value >		*m_CurrentEntry;
-	Entry< key, value >		*m_NextEntry;
-
-public:
-
-	con_set_enum();
-	con_set_enum( con_set< key, value >& set );
-
-	bool					operator=( con_set< key, value >& set );
-
-	Entry< key, value >		*NextElement( void );
-	Entry< key, value >		*CurrentElement( void );
-};
-
-template< typename key, typename value >
-class con_map {
-	friend class con_map_enum < key, value >;
-
-private:
-	con_set< key, value > m_con_set;
-
-public:
-#ifdef ARCHIVE_SUPPORTED
-	void		Archive( Archiver& arc );
-#endif
-
-	void			clear();
-	virtual void	resize( int count = 0 );
-
-	value&		operator[]( const key& index );
-
-	value*		find( const key& index );
-	bool		remove( const key& index );
-
-	unsigned int	size();
-};
-
-template< typename key, typename value >
-class con_map_enum
-{
-private:
-	con_set_enum< key, value >	m_Set_Enum;
-
-public:
-
-	con_map_enum();
-	con_map_enum( con_map< key, value >& map );
-
-	bool	operator=( con_map< key, value >& map );
-
-	key		*NextKey( void );
-	value	*NextValue( void );
-	key		*CurrentKey( void );
-	value	*CurrentValue( void );
-};
-/*
-int HashCode( const char& key );
-int HashCode( const unsigned char& key );
-int HashCode( unsigned char * const& key );
-int HashCode( const short& key );
-int HashCode( const unsigned short& key );
-int HashCode( const short3& key );
-int HashCode( const unsigned_short3& key );
-int HashCode( const int& key );
-int HashCode( const unsigned int& key );
-int HashCode( const float& key );
-int HashCode( const char *key );
-int HashCode( const str& key );
-*/
-
 template< typename k, typename v >
-MEM_BlockAlloc<Entry< k, v >> con_set< k, v >::Entry_allocator;
+MEM_BlockAlloc<typename con_set<k, v>::Entry> con_set< k, v >::Entry_allocator;
 
 template< typename k >
 int HashCode( const k& key );
 
-/*
 template< typename k, typename v >
-void *Entry< k, v >::operator new( size_t size )
+void *con_set<k, v>::Entry::operator new( size_t size )
 {
 	return con_set< k, v >::Entry_allocator.Alloc();
 }
 
 template< typename k, typename v >
-void Entry< k, v >::operator delete( void *ptr )
+void con_set<k, v>::Entry::operator delete( void *ptr )
 {
 	con_set< k, v >::Entry_allocator.Free( ptr );
 }
-*/
 
 template< typename k, typename v >
-Entry< k, v >::Entry()
+con_set<k, v>::Entry::Entry()
 {
 	this->key = k();
 	this->value = v();
 
-	index = 0;
 	next = NULL;
 }
 
@@ -238,8 +155,8 @@ con_set<key, value>::~con_set()
 template< typename key, typename value >
 void con_set< key, value >::clear()
 {
-	Entry< key, value > *entry = NULL;
-	Entry< key, value > *next = NULL;
+    Entry* entry = NULL;
+    Entry* next = NULL;
 	unsigned int i;
 
 	for( i = 0; i < tableLength; i++ )
@@ -269,10 +186,11 @@ void con_set< key, value >::clear()
 template< typename key, typename value >
 void con_set< key, value >::resize( int count )
 {
-	Entry< key, value > **oldTable = table;
-	Entry< key, value > *e, *old;
-	int oldTableLength = tableLength;
-	int i, index;
+	Entry **oldTable = table;
+	Entry *e, *old;
+	unsigned int oldTableLength = tableLength;
+	unsigned int i;
+	unsigned int index;
 
 	if( count > 0 )
 	{
@@ -292,14 +210,14 @@ void con_set< key, value >::resize( int count )
 	}
 
 	// allocate a new table
-	table = new Entry< key, value > *[ tableLength ]();
-	memset( table, 0, tableLength * sizeof( Entry< key, value > * ) );
+	table = new Entry *[ tableLength ]();
+	memset( table, 0, tableLength * sizeof( Entry* ) );
 
 	// rehash the table
-	for( i = oldTableLength - 1; i >= 0; i-- )
+	for( i = oldTableLength; i > 0; i-- )
 	{
 		// rehash all entries from the old table
-		for( e = oldTable[ i ]; e != NULL; e = old )
+		for( e = oldTable[ i - 1 ]; e != NULL; e = old )
 		{
 			old = e->next;
 
@@ -319,9 +237,9 @@ void con_set< key, value >::resize( int count )
 }
 
 template< typename k, typename v >
-Entry< k, v > *con_set< k, v >::findKeyEntry( const k& key ) const
+typename con_set< k, v >::Entry *con_set< k, v >::findKeyEntry( const k& key ) const
 {
-	Entry< k, v > *entry;
+	Entry *entry;
 
 	entry = table[ HashCode< k >( key ) % tableLength ];
 
@@ -336,9 +254,9 @@ Entry< k, v > *con_set< k, v >::findKeyEntry( const k& key ) const
 }
 
 template< typename k, typename v >
-Entry< k, v > *con_set< k, v >::addKeyEntry( const k& key )
+typename con_set< k, v >::Entry*con_set< k, v >::addKeyEntry( const k& key )
 {
-	Entry< k, v > *entry;
+	Entry *entry;
 
 	entry = findKeyEntry( key );
 
@@ -350,9 +268,9 @@ Entry< k, v > *con_set< k, v >::addKeyEntry( const k& key )
 }
 
 template< typename k, typename v >
-Entry< k, v > *con_set< k, v >::addNewKeyEntry( const k& key )
+typename con_set< k, v >::Entry *con_set< k, v >::addNewKeyEntry( const k& key )
 {
-	Entry< k, v > *entry;
+	Entry *entry;
 	int index;
 
 	if( count >= threshold )
@@ -364,7 +282,7 @@ Entry< k, v > *con_set< k, v >::addNewKeyEntry( const k& key )
 
 	count++;
 
-	entry = new Entry < k, v >;
+	entry = new Entry;
 
 	if( defaultEntry == NULL )
 	{
@@ -393,8 +311,8 @@ template< typename k, typename v >
 bool con_set< k, v >::remove( const k& key )
 {
 	int index = HashCode< k >( key ) % tableLength;
-	Entry< k, v > *prev = NULL;
-	Entry< k, v > *entry;
+	Entry *prev = NULL;
+	Entry *entry;
 
 	for( entry = table[ index ]; entry != NULL; entry = entry->next )
 	{
@@ -431,7 +349,7 @@ bool con_set< k, v >::remove( const k& key )
 template< typename k, typename v >
 v *con_set< k, v >::findKeyValue( const k& key ) const
 {
-	Entry< k, v > *entry = findKeyEntry( key );
+	Entry *entry = findKeyEntry( key );
 
 	if( entry != NULL ) {
 		return &entry->value;
@@ -456,7 +374,7 @@ key *con_set< key, value >::firstKeyValue( void )
 template< typename k, typename v >
 v& con_set< k, v >::addKeyValue( const k& key )
 {
-	Entry< k, v > *entry = addKeyEntry( key );
+	Entry *entry = addKeyEntry( key );
 
 	return entry->value;
 }
@@ -464,7 +382,7 @@ v& con_set< k, v >::addKeyValue( const k& key )
 template< typename k, typename v >
 v& con_set< k, v >::addNewKeyValue( const k& key )
 {
-	Entry< k, v > *entry = addNewKeyEntry( key );
+	Entry *entry = addNewKeyEntry( key );
 
 	return entry->value;
 }
@@ -472,7 +390,7 @@ v& con_set< k, v >::addNewKeyValue( const k& key )
 template< typename k, typename v >
 bool con_set< k, v >::keyExists( const k& key )
 {
-	Entry< k, v > *entry;
+	Entry *entry;
 
 	for( entry = table; entry != NULL; entry = entry->next )
 	{
@@ -489,6 +407,31 @@ unsigned int con_set< key, value >::size()
 {
 	return count;
 }
+
+template<typename key, typename value >
+class con_set_enum
+{
+	friend class con_map_enum < key, value >;
+
+public:
+	using Entry = typename con_set<key, value>::Entry;
+
+protected:
+	con_set< key, value >* m_Set;
+    unsigned int m_Index;
+    Entry* m_CurrentEntry;
+    Entry* m_NextEntry;
+
+public:
+
+	con_set_enum();
+	con_set_enum(con_set< key, value >& set );
+
+	bool					operator=(con_set< key, value >& set );
+
+	Entry		*NextElement( void );
+	Entry		*CurrentElement( void );
+};
 
 template< typename key, typename value >
 con_set_enum< key, value >::con_set_enum()
@@ -517,13 +460,13 @@ bool con_set_enum< key, value >::operator=( con_set< key, value > &set )
 }
 
 template< typename key, typename value >
-Entry< key, value >	*con_set_enum< key, value >::CurrentElement( void )
+typename con_set_enum< key, value >::Entry* con_set_enum< key, value >::CurrentElement( void )
 {
 	return m_CurrentEntry;
 }
 
 template< typename key, typename value >
-Entry< key, value >	*con_set_enum< key, value >::NextElement( void )
+typename con_set_enum< key, value >::Entry* con_set_enum< key, value >::NextElement( void )
 {
 	if( !m_NextEntry )
 	{
@@ -553,6 +496,29 @@ Entry< key, value >	*con_set_enum< key, value >::NextElement( void )
 
 	return m_CurrentEntry;
 }
+
+template< typename key, typename value >
+class con_map {
+	friend class con_map_enum < key, value >;
+
+private:
+	con_set< key, value > m_con_set;
+
+public:
+#ifdef ARCHIVE_SUPPORTED
+	void		Archive( Archiver& arc );
+#endif
+
+	void			clear();
+	virtual void	resize( int count = 0 );
+
+	value&		operator[]( const key& index );
+
+	value*		find( const key& index );
+	bool		remove( const key& index );
+
+	unsigned int	size();
+};
 
 template< typename key, typename value >
 void con_map< key, value >::clear()
@@ -591,6 +557,28 @@ unsigned int con_map< key, value >::size( void )
 }
 
 template< typename key, typename value >
+class con_map_enum
+{
+public:
+	using Entry = typename con_set_enum<key, value>::Entry;
+
+private:
+	con_set_enum< key, value >	m_Set_Enum;
+
+public:
+
+	con_map_enum();
+	con_map_enum( con_map< key, value >& map );
+
+	bool	operator=( con_map< key, value >& map );
+
+	key		*NextKey( void );
+	value	*NextValue( void );
+	key		*CurrentKey( void );
+	value	*CurrentValue( void );
+};
+
+template< typename key, typename value >
 con_map_enum< key, value >::con_map_enum()
 {
 	m_Set_Enum.m_Set = NULL;
@@ -616,7 +604,7 @@ bool con_map_enum< key, value >::operator=( con_map< key, value >& map )
 template< typename key, typename value >
 key *con_map_enum< key, value >::CurrentKey( void )
 {
-	Entry< key, value > *entry = m_Set_Enum.CurrentElement();
+	Entry *entry = m_Set_Enum.CurrentElement();
 
 	if( entry )
 	{
@@ -631,7 +619,7 @@ key *con_map_enum< key, value >::CurrentKey( void )
 template< typename key, typename value >
 value *con_map_enum< key, value >::CurrentValue( void )
 {
-	Entry< key, value > *entry = m_Set_Enum.CurrentElement();
+	Entry *entry = m_Set_Enum.CurrentElement();
 
 	if( entry )
 	{
@@ -646,7 +634,7 @@ value *con_map_enum< key, value >::CurrentValue( void )
 template< typename key, typename value >
 key *con_map_enum< key, value >::NextKey( void )
 {
-	Entry< key, value > *entry = m_Set_Enum.NextElement();
+	Entry *entry = m_Set_Enum.NextElement();
 
 	if( entry )
 	{
@@ -661,7 +649,7 @@ key *con_map_enum< key, value >::NextKey( void )
 template< typename key, typename value >
 value *con_map_enum< key, value >::NextValue( void )
 {
-	Entry< key, value > *entry = m_Set_Enum.NextElement();
+	Entry *entry = m_Set_Enum.NextElement();
 
 	if( entry )
 	{
@@ -672,5 +660,3 @@ value *con_map_enum< key, value >::NextValue( void )
 		return NULL;
 	}
 }
-
-#endif // __CON_SET_H__

@@ -1144,7 +1144,7 @@ void ScriptMaster::PrintThread(int iThreadNum)
         status += "(none)\n";
     } else {
         con_set_enum<const_str, ConList> en = *vm->m_Thread->m_WaitForList;
-        Entry<const_str, ConList>       *entry;
+        con_set<const_str, ConList>::Entry *entry;
         int                              i = 0;
 
         for (entry = en.NextElement(); entry != NULL; entry = en.NextElement()) {

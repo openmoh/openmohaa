@@ -348,7 +348,7 @@ void con_set< key, value >::Archive
 	Archiver& arc
 	)
 {
-	Entry< key, value > *e;
+	Entry *e;
 	int hash;
 	int i;
 
@@ -361,18 +361,17 @@ void con_set< key, value >::Archive
 	{
 		if( tableLength != 1 )
 		{
-			table = new Entry< key, value > *[ tableLength ]();
-			memset( table, 0, tableLength * sizeof( Entry< key, value > * ) );
+			table = new Entry *[ tableLength ]();
+			memset( table, 0, tableLength * sizeof( Entry * ) );
 		}
 
 		for( i = 0; i < count; i++ )
 		{
-			e = new Entry< key, value >;
+			e = new Entry;
 			e->Archive( arc );
 
 			hash = HashCode< key >( e->key ) % tableLength;
 
-			e->index = i;
 			e->next = table[ hash ];
 			table[ hash ] = e;
 		}

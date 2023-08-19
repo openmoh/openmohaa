@@ -388,7 +388,7 @@ void ConList::Archive
 }
 
 template<>
-void Entry< const_str, ConList >::Archive
+void con_set< const_str, ConList >::Entry::Archive
 	(
 	Archiver& arc
 	)
@@ -1742,8 +1742,8 @@ void Event::LoadEvents()
 	int index;
 	command_t c;
 	command_t *i;
-	Entry< command_t, command_t > *entry;
-	con_set_enum< command_t, command_t > en;
+	con_arrayset<command_t, command_t>::Entry *entry;
+	con_arrayset_enum< command_t, command_t > en;
 
 	while( evi )
 	{
@@ -3413,7 +3413,7 @@ void Listener::CancelWaitingAll()
 	}
 
 	con_set_enum< const_str, ConList > en = *m_WaitForList;
-	Entry< const_str, ConList > *e;
+	con_set< const_str, ConList >::Entry *e;
 	ConList stoppedListeners;
 
 	for( e = en.NextElement(); e != NULL; e = en.NextElement() )
@@ -3749,7 +3749,7 @@ void Listener::UnregisterAll( void )
 	}
 
 	con_set_enum < const_str, ConList > en = *m_NotifyList;
-	Entry< const_str, ConList > *e;
+	con_set< const_str, ConList >::Entry *e;
 	ConList stoppedListeners;
 	Container< const_str > stoppedNames;
 

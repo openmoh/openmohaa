@@ -163,7 +163,7 @@ StateScript::StateScript()
 }
 
 template<>
-void Entry< const_str, script_label_t >::Archive( Archiver& arc )
+void con_set< const_str, script_label_t >::Entry::Archive( Archiver& arc )
 {
 	unsigned int offset;
 
@@ -439,7 +439,7 @@ __exec:
 }
 
 template<>
-void Entry < unsigned char *, sourceinfo_t >::Archive( Archiver& arc )
+void con_set< unsigned char *, sourceinfo_t >::Entry::Archive( Archiver& arc )
 {
 	unsigned int offset;
 

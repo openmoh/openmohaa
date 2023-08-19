@@ -71,14 +71,14 @@ int HashCode<ScriptVariable>(const ScriptVariable& key)
 
 #if defined(ARCHIVE_SUPPORTED)
 template<>
-void Entry<ScriptVariable, ScriptVariable>::Archive(Archiver& arc)
+void con_set<ScriptVariable, ScriptVariable>::Entry::Archive(Archiver& arc)
 {
     key.ArchiveInternal(arc);
     value.ArchiveInternal(arc);
 }
 
 template<>
-void Entry<short3, ScriptVariable>::Archive(Archiver& arc)
+void con_set<short3, ScriptVariable>::Entry::Archive(Archiver& arc)
 {
     if (arc.Loading()) {
         value.Archive(arc);

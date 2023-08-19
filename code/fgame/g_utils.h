@@ -238,7 +238,8 @@ random()
 inline float G_Random(float n)
 
 {
-    return G_Random() * n;
+    //return G_Random() * n;
+    return 0;
 }
 
 /*
@@ -254,7 +255,8 @@ crandom()
 inline float G_CRandom(void)
 
 {
-    return G_Random(2) - 1;
+    //return G_Random(2) - 1;
+    return 0;
 }
 
 /*
