@@ -45,7 +45,13 @@ You can now start a local OpenMOHAA server or play on a server.
 On Windows, you can create a shortcut to OpenMoHAA with these command-line arguments.
 The default value of `com_target_game` is 0 for the base game.
 
-With `com_target_game`, OpenMoHAA will support the network protocol accordingly.
+With `com_target_game`, OpenMoHAA will support the network protocol accordingly
+
+### Playing with bots
+
+OpenMoHAA has a basic bot system that emulates real players. The maximum number of bots is defined by the `sv_maxbots` variable, and the number of initial bots is defined by the `sv_numbots` variable. Bots can also be added or removed using the `addbot` and `removebot` commands.
+
+This feature is a great way to test the gameplay and mods.
 
 ## Builds
 
@@ -79,7 +85,7 @@ OpenMoHAA supports any architecture, thanks to the CMake build system and cross-
 
 The following tools are required for all platforms:
 - CMake >= 3.5
-- Flex and Bison (currently not used)
+- Flex and Bison
 - A C++11 compiler is also required.
 
 The installation directory can be set to the MOHAA directory.
@@ -106,6 +112,10 @@ cmake -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -G Ninja
 ### Windows
 
 Visual Studio (2019 or 2022) is generally preferred.
+
+Flex and Bison can be downloaded from here: https://github.com/lexxmark/winflexbison/releases/tag/v2.5.25
+
+Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe` to the CMake command-line to use the package from the link above.
 
 ## Screenshots
 
