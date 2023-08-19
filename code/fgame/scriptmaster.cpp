@@ -783,7 +783,7 @@ GameScript *ScriptMaster::GetGameScriptInternal(str& filename)
 
     sourceLength = gi.FS_ReadFile(filename.c_str(), &sourceBuffer, true);
 
-    if (sourceLength < 0) {
+    if (sourceLength == -1) {
         throw ScriptException("Can't find '%s'\n", filename.c_str());
     }
 
