@@ -35,7 +35,7 @@ public:
     void *operator new(size_t size);
     void  operator delete(void *ptr);
 
-    AnimationEvent(str command);
+    AnimationEvent(str command, int numArgs = 0);
     AnimationEvent(const Event& ev);
     AnimationEvent();
 

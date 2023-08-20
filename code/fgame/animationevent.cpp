@@ -29,8 +29,8 @@ CLASS_DECLARATION(Event, AnimationEvent, NULL) {
     {NULL, NULL}
 };
 
-AnimationEvent::AnimationEvent(str command)
-    : Event(command)
+AnimationEvent::AnimationEvent(str command, int numArgs)
+    : Event(command, numArgs)
 {
     anim_number = 0;
     anim_frame  = 0;
