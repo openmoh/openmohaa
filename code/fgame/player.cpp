@@ -3532,9 +3532,20 @@ void Player::SetMoveInfo(pmove_t *pm, usercmd_t *ucmd)
                 pm->alwaysAllowLean = qfalse;
             }
         } else {
+            pm->alwaysAllowLean = qfalse;
         }
+
+        pm->leanMax = 45.f;
+        pm->leanAdd = 6.f;
+        pm->leanRecoverSpeed = 8.5f;
+        pm->leanSpeed = 2.f;
     } else {
         pm->alwaysAllowLean = qtrue;
+
+        pm->leanMax = 40.f;
+        pm->leanAdd = 10.f;
+        pm->leanRecoverSpeed = 15.f;
+        pm->leanSpeed = 4.f;
     }
 
 	pm->protocol = g_protocol;
