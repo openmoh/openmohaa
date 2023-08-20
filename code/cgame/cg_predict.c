@@ -481,17 +481,17 @@ void CG_PredictPlayerState(void)
         // Leaning while moving is allowed in mohta and mohtt only with a specific dm flag bit set
         cg_pmove.alwaysAllowLean = (cgs.dmflags & DF_ALLOW_LEAN_MOVEMENT) ? qtrue : qfalse;
 
-        pm->leanMax = 45.f;
-        pm->leanAdd = 6.f;
-        pm->leanRecoverSpeed = 8.5f;
-        pm->leanSpeed = 2.f;
+        cg_pmove.leanMax = 45.f;
+        cg_pmove.leanAdd = 6.f;
+        cg_pmove.leanRecoverSpeed = 8.5f;
+        cg_pmove.leanSpeed = 2.f;
     } else {
         cg_pmove.alwaysAllowLean = qtrue;
 
-        pm->leanMax = 40.f;
-        pm->leanAdd = 10.f;
-        pm->leanRecoverSpeed = 15.f;
-        pm->leanSpeed = 4.f;
+        cg_pmove.leanMax = 40.f;
+        cg_pmove.leanAdd = 10.f;
+        cg_pmove.leanRecoverSpeed = 15.f;
+        cg_pmove.leanSpeed = 4.f;
     }
 
     cg_pmove.protocol = cg_protocol;
