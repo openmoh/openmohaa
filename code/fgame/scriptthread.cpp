@@ -3511,7 +3511,7 @@ void ScriptThread::Angles_ToForward(Event *ev)
 {
     Vector fwd;
 
-    ev->GetVector(1).AngleVectorsLeft(&fwd);
+    ev->GetVector(1).AngleVectors(&fwd);
     ev->AddVector(fwd);
 }
 
@@ -3519,7 +3519,7 @@ void ScriptThread::Angles_ToLeft(Event *ev)
 {
     Vector left;
 
-    ev->GetVector(1).AngleVectorsLeft(NULL, &left);
+    ev->GetVector(1).AngleVectors(NULL, &left);
     ev->AddVector(left);
 }
 
@@ -3527,7 +3527,7 @@ void ScriptThread::Angles_ToUp(Event *ev)
 {
     Vector up;
 
-    ev->GetVector(1).AngleVectorsLeft(NULL, NULL, &up);
+    ev->GetVector(1).AngleVectors(NULL, NULL, &up);
     ev->AddVector(up);
 }
 
