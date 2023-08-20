@@ -1009,7 +1009,7 @@ void G_ClientDisconnect(gentity_t *ent)
             return;
         }
 
-        G_PrintToAllClients(va("%s has left the battle\n", ent->client->pers.netname));
+        G_PrintToAllClients(va("%s has left the battle\n", ent->client->pers.netname), 2);
 
         ((Player *)ent->entity)->Disconnect();
 
