@@ -2134,10 +2134,10 @@ void G_PrintDeathMessage(
 
             pPlayer = static_cast<Player *>(ent->entity);
 
-            if (pPlayer->GetTeam() == TEAM_ALLIES
-                || pPlayer->GetTeam() == TEAM_AXIS && pPlayer->GetTeam() == victim->GetTeam()
+            if ((pPlayer->GetTeam() == TEAM_ALLIES || pPlayer->GetTeam() == TEAM_AXIS)
+                && pPlayer->GetTeam() == victim->GetTeam()
                 || pPlayer->GetTeam() != TEAM_ALLIES && pPlayer->GetTeam() != TEAM_AXIS
-                       && victim->GetTeam() == TEAM_ALLIES) {
+                && victim->GetTeam() == TEAM_ALLIES) {
                 gi.SendServerCommand(
                     ent - g_entities,
                     "printdeathmsg \"%s\"\"%s\"\"%s\"\"%s\" %c",
