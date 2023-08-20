@@ -2240,7 +2240,7 @@ void MSG_WritePackedAnimTime_ver_15(msg_t* msg, float fromValue, float toValue, 
 {
 	int packed;
 
-	if (fabs(fromValue - toValue) < frameTime) {
+	if (fabs(toValue - fromValue - frameTime) < 0.001f) {
 		// below the frame time, don't send
 		MSG_WriteBits(msg, 0, 1);
 		return;
