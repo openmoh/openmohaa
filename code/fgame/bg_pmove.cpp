@@ -1471,17 +1471,17 @@ void PmoveSingle( pmove_t *pmove )
 	{
 		if( pm->cmd.buttons & BUTTON_LEAN_LEFT )
 		{
-			if( pm->ps->fLeanAngle <= -40.0f )
+			if( pm->ps->fLeanAngle <= -pm->leanMax)
 			{
-				pm->ps->fLeanAngle = -40.0f;
+				pm->ps->fLeanAngle = -pm->leanMax;
 			}
 			else
 			{
-				float fAngle = pml.frametime * ( -40.0f - pm->ps->fLeanAngle );
-				float fLeanAngle = pml.frametime * -4.0f;
+				float fAngle = pml.frametime * ( -pm->leanMax - pm->ps->fLeanAngle ) * pm->leanAdd;
+				float fLeanAngle = pml.frametime * -pm->leanSpeed;
 
-				if( fAngle * 10.0f <= fLeanAngle ) {
-					fLeanAngle = fAngle * 10.0f;
+				if( fAngle <= fLeanAngle ) {
+					fLeanAngle = fAngle;
 				}
 
 				pm->ps->fLeanAngle += fLeanAngle;
@@ -1489,19 +1489,19 @@ void PmoveSingle( pmove_t *pmove )
 		}
 		else
 		{
-			if( pm->ps->fLeanAngle >= 40.0f )
+			if( pm->ps->fLeanAngle >= pm->leanMax )
 			{
-				pm->ps->fLeanAngle = 40.0f;
+				pm->ps->fLeanAngle = pm->leanMax;
 			}
 			else
 			{
-				float fAngle = 40.0f - pm->ps->fLeanAngle;
-				float fLeanAngle = pml.frametime * 4.0f;
-				float fMult = pml.frametime * fAngle;
+				float fAngle = pm->leanMax - pm->ps->fLeanAngle;
+				float fLeanAngle = pml.frametime * pm->leanSpeed;
+				float fMult = pml.frametime * fAngle * pm->leanAdd;
 
-				if( fLeanAngle <= fMult * 10.0f )
+				if( fLeanAngle <= fMult )
 				{
-					fLeanAngle = fMult * 10.0f;
+					fLeanAngle = fMult;
 				}
 				else
 				{
@@ -1514,11 +1514,11 @@ void PmoveSingle( pmove_t *pmove )
 	}
 	else if( pm->ps->fLeanAngle )
 	{
-		float fAngle = pm->ps->fLeanAngle * pml.frametime * 15.0f;
+		float fAngle = pm->ps->fLeanAngle * pml.frametime * pm->leanRecoverSpeed;
 
 		if( pm->ps->fLeanAngle <= 0.0f )
 		{
-			float fLeanAngle = -4.0f * pml.frametime;
+			float fLeanAngle = pml.frametime * -pm->leanSpeed;
 
 			if( fAngle <= fLeanAngle )
 			{
@@ -1529,9 +1529,9 @@ void PmoveSingle( pmove_t *pmove )
 		}
 		else
 		{
-			float fLeanAngle = pml.frametime * 4.0f;
+			float fLeanAngle = pml.frametime * pm->leanSpeed;
 
-			if( fLeanAngle <= fAngle ) {
+			if(fAngle >= fLeanAngle) {
 				fLeanAngle = fAngle;
 			}
 

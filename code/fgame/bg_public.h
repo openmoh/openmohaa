@@ -340,6 +340,10 @@ movement on the server game.
         // Openmohaa addition
         //
         int protocol;
+        float leanSpeed;
+        float leanRecoverSpeed;
+        float leanAdd;
+        float leanMax;
     } pmove_t;
 
     // if a full pmove isn't done on the client, you can just update the angles
