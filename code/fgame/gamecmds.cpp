@@ -668,7 +668,7 @@ qboolean G_RemoveBotCommand
     }
 
 	numbots = atoi(gi.Argv(1));
-	totalnumbots = Q_min(numbots, sv_numbots->integer);
+	totalnumbots = sv_numbots->integer - Q_min(numbots, sv_numbots->integer);
 
     gi.cvar_set("sv_numbots", va("%d", totalnumbots));
 	return qtrue;
