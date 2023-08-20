@@ -1051,8 +1051,8 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand("-leanleft", IN_LeanLeftUp);
 	Cmd_AddCommand("+leanright", IN_LeanRightDown);
 	Cmd_AddCommand("-leanright", IN_LeanRightUp);
-	Cmd_AddCommand("+speed", IN_SpeedUp);
-	Cmd_AddCommand("-speed", IN_SpeedDown);
+	Cmd_AddCommand("+speed", IN_SpeedDown);
+	Cmd_AddCommand("-speed", IN_SpeedUp);
 	Cmd_AddCommand("+button0", IN_Button0Down);
 	Cmd_AddCommand("-button0", IN_Button0Up);
 	Cmd_AddCommand("+button1", IN_Button1Down);
