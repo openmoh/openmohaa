@@ -403,13 +403,14 @@ void Animate::DoExitCommands(int slot)
         int ii, j;
 
         for (ii = 0; ii < cmds.num_cmds; ii++) {
-            ev = new AnimationEvent(cmds.cmds[ii].args[0]);
+            tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+            ev = new AnimationEvent(single_cmd.args[0], single_cmd.num_args);
 
             ev->SetAnimationNumber(edict->s.frameInfo[slot].index);
             ev->SetAnimationFrame(0);
 
-            for (j = 1; j < cmds.cmds[ii].num_args; j++) {
-                ev->AddToken(cmds.cmds[ii].args[j]);
+            for (j = 1; j < single_cmd.num_args; j++) {
+                ev->AddToken(single_cmd.args[j]);
             }
 
             PostEvent(ev, 0);
