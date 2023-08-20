@@ -514,40 +514,6 @@ static void CL_ParseServerInfo(void)
 		sizeof(clc.sv_dlURL));
 }
 
-char* MSG_ReadGameStateChar_ver_15(msg_t* msg) {
-	return MSG_ReadScrambledBigString(msg);
-}
-
-float MSG_ReadServerFrameTime_ver_15(msg_t* msg) {
-	return MSG_ReadFloat(msg);
-}
-
-char* MSG_ReadGameStateChar_ver_6(msg_t* msg) {
-	return MSG_ReadString(msg);
-}
-
-float MSG_ReadServerFrameTime_ver_6(msg_t* msg) {
-	return 1.f / atof(Info_ValueForKey(cl.gameState.stringData + cl.gameState.stringOffsets[CS_SYSTEMINFO], "sv_fps"));
-}
-
-char* MSG_ReadGameStateChar(msg_t* msg) {
-	if (MSG_IsProtocolVersion15()) {
-		return MSG_ReadGameStateChar_ver_15(msg);
-    } else {
-		// smaller below version 15
-        return MSG_ReadGameStateChar_ver_6(msg);
-	}
-}
-
-float MSG_ReadServerFrameTime(msg_t* msg) {
-	if (MSG_IsProtocolVersion15()) {
-		return MSG_ReadServerFrameTime_ver_15(msg);
-    } else {
-		// smaller below version 15
-		return MSG_ReadServerFrameTime_ver_6(msg);
-	}
-}
-
 /*
 ==================
 CL_ParseGamestate
@@ -591,7 +557,7 @@ void CL_ParseGamestate( msg_t *msg ) {
             if (csNum < 0 || csNum >= MAX_CONFIGSTRINGS) {
                 Com_Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
             }
-            s = MSG_ReadGameStateChar(msg);
+            s = MSG_ReadScrambledBigString(msg);
             len = strlen(s);
 
             if (len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS) {
@@ -620,7 +586,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	clc.clientNum = MSG_ReadLong(msg);
 	// read the checksum feed
 	clc.checksumFeed = MSG_ReadLong( msg );
-	cls.serverFrameTime = MSG_ReadServerFrameTime(msg);
+	cls.serverFrameTime = MSG_ReadServerFrameTime(msg, &cl.gameState);
 
 	// parse serverId and other cvars
 	CL_SystemInfoChanged();

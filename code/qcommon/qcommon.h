@@ -138,6 +138,9 @@ void MSG_WriteDeltaEyeInfo (msg_t  *msg, usereyes_t *from, usereyes_t *to);
 void MSG_WriteDeltaPlayerstate(msg_t* msg, struct playerState_s* from, struct playerState_s* to, float frameTime);
 void MSG_ReadDeltaPlayerstate(msg_t* msg, struct playerState_s* from, struct playerState_s* to, float frameTime);
 
+float MSG_ReadServerFrameTime(msg_t* msg, gameState_t* gameState);
+void MSG_WriteServerFrameTime(msg_t* msg, float value);
+
 void MSG_ReportChangeVectors_f( void );
 
 //====================

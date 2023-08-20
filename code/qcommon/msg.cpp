@@ -3551,6 +3551,40 @@ void MSG_ReadDeltaPlayerstate(msg_t *msg, playerState_t *from, playerState_t *to
 	}
 }
 
+float MSG_ReadServerFrameTime_ver_15(msg_t* msg) {
+    return MSG_ReadFloat(msg);
+}
+
+float MSG_ReadServerFrameTime_ver_6(msg_t* msg, gameState_t* gameState) {
+    return 1.f / atof(Info_ValueForKey(gameState->stringData + gameState->stringOffsets[CS_SERVERINFO], "sv_fps"));
+}
+
+float MSG_ReadServerFrameTime(msg_t* msg, gameState_t* gameState) {
+    if (MSG_IsProtocolVersion15()) {
+        return MSG_ReadServerFrameTime_ver_15(msg);
+    } else {
+        // smaller below version 15
+        return MSG_ReadServerFrameTime_ver_6(msg, gameState);
+    }
+}
+
+void MSG_WriteServerFrameTime_ver_15(msg_t* msg, float value) {
+    MSG_WriteFloat(msg, value);
+}
+
+void MSG_WriteServerFrameTime_ver_6(msg_t* msg, float value) {
+    // Nothing to write
+}
+
+void MSG_WriteServerFrameTime(msg_t* msg, float value) {
+    if (MSG_IsProtocolVersion15()) {
+        MSG_WriteServerFrameTime_ver_15(msg, value);
+    }
+    else {
+        MSG_WriteServerFrameTime_ver_6(msg, value);
+    }
+}
+
 int msg_hData[256] = {
 250315,			// 0
 41193,			// 1

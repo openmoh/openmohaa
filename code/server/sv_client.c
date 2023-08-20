@@ -579,22 +579,6 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	}
 }
 
-void MSG_WriteServerFrameTime_ver_15(msg_t* msg, float f) {
-	MSG_WriteFloat(msg, f);
-}
-
-void MSG_WriteServerFrameTime_ver_6(msg_t* msg, float f) {
-	// Nothing to write
-}
-
-void MSG_WriteServerFrameTime(msg_t* msg, float f) {
-	if (MSG_IsProtocolVersion15()) {
-		MSG_WriteServerFrameTime_ver_15(msg, f);
-	} else {
-		MSG_WriteServerFrameTime_ver_6(msg, f);
-	}
-}
-
 /*
 ================
 SV_SendClientGameState
