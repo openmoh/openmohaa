@@ -1906,7 +1906,7 @@ void DM_Manager::BuildTeamInfo_ver15(DM_Team *dmTeam)
         iDeaths = dmTeam->m_iDeaths;
     }
 
-    if (g_gametype->integer > GT_FFA) {
+    if (g_gametype->integer >= GT_TEAM) {
         if (dmTeam->m_teamnumber > TEAM_FREEFORALL) {
             Com_sprintf(
                 entry,
@@ -1920,10 +1920,10 @@ void DM_Manager::BuildTeamInfo_ver15(DM_Team *dmTeam)
                 iPing
             );
         } else {
-            Com_sprintf(entry, sizeof(entry), "%i %i \"\" \"\" \"\" \"\" ", -1, dmTeam->m_teamnumber);
+            Com_sprintf(entry, sizeof(entry), "%i %i \"\" \"\" \"\" \"\" \"\" ", -1, dmTeam->m_teamnumber);
         }
     } else {
-        Com_sprintf(entry, sizeof(entry), "%i \"\" \"\" \"\" \"\" \"\" ", -1 - dmTeam->m_teamnumber);
+        Com_sprintf(entry, sizeof(entry), "%i \"\" \"\" \"\" \"\" ", -1 - dmTeam->m_teamnumber);
     }
 
     InsertEntry(entry);
