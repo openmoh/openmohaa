@@ -8925,7 +8925,7 @@ void Player::GetSpectateFollowOrientation(Player *pPlayer, Vector& vPos, Vector&
         vCamOfs += up * g_spectatefollow_up->value;
 
         if (pPlayer->client->ps.fLeanAngle != 0.0f) {
-            vCamOfs += client->ps.fLeanAngle * 0.65f * forward;
+            vCamOfs += client->ps.fLeanAngle * 0.65f * right;
         }
 
         start = pPlayer->origin;
