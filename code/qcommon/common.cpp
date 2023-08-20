@@ -49,7 +49,7 @@ cvar_t *g_scriptcheck;
 cvar_t *g_showopcodes;
 
 int demo_protocols[] =
-{ 8, 0 };
+{ 0, 0 }; // the first value of the array will be replaced by com_protocol
 
 #define MAX_NUM_ARGVS	50
 
@@ -1756,6 +1756,8 @@ void Com_Init( char *commandLine ) {
 #ifndef DEDICATED
 	con_autochat = Cvar_Get("con_autochat", "1", CVAR_ARCHIVE);
 #endif
+
+	demo_protocols[0] = com_protocol->integer;
 
 	Sys_Init();
 	Netchan_Init( Com_Milliseconds() & 0xffff );	// pick a port value that should be nice and random
