@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/tiki.h"
 #include "../qcommon/cm_terrain.h"
 #include "../qcommon/localization.h"
+#include "../qcommon/bg_compat.h"
 #include "../sys/sys_local.h"
 #ifdef USE_RENDERER_DLL
 #include "../sys/sys_loadlib.h"
@@ -366,14 +367,14 @@ void CL_Record_f( void ) {
 	if ( Cmd_Argc() == 2 ) {
 		s = Cmd_Argv(1);
 		Q_strncpyz( demoName, s, sizeof( demoName ) );
-		Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
+		Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", demoName, com_protocol->integer );
 	} else {
 		int		number;
 
 		// scan for a free demo name
 		for ( number = 0 ; number <= 9999 ; number++ ) {
 			CL_DemoFilename( number, demoName );
-			Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", demoName, PROTOCOL_VERSION );
+			Com_sprintf (name, sizeof(name), "demos/%s.dm_%d", demoName, com_protocol->integer );
 
 			if (!FS_FileExists(name))
 				break;	// file doesn't exist
@@ -408,8 +409,8 @@ void CL_Record_f( void ) {
 	// NOTE, MRE: all server->client messages now acknowledge
 	MSG_WriteLong( &buf, clc.reliableSequence );
 
-	MSG_WriteByte (&buf, svc_gamestate);
-	MSG_WriteLong (&buf, clc.serverCommandSequence );
+	MSG_WriteByte ( &buf, svc_gamestate );
+	MSG_WriteLong ( &buf, clc.serverCommandSequence );
 
 	// configstrings
 	for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
@@ -417,21 +418,20 @@ void CL_Record_f( void ) {
 			continue;
 		}
 		s = cl.gameState.stringData + cl.gameState.stringOffsets[i];
-		MSG_WriteByte (&buf, svc_configstring);
-		MSG_WriteShort (&buf, i);
-		MSG_WriteBigString (&buf, s);
+		MSG_WriteByte ( &buf, svc_configstring );
+		MSG_WriteShort ( &buf, CPT_DenormalizeConfigstring( i ) );
+		MSG_WriteScrambledBigString ( &buf, s );
 	}
 
 	// baselines
-	Com_Memset (&nullstate, 0, sizeof(nullstate));
+	MSG_GetNullEntityState(&nullstate);
 	for ( i = 0; i < MAX_GENTITIES ; i++ ) {
 		ent = &cl.entityBaselines[i];
 		if ( !ent->number ) {
 			continue;
 		}
-		MSG_WriteByte (&buf, svc_baseline);
-		// FIXME
-		MSG_WriteDeltaEntity (&buf, &nullstate, ent, qtrue, 0.0 );
+		MSG_WriteByte ( &buf, svc_baseline );
+		MSG_WriteDeltaEntity ( &buf, &nullstate, ent, qtrue, cls.serverFrameTime );
 	}
 
 	MSG_WriteByte( &buf, svc_EOF );
@@ -441,7 +441,10 @@ void CL_Record_f( void ) {
 	// write the client num
 	MSG_WriteLong(&buf, clc.clientNum);
 	// write the checksum feed
-	MSG_WriteLong(&buf, clc.checksumFeed);
+    MSG_WriteLong(&buf, clc.checksumFeed);
+
+    // write the server frametime to the client (only on TA/TT)
+    MSG_WriteServerFrameTime( &buf, cls.serverFrameTime );
 
 	// finished writing the client packet
 	MSG_WriteByte( &buf, svc_EOF );
@@ -596,7 +599,7 @@ void CL_ReadDemoMessage( void ) {
 		return;
 	}
 	buf.cursize = LittleLong( buf.cursize );
-	if ( buf.cursize == -1 ) {
+	if ( buf.cursize == (uint32_t)-1) {
 		CL_DemoCompleted ();
 		return;
 	}
