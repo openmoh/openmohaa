@@ -123,6 +123,7 @@ Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe`
 |-------------------------------------------------------------------------------|----------------------------------------------------------------------|
 | ![](docs/images/opmtt-x86_64_0.56.0_1.png "Playing on a Breakthrough server") | ![](docs/images/opmtt-x86_64_0.56.0_2.png)                           |
 | ![](docs/images/opmtt-x86_64_0.56.0_3.png)                                    | ![](docs/images/opm-arm_53_tt_1.png "OpenMoHAA on Raspberry Pi 4 B") |
+| ![](docs/images/opm-x86_64_0.58.0_1.png "Playing Freeze-Tag mode with bots")  | ![](docs/images/opm-x86_64_0.58.0_2.png "Single-Player training")    |
 
 
 ## Third party
