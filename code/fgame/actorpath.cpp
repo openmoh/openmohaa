@@ -38,7 +38,7 @@ ActorPath::ActorPath()
 ActorPath::~ActorPath()
 {
 	if( m_path )
-		delete m_path;
+		delete[] m_path;
 }
 
 void ActorPath::Clear
@@ -121,7 +121,7 @@ void ActorPath::FindPathAway
 		if( depth > m_pathlen )
 		{
 			if( m_path )
-				delete m_path;
+				delete[] m_path;
 
 			m_pathlen = 10 * ( depth - 1 ) / 10 + 10;
 			m_path = new PathInfo[ m_pathlen ];
@@ -158,7 +158,7 @@ void ActorPath::FindPathNear
 		if( depth > m_pathlen )
 		{
 			if( m_path )
-				delete m_path;
+				delete[] m_path;
 
 			m_pathlen = 10 * ( depth - 1 ) / 10 + 10;
 			m_path = new PathInfo[ m_pathlen ];
@@ -183,14 +183,19 @@ void ActorPath::ReFindPath
 	Entity *ent
 	)
 {
-	int depth = PathManager.FindPath( start, m_path->point, ent, 0, NULL, 0, m_FallHeight );
+	vec3_t point;
+	// this is a critical bug in all versions of mohaa, it passes directly m_path->point
+	// but m_path can be deleted afterwards, leaving a dangling pointer to the path_end
+	// global variable
+	VectorCopy(m_path->point, point);
+	int depth = PathManager.FindPath( start, point, ent, 0, NULL, 0, m_FallHeight );
 
 	if( depth )
 	{
 		if( depth > m_pathlen )
 		{
 			if( m_path )
-				delete m_path;
+				delete[] m_path;
 
 			m_pathlen = 10 * ( depth - 1 ) / 10 + 10;
 			m_path = new PathInfo[ m_pathlen ];
