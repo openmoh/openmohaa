@@ -8825,8 +8825,7 @@ void Player::SetPlayerSpectate(bool bNext)
         m_iPlayerSpectating = 0;
     }
 
-    i = num;
-    for(i = 0; i < game.maxclients && i >= 0; i+= dir) {
+    for(i = num; i < game.maxclients && i >= 0; i+= dir) {
         ent = &g_entities[i];
         if (!ent->inuse || !ent->entity) {
             continue;
