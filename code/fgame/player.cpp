@@ -2085,8 +2085,6 @@ Player::~Player()
     int          i, num;
     Conditional *cond;
 
-    gi.DPrintf("Player::~Player()\n");
-    //assert(0);
     num = legs_conditionals.NumObjects();
     for (i = num; i > 0; i--) {
         cond = legs_conditionals.ObjectAt(i);
@@ -2101,6 +2099,8 @@ Player::~Player()
 
     legs_conditionals.FreeObjectList();
     torso_conditionals.FreeObjectList();
+
+    entflags &= ~EF_PLAYER;
 }
 
 static qboolean logfile_started = qfalse;
