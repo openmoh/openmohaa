@@ -444,7 +444,7 @@ void init_qrec(
     qr->packetnumber        = 0;
     qr->qr_players_callback = qr_players_callback;
     qr->qr_rules_callback   = qr_rules_callback;
-    qr->qr_custom_handler   = 0;
+    qr->qr_custom_handler   = NULL;
 }
 
 #define NUM_PORTS_TO_TRY 100
