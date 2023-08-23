@@ -30,15 +30,33 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static char     gamemode[128];
 static qboolean gcdInitialized = qfalse;
 
-static const char *SECRET_GS_KEYS[] = {"M5Fdwc", "h2P1c9", "y32FDc"};
+static const char *SECRET_GS_KEYS[] =
+{
+    "M5Fdwc",
+    "h2P1c9",
+    "y32FDc"
+};
 
-static const unsigned int GCD_GAME_IDS[] = {
+static const unsigned int GCD_GAME_IDS[] =
+{
     0,
     641,
     802,
 };
 
-static const char *GS_GAME_NAME[] = {"mohaa", "mohaas", "mohaab"};
+static const char *GS_GAME_NAME[] =
+{
+    "mohaa",
+    "mohaas",
+    "mohaab"
+};
+
+static const char *GS_GAME_VERSION[] =
+{
+    TARGET_GAME_VERSION_MOH,
+    TARGET_GAME_VERSION_MOHTA,
+    TARGET_GAME_VERSION_MOHTT,
+};
 
 static const unsigned int GAMESPY_DEFAULT_PORT = 12300;
 
@@ -83,6 +101,14 @@ const char* GS_GetCurrentGameName() {
     return GS_GetGameName(com_target_game->integer);
 }
 
+const char* GS_GetGameVersion(unsigned int index) {
+    return GS_GAME_VERSION[index];
+}
+
+const char* GS_GetCurrentGameVersion() {
+    return GS_GetGameVersion(com_target_game->integer);
+}
+
 static const char *ConvertMapFilename(const char *mapname)
 {
     static char converted[1024];
@@ -98,20 +124,8 @@ static const char *ConvertMapFilename(const char *mapname)
 
 static void basic_callback(char *outbuf, int maxlen, void *userdata)
 {
-    switch (com_target_game->integer) {
-    case TG_MOH:
-        Info_SetValueForKey(outbuf, "gamename", TARGET_GAME_NAME_MOH);
-        Info_SetValueForKey(outbuf, "gamever", TARGET_GAME_VERSION_MOH);
-        break;
-    case TG_MOHTA:
-        Info_SetValueForKey(outbuf, "gamename", TARGET_GAME_NAME_MOHTA);
-        Info_SetValueForKey(outbuf, "gamever", TARGET_GAME_VERSION_MOHTA);
-        break;
-    case TG_MOHTT:
-        Info_SetValueForKey(outbuf, "gamename", TARGET_GAME_NAME_MOH);
-        Info_SetValueForKey(outbuf, "gamever", TARGET_GAME_VERSION_MOHTT);
-        break;
-    }
+    Info_SetValueForKey(outbuf, "gamename", GS_GetCurrentGameName());
+    Info_SetValueForKey(outbuf, "gamever", GS_GetCurrentGameVersion());
 
     Info_SetValueForKey(outbuf, "location", va("%i", sv_location->integer));
 
@@ -127,7 +141,7 @@ static void info_callback(char *outbuf, int maxlen, void *userdata)
 
     infostring[0] = 0;
     Info_SetValueForKey(infostring, "hostname", sv_hostname->string);
-    Info_SetValueForKey(infostring, "hostport", Cvar_Get("net_port", "12203", 32)->string);
+    Info_SetValueForKey(infostring, "hostport", Cvar_Get("net_port", "12203", CVAR_LATCH)->string);
     Info_SetValueForKey(infostring, "mapname", ConvertMapFilename(svs.mapName));
     Info_SetValueForKey(infostring, "gametype", g_gametypestring->string);
     Info_SetValueForKey(infostring, "numplayers", va("%i", SV_NumClients()));
@@ -138,7 +152,7 @@ static void info_callback(char *outbuf, int maxlen, void *userdata)
     Info_SetValueForKey(infostring, "sprinton", Cvar_Get("sv_sprinton", "1", 0)->string);
     Info_SetValueForKey(infostring, "realism", Cvar_Get("g_realismmode", "0", 0)->string);
     Info_SetValueForKey(infostring, "pure", va("%i", sv_pure->integer));
-    if ((Cvar_VariableIntegerValue("dmflags") & 0x40000) != 0) {
+    if ((Cvar_VariableIntegerValue("dmflags") & DF_ALLOW_LEAN_MOVEMENT) != 0) {
         allowlean = 1;
     }
 
@@ -205,7 +219,7 @@ static void players_callback(char *outbuf, int maxlen, void *userdata)
 
 void SV_GamespyHeartbeat()
 {
-    if (!g_gametype->integer || !sv_gamespy->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER || !sv_gamespy->integer) {
         return;
     }
 
@@ -218,7 +232,7 @@ void SV_GamespyHeartbeat()
 
 void SV_ProcessGamespyQueries()
 {
-    if (!g_gametype->integer || !sv_gamespy->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER || !sv_gamespy->integer) {
         return;
     }
 
@@ -228,7 +242,7 @@ void SV_ProcessGamespyQueries()
 
 void SV_ShutdownGamespy()
 {
-    if (!g_gametype->integer || !sv_gamespy->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER || !sv_gamespy->integer) {
         return;
     }
 
@@ -257,15 +271,15 @@ qboolean SV_InitGamespy()
         return qfalse;
     }
 
-    secret_gs_key = SECRET_GS_KEYS[com_target_game->integer];
-    gcd_game_id   = GCD_GAME_IDS[com_target_game->integer];
-    gs_game_name  = GS_GAME_NAME[com_target_game->integer];
+    secret_gs_key = GS_GetCurrentGameKey();
+    gcd_game_id   = GS_GetCurrentGameID();
+    gs_game_name  = GS_GetCurrentGameName();
 
     sv_debug_gamespy = Cvar_Get("sv_debuggamespy", "0", 0);
     sv_location      = Cvar_Get("sv_location", "1", CVAR_ARCHIVE);
     sv_gamespy       = Cvar_Get("sv_gamespy", "1", CVAR_LATCH);
 
-    if (!sv_gamespy->integer || !g_gametype->integer) {
+    if (!sv_gamespy->integer || g_gametype->integer == GT_SINGLE_PLAYER) {
         return qfalse;
     }
 
