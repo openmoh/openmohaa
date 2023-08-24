@@ -37,7 +37,7 @@ extern "C" {
 #define LEGACY_PROTOCOL
 
 #define GAME_EXTENSION_MOH			"main"
-#define PRODUCT_EXTENSION_MOH		"Base"
+#define PRODUCT_EXTENSION_MOH		"Allied Assault"
 #define TARGET_GAME_VERSION_MOH		"1.12"
 #define TARGET_GAME_PROTOCOL_MOH	8
 #define TARGET_GAME_NAME_MOH		"mohaa"
