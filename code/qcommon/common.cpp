@@ -1739,7 +1739,7 @@ void Com_Init( char *commandLine ) {
 		}
 	}
 
-	s = va( "%s %s %s (%s)", PRODUCT_VERSION_FULL, PLATFORM_STRING, PRODUCT_VERSION_DATE, Cvar_VariableString("com_target_extension"));
+	s = va( "%s (Medal of Honor: %s) %s %s", PRODUCT_VERSION_FULL, Cvar_VariableString("com_target_extension"), PLATFORM_STRING, PRODUCT_VERSION_DATE);
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
 	com_shortversion = Cvar_Get( "shortversion", PRODUCT_VERSION, CVAR_ROM );
 	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_INIT);
