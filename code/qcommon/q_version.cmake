@@ -16,6 +16,14 @@ execute_process(
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+# Revision
+execute_process(
+	COMMAND git show -s --format=%h HEAD
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	OUTPUT_VARIABLE GIT_REVISION_HASH_ABBREVIATED
+	OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 # Commit date
 execute_process(
 	COMMAND git show -s --format=%ct
