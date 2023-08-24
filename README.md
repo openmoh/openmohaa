@@ -19,6 +19,10 @@
 
 OpenMoHAA is still under development. The single-player campaign is not yet functional due to AI not being fully implemented, and due to the script engine having a few issues. But the `training` map can be played from start to end. The current focus is on multiplayer.
 
+## Intro
+
+The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of Honor: Allied Assault**. It has always been a dream in the community to provide patches and security fixes for the game. Thanks to the ioquake3 project, F.A.K.K SDK and other quality tools, OpenMoHAA has already reached more than half of its goal: to create an open-source version of MoH:AA (version 2.40) that is fully compatible with the original game (in terms of protocol, assets, and scripts).
+
 ## Running
 
 Backup existing mohaa files, **cgamex86.dll** and **gamex86.dll** (set their extension to **.bak**)
@@ -125,6 +129,33 @@ Append `-DFLEX_EXECUTABLE=...\win_flex.exe -DBISON_EXECUTABLE=...\win_bison.exe`
 | ![](docs/images/opmtt-x86_64_0.56.0_3.png)                                    | ![](docs/images/opm-arm_53_tt_1.png "OpenMoHAA on Raspberry Pi 4 B") |
 | ![](docs/images/opm-x86_64_0.58.0_1.png "Playing Freeze-Tag mode with bots")  | ![](docs/images/opm-x86_64_0.58.0_2.png "Single-Player training")    |
 
+## Features
+
+### Features added and not present in MOH:AA
+
+#### Server-side
+
+- Bots
+- Spectate players in first-person
+- Demo recording
+- More script commands for mods
+
+#### Client-side and server-side
+
+- Security fixes and features from ioquake3
+- IPv6 support (from ioquake3)
+
+### Objectives / planned features
+
+This is a non-exhaustive list of objectives and planned features.
+
+#### Server-side
+
+- 100% compatibility with mohaa content
+- More feature for mods
+- Anticheat
+- Stats system
+- Multiple roles/abilities for server admins to reduce password-stealing
 
 ## Third party
 
