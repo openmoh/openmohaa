@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sv_gamespy.h"
 
 #include "gcdkey/gcdkeys.h"
+#include "common/gsCommon.h"
+#include "common/gsAvailable.h"
 
 static char     gamemode[128];
 static qboolean gcdInitialized = qfalse;
@@ -250,7 +252,7 @@ void SV_ShutdownGamespy()
 
     if (gcdInitialized) {
         gcd_shutdown();
-        gcdInitialized = 0;
+        gcdInitialized = qfalse;
     }
 
     qr_send_statechanged(NULL);
@@ -310,13 +312,130 @@ qboolean SV_InitGamespy()
         qr_send_statechanged(NULL);
     }
 
+    // this will set the GSI as available for cdkey authorization
+    GSICancelAvailableCheck();
+    GSIAvailableCheckThink();
+
     if (!gcdInitialized) {
         if (gcd_game_id) {
             gcd_init(gcd_game_id);
         }
 
-        gcdInitialized = 1;
+        gcdInitialized = qtrue;
     }
 
     return qtrue;
+}
+
+void SV_CreateGamespyChallenge(char* challenge)
+{
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        challenge[i] = rand() % ('Z' - 'A' + 1) + 'A'; // random letters between A and Z
+    }
+    challenge[i] = 0;
+}
+
+challenge_t* FindChallengeById(int gameid)
+{
+    challenge_t* challenge;
+    int i;
+
+    for (i = 0; i < MAX_CHALLENGES; i++) {
+        challenge = &svs.challenges[i];
+        if (challenge->connected == gameid) {
+            return challenge;
+        }
+    }
+
+    return NULL;
+}
+
+void AuthenticateCallback(int gameid, int localid, int authenticated, char* errmsg, void* instance)
+{
+    challenge_t* challenge;
+    qboolean valid = qfalse;
+
+    if (localid || !Q_stricmp(errmsg, "CD Key in use")) {
+        valid = qtrue;
+    }
+
+    challenge = FindChallengeById(gameid);
+    if (valid)
+    {
+        challenge->cdkeyState = 2;
+        challenge->pingTime = svs.time;
+
+        NET_OutOfBandPrint(NS_SERVER, challenge->adr, "challengeResponse %i", challenge->challenge);
+    }
+    else
+    {
+        char buf[32];
+
+        if (!challenge) {
+            return;
+        }
+
+        Com_sprintf(buf, sizeof(buf), "%d.%d.%d.%d", challenge->adr.ip[0], challenge->adr.ip[1], challenge->adr.ip[2], challenge->adr.ip[3]);
+        Com_Printf("%s failed cdkey authorization\n", buf);
+        challenge->cdkeyState = 3;
+        // tell the client about the reason
+        NET_OutOfBandPrint(NS_SERVER, challenge->adr, "droperror\nServer rejected connection:\n%s", errmsg);
+    }
+}
+
+void RefreshAuthCallback(int gameid, int localid, int hint, char* challenge, void* instance)
+{
+}
+
+void SV_GamespyAuthorize(netadr_t from, const char* response)
+{
+    char buf[64];
+    challenge_t* challenge = FindChallenge(from, qtrue);
+    if (!challenge) {
+        return;
+    }
+
+    switch (challenge->cdkeyState)
+    {
+    case CDKS_NONE:
+        challenge->cdkeyState = CDKS_AUTHENTICATING;
+        challenge->firstTime = svs.time;
+
+        gcd_authenticate_user(
+            GS_GetCurrentGameID(),
+            challenge->gamespyId,
+            LittleLong(*(unsigned int*)from.ip),
+            challenge->gsChallenge,
+            response,
+            AuthenticateCallback,
+            RefreshAuthCallback,
+            NULL
+        );
+        break;
+    case CDKS_AUTHENTICATING:
+        // the server can't reach the authentication server
+        // let the client connect
+        if (svs.time - challenge->firstTime > 5000)
+        {
+            Com_DPrintf("authorize server timed out\n");
+            challenge->cdkeyState = CDKS_AUTHENTICATED;
+            challenge->pingTime = svs.time;
+            NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+        }
+        break;
+    case CDKS_AUTHENTICATED:
+        NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+        break;
+    case CDKS_FAILED:
+        // authentication server told the cdkey was invalid
+        Com_sprintf(buf, sizeof(buf), "%d.%d.%d.%d", challenge->adr.ip[0], challenge->adr.ip[1], challenge->adr.ip[2], challenge->adr.ip[3]);
+        Com_Printf("%s failed cdkey authorization\n", buf);
+        // reject the client
+        NET_OutOfBandPrint(NS_SERVER, from, "droperror\nServer rejected connection:\nInvalid CD Key");
+        break;
+    default:
+        break;
+    }
 }

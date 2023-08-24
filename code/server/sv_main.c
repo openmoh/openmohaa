@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "server.h"
+#include "../gamespy/sv_gamespy.h"
 
 cvar_t			*sv_mapname;
 serverStatic_t	svs;				// persistant server info
@@ -514,8 +515,8 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		SV_GetChallenge( from );
 	} else if (!Q_stricmp(c, "connect")) {
 		SV_DirectConnect( from );
-	} else if (!Q_stricmp(c, "ipAuthorize")) {
-		SV_AuthorizeIpPacket( from );
+	} else if (!Q_stricmp(c, "authorizeThis")) {
+		SV_GamespyAuthorize( from, Cmd_Argv(1) );
 	} else if (!Q_stricmp(c, "rcon")) {
 		SVC_RemoteCommand( from, msg );
 	} else if (!Q_stricmp(c, "disconnect")) {

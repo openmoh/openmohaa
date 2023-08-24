@@ -189,10 +189,12 @@ typedef struct client_s {
 	int number_of_server_sounds;
 	qboolean locprint;
 	int XOffset;
-	int YOffset;
+    int YOffset;
+    qboolean isPure;
+    int gamespyId;
     char stringToPrint[256];
 	int radarInfo;
-	int lastRadarTime[128];
+    int lastRadarTime[128];
 
 #ifdef LEGACY_PROTOCOL
     qboolean		compat;
@@ -209,15 +211,25 @@ typedef struct client_s {
 
 #define	AUTHORIZE_TIMEOUT	5000
 
+typedef enum {
+    CDKS_NONE,
+    CDKS_AUTHENTICATING,
+    CDKS_AUTHENTICATED,
+    CDKS_FAILED
+} cdKeyState_e;
+
 typedef struct {
 	netadr_t	adr;
-	int			challenge;
-	int			clientChallenge;		// challenge number coming from the client
-	int			time;				// time the last packet was sent to the autherize server
-	int			pingTime;			// time the challenge response was sent to client
-	int			firstTime;			// time the adr was first used, for authorize timeout checks
-	qboolean	wasrefused;
-	qboolean	connected;
+    int				challenge;
+    int				clientChallenge;		// challenge number coming from the client
+    int				time;				// time the last packet was sent to the autherize server
+    int				pingTime;			// time the challenge response was sent to client
+    int				firstTime;			// time the adr was first used, for authorize timeout checks
+    qboolean		wasrefused;
+    qboolean		connected;
+	unsigned int	gamespyId;
+	char			gsChallenge[12];
+	cdKeyState_e	cdkeyState;
 } challenge_t;
 
 
@@ -403,6 +415,7 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 //
 // sv_client.c
 //
+challenge_t* FindChallenge(netadr_t from, qboolean connecting);
 void SV_GetChallenge( netadr_t from );
 
 void SV_DirectConnect( netadr_t from );

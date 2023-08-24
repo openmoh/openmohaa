@@ -22,6 +22,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // sv_client.c -- server code for dealing with clients
 
 #include "server.h"
+#include "../gamespy/sv_gamespy.h"
+#include "../qcommon/bg_compat.h"
+
+static const unsigned int MAX_GAMESPY_IDS = (1 << 16);
+static unsigned int g_gamespyId = 1;
 
 static void SV_CloseDownload( client_t *cl );
 
@@ -44,98 +49,44 @@ sent to that ip.
 =================
 */
 void SV_GetChallenge( netadr_t from ) {
-	int		i;
-	int		oldest;
-	int		oldestTime;
 	challenge_t	*challenge;
 
 	// ignore if we are in single player
-	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive")) {
+	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER ) {
 		return;
 	}
 
-	oldest = 0;
-	oldestTime = 0x7fffffff;
-
-	// see if we already have a challenge for this ip
-	challenge = &svs.challenges[0];
-	for (i = 0 ; i < MAX_CHALLENGES ; i++, challenge++) {
-		if ( !challenge->connected && NET_CompareAdr( from, challenge->adr ) ) {
-			break;
-		}
-		if ( challenge->time < oldestTime ) {
-			oldestTime = challenge->time;
-			oldest = i;
-		}
-	}
-
-	if (i == MAX_CHALLENGES) {
-		// this is the first time this client has asked for a challenge
-		challenge = &svs.challenges[oldest];
-
-		challenge->challenge = ( (rand() << 16) ^ rand() ) ^ svs.time;
-		challenge->adr = from;
-		challenge->firstTime = svs.time;
-		challenge->time = svs.time;
-		challenge->connected = qfalse;
-		i = oldest;
-	}
+	challenge = FindChallenge(from, qtrue);
 
 	// if they are on a lan address, send the challengeResponse immediately
 
 	// we send the challengeResponse immediately as there is no AUTH server for us
 	// it's also way more cool this way :)
-//	if ( Sys_IsLANAddress( from ) ) {
+	if ( Sys_IsLANAddress( from ) ) {
 		challenge->pingTime = svs.time;
 		NET_OutOfBandPrint( NS_SERVER, from, "challengeResponse %i", challenge->challenge );
 		return;
-//	}
-
-	// look up the authorize server's IP
-	if ( !svs.authorizeAddress.ip[0] && svs.authorizeAddress.type != NA_BAD ) {
-		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &svs.authorizeAddress, NA_IP ) ) {
-			Com_Printf( "Couldn't resolve address\n" );
-			return;
-		}
-		svs.authorizeAddress.port = BigShort( PORT_AUTHORIZE );
-		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-			svs.authorizeAddress.ip[0], svs.authorizeAddress.ip[1],
-			svs.authorizeAddress.ip[2], svs.authorizeAddress.ip[3],
-			BigShort( svs.authorizeAddress.port ) );
 	}
 
-	// if they have been challenging for a long time and we
-	// haven't heard anything from the authorize server, go ahead and
-	// let them in, assuming the id server is down
-	if ( svs.time - challenge->firstTime > AUTHORIZE_TIMEOUT ) {
-		Com_DPrintf( "authorize server timed out\n" );
-
-		challenge->pingTime = svs.time;
-		NET_OutOfBandPrint( NS_SERVER, challenge->adr, 
-			"challengeResponse %i", challenge->challenge );
-		return;
+	if (com_protocol->integer < PROTOCOL_MOHTA_MIN) {
+		// mohaa below 2.0 doesn't handle gamespy key
+        // so send the challenge response directly
+        challenge->pingTime = svs.time;
+        NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+        return;
 	}
 
-	// otherwise send their ip to the authorize server
-	if ( svs.authorizeAddress.type != NA_BAD ) {
-		cvar_t	*fs;
-		char	game[1024];
-
-		Com_DPrintf( "sending getIpAuthorize for %s\n", NET_AdrToString( from ));
-		
-		strcpy(game, BASEGAME);
-		fs = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
-		if (fs && fs->string[0] != 0) {
-			strcpy(game, fs->string);
-		}
-		
-		// the 0 is for backwards compatibility with obsolete sv_allowanonymous flags
-		// getIpAuthorize <challenge> <IP> <game> 0 <auth-flag>
-		NET_OutOfBandPrint( NS_SERVER, svs.authorizeAddress,
-			"getIpAuthorize %i %i.%i.%i.%i %s 0 %s",  svs.challenges[i].challenge,
-			from.ip[0], from.ip[1], from.ip[2], from.ip[3], game, sv_strictAuth->string );
+    if (qtrue) {
+		// cdkey authorization is currently useless because gamespy as shut down
+		// however, it could be an useful feature for a far future
+		// where players could be authenticated
+        challenge->pingTime = svs.time;
+        NET_OutOfBandPrint(NS_SERVER, from, "challengeResponse %i", challenge->challenge);
+        return;
 	}
+
+	// check client's cd key
+	NET_OutOfBandPrint(NS_SERVER, from, "getKey %s", challenge->gsChallenge);
 }
 
 /*
@@ -145,6 +96,8 @@ SV_AuthorizeIpPacket
 A packet has been returned from the authorize server.
 If we have a challenge adr for that ip, send the
 challengeResponse to it
+
+NOTE: This function is deprecated, SV_GamespyAuthorize must be used instead.
 ====================
 */
 void SV_AuthorizeIpPacket( netadr_t from ) {
@@ -211,6 +164,65 @@ void SV_AuthorizeIpPacket( netadr_t from ) {
 
 /*
 ==================
+FindChallenge
+
+Find or create challenge, from the specified ip address
+==================
+*/
+challenge_t* FindChallenge(netadr_t from, qboolean connecting) {
+	int		i;
+	int		oldest;
+	int		oldestTime;
+	challenge_t	*challenge;
+
+	oldest = 0;
+	oldestTime = 0x7fffffff;
+
+	// see if we already have a challenge for this ip
+	challenge = &svs.challenges[0];
+	if (connecting) {
+		for (i = 0; i < MAX_CHALLENGES; i++, challenge++) {
+			if (!challenge->connected && NET_CompareAdr(from, challenge->adr)) {
+				break;
+			}
+			if (challenge->time < oldestTime) {
+				oldestTime = challenge->time;
+				oldest = i;
+			}
+		}
+	} else {
+		for (i = 0; i < MAX_CHALLENGES; i++, challenge++) {
+			if (NET_CompareAdr(from, challenge->adr)) {
+				break;
+			}
+			if (challenge->time < oldestTime) {
+				oldestTime = challenge->time;
+				oldest = i;
+			}
+		}
+	}
+
+	if (i == MAX_CHALLENGES) {
+		// this is the first time this client has asked for a challenge
+		challenge = &svs.challenges[oldest];
+
+		challenge->challenge = ( (rand() << 16) ^ rand() ) ^ svs.time;
+		challenge->adr = from;
+		challenge->firstTime = svs.time;
+		challenge->time = svs.time;
+		challenge->connected = qfalse;
+		challenge->cdkeyState = 0;
+
+		g_gamespyId = (g_gamespyId + 1) % MAX_GAMESPY_IDS;
+		challenge->gamespyId = g_gamespyId;
+		SV_CreateGamespyChallenge(challenge->gsChallenge);
+	}
+
+	return challenge;
+}
+
+/*
+==================
 SV_DirectConnect
 
 A "connect" OOB command has been received
@@ -240,6 +252,7 @@ void SV_DirectConnect( netadr_t from ) {
 #ifdef LEGACY_PROTOCOL
 	qboolean	compat = qfalse;
 #endif
+	challenge_t* ch;
 
 	Com_DPrintf( "SVC_DirectConnect ()\n" );
 
@@ -423,6 +436,7 @@ gotnewcl:
 	clientNum = newcl - svs.clients;
 	ent = SV_GentityNum( clientNum );
 	newcl->gentity = ent;
+	newcl->number_of_server_sounds = 0;
 
 	// save the challenge
 	newcl->challenge = challenge;
@@ -449,6 +463,11 @@ gotnewcl:
 		return;
 	}
 
+	ch = FindChallenge(from, qfalse);
+	if (ch) {
+		newcl->gamespyId = ch->gamespyId;
+	}
+
 	SV_UserinfoChanged( newcl );
 
 	// send the connect packet to the client
@@ -457,7 +476,7 @@ gotnewcl:
 	Com_DPrintf( "Going from CS_FREE to CS_CONNECTED for %s\n", newcl->name );
 
 	newcl->state = CS_CONNECTED;
-	if (sv_maxclients->integer > 1) {
+	if (svs.iNumClients > 1) {
 		newcl->nextSnapshotTime = svs.time + 800;
 		newcl->lastPacketTime = svs.time + 800;
 		newcl->lastConnectTime = svs.time + 800;
