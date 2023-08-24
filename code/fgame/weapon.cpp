@@ -1062,7 +1062,7 @@ Weapon::Weapon()
     INITIALIZE_WEAPONMODE_VAR(loopfire, qfalse);
     INITIALIZE_WEAPONMODE_VAR(tracercount, 0);
     INITIALIZE_WEAPONMODE_VAR(tracerfrequency, 0);
-    INITIALIZE_WEAPONMODE_VAR(tracerspeed, 0);
+    INITIALIZE_WEAPONMODE_VAR(tracerspeed, 1);
 
     for (int i = 0; i < MAX_FIREMODES; i++) {
         INITIALIZE_WEAPONMODE_VAR(viewkickmin[i], 0);
