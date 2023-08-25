@@ -25,21 +25,28 @@ The main goal of OpenMoHAA is to ensure the future and continuity of **Medal of 
 
 ## Running
 
-Backup existing mohaa files, **cgamex86.dll** and **gamex86.dll** (set their extension to **.bak**)
-
 a) extract archive to your MOHAA installation directory.
 
 -or-
 
-b) Copy all pak*.pk3 files and the sound/ directory from your **MOHAA/main** directory into openmohaa's 'main' directory.
+b) extract archive somewhere on your hard drive, create a shortcut to openmohaa (or omohaaded), and set the start directory to your MOHAA installation directory.
 
 If you have problems running the game :
 
-You may need to install Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from
+You may need to install Microsoft Visual C++ 2015/2017/2019/2022 Redistributable from https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
-https://learn.microsoft.com/en-US/cpp/windows/latest-supported-vc-redist?view=msvc-170
+### Config file
 
-You can now start a local OpenMOHAA server or play on a server.
+The config file can be found in different locations depending on the platform:
+
+- `%APPDATA%\openmohaa\<game_name>\configs\omconfig.cfg` on Windows
+- `~/.openmohaa/<game_name>/configs/omconfig.cfg` on Linux
+
+This has two advantages:
+- On a multi-user system, each user will have their own configuration file
+- It doesn't overwrite the existing MOHAA configuration in the MOHAA installation directory.
+
+### Game selection
 
 **Medal of Honor: Allied Assault Spearhead** and **Medal of Honor: Allied Assault Breakthrough** are supported in OpenMoHAA using the `com_target_game` variable. To play an expansion, append the following command-line arguments to the executable:
 
@@ -47,9 +54,11 @@ You can now start a local OpenMOHAA server or play on a server.
 - `+set com_target_game 2` for Breakthrough (mohaab/mohtt)
 
 On Windows, you can create a shortcut to OpenMoHAA with these command-line arguments.
-The default value of `com_target_game` is 0 for the base game.
+The default value of `com_target_game` is 0 for the base game (main).
 
-With `com_target_game`, OpenMoHAA will support the network protocol accordingly
+With `com_target_game`, OpenMoHAA will support the network protocol accordingly.
+
+You can now start a local OpenMOHAA server or play on a server.
 
 ### Playing with bots
 
