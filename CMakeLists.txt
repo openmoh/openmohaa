@@ -11,7 +11,7 @@ if(TARGET_GAME_TYPE)
 endif()
 
 
-set(TARGET_BASE_GAME "main")
+set(TARGET_BASE_GAME "./")
 set(CMAKE_DEBUG_POSTFIX "-dbg")
 
 if(MSVC)
