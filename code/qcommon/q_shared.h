@@ -73,8 +73,8 @@ extern "C" {
 // Note: An universal client is not currently possible without refactoring the network and the file system.
 //       Pak files must be reloaded on-the-fly depending on the server the client is connecting to.
 //
-#define HOMEPATH_NAME_UNIX		HOMEPATH_NAME_UNIX_MOH
-#define HOMEPATH_NAME_WIN		HOMEPATH_NAME_WIN_MOH
+#define HOMEPATH_NAME_UNIX		".openmohaa"
+#define HOMEPATH_NAME_WIN		"openmohaa"
 #define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
 
 #define CLIENT_WINDOW_TITLE		PRODUCT_NAME
