@@ -396,7 +396,7 @@ static void send_heartbeat(qr_t qrec, int statechanged)
         sprintf(buf + strlen(buf), "\\statechanged\\%d", statechanged);
     }
 
-    sendto((SOCKET)qrec->hbsock, buf, (int)strlen(buf), 0, (const struct sockaddr *)&qrec->master_saddr, 16);
+    sendto((SOCKET)qrec->hbsock, buf, (int)strlen(buf), 0, (const struct sockaddr *)&qrec->master_saddr, sizeof(qrec->master_saddr));
     qrec->lastheartbeat = current_time();
 }
 
