@@ -1742,16 +1742,16 @@ void Com_Init( char *commandLine ) {
 	s = va( "%s (Medal of Honor: %s) %s %s", PRODUCT_VERSION_FULL, Cvar_VariableString("com_target_extension"), PLATFORM_STRING, PRODUCT_VERSION_DATE);
 	com_version = Cvar_Get( "version", s, CVAR_ROM | CVAR_SERVERINFO );
 	com_shortversion = Cvar_Get( "shortversion", PRODUCT_VERSION, CVAR_ROM );
-	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_SERVERINFO | CVAR_INIT);
+	com_protocol = Cvar_Get("com_protocol", va("%i", PROTOCOL_VERSION), CVAR_INIT);
 #ifdef LEGACY_PROTOCOL
 	com_legacyprotocol = Cvar_Get("com_legacyprotocol", va("%i", PROTOCOL_LEGACY_VERSION), CVAR_INIT);
 
 	// Keep for compatibility with old mods / mods that haven't updated yet.
 	if(com_legacyprotocol->integer > 0)
-		Cvar_Get("protocol", com_legacyprotocol->string, CVAR_ROM);
+		Cvar_Get("protocol", com_legacyprotocol->string, CVAR_SERVERINFO | CVAR_ROM);
 	else
 #endif
-		Cvar_Get("protocol", com_protocol->string, CVAR_ROM);
+		Cvar_Get("protocol", com_protocol->string, CVAR_SERVERINFO | CVAR_ROM);
 
 #ifndef DEDICATED
 	con_autochat = Cvar_Get("con_autochat", "1", CVAR_ARCHIVE);
