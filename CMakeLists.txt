@@ -47,6 +47,7 @@ ENDIF()
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
 	add_definitions(-D_DEBUG)
 
+	# NOTE: The following may mess up function importation
 	#if(UNIX)
 	#	# Enable all exports so all functions name can be seen during executable crash
 	#	set(CMAKE_ENABLE_EXPORTS ON)
@@ -73,6 +74,7 @@ target_compile_features(omohaaded PUBLIC c_variadic_macros)
 target_link_libraries(omohaaded PRIVATE omohserver)
 target_link_libraries(omohaaded PRIVATE syslib)
 target_link_libraries(omohaaded PRIVATE qcommon qcommon_standalone)
+
 # Gamespy dependency
 target_include_directories(omohaaded PUBLIC "code/qcommon" "code/script" "code/gamespy" "code/server")
 set_target_properties(omohaaded PROPERTIES OUTPUT_NAME "omohaaded${TARGET_BASE_SUFFIX}${TARGET_ARCH_SUFFIX}")
