@@ -195,7 +195,7 @@ static void packet_send(qr_t qrec, struct sockaddr *addr, char *buffer)
     sprintf(keyvalue, "\\queryid\\%d.%d", qrec->queryid, qrec->packetnumber++);
     strcat(buffer, keyvalue);
 
-    sendto((SOCKET)qrec->querysock, buffer, (int)strlen(buffer), 0, addr, 16);
+    sendto((SOCKET)qrec->querysock, buffer, (int)strlen(buffer), 0, addr, sizeof(*addr));
     *buffer = 0;
 }
 
@@ -207,16 +207,16 @@ static void buffer_send(qr_t qrec, struct sockaddr *sender, char *buffer, char *
     char *pos;
 
     bcount = 0;
-    if (strlen(newdata) + strlen(buffer) < 1350) {
+    if (strlen(newdata) + strlen(buffer) < MAX_INFO_STRING) {
         strcat(buffer, newdata);
         return;
     }
 
     pos = newdata;
-    while (strlen(pos) > 1350) {
+    while (strlen(pos) > MAX_INFO_STRING) {
         lastkey = pos;
 
-        for (i = 0; i < 1350; ++i) {
+        for (i = 0; i < MAX_INFO_STRING; ++i) {
             if (pos[i] == '\\') {
                 if (!(bcount % 2)) {
                     lastkey = pos + i;
@@ -236,7 +236,7 @@ static void buffer_send(qr_t qrec, struct sockaddr *sender, char *buffer, char *
         pos      = lastkey;
         bcount   = 0;
 
-        if (strlen(buffer) + strlen(lastkey) < 1350) {
+        if (strlen(buffer) + strlen(lastkey) < MAX_INFO_STRING) {
             strcat(buffer, pos);
             return;
         }
@@ -341,7 +341,7 @@ static void parse_query(qr_t qrec, char *query, struct sockaddr *sender)
     }
 
     for (querytype = qtbasic; querytype <= qtsecure; ++querytype) {
-        value = value_for_key(query, queries[querytype]);
+        value = value_for_key(query, queries[querytype - 1]);
         if (value) {
             switch (querytype) {
             case qtbasic:
