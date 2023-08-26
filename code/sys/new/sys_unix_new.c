@@ -26,9 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <unistd.h>
 #include <execinfo.h>
 
-static void* backtrace_arr[20];
-static size_t backtrace_size;
-
 /*
 ==================
 Sys_PlatformInit_New
@@ -44,10 +41,6 @@ Sys_PrepareBackTrace
 ==================
 */
 void Sys_PrepareBackTrace() {
-    void* backtrace_arr[20];
-
-    // get void*'s for all entries on the stack
-    backtrace_size = backtrace(backtrace_arr, sizeof(backtrace_arr) / sizeof(backtrace_arr[0]));
 }
 
 /*
@@ -56,6 +49,11 @@ Sys_PrintBackTrace
 ==================
 */
 void Sys_PrintBackTrace() {
+    void* backtrace_arr[20];
+    size_t backtrace_size;
+
+    // get void*'s for all entries on the stack
+    backtrace_size = backtrace(backtrace_arr, sizeof(backtrace_arr) / sizeof(backtrace_arr[0]));
     backtrace_symbols_fd(backtrace_arr, backtrace_size, STDERR_FILENO);
 }
 
