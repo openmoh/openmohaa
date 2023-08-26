@@ -542,6 +542,7 @@ void SV_Netchan_FreeQueue(client_t *client);
 // sv_gamespy.c
 //
 void SV_GamespyHeartbeat();
+void SV_ProcessGamespyQueries();
 qboolean SV_InitGamespy();
 void SV_ShutdownGamespy();
 
