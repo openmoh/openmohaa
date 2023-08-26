@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "common/gsPlatformSocket.h"
 
+#define MAX_KEYVALUES_LENGTH 1400
+
 typedef void (*qr_querycallback_t)(char *outbuf, int maxlen, void *userdata);
 typedef void (*qr_custom_handler_t)(const char *query, struct sockaddr *sender);
 
