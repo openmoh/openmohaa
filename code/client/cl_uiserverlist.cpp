@@ -1009,7 +1009,7 @@ void UpdateServerListCallBack(GServerList serverlist, int msg, void* instance, v
             return;
         }
 
-        Cvar_Set("dm_serverstatusbar", va("%i", param2));
+        Cvar_Set("dm_serverstatusbar", va("%i", (int)(uintptr_t)param2));
     }
 
     if (msg == LIST_PROGRESS)
