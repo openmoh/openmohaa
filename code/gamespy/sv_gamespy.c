@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static char     gamemode[128];
 static qboolean gcdInitialized = qfalse;
+static qboolean gcdValid = qfalse;
 extern GSIACResult __GSIACResult;
 
 static const char *SECRET_GS_KEYS[] =
@@ -195,7 +196,16 @@ static void players_callback(char *outbuf, int maxlen, void *userdata)
     size_t infolen;
     size_t currlen = 0;
 
+    if (!svs.clients) {
+        return;
+    }
+
     for (i = 0; i < svs.iNumClients; i++) {
+        if (svs.clients[i].state == CS_FREE) {
+            // ignore inactive clients
+            continue;
+        }
+
         playerState_t *ps = SV_GameClientNum(i);
 
         Com_sprintf(
@@ -240,7 +250,11 @@ void SV_ProcessGamespyQueries()
     }
 
     qr_process_queries(NULL);
-    gcd_think();
+
+    if (gcdValid) {
+        // in case the game supports gcd
+        gcd_think();
+    }
 }
 
 void SV_ShutdownGamespy()
@@ -319,6 +333,7 @@ qboolean SV_InitGamespy()
     if (!gcdInitialized) {
         if (gcd_game_id) {
             gcd_init(gcd_game_id);
+            gcdValid = qtrue;
         }
 
         gcdInitialized = qtrue;
