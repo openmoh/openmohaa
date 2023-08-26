@@ -29,6 +29,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static char *queries[] = {"basic", "info", "rules", "players", "status", "packets", "echo", "secure"};
 
+static const unsigned int MIN_HEARTBEAT_TIME = 30000; // wait at least 30 seconds before new heartbeat can be sent
+static const unsigned int MAX_HEARTBEAT_TIME = 300000; // 5 minutes
+
 static qr_implementation_t  static_rec;
 static qr_implementation_t *current_rec = &static_rec;
 struct sockaddr_in          hbaddr;
@@ -89,15 +92,15 @@ void qr_check_send_heartbeat(qr_t qrec)
     tc = current_time();
 
     if ((SOCKET)qrec->hbsock != INVALID_SOCKET) {
-        if (tc - qrec->lastheartbeat <= 300000 && qrec->lastheartbeat && tc >= qrec->lastheartbeat) {
-            if (qrec->no_query > 0 && tc - qrec->lastheartbeat > 30000) {
-                send_heartbeat(qrec, 0);
-                if (qrec->no_query++ > 10) {
-                    qrec->no_query = 0;
-                }
-            }
-        } else {
+        if (tc - qrec->lastheartbeat > MAX_HEARTBEAT_TIME || qrec->lastheartbeat || tc < qrec->lastheartbeat) {
             send_heartbeat(qrec, 0);
+        } else if (qrec->no_query > 0 && tc - qrec->lastheartbeat > MIN_HEARTBEAT_TIME) {
+            send_heartbeat(qrec, 0);
+
+            qrec->no_query++;
+            if (qrec->no_query > 10) {
+                qrec->no_query = 0;
+            }
         }
     }
 }
@@ -192,8 +195,10 @@ static void packet_send(qr_t qrec, struct sockaddr *addr, char *buffer)
         return;
     }
 
-    sprintf(keyvalue, "\\queryid\\%d.%d", qrec->queryid, qrec->packetnumber++);
+    Com_sprintf(keyvalue, sizeof(keyvalue), "\\queryid\\%d.%d", qrec->queryid, qrec->packetnumber);
     strcat(buffer, keyvalue);
+
+    qrec->packetnumber++;
 
     sendto((SOCKET)qrec->querysock, buffer, (int)strlen(buffer), 0, addr, sizeof(*addr));
     *buffer = 0;
@@ -248,44 +253,46 @@ static void buffer_send(qr_t qrec, struct sockaddr *sender, char *buffer, char *
 
 static void send_basic(qr_t qrec, struct sockaddr *sender, char *outbuf)
 {
-    char keyvalue[1400] = {0};
+    char keyvalue[MAX_KEYVALUES_LENGTH] = {0};
 
-    qrec->qr_basic_callback(keyvalue, 1400, qrec->udata);
+    qrec->qr_basic_callback(keyvalue, MAX_KEYVALUES_LENGTH, qrec->udata);
     buffer_send(qrec, sender, outbuf, keyvalue);
 }
 
 static void send_info(qr_t qrec, struct sockaddr *sender, char *outbuf)
 {
-    char keyvalue[1400] = {0};
+    char keyvalue[MAX_KEYVALUES_LENGTH] = {0};
 
-    qrec->qr_info_callback(keyvalue, 1400, qrec->udata);
+    qrec->qr_info_callback(keyvalue, MAX_KEYVALUES_LENGTH, qrec->udata);
     buffer_send(qrec, sender, outbuf, keyvalue);
 }
 
 static void send_rules(qr_t qrec, struct sockaddr *sender, char *outbuf)
 {
-    char keyvalue[1400] = {0};
+    char keyvalue[MAX_KEYVALUES_LENGTH] = {0};
 
-    qrec->qr_rules_callback(keyvalue, 1400, qrec->udata);
+    qrec->qr_rules_callback(keyvalue, MAX_KEYVALUES_LENGTH, qrec->udata);
     buffer_send(qrec, sender, outbuf, keyvalue);
 }
 
 static void send_players(qr_t qrec, struct sockaddr *sender, char *outbuf)
 {
-    char keyvalue[1400] = {0};
+    char keyvalue[MAX_KEYVALUES_LENGTH] = {0};
 
-    qrec->qr_players_callback(keyvalue, 1400, qrec->udata);
+    qrec->qr_players_callback(keyvalue, MAX_KEYVALUES_LENGTH, qrec->udata);
     buffer_send(qrec, sender, outbuf, keyvalue);
 }
 
 static void send_echo(qr_t qrec, struct sockaddr *sender, char *outbuf, const char *echostr)
 {
-    char keyvalue[1400] = {0};
+    char keyvalue[MAX_KEYVALUES_LENGTH] = {0};
 
-    if (strlen(echostr) <= 50) {
-        sprintf(keyvalue, "\\echoresponse\\%s", echostr);
-        buffer_send(qrec, sender, outbuf, keyvalue);
+    if (strlen(echostr) > 50) {
+        return;
     }
+
+    Com_sprintf(keyvalue, sizeof(keyvalue), "\\echoresponse\\%s", echostr);
+    buffer_send(qrec, sender, outbuf, keyvalue);
 }
 
 static void send_final(qr_t qrec, struct sockaddr *sender, char *outbuf, char *validation)
@@ -298,7 +305,7 @@ static void send_final(qr_t qrec, struct sockaddr *sender, char *outbuf, char *v
     if (*validation) {
         keylen = (int)strlen(validation);
 
-        if (keylen > 128) {
+        if (keylen >= ARRAY_LEN(encrypted_val)) {
             return;
         }
 
@@ -307,11 +314,11 @@ static void send_final(qr_t qrec, struct sockaddr *sender, char *outbuf, char *v
         gs_encrypt((uchar *)qrec->secret_key, (int)strlen(qrec->secret_key), encrypted_val, keylen);
         gs_encode(encrypted_val, keylen, encoded_val);
 
-        sprintf(keyvalue, "\\validate\\%s", encoded_val);
+        Com_sprintf(keyvalue, sizeof(keyvalue), "\\validate\\%s", encoded_val);
         buffer_send(qrec, sender, outbuf, keyvalue);
     }
 
-    sprintf(keyvalue, "\\final\\");
+    Com_sprintf(keyvalue, sizeof(keyvalue), "\\final\\");
     buffer_send(qrec, sender, outbuf, keyvalue);
     packet_send(qrec, sender, outbuf);
 }
@@ -319,7 +326,7 @@ static void send_final(qr_t qrec, struct sockaddr *sender, char *outbuf, char *v
 static void parse_query(qr_t qrec, char *query, struct sockaddr *sender)
 {
     query_t     querytype    = qtunknown;
-    char        buffer[1400] = {0};
+    char        buffer[MAX_KEYVALUES_LENGTH] = {0};
     const char *value;
     char        validation[256] = {0};
 
@@ -329,7 +336,9 @@ static void parse_query(qr_t qrec, char *query, struct sockaddr *sender)
 
     if (*query == ';') {
         // custom handler
-        qrec->qr_custom_handler(query, sender);
+        if (qrec->qr_custom_handler) {
+            qrec->qr_custom_handler(query, sender);
+        }
         return;
     }
 
