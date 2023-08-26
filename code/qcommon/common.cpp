@@ -1769,7 +1769,6 @@ void Com_Init( char *commandLine ) {
 	if( com_dedicated->integer )
 	{
 		Sys_CloseMutex();
-		NET_Init();
 	}
 	else
 	{
@@ -1778,7 +1777,6 @@ void Com_Init( char *commandLine ) {
 	}
 #else
     Sys_CloseMutex();
-    NET_Init();
 #endif
 
 	// set com_frameTime so that if a map is started on the
