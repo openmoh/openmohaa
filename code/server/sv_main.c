@@ -315,10 +315,10 @@ void SVC_Status( netadr_t from ) {
 		cl = &svs.clients[i];
 		if ( cl->state >= CS_CONNECTED ) {
 			ps = SV_GameClientNum( i );
-			Com_sprintf (player, sizeof(player), "%i %i \"%s\"\n", 
+			Com_sprintf (player, sizeof(player), "%i \"%s\"\n", 
 			// su44: ps->persistant is not avaible in MoHAA
 			//	ps->persistant[PERS_SCORE], cl->ping, cl->name);
-				0, cl->ping, cl->name);
+				cl->ping, cl->name);
 			playerLength = strlen(player);
 			if (statusLength + playerLength >= sizeof(status) ) {
 				break;		// can't hold any more
@@ -372,7 +372,7 @@ void SVC_Info( netadr_t from ) {
 	// to prevent timed spoofed reply packets that add ghost servers
 	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
 
-	Info_SetValueForKey( infostring, "protocol", va("%i", PROTOCOL_VERSION) );
+	Info_SetValueForKey( infostring, "protocol", va("%i", com_protocol->integer) );
 	Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
 	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
 	Info_SetValueForKey( infostring, "clients", va("%i", count) );
@@ -394,7 +394,7 @@ void SVC_Info( netadr_t from ) {
 	}
 
 	Info_SetValueForKey(infostring, "gamever", com_target_version->string);
-	Info_SetValueForKey(infostring, "serverType", com_target_game->string);
+	Info_SetValueForKey(infostring, "serverType", va("%i", com_target_game->integer));
 
 	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
 }
@@ -509,7 +509,7 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	if (!Q_stricmp(c, "getstatus")) {
 		SVC_Status( from  );
-  } else if (!Q_stricmp(c, "getinfo")) {
+	} else if (!Q_stricmp(c, "getinfo")) {
 		SVC_Info( from );
 	} else if (!Q_stricmp(c, "getchallenge")) {
 		SV_GetChallenge( from );
@@ -883,6 +883,9 @@ void SV_Frame( int msec ) {
 
 	// send a heartbeat to the master if needed
 	SV_MasterHeartbeat();
+
+	// process all gamespy queries
+	SV_ProcessGamespyQueries();
 
 	svs.lastTime = svs.time;
 }
