@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static char     gamemode[128];
 static qboolean gcdInitialized = qfalse;
+extern GSIACResult __GSIACResult;
 
 static const char *SECRET_GS_KEYS[] =
 {
@@ -313,8 +314,7 @@ qboolean SV_InitGamespy()
     }
 
     // this will set the GSI as available for cdkey authorization
-    GSICancelAvailableCheck();
-    GSIAvailableCheckThink();
+    __GSIACResult = GSIACAvailable;
 
     if (!gcdInitialized) {
         if (gcd_game_id) {
