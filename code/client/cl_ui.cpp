@@ -1928,7 +1928,7 @@ void UI_Update(void) {
 	if (!ui_hud || clc.state != CA_ACTIVE || view3d->LetterboxActive()
 		|| (currentMenu && currentMenu->isFullscreen())
 		|| server_loading
-		|| ((cl.snap.ps.pm_flags & PMF_NO_HUD) || (cl.snap.ps.pm_flags & PMF_SPECTATE_FOLLOW)))
+		|| ((cl.snap.ps.pm_flags & PMF_NO_HUD) || (cl.snap.ps.pm_flags & PMF_INTERMISSION)))
 	{
 		if (crosshairhud)
 		{
