@@ -423,7 +423,7 @@ void CG_PrepRefresh(void)
     cgs.media.binocularsOverlayShader  = cgi.R_RegisterShaderNoMip("textures/hud/binocularsoverlay");
     cgs.media.hudDrawFont              = cgi.R_LoadFont("verdana-14");
     cgs.media.attackerFont             = cgi.R_LoadFont("facfont-20");
-    cgs.media.objectiveFont            = cgi.R_LoadFont("courier-16");
+    cgs.media.objectiveFont            = cgi.R_LoadFont("facfont-20"); // was courier-16 before 2.0
     cgs.media.objectivesBackShader     = cgi.R_RegisterShaderNoMip("textures/hud/objectives_backdrop");
     cgs.media.checkedBoxShader         = cgi.R_RegisterShaderNoMip("textures/objectives/filledbox");
     cgs.media.uncheckedBoxShader       = cgi.R_RegisterShaderNoMip("textures/objectives/emptybox");
