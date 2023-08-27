@@ -827,30 +827,30 @@ qboolean TIKI_LoadSetupCase( dtiki_t *tiki, const char *filename, dloadsurface_t
 
 	while( 1 )
 	{
-		c = MSG_ReadByte( msg ) + 1;
+		c = MSG_ReadByte( msg );
 		switch( c )
 		{
 		default:
 			break;
-		case 1:
+		case 0:
 			load_scale = MSG_ReadFloat( msg );
 			if( skip )
 				break;
 			tiki->load_scale = load_scale;
 			break;
-		case 2:
+		case 1:
 			lod_scale = MSG_ReadFloat( msg );
 			if( skip )
 				break;
 			tiki->lod_scale = lod_scale;
 			break;
-		case 3:
+		case 2:
 			lod_bias = MSG_ReadFloat( msg );
 			if( skip )
 				break;
 			tiki->lod_bias = lod_bias;
 			break;
-		case 4:
+		case 3:
 			name = MSG_ReadString( msg );
 			if( skip )
 				break;
@@ -870,7 +870,7 @@ qboolean TIKI_LoadSetupCase( dtiki_t *tiki, const char *filename, dloadsurface_t
 			tiki->num_surfaces += skelmodel->numSurfaces;
 			tiki->numMeshes++;
 			break;
-		case 5:
+		case 4:
 			load_origin[ 0 ] = MSG_ReadFloat( msg );
 			load_origin[ 1 ] = MSG_ReadFloat( msg );
 			load_origin[ 2 ] = MSG_ReadFloat( msg );
@@ -878,7 +878,7 @@ qboolean TIKI_LoadSetupCase( dtiki_t *tiki, const char *filename, dloadsurface_t
 				break;
 			VectorCopy( load_origin, tiki->load_origin );
 			break;
-		case 6:
+		case 5:
 			light_offset[ 0 ] = MSG_ReadFloat( msg );
 			light_offset[ 1 ] = MSG_ReadFloat( msg );
 			light_offset[ 2 ] = MSG_ReadFloat( msg );
@@ -886,13 +886,13 @@ qboolean TIKI_LoadSetupCase( dtiki_t *tiki, const char *filename, dloadsurface_t
 				break;
 			VectorCopy( light_offset, tiki->load_origin );
 			break;
-		case 7:
+		case 6:
 			radius = MSG_ReadFloat( msg );
 			if( skip )
 				break;
 			tiki->radius = radius;
 			break;
-		case 8:
+		case 7:
 			name = MSG_ReadString( msg );
 			if( skip )
 				break;
@@ -910,19 +910,19 @@ qboolean TIKI_LoadSetupCase( dtiki_t *tiki, const char *filename, dloadsurface_t
 			}
 			strcpy( loadsurfaces[ currentSurface ].name, name );
 			break;
-		case 9:
+		case 8:
 			flags = MSG_ReadLong( msg );
 			if( skip )
 				break;
 			loadsurfaces[ currentSurface ].flags |= flags;
 			break;
-		case 10:
+		case 9:
 			damage_multiplier = MSG_ReadFloat( msg );
 			if( skip )
 				break;
 			loadsurfaces[ currentSurface ].damage_multiplier = damage_multiplier;
 			break;
-		case 11:
+		case 10:
 			name = MSG_ReadString( msg );
 			if( skip )
 				break;
@@ -936,12 +936,12 @@ qboolean TIKI_LoadSetupCase( dtiki_t *tiki, const char *filename, dloadsurface_t
 			strncpy( loadsurfaces[ currentSurface ].shader[ loadsurfaces[ currentSurface ].numskins ], name, sizeof( loadsurfaces[ currentSurface ].shader[ loadsurfaces[ currentSurface ].numskins ] ) );
 			loadsurfaces[ currentSurface ].numskins++;
 			break;
-		case 14:
+		case 13:
 			if( !TIKI_LoadSetupCaseHeader( tiki, filename, loadsurfaces, numSurfacesSetUp, msg, skip, keyValues ) )
 				return false;
 			break;
-		case 0:
-		case 16:
+		case -1:
+		case 15:
 			return true;
 		}
 	}
