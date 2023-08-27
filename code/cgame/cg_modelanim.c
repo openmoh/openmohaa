@@ -182,6 +182,226 @@ void CG_PlayerTeamIcon(refEntity_t *pModel, entityState_t *pPlayerState)
 
 /*
 ===============
+CG_CastFootShadow
+
+Cast complex foot shadow using lights
+===============
+*/
+void CG_CastFootShadow(const vec_t* vLightPos, vec_t* vLightIntensity, int iTag, refEntity_t* model)
+{
+    int i;
+    float fAlpha;
+    float fLength;
+    float fWidth;
+    float fAlphaOfs;
+    float fOfs;
+    float fPitchCos;
+    vec3_t vPos;
+    vec3_t vEnd;
+    vec3_t vDelta;
+    vec3_t vLightAngles;
+    trace_t trace;
+    orientation_t oFoot;
+
+    VectorCopy(model->origin, vPos);
+    oFoot = cgi.TIKI_Orientation(model, iTag);
+    VectorMA(oFoot.origin, 2, oFoot.axis[1], vEnd);
+    for (i = 0; i < 3; i++) {
+        VectorMA(vPos, vEnd[i], model->axis[i], vPos);
+    }
+
+    if (cg_shadowdebug->integer)
+    {
+        vec3_t vDir;
+
+        //
+        // show debug lines
+        //
+        memset(vDir, 0, sizeof(vDir));
+        for (i = 0; i < 3; ++i) {
+            VectorMA(vDir, oFoot.axis[0][i], model->axis[i], vDir);
+        }
+        VectorMA(vPos, 32.0, vDir, vEnd);
+        cgi.R_DebugLine(vPos, vEnd, 1.0, 0.0, 0.0, 1.0);
+
+        memset(vDir, 0, sizeof(vDir));
+        for (i = 0; i < 3; ++i) {
+            VectorMA(vDir, oFoot.axis[1][i], model->axis[i], vDir);
+        }
+        VectorMA(vPos, 32.0, vDir, vEnd);
+        cgi.R_DebugLine(vPos, vEnd, 0.0, 1.0, 0.0, 1.0);
+
+        memset(vDir, 0, sizeof(vDir));
+        for (i = 0; i < 3; ++i) {
+            VectorMA(vDir, oFoot.axis[2][i], model->axis[i], vDir);
+        }
+        VectorMA(vPos, 32.0, vDir, vEnd);
+        cgi.R_DebugLine(vPos, vEnd, 0.0, 0.0, 1.0, 1.0);
+    }
+
+    // calculate the direction
+    VectorSubtract(vLightPos, vPos, vDelta);
+    VectorNormalizeFast(vDelta);
+    vectoangles(vDelta, vLightAngles);
+
+    // normalize to 180 degrees
+    if (vLightAngles[0] > 180) {
+        vLightAngles[0] -= 360;
+    }
+
+    if (vLightAngles[0] > -5.7319679) {
+        // FIXME: what is -5.7319679?
+        return;
+    }
+
+    fPitchCos = cos(DEG2RAD(vLightAngles[0]));
+    if (fPitchCos > 0.955) {
+        fAlpha = 1.0 - (fPitchCos - 0.955) * 25;
+    } else {
+        fAlpha = 1.0;
+    }
+
+    fLength = fPitchCos * fPitchCos * 32.0 + fPitchCos * 8.0 + 10.0;
+    fOfs = 0.5 - (-4.1 / tan(DEG2RAD(vLightAngles[0])) + 4.0 - fLength) / fLength * 0.5;
+    VectorMA(vPos, -96.0, vDelta, vEnd);
+    CG_Trace(&trace, vPos, vec3_origin, vec3_origin, vEnd, 0, MASK_FOOTSHADOW, qfalse, qtrue, "CG_CastFootShadow");
+   
+    if (cg_shadowdebug->integer)
+    {
+        cgi.R_DebugLine(vPos, vLightPos, 0.75, 0.75, 0.5, 1.0);
+        cgi.R_DebugLine(vPos, vEnd, 1.0, 1.0, 1.0, 1.0);
+    }
+
+    if (trace.fraction == 1.0) {
+        return;
+    }
+
+    trace.fraction -= 0.0427f;
+    if (trace.fraction < 0) {
+        trace.fraction = 0;
+    }
+
+    fWidth = 10.f - (1.f - trace.fraction) * 6.f;
+    fAlphaOfs = (1.f - trace.fraction) * fAlpha;
+
+    fAlpha = Q_max(vLightIntensity[0], Q_max(vLightIntensity[1], vLightIntensity[2]));
+
+    if (fAlpha < 0.1) {
+        vLightIntensity[0] *= 0.1 / fAlpha * fAlphaOfs;
+        vLightIntensity[1] *= 0.1 / fAlpha * fAlphaOfs;
+        vLightIntensity[2] *= 0.1 / fAlpha * fAlphaOfs;
+    } else {
+        vLightIntensity[0] *= fAlphaOfs;
+        vLightIntensity[1] *= fAlphaOfs;
+        vLightIntensity[2] *= fAlphaOfs;
+    }
+
+    fAlpha = Q_max(vLightIntensity[0], Q_max(vLightIntensity[1], vLightIntensity[2]));
+    if (fAlpha > 0.6) {
+        vLightIntensity[0] *= 0.6 / fAlpha;
+        vLightIntensity[1] *= 0.6 / fAlpha;
+        vLightIntensity[2] *= 0.6 / fAlpha;
+    }
+
+    if (vLightIntensity[0] <= 0.01 || vLightIntensity[1] <= 0.01 || vLightIntensity[2] <= 0.01) {
+        return;
+    }
+
+    CG_ImpactMark(
+        cgs.media.footShadowMarkShader,
+        trace.endpos,
+        trace.plane.normal,
+        vLightAngles[1],
+        fWidth,
+        fLength,
+        vLightIntensity[0],
+        vLightIntensity[1],
+        vLightIntensity[2],
+        1.0,
+        qfalse,
+        qtrue,
+        qfalse,
+        qfalse,
+        0.5,
+        fOfs
+    );
+}
+
+/*
+===============
+CG_CastSimpleFeetShadow
+
+Cast basic feet shadow
+===============
+*/
+void CG_CastSimpleFeetShadow(const trace_t* pTrace, float fWidth, float fAlpha, int iRightTag, int iLeftTag, const dtiki_t* tiki, refEntity_t* model)
+{
+    int i;
+    float fShadowYaw;
+    float fLength;
+    vec3_t vPos, vRightPos, vLeftPos;
+    vec3_t vDelta;
+    orientation_t oFoot;
+
+    //
+    // right foot
+    //
+    VectorCopy(pTrace->endpos, vRightPos);
+    oFoot = cgi.TIKI_Orientation(model, iRightTag);
+    VectorMA(oFoot.origin, 3, oFoot.axis[1], vPos);
+
+    for (i = 0; i < 3; i++) {
+        VectorMA(vRightPos, vPos[i], model->axis[i], vRightPos);
+    }
+
+    VectorMA(vRightPos, -2, oFoot.axis[1], vRightPos);
+
+    //
+    // left foot
+    //
+    VectorCopy(pTrace->endpos, vLeftPos);
+    oFoot = cgi.TIKI_Orientation(model, iLeftTag);
+    VectorMA(oFoot.origin, 3, oFoot.axis[1], vPos);
+
+    for (i = 0; i < 3; i++) {
+        VectorMA(vLeftPos, vPos[i], model->axis[i], vLeftPos);
+    }
+
+    VectorAdd(vRightPos, vLeftPos, vPos);
+    VectorScale(vPos, 0.5, vPos);
+    VectorSubtract(vRightPos, vLeftPos, vDelta);
+    VectorMA(vLeftPos, 0.5, vDelta, vPos);
+
+    // get the facing yaw
+    fShadowYaw = vectoyaw(vDelta);
+    fLength = VectorNormalize(vDelta) * 0.5 + 12;
+    if (fLength < fWidth * 0.7) {
+        fLength = fWidth * 0.7;
+    }
+
+    // add the mark
+    CG_ImpactMark(
+        cgs.media.shadowMarkShader,
+        vPos,
+        pTrace->plane.normal,
+        fShadowYaw,
+        fWidth * 0.7,
+        fLength,
+        fAlpha,
+        fAlpha,
+        fAlpha,
+        1.0,
+        qfalse,
+        qtrue,
+        qfalse,
+        qfalse,
+        0.5,
+        0.5
+    );
+}
+
+/*
+===============
 CG_EntityShadow
 
 Returns the Z component of the surface being shadowed
@@ -193,9 +413,15 @@ Returns the Z component of the surface being shadowed
 
 qboolean CG_EntityShadow(centity_t *cent, refEntity_t *model)
 {
+    int     iTagL, iTagR;
+    float   alpha;
+    float   fWidth;
     vec3_t  end;
+    vec3_t  vMins, vMaxs;
+    vec3_t  vSize;
     trace_t trace;
-    float   alpha, radius;
+
+    iTagL = iTagL = -1;
 
     if (cg_shadows->integer == 0) {
         return qfalse;
@@ -206,10 +432,31 @@ qboolean CG_EntityShadow(centity_t *cent, refEntity_t *model)
         return qfalse;
     }
 
-    // no shadows when invisible
-    //   if ( cent->currentState.powerups & ( 1 << PW_INVIS ) ) {
-    //      return qfalse;
-    //   }
+    if (cg_shadows->integer == 2 && (model->renderfx & RF_SHADOW_PRECISE)) {
+        iTagL = cgi.Tag_NumForName(model->tiki, "Bip01 L Foot");
+        if (iTagL != -1) {
+            iTagR = cgi.Tag_NumForName(model->tiki, "Bip01 R Foot");
+        }
+
+        if (iTagR != -1) {
+            int iNumLights, iCurrLight;
+            vec3_t avLightPos[16], avLightIntensity[16];
+
+            iNumLights = Q_clamp(cg_shadowscount->integer, 1, 8);
+            iNumLights = cgi.R_GatherLightSources(model->origin, avLightPos, avLightIntensity, iNumLights);
+            if (iNumLights)
+            {
+                for (iCurrLight = 0; iCurrLight < iNumLights; iCurrLight++)
+                {
+                    CG_CastFootShadow(avLightPos[iCurrLight], avLightIntensity[iCurrLight], iTagL, model);
+                    CG_CastFootShadow(avLightPos[iCurrLight], avLightIntensity[iCurrLight], iTagR, model);
+                }
+
+                // shadow was casted properly
+                return qtrue;
+            }
+        }
+    }
 
     // send a trace down from the player to the ground
     VectorCopy(model->origin, end);
@@ -222,28 +469,45 @@ qboolean CG_EntityShadow(centity_t *cent, refEntity_t *model)
         return qfalse;
     }
 
-    if ((cg_shadows->integer == 2) && (model->renderfx & RF_SHADOW_PRECISE)) {
+    // since 2.0: no shadow if solid
+    if (trace.startsolid || trace.allsolid) {
+        return qfalse;
+    }
+
+    if ((cg_shadows->integer == 3) && (model->renderfx & RF_SHADOW_PRECISE)) {
         return qtrue;
     }
 
     //
     // get the bounds of the current frame
     //
-    radius = model->scale * cgi.R_ModelRadius(model->hModel);
-
-    if (radius < 1) {
+    fWidth = model->scale * cgi.R_ModelRadius(model->hModel);
+    if (fWidth < 1) {
         return qfalse;
     }
 
     // fade the shadow out with height
-    alpha = (1.0 - trace.fraction) * 0.8f;
+    alpha = (1.0 - trace.fraction) * 0.65f;
 
-    if ((cg_shadows->integer == 3) && (model->renderfx & RF_SHADOW_PRECISE)) {
-        if (model->shaderRGBA[3] == 255) {
-            model->shaderRGBA[3] = alpha * 255;
+    if (model->renderfx & RF_SHADOW_PRECISE) {
+        iTagL = cgi.Tag_NumForName(model->tiki, "Bip01 L Foot");
+        if (iTagL != -1) {
+            iTagR = cgi.Tag_NumForName(model->tiki, "Bip01 R Foot");
         }
-        return qtrue;
+
+        if (iTagR != -1) {
+            if (cg_shadows->integer == 2) {
+                alpha *= 0.6f;
+            }
+
+            CG_CastSimpleFeetShadow(&trace, fWidth, alpha, iTagR, iTagL, model->tiki, model);
+            return qtrue;
+        }
     }
+
+    cgi.R_ModelBounds(model->hModel, vMins, vMaxs);
+    VectorSubtract(vMaxs, vMins, vSize);
+    VectorScale(vSize, 0.6f, vSize);
 
     // add the mark as a temporary, so it goes directly to the renderer
     // without taking a spot in the cg_marks array
@@ -252,15 +516,15 @@ qboolean CG_EntityShadow(centity_t *cent, refEntity_t *model)
         trace.endpos,
         trace.plane.normal,
         cent->lerpAngles[YAW],
-        radius,
-        radius,
+        vSize[1],
+        vSize[0],
         alpha,
         alpha,
         alpha,
         1,
         qfalse,
         qtrue,
-        qtrue,
+        qfalse,
         qfalse,
         0.5f,
         0.5f
