@@ -460,8 +460,10 @@ typedef struct {
 
 typedef struct {
 	qboolean		active;
+	qboolean		hasNormalMap;
 	
 	textureBundle_t	bundle[NUM_TEXTURE_BUNDLES];
+	image_t			*normalMap;
 	int				multitextureEnv;		// 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
 
 	waveForm_t		rgbWave;
