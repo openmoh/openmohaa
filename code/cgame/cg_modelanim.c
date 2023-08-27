@@ -303,7 +303,7 @@ void CG_CastFootShadow(const vec_t* vLightPos, vec_t* vLightIntensity, int iTag,
         vLightIntensity[2] *= 0.6 / fAlpha;
     }
 
-    if (vLightIntensity[0] <= 0.01 || vLightIntensity[1] <= 0.01 || vLightIntensity[2] <= 0.01) {
+    if (vLightIntensity[0] <= 0.01 && vLightIntensity[1] <= 0.01 && vLightIntensity[2] <= 0.01) {
         return;
     }
 
