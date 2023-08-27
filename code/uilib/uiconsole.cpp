@@ -257,7 +257,7 @@ void UIConsole::AddHistory
 		m_history.RemoveCurrentSetNext();
 	}
 
-	m_historyposition = 0;
+	m_historyposition = NULL;
 }
 
 void UIConsole::Print
@@ -275,6 +275,7 @@ void UIConsole::KeyEnter
 	)
 
 {
+	AddHistory();
 	AddText(str(">") + m_currentline + "\n", NULL);
 
 	if (m_consolehandler)
@@ -593,7 +594,7 @@ void UIConsole::CharEvent
 		m_caret = 0;
 	}
 
-	if (m_currentline == m_caret)
+	if (m_currentline.length() == m_caret)
 	{
 		m_currentline.append(str(char(ch)));
 		m_caret++;
@@ -617,7 +618,7 @@ qboolean UIConsole::KeyEvent
 	)
 
 {
-	// FIXME: Partially implemented
+	const char* command;
 
 	if (key != K_TAB && key != K_BACKSPACE) {
 		m_refreshcompletionbuffer = true;
@@ -626,6 +627,30 @@ qboolean UIConsole::KeyEvent
 	switch (key)
 	{
 	case K_TAB:
+		if (m_refreshcompletionbuffer)
+		{
+			m_completionbuffer = m_currentline;
+			m_refreshcompletionbuffer = false;
+			m_cntcvarnumber = 0;
+			m_cntcmdnumber = 0;
+		}
+
+		command = uii.Cmd_CompleteCommandByNumber(m_completionbuffer.c_str(), m_cntcmdnumber++);
+		if (!command)
+		{
+			command = uii.Cvar_CompleteCvarByNumber(m_completionbuffer.c_str(), m_cntcvarnumber++);
+			if (!command)
+			{
+				m_currentline = m_completionbuffer;
+                m_refreshcompletionbuffer = true;
+                m_caret = m_currentline.length();
+				break;
+			}
+		}
+
+		m_currentline = command;
+		m_currentline += ' ';
+		m_caret = m_currentline.length();
 		break;
 
 	case K_ENTER:
@@ -657,9 +682,52 @@ qboolean UIConsole::KeyEvent
 		break;
 
 	case K_UPARROW:
+		if (uii.Sys_IsKeyDown(K_CTRL)) {
+			// scroll up using the arrow key
+			if (m_scroll->getTopItem() > 0) {
+				m_scroll->setTopItem(m_scroll->getTopItem() - 1);
+			}
+		} else {
+			if (m_history.getCount()) {
+				if (m_historyposition) {
+					m_history.setPosition(m_historyposition);
+
+					if (!m_history.IteratePrev()) {
+						break;
+					}
+				} else {
+					m_history.IterateFromTail();
+				}
+
+				m_historyposition = m_history.getPosition();
+				m_currentline = m_history.getCurrent();
+				m_caret = m_currentline.length();
+			}
+		}
 		break;
 
 	case K_DOWNARROW:
+		if (uii.Sys_IsKeyDown(K_CTRL)) {
+			// scroll down using the arrow key
+			if (m_scroll->getTopItem() + m_scroll->getPageHeight() < m_scroll->getNumItems()) {
+				m_scroll->setTopItem(m_scroll->getTopItem() + 1);
+			}
+		} else {
+            if (m_history.getCount() && m_historyposition) {
+                m_history.setPosition(m_historyposition);
+
+                if (!m_history.IterateNext()) {
+					m_currentline = str();
+					m_caret = 0;
+					m_historyposition = NULL;
+                    break;
+                }
+
+                m_historyposition = m_history.getPosition();
+                m_currentline = m_history.getCurrent();
+                m_caret = m_currentline.length();
+			}
+		}
 		break;
 
 	case K_LEFTARROW:
@@ -683,21 +751,44 @@ qboolean UIConsole::KeyEvent
 		break;
 
 	case K_PGDN:
+		if (m_scroll->getNumItems() >= m_scroll->getPageHeight())
+		{
+			unsigned int top = m_scroll->getNumItems() - m_scroll->getPageHeight();
+			if (m_scroll->getPageHeight() + m_scroll->getTopItem() < top) {
+				top = m_scroll->getPageHeight() + m_scroll->getTopItem();
+			}
+			m_scroll->setTopItem(top);
+		}
 		break;
 
 	case K_PGUP:
+		if (m_scroll->getNumItems() >= m_scroll->getPageHeight()) {
+			m_scroll->setTopItem(m_scroll->getTopItem() - m_scroll->getPageHeight());
+		}
 		break;
 
 	case K_HOME:
+		if (uii.Sys_IsKeyDown(K_CTRL)) {
+			m_scroll->setTopItem(0);
+		} else {
+			m_caret = 0;
+		}
 		break;
 
 	case K_END:
+		if (uii.Sys_IsKeyDown(K_CTRL)) {
+			m_scroll->setTopItem(m_scroll->getNumItems());
+		} else {
+			m_caret = m_currentline.length();
+		}
 		break;
 
 	case K_MWHEELDOWN:
+		m_scroll->AttemptScrollTo(m_scroll->getTopItem() + 2);
 		break;
 
-	case K_MWHEELUP:
+    case K_MWHEELUP:
+        m_scroll->AttemptScrollTo(m_scroll->getTopItem() - 2);
 		break;
 	}
 
@@ -1077,7 +1168,7 @@ qboolean UIDMConsole::KeyEvent
 	)
 
 {
-	// FIXME: Partially implemented
+	const char* command;
 
 	if (key != K_TAB && key != K_BACKSPACE) {
 		m_refreshcompletionbuffer = true;
@@ -1086,12 +1177,39 @@ qboolean UIDMConsole::KeyEvent
 	switch (key)
 	{
 	case K_TAB:
+		if (m_refreshcompletionbuffer)
+		{
+			m_completionbuffer = m_currentline;
+			m_refreshcompletionbuffer = false;
+			m_cntcvarnumber = 0;
+			m_cntcmdnumber = 0;
+		}
+
+		command = uii.Cmd_CompleteCommandByNumber(m_completionbuffer.c_str(), m_cntcmdnumber++);
+		if (!command)
+		{
+			command = uii.Cvar_CompleteCvarByNumber(m_completionbuffer.c_str(), m_cntcvarnumber++);
+			if (!command)
+			{
+				m_currentline = m_completionbuffer;
+                m_refreshcompletionbuffer = true;
+                m_caret = m_currentline.length();
+				break;
+			}
+		}
+
+		m_currentline = command;
+		m_currentline += ' ';
+		m_caret = m_currentline.length();
 		break;
 
 	case K_ENTER:
 	case K_KP_ENTER:
 		if (m_currentline.length()) {
 			KeyEnter();
+		} else {
+			// nothing, close the dm console
+			uii.UI_CloseDMConsole();
 		}
 		break;
 
@@ -1117,9 +1235,52 @@ qboolean UIDMConsole::KeyEvent
 		break;
 
 	case K_UPARROW:
+		if (uii.Sys_IsKeyDown(K_CTRL)) {
+			// scroll up using the arrow key
+			if (m_scroll->getTopItem() > 0) {
+				m_scroll->setTopItem(m_scroll->getTopItem() - 1);
+			}
+		} else {
+			if (m_history.getCount()) {
+				if (m_historyposition) {
+					m_history.setPosition(m_historyposition);
+
+					if (!m_history.IteratePrev()) {
+						break;
+					}
+				} else {
+					m_history.IterateFromTail();
+				}
+
+				m_historyposition = m_history.getPosition();
+				m_currentline = m_history.getCurrent();
+				m_caret = m_currentline.length();
+			}
+		}
 		break;
 
 	case K_DOWNARROW:
+		if (uii.Sys_IsKeyDown(K_CTRL)) {
+			// scroll down using the arrow key
+			if (m_scroll->getTopItem() + m_scroll->getPageHeight() < m_scroll->getNumItems()) {
+				m_scroll->setTopItem(m_scroll->getTopItem() + 1);
+			}
+		} else {
+            if (m_history.getCount() && m_historyposition) {
+                m_history.setPosition(m_historyposition);
+
+                if (!m_history.IterateNext()) {
+					m_currentline = str();
+					m_caret = 0;
+					m_historyposition = NULL;
+                    break;
+                }
+
+                m_historyposition = m_history.getPosition();
+                m_currentline = m_history.getCurrent();
+                m_caret = m_currentline.length();
+			}
+		}
 		break;
 
 	case K_LEFTARROW:
@@ -1143,21 +1304,44 @@ qboolean UIDMConsole::KeyEvent
 		break;
 
 	case K_PGDN:
+		if (m_scroll->getNumItems() >= m_scroll->getPageHeight())
+		{
+			unsigned int top = m_scroll->getNumItems() - m_scroll->getPageHeight();
+			if (m_scroll->getPageHeight() + m_scroll->getTopItem() < top) {
+				top = m_scroll->getPageHeight() + m_scroll->getTopItem();
+			}
+			m_scroll->setTopItem(top);
+		}
 		break;
 
 	case K_PGUP:
+		if (m_scroll->getNumItems() >= m_scroll->getPageHeight()) {
+			m_scroll->setTopItem(m_scroll->getTopItem() - m_scroll->getPageHeight());
+		}
 		break;
 
 	case K_HOME:
+		if (uii.Sys_IsKeyDown(K_CTRL)) {
+			m_scroll->setTopItem(0);
+		} else {
+			m_caret = 0;
+		}
 		break;
 
 	case K_END:
+		if (uii.Sys_IsKeyDown(K_CTRL)) {
+			m_scroll->setTopItem(m_scroll->getNumItems());
+		} else {
+			m_caret = m_currentline.length();
+		}
 		break;
 
 	case K_MWHEELDOWN:
+		m_scroll->AttemptScrollTo(m_scroll->getTopItem() + 2);
 		break;
 
-	case K_MWHEELUP:
+    case K_MWHEELUP:
+        m_scroll->AttemptScrollTo(m_scroll->getTopItem() - 2);
 		break;
 	}
 
