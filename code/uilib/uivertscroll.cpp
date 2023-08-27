@@ -433,7 +433,11 @@ void UIVertScroll::setTopItem
 	)
 
 {
-	m_topitem = i;
+	if (i >= 0) {
+		m_topitem = i;
+	} else {
+		m_topitem = 0;
+	}
 }
 
 int UIVertScroll::getTopItem
