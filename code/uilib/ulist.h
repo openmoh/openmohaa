@@ -179,7 +179,7 @@ bool UList< type >::IteratePrev
 {
 	m_at = m_at->prev;
 
-	if( m_at == this )
+	if( m_at == &m_top )
 	{
 		m_at = NULL;
 		return false;
@@ -306,8 +306,7 @@ int UList< type >::getCount
 	)
 
 {
-	// FIXME: stub
-	return 0;
+	return m_count;
 }
 
 template< typename type >
@@ -338,8 +337,7 @@ void *UList< type >::getPosition
 	)
 
 {
-	// FIXME: stub
-	return NULL;
+	return (void*)m_at;
 }
 
 template< typename type >
@@ -349,7 +347,7 @@ void UList< type >::setPosition
 	)
 
 {
-	// FIXME: stub
+	m_at = static_cast<UListItem<type>*>(pos);
 }
 
 #endif /* __ULIST_H__ */
