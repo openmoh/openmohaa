@@ -61,7 +61,7 @@ protected:
 	UIVertScroll *m_scroll;
 	int m_firstitem;
 	int m_numitems;
-	int m_caret;
+	size_t m_caret;
 	str m_completionbuffer;
 	bool m_refreshcompletionbuffer;
 	int m_cntcmdnumber;
