@@ -402,30 +402,44 @@ void GL_State( unsigned long stateBits )
 	//
 	if ( diff & GLS_ATEST_BITS )
 	{
-		switch ( stateBits & GLS_ATEST_BITS )
+		switch (stateBits & GLS_ATEST_BITS)
 		{
 		case 0:
-			qglDisable( GL_ALPHA_TEST );
+			qglDisable(GL_ALPHA_TEST);
 			break;
 		case GLS_ATEST_GT_0:
-			qglEnable( GL_ALPHA_TEST );
-			qglAlphaFunc( GL_GREATER, 0.0f );
+			qglEnable(GL_ALPHA_TEST);
+			qglAlphaFunc(GL_GREATER, 0.05f);
 			break;
 		case GLS_ATEST_LT_80:
-			qglEnable( GL_ALPHA_TEST );
-			qglAlphaFunc( GL_LESS, 0.5f );
+			qglEnable(GL_ALPHA_TEST);
+			qglAlphaFunc(GL_LESS, 0.5f);
 			break;
 		case GLS_ATEST_GE_80:
-			qglEnable( GL_ALPHA_TEST );
-			qglAlphaFunc( GL_GEQUAL, 0.5f );
+			qglEnable(GL_ALPHA_TEST);
+			qglAlphaFunc(GL_GEQUAL, 0.5f);
+			break;
+		case GLS_ATEST_LT_FOLIAGE1:
+			qglEnable(GL_ALPHA_TEST);
+			qglAlphaFunc(GL_LESS, r_alpha_foliage1->value);
+			break;
+		case GLS_ATEST_GE_FOLIAGE1:
+			qglEnable(GL_ALPHA_TEST);
+			qglAlphaFunc(GL_GEQUAL, r_alpha_foliage1->value);
+			break;
+		case GLS_ATEST_LT_FOLIAGE2:
+			qglEnable(GL_ALPHA_TEST);
+			qglAlphaFunc(GL_LESS, r_alpha_foliage2->value);
+			break;
+		case GLS_ATEST_GE_FOLIAGE2:
+			qglEnable(GL_ALPHA_TEST);
+			qglAlphaFunc(GL_GEQUAL, r_alpha_foliage2->value);
 			break;
 		default:
-			assert( 0 );
+			assert(0);
 			break;
 		}
 	}
-
-
 
 	if (diff & GLS_CLAMP_EDGE)
 	{
@@ -471,7 +485,7 @@ void GL_State( unsigned long stateBits )
 			qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clampValue);
 		}
 	}
-
+	
 	if (diff & GLS_FOG)
 	{
 		if (glState.externalSetState & GLS_FOG)

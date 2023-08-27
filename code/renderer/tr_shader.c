@@ -200,6 +200,22 @@ static unsigned NameToAFunc( const char *funcname )
 	{
 		return GLS_ATEST_GE_80;
 	}
+	else if ( !Q_stricmp( funcname, "LT_FOLIAGE1" ) )
+	{
+		return GLS_ATEST_LT_FOLIAGE1;
+	}
+	else if ( !Q_stricmp( funcname, "GE_FOLIAGE1" ) )
+	{
+		return GLS_ATEST_GE_FOLIAGE1;
+	}
+	else if ( !Q_stricmp( funcname, "LT_FOLIAGE2" ) )
+	{
+		return GLS_ATEST_LT_FOLIAGE2;
+	}
+	else if ( !Q_stricmp( funcname, "GE_FOLIAGE2" ) )
+	{
+		return GLS_ATEST_GE_FOLIAGE2;
+	}
 
 	ri.Printf( PRINT_WARNING, "WARNING: invalid alphaFunc name '%s' in shader '%s'\n", funcname, shader.name );
 	return 0;
