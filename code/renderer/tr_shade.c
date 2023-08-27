@@ -397,6 +397,8 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
 	R_BindAnimatedImage( &pStage->bundle[0] );
 
+/*
+	// was removed since 2.0
 	if (pStage->stateBits & GLS_MULTITEXTURE_ENV)
 	{
 		glState.cntnvblendmode = pStage->multitextureEnv;
@@ -427,6 +429,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 			ri.Printf(3, "Unknown MT mode for: %s\n", input->shader);
 		}
 	}
+*/
 
 	//
 	// lightmap/secondary pass
@@ -437,6 +440,8 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 
 	if ( r_lightmap->integer && pStage->bundle[1].isLightmap ) {
 		GL_TexEnv( GL_REPLACE );
+/*
+	// was removed since 2.0
 	} else if (pStage->stateBits & GLS_MULTITEXTURE_ENV) {
 		glState.cntTexEnvExt = GLS_MULTITEXTURE_ENV;
 
@@ -448,6 +453,7 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 		qglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_SRC_ALPHA);
 		qglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_ALPHA);
+*/
 	} else {
 		GL_TexEnv( pStage->multitextureEnv );
 	}
