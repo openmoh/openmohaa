@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // interpolating between snapshots from the server or locally predicting
 // ahead the client's movement. It also handles local physics interaction,
 // like fragments bouncing off walls
+//
+// ADDITIONS:
+// - CG_InterpolatePlayerState() footer: Interpolate the lean angles
 
 #include "cg_local.h"
 
@@ -408,9 +411,6 @@ static void CG_InterpolatePlayerState(qboolean grabAngles)
 
     // interpolate the lean angle
     out->fLeanAngle = LerpAngle(prev->ps.fLeanAngle, next->ps.fLeanAngle, f);
-
-    // this allows the view model to still look normal when the player is on ground
-    out->walking = next->ps.groundEntityNum != ENTITYNUM_NONE;
 }
 
 /*

@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // DESCRIPTION:
 // things that happen on snapshot transition, not necessarily every
 // single frame
+//
+// ADDITIONS:
+// - CG_TransitionSnapshot() footer: set ps.walking to true if the ps has a ground entity
 
 #include "cg_local.h"
 #include "cg_radar.h"
@@ -207,6 +210,8 @@ static void CG_TransitionSnapshot(qboolean differentServer)
             cent->teleported  = qfalse;
         }
         CG_TransitionEntity(cent);
+
+        // remember time of snapshot this entity was last updated in
         cent->snapShotTime = cg.snap->serverTime;
     }
 
@@ -251,6 +256,9 @@ static void CG_TransitionSnapshot(qboolean differentServer)
     } else {
         cgi.CL_ClearSavedCgameState();
     }
+
+    // this allows the view model to still look normal when the player is on ground
+    cg.snap->ps.walking = cg.snap->ps.groundEntityNum != ENTITYNUM_NONE;
 }
 
 /*
