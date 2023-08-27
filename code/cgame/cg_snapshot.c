@@ -207,6 +207,7 @@ static void CG_TransitionSnapshot(qboolean differentServer)
             cent->teleported  = qfalse;
         }
         CG_TransitionEntity(cent);
+        cent->snapShotTime = cg.snap->serverTime;
     }
 
     for (i = 0; i < cg.snap->number_of_sounds; i++) {
