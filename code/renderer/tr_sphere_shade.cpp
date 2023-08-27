@@ -1292,8 +1292,9 @@ static void R_InsertLightIntoList(spherel_t* pLight, float fIntensity, gatheredL
 
 	if (fIntensity > pLightsList[0]->fIntensity) {
 		pLightsList[0] = pLightsList[0]->pPrev;
-		pLightsList[0]->pPrev->pLight = pLight;
+		pLightsList[0]->pLight = pLight;
 		pLightsList[0]->fIntensity = fIntensity;
+		return;
 	}
 
 	pCurrLight = pLightsList[0]->pNext;
@@ -1343,15 +1344,18 @@ int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightI
 		return 0;
 	}
 
-    for (j = 0; j < 6; j++) {
-        lights[j].pNext = &lights[j + 2];
-		lights[j].pPrev = &lights[j];
+	memset(lights, 0, sizeof(lights));
+
+    for (j = 0; j < MAX_GATHERED_LIGHTS - 2; j++) {
+        lights[j + 1].pNext = &lights[j + 2];
+		lights[j + 1].pPrev = &lights[j];
 	}
 
 	lights[0].pNext = &lights[1];
 	lights[0].pPrev = &lights[MAX_GATHERED_LIGHTS - 1];
 	lights[MAX_GATHERED_LIGHTS - 1].pNext = &lights[0];
 	lights[MAX_GATHERED_LIGHTS - 1].pPrev = &lights[MAX_GATHERED_LIGHTS - 2];
+	pLightsHead = &lights[0];
 
 	if (tr.world->vis) {
 		leaf = R_PointInLeaf(vPos);
@@ -1411,7 +1415,7 @@ int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightI
 	pLightsCurr = pLightsHead;
 
 	for (;
-		iLightCount < iMaxLights && pLightsCurr->pLight && pLightsCurr != pLightsHead;
+		iLightCount < iMaxLights && iLightCount < MAX_GATHERED_LIGHTS && pLightsCurr->pLight;
 		iLightCount++, pLightsCurr = pLightsCurr->pNext) {
 		VectorCopy(pLightsCurr->pLight->origin, pvLightPos[iLightCount]);
 		vDelta[0] = pLightsCurr->fIntensity / 200.0 * pLightsCurr->pLight->color[0];
@@ -1424,6 +1428,9 @@ int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightI
 
 		VectorCopy(vDelta, pvLightIntensity[iLightCount]);
 		pLightsCurr = pLightsCurr->pNext;
+		if (pLightsCurr == pLightsHead) {
+			break;
+		}
 	}
 
 	return iLightCount;
