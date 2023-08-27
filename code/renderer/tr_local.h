@@ -1167,11 +1167,11 @@ the bits are allocated as follows:
 2-6   : fog index
 0-1   : dlightmap index
 */
-#define	QSORT_SHADERNUM_SHIFT	22
+#define	QSORT_SHADERNUM_SHIFT	21 // was 22, decreased in 2.0
 #define	QSORT_ENTITYNUM_SHIFT	8
 #define	QSORT_FOGNUM_SHIFT		2
 #define	QSORT_REFENTITYNUM_SHIFT	7
-#define	QSORT_STATICMODEL_SHIFT	21
+#define	QSORT_STATICMODEL_SHIFT	20 // was 21, decreased in 2.0
 
 extern	int			gl_filter_min, gl_filter_max;
 
