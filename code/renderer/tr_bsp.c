@@ -132,9 +132,9 @@ static	void R_ColorShiftLightingBytes( byte in[3], byte out[3] ) {
 	int		r, g, b;
 
 	// shift the data based on overbright range
-	r = in[0] << tr.overbrightBits;
-	g = in[1] << tr.overbrightBits;
-	b = in[2] << tr.overbrightBits;
+	r = in[0] << tr.overbrightShift;
+	g = in[1] << tr.overbrightShift;
+	b = in[2] << tr.overbrightShift;
 	
 	// normalize by color instead of saturating to white
 	if ( ( r | g | b ) > 255 ) {
@@ -162,14 +162,14 @@ static	void R_ColorShiftLightingBytesAlpha( byte in[4], byte out[4] ) {
 	int		r, g, b;
 
 	// shift the data based on overbright range
-	r = in[0] << tr.overbrightBits;
-	g = in[1] << tr.overbrightBits;
-	b = in[2] << tr.overbrightBits;
+	r = in[0] << tr.overbrightShift;
+	g = in[1] << tr.overbrightShift;
+	b = in[2] << tr.overbrightShift;
 	
 	// normalize by color instead of saturating to white
 	if ( ( r | g | b ) > 255 ) {
 		int		max;
-
+		
 		max = r > g ? r : g;
 		max = max > b ? max : b;
 		r = r * 255 / max;
@@ -441,11 +441,11 @@ static shader_t *ShaderForShaderNum( int shaderNum, int lightmapNum ) {
 	}
 	dsh = &s_worldData.shaders[ shaderNum ];
 
-	if ( r_vertexLight->integer || glConfig.hardwareType == GLHW_PERMEDIA2 ) {
+	if ( r_vertexLight->integer ) {
 		lightmapNum = LIGHTMAP_BY_VERTEX;
 	}
 
-	if ( r_fullbright->integer ) {
+	if ( r_fullbright->integer || !tr.numLightmaps ) {
 		lightmapNum = LIGHTMAP_WHITEIMAGE;
 	}
 
