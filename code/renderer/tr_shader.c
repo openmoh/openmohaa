@@ -695,6 +695,17 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 				}
 				continue;
 			}
+			else if (!Q_stricmp(token, "$bumpmap"))
+            {
+                token = COM_ParseExt(text, qfalse);
+                if (!token[0])
+                {
+                    ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'bumpmap' keyword in shader '%s'\n", shader.name);
+                    return qfalse;
+                }
+
+				// This is not implemented in mohaa
+			}
 			else
 			{
 				stage->bundle[cntBundle].image[0] = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, qfalse, GL_REPEAT, GL_REPEAT);
@@ -815,6 +826,28 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 					stage->bundle[cntBundle].numImageAnimations++;
 				}
 			}
+		}
+		else if (!Q_stricmp(token, "normalmap"))
+        {
+			//
+			// added in 2.30
+			//
+
+            token = COM_ParseExt(text, qfalse);
+            if (!token[0])
+            {
+                ri.Printf(PRINT_WARNING, "WARNING: missing parameter for 'normalmap' keyword in shader '%s'\n", shader.name);
+                return qfalse;
+            }
+
+			stage->normalMap = R_FindImageFile(token, !stage->noMipMaps, !stage->noPicMip, stage->force32bit, GL_REPEAT, GL_REPEAT);
+			if (!stage->normalMap)
+            {
+                ri.Printf(PRINT_WARNING, "WARNING: R_FindImageFile could not find '%s' in shader '%s'\n", token, shader.name);
+                return qfalse;
+			}
+
+			stage->hasNormalMap = qtrue;
 		}
 		//
 		// alphafunc <func>
