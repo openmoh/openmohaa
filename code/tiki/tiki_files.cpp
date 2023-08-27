@@ -395,7 +395,7 @@ dtiki_t* TIKI_LoadTikiModel(dtikianim_t* tikianim, const char* name, con_map<str
 		}
 	}
 
-	if (tiki->radius != 0.0f)
+	if (!tiki->radius)
 	{
 		TIKI_CalcRadius(tiki);
 	}
