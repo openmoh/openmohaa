@@ -245,6 +245,12 @@ static void CG_TransitionSnapshot(qboolean differentServer)
             CG_TransitionPlayerState(ps, ops);
         }
     }
+
+    if (differentServer) {
+        cgi.CL_RestoreSavedCgameState();
+    } else {
+        cgi.CL_ClearSavedCgameState();
+    }
 }
 
 /*
