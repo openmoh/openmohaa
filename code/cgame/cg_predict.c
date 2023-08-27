@@ -406,6 +406,9 @@ static void CG_InterpolatePlayerState(qboolean grabAngles)
         out->velocity[i] = prev->ps.velocity[i] + f * (next->ps.velocity[i] - prev->ps.velocity[i]);
     }
 
+    // interpolate the lean angle
+    out->fLeanAngle = LerpAngle(prev->ps.fLeanAngle, next->ps.fLeanAngle, f);
+
     // this allows the view model to still look normal when the player is on ground
     out->walking = next->ps.groundEntityNum != ENTITYNUM_NONE;
 }
