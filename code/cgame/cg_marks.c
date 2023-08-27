@@ -685,9 +685,9 @@ void CG_ImpactMark(
     // create the full polygon
     for (i = 0; i < 3; i++) {
         originalPoints[0][i] = origin[i] - fSScale2 * info.axis[1][i] - fTScale2 * info.axis[2][i];
-        originalPoints[1][i] = origin[i] + fSScale3 * info.axis[1][i] - fTScale3 * info.axis[2][i];
+        originalPoints[1][i] = origin[i] + fSScale3 * info.axis[1][i] - fTScale2 * info.axis[2][i];
         originalPoints[2][i] = origin[i] + fSScale3 * info.axis[1][i] + fTScale3 * info.axis[2][i];
-        originalPoints[3][i] = origin[i] - fSScale2 * info.axis[1][i] + fTScale2 * info.axis[2][i];
+        originalPoints[3][i] = origin[i] - fSScale2 * info.axis[1][i] + fTScale3 * info.axis[2][i];
     }
 
     // get the fragments
