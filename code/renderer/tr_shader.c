@@ -783,6 +783,7 @@ static qboolean ParseStage(shaderStage_t* stage, char** text)
 				return qfalse;
 			}
 			stage->bundle[cntBundle].imageAnimationSpeed = atof( token );
+			stage->bundle[cntBundle].imageAnimationPhase = 0;
 
 			if (phased)
             {
@@ -2290,7 +2291,7 @@ static void CollapseMultitexture(int *stagecounter) {
 		stage = &unfoggedStages[stagenum];
 
 		// make sure both unfoggedStages are active
-		if (!stage->active || !unfoggedStages[stagenum + 1].active) {
+		if (!stage[0].active || !stage[1].active) {
 			continue;
 		}
 
@@ -2300,18 +2301,25 @@ static void CollapseMultitexture(int *stagecounter) {
 
 		// on voodoo2, don't combine different tmus
 		if (glConfig.driverType == GLDRV_VOODOO) {
-			if (stage->bundle[0].image[0]->TMU ==
-				unfoggedStages[stagenum + 1].bundle[0].image[0]->TMU) {
+			if (stage[1].bundle[0].image[0]->TMU ==
+				unfoggedStages[stagenum].bundle[0].image[0]->TMU) {
 				continue;
 			}
 		}
 
-		abits = stage->stateBits;
-		bbits = unfoggedStages[stagenum + 1].stateBits;
+		abits = stage[0].stateBits;
+		bbits = stage[1].stateBits;
 
 		// make sure that both unfoggedStages have identical state other than blend modes
-		if ((abits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE)) !=
-			(bbits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE))) {
+		if (
+			(abits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE)) !=
+			(bbits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE))
+            && (bbits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE)
+					& abits & ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHMASK_TRUE)
+					& ~(GLS_DSTBLEND_BITS | GLS_SRCBLEND_BITS | GLS_DEPTHFUNC_EQUAL | GLS_DEPTHMASK_TRUE)
+				|| !(abits & GLS_DEPTHMASK_TRUE)
+				|| !(bbits & GLS_DEPTHFUNC_EQUAL))
+			) {
 			continue;
 		}
 
@@ -2371,12 +2379,12 @@ static void CollapseMultitexture(int *stagecounter) {
 		if (stage->bundle[0].isLightmap)
 		{
 			tmpBundle = stage->bundle[0];
-			stage->bundle[0] = unfoggedStages[stagenum + 1].bundle[0];
+			stage->bundle[0] = stage[1].bundle[0];
 			stage->bundle[1] = tmpBundle;
 		}
 		else
 		{
-			stage->bundle[1] = unfoggedStages[stagenum + 1].bundle[0];
+			stage->bundle[1] = stage[1].bundle[0];
 		}
 
 		// set the new blend state bits
