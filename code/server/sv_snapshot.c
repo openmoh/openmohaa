@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "server.h"
 #include "../qcommon/bg_compat.h"
 
+#define	CULL_IN		0		// completely unclipped
+#define	CULL_CLIP	1		// clipped by one or more planes
+#define	CULL_OUT	2		// completely outside the clipping planes
 
 /*
 =============================================================================
@@ -290,6 +293,121 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 	return 1;
 }
 
+/*
+===============
+SV_WorldTrace
+===============
+*/
+qboolean SV_WorldTrace(const vec3_t start, const vec3_t end, int mask)
+{
+	trace_t trace = { 0 };
+
+    CM_BoxTrace(&trace, start, end, vec3_origin, vec3_origin, 0, mask, qfalse);
+    return trace.fraction == 1;
+}
+
+/*
+===============
+SV_ClientIsVisibleTrace
+===============
+*/
+qboolean SV_ClientIsVisibleTrace(const vec3_t fromOrigin, const vec3_t toOrigin, float dist, float dot) {
+	vec3_t dir;
+	vec3_t end;
+
+	VectorSubtract(toOrigin, fromOrigin, dir);
+	VectorNormalize(dir);
+	VectorScale(dir, -dist, end);
+	VectorAdd(end, toOrigin, end);
+
+	if (SV_WorldTrace(fromOrigin, end, (CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_SOLID))) {
+		return qtrue;
+	}
+
+	if (dot < 0) {
+		return qfalse;
+    }
+
+	end[2] -= dist;
+	return SV_WorldTrace(fromOrigin, end, (CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_SOLID));
+}
+
+/*
+===============
+SV_ClientIsVisible
+===============
+*/
+qboolean SV_ClientIsVisible(int toNum, int fromNum, int distCheck, const vec3_t forward, const vec3_t left) {
+	static unsigned int nextVisibilityCheckTime = 1000;
+	client_t* fromClient;
+	playerState_t *fromPs, *toPs;
+	vec3_t dir;
+	vec3_t fromOrigin, toOrigin;
+	float dot;
+	float speed;
+	
+	if (!g_netoptimize->integer || !sv_netoptimize->integer) {
+		return qtrue;
+	}
+
+	if (toNum >= svs.iNumClients) {
+		return qtrue;
+	}
+
+	fromClient = &svs.clients[fromNum];
+	if (!distCheck) {
+		fromClient->lastVisCheckTime[toNum] = svs.time + nextVisibilityCheckTime;
+		return qtrue;
+	}
+
+	if (fromClient->lastVisCheckTime[toNum] > svs.time) {
+		return qtrue;
+	}
+
+    fromPs = SV_GameClientNum(fromNum);
+    toPs = SV_GameClientNum(toNum);
+
+	if (fromPs->fLeanAngle == 0) {
+		VectorCopy(fromPs->vEyePos, fromOrigin);
+	} else if (fromPs->fLeanAngle >= 0) {
+		VectorScale(left, 30, fromOrigin);
+		VectorAdd(fromOrigin, fromPs->vEyePos, fromOrigin);
+	} else {
+		VectorScale(left, -30, fromOrigin);
+		VectorAdd(fromOrigin, fromPs->vEyePos, fromOrigin);
+	}
+
+	VectorCopy(toPs->origin, toOrigin);
+	toOrigin[2] += 82;
+
+	VectorSubtract(toOrigin, fromOrigin, dir);
+	VectorNormalize(dir);
+
+	dot = DotProduct(forward, dir);
+	if (SV_ClientIsVisibleTrace(fromOrigin, toOrigin, 41, dot)) {
+		fromClient->lastVisCheckTime[toNum] = svs.time + nextVisibilityCheckTime;
+		return qtrue;
+	}
+
+	speed = VectorLength(toPs->velocity);
+	if (speed <= 0) {
+		return qfalse;
+	}
+
+	//
+	// check with velocity prediction
+	//
+	VectorMA(fromOrigin, sv.frameTime * 3, fromPs->velocity, fromOrigin);
+	VectorMA(toOrigin, sv.frameTime * 3, toPs->velocity, toOrigin);
+
+	if (SV_ClientIsVisibleTrace(fromOrigin, toOrigin, 41, dot)) {
+        fromClient->lastVisCheckTime[toNum] = svs.time + nextVisibilityCheckTime;
+        return qtrue;
+	}
+
+	// not visible
+	return qfalse;
+}
 
 /*
 ===============
@@ -314,26 +432,83 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, gentity_t *gEnt, snapshotEnt
 
 /*
 ===============
+EntityDistCheck
+===============
+*/
+int EntityDistCheck(const vec3_t origin, const vec3_t forward, const gentity_t* ent, float farplane, float fov) {
+	vec3_t dir;
+	float farplaneMax;
+	float length;
+	float fovCheck;
+	float dot;
+
+	VectorSubtract(origin, ent->r.centroid, dir);
+	length = VectorNormalize(dir);
+
+	farplaneMax = farplane + 128;
+	if (length - ent->r.radius >= farplaneMax) {
+		return CULL_OUT;
+	}
+
+	fovCheck = ((length - ent->r.radius) * (fov / 80.0));
+
+	if (ent->s.number < svs.iNumClients) {
+		if (VectorLength(ent->s.pos.trDelta) < 5) {
+			fovCheck *= 0.25f;
+		}
+	}
+
+	if (fovCheck <= 640) {
+		return CULL_IN;
+	}
+
+	dot = DotProduct(forward, dir) + 0.5f;
+	if (dot < 0.f) {
+		dot = 0;
+	}
+
+	if (fovCheck * dot * 2.f + 1.f >= farplaneMax) {
+		// outside the farplane
+		return CULL_OUT;
+	}
+
+	return CULL_CLIP;
+}
+
+/*
+===============
 SV_AddEntitiesVisibleFromPoint
 ===============
 */
-static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame, 
-									snapshotEntityNumbers_t *eNums, qboolean portal ) {
+static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t* frame, snapshotEntityNumbers_t* eNums, svEntity_t* portalEnt, qboolean portalsky, client_t* client, const vec3_t angles ) {
 	int		e, i;
 	gentity_t *ent;
-	svEntity_t	*svEnt;
+	gentity_t *parentEnt;
+	playerState_t *ps;
+	svEntity_t	*svEnt, *svCheckEnt;
 	int		l;
 	int		clientarea, clientcluster;
 	int		leafnum;
 	int		c_fullsend;
 	byte	*clientpvs;
 	byte	*bitvector;
+	gentity_t* skyorigin = NULL;
+	int		num;
+	int		check = 0;
+	vec3_t	forward, left;
 
 	// during an error shutdown message we may need to transmit
 	// the shutdown message after the server has shutdown, so
 	// specfically check for it
 	if ( !sv.state ) {
 		return;
+	}
+
+	ps = SV_GameClientNum(client - svs.clients);
+
+	num = 1;
+	if (sv_drawentities->integer) {
+		num = sv.num_entities;
 	}
 
 	leafnum = CM_PointLeafnum (origin);
@@ -345,26 +520,29 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 
 	clientpvs = CM_ClusterPVS (clientcluster);
 
+	AngleVectors(angles, forward, left, NULL);
+
 	c_fullsend = 0;
 
 	for ( e = 0 ; e < sv.num_entities ; e++ ) {
 		ent = SV_GentityNum(e);
 
+		// never send unused entities
+		if (!ent->inuse) {
+			continue;
+		}
+
+		// mark the entity as sent
+		ent->r.svFlags |= SVF_SENT;
+
 		// never send entities that aren't linked in
 		if ( !ent->r.linked ) {
 			continue;
 		}
-
-		if (ent->s.number != e) {
-			Com_DPrintf ("FIXING ENT->S.NUMBER!!!\n");
-			ent->s.number = e;
-		}
-
 		// entities can be flagged to explicitly not be sent to the client
 		if ( ent->r.svFlags & SVF_NOCLIENT ) {
 			continue;
 		}
-
 		// entities can be flagged to be sent to only one client
 		if ( ent->r.svFlags & SVF_SINGLECLIENT ) {
 			if ( ent->r.singleClient != frame->ps.clientNum ) {
@@ -385,6 +563,15 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 				continue;
 		}
 
+		parentEnt = NULL;
+		if (ent->s.parent != ENTITYNUM_NONE) {
+			parentEnt = SV_GentityNum(ent->s.parent);
+			// parents that will not send to clients will be skipped
+			if (parentEnt && parentEnt->r.svFlags & SVF_NOCLIENT) {
+				continue;
+			}
+		}
+
 		svEnt = SV_SvEntityForGentity( ent );
 
 		// don't double add an entity through portals
@@ -392,21 +579,70 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 			continue;
 		}
 
+		if (ent->s.renderfx & RF_SKYORIGIN) {
+			if (sv.skyportal && !portalsky && !portalEnt) {
+				if (skyorigin) {
+					Com_Error(ERR_DROP, "SV_AddEntitiesVisibleFromPoint: duplicate sky origin");
+				}
+				skyorigin = ent;
+				SV_AddEntToSnapshot(svEnt, ent, eNums, NULL, qfalse);
+			}
+			continue;
+		}
+
 		// broadcast entities are always sent
-		if ( ent->r.svFlags & SVF_BROADCAST ) {
+		// or broadcast entities that are sent once
+		if ( (ent->r.svFlags & SVF_BROADCAST) || (ent->r.svFlags & SVF_SENDONCE)  ) {
 			SV_AddEntToSnapshot( svEnt, ent, eNums, NULL, qfalse);
 			continue;
 		}
 
-		// FIXME: entities won't show sometimes
-#if 0
+		if (parentEnt) {
+			svEntity_t* parentSvEnt = SV_SvEntityForGentity(parentEnt);
+			if (parentSvEnt->snapshotCounter == sv.snapshotCounter) {
+				SV_AddEntToSnapshot(svEnt, ent, eNums, portalEnt, portalsky);
+				continue;
+			}
+
+			if (g_gametype->integer != GT_SINGLE_PLAYER && ent->s.parent < svs.iNumClients) {
+				continue;
+			}
+
+			svCheckEnt = parentSvEnt;
+		} else {
+			svCheckEnt = svEnt;
+		}
+
+		if (!(ent->r.svFlags & SVF_PORTAL) && !ent->s.modelindex && !ent->s.loopSound) {
+			// don't send entities that have nothing to draw
+			continue;
+		}
+
+		if ((ent->s.loopSound && ent->s.loopSoundMinDist == 10000) || ent->s.renderfx & RF_VIEWMODEL) {
+            // loopsound entities should be sent regardless
+			SV_AddEntToSnapshot(svEnt, ent, eNums, portalEnt, portalsky);
+            continue;
+		}
+
 		// ignore if not touching a PV leaf
 		// check area
-		if ( !CM_AreasConnected( clientarea, svEnt->areanum ) ) {
+		if ( !CM_AreasConnected( clientarea, svCheckEnt->areanum ) ) {
 			// doors can legally straddle two areas, so
 			// we may need to check another one
-			if ( !CM_AreasConnected( clientarea, svEnt->areanum2 ) ) {
+			if ( !CM_AreasConnected( clientarea, svCheckEnt->areanum2 ) ) {
 				continue;		// blocked by a door
+			}
+		}
+
+		if (g_gametype->integer != GT_SINGLE_PLAYER && !(ent->r.svFlags & SVF_NOFARPLANE)) {
+			float farplane = sv.farplane;
+
+			if (farplane < 1) farplane = 1;
+			if (farplane > 12000) farplane = 12000;
+
+			check = EntityDistCheck(origin, forward, parentEnt ? parentEnt : ent, farplane, ps->fov);
+			if (check == CULL_OUT) {
+				continue;
 			}
 		}
 
@@ -414,13 +650,12 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		if( !svEnt->numClusters ) {
 			continue;
 		}
-#endif
 
 		bitvector = clientpvs;
 
 		l = 0;
-		for ( i=0 ; i < svEnt->numClusters ; i++ ) {
-			l = svEnt->clusternums[i];
+		for ( i=0 ; i < svCheckEnt->numClusters ; i++ ) {
+			l = svCheckEnt->clusternums[i];
 			if ( bitvector[l >> 3] & (1 << (l&7) ) ) {
 				break;
 			}
@@ -428,19 +663,30 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 
 		// if we haven't found it to be visible,
 		// check overflow clusters that coudln't be stored
-		if ( i == svEnt->numClusters ) {
-			if ( svEnt->lastCluster ) {
-				for ( ; l <= svEnt->lastCluster ; l++ ) {
+		if ( i == svCheckEnt->numClusters ) {
+			if ( svCheckEnt->lastCluster ) {
+				for ( ; l <= svCheckEnt->lastCluster ; l++ ) {
 					if ( bitvector[l >> 3] & (1 << (l&7) ) ) {
 						break;
 					}
 				}
-				if ( l == svEnt->lastCluster ) {
+				if ( l == svCheckEnt->lastCluster ) {
 					continue;	// not visible
 				}
 			} else {
-				// FIXME (ley0k) : this seems to hide the entity at random places
-				//continue;
+				continue;
+			}
+		}
+
+		if (svEnt->snapshotCounter == sv.snapshotCounter) {
+			ent->s.renderfx &= ~(RF_WRAP_FRAMES | RF_SHADOW_PLANE);
+			ent->s.renderfx |= RF_WRAP_FRAMES;
+			continue;
+		}
+
+		if (g_gametype->integer != GT_SINGLE_PLAYER && ent->s.number < svs.iNumClients) {
+			if (!SV_ClientIsVisible(ent->s.number, client - svs.clients, check, forward, left)) {
+				continue;
 			}
 		}
 
@@ -448,18 +694,13 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 		SV_AddEntToSnapshot( svEnt, ent, eNums, NULL, qfalse);
 
 		// if its a portal entity, add everything visible from its camera position
-		if ( ent->r.svFlags & SVF_PORTAL ) {
-			// entityState_t::generic1 is not present in MoHAA
-			//if ( ent->s.generic1 ) {
-			//	vec3_t dir;
-			//	VectorSubtract(ent->s.origin, origin, dir);
-			//	if ( VectorLengthSquared(dir) > (float) ent->s.generic1 * ent->s.generic1 ) {
-			//		continue;
-			//	}
-			//}
-			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, qtrue );
+		if ( ent->r.svFlags & SVF_PORTAL && svEnt != portalEnt ) {
+			SV_AddEntitiesVisibleFromPoint( ent->s.origin2, frame, eNums, svEnt, qfalse, client, angles  );
 		}
+	}
 
+	if (!portalsky && skyorigin && !portalEnt) {
+		SV_AddEntitiesVisibleFromPoint(skyorigin->s.origin, frame, eNums, NULL, qtrue, client, angles);
 	}
 }
 
@@ -679,6 +920,7 @@ For viewing through other player's eyes, clent can be something other than clien
 */
 static void SV_BuildClientSnapshot( client_t *client ) {
 	vec3_t						org;
+	vec3_t						ang;
 	clientSnapshot_t			*frame;
 	snapshotEntityNumbers_t		entityNumbers;
 	int							i;
@@ -729,18 +971,19 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	if (ps->pm_flags & PMF_CAMERA_VIEW)
 	{
 		VectorCopy(ps->camera_origin, org);
+		VectorCopy(ps->camera_angles, ang);
 	}
 	else
 	{
-		VectorCopy(ps->origin, org);
-		org[2] += ps->viewheight;
+		VectorCopy(ps->vEyePos, org);
+		VectorCopy(ps->viewangles, ang);
 	}
 
 	SV_AddEntToSnapshot(svEnt, SV_GentityNum(client - svs.clients), &entityNumbers, NULL, qfalse);
 
 	// add all the entities directly visible to the eye, which
 	// may include portal entities that merge other viewpoints
-	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, qfalse );
+	SV_AddEntitiesVisibleFromPoint( org, frame, &entityNumbers, NULL, qfalse, client, ang );
 
 	// if there were portals visible, there may be out of order entities
 	// in the list which will need to be resorted for the delta compression
