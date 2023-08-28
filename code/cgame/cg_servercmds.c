@@ -112,6 +112,7 @@ void CG_ParseServerinfo(void)
     char        map[MAX_QPATH];
     char       *spawnpos;
     const char *version;
+    const char *mapChecksumStr;
 
     info           = CG_ConfigString(CS_SERVERINFO);
     cgs.gametype   = atoi(Info_ValueForKey(info, "g_gametype"));
@@ -140,7 +141,14 @@ void CG_ParseServerinfo(void)
     cgi.Cvar_Set("cg_obj_axistext3", Info_ValueForKey(info, "cg_obj_axistext3"));
     cgi.Cvar_Set("cg_scoreboardpic", Info_ValueForKey(info, "g_scoreboardpic"));
     cgi.Cvar_Set("cg_scoreboardpicover", Info_ValueForKey(info, "g_scoreboardpicover"));
-    cgs.mapChecksum = atoi(Info_ValueForKey(info, "sv_mapChecksum"));
+    mapChecksumStr = Info_ValueForKey(info, "sv_mapChecksum");
+    if (mapChecksumStr && mapChecksumStr[0]) {
+        cgs.mapChecksum = atoi(mapChecksumStr);
+        cgs.useMapChecksum = qtrue;
+    } else {
+        cgs.mapChecksum = 0;
+        cgs.useMapChecksum = qfalse;
+    }
 
     mapname = Info_ValueForKey(info, "mapname");
 

@@ -394,6 +394,7 @@ extern "C" {
         int        maxclients;
         int        cinematic;
         int        mapChecksum;
+        qboolean   useMapChecksum;
         char       mapname[MAX_QPATH];
 
         //
