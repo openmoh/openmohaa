@@ -298,6 +298,10 @@ void CG_ProcessConfigString(int num)
         cg.matchStartTime = atoi(str);
         return;
     case CS_FOGINFO:
+        cg.farclipOverride = 0;
+        cg.farplaneColorOverride[0] = -1;
+        cg.farplaneColorOverride[1] = -1;
+        cg.farplaneColorOverride[2] = -1;
         CG_ParseFogInfo(str);
         return;
     case CS_SKYINFO:
