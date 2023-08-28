@@ -662,6 +662,10 @@ static int CG_CalcViewValues(void)
         // Set the aural axis to the camera's angles
         VectorCopy(cg.camera_angles, cg.refdefViewAngles);
 
+        if (cg_protocol >= PROTOCOL_MOHTA_MIN && ps->pm_flags & PMF_DAMAGE_ANGLES) {
+            VectorSubtract(cg.refdefViewAngles, cg.predicted_player_state.damage_angles, cg.refdefViewAngles);
+        }
+
         if (ps->camera_posofs[0] || ps->camera_posofs[1] || ps->camera_posofs[2]) {
             vec3_t vAxis[3], vOrg;
             AnglesToAxis(cg.refdefViewAngles, vAxis);
@@ -672,6 +676,9 @@ static int CG_CalcViewValues(void)
         // copy view values
         VectorCopy(cg.refdef.vieworg, cg.currentViewPos);
         VectorCopy(cg.refdefViewAngles, cg.currentViewAngles);
+        // since 2.0: also copy location data for sound
+        VectorCopy(cg.refdef.vieworg, cg.SoundOrg);
+        AnglesToAxis(cg.refdefViewAngles, cg.SoundAxis);
     }
 
     // position eye reletive to origin
@@ -813,10 +820,46 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
             CG_ScoresDown_f();
         } else if (cg.bIntermissionDisplay) {
             if (cg.nextSnap) {
-                if (cgi.Cvar_Get("g_success", "", 0)->integer) {
-                    cgi.UI_ShowMenu("StatsScreen_Success", qfalse);
+                if (cg_protocol >= PROTOCOL_MOHTA_MIN) {
+                    cvar_t* pMission = cgi.Cvar_Get("g_mission", "", CVAR_ARCHIVE);
+
+                    if (cgi.Cvar_Get("g_success", "", 0)->integer) {
+                        switch (pMission->integer)
+                        {
+                        default:
+                        case 0:
+                            cgi.UI_ShowMenu("mission_success_1", 0);
+                            cgi.Cvar_Set("g_t2l1", "1");
+                            break;
+                        case 2:
+                            cgi.UI_ShowMenu("mission_success_2", 0);
+                            cgi.Cvar_Set("g_t3l1", "1");
+                            break;
+                        case 3:
+                            cgi.UI_ShowMenu("mission_success_3", 0);
+                            break;
+                        }
+                    } else {
+                        switch (pMission->integer)
+                        {
+                        default:
+                        case 0:
+                            cgi.UI_ShowMenu("mission_failed_1", 0);
+                            break;
+                        case 2:
+                            cgi.UI_ShowMenu("mission_failed_2", 0);
+                            break;
+                        case 3:
+                            cgi.UI_ShowMenu("mission_failed_3", 0);
+                            break;
+                        }
+                    }
                 } else {
-                    cgi.UI_ShowMenu("StatsScreen_Failed", qfalse);
+                    if (cgi.Cvar_Get("g_success", "", 0)->integer) {
+                        cgi.UI_ShowMenu("StatsScreen_Success", qfalse);
+                    } else {
+                        cgi.UI_ShowMenu("StatsScreen_Failed", qfalse);
+                    }
                 }
             }
         } else {
@@ -828,10 +871,44 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
         if (cgs.gametype != GT_SINGLE_PLAYER) {
             CG_ScoresUp_f();
         } else {
-            if (cgi.Cvar_Get("g_success", "", 0)->integer) {
-                cgi.UI_ShowMenu("StatsScreen_Success", qfalse);
+            if (cg_protocol >= PROTOCOL_MOHTA_MIN) {
+                cvar_t* pMission = cgi.Cvar_Get("g_mission", "", CVAR_ARCHIVE);
+
+                if (cgi.Cvar_Get("g_success", "", 0)->integer) {
+                    switch (pMission->integer)
+                    {
+                    default:
+                    case 0:
+                        cgi.UI_ShowMenu("mission_success_1", CVAR_ARCHIVE);
+                        break;
+                    case 2:
+                        cgi.UI_ShowMenu("mission_success_2", CVAR_ARCHIVE);
+                        break;
+                    case 3:
+                        cgi.UI_ShowMenu("mission_success_3", CVAR_ARCHIVE);
+                        break;
+                    }
+                } else {
+                    switch (pMission->integer)
+                    {
+                    default:
+                    case 0:
+                        cgi.UI_ShowMenu("mission_failed_1", CVAR_ARCHIVE);
+                        break;
+                    case 2:
+                        cgi.UI_ShowMenu("mission_failed_2", CVAR_ARCHIVE);
+                        break;
+                    case 3:
+                        cgi.UI_ShowMenu("mission_failed_3", CVAR_ARCHIVE);
+                        break;
+                    }
+                }
             } else {
-                cgi.UI_ShowMenu("StatsScreen_Failed", qfalse);
+                if (cgi.Cvar_Get("g_success", "", 0)->integer) {
+                    cgi.UI_ShowMenu("StatsScreen_Success", qfalse);
+                } else {
+                    cgi.UI_ShowMenu("StatsScreen_Failed", qfalse);
+                }
             }
         }
 
