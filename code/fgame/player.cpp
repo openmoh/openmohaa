@@ -5789,8 +5789,13 @@ void Player::ProcessPmoveEvents(int event)
         } else {
             damage = 5;
         }
-        if (!DM_FLAG(DF_NO_FALLING)) {
-            Damage(world, world, (int)damage, origin, vec_zero, vec_zero, 0, DAMAGE_NO_ARMOR, MOD_FALLING);
+
+        if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+            // since 2.0, remove a percentage of the health
+            damage = damage * (max_health / 100.0);
+        }
+        if (g_gametype->integer == GT_SINGLE_PLAYER || !DM_FLAG(DF_NO_FALLING)) {
+            Damage(this, this, (int)damage, origin, vec_zero, vec_zero, 0, DAMAGE_NO_ARMOR, MOD_FALLING);
         }
         break;
     case EV_TERMINAL_VELOCITY:
