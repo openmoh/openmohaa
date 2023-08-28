@@ -2141,6 +2141,8 @@ void R_AddSkelSurfaces(trRefEntity_t* ent);
 void R_AddStaticModelSurfaces(void);
 void R_CountTikiLodTris(dtiki_t* tiki, float lodpercentage, int* render_tris, int* total_tris);
 float R_CalcLod(const vec3_t origin, float radius);
+int GetLodCutoff(struct skelHeaderGame_s* skelmodel, float lod_val, int renderfx);
+int GetToolLodCutoff(struct skelHeaderGame_s* skelmodel, float lod_val);
 void R_PrintInfoWorldtris(void);
 
 extern int g_nStaticSurfaces;
