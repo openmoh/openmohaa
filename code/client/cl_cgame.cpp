@@ -435,10 +435,10 @@ CL_CM_LoadMap
 Just adds default parameters that cgame doesn't need to know about
 ====================
 */
-void CL_CM_LoadMap( const char *mapname ) {
-	int		checksum;
-
-	CM_LoadMap( mapname, qtrue, &checksum );
+void CL_CM_LoadMap( const char *mapname, int *checksum ) {
+	CM_LoadMap( mapname, qtrue, checksum );
+	// prepare world vis data
+	re.SetWorldVisData(CM_VisibilityPointer());
 }
 
 /*

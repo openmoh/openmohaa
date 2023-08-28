@@ -163,7 +163,7 @@ functions exported to the main executable
         void (*SendClientCommand)(const char *s);
 
         // CM functions
-        void (*CM_LoadMap)(const char *name);
+        void (*CM_LoadMap)(const char *name, int* checksum);
         clipHandle_t (*CM_InlineModel)(int index); // 0 = world, 1+ = bmodels
         int (*CM_NumInlineModels)(void);
         int (*CM_PointContents)(const vec3_t p, int headnode);
