@@ -993,7 +993,7 @@ void SV_Init( void ) {
 	g_gametypestring = Cvar_Get( "g_gametypestring", "0", CVAR_SERVERINFO | CVAR_LATCH );
 
 	// systeminfo
-	Cvar_Get( "cheats", "1", CVAR_INIT | CVAR_LATCH );
+	Cvar_Get( "cheats", "1", CVAR_LATCH | CVAR_SYSTEMINFO );
 	sv_serverid = Cvar_Get ("sv_serverid", "0", CVAR_SYSTEMINFO | CVAR_ROM );
 	// wombat: pure only makes problems at current stage
 	sv_pure = Cvar_Get ("sv_pure", "0", CVAR_SYSTEMINFO );
