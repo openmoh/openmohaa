@@ -561,16 +561,11 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
 		render_count = surf->numVerts;
     }
 
-    render_count = surf->numVerts;
-
-    if (tess.numVertexes + render_count >= TIKI_MAX_VERTEXES ||
-        tess.numIndexes + surf->numTriangles >= TIKI_MAX_TRIANGLES * 3) {
-        RB_CHECKOVERFLOW(render_count, surf->numTriangles);
-    }
+    indexes = surf->numTriangles * 3;
+    RB_CHECKOVERFLOW(render_count, surf->numTriangles);
 
     collapse_map = surf->pCollapse;
     triangles = surf->pTriangles;
-    indexes = surf->numTriangles * 3;
     baseIndex = tess.numIndexes;
     baseVertex = tess.numVertexes;
     tess.numVertexes += render_count;

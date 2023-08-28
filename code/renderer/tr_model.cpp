@@ -595,7 +595,9 @@ orientation_t R_GetTagPositionAndOrientation( refEntity_t *ent, int tagnum ) {
 RB_DrawSkeletor
 ==============
 */
-void RB_DrawSkeletor( trRefEntity_t *ent ) {
+void RB_DrawSkeletor(trRefEntity_t* ent) {
+	// FIXME: unimplemented
+#if 0
 	int i;
 	dtiki_t		*tiki;
 	skeletor_c	*skeletor;
@@ -603,7 +605,6 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 	tiki = R_Model_GetHandle( ent->e.hModel );
 	skeletor = ( skeletor_c * )TIKI_GetSkeletor( tiki, ENTITYNUM_NONE );
 
-#if 0
 	if( r_showSkeleton->integer == 1 ) {
 		//vec3_t vForward, vRight, vUp;
 		orientation_t ori;
@@ -775,13 +776,13 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 			switch (iRadiusCull)
 			{
 			case CULL_IN:
-				R_DebugCircle(tiki_worldorigin, radius * 1.2f, 0, 1, 0, 0.5, qfalse);
+				R_DebugCircle(tiki_worldorigin, radius * 1.2f, 0, 1, 0, 0.5f, qfalse);
                 break;
             case CULL_CLIP:
-                R_DebugCircle(tiki_worldorigin, radius * 1.2f, 0, 1, 0, 0.5, qfalse);
+                R_DebugCircle(tiki_worldorigin, radius * 1.2f, 0, 1, 0, 0.5f, qfalse);
                 break;
             case CULL_OUT:
-                R_DebugCircle(tiki_worldorigin, radius * 1.2f + 32.f, 1, 0.2, 0.2, 0.5, qfalse);
+                R_DebugCircle(tiki_worldorigin, radius * 1.2f + 32.f, 1, 0.2f, 0.2f, 0.5f, qfalse);
                 break;
 			}
 		}
@@ -1032,9 +1033,9 @@ RB_SkelMesh
 =============
 */
 void RB_SkelMesh( skelSurfaceGame_t *sf ) {
-	int baseIndex, baseVertex;
-    int render_count;
-    int indexes;
+	unsigned int baseIndex, baseVertex;
+	unsigned int render_count;
+	unsigned int indexes;
     float* outXyz;
     vec4_t* outNormal;
     skelIndex_t* triangles;
@@ -1064,13 +1065,6 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 	}
 
 	tiki = backEnd.currentEntity->e.tiki;
-	newVerts = sf->pVerts;
-
-	outXyz = tess.xyz[ tess.numVertexes ];
-	outNormal = &tess.normal[ tess.numVertexes ];
-
-	bones = &TIKI_Skel_Bones[ backEnd.currentEntity->e.bonestart ];
-	morphs = &skeletorMorphCache[ backEnd.currentEntity->e.morphstart ];
 
 	scale = tiki->load_scale * backEnd.currentEntity->e.scale;
 
@@ -1164,19 +1158,27 @@ void RB_SkelMesh( skelSurfaceGame_t *sf ) {
 		render_count = sf->numVerts;
     }
 
+
+    indexes = sf->numTriangles * 3;
+    RB_CHECKOVERFLOW(render_count, indexes);
+
     collapse_map = sf->pCollapse;
     triangles = sf->pTriangles;
-    indexes = sf->numTriangles * 3;
     baseIndex = tess.numIndexes;
     baseVertex = tess.numVertexes;
     tess.numVertexes += render_count;
 
-	RB_CHECKOVERFLOW(render_count, sf->numTriangles);
+    outXyz = tess.xyz[baseVertex];
+    outNormal = &tess.normal[baseVertex];
+    newVerts = sf->pVerts;
+
+    bones = &TIKI_Skel_Bones[backEnd.currentEntity->e.bonestart];
+    morphs = &skeletorMorphCache[backEnd.currentEntity->e.morphstart];
 
 	if (render_count == sf->numVerts)
 	{
 		for (i = 0; i < indexes; i++) {
-			tess.indexes[tess.numIndexes + i] = baseVertex + sf->pTriangles[i];
+			tess.indexes[baseIndex + i] = baseVertex + triangles[i];
 		}
 
 		tess.numIndexes += indexes;
@@ -1487,13 +1489,13 @@ void R_GetFrame( refEntity_t *model, struct skelAnimFrame_s *newFrame ) {
 R_DebugSkeleton
 =============
 */
-void R_DebugSkeleton( void ) {
+void R_DebugSkeleton(void) {
+    // FIXME: unimplemented
+#if 0
 	int i;
 	trRefEntity_t *ent;
 	model_t *model;
 
-	// FIXME: unimplemented
-#if 0
 	R_SyncRenderThread();
 
 	GL_Bind( tr.whiteImage );
@@ -1584,8 +1586,8 @@ static int R_CullSkelModel(dtiki_t* tiki, refEntity_t* e, skelAnimFrame_t* newFr
             break;
         case CULL_OUT:
             fR = 1;
-            fG = 0.2;
-            fB = 0.2;
+            fG = 0.2f;
+            fB = 0.2f;
 
 			for (i = 0; i < 3; i++) {
 				bounds[0][i] -= 16;
