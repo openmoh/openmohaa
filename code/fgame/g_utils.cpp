@@ -1228,7 +1228,7 @@ void G_ArchiveEdict(Archiver& arc, gentity_t *edict)
         edict->radius2 = edict->r.radius * edict->r.radius;
     }
 
-    arc.ArchiveVec3(edict->r.currentOrigin);
+    arc.ArchiveVec3(edict->r.centroid);
     arc.ArchiveVec3(edict->r.currentAngles);
 
     arc.ArchiveInteger(&edict->r.ownerNum);

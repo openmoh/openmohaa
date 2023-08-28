@@ -91,14 +91,12 @@ typedef struct {
 	// a non-solid entity should set to 0
 
 	vec3_t		absmin, absmax;		// derived from mins/maxs and origin + rotation
-
 	float		radius;
-
-	// currentOrigin will be used for all collision detection and world linking.
-	// it will not necessarily be the same as the trajectory evaluation for the current
-	// time, because each entity must be moved one at a time after time is advanced
-	// to avoid simultanious collision issues
-	vec3_t		currentOrigin;
+    // centroid will be used for all collision detection and world linking.
+    // it will not necessarily be the same as the trajectory evaluation for the current
+    // time, because each entity must be moved one at a time after time is advanced
+    // to avoid simultanious collision issues
+	vec3_t		centroid;         // centroid, to be used with radius
 
 	int			areanum;
 

@@ -2298,7 +2298,7 @@ void Entity::link(void)
     absmin   = edict->r.absmin;
     absmax   = edict->r.absmax;
     centroid = (absmin + absmax) * 0.5;
-    centroid.copyTo(edict->r.currentOrigin);
+    centroid.copyTo(edict->r.centroid);
 
     // If this has a parent, then set the areanum the same
     // as the parent's
