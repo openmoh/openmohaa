@@ -801,10 +801,20 @@ void CG_ParseFogInfo_ver_15(const char *str)
 
 void CG_ParseFogInfo_ver_6(const char *str)
 {
-    cg.farclipOverride          = -1.0; // no farclip below 2.0
+    //
+    // clear all unsupported fields in protocol below version 15
+    //
+
+    // don't set the farplane_bias 0, otherwise the renderer will set a minimum value
+    cg.farplane_bias            = 0.001f;
+    cg.skyboxFarplane           = 0;
+    cg.skyboxSpeed              = 0;
+    cg.renderTerrain            = qtrue;
+    cg.farclipOverride          = -1.0;
     cg.farplaneColorOverride[0] = -1.0;
     cg.farplaneColorOverride[1] = -1.0;
     cg.farplaneColorOverride[2] = -1.0;
+
     sscanf(
         str,
         "%d %f %f %f %f",
