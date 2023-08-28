@@ -473,6 +473,7 @@ Displays the info screen while loading media
 void CG_GameStateReceived(void)
 {
     const char *s;
+    int checksum;
 
     // clear everything
     memset(&cg, 0, sizeof(cg));
@@ -499,7 +500,10 @@ void CG_GameStateReceived(void)
     CG_ParseServerinfo();
 
     // load the new map
-    cgi.CM_LoadMap(cgs.mapname);
+    cgi.CM_LoadMap(cgs.mapname, &checksum);
+    if (checksum != cgs.mapChecksum && cgs.gametype != GT_SINGLE_PLAYER) {
+        cgi.Error(ERR_DROP, "Client/Server map checksum mismatch: %x/%x", checksum, cgs.mapChecksum);
+    }
 
     CG_InitMarks();
 
