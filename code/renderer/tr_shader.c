@@ -2858,6 +2858,10 @@ static shader_t *FinishShader( void ) {
 				shader.sort = SS_OPAQUE;
 			}
 		}
+
+		if (pStage->stateBits & GLS_FOG_WHITE) {
+			pStage->stateBits &= ~GLS_FOG_ENABLED;
+		}
 	}
 
 	// fogonly shaders don't have any normal passes
