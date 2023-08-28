@@ -506,6 +506,44 @@ static int CG_CalcFov(void)
 
 /*
 ===============
+CG_SetupFog
+
+Prepares fog values for rendering
+===============
+*/
+void CG_SetupFog() {
+    cg.refdef.farplane_distance = cg.farplane_distance;
+    cg.refdef.farplane_bias = cg.farplane_bias;
+    cg.refdef.farplane_color[0] = cg.farplane_color[0];
+    cg.refdef.farplane_color[1] = cg.farplane_color[1];
+    cg.refdef.farplane_color[2] = cg.farplane_color[2];
+    cg.refdef.farplane_cull = cg.farplane_cull;
+    cg.refdef.skybox_farplane = cg.skyboxFarplane;
+    cg.refdef.renderTerrain = cg.renderTerrain;
+    cg.refdef.farclipOverride = cg.farclipOverride;
+    cg.refdef.farplaneColorOverride[0] = cg.farplaneColorOverride[0];
+    cg.refdef.farplaneColorOverride[1] = cg.farplaneColorOverride[1];
+    cg.refdef.farplaneColorOverride[2] = cg.farplaneColorOverride[2];
+}
+
+/*
+===============
+CG_SetupPortalSky
+
+Sets portalsky values for rendering
+===============
+*/
+void CG_SetupPortalSky() {
+    cg.refdef.sky_alpha = cg.sky_alpha;
+    cg.refdef.sky_portal = cg.sky_portal;
+    VectorCopy(cg.sky_axis[0], cg.refdef.sky_axis[0]);
+    VectorCopy(cg.sky_axis[1], cg.refdef.sky_axis[1]);
+    VectorCopy(cg.sky_axis[2], cg.refdef.sky_axis[2]);
+    VectorMA(cg.sky_origin, cg.skyboxSpeed, cg.refdef.vieworg, cg.refdef.sky_origin);
+}
+
+/*
+===============
 CG_CalcViewValues
 
 Sets cg.refdef view values
@@ -520,6 +558,7 @@ static int CG_CalcViewValues(void)
 
     // calculate size of 3D view
     CG_CalcVrect();
+    CG_SetupFog();
 
     // setup fog and far clipping plane
     cg.refdef.farplane_distance = cg.farplane_distance;
@@ -806,6 +845,7 @@ void CG_DrawActiveFrame(int serverTime, int frameTime, stereoFrame_t stereoView,
     }
 
     // finish up the rest of the refdef
+    CG_SetupPortalSky();
 
     cg.refdef.time = cg.time;
     memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
