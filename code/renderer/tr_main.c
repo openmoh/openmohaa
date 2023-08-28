@@ -639,7 +639,7 @@ void R_SetupFrustum (void) {
 		SetPlaneSignbits( &tr.viewParms.frustum[i] );
 	}
 
-	if (tr.portalsky.inUse) {
+	if (tr.viewParms.isPortalSky) {
 		tr.viewParms.farplane_distance = 0.0;
 	}
 	else if (r_farplane->integer)
@@ -1535,7 +1535,7 @@ void R_AddSpriteSurfaces()
 	{
 		sprite = &tr.refdef.sprites[tr.currentSpriteNum];
 
-        if (tr.portalsky.inUse)
+        if (tr.viewParms.isPortalSky)
         {
 			if ((sprite->renderfx & RF_SKYENTITY) == 0) {
 				continue;
@@ -1765,7 +1765,7 @@ void R_DrawDebugLines(void) {
 		return;
 	}
 
-	if (tr.portalsky.inUse) {
+	if (tr.viewParms.isPortalSky) {
 		return;
 	}
 
@@ -1846,7 +1846,7 @@ void R_DrawDebugStrings(void) {
         return;
     }
 
-    if (tr.portalsky.inUse) {
+    if (tr.viewParms.isPortalSky) {
         return;
     }
 
