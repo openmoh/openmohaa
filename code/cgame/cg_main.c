@@ -574,6 +574,11 @@ void CG_Init(clientGameImport_t *imported, int serverMessageNum, int serverComma
 
     memset(&cg, 0, sizeof(cg));
     memset(&cgs, 0, sizeof(cgs));
+    // clear fog values
+    cg.farclipOverride = 0;
+    cg.farplaneColorOverride[0] = -1;
+    cg.farplaneColorOverride[1] = -1;
+    cg.farplaneColorOverride[2] = -1;
 
     cg.clientNum              = clientNum;
     cgs.processedSnapshotNum  = serverMessageNum;
