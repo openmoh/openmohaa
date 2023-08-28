@@ -251,8 +251,9 @@ movement on the server game.
 #endif
 
 // moh pm_flags
-#define PMF_DUCKED     (1 << 0)
-#define PMF_VIEW_PRONE (1 << 1)
+#define PMF_DUCKED          (1 << 0)
+#define PMF_VIEW_PRONE      (1 << 1)
+#define PMF_DAMAGE_ANGLES   (1 << 1) // in protocol >= 15
 //
 // 2 Flags removed in team tactics
 //
