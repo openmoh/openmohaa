@@ -2567,7 +2567,7 @@ Actor::Actor()
 	}
 
 	edict->s.eType = ET_MODELANIM;
-	edict->r.svFlags |= SVF_USE_CURRENT_ORIGIN;
+	edict->r.svFlags |= SVF_MONSTER;
 	edict->r.ownerNum = ENTITYNUM_NONE;
 	edict->clipmask = MASK_MONSTERSOLID;
 	setMoveType( MOVETYPE_WALK );
@@ -14460,7 +14460,7 @@ void Actor::BecomeCorpse
 	AddToBodyQue();
 
 	edict->r.contents = CONTENTS_TRIGGER;
-	edict->r.svFlags &= ~SVF_USE_CURRENT_ORIGIN;
+	edict->r.svFlags &= ~SVF_MONSTER;
 	setSolidType(SOLID_NOT);
 	movetype = MOVETYPE_NONE;
 	edict->s.renderfx &= ~RF_SHADOW;
