@@ -501,7 +501,7 @@ void CG_GameStateReceived(void)
 
     // load the new map
     cgi.CM_LoadMap(cgs.mapname, &checksum);
-    if (checksum != cgs.mapChecksum && cgs.gametype != GT_SINGLE_PLAYER) {
+    if (cgs.useMapChecksum && checksum != cgs.mapChecksum && cgs.gametype != GT_SINGLE_PLAYER) {
         cgi.Error(ERR_DROP, "Client/Server map checksum mismatch: %x/%x", checksum, cgs.mapChecksum);
     }
 
@@ -801,7 +801,7 @@ void CG_ParseFogInfo_ver_15(const char *str)
 
 void CG_ParseFogInfo_ver_6(const char *str)
 {
-    cg.farclipOverride          = 0.0;
+    cg.farclipOverride          = -1.0; // no farclip below 2.0
     cg.farplaneColorOverride[0] = -1.0;
     cg.farplaneColorOverride[1] = -1.0;
     cg.farplaneColorOverride[2] = -1.0;
