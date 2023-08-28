@@ -433,6 +433,9 @@ void Set2DWindow(int x, int y, int w, int h, float left, float right, float bott
 	qglEnable(GL_BLEND);
 	qglDisable(GL_CULL_FACE);
 	qglDisable(GL_CLIP_PLANE0);
+	// Make sure to disable the fog to avoid messing up with the UI
+	qglDisable(GL_FOG);
+	qglFogf(GL_FOG_START, 0);
 
 	if (r_reset_tc_array->integer) {
 		qglDisableClientState(GL_TEXTURE_COORD_ARRAY);
