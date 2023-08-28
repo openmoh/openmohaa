@@ -182,8 +182,16 @@ typedef struct {
 
     // fog stuff
     float       farplane_distance;
+	float		farplane_bias; // added in 2.0
     vec3_t      farplane_color;
     qboolean    farplane_cull;
+	// added in 2.0
+	//==
+    qboolean	skybox_farplane;
+    qboolean	renderTerrain;
+    float		farclipOverride;
+    vec3_t		farplaneColorOverride;
+	//==
 
     // sky portal stuff
     qboolean    sky_portal;

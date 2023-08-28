@@ -26,13 +26,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void R_Sky_Init()
 {
-	tr.portalsky.inUse = qfalse;
+	tr.viewParms.isPortalSky = qfalse;
 	tr.portalsky.numSurfs = 0;
 }
 
 void R_Sky_Reset()
 {
-    if (tr.portalsky.inUse) {
+    if (tr.viewParms.isPortalSky) {
         return;
     }
 
@@ -48,7 +48,7 @@ void R_Sky_Reset()
 
 void R_Sky_AddSurf(msurface_t* surf)
 {
-	if (tr.portalsky.inUse)
+	if (tr.viewParms.isPortalSky)
 	{
 		static int last_sky_warning = 0;
 
@@ -99,7 +99,7 @@ void R_Sky_Render() {
         return;
     }
 
-	if (tr.portalsky.inUse)
+	if (tr.viewParms.isPortalSky)
 	{
 		ri.Printf(PRINT_WARNING, "WARNING: Recursive skies found!  Make that not happen!\n");
 		return;
@@ -133,7 +133,7 @@ void R_Sky_Render() {
 		MatrixMultiply(newParms.ori.axis, tr.refdef.sky_axis, newParms.ori.axis);
 	}
 
-    tr.portalsky.inUse = qtrue;
+    tr.viewParms.isPortalSky = qtrue;
     VectorCopy(newParms.ori.origin, newParms.pvsOrigin);
 
     leaf = R_PointInLeaf(newParms.pvsOrigin);
@@ -143,7 +143,7 @@ void R_Sky_Render() {
 
     tr.viewParms = oldParms;
 
-	tr.portalsky.inUse = qfalse;
+	tr.viewParms.isPortalSky = qfalse;
 	tr.portalsky.numSurfs = 0;
 	R_RotateForViewer();
 	R_SetupFrustum();

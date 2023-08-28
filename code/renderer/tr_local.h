@@ -102,7 +102,6 @@ typedef enum {
 
 typedef struct {
     struct mnode_s* cntNode;
-    qboolean inUse;
     struct msurface_s* skySurfs[32];
     int numSurfs;
     vec3_t offset;
@@ -236,7 +235,6 @@ typedef struct image_s {
     int			wrapClampModeX;
     int			wrapClampModeY;
 	int			r_sequence;
-	int			UseCount;
 
 	struct image_s*	next;
 } image_t;
@@ -662,7 +660,12 @@ typedef struct {
     qboolean sky_portal;
     float sky_alpha;
     vec3_t sky_origin;
-	vec3_t sky_axis[3];
+    vec3_t sky_axis[3];
+	// added in 2.0
+	//==
+    qboolean skybox_farplane;
+    qboolean render_terrain;
+	//==
 
 } trRefdef_t;
 
@@ -708,6 +711,7 @@ typedef struct {
 	vec3_t		pvsOrigin;			// may be different than or.origin for portals
 	qboolean	isPortal;			// true if this view is through a portal
 	qboolean	isMirror;			// the portal is a mirror, invert the face culling
+    qboolean	isPortalSky;		// since 2.0 whether or not this view is a portal sky
 	int			frameSceneNum;		// copied from tr.frameSceneNum
 	int			frameCount;			// copied from tr.frameCount
 	cplane_t	portalPlane;		// clip anything behind this if mirroring
@@ -718,9 +722,11 @@ typedef struct {
 	vec3_t		visBounds[2];
 	float		zFar;
 	depthfog_t	fog;
-	float		farplane_distance;
+    float		farplane_distance;
+    float		farplane_bias; // added in 2.0
 	float		farplane_color[3];
-	qboolean	farplane_cull;
+    qboolean	farplane_cull;
+    qboolean	renderTerrain; // added in 2.0
 } viewParms_t;
 
 
@@ -1365,6 +1371,8 @@ typedef struct {
     int frame_skel_index;
     int skel_index[1024];
     fontheader_t* pFontDebugStrings;
+
+	qboolean farclip;
 } trGlobals_t;
 
 extern backEndState_t	backEnd;
