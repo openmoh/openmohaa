@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 // health.h: Health powerup
-// 
+//
 
 #ifndef __HEALTH_H__
 #define __HEALTH_H__
@@ -34,10 +34,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class Health : public Item
 {
 public:
-	CLASS_PROTOTYPE( Health );
+    CLASS_PROTOTYPE(Health);
 
-	Health();
-	virtual void PickupHealth( Event *ev );
+    Health();
+    virtual void PickupHealth(Event *ev);
 };
 
 #endif /* health.h */

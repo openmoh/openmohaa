@@ -20,7 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-// health.cpp: Health powerup 
+// health.cpp: Health powerup
 //
 
 #include "g_local.h"
@@ -31,53 +31,63 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "weaputils.h"
 #include "player.h"
 
-CLASS_DECLARATION( Item, Health, "health_020" )
-{
-	{ &EV_Item_Pickup,				&Health::PickupHealth },
-	{ NULL, NULL }
+CLASS_DECLARATION(Item, Health, "health_020") {
+    {&EV_Item_Pickup, &Health::PickupHealth},
+    {NULL,            NULL                 }
 };
 
 Health::Health()
 {
-	if( DM_FLAG( DF_NO_HEALTH ) )
-	{
-		PostEvent( EV_Remove, EV_REMOVE );
-		return;
-	}
+    if (DM_FLAG(DF_NO_HEALTH)) {
+        PostEvent(EV_Remove, EV_REMOVE);
+        return;
+    }
 
-	setAmount( 20 );
+    setAmount(20);
 }
 
-void Health::PickupHealth
-	(
-	Event *ev
-	)
+void Health::PickupHealth(Event *ev)
 {
-	Sentient *sen;
-	Entity *other;
+    Player *player;
+    Entity *other;
 
-	other = ev->GetEntity( 1 );
-	if( !other || !other->IsSubclassOfSentient() )
-	{
-		return;
-	}
+    other = ev->GetEntity(1);
+    if (!other || !other->IsSubclassOfPlayer()) {
+        return;
+    }
 
-	sen = ( Sentient * )other;
+    player = (Player *)other;
 
-	if( sen->health >= sen->max_health )
-		return;
+    if (player->health >= player->max_health) {
+        return;
+    }
 
-	if( !ItemPickup( other, qfalse ) )
-	{
-		return;
-	}
+    if (!ItemPickup(other, qfalse)) {
+        return;
+    }
 
-	sen->health += amount / 100.0 * sen->max_health;
+    if (g_healrate->value && other->IsSubclassOfPlayer()) {
+        if (player->m_fHealRate + player->health >= player->max_health) {
+            // will be healing to 100%
+            return;
+        }
 
-	if( sen->health > sen->max_health )
-	{
-		sen->health = sen->max_health;
-	}
+        player->m_fHealRate += amount / 100.0 * player->max_health;
+        if (player->m_fHealRate + player->health > player->max_health) {
+            // make sure to not overflow
+            player->m_fHealRate = player->max_health - player->health + 0.1f;
+        }
+    } else {
+        player->health += amount / 100.0 * player->max_health;
 
-	gi.SendServerCommand( sen->edict - g_entities, "print \"" HUD_MESSAGE_YELLOW "%s \"", gi.LV_ConvertString( va( "Recovered %d", amount ) ) );
+        if (player->health > player->max_health) {
+            player->health = player->max_health;
+        }
+    }
+
+    gi.SendServerCommand(
+        player->edict - g_entities,
+        "print \"" HUD_MESSAGE_YELLOW "%s \"",
+        gi.LV_ConvertString(va("Recovered %d Health", amount))
+    );
 }
