@@ -629,7 +629,7 @@ void RB_BeginDrawingView (void) {
 
 	if (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL))
 	{
-		if (backEnd.viewParms.farplane_distance && tr.skyRendered && tr.portalRendered)
+		if ((backEnd.viewParms.farplane_distance && tr.skyRendered && tr.portalRendered) || tr.farclip)
 		{
 			clearBits |= GL_COLOR_BUFFER_BIT;
 			qglClearColor(glState.fFogColor[0], glState.fFogColor[1], glState.fFogColor[2], glState.fFogColor[3]);
@@ -1211,11 +1211,16 @@ const void *RB_StretchPic ( const void *data ) {
 	return (const void *)(cmd + 1);
 }
 
+/*
+=============
+RB_SetupFog
+=============
+*/
 void RB_SetupFog() {
 	if (!backEnd.viewParms.farplane_distance) {
-		glState.externalSetState &= ~GLS_FOG_ENABLED;
+		glState.externalSetState &= ~GLS_FOG;
 	} else if (r_farplane_nofog->integer) {
-		glState.externalSetState &= ~GLS_FOG_ENABLED;
+		glState.externalSetState &= ~GLS_FOG;
 	} else {
 		vec3_t vFogColor;
 
@@ -1227,10 +1232,9 @@ void RB_SetupFog() {
         vFogColor[2] = backEnd.viewParms.farplane_color[2] * tr.identityLight;
 		GL_SetFogColor(vFogColor);
 
-		glState.externalSetState |= GLS_FOG_ENABLED;
+		glState.externalSetState |= GLS_FOG;
 	}
 }
-
 
 /*
 =============

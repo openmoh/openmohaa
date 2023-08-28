@@ -640,11 +640,31 @@ void R_SetupFrustum (void) {
 	}
 
 	if (tr.viewParms.isPortalSky) {
-		tr.viewParms.farplane_distance = 0.0;
+		// since 2.0: skybox farplane
+		if (r_skybox_farplane->integer) {
+			tr.viewParms.farplane_distance = r_skybox_farplane->value;
+
+            sscanf(
+                r_farplane_color->string,
+                "%f %f %f",
+                &tr.viewParms.farplane_color[0],
+                &tr.viewParms.farplane_color[1],
+                &tr.viewParms.farplane_color[2]
+			);
+
+			if (r_farplane_nocull->integer > 0) {
+				tr.viewParms.farplane_cull = 0;
+			} else if (r_farplane_nocull->integer == 0) {
+				tr.viewParms.farplane_cull = 1;
+            } else {
+                tr.viewParms.farplane_cull = 2;
+            }
+		}
 	}
 	else if (r_farplane->integer)
 	{
 		tr.viewParms.farplane_distance = r_farplane->value;
+		tr.viewParms.farplane_bias = r_farplane_bias->value;
 
 		sscanf(
 			r_farplane_color->string,
@@ -653,7 +673,13 @@ void R_SetupFrustum (void) {
 			&tr.viewParms.farplane_color[1],
 			&tr.viewParms.farplane_color[2]);
 
-		tr.viewParms.farplane_cull = !r_farplane_nocull->integer;
+			if (r_farplane_nocull->integer > 0) {
+				tr.viewParms.farplane_cull = 0;
+			} else if (r_farplane_nocull->integer == 0) {
+				tr.viewParms.farplane_cull = 1;
+            } else {
+                tr.viewParms.farplane_cull = 2;
+            }
 	}
 
 	if (tr.viewParms.farplane_distance)
@@ -665,10 +691,7 @@ void R_SetupFrustum (void) {
 
 		tr.viewParms.fog.len = tr.viewParms.farplane_distance;
 		tr.viewParms.fog.oolen = 1.0 / tr.viewParms.farplane_distance;
-
-		farPoint[0] = tr.viewParms.ori.origin[0] + tr.viewParms.ori.axis[0][0] * tr.viewParms.farplane_distance;
-		farPoint[1] = tr.viewParms.ori.origin[1] + tr.viewParms.ori.axis[0][1] * tr.viewParms.farplane_distance;
-		farPoint[2] = tr.viewParms.ori.origin[2] + tr.viewParms.ori.axis[0][2] * tr.viewParms.farplane_distance;
+		VectorMA(tr.viewParms.ori.origin, tr.viewParms.farplane_distance, tr.viewParms.ori.axis[0], farPoint);
 
 		VectorNegate(tr.viewParms.ori.axis[0], tr.viewParms.frustum[4].normal);
 		tr.viewParms.frustum[4].type = PLANE_NON_AXIAL;
@@ -676,31 +699,17 @@ void R_SetupFrustum (void) {
 		SetPlaneSignbits(&tr.viewParms.frustum[4]);
 
 		tr.viewParms.fog.enabled = r_farplane_nofog->integer == 0;
-		tr.viewParms.fog.extrafrustums = tr.viewParms.farplane_cull ? 1 : 0;
-
-		if (!r_farplane_nofog->integer)
-		{
-			qglFogf(GL_FOG_END, tr.viewParms.farplane_distance);
-
-			fogColor[0] = tr.viewParms.farplane_color[0] * tr.identityLight;
-			fogColor[1] = tr.viewParms.farplane_color[1] * tr.identityLight;
-			fogColor[2] = tr.viewParms.farplane_color[2] * tr.identityLight;
-			fogColor[3] = 1.0;
-
-			GL_SetFogColor(fogColor);
-			glState.externalSetState |= GLS_FOG;
-		}
-		else
-		{
-			glState.externalSetState &= ~GLS_FOG;
+		if (tr.viewParms.farplane_cull) {
+			// extra fustum for culling
+			tr.viewParms.fog.extrafrustums = 1;
+		} else {
+			tr.viewParms.fog.extrafrustums = 0;
 		}
 	}
 	else
 	{
 		tr.viewParms.fog.enabled = 0;
 		tr.viewParms.fog.extrafrustums = 0;
-
-		glState.externalSetState &= ~GLS_FOG;
 	}
 }
 

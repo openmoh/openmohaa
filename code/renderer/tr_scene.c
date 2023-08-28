@@ -475,10 +475,60 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	// copy the farplane data
 	parms.farplane_distance = fd->farplane_distance;
+	parms.farplane_bias = fd->farplane_bias;
 	parms.farplane_color[0] = fd->farplane_color[0];
 	parms.farplane_color[1] = fd->farplane_color[1];
 	parms.farplane_color[2] = fd->farplane_color[2];
 	parms.farplane_cull = fd->farplane_cull;
+	parms.renderTerrain = fd->renderTerrain;
+
+	tr.refdef.skybox_farplane = fd->skybox_farplane;
+	tr.refdef.render_terrain = parms.renderTerrain;
+
+	if (fd->farclipOverride >= 15900 || fd->farclipOverride <= -0.99) {
+		tr.farclip = 0;
+	} else {
+		tr.farclip = r_farclip->integer;
+		if (!tr.farclip && (r_picmip->integer > 1 || r_colorbits->integer == 16)) {
+			tr.farclip = 2800;
+		}
+	}
+
+	if (tr.farclip) {
+        if (fd->farclipOverride != 0) {
+            parms.farplane_distance = fd->farclipOverride;
+		} else {
+			parms.farplane_distance = tr.farclip;
+		}
+
+		if (fd->farplane_color[0] >= 0 && fd->farplane_color[1] >= 0 && fd->farplane_color[2] >= 0) {
+            parms.farplane_color[0] = fd->farplane_color[0];
+            parms.farplane_color[1] = fd->farplane_color[1];
+            parms.farplane_color[2] = fd->farplane_color[2];
+		}
+
+		if (fd->farplaneColorOverride[0] >= 0 && fd->farplaneColorOverride[1] >= 0 && fd->farplaneColorOverride[2] >= 0) {
+			parms.farplane_color[0] = fd->farplaneColorOverride[0];
+			parms.farplane_color[1] = fd->farplaneColorOverride[1];
+			parms.farplane_color[2] = fd->farplaneColorOverride[2];
+		}
+
+		parms.farplane_cull = qtrue;
+
+        if (fd->farplane_distance > 0 && fd->farplane_distance < parms.farplane_distance) {
+            parms.farplane_distance = fd->farplane_distance;
+		} else {
+			if (fd->farplane_bias == 0) {
+				parms.farplane_bias = parms.farplane_distance * 0.18f;
+			} else if (fd->farplane_distance <= 500.f) {
+				parms.farplane_bias = parms.farplane_distance * 0.18f;
+			} else {
+				parms.farplane_bias = parms.farplane_distance / fd->farplane_distance;
+			}
+		}
+	} else if (parms.farplane_bias == 0) {
+		parms.farplane_bias = parms.farplane_distance * 0.18f;
+	}
 
 	R_ClearRealDlights();
 	R_RenderView( &parms );

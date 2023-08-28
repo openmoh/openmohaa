@@ -1688,7 +1688,7 @@ void RB_StageIteratorLightmappedMultitextureUnfogged( void ) {
 	//
 	// set color, pointers, and lock
 	//
-	GL_State( GLS_DEFAULT );
+	GL_State( GLS_DEFAULT | (tess.xstages[0]->stateBits & (GLS_ATEST_BITS | GLS_FOG_BITS)));
 	qglVertexPointer( 3, GL_FLOAT, 16, input->xyz );
 
 #ifdef REPLACE_MODE
