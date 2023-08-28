@@ -439,7 +439,7 @@ void SocketStartUp()
 void SocketShutDown()
 {
 #if defined(_WIN32)
-	WSACleanup();
+//	WSACleanup();
 	#if defined(_X360)
 		XNetCleanup();
 	#endif
