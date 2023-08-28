@@ -915,7 +915,6 @@ image_t* R_CreateImage(
 	image->allowPicmip = allowPicmip;
 	image->dynamicallyUpdated = dynamicallyUpdated;
 	image->force32bit = force32bit;
-	image->UseCount = 0;
 
 	strcpy (image->imgName, name);
 
