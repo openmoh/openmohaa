@@ -1021,6 +1021,10 @@ void SV_Init( void ) {
 	sv_mapChecksum = Cvar_Get ("sv_mapChecksum", "", CVAR_ROM | CVAR_SERVERINFO);
 	sv_drawentities = Cvar_Get( "sv_drawentities", "1", 0 );
 	sv_deeptracedebug = Cvar_Get( "sv_deeptracedebug", "0", 0 );
+    sv_netprofile = Cvar_Get("sv_netprofile", "0", 0);
+    sv_netprofileoverlay = Cvar_Get("sv_netprofileoverlay", "0", 0);
+    sv_netoptimize = Cvar_Get("sv_netoptimize", "0", 0);
+    g_netoptimize = Cvar_Get("g_netoptimize", "1", 0);
 	sv_chatter = Cvar_Get( "sv_chatter", "0", 0 );
 	sv_lanForceRate = Cvar_Get ("sv_lanForceRate", "1", CVAR_ARCHIVE );
 	sv_strictAuth = Cvar_Get ("sv_strictAuth", "1", CVAR_ARCHIVE );
