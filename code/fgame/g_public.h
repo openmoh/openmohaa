@@ -56,7 +56,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
                                             // lagging clients
 #define SVF_SENDONCE			0x00004000
 
-#define SVF_HIDEOWNER			0x00008000
+#define SVF_SENT				0x00008000
 
 typedef struct gclient_s gclient_t;
 typedef struct dtiki_s dtiki_t;

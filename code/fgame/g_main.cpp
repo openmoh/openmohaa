@@ -392,7 +392,7 @@ void G_AddGEntity(gentity_t *edict, qboolean showentnums)
     }
 
     // remove the entity in case of invalid server flags
-    if ((edict->r.svFlags & SVF_SENDONCE) && (edict->r.svFlags & SVF_HIDEOWNER)) {
+    if ((edict->r.svFlags & SVF_SENDONCE) && (edict->r.svFlags & SVF_SENT)) {
         ent->PostEvent(EV_Remove, 0);
     }
 
