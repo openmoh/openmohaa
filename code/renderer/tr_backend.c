@@ -1212,7 +1212,23 @@ const void *RB_StretchPic ( const void *data ) {
 }
 
 void RB_SetupFog() {
-	// FIXME: unimplemented
+	if (!backEnd.viewParms.farplane_distance) {
+		glState.externalSetState &= ~GLS_FOG_ENABLED;
+	} else if (r_farplane_nofog->integer) {
+		glState.externalSetState &= ~GLS_FOG_ENABLED;
+	} else {
+		vec3_t vFogColor;
+
+		qglFogf(GL_FOG_START, backEnd.viewParms.farplane_bias);
+		qglFogf(GL_FOG_END, backEnd.viewParms.farplane_distance);
+
+        vFogColor[0] = backEnd.viewParms.farplane_color[0] * tr.identityLight;
+        vFogColor[1] = backEnd.viewParms.farplane_color[1] * tr.identityLight;
+        vFogColor[2] = backEnd.viewParms.farplane_color[2] * tr.identityLight;
+		GL_SetFogColor(vFogColor);
+
+		glState.externalSetState |= GLS_FOG_ENABLED;
+	}
 }
 
 
@@ -1235,6 +1251,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 	backEnd.refdef = cmd->refdef;
 	backEnd.viewParms = cmd->viewParms;
 
+	RB_SetupFog();
 	RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
 
 	return (const void *)(cmd + 1);
@@ -1259,7 +1276,8 @@ const void* RB_SpriteSurfs(const void* data) {
 
     backEnd.refdef = cmd->refdef;
     backEnd.viewParms = cmd->viewParms;
-
+	
+	RB_SetupFog();
     RB_RenderSpriteSurfList(cmd->drawSurfs, cmd->numDrawSurfs);
 
     return (const void*)(cmd + 1);
