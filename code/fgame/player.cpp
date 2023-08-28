@@ -4727,7 +4727,7 @@ void Player::Think(void)
                 m_fHealRate -= newrate;
             }
         } else {
-            newrate     = 0;
+            newrate     = m_fHealRate;
             m_fHealRate = 0;
         }
 
