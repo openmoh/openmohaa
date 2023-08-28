@@ -2859,7 +2859,7 @@ static shader_t *FinishShader( void ) {
 			}
 		}
 
-		if (pStage->stateBits & GLS_FOG_WHITE) {
+		if (pStage->stateBits & GLS_MULTITEXTURE_ENV) {
 			pStage->stateBits &= ~GLS_FOG_ENABLED;
 		}
 	}
