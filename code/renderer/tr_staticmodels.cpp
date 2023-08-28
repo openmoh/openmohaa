@@ -498,7 +498,69 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
     meshNum = staticSurf->meshNum;
     skelmodel = TIKI_GetSkel(tiki->mesh[meshNum]);
 
-    // FIXME: LOD
+
+	//
+	// Process LOD
+	//
+	if( skelmodel->pLOD && r_staticlod->integer )
+	{
+		float lod_val;
+
+        lod_val = backEnd.currentStaticModel->lodpercentage[0];
+
+		if (surf->numVerts > 3) {
+			skelIndex_t* collapseIndex;
+			int mid, low, high;
+			int lod_cutoff;
+
+			if (lod_tool->integer
+				&& !strcmp(backEnd.currentStaticModel->tiki->a->name, lod_tikiname->string)
+				&& meshNum == lod_mesh->integer)
+			{
+				lod_cutoff = GetToolLodCutoff(skelmodel, backEnd.currentStaticModel->lodpercentage[0]);
+			}
+			else
+			{
+				lod_cutoff = GetLodCutoff(skelmodel, backEnd.currentStaticModel->lodpercentage[0], 0);
+			}
+
+			collapseIndex = surf->pCollapseIndex;
+			if (collapseIndex[2] < lod_cutoff) {
+				return;
+			}
+
+			low = mid = 3;
+			high = surf->numVerts;
+			while (high >= low) {
+				mid = (low + high) >> 1;
+				if (collapseIndex[mid] < lod_cutoff) {
+					high = mid - 1;
+					if (collapseIndex[mid - 1] >= lod_cutoff) {
+						break;
+					}
+				}
+				else
+				{
+					mid++;
+					low = mid;
+					if (high == mid || collapseIndex[mid] < lod_cutoff) {
+						break;
+					}
+				}
+            }
+
+			render_count = mid;
+		} else {
+			render_count = surf->numVerts;
+		}
+
+		if (!render_count) {
+			return;
+		}
+	} else {
+		render_count = surf->numVerts;
+    }
+
     render_count = surf->numVerts;
 
     if (tess.numVertexes + render_count >= TIKI_MAX_VERTEXES ||

@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	LL(x) x=LittleLong(x)
 
 qboolean g_bInfoworldtris;
+static int R_CullSkelModel(dtiki_t* tiki, refEntity_t* e, skelAnimFrame_t* newFrame, float fScale, float* vLocalOrg);
 
 /*
 ** R_GetModelByHandle
@@ -703,50 +704,6 @@ void RB_DrawSkeletor( trRefEntity_t *ent ) {
 #endif
 }
 
-/*
-=============
-R_CullTIKI
-=============
-*/
-static int R_CullTIKI( dtiki_t *tiki, trRefEntity_t *ent ) {
-#if 0
-	//// cull bounding sphere ONLY if this is not an upscaled entity
-	if( !ent->e.nonNormalizedAxes )
-	{
-		switch( R_CullPointAndRadius( ent->e.origin, ent->e.radius ) )
-		{
-		case CULL_OUT:
-			tr.pc.c_sphere_cull_tiki_out++;
-			return CULL_OUT;
-
-		case CULL_IN:
-			tr.pc.c_sphere_cull_tiki_in++;
-			return CULL_IN;
-
-		case CULL_CLIP:
-			tr.pc.c_sphere_cull_tiki_clip++;
-			break;
-		}
-	}
-
-	switch( R_CullLocalBox( ent->e.bounds ) )
-	{
-	case CULL_IN:
-		tr.pc.c_box_cull_tiki_in++;
-		return CULL_IN;
-	case CULL_CLIP:
-		tr.pc.c_box_cull_tiki_clip++;
-		return CULL_CLIP;
-	case CULL_OUT:
-	default:
-		tr.pc.c_box_cull_tiki_out++;
-		return CULL_OUT;
-	}
-#endif
-	// FIXME: unimplemented
-	return 0;
-}
-
 surfaceType_t	skelSurface = SF_TIKI_SKEL;
 
 /*
@@ -813,40 +770,75 @@ void R_AddSkelSurfaces( trRefEntity_t *ent ) {
 	if( !lod_tool->integer )
 	{
 		iRadiusCull = R_CullPointAndRadius( tiki_worldorigin, radius );
-		// FIXME: Draw a debug circle
+		if (r_showcull->integer & 2)
+		{
+			switch (iRadiusCull)
+			{
+			case CULL_IN:
+				R_DebugCircle(tiki_worldorigin, radius * 1.2f, 0, 1, 0, 0.5, qfalse);
+                break;
+            case CULL_CLIP:
+                R_DebugCircle(tiki_worldorigin, radius * 1.2f, 0, 1, 0, 0.5, qfalse);
+                break;
+            case CULL_OUT:
+                R_DebugCircle(tiki_worldorigin, radius * 1.2f + 32.f, 1, 0.2, 0.2, 0.5, qfalse);
+                break;
+			}
+		}
+
+        switch (iRadiusCull)
+        {
+        case CULL_IN:
+            tr.pc.c_sphere_cull_md3_in++;
+            break;
+        case CULL_CLIP:
+            tr.pc.c_sphere_cull_md3_clip++;
+            break;
+        case CULL_OUT:
+            tr.pc.c_sphere_cull_md3_out++;
+            break;
+        }
 	}
 
-	// FIXME: calculate lod percentage
-	if( !lod_tool->integer && iRadiusCull == -1 ) {
-		return;
+	if (tiki->a->bIsCharacter) {
+        if (tr.viewParms.isPortal) {
+            ent->lodpercentage[1] = R_CalcLod(tiki_worldorigin, 92.f / ent->e.scale);
+        } else {
+            ent->lodpercentage[0] = R_CalcLod(tiki_worldorigin, 92.f / ent->e.scale);
+        }
+	} else {
+		if (tr.viewParms.isPortal) {
+			ent->lodpercentage[1] = R_CalcLod(tiki_worldorigin, radius / ent->e.scale);
+		} else {
+			ent->lodpercentage[0] = R_CalcLod(tiki_worldorigin, radius / ent->e.scale);
+		}
 	}
-
-	//if( R_CullTIKI( tiki, ent ) == CULL_OUT ) {
-	//	return;
-	//}
 
 	newFrame = ( skelAnimFrame_t * )ri.Hunk_AllocateTempMemory( sizeof( skelAnimFrame_t ) + tiki->m_boneList.NumChannels() * sizeof( SkelMat4 ) );
 	R_GetFrame( &ent->e, newFrame );
 
-	//
-	// copy bones position and axis
-	//
-	for( i = 0; i < num_tags; i++ )
+	if (lod_tool->integer || iRadiusCull != CULL_CLIP || R_CullSkelModel(tiki, &ent->e, newFrame, tiki_scale, tiki_localorigin) != CULL_OUT)
 	{
-		VectorCopy( newFrame->bones[ i ][ 3 ], outbones->offset );
-		outbones->matrix[ 0 ][ 0 ] = newFrame->bones[ i ][ 0 ][ 0 ];
-		outbones->matrix[ 0 ][ 1 ] = newFrame->bones[ i ][ 0 ][ 1 ];
-		outbones->matrix[ 0 ][ 2 ] = newFrame->bones[ i ][ 0 ][ 2 ];
-		outbones->matrix[ 0 ][ 3 ] = 0;
-		outbones->matrix[ 1 ][ 0 ] = newFrame->bones[ i ][ 1 ][ 0 ];
-		outbones->matrix[ 1 ][ 1 ] = newFrame->bones[ i ][ 1 ][ 1 ];
-		outbones->matrix[ 1 ][ 2 ] = newFrame->bones[ i ][ 1 ][ 2 ];
-		outbones->matrix[ 1 ][ 3 ] = 0;
-		outbones->matrix[ 2 ][ 0 ] = newFrame->bones[ i ][ 2 ][ 0 ];
-		outbones->matrix[ 2 ][ 1 ] = newFrame->bones[ i ][ 2 ][ 1 ];
-		outbones->matrix[ 2 ][ 2 ] = newFrame->bones[ i ][ 2 ][ 2 ];
-		outbones->matrix[ 2 ][ 3 ] = 0;
-		outbones++;
+		//
+		// copy bones position and axis
+		//
+		for (i = 0; i < num_tags; i++)
+		{
+			VectorCopy(newFrame->bones[i][3], outbones->offset);
+			outbones->matrix[0][0] = newFrame->bones[i][0][0];
+			outbones->matrix[0][1] = newFrame->bones[i][0][1];
+			outbones->matrix[0][2] = newFrame->bones[i][0][2];
+			outbones->matrix[0][3] = 0;
+			outbones->matrix[1][0] = newFrame->bones[i][1][0];
+			outbones->matrix[1][1] = newFrame->bones[i][1][1];
+			outbones->matrix[1][2] = newFrame->bones[i][1][2];
+			outbones->matrix[1][3] = 0;
+			outbones->matrix[2][0] = newFrame->bones[i][2][0];
+			outbones->matrix[2][1] = newFrame->bones[i][2][1];
+			outbones->matrix[2][2] = newFrame->bones[i][2][2];
+			outbones->matrix[2][3] = 0;
+			outbones++;
+		}
 	}
 
 	ri.Hunk_FreeTempMemory( newFrame );
@@ -1036,29 +1028,40 @@ static void SkelWeightMorphGetXyz( skelWeight_t *weight, skelBoneCache_t *bone, 
 
 /*
 =============
-LerpSkelMesh
+RB_SkelMesh
 =============
 */
-static void LerpSkelMesh( skelSurfaceGame_t *sf ) {
-	float *outXyz;
-	vec4_t *outNormal;
-	skeletorVertex_t *newVerts;
-	skeletorMorph_t *morph;
-	skelWeight_t *weight;
-	int vertNum;
-	int morphNum;
-	int weightNum;
-	skelBoneCache_t *bones;
-	skelBoneCache_t *bone;
-	int *morphs;
-	int *morphcache;
-	float scale;
-	dtiki_t *tiki;
-	int mesh;
-	int surf;
-	skelHeaderGame_t *skelmodel;
-	skelSurfaceGame_t *psurface;
-	qboolean bFound;
+void RB_SkelMesh( skelSurfaceGame_t *sf ) {
+	int baseIndex, baseVertex;
+    int render_count;
+    int indexes;
+    float* outXyz;
+    vec4_t* outNormal;
+    skelIndex_t* triangles;
+    skelIndex_t* collapse_map;
+    skeletorVertex_t* newVerts;
+    skeletorMorph_t* morph;
+    skelWeight_t* weight;
+    int vertNum;
+    int morphNum;
+    int weightNum;
+    skelBoneCache_t* bones;
+    skelBoneCache_t* bone;
+    int* morphs;
+    int* morphcache;
+    float scale;
+    dtiki_t* tiki;
+    int mesh;
+    int surf;
+	int i;
+    skelHeaderGame_t* skelmodel;
+    skelSurfaceGame_t* psurface;
+    qboolean bFound;
+    short collapse[1000];
+
+	if (!r_drawentitypoly->integer) {
+		return;
+	}
 
 	tiki = backEnd.currentEntity->e.tiki;
 	newVerts = sf->pVerts;
@@ -1102,13 +1105,111 @@ static void LerpSkelMesh( skelSurfaceGame_t *sf ) {
 	//
 	if( skelmodel->pLOD )
 	{
-		// FIXME
+		float lod_val;
+		int renderfx;
+
+        lod_val = backEnd.currentEntity->lodpercentage[0];
+        renderfx = backEnd.currentEntity->e.renderfx;
+
+		if (sf->numVerts > 3) {
+			skelIndex_t* collapseIndex;
+			int mid, low, high;
+			int lod_cutoff;
+
+			if (lod_tool->integer
+				&& !strcmp(backEnd.currentEntity->e.tiki->a->name, lod_tikiname->string)
+				&& mesh == lod_mesh->integer)
+			{
+				lod_cutoff = GetToolLodCutoff(skelmodel, backEnd.currentEntity->lodpercentage[0]);
+			}
+			else
+			{
+				lod_cutoff = GetLodCutoff(skelmodel, backEnd.currentEntity->lodpercentage[0], renderfx);
+			}
+
+			collapseIndex = sf->pCollapseIndex;
+			if (collapseIndex[2] < lod_cutoff) {
+				return;
+			}
+
+			low = mid = 3;
+			high = sf->numVerts;
+			while (high >= low) {
+				mid = (low + high) >> 1;
+				if (collapseIndex[mid] < lod_cutoff) {
+					high = mid - 1;
+					if (collapseIndex[mid - 1] >= lod_cutoff) {
+						break;
+					}
+				}
+				else
+				{
+					mid++;
+					low = mid;
+					if (high == mid || collapseIndex[mid] < lod_cutoff) {
+						break;
+					}
+				}
+            }
+
+			render_count = mid;
+		} else {
+			render_count = sf->numVerts;
+		}
+
+		if (!render_count) {
+			return;
+		}
+	} else {
+		render_count = sf->numVerts;
+    }
+
+    collapse_map = sf->pCollapse;
+    triangles = sf->pTriangles;
+    indexes = sf->numTriangles * 3;
+    baseIndex = tess.numIndexes;
+    baseVertex = tess.numVertexes;
+    tess.numVertexes += render_count;
+
+	RB_CHECKOVERFLOW(render_count, sf->numTriangles);
+
+	if (render_count == sf->numVerts)
+	{
+		for (i = 0; i < indexes; i++) {
+			tess.indexes[tess.numIndexes + i] = baseVertex + sf->pTriangles[i];
+		}
+
+		tess.numIndexes += indexes;
 	}
+	else
+    {
+        for (i = 0; i < render_count; i++) {
+            collapse[i] = i;
+        }
+        for (i = render_count; i < sf->numVerts; i++) {
+            collapse[i] = collapse[collapse_map[i]];
+        }
+
+        for (i = 0; i < indexes; i += 3)
+        {
+            if (collapse[triangles[i]] == collapse[triangles[i + 1]] ||
+                collapse[triangles[i + 1]] == collapse[triangles[i + 2]] ||
+                collapse[triangles[i + 2]] == collapse[triangles[i]])
+            {
+                break;
+            }
+
+            tess.indexes[baseIndex + i] = baseVertex + collapse[triangles[i]];
+            tess.indexes[baseIndex + i + 1] = baseVertex + collapse[triangles[i + 1]];
+            tess.indexes[baseIndex + i + 2] = baseVertex + collapse[triangles[i + 2]];
+        }
+        tess.numIndexes += i;
+    }
 
 	//
 	// just copy the vertexes
 	//
-	for( vertNum = 0; vertNum < sf->numVerts; vertNum++ )
+	for( vertNum = 0; vertNum < render_count; vertNum++ )
 	{
 		vec3_t normal;
 		vec3_t out;
@@ -1230,47 +1331,14 @@ static void LerpSkelMesh( skelSurfaceGame_t *sf ) {
 
 		VectorScale( out, scale, outXyz );
 
+        tess.texCoords[baseVertex + vertNum][0][0] = newVerts->texCoords[0];
+        tess.texCoords[baseVertex + vertNum][0][1] = newVerts->texCoords[1];
+		// FIXME: fill in lightmapST for completeness?
+
 		newVerts = ( skeletorVertex_t * )( ( byte * )newVerts + sizeof( skeletorVertex_t ) + sizeof( skeletorMorph_t ) * newVerts->numMorphs + sizeof( skelWeight_t ) * newVerts->numWeights );
 		outXyz += 4;
 		outNormal++;
 	}
-}
-
-/*
-=============
-RB_SkelMesh
-=============
-*/
-void RB_SkelMesh( skelSurfaceGame_t *sf ) {
-	int					j;
-	skeletorVertex_t	*vert;
-	int					baseIndex, baseVertex;
-	int					numVerts;
-	int					numIndexes;
-
-	numIndexes = sf->numTriangles * 3;
-
-	RB_CHECKOVERFLOW( sf->numVerts, numIndexes );
-
-	LerpSkelMesh( sf );
-
-	baseIndex = tess.numIndexes;
-	baseVertex = tess.numVertexes;
-	for( j = 0; j < numIndexes; j++ ) {
-		tess.indexes[ baseIndex + j ] = baseVertex + sf->pTriangles[ j ];
-	}
-	tess.numIndexes += numIndexes;
-
-	numVerts = sf->numVerts;
-	vert = sf->pVerts;
-	for( j = 0; j < numVerts; j++ ) {
-		tess.texCoords[ baseVertex + j ][ 0 ][ 0 ] = vert->texCoords[ 0 ];
-		tess.texCoords[ baseVertex + j ][ 0 ][ 1 ] = vert->texCoords[ 1 ];
-		vert = ( skeletorVertex_t * )( ( byte * )vert + sizeof( skeletorVertex_t ) + sizeof( skeletorMorph_t ) * vert->numMorphs + sizeof( skelWeight_t ) * vert->numWeights );
-		// FIXME: fill in lightmapST for completeness?
-	}
-
-	tess.numVertexes += numVerts;
 
 #if 0
 	if( backEnd.currentEntity->e.staticModelIndex ) {
@@ -1462,6 +1530,87 @@ static float ProjectRadius(float r, const vec3_t location)
 float R_CalcLod(const vec3_t origin, float radius)
 {
 	return ProjectRadius(radius, origin);
+}
+/*
+=============
+R_CullTIKI
+=============
+*/
+static int R_CullSkelModel(dtiki_t* tiki, refEntity_t* e, skelAnimFrame_t* newFrame, float fScale, float* vLocalOrg) {
+	vec3_t bounds[2];
+	vec3_t delta;
+	int i;
+	int cull;
+
+	// FIXME: not working properly
+	return CULL_IN;
+
+	if (tr.currentEntity->e.renderfx & RF_FRAMELERP) {
+		VectorSubtract(e->origin, e->oldorigin, delta);
+	} else {
+		VectorClear(delta);
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+		bounds[0][i] = newFrame->bounds[0][i] * fScale + vLocalOrg[i];
+		bounds[1][i] = newFrame->bounds[1][i] * fScale + vLocalOrg[i];
+
+		if (delta[i] > 0) {
+			bounds[1][i] += delta[i];
+		} else {
+			bounds[0][i] += delta[i];
+		}
+	}
+
+	cull = R_CullLocalBox(bounds);
+
+	if (r_showcull->integer & 1)
+	{
+		float fR, fG, fB;
+		vec3_t vAngles;
+
+		switch (cull)
+		{
+        case CULL_IN:
+			fR = 0;
+			fG = 1;
+			fB = 0;
+            break;
+        case CULL_CLIP:
+            fR = 1;
+            fG = 1;
+            fB = 0;
+            break;
+        case CULL_OUT:
+            fR = 1;
+            fG = 0.2;
+            fB = 0.2;
+
+			for (i = 0; i < 3; i++) {
+				bounds[0][i] -= 16;
+				bounds[1][i] += 16;
+			}
+			break;
+        }
+
+        MatrixToEulerAngles(tr.ori.axis, vAngles);
+        R_DebugRotatedBBox(tr.ori.origin, vAngles, bounds[0], bounds[1], fR, fG, fB, 0.5);
+	}
+
+    switch (cull)
+    {
+    case CULL_IN:
+        tr.pc.c_box_cull_md3_in++;
+        return CULL_IN;
+    case CULL_CLIP:
+        tr.pc.c_box_cull_md3_clip++;
+        return CULL_CLIP;
+    case CULL_OUT:
+    default:
+        tr.pc.c_box_cull_md3_out++;
+        return CULL_OUT;
+    }
 }
 
 /*
