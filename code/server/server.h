@@ -194,7 +194,8 @@ typedef struct client_s {
     int gamespyId;
     char stringToPrint[256];
 	int radarInfo;
-    int lastRadarTime[128];
+    int lastRadarTime[MAX_CLIENTS];
+    int lastVisCheckTime[MAX_CLIENTS];
 
 #ifdef LEGACY_PROTOCOL
     qboolean		compat;
@@ -307,6 +308,10 @@ extern cvar_t	*sv_floodProtect;
 extern cvar_t	*sv_maplist;
 extern cvar_t	*sv_drawentities;
 extern cvar_t	*sv_deeptracedebug;
+extern cvar_t	*sv_netprofile;
+extern cvar_t	*sv_netprofileoverlay;
+extern cvar_t	*sv_netoptimize;
+extern cvar_t	*g_netoptimize;
 extern cvar_t	*g_gametype;
 extern cvar_t	*g_gametypestring;
 extern cvar_t	*sv_chatter;
