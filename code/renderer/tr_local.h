@@ -1940,6 +1940,7 @@ void RB_Grid_SetupStaticModel();
 void RB_Light_Fullbright(unsigned char* colors);
 void R_Sphere_InitLights();
 int R_GatherLightSources(const vec3_t vPos, vec3_t* pvLightPos, vec3_t* pvLightIntensity, int iMaxLights);
+void R_ClearRealDlights();
 void R_UploadDlights();
 
 
