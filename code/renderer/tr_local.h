@@ -1372,7 +1372,7 @@ typedef struct {
     int skel_index[1024];
     fontheader_t* pFontDebugStrings;
 
-	qboolean farclip;
+	int farclip;
 } trGlobals_t;
 
 extern backEndState_t	backEnd;
