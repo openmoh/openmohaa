@@ -92,7 +92,7 @@ void qr_check_send_heartbeat(qr_t qrec)
     tc = current_time();
 
     if ((SOCKET)qrec->hbsock != INVALID_SOCKET) {
-        if (tc - qrec->lastheartbeat > MAX_HEARTBEAT_TIME || qrec->lastheartbeat || tc < qrec->lastheartbeat) {
+        if (tc - qrec->lastheartbeat > MAX_HEARTBEAT_TIME || tc < qrec->lastheartbeat) {
             send_heartbeat(qrec, 0);
         } else if (qrec->no_query > 0 && tc - qrec->lastheartbeat > MIN_HEARTBEAT_TIME) {
             send_heartbeat(qrec, 0);
