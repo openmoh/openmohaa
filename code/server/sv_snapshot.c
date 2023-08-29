@@ -335,8 +335,9 @@ qboolean SV_ClientIsVisibleTrace(const vec3_t fromOrigin, const vec3_t toOrigin,
 	vec3_t end;
 
 	VectorSubtract(toOrigin, fromOrigin, dir);
-	VectorNormalize(dir);
-	VectorMA(toOrigin, -height, dir, end);
+    VectorNormalize(dir);
+    //VectorMA(toOrigin, -height, dir, end);
+	VectorCopy(toOrigin, end);
 
 	if (SV_WorldTrace(fromOrigin, end, (CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_SOLID))) {
 		return qtrue;
