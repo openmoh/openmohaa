@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 #include "../gamespy/sv_gamespy.h"
+#include "../gamespy/sv_gqueryreporting.h"
 
 cvar_t			*sv_mapname;
 serverStatic_t	svs;				// persistant server info
@@ -248,7 +249,7 @@ void SV_MasterHeartbeat( void ) {
 
 	if (svs.time >= svs.nextHeartbeatTime)
 	{
-		svs.nextHeartbeatTime = svs.time + 300000;
+		svs.nextHeartbeatTime = svs.time + MAX_HEARTBEAT_TIME;
 		SV_GamespyHeartbeat();
 	}
 }
