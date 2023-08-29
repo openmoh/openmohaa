@@ -69,6 +69,16 @@ typedef struct baseshader_s baseshader_t;
 typedef struct AliasListNode_s AliasListNode_t;
 typedef void( *xcommand_t ) ( void );
 
+#define MAX_NONPVS_SOUNDS 2
+
+typedef struct {
+    int index;
+    float volume;
+    float minDist;
+    float maxDist;
+    float pitch;
+} nonpvs_sound_t;
+
 typedef struct {
 	// su44: sharedEntity_t::s is used instead of it
 	//entityState_t	s;				// communicated by server to clients
@@ -108,6 +118,11 @@ typedef struct {
 	// ent->s.ownerNum = passEntityNum	(don't interact with your own missiles)
 	// entity[ent->s.ownerNum].ownerNum = passEntityNum	(don't interact with other missiles from owner)
 	int			ownerNum;
+
+	// whether or not this entity emitted a sound this frame
+	// (used for when the entity shouldn't be sent to clients)
+	nonpvs_sound_t nonpvs_sounds[MAX_NONPVS_SOUNDS];
+	int num_nonpvs_sounds;
 } entityShared_t;
 
 // client data that stays across multiple respawns, but is cleared
@@ -326,6 +341,7 @@ typedef struct gameImport_s
 	int ( *Anim_Flags )( dtiki_t *tiki, int animNum );
 	int ( *Anim_FlagsSkel )( dtiki_t *tiki, int animNum );
 	qboolean ( *Anim_HasCommands )( dtiki_t *tiki, int animNum );
+	qboolean ( *Anim_HasCommands_Client )( dtiki_t *tiki, int animNum );
 	int ( *NumHeadModels )( const char *model );
 	void ( *GetHeadModel )( const char *model, int num, char *name );
 	int ( *NumHeadSkins )( const char *model );

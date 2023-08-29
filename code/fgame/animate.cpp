@@ -106,6 +106,8 @@ Event EV_Animate_PlayerSpawn_Utility(
 );
 Event EV_Animate_PauseAnim("pauseanims", EV_DEFAULT, "i", "pause", "Pause (or unpause) animations");
 
+Event EV_Animate_SoundThisFrame("_soundthisframe", EV_DEFAULT, NULL, NULL, NULL);
+
 CLASS_DECLARATION(Entity, Animate, "animate") {
     {&EV_SetControllerAngles,         &Animate::SetControllerAngles    },
     {&EV_SetAnim,                     &Animate::ForwardExec            },
@@ -115,6 +117,7 @@ CLASS_DECLARATION(Entity, Animate, "animate") {
     {&EV_Animate_PlayerSpawn,         &Animate::EventPlayerSpawn       },
     {&EV_Animate_PlayerSpawn_Utility, &Animate::EventPlayerSpawnUtility},
     {&EV_Animate_PauseAnim,           &Animate::EventPauseAnim         },
+    {&EV_Animate_SoundThisFrame,      &Animate::SoundThisFrame         },
     {NULL,                            NULL                             }
 };
 
@@ -229,7 +232,7 @@ void Animate::NewAnim(int animnum, int slot, float weight)
         edict->s.eType = ET_MODELANIM;
     }
 
-    qboolean hascommands = gi.Anim_HasCommands(edict->tiki, animnum);
+    qboolean hascommands = gi.Anim_HasCommands(edict->tiki, animnum) || gi.Anim_HasCommands_Client(edict->tiki, animnum);
 
     // enter this animation
     if (newanim) {
@@ -251,6 +254,25 @@ void Animate::NewAnim(int animnum, int slot, float weight)
                 }
 
                 ProcessEvent(ev);
+            }
+        }
+
+        if (gi.Frame_Commands_Client(edict->tiki, animnum, TIKI_FRAME_ENTRY, &cmds)) {
+            int ii, j;
+
+            for (ii = 0; ii < cmds.num_cmds; ii++) {
+                if (!Q_stricmp(cmds.cmds[ii].args[0], "sound")) {
+                    ev = new AnimationEvent(EV_Animate_SoundThisFrame);
+
+                    ev->SetAnimationNumber(animnum);
+                    ev->SetAnimationFrame(0);
+
+                    for (j = 1; j < cmds.cmds[ii].num_args; j++) {
+                        ev->AddToken(cmds.cmds[ii].args[j]);
+                    }
+
+                    ProcessEvent(ev);
+                }
             }
         }
     }
@@ -282,6 +304,29 @@ void Animate::NewAnim(int animnum, int slot, float weight)
                 }
 
                 PostEvent(ev, time, 1 << slot);
+            }
+        }
+    }
+
+    time = 0.0f;
+    for (i = 0; i < numframes; i++, time += frametimes[slot]) {
+        // we want normal frame commands to occur right on the frame
+        if (gi.Frame_Commands_Client(edict->tiki, animnum, i, &cmds)) {
+            int ii, j;
+
+            for (ii = 0; ii < cmds.num_cmds; ii++) {
+                if (!Q_stricmp(cmds.cmds[ii].args[0], "sound")) {
+                    ev = new AnimationEvent(EV_Animate_SoundThisFrame);
+
+                    ev->SetAnimationNumber(animnum);
+                    ev->SetAnimationFrame(i);
+
+                    for (j = 1; j < cmds.cmds[ii].num_args; j++) {
+                        ev->AddToken(cmds.cmds[ii].args[j]);
+                    }
+
+                    PostEvent(ev, time, 1 << slot);
+                }
             }
         }
     }
@@ -414,6 +459,26 @@ void Animate::DoExitCommands(int slot)
             }
 
             PostEvent(ev, 0);
+        }
+    }
+
+    if (gi.Frame_Commands_Client(edict->tiki, edict->s.frameInfo[slot].index, TIKI_FRAME_EXIT, &cmds)) {
+        int ii, j;
+
+        for (ii = 0; ii < cmds.num_cmds; ii++) {
+            tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+            if (!Q_stricmp(single_cmd.args[0], "sound")) {
+                ev = new AnimationEvent(EV_Animate_SoundThisFrame);
+
+                ev->SetAnimationNumber(edict->s.frameInfo[slot].index);
+                ev->SetAnimationFrame(0);
+
+                for (j = 1; j < single_cmd.num_args; j++) {
+                    ev->AddToken(single_cmd.args[j]);
+                }
+
+                PostEvent(ev, 0);
+            }
         }
     }
 
@@ -878,6 +943,27 @@ void Animate::DumpAnimInfo(void)
     }
 
     MPrintf("actionWeight: %f\n", edict->s.actionWeight);
+}
+
+void Animate::SoundThisFrame(Event* ev)
+{
+    AliasListNode_t* ret;
+    str name;
+
+    if (edict->r.num_nonpvs_sounds >= MAX_NONPVS_SOUNDS) {
+        return;
+    }
+
+    name = GetRandomAlias(ev->GetString(1), &ret);
+    if (name.c_str() && ret) {
+        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].index = gi.soundindex(name.c_str(), ret->streamed);
+        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].volume = G_Random() * ret->volumeMod + ret->volume;
+        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].minDist = ret->dist;
+        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].maxDist = ret->maxDist;
+        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].pitch = G_Random() * ret->pitchMod + ret->pitch;
+        edict->r.num_nonpvs_sounds++;
+    }
+
 }
 
 void Animate::EventPauseAnim(Event *ev)

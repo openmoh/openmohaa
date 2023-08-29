@@ -765,6 +765,16 @@ qboolean PF_Anim_HasCommands( dtiki_t *tiki, int animnum )
 
 /*
 ===============
+PF_Anim_HasCommands
+===============
+*/
+qboolean PF_Anim_HasCommands_Client(dtiki_t* tiki, int animnum)
+{
+    return TIKI_Anim_HasClientCommands(tiki, animnum);
+}
+
+/*
+===============
 PF_ModelTiki
 ===============
 */
@@ -1623,6 +1633,7 @@ void SV_InitGameProgs( void ) {
 	import.Anim_Flags					= PF_Anim_Flags;
 	import.Anim_FlagsSkel				= PF_Anim_FlagsSkel;
 	import.Anim_HasCommands				= PF_Anim_HasCommands;
+	import.Anim_HasCommands_Client		= PF_Anim_HasCommands_Client;
 	import.NumHeadModels				= PF_NumHeadModels;
 	import.GetHeadModel					= PF_GetHeadModel;
 	import.NumHeadSkins					= PF_NumHeadSkins;

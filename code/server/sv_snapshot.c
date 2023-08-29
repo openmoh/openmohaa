@@ -293,6 +293,25 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 	return 1;
 }
 
+static void SV_AddNonPVSSound(client_t* client, gentity_t* ent) {
+	int i;
+
+    for (i = 0; i < ent->r.num_nonpvs_sounds; i++) {
+        SV_ClientSound(
+            client,
+            &ent->s.origin,
+            ENTITYNUM_NONE,
+            1,
+            ent->r.nonpvs_sounds[i].index,
+            ent->r.nonpvs_sounds[i].volume,
+            ent->r.nonpvs_sounds[i].minDist,
+            ent->r.nonpvs_sounds[i].pitch,
+            ent->r.nonpvs_sounds[i].maxDist,
+            qfalse
+        );
+	}
+}
+
 /*
 ===============
 SV_WorldTrace
@@ -607,6 +626,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 				SV_AddEntToSnapshot(svEnt, ent, eNums, portalEnt, portalsky);
 				continue;
 			} else if (g_gametype->integer != GT_SINGLE_PLAYER && ent->s.parent < svs.iNumClients) {
+				SV_AddNonPVSSound(client, ent);
 				continue;
 			}
 
@@ -688,6 +708,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 
 		if (g_gametype->integer != GT_SINGLE_PLAYER && ent->s.number < svs.iNumClients) {
 			if (!SV_ClientIsVisible(ent->s.number, client - svs.clients, check, forward, right)) {
+				SV_AddNonPVSSound(client, ent);
 				continue;
 			}
 		}
@@ -1143,6 +1164,11 @@ void SV_SendClientMessages( void ) {
 		SV_SendClientSnapshot(c);
 		c->lastSnapshotTime = svs.time;
 		c->rateDelayed = qfalse;
-	}
+    }
+
+    for (i = 0; i < sv.num_entities; i++) {
+        gentity_t* ent = SV_GentityNum(i);
+		ent->r.num_nonpvs_sounds = 0;
+    }
 }
 

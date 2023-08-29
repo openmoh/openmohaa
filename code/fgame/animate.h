@@ -132,6 +132,8 @@ public:
     virtual void DumpAnimInfo();
     void         SlotChanged(int slot);
 
+    void SoundThisFrame(Event *ev);
+
     // FIXME: delete this, fakk2 remnant
     int NumFrames(int slot = 0);
 };
