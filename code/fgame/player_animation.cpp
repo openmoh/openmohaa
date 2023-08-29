@@ -118,10 +118,10 @@ void Player::SetPartAnim(const char *anim, bodypart_t slot)
         NewAnim(animnum, EV_Player_AnimLoop_Legs, m_iPartSlot[legs]);
     }
 
-    SetTime(m_iPartSlot[slot]);
+    RestartAnimSlot(m_iPartSlot[slot]);
 }
 
-static float m_fPartMult[2] = {0.2f, 0.2f};
+static float g_fPartBlendTime[2] = {0.2f, 0.2f};
 
 void Player::StopPartAnimating(bodypart_t part)
 {
@@ -138,7 +138,7 @@ void Player::StopPartAnimating(bodypart_t part)
     }
 
     partAnim[part]      = "";
-    partBlendMult[part] = 1.0f / m_fPartMult[part];
+    partBlendMult[part] = 1.0f / g_fPartBlendTime[part];
 
     StopAnimating(m_iPartSlot[part]);
 
@@ -169,6 +169,16 @@ void Player::AdjustAnimBlends(void)
     int   iPartSlot;
     int   iOldPartSlot;
     float fWeightTotal;
+
+    if (deadflag == DEAD_DEAD) {
+        if (m_fPainBlend) {
+            StopAnimating(ANIMSLOT_PAIN);
+            edict->s.frameInfo[ANIMSLOT_PAIN].weight = 0;
+            m_fPainBlend = 0;
+            animdone_Pain = false;
+        }
+        return;
+    }
 
     iPartSlot    = m_iPartSlot[legs];
     iOldPartSlot = m_iPartSlot[legs] ^ 1;
@@ -206,6 +216,7 @@ void Player::AdjustAnimBlends(void)
 __blend_torso:
     iPartSlot    = m_iPartSlot[torso];
     iOldPartSlot = m_iPartSlot[torso] ^ 1;
+    
 
     if (m_fPartBlends[torso] <= 0.0f) {
         if (partOldAnim[torso] != "") {
@@ -233,6 +244,39 @@ __blend_torso:
             partOldAnim[torso]                   = "";
             edict->s.frameInfo[iPartSlot].weight = partAnim[torso] != "" ? 1.0f : 0.0f;
             edict->s.actionWeight                = partAnim[torso] != "" ? 1.0f : 0.0f;
+        }
+    }
+
+    if (m_fPainBlend) {
+        if (m_sPainAnim == "") {
+            StopAnimating(ANIMSLOT_PAIN);
+            edict->s.frameInfo[ANIMSLOT_PAIN].weight = 0;
+            m_fPainBlend = 0;
+            animdone_Pain = false;
+        } else if (animdone_Pain) {
+            m_fPainBlend -= level.frametime * (10.0 / 3.0);
+            if (m_fPainBlend < 0.01f) {
+                StopAnimating(ANIMSLOT_PAIN);
+                edict->s.frameInfo[ANIMSLOT_PAIN].weight = 0;
+                m_fPainBlend = 0;
+                animdone_Pain = false;
+            }
+        }
+
+        if (m_fPainBlend) {
+            int i;
+            float w;
+
+            edict->s.frameInfo[ANIMSLOT_PAIN].weight = m_fPainBlend;
+            w = 1.0 - m_fPainBlend * 0.5;
+
+            for (i = 0; i < ANIMSLOT_PAIN; i++) {
+                if (edict->s.frameInfo[i].weight) {
+                    edict->s.frameInfo[i].weight *= w;
+                }
+            }
+
+            edict->s.actionWeight *= w;
         }
     }
 }
