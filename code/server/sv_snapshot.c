@@ -311,14 +311,13 @@ qboolean SV_WorldTrace(const vec3_t start, const vec3_t end, int mask)
 SV_ClientIsVisibleTrace
 ===============
 */
-qboolean SV_ClientIsVisibleTrace(const vec3_t fromOrigin, const vec3_t toOrigin, float dist, float dot) {
+qboolean SV_ClientIsVisibleTrace(const vec3_t fromOrigin, const vec3_t toOrigin, float height, float dot) {
 	vec3_t dir;
 	vec3_t end;
 
 	VectorSubtract(toOrigin, fromOrigin, dir);
 	VectorNormalize(dir);
-	VectorScale(dir, -dist, end);
-	VectorAdd(end, toOrigin, end);
+	VectorMA(toOrigin, -height, dir, end);
 
 	if (SV_WorldTrace(fromOrigin, end, (CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_SOLID))) {
 		return qtrue;
@@ -328,7 +327,7 @@ qboolean SV_ClientIsVisibleTrace(const vec3_t fromOrigin, const vec3_t toOrigin,
 		return qfalse;
     }
 
-	end[2] -= dist;
+	end[2] -= height;
 	return SV_WorldTrace(fromOrigin, end, (CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_SOLID));
 }
 
@@ -337,12 +336,12 @@ qboolean SV_ClientIsVisibleTrace(const vec3_t fromOrigin, const vec3_t toOrigin,
 SV_ClientIsVisible
 ===============
 */
-qboolean SV_ClientIsVisible(int toNum, int fromNum, int distCheck, const vec3_t forward, const vec3_t left) {
-	static unsigned int nextVisibilityCheckTime = 1000;
+qboolean SV_ClientIsVisible(int toNum, int fromNum, int distCheck, const vec3_t forward, const vec3_t right) {
 	client_t* fromClient;
 	playerState_t *fromPs, *toPs;
 	vec3_t dir;
 	vec3_t fromOrigin, toOrigin;
+	vec3_t toRight;
 	float dot;
 	float speed;
 	
@@ -355,8 +354,8 @@ qboolean SV_ClientIsVisible(int toNum, int fromNum, int distCheck, const vec3_t 
 	}
 
 	fromClient = &svs.clients[fromNum];
-	if (!distCheck) {
-		fromClient->lastVisCheckTime[toNum] = svs.time + nextVisibilityCheckTime;
+	if (sv_netoptimize->integer == NETO_CULLED && distCheck == CULL_IN) {
+		fromClient->lastVisCheckTime[toNum] = svs.time + sv_netoptimize_vistime->integer;
 		return qtrue;
 	}
 
@@ -370,22 +369,29 @@ qboolean SV_ClientIsVisible(int toNum, int fromNum, int distCheck, const vec3_t 
 	if (fromPs->fLeanAngle == 0) {
 		VectorCopy(fromPs->vEyePos, fromOrigin);
 	} else if (fromPs->fLeanAngle >= 0) {
-		VectorScale(left, 30, fromOrigin);
-		VectorAdd(fromOrigin, fromPs->vEyePos, fromOrigin);
+		VectorMA(fromPs->vEyePos, 30, right, fromOrigin);
 	} else {
-		VectorScale(left, -30, fromOrigin);
-		VectorAdd(fromOrigin, fromPs->vEyePos, fromOrigin);
-	}
+		VectorMA(fromPs->vEyePos, -30, right, fromOrigin);
+    }
+    VectorCopy(fromPs->vEyePos, fromOrigin);
 
-	VectorCopy(toPs->origin, toOrigin);
-	toOrigin[2] += 82;
+	if (toPs->fLeanAngle == 0) {
+		VectorCopy(toPs->vEyePos, toOrigin);
+	} else if (toPs->fLeanAngle >= 0) {
+		AngleVectors(toPs->viewangles, toRight, NULL, NULL);
+		VectorMA(toPs->vEyePos, 30, toRight, toOrigin);
+	} else {
+		AngleVectors(toPs->viewangles, toRight, NULL, NULL);
+		VectorMA(toPs->vEyePos, -30, toRight, toOrigin);
+    }
+    VectorCopy(toPs->vEyePos, toOrigin);
 
 	VectorSubtract(toOrigin, fromOrigin, dir);
 	VectorNormalize(dir);
 
 	dot = DotProduct(forward, dir);
-	if (SV_ClientIsVisibleTrace(fromOrigin, toOrigin, 41, dot)) {
-		fromClient->lastVisCheckTime[toNum] = svs.time + nextVisibilityCheckTime;
+	if (SV_ClientIsVisibleTrace(fromOrigin, toOrigin, toPs->viewheight / 2, dot)) {
+		fromClient->lastVisCheckTime[toNum] = svs.time + sv_netoptimize_vistime->integer;
 		return qtrue;
 	}
 
@@ -400,8 +406,8 @@ qboolean SV_ClientIsVisible(int toNum, int fromNum, int distCheck, const vec3_t 
 	VectorMA(fromOrigin, sv.frameTime * 3, fromPs->velocity, fromOrigin);
 	VectorMA(toOrigin, sv.frameTime * 3, toPs->velocity, toOrigin);
 
-	if (SV_ClientIsVisibleTrace(fromOrigin, toOrigin, 41, dot)) {
-        fromClient->lastVisCheckTime[toNum] = svs.time + nextVisibilityCheckTime;
+	if (SV_ClientIsVisibleTrace(fromOrigin, toOrigin, toPs->viewheight / 2, dot)) {
+        fromClient->lastVisCheckTime[toNum] = svs.time + sv_netoptimize_vistime->integer;
         return qtrue;
 	}
 
@@ -443,19 +449,17 @@ int EntityDistCheck(const vec3_t origin, const vec3_t forward, const gentity_t* 
 	float dot;
 
 	VectorSubtract(origin, ent->r.centroid, dir);
-	length = VectorNormalize(dir);
+	length = VectorNormalize(dir) - ent->r.radius;
 
 	farplaneMax = farplane + 128;
-	if (length - ent->r.radius >= farplaneMax) {
+	if (length >= farplaneMax) {
 		return CULL_OUT;
 	}
 
-	fovCheck = ((length - ent->r.radius) * (fov / 80.0));
+	fovCheck = fov / 80 * length;
 
-	if (ent->s.number < svs.iNumClients) {
-		if (VectorLength(ent->s.pos.trDelta) < 5) {
-			fovCheck *= 0.25f;
-		}
+	if (ent->s.number < svs.iNumClients && VectorLength(ent->s.pos.trDelta) < 5) {
+		fovCheck *= 0.25f;
 	}
 
 	if (fovCheck <= 640) {
@@ -463,11 +467,11 @@ int EntityDistCheck(const vec3_t origin, const vec3_t forward, const gentity_t* 
 	}
 
 	dot = DotProduct(forward, dir) + 0.5f;
-	if (dot < 0.f) {
+	if (dot < 0) {
 		dot = 0;
 	}
 
-	if (fovCheck * dot * 2.f + 1.f >= farplaneMax) {
+	if (fovCheck * (dot * 2.f + 1.f) >= farplaneMax) {
 		// outside the farplane
 		return CULL_OUT;
 	}
@@ -495,7 +499,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 	gentity_t* skyorigin = NULL;
 	int		num;
 	int		check = 0;
-	vec3_t	forward, left;
+	vec3_t	forward, right;
 
 	// during an error shutdown message we may need to transmit
 	// the shutdown message after the server has shutdown, so
@@ -520,7 +524,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 
 	clientpvs = CM_ClusterPVS (clientcluster);
 
-	AngleVectors(angles, forward, left, NULL);
+	AngleVectors(angles, forward, right, NULL);
 
 	c_fullsend = 0;
 
@@ -602,9 +606,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 			if (parentSvEnt->snapshotCounter == sv.snapshotCounter) {
 				SV_AddEntToSnapshot(svEnt, ent, eNums, portalEnt, portalsky);
 				continue;
-			}
-
-			if (g_gametype->integer != GT_SINGLE_PLAYER && ent->s.parent < svs.iNumClients) {
+			} else if (g_gametype->integer != GT_SINGLE_PLAYER && ent->s.parent < svs.iNumClients) {
 				continue;
 			}
 
@@ -685,7 +687,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 		}
 
 		if (g_gametype->integer != GT_SINGLE_PLAYER && ent->s.number < svs.iNumClients) {
-			if (!SV_ClientIsVisible(ent->s.number, client - svs.clients, check, forward, left)) {
+			if (!SV_ClientIsVisible(ent->s.number, client - svs.clients, check, forward, right)) {
 				continue;
 			}
 		}
@@ -1004,6 +1006,10 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	frame->first_entity = svs.nextSnapshotEntities;
 	for ( i = 0 ; i < entityNumbers.numSnapshotEntities ; i++ ) {
 		ent = SV_GentityNum(entityNumbers.snapshotEntities[i]);
+		if (ent->client) {
+			client->lastRadarTime[ent->s.number + 1] = svs.time;
+		}
+
 		state = &svs.snapshotEntities[svs.nextSnapshotEntities % svs.numSnapshotEntities];
 		*state = ent->s;
 		svs.nextSnapshotEntities++;
@@ -1015,7 +1021,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	}
 
 	SV_UpdateRadar(client);
-	frame->ps.radarInfo = client->radarInfo;
+    frame->ps.radarInfo = client->radarInfo;
 }
 
 /*
