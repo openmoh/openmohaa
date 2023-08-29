@@ -849,6 +849,16 @@ qboolean PF_Frame_Commands( dtiki_t *tiki, int animnum, int framenum, tiki_cmd_t
 
 /*
 ===============
+PF_Frame_Commands
+===============
+*/
+qboolean PF_Frame_Commands_Client( dtiki_t *tiki, int animnum, int framenum, tiki_cmd_t *tiki_cmds )
+{
+	return TIKI_Frame_Commands_Client( tiki, animnum, framenum, tiki_cmds );
+}
+
+/*
+===============
 PF_Surface_NameToNum
 ===============
 */
@@ -1618,6 +1628,7 @@ void SV_InitGameProgs( void ) {
 	import.NumHeadSkins					= PF_NumHeadSkins;
 	import.GetHeadSkin					= PF_GetHeadSkin;
 	import.Frame_Commands				= PF_Frame_Commands;
+	import.Frame_Commands_Client		= PF_Frame_Commands_Client;
 	import.Surface_NameToNum			= PF_Surface_NameToNum;
 	import.Surface_NumToName			= PF_Surface_NumToName;
 	import.Tag_NumForName				= PF_Tag_NameToNum;

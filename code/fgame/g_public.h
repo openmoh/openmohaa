@@ -331,6 +331,7 @@ typedef struct gameImport_s
 	int ( *NumHeadSkins )( const char *model );
 	void ( *GetHeadSkin )( const char *model, int num, char *name );
 	qboolean ( *Frame_Commands )( dtiki_t *tiki, int animNum, int frameNum, tiki_cmd_t *tikiCmds );
+	qboolean ( *Frame_Commands_Client )( dtiki_t *tiki, int animNum, int frameNum, tiki_cmd_t *tikiCmds );
 	int ( *Surface_NameToNum )( dtiki_t *tiki, const char *name );
 	const char * ( *Surface_NumToName )( dtiki_t *tiki, int surfacenum );
 	int ( *Tag_NumForName )( dtiki_t *pmdl, const char *name );
