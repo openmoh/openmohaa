@@ -3622,7 +3622,7 @@ void Entity::Sound(
                     if (volume >= 0.0f) {
                         volume = G_Random() * ret->volumeMod + volume;
                     } else {
-                        pitch = G_Random() * ret->pitchMod + ret->pitch;
+                        volume = G_Random() * ret->volumeMod + volume;
                     }
 
                     if (pitch >= 0.0f) {
