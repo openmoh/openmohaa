@@ -219,6 +219,12 @@ typedef enum {
     CDKS_FAILED
 } cdKeyState_e;
 
+typedef enum {
+	NETO_NONE,
+	NETO_CULLED,
+	NETO_ALWAYS
+} netoptimize_e;
+
 typedef struct {
 	netadr_t	adr;
     int				challenge;
@@ -311,6 +317,7 @@ extern cvar_t	*sv_deeptracedebug;
 extern cvar_t	*sv_netprofile;
 extern cvar_t	*sv_netprofileoverlay;
 extern cvar_t	*sv_netoptimize;
+extern cvar_t	*sv_netoptimize_vistime;
 extern cvar_t	*g_netoptimize;
 extern cvar_t	*g_gametype;
 extern cvar_t	*g_gametypestring;
