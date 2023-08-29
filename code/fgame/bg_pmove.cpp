@@ -1520,22 +1520,27 @@ void PmoveSingle( pmove_t *pmove )
 		{
 			float fLeanAngle = pml.frametime * -pm->leanSpeed;
 
-			if( fAngle <= fLeanAngle )
-			{
+			if(fLeanAngle >= fAngle) {
 				fLeanAngle = fAngle;
 			}
 
 			pm->ps->fLeanAngle -= fLeanAngle;
+			if (pm->ps->fLeanAngle > 0) {
+				pm->ps->fLeanAngle = 0;
+			}
 		}
 		else
 		{
 			float fLeanAngle = pml.frametime * pm->leanSpeed;
 
-			if(fAngle >= fLeanAngle) {
+			if(fLeanAngle <= fAngle) {
 				fLeanAngle = fAngle;
 			}
 
-			pm->ps->fLeanAngle -= fLeanAngle;
+            pm->ps->fLeanAngle -= fLeanAngle;
+            if (pm->ps->fLeanAngle < 0) {
+                pm->ps->fLeanAngle = 0;
+            }
 		}
 	}
 
