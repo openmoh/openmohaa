@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_KEYVALUES_LENGTH 1400
 
+static const unsigned int MIN_HEARTBEAT_TIME = 30000; // wait at least 30 seconds before new heartbeat can be sent
+static const unsigned int MAX_HEARTBEAT_TIME = 300000; // 5 minutes
+
 typedef void (*qr_querycallback_t)(char *outbuf, int maxlen, void *userdata);
 typedef void (*qr_custom_handler_t)(const char *query, struct sockaddr *sender);
 

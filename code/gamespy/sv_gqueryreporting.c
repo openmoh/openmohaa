@@ -29,9 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static char *queries[] = {"basic", "info", "rules", "players", "status", "packets", "echo", "secure"};
 
-static const unsigned int MIN_HEARTBEAT_TIME = 30000; // wait at least 30 seconds before new heartbeat can be sent
-static const unsigned int MAX_HEARTBEAT_TIME = 300000; // 5 minutes
-
 static qr_implementation_t  static_rec;
 static qr_implementation_t *current_rec = &static_rec;
 struct sockaddr_in          hbaddr;
