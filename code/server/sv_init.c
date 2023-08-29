@@ -1024,6 +1024,7 @@ void SV_Init( void ) {
     sv_netprofile = Cvar_Get("sv_netprofile", "0", 0);
     sv_netprofileoverlay = Cvar_Get("sv_netprofileoverlay", "0", 0);
     sv_netoptimize = Cvar_Get("sv_netoptimize", "0", 0);
+	sv_netoptimize_vistime = Cvar_Get("sv_netoptimize_vistime", "200", 0);
     g_netoptimize = Cvar_Get("g_netoptimize", "1", 0);
 	sv_chatter = Cvar_Get( "sv_chatter", "0", 0 );
 	sv_lanForceRate = Cvar_Get ("sv_lanForceRate", "1", CVAR_ARCHIVE );

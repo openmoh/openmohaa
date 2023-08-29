@@ -60,6 +60,7 @@ cvar_t	*sv_deeptracedebug;
 cvar_t	*sv_netprofile;
 cvar_t	*sv_netprofileoverlay;
 cvar_t	*sv_netoptimize;
+cvar_t	*sv_netoptimize_vistime;
 cvar_t	*g_netoptimize;
 cvar_t	*g_gametype;
 cvar_t	*g_gametypestring;
