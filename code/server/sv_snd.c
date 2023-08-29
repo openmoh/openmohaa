@@ -26,46 +26,55 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 ===============
+SV_ClientSound
+===============
+*/
+void SV_ClientSound(client_t* client, vec3_t* org, int entnum, int channel, int sound_index, float volume, float mindist, float pitch, float maxdist, qboolean streamed) {
+	server_sound_t* sound;
+
+	if (client->state != CS_ACTIVE)
+		return;
+
+    if (client->number_of_server_sounds >= MAX_SERVER_SOUNDS)
+        return;
+
+	sound = &client->server_sounds[client->number_of_server_sounds];
+	sound->stop_flag = 0;
+	sound->entity_number = entnum;
+
+	if (org)
+	{
+		VectorCopy(*org, sound->origin);
+	}
+	else
+	{
+		VectorClear(sound->origin);
+	}
+
+	sound->channel = channel;
+	sound->volume = volume;
+	sound->min_dist = mindist;
+	sound->pitch = pitch;
+	sound->maxDist = maxdist;
+	sound->sound_index = sound_index;
+	sound->streamed = streamed;
+	client->number_of_server_sounds++;
+}
+
+/*
+===============
 SV_Sound
 ===============
 */
 void SV_Sound( vec3_t *org, int entnum, int channel, const char *sound_name, float volume, float mindist, float pitch, float maxdist, qboolean streamed )
 {
-	int i;
+    int i;
 
-	for( i = 0; i < sv_maxclients->integer; i++ )
-	{
-		client_t *client = &svs.clients[ i ];
-		server_sound_t *sound;
-
-		if( client->state != CS_ACTIVE )
-			continue;
-
-		if( client->number_of_server_sounds >= MAX_SERVER_SOUNDS )
-			continue;
-
-		sound = &client->server_sounds[ client->number_of_server_sounds ];
-		sound->stop_flag = 0;
-		sound->entity_number = entnum;
-
-		if( org )
-		{
-			VectorCopy( *org, sound->origin );
-		}
-		else
-		{
-			VectorClear( sound->origin );
-		}
-
-		sound->channel = channel;
-		sound->volume = volume;
-		sound->min_dist = mindist;
-		sound->pitch = pitch;
-		sound->maxDist = maxdist;
-		sound->sound_index = SV_SoundIndex( sound_name, streamed );
-		sound->streamed = streamed;
-		client->number_of_server_sounds++;
-	}
+    for (i = 0; i < sv_maxclients->integer; i++)
+    {
+        client_t* client = &svs.clients[i];
+        SV_ClientSound(client, org, entnum, channel, SV_SoundIndex(sound_name, streamed), volume, mindist, pitch, maxdist, streamed);
+    }
 }
 
 /*

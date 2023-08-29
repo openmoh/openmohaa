@@ -481,6 +481,7 @@ void SV_InitAllCGMessages ();
 //
 // sv_snd.c
 //
+void SV_ClientSound(client_t* client, vec3_t* org, int entnum, int channel, int sound_index, float volume, float mindist, float pitch, float maxdist, qboolean streamed);
 void SV_Sound( vec3_t *org, int entnum, int channel, const char *sound_name, float volume, float mindist, float pitch, float maxdist, qboolean streamed );
 void SV_ClearSounds( client_t *client );
 void SV_StopSound( int entnum, int channel );
