@@ -2218,7 +2218,7 @@ void Player::InitClient(void)
     client_persistant_t saved;
 
     // deathmatch wipes most client data every spawn
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         char       userinfo[MAX_INFO_STRING];
         char       dm_primary[MAX_QPATH];
         float      enterTime   = client->pers.enterTime;
@@ -2509,7 +2509,7 @@ void Player::ChooseSpawnPoint(void)
     origin.copyTo(edict->s.origin2);
     edict->s.renderfx |= RF_FRAMELERP;
 
-    if (g_gametype->integer && !IsSpectator()) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER && !IsSpectator()) {
         KillBox(this);
     }
 
@@ -2520,7 +2520,7 @@ void Player::ChooseSpawnPoint(void)
     VectorCopy(origin, client->ps.vEyePos);
     client->ps.vEyePos[2] += client->ps.viewheight;
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         for (int i = 1; i <= 4; i++) {
             Event *ev = new Event(EV_SetViewangles);
             ev->AddVector(p->angles);
@@ -2551,7 +2551,7 @@ void Player::EndLevel(Event *ev)
 
 void Player::Respawn(Event *ev)
 {
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         bool bOldVoted;
 
         if (health <= 0.0f) {
@@ -2991,7 +2991,7 @@ void Player::Killed(Event *ev)
 
     RemoveFromVehiclesAndTurrets();
 
-    if (g_gametype->integer && attacker && attacker->IsSubclassOfPlayer()) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER && attacker && attacker->IsSubclassOfPlayer()) {
         ((Player *)attacker)->KilledPlayerInDeathmatch(this);
     }
 
@@ -3013,7 +3013,7 @@ void Player::Killed(Event *ev)
 
     ProcessEvent(event);
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         if (HasItem("Binoculars")) {
             takeItem("Binoculars");
         }
@@ -3254,7 +3254,7 @@ void Player::Pain(Event *ev)
         }
     }
 
-    if (g_gametype->integer && attacker && attacker->client && attacker != this) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER && attacker && attacker->client && attacker != this) {
         gi.MSG_SetClient(attacker->edict - g_entities);
         if (IsDead()) {
             gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_NOTIFY_KILL));
@@ -3410,7 +3410,7 @@ void Player::GetMoveInfo(pmove_t *pm)
 {
     moveresult = pm->moveresult;
 
-    if (!deadflag || (g_gametype->integer && IsSpectator())) {
+    if (!deadflag || (g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator())) {
         v_angle[0] = pm->ps->viewangles[0];
         v_angle[1] = pm->ps->viewangles[1];
         v_angle[2] = pm->ps->viewangles[2];
@@ -3900,7 +3900,7 @@ void Player::ClientMove(usercmd_t *ucmd)
         }
     }
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         client->ps.speed = (int)((float)client->ps.speed * sv_dmspeedmult->value);
     }
 
@@ -4056,7 +4056,7 @@ void Player::TurretMove(usercmd_t *ucmd)
 
 void Player::ClientInactivityTimer(void)
 {
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -4192,8 +4192,8 @@ void Player::UpdateEnemies(void)
     float  fMaxDist;
     float  fMaxCosSquared;
     Vector vLookDir;
-
-    if (g_gametype->integer) {
+    
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -4266,7 +4266,7 @@ void Player::ClientThink(void)
 
     TickSprint();
 
-    if (g_gametype->integer && dm_team == TEAM_SPECTATOR && !IsSpectator()) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER && dm_team == TEAM_SPECTATOR && !IsSpectator()) {
         Spectator();
     }
 
@@ -4318,7 +4318,7 @@ void Player::ClientThink(void)
         client->cmd_angles[1] = SHORT2ANGLE(current_ucmd->angles[1]);
         client->cmd_angles[2] = SHORT2ANGLE(current_ucmd->angles[2]);
 
-        if (g_gametype->integer && g_smoothClients->integer && !IsSubclassOfBot()) {
+        if (g_gametype->integer != GT_SINGLE_PLAYER && g_smoothClients->integer && !IsSubclassOfBot()) {
             VectorCopy(client->ps.velocity, edict->s.pos.trDelta);
             edict->s.pos.trTime = client->ps.commandTime;
         } else {
@@ -5382,7 +5382,7 @@ void Player::SelectPreviousWeapon(Event *ev)
     if (weapon) {
         weapon = PreviousWeapon(weapon);
 
-        if (g_gametype->integer) {
+        if (g_gametype->integer != GT_SINGLE_PLAYER) {
             while (weapon && weapon != activeWeapon && weapon->IsSubclassOfInventoryItem()) {
                 weapon = PreviousWeapon(weapon);
             }
@@ -5408,7 +5408,7 @@ void Player::SelectNextWeapon(Event *ev)
     if (weapon) {
         weapon = NextWeapon(weapon);
 
-        if (g_gametype->integer) {
+        if (g_gametype->integer != GT_SINGLE_PLAYER) {
             while (weapon && weapon != activeWeapon && weapon->IsSubclassOfInventoryItem()) {
                 weapon = NextWeapon(weapon);
             }
@@ -5427,7 +5427,7 @@ void Player::DropCurrentWeapon(Event *ev)
     Weapon *weapon;
     Vector  forward;
 
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -5710,7 +5710,7 @@ void Player::SetSelectedFov(float newFov)
     }
 
     /*
-    if( g_gametype->integer && !developer->integer )
+    if( g_gametype->integer != GT_SINGLE_PLAYER && !developer->integer )
     {
         if( selectedfov < 80 )
         {
@@ -6773,7 +6773,7 @@ void Player::FinishMove(void)
     DamageFeedback();
     CalcBlend();
 
-    if (g_gametype->integer && g_smoothClients->integer && !IsSubclassOfBot()) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER && g_smoothClients->integer && !IsSubclassOfBot()) {
         VectorCopy(client->ps.velocity, edict->s.pos.trDelta);
         edict->s.pos.trTime = client->ps.commandTime;
     } else {
@@ -9187,7 +9187,7 @@ void Player::ArmorDamage(Event *ev)
 {
     int mod = ev->GetInteger(9);
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         // players that are not allowed fighting mustn't take damage
         if (!m_bAllowFighting && mod != MOD_TELEFRAG) {
             return;
@@ -9238,7 +9238,7 @@ void Player::Disconnect(void)
     ev->AddListener(this);
     scriptedEvents[SE_DISCONNECTED].Trigger(ev);
 
-    if (g_gametype->integer) {
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
         dmManager.RemovePlayer(this);
     }
 }
@@ -9248,7 +9248,7 @@ void Player::CallVote(Event *ev)
     str arg1;
     str arg2;
 
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -9806,7 +9806,7 @@ void Player::EventDMMessage(Event *ev)
     qboolean         bInstaMessage = qfalse;
     qboolean         met_comment   = false;
 
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
     }
 
@@ -11795,7 +11795,7 @@ int Player::getUseableEntities(int *touch, int maxcount, bool requiresLookAt)
     Vector  max;
     Vector  min;
 
-    if ((g_gametype->integer && IsSpectator()) || IsDead()) {
+    if ((g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator()) || IsDead()) {
         return 0;
     }
 
