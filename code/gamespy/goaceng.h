@@ -57,7 +57,7 @@ extern "C" {
 #endif
 
 
-#define ENGINE_VERSION "1.5"
+#define ENGINE_VERSION "3.0"
 #define SERVER_TIMEOUT 3000
 /* GServerList and GServer are the abstracted serverlist and server data types.
 All access to their internal data structures is done via the functions below */
