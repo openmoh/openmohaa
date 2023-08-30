@@ -3488,6 +3488,11 @@ void ClientGameCommandManager::Sound(Event *ev)
     float volume       = -1.0;
     float min_distance = -1.0;
 
+    if (!current_entity) {
+        // don't play sound for nonexistent entities
+        return;
+    }
+
     if (ev->NumArgs() < 1) {
         return;
     }
