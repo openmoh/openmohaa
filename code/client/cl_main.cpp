@@ -1535,6 +1535,8 @@ void CL_Vid_Restart_f( void ) {
 	CL_InitRef();
 	// initialize the ui library
 	UI_ResolutionChange();
+	// clear aliases
+	Alias_Clear();
 
 	cls.rendererRegistered = qfalse;
 
