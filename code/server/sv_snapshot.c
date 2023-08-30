@@ -1128,6 +1128,7 @@ SV_SendClientMessages
 */
 void SV_SendClientMessages( void ) {
 	int			i;
+	int			rate;
 	client_t	*c;
 
 	// send a message to each connected client
@@ -1136,9 +1137,11 @@ void SV_SendClientMessages( void ) {
 			continue;		// not connected
 		}
 
-		if ( svs.time < c->nextSnapshotTime ) {
-			continue;		// not time yet
-		}
+		if(svs.time - c->lastSnapshotTime < c->snapshotMsec * com_timescale->value)
+			continue;		// It's not time yet
+
+		if (!SV_IsValidSnapshotClient(c))
+			continue; // not valid snapshot
 
 		if(*c->downloadName)
 			continue;		// Client is downloading, don't send snapshots
@@ -1149,11 +1152,13 @@ void SV_SendClientMessages( void ) {
 			continue;		// Drop this snapshot if the packet queue is still full or delta compression will break
 		}
 
+		rate = SV_RateMsec(c);
+
 		if(!(c->netchan.remoteAddress.type == NA_LOOPBACK ||
 		     (sv_lanForceRate->integer && Sys_IsLANAddress(c->netchan.remoteAddress))))
 		{
 			// rate control for clients not on LAN 
-			if(SV_RateMsec(c) > 0)
+			if(rate > 0)
 			{
 				// Not enough time since last packet passed through the line
 				c->rateDelayed = qtrue;
@@ -1162,8 +1167,8 @@ void SV_SendClientMessages( void ) {
 		}
 
 		// generate and send a new message
-		SV_SendClientSnapshot(c);
-		c->lastSnapshotTime = svs.time;
+        SV_SendClientSnapshot(c);
+        c->lastSnapshotTime = svs.time;
 		c->rateDelayed = qfalse;
     }
 
@@ -1173,3 +1178,22 @@ void SV_SendClientMessages( void ) {
     }
 }
 
+qboolean SV_IsValidSnapshotClient(client_t* client) {
+	if (client->deltaMessage <= 0) {
+		return qtrue;
+	}
+
+	if (client->state != CS_ACTIVE) {
+		return qtrue;
+	}
+
+	if (client->lastPacketTime >= svs.lastTime) {
+		return qtrue;
+	}
+
+	if (client->netchan.outgoingSequence - client->deltaMessage < 29) {
+		return qtrue;
+	}
+
+	return qfalse;
+}

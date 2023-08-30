@@ -477,11 +477,11 @@ gotnewcl:
 
 	newcl->state = CS_CONNECTED;
 	if (svs.iNumClients > 1) {
-		newcl->nextSnapshotTime = svs.time + 800;
+		newcl->lastSnapshotTime = 0;
 		newcl->lastPacketTime = svs.time + 800;
 		newcl->lastConnectTime = svs.time + 800;
 	} else {
-		newcl->nextSnapshotTime = svs.time + 300;
+		newcl->lastSnapshotTime = 0;
 		newcl->lastPacketTime = svs.time + 300;
 		newcl->lastConnectTime = svs.time + 300;
 	}
@@ -705,8 +705,12 @@ void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {
 	client->gentity = ent;
 
 	client->deltaMessage = -1;
-	client->nextSnapshotTime = svs.time;	// generate a snapshot immediately
-	client->lastUsercmd = *cmd;
+	client->lastSnapshotTime = 0;	// generate a snapshot immediately
+
+	if (cmd)
+		memcpy(&client->lastUsercmd, cmd, sizeof(client->lastUsercmd));
+	else
+		memset(&client->lastUsercmd, '\0', sizeof(client->lastUsercmd));
 
 	// call the game begin function
 	ge->ClientBegin( ( gentity_t * )ent, cmd );
@@ -1281,7 +1285,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 		} 
 		else {
 			cl->pureAuthentic = 0;
-			cl->nextSnapshotTime = -1;
+			cl->lastSnapshotTime = 0;
 			cl->state = CS_ACTIVE;
 			SV_SendClientSnapshot( cl );
 			SV_DropClient( cl, "Unpure client detected. Invalid .PK3 files referenced!" );
@@ -1346,17 +1350,39 @@ void SV_UserinfoChanged( client_t *cl ) {
 
 	// snaps command
 	val = Info_ValueForKey (cl->userinfo, "snaps");
-	if (strlen(val)) {
+
+	if(strlen(val))
+	{
 		i = atoi(val);
-		if ( i < 1 ) {
+		
+		if(i < 1)
 			i = 1;
-		} else if ( i > sv_fps->integer ) {
+		else if(i > sv_fps->integer)
 			i = sv_fps->integer;
-		}
-		cl->snapshotMsec = 1000/i;
-	} else {
-		cl->snapshotMsec = 50;
+
+		i = 1000 / i;
 	}
+	else
+		i = 50;
+
+	if(i != cl->snapshotMsec)
+	{
+		// Reset last sent snapshot so we avoid desync between server frame time and snapshot send time
+		cl->lastSnapshotTime = 0;
+		cl->snapshotMsec = i;		
+	}
+	
+#ifdef USE_VOIP
+#ifdef LEGACY_PROTOCOL
+	if(cl->compat)
+		cl->hasVoip = qfalse;
+	else
+#endif
+	{
+		val = Info_ValueForKey(cl->userinfo, "cl_voipProtocol");
+		cl->hasVoip = !Q_stricmp( val, "opus" );
+	}
+#endif
 	
 	// TTimo
 	// maintain the IP information

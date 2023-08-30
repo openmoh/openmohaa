@@ -165,7 +165,6 @@ typedef struct client_s {
 	int				lastPacketTime;		// svs.time when packet was last received
     int				lastConnectTime;	// svs.time when connection started
     int				lastSnapshotTime;	// svs.time of last sent snapshot
-	int				nextSnapshotTime;	// send another snapshot when svs.time >= nextSnapshotTime
 	qboolean		rateDelayed;		// true if nextSnapshotTime was set based on rate instead of snapshotMsec
 	int				timeoutCount;		// must timeout a few frames in a row so debugging doesn't break
 	clientSnapshot_t	frames[PACKET_BACKUP];	// updates can be delta'd from here
@@ -461,6 +460,7 @@ void SV_WriteFrameToClient (client_t *client, msg_t *msg);
 void SV_SendMessageToClient( msg_t *msg, client_t *client );
 void SV_SendClientMessages( void );
 void SV_SendClientSnapshot( client_t *client );
+qboolean SV_IsValidSnapshotClient(client_t* client);
 
 //
 // sv_game.c
