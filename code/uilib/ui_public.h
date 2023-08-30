@@ -98,7 +98,7 @@ typedef struct uiimport_s {
 	const char *( *Cvar_CompleteCvarByNumber )( const char *partial, int number );
 	void( *UI_WantsKeyboard )( void );
 	const char *( *Client_TranslateWidgetName )( const char *widget );
-	void( *Connect )( const char *server );
+	void( *Connect )( const char *server, netadrtype_t family );
 	const char *( *Key_GetKeynameForCommand )( const char *command );
 	const char *( *Key_GetCommandForKey )( int keynum );
 	void ( *Key_SetBinding )( int keynum, const char *binding );

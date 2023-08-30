@@ -883,7 +883,7 @@ CL_UpdateGUID
 update cl_guid using QKEY_FILE and optional prefix
 ====================
 */
-static void CL_UpdateGUID( char *prefix, int prefix_len )
+static void CL_UpdateGUID( const char *prefix, int prefix_len )
 {
 	fileHandle_t f;
 	int len;
@@ -1242,12 +1242,12 @@ void CL_Reconnect_f( void ) {
 
 /*
 ================
-CL_Connect_f
+CL_Connect
 
 ================
 */
-void CL_Connect( const char *server ) {
-	char	serverString[ 22 ];
+void CL_Connect( const char *server, netadrtype_t family ) {
+	const char *serverString;
 
 	Cvar_Set( "ui_singlePlayerActive", "0" );
 
@@ -1275,20 +1275,23 @@ void CL_Connect( const char *server ) {
 
 	Q_strncpyz( cls.servername, server, sizeof( cls.servername ) );
 
-	if( !NET_StringToAdr( cls.servername, &clc.serverAddress, NA_IP ) ) {
+	if( !NET_StringToAdr( cls.servername, &clc.serverAddress, family ) ) {
 		Com_Printf( "Bad server address\n" );
 		clc.state = CA_DISCONNECTED;
+		UI_PushMenu("badserveraddy");
 		return;
 	}
 	if( clc.serverAddress.port == 0 ) {
 		clc.serverAddress.port = BigShort( PORT_SERVER );
 	}
-	Com_sprintf( serverString, sizeof( serverString ), "%i.%i.%i.%i:%i",
-		clc.serverAddress.ip[ 0 ], clc.serverAddress.ip[ 1 ],
-		clc.serverAddress.ip[ 2 ], clc.serverAddress.ip[ 3 ],
-		BigShort( clc.serverAddress.port ) );
+	serverString = NET_AdrToStringwPort(clc.serverAddress);
 
 	Com_Printf( "%s resolved to %s\n", cls.servername, serverString );
+
+	if (cl_guidServerUniq->integer)
+		CL_UpdateGUID(serverString, strlen(serverString));
+	else
+		CL_UpdateGUID(NULL, 0);
 
 	// if we aren't playing on a lan, we need to authenticate
 	// with the cd key
@@ -1298,11 +1301,14 @@ void CL_Connect( const char *server ) {
 	}
 	else {
 		clc.state = CA_CONNECTING;
+
+		// Set a client challenge number that ideally is mirrored back by the server.
+		clc.challenge = (((unsigned int)rand() << 16) ^ (unsigned int)rand()) ^ Com_Milliseconds();
 	}
 
 	clc.connectTime = -99999;	// CL_CheckForResend() will fire immediately
 	clc.connectPacketCount = 0;
-	clc.connectStartTime = 0;
+	clc.connectStartTime = cls.realtime;
 
 	// server connection string
 	Cvar_Set( "cl_currentServerAddress", server );
@@ -1315,17 +1321,36 @@ CL_Connect_f
 ================
 */
 // we have our own server provided to us by mohaaaa.co.uk
-void CL_Connect_f( void ) {
-	char	*server;
+void CL_Connect_f(void) {
+    const char *server;
+    int argc = Cmd_Argc();
+    netadrtype_t family = NA_UNSPEC;
 
 	if ( Cmd_Argc() != 2 ) {
 		Com_Printf( "usage: connect [server]\n");
 		return;
 	}
-	
-	server = Cmd_Argv (1);
 
-	CL_Connect( server );
+	if (argc != 2 && argc != 3) {
+		Com_Printf("usage: connect [-4|-6] server\n");
+		return;
+	}
+
+	if (argc == 2)
+		server = Cmd_Argv(1);
+	else
+	{
+		if (!strcmp(Cmd_Argv(1), "-4"))
+			family = NA_IP;
+		else if (!strcmp(Cmd_Argv(1), "-6"))
+			family = NA_IP6;
+		else
+			Com_Printf("warning: only -4 or -6 as address type understood.\n");
+
+		server = Cmd_Argv(2);
+	}
+
+	CL_Connect( server, family );
 }
 
 /*
@@ -1343,7 +1368,7 @@ void CL_MenuConnect_f( void ) {
 
 	server = Cmd_Argv( 1 );
 
-	CL_Connect( Cvar_VariableString( server ) );
+	CL_Connect( Cvar_VariableString( server ), NA_UNSPEC );
 }
 
 /*
@@ -1363,7 +1388,7 @@ void CL_FastConnect_f( void ) {
 			Com_Printf( "Server %i - '%s'\n", i, NET_AdrToString( cls.localServers[ i ].adr ) );
 		}
 
-		CL_Connect( cls.localServers[ 0 ].hostName );
+		CL_Connect( cls.localServers[ 0 ].hostName, NA_UNSPEC );
 		Cbuf_AddText( "popmenu 0 ; wait 500 ; popmenu 0 ; wait 500 ; popmenu 0\n" );
 		endTime = 123456789;
 	}

@@ -21,8 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // client.h -- primary header for client
 
-#ifndef __CLIENT_H__
-#define __CLIENT_H__
+#pragma once
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qcommon.h"
@@ -471,7 +470,7 @@ void CL_AddReliableCommand(const char *cmd, qboolean isDisconnectCmd);
 
 void CL_StartHunkUsers( qboolean rendererOnly );
 
-void CL_Connect( const char *server );
+void CL_Connect( const char *server, netadrtype_t family );
 
 void CL_Disconnect_f (void);
 void CL_GetChallengePacket (void);
@@ -690,5 +689,3 @@ void CL_InitConsoleCommands( void );
 #ifdef __cplusplus
 }
 #endif
-
-#endif // __CLIENT_H__
