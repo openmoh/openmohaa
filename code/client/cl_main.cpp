@@ -1547,6 +1547,12 @@ void CL_Vid_Restart_f( void ) {
 
 	S_Init();
 
+	if (clc.state > CA_CONNECTED && clc.state != CA_CINEMATIC)
+	{
+		// send pure checksums
+		CL_SendPureChecksums();
+	}
+
 	cls.vid_restart = qfalse;
 	Com_Printf("----- finished CL_Vid_Restart_f ----\n");
 }
@@ -1686,6 +1692,13 @@ void CL_DownloadsComplete( void ) {
     Com_EventLoop();
 
     CL_StartHunkUsers(qfalse);
+
+	// set pure checksums
+	CL_SendPureChecksums();
+
+	CL_WritePacket();
+	CL_WritePacket();
+	CL_WritePacket();
 }
 
 /*

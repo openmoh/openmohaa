@@ -529,24 +529,6 @@ void SV_ClearServer(void) {
 
 /*
 ================
-SV_TouchCGame
-
-  touch the cgame.vm so that a pure client can load it if it's in a seperate pk3
-================
-*/
-void SV_TouchCGame(void) {
-	fileHandle_t	f;
-	char filename[MAX_QPATH];
-
-	Com_sprintf( filename, sizeof(filename), "vm/%s.qvm", "cgame" );
-	FS_FOpenFileRead( filename, &f, qfalse, qtrue );
-	if ( f ) {
-		FS_FCloseFile( f );
-	}
-}
-
-/*
-================
 SV_SpawnServer
 
 Change the server to a new map, taking all connected
@@ -838,9 +820,23 @@ void SV_SpawnServer( const char *server, qboolean loadgame, qboolean restart, qb
 			}
 		}
 
+		if ( sv_pure->integer ) {
+			// the server sends these to the clients so they will only
+			// load pk3s also loaded at the server
+			p = FS_LoadedPakChecksums();
+			Cvar_Set( "sv_paks", p );
+			if (strlen(p) == 0) {
+				Com_Printf( "WARNING: sv_pure set but no PK3 files loaded\n" );
+			}
+			p = FS_LoadedPakNames();
+			Cvar_Set( "sv_pakNames", p );
+		}
+		else {
+			Cvar_Set( "sv_paks", "" );
+			Cvar_Set( "sv_pakNames", "" );
+		}
 		// the server sends these to the clients so they can figure
 		// out which pk3s should be auto-downloaded
-		Cvar_Set( "sv_paks", "" );
 		p = FS_ReferencedPakChecksums();
 		Cvar_Set( "sv_referencedPaks", p );
 		p = FS_ReferencedPakNames();
@@ -1063,7 +1059,7 @@ void SV_FinalMessage( const char *message ) {
 					SV_SendServerCommand( cl, "disconnect \"%s\"", message );
 				}
 				// force a snapshot to be sent
-				cl->nextSnapshotTime = -1;
+				cl->lastSnapshotTime = 0;
 				SV_SendClientSnapshot( cl );
 			}
 		}

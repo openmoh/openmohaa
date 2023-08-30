@@ -1156,15 +1156,18 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 	//
 	if ( sv_pure->integer != 0 ) {
 
-		bGood = qtrue;
 		nChkSum1 = nChkSum2 = 0;
+		/*
 		// we run the game, so determine which cgame and ui the client "should" be running
 		bGood = (FS_FileIsInPAK("vm/cgame.qvm", &nChkSum1) == 1);
 		if (bGood)
 			bGood = (FS_FileIsInPAK("vm/ui.qvm", &nChkSum2) == 1);
+			*/
 
 		nClientPaks = Cmd_Argc();
 
+		nCurArg = 1;
+		/*
 		// start at arg 2 ( skip serverId cl_paks )
 		nCurArg = 1;
 
@@ -1183,10 +1186,12 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 				return;
 			}
 		}
+		*/
 	
 		// we basically use this while loop to avoid using 'goto' :)
 		while (bGood) {
 
+			/*
 			// must be at least 6: "cl_paks cgame ui @ firstref ... numChecksums"
 			// numChecksums is encoded
 			if (nClientPaks < 6) {
@@ -1211,6 +1216,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 				bGood = qfalse;
 				break;
 			}
+			*/
 			// store checksums since tokenization is not re-entrant
 			for (i = 0; nCurArg < nClientPaks; i++) {
 				nClientChkSum[i] = atoi(Cmd_Argv(nCurArg++));
@@ -1640,12 +1646,32 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 
 	// save time for ping calculation
 	cl->frames[ cl->messageAcknowledge & PACKET_MASK ].messageAcked = svs.time;
+
+	// TTimo
+	// catch the no-cp-yet situation before SV_ClientEnterWorld
+	// if CS_ACTIVE, then it's time to trigger a new gamestate emission
+	// if not, then we are getting remaining parasite usermove commands, which we should ignore
+	if (sv_pure->integer != 0 && cl->pureAuthentic == 0 && !cl->gotCP) {
+		if (cl->state == CS_ACTIVE)
+		{
+			// we didn't get a cp yet, don't assume anything and just send the gamestate all over again
+			Com_DPrintf( "%s: didn't get cp command, resending gamestate\n", cl->name);
+			SV_SendClientGameState( cl );
+		}
+		return;
+	}	
 	
 	// if this is the first usercmd we have received
 	// this gamestate, put the client into the world
 	if ( cl->state == CS_PRIMED ) {
 		SV_ClientEnterWorld( cl, &cmds[0] );
 		// the moves can be processed normaly
+	}
+
+		// a bad cp command was sent, drop the client
+	if (g_gametype->integer != GT_SINGLE_PLAYER && sv_pure->integer != 0 && !com_sv_running->integer && cl->pureAuthentic == 0) {
+		SV_DropClient( cl, "Cannot validate pure client!");
+		return;
 	}
 
 	if ( cl->state != CS_ACTIVE ) {

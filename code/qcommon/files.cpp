@@ -3769,7 +3769,8 @@ const char *FS_ReferencedPakPureChecksums( void ) {
 
 	checksum = fs_checksumFeed;
 	numPaks = 0;
-	for (nFlags = FS_CGAME_REF; nFlags; nFlags = nFlags >> 1) {
+	for (nFlags = FS_GENERAL_REF; nFlags; nFlags = nFlags >> 1) {
+		/*
 		if (nFlags & FS_GENERAL_REF) {
 			// add a delimter between must haves and general refs
 			//Q_strcat(info, sizeof(info), "@ ");
@@ -3778,6 +3779,7 @@ const char *FS_ReferencedPakPureChecksums( void ) {
 			info[strlen(info)] = '@';
 			info[strlen(info)] = ' ';
 		}
+		*/
 		for ( search = fs_searchpaths ; search ; search = search->next ) {
 			// is the element a pak file and has it been referenced based on flag?
 			if ( search->pack && (search->pack->referenced & nFlags)) {
@@ -3788,10 +3790,6 @@ const char *FS_ReferencedPakPureChecksums( void ) {
 				checksum ^= search->pack->pure_checksum;
 				numPaks++;
 			}
-		}
-		if (fs_fakeChkSum != 0) {
-			// only added if a non-pure file is referenced
-			Q_strcat( info, sizeof( info ), va("%i ", fs_fakeChkSum ) );
 		}
 	}
 	// last checksum is the encoded number of referenced pk3s
