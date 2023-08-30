@@ -500,71 +500,93 @@ static void SV_KickNum_f( void ) {
 }
 
 /*
+** SV_Strlen -- skips color escape codes
+*/
+static int SV_Strlen( const char *str ) {
+	const char *s = str;
+	int count = 0;
+
+	while ( *s ) {
+		if ( Q_IsColorString( s ) ) {
+			s += 2;
+		} else {
+			count++;
+			s++;
+		}
+	}
+
+	return count;
+}
+
+/*
 ================
 SV_Status_f
 ================
 */
-static void SV_Status_f( void ) {
-	int			i;
-	size_t		j, l;
-	client_t	*cl;
-	playerState_t	*ps;
-	const char		*s;
-	int			ping;
+static void SV_Status_f(void) {
+    int			i;
+    size_t		j, l;
+    client_t* cl;
+    playerState_t* ps;
+    const char* s;
+    int			ping;
 
-	// make sure server is running
-	if ( !com_sv_running->integer ) {
-		Com_Printf( "Server is not running.\n" );
-		return;
-	}
+    // make sure server is running
+    if (!com_sv_running->integer) {
+        Com_Printf("Server is not running.\n");
+        return;
+    }
 
-	Com_Printf ("map: %s\n", sv_mapname->string );
+    Com_Printf("map: %s\n", sv_mapname->string);
 
-	Com_Printf ("num score ping name            lastmsg address               qport rate\n");
-	Com_Printf ("--- ----- ---- --------------- ------- --------------------- ----- -----\n");
-	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
-	{
-		if (!cl->state)
-			continue;
-		Com_Printf ("%3i ", i);
-		ps = SV_GameClientNum( i );
-		// su44: ps->persistant is not avaible in mohaa
-		//Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
-		Com_Printf ("%5i ", 0);
+    Com_Printf("num score ping name            lastmsg address                                  qport rate \n");
+    Com_Printf("--- ----- ---- --------------- ------- ---------------------------------------  ----- -----\n");
+    for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++)
+    {
+        if (!cl->state)
+            continue;
+        Com_Printf("%3i ", i);
+        ps = SV_GameClientNum(i);
+        // su44: ps->persistant is not avaible in mohaa
+        //Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
+        Com_Printf("%5i ", ps->stats[STAT_KILLS]);
 
-		if (cl->state == CS_CONNECTED)
-			Com_Printf ("CNCT ");
-		else if (cl->state == CS_ZOMBIE)
-			Com_Printf ("ZMBI ");
-		else
-		{
-			ping = cl->ping < 9999 ? cl->ping : 9999;
-			Com_Printf ("%4i ", ping);
+        if (cl->state == CS_CONNECTED)
+            Com_Printf("CNCT ");
+        else if (cl->state == CS_ZOMBIE)
+            Com_Printf("ZMBI ");
+        else
+        {
+            ping = cl->ping < 9999 ? cl->ping : 9999;
+            Com_Printf("%4i ", ping);
+        }
+
+        Com_Printf("%s", cl->name);
+        // TTimo adding a ^7 to reset the color
+        // NOTE: colored names in status breaks the padding (WONTFIX)
+        Com_Printf("^7");
+        l = SV_Strlen(cl->name);
+		if (l <= 16) {
+			l = 16 - l;
+			for (j = 0; j < l; j++)
+				Com_Printf(" ");
 		}
 
-		Com_Printf ("%s", cl->name);
-    // TTimo adding a ^7 to reset the color
-    // NOTE: colored names in status breaks the padding (WONTFIX)
-    Com_Printf ("^7");
-		l = 16 - strlen(cl->name);
-		for (j=0 ; j<l ; j++)
-			Com_Printf (" ");
+        Com_Printf("%7i ", svs.time - cl->lastPacketTime);
 
-		Com_Printf ("%7i ", svs.time - cl->lastPacketTime );
+        s = NET_AdrToString(cl->netchan.remoteAddress);
+        Com_Printf("%s", s);
+        l = 39 - strlen(s);
+        for (j = 0; j < l; j++)
+            Com_Printf(" ");
 
-		s = NET_AdrToString( cl->netchan.remoteAddress );
-		Com_Printf ("%s", s);
-		l = 22 - strlen(s);
-		for (j=0 ; j<l ; j++)
-			Com_Printf (" ");
-		
-		Com_Printf ("%5i", cl->netchan.qport);
+        Com_Printf("%5i", cl->netchan.qport);
 
-		Com_Printf (" %5i", cl->rate);
+        Com_Printf(" %5i", cl->rate);
 
-		Com_Printf ("\n");
-	}
-	Com_Printf ("\n");
+        Com_Printf("\n");
+    }
+    Com_Printf("\n");
 }
 
 /*
