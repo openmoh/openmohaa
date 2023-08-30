@@ -652,6 +652,7 @@ void ScriptVM::execMethodCommon(op_parmNum_t param)
 
     Listener *const listener = a.listenerValue();
     if (!listener) {
+        m_VMStack.GetTop().Clear();
         throw ScriptException("command '%s' applied to NULL listener", Event::GetEventName(eventNum).c_str());
     }
 
