@@ -22,10 +22,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // doors.h: Doors are environment objects that slide open when activated by triggers
 // or when used by the player.
-// 
+//
 
-#ifndef __DOORS_H__
-#define __DOORS_H__
+#pragma once
 
 #include "g_local.h"
 #include "entity.h"
@@ -48,219 +47,206 @@ class Door;
 typedef SafePtr<Door> DoorPtr;
 
 class Door : public ScriptSlave
-	{
-	protected:
-		str			sound_open_start;
-		str			sound_open_end;
-		str			sound_close_start;
-		str			sound_close_end;
-		str			sound_message;
-		str			sound_locked;
-      float       lastblocktime;
-		float			angle;
-		Vector		dir;
-      float       diropened;
-		int			state;
-      int         previous_state;
-		int			trigger;
-		int			nextdoor;
-		DoorPtr		master;
-		float			next_locked_time;
-		bool			m_bAlwaysAway;
+{
+protected:
+    str     sound_open_start;
+    str     sound_open_end;
+    str     sound_close_start;
+    str     sound_close_end;
+    str     sound_message;
+    str     sound_locked;
+    float   lastblocktime;
+    float   angle;
+    Vector  dir;
+    float   diropened;
+    int     state;
+    int     previous_state;
+    int     trigger;
+    int     nextdoor;
+    DoorPtr master;
+    float   next_locked_time;
+    bool    m_bAlwaysAway;
 
-		void			SetDir( Event *ev );
-		void			OpenEnd( Event *ev );
-		void			CloseEnd( Event *ev );
-		void			Close( Event *ev );
-		void			Open( Event *ev );
-		void			DoorUse( Event *ev );
-		void			DoorFire( Event *ev );
-		void			DoorBlocked( Event *ev );
-		void			FieldTouched( Event *ev );
-		void			TryOpen( Event *ev );
-		void			SpawnTriggerField( Vector fmins, Vector fmaxs );
-		qboolean		DoorTouches( Door *e1 );
-		void			LinkDoors( Event *ev );	
-		void			SetTime( Event *ev );
-		void			LockDoor( Event *ev );
-		void			UnlockDoor( Event *ev );
-		void			SetOpenStartSound( str sound );
-		void			SetOpenStartSound( Event *ev );
-		void			SetOpenEndSound( str sound );
-		void			SetOpenEndSound( Event *ev );
-		void			SetCloseStartSound( Event *ev );
-		void			SetCloseStartSound( str sound );
-		void			SetCloseEndSound( Event *ev );
-		void			SetCloseEndSound( str sound );
-		void			SetMessageSound( str sound );
-		void			SetMessageSound( Event *ev );
-		void			SetLockedSound( str sound );
-		void			SetLockedSound( Event *ev );
-		void			SetWait( Event *ev );
-		void			SetDmg( Event *ev );
-		void			EventTrySolid( Event *ev );
-		void			EventAlwaysAway( Event *ev );
-		void			EventDoorType( Event *ev );
+    void     SetDir(Event *ev);
+    void     OpenEnd(Event *ev);
+    void     CloseEnd(Event *ev);
+    void     Close(Event *ev);
+    void     Open(Event *ev);
+    void     DoorUse(Event *ev);
+    void     DoorFire(Event *ev);
+    void     DoorBlocked(Event *ev);
+    void     FieldTouched(Event *ev);
+    void     TryOpen(Event *ev);
+    void     SpawnTriggerField(Vector fmins, Vector fmaxs);
+    qboolean DoorTouches(Door *e1);
+    void     LinkDoors(Event *ev);
+    void     SetTime(Event *ev);
+    void     LockDoor(Event *ev);
+    void     UnlockDoor(Event *ev);
+    void     SetOpenStartSound(str sound);
+    void     SetOpenStartSound(Event *ev);
+    void     SetOpenEndSound(str sound);
+    void     SetOpenEndSound(Event *ev);
+    void     SetCloseStartSound(Event *ev);
+    void     SetCloseStartSound(str sound);
+    void     SetCloseEndSound(Event *ev);
+    void     SetCloseEndSound(str sound);
+    void     SetMessageSound(str sound);
+    void     SetMessageSound(Event *ev);
+    void     SetLockedSound(str sound);
+    void     SetLockedSound(Event *ev);
+    void     SetWait(Event *ev);
+    void     SetDmg(Event *ev);
+    void     EventTrySolid(Event *ev);
+    void     EventAlwaysAway(Event *ev);
+    void     EventDoorType(Event *ev);
 
-		qboolean		BlocksAIMovement( void ) const override;
-		qboolean		AIDontFace( void ) const override;
+    void SetDoorType(str s);
+    qboolean BlocksAIMovement(void) const override;
+    qboolean AIDontFace(void) const override;
+    void ShowInfo(float fDot, float fDist) override;
 
-		void			UpdatePathConnection( void );
-		void			SetLocked( qboolean newLocked );
-		void			SetState( int newState );
+    void UpdatePathConnection(void);
+    void SetLocked(qboolean newLocked);
+    void SetState(int newState);
 
-	public:
-      CLASS_PROTOTYPE( Door );
+public:
+    CLASS_PROTOTYPE(Door);
 
-      qboolean		locked;
+    qboolean locked;
 
-						Door();
-		qboolean		isOpen( void );
-		qboolean		isCompletelyClosed( void );
-		qboolean		CanBeOpenedBy( Entity *ent );
-	   void Archive( Archiver &arc ) override;
-	};
+    Door();
+    qboolean isOpen(void);
+    qboolean isCompletelyClosed(void);
+    qboolean CanBeOpenedBy(Entity *ent);
+    void     Archive(Archiver    &arc) override;
+};
 
-inline void Door::Archive
-	(
-	Archiver &arc
-	)
-   {
-   ScriptSlave::Archive( arc );
+inline void Door::Archive(Archiver& arc)
+{
+    ScriptSlave::Archive(arc);
 
-   arc.ArchiveString( &sound_open_start );
-   arc.ArchiveString( &sound_open_end );
-   arc.ArchiveString( &sound_close_start );
-   arc.ArchiveString( &sound_close_end );
-   arc.ArchiveString( &sound_message );
-   arc.ArchiveString( &sound_locked );
-	if ( arc.Loading() )
-	{
-		SetOpenStartSound( sound_open_start );
-		SetOpenEndSound( sound_open_end );
-		SetCloseStartSound( sound_close_start );
-		SetCloseEndSound( sound_close_end );
-		SetMessageSound( sound_message );
-		SetLockedSound( sound_locked );
-	}
-   arc.ArchiveFloat( &lastblocktime );
-   arc.ArchiveFloat( &angle );
-   arc.ArchiveVector( &dir );
-   arc.ArchiveFloat( &diropened );
-   arc.ArchiveInteger( &state );
-   arc.ArchiveInteger( &previous_state );
-   arc.ArchiveInteger( &trigger );
-   arc.ArchiveInteger( &nextdoor );
-   arc.ArchiveSafePointer( &master );
-   arc.ArchiveBoolean( &locked );
-	arc.ArchiveFloat( &next_locked_time );
-   }
+    arc.ArchiveString(&sound_open_start);
+    arc.ArchiveString(&sound_open_end);
+    arc.ArchiveString(&sound_close_start);
+    arc.ArchiveString(&sound_close_end);
+    arc.ArchiveString(&sound_message);
+    arc.ArchiveString(&sound_locked);
+    if (arc.Loading()) {
+        SetOpenStartSound(sound_open_start);
+        SetOpenEndSound(sound_open_end);
+        SetCloseStartSound(sound_close_start);
+        SetCloseEndSound(sound_close_end);
+        SetMessageSound(sound_message);
+        SetLockedSound(sound_locked);
+    }
+    arc.ArchiveFloat(&lastblocktime);
+    arc.ArchiveFloat(&angle);
+    arc.ArchiveVector(&dir);
+    arc.ArchiveFloat(&diropened);
+    arc.ArchiveInteger(&state);
+    arc.ArchiveInteger(&previous_state);
+    arc.ArchiveInteger(&trigger);
+    arc.ArchiveInteger(&nextdoor);
+    arc.ArchiveSafePointer(&master);
+    arc.ArchiveBoolean(&locked);
+    arc.ArchiveFloat(&next_locked_time);
+}
 
 class RotatingDoor : public Door
-	{
-	protected:
-		float		angle;
-      Vector   startangle;
-      int      init_door_direction;
+{
+protected:
+    float  angle;
+    Vector startangle;
+    int    init_door_direction;
 
-	public:
-      CLASS_PROTOTYPE( RotatingDoor );
+public:
+    CLASS_PROTOTYPE(RotatingDoor);
 
-      void           DoOpen( Event *ev );
-      void           DoClose( Event *ev );
-      void           OpenAngle( Event *ev );
-	   void Archive( Archiver &arc ) override;
+    void DoOpen(Event *ev);
+    void DoClose(Event *ev);
+    void OpenAngle(Event *ev);
+    void Archive(Archiver& arc) override;
 
-					RotatingDoor();
-	};
+    RotatingDoor();
+};
 
-inline void RotatingDoor::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Door::Archive( arc );
+inline void RotatingDoor::Archive(Archiver& arc)
+{
+    Door::Archive(arc);
 
-   arc.ArchiveFloat( &angle );
-   arc.ArchiveVector( &startangle );
-   arc.ArchiveInteger( &init_door_direction );
-   }
+    arc.ArchiveFloat(&angle);
+    arc.ArchiveVector(&startangle);
+    arc.ArchiveInteger(&init_door_direction);
+}
 
 class SlidingDoor : public Door
-	{
-	protected:
-      float    totalmove;
-      float    lip;
-      Vector   pos1;
-      Vector   pos2;
-      float    basespeed;
-      Vector   movedir;
+{
+protected:
+    float  totalmove;
+    float  lip;
+    Vector pos1;
+    Vector pos2;
+    float  basespeed;
+    Vector movedir;
 
-	public:
-      CLASS_PROTOTYPE( SlidingDoor );
+public:
+    CLASS_PROTOTYPE(SlidingDoor);
 
-      void     SetMoveDir( Event *ev );
-      void     Setup( Event *ev );
-      void     SetLip( Event *ev );
-      void     SetSpeed( Event *ev );
-      void     DoOpen( Event *ev );
-      void     DoClose( Event *ev );
-	   void Archive( Archiver &arc ) override;
+    void SetMoveDir(Event *ev);
+    void Setup(Event *ev);
+    void SetLip(Event *ev);
+    void SetSpeed(Event *ev);
+    void DoOpen(Event *ev);
+    void DoClose(Event *ev);
+    void Archive(Archiver& arc) override;
 
-					SlidingDoor();
-	};
+    SlidingDoor();
+};
 
-inline void SlidingDoor::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Door::Archive( arc );
+inline void SlidingDoor::Archive(Archiver& arc)
+{
+    Door::Archive(arc);
 
-   arc.ArchiveFloat( &totalmove );
-   arc.ArchiveFloat( &lip );
-   arc.ArchiveVector( &pos1 );
-   arc.ArchiveVector( &pos2 );
-   arc.ArchiveVector( &movedir );
-   arc.ArchiveFloat( &basespeed );
-   }
+    arc.ArchiveFloat(&totalmove);
+    arc.ArchiveFloat(&lip);
+    arc.ArchiveVector(&pos1);
+    arc.ArchiveVector(&pos2);
+    arc.ArchiveVector(&movedir);
+    arc.ArchiveFloat(&basespeed);
+}
 
 class ScriptDoor : public Door
-	{
-	protected:
-      ScriptThreadLabel		initlabel;
-      ScriptThreadLabel		openlabel;
-      ScriptThreadLabel		closelabel;
-      float    doorsize;
-		Vector	startangle;
-      Vector   startorigin;
-      Vector   movedir;
+{
+protected:
+    ScriptThreadLabel initlabel;
+    ScriptThreadLabel openlabel;
+    ScriptThreadLabel closelabel;
+    float             doorsize;
+    Vector            startangle;
+    Vector            startorigin;
+    Vector            movedir;
 
-	public:
-      CLASS_PROTOTYPE( ScriptDoor );
+public:
+    CLASS_PROTOTYPE(ScriptDoor);
 
-      void           SetMoveDir( Event *ev );
-      void           DoInit( Event *ev );
-      void           DoOpen( Event *ev );
-      void           DoClose( Event *ev );
-      void           SetOpenThread( Event *ev );
-      void           SetCloseThread( Event *ev );
-      void           SetInitThread( Event *ev );
-	   void Archive( Archiver &arc ) override;
-					      ScriptDoor();
-	};
+    void SetMoveDir(Event *ev);
+    void DoInit(Event *ev);
+    void DoOpen(Event *ev);
+    void DoClose(Event *ev);
+    void SetOpenThread(Event *ev);
+    void SetCloseThread(Event *ev);
+    void SetInitThread(Event *ev);
+    void Archive(Archiver& arc) override;
+    ScriptDoor();
+};
 
-inline void ScriptDoor::Archive
-	(
-	Archiver &arc
-	)
-   {
-   Door::Archive( arc );
+inline void ScriptDoor::Archive(Archiver& arc)
+{
+    Door::Archive(arc);
 
-   arc.ArchiveFloat( &doorsize );
-   arc.ArchiveVector( &startangle );
-   arc.ArchiveVector( &startorigin );
-   arc.ArchiveVector( &movedir );
-   }
-
-#endif /* doors.h */
+    arc.ArchiveFloat(&doorsize);
+    arc.ArchiveVector(&startangle);
+    arc.ArchiveVector(&startorigin);
+    arc.ArchiveVector(&movedir);
+}
