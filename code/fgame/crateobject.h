@@ -22,53 +22,49 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // crateobject.h : Crates
 
-#ifndef __CRATEOBJECT_H__
-#define __CRATEOBJECT_H__
+#pragma once
 
 #include "entity.h"
 
-#define CRATE_INDESTRUCTABLE		1
-#define CRATE_NOTSTACKEDON			2
+#define CRATE_INDESTRUCTABLE 1
+#define CRATE_NOTSTACKEDON   2
 
-class CrateObject : public Entity {
-	float m_fMoveTime;
-	int m_iDebrisType;
-	Vector m_vJitterAngles;
-	Vector m_vStartAngles;
-	float m_fJitterScale;
+class CrateObject : public Entity
+{
+    float  m_fMoveTime;
+    int    m_iDebrisType;
+    Vector m_vJitterAngles;
+    Vector m_vStartAngles;
+    float  m_fJitterScale;
 
 private:
-	void TellNeighborsToFall( void );
-	void TellNeighborsToJitter( Vector vJitterAdd );
+    void TellNeighborsToFall(void);
+    void TellNeighborsToJitter(Vector vJitterAdd);
 
 public:
-	CLASS_PROTOTYPE( CrateObject );
+    CLASS_PROTOTYPE(CrateObject);
 
-	CrateObject();
+    CrateObject();
 
-	void			CrateSetup( Event *ev );
-	void			CrateDebrisType( Event *ev );
-	void			StartFalling( Event *ev );
-	void			CrateFalling( Event *ev );
-	void			CrateDamaged( Event *ev );
-	void			CrateKilled( Event *ev );
-	void			CrateThink( Event *ev );
-	void Archive( Archiver& arc ) override;
+    void CrateSetup(Event *ev);
+    void CrateDebrisType(Event *ev);
+    void StartFalling(Event *ev);
+    void CrateFalling(Event *ev);
+    void CrateDamaged(Event *ev);
+    void CrateKilled(Event *ev);
+    void CrateThink(Event *ev);
+    void Archive(Archiver& arc) override;
 };
 
-inline void CrateObject::Archive
-	(
-	Archiver& arc
-	)
+inline void CrateObject::Archive(Archiver& arc)
 {
-	Entity::Archive( arc );
+    Entity::Archive(arc);
 
-	arc.ArchiveFloat( &m_fMoveTime );
-	arc.ArchiveInteger( &m_iDebrisType );
+    arc.ArchiveFloat(&m_fMoveTime);
+    arc.ArchiveInteger(&m_iDebrisType);
 
-	arc.ArchiveVector( &m_vJitterAngles );
-	arc.ArchiveVector( &m_vStartAngles );
-	arc.ArchiveFloat( &m_fJitterScale );
+    arc.ArchiveVector(&m_vJitterAngles);
+    arc.ArchiveVector(&m_vStartAngles);
+    arc.ArchiveFloat(&m_fJitterScale);
 }
 
-#endif // __CRATEOBJECT_H__
