@@ -97,7 +97,7 @@ class EventQueueNode;
 #define EV_SPAWNARG					-7.0f		// for spawn args passed in by the bsp file
 #define EV_SETUP_ROPEBASE			-7.0f
 #define EV_PROCESS_INIT				-6.0f
-#define EV_LINKDOORS				-5.0f		// for finding out which doors are linked together
+#define EV_LINKDOORS				-6.0f		// for finding out which doors are linked together
 #define EV_POSTSPAWN				-5.0f		// for any processing that must occur after all objects are spawned
 #define EV_SPAWNENTITIES			-4.0f
 #define EV_PRIORITY_SPAWNACTOR		-3.0f
