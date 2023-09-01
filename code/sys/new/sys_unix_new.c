@@ -52,9 +52,11 @@ void Sys_PrintBackTrace() {
     void* backtrace_arr[20];
     size_t backtrace_size;
 
+    printf("----\nBacktrace:\n");
     // get void*'s for all entries on the stack
     backtrace_size = backtrace(backtrace_arr, sizeof(backtrace_arr) / sizeof(backtrace_arr[0]));
     backtrace_symbols_fd(backtrace_arr, backtrace_size, STDERR_FILENO);
+    printf("----\n");
 }
 
 /*
