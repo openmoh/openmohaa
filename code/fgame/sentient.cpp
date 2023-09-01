@@ -2797,7 +2797,8 @@ void Sentient::UpdateFootsteps(void)
         }
     }
 
-    if ((iAnimFlags & (TAF_AUTOSTEPS | TAF_AUTOSTEPS_RUNNING)) != (TAF_AUTOSTEPS | TAF_AUTOSTEPS_RUNNING)) {
+    if (!(iAnimFlags & TAF_AUTOSTEPS_RUNNING) || !(iAnimFlags & TAF_AUTOSTEPS)) {
+        // if walking, or if the animation doesn't step
         m_bFootOnGround_Right = true;
         m_bFootOnGround_Left  = true;
         return;
@@ -2815,9 +2816,11 @@ void Sentient::UpdateFootsteps(void)
         if (iTagNum >= 0) {
             if (G_TIKI_IsOnGround(edict, iTagNum, 13.461539f)) {
                 BroadcastAIEvent(10, G_AIEventRadius(10));
+                m_bFootOnGround_Right = true;
             }
+        } else {
+            m_bFootOnGround_Right = true;
         }
-        m_bFootOnGround_Right = true;
     }
 
     if (m_bFootOnGround_Left) {
@@ -2832,9 +2835,11 @@ void Sentient::UpdateFootsteps(void)
         if (iTagNum >= 0) {
             if (G_TIKI_IsOnGround(edict, iTagNum, 13.461539f)) {
                 BroadcastAIEvent(10, G_AIEventRadius(10));
+                m_bFootOnGround_Left = true;
             }
+        } else {
+            m_bFootOnGround_Left = true;
         }
-        m_bFootOnGround_Left = true;
     }
 }
 
