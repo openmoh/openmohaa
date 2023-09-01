@@ -741,6 +741,7 @@ void Sys_SigHandler( int signal )
 	else
 	{
 		signalcaught = qtrue;
+		Sys_PrintBackTrace();
 		VM_Forced_Unload_Start();
 #ifndef DEDICATED
 		CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);

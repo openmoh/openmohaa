@@ -255,7 +255,6 @@ void* Sys_GetCGameAPI(void* parms)
 }
 
 void VM_Forced_Unload_Start(void) {
-    Sys_PrintBackTrace();
 }
 
 void VM_Forced_Unload_Done(void) {
