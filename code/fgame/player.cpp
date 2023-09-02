@@ -4707,9 +4707,8 @@ void Player::Think(void)
             mvTrailEyes[0]    = centroid;
             mvTrailEyes[0][0] = EyePosition()[0];
         }
-
-        UpdateFootsteps();
     }
+    UpdateFootsteps();
 
     //
     // Added in 2.0
