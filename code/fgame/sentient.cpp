@@ -2816,6 +2816,8 @@ void Sentient::UpdateFootsteps(void)
         if (iTagNum >= 0) {
             if (G_TIKI_IsOnGround(edict, iTagNum, 13.461539f)) {
                 BroadcastAIEvent(10, G_AIEventRadius(10));
+                // simulate footstep sounds
+                Footstep("Bip01 L Foot", (iAnimFlags & TAF_AUTOSTEPS_RUNNING), (iAnimFlags & TAF_AUTOSTEPS_EQUIPMENT));
                 m_bFootOnGround_Right = true;
             }
         } else {
@@ -2835,6 +2837,8 @@ void Sentient::UpdateFootsteps(void)
         if (iTagNum >= 0) {
             if (G_TIKI_IsOnGround(edict, iTagNum, 13.461539f)) {
                 BroadcastAIEvent(10, G_AIEventRadius(10));
+                // simulate footstep sounds
+                Footstep("Bip01 R Foot", (iAnimFlags & TAF_AUTOSTEPS_RUNNING), (iAnimFlags & TAF_AUTOSTEPS_EQUIPMENT));
                 m_bFootOnGround_Left = true;
             }
         } else {
@@ -2909,4 +2913,188 @@ void Sentient::SetMinViewVariation(const Vector& vVariation)
     m_vViewVariation.x = Q_min(m_vViewVariation.x, vVariation.x);
     m_vViewVariation.y = Q_min(m_vViewVariation.y, vVariation.y);
     m_vViewVariation.z = Q_min(m_vViewVariation.z, vVariation.z);
+}
+
+#define GROUND_DISTANCE        8
+#define WATER_NO_SPLASH_HEIGHT 16
+
+void Sentient::FootstepMain(trace_t* trace, int iRunning, int iEquipment)
+{
+    int    contents;
+    int    surftype;
+    int    iEffectNum;
+    float  fVolume;
+    vec3_t vPos;
+    vec3_t midlegs;
+    str    sSoundName;
+
+    iEffectNum = -1;
+
+    VectorCopy(trace->endpos, vPos);
+    sSoundName = "snd_step_";
+
+    contents = gi.pointcontents(trace->endpos, -1);
+    if (contents & MASK_WATER) {
+        // take our ground position and trace upwards
+        VectorCopy(trace->endpos, midlegs);
+        midlegs[2] += WATER_NO_SPLASH_HEIGHT;
+        contents = gi.pointcontents(midlegs, -1);
+        if (contents & MASK_WATER) {
+            sSoundName += "wade";
+        }
+        else {
+            sSoundName += "puddle";
+        }
+    }
+    else {
+        surftype = trace->surfaceFlags & MASK_SURF_TYPE;
+        switch (surftype) {
+        case SURF_FOLIAGE:
+            sSoundName += "foliage";
+            break;
+        case SURF_SNOW:
+            sSoundName += "snow";
+            break;
+        case SURF_CARPET:
+            sSoundName += "carpet";
+            break;
+        case SURF_SAND:
+            sSoundName += "sand";
+            break;
+        case SURF_PUDDLE:
+            sSoundName += "puddle";
+            break;
+        case SURF_GLASS:
+            sSoundName += "glass";
+            break;
+        case SURF_GRAVEL:
+            sSoundName += "gravel";
+            break;
+        case SURF_MUD:
+            sSoundName += "mud";
+            break;
+        case SURF_DIRT:
+            sSoundName += "dirt";
+            break;
+        case SURF_GRILL:
+            sSoundName += "grill";
+            break;
+        case SURF_GRASS:
+            sSoundName += "grass";
+            break;
+        case SURF_ROCK:
+            sSoundName += "stone";
+            break;
+        case SURF_PAPER:
+            sSoundName += "paper";
+            break;
+        case SURF_WOOD:
+            sSoundName += "wood";
+            break;
+        case SURF_METAL:
+            sSoundName += "metal";
+            break;
+        default:
+            sSoundName += "stone";
+            break;
+        }
+    }
+
+    if (iRunning) {
+        if (iRunning == -1) {
+            fVolume = 0.5;
+        } else {
+            fVolume = 1.0;
+        }
+    }
+    else {
+        fVolume = 0.25;
+    }
+
+    if (!iRunning && g_gametype->integer == GT_SINGLE_PLAYER) {
+        return;
+    }
+
+    PlayNonPvsSound(sSoundName, fVolume);
+
+    if (iEquipment && random() < 0.3) {
+        // also play equipment sound
+        PlayNonPvsSound("snd_step_equipment", fVolume);
+    }
+}
+
+void Sentient::Footstep(const char* szTagName, int iRunning, int iEquipment)
+{
+    int           i;
+    int           iTagNum;
+    vec3_t        vStart, vEnd;
+    vec3_t        midlegs;
+    vec3_t        vMins, vMaxs;
+    str           sSoundName;
+    trace_t       trace;
+    orientation_t oTag;
+
+    // send a trace down from the player to the ground
+    VectorCopy(this->origin, vStart);
+    vStart[2] += GROUND_DISTANCE;
+
+    if (szTagName) {
+        iTagNum = gi.Tag_NumForName(this->edict->tiki, szTagName);
+        if (iTagNum != -1) {
+            oTag = G_TIKI_Orientation(this->edict, iTagNum);
+
+            for (i = 0; i < 2; i++) {
+                VectorMA(vStart, oTag.origin[i], this->orientation[i], vStart);
+            }
+        }
+    }
+
+    if (iRunning == -1) {
+        AngleVectors(this->angles, midlegs, NULL, NULL);
+        VectorMA(vStart, -16, midlegs, vStart);
+        VectorMA(vStart, 64, midlegs, vEnd);
+
+        VectorSet(vMins, -2, -2, -8);
+        VectorSet(vMaxs, 2, 2, 8);
+    }
+    else {
+        VectorSet(vMins, -4, -4, 0);
+        VectorSet(vMaxs, 4, 4, 2);
+
+        // add 16 units above feets
+        vStart[2] += 16.0;
+        VectorCopy(vStart, vEnd);
+        vEnd[2] -= 64.0;
+    }
+
+    if (IsSubclassOfPlayer()) {
+        trace = G_Trace(
+            vStart,
+            vMins,
+            vMaxs,
+            vEnd,
+            edict,
+            MASK_PLAYERSOLID,
+            qtrue,
+            "Player Footsteps"
+        );
+    }
+    else {
+        trace = G_Trace(
+            vStart,
+            vMins,
+            vMaxs,
+            vEnd,
+            edict,
+            MASK_MONSTERSOLID,
+            qfalse,
+            "Monster Footsteps"
+        );
+    }
+
+    if (trace.fraction == 1.0f) {
+        return;
+    }
+
+    FootstepMain(&trace, iRunning, iEquipment);
 }

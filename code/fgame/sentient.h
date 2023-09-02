@@ -339,6 +339,8 @@ public:
     //
     void GetActiveWeap(Event *ev);
     void GetNewActiveWeapon(Event *ev);
+    void FootstepMain(trace_t* trace, int iRunning, int iEquipment);
+    void Footstep(const char* szTagName, int iRunning, int iEquipment);
 };
 
 typedef SafePtr<Sentient> SentientPtr;
