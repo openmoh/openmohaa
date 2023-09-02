@@ -947,23 +947,7 @@ void Animate::DumpAnimInfo(void)
 
 void Animate::SoundThisFrame(Event* ev)
 {
-    AliasListNode_t* ret;
-    str name;
-
-    if (edict->r.num_nonpvs_sounds >= MAX_NONPVS_SOUNDS) {
-        return;
-    }
-
-    name = GetRandomAlias(ev->GetString(1), &ret);
-    if (name.c_str() && ret) {
-        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].index = gi.soundindex(name.c_str(), ret->streamed);
-        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].volume = G_Random() * ret->volumeMod + ret->volume;
-        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].minDist = ret->dist;
-        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].maxDist = ret->maxDist;
-        edict->r.nonpvs_sounds[edict->r.num_nonpvs_sounds].pitch = G_Random() * ret->pitchMod + ret->pitch;
-        edict->r.num_nonpvs_sounds++;
-    }
-
+    PlayNonPvsSound(ev->GetString(1));
 }
 
 void Animate::EventPauseAnim(Event *ev)

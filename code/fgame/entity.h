@@ -624,6 +624,7 @@ public:
     void SetHintRequireLookAt(Event *ev);
     void SetHintString(Event *ev);
     void SetShader(Event *ev);
+    void PlayNonPvsSound(const str& soundName, float volume = 1);
 };
 
 inline int Entity::getSolidType(void)
