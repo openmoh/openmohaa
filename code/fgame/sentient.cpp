@@ -2833,7 +2833,7 @@ void Sentient::UpdateFootsteps(void)
             m_bFootOnGround_Left = true;
         }
     } else {
-        iTagNum = gi.Tag_NumForName(edict->tiki, "Bip01 R Foot");
+        iTagNum = gi.Tag_NumForName(edict->tiki, "Bip01 L Foot");
         if (iTagNum >= 0) {
             if (G_TIKI_IsOnGround(edict, iTagNum, 13.461539f)) {
                 BroadcastAIEvent(10, G_AIEventRadius(10));
