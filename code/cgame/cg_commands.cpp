@@ -410,7 +410,7 @@ Event EV_Client_Footstep(
     "sRunning should be set to run, walk, or ladder"
 );
 Event EV_Client_Landing(
-    "footstep",
+    "landing",
     EV_DEFAULT,
     "FI",
     "fVolume iEquipment",
