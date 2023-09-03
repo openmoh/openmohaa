@@ -106,7 +106,7 @@ Event EV_Animate_PlayerSpawn_Utility(
 );
 Event EV_Animate_PauseAnim("pauseanims", EV_DEFAULT, "i", "pause", "Pause (or unpause) animations");
 
-Event EV_Animate_SoundThisFrame("_soundthisframe", EV_DEFAULT, NULL, NULL, NULL);
+Event EV_Animate_Client_Sound("_client_sound", EV_DEFAULT, NULL, NULL, NULL);
 
 CLASS_DECLARATION(Entity, Animate, "animate") {
     {&EV_SetControllerAngles,         &Animate::SetControllerAngles    },
@@ -117,7 +117,7 @@ CLASS_DECLARATION(Entity, Animate, "animate") {
     {&EV_Animate_PlayerSpawn,         &Animate::EventPlayerSpawn       },
     {&EV_Animate_PlayerSpawn_Utility, &Animate::EventPlayerSpawnUtility},
     {&EV_Animate_PauseAnim,           &Animate::EventPauseAnim         },
-    {&EV_Animate_SoundThisFrame,      &Animate::SoundThisFrame         },
+    {&EV_Animate_Client_Sound,        &Animate::ClientSound            },
     {NULL,                            NULL                             }
 };
 
@@ -244,13 +244,15 @@ void Animate::NewAnim(int animnum, int slot, float weight)
             int ii, j;
 
             for (ii = 0; ii < cmds.num_cmds; ii++) {
-                ev = new AnimationEvent(cmds.cmds[ii].args[0]);
+                const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+
+                ev = new AnimationEvent(single_cmd.args[0], single_cmd.num_args);
 
                 ev->SetAnimationNumber(animnum);
                 ev->SetAnimationFrame(0);
 
-                for (j = 1; j < cmds.cmds[ii].num_args; j++) {
-                    ev->AddToken(cmds.cmds[ii].args[j]);
+                for (j = 1; j < single_cmd.num_args; j++) {
+                    ev->AddToken(single_cmd.args[j]);
                 }
 
                 ProcessEvent(ev);
@@ -261,18 +263,18 @@ void Animate::NewAnim(int animnum, int slot, float weight)
             int ii, j;
 
             for (ii = 0; ii < cmds.num_cmds; ii++) {
-                if (!Q_stricmp(cmds.cmds[ii].args[0], "sound")) {
-                    ev = new AnimationEvent(EV_Animate_SoundThisFrame);
+                const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
 
-                    ev->SetAnimationNumber(animnum);
-                    ev->SetAnimationFrame(0);
+                ev = new AnimationEvent(str("_client_") + single_cmd.args[0], single_cmd.num_args);
 
-                    for (j = 1; j < cmds.cmds[ii].num_args; j++) {
-                        ev->AddToken(cmds.cmds[ii].args[j]);
-                    }
+                ev->SetAnimationNumber(animnum);
+                ev->SetAnimationFrame(0);
 
-                    ProcessEvent(ev);
+                for (j = 1; j < single_cmd.num_args; j++) {
+                    ev->AddToken(single_cmd.args[j]);
                 }
+
+                ProcessEvent(ev);
             }
         }
     }
@@ -294,13 +296,15 @@ void Animate::NewAnim(int animnum, int slot, float weight)
             int ii, j;
 
             for (ii = 0; ii < cmds.num_cmds; ii++) {
-                ev = new AnimationEvent(cmds.cmds[ii].args[0]);
+                const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+
+                ev = new AnimationEvent(single_cmd.args[0], single_cmd.num_args);
 
                 ev->SetAnimationNumber(animnum);
                 ev->SetAnimationFrame(i);
 
-                for (j = 1; j < cmds.cmds[ii].num_args; j++) {
-                    ev->AddToken(cmds.cmds[ii].args[j]);
+                for (j = 1; j < single_cmd.num_args; j++) {
+                    ev->AddToken(single_cmd.args[j]);
                 }
 
                 PostEvent(ev, time, 1 << slot);
@@ -315,18 +319,18 @@ void Animate::NewAnim(int animnum, int slot, float weight)
             int ii, j;
 
             for (ii = 0; ii < cmds.num_cmds; ii++) {
-                if (!Q_stricmp(cmds.cmds[ii].args[0], "sound")) {
-                    ev = new AnimationEvent(EV_Animate_SoundThisFrame);
+                const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
 
-                    ev->SetAnimationNumber(animnum);
-                    ev->SetAnimationFrame(i);
+                ev = new AnimationEvent(str("_client_") + single_cmd.args[0], single_cmd.num_args);
 
-                    for (j = 1; j < cmds.cmds[ii].num_args; j++) {
-                        ev->AddToken(cmds.cmds[ii].args[j]);
-                    }
+                ev->SetAnimationNumber(animnum);
+                ev->SetAnimationFrame(i);
 
-                    PostEvent(ev, time, 1 << slot);
+                for (j = 1; j < single_cmd.num_args; j++) {
+                    ev->AddToken(single_cmd.args[j]);
                 }
+
+                PostEvent(ev, time, 1 << slot);
             }
         }
     }
@@ -448,7 +452,8 @@ void Animate::DoExitCommands(int slot)
         int ii, j;
 
         for (ii = 0; ii < cmds.num_cmds; ii++) {
-            tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+            const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+
             ev = new AnimationEvent(single_cmd.args[0], single_cmd.num_args);
 
             ev->SetAnimationNumber(edict->s.frameInfo[slot].index);
@@ -466,19 +471,18 @@ void Animate::DoExitCommands(int slot)
         int ii, j;
 
         for (ii = 0; ii < cmds.num_cmds; ii++) {
-            tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
-            if (!Q_stricmp(single_cmd.args[0], "sound")) {
-                ev = new AnimationEvent(EV_Animate_SoundThisFrame);
+            const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
 
-                ev->SetAnimationNumber(edict->s.frameInfo[slot].index);
-                ev->SetAnimationFrame(0);
+            ev = new AnimationEvent(str("_client_") + single_cmd.args[0], single_cmd.num_args);
 
-                for (j = 1; j < single_cmd.num_args; j++) {
-                    ev->AddToken(single_cmd.args[j]);
-                }
+            ev->SetAnimationNumber(edict->s.frameInfo[slot].index);
+            ev->SetAnimationFrame(0);
 
-                PostEvent(ev, 0);
+            for (j = 1; j < single_cmd.num_args; j++) {
+                ev->AddToken(single_cmd.args[j]);
             }
+
+            PostEvent(ev, 0);
         }
     }
 
@@ -945,7 +949,7 @@ void Animate::DumpAnimInfo(void)
     MPrintf("actionWeight: %f\n", edict->s.actionWeight);
 }
 
-void Animate::SoundThisFrame(Event* ev)
+void Animate::ClientSound(Event* ev)
 {
     PlayNonPvsSound(ev->GetString(1));
 }
