@@ -69,7 +69,7 @@ typedef struct baseshader_s baseshader_t;
 typedef struct AliasListNode_s AliasListNode_t;
 typedef void( *xcommand_t ) ( void );
 
-#define MAX_NONPVS_SOUNDS 2
+#define MAX_NONPVS_SOUNDS 4
 
 typedef struct {
     int index;
