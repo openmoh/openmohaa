@@ -564,6 +564,10 @@ Event EV_Sentient_GetForceDropWeapon
     "Get if the sentient is forced to drop health no matter what level.nodrophealth is.",
     EV_GETTER
 );
+
+//
+// Openmohaa additions
+//
 Event EV_Sentient_GetNewActiveWeap
 (
     "getnewactiveweap",
@@ -581,6 +585,14 @@ Event EV_Sentient_GetActiveWeap
     "weaponhand",
     "gets currently active weapon in a given hand",
     EV_RETURN
+);
+Event EV_Sentient_Client_Landing
+(
+    "_client_landing",
+    EV_DEFAULT,
+    "FI",
+    "fVolume iEquipment",
+    "Play a landing sound that is appropriate to the surface we are landing on\n"
 );
 
 CLASS_DECLARATION(Animate, Sentient, NULL) {
@@ -645,6 +657,7 @@ CLASS_DECLARATION(Animate, Sentient, NULL) {
 
     {&EV_Sentient_GetActiveWeap,        &Sentient::GetActiveWeap                },
     {&EV_Sentient_GetNewActiveWeap,     &Sentient::GetNewActiveWeapon           },
+    {&EV_Sentient_Client_Landing,       &Sentient::EventClientLanding           },
     {NULL,                              NULL                                    }
 };
 
@@ -761,6 +774,7 @@ Sentient::Sentient()
     m_iThreatBias         = 0;
     m_bFootOnGround_Right = true;
     m_bFootOnGround_Left  = true;
+    iNextLandTime         = 0;
     m_bDontDropWeapons    = false;
 
     if (g_realismmode->integer) {
@@ -2918,17 +2932,22 @@ void Sentient::SetMinViewVariation(const Vector& vVariation)
 #define GROUND_DISTANCE        8
 #define WATER_NO_SPLASH_HEIGHT 16
 
+void Sentient::EventClientLanding(Event* ev)
+{
+    float fVolume = ev->NumArgs() >= 1 ? ev->GetFloat(1) : 1;
+    int iEquipment = ev->NumArgs() >= 2 ? ev->GetInteger(2) : 1;
+
+    LandingSound(fVolume, iEquipment);
+}
+
 void Sentient::FootstepMain(trace_t* trace, int iRunning, int iEquipment)
 {
     int    contents;
     int    surftype;
-    int    iEffectNum;
     float  fVolume;
     vec3_t vPos;
     vec3_t midlegs;
     str    sSoundName;
-
-    iEffectNum = -1;
 
     VectorCopy(trace->endpos, vPos);
     sSoundName = "snd_step_";
@@ -3097,4 +3116,129 @@ void Sentient::Footstep(const char* szTagName, int iRunning, int iEquipment)
     }
 
     FootstepMain(&trace, iRunning, iEquipment);
+}
+
+void Sentient::LandingSound(float volume, int iEquipment)
+{
+    int     contents;
+    int     surftype;
+    vec3_t  vStart, vEnd;
+    vec3_t  midlegs;
+    str     sSoundName;
+    trace_t trace;
+    static vec3_t g_vFootstepMins = { -4, -4, 0 };
+    static vec3_t g_vFootstepMaxs = { 4, 4, 2 };
+
+    if (this->iNextLandTime > level.inttime) {
+        this->iNextLandTime = level.inttime + 200;
+        return;
+    }
+
+    this->iNextLandTime = level.time + 200;
+    VectorCopy(this->origin, vStart);
+    vStart[2] += GROUND_DISTANCE;
+
+    VectorCopy(vStart, vEnd);
+    vEnd[2] -= 64.0;
+
+    if (IsSubclassOfPlayer()) {
+        trace = G_Trace(
+            vStart,
+            g_vFootstepMins,
+            g_vFootstepMaxs,
+            vEnd,
+            edict,
+            MASK_PLAYERSOLID,
+            qtrue,
+            "Player Footsteps"
+        );
+    } else {
+        trace = G_Trace(
+            vStart,
+            g_vFootstepMins,
+            g_vFootstepMaxs,
+            vEnd,
+            edict,
+            MASK_MONSTERSOLID,
+            qfalse,
+            "Monster Footsteps"
+        );
+    }
+
+    if (trace.fraction == 1.0) {
+        return;
+    }
+
+    sSoundName += "snd_landing_";
+
+    contents = gi.pointcontents(trace.endpos, -1);
+    if (contents & MASK_WATER) {
+        // take our ground position and trace upwards
+        VectorCopy(trace.endpos, midlegs);
+        midlegs[2] += WATER_NO_SPLASH_HEIGHT;
+        contents = gi.pointcontents(midlegs, -1);
+        if (contents & MASK_WATER) {
+            sSoundName += "wade";
+        } else {
+            sSoundName += "puddle";
+        }
+    } else {
+        surftype = trace.surfaceFlags & MASK_SURF_TYPE;
+        switch (surftype) {
+        case SURF_FOLIAGE:
+            sSoundName += "foliage";
+            break;
+        case SURF_SNOW:
+            sSoundName += "snow";
+            break;
+        case SURF_CARPET:
+            sSoundName += "carpet";
+            break;
+        case SURF_SAND:
+            sSoundName += "sand";
+            break;
+        case SURF_PUDDLE:
+            sSoundName += "puddle";
+            break;
+        case SURF_GLASS:
+            sSoundName += "glass";
+            break;
+        case SURF_GRAVEL:
+            sSoundName += "gravel";
+            break;
+        case SURF_MUD:
+            sSoundName += "mud";
+            break;
+        case SURF_DIRT:
+            sSoundName += "dirt";
+            break;
+        case SURF_GRILL:
+            sSoundName += "grill";
+            break;
+        case SURF_GRASS:
+            sSoundName += "grass";
+            break;
+        case SURF_ROCK:
+            sSoundName += "stone";
+            break;
+        case SURF_PAPER:
+            sSoundName += "paper";
+            break;
+        case SURF_WOOD:
+            sSoundName += "wood";
+            break;
+        case SURF_METAL:
+            sSoundName += "metal";
+            break;
+        default:
+            sSoundName += "stone";
+            break;
+        }
+    }
+
+    PlayNonPvsSound(sSoundName, volume);
+
+    if (iEquipment && random() < 0.5) {
+        PlayNonPvsSound("snd_step_equipment", volume);
+    }
 }

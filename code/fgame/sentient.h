@@ -216,8 +216,10 @@ public:
     float             next_bleed_time;
     bool              m_bForceDropHealth;
     bool              m_bForceDropWeapon;
+
     bool              m_bFootOnGround_Right;
     bool              m_bFootOnGround_Left;
+    int               iNextLandTime;
 
     CLASS_PROTOTYPE(Sentient);
 
@@ -339,8 +341,11 @@ public:
     //
     void GetActiveWeap(Event *ev);
     void GetNewActiveWeapon(Event *ev);
+    void EventClientLanding(Event *ev);
+
     void FootstepMain(trace_t* trace, int iRunning, int iEquipment);
     void Footstep(const char* szTagName, int iRunning, int iEquipment);
+    void LandingSound(float volume, int iEquipment);
 };
 
 typedef SafePtr<Sentient> SentientPtr;
