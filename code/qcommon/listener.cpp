@@ -56,6 +56,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // std::move
 #include <utility>
 
+DataNode* Event::DataNodeList = NULL;
 con_map< Event *, EventDef > Event::eventDefList;
 con_arrayset< command_t, command_t > Event::commandList;
 
@@ -346,8 +347,6 @@ Event EV_Listener_WaitTillAnyTimeout
 	EV_NORMAL
 );
 
-eventInfo_t *lastEvent = NULL;
-
 cvar_t	*g_showevents;
 cvar_t	*g_eventlimit;
 cvar_t	*g_timeevents;
@@ -594,13 +593,6 @@ void L_ShutdownEvents( void )
 	}
 
 	L_ClearEventList();
-
-	eventInfo_t *evi, *prev;
-	for( evi = lastEvent; evi != NULL; evi = prev )
-	{
-		prev = evi->prev;
-		free( evi );
-	}
 
 	Event::commandList.clear();
 	Event::eventDefList.clear();
@@ -1736,63 +1728,34 @@ Event loader routine
 */
 void Event::LoadEvents()
 {
-	eventInfo_t *evi = lastEvent;
-	str lower;
-	EventDef *cmd;
-	int index;
-	command_t c;
-	command_t *i;
-	con_arrayset<command_t, command_t>::Entry *entry;
-	con_arrayset_enum< command_t, command_t > en;
+    command_t c;
+	DataNode* next;
 
-	while( evi )
-	{
-		cmd = &eventDefList[ evi->ev ];
+    for(; DataNodeList; DataNodeList = next)
+    {
+		next = DataNodeList->next;
 
-		cmd->command = evi->command;
-		cmd->flags = ( ( evi->flags == EV_DEFAULT ) - 1 ) & evi->flags;
-		cmd->formatspec = evi->formatspec;
-		cmd->argument_names = evi->argument_names;
-		cmd->documentation = evi->documentation;
-		cmd->type = evi->type;
+        EventDef* cmd = &eventDefList[DataNodeList->ev];
 
+        cmd->command = DataNodeList->command;
+        cmd->flags = ((DataNodeList->flags == EV_DEFAULT) - 1) & DataNodeList->flags;
+        cmd->formatspec = DataNodeList->formatspec;
+        cmd->argument_names = DataNodeList->argument_names;
+        cmd->documentation = DataNodeList->documentation;
+        cmd->type = DataNodeList->type;
+
+        c.command = DataNodeList->command;
+        c.flags = DataNodeList->flags;
+        c.type = cmd->type;
+
+        DataNodeList->ev->eventnum = commandList.addKeyIndex(c);
 #ifdef _DEBUG
-		evi->ev->name = evi->command;
+        DataNodeList->ev->name = DataNodeList->command;
 #endif
 
-		lower = str( evi->command );
-		lower.tolower();
-
-		en = commandList;
-
-		index = 0;
-
-		for( entry = en.NextElement(); entry != NULL; entry = en.NextElement() )
-		{
-			i = &entry->value;
-
-			if( i->command == lower && i->type == cmd->type )
-			{
-				index = entry->index;
-				break;
-			}
-		}
-
-		if( !index )
-		{
-			c.command = lower;
-			c.flags = evi->flags;
-			c.type = cmd->type;
-
-			index = commandList.addKeyIndex( c );
-		}
-
-		evi->ev->eventnum = index;
-
-		evi = ( eventInfo_t * )evi->prev;
-
-		totalevents++;
-	}
+		delete DataNodeList;
+        totalevents++;
+    }
 }
 
 /*
@@ -1812,19 +1775,17 @@ Event::Event
 		uchar type
 	)
 {
-	eventInfo_t *evi = ( eventInfo_t * )malloc( sizeof( eventInfo_t ) );
+	DataNode* node = new DataNode();
 
-	evi->ev = this;
-	evi->command = command;
-	evi->flags = flags;
-	evi->formatspec = formatspec;
-	evi->argument_names = argument_names;
-	evi->documentation = documentation;
-	evi->type = type;
-
-	evi->prev = lastEvent;
-
-	lastEvent = evi;
+    node->ev = this;
+    node->command = command;
+    node->flags = flags;
+    node->formatspec = formatspec;
+    node->argument_names = argument_names;
+    node->documentation = documentation;
+    node->type = type;
+	node->next = DataNodeList;
+	DataNodeList = node;
 
 	fromScript = false;
 	dataSize = 0;
@@ -2486,26 +2447,6 @@ IsFromScript
 qboolean Event::IsFromScript()
 {
 	return fromScript;
-}
-
-/*
-=======================
-GetFormat
-=======================
-*/
-const char *Event::GetFormat()
-{
-	eventInfo_t *evi;
-
-	for( evi = lastEvent; evi != NULL; evi = ( eventInfo_t * )evi->prev )
-	{
-		if( evi->ev->eventnum == eventnum )
-		{
-			return evi->formatspec;
-		}
-	}
-
-	return NULL;
 }
 
 /*

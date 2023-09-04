@@ -218,30 +218,42 @@ public:
 	void SetupDocumentation( void );
 };
 
-class command_t {
+class DataNode {
 public:
-	str			command;
-	int			flags;
-	uchar		type;
-
-	friend bool		operator==( const str &name, const command_t &command );
-	friend bool		operator==( const command_t &cmd1, const command_t &cmd2 );
+    Event*      ev;
+    const char* command;
+    int			flags;
+    const char* formatspec;
+    const char* argument_names;
+    const char* documentation;
+    int			type;
+    DataNode*   next;
 };
 
-inline bool operator==( const str &name, const command_t &command )
+class command_t {
+public:
+    str			command;
+    int			flags;
+    uchar		type;
+
+    friend bool		operator==(const str& name, const command_t& command);
+    friend bool		operator==(const command_t& cmd1, const command_t& cmd2);
+};
+
+inline bool operator==(const str& name, const command_t& command)
 {
-	return command.command == name;
+    return command.command == name;
 }
 
 #ifdef WITH_SCRIPT_ENGINE
-inline bool operator==( const command_t &cmd1, const command_t &cmd2 )
+inline bool operator==(const command_t& cmd1, const command_t& cmd2)
 {
-	return ( cmd2.command == cmd1.command && ( cmd2.type == ( uchar )-1 || cmd2.type == cmd1.type ) );
+    return (!cmd2.command.icmp(cmd1.command) && (cmd2.type == (uchar)-1 || cmd2.type == cmd1.type));
 }
 #else
-inline bool operator==( const command_t &cmd1, const command_t &cmd2 )
+inline bool operator==(const command_t& cmd1, const command_t& cmd2)
 {
-	return ( cmd2.command == cmd1.command );
+    return (!cmd2.command.icmp(cmd1.command));
 }
 #endif
 
@@ -258,6 +270,9 @@ public:
 	// should be used only for debugging purposes
 	str					name;
 #endif
+
+private:
+	static DataNode* DataNodeList;
 
 public:
 	CLASS_PROTOTYPE( Event );
@@ -396,21 +411,8 @@ public:
 
 	qboolean	IsFromScript( void );
 
-	const char	*GetFormat();
 	int			NumArgs();
 };
-
-typedef struct eventInfo
-{
-	Event		*ev;
-	const char	*command;
-	int			flags;
-	const char	*formatspec;
-	const char	*argument_names;
-	const char	*documentation;
-	int			type;
-	eventInfo	*prev;
-} eventInfo_t;
 
 #define					NODE_CANCEL				1
 #define					NODE_FIXED_EVENT		2
