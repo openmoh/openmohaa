@@ -25,10 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "q_shared.h"
 #include "qcommon.h"
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
-
 #define	ZONEID			0x7331
 #define ZONEID_CONST	0xC057
 
@@ -114,12 +110,8 @@ void Z_Free( void *ptr )
 	block->prev = block;
 	block->next = block;
 
-#if !defined(_DEBUG) || !defined(WIN32)
 	// free the block
 	free( block );
-#else
-	HeapFree(GetProcessHeap(), 0, block);
-#endif
 }
 
 #endif
@@ -172,11 +164,7 @@ void *Z_TagMalloc( int size, int tag )
 #endif
 	size = PAD( size, sizeof( intptr_t ) );		// align to 32/64 bit boundary
 
-#if !defined(_DEBUG) || !defined(WIN32)
 	block = ( memblock_t * )malloc( size );
-#else
-	block = HeapAlloc(GetProcessHeap(), 0, size);
-#endif
 	block->id = ZONEID;
 	block->size = size;
 	block->next = &mem_blocks[ tag ];
