@@ -217,7 +217,7 @@ void ScriptVariable::ArchiveInternal(Archiver& arc)
     switch (type) {
     case VARIABLE_STRING:
         if (arc.Loading()) {
-            m_data.stringValue = new str(4);
+            m_data.stringValue = new str;
         }
 
         arc.ArchiveString(m_data.stringValue);
@@ -2041,7 +2041,7 @@ ScriptVariable& ScriptVariable::operator=(const ScriptVariable& variable)
             break;
 
         case VARIABLE_STRING:
-            m_data.stringValue = new str(variable.stringValue());
+            m_data.stringValue = new str(*variable.m_data.stringValue);
             break;
 
         case VARIABLE_FLOAT:
@@ -2100,7 +2100,7 @@ ScriptVariable& ScriptVariable::operator=(const ScriptVariable& variable)
             break;
 
         case VARIABLE_STRING:
-            m_data.stringValue = new str(variable.stringValue());
+            *m_data.stringValue = *variable.m_data.stringValue;
             break;
 
         case VARIABLE_FLOAT:
