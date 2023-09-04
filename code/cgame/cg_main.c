@@ -547,16 +547,6 @@ void CG_ServerRestarted(void)
     CG_InitializeObjectives();
 }
 
-void *CG_Malloc(int size)
-{
-    return malloc(size);
-}
-
-void CG_Free(void *ptr)
-{
-    free(ptr);
-}
-
 /*
 =================
 CG_Init
@@ -567,10 +557,6 @@ Called after every level change or subsystem restart
 void CG_Init(clientGameImport_t *imported, int serverMessageNum, int serverCommandSequence, int clientNum)
 {
     cgi = *imported;
-#if _DEBUG
-    cgi.Malloc = &CG_Malloc;
-    cgi.Free   = &CG_Free;
-#endif
 
     cg_protocol = cgi.Cvar_Get("com_protocol", "", 0)->integer;
     CG_InitCGMessageAPI(&cge);
