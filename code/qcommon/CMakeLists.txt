@@ -27,7 +27,11 @@ set(SOURCES_SHARED
 
 add_library(qcommon INTERFACE)
 target_sources(qcommon INTERFACE ${SOURCES_SHARED})
-target_compile_definitions(qcommon INTERFACE)
+
+if(DEBUG_MEM_BLOCK)
+	target_compile_definitions(qcommon INTERFACE _DEBUG_MEMBLOCK=1)
+endif()
+
 target_include_directories(qcommon INTERFACE "../qcommon" "../script")
 target_compile_features(qcommon INTERFACE cxx_nullptr)
 target_compile_features(qcommon INTERFACE c_variadic_macros)
