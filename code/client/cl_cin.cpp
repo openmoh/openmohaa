@@ -1612,7 +1612,7 @@ void CL_PlayCinematic_f(void) {
 		bits |= CIN_loop;
 	}
 
-	S_StopAllSounds( qtrue );
+	S_StopAllSounds2( qtrue );
 
 	CL_handle = CIN_PlayCinematic( arg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, bits );
 	if (CL_handle >= 0) {
@@ -1639,7 +1639,7 @@ void SCR_RunCinematic (void)
 void SCR_StopCinematic(void) {
 	if (CL_handle >= 0 && CL_handle < MAX_VIDEO_HANDLES) {
 		CIN_StopCinematic(CL_handle);
-		S_StopAllSounds( qtrue );
+		S_StopAllSounds2( qtrue );
 		CL_handle = -1;
 	}
 }

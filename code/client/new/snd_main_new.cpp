@@ -55,7 +55,7 @@ void S_AddLoopingSound(const vec3_t origin, const vec3_t velocity, sfxHandle_t s
 S_StopAllSounds
 =================
 */
-void S_StopAllSounds(qboolean stop_music)
+void S_StopAllSounds2(qboolean stop_music)
 {
     // Call the original function
     S_StopAllSounds();

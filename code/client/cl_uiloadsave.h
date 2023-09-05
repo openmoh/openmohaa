@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __CL_UILOADSAVE_H__
-#define __CL_UILOADSAVE_H__
+#pragma once
 
 class UIFAKKLoadGameClass : public UIListCtrl { 
 	bool m_bRemovePending; 
@@ -43,15 +42,3 @@ public:
 
 	void	SetupFiles( void );
 };
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void UI_SetupFiles( void );
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif 

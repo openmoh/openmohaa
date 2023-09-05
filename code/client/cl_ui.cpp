@@ -4033,7 +4033,7 @@ void S_ServerLoaded( void ) {
 	svs.soundsNeedLoad = qfalse;
 
 	Com_DPrintf( "Loading Previous Sound State.\n" );
-	S_StopAllSounds( qfalse );
+	S_StopAllSounds2( qfalse );
 	
 	//S_TriggeredMusic_Stop();
 	//s_bSoundPaused = qtrue;

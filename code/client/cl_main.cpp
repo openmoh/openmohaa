@@ -801,7 +801,7 @@ void CL_FlushMemory( void ) {
 
 	// shutdown all the client stuff
 	CL_ShutdownCGame();
-	S_StopAllSounds( qtrue );
+	S_StopAllSounds2( qtrue );
 	UI_ClearState();
 	cls.rendererRegistered = qfalse;
 }
@@ -868,7 +868,7 @@ void CL_ClearState( void )
 	CL_ShutdownCGame();
 
 	if( !com_sv_running->integer ) {
-		S_StopAllSounds( qtrue );
+		S_StopAllSounds2( qtrue );
 	}
 
 	UI_ClearState();
@@ -1210,7 +1210,7 @@ void CL_Disconnect_f( void ) {
             CL_AbnormalDisconnect();
             CL_FlushMemory();
             CL_StartHunkUsers(qfalse);
-            S_StopAllSounds(1);
+			S_StopAllSounds2(1);
             S_TriggeredMusic_PlayIntroMusic();
         }
 
@@ -1521,7 +1521,7 @@ void CL_Vid_Restart_f( void ) {
 	cls.vid_restart = qtrue;
 
 	// don't let them loop during the restart
-	S_StopAllSounds(qtrue);
+	S_StopAllSounds2(qtrue);
 
 	SV_ClearSvsTimeFixups();
 
@@ -2477,7 +2477,7 @@ void CL_Frame ( int msec ) {
 	if ( clc.state == CA_DISCONNECTED && !UI_MenuActive()
 		&& !com_sv_running->integer ) {
 		// if disconnected, bring up the menu
-		S_StopAllSounds( qtrue );
+		S_StopAllSounds2( qtrue );
 		UI_MenuEscape( "main" );
 	}
 
@@ -3179,7 +3179,7 @@ void CL_Init( void ) {
 	start = Sys_Milliseconds();
 
 	CL_ClearState ();
-	S_StopAllSounds( qtrue );
+	S_StopAllSounds2( qtrue );
 
 	clc.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
 	Key_SetCatcher(KEYCATCH_UI);
@@ -4303,7 +4303,7 @@ CL_ServerRestarted
 ==================
 */
 void CL_ServerRestarted( void ) {
-	S_StopAllSounds( qfalse );
+	S_StopAllSounds2( qfalse );
 
 	UI_ServerLoaded();
 	UI_ClearState();
