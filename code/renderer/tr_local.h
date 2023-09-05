@@ -2117,6 +2117,7 @@ TERRAIN
 */
 void R_MarkTerrainPatch(cTerraPatchUnpacked_t* pPatch);
 void R_AddTerrainSurfaces();
+void R_AddTerrainMarkSurfaces();
 void R_InitTerrain();
 void R_TerrainPrepareFrame();
 qboolean R_TerrainHeightForPoly(cTerraPatchUnpacked_t* pPatch, polyVert_t* pVerts, int nVerts);
@@ -2363,6 +2364,8 @@ extern	volatile qboolean	renderThreadActive;
 
 
 void *R_GetCommandBuffer( int bytes );
+void R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs );
+void R_AddSpriteSurfCmd( drawSurf_t* drawSurfs, int numDrawSurfs );
 void RB_ExecuteRenderCommands( const void *data );
 
 void R_SavePerformanceCounters(void);

@@ -17,3 +17,4 @@ set(SRCS
 
 add_library(libmad STATIC ${SRCS})
 target_compile_definitions(libmad PUBLIC FPM_64BIT)
+target_compile_definitions(libmad PUBLIC NDEBUG) # otherwise assert() will call abort() and it fails to compile on clang-16 (call to undeclared library function 'abort')

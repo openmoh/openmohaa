@@ -1082,7 +1082,7 @@ void Cmd_List_f (void)
 Cmd_CompleteCfgName
 ==================
 */
-void Cmd_CompleteCfgName( char *args, int argNum ) {
+void Cmd_CompleteCfgName( const char *args, int argNum ) {
 	if( argNum == 2 ) {
 		Field_CompleteFilename( "", "cfg", qfalse, qtrue );
 	}

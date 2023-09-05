@@ -252,7 +252,7 @@ typedef struct gameImport_s
 	char * ( *Argv )( int arg );
 	char * ( *Args )( );
 	void ( *AddCommand )( const char *cmdName, xcommand_t cmdFunction );
-	int ( *FS_ReadFile )( const char *qpath, void **buffer, qboolean quiet );
+	long ( *FS_ReadFile )( const char *qpath, void **buffer, qboolean quiet );
 	void ( *FS_FreeFile )( void *buffer );
 	int ( *FS_WriteFile )( const char *qpath, const void *buffer, int size );
 	fileHandle_t ( *FS_FOpenFileWrite )( const char *fileName );

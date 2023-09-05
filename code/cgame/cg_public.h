@@ -500,7 +500,7 @@ functions exported to the main executable
 		void (*CG_ReadNonPVSClient)(radarUnpacked_t* radarUnpacked);
 		void (*CG_UpdateRadar)();
 		void (*CG_SaveStateToBuffer)(void** out, int svsTime);
-		void (*CG_LoadStateToBuffer)(void** state, int size, int svsTime);
+		void (*CG_LoadStateToBuffer)(void* state, int size, int svsTime);
 		void (*CG_CleanUpTempModels)();
 
         // FIXME

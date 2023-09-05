@@ -497,7 +497,7 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function );
 
 void	Cmd_RemoveCommand( const char *cmd_name );
 
-typedef void (*completionFunc_t)( char *args, int argNum );
+typedef void (*completionFunc_t)( const char *args, int argNum );
 
 // don't allow VMs to remove system commands
 void	Cmd_RemoveCommandSafe( const char *cmd_name );
@@ -507,7 +507,7 @@ void	Cmd_CommandCompletion( void(*callback)(const char *s) );
 void Cmd_SetCommandCompletionFunc( const char *command,
 	completionFunc_t complete );
 void Cmd_CompleteArgument( const char *command, char *args, int argNum );
-void Cmd_CompleteCfgName( char *args, int argNum );
+void Cmd_CompleteCfgName( const char *args, int argNum );
 void	Cmd_CommandCompletion( void(*callback)(const char *s) );
 const char* Cmd_CompleteCommandByNumber(const char* partial, int number);
 // callback with each valid string
@@ -933,6 +933,7 @@ int			Com_Filter(const char *filter, const char *name, int casesensitive);
 int			Com_FilterPath(const char *filter, const char *name, int casesensitive);
 int			Com_RealTime(qtime_t *qtime);
 qboolean	Com_SafeMode( void );
+void		Com_RunAndTimeServerPacket(netadr_t *evFrom, msg_t *buf);
 
 void		Com_StartupVariable( const char *match );
 // checks for and removes command line "+set var arg" constructs

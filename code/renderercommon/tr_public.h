@@ -130,7 +130,7 @@ typedef struct {
 	void	(*DrawStretchPic2)(float x, float y, float w, float h, float s1, float t1, float s2, float t2, float sx, float sy, qhandle_t hShader);
     void    (*DrawTilePic)(float x, float y, float w, float h, qhandle_t hShader);
     void    (*DrawTilePicOffset)(float x, float y, float w, float h, qhandle_t hShader, int offsetX, int offsetY);
-    void    (*DrawTrianglePic)(vec2_t* points, vec2_t* texCoords, qhandle_t hShader);
+    void    (*DrawTrianglePic)(const vec2_t vPoints[3], const vec2_t vTexCoords[3], qhandle_t hShader);
     void    (*DrawBackground)(int cols, int rows, int bgr, uint8_t* data);
 
     void    (*DebugLine)(const vec3_t start, const vec3_t end, float r, float g, float b, float alpha);
