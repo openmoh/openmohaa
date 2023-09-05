@@ -1018,28 +1018,26 @@ SV_ArchiveViewModelAnimation
 */
 void SV_ArchiveViewModelAnimation( qboolean loading )
 {
-#ifdef CLIENT
-	int i;
+    int i;
 
-	for( i = 0; i < MAX_FRAMEINFOS; i++ )
-	{
-		ge->ArchiveInteger( &cls.anim.vmFrameInfo[ i ].index );
-		ge->ArchiveFloat( &cls.anim.vmFrameInfo[ i ].time );
-		ge->ArchiveFloat( &cls.anim.vmFrameInfo[ i ].weight );
-	}
+    for (i = 0; i < MAX_FRAMEINFOS; i++)
+    {
+        ge->ArchiveInteger(&cls.anim.g_VMFrameInfo[i].index);
+        ge->ArchiveFloat(&cls.anim.g_VMFrameInfo[i].time);
+        ge->ArchiveFloat(&cls.anim.g_VMFrameInfo[i].weight);
+    }
 
-	ge->ArchiveInteger( &cls.anim.lastVMAnim );
-	ge->ArchiveInteger( &cls.anim.lastVMAnimChanged );
-	ge->ArchiveInteger( &cls.anim.currentVMAnimSlot );
-	ge->ArchiveInteger( &cls.anim.currentVMDuration );
-	ge->ArchiveInteger( &cls.anim.crossBlending );
-	ge->ArchiveInteger( &cls.anim.lastEquippedWeaponStat );
-	ge->ArchiveString( cls.anim.lastActiveItem );
-	ge->ArchiveInteger( &cls.anim.lastAnimPrefixIndex );
-	ge->ArchiveFloat( &cls.anim.currentVMPosOffset[ 0 ] );
-	ge->ArchiveFloat( &cls.anim.currentVMPosOffset[ 1 ] );
-	ge->ArchiveFloat( &cls.anim.currentVMPosOffset[ 2 ] );
-#endif
+    ge->ArchiveInteger(&cls.anim.g_iLastVMAnim);
+    ge->ArchiveInteger(&cls.anim.g_iLastVMAnimChanged);
+    ge->ArchiveInteger(&cls.anim.g_iCurrentVMAnimSlot);
+    ge->ArchiveInteger(&cls.anim.g_iCurrentVMDuration);
+    ge->ArchiveInteger(&cls.anim.g_bCrossblending);
+    ge->ArchiveInteger(&cls.anim.g_iLastEquippedWeaponStat);
+    ge->ArchiveString(cls.anim.g_szLastActiveItem);
+    ge->ArchiveInteger(&cls.anim.g_iLastAnimPrefixIndex);
+    ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[0]);
+    ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[1]);
+    ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[2]);
 }
 
 /*
@@ -1120,6 +1118,7 @@ qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
     }
     else
     {
+		cge->CG_SaveStateToBuffer(&cls.savedCgameState, svs.time);
         ge->WriteLevel(name, autosave);
         success = qtrue;
     }
@@ -1234,9 +1233,7 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 			return qfalse;
 		}
 
-#ifdef CLIENT
-		S_StopAllSounds( qtrue );
-#endif
+		S_StopAllSounds2( qtrue );
 		S_Load( f );
 		strncpy( svs.mapName, save.mapName, sizeof( svs.mapName ) );
 		svs.mapTime = save.mapTime;
@@ -1263,9 +1260,7 @@ void SV_Loadgame_f( void )
 	qboolean bStartedGame;
 
 	if( com_cl_running && com_cl_running->integer &&
-#ifdef CLIENT
 		clc.state != CA_DISCONNECTED && cg_gametype->integer ||
-#endif
 		com_sv_running && com_sv_running->integer && g_gametype->integer )
 	{
 		Com_Printf( "Can't loadgame in a multiplayer game\n" );
@@ -1387,13 +1382,11 @@ qboolean SV_AllowSaveGame( void )
 		Com_DPrintf( "You must be in game to save.\n" );
 		return qfalse;
 	}
-#ifdef CLIENT
 	else if( clc.state != CA_DISCONNECTED && cg_gametype->integer )
 	{
 		Com_DPrintf( "Can't savegame in a multiplayer game\n" );
 		return qfalse;
 	}
-#endif
 	else if( g_gametype->integer )
 	{
 		Com_DPrintf( "Can't savegame in a multiplayer game\n" );
@@ -1479,10 +1472,6 @@ void SV_SaveGame( const char *gamename, qboolean autosave )
 	SV_ArchiveServerFile( qfalse, autosave );
 	Com_Printf( "Done.\n" );
 	strcpy( svs.gameName, "current" );
-
-#ifdef CLIENT
-	IN_MouseCancel();
-#endif
 }
 
 /*
@@ -1533,9 +1522,7 @@ void SV_CheckSaveGame( void )
 	{
 		bSavegame = qfalse;
 		SV_SaveGame( savegame_name[ 0 ] ? savegame_name : NULL, qfalse );
-#ifdef CLIENT
 		UI_SetupFiles();
-#endif
 	}
 }
 
