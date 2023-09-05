@@ -22,8 +22,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
-class Event;
-class Listener;
+#ifdef __cplusplus
+  class Event;
+  class Listener;
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef int uihandle_t;
 typedef struct tiki_s tiki_t;
@@ -73,7 +79,11 @@ typedef struct uiimport_s {
 	void( *Rend_DrawBox )( float x, float y, float w, float h );
 	int( *Rend_GetShaderWidth )( qhandle_t hShader );
 	int( *Rend_GetShaderHeight )( qhandle_t hShader );
+#ifdef __cplusplus
 	void ( *File_PickFile )( const char *name, Listener *obj, Event& event );
+#else
+	void (*File_PickFile)(const char* name, struct Listener* obj, struct Event* event);
+#endif
 	void ( *File_ListFiles )( const char *filespec );
 	long ( *File_OpenFile )( const char *qpath, void **buffer );
 	void ( *File_FreeFile )( void *buffer );
@@ -166,3 +176,7 @@ const char *UI_ConfigString( int index );
 void UI_UpdateCenterPrint(const char* s, float alpha);
 void UI_UpdateLocationPrint(int x, int y, const char* s, float alpha);
 void UI_SetupFiles(void);
+
+#ifdef __cplusplus
+}
+#endif
