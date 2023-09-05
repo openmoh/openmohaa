@@ -30,9 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/container.h"
 #include "../qcommon/str.h"
 
-class MemArchiver {
-
-};
+class MemArchiver;
 
 extern "C" {
 #endif
