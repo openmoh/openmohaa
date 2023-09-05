@@ -1118,7 +1118,6 @@ qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
 {
 #ifndef DEDICATED
     const char* name;
-    qboolean success;
     fileHandle_t f;
     savegamestruct_t save;
     soundsystemsavegame_t SSsave;
@@ -1127,34 +1126,35 @@ qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
     name = Com_GetArchiveFileName(svs.gameName, "sav");
     if (loading)
     {
-        success = ge->ReadLevel(name);
-        if (success)
-        {
-            name = Com_GetArchiveFileName(svs.gameName, "ssv");
-            FS_FOpenFileRead(name, &f, qfalse, qtrue);
-            if (f)
-            {
-                FS_Read(&save, sizeof(savegamestruct_t), f);
-                if (save.version != 4)
-                {
-                    FS_FCloseFile(f);
-                    return 0;
-                }
+		if (!ge->ReadLevel(name)) {
+			return qfalse;
+        }
 
-                FS_Read(&SSsave, sizeof(soundsystemsavegame_t), f);
-                CM_ReadPortalState(f);
+        name = Com_GetArchiveFileName(svs.gameName, "ssv");
+        FS_FOpenFileRead(name, &f, qfalse, qtrue);
+        if (f)
+        {
+            FS_Read(&save, sizeof(savegamestruct_t), f);
+            if (save.version != 4)
+            {
                 FS_FCloseFile(f);
+                return qfalse;
             }
+
+            FS_Read(&SSsave, sizeof(soundsystemsavegame_t), f);
+            CM_ReadPortalState(f);
+            FS_FCloseFile(f);
         }
     }
     else
     {
-		cge->CG_SaveStateToBuffer(&cls.savedCgameState, svs.time);
+		cls.savedCgameStateSize = cge->CG_SaveStateToBuffer(&cls.savedCgameState, svs.time);
         ge->WriteLevel(name, autosave);
-        success = qtrue;
+		Z_Free(cls.savedCgameState);
+		cls.savedCgameState = NULL;
     }
 
-    return success;
+    return qtrue;
 #else
 	return qfalse;
 #endif
