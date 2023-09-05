@@ -37,8 +37,8 @@ class MemArchiver {
 extern "C" {
 #endif
 
-void CG_SaveStateToBuffer(void** out, int svsTime);
-void CG_LoadStateToBuffer(void* state, int size, int svsTime);
+size_t CG_SaveStateToBuffer(void** out, int svsTime);
+void CG_LoadStateToBuffer(void* state, size_t size, int svsTime);
 
 #ifdef __cplusplus
 void CG_ArchiveStuff(MemArchiver& archiver, int svsTime);

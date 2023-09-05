@@ -28,12 +28,13 @@ void CG_ArchiveStuff(MemArchiver& archiver, int svsTime)
 	// FIXME: unimplemented
 }
 
-void CG_SaveStateToBuffer(void** out, int svsTime)
+size_t CG_SaveStateToBuffer(void** out, int svsTime)
 {
 	// FIXME: unimplemented
+	return 0;
 }
 
-void CG_LoadStateToBuffer(void* state, int size, int svsTime)
+void CG_LoadStateToBuffer(void* state, size_t size, int svsTime)
 {
 	// FIXME: unimplemented
 }

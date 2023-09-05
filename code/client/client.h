@@ -351,7 +351,7 @@ typedef struct {
 	clientAnim_t anim;
 	stopWatch_t stopwatch;
 	void* savedCgameState;
-	int savedCgameStateSize;
+	size_t savedCgameStateSize;
 	char gcdResponse[73];
 	int unknown3_0;
 	int currentRate;
