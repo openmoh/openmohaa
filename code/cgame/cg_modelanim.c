@@ -421,7 +421,7 @@ qboolean CG_EntityShadow(centity_t *cent, refEntity_t *model)
     vec3_t  vSize;
     trace_t trace;
 
-    iTagL = iTagL = -1;
+    iTagR = -1;
 
     if (cg_shadows->integer == 0) {
         return qfalse;
