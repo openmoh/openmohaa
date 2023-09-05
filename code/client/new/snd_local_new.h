@@ -58,6 +58,7 @@ typedef struct {
 
 void S_ChannelFree_Callback(channel_t* v);
 void S_LoadData(soundsystemsavegame_t* pSave);
+void S_SaveData(soundsystemsavegame_t* pSave);
 
 #ifdef __cplusplus
 }

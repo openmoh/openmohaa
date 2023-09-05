@@ -423,3 +423,7 @@ void S_ChannelFree_Callback(channel_t* v) {
 void S_LoadData(soundsystemsavegame_t* pSave) {
     // FIXME: unimplemented
 }
+
+void S_SaveData(soundsystemsavegame_t* pSave) {
+    // FIXME: unimplemented
+}
