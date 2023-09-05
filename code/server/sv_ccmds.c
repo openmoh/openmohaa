@@ -1086,49 +1086,45 @@ void SV_ArchiveLevel( qboolean loading )
 SV_ArchiveLevelFile
 ==================
 */
-qboolean SV_ArchiveLevelFile( qboolean loading, qboolean autosave )
+qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
 {
-	const char *name;
-	qboolean success;
-	fileHandle_t f;
-	savegamestruct_t save;
-#ifdef CLIENT
-	soundsystemsavegame_t SSsave;
-#endif
+    const char* name;
+    qboolean success;
+    fileHandle_t f;
+    savegamestruct_t save;
+    soundsystemsavegame_t SSsave;
 
-	Com_DPrintf( "SV_ArchiveLevelFile()\n" );
-	name = Com_GetArchiveFileName( svs.gameName, "sav" );
-	if( loading )
-	{
-		success = ge->ReadLevel( name );
-		if( success )
-		{
-			name = Com_GetArchiveFileName( svs.gameName, "ssv" );
-			FS_FOpenFileRead( name, &f, qfalse, qtrue );
-			if( f )
-			{
-				FS_Read( &save, sizeof( savegamestruct_t ), f );
-				if( save.version != 3 )
-				{
-					FS_FCloseFile( f );
-					return 0;
-				}
+    Com_DPrintf("SV_ArchiveLevelFile()\n");
+    name = Com_GetArchiveFileName(svs.gameName, "sav");
+    if (loading)
+    {
+        success = ge->ReadLevel(name);
+        if (success)
+        {
+            name = Com_GetArchiveFileName(svs.gameName, "ssv");
+            FS_FOpenFileRead(name, &f, qfalse, qtrue);
+            if (f)
+            {
+                FS_Read(&save, sizeof(savegamestruct_t), f);
+                if (save.version != 4)
+                {
+                    FS_FCloseFile(f);
+                    return 0;
+                }
 
-#ifdef CLIENT
-				FS_Read( &SSsave, sizeof( soundsystemsavegame_t ), f );
-#endif
-				CM_ReadPortalState( f );
-				FS_FCloseFile( f );
-			}
-		}
-	}
-	else
-	{
-		ge->WriteLevel( name, autosave );
-		success = qtrue;
-	}
+                FS_Read(&SSsave, sizeof(soundsystemsavegame_t), f);
+                CM_ReadPortalState(f);
+                FS_FCloseFile(f);
+            }
+        }
+    }
+    else
+    {
+        ge->WriteLevel(name, autosave);
+        success = qtrue;
+    }
 
-	return success;
+    return success;
 }
 
 /*
