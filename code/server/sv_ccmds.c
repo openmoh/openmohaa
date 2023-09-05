@@ -20,9 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "../client/client.h"
-#include "../client/snd_local.h"
 #include "server.h"
+
+#ifndef DEDICATED
+#  include "../client/client.h"
+#  include "../client/snd_local.h"
+#  include "../uilib/ui_public.h"
+#endif
 
 /*
 ===============================================================================
@@ -838,10 +842,12 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand( "gamemap", SV_GameMap_f );
 
 	Cmd_AddCommand( "killserver", SV_KillServer_f );
+#ifndef DEDICATED
 	Cmd_AddCommand( "savegame", SV_Savegame_f );
 	Cmd_AddCommand( "autosavegame", SV_Autosavegame_f );
 	Cmd_AddCommand( "loadgame", SV_Loadgame_f );
 	Cmd_AddCommand( "loadlastgame", SV_LoadLastGame_f );
+#endif
 	Cmd_AddCommand( "difficultyEasy", SV_EasyMode_f );
 	Cmd_AddCommand( "difficultyMedium", SV_MediumMode_f );
 	Cmd_AddCommand( "difficultyHard", SV_HardMode_f );
@@ -886,6 +892,7 @@ SV_ArchiveHudDrawElements
 */
 void SV_ArchiveHudDrawElements( qboolean loading )
 {
+#ifndef DEDICATED
 	int i;
 
 	for( i = 0; i < MAX_HUDDRAW_ELEMENTS; i++ )
@@ -910,7 +917,8 @@ void SV_ArchiveHudDrawElements( qboolean loading )
 		if( cge ) {
 			cge->CG_RefreshHudDrawElements();
 		}
-	}
+    }
+#endif
 }
 
 /*
@@ -920,6 +928,7 @@ SV_HudDrawShader
 */
 void SV_HudDrawShader( int iInfo, char *name )
 {
+#ifndef DEDICATED
 	strcpy( cls.HudDrawElements[ iInfo ].shaderName, name );
 	cls.HudDrawElements[ iInfo ].string[ 0 ] = 0;
 	cls.HudDrawElements[ iInfo ].pFont = NULL;
@@ -928,6 +937,7 @@ void SV_HudDrawShader( int iInfo, char *name )
 	if( cge ) {
 		cge->CG_HudDrawShader( iInfo );
 	}
+#endif
 }
 
 /*
@@ -937,8 +947,10 @@ SV_HudDrawAlign
 */
 void SV_HudDrawAlign( int iInfo, int iHorizontalAlign, int iVerticalAlign )
 {
+#ifndef DEDICATED
 	cls.HudDrawElements[ iInfo ].iHorizontalAlign = iHorizontalAlign;
 	cls.HudDrawElements[ iInfo ].iVerticalAlign = iVerticalAlign;
+#endif
 }
 
 /*
@@ -948,10 +960,12 @@ SV_HudDrawRect
 */
 void SV_HudDrawRect( int iInfo, int iX, int iY, int iWidth, int iHeight )
 {
+#ifndef DEDICATED
 	cls.HudDrawElements[ iInfo ].iX = iX;
 	cls.HudDrawElements[ iInfo ].iY = iY;
 	cls.HudDrawElements[ iInfo ].iWidth = iWidth;
 	cls.HudDrawElements[ iInfo ].iHeight = iHeight;
+#endif
 }
 
 /*
@@ -961,7 +975,9 @@ SV_HudDrawVirtualSize
 */
 void SV_HudDrawVirtualSize( int iInfo, qboolean bVirtualScreen )
 {
+#ifndef DEDICATED
 	cls.HudDrawElements[ iInfo ].bVirtualScreen = bVirtualScreen;
+#endif
 }
 
 /*
@@ -971,7 +987,9 @@ SV_HudDrawColor
 */
 void SV_HudDrawColor( int iInfo, vec3_t vColor )
 {
+#ifndef DEDICATED
 	VectorCopy( vColor, cls.HudDrawElements[ iInfo ].vColor );
+#endif
 }
 
 /*
@@ -981,7 +999,9 @@ SV_HudDrawAlpha
 */
 void SV_HudDrawAlpha( int iInfo, float alpha )
 {
+#ifndef DEDICATED
 	cls.HudDrawElements[ iInfo ].vColor[ 3 ] = alpha;
+#endif
 }
 
 /*
@@ -991,8 +1011,10 @@ SV_HudDrawString
 */
 void SV_HudDrawString( int iInfo, const char *string )
 {
+#ifndef DEDICATED
 	cls.HudDrawElements[ iInfo ].hShader = 0;
 	strcpy( cls.HudDrawElements[ iInfo ].string, string );
+#endif
 }
 
 /*
@@ -1002,6 +1024,7 @@ SV_HudDrawFont
 */
 void SV_HudDrawFont( int iInfo, const char *name )
 {
+#ifndef DEDICATED
 	strcpy( cls.HudDrawElements[ iInfo ].fontName, name );
 	cls.HudDrawElements[ iInfo ].hShader = 0;
 	cls.HudDrawElements[ iInfo ].shaderName[ 0 ] = 0;
@@ -1009,6 +1032,7 @@ void SV_HudDrawFont( int iInfo, const char *name )
 	if( cge ) {
 		cge->CG_HudDrawFont( iInfo );
 	}
+#endif
 }
 
 /*
@@ -1018,6 +1042,7 @@ SV_ArchiveViewModelAnimation
 */
 void SV_ArchiveViewModelAnimation( qboolean loading )
 {
+#ifndef DEDICATED
     int i;
 
     for (i = 0; i < MAX_FRAMEINFOS; i++)
@@ -1038,6 +1063,7 @@ void SV_ArchiveViewModelAnimation( qboolean loading )
     ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[0]);
     ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[1]);
     ge->ArchiveFloat(&cls.anim.g_vCurrentVMPosOffset[2]);
+#endif
 }
 
 /*
@@ -1047,7 +1073,7 @@ SV_ArchiveStopwatch
 */
 void SV_ArchiveStopwatch( qboolean loading )
 {
-#ifdef CLIENT
+#ifndef DEDICATED
 	ge->ArchiveSvsTime( &cls.stopwatch.iStartTime );
 	ge->ArchiveSvsTime( &cls.stopwatch.iEndTime );
 #endif
@@ -1060,11 +1086,13 @@ SV_ArchivePersistantFile
 */
 void SV_ArchivePersistantFile( qboolean loading )
 {
+#ifndef DEDICATED
 	const char *name;
 
 	Com_DPrintf( "SV_ArchivePersistantFile()\n" );
 	name = Com_GetArchiveFileName( svs.gameName, "spv" );
 	ge->ArchivePersistant( name, loading );
+#endif
 }
 
 /*
@@ -1074,9 +1102,11 @@ SV_ArchiveLevel
 */
 void SV_ArchiveLevel( qboolean loading )
 {
+#ifndef DEDICATED
 	SV_ArchiveHudDrawElements( loading );
 	SV_ArchiveViewModelAnimation( loading );
 	SV_ArchiveStopwatch( loading );
+#endif
 }
 
 /*
@@ -1086,6 +1116,7 @@ SV_ArchiveLevelFile
 */
 qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
 {
+#ifndef DEDICATED
     const char* name;
     qboolean success;
     fileHandle_t f;
@@ -1124,6 +1155,9 @@ qboolean SV_ArchiveLevelFile(qboolean loading, qboolean autosave)
     }
 
     return success;
+#else
+	return qfalse;
+#endif
 }
 
 /*
@@ -1133,7 +1167,7 @@ S_Save
 */
 void S_Save( fileHandle_t f )
 {
-#ifdef CLIENT
+#ifndef DEDICATED
 	soundsystemsavegame_t save;
 	S_SaveData( &save );
 	FS_Write( &save, sizeof( soundsystemsavegame_t ), f );
@@ -1160,6 +1194,7 @@ SV_ArchiveServerFile
 */
 qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 {
+#ifndef DEDICATED
 	fileHandle_t f;
 	const char *name;
 	char comment[ 64 ];
@@ -1245,6 +1280,9 @@ qboolean SV_ArchiveServerFile( qboolean loading, qboolean autosave )
 	}
 
 	return qtrue;
+#else
+	return qfalse;
+#endif
 }
 
 /*
@@ -1254,6 +1292,7 @@ SV_Loadgame_f
 */
 void SV_Loadgame_f( void )
 {
+#ifndef DEDICATED
 	int length;
 	const char *name;
 	const char *archive_name;
@@ -1328,6 +1367,7 @@ void SV_Loadgame_f( void )
 	{
 		SV_ShutdownGameProgs();
 	}
+#endif
 }
 
 /*
@@ -1337,6 +1377,7 @@ SV_SavegameFilename
 */
 void SV_SavegameFilename( const char *name, char *fileName, int length )
 {
+#ifndef DEDICATED
 	int num;
 	const char *fname;
 	int lastNumber;
@@ -1358,6 +1399,7 @@ void SV_SavegameFilename( const char *name, char *fileName, int length )
 			break;
 		}
 	}
+#endif
 }
 
 /*
@@ -1367,6 +1409,7 @@ SV_AllowSaveGame
 */
 qboolean SV_AllowSaveGame( void )
 {
+#ifndef DEDICATED
 	if( !com_sv_running || !com_sv_running->integer )
 	{
 		Com_DPrintf( "You must be in a game with a server to save.\n" );
@@ -1404,6 +1447,9 @@ qboolean SV_AllowSaveGame( void )
 	}
 
 	return qtrue;
+#else
+	return qfalse;
+#endif
 }
 
 /*
@@ -1415,6 +1461,7 @@ static qboolean bSavegame;
 
 qboolean SV_DoSaveGame()
 {
+#ifndef DEDICATED
 	if( bSavegame )
 	{
 		if( SV_AllowSaveGame() ) {
@@ -1423,6 +1470,9 @@ qboolean SV_DoSaveGame()
 		bSavegame = qfalse;
 	}
 	return qfalse;
+#else
+	return qfalse;
+#endif
 }
 
 /*
@@ -1432,6 +1482,7 @@ SV_SaveGame
 */
 void SV_SaveGame( const char *gamename, qboolean autosave )
 {
+#ifndef DEDICATED
 	char *ptr;
 	char name[ 64 ];
 	char mname[ 64 ];
@@ -1472,6 +1523,7 @@ void SV_SaveGame( const char *gamename, qboolean autosave )
 	SV_ArchiveServerFile( qfalse, autosave );
 	Com_Printf( "Done.\n" );
 	strcpy( svs.gameName, "current" );
+#endif
 }
 
 /*
@@ -1483,6 +1535,7 @@ static char savegame_name[ 64 ];
 
 void SV_Savegame_f( void )
 {
+#ifndef DEDICATED
 	char *s;
 
 	if( !SV_AllowSaveGame() ) {
@@ -1505,6 +1558,7 @@ void SV_Savegame_f( void )
 	}
 
 	bSavegame = qtrue;
+#endif
 }
 
 /*
@@ -1514,6 +1568,7 @@ SV_CheckSaveGame
 */
 void SV_CheckSaveGame( void )
 {
+#ifndef DEDICATED
 	if( !SV_DoSaveGame() ) {
 		return;
 	}
@@ -1524,9 +1579,12 @@ void SV_CheckSaveGame( void )
 		SV_SaveGame( savegame_name[ 0 ] ? savegame_name : NULL, qfalse );
 		UI_SetupFiles();
 	}
+#endif
 }
 
 void SV_Autosavegame_f( void )
 {
+#ifndef DEDICATED
 	SV_SaveGame( NULL, qtrue );
+#endif
 }
