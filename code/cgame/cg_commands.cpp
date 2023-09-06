@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_specialfx.h"
 #include "scriptexception.h"
 #include "tiki.h"
+#include "cg_archive.h"
+#include "memarchiver.h"
 
 refEntity_t *current_entity        = NULL;
 int          current_entity_number = -1;
@@ -5403,4 +5405,470 @@ void ClientGameCommandManager::EventViewKick(Event *ev)
     } else if (cg.viewkick[1] < -fYawMax) {
         cg.viewkick[1] = -fYawMax;
     }
+}
+
+int ClientGameCommandManager::IdForTempModel(const ctempmodel_t* model)
+{
+    int index;
+
+    if (model == &m_active_tempmodels) {
+        return -1;
+    }
+
+    if (!model) {
+        return -2;
+    }
+
+    index = model - m_tempmodels;
+    if (index >= MAX_TEMPMODELS) {
+        return -2;
+    }
+
+    if (model != &m_tempmodels[index]) {
+        return -2;
+    }
+
+    return model - m_tempmodels;
+}
+
+ctempmodel_t* ClientGameCommandManager::TempModelForId(int id)
+{
+    if (id == -1) {
+        return &m_active_tempmodels;
+    }
+
+    if (id == -2) {
+        return NULL;
+    }
+
+    return &m_tempmodels[id];
+}
+
+int ClientGameCommandManager::IdForSpawnThing(const spawnthing_t* sp)
+{
+    int i;
+
+    if (!sp) {
+        return 0;
+    }
+
+    for (i = 1; i <= m_emitters.NumObjects(); i++) {
+        if (sp == m_emitters.ObjectAt(i)) {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
+spawnthing_t* ClientGameCommandManager::SpawnThingForId(int id)
+{
+    if (!id) {
+        return 0;
+    }
+
+    return m_emitters.ObjectAt(id);
+}
+
+int ClientGameCommandManager::IdForVssSource(const cvssource_t* source)
+{
+    int index;
+
+    if (source == &m_active_vsssources) {
+        return -1;
+    }
+
+    if (!source) {
+        return -2;
+    }
+
+    index = source - m_vsssources;
+    if (index < 0 || index >= m_iAllocatedvsssources) {
+        return -2;
+    }
+
+    if (source != &m_vsssources[index]) {
+        return -2;
+    }
+
+    return source - m_vsssources;
+}
+
+cvssource_t* ClientGameCommandManager::VssSourceForId(int id)
+{
+    if (id == -1) {
+        return &m_active_vsssources;
+    }
+
+    if (id == -2) {
+        return 0;
+    }
+
+    return &m_vsssources[id];
+}
+
+void ClientGameCommandManager::ArchiveTempModelPointerToMemory(MemArchiver& archiver, ctempmodel_t** model)
+{
+    int id;
+
+    if (archiver.IsReading()) {
+        archiver.ArchiveInteger(&id);
+        *model = TempModelForId(id);
+    } else {
+        id = IdForTempModel(*model);
+        archiver.ArchiveInteger(&id);
+    }
+}
+
+void ClientGameCommandManager::ArchiveSpawnThingPointerToMemory(MemArchiver& archiver, spawnthing_t** sp)
+{
+    int id;
+
+    if (archiver.IsReading()) {
+        archiver.ArchiveInteger(&id);
+        *sp = SpawnThingForId(id);
+    } else {
+        id = IdForSpawnThing(*sp);
+        archiver.ArchiveInteger(&id);
+    }
+}
+
+void ClientGameCommandManager::ArchiveVssSourcePointerToMemory(MemArchiver& archiver, cvssource_t** source)
+{
+    int id;
+
+    if (archiver.IsReading()) {
+        archiver.ArchiveInteger(&id);
+        *source = VssSourceForId(id);
+    } else {
+        id = IdForVssSource(*source);
+        archiver.ArchiveInteger(&id);
+    }
+}
+
+void ClientGameCommandManager::ArchiveToMemory(MemArchiver& archiver)
+{
+    spawnthing_t* sp;
+    int num;
+    int i;
+
+    m_localemitter.ArchiveToMemory(archiver);
+
+    if (archiver.IsReading()) {
+        archiver.ArchiveInteger(&num);
+
+        for (i = 0; i < num; i++) {
+            sp = new spawnthing_t();
+            sp->ArchiveToMemory(archiver);
+
+            m_emitters.AddObjectAt(i + 1, sp);
+        }
+    } else {
+        num = m_emitters.NumObjects();
+        archiver.ArchiveInteger(&num);
+
+        for (i = 0; i < num; i++) {
+            sp = m_emitters.ObjectAt(i);
+            sp->ArchiveToMemory(archiver);
+        }
+    }
+
+    ArchiveTempModelPointerToMemory(archiver, &m_active_tempmodels.prev);
+    ArchiveTempModelPointerToMemory(archiver, &m_active_tempmodels.next);
+    ArchiveTempModelPointerToMemory(archiver, &m_free_tempmodels);
+
+    for (i = 0; i < MAX_TEMPMODELS; i++) {
+        m_tempmodels[i].ArchiveToMemory(archiver);
+    }
+
+    if (archiver.IsReading()) {
+        archiver.ArchiveInteger(&num);
+        if (m_iAllocatedvsssources != num) {
+            m_iAllocatedvsssources = num;
+
+            m_vsssources = (cvssource_t*)cgi.Malloc(m_iAllocatedvsssources * sizeof(cvssource_t));
+            // instead of using memset, call the constructor
+            for (i = 0; i < m_iAllocatedvsssources; i++) {
+                new (&m_vsssources[i]) cvssource_t();
+            }
+        }
+    } else {
+        archiver.ArchiveInteger(&m_iAllocatedvsssources);
+    }
+
+    ArchiveVssSourcePointerToMemory(archiver, &m_active_vsssources.prev);
+    ArchiveVssSourcePointerToMemory(archiver, &m_active_vsssources.next);
+    ArchiveVssSourcePointerToMemory(archiver, &m_free_vsssources);
+    
+    for (i = 0; i < m_iAllocatedvsssources; i++) {
+        m_vsssources[i].ArchiveToMemory(archiver);
+    }
+
+    archiver.ArchiveTime(&m_iLastVSSRepulsionTime);
+    m_command_time_manager.ArchiveToMemory(archiver);
+    archiver.ArchiveInteger(&m_seed);
+    archiver.ArchiveFloat(&m_fEventWait);
+
+    m_pCurrentSfx = NULL;
+}
+
+void commandthing_t::ArchiveToMemory(MemArchiver& archiver)
+{
+    int num;
+    int i;
+
+    enttracker_t::ArchiveToMemory(archiver);
+
+    if (archiver.IsReading()) {
+        archiver.ArchiveInteger(&num);
+
+        for (i = 0; i < num; i++) {
+            commandtime_t ct;
+
+            ct.ArchiveToMemory(archiver);
+            m_commandtimes.AddObject(ct);
+        }
+    } else {
+        archiver.ArchiveInteger(&num);
+        m_commandtimes.ClearObjectList();
+
+        for (i = 0; i < num; i++) {
+            commandtime_t& ct = m_commandtimes.ObjectAt(i);
+
+            ct.ArchiveToMemory(archiver);
+        }
+    }
+    // FIXME: unimplemented
+}
+
+void cvssource_t::ArchiveToMemory(MemArchiver& archiver)
+{
+    commandManager.ArchiveVssSourcePointerToMemory(archiver, &next);
+    commandManager.ArchiveVssSourcePointerToMemory(archiver, &prev);
+    commandManager.ArchiveVssSourcePointerToMemory(archiver, &stnext);
+    archiver.ArchiveInteger(&stindex);
+    archiver.ArchiveVector(&lastOrigin);
+    archiver.ArchiveFloat(&lastRadius);
+    archiver.ArchiveFloat(&lastDensity);
+    archiver.ArchiveVec3(lastColor);
+    archiver.ArchiveVec3(lastLighting);
+    archiver.ArchiveVector(&newOrigin);
+    archiver.ArchiveFloat(&newRadius);
+    archiver.ArchiveFloat(&newDensity);
+    archiver.ArchiveVec3(newColor);
+    archiver.ArchiveVec3(newLighting);
+    archiver.ArchiveFloat(&ooRadius);
+    archiver.ArchiveVector(&velocity);
+    archiver.ArchiveFloat(&startAlpha);
+    archiver.ArchiveInteger(&roll);
+    archiver.ArchiveVector(&repulsion);
+    archiver.ArchiveInteger(&lifeTime);
+    archiver.ArchiveInteger(&collisionmask);
+    archiver.ArchiveInteger(&parent);
+    archiver.ArchiveInteger(&flags);
+    archiver.ArchiveInteger(&flags2);
+    archiver.ArchiveInteger(&smokeType);
+    archiver.ArchiveFloat(&typeInfo);
+    archiver.ArchiveFloat(&fadeMult);
+    archiver.ArchiveFloat(&scaleMult);
+    archiver.ArchiveTime(&lastPhysicsTime);
+    archiver.ArchiveTime(&lastLightingTime);
+    archiver.ArchiveBoolean(&lastValid);
+}
+
+void ctempmodel_t::ArchiveToMemory(MemArchiver& archiver)
+{
+    commandManager.ArchiveTempModelPointerToMemory(archiver, &next);
+    commandManager.ArchiveTempModelPointerToMemory(archiver, &prev);
+
+    cgd.ArchiveToMemory(archiver);
+    archiver.ArchiveString(&modelname);
+
+    CG_ArchiveRefEntity(archiver, &lastEnt);
+    CG_ArchiveRefEntity(archiver, &ent);
+
+    archiver.ArchiveInteger(&number);
+    archiver.ArchiveTime(&lastAnimTime);
+    archiver.ArchiveTime(&lastPhysicsTime);
+    archiver.ArchiveTime(&killTime);
+    archiver.ArchiveTime(&next_bouncesound_time);
+    archiver.ArchiveInteger(&seed);
+    archiver.ArchiveInteger(&twinkleTime);
+    archiver.ArchiveInteger(&aliveTime);
+    archiver.ArchiveBoolean(&addedOnce);
+    archiver.ArchiveBoolean(&lastEntValid);
+    commandManager.ArchiveSpawnThingPointerToMemory(archiver, &m_spawnthing);
+}
+
+void enttracker_t::ArchiveToMemory(MemArchiver& archiver)
+{
+    archiver.ArchiveRaw(usedNumbers, sizeof(usedNumbers));
+}
+
+void emittertime_t::ArchiveToMemory(MemArchiver& archiver)
+{
+    archiver.ArchiveInteger(&entity_number);
+    archiver.ArchiveTime(&last_emit_time);
+    archiver.ArchiveVector(&oldorigin);
+    archiver.ArchiveBoolean(&active);
+    archiver.ArchiveBoolean(&lerp_emitter);
+}
+
+void emitterthing_t::ArchiveToMemory(MemArchiver& archiver)
+{
+    int num;
+    int i;
+
+    enttracker_t::ArchiveToMemory(archiver);
+
+    if (archiver.IsReading()) {
+        emittertime_t et;
+
+        archiver.ArchiveInteger(&num);
+        for (i = 0; i < num; i++) {
+            et.ArchiveToMemory(archiver);
+            m_emittertimes.AddObject(et);
+        }
+    } else {
+        num = m_emittertimes.NumObjects();
+        archiver.ArchiveInteger(&num);
+
+        for (i = 0; i < num; i++) {
+            emittertime_t& et = m_emittertimes[i];
+            et.ArchiveToMemory(archiver);
+        }
+    }
+
+    archiver.ArchiveBoolean(&startoff);
+}
+
+void cg_common_data::ArchiveToMemory(MemArchiver& archiver)
+{
+    archiver.ArchiveInteger(&life);
+    archiver.ArchiveTime(&createTime);
+    archiver.ArchiveVector(&origin);
+    archiver.ArchiveVector(&oldorigin);
+    archiver.ArchiveVector(&accel);
+    archiver.ArchiveVector(&angles);
+    archiver.ArchiveVector(&velocity);
+    archiver.ArchiveVector(&avelocity);
+    archiver.ArchiveVector(&parentOrigin);
+    archiver.ArchiveVector(&parentMins);
+    archiver.ArchiveVector(&parentMaxs);
+    archiver.ArchiveVector(&minVel);
+    archiver.ArchiveVector(&maxVel);
+    archiver.ArchiveFloat(color);
+    archiver.ArchiveFloat(&color[1]);
+    archiver.ArchiveFloat(&color[2]);
+    archiver.ArchiveFloat(&color[3]);
+    archiver.ArchiveFloat(&alpha);
+    archiver.ArchiveFloat(&scaleRate);
+    archiver.ArchiveFloat(&scalemin);
+    archiver.ArchiveFloat(&scalemax);
+    archiver.ArchiveFloat(&bouncefactor);
+    archiver.ArchiveInteger(&bouncecount);
+    archiver.ArchiveInteger(&maxbouncecount);
+    archiver.ArchiveString(&bouncesound);
+    archiver.ArchiveInteger(&bouncesound_delay);
+    archiver.ArchiveInteger(&flags);
+    archiver.ArchiveInteger(&flags2);
+
+    CG_ArchiveTikiPointer(archiver, &tiki);
+
+    archiver.ArchiveInteger(&swarmfreq);
+    archiver.ArchiveFloat(&swarmmaxspeed);
+    archiver.ArchiveFloat(&swarmdelta);
+    archiver.ArchiveFloat(&lightIntensity);
+    archiver.ArchiveInteger(&lightType);
+    archiver.ArchiveInteger(&fadeintime);
+    archiver.ArchiveInteger(&fadedelay);
+    archiver.ArchiveInteger(&parent);
+    archiver.ArchiveInteger(&collisionmask);
+    archiver.ArchiveInteger(&min_twinkletimeoff);
+    archiver.ArchiveInteger(&max_twinkletimeoff);
+    archiver.ArchiveInteger(&min_twinkletimeon);
+    archiver.ArchiveInteger(&max_twinkletimeon);
+    archiver.ArchiveInteger(&lightstyle);
+    archiver.ArchiveInteger(&physicsRate);
+    archiver.ArchiveFloat(&scale);
+    archiver.ArchiveFloat(&scale2);
+    archiver.ArchiveString(&swipe_shader);
+    archiver.ArchiveString(&swipe_tag_start);
+    archiver.ArchiveString(&swipe_tag_end);
+    archiver.ArchiveString(&shadername);
+    archiver.ArchiveFloat(&swipe_life);
+    archiver.ArchiveFloat(&friction);
+    archiver.ArchiveFloat(&spin_rotation);
+    archiver.ArchiveFloat(&decal_orientation);
+    archiver.ArchiveFloat(&decal_radius);
+}
+
+void spawnthing_t::ArchiveToMemory(MemArchiver& archiver)
+{
+    emitterthing_t::ArchiveToMemory(archiver);
+
+    CG_ArchiveStringContainer(archiver, &m_modellist);
+    CG_ArchiveStringContainer(archiver, &m_taglist);
+
+    cgd.ArchiveToMemory(archiver);
+
+    archiver.ArchiveInteger(&entnum);
+    archiver.ArchiveVector(&origin_offset_base);
+    archiver.ArchiveVector(&origin_offset_amplitude);
+    archiver.ArchiveVector(&axis_offset_base);
+    archiver.ArchiveVector(&axis_offset_amplitude);
+    archiver.ArchiveVector(&randvel_base);
+    archiver.ArchiveVector(&randvel_amplitude);
+    archiver.ArchiveVector(&avelocity_base);
+    archiver.ArchiveVector(&avelocity_amplitude);
+    archiver.ArchiveVector(&angles_amplitude);
+    archiver.ArchiveVec3(axis[0]);
+    archiver.ArchiveVec3(axis[1]);
+    archiver.ArchiveVec3(axis[2]);
+    archiver.ArchiveVec3(tag_axis[0]);
+    archiver.ArchiveVec3(tag_axis[1]);
+    archiver.ArchiveVec3(tag_axis[2]);
+    archiver.ArchiveFloat(&life_random);
+    archiver.ArchiveFloat(&forwardVelocity);
+    archiver.ArchiveFloat(&sphereRadius);
+    archiver.ArchiveFloat(&coneHeight);
+    archiver.ArchiveFloat(&spawnRate);
+    archiver.ArchiveTime(&lastTime);
+    archiver.ArchiveInteger(&count);
+    archiver.ArchiveInteger(&tagnum);
+    archiver.ArchiveString(&emittername);
+    archiver.ArchiveString(&animName);
+    archiver.ArchiveFloat(dcolor);
+    archiver.ArchiveFloat(&dcolor[1]);
+    archiver.ArchiveFloat(&dcolor[2]);
+    archiver.ArchiveBoolean(&dlight);
+    archiver.ArchiveInteger(&numtempmodels);
+    archiver.ArchiveVec3(linked_origin);
+    archiver.ArchiveVec3(linked_axis[0]);
+    archiver.ArchiveVec3(linked_axis[1]);
+    archiver.ArchiveVec3(linked_axis[2]);
+    archiver.ArchiveFloat(&fMinRangeSquared);
+    archiver.ArchiveFloat(&fMaxRangeSquared);
+    archiver.ArchiveString(&startTag);
+    archiver.ArchiveString(&endTag);
+    archiver.ArchiveFloat(&length);
+    archiver.ArchiveFloat(&min_offset);
+    archiver.ArchiveFloat(&max_offset);
+    archiver.ArchiveFloat(&overlap);
+    archiver.ArchiveFloat(&numSubdivisions);
+    archiver.ArchiveFloat(&delay);
+    archiver.ArchiveFloat(&toggledelay);
+    archiver.ArchiveInteger(&beamflags);
+    archiver.ArchiveInteger(&numspherebeams);
+    archiver.ArchiveFloat(&endalpha);
+    archiver.ArchiveFloat(&spreadx);
+    archiver.ArchiveFloat(&spready);
+    archiver.ArchiveBoolean(&use_last_trace_end);
+}
+
+void commandtime_t::ArchiveToMemory(MemArchiver& archiver)
+{
+    archiver.ArchiveInteger(&entity_number);
+    archiver.ArchiveInteger(&command_number);
+    archiver.ArchiveTime(&last_command_time);
 }

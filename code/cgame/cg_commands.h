@@ -116,6 +116,7 @@ TIKI file, similar to ScriptMaster in the server game dll.
 
 class spawnthing_t;
 class specialeffect_t;
+class MemArchiver;
 
 typedef enum {
     NOT_RANDOM,
@@ -181,6 +182,9 @@ public:
     float decal_orientation;
     float decal_radius;
     float spin_rotation;
+
+public:
+    void ArchiveToMemory(MemArchiver& archiver);
 };
 
 inline cg_common_data::cg_common_data()
@@ -249,6 +253,9 @@ public:
     spawnthing_t *m_spawnthing;
 
     void (*touchfcn)(ctempmodel_t *ct, trace_t *trace);
+
+public:
+    void ArchiveToMemory(MemArchiver& archiver);
 };
 
 inline ctempmodel_t::ctempmodel_t()
@@ -315,7 +322,45 @@ public:
     int          lastPhysicsTime;
     int          lastLightingTime;
     qboolean     lastValid;
+
+public:
+    cvssource_t();
+
+public:
+    void ArchiveToMemory(MemArchiver& archiver);
 };
+
+inline cvssource_t::cvssource_t()
+    : next(NULL)
+    , prev(NULL)
+    , stnext(NULL)
+    , stindex(0)
+    , lastRadius(0)
+    , lastDensity(0)
+    , lastColor{0}
+    , lastLighting{0}
+    , newRadius(0)
+    , newDensity(0)
+    , newColor{0}
+    , newLighting{0}
+    , ooRadius(0)
+    , startAlpha(0)
+    , roll(0)
+    , lifeTime(0)
+    , collisionmask(0)
+    , parent(0)
+    , flags(0)
+    , flags2(0)
+    , smokeType(0)
+    , typeInfo(0)
+    , fadeMult(0)
+    , scaleMult(0)
+    , lastPhysicsTime(0)
+    , lastLightingTime(0)
+    , lastValid(qfalse)
+{
+
+}
 
 class cvssourcestate_t
 {
@@ -387,6 +432,9 @@ public:
 protected:
     qboolean     usedNumbers[256];
     virtual void RemoveEntity(int entnum);
+
+public:
+    void ArchiveToMemory(MemArchiver& archiver);
 };
 
 inline enttracker_t::enttracker_t()
@@ -437,6 +485,9 @@ public:
     Vector   oldorigin;
     qboolean active;
     qboolean lerp_emitter;
+
+public:
+    void ArchiveToMemory(MemArchiver& archiver);
 };
 
 // emitterthing_t is used to keep track of the last time and emitter was updated
@@ -452,6 +503,9 @@ public:
     emittertime_t *GetEmitTime(int entnum);
     virtual void   RemoveEntity(int entnum);
     qboolean       startoff;
+
+public:
+    void ArchiveToMemory(MemArchiver& archiver);
 };
 
 inline void emitterthing_t::RemoveEntity(int entnum)
@@ -510,18 +564,23 @@ public:
     int entity_number;
     int command_number;
     int last_command_time;
+
+public:
+    void ArchiveToMemory(MemArchiver& archiver);
 };
 
 // This class is used for keeping track of the last time an entity executed a
 // particular command.  A command number must be assigned externally by the user
 class commandthing_t : public enttracker_t
 {
-    Container<commandtime_t *> m_commandtimes; // A list of entity numbers and the last time they
+    Container<commandtime_t> m_commandtimes; // A list of entity numbers and the last time they
                                                // executed a command
 
 public:
     commandtime_t *GetLastCommandTime(int entnum, int commandnum);
     virtual void   RemoveEntity(int entnum);
+
+    void ArchiveToMemory(MemArchiver& archiver);
 };
 
 inline void commandthing_t::RemoveEntity(int entnum)
@@ -532,7 +591,7 @@ inline void commandthing_t::RemoveEntity(int entnum)
     count = m_commandtimes.NumObjects();
 
     for (num = count; num >= 1; num--) {
-        ct = m_commandtimes.ObjectAt(num);
+        ct = &m_commandtimes.ObjectAt(num);
         if (ct->entity_number == entnum) {
             m_commandtimes.RemoveObjectAt(num);
         }
@@ -544,27 +603,26 @@ inline void commandthing_t::RemoveEntity(int entnum)
 inline commandtime_t *commandthing_t::GetLastCommandTime(int entnum, int commandnum)
 {
     int            num, count;
-    commandtime_t *ct;
 
     // Search for this entity number
     count = m_commandtimes.NumObjects();
 
     for (num = 1; num <= count; num++) {
-        ct = m_commandtimes.ObjectAt(num);
+        commandtime_t* ct = &m_commandtimes.ObjectAt(num);
         if ((ct->entity_number == entnum) && (ct->command_number == commandnum)) {
             return ct;
         }
     }
 
     // Add a new entry if we didn't find it
-    ct                    = new commandtime_t;
-    ct->entity_number     = entnum;
-    ct->command_number    = commandnum;
-    ct->last_command_time = 0;
+    commandtime_t ct;
+    ct.entity_number     = entnum;
+    ct.command_number    = commandnum;
+    ct.last_command_time = 0;
 
     m_commandtimes.AddObject(ct);
 
-    return ct;
+    return &m_commandtimes.ObjectAt(m_commandtimes.NumObjects());
 }
 
 class spawnthing_t : public emitterthing_t
@@ -625,6 +683,9 @@ public:
     void (*touchfcn)(ctempmodel_t *ct, trace_t *trace);
     str  GetModel(void);
     void SetModel(str model);
+
+public:
+    void ArchiveToMemory(MemArchiver& archiver);
 };
 
 inline void spawnthing_t::SetModel(str model)
@@ -921,6 +982,21 @@ public:
     void ResetTreadMarkSources(Event *ev);
     void InitializeRainCvars();
     void InitializeBeams();
+
+    //
+    // archive stuff
+    //
+    int IdForTempModel(const ctempmodel_t* model);
+    ctempmodel_t* TempModelForId(int id);
+    int IdForSpawnThing(const spawnthing_t* sp);
+    spawnthing_t* SpawnThingForId(int id);
+    int IdForVssSource(const cvssource_t* source);
+    cvssource_t* VssSourceForId(int id);
+    
+    void ArchiveTempModelPointerToMemory(MemArchiver& archiver, ctempmodel_t** model);
+    void ArchiveSpawnThingPointerToMemory(MemArchiver& archiver, spawnthing_t** sp);
+    void ArchiveVssSourcePointerToMemory(MemArchiver& archiver, cvssource_t** source);
+    void ArchiveToMemory(MemArchiver& archiver);
 };
 
 class EmitterLoader : public Listener
