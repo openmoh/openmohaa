@@ -53,6 +53,7 @@ public:
     void ArchiveUChar(unsigned char* value);
     void ArchiveShort(short* value);
     void ArchiveInteger(int* value);
+    void ArchiveSize(size_t* value);
     void ArchiveFloat(float* value);
     void ArchiveVec3(vec3_t value);
     void ArchiveVector(Vector* value);

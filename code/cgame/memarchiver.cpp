@@ -122,6 +122,11 @@ void MemArchiver::ArchiveInteger(int* value)
     ArchiveRaw(value, sizeof(int));
 }
 
+void MemArchiver::ArchiveSize(size_t* value)
+{
+    ArchiveRaw(value, sizeof(size_t));
+}
+
 void MemArchiver::ArchiveFloat(float* value)
 {
     ArchiveRaw(value, sizeof(float));
