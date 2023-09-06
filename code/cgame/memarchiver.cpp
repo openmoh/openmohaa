@@ -225,9 +225,6 @@ void MemArchiver::ArchiveWriteRaw(const void* buffer, size_t size)
         } else {
             byte* newBuffer;
 
-            this->allocatedSize = 1024;
-            this->buffer = (byte*)cgi.Malloc(this->allocatedSize);
-
             do {
                 this->allocatedSize *= 2;
             } while (size + this->bufferSize > this->allocatedSize);
@@ -235,10 +232,10 @@ void MemArchiver::ArchiveWriteRaw(const void* buffer, size_t size)
             newBuffer = (byte*)cgi.Malloc(this->allocatedSize);
             memcpy(newBuffer, this->buffer, this->bufferSize);
             cgi.Free(this->buffer);
-            buffer = newBuffer;
+            this->buffer = newBuffer;
         }
-
-        memcpy(this->buffer + this->bufferSize, buffer, size);
-        this->bufferSize += size;
     }
+
+    memcpy(this->buffer + this->bufferSize, buffer, size);
+    this->bufferSize += size;
 }

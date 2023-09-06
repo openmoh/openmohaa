@@ -5548,7 +5548,7 @@ void ClientGameCommandManager::ArchiveToMemory(MemArchiver& archiver)
         archiver.ArchiveInteger(&num);
 
         for (i = 0; i < num; i++) {
-            sp = m_emitters.ObjectAt(i);
+            sp = m_emitters[i];
             sp->ArchiveToMemory(archiver);
         }
     }
@@ -5618,7 +5618,6 @@ void commandthing_t::ArchiveToMemory(MemArchiver& archiver)
             ct.ArchiveToMemory(archiver);
         }
     }
-    // FIXME: unimplemented
 }
 
 void cvssource_t::ArchiveToMemory(MemArchiver& archiver)

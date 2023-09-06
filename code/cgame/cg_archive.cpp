@@ -78,7 +78,7 @@ void CG_ArchiveStringContainer(MemArchiver& archiver, Container<str>* container)
         archiver.ArchiveInteger(&num);
 
         for (i = 0; i < num; i++) {
-			str& tmp = container->ObjectAt(i);
+			str& tmp = container->ObjectAt(i + 1);
 			archiver.ArchiveString(&tmp);
 		}
 	}
