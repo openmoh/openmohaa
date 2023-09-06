@@ -404,3 +404,37 @@ int RE_GetShaderHeight( qhandle_t hShader ) {
 
 	return shader->unfoggedStages[ 0 ]->bundle[ 0 ].image[ 0 ]->uploadHeight;
 }
+
+/*
+===============
+RE_GetShaderName
+===============
+*/
+const char* RE_GetShaderName(qhandle_t hShader) {
+    shader_t* shader;
+
+    if (hShader) {
+        shader = R_GetShaderByHandle(hShader);
+    } else {
+        shader = tr.defaultShader;
+    }
+
+	return shader->name;
+}
+
+/*
+===============
+RE_GetModelName
+===============
+*/
+const char* RE_GetModelName(qhandle_t hModel) {
+    model_t *model;
+
+	if (!hModel) {
+		return "";
+	}
+
+	model = R_GetModelByHandle(hModel);
+
+	return model->name;
+}

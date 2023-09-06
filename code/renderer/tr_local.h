@@ -2168,8 +2168,6 @@ UTIL
 
 =============================================================
 */
-int RE_GetShaderHeight(qhandle_t hShader);
-int RE_GetShaderWidth(qhandle_t hShader);
 void RB_StreamBegin(shader_t* shader);
 void RB_StreamEnd(void);
 void RB_StreamBeginDrawSurf(void);
@@ -2188,6 +2186,8 @@ void R_DrawDebugNumber(const vec3_t org, float number, float scale, float r, flo
 void R_DebugRotatedBBox(const vec3_t org, const vec3_t ang, const vec3_t mins, const vec3_t maxs, float r, float g, float b, float alpha);
 int RE_GetShaderWidth(qhandle_t hShader);
 int RE_GetShaderHeight(qhandle_t hShader);
+const char* RE_GetShaderName(qhandle_t hShader);
+const char* RE_GetModelName(qhandle_t hModel);
 
 /*
 =============================================================

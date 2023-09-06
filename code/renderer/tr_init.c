@@ -1560,6 +1560,8 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 
     re.GetShaderHeight = RE_GetShaderHeight;
     re.GetShaderWidth = RE_GetShaderWidth;
+    re.GetShaderName = RE_GetShaderName;
+    re.GetModelName = RE_GetModelName;
     re.GetGraphicsInfo = RE_GetGraphicsInfo;
     re.ForceUpdatePose = RE_ForceUpdatePose;
     re.TIKI_Orientation = RE_TIKI_Orientation;

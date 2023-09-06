@@ -165,6 +165,8 @@ typedef struct {
     void            (*SetFullscreen)(qboolean fullScreen);
     int             (*GetShaderWidth)(qhandle_t hShader);
     int             (*GetShaderHeight)(qhandle_t hShader);
+	const char*		(*GetShaderName)(qhandle_t hShader);
+	const char*		(*GetModelName)(qhandle_t hModel);
     const char*     (*GetGraphicsInfo)();
     void            (*ForceUpdatePose)(refEntity_t* model);
     orientation_t   (*TIKI_Orientation)(refEntity_t* model, int tagNum);
