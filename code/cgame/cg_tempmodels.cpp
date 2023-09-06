@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "tiki.h"
 
 cvar_t *cg_showtempmodels;
+cvar_t *cg_max_tempmodels;
+cvar_t *cg_reserve_tempmodels;
 cvar_t *cg_detail;
 cvar_t *cg_effectdetail;
 cvar_t *cg_effect_physicsrate;
@@ -86,6 +88,83 @@ void ClientGameCommandManager::FreeTempModel(ctempmodel_t *p)
     m_free_tempmodels = p;
 }
 
+//===============
+// FreeAllTempModels
+//===============
+void ClientGameCommandManager::FreeAllTempModels(void)
+{
+    ctempmodel_t *p, *next;
+
+    // Go through all the temp models and run the physics if necessary,
+    // then add them to the ref
+    p = m_active_tempmodels.prev;
+    for (; p != &m_active_tempmodels; p = next) {
+        // grab next now, so if the local entity is freed we still have it
+        next = p->prev;
+        FreeTempModel(p);
+    }
+}
+
+//===============
+// FreeSomeTempModels
+//===============
+void ClientGameCommandManager::FreeSomeTempModels(void)
+{
+    ctempmodel_t* model;
+    int count = 0;
+    unsigned int i;
+    unsigned int numToFree;
+
+    if (!m_free_tempmodels) {
+        return;
+    }
+
+    for (model = m_active_tempmodels.prev; model != &m_active_tempmodels; model = model->prev) {
+        count++;
+    }
+
+    if (cg_reserve_tempmodels->integer <= (cg_max_tempmodels->integer - count)) {
+        // nothing to free
+        return;
+    }
+
+    numToFree = cg_reserve_tempmodels->integer - (cg_max_tempmodels->integer - count);
+
+    for (i = 0; i < numToFree; i++) {
+        FreeTempModel(m_active_tempmodels.prev);
+    }
+}
+
+//===============
+// FreeSpawnthing
+//===============
+void ClientGameCommandManager::FreeSpawnthing(spawnthing_t* sp)
+{
+    ctempmodel_t* model;
+    ctempmodel_t* prev;
+
+    if (sp->numtempmodels) {
+        for (model = m_active_tempmodels.prev; model != &m_active_tempmodels; model = prev) {
+            prev = model->prev;
+
+            if (model->m_spawnthing == sp) {
+                FreeTempModel(model);
+            }
+        }
+    } else {
+        m_emitters.RemoveObject(sp);
+
+        if (sp == m_spawnthing) {
+            m_spawnthing = NULL;
+        }
+
+        delete sp;
+    }
+}
+
+//===============
+// ResetTempModels
+//===============
 void ClientGameCommandManager::ResetTempModels(void)
 {
     // Go through all the active tempmodels and free them
@@ -128,9 +207,23 @@ void ClientGameCommandManager::InitializeTempModels(void)
 void ClientGameCommandManager::InitializeTempModelCvars(void)
 {
     cg_showtempmodels     = cgi.Cvar_Get("cg_showtempmodels", "0", 0);
-    cg_detail             = cgi.Cvar_Get("detail", "1", 1);
-    cg_effectdetail       = cgi.Cvar_Get("cg_effectdetail", "0.2", 1);
-    cg_effect_physicsrate = cgi.Cvar_Get("cg_effect_physicsrate", "10", 1);
+    cg_detail             = cgi.Cvar_Get("detail", "1", CVAR_ARCHIVE);
+    cg_effectdetail       = cgi.Cvar_Get("cg_effectdetail", "0.2", CVAR_ARCHIVE);
+    cg_effect_physicsrate = cgi.Cvar_Get("cg_effect_physicsrate", "10", CVAR_ARCHIVE);
+    cg_max_tempmodels     = cgi.Cvar_Get("cg_max_tempmodels", "1100", CVAR_ARCHIVE);
+    cg_reserve_tempmodels = cgi.Cvar_Get("cg_reserve_tempmodels", "200", CVAR_ARCHIVE);
+
+    if (cg_max_tempmodels->integer > MAX_TEMPMODELS) {
+        // 2.40 sets the integer value directly rather than calling Cvar_Set()
+        //cg_max_tempmodels->integer = MAX_TEMPMODELS
+        cgi.Cvar_Set("cg_max_tempmodels", va("%i", MAX_TEMPMODELS));
+    }
+
+    if (cg_reserve_tempmodels->integer * 5 > cg_max_tempmodels->integer) {
+        // 2.40 sets the integer value directly rather than calling Cvar_Set()
+        //cg_reserve_tempmodels->integer = cg_max_tempmodels->integer / 5;
+        cgi.Cvar_Set("cg_reserve_tempmodels", va("%i", cg_max_tempmodels->integer / 5));
+    }
 }
 
 //===============

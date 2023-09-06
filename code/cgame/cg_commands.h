@@ -952,6 +952,7 @@ public:
     void InitializeEmitters(void);
     void RemoveClientEntity(int number, dtiki_t *tiki, centity_t *cent, ctempmodel_t *p = NULL);
     void ClearSwipes(void);
+    void FreeSpawnthing(spawnthing_t* sp);
     void ResetTempModels(void);
     void SpawnTempModel(int count, spawnthing_t *sp);
 

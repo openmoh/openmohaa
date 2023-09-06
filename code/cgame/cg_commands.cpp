@@ -2706,8 +2706,7 @@ void ClientGameCommandManager::DeleteEmitters(dtiki_t *tiki)
     for (i = m_emitters.NumObjects(); i > 0; i--) {
         spawnthing = m_emitters.ObjectAt(i);
         if (spawnthing->cgd.tiki == tiki) {
-            m_emitters.RemoveObjectAt(i);
-            delete spawnthing;
+            FreeSpawnthing(spawnthing);
         }
     }
 }
@@ -4539,28 +4538,6 @@ bool ClientGameCommandManager::GetTagPositionAndOrientation(str tagname, orienta
 }
 
 //===============
-// FreeAllTempModels
-//===============
-void ClientGameCommandManager::FreeAllTempModels(void)
-{
-    ctempmodel_t *p, *next;
-
-    // Go through all the temp models and run the physics if necessary,
-    // then add them to the ref
-    p = m_active_tempmodels.prev;
-    for (; p != &m_active_tempmodels; p = next) {
-        // grab next now, so if the local entity is freed we still have it
-        next = p->prev;
-        FreeTempModel(p);
-    }
-}
-
-void ClientGameCommandManager::FreeSomeTempModels(void)
-{
-    // FIXME: unimplemented
-}
-
-//===============
 // FreeAllEmitters
 //===============
 void ClientGameCommandManager::RestartAllEmitters(void)
@@ -4576,6 +4553,9 @@ void CG_RestartCommandManager()
     commandManager.FreeAllTempModels();
 }
 
+//=================
+// CG_CleanUpTempModels
+//=================
 void CG_CleanUpTempModels()
 {
     commandManager.FreeSomeTempModels();

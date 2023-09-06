@@ -533,6 +533,8 @@ extern "C" {
     // cg_tempmodels.cpp
     //
     extern cvar_t *cg_showtempmodels;
+    extern cvar_t *cg_max_tempmodels;
+    extern cvar_t *cg_reserve_tempmodels;
     extern cvar_t *cg_detail;
     extern cvar_t *cg_effectdetail;
     extern cvar_t *cg_effect_physicsrate;
