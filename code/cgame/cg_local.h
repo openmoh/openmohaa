@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cg_public.h"
 
 #ifdef __cplusplus
+class MemArchiver;
+
 extern "C" {
 #endif
 
@@ -912,6 +914,9 @@ qboolean CG_LightStyleColor(int style, int realtime, vec4_t color, qboolean clam
     //
     // cg_volumetricsmoke.cpp
     void CG_ResetVSSSources(void);
+#ifdef __cplusplus
+    void CG_ArchiveVSSGlobals(MemArchiver& archiver);
+#endif
     void CG_AddVSSSources(void);
 
     extern cvar_t *vss_draw;
