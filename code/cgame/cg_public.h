@@ -137,6 +137,8 @@ functions exported to the main executable
         void (*FS_FreeFile)(void *buf);
         int (*FS_WriteFile)(const char *qpath, const void *buffer, int size);
         void (*FS_WriteTextFile)(const char *qpath, const void *buffer, int size);
+        char** (*FS_ListFilteredFiles)(const char* path, const char* extension, const char* filter, qboolean wantSubs, int* numfiles, qboolean allowNonPureFilesOnDisk);
+        void (*FS_FreeFileList)(char **list);
         // add commands to the local console as if they were typed in
         // for map changing, etc.  The command is not executed immediately,
         // but will be executed in order the next time console commands
@@ -283,9 +285,11 @@ functions exported to the main executable
         qhandle_t (*R_RegisterModel)(const char *name);
         qhandle_t (*R_SpawnEffectModel)(const char *name, vec3_t pos, vec3_t axis[3]);
         qhandle_t (*R_RegisterServerModel)(const char *name);
+        const char * (*R_GetModelName)(qhandle_t hModel);
         void (*R_UnregisterServerModel)(qhandle_t hModel);
         qhandle_t (*R_RegisterShader)(const char *name);
         qhandle_t (*R_RegisterShaderNoMip)(const char *name);
+        const char* (*R_GetShaderName)(qhandle_t hShader);
         void (*R_AddRefEntityToScene)(const refEntity_t *ent, int parentEntityNumber);
         void (*R_AddRefSpriteToScene)(const refEntity_t *ent);
         void (*R_AddLightToScene)(const vec3_t origin, float intensity, float r, float g, float b, int type);
@@ -500,7 +504,7 @@ functions exported to the main executable
 		void (*CG_ReadNonPVSClient)(radarUnpacked_t* radarUnpacked);
 		void (*CG_UpdateRadar)();
 		size_t (*CG_SaveStateToBuffer)(void** out, int svsTime);
-		void (*CG_LoadStateToBuffer)(void* state, size_t size, int svsTime);
+		qboolean (*CG_LoadStateToBuffer)(void* state, size_t size, int svsTime);
 		void (*CG_CleanUpTempModels)();
 
         // FIXME

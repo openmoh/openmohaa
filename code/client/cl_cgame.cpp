@@ -605,6 +605,8 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->FS_FreeFile					= FS_FreeFile;
 	cgi->FS_WriteFile					= FS_WriteFile;
 	cgi->FS_WriteTextFile				= FS_WriteTextFile;
+    cgi->FS_ListFilteredFiles			= FS_ListFilteredFiles;
+    cgi->FS_FreeFileList				= FS_FreeFileList;
 
 	cgi->SendConsoleCommand				= Cbuf_AddText;
 
@@ -676,9 +678,11 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 	cgi->R_RegisterModel			= re.RegisterModel;
 	cgi->R_SpawnEffectModel			= re.SpawnEffectModel;
 	cgi->R_RegisterServerModel		= re.RegisterServerModel;
+	cgi->R_GetModelName				= re.GetModelName;
 	cgi->R_UnregisterServerModel	= re.UnregisterServerModel;
 	cgi->R_RegisterShader			= re.RegisterShader;
 	cgi->R_RegisterShaderNoMip		= re.RegisterShaderNoMip;
+	cgi->R_GetShaderName			= re.GetShaderName;
 
 	cgi->R_AddRefEntityToScene		= re.AddRefEntityToScene;
 	cgi->R_AddRefSpriteToScene		= re.AddRefSpriteToScene;
