@@ -30,7 +30,7 @@ template<typename key, typename value>
 class con_arrayset_enum;
 
 template<typename k, typename v>
-class con_arrayset : public con_set<k, v>
+class con_arrayset
 {
     friend class con_arrayset_enum<k, v>;
 
@@ -80,8 +80,9 @@ public:
     void Archive(Archiver& arc);
 #endif
 
-    void clear();
-    void resize(int count = 0);
+    void         clear();
+    void         resize(int count = 0);
+    unsigned int size() const;
 
     unsigned int findKeyIndex(const k& key);
     unsigned int addKeyIndex(const k& key);
@@ -193,6 +194,12 @@ void con_arrayset<key, value>::resize(int count)
         ++oldReverseTable;
         delete[] oldReverseTable;
     }
+}
+
+template<typename k, typename v>
+unsigned int con_arrayset<k, v>::size() const
+{
+    return count;
 }
 
 template<typename key, typename value>
