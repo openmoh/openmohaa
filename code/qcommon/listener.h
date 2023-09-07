@@ -330,22 +330,26 @@ public:
 	void operator delete( void *ptr );
 #endif
 
-	Event();
-	Event( const Event *ev );
-	Event( const Event &ev );
-	Event( int index );
-	Event( int index, int numArgs );
-	Event( const char* command, int numArgs = 0 );
-	Event
-	(
-		const char *command,
-		int flags,
-		const char *formatspec,		// Arguments are : 'e' (Entity) 'v' (Vector) 'i' (Integer) 'f' (Float) 's' (String) 'b' (Boolean).
-									// Uppercase arguments means optional.
-		const char *argument_names,
-		const char *documentation,
-		uchar type = EV_NORMAL
-	);
+    Event();
+    Event(const Event& ev);
+    Event(Event&& ev);
+    Event(int index);
+    Event(int index, int numArgs);
+    Event(const char* command);
+    Event(const char* command, int numArgs);
+    Event
+    (
+        const char* command,
+        int flags,
+        const char* formatspec,		// Arguments are : 'e' (Entity) 'v' (Vector) 'i' (Integer) 'f' (Float) 's' (String) 'b' (Boolean).
+        // Uppercase arguments means optional.
+        const char* argument_names,
+        const char* documentation,
+        byte type = EV_NORMAL
+    );
+
+    Event& operator=(const Event& ev);
+    Event& operator=(Event&& ev);
 
 	~Event();
 

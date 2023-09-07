@@ -537,8 +537,7 @@ void ViewMaster::PassEvent
    viewthing = ( Viewthing * )( ( Entity * )current_viewthing );
 	if ( viewthing )
 		{
-		event = new Event( ev );
-		viewthing->ProcessEvent( event );
+		viewthing->ProcessEvent( *ev );
 		}
 	}
 

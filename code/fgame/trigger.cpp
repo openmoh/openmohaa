@@ -1016,7 +1016,7 @@ void TouchField::SendEvent(Event *ev)
 
     // Check if our owner is still around
     if (owner) {
-        event = new Event(ontouch);
+        event = new Event(*ontouch);
         event->AddEntity(ev->GetEntity(1));
         owner->PostEvent(event, delay);
     } else {

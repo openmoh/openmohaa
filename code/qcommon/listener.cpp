@@ -1790,6 +1790,20 @@ void Event::LoadEvents()
 /*
 =======================
 Event
+=======================
+*/
+Event::Event()
+{
+    fromScript = false;
+    eventnum = 0;
+    data = NULL;
+    dataSize = 0;
+    maxDataSize = 0;
+}
+
+/*
+=======================
+Event
 
 Creates an event command
 =======================
@@ -1825,106 +1839,47 @@ Event::Event
 
 /*
 =======================
-~Event
-=======================
-*/
-Event::~Event()
-{
-	Clear();
-}
-
-/*
-=======================
-Event
-=======================
-*/
-Event::Event()
-{
-	fromScript = false;
-	eventnum = 0;
-	data = NULL;
-    dataSize = 0;
-    maxDataSize = 0;
-}
-
-/*
-=======================
-ErrorInternal
-=======================
-*/
-void Event::ErrorInternal( Listener *l, str text ) const
-{
-	str classname;
-	str eventname;
-
-	EVENT_DPrintf( "^~^~^ Game" );
-
-	classname = l->getClassname();
-	eventname = getName();
-
-	EVENT_DPrintf( " (Event: '%s', Object: '%s') : %s\n", eventname.c_str(), classname.c_str(), text.c_str() );
-}
-
-/*
-=======================
-Event
-=======================
-*/
-Event::Event( const Event *ev )
-{
-	fromScript = ev->fromScript;
-	eventnum = ev->eventnum;
-    dataSize = ev->dataSize;
-    maxDataSize = ev->maxDataSize;
-
-	if( dataSize )
-	{
-		data = new ScriptVariable[ dataSize ];
-
-		for( int i = 0; i < dataSize; i++ )
-		{
-			data[ i ] = ev->data[ i ];
-		}
-	}
-	else
-	{
-		data = NULL;
-	}
-
-#ifdef _DEBUG
-	name = ev->name;
-#endif
-}
-
-/*
-=======================
 Event
 =======================
 */
 Event::Event( const Event &ev )
 {
-	fromScript = ev.fromScript;
-	eventnum = ev.eventnum;
+    fromScript = ev.fromScript;
+    eventnum = ev.eventnum;
     dataSize = ev.dataSize;
     maxDataSize = ev.maxDataSize;
 
-	if( dataSize )
-	{
-		data = new ScriptVariable[ dataSize ];
+    if (dataSize)
+    {
+        data = new ScriptVariable[dataSize];
 
-		for( int i = 0; i < dataSize; i++ )
-		{
-			data[ i ] = ev.data[ i ];
-		}
-	}
-	else
-	{
-		data = NULL;
-	}
+        for (int i = 0; i < dataSize; i++)
+        {
+            data[i] = ev.data[i];
+        }
+    }
+    else
+    {
+        data = NULL;
+    }
 
 #ifdef _DEBUG
-	name = ev.name;
+    name = ev.name;
 #endif
+}
+
+Event::Event(Event&& ev)
+{
+    fromScript = ev.fromScript;
+    eventnum = ev.eventnum;
+    dataSize = ev.dataSize;
+    maxDataSize = ev.maxDataSize;
+	data = ev.data;
+
+	ev.data = NULL;
+	ev.dataSize = 0;
+	ev.maxDataSize = 0;
+	ev.eventnum = 0;
 }
 
 /*
@@ -1974,6 +1929,31 @@ Event
 Initializes the event with the specified command
 =======================
 */
+Event::Event(const char* command)
+{
+    eventnum = FindEventNum(command);
+    if (!eventnum)
+    {
+        EVENT_DPrintf("^~^~^ Event '%s' does not exist.\n", command);
+    }
+
+    fromScript = qfalse;
+    maxDataSize = 0;
+    dataSize = 0;
+    data = NULL;
+
+#ifdef _DEBUG
+    name = command;
+#endif
+}
+
+/*
+=======================
+Event
+
+Initializes the event with the specified command
+=======================
+*/
 Event::Event(const char* command, int numArgs)
 {
 	eventnum = FindEventNum(command);
@@ -1996,6 +1976,80 @@ Event::Event(const char* command, int numArgs)
 #ifdef _DEBUG
 	name = command;
 #endif
+}
+
+/*
+=======================
+~Event
+=======================
+*/
+Event::~Event()
+{
+    Clear();
+}
+
+Event& Event::operator=(const Event& ev)
+{
+    Clear();
+    fromScript = ev.fromScript;
+    eventnum = ev.eventnum;
+    dataSize = ev.dataSize;
+    maxDataSize = ev.maxDataSize;
+
+    if (dataSize)
+    {
+        data = new ScriptVariable[dataSize];
+
+        for (int i = 0; i < dataSize; i++)
+        {
+            data[i] = ev.data[i];
+        }
+    }
+    else
+    {
+        data = NULL;
+    }
+
+#ifdef _DEBUG
+    name = ev.name;
+#endif
+
+	return *this;
+}
+
+Event& Event::operator=(Event&& ev)
+{
+    Clear();
+    fromScript = ev.fromScript;
+    eventnum = ev.eventnum;
+    dataSize = ev.dataSize;
+    maxDataSize = ev.maxDataSize;
+    data = ev.data;
+
+    ev.data = NULL;
+    ev.dataSize = 0;
+    ev.maxDataSize = 0;
+    ev.eventnum = 0;
+
+    return *this;
+}
+
+/*
+=======================
+ErrorInternal
+=======================
+*/
+void Event::ErrorInternal(Listener* l, str text) const
+{
+    str classname;
+    str eventname;
+
+    EVENT_DPrintf("^~^~^ Game");
+
+    classname = l->getClassname();
+    eventname = getName();
+
+    EVENT_DPrintf(" (Event: '%s', Object: '%s') : %s\n", eventname.c_str(), classname.c_str(), text.c_str());
 }
 
 /*

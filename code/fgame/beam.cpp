@@ -765,19 +765,19 @@ void FuncBeam::Activate
 }
 
 void FuncBeam::UpdateEndpoint
-   (
-   Event *ev
-   )
+	(
+    Event* ev
+	)
 
-   {
-   if ( end )
-      {
-      Event *ev1 = new Event( ev );
+{
+    if (end)
+    {
+        Event* ev1 = new Event(std::move(*ev));
 
-      VectorCopy( end->origin, edict->s.origin2 );
-	  PostEvent( ev1, level.frametime );
-      }
-   }
+        VectorCopy(end->origin, edict->s.origin2);
+        PostEvent(ev1, level.frametime);
+    }
+}
 
 void FuncBeam::UpdateOrigin
    (
@@ -786,8 +786,8 @@ void FuncBeam::UpdateOrigin
 
    {
    if ( origin_target )
-      {
-      Event *ev1 = new Event( ev );
+   {
+       Event* ev1 = new Event(std::move(*ev));
 
       setOrigin(  origin_target->centroid );
 	  PostEvent( ev1, level.frametime );

@@ -120,7 +120,7 @@ bool UConnection::SendEvent
 		ptr = m_listeners.ObjectAt( i );
 		if( ptr )
 		{
-			Event *e = new Event( m_events.ObjectAt( i ) );
+			Event *e = new Event( *m_events.ObjectAt( i ) );
 
 			for( j = 1; j < numargs; j++ )
 			{

@@ -72,9 +72,7 @@ void VehicleCollisionEntity::EventDamage
 	Event *ev
 	)
 {
-	Event *event = new Event( ev );
-
-	m_pOwner->ProcessEvent( event );
+	m_pOwner->ProcessEvent(*ev);
 }
 
 void VehicleCollisionEntity::Solid

@@ -175,12 +175,10 @@ void ScriptTimer::Disable()
 
 void ScriptTimer::Enable()
 {
-	bEnabled = true;
+    bEnabled = true;
 
-	CancelEventsOfType( &EV_ScriptTimer_Think );
-
-	Event *ev = new Event( &EV_ScriptTimer_Think );
-	ProcessEvent( ev );
+    CancelEventsOfType(EV_ScriptTimer_Think);
+    ProcessEvent(EV_ScriptTimer_Think);
 }
 
 qboolean ScriptTimer::Done()

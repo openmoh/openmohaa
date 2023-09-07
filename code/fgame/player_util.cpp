@@ -538,7 +538,7 @@ void Player::LogStats(Event *ev)
     // FIXME: FS
     gi.FS_Flush(logfile);
 
-    Event *ev1 = new Event(ev);
+    Event *ev1 = new Event(std::move(*ev));
     PostEvent(ev1, 1);
 }
 

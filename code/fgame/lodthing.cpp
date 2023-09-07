@@ -190,8 +190,7 @@ void LODMaster::PassEvent
 		ScriptError( "No LOD Model" );
 	}
 
-	Event *event = new Event( ev );
-	m_current->ProcessEvent( event );
+	m_current->ProcessEvent(*ev);
 }
 
 CLASS_DECLARATION( Animate, LODSlave, "lodslave" )

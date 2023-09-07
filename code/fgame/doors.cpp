@@ -630,7 +630,7 @@ void Door::DoorBlocked(Event *ev)
 
     assert(master);
     if ((master) && (master != this)) {
-        master->ProcessEvent(new Event(ev));
+        master->ProcessEvent(*ev);
         return;
     }
 

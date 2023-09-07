@@ -3572,8 +3572,7 @@ void Weapon::WeaponSound(Event *ev)
     }
 
     if (owner) {
-        e = new Event(ev);
-        owner->ProcessEvent(e);
+        owner->ProcessEvent(*ev);
     } else {
         Item::BroadcastAIEvent(AI_EVENT_WEAPON_FIRE);
     }

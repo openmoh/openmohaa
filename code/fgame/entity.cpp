@@ -3076,7 +3076,7 @@ void Entity::Sink(Event *ev)
         }
 
         if (target < myalpha) {
-            Event *event = new Event(ev);
+            Event *event = new Event(std::move(*ev));
             PostEvent(event, FRAMETIME);
         }
 

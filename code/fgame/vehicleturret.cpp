@@ -421,20 +421,18 @@ void VehicleTurretGun::EventKilled(Event *ev)
 
 void VehicleTurretGun::EventDamage(Event *ev)
 {
-    Event *event = new Event(ev);
-
     if (owner) {
-        owner->ProcessEvent(event);
+        owner->ProcessEvent(*ev);
         return;
     }
 
     if (m_pVehicleOwner) {
-        m_pVehicleOwner->ProcessEvent(event);
+        m_pVehicleOwner->ProcessEvent(*ev);
         return;
     }
 
     if (!m_bUseRemoteControl) {
-        DamageEvent(event);
+        DamageEvent(ev);
         return;
     }
 
@@ -442,7 +440,7 @@ void VehicleTurretGun::EventDamage(Event *ev)
         Player *player = (Player *)m_pRemoteOwner.Pointer();
 
         if (player->m_pVehicle) {
-            player->m_pVehicle->ProcessEvent(event);
+            player->m_pVehicle->ProcessEvent(*ev);
             return;
         }
     }

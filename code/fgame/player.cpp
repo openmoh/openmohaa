@@ -2964,7 +2964,7 @@ void Player::Killed(Event *ev)
     //  Custom killed event will do the job
     //
     if (m_pKilledEvent) {
-        event = new Event(m_pKilledEvent);
+        event = new Event(*m_pKilledEvent);
         for (int i = 1; i <= ev->NumArgs(); i++) {
             event->AddValue(ev->GetValue(i));
         }

@@ -57,7 +57,7 @@ class ScriptCommandEvent : public Event
 {
 public:
     ScriptCommandEvent(unsigned int eventNum);
-    ScriptCommandEvent(unsigned int eventNum, size_t numArgs);
+    ScriptCommandEvent(unsigned int eventNum, int numArgs);
 };
 
 ScriptCommandEvent::ScriptCommandEvent(unsigned int eventNum)
@@ -66,8 +66,8 @@ ScriptCommandEvent::ScriptCommandEvent(unsigned int eventNum)
     fromScript = true;
 }
 
-ScriptCommandEvent::ScriptCommandEvent(unsigned int eventNum, size_t numArgs)
-	: Event(eventNum)
+ScriptCommandEvent::ScriptCommandEvent(unsigned int eventNum, int numArgs)
+	: Event(eventNum, numArgs)
 {
 	fromScript = true;
 }
