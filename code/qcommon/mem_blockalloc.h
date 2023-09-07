@@ -342,7 +342,7 @@ template<typename a, size_t b>
 void MEM_BlockAlloc<a, b>::Free(void *ptr) noexcept
 {
 #if _DEBUG_MEMBLOCK
-    block_s<a, b> *block = (block_s<a, b> *)ptr;
+    block_t *block = (block_t*)ptr - offsetof(block_t, data);
 
     LL_SafeRemoveRoot(m_Block, block, next_block, prev_block);
 
