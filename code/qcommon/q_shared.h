@@ -150,9 +150,11 @@ extern "C" {
 #ifndef Q3_VM
 
 #ifdef _DEBUG_MEM
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
+#  ifdef WIN32
+#    define _CRTDBG_MAP_ALLOC
+#    include <stdlib.h>
+#    include <crtdbg.h>
+#  endif
 
 #define Z_Malloc malloc
 #define Z_TagMalloc(size, tag) malloc( size )
