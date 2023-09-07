@@ -78,8 +78,6 @@ const char *Z_NumberStringPointer( int iNum )
 	return ( const char * )numberstring[ iNum - '0' ].mem;
 }
 
-#ifndef _DEBUG_MEM
-
 /*
 ========================
 Z_Free
@@ -114,8 +112,6 @@ void Z_Free( void *ptr )
 	free( block );
 }
 
-#endif
-
 /*
 ========================
 Z_FreeTags
@@ -135,8 +131,6 @@ void Z_FreeTags( int tag )
 	mem_blocks[ tag ].prev = &mem_blocks[ tag ];
 	mem_blocks[ tag ].next = &mem_blocks[ tag ];
 }
-
-#ifndef _DEBUG_MEM
 
 /*
 ========================
@@ -179,8 +173,6 @@ void *Z_TagMalloc( int size, int tag )
 
 	return ( void * )( ( byte * )block + sizeof( memblock_t ) );
 }
-
-#endif
 
 /*
 ========================
@@ -486,8 +478,6 @@ Com_InitHunkZoneMemory
 void Com_InitHunkMemory( void ) {
 }
 
-#ifndef _DEBUG_MEM
-
 /*
 ========================
 Z_Malloc
@@ -501,5 +491,3 @@ void *Z_Malloc( int size ) {
 
 	return ptr;
 }
-
-#endif

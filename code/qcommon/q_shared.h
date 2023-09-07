@@ -155,10 +155,6 @@ extern "C" {
 #    include <stdlib.h>
 #    include <crtdbg.h>
 #  endif
-
-#define Z_Malloc malloc
-#define Z_TagMalloc(size, tag) malloc( size )
-#define Z_Free(ptr) free(ptr)
 #endif
 
 #include <assert.h>

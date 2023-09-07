@@ -1050,11 +1050,9 @@ temp file loading
 const char *Z_EmptyStringPointer( void );
 const char *Z_NumberStringPointer( int iNum );
 
-#ifndef _DEBUG_MEM
 void *Z_TagMalloc(int size, int tag );
 void *Z_Malloc(int size );
 void Z_Free( void *ptr );
-#endif
 
 void Z_FreeTags( int tag );
 
