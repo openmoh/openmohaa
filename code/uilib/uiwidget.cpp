@@ -668,7 +668,7 @@ str UIReggedMaterial::GetName
 
 UIWidget::UIWidget()
 {
-	VectorSet2D( m_vVirtualScale, 1.0f, 1.0f );
+	VectorSet2D( m_vVirtualScale, 1, 1 );
 	m_parent = NULL;
 	m_background_color.set( 0.075f, 0.097f, 0.139f, 1.0f );
 	m_foreground_color = UColor(UHudColor);
@@ -700,7 +700,15 @@ UIWidget::UIWidget()
 	m_iFontAlignmentHorizontal = FONT_JUSTHORZ_CENTER;
 	m_iFontAlignmentVertical = FONT_JUSTVERT_CENTER;
 	m_bVirtual = false;
+	m_scaleCvar = NULL;
 	m_enabledCvar = "";
+
+	m_fadeSequenceDelayStart = 0;
+	m_fadeSequenceFadeIn = 0;
+	m_fadeSequenceHold = 0;
+	m_fadeSequenceFadeOut = 0;
+	m_fadeSequenceState = fadesequence_t::SEQUENCE_NONE;
+	m_fadeSequenceAlpha = 0;
 
 	UIRect2D frame( 6.0f, 6.0f, 100.0f, 13.0f );
 	setFrame( frame );
