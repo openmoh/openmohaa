@@ -2695,6 +2695,15 @@ void *CL_RefMalloc(int size) {
 
 /*
 ============
+CL_RefFree
+============
+*/
+void CL_RefFree(void* ptr) {
+	Z_Free(ptr);
+}
+
+/*
+============
 CL_RefClear
 ============
 */
@@ -2851,7 +2860,7 @@ void CL_InitRef( void ) {
 	ri.Milliseconds = CL_ScaledMilliseconds;
 	ri.LV_ConvertString = Sys_LV_CL_ConvertString;
 	ri.Malloc = CL_RefMalloc;
-	ri.Free = Z_Free;
+	ri.Free = CL_RefFree;
 	ri.Clear = CL_RefClear;
     ri.Hunk_Clear = CL_RefStaticClear;
 #ifdef HUNK_DEBUG

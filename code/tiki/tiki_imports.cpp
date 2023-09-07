@@ -38,8 +38,6 @@ void TIKI_DPrintf( const char *fmt, ... )
 	Com_DPrintf( "%s", msg );
 }
 
-#ifndef _DEBUG_MEM
-
 void TIKI_Free( void *ptr )
 {
 	Z_Free( ptr );
@@ -49,8 +47,6 @@ void *TIKI_Alloc( size_t size )
 {
 	return Z_TagMalloc( size, TAG_TIKI );
 }
-
-#endif
 
 void TIKI_FreeFile( void *buffer )
 {
