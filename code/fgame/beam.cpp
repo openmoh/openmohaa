@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "beam.h"
 #include "../qcommon/qfiles.h"
 #include "game.h"
+#include <utility>
 
 /*****************************************************************************/
 /*QUAKED func_beam (0 0.25 .5) (-8 -8 -8) (8 8 8) START_ON PERSIST WAVE NOISE

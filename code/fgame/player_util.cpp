@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "object.h"
 #include "g_spawn.h"
 #include "scriptexception.h"
+#include <utility>
 
 extern Event EV_Entity_Start;
 
