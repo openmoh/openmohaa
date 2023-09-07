@@ -246,13 +246,13 @@ void Animate::NewAnim(int animnum, int slot, float weight)
             for (ii = 0; ii < cmds.num_cmds; ii++) {
                 const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
 
-                ev = new AnimationEvent(single_cmd.args[0], single_cmd.num_args);
+                AnimationEvent ev(single_cmd.args[0], single_cmd.num_args);
 
-                ev->SetAnimationNumber(animnum);
-                ev->SetAnimationFrame(0);
+                ev.SetAnimationNumber(animnum);
+                ev.SetAnimationFrame(0);
 
                 for (j = 1; j < single_cmd.num_args; j++) {
-                    ev->AddToken(single_cmd.args[j]);
+                    ev.AddToken(single_cmd.args[j]);
                 }
 
                 ProcessEvent(ev);
@@ -264,14 +264,21 @@ void Animate::NewAnim(int animnum, int slot, float weight)
 
             for (ii = 0; ii < cmds.num_cmds; ii++) {
                 const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+                char* cmdName = (char*)alloca(strlen(single_cmd.args[0]) + 8 + 1);
 
-                ev = new AnimationEvent(str("_client_") + single_cmd.args[0], single_cmd.num_args);
+                strcpy(cmdName, "_client_");
+                strcpy(cmdName + 8, single_cmd.args[0]);
 
-                ev->SetAnimationNumber(animnum);
-                ev->SetAnimationFrame(0);
+                AnimationEvent ev(cmdName, single_cmd.num_args);
+                if (!ev.eventnum) {
+                    continue;
+                }
+
+                ev.SetAnimationNumber(animnum);
+                ev.SetAnimationFrame(0);
 
                 for (j = 1; j < single_cmd.num_args; j++) {
-                    ev->AddToken(single_cmd.args[j]);
+                    ev.AddToken(single_cmd.args[j]);
                 }
 
                 ProcessEvent(ev);
@@ -320,14 +327,21 @@ void Animate::NewAnim(int animnum, int slot, float weight)
 
             for (ii = 0; ii < cmds.num_cmds; ii++) {
                 const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+                char* cmdName = (char*)alloca(strlen(single_cmd.args[0]) + 8 + 1);
 
-                ev = new AnimationEvent(str("_client_") + single_cmd.args[0], single_cmd.num_args);
+                strcpy(cmdName, "_client_");
+                strcpy(cmdName + 8, single_cmd.args[0]);
 
-                ev->SetAnimationNumber(animnum);
-                ev->SetAnimationFrame(i);
+                AnimationEvent ev(cmdName, single_cmd.num_args);
+                if (!ev.eventnum) {
+                    continue;
+                }
+
+                ev.SetAnimationNumber(animnum);
+                ev.SetAnimationFrame(i);
 
                 for (j = 1; j < single_cmd.num_args; j++) {
-                    ev->AddToken(single_cmd.args[j]);
+                    ev.AddToken(single_cmd.args[j]);
                 }
 
                 PostEvent(ev, time, 1 << slot);
@@ -472,14 +486,21 @@ void Animate::DoExitCommands(int slot)
 
         for (ii = 0; ii < cmds.num_cmds; ii++) {
             const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+            char* cmdName = (char*)alloca(strlen(single_cmd.args[0]) + 8 + 1);
 
-            ev = new AnimationEvent(str("_client_") + single_cmd.args[0], single_cmd.num_args);
+            strcpy(cmdName, "_client_");
+            strcpy(cmdName + 8, single_cmd.args[0]);
 
-            ev->SetAnimationNumber(edict->s.frameInfo[slot].index);
-            ev->SetAnimationFrame(0);
+            AnimationEvent ev(cmdName, single_cmd.num_args);
+            if (!ev.eventnum) {
+                continue;
+            }
+
+            ev.SetAnimationNumber(edict->s.frameInfo[slot].index);
+            ev.SetAnimationFrame(0);
 
             for (j = 1; j < single_cmd.num_args; j++) {
-                ev->AddToken(single_cmd.args[j]);
+                ev.AddToken(single_cmd.args[j]);
             }
 
             PostEvent(ev, 0);
