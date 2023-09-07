@@ -598,7 +598,7 @@ void ScriptVM::execCmdMethodCommon(op_parmNum_t param)
 
     const size_t arraysize = a.arraysize();
     if (arraysize == (size_t)-1) {
-        throw ScriptException("command '%s' applied to NIL", Event::GetEventName(eventNum).c_str());
+        throw ScriptException("command '%s' applied to NIL", Event::GetEventName(eventNum));
     }
 
     if (arraysize > 1) {
@@ -634,7 +634,7 @@ void ScriptVM::execCmdMethodCommon(op_parmNum_t param)
         // avoid useless allocations of const array
         Listener *const listener = a.listenerValue();
         if (!listener) {
-            throw ScriptException("command '%s' applied to NULL listener", Event::GetEventName(eventNum).c_str());
+            throw ScriptException("command '%s' applied to NULL listener", Event::GetEventName(eventNum));
         }
 
         executeCommand<true>(listener, param, eventNum);
@@ -653,7 +653,7 @@ void ScriptVM::execMethodCommon(op_parmNum_t param)
     Listener *const listener = a.listenerValue();
     if (!listener) {
         m_VMStack.GetTop().Clear();
-        throw ScriptException("command '%s' applied to NULL listener", Event::GetEventName(eventNum).c_str());
+        throw ScriptException("command '%s' applied to NULL listener", Event::GetEventName(eventNum));
     }
 
     executeCommand<true, true>(listener, param, eventNum);

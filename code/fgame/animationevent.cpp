@@ -29,11 +29,18 @@ CLASS_DECLARATION(Event, AnimationEvent, NULL) {
     {NULL, NULL}
 };
 
-AnimationEvent::AnimationEvent(str command, int numArgs)
+AnimationEvent::AnimationEvent(const char* command, int numArgs)
     : Event(command, numArgs)
 {
     anim_number = 0;
     anim_frame  = 0;
+}
+
+AnimationEvent::AnimationEvent(int eventNum, int numArgs)
+    : Event(eventNum, numArgs)
+{
+    anim_number = 0;
+    anim_frame = 0;
 }
 
 AnimationEvent::AnimationEvent(const Event& ev)

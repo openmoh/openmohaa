@@ -347,6 +347,40 @@ Event EV_Listener_WaitTillAnyTimeout
 	EV_NORMAL
 );
 
+CLASS_DECLARATION( Class, Listener, NULL )
+{
+	{ &EV_Listener_CommandDelay,				&Listener::CommandDelay },
+	{ &EV_Delete,								&Listener::EventDelete },
+	{ &EV_Remove,								&Listener::EventDelete },
+	{ &EV_ScriptRemove,							&Listener::EventDelete },
+	{ &EV_Listener_Classname,					&Listener::GetClassname },
+	{ &EV_Listener_InheritsFrom,				&Listener::EventInheritsFrom },
+	{ &EV_Listener_IsInheritedBy,				&Listener::EventIsInheritedBy },
+
+#ifdef WITH_SCRIPT_ENGINE
+	{ &EV_Listener_CancelFor,					&Listener::CancelFor },
+	{ &EV_Listener_CreateReturnThread,			&Listener::CreateReturnThread },
+	{ &EV_Listener_CreateThread,				&Listener::CreateThread },
+	{ &EV_Listener_ExecuteReturnScript,			&Listener::ExecuteReturnScript },
+	{ &EV_Listener_ExecuteScript,				&Listener::ExecuteScript },
+	{ &EV_Listener_EndOn,						&Listener::EventEndOn },
+	{ &EV_Listener_GetOwner,					&Listener::EventGetOwner },
+	{ &EV_Listener_Notify,						&Listener::EventNotify },
+	{ &EV_DelayThrow,							&Listener::EventDelayThrow },
+	{ &EV_Throw,								&Listener::EventThrow },
+	{ &EV_Listener_Unregister,					&Listener::EventUnregister },
+	{ &EV_Listener_WaitCreateReturnThread,		&Listener::WaitCreateReturnThread },
+	{ &EV_Listener_WaitCreateThread,			&Listener::WaitCreateThread },
+	{ &EV_Listener_WaitExecuteReturnScript,		&Listener::WaitExecuteReturnScript },
+	{ &EV_Listener_WaitExecuteScript,			&Listener::WaitExecuteScript },
+	{ &EV_Listener_WaitTill,					&Listener::WaitTill },
+	{ &EV_Listener_WaitTillTimeout,				&Listener::WaitTillTimeout },
+	{ &EV_Listener_WaitTillAny,					&Listener::WaitTillAny },
+	{ &EV_Listener_WaitTillAnyTimeout,			&Listener::WaitTillAnyTimeout },
+#endif
+	{ NULL, NULL }
+};
+
 cvar_t	*g_showevents;
 cvar_t	*g_eventlimit;
 cvar_t	*g_timeevents;
@@ -1184,14 +1218,9 @@ void Event::operator delete( void *ptr )
 FindEventNum
 =======================
 */
-unsigned int Event::FindEventNum( str s )
+unsigned int Event::FindEventNum( const char* s )
 {
-	command_t cmd;
-
-	cmd.command = s;
-	cmd.flags = 0;
-	cmd.type = -1;
-
+	command_t cmd(s, EV_NORMAL);
 	return commandList.findKeyIndex( cmd );
 }
 
@@ -1259,7 +1288,7 @@ void Event::ListCommands
 			continue;
 		}
 
-		if ( mask && Q_stricmpn( command->command.c_str(), mask, l ) )
+		if ( mask && Q_stricmpn( command->command, mask, l ) )
 		{
 			continue;
 		}
@@ -1281,7 +1310,7 @@ void Event::ListCommands
 			text[ p++ ] = '%';
 		}
 
-		EVENT_Printf( "%4d : %s%s\n", eventnum, text.c_str(), command->command.c_str() );
+		EVENT_Printf( "%4d : %s%s\n", eventnum, text.c_str(), command->command );
 	}
 
 	EVENT_Printf( "\n* = console command.\nC = cheat command.\n%% = cache command.\n\n"
@@ -1410,7 +1439,7 @@ void Event::PendingEvents
 		assert( event );
 		assert( event->m_sourceobject );
 
-		if ( !mask || !Q_stricmpn( event->event->getName().c_str(), mask, l ) )
+		if ( !mask || !Q_stricmpn( event->event->getName(), mask, l ) )
 		{
 			num++;
 			//Event::PrintEvent( event );
@@ -1653,7 +1682,7 @@ GetEventName
 Returns the specified event name
 =======================
 */
-str& Event::GetEventName( int eventnum )
+const char* Event::GetEventName( int eventnum )
 {
 	command_t *cmd;
 
@@ -1687,7 +1716,7 @@ int Event::compareEvents( const void *arg1, const void *arg2 )
 	command_t *cmd1 = &commandList[ num1 ];
 	command_t *cmd2 = &commandList[ num2 ];
 
-	return Q_stricmp( cmd1->command.c_str(), cmd2->command.c_str() );
+	return Q_stricmp( cmd1->command, cmd2->command );
 }
 
 /*
@@ -1945,20 +1974,12 @@ Event
 Initializes the event with the specified command
 =======================
 */
-Event::Event( str command, int numArgs )
+Event::Event(const char* command, int numArgs)
 {
-	command_t c;
-
-	c.command = command.c_str();
-	c.flags = 0;
-	c.type = EV_NORMAL;
-
-	c.command.tolower();
-
-	eventnum = commandList.findKeyIndex( c );
+	eventnum = FindEventNum(command);
 	if( !eventnum )
 	{
-		EVENT_DPrintf( "^~^~^ Event '%s' does not exist.\n", command.c_str() );
+		EVENT_DPrintf( "^~^~^ Event '%s' does not exist.\n", command );
 	}
 
     fromScript = qfalse;
@@ -2474,7 +2495,7 @@ EventDef *Event::getInfo()
 getName
 =======================
 */
-str& Event::getName() const
+const char* Event::getName() const
 {
 	return GetEventName( eventnum );
 }
@@ -2733,7 +2754,7 @@ EventQueueNode *Listener::PostEventInternal( Event *ev, float delay, int flags )
 		if( !ev->eventnum )
 		{
 #ifdef _DEBUG
-			EVENT_DPrintf( "^~^~^ Failed execution of event '%s' for class '%s'\n", ev->name.c_str(), getClassname() );
+			EVENT_DPrintf( "^~^~^ Failed execution of event '%s' for class '%s'\n", ev->name, getClassname() );
 #else
 			EVENT_DPrintf( "^~^~^ Failed execution of event for class '%s'\n", getClassname() );
 #endif
@@ -2935,7 +2956,7 @@ ScriptVariable& Listener::ProcessEventReturn( Event *ev )
 	if( !ev->eventnum )
 	{
 #ifdef _DEBUG
-		EVENT_Printf( "^~^~^ Failed execution of event '%s' for class '%s'\n", ev->name.c_str(), c->classname );
+		EVENT_Printf( "^~^~^ Failed execution of event '%s' for class '%s'\n", ev->name, c->classname );
 #else
 		EVENT_Printf( "^~^~^ Failed execution of event for class '%s'\n", c->classname );
 #endif
@@ -2949,7 +2970,7 @@ ScriptVariable& Listener::ProcessEventReturn( Event *ev )
 	if( responses == NULL )
 	{
 
-		EVENT_Printf( "^~^~^ Failed execution of command '%s' for class '%s'\n", Event::GetEventName( ev->eventnum ).c_str(), c->classname );
+		EVENT_Printf( "^~^~^ Failed execution of command '%s' for class '%s'\n", Event::GetEventName( ev->eventnum ), c->classname );
 		delete ev;
 		return m_Return;
 	}
@@ -3000,7 +3021,7 @@ bool Listener::ProcessScriptEvent( Event &ev )
 	if( !ev.eventnum )
 	{
 #ifdef _DEBUG
-		EVENT_Printf( "^~^~^ Failed execution of event '%s' for class '%s'\n", ev.name.c_str(), c->classname );
+		EVENT_Printf( "^~^~^ Failed execution of event '%s' for class '%s'\n", ev.name, c->classname );
 #else
 		EVENT_Printf( "^~^~^ Failed execution of event for class '%s'\n", c->classname );
 #endif
@@ -4494,36 +4515,13 @@ void Listener::ExecuteThread( str scriptName, str labelName, Event& params )
 
 #endif
 
-CLASS_DECLARATION( Class, Listener, NULL )
+command_t::command_t()
 {
-	{ &EV_Listener_CommandDelay,				&Listener::CommandDelay },
-	{ &EV_Delete,								&Listener::EventDelete },
-	{ &EV_Remove,								&Listener::EventDelete },
-	{ &EV_ScriptRemove,							&Listener::EventDelete },
-	{ &EV_Listener_Classname,					&Listener::GetClassname },
-	{ &EV_Listener_InheritsFrom,				&Listener::EventInheritsFrom },
-	{ &EV_Listener_IsInheritedBy,				&Listener::EventIsInheritedBy },
+}
 
-#ifdef WITH_SCRIPT_ENGINE
-	{ &EV_Listener_CancelFor,					&Listener::CancelFor },
-	{ &EV_Listener_CreateReturnThread,			&Listener::CreateReturnThread },
-	{ &EV_Listener_CreateThread,				&Listener::CreateThread },
-	{ &EV_Listener_ExecuteReturnScript,			&Listener::ExecuteReturnScript },
-	{ &EV_Listener_ExecuteScript,				&Listener::ExecuteScript },
-	{ &EV_Listener_EndOn,						&Listener::EventEndOn },
-	{ &EV_Listener_GetOwner,					&Listener::EventGetOwner },
-	{ &EV_Listener_Notify,						&Listener::EventNotify },
-	{ &EV_DelayThrow,							&Listener::EventDelayThrow },
-	{ &EV_Throw,								&Listener::EventThrow },
-	{ &EV_Listener_Unregister,					&Listener::EventUnregister },
-	{ &EV_Listener_WaitCreateReturnThread,		&Listener::WaitCreateReturnThread },
-	{ &EV_Listener_WaitCreateThread,			&Listener::WaitCreateThread },
-	{ &EV_Listener_WaitExecuteReturnScript,		&Listener::WaitExecuteReturnScript },
-	{ &EV_Listener_WaitExecuteScript,			&Listener::WaitExecuteScript },
-	{ &EV_Listener_WaitTill,					&Listener::WaitTill },
-	{ &EV_Listener_WaitTillTimeout,				&Listener::WaitTillTimeout },
-	{ &EV_Listener_WaitTillAny,					&Listener::WaitTillAny },
-	{ &EV_Listener_WaitTillAnyTimeout,			&Listener::WaitTillAnyTimeout },
-#endif
-	{ NULL, NULL }
-};
+command_t::command_t(const char* name, byte t)
+	: command(name)
+	, type(t)
+{
+
+}

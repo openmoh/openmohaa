@@ -265,11 +265,14 @@ void Animate::NewAnim(int animnum, int slot, float weight)
             for (ii = 0; ii < cmds.num_cmds; ii++) {
                 const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
                 char* cmdName = (char*)alloca(strlen(single_cmd.args[0]) + 8 + 1);
+                int eventNum;
 
                 strcpy(cmdName, "_client_");
                 strcpy(cmdName + 8, single_cmd.args[0]);
 
-                AnimationEvent ev(cmdName, single_cmd.num_args);
+                eventNum = Event::FindEventNum(cmdName);
+
+                AnimationEvent ev(eventNum, single_cmd.num_args);
                 if (!ev.eventnum) {
                     continue;
                 }
@@ -328,11 +331,14 @@ void Animate::NewAnim(int animnum, int slot, float weight)
             for (ii = 0; ii < cmds.num_cmds; ii++) {
                 const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
                 char* cmdName = (char*)alloca(strlen(single_cmd.args[0]) + 8 + 1);
+                int eventNum;
 
                 strcpy(cmdName, "_client_");
                 strcpy(cmdName + 8, single_cmd.args[0]);
 
-                AnimationEvent ev(cmdName, single_cmd.num_args);
+                eventNum = Event::FindEventNum(cmdName);
+
+                AnimationEvent ev(eventNum, single_cmd.num_args);
                 if (!ev.eventnum) {
                     continue;
                 }
@@ -487,11 +493,14 @@ void Animate::DoExitCommands(int slot)
         for (ii = 0; ii < cmds.num_cmds; ii++) {
             const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
             char* cmdName = (char*)alloca(strlen(single_cmd.args[0]) + 8 + 1);
+            int eventNum;
 
             strcpy(cmdName, "_client_");
             strcpy(cmdName + 8, single_cmd.args[0]);
 
-            AnimationEvent ev(cmdName, single_cmd.num_args);
+            eventNum = Event::FindEventNum(cmdName);
+
+            AnimationEvent ev(eventNum, single_cmd.num_args);
             if (!ev.eventnum) {
                 continue;
             }

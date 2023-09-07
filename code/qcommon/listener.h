@@ -232,28 +232,32 @@ public:
 
 class command_t {
 public:
-    str			command;
+    const char*	command;
     int			flags;
-    uchar		type;
+    byte		type;
 
-    friend bool		operator==(const str& name, const command_t& command);
+public:
+	command_t();
+	command_t(const char* name, byte t);
+
+    friend bool		operator==(const char* name, const command_t& command);
     friend bool		operator==(const command_t& cmd1, const command_t& cmd2);
 };
 
-inline bool operator==(const str& name, const command_t& command)
+inline bool operator==(const char* name, const command_t& command)
 {
-    return command.command == name;
+    return !str::icmp(name, command.command);
 }
 
 #ifdef WITH_SCRIPT_ENGINE
 inline bool operator==(const command_t& cmd1, const command_t& cmd2)
 {
-    return (!cmd2.command.icmp(cmd1.command) && (cmd2.type == (uchar)-1 || cmd2.type == cmd1.type));
+    return (!str::icmp(cmd1.command, cmd2.command) && (cmd2.type == (uchar)-1 || cmd2.type == cmd1.type));
 }
 #else
 inline bool operator==(const command_t& cmd1, const command_t& cmd2)
 {
-    return (!cmd2.command.icmp(cmd1.command));
+    return (!str::icmp(cmd1.command, cmd2.command));
 }
 #endif
 
@@ -268,7 +272,7 @@ public:
 
 #ifdef _DEBUG
 	// should be used only for debugging purposes
-	str					name;
+	const char*			name;
 #endif
 
 private:
@@ -301,14 +305,14 @@ public:
 
 	static command_t *GetEventInfo( int eventnum );
 	static int GetEventFlags( int eventnum );
-	static str& GetEventName( int index );
+	static const char* GetEventName( int index );
 
 	static int compareEvents( const void *arg1, const void *arg2 );
 	static void SortEventList( Container< int > *sortedList );
 
 	virtual void ErrorInternal( Listener *l, str text ) const;
 
-	static unsigned int	FindEventNum( str s );
+	static unsigned int	FindEventNum( const char* s );
 	static unsigned int FindNormalEventNum( const_str s );
 	static unsigned int FindNormalEventNum( str s );
 	static unsigned int FindReturnEventNum( const_str s );
@@ -331,7 +335,7 @@ public:
 	Event( const Event &ev );
 	Event( int index );
 	Event( int index, int numArgs );
-	Event( str command, int numArgs = 0 );
+	Event( const char* command, int numArgs = 0 );
 	Event
 	(
 		const char *command,
@@ -355,7 +359,7 @@ public:
 	EventDef		*getInfo();
 #endif
 
-	str&			getName() const;
+	const char* getName() const;
 
 	void		AddContainer( Container< SafePtr< Listener > > *container );
 	void		AddEntity( Entity * ent );

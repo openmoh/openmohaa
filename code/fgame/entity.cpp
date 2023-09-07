@@ -5092,7 +5092,7 @@ qboolean Entity::CheckEventFlags(Event *event)
 
             ent = (Entity *)this;
             gi.SendServerCommand(
-                ent->edict - g_entities, "print \"Command '%s' not available from console\n\"", event->getName().c_str()
+                ent->edict - g_entities, "print \"Command '%s' not available from console\n\"", event->getName()
             );
         }
 
