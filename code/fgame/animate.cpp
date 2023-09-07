@@ -121,6 +121,40 @@ CLASS_DECLARATION(Entity, Animate, "animate") {
     {NULL,                            NULL                             }
 };
 
+
+static size_t GetLongestClientCmdLength(const tiki_cmd_t& cmds) {
+    size_t ii;
+    size_t longest = 0;
+
+    for (ii = 0; ii < cmds.num_cmds; ii++) {
+        const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+        size_t length = strlen(single_cmd.args[0]);
+        if (length > longest) {
+            longest = length;
+        }
+    }
+
+    return longest;
+}
+
+static size_t GetLongestClientCmdAllFramesLength(dtiki_t* tiki, int animnum, int numframes) {
+    tiki_cmd_t cmds;
+    size_t longest = 0;
+    int i;
+
+    for (i = 0; i < numframes; i++) {
+        // we want normal frame commands to occur right on the frame
+        if (gi.Frame_Commands_Client(tiki, animnum, i, &cmds)) {
+            size_t length = GetLongestClientCmdLength(cmds);
+            if (length > longest) {
+                longest = length;
+            }
+        }
+    }
+
+    return longest;
+}
+
 Animate::Animate()
 {
     entflags |= EF_ANIMATE;
@@ -260,31 +294,35 @@ void Animate::NewAnim(int animnum, int slot, float weight)
         }
 
         if (gi.Frame_Commands_Client(edict->tiki, animnum, TIKI_FRAME_ENTRY, &cmds)) {
+            size_t longest = GetLongestClientCmdLength(cmds);
             int ii, j;
 
-            for (ii = 0; ii < cmds.num_cmds; ii++) {
-                const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
-                char* cmdName = (char*)alloca(strlen(single_cmd.args[0]) + 8 + 1);
-                int eventNum;
+            if (longest) {
+                char* cmdName = (char*)alloca(longest + 8 + 1);
 
-                strcpy(cmdName, "_client_");
-                strcpy(cmdName + 8, single_cmd.args[0]);
+                for (ii = 0; ii < cmds.num_cmds; ii++) {
+                    const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+                    int eventNum;
 
-                eventNum = Event::FindEventNum(cmdName);
+                    strcpy(cmdName, "_client_");
+                    strcpy(cmdName + 8, single_cmd.args[0]);
 
-                AnimationEvent ev(eventNum, single_cmd.num_args);
-                if (!ev.eventnum) {
-                    continue;
+                    eventNum = Event::FindEventNum(cmdName);
+
+                    AnimationEvent ev(eventNum, single_cmd.num_args);
+                    if (!ev.eventnum) {
+                        continue;
+                    }
+
+                    ev.SetAnimationNumber(animnum);
+                    ev.SetAnimationFrame(0);
+
+                    for (j = 1; j < single_cmd.num_args; j++) {
+                        ev.AddToken(single_cmd.args[j]);
+                    }
+
+                    ProcessEvent(ev);
                 }
-
-                ev.SetAnimationNumber(animnum);
-                ev.SetAnimationFrame(0);
-
-                for (j = 1; j < single_cmd.num_args; j++) {
-                    ev.AddToken(single_cmd.args[j]);
-                }
-
-                ProcessEvent(ev);
             }
         }
     }
@@ -323,34 +361,39 @@ void Animate::NewAnim(int animnum, int slot, float weight)
     }
 
     time = 0.0f;
-    for (i = 0; i < numframes; i++, time += frametimes[slot]) {
-        // we want normal frame commands to occur right on the frame
-        if (gi.Frame_Commands_Client(edict->tiki, animnum, i, &cmds)) {
-            int ii, j;
 
-            for (ii = 0; ii < cmds.num_cmds; ii++) {
-                const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
-                char* cmdName = (char*)alloca(strlen(single_cmd.args[0]) + 8 + 1);
-                int eventNum;
+    const size_t longestAllFrames = GetLongestClientCmdAllFramesLength(edict->tiki, animnum, numframes);
+    if (longestAllFrames) {
+        char* cmdName = (char*)alloca(longestAllFrames + 8 + 1);
 
-                strcpy(cmdName, "_client_");
-                strcpy(cmdName + 8, single_cmd.args[0]);
+        for (i = 0; i < numframes; i++, time += frametimes[slot]) {
+            // we want normal frame commands to occur right on the frame
+            if (gi.Frame_Commands_Client(edict->tiki, animnum, i, &cmds)) {
+                int ii, j;
 
-                eventNum = Event::FindEventNum(cmdName);
+                for (ii = 0; ii < cmds.num_cmds; ii++) {
+                    const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+                    int eventNum;
 
-                AnimationEvent ev(eventNum, single_cmd.num_args);
-                if (!ev.eventnum) {
-                    continue;
+                    strcpy(cmdName, "_client_");
+                    strcpy(cmdName + 8, single_cmd.args[0]);
+
+                    eventNum = Event::FindEventNum(cmdName);
+
+                    AnimationEvent ev(eventNum, single_cmd.num_args);
+                    if (!ev.eventnum) {
+                        continue;
+                    }
+
+                    ev.SetAnimationNumber(animnum);
+                    ev.SetAnimationFrame(i);
+
+                    for (j = 1; j < single_cmd.num_args; j++) {
+                        ev.AddToken(single_cmd.args[j]);
+                    }
+
+                    PostEvent(ev, time, 1 << slot);
                 }
-
-                ev.SetAnimationNumber(animnum);
-                ev.SetAnimationFrame(i);
-
-                for (j = 1; j < single_cmd.num_args; j++) {
-                    ev.AddToken(single_cmd.args[j]);
-                }
-
-                PostEvent(ev, time, 1 << slot);
             }
         }
     }
@@ -488,31 +531,34 @@ void Animate::DoExitCommands(int slot)
     }
 
     if (gi.Frame_Commands_Client(edict->tiki, edict->s.frameInfo[slot].index, TIKI_FRAME_EXIT, &cmds)) {
-        int ii, j;
+        size_t longest = GetLongestClientCmdLength(cmds);
+        if (longest) {
+            char* cmdName = (char*)alloca(longest + 8 + 1);
+            int ii, j;
 
-        for (ii = 0; ii < cmds.num_cmds; ii++) {
-            const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
-            char* cmdName = (char*)alloca(strlen(single_cmd.args[0]) + 8 + 1);
-            int eventNum;
+            for (ii = 0; ii < cmds.num_cmds; ii++) {
+                const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
+                int eventNum;
 
-            strcpy(cmdName, "_client_");
-            strcpy(cmdName + 8, single_cmd.args[0]);
+                strcpy(cmdName, "_client_");
+                strcpy(cmdName + 8, single_cmd.args[0]);
 
-            eventNum = Event::FindEventNum(cmdName);
+                eventNum = Event::FindEventNum(cmdName);
 
-            AnimationEvent ev(eventNum, single_cmd.num_args);
-            if (!ev.eventnum) {
-                continue;
+                AnimationEvent ev(eventNum, single_cmd.num_args);
+                if (!ev.eventnum) {
+                    continue;
+                }
+
+                ev.SetAnimationNumber(edict->s.frameInfo[slot].index);
+                ev.SetAnimationFrame(0);
+
+                for (j = 1; j < single_cmd.num_args; j++) {
+                    ev.AddToken(single_cmd.args[j]);
+                }
+
+                PostEvent(ev, 0);
             }
-
-            ev.SetAnimationNumber(edict->s.frameInfo[slot].index);
-            ev.SetAnimationFrame(0);
-
-            for (j = 1; j < single_cmd.num_args; j++) {
-                ev.AddToken(single_cmd.args[j]);
-            }
-
-            PostEvent(ev, 0);
         }
     }
 
