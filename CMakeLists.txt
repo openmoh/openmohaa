@@ -22,6 +22,13 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	add_compile_options(-Wno-pointer-bool-conversion)
 endif()
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	# Add this option on gcc to prevent functions from having the STB_GNU_UNIQUE binding
+	# Otherwise, it would prevent libraries from being unloaded
+	# which will cause undefined behavior and crashes due to memory corruption
+	add_compile_options(-fno-gnu-unique)
+endif()
+
 if(DEBUG_MEMORY)
 	add_definitions(-D_DEBUG_MEM)
 endif()
