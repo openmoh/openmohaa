@@ -2111,22 +2111,12 @@ Event EV_ScriptModel_SetAnim
 	"Sets the script model's animation",
 	EV_NORMAL
 	);
-Event EV_ScriptModel_AnimOnce
-	( 
-	"animonce",
-	EV_DEFAULT,
-	"s",
-	"anim_name",
-	"Sets the script model's animation but only plays it once",
-	EV_NORMAL
-	);
 
 CLASS_DECLARATION( ScriptSlave, ScriptModel, "script_model" )
 	{
 	   { &EV_Gib,							&ScriptModel::GibEvent },
 		{ &EV_SetAngle,						&ScriptModel::SetAngleEvent },
       { &EV_ScriptModel_SetAnim,			&ScriptModel::SetAnimEvent },
-      { &EV_ScriptModel_AnimOnce,			&ScriptModel::AnimOnceEvent },
       { &EV_Model,							&ScriptModel::SetModelEvent },
   		{ NULL, NULL },
 	};
@@ -2167,21 +2157,6 @@ void ScriptModel::SetAnimEvent(Event* ev)
         }
     }
 }
-
-void ScriptModel::AnimOnceEvent
-   (
-   Event *ev
-   )
-
-   {
-   const char * animname;
-
-   animname = ev->GetString( 1 );
-   if( animname && strlen( animname ) && gi.modeltiki( model ) )
-      {
-	   NewAnim( animname );
-      }
-   }
 
 void ScriptModel::SetAngleEvent
 	(

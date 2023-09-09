@@ -259,7 +259,6 @@ class ScriptModel : public ScriptSlave
 		void					SetAngleEvent( Event *ev );
 		void					SetModelEvent( Event *ev );
 		void					SetAnimEvent( Event *ev );
-		void					AnimOnceEvent( Event *ev );
 	};
 
 class ScriptOrigin : public ScriptSlave
