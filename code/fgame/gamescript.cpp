@@ -882,7 +882,7 @@ ScriptThread *ScriptThreadLabel::Create( Listener *listener )
 	}
 
 	ScriptClass *scriptClass = new ScriptClass( m_Script, listener );
-	ScriptThread *thread = Director.CreateScriptThread( scriptClass, m_Label );
+	ScriptThread* thread = new ScriptThread(scriptClass, m_Script->m_State.FindLabel(m_Label));
 
 	return thread;
 }
