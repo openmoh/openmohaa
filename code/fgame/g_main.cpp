@@ -248,9 +248,6 @@ void G_InitGame(int levelTime, int randomSeed)
     // set some level globals
     level.svsStartTime = levelTime;
     level.specialgame  = sv_specialgame->integer ? true : false;
-    if (level.specialgame) {
-        gi.cvar_set("protocol", "9");
-    }
 
     G_InitConsoleCommands();
 
