@@ -2145,32 +2145,28 @@ void ScriptModel::SetModelEvent
    {
    ScriptSlave::SetModelEvent( ev );
 
-   if( ( gi.modeltiki( model ) ) && !mins.length() && !maxs.length() )
+   if( edict->tiki && !mins.length() && !maxs.length() )
       {
       gi.CalculateBounds( edict->tiki, edict->s.scale, mins, maxs );
       }
    }
 
-void ScriptModel::SetAnimEvent
-   (
-   Event *ev
-   )
+void ScriptModel::SetAnimEvent(Event* ev)
+{
+    str animname;
 
-   {
-   const char * animname;
+    animname = ev->GetString(1);
+    if (animname.length() && edict->tiki)
+    {
+        int animnum;
 
-   animname = ev->GetString( 1 );
-   if( animname && strlen( animname ) && gi.modeltiki( model ) )
-      {
-      int animnum;
-
-	  animnum = gi.Anim_NumForName( edict->tiki, animname );
-      if ( animnum >= 0 )
-         {
-         NewAnim( animnum );
-         }
-      }
-   }
+        animnum = gi.Anim_NumForName(edict->tiki, animname);
+        if (animnum >= 0)
+        {
+            NewAnim(animnum);
+        }
+    }
+}
 
 void ScriptModel::AnimOnceEvent
    (
