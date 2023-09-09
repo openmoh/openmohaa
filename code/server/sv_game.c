@@ -894,6 +894,10 @@ PF_Tag_NameToNum
 */
 int PF_Tag_NameToNum( dtiki_t *tiki, const char *name )
 {
+	if (!tiki) {
+		return -1;
+	}
+
 	return TIKI_Tag_NameToNum( tiki, name );
 }
 
@@ -904,6 +908,10 @@ PF_Tag_NumToName
 */
 const char *PF_Tag_NumToName( dtiki_t *tiki, int num )
 {
+	if (!tiki) {
+		return NULL;
+	}
+
 	return TIKI_Tag_NumToName( tiki, num );
 }
 

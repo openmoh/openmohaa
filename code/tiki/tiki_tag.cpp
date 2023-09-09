@@ -55,7 +55,13 @@ TIKI_TransformInternal
 */
 SkelMat4* TIKI_TransformInternal(dtiki_t* tiki, int entnum, int tagnum)
 {
-	skeletor_c* skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
+    skeletor_c* skeletor;
+
+    if (tagnum < 0 || !tiki || tagnum >= tiki->m_boneList.NumChannels()) {
+        return NULL;
+    }
+
+	skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
 	return &skeletor->GetBoneFrame(tagnum);
 }
 
@@ -66,7 +72,13 @@ TIKI_IsOnGroundInternal
 */
 qboolean TIKI_IsOnGroundInternal(dtiki_t* tiki, int entnum, int tagnum, float threshold)
 {
-	skeletor_c* skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
+	skeletor_c* skeletor;
+
+    if (tagnum < 0 || !tiki || tagnum >= tiki->m_boneList.NumChannels()) {
+		return qfalse;
+    }
+
+	skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
 	return skeletor->IsBoneOnGround(tagnum, threshold);
 }
 
@@ -77,6 +89,10 @@ TIKI_OrientationInternal
 */
 orientation_t TIKI_OrientationInternal(dtiki_t* tiki, int entnum, int tagnum, float scale)
 {
+	if (tagnum < 0 || !tiki || tagnum >= tiki->m_boneList.NumChannels()) {
+		return orientation_t{};
+	}
+
 	const skeletor_c* skeletor = (skeletor_c*)TIKI_GetSkeletor(tiki, entnum);
 	const SkelMat4& pTransform = skeletor->GetBoneFrame(tagnum);
 
