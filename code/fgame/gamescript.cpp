@@ -33,436 +33,409 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static unsigned char *current_progBuffer = NULL;
 
-str& AbstractScript::Filename( void )
+str& AbstractScript::Filename(void)
 {
-	return Director.GetString( m_Filename );
+    return Director.GetString(m_Filename);
 }
 
-const_str AbstractScript::ConstFilename( void )
+const_str AbstractScript::ConstFilename(void)
 {
-	return m_Filename;
+    return m_Filename;
 }
 
-bool AbstractScript::GetSourceAt( size_t sourcePos, str *sourceLine, int &column, int &line )
+bool AbstractScript::GetSourceAt(size_t sourcePos, str *sourceLine, int& column, int& line)
 {
-	if( !m_SourceBuffer || sourcePos >= m_SourceLength ) {
-		return false;
-	}
+    if (!m_SourceBuffer || sourcePos >= m_SourceLength) {
+        return false;
+    }
 
-	line = 1;
-	column = 0;
-	int posLine = 0;
+    line        = 1;
+    column      = 0;
+    int posLine = 0;
 
-	char *p = m_SourceBuffer;
-	char old_token;
+    char *p = m_SourceBuffer;
+    char  old_token;
 
-	for( int i = 0; i < sourcePos; i++, p++ )
-	{
-		column++;
+    for (int i = 0; i < sourcePos; i++, p++) {
+        column++;
 
-		if( *p == '\n' )
-		{
-			line++;
-			column = 0;
-			posLine = i + 1;
-		}
-		else if( *p == '\0' )
-		{
-			break;
-		}
-	}
+        if (*p == '\n') {
+            line++;
+            column  = 0;
+            posLine = i + 1;
+        } else if (*p == '\0') {
+            break;
+        }
+    }
 
-	while( *p != '\0' && *p != '\n' )
-	{
-		p++;
-	}
+    while (*p != '\0' && *p != '\n') {
+        p++;
+    }
 
-	old_token = *p;
-	*p = '\0';
+    old_token = *p;
+    *p        = '\0';
 
-	if (sourceLine) {
-		*sourceLine = (m_SourceBuffer + posLine);
-	}
+    if (sourceLine) {
+        *sourceLine = (m_SourceBuffer + posLine);
+    }
 
-	*p = old_token;
+    *p = old_token;
 
-	return true;
+    return true;
 }
 
-void AbstractScript::PrintSourcePos( sourceinfo_t *sourcePos, bool dev )
+void AbstractScript::PrintSourcePos(sourceinfo_t *sourcePos, bool dev)
 {
-	int line;
-	int column;
-	str sourceLine;
+    int line;
+    int column;
+    str sourceLine;
 
-	if( GetSourceAt( sourcePos->sourcePos, &sourceLine, column, line ) )
-	{
-		PrintSourcePos( sourceLine, column, line, dev );
-	}
-	else
-	{
-		glbs.DPrintf( "file '%s', source pos %d line %d column %d:\n", Filename().c_str(), sourcePos->sourcePos, sourcePos->line, sourcePos->column );
-	}
+    if (GetSourceAt(sourcePos->sourcePos, &sourceLine, column, line)) {
+        PrintSourcePos(sourceLine, column, line, dev);
+    } else {
+        glbs.DPrintf(
+            "file '%s', source pos %d line %d column %d:\n",
+            Filename().c_str(),
+            sourcePos->sourcePos,
+            sourcePos->line,
+            sourcePos->column
+        );
+    }
 }
 
-void AbstractScript::PrintSourcePos( size_t sourcePos, bool dev )
+void AbstractScript::PrintSourcePos(size_t sourcePos, bool dev)
 {
-	int line;
-	int column;
-	str sourceLine;
+    int line;
+    int column;
+    str sourceLine;
 
-	if( GetSourceAt( sourcePos, &sourceLine, column, line ) )
-	{
-		PrintSourcePos( sourceLine, column, line, dev );
-	}
-	else
-	{
-		glbs.DPrintf( "file '%s', source pos %d:\n", Filename().c_str(), sourcePos );
-	}
+    if (GetSourceAt(sourcePos, &sourceLine, column, line)) {
+        PrintSourcePos(sourceLine, column, line, dev);
+    } else {
+        glbs.DPrintf("file '%s', source pos %d:\n", Filename().c_str(), sourcePos);
+    }
 }
 
-void AbstractScript::PrintSourcePos( unsigned char *m_pCodePos, bool dev )
+void AbstractScript::PrintSourcePos(unsigned char *m_pCodePos, bool dev)
 {
-	if( !m_ProgToSource )
-	{
-		return;
-	}
+    if (!m_ProgToSource) {
+        return;
+    }
 
-	sourceinfo_t *codePos = m_ProgToSource->findKeyValue( m_pCodePos );
+    sourceinfo_t *codePos = m_ProgToSource->findKeyValue(m_pCodePos);
 
-	if( !codePos ) {
-		return;
-	}
+    if (!codePos) {
+        return;
+    }
 
-	PrintSourcePos( codePos, dev );
+    PrintSourcePos(codePos, dev);
 }
 
-void AbstractScript::PrintSourcePos( str sourceLine, int column, int line, bool dev )
+void AbstractScript::PrintSourcePos(str sourceLine, int column, int line, bool dev)
 {
-	int i;
-	str markerLine = "";
+    int i;
+    str markerLine = "";
 
-	for( i = 0; i < column; i++ )
-	{
-		markerLine.append( sourceLine[ i ] );
-	}
+    for (i = 0; i < column; i++) {
+        markerLine.append(sourceLine[i]);
+    }
 
-	markerLine.append( "^" );
+    markerLine.append("^");
 
-	glbs.DPrintf( "(%s, %d):\n%s\n%s\n", Filename().c_str(), line, sourceLine.c_str(), markerLine.c_str() );
+    glbs.DPrintf("(%s, %d):\n%s\n%s\n", Filename().c_str(), line, sourceLine.c_str(), markerLine.c_str());
 }
 
 AbstractScript::AbstractScript()
 {
-	m_ProgToSource = NULL;
-	m_SourceBuffer = NULL;
-	m_SourceLength = 0;
+    m_ProgToSource = NULL;
+    m_SourceBuffer = NULL;
+    m_SourceLength = 0;
 }
 
 StateScript::StateScript()
 {
-	m_Parent = NULL;
+    m_Parent = NULL;
 }
 
 template<>
-void con_set< const_str, script_label_t >::Entry::Archive( Archiver& arc )
+void con_set<const_str, script_label_t>::Entry::Archive(Archiver& arc)
 {
-	unsigned int offset;
+    unsigned int offset;
 
-	Director.ArchiveString( arc, key );
+    Director.ArchiveString(arc, key);
 
-	if( arc.Saving() )
-	{
-		offset = value.codepos - current_progBuffer;
-		arc.ArchiveUnsigned( &offset );
-	}
-	else
-	{
-		arc.ArchiveUnsigned( &offset );
-		value.codepos = current_progBuffer + offset;
-		value.key = key;
-	}
+    if (arc.Saving()) {
+        offset = value.codepos - current_progBuffer;
+        arc.ArchiveUnsigned(&offset);
+    } else {
+        arc.ArchiveUnsigned(&offset);
+        value.codepos = current_progBuffer + offset;
+        value.key     = key;
+    }
 
-	arc.ArchiveBool( &value.isprivate );
+    arc.ArchiveBool(&value.isprivate);
 }
 
-void StateScript::Archive( Archiver& arc )
+void StateScript::Archive(Archiver& arc)
 {
-	label_list.Archive( arc );
+    label_list.Archive(arc);
 }
 
-bool StateScript::AddLabel( const_str label, unsigned char *pos, bool private_section )
+bool StateScript::AddLabel(const_str label, unsigned char *pos, bool private_section)
 {
-	if( label_list.findKeyValue( label ) )
-	{
-		return false;
-	}
+    if (label_list.findKeyValue(label)) {
+        return false;
+    }
 
-	script_label_t &s = label_list.addKeyValue( label );
+    script_label_t& s = label_list.addKeyValue(label);
 
-	s.codepos = pos;
-	s.key = label;
-	s.isprivate = private_section;
+    s.codepos   = pos;
+    s.key       = label;
+    s.isprivate = private_section;
 
-	if( !label_list.findKeyValue(STRING_NULL) )
-	{
-		label_list.addKeyValue(STRING_NULL) = s;
-	}
+    if (!label_list.findKeyValue(STRING_NULL)) {
+        label_list.addKeyValue(STRING_NULL) = s;
+    }
 
-	return true;
+    return true;
 }
 
-bool StateScript::AddLabel( str label, unsigned char *pos, bool private_section )
+bool StateScript::AddLabel(str label, unsigned char *pos, bool private_section)
 {
-	return AddLabel( Director.AddString( label ), pos, private_section );
+    return AddLabel(Director.AddString(label), pos, private_section);
 }
 
-unsigned char *StateScript::FindLabel( const_str label )
+unsigned char *StateScript::FindLabel(const_str label)
 {
-	script_label_t *s;
-	ScriptClass *scriptClass;
-	GameScript *script;
+    script_label_t *s;
+    ScriptClass    *scriptClass;
+    GameScript     *script;
 
-	s = label_list.findKeyValue( label );
+    s = label_list.findKeyValue(label);
 
-	if( s )
-	{
-		// check if the label is a private function
-		if( s->isprivate )
-		{
-			scriptClass = Director.CurrentScriptClass();
+    if (s) {
+        // check if the label is a private function
+        if (s->isprivate) {
+            scriptClass = Director.CurrentScriptClass();
 
-			if( scriptClass )
-			{
-				script = scriptClass->GetScript();
+            if (scriptClass) {
+                script = scriptClass->GetScript();
 
-				// now check if the label's statescript matches this statescript
-				if( ( &script->m_State ) != this )
-				{
-					ScriptError( "Cannot call a private function." );
-					return NULL;
-				}
-			}
-		}
+                // now check if the label's statescript matches this statescript
+                if ((&script->m_State) != this) {
+                    ScriptError("Cannot call a private function.");
+                    return NULL;
+                }
+            }
+        }
 
-		return s->codepos;
-	}
-	else
-	{
-		return NULL;
-	}
+        return s->codepos;
+    } else {
+        return NULL;
+    }
 }
 
-unsigned char *StateScript::FindLabel( str label )
+unsigned char *StateScript::FindLabel(str label)
 {
-	return FindLabel( Director.AddString( label ) );
+    return FindLabel(Director.AddString(label));
 }
 
-const_str StateScript::NearestLabel( unsigned char *pos )
+const_str StateScript::NearestLabel(unsigned char *pos)
 {
-	unsigned int offset = pos - m_Parent->m_ProgBuffer;
-	unsigned int bestOfs = 0;
-	const_str label = STRING_NULL;
-	con_set_enum< const_str, script_label_t > en = label_list;
-	con_set_enum< const_str, script_label_t >::Entry* entry;
+    unsigned int                                    offset  = pos - m_Parent->m_ProgBuffer;
+    unsigned int                                    bestOfs = 0;
+    const_str                                       label   = STRING_NULL;
+    con_set_enum<const_str, script_label_t>         en      = label_list;
+    con_set_enum<const_str, script_label_t>::Entry *entry;
 
     for (entry = en.NextElement(); entry; entry = en.NextElement()) {
         const script_label_t& l = entry->value;
 
-        if ((l.codepos - m_Parent->m_ProgBuffer) >= bestOfs)
-        {
+        if ((l.codepos - m_Parent->m_ProgBuffer) >= bestOfs) {
             bestOfs = l.codepos - m_Parent->m_ProgBuffer;
 
-            if (bestOfs > offset)
-            {
+            if (bestOfs > offset) {
                 break;
             }
 
             label = l.key;
         }
-	}
+    }
 
-	return label;
+    return label;
 }
 
 GameScript::GameScript()
 {
-	m_Filename = STRING_NULL;
-	successCompile = false;
+    m_Filename     = STRING_NULL;
+    successCompile = false;
 
-	m_ProgBuffer = NULL;
-	m_ProgLength = 0;
-	m_bPrecompiled = false;
+    m_ProgBuffer   = NULL;
+    m_ProgLength   = 0;
+    m_bPrecompiled = false;
 
-	requiredStackSize = 0;
+    requiredStackSize = 0;
 
-	m_State.m_Parent = this;
+    m_State.m_Parent = this;
 }
 
-GameScript::GameScript( const char *filename )
+GameScript::GameScript(const char *filename)
 {
-	m_Filename = Director.AddString( filename );
-	successCompile = false;
+    m_Filename     = Director.AddString(filename);
+    successCompile = false;
 
-	m_ProgBuffer = NULL;
-	m_ProgLength = 0;
-	m_ProgToSource = NULL;
-	m_bPrecompiled = false;
+    m_ProgBuffer   = NULL;
+    m_ProgLength   = 0;
+    m_ProgToSource = NULL;
+    m_bPrecompiled = false;
 
-	m_SourceBuffer = NULL;
-	m_SourceLength = 0;
+    m_SourceBuffer = NULL;
+    m_SourceLength = 0;
 
-	requiredStackSize = 0;
+    requiredStackSize = 0;
 
-	m_State.m_Parent = this;
+    m_State.m_Parent = this;
 }
 
 GameScript::~GameScript()
 {
-	Close();
+    Close();
 }
 
 struct pfixup_t {
-	bool			isString;
-	unsigned int	*ptr;
+    bool          isString;
+    unsigned int *ptr;
 };
 
-static Container< const_str > archivedEvents;
-static Container< const_str > archivedStrings;
-static Container< pfixup_t * > archivedPointerFixup;
+static Container<const_str>  archivedEvents;
+static Container<const_str>  archivedStrings;
+static Container<pfixup_t *> archivedPointerFixup;
 
-void ArchiveOpcode( Archiver& arc, unsigned char *code )
+void ArchiveOpcode(Archiver& arc, unsigned char *code)
 {
-	unsigned int index;
+    unsigned int index;
 
-	arc.ArchiveByte( code );
+    arc.ArchiveByte(code);
 
-	switch( *code )
-	{
-	case OP_STORE_NIL:
-	case OP_STORE_NULL:
-	case OP_DONE:
-		break;
+    switch (*code) {
+    case OP_STORE_NIL:
+    case OP_STORE_NULL:
+    case OP_DONE:
+        break;
 
-	case OP_EXEC_CMD_COUNT1:
-	case OP_EXEC_CMD_METHOD_COUNT1:
-	case OP_EXEC_METHOD_COUNT1:
-		arc.ArchiveByte( code + 1 );
-		goto __exec;
+    case OP_EXEC_CMD_COUNT1:
+    case OP_EXEC_CMD_METHOD_COUNT1:
+    case OP_EXEC_METHOD_COUNT1:
+        arc.ArchiveByte(code + 1);
+        goto __exec;
 
-	case OP_EXEC_CMD0:
-	case OP_EXEC_CMD1:
-	case OP_EXEC_CMD2:
-	case OP_EXEC_CMD3:
-	case OP_EXEC_CMD4:
-	case OP_EXEC_CMD5:
-	case OP_EXEC_CMD_METHOD0:
-	case OP_EXEC_CMD_METHOD1:
-	case OP_EXEC_CMD_METHOD2:
-	case OP_EXEC_CMD_METHOD3:
-	case OP_EXEC_CMD_METHOD4:
-	case OP_EXEC_CMD_METHOD5:
-	case OP_EXEC_METHOD0:
-	case OP_EXEC_METHOD1:
-	case OP_EXEC_METHOD2:
-	case OP_EXEC_METHOD3:
-	case OP_EXEC_METHOD4:
-	case OP_EXEC_METHOD5:
-		code--;
-__exec:
-		if( !arc.Loading() )
-		{
-			index = archivedEvents.AddUniqueObject( *reinterpret_cast< const_str * >( code + 2 ) );
-		}
+    case OP_EXEC_CMD0:
+    case OP_EXEC_CMD1:
+    case OP_EXEC_CMD2:
+    case OP_EXEC_CMD3:
+    case OP_EXEC_CMD4:
+    case OP_EXEC_CMD5:
+    case OP_EXEC_CMD_METHOD0:
+    case OP_EXEC_CMD_METHOD1:
+    case OP_EXEC_CMD_METHOD2:
+    case OP_EXEC_CMD_METHOD3:
+    case OP_EXEC_CMD_METHOD4:
+    case OP_EXEC_CMD_METHOD5:
+    case OP_EXEC_METHOD0:
+    case OP_EXEC_METHOD1:
+    case OP_EXEC_METHOD2:
+    case OP_EXEC_METHOD3:
+    case OP_EXEC_METHOD4:
+    case OP_EXEC_METHOD5:
+        code--;
+    __exec:
+        if (!arc.Loading()) {
+            index = archivedEvents.AddUniqueObject(*reinterpret_cast<const_str *>(code + 2));
+        }
 
-		arc.ArchiveUnsigned( &index );
+        arc.ArchiveUnsigned(&index);
 
-		if( arc.Loading() )
-		{
-			pfixup_t *p = new pfixup_t;
+        if (arc.Loading()) {
+            pfixup_t *p = new pfixup_t;
 
-			p->isString = false;
-			p->ptr = reinterpret_cast< unsigned int * >( code + 2 );
+            p->isString = false;
+            p->ptr      = reinterpret_cast<unsigned int *>(code + 2);
 
-			*reinterpret_cast< unsigned int * >( code + 2 ) = index;
-			archivedPointerFixup.AddObject( p );
-		}
-		break;
+            *reinterpret_cast<unsigned int *>(code + 2) = index;
+            archivedPointerFixup.AddObject(p);
+        }
+        break;
 
-	case OP_LOAD_FIELD_VAR:
-	case OP_LOAD_GAME_VAR:
-	case OP_LOAD_GROUP_VAR:
-	case OP_LOAD_LEVEL_VAR:
-	case OP_LOAD_LOCAL_VAR:
-	case OP_LOAD_OWNER_VAR:
-	case OP_LOAD_PARM_VAR:
-	case OP_LOAD_SELF_VAR:
-	case OP_LOAD_STORE_GAME_VAR:
-	case OP_LOAD_STORE_GROUP_VAR:
-	case OP_LOAD_STORE_LEVEL_VAR:
-	case OP_LOAD_STORE_LOCAL_VAR:
-	case OP_LOAD_STORE_OWNER_VAR:
-	case OP_LOAD_STORE_PARM_VAR:
-	case OP_LOAD_STORE_SELF_VAR:
-	case OP_STORE_FIELD:
-	case OP_STORE_FIELD_REF:
-	case OP_STORE_GAME_VAR:
-	case OP_STORE_GROUP_VAR:
-	case OP_STORE_LEVEL_VAR:
-	case OP_STORE_LOCAL_VAR:
-	case OP_STORE_OWNER_VAR:
-	case OP_STORE_PARM_VAR:
-	case OP_STORE_SELF_VAR:
-	case OP_STORE_STRING:
-		if( !arc.Loading() )
-		{
-			index = archivedStrings.AddUniqueObject( *reinterpret_cast< const_str * >( code + 1 ) );
-		}
+    case OP_LOAD_FIELD_VAR:
+    case OP_LOAD_GAME_VAR:
+    case OP_LOAD_GROUP_VAR:
+    case OP_LOAD_LEVEL_VAR:
+    case OP_LOAD_LOCAL_VAR:
+    case OP_LOAD_OWNER_VAR:
+    case OP_LOAD_PARM_VAR:
+    case OP_LOAD_SELF_VAR:
+    case OP_LOAD_STORE_GAME_VAR:
+    case OP_LOAD_STORE_GROUP_VAR:
+    case OP_LOAD_STORE_LEVEL_VAR:
+    case OP_LOAD_STORE_LOCAL_VAR:
+    case OP_LOAD_STORE_OWNER_VAR:
+    case OP_LOAD_STORE_PARM_VAR:
+    case OP_LOAD_STORE_SELF_VAR:
+    case OP_STORE_FIELD:
+    case OP_STORE_FIELD_REF:
+    case OP_STORE_GAME_VAR:
+    case OP_STORE_GROUP_VAR:
+    case OP_STORE_LEVEL_VAR:
+    case OP_STORE_LOCAL_VAR:
+    case OP_STORE_OWNER_VAR:
+    case OP_STORE_PARM_VAR:
+    case OP_STORE_SELF_VAR:
+    case OP_STORE_STRING:
+        if (!arc.Loading()) {
+            index = archivedStrings.AddUniqueObject(*reinterpret_cast<const_str *>(code + 1));
+        }
 
-		arc.ArchiveUnsigned( &index );
+        arc.ArchiveUnsigned(&index);
 
-		if( arc.Loading() )
-		{
-			pfixup_t *p = new pfixup_t;
+        if (arc.Loading()) {
+            pfixup_t *p = new pfixup_t;
 
-			p->isString = true;
-			p->ptr = reinterpret_cast< unsigned int * >( code + 1 );
+            p->isString = true;
+            p->ptr      = reinterpret_cast<unsigned int *>(code + 1);
 
-			*reinterpret_cast< unsigned int * >( code + 1 ) = index;
-			archivedPointerFixup.AddObject( p );
-		}
-		break;
+            *reinterpret_cast<unsigned int *>(code + 1) = index;
+            archivedPointerFixup.AddObject(p);
+        }
+        break;
 
-	default:
-		if( OpcodeLength( *code ) > 1 )
-			arc.ArchiveRaw( code + 1, OpcodeLength( *code ) - 1 );
-	}
+    default:
+        if (OpcodeLength(*code) > 1) {
+            arc.ArchiveRaw(code + 1, OpcodeLength(*code) - 1);
+        }
+    }
 }
 
 template<>
-void con_set< unsigned char *, sourceinfo_t >::Entry::Archive( Archiver& arc )
+void con_set<unsigned char *, sourceinfo_t>::Entry::Archive(Archiver& arc)
 {
-	unsigned int offset;
+    unsigned int offset;
 
-	if( arc.Loading() )
-	{
-		arc.ArchiveUnsigned( &offset );
-		key = current_progBuffer + offset;
-	}
-	else
-	{
-		offset = key - current_progBuffer;
-		arc.ArchiveUnsigned( &offset );
-	}
+    if (arc.Loading()) {
+        arc.ArchiveUnsigned(&offset);
+        key = current_progBuffer + offset;
+    } else {
+        offset = key - current_progBuffer;
+        arc.ArchiveUnsigned(&offset);
+    }
 
-	arc.ArchiveUnsigned( &value.sourcePos );
-	arc.ArchiveInteger( &value.column );
-	arc.ArchiveInteger( &value.line );
+    arc.ArchiveUnsigned(&value.sourcePos);
+    arc.ArchiveInteger(&value.column);
+    arc.ArchiveInteger(&value.line);
 }
 
-void GameScript::Archive( Archiver& arc )
+void GameScript::Archive(Archiver& arc)
 {
-	/*
+    /*
 	int count = 0, i;
 	unsigned char *p, *code_pos, *code_end;
 	const_str s;
@@ -623,301 +596,264 @@ void GameScript::Archive( Archiver& arc )
 	current_progBuffer = NULL;*/
 }
 
-void GameScript::Archive( Archiver& arc, GameScript *& scr )
+void GameScript::Archive(Archiver& arc, GameScript *& scr)
 {
-	str filename;
+    str filename;
 
-	if( arc.Saving() )
-	{
-		if (scr)
-		{
-			filename = scr->Filename();
-		}
-		else
-		{
-			filename = "";
-		}
+    if (arc.Saving()) {
+        if (scr) {
+            filename = scr->Filename();
+        } else {
+            filename = "";
+        }
 
-		arc.ArchiveString(&filename);
-	}
-	else
-	{
-		arc.ArchiveString(&filename);
+        arc.ArchiveString(&filename);
+    } else {
+        arc.ArchiveString(&filename);
 
-		if (filename != "")
-		{
-			scr = Director.GetScript(filename);
-		}
-		else
-		{
-			scr = NULL;
-		}
-	}
+        if (filename != "") {
+            scr = Director.GetScript(filename);
+        } else {
+            scr = NULL;
+        }
+    }
 }
 
-void GameScript::ArchiveCodePos( Archiver& arc, unsigned char **codePos )
+void GameScript::ArchiveCodePos(Archiver& arc, unsigned char **codePos)
 {
-	int pos = 0;
-	str filename;
+    int pos = 0;
+    str filename;
 
-	if( arc.Saving() ) {
-		GetCodePos(*codePos, filename, pos);
-	}
+    if (arc.Saving()) {
+        GetCodePos(*codePos, filename, pos);
+    }
 
-	arc.ArchiveInteger( &pos );
-	arc.ArchiveString( &filename );
+    arc.ArchiveInteger(&pos);
+    arc.ArchiveString(&filename);
 
-	if( arc.Loading() )
-	{
-		SetCodePos(*codePos, filename, pos);
-	}
+    if (arc.Loading()) {
+        SetCodePos(*codePos, filename, pos);
+    }
 }
 
-void GameScript::Close( void )
+void GameScript::Close(void)
 {
-	for( int i = m_CatchBlocks.NumObjects(); i > 0; i-- )
-	{
-		delete m_CatchBlocks.ObjectAt( i );
-	}
+    for (int i = m_CatchBlocks.NumObjects(); i > 0; i--) {
+        delete m_CatchBlocks.ObjectAt(i);
+    }
 
-	m_CatchBlocks.FreeObjectList();
+    m_CatchBlocks.FreeObjectList();
 
-	if( m_ProgToSource )
-	{
-		delete m_ProgToSource;
-		m_ProgToSource = NULL;
-	}
+    if (m_ProgToSource) {
+        delete m_ProgToSource;
+        m_ProgToSource = NULL;
+    }
 
-	if( m_ProgBuffer )
-	{
-		glbs.Free( m_ProgBuffer );
-		m_ProgBuffer = NULL;
-	}
+    if (m_ProgBuffer) {
+        glbs.Free(m_ProgBuffer);
+        m_ProgBuffer = NULL;
+    }
 
-	if( m_SourceBuffer )
-	{
-		glbs.Free( m_SourceBuffer );
-		m_SourceBuffer = NULL;
-	}
+    if (m_SourceBuffer) {
+        glbs.Free(m_SourceBuffer);
+        m_SourceBuffer = NULL;
+    }
 
-	m_ProgLength = 0;
-	m_SourceLength = 0;
-	m_bPrecompiled = false;
+    m_ProgLength   = 0;
+    m_SourceLength = 0;
+    m_bPrecompiled = false;
 }
 
-void GameScript::Load( const void *sourceBuffer, size_t sourceLength )
+void GameScript::Load(const void *sourceBuffer, size_t sourceLength)
 {
-	size_t nodeLength;
-	char *m_PreprocessedBuffer;
+    size_t nodeLength;
+    char  *m_PreprocessedBuffer;
 
-	m_SourceBuffer = ( char * )glbs.Malloc( sourceLength + 2 );
-	m_SourceLength = sourceLength;
+    m_SourceBuffer = (char *)glbs.Malloc(sourceLength + 2);
+    m_SourceLength = sourceLength;
 
-	// Original mohaa doesn't reallocate the input string to append a newline
-	// This is a temporary workaround to handle the absolute disaster of newlines
-	// Both the lexer and grammar are extremely abhorrent at handling newlines followed by an EOF
-	m_SourceBuffer[ sourceLength ] = '\n';
-	m_SourceBuffer[ sourceLength + 1] = 0;
+    // Original mohaa doesn't reallocate the input string to append a newline
+    // This is a temporary workaround to handle the absolute disaster of newlines
+    // Both the lexer and grammar are extremely abhorrent at handling newlines followed by an EOF
+    m_SourceBuffer[sourceLength]     = '\n';
+    m_SourceBuffer[sourceLength + 1] = 0;
 
-	memcpy( m_SourceBuffer, sourceBuffer, sourceLength );
+    memcpy(m_SourceBuffer, sourceBuffer, sourceLength);
 
-	Compiler.Reset();
+    Compiler.Reset();
 
-	m_PreprocessedBuffer = Compiler.Preprocess( m_SourceBuffer );
-	nodeLength = Compiler.Parse( this, m_PreprocessedBuffer, "script" );
-	Compiler.Preclean( m_PreprocessedBuffer );
+    m_PreprocessedBuffer = Compiler.Preprocess(m_SourceBuffer);
+    nodeLength           = Compiler.Parse(this, m_PreprocessedBuffer, "script");
+    Compiler.Preclean(m_PreprocessedBuffer);
 
-	if( !nodeLength )
-	{
-		glbs.DPrintf2( "^~^~^ Script file compile error:  Couldn't parse '%s'\n", Filename().c_str() );
-		return Close();
-	}
+    if (!nodeLength) {
+        glbs.DPrintf2("^~^~^ Script file compile error:  Couldn't parse '%s'\n", Filename().c_str());
+        return Close();
+    }
 
-	m_ProgBuffer = ( unsigned char * )glbs.Malloc( nodeLength );
-	m_ProgLength = Compiler.Compile( this, m_ProgBuffer );
+    m_ProgBuffer = (unsigned char *)glbs.Malloc(nodeLength);
+    m_ProgLength = Compiler.Compile(this, m_ProgBuffer);
 
-	if( !m_ProgLength )
-	{
-		glbs.DPrintf2( "^~^~^ Script file compile error:  Couldn't compile '%s'\n", Filename().c_str() );
-		return Close();
-	}
+    if (!m_ProgLength) {
+        glbs.DPrintf2("^~^~^ Script file compile error:  Couldn't compile '%s'\n", Filename().c_str());
+        return Close();
+    }
 
-	requiredStackSize = Compiler.m_iInternalMaxVarStackOffset + 9 * Compiler.m_iMaxExternalVarStackOffset + 1;
+    requiredStackSize = Compiler.m_iInternalMaxVarStackOffset + 9 * Compiler.m_iMaxExternalVarStackOffset + 1;
 
-	successCompile = true;
+    successCompile = true;
 }
 
-bool GameScript::GetCodePos( unsigned char *codePos, str& filename, int& pos )
+bool GameScript::GetCodePos(unsigned char *codePos, str& filename, int& pos)
 {
-	pos = codePos - m_ProgBuffer;
+    pos = codePos - m_ProgBuffer;
 
-	if( pos >= 0 && pos < m_ProgLength )
-	{
-		filename = Filename();
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    if (pos >= 0 && pos < m_ProgLength) {
+        filename = Filename();
+        return true;
+    } else {
+        return false;
+    }
 }
 
-bool GameScript::SetCodePos( unsigned char *&codePos, str& filename, int pos )
+bool GameScript::SetCodePos(unsigned char *& codePos, str& filename, int pos)
 {
-	if( Filename() == filename )
-	{
-		codePos = m_ProgBuffer + pos;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+    if (Filename() == filename) {
+        codePos = m_ProgBuffer + pos;
+        return true;
+    } else {
+        return false;
+    }
 }
 
-unsigned int GameScript::GetRequiredStackSize( void )
+unsigned int GameScript::GetRequiredStackSize(void)
 {
-	return requiredStackSize;
+    return requiredStackSize;
 }
 
-qboolean GameScript::labelExists( const char *name )
+qboolean GameScript::labelExists(const char *name)
 {
-	str				labelname;
-	
-	// if we got passed a NULL than that means just run the script so of course it exists
-	if ( !name )
-	{
-		return true;
-	}
+    str labelname;
 
-	if( m_State.FindLabel( name ) )
-	{
-		return true;
-	}
+    // if we got passed a NULL than that means just run the script so of course it exists
+    if (!name) {
+        return true;
+    }
 
-	return false;
+    if (m_State.FindLabel(name)) {
+        return true;
+    }
+
+    return false;
 }
 
-StateScript *GameScript::CreateCatchStateScript( unsigned char *try_begin_code_pos, unsigned char *try_end_code_pos )
+StateScript *GameScript::CreateCatchStateScript(unsigned char *try_begin_code_pos, unsigned char *try_end_code_pos)
 {
-	CatchBlock *catchBlock = new CatchBlock;
+    CatchBlock *catchBlock = new CatchBlock;
 
-	catchBlock->m_TryStartCodePos = try_begin_code_pos;
-	catchBlock->m_TryEndCodePos = try_end_code_pos;
+    catchBlock->m_TryStartCodePos = try_begin_code_pos;
+    catchBlock->m_TryEndCodePos   = try_end_code_pos;
 
-	m_CatchBlocks.AddObject( catchBlock );
+    m_CatchBlocks.AddObject(catchBlock);
 
-	return &catchBlock->m_StateScript;
+    return &catchBlock->m_StateScript;
 }
 
-StateScript *GameScript::CreateSwitchStateScript( void )
+StateScript *GameScript::CreateSwitchStateScript(void)
 {
-	return new StateScript;
+    return new StateScript;
 }
 
-StateScript *GameScript::GetCatchStateScript( unsigned char *in, unsigned char *&out )
+StateScript *GameScript::GetCatchStateScript(unsigned char *in, unsigned char *& out)
 {
-	CatchBlock *catchBlock;
-	CatchBlock *bestCatchBlock = NULL;
+    CatchBlock *catchBlock;
+    CatchBlock *bestCatchBlock = NULL;
 
-	for( int i = m_CatchBlocks.NumObjects(); i > 0; i-- )
-	{
-		catchBlock = m_CatchBlocks.ObjectAt( i );
+    for (int i = m_CatchBlocks.NumObjects(); i > 0; i--) {
+        catchBlock = m_CatchBlocks.ObjectAt(i);
 
-		if( in >= catchBlock->m_TryStartCodePos && in < catchBlock->m_TryEndCodePos )
-		{
-			if( !bestCatchBlock || catchBlock->m_TryEndCodePos < bestCatchBlock->m_TryEndCodePos )
-			{
-				bestCatchBlock = catchBlock;
-			}
-		}
-	}
+        if (in >= catchBlock->m_TryStartCodePos && in < catchBlock->m_TryEndCodePos) {
+            if (!bestCatchBlock || catchBlock->m_TryEndCodePos < bestCatchBlock->m_TryEndCodePos) {
+                bestCatchBlock = catchBlock;
+            }
+        }
+    }
 
-	if( bestCatchBlock )
-	{
-		out = bestCatchBlock->m_TryEndCodePos;
+    if (bestCatchBlock) {
+        out = bestCatchBlock->m_TryEndCodePos;
 
-		return &bestCatchBlock->m_StateScript;
-	}
-	else
-	{
-		return NULL;
-	}
+        return &bestCatchBlock->m_StateScript;
+    } else {
+        return NULL;
+    }
 }
 
 bool GameScript::ScriptCheck(void)
 {
-	if (g_scriptcheck->integer == 1)
-	{
-		return true;
-	}
+    if (g_scriptcheck->integer == 1) {
+        return true;
+    }
 
-	if (g_scriptcheck->integer == 2 || g_scriptcheck->integer == 3)
-	{
-		if (strstr(Filename().c_str(), "anim/") != Filename().c_str())
-		{
-			return true;
-		}
-	}
-	if (g_scriptcheck->integer == 3)
-	{
-		if (strstr(Filename().c_str(), "global/") != Filename().c_str())
-		{
-			return true;
-		}
-	}
-	return false;
+    if (g_scriptcheck->integer == 2 || g_scriptcheck->integer == 3) {
+        if (strstr(Filename().c_str(), "anim/") != Filename().c_str()) {
+            return true;
+        }
+    }
+    if (g_scriptcheck->integer == 3) {
+        if (strstr(Filename().c_str(), "global/") != Filename().c_str()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 ScriptThreadLabel::ScriptThreadLabel()
 {
-	m_Script = NULL;
-	m_Label = STRING_EMPTY;
+    m_Script = NULL;
+    m_Label  = STRING_EMPTY;
 }
 
-ScriptThread *ScriptThreadLabel::Create( Listener *listener )
+ScriptThread *ScriptThreadLabel::Create(Listener *listener)
 {
-	if( !m_Script ) {
-		return NULL;
-	}
+    if (!m_Script) {
+        return NULL;
+    }
 
-	ScriptClass *scriptClass = new ScriptClass( m_Script, listener );
-	ScriptThread* thread = new ScriptThread(scriptClass, m_Script->m_State.FindLabel(m_Label));
+    ScriptClass  *scriptClass = new ScriptClass(m_Script, listener);
+    ScriptThread *thread      = new ScriptThread(scriptClass, m_Script->m_State.FindLabel(m_Label));
 
-	return thread;
+    return thread;
 }
 
-void ScriptThreadLabel::Execute( Listener *listener )
+void ScriptThreadLabel::Execute(Listener *listener)
 {
-	if( !m_Script ) {
-		return;
-	}
+    if (!m_Script) {
+        return;
+    }
 
-	ScriptThread *thread = Create( listener );
+    ScriptThread *thread = Create(listener);
 
-	if( thread )
-	{
-		thread->Execute();
-	}
+    if (thread) {
+        thread->Execute();
+    }
 }
 
-void ScriptThreadLabel::Execute( Listener *listener, Event &ev )
+void ScriptThreadLabel::Execute(Listener *listener, Event& ev)
 {
-	Execute( listener, &ev );
+    Execute(listener, &ev);
 }
 
-void ScriptThreadLabel::Execute( Listener *listener, Event *ev )
+void ScriptThreadLabel::Execute(Listener *listener, Event *ev)
 {
-	if( !m_Script ) {
-		return;
-	}
+    if (!m_Script) {
+        return;
+    }
 
-	ScriptThread *thread = Create( listener );
+    ScriptThread *thread = Create(listener);
 
-	if( thread )
-	{
-		thread->Execute( ev );
-	}
+    if (thread) {
+        thread->Execute(ev);
+    }
 }
 
 void ScriptThreadLabel::Execute(const SafePtr<Listener>& listener, const SafePtr<Listener>& param)
@@ -926,277 +862,243 @@ void ScriptThreadLabel::Execute(const SafePtr<Listener>& listener, const SafePtr
         return;
     }
 
-	ScriptVariable params[2];
+    ScriptVariable params[2];
 
-	params[0].setListenerValue(listener);
-	params[1].setListenerValue(param);
+    params[0].setListenerValue(listener);
+    params[1].setListenerValue(param);
 
-    ScriptClass* scriptClass = new ScriptClass(m_Script, listener);
-    ScriptThread* thread = Director.CreateScriptThread(scriptClass, m_Label);
+    ScriptClass  *scriptClass = new ScriptClass(m_Script, listener);
+    ScriptThread *thread      = Director.CreateScriptThread(scriptClass, m_Label);
 
-	if (thread)
-	{
-		thread->Execute(params, 2);
-	}
+    if (thread) {
+        thread->Execute(params, 2);
+    }
 }
 
 void ScriptThreadLabel::Set(const char *label)
 {
-	str script;
-	char buffer[ 1023 ];
-	char *p = buffer;
-	int i = 0;
-	bool foundLabel = false;
+    str   script;
+    char  buffer[1023];
+    char *p          = buffer;
+    int   i          = 0;
+    bool  foundLabel = false;
 
-	if( !label || !*label )
-	{
-		m_Script = NULL;
-		m_Label = STRING_EMPTY;
-		return;
-	}
+    if (!label || !*label) {
+        m_Script = NULL;
+        m_Label  = STRING_EMPTY;
+        return;
+    }
 
-	strcpy( buffer, label );
+    strcpy(buffer, label);
 
-	while( true )
-	{
-		if( p[ 0 ] == ':' && p[ 1 ] == ':' )
-		{
-			*p = '\0';
+    while (true) {
+        if (p[0] == ':' && p[1] == ':') {
+            *p = '\0';
 
-			script = buffer;
-			m_Label = Director.AddString( &p[ 2 ] );
-			foundLabel = true;
+            script     = buffer;
+            m_Label    = Director.AddString(&p[2]);
+            foundLabel = true;
 
-			break;
-		}
+            break;
+        }
 
-		p++;
-		i++;
+        p++;
+        i++;
 
-		if (*p == '\0')
-		{
-			break;
-		}
+        if (*p == '\0') {
+            break;
+        }
 
-		if (i >= 1023)
-		{
-			//we didn't find label but this is how it works.
-			//the whole string is the label
-			m_Label = Director.AddString(buffer);
-			script = buffer;
-			foundLabel = true;
-			break;
-		}
-		
-	}
+        if (i >= 1023) {
+            //we didn't find label but this is how it works.
+            //the whole string is the label
+            m_Label    = Director.AddString(buffer);
+            script     = buffer;
+            foundLabel = true;
+            break;
+        }
+    }
 
-	if( !foundLabel )
-	{
-		script = level.m_mapscript;
-		m_Label = Director.AddString(buffer);
-	}
+    if (!foundLabel) {
+        script  = level.m_mapscript;
+        m_Label = Director.AddString(buffer);
+    }
 
+    m_Script = Director.GetGameScript(script);
 
-	m_Script = Director.GetGameScript( script );
+    if (!m_Script->m_State.FindLabel(m_Label)) {
+        str l = Director.GetString(m_Label);
 
-	if( !m_Script->m_State.FindLabel( m_Label ) )
-	{
-		str l = Director.GetString( m_Label );
+        m_Script = NULL;
+        m_Label  = STRING_EMPTY;
 
-		m_Script = NULL;
-		m_Label = STRING_EMPTY;
-
-		ScriptError( "^~^~^ Could not find label '%s' in '%s'", l.c_str(), script.c_str() );
-	}
+        ScriptError("^~^~^ Could not find label '%s' in '%s'", l.c_str(), script.c_str());
+    }
 }
 
 void ScriptThreadLabel::Set(const_str label)
 {
-	return Set(Director.GetString(label));
+    return Set(Director.GetString(label));
 }
 
-void ScriptThreadLabel::SetScript( const ScriptVariable& label )
+void ScriptThreadLabel::SetScript(const ScriptVariable& label)
 {
-	if( label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING )
-	{
-		m_Script = Director.GetGameScript( label.stringValue() );
-		m_Label = STRING_EMPTY;
-	}
-	else if( label.GetType() == VARIABLE_CONSTARRAY && label.arraysize() > 1 )
-	{
-		ScriptVariable *script = label[ 1 ];
-		ScriptVariable *labelname = label[ 2 ];
+    if (label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING) {
+        m_Script = Director.GetGameScript(label.stringValue());
+        m_Label  = STRING_EMPTY;
+    } else if (label.GetType() == VARIABLE_CONSTARRAY && label.arraysize() > 1) {
+        ScriptVariable *script    = label[1];
+        ScriptVariable *labelname = label[2];
 
-		m_Script = Director.GetGameScript( script->stringValue() );
-		m_Label = labelname->constStringValue();
+        m_Script = Director.GetGameScript(script->stringValue());
+        m_Label  = labelname->constStringValue();
 
-		if( !m_Script->m_State.FindLabel( m_Label ) )
-		{
-			m_Script = NULL;
-			m_Label = STRING_EMPTY;
+        if (!m_Script->m_State.FindLabel(m_Label)) {
+            m_Script = NULL;
+            m_Label  = STRING_EMPTY;
 
-			ScriptError( "^~^~^ Could not find label '%s' in '%s'", labelname->stringValue().c_str(), script->stringValue().c_str() );
-		}
-	}
-	else
-	{
-		ScriptError( "ScriptThreadLabel::SetScript: bad label type '%s'", label.GetTypeName() );
-	}
+            ScriptError(
+                "^~^~^ Could not find label '%s' in '%s'",
+                labelname->stringValue().c_str(),
+                script->stringValue().c_str()
+            );
+        }
+    } else {
+        ScriptError("ScriptThreadLabel::SetScript: bad label type '%s'", label.GetTypeName());
+    }
 }
 
-void ScriptThreadLabel::SetScript( const char *label )
+void ScriptThreadLabel::SetScript(const char *label)
 {
-	str script;
-	char buffer[1023];
-	char *p = buffer;
-	int i = 0;
-	bool foundLabel = false;
+    str   script;
+    char  buffer[1023];
+    char *p          = buffer;
+    int   i          = 0;
+    bool  foundLabel = false;
 
-	if (!label || !*label)
-	{
-		m_Script = NULL;
-		m_Label = STRING_EMPTY;
-		return;
-	}
+    if (!label || !*label) {
+        m_Script = NULL;
+        m_Label  = STRING_EMPTY;
+        return;
+    }
 
-	strcpy(buffer, label);
+    strcpy(buffer, label);
 
-	script = buffer;
-	while (true)
-	{
-		if (p[0] == ':' && p[1] == ':')
-		{
-			*p = '\0';
+    script = buffer;
+    while (true) {
+        if (p[0] == ':' && p[1] == ':') {
+            *p = '\0';
 
-			m_Label = Director.AddString(&p[2]);
-			foundLabel = true;
+            m_Label    = Director.AddString(&p[2]);
+            foundLabel = true;
 
-			break;
-		}
+            break;
+        }
 
-		p++;
-		i++;
+        p++;
+        i++;
 
-		if (*p == '\0')
-		{
-			m_Label = STRING_EMPTY;
-			foundLabel = true;
-			break;
-		}
+        if (*p == '\0') {
+            m_Label    = STRING_EMPTY;
+            foundLabel = true;
+            break;
+        }
 
-		if (i >= 1023)
-		{
-			//we didn't find label so empty label
-			m_Label = STRING_EMPTY;
-			foundLabel = false;
-			break;
-		}
+        if (i >= 1023) {
+            //we didn't find label so empty label
+            m_Label    = STRING_EMPTY;
+            foundLabel = false;
+            break;
+        }
+    }
 
-	}
+    m_Script = Director.GetGameScript(script);
 
+    if (!m_Script->m_State.FindLabel(m_Label)) {
+        str l = Director.GetString(m_Label);
 
-	m_Script = Director.GetGameScript(script);
+        m_Script = NULL;
+        m_Label  = STRING_EMPTY;
 
-	if (!m_Script->m_State.FindLabel(m_Label))
-	{
-		str l = Director.GetString(m_Label);
-
-		m_Script = NULL;
-		m_Label = STRING_EMPTY;
-
-		ScriptError("^~^~^ Could not find label '%s' in '%s'", l.c_str(), script.c_str());
-	}
+        ScriptError("^~^~^ Could not find label '%s' in '%s'", l.c_str(), script.c_str());
+    }
 }
 
 void ScriptThreadLabel::SetScript(const_str label)
 {
-	SetScript(Director.GetString(label));
+    SetScript(Director.GetString(label));
 }
 
-void ScriptThreadLabel::SetThread( const ScriptVariable& label )
+void ScriptThreadLabel::SetThread(const ScriptVariable& label)
 {
-	ScriptThread *thread = NULL;
+    ScriptThread *thread = NULL;
 
-	if( label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING )
-	{
-		m_Script = Director.CurrentScriptClass()->GetScript();
-		m_Label = label.constStringValue();
-	}
-	else if( label.GetType() == VARIABLE_CONSTARRAY && label.arraysize() > 1 )
-	{
-		ScriptVariable *script = label[ 1 ];
-		ScriptVariable *labelname = label[ 2 ];
+    if (label.GetType() == VARIABLE_STRING || label.GetType() == VARIABLE_CONSTSTRING) {
+        m_Script = Director.CurrentScriptClass()->GetScript();
+        m_Label  = label.constStringValue();
+    } else if (label.GetType() == VARIABLE_CONSTARRAY && label.arraysize() > 1) {
+        ScriptVariable *script    = label[1];
+        ScriptVariable *labelname = label[2];
 
-		m_Script = Director.GetGameScript( script->stringValue() );
-		m_Label = labelname->constStringValue();
+        m_Script = Director.GetGameScript(script->stringValue());
+        m_Label  = labelname->constStringValue();
 
-		if( !m_Script->m_State.FindLabel( m_Label ) )
-		{
-			m_Script = NULL;
-			m_Label = STRING_EMPTY;
+        if (!m_Script->m_State.FindLabel(m_Label)) {
+            m_Script = NULL;
+            m_Label  = STRING_EMPTY;
 
-			ScriptError( "^~^~^ Could not find label '%s' in '%s'", labelname->stringValue().c_str(), script->stringValue().c_str() );
-		}
-	}
-	else
-	{
-		ScriptError( "ScriptThreadLabel::SetThread bad label type '%s'", label.GetTypeName() );
-	}
-}
-
-bool ScriptThreadLabel::TrySet( const char *label )
-{
-	try
-	{
-		Set( label );
-	}
-	catch(const ScriptException& exc)
-	{
-		Com_Printf( "%s\n", exc.string.c_str() );
-		return false;
-	}
-
-	return true;
-}
-
-bool ScriptThreadLabel::TrySet( const_str label )
-{
-	try
-	{
-		Set( label );
-	}
-	catch(const ScriptException& exc)
-	{
-		Com_Printf( "%s\n", exc.string.c_str() );
-		return false;
-	}
-
-	return true;
-}
-
-bool ScriptThreadLabel::TrySetScript( const char *label )
-{
-	try
-	{
-		SetScript( label );
-	}
-	catch(const ScriptException &exc)
-	{
-		Com_Printf( "%s\n", exc.string.c_str() );
-		return false;
-	}
-
-	return true;
-}
-
-bool ScriptThreadLabel::TrySetScript( const_str label )
-{
-    try
-    {
-        SetScript(label);
+            ScriptError(
+                "^~^~^ Could not find label '%s' in '%s'",
+                labelname->stringValue().c_str(),
+                script->stringValue().c_str()
+            );
+        }
+    } else {
+        ScriptError("ScriptThreadLabel::SetThread bad label type '%s'", label.GetTypeName());
     }
-    catch (const ScriptException& exc)
-    {
+}
+
+bool ScriptThreadLabel::TrySet(const char *label)
+{
+    try {
+        Set(label);
+    } catch (const ScriptException& exc) {
+        Com_Printf("%s\n", exc.string.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool ScriptThreadLabel::TrySet(const_str label)
+{
+    try {
+        Set(label);
+    } catch (const ScriptException& exc) {
+        Com_Printf("%s\n", exc.string.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool ScriptThreadLabel::TrySetScript(const char *label)
+{
+    try {
+        SetScript(label);
+    } catch (const ScriptException& exc) {
+        Com_Printf("%s\n", exc.string.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+bool ScriptThreadLabel::TrySetScript(const_str label)
+{
+    try {
+        SetScript(label);
+    } catch (const ScriptException& exc) {
         Com_Printf("%s\n", exc.string.c_str());
         return false;
     }
@@ -1206,38 +1108,34 @@ bool ScriptThreadLabel::TrySetScript( const_str label )
 
 void ScriptThreadLabel::GetScriptValue(ScriptVariable *var)
 {
-	//FIXME: macro: 2 ?
-	ScriptVariable var_array[2];
+    //FIXME: macro: 2 ?
+    ScriptVariable var_array[2];
 
-	if (m_Script)
-	{
-		var_array[0].setConstStringValue(m_Script->ConstFilename());
-		var_array[1].setConstStringValue(m_Label);
-		var->setConstArrayValue(var_array, 2);
-		for (int i = 0; i < 2; i++)
-		{
-			var_array[i].Clear();
-		}
-	}
-	else
-	{
-		var->Clear();
-	}
+    if (m_Script) {
+        var_array[0].setConstStringValue(m_Script->ConstFilename());
+        var_array[1].setConstStringValue(m_Label);
+        var->setConstArrayValue(var_array, 2);
+        for (int i = 0; i < 2; i++) {
+            var_array[i].Clear();
+        }
+    } else {
+        var->Clear();
+    }
 }
 
-bool ScriptThreadLabel::IsSet( void )
+bool ScriptThreadLabel::IsSet(void)
 {
-	return m_Script != NULL;
+    return m_Script != NULL;
 }
 
 bool ScriptThreadLabel::IsFile(const_str filename)
 {
-	return m_Script && m_Script->ConstFilename() == filename && m_Label == STRING_EMPTY;
+    return m_Script && m_Script->ConstFilename() == filename && m_Label == STRING_EMPTY;
 }
 
-void ScriptThreadLabel::Archive( Archiver& arc )
+void ScriptThreadLabel::Archive(Archiver& arc)
 {
-	GameScript::Archive(arc, m_Script);
+    GameScript::Archive(arc, m_Script);
 
-	Director.ArchiveString( arc, m_Label );
+    Director.ArchiveString(arc, m_Label);
 }
