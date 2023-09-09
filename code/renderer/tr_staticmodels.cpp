@@ -582,7 +582,7 @@ void RB_StaticMesh(staticSurface_t* staticSurf) {
         for (i = 0; i < render_count; i++) {
             collapse[i] = i;
         }
-        for (i = 0; i < surf->numVerts; i++) {
+        for (i = render_count; i < surf->numVerts; i++) {
             collapse[i] = collapse[collapse_map[i]];
         }
 
