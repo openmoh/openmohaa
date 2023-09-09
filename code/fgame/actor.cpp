@@ -12837,7 +12837,7 @@ void Actor::EventSetTurret
 	)
 {
 	Listener *l = ev->GetListener(1);
-	if (l->inheritsFrom(&TurretGun::ClassInfo))
+	if (l && l->inheritsFrom(&TurretGun::ClassInfo))
 	{
 		m_pTurret = (TurretGun *)l;
 	}
