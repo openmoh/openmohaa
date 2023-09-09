@@ -11647,7 +11647,7 @@ void Actor::SetPatrolCurrentNode
 {
 	ClearPatrolCurrentNode();
 	
-	if (!l->inheritsFrom(&SimpleEntity::ClassInfo))
+	if (l && !l->inheritsFrom(&SimpleEntity::ClassInfo))
 	{
 		ScriptError("Bad patrol path with classname '%s' specified for '%s' at (%f %f %f)\n",
 			l->getClassname(),
