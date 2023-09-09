@@ -457,14 +457,12 @@ void TIKI_ParseAnimations( dloaddef_t *ld )
 					{
 						if( !depth )
 						{
-							continue;
+							break;
 						}
 
 						depth--;
 					}
 				}
-
-				return;
 			}
 		}
 		else
