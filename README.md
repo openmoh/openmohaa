@@ -98,29 +98,35 @@ OpenMoHAA supports any architecture, thanks to the CMake build system and cross-
 
 The following tools are required for all platforms:
 - CMake >= 3.5
-- Flex and Bison
+- Flex (>= 2.6.4) and Bison (>= 3.5.1)
 - A C++11 compiler is also required.
 
 The installation directory can be set to the MOHAA directory.
 
-By default, the build will produce both the client and dedicated server versions. The client build can be excluded by appending `-DBUILD_NO_CLIENT=1` to the CMake command-line arguments. Using this parameter will result in only the server portion being built.
+By default, the build will produce both the client and dedicated server versions. The client can be omitted from the build by appending `-DBUILD_NO_CLIENT=1` to the CMake command-line arguments. Using this parameter will result in only the server portion being built.
 
 ### Linux
 
 These are the tools required on Linux :
-- Clang >= 3.3 or GCC >= 4.8.1
+- Clang >= 3.3 or GCC >= 4.8.5
+- libsdl2-dev
 
-**clang-3.5** and **gcc-4.8.5** should work (tested on Ubuntu 16.04). Use the latest possible version of those compilers.
+**clang-3.5** and **gcc-4.8.5** should work (tested on Ubuntu 16.04), but the latest version should be used.
 
-SDL2 library is required (libsdl2-dev).
+Ubuntu 20.04 is the minimum version required to fully compile the project successfully.
 
-1 line install command with latest clang version : `sudo apt-get install -y ninja-build cmake make clang-15 lld-15 flex bison libsdl2-dev`
+1 line install command with clang:
+```sh
+sudo apt-get install -y cmake ninja-build clang lld flex bison libsdl2-dev
+```
 
-Example with **CMake**, **clang-15** and **ninja-build** installed:
+Example with **CMake** and **ninja-build** installed:
 ```sh
 mkdir .cmake && cd .cmake
-cmake -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 -G Ninja
+cmake -G Ninja ../
 ```
+
+Other compilers can be specified by appending `-DCMAKE_C_COMPILER=/path/to/compiler -DCMAKE_CXX_COMPILER=path/to/compiler` to the CMake command-line.
 
 ### Windows
 
