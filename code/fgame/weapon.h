@@ -396,7 +396,7 @@ public:
     void       DetachFromOwner(void);
     void       AttachToOwner(weaponhand_t hand);
     void       WeaponSound(Event *ev);
-    void       GetMuzzlePosition(
+    virtual void GetMuzzlePosition(
               Vector *position, Vector *forward = NULL, Vector *right = NULL, Vector *up = NULL, Vector *vBarrelPos = NULL
           );
     qboolean AutoChange(void);
