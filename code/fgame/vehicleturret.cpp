@@ -70,7 +70,7 @@ CLASS_DECLARATION(TurretGun, VehicleTurretGun, NULL) {
     {&EV_VehicleTurretGun_SetCollisionEntity,    &VehicleTurretGun::EventSetCollisionModel},
     {&EV_Damage,                                 &VehicleTurretGun::EventDamage           },
     {&EV_Killed,                                 &VehicleTurretGun::EventKilled           },
-    {&EV_Turret_TurnSpeed,                       &VehicleTurretGun::EventTurnSpeed        },
+    {&EV_Turret_AI_TurnSpeed,                    &VehicleTurretGun::EventTurnSpeed        },
     {&EV_VehicleTurretGun_Lock,                  &VehicleTurretGun::EventLock             },
     {&EV_VehicleTurretGun_Unlock,                &VehicleTurretGun::EventUnlock           },
     {&EV_VehicleTurretGun_SoundSet,              &VehicleTurretGun::SetSoundSet           },
@@ -317,7 +317,7 @@ void VehicleTurretGun::TurretBeginUsed(Sentient *pEnt)
     flags &= ~FL_THINK;
     current_attachToTag = "";
     ForceIdle();
-    CreateViewModel();
+    P_CreateViewModel();
 }
 
 void VehicleTurretGun::TurretEndUsed(void)
@@ -333,7 +333,7 @@ void VehicleTurretGun::TurretEndUsed(void)
         }
 
         player->ExitTurret();
-        DeleteViewModel();
+        P_DeleteViewModel();
     }
 
     owner             = NULL;
@@ -486,7 +486,7 @@ void VehicleTurretGun::EventGetCollisionModel(Event *ev)
 
 void VehicleTurretGun::EventTurnSpeed(Event *ev)
 {
-    TurnSpeed(ev->GetFloat(1));
+    AI_TurnSpeed(ev->GetFloat(1));
 }
 
 void VehicleTurretGun::EventLock(Event *ev)

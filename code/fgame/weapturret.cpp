@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -29,1428 +29,1541 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110EV_DEFAULT301  U
 
 Event EV_Turret_IdleCheckOffset
 (
-	"idleCheckOffset",
-	EV_DEFAULT,
-	"v",
-	"offset",
-	"Sets the to trace to for collision checking when idling"
+    "idleCheckOffset",
+    EV_DEFAULT,
+    "v",
+    "offset",
+    "Sets the offset to trace to for collision checking when idling",
+    EV_NORMAL
 );
-
-Event EV_Turret_ViewOffset
+Event EV_Turret_P_ViewOffset
 (
-	"viewOffset",
-	EV_DEFAULT,
-	"v",
-	"offset",
-	"Sets the view to use for the turret"
+    "viewOffset",
+    EV_DEFAULT,
+    "v",
+    "offset",
+    "Sets the view offset to use for the turret",
+    EV_NORMAL
 );
-
-Event EV_Turret_SetPlayerUsable
+Event EV_Turret_MaxIdlePitch
 (
-	"setPlayerUsable",
-	EV_DEFAULT,
-	"i",
-	"state",
-	"Sets wether the turret can be used by players. 0 means no, 1 means yes."
+    "maxIdlePitch",
+    EV_DEFAULT,
+    "f",
+    "offset",
+    "Sets the offset to trace to for collision checking when idling",
+    EV_NORMAL
 );
-
-Event EV_Turret_SetAimTarget
+Event EV_Turret_MaxIdleYaw
 (
-	"setAimTarget",
-	EV_DEFAULT,
-	"S",
-	"target",
-	"Makes the turret aim at an entity"
+    "maxIdleYaw",
+    EV_DEFAULT,
+    "f",
+    "offset",
+    "Sets the offset to trace to for collision checking when idling",
+    EV_NORMAL
 );
-
-Event EV_Turret_SetAimOffset
+Event EV_Turret_P_SetPlayerUsable
 (
-	"setAimOffset",
-	EV_DEFAULT,
-	"v",
-	"offset",
-	"Makes the turret aim with specified offset"
+    "setPlayerUsable",
+    EV_DEFAULT,
+    "i",
+    "state",
+    "Sets wether the turret can be used by players. 0 means no, 1 means yes.",
+    EV_NORMAL
 );
-
-Event EV_Turret_ClearAimTarget
+Event EV_Turret_AI_SetAimTarget
 (
-	"clearAimTarget",
-	EV_DEFAULT,
-	"S",
-	"target",
-	"Makes the turret aim at an entity"
+    "setAimTarget",
+    EV_DEFAULT,
+    "S",
+    "target",
+    "Makes the turret aim at an entity",
+    EV_NORMAL
 );
-
-Event EV_Turret_StartFiring
+Event EV_Turret_AI_SetAimOffset
 (
-	"startFiring",
-	EV_DEFAULT,
-	0,
-	0,
-	"Makes the turret start shooting"
+    "setAimOffset",
+    EV_DEFAULT,
+    "v",
+    "offset",
+    "Makes the turret aim with specified offset",
+    EV_NORMAL
 );
-
-Event EV_Turret_StopFiring
+Event EV_Turret_AI_ClearAimTarget
 (
-	"stopFiring",
-	EV_DEFAULT,
-	0,
-	0,
-	"Makes the turret stop shooting"
+    "clearAimTarget",
+    EV_DEFAULT,
+    "S",
+    "target",
+    "Makes the turret aim at an entity",
+    EV_NORMAL
 );
-
-Event EV_Turret_TurnSpeed
+Event EV_Turret_AI_StartFiring
 (
-	"turnSpeed",
-	EV_DEFAULT,
-	"f",
-	"speed",
-	"Sets the turret's turn speed"
+    "startFiring",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Makes the turret start shooting",
+    EV_NORMAL
 );
-
+Event EV_Turret_AI_StopFiring
+(
+    "stopFiring",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Makes the turret stop shooting",
+    EV_NORMAL
+);
+Event EV_Turret_AI_TurnSpeed
+(
+    "turnSpeed",
+    EV_DEFAULT,
+    "f",
+    "speed",
+    "Sets the turret's turn speed",
+    EV_NORMAL
+);
+Event EV_Turret_AI_PitchSpeed
+(
+    "pitchSpeed",
+    EV_DEFAULT,
+    "f",
+    "speed",
+    "Sets the turret's pitch speed",
+    EV_NORMAL
+);
 Event EV_Turret_PitchCaps
 (
-	"pitchCaps",
-	EV_DEFAULT,
-	"v",
-	"caps",
-	"Sets the pitch caps for the turret. First number is upward cap, second is downward cap, and the third just makes it nice little vector"
+    "pitchCaps",
+    EV_DEFAULT,
+    "v",
+    "caps",
+    "Sets the pitch caps for the turret. First number is upward cap, second is downward cap, and the third just makes "
+    "it "
+    "nice little vector",
+    EV_NORMAL
 );
-
 Event EV_Turret_MaxYawOffset
 (
-	"maxYawOffset",
-	EV_DEFAULT,
-	"f",
-	"maxoffset",
-	"Sets the max yaw from the turrets central facing direction"
+    "maxYawOffset",
+    EV_DEFAULT,
+    "f",
+    "maxoffset",
+    "Sets the max yaw offset from the turrets central facing direction",
+    EV_NORMAL
 );
-
 Event EV_Turret_YawCenter
 (
-	"yawCenter",
-	EV_DEFAULT,
-	"f",
-	"yaw",
-	"Sets the yaw for the center of the turret's turning arc"
+    "yawCenter",
+    EV_DEFAULT,
+    "f",
+    "yaw",
+    "Sets the yaw for the center of the turret's turning arc",
+    EV_NORMAL
 );
-
-Event EV_Turret_UserDistance
+Event EV_Turret_P_UserDistance
 (
-	"userdistance",
-	EV_DEFAULT,
-	"f",
-	"min_dist",
-	"Sets the distance the user should be placed at while using this turret"
+    "userdistance",
+    EV_DEFAULT,
+    "f",
+    "dist",
+    "Sets the distance the user should be placed at while using this turret",
+    EV_NORMAL
 );
-
-Event EV_Turret_ViewJitter
+Event EV_Turret_P_ViewJitter
 (
-	"viewjitter",
-	EV_DEFAULT,
-	"f",
-	"amount",
-	"Sets the amount that the owner's view should be jittered when fired"
+    "viewjitter",
+    EV_DEFAULT,
+    "f",
+    "amount",
+    "Sets the amount that the owner's view should be jittered when fired",
+    EV_NORMAL
 );
-
-Event EV_Turret_BurstFireSettings
+Event EV_Turret_EventDoJitter
 (
-	"burstFireSettings",
-	EV_DEFAULT,
-	"ffff",
-	"mintime maxtime mindelay maxdelay",
-	"Sets the settings for burst mode firing"
+    "dojitter",
+    EV_DEFAULT,
+    "f",
+    "(optional) jitter amount",
+    "Apply the jitter without firing",
+    EV_NORMAL
 );
-
+Event EV_Turret_AI_BurstFireSettings
+(
+    "burstFireSettings",
+    EV_DEFAULT,
+    "ffff",
+    "mintime maxtime mindelay maxdelay",
+    "Sets the settings for burst mode firing",
+    EV_NORMAL
+);
 Event EV_Turret_Enter
 (
-	"turretenter",
-	EV_DEFAULT,
-	"eS",
-	"turret driver_anim",
-	"Called when someone gets into a turret."
+    "turretenter",
+    EV_DEFAULT,
+    "eS",
+    "turret driver_anim",
+    "Called when someone gets into a turret.",
+    EV_NORMAL
 );
-
 Event EV_Turret_Exit
 (
-	"turretexit",
-	EV_DEFAULT,
-	"e",
-	"turret",
-	"Called when driver gets out of the turret."
+    "turretexit",
+    EV_DEFAULT,
+    "e",
+    "turret",
+    "Called when driver gets out of the turret.",
+    EV_NORMAL
 );
-
-Event EV_Turret_SetThread
+Event EV_Turret_P_SetThread
 (
-	"setthread",
-	EV_DEFAULT,
-	"s",
-	"value",
-	"Sets the name of the thread called when a player uses the turret"
+    "setthread",
+    EV_DEFAULT,
+    "s",
+    "value",
+    "Sets the name of the thread called when a player uses the turret",
+    EV_NORMAL
+);
+Event EV_Turret_AI_SetTargetType
+(
+    "targettype",
+    EV_DEFAULT,
+    "s",
+    "value",
+    "Sets the target type to be none, any, or player",
+    EV_NORMAL
+);
+Event EV_Turret_AI_SetTargetType2
+(
+    "targettype",
+    EV_DEFAULT,
+    "s",
+    "value",
+    "Sets the target type to be none, any, or player",
+    EV_SETTER
+);
+Event EV_Turret_AI_GetTargetType
+(
+    "targettype",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Gets the target type",
+    EV_GETTER
+);
+Event EV_Turret_AI_ConvergeTime
+(
+    "convergeTime",
+    EV_DEFAULT,
+    "f",
+    "time",
+    "Sets the convergence time",
+    EV_NORMAL
+);
+Event EV_Turret_AI_SuppressTime
+(
+    "suppressTime",
+    EV_DEFAULT,
+    "f",
+    "time",
+    "Sets the suppression time",
+    EV_NORMAL
+);
+Event EV_Turret_AI_SuppressWaitTime
+(
+    "suppressWaitTime",
+    EV_DEFAULT,
+    "f",
+    "time",
+    "Sets the suppression wait nonfiring time before turret returns to default position",
+    EV_NORMAL
+);
+Event EV_Turret_AI_SuppressWidth
+(
+    "suppressWidth",
+    EV_DEFAULT,
+    "f",
+    "radius",
+    "Sets the horizontal radius of suppression fire",
+    EV_NORMAL
+);
+Event EV_Turret_AI_SuppressHeight
+(
+    "suppressHeight",
+    EV_DEFAULT,
+    "f",
+    "radius",
+    "Sets the vertical radius of suppression fire",
+    EV_NORMAL
+);
+Event EV_Turret_SetUsable
+(
+    "setusable",
+    EV_DEFAULT,
+    "i",
+    "state",
+    "Sets wether the turret can be used as a weapon. 0 means no, 1 means yes.",
+    EV_NORMAL
+);
+Event EV_Turret_AI_SetBulletSpread
+(
+    "aibulletspread",
+    EV_DEFAULT,
+    "ff",
+    "bulletSpreadX bulletSpreadY",
+    "Set the spread of the bullets in the x and y axis",
+    EV_NORMAL
+);
+Event EV_Turret_SetMaxUseAngle
+(
+    "maxuseangle",
+    EV_DEFAULT,
+    "f",
+    "maxuseangle",
+    "Set max use angle to allow player to mount the turret.",
+    EV_NORMAL
+);
+Event EV_Turret_SetStartYaw
+(
+    "startyaw",
+    EV_DEFAULT,
+    "f",
+    "startyaw",
+    "Sets the yaw to be used as the center of our allowed turn arc.",
+    EV_NORMAL
+);
+Event EV_Turret_P_SetViewAngles
+(
+    "psetviewangles",
+    EV_DEFAULT,
+    "v",
+    "offset",
+    "Sets the view angles.",
+    EV_NORMAL
 );
 
-CLASS_DECLARATION( Weapon, TurretGun, NULL )
-{
-	{ &EV_Trigger_Effect,					NULL },
-	{ &EV_Item_DropToFloor,					&TurretGun::PlaceTurret },
-	{ &EV_Item_Pickup,						NULL },
-	{ &EV_Weapon_Shoot,						&TurretGun::Shoot },
-	{ &EV_Use, 								&TurretGun::TurretUsed },
-	{ &EV_Turret_SetPlayerUsable, 			&TurretGun::SetPlayerUsable },
-	{ &EV_Turret_IdleCheckOffset, 			&TurretGun::SetIdleCheckOffset },
-	{ &EV_Turret_ViewOffset, 				&TurretGun::SetViewOffset },
-	{ &EV_Turret_SetAimTarget, 				&TurretGun::EventSetAimTarget },
-	{ &EV_Turret_SetAimOffset, 				&TurretGun::EventSetAimOffset },
-	{ &EV_Turret_ClearAimTarget, 			&TurretGun::EventClearAimTarget },
-	{ &EV_Turret_StartFiring, 				&TurretGun::EventStartFiring },
-	{ &EV_Turret_StopFiring, 				&TurretGun::EventStopFiring },
-	{ &EV_Turret_TurnSpeed, 				&TurretGun::EventTurnSpeed },
-	{ &EV_Turret_PitchCaps, 				&TurretGun::EventPitchCaps },
-	{ &EV_Turret_MaxYawOffset, 				&TurretGun::EventMaxYawOffset },
-	{ &EV_Turret_YawCenter, 				&TurretGun::EventYawCenter },
-	{ &EV_Turret_UserDistance, 				&TurretGun::EventUserDistance },
-	{ &EV_Turret_ViewJitter, 				&TurretGun::EventViewJitter },
-	{ &EV_Turret_BurstFireSettings, 		&TurretGun::EventBurstFireSettings },
-	{ &EV_Turret_SetThread, 				&TurretGun::EventSetThread },
-	{ &EV_SetViewangles, 					&TurretGun::SetViewangles },
-	{ &EV_GetViewangles, 					&TurretGun::GetViewangles },
-	{ NULL, NULL }
+CLASS_DECLARATION(Weapon, TurretGun, NULL) {
+    {&EV_Trigger_Effect,              NULL                                   },
+    {&EV_Item_DropToFloor,            &TurretGun::PlaceTurret                },
+    {&EV_Item_Pickup,                 NULL                                   },
+    {&EV_Weapon_Shoot,                &TurretGun::Shoot                      },
+    {&EV_Use,                         &TurretGun::TurretUsed                 },
+    {&EV_Turret_P_SetPlayerUsable,    &TurretGun::P_SetPlayerUsable          },
+    {&EV_Turret_SetUsable,            &TurretGun::EventSetUsable             },
+    {&EV_Turret_IdleCheckOffset,      &TurretGun::SetIdleCheckOffset         },
+    {&EV_Turret_P_ViewOffset,         &TurretGun::P_SetViewOffset            },
+    {&EV_Turret_MaxIdlePitch,         &TurretGun::EventMaxIdlePitch          },
+    {&EV_Turret_MaxIdleYaw,           &TurretGun::EventMaxIdleYaw            },
+    {&EV_Turret_AI_SetAimTarget,      &TurretGun::AI_EventSetAimTarget       },
+    {&EV_Turret_AI_SetAimOffset,      &TurretGun::AI_EventSetAimOffset       },
+    {&EV_Turret_AI_ClearAimTarget,    &TurretGun::AI_EventClearAimTarget     },
+    {&EV_Turret_AI_StartFiring,       &TurretGun::AI_EventStartFiring        },
+    {&EV_Turret_AI_StopFiring,        &TurretGun::AI_EventStopFiring         },
+    {&EV_Turret_AI_TurnSpeed,         &TurretGun::AI_EventTurnSpeed          },
+    {&EV_Turret_AI_PitchSpeed,        &TurretGun::AI_EventPitchSpeed         },
+    {&EV_Turret_PitchCaps,            &TurretGun::EventPitchCaps             },
+    {&EV_Turret_MaxYawOffset,         &TurretGun::EventMaxYawOffset          },
+    {&EV_Turret_YawCenter,            &TurretGun::EventYawCenter             },
+    {&EV_Turret_P_UserDistance,       &TurretGun::P_EventUserDistance        },
+    {&EV_Turret_P_ViewJitter,         &TurretGun::P_EventViewJitter          },
+    {&EV_Turret_EventDoJitter,        &TurretGun::P_EventDoJitter            },
+    {&EV_Turret_AI_BurstFireSettings, &TurretGun::AI_EventBurstFireSettings  },
+    {&EV_Turret_P_SetThread,          &TurretGun::EventSetThread             },
+    {&EV_Turret_P_SetViewAngles,      &TurretGun::P_SetViewAnglesForTurret   },
+    {&EV_SetViewangles,               &TurretGun::P_SetViewangles            },
+    {&EV_GetViewangles,               &TurretGun::P_GetViewangles            },
+    {&EV_Turret_AI_SetTargetType,     &TurretGun::AI_EventSetTargetType      },
+    {&EV_Turret_AI_SetTargetType2,    &TurretGun::AI_EventSetTargetType      },
+    {&EV_Turret_AI_GetTargetType,     &TurretGun::AI_EventGetTargetType      },
+    {&EV_Turret_AI_ConvergeTime,      &TurretGun::AI_EventSetConvergeTime    },
+    {&EV_Turret_AI_SuppressTime,      &TurretGun::AI_EventSetSuppressTime    },
+    {&EV_Turret_AI_SuppressWaitTime,  &TurretGun::AI_EventSetSuppressWaitTime},
+    {&EV_Turret_AI_SuppressWidth,     &TurretGun::AI_EventSetSuppressWidth   },
+    {&EV_Turret_AI_SuppressHeight,    &TurretGun::AI_EventSetSuppressHeight  },
+    {&EV_Turret_AI_SetBulletSpread,   &TurretGun::AI_EventSetBulletSpread    },
+    {NULL,                            NULL                                   }
 };
 
 TurretGun::TurretGun()
 {
-	entflags |= EF_TURRET;
+    entflags |= EF_TURRET;
 
-	AddWaitTill(STRING_ONTARGET);
+    AddWaitTill(STRING_ONTARGET);
 
-	if( LoadingSavegame )
-	{
-		return;
-	}
+    if (LoadingSavegame) {
+        return;
+    }
 
-	// turrets must not respawn
-	// it can't be picked up
-	setRespawn( qfalse );
+    // turrets must not respawn
+    // it can't be picked up
+    setRespawn(qfalse);
 
-	// allow monsters to use the turret
-	respondto = TRIGGER_PLAYERS | TRIGGER_MONSTERS;
+    // allow monsters to use the turret
+    respondto = TRIGGER_PLAYERS | TRIGGER_MONSTERS;
 
-	// set the clipmask
-	edict->clipmask = MASK_AUTOCALCLIFE;
+    // set the clipmask
+    edict->clipmask = MASK_AUTOCALCLIFE;
 
-	m_iIdleHitCount = 0;
+    m_iIdleHitCount = 0;
 
-	// set the fakebullets
-	m_bFakeBullets = ( spawnflags & FAKEBULLETS );
+    // set the fakebullets
+    m_bFakeBullets = (spawnflags & FAKEBULLETS);
 
-	// make the turret already usable
-	m_bUsable = true;
-	m_bPlayerUsable = true;
-	m_bRestable = true;
+    // make the turret already usable
+    m_bUsable       = true;
+    m_bPlayerUsable = true;
+    m_bRestable     = true;
 
-	m_fIdlePitchSpeed = 0;
+    m_fIdlePitchSpeed = 0;
 
-	// set the size
-	setSize( Vector( -16, -16, -8 ), Vector( 16, 16, 32 ) );
+    // set the size
+    setSize(Vector(-16, -16, -8), Vector(16, 16, 32));
 
-	// setup the turret angles cap
-	m_fTurnSpeed = 180.0f;
-	m_fPitchUpCap = -45.0f;
-	m_fPitchDownCap = 45.0f;
-	m_fMaxYawOffset = 180.0f;
-	m_fUserDistance = 64.0f;
+    // setup the turret angles cap
+    m_fTurnSpeed    = 180.0f;
+    m_fPitchUpCap   = -45.0f;
+    m_fPitchDownCap = 45.0f;
+    m_fMaxYawOffset = 180.0f;
+    m_fUserDistance = 64.0f;
 
-	// set the idle angles
-	m_vIdleCheckOffset = Vector( -56, 0, 0 );
+    // set the idle angles
+    m_vIdleCheckOffset = Vector(-56, 0, 0);
 
-	// set the burst time
-	m_fMinBurstTime = 0;
-	m_fMaxBurstTime = 0;
+    // set the burst time
+    m_fMinBurstTime = 0;
+    m_fMaxBurstTime = 0;
 
-	// set the burst delay
-	m_fMinBurstDelay = 0;
-	m_fMaxBurstDelay = 0;
+    // set the burst delay
+    m_fMinBurstDelay = 0;
+    m_fMaxBurstDelay = 0;
 
-	m_iFiring = 0;
-	m_fFireToggleTime = level.time;
+    m_iFiring         = 0;
+    m_fFireToggleTime = level.time;
 
-	// set the camera
-	m_pUserCamera = NULL;
+    // set the camera
+    m_pUserCamera = NULL;
 
-	// setup the view jitter
-	m_fViewJitter = 0;
-	m_fCurrViewJitter = 0;
+    // setup the view jitter
+    m_fViewJitter     = 0;
+    m_fCurrViewJitter = 0;
 
-	// turret doesn't have an owner when spawning
-	m_bHadOwner = 0;
+    // turret doesn't have an owner when spawning
+    m_bHadOwner = 0;
 
-	m_pViewModel = NULL;
+    m_pViewModel = NULL;
 }
 
 TurretGun::~TurretGun()
 {
-	Unregister( STRING_ONTARGET );
+    Unregister(STRING_ONTARGET);
 
-	entflags &= ~EF_TURRET;
+    entflags &= ~EF_TURRET;
 }
 
-void TurretGun::Archive
-	(
-	Archiver& arc
-	)
+void TurretGun::PlaceTurret(Event *ev)
 {
-	Weapon::Archive( arc );
+    // Don't make the turret solid
+    setSolidType(SOLID_NOT);
 
-	arc.ArchiveBool( &m_bFakeBullets );
-	arc.ArchiveBool( &m_bPlayerUsable );
+    // The turret shouldn't move
+    setMoveType(MOVETYPE_NONE);
 
-	arc.ArchiveFloat( &m_fIdlePitchSpeed );
-	arc.ArchiveInteger( &m_iIdleHitCount );
-	arc.ArchiveVector( &m_vIdleCheckOffset );
-	arc.ArchiveVector( &m_vViewOffset );
+    showModel();
 
-	arc.ArchiveFloat( &m_fTurnSpeed );
-	arc.ArchiveFloat( &m_fPitchUpCap );
-	arc.ArchiveFloat( &m_fPitchDownCap );
-	arc.ArchiveFloat( &m_fStartYaw );
-	arc.ArchiveFloat( &m_fMaxYawOffset );
-	arc.ArchiveFloat( &m_fUserDistance );
+    groundentity = NULL;
+    m_fStartYaw  = angles[1];
 
-	arc.ArchiveFloat( &m_fMinBurstTime );
-	arc.ArchiveFloat( &m_fMaxBurstTime );
-	arc.ArchiveFloat( &m_fMinBurstDelay );
-	arc.ArchiveFloat( &m_fMaxBurstDelay );
+    if (m_bFakeBullets) {
+        firetype[FIRE_PRIMARY] = FT_FAKEBULLET;
+    }
 
-	arc.ArchiveFloat( &m_fFireToggleTime );
-	arc.ArchiveInteger( &m_iFiring );
-	arc.ArchiveVector( &m_vUserViewAng );
-	arc.ArchiveSafePointer( &m_pUserCamera );
-
-	arc.ArchiveFloat( &m_fViewJitter );
-	arc.ArchiveFloat( &m_fCurrViewJitter );
-
-	arc.ArchiveVector( &m_Aim_offset );
-	arc.ArchiveSafePointer( &m_pViewModel );
-	arc.ArchiveBool( &m_bUsable );
-
-	m_UseThread.Archive( arc );
-	
-	arc.ArchiveBool( &m_bHadOwner );
-	arc.ArchiveBool( &m_bRestable );
-
-	if( arc.Loading() )
-	{
-		m_vUserLastCmdAng = vec_zero;
-	}
+    flags |= FL_THINK;
 }
 
-void TurretGun::SetTargetAngles
-	(
-	Vector& vTargAngles
-	)
+void TurretGun::ThinkIdle(void)
 {
-	float fDiff;
-	float fTurnAmount;
+    Vector  vDir, vNewAngles, vEnd;
+    trace_t trace;
 
-	if( vTargAngles[ 0 ] > 180.0f )
-	{
-		vTargAngles[ 0 ] -= 360.0f;
-	}
-	else if( vTargAngles[ 0 ] < -180.0f )
-	{
-		vTargAngles[ 0 ] += 360.0f;
-	}
+    if (!m_bRestable) {
+        return;
+    }
 
-	if( vTargAngles[ 0 ] < m_fPitchUpCap )
-	{
-		vTargAngles[ 0 ] = m_fPitchUpCap;
-	}
+    if (angles[0] > 180.0f) {
+        angles[0] -= 360.0f;
+    }
 
-	if( vTargAngles[ 0 ] > m_fPitchDownCap )
-	{
-		vTargAngles[ 0 ] = m_fPitchDownCap;
-	}
+    if (angles[0] < -80.0f) {
+        m_fIdlePitchSpeed = 0;
+        m_iIdleHitCount   = 0;
+        return;
+    }
 
-	if( owner && owner->IsSubclassOfPlayer() )
-	{
-		fTurnAmount = 180.0f;
-	}
-	else
-	{
-		fTurnAmount = level.frametime * m_fTurnSpeed;
-	}
+    if (m_iIdleHitCount > 1) {
+        return;
+    }
 
-	fDiff = AngleSubtract( m_fPitchDownCap, angles[ 0 ] );
-	if( fTurnAmount <= fabs( fDiff ) )
-	{
-		if( fDiff <= 0.0f )
-		{
-			angles[ 0 ] = angles[ 0 ] - fTurnAmount;
-		}
-		else
-		{
-			angles[ 0 ] = fTurnAmount + angles[ 0 ];
-		}
-	}
-	else
-	{
-		angles[ 0 ] = vTargAngles[ 0 ];
-	}
+    m_fIdlePitchSpeed -= level.frametime * 300.0f;
 
-	fDiff = AngleSubtract( vTargAngles[ 1 ], m_fStartYaw );
-	if( fDiff <= m_fMaxYawOffset )
-	{
-		vTargAngles[ 1 ] = fDiff + m_fStartYaw;
+    vNewAngles = Vector(angles[0] + level.frametime * m_fIdlePitchSpeed, angles[1], angles[2]);
+    vNewAngles.AngleVectorsLeft(&vDir);
+    vEnd = origin + vDir * m_vIdleCheckOffset[0];
 
-		if( -( m_fMaxYawOffset ) > fDiff )
-		{
-			vTargAngles[ 1 ] = m_fStartYaw - m_fMaxYawOffset;
-		}
-	}
-	else
-	{
-		vTargAngles[ 1 ] = m_fMaxYawOffset + m_fStartYaw;
-	}
+    trace = G_Trace(origin, vec_zero, vec_zero, vEnd, this, edict->clipmask, false, "TurretGun::Think");
 
-	fDiff = AngleSubtract( vTargAngles[ 1 ], angles[ 1 ] );
+    if (trace.fraction == 1.0f) {
+        setAngles(vNewAngles);
+        m_iIdleHitCount = 0;
+        return;
+    }
 
-	if( fTurnAmount <= fabs( fDiff ) )
-	{
-		if( fDiff <= 0.0f )
-		{
-			angles[ 1 ] = angles[ 1 ] - fTurnAmount;
-		}
-		else
-		{
-			angles[ 1 ] = angles[ 1 ] + fTurnAmount;
-		}
-	}
-	else
-	{
-		angles[ 1 ] = vTargAngles[ 1 ];
-	}
+    int iTry;
+    for (iTry = 3; iTry > 0; iTry--) {
+        vNewAngles[0] = angles[0] + level.frametime * m_fIdlePitchSpeed * iTry * 0.25f;
+        vNewAngles.AngleVectorsLeft(&vDir);
+        vEnd = origin + vDir * m_vIdleCheckOffset[0];
 
-	setAngles( angles );
+        trace = G_Trace(origin, vec_zero, vec_zero, vEnd, this, edict->clipmask, false, "TurretGun::Think");
 
-	if( fabs( fDiff ) < 2.0f )
-	{
-		Unregister( STRING_ONTARGET );
-	}
+        if (trace.fraction == 1.0f) {
+            setAngles(vNewAngles);
+
+            m_iIdleHitCount = 0;
+            m_fIdlePitchSpeed *= 0.25f * iTry;
+            break;
+        }
+    }
+
+    if (!iTry) {
+        m_fIdlePitchSpeed = 0;
+
+        Entity *ent = G_GetEntity(trace.entityNum);
+
+        if (ent && ent == world) {
+            m_iIdleHitCount++;
+        } else {
+            m_iIdleHitCount = 0;
+        }
+    }
 }
 
-void TurretGun::ThinkActive
-	(
-	void
-	)
+void TurretGun::AI_SetTargetAngles(const vec3_t angles, float speed)
 {
-	Vector vTarg;
-	Vector vTargAngles;
-	Vector vDelta;
-	Vector vAngles;
-
-	if( ( owner ) && owner->IsSubclassOfPlayer() )
-	{
-		if( m_vUserViewAng[ 0 ] < m_fPitchUpCap )
-		{
-			m_vUserViewAng[ 0 ] = m_fPitchUpCap;
-		}
-		else if( m_vUserViewAng[ 0 ] > m_fPitchDownCap )
-		{
-			m_vUserViewAng[ 0 ] = m_fPitchDownCap;
-		}
-
-		float fDiff = AngleSubtract( m_vUserViewAng[ 1 ], m_fStartYaw );
-
-		if( fDiff <= m_fMaxYawOffset )
-		{
-			m_vUserViewAng[ 1 ] = fDiff + m_fStartYaw;
-
-			if( -( m_fMaxYawOffset ) > fDiff )
-			{
-				m_vUserViewAng[ 1 ] = m_fStartYaw - m_fMaxYawOffset;
-			}
-		}
-		else
-		{
-			m_vUserViewAng[ 1 ] = m_fMaxYawOffset + m_fStartYaw;
-		}
-
-		owner->SetViewAngles( m_vUserViewAng );
-		vTarg = owner->GunTarget( false ) - origin;
-		vTargAngles = vTarg.toAngles();
-
-		SetTargetAngles( vTargAngles );
-	}
-	else if( aim_target )
-	{
-		Vector vNewOfs;
-
-		vDelta = aim_target->centroid - origin;
-		vNewOfs = vDelta + m_Aim_offset;
-
-		vectoangles( vDelta, vTargAngles );
-		SetTargetAngles( vTargAngles );
-
-		if( owner )
-		{
-			Vector forward;
-
-			AngleVectorsLeft( angles, forward, NULL, NULL );
-
-			origin = forward * vNewOfs.length();
-		}
-	}
-
-	if( m_iFiring )
-	{
-		if( m_fMaxBurstTime == 0 || ( owner != NULL && owner->client ) )
-		{
-			m_iFiring = 2;
-			if( ReadyToFire( FIRE_PRIMARY ) )
-			{
-				Fire( FIRE_PRIMARY );
-
-				if( owner->IsSubclassOfPlayer() )
-				{
-					m_fCurrViewJitter = m_fViewJitter;
-				}
-			}
-		}
-		else if( m_iFiring != 2 )
-		{
-			if( level.time > m_fFireToggleTime )
-			{
-				m_iFiring = 2;
-				m_fFireToggleTime = G_Random( m_fMaxBurstTime - m_fMinBurstTime ) + ( level.time + m_fMinBurstTime );
-			}
-		}
-		else if( ReadyToFire( FIRE_PRIMARY ) )
-		{
-			Fire( FIRE_PRIMARY );
-
-			if( owner->IsSubclassOfPlayer() )
-			{
-				m_fCurrViewJitter = m_fViewJitter;
-			}
-		}
-		else if( level.time > m_fFireToggleTime )
-		{
-			m_iFiring = 1;
-			m_fFireToggleTime = G_Random( m_fMaxBurstDelay - m_fMaxBurstDelay) + ( level.time + m_fMinBurstDelay );
-		}
-	}
-
-	if( owner && owner->IsSubclassOfPlayer() )
-	{
-		vAngles = m_vUserViewAng;
-
-		if( !m_pUserCamera ) {
-			m_pUserCamera = new Camera;
-		}
-
-		if( m_fCurrViewJitter > 0.0f )
-		{
-			float x = ( float )( rand() & 0x7FFF );
-			float y = ( float )( rand() & 0x7FFF );
-			float z = ( float )( rand() & 0x7FFF );
-
-			vAngles[ 0 ] += ( x * 0.00003f + x * 0.00003f - 1.0f ) * m_fCurrViewJitter;
-			vAngles[ 1 ] += ( y * 0.00003f + y * 0.00003f - 1.0f ) * m_fCurrViewJitter;
-			vAngles[ 2 ] += ( z * 0.00003f + z * 0.00003f - 1.0f ) * m_fCurrViewJitter;
-
-			m_fCurrViewJitter -= level.frametime * 6.0f;
-
-			if( m_fCurrViewJitter < 0.0f ) {
-				m_fCurrViewJitter = 0.0f;
-			}
-		}
-
-		m_pUserCamera->setOrigin( origin );
-		m_pUserCamera->setAngles( vAngles );
-		m_pUserCamera->SetPositionOffset( m_vViewOffset );
-
-		owner->client->ps.camera_flags |= CF_CAMERA_ANGLES_ALLOWOFFSET;
-
-		Player *player = ( Player * )owner.Pointer();
-
-		if( !player->IsZoomed() )
-		{
-			player->ToggleZoom( 80 );
-		}
-	}
-
-	if( owner && owner->client )
-	{
-		Vector vPos;
-		Vector vEnd;
-		Vector vAng;
-		Vector vForward;
-		Vector vMins;
-		Vector vMaxs;
-		trace_t trace;
-
-		Vector( 0, angles[ 1 ], 0 ).AngleVectorsLeft( &vForward );
-
-		vPos = origin - vForward * m_fUserDistance;
-		vPos[ 2 ] -= 16.0f;
-
-		vEnd = vPos;
-		vEnd[ 2 ] -= 64.0f;
-
-		vMins = owner->mins;
-		vMaxs = owner->maxs;
-		vMaxs[ 2 ] = owner->mins[ 2 ] + 4.0f;
-
-		trace = G_Trace(
-			vPos,
-			vMins,
-			vMaxs,
-			vEnd,
-			owner,
-			MASK_PLAYERSOLID,
-			qtrue,
-			"TurretGun::ThinkActive 1"
-			);
-
-		vPos = trace.endpos;
-
-		trace = G_Trace(
-			vPos,
-			owner->mins,
-			owner->maxs,
-			vPos,
-			owner,
-			MASK_PLAYERSOLID,
-			qtrue,
-			"TurretGun::ThinkActive 2"
-			);
-
-		if( !trace.allsolid && !trace.startsolid )
-		{
-			owner->setOrigin( vPos );
-		}
-	}
+    // FIXME: unimplemented
 }
 
-void TurretGun::ThinkIdle
-	(
-	void
-	)
+void TurretGun::AI_SetDesiredTargetAngles(const vec3_t angles, float speed)
 {
-	Vector vDir, vNewAngles, vEnd;
-	trace_t trace;
-
-	if( !m_bRestable ) {
-		return;
-	}
-
-	if( angles[ 0 ] > 180.0f )
-	{
-		angles[ 0 ] -= 360.0f;
-	}
-
-	if( angles[ 0 ] < -80.0f )
-	{
-		m_fIdlePitchSpeed = 0;
-		m_iIdleHitCount = 0;
-		return;
-	}
-
-	if( m_iIdleHitCount > 1 )
-	{
-		return;
-	}
-
-	m_fIdlePitchSpeed -= level.frametime * 300.0f;
-
-	vNewAngles = Vector( angles[ 0 ] + level.frametime * m_fIdlePitchSpeed, angles[ 1 ], angles[ 2 ] );
-	vNewAngles.AngleVectorsLeft( &vDir );
-	vEnd = origin + vDir * m_vIdleCheckOffset[ 0 ];
-
-	trace = G_Trace(
-		origin,
-		vec_zero,
-		vec_zero,
-		vEnd,
-		this,
-		edict->clipmask,
-		false,
-		"TurretGun::Think" );
-
-	if( trace.fraction == 1.0f )
-	{
-		setAngles( vNewAngles );
-		m_iIdleHitCount = 0;
-		return;
-	}
-
-	int iTry;
-	for( iTry = 3; iTry > 0; iTry-- )
-	{
-		vNewAngles[ 0 ] = angles[ 0 ] + level.frametime * m_fIdlePitchSpeed * iTry * 0.25f;
-		vNewAngles.AngleVectorsLeft( &vDir );
-		vEnd = origin + vDir * m_vIdleCheckOffset[ 0 ];
-
-		trace = G_Trace(
-			origin,
-			vec_zero,
-			vec_zero,
-			vEnd,
-			this,
-			edict->clipmask,
-			false,
-			"TurretGun::Think" );
-
-		if( trace.fraction == 1.0f )
-		{
-			setAngles( vNewAngles );
-
-			m_iIdleHitCount = 0;
-			m_fIdlePitchSpeed *= 0.25f * iTry;
-			break;
-		}
-	}
-
-	if( !iTry )
-	{
-		m_fIdlePitchSpeed = 0;
-
-		Entity *ent = G_GetEntity( trace.entityNum );
-
-		if( ent && ent == world )
-		{
-			m_iIdleHitCount++;
-		}
-		else
-		{
-			m_iIdleHitCount = 0;
-		}
-	}
+    // FIXME: unimplemented
 }
 
-void TurretGun::P_ThinkActive()
+void TurretGun::P_SetTargetAngles(Vector& vTargAngles)
 {
-	// FIXME: unimplemented
+    float fDiff;
+    float fTurnAmount;
+
+    if (vTargAngles[0] > 180.0f) {
+        vTargAngles[0] -= 360.0f;
+    } else if (vTargAngles[0] < -180.0f) {
+        vTargAngles[0] += 360.0f;
+    }
+
+    if (vTargAngles[0] < m_fPitchUpCap) {
+        vTargAngles[0] = m_fPitchUpCap;
+    }
+
+    if (vTargAngles[0] > m_fPitchDownCap) {
+        vTargAngles[0] = m_fPitchDownCap;
+    }
+
+    if (owner && owner->IsSubclassOfPlayer()) {
+        fTurnAmount = 180.0f;
+    } else {
+        fTurnAmount = level.frametime * m_fTurnSpeed;
+    }
+
+    fDiff = AngleSubtract(m_fPitchDownCap, angles[0]);
+    if (fTurnAmount <= fabs(fDiff)) {
+        if (fDiff <= 0.0f) {
+            angles[0] = angles[0] - fTurnAmount;
+        } else {
+            angles[0] = fTurnAmount + angles[0];
+        }
+    } else {
+        angles[0] = vTargAngles[0];
+    }
+
+    fDiff = AngleSubtract(vTargAngles[1], m_fStartYaw);
+    if (fDiff <= m_fMaxYawOffset) {
+        vTargAngles[1] = fDiff + m_fStartYaw;
+
+        if (-(m_fMaxYawOffset) > fDiff) {
+            vTargAngles[1] = m_fStartYaw - m_fMaxYawOffset;
+        }
+    } else {
+        vTargAngles[1] = m_fMaxYawOffset + m_fStartYaw;
+    }
+
+    fDiff = AngleSubtract(vTargAngles[1], angles[1]);
+
+    if (fTurnAmount <= fabs(fDiff)) {
+        if (fDiff <= 0.0f) {
+            angles[1] = angles[1] - fTurnAmount;
+        } else {
+            angles[1] = angles[1] + fTurnAmount;
+        }
+    } else {
+        angles[1] = vTargAngles[1];
+    }
+
+    setAngles(angles);
+
+    if (fabs(fDiff) < 2.0f) {
+        Unregister(STRING_ONTARGET);
+    }
 }
 
-void TurretGun::Think
-	(
-	void
-	)
+bool TurretGun::AI_CanTarget(const vec3_t pos)
 {
-	if (owner || (!m_bHadOwner && aim_target))
-	{
-		ThinkActive();
-	}
-	else
-	{
-		ThinkIdle();
-	}
+    Vector vAngles;
+    float  ang;
+
+    vectoangles(pos, vAngles);
+
+    ang = AngleSubtract(vAngles[1], m_fStartYaw);
+
+    if (vAngles[0] <= 180.0f) {
+        if (vAngles[0] >= -180.0f) {
+            return m_fPitchUpCap <= vAngles[0] && m_fPitchDownCap >= vAngles[0] && ang <= m_fMaxYawOffset
+                && -m_fMaxYawOffset <= ang;
+        }
+
+        vAngles[0] += 360.0f;
+    } else {
+        vAngles[0] -= 360.0f;
+    }
+
+    return m_fPitchUpCap <= vAngles[0] && m_fPitchDownCap >= vAngles[0] && ang <= m_fMaxYawOffset
+        && -m_fMaxYawOffset <= ang;
 }
 
-void TurretGun::P_UserAim(usercmd_t* cmd)
+void TurretGun::P_ThinkActive(void)
 {
-	// FIXME: unimplemented
+    Vector vTarg;
+    Vector vTargAngles;
+    Vector vDelta;
+    Vector vAngles;
+
+    if ((owner) && owner->IsSubclassOfPlayer()) {
+        if (m_vUserViewAng[0] < m_fPitchUpCap) {
+            m_vUserViewAng[0] = m_fPitchUpCap;
+        } else if (m_vUserViewAng[0] > m_fPitchDownCap) {
+            m_vUserViewAng[0] = m_fPitchDownCap;
+        }
+
+        float fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
+
+        if (fDiff <= m_fMaxYawOffset) {
+            m_vUserViewAng[1] = fDiff + m_fStartYaw;
+
+            if (-(m_fMaxYawOffset) > fDiff) {
+                m_vUserViewAng[1] = m_fStartYaw - m_fMaxYawOffset;
+            }
+        } else {
+            m_vUserViewAng[1] = m_fMaxYawOffset + m_fStartYaw;
+        }
+
+        owner->SetViewAngles(m_vUserViewAng);
+        vTarg       = owner->GunTarget(false) - origin;
+        vTargAngles = vTarg.toAngles();
+
+        P_SetTargetAngles(vTargAngles);
+    } else if (aim_target) {
+        Vector vNewOfs;
+
+        vDelta  = aim_target->centroid - origin;
+        vNewOfs = vDelta + m_Aim_offset;
+
+        vectoangles(vDelta, vTargAngles);
+        P_SetTargetAngles(vTargAngles);
+
+        if (owner) {
+            Vector forward;
+
+            AngleVectorsLeft(angles, forward, NULL, NULL);
+
+            origin = forward * vNewOfs.length();
+        }
+    }
+
+    if (m_iFiring) {
+        if (m_fMaxBurstTime == 0 || (owner != NULL && owner->client)) {
+            m_iFiring = 2;
+            if (ReadyToFire(FIRE_PRIMARY)) {
+                Fire(FIRE_PRIMARY);
+
+                if (owner->IsSubclassOfPlayer()) {
+                    m_fCurrViewJitter = m_fViewJitter;
+                }
+            }
+        } else if (m_iFiring != 2) {
+            if (level.time > m_fFireToggleTime) {
+                m_iFiring         = 2;
+                m_fFireToggleTime = G_Random(m_fMaxBurstTime - m_fMinBurstTime) + (level.time + m_fMinBurstTime);
+            }
+        } else if (ReadyToFire(FIRE_PRIMARY)) {
+            Fire(FIRE_PRIMARY);
+
+            if (owner->IsSubclassOfPlayer()) {
+                m_fCurrViewJitter = m_fViewJitter;
+            }
+        } else if (level.time > m_fFireToggleTime) {
+            m_iFiring         = 1;
+            m_fFireToggleTime = G_Random(m_fMaxBurstDelay - m_fMaxBurstDelay) + (level.time + m_fMinBurstDelay);
+        }
+    }
+
+    if (owner && owner->IsSubclassOfPlayer()) {
+        vAngles = m_vUserViewAng;
+
+        if (!m_pUserCamera) {
+            m_pUserCamera = new Camera;
+        }
+
+        if (m_fCurrViewJitter > 0.0f) {
+            float x = (float)(rand() & 0x7FFF);
+            float y = (float)(rand() & 0x7FFF);
+            float z = (float)(rand() & 0x7FFF);
+
+            vAngles[0] += (x * 0.00003f + x * 0.00003f - 1.0f) * m_fCurrViewJitter;
+            vAngles[1] += (y * 0.00003f + y * 0.00003f - 1.0f) * m_fCurrViewJitter;
+            vAngles[2] += (z * 0.00003f + z * 0.00003f - 1.0f) * m_fCurrViewJitter;
+
+            m_fCurrViewJitter -= level.frametime * 6.0f;
+
+            if (m_fCurrViewJitter < 0.0f) {
+                m_fCurrViewJitter = 0.0f;
+            }
+        }
+
+        m_pUserCamera->setOrigin(origin);
+        m_pUserCamera->setAngles(vAngles);
+        m_pUserCamera->SetPositionOffset(m_vViewOffset);
+
+        owner->client->ps.camera_flags |= CF_CAMERA_ANGLES_ALLOWOFFSET;
+
+        Player *player = (Player *)owner.Pointer();
+
+        if (!player->IsZoomed()) {
+            player->ToggleZoom(80);
+        }
+    }
+
+    if (owner && owner->client) {
+        Vector  vPos;
+        Vector  vEnd;
+        Vector  vAng;
+        Vector  vForward;
+        Vector  vMins;
+        Vector  vMaxs;
+        trace_t trace;
+
+        Vector(0, angles[1], 0).AngleVectorsLeft(&vForward);
+
+        vPos = origin - vForward * m_fUserDistance;
+        vPos[2] -= 16.0f;
+
+        vEnd = vPos;
+        vEnd[2] -= 64.0f;
+
+        vMins    = owner->mins;
+        vMaxs    = owner->maxs;
+        vMaxs[2] = owner->mins[2] + 4.0f;
+
+        trace = G_Trace(vPos, vMins, vMaxs, vEnd, owner, MASK_PLAYERSOLID, qtrue, "TurretGun::ThinkActive 1");
+
+        vPos = trace.endpos;
+
+        trace =
+            G_Trace(vPos, owner->mins, owner->maxs, vPos, owner, MASK_PLAYERSOLID, qtrue, "TurretGun::ThinkActive 2");
+
+        if (!trace.allsolid && !trace.startsolid) {
+            owner->setOrigin(vPos);
+        }
+    }
 }
 
-qboolean TurretGun::UserAim
-	(
-	usercmd_s *ucmd
-	)
+void TurretGun::AI_DoTargetNone()
 {
-	Vector vNewCmdAng;
-
-	if( owner == NULL )
-	{
-		return qfalse;
-	}
-
-	vNewCmdAng = Vector(SHORT2ANGLE(ucmd->angles[0]), SHORT2ANGLE(ucmd->angles[1]), SHORT2ANGLE(ucmd->angles[2]));
-
-	if( vNewCmdAng[ 0 ] || vNewCmdAng[ 1 ] || vNewCmdAng[ 2 ] )
-	{
-		m_vUserViewAng[ 0 ] += AngleSubtract( vNewCmdAng[ 0 ], m_vUserLastCmdAng[ 0 ] );
-		m_vUserViewAng[ 1 ] += AngleSubtract( vNewCmdAng[ 1 ], m_vUserLastCmdAng[ 1 ] );
-		m_vUserViewAng[ 2 ] += AngleSubtract( vNewCmdAng[ 2 ], m_vUserLastCmdAng[ 2 ] );
-	}
-
-	m_vUserLastCmdAng = vNewCmdAng;
-
-	if( ( ucmd->buttons & BUTTON_ATTACKLEFT ) || ( ucmd->buttons & BUTTON_ATTACKRIGHT ) )
-	{
-		if( !m_iFiring ) {
-			m_iFiring = 1;
-		}
-	}
-	else
-	{
-		m_iFiring = 0;
-	}
-
-	flags |= FL_THINK;
-
-	return qtrue;
+    // FIXME: unimplemented
 }
 
-void TurretGun::PlaceTurret
-	(
-	Event *ev
-	)
+void TurretGun::AI_MoveToDefaultPosition()
 {
-	// Don't make the turret solid
-	setSolidType( SOLID_NOT );
-
-	// The turret shouldn't move
-	setMoveType( MOVETYPE_NONE );
-
-	showModel();
-
-	groundentity = NULL;
-	m_fStartYaw = angles[ 1 ];
-
-	if( m_bFakeBullets ) {
-		firetype[ FIRE_PRIMARY ] = FT_FAKEBULLET;
-	}
-
-	flags |= FL_THINK;
+    // FIXME: unimplemented
 }
 
-void TurretGun::TurretBeginUsed
-	(
-	Sentient *pEnt
-	)
+void TurretGun::AI_DoTargetAutoDefault()
 {
-	owner = pEnt;
-
-	edict->r.ownerNum = pEnt->entnum;
-	m_bHadOwner = true;
-
-	Sound( sPickupSound );
-
-	if( m_vUserViewAng[ 0 ] > 180.0f ) {
-		m_vUserViewAng[ 0 ] -= 360.0f;
-	}
-
-	m_vUserLastCmdAng = vec_zero;
-
-	if( owner->IsSubclassOfPlayer() )
-	{
-		Player *player = ( Player * )owner.Pointer();
-
-		player->EnterTurret( this );
-
-		if( !m_pUserCamera ) {
-			m_pUserCamera = new Camera;
-		}
-
-		player->SetCamera( m_pUserCamera, 0.0f );
-	}
-
-	current_attachToTag = "";
-	ForceIdle();
-	CreateViewModel();
+    // FIXME: unimplemented
 }
 
-void TurretGun::P_TurretBeginUsed(Player* pEnt)
+void TurretGun::AI_StartDefault()
 {
-	// FIXME: unimplemented
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_StartSuppress()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_StartSuppressWait()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_StartTrack()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_DoTargetAutoTrack()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_DoSuppressionAiming()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_DoTargetAutoSuppress()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_DoTargetAutoSuppressWait()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_DoTargetAuto()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_DoAiming()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_DoFiring()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_ThinkActive()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::Think(void)
+{
+    if (owner || (!m_bHadOwner && aim_target)) {
+        P_ThinkActive();
+    } else {
+        ThinkIdle();
+    }
+}
+
+void TurretGun::P_UserAim(usercmd_t *cmd)
+{
+    // FIXME: unimplemented
+}
+
+qboolean TurretGun::UserAim(usercmd_t *ucmd)
+{
+    Vector vNewCmdAng;
+
+    if (owner == NULL) {
+        return qfalse;
+    }
+
+    vNewCmdAng = Vector(SHORT2ANGLE(ucmd->angles[0]), SHORT2ANGLE(ucmd->angles[1]), SHORT2ANGLE(ucmd->angles[2]));
+
+    if (vNewCmdAng[0] || vNewCmdAng[1] || vNewCmdAng[2]) {
+        m_vUserViewAng[0] += AngleSubtract(vNewCmdAng[0], m_vUserLastCmdAng[0]);
+        m_vUserViewAng[1] += AngleSubtract(vNewCmdAng[1], m_vUserLastCmdAng[1]);
+        m_vUserViewAng[2] += AngleSubtract(vNewCmdAng[2], m_vUserLastCmdAng[2]);
+    }
+
+    m_vUserLastCmdAng = vNewCmdAng;
+
+    if ((ucmd->buttons & BUTTON_ATTACKLEFT) || (ucmd->buttons & BUTTON_ATTACKRIGHT)) {
+        if (!m_iFiring) {
+            m_iFiring = 1;
+        }
+    } else {
+        m_iFiring = 0;
+    }
+
+    flags |= FL_THINK;
+
+    return qtrue;
+}
+
+void TurretGun::P_SetViewangles(Event *ev)
+{
+    m_vUserViewAng = ev->GetVector(1);
+}
+
+void TurretGun::P_SetViewAnglesForTurret(Event *ev)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::P_GetViewangles(Event *ev)
+{
+    ev->AddVector(m_vUserViewAng);
+}
+
+void TurretGun::AI_TurretBeginUsed(Sentient *pEnt)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::P_TurretBeginUsed(Player *pEnt)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::TurretBeginUsed(Sentient *pEnt)
+{
+    owner = pEnt;
+
+    edict->r.ownerNum = pEnt->entnum;
+    m_bHadOwner       = true;
+
+    Sound(sPickupSound);
+
+    if (m_vUserViewAng[0] > 180.0f) {
+        m_vUserViewAng[0] -= 360.0f;
+    }
+
+    m_vUserLastCmdAng = vec_zero;
+
+    if (owner->IsSubclassOfPlayer()) {
+        Player *player = (Player *)owner.Pointer();
+
+        player->EnterTurret(this);
+
+        if (!m_pUserCamera) {
+            m_pUserCamera = new Camera;
+        }
+
+        player->SetCamera(m_pUserCamera, 0.0f);
+    }
+
+    current_attachToTag = "";
+    ForceIdle();
+    P_CreateViewModel();
+}
+
+void TurretGun::AI_TurretEndUsed()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::RemoveUserCamera()
+{
+    // FIXME: unimplemented
 }
 
 void TurretGun::P_TurretEndUsed()
 {
-	// FIXME: unimplemented
+    // FIXME: unimplemented
 }
 
-void TurretGun::TurretEndUsed
-	(
-	void
-	)
+void TurretGun::TurretEndUsed(void)
 {
-	if( owner->IsSubclassOfPlayer() )
-	{
-		Player *player = ( Player * )owner.Pointer();
+    if (owner->IsSubclassOfPlayer()) {
+        Player *player = (Player *)owner.Pointer();
 
-		if( m_pUserCamera )
-		{
-			player->SetCamera( NULL, 1.0f );
-			player->ZoomOff();
-			player->client->ps.camera_flags &= ~CF_CAMERA_ANGLES_TURRETMODE;
+        if (m_pUserCamera) {
+            player->SetCamera(NULL, 1.0f);
+            player->ZoomOff();
+            player->client->ps.camera_flags &= ~CF_CAMERA_ANGLES_TURRETMODE;
 
-			m_pUserCamera->PostEvent( EV_Remove, 0 );
-			m_pUserCamera = NULL;
-		}
+            m_pUserCamera->PostEvent(EV_Remove, 0);
+            m_pUserCamera = NULL;
+        }
 
-		player->ExitTurret();
-		DeleteViewModel();
-	}
+        player->ExitTurret();
+        P_DeleteViewModel();
+    }
 
-	owner = NULL;
-	edict->r.ownerNum = ENTITYNUM_NONE;
+    owner             = NULL;
+    edict->r.ownerNum = ENTITYNUM_NONE;
 
-	m_fIdlePitchSpeed = 0;
-	m_iIdleHitCount = 0;
-	m_iFiring = 0;
+    m_fIdlePitchSpeed = 0;
+    m_iIdleHitCount   = 0;
+    m_iFiring         = 0;
 }
 
-void TurretGun::P_TurretUsed(Player* player)
+void TurretGun::P_TurretUsed(Player *player)
 {
-	// FIXME: unimplemented
+    // FIXME: unimplemented
 }
 
-void TurretGun::TurretUsed
-	(
-	Sentient *pEnt
-	)
+void TurretGun::TurretUsed(Sentient *pEnt)
 {
-	if( ( pEnt->IsSubclassOfPlayer() ) && ( pEnt == owner ) )
-	{
-		if( ( !m_bPlayerUsable || !m_bUsable ) &&
-			owner->health > 0.0f )
-		{
-			return;
-		}
-	}
+    if ((pEnt->IsSubclassOfPlayer()) && (pEnt == owner)) {
+        if ((!m_bPlayerUsable || !m_bUsable) && owner->health > 0.0f) {
+            return;
+        }
+    }
 
-	if( owner )
-	{
-		if( owner == pEnt )
-		{
-			TurretEndUsed();
-			m_iFiring = 0;
-		}
-	}
-	else
-	{
-		m_vUserViewAng = pEnt->GetViewAngles();
+    if (owner) {
+        if (owner == pEnt) {
+            TurretEndUsed();
+            m_iFiring = 0;
+        }
+    } else {
+        m_vUserViewAng = pEnt->GetViewAngles();
 
-		if( fabs( AngleSubtract( m_vUserViewAng[ 1 ], angles[ 1 ] ) ) <= 80.0f )
-		{
-			TurretBeginUsed( pEnt );
+        if (fabs(AngleSubtract(m_vUserViewAng[1], angles[1])) <= 80.0f) {
+            TurretBeginUsed(pEnt);
 
-			flags &= ~FL_THINK;
-			m_iFiring = 0;
+            flags &= ~FL_THINK;
+            m_iFiring = 0;
 
-			if( pEnt->IsSubclassOfPlayer() )
-			{
-				m_UseThread.Execute( this );
-			}
-		}
-	}
+            if (pEnt->IsSubclassOfPlayer()) {
+                m_UseThread.Execute(this);
+            }
+        }
+    }
 }
 
-void TurretGun::SetAimTarget
-	(
-	Entity *ent
-	)
+void TurretGun::TurretUsed(Event *ev)
 {
-	aim_target = ent;
+    Entity *pEnt = ev->GetEntity(1);
+
+    if (!pEnt) {
+        return;
+    }
+
+    // Must be a player
+    if (!pEnt->IsSubclassOfPlayer()) {
+        return;
+    }
+
+    if (!m_bUsable) {
+        return;
+    }
+
+    if (m_bPlayerUsable) {
+        // Make the sentient use the turret
+        TurretUsed((Sentient *)pEnt);
+    }
 }
 
-void TurretGun::SetAimOffset
-	(
-	const Vector& offset
-	)
+void TurretGun::P_SetPlayerUsable(Event *ev)
 {
-	m_Aim_offset = offset;
+    m_bPlayerUsable = (ev->GetInteger(1) != 0);
 }
 
-void TurretGun::ClearAimTarget
-	(
-	void
-	)
+void TurretGun::EventSetUsable(Event *ev)
 {
-	aim_target = NULL;
-
-	// Clear idle values
-	m_fIdlePitchSpeed = 0;
-	m_iIdleHitCount = 0;
+    // FIXME: unimplemented
 }
 
-void TurretGun::StartFiring
-	(
-	void
-	)
+void TurretGun::P_SetViewOffset(Event *ev)
 {
-	m_iFiring = 1;
+    m_vViewOffset = ev->GetVector(1);
 }
 
-void TurretGun::StopFiring
-	(
-	void
-	)
+void TurretGun::EventMaxIdlePitch(Event *ev)
 {
-	m_iFiring = 0;
+    // FIXME: unimplemented
 }
 
-bool TurretGun::IsFiring
-	(
-	void
-	)
+void TurretGun::EventMaxIdleYaw(Event *ev)
 {
-	return m_iFiring == 2;
+    // FIXME: unimplemented
 }
 
-void TurretGun::CalcFiringViewJitter
-	(
-	void
-	)
+void TurretGun::SetIdleCheckOffset(Event *ev)
 {
-	if( owner && owner->IsSubclassOfPlayer() )
-	{
-		m_fCurrViewJitter = m_fViewJitter;
-	}
+    m_vIdleCheckOffset = ev->GetVector(1);
 }
 
-void TurretGun::ApplyFiringViewJitter
-	(
-	Vector& vAng
-	)
+void TurretGun::AI_EventSetAimTarget(Event *ev)
 {
+    SetAimTarget(ev->GetEntity(1));
 }
 
-void TurretGun::TurnSpeed
-	(
-	float speed
-	)
+void TurretGun::AI_EventSetAimOffset(Event *ev)
 {
-	m_fTurnSpeed = speed;
+    SetAimOffset(ev->GetVector(1));
 }
 
-void TurretGun::PitchCaps
-	(
-	float upcap,
-	float downcap
-	)
+void TurretGun::AI_EventClearAimTarget(Event *ev)
 {
-	m_fPitchUpCap = upcap;
-	m_fPitchDownCap = downcap;
-
-	if( upcap > downcap )
-	{
-		m_fPitchUpCap = -30.0f;
-		m_fPitchDownCap = 10.0f;
-	}
+    ClearAimTarget();
 }
 
-void TurretGun::MaxYawOffset
-	(
-	float max
-	)
+void TurretGun::AI_EventStartFiring(Event *ev)
 {
-	m_fMaxYawOffset = max;
-	if( max < 0.0f )
-	{
-		m_fMaxYawOffset = 0.0f;
-	}
-	else if( max > 180.0f )
-	{
-		m_fMaxYawOffset = 180.0f;
-	}
+    StartFiring();
 }
 
-void TurretGun::YawCenter
-	(
-	float center
-	)
+void TurretGun::AI_EventStopFiring(Event *ev)
 {
-	m_fStartYaw = center;
+    StopFiring();
 }
 
-void TurretGun::UserDistance
-	(
-	float dist
-	)
+void TurretGun::AI_EventTurnSpeed(Event *ev)
 {
-	m_fUserDistance = dist;
+    AI_TurnSpeed(ev->GetFloat(1));
 }
 
-void TurretGun::BurstFireSettings
-	(
-	float min_bursttime,
-	float max_bursttime,
-	float min_burstdelay,
-	float max_burstdelay
-	)
+void TurretGun::AI_EventPitchSpeed(Event *ev)
 {
-	m_fMinBurstTime = min_bursttime;
-	m_fMaxBurstTime = max_bursttime;
-	m_fMinBurstDelay = min_burstdelay;
-	m_fMaxBurstDelay = max_burstdelay;
+    // FIXME: unimplemented
 }
 
-void TurretGun::CreateViewModel
-	(
-	void
-	)
+void TurretGun::EventPitchCaps(Event *ev)
 {
-	char newmodel[ MAX_STRING_TOKENS ];
-	int tagnum;
-
-	// Owner must be a client
-	if( !owner->IsSubclassOfPlayer() ) {
-		return;
-	}
-
-	m_pViewModel = new Animate;
-
-	COM_StripExtension( model.c_str(), newmodel, sizeof( newmodel ) );
-	strcat( newmodel, "_viewmodel.tik" );
-
-	m_pViewModel->setScale( edict->s.scale );
-	m_pViewModel->detach_at_death = qtrue;
-	m_pViewModel->setModel( newmodel );
-	m_pViewModel->edict->s.renderfx |= RF_VIEWMODEL;
-
-	if( !m_pViewModel->edict->tiki )
-	{
-		delete m_pViewModel;
-		m_pViewModel = NULL;
-
-		warning( "CreateViewModel", "Couldn't find turret view model tiki %s", newmodel );
-		return;
-	}
-
-	// Get the eyes bone
-	tagnum = gi.Tag_NumForName( owner->edict->tiki, "eyes bone" );
-	if( tagnum < 0 )
-	{
-		warning( "CreateViewModel", "Tag eyes bone not found" );
-	}
-	else if( !m_pViewModel->attach( owner->entnum, tagnum ) )
-	{
-		warning( "CreateViewModel", "Could not attach model %s", newmodel );
-		DeleteViewModel();
-		return;
-	}
-
-	m_pViewModel->NewAnim( "idle" );
-
-	// Make the world model invisible to the owner
-	edict->r.svFlags |= SVF_NOTSINGLECLIENT;
-	edict->r.singleClient |= owner->edict->s.number;
-
-	// Make the viewmodel visible only to the owner
-	m_pViewModel->edict->r.svFlags |= SVF_SINGLECLIENT;
-	m_pViewModel->edict->r.singleClient |= owner->edict->s.number;
+    Vector caps = ev->GetVector(1);
+    PitchCaps(caps[0], caps[1]);
 }
 
-void TurretGun::DeleteViewModel
-	(
-	void
-	)
+void TurretGun::EventMaxYawOffset(Event *ev)
 {
-	delete m_pViewModel;
-	m_pViewModel = NULL;
-
-	edict->r.svFlags &= ~SVF_NOTSINGLECLIENT;
+    MaxYawOffset(ev->GetFloat(1));
 }
 
-qboolean TurretGun::SetWeaponAnim
-	(
-	const char *anim,
-	Event *ev
-	)
+void TurretGun::EventYawCenter(Event *ev)
 {
-	int slot;
-	int animnum;
-
-	if( !Weapon::SetWeaponAnim( anim, ev ) )
-	{
-		return qfalse;
-	}
-
-	if( !m_pViewModel )
-	{
-		return qtrue;
-	}
-
-	slot = ( m_iAnimSlot + 3 ) & 3;
-
-	animnum = gi.Anim_NumForName( m_pViewModel->edict->tiki, anim );
-	if( animnum < 0 )
-	{
-		return qtrue;
-	}
-
-	m_pViewModel->StopAnimating( slot );
-	m_pViewModel->SetTime( slot );
-
-	m_pViewModel->edict->s.frameInfo[ slot ].index = gi.Anim_NumForName( m_pViewModel->edict->tiki, "idle" );
-
-	m_pViewModel->NewAnim( animnum, m_iAnimSlot );
-	m_pViewModel->SetOnceType();
-	m_pViewModel->SetTime( slot );
-
-	return qtrue;
+    YawCenter(ev->GetFloat(1));
 }
 
-void TurretGun::StopWeaponAnim
-	(
-	void
-	)
+void TurretGun::P_EventUserDistance(Event *ev)
 {
-	if( m_pViewModel )
-	{
-		m_pViewModel->SetTime( m_iAnimSlot );
-		m_pViewModel->StopAnimating( m_iAnimSlot );
-
-		m_pViewModel->edict->s.frameInfo[ m_iAnimSlot ].index = gi.Anim_NumForName( m_pViewModel->edict->tiki, "idle" );
-		m_pViewModel->edict->s.frameInfo[ m_iAnimSlot ].weight = 1.0f;
-		m_pViewModel->edict->s.frameInfo[ m_iAnimSlot ].time = 0.0f;
-	}
-
-	Weapon::StopWeaponAnim();
+    P_UserDistance(ev->GetFloat(1));
 }
 
-bool TurretGun::CanTarget
-	(
-	float *pos
-	)
+void TurretGun::P_EventViewJitter(Event *ev)
 {
-	Vector vAngles;
-	float ang;
-
-	vectoangles( pos, vAngles );
-
-	ang = AngleSubtract( vAngles[ 1 ], m_fStartYaw );
-
-	if( vAngles[ 0 ] <= 180.0f )
-	{
-		if( vAngles[ 0 ] >= -180.0f )
-		{
-			return m_fPitchUpCap <= vAngles[ 0 ] &&
-				m_fPitchDownCap >= vAngles[ 0 ] &&
-				ang <= m_fMaxYawOffset &&
-				-m_fMaxYawOffset <= ang;
-		}
-
-		vAngles[ 0 ] += 360.0f;
-	}
-	else
-	{
-		vAngles[ 0 ] -= 360.0f;
-	}
-
-	return m_fPitchUpCap <= vAngles[ 0 ] &&
-		m_fPitchDownCap >= vAngles[ 0 ] &&
-		ang <= m_fMaxYawOffset &&
-		-m_fMaxYawOffset <= ang;
+    m_fViewJitter = ev->GetFloat(1);
 }
 
-float TurretGun::FireDelay
-	(
-	firemode_t mode
-	)
+void TurretGun::P_EventDoJitter(Event *ev)
 {
-	if( owner && owner->IsSubclassOfPlayer() )
-	{
-		return 0.06f;
-	}
-	else
-	{
-		return Weapon::FireDelay( mode );
-	}
+    // FIXME: unimplemented
 }
 
-void TurretGun::ShowInfo
-	(
-	float fDot,
-	float fDist
-	)
+void TurretGun::AI_EventBurstFireSettings(Event *ev)
 {
-	if( fDot <= 0.90f && ( fDot <= 0.0f || fDist >= 256.0f ) ) {
-		return;
-	}
+    if (ev->NumArgs() <= 3) {
+        return;
+    }
 
-	if( fDist >= 2048.0f || fDist <= 64.0f ) {
-		return;
-	}
-
-	G_DebugString( origin + Vector( 0, 0, maxs[ 2 ] + 56.0f ), 1.0f, 1.0f, 1.0f, 1.0f, "%d:%d:%s", entnum, radnum, targetname.c_str() );
-	G_DebugString( origin + Vector( 0, 0, maxs[ 2 ] + 38.0f ), 1.0f, 1.0f, 1.0f, 1.0f, "aim_target: %d", aim_target ? aim_target->entnum : -1 );
-	G_DebugString( origin + Vector( 0, 0, maxs[ 2 ] + 20.0f ), 1.0f, 1.0f, 1.0f, 1.0f, "owner: %d", owner ? owner->entnum : -1 );
+    AI_BurstFireSettings(ev->GetFloat(1), ev->GetFloat(2), ev->GetFloat(3), ev->GetFloat(4));
 }
 
-void TurretGun::TurretUsed
-	(
-	Event *ev
-	)
+bool TurretGun::IsFiring(void)
 {
-	Entity *pEnt = ev->GetEntity( 1 );
-
-	if( !pEnt ) {
-		return;
-	}
-
-	// Must be a player
-	if( !pEnt->IsSubclassOfPlayer() ) {
-		return;
-	}
-
-	if( !m_bUsable ) {
-		return;
-	}
-
-	if( m_bPlayerUsable )
-	{
-		// Make the sentient use the turret
-		TurretUsed( ( Sentient * )pEnt );
-	}
+    return m_iFiring == 2;
 }
 
-void TurretGun::SetPlayerUsable
-	(
-	Event *ev
-	)
+void TurretGun::P_ApplyFiringViewJitter(Vector& vAng)
 {
-	m_bPlayerUsable = ( ev->GetInteger( 1 ) != 0 );
+    // FIXME: unimplemented
 }
 
-void TurretGun::SetViewOffset
-	(
-	Event *ev
-	)
+void TurretGun::AI_TurnSpeed(float speed)
 {
-	m_vViewOffset = ev->GetVector( 1 );
+    m_fTurnSpeed = speed;
 }
 
-void TurretGun::SetIdleCheckOffset
-	(
-	Event *ev
-	)
+void TurretGun::AI_PitchSpeed(float speed)
 {
-	m_vIdleCheckOffset = ev->GetVector( 1 );
+    // FIXME: unimplemented
 }
 
-void TurretGun::EventSetAimTarget
-	(
-	Event *ev
-	)
+void TurretGun::PitchCaps(float upcap, float downcap)
 {
-	SetAimTarget( ev->GetEntity( 1 ) );
+    m_fPitchUpCap   = upcap;
+    m_fPitchDownCap = downcap;
+
+    if (upcap > downcap) {
+        m_fPitchUpCap   = -30.0f;
+        m_fPitchDownCap = 10.0f;
+    }
 }
 
-void TurretGun::EventSetAimOffset
-	(
-	Event *ev
-	)
+void TurretGun::MaxYawOffset(float max)
 {
-	SetAimOffset( ev->GetVector( 1 ) );
+    m_fMaxYawOffset = max;
+    if (max < 0.0f) {
+        m_fMaxYawOffset = 0.0f;
+    } else if (max > 180.0f) {
+        m_fMaxYawOffset = 180.0f;
+    }
 }
 
-void TurretGun::EventClearAimTarget
-	(
-	Event *ev
-	)
+void TurretGun::YawCenter(float center)
 {
-	ClearAimTarget();
+    m_fStartYaw = center;
 }
 
-void TurretGun::EventStartFiring
-	(
-	Event *ev
-	)
+void TurretGun::P_UserDistance(float dist)
 {
-	StartFiring();
+    m_fUserDistance = dist;
 }
 
-void TurretGun::EventStopFiring
-	(
-	Event *ev
-	)
+void TurretGun::AI_BurstFireSettings(
+    float min_bursttime, float max_bursttime, float min_burstdelay, float max_burstdelay
+)
 {
-	StopFiring();
+    m_fMinBurstTime  = min_bursttime;
+    m_fMaxBurstTime  = max_bursttime;
+    m_fMinBurstDelay = min_burstdelay;
+    m_fMaxBurstDelay = max_burstdelay;
 }
 
-void TurretGun::EventTurnSpeed
-	(
-	Event *ev
-	)
+void TurretGun::P_EventSetThread(Event *ev)
 {
-	TurnSpeed( ev->GetFloat( 1 ) );
+    if (ev->IsFromScript()) {
+        m_UseThread.SetThread(ev->GetValue(1));
+    } else {
+        m_UseThread.Set(ev->GetString(1));
+    }
 }
 
-void TurretGun::EventPitchCaps
-	(
-	Event *ev
-	)
+void TurretGun::P_SetMaxUseAngle(Event *ev)
 {
-	Vector caps = ev->GetVector( 1 );
-	PitchCaps( caps[ 0 ], caps[ 1 ] );
+    // FIXME: unimplemented
 }
 
-void TurretGun::EventMaxYawOffset
-	(
-	Event *ev
-	)
+void TurretGun::P_SetStartYaw(Event *ev)
 {
-	MaxYawOffset( ev->GetFloat( 1 ) );
+    // FIXME: unimplemented
 }
 
-void TurretGun::EventYawCenter
-	(
-	Event *ev
-	)
+void TurretGun::P_CreateViewModel(void)
 {
-	YawCenter( ev->GetFloat( 1 ) );
+    char newmodel[MAX_STRING_TOKENS];
+    int  tagnum;
+
+    // Owner must be a client
+    if (!owner->IsSubclassOfPlayer()) {
+        return;
+    }
+
+    m_pViewModel = new Animate;
+
+    COM_StripExtension(model.c_str(), newmodel, sizeof(newmodel));
+    strcat(newmodel, "_viewmodel.tik");
+
+    m_pViewModel->setScale(edict->s.scale);
+    m_pViewModel->detach_at_death = qtrue;
+    m_pViewModel->setModel(newmodel);
+    m_pViewModel->edict->s.renderfx |= RF_VIEWMODEL;
+
+    if (!m_pViewModel->edict->tiki) {
+        delete m_pViewModel;
+        m_pViewModel = NULL;
+
+        warning("CreateViewModel", "Couldn't find turret view model tiki %s", newmodel);
+        return;
+    }
+
+    // Get the eyes bone
+    tagnum = gi.Tag_NumForName(owner->edict->tiki, "eyes bone");
+    if (tagnum < 0) {
+        warning("CreateViewModel", "Tag eyes bone not found");
+    } else if (!m_pViewModel->attach(owner->entnum, tagnum)) {
+        warning("CreateViewModel", "Could not attach model %s", newmodel);
+        P_DeleteViewModel();
+        return;
+    }
+
+    m_pViewModel->NewAnim("idle");
+
+    // Make the world model invisible to the owner
+    edict->r.svFlags |= SVF_NOTSINGLECLIENT;
+    edict->r.singleClient |= owner->edict->s.number;
+
+    // Make the viewmodel visible only to the owner
+    m_pViewModel->edict->r.svFlags |= SVF_SINGLECLIENT;
+    m_pViewModel->edict->r.singleClient |= owner->edict->s.number;
 }
 
-void TurretGun::EventUserDistance
-	(
-	Event *ev
-	)
+void TurretGun::P_DeleteViewModel(void)
 {
-	UserDistance( ev->GetFloat( 1 ) );
+    delete m_pViewModel;
+    m_pViewModel = NULL;
+
+    edict->r.svFlags &= ~SVF_NOTSINGLECLIENT;
 }
 
-void TurretGun::EventViewJitter
-	(
-	Event *ev
-	)
+void TurretGun::Archive(Archiver& arc)
 {
-	m_fViewJitter = ev->GetFloat( 1 );
+    Weapon::Archive(arc);
+
+    arc.ArchiveBool(&m_bFakeBullets);
+    arc.ArchiveBool(&m_bPlayerUsable);
+
+    arc.ArchiveFloat(&m_fIdlePitchSpeed);
+    arc.ArchiveInteger(&m_iIdleHitCount);
+    arc.ArchiveVector(&m_vIdleCheckOffset);
+    arc.ArchiveVector(&m_vViewOffset);
+
+    arc.ArchiveFloat(&m_fTurnSpeed);
+    arc.ArchiveFloat(&m_fPitchUpCap);
+    arc.ArchiveFloat(&m_fPitchDownCap);
+    arc.ArchiveFloat(&m_fStartYaw);
+    arc.ArchiveFloat(&m_fMaxYawOffset);
+    arc.ArchiveFloat(&m_fUserDistance);
+
+    arc.ArchiveFloat(&m_fMinBurstTime);
+    arc.ArchiveFloat(&m_fMaxBurstTime);
+    arc.ArchiveFloat(&m_fMinBurstDelay);
+    arc.ArchiveFloat(&m_fMaxBurstDelay);
+
+    arc.ArchiveFloat(&m_fFireToggleTime);
+    arc.ArchiveInteger(&m_iFiring);
+    arc.ArchiveVector(&m_vUserViewAng);
+    arc.ArchiveSafePointer(&m_pUserCamera);
+
+    arc.ArchiveFloat(&m_fViewJitter);
+    arc.ArchiveFloat(&m_fCurrViewJitter);
+
+    arc.ArchiveVector(&m_Aim_offset);
+    arc.ArchiveSafePointer(&m_pViewModel);
+    arc.ArchiveBool(&m_bUsable);
+
+    m_UseThread.Archive(arc);
+
+    arc.ArchiveBool(&m_bHadOwner);
+    arc.ArchiveBool(&m_bRestable);
+
+    if (arc.Loading()) {
+        m_vUserLastCmdAng = vec_zero;
+    }
 }
 
-void TurretGun::EventBurstFireSettings
-	(
-	Event *ev
-	)
+qboolean TurretGun::AI_SetWeaponAnim(const char *anim, Event *ev /*= NULL*/)
 {
-	if( ev->NumArgs() <= 3 ) {
-		return;
-	}
-
-	BurstFireSettings( ev->GetFloat( 1 ), ev->GetFloat( 2 ), ev->GetFloat( 3 ), ev->GetFloat( 4 ) );
+    // FIXME: unimplemented
+    return qfalse;
 }
 
-void TurretGun::EventSetThread
-	(
-	Event *ev
-	)
+qboolean TurretGun::P_SetWeaponAnim(const char *anim, Event *ev /*= NULL*/)
 {
-	if( ev->IsFromScript() )
-	{
-		m_UseThread.SetThread( ev->GetValue( 1 ) );
-	}
-	else
-	{
-		m_UseThread.Set( ev->GetString( 1 ) );
-	}
+    // FIXME: unimplemented
+    return qfalse;
 }
 
-void TurretGun::SetViewangles
-	(
-	Event *ev
-	)
+qboolean TurretGun::SetWeaponAnim(const char *anim, Event *ev)
 {
-	m_vUserViewAng = ev->GetVector( 1 );
+    int slot;
+    int animnum;
+
+    if (!Weapon::SetWeaponAnim(anim, ev)) {
+        return qfalse;
+    }
+
+    if (!m_pViewModel) {
+        return qtrue;
+    }
+
+    slot = (m_iAnimSlot + 3) & 3;
+
+    animnum = gi.Anim_NumForName(m_pViewModel->edict->tiki, anim);
+    if (animnum < 0) {
+        return qtrue;
+    }
+
+    m_pViewModel->StopAnimating(slot);
+    m_pViewModel->SetTime(slot);
+
+    m_pViewModel->edict->s.frameInfo[slot].index = gi.Anim_NumForName(m_pViewModel->edict->tiki, "idle");
+
+    m_pViewModel->NewAnim(animnum, m_iAnimSlot);
+    m_pViewModel->SetOnceType();
+    m_pViewModel->SetTime(slot);
+
+    return qtrue;
 }
 
-void TurretGun::GetViewangles
-	(
-	Event *ev
-	)
+void TurretGun::AI_StopWeaponAnim()
 {
-	ev->AddVector( m_vUserViewAng );
+    // FIXME: unimplemented
 }
 
+void TurretGun::P_StopWeaponAnim()
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::StopWeaponAnim(void)
+{
+    if (m_pViewModel) {
+        m_pViewModel->SetTime(m_iAnimSlot);
+        m_pViewModel->StopAnimating(m_iAnimSlot);
+
+        m_pViewModel->edict->s.frameInfo[m_iAnimSlot].index  = gi.Anim_NumForName(m_pViewModel->edict->tiki, "idle");
+        m_pViewModel->edict->s.frameInfo[m_iAnimSlot].weight = 1.0f;
+        m_pViewModel->edict->s.frameInfo[m_iAnimSlot].time   = 0.0f;
+    }
+
+    Weapon::StopWeaponAnim();
+}
+
+float TurretGun::FireDelay(firemode_t mode)
+{
+    if (owner && owner->IsSubclassOfPlayer()) {
+        return 0.06f;
+    } else {
+        return Weapon::FireDelay(mode);
+    }
+}
+
+void TurretGun::SetFireDelay(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::ShowInfo(float fDot, float fDist)
+{
+    if (fDot <= 0.90f && (fDot <= 0.0f || fDist >= 256.0f)) {
+        return;
+    }
+
+    if (fDist >= 2048.0f || fDist <= 64.0f) {
+        return;
+    }
+
+    G_DebugString(
+        origin + Vector(0, 0, maxs[2] + 56.0f), 1.0f, 1.0f, 1.0f, 1.0f, "%d:%d:%s", entnum, radnum, targetname.c_str()
+    );
+    G_DebugString(
+        origin + Vector(0, 0, maxs[2] + 38.0f),
+        1.0f,
+        1.0f,
+        1.0f,
+        1.0f,
+        "aim_target: %d",
+        aim_target ? aim_target->entnum : -1
+    );
+    G_DebugString(
+        origin + Vector(0, 0, maxs[2] + 20.0f), 1.0f, 1.0f, 1.0f, 1.0f, "owner: %d", owner ? owner->entnum : -1
+    );
+}
+
+void TurretGun::AI_EventSetTargetType(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_EventGetTargetType(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_EventSetConvergeTime(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_EventSetSuppressTime(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_EventSetSuppressWaitTime(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_EventSetSuppressWidth(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_EventSetSuppressHeight(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::AI_EventSetBulletSpread(Event *ev)
+{
+    // FIXME: unimplemented
+}
+
+void TurretGun::GetMuzzlePosition(
+    Vector *position,
+    Vector *forward /*= NULL*/,
+    Vector *right /*= NULL*/,
+    Vector *up /*= NULL*/,
+    Vector *vBarrelPos /*= NULL */
+)
+{
+    Weapon::GetMuzzlePosition(position, forward, right, up, vBarrelPos);
+    // FIXME: unimplemented
+}
+
+Vector TurretGun::EyePosition()
+{
+    // FIXME: unimplemented
+    return Vector();
+}
+
+void TurretGun::setAngles(Vector angles)
+{
+    Entity::setAngles(angles);
+    // FIXME: unimplemented
+}
+
+void TurretGun::SetAimTarget(Entity *ent)
+{
+    aim_target = ent;
+}
+
+void TurretGun::SetAimOffset(const Vector& offset)
+{
+    m_Aim_offset = offset;
+}
+
+void TurretGun::ClearAimTarget(void)
+{
+    aim_target = NULL;
+
+    // Clear idle values
+    m_fIdlePitchSpeed = 0;
+    m_iIdleHitCount   = 0;
+}
+
+void TurretGun::StartFiring(void)
+{
+    m_iFiring = 1;
+}
+
+void TurretGun::StopFiring(void)
+{
+    m_iFiring = 0;
+}
+
+void TurretGun::CalcFiringViewJitter(void)
+{
+    if (owner && owner->IsSubclassOfPlayer()) {
+        m_fCurrViewJitter = m_fViewJitter;
+    }
+}

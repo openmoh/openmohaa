@@ -142,7 +142,7 @@ void Actor::Think_MachineGunner
 			
 			m_iEnemyCheckTime = level.inttime;
 
-			if (m_pTurret->CanTarget(G_GetEntity(0)->centroid))
+			if (m_pTurret->AI_CanTarget(G_GetEntity(0)->centroid))
 			{
 				ThinkHoldGun();
 				return;
