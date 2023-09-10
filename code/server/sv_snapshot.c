@@ -660,7 +660,7 @@ static void SV_AddEntitiesVisibleFromPoint(const vec3_t origin, clientSnapshot_t
 		if (g_gametype->integer != GT_SINGLE_PLAYER && !(ent->r.svFlags & SVF_NOFARPLANE)) {
 			float farplane = sv.farplane;
 
-			if (farplane < 1) farplane = 1;
+			if (farplane < 1) farplane = 12000;
 			if (farplane > 12000) farplane = 12000;
 
 			check = EntityDistCheck(origin, forward, parentEnt ? parentEnt : ent, farplane, ps->fov);
