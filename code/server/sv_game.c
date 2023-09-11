@@ -1595,6 +1595,7 @@ void SV_InitGameProgs( void ) {
 
 	import.AddCommand					= SV_AddGameCommand;
 	import.SendConsoleCommand			= Cbuf_AddText;
+	import.ExecuteConsoleCommand		= Cbuf_ExecuteText;
 
 	import.FS_ReadFile					= FS_ReadFileEx;
 	import.FS_FreeFile					= FS_FreeFile;
