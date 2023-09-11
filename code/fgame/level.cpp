@@ -39,6 +39,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptvariable.h"
 #include "scriptexception.h"
 
+#include <cfloat>
+
 Level level;
 
 gclient_t *spawn_client = NULL;
@@ -756,26 +758,29 @@ void Level::Init(void)
     m_fade_color      = vec_zero;
     m_fade_style      = additive;
 
-    m_letterbox_dir = letterbox_out;
-    m_numArenas     = 1;
-
     m_fade_alpha = 0;
 
     m_letterbox_fraction   = 0;
+    m_letterbox_time       = -1;
     m_letterbox_time_start = 0;
+    m_letterbox_dir        = letterbox_out;
 
-    m_voteTime  = 0;
-    m_numVoters = 0;
+    m_numArenas = 1;
+
+    m_voteTime     = 0;
+    m_nextVoteTime = 0;
+    m_voteYes      = 0;
+    m_voteNo       = 0;
+    m_numVoters    = 0;
 
     m_LoopProtection = true;
     m_LoopDrop       = true;
 
     m_letterbox_time = -1.0f;
 
-    m_voteYes = 0;
-    m_voteNo  = 0;
-
-    m_vObjectiveLocation = vec_zero;
+    m_vObjectiveLocation       = vec_zero;
+    m_vAlliedObjectiveLocation = vec_zero;
+    m_vAxisObjectiveLocation   = vec_zero;
 
     svsEndTime = 0;
 
@@ -783,8 +788,23 @@ void Level::Init(void)
 
     mHealthPopCount = 0;
     mbNoDropHealth  = false;
+    mbNoDropWeapons = false;
 
-    spawning = false;
+    spawning          = false;
+    m_bIgnoreClock    = false;
+    svsStartFloatTime = 0;
+
+    m_fLandmarkXDistMin = 0;
+    m_fLandmarkXDistMax = 0;
+    m_fLandmarkYDistMin = 0;
+    m_fLandmarkYDistMax = 0;
+    m_pLandmarks        = NULL;
+    m_iMaxLandmarks     = 0;
+    m_iLandmarksCount   = 0;
+
+    m_badPlaces.ClearObjectList();
+
+    m_pAIStats = NULL;
 
     m_bSpawnBot    = false;
     m_bScriptSpawn = false;
@@ -2206,7 +2226,6 @@ void Level::Archive(Archiver& arc)
 }
 
 badplace_t::badplace_t()
-    : m_fNotBadPlaceTime(9.9999997e37)
+    : m_fNotBadPlaceTime(FLT_MAX)
     , m_iTeamSide(TEAM_ALLIES)
-{
-}
+{}
