@@ -9242,10 +9242,11 @@ void Player::Disconnect(void)
     }
 }
 
-void Player::CallVote(Event *ev)
+void Player::CallVote(Event* ev)
 {
     str arg1;
     str arg2;
+    int numVoters;
 
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
         return;
@@ -9262,88 +9263,279 @@ void Player::CallVote(Event *ev)
     }
 
     if (votecount >= MAX_VOTE_COUNT) {
-        HUDPrint(va("%s (%d).\n", gi.LV_ConvertString("You have called the maximum number of votes"), MAX_VOTE_COUNT));
+        if (m_fLastVoteTime) {
+            while (m_fLastVoteTime < level.time && votecount > 0) {
+                m_fLastVoteTime += 60;
+                votecount--;
+            }
+        }
+
+        if (votecount >= MAX_VOTE_COUNT) {
+            HUDPrint(va("%s %d %s.\n", gi.LV_ConvertString("You cannot call another vote for"), m_fLastVoteTime - level.time + 1, gi.LV_ConvertString("seconds")));
+            return;
+        }
+    }
+
+    if (IsSpectator() || IsDead()) {
+        HUDPrint(gi.LV_ConvertString("You are not allowed to call a vote as a spectator."));
         return;
     }
 
     arg1 = ev->GetString(1);
-    arg2 = ev->GetString(2);
-
-    if (strchr(arg1.c_str(), ';') || strchr(arg2.c_str(), ';')) {
-        HUDPrint(gi.LV_ConvertString("Invalid vote string."));
-        return;
+    if (ev->NumArgs() > 1) {
+        arg2 = ev->GetString(2);
     }
 
-    if (Q_stricmp(arg1.c_str(), "restart") && Q_stricmp(arg1.c_str(), "nextmap") && Q_stricmp(arg1.c_str(), "map")
-        && Q_stricmp(arg1.c_str(), "g_gametype") && Q_stricmp(arg1.c_str(), "kick")
-        && Q_stricmp(arg1.c_str(), "clientkick") && Q_stricmp(arg1.c_str(), "fraglimit")) {
-        HUDPrint(gi.LV_ConvertString("Invalid vote string."));
-        HUDPrint(
-            va("%s restart, nextmap, map <mapname>, g_gametype <n>, fraglimit <n>, timelimit <n>, kick <player>, and "
-               "clientkick <player #>.",
-               gi.LV_ConvertString("Vote commands are:"))
-        );
+    if (!atoi(arg1.c_str())) {
+        if (strchr(arg1.c_str(), ';') || strchr(arg2.c_str(), ';')) {
+            HUDPrint(gi.LV_ConvertString("Invalid vote string."));
+            return;
+        }
 
-        return;
-    }
+        if (Q_stricmp(arg1.c_str(), "restart") && Q_stricmp(arg1.c_str(), "nextmap") && Q_stricmp(arg1.c_str(), "map")
+            && Q_stricmp(arg1.c_str(), "g_gametype") && Q_stricmp(arg1.c_str(), "kick")
+            && Q_stricmp(arg1.c_str(), "clientkick") && Q_stricmp(arg1.c_str(), "fraglimit")) {
+            HUDPrint(gi.LV_ConvertString("Invalid vote string."));
+            HUDPrint(
+                va("%s restart, nextmap, map <mapname>, g_gametype <n>, fraglimit <n>, timelimit <n>, kick <player>, and "
+                    "clientkick <player #>.",
+                    gi.LV_ConvertString("Vote commands are:"))
+            );
 
-    if (!Q_stricmp(arg1.c_str(), "kick")) {
-        gentity_t *ent;
-        int        i;
+            return;
+        }
 
-        for (i = 0; i < game.maxclients; i++) {
-            ent = &g_entities[i];
+        if (!Q_stricmp(arg1.c_str(), "kick")) {
+            //
+            // check for a valid player
+            //
+            gentity_t* ent;
+            int        i;
 
-            if (!ent->inuse || !ent->client || !ent->entity) {
-                continue;
-            }
+            for (i = 0; i < game.maxclients; i++) {
+                ent = &g_entities[i];
 
-            if (!Q_stricmp(ent->client->pers.netname, arg2.c_str())) {
-                // Prevent the player from kicking himself out
-                if (ent->entity == this) {
-                    HUDPrint(gi.LV_ConvertString("You are not allowed to kick yourself."));
-                    return;
+                if (!ent->inuse || !ent->client || !ent->entity) {
+                    continue;
                 }
 
-                break;
+                if (!Q_stricmp(ent->client->pers.netname, arg2.c_str())) {
+                    // Prevent the player from kicking himself out
+                    if (ent->entity == this) {
+                        HUDPrint(gi.LV_ConvertString("You are not allowed to kick yourself."));
+                        return;
+                    }
+
+                    break;
+                }
+            }
+
+            if (i == game.maxclients) {
+                HUDPrint(va("%s %s", ent->client->pers.netname, gi.LV_ConvertString("is not a valid player name to kick."))
+                );
             }
         }
-
-        if (i == game.maxclients) {
-            HUDPrint(va("%s %s", ent->client->pers.netname, gi.LV_ConvertString("is not a valid player name to kick."))
-            );
+        else if (!Q_stricmp(arg1.c_str(), "map") && *sv_nextmap->string) {
+            level.m_voteString = va("%s %s; set next map \"%s\"", arg1.c_str(), arg2.c_str(), arg2.c_str());
         }
-    } else if (!Q_stricmp(arg1.c_str(), "map") && *sv_nextmap->string) {
-        level.m_voteString = va("%s %s; set next map \"%s\"", arg1.c_str(), arg2.c_str(), arg2.c_str());
+        else {
+            level.m_voteString = va("%s %s", arg1.c_str(), arg2.c_str());
+        }
+
+        if (level.m_voteYes) {
+            level.m_voteYes = 0;
+            gi.SendConsoleCommand(va("%s", level.m_voteString.c_str()));
+        }
+
+        if (!Q_stricmp(arg1.c_str(), "g_gametype")) {
+            int gametypeNum;
+
+            // get the gametype number
+            gametypeNum = atoi(arg2.c_str());
+            if (gametypeNum <= GT_SINGLE_PLAYER || gametypeNum >= GT_MAX_GAME_TYPE) {
+                HUDPrint(va("%s", gi.LV_ConvertString("Invalid gametype for a vote.")));
+                return;
+            }
+
+            level.m_voteString = va("%s %i", arg1.c_str(), gametypeNum);
+
+            switch (gametypeNum) {
+            case GT_FFA:
+                level.m_voteName = "Game Type Free-For-All";
+                break;
+            case GT_TEAM:
+                level.m_voteName = "Game Type Match";
+                break;
+            case GT_TEAM_ROUNDS:
+                level.m_voteName = "Game Type Round-Based-Match";
+                break;
+            case GT_OBJECTIVE:
+                level.m_voteName = "Game Type Objective-Match";
+                break;
+            case GT_TOW:
+                level.m_voteName = "Game Type Tug of War";
+                break;
+            case GT_LIBERATION:
+                level.m_voteName = "Game Type Liberation";
+                break;
+            default:
+                HUDPrint(va("%s %s %d", gi.LV_ConvertString("Game Type"), arg1.c_str(), gametypeNum));
+                return;
+            }
+        }
+        else if (!Q_stricmp(arg1.c_str(), "map")) {
+            if (*sv_nextmap->string) {
+                level.m_voteString = va("%s %s; set nextmap \"%s\"", arg1.c_str(), arg2.c_str(), sv_nextmap->string);
+            }
+            else {
+                level.m_voteString = va("%s %s", arg1.c_str(), arg2.c_str());
+            }
+
+            level.m_voteName = va("Map %s", arg2.c_str());
+        }
+        else {
+            level.m_voteString = va("%s %s", arg1.c_str(), arg2.c_str());
+            level.m_voteName = level.m_voteString;
+        }
     } else {
-        level.m_voteString = va("%s %s", arg1.c_str(), arg2.c_str());
+        int voteIndex;
+        int subListIndex;
+        str voteOptionCommand;
+        str voteOptionSubCommand;
+        str voteOptionName;
+        str voteOptionSubName;
+        voteoptiontype_t optionType;
+        union {
+            int optionInteger;
+            float optionFloat;
+            int optionClientNum;
+        };
+        gentity_t* ent;
+
+        char buffer[64];
+
+        voteIndex = atoi(arg1.c_str());
+        if (!level.GetVoteOptionMain(voteIndex, &voteOptionCommand, &optionType)) {
+            HUDPrint(va("%s", gi.LV_ConvertString("Invalid vote option.")));
+            return;
+        }
+
+        level.GetVoteOptionMainName(voteIndex, &voteOptionName);
+
+        switch (optionType) {
+        case VOTE_NO_CHOICES:
+            level.m_voteString = voteOptionCommand;
+            level.m_voteName = voteOptionName;
+            break;
+        case VOTE_OPTION_LIST:
+            subListIndex = atoi(arg2.c_str());
+
+            if (!level.GetVoteOptionSub(voteIndex, subListIndex, &voteOptionSubCommand)) {
+                HUDPrint(va("%s %i %s \"%s\".\n", gi.LV_ConvertString("Invalid vote choice"), subListIndex, gi.LV_ConvertString("for vote option"), voteOptionName.c_str()));
+                return;
+            }
+
+            level.m_voteString = va("%s %s", voteOptionCommand.c_str(), voteOptionSubCommand.c_str());
+            // get the sub-option name
+            level.GetVoteOptionSubName(voteIndex, subListIndex, &voteOptionSubName);
+            level.m_voteName = va("%s %s", gi.LV_ConvertString(voteOptionName.c_str()), gi.LV_ConvertString(voteOptionSubName.c_str()));
+            break;
+        case VOTE_OPTION_TEXT:
+            if (strchr(arg2.c_str(), ';')) {
+                HUDPrint(va("%s\n", gi.LV_ConvertString("Invalid vote text entered.")));
+                return;
+            }
+
+            level.m_voteString = va("%s %s", voteOptionCommand.c_str(), arg2.c_str());
+            level.m_voteName = va("%s %s", gi.LV_ConvertString(voteOptionName.c_str()), arg2.c_str());
+            break;
+        case VOTE_OPTION_INTEGER:
+            optionInteger = atoi(arg2.c_str());
+            Com_sprintf(buffer, sizeof(buffer), "%d", optionInteger);
+
+            if (Q_stricmp(buffer, arg2.c_str())) {
+                HUDPrint(va("%s\n", gi.LV_ConvertString("Invalid vote integer entered.")));
+                return;
+            }
+
+            level.m_voteString = va("%s %i", voteOptionCommand.c_str(), optionInteger);
+            level.m_voteName = va("%s %i", gi.LV_ConvertString(voteOptionName.c_str()), optionInteger);
+            break;
+        case VOTE_OPTION_FLOAT:
+            optionFloat = atof(arg2.c_str());
+            Com_sprintf(buffer, sizeof(buffer), "%d", optionFloat);
+
+            if (Q_stricmp(buffer, arg2.c_str())) {
+                HUDPrint(va("%s\n", gi.LV_ConvertString("Invalid vote float entered.")));
+                return;
+            }
+
+            level.m_voteString = va("%s %g", voteOptionCommand.c_str(), optionFloat);
+            level.m_voteName = va("%s %g", gi.LV_ConvertString(voteOptionName.c_str()), optionFloat);
+            break;
+        case VOTE_OPTION_CLIENT:
+        case VOTE_OPTION_CLIENT_NOT_SELF:
+            optionClientNum = atoi(arg2.c_str());
+            if (optionClientNum < 0 || optionClientNum >= game.maxclients) {
+                HUDPrint(va("%s\n", gi.LV_ConvertString("Invalid client number for a vote.")));
+                return;
+            }
+
+            ent = &g_entities[optionClientNum];
+            if (!ent->inuse || !ent->client || !ent->entity) {
+                HUDPrint(va("%s\n", gi.LV_ConvertString("Client selected for the vote is not connected.")));
+                return;
+            }
+
+            level.m_voteString = va("%s %i", voteOptionCommand.c_str(), optionClientNum);
+            level.m_voteName = va("%s #%i: %s", gi.LV_ConvertString(voteOptionName.c_str()), optionClientNum, ent->client->pers.netname);
+            break;
+        default:
+            level.GetVoteOptionMainName(voteIndex, &voteOptionName);
+            gi.Printf("ERROR: Vote option (\"%s\" \"%s\") with unknown vote option type\n", voteOptionName.c_str(), voteOptionCommand.c_str());
+            return;
+        }
     }
 
-    dmManager.PrintAllClients(
-        va("%s %s: %s\n", client->pers.netname, gi.LV_ConvertString("called a vote"), level.m_voteString.c_str())
-    );
+    G_PrintToAllClients(va("%s %s.\n", client->pers.netname, gi.LV_ConvertString("called a vote")));
 
-    level.m_voteYes  = 1;
-    level.m_voteNo   = 0;
-    level.m_voteTime = level.time;
+    level.m_voteTime = (level.svsFloatTime - level.svsStartFloatTime) * 1000;
+    level.m_voteYes = 1;
+    level.m_voteNo = 0;
 
     // Reset all player's vote
+    numVoters = 0;
+
     for (int i = 0; i < game.maxclients; i++) {
-        gentity_t *ent = &g_entities[i];
+        gentity_t* ent = &g_entities[i];
 
         if (!ent->client || !ent->inuse) {
             continue;
         }
 
-        Player *p = (Player *)ent->entity;
-
+        Player* p = (Player*)ent->entity;
         p->voted = false;
+
+        numVoters++;
     }
 
+    level.m_numVoters = numVoters;
+    client->ps.voted = true;
     voted = true;
     votecount++;
 
-    level.m_numVoters = 0;
+    m_fLastVoteTime = level.time + 60;
+
+    if (g_protocol >= protocol_e::PROTOCOL_MOHTA_MIN) {
+        //
+        // clients below version 2.0 don't support vote cs
+        //
+        gi.setConfigstring(CS_VOTE_TIME, va("%i", level.m_voteTime));
+        gi.setConfigstring(CS_VOTE_STRING, level.m_voteName.c_str());
+        gi.setConfigstring(CS_VOTE_YES, va("%i", level.m_voteYes));
+        gi.setConfigstring(CS_VOTE_NO, va("%i", level.m_voteNo));
+        gi.setConfigstring(CS_VOTE_UNDECIDED, va("%i", level.m_numVoters - (level.m_voteYes + level.m_voteNo)));
+    }
 }
 
 void Player::Vote(Event *ev)
