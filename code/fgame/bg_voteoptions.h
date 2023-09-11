@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "listener.h"
 #include "g_public.h"
 
+static const unsigned long MAX_VOTEOPTIONS_UPLOAD_BUFFER_LENGTH = 2024;
+static const unsigned long MAX_VOTEOPTIONS_BUFFER_LENGTH        = 0x100000;
+
 typedef enum voteoptiontype_e {
     /** No input. */
     VOTE_NO_CHOICES,
@@ -44,18 +47,27 @@ typedef enum voteoptiontype_e {
 
 class VoteOptionListItem
 {
+public:
     str                       m_sItemName;
     str                       m_sCommand;
     class VoteOptionListItem *m_pNext;
+
+public:
+    VoteOptionListItem();
 };
 
 class SingleVoteOption
 {
-    str                     m_sVoteName;
-    str                     m_sCommand;
-    voteoptiontype_t        m_optionType;
-    VoteOptionListItem     *m_pListItem;
-    class SingleVoteOption *m_pNext;
+public:
+    str                 m_sOptionName;
+    str                 m_sCommand;
+    voteoptiontype_t    m_optionType;
+    VoteOptionListItem *m_pListItem;
+    SingleVoteOption   *m_pNext;
+
+public:
+    SingleVoteOption();
+    ~SingleVoteOption();
 };
 
 class VoteOptions : public Class
@@ -63,14 +75,22 @@ class VoteOptions : public Class
 public:
     CLASS_PROTOTYPE(VoteOptions);
 
-public:
+private:
     str               m_sFileName;
     str               m_sBuffer;
     SingleVoteOption *m_pHeadOption;
-    int               field_5;
-    float             field_6;
-    float             field_7;
-    float             field_8;
-    float             field_9;
-    float             field_10;
+
+public:
+    VoteOptions();
+    ~VoteOptions();
+
+    void        ClearOptions();
+    void        SetupVoteOptions(const char *configFileName);
+    void        SetupVoteOptions(const char *configFileName, int length, const char *buffer);
+    void        ParseVoteOptions();
+    const char *GetVoteOptionsFile(int *outLen) const;
+    bool        GetVoteOptionsMain(int index, str *outOptionCommand, voteoptiontype_t *outOptionType) const;
+    bool        GetVoteOptionSub(int index, int listIndex, str *outCommand) const;
+    bool        GetVoteOptionMainName(int index, str *outVoteName) const;
+    bool        GetVoteOptionSubName(int index, int listIndex, str *outName) const;
 };

@@ -9540,12 +9540,14 @@ void Player::CallVote(Event* ev)
 
 void Player::Vote(Event *ev)
 {
+    str arg1;
+
     if (level.m_voteTime == 0.0f) {
         HUDPrint(gi.LV_ConvertString("No vote in progress."));
         return;
     }
 
-    if (voted) {
+    if (client->ps.voted) {
         HUDPrint(gi.LV_ConvertString("Vote already cast."));
         return;
     }
@@ -9556,15 +9558,10 @@ void Player::Vote(Event *ev)
     }
 
     HUDPrint(gi.LV_ConvertString("Vote cast."));
-    voted = true;
+    client->ps.voted = true;
 
-    str arg1 = ev->GetString(1);
-
-    if (*arg1 == 'y' || *arg1 == 'Y' || *arg1 == '1') {
-        level.m_voteYes++;
-    } else {
-        level.m_voteNo++;
-    }
+    arg1 = ev->GetString(1);
+    voted = (arg1[0] == 'y') || (arg1[0] == 'Y') || (arg1[0] == '1');
 }
 
 void Player::RetrieveVoteOptions(Event *ev)

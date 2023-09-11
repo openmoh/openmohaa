@@ -65,16 +65,19 @@ typedef struct earthquake_s {
 } earthquake_t;
 
 struct badplace_t {
-	const_str m_name;
-	int m_iTeamSide;
-	Vector m_vOrigin;
-	float m_fRadius;
-	float m_fNotBadPlaceTime;
+    const_str m_name;
+    int       m_iTeamSide;
+    Vector    m_vOrigin;
+    float     m_fRadius;
+    float     m_fNotBadPlaceTime;
+
+public:
+    badplace_t();
 };
 
 typedef struct {
-	str m_sName;
-	Vector m_vOrigin;
+    str    m_sName;
+    Vector m_vOrigin;
 } landmark_t;
 
 extern gclient_t *spawn_client;
@@ -111,8 +114,8 @@ public:
     int   svsTime;
     float svsFloatTime;
     int   svsStartTime;
-	int   svsEndTime;
-	float svsStartFloatTime; // Added in 2.0
+    int   svsEndTime;
+    float svsStartFloatTime; // Added in 2.0
 
     // Level name variables
     str level_name;
@@ -197,8 +200,9 @@ public:
     int   m_voteNo;
     int   m_numVoters;
     // Added in 2.0
-    str   m_voteString;
-	str   m_voteName;
+    str         m_voteString;
+    str         m_voteName;
+    VoteOptions m_voteOptions;
 
     // Intermission locations
     Vector m_intermission_origin;
@@ -220,25 +224,25 @@ public:
     int          num_earthquakes;
 
     // Objective stuff
-	Vector m_vObjectiveLocation;
-	Vector m_vAlliedObjectiveLocation; // Added in 2.0
-	Vector m_vAxisObjectiveLocation; // Added in 2.0
+    Vector m_vObjectiveLocation;
+    Vector m_vAlliedObjectiveLocation; // Added in 2.0
+    Vector m_vAxisObjectiveLocation;   // Added in 2.0
 
     // Current level state
     bool spawning;
-	bool m_bIgnoreClock;
+    bool m_bIgnoreClock;
     //====
     // Added in 2.30
     // Landmarks
-	float m_fLandmarkYDistMax;
-	float m_fLandmarkYDistMin;
-	float m_fLandmarkXDistMax;
-	float m_fLandmarkXDistMin;
-	landmark_t** m_pLandmarks;
-	int m_iMaxLandmarks;
-	int m_iLandmarksCount;
+    float        m_fLandmarkYDistMax;
+    float        m_fLandmarkYDistMin;
+    float        m_fLandmarkXDistMax;
+    float        m_fLandmarkXDistMin;
+    landmark_t **m_pLandmarks;
+    int          m_iMaxLandmarks;
+    int          m_iLandmarksCount;
     //====
-	void* m_pAIStats;
+    void *m_pAIStats;
 
     // New Stuff
 
@@ -268,95 +272,95 @@ public:
     void       SetMap(const char *themapname);
     void       FindTeams();
 
-    void       SpawnEntities(char *entities, int _svsTime_);
+    void SpawnEntities(char *entities, int _svsTime_);
     //====
     // Added in 2.30
-    void       ComputeDMWaypoints();
-    void       AddLandmarkOrigin(const Vector& origin);
-    void       AddLandmarkName(const str& name, const Vector& origin);
-    void       FreeLandmarks();
-    str        GetDynamicDMLocations(const Vector& origin);
-    str        GetDMLocation(const Vector& origin);
+    void ComputeDMWaypoints();
+    void AddLandmarkOrigin(const Vector& origin);
+    void AddLandmarkName(const str& name, const Vector& origin);
+    void FreeLandmarks();
+    str  GetDynamicDMLocations(const Vector &origin);
+    str  GetDMLocation(const Vector &origin);
     //====
-    void       PreSpawnSentient(Event *ev);
-    void       ServerSpawned();
-    qboolean   inhibitEntity(int spawnflags);
+    void     PreSpawnSentient(Event *ev);
+    void     ServerSpawned();
+    qboolean inhibitEntity(int spawnflags);
 
-    void       setSkill(int value);
-    void       setTime(int _svsTime_);
-    void       setFrametime(int frameTime);
+    void setSkill(int value);
+    void setTime(int _svsTime_);
+    void setFrametime(int frameTime);
 
-    void       AddAutomaticCamera(Camera *cam);
+    void AddAutomaticCamera(Camera *cam);
 
-    void       GetTime(Event *ev);
-    void       GetTotalSecrets(Event *ev);
-    void       GetFoundSecrets(Event *ev);
+    void GetTime(Event *ev);
+    void GetTotalSecrets(Event *ev);
+    void GetFoundSecrets(Event *ev);
 
-    //====
-    // Added in 2.0
-    void       InitVoteOptions();
-    void       SendVoteOptionsFile(gentity_t* ent);
-    bool       GetVoteOptionMain(int index, str* outOptionCommand, voteoptiontype_t* outOptionType);
-    bool       GetVoteOptionSub(int index, int listIndex, str* outCommand);
-    bool       GetVoteOptionMainName(int index, str* outVoteName);
-	bool       GetVoteOptionSubName(int index, int listIndex, str* outName);
-	//====
-    void       CheckVote();
-    void       SetupMaplist(); // Added in 2.0
-
-    void       GetAlarm(Event *ev);
-    void       SetAlarm(Event *ev);
-    void       SetNoDropHealth(Event *ev);
-    void       SetNoDropWeapons(Event *ev); // Added in 2.0
-    void       GetLoopProtection(Event *ev);
-    void       SetLoopProtection(Event *ev);
-    void       GetPapersLevel(Event *ev);
-    void       SetPapersLevel(Event *ev);
-    void       EventGetRoundStarted(Event *ev);
-    void       EventGetDMRespawning(Event *ev);
-    void       EventSetDMRespawning(Event *ev);
-    void       EventGetDMRoundLimit(Event *ev);
-    void       EventSetDMRoundLimit(Event *ev);
-    void       EventGetClockSide(Event *ev);
-    void       EventSetClockSide(Event *ev);
-    void       EventGetBombPlantTeam(Event *ev);
-    void       EventSetBombPlantTeam(Event *ev);
-    void       EventGetTargetsToDestroy(Event *ev);
-    void       EventSetTargetsToDestroy(Event *ev);
-    void       EventGetTargetsDestroyed(Event *ev);
-    void       EventSetTargetsDestroyed(Event *ev);
-    void       EventGetBombsPlanted(Event *ev);
-    void       EventSetBombsPlanted(Event *ev);
-    void       EventGetRoundBased(Event *ev);
-    void       EventGetObjectiveBased(Event *ev);
-    void       EventRainDensitySet(Event *ev);
-    void       EventRainDensityGet(Event *ev);
-    void       EventRainSpeedSet(Event *ev);
-    void       EventRainSpeedGet(Event *ev);
-    void       EventRainSpeedVarySet(Event *ev);
-    void       EventRainSpeedVaryGet(Event *ev);
-    void       EventRainSlantSet(Event *ev);
-    void       EventRainSlantGet(Event *ev);
-    void       EventRainLengthSet(Event *ev);
-    void       EventRainLengthGet(Event *ev);
-    void       EventRainMin_DistSet(Event *ev);
-    void       EventRainMin_DistGet(Event *ev);
-    void       EventRainWidthSet(Event *ev);
-    void       EventRainWidthGet(Event *ev);
-    void       EventRainShaderSet(Event *ev);
-    void       EventRainShaderGet(Event *ev);
-    void       EventRainNumShadersSet(Event *ev);
-    void       EventRainNumShadersGet(Event *ev);
     //====
     // Added in 2.0
-    void       EventAddBadPlace(Event *ev);
-    void       EventRemoveBadPlace(Event *ev);
-    void       EventIgnoreClock(Event *ev);
-    void       UpdateBadPlaces();
+    void InitVoteOptions();
+    void SendVoteOptionsFile(gentity_t *ent);
+    bool GetVoteOptionMain(int index, str *outOptionCommand, voteoptiontype_t *outOptionType);
+    bool GetVoteOptionSub(int index, int listIndex, str *outCommand);
+    bool GetVoteOptionMainName(int index, str *outVoteName);
+    bool GetVoteOptionSubName(int index, int listIndex, str *outName);
+    //====
+    void CheckVote();
+    void SetupMaplist(); // Added in 2.0
+
+    void GetAlarm(Event *ev);
+    void SetAlarm(Event *ev);
+    void SetNoDropHealth(Event *ev);
+    void SetNoDropWeapons(Event *ev); // Added in 2.0
+    void GetLoopProtection(Event *ev);
+    void SetLoopProtection(Event *ev);
+    void GetPapersLevel(Event *ev);
+    void SetPapersLevel(Event *ev);
+    void EventGetRoundStarted(Event *ev);
+    void EventGetDMRespawning(Event *ev);
+    void EventSetDMRespawning(Event *ev);
+    void EventGetDMRoundLimit(Event *ev);
+    void EventSetDMRoundLimit(Event *ev);
+    void EventGetClockSide(Event *ev);
+    void EventSetClockSide(Event *ev);
+    void EventGetBombPlantTeam(Event *ev);
+    void EventSetBombPlantTeam(Event *ev);
+    void EventGetTargetsToDestroy(Event *ev);
+    void EventSetTargetsToDestroy(Event *ev);
+    void EventGetTargetsDestroyed(Event *ev);
+    void EventSetTargetsDestroyed(Event *ev);
+    void EventGetBombsPlanted(Event *ev);
+    void EventSetBombsPlanted(Event *ev);
+    void EventGetRoundBased(Event *ev);
+    void EventGetObjectiveBased(Event *ev);
+    void EventRainDensitySet(Event *ev);
+    void EventRainDensityGet(Event *ev);
+    void EventRainSpeedSet(Event *ev);
+    void EventRainSpeedGet(Event *ev);
+    void EventRainSpeedVarySet(Event *ev);
+    void EventRainSpeedVaryGet(Event *ev);
+    void EventRainSlantSet(Event *ev);
+    void EventRainSlantGet(Event *ev);
+    void EventRainLengthSet(Event *ev);
+    void EventRainLengthGet(Event *ev);
+    void EventRainMin_DistSet(Event *ev);
+    void EventRainMin_DistGet(Event *ev);
+    void EventRainWidthSet(Event *ev);
+    void EventRainWidthGet(Event *ev);
+    void EventRainShaderSet(Event *ev);
+    void EventRainShaderGet(Event *ev);
+    void EventRainNumShadersSet(Event *ev);
+    void EventRainNumShadersGet(Event *ev);
+    //====
+    // Added in 2.0
+    void        EventAddBadPlace(Event *ev);
+    void        EventRemoveBadPlace(Event *ev);
+    void        EventIgnoreClock(Event *ev);
+    void        UpdateBadPlaces();
     badplace_t *GetNearestBadPlace(const Vector& org, float radius) const;
     //====
-    str        GetRandomHeadModel(const char *model);
-    str        GetRandomHeadSkin(const char *model);
+    str GetRandomHeadModel(const char *model);
+    str GetRandomHeadSkin(const char *model);
 
     bool RoundStarted();
     bool PreSpawned(void);
@@ -372,7 +376,7 @@ public:
 void G_BeginIntermission2(void);
 
 // Change the current map to the specified map with the possibility to fade the screen with fadetime.
-void G_BeginIntermission(const char* map_name, INTTYPE_e transtype, bool no_fade = false);
+void G_BeginIntermission(const char *map_name, INTTYPE_e transtype, bool no_fade = false);
 
 //Exit the intermission screen.
 void G_ExitIntermission(void);

@@ -96,7 +96,8 @@ Event EV_Level_GetAlarm
 
 Event EV_Level_SetAlarm
 (
-    "alarm", EV_DEFAULT,
+    "alarm",
+    EV_DEFAULT,
     "i",
     "alarm_status",
     "zero = global level alarm off,"
@@ -194,8 +195,7 @@ Event EV_Level_SetDMRespawning
     EV_SETTER
 );
 
-Event EV_Level_SetDMRespawning2
-(
+Event EV_Level_SetDMRespawning2(
     "dmrespawning",
     EV_DEFAULT,
     "i",
@@ -204,8 +204,7 @@ Event EV_Level_SetDMRespawning2
     "to 0 to disable respawns within a round"
 );
 
-Event EV_Level_GetDMRoundLimit
-(
+Event EV_Level_GetDMRoundLimit(
     "dmroundlimit",
     EV_DEFAULT,
     NULL,
@@ -214,8 +213,7 @@ Event EV_Level_GetDMRoundLimit
     EV_GETTER
 );
 
-Event EV_Level_SetDMRoundLimit
-(
+Event EV_Level_SetDMRoundLimit(
     "dmroundlimit",
     EV_DEFAULT,
     "i",
@@ -224,8 +222,7 @@ Event EV_Level_SetDMRoundLimit
     EV_SETTER
 );
 
-Event EV_Level_SetDMRoundLimit2
-(
+Event EV_Level_SetDMRoundLimit2(
     "dmroundlimit",
     EV_DEFAULT,
     "i",
@@ -254,8 +251,7 @@ Event EV_Level_SetClockSide
     EV_SETTER
 );
 
-Event EV_Level_SetClockSide2
-(
+Event EV_Level_SetClockSide2(
     "clockside",
     EV_DEFAULT,
     "s",
@@ -267,7 +263,8 @@ Event EV_Level_SetClockSide2
 
 Event EV_Level_GetBombPlantTeam
 (
-    "planting_team", EV_DEFAULT,
+    "planting_team",
+    EV_DEFAULT,
     NULL,
     NULL,
     "Gets which is planting the bomb,"
@@ -286,8 +283,7 @@ Event EV_Level_SetBombPlantTeam
     EV_SETTER
 );
 
-Event EV_Level_SetBombPlantTeam2
-(
+Event EV_Level_SetBombPlantTeam2(
     "planting_team",
     EV_DEFAULT,
     "s",
@@ -592,7 +588,8 @@ Event EV_Level_AddBadPlace
     EV_DEFAULT,
     "svfSF",
     "name origin radius [team] [duration]",
-    "Enables a 'bad place' for AI of team 'american', 'german', or (default) 'both' to avoid, and optionally gives it a duration",
+    "Enables a 'bad place' for AI of team 'american', 'german', or (default) 'both' to avoid, and optionally gives it "
+    "a duration",
     EV_NORMAL
 );
 
@@ -679,17 +676,17 @@ CLASS_DECLARATION(Listener, Level, NULL) {
     {NULL,                           NULL                            }
 };
 
-void Level::GetTime(Event* ev)
+void Level::GetTime(Event *ev)
 {
     ev->AddFloat(level.time);
 }
 
-void Level::GetTotalSecrets(Event* ev)
+void Level::GetTotalSecrets(Event *ev)
 {
     ev->AddInteger(total_secrets);
 }
 
-void Level::GetFoundSecrets(Event* ev)
+void Level::GetFoundSecrets(Event *ev)
 {
     ev->AddInteger(found_secrets);
 }
@@ -833,18 +830,17 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
 
         if (active_edicts.next->entity) {
             delete active_edicts.next->entity;
-        }
-        else {
+        } else {
             FreeEdict(active_edicts.next);
         }
     }
 
     cinematic = false;
-    ai_on = true;
+    ai_on     = true;
     near_exit = false;
 
     mission_failed = false;
-    died_already = false;
+    died_already   = false;
 
     globals.num_entities = game.maxclients + 1;
     gi.LocateGameData(g_entities, game.maxclients + 1, sizeof(gentity_t), &game.clients[0].ps, sizeof(gclient_t));
@@ -1009,28 +1005,28 @@ void Level::setSkill(int value)
 
 void Level::setTime(int levelTime)
 {
-    svsTime = levelTime;
-    inttime = levelTime - svsStartTime;
+    svsTime      = levelTime;
+    inttime      = levelTime - svsStartTime;
     svsFloatTime = levelTime / 1000.0f;
-    time = inttime / 1000.0f;
+    time         = inttime / 1000.0f;
 }
 
 void Level::setFrametime(int frametime)
 {
-    intframetime = frametime;
+    intframetime    = frametime;
     this->frametime = frametime / 1000.0f;
 }
 
-void Level::SpawnEntities(char* entities, int svsTime)
+void Level::SpawnEntities(char *entities, int svsTime)
 {
-    int inhibit, radnum = 0, count = 0;
-    const char* value;
-    SpawnArgs args;
-    Listener* listener;
-	Entity* ent;
-    int t1, t2;
-    int start, end;
-	char name[128];
+    int         inhibit, radnum = 0, count = 0;
+    const char *value;
+    SpawnArgs   args;
+    Listener   *listener;
+    Entity     *ent;
+    int         t1, t2;
+    int         start, end;
+    char        name[128];
 
     Com_Printf("-------------------- Spawning Entities -----------------------\n");
 
@@ -1039,9 +1035,9 @@ void Level::SpawnEntities(char* entities, int svsTime)
 
     // set up time so functions still have valid times
     setTime(svsTime);
-	setFrametime(50);
+    setFrametime(50);
 
-	gi.LoadResource("*144");
+    gi.LoadResource("*144");
 
     setSkill(skill->integer);
 
@@ -1049,28 +1045,28 @@ void Level::SpawnEntities(char* entities, int svsTime)
     sv_numtraces = 0;
 
     // parse world
-    entities = args.Parse(entities);
+    entities     = args.Parse(entities);
     spawn_entnum = ENTITYNUM_WORLD;
     args.SpawnInternal();
 
-	gi.LoadResource("*147");
+    gi.LoadResource("*147");
 
     // Set up for a new map
-	PathManager.LoadNodes();
+    PathManager.LoadNodes();
 
-	gi.LoadResource("*147a");
+    gi.LoadResource("*147a");
 
     Com_Printf("-------------------- Actual Spawning Entities -----------------------\n");
 
-	start = gi.Milliseconds();
+    start = gi.Milliseconds();
 
-	// parse ents
-	inhibit = 0;
+    // parse ents
+    inhibit = 0;
 
     for (entities = args.Parse(entities); entities != NULL; entities = args.Parse(entities)) {
         // remove things (except the world) from different skill levels or deathmatch
         spawnflags = 0;
-        value = args.getArg("spawnflags");
+        value      = args.getArg("spawnflags");
 
         if (value) {
             spawnflags = atoi(value);
@@ -1089,7 +1085,7 @@ void Level::SpawnEntities(char* entities, int svsTime)
             if (listener->isSubclassOf(Entity)) {
                 count++;
 
-                ent = (Entity*)listener;
+                ent         = (Entity *)listener;
                 ent->radnum = radnum;
 
                 Q_strncpyz(ent->edict->entname, ent->getClassID(), sizeof(ent->edict->entname));
@@ -1103,33 +1099,31 @@ void Level::SpawnEntities(char* entities, int svsTime)
 
     end = gi.Milliseconds();
 
-    Com_Printf(
-        "-------------------- Actual Spawning Entities Done ------------------ %i ms\n", end - start
-    );
+    Com_Printf("-------------------- Actual Spawning Entities Done ------------------ %i ms\n", end - start);
 
-	gi.LoadResource("*147b");
+    gi.LoadResource("*147b");
 
     world->UpdateConfigStrings();
 
-    Event* ev = new Event(EV_Level_PreSpawnSentient);
+    Event *ev = new Event(EV_Level_PreSpawnSentient);
     PostEvent(ev, EV_SPAWNENTITIES);
 
-	L_ProcessPendingEvents();
+    L_ProcessPendingEvents();
 
-	gi.LoadResource("*148");
+    gi.LoadResource("*148");
 
     if (g_gametype->integer) {
         dmManager.InitGame();
-	}
+    }
 
-	gi.LoadResource("*148a");
+    gi.LoadResource("*148a");
 
     if (game.maxclients == 1) {
         spawn_entnum = 0;
         new Player;
-	}
+    }
 
-	gi.LoadResource("*148b");
+    gi.LoadResource("*148b");
 
     m_LoopProtection = false;
     RemoveWaitTill(STRING_PRESPAWN);
@@ -1179,9 +1173,9 @@ str Level::GetDMLocation(const Vector& origin)
     return "";
 }
 
-void Level::PreSpawnSentient(Event* ev)
+void Level::PreSpawnSentient(Event *ev)
 {
-    GameScript* script;
+    GameScript *script;
 
     // general initialization
     FindTeams();
@@ -1216,8 +1210,8 @@ bool Level::Spawned(void)
 void Level::ServerSpawned(void)
 {
     int        i;
-    gclient_t* client;
-    gentity_t* ent;
+    gclient_t *client;
+    gentity_t *ent;
 
     for (i = 0, client = game.clients; i < game.maxclients; i++, client++) {
         client->ps.commandTime = svsTime;
@@ -1235,17 +1229,16 @@ void Level::ServerSpawned(void)
         Director.Unpause();
 
         Unregister(STRING_SPAWN);
-    }
-    else {
+    } else {
         Director.LoadMenus();
     }
 
     spawning = false;
 }
 
-void Level::SetMap(const char* themapname)
+void Level::SetMap(const char *themapname)
 {
-    char* spawnpos;
+    char *spawnpos;
     int   i;
     str   text;
 
@@ -1254,17 +1247,16 @@ void Level::SetMap(const char* themapname)
     spawning = true;
 
     // set a specific spawnpoint if the map was started with a $
-    spawnpos = strchr((char*)themapname, '$');
+    spawnpos = strchr((char *)themapname, '$');
     if (spawnpos) {
-        mapname = (const char*)(spawnpos - themapname);
+        mapname    = (const char *)(spawnpos - themapname);
         spawnpoint = mapname;
-    }
-    else {
-        mapname = themapname;
+    } else {
+        mapname    = themapname;
         spawnpoint = "";
     }
 
-    current_map = (char*)themapname;
+    current_map = (char *)themapname;
 
     level_name = mapname;
     for (i = 0; i < level_name.length(); i++) {
@@ -1274,15 +1266,15 @@ void Level::SetMap(const char* themapname)
         }
     }
 
-    m_mapscript = "maps/" + level_name + ".scr";
+    m_mapscript      = "maps/" + level_name + ".scr";
     m_precachescript = "maps/" + level_name + "_precache.scr";
-    m_pathfile = "maps/" + level_name + ".pth";
-    m_mapfile = "maps/" + level_name + ".bsp";
+    m_pathfile       = "maps/" + level_name + ".pth";
+    m_mapfile        = "maps/" + level_name + ".bsp";
 }
 
-void Level::LoadAllScripts(const char* name, const char* extension)
+void Level::LoadAllScripts(const char *name, const char *extension)
 {
-    char** scriptFiles;
+    char **scriptFiles;
     char   filename[MAX_QPATH];
     int    numScripts;
 
@@ -1317,11 +1309,12 @@ void Level::Precache(void)
         m_LoopProtection = true;
     }
 
-    if (!g_gametype->integer) {
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
         LoadAllScripts("anim", ".scr");
     }
 
     LoadAllScripts("global", ".scr");
+    InitVoteOptions();
 }
 
 /*
@@ -1337,12 +1330,12 @@ All but the last will have the teamchain field set to the next one
 */
 void Level::FindTeams()
 {
-    gentity_t* ent, * ent2;
-    Entity* e, * e2;
+    gentity_t *ent, *ent2;
+    Entity    *e, *e2;
     int        i, j;
     int        c, c2;
 
-    c = 0;
+    c  = 0;
     c2 = 0;
     for (i = 1, ent = g_entities + i; i < globals.num_entities; i++, ent++) {
         if (!ent->inuse) {
@@ -1380,14 +1373,14 @@ void Level::FindTeams()
 
             if (!strcmp(e->moveteam, e2->moveteam)) {
                 c2++;
-                e2->teamchain = e->teamchain;
-                e->teamchain = e2;
+                e2->teamchain  = e->teamchain;
+                e->teamchain   = e2;
                 e2->teammaster = e;
                 e2->flags |= FL_TEAMSLAVE;
 
                 // make sure that targets only point at the master
                 if (e2->targetname) {
-                    e->targetname = e2->targetname;
+                    e->targetname  = e2->targetname;
                     e2->targetname = NULL;
                 }
             }
@@ -1512,71 +1505,228 @@ void Level::AddAutomaticCamera(Camera *cam)
 
 void Level::InitVoteOptions()
 {
-    // FIXME: unimplemented
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        return;
+    }
+
+    m_voteOptions.SetupVoteOptions("callvote.cfg");
+    // clear the vote time
+    gi.setConfigstring(CS_VOTE_TIME, "");
 }
 
-void Level::SendVoteOptionsFile(gentity_t* ent)
+void Level::SendVoteOptionsFile(gentity_t *ent)
 {
-    // FIXME: unimplemented
+    const char *voteBuffer;
+    int         voteLength;
+    int         clientNum;
+    int         i, j;
+    char        buffer[2068];
+
+    clientNum = ent - g_entities;
+
+    if (clientNum < 0 || clientNum >= game.maxclients) {
+        return;
+    }
+
+    voteBuffer = m_voteOptions.GetVoteOptionsFile(&voteLength);
+    if (voteLength < MAX_VOTEOPTIONS_UPLOAD_BUFFER_LENGTH) {
+        Q_strncpyz(buffer, voteBuffer, voteLength + 1);
+
+        for (i = 0; i < voteLength; i++) {
+            if (buffer[i] == '"') {
+                buffer[i] = 1;
+            }
+        }
+
+        gi.SendServerCommand(clientNum, "vo0 \"\"\n");
+        gi.SendServerCommand(clientNum, "vo2 \"%s\"\n", buffer);
+    } else {
+        const char *cmd;
+        int         destLength;
+        int         offset;
+
+        offset = 0;
+        for (i = voteLength; i > 0; i -= 2023) {
+            if (offset == 0) {
+                cmd        = "vo0";
+                destLength = MAX_VOTEOPTIONS_UPLOAD_BUFFER_LENGTH;
+            } else if (i >= MAX_VOTEOPTIONS_UPLOAD_BUFFER_LENGTH) {
+                cmd        = "vo1";
+                destLength = MAX_VOTEOPTIONS_UPLOAD_BUFFER_LENGTH;
+            } else {
+                cmd        = "vo2";
+                destLength = i;
+            }
+
+            Q_strncpyz(buffer, &voteBuffer[offset], MAX_VOTEOPTIONS_UPLOAD_BUFFER_LENGTH);
+
+            for (j = 0; j < destLength; j++) {
+                if (buffer[j] == '"') {
+                    buffer[j] = 1;
+                }
+            }
+
+            gi.SendServerCommand(clientNum, "%s \"%s\"\n", cmd, buffer);
+            offset += MAX_VOTEOPTIONS_UPLOAD_BUFFER_LENGTH - 1;
+        }
+    }
 }
 
-bool Level::GetVoteOptionMain(int index, str* outOptionCommand, voteoptiontype_t* outOptionType)
+bool Level::GetVoteOptionMain(int index, str *outOptionCommand, voteoptiontype_t *outOptionType)
 {
-    // FIXME: unimplemented
-    return false;
+    return m_voteOptions.GetVoteOptionsMain(index, outOptionCommand, outOptionType);
 }
 
-bool Level::GetVoteOptionSub(int index, int listIndex, str* outCommand)
+bool Level::GetVoteOptionSub(int index, int listIndex, str *outCommand)
 {
-    // FIXME: unimplemented
-    return false;
+    return m_voteOptions.GetVoteOptionSub(index, listIndex, outCommand);
 }
 
-bool Level::GetVoteOptionMainName(int index, str* outVoteName)
+bool Level::GetVoteOptionMainName(int index, str *outVoteName)
 {
-    // FIXME: unimplemented
-    return false;
+    return m_voteOptions.GetVoteOptionMainName(index, outVoteName);
 }
 
-bool Level::GetVoteOptionSubName(int index, int listIndex, str* outName)
+bool Level::GetVoteOptionSubName(int index, int listIndex, str *outName)
 {
-    // FIXME: unimplemented
-    return false;
+    return m_voteOptions.GetVoteOptionSubName(index, listIndex, outName);
 }
 
 void Level::CheckVote(void)
 {
-    // FIXME: show the vote HUD like in SH and BT
+    gentity_t *ent;
+    int        i;
+    int        numVoters;
+    int        oldVoteYes, oldVoteNo, oldNumVoters;
+
+    if (m_nextVoteTime && m_nextVoteTime < inttime) {
+        m_nextVoteTime = 0;
+
+        gi.SendConsoleCommand(va("%s\n", m_voteString.c_str()));
+
+        if (sv_sprinton->integer == 1) {
+            if (sv_runspeed->integer == 250) {
+                gi.cvar_set("sv_runspeed", "287");
+            }
+        } else if (sv_runspeed->integer == 287) {
+            gi.cvar_set("sv_runspeed", "250");
+        }
+
+        SetupMaplist();
+    }
 
     if (!m_voteTime) {
         return;
     }
 
-    if (time - m_voteTime >= 30000.0f) {
-        dmManager.PrintAllClients("Vote failed.\n");
-        m_voteTime = 0;
-        return;
+    oldVoteYes   = level.m_voteYes;
+    oldVoteNo    = level.m_voteNo;
+    oldNumVoters = level.m_numVoters;
+
+    level.m_voteYes = 0;
+    level.m_voteNo  = 0;
+    numVoters       = 0;
+
+    for (i = 0; i < game.maxclients; i++) {
+        Player *p;
+
+        ent = &g_entities[i];
+        if (!ent->inuse || !ent->client || !ent->entity) {
+            continue;
+        }
+
+        p = static_cast<Player *>(ent->entity);
+        if (p->client->ps.voted) {
+            if (p->HasVotedYes()) {
+                level.m_voteYes++;
+            } else {
+                level.m_voteNo++;
+            }
+        }
     }
 
-    if (m_voteYes > m_numVoters / 2) {
-        dmManager.PrintAllClients("Vote passed.\n");
+    level.m_numVoters = numVoters;
 
+    if ((svsFloatTime - svsStartFloatTime) * 1000 >= 30000.0f) {
+        G_PrintToAllClients(va("%s: %s\n", gi.CL_LV_ConvertString("Vote Failed"), m_voteName.c_str()));
+        m_voteTime = 0;
+        gi.setConfigstring(CS_VOTE_TIME, "");
+    } else if (m_voteYes > m_numVoters / 2) {
         // Pass arguments to console
-        gi.SendConsoleCommand(va("%s", level.m_voteString.c_str()));
+        G_PrintToAllClients(va("%s: %s\n", gi.CL_LV_ConvertString("Vote Passed"), m_voteName.c_str()));
+        m_nextVoteTime = level.inttime + 3000;
+        m_voteTime     = 0;
+        gi.setConfigstring(CS_VOTE_TIME, "");
+    } else if (m_voteNo >= m_numVoters / 2) {
+        G_PrintToAllClients(va("%s: %s\n", gi.CL_LV_ConvertString("Vote Failed"), m_voteName.c_str()));
         m_voteTime = 0;
-        return;
-    }
+        gi.setConfigstring(CS_VOTE_TIME, "");
+    } else {
+        if (oldVoteYes != level.m_voteYes) {
+            gi.setConfigstring(CS_VOTE_YES, va("%i", level.m_voteYes));
+        }
 
-    if (m_voteNo >= m_numVoters / 2) {
-        dmManager.PrintAllClients("Vote failed.\n");
-        m_voteTime = 0;
-        return;
+        if (oldVoteNo != level.m_voteNo) {
+            gi.setConfigstring(CS_VOTE_NO, va("%i", level.m_voteNo));
+        }
+
+        if (oldNumVoters != level.m_numVoters || oldVoteYes != level.m_voteYes || oldVoteNo != level.m_voteNo) {
+            gi.setConfigstring(CS_VOTE_UNDECIDED, va("%i", level.m_numVoters - (level.m_voteYes + level.m_voteNo)));
+        }
     }
 }
 
 void Level::SetupMaplist()
 {
-    // FIXME: unimplemented
+    const char *p;
+    const char  delim[2] = {';', 0};
+    cvar_t     *maplistVar;
+    int         gameTypeNum;
+    char        buffer[1024];
+    char        gameTypeBuffer[12];
+
+    if (!strstr(m_voteString.c_str(), "g_gametype")) {
+        return;
+    }
+
+    strcpy(buffer, m_voteString.c_str());
+
+    for (p = strtok(buffer, delim); p; p = strtok(NULL, delim)) {
+        if (strstr(p, "g_gametype")) {
+            gameTypeBuffer[0] = p[strlen(p) - 1];
+            gameTypeBuffer[1] = 0;
+            gameTypeNum       = atoi(gameTypeBuffer);
+        }
+    }
+
+    switch (gameTypeNum) {
+    case GT_FFA:
+        gi.ExecuteConsoleCommand(EXEC_NOW, "exec maplist_ffa.cfg");
+        maplistVar = gi.Cvar_Get("ui_maplist_ffa", "", 0);
+        break;
+    case GT_TEAM:
+        gi.ExecuteConsoleCommand(EXEC_NOW, "exec maplist_team.cfg");
+        maplistVar = gi.Cvar_Get("ui_maplist_team", "", 0);
+        break;
+    case GT_TEAM_ROUNDS:
+        gi.ExecuteConsoleCommand(EXEC_NOW, "exec maplist_round.cfg");
+        maplistVar = gi.Cvar_Get("ui_maplist_round", "", 0);
+        break;
+    case GT_OBJECTIVE:
+        gi.ExecuteConsoleCommand(EXEC_NOW, "exec maplist_obj.cfg");
+        maplistVar = gi.Cvar_Get("ui_maplist_obj", "", 0);
+        break;
+    case GT_TOW:
+        gi.ExecuteConsoleCommand(EXEC_NOW, "exec maplist_tow.cfg");
+        maplistVar = gi.Cvar_Get("ui_maplist_tow", "", 0);
+        break;
+    case GT_LIBERATION:
+        gi.ExecuteConsoleCommand(EXEC_NOW, "exec maplist_lib.cfg");
+        maplistVar = gi.Cvar_Get("ui_maplist_lib", "", 0);
+        break;
+    }
+
+    gi.cvar_set("sv_maplist", maplistVar->string);
 }
 
 void Level::GetAlarm(Event *ev)
@@ -1594,7 +1744,7 @@ void Level::SetNoDropHealth(Event *ev)
     mbNoDropHealth = ev->GetInteger(1);
 }
 
-void Level::SetNoDropWeapons(Event* ev)
+void Level::SetNoDropWeapons(Event *ev)
 {
     mbNoDropWeapons = ev->GetInteger(1);
 }
@@ -1619,7 +1769,7 @@ void Level::SetPapersLevel(Event *ev)
     m_iPapersLevel = ev->GetInteger(1);
 }
 
-void Level::EventGetRoundStarted(Event* ev)
+void Level::EventGetRoundStarted(Event *ev)
 {
     ev->AddInteger(RoundStarted());
 }
@@ -1717,7 +1867,7 @@ void Level::EventGetRoundBased(Event *ev)
     ev->AddInteger(g_gametype->integer >= GT_TEAM_ROUNDS);
 }
 
-void Level::EventGetObjectiveBased(Event* ev)
+void Level::EventGetObjectiveBased(Event *ev)
 {
     ev->AddInteger(g_gametype->integer >= GT_OBJECTIVE);
 }
@@ -1904,17 +2054,17 @@ void Level::EventRainNumShadersGet(Event *ev)
     ev->AddString(gi.getConfigstring(CS_RAIN_NUMSHADERS));
 }
 
-void Level::EventAddBadPlace(Event* ev)
+void Level::EventAddBadPlace(Event *ev)
 {
     // FIXME: unimplemented
 }
 
-void Level::EventRemoveBadPlace(Event* ev)
+void Level::EventRemoveBadPlace(Event *ev)
 {
     // FIXME: unimplemented
 }
 
-void Level::EventIgnoreClock(Event* ev)
+void Level::EventIgnoreClock(Event *ev)
 {
     m_bIgnoreClock = ev->GetBoolean(1);
 }
@@ -1924,7 +2074,7 @@ void Level::UpdateBadPlaces()
     // FIXME: unimplemented
 }
 
-badplace_t* Level::GetNearestBadPlace(const Vector& org, float radius) const
+badplace_t *Level::GetNearestBadPlace(const Vector& org, float radius) const
 {
     // FIXME: unimplemented
     return NULL;
@@ -2053,4 +2203,10 @@ void Level::Archive(Archiver& arc)
     arc.ArchiveConfigString(CS_RAIN_WIDTH);
     arc.ArchiveConfigString(CS_RAIN_SHADER);
     arc.ArchiveConfigString(CS_RAIN_NUMSHADERS);
+}
+
+badplace_t::badplace_t()
+    : m_fNotBadPlaceTime(9.9999997e37)
+    , m_iTeamSide(TEAM_ALLIES)
+{
 }
