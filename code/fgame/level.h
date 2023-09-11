@@ -192,12 +192,12 @@ public:
 
     // Voting variables
     float m_voteTime;
+    int   m_nextVoteTime;
     int   m_voteYes;
     int   m_voteNo;
     int   m_numVoters;
-	str   m_voteString;
     // Added in 2.0
-	str   m_voteCommand;
+    str   m_voteString;
 	str   m_voteName;
 
     // Intermission locations
