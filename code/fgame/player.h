@@ -901,6 +901,9 @@ public:
 
     void FindAlias(str& output, str name, AliasListNode_t **node);
 
+    bool HasVotedYes() const;
+    bool HasVotedNo() const;
+
     //=============================
     // Custom openmohaa stuff
     //=============================

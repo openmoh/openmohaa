@@ -10882,6 +10882,16 @@ void Player::FindAlias(str& output, str name, AliasListNode_t **node)
     }
 }
 
+bool Player::HasVotedYes() const
+{
+    return voted;
+}
+
+bool Player::HasVotedNo() const
+{
+    return !voted;
+}
+
 void Player::TickSprint()
 {
     float timeHeld;
