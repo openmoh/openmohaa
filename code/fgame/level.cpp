@@ -2309,6 +2309,13 @@ badplace_t *Level::GetNearestBadPlace(const Vector& org, float radius) const
     return NULL;
 }
 
+static void ArchiveBadPlace(Archiver& arc, badplace_t* bp) {
+    Director.ArchiveString(arc, bp->m_name);
+    arc.ArchiveVector(&bp->m_vOrigin);
+    arc.ArchiveFloat(&bp->m_fRadius);
+    arc.ArchiveFloat(&bp->m_fNotBadPlaceTime);
+}
+
 void Level::Archive(Archiver& arc)
 {
     bool prespawn;
@@ -2391,16 +2398,19 @@ void Level::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_letterbox_time_start);
 
     ArchiveEnum(m_letterbox_dir, letterboxdir_t);
+    m_badPlaces.Archive(arc, &ArchiveBadPlace);
     arc.ArchiveInteger(&m_iCuriousVoiceTime);
     arc.ArchiveInteger(&m_iAttackEntryAnimTime);
     arc.ArchiveInteger(&mHealthPopCount);
 
     arc.ArchiveBoolean(&m_bAlarm);
     arc.ArchiveBoolean(&mbNoDropHealth);
+    arc.ArchiveBoolean(&mbNoDropWeapons);
     arc.ArchiveInteger(&m_iPapersLevel);
     arc.ArchiveInteger(&m_LoopProtection);
 
-    memset(skel_index, 255, sizeof(skel_index));
+    // clear skel indexes
+    memset(skel_index, 0xff, sizeof(skel_index));
 
     if (arc.Loading()) {
         str saved = saved_soundtrack;
@@ -2414,8 +2424,16 @@ void Level::Archive(Archiver& arc)
         arc.ArchiveObjectPointer((Class **)&m_HeadSentient[i]);
     }
 
-    // FIXME: Archive Actor::mBodyQueue
-    // FIXME: Archive Actor::mCurBody
+    arc.ArchiveVector(&m_vObjectiveLocation);
+    arc.ArchiveVector(&m_vAlliedObjectiveLocation);
+    arc.ArchiveVector(&m_vAxisObjectiveLocation);
+
+    for (int i = 0; i < MAX_BODYQUEUE; i++) {
+        arc.ArchiveSafePointer(&Actor::mBodyQueue[i]);
+    }
+
+    arc.ArchiveInteger(&Actor::mCurBody);
+    Health::ArchiveStatic(arc);
 
     arc.ArchiveConfigString(CS_CURRENT_OBJECTIVE);
 
@@ -2432,6 +2450,12 @@ void Level::Archive(Archiver& arc)
     arc.ArchiveConfigString(CS_RAIN_WIDTH);
     arc.ArchiveConfigString(CS_RAIN_SHADER);
     arc.ArchiveConfigString(CS_RAIN_NUMSHADERS);
+
+    arc.ArchiveFloat(&svsStartFloatTime);
+    arc.ArchiveFloat(&m_fLandmarkYDistMax);
+    arc.ArchiveFloat(&m_fLandmarkYDistMin);
+    arc.ArchiveFloat(&m_fLandmarkXDistMin);
+    arc.ArchiveFloat(&m_fLandmarkXDistMax);
 }
 
 badplace_t::badplace_t()
