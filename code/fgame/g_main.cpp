@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "lightstyleclass.h"
 #include "lodthing.h"
 #include "viewthing.h"
+#include "smokesprite.h"
 #include "playerbot.h"
 #include "g_bot.h"
 #include <tiki.h>
@@ -519,6 +520,10 @@ void G_RunFrame(int levelTime, int frameTime)
         showentnums = (sv_showentnums->integer && (!g_gametype->integer || sv_cheats->integer));
 
         g_iInThinks++;
+
+        G_UpdateSmokeSprites();
+        level.UpdateBadPlaces();
+
         processedFrameID++;
 
         if (g_entinfo->integer) {
