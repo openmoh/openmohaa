@@ -1173,10 +1173,10 @@ void SV_GameSendServerCommand( int clientNum, const char *text, ... )
 	//
 	// allocate variadic arguments on stack
 	//
-	buffer = (char*)alloca(length);
+	buffer = (char*)alloca(length + 1);
 
     va_start(va, text);
-    vsnprintf(buffer, length, text, va);
+    vsnprintf(buffer, length + 1, text, va);
     va_end(va);
 
     if (clientNum == -1) {
