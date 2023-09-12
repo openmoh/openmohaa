@@ -4102,3 +4102,28 @@ float Q_clamp_float(float value, float min, float max) {
 		return value;
 	}
 }
+
+float PointToSegmentDistanceSquared(const vec3_t origin, const vec3_t a, const vec3_t b)
+{
+	vec3_t delta;
+	vec3_t final;
+	float distSqr;
+
+	VectorSubtract(b, a, delta);
+	VectorSubtract(origin, a, final);
+	distSqr = DotProduct(delta, final);
+	if (distSqr > 0) {
+		float deltaDistSqr = VectorLengthSquared(delta);
+		vec3_t final;
+
+		if (distSqr < deltaDistSqr) {
+			vec3_t tmp;
+			VectorScale(delta, distSqr / deltaDistSqr, tmp);
+			VectorAdd(final, tmp, final);
+		} else {
+			VectorSubtract(b, origin, final);
+		}
+	}
+
+    return VectorLengthSquared(final);
+}

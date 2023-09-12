@@ -704,6 +704,8 @@ void ZeroBounds(vec3_t mins, vec3_t maxs);
 void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs );
 void BoundsAdd(vec3_t mins, vec3_t maxs, const vec3_t mins2, const vec3_t maxs2);
 
+float PointToSegmentDistanceSquared(const vec3_t origin, const vec3_t a, const vec3_t b);
+
 #if !defined( Q3_VM ) || ( defined( Q3_VM ) && defined( __Q3_VM_MATH ) )
 static ID_INLINE int VectorCompare( const vec3_t v1, const vec3_t v2 ) {
 	if (v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2]) {
