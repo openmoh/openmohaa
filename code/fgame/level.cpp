@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "dm_manager.h"
 #include "player.h"
 #include "Entities.h"
+#include "health.h"
 
 #include "scriptmaster.h"
 #include "scriptthread.h"
@@ -813,6 +814,8 @@ void Level::Init(void)
 
 void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
 {
+    int i;
+
     DisableListenerNotify++;
 
     if (g_gametype->integer != GT_SINGLE_PLAYER) {
@@ -853,6 +856,13 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
         } else {
             FreeEdict(active_edicts.next);
         }
+    }
+
+    //
+    // Remove all archived entities
+    //
+    for (i = 1; i <= m_SimpleArchivedEntities.NumObjects(); i++) {
+        delete m_SimpleArchivedEntities.ObjectAt(i);
     }
 
     cinematic = false;
@@ -897,6 +907,7 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
     gi.cvar_set("bosshealth", "0");
 
     Actor::ResetBodyQueue();
+    Health::ResetHealthQueue();
 
     if (world) {
         world->FreeTargetList();
@@ -935,11 +946,19 @@ void Level::CleanUp(qboolean samemap, qboolean resetConfigStrings)
         for (int i = CS_OBJECTIVES; i < CS_OBJECTIVES + MAX_OBJECTIVES; i++) {
             gi.setConfigstring(i, "");
         }
+
+        gi.setConfigstring(CS_VOTE_TIME, "");
+        gi.setConfigstring(CS_VOTE_STRING, "");
+        gi.setConfigstring(CS_VOTE_YES, "");
+        gi.setConfigstring(CS_VOTE_NO, "");
+        gi.setConfigstring(CS_VOTE_UNDECIDED, "");
     }
 
     DisableListenerNotify--;
 
     svsStartFloatTime = svsFloatTime;
+
+    FreeLandmarks();
 }
 
 /*
