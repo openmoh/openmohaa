@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/crc.h"
 #include "../qcommon/alias.h"
 
+// alloca
+#include <malloc.h>
+
 debugline_t *DebugLines;
 int numDebugLines;
 debugstring_t *DebugStrings;
@@ -1154,21 +1157,36 @@ Sends a command string to a client
 */
 void SV_GameSendServerCommand( int clientNum, const char *text, ... )
 {
-	va_list va;
-	char buffer[ 500 ];
+	char tmp[1] = { 0 };
+	char* buffer;
+    size_t length = 1;
+    va_list va;
 
-	va_start( va, text );
-	vsprintf( buffer, text, va );
-	va_end( va );
+    va_start(va, text);
+    length = vsnprintf(tmp, 0, text, va);
+    va_end(va);
 
-	if ( clientNum == -1 ) {
-		SV_SendServerCommand( NULL, "%s", buffer );
-	} else {
-		if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
-			return;
-		}
-		SV_SendServerCommand( svs.clients + clientNum, "%s", buffer );
-	}
+    if (!length || length == -1) {
+        return;
+    }
+
+	//
+	// allocate variadic arguments on stack
+	//
+	buffer = (char*)alloca(length);
+
+    va_start(va, text);
+    vsnprintf(buffer, length, text, va);
+    va_end(va);
+
+    if (clientNum == -1) {
+        SV_SendServerCommand(NULL, "%s", buffer);
+    } else {
+        if (clientNum < 0 || clientNum >= sv_maxclients->integer) {
+            return;
+        }
+        SV_SendServerCommand(svs.clients + clientNum, "%s", buffer);
+    }
 }
 
 /*
