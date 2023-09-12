@@ -9271,7 +9271,7 @@ void Player::CallVote(Event* ev)
         }
 
         if (votecount >= MAX_VOTE_COUNT) {
-            HUDPrint(va("%s %d %s.\n", gi.LV_ConvertString("You cannot call another vote for"), m_fLastVoteTime - level.time + 1, gi.LV_ConvertString("seconds")));
+            HUDPrint(va("%s %d %s.\n", gi.LV_ConvertString("You cannot call another vote for"), (unsigned int)(m_fLastVoteTime - level.time + 1), gi.LV_ConvertString("seconds")));
             return;
         }
     }
@@ -9342,8 +9342,8 @@ void Player::CallVote(Event* ev)
             level.m_voteString = va("%s %s", arg1.c_str(), arg2.c_str());
         }
 
-        if (level.m_voteYes) {
-            level.m_voteYes = 0;
+        if (level.m_nextVoteTime) {
+            level.m_nextVoteTime = 0;
             gi.SendConsoleCommand(va("%s", level.m_voteString.c_str()));
         }
 

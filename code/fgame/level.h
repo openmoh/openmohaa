@@ -194,7 +194,7 @@ public:
     int m_numArenas;
 
     // Voting variables
-    float m_voteTime;
+    int   m_voteTime;
     int   m_nextVoteTime;
     int   m_voteYes;
     int   m_voteNo;
