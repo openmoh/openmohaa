@@ -2111,6 +2111,9 @@ void Weapon::Shoot(Event *ev)
                 }
             }
             break;
+        default:
+            // none or unsupported
+            break;
         }
 
         if (!quiet[firemodeindex]) {
@@ -3559,8 +3562,6 @@ void Weapon::SetMinRange(float val)
 //======================
 void Weapon::WeaponSound(Event *ev)
 {
-    Event *e;
-
     // Broadcasting a sound can be time consuming.  Only do it once in a while on really fast guns.
     if (nextweaponsoundtime > level.time) {
         if (owner) {
