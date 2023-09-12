@@ -236,8 +236,8 @@ public:
     // Landmarks
     float        m_fLandmarkYDistMax;
     float        m_fLandmarkYDistMin;
-    float        m_fLandmarkXDistMax;
     float        m_fLandmarkXDistMin;
+    float        m_fLandmarkXDistMax;
     landmark_t **m_pLandmarks;
     int          m_iMaxLandmarks;
     int          m_iLandmarksCount;

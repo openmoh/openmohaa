@@ -1180,38 +1180,226 @@ void Level::SpawnEntities(char *entities, int svsTime)
     Com_Printf("%i entities inhibited\n", inhibit);
 
     Com_Printf("-------------------- Spawning Entities Done ------------------ %i ms\n", t2 - t1);
+
+    //
+    // create landmarks
+    //
+    ComputeDMWaypoints();
 }
 
 void Level::ComputeDMWaypoints()
 {
-    // FIXME: unimplemented
+    qboolean shouldSetDefaultLandmark;
+    float startXDistMin, startXDistMax;
+    float startYDistMin, startYDistMax;
+    int i;
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER) {
+        m_fLandmarkXDistMax = 1;
+        m_fLandmarkYDistMax = 1;
+        m_fLandmarkXDistMin = 0;
+        m_fLandmarkYDistMin = 0.0;
+        return;
+    }
+
+    shouldSetDefaultLandmark = qfalse;
+
+    //
+    // calculate the world bounds from entities
+    //
+    if (m_fLandmarkXDistMin == m_fLandmarkXDistMax
+        && m_fLandmarkYDistMin == m_fLandmarkYDistMax
+        && m_fLandmarkXDistMax == m_fLandmarkYDistMax) {
+        shouldSetDefaultLandmark = qtrue;
+
+        for (i = 0; i < game.maxentities; i++) {
+            gentity_t* ent = &g_entities[i];
+
+            if (ent->entity) {
+                AddLandmarkOrigin(ent->entity->origin);
+                shouldSetDefaultLandmark = qfalse;
+            }
+        }
+    }
+
+    if (shouldSetDefaultLandmark) {
+        startXDistMax = 1;
+        startYDistMax = 1;
+        startXDistMin = 0;
+        startYDistMin = 0;
+    } else {
+        startYDistMax = m_fLandmarkYDistMax;
+        startYDistMin = m_fLandmarkYDistMin;
+        startXDistMax = m_fLandmarkXDistMax;
+        startXDistMin = m_fLandmarkXDistMin;
+    }
+
+    m_fLandmarkXDistMin = startXDistMin + (startXDistMax - startXDistMin) / 3.f;
+    m_fLandmarkXDistMax = startXDistMin + (startXDistMax - startXDistMin) * 2.f / 3.f;
+    m_fLandmarkYDistMin = startYDistMin + (startYDistMax - startYDistMin) / 3.f;
+    m_fLandmarkYDistMax = startYDistMin + (startYDistMax - startYDistMin) * 2.f / 3.f;
 }
 
 void Level::AddLandmarkOrigin(const Vector& origin)
 {
-    // FIXME: unimplemented
+    float yaw;
+    vec3_t angles;
+    vec3_t dir;
+    float dist;
+
+    yaw = origin.toYaw();
+
+    angles[0] = angles[2] = 0;
+    angles[1] = yaw + 90 - world->m_fNorth;
+    AngleVectors(angles, dir, NULL, NULL);
+
+    dist = origin.lengthXY();
+    VectorScale(dir, dist, dir);
+
+    if (m_fLandmarkYDistMax == m_fLandmarkYDistMin
+        && m_fLandmarkXDistMin == m_fLandmarkXDistMax
+        && m_fLandmarkYDistMax == m_fLandmarkXDistMin)
+    {
+        m_fLandmarkYDistMin = dir[1];
+        m_fLandmarkXDistMax = dir[0];
+        m_fLandmarkYDistMax = dir[1] + 1.0;
+        m_fLandmarkXDistMin = dir[0] - 1.0;
+    } else {
+        if (m_fLandmarkYDistMin > dir[1]) m_fLandmarkYDistMin = dir[1];
+        if (m_fLandmarkYDistMax < dir[1]) m_fLandmarkYDistMax = dir[1];
+        if (m_fLandmarkXDistMax < dir[0]) m_fLandmarkXDistMax = dir[0];
+        if (m_fLandmarkXDistMin > dir[0]) m_fLandmarkXDistMin = dir[0];
+    }
 }
 
 void Level::AddLandmarkName(const str& name, const Vector& origin)
 {
-    // FIXME: unimplemented
+    landmark_t* landmark;
+    int i;
+
+    if (m_pLandmarks) {
+        if (m_iLandmarksCount == m_iMaxLandmarks) {
+            // reallocate the landmark list with twice the size
+            landmark_t** oldLandmarks = m_pLandmarks;
+
+            m_iMaxLandmarks *= 2;
+            m_pLandmarks = new landmark_t * [m_iMaxLandmarks];
+
+            for (i = 0; i < m_iLandmarksCount; i++) {
+                m_pLandmarks[i] = oldLandmarks[i];
+            }
+
+            delete[] oldLandmarks;
+        }
+    } else {
+        // create the landmark list for the first time
+        m_iMaxLandmarks = 8;
+        m_iLandmarksCount = 0;
+        m_pLandmarks = new landmark_t * [8];
+    }
+
+    //
+    // create a new landmark
+    //
+    landmark = m_pLandmarks[m_iLandmarksCount] = new landmark_t();
+    landmark->m_sName = name;
+    landmark->m_vOrigin = origin;
 }
 
 void Level::FreeLandmarks()
 {
-    // FIXME: unimplemented
+    landmark_t* landmark;
+
+    if (m_pLandmarks) {
+        int i;
+
+        for (i = 0; i < m_iLandmarksCount; i++) {
+            landmark = m_pLandmarks[i];
+
+            if (landmark) {
+                delete landmark;
+            }
+        }
+
+        delete[] m_pLandmarks;
+        m_pLandmarks = NULL;
+        m_iLandmarksCount = 0;
+        m_iMaxLandmarks = 0;
+    }
 }
 
 str Level::GetDynamicDMLocations(const Vector& origin)
 {
-    // FIXME: unimplemented
-    return "";
+    str name = "nothing";
+    int i;
+    float shortestDistSqr = 0;
+
+    for (i = 0; i < m_iLandmarksCount; i++) {
+        landmark_t* landmark = m_pLandmarks[i];
+        Vector delta = origin - landmark->m_vOrigin;
+        float distSqr = delta.lengthSquared();
+
+        if (i == 0 || distSqr < shortestDistSqr) {
+            shortestDistSqr = distSqr;
+            name = landmark->m_sName;
+        }
+    }
+
+    return name;
 }
 
 str Level::GetDMLocation(const Vector& origin)
 {
-    // FIXME: unimplemented
-    return "";
+    float yaw;
+    vec3_t angles;
+    vec3_t dir;
+    float dist;
+
+    if (m_pLandmarks) {
+        //
+        // use the dynamic dm locations
+        //
+        return GetDynamicDMLocations(origin);
+    }
+
+    yaw = origin.toYaw();
+
+    angles[0] = angles[2] = 0;
+    angles[1] = yaw + 90 - world->m_fNorth;
+    AngleVectors(angles, dir, NULL, NULL);
+
+    dist = origin.lengthXY();
+    VectorScale(dir, dist, dir);
+
+    if (dir[0] >= m_fLandmarkXDistMin) {
+        if (dir[0] > m_fLandmarkXDistMax) {
+            if (dir[1] >= m_fLandmarkYDistMin) {
+                if (dir[1] > m_fLandmarkYDistMax) {
+                    return "North East corner";
+                } else {
+                    return "East side";
+                }
+            } else {
+                return "South East corner";
+            }
+        } else if (dir[1] >= m_fLandmarkYDistMin) {
+            if (dir[1] > m_fLandmarkYDistMax) {
+                return "North side";
+            } else {
+                return "center";
+            }
+        } else {
+            return "South side";
+        }
+    } else if (dir[1] >= m_fLandmarkYDistMin) {
+        if (dir[1] > m_fLandmarkYDistMax) {
+            return "North West corner";
+        } else {
+            return "West side";
+        }
+    } else {
+        return "South West corner";
+    }
 }
 
 void Level::PreSpawnSentient(Event *ev)
