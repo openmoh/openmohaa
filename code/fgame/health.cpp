@@ -30,11 +30,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "health.h"
 #include "weaputils.h"
 #include "player.h"
+#include "g_phys.h"
+
+Event EV_Health_PostSpawn("health_postspawn", EV_DEFAULT, NULL, NULL, "Health Post Spawn");
 
 CLASS_DECLARATION(Item, Health, "health_020") {
-    {&EV_Item_Pickup, &Health::PickupHealth},
-    {NULL,            NULL                 }
+    {&EV_Item_Pickup,      &Health::PickupHealth  },
+    {&EV_Health_PostSpawn, &Health::EventPostSpawn},
+    {NULL,                 NULL                   }
 };
+
+SafePtr<Health> Health::mHealthQueue[MAX_HEALTH_QUEUE];
 
 Health::Health()
 {
@@ -90,4 +96,71 @@ void Health::PickupHealth(Event *ev)
         "print \"" HUD_MESSAGE_YELLOW "%s \"",
         gi.LV_ConvertString(va("Recovered %d Health", amount))
     );
+}
+
+void Health::EventPostSpawn(Event *ev)
+{
+    setMoveType(MOVETYPE_TOSS);
+
+    if (edict->tiki) {
+        vec3_t mins, maxs;
+
+        gi.CalculateBounds(edict->tiki, edict->s.scale, mins, maxs);
+
+        setSize(mins, maxs);
+        link();
+    }
+
+    droptofloor(256);
+}
+
+void Health::CompressHealthQueue()
+{
+    int i, j;
+
+    for (i = 0; i < MAX_HEALTH_QUEUE; i++) {
+        if (!mHealthQueue[i]) {
+            for (j = i + 1; j < MAX_HEALTH_QUEUE; j++) {
+                if (mHealthQueue[j]) {
+                    mHealthQueue[i] = mHealthQueue[j];
+                    break;
+                }
+            }
+        }
+    }
+}
+
+void Health::AddToHealthQueue()
+{
+    CompressHealthQueue();
+
+    if (mHealthQueue[MAX_HEALTH_QUEUE - 1]) {
+        mHealthQueue[MAX_HEALTH_QUEUE - 1]->Delete();
+        mHealthQueue[0] = NULL;
+        CompressHealthQueue();
+    }
+
+    mHealthQueue[MAX_HEALTH_QUEUE - 1] = this;
+
+    CompressHealthQueue();
+}
+
+void Health::ResetHealthQueue() {}
+
+void Health::ArchiveStatic(Archiver& arc)
+{
+    int i;
+
+    for (i = 0; i < MAX_HEALTH_QUEUE; i++) {
+        arc.ArchiveSafePointer(&mHealthQueue[i]);
+    }
+}
+
+void Health::DoRemoveProcess()
+{
+    if (g_gametype->integer != GT_SINGLE_PLAYER) {
+        DoRemoveProcess();
+    } else {
+        AddToHealthQueue();
+    }
 }

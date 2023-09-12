@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sentient.h"
 #include "item.h"
 
+#define MAX_HEALTH_QUEUE 5
+
 class Health : public Item
 {
 public:
@@ -38,6 +40,17 @@ public:
 
     Health();
     virtual void PickupHealth(Event *ev);
+
+    void        EventPostSpawn(Event *ev);
+    static void CompressHealthQueue();
+    void        AddToHealthQueue();
+    static void ResetHealthQueue();
+
+    static void ArchiveStatic(Archiver& arc);
+    void        DoRemoveProcess();
+
+private:
+    static SafePtr<Health> mHealthQueue[MAX_HEALTH_QUEUE];
 };
 
 #endif /* health.h */
