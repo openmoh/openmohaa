@@ -2183,6 +2183,29 @@ void PathSearch::ResetNodes
 	}
 }
 
+void PathSearch::UpdatePathwaysForBadPlace(const Vector& origin, float radius, int dir, int team)
+{
+	float radiusSqr;
+	int i, j, k;
+
+	radiusSqr = radius * radius;
+
+	for (i = 0; i < nodecount; i++) {
+		PathNode* node = pathnodes[i];
+
+		for (j = node->virtualNumChildren; j > 0; j--) {
+			pathway_t& pathway = node->Child[j - 1];
+			if (PointToSegmentDistanceSquared(origin, pathway.pos1, pathway.pos2) < radiusSqr) {
+				for (k = 0; k < 2; k++) {
+					if ((1 << i) & team) {
+						pathway.numBlockers += dir;
+					}
+				}
+			}
+		}
+	}
+}
+
 PathInfo *PathSearch::GeneratePath
 	(
 	PathInfo *path

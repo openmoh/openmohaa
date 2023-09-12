@@ -288,6 +288,7 @@ public:
 	static void *AllocPathNode( void );
 	static void FreePathNode( void * );
 	static void ResetNodes( void );
+	static void UpdatePathwaysForBadPlace(const Vector& origin, float radius, int dir, int team);
 	static PathInfo *GeneratePath( PathInfo *path );
 	static PathInfo *GeneratePathNear( PathInfo *path );
 	static PathInfo *GeneratePathAway( PathInfo *path );
