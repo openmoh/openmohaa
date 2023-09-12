@@ -69,7 +69,7 @@ struct badplace_t {
     int       m_iTeamSide;
     Vector    m_vOrigin;
     float     m_fRadius;
-    float     m_fNotBadPlaceTime;
+    float     m_fLifespan;
 
 public:
     badplace_t();
@@ -357,7 +357,7 @@ public:
     void        EventRemoveBadPlace(Event *ev);
     void        EventIgnoreClock(Event *ev);
     void        UpdateBadPlaces();
-    badplace_t *GetNearestBadPlace(const Vector& org, float radius) const;
+    int         GetNearestBadPlace(const Vector& org, float radius, int team) const;
     //====
     str GetRandomHeadModel(const char *model);
     str GetRandomHeadSkin(const char *model);

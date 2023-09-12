@@ -2285,12 +2285,92 @@ void Level::EventRainNumShadersGet(Event *ev)
 
 void Level::EventAddBadPlace(Event *ev)
 {
-    // FIXME: unimplemented
+    badplace_t bp;
+    int nArgs;
+
+    nArgs = ev->NumArgs();
+    if (nArgs != 3 && nArgs != 4 && nArgs != 5) {
+        throw ScriptException("badplace requires 3, 4, or 5 arguments");
+    }
+
+    if (ev->NumArgs() >= 5) {
+        bp.m_fLifespan = ev->GetFloat(5);
+        if (bp.m_fLifespan <= 0) {
+            throw ScriptException("life span must be greater than 0");
+        }
+    }
+
+    if (ev->NumArgs() >= 4) {
+        switch (ev->GetConstString(4)) {
+        case STRING_ALLIES:
+        case STRING_AMERICAN:
+            bp.m_iTeamSide = TEAM_ALLIES;
+            break;
+        case STRING_AXIS:
+        case STRING_GERMAN:
+            bp.m_iTeamSide = TEAM_AXIS;
+            break;
+        default:
+            throw ScriptException("badplace must belong to 'american' or 'german' or 'both'");
+        }
+    }
+
+    bp.m_fRadius = ev->GetFloat(3);
+    bp.m_vOrigin = ev->GetVector(2);
+    bp.m_name = ev->GetConstString(1);
+
+    if (bp.m_name == STRING_EMPTY && bp.m_fLifespan == FLT_MAX) {
+        throw ScriptException("unnamed badplaces must have a specified duration");
+    }
+
+    if (bp.m_name != STRING_EMPTY) {
+        int i;
+
+        // replace badplaces with the same name
+        for (i = 1; i <= m_badPlaces.NumObjects(); i++) {
+            const badplace_t& existing = m_badPlaces.ObjectAt(i);
+
+            if (existing.m_name == bp.m_name) {
+                // remove the existing bad place at the pathway
+                PathSearch::UpdatePathwaysForBadPlace(existing.m_vOrigin, existing.m_fRadius, -1, existing.m_iTeamSide);
+                m_badPlaces.SetObjectAt(i, bp);
+                // add the new bad place
+                PathSearch::UpdatePathwaysForBadPlace(bp.m_vOrigin, bp.m_fRadius, 1, bp.m_iTeamSide);
+                G_BroadcastAIEvent(NULL, vec_zero, 12, -1);
+                return;
+            }
+        }
+    }
+
+    // add the new bad place
+    m_badPlaces.AddObject(bp);
+    PathSearch::UpdatePathwaysForBadPlace(bp.m_vOrigin, bp.m_fRadius, 1, bp.m_iTeamSide);
+    // notify AI
+    G_BroadcastAIEvent(NULL, vec_zero, 12, -1);
 }
 
 void Level::EventRemoveBadPlace(Event *ev)
 {
-    // FIXME: unimplemented
+    const_str name;
+    int i;
+
+    if (ev->NumArgs() != 1) {
+        throw ScriptException("removebadplace requires exactly 1 argument");
+    }
+
+    name = ev->GetConstString(1);
+    for (i = 1; i <= m_badPlaces.NumObjects(); i++) {
+        badplace_t& bp = m_badPlaces.ObjectAt(i);
+
+        if (bp.m_name == name) {
+            PathSearch::UpdatePathwaysForBadPlace(bp.m_vOrigin, bp.m_fRadius, -1, bp.m_iTeamSide);
+            m_badPlaces.RemoveObjectAt(i);
+            G_BroadcastAIEvent(NULL, vec_zero, 12, -1);
+            return;
+        }
+    }
+
+    Com_Printf("removebadplace: name '%s' not found", ev->GetString(1).c_str());
 }
 
 void Level::EventIgnoreClock(Event *ev)
@@ -2300,20 +2380,61 @@ void Level::EventIgnoreClock(Event *ev)
 
 void Level::UpdateBadPlaces()
 {
-    // FIXME: unimplemented
+    qboolean removed;
+    int i;
+
+    removed = qfalse;
+
+    for (i = 1; i <= m_badPlaces.NumObjects(); i++) {
+        badplace_t& bp = m_badPlaces.ObjectAt(i);
+        if (level.time < bp.m_fLifespan) {
+            continue;
+        } else {
+            PathSearch::UpdatePathwaysForBadPlace(bp.m_vOrigin, bp.m_fRadius, -1, bp.m_iTeamSide);
+            m_badPlaces.RemoveObjectAt(i);
+            removed = qtrue;
+            i = 0;
+        }
+    }
+
+    if (removed) {
+        // tell AI that a bad place was removed
+        G_BroadcastAIEvent(NULL, vec_zero, 12, -1);
+    }
 }
 
-badplace_t *Level::GetNearestBadPlace(const Vector& org, float radius) const
+int Level::GetNearestBadPlace(const Vector& org, float radius, int team) const
 {
-    // FIXME: unimplemented
-    return NULL;
+    float bestDistSqr;
+    int bestBpIndex;
+    int i;
+
+    bestDistSqr = FLT_MAX;
+    bestBpIndex = 0;
+
+    for (i = 1; i <= m_badPlaces.NumObjects(); i++) {
+        badplace_t& bp = m_badPlaces.ObjectAt(i);
+
+        if (team & bp.m_iTeamSide) {
+            const Vector delta = bp.m_vOrigin - org;
+            float distSqr = delta.lengthSquared();
+            float radius = bp.m_fRadius + radius;
+
+            if (distSqr < bestDistSqr && distSqr < radius * radius) {
+                bestDistSqr = distSqr;
+                bestBpIndex = i;
+            }
+        }
+    }
+
+    return bestBpIndex;
 }
 
 static void ArchiveBadPlace(Archiver& arc, badplace_t* bp) {
     Director.ArchiveString(arc, bp->m_name);
     arc.ArchiveVector(&bp->m_vOrigin);
     arc.ArchiveFloat(&bp->m_fRadius);
-    arc.ArchiveFloat(&bp->m_fNotBadPlaceTime);
+    arc.ArchiveFloat(&bp->m_fLifespan);
 }
 
 void Level::Archive(Archiver& arc)
@@ -2459,6 +2580,6 @@ void Level::Archive(Archiver& arc)
 }
 
 badplace_t::badplace_t()
-    : m_fNotBadPlaceTime(FLT_MAX)
+    : m_fLifespan(FLT_MAX)
     , m_iTeamSide(TEAM_ALLIES)
 {}
