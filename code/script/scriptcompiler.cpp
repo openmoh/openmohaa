@@ -1658,6 +1658,7 @@ void CompileAssemble(const char *filename, const char *outputfile)
 
 bool GetCompiledScript(GameScript *scr)
 {
+    /*
     Archiver arc;
 
     arc.SetSilent(true);
@@ -1674,4 +1675,7 @@ bool GetCompiledScript(GameScript *scr)
     arc.Close();
 
     return true;
+    */
+    // FIXME: not used?
+    return false;
 }
