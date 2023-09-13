@@ -67,76 +67,92 @@ static const char *typenames[] = {
     "size"};
 
 #define ArchiveHeader  (*(int *)"MHAA")
-#define ArchiveVersion 14                         // This must be changed any time the format changes!
-#define ArchiveInfo    "MOHAA Archive Version 14" // This must be changed any time the format changes!
+#define ArchiveVersion 14                             // This must be changed any time the format changes!
+#define ArchiveInfo    "OPENMOHAA Archive Version 14" // This must be changed any time the format changes!
 
-CLASS_DECLARATION(Class, FileRead, NULL) {
-    {NULL, NULL}
-};
-
-FileRead::FileRead()
+ArchiveFile::ArchiveFile()
 {
-    length = 0;
-    buffer = NULL;
-    pos    = 0;
+    length       = 0;
+    buffer       = 0;
+    pos          = 0;
+    bufferlength = 0;
+    writing      = 0;
+    opened       = 0;
 }
 
-FileRead::~FileRead()
+ArchiveFile::~ArchiveFile()
 {
     Close();
 }
 
-void FileRead::Close(bool bDoCompression)
+void ArchiveFile::Close()
 {
-    if (bDoCompression) {
-        byte  *tempbuf;
-        size_t out_len;
-
-        tempbuf = (byte *)glbs.Malloc((length >> 6) + length + 27);
-
-        // Set the signature
-        tempbuf[0]               = 'C';
-        tempbuf[1]               = 'S';
-        tempbuf[2]               = 'V';
-        tempbuf[3]               = 'G';
-        *(size_t *)(tempbuf + 4) = length;
-
-        // Compress the data
-        if (g_lz77.Compress(buffer, length, tempbuf + 8, &out_len)) {
-            glbs.Error(ERR_DROP, "Compression of SaveGame Failed!\n");
-            return;
-        }
-
-        glbs.FS_WriteFile(filename.c_str(), tempbuf, out_len + 8);
-        glbs.Free(tempbuf);
+    if (writing) {
+        gi.FS_WriteFile(filename.c_str(), buffer, length);
     }
 
     if (buffer) {
-        glbs.Free((void *)buffer);
+        gi.Free((void *)buffer);
         buffer = NULL;
     }
 
+    writing  = false;
     filename = "";
     length   = 0;
     pos      = 0;
 }
 
-const char *FileRead::Filename(void)
+const char *ArchiveFile::Filename(void)
 {
     return filename.c_str();
 }
 
-size_t FileRead::Length(void)
+qboolean ArchiveFile::Compress()
+{
+    byte  *tempbuf;
+    size_t out_len;
+    size_t tempbuf_len;
+
+    tempbuf_len = (length >> 6) + length + 27;
+    tempbuf     = (byte *)gi.Malloc(tempbuf_len);
+
+    // Set the signature
+    tempbuf[0]               = 'C';
+    tempbuf[1]               = 'S';
+    tempbuf[2]               = 'V';
+    tempbuf[3]               = 'G';
+    *(size_t *)(tempbuf + 4) = length;
+
+    // Compress the data
+    if (g_lz77.Compress(buffer, length, tempbuf + 8, &out_len)) {
+        gi.Error(ERR_DROP, "Compression of SaveGame Failed!\n");
+        return false;
+    }
+
+    gi.Free(buffer);
+    buffer       = tempbuf;
+    length       = out_len + 8;
+    bufferlength = tempbuf_len;
+
+    return true;
+}
+
+size_t ArchiveFile::Length(void)
 {
     return length;
 }
 
-size_t FileRead::Pos(void)
+size_t ArchiveFile::Pos(void)
 {
     return pos - buffer;
 }
 
-qboolean FileRead::Seek(size_t newpos)
+size_t ArchiveFile::Tell(void)
+{
+    return pos - buffer;
+}
+
+qboolean ArchiveFile::Seek(size_t newpos)
 {
     if (!buffer) {
         return false;
@@ -151,7 +167,7 @@ qboolean FileRead::Seek(size_t newpos)
     return true;
 }
 
-qboolean FileRead::Open(const char *name)
+qboolean ArchiveFile::OpenRead(const char *name)
 {
     byte *tempbuf;
     assert(name);
@@ -163,20 +179,23 @@ qboolean FileRead::Open(const char *name)
         return false;
     }
 
-    length = glbs.FS_ReadFile(name, (void **)&tempbuf, qtrue);
-    if (length == (size_t)(-1)) {
+    length = gi.FS_ReadFile(name, (void **)&tempbuf, qtrue);
+    if (length == (size_t)(-1) || length == 0) {
         return false;
     }
     // create our own space
-    buffer = (byte *)glbs.Malloc(length);
+    buffer       = (byte *)gi.Malloc(length);
+    bufferlength = length;
     // copy the file over to our space
     memcpy(buffer, tempbuf, length);
     // free the file
-    glbs.FS_FreeFile(tempbuf);
+    gi.FS_FreeFile(tempbuf);
     // set the file name
     filename = name;
 
-    pos = buffer;
+    pos     = buffer;
+    writing = false;
+    opened  = true;
 
     char FileHeader[4];
     Read(FileHeader, sizeof(FileHeader));
@@ -187,35 +206,43 @@ qboolean FileRead::Open(const char *name)
         uint32_t new_len;
         size_t   iCSVGLength;
 
+        new_len = 0;
         Read(&new_len, sizeof(uint32_t));
-        tempbuf = (byte *)glbs.Malloc(new_len);
+        tempbuf = (byte *)gi.Malloc(new_len);
 
         if (g_lz77.Decompress(pos, length - 8, tempbuf, &iCSVGLength) || iCSVGLength != new_len) {
-            glbs.Error(ERR_DROP, "Decompression of save game failed\n");
+            gi.Error(ERR_DROP, "Decompression of save game failed\n");
             return false;
         }
 
-        glbs.Free(buffer);
+        gi.Free(buffer);
 
-        buffer = tempbuf;
-        length = iCSVGLength;
-        pos    = buffer;
+        buffer       = tempbuf;
+        length       = iCSVGLength;
+        bufferlength = length;
+        pos          = buffer;
     }
 
     return true;
 }
 
-qboolean FileRead::Read(void *dest, size_t size)
+qboolean ArchiveFile::OpenWrite(const char *name)
 {
-    assert(dest);
-    assert(buffer);
-    assert(pos);
+    this->length = 0;
+    // 4 MiB buffer
+    this->bufferlength = 4 * 1024 * 1024;
+    this->buffer       = (byte *)gi.Malloc(bufferlength);
+    this->filename     = name;
+    this->pos          = buffer;
+    this->writing      = true;
+    this->opened       = true;
 
-    if (!dest) {
-        return false;
-    }
+    return true;
+}
 
-    if (size <= 0) {
+qboolean ArchiveFile::Read(void *dest, size_t size)
+{
+    if (!size) {
         return false;
     }
 
@@ -229,27 +256,51 @@ qboolean FileRead::Read(void *dest, size_t size)
     return true;
 }
 
-CLASS_DECLARATION(Class, Archiver, NULL) {
-    {NULL, NULL}
-};
+qboolean ArchiveFile::Write(const void *source, size_t size)
+{
+    if ((pos + size) > (buffer + bufferlength)) {
+        byte *oldbuf;
+
+        do {
+            bufferlength *= 2;
+        } while ((pos + size) > (buffer + bufferlength));
+
+        oldbuf = buffer;
+        // reallocate a bigger buffer
+        buffer = (byte *)gi.Malloc(bufferlength);
+        memcpy(buffer, oldbuf, length);
+        // free the old buffer
+        gi.Free(oldbuf);
+        // set the position with the new buffer
+        pos = buffer + (pos - oldbuf);
+    }
+
+    memcpy(pos, source, size);
+    pos += size;
+
+    if (length < (pos - buffer)) {
+        length = (pos - buffer);
+    }
+
+    return true;
+}
 
 Archiver::Archiver()
 {
-    file          = 0;
-    fileerror     = false;
-    harderror     = true;
-    m_iNumBytesIO = 0;
-    silent        = false;
+    archivemode = ARCHIVE_WRITE;
+    fileerror   = false;
+    harderror   = true;
+    Reset();
+    silent = false;
+
     assert((sizeof(typenames) / sizeof(typenames[0])) == ARC_NUMTYPES);
 }
 
 Archiver::~Archiver()
 {
-    if (file) {
+    if (archivemode != ARCHIVE_NONE) {
         Close();
     }
-
-    readfile.Close();
 }
 
 void Archiver::FileError(const char *fmt, ...)
@@ -265,66 +316,75 @@ void Archiver::FileError(const char *fmt, ...)
     Close();
     if (archivemode == ARCHIVE_READ) {
         if (harderror) {
-            glbs.Error(ERR_DROP, "Error while loading %s : %s\n", filename.c_str(), text);
+            gi.Error(ERR_DROP, "Error while loading %s : %s\n", filename.c_str(), text);
         } else if (!silent) {
-            glbs.Printf("Error while loading %s : %s\n", filename.c_str(), text);
+            gi.Printf("Error while loading %s : %s\n", filename.c_str(), text);
+        }
+    } else if (archivemode == ARCHIVE_WRITE) {
+        if (harderror) {
+            gi.Error(ERR_DROP, "Error while writing to %s : %s\n", filename.c_str(), text);
+        } else if (!silent) {
+            gi.Printf("Error while writing to %s : %s\n", filename.c_str(), text);
         }
     } else {
         if (harderror) {
-            glbs.Error(ERR_DROP, "Error while writing to %s : %s\n", filename.c_str(), text);
-        } else if (!silent) {
-            glbs.Printf("Error while writing to %s : %s\n", filename.c_str(), text);
+            gi.Error(ERR_DROP, "Error while neither reading nor writing: %s\n", text);
+        } else {
+            gi.Printf("Error while neither reading nor writing: %s\n", text);
         }
     }
 }
 
 void Archiver::Close(void)
 {
-    if (file) {
-        if (archivemode == ARCHIVE_WRITE) {
-            int numobjects;
-
-            // write out the number of classpointers
-            glbs.FS_Seek(file, numclassespos, FS_SEEK_SET);
-            numclassespos = glbs.FS_Tell(file);
-            numobjects    = classpointerList.NumObjects();
-            ArchiveInteger(&numobjects);
-        }
-
-        glbs.FS_FCloseFile(file);
-        file = 0;
-
-        readfile.Close();
-        // Re-open and compress the file
-        readfile.Open(filename.c_str());
-        readfile.Close(true);
+    if (archivemode == ARCHIVE_NONE) {
+        // nothing to process
+        return;
     }
 
-    readfile.Close();
+    if (archivemode == ARCHIVE_WRITE) {
+        int    numobjects;
+        size_t pos;
+
+        // write out the number of classpointers
+        pos = archivefile.Tell();
+        archivefile.Seek(numclassespos);
+        numobjects = classpointerList.NumObjects();
+        ArchiveInteger(&numobjects);
+        // compress the file
+        archivefile.Seek(pos);
+        archivefile.Compress();
+    }
+
+    archivefile.Close();
 
     if (archivemode == ARCHIVE_READ) {
         int              i, num;
-        Class           *classptr;
         pointer_fixup_t *fixup;
 
         num = fixupList.NumObjects();
         for (i = 1; i <= num; i++) {
-            fixup    = fixupList.ObjectAt(i);
-            classptr = classpointerList.ObjectAt(fixup->index);
-            if (fixup->type == pointer_fixup_normal) {
+            fixup = fixupList.ObjectAt(i);
+            if (fixup->type == pointer_fixup_ptr) {
+                LightClass **fixupptr;
+                fixupptr  = (LightClass **)fixup->ptr;
+                *fixupptr = classpointerList.ObjectAt(fixup->index);
+            } else if (fixup->type == pointer_fixup_normal) {
                 Class **fixupptr;
                 fixupptr  = (Class **)fixup->ptr;
-                *fixupptr = classptr;
+                *fixupptr = static_cast<Class *>(classpointerList.ObjectAt(fixup->index));
             } else if (fixup->type == pointer_fixup_safe) {
                 SafePtrBase *fixupptr;
                 fixupptr = (SafePtrBase *)fixup->ptr;
-                fixupptr->InitSafePtr(classptr);
+                fixupptr->InitSafePtr(static_cast<Class *>(classpointerList.ObjectAt(fixup->index)));
             }
             delete fixup;
         }
         fixupList.FreeObjectList();
         classpointerList.FreeObjectList();
     }
+
+    archivemode = ARCHIVE_NONE;
 }
 
 /****************************************************************************************
@@ -342,49 +402,40 @@ qboolean Archiver::Read(const char *name, qboolean harderror)
     int      i;
     Class   *null;
 
-    this->harderror = harderror;
+    this->harderror   = harderror;
+    this->fileerror   = false;
+    this->archivemode = ARCHIVE_READ;
+    this->filename    = name;
 
-    assert(name);
-    if (!name) {
-        FileError("NULL pointer for filename in Archiver::Read.\n");
-        return false;
-    }
-
-    fileerror = false;
-
-    archivemode = ARCHIVE_READ;
-
-    filename = name;
-
-    if (!readfile.Open(filename.c_str())) {
+    if (!archivefile.OpenRead(filename.c_str())) {
         if (harderror) {
             FileError("Couldn't open file.");
         }
-        fileerror = true;
         return false;
     }
 
     ArchiveUnsigned(&header);
     if (header != ArchiveHeader) {
-        readfile.Close();
+        archivefile.Close();
         FileError("Not a valid MOHAA archive.");
         return false;
     }
 
     ArchiveUnsigned(&version);
     if (version > ArchiveVersion) {
-        readfile.Close();
+        archivefile.Close();
         FileError("Archive is from version %u.  Check http://www.x-null.net for an update.", version);
         return false;
     }
 
     if (version < ArchiveVersion) {
-        readfile.Close();
+        archivefile.Close();
         FileError("Archive is out of date.");
         return false;
     }
 
     ArchiveString(&info);
+    gi.DPrintf("%s\n", info.c_str());
 
     // setup out class pointers
     ArchiveInteger(&num);
@@ -404,22 +455,12 @@ qboolean Archiver::Create(const char *name, qboolean harderror)
     str      info;
     int      numZero = 0;
 
-    this->harderror = harderror;
+    this->harderror   = harderror;
+    this->fileerror   = false;
+    this->archivemode = ARCHIVE_WRITE;
+    this->filename    = name;
 
-    assert(name);
-    if (!name) {
-        FileError("NULL pointer for filename in Archiver::Create.\n");
-        return false;
-    }
-
-    fileerror = false;
-
-    archivemode = ARCHIVE_WRITE;
-
-    filename = name;
-
-    file = glbs.FS_FOpenFileWrite(filename.c_str());
-    if (!file) {
+    if (!archivefile.OpenWrite(filename.c_str())) {
         FileError("Couldn't open file.");
         return false;
     }
@@ -431,95 +472,11 @@ qboolean Archiver::Create(const char *name, qboolean harderror)
     info = ArchiveInfo;
     ArchiveString(&info);
 
-    numclassespos = glbs.FS_Tell(file);
+    numclassespos = archivefile.Tell();
     ArchiveInteger(&numZero);
-
-    m_iNumBytesIO = 0;
+    Reset();
 
     return true;
-}
-
-inline void Archiver::CheckRead(void)
-{
-    assert(archivemode == ARCHIVE_READ);
-    if (!fileerror && (archivemode != ARCHIVE_READ)) {
-        FileError("File read during a write operation.");
-    }
-}
-
-inline void Archiver::CheckWrite(void)
-{
-    assert(archivemode == ARCHIVE_WRITE);
-    if (!fileerror && (archivemode != ARCHIVE_WRITE)) {
-        FileError("File write during a read operation.");
-    }
-}
-
-inline fileSize_t Archiver::ReadSize(void)
-{
-    fileSize_t s;
-
-    s = 0;
-    if (!fileerror) {
-        readfile.Read(&s, sizeof(s));
-    }
-
-    return s;
-}
-
-inline void Archiver::CheckSize(int type, fileSize_t size)
-{
-    fileSize_t s;
-
-    if (!fileerror) {
-        s = ReadSize();
-
-        if (size != s) {
-            FileError("Invalid data size of %d on %s.", s, typenames[type]);
-        }
-    }
-}
-
-inline void Archiver::WriteSize(fileSize_t size)
-{
-    glbs.FS_Write(&size, sizeof(size), file);
-}
-
-inline int Archiver::ReadType(void)
-{
-    int t;
-
-    if (!fileerror) {
-        readfile.Read(&t, sizeof(t));
-
-        return t;
-    }
-
-    return ARC_NULL;
-}
-
-inline void Archiver::WriteType(int type)
-{
-    glbs.FS_Write(&type, sizeof(type), file);
-}
-
-inline void Archiver::CheckType(int type)
-{
-    int t;
-
-    assert((type >= 0) && (type < ARC_NUMTYPES));
-
-    if (!fileerror) {
-        t = ReadType();
-        if (t != type) {
-            if (t < ARC_NUMTYPES) {
-                FileError("Expecting %s, Should be %s", typenames[type], typenames[t]);
-                assert(0);
-            } else {
-                FileError("Expecting %s, Should be %i (Unknown type)", typenames[type], t);
-            }
-        }
-    }
 }
 
 /****************************************************************************************
@@ -529,35 +486,6 @@ File Archive functions
 *****************************************************************************************/
 
 //#define ARCHIVE_USE_TYPES 1
-
-inline void Archiver::ArchiveData(int type, void *data, size_t size)
-{
-    if (archivemode == ARCHIVE_READ) {
-#ifndef NDEBUG
-        CheckRead();
-#endif
-#ifdef ARCHIVE_USE_TYPES
-        CheckType(type);
-#endif
-
-        if (!fileerror && size) {
-            m_iNumBytesIO += size;
-            readfile.Read(data, size);
-        }
-    } else {
-#ifndef NDEBUG
-        CheckWrite();
-#endif
-#ifdef ARCHIVE_USE_TYPES
-        WriteType(type);
-#endif
-
-        if (!fileerror && size) {
-            m_iNumBytesIO += size;
-            glbs.FS_Write(data, size, file);
-        }
-    }
-}
 
 #define ARCHIVE(func, type)                       \
     void Archiver::Archive##func(type *v)         \
@@ -569,7 +497,6 @@ inline void Archiver::ArchiveData(int type, void *data, size_t size)
 ARCHIVE(Vector, Vector);
 ARCHIVE(Integer, int);
 ARCHIVE(Unsigned, unsigned);
-ARCHIVE(Size, long);
 ARCHIVE(Byte, byte);
 ARCHIVE(Char, char);
 ARCHIVE(Short, short);
@@ -580,13 +507,14 @@ ARCHIVE(Boolean, qboolean);
 ARCHIVE(Quat, Quat);
 ARCHIVE(Bool, bool);
 ARCHIVE(Position, int);
+ARCHIVE(Size, long);
 
 void Archiver::ArchiveSvsTime(int *time)
 {
 #ifdef GAME_DLL
     if (archivemode == ARCHIVE_READ) {
         ArchiveInteger(time);
-        glbs.AddSvsTimeFixup(time);
+        gi.AddSvsTimeFixup(time);
     } else {
         *time -= level.svsTime;
         ArchiveInteger(time);
@@ -610,7 +538,7 @@ void Archiver::ArchiveVec4(vec4_t vec)
     ArchiveData(ARC_Vec4, vec, sizeof(vec4_t));
 }
 
-void Archiver::ArchiveObjectPointer(Class **ptr)
+void Archiver::ArchiveObjectPointer(LightClass **ptr)
 {
     int index = 0;
 
@@ -618,11 +546,38 @@ void Archiver::ArchiveObjectPointer(Class **ptr)
         pointer_fixup_t *fixup;
         ArchiveData(ARC_ObjectPointer, &index, sizeof(index));
 
-        // Check for a NULL pointer
-        assert(ptr);
-        if (!ptr) {
-            FileError("NULL pointer in ArchiveObjectPointer.");
+        //
+        // see if the variable was NULL
+        //
+        if (index == ARCHIVE_NULL_POINTER) {
+            *ptr = NULL;
+        } else {
+            // init the pointer with NULL until we can fix it
+            *ptr = NULL;
+
+            fixup        = new pointer_fixup_t;
+            fixup->ptr   = (void **)ptr;
+            fixup->index = index;
+            fixup->type  = pointer_fixup_ptr;
+            fixupList.AddObject(fixup);
         }
+    } else {
+        if (*ptr) {
+            index = classpointerList.AddUniqueObject(*ptr);
+        } else {
+            index = ARCHIVE_NULL_POINTER;
+        }
+        ArchiveData(ARC_ObjectPointer, &index, sizeof(index));
+    }
+}
+
+void Archiver::ArchiveObjectPointer(Class **ptr)
+{
+    int index = 0;
+
+    if (archivemode == ARCHIVE_READ) {
+        pointer_fixup_t *fixup;
+        ArchiveData(ARC_ObjectPointer, &index, sizeof(index));
 
         //
         // see if the variable was NULL
@@ -649,19 +604,6 @@ void Archiver::ArchiveObjectPointer(Class **ptr)
     }
 }
 
-void Archiver::ArchiveObjectPosition(void *obj)
-{
-    int index = 0;
-
-    if (archivemode == ARCHIVE_READ) {
-        ArchivePosition(&index);
-        classpointerList.AddObjectAt(index, (Class *)obj);
-    } else {
-        index = classpointerList.AddUniqueObject((Class *)obj);
-        ArchivePosition(&index);
-    }
-}
-
 void Archiver::ArchiveSafePointer(SafePtrBase *ptr)
 {
     int index = 0;
@@ -670,12 +612,6 @@ void Archiver::ArchiveSafePointer(SafePtrBase *ptr)
         pointer_fixup_t *fixup;
 
         ArchiveData(ARC_SafePointer, &index, sizeof(index));
-
-        // Check for a NULL pointer
-        assert(ptr);
-        if (!ptr) {
-            FileError("NULL pointer in ReadSafePointer.");
-        }
 
         //
         // see if the variable was NULL
@@ -772,7 +708,7 @@ void Archiver::ArchiveString(str *string)
                 data = new char[s + 1];
                 if (data) {
                     if (s) {
-                        readfile.Read(data, s);
+                        archivefile.Read(data, s);
                     }
                     data[s] = 0;
 
@@ -790,23 +726,8 @@ void Archiver::ArchiveString(str *string)
         WriteType(ARC_String);
 #endif
         WriteSize((fileSize_t)string->length());
-        glbs.FS_Write((void *)string->c_str(), string->length(), file);
+        archivefile.Write(string->c_str(), string->length());
     }
-}
-
-void Archiver::ArchiveConfigString(int cs)
-{
-#ifdef GAME_DLL
-    str s;
-
-    if (archivemode == ARCHIVE_READ) {
-        ArchiveString(&s);
-        glbs.setConfigstring(cs, s.c_str());
-    } else {
-        s = glbs.getConfigstring(cs);
-        ArchiveString(&s);
-    }
-#endif
 }
 
 Class *Archiver::ReadObject(void)
@@ -856,7 +777,7 @@ Class *Archiver::ReadObject(void)
 #endif
 
     ArchiveInteger(&index);
-    objstart = readfile.Pos();
+    objstart = archivefile.Pos();
 
     obj = (Class *)cls->newInstance();
     if (!obj) {
@@ -866,7 +787,7 @@ Class *Archiver::ReadObject(void)
     }
 
     if (!fileerror) {
-        endpos = readfile.Pos();
+        endpos = archivefile.Pos();
         if ((endpos - objstart) > size) {
             FileError("Object read past end of object's data");
         } else if ((endpos - objstart) < size) {
@@ -937,12 +858,12 @@ void Archiver::ArchiveObject(Class *obj)
 #endif
 
         ArchiveInteger(&index);
-        objstart = readfile.Pos();
+        objstart = archivefile.Pos();
 
         obj->Archive(*this);
 
         if (!fileerror) {
-            endpos = readfile.Pos();
+            endpos = archivefile.Pos();
             if ((endpos - objstart) > size) {
                 FileError("Object read past end of object's data");
             } else if ((endpos - objstart) < size) {
@@ -977,7 +898,7 @@ void Archiver::ArchiveObject(Class *obj)
             WriteType(ARC_Object);
         }
 
-        sizepos = glbs.FS_Tell(file);
+        sizepos = archivefile.Tell();
         size    = 0;
         WriteSize(size);
 
@@ -1000,26 +921,199 @@ void Archiver::ArchiveObject(Class *obj)
         ArchiveInteger(&index);
 
         if (!fileerror) {
-            objstart = glbs.FS_Tell(file);
+            objstart = archivefile.Tell();
             obj->Archive(*this);
         }
 
         if (!fileerror) {
-            endpos = glbs.FS_Tell(file);
+            endpos = archivefile.Tell();
             size   = endpos - objstart;
-            glbs.FS_Seek(file, sizepos, FS_SEEK_SET);
+            archivefile.Seek(sizepos);
             WriteSize(size);
 
             if (!fileerror) {
-                glbs.FS_Seek(file, endpos, FS_SEEK_SET);
+                archivefile.Seek(archivefile.Length());
             }
         }
+    }
+}
+
+void Archiver::ArchiveObjectPosition(LightClass *obj)
+{
+    int index = 0;
+
+    if (archivemode == ARCHIVE_READ) {
+        ArchivePosition(&index);
+        classpointerList.AddObjectAt(index, (Class *)obj);
+    } else {
+        index = classpointerList.AddUniqueObject((Class *)obj);
+        ArchivePosition(&index);
     }
 }
 
 qboolean Archiver::ObjectPositionExists(void *obj)
 {
     return classpointerList.IndexOfObject((Class *)obj) != 0;
+}
+
+void Archiver::CheckRead(void)
+{
+    assert(archivemode == ARCHIVE_READ);
+    if (!fileerror && (archivemode != ARCHIVE_READ)) {
+        FileError("File read during a write operation.");
+    }
+}
+
+void Archiver::CheckWrite(void)
+{
+    assert(archivemode == ARCHIVE_WRITE);
+    if (!fileerror && (archivemode != ARCHIVE_WRITE)) {
+        FileError("File write during a read operation.");
+    }
+}
+
+qboolean Archiver::Read(str& name, qboolean harderror)
+{
+    return Read(name.c_str(), harderror);
+}
+
+qboolean Archiver::Create(str& name, qboolean harderror)
+{
+    return Create(name.c_str(), harderror);
+}
+
+qboolean Archiver::Loading(void)
+{
+    return (archivemode == ARCHIVE_READ) ? qtrue : qfalse;
+}
+
+qboolean Archiver::Saving(void)
+{
+    return (archivemode == ARCHIVE_WRITE) ? qtrue : qfalse;
+}
+
+qboolean Archiver::NoErrors(void)
+{
+    return fileerror ? qfalse : qtrue;
+}
+
+size_t Archiver::Counter() const
+{
+    return m_iNumBytesIO;
+}
+
+void Archiver::Reset()
+{
+    m_iNumBytesIO = 0;
+}
+
+fileSize_t Archiver::ReadSize(void)
+{
+    fileSize_t s;
+
+    s = 0;
+    if (!fileerror) {
+        archivefile.Read(&s, sizeof(s));
+    }
+
+    return s;
+}
+
+void Archiver::CheckSize(int type, fileSize_t size)
+{
+    fileSize_t s;
+
+    if (!fileerror) {
+        s = ReadSize();
+
+        if (size != s) {
+            FileError("Invalid data size of %d on %s.", s, typenames[type]);
+        }
+    }
+}
+
+void Archiver::WriteSize(fileSize_t size)
+{
+    archivefile.Write(&size, sizeof(fileSize_t));
+}
+
+int Archiver::ReadType(void)
+{
+    int t;
+
+    if (!fileerror) {
+        archivefile.Read(&t, sizeof(t));
+
+        return t;
+    }
+
+    return ARC_NULL;
+}
+
+void Archiver::WriteType(int type)
+{
+    archivefile.Write(&type, sizeof(type));
+}
+
+void Archiver::CheckType(int type)
+{
+    int t;
+
+    assert((type >= 0) && (type < ARC_NUMTYPES));
+
+    if (!fileerror) {
+        t = ReadType();
+        if (t != type) {
+            if (t < ARC_NUMTYPES) {
+                FileError("Expecting %s, Should be %s", typenames[type], typenames[t]);
+                assert(0);
+            } else {
+                FileError("Expecting %s, Should be %i (Unknown type)", typenames[type], t);
+            }
+        }
+    }
+}
+
+void Archiver::ArchiveData(int type, void *data, size_t size)
+{
+    if (archivemode == ARCHIVE_READ) {
+#ifndef NDEBUG
+        CheckRead();
+#endif
+#ifdef ARCHIVE_USE_TYPES
+        CheckType(type);
+#endif
+
+        if (!fileerror && size) {
+            m_iNumBytesIO += size;
+            archivefile.Read(data, size);
+        }
+    } else {
+#ifndef NDEBUG
+        CheckWrite();
+#endif
+#ifdef ARCHIVE_USE_TYPES
+        WriteType(type);
+#endif
+
+        if (!fileerror && size) {
+            m_iNumBytesIO += size;
+            archivefile.Write(data, size);
+        }
+    }
+}
+
+void Archiver::ArchiveConfigString(int cs)
+{
+    str s;
+
+    if (archivemode == ARCHIVE_READ) {
+        ArchiveString(&s);
+        gi.setConfigstring(cs, s.c_str());
+    } else {
+        s = gi.getConfigstring(cs);
+        ArchiveString(&s);
+    }
 }
 
 void Archiver::SetSilent(bool bSilent)

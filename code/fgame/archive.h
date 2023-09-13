@@ -36,10 +36,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ARCHIVE_POINTER_SELF_REFERENTIAL (-123456)
 #define ARCHIVE_USE_TYPES
 
-#define ARCHIVE_WRITE 0
-#define ARCHIVE_READ  1
+typedef enum {
+    ARCHIVE_NONE,
+    ARCHIVE_WRITE,
+    ARCHIVE_READ
+} archivemode_e;
 
 enum {
+    pointer_fixup_ptr,
     pointer_fixup_normal,
     pointer_fixup_safe
 };
@@ -52,44 +56,48 @@ typedef struct {
 
 using fileSize_t = uint32_t;
 
-class FileRead : public Class
+class ArchiveFile
 {
 protected:
     str    filename;
     size_t length;
     byte  *buffer;
     byte  *pos;
+    size_t bufferlength;
+    bool   writing;
+    bool   opened;
 
 public:
-    CLASS_PROTOTYPE(FileRead);
-
-    FileRead();
-    ~FileRead();
-    void        Close(bool bDoCompression = false);
+    ArchiveFile();
+    ~ArchiveFile();
+    void        Close();
     const char *Filename(void);
+    qboolean    Compress();
     size_t      Length(void);
     size_t      Pos(void);
+    size_t      Tell(void);
     qboolean    Seek(size_t newpos);
-    qboolean    Open(const char *name);
+    qboolean    OpenRead(const char *name);
+    qboolean    OpenWrite(const char *name);
     qboolean    Read(void *dest, size_t size);
+    qboolean    Write(const void *source, size_t size);
 };
 
-class Archiver : public Class
+class Archiver
 {
 private:
-    Container<Class *>           classpointerList;
+    Container<LightClass *>      classpointerList;
     Container<pointer_fixup_t *> fixupList;
 
 protected:
-    str          filename;
-    qboolean     fileerror;
-    fileHandle_t file;
-    FileRead     readfile;
-    int          archivemode;
-    int          numclassespos;
-    qboolean     harderror;
-    size_t       m_iNumBytesIO;
-    qboolean     silent;
+    str         filename;
+    qboolean    fileerror;
+    ArchiveFile archivefile;
+    int         archivemode;
+    int         numclassespos;
+    qboolean    harderror;
+    size_t      m_iNumBytesIO;
+    qboolean    silent;
 
     void       CheckRead(void);
     void       CheckType(int type);
@@ -103,8 +111,6 @@ protected:
     void WriteSize(fileSize_t size);
 
 public:
-    CLASS_PROTOTYPE(Archiver);
-
     Archiver();
     ~Archiver();
     void FileError(const char *fmt, ...);
@@ -134,9 +140,9 @@ public:
     void ArchiveDouble(double *num);
     void ArchiveBoolean(qboolean *boolean);
     void ArchiveString(str *string);
-    void ArchiveConfigString(int cs);
+    void ArchiveObjectPointer(LightClass **ptr);
     void ArchiveObjectPointer(Class **ptr);
-    void ArchiveObjectPosition(void *obj);
+    void ArchiveObjectPosition(LightClass *obj);
     void ArchiveSafePointer(SafePtrBase *ptr);
     void ArchiveEventPointer(Event **ev);
     void ArchiveBool(bool *boolean);
@@ -151,33 +157,12 @@ public:
 
     qboolean ObjectPositionExists(void *obj);
 
+    void   Reset();
+    size_t Counter() const;
+
+    void ArchiveConfigString(int cs);
     void SetSilent(bool bSilent);
 };
-
-inline qboolean Archiver::Read(str& name, qboolean harderror)
-{
-    return Read(name.c_str(), harderror);
-}
-
-inline qboolean Archiver::Create(str& name, qboolean harderror)
-{
-    return Create(name.c_str(), harderror);
-}
-
-inline qboolean Archiver::Loading(void)
-{
-    return (archivemode == ARCHIVE_READ) ? qtrue : qfalse;
-}
-
-inline qboolean Archiver::Saving(void)
-{
-    return (archivemode == ARCHIVE_WRITE) ? qtrue : qfalse;
-}
-
-inline qboolean Archiver::NoErrors(void)
-{
-    return fileerror ? qfalse : qtrue;
-}
 
 template<class Type>
 inline void Container<Type>::Archive(Archiver& arc, void (*ArchiveFunc)(Archiver& arc, Type *obj))
