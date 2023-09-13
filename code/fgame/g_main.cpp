@@ -1312,12 +1312,12 @@ qboolean G_ArchiveLevel(const char *filename, qboolean autosave, qboolean loadin
 
         PathSearch::ArchiveDynamic(arc);
 
-        arc.Close();
-
         if (arc.Loading()) {
+            arc.Close();
             LoadingSavegame = false;
             gi.Printf(HUD_MESSAGE_YELLOW "%s\n", gi.LV_ConvertString("Game Loaded"));
         } else {
+            arc.Close();
             gi.Printf(HUD_MESSAGE_YELLOW "%s\n", gi.LV_ConvertString("Game Saved"));
         }
 
