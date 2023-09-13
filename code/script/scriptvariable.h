@@ -71,7 +71,7 @@ class ScriptArrayHolder;
 class ScriptConstArrayHolder;
 class ScriptPointer;
 
-class ScriptVariable
+class ScriptVariable : public LightClass
 {
 public:
 #ifdef GAME_DLL
@@ -79,7 +79,7 @@ public:
 #endif
     unsigned char type; // variable type
 
-    union anon393 {
+    union {
     public:
         char               charValue;
         float              floatValue;
@@ -237,7 +237,7 @@ public:
     ScriptVariable operator--(int);
 };
 
-class ScriptArrayHolder
+class ScriptArrayHolder : public LightClass
 {
 public:
     con_map<ScriptVariable, ScriptVariable> arrayValue;
@@ -250,7 +250,7 @@ public:
     static void Archive(Archiver& arc, ScriptArrayHolder *& arrayValue);
 };
 
-class ScriptConstArrayHolder
+class ScriptConstArrayHolder : public LightClass
 {
 public:
     ScriptVariable *constArrayValue;
@@ -267,7 +267,7 @@ public:
     ~ScriptConstArrayHolder();
 };
 
-class ScriptPointer
+class ScriptPointer : public LightClass
 {
 public:
     Container<ScriptVariable *> list;
