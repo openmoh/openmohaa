@@ -176,6 +176,8 @@ const char *UI_ConfigString( int index );
 void UI_UpdateCenterPrint(const char* s, float alpha);
 void UI_UpdateLocationPrint(int x, int y, const char* s, float alpha);
 void UI_SetupFiles(void);
+void UI_PrintConsole(const char* msg);
+void UI_PrintDeveloperConsole(const char* msg);
 
 #ifdef __cplusplus
 }
