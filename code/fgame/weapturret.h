@@ -45,10 +45,13 @@ protected:
     bool              m_bRestable;
     Vector            m_vIdleCheckOffset;
     Vector            m_vViewOffset;
+    float             m_fMaxIdlePitch;
+    float             m_fMaxIdleYaw;
     Vector            m_vUserViewAng;
     Vector            m_vUserLastCmdAng;
     float             m_fIdlePitchSpeed;
     float             m_fTurnSpeed;
+    float             m_fAIPitchSpeed;
     float             m_fPitchUpCap;
     float             m_fPitchDownCap;
     float             m_fStartYaw;
@@ -64,12 +67,31 @@ protected:
     CameraPtr         m_pUserCamera;
     float             m_fViewJitter;
     float             m_fCurrViewJitter;
+    Vector            m_vAIBulletSpread;
+    int               m_iTargetType;
+    SentientPtr       m_pAIEnemy;
     Vector            m_Aim_offset;
     SafePtr<Animate>  m_pViewModel;
     ScriptThreadLabel m_UseThread;
 
 public:
     bool m_bHadOwner;
+
+private:
+    int    m_iAIState;
+    float  m_fAIConvergeTime;
+    int    m_iAISuppressTime;
+    int    m_fAISuppressWaitTime;
+    int    m_iAILastTrackTime;
+    int    m_iAIStartSuppressTime;
+    vec3_t m_vDesiredTargetAngles;
+    float  m_fAIDesiredTargetSpeed;
+    vec3_t m_vAIDesiredTargetPosition;
+    int    m_iAINextSuppressTime;
+    float  m_fAISuppressWidth;
+    float  m_fAISuppressHeight;
+    vec3_t m_vMuzzlePosition;
+    float  m_fMaxUseAngle;
 
 protected:
     void         ThinkIdle();
