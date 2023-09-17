@@ -580,6 +580,7 @@ void CL_InitCGameDLL( clientGameImport_t *cgi, clientGameExport_t **cge ) {
 
 	cgi->Printf							= Com_Printf;
 	cgi->DPrintf						= Com_DPrintf;
+	cgi->DebugPrintf					= Com_DebugPrintf;
 
 	cgi->Malloc							= CL_CG_Malloc;
 	cgi->Free							= CL_CG_Free;
