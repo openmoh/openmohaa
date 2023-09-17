@@ -2418,9 +2418,9 @@ int Level::GetNearestBadPlace(const Vector& org, float radius, int team) const
         if (team & bp.m_iTeamSide) {
             const Vector delta = bp.m_vOrigin - org;
             float distSqr = delta.lengthSquared();
-            float radius = bp.m_fRadius + radius;
+            float rad = bp.m_fRadius + radius;
 
-            if (distSqr < bestDistSqr && distSqr < radius * radius) {
+            if (distSqr < bestDistSqr && distSqr < rad * rad) {
                 bestDistSqr = distSqr;
                 bestBpIndex = i;
             }
