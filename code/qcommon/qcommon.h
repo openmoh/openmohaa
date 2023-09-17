@@ -1340,6 +1340,7 @@ void RecoverLostAutodialData( void );
 
 void Sys_CloseMutex( void );
 void Sys_ShowConsole( int visLevel, qboolean quitOnClose );
+void Sys_DebugPrint(const char* message);
 void Sys_PumpMessageLoop( void );
 
 qboolean SaveRegistryInfo( qboolean user, const char *pszName, void *pvBuf, long lSize );

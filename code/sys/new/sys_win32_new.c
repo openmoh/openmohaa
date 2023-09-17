@@ -55,6 +55,15 @@ void Sys_PrintBackTrace() {
 
 /*
 ==============
+Sys_DebugPrint
+==============
+*/
+void Sys_DebugPrint(const char* message) {
+    OutputDebugStringA(message);
+}
+
+/*
+==============
 Sys_PumpMessageLoop
 ==============
 */
