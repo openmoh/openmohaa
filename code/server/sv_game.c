@@ -1550,7 +1550,8 @@ void SV_InitGameProgs( void ) {
 
 	import.Printf						= Com_Printf;
 	import.DPrintf						= Com_DPrintf;
-	import.DPrintf2						= Com_DPrintf;
+	import.DPrintf2						= Com_DPrintf2;
+	import.DebugPrintf					= Com_DebugPrintf;
 	import.Error						= Com_Error;
 	import.GetArchiveFileName			= Com_GetArchiveFileName;
 	import.Milliseconds					= Sys_Milliseconds;
