@@ -733,20 +733,26 @@ void Sentient::ActivateWeapon(Weapon *weapon, weaponhand_t hand)
     activeWeaponList[hand] = weapon;
     str holsterTag         = weapon->GetHolsterTag();
 
-    // Check the player's inventory and detach any weapons that are currently attached to that tag.
-    for (i = 1; i <= inventory.NumObjects(); i++) {
-        Item *item = (Item *)G_GetEntity(inventory.ObjectAt(i));
+    if (str::cmp(holsterTag, "")) {
+        // Check the player's inventory and detach any weapons that are currently attached to that tag.
+        for (i = 1; i <= inventory.NumObjects(); i++) {
+            Item* item = (Item*)G_GetEntity(inventory.ObjectAt(i));
 
-        if (item->isSubclassOf(Weapon)) {
-            Weapon *weap = (Weapon *)item;
+            if (item->IsSubclassOfWeapon()) {
+                Weapon* weap = (Weapon*)item;
 
-            if ((!str::cmp(holsterTag, weap->GetCurrentAttachToTag()))) {
-                weap->DetachFromOwner();
+                if ((!str::cmp(holsterTag, weap->GetCurrentAttachToTag()))) {
+                    weap->DetachFromOwner();
+                }
             }
         }
     }
     weapon->AttachToOwner(hand);
     weapon->NewAnim("raise");
+
+    if (weapon == holsteredWeapon) {
+        holsteredWeapon = NULL;
+    }
 }
 
 void Sentient::ActivateLastActiveWeapon(void)
