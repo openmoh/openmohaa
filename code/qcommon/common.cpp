@@ -37,8 +37,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "tiki.h"
 
+#ifndef DEDICATED
+#  include "../uilib/ui_public.h"
+#endif
+
 qboolean CL_FinishedIntro(void);
-void UI_PrintConsole(const char* msg);
 
 #ifdef __cplusplus
 extern "C" {
@@ -299,6 +302,56 @@ void QDECL Com_DPrintf( const char *fmt, ...) {
 	va_end (argptr);
 
 	Com_Printf ("%s", msg);
+}
+
+/*
+================
+Com_DPrintf2
+
+A Com_Printf that only shows up if the "developer" cvar is set
+================
+*/
+void QDECL Com_DPrintf2( const char *fmt, ...) {
+	va_list		argptr;
+	char		msg[MAXPRINTMSG];
+
+	if ( !developer || !developer->integer ) {
+		return;			// don't confuse non-developers with techie stuff...
+	}
+
+	va_start (argptr,fmt);
+	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
+	va_end (argptr);
+
+	Com_Printf ("%s", msg);
+
+#ifndef DEDICATED
+	if (com_dedicated && !com_dedicated->integer) {
+		UI_PrintDeveloperConsole(msg);
+	}
+#endif
+}
+
+/*
+================
+Com_DebugPrintf
+
+A Com_Printf that only shows up if the "developer" cvar is set
+================
+*/
+void QDECL Com_DebugPrintf( const char *fmt, ...) {
+	va_list		argptr;
+	char		msg[MAXPRINTMSG];
+
+	if ( !developer || !developer->integer ) {
+		return;			// don't confuse non-developers with techie stuff...
+	}
+
+	va_start (argptr,fmt);
+	Q_vsnprintf (msg, sizeof(msg), fmt, argptr);
+	va_end (argptr);
+
+	Sys_DebugPrint (msg);
 }
 
 #endif

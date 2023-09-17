@@ -1262,6 +1262,8 @@ void Info_NextPair( const char **s, char *key, char *value );
 void	QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((format (printf, 2, 3)));
 void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 void	QDECL Com_DPrintf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+void	QDECL Com_DPrintf2( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
+void	QDECL Com_DebugPrintf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 
 
 /*
