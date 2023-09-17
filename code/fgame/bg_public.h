@@ -251,9 +251,9 @@ movement on the server game.
 #endif
 
 // moh pm_flags
-#define PMF_DUCKED          (1 << 0)
-#define PMF_VIEW_PRONE      (1 << 1)
-#define PMF_DAMAGE_ANGLES   (1 << 1) // in protocol >= 15
+#define PMF_DUCKED        (1 << 0)
+#define PMF_VIEW_PRONE    (1 << 1)
+#define PMF_DAMAGE_ANGLES (1 << 1) // in protocol >= 15
 //
 // 2 Flags removed in team tactics
 //
@@ -340,7 +340,7 @@ movement on the server game.
         //
         // Openmohaa addition
         //
-        int protocol;
+        int   protocol;
         float leanSpeed;
         float leanRecoverSpeed;
         float leanAdd;
@@ -559,8 +559,8 @@ movement on the server game.
         STAT_MAXCLIPAMMO,
         STAT_INZOOM,
         STAT_CROSSHAIR,
-		STAT_LAST_PAIN,
-		STAT_NEXTHEALTH, // was unused until 2.0
+        STAT_LAST_PAIN,
+        STAT_NEXTHEALTH, // was unused until 2.0
         STAT_BOSSHEALTH,
         STAT_CINEMATIC,
         STAT_ADDFADE,
@@ -571,9 +571,9 @@ movement on the server game.
         STAT_OBJECTIVECENTER,
         STAT_TEAM,
         STAT_KILLS,
-		STAT_DEATHS,
-		STAT_VEHICLE_HEALTH, // was unused until 2.0
-		STAT_VEHICLE_MAX_HEALTH, // was unused until 2.0
+        STAT_DEATHS,
+        STAT_VEHICLE_HEALTH,     // was unused until 2.0
+        STAT_VEHICLE_MAX_HEALTH, // was unused until 2.0
         STAT_HIGHEST_SCORE,
         STAT_ATTACKERCLIENT,
         STAT_INFOCLIENT,
@@ -647,18 +647,18 @@ movement on the server game.
     (CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_BODY | CONTENTS_TRIGGER | CONTENTS_FENCE | CONTENTS_UNKNOWN2 \
      | CONTENTS_NOBOTCLIP | CONTENTS_BBOX)
 #define MASK_FOOTSHADOW   (CONTENTS_FENCE | CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_SOLID)
-#define MASK_PLAYERSTART (CONTENTS_SOLID|CONTENTS_BBOX|CONTENTS_NOBOTCLIP|CONTENTS_UNKNOWN2|CONTENTS_BODY)
+#define MASK_PLAYERSTART  (CONTENTS_SOLID | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 | CONTENTS_BODY)
 #define MASK_VIEWSOLID    (CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_FENCE | CONTENTS_TRIGGER)
 #define MASK_DEADSOLID    (CONTENTS_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_CORPSE | CONTENTS_NOTTEAM2 | CONTENTS_FENCE)
 #define MASK_MONSTERSOLID (CONTENTS_SOLID | CONTENTS_MONSTERCLIP | CONTENTS_BODY)
 #define MASK_WATER        (CONTENTS_WATER | CONTENTS_LAVA | CONTENTS_SLIME)
 #define MASK_OPAQUE       (CONTENTS_SOLID | CONTENTS_SLIME | CONTENTS_LAVA)
-#define MASK_SHOT                                                                                              \
-    (CONTENTS_SOLID | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 | CONTENTS_FENCE \
-     | CONTENTS_WEAPONCLIP | CONTENTS_BODY | CONTENTS_TRIGGER)
-#define MASK_SHOT_TRIG                                                                                         \
-    (CONTENTS_SOLID | CONTENTS_CLAYPIDGEON | CONTENTS_WATER  | CONTENTS_BBOX | CONTENTS_NOBOTCLIP \
-    | CONTENTS_UNKNOWN2 | CONTENTS_FENCE | CONTENTS_WEAPONCLIP | CONTENTS_BODY | CONTENTS_TRIGGER)
+#define MASK_SHOT                                                                                                   \
+    (CONTENTS_SOLID | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 | CONTENTS_FENCE | CONTENTS_WEAPONCLIP \
+     | CONTENTS_BODY | CONTENTS_TRIGGER)
+#define MASK_SHOT_TRIG                                                                                               \
+    (CONTENTS_SOLID | CONTENTS_CLAYPIDGEON | CONTENTS_WATER | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 \
+     | CONTENTS_FENCE | CONTENTS_WEAPONCLIP | CONTENTS_BODY | CONTENTS_TRIGGER)
 #define MASK_PROJECTILE                                                                                           \
     (CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_TRIGGER | CONTENTS_FENCE | CONTENTS_WEAPONCLIP | CONTENTS_UNKNOWN2 \
      | CONTENTS_NOBOTCLIP | CONTENTS_BBOX)
@@ -675,7 +675,9 @@ movement on the server game.
 #define MASK_AUTOCALCLIFE (CONTENTS_SOLID | CONTENTS_TRIGGER | CONTENTS_FENCE)
 #define MASK_EXPLOSION    (CONTENTS_SOLID | CONTENTS_TRIGGER | CONTENTS_WEAPONCLIP)
 #define MASK_SOUND        (CONTENTS_SOLID | CONTENTS_TRANSLUCENT)
-#define MASK_VEHICLE      (CONTENTS_SOLID | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 | CONTENTS_FENCE | CONTENTS_VEHICLECLIP | CONTENTS_BODY | CONTENTS_TRIGGER)
+#define MASK_VEHICLE                                                                                                 \
+    (CONTENTS_SOLID | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 | CONTENTS_FENCE | CONTENTS_VEHICLECLIP \
+     | CONTENTS_BODY | CONTENTS_TRIGGER)
 #define MASK_CLICK \
     (CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_UNKNOWN3 | CONTENTS_UNKNOWN2 | CONTENTS_NOBOTCLIP | CONTENTS_BBOX)
 #define MASK_CANSEE                                                                                                 \
@@ -702,7 +704,11 @@ movement on the server game.
 #define MASK_BATTLELANGUAGE                                                                        \
     (CONTENTS_SOLID | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 | CONTENTS_PLAYERCLIP \
      | CONTENTS_WEAPONCLIP | CONTENTS_BODY | CONTENTS_TRIGGER)
-#define MASK_SCRIPT_SLAVE (CONTENTS_LADDER|CONTENTS_CLAYPIDGEON|CONTENTS_BBOX|CONTENTS_NOBOTCLIP|CONTENTS_UNKNOWN2|CONTENTS_UNKNOWN3|CONTENTS_BODY|CONTENTS_CORPSE)
+#define MASK_SCRIPT_SLAVE                                                                            \
+    (CONTENTS_LADDER | CONTENTS_CLAYPIDGEON | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 \
+     | CONTENTS_UNKNOWN3 | CONTENTS_BODY | CONTENTS_CORPSE)
+#define MASK_CARRYABLETURRET \
+    (CONTENTS_SOLID | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 | CONTENTS_FENCE | CONTENTS_BODY)
 
     // mohaa mask
     /*
@@ -841,10 +847,10 @@ movement on the server game.
 #endif
 
 typedef enum {
-	OBJ_FLAG_NONE,
-	OBJ_FLAG_HIDDEN = 1,
-	OBJ_FLAG_CURRENT = 2,
-	OBJ_FLAG_COMPLETED = 4
+    OBJ_FLAG_NONE,
+    OBJ_FLAG_HIDDEN    = 1,
+    OBJ_FLAG_CURRENT   = 2,
+    OBJ_FLAG_COMPLETED = 4
 } objective_flags_t;
 
 typedef enum {
