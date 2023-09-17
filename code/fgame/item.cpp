@@ -619,14 +619,6 @@ Item *Item::ItemPickup(Entity *other, qboolean add_to_inventory)
         }
     }
 
-    if (!no_remove) {
-        hideModel();
-
-        if (!Respawnable()) {
-            PostEvent(EV_Remove, FRAMETIME);
-        }
-    }
-
     if (Respawnable()) {
         PostEvent(EV_Item_Respawn, RespawnTime());
     }
