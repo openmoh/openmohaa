@@ -217,9 +217,9 @@ public:
     bool              m_bForceDropHealth;
     bool              m_bForceDropWeapon;
 
-    bool              m_bFootOnGround_Right;
-    bool              m_bFootOnGround_Left;
-    int               iNextLandTime;
+    bool m_bFootOnGround_Right;
+    bool m_bFootOnGround_Left;
+    int  iNextLandTime;
 
     CLASS_PROTOTYPE(Sentient);
 
@@ -232,6 +232,7 @@ public:
     virtual Vector GetViewAngles(void);
     void           AddViewVariation(const Vector          &vVariation);
     void           SetMinViewVariation(const Vector          &vVariation);
+    void           SetHolsteredByCode(bool holstered);
     bool           CanSee(Entity *ent, float fov, float vision_distance, bool bNoEnts) override;
     virtual Vector GunPosition(void);
     virtual Vector GunTarget(bool bNoCollision = false);
@@ -343,8 +344,8 @@ public:
     void GetNewActiveWeapon(Event *ev);
     void EventClientLanding(Event *ev);
 
-    void FootstepMain(trace_t* trace, int iRunning, int iEquipment);
-    void Footstep(const char* szTagName, int iRunning, int iEquipment);
+    void FootstepMain(trace_t *trace, int iRunning, int iEquipment);
+    void Footstep(const char *szTagName, int iRunning, int iEquipment);
     void LandingSound(float volume, int iEquipment);
 };
 

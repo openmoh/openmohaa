@@ -2929,6 +2929,10 @@ void Sentient::SetMinViewVariation(const Vector& vVariation)
     m_vViewVariation.z = Q_min(m_vViewVariation.z, vVariation.z);
 }
 
+void Sentient::SetHolsteredByCode(bool holstered) {
+    weapons_holstered_by_code = holstered;
+}
+
 #define GROUND_DISTANCE        8
 #define WATER_NO_SPLASH_HEIGHT 16
 
