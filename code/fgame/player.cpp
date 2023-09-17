@@ -6734,8 +6734,9 @@ PlayerAngles
 void Player::PlayerAngles(void)
 {
     if (getMoveType() == MOVETYPE_PORTABLE_TURRET) {
-        // Addition in 2.0
-        //  FIXME: Set viewangles from m_pTurret
+        PortableTurret* portableTurret = static_cast<PortableTurret*>(m_pTurret.Pointer());
+        angles[0] = portableTurret->GetGroundPitch();
+        angles[1] = portableTurret->GetStartYaw();
     }
 
     PmoveAdjustAngleSettings(v_angle, angles, &client->ps, &edict->s);
@@ -7194,13 +7195,6 @@ void Player::UpdateStats(void)
 
     count = inventory.NumObjects();
 
-    if (count > MAX_WEAPONS) {
-        count = MAX_WEAPONS;
-        warning("Player::UpdateStats", "Max inventory exceeded\n");
-    }
-
-    count = inventory.NumObjects();
-
     int iItem = 0;
 
     for (i = 1; i <= count; i++) {
@@ -7212,8 +7206,7 @@ void Player::UpdateStats(void)
             if (weapon->IsSubclassOfInventoryItem()) {
                 if (iItem <= 3) {
                     client->ps.activeItems[iItem + 2] = weapon->getIndex();
-                    weapon->weapon_class              = (256 << iItem) & WEAPON_CLASS_ITEMINDEX;
-                    weapon->weapon_class |= weapon->weapon_class & ~WEAPON_CLASS_ITEMINDEX;
+                    weapon->weapon_class              = ((256 << iItem) & WEAPON_CLASS_ITEMINDEX) | (weapon->weapon_class & ~WEAPON_CLASS_ITEMINDEX);
 
                     if (activeweap && weapon == activeweap) {
                         client->ps.stats[STAT_EQUIPPED_WEAPON] = 256 << iItem;
@@ -7672,17 +7665,33 @@ void Player::ExitVehicle(Event *ev)
     flags &= ~FL_PARTIAL_IMMOBILE;
     setMoveType(MOVETYPE_WALK);
     m_pVehicle = NULL;
+
+    if (camera) {
+        SetCamera(NULL, 0.5f);
+        ZoomOff();
+    }
+
+    SafeHolster(false);
+    takedamage = DAMAGE_YES;
+    setSolidType(SOLID_BBOX);
 }
 
 void Player::EnterTurret(TurretGun *ent)
 {
-    flags |= FL_PARTIAL_IMMOBILE;
-    viewheight = DEFAULT_VIEWHEIGHT;
+    flags      |= FL_PARTIAL_IMMOBILE;
+    viewheight  = DEFAULT_VIEWHEIGHT;
+    velocity    = vec_zero;
+    m_pTurret   = ent;
 
-    velocity = vec_zero;
-
-    m_pTurret = ent;
-    setMoveType(MOVETYPE_TURRET);
+    if (ent->inheritsFrom(PortableTurret::classinfostatic())) {
+        // carryable turret
+        setMoveType(MOVETYPE_PORTABLE_TURRET);
+        StopPartAnimating(torso);
+        SetPartAnim("mg42tripod_aim_straight_straight");
+    } else {
+        // standard turret
+        setMoveType(MOVETYPE_TURRET);
+    }
 
     SafeHolster(true);
 }
@@ -7695,7 +7704,7 @@ void Player::EnterTurret(Event *ev)
         return;
     }
 
-    if (ent->IsSubclassOfTurretGun()) {
+    if (!ent->inheritsFrom(TurretGun::classinfostatic())) {
         return;
     }
 
@@ -7704,12 +7713,19 @@ void Player::EnterTurret(Event *ev)
 
 void Player::ExitTurret(void)
 {
+    if (m_pTurret->inheritsFrom(PortableTurret::classinfostatic())) {
+        StopPartAnimating(torso);
+        SetPartAnim("mg42tripod_aim_straight_straight");
+    }
+
     flags &= ~FL_PARTIAL_IMMOBILE;
     setMoveType(MOVETYPE_WALK);
-
     m_pTurret = NULL;
 
     SafeHolster(qfalse);
+
+    new_buttons = 0;
+    server_new_buttons = 0;
 }
 
 void Player::ExitTurret(Event *ev)
