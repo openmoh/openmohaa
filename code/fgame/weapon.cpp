@@ -4616,7 +4616,7 @@ float Weapon::GetMovementSpeed() const
 //======================
 //Weapon::IsCarryableTurret
 //======================
-bool Weapon::IsCarryableTurret()
+bool Weapon::IsCarryableTurret() const
 {
     return false;
 }
