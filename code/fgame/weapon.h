@@ -397,7 +397,7 @@ public:
     void         AttachToOwner(weaponhand_t hand);
     void         WeaponSound(Event *ev);
     virtual void GetMuzzlePosition(
-        Vector *position, Vector *forward = NULL, Vector *right = NULL, Vector *up = NULL, Vector *vBarrelPos = NULL
+        vec3_t position, vec3_t vBarrelPos = NULL, vec3_t forward = NULL, vec3_t right = NULL, vec3_t up = NULL
     );
     qboolean AutoChange(void);
     int      ClipAmmo(firemode_t mode);

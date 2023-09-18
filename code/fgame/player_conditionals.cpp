@@ -416,7 +416,7 @@ qboolean Player::CondCanPlaceLandmine(Conditional& condition)
     }
 
     Vector vPos, vForward, vRight, vUp, vBarrel;
-    weapon->GetMuzzlePosition(&vPos, &vForward, &vRight, &vUp, &vBarrel);
+    weapon->GetMuzzlePosition(vPos, vBarrel, vForward, vRight, vUp);
 
     return CanPlaceLandmine(vPos, this);
 }

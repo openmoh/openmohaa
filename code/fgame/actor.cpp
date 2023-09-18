@@ -6839,7 +6839,7 @@ Vector Actor::GunPosition
 		Weapon *weap = GetActiveWeapon(WEAPON_MAIN);
 		if (weap)
 		{
-			weap->GetMuzzlePosition(&m_vGunPosition);
+			weap->GetMuzzlePosition(m_vGunPosition);
 		}
 		else
 		{

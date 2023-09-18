@@ -77,7 +77,7 @@ void InventoryItem::ActivateItem
 	{
 		Vector pos, forward, right, up, vBarrel;
 
-		GetMuzzlePosition( &pos, &forward, &right, &up, &vBarrel );
+		GetMuzzlePosition( pos, vBarrel, forward, right, up );
 		ClickItemAttack(
 			pos,
 			forward,

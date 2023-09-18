@@ -248,7 +248,7 @@ Vector Sentient::GunPosition(void)
     Vector vPos;
 
     if (activeWeaponList[WEAPON_MAIN]) {
-        activeWeaponList[WEAPON_MAIN]->GetMuzzlePosition(&vPos);
+        activeWeaponList[WEAPON_MAIN]->GetMuzzlePosition(vPos);
     } else {
         vPos = origin;
     }

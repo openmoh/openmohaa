@@ -1592,7 +1592,7 @@ out:
 //======================
 //Weapon::GetMuzzlePosition
 //======================
-void Weapon::GetMuzzlePosition(Vector *position, Vector *forward, Vector *right, Vector *up, Vector *vBarrelPos)
+void Weapon::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forward, vec3_t right, vec3_t up)
 {
     orientation_t weap_or, barrel_or, orient;
     //orientation_t	view_or;
@@ -1624,13 +1624,13 @@ void Weapon::GetMuzzlePosition(Vector *position, Vector *forward, Vector *right,
         AngleVectors(player->GetViewAngles(), f, r, u);
 
         if (forward) {
-            *forward = f;
+            VectorCopy(f, forward);
         }
         if (right) {
-            *right = r;
+            VectorCopy(f, right);
         }
         if (up) {
-            *up = u;
+            VectorCopy(f, up);
         }
     }
 
@@ -1692,7 +1692,7 @@ void Weapon::GetMuzzlePosition(Vector *position, Vector *forward, Vector *right,
         AxisCopy(weap_or.axis, mat);
 
         if (vBarrelPos) {
-            *vBarrelPos = weap_or.origin;
+            VectorCopy(weap_or.origin, vBarrelPos);
         }
 
         goto out;
@@ -1700,7 +1700,7 @@ void Weapon::GetMuzzlePosition(Vector *position, Vector *forward, Vector *right,
 
     if (owner->IsSubclassOfPlayer() && !IsSubclassOfTurretGun()) {
         if (vBarrelPos) {
-            *vBarrelPos = origin;
+            VectorCopy(vBarrelPos, origin);
         }
     } else {
         // Translate the barrel's orientation through the weapon's orientation
@@ -1713,7 +1713,7 @@ void Weapon::GetMuzzlePosition(Vector *position, Vector *forward, Vector *right,
         MatrixMultiply(barrel_or.axis, weap_or.axis, mat);
 
         if (vBarrelPos) {
-            *vBarrelPos = pos;
+            VectorCopy(vBarrelPos, pos);
         }
     }
 
@@ -1733,7 +1733,7 @@ out:
     G_DrawCoordSystem(pos, mat[0], mat[1], mat[2], 30);
 
     if (position) {
-        *position = pos;
+        VectorCopy(position, pos);
     }
 
     if (!forward && !right && !up) {
@@ -1774,13 +1774,13 @@ out:
             AngleVectors(aim_dir.toAngles(), mat[0], mat[1], mat[2]);
 
             if (forward) {
-                *forward = mat[0];
+                VectorCopy(mat[0], forward);
             }
             if (right) {
-                *right = mat[1];
+                VectorCopy(mat[1], right);
             }
             if (up) {
-                *up = mat[2];
+                VectorCopy(mat[2], up);
             }
 
             return;
@@ -1797,13 +1797,13 @@ out:
     // If this weapon doesn't have a crosshair specified, then use the mat from the barrel for the directions
     if (!crosshair) {
         if (forward) {
-            *forward = mat[0];
+            VectorCopy(mat[0], forward);
         }
         if (right) {
-            *right = mat[1];
+            VectorCopy(mat[1], right);
         }
         if (up) {
-            *up = mat[2];
+            VectorCopy(mat[2], up);
         }
     }
 }
@@ -1896,7 +1896,7 @@ void Weapon::Shoot(Event *ev)
         return;
     }
 
-    GetMuzzlePosition(&pos, &forward, &right, &up, &vBarrel);
+    GetMuzzlePosition(pos, vBarrel, forward, right, up);
     ApplyFireKickback(right, 1000.0);
 
     if (firetype[mode] != FT_LANDMINE || CanPlaceLandmine(pos, owner)) {
