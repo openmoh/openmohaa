@@ -32,6 +32,13 @@ extern Event EV_Turret_Enter;
 extern Event EV_Turret_Exit;
 extern Event EV_Turret_AI_TurnSpeed;
 
+typedef enum {
+    TURRETAISTATE_DEFAULT,
+    TURRETAISTATE_TRACK,
+    TURRETAISTATE_SUPPRESS,
+    TURRETAISTATE_SUPPRESS_WAIT
+} turretaistate_e;
+
 #define FAKEBULLETS 1
 
 class TurretGun : public Weapon
@@ -67,7 +74,7 @@ protected:
     CameraPtr         m_pUserCamera;
     float             m_fViewJitter;
     float             m_fCurrViewJitter;
-    Vector            m_vAIBulletSpread;
+    Vector            m_vAIBulletSpread[MAX_FIREMODES];
     int               m_iTargetType;
     SentientPtr       m_pAIEnemy;
     Vector            m_Aim_offset;
@@ -81,16 +88,19 @@ private:
     int    m_iAIState;
     float  m_fAIConvergeTime;
     int    m_iAISuppressTime;
-    int    m_fAISuppressWaitTime;
+    int    m_iAISuppressWaitTime;
     int    m_iAILastTrackTime;
     int    m_iAIStartSuppressTime;
     vec3_t m_vDesiredTargetAngles;
     float  m_fAIDesiredTargetSpeed;
     vec3_t m_vAIDesiredTargetPosition;
+    vec3_t m_vAITargetPosition;
+    vec3_t m_vAICurrentTargetPosition;
+    vec3_t m_vAITargetSpeed;
     int    m_iAINextSuppressTime;
     float  m_fAISuppressWidth;
     float  m_fAISuppressHeight;
-    vec3_t m_vMuzzlePosition;
+    Vector m_vMuzzlePosition;
     float  m_fMaxUseAngle;
 
 protected:
@@ -106,7 +116,7 @@ public:
 
     // added in 2.0
     //====
-    void AI_SetTargetAngles(const vec3_t angles, float speed);
+    void AI_SetTargetAngles(vec3_t vTargAngles, float speed);
     void AI_SetDesiredTargetAngles(const vec3_t angles, float speed);
     void AI_DoTargetNone();
     void AI_MoveToDefaultPosition();
@@ -129,7 +139,7 @@ public:
 
     void PlaceTurret(Event *ev);
 
-    virtual void P_UserAim(usercmd_t *cmd);
+    virtual void P_UserAim(usercmd_t *ucmd);
     qboolean     UserAim(usercmd_t *ucmd);
     virtual void TurretBeginUsed(Sentient *pEnt);
     virtual void P_TurretBeginUsed(Player *pEnt);
@@ -148,11 +158,6 @@ public:
     void EventMaxIdlePitch(Event *ev); // added in 2.0
     void EventMaxIdleYaw(Event *ev);   // added in 2.0
     void SetIdleCheckOffset(Event *ev);
-    void SetAimTarget(Entity *ent);
-    void SetAimOffset(const Vector& offset);
-    void ClearAimTarget();
-    void StartFiring();
-    void StopFiring();
     bool IsFiring();
     void CalcFiringViewJitter();
     void P_ApplyFiringViewJitter(Vector& vAng);
@@ -209,10 +214,10 @@ public:
     void AI_EventSetSuppressHeight(Event *ev);
     void AI_EventSetBulletSpread(Event *ev);
     void GetMuzzlePosition(
-        Vector *position, Vector *forward = NULL, Vector *right = NULL, Vector *up = NULL, Vector *vBarrelPos = NULL
+        vec3_t position, vec3_t vBarrelPos = NULL, vec3_t forward = NULL, vec3_t right = NULL, vec3_t up = NULL
     ) override;
     Vector EyePosition();
-    void   setAngles(Vector angles) override;
+    void   setAngles(Vector ang) override;
     //====
 
     void Archive(Archiver& arc) override;
