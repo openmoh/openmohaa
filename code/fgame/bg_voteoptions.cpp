@@ -75,8 +75,10 @@ void VoteOptions::SetupVoteOptions(const char *configFileName)
 {
     char *buffer;
     int   compressedLength;
+    long  length;
 
-    if (!gi.FS_ReadFile(configFileName, (void **)&buffer, qtrue)) {
+    length = gi.FS_ReadFile(configFileName, (void**)&buffer, qtrue);
+    if (length == -1 || !length) {
         Com_Printf("WARNING: Couldn't find voting options file: %s\n", configFileName);
         return;
     }
