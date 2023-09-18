@@ -1627,10 +1627,10 @@ void Weapon::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forwar
             VectorCopy(f, forward);
         }
         if (right) {
-            VectorCopy(f, right);
+            VectorCopy(r, right);
         }
         if (up) {
-            VectorCopy(f, up);
+            VectorCopy(u, up);
         }
     }
 
@@ -1700,7 +1700,7 @@ void Weapon::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forwar
 
     if (owner->IsSubclassOfPlayer() && !IsSubclassOfTurretGun()) {
         if (vBarrelPos) {
-            VectorCopy(vBarrelPos, origin);
+            VectorCopy(origin, vBarrelPos);
         }
     } else {
         // Translate the barrel's orientation through the weapon's orientation
@@ -1713,7 +1713,7 @@ void Weapon::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forwar
         MatrixMultiply(barrel_or.axis, weap_or.axis, mat);
 
         if (vBarrelPos) {
-            VectorCopy(vBarrelPos, pos);
+            VectorCopy(pos, vBarrelPos);
         }
     }
 
@@ -1733,7 +1733,7 @@ out:
     G_DrawCoordSystem(pos, mat[0], mat[1], mat[2], 30);
 
     if (position) {
-        VectorCopy(position, pos);
+        VectorCopy(pos, position);
     }
 
     if (!forward && !right && !up) {
@@ -1897,7 +1897,7 @@ void Weapon::Shoot(Event *ev)
     }
 
     GetMuzzlePosition(pos, vBarrel, forward, right, up);
-    ApplyFireKickback(right, 1000.0);
+    ApplyFireKickback(forward, 1000.0);
 
     if (firetype[mode] != FT_LANDMINE || CanPlaceLandmine(pos, owner)) {
         if (m_fFireSpreadMultAmount[mode] != 0.0f) {
