@@ -396,7 +396,14 @@ int HashCode<Event *>(Event *const& key)
 template<>
 int HashCode<command_t>(const command_t& key)
 {
-    return HashCode<str>(key.command);
+    const char* p;
+    int         hash = 0;
+
+    for (p = key.command; *p; p++) {
+        hash = tolower(*p) + 31 * hash;
+    }
+
+    return hash;
 }
 
 #if defined(ARCHIVE_SUPPORTED)
