@@ -127,12 +127,13 @@ Vector Player::GunTarget(bool bNoCollision)
         AngleVectors(m_vViewAng, vForward, NULL, NULL);
         vDest = m_vViewPos + vForward * 1024.0f;
 
-        trace = G_Trace(m_vViewPos, vec_zero, vec_zero, vDest, this, MASK_PLAYERSOLID, qfalse, "Player::GunTarget");
+        trace = G_Trace(m_vViewPos, vec_zero, vec_zero, vDest, this, MASK_GUNTARGET, qfalse, "Player::GunTarget");
 
-        if (!m_pTurret || (Vector(trace.endpos) - m_vViewPos).lengthSquared() >= 16384.0f) {
-            vOut = trace.endpos;
-        } else {
-            vOut = vDest;
+        vOut = trace.endpos;
+        if (m_pTurret) {
+            if ((Vector(trace.endpos) - m_vViewPos).lengthSquared() < 16384) {
+                vOut = vDest;
+            }
         }
     }
 
