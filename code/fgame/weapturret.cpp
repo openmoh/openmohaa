@@ -2042,8 +2042,6 @@ void TurretGun::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t for
             VectorCopy(position, vBarrelPos);
         }
     } else if (viewer->IsSubclassOfPlayer()) {
-        Vector gunTarget;
-
         VectorCopy(origin, position);
 
         if (GetRawTag(GetTagBarrel(), &barrel_or)) {
