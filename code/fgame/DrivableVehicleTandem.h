@@ -21,3 +21,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #pragma once
+
+#include "vehicle.h"
+
+class DrivableVehicleTandem : public DrivableVehicle {
+private:
+    CLASS_PROTOTYPE(DrivableVehicleTandem);
+
+public:
+    DrivableVehicleTandem();
+    ~DrivableVehicleTandem();
+
+    void SpawnTurret(Event* ev);
+    void UpdateTurretSlot(int iSlot) override;
+};

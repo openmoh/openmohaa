@@ -22,5 +22,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DrivableVehicleTandem.h"
 
-// FIXME: unimplemented
+CLASS_DECLARATION(DrivableVehicle, DrivableVehicleTandem, "DrivableVehicleTandem") {
+    {NULL, NULL}
+};
+
+DrivableVehicleTandem::DrivableVehicleTandem()
+{
+    // FIXME: unimplemented
+}
+
+DrivableVehicleTandem::~DrivableVehicleTandem()
+{
+    // FIXME: unimplemented
+}
+
+void DrivableVehicleTandem::SpawnTurret(Event* ev)
+{
+    // FIXME: unimplemented
+}
+
+void DrivableVehicleTandem::UpdateTurretSlot(int iSlot)
+{
+    // FIXME: unimplemented
+}
 
