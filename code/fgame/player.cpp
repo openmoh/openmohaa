@@ -10545,7 +10545,7 @@ void Player::SetViewangles(Event *ev)
 
 void Player::GetViewangles(Event *ev)
 {
-    ev->AddVector(v_angle);
+    ev->AddVector(GetVAngles());
 }
 
 void Player::EventGetUseHeld(Event *ev)
