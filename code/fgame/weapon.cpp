@@ -142,7 +142,8 @@ Event EV_Weapon_FillClip
 );
 Event EV_Weapon_EmptyClip
 (
-    "clip_empty", EV_DEFAULT,
+    "clip_empty",
+    EV_DEFAULT,
     NULL,
     NULL,
     "Empties the weapon's clip of ammo,"
@@ -886,7 +887,7 @@ CLASS_DECLARATION(Item, Weapon, NULL) {
     {&EV_Weapon_AddToClip,              &Weapon::AddToAmmoClip          },
     {&EV_Weapon_SetMaxRange,            &Weapon::SetMaxRangeEvent       },
     {&EV_Weapon_SetMinRange,            &Weapon::SetMinRangeEvent       },
-    {&EV_Weapon_FireDelay,           &Weapon::SetFireDelay           },
+    {&EV_Weapon_FireDelay,              &Weapon::SetFireDelay           },
     {&EV_Weapon_NotDroppable,           &Weapon::NotDroppableEvent      },
     {&EV_Weapon_SetAimAnim,             &Weapon::SetAimAnim             },
     {&EV_Weapon_Shoot,                  &Weapon::Shoot                  },
@@ -1595,13 +1596,10 @@ out:
 void Weapon::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forward, vec3_t right, vec3_t up)
 {
     orientation_t weap_or, barrel_or, orient;
-    //orientation_t	view_or;
-    Vector  pos, f, r, u, aim_dir;
-    Vector  vAng;
-    vec3_t  mat[3] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int     i, tagnum;
-    Player *owner;
-    //qboolean		bViewShot;
+    Vector        delta;
+    Vector        aim_angles;
+    int           tagnum;
+    int           i;
 
     owner = (Player *)this->owner.Pointer();
     assert(owner);
@@ -1614,35 +1612,8 @@ void Weapon::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forwar
         }
     }
 
-    // If this is a crosshair or torsoaim weapon, then the dir is specified by the player's torso angles
-    if (crosshair) {
-        Player *player;
-
-        // Use the player's torso angles to determine direction, but use the actual barrel to determine position
-
-        player = (Player *)owner;
-        AngleVectors(player->GetViewAngles(), f, r, u);
-
-        if (forward) {
-            VectorCopy(f, forward);
-        }
-        if (right) {
-            VectorCopy(r, right);
-        }
-        if (up) {
-            VectorCopy(u, up);
-        }
-    }
-
-    if (current_attachToTag.length()) {
+    if (owner) {
         tagnum = gi.Tag_NumForName(owner->edict->tiki, current_attachToTag.c_str());
-
-        if (tagnum < 0) {
-            warning("Weapon::GetMuzzlePosition", "Could not find tag \"%s\"", current_attachToTag.c_str());
-            pos = owner->origin;
-            AnglesToAxis(owner->angles, mat);
-            goto out;
-        }
 
         // Get the orientation based on the frame and anim stored off in the owner.
         // This is to prevent weird timing with getting orientations on different frames of firing
@@ -1651,159 +1622,75 @@ void Weapon::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forwar
 
         orient = G_TIKI_Orientation(owner->edict, tagnum);
 
-        for (i = 0; i < 3; i++) {
-            VectorMA(weap_or.origin, orient.origin[i], owner->orientation[i], weap_or.origin);
-        }
-
-        MatrixMultiply(orient.axis, owner->orientation, weap_or.axis);
-    } else {
-        VectorCopy(origin, weap_or.origin);
-        AnglesToAxis(angles, weap_or.axis);
-    }
-
-    if (!IsSubclassOfTurretGun()) {
-        if ((weapon_class & WEAPON_CLASS_THROWABLE)) {
-            AngleVectors(owner->GetViewAngles(), mat[0], mat[1], mat[2]);
-        }
-
-        pos = owner->EyePosition();
-        VectorCopy(pos, weap_or.origin);
-    } else {
-        // using the weapon's current origin
-        VectorCopy(origin, weap_or.origin);
-        AnglesToAxis(angles, weap_or.axis);
-    }
-
-    // For debugging
-    G_DrawCoordSystem(weap_or.origin, weap_or.axis[0], weap_or.axis[1], weap_or.axis[2], 50);
-    pos = weap_or.origin;
-
-    // Get the tag_barrel orientation from the weapon
-    if (!vBarrelPos || !this->GetRawTag(GetTagBarrel(), &barrel_or)) {
-        //warning( "Weapon::GetMuzzlePosition", "Could not find tag_barrel\n" );
-
         if (owner->IsSubclassOfPlayer()) {
-            Player *player = (Player *)owner;
-            AnglesToAxis(player->GetViewAngles(), weap_or.axis);
+            Player *player;
+
+            // Use the player's torso angles to determine direction, but use the actual barrel to determine position
+
+            player = static_cast<Player *>(owner.Pointer());
+
+            if (forward || right || up) {
+                AngleVectors(player->m_vViewAng, forward, right, up);
+            }
+
+            VectorCopy(player->m_vViewPos, position);
+
+            if (this->GetRawTag(GetTagBarrel(), &barrel_or) && vBarrelPos) {
+                VectorCopy(owner->origin, vBarrelPos);
+                for (i = 0; i < 3; i++) {
+                    VectorMA(vBarrelPos, orient.origin[i], owner->orientation[i], vBarrelPos);
+                }
+
+                MatrixMultiply(orient.axis, owner->orientation, weap_or.axis);
+                for (i = 0; i < 3; i++) {
+                    VectorMA(vBarrelPos, barrel_or.origin[i], weap_or.axis[i], vBarrelPos);
+                }
+            } else if (vBarrelPos) {
+                VectorCopy(position, vBarrelPos);
+            }
         } else {
-            AnglesToAxis(owner->angles, weap_or.axis);
-        }
+            VectorCopy(owner->origin, position);
 
-        AxisCopy(weap_or.axis, mat);
+            for (i = 0; i < 3; i++) {
+                VectorMA(position, orient.origin[i], owner->orientation[i], position);
+            }
 
-        if (vBarrelPos) {
-            VectorCopy(weap_or.origin, vBarrelPos);
-        }
+            MatrixMultiply(orient.axis, owner->orientation, weap_or.axis);
 
-        goto out;
-    }
+            if (this->GetRawTag(GetTagBarrel(), &barrel_or)) {
+                for (i = 0; i < 3; i++) {
+                    VectorMA(position, barrel_or.origin[i], weap_or.axis[i], position);
+                }
+            }
 
-    if (owner->IsSubclassOfPlayer() && !IsSubclassOfTurretGun()) {
-        if (vBarrelPos) {
-            VectorCopy(origin, vBarrelPos);
+            if (vBarrelPos) {
+                VectorCopy(position, vBarrelPos);
+            }
+
+            delta      = owner->GunTarget() - position;
+            aim_angles = delta.toAngles();
+
+            if (forward || right || up) {
+                AngleVectors(aim_angles, forward, right, up);
+            }
         }
     } else {
-        // Translate the barrel's orientation through the weapon's orientation
-        VectorCopy(weap_or.origin, pos);
-
-        for (i = 0; i < 3; i++) {
-            VectorMA(pos, barrel_or.origin[i], weap_or.axis[i], pos);
+        if (forward || right || up) {
+            AngleVectors(angles, forward, right, up);
         }
 
-        MatrixMultiply(barrel_or.axis, weap_or.axis, mat);
+        VectorCopy(origin, position);
+
+        if (this->GetRawTag(GetTagBarrel(), &barrel_or)) {
+            AnglesToAxis(angles, weap_or.axis);
+
+            for (i = 0; i < 3; i++) {
+                VectorMA(position, barrel_or.origin[i], weap_or.axis[i], position);
+            }
+        }
 
         if (vBarrelPos) {
-            VectorCopy(pos, vBarrelPos);
-        }
-    }
-
-#if 0
-	gi.DPrintf( "own_angles: %0.2f %0.2f %0.2f\n", owner->angles[0], owner->angles[1], owner->angles[2] );
-	gi.DPrintf( "own_orient: %0.2f %0.2f %0.2f\n", owner->orientation[0][0], owner->orientation[0][1], owner->orientation[0][2] );
-	gi.DPrintf( "bone forward:  %0.2f %0.2f %0.2f\n", orient.axis[0][0], orient.axis[0][1], orient.axis[0][2] );
-	gi.DPrintf( "barrel forward: %0.2f %0.2f %0.2f\n", barrel_or.axis[0][0], barrel_or.axis[0][1], barrel_or.axis[0][2] );
-	gi.DPrintf( "weapon forward: %0.2f %0.2f %0.2f\n", weap_or.axis[0][0], weap_or.axis[0][1], weap_or.axis[0][2] );
-	gi.DPrintf( "mat forward: %0.2f %0.2f %0.2f\n \n", mat[0][0], mat[0][1], mat[0][2] );
-#endif
-
-    // Ok - we now have a position, forward, right, and up
-out:
-
-    // For debugging
-    G_DrawCoordSystem(pos, mat[0], mat[1], mat[2], 30);
-
-    if (position) {
-        VectorCopy(pos, position);
-    }
-
-    if (!forward && !right && !up) {
-        return;
-    }
-
-    if (!IsSubclassOfTurretGun() && owner && owner->IsSubclassOfPlayer()) {
-        // ...
-        // fixme?
-    }
-
-    if (pos != vec_zero) {
-        // ffs, wondering how they fucking done it in mohaaa...
-        //aim_dir = barrel_or.origin - pos;
-        //aim_dir.normalize();
-
-        AngleVectors(owner->GetViewAngles(), aim_dir, NULL, NULL);
-
-        if (!IsSubclassOfVehicleTurretGun()) {
-            goto out2;
-        }
-
-        Vector ang;
-
-        vectoangles(mat[0], ang);
-
-        // this is a part of the most annoying function to reverse ever
-        // fixme
-    }
-
-    // If there is a target, then use the dir based on that
-    if (aim_target) {
-        aim_dir = aim_target->centroid - pos;
-        aim_dir.normalize();
-
-        if (!IsSubclassOfTurretGun()) {
-        out2:
-            AngleVectors(aim_dir.toAngles(), mat[0], mat[1], mat[2]);
-
-            if (forward) {
-                VectorCopy(mat[0], forward);
-            }
-            if (right) {
-                VectorCopy(mat[1], right);
-            }
-            if (up) {
-                VectorCopy(mat[2], up);
-            }
-
-            return;
-        }
-
-        Vector ang;
-
-        vectoangles(mat[0], ang);
-
-        // again a very annoying part to reverse
-        // fixme
-    }
-
-    // If this weapon doesn't have a crosshair specified, then use the mat from the barrel for the directions
-    if (!crosshair) {
-        if (forward) {
-            VectorCopy(mat[0], forward);
-        }
-        if (right) {
-            VectorCopy(mat[1], right);
-        }
-        if (up) {
-            VectorCopy(mat[2], up);
+            VectorCopy(position, vBarrelPos);
         }
     }
 }
@@ -2518,10 +2405,8 @@ qboolean Weapon::Drop(void)
 //======================
 void Weapon::Charge(firemode_t mode)
 {
-    if (mode == FIRE_PRIMARY)
-    {
-        if (m_fCookTime > 0)
-        {
+    if (mode == FIRE_PRIMARY) {
+        if (m_fCookTime > 0) {
             m_eCookModeIndex = mode;
             //
             // Post cook event
@@ -2530,19 +2415,16 @@ void Weapon::Charge(firemode_t mode)
             PostEvent(EV_OverCooked_Warning, m_fCookTime - 1);
         }
         SetWeaponAnim("charge");
-    }
-    else if (mode == FIRE_SECONDARY)
-	{
-		if (m_fCookTime > 0)
-		{
-			m_eCookModeIndex = mode;
-			//
-			// Post cook event
-			//
-			PostEvent(EV_OverCooked, m_fCookTime);
-			PostEvent(EV_OverCooked_Warning, m_fCookTime - 1);
-		}
-		SetWeaponAnim("secondarycharge");
+    } else if (mode == FIRE_SECONDARY) {
+        if (m_fCookTime > 0) {
+            m_eCookModeIndex = mode;
+            //
+            // Post cook event
+            //
+            PostEvent(EV_OverCooked, m_fCookTime);
+            PostEvent(EV_OverCooked_Warning, m_fCookTime - 1);
+        }
+        SetWeaponAnim("secondarycharge");
     }
 }
 
@@ -2613,8 +2495,8 @@ void Weapon::OnOverCooked(Event *ev)
 void Weapon::ReleaseFire(firemode_t mode, float charge_time)
 {
     // Make sure to stop the wepaon from cooking
-	CancelEventsOfType(EV_OverCooked);
-	CancelEventsOfType(EV_OverCooked_Warning);
+    CancelEventsOfType(EV_OverCooked);
+    CancelEventsOfType(EV_OverCooked_Warning);
 
     // Calculate and store off the charge fraction to use when the weapon actually shoots
 
@@ -3304,21 +3186,21 @@ void Weapon::FillAmmoClip(Event *ev)
 
     if (UnlimitedAmmo(FIRE_PRIMARY)) {
         // reload directly
-		ammo_in_clip[FIRE_PRIMARY] = ammo_clip_size[0];
+        ammo_in_clip[FIRE_PRIMARY] = ammo_clip_size[0];
     } else {
         // Calc the amount the clip should get
-		amount = ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY];
+        amount = ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY];
 
-		// use up the ammo from the player
-		amount_used = owner->UseAmmo(ammo_type[FIRE_PRIMARY], amount);
+        // use up the ammo from the player
+        amount_used = owner->UseAmmo(ammo_type[FIRE_PRIMARY], amount);
 
-		// Stick it in the clip
-		ammo_in_clip[FIRE_PRIMARY] = amount_used + ammo_in_clip[FIRE_PRIMARY];
-	}
+        // Stick it in the clip
+        ammo_in_clip[FIRE_PRIMARY] = amount_used + ammo_in_clip[FIRE_PRIMARY];
+    }
 
-	owner->AmmoAmountInClipChanged(ammo_type[FIRE_PRIMARY], ammo_in_clip[FIRE_PRIMARY]);
+    owner->AmmoAmountInClipChanged(ammo_type[FIRE_PRIMARY], ammo_in_clip[FIRE_PRIMARY]);
 
-	SetShouldReload(qfalse);
+    SetShouldReload(qfalse);
 }
 
 //======================
@@ -3352,14 +3234,14 @@ void Weapon::AddToAmmoClip(Event *ev)
 
     if (!ammo_clip_size[FIRE_PRIMARY] || !owner) {
         return;
-	}
+    }
 
-	// Calc the amount the clip should get
-	amount = ev->GetInteger(1);
+    // Calc the amount the clip should get
+    amount = ev->GetInteger(1);
 
-	if (amount > ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY]) {
-		amount = ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY];
-	}
+    if (amount > ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY]) {
+        amount = ammo_clip_size[FIRE_PRIMARY] - ammo_in_clip[FIRE_PRIMARY];
+    }
 
     if (UnlimitedAmmo(FIRE_PRIMARY)) {
         // Stick it in the clip
@@ -3370,11 +3252,11 @@ void Weapon::AddToAmmoClip(Event *ev)
 
         // Stick it in the clip
         ammo_in_clip[FIRE_PRIMARY] = amount_used + ammo_in_clip[FIRE_PRIMARY];
-	}
+    }
 
-	owner->AmmoAmountInClipChanged(ammo_type[FIRE_PRIMARY], ammo_in_clip[FIRE_PRIMARY]);
+    owner->AmmoAmountInClipChanged(ammo_type[FIRE_PRIMARY], ammo_in_clip[FIRE_PRIMARY]);
 
-	SetShouldReload(qfalse);
+    SetShouldReload(qfalse);
 }
 
 //======================
@@ -3610,9 +3492,6 @@ qboolean Weapon::Pickupable(Entity *other)
     }
 
     sen = (Sentient *)other;
-
-    //FIXME
-    // This should be in player
 
     // If we have the weapon and weapons stay, then don't pick it up
     if (((int)(dmflags->integer) & DF_WEAPONS_STAY) && !(spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM))) {
@@ -4520,7 +4399,8 @@ const_str Weapon::GetWeaponGroup(void) const
 //======================
 void Weapon::SetItemSlot(int slot)
 {
-    // FIXME: unimplemented
+    weapon_class &= WEAPON_CLASS_ITEM_SLOT_BITS;
+    weapon_class |= slot & WEAPON_CLASS_ITEM_SLOT_BITS;
 }
 
 //======================
