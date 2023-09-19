@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // vehicleturret.h: Vehicle Turret.
 //
 
-#ifndef __VEHICLETURRET_H__
-#define __VEHICLETURRET_H__
+#pragma once
 
 #include "weapturret.h"
 #include "vehicle.h"
@@ -63,7 +62,9 @@ public:
     VehicleTurretGun();
     virtual ~VehicleTurretGun();
 
-    void         Think(void) override;
+    void Think(void) override;
+    void P_UserAim(usercmd_t *ucmd) override;
+
     void         SetBaseOrientation(float (*borientation)[3], float *bangles);
     void         SetBaseEntity(Entity *e);
     void         SetVehicleOwner(Entity *e);
@@ -106,13 +107,65 @@ public:
     Entity *GetParent() const;
     float   GetWarmupFraction() const;
 
+    qboolean ReadyToFire(firemode_t mode, qboolean playsound) override;
+    void     AdjustReloadStatus();
+    void     GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forward, vec3_t right, vec3_t up) override;
+    void     ApplyFireKickback(const Vector    &org, float kickback) override;
+    float    FireDelay(firemode_t mode) override;
+
+    void      SetWarmupDelay(Event *ev);
+    void      SetFireWarmupDelay(Event *ev);
+    void      SetReloadDelay(Event *ev);
+    void      SetReloadShots(Event *ev);
+    void      SetAimOffset(Event *ev);
+    void      SetAimTolerance(Event *ev);
+    void      SetTargetEntity(Event *ev);
+    void      PlayReloadSound(Event *ev);
+    void      SetTargetEntity(Entity *ent);
+    void      UpdateAndMoveOwner();
+    void      UpdateTimers(float     &yawTimer, float     &pitchTimer);
+    void      UpdateCaps(float maxYawOffset, float maxPitchOffset);
+    void      IdleToRestPosition();
+    void      UpdateFireControl();
+    void      UpdateCollisionEntity();
+    EntityPtr GetVehicle() const;
+
     void Archive(Archiver& arc) override;
 };
 
-inline bool VehicleTurretGun::IsRemoteControlled()
+class VehicleTurretGunTandem : public VehicleTurretGun
 {
-    // FIXME: unimplemented
-    return false;
-}
+private:
 
-#endif // __VEHICLETURRET_H__
+public:
+    CLASS_PROTOTYPE(VehicleTurretGunTandem);
+
+public:
+    VehicleTurretGunTandem();
+    ~VehicleTurretGunTandem();
+
+    void EventLinkTurret(Event *ev);
+    void AttachLinkedTurret(Entity *ent);
+    void UpdateLinkedTurret();
+    void OpenSlotsByModel();
+
+    void        Think() override;
+    bool        IsRemoteControlled() override;
+    SentientPtr GetRemoteOwner() override;
+    void        ThinkSecondary();
+    void        ThinkPrimary();
+
+    void SetPrimaryTurret(VehicleTurretGunTandem *pTurret);
+
+    void RemoteControl(usercmd_t *ucmd, Sentient *owner) override;
+    void RemoteControlSecondary(usercmd_t *ucmd, Sentient *owner);
+    void RemoteControlFire(usercmd_t *ucmd, Sentient *owner);
+
+    void EventSetSwitchThread(Event *ev);
+    void SwitchToLinkedTurret();
+    void SetActiveTurret(VehicleTurretGunTandem *pTurret);
+
+    void RestrictYaw();
+
+    void Archive(Archiver& arc);
+};
