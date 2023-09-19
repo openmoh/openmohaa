@@ -23,63 +23,65 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "vehicle.h"
 #include "player.h"
 
-CLASS_DECLARATION(DrivableVehicle, VehicleWheelsX2, "VehicleWheelsX2")
-{
-	{ &EV_Damage, &VehicleWheelsX2::EventDamage },
-	{ &EV_Killed, &VehicleWheelsX2::Killed },
-	{ NULL, NULL }
+CLASS_DECLARATION(DrivableVehicle, VehicleWheelsX2, "VehicleWheelsX2") {
+    {&EV_Damage, &VehicleWheelsX2::EventDamage},
+    {&EV_Killed, &VehicleWheelsX2::Killed     },
+    {NULL,       NULL                         }
 };
 
 VehicleWheelsX2::VehicleWheelsX2()
 {
-	m_iGear = 1;
-	m_iRPM = 0;
-	gravity = 1.0;
-	m_fDifferentialRatio = 4.8800001f;
-	m_fGearEfficiency = 0.69999999f;
-	m_fGearRatio[0] = -2.9400001f;
-	m_fGearRatio[1] = 2.9400001f;
-	m_fGearRatio[2] = 1.9400001f;
-	m_fGearRatio[3] = 1.0f;
-	m_fAccelerator = 0.0f;
-	m_bAutomatic = qtrue;
-	m_bBackSlipping = qfalse;
-	m_bFrontSlipping = qfalse;
+    m_iGear              = 1;
+    m_iRPM               = 0;
+    gravity              = 1.0;
+    m_fDifferentialRatio = 4.8800001f;
+    m_fGearEfficiency    = 0.69999999f;
+    m_fGearRatio[0]      = -2.9400001f;
+    m_fGearRatio[1]      = 2.9400001f;
+    m_fGearRatio[2]      = 1.9400001f;
+    m_fGearRatio[3]      = 1.0f;
+    m_fAccelerator       = 0.0f;
+    m_bAutomatic         = qtrue;
+    m_bBackSlipping      = qfalse;
+    m_bFrontSlipping     = qfalse;
 }
 
-void VehicleWheelsX2::UpdateVariables(Vector *acceleration, Vector *vpn, Vector *vup, Vector *vright, Vector *t_vpn, Vector *t_vup, Vector *t_vright)
+void VehicleWheelsX2::UpdateVariables(
+    Vector *acceleration, Vector *vpn, Vector *vup, Vector *vright, Vector *t_vpn, Vector *t_vup, Vector *t_vright
+)
 {
-	// FIXME: STUB
+    // FIXME: STUB
 }
 
 float VehicleWheelsX2::TorqueLookup(int rpm)
 {
-	if (rpm <= 2099)
-		return 100.0;
-	if (rpm > 3599)
-		return 0.0;
-	return (100 * (3600 - rpm)) * 0.001;
+    if (rpm <= 2099) {
+        return 100.0;
+    }
+    if (rpm > 3599) {
+        return 0.0;
+    }
+    return (100 * (3600 - rpm)) * 0.001;
 }
 
 void VehicleWheelsX2::Think()
 {
-	vmove_t vm;
+    vmove_t vm;
 
-	flags |= FL_POSTTHINK;
-	prev_velocity = velocity;
+    flags |= FL_POSTTHINK;
+    prev_velocity = velocity;
 
-	SetMoveInfo(&vm);
-	VmoveSingle(&vm);
-	GetMoveInfo(&vm);
+    SetMoveInfo(&vm);
+    VmoveSingle(&vm);
+    GetMoveInfo(&vm);
 }
 
 void VehicleWheelsX2::Postthink()
 {
-	// FIXME: STUB
+    // FIXME: STUB
 }
 
-void VehicleWheelsX2::Killed(Event* ev)
+void VehicleWheelsX2::Killed(Event *ev)
 {
-	deadflag = DEAD_DEAD;
+    deadflag = DEAD_DEAD;
 }
-

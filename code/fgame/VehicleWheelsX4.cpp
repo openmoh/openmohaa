@@ -23,68 +23,71 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "vehicle.h"
 #include "player.h"
 
-CLASS_DECLARATION(DrivableVehicle, VehicleWheelsX4, "VehicleWheelsX4")
-{
-	{ &EV_Damage, &VehicleWheelsX4::EventDamage },
-	{ &EV_Killed, &VehicleWheelsX4::Killed },
-	{ NULL, NULL }
+CLASS_DECLARATION(DrivableVehicle, VehicleWheelsX4, "VehicleWheelsX4") {
+    {&EV_Damage, &VehicleWheelsX4::EventDamage},
+    {&EV_Killed, &VehicleWheelsX4::Killed     },
+    {NULL,       NULL                         }
 };
 
 VehicleWheelsX4::VehicleWheelsX4()
 {
-	m_iGear = 1;
-	m_iRPM = 0;
-	gravity = 1.0;
-	m_fDifferentialRatio = 4.8800001f;
-	m_fGearEfficiency = 0.69999999f;
-	m_fGearRatio[0] = -2.9400001f;
-	m_fGearRatio[1] = 2.9400001f;
-	m_fGearRatio[2] = 1.9400001f;
-	m_fGearRatio[3] = 1.0f;
-	m_fAccelerator = 0.0f;
-	m_bBackSlipping = qfalse;
-	m_bAutomatic = qtrue;
-	m_bFrontSlipping = qfalse;
+    m_iGear              = 1;
+    m_iRPM               = 0;
+    gravity              = 1.0;
+    m_fDifferentialRatio = 4.8800001f;
+    m_fGearEfficiency    = 0.69999999f;
+    m_fGearRatio[0]      = -2.9400001f;
+    m_fGearRatio[1]      = 2.9400001f;
+    m_fGearRatio[2]      = 1.9400001f;
+    m_fGearRatio[3]      = 1.0f;
+    m_fAccelerator       = 0.0f;
+    m_bBackSlipping      = qfalse;
+    m_bAutomatic         = qtrue;
+    m_bFrontSlipping     = qfalse;
 }
 
-void VehicleWheelsX4::UpdateVariables(Vector *acceleration, Vector *vpn, Vector *vup, Vector *vright, Vector *t_vpn, Vector *t_vup, Vector *t_vright)
+void VehicleWheelsX4::UpdateVariables(
+    Vector *acceleration, Vector *vpn, Vector *vup, Vector *vright, Vector *t_vpn, Vector *t_vup, Vector *t_vright
+)
 {
-	// FIXME: STUB
+    // FIXME: STUB
 }
 
 float VehicleWheelsX4::TorqueLookup(int rpm)
 {
-	if (rpm <= 2099)
-		return 20.0;
-	if (rpm > 3599)
-		return 0.0;
-	return (20 * (3600 - rpm)) * 0.001;
+    if (rpm <= 2099) {
+        return 20.0;
+    }
+    if (rpm > 3599) {
+        return 0.0;
+    }
+    return (20 * (3600 - rpm)) * 0.001;
 }
 
 void VehicleWheelsX4::Think()
 {
-	vmove_t vm;
-	flags |= FL_POSTTHINK;
-	
-	prev_velocity = velocity;
+    vmove_t vm;
+    flags |= FL_POSTTHINK;
 
-	angles -= m_vAnglesOffset;
-	origin -= m_vOriginOffset;
+    prev_velocity = velocity;
 
-	mins = m_vOldMins;
-	maxs = m_vOldMaxs;
+    angles -= m_vAnglesOffset;
+    origin -= m_vOriginOffset;
 
-	SetMoveInfo(&vm);
-	VmoveSingle(&vm);
-	GetMoveInfo(&vm);
+    mins = m_vOldMins;
+    maxs = m_vOldMaxs;
+
+    SetMoveInfo(&vm);
+    VmoveSingle(&vm);
+    GetMoveInfo(&vm);
 }
 
 void VehicleWheelsX4::Postthink()
 {
-	// FIXME: STUB
+    // FIXME: STUB
 }
 
-void VehicleWheelsX4::Killed(Event* ev)
+void VehicleWheelsX4::Killed(Event *ev)
 {
-	deadflag = DEAD_DEAD;
+    deadflag = DEAD_DEAD;
 }
