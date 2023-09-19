@@ -21,3 +21,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #pragma once
+
+#include "vehicle.h"
+
+class VehicleTankTandem : public VehicleTank
+{
+private:
+    CLASS_PROTOTYPE(VehicleTankTandem);
+
+public:
+    VehicleTankTandem();
+    ~VehicleTankTandem();
+
+    void SpawnTurret(Event *ev);
+    void UpdateTurretSlot(int iSlot) override;
+};

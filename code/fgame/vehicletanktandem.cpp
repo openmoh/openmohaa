@@ -22,5 +22,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "vehicletanktandem.h"
 
-// FIXME: unimplemented
+CLASS_DECLARATION(VehicleTank, VehicleTankTandem, "VehicleTankTandem") {
+    {NULL, NULL}
+};
 
+VehicleTankTandem::VehicleTankTandem()
+{
+    // FIXME: unimplemented
+}
+
+VehicleTankTandem::~VehicleTankTandem()
+{
+    // FIXME: unimplemented
+}
+
+void VehicleTankTandem::SpawnTurret(Event *ev)
+{
+    // FIXME: unimplemented
+}
+
+void VehicleTankTandem::UpdateTurretSlot(int iSlot)
+{
+    // FIXME: unimplemented
+}
