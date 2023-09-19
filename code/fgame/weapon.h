@@ -254,7 +254,7 @@ protected:
     void         EmptyAmmoClip(Event *ev);
     void         AddToAmmoClip(Event *ev);
     void         DoneReloading(Event *ev);
-    void         ApplyFireKickback(const Vector        &org, float kickback);
+    virtual void ApplyFireKickback(const Vector& org, float kickback);
     void         SetAimAnim(Event *ev);
     virtual void Shoot(Event *ev);
     void         Secondary(Event *ev);
@@ -379,8 +379,8 @@ public:
     void     SetShouldReload(qboolean should_reload);
     void     StartReloading(void);
 
-    qboolean ReadyToFire(firemode_t mode, qboolean playsound = qtrue);
-    qboolean MuzzleClear(void);
+    virtual qboolean ReadyToFire(firemode_t mode, qboolean playsound = qtrue);
+    qboolean         MuzzleClear(void);
 
     void         PutAway(void);
     qboolean     Drop(void) override;
