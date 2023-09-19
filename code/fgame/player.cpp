@@ -7204,17 +7204,17 @@ void Player::UpdateStats(void)
 
         if (weapon->IsSubclassOfWeapon()) {
             if (weapon->IsSubclassOfInventoryItem()) {
-                if (iItem <= 3) {
+                if (iItem > 3) {
+                    weapon->SetItemSlot(0);
+                } else {
                     client->ps.activeItems[iItem + 2] = weapon->getIndex();
-                    weapon->weapon_class              = ((256 << iItem) & WEAPON_CLASS_ITEMINDEX) | (weapon->weapon_class & ~WEAPON_CLASS_ITEMINDEX);
+                    weapon->SetItemSlot(256 << iItem);
 
                     if (activeweap && weapon == activeweap) {
                         client->ps.stats[STAT_EQUIPPED_WEAPON] = 256 << iItem;
                     }
 
                     iItem++;
-                } else {
-                    weapon->weapon_class &= ~WEAPON_CLASS_ITEMINDEX;
                 }
             } else {
                 weapon_class = weapon->GetWeaponClass();
