@@ -21,3 +21,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #pragma once
+
+#include "animate.h"
+
+class DamageModel : public Animate
+{
+private:
+    ScriptThreadLabel label;
+    EntityPtr         boundingBoxEnt;
+
+private:
+    CLASS_PROTOTYPE(DamageModel);
+
+public:
+    DamageModel();
+    ~DamageModel();
+
+    void Setup(Event *ev);
+    void Damaged(Event *ev);
+    void Killed(Event *ev);
+    void KillTrace(Event *ev);
+    void SpawnOrientedBoundingBox(Event *ev);
+    void EventSetKillThread(Event *ev);
+
+    void Archive(Archiver& arc);
+};
