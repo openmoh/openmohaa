@@ -101,10 +101,10 @@ protected:
     void     EventAlwaysAway(Event *ev);
     void     EventDoorType(Event *ev);
 
-    void SetDoorType(str s);
+    void     SetDoorType(str s);
     qboolean BlocksAIMovement(void) const override;
     qboolean AIDontFace(void) const override;
-    void ShowInfo(float fDot, float fDist) override;
+    void     ShowInfo(float fDot, float fDist) override;
 
     void UpdatePathConnection(void);
     void SetLocked(qboolean newLocked);
@@ -118,6 +118,7 @@ public:
     Door();
     qboolean isOpen(void);
     qboolean isCompletelyClosed(void);
+    void     GetIsOpen(Event *ev);
     qboolean CanBeOpenedBy(Entity *ent);
     void     Archive(Archiver    &arc) override;
 };

@@ -37,19 +37,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "actor.h"
 #include "player.h"
 
-Event EV_Door_OpenStartSound(
-    "sound_open_start", EV_DEFAULT, "s", "sound_open_start", "Sets the sound to use when the door starts to opens."
+Event EV_Door_OpenStartSound
+(
+    "sound_open_start",
+    EV_DEFAULT,
+    "s",
+    "sound_open_start",
+    "Sets the sound to use when the door starts to opens."
 );
-Event EV_Door_OpenEndSound(
-    "sound_open_end", EV_DEFAULT, "s", "sound_open_end", "Sets the sound to use when the door stops to opens."
+Event EV_Door_OpenEndSound
+(
+    "sound_open_end",
+    EV_DEFAULT,
+    "s",
+    "sound_open_end",
+    "Sets the sound to use when the door stops to opens."
 );
-Event EV_Door_CloseStartSound(
-    "sound_close_start", EV_DEFAULT, "s", "sound_close", "Sets the sound to use when the door closes."
+Event EV_Door_CloseStartSound
+(
+    "sound_close_start",
+    EV_DEFAULT,
+    "s",
+    "sound_close",
+    "Sets the sound to use when the door closes."
 );
-Event EV_Door_CloseEndSound(
-    "sound_close_end", EV_DEFAULT, "s", "sound_close", "Sets the sound to use when the door closes."
+Event EV_Door_CloseEndSound
+(
+    "sound_close_end",
+    EV_DEFAULT,
+    "s",
+    "sound_close",
+    "Sets the sound to use when the door closes."
 );
-Event EV_Door_MessageSound(
+Event EV_Door_MessageSound
+(
     "sound_message",
     EV_DEFAULT,
     "s",
@@ -57,13 +78,26 @@ Event EV_Door_MessageSound(
     "Sets the sound to use when the door displays a message.",
     EV_NORMAL
 );
-Event EV_Door_LockedSound(
-    "sound_locked", EV_DEFAULT, "s", "sound_locked", "Sets the sound to use when the door is locked.", EV_NORMAL
+Event EV_Door_LockedSound
+(
+    "sound_locked",
+    EV_DEFAULT,
+    "s",
+    "sound_locked",
+    "Sets the sound to use when the door is locked.",
+    EV_NORMAL
 );
-Event EV_Door_SetWait(
-    "wait", EV_DEFAULT, "f", "wait", "Sets the amount of time to wait before automatically shutting.", EV_NORMAL
+Event EV_Door_SetWait
+(
+    "wait",
+    EV_DEFAULT,
+    "f",
+    "wait",
+    "Sets the amount of time to wait before automatically shutting.",
+    EV_NORMAL
 );
-Event EV_Door_SetDmg(
+Event EV_Door_SetDmg
+(
     "dmg",
     EV_DEFAULT,
     "i",
@@ -71,25 +105,143 @@ Event EV_Door_SetDmg(
     "Sets the amount of damage the door will do to entities that get stuck in it.",
     EV_NORMAL
 );
-Event EV_Door_TriggerFieldTouched(
-    "door_triggerfield", EV_DEFAULT, "e", "other", "Is called when a doors trigger field is touched.", EV_NORMAL
+Event EV_Door_TriggerFieldTouched
+(
+    "door_triggerfield",
+    EV_DEFAULT,
+    "e",
+    "other",
+    "Is called when a doors trigger field is touched.",
+    EV_NORMAL
 );
-Event EV_Door_TryOpen("tryToOpen", EV_DEFAULT, "e", "other", "Tries to open the door.", EV_NORMAL);
-Event EV_Door_Close("close", EV_DEFAULT, NULL, NULL, "Closes the door.", EV_NORMAL);
-Event EV_Door_Open("open", EV_DEFAULT, "e", "other", "Opens the door.", EV_NORMAL);
-Event EV_Door_DoClose("doclose", EV_DEFAULT, NULL, NULL, "Closes the door (special doors).", EV_NORMAL);
-Event EV_Door_DoOpen("doopen", EV_DEFAULT, "e", "other", "Opens the door (special doors).", EV_NORMAL);
-Event EV_Door_CloseEnd("doorclosed", EV_DEFAULT, NULL, NULL, "Called when the door finishes closing.", EV_NORMAL);
-Event EV_Door_OpenEnd("dooropened", EV_DEFAULT, NULL, NULL, "Called when the door finishes opening.", EV_NORMAL);
-Event EV_Door_Fire("toggledoor", EV_DEFAULT, "e", "other", "Toggles the state of the door (open/close).", EV_NORMAL);
-Event EV_Door_Link("linkdoor", EV_DEFAULT, NULL, NULL, "Link doors together.", EV_NORMAL);
-Event EV_Door_SetTime(
-    "time", EV_DEFAULT, "f", "traveltime", "Sets the time it takes for the door to open an close.", EV_NORMAL
+Event EV_Door_TryOpen
+(
+    "tryToOpen",
+    EV_DEFAULT,
+    "e",
+    "other",
+    "Tries to open the door.",
+    EV_NORMAL
 );
-Event EV_Door_Lock("lock", EV_DEFAULT, NULL, NULL, "Lock the door.", EV_NORMAL);
-Event EV_Door_Unlock("unlock", EV_DEFAULT, NULL, NULL, "Unlock the door.", EV_NORMAL);
-Event EV_Door_TrySolid("trysolid", EV_DEFAULT, NULL, NULL, "Trys to make the door solid.", EV_NORMAL);
-Event EV_Door_AlwaysAway(
+Event EV_Door_Close
+(
+    "close",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Closes the door.",
+    EV_NORMAL
+);
+Event EV_Door_Open
+(
+    "open",
+    EV_DEFAULT,
+    "e",
+    "other",
+    "Opens the door.",
+    EV_NORMAL
+);
+Event EV_Door_DoClose
+(
+    "doclose",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Closes the door (special doors).",
+    EV_NORMAL
+);
+Event EV_Door_DoOpen
+(
+    "doopen",
+    EV_DEFAULT,
+    "e",
+    "other",
+    "Opens the door (special doors).",
+    EV_NORMAL
+);
+Event EV_Door_CloseEnd
+(
+    "doorclosed",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Called when the door finishes closing.",
+    EV_NORMAL
+);
+Event EV_Door_OpenEnd
+(
+    "dooropened",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Called when the door finishes opening.",
+    EV_NORMAL
+);
+Event EV_Door_IsOpen
+(
+    "isopen",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Check to see if door is open (non-zero return value)",
+    EV_GETTER
+);
+Event EV_Door_Fire
+(
+    "toggledoor",
+    EV_DEFAULT,
+    "e",
+    "other",
+    "Toggles the state of the door (open/close).",
+    EV_NORMAL
+);
+Event EV_Door_Link
+(
+    "linkdoor",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Link doors together.",
+    EV_NORMAL
+);
+Event EV_Door_SetTime
+(
+    "time",
+    EV_DEFAULT,
+    "f",
+    "traveltime",
+    "Sets the time it takes for the door to open an close.",
+    EV_NORMAL
+);
+Event EV_Door_Lock
+(
+    "lock",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Lock the door.",
+    EV_NORMAL
+);
+Event EV_Door_Unlock
+(
+    "unlock",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Unlock the door.",
+    EV_NORMAL
+);
+Event EV_Door_TrySolid
+(
+    "trysolid",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Trys to make the door solid.",
+    EV_NORMAL
+);
+Event EV_Door_AlwaysAway
+(
     "alwaysaway",
     EV_DEFAULT,
     "B",
@@ -132,7 +284,7 @@ Door.enemy chains from the master door through all doors linked in the chain.
 
 */
 
-CLASS_DECLARATION(ScriptSlave, Door, "func_door") {
+CLASS_DECLARATION(ScriptSlave, Door, "NormalDoor") {
     {&EV_Door_OpenStartSound,      &Door::SetOpenStartSound },
     {&EV_Door_OpenEndSound,        &Door::SetOpenEndSound   },
     {&EV_Door_CloseStartSound,     &Door::SetCloseStartSound},
@@ -405,6 +557,11 @@ qboolean Door::isOpen(void)
 qboolean Door::isCompletelyClosed(void)
 {
     return (state == STATE_CLOSED);
+}
+
+void Door::GetIsOpen(Event *ev)
+{
+    ev->AddInteger(isOpen());
 }
 
 void Door::OpenEnd(Event *ev)
@@ -1024,8 +1181,14 @@ TARGETED door is only operational from triggers or script
 
 ******************************************************************************/
 
-Event EV_RotatingDoor_OpenAngle(
-    "openangle", EV_DEFAULT, "f", "open_angle", "Sets the open angle of the door.", EV_NORMAL
+Event EV_RotatingDoor_OpenAngle
+(
+    "openangle",
+    EV_DEFAULT,
+    "f",
+    "open_angle",
+    "Sets the open angle of the door.",
+    EV_NORMAL
 );
 
 CLASS_DECLARATION(Door, RotatingDoor, "func_rotatingdoor") {
@@ -1146,9 +1309,33 @@ TARGETED door is only operational from triggers or script
 
 ******************************************************************************/
 
-Event EV_SlidingDoor_Setup("setup", EV_CODEONLY, NULL, NULL, "Sets up the sliding door.", EV_NORMAL);
-Event EV_SlidingDoor_SetLip("lip", EV_DEFAULT, "f", "lip", "Sets the lip of the sliding door.", EV_NORMAL);
-Event EV_SlidingDoor_SetSpeed("speed", EV_DEFAULT, "f", "speed", "Sets the speed of the sliding door.", EV_NORMAL);
+Event EV_SlidingDoor_Setup
+(
+    "setup",
+    EV_CODEONLY,
+    NULL,
+    NULL,
+    "Sets up the sliding door.",
+    EV_NORMAL
+);
+Event EV_SlidingDoor_SetLip
+(
+    "lip",
+    EV_DEFAULT,
+    "f",
+    "lip",
+    "Sets the lip of the sliding door.",
+    EV_NORMAL
+);
+Event EV_SlidingDoor_SetSpeed
+(
+    "speed",
+    EV_DEFAULT,
+    "f",
+    "speed",
+    "Sets the speed of the sliding door.",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Door, SlidingDoor, "func_door") {
     {&EV_Door_DoClose,         &SlidingDoor::DoClose   },
@@ -1260,11 +1447,26 @@ TARGETED door is only operational from triggers or script
 
 ******************************************************************************/
 
-Event EV_ScriptDoor_DoInit("doinit", EV_DEFAULT, NULL, NULL, "Sets up the script door.", EV_NORMAL);
-Event EV_ScriptDoor_SetOpenThread(
-    "openthread", EV_DEFAULT, "s", "openthread", "Set the thread to run when the door is opened (required).", EV_NORMAL
+Event EV_ScriptDoor_DoInit
+(
+    "doinit",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Sets up the script door.",
+    EV_NORMAL
 );
-Event EV_ScriptDoor_SetCloseThread(
+Event EV_ScriptDoor_SetOpenThread
+(
+    "openthread",
+    EV_DEFAULT,
+    "s",
+    "openthread",
+    "Set the thread to run when the door is opened (required).",
+    EV_NORMAL
+);
+Event EV_ScriptDoor_SetCloseThread
+(
     "closethread",
     EV_DEFAULT,
     "s",
@@ -1272,7 +1474,8 @@ Event EV_ScriptDoor_SetCloseThread(
     "Set the thread to run when the door is closed (required).",
     EV_NORMAL
 );
-Event EV_ScriptDoor_SetInitThread(
+Event EV_ScriptDoor_SetInitThread
+(
     "initthread",
     EV_DEFAULT,
     "s",
