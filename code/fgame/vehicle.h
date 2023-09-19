@@ -420,7 +420,7 @@ protected:
 		void UpdateNormals( void );
 		void UpdateBones( void );
 		void UpdateShaderOffset( void );
-		void UpdateTurretSlot( int iSlot );
+		virtual void UpdateTurretSlot( int iSlot );
 		void UpdatePassengerSlot( int iSlot );
 		void UpdateDriverSlot( int iSlot );
 		float GetPathPosition( cSpline<4, 512> *pPath, int iNode );
