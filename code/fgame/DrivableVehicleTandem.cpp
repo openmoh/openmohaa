@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "DrivableVehicleTandem.h"
+#include "vehicleturret.h"
 
 CLASS_DECLARATION(DrivableVehicle, DrivableVehicleTandem, "DrivableVehicleTandem") {
     {NULL, NULL}
@@ -28,21 +29,36 @@ CLASS_DECLARATION(DrivableVehicle, DrivableVehicleTandem, "DrivableVehicleTandem
 
 DrivableVehicleTandem::DrivableVehicleTandem()
 {
-    // FIXME: unimplemented
 }
 
 DrivableVehicleTandem::~DrivableVehicleTandem()
 {
-    // FIXME: unimplemented
 }
 
 void DrivableVehicleTandem::SpawnTurret(Event* ev)
 {
-    // FIXME: unimplemented
+    VehicleTurretGunTandem* pTurret = new VehicleTurretGunTandem();
+    int slot;
+
+    pTurret->SetBaseOrientation(orientation, NULL);
+    pTurret->setModel(ev->GetString(2));
+
+    slot = ev->GetInteger(1);
+    AttachTurretSlot(slot, pTurret, vec_zero, NULL);
+    pTurret->SetVehicleOwner(this);
+
+    PostEvent(EV_TakeDamage, EV_POSTSPAWN);
+
+    UpdateTurretSlot(slot);
 }
 
 void DrivableVehicleTandem::UpdateTurretSlot(int iSlot)
 {
-    // FIXME: unimplemented
+    DrivableVehicle::UpdateTurretSlot(iSlot);
+
+    if (Turrets[iSlot].ent && Turrets[iSlot].ent->isSubclassOf(VehicleTurretGunTandem)) {
+        VehicleTurretGunTandem* pTurret = static_cast<VehicleTurretGunTandem*>(Turrets[iSlot].ent.Pointer());
+        pTurret->UpdateLinkedTurret();
+    }
 }
 
