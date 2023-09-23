@@ -33,7 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static const Vector g_vUserMins(-16, -16, 0);
 static const Vector g_vUserMaxs(16, 16, 96);
 
-static constexpr float MAX_TANDEM_YAWOFFSET = 0;
+static constexpr float MAX_TANDEM_YAW_OFFSET  = 0;
+static constexpr float MAX_VT_PITCHCAP_OFFSET = 0;
 
 Event EV_VehicleTurretGun_SetBaseEntity
 (
@@ -212,8 +213,8 @@ VehicleTurretGun::VehicleTurretGun()
     edict->s.eType = ET_MODELANIM;
     setRespawn(false);
 
-    respondto         = TRIGGER_PLAYERS | TRIGGER_MONSTERS;
-    edict->clipmask   = MASK_VEHICLETURRET;
+    respondto       = TRIGGER_PLAYERS | TRIGGER_MONSTERS;
+    edict->clipmask = MASK_VEHICLETURRET;
 
     m_bUsable         = true;
     m_bPlayerUsable   = true;
@@ -221,18 +222,18 @@ VehicleTurretGun::VehicleTurretGun()
     m_fIdlePitchSpeed = 0;
     m_iIdleHitCount   = 0;
 
-    takedamage        = DAMAGE_NO;
-    health            = 100.0f;
-    max_health        = 100.0f;
+    takedamage = DAMAGE_NO;
+    health     = 100.0f;
+    max_health = 100.0f;
 
     setSize(Vector(-16, -16, 0), Vector(16, 16, 32));
-    
-    m_fPitchUpCap       = -45;
-    m_fPitchDownCap     = 45;
-    m_fMaxYawOffset     = 180;
-    m_fTurnSpeed        = 160;
-    m_fAIPitchSpeed     = 48;
-    m_fUserDistance     = 64.0f;
+
+    m_fPitchUpCap   = -45;
+    m_fPitchDownCap = 45;
+    m_fMaxYawOffset = 180;
+    m_fTurnSpeed    = 160;
+    m_fAIPitchSpeed = 48;
+    m_fUserDistance = 64.0f;
     m_vIdleCheckOffset.setXYZ(-56, 0, 0);
 
     m_fMinBurstTime  = 0;
@@ -245,19 +246,19 @@ VehicleTurretGun::VehicleTurretGun()
     m_iFiring         = 0;
     m_bBOIsSet        = false;
 
-    m_pBaseEntity       = NULL;
-    m_vLastBaseAngles   = vec_zero;
-    m_vBaseAngles       = vec_zero;
+    m_pBaseEntity     = NULL;
+    m_vLastBaseAngles = vec_zero;
+    m_vBaseAngles     = vec_zero;
 
-    m_vBarrelPos        = origin;
-    m_vLastBarrelPos    = origin;
+    m_vBarrelPos     = origin;
+    m_vLastBarrelPos = origin;
 
     m_bUseRemoteControl = false;
     m_pVehicleOwner     = NULL;
 
-    m_bRemoveOnDeath    = true;
-    m_eSoundState       = ST_OFF;
-    m_fNextSoundState   = level.time;
+    m_bRemoveOnDeath  = true;
+    m_eSoundState     = STT_OFF;
+    m_fNextSoundState = level.time;
 
     m_fWarmupDelay         = 0;
     m_fFireWarmupDelay     = 0;
@@ -267,19 +268,20 @@ VehicleTurretGun::VehicleTurretGun()
     m_fReloadTimeRemaining = 0;
 
     m_iReloadShots = 1;
-    m_iAmmo = 1;
+    m_iAmmo        = 1;
 
     ammo_in_clip[FIRE_PRIMARY]   = m_iAmmo;
     ammo_clip_size[FIRE_PRIMARY] = m_iReloadShots;
 
-    m_vAimOffset[0]     = 0;
-    m_vAimOffset[1]     = 0;
-    m_vAimOffset[2]     = 0;
+    m_vAimOffset[0]    = 0;
+    m_vAimOffset[1]    = 0;
+    m_vAimOffset[2]    = 0;
     m_vAimTolerance[0] = 20;
     m_vAimTolerance[1] = 20;
 
-    m_bLocked           = true;
-    m_sSoundSet         = "";
+    m_bLocked    = true;
+    m_bLockedAim = false;
+    m_sSoundSet  = "";
 }
 
 VehicleTurretGun::~VehicleTurretGun()
@@ -295,12 +297,119 @@ VehicleTurretGun::~VehicleTurretGun()
 
 void VehicleTurretGun::Think(void)
 {
-    // FIXME: unimplemented
+    Sentient *sentOwner;
+    float     yawOffset, pitchOffset;
+
+    if (m_pCollisionEntity) {
+        m_pCollisionEntity->NotSolid();
+    }
+
+    sentOwner = GetSentientOwner();
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER && m_pRemoteOwner && m_pRemoteOwner->isSubclassOf(Player)) {
+        // always render the turret
+        edict->s.renderfx |= RF_DEPTHHACK;
+    } else {
+        edict->s.renderfx &= ~RF_DEPTHHACK;
+    }
+
+    UpdateTimers(yawOffset, pitchOffset);
+
+    if (owner) {
+        UpdateAndMoveOwner();
+        UpdateCaps(yawOffset, pitchOffset);
+    } else if (m_bUseRemoteControl) {
+        UpdateRemoteControl();
+        UpdateCaps(yawOffset, pitchOffset);
+    } else if (aim_target) {
+        UpdateAimTarget();
+        UpdateCaps(yawOffset, pitchOffset);
+    } else if (m_bRestable) {
+        IdleToRestPosition();
+    }
+
+    UpdateOrientation(false);
+    UpdateSound();
+    UpdateFireControl();
+
+    sentOwner = GetSentientOwner();
+    if (sentOwner) {
+        G_TouchTriggers(sentOwner);
+        UpdateOwner(sentOwner);
+    }
+
+    UpdateCollisionEntity();
 }
 
 void VehicleTurretGun::P_UserAim(usercmd_t *ucmd)
 {
-    // FIXME: unimplemented
+    Vehicle *pVehicle;
+    int      slot;
+    int      newSlot;
+
+    TurretGun::P_UserAim(ucmd);
+
+    if (ucmd->buttons & BUTTON_ATTACKRIGHT) {
+        m_bLockedAim = false;
+        return;
+    }
+
+    if (m_bLockedAim) {
+        return;
+    }
+
+    if (m_iFiring) {
+        m_bLockedAim = false;
+        return;
+    }
+
+    if (!m_pVehicleOwner->IsSubclassOfVehicle()) {
+        return;
+    }
+
+    pVehicle = static_cast<Vehicle *>(m_pVehicleOwner.Pointer());
+    slot     = pVehicle->FindTurretSlotByEntity(this);
+    newSlot  = slot + 1;
+    if (newSlot == pVehicle->numTurrets) {
+        newSlot = 0;
+    }
+
+    if (newSlot != slot) {
+        Entity *slotEnt;
+
+        slotEnt = pVehicle->QueryTurretSlotEntity(newSlot);
+        if (slotEnt->IsSubclassOfVehicleTurretGun()) {
+            VehicleTurretGun *existing;
+            Vector            newAng;
+            bool              wasThisLocked, wasExistingLocked;
+
+            existing = static_cast<VehicleTurretGun *>(slotEnt);
+
+            wasThisLocked       = m_bLocked;
+            wasExistingLocked   = existing->m_bLocked;
+            m_bLocked           = false;
+            existing->m_bLocked = false;
+
+            newAng            = existing->m_vUserViewAng;
+            m_vUserLastCmdAng = vec_zero;
+
+            pVehicle->AttachTurretSlot(newSlot, owner, vec_zero, NULL);
+            existing->m_vUserViewAng = newAng;
+
+            owner             = NULL;
+            edict->r.ownerNum = ENTITYNUM_NONE;
+
+            if (wasThisLocked) {
+                m_bLocked = true;
+            }
+            if (wasExistingLocked) {
+                existing->m_bLocked = true;
+            }
+
+            existing->m_bLockedAim = true;
+            m_bLockedAim           = false;
+        }
+    }
 }
 
 void VehicleTurretGun::TurretBeginUsed(Sentient *pEnt)
@@ -313,8 +422,7 @@ void VehicleTurretGun::TurretBeginUsed(Sentient *pEnt)
         m_vBaseAngles = m_pVehicleOwner->angles;
     }
 
-    owner = pEnt;
-
+    owner             = pEnt;
     edict->r.ownerNum = pEnt->entnum;
     m_bHadOwner       = true;
 
@@ -324,7 +432,7 @@ void VehicleTurretGun::TurretBeginUsed(Sentient *pEnt)
 
     m_vUserViewAng    = m_vBaseAngles;
     m_vUserViewAng[0] = AngleNormalize180(m_vUserViewAng[0]);
-    m_vUserLastCmdAng = vec_zero;
+    m_vUserLastCmdAng.setXYZ(0, 0, 0);
 
     setAngles(m_vBaseAngles);
 
@@ -337,7 +445,7 @@ void VehicleTurretGun::TurretBeginUsed(Sentient *pEnt)
             m_pUserCamera = new Camera;
         }
 
-        player->SetCamera(m_pUserCamera, 0.0f);
+        player->SetCamera(m_pUserCamera, 0.5);
         m_pUserCamera->setAngles(m_vBaseAngles);
     }
 
@@ -353,13 +461,7 @@ void VehicleTurretGun::TurretEndUsed(void)
     if (owner->IsSubclassOfPlayer()) {
         Player *player = (Player *)owner.Pointer();
 
-        if (m_pUserCamera) {
-            player->SetCamera(NULL, 0);
-            player->ZoomOff();
-            m_pUserCamera->PostEvent(EV_Remove, 0);
-            m_pUserCamera = NULL;
-        }
-
+        RemoveUserCamera();
         player->ExitTurret();
         P_DeleteViewModel();
     }
@@ -369,17 +471,18 @@ void VehicleTurretGun::TurretEndUsed(void)
     m_fIdlePitchSpeed = 0;
     m_iIdleHitCount   = 0;
     m_iFiring         = 0;
+    m_vTargetAngles   = m_vLocalAngles;
 }
 
 void VehicleTurretGun::TurretUsed(Sentient *pEnt)
 {
-    if (owner) {
-        if (owner == pEnt) {
-            TurretEndUsed();
-            m_iFiring = 0;
-        }
-    } else {
+    if (!owner) {
         TurretBeginUsed(pEnt);
+        return;
+    }
+
+    if (owner == pEnt) {
+        TurretEndUsed();
     }
 }
 
@@ -436,13 +539,138 @@ void VehicleTurretGun::SetBaseEntity(Entity *e)
 void VehicleTurretGun::SetBaseEntity(Event *ev)
 {
     SetBaseEntity(ev->GetEntity(1));
+
+    flags |= FL_THINK;
 }
 
-void VehicleTurretGun::RemoteControl(usercmd_t *ucmd, Sentient *owner) {}
+void VehicleTurretGun::RemoteControl(usercmd_t *ucmd, Sentient *owner)
+{
+    Vector vNewCmdAng;
 
-void VehicleTurretGun::UpdateOrientation(bool bCollisionCheck) {}
+    if (!ucmd || !owner) {
+        return;
+    }
 
-void VehicleTurretGun::CollisionCorrect(trace_t *pTr) {}
+    vNewCmdAng = Vector(SHORT2ANGLE(ucmd->angles[0]), SHORT2ANGLE(ucmd->angles[1]), SHORT2ANGLE(ucmd->angles[2]));
+
+    if (vNewCmdAng[0] || vNewCmdAng[1] || vNewCmdAng[2]) {
+        m_vUserViewAng[0] += AngleSubtract(vNewCmdAng[0], m_vUserLastCmdAng[0]);
+        m_vUserViewAng[1] += AngleSubtract(vNewCmdAng[1], m_vUserLastCmdAng[1]);
+        m_vUserViewAng[2] += AngleSubtract(vNewCmdAng[2], m_vUserLastCmdAng[2]);
+    }
+
+    m_vUserLastCmdAng = vNewCmdAng;
+
+    if (!m_bUseRemoteControl) {
+        m_bUseRemoteControl = true;
+        m_pRemoteOwner      = owner;
+        m_vUserViewAng      = m_vLocalAngles;
+
+        GetRemoteOwner()->SetViewAngles(m_vUserViewAng + m_vBaseAngles);
+    }
+
+    if (ucmd->buttons & (BUTTON_ATTACKLEFT | BUTTON_ATTACKRIGHT)) {
+        if (!m_iFiring) {
+            m_iFiring = 1;
+        }
+    } else {
+        m_iFiring           = 0;
+        m_fTargetReloadTime = 0;
+        flags |= FL_THINK;
+    }
+}
+
+void VehicleTurretGun::UpdateOrientation(bool bCollisionCheck)
+{
+    Entity *ent;
+    Vector  localAngles;
+    vec3_t  mat[3];
+
+    if (m_pBaseEntity) {
+        ent = m_pBaseEntity;
+    } else if (edict->s.parent) {
+        ent = G_GetEntity(edict->s.parent);
+    } else {
+        ent = NULL;
+    }
+
+    m_iPitchBone = gi.Tag_NumForName(edict->tiki, "pitch");
+    m_iBarrelTag = gi.Tag_NumForName(edict->tiki, GetTagBarrel());
+    m_iEyeBone   = gi.Tag_NumForName(edict->tiki, "eyebone");
+
+    if (m_iBarrelTag >= 0) {
+        orientation_t barrel_or;
+
+        GetTagPositionAndOrientation(m_iBarrelTag, &barrel_or);
+        m_vLastBarrelPos = m_vBarrelPos;
+        m_vBarrelPos     = barrel_or.origin;
+    }
+
+    if (bCollisionCheck && m_iBarrelTag >= 0) {
+        trace_t trace;
+        // check if the new barrel position is ok
+        trace = G_Trace(
+            m_vLastBarrelPos,
+            Vector(8, 8, 8),
+            Vector(-8, -8, -8),
+            m_vBarrelPos,
+            this,
+            edict->clipmask,
+            qfalse,
+            "VehicleTurretGun::Think.BarrelCheck"
+        );
+
+        if (trace.fraction == 1 || trace.startsolid || trace.allsolid) {
+            CollisionCorrect(&trace);
+        }
+    }
+
+    localAngles = m_vLocalAngles;
+
+    if (m_iPitchBone >= 0) {
+        vec3_t controllerAngles = {localAngles[0], 0, 0};
+        SetControllerAngles(0, controllerAngles);
+        localAngles[0] = 0;
+    }
+
+    AnglesToAxis(localAngles, mat);
+
+    if (m_bBOIsSet) {
+        vec3_t BOmat[3];
+
+        MatrixMultiply(mat, m_mBaseOrientation, BOmat);
+        MatrixToEulerAngles(BOmat, angles);
+        setAngles(angles);
+    } else {
+        setAngles(localAngles);
+    }
+}
+
+void VehicleTurretGun::CollisionCorrect(trace_t *pTr)
+{
+    float planedot;
+
+    if (pTr->plane.normal == vec_zero) {
+        return;
+    }
+
+    if (pTr->plane.normal[2]) {
+        if (pTr->plane.normal[2] > 0) {
+            m_vLocalAngles[0] -= m_fAIPitchSpeed * level.frametime;
+        } else {
+            m_vLocalAngles[0] += m_fAIPitchSpeed * level.frametime;
+        }
+    }
+
+    planedot = DotProduct(pTr->plane.normal, orientation[1]);
+    if (fabs(planedot) > 0.25f) {
+        if (planedot > 0) {
+            m_vLocalAngles[1] += m_fTurnSpeed * level.frametime;
+        } else {
+            m_vLocalAngles[1] -= m_fTurnSpeed * level.frametime;
+        }
+    }
+}
 
 void VehicleTurretGun::EventKilled(Event *ev)
 {
@@ -491,6 +719,10 @@ void VehicleTurretGun::EventKilled(Event *ev)
 
 void VehicleTurretGun::EventDamage(Event *ev)
 {
+    if (g_gametype->integer == GT_TOW && !dmManager.RoundActive()) {
+        return;
+    }
+
     if (owner) {
         owner->ProcessEvent(*ev);
         return;
@@ -502,15 +734,25 @@ void VehicleTurretGun::EventDamage(Event *ev)
     }
 
     if (!m_bUseRemoteControl) {
+        meansOfDeath_t mod = static_cast<meansOfDeath_t>(ev->GetInteger(9));
+        switch (mod) {
+        case MOD_BULLET:
+        case MOD_BASH:
+        case MOD_FAST_BULLET:
+        case MOD_VEHICLE:
+        case MOD_SHOTGUN:
+            return;
+        }
+
         DamageEvent(ev);
         return;
     }
 
-    if (m_pRemoteOwner && m_pRemoteOwner->IsSubclassOfPlayer()) {
-        Player *player = (Player *)m_pRemoteOwner.Pointer();
+    if (m_pRemoteOwner && m_pRemoteOwner->IsSubclassOfSentient()) {
+        Sentient *sent = static_cast<Sentient *>(m_pRemoteOwner.Pointer());
 
-        if (player->m_pVehicle) {
-            player->m_pVehicle->ProcessEvent(*ev);
+        if (sent->GetVehicle()) {
+            sent->GetVehicle()->ProcessEvent(*ev);
             return;
         }
     }
@@ -521,12 +763,6 @@ void VehicleTurretGun::SetVehicleOwner(Entity *e)
     m_pVehicleOwner = e;
 }
 
-void VehicleTurretGun::SetRemoteOwner(Sentient *e)
-{
-    m_bUseRemoteControl = true;
-    m_pRemoteOwner      = e;
-}
-
 void VehicleTurretGun::EventRemoveOnDeath(Event *ev)
 {
     m_bRemoveOnDeath = ev->GetBoolean(1);
@@ -534,44 +770,55 @@ void VehicleTurretGun::EventRemoveOnDeath(Event *ev)
 
 void VehicleTurretGun::UpdateSound(void)
 {
+    float fPitchDiff, fYawDiff, fDiff;
+
     if (level.time < m_fNextSoundState) {
         return;
     }
 
-    float fDiff = AngleSubtract(m_vTargetAngles[1], m_vLocalAngles[1]);
+    fYawDiff   = fabs(AngleSubtract(m_vTargetAngles[1], m_vLocalAngles[1]));
+    fPitchDiff = fabs(AngleSubtract(m_vTargetAngles[0], m_vLocalAngles[0]));
+    if (fYawDiff > fPitchDiff) {
+        fDiff = fYawDiff;
+    } else {
+        fDiff = fPitchDiff;
+    }
+
+    if (!owner && !m_bUseRemoteControl && !aim_target && !m_bRestable) {
+        fDiff = 0;
+    }
 
     switch (m_eSoundState) {
     case ST_OFF:
         StopLoopSound();
         m_fNextSoundState = level.time;
         if (fabs(fDiff) > 0.5f) {
-            m_eSoundState = ST_OFF_TRANS_IDLE;
+            m_eSoundState = STT_OFF_TRANS_MOVING;
         }
         break;
 
-    case ST_OFF_TRANS_IDLE:
-        m_eSoundState     = ST_IDLE_TRANS_OFF;
+    case STT_OFF_TRANS_MOVING:
         m_fNextSoundState = level.time;
-        LoopSound(m_sSoundSet + "snd_move");
+        m_eSoundState     = STT_OFF;
         break;
 
-    case ST_IDLE_TRANS_OFF:
+    case STT_MOVING:
         m_fNextSoundState = level.time;
-        if (fabs(fDiff) < 0.5f) {
-            m_eSoundState = ST_IDLE;
+        if (fDiff < 0.5) {
+            m_eSoundState = STT_MOVING_TRANS_OFF;
         }
-
         LoopSound(m_sSoundSet + "snd_move");
         break;
 
-    case ST_IDLE:
-        m_eSoundState     = ST_OFF;
+    case STT_MOVING_TRANS_OFF:
         m_fNextSoundState = level.time;
-        LoopSound(m_sSoundSet + "snd_move");
+        m_eSoundState     = STT_OFF;
+        Sound(m_sSoundSet + "snd_move_stop");
         break;
 
     default:
-        // FIXME: default sound?
+        m_fNextSoundState = level.time;
+        m_eSoundState     = STT_OFF;
         break;
     }
 }
@@ -585,23 +832,27 @@ void VehicleTurretGun::EventSetCollisionModel(Event *ev)
     }
 
     if (m_pCollisionEntity) {
-        m_pCollisionEntity->PostEvent(EV_Remove, EV_VEHICLE);
+        m_pCollisionEntity->PostEvent(EV_Remove, 0);
     }
 
     m_pCollisionEntity = new VehicleCollisionEntity(this);
-    m_pCollisionEntity->setModel(pColEnt->model);
+    if (m_pCollisionEntity) {
+        m_pCollisionEntity->setModel(pColEnt->model);
+        m_pCollisionEntity->setOrigin(origin);
+        m_pCollisionEntity->setAngles(angles);
 
-    if (!m_pCollisionEntity->model.length() || *m_pCollisionEntity->model != '*') {
-        // Re-post the event with the correct time
-        m_pCollisionEntity->CancelEventsOfType(EV_Remove);
-        m_pCollisionEntity->PostEvent(EV_Remove, EV_VEHICLE);
-        m_pCollisionEntity = NULL;
+        if (m_pCollisionEntity->model.length() && *m_pCollisionEntity->model == '*') {
+            UpdateCollisionEntity();
+            m_pCollisionEntity->DisconnectPaths();
+        } else {
+            // Re-post the event with the correct time
+            m_pCollisionEntity->CancelEventsOfType(EV_Remove);
+            m_pCollisionEntity->PostEvent(EV_Remove, EV_VEHICLE);
+            m_pCollisionEntity = NULL;
 
-        ScriptError("Model for Entity not of a valid type. Must be B-Model.");
+            ScriptError("Model for Entity not of a valid type. Must be B-Model.");
+        }
     }
-
-    m_pCollisionEntity->setOrigin(origin);
-    m_pCollisionEntity->setAngles(angles);
 }
 
 void VehicleTurretGun::EventLock(Event *ev)
@@ -625,10 +876,14 @@ void VehicleTurretGun::UpdateOwner(Sentient *pOwner)
     STUB();
 }
 
-bool VehicleTurretGun::TurretHasBeenMounted()
+void VehicleTurretGun::TurretHasBeenMounted()
 {
-    // FIXME: unimplemented
-    return false;
+    m_fLastFireTime = level.time + m_fWarmupDelay + fire_delay[FIRE_PRIMARY];
+    if (m_fWarmupDelay > 0.25) {
+        Sound(m_sSoundSet + "snd_warmup");
+    }
+
+    m_fWarmupTimeRemaining = m_fWarmupDelay;
 }
 
 void VehicleTurretGun::PlaceTurret(Event *ev)
@@ -662,29 +917,9 @@ void VehicleTurretGun::PlaceTurret(Event *ev)
     }
 }
 
-void VehicleTurretGun::EventGetCollisionModel(Event *ev)
-{
-    ev->AddEntity(m_pCollisionEntity);
-}
-
 void VehicleTurretGun::EventTurnSpeed(Event *ev)
 {
     AI_TurnSpeed(ev->GetFloat(1));
-}
-
-bool VehicleTurretGun::isLocked(void)
-{
-    return m_bLocked;
-}
-
-void VehicleTurretGun::Lock(void)
-{
-    m_bLocked = true;
-}
-
-void VehicleTurretGun::UnLock(void)
-{
-    m_bLocked = false;
 }
 
 bool VehicleTurretGun::UseRemoteControl(void)
@@ -694,13 +929,39 @@ bool VehicleTurretGun::UseRemoteControl(void)
 
 qboolean VehicleTurretGun::ReadyToFire(firemode_t mode, qboolean playsound)
 {
-    // FIXME: unimplemented
+    if (!use_no_ammo) {
+        return Weapon::ReadyToFire(mode, playsound);
+    }
+
+    if (m_fReloadDelay <= 0) {
+        return Weapon::ReadyToFire(mode, playsound);
+    }
+
+    if (m_fReloadTimeRemaining <= 0) {
+        return Weapon::ReadyToFire(mode, playsound);
+    }
+
     return qfalse;
 }
 
 void VehicleTurretGun::AdjustReloadStatus()
 {
-    // FIXME: unimplemented
+    if (!use_no_ammo) {
+        return;
+    }
+
+    if (m_fReloadDelay <= 0) {
+        return;
+    }
+
+    m_iAmmo--;
+    ammo_in_clip[FIRE_PRIMARY] = m_iAmmo;
+    if (!m_iAmmo) {
+        m_iAmmo                = m_iReloadShots;
+        m_fReloadTimeRemaining = m_fReloadDelay;
+
+        PostEvent(EV_VehicleTurretGun_PlayReloadSound, m_fReloadDelay * 0.5);
+    }
 }
 
 void VehicleTurretGun::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forward, vec3_t right, vec3_t up)
@@ -710,58 +971,118 @@ void VehicleTurretGun::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec
 
 void VehicleTurretGun::ApplyFireKickback(const Vector& org, float kickback)
 {
-    // FIXME: unimplemented
+    Vehicle *pVehicle;
+
+    if (!m_pVehicleOwner || !m_pVehicleOwner->IsSubclassOfVehicle()) {
+        return;
+    }
+
+    pVehicle = static_cast<Vehicle *>(m_pVehicleOwner.Pointer());
+    pVehicle->m_fForwardForce += org.x * kickback;
+    pVehicle->m_fLeftForce += org.y * kickback;
+}
+
+void VehicleTurretGun::SetRemoteOwner(Sentient *e)
+{
+    m_bUseRemoteControl = true;
+    m_pRemoteOwner      = e;
+}
+
+void VehicleTurretGun::EventGetCollisionModel(Event *ev)
+{
+    ev->AddEntity(m_pCollisionEntity);
 }
 
 float VehicleTurretGun::FireDelay(firemode_t mode)
 {
-    // FIXME: unimplemented
-    return 0;
+    return fire_delay[mode];
 }
 
 void VehicleTurretGun::SetWarmupDelay(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fWarmupDelay = ev->GetFloat(1);
 }
 
 void VehicleTurretGun::SetFireWarmupDelay(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fFireWarmupDelay = ev->GetFloat(1);
 }
 
 void VehicleTurretGun::SetReloadDelay(Event *ev)
 {
-    // FIXME: unimplemented
+    m_fReloadDelay = ev->GetFloat(1);
 }
 
 void VehicleTurretGun::SetReloadShots(Event *ev)
 {
-    // FIXME: unimplemented
+    m_iReloadShots               = ev->GetInteger(1);
+    m_iAmmo                      = m_iReloadShots;
+    ammo_in_clip[FIRE_PRIMARY]   = m_iAmmo;
+    ammo_clip_size[FIRE_PRIMARY] = m_iAmmo;
 }
 
 void VehicleTurretGun::SetAimOffset(Event *ev)
 {
-    // FIXME: unimplemented
+    m_vAimOffset = ev->GetVector(1);
 }
 
 void VehicleTurretGun::SetAimTolerance(Event *ev)
 {
-    // FIXME: unimplemented
+    m_vAimTolerance = ev->GetVector(1);
 }
 
 void VehicleTurretGun::SetTargetEntity(Event *ev)
 {
-    // FIXME: unimplemented
+    SetTargetEntity(ev->GetEntity(1));
 }
 
 void VehicleTurretGun::PlayReloadSound(Event *ev)
 {
-    // FIXME: unimplemented
+    Sound(m_sSoundSet + "snd_reload", CHAN_AUTO);
 }
 
 void VehicleTurretGun::SetTargetEntity(Entity *ent)
 {
-    // FIXME: unimplemented
+    Vector delta;
+    int    i;
+
+    if (!ent) {
+        return;
+    }
+
+    if (owner || m_pRemoteOwner) {
+        return;
+    }
+
+    delta = ent->origin - origin;
+    delta.normalize();
+
+    vectoangles(delta, m_vLocalAngles);
+    m_vLocalAngles -= m_vBaseAngles;
+
+    for (i = 0; i < 2; i++) {
+        if (m_vLocalAngles[i] > 180) {
+            m_vLocalAngles[i] -= 360;
+        }
+
+        if (m_vLocalAngles[i] < -180) {
+            m_vLocalAngles[i] += 360;
+        }
+    }
+
+    if (m_vLocalAngles[0] < m_fPitchUpCap) {
+        m_vLocalAngles[0] = m_fPitchUpCap;
+    } else if (m_vLocalAngles[0] > m_fPitchDownCap) {
+        m_vLocalAngles[0] = m_fPitchDownCap;
+    }
+
+    if (m_vLocalAngles[1] > m_fStartYaw + m_fMaxYawOffset) {
+        m_vLocalAngles[1] = m_fStartYaw + m_fMaxYawOffset;
+    } else if (m_vLocalAngles[1] < m_fStartYaw - m_fMaxYawOffset) {
+        m_vLocalAngles[1] = m_fStartYaw - m_fMaxYawOffset;
+    }
+
+    UpdateOrientation(false);
 }
 
 void VehicleTurretGun::UpdateAndMoveOwner()
@@ -771,12 +1092,81 @@ void VehicleTurretGun::UpdateAndMoveOwner()
 
 void VehicleTurretGun::UpdateTimers(float& yawTimer, float& pitchTimer)
 {
-    // FIXME: unimplemented
+    if (m_fReloadTimeRemaining > 0) {
+        m_fReloadTimeRemaining -= level.frametime;
+        if (m_fReloadTimeRemaining <= 0) {
+            ammo_in_clip[FIRE_PRIMARY] = m_iAmmo;
+        }
+    }
+
+    if (m_fWarmupTimeRemaining > 0) {
+        yawTimer   = m_fTurnSpeed * level.frametime;
+        pitchTimer = m_fAIPitchSpeed * level.frametime;
+    } else {
+        m_fWarmupTimeRemaining -= level.frametime;
+        yawTimer   = level.frametime * (m_fTurnSpeed * ((m_fWarmupDelay - m_fWarmupTimeRemaining) / m_fWarmupDelay));
+        pitchTimer = level.frametime * (m_fAIPitchSpeed * ((m_fWarmupDelay - m_fWarmupTimeRemaining) / m_fWarmupDelay));
+    }
 }
 
 void VehicleTurretGun::UpdateCaps(float maxYawOffset, float maxPitchOffset)
 {
-    // FIXME: unimplemented
+    float fDiff;
+
+    if (m_vTargetAngles[0] > 180) {
+        m_vTargetAngles[0] -= 360;
+    } else if (m_vTargetAngles[0] < -180) {
+        m_vTargetAngles[0] += 360;
+    }
+
+    if (m_vTargetAngles[0] < m_fPitchUpCap) {
+        m_vTargetAngles[0] = m_fPitchUpCap;
+    } else if (m_vTargetAngles[0] > m_fPitchDownCap) {
+        m_vTargetAngles[0] = m_fPitchDownCap;
+    }
+
+    if (m_fAIPitchSpeed > 1000) {
+        m_vLocalAngles[0] = m_vTargetAngles[0];
+    } else {
+        fDiff = AngleSubtract(m_vTargetAngles[0], m_vLocalAngles[0]);
+        if (fabs(fDiff) >= maxPitchOffset) {
+            if (fDiff > 0) {
+                m_vLocalAngles[0] += maxPitchOffset;
+            } else {
+                m_vLocalAngles[0] -= maxPitchOffset;
+            }
+        } else {
+            m_vLocalAngles[0] = m_vTargetAngles[0];
+        }
+    }
+
+    fDiff = AngleSubtract(m_vTargetAngles[1], m_fStartYaw);
+    if (fDiff > m_fMaxYawOffset) {
+        fDiff = m_fMaxYawOffset;
+    } else if (fDiff < -m_fMaxYawOffset) {
+        fDiff = m_fMaxYawOffset;
+    }
+
+    if (m_fTurnSpeed > 1000) {
+        m_vLocalAngles[1] = m_vTargetAngles[1];
+    } else {
+        m_vTargetAngles[1] = m_fStartYaw + fDiff;
+
+        fDiff = AngleSubtract(m_vTargetAngles[1], m_vLocalAngles[1]);
+        if (fabs(fDiff) < 2) {
+            Unregister(STRING_ONTARGET);
+        }
+
+        if (fabs(fDiff) >= maxYawOffset) {
+            if (fDiff > 0) {
+                m_vLocalAngles[1] += maxYawOffset;
+            } else {
+                m_vLocalAngles[1] -= maxYawOffset;
+            }
+        } else {
+            m_vLocalAngles[1] = m_vTargetAngles[1];
+        }
+    }
 }
 
 void VehicleTurretGun::IdleToRestPosition()
@@ -796,12 +1186,25 @@ void VehicleTurretGun::UpdateCollisionEntity()
 
 void VehicleTurretGun::RestrictPitch()
 {
-    // FIXME: unimplemented
+    if (m_vUserViewAng[0] < m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET) {
+        m_vUserViewAng[0] = m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET;
+    } else if (m_vUserViewAng[0] > m_fPitchUpCap + MAX_VT_PITCHCAP_OFFSET) {
+        m_vUserViewAng[0] = m_fPitchUpCap + MAX_VT_PITCHCAP_OFFSET;
+    }
 }
 
 void VehicleTurretGun::RestrictYaw()
 {
-    // FIXME: unimplemented
+    float fDiff;
+
+    fDiff = AngleSubtract(m_vUserViewAng[0], m_fStartYaw);
+    if (fDiff > m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET) {
+        fDiff = m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET;
+    } else if (fDiff < -(m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET)) {
+        fDiff = -(m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET);
+    }
+
+    m_vUserViewAng[0] = m_fStartYaw + fDiff;
 }
 
 void VehicleTurretGun::UpdateRemoteControl()
@@ -811,12 +1214,39 @@ void VehicleTurretGun::UpdateRemoteControl()
 
 void VehicleTurretGun::UpdateAimTarget()
 {
-    // FIXME: unimplemented
+    Vector delta;
+    Vector transformed;
+
+    delta = aim_target->centroid - centroid;
+    if (m_bBOIsSet) {
+        transformed[0] = m_mBaseOrientation[0] * delta;
+        transformed[1] = m_mBaseOrientation[1] * delta;
+        transformed[2] = m_mBaseOrientation[2] * delta;
+    } else if (GetParent()) {
+        vec3_t mat[3];
+
+        AnglesToAxis(GetParent()->angles, mat);
+        transformed[0] = mat[0] * delta;
+        transformed[1] = mat[1] * delta;
+        transformed[2] = mat[2] * delta;
+    } else {
+        transformed = delta;
+    }
+
+    VectorNormalize(transformed);
+    vectoangles(transformed, m_vTargetAngles);
 }
 
 Entity *VehicleTurretGun::GetParent() const
 {
-    // FIXME: unimplemented
+    if (m_pBaseEntity) {
+        return m_pBaseEntity;
+    }
+
+    if (edict->s.parent) {
+        return G_GetEntity(edict->s.parent);
+    }
+
     return NULL;
 }
 
@@ -827,36 +1257,99 @@ SentientPtr VehicleTurretGun::GetRemoteOwner(void)
 
 SentientPtr VehicleTurretGun::GetSentientOwner()
 {
-    // FIXME: unimplemented
     return m_pRemoteOwner;
 }
 
 void VehicleTurretGun::EndRemoteControl()
 {
-    // FIXME: unimplemented
+    m_bUseRemoteControl = false;
+    m_pRemoteOwner      = NULL;
+    m_fIdlePitchSpeed   = 0;
+    m_iIdleHitCount     = 0;
+    m_iFiring           = 0;
+    m_vTargetAngles     = m_vLocalAngles;
 }
 
 float VehicleTurretGun::GetWarmupFraction() const
 {
-    // FIXME: unimplemented
-    return 0;
+    float frac;
+
+    if (!m_fTargetReloadTime) {
+        return 0;
+    }
+
+    frac = ((m_fTargetReloadTime - level.time) / m_fFireWarmupDelay);
+    if (frac > 1.0) {
+        frac = 1.0;
+    } else if (frac < 0.0) {
+        frac = 0.0;
+    }
+
+    return 1.0 - frac;
 }
 
 bool VehicleTurretGun::IsRemoteControlled()
 {
-    // FIXME: unimplemented
-    return false;
+    return m_bUseRemoteControl;
+}
+
+bool VehicleTurretGun::isLocked(void)
+{
+    return m_bLocked;
+}
+
+void VehicleTurretGun::Lock(void)
+{
+    m_bLocked = true;
+}
+
+void VehicleTurretGun::UnLock(void)
+{
+    m_bLocked = false;
 }
 
 void VehicleTurretGun::Archive(Archiver& arc)
 {
-    // FIXME: unimplemented
+    TurretGun::Archive(arc);
+
+    arc.ArchiveVector(&m_vTargetAngles);
+    arc.ArchiveVector(&m_vLocalAngles);
+    arc.ArchiveVec3(m_mBaseOrientation[0]);
+    arc.ArchiveVec3(m_mBaseOrientation[1]);
+    arc.ArchiveVec3(m_mBaseOrientation[2]);
+    arc.ArchiveInteger(&m_iPitchBone);
+    arc.ArchiveVector(&m_vBaseAngles);
+    arc.ArchiveVector(&m_vLastBaseAngles);
+    arc.ArchiveSafePointer(&m_pBaseEntity);
+    arc.ArchiveBool(&m_bBOIsSet);
+    arc.ArchiveBool(&m_bUseRemoteControl);
+    arc.ArchiveSafePointer(&m_pRemoteOwner);
+    arc.ArchiveInteger(&m_iBarrelTag);
+    arc.ArchiveInteger(&m_iEyeBone);
+    arc.ArchiveVector(&m_vBarrelPos);
+    arc.ArchiveVector(&m_vLastBarrelPos);
+    arc.ArchiveFloat(&m_fWarmupTimeRemaining);
+    arc.ArchiveFloat(&m_fWarmupDelay);
+    arc.ArchiveFloat(&m_fFireWarmupDelay);
+    arc.ArchiveFloat(&m_fTargetReloadTime);
+    arc.ArchiveInteger(&m_iReloadShots);
+    arc.ArchiveInteger(&m_iAmmo);
+    arc.ArchiveFloat(&m_fReloadDelay);
+    arc.ArchiveFloat(&m_fReloadTimeRemaining);
+    arc.ArchiveVector(&m_vAimOffset);
+    arc.ArchiveVector(&m_vAimTolerance);
+    arc.ArchiveSafePointer(&m_pVehicleOwner);
+    arc.ArchiveBool(&m_bRemoveOnDeath);
+    ArchiveEnum(m_eSoundState, SOUND_STATE_TURRET);
+    arc.ArchiveFloat(&m_fNextSoundState);
+    arc.ArchiveBool(&m_bLocked);
+    arc.ArchiveString(&m_sSoundSet);
+    arc.ArchiveSafePointer(&m_pCollisionEntity);
 }
 
 EntityPtr VehicleTurretGun::GetVehicle() const
 {
-    // FIXME: unimplemented
-    return NULL;
+    return m_pVehicleOwner;
 }
 
 Event EV_VTGP_LinkTurret
@@ -1213,10 +1706,10 @@ void VehicleTurretGunTandem::RestrictYaw()
     float delta;
 
     delta = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
-    if (delta > m_fMaxYawOffset + MAX_TANDEM_YAWOFFSET) {
-        delta = m_fMaxYawOffset + MAX_TANDEM_YAWOFFSET;
-    } else if (delta < -(m_fMaxYawOffset + MAX_TANDEM_YAWOFFSET)) {
-        delta = -(m_fMaxYawOffset + MAX_TANDEM_YAWOFFSET);
+    if (delta > m_fMaxYawOffset + MAX_TANDEM_YAW_OFFSET) {
+        delta = m_fMaxYawOffset + MAX_TANDEM_YAW_OFFSET;
+    } else if (delta < -(m_fMaxYawOffset + MAX_TANDEM_YAW_OFFSET)) {
+        delta = -(m_fMaxYawOffset + MAX_TANDEM_YAW_OFFSET);
     }
 
     m_vUserViewAng[1] = m_fStartYaw + delta;

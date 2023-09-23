@@ -62,15 +62,15 @@ protected:
 
     // added in 2.0
     //===
-    float m_fWarmupDelay;
-    float m_fWarmupTimeRemaining;
-    float m_fFireWarmupDelay;
-    float m_fTargetReloadTime;
-    int m_iReloadShots;
-    int m_iAmmo;
-    float m_fReloadDelay;
-    float m_fReloadTimeRemaining;
-    Vector m_vAimTolerance;
+    float       m_fWarmupDelay;
+    float       m_fWarmupTimeRemaining;
+    float       m_fFireWarmupDelay;
+    float       m_fTargetReloadTime;
+    int         m_iReloadShots;
+    int         m_iAmmo;
+    float       m_fReloadDelay;
+    float       m_fReloadTimeRemaining;
+    Vector      m_vAimTolerance;
     SentientPtr m_pRemoteOwner;
     //===
 
@@ -174,22 +174,22 @@ public:
     VehicleTurretGunTandem();
     ~VehicleTurretGunTandem();
 
-    virtual void EventLinkTurret(Event* ev);
-    virtual void EventSetSwitchThread(Event* ev);
+    virtual void EventLinkTurret(Event *ev);
+    virtual void EventSetSwitchThread(Event *ev);
     virtual void AttachLinkedTurret(Entity *ent);
     virtual void UpdateLinkedTurret();
     virtual void OpenSlotsByModel();
 
-    void         Think() override;
-    bool         IsRemoteControlled() override;
-    SentientPtr  GetRemoteOwner() override;
+    void        Think() override;
+    bool        IsRemoteControlled() override;
+    SentientPtr GetRemoteOwner() override;
 
     virtual void            SetPrimaryTurret(VehicleTurretGunTandem *pTurret);
-    virtual void            SetActiveTurret(VehicleTurretGunTandem* pTurret);
+    virtual void            SetActiveTurret(VehicleTurretGunTandem *pTurret);
     VehicleTurretGunTandem *GetPrimaryTurret();
     bool                    IsActiveTurret() const;
 
-    void RemoteControl(usercmd_t *ucmd, Sentient *owner) override;
+    void         RemoteControl(usercmd_t *ucmd, Sentient *owner) override;
     virtual void RemoteControlSecondary(usercmd_t *ucmd, Sentient *owner);
     virtual void RemoteControlFire(usercmd_t *ucmd, Sentient *owner);
 
