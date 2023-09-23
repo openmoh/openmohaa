@@ -42,7 +42,6 @@ protected:
     int                             m_iPitchBone;
     bool                            m_bBOIsSet;
     bool                            m_bUseRemoteControl;
-    SentientPtr                     m_pRemoteOwner;
     int                             m_iBarrelTag;
     int                             m_iEyeBone;
     SafePtr<Entity>                 m_pVehicleOwner;
@@ -53,11 +52,27 @@ protected:
     float                           m_fNextSoundState;
     str                             m_sSoundSet;
 
+    // added in 2.0
+    //===
+    float m_fWarmupDelay;
+    float m_fWarmupTimeRemaining;
+    float m_fFireWarmupDelay;
+    float m_fTargetReloadTime;
+    int m_iReloadShots;
+    int m_iAmmo;
+    float m_fReloadDelay;
+    float m_fReloadTimeRemaining;
+    Vector m_vAimTolerance;
+    SentientPtr m_pRemoteOwner;
+    //===
+
 public:
     CLASS_PROTOTYPE(VehicleTurretGun);
 
     Vector m_vBarrelPos;
     Vector m_vLastBarrelPos;
+    // added in 2.0
+    Vector m_vAimOffset;
 
     VehicleTurretGun();
     virtual ~VehicleTurretGun();

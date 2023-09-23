@@ -199,11 +199,11 @@ CLASS_DECLARATION(TurretGun, VehicleTurretGun, NULL) {
     {NULL,                                       NULL                                     }
 };
 
-// FIXME
-
 VehicleTurretGun::VehicleTurretGun()
 {
     entflags |= EF_VEHICLETURRET;
+
+    AddWaitTill(STRING_DEATH);
 
     if (LoadingSavegame) {
         return;
@@ -211,37 +211,74 @@ VehicleTurretGun::VehicleTurretGun()
 
     edict->s.eType = ET_MODELANIM;
     setRespawn(false);
+
     respondto         = TRIGGER_PLAYERS | TRIGGER_MONSTERS;
     edict->clipmask   = MASK_VEHICLETURRET;
-    m_iIdleHitCount   = 0;
+
     m_bUsable         = true;
     m_bPlayerUsable   = true;
     m_bRestable       = false;
     m_fIdlePitchSpeed = 0;
+    m_iIdleHitCount   = 0;
+
     takedamage        = DAMAGE_NO;
     health            = 100.0f;
     max_health        = 100.0f;
+
     setSize(Vector(-16, -16, 0), Vector(16, 16, 32));
-    m_fTurnSpeed        = 1001.0f;
-    m_fPitchUpCap       = -45.0f;
-    m_fPitchDownCap     = 45.0f;
-    m_fMaxYawOffset     = 180.0f;
+    
+    m_fPitchUpCap       = -45;
+    m_fPitchDownCap     = 45;
+    m_fMaxYawOffset     = 180;
+    m_fTurnSpeed        = 160;
+    m_fAIPitchSpeed     = 48;
     m_fUserDistance     = 64.0f;
-    m_vIdleCheckOffset  = Vector(-56, 0, 0);
-    m_bBOIsSet          = false;
-    m_iFiring           = 0;
-    m_fFireToggleTime   = 0;
+    m_vIdleCheckOffset.setXYZ(-56, 0, 0);
+
+    m_fMinBurstTime  = 0;
+    m_fMaxBurstTime  = 0;
+    m_fMinBurstDelay = 0;
+    m_fMaxBurstDelay = 0;
+
+    AxisClear(m_mBaseOrientation);
+    m_fFireToggleTime = 0;
+    m_iFiring         = 0;
+    m_bBOIsSet        = false;
+
     m_pBaseEntity       = NULL;
     m_vLastBaseAngles   = vec_zero;
     m_vBaseAngles       = vec_zero;
+
     m_vBarrelPos        = origin;
     m_vLastBarrelPos    = origin;
+
     m_bUseRemoteControl = false;
     m_pVehicleOwner     = NULL;
+
     m_bRemoveOnDeath    = true;
     m_eSoundState       = ST_OFF;
-    m_bLocked           = true;
     m_fNextSoundState   = level.time;
+
+    m_fWarmupDelay         = 0;
+    m_fFireWarmupDelay     = 0;
+    m_fTargetReloadTime    = 0;
+    m_fWarmupTimeRemaining = 0;
+    m_fReloadDelay         = 0;
+    m_fReloadTimeRemaining = 0;
+
+    m_iReloadShots = 1;
+    m_iAmmo = 1;
+
+    ammo_in_clip[FIRE_PRIMARY]   = m_iAmmo;
+    ammo_clip_size[FIRE_PRIMARY] = m_iReloadShots;
+
+    m_vAimOffset[0]     = 0;
+    m_vAimOffset[1]     = 0;
+    m_vAimOffset[2]     = 0;
+    m_vAimTolerance[0] = 20;
+    m_vAimTolerance[1] = 20;
+
+    m_bLocked           = true;
     m_sSoundSet         = "";
 }
 
