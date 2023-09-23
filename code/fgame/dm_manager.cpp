@@ -1565,10 +1565,23 @@ void DM_Manager::EndRound()
 
 bool DM_Manager::AllowRespawn() const
 {
-    return m_bAllowRespawns
-        || (g_gametype->integer > GT_TEAM
-            && ((!m_team_axis.m_players.NumObjects() && !m_team_axis.m_bHasSpawnedPlayers)
-                || (!m_team_allies.m_players.NumObjects() && !m_team_allies.m_bHasSpawnedPlayers)));
+    if (GameAllowsRespawns()) {
+        return true;
+    }
+
+    if (g_gametype->integer <= GT_TEAM) {
+        return false;
+    }
+
+    if (!m_team_axis.m_players.NumObjects() && !m_team_axis.m_bHasSpawnedPlayers) {
+        return true;
+    }
+
+    if (!m_team_allies.m_players.NumObjects() && !m_team_allies.m_bHasSpawnedPlayers) {
+        return true;
+    }
+
+    return false;
 }
 
 bool DM_Manager::WaitingForPlayers(void) const
@@ -1594,31 +1607,38 @@ bool DM_Manager::WaitingForPlayers(void) const
 
 bool DM_Manager::IsGameActive(void) const
 {
-    return !m_bRoundBasedGame || m_fRoundTime > 0;
+    return !GameHasRounds() || m_fRoundTime > 0;
 }
 
 float DM_Manager::GetMatchStartTime(void)
 {
+    int totalnotready;
+
     if (g_gametype->integer <= GT_TEAM) {
         return m_fRoundTime;
     }
 
-    if (m_fRoundTime <= 0.0f) {
-        if (!m_team_allies.m_players.NumObjects() || !m_team_allies.m_bHasSpawnedPlayers) {
-            return -1.0f;
-        }
-
-        if (!m_team_axis.m_players.NumObjects() || !m_team_axis.m_bHasSpawnedPlayers) {
-            return -1.0f;
-        }
-
-        int num = m_team_allies.NumNotReady() + m_team_axis.NumNotReady();
-        if (num > 0) {
-            return (float)~num;
+    if (g_gametype->integer == GT_TEAM_ROUNDS || g_gametype->integer == GT_OBJECTIVE || g_gametype->integer == GT_LIBERATION) {
+        if (m_fRoundTime > 0 && (m_team_allies.IsEmpty() || m_team_allies.IsEmpty())) {
+            m_fRoundTime = 0;
+            return -1;
         }
     }
 
-    return m_fRoundTime;
+    if (m_fRoundTime > 0) {
+        return m_fRoundTime;
+    }
+
+    if (m_team_allies.IsEmpty() || m_team_axis.IsEmpty()) {
+        return -1;
+    }
+
+    totalnotready = m_team_allies.NumNotReady() + m_team_axis.NumNotReady();
+    if (totalnotready > 0) {
+        return -1 - totalnotready;
+    } else {
+        return m_fRoundTime;
+    }
 }
 
 int DM_Manager::GetRoundLimit() const
