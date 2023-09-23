@@ -166,28 +166,28 @@ public:
     VehicleTurretGunTandem();
     ~VehicleTurretGunTandem();
 
-    void EventLinkTurret(Event *ev);
-    void AttachLinkedTurret(Entity *ent);
-    void UpdateLinkedTurret();
-    void OpenSlotsByModel();
+    virtual void EventLinkTurret(Event* ev);
+    virtual void EventSetSwitchThread(Event* ev);
+    virtual void AttachLinkedTurret(Entity *ent);
+    virtual void UpdateLinkedTurret();
+    virtual void OpenSlotsByModel();
 
     void         Think() override;
     bool         IsRemoteControlled() override;
     SentientPtr  GetRemoteOwner() override;
-    virtual void ThinkPrimary();
-    virtual void ThinkSecondary();
 
-    void                    SetPrimaryTurret(VehicleTurretGunTandem *pTurret);
+    virtual void            SetPrimaryTurret(VehicleTurretGunTandem *pTurret);
+    virtual void            SetActiveTurret(VehicleTurretGunTandem* pTurret);
     VehicleTurretGunTandem *GetPrimaryTurret();
     bool                    IsActiveTurret() const;
 
     void RemoteControl(usercmd_t *ucmd, Sentient *owner) override;
-    void RemoteControlSecondary(usercmd_t *ucmd, Sentient *owner);
-    void RemoteControlFire(usercmd_t *ucmd, Sentient *owner);
+    virtual void RemoteControlSecondary(usercmd_t *ucmd, Sentient *owner);
+    virtual void RemoteControlFire(usercmd_t *ucmd, Sentient *owner);
 
-    void EventSetSwitchThread(Event *ev);
-    void SwitchToLinkedTurret();
-    void SetActiveTurret(VehicleTurretGunTandem *pTurret);
+    virtual void SwitchToLinkedTurret();
+    virtual void ThinkPrimary();
+    virtual void ThinkSecondary();
 
     void RestrictYaw();
 
