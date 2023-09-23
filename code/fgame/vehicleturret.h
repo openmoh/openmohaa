@@ -28,6 +28,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "weapturret.h"
 #include "vehicle.h"
 
+typedef enum {
+    STT_OFF,
+    STT_OFF_TRANS_MOVING,
+    STT_MOVING,
+    STT_MOVING_TRANS_OFF
+} SOUND_STATE_TURRET;
+
 class VehicleTurretGun : public TurretGun
 {
     friend class Vehicle;
@@ -48,7 +55,8 @@ protected:
     bool                            m_bRemoveOnDeath;
     SafePtr<VehicleCollisionEntity> m_pCollisionEntity;
     bool                            m_bLocked;
-    SOUND_STATE                     m_eSoundState;
+    bool                            m_bLockedAim;
+    SOUND_STATE_TURRET              m_eSoundState;
     float                           m_fNextSoundState;
     str                             m_sSoundSet;
 
@@ -115,7 +123,7 @@ public:
     virtual bool        IsRemoteControlled();
     virtual void        RestrictPitch();
     virtual void        RestrictYaw();
-    virtual bool        TurretHasBeenMounted();
+    virtual void        TurretHasBeenMounted();
 
     void    UpdateRemoteControl();
     void    UpdateAimTarget();
