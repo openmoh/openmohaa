@@ -1557,7 +1557,7 @@ void DM_Manager::StartRound(void)
     }
 
     m_fRoundEndTime = 0.0f;
-    m_bRoundActive = false;
+    m_bRoundActive = true;
 
     // respawn all players
     for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++) {
