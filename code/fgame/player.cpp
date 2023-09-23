@@ -11244,7 +11244,7 @@ void Player::EventGetVehicle(Event *ev)
 
 bool Player::IsReady(void) const
 {
-    return m_bReady;
+    return m_bReady && !IsDead();
 }
 
 void Player::Spawned(void)
