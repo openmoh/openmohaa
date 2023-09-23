@@ -114,6 +114,42 @@ void TOWObjectiveMan::TakeOverObjective(eController controller, eController cont
     }
 }
 
+//---------------------------------------------------------------------------------------------
+/*QUAKED func_TOWObjective (1.0 0.0 1.0) (-12 -12 -12) (12 12 12) StartOn Respawner
+
+  This object is an extension of the standard objective object.  It is used for Tug of War
+  Maps.
+
+  object used to simplify placing objectives.  You may optionally connect this object to the
+  target you want to use for the compass position....
+
+  Checkboxes:
+	StartOn - check this if you want this objective to be displayed when the level first loads
+
+	Respawner - check this if the objective is the respawn point for a team.  If you set this
+	you must set ControlledBy to a valid team and not Neutral.
+
+
+  Parameters:
+  ControlledBy			0 = Axis, 1 = Allies, 2 = Neutral
+  AxisObjNum			1 - 5.  Set the objective number for the axis.  This will associate the objective with
+						the check box for the corresponding text in the score screen.
+  AlliesObjNum			1 - 5.  Set the objective number for the allies.  This will associate the objective with
+						the check box for the corresponding text in the score screen.
+
+  ObjectiveNbr			<nObjNbr=0>	Please ignore this for now.
+
+  Events:
+	TurnOn
+	TurnOff
+	Complete
+	Text <sNewText>
+	SetCurrent
+	SetController <ControlledBy> - This will set the starting controller default is neutral.  See ControlledBy var above.
+
+//---------------------------------------------------------------------------------------------
+*/
+
 Event EV_SetController("ControlledBy", EV_DEFAULT, "i", "ControlledBy", "Sets the team controlling the objective");
 Event EV_TakeOver(
     "TakeOver", EV_DEFAULT, "i", "TeamNum", "Sets the team controlling the objective. 0 = Axis, 1 = Allies"

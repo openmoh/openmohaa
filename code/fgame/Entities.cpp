@@ -31,48 +31,251 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sentient.h"
 #include "player.h"
 
-Container<ProjectileTarget*> g_projectileTargets;
+Container<ProjectileTarget *> g_projectileTargets;
 
-Event EV_PG_SetID("ID", EV_DEFAULT, "i", "ID", "Sets the ID for this projectile generator\nDefault=0:");
-Event EV_PG_SetModel(
-    "Model", EV_DEFAULT, "s", "Model", "Projectile model to use.\nDefault=models/projectiles/bazookashell.tik"
+/*QUAKED ProjectileGenerator_Target (1.0 0.0 1.0) (-12 -12 -12) (12 12 12)
+
+  Place this target down and assign it a ProjectileGenerator ID and it will
+  shoot here....
+
+  Here are the params:
+
+  ID      <nIdNum>   (Generator ID number.)
+
+******************************************************************************/
+
+Event EV_PG_SetID
+(
+    "ID",
+    EV_DEFAULT,
+    "i",
+    "ID",
+    "Sets the ID for this projectile generator\nDefault=0:",
+    EV_NORMAL
 );
-Event EV_PG_MinDuration(
-    "MinDuration", EV_DEFAULT, "f", "MinDuration", "Sets the minimum duration of the bursts (in seconds)\nDefault=3"
+Event EV_PG_SetModel
+(
+    "Model",
+    EV_DEFAULT,
+    "s",
+    "Model",
+    "Projectile model to use.\nDefault=models/projectiles/bazookashell.tik",
+    EV_NORMAL
 );
-Event EV_PG_MaxDuration(
-    "MaxDuration", EV_DEFAULT, "f", "MaxDuration", "Sets the maximum duration of bursts(in seconds)\nDefault=3"
+Event EV_PG_MinDuration
+(
+    "MinDuration",
+    EV_DEFAULT,
+    "f",
+    "MinDuration",
+    "Sets the minimum duration of the bursts (in seconds)\nDefault=3",
+    EV_NORMAL
 );
-Event EV_PG_MinNumShots(
-    "MinNumShots", EV_DEFAULT, "i", "MinNumShots", "Sets the minimum # of shots to fire in a cycle\nDefault=1"
+Event EV_PG_MaxDuration
+(
+    "MaxDuration",
+    EV_DEFAULT,
+    "f",
+    "MaxDuration",
+    "Sets the maximum duration of bursts(in seconds)\nDefault=3",
+    EV_NORMAL
 );
-Event EV_PG_MaxNumShots(
-    "MaxNumShots", EV_DEFAULT, "i", "MaxNumShots", "Sets the maximum # of shots to fire in a cycle\nDefault=1"
+Event EV_PG_MinNumShots
+(
+    "MinNumShots",
+    EV_DEFAULT,
+    "i",
+    "MinNumShots",
+    "Sets the minimum # of shots to fire in a cycle\nDefault=1",
+    EV_NORMAL
 );
-Event EV_PG_Cycles("Cycles", EV_DEFAULT, "i", "Cycles", "Number of cycles. 0=infinte\nDefault=0");
-Event EV_PG_MinDelay("MinDelay", EV_DEFAULT, "f", "MinDelay", "Minimum time between bursts.\n");
-Event EV_PG_MaxDelay("MaxDelay", EV_DEFAULT, "f", "MaxDelay", "Maximum time between bursts\nDefault=10");
-Event EV_PG_Accuracy("Accuracy", EV_DEFAULT, "f", "Accuracy", "Accuracy 0-25 feet\nDefault=10");
-Event EV_PG_ClearTarget("ClearTarget", EV_DEFAULT, NULL, NULL, "Pick another target...");
-Event EV_PG_BeginCycle("BeginCycle", EV_DEFAULT, NULL, NULL, "Startup the cycle..");
-Event EV_TickCycle("TickCycle", EV_DEFAULT, NULL, NULL, "Tick the cycle..");
-Event EV_EndCycle("EndCycle", EV_DEFAULT, NULL, NULL, "End the cycle..");
-Event EV_TurnOn("TurnOn", EV_DEFAULT, NULL, NULL, "Turn On and begin the first cycle");
-Event EV_TurnOff("TurnOff", EV_DEFAULT, NULL, NULL, "Turn Off and cancel the current cycle (if any)");
-Event
-    EV_Set_FireDelay("firedelay", EV_DEFAULT, "f", "fFireDelay", "Set the minimum time between shots from the weapon");
-Event EV_Initialize("initialize", EV_DEFAULT, NULL, NULL, "Initialize object");
+Event EV_PG_MaxNumShots
+(
+    "MaxNumShots",
+    EV_DEFAULT,
+    "i",
+    "MaxNumShots",
+    "Sets the maximum # of shots to fire in a cycle\nDefault=1",
+    EV_NORMAL
+);
+Event EV_PG_Cycles
+(
+    "Cycles",
+    EV_DEFAULT,
+    "i",
+    "Cycles",
+    "Number of cycles. 0=infinte\nDefault=0",
+    EV_NORMAL
+);
+Event EV_PG_MinDelay
+(
+    "MinDelay",
+    EV_DEFAULT,
+    "f",
+    "MinDelay",
+    "Minimum time between bursts.\n",
+    EV_NORMAL
+);
+Event EV_PG_MaxDelay
+(
+    "MaxDelay",
+    EV_DEFAULT,
+    "f",
+    "MaxDelay",
+    "Maximum time between bursts\nDefault=10",
+    EV_NORMAL
+);
+Event EV_PG_Accuracy
+(
+    "Accuracy",
+    EV_DEFAULT,
+    "f",
+    "Accuracy",
+    "Accuracy 0-25 feet\nDefault=10",
+    EV_NORMAL
+);
+Event EV_PG_ClearTarget
+(
+    "ClearTarget",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Pick another target...",
+    EV_NORMAL
+);
+Event EV_PG_BeginCycle
+(
+    "BeginCycle",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Startup the cycle..",
+    EV_NORMAL
+);
+Event EV_TickCycle
+(
+    "TickCycle",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Tick the cycle..",
+    EV_NORMAL
+);
+Event EV_EndCycle
+(
+    "EndCycle",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "End the cycle..",
+    EV_NORMAL
+);
+Event EV_TurnOn
+(
+    "TurnOn",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Turn On and begin the first cycle",
+    EV_NORMAL
+);
+Event EV_TurnOff
+(
+    "TurnOff",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Turn Off and cancel the current cycle (if any)",
+    EV_NORMAL
+);
+Event EV_Set_FireDelay
+(
+    "firedelay",
+    EV_DEFAULT,
+    "f",
+    "fFireDelay",
+    "Set the minimum time between shots from the weapon",
+    EV_NORMAL
+);
+Event EV_Initialize
+(
+    "initialize",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Initialize object",
+    EV_NORMAL
+);
 Event EV_Set_FireOnStartUp(
-    "FireOnStartUp", EV_DEFAULT, 0, "i", "Default=1; Set this to 0 if you don't want the PG to fire on startup."
+    "FireOnStartUp",
+    EV_DEFAULT,
+    NULL,
+    "i",
+    "Default=1; Set this to 0 if you don't want the PG to fire on startup.",
+    EV_NORMAL
 );
-Event EV_PG_isDonut("isdonut", EV_DEFAULT, "i", "isdonut", "will target donut");
-Event EV_PG_arcDonut("arc", EV_DEFAULT, "f", "arc", "arc in front of the player");
-Event EV_PG_minDonut("mindonut", EV_DEFAULT, "f", "mindonut", "min extent of donut from player");
-Event EV_PG_maxDonut("maxdonut", EV_DEFAULT, "f", "maxdonut", "max extent of donut from player");
-Event EV_PG_PlayPreImpactSound("playpreimpact", EV_DEFAULT, NULL, NULL, "Play a pre-impact sound");
-Event EV_PG_SetPreImpactSound("preimpactsound", EV_DEFAULT, "s", "Sound", "Set a pre-impact sound.");
-Event EV_PG_SetPreImpactSoundTime(
-    "preimpactsoundtime", EV_DEFAULT, "f", "delay", "Set the time before impact to play the preimpact sound."
+Event EV_PG_isDonut
+(
+    "isdonut",
+    EV_DEFAULT,
+    "i",
+    "isdonut",
+    "will target donut",
+    EV_NORMAL
+);
+Event EV_PG_arcDonut
+(
+    "arc",
+    EV_DEFAULT,
+    "f",
+    "arc",
+    "arc in front of the player",
+    EV_NORMAL
+);
+Event EV_PG_minDonut
+(
+    "mindonut",
+    EV_DEFAULT,
+    "f",
+    "mindonut",
+    "min extent of donut from player",
+    EV_NORMAL
+);
+Event EV_PG_maxDonut
+(
+    "maxdonut",
+    EV_DEFAULT,
+    "f",
+    "maxdonut",
+    "max extent of donut from player",
+    EV_NORMAL
+);
+Event EV_PG_PlayPreImpactSound
+(
+    "playpreimpact",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Play a pre-impact sound",
+    EV_NORMAL
+);
+Event EV_PG_SetPreImpactSound
+(
+    "preimpactsound",
+    EV_DEFAULT,
+    "s",
+    "Sound",
+    "Set a pre-impact sound.",
+    EV_NORMAL
+);
+Event EV_PG_SetPreImpactSoundTime
+(
+    "preimpactsoundtime",
+    EV_DEFAULT,
+    "f",
+    "delay",
+    "Set the time before impact to play the preimpact sound.",
+    EV_NORMAL
 );
 Event EV_PG_SetPreImpactSoundProbability(
     "preimpactsoundprob",
@@ -80,13 +283,36 @@ Event EV_PG_SetPreImpactSoundProbability(
     "f",
     "probability",
     "Set the chance for a pre-impact sound to occur.\n"
-    "Range: ( 0.0, 1.0 ), with 0 having no chance, and 1 always occurring."
+    "Range: ( 0.0, 1.0 ), with 0 having no chance, and 1 always occurring.",
+    EV_NORMAL
 );
-Event EV_PG_SetLaunchSound("launchsound", EV_DEFAULT, "s", "Sound", "Set a launch sound for the projectile.");
-Event EV_PG_GetTargetEntity(
-    "gettargetentity", EV_DEFAULT, NULL, NULL, "Returns entity being targeted by the projectile generator,", EV_GETTER
+Event EV_PG_SetLaunchSound
+(
+    "launchsound",
+    EV_DEFAULT,
+    "s",
+    "Sound",
+    "Set a launch sound for the projectile.",
+    EV_NORMAL
 );
-Event EV_PG_IsTurnedOn("isturnedon", EV_DEFAULT, NULL, NULL, "Returns whether the generator is on or off.", EV_GETTER);
+Event EV_PG_GetTargetEntity
+(
+    "gettargetentity",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Returns entity being targeted by the projectile generator,",
+    EV_GETTER
+);
+Event EV_PG_IsTurnedOn
+(
+    "isturnedon",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Returns whether the generator is on or off.",
+    EV_GETTER
+);
 
 CLASS_DECLARATION(Entity, ProjectileTarget, "ProjectileGenerator_Target") {
     {&EV_PG_SetID, &ProjectileTarget::EventSetId},
@@ -146,53 +372,47 @@ CLASS_DECLARATION(Animate, ProjectileGenerator, "ProjectileGenerator") {
 
 ProjectileGenerator::ProjectileGenerator()
 {
-	m_iId = -1;
-	m_fMinDuration = 1;
-	m_fMaxDuration = 3;
-	m_iCycles = 0;
-	m_fMinDelay = 3.0;
-	m_fMaxDelay = 10;
-	m_fAccuracy = 10;
-	m_iCurrentCycle = 0;
-	m_iMinNumShots = 1;
-	m_iMaxNumShots = 1;
-	m_fCurrentTime = 0;
-	m_fShotsPerSec = 0;
-	m_iTargetIndex = -1;
-	m_fLastShotTime = 0;
-	m_iAnimSlot = 0;
-	m_bIsTurnedOn = 0;
-	m_bFireOnStartUp = 1;
-	m_bIsDonut = 0;
-	m_fArcDonut = 0;
-	m_fMinDonut = 0;
-	m_fMaxDonut = 0;
-	m_pTarget = 0;
+    m_iId            = -1;
+    m_fMinDuration   = 1;
+    m_fMaxDuration   = 3;
+    m_iCycles        = 0;
+    m_fMinDelay      = 3.0;
+    m_fMaxDelay      = 10;
+    m_fAccuracy      = 10;
+    m_iCurrentCycle  = 0;
+    m_iMinNumShots   = 1;
+    m_iMaxNumShots   = 1;
+    m_fCurrentTime   = 0;
+    m_fShotsPerSec   = 0;
+    m_iTargetIndex   = -1;
+    m_fLastShotTime  = 0;
+    m_iAnimSlot      = 0;
+    m_bIsTurnedOn    = 0;
+    m_bFireOnStartUp = 1;
+    m_bIsDonut       = 0;
+    m_fArcDonut      = 0;
+    m_fMinDonut      = 0;
+    m_fMaxDonut      = 0;
+    m_pTarget        = 0;
 
     m_fCycleTime = 1;
     setMoveType(MOVETYPE_NONE);
     setSolidType(SOLID_NOT);
-    if (spawnflags & PT_SPAWNFLAG_PLAY_FIRE_SOUND)
-    {
-        if (spawnflags & PT_SPAWNFLAG_HIDDEN)
-        {
+    if (spawnflags & PT_SPAWNFLAG_PLAY_FIRE_SOUND) {
+        if (spawnflags & PT_SPAWNFLAG_HIDDEN) {
             hideModel();
             edict->r.svFlags |= SVF_NOCLIENT;
         }
-    }
-    else
-    {
+    } else {
         hideModel();
     }
 
-    if (!LoadingSavegame && spawnflags & PT_SPAWNFLAG_TURN_ON)
-    {
+    if (!LoadingSavegame && spawnflags & PT_SPAWNFLAG_TURN_ON) {
         PostEvent(EV_TurnOn, 0.1f);
     }
 
     m_pCurrent = NULL;
-    if (!LoadingSavegame)
-    {
+    if (!LoadingSavegame) {
         PostEvent(EV_Initialize, 0.001f);
     }
 }
@@ -209,7 +429,7 @@ bool ProjectileGenerator::ShouldHideModel() const
 
 bool ProjectileGenerator::ShouldPlayFireSound() const
 {
-	return (spawnflags & PT_SPAWNFLAG_PLAY_FIRE_SOUND) ? true : false;
+    return (spawnflags & PT_SPAWNFLAG_PLAY_FIRE_SOUND) ? true : false;
 }
 
 void ProjectileGenerator::EventIsTurnedOn(Event *ev)
@@ -224,7 +444,8 @@ void ProjectileGenerator::EventGetTargetEntity(Event *ev)
 
 void ProjectileGenerator::EventLaunchSound(Event *ev)
 {
-    m_sLaunchSound = ev->GetString(1);;
+    m_sLaunchSound = ev->GetString(1);
+    ;
 }
 
 void ProjectileGenerator::SetTarget(Event *ev)
@@ -234,16 +455,14 @@ void ProjectileGenerator::SetTarget(Event *ev)
 
 void ProjectileGenerator::OnInitialize(Event *ev)
 {
-    if (spawnflags & PT_SPAWNFLAG_SET_YAW)
-    {
+    if (spawnflags & PT_SPAWNFLAG_SET_YAW) {
         angles.y += 180;
         setAngles(angles);
-	}
-	if (spawnflags & PT_SPAWNFLAG_SET_ROLL)
-	{
-		angles.z += 180;
-		setAngles(angles);
-	}
+    }
+    if (spawnflags & PT_SPAWNFLAG_SET_ROLL) {
+        angles.z += 180;
+        setAngles(angles);
+    }
 }
 
 void ProjectileGenerator::TurnOff(Event *ev)
@@ -255,11 +474,10 @@ void ProjectileGenerator::TurnOff(Event *ev)
 
 void ProjectileGenerator::TurnOn(Event *ev)
 {
-    if (!m_bIsTurnedOn)
-	{
-		CancelEventsOfType(EV_PG_BeginCycle);
-		CancelEventsOfType(EV_TickCycle);
-		m_bIsTurnedOn = true;
+    if (!m_bIsTurnedOn) {
+        CancelEventsOfType(EV_PG_BeginCycle);
+        CancelEventsOfType(EV_TickCycle);
+        m_bIsTurnedOn = true;
     }
 }
 
@@ -283,11 +501,9 @@ void ProjectileGenerator::GetLocalTargets()
     int i;
 
     m_projectileTargets.ClearObjectList();
-    for (i = 1; i <= g_projectileTargets.NumObjects(); i++)
-    {
-        ProjectileTarget* target = g_projectileTargets.ObjectAt(i);
-        if (m_iId == target->GetTarget())
-        {
+    for (i = 1; i <= g_projectileTargets.NumObjects(); i++) {
+        ProjectileTarget *target = g_projectileTargets.ObjectAt(i);
+        if (m_iId == target->GetTarget()) {
             m_projectileTargets.AddObject(target);
         }
     }
@@ -310,12 +526,12 @@ void ProjectileGenerator::EventAccuracy(Event *ev)
 
 void ProjectileGenerator::EventMaxDelay(Event *ev)
 {
-	m_fMaxDelay = ev->GetFloat(1);
+    m_fMaxDelay = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::EventMinDelay(Event *ev)
 {
-	m_fMinDelay = ev->GetFloat(1);
+    m_fMinDelay = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::EventFireOnStartUp(Event *ev)
@@ -330,12 +546,12 @@ void ProjectileGenerator::EventMaxNumShots(Event *ev)
 
 void ProjectileGenerator::EventMinNumShots(Event *ev)
 {
-	m_iMinNumShots = ev->GetInteger(1);
+    m_iMinNumShots = ev->GetInteger(1);
 }
 
 void ProjectileGenerator::EventCycles(Event *ev)
 {
-	m_iCycles = ev->GetInteger(1);
+    m_iCycles = ev->GetInteger(1);
 }
 
 void ProjectileGenerator::EventMaxDuration(Event *ev)
@@ -345,7 +561,7 @@ void ProjectileGenerator::EventMaxDuration(Event *ev)
 
 void ProjectileGenerator::EventMinDuration(Event *ev)
 {
-	m_fMinDuration = ev->GetFloat(1);
+    m_fMinDuration = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::SetWeaponModel(Event *ev)
@@ -365,22 +581,19 @@ void ProjectileGenerator::BeginCycle(Event *ev)
 
 void ProjectileGenerator::TickCycle(Event *ev)
 {
-	if (!m_bIsTurnedOn) {
-		return;
-	}
+    if (!m_bIsTurnedOn) {
+        return;
+    }
 
-	m_fCurrentTime += level.frametime * m_fShotsPerSec;
-	if (m_fCurrentTime >= 1.f)
-	{
-		float f = floor(m_fCurrentTime);
-		if (Attack(floor(f)))
-		{
-			m_fCurrentTime -= floor(f);
-		}
+    m_fCurrentTime += level.frametime * m_fShotsPerSec;
+    if (m_fCurrentTime >= 1.f) {
+        float f = floor(m_fCurrentTime);
+        if (Attack(floor(f))) {
+            m_fCurrentTime -= floor(f);
+        }
+    }
 
-	}
-
-	PostEvent(EV_TickCycle, 0.01f);
+    PostEvent(EV_TickCycle, 0.01f);
 }
 
 void ProjectileGenerator::EndCycle(Event *ev)
@@ -389,14 +602,14 @@ void ProjectileGenerator::EndCycle(Event *ev)
     SetupNextCycle();
 }
 
-void ProjectileGenerator::EventmaxDonut(Event* ev)
+void ProjectileGenerator::EventmaxDonut(Event *ev)
 {
     m_fMaxDonut = ev->GetFloat(1);
 }
 
-void ProjectileGenerator::EventminDonut(Event* ev)
+void ProjectileGenerator::EventminDonut(Event *ev)
 {
-	m_fMinDonut = ev->GetFloat(1);
+    m_fMinDonut = ev->GetFloat(1);
 }
 
 void ProjectileGenerator::EventarcDonut(Event *ev)
@@ -445,6 +658,45 @@ void ProjectileGenerator::Archive(Archiver& arc)
     arc.ArchiveObjectPointer((Class **)&m_pCurrent);
 }
 
+/*QUAKED ProjectileGenerator_Projectile (1.0 0.0 1.0) (-12 -12 -12) (12 12 12)  LaunchSound x TargetRandom StartOn FlipYaw FlipRoll TargetPlayer HideModel
+
+  Allows you to launch projectiles without the need for actual AI.  Useful for faking large battles.
+  Here are the params:
+
+  ID <nIdNum>
+  Model		 <sModelName>			(Defaults to bazooka weapon)
+  Projectile <sModelName>			(Defaults to bazooka projectile)
+  MinDuration <nMinDur=1>           (Min burst cycle duration)
+  MaxDuration <nMaxDur=3>           (Max burst cycle duration)
+  Cycles <nCycles=0>                (0=infinite)
+  MinNumShots <nMinNumShots=1>      (Minimum # of shots per cycle)
+  MaxNumShots <nMaxNumShots=1>      (Maximum # of shots per cycle)
+
+  MinDelay <nDelay=2>               (min amount of time between cycles)
+  MaxDelay <nDelay=10>              (max amount of time between cycles)
+  Accuracy <nAccuracy=10>           (accuracy measured in feet. 0-25 feet range)
+  FireOnStartUp						(defaults to 1.  This flag tells the PG to fire immediately when turned on.  Then do its delay from then on.)
+
+  IsDonut	<nIsDonut=1>			(indicates to use donut to calculate impact location)
+  Arc		<nArc=#degrees)			(how many degrees does the arc have)
+  minDonut <nMinDonut=15>			(mindistance from player)
+  maxDonut <nMaxDonut=30>			(maxdistance from player)
+  launchsound <sSoundName>          (Defaults to no sound)
+
+  preimpactsound <sSoundName>       (Defaults to no sound)
+  preimpactsoundtime <nTime=1.0>    (Time before impact to begin preimpact sound)
+  preimpactsoundprob <nProb=0.0>    (Chance of an impact sound being played. 0..1 range )
+
+  Here are some useful script commands:
+
+  $<generatorName> TurnOn
+  $<generatorName> TurnOff
+  $<generatorName> playpreimpact     ( plays the preimpact sound immediately )
+  $<generatorName> gettargetentity   ( return the entity that is targeted )
+  $<generatorName> isturnedon        ( is the projectil generator turned on? )
+
+******************************************************************************/
+
 CLASS_DECLARATION(ProjectileGenerator, ProjectileGenerator_Projectile, "ProjectileGenerator_Projectile") {
     {&EV_Weapon_SetProjectile,            &ProjectileGenerator_Projectile::SetProjectileModel          },
     {&EV_PG_isDonut,                      &ProjectileGenerator_Projectile::EventisDonut                },
@@ -466,8 +718,8 @@ ProjectileGenerator_Projectile::ProjectileGenerator_Projectile()
 
     m_sProjectileModel = "models/projectiles/bazookashell.tik";
     setModel("models/weapons/bazooka.tik");
-    m_sPreImpactSound = "";
-    m_fImpactSoundTime = 1;
+    m_sPreImpactSound         = "";
+    m_fImpactSoundTime        = 1;
     m_fImpactSoundProbability = 0;
 }
 
@@ -512,6 +764,36 @@ void ProjectileGenerator_Projectile::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fImpactSoundProbability);
 }
 
+/*QUAKED ProjectileGenerator_Gun (1.0 0.0 1.0) (-12 -12 -12) (12 12 12) LaunchSound x TargetRandom StartOn FlipYaw FlipRoll TargetPlayer HideModel
+
+  Allows you to launch projectiles without the need for actual AI.  Useful for faking large battles.
+  Here are the params:
+
+  ID <nIdNum>
+  MinDuration <nMinDur=1>           (Min burst cycle duration)
+  MaxDuration <nMaxDur=3>           (Max burst cycle duration)
+  Cycles <nCycles=0>                (0=infinite)
+  MinNumShots <nMinNumShots=1>      (Minimum # of shots per cycle)
+  MaxNumShots <nMaxNumShots=1>      (Maximum # of shots per cycle)
+
+  MinDelay <nDelay=2>               (min amount of time between cycles)
+  MaxDelay <nDelay=10>              (max amount of time between cycles)
+  Accuracy <nAccuracy=10>           (accuracy measured in feet. 0-25 feet range)
+  launchsound <sSoundName>          (Defaults to no sound)
+  FireOnStartUp						(defaults to 1.  This flag tells the PG to fire immediately when turned on.  Then do its delay from then on.)
+
+  bulletLarge <0,1,2,3>				(whether to fire normal, rifle, artillery or larger bullets)
+  tracerSpeed <0,2>					(scale factor for tracer speed)
+
+  Here are some useful script commands:
+
+  $<generatorName> TurnOn
+  $<generatorName> TurnOff
+  $<generatorName> gettargetentity   ( return the entity that is targeted )
+  $<generatorName> isturnedon        ( is the projectil generator turned on? )
+
+******************************************************************************/
+
 Event EV_PG_SetFakeBullets(
     "fakebullets",
     EV_DEFAULT,
@@ -540,25 +822,25 @@ CLASS_DECLARATION(ProjectileGenerator, ProjectileGenerator_Gun, "ProjectileGener
 
 ProjectileGenerator_Gun::ProjectileGenerator_Gun()
 {
-	m_fBulletRange = 4000;
-	m_fBulletDamage = 40;
-	m_iBulletCount = 1;
-    m_vBulletSpread = Vector(40, 40, 0);
-	m_iTracerFrequency = 0;
-	m_iBulletLarge = 0;
-	m_iMeansOfDeath = MOD_BULLET;
-	m_fBulletThroughWood = 0;
-	m_fBulletThroughMetal = 0;
-	m_iBulletKnockback = 0;
-	m_iAttackCount = 0;
-	m_fFireDelay = 1;
-	m_fTracerSpeed = 1.0;
-	m_bFakeBullets = 0;
+    m_fBulletRange        = 4000;
+    m_fBulletDamage       = 40;
+    m_iBulletCount        = 1;
+    m_vBulletSpread       = Vector(40, 40, 0);
+    m_iTracerFrequency    = 0;
+    m_iBulletLarge        = 0;
+    m_iMeansOfDeath       = MOD_BULLET;
+    m_fBulletThroughWood  = 0;
+    m_fBulletThroughMetal = 0;
+    m_iBulletKnockback    = 0;
+    m_iAttackCount        = 0;
+    m_fFireDelay          = 1;
+    m_fTracerSpeed        = 1.0;
+    m_bFakeBullets        = 0;
 }
 
 void ProjectileGenerator_Gun::SetFireDelay(Event *ev)
 {
-	m_fFireDelay = ev->GetFloat(1);
+    m_fFireDelay = ev->GetFloat(1);
 }
 
 void ProjectileGenerator_Gun::SetMeansOfDeath(Event *ev)
@@ -573,7 +855,7 @@ void ProjectileGenerator_Gun::SetBulletThroughWood(Event *ev)
 
 void ProjectileGenerator_Gun::SetBulletThroughMetal(Event *ev)
 {
-	m_fBulletThroughMetal = ev->GetFloat(1);
+    m_fBulletThroughMetal = ev->GetFloat(1);
 }
 
 void ProjectileGenerator_Gun::SetBulletKnockback(Event *ev)
@@ -624,8 +906,8 @@ void ProjectileGenerator_Gun::SetBulletRange(Event *ev)
 
 bool ProjectileGenerator_Gun::Attack(int count)
 {
-	// FIXME: unimplemented
-	return true;
+    // FIXME: unimplemented
+    return true;
 }
 
 void ProjectileGenerator_Gun::TickCycle(Event *ev)
@@ -635,17 +917,14 @@ void ProjectileGenerator_Gun::TickCycle(Event *ev)
     }
 
     m_fCurrentTime += level.frametime * m_fShotsPerSec;
-    if (m_fCurrentTime >= 1.f)
-    {
+    if (m_fCurrentTime >= 1.f) {
         float f = floor(m_fCurrentTime);
-        if (Attack(floor(f)))
-        {
+        if (Attack(floor(f))) {
             m_fCurrentTime -= floor(f);
         }
+    }
 
-	}
-
-	PostEvent(EV_TickCycle, 0.01f);
+    PostEvent(EV_TickCycle, 0.01f);
 }
 
 void ProjectileGenerator_Gun::Archive(Archiver& arc)
@@ -667,6 +946,41 @@ void ProjectileGenerator_Gun::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fFireDelay);
     arc.ArchiveFloat(&m_fTracerSpeed);
 }
+
+/*QUAKED ProjectileGenerator_Heavy (1.0 0.0 1.0) (-12 -12 -12) (12 12 12)  LaunchSound x TargetRandom StartOn FlipYaw FlipRoll TargetPlayer HideModel
+
+  Allows you to launch projectiles without the need for actual AI.  Useful for faking large battles.
+  Here are the params:
+
+  ID <nIdNum>
+  Model		 <sModelName>			(Defaults to bazooka weapon)
+  Projectile <sModelName>			(Defaults to bazooka projectile)
+  MinDuration <nMinDur=1>           (Min burst cycle duration)
+  MaxDuration <nMaxDur=3>           (Max burst cycle duration)
+  Cycles <nCycles=0>                (0=infinite)
+  MinNumShots <nMinNumShots=1>      (Minimum # of shots per cycle)
+  MaxNumShots <nMaxNumShots=1>      (Maximum # of shots per cycle)
+
+  MinDelay <nDelay=2>               (min amount of time between cycles)
+  MaxDelay <nDelay=10>              (max amount of time between cycles)
+  Accuracy <nAccuracy=10>           (accuracy measured in feet. 0-25 feet range)
+
+  FireOnStartUp						(defaults to 1.  This flag tells the PG to fire immediately when turned on.  Then do its delay from then on.)
+
+  IsDonut	<nIsDonut=1>			(indicates to use donut to calculate impact location)
+  Arc		<nArc=#degrees)			(how many degrees does the arc have)
+  minDonut <nMinDonut=15>			(mindistance from player)
+  maxDonut <nMaxDonut=30>			(maxdistance from player)
+  launchsound <sSoundName>          (Defaults to no sound)
+
+  Here are some useful script commands:
+
+  $<generatorName> TurnOn
+  $<generatorName> TurnOff
+  $<generatorName> gettargetentity   ( return the entity that is targeted )
+  $<generatorName> isturnedon        ( is the projectil generator turned on? )
+
+******************************************************************************/
 
 CLASS_DECLARATION(ProjectileGenerator, ProjectileGenerator_Heavy, "ProjectileGenerator_Heavy") {
     {&EV_Weapon_SetProjectile, &ProjectileGenerator_Heavy::SetProjectileModel},
@@ -690,8 +1004,8 @@ void ProjectileGenerator_Heavy::SetProjectileModel(Event *ev)
 
 bool ProjectileGenerator_Heavy::Attack(int count)
 {
-	// FIXME: unimplemented
-	return true;
+    // FIXME: unimplemented
+    return true;
 }
 
 void ProjectileGenerator_Heavy::Archive(Archiver& arc)
@@ -701,21 +1015,171 @@ void ProjectileGenerator_Heavy::Archive(Archiver& arc)
     arc.ArchiveString(&m_sProjectileModel);
 }
 
-Event EV_DestroyModel("DestroyModel", EV_DEFAULT, "s", "DestroyModel", 0);
-Event EV_UsedModel("UsedModel", EV_DEFAULT, "s", "UsedModel", 0);
-Event EV_ExplosionSound("ExplosionSound", EV_DEFAULT, "s", "ExplosionSound", 0);
-Event EV_ActivateSound("ActivateSound", EV_DEFAULT, "s", "ActivateSound", 0);
-Event EV_TickSound("TickSound", EV_DEFAULT, "s", "TickSound", 0);
-Event EV_SetDamage("SetDamage", EV_DEFAULT, "f", "Damage", 0);
-Event EV_Radius("Radius", EV_DEFAULT, "f", "Radius", 0);
-Event EV_StopWatchDuration("StopWatchDuration", EV_DEFAULT, "f", "StopWatchDuration", 0);
-Event EV_SetThread("setthread", EV_DEFAULT, "s", "thread", "Set the thread to execute when this object is used");
-Event EV_SetUseThread("setusethread", EV_DEFAULT, "s", "thread", "Set the thread to execute when this object is used");
-Event EV_DoExplosion("Explode", EV_DEFAULT, NULL, NULL, "Cause the explosion to happen.");
-Event EV_SetTriggered("triggered", EV_DEFAULT, "i", "0 or 1", "Set the triggered status");
-Event EV_SetExplosionEffect("explosioneffect", EV_DEFAULT, "s", "effect model", "Set the explosion effect model");
-Event EV_SetExplosionOffset("explosionoffset", EV_DEFAULT, "v", "offset vector", "Set the explosion offset");
-Event EV_BlowUp("BlowUp", EV_DEFAULT, NULL, NULL, NULL);
+/*QUAKED ThrobbingBox_explosive (1.0 0.0 1.0) (-12 -12 -12) (12 12 12) ReplaceModel
+
+  Explosive throbbing box.  Connect to the object you want to make explode.
+
+  ReplaceModel - check this if you want the destroy model to replace the model instead of doing
+                 a model switch.
+
+
+  Parameters:
+		Model - name of pulse model (default=items/pulse_explosive.tik")
+		UsedModel - name of non-pulse version (default=items/explosive.tik")
+		ExplosionSound - name of explosion sound (default=explode_flak88)
+		ActivateSound - name of activation sound (default=plantbomb)
+		TickSound - name of 'ticking' sound (default=bombtick)
+		Damage - amount of damage to do (default=300)
+		radius - radius to do the damage (default=300)
+		stopwatchduration - how long should the stopwatch go (default=5 seconds)
+		DestroyModel - name of model to switch target to.
+		setthread - name of thread to call when the explosion happens...
+		setusethread - name of thread to call when explosive was placed.
+		explosionpos - vector of the position the explosion should occur
+
+  Note:
+	* Set stopwatchduration to 0 to prevent the explosion and stopwatch from happening.
+	* You may then send the Explode event to this object to make the explosion happen.
+
+ ---------------------------------------------------------------------------------------------
+
+*/
+
+Event EV_DestroyModel
+(
+    "DestroyModel",
+    EV_DEFAULT,
+    "s",
+    "DestroyModel",
+    NULL,
+    EV_NORMAL
+);
+Event EV_UsedModel
+(
+    "UsedModel",
+    EV_DEFAULT,
+    "s",
+    "UsedModel",
+    NULL,
+    EV_NORMAL
+);
+Event EV_ExplosionSound
+(
+    "ExplosionSound",
+    EV_DEFAULT,
+    "s",
+    "ExplosionSound",
+    NULL,
+    EV_NORMAL
+);
+Event EV_ActivateSound
+(
+    "ActivateSound",
+    EV_DEFAULT,
+    "s",
+    "ActivateSound",
+    NULL,
+    EV_NORMAL
+);
+Event EV_TickSound
+(
+    "TickSound",
+    EV_DEFAULT,
+    "s",
+    "TickSound",
+    NULL,
+    EV_NORMAL
+);
+Event EV_SetDamage
+(
+    "SetDamage",
+    EV_DEFAULT,
+    "f",
+    "Damage",
+    NULL,
+    EV_NORMAL
+);
+Event EV_Radius
+(
+    "Radius",
+    EV_DEFAULT,
+    "f",
+    "Radius",
+    NULL,
+    EV_NORMAL
+);
+Event EV_StopWatchDuration
+(
+    "StopWatchDuration",
+    EV_DEFAULT,
+    "f",
+    "StopWatchDuration",
+    NULL,
+    EV_NORMAL
+);
+Event EV_SetThread
+(
+    "setthread",
+    EV_DEFAULT,
+    "s",
+    "thread",
+    "Set the thread to execute when this object is used",
+    EV_NORMAL
+);
+Event EV_SetUseThread
+(
+    "setusethread",
+    EV_DEFAULT,
+    "s",
+    "thread",
+    "Set the thread to execute when this object is used",
+    EV_NORMAL
+);
+Event EV_DoExplosion
+(
+    "Explode",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Cause the explosion to happen.",
+    EV_NORMAL
+);
+Event EV_SetTriggered
+(
+    "triggered",
+    EV_DEFAULT,
+    "i",
+    "0 or 1",
+    "Set the triggered status",
+    EV_NORMAL
+);
+Event EV_SetExplosionEffect
+(
+    "explosioneffect",
+    EV_DEFAULT,
+    "s",
+    "effect model",
+    "Set the explosion effect model",
+    EV_NORMAL
+);
+Event EV_SetExplosionOffset
+(
+    "explosionoffset",
+    EV_DEFAULT,
+    "v",
+    "offset vector",
+    "Set the explosion offset",
+    EV_NORMAL
+);
+Event EV_BlowUp
+(
+    "BlowUp",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    NULL,
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Animate, ThrobbingBox_Explosive, "ThrobbingBox_Explosive") {
     {&EV_Use,                &ThrobbingBox_Explosive::OnUse               },
@@ -740,17 +1204,17 @@ ThrobbingBox_Explosive::ThrobbingBox_Explosive()
 {
     if (LoadingSavegame) {
         return;
-	}
+    }
 
-	setModel("items\\\\pulse_explosive.tik");
-    m_sUsedModel = "items/explosive.tik";
-    m_sSound = "explose_flak88";
+    setModel("items\\\\pulse_explosive.tik");
+    m_sUsedModel     = "items/explosive.tik";
+    m_sSound         = "explose_flak88";
     m_sActivateSound = "plantbomb";
-    m_sTickSound = "bombtick";
+    m_sTickSound     = "bombtick";
 
-    m_bUsed = false;
-    m_fExplosionDamage = 300;
-    m_fRadius = 300;
+    m_bUsed              = false;
+    m_fExplosionDamage   = 300;
+    m_fRadius            = 300;
     m_fStopwatchDuration = 5;
 
     m_sEffect = "emitters/mortar_higgins.tik";
@@ -774,38 +1238,27 @@ void ThrobbingBox_Explosive::SetTriggered(Event *ev)
 
 void ThrobbingBox_Explosive::DoExplosion(Event *ev)
 {
-    SpawnArgs sp;
-    ScriptModel* spawned;
+    SpawnArgs    sp;
+    ScriptModel *spawned;
 
     sp.setArg("model", m_sEffect);
     sp.setArg("origin", va("%f %f %f", origin.x, origin.y, origin.z));
     sp.setArg("classname", "ScriptModel");
 
-    if (target.length())
-    {
-        SimpleEntity* targetEnt = G_FindTarget(NULL, target.c_str());
-        if (targetEnt)
-        {
+    if (target.length()) {
+        SimpleEntity *targetEnt = G_FindTarget(NULL, target.c_str());
+        if (targetEnt) {
             sp.setArg("origin", va("%f %f %f", targetEnt->origin.x, targetEnt->origin.y, targetEnt->origin.z));
         }
     }
 
-    spawned = static_cast<ScriptModel*>(sp.Spawn());
-    if (spawned)
-    {
+    spawned = static_cast<ScriptModel *>(sp.Spawn());
+    if (spawned) {
         spawned->NewAnim("start");
         spawned->setSolidType(SOLID_NOT);
     }
 
-    RadiusDamage(
-        origin + Vector(0, 0, 128),
-        this,
-        this,
-        m_fExplosionDamage,
-        this,
-        MOD_EXPLOSION,
-        m_fRadius
-    );
+    RadiusDamage(origin + Vector(0, 0, 128), this, this, m_fExplosionDamage, this, MOD_EXPLOSION, m_fRadius);
 
     Sound(m_sSound, CHAN_BODY);
 
@@ -815,26 +1268,20 @@ void ThrobbingBox_Explosive::DoExplosion(Event *ev)
 
 void ThrobbingBox_Explosive::SetUseThread(Event *ev)
 {
-    if (ev->IsFromScript())
-    {
+    if (ev->IsFromScript()) {
         m_useThread.SetThread(ev->GetValue(1));
-    }
-    else
-    {
+    } else {
         m_useThread.Set(ev->GetString(1));
     }
 }
 
 void ThrobbingBox_Explosive::SetThread(Event *ev)
 {
-	if (ev->IsFromScript())
-	{
-		m_thread.SetThread(ev->GetValue(1));
-	}
-	else
-	{
+    if (ev->IsFromScript()) {
+        m_thread.SetThread(ev->GetValue(1));
+    } else {
         m_thread.Set(ev->GetString(1));
-	}
+    }
 }
 
 void ThrobbingBox_Explosive::SetStopWatchDuration(Event *ev)
@@ -859,113 +1306,100 @@ void ThrobbingBox_Explosive::TickSound(Event *ev)
 
 void ThrobbingBox_Explosive::ActivateSound(Event *ev)
 {
-	m_sActivateSound = ev->GetString(1);
+    m_sActivateSound = ev->GetString(1);
 }
 
 void ThrobbingBox_Explosive::ExplosionSound(Event *ev)
 {
-	m_sSound = ev->GetString(1);
+    m_sSound = ev->GetString(1);
 }
 
 void ThrobbingBox_Explosive::UsedModel(Event *ev)
 {
-	m_sUsedModel = ev->GetString(1);
+    m_sUsedModel = ev->GetString(1);
 }
 
 void ThrobbingBox_Explosive::SetDestroyModel(Event *ev)
 {
-	m_sDestroyedModel = ev->GetString(1);
+    m_sDestroyedModel = ev->GetString(1);
 }
 
 void ThrobbingBox_Explosive::OnBlowUp(Event *ev)
 {
-    Player* player;
-	Entity* targetEnt;
-	ScriptModel* mdl;
+    Player      *player;
+    Entity      *targetEnt;
+    ScriptModel *mdl;
 
     StopLoopSound();
     setSolidType(SOLID_NOT);
 
-    player = static_cast<Player*>(G_FindTarget(this, "player"));
+    player = static_cast<Player *>(G_FindTarget(this, "player"));
     if (player) {
         // clear the player's stopwatch
         player->SetStopwatch(0);
     }
 
-    if (target.length() && (targetEnt = static_cast<Entity*>(G_FindTarget(NULL, target.c_str()))) && m_sDestroyedModel.length())
-    {
-        if (spawnflags & TBE_SPAWNFLAG_DESTROYED_MODEL)
-		{
-			SpawnArgs sp;
+    if (target.length() && (targetEnt = static_cast<Entity *>(G_FindTarget(NULL, target.c_str())))
+        && m_sDestroyedModel.length()) {
+        if (spawnflags & TBE_SPAWNFLAG_DESTROYED_MODEL) {
+            SpawnArgs sp;
 
             sp.setArg("model", m_sDestroyedModel.c_str());
             sp.setArg("origin", va("%f %f %f", targetEnt->origin.x, targetEnt->origin.y, targetEnt->origin.z));
             sp.setArg("angles", va("%f %f %f", targetEnt->angles.x, targetEnt->angles.y, targetEnt->angles.z));
             sp.setArg("classname", "ScriptModel");
 
-            mdl = static_cast<ScriptModel*>(sp.Spawn());
-            if (mdl)
-            {
+            mdl = static_cast<ScriptModel *>(sp.Spawn());
+            if (mdl) {
                 mdl->NewAnim("start");
                 mdl->setSolidType(targetEnt->edict->solid);
             }
 
-            if (targetEnt->IsSubclassOfVehicle())
-            {
-                Vehicle* veh = static_cast<Vehicle*>(targetEnt);
-                Entity* ent;
-                int i;
+            if (targetEnt->IsSubclassOfVehicle()) {
+                Vehicle *veh = static_cast<Vehicle *>(targetEnt);
+                Entity  *ent;
+                int      i;
 
                 // remove all turrets
-                for (i = 0; i < 8; i++)
-                {
+                for (i = 0; i < 8; i++) {
                     ent = veh->QueryTurretSlotEntity(i);
-                    if (ent)
-                    {
+                    if (ent) {
                         ent->PostEvent(EV_Remove, 0);
                     }
                 }
 
-                for (i = 0; i < 32; i++)
-                {
+                for (i = 0; i < 32; i++) {
                     ent = veh->QueryPassengerSlotEntity(i);
-                    if (ent)
-                    {
+                    if (ent) {
                         ent->Damage(this, this, ent->health * 2.f, vec_zero, vec_zero, vec_zero, 50, 0, MOD_VEHICLE);
                     }
                 }
 
                 ent = veh->QueryDriverSlotEntity(0);
-                if (ent)
-				{
-					ent->Damage(this, this, ent->health * 2.f, vec_zero, vec_zero, vec_zero, 50, 0, MOD_VEHICLE);
+                if (ent) {
+                    ent->Damage(this, this, ent->health * 2.f, vec_zero, vec_zero, vec_zero, 50, 0, MOD_VEHICLE);
                 }
             }
 
             targetEnt->PostEvent(EV_Remove, 0);
-        }
-        else
-        {
+        } else {
             targetEnt->setModel(m_sDestroyedModel.c_str());
         }
     }
 
-    if (m_fStopwatchDuration)
-    {
+    if (m_fStopwatchDuration) {
         SpawnArgs sp;
 
         sp.setArg("model", m_sEffect.c_str());
         sp.setArg("origin", va("%f %f %f", origin.x, origin.y, origin.z));
         sp.setArg("classname", "ScriptModel");
 
-        if (target.length() > 0 && (targetEnt = static_cast<Entity*>(G_FindTarget(NULL, target.c_str()))))
-        {
+        if (target.length() > 0 && (targetEnt = static_cast<Entity *>(G_FindTarget(NULL, target.c_str())))) {
             sp.setArg("origin", va("%f %f %f", targetEnt->origin.x, targetEnt->origin.y, targetEnt->origin.z));
         }
 
-        mdl = static_cast<ScriptModel*>(sp.Spawn());
-        if (mdl)
-        {
+        mdl = static_cast<ScriptModel *>(sp.Spawn());
+        if (mdl) {
             mdl->NewAnim("start");
             mdl->setSolidType(targetEnt->edict->solid);
         }
@@ -990,25 +1424,23 @@ void ThrobbingBox_Explosive::OnUse(Event *ev)
         return;
     }
 
-	m_bUsed = true;
+    m_bUsed = true;
 
-	setModel(m_sUsedModel);
+    setModel(m_sUsedModel);
 
-	if (m_fStopwatchDuration > 0)
-	{
-		Player* player = static_cast<Player*>(G_FindTarget(this, "player"));
-		player->SetStopwatch(m_fStopwatchDuration, SWT_FUSE);
-		LoopSound(m_sTickSound);
-	}
+    if (m_fStopwatchDuration > 0) {
+        Player *player = static_cast<Player *>(G_FindTarget(this, "player"));
+        player->SetStopwatch(m_fStopwatchDuration, SWT_FUSE);
+        LoopSound(m_sTickSound);
+    }
 
-	// Play the activation sound
-	Sound(m_sActivateSound, CHAN_BODY);
+    // Play the activation sound
+    Sound(m_sActivateSound, CHAN_BODY);
 
-	Unregister(STRING_TRIGGER);
-	m_useThread.Execute(this);
+    Unregister(STRING_TRIGGER);
+    m_useThread.Execute(this);
 
-    if (m_fStopwatchDuration > 0)
-    {
+    if (m_fStopwatchDuration > 0) {
         PostEvent(EV_BlowUp, m_fStopwatchDuration);
     }
 }
@@ -1032,21 +1464,111 @@ void ThrobbingBox_Explosive::Archive(Archiver& arc)
     m_useThread.Archive(arc);
 }
 
+/*QUAKED ThrobbingBox_ExplodePlayerFlak88 (1.0 0.0 1.0) (-12 -12 -12) (12 12 12)
+
+  Explosive throbbing box.  Connect to the object you want to make explode.
+
+
+  Parameters:
+		Model - name of pulse model (default=items/pulse_explosive.tik")
+		UsedModel - name of non-pulse version (default=items/explosive.tik")
+		ExplosionSound - name of explosion sound (default=explode_flak88)
+		ActivateSound - name of activation sound (default=plantbomb)
+		TickSound - name of 'ticking' sound (default=bombtick)
+		Damage - amount of damage to do (default=300)
+		radius - radius to do the damage (default=300)
+		stopwatchduration - how long should the stopwatch go (default=5 seconds)
+		setthread - name of thread to call when the explosion happens...
+
+ ---------------------------------------------------------------------------------------------
+*/
+
 CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodePlayerFlak88, "ThrobbingBox_ExplodePlayerFlak88") {
     {NULL, NULL}
 };
+
+/*QUAKED ThrobbingBox_ExplodeFlak88 (1.0 0.0 1.0) (-12 -12 -12) (12 12 12)
+
+  Explosive throbbing box.  Connect to the object you want to make explode.
+
+  Parameters:
+		Model - name of pulse model (default=items/pulse_explosive.tik")
+		UsedModel - name of non-pulse version (default=items/explosive.tik")
+		ExplosionSound - name of explosion sound (default=explode_flak88)
+		ActivateSound - name of activation sound (default=plantbomb)
+		TickSound - name of 'ticking' sound (default=bombtick)
+		Damage - amount of damage to do (default=300)
+		radius - radius to do the damage (default=300)
+		stopwatchduration - how long should the stopwatch go (default=5 seconds)
+		setthread - name of thread to call when the explosion happens...
+
+ ---------------------------------------------------------------------------------------------
+*/
 
 CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodeFlak88, "ThrobbingBox_ExplodeFlak88") {
     {NULL, NULL}
 };
 
+/*QUAKED ThrobbingBox_ExplodeNebelwerfer (1.0 0.0 1.0) (-12 -12 -12) (12 12 12) ReplaceModel
+
+  Explosive throbbing box.  Connect to the object you want to make explode.
+
+  Parameters:
+		Model - name of pulse model (default=items/pulse_explosive.tik")
+		UsedModel - name of non-pulse version (default=items/explosive.tik")
+		ExplosionSound - name of explosion sound (default=explode_flak88)
+		ActivateSound - name of activation sound (default=plantbomb)
+		TickSound - name of 'ticking' sound (default=bombtick)
+		Damage - amount of damage to do (default=300)
+		radius - radius to do the damage (default=300)
+		stopwatchduration - how long should the stopwatch go (default=5 seconds)
+		setthread - name of thread to call when the explosion happens...
+
+ ---------------------------------------------------------------------------------------------
+*/
+
 CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodeNebelwerfer, "ThrobbingBox_ExplodeNebelwerfer") {
     {NULL, NULL}
 };
 
+/*QUAKED ThrobbingBox_ExplodePlayerNebelwerfer (1.0 0.0 1.0) (-12 -12 -12) (12 12 12) ReplaceModel
+
+  Explosive throbbing box.  Connect to the object you want to make explode.
+
+  Parameters:
+		Model - name of pulse model (default=items/pulse_explosive.tik")
+		UsedModel - name of non-pulse version (default=items/explosive.tik")
+		ExplosionSound - name of explosion sound (default=explode_flak88)
+		ActivateSound - name of activation sound (default=plantbomb)
+		TickSound - name of 'ticking' sound (default=bombtick)
+		Damage - amount of damage to do (default=300)
+		radius - radius to do the damage (default=300)
+		stopwatchduration - how long should the stopwatch go (default=5 seconds)
+		setthread - name of thread to call when the explosion happens...
+
+ ---------------------------------------------------------------------------------------------
+*/
+
 CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_ExplodePlayerNebelwerfer, "ThrobbingBox_ExplodeNebelwerfer") {
     {NULL, NULL}
 };
+
+/*QUAKED ThrobbingBox_Stickybomb (1.0 0.0 1.0) (-12 -12 -12) (12 12 12) ReplaceModel WetFuse
+
+  Stickybomb throbbing box.  Connect to the object you want to make explode.
+  When WetFuse is selected, the bomb will fizzle out and can only be destroyed by shooting it.
+
+  Parameters:
+		ExplosionSound - name of explosion sound (default=explode_flak88)
+		Damage - amount of damage to do (default=300)
+		radius - radius to do the damage (default=300)
+		stopwatchduration - how long should the fuse go (default=5 seconds)
+		setthread - name of thread to call when the explosion happens...
+		DestroyModel - name of model to switch target to.
+		setusethread - name of thread to call when stickybomb is placed.
+
+ ---------------------------------------------------------------------------------------------
+*/
 
 Event EV_StickyBombWet("stickybombwet", EV_DEFAULT, NULL, NULL, NULL);
 
@@ -1059,13 +1581,13 @@ CLASS_DECLARATION(ThrobbingBox_Explosive, ThrobbingBox_Stickybomb, "ThrobbingBox
 
 void ThrobbingBox_Stickybomb::OnStickyBombWet(Event *ev)
 {
-    Player* player;
+    Player *player;
 
     CancelEventsOfType(EV_BlowUp);
     NewAnim("idle_fuse_wet");
     Sound("stickybomb_fuse_out", CHAN_BODY);
 
-    player = static_cast<Player*>(G_FindTarget(this, "player"));
+    player = static_cast<Player *>(G_FindTarget(this, "player"));
     player->SetStopwatch(0, SWT_NORMAL);
     player->SetStopwatch(m_fStopwatchDuration - (level.svsFloatTime - m_fStopwatchStartTime), SWT_FUSE);
 }
@@ -1078,13 +1600,12 @@ void ThrobbingBox_Stickybomb::OnStickyBombUse(Event *ev)
 
     setSolidType(SOLID_BBOX);
     takedamage = DAMAGE_YES;
-    m_bUsed = true;
+    m_bUsed    = true;
 
     setModel(m_sUsedModel);
 
-    if (m_fStopwatchDuration > 0)
-    {
-        Player* player = static_cast<Player*>(G_FindTarget(this, "player"));
+    if (m_fStopwatchDuration > 0) {
+        Player *player = static_cast<Player *>(G_FindTarget(this, "player"));
         player->SetStopwatch(m_fStopwatchDuration, SWT_FUSE);
         LoopSound(m_sTickSound);
         m_fStopwatchStartTime = level.svsFloatTime;
@@ -1097,8 +1618,7 @@ void ThrobbingBox_Stickybomb::OnStickyBombUse(Event *ev)
     m_useThread.Execute(this);
     PostEvent(EV_BlowUp, m_fStopwatchDuration);
 
-    if (spawnflags & TBE_SPAWNFLAG_MAKE_WET)
-    {
+    if (spawnflags & TBE_SPAWNFLAG_MAKE_WET) {
         PostEvent(EV_StickyBombWet, m_fStopwatchDuration * 0.5f * random() + m_fStopwatchDuration * 0.25f);
     }
 
@@ -1112,13 +1632,68 @@ void ThrobbingBox_Stickybomb::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fStopwatchStartTime);
 }
 
-Event EV_Complete("Complete", EV_DEFAULT, NULL, NULL, "Complete this objective.");
+/*QUAKED func_objective (1.0 0.0 1.0) (-12 -12 -12) (12 12 12) StartOn
 
-Event EV_SetCurrent("SetCurrent", EV_DEFAULT, NULL, NULL, "Set this objective as current.");
+  object used to simplify placing objectives.  You may optionally connect this object to the
+  target you want to use for the compass position....
 
-Event EV_SetText("Text", EV_DEFAULT, "s", "text", "Set current text.");
+  Checkboxes:
+	StartOn - check this if you want this objective to be displayed when the level first loads
 
-Event EV_SetObjectiveNbr("ObjectiveNbr", EV_DEFAULT, "i", "index", "Sets the objective number.");
+  Parameters:
+
+  ObjectiveNbr <nObjNbr=0>
+  Text <sText>
+
+  Events:
+	TurnOn
+	TurnOff
+	Complete
+	Text <sNewText>
+	SetCurrent
+
+//---------------------------------------------------------------------------------------------
+*/
+
+Event EV_Complete
+(
+    "Complete",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Complete this objective.",
+    EV_NORMAL
+);
+
+Event EV_SetCurrent
+(
+    "SetCurrent",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set this objective as current.",
+    EV_NORMAL
+);
+
+Event EV_SetText
+(
+    "Text",
+    EV_DEFAULT,
+    "s",
+    "text",
+    "Set current text.",
+    EV_NORMAL
+);
+
+Event EV_SetObjectiveNbr
+(
+    "ObjectiveNbr",
+    EV_DEFAULT,
+    "i",
+    "index",
+    "Sets the objective number.",
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Entity, Objective, "func_objective") {
     {&EV_TurnOn,          &Objective::TurnOn         },
@@ -1202,17 +1777,71 @@ int Objective::GetObjectiveIndex() const
     return m_iObjectiveIndex;
 }
 
+/*QUAKED func_fencepost (0 1 0) ?
+  fencepost that can be blown up
+  "health" how much health the fence post should have (default 50)
+//---------------------------------------------------------------------------------------------
+*/
+
 CLASS_DECLARATION(Entity, FencePost, "func_fencepost") {
     {&EV_Killed, NULL},
     {NULL,       NULL}
 };
 
-Event EV_SetEnemyName("enemyname", EV_DEFAULT, "s", "enemyname", "");
-Event EV_SetEnemyName2("enemyname", EV_DEFAULT, "s", "enemyname", "", EV_GETTER);
-Event EV_GetEnemyName("enemyname", EV_DEFAULT, "s", "enemyname", "", EV_SETTER);
-Event EV_Sentient_GetDontDropWeapons("dontdropweapons", EV_DEFAULT, NULL, NULL, "dontdropweapons getter", EV_GETTER);
-Event EV_SetDontDropHealth("dontdrophealth", EV_DEFAULT, NULL, NULL, "dontdrophealth setter");
-Event EV_GetDontDropHealth("dontdrophealth", EV_DEFAULT, NULL, NULL, "dontdrophealth getter", EV_GETTER);
+Event EV_SetEnemyName
+(
+    "enemyname",
+    EV_DEFAULT,
+    "s",
+    "enemyname",
+    "",
+    EV_NORMAL
+);
+Event EV_SetEnemyName2
+(
+    "enemyname",
+    EV_DEFAULT,
+    "s",
+    "enemyname",
+    "",
+    EV_GETTER
+);
+Event EV_GetEnemyName
+(
+    "enemyname",
+    EV_DEFAULT,
+    "s",
+    "enemyname",
+    "",
+    EV_SETTER
+);
+Event EV_Sentient_GetDontDropWeapons
+(
+    "dontdropweapons",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "dontdropweapons getter",
+    EV_GETTER
+);
+Event EV_SetDontDropHealth
+(
+    "dontdrophealth",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "dontdrophealth setter",
+    EV_NORMAL
+);
+Event EV_GetDontDropHealth
+(
+    "dontdrophealth",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "dontdrophealth getter",
+    EV_GETTER
+);
 
 CLASS_DECLARATION(SimpleArchivedEntity, AISpawnPoint, "info_aispawnpoint") {
     {&EV_Model, &AISpawnPoint::SetModel},
@@ -1220,10 +1849,7 @@ CLASS_DECLARATION(SimpleArchivedEntity, AISpawnPoint, "info_aispawnpoint") {
     {&EV_SetHealth2, &AISpawnPoint::SetHealth},
     {&EV_Entity_GetHealth, &AISpawnPoint::GetHealth},
     {&EV_SetEnemyName, &AISpawnPoint::SetEnemyName},
-    {
-     &EV_SetEnemyName2,
-     &AISpawnPoint::SetEnemyName,
-     },
+    {&EV_SetEnemyName2, &AISpawnPoint::SetEnemyName},
     {&EV_GetEnemyName, &AISpawnPoint::GetEnemyName},
     {&EV_Actor_SetAccuracy, &AISpawnPoint::SetAccuracy},
     {&EV_Actor_GetAccuracy, &AISpawnPoint::GetAccuracy},
@@ -1302,31 +1928,31 @@ CLASS_DECLARATION(SimpleArchivedEntity, AISpawnPoint, "info_aispawnpoint") {
 
 AISpawnPoint::AISpawnPoint()
 {
-	m_iHealth = 100;
-	m_iAccuracy = 20;
-	m_iAmmoGrenade = 0;
-	m_iBalconyHeight = 128;
-	m_iDisguiseLevel = 1;
-	m_fDisguisePeriod = 30000;
-	m_fDisguiseRange = 256;
-	m_fEnemyShareRange = 0;
-	m_fFixedLeash = 0.0;
-	m_fGrenadeAwareness = 20.0;
-	m_fMaxNoticeTimeScale = 1;
-	m_fSoundAwareness = 100;
-	m_bPatrolWaitTrigger = 0;
-	m_fHearing = 2048;
-	m_fSight = world->m_fAIVisionDistance;
-	m_fFov = 90;
-	m_fLeash = 512;
-	m_fMinDist = 128.0;
-	m_fMaxDist = 1024;
-	m_fInterval = 128.0;
-	m_bDontDropWeapons = 0;
-	m_bDontDropHealth = 0;
-	m_bNoSurprise = 0;
-	m_bForceDropWeapon = 0;
-	m_bForceDropHealth = 0;
+    m_iHealth             = 100;
+    m_iAccuracy           = 20;
+    m_iAmmoGrenade        = 0;
+    m_iBalconyHeight      = 128;
+    m_iDisguiseLevel      = 1;
+    m_fDisguisePeriod     = 30000;
+    m_fDisguiseRange      = 256;
+    m_fEnemyShareRange    = 0;
+    m_fFixedLeash         = 0.0;
+    m_fGrenadeAwareness   = 20.0;
+    m_fMaxNoticeTimeScale = 1;
+    m_fSoundAwareness     = 100;
+    m_bPatrolWaitTrigger  = 0;
+    m_fHearing            = 2048;
+    m_fSight              = world->m_fAIVisionDistance;
+    m_fFov                = 90;
+    m_fLeash              = 512;
+    m_fMinDist            = 128.0;
+    m_fMaxDist            = 1024;
+    m_fInterval           = 128.0;
+    m_bDontDropWeapons    = 0;
+    m_bDontDropHealth     = 0;
+    m_bNoSurprise         = 0;
+    m_bForceDropWeapon    = 0;
+    m_bForceDropHealth    = 0;
 }
 
 void AISpawnPoint::GetForceDropHealth(Event *ev)
