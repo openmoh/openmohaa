@@ -26,6 +26,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 class FixedTurret : public VehicleTank
 {
+private:
+    Vector lastEntOrigin;
+    Vector lastEntAngles;
+
 public:
     CLASS_PROTOTYPE(FixedTurret);
 
