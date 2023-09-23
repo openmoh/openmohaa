@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 static const Vector g_vUserMins(-16, -16, 0);
 static const Vector g_vUserMaxs(16, 16, 96);
 
+static constexpr float MAX_TANDEM_YAWOFFSET = 0;
+
 Event EV_VehicleTurretGun_SetBaseEntity
 (
     "setbaseentity",
@@ -847,102 +849,370 @@ CLASS_DECLARATION(VehicleTurretGun, VehicleTurretGunTandem, "VehicleTurretGunTan
 
 VehicleTurretGunTandem::VehicleTurretGunTandem()
 {
-    // FIXME: unimplemented
+    m_Slot.ent             = NULL;
+    m_Slot.flags           = SLOT_FREE;
+    m_Slot.boneindex       = -1;
+    m_Slot.enter_boneindex = -1;
+
+    m_PrimaryTurret = NULL;
+    m_HeadTurret    = NULL;
+    m_ActiveTurret  = NULL;
+
+    m_fSwitchTimeRemaining = 0;
+    // 1 second switch delay
+    m_fSwitchDelay = 1;
 }
 
-VehicleTurretGunTandem::~VehicleTurretGunTandem()
-{
-    // FIXME: unimplemented
-}
+VehicleTurretGunTandem::~VehicleTurretGunTandem() {}
 
 void VehicleTurretGunTandem::EventLinkTurret(Event *ev)
 {
-    // FIXME: unimplemented
+    VehicleTurretGunTandem *linkedTurret;
+
+    linkedTurret = new VehicleTurretGunTandem();
+    linkedTurret->SetBaseOrientation(orientation, NULL);
+    linkedTurret->setModel(ev->GetString(1));
+
+    AttachLinkedTurret(linkedTurret);
+    UpdateLinkedTurret();
 }
 
 void VehicleTurretGunTandem::AttachLinkedTurret(Entity *ent)
 {
-    // FIXME: unimplemented
+    if (!ent) {
+        return;
+    }
+
+    OpenSlotsByModel();
+    m_Slot.ent      = ent;
+    m_Slot.flags    = SLOT_BUSY;
+    ent->takedamage = DAMAGE_NO;
+    ent->PostEvent(EV_BecomeNonSolid, level.frametime);
+
+    // process every end of frame
+    flags |= FL_POSTTHINK;
+
+    m_Slot.ent->setAngles(angles);
+
+    if (m_PrimaryTurret) {
+        VehicleTurretGunTandem *pTurret = static_cast<VehicleTurretGunTandem *>(m_Slot.ent.Pointer());
+        pTurret->SetPrimaryTurret(m_PrimaryTurret);
+    } else {
+        VehicleTurretGunTandem *pTurret = static_cast<VehicleTurretGunTandem *>(m_Slot.ent.Pointer());
+        pTurret->SetPrimaryTurret(this);
+    }
 }
 
 void VehicleTurretGunTandem::UpdateLinkedTurret()
 {
-    // FIXME: unimplemented
+    VehicleTurretGun *pTurret;
+    orientation_t     tag_or;
+
+    if (!(m_Slot.flags & SLOT_BUSY) || !m_Slot.ent) {
+        return;
+    }
+    if (m_Slot.boneindex == -1) {
+        m_Slot.ent->setOrigin(origin);
+        m_Slot.ent->avelocity = avelocity;
+        m_Slot.ent->velocity  = velocity;
+
+        pTurret = static_cast<VehicleTurretGun *>(m_Slot.ent.Pointer());
+        pTurret->SetBaseOrientation(orientation, NULL);
+    } else {
+        GetTag(m_Slot.boneindex, &tag_or);
+
+        m_Slot.ent->setOrigin(tag_or.origin);
+        m_Slot.ent->avelocity = avelocity;
+        m_Slot.ent->velocity  = velocity;
+
+        pTurret = static_cast<VehicleTurretGun *>(m_Slot.ent.Pointer());
+        pTurret->SetBaseOrientation(tag_or.axis, NULL);
+    }
 }
 
 void VehicleTurretGunTandem::OpenSlotsByModel()
 {
-    // FIXME: unimplemented
+    int tagnum;
+
+    tagnum = gi.Tag_NumForName(edict->tiki, "turret0");
+    if (tagnum >= 0) {
+        m_Slot.boneindex = tagnum;
+        m_Slot.ent       = NULL;
+        m_Slot.flags     = SLOT_FREE;
+    }
 }
 
 void VehicleTurretGunTandem::Think()
 {
-    // FIXME: unimplemented
+    if (m_PrimaryTurret) {
+        ThinkSecondary();
+    } else {
+        ThinkPrimary();
+    }
 }
 
 bool VehicleTurretGunTandem::IsRemoteControlled()
 {
-    // FIXME: unimplemented
-    return false;
+    if (m_PrimaryTurret) {
+        return m_PrimaryTurret->m_bUseRemoteControl;
+    } else {
+        return m_bUseRemoteControl;
+    }
 }
 
 SentientPtr VehicleTurretGunTandem::GetRemoteOwner()
 {
-    // FIXME: unimplemented
-    return NULL;
+    if (m_PrimaryTurret) {
+        return m_PrimaryTurret->m_pRemoteOwner;
+    } else {
+        return m_pRemoteOwner;
+    }
 }
 
 void VehicleTurretGunTandem::ThinkSecondary()
 {
-    // FIXME: unimplemented
+    float     yawOffset, pitchOffset;
+    Sentient *sentOwner;
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER && m_PrimaryTurret->edict->s.renderfx & RF_DEPTHHACK) {
+        edict->s.renderfx |= RF_DEPTHHACK;
+    }
+
+    if (m_pCollisionEntity) {
+        m_pCollisionEntity->NotSolid();
+    }
+
+    UpdateTimers(yawOffset, pitchOffset);
+
+    if (IsRemoteControlled() && IsActiveTurret()) {
+        UpdateRemoteControl();
+        UpdateCaps(yawOffset, pitchOffset);
+    } else if (m_bRestable) {
+        IdleToRestPosition();
+    }
+
+    UpdateOrientation(false);
+    UpdateSound();
+    UpdateFireControl();
+
+    sentOwner = GetSentientOwner();
+    if (IsActiveTurret() && sentOwner) {
+        G_TouchTriggers(sentOwner);
+        UpdateOwner(sentOwner);
+    }
+
+    UpdateCollisionEntity();
 }
 
 void VehicleTurretGunTandem::ThinkPrimary()
 {
-    // FIXME: unimplemented
+    float     yawOffset, pitchOffset;
+    Sentient *sentOwner;
+
+    if (m_fSwitchTimeRemaining > 0) {
+        m_fSwitchTimeRemaining -= level.frametime;
+    }
+
+    if (m_ActiveTurret) {
+        if (m_ActiveTurret != m_HeadTurret) {
+            m_fSwitchTimeRemaining = m_fSwitchDelay;
+            m_HeadTurret->m_pUserCamera->PostEvent(EV_Remove, 0);
+            m_HeadTurret->m_pUserCamera = NULL;
+
+            // switch to the active turret
+            m_HeadTurret   = m_ActiveTurret;
+            m_ActiveTurret = NULL;
+
+            // clear angles
+            m_vUserLastCmdAng               = vec_zero;
+            m_HeadTurret->m_vUserLastCmdAng = vec_zero;
+            m_vTargetAngles                 = m_vLocalAngles;
+        }
+    }
+
+    if (m_pCollisionEntity) {
+        m_pCollisionEntity->NotSolid();
+    }
+
+    if (g_gametype->integer == GT_SINGLE_PLAYER && m_pRemoteOwner && m_pRemoteOwner->isSubclassOf(Player)) {
+        // always render the turret
+        edict->s.renderfx |= RF_DEPTHHACK;
+    } else {
+        edict->s.renderfx &= ~RF_DEPTHHACK;
+    }
+
+    UpdateTimers(yawOffset, pitchOffset);
+
+    if (IsRemoteControlled()) {
+        UpdateRemoteControl();
+        UpdateCaps(yawOffset, pitchOffset);
+    } else if (m_bRestable) {
+        IdleToRestPosition();
+    }
+
+    UpdateOrientation(false);
+    UpdateSound();
+    UpdateFireControl();
+
+    sentOwner = GetSentientOwner();
+    if (IsActiveTurret() && sentOwner) {
+        G_TouchTriggers(sentOwner);
+        UpdateOwner(sentOwner);
+    }
+
+    UpdateCollisionEntity();
 }
 
 void VehicleTurretGunTandem::SetPrimaryTurret(VehicleTurretGunTandem *pTurret)
 {
-    // FIXME: unimplemented
+    m_PrimaryTurret = pTurret;
+    if (m_PrimaryTurret) {
+        m_HeadTurret = NULL;
+    }
 }
 
 void VehicleTurretGunTandem::RemoteControl(usercmd_t *ucmd, Sentient *owner)
 {
-    // FIXME: unimplemented
+    Vector vNewCmdAng;
+
+    if (!ucmd || !owner) {
+        return;
+    }
+
+    if (m_HeadTurret && m_HeadTurret != this) {
+        m_HeadTurret->RemoteControlSecondary(ucmd, owner);
+        return;
+    }
+
+    vNewCmdAng = Vector(SHORT2ANGLE(ucmd->angles[0]), SHORT2ANGLE(ucmd->angles[1]), SHORT2ANGLE(ucmd->angles[2]));
+
+    if (vNewCmdAng[0] || vNewCmdAng[1] || vNewCmdAng[2]) {
+        m_vUserViewAng[0] += AngleSubtract(vNewCmdAng[0], m_vUserLastCmdAng[0]);
+        m_vUserViewAng[1] += AngleSubtract(vNewCmdAng[1], m_vUserLastCmdAng[1]);
+        m_vUserViewAng[2] += AngleSubtract(vNewCmdAng[2], m_vUserLastCmdAng[2]);
+    }
+
+    m_vUserLastCmdAng = vNewCmdAng;
+
+    RemoteControlFire(ucmd, owner);
 }
 
 void VehicleTurretGunTandem::RemoteControlSecondary(usercmd_t *ucmd, Sentient *owner)
 {
-    // FIXME: unimplemented
+    Vector vNewCmdAng;
+
+    if (!ucmd || !owner) {
+        return;
+    }
+
+    vNewCmdAng = Vector(SHORT2ANGLE(ucmd->angles[0]), SHORT2ANGLE(ucmd->angles[1]), SHORT2ANGLE(ucmd->angles[2]));
+
+    if (vNewCmdAng[0] || vNewCmdAng[1] || vNewCmdAng[2]) {
+        m_vUserViewAng[0] += AngleSubtract(vNewCmdAng[0], m_vUserLastCmdAng[0]);
+        m_vUserViewAng[1] += AngleSubtract(vNewCmdAng[1], m_vUserLastCmdAng[1]);
+        m_vUserViewAng[2] += AngleSubtract(vNewCmdAng[2], m_vUserLastCmdAng[2]);
+    }
+
+    m_vUserLastCmdAng = vNewCmdAng;
+
+    RemoteControlFire(ucmd, owner);
 }
 
 void VehicleTurretGunTandem::RemoteControlFire(usercmd_t *ucmd, Sentient *owner)
 {
-    // FIXME: unimplemented
+    if (ucmd->buttons & BUTTON_ATTACKLEFT) {
+        if (!m_iFiring) {
+            m_iFiring = 1;
+        }
+    } else {
+        if (ucmd->buttons & BUTTON_ATTACKRIGHT) {
+            SwitchToLinkedTurret();
+        }
+        m_iFiring = 0;
+    }
+
+    flags |= FL_THINK;
 }
 
 void VehicleTurretGunTandem::EventSetSwitchThread(Event *ev)
 {
-    // FIXME: unimplemented
+    if (ev->IsFromScript()) {
+        m_SwitchLabel.SetThread(ev->GetValue(1));
+    } else {
+        m_SwitchLabel.Set(ev->GetString(1));
+    }
 }
 
 void VehicleTurretGunTandem::SwitchToLinkedTurret()
 {
-    // FIXME: unimplemented
+    VehicleTurretGunTandem *pTurret;
+
+    if (GetPrimaryTurret()->m_fSwitchTimeRemaining > 0) {
+        if (m_Slot.ent) {
+            pTurret = static_cast<VehicleTurretGunTandem *>(m_Slot.ent.Pointer());
+        } else {
+            pTurret = m_PrimaryTurret;
+        }
+
+        SetActiveTurret(pTurret);
+    }
 }
 
 void VehicleTurretGunTandem::SetActiveTurret(VehicleTurretGunTandem *pTurret)
 {
-    // FIXME: unimplemented
+    if (m_PrimaryTurret) {
+        if (!m_PrimaryTurret->m_ActiveTurret) {
+            m_PrimaryTurret->m_ActiveTurret = pTurret;
+        }
+    } else if (!m_ActiveTurret) {
+        m_ActiveTurret = pTurret;
+    }
 }
 
 void VehicleTurretGunTandem::RestrictYaw()
 {
-    // FIXME: unimplemented
+    float delta;
+
+    delta = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
+    if (delta > m_fMaxYawOffset + MAX_TANDEM_YAWOFFSET) {
+        delta = m_fMaxYawOffset + MAX_TANDEM_YAWOFFSET;
+    } else if (delta < -(m_fMaxYawOffset + MAX_TANDEM_YAWOFFSET)) {
+        delta = -(m_fMaxYawOffset + MAX_TANDEM_YAWOFFSET);
+    }
+
+    m_vUserViewAng[1] = m_fStartYaw + delta;
 }
 
 void VehicleTurretGunTandem::Archive(Archiver& arc)
 {
-    // FIXME: unimplemented
+    VehicleTurretGun::Archive(arc);
+
+    m_Slot.Archive(arc);
+    arc.ArchiveSafePointer(&m_PrimaryTurret);
+    arc.ArchiveSafePointer(&m_HeadTurret);
+    arc.ArchiveSafePointer(&m_ActiveTurret);
+    arc.ArchiveFloat(&m_fSwitchTimeRemaining);
+    arc.ArchiveFloat(&m_fSwitchDelay);
+}
+
+VehicleTurretGunTandem *VehicleTurretGunTandem::GetPrimaryTurret()
+{
+    if (m_PrimaryTurret) {
+        return m_PrimaryTurret;
+    } else {
+        return this;
+    }
+}
+
+bool VehicleTurretGunTandem::IsActiveTurret() const
+{
+    if (!m_PrimaryTurret) {
+        return m_HeadTurret;
+    }
+
+    if (m_PrimaryTurret == this) {
+        return true;
+    }
+
+    return false;
 }

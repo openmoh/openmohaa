@@ -136,6 +136,13 @@ public:
 class VehicleTurretGunTandem : public VehicleTurretGun
 {
 private:
+    cTurretSlot                     m_Slot;
+    SafePtr<VehicleTurretGunTandem> m_PrimaryTurret;
+    SafePtr<VehicleTurretGunTandem> m_HeadTurret;
+    SafePtr<VehicleTurretGunTandem> m_ActiveTurret;
+    float                           m_fSwitchTimeRemaining;
+    float                           m_fSwitchDelay;
+    ScriptThreadLabel               m_SwitchLabel;
 
 public:
     CLASS_PROTOTYPE(VehicleTurretGunTandem);
@@ -149,13 +156,15 @@ public:
     void UpdateLinkedTurret();
     void OpenSlotsByModel();
 
-    void        Think() override;
-    bool        IsRemoteControlled() override;
-    SentientPtr GetRemoteOwner() override;
-    void        ThinkSecondary();
-    void        ThinkPrimary();
+    void         Think() override;
+    bool         IsRemoteControlled() override;
+    SentientPtr  GetRemoteOwner() override;
+    virtual void ThinkPrimary();
+    virtual void ThinkSecondary();
 
-    void SetPrimaryTurret(VehicleTurretGunTandem *pTurret);
+    void                    SetPrimaryTurret(VehicleTurretGunTandem *pTurret);
+    VehicleTurretGunTandem *GetPrimaryTurret();
+    bool                    IsActiveTurret() const;
 
     void RemoteControl(usercmd_t *ucmd, Sentient *owner) override;
     void RemoteControlSecondary(usercmd_t *ucmd, Sentient *owner);
