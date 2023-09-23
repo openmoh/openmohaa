@@ -94,8 +94,6 @@ public:
     PlayerStart *GetRandomTeamSpawnpoint(Player *player);
     PlayerStart *GetRandomObjectiveSpawnpoint(Player *player);
 
-    void InitSpawnPoints(void);
-
 protected:
     PlayerStart *FarthestSpawnPoint(void);
     PlayerStart *GetRandomSpawnpoint(void);
@@ -138,7 +136,7 @@ inline int DM_Team::getIndex(void)
 
 inline bool DM_Team::IsReady(void) const
 {
-    return !NumNotReady();
+    return g_forceready->integer || NumNotReady() == 0;
 }
 
 class SimpleAmmoType : public Class
@@ -302,3 +300,15 @@ inline void DM_Manager::SetGameAllowsRespawns(bool bAllow)
 }
 
 extern DM_Manager dmManager;
+
+class CTeamSpawnClock {
+private:
+    float nextSpawnTime;
+
+public:
+    CTeamSpawnClock();
+    void Reset();
+    void Restart();
+
+    int GetSecondsLeft();
+};

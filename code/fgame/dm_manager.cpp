@@ -33,7 +33,7 @@ cvar_t *g_tempallieswinsinrow;
 
 DM_Manager dmManager;
 
-static int g_teamSpawnClock;
+static CTeamSpawnClock g_teamSpawnClock;
 
 typedef struct spawnsort_s {
     PlayerStart *spawnpoint;
@@ -215,11 +215,15 @@ void DM_Team::Reset(void)
 {
     m_spawnpoints.ClearObjectList();
     m_players.ClearObjectList();
+
+    if (g_gametype->integer == GT_TEAM) {
+        m_teamwins = 0;
+    }
 }
 
 void DM_Team::AddPlayer(Player *player)
 {
-    m_players.AddObject(player);
+    m_players.AddUniqueObject(player);
 }
 
 void DM_Team::RemovePlayer(Player *player)
@@ -520,30 +524,30 @@ bool DM_Team::IsDead(void) const
 {
     Player *player;
 
-    if (IsEmpty()) {
-        if (dmManager.IsGameActive()) {
-            return true;
-        }
-
-        return false;
+    if (m_players.NumObjects() == 0) {
+        return dmManager.IsGameActive();
     }
 
     if (!m_bHasSpawnedPlayers) {
         return false;
     }
 
-    if (dmManager.AllowRespawn()) {
+    if (g_gametype->integer == GT_TOW) {
+        if (dmManager.AllowTeamRespawn(m_teamnumber)) {
+            return false;
+        }
+    } else if (dmManager.AllowRespawn()) {
         return false;
     }
 
     for (int i = m_players.NumObjects(); i > 0; i--) {
         player = m_players.ObjectAt(i);
 
-        if (player->IsSpectator()) {
+        if (player->IsDead()) {
             continue;
         }
 
-        if (!player->IsDead()) {
+        if (!player->IsSpectator()) {
             return false;
         }
     }
@@ -574,10 +578,7 @@ int DM_Team::TotalPlayersKills(void) const
 
     for (int i = 1; i <= m_players.NumObjects(); i++) {
         player = m_players.ObjectAt(i);
-
-        if (!player->IsDead() && !player->IsSpectator()) {
-            iKills += player->GetNumKills();
-        }
+        iKills += player->GetNumKills();
     }
 
     return iKills;
@@ -585,7 +586,7 @@ int DM_Team::TotalPlayersKills(void) const
 
 bool DM_Team::IsEmpty(void) const
 {
-    return m_players.NumObjects() <= 0;
+    return !m_players.NumObjects() || !m_bHasSpawnedPlayers;
 }
 
 int DM_Team::NumNotReady(void) const
@@ -596,82 +597,12 @@ int DM_Team::NumNotReady(void) const
     for (int i = 1; i <= m_players.NumObjects(); i++) {
         player = m_players.ObjectAt(i);
 
-        if (player->IsReady() && !player->IsDead()) {
+        if (player->IsReady()) {
             i++;
         }
     }
 
     return num;
-}
-
-void DM_Team::InitSpawnPoints(void)
-{
-    int i;
-
-    if (m_teamnumber == TEAM_SPECTATOR) {
-        for (i = level.m_SimpleArchivedEntities.NumObjects(); i > 0; i--) {
-            PlayerStart *spawnpoint = (PlayerStart *)level.m_SimpleArchivedEntities.ObjectAt(i);
-            const char  *classname  = spawnpoint->getClassID();
-
-            if (!Q_stricmp(classname, "info_player_deathmatch")) {
-                m_spawnpoints.AddObject(spawnpoint);
-            } else if (!Q_stricmp(classname, "info_player_intermission")) {
-                m_spawnpoints.AddObject(spawnpoint);
-            }
-        }
-
-        return;
-    }
-
-    if (g_gametype->integer <= GT_FFA) {
-        for (i = level.m_SimpleArchivedEntities.NumObjects(); i > 0; i--) {
-            PlayerStart *spawnpoint = (PlayerStart *)level.m_SimpleArchivedEntities.ObjectAt(i);
-            const char  *classname  = spawnpoint->getClassID();
-
-            if (!Q_stricmp(classname, "info_player_deathmatch")) {
-                m_spawnpoints.AddObject(spawnpoint);
-            }
-        }
-
-        if (m_spawnpoints.NumObjects() <= 1) {
-            // Try with team spawnpoints
-            for (i = level.m_SimpleArchivedEntities.NumObjects(); i > 0; i--) {
-                PlayerStart *spawnpoint = (PlayerStart *)level.m_SimpleArchivedEntities.ObjectAt(i);
-                const char  *classname  = spawnpoint->getClassID();
-
-                if (!Q_stricmp(classname, "info_player_allied")) {
-                    m_spawnpoints.AddObject(spawnpoint);
-                } else if (!Q_stricmp(classname, "info_player_axis")) {
-                    m_spawnpoints.AddObject(spawnpoint);
-                }
-            }
-        }
-    } else if (g_gametype->integer >= GT_TEAM) {
-        if (m_teamnumber >= TEAM_ALLIES) {
-            for (i = level.m_SimpleArchivedEntities.NumObjects(); i > 0; i--) {
-                PlayerStart *spawnpoint = (PlayerStart *)level.m_SimpleArchivedEntities.ObjectAt(i);
-                const char  *classname  = spawnpoint->getClassID();
-
-                if (m_teamnumber == TEAM_ALLIES && !Q_stricmp(classname, "info_player_allied")) {
-                    m_spawnpoints.AddObject(spawnpoint);
-                } else if (m_teamnumber == TEAM_AXIS && !Q_stricmp(classname, "info_player_axis")) {
-                    m_spawnpoints.AddObject(spawnpoint);
-                }
-            }
-        }
-
-        if (!m_spawnpoints.NumObjects()) {
-            // Try with info_player_deathmatch
-            for (int i = level.m_SimpleArchivedEntities.NumObjects(); i > 0; i--) {
-                PlayerStart *spawnpoint = (PlayerStart *)level.m_SimpleArchivedEntities.ObjectAt(i);
-                const char  *classname  = spawnpoint->getClassID();
-
-                if (!Q_stricmp(classname, "info_player_deathmatch")) {
-                    m_spawnpoints.AddObject(spawnpoint);
-                }
-            }
-        }
-    }
 }
 
 void DM_Team::UpdateTeamStatus(void)
@@ -761,8 +692,10 @@ void DM_Manager::Reset(void)
     //
     m_bAllowAxisRespawn   = true;
     m_bAllowAlliedRespawn = true;
-    g_teamSpawnClock      = sv_team_spawn_interval->validate;
-    level.m_bIgnoreClock  = false;
+
+    // Reset the team spawn clock
+    g_teamSpawnClock.Reset();
+    level.m_bIgnoreClock = false;
 
     if (g_gametype->integer == GT_TOW) {
         g_TOWObjectiveMan.Reset();
@@ -1091,30 +1024,72 @@ void DM_Manager::PrintAllClients(str s)
 
 void DM_Manager::InitGame(void)
 {
-    m_teams.ClearObjectList();
+    int i;
 
-    m_teams.AddObject(&m_team_spectator);
+    if (fraglimit) {
+        if (fraglimit->integer < 0) {
+            gi.cvar_set("fraglimit", "0");
+        }
+        if (fraglimit->integer > 10000) {
+            gi.cvar_set("fraglimit", "10000");
+        }
+        fraglimit = gi.Cvar_Get("fraglimit", "0", CVAR_SERVERINFO);
+    }
 
-    if (g_gametype->integer >= GT_TEAM) {
+    if (timelimit) {
+        if (timelimit->integer < 0) {
+            gi.cvar_set("timelimit", "0");
+        }
+        // 180 minutes maximum
+        if (timelimit->integer > 10800) {
+            gi.cvar_set("timelimit", "10800");
+        }
+        timelimit = gi.Cvar_Get("timelimit", "0", CVAR_SERVERINFO);
+    }
+
+    for (i = 1; i <= level.m_SimpleArchivedEntities.NumObjects(); i++) {
+        SimpleArchivedEntity* const ent = level.m_SimpleArchivedEntities.ObjectAt(i);
+        const char* const classname = ent->getClassID();
+
+        if (!Q_stricmp(classname, "info_player_deathmatch")) {
+            PlayerStart* const spawnpoint = static_cast<PlayerStart*>(ent);
+            m_team_spectator.m_spawnpoints.AddObject(spawnpoint);
+            m_team_freeforall.m_spawnpoints.AddObject(spawnpoint);
+
+            if (g_gametype->integer == GT_FFA) {
+                m_team_allies.m_spawnpoints.AddObject(spawnpoint);
+                m_team_axis.m_spawnpoints.AddObject(spawnpoint);
+            }
+        } else if (!Q_stricmp(classname, "info_player_allied")) {
+            if (g_gametype->integer >= GT_TEAM) {
+                PlayerStart* const spawnpoint = static_cast<PlayerStart*>(ent);
+                m_team_allies.m_spawnpoints.AddObject(spawnpoint);
+            }
+        } else if (!Q_stricmp(classname, "info_player_axis")) {
+            if (g_gametype->integer >= GT_TEAM) {
+                PlayerStart* const spawnpoint = static_cast<PlayerStart*>(ent);
+                m_team_axis.m_spawnpoints.AddObject(spawnpoint);
+            }
+        } else if (!Q_stricmp(classname, "info_player_intermission")) {
+            PlayerStart* const spawnpoint = static_cast<PlayerStart*>(ent);
+            m_team_freeforall.m_spawnpoints.AddObject(spawnpoint);
+        }
+    }
+
+    if (g_gametype->integer < GT_SINGLE_PLAYER && g_gametype->integer < GT_MAX_GAME_TYPE) {
+        m_teams.ClearObjectList();
+        m_teams.AddObject(&m_team_spectator);
         m_teams.AddObject(&m_team_allies);
         m_teams.AddObject(&m_team_axis);
     } else {
-        m_teams.AddObject(&m_team_freeforall);
-    }
-
-    m_team_spectator.InitSpawnPoints();
-    m_team_allies.InitSpawnPoints();
-    m_team_axis.InitSpawnPoints();
-    m_team_freeforall.InitSpawnPoints();
-
-    if (g_gametype->integer < 0 || g_gametype->integer >= GT_MAX_GAME_TYPE) {
         Com_Printf("Unknown game mode");
     }
 
-    m_bIgnoringClockForBomb = false;
     m_fRoundTime            = 0;
     m_fRoundEndTime         = 0;
     m_iTeamWin              = 0;
+    m_bIgnoringClockForBomb = false;
+    m_iNumTargetsDestroyed  = 0;
     m_iNumBombsPlanted      = 0;
 
     if (g_gametype->integer >= 0 && g_gametype->integer < GT_MAX_GAME_TYPE) {
@@ -1486,7 +1461,7 @@ void DM_Manager::EventFinishRoundTransition(Event *ev)
 
     gi.SendConsoleCommand("restart\n");
 
-    g_teamSpawnClock = sv_team_spawn_interval->value;
+    g_teamSpawnClock.Reset();
 }
 
 int DM_Manager::PlayerCount(void) const
@@ -1580,9 +1555,11 @@ void DM_Manager::StartRound(void)
 
 void DM_Manager::EndRound()
 {
-    if (m_fRoundEndTime <= 0.0f) {
+    m_bRoundActive = false;
+
+    if (m_fRoundEndTime <= 0) {
         m_fRoundEndTime = level.time;
-        PostEvent(EV_DM_Manager_DoRoundTransition, 2.0f);
+        PostEvent(EV_DM_Manager_DoRoundTransition, 2);
     }
 }
 
@@ -1600,15 +1577,15 @@ bool DM_Manager::WaitingForPlayers(void) const
         return false;
     }
 
-    if (!m_team_axis.m_players.NumObjects() || !m_team_axis.m_bHasSpawnedPlayers) {
+    if (m_team_axis.IsEmpty() || m_team_allies.IsEmpty()) {
         return true;
-    } else if (!m_team_allies.m_players.NumObjects() || !m_team_allies.m_bHasSpawnedPlayers) {
+    }
+
+    if (!m_team_axis.IsReady() || !m_team_allies.IsReady()) {
         return true;
-    } else if (!g_forceready->integer && m_team_axis.NumNotReady()) {
-        return true;
-    } else if (!g_forceready->integer && m_team_allies.NumNotReady()) {
-        return true;
-    } else if (m_team_axis.IsDead() || m_team_allies.IsDead()) {
+    }
+
+    if (m_team_axis.IsDead() || m_team_allies.IsDead()) {
         return true;
     }
 
@@ -1617,7 +1594,7 @@ bool DM_Manager::WaitingForPlayers(void) const
 
 bool DM_Manager::IsGameActive(void) const
 {
-    return !m_bRoundBasedGame || m_fRoundTime > 0.0f;
+    return !m_bRoundBasedGame || m_fRoundTime > 0;
 }
 
 float DM_Manager::GetMatchStartTime(void)
@@ -1732,8 +1709,6 @@ bool DM_Manager::AllowTeamRespawn(int teamnum) const
 
 int DM_Manager::GetTeamSpawnTimeLeft() const
 {
-    int timeLeft;
-
     if (sv_team_spawn_interval->integer <= 0) {
         return -1;
     }
@@ -1742,16 +1717,11 @@ int DM_Manager::GetTeamSpawnTimeLeft() const
         return 0;
     }
 
-    timeLeft = ceil(g_teamSpawnClock - level.time);
-    if (timeLeft <= -1) {
-        g_teamSpawnClock = level.time + sv_team_spawn_interval->value;
+    if (g_gametype->integer == GT_TEAM || g_gametype->integer == GT_TOW || g_gametype->integer == GT_LIBERATION) {
+        return g_teamSpawnClock.GetSecondsLeft();
     }
 
-    if (timeLeft < 0) {
-        timeLeft = 0;
-    }
-
-    return timeLeft;
+    return 0;
 }
 
 DM_Team *DM_Manager::GetTeam(str name)
@@ -1986,4 +1956,35 @@ void DM_Manager::BuildPlayerTeamInfo(DM_Team *dmTeam, int *iPlayerList, DM_Team 
 bool DM_Manager::IsAlivePlayer(Player *player) const
 {
     return !player->IsDead() && !player->IsSpectator() && !player->IsInJail() || player->GetDM_Team() == &m_team_spectator;
+}
+
+CTeamSpawnClock::CTeamSpawnClock()
+{
+    nextSpawnTime = 0;
+}
+
+void CTeamSpawnClock::Reset()
+{
+    nextSpawnTime = sv_team_spawn_interval->value;
+}
+
+void CTeamSpawnClock::Restart()
+{
+    nextSpawnTime = level.time + sv_team_spawn_interval->value;
+}
+
+int CTeamSpawnClock::GetSecondsLeft()
+{
+    int timeLeft;
+
+    timeLeft = ceil(nextSpawnTime - level.time);
+    if (timeLeft <= -1) {
+        Restart();
+    }
+
+    if (timeLeft < 0) {
+        return 0;
+    }
+
+    return timeLeft;
 }
