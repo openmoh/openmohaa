@@ -1187,8 +1187,10 @@ void VehicleTurretGunTandem::SwitchToLinkedTurret()
     if (GetPrimaryTurret()->m_fSwitchTimeRemaining > 0) {
         if (m_Slot.ent) {
             pTurret = static_cast<VehicleTurretGunTandem *>(m_Slot.ent.Pointer());
+            m_SwitchLabel.Execute(pTurret, NULL);
         } else {
             pTurret = m_PrimaryTurret;
+            m_PrimaryTurret->m_SwitchLabel.Execute(pTurret, NULL);
         }
 
         SetActiveTurret(pTurret);
