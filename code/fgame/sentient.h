@@ -110,7 +110,7 @@ protected:
     bool                   weapons_holstered_by_code;
     ActiveWeapon           lastActiveWeapon;
     float                  m_fDamageMultipliers[MAX_DAMAGE_MULTIPLIERS];
-    class SafePtr<Vehicle> m_pVehicle;
+    SafePtr<Vehicle>       m_pVehicle;
     SafePtr<TurretGun>     m_pTurret;
     SafePtr<Entity>        m_pLadder;
     str                    m_sHelmetSurface1;
@@ -336,6 +336,8 @@ public:
     void MergeWithSquad(Sentient *pFriendly);
     void DisbandSquadMate(Sentient *pExFriendly);
     bool IsSquadMate(Sentient *pFriendly);
+
+    Vehicle* GetVehicle() const;
 
     //
     // Custom openmohaa stuff

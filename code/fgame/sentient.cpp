@@ -2933,6 +2933,11 @@ void Sentient::SetHolsteredByCode(bool holstered) {
     weapons_holstered_by_code = holstered;
 }
 
+Vehicle* Sentient::GetVehicle() const
+{
+    return m_pVehicle;
+}
+
 #define GROUND_DISTANCE        8
 #define WATER_NO_SPLASH_HEIGHT 16
 
