@@ -184,6 +184,7 @@ private:
 
     bool m_bAllowAxisRespawn;
     bool m_bAllowAlliedRespawn;
+    bool m_bRoundActive;
 
     // scoreboard data
     char   scoreString[MAX_STRING_CHARS];
@@ -227,6 +228,7 @@ public:
     void       TeamWin(int teamnum);
     void       StartRound(void);
     void       EndRound(void);
+    bool       RoundActive(void) const;
     bool       GameHasRounds(void) const;
     bool       GameAllowsRespawns(void) const;
     void       SetGameAllowsRespawns(bool bAllow);
@@ -278,6 +280,11 @@ inline DM_Team *DM_Manager::GetTeamAllies(void)
 inline DM_Team *DM_Manager::GetTeamAxis(void)
 {
     return &m_team_axis;
+}
+
+inline bool DM_Manager::RoundActive(void) const
+{
+    return m_bRoundActive;
 }
 
 inline bool DM_Manager::GameHasRounds(void) const

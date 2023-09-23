@@ -727,16 +727,20 @@ DM_Manager::DM_Manager()
     m_team_axis.setNumber(TEAM_AXIS);
     m_team_axis.setIndex(TEAM_AXIS);
 
+    m_fRoundTime           = 0;
+    m_fRoundEndTime        = 0;
+    m_bAllowRespawns       = true;
+    m_bRoundBasedGame      = false;
     m_iTeamWin             = 0;
+    m_iDefaultRoundLimit   = 0;
     m_csTeamClockSide      = STRING_AXIS;
     m_csTeamBombPlantSide  = STRING_DRAW;
-    m_fRoundEndTime        = 0.0f;
-    m_bAllowRespawns       = qtrue;
-    m_bRoundBasedGame      = qfalse;
-    m_iDefaultRoundLimit   = 0;
-    m_iNumTargetsToDestroy = 0;
+    m_iNumTargetsToDestroy = 1;
     m_iNumTargetsDestroyed = 0;
-    m_iNumBombsPlanted     = 0;
+    m_iNumBombsPlanted     = 0; 
+    m_bAllowAxisRespawn    = true;
+    m_bAllowAlliedRespawn  = true;
+    m_bRoundActive         = false;
 }
 
 DM_Manager::~DM_Manager() {}
@@ -1554,6 +1558,7 @@ void DM_Manager::StartRound(void)
     }
 
     m_fRoundEndTime = 0.0f;
+    m_bRoundActive = false;
 
     // respawn all players
     for (i = 0, ent = g_entities; i < game.maxclients; i++, ent++) {
