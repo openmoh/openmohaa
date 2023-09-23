@@ -201,7 +201,6 @@ CLASS_DECLARATION(Listener, DM_Team, NULL) {
 
 DM_Team::DM_Team()
 {
-    m_countdown          = 0;
     m_teamwins           = 0;
     m_wins_in_a_row      = 0;
     m_teamnumber         = -1;

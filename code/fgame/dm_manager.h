@@ -45,7 +45,6 @@ public:
     int m_teamnumber;
     int m_index;
 
-    int m_countdown;
     int m_teamwins;
     int m_wins_in_a_row;
 
