@@ -572,7 +572,7 @@ public:
     void VolumeDamage(float damage);
     void EventVolumeDamage(Event *ev);
 
-    virtual qboolean IsDead();
+    virtual qboolean IsDead() const;
     virtual void     AddImmunity(Event *ev);
     virtual void     RemoveImmunity(Event *ev);
     qboolean         Immune(int meansofdeath);

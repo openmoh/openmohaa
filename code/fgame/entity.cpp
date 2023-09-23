@@ -5921,7 +5921,7 @@ void Entity::DrawBoundingBox(int showbboxes)
     }
 }
 
-qboolean Entity::IsDead(void)
+qboolean Entity::IsDead(void) const
 {
     return deadflag != DEAD_NO;
 }
