@@ -220,5 +220,8 @@ public:
     void   setAngles(Vector ang) override;
     //====
 
+    const Vector& GetUserViewAngles() const;
+    void SetUserViewAngles(const Vector& vAngles);
+
     void Archive(Archiver& arc) override;
 };

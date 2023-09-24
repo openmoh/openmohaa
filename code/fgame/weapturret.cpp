@@ -2133,3 +2133,13 @@ void TurretGun::CalcFiringViewJitter(void)
         m_fCurrViewJitter = m_fViewJitter;
     }
 }
+
+const Vector& TurretGun::GetUserViewAngles() const
+{
+    return m_vUserViewAng;
+}
+
+void TurretGun::SetUserViewAngles(const Vector& vAngles)
+{
+    m_vUserViewAng = vAngles;
+}
