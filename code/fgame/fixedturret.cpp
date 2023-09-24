@@ -99,7 +99,7 @@ void FixedTurret::EventDamage(Event *ev)
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
         if (driver.ent && driver.ent->IsSubclassOfPlayer()) {
             Player* player = static_cast<Player*>(driver.ent.Pointer());
-            player->m_iNumHitsTaken;
+            player->m_iNumHitsTaken++;
         }
     }
 
