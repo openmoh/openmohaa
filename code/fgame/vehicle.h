@@ -55,6 +55,8 @@ extern cvar_t *g_showvehicleentrypoints;
 extern cvar_t *g_showvehicleslotpoints;
 extern cvar_t *g_showvehiclepath;
 
+#define NUM_VEHICLE_TIRES 4
+
 class wheel_s {
 	Vector vOrigin;
 	Vector vAcceleration;
@@ -306,8 +308,8 @@ protected:
 	SOUND_STATE m_eSoundState;
 	float m_fNextSoundState;
 	SafePtr<VehicleSoundEntity> m_pVehicleSoundEntities[ MAX_SOUND_ENTITIES ];
-	Vector m_vTireEnd[ 4 ];
-	bool m_bTireHit[ 4 ];
+	Vector m_vTireEnd[NUM_VEHICLE_TIRES];
+	bool m_bTireHit[NUM_VEHICLE_TIRES];
 	Vector m_vNormalSum;
 	int m_iNumNormals;
 
@@ -443,6 +445,7 @@ protected:
 		Vehicle();
 		virtual ~Vehicle();
 
+		virtual void DriverAdded();
 		virtual qboolean Drive( usercmd_t *ucmd );
 		void AutoPilot( void );
 		virtual qboolean HasWeapon( void );
@@ -847,6 +850,7 @@ public:
 	VehicleTank();
 	~VehicleTank();
 
+    virtual void DriverAdded() override;
 	virtual qboolean Drive(usercmd_t *ucmd) override;
 	void EventDamage(Event *ev);
 	virtual void Think() override;

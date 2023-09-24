@@ -2912,6 +2912,16 @@ void Vehicle::AttachDriverSlot
 
 /*
 ====================
+Vehicle::DriverAdded
+====================
+*/
+void Vehicle::DriverAdded()
+{
+	// FIXME: unimplemented
+}
+
+/*
+====================
 Vehicle::EventAttachTurretSlot
 ====================
 */
