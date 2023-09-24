@@ -743,6 +743,8 @@ void VehicleTurretGun::EventDamage(Event *ev)
         case MOD_VEHICLE:
         case MOD_SHOTGUN:
             return;
+        default:
+            break;
         }
 
         DamageEvent(ev);
@@ -790,7 +792,7 @@ void VehicleTurretGun::UpdateSound(void)
     }
 
     switch (m_eSoundState) {
-    case ST_OFF:
+    case STT_OFF:
         StopLoopSound();
         m_fNextSoundState = level.time;
         if (fabs(fDiff) > 0.5f) {

@@ -85,6 +85,8 @@ void FixedTurret::EventDamage(Event *ev)
     case MOD_VEHICLE:
     case MOD_SHOTGUN:
         return;
+    default:
+        break;
     }
 
     // ignore grenades in single player mode
