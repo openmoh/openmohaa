@@ -408,6 +408,7 @@ protected:
 		virtual void ResetSlots( void );
 		virtual void OpenSlotsByModel( void );
 		virtual void MoveVehicle( void );
+		virtual void AnimMoveVehicle( void );
 		virtual bool AssertMove( Vector vNewOrigin, Vector vOldOrigin );
 		virtual bool AssertRotation( Vector vNewAngles, Vector vOldAngles );
 		virtual void NoMove( void );

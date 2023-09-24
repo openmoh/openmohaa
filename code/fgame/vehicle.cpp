@@ -3840,6 +3840,16 @@ void Vehicle::OpenSlotsByModel
 
 /*
 ====================
+Vehicle::AnimMoveVehicle
+====================
+*/
+void Vehicle::AnimMoveVehicle(void)
+{
+	// FIXME: unimplemented
+}
+
+/*
+====================
 Vehicle::MoveVehicle
 ====================
 */
