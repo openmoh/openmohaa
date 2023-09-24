@@ -593,8 +593,9 @@ public:
     void             EventSetHealthOnly(Event *ev);
     void             GetYaw(Event *ev);
 
-    virtual void PreAnimate(void) {};
-    virtual void PostAnimate(void) {};
+    virtual void PreAnimate(void);
+    virtual void PostAnimate(void);
+    virtual bool HasVehicle(void) const;
     void         EventGetEntnum(Event *ev);
     void         EventGetClassname(Event *ev);
     void         EventSetRadnum(Event *ev);
@@ -626,6 +627,19 @@ public:
     void SetShader(Event *ev);
     void PlayNonPvsSound(const str& soundName, float volume = 1);
 };
+
+inline void Entity::PreAnimate(void)
+{
+}
+
+inline void Entity::PostAnimate(void)
+{
+}
+
+inline bool Entity::HasVehicle(void) const
+{
+    return false;
+}
 
 inline int Entity::getSolidType(void)
 

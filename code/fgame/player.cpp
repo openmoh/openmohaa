@@ -11093,7 +11093,7 @@ bool Player::ShouldForceSpectatorOnDeath() const
     return dmManager.GetTeamSpawnTimeLeft() > 0;
 }
 
-bool Player::HasVehicle()
+bool Player::HasVehicle() const
 {
     return m_pVehicle != NULL;
 }

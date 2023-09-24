@@ -882,7 +882,7 @@ public:
     void  InitInvulnerable();
     void  TickTeamSpawn();
     bool  ShouldForceSpectatorOnDeath() const;
-    bool  HasVehicle();
+    bool  HasVehicle() const override;
     void  setContentsSolid() override;
     void  UserSelectWeapon(bool bWait);
     void  PickWeaponEvent(Event *ev);
