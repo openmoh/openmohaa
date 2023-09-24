@@ -33,6 +33,6 @@ public:
     VehicleTankTandem();
     ~VehicleTankTandem();
 
-    void SpawnTurret(Event *ev);
+    void SpawnTurret(Event *ev) override;
     void UpdateTurretSlot(int iSlot) override;
 };

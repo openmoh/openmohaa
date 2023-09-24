@@ -136,7 +136,7 @@ public:
     void UpdateFog(void);
     void UpdateSky(void);
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 };
 
 typedef SafePtr<World> WorldPtr;

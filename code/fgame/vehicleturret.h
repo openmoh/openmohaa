@@ -197,7 +197,7 @@ public:
     virtual void ThinkPrimary();
     virtual void ThinkSecondary();
 
-    void RestrictYaw();
+    void RestrictYaw() override;
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 };

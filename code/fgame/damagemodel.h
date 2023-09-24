@@ -44,5 +44,5 @@ public:
     void SpawnOrientedBoundingBox(Event *ev);
     void EventSetKillThread(Event *ev);
 
-    void Archive(Archiver& arc);
+    void Archive(Archiver& arc) override;
 };
