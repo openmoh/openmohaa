@@ -35,6 +35,7 @@ static const Vector g_vUserMaxs(16, 16, 96);
 
 static constexpr float MAX_TANDEM_YAW_OFFSET  = 0;
 static constexpr float MAX_VT_PITCHCAP_OFFSET = 0;
+static constexpr float MAX_VT_YAW_OFFSET      = 0;
 
 Event EV_VehicleTurretGun_SetBaseEntity
 (
@@ -872,8 +873,69 @@ void VehicleTurretGun::SetSoundSet(Event *ev)
 
 void VehicleTurretGun::UpdateOwner(Sentient *pOwner)
 {
-    // FIXME: unimplemented
-    STUB();
+    Vector        jitter;
+    Vector        position;
+    Vector        forward, left, up;
+    orientation_t bone_or;
+
+    if (m_iEyeBone >= 0) {
+        GetRawTag(m_iEyeBone, &bone_or);
+        angles.AngleVectorsLeft(&forward, &left, &up);
+
+        position = origin + bone_or.origin[0] * forward + bone_or.origin[1] * left + bone_or.origin[2] * up;
+    } else {
+        (m_vBaseAngles + m_vLocalAngles).AngleVectorsLeft(&forward, &left, &up);
+
+        position = origin + forward * -16 + up * 5;
+
+        if (m_iPitchBone >= 0) {
+            GetRawTag(m_iPitchBone, &bone_or);
+            angles.AngleVectorsLeft(&forward, &left, &up);
+
+            position += bone_or.origin[0] * forward + bone_or.origin[1] * left + bone_or.origin[2] * up;
+        } else {
+            angles.AngleVectorsLeft(&forward, NULL, &up);
+            position += up * 40;
+        }
+    }
+
+    jitter = m_vUserViewAng + m_vBaseAngles;
+    P_ApplyFiringViewJitter(jitter);
+
+    if (!m_pUserCamera && pOwner->IsSubclassOfPlayer()) {
+        Player *player = static_cast<Player *>(pOwner);
+
+        m_pUserCamera = new Camera();
+        player->SetCamera(m_pUserCamera, 0.5);
+    }
+
+    if (owner) {
+        m_vUserViewAng[1] = jitter[1];
+    }
+
+    m_pUserCamera->setOrigin(position);
+    m_pUserCamera->setAngles(jitter);
+
+    if (GetTag("tag_seat", &bone_or)) {
+        vec3_t ang;
+
+        pOwner->setOrigin(bone_or.origin);
+        MatrixToEulerAngles(bone_or.axis, ang);
+        pOwner->setAngles(ang);
+    } else {
+        // no seat
+        pOwner->setOrigin(origin);
+    }
+
+    if (pOwner->IsSubclassOfPlayer()) {
+        Player *player = static_cast<Player *>(pOwner);
+
+        if (!player->IsZoomed()) {
+            player->ToggleZoom(80);
+        }
+
+        player->client->ps.camera_flags |= CF_CAMERA_ANGLES_TURRETMODE;
+    }
 }
 
 void VehicleTurretGun::TurretHasBeenMounted()
@@ -966,7 +1028,98 @@ void VehicleTurretGun::AdjustReloadStatus()
 
 void VehicleTurretGun::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forward, vec3_t right, vec3_t up)
 {
-    // FIXME: unimplemented
+    Vector        delta;
+    Vector        aim_angles;
+    Sentient     *viewer;
+    orientation_t barrel_or;
+    vec3_t        weap_axis[3];
+    float         mat[3][3];
+    int           i;
+
+    viewer = owner;
+    if (!owner) {
+        viewer = GetRemoteOwner();
+    }
+
+    if (!viewer) {
+        if (forward || right || up) {
+            if (!m_bUseRemoteControl && aim_target) {
+                Vector dir;
+                Vector vAng;
+                Vector vFwd;
+
+                AngleVectors(angles, vFwd, right, up);
+                delta = aim_target->origin;
+
+                if (aim_target->HasVehicle()) {
+                    delta.z -= 60;
+                }
+
+                dir = delta - origin;
+                VectorNormalize(dir);
+                dir.x = vFwd.x;
+                dir.y = vFwd.y;
+                VectorNormalize(dir);
+                VectorToAngles(dir, vAng);
+                AngleVectors(vAng, forward, right, up);
+            } else {
+                AngleVectors(angles, forward, right, up);
+            }
+        }
+
+        VectorCopy(origin, position);
+
+        if (GetRawTag(GetTagBarrel(), &barrel_or)) {
+            AnglesToAxis(angles, weap_axis);
+
+            for (i = 0; i < 3; i++) {
+                VectorMA(position, barrel_or.origin[i], weap_axis[i], position);
+            }
+        }
+
+        if (vBarrelPos) {
+            VectorCopy(position, vBarrelPos);
+        }
+    } else if (viewer->IsSubclassOfPlayer()) {
+        VectorCopy(origin, position);
+
+        if (GetRawTag(GetTagBarrel(), &barrel_or)) {
+            AnglesToAxis(angles, weap_axis);
+
+            for (i = 0; i < 3; i++) {
+                VectorMA(position, barrel_or.origin[i], weap_axis[i], position);
+            }
+        }
+
+        if (vBarrelPos) {
+            VectorCopy(position, vBarrelPos);
+        }
+
+        delta      = viewer->GunTarget() - position;
+        aim_angles = delta.toAngles();
+
+        if (IsSubclassOfVehicleTurretGun()) {
+            vec3_t ang;
+
+            MatrixMultiply(barrel_or.axis, weap_axis, mat);
+            vectoangles(mat[0], ang);
+
+            for (i = 0; i < 2; i++) {
+                float diff;
+
+                diff = abs(AngleSubtract(aim_angles[i], ang[i]));
+                if (diff > m_vAimTolerance[i]) {
+                    aim_angles[i] = m_vAimOffset[i] + ang[i];
+                }
+            }
+        }
+
+        if (forward || right || up) {
+            AngleVectors(aim_angles, forward, right, up);
+        }
+    } else {
+        TurretGun::GetMuzzlePosition(position, vBarrelPos, forward, right, up);
+    }
 }
 
 void VehicleTurretGun::ApplyFireKickback(const Vector& org, float kickback)
@@ -1087,7 +1240,47 @@ void VehicleTurretGun::SetTargetEntity(Entity *ent)
 
 void VehicleTurretGun::UpdateAndMoveOwner()
 {
-    // FIXME: unimplemented
+    Vector  delta;
+    Vector  dir;
+    Vector  targetAngles;
+    Entity *parentEnt;
+    float   fDiff;
+
+    parentEnt = GetParent();
+
+    if (m_vUserViewAng[0] < m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET) {
+        m_vUserViewAng[0] = m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET;
+    } else if (m_vUserViewAng[0] > m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET) {
+        m_vUserViewAng[0] = m_fPitchUpCap + MAX_VT_PITCHCAP_OFFSET;
+    }
+
+    fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
+    if (fDiff > m_fMaxYawOffset + MAX_VT_YAW_OFFSET) {
+        fDiff = m_fMaxYawOffset + MAX_VT_YAW_OFFSET;
+    } else if (fDiff < -(m_fMaxYawOffset + MAX_VT_YAW_OFFSET)) {
+        fDiff = -(m_fMaxYawOffset + MAX_VT_YAW_OFFSET);
+    }
+
+    owner->SetViewAngles(m_vUserViewAng + m_vBaseAngles);
+    delta = owner->GunTarget() - origin;
+
+    if (m_bBOIsSet) {
+        dir[0] = m_mBaseOrientation[0] * delta;
+        dir[1] = m_mBaseOrientation[1] * delta;
+        dir[2] = m_mBaseOrientation[2] * delta;
+    } else if (parentEnt) {
+        vec3_t mat[3];
+
+        AnglesToAxis(parentEnt->angles, mat);
+        dir[0] = mat[0] * delta;
+        dir[1] = mat[1] * delta;
+        dir[2] = mat[2] * delta;
+    } else {
+        dir = delta;
+    }
+
+    VectorNormalize(dir);
+    vectoangles(dir, m_vTargetAngles);
 }
 
 void VehicleTurretGun::UpdateTimers(float& yawTimer, float& pitchTimer)
@@ -1171,17 +1364,181 @@ void VehicleTurretGun::UpdateCaps(float maxYawOffset, float maxPitchOffset)
 
 void VehicleTurretGun::IdleToRestPosition()
 {
-    // FIXME: unimplemented
+    Vector  vDir, vNewAngles, vEnd;
+    trace_t trace;
+
+    if (angles[0] > 180) {
+        angles[0] -= 360;
+    }
+
+    if (angles[0] < -80) {
+        m_fIdlePitchSpeed = 0;
+        m_iIdleHitCount   = 0;
+        return;
+    }
+
+    if (m_iIdleHitCount > 1) {
+        return;
+    }
+
+    m_fIdlePitchSpeed -= level.frametime * 300;
+
+    vNewAngles = Vector(angles[0] + level.frametime * m_fIdlePitchSpeed, angles[1], angles[2]);
+    vNewAngles.AngleVectorsLeft(&vDir);
+    vEnd = origin + vDir * m_vIdleCheckOffset[0];
+
+    trace = G_Trace(origin, vec_zero, vec_zero, vEnd, this, edict->clipmask, false, "TurretGun::Think idle");
+
+    if (trace.fraction == 1) {
+        setAngles(vNewAngles);
+        m_iIdleHitCount = 0;
+        return;
+    }
+
+    int iTry;
+    for (iTry = 3; iTry > 0; iTry--) {
+        vNewAngles[0] = angles[0] + level.frametime * m_fIdlePitchSpeed * iTry * 0.25f;
+        if (vNewAngles[0] < m_fMaxIdlePitch) {
+            continue;
+        }
+
+        vNewAngles.AngleVectorsLeft(&vDir);
+        vEnd = origin + vDir * m_vIdleCheckOffset[0];
+
+        trace = G_Trace(origin, vec_zero, vec_zero, vEnd, this, edict->clipmask, false, "TurretGun::Think idle");
+
+        if (trace.fraction == 1) {
+            setAngles(vNewAngles);
+
+            m_iIdleHitCount = 0;
+            m_fIdlePitchSpeed *= 0.25f * iTry;
+            break;
+        }
+    }
+
+    if (!iTry) {
+        m_fIdlePitchSpeed = 0;
+
+        Entity *ent = G_GetEntity(trace.entityNum);
+
+        if (ent && ent == world) {
+            m_iIdleHitCount++;
+        } else {
+            m_iIdleHitCount = 0;
+        }
+    }
 }
 
 void VehicleTurretGun::UpdateFireControl()
 {
-    // FIXME: unimplemented
+    if (!m_iFiring) {
+        return;
+    }
+
+    if (m_iFiring == 1) {
+        if (m_fFireWarmupDelay > 0) {
+            Sound(m_sSoundSet + "snd_fire_warmup");
+            m_fTargetReloadTime = level.time + m_fFireWarmupDelay;
+            m_iFiring           = 2;
+        } else {
+            m_iFiring = 3;
+        }
+    } else if (m_iFiring == 2) {
+        if (level.time >= m_fTargetReloadTime) {
+            m_iFiring = 3;
+        }
+    }
+
+    if (m_iFiring <= 2) {
+        return;
+    }
+
+    if (!m_fMaxBurstDelay) {
+        m_iFiring = 4;
+
+        if (ReadyToFire(FIRE_PRIMARY, false)) {
+            Fire(FIRE_PRIMARY);
+            assert(!m_pVehicleOwner || (m_pVehicleOwner && m_pVehicleOwner->IsSubclassOfVehicle()));
+
+            m_fCurrViewJitter = m_fViewJitter;
+            AdjustReloadStatus();
+
+            if (m_pVehicleOwner && m_pVehicleOwner->IsSubclassOfVehicleTank()) {
+                VehicleTank *tank = static_cast<VehicleTank *>(m_pVehicleOwner.Pointer());
+                tank->KickSuspension(Vector(orientation[1]) * -1, 6);
+            }
+        }
+    } else if (m_iFiring == 4) {
+        if (ReadyToFire(FIRE_PRIMARY, false)) {
+            Fire(FIRE_PRIMARY);
+            assert(!m_pVehicleOwner || (m_pVehicleOwner && m_pVehicleOwner->IsSubclassOfVehicle()));
+
+            m_fCurrViewJitter = m_fViewJitter;
+            AdjustReloadStatus();
+
+            if (m_pVehicleOwner && m_pVehicleOwner->IsSubclassOfVehicleTank()) {
+                VehicleTank *tank = static_cast<VehicleTank *>(m_pVehicleOwner.Pointer());
+                tank->KickSuspension(Vector(orientation[1]) * -1, 6);
+            }
+
+            if (level.time > m_fFireToggleTime) {
+                m_iFiring         = 1;
+                m_fFireToggleTime = level.time + m_fMinBurstDelay + (m_fMaxBurstDelay - m_fMinBurstDelay) * random();
+            }
+        }
+    } else if (level.time > m_fFireToggleTime) {
+        m_iFiring         = 4;
+        m_fFireToggleTime = level.time + m_fMinBurstDelay + (m_fMaxBurstDelay - m_fMinBurstDelay) * random();
+    }
 }
 
 void VehicleTurretGun::UpdateCollisionEntity()
 {
-    // FIXME: unimplemented
+    Sentient *sentOwner;
+    Vector    amove;
+    Vector    newAngles;
+    solid_t   oldsolid;
+
+    if (!m_pCollisionEntity) {
+        return;
+    }
+
+    setSolidType(SOLID_NOT);
+
+    sentOwner = GetSentientOwner();
+    if (sentOwner) {
+        oldsolid = sentOwner->edict->solid;
+        sentOwner->setSolidType(SOLID_NOT);
+    }
+
+    m_pCollisionEntity->Solid();
+    if (m_iPitchBone < 0) {
+        newAngles = angles;
+    } else if (m_bBOIsSet) {
+        vec3_t axis[3];
+        vec3_t mat[3];
+
+        AnglesToAxis(m_vLocalAngles, mat);
+        MatrixMultiply(axis, m_mBaseOrientation, mat);
+        MatrixToEulerAngles(mat, newAngles);
+    } else {
+        newAngles = m_vLocalAngles;
+    }
+
+    amove[0] = angledist(newAngles[0] - m_pCollisionEntity->angles[0]);
+    amove[1] = angledist(newAngles[1] - m_pCollisionEntity->angles[1]);
+    amove[2] = angledist(newAngles[2] - m_pCollisionEntity->angles[2]);
+
+    G_PushMove(m_pCollisionEntity, origin - m_pCollisionEntity->origin, amove);
+
+    m_pCollisionEntity->setOrigin(origin);
+    m_pCollisionEntity->setAngles(newAngles);
+    m_pCollisionEntity->velocity  = velocity;
+    m_pCollisionEntity->avelocity = avelocity;
+
+    if (sentOwner) {
+        sentOwner->setSolidType(static_cast<solid_t>(oldsolid));
+    }
 }
 
 void VehicleTurretGun::RestrictPitch()
@@ -1209,7 +1566,67 @@ void VehicleTurretGun::RestrictYaw()
 
 void VehicleTurretGun::UpdateRemoteControl()
 {
-    // FIXME: unimplemented
+    Sentient *sentOwner;
+    Vector    position;
+    Vector    forward, left, up;
+    Vector    start, end;
+    Vector    delta;
+    Vector    transformed;
+    trace_t   trace;
+
+    RestrictPitch();
+    RestrictYaw();
+
+    sentOwner = GetSentientOwner();
+    if (!sentOwner) {
+        return;
+    }
+
+    sentOwner->SetViewAngles(m_vUserViewAng + m_vBaseAngles);
+
+    if (m_iEyeBone < 0) {
+        (m_vUserViewAng + m_vBaseAngles).AngleVectors(&forward);
+        end = m_pRemoteOwner->origin + forward * 16384;
+
+        trace =
+            G_Trace(m_pRemoteOwner->origin, vec_zero, vec_zero, end, this, MASK_TRANSPARENT, qfalse, "VehicleTurret");
+
+        position = trace.endpos;
+    } else {
+        orientation_t eye_or;
+
+        GetRawTag(m_iEyeBone, &eye_or);
+        angles.AngleVectorsLeft(&forward, &left, &up);
+
+        start = origin + forward * eye_or.origin[0] + left * eye_or.origin[1] + up * eye_or.origin[2];
+        (m_vUserViewAng + m_vBaseAngles).AngleVectorsLeft(&forward);
+
+        end = start + forward * 8192;
+
+        trace = G_Trace(start, vec_zero, vec_zero, end, this, MASK_TRANSPARENT, qfalse, "VehicleTurret");
+
+        position = trace.endpos;
+    }
+
+    delta = position - origin;
+
+    if (m_bBOIsSet) {
+        transformed[0] = m_mBaseOrientation[0] * delta;
+        transformed[1] = m_mBaseOrientation[1] * delta;
+        transformed[2] = m_mBaseOrientation[2] * delta;
+    } else if (GetParent()) {
+        vec3_t mat[3];
+
+        AnglesToAxis(GetParent()->angles, mat);
+        transformed[0] = mat[0] * delta;
+        transformed[1] = mat[1] * delta;
+        transformed[2] = mat[2] * delta;
+    } else {
+        transformed = delta;
+    }
+
+    VectorNormalize(transformed);
+    vectoangles(transformed, m_vTargetAngles);
 }
 
 void VehicleTurretGun::UpdateAimTarget()
