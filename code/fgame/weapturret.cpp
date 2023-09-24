@@ -2024,7 +2024,7 @@ void TurretGun::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t for
     }
 
     if (!viewer) {
-        if (right || up || vBarrelPos) {
+        if (forward || right || up) {
             AngleVectors(angles, forward, right, up);
         }
 
