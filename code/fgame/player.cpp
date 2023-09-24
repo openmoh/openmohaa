@@ -9479,7 +9479,7 @@ void Player::CallVote(Event* ev)
             break;
         case VOTE_OPTION_FLOAT:
             optionFloat = atof(arg2.c_str());
-            Com_sprintf(buffer, sizeof(buffer), "%d", optionFloat);
+            Com_sprintf(buffer, sizeof(buffer), "%f", optionFloat);
 
             if (Q_stricmp(buffer, arg2.c_str())) {
                 HUDPrint(va("%s\n", gi.LV_ConvertString("Invalid vote float entered.")));
