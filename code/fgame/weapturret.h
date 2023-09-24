@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern Event EV_Turret_Enter;
 extern Event EV_Turret_Exit;
 extern Event EV_Turret_AI_TurnSpeed;
+extern Event EV_Turret_SetMaxUseAngle;
 
 typedef enum {
     TURRETAISTATE_DEFAULT,
