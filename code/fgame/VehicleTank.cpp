@@ -159,7 +159,7 @@ void VehicleTank::Postthink()
     prev_velocity = velocity;
     SetSlotsNonSolid();
 
-    if (vm) {
+    if (m_bAnimMove) {
         AnimMoveVehicle();
     } else {
         if (!m_bMovementLocked) {
@@ -180,7 +180,7 @@ void VehicleTank::Postthink()
         m_vOldMaxs = maxs;
     }
 
-    if (vm) {
+    if (m_bAnimMove) {
         moveimpulse = velocity.length() * level.frametime;
         turnimpulse = avelocity[1] * level.frametime;
     } else if (m_bAutoPilot) {
@@ -271,7 +271,7 @@ void VehicleTank::Postthink()
 
     avelocity = anglediff;
 
-    if (!vm && !m_bMovementLocked) {
+    if (!m_bAnimMove && !m_bMovementLocked) {
         FactorInOriginOffset();
         FactorInAnglesOffset(&vAddedAngles);
     }

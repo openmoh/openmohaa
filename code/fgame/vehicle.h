@@ -293,7 +293,7 @@ protected:
     qboolean                        m_bRemoveOnDeath;
     qboolean                        m_bStopEnabled;
     qboolean                        m_bEnableSkidding;
-    vmove_s                        *vm;
+    qboolean                        m_bAnimMove;
     qboolean                        m_bDamageSounds;
     qboolean                        m_bRunSounds;
     int                             m_iProjectileHitsRemaining;
