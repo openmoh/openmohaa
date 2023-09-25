@@ -2058,7 +2058,86 @@ Vehicle::FindExitPosition
 */
 void Vehicle::FindExitPosition(Entity *pEnt, const Vector& vOrigin, const Vector *vAngles)
 {
-    // FIXME: unimplemented
+    Event* ev;
+    Vector yawAngles;
+    Vector forward;
+    Vector offset;
+    trace_t trace;
+
+    if (!pEnt) {
+        return;
+    }
+
+    if (pEnt->IsSubclassOfPlayer() || vOrigin == vec_zero) {
+        float radius;
+        int i, j;
+
+        radius = (pEnt->size.length() + size.length()) * 0.5;
+
+        for (i = 0; i < 128; i += 32) {
+            for (j = 0; j < 360; j += 30) {
+                yawAngles = vec_zero;
+                yawAngles[1] = j + angles[1] * 180;
+                yawAngles.AngleVectorsLeft(&forward);
+
+                offset = origin + forward * radius;
+                offset[2] += i;
+
+                trace = G_Trace(
+                    offset,
+                    pEnt->mins,
+                    pEnt->maxs,
+                    offset,
+                    NULL,
+                    pEnt->edict->clipmask,
+                    pEnt->IsSubclassOfPlayer() ? qtrue : qfalse,
+                    " Vehicle::FindExitPosition"
+                );
+
+                if (!trace.startsolid && !trace.allsolid) {
+                    Vector end;
+                    
+                    offset = trace.endpos;
+                    end = offset;
+
+                    trace = G_Trace(
+                        offset,
+                        pEnt->mins,
+                        pEnt->maxs,
+                        end,
+                        NULL,
+                        pEnt->edict->clipmask,
+                        pEnt->IsSubclassOfPlayer() ? qtrue : qfalse,
+                        " Vehicle::FindExitPosition"
+                    );
+
+                    if (!trace.startsolid && !trace.allsolid && trace.fraction < 1) {
+                        pEnt->setOrigin(trace.endpos);
+                        pEnt->velocity = vec_zero;
+
+                        if (vAngles) {
+                            pEnt->setAngles(*vAngles);
+                        }
+
+                        ev = new Event(EV_Vehicle_Exit);
+                        ev->AddEntity(this);
+                        pEnt->ProcessEvent(ev);
+                    }
+                }
+            }
+        }
+    } else {
+        if (vAngles) {
+            pEnt->setAngles(*vAngles);
+        }
+
+        pEnt->setOrigin(vOrigin);
+        pEnt->velocity = vec_zero;
+
+        ev = new Event(EV_Vehicle_Exit);
+        ev->AddEntity(this);
+        pEnt->ProcessEvent(ev);
+    }
 }
 
 /*
@@ -3258,8 +3337,44 @@ Vehicle::PathDrive
 */
 qboolean Vehicle::PathDrive(usercmd_t *ucmd)
 {
-    // FIXME: unimplemented
-    return qfalse;
+    if (!pathDrivable) {
+        return false;
+    }
+
+    if (m_bAutoPilot) {
+        if (ucmd->forwardmove > 0) {
+            //
+            // forward speed
+            //
+            if (m_bBounceBackwards) {
+                m_fIdealSpeed = 0;
+                if (!currentspeed) {
+                    m_bBounceBackwards = false;
+                }
+            } else {
+                m_fIdealSpeed = m_fMaxSpeed;
+            }
+        } else if (ucmd->forwardmove < 0) {
+            //
+            // backward speed
+            //
+            if (m_bBounceBackwards) {
+                m_fIdealSpeed = -m_fMaxSpeed;
+            } else {
+                m_fIdealSpeed = 0;
+                if (!currentspeed) {
+                    m_bBounceBackwards = true;
+                }
+            }
+        } else {
+            //
+            // stopped
+            //
+            m_fIdealSpeed = 0;
+        }
+    }
+
+    return true;
 }
 
 /*
@@ -3482,7 +3597,72 @@ Vehicle::VehicleDestroyed
 */
 void Vehicle::VehicleDestroyed(Event *ev)
 {
-    // FIXME: unimplemented
+    Entity* ent;
+    Entity* targetEnt;
+    Event* event;
+    const char* name;
+    VehicleBase* v;
+    Vector vDelta;
+
+    takedamage = DAMAGE_NO;
+    setSolidType(SOLID_NOT);
+    hideModel();
+
+    ent = ev->GetEntity(1);
+    if (ent) {
+        EntityPtr driverPtr;
+
+        velocity = vec_zero;
+        driverPtr = driver.ent;
+
+        event = new Event(EV_Use);
+        event->AddEntity(driverPtr);
+        ProcessEvent(event);
+
+        vDelta = driverPtr->origin - origin;
+        vDelta[2] += 64;
+        vDelta.normalize();
+
+        // kill the driver
+        driverPtr->Damage(this, this, driverPtr->health * 2, origin, vDelta, vec_zero, 50, 0, MOD_VEHICLE);
+    }
+
+    if (flags & FL_DIE_EXPLODE) {
+        setSolidType(SOLID_NOT);
+        hideModel();
+        CreateGibs(this, -150, edict->s.scale, 3, NULL);
+    }
+
+    //
+    // remove all links
+    //
+    for (v = this; v->vlink; v = vlink) {
+        v->vlink->PostEvent(EV_Remove, EV_VEHICLE);
+    }
+
+    //
+    // remove all kill targets
+    //
+    name = KillTarget();
+    if (name && strcmp(name, "")) {
+        for (targetEnt = G_FindTarget(NULL, name); targetEnt; targetEnt = G_FindTarget(targetEnt, name)) {
+            targetEnt->PostEvent(EV_Remove, EV_VEHICLE);
+        }
+    }
+
+    //
+    // activate targets
+    //
+    name = Target();
+    if (name && strcmp(name, "")) {
+        for (targetEnt = G_FindTarget(NULL, name); targetEnt; targetEnt = G_FindTarget(targetEnt, name)) {
+            event = new Event(EV_Activate);
+            event->AddEntity(ent);
+            targetEnt->ProcessEvent(event);
+        }
+    }
+
+    PostEvent(EV_Remove, EV_VEHICLE);
 }
 
 /*
@@ -3494,6 +3674,21 @@ void Vehicle::DetachRemoteOwner()
 {
     VehicleTurretGun *vtg = static_cast<VehicleTurretGun *>(Turrets[0].ent.Pointer());
     vtg->EndRemoteControl();
+}
+
+static float GetAngleBetweenVectors2D(const Vector& a, const Vector& b) {
+    float value;
+    float angle;
+
+    value = atan2f(a.x, a.y);
+    angle = RAD2DEG(value - atan2f(b.x, b.y));
+    if (fabs(angle) <= 180) {
+        return angle;
+    } else if (angle < 0) {
+        return angle + 360;
+    } else {
+        return angle - 360;
+    }
 }
 
 /*
@@ -3860,7 +4055,7 @@ bool Vehicle::AssertRotation(Vector vNewAngles, Vector vOldAngles)
     AnglesSubtract(vOldAngles, vNewAngles, vAngleDiff);
     AngleVectorsLeft(vAngleDiff, mAngleDiff[0], mAngleDiff[1], mAngleDiff[2]);
 
-    // FIXME: not sure what it is supposed to do. Should we put an assert there ?
+    // FIXME: shrug
 
     return true;
 }
@@ -3981,7 +4176,31 @@ Vehicle::AnimMoveVehicle
 */
 void Vehicle::AnimMoveVehicle(void)
 {
-    // FIXME: unimplemented
+    Vector vPosition;
+    Vector vAngles;
+    Entity* ent;
+
+    //
+    // velocity
+    //
+    vPosition = origin + frame_delta;
+    velocity = (vPosition - origin) * (1.0 / level.frametime);
+
+    setOrigin(vPosition);
+    
+    //
+    // angular velocity
+    //
+    vAngles = angles;
+    vAngles[1] += angular_delta;
+    avelocity = (vAngles - angles) * (1.0 / level.frametime);
+
+    setAngles(vAngles);
+
+    for (ent = teamchain; ent;  ent = ent->teamchain) {
+        ent->setLocalOrigin(ent->localorigin);
+        ent->setAngles(ent->localangles);
+    }
 }
 
 /*
@@ -6011,7 +6230,25 @@ void Vehicle::EventVehicleAnimDone(Event *ev)
 
 void Vehicle::EventVehicleMoveAnim(Event *ev)
 {
-    // FIXME: unimplemented
+    str anim_name;
+
+    anim_name = ev->GetString(1);
+    if (!HasAnim(anim_name)) {
+        return;
+    }
+
+    m_bAnimMove = true;
+
+    StopAnimating(0);
+    StopAnimating(3);
+    StopAnimating(4);
+    StopAnimating(1);
+    StopAnimating(2);
+    StopAnimating(6);
+    StopAnimating(5);
+    StopAnimating(8);
+
+    NewAnim(anim_name, EV_Vehicle_VehicleMoveAnimDone);
 }
 
 void Vehicle::EventVehicleMoveAnimDone(Event *ev)
@@ -6019,7 +6256,7 @@ void Vehicle::EventVehicleMoveAnimDone(Event *ev)
     Unregister(STRING_ANIMDONE);
     moveimpulse = 0;
     turnimpulse = 0;
-    vm          = NULL;
+    m_bAnimMove = false;
 }
 
 void Vehicle::EventDamageSounds(Event *ev)
@@ -6042,7 +6279,19 @@ void Vehicle::EventRunSounds(Event *ev)
 
 void Vehicle::Remove(Event *ev)
 {
-    // FIXME: unimplemented
+    int i;
+
+    for (i = 0; i < MAX_TURRETS; i++) {
+        Entity* pTurret = Turrets[i].ent;
+        if (!pTurret) {
+            continue;
+        }
+
+        pTurret->PostEvent(EV_Remove, 0);
+        Turrets[i].ent = NULL;
+    }
+
+    Entity::Remove(ev);
 }
 
 /*
@@ -6097,7 +6346,31 @@ void Vehicle::EventSetMaxUseAngle(Event *ev)
 
 void Vehicle::EventCanUse(Event *ev)
 {
-    // FIXME: unimplemented
+    Entity* entity = ev->GetEntity(1);
+
+    if (driver.ent || !m_fMaxUseAngle || !Turrets[0].ent) {
+        ev->AddInteger(1);
+        return;
+    }
+
+    if (!entity) {
+        ev->AddInteger(0);
+        return;
+    }
+
+    Vector vForward;
+    Vector vDir;
+
+    AngleVectors(Turrets[0].ent->angles, vForward, NULL, NULL);
+
+    vDir = Turrets[0].ent->origin - entity->origin;
+    VectorNormalize(vDir);
+
+    if (fabs(GetAngleBetweenVectors2D(vForward, vDir)) > m_fMaxUseAngle) {
+        ev->AddInteger(1);
+    } else {
+        ev->AddInteger(0);
+    }
 }
 
 /*
