@@ -1360,23 +1360,13 @@ void Vehicle::VehicleStart(Event *ev)
     max_health = health;
 
     //
-    // calculate drive mins and maxs
+    // since 2.0: set targetname for all busy turrets
     //
-    max = 0;
-    if (fabs(mins[0]) > max) {
-        max = fabs(mins[0]);
+    for (int i = 0; i < numTurrets; i++) {
+        if (Turrets[i].flags & SLOT_BUSY) {
+            Turrets[i].ent->SetTargetName(TargetName() + "_turret" + str(i));
+        }
     }
-    if (fabs(maxs[0]) > max) {
-        max = fabs(maxs[0]);
-    }
-    if (fabs(mins[1]) > max) {
-        max = fabs(mins[1]);
-    }
-    if (fabs(maxs[1]) > max) {
-        max = fabs(maxs[1]);
-    }
-    drivemins = Vector(-max, -max, mins[2]) * edict->s.scale;
-    drivemaxs = Vector(max, max, maxs[2]) * edict->s.scale;
 
     last_origin = origin;
     link();
@@ -1388,7 +1378,6 @@ Vehicle::SetWheelCorners
 ====================
 */
 void Vehicle::SetWheelCorners(Event *ev)
-
 {
     Vector size;
 
@@ -1604,7 +1593,6 @@ Vehicle::EventQueryFreePassengerSlot
 ====================
 */
 void Vehicle::QueryFreePassengerSlot(Event *ev)
-
 {
     ev->AddInteger(QueryFreePassengerSlot());
 }
@@ -1615,7 +1603,6 @@ Vehicle::EventQueryFreeDriverSlot
 ====================
 */
 void Vehicle::QueryFreeDriverSlot(Event *ev)
-
 {
     ev->AddInteger(QueryFreeDriverSlot());
 }
@@ -1626,7 +1613,6 @@ Vehicle::EventQueryFreeTurretSlot
 ====================
 */
 void Vehicle::QueryFreeTurretSlot(Event *ev)
-
 {
     ev->AddInteger(QueryFreeTurretSlot());
 }
@@ -1637,7 +1623,6 @@ Vehicle::EventQueryPassengerSlotPosition
 ====================
 */
 void Vehicle::QueryPassengerSlotPosition(Event *ev)
-
 {
     Vector vPos;
     int    iSlot;
@@ -1657,7 +1642,6 @@ Vehicle::EventQueryDriverSlotPosition
 ====================
 */
 void Vehicle::QueryDriverSlotPosition(Event *ev)
-
 {
     Vector vPos;
     int    iSlot;
@@ -1677,7 +1661,6 @@ Vehicle::EventQueryTurretSlotPosition
 ====================
 */
 void Vehicle::QueryTurretSlotPosition(Event *ev)
-
 {
     Vector vPos;
     int    iSlot;
@@ -1697,7 +1680,6 @@ Vehicle::EventQueryPassengerSlotAngles
 ====================
 */
 void Vehicle::QueryPassengerSlotAngles(Event *ev)
-
 {
     Vector vAngles;
     int    iSlot;
@@ -1717,7 +1699,6 @@ Vehicle::EventQueryDriverSlotAngles
 ====================
 */
 void Vehicle::QueryDriverSlotAngles(Event *ev)
-
 {
     Vector vAngles;
     int    iSlot;
@@ -1737,7 +1718,6 @@ Vehicle::EventQueryTurretSlotAngles
 ====================
 */
 void Vehicle::QueryTurretSlotAngles(Event *ev)
-
 {
     Vector vAngles;
     int    iSlot;
@@ -1757,7 +1737,6 @@ Vehicle::EventQueryPassengerSlotStatus
 ====================
 */
 void Vehicle::QueryPassengerSlotStatus(Event *ev)
-
 {
     int iSlot;
 
@@ -1775,7 +1754,6 @@ Vehicle::EventQueryDriverSlotStatus
 ====================
 */
 void Vehicle::QueryDriverSlotStatus(Event *ev)
-
 {
     int iSlot;
 
@@ -1793,7 +1771,6 @@ Vehicle::EventQueryTurretSlotStatus
 ====================
 */
 void Vehicle::QueryTurretSlotStatus(Event *ev)
-
 {
     int iSlot;
 
@@ -1811,7 +1788,6 @@ Vehicle::EventQueryPassengerSlotEntity
 ====================
 */
 void Vehicle::QueryPassengerSlotEntity(Event *ev)
-
 {
     int iSlot;
 
@@ -1829,7 +1805,6 @@ Vehicle::EventQueryDriverSlotEntity
 ====================
 */
 void Vehicle::QueryDriverSlotEntity(Event *ev)
-
 {
     int iSlot;
 
@@ -1847,7 +1822,6 @@ Vehicle::EventQueryTurretSlotEntity
 ====================
 */
 void Vehicle::QueryTurretSlotEntity(Event *ev)
-
 {
     int iSlot;
 
@@ -1865,7 +1839,6 @@ Vehicle::EventAttachPassengerSlot
 ====================
 */
 void Vehicle::AttachPassengerSlot(Event *ev)
-
 {
     int iSlot;
 
@@ -1884,7 +1857,6 @@ Vehicle::EventAttachDriverSlot
 ====================
 */
 void Vehicle::AttachDriverSlot(Event *ev)
-
 {
     int iSlot;
 
@@ -1903,7 +1875,6 @@ Vehicle::EventAttachTurretSlot
 ====================
 */
 void Vehicle::AttachTurretSlot(Event *ev)
-
 {
     int iSlot;
 
@@ -1922,7 +1893,6 @@ Vehicle::EventDetachPassengerSlot
 ====================
 */
 void Vehicle::DetachPassengerSlot(Event *ev)
-
 {
     int    iSlot;
     Vector vExitPosition;
@@ -1956,7 +1926,6 @@ Vehicle::EventDetachDriverSlot
 ====================
 */
 void Vehicle::DetachDriverSlot(Event *ev)
-
 {
     int    iSlot;
     Vector vExitPosition;
@@ -1990,7 +1959,6 @@ Vehicle::EventDetachTurretSlot
 ====================
 */
 void Vehicle::DetachTurretSlot(Event *ev)
-
 {
     int    iSlot;
     Vector vExitPosition;
@@ -2006,16 +1974,15 @@ void Vehicle::DetachTurretSlot(Event *ev)
         if (ev->IsVectorAt(2)) {
             vExitPosition = ev->GetVector(2);
         } else if (ev->IsEntityAt(2)) {
-            vExitPosition  = ev->GetEntity(2)->origin;
+            vExitAngles = ev->GetEntity(2)->angles;
             bHasExitAngles = true;
+            vExitPosition = ev->GetEntity(2)->origin;
         } else if (ev->IsSimpleEntityAt(2)) {
             vExitPosition = ev->GetSimpleEntity(2)->origin;
         }
-
-        DetachTurretSlot(iSlot, vExitPosition, bHasExitAngles ? &vExitAngles : NULL);
-    } else {
-        DetachTurretSlot(iSlot, vec_zero, NULL);
     }
+
+    DetachTurretSlot(iSlot, vExitPosition, bHasExitAngles ? &vExitAngles : NULL);
 }
 
 /*
@@ -2218,179 +2185,84 @@ Vehicle::AttachTurretSlot
 Attach a turret or a sentient that will use the turret to the vehicle.
 ====================
 */
-void Vehicle::AttachTurretSlot(int slot, Entity *ent, Vector vExitPosition, Vector *vExitAngles)
+void Vehicle::AttachTurretSlot(int slot, Entity* ent, Vector vExitPosition, Vector* vExitAngles)
 {
-    TurretGun        *pTurret;
-    VehicleTurretGun *pVehicleTurret;
+    TurretGun* pTurret;
+    VehicleTurretGun* pVehicleTurret;
     str               sName;
 
     if (!ent) {
         return;
     }
 
-    pTurret = (TurretGun *)Turrets[slot].ent.Pointer();
+    pTurret = (TurretGun*)Turrets[slot].ent.Pointer();
     if (pTurret && ent->IsSubclassOfWeapon()) {
-        if (!isLocked()) {
+        if (ent == pTurret && !isLocked()) {
             DetachTurretSlot(slot, vec_zero, NULL);
         }
-    } else {
-        if (ent->IsSubclassOfWeapon()) {
-            Turrets[slot].ent   = ent;
-            Turrets[slot].flags = SLOT_BUSY;
+    }
+    else if (ent->IsSubclassOfWeapon()) {
+        Turrets[slot].ent = ent;
+        Turrets[slot].flags = SLOT_BUSY;
 
-            pTurret = (TurretGun *)ent;
+        pTurret = (TurretGun*)ent;
 
-            ent->takedamage = DAMAGE_NO;
-            ent->setSolidType(SOLID_NOT);
+        ent->takedamage = DAMAGE_NO;
+        ent->setSolidType(SOLID_NOT);
 
-            Event *event = new Event(EV_Vehicle_Enter);
-            event->AddEntity(this);
-            Turrets[slot].ent->ProcessEvent(event);
+        Event* event = new Event(EV_Vehicle_Enter);
+        event->AddEntity(this);
+        Turrets[slot].ent->ProcessEvent(event);
 
-            offset = ent->origin - origin;
+        offset = ent->origin - origin;
 
-            flags |= FL_POSTTHINK;
-            Turrets[slot].ent->setAngles(angles);
+        flags |= FL_POSTTHINK;
+        Turrets[slot].ent->setAngles(angles);
 
-            if (pTurret->IsSubclassOfTurretGun()) {
-                pTurret->m_bUsable   = false;
-                pTurret->m_bRestable = false;
-            }
-        } else if (pTurret) {
-            Entity *pTurretOwner       = NULL;
-            Entity *pRemoteTurretOwner = NULL;
+        if (pTurret->IsSubclassOfTurretGun()) {
+            pTurret->m_bUsable = false;
+            pTurret->m_bRestable = false;
+        }
+    } else if (pTurret) {
+        Entity* pTurretOwner = NULL;
+        Entity* pRemoteTurretOwner = NULL;
 
-            if (pTurret->IsSubclassOfTurretGun()) {
-                pTurretOwner = pTurret->GetOwner();
-            }
+        if (pTurret->IsSubclassOfTurretGun()) {
+            pTurretOwner = pTurret->GetOwner();
+        }
 
-            if (pTurret->IsSubclassOfVehicleTurretGun()) {
-                pVehicleTurret     = (VehicleTurretGun *)pTurret;
-                pRemoteTurretOwner = pVehicleTurret->GetRemoteOwner();
-            }
+        if (pTurret->IsSubclassOfVehicleTurretGun()) {
+            pVehicleTurret = (VehicleTurretGun*)pTurret;
+            pRemoteTurretOwner = pVehicleTurret->GetRawRemoteOwner();
+        }
 
-            if (pTurret->IsSubclassOfTurretGun()) {
-                if (pTurret->IsSubclassOfVehicleTurretGun() && pVehicleTurret->isLocked()) {
-                    ScriptError("Turret is locked, cannot attach to turret slot.");
-                }
-
-                pTurret->m_bUsable = true;
+        if (pTurret->IsSubclassOfTurretGun()) {
+            if (pTurret->IsSubclassOfVehicleTurretGun() && pVehicleTurret->isLocked()) {
+                ScriptError("Turret is locked, cannot attach to turret slot.");
             }
 
-            Event *event = new Event(EV_Use);
-            event->AddEntity(ent);
-            pTurret->ProcessEvent(event);
+            pTurret->m_bUsable = true;
+        }
 
-            if (ent->IsSubclassOfPlayer()) {
-                Player *pPlayer     = (Player *)ent;
-                pPlayer->m_pVehicle = this;
+        Event* event = new Event(EV_Use);
+        event->AddEntity(ent);
+        pTurret->ProcessEvent(event);
+
+        if (ent->IsSubclassOfPlayer()) {
+            Player* pPlayer = (Player*)ent;
+            pPlayer->m_pVehicle = this;
+        }
+
+        if (pTurret->IsSubclassOfTurretGun()) {
+            pTurret->m_bUsable = false;
+        }
+
+        if (pTurretOwner == ent || pRemoteTurretOwner == ent) {
+            if (pRemoteTurretOwner) {
+                pVehicleTurret->SetRemoteOwner(NULL);
             }
 
-            if (pTurret->IsSubclassOfTurretGun()) {
-                pTurret->m_bUsable = false;
-            }
-
-            if (pTurretOwner == ent || pRemoteTurretOwner == ent) {
-                if (pRemoteTurretOwner) {
-                    pVehicleTurret->SetRemoteOwner(NULL);
-                }
-
-                if (vExitPosition != vec_zero) {
-                    Vector  pos;
-                    trace_t trace;
-
-                    pos = vExitPosition;
-
-                    trace = G_Trace(
-                        pos, ent->mins, ent->maxs, pos, NULL, edict->clipmask, false, "Vehicle::AttachTurretSlot"
-                    );
-
-                    if (!trace.allsolid && !trace.startsolid) {
-                        trace = G_Trace(
-                            pos,
-                            ent->mins,
-                            ent->maxs,
-                            pos - Vector(0, 0, 128),
-                            NULL,
-                            edict->clipmask,
-                            false,
-                            "Vehicle::AttachTurretSlot"
-                        );
-
-                        if (trace.fraction < 1.0f) {
-                            if (vExitAngles) {
-                                ent->setAngles(*vExitAngles);
-                            }
-
-                            ent->setOrigin(trace.endpos);
-                            velocity = vec_zero;
-
-                            Event *event = new Event(EV_Vehicle_Exit);
-                            event->AddEntity(this);
-                            ent->ProcessEvent(event);
-                        }
-                    }
-                } else {
-                    int     height;
-                    int     ang;
-                    Vector  angles;
-                    Vector  forward;
-                    Vector  pos;
-                    float   ofs;
-                    trace_t trace;
-
-                    if (locked) {
-                        return;
-                    }
-
-                    //
-                    // place the turret on the ground
-                    //
-                    ofs = size.length() * 0.5f;
-                    for (height = 0; height < 100; height += 16) {
-                        for (ang = 0; ang < 360; ang += 30) {
-                            angles[1] = ent->angles[1] + ang + 90;
-                            angles.AngleVectors(&forward, NULL, NULL);
-                            pos = origin + (forward * ofs);
-                            pos[2] += height;
-                            trace = G_Trace(
-                                pos,
-                                ent->mins,
-                                ent->maxs,
-                                pos,
-                                NULL,
-                                MASK_PLAYERSOLID,
-                                false,
-                                "Vehicle::AttachTurretSlot"
-                            );
-                            if (!trace.startsolid && !trace.allsolid) {
-                                Vector end;
-
-                                end = pos;
-                                end[2] -= 128;
-                                trace = G_Trace(
-                                    pos,
-                                    ent->mins,
-                                    ent->maxs,
-                                    end,
-                                    NULL,
-                                    MASK_PLAYERSOLID,
-                                    false,
-                                    "Vehicle::AttachTurretSlot"
-                                );
-                                if (trace.fraction < 1.0f) {
-                                    ent->setOrigin(vExitPosition);
-                                    ent->velocity = vec_zero;
-
-                                    Event *ev = new Event(EV_Vehicle_Exit);
-                                    ev->AddEntity(this);
-                                    ent->ProcessEvent(ev);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            FindExitPosition(ent, vExitPosition, vExitAngles);
         }
     }
 }
@@ -2915,7 +2787,6 @@ Vehicle::IsDrivable
 ====================
 */
 qboolean Vehicle::IsDrivable(void)
-
 {
     return drivable;
 }
@@ -3036,7 +2907,6 @@ Vehicle::SetTread
 ====================
 */
 void Vehicle::SetTread(Event *ev)
-
 {
     m_fTread = ev->GetFloat(1);
 }
@@ -3057,7 +2927,6 @@ Vehicle::SetRollingResistance
 ====================
 */
 void Vehicle::SetRollingResistance(Event *ev)
-
 {
     m_fRollingResistance = ev->GetFloat(1);
 }
@@ -3078,7 +2947,6 @@ Vehicle::BouncyCoef
 ====================
 */
 void Vehicle::BouncyCoef(Event *ev)
-
 {
     m_fBouncyCoef = ev->GetFloat(1);
 }
@@ -4336,7 +4204,6 @@ Vehicle::NoMove
 ====================
 */
 void Vehicle::NoMove(void)
-
 {
     vmove_t vm;
 
@@ -4479,7 +4346,6 @@ Vehicle::MoveVehicle
 ====================
 */
 void Vehicle::MoveVehicle(void)
-
 {
     trace_t      tr;
     Vector       vecStart;
@@ -5080,7 +4946,6 @@ Vehicle::VehicleTouched
 ====================
 */
 void Vehicle::VehicleTouched(Event *ev)
-
 {
     Entity *other;
     float   speed;
@@ -5157,7 +5022,6 @@ Vehicle::VehicleBlocked
 ====================
 */
 void Vehicle::VehicleBlocked(Event *ev)
-
 {
     return;
     /*
@@ -5326,7 +5190,6 @@ Vehicle::EventModel
 ====================
 */
 void Vehicle::EventModel(Event *ev)
-
 {
     SetModelEvent(ev);
 }
@@ -5460,7 +5323,6 @@ Vehicle::EventRemoveOnDeath
 ====================
 */
 void Vehicle::EventRemoveOnDeath(Event *ev)
-
 {
     m_bRemoveOnDeath = ev->GetBoolean(1);
 }
@@ -5471,7 +5333,6 @@ Vehicle::EventSetExplosionModel
 ====================
 */
 void Vehicle::EventSetExplosionModel(Event *ev)
-
 {
     m_sExplosionModel = ev->GetString(1);
 }
@@ -5482,7 +5343,6 @@ Vehicle::EventSetCollisionModel
 ====================
 */
 void Vehicle::EventSetCollisionModel(Event *ev)
-
 {
     Entity *pColEnt = ev->GetEntity(1);
 
@@ -5516,7 +5376,6 @@ Vehicle::EventGetCollisionModel
 ====================
 */
 void Vehicle::EventGetCollisionModel(Event *ev)
-
 {
     ev->AddEntity(m_pCollisionEntity);
 }
@@ -5527,7 +5386,6 @@ Vehicle::EventSetSoundParameters
 ====================
 */
 void Vehicle::EventSetSoundParameters(Event *ev)
-
 {
     m_fSoundMinSpeed = ev->GetFloat(1);
     m_fSoundMinPitch = ev->GetFloat(2);
@@ -5541,7 +5399,6 @@ Vehicle::EventSetVolumeParameters
 ====================
 */
 void Vehicle::EventSetVolumeParameters(Event *ev)
-
 {
     m_fVolumeMinSpeed = ev->GetFloat(1);
     m_fVolumeMinPitch = ev->GetFloat(2);
@@ -5555,7 +5412,6 @@ Vehicle::UpdateSound
 ====================
 */
 void Vehicle::UpdateSound(void)
-
 {
     float pitch;
     float volume;
@@ -5666,7 +5522,6 @@ Vehicle::SetupVehicleSoundEntities
 ====================
 */
 void Vehicle::SetupVehicleSoundEntities(void)
-
 {
     int    i;
     Vector a;
@@ -5693,7 +5548,6 @@ Vehicle::TurnOnVehicleSoundEntities
 ====================
 */
 void Vehicle::TurnOnVehicleSoundEntities(void)
-
 {
     for (int i = 0; i < MAX_SOUND_ENTITIES; i++) {
         if (!m_pVehicleSoundEntities[i]) {
@@ -5710,7 +5564,6 @@ Vehicle::TurnOffVehicleSoundEntities
 ====================
 */
 void Vehicle::TurnOffVehicleSoundEntities(void)
-
 {
     for (int i = 0; i < MAX_SOUND_ENTITIES; i++) {
         if (!m_pVehicleSoundEntities[i]) {
@@ -5727,7 +5580,6 @@ Vehicle::RemoveVehicleSoundEntities
 ====================
 */
 void Vehicle::RemoveVehicleSoundEntities(void)
-
 {
     for (int i = 0; i < MAX_SOUND_ENTITIES; i++) {
         if (!m_pVehicleSoundEntities[i]) {
@@ -5757,7 +5609,6 @@ Vehicle::EventDamage
 ====================
 */
 void Vehicle::EventDamage(Event *ev)
-
 {
     Vector vDirection;
     float  fForce;
@@ -5807,7 +5658,6 @@ Vehicle::FactorInOriginOffset
 ====================
 */
 void Vehicle::FactorInOriginOffset(void)
-
 {
     origin += m_vOriginOffset;
     setOrigin(origin);
@@ -5819,7 +5669,6 @@ Vehicle::FactorOutOriginOffset
 ====================
 */
 void Vehicle::FactorOutOriginOffset(void)
-
 {
     origin -= m_vOriginOffset;
     setOrigin(origin);
@@ -5831,7 +5680,6 @@ Vehicle::CalculateOriginOffset
 ====================
 */
 void Vehicle::CalculateOriginOffset(void)
-
 {
     int    index;
     Vector vTireAvg;
@@ -5900,7 +5748,6 @@ Vehicle::UpdateTires
 ====================
 */
 void Vehicle::UpdateTires(void)
-
 {
     int     index;
     trace_t trace;
@@ -5992,7 +5839,6 @@ Vehicle::UpdateNormals
 ====================
 */
 void Vehicle::UpdateNormals(void)
-
 {
     Vector vDist1;
     Vector vDist2;
@@ -6083,7 +5929,6 @@ Vehicle::UpdateBones
 ====================
 */
 void Vehicle::UpdateBones(void)
-
 {
     float fNewTurnAngle = AngleNormalize180(turnangle - m_fSkidAngle);
 
@@ -6101,7 +5946,6 @@ Vehicle::UpdateShaderOffset
 ====================
 */
 void Vehicle::UpdateShaderOffset(void)
-
 {
     m_fShaderOffset -= orientation[0] * real_velocity * 0.25 * level.frametime;
     edict->s.shader_time = m_fShaderOffset;
@@ -6230,7 +6074,6 @@ Vehicle::EventStopAtEnd
 ====================
 */
 void Vehicle::EventStopAtEnd(Event *ev)
-
 {
     if (!m_pCurPath) {
         ScriptError("Tried to Stop at end of path on a vehicle who is not driving a path!");
@@ -6295,7 +6138,6 @@ Vehicle::EventSkidding
 ====================
 */
 void Vehicle::EventSkidding(Event *ev)
-
 {
     if (ev->NumArgs() == 1) {
         m_bEnableSkidding = ev->GetInteger(1);
@@ -6334,7 +6176,6 @@ Vehicle::FactorInSkidOrigin
 ====================
 */
 void Vehicle::FactorInSkidOrigin(void)
-
 {
     Vector vNewOrigin;
 
@@ -6354,7 +6195,6 @@ Vehicle::EventContinueSkidding
 ====================
 */
 void Vehicle::EventContinueSkidding(Event *ev)
-
 {
     if (m_bEnableSkidding) {
         if (HasAnim("skidding")) {
@@ -6474,7 +6314,6 @@ Vehicle::EventVehicleAnim
 ====================
 */
 void Vehicle::EventVehicleAnim(Event *ev)
-
 {
     float weight;
 
@@ -6493,7 +6332,6 @@ Vehicle::EventVehicleAnimDone
 ====================
 */
 void Vehicle::EventVehicleAnimDone(Event *ev)
-
 {
     Unregister(STRING_VEHICLEANIMDONE);
 }
