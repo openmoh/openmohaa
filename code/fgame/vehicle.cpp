@@ -2971,7 +2971,7 @@ qboolean Vehicle::Drive(usercmd_t *ucmd)
     driver.ent->client->ps.pm_flags |= PMF_NO_PREDICTION;
 
     moveimpulse  = ((float)ucmd->forwardmove) * (VectorLength(i) + 1.0);
-    m_bIsBraking = ucmd->forwardmove >> 31;
+    m_bIsBraking = ucmd->forwardmove < 0;
     m_fAccelerator += ((float)ucmd->forwardmove) * 0.005;
     if (m_fAccelerator < 0.0) {
         m_fAccelerator = 0.0;
@@ -3369,10 +3369,11 @@ void Vehicle::EventDriveInternal(Event *ev, bool wait)
     SimpleEntity *path;
     SimpleEntity *alternate_path = NULL;
 
-    m_fIdealDistance = 100.0f;
-    m_fLookAhead     = 256.0f;
-    m_fIdealAccel    = 35.0f;
-    m_fIdealSpeed    = 250.0f;
+    m_fIdealDistance = 100;
+    m_fLookAhead     = 256;
+    m_fIdealAccel    = 35;
+    m_fIdealSpeed    = 250;
+    m_fMaxSpeed      = 250;
 
     switch (ev->NumArgs()) {
     case 6:
@@ -3399,11 +3400,11 @@ void Vehicle::EventDriveInternal(Event *ev, bool wait)
     }
 
     if (!m_pCurPath) {
-        m_pCurPath = new cSpline<4, 512>;
+        m_pCurPath = new cVehicleSpline;
     }
 
     if (!m_pAlternatePath) {
-        m_pAlternatePath = new cSpline<4, 512>;
+        m_pAlternatePath = new cVehicleSpline;
     }
 
     SetupPath(m_pCurPath, path);
@@ -3425,7 +3426,7 @@ void Vehicle::EventDriveInternal(Event *ev, bool wait)
 Vehicle::SetupPath
 ====================
 */
-void Vehicle::SetupPath(cSpline<4, 512> *pPath, SimpleEntity *se)
+void Vehicle::SetupPath(cVehicleSpline *pPath, SimpleEntity *se)
 {
     Vector        vLastOrigin;
     SimpleEntity *ent;
@@ -3513,9 +3514,9 @@ Vehicle::EventFullStop
 */
 void Vehicle::EventFullStop(Event *ev)
 {
-    m_bStopEnabled = 0;
-    m_bIsSkidding  = 0;
-    m_bAutoPilot   = 0;
+    m_bAutoPilot   = false;
+    m_bStopEnabled = false;
+    m_bIsSkidding  = false;
     moveimpulse    = 0;
     turnimpulse    = 0;
     velocity       = vec_zero;
@@ -5075,7 +5076,7 @@ void Vehicle::EventNextDrive(Event *ev)
     }
 
     if (!m_pNextPath) {
-        m_pNextPath = new cSpline<4, 512>;
+        m_pNextPath = new cVehicleSpline;
     }
 
     SetupPath(m_pNextPath, path);
@@ -5885,7 +5886,7 @@ void Vehicle::EventStopAtEnd(Event *ev)
 Vehicle::GetPathPosition
 ====================
 */
-float Vehicle::GetPathPosition(cSpline<4, 512> *pPath, int iNode)
+float Vehicle::GetPathPosition(cVehicleSpline *pPath, int iNode)
 {
     float *vTmp;
     float  vPrev[3];
@@ -6340,7 +6341,7 @@ void Vehicle::Archive(Archiver& arc)
         arc.ArchiveInteger(&tempInt);
 
         if (tempInt) {
-            m_pAlternatePath = new cSpline<4, 512>;
+            m_pAlternatePath = new cVehicleSpline;
         } else {
             m_pAlternatePath = NULL;
         }
@@ -6360,7 +6361,7 @@ void Vehicle::Archive(Archiver& arc)
         arc.ArchiveInteger(&tempInt);
 
         if (tempInt) {
-            m_pCurPath = new cSpline<4, 512>;
+            m_pCurPath = new cVehicleSpline;
         } else {
             m_pCurPath = NULL;
         }
@@ -6380,7 +6381,7 @@ void Vehicle::Archive(Archiver& arc)
         arc.ArchiveInteger(&tempInt);
 
         if (tempInt) {
-            m_pNextPath = new cSpline<4, 512>;
+            m_pNextPath = new cVehicleSpline;
         } else {
             m_pNextPath = NULL;
         }
