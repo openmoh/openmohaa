@@ -3543,7 +3543,7 @@ void Vehicle::VehicleDestroyed(Event *ev)
     hideModel();
 
     ent = ev->GetEntity(1);
-    if (ent) {
+    if (driver.ent) {
         EntityPtr driverPtr;
 
         velocity = vec_zero;
@@ -3562,6 +3562,12 @@ void Vehicle::VehicleDestroyed(Event *ev)
     }
 
     if (flags & FL_DIE_EXPLODE) {
+        setSolidType(SOLID_NOT);
+        hideModel();
+        CreateExplosion(origin, edict->s.scale * 150, this, this, this, m_sExplosionModel);
+    }
+
+    if (flags & FL_DIE_GIBS) {
         setSolidType(SOLID_NOT);
         hideModel();
         CreateGibs(this, -150, edict->s.scale, 3, NULL);
