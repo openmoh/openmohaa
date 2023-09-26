@@ -1771,6 +1771,11 @@ EntityPtr VehicleTurretGun::GetVehicle() const
     return m_pVehicleOwner;
 }
 
+SentientPtr VehicleTurretGun::GetRawRemoteOwner() const
+{
+    return m_pRemoteOwner;
+}
+
 Event EV_VTGP_LinkTurret
 (
     "linkturret",

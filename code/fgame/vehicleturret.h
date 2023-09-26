@@ -152,6 +152,7 @@ public:
     void      UpdateFireControl();
     void      UpdateCollisionEntity();
     EntityPtr GetVehicle() const;
+    SentientPtr GetRawRemoteOwner() const;
 
     void Archive(Archiver& arc) override;
 };
