@@ -252,7 +252,7 @@ Entity *G_TestEntityPosition
 	if( !mask )
 		mask = MASK_SOLID;
 
-	if( ent->IsSubclassOfPlayer() )
+	if( ent->IsSubclassOfSentient() )
 	{
 		trace = G_Trace( vOrg, ent->mins, ent->maxs, vOrg, ent, mask, true, "G_TestEntityPosition1" );
 	}
