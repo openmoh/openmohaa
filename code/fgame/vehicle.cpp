@@ -1317,8 +1317,6 @@ void Vehicle::VehicleStart(Event *ev)
 {
     Entity       *ent;
     VehicleBase  *last;
-    Vector        drivemins, drivemaxs;
-    float         max;
     orientation_t orient;
 
     // become solid
@@ -2284,80 +2282,12 @@ void Vehicle::DetachPassengerSlot(int slot, Vector vExitPosition, Vector *vExitA
         return;
     }
 
-    if (vExitPosition == vec_zero) {
-        int     height;
-        int     ang;
-        Vector  angles;
-        Vector  forward;
-        Vector  pos;
-        float   ofs;
-        trace_t trace;
-
-        if (locked) {
-            return;
-        }
-
-        //
-        // place the passenger on the ground
-        //
-        ofs = size.length() * 0.5f;
-        for (height = 0; height < 100; height += 16) {
-            for (ang = 0; ang < 360; ang += 30) {
-                angles[1] = passenger->angles[1] + ang + 90;
-                angles.AngleVectors(&forward, NULL, NULL);
-                pos = origin + (forward * ofs);
-                pos[2] += height;
-                trace = G_Trace(
-                    pos,
-                    passenger->mins,
-                    passenger->maxs,
-                    pos,
-                    NULL,
-                    MASK_PLAYERSOLID,
-                    false,
-                    "Vehicle::DetachPassengerSlot"
-                );
-                if (!trace.startsolid && !trace.allsolid) {
-                    Vector end;
-
-                    end = pos;
-                    end[2] -= 128;
-                    trace = G_Trace(
-                        pos,
-                        passenger->mins,
-                        passenger->maxs,
-                        end,
-                        NULL,
-                        MASK_PLAYERSOLID,
-                        false,
-                        "Vehicle::DetachPassengerSlot"
-                    );
-                    if (trace.fraction < 1.0f) {
-                        passenger->setOrigin(pos);
-                        passenger->velocity = vec_zero;
-
-                        Event *ev = new Event(EV_Vehicle_Exit);
-                        ev->AddEntity(this);
-                        passenger->ProcessEvent(ev);
-
-                        Sound(m_sSoundSet + "snd_dooropen");
-                    }
-                }
-            }
-        }
-    } else {
-        if (vExitAngles) {
-            passenger->setAngles(*vExitAngles);
-        }
-
-        passenger->setOrigin(vExitPosition);
-        passenger->velocity = vec_zero;
-
-        Event *ev = new Event(EV_Vehicle_Exit);
-        ev->AddEntity(this);
-        passenger->ProcessEvent(ev);
+    if (!FindExitPosition(passenger, vExitPosition, vExitAngles)) {
+        // cannot exit
+        return;
     }
 
+    Sound(m_sSoundSet + "snd_dooropen");
     Passengers[slot].ent   = NULL;
     Passengers[slot].flags = SLOT_FREE;
 }
@@ -2375,93 +2305,20 @@ void Vehicle::DetachDriverSlot(int slot, Vector vExitPosition, Vector *vExitAngl
         return;
     }
 
-    if (vExitPosition == vec_zero) {
-        int     height;
-        int     ang;
-        Vector  angles;
-        Vector  forward;
-        Vector  pos;
-        float   ofs;
-        trace_t trace;
+    if (!FindExitPosition(other, vExitPosition, vExitAngles)) {
+        // cannot exit
+        return;
+    }
 
-        if (other != driver.ent) {
-            return;
-        }
+    turnimpulse = 0;
+    moveimpulse = 0;
+    jumpimpulse = 0;
 
-        if (locked) {
-            return;
-        }
-
-        //
-        // place the driver.ent on the ground
-        //
-        ofs = size.length() * 0.5f;
-        for (height = 0; height < 100; height += 16) {
-            for (ang = 0; ang < 360; ang += 30) {
-                angles[1] = driver.ent->angles[1] + ang + 90;
-                angles.AngleVectors(&forward, NULL, NULL);
-                pos = origin + (forward * ofs);
-                pos[2] += height;
-                trace = G_Trace(
-                    pos,
-                    driver.ent->mins,
-                    driver.ent->maxs,
-                    pos,
-                    NULL,
-                    MASK_PLAYERSOLID,
-                    false,
-                    "Vehicle::DetachDriverSlot"
-                );
-                if (!trace.startsolid && !trace.allsolid) {
-                    Vector end;
-
-                    end = pos;
-                    end[2] -= 128;
-                    trace = G_Trace(
-                        pos,
-                        driver.ent->mins,
-                        driver.ent->maxs,
-                        end,
-                        NULL,
-                        MASK_PLAYERSOLID,
-                        false,
-                        "Vehicle::DetachDriverSlot"
-                    );
-                    if (trace.fraction < 1.0f) {
-                        driver.ent->setOrigin(pos);
-
-                        turnimpulse = 0;
-                        moveimpulse = 0;
-                        jumpimpulse = 0;
-
-                        Event *event = new Event(EV_Vehicle_Exit);
-                        event->AddEntity(this);
-                        driver.ent->ProcessEvent(event);
-                        if (hasweapon) {
-                            Player *player = (Player *)driver.ent.Pointer();
-                            player->takeItem(weaponName.c_str());
-                        }
-                        if (drivable) {
-                            StopLoopSound();
-                            Sound("snd_dooropen", CHAN_BODY);
-                            Sound("snd_stop", CHAN_VOICE);
-                            driver.ent->setSolidType(SOLID_BBOX);
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        if (vExitAngles) {
-            other->setAngles(*vExitAngles);
-        }
-
-        other->setOrigin(vExitPosition);
-        other->velocity = vec_zero;
-
-        Event *ev = new Event(EV_Vehicle_Exit);
-        ev->AddEntity(this);
-        other->ProcessEvent(ev);
+    if (drivable) {
+        StopLoopSound();
+        Sound("snd_dooropen", CHAN_BODY);
+        Sound("snd_stop", CHAN_VOICE);
+        driver.ent->setSolidType(SOLID_BBOX);
     }
 
     driver.ent   = NULL;
@@ -2483,88 +2340,22 @@ void Vehicle::DetachTurretSlot(int slot, Vector vExitPosition, Vector *vExitAngl
         return;
     }
 
-    if (vExitPosition == vec_zero) {
-        int     height;
-        int     ang;
-        Vector  angles;
-        Vector  forward;
-        Vector  pos;
-        float   ofs;
-        trace_t trace;
+    if (!FindExitPosition(passenger, vExitPosition, vExitAngles)) {
+        // cannot exit
+        return;
+    }
 
-        if (locked) {
-            return;
-        }
+    turnimpulse = 0;
+    moveimpulse = 0;
+    jumpimpulse = 0;
+    passenger->setSolidType(SOLID_BBOX);
 
-        //
-        // place the turret on the ground
-        //
-        ofs = size.length() * 0.5f;
-        for (height = 0; height < 100; height += 16) {
-            for (ang = 0; ang < 360; ang += 30) {
-                angles[1] = passenger->angles[1] + ang + 90;
-                angles.AngleVectors(&forward, NULL, NULL);
-                pos = origin + (forward * ofs);
-                pos[2] += height;
-                trace = G_Trace(
-                    pos,
-                    passenger->mins,
-                    passenger->maxs,
-                    pos,
-                    NULL,
-                    MASK_PLAYERSOLID,
-                    false,
-                    "Vehicle::DetachTurretSlot"
-                );
-                if (!trace.startsolid && !trace.allsolid) {
-                    Vector end;
+    Sound(m_sSoundSet + "snd_dooropen");
 
-                    end = pos;
-                    end[2] -= 128;
-                    trace = G_Trace(
-                        pos,
-                        passenger->mins,
-                        passenger->maxs,
-                        end,
-                        NULL,
-                        MASK_PLAYERSOLID,
-                        false,
-                        "Vehicle::DetachTurretSlot"
-                    );
-                    if (trace.fraction < 1.0f) {
-                        passenger->setOrigin(pos);
-                        passenger->velocity = vec_zero;
-
-                        turnimpulse = 0;
-                        moveimpulse = 0;
-                        jumpimpulse = 0;
-
-                        Event *ev = new Event(EV_Vehicle_Exit);
-                        ev->AddEntity(this);
-                        passenger->ProcessEvent(ev);
-
-                        Sound(m_sSoundSet + "snd_dooropen");
-
-                        TurretGun *pTurret = (TurretGun *)passenger;
-                        if (pTurret->IsSubclassOfTurretGun()) {
-                            pTurret->m_bUsable   = true;
-                            pTurret->m_bRestable = true;
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        if (vExitAngles) {
-            passenger->setAngles(*vExitAngles);
-        }
-
-        passenger->setOrigin(vExitPosition);
-        passenger->velocity = vec_zero;
-
-        Event *ev = new Event(EV_Vehicle_Exit);
-        ev->AddEntity(this);
-        passenger->ProcessEvent(ev);
+    if (passenger->IsSubclassOfTurretGun()) {
+        TurretGun* pTurret = static_cast<TurretGun*>(passenger);
+        pTurret->m_bUsable = true;
+        pTurret->m_bRestable = true;
     }
 
     Turrets[slot].ent   = NULL;
