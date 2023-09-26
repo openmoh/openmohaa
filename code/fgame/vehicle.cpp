@@ -1211,7 +1211,6 @@ Vehicle::ResetSlots
 ====================
 */
 void Vehicle::ResetSlots(void)
-
 {
     driver.ent                 = NULL;
     driver.boneindex           = -1;
@@ -1243,7 +1242,6 @@ Vehicle::OpenSlotsByModel
 ====================
 */
 void Vehicle::OpenSlotsByModel(void)
-
 {
     str bonename;
     int bonenum;
@@ -1304,10 +1302,9 @@ Vehicle::EventModelInit
 ====================
 */
 void Vehicle::ModelInit(Event *ev)
-
 {
-    SetControllerTag(0, gi.Tag_NumForName(edict->tiki, "tire_rotate_front_left"));
-    SetControllerTag(1, gi.Tag_NumForName(edict->tiki, "tire_rotate_front_right"));
+    SetControllerTag(0, gi.Tag_NumForName(edict->tiki, "Tire_rotate_front_left"));
+    SetControllerTag(1, gi.Tag_NumForName(edict->tiki, "Tire_rotate_front_right"));
     SetControllerTag(2, gi.Tag_NumForName(edict->tiki, "steeringwheel_center"));
 }
 
@@ -3384,7 +3381,13 @@ Vehicle::AutoPilot
 */
 void Vehicle::AutoPilot(void)
 {
-    float *vTmp;
+    Vector vAngles;
+    Vector vDeltaAngles, vDelta, vDeltaSave;
+    float* vTmp;
+    vec3_t vPrev, vCur, vTotal;
+    float fTotal, fCoef;
+    Vector vWishPosition, vAlternateWishPosition;
+    float fDistToCurPos, fCurPathPosition;
 
     if (!m_pCurPath || m_pCurPath->m_iPoints == 0) {
         m_bAutoPilot = false;
@@ -3392,30 +3395,44 @@ void Vehicle::AutoPilot(void)
     }
 
     if (g_showvehiclepath && g_showvehiclepath->integer) {
-        int    iFlags = 0;
-        float  fZ;
+        int    iFlags;
+        float  fBS;
         Vector vTmp1;
         Vector vTmp2;
+        Vector vBS;
+
+        iFlags = 0;
+        fBS = sin(level.time) * 16;
+        vBS = Vector(1, 1, 1) * fBS;
+
         for (int i = 0; i < m_pCurPath->m_iPoints; i++) {
+            float fZ = 0;
+            Vector vColor(0, 1, 1);
+
             vTmp  = m_pCurPath->GetByNode(i, &iFlags);
             vTmp1 = vTmp + 1;
             fZ    = 0;
-            //FIXME: macros
+
             if (iFlags & 1) {
-                fZ = 1;
-                G_DebugString(vTmp1 + Vector(0, 0, 32), sin(level.time) + 3, 1, 1, 0, "START_STOPPING");
+                vColor = Vector(1, 1, 1);
+                fZ += 1;
+                G_DebugString(vTmp1 + Vector(0, 0, fZ * 32), sin(level.time) + 3, 1, 1, 0, "START_STOPPING");
             }
             if (iFlags & 2) {
-                G_DebugString(vTmp1 + Vector(0, 0, (fZ + 1) * 32), sin(level.time) + 3, 0, 1, 0, "START_SKIDDING");
-                fZ++;
+                vColor = Vector(0, 1, 1);
+                fZ += 1;
+                G_DebugString(vTmp1 + Vector(0, 0, fZ * 32), sin(level.time) + 3, 0, 1, 0, "START_SKIDDING");
             }
             if (iFlags & 4) {
-                G_DebugString(vTmp1 + Vector(0, 0, (fZ + 1) * 32), sin(level.time) + 3, 0, 0, 1, "STOP_SKIDDING");
+                fZ += 1;
+                G_DebugString(vTmp1 + Vector(0, 0, fZ * 32), sin(level.time) + 3, 0, 0, 1, "STOP_SKIDDING");
             }
-            Vector vMaxs = Vector(sin(level.time), sin(level.time), sin(level.time)) * 16;
-            Vector vMins = vMaxs * -1;
-            vMaxs        = Vector(sin(level.time), sin(level.time), sin(level.time)) * 16;
-            G_DebugBBox(vTmp1, vMins, vMaxs, 0, 0, 1, 1);
+
+            if (i == m_iCurNode) {
+                G_DebugBBox(vTmp1, vBS * -1, vBS, 1, 0, 0, 1);
+            } else {
+                G_DebugBBox(vTmp1, vBS * -1, vBS, vColor[0], vColor[1], vColor[2], 1);
+            }
 
             vTmp  = m_pCurPath->GetByNode(i + 1, NULL);
             vTmp2 = vTmp + 1;
@@ -3423,7 +3440,260 @@ void Vehicle::AutoPilot(void)
             G_DebugLine(vTmp1, vTmp2, 0, 1, 0, 1);
         }
     }
-    // FIXME: stub
+
+    do {
+        if (m_iCurNode > 0) {
+            int iFlags;
+
+            vTmp = m_pCurPath->GetByNode(m_iCurNode, NULL);
+            VectorCopy(vTmp + 1, vCur);
+
+            if (g_showvehiclemovedebug->integer) {
+                G_DebugString(vCur, 3, 1, 1, 1, "%f", vTmp[0]);
+            }
+
+            vTmp = m_pCurPath->GetByNode(m_iCurNode - 1, NULL);
+            VectorCopy(vTmp + 1, vPrev);
+
+            if (g_showvehiclemovedebug->integer) {
+                G_DebugString(vPrev, 3, 1, 1, 1, "%f", vTmp[0]);
+            }
+
+            VectorSubtract(vCur, vPrev, vTotal);
+            fTotal = VectorLength(vTotal);
+            m_vIdealDir = vTotal;
+
+            VectorNormalize(m_vIdealDir);
+            angles.AngleVectorsLeft(&vDelta, NULL, NULL);
+            fCoef = ProjectLineOnPlane(vDelta, DotProduct(vDelta, origin), vPrev, vCur, NULL);
+
+            if (g_showvehiclemovedebug->integer) {
+                Vector vColor;
+                G_DebugBBox(vColor, Vector(-32, -32, -32), Vector(32, 32, 32), 0, 1, 1, 1);
+                G_DebugBBox(vColor, Vector(-32, -32, -32), Vector(32, 32, 32), 1, 1, 0, 1);
+                G_DebugArrow(vColor, m_vIdealDir * -1, (1 - fCoef) * fTotal, 0, 1, 0, 1);
+                G_DebugArrow(vColor, m_vIdealDir * 1, fCoef * fTotal, 0, 0, 1, 1);
+            }
+
+            vTmp = m_pCurPath->GetByNode(m_iCurNode - (1 - fCoef), NULL);
+            fCurPathPosition = vTmp[0];;
+            vTmp = m_pCurPath->GetByNode(fCurPathPosition + m_fLookAhead, NULL);
+            vWishPosition = vTmp + 1;
+            fDistToCurPos = (origin - (vTmp + 1)).length();
+
+            if (fCoef > 1 && !m_bBounceBackwards) {
+                m_iCurNode++;
+                if (m_iCurNode >= m_pCurPath->m_iPoints) {
+                    break;
+                }
+
+                m_pCurPath->GetByNode(m_iCurNode, &iFlags);
+                if (iFlags & 1) {
+                    ProcessEvent(EV_Vehicle_StopAtEnd);
+                }
+
+                if (iFlags & 2) {
+                    Event* event = new Event(EV_Vehicle_Skidding);
+                    event->AddInteger(1);
+                    ProcessEvent(event);
+                }
+
+                if (iFlags & 4) {
+                    Event* event = new Event(EV_Vehicle_Skidding);
+                    event->AddInteger(0);
+                    ProcessEvent(event);
+                }
+            } else if (fCoef < 0 && m_bBounceBackwards) {
+                m_iCurNode--;
+                if (m_iCurNode < 1) {
+                    m_iCurNode = 1;
+                    m_bBounceBackwards = false;
+                    currentspeed = -currentspeed;
+                    moveimpulse = -moveimpulse;
+                }
+            }
+
+cont:
+            if (m_pAlternatePath && m_pAlternatePath->m_iPoints) {
+                if (m_iAlternateNode > 1) {
+                    vTmp = m_pAlternatePath->GetByNode(m_iAlternateNode, NULL);
+                    VectorCopy(vTmp + 1, vCur);
+
+                    vTmp = m_pAlternatePath->GetByNode(m_iAlternateNode - 1, NULL);
+                    VectorCopy(vTmp + 1, vPrev);
+
+                    VectorSubtract(vCur, vPrev, vTotal);
+                    fTotal = VectorLength(vTotal);
+                    m_vIdealDir = vTotal;
+
+                    VectorNormalize(m_vIdealDir);
+                    angles.AngleVectorsLeft(&vDelta, NULL, NULL);
+                    fCoef = ProjectLineOnPlane(vDelta, DotProduct(vDelta, origin), vPrev, vCur, NULL);
+
+                    vTmp = m_pCurPath->GetByNode(m_iAlternateNode - (1 - fCoef), NULL);
+                    // 2.30: bounce backward
+                    if (m_bBounceBackwards) {
+                        vTmp = m_pCurPath->Get(vTmp[0] - m_fLookAhead, NULL);
+                    } else {
+                        vTmp = m_pCurPath->Get(vTmp[0] + m_fLookAhead, NULL);
+                    }
+                    vAlternateWishPosition = vTmp + 1;
+
+                    if (fCoef > 1) {
+                        m_iAlternateNode++;
+                    } else if (fCoef < 0) {
+                        // 2.30: backward
+                        m_iAlternateNode--;
+                    }
+                } else {
+                    vTmp = m_pAlternatePath->GetByNode(m_iAlternateNode, NULL);
+                    vAlternateWishPosition = vTmp + 1;
+                    m_vIdealDir = origin - vWishPosition;
+                    m_vIdealDir[2] = 0;
+                    m_vIdealDir.normalize();
+
+                    vDelta = vAlternateWishPosition - origin;
+                    vDelta[2] = 0;
+
+                    if (vDelta.length() <= m_fIdealDistance) {
+                        m_iAlternateNode++;
+                    }
+                }
+            }
+
+            vDelta = vWishPosition - origin;
+
+            if (g_showvehiclemovedebug->integer) {
+                G_DebugLine(vWishPosition, origin, 1, 0, 0, 1);
+            }
+
+            vDeltaSave = vDelta;
+            vDelta.normalize();
+
+            if (m_pAlternatePath && m_pAlternatePath->m_iPoints) {
+                trace_t trace;
+
+                trace = G_Trace(origin, vec_zero, vec_zero, vWishPosition, this, edict->clipmask, qfalse, "Vehicle::AutoPilot");
+                if ((trace.fraction < 1 || trace.startsolid || trace.allsolid) && trace.ent && trace.entityNum != ENTITYNUM_WORLD) {
+                    vDelta = vAlternateWishPosition - origin;
+                    vDeltaSave = vDelta;
+                    vDelta.normalize();
+                }
+            }
+
+            vDelta[2] = 0;
+            vDeltaSave[2] = 0;
+
+            if (fDistToCurPos > 1) {
+                if (moveimpulse >= 0 && !m_bBounceBackwards) { // 2.30: checks if it doesn't bounce backwards
+                    vectoangles(vDelta, vDeltaAngles);
+                    turnimpulse = angledist(vDeltaAngles.y - angles.y);
+                } else {
+                    Vector vVec = vDelta * -1;
+
+                    vectoangles(vVec, vDeltaAngles);
+                    if (IsSubclassOfVehicleTank()) {
+                        turnimpulse = angledist(vDeltaAngles.y - angles.y);
+                    }
+                    else {
+                        turnimpulse = -angledist(vDeltaAngles.y - angles.y);
+                    }
+                }
+            }
+
+            if (m_bStopEnabled) {
+                moveimpulse = (fCurPathPosition - m_fStopStartDistance) / (m_fStopEndDistance - m_fStopStartDistance);
+                moveimpulse *= moveimpulse;
+                moveimpulse *= moveimpulse;
+                moveimpulse *= moveimpulse;
+                moveimpulse *= moveimpulse;
+                moveimpulse = 1 - moveimpulse;
+                moveimpulse *= m_fStopStartSpeed;
+
+                if (fabs(moveimpulse) < 2) {
+                    if (m_fIdealSpeed >= 0) {
+                        moveimpulse = 2;
+                    }
+                    else {
+                        moveimpulse = -2;
+                    }
+                }
+            // 2.30: check if it stays full speed when bouncing
+            } else if (m_bBounceStayFullSpeed) {
+                if (m_fIdealSpeed > fabs(moveimpulse)) {
+                    moveimpulse -= m_fIdealAccel * level.frametime;
+                    if (fabs(moveimpulse) > m_fIdealSpeed) {
+                        moveimpulse = -m_fIdealSpeed;
+                    }
+                }
+            } else if (m_fIdealSpeed > moveimpulse) {
+                moveimpulse += m_fIdealAccel * level.frametime;
+                if (moveimpulse > m_fIdealSpeed) {
+                    moveimpulse = m_fIdealSpeed;
+                }
+            } else if (m_fIdealSpeed < moveimpulse) {
+                moveimpulse -= m_fIdealAccel * level.frametime;
+                if (moveimpulse < m_fIdealSpeed) {
+                    moveimpulse = m_fIdealSpeed;
+                }
+            }
+
+            if (m_iNextPathStartNode >= 0 && m_pNextPath && m_pNextPath->m_iPoints && m_iCurNode > m_iNextPathStartNode + 2) {
+                cVehicleSpline* spline = m_pCurPath;
+                m_pCurPath = m_pNextPath;
+                m_pNextPath = spline;
+                m_iCurNode = 2;
+                m_pNextPath->Reset();
+                m_iNextPathStartNode = -1;
+                Unregister(STRING_DRIVE);
+                m_bStopEnabled = false;
+                m_bEnableSkidding = false;
+            }
+            return;
+        }
+
+        vTmp = m_pCurPath->GetByNode(m_iCurNode, NULL);
+        vWishPosition = vTmp + 1;
+        m_vIdealDir = origin - vWishPosition;
+        m_vIdealDir[2] = 0;
+        m_vIdealDir.normalize();
+
+        vDelta = vWishPosition - origin;
+        vDelta[2] = 0;
+
+        fDistToCurPos = 2;
+        if (vDelta.length() > m_fIdealDistance) {
+            goto cont;
+        }
+
+        fDistToCurPos = 0;
+
+        m_iCurNode++;
+    } while (m_iCurNode < m_pCurPath->m_iPoints);
+
+    if (m_bStopEnabled) {
+        moveimpulse = 0;
+    }
+
+    m_bAutoPilot = false;
+    m_bStopEnabled = false;
+    m_bEnableSkidding = false;
+
+    StopLoopSound();
+    // play the stop sound
+    Sound(m_sSoundSet + "snd_stop", CHAN_VOICE);
+
+    if (m_pCurPath) {
+        delete m_pCurPath;
+    }
+    m_pCurPath = NULL;
+    m_iCurNode = 0;
+    turnimpulse = 0;
+
+    //
+    // notify scripts that driving has stopped
+    //
+    Unregister(STRING_DRIVE);
 }
 
 /*
