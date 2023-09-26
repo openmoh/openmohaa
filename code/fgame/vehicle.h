@@ -57,6 +57,8 @@ extern cvar_t *g_showvehiclepath;
 
 #define NUM_VEHICLE_TIRES 4
 
+using cVehicleSpline = cSpline<4, 512>;
+
 class wheel_s
 {
     Vector   vOrigin;
@@ -144,11 +146,11 @@ protected:
     int                             m_iGear;
     int                             m_iRPM;
     int                             m_iLastTiresUpdate;
-    class cSpline<4, 512>          *m_pAlternatePath;
+    cVehicleSpline                 *m_pAlternatePath;
     int                             m_iAlternateNode;
-    class cSpline<4, 512>          *m_pCurPath;
+    cVehicleSpline                 *m_pCurPath;
     int                             m_iCurNode;
-    class cSpline<4, 512>          *m_pNextPath;
+    cVehicleSpline                 *m_pNextPath;
     int                             m_iNextPathStartNode;
     float                           maxturnrate;
     float                           currentspeed;
@@ -444,7 +446,7 @@ protected:
     virtual bool AssertRotation(Vector vNewAngles, Vector vOldAngles);
     virtual void NoMove(void);
     virtual void SlidePush(Vector vPush);
-    void         SetupPath(cSpline<4, 512> *pPath, SimpleEntity *se);
+    void         SetupPath(cVehicleSpline *pPath, SimpleEntity *se);
     virtual void UpdateSound(void);
     void         SetupVehicleSoundEntities(void);
     void         RemoveVehicleSoundEntities(void);
@@ -457,7 +459,7 @@ protected:
     virtual void UpdateTurretSlot(int iSlot);
     void         UpdatePassengerSlot(int iSlot);
     void         UpdateDriverSlot(int iSlot);
-    float        GetPathPosition(cSpline<4, 512> *pPath, int iNode);
+    float        GetPathPosition(cVehicleSpline *pPath, int iNode);
     void         UpdateSkidAngle(void);
     void         FactorInSkidOrigin(void);
     virtual void FactorInOriginOffset(void);
