@@ -505,7 +505,7 @@ public:
     virtual Entity  *QueryPassengerSlotEntity(int slot);
     virtual Entity  *QueryDriverSlotEntity(int slot);
     virtual Entity  *QueryTurretSlotEntity(int slot);
-    void             FindExitPosition(Entity *pEnt, const Vector            &vOrigin, const Vector *vAngles); // added in 2.0
+    bool             FindExitPosition(Entity *pEnt, const Vector            &vOrigin, const Vector *vAngles); // added in 2.0
     virtual void     AttachPassengerSlot(int slot, Entity *ent, Vector vExitPosition);
     virtual void     AttachDriverSlot(int slot, Entity *ent, Vector vExitPosition);
     virtual void     AttachTurretSlot(int slot, Entity *ent, Vector vExitPosition, Vector *vExitAngles);

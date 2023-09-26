@@ -2020,77 +2020,21 @@ Entity *Vehicle::QueryTurretSlotEntity(int slot)
 Vehicle::FindExitPosition
 ====================
 */
-void Vehicle::FindExitPosition(Entity *pEnt, const Vector& vOrigin, const Vector *vAngles)
+bool Vehicle::FindExitPosition(Entity *pEnt, const Vector& vOrigin, const Vector *vAngles)
 {
     Event* ev;
     Vector yawAngles;
     Vector forward;
     Vector offset;
+    float radius;
+    int i, j;
     trace_t trace;
 
     if (!pEnt) {
-        return;
+        return false;
     }
 
-    if (pEnt->IsSubclassOfPlayer() || vOrigin == vec_zero) {
-        float radius;
-        int i, j;
-
-        radius = (pEnt->size.length() + size.length()) * 0.5;
-
-        for (i = 0; i < 128; i += 32) {
-            for (j = 0; j < 360; j += 30) {
-                yawAngles = vec_zero;
-                yawAngles[1] = j + angles[1] * 180;
-                yawAngles.AngleVectorsLeft(&forward);
-
-                offset = origin + forward * radius;
-                offset[2] += i;
-
-                trace = G_Trace(
-                    offset,
-                    pEnt->mins,
-                    pEnt->maxs,
-                    offset,
-                    NULL,
-                    pEnt->edict->clipmask,
-                    pEnt->IsSubclassOfPlayer() ? qtrue : qfalse,
-                    " Vehicle::FindExitPosition"
-                );
-
-                if (!trace.startsolid && !trace.allsolid) {
-                    Vector end;
-                    
-                    offset = trace.endpos;
-                    end = offset;
-
-                    trace = G_Trace(
-                        offset,
-                        pEnt->mins,
-                        pEnt->maxs,
-                        end,
-                        NULL,
-                        pEnt->edict->clipmask,
-                        pEnt->IsSubclassOfPlayer() ? qtrue : qfalse,
-                        " Vehicle::FindExitPosition"
-                    );
-
-                    if (!trace.startsolid && !trace.allsolid && trace.fraction < 1) {
-                        pEnt->setOrigin(trace.endpos);
-                        pEnt->velocity = vec_zero;
-
-                        if (vAngles) {
-                            pEnt->setAngles(*vAngles);
-                        }
-
-                        ev = new Event(EV_Vehicle_Exit);
-                        ev->AddEntity(this);
-                        pEnt->ProcessEvent(ev);
-                    }
-                }
-            }
-        }
-    } else {
+    if (!pEnt->IsSubclassOfPlayer() && vOrigin != vec_zero) {
         if (vAngles) {
             pEnt->setAngles(*vAngles);
         }
@@ -2101,7 +2045,67 @@ void Vehicle::FindExitPosition(Entity *pEnt, const Vector& vOrigin, const Vector
         ev = new Event(EV_Vehicle_Exit);
         ev->AddEntity(this);
         pEnt->ProcessEvent(ev);
+
+        return true;
     }
+
+    radius = (pEnt->size.length() + size.length()) * 0.5;
+
+    for (i = 0; i < 128; i += 32) {
+        for (j = 0; j < 360; j += 30) {
+            yawAngles = vec_zero;
+            yawAngles[1] = j + angles[1] * 180;
+            yawAngles.AngleVectorsLeft(&forward);
+
+            offset = origin + forward * radius;
+            offset[2] += i;
+
+            trace = G_Trace(
+                offset,
+                pEnt->mins,
+                pEnt->maxs,
+                offset,
+                NULL,
+                pEnt->edict->clipmask,
+                pEnt->IsSubclassOfPlayer() ? qtrue : qfalse,
+                " Vehicle::FindExitPosition"
+            );
+
+            if (!trace.startsolid && !trace.allsolid) {
+                Vector end;
+
+                offset = trace.endpos;
+                end = offset;
+
+                trace = G_Trace(
+                    offset,
+                    pEnt->mins,
+                    pEnt->maxs,
+                    end,
+                    NULL,
+                    pEnt->edict->clipmask,
+                    pEnt->IsSubclassOfPlayer() ? qtrue : qfalse,
+                    " Vehicle::FindExitPosition"
+                );
+
+                if (!trace.startsolid && !trace.allsolid && trace.fraction < 1) {
+                    pEnt->setOrigin(trace.endpos);
+                    pEnt->velocity = vec_zero;
+
+                    if (vAngles) {
+                        pEnt->setAngles(*vAngles);
+                    }
+
+                    ev = new Event(EV_Vehicle_Exit);
+                    ev->AddEntity(this);
+                    pEnt->ProcessEvent(ev);
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }
 
 /*
