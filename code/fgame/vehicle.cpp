@@ -3346,9 +3346,7 @@ cont:
     // play the stop sound
     Sound(m_sSoundSet + "snd_stop", CHAN_VOICE);
 
-    if (m_pCurPath) {
-        delete m_pCurPath;
-    }
+    delete m_pCurPath;
     m_pCurPath = NULL;
     m_iCurNode = 0;
     turnimpulse = 0;
@@ -4159,7 +4157,7 @@ void Vehicle::MoveVehicle(void)
     int          i;
     gridpoint_t *gp;
     vmove_t      vm;
-    float        flMoveFrac = 1.0f;
+    float        flMoveFrac = 1;
     float        fSpeed;
     bool         bDoGravity = true;
     bool         bHitPerson = false;
@@ -4169,6 +4167,7 @@ void Vehicle::MoveVehicle(void)
     int          iNumSkippedEntities = 0;
     Event       *event               = nullptr;
 
+    // FIXME: unimplemented
     if (m_bMovementLocked) {
         return;
     }
@@ -4189,7 +4188,7 @@ void Vehicle::MoveVehicle(void)
     setOrigin(vm.vs->origin);
 
     if (velocity.length() > 0.5f) {
-        fSpeed   = DotProduct(velocity, orientation[0]);
+        fSpeed = orientation[0] * velocity;
         vecDelta = velocity * level.frametime;
 
         for (i = 0; i < 3; i++) {
@@ -4514,6 +4513,7 @@ void Vehicle::Postthink(void)
     Vector        n_angles;
     orientation_t orient;
 
+    // FIXME: unimplemented
     if (!g_vehicle->integer) {
         return;
     }
@@ -4751,9 +4751,11 @@ Vehicle::VehicleTouched
 void Vehicle::VehicleTouched(Event *ev)
 {
     Entity *other;
+    float   dot;
     float   speed;
     Vector  delta;
     Vector  dir;
+    Event   *event;
 
     other = ev->GetEntity(1);
     if (other == driver.ent) {
@@ -4768,12 +4770,44 @@ void Vehicle::VehicleTouched(Event *ev)
         return;
     }
 
-    delta = origin - last_origin;
-    speed = delta.length();
-    if (speed > 2) {
-        Sound("vehicle_crash", qtrue);
-        dir = delta * (1 / speed);
-        other->Damage(this, lastdriver.ent, speed * 8, origin, dir, vec_zero, speed * 15, 0, MOD_VEHICLE);
+    delta = other->origin - last_origin;
+    delta.normalize();
+
+    dot = velocity * orientation[0];
+    if (dot > 0) {
+        if (delta * orientation[0] < 0) {
+            return;
+        }
+    } else {
+        if (delta * orientation[0] > 0) {
+            return;
+        }
+    }
+
+    if (!other->IsSubclassOfVehicleTurretGun()) {
+        speed = velocity.length();
+        if (speed > 10) {
+            Sound(m_sSoundSet + "vehicle_crash");
+            dir = delta * (1 / speed);
+
+            event = new Event(EV_Damage);
+            if (lastdriver.ent && lastdriver.ent->IsSubclassOfPlayer()) {
+                event->AddEntity(lastdriver.ent);
+            } else {
+                event->AddEntity(world);
+            }
+
+            event->AddFloat(speed);
+            event->AddEntity(this);
+            event->AddVector(origin);
+            event->AddVector(dir);
+            event->AddVector(vec_zero);
+            event->AddFloat(speed);
+            event->AddInteger(0);
+            event->AddInteger(MOD_VEHICLE);
+            event->AddInteger(-1);
+            other->PostEvent(event, 0);
+        }
     }
 }
 
@@ -4827,54 +4861,54 @@ Vehicle::VehicleBlocked
 void Vehicle::VehicleBlocked(Event *ev)
 {
     return;
-    /*
-	Entity	*other;
-	float		speed;
-   float    damage;
-   Vector   delta;
-   Vector   newvel;
-	Vector	dir;
+/*
+    Entity* other;
+    float		speed;
+    float    damage;
+    Vector   delta;
+    Vector   newvel;
+    Vector	dir;
 
-   if ( !velocity[0] && !velocity[1] )
-      return;
+    if (!velocity[0] && !velocity[1])
+        return;
 
-	other = ev->GetEntity( 1 );
-	if ( other == driver.ent )
-		{
-		return;
-		}
-   if ( other->isSubclassOf( VehicleBase ) )
-      {
-      delta = other->origin - origin;
-      delta.normalize();
+    other = ev->GetEntity(1);
+    if (other == driver.ent)
+    {
+        return;
+    }
+    if (other->isSubclassOf(VehicleBase))
+    {
+        delta = other->origin - origin;
+        delta.normalize();
 
-      newvel = vec_zero - ( velocity) + ( other->velocity * 0.25 );
-      if ( newvel * delta < 0 )
-         {
-         velocity = newvel;
-         delta = velocity - other->velocity;
-         damage = delta.length()/4;
-         }
-      else
-         {
-         return;
-         }
-      }
-   else if ( ( velocity.length() < 350 ) )
-      {
-      other->velocity += velocity*1.25f;
-      other->velocity[ 2 ] += 100;
-      damage = velocity.length()/4;
-      }
-   else
-      {
-      damage = other->health + 1000;
-      }
+        newvel = vec_zero - (velocity)+(other->velocity * 0.25);
+        if (newvel * delta < 0)
+        {
+            velocity = newvel;
+            delta = velocity - other->velocity;
+            damage = delta.length() / 4;
+        }
+        else
+        {
+            return;
+        }
+    }
+    else if ((velocity.length() < 350))
+    {
+        other->velocity += velocity * 1.25f;
+        other->velocity[2] += 100;
+        damage = velocity.length() / 4;
+    }
+    else
+    {
+        damage = other->health + 1000;
+    }
 
-	// Gib 'em outright
-	speed = fabs( velocity.length() );
-	dir = velocity * ( 1 / speed );
-   other->Damage( this, lastdriver.ent, damage, origin, dir, vec_zero, speed, 0, MOD_VEHICLE, -1, -1, 1.0f );
+    // Gib 'em outright
+    speed = fabs(velocity.length());
+    dir = velocity * (1 / speed);
+    other->Damage(this, lastdriver.ent, damage, origin, dir, vec_zero, speed, 0, MOD_VEHICLE, -1, -1, 1.0f);
 */
 }
 
@@ -4885,6 +4919,7 @@ Vehicle::WorldEffects
 */
 void Vehicle::WorldEffects(void)
 {
+/*
     //
     // Check for earthquakes
     //
@@ -4902,6 +4937,7 @@ void Vehicle::WorldEffects(void)
     if (watertype & CONTENTS_LAVA) {
         Damage(world, world, 20 * waterlevel, origin, vec_zero, vec_zero, 0, DAMAGE_NO_ARMOR, MOD_LAVA);
     }
+*/
 }
 
 /*
@@ -4921,14 +4957,12 @@ Vehicle::TorqueLookup
 */
 float Vehicle::TorqueLookup(int rpm)
 {
-    if (rpm > 4999) {
-        if (rpm > 5999) {
-            return 0.0;
-        } else {
-            return (float)(190 * (6000 - rpm)) * 0.001;
-        }
+    if (rpm < 5000) {
+        return 190;
+    } else if (rpm < 6000) {
+        return (float)(190 * (6000 - rpm)) / 1000.f;
     } else {
-        return 190.0;
+        return 0;
     }
 }
 
@@ -4942,7 +4976,7 @@ void Vehicle::SpawnTurret(Event *ev)
     VehicleTurretGun *pTurret;
     int               slot;
 
-    pTurret = new VehicleTurretGun;
+    pTurret = new VehicleTurretGun();
     pTurret->SetBaseOrientation(orientation, NULL);
     pTurret->setModel(ev->GetString(2));
 
@@ -4976,14 +5010,15 @@ void Vehicle::EventModifyDrive(Event *ev)
         ScriptError("wrong number of arguments");
     }
 
-    m_fIdealSpeed = ev->GetFloat(1);
-
-    if (ev->NumArgs() >= 2) {
-        m_fIdealAccel = ev->GetFloat(2);
-    }
-
-    if (ev->NumArgs() >= 3) {
+    switch (ev->NumArgs()) {
+    case 3:
         m_fLookAhead = ev->GetFloat(3);
+    case 2:
+        m_fIdealAccel = ev->GetFloat(2);
+    case 1:
+        m_fIdealSpeed = ev->GetFloat(1);
+        m_fMaxSpeed = m_fIdealSpeed;
+        break;
     }
 }
 
@@ -5402,8 +5437,8 @@ void Vehicle::KickSuspension(Vector vDirection, float fForce)
 {
     VectorNormalizeFast(vDirection);
 
-    m_fForwardForce += DotProduct(vDirection, orientation[1]) * fForce;
-    m_fLeftForce += DotProduct(vDirection, orientation[0]) * fForce;
+    m_fForwardForce += vDirection * orientation[1] * fForce;
+    m_fLeftForce += vDirection * orientation[0] * fForce;
 }
 
 /*
@@ -5413,6 +5448,7 @@ Vehicle::EventDamage
 */
 void Vehicle::EventDamage(Event *ev)
 {
+    Entity* pEnt;
     Vector vDirection;
     float  fForce;
     int    i;
@@ -5421,14 +5457,16 @@ void Vehicle::EventDamage(Event *ev)
         return;
     }
 
-    Event *event = new Event(EV_Damage);
+    pEnt = ev->GetEntity(1);
+    if (pEnt && pEnt == driver.ent) {
+        return;
+    }
+
+    Event *event = new Event(EV_Damage, ev->NumArgs());
 
     vDirection = ev->GetVector(5);
     fForce     = ev->GetFloat(7);
-    VectorNormalizeFast(vDirection);
-
-    m_fForwardForce += DotProduct(orientation[1], vDirection) * fForce;
-    m_fLeftForce += DotProduct(orientation[0], vDirection) * fForce;
+    KickSuspension(vDirection, fForce);
 
     for (i = 1; i <= ev->NumArgs(); i++) {
         if (i == 7) {
@@ -5438,17 +5476,21 @@ void Vehicle::EventDamage(Event *ev)
         }
     }
 
-    if (driver.ent) {
-        if (driver.ent->IsSubclassOfPlayer()) {
-            Player *player = (Player *)driver.ent.Pointer();
-            Vector  dir    = ev->GetVector(5);
+    if (driver.ent && driver.ent->IsSubclassOfPlayer()) {
+        Player* player = static_cast<Player*>(driver.ent.Pointer());
+        Vector dir = ev->GetVector(1);
+        float dir_yaw;
+        float camera_yaw;
 
-            if (player->camera) {
-                player->damage_yaw = AngleSubtract(player->camera->angles[1], dir.toYaw()) + 180.5f;
-            } else {
-                player->damage_yaw = AngleSubtract(player->GetVAngles()[1], dir.toYaw()) + 180.5f;
-            }
+        if (player->camera) {
+            dir_yaw = dir.toYaw();
+            camera_yaw = player->camera->angles[1];
+        } else {
+            dir_yaw = dir.toYaw();
+            camera_yaw = player->GetVAngles()[1];
         }
+
+        player->damage_yaw = AngleSubtract(camera_yaw, dir_yaw) + 180.5;
     }
 
     DamageEvent(event);
@@ -5490,15 +5532,17 @@ void Vehicle::CalculateOriginOffset(void)
     Vector temp;
     int    iNum = 0;
     Vector acceleration;
+    Vector oldoffset;
 
+    oldoffset = m_vOriginOffset;
     m_vOriginOffset += m_vOriginOffset2;
     m_vOriginOffset2 = vec_zero;
 
     for (index = 0; index < MAX_CORNERS; index++) {
         if (m_bTireHit[index]) {
-            iNum++;
             temp = m_vTireEnd[index];
             vTireAvg += origin - temp;
+            iNum++;
         } else {
             temp     = Corners[index];
             vMissHit = temp;
@@ -5516,33 +5560,27 @@ void Vehicle::CalculateOriginOffset(void)
         m_vOriginOffset2 += vTireAvg;
     }
 
-    m_vOriginOffset2[0] += orientation[0][0] * m_vSkidOrigin[0] + orientation[1][0] * m_vSkidOrigin[1]
-                         + orientation[2][0] * m_vSkidOrigin[2];
-    m_vOriginOffset2[1] += orientation[0][1] * m_vSkidOrigin[0] + orientation[1][1] * m_vSkidOrigin[1]
-                         + orientation[2][1] * m_vSkidOrigin[2];
-    m_vOriginOffset2[2] += orientation[0][2] * m_vSkidOrigin[0] + orientation[1][2] * m_vSkidOrigin[1]
-                         + orientation[2][2] * m_vSkidOrigin[2];
+    m_vOriginOffset2 += vec_zero;
+    FactorInSkidOrigin();
 
     Vector vTmp = real_acceleration - prev_acceleration;
 
     m_fDownForce = vTmp[2] * m_fZCoef;
+    m_fDownForce = Q_clamp_float(m_fDownForce, m_fZMin, m_fZMax);
 
-    if (m_fDownForce > m_fZMax) {
-        m_fDownForce = m_fZMax;
-    } else if (m_fDownForce < m_fZMin) {
-        m_fDownForce = m_fZMin;
-    }
+    m_fUpForce = -m_vOriginOffset[2] * m_fBouncyCoef + m_fUpForce;
+    m_fUpForce *= m_fSpringyCoef;
+    m_vOriginOffset[2] += (m_fDownForce + m_fUpForce) * level.frametime * 12;
 
-    m_fUpForce = (-m_vOriginOffset[2] * m_fBouncyCoef + m_fUpForce) * m_fSpringyCoef;
-    m_vOriginOffset2[2] += (m_fDownForce + m_fUpForce) * 12.0 * level.frametime;
-
-    if (m_vOriginOffset2[2] > m_fZMax) {
-        m_vOriginOffset2[2] = m_fZMax;
-    } else if (m_vOriginOffset2[2] < m_fZMin) {
-        m_vOriginOffset2[2] = m_fZMin;
+    if (m_vOriginOffset[2] < m_fZMin) {
+        m_vOriginOffset[2] = m_fZMin;
     }
 
     m_vOriginOffset -= m_vOriginOffset2;
+
+    if (!isfinite(m_vOriginOffset[0]) || !isfinite(m_vOriginOffset[1]) || !isfinite(m_vOriginOffset[2])) {
+        m_vOriginOffset = oldoffset;
+    }
 }
 
 /*
@@ -5651,27 +5689,23 @@ void Vehicle::UpdateNormals(void)
     Vector i;
     Vector j;
 
-    if (real_velocity.length() <= 0.5) {
-        if (m_iLastTiresUpdate != -1 && m_iLastTiresUpdate + 1000 > level.inttime) {
-            return;
-        }
+    if (real_velocity.length() <= 0.5 && m_iLastTiresUpdate != -1 && m_iLastTiresUpdate + 1000 > level.inttime) {
+        return;
     }
 
-    AngleVectorsLeft(angles, NULL, pitch, NULL);
+    angles.AngleVectorsLeft(&i, &j, NULL);
 
     m_vNormalSum = vec_zero;
+    m_iNumNormals = 0;
 
     pitch = -pitch;
-
-    m_iNumNormals = 0;
 
     if (m_bTireHit[0] && m_bTireHit[1] && m_bTireHit[2]) {
         vDist1 = m_vTireEnd[1] - m_vTireEnd[0];
         vDist2 = m_vTireEnd[1] - m_vTireEnd[2];
 
-        vCross.CrossProduct(vDist1, vDist2);
-        VectorNormalize(vCross);
-
+        CrossProduct(vDist1, vDist2, vCross);
+        vCross.normalize();
         m_vNormalSum += vCross;
 
         m_iNumNormals++;
@@ -5681,9 +5715,8 @@ void Vehicle::UpdateNormals(void)
         vDist1 = m_vTireEnd[2] - m_vTireEnd[1];
         vDist2 = m_vTireEnd[2] - m_vTireEnd[3];
 
-        vCross.CrossProduct(vDist1, vDist2);
-        VectorNormalize(vCross);
-
+        CrossProduct(vDist1, vDist2, vCross);
+        vCross.normalize();
         m_vNormalSum += vCross;
 
         m_iNumNormals++;
@@ -5693,9 +5726,8 @@ void Vehicle::UpdateNormals(void)
         vDist1 = m_vTireEnd[3] - m_vTireEnd[0];
         vDist2 = m_vTireEnd[3] - m_vTireEnd[2];
 
-        vCross.CrossProduct(vDist1, vDist2);
-        VectorNormalize(vCross);
-
+        CrossProduct(vDist1, vDist2, vCross);
+        vCross.normalize();
         m_vNormalSum += vCross;
 
         m_iNumNormals++;
@@ -5705,9 +5737,8 @@ void Vehicle::UpdateNormals(void)
         vDist1 = m_vTireEnd[0] - m_vTireEnd[3];
         vDist2 = m_vTireEnd[0] - m_vTireEnd[1];
 
-        vCross.CrossProduct(vDist1, vDist2);
-        VectorNormalize(vCross);
-
+        CrossProduct(vDist1, vDist2, vCross);
+        vCross.normalize();
         m_vNormalSum += vCross;
 
         m_iNumNormals++;
@@ -5715,14 +5746,14 @@ void Vehicle::UpdateNormals(void)
 
     if (m_iNumNormals > 1) {
         temp = m_vNormalSum / m_iNumNormals;
+        i = temp.CrossProduct(temp, j);
 
-        i.CrossProduct(temp, pitch);
+        pitch = i;
+        angles[0] = pitch.toPitch();
 
-        angles[0] = i.toPitch();
-
-        j.CrossProduct(temp, i);
-
-        angles[2] = j.toPitch();
+        temp = m_vNormalSum * (1.f / m_iNumNormals);
+        pitch = temp.CrossProduct(temp, i);
+        angles[2] = pitch.toPitch();
     }
 }
 
@@ -5734,10 +5765,7 @@ Vehicle::UpdateBones
 void Vehicle::UpdateBones(void)
 {
     float fNewTurnAngle = AngleNormalize180(turnangle - m_fSkidAngle);
-
-    if (fabs(fNewTurnAngle) > maxturnrate) {
-        fNewTurnAngle = maxturnrate;
-    }
+    fNewTurnAngle = Q_clamp_float(fNewTurnAngle, -maxturnrate, maxturnrate);
 
     SetControllerAngles(0, Vector(0, fNewTurnAngle, 0));
     SetControllerAngles(1, Vector(0, fNewTurnAngle, 0));
@@ -5750,7 +5778,7 @@ Vehicle::UpdateShaderOffset
 */
 void Vehicle::UpdateShaderOffset(void)
 {
-    m_fShaderOffset -= orientation[0] * real_velocity * 0.25 * level.frametime;
+    m_fShaderOffset -= real_velocity * orientation[0] / 4 * level.frametime;
     edict->s.shader_time = m_fShaderOffset;
 }
 
@@ -5774,6 +5802,12 @@ void Vehicle::UpdateDriverSlot(int iSlot)
         } else {
             driver.ent->setOrigin(orient.origin);
         }
+
+        if (drivable) {
+            driver.ent->avelocity = avelocity;
+            driver.ent->velocity = velocity;
+            driver.ent->setAngles(angles);
+        }
     } else {
         Vector forward = orientation[0];
         Vector left    = orientation[1];
@@ -5786,12 +5820,12 @@ void Vehicle::UpdateDriverSlot(int iSlot)
         } else {
             driver.ent->setOrigin(origin + forward * driveroffset[0] + left * driveroffset[1] + up * driveroffset[2]);
         }
-    }
 
-    if (drivable) {
-        driver.ent->avelocity = avelocity;
-        driver.ent->velocity  = velocity;
-        driver.ent->setAngles(angles);
+        if (drivable) {
+            driver.ent->avelocity = avelocity;
+            driver.ent->velocity = velocity;
+            driver.ent->setAngles(angles);
+        }
     }
 }
 
@@ -5815,19 +5849,29 @@ void Vehicle::UpdatePassengerSlot(int iSlot)
         } else {
             Passengers[iSlot].ent->setOrigin(orient.origin);
         }
+
+        Passengers[iSlot].ent->avelocity = avelocity;
+        Passengers[iSlot].ent->velocity = velocity;
+
+        if (!Passengers[iSlot].ent->IsSubclassOfActor() || ((Actor*)Passengers[iSlot].ent.Pointer())->m_Enemy) {
+            Vector newAngles;
+
+            MatrixToEulerAngles(orient.axis, newAngles);
+            Passengers[iSlot].ent->setAngles(newAngles);
+        }
     } else {
         if (Passengers[iSlot].ent->IsSubclassOfActor()) {
             Passengers[iSlot].ent->setOriginEvent(origin);
         } else {
             Passengers[iSlot].ent->setOrigin(origin);
         }
-    }
 
-    Passengers[iSlot].ent->avelocity = avelocity;
-    Passengers[iSlot].ent->velocity  = velocity;
+        Passengers[iSlot].ent->avelocity = avelocity;
+        Passengers[iSlot].ent->velocity = velocity;
 
-    if (!Passengers[iSlot].ent->IsSubclassOfActor() || ((Actor *)Passengers[iSlot].ent.Pointer())->m_Enemy) {
-        Passengers[iSlot].ent->setAngles(angles);
+        if (!Passengers[iSlot].ent->IsSubclassOfActor() || ((Actor*)Passengers[iSlot].ent.Pointer())->m_Enemy) {
+            Passengers[iSlot].ent->setAngles(angles);
+        }
     }
 }
 
@@ -5851,6 +5895,14 @@ void Vehicle::UpdateTurretSlot(int iSlot)
         } else {
             Turrets[iSlot].ent->setOrigin(orient.origin);
         }
+
+        Turrets[iSlot].ent->avelocity = avelocity;
+        Turrets[iSlot].ent->velocity = velocity;
+
+        if (!Turrets[iSlot].ent->IsSubclassOfVehicleTurretGun()) {
+            VehicleTurretGun* vtg = static_cast<VehicleTurretGun*>(Turrets[iSlot].ent.Pointer());
+            vtg->SetBaseOrientation(orient.axis, NULL);
+        }
     } else {
         Vector forward = orientation[0];
         Vector left    = orientation[1];
@@ -5861,13 +5913,14 @@ void Vehicle::UpdateTurretSlot(int iSlot)
         } else {
             Turrets[iSlot].ent->setOrigin(origin);
         }
-    }
 
-    Turrets[iSlot].ent->avelocity = avelocity;
-    Turrets[iSlot].ent->velocity  = velocity;
+        Turrets[iSlot].ent->avelocity = avelocity;
+        Turrets[iSlot].ent->velocity = velocity;
 
-    if (!Turrets[iSlot].ent->IsSubclassOfActor() || ((Actor *)Turrets[iSlot].ent.Pointer())->m_Enemy) {
-        Turrets[iSlot].ent->setAngles(angles);
+        if (!Turrets[iSlot].ent->IsSubclassOfVehicleTurretGun()) {
+            VehicleTurretGun* vtg = static_cast<VehicleTurretGun*>(Turrets[iSlot].ent.Pointer());
+            vtg->SetBaseOrientation(this->orientation, NULL);
+        }
     }
 }
 
@@ -6002,14 +6055,12 @@ void Vehicle::EventContinueSkidding(Event *ev)
     if (m_bEnableSkidding) {
         if (HasAnim("skidding")) {
             NewAnim("skidding", EV_Vehicle_ContinueSkidding, 7, 0.000001f);
-            return;
         } else {
             assert(!"Vehicle without skidding animation.");
         }
     } else {
         if (HasAnim("idle")) {
             NewAnim("idle", 0, 7, 0.000001f);
-            return;
         } else {
             assert(!"Vehicle without idle animation.");
         }
@@ -6046,27 +6097,19 @@ void Vehicle::CalculateAnglesOffset(Vector acceleration)
     }
 
     m_fForwardForce += DotProduct(orientation[0], acceleration) * m_fYawCoef;
-    m_fBackForce = (-m_vAnglesOffset[0] * m_fBouncyCoef + m_fBackForce) * m_fSpringyCoef;
+    m_fBackForce = -m_vAnglesOffset[0] * m_fBouncyCoef + m_fBackForce;
+    m_fBackForce *= m_fSpringyCoef;
 
     m_vAnglesOffset[0] += m_fForwardForce + m_fBackForce * 12.0 * level.frametime;
-
-    if (m_vAnglesOffset[0] > m_fYawMax) {
-        m_vAnglesOffset[0] = m_fYawMax;
-    } else if (m_vAnglesOffset[0] < m_fYawMin) {
-        m_vAnglesOffset[0] = m_fYawMin;
-    }
+    m_vAnglesOffset[0] = Q_clamp_float(m_vAnglesOffset[0], m_fYawMin, m_fYawMax);
 
     m_fForwardForce = 0;
-    m_fLeftForce += DotProduct(orientation[1], acceleration) * m_fRollCoef;
-    m_fRightForce = (-m_vAnglesOffset[2] * m_fBouncyCoef + m_fRightForce) * m_fSpringyCoef;
+    m_fLeftForce += acceleration * orientation[1] * m_fRollCoef;
+    m_fRightForce = -m_vAnglesOffset[2] * m_fBouncyCoef + m_fRightForce;
+    m_fRightForce *= m_fSpringyCoef;
 
     m_vAnglesOffset[2] += 12.0 * (m_fLeftForce + m_fRightForce) * level.frametime;
-
-    if (m_vAnglesOffset[2] > m_fRollMax) {
-        m_vAnglesOffset[2] = m_fRollMax;
-    } else if (m_vAnglesOffset[2] < m_fRollMin) {
-        m_vAnglesOffset[2] = m_fRollMin;
-    }
+    m_vAnglesOffset[2] = Q_clamp_float(m_vAnglesOffset[2], m_fRollMin, m_fRollMax);
 
     m_fLeftForce = 0;
 }
@@ -6102,13 +6145,15 @@ void Vehicle::CalculateAnimationData(Vector vAngles, Vector vOrigin)
         fForward = vOrigin[2] / m_fZMax;
     }
 
-    NewAnim("idle", 0);
-    NewAnim("lean_left", 0, 3, fLeft);
-    NewAnim("lean_right", 0, 4, fRight);
-    NewAnim("lean_forward", 0, 1, fForward);
-    NewAnim("lean_back", 0, 2, fBack);
-    NewAnim("high", 0, 6, fEpsilon());
-    NewAnim("low", 0, 5, fEpsilon());
+    if (!m_bAnimMove) {
+        NewAnim("idle", 0);
+        NewAnim("lean_left", 0, 3, fLeft);
+        NewAnim("lean_right", 0, 4, fRight);
+        NewAnim("lean_forward", 0, 1, fForward);
+        NewAnim("lean_back", 0, 2, fBack);
+        NewAnim("high", 0, 6, fEpsilon());
+        NewAnim("low", 0, 5, fEpsilon());
+    }
 }
 
 /*
