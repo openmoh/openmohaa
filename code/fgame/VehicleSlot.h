@@ -23,78 +23,69 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // VehicleSlot.h
 //
 
-#ifndef __VEHICLESLOT_H__
-#define __VEHICLESLOT_H__
+#pragma once
 
 #include "g_local.h"
 #include "class.h"
 #include "entity.h"
 
-#define SLOT_FREE		1
-#define SLOT_BUSY		2
-#define SLOT_UNUSED		4
+#define SLOT_FREE   1
+#define SLOT_BUSY   2
+#define SLOT_UNUSED 4
 
-class cVehicleSlot : public Class {
+class cVehicleSlot : public Class
+{
 public:
-	SafePtr<Entity> ent;
-	int flags;
-	int boneindex;
-	int enter_boneindex;
+    SafePtr<Entity> ent;
+    int             flags;
+    int             boneindex;
+    int             enter_boneindex;
 
-private:
-	damage_t prev_takedamage;
-	solid_t prev_solid;
-	int prev_contents;
+protected:
+    damage_t prev_takedamage;
+    solid_t  prev_solid;
+    int      prev_contents;
 
 public:
-	cVehicleSlot();
+    cVehicleSlot();
 
-	virtual void NotSolid( void );
-	virtual void Solid( void );
-	void Archive( Archiver& arc ) override;
+    virtual void NotSolid(void);
+    virtual void Solid(void);
+    void         Archive(Archiver        &arc) override;
 };
 
-inline
-void cVehicleSlot::Archive
-	(
-	Archiver& arc
-	)
+inline void cVehicleSlot::Archive(Archiver& arc)
 {
-	Class::Archive( arc );
+    Class::Archive(arc);
 
-	arc.ArchiveSafePointer( &ent );
-	arc.ArchiveInteger( &flags );
-	arc.ArchiveInteger( &boneindex );
-	arc.ArchiveInteger( &enter_boneindex );
-	ArchiveEnum( prev_takedamage, damage_t );
-	ArchiveEnum( prev_solid, solid_t );
-	arc.ArchiveInteger( &prev_contents );
+    arc.ArchiveSafePointer(&ent);
+    arc.ArchiveInteger(&flags);
+    arc.ArchiveInteger(&boneindex);
+    arc.ArchiveInteger(&enter_boneindex);
+    ArchiveEnum(prev_takedamage, damage_t);
+    ArchiveEnum(prev_solid, solid_t);
+    arc.ArchiveInteger(&prev_contents);
 }
 
-class cTurretSlot : public cVehicleSlot {
-	damage_t owner_prev_takedamage;
-	solid_t owner_prev_solid;
-	int owner_prev_contents;
+class cTurretSlot : public cVehicleSlot
+{
+    damage_t owner_prev_takedamage;
+    solid_t  owner_prev_solid;
+    int      owner_prev_contents;
 
 public:
-	cTurretSlot();
+    cTurretSlot();
 
-	void NotSolid( void ) override;
-	void Solid( void ) override;
-	void Archive( Archiver& arc ) override;
+    void NotSolid(void) override;
+    void Solid(void) override;
+    void Archive(Archiver& arc) override;
 };
 
-inline
-void cTurretSlot::Archive
-	(
-	Archiver& arc
-	)
+inline void cTurretSlot::Archive(Archiver& arc)
 {
-	cVehicleSlot::Archive( arc );
+    cVehicleSlot::Archive(arc);
 
-	ArchiveEnum( owner_prev_takedamage, damage_t );
-	ArchiveEnum( owner_prev_solid, solid_t );
-	arc.ArchiveInteger( &owner_prev_contents );
+    ArchiveEnum(owner_prev_takedamage, damage_t);
+    ArchiveEnum(owner_prev_solid, solid_t);
+    arc.ArchiveInteger(&owner_prev_contents);
 }
-
-#endif // __VEHICLESLOT_H__

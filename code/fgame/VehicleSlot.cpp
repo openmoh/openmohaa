@@ -28,131 +28,159 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 cVehicleSlot::cVehicleSlot()
 {
-	prev_takedamage = ( damage_t )-1;
-	prev_solid = ( solid_t )-1;
-	prev_contents = -1;
+    prev_takedamage = (damage_t)-1;
+    prev_solid      = (solid_t)-1;
+    prev_contents   = -1;
 }
 
-void cVehicleSlot::NotSolid
-	(
-	void
-	)
+void cVehicleSlot::NotSolid(void)
 {
-	if( !( flags & FL_SWIM ) )
-	{
-		return;
-	}
+    int i;
 
-	if( !ent )
-	{
-		return;
-	}
+    if (!(flags & SLOT_BUSY)) {
+        return;
+    }
 
-	// Save previous values
-	prev_takedamage = ent->takedamage;
-	prev_solid = ent->edict->solid;
-	prev_contents = ent->edict->r.contents;
-	
-	ent->takedamage = DAMAGE_NO;
-	ent->setSolidType( SOLID_NOT );
+    if (!ent) {
+        return;
+    }
+
+    // Save previous values
+    prev_takedamage = ent->takedamage;
+    prev_solid      = ent->edict->solid;
+    prev_contents   = ent->edict->r.contents;
+
+    ent->takedamage = DAMAGE_NO;
+    ent->setSolidType(SOLID_NOT);
+
+    for (i = 0; i < ent->numchildren; i++) {
+        Entity *sub = G_GetEntity(ent->children[i]);
+        if (sub && !sub->IsSubclassOfWeapon()) {
+            sub->setSolidType(SOLID_NOT);
+        }
+    }
+
+    if (!ent->IsSubclassOfPlayer()) {
+        ent->setSolidType(SOLID_NOT);
+    }
 }
 
-void cVehicleSlot::Solid
-	(
-	void
-	)
+void cVehicleSlot::Solid(void)
 {
-	if( !( flags & FL_SWIM ) )
-	{
-		return;
-	}
+    int i;
 
-	if( !ent )
-	{
-		return;
-	}
+    if (!(flags & FL_SWIM)) {
+        return;
+    }
 
-	// Restore previous values
-	ent->takedamage = prev_takedamage;
-	ent->setSolidType( prev_solid );
-	ent->edict->r.contents = prev_contents;
+    if (!ent) {
+        return;
+    }
 
-	// Save previous values
-	prev_takedamage = ( damage_t )-1;
-	prev_solid = ( solid_t )-1;
-	prev_contents = -1;
+    // Restore previous values
+    ent->takedamage = prev_takedamage;
+    ent->setSolidType(prev_solid);
+    ent->setContents(prev_contents);
+
+    // Save previous values
+    prev_takedamage = (damage_t)-1;
+    prev_solid      = (solid_t)-1;
+    prev_contents   = -1;
+
+    for (i = 0; i < ent->numchildren; i++) {
+        Entity *sub = G_GetEntity(ent->children[i]);
+        if (sub && !sub->IsSubclassOfWeapon()) {
+            sub->setSolidType(SOLID_BBOX);
+        }
+    }
 }
 
 cTurretSlot::cTurretSlot()
 {
-	owner_prev_takedamage = ( damage_t )-1;
-	owner_prev_solid = ( solid_t )-1;
-	owner_prev_contents = -1;
+    owner_prev_takedamage = (damage_t)-1;
+    owner_prev_solid      = (solid_t)-1;
+    owner_prev_contents   = -1;
 }
 
-void cTurretSlot::NotSolid
-	(
-	void
-	)
+void cTurretSlot::NotSolid(void)
 {
-	if( !( flags & FL_SWIM ) )
-	{
-		return;
-	}
+    int i;
 
-	if( !ent )
-	{
-		return;
-	}
+    if (!(flags & FL_SWIM)) {
+        return;
+    }
 
-	cVehicleSlot::NotSolid();
+    if (!ent) {
+        return;
+    }
 
-	if( ent->IsSubclassOfTurretGun() )
-	{
-		TurretGun *turret = ( TurretGun * )ent.Pointer();
-		Entity *owner = turret->GetOwner();
+    // Save previous values
+    prev_takedamage = ent->takedamage;
+    prev_solid      = ent->edict->solid;
+    prev_contents   = ent->edict->r.contents;
 
-		if( owner )
-		{
-			owner_prev_takedamage = owner->takedamage;
-			owner_prev_solid = owner->edict->solid;
-			owner_prev_contents = owner->edict->r.contents;
+    ent->takedamage = DAMAGE_NO;
+    ent->setSolidType(SOLID_NOT);
 
-			owner->takedamage = DAMAGE_NO;
-			owner->setSolidType( SOLID_NOT );
-		}
-	}
+    if (ent->IsSubclassOfTurretGun()) {
+        TurretGun *turret = static_cast<TurretGun *>(ent.Pointer());
+        Entity    *owner  = turret->GetOwner();
+
+        if (owner) {
+            owner_prev_takedamage = owner->takedamage;
+            owner_prev_solid      = owner->edict->solid;
+            owner_prev_contents   = owner->edict->r.contents;
+
+            owner->takedamage = DAMAGE_NO;
+            owner->setSolidType(SOLID_NOT);
+        }
+    }
+
+    for (i = 0; i < ent->numchildren; i++) {
+        Entity *sub = G_GetEntity(ent->children[i]);
+        if (sub && !sub->IsSubclassOfWeapon()) {
+            sub->setSolidType(SOLID_NOT);
+        }
+    }
 }
 
-void cTurretSlot::Solid
-	(
-	void
-	)
+void cTurretSlot::Solid(void)
 {
-	if( !( flags & FL_SWIM ) )
-	{
-		return;
-	}
+    int i;
 
-	if( !ent )
-	{
-		return;
-	}
+    if (!(flags & FL_SWIM)) {
+        return;
+    }
 
-	cVehicleSlot::NotSolid();
+    if (!ent) {
+        return;
+    }
 
-	if( ent->IsSubclassOfTurretGun() )
-	{
-		TurretGun *turret = ( TurretGun * )ent.Pointer();
-		Entity *owner = turret->GetOwner();
+    // Restore previous values
+    ent->takedamage = prev_takedamage;
+    ent->setSolidType(prev_solid);
 
-		if( owner )
-		{
-			owner->takedamage = owner_prev_takedamage;
-			owner->setSolidType( owner_prev_solid );
+    // Save previous values
+    prev_takedamage = (damage_t)-1;
+    prev_solid      = (solid_t)-1;
 
-			owner_prev_takedamage = ( damage_t )-1;
-			owner_prev_solid = ( solid_t )-1;
-		}
-	}
+    if (ent->IsSubclassOfTurretGun()) {
+        TurretGun *turret = static_cast<TurretGun *>(ent.Pointer());
+        Entity    *owner  = turret->GetOwner();
+
+        if (owner) {
+            owner->takedamage = owner_prev_takedamage;
+            owner->setSolidType(owner_prev_solid);
+
+            owner_prev_takedamage = (damage_t)-1;
+            owner_prev_solid      = (solid_t)-1;
+        }
+    }
+
+    for (i = 0; i < ent->numchildren; i++) {
+        Entity *sub = G_GetEntity(ent->children[i]);
+        if (sub && !sub->IsSubclassOfWeapon()) {
+            sub->setSolidType(SOLID_BBOX);
+        }
+    }
 }
