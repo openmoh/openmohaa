@@ -3810,7 +3810,7 @@ void Vehicle::SetMoveInfo(vmove_t *vm)
     memset(vm, 0, sizeof(vmove_t));
 
     VectorCopy(origin, vs.origin);
-    vs.useGravity = 0;
+    vs.useGravity = false;
     vs.entityNum  = entnum;
 
     vm->vs        = &vs;
@@ -3823,7 +3823,7 @@ void Vehicle::SetMoveInfo(vmove_t *vm)
     vs.desired_dir[0] = velocity[0];
     vs.desired_dir[1] = velocity[1];
 
-    vm->desired_speed = VectorNormalize2D(this->vs.desired_dir);
+    vm->desired_speed = VectorNormalize2D(vs.desired_dir);
 }
 
 /*
@@ -3881,11 +3881,12 @@ Vehicle::SetViewAngles
 */
 void Vehicle::SetViewAngles(Vector newViewangles)
 {
-    client->ps.delta_angles[0] = ANGLE2SHORT(newViewangles.x);
-    client->ps.delta_angles[1] = ANGLE2SHORT(newViewangles.y);
-    client->ps.delta_angles[2] = ANGLE2SHORT(newViewangles.z);
+    client->ps.delta_angles[0] = floor(ANGLE2SHORT(newViewangles.x));
+    client->ps.delta_angles[1] = floor(ANGLE2SHORT(newViewangles.y));
+    client->ps.delta_angles[2] = floor(ANGLE2SHORT(newViewangles.z));
 
-    AnglesToAxis(newViewangles, orientation);
+    v_angle = newViewangles;
+    AnglesToAxis(v_angle, orientation);
 
     yaw_forward = orientation[0];
     yaw_left    = orientation[1];
