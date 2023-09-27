@@ -249,25 +249,13 @@ void VehicleTank::Postthink()
     last_origin = origin;
     anglediff   = (angles - primal_angles) * level.frametime;
 
-    if (anglediff.x > 180 || anglediff.x < -180) {
-        anglediff.x = 0;
-    }
-    if (anglediff.y > 180 || anglediff.y < -180) {
-        anglediff.y = 0;
-    }
-    if (anglediff.z > 180 || anglediff.z < -180) {
-        anglediff.z = 0;
-    }
+    if (anglediff.x > 180 || anglediff.x < -180) anglediff.x = 0;
+    if (anglediff.y > 180 || anglediff.y < -180) anglediff.y = 0;
+    if (anglediff.z > 180 || anglediff.z < -180) anglediff.z = 0;
 
-    if (anglediff.x > -1 || anglediff.x < 1) {
-        anglediff.x = 0;
-    }
-    if (anglediff.y > -1 || anglediff.y < 1) {
-        anglediff.y = 0;
-    }
-    if (anglediff.z > -1 || anglediff.z < 1) {
-        anglediff.z = 0;
-    }
+    if (anglediff.x > -1 || anglediff.x < 1) anglediff.x = 0;
+    if (anglediff.y > -1 || anglediff.y < 1) anglediff.y = 0;
+    if (anglediff.z > -1 || anglediff.z < 1) anglediff.z = 0;
 
     avelocity = anglediff;
 
