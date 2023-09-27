@@ -324,9 +324,9 @@ typedef struct gameImport_s
 	qboolean ( *setmodel )( gentity_t *ent, const char *name );
 	void ( *clearmodel )( gentity_t *ent );
 	int ( *TIKI_NumAnims )( dtiki_t *tiki );
-	int ( *NumSurfaces )( dtiki_t *tiki );
-	int ( *NumTags )( dtiki_t *tiki );
-	void( *CalculateBounds )( dtiki_t *tiki, float scale, vec3_t mins, vec3_t maxs );
+	int ( *TIKI_NumSurfaces )( dtiki_t *tiki );
+	int ( *TIKI_NumTags )( dtiki_t *tiki );
+	void( *TIKI_CalculateBounds )( dtiki_t *tiki, float scale, vec3_t mins, vec3_t maxs );
 	void *( *TIKI_GetSkeletor )( dtiki_t *tiki, int entNum );
 	const char *( *Anim_NameForNum )( dtiki_t *tiki, int animNum );
 	int ( *Anim_NumForName )( dtiki_t *tiki, const char *name );

@@ -2056,7 +2056,7 @@ void Entity::setModel(const str& mdl)
 
     if (edict->tiki && !mins.length() && !maxs.length()) {
         vec3_t tempmins, tempmaxs;
-        gi.CalculateBounds(edict->tiki, edict->s.scale, tempmins, tempmaxs);
+        gi.TIKI_CalculateBounds(edict->tiki, edict->s.scale, tempmins, tempmaxs);
         setSize(tempmins, tempmaxs);
     }
 }
@@ -2270,7 +2270,7 @@ void Entity::setSize(Vector min, Vector max)
             vec3_t fullmins, fullmaxs;
             Vector delta;
 
-            gi.CalculateBounds(edict->tiki, edict->s.scale, fullmins, fullmaxs);
+            gi.TIKI_CalculateBounds(edict->tiki, edict->s.scale, fullmins, fullmaxs);
 
             delta           = Vector(fullmaxs) - Vector(fullmins);
             edict->r.radius = delta.length() * 0.5;
@@ -4188,7 +4188,7 @@ void Entity::SurfaceCommand(const char *surf_name, const char *token)
 
     int numsurfaces;
     if (edict->tiki) {
-        numsurfaces = gi.NumSurfaces(edict->tiki);
+        numsurfaces = gi.TIKI_NumSurfaces(edict->tiki);
     } else {
         numsurfaces = 0;
     }
@@ -4531,7 +4531,7 @@ void Entity::Censor(Event *ev)
     oldsize = size.length();
     setSolidType(SOLID_NOT);
     setModel("censored.tik");
-    gi.CalculateBounds(edict->tiki, 1, mins, maxs);
+    gi.TIKI_CalculateBounds(edict->tiki, 1, mins, maxs);
     delta          = maxs - mins;
     newsize        = delta.length();
     edict->s.scale = oldsize / newsize;

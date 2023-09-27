@@ -2137,7 +2137,7 @@ void ScriptModel::SetModelEvent
 
    if( edict->tiki && !mins.length() && !maxs.length() )
       {
-      gi.CalculateBounds( edict->tiki, edict->s.scale, mins, maxs );
+      gi.TIKI_CalculateBounds( edict->tiki, edict->s.scale, mins, maxs );
       }
    }
 

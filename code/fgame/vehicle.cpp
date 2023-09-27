@@ -4787,7 +4787,7 @@ void Vehicle::Postthink(void)
         int numtags;
         int tagnum;
 
-        numtags = gi.NumTags(edict->tiki);
+        numtags = gi.TIKI_NumTags(edict->tiki);
         for (tagnum = 0; tagnum < numtags; tagnum++) {
             const char *name = gi.Tag_NameForNum(edict->tiki, tagnum);
             if (!strncmp(name, "tag", 3)) {

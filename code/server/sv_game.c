@@ -1643,9 +1643,9 @@ void SV_InitGameProgs( void ) {
 	import.setmodel						= PF_setmodel;
 	import.clearmodel					= PF_clearmodel;
 	import.TIKI_NumAnims				= PF_NumAnims;
-	import.NumSurfaces					= PF_NumSurfaces;
-	import.NumTags						= PF_NumTags;
-	import.CalculateBounds				= PF_CalculateBounds;
+	import.TIKI_NumSurfaces				= PF_NumSurfaces;
+	import.TIKI_NumTags					= PF_NumTags;
+	import.TIKI_CalculateBounds			= PF_CalculateBounds;
 	import.TIKI_GetSkeletor				= PF_GetSkeletor;
 	import.Anim_NameForNum				= PF_Anim_NameForNum;
 	import.Anim_NumForName				= PF_Anim_NumForName;
