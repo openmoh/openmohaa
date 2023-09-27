@@ -112,9 +112,14 @@ qboolean VM_SlideMove(qboolean gravity)
     trace_t trace;
     vec3_t  end;
     float   time_left;
+    vec3_t  endVelocity;
+    vec3_t  endClipVelocity;
+
+    VectorCopy(vm->vs->velocity, endVelocity);
 
     if (gravity) {
-        vm->vs->velocity[2] = vm->vs->velocity[2] - vm->frametime * sv_gravity->integer;
+        endVelocity[2]      = vm->vs->velocity[2] - vm->frametime * sv_gravity->integer;
+        vm->vs->velocity[2] = (vm->vs->velocity[2] + endVelocity[2]) * 0.5;
         if (vm->vs->groundPlane) {
             VM_ClipVelocity(vm->vs->velocity, vm->vs->groundTrace.plane.normal, vm->vs->velocity, OVERCLIP);
         }
@@ -141,6 +146,27 @@ qboolean VM_SlideMove(qboolean gravity)
         gi.trace(&trace, vm->vs->origin, vm->mins, vm->maxs, end, vm->vs->entityNum, vm->tracemask, qtrue, qfalse);
 
         if (trace.allsolid) {
+            if (vm->vs->velocity[0] || vm->vs->velocity[1]) {
+                if (vm->vs->groundPlane) {
+                    VectorCopy(vm->vs->velocity, dir);
+                    VectorNegate(dir, dir);
+                    VectorNormalize(dir);
+
+                    if (!vm->vs->hit_obstacle) {
+                        vm->vs->hit_obstacle = qtrue;
+                        VectorCopy(vm->vs->origin, vm->vs->hit_origin);
+                    }
+
+                    VectorAdd(vm->vs->obstacle_normal, dir, vm->vs->obstacle_normal);
+                }
+
+                VectorClear(vm->vs->velocity);
+                VM_AddTouchEnt(trace.entityNum);
+                return qtrue;
+            }
+
+            vm->vs->velocity[2] = 0;
+            bumpcount           = 0;
             break;
         }
 
@@ -150,11 +176,22 @@ qboolean VM_SlideMove(qboolean gravity)
         }
 
         if (trace.fraction == 1) {
-            return bumpcount != 0;
+            break;
         }
 
-        memcpy(&vm->vs->groundTrace, &trace, sizeof(vm->vs->groundTrace));
-        vml.validGroundTrace = true;
+        if (trace.plane.normal[2] >= 0.7f) {
+            memcpy(&vm->vs->groundTrace, &trace, sizeof(vm->vs->groundTrace));
+            vml.validGroundTrace = qtrue;
+        } else if (trace.plane.normal[2] > -0.999f) {
+            if (vm->vs->groundPlane) {
+                if (!vm->vs->hit_obstacle) {
+                    vm->vs->hit_obstacle = qtrue;
+                    VectorCopy(vm->vs->origin, vm->vs->hit_origin);
+                }
+
+                VectorAdd(vm->vs->obstacle_normal, trace.plane.normal, vm->vs->obstacle_normal);
+            }
+        }
 
         // save entity for contact
         VM_AddTouchEnt(trace.entityNum);
@@ -182,6 +219,8 @@ qboolean VM_SlideMove(qboolean gravity)
             //
             // modify velocity so it parallels all of the clip planes
             //
+            VectorCopy(trace.plane.normal, planes[numplanes]);
+            numplanes++;
 
             // find a plane that it enters
             for (i = 0; i < numplanes; i++) {
@@ -191,6 +230,7 @@ qboolean VM_SlideMove(qboolean gravity)
 
                 // slide along the plane
                 VM_ClipVelocity(vm->vs->velocity, planes[i], clipVelocity, OVERCLIP);
+                VM_ClipVelocity(endVelocity, planes[i], endClipVelocity, OVERCLIP);
 
                 // see if there is a second plane that the new move enters
                 for (j = 0; j < numplanes; j++) {
@@ -200,6 +240,7 @@ qboolean VM_SlideMove(qboolean gravity)
 
                     // slide along the plane
                     VM_ClipVelocity(vm->vs->velocity, planes[j], clipVelocity, OVERCLIP);
+                    VM_ClipVelocity(endVelocity, planes[j], endClipVelocity, OVERCLIP);
 
                     if (DotProduct(clipVelocity, planes[j]) >= 0.0f) {
                         continue; // move doesn't interact with the plane
@@ -210,6 +251,8 @@ qboolean VM_SlideMove(qboolean gravity)
                     VectorNormalize(dir);
                     d = DotProduct(dir, vm->vs->velocity);
                     VectorScale(dir, d, clipVelocity);
+                    d = DotProduct(dir, endVelocity);
+                    VectorScale(dir, d, endClipVelocity);
 
                     // see if there is a third plane the the new move enters
                     for (k = 0; k < numplanes; k++) {
@@ -229,34 +272,61 @@ qboolean VM_SlideMove(qboolean gravity)
 
                 // if we have fixed all interactions, try another move
                 VectorCopy(clipVelocity, vm->vs->velocity);
+                VectorCopy(endClipVelocity, endVelocity);
                 break;
             }
         }
     }
 
-    if (vm->vs->velocity[0] || vm->vs->velocity[1]) {
-        if (vm->vs->groundPlane) {
-            VectorCopy(vm->vs->velocity, dir);
-            VectorNegate(dir, dir);
-            VectorNormalize(dir);
-
-            VM_AddTouchEnt(trace.entityNum);
-            VectorAdd(vm->vs->obstacle_normal, dir, vm->vs->obstacle_normal);
-        }
-
-        VectorClear(vm->vs->velocity);
-        return true;
+    if (gravity) {
+        VectorCopy(endVelocity, vm->vs->velocity);
     }
 
-    vm->vs->velocity[2] = 0;
-    return false;
+    return bumpcount != 0;
 }
 
 static void VM_GroundTraceInternal2(void);
 
 void VM_GroundTraceInternal(void)
 {
-    VM_GroundTraceInternal2();
+    if (vm->vs->groundTrace.fraction == 1) {
+        vm->vs->groundEntityNum = ENTITYNUM_NONE;
+        vm->vs->groundPlane     = qfalse;
+        vm->vs->walking         = qfalse;
+        return;
+    }
+
+    if (vm->vs->velocity[2] > 0.0f && DotProduct(vm->vs->velocity, vm->vs->groundTrace.plane.normal) > 10.0f) {
+        vm->vs->groundEntityNum = ENTITYNUM_NONE;
+        vm->vs->groundPlane     = qfalse;
+        vm->vs->walking         = qfalse;
+        return;
+    }
+
+    // slopes that are too steep will not be considered onground
+    if (vm->vs->groundTrace.plane.normal[2] < MIN_WALK_NORMAL) {
+        vec3_t oldvel;
+        float  d;
+
+        VectorCopy(vm->vs->velocity, oldvel);
+        VectorSet(vm->vs->velocity, 0, 0, -1.0f / vm->frametime);
+        VM_SlideMove(qfalse);
+
+        d = VectorLength(vm->vs->velocity);
+        VectorCopy(oldvel, vm->vs->velocity);
+
+        if (d > (0.1f / vm->frametime)) {
+            vm->vs->groundEntityNum = ENTITYNUM_NONE;
+            vm->vs->groundPlane     = qtrue;
+            vm->vs->walking         = qfalse;
+            return;
+        }
+    }
+
+    vm->vs->groundPlane     = qtrue;
+    vm->vs->walking         = qtrue;
+    vm->vs->groundEntityNum = vm->vs->groundTrace.entityNum;
+
     VM_AddTouchEnt(vm->vs->groundTrace.entityNum);
 }
 
@@ -269,13 +339,11 @@ void VM_GroundTraceInternal2(void)
         return;
     }
 
-    if (vm->vs->velocity[2] > 0.0f) {
-        if (DotProduct(vm->vs->velocity, vm->vs->groundTrace.plane.normal) > 10.0f) {
-            vm->vs->groundEntityNum = ENTITYNUM_NONE;
-            vm->vs->groundPlane     = qfalse;
-            vm->vs->walking         = qfalse;
-            return;
-        }
+    if (vm->vs->velocity[2] > 0.0f && DotProduct(vm->vs->velocity, vm->vs->groundTrace.plane.normal) > 10.0f) {
+        vm->vs->groundEntityNum = ENTITYNUM_NONE;
+        vm->vs->groundPlane     = qfalse;
+        vm->vs->walking         = qfalse;
+        return;
     }
 
     // slopes that are too steep will not be considered onground
@@ -341,11 +409,12 @@ void VM_StepSlideMove(void)
     VectorCopy(vm->vs->hit_origin, start_hit_origin);
     VectorCopy(vm->vs->obstacle_normal, start_wall_normal);
 
-    if (VM_SlideMove(qtrue) == 0) {
-        if (!vml.validGroundTrace) {
+    if (VM_SlideMove(vm->vs->useGravity) == 0) {
+        if (vml.validGroundTrace) {
+            VM_GroundTraceInternal();
+        } else {
             VM_GroundTrace();
         }
-
         return;
     }
 
@@ -356,12 +425,11 @@ void VM_StepSlideMove(void)
 
     // never step up when you still have up velocity
     if (vm->vs->velocity[2] > 0 && (trace.fraction == 1.0f || DotProduct(trace.plane.normal, up) < MIN_WALK_NORMAL)) {
-        if (!vml.validGroundTrace) {
-            VM_GroundTrace();
-        } else {
+        if (vml.validGroundTrace) {
             VM_GroundTraceInternal();
+        } else {
+            VM_GroundTrace();
         }
-
         return;
     }
 
@@ -392,7 +460,7 @@ void VM_StepSlideMove(void)
 
     // test the player position if they were a stepheight higher
     gi.trace(&trace, vm->vs->origin, vm->mins, vm->maxs, down, vm->vs->entityNum, vm->tracemask, qtrue, qfalse);
-    if (trace.entityNum > ENTITYNUM_NONE) {
+    if (trace.entityNum != ENTITYNUM_WORLD && trace.entityNum != ENTITYNUM_WORLD) {
         VectorCopy(nostep_o, vm->vs->origin);
         VectorCopy(nostep_v, vm->vs->velocity);
         memcpy(&vm->vs->groundTrace, &nostep_groundTrace, sizeof(vm->vs->groundTrace));
@@ -400,12 +468,11 @@ void VM_StepSlideMove(void)
         VectorCopy(first_hit_origin, vm->vs->hit_origin);
         VectorCopy(first_wall_normal, vm->vs->obstacle_normal);
 
-        if (!vml.validGroundTrace) {
-            VM_GroundTrace();
-        } else {
+        if (vml.validGroundTrace) {
             VM_GroundTraceInternal();
+        } else {
+            VM_GroundTrace();
         }
-
         return;
     }
 
@@ -413,7 +480,7 @@ void VM_StepSlideMove(void)
         memcpy(&vm->vs->groundTrace, &trace, sizeof(vm->vs->groundTrace));
         vml.validGroundTrace = qtrue;
 
-        if (bWasOnGoodGround && trace.fraction && trace.plane.normal[2] < MIN_WALK_NORMAL) {
+        if (bWasOnGoodGround && trace.fraction < 1 && trace.plane.normal[2] < MIN_WALK_NORMAL) {
             VectorCopy(nostep_o, vm->vs->origin);
             VectorCopy(nostep_v, vm->vs->velocity);
 
@@ -430,14 +497,14 @@ void VM_StepSlideMove(void)
         VectorCopy(trace.endpos, vm->vs->origin);
     }
 
-    if (trace.fraction < 1.0f) {
+    if (trace.fraction < 1) {
         VM_ClipVelocity(vm->vs->velocity, trace.plane.normal, vm->vs->velocity, OVERCLIP);
     }
 
-    if (!vml.validGroundTrace) {
-        VM_GroundTrace();
-    } else {
+    if (vml.validGroundTrace) {
         VM_GroundTraceInternal();
+    } else {
+        VM_GroundTrace();
     }
 }
 
@@ -529,6 +596,7 @@ void VmoveSingle(vmove_t *vmove)
 {
     float   point[3];
     trace_t trace;
+    bool    walking;
 
     vm = vmove;
 
@@ -543,7 +611,8 @@ void VmoveSingle(vmove_t *vmove)
 
     VM_GroundTraceInternal2();
 
-    if (vmove->vs->walking) {
+    walking = vm->vs->walking;
+    if (walking) {
         float wishdir[3];
 
         VM_Friction();
@@ -552,22 +621,27 @@ void VmoveSingle(vmove_t *vmove)
 
         vm->vs->velocity[0] = vm->desired_speed * wishdir[0];
         vm->vs->velocity[1] = vm->desired_speed * wishdir[1];
-    } else if (vmove->vs->groundPlane) {
+
+        if (!vm->vs->velocity[0] && !vm->vs->velocity[1]) {
+            VM_GroundTrace();
+            return;
+        }
+    } else if (vm->vs->groundPlane) {
         VM_ClipVelocity(vm->vs->velocity, vm->vs->groundTrace.plane.normal, vm->vs->velocity, OVERCLIP);
     }
 
     VM_StepSlideMove();
 
-    if (!vm->vs->walking && vml.previous_velocity[2] >= 0.0f && vm->vs->velocity[2] <= 0.0f) {
+    if (!vm->vs->walking && (walking || (vml.previous_velocity[2] >= 0.0f && vm->vs->velocity[2] <= 0.0f))) {
         point[0] = vm->vs->origin[0];
         point[1] = vm->vs->origin[1];
-        point[2] = vm->vs->origin[2] - 18.0f;
+        point[2] = vm->vs->origin[2] - 18;
 
         gi.trace(&trace, vm->vs->origin, vm->mins, vm->maxs, point, vm->vs->entityNum, vm->tracemask, qtrue, qfalse);
 
-        if (trace.fraction < 1.0f && !trace.allsolid) {
+        if (trace.fraction < 1 && !trace.allsolid) {
+            VectorCopy(trace.endpos, vm->vs->origin);
             VM_GroundTrace();
-            return;
         }
     }
 }
