@@ -320,9 +320,9 @@ void VehicleTank::Postthink()
         v->avelocity = avelocity;
         v->velocity  = velocity;
 
-        v->angles[2] = angles[2];
-        v->angles[1] = angles[1];
-        v->angles[0] = (int)(drivespeed / 4.f + angles[0]) % 360;
+        v->angles[ROLL]  = angles[ROLL];
+        v->angles[YAW]   = angles[YAW];
+        v->angles[PITCH] = (int)(drivespeed / 4.f + v->angles[PITCH]) % 360;
         v->setAngles(v->angles);
     }
 
