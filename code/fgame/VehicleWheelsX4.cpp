@@ -53,6 +53,11 @@ void VehicleWheelsX4::UpdateVariables(
     // FIXME: STUB
 }
 
+void VehicleWheelsX4::Killed(Event *ev)
+{
+    deadflag = DEAD_DEAD;
+}
+
 float VehicleWheelsX4::TorqueLookup(int rpm)
 {
     if (rpm <= 2099) {
@@ -85,9 +90,4 @@ void VehicleWheelsX4::Think()
 void VehicleWheelsX4::Postthink()
 {
     // FIXME: STUB
-}
-
-void VehicleWheelsX4::Killed(Event *ev)
-{
-    deadflag = DEAD_DEAD;
 }
