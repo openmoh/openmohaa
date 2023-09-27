@@ -1177,6 +1177,7 @@ Vehicle::Vehicle()
         m_bTireHit[i] = false;
     }
 
+    m_bAnimMove            = false;
     m_fMaxUseAngle         = 0;
     m_bBounceStayFullSpeed = false;
 
@@ -5701,7 +5702,7 @@ void Vehicle::UpdateTires(void)
 
     m_iLastTiresUpdate = level.inttime;
 
-    vTmp[1] = angles[1] + m_fSkidAngle;
+    vTmp.y = angles.y + m_fSkidAngle;
     AngleVectors(vTmp, a, b, c);
 
     // Temporary make slots non-solid for G_Trace
@@ -5713,14 +5714,13 @@ void Vehicle::UpdateTires(void)
         for (index = 0; index < MAX_CORNERS; index++) {
             boxoffset = Corners[index];
             start     = origin + a * boxoffset[0] + b * boxoffset[1] + c * boxoffset[2];
-            end       = start;
-            end[2] -= 400.0f;
+            end       = start + Vector(0, 0, -400);
 
             trace = G_Trace(start, t_mins, t_maxs, end, this, MASK_VEHICLE, false, "Vehicle::PostThink Corners");
 
             if (g_showvehiclemovedebug->integer) {
-                G_DebugBBox(origin, start, end, 1.0f, 1.0f, 1.0f, 1.0f);
-                G_DebugBBox(origin, start, trace.endpos, 1.0f, 0.0f, 0.0f, 1.0f);
+                G_DebugLine(start, end, 1, 1, 1, 1);
+                G_DebugLine(start, trace.endpos, 1, 0, 0, 1);
             }
 
             if (trace.ent && trace.ent->entity && trace.ent->entity->isSubclassOf(VehicleCollisionEntity)) {
@@ -5750,7 +5750,7 @@ void Vehicle::UpdateTires(void)
 
     for (index = 0; index < iNumSkipped; index++) {
         pSkippedEntities[index]->setSolidType(solidEntities[index]);
-        pSkippedEntities[index]->edict->r.contents = iContentsEntities[index];
+        pSkippedEntities[index]->setContents(iContentsEntities[index]);
     }
 
     // Turn slots back into a solid state
@@ -5778,10 +5778,9 @@ void Vehicle::UpdateNormals(void)
 
     angles.AngleVectorsLeft(&i, &j, NULL);
 
+    j = vec_zero;
     m_vNormalSum  = vec_zero;
     m_iNumNormals = 0;
-
-    pitch = -pitch;
 
     if (m_bTireHit[0] && m_bTireHit[1] && m_bTireHit[2]) {
         vDist1 = m_vTireEnd[1] - m_vTireEnd[0];
@@ -5834,7 +5833,7 @@ void Vehicle::UpdateNormals(void)
         pitch     = i;
         angles[0] = pitch.toPitch();
 
-        temp      = m_vNormalSum * (1.f / m_iNumNormals);
+        temp      = m_vNormalSum / m_iNumNormals;
         pitch     = temp.CrossProduct(temp, i);
         angles[2] = pitch.toPitch();
     }
