@@ -1730,6 +1730,10 @@ void TurretGun::P_CreateViewModel(void)
 
 void TurretGun::P_DeleteViewModel(void)
 {
+    if (!m_pViewModel) {
+        return;
+    }
+
     m_pViewModel->Delete();
     m_pViewModel = NULL;
 
