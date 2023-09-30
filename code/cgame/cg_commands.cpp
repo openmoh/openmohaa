@@ -5609,6 +5609,8 @@ void commandthing_t::ArchiveToMemory(MemArchiver& archiver)
             m_commandtimes.AddObject(ct);
         }
     } else {
+        num = m_commandtimes.NumObjects();
+
         archiver.ArchiveInteger(&num);
         m_commandtimes.ClearObjectList();
 
