@@ -926,18 +926,10 @@ inline float Vector::toPitch(void) const
     float forward;
     float pitch;
 
-    if ((x == 0.0f) && (y == 0.0f)) {
-        if (z > 0.0f) {
-            pitch = 90.0f;
-        } else {
-            pitch = 270.0f;
-        }
-    } else {
-        forward = (float)sqrt((x * x) + (y * y));
-        pitch   = (float)((int)(atan2(z, forward) * 180.0f / M_PI));
-        if (pitch < 0.0f) {
-            pitch += 360.0f;
-        }
+    forward = (float)sqrt((x * x) + (y * y));
+    pitch = (float)((int)(atan2(z, forward) * 180.0f / M_PI));
+    if (pitch < 0.0f) {
+        pitch += 360.0f;
     }
 
     return pitch;
