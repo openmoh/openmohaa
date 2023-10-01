@@ -201,8 +201,7 @@ void VehicleTank::Postthink()
     UpdateBones();
     UpdateShaderOffset();
     UpdateTires();
-    // FIXME: not working properly
-    //UpdateNormals();
+    UpdateNormals();
 
     temp = angles;
     temp.AngleVectorsLeft(&i, &j, &k);
@@ -505,7 +504,7 @@ void VehicleTank::DriverAdded()
 {
     int i;
 
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < MAX_TURRETS; i++) {
         if (Turrets[i].flags & SLOT_BUSY && Turrets[i].ent && Turrets[i].ent->IsSubclassOfVehicleTurretGun()) {
             VehicleTurretGun *pTurret = static_cast<VehicleTurretGun *>(Turrets[i].ent.Pointer());
             pTurret->TurretHasBeenMounted();
