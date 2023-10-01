@@ -1139,6 +1139,7 @@ void VehicleTurretGun::SetRemoteOwner(Sentient *e)
 {
     m_bUseRemoteControl = true;
     m_pRemoteOwner      = e;
+    flags |= FL_THINK;
 }
 
 void VehicleTurretGun::EventGetCollisionModel(Event *ev)
@@ -1293,12 +1294,12 @@ void VehicleTurretGun::UpdateTimers(float& yawTimer, float& pitchTimer)
     }
 
     if (m_fWarmupTimeRemaining > 0) {
-        yawTimer   = m_fTurnSpeed * level.frametime;
-        pitchTimer = m_fAIPitchSpeed * level.frametime;
-    } else {
         m_fWarmupTimeRemaining -= level.frametime;
         yawTimer   = level.frametime * (m_fTurnSpeed * ((m_fWarmupDelay - m_fWarmupTimeRemaining) / m_fWarmupDelay));
         pitchTimer = level.frametime * (m_fAIPitchSpeed * ((m_fWarmupDelay - m_fWarmupTimeRemaining) / m_fWarmupDelay));
+    } else {
+        yawTimer = m_fTurnSpeed * level.frametime;
+        pitchTimer = m_fAIPitchSpeed * level.frametime;
     }
 }
 
@@ -1545,8 +1546,8 @@ void VehicleTurretGun::RestrictPitch()
 {
     if (m_vUserViewAng[0] < m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET) {
         m_vUserViewAng[0] = m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET;
-    } else if (m_vUserViewAng[0] > m_fPitchUpCap + MAX_VT_PITCHCAP_OFFSET) {
-        m_vUserViewAng[0] = m_fPitchUpCap + MAX_VT_PITCHCAP_OFFSET;
+    } else if (m_vUserViewAng[0] > m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET) {
+        m_vUserViewAng[0] = m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET;
     }
 }
 
@@ -1554,14 +1555,14 @@ void VehicleTurretGun::RestrictYaw()
 {
     float fDiff;
 
-    fDiff = AngleSubtract(m_vUserViewAng[0], m_fStartYaw);
+    fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
     if (fDiff > m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET) {
         fDiff = m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET;
     } else if (fDiff < -(m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET)) {
         fDiff = -(m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET);
     }
 
-    m_vUserViewAng[0] = m_fStartYaw + fDiff;
+    m_vUserViewAng[1] = m_fStartYaw + fDiff;
 }
 
 void VehicleTurretGun::UpdateRemoteControl()
