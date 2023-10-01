@@ -415,7 +415,7 @@ void SV_ClientsAlloc( void )
 	svs.iNumClients = sv_maxclients->integer;
 	svs.clients = Z_Malloc( svs.iNumClients * sizeof( client_t ) );
 	Com_Memset( svs.clients, 0, svs.iNumClients * sizeof( client_t ) );
-	if( g_gametype->integer ) {
+	if( g_gametype->integer != GT_SINGLE_PLAYER ) {
 		svs.numSnapshotEntities = svs.iNumClients * PACKET_BACKUP * 64;
 	} else {
 		svs.numSnapshotEntities = 1 * 32 * 64;
@@ -508,6 +508,12 @@ void SV_ChangeMaxClients( void ) {
 
 	// free old clients arrays
 	Z_Free( oldClients );
+
+	if( g_gametype->integer != GT_SINGLE_PLAYER ) {
+		svs.numSnapshotEntities = svs.iNumClients * PACKET_BACKUP * 64;
+	} else {
+		svs.numSnapshotEntities = 1 * 32 * 64;
+	}
 }
 
 /*
