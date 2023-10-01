@@ -1681,38 +1681,24 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 break;
 
             case OP_UN_TARGETNAME:
-                targetList = world->GetExistingTargetList(m_VMStack.GetTop().stringValue());
+                // retrieve the target name
+                targetList = world->GetExistingTargetList(m_VMStack.GetTop().constStringValue());
 
-                if (!targetList) {
-                    value = m_VMStack.GetTop().stringValue();
-
+                if (!targetList || !targetList->NumObjects()) {
+                    // the target name was not found
                     m_VMStack.GetTop().setListenerValue(NULL);
 
                     if ((*m_CodePos >= OP_BIN_EQUALITY && *m_CodePos <= OP_BIN_GREATER_THAN_OR_EQUAL)
                         || (*m_CodePos >= OP_BOOL_UN_NOT && *m_CodePos <= OP_UN_CAST_BOOLEAN)) {
-                        ScriptError("Targetname '%s' does not exist.", value.c_str());
+                        ScriptError("Targetname '%s' does not exist.", m_VMStack.GetTop().stringValue().c_str());
                     }
-
-                    break;
-                }
-
-                if (targetList->NumObjects() == 1) {
+                } else if (targetList->NumObjects() == 1) {
+                    // single listener
                     m_VMStack.GetTop().setListenerValue(targetList->ObjectAt(1));
                 } else if (targetList->NumObjects() > 1) {
+                    // multiple listeners
                     m_VMStack.GetTop().setContainerValue((Container<SafePtr<Listener>> *)targetList);
-                } else {
-                    value = m_VMStack.GetTop().stringValue();
-
-                    m_VMStack.GetTop().setListenerValue(NULL);
-
-                    if ((*m_CodePos >= OP_BIN_EQUALITY && *m_CodePos <= OP_BIN_GREATER_THAN_OR_EQUAL)
-                        || (*m_CodePos >= OP_BOOL_UN_NOT && *m_CodePos <= OP_UN_CAST_BOOLEAN)) {
-                        ScriptError("Targetname '%s' does not exist.", value.c_str());
-                    }
-
-                    break;
                 }
-
                 break;
 
             case OP_VAR_UN_NOT:
