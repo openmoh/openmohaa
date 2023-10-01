@@ -4200,6 +4200,8 @@ void Vehicle::MoveVehicle(void)
         vecDelta[2] = 0;
 
         for (i = 0; i < 3 && bDoPush; i++) {
+            bool bContinue = false;
+
             if (fSpeed > 0.0f) {
                 gp = m_sMoveGrid->GetGridPoint(2, i, 0);
             } else {
@@ -4300,6 +4302,7 @@ void Vehicle::MoveVehicle(void)
                 );
 
                 if (tr.fraction == 1.0f && !tr.allsolid && !tr.startsolid) {
+                    bContinue = true;
                     break;
                 }
 
@@ -4354,6 +4357,10 @@ void Vehicle::MoveVehicle(void)
                         tr.ent->entity->TargetName().c_str()
                     );
                 }
+            }
+
+            if (bContinue) {
+                continue;
             }
 
             if (flMoveFrac > tr.fraction) {
