@@ -115,9 +115,9 @@ public:
     friend int     operator!=(const Vector    &a, vec3_t b);
     int            FuzzyEqual(const Vector           &b, const float epsilon) const;
     int            FuzzyEqual(vec3_t b, const float epsilon) const;
-    const Vector & CrossProduct(const Vector &a, const Vector &b);
-    const Vector & CrossProduct(vec3_t a, const Vector &b);
-    const Vector & CrossProduct(const Vector &a, vec3_t b);
+    const Vector & CrossProduct(const Vector a, const Vector b);
+    const Vector & CrossProduct(vec3_t a, const Vector b);
+    const Vector & CrossProduct(const Vector a, vec3_t b);
     float          length(void) const;
     float          lengthfast(void) const;
     float          lengthSquared(void) const;
@@ -468,7 +468,7 @@ inline int operator!=(const Vector& a, vec3_t b)
     return ((a.x != b[0]) || (a.y != b[1]) || (a.z != b[2]));
 }
 
-inline const Vector& Vector::CrossProduct(const Vector& a, const Vector& b)
+inline const Vector& Vector::CrossProduct(const Vector a, const Vector b)
 {
     x = (a.y * b.z) - (a.z * b.y);
     y = (a.z * b.x) - (a.x * b.z);
@@ -477,7 +477,7 @@ inline const Vector& Vector::CrossProduct(const Vector& a, const Vector& b)
     return *this;
 }
 
-inline const Vector& Vector::CrossProduct(vec3_t a, const Vector& b)
+inline const Vector& Vector::CrossProduct(vec3_t a, const Vector b)
 {
     x = (a[1] * b.z) - (a[2] * b.y);
     y = (a[2] * b.x) - (a[0] * b.z);
@@ -486,7 +486,7 @@ inline const Vector& Vector::CrossProduct(vec3_t a, const Vector& b)
     return *this;
 }
 
-inline const Vector& Vector::CrossProduct(const Vector& a, vec3_t b)
+inline const Vector& Vector::CrossProduct(const Vector a, vec3_t b)
 {
     x = (a.y * b[2]) - (a.z * b[1]);
     y = (a.z * b[0]) - (a.x * b[2]);
