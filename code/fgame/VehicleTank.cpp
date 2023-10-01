@@ -490,6 +490,17 @@ void VehicleTank::AttachDriverSlot(Event *ev)
 {
     Vehicle::AttachDriverSlot(ev);
 
+    if (!driver.ent) {
+        //
+        // Added in OPM.
+        // original mohaa doesn't check if driver.ent is valid, which can cause crash if the attached entity is null.
+        // on single-player, it would crash while loading m5l2a when sv_maxclients is above 1.
+        // The reason of the crash is that attachdriverslot is called with $player which can be NULL on prespawn.
+        // $player is not created on prespawn when sv_maxclients is above 1
+        //
+        return;
+    }
+
     VehicleTurretGun *vtg = (VehicleTurretGun *)Turrets[0].ent.Pointer();
 
     if (vtg && vtg->IsSubclassOfVehicleTurretGun() && driver.ent->IsSubclassOfSentient()) {
