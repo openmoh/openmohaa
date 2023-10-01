@@ -680,6 +680,7 @@ movement on the server game.
 #define MASK_VEHICLE                                                                                                 \
     (CONTENTS_SOLID | CONTENTS_BBOX | CONTENTS_NOBOTCLIP | CONTENTS_UNKNOWN2 | CONTENTS_FENCE | CONTENTS_VEHICLECLIP \
      | CONTENTS_BODY | CONTENTS_TRIGGER)
+#define MASK_VEHICLE_TIRES (CONTENTS_SOLID | CONTENTS_BBOX | CONTENTS_FENCE | CONTENTS_VEHICLECLIP | CONTENTS_TRIGGER)
 #define MASK_CLICK \
     (CONTENTS_SOLID | CONTENTS_BODY | CONTENTS_UNKNOWN3 | CONTENTS_UNKNOWN2 | CONTENTS_NOBOTCLIP | CONTENTS_BBOX)
 #define MASK_CANSEE                                                                                                 \
