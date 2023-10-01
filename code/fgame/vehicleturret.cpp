@@ -506,7 +506,7 @@ void VehicleTurretGun::TurretUsed(Event *ev)
     TurretUsed(pEnt);
 }
 
-void VehicleTurretGun::SetBaseOrientation(float (*borientation)[3], float *bangles)
+void VehicleTurretGun::SetBaseOrientation(const vec3_t borientation[3], const vec3_t bangles)
 {
     m_bBOIsSet = true;
 
@@ -953,7 +953,7 @@ void VehicleTurretGun::TurretHasBeenMounted()
 void VehicleTurretGun::PlaceTurret(Event *ev)
 {
     setSolidType(SOLID_BBOX);
-    edict->r.contents = CONTENTS_UNKNOWN2;
+    setContents(CONTENTS_UNKNOWN2);
     setMoveType(MOVETYPE_NONE);
     showModel();
     groundentity = NULL;
@@ -969,15 +969,13 @@ void VehicleTurretGun::PlaceTurret(Event *ev)
 
     m_iPitchBone = gi.Tag_NumForName(edict->tiki, "pitch");
     SetControllerTag(0, m_iPitchBone);
-    m_iBarrelTag = gi.Tag_NumForName(edict->tiki, "tag_barrel");
+    m_iBarrelTag = gi.Tag_NumForName(edict->tiki, GetTagBarrel());
     m_iEyeBone   = gi.Tag_NumForName(edict->tiki, "eyebone");
 
-    if (m_pRemoteOwner || owner) {
-        if (m_pRemoteOwner) {
-            UpdateOwner(m_pRemoteOwner);
-        } else {
-            UpdateOwner(owner);
-        }
+    if (m_pRemoteOwner) {
+        UpdateOwner(m_pRemoteOwner);
+    } else if (owner) {
+        UpdateOwner(owner);
     }
 }
 

@@ -88,7 +88,7 @@ public:
     void Think(void) override;
     void P_UserAim(usercmd_t *ucmd) override;
 
-    void         SetBaseOrientation(float (*borientation)[3], float *bangles);
+    void         SetBaseOrientation(const vec3_t borientation[3], const vec3_t bangles);
     void         SetBaseEntity(Entity *e);
     void         SetVehicleOwner(Entity *e);
     void         SetRemoteOwner(Sentient *e);
