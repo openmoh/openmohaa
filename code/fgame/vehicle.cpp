@@ -4551,7 +4551,7 @@ void Vehicle::Postthink(void)
     Vector        n_angles;
     orientation_t orient;
 
-    if (!g_vehicle->integer && (edict->s.renderfx & RF_DONTDRAW)) {
+    if (!g_vehicle->integer || (edict->s.renderfx & RF_DONTDRAW)) {
         return;
     }
 
