@@ -232,10 +232,32 @@ static void SV_Map_f( void ) {
 
 	Cvar_SaveGameRestart_f();
 
+    //
+    // in 2.0 and above, ignore training / mohaa mission maps
+    //
+	// FIXME: is this really necessary?
+	/*
+	if (com_target_game->integer != TG_MOH && g_gametype->integer == GT_SINGLE_PLAYER) {
+		if (mapname[0] == 'm' && mapname[1] - '1' <= 5) {
+			return;
+		}
+
+		if (!Q_stricmp(mapname, "training")) {
+			return;
+		} else if (!Q_stricmp(mapname, "training.bsp")) {
+			return;
+		} else if (!Q_stricmp(mapname, "void")) {
+			return;
+		} else if (!Q_stricmp(mapname, "void.bsp")) {
+			return;
+		}
+	}
+	*/
+
 	// start up the map
 	SV_SpawnServer( mapname, qfalse, qfalse, qfalse );
 
-	if( !g_gametype->integer ) {
+	if( g_gametype->integer == GT_SINGLE_PLAYER ) {
 		svs.autosave = qtrue;
 	}
 }
