@@ -1988,27 +1988,28 @@ const char *Entity::getModel() const
 
 void Entity::setModel(const str& mdl)
 {
-    if (strcmp(mdl, "")) {
-        if (*mdl == '*') {
-            model = mdl;
+    int animnum;
+    int i;
 
-            gi.SetBrushModel(edict, mdl);
-            if ((edict->solid == SOLID_BSP) && !edict->s.modelindex) {
-                const char *name;
+    if (mdl != "" && mdl[0] == '*') {
+        model = mdl;
 
-                name = getClassID();
-                if (!name) {
-                    name = getClassname();
-                }
-                gi.DPrintf("%s with SOLID_BSP and no model - '%s'(%d)\n", name, targetname.c_str(), entnum);
+        gi.SetBrushModel(edict, mdl);
+        if ((edict->solid == SOLID_BSP) && !edict->s.modelindex) {
+            const char* name;
 
-                // Make it non-solid so that the collision code doesn't kick us out.
-                setSolidType(SOLID_NOT);
+            name = getClassID();
+            if (!name) {
+                name = getClassname();
             }
+            gi.DPrintf("%s with SOLID_BSP and no model - '%s'(%d)\n", name, targetname.c_str(), entnum);
 
-            SetSize();
-            return;
+            // Make it non-solid so that the collision code doesn't kick us out.
+            setSolidType(SOLID_NOT);
         }
+
+        SetSize();
+        return;
     }
 
     model = CanonicalTikiName(mdl);
@@ -2021,38 +2022,28 @@ void Entity::setModel(const str& mdl)
     mins = vec_zero;
     maxs = vec_zero;
 
-    for (int i = 0; i < MAX_FRAMEINFOS; i++) {
-        edict->s.frameInfo[i].index  = 0;
-        edict->s.frameInfo[i].time   = 0;
-        edict->s.frameInfo[i].weight = 0;
+    // make sure to clear all frame infos when switching models
+    // so the entity doesn't end up with 'broken' animations
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
+        ClearAnimSlot(i);
     }
 
-    if (!strcmp(mdl, "")) {
-        mins = edict->r.mins;
-        maxs = edict->r.maxs;
-
-        size            = maxs - mins;
-        edict->r.radius = size.length() * 0.5f;
-        edict->radius2  = edict->r.radius * edict->r.radius;
+    if (mdl == "") {
+        SetSize();
         return;
     }
 
-    edict->s.frameInfo[0].index = gi.Anim_NumForName(edict->tiki, "idle");
-    if (edict->s.frameInfo[0].index < 0) {
-        edict->s.frameInfo[0].index = 0;
+    // search for the default idle animation
+    animnum = gi.Anim_NumForName(edict->tiki, "idle");
+    if (animnum < 0) {
+        animnum = 0;
     }
 
-    edict->s.frameInfo[0].weight = 1.0f;
-    edict->s.frameInfo[0].time   = 0;
-
+    // play the default idle animation
+    StartAnimSlot(0, animnum, 1);
+    // process all TIKI init commands
     ProcessInitCommands();
-
-    mins = edict->r.mins;
-    maxs = edict->r.maxs;
-
-    size            = maxs - mins;
-    edict->r.radius = size.length() * 0.5f;
-    edict->radius2  = edict->r.radius * edict->r.radius;
+    SetSize();
 
     if (edict->tiki && !mins.length() && !maxs.length()) {
         vec3_t tempmins, tempmaxs;
@@ -2098,7 +2089,7 @@ void Entity::ProcessInitCommands(void)
         int    i, j;
         Event *event;
         for (i = 0; i < a->num_server_initcmds; i++) {
-            event = new Event(a->server_initcmds[i].args[0]);
+            event = new Event(a->server_initcmds[i].args[0], a->server_initcmds[i].num_args);
 
             for (j = 1; j < a->server_initcmds[i].num_args; j++) {
                 event->AddToken(a->server_initcmds[i].args[j]);
