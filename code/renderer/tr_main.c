@@ -977,6 +977,11 @@ qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int 
 	int i;
 	unsigned int pointOr = 0;
 	unsigned int pointAnd = (unsigned int)~0;
+
+	if (surface->surfaceType != SF_FACE) {
+		ri.Printf(PRINT_WARNING, "WARNING: SurfIsOffscreen called on non-bmodel!\n");
+		return qfalse;
+	}
 	
 	if ( glConfig.smpActive ) {		// FIXME!  we can't do RB_BeginSurface/RB_EndSurface stuff with smp!
 		return qfalse;
@@ -987,8 +992,6 @@ qboolean SurfIsOffscreen(const srfSurfaceFace_t* surface, shader_t* shader, int 
 	} else {
 		R_RotateForEntity(&tr.refdef.entities[entityNum], &tr.viewParms, &surfOr);
 	}
-
-	assert( tess.numVertexes < 128 );
 
 	for ( i = 0; i < tess.numVertexes; i++ )
 	{
