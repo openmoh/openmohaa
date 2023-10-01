@@ -1760,7 +1760,7 @@ void Weapon::Shoot(Event *ev)
         }
     }
 
-    if (owner->IsSubclassOfSentient() && owner->m_bOvercookDied) {
+    if (owner && owner->IsSubclassOfSentient() && owner->m_bOvercookDied) {
         owner->m_bOvercookDied = false;
         return;
     }
@@ -2114,7 +2114,7 @@ int Weapon::AmmoAvailable(firemode_t mode)
 qboolean Weapon::UnlimitedAmmo(firemode_t mode)
 {
     if (!owner) {
-        return false;
+        return true;
     }
 
     if (!owner->isClient() || DM_FLAG(DF_INFINITE_AMMO)) {
