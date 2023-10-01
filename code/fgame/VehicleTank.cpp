@@ -189,7 +189,7 @@ void VehicleTank::Postthink()
 
     currentspeed = moveimpulse;
     turnangle    = turnangle * 0.25 + turnimpulse;
-    Q_clamp_float(turnangle, -maxturnrate, maxturnrate);
+    turnangle    = Q_clamp_float(turnangle, -maxturnrate, maxturnrate);
 
     real_velocity     = origin - prev_origin;
     prev_origin       = origin;
