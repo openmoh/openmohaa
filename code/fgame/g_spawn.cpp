@@ -29,49 +29,45 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/tiki.h"
 
 #ifdef GAME_DLL
-#include "../fgame/entity.h"
-#include "../fgame/actor.h"
+#    include "../fgame/entity.h"
+#    include "../fgame/actor.h"
 #endif
 
-#if defined ( GAME_DLL )
-#define scriptcheck g_scriptcheck
-#elif defined( CGAME_DLL )
-#define scriptcheck cg_scriptcheck
+#if defined(GAME_DLL)
+#    define scriptcheck g_scriptcheck
+#elif defined(CGAME_DLL)
+#    define scriptcheck cg_scriptcheck
 #else
-#define scriptcheck g_scriptcheck
+#    define scriptcheck g_scriptcheck
 #endif
 
 extern Event EV_Entity_Start;
-CLASS_DECLARATION( Class, SpawnArgs, NULL )
-{
-	{ NULL, NULL }
+CLASS_DECLARATION(Class, SpawnArgs, NULL) {
+    {NULL, NULL}
 };
 
-Container< SafePtr< Listener > > g_spawnlist;
+Container<SafePtr<Listener>> g_spawnlist;
 
-SpawnArgs::SpawnArgs()
+SpawnArgs::SpawnArgs() {}
+
+SpawnArgs::SpawnArgs(SpawnArgs& otherlist)
 {
+    int num;
+    int i;
+
+    num = otherlist.NumArgs();
+    keyList.Resize(num);
+    valueList.Resize(num);
+    for (i = 1; i <= num; i++) {
+        keyList.AddObject(otherlist.keyList.ObjectAt(i));
+        valueList.AddObject(otherlist.valueList.ObjectAt(i));
+    }
 }
 
-SpawnArgs::SpawnArgs( SpawnArgs &otherlist )
+void SpawnArgs::Clear(void)
 {
-	int num;
-	int i;
-	
-	num = otherlist.NumArgs();
-	keyList.Resize( num );
-	valueList.Resize( num );
-	for( i = 1; i <= num; i++ )
-	{
-		keyList.AddObject( otherlist.keyList.ObjectAt( i ) );
-		valueList.AddObject( otherlist.valueList.ObjectAt( i ) );
-	}
-}
-
-void SpawnArgs::Clear( void )
-{
-	keyList.FreeObjectList();
-	valueList.FreeObjectList();
+    keyList.FreeObjectList();
+    valueList.FreeObjectList();
 }
 
 /*
@@ -82,142 +78,129 @@ Parses spawnflags out of the given string, returning the new position.
 Clears out any previous args.
 ====================
 */
-char *SpawnArgs::Parse( char *data, bool bAllowUtils )
+char *SpawnArgs::Parse(char *data, bool bAllowUtils)
 {
-	str         keyname;
-	const char	*com_token;
-	
-	Clear();
-	
-	// parse the opening brace
-	com_token = COM_Parse( &data );
-	if ( !data )
-	{
-		return NULL;
-	}
-	
-	if ( com_token[ 0 ] != '{' )
-	{
-		glbs.Error( ERR_DROP, "SpawnArgs::Parse : found %s when expecting {", com_token );
-	}
-	
-	// go through all the dictionary pairs
-	while( 1 )
-	{
-		// parse key
-		com_token = COM_Parse( &data );
-		if ( com_token[ 0 ] == '}' )
-		{
-			break;
-		}
-		
-		if ( !data )
-		{
-			glbs.Error( ERR_DROP, "SpawnArgs::Parse : EOF without closing brace" );
-		}
-		
-		keyname = com_token;
-		
-		// parse value
-		com_token = COM_Parse( &data );
-		if ( !data )
-		{
-			glbs.Error( ERR_DROP, "SpawnArgs::Parse : EOF without closing brace" );
-		}
-		
-		if ( com_token[ 0 ] == '}' )
-		{
-			glbs.Error( ERR_DROP, "SpawnArgs::Parse : closing brace without data" );
-		}
-		
-		// keynames with a leading underscore are used for utility comments,
-		// and are immediately discarded by the game
-		if ( !bAllowUtils && keyname[ 0 ] == '_' )
-		{
-			continue;
-		}
-		
-		setArg( keyname.c_str(), com_token );
-	}
-	
-	return data;
+    str         keyname;
+    const char *com_token;
+
+    Clear();
+
+    // parse the opening brace
+    com_token = COM_Parse(&data);
+    if (!data) {
+        return NULL;
+    }
+
+    if (com_token[0] != '{') {
+        glbs.Error(ERR_DROP, "SpawnArgs::Parse : found %s when expecting {", com_token);
+    }
+
+    // go through all the dictionary pairs
+    while (1) {
+        // parse key
+        com_token = COM_Parse(&data);
+        if (com_token[0] == '}') {
+            break;
+        }
+
+        if (!data) {
+            glbs.Error(ERR_DROP, "SpawnArgs::Parse : EOF without closing brace");
+        }
+
+        keyname = com_token;
+
+        // parse value
+        com_token = COM_Parse(&data);
+        if (!data) {
+            glbs.Error(ERR_DROP, "SpawnArgs::Parse : EOF without closing brace");
+        }
+
+        if (com_token[0] == '}') {
+            glbs.Error(ERR_DROP, "SpawnArgs::Parse : closing brace without data");
+        }
+
+        // keynames with a leading underscore are used for utility comments,
+        // and are immediately discarded by the game
+        if (!bAllowUtils && keyname[0] == '_') {
+            continue;
+        }
+
+        setArg(keyname.c_str(), com_token);
+    }
+
+    return data;
 }
 
-const char *SpawnArgs::getArg( const char *key, const char *defaultValue )
+const char *SpawnArgs::getArg(const char *key, const char *defaultValue)
 {
-	int i;
-	int num;
-	
-	num = keyList.NumObjects();
-	for( i = 1; i <= num; i++ )
-	{
-		if ( keyList.ObjectAt( i ) == key )
-		{
-			return valueList.ObjectAt( i );
-		}
-	}
-	
-	return defaultValue;
+    int i;
+    int num;
+
+    num = keyList.NumObjects();
+    for (i = 1; i <= num; i++) {
+        if (keyList.ObjectAt(i) == key) {
+            return valueList.ObjectAt(i);
+        }
+    }
+
+    return defaultValue;
 }
 
-void SpawnArgs::setArg( const char *key, const char *value )
+void SpawnArgs::setArg(const char *key, const char *value)
 {
-	int i;
-	int num;
-	
-	num = keyList.NumObjects();
-	for( i = 1; i <= num; i++ )
-	{
-		if ( keyList.ObjectAt( i ) == key )
-		{
-			valueList.ObjectAt( i ) = value;
-			return;
-		}
-	}
-	
-	keyList.AddObject( str( key ) );
-	valueList.AddObject( str( value ) );
+    int i;
+    int num;
+
+    num = keyList.NumObjects();
+    for (i = 1; i <= num; i++) {
+        if (keyList.ObjectAt(i) == key) {
+            valueList.ObjectAt(i) = value;
+            return;
+        }
+    }
+
+    keyList.AddObject(str(key));
+    valueList.AddObject(str(value));
 }
 
-void SpawnArgs::operator=( SpawnArgs &otherlist )
+void SpawnArgs::operator=(SpawnArgs& otherlist)
 {
-	int num;
-	int i;
-	
-	Clear();
-	
-	num = otherlist.NumArgs();
-	keyList.Resize( num );
-	valueList.Resize( num );
-	
-	for( i = 1; i <= num; i++ )
-	{
-		keyList.AddObject( otherlist.keyList.ObjectAt( i ) );
-		valueList.AddObject( otherlist.valueList.ObjectAt( i ) );
-	}
+    int num;
+    int i;
+
+    Clear();
+
+    num = otherlist.NumArgs();
+    keyList.Resize(num);
+    valueList.Resize(num);
+
+    for (i = 1; i <= num; i++) {
+        keyList.AddObject(otherlist.keyList.ObjectAt(i));
+        valueList.AddObject(otherlist.valueList.ObjectAt(i));
+    }
 }
 
-int SpawnArgs::NumArgs( void )
+int SpawnArgs::NumArgs(void)
 {
-	return keyList.NumObjects();
+    return keyList.NumObjects();
 }
 
-const char *SpawnArgs::getKey( int index )
+const char *SpawnArgs::getKey(int index)
 {
-	return keyList.ObjectAt( index + 1 );
+    return keyList.ObjectAt(index + 1);
 }
 
-const char *SpawnArgs::getValue( int index )
+const char *SpawnArgs::getValue(int index)
 {
-	return valueList.ObjectAt( index + 1 );
+    return valueList.ObjectAt(index + 1);
 }
 
-void SpawnArgs::Archive( Archiver &arc )
+void SpawnArgs::Archive(Archiver& arc)
 {
-	Class::Archive( arc );
-	
-	//keyList.Archive( arc );
-	//valueList.Archive( arc );
+    Class::Archive(arc);
+
+    //keyList.Archive( arc );
+    //valueList.Archive( arc );
 }
 
 /*
@@ -228,144 +211,131 @@ Finds the spawn function for the entity and returns ClassDef *
 ===============
 */
 
-ClassDef *SpawnArgs::getClassDef( qboolean *tikiWasStatic )
+ClassDef *SpawnArgs::getClassDef(qboolean *tikiWasStatic)
 {
-#if defined ( GAME_DLL )
-	const char	*classname;
-	ClassDef	*cls = NULL;
-	dtiki_t		*tiki = NULL;
-	dtikianim_t	*a = NULL;
-	
-	classname = getArg( "classname" );
-	
-	if ( tikiWasStatic )
-	{
-		*tikiWasStatic = false;
-	}
-	
-	//
-	// check normal spawn functions
-	// see if the class name is stored within the model
-	//
-	if ( classname )
-	{
-		//
-		// explicitly inhibit lights
-		//
-		if ( !Q_stricmp( classname, "light" ) )
-		{
-			//
-			// HACK HACK HACK
-			// hack to suppress a warning message
-			//
-			if ( tikiWasStatic )
-            {
-				*tikiWasStatic = true;
+#if defined(GAME_DLL)
+    const char  *classname;
+    ClassDef    *cls  = NULL;
+    dtiki_t     *tiki = NULL;
+    dtikianim_t *a    = NULL;
+
+    classname = getArg("classname");
+
+    if (tikiWasStatic) {
+        *tikiWasStatic = false;
+    }
+
+    //
+    // check normal spawn functions
+    // see if the class name is stored within the model
+    //
+    if (classname) {
+        //
+        // explicitly inhibit lights
+        //
+        if (!Q_stricmp(classname, "light")) {
+            //
+            // HACK HACK HACK
+            // hack to suppress a warning message
+            //
+            if (tikiWasStatic) {
+                *tikiWasStatic = true;
             }
-			return NULL;
-		}
-		
-		cls = getClassForID( classname );
-		if ( !cls )
-		{
-			cls = getClass( classname );
-		}
-	}
-	
-	if ( !cls )
-	{
-		const char *model;
-		
-		//
-		// get Object in case we cannot find an alternative
-		//
-		cls = &Object::ClassInfo;
-		model = getArg( "model" );
-		if ( model )
-		{
-			int i;
+            return NULL;
+        }
 
-			model = CanonicalTikiName( model );
-			tiki = gi.modeltiki( model );
+        cls = getClassForID(classname);
+        if (!cls) {
+            cls = getClass(classname);
+        }
+    }
 
-			//
-			// get handle to def file
-			//
-			if ( tiki )
-            {
-				const char * s;
-				
-				s = getArg( "make_static" );
+    if (!cls) {
+        const char *model;
 
-				if ( s && atoi( s ) )
-				{
-					//
-					// if make_static then we don't want to spawn
-					//
-					if ( tikiWasStatic )
-					{
-						*tikiWasStatic = true;
-					}
-					
-					return NULL;
-				}
+        //
+        // get Object in case we cannot find an alternative
+        //
+        cls   = &Object::ClassInfo;
+        model = getArg("model");
+        if (model) {
+            int i;
 
-				a = tiki->a;
-				
-				if( a->num_server_initcmds )
-				{
-					for( i = 0; i < a->num_server_initcmds; i++ )
-					{
-						if( !Q_stricmp( a->server_initcmds[ i ].args[ 0 ], "classname" ) )
-						{
-							cls = getClass( a->server_initcmds[ i ].args[ 1 ] );
-							break;
-						}
-					}
+            model = CanonicalTikiName(model);
+            tiki  = gi.modeltiki(model);
 
-					if( i == a->num_server_initcmds )
-					{
-						glbs.DPrintf( "Classname %s used, but 'classname' was not found in Initialization commands, using Object.\n", classname );
-					}
-				}
-				else
-					glbs.DPrintf( "Classname %s used, but TIKI had no Initialization commands, using Object.\n", classname );
+            //
+            // get handle to def file
+            //
+            if (tiki) {
+                const char *s;
+
+                s = getArg("make_static");
+
+                if (s && atoi(s)) {
+                    //
+                    // if make_static then we don't want to spawn
+                    //
+                    if (tikiWasStatic) {
+                        *tikiWasStatic = true;
+                    }
+
+                    return NULL;
+                }
+
+                a = tiki->a;
+
+                if (a->num_server_initcmds) {
+                    for (i = 0; i < a->num_server_initcmds; i++) {
+                        if (!Q_stricmp(a->server_initcmds[i].args[0], "classname")) {
+                            cls = getClass(a->server_initcmds[i].args[1]);
+                            break;
+                        }
+                    }
+
+                    if (i == a->num_server_initcmds) {
+                        glbs.DPrintf(
+                            "Classname %s used, but 'classname' was not found in Initialization commands, using "
+                            "Object.\n",
+                            classname
+                        );
+                    }
+                } else {
+                    glbs.DPrintf(
+                        "Classname %s used, but TIKI had no Initialization commands, using Object.\n", classname
+                    );
+                }
+            } else {
+                glbs.DPrintf("Classname %s used, but model was not a TIKI, using Object.\n", classname);
             }
-			else
-				glbs.DPrintf( "Classname %s used, but model was not a TIKI, using Object.\n", classname );
-		}
-		else
-		{
-			glbs.DPrintf( "Classname %s' used, but no model was set, using Object.\n", classname );
-		}
-	}
-	
-	return cls;
+        } else {
+            glbs.DPrintf("Classname %s' used, but no model was set, using Object.\n", classname);
+        }
+    }
+
+    return cls;
 #else
-	const char	*classname;
-	ClassDef	*cls = NULL;
-	
-	classname = getArg( "classname" );
-	
-	if ( tikiWasStatic )
-	{
-		*tikiWasStatic = false;
-	}
-	
-	//
-	// check normal spawn functions
-	// see if the class name is stored within the model
-	//
-	if ( classname )
-	{
-		cls = getClassForID( classname );
-		if ( !cls )
-		{
-			cls = getClass( classname );
-		}
-	}
+    const char *classname;
+    ClassDef   *cls = NULL;
 
-	return cls;
+    classname = getArg("classname");
+
+    if (tikiWasStatic) {
+        *tikiWasStatic = false;
+    }
+
+    //
+    // check normal spawn functions
+    // see if the class name is stored within the model
+    //
+    if (classname) {
+        cls = getClassForID(classname);
+        if (!cls) {
+            cls = getClass(classname);
+        }
+    }
+
+    return cls;
 #endif
 }
 
@@ -378,314 +348,264 @@ Returns pointer to Entity
 ===============
 */
 
-Listener *SpawnArgs::Spawn( void )
+Listener *SpawnArgs::Spawn(void)
 {
-	Listener *ent = ( Listener * )SpawnInternal();
+    Listener *ent = (Listener *)SpawnInternal();
 
-	if( ent )
-	{
-		ent->ProcessPendingEvents();
-		ent->ProcessEvent(EV_Entity_Start);
-	}
+    if (ent) {
+        ent->ProcessPendingEvents();
+        ent->ProcessEvent(EV_Entity_Start);
+    }
 
-	return ent;
+    return ent;
 }
 
-Listener *SpawnArgs::SpawnInternal( void )
+Listener *SpawnArgs::SpawnInternal(void)
 {
-	str				classname;
-	ClassDef		*cls;
-	Listener		*obj;
-	Event			*ev;
-	int				i;
-	qboolean		tikiWasStatic; // used to determine if entity was intentionally suppressed
-	const char		*key, *value;
-	str				keyname;
+    str         classname;
+    ClassDef   *cls;
+    Listener   *obj;
+    Event      *ev;
+    int         i;
+    qboolean    tikiWasStatic; // used to determine if entity was intentionally suppressed
+    const char *key, *value;
+    str         keyname;
 #ifdef WITH_SCRIPT_ENGINE
-	unsigned int	eventnum;
-	EventDef		*def;
-	ScriptVariable	*var;
-	ScriptVariableList *varList;
+    unsigned int        eventnum;
+    EventDef           *def;
+    ScriptVariable     *var;
+    ScriptVariableList *varList;
 #endif
 
-#if defined ( GAME_DLL )
+#if defined(GAME_DLL)
 
-	if( !g_spawnentities->integer )
-	{
-		value = getArg( "classname", NULL );
+    if (!g_spawnentities->integer) {
+        value = getArg("classname", NULL);
 
-		// only spawn a playerstart or the world
-		if( value )
-		{
-			if( ( Q_stricmp( value, "info_player_start" ) && Q_stricmp( value, "worldspawn" ) ) )
-			{
-				Com_Printf( "%s\n", value );
-				return NULL;
-			}
-		}
-	}
-
-	if( !g_spawnai->integer )
-	{
-		value = getArg( "classname", NULL );
-
-		//dont spawn ai_* if g_spawnai is 0
-		if( value )
-		{
-			if( !Q_stricmpn( value, "ai_", 3 ) )
-			{
-				Com_Printf( "%s\n", value );
-				return NULL;
-			}
-		}
-	}
-
-#endif
-	
-	classname = getArg( "classname", "Unspecified" );
-	cls = getClassDef( &tikiWasStatic );
-
-	if ( !cls )
-	{
-		if ( !tikiWasStatic )
-		{
-			glbs.DPrintf( "%s doesn't have a spawn function\n", classname.c_str() );
-
-			if( scriptcheck->integer ) {
-				glbs.Error( ERR_DROP, "Script check failed" );
-			}
-		}
-		
-		return NULL;
-	}
-	
-	obj = ( Listener * )cls->newInstance();
-
-	for( int i = g_spawnlist.NumObjects(); i > 0; i-- )
-	{
-		if( g_spawnlist.ObjectAt( i ) == NULL )
-		{
-			g_spawnlist.RemoveObjectAt( i );
-		}
-	}
-
-	g_spawnlist.AddObject( obj );
-
-	// post spawnarg events
-	for( i = 0; i < NumArgs(); i++ )
-	{
-		key = getKey( i );
-		value = getValue( i );
-
-		if( *key == '#' )
-		{
-			// don't count the prefix
-			keyname = ( key + 1 );
-
-#ifdef WITH_SCRIPT_ENGINE
-			// initialize the object vars
-			varList = obj->Vars();
-
-			var = varList->GetVariable( keyname );
-			if( var )
-			{
-				Com_Printf(
-					"^~^~^ variable '%s' already set with string value '%s' - failed to attempt to set with numeric value '%s'\n",
-					keyname.c_str(),
-					var->stringValue().c_str(),
-					value );
-
-				continue;
-			}
-
-			eventnum = Event::FindSetterEventNum( keyname );
-
-			if( !eventnum || !( def = cls->GetDef( eventnum ) ) )
-			{
-				if( strchr( keyname.c_str(), '.' ) )
-				{
-					// it's a float
-					varList->SetVariable( keyname, ( float )atof( value ) );
-				}
-				else
-				{
-					varList->SetVariable( keyname, atoi( value ) );
-				}
-			}
-			else if( def->type != EV_SETTER )
-			{
-				Com_Printf( "^~^~^ Cannot set a read-only variable '%s'\n", keyname.c_str() );
-			}
-			else
-			{
-				ev = new Event( keyname, EV_SETTER );
-
-				if( strchr( keyname.c_str(), '.' ) )
-				{
-					ev->AddFloat( atof( value ) );
-				}
-				else
-				{
-					ev->AddInteger( atoi( value ) );
-				}
-
-				obj->PostEvent( ev, EV_SPAWNARG );
-			}
-#endif
-		}
-		else if( *key == '$' )
-		{
-			keyname = ( key + 1 );
-
-#ifdef WITH_SCRIPT_ENGINE
-			varList = obj->Vars();
-
-			var = varList->GetVariable( keyname );
-			if( var )
-			{
-				Com_Printf(
-					"^~^~^ variable '%s' already set with string value '%s' - failed to attempt to set with string value '%s'\n",
-					keyname.c_str(),
-					var->stringValue().c_str(),
-					value );
-
-				continue;
-			}
-
-			eventnum = Event::FindSetterEventNum( keyname );
-
-			if( !eventnum || !( def = cls->GetDef( eventnum ) ) )
-			{
-				varList->SetVariable( keyname, value );
-			}
-			else if( def->type != EV_SETTER )
-			{
-				Com_Printf( "^~^~^ Cannot set a read-only variable '%s'\n", keyname.c_str() );
-			}
-			else
-			{
-				ev = new Event(eventnum);
-				ev->AddString( value );
-
-				obj->PostEvent( ev, EV_SPAWNARG );
-			}
-#endif
-		}
-		// if it is the "script" key, execute the script commands individually
-		else if( !Q_stricmp( key, "script" ) )
-		{
-			char *ptr;
-			char * token;
-			
-			ptr = const_cast< char * >( getValue( i ) );
-			while ( 1 )
-            {
-				token = COM_ParseExt( &ptr, true );
-				if ( !token[ 0 ] )
-					break;
-				if ( strchr( token, ':' ) )
-				{
-					glbs.DPrintf( "Label %s imbedded inside editor script for %s.\n", token, classname.c_str() );
-				}
-				else
-				{
-					ev = new Event( token );
-					while ( 1 )
-					{
-						token = COM_ParseExt( &ptr, false );
-						if ( !token[ 0 ] )
-							break;
-						ev->AddToken( token );
-					}
-					
-					obj->PostEvent( ev, EV_SPAWNARG );
-				}
+        // only spawn a playerstart or the world
+        if (value) {
+            if ((Q_stricmp(value, "info_player_start") && Q_stricmp(value, "worldspawn"))) {
+                Com_Printf("%s\n", value);
+                return NULL;
             }
-		}
-		else
-		{
-			ev = new Event( key );
-			ev->AddToken( value );
-			
-			if( Q_stricmp( key, "model" ) == 0 )
-			{
-#if defined ( GAME_DLL )
-				if( obj->isSubclassOf( SimpleActor ) )
-				{
-					if( Q_stricmpn( value, "human", 5 ) &&
-						Q_stricmpn( value, "models/human", 12 ) &&
-						Q_stricmpn( value, "models//human", 13 ) &&
-						Q_stricmpn( value, "animal", 6 ) &&
-						Q_stricmpn( value, "models/animal", 13 ) )
-					{
-						Com_Printf( "^~^~^ model '%s' cannot be an actor - please fix the .tik file\n", value );
+        }
+    }
 
-						delete obj;
-						return NULL;
-					}
+    if (!g_spawnai->integer) {
+        value = getArg("classname", NULL);
 
-					obj->PostEvent( ev, EV_PRIORITY_SPAWNACTOR );
-				}
-				else
-				{
-					obj->PostEvent( ev, EV_PRIORITY_SPAWNARG );
-				}
-#else
-				obj->PostEvent( ev, EV_PRIORITY_SPAWNARG );
+        //dont spawn ai_* if g_spawnai is 0
+        if (value) {
+            if (!Q_stricmpn(value, "ai_", 3)) {
+                Com_Printf("%s\n", value);
+                return NULL;
+            }
+        }
+    }
+
 #endif
-			}
-			else
-			{
-#if defined ( GAME_DLL )
-				if( obj->isSubclassOf( SimpleActor ) )
-				{
-					obj->PostEvent( ev, EV_SPAWNACTOR );
-				}
-				else
-				{
-					obj->PostEvent( ev, EV_SPAWNARG );
-				}
-#else
-				obj->PostEvent( ev, EV_SPAWNARG );
+
+    classname = getArg("classname", "Unspecified");
+    cls       = getClassDef(&tikiWasStatic);
+
+    if (!cls) {
+        if (!tikiWasStatic) {
+            glbs.DPrintf("%s doesn't have a spawn function\n", classname.c_str());
+
+            if (scriptcheck->integer) {
+                glbs.Error(ERR_DROP, "Script check failed");
+            }
+        }
+
+        return NULL;
+    }
+
+    obj = (Listener *)cls->newInstance();
+
+    for (int i = g_spawnlist.NumObjects(); i > 0; i--) {
+        if (g_spawnlist.ObjectAt(i) == NULL) {
+            g_spawnlist.RemoveObjectAt(i);
+        }
+    }
+
+    g_spawnlist.AddObject(obj);
+
+    // post spawnarg events
+    for (i = 0; i < NumArgs(); i++) {
+        key   = getKey(i);
+        value = getValue(i);
+
+        if (*key == '#') {
+            // don't count the prefix
+            keyname = (key + 1);
+
+#ifdef WITH_SCRIPT_ENGINE
+            // initialize the object vars
+            varList = obj->Vars();
+
+            var = varList->GetVariable(keyname);
+            if (var) {
+                Com_Printf(
+                    "^~^~^ variable '%s' already set with string value '%s' - failed to attempt to set with numeric "
+                    "value '%s'\n",
+                    keyname.c_str(),
+                    var->stringValue().c_str(),
+                    value
+                );
+
+                continue;
+            }
+
+            eventnum = Event::FindSetterEventNum(keyname);
+
+            if (!eventnum || !(def = cls->GetDef(eventnum))) {
+                if (strchr(keyname.c_str(), '.')) {
+                    // it's a float
+                    varList->SetVariable(keyname, (float)atof(value));
+                } else {
+                    varList->SetVariable(keyname, atoi(value));
+                }
+            } else if (def->type != EV_SETTER) {
+                Com_Printf("^~^~^ Cannot set a read-only variable '%s'\n", keyname.c_str());
+            } else {
+                ev = new Event(keyname, EV_SETTER);
+
+                if (strchr(keyname.c_str(), '.')) {
+                    ev->AddFloat(atof(value));
+                } else {
+                    ev->AddInteger(atoi(value));
+                }
+
+                obj->PostEvent(ev, EV_SPAWNARG);
+            }
 #endif
-			}
-		}
-	}
-	
-	if ( !obj )
-	{
-		glbs.DPrintf( "%s failed on newInstance\n", classname.c_str() );
-		return NULL;
-	}
-	
-	return obj;
+        } else if (*key == '$') {
+            keyname = (key + 1);
+
+#ifdef WITH_SCRIPT_ENGINE
+            varList = obj->Vars();
+
+            var = varList->GetVariable(keyname);
+            if (var) {
+                Com_Printf(
+                    "^~^~^ variable '%s' already set with string value '%s' - failed to attempt to set with string "
+                    "value '%s'\n",
+                    keyname.c_str(),
+                    var->stringValue().c_str(),
+                    value
+                );
+
+                continue;
+            }
+
+            eventnum = Event::FindSetterEventNum(keyname);
+
+            if (!eventnum || !(def = cls->GetDef(eventnum))) {
+                varList->SetVariable(keyname, value);
+            } else if (def->type != EV_SETTER) {
+                Com_Printf("^~^~^ Cannot set a read-only variable '%s'\n", keyname.c_str());
+            } else {
+                ev = new Event(eventnum);
+                ev->AddString(value);
+
+                obj->PostEvent(ev, EV_SPAWNARG);
+            }
+#endif
+        }
+        // if it is the "script" key, execute the script commands individually
+        else if (!Q_stricmp(key, "script")) {
+            char *ptr;
+            char *token;
+
+            ptr = const_cast<char *>(getValue(i));
+            while (1) {
+                token = COM_ParseExt(&ptr, true);
+                if (!token[0]) {
+                    break;
+                }
+                if (strchr(token, ':')) {
+                    glbs.DPrintf("Label %s imbedded inside editor script for %s.\n", token, classname.c_str());
+                } else {
+                    ev = new Event(token);
+                    while (1) {
+                        token = COM_ParseExt(&ptr, false);
+                        if (!token[0]) {
+                            break;
+                        }
+                        ev->AddToken(token);
+                    }
+
+                    obj->PostEvent(ev, EV_SPAWNARG);
+                }
+            }
+        } else {
+            ev = new Event(key);
+            ev->AddToken(value);
+
+            if (Q_stricmp(key, "model") == 0) {
+#if defined(GAME_DLL)
+                if (obj->isSubclassOf(SimpleActor)) {
+                    if (Q_stricmpn(value, "human", 5) && Q_stricmpn(value, "models/human", 12)
+                        && Q_stricmpn(value, "models//human", 13) && Q_stricmpn(value, "animal", 6)
+                        && Q_stricmpn(value, "models/animal", 13)) {
+                        Com_Printf("^~^~^ model '%s' cannot be an actor - please fix the .tik file\n", value);
+
+                        delete obj;
+                        return NULL;
+                    }
+
+                    obj->PostEvent(ev, EV_PRIORITY_SPAWNACTOR);
+                } else {
+                    obj->PostEvent(ev, EV_PRIORITY_SPAWNARG);
+                }
+#else
+                obj->PostEvent(ev, EV_PRIORITY_SPAWNARG);
+#endif
+            } else {
+#if defined(GAME_DLL)
+                if (obj->isSubclassOf(SimpleActor)) {
+                    obj->PostEvent(ev, EV_SPAWNACTOR);
+                } else {
+                    obj->PostEvent(ev, EV_SPAWNARG);
+                }
+#else
+                obj->PostEvent(ev, EV_SPAWNARG);
+#endif
+            }
+        }
+    }
+
+    if (!obj) {
+        glbs.DPrintf("%s failed on newInstance\n", classname.c_str());
+        return NULL;
+    }
+
+    return obj;
 }
 
-ClassDef *FindClass( const char *name, qboolean *isModel )
+ClassDef *FindClass(const char *name, qboolean *isModel)
 {
-	ClassDef *cls;
-	
-	*isModel = false;
-	
-	// first lets see if it is a registered class name
-	cls = getClass( name );
-	if ( !cls )
-	{
-		SpawnArgs args;
-		
-		// if that didn't work lets try to resolve it as a model
-		args.setArg( "model", name );
-		
-		cls = args.getClassDef();
-		if ( cls )
-		{
-			*isModel = true;
-		}
-	}
-	return cls;
+    ClassDef *cls;
+
+    *isModel = false;
+
+    // first lets see if it is a registered class name
+    cls = getClass(name);
+    if (!cls) {
+        SpawnArgs args;
+
+        // if that didn't work lets try to resolve it as a model
+        args.setArg("model", name);
+
+        cls = args.getClassDef();
+        if (cls) {
+            *isModel = true;
+        }
+    }
+    return cls;
 }
 
-#if defined ( GAME_DLL )
+#if defined(GAME_DLL)
 
 /*
 ==============
@@ -695,16 +615,16 @@ This is only called when the game first initializes in single player,
 but is called after each death and level change in deathmatch
 ==============
 */
-void G_InitClientPersistant( gclient_t *client )
+void G_InitClientPersistant(gclient_t *client)
 {
-	memset( &client->pers, 0, sizeof( client->pers ) );
+    memset(&client->pers, 0, sizeof(client->pers));
 }
 
 #endif
 
 #if 0
 
-#include "../qcommon/tiki_local.h" // fixme!
+#    include "../qcommon/tiki_local.h" // fixme!
 
 qboolean	G_SpawnString( const char *key, const char *defaultString, char **out ) {
 	int		i;
@@ -868,11 +788,11 @@ void SP_team_CTF_blueplayer( gentity_t *ent );
 void SP_team_CTF_redspawn( gentity_t *ent );
 void SP_team_CTF_bluespawn( gentity_t *ent );
 
-#ifdef MISSIONPACK
+#    ifdef MISSIONPACK
 void SP_team_blueobelisk( gentity_t *ent );
 void SP_team_redobelisk( gentity_t *ent );
 void SP_team_neutralobelisk( gentity_t *ent );
-#endif
+#    endif
 void SP_item_botroam( gentity_t *ent ) { }
 
 spawn_t	spawns[] = {
@@ -940,11 +860,11 @@ spawn_t	spawns[] = {
 	{"info_player_axis", SP_team_CTF_redspawn},
 	{"info_player_allied", SP_team_CTF_bluespawn},
 
-#ifdef MISSIONPACK
+#    ifdef MISSIONPACK
 	{"team_redobelisk", SP_team_redobelisk},
 	{"team_blueobelisk", SP_team_blueobelisk},
 	{"team_neutralobelisk", SP_team_neutralobelisk},
-#endif
+#    endif
 	{"item_botroam", SP_item_botroam},
 
 	{NULL, 0}
@@ -1011,7 +931,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 			}
 			*ptr2 = 0;
 		}
-#if 0
+#    if 0
 		tiki = gi.TIKI_RegisterModel(ent->model);
 		if(!tiki) {
 			tiki = gi.TIKI_RegisterModel(va("models/%s",ent->model));
@@ -1027,7 +947,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 			gi.LinkEntity (ent);
 			return qtrue;
 		}
-#else
+#    else
 		ent->s.modelindex = G_ModelIndex( ( char * )G_FixTIKIPath( ent->model ) );
 		ent->s.eType = ET_MODELANIM;
 		//if(ent->model[0]=='*') {
@@ -1041,7 +961,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 		G_SetOrigin( ent, ent->s.origin );
 		gi.linkentity (ent);
 		return qtrue;
-#endif
+#    endif
 	}
 
 	G_Printf ("%s doesn't have a spawn function\n", ent->classname);
@@ -1183,19 +1103,19 @@ void G_SpawnGEntityFromSpawnVars( void ) {
 		}
 	}
 
-#ifdef MISSIONPACK
+#    ifdef MISSIONPACK
 	G_SpawnInt( "notta", "0", &i );
 	if ( i ) {
 		G_FreeEntity( ent );
 		return;
 	}
-#else
+#    else
 	G_SpawnInt( "notq3a", "0", &i );
 	if ( i ) {
 		G_FreeEntity( ent );
 		return;
 	}
-#endif
+#    endif
 
 	if( G_SpawnString( "gametype", NULL, &value ) ) {
 		if( g_gametype->integer >= GT_FFA && g_gametype->integer < GT_MAX_GAME_TYPE ) {
@@ -1259,7 +1179,7 @@ qboolean G_ParseSpawnVars( void ) {
 	level.numSpawnVars = 0;
 	level.numSpawnVarChars = 0;
 
-#if 0
+#    if 0
 	// parse the opening brace
 	if ( !gi.GetEntityToken( com_token, sizeof( com_token ) ) ) {
 		// end of spawn string
@@ -1295,7 +1215,7 @@ qboolean G_ParseSpawnVars( void ) {
 		level.spawnVars[ level.numSpawnVars ][1] = G_AddSpawnVarToken( com_token );
 		level.numSpawnVars++;
 	}
-#endif
+#    endif
 
 	return qtrue;
 }
