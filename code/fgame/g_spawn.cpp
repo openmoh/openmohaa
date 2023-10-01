@@ -336,6 +336,7 @@ Listener *SpawnArgs::SpawnInternal(void)
     qboolean    tikiWasStatic; // used to determine if entity was intentionally suppressed
     const char *key, *value;
     str         keyname;
+    int         t1, t2;
 #ifdef WITH_SCRIPT_ENGINE
     unsigned int        eventnum;
     EventDef           *def;
@@ -366,6 +367,8 @@ Listener *SpawnArgs::SpawnInternal(void)
             }
         }
     }
+
+    t1 = gi.Milliseconds();
 
     classname = getArg("classname", "Unspecified");
     cls       = getClassDef(&tikiWasStatic);
@@ -532,6 +535,22 @@ Listener *SpawnArgs::SpawnInternal(void)
     if (!obj) {
         glbs.DPrintf("%s failed on newInstance\n", classname.c_str());
         return NULL;
+    }
+
+    t2 = gi.Milliseconds();
+    if (t2 - t2 >= 100) {
+        //
+        // above 100 ms send a message to console
+        //
+        for (i = 0; i < NumArgs(); i++) {
+            key   = getKey(i);
+            value = getValue(i);
+
+            if (!Q_stricmp(key, "classname")) {
+                Com_Printf("spawn '%s': %5.2f seconds\n", value, (t2 - t1) / 1000.f);
+                break;
+            }
+        }
     }
 
     return obj;
