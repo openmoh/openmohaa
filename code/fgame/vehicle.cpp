@@ -2131,7 +2131,7 @@ void Vehicle::AttachPassengerSlot(int slot, Entity *ent, Vector vExitPosition)
 
         Event *event = new Event(EV_Vehicle_Enter);
         event->AddEntity(this);
-        driver.ent->ProcessEvent(event);
+        Passengers[slot].ent->ProcessEvent(event);
 
         offset = ent->origin - origin;
 
@@ -2176,7 +2176,8 @@ void Vehicle::AttachDriverSlot(int slot, Entity *ent, Vector vExitPosition)
 
         flags |= FL_POSTTHINK;
         SetDriverAngles(seatangles + angles);
-    } else if (!isLocked() && ent == d) {
+        DriverAdded();
+    } else if (ent == d && !isLocked()) {
         DetachDriverSlot(slot, vec_zero, NULL);
     }
 }
