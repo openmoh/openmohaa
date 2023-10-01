@@ -1190,9 +1190,9 @@ void Level::SpawnEntities(char *entities, int svsTime)
 void Level::ComputeDMWaypoints()
 {
     qboolean shouldSetDefaultLandmark;
-    float startXDistMin, startXDistMax;
-    float startYDistMin, startYDistMax;
-    int i;
+    float    startXDistMin, startXDistMax;
+    float    startYDistMin, startYDistMax;
+    int      i;
 
     if (g_gametype->integer == GT_SINGLE_PLAYER) {
         m_fLandmarkXDistMax = 1;
@@ -1207,13 +1207,12 @@ void Level::ComputeDMWaypoints()
     //
     // calculate the world bounds from entities
     //
-    if (m_fLandmarkXDistMin == m_fLandmarkXDistMax
-        && m_fLandmarkYDistMin == m_fLandmarkYDistMax
+    if (m_fLandmarkXDistMin == m_fLandmarkXDistMax && m_fLandmarkYDistMin == m_fLandmarkYDistMax
         && m_fLandmarkXDistMax == m_fLandmarkYDistMax) {
         shouldSetDefaultLandmark = qtrue;
 
         for (i = 0; i < game.maxentities; i++) {
-            gentity_t* ent = &g_entities[i];
+            gentity_t *ent = &g_entities[i];
 
             if (ent->entity) {
                 AddLandmarkOrigin(ent->entity->origin);
@@ -1242,48 +1241,54 @@ void Level::ComputeDMWaypoints()
 
 void Level::AddLandmarkOrigin(const Vector& origin)
 {
-    float yaw;
+    float  yaw;
     vec3_t angles;
     vec3_t dir;
-    float dist;
+    float  dist;
 
     yaw = origin.toYaw();
 
     angles[0] = angles[2] = 0;
-    angles[1] = yaw + 90 - world->m_fNorth;
+    angles[1]             = yaw + 90 - world->m_fNorth;
     AngleVectors(angles, dir, NULL, NULL);
 
     dist = origin.lengthXY();
     VectorScale(dir, dist, dir);
 
-    if (m_fLandmarkYDistMax == m_fLandmarkYDistMin
-        && m_fLandmarkXDistMin == m_fLandmarkXDistMax
-        && m_fLandmarkYDistMax == m_fLandmarkXDistMin)
-    {
+    if (m_fLandmarkYDistMax == m_fLandmarkYDistMin && m_fLandmarkXDistMin == m_fLandmarkXDistMax
+        && m_fLandmarkYDistMax == m_fLandmarkXDistMin) {
         m_fLandmarkYDistMin = dir[1];
         m_fLandmarkXDistMax = dir[0];
         m_fLandmarkYDistMax = dir[1] + 1.0;
         m_fLandmarkXDistMin = dir[0] - 1.0;
     } else {
-        if (m_fLandmarkYDistMin > dir[1]) m_fLandmarkYDistMin = dir[1];
-        if (m_fLandmarkYDistMax < dir[1]) m_fLandmarkYDistMax = dir[1];
-        if (m_fLandmarkXDistMax < dir[0]) m_fLandmarkXDistMax = dir[0];
-        if (m_fLandmarkXDistMin > dir[0]) m_fLandmarkXDistMin = dir[0];
+        if (m_fLandmarkYDistMin > dir[1]) {
+            m_fLandmarkYDistMin = dir[1];
+        }
+        if (m_fLandmarkYDistMax < dir[1]) {
+            m_fLandmarkYDistMax = dir[1];
+        }
+        if (m_fLandmarkXDistMax < dir[0]) {
+            m_fLandmarkXDistMax = dir[0];
+        }
+        if (m_fLandmarkXDistMin > dir[0]) {
+            m_fLandmarkXDistMin = dir[0];
+        }
     }
 }
 
 void Level::AddLandmarkName(const str& name, const Vector& origin)
 {
-    landmark_t* landmark;
-    int i;
+    landmark_t *landmark;
+    int         i;
 
     if (m_pLandmarks) {
         if (m_iLandmarksCount == m_iMaxLandmarks) {
             // reallocate the landmark list with twice the size
-            landmark_t** oldLandmarks = m_pLandmarks;
+            landmark_t **oldLandmarks = m_pLandmarks;
 
             m_iMaxLandmarks *= 2;
-            m_pLandmarks = new landmark_t * [m_iMaxLandmarks];
+            m_pLandmarks = new landmark_t *[m_iMaxLandmarks];
 
             for (i = 0; i < m_iLandmarksCount; i++) {
                 m_pLandmarks[i] = oldLandmarks[i];
@@ -1293,22 +1298,22 @@ void Level::AddLandmarkName(const str& name, const Vector& origin)
         }
     } else {
         // create the landmark list for the first time
-        m_iMaxLandmarks = 8;
+        m_iMaxLandmarks   = 8;
         m_iLandmarksCount = 0;
-        m_pLandmarks = new landmark_t * [8];
+        m_pLandmarks      = new landmark_t *[8];
     }
 
     //
     // create a new landmark
     //
     landmark = m_pLandmarks[m_iLandmarksCount] = new landmark_t();
-    landmark->m_sName = name;
-    landmark->m_vOrigin = origin;
+    landmark->m_sName                          = name;
+    landmark->m_vOrigin                        = origin;
 }
 
 void Level::FreeLandmarks()
 {
-    landmark_t* landmark;
+    landmark_t *landmark;
 
     if (m_pLandmarks) {
         int i;
@@ -1322,26 +1327,26 @@ void Level::FreeLandmarks()
         }
 
         delete[] m_pLandmarks;
-        m_pLandmarks = NULL;
+        m_pLandmarks      = NULL;
         m_iLandmarksCount = 0;
-        m_iMaxLandmarks = 0;
+        m_iMaxLandmarks   = 0;
     }
 }
 
 str Level::GetDynamicDMLocations(const Vector& origin)
 {
-    str name = "nothing";
-    int i;
+    str   name = "nothing";
+    int   i;
     float shortestDistSqr = 0;
 
     for (i = 0; i < m_iLandmarksCount; i++) {
-        landmark_t* landmark = m_pLandmarks[i];
-        Vector delta = origin - landmark->m_vOrigin;
-        float distSqr = delta.lengthSquared();
+        landmark_t *landmark = m_pLandmarks[i];
+        Vector      delta    = origin - landmark->m_vOrigin;
+        float       distSqr  = delta.lengthSquared();
 
         if (i == 0 || distSqr < shortestDistSqr) {
             shortestDistSqr = distSqr;
-            name = landmark->m_sName;
+            name            = landmark->m_sName;
         }
     }
 
@@ -1350,10 +1355,10 @@ str Level::GetDynamicDMLocations(const Vector& origin)
 
 str Level::GetDMLocation(const Vector& origin)
 {
-    float yaw;
+    float  yaw;
     vec3_t angles;
     vec3_t dir;
-    float dist;
+    float  dist;
 
     if (m_pLandmarks) {
         //
@@ -1365,7 +1370,7 @@ str Level::GetDMLocation(const Vector& origin)
     yaw = origin.toYaw();
 
     angles[0] = angles[2] = 0;
-    angles[1] = yaw + 90 - world->m_fNorth;
+    angles[1]             = yaw + 90 - world->m_fNorth;
     AngleVectors(angles, dir, NULL, NULL);
 
     dist = origin.lengthXY();
@@ -2286,7 +2291,7 @@ void Level::EventRainNumShadersGet(Event *ev)
 void Level::EventAddBadPlace(Event *ev)
 {
     badplace_t bp;
-    int nArgs;
+    int        nArgs;
 
     nArgs = ev->NumArgs();
     if (nArgs != 3 && nArgs != 4 && nArgs != 5) {
@@ -2317,7 +2322,7 @@ void Level::EventAddBadPlace(Event *ev)
 
     bp.m_fRadius = ev->GetFloat(3);
     bp.m_vOrigin = ev->GetVector(2);
-    bp.m_name = ev->GetConstString(1);
+    bp.m_name    = ev->GetConstString(1);
 
     if (bp.m_name == STRING_EMPTY && bp.m_fLifespan == FLT_MAX) {
         throw ScriptException("unnamed badplaces must have a specified duration");
@@ -2352,7 +2357,7 @@ void Level::EventAddBadPlace(Event *ev)
 void Level::EventRemoveBadPlace(Event *ev)
 {
     const_str name;
-    int i;
+    int       i;
 
     if (ev->NumArgs() != 1) {
         throw ScriptException("removebadplace requires exactly 1 argument");
@@ -2381,7 +2386,7 @@ void Level::EventIgnoreClock(Event *ev)
 void Level::UpdateBadPlaces()
 {
     qboolean removed;
-    int i;
+    int      i;
 
     removed = qfalse;
 
@@ -2393,7 +2398,7 @@ void Level::UpdateBadPlaces()
             PathSearch::UpdatePathwaysForBadPlace(bp.m_vOrigin, bp.m_fRadius, -1, bp.m_iTeamSide);
             m_badPlaces.RemoveObjectAt(i);
             removed = qtrue;
-            i = 0;
+            i       = 0;
         }
     }
 
@@ -2406,8 +2411,8 @@ void Level::UpdateBadPlaces()
 int Level::GetNearestBadPlace(const Vector& org, float radius, int team) const
 {
     float bestDistSqr;
-    int bestBpIndex;
-    int i;
+    int   bestBpIndex;
+    int   i;
 
     bestDistSqr = FLT_MAX;
     bestBpIndex = 0;
@@ -2416,9 +2421,9 @@ int Level::GetNearestBadPlace(const Vector& org, float radius, int team) const
         badplace_t& bp = m_badPlaces.ObjectAt(i);
 
         if (team & bp.m_iTeamSide) {
-            const Vector delta = bp.m_vOrigin - org;
-            float distSqr = delta.lengthSquared();
-            float rad = bp.m_fRadius + radius;
+            const Vector delta   = bp.m_vOrigin - org;
+            float        distSqr = delta.lengthSquared();
+            float        rad     = bp.m_fRadius + radius;
 
             if (distSqr < bestDistSqr && distSqr < rad * rad) {
                 bestDistSqr = distSqr;
@@ -2430,7 +2435,8 @@ int Level::GetNearestBadPlace(const Vector& org, float radius, int team) const
     return bestBpIndex;
 }
 
-static void ArchiveBadPlace(Archiver& arc, badplace_t* bp) {
+static void ArchiveBadPlace(Archiver& arc, badplace_t *bp)
+{
     Director.ArchiveString(arc, bp->m_name);
     arc.ArchiveVector(&bp->m_vOrigin);
     arc.ArchiveFloat(&bp->m_fRadius);
