@@ -836,16 +836,13 @@ CLASS_DECLARATION(Animate, VehicleBase, NULL) {
 
 VehicleBase::VehicleBase()
 {
-    offset = "0 0 0";
-
     if (LoadingSavegame) {
         // Archive function will setup all necessary data
         return;
     }
 
     takedamage = DAMAGE_NO;
-    edict->s.renderfx &= ~RF_DONTDRAW;
-    edict->r.svFlags &= ~SVF_NOCLIENT;
+    showModel();
 
     //
     // rotate the mins and maxs for the model
@@ -1193,7 +1190,7 @@ Vehicle::~Vehicle
 */
 Vehicle::~Vehicle()
 {
-    for (int i = 0; i < MAX_SOUND_ENTITIES; i++) {
+    for (int i = 0; i < MAX_CORNERS; i++) {
         if (m_pVehicleSoundEntities[i]) {
             m_pVehicleSoundEntities[i]->PostEvent(EV_Remove, EV_LINKDOORS);
         }
@@ -1327,7 +1324,8 @@ void Vehicle::VehicleStart(Event *ev)
     last = this;
 
     setLocalOrigin(localorigin + Vector(0.0f, 0.0f, 30.0f));
-    angles = m_vAngles;
+    angles.x = m_vAngles.x;
+    angles.z = m_vAngles.z;
 
     for (ent = G_NextEntity(NULL); ent != NULL; ent = G_NextEntity(ent)) {
         if ((ent != this) && (ent->isSubclassOf(VehicleBase))) {
@@ -1379,26 +1377,28 @@ Vehicle::SetWheelCorners
 void Vehicle::SetWheelCorners(Event *ev)
 {
     Vector size;
+    Vector offset;
 
     size                  = ev->GetVector(1);
-    m_vOriginCornerOffset = ev->GetVector(2);
+    offset                = ev->GetVector(2);
 
+    m_vOriginCornerOffset = offset;
     maxtracedist = size[2];
 
-    Corners[0][0] = -(size[0] * 0.5);
-    Corners[0][1] = (size[1] * 0.5);
+    Corners[0][0] = -(size[0] / 2);
+    Corners[0][1] = (size[1] / 2);
     Corners[0][2] = size[2];
 
-    Corners[1][0] = (size[0] * 0.5);
-    Corners[1][1] = (size[1] * 0.5);
+    Corners[1][0] = (size[0] / 2);
+    Corners[1][1] = (size[1] / 2);
     Corners[1][2] = size[2];
 
-    Corners[2][0] = -(size[0] * 0.5);
-    Corners[2][1] = -(size[1] * 0.5);
+    Corners[2][0] = -(size[0] / 2);
+    Corners[2][1] = -(size[1] / 2);
     Corners[2][2] = size[2];
 
-    Corners[3][0] = (size[0] * 0.5);
-    Corners[3][1] = -(size[1] * 0.5);
+    Corners[3][0] = (size[0] / 2);
+    Corners[3][1] = -(size[1] / 2);
     Corners[3][2] = size[2];
 
     SetupVehicleSoundEntities();
@@ -5068,8 +5068,7 @@ void Vehicle::SpawnTurret(Event *ev)
     AttachTurretSlot(slot, pTurret, vec_zero, NULL);
 
     pTurret->SetVehicleOwner(this);
-    Event *event = new Event(EV_TakeDamage);
-    pTurret->PostEvent(event, EV_POSTSPAWN);
+    pTurret->PostEvent(EV_TakeDamage, EV_POSTSPAWN);
     UpdateTurretSlot(slot);
 
     pTurret->ProcessPendingEvents();
@@ -5454,7 +5453,7 @@ void Vehicle::SetupVehicleSoundEntities(void)
     angles.AngleVectorsLeft(&a, &b, &c);
 
     // place the sound entities in the vehicle wheels
-    for (i = 0; i < MAX_SOUND_ENTITIES; i++) {
+    for (i = 0; i < MAX_CORNERS; i++) {
         if (!m_pVehicleSoundEntities[i]) {
             m_pVehicleSoundEntities[i] = new VehicleSoundEntity(this);
         }
@@ -5471,7 +5470,7 @@ Vehicle::TurnOnVehicleSoundEntities
 */
 void Vehicle::TurnOnVehicleSoundEntities(void)
 {
-    for (int i = 0; i < MAX_SOUND_ENTITIES; i++) {
+    for (int i = 0; i < MAX_CORNERS; i++) {
         if (!m_pVehicleSoundEntities[i]) {
             m_pVehicleSoundEntities[i] = new VehicleSoundEntity(this);
         }
@@ -5487,7 +5486,7 @@ Vehicle::TurnOffVehicleSoundEntities
 */
 void Vehicle::TurnOffVehicleSoundEntities(void)
 {
-    for (int i = 0; i < MAX_SOUND_ENTITIES; i++) {
+    for (int i = 0; i < MAX_CORNERS; i++) {
         if (!m_pVehicleSoundEntities[i]) {
             m_pVehicleSoundEntities[i] = new VehicleSoundEntity(this);
         }
@@ -5503,7 +5502,7 @@ Vehicle::RemoveVehicleSoundEntities
 */
 void Vehicle::RemoveVehicleSoundEntities(void)
 {
-    for (int i = 0; i < MAX_SOUND_ENTITIES; i++) {
+    for (int i = 0; i < MAX_CORNERS; i++) {
         if (!m_pVehicleSoundEntities[i]) {
             continue;
         }
@@ -5694,10 +5693,8 @@ void Vehicle::UpdateTires(void)
     t_mins = mins * 0.25f;
     t_maxs = maxs * 0.25f;
 
-    if (real_velocity.length() <= 0.5f && m_iLastTiresUpdate != -1) {
-        if (m_iLastTiresUpdate + 1000 > level.inttime) {
-            return;
-        }
+    if (real_velocity.length() <= 0.5f && m_iLastTiresUpdate != -1 && m_iLastTiresUpdate + 1000 > level.inttime) {
+        return;
     }
 
     m_iLastTiresUpdate = level.inttime;
@@ -5716,7 +5713,7 @@ void Vehicle::UpdateTires(void)
             start     = origin + a * boxoffset[0] + b * boxoffset[1] + c * boxoffset[2];
             end       = start + Vector(0, 0, -400);
 
-            trace = G_Trace(start, t_mins, t_maxs, end, this, MASK_VEHICLE, false, "Vehicle::PostThink Corners");
+            trace = G_Trace(start, t_mins, t_maxs, end, this, MASK_VEHICLE_TIRES, false, "Vehicle::PostThink Corners");
 
             if (g_showvehiclemovedebug->integer) {
                 G_DebugLine(start, end, 1, 1, 1, 1);
@@ -5778,7 +5775,7 @@ void Vehicle::UpdateNormals(void)
 
     angles.AngleVectorsLeft(&i, &j, NULL);
 
-    j = vec_zero;
+    j = vec_zero - j;
     m_vNormalSum  = vec_zero;
     m_iNumNormals = 0;
 
@@ -5981,7 +5978,7 @@ void Vehicle::UpdateTurretSlot(int iSlot)
         Turrets[iSlot].ent->avelocity = avelocity;
         Turrets[iSlot].ent->velocity  = velocity;
 
-        if (!Turrets[iSlot].ent->IsSubclassOfVehicleTurretGun()) {
+        if (Turrets[iSlot].ent->IsSubclassOfVehicleTurretGun()) {
             VehicleTurretGun *vtg = static_cast<VehicleTurretGun *>(Turrets[iSlot].ent.Pointer());
             vtg->SetBaseOrientation(orient.axis, NULL);
         }
@@ -5999,7 +5996,7 @@ void Vehicle::UpdateTurretSlot(int iSlot)
         Turrets[iSlot].ent->avelocity = avelocity;
         Turrets[iSlot].ent->velocity  = velocity;
 
-        if (!Turrets[iSlot].ent->IsSubclassOfVehicleTurretGun()) {
+        if (Turrets[iSlot].ent->IsSubclassOfVehicleTurretGun()) {
             VehicleTurretGun *vtg = static_cast<VehicleTurretGun *>(Turrets[iSlot].ent.Pointer());
             vtg->SetBaseOrientation(this->orientation, NULL);
         }

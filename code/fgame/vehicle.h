@@ -123,7 +123,6 @@ typedef enum {
 #define MAX_DRIVERS          1
 #define MAX_PASSENGERS       32
 #define MAX_TURRETS          8
-#define MAX_SOUND_ENTITIES   4
 #define MAX_CORNERS          4
 
 #define MAX_SKIPPED_ENTITIES 64
@@ -313,7 +312,7 @@ protected:
     SafePtr<VehicleCollisionEntity> m_pCollisionEntity;
     SOUND_STATE                     m_eSoundState;
     float                           m_fNextSoundState;
-    SafePtr<VehicleSoundEntity>     m_pVehicleSoundEntities[MAX_SOUND_ENTITIES];
+    SafePtr<VehicleSoundEntity>     m_pVehicleSoundEntities[MAX_CORNERS];
     Vector                          m_vTireEnd[NUM_VEHICLE_TIRES];
     bool                            m_bTireHit[NUM_VEHICLE_TIRES];
     Vector                          m_vNormalSum;
