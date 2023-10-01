@@ -296,9 +296,8 @@ void ScriptVariable::ArchiveInternal(Archiver& arc)
 #endif
 
 ScriptArrayHolder::ScriptArrayHolder()
-	: refCount(0)
-{
-}
+    : refCount(0)
+{}
 
 ScriptConstArrayHolder::ScriptConstArrayHolder(ScriptVariable *pVar, unsigned int size)
 {
@@ -365,22 +364,19 @@ void ScriptPointer::setValue(const ScriptVariable& var)
     int             i;
     ScriptVariable *pVar;
 
-    if (var.type == VARIABLE_POINTER)
-    {
+    if (var.type == VARIABLE_POINTER) {
         for (i = list.NumObjects(); i > 0; i--) {
             pVar = list.ObjectAt(i);
 
             pVar->m_data.pointerValue = var.m_data.pointerValue;
             var.m_data.pointerValue->add(pVar);
         }
-    }
-    else
-    {
+    } else {
         for (i = list.NumObjects(); i > 0; i--) {
             pVar = list.ObjectAt(i);
 
             pVar->type = 0;
-            *pVar = var;
+            *pVar      = var;
         }
     }
 
@@ -552,13 +548,13 @@ void ScriptVariable::ClearInternal()
         m_data.constArrayValue = NULL;
         break;
 
-	case VARIABLE_LISTENER:
-		if (m_data.listenerValue) {
-			delete m_data.listenerValue;
-			m_data.listenerValue = NULL;
-		}
+    case VARIABLE_LISTENER:
+        if (m_data.listenerValue) {
+            delete m_data.listenerValue;
+            m_data.listenerValue = NULL;
+        }
 
-		break;
+        break;
 
     case VARIABLE_SAFECONTAINER:
         if (m_data.safeContainerValue) {
@@ -725,7 +721,6 @@ void ScriptVariable::SetTrue(void)
 int ScriptVariable::arraysize(void) const
 {
     switch (GetType()) {
-
     case VARIABLE_NONE:
         return -1;
 
@@ -743,11 +738,11 @@ int ScriptVariable::arraysize(void) const
             return (*m_data.safeContainerValue)->NumObjects();
         } else {
             return 0;
-		}
+        }
 
-	case VARIABLE_POINTER:
+    case VARIABLE_POINTER:
         ClearPointerInternal();
-		return -1;
+        return -1;
 
     default:
         return 1;
@@ -783,11 +778,11 @@ size_t ScriptVariable::size(void) const
             return (*m_data.safeContainerValue)->NumObjects();
         } else {
             return 0;
-		}
+        }
 
-	case VARIABLE_POINTER:
+    case VARIABLE_POINTER:
         ClearPointerInternal();
-		return -1;
+        return -1;
 
     default:
         return 1;
@@ -1513,13 +1508,13 @@ void ScriptVariable::operator+=(const ScriptVariable& value)
     case VARIABLE_LISTENER
         + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( listener )			+		( const string )
     case VARIABLE_VECTOR
-        + VARIABLE_CONSTSTRING               *VARIABLE_MAX: // ( vector )			+		( const string )
-    case VARIABLE_STRING + VARIABLE_LISTENER *VARIABLE_MAX: // ( string )			+		( listener )
+        + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( vector )			+		( const string )
+    case VARIABLE_STRING
+        + VARIABLE_LISTENER *VARIABLE_MAX: // ( string )			+		( listener )
     case VARIABLE_CONSTSTRING
-        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		+		( listener )
-    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			+		( vector )
-    case VARIABLE_CONSTSTRING
-        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
+        + VARIABLE_LISTENER                     *VARIABLE_MAX: // ( const string )		+		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR      *VARIABLE_MAX: // ( string )			+		( vector )
+    case VARIABLE_CONSTSTRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		+		( vector )
         setStringValue(stringValue() + value.stringValue());
         break;
 
@@ -1977,11 +1972,11 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
         + VARIABLE_STRING                 *VARIABLE_MAX: // ( int )				==		( string )
     case VARIABLE_FLOAT + VARIABLE_STRING *VARIABLE_MAX: // ( float )			==		( string )
     case VARIABLE_CHAR
-        + VARIABLE_STRING *VARIABLE_MAX: // ( char )				==		( string )
-    case VARIABLE_CONSTSTRING
-        + VARIABLE_STRING                    *VARIABLE_MAX: // ( const string )		==		( string )
-    case VARIABLE_LISTENER + VARIABLE_STRING *VARIABLE_MAX: // ( listener )			==		( string )
-    case VARIABLE_VECTOR + VARIABLE_STRING   *VARIABLE_MAX: // ( vector )			==		( string )
+        + VARIABLE_STRING                       *VARIABLE_MAX: // ( char )				==		( string )
+    case VARIABLE_CONSTSTRING + VARIABLE_STRING *VARIABLE_MAX: // ( const string )		==		( string )
+    case VARIABLE_LISTENER
+        + VARIABLE_STRING                  *VARIABLE_MAX: // ( listener )			==		( string )
+    case VARIABLE_VECTOR + VARIABLE_STRING *VARIABLE_MAX: // ( vector )			==		( string )
     case VARIABLE_STRING
         + VARIABLE_CONSTSTRING *VARIABLE_MAX: // ( string )			==		( const string )
     case VARIABLE_INTEGER
@@ -2002,10 +1997,9 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
     case VARIABLE_CONSTSTRING + VARIABLE_CHAR    *VARIABLE_MAX: // ( const string )		==		( char )
     case VARIABLE_STRING + VARIABLE_LISTENER     *VARIABLE_MAX: // ( string )			==		( listener )
     case VARIABLE_CONSTSTRING
-        + VARIABLE_LISTENER                *VARIABLE_MAX: // ( const string )		==		( listener )
-    case VARIABLE_STRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( string )			==		( vector )
-    case VARIABLE_CONSTSTRING
-        + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
+        + VARIABLE_LISTENER                     *VARIABLE_MAX: // ( const string )		==		( listener )
+    case VARIABLE_STRING + VARIABLE_VECTOR      *VARIABLE_MAX: // ( string )			==		( vector )
+    case VARIABLE_CONSTSTRING + VARIABLE_VECTOR *VARIABLE_MAX: // ( const string )		==		( vector )
         {
             str lval = stringValue();
             str rval = value.stringValue();
@@ -2013,7 +2007,7 @@ bool ScriptVariable::operator==(const ScriptVariable& value)
             return (!lval.length() && !rval.length()) || (lval == rval);
         }
 
-    case VARIABLE_CHAR + VARIABLE_CHAR * VARIABLE_MAX: // ( char ) == ( char )
+    case VARIABLE_CHAR + VARIABLE_CHAR *VARIABLE_MAX: // ( char ) == ( char )
         return m_data.charValue == value.m_data.charValue;
 
     case VARIABLE_VECTOR + VARIABLE_VECTOR *VARIABLE_MAX: // ( vector ) == ( vector )
@@ -2084,7 +2078,7 @@ ScriptVariable& ScriptVariable::operator=(const ScriptVariable& variable)
             break;
 
         case VARIABLE_VECTOR:
-            m_data.vectorValue = (float*)new float[3];
+            m_data.vectorValue = (float *)new float[3];
             VectorCopy(variable.m_data.vectorValue, m_data.vectorValue);
             break;
         }
@@ -2169,8 +2163,7 @@ ScriptVariable& ScriptVariable::operator=(ScriptVariable&& variable)
     m_data        = variable.m_data;
     variable.type = VARIABLE_NONE;
 
-    if (type == VARIABLE_POINTER)
-    {
+    if (type == VARIABLE_POINTER) {
         // if it's a pointer, make sure to properly point
         m_data.pointerValue->add(this);
         m_data.pointerValue->remove(&variable);

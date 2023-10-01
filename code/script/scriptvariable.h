@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // scriptvariable.h: Dynamic variables for scripts.
 
-#ifndef __SCRIPTVARIABLE_H__
-#define __SCRIPTVARIABLE_H__
+#pragma once
 
 #include "../qcommon/listener.h"
 #include "../qcommon/short3.h"
@@ -304,7 +303,7 @@ public:
 
     ScriptVariable *GetVariable(str name) const;
     ScriptVariable *GetVariable(unsigned int name) const;
-    bool VariableExists(str name) const;
+    bool            VariableExists(str name) const;
 
     ScriptVariable *SetVariable(const char *name, int value);
     ScriptVariable *SetVariable(const char *name, float value);
@@ -318,5 +317,3 @@ public:
 };
 
 #endif
-
-#endif /* __SCRIPTVARIABLE_H__ */

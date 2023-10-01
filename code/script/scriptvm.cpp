@@ -67,9 +67,9 @@ ScriptCommandEvent::ScriptCommandEvent(unsigned int eventNum)
 }
 
 ScriptCommandEvent::ScriptCommandEvent(unsigned int eventNum, int numArgs)
-	: Event(eventNum, numArgs)
+    : Event(eventNum, numArgs)
 {
-	fromScript = true;
+    fromScript = true;
 }
 
 ScriptVMStack::ScriptVMStack()
@@ -347,46 +347,42 @@ void ScriptVM::error(const char *format, ...)
 
 void ScriptVM::jump(unsigned int offset)
 {
-	m_CodePos += offset;
+    m_CodePos += offset;
 }
 
 void ScriptVM::jumpBack(unsigned int offset)
 {
-	m_CodePos -= offset;
+    m_CodePos -= offset;
 }
 
 void ScriptVM::jumpBool(unsigned int offset, bool booleanValue)
 {
-	if (booleanValue)
-	{
-		jump(offset);
-	}
+    if (booleanValue) {
+        jump(offset);
+    }
 }
 
 bool ScriptVM::jumpVar(unsigned int offset, bool booleanValue)
 {
-	if (booleanValue)
-	{
-		jump(offset);
-		return true;
-	}
-	else
-	{
+    if (booleanValue) {
+        jump(offset);
+        return true;
+    } else {
         m_VMStack.Pop();
-		return false;
-	}
+        return false;
+    }
 }
 
 void ScriptVM::doJumpIf(bool booleanValue)
 {
-	const unsigned int offset = fetchOpcodeValue<unsigned int>();
-	jumpBool(offset, booleanValue);
+    const unsigned int offset = fetchOpcodeValue<unsigned int>();
+    jumpBool(offset, booleanValue);
 }
 
 bool ScriptVM::doJumpVarIf(bool booleanValue)
 {
-	const unsigned int offset = fetchOpcodeValue<unsigned int>();
-	return jumpVar(offset, booleanValue);
+    const unsigned int offset = fetchOpcodeValue<unsigned int>();
+    return jumpVar(offset, booleanValue);
 }
 
 void ScriptVM::loadTopInternal(Listener *listener)
@@ -395,7 +391,7 @@ void ScriptVM::loadTopInternal(Listener *listener)
 
     if (!executeSetter(listener, variable)) {
         // just set the variable
-        ScriptVariable& pTop     = m_VMStack.GetTop();
+        ScriptVariable& pTop = m_VMStack.GetTop();
         listener->Vars()->SetVariable(variable, std::move(pTop));
     }
 }
@@ -406,8 +402,8 @@ ScriptVariable *ScriptVM::storeTopInternal(Listener *listener)
     ScriptVariable *listenerVar;
 
     if (!executeGetter(listener, variable)) {
-        ScriptVariable& pTop     = m_VMStack.GetTop();
-        listenerVar              = listener->Vars()->GetOrCreateVariable(variable);
+        ScriptVariable& pTop = m_VMStack.GetTop();
+        listenerVar          = listener->Vars()->GetOrCreateVariable(variable);
 
         pTop = *listenerVar;
     } else {
@@ -417,7 +413,7 @@ ScriptVariable *ScriptVM::storeTopInternal(Listener *listener)
     return listenerVar;
 }
 
-void ScriptVM::loadStoreTop(Listener* listener)
+void ScriptVM::loadStoreTop(Listener *listener)
 {
     const const_str variable = fetchOpcodeValue<op_name_t>();
 
@@ -591,8 +587,8 @@ void ScriptVM::execCmdCommon(op_parmNum_t param)
 
 void ScriptVM::execCmdMethodCommon(op_parmNum_t param)
 {
-	const ScriptVariable& a = m_VMStack.Pop();
-	const op_ev_t         eventNum = fetchOpcodeValue<op_ev_t>();
+    const ScriptVariable& a        = m_VMStack.Pop();
+    const op_ev_t         eventNum = fetchOpcodeValue<op_ev_t>();
 
     m_VMStack.Pop(param);
 
@@ -602,12 +598,12 @@ void ScriptVM::execCmdMethodCommon(op_parmNum_t param)
     }
 
     if (arraysize > 1) {
-		if (a.IsConstArray()) {
+        if (a.IsConstArray()) {
             // copy the variable
             // because if it's a targetlist, the container object can be modified
             // while iterating
-			ScriptVariable array = a;
-			array.CastConstArrayValue();
+            ScriptVariable array = a;
+            array.CastConstArrayValue();
 
             for (uintptr_t i = arraysize; i > 0; i--) {
                 Listener *const listener = array.listenerAt(i);
@@ -967,7 +963,7 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
 				}
 				*/
             }
-            
+
             index       = 0;
             eventCalled = false;
 
@@ -1086,42 +1082,40 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 break;
 
             case OP_BOOL_JUMP_FALSE4:
-				doJumpIf(!m_VMStack.Pop().m_data.intValue);
-				break;
-
-			case OP_BOOL_JUMP_TRUE4:
-				doJumpIf(m_VMStack.Pop().m_data.intValue);
-				break;
-
-			case OP_VAR_JUMP_FALSE4:
-				doJumpIf(!m_VMStack.Pop().booleanValue());
+                doJumpIf(!m_VMStack.Pop().m_data.intValue);
                 break;
 
-			case OP_VAR_JUMP_TRUE4:
-				doJumpIf(m_VMStack.Pop().booleanValue());
+            case OP_BOOL_JUMP_TRUE4:
+                doJumpIf(m_VMStack.Pop().m_data.intValue);
+                break;
+
+            case OP_VAR_JUMP_FALSE4:
+                doJumpIf(!m_VMStack.Pop().booleanValue());
+                break;
+
+            case OP_VAR_JUMP_TRUE4:
+                doJumpIf(m_VMStack.Pop().booleanValue());
                 break;
 
             case OP_BOOL_LOGICAL_AND:
-				doJumpVarIf(!m_VMStack.GetTop().m_data.intValue);
-				break;
+                doJumpVarIf(!m_VMStack.GetTop().m_data.intValue);
+                break;
 
             case OP_BOOL_LOGICAL_OR:
-				doJumpVarIf(m_VMStack.GetTop().m_data.intValue);
-				break;
+                doJumpVarIf(m_VMStack.GetTop().m_data.intValue);
+                break;
 
             case OP_VAR_LOGICAL_AND:
-				if (!doJumpVarIf(m_VMStack.GetTop().booleanValue()))
-				{
+                if (!doJumpVarIf(m_VMStack.GetTop().booleanValue())) {
                     m_VMStack.GetTop().SetFalse();
-				}
-				break;
+                }
+                break;
 
             case OP_VAR_LOGICAL_OR:
-				if (!doJumpVarIf(!m_VMStack.GetTop().booleanValue()))
-				{
+                if (!doJumpVarIf(!m_VMStack.GetTop().booleanValue())) {
                     m_VMStack.GetTop().SetTrue();
-				}
-				break;
+                }
+                break;
 
             case OP_BOOL_STORE_FALSE:
                 m_VMStack.PushAndGet().SetFalse();
@@ -1278,12 +1272,12 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                     break;
                 }
 
-			case OP_JUMP4:
-				jump(fetchOpcodeValue<unsigned int>());
+            case OP_JUMP4:
+                jump(fetchOpcodeValue<unsigned int>());
                 break;
 
-			case OP_JUMP_BACK4:
-				jumpBack(fetchActualOpcodeValue<unsigned int>());
+            case OP_JUMP_BACK4:
+                jumpBack(fetchActualOpcodeValue<unsigned int>());
                 break;
 
             case OP_LOAD_ARRAY_VAR:
@@ -1447,54 +1441,41 @@ void ScriptVM::Execute(ScriptVariable *data, int dataSize, str label)
                 break;
 
             case OP_STORE_FIELD_REF:
-            {
-                try
                 {
-                    Listener* listener = m_VMStack.GetTop().listenerValue();
+                    try {
+                        Listener *listener = m_VMStack.GetTop().listenerValue();
 
-                    if (listener == nullptr)
-                    {
-                        const op_name_t fieldName = fetchActualOpcodeValue<op_name_t>();
-						skipField();
-						ScriptError("Field '%s' applied to NULL listener", value.c_str());
-                    }
-                    else
-                    {
-                        ScriptVariable* const listenerVar = storeTop<true>(listener);
+                        if (listener == nullptr) {
+                            const op_name_t fieldName = fetchActualOpcodeValue<op_name_t>();
+                            skipField();
+                            ScriptError("Field '%s' applied to NULL listener", value.c_str());
+                        } else {
+                            ScriptVariable *const listenerVar = storeTop<true>(listener);
 
-                        if (listenerVar)
-                        {
-                            // having a listener variable means the variable was just created
-                            m_VMStack.GetTop().setRefValue(listenerVar);
+                            if (listenerVar) {
+                                // having a listener variable means the variable was just created
+                                m_VMStack.GetTop().setRefValue(listenerVar);
+                            }
                         }
-                    }
-                }
-                catch (...)
-                {
-                    ScriptVariable* const pTop = m_VMStack.GetTopPtr();
-                    pTop->setRefValue(pTop);
-                    throw;
-                }
-                break;
-            }
-
-            case OP_STORE_FIELD:
-                try
-                {
-                    Listener* listener = m_VMStack.GetTop().listenerValue();
-
-                    if (listener == nullptr)
-					{
-						ScriptError("Field '%s' applied to NULL listener", value.c_str());
-                    }
-                    else
-                    {
-                        storeTop<true>(listener);
+                    } catch (...) {
+                        ScriptVariable *const pTop = m_VMStack.GetTopPtr();
+                        pTop->setRefValue(pTop);
+                        throw;
                     }
                     break;
                 }
-                catch (...)
-                {
+
+            case OP_STORE_FIELD:
+                try {
+                    Listener *listener = m_VMStack.GetTop().listenerValue();
+
+                    if (listener == nullptr) {
+                        ScriptError("Field '%s' applied to NULL listener", value.c_str());
+                    } else {
+                        storeTop<true>(listener);
+                    }
+                    break;
+                } catch (...) {
                     skipField();
                     throw;
                 }
@@ -1973,26 +1954,27 @@ EventGoto
 */
 void ScriptVM::EventGoto(Event *ev)
 {
-    unsigned char* codePos;
+    unsigned char        *codePos;
     const ScriptVariable& value = ev->GetValue(1);
-    if (value.type == VARIABLE_CONSTSTRING)
-    {
+    if (value.type == VARIABLE_CONSTSTRING) {
         const_str label = value.constStringValue();
-		codePos = m_ScriptClass->FindLabel(label);
+        codePos         = m_ScriptClass->FindLabel(label);
 
-		if (!codePos) {
-			ScriptError("ScriptVM::EventGoto: label '%s' does not exist in '%s'.", value.stringValue().c_str(), Filename().c_str());
-		}
+        if (!codePos) {
+            ScriptError(
+                "ScriptVM::EventGoto: label '%s' does not exist in '%s'.",
+                value.stringValue().c_str(),
+                Filename().c_str()
+            );
+        }
 
-    }
-    else
-    {
+    } else {
         str label = value.stringValue();
-		codePos = m_ScriptClass->FindLabel(label);
+        codePos   = m_ScriptClass->FindLabel(label);
 
-		if (!codePos) {
-			ScriptError("ScriptVM::EventGoto: label '%s' does not exist in '%s'.", label.c_str(), Filename().c_str());
-		}
+        if (!codePos) {
+            ScriptError("ScriptVM::EventGoto: label '%s' does not exist in '%s'.", label.c_str(), Filename().c_str());
+        }
     }
 
     SetFastData(ev->data + 1, ev->dataSize - 1);

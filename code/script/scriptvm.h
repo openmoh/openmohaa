@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // scriptvm.h: Script virtual machine interpreter.
 
-#ifndef __SCRIPTVM_H__
-#define __SCRIPTVM_H__
+#pragma once
 
 #include "listener.h"
 
@@ -35,17 +34,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_STACK_DEPTH 20 // 9 in mohaa
 //#define	LOCALSTACK_SIZE		255		// pre-allocated localstack size for each VM
-#define MAX_SCRIPTCYCLES      9999 // max cmds
+#define MAX_SCRIPTCYCLES 9999 // max cmds
 
-#define STATE_RUNNING         0 // Running
-#define STATE_SUSPENDED       1 // Suspended
-#define STATE_WAITING         2 // Waiting for something
-#define STATE_EXECUTION       3 // Resume to execution
-#define STATE_DESTROYED       4 // Pending deletion
+#define STATE_RUNNING    0 // Running
+#define STATE_SUSPENDED  1 // Suspended
+#define STATE_WAITING    2 // Waiting for something
+#define STATE_EXECUTION  3 // Resume to execution
+#define STATE_DESTROYED  4 // Pending deletion
 
-#define THREAD_RUNNING        0 // Running
-#define THREAD_WAITING        1 // Waiting
-#define THREAD_SUSPENDED      2 // Suspended
+#define THREAD_RUNNING   0 // Running
+#define THREAD_WAITING   1 // Waiting
+#define THREAD_SUSPENDED 2 // Suspended
 
 class ScriptException;
 class ScriptThread;
@@ -114,7 +113,7 @@ private:
     /** The local stack size. */
     ScriptVariable *stackBottom;
     /** Variable from the top stack of the local stack. */
-    ScriptVariable  *pTop;
+    ScriptVariable *pTop;
 };
 
 class ScriptVM
@@ -169,9 +168,9 @@ private:
     template<bool noTop = false>
     void loadTop(Listener *listener);
     template<bool noTop = false>
-	ScriptVariable* storeTop(Listener* listener);
-	void loadStoreTop(Listener* listener);
-    void skipField();
+    ScriptVariable *storeTop(Listener *listener);
+    void            loadStoreTop(Listener *listener);
+    void            skipField();
 
     void SetFastData(ScriptVariable *data, int dataSize);
 
@@ -214,46 +213,44 @@ public:
     bool CanScriptTracePrint(void);
 
 private:
-	void jump(unsigned int offset);
-	void jumpBack(unsigned int offset);
-	void jumpBool(unsigned int offset, bool booleanValue);
-	bool jumpVar(unsigned int offset, bool booleanValue);
-	void doJumpIf(bool booleanValue);
-	bool doJumpVarIf(bool booleanValue);
+    void jump(unsigned int offset);
+    void jumpBack(unsigned int offset);
+    void jumpBool(unsigned int offset, bool booleanValue);
+    bool jumpVar(unsigned int offset, bool booleanValue);
+    void doJumpIf(bool booleanValue);
+    bool doJumpVarIf(bool booleanValue);
 
-	void fetchOpcodeValue(void* outValue, size_t size);
-	void fetchActualOpcodeValue(void* outValue, size_t size);
+    void fetchOpcodeValue(void *outValue, size_t size);
+    void fetchActualOpcodeValue(void *outValue, size_t size);
 
-	template<typename T>
-	T fetchOpcodeValue()
-	{
-		T value;
-		fetchOpcodeValue(&value, sizeof(T));
-		return value;
-	}
+    template<typename T>
+    T fetchOpcodeValue()
+    {
+        T value;
+        fetchOpcodeValue(&value, sizeof(T));
+        return value;
+    }
 
-	template<typename T>
-	T fetchOpcodeValue(size_t offset)
-	{
-		T value;
-		fetchOpcodeValue(&value, sizeof(T));
-		return value;
-	}
+    template<typename T>
+    T fetchOpcodeValue(size_t offset)
+    {
+        T value;
+        fetchOpcodeValue(&value, sizeof(T));
+        return value;
+    }
 
-	template<typename T>
-	T fetchActualOpcodeValue()
-	{
-		T value;
-		fetchActualOpcodeValue(&value, sizeof(T));
-		return value;
-	}
+    template<typename T>
+    T fetchActualOpcodeValue()
+    {
+        T value;
+        fetchActualOpcodeValue(&value, sizeof(T));
+        return value;
+    }
 
-	void execCmdCommon(op_parmNum_t param);
-	void execCmdMethodCommon(op_parmNum_t param);
-	void execMethodCommon(op_parmNum_t param);
-	void execFunction(ScriptMaster& Director);
+    void execCmdCommon(op_parmNum_t param);
+    void execCmdMethodCommon(op_parmNum_t param);
+    void execMethodCommon(op_parmNum_t param);
+    void execFunction(ScriptMaster& Director);
 };
 
 extern MEM_BlockAlloc<ScriptClass> ScriptClass_allocator;
-
-#endif

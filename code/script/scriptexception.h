@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // scriptexception.h: Script Exception
 
-#ifndef __EXCEPT_H__
-#define __EXCEPT_H__
+#pragma once
 
 #include "../qcommon/str.h"
 
@@ -50,5 +49,3 @@ void Error(const char *format, ...);
 
 #define ScriptDeprecated(function) throw ScriptException(function ": DEPRECATED. DON'T USE IT ANYMORE")
 #define ScriptError                throw ScriptException
-
-#endif /* __EXCEPT_H__ */

@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // compiler.h: Script Compiler
 
-#ifndef __COMPILER_H__
-#define __COMPILER_H__
+#pragma once
 
 #include "../script/scriptopcodes.h"
 #include "../fgame/gamescript.h"
@@ -127,10 +126,10 @@ public:
     void EmitInteger(unsigned int value, unsigned int sourcePos);
     void EmitJump(unsigned char *pos, unsigned int sourcePos);
     void EmitJumpBack(unsigned char *pos, unsigned int sourcePos);
-    void EmitLabel(const char* name, unsigned int sourcePos);
+    void EmitLabel(const char *name, unsigned int sourcePos);
     void EmitLabel(int name, unsigned int sourcePos);
     void EmitLabelParameterList(sval_t parameter_list, unsigned int sourcePos);
-    void EmitLabelPrivate(const char* name, unsigned int sourcePos);
+    void EmitLabelPrivate(const char *name, unsigned int sourcePos);
     void EmitAndJump(sval_t logic_stmt, unsigned int sourcePos);
     void EmitOrJump(sval_t logic_stmt, unsigned int sourcePos);
     void EmitMakeArray(sval_t val);
@@ -190,5 +189,3 @@ extern ScriptCompiler Compiler;
 
 void CompileAssemble(const char *filename, const char *outputfile);
 bool GetCompiledScript(GameScript *scr);
-
-#endif
