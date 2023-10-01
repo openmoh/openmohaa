@@ -1343,7 +1343,7 @@ void UI_PrintConsole( const char *msg )
 			}
 
 			memcpy( szBlah, "Game Message: ", 15 );
-			strcat( szBlah, szString + 1 );
+			Q_strcat( szBlah, sizeof(szBlah), szString + 1 );
 		}
 	}
 
