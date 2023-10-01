@@ -28,18 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "object.h"
 #include "../qcommon/tiki.h"
 
-#ifdef GAME_DLL
-#    include "../fgame/entity.h"
-#    include "../fgame/actor.h"
-#endif
-
-#if defined(GAME_DLL)
-#    define scriptcheck g_scriptcheck
-#elif defined(CGAME_DLL)
-#    define scriptcheck cg_scriptcheck
-#else
-#    define scriptcheck g_scriptcheck
-#endif
+#include "../fgame/entity.h"
+#include "../fgame/actor.h"
 
 extern Event EV_Entity_Start;
 CLASS_DECLARATION(Class, SpawnArgs, NULL) {
@@ -213,7 +203,6 @@ Finds the spawn function for the entity and returns ClassDef *
 
 ClassDef *SpawnArgs::getClassDef(qboolean *tikiWasStatic)
 {
-#if defined(GAME_DLL)
     const char  *classname;
     ClassDef    *cls  = NULL;
     dtiki_t     *tiki = NULL;
@@ -314,29 +303,6 @@ ClassDef *SpawnArgs::getClassDef(qboolean *tikiWasStatic)
     }
 
     return cls;
-#else
-    const char *classname;
-    ClassDef   *cls = NULL;
-
-    classname = getArg("classname");
-
-    if (tikiWasStatic) {
-        *tikiWasStatic = false;
-    }
-
-    //
-    // check normal spawn functions
-    // see if the class name is stored within the model
-    //
-    if (classname) {
-        cls = getClassForID(classname);
-        if (!cls) {
-            cls = getClass(classname);
-        }
-    }
-
-    return cls;
-#endif
 }
 
 /*
@@ -377,8 +343,6 @@ Listener *SpawnArgs::SpawnInternal(void)
     ScriptVariableList *varList;
 #endif
 
-#if defined(GAME_DLL)
-
     if (!g_spawnentities->integer) {
         value = getArg("classname", NULL);
 
@@ -403,8 +367,6 @@ Listener *SpawnArgs::SpawnInternal(void)
         }
     }
 
-#endif
-
     classname = getArg("classname", "Unspecified");
     cls       = getClassDef(&tikiWasStatic);
 
@@ -412,7 +374,7 @@ Listener *SpawnArgs::SpawnInternal(void)
         if (!tikiWasStatic) {
             glbs.DPrintf("%s doesn't have a spawn function\n", classname.c_str());
 
-            if (scriptcheck->integer) {
+            if (g_scriptcheck->integer) {
                 glbs.Error(ERR_DROP, "Script check failed");
             }
         }
@@ -543,7 +505,6 @@ Listener *SpawnArgs::SpawnInternal(void)
             ev->AddToken(value);
 
             if (Q_stricmp(key, "model") == 0) {
-#if defined(GAME_DLL)
                 if (obj->isSubclassOf(SimpleActor)) {
                     if (Q_stricmpn(value, "human", 5) && Q_stricmpn(value, "models/human", 12)
                         && Q_stricmpn(value, "models//human", 13) && Q_stricmpn(value, "animal", 6)
@@ -558,19 +519,12 @@ Listener *SpawnArgs::SpawnInternal(void)
                 } else {
                     obj->PostEvent(ev, EV_PRIORITY_SPAWNARG);
                 }
-#else
-                obj->PostEvent(ev, EV_PRIORITY_SPAWNARG);
-#endif
             } else {
-#if defined(GAME_DLL)
                 if (obj->isSubclassOf(SimpleActor)) {
                     obj->PostEvent(ev, EV_SPAWNACTOR);
                 } else {
                     obj->PostEvent(ev, EV_SPAWNARG);
                 }
-#else
-                obj->PostEvent(ev, EV_SPAWNARG);
-#endif
             }
         }
     }
@@ -605,8 +559,6 @@ ClassDef *FindClass(const char *name, qboolean *isModel)
     return cls;
 }
 
-#if defined(GAME_DLL)
-
 /*
 ==============
 G_InitClientPersistant
@@ -619,8 +571,6 @@ void G_InitClientPersistant(gclient_t *client)
 {
     memset(&client->pers, 0, sizeof(client->pers));
 }
-
-#endif
 
 #if 0
 
