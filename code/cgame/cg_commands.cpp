@@ -3488,6 +3488,10 @@ void ClientGameCommandManager::BeginTagSpawn(Event *ev)
 //===============
 void ClientGameCommandManager::EndTagSpawn(void)
 {
+    if (!m_spawnthing) {
+        return;
+    }
+
     // Okay we should have a valid spawnthing, let's create a render entity
     SpawnEffect(m_spawnthing->count, 0);
 }
@@ -4707,7 +4711,7 @@ void ClientGameCommandManager::UpdateEmitter(
         scale  = current_entity->scale;
         entnum = current_entity->entityNumber;
     } else {
-        entnum = 1023;
+        entnum = ENTITYNUM_NONE;
     }
 
     // Find the emitter associated with this model
@@ -4802,7 +4806,7 @@ void ClientGameCommandManager::UpdateEmitter(
         }
 
         m_spawnthing->cgd.createTime   = cg.time;
-        m_spawnthing->cgd.parentOrigin = Vector(entity_origin);
+        m_spawnthing->cgd.parentOrigin = entity_origin;
 
         if (m_spawnthing->cgd.flags & T_DLIGHT) {
             cgi.R_AddLightToScene(
@@ -4834,7 +4838,8 @@ void ClientGameCommandManager::UpdateEmitter(
                 et->last_emit_time = cg.time;
             }
 
-            count = dtime / (m_spawnthing->spawnRate * (1.0f / cg_effectdetail->value));
+            count = dtime * cg_effectdetail->value / m_spawnthing->spawnRate;
+            et->last_emit_time += count * m_spawnthing->spawnRate;
 
             // This is kind of a nasty bit of code.  If the count is 1, just
             // spawn a single tempmodel, if it's greater than 1, then spawn the
@@ -4864,6 +4869,11 @@ void ClientGameCommandManager::UpdateEmitter(
 
                     SpawnEffect(1, dtime);
 
+                    et = m_spawnthing->GetEmitTime(entity_number);
+                    if (!et) {
+                        break;
+                    }
+
                     lerp += lerpfrac;
                 }
             }
@@ -4882,6 +4892,8 @@ void ClientGameCommandManager::UpdateEmitter(
         et->oldorigin            = save_origin;
         et->lerp_emitter         = qtrue;
     }
+
+    m_spawnthing = NULL;
 }
 
 //===============
@@ -5107,6 +5119,10 @@ void CG_UpdateEntityEmitters(int entnum, refEntity_t *ent, centity_t *cent)
             ent->tiki, ent->axis, cent->currentState.number, cent->currentState.parent, cent->lerpOrigin
         );
     }
+
+    // process events for the entity
+    commandManager.ProcessPendingEventsForEntity();
+
     current_entity        = old_entity;
     current_tiki          = old_tiki;
     current_centity       = oldcent;
