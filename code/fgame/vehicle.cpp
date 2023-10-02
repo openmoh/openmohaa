@@ -6179,7 +6179,9 @@ Vehicle::CalculateAnglesOffset
 */
 void Vehicle::CalculateAnglesOffset(Vector acceleration)
 {
-    if (level.time <= 1200) {
+    if (level.inttime <= 1200) {
+        // leave some time before allowing to shake
+        // so all tanks spawn peacefully in the level
         return;
     }
 
@@ -6220,9 +6222,9 @@ void Vehicle::CalculateAnimationData(Vector vAngles, Vector vOrigin)
         fForward = vAngles[1] / m_fYawMax;
     }
 
-    if (vAngles[2] > 0.0) {
+    if (vAngles[2] < 0.0) {
         fRight = vAngles[2] / m_fRollMin;
-    } else if (vAngles[2] < 0.0) {
+    } else if (vAngles[2] > 0.0) {
         fLeft = vAngles[2] / m_fRollMax;
     }
 
@@ -6233,13 +6235,13 @@ void Vehicle::CalculateAnimationData(Vector vAngles, Vector vOrigin)
     }
 
     if (!m_bAnimMove) {
-        NewAnim("idle", 0);
-        NewAnim("lean_left", 0, 3, fLeft);
-        NewAnim("lean_right", 0, 4, fRight);
-        NewAnim("lean_forward", 0, 1, fForward);
-        NewAnim("lean_back", 0, 2, fBack);
-        NewAnim("high", 0, 6, fEpsilon());
-        NewAnim("low", 0, 5, fEpsilon());
+        NewAnim("idle", NULL, 0, 1.0);
+        NewAnim("lean_left", NULL, 3, fLeft);
+        NewAnim("lean_right", NULL, 4, fRight);
+        NewAnim("lean_forward", NULL, 1, fForward);
+        NewAnim("lean_back", NULL, 2, fBack);
+        NewAnim("high", NULL, 6, fEpsilon());
+        NewAnim("low", NULL, 5, fEpsilon());
     }
 }
 
