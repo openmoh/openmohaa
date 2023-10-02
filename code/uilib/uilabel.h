@@ -20,8 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UILABEL_H__
-#define __UILABEL_H__
+#pragma once
 
 class linkstring {
 public:
@@ -67,6 +66,4 @@ public:
 	void		SetLabel( str lab );
 	void		Draw( void ) override;
 };
-
-#endif
 

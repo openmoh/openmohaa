@@ -20,87 +20,84 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __CL_UISTD_H__
-#define __CL_UISTD_H__
+#pragma once
 
 typedef enum {
-	L_STATBAR_NONE,
-	L_STATBAR_HORIZONTAL,
-	L_STATBAR_VERTICAL,
-	L_STATBAR_VERTICAL_REVERSE,
-	L_STATBAR_VERTICAL_STAGGER_EVEN,
-	L_STATBAR_VERTICAL_STAGGER_ODD,
-	L_STATBAR_CIRCULAR,
-	L_STATBAR_NEEDLE,
-	L_STATBAR_ROTATOR,
-	L_STATBAR_COMPASS,
-	L_STATBAR_SPINNER,
-	L_STATBAR_HEADING_SPINNER
+    L_STATBAR_NONE,
+    L_STATBAR_HORIZONTAL,
+    L_STATBAR_VERTICAL,
+    L_STATBAR_VERTICAL_REVERSE,
+    L_STATBAR_VERTICAL_STAGGER_EVEN,
+    L_STATBAR_VERTICAL_STAGGER_ODD,
+    L_STATBAR_CIRCULAR,
+    L_STATBAR_NEEDLE,
+    L_STATBAR_ROTATOR,
+    L_STATBAR_COMPASS,
+    L_STATBAR_SPINNER,
+    L_STATBAR_HEADING_SPINNER
 } statbar_orientation_t;
 
-class UIFakkLabel : public UILabel {
+class UIFakkLabel : public UILabel
+{
 protected:
-	SafePtr<inventory_item_t> m_lastitem;
-	int m_lastitemindex;
-	int m_stat;
-	int m_stat_configstring;
-	int m_maxstat;
-	int m_itemindex;
-	int m_inventoryrendermodelindex;
-	str m_sDrawModelName;
-	qboolean m_rendermodel;
-	statbar_orientation_t m_statbar_or;
-	float m_statbar_min;
-	float m_statbar_max;
-	float m_lastfrac;
-	float m_flashtime;
-	vec3_t m_offset;
-	vec3_t m_rotateoffset;
-	vec3_t m_angles;
-	float m_scale;
-	str m_anim;
-	UIReggedMaterial *m_statbar_material;
-	UIReggedMaterial *m_statbar_material_flash;
+    SafePtr<inventory_item_t> m_lastitem;
+    int                       m_lastitemindex;
+    int                       m_stat;
+    int                       m_stat_configstring;
+    int                       m_maxstat;
+    int                       m_itemindex;
+    int                       m_inventoryrendermodelindex;
+    str                       m_sDrawModelName;
+    qboolean                  m_rendermodel;
+    statbar_orientation_t     m_statbar_or;
+    float                     m_statbar_min;
+    float                     m_statbar_max;
+    float                     m_lastfrac;
+    float                     m_flashtime;
+    vec3_t                    m_offset;
+    vec3_t                    m_rotateoffset;
+    vec3_t                    m_angles;
+    float                     m_scale;
+    str                       m_anim;
+    UIReggedMaterial         *m_statbar_material;
+    UIReggedMaterial         *m_statbar_material_flash;
 
 public:
-	CLASS_PROTOTYPE( UIFakkLabel );
+    CLASS_PROTOTYPE(UIFakkLabel);
 
-	UIFakkLabel();
+    UIFakkLabel();
 
-	void		LayoutPlayerStat( Event *ev );
-	void		LayoutPlayerStatAlpha( Event *ev );
-	void		LayoutPlayerStatConfigstring( Event *ev );
-	void		LayoutMaxPlayerStat( Event *ev );
-	void		LayoutItemIndex( Event *ev );
-	void		InventoryRenderModelIndex( Event *ev );
-	void		LayoutModelName( Event *ev );
-	void		ClearInvItemReference( Event *ev );
-	void		LayoutStatbar( Event *ev );
-	void		LayoutStatbarShader( Event *ev );
-	void		LayoutStatbarTileShader( Event *ev );
-	void		LayoutStatbarShader_Flash( Event *ev );
-	void		LayoutStatbarShader_Marker( Event *ev );
-	void		LayoutStatbarEndAngles( Event *ev );
-	void		LayoutStatbarNeedleWidth( Event *ev );
-	void		LayoutStatbarRotatorSize( Event *ev );
-	void		LayoutStatbarTileShader_Flash( Event *ev );
-	void		LayoutRenderModel( Event *ev );
-	void		LayoutRenderModelOffset( Event *ev );
-	void		LayoutRenderModelRotateOffset( Event *ev );
-	void		LayoutRenderModelAngles( Event *ev );
-	void		LayoutRenderModelScale( Event *ev );
-	void		LayoutRenderModelAnim( Event *ev );
+    void LayoutPlayerStat(Event *ev);
+    void LayoutPlayerStatAlpha(Event *ev);
+    void LayoutPlayerStatConfigstring(Event *ev);
+    void LayoutMaxPlayerStat(Event *ev);
+    void LayoutItemIndex(Event *ev);
+    void InventoryRenderModelIndex(Event *ev);
+    void LayoutModelName(Event *ev);
+    void ClearInvItemReference(Event *ev);
+    void LayoutStatbar(Event *ev);
+    void LayoutStatbarShader(Event *ev);
+    void LayoutStatbarTileShader(Event *ev);
+    void LayoutStatbarShader_Flash(Event *ev);
+    void LayoutStatbarShader_Marker(Event *ev);
+    void LayoutStatbarEndAngles(Event *ev);
+    void LayoutStatbarNeedleWidth(Event *ev);
+    void LayoutStatbarRotatorSize(Event *ev);
+    void LayoutStatbarTileShader_Flash(Event *ev);
+    void LayoutRenderModel(Event *ev);
+    void LayoutRenderModelOffset(Event *ev);
+    void LayoutRenderModelRotateOffset(Event *ev);
+    void LayoutRenderModelAngles(Event *ev);
+    void LayoutRenderModelScale(Event *ev);
+    void LayoutRenderModelAnim(Event *ev);
 
-	void		DrawStatbar( float frac );
-	void		DrawStatCircle( float frac );
-	void		DrawStatNeedle( float frac );
-	void		DrawStatRotator( float frac );
-	void		DrawStatCompass( float frac );
-	void		DrawStatSpinner( float frac );
-	void		StatCircleTexCoord( float fAng, vec3_t vTexCoord );
+    void DrawStatbar(float frac);
+    void DrawStatCircle(float frac);
+    void DrawStatNeedle(float frac);
+    void DrawStatRotator(float frac);
+    void DrawStatCompass(float frac);
+    void DrawStatSpinner(float frac);
+    void StatCircleTexCoord(float fAng, vec3_t vTexCoord);
 
-	void		Draw( void ) override;
+    void Draw(void) override;
 };
-
-#endif
-
