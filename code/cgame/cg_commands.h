@@ -883,8 +883,8 @@ private:
     void          SetClampVel(Event *ev);
     void          SetClampVelAxis(Event *ev);
     ctempmodel_t *AllocateTempModel(void);
-    qboolean      TempModelPhysics(ctempmodel_t *p, float ftime, float time2, float scale);
-    qboolean      TempModelRealtimeEffects(ctempmodel_t *p, float ftime, float time2, float scale);
+    qboolean      TempModelPhysics(ctempmodel_t *p, float ftime, float scale);
+    qboolean      TempModelRealtimeEffects(ctempmodel_t *p, float ftime, float scale);
     qboolean      LerpTempModel(refEntity_t *newEnt, ctempmodel_t *p, float frac);
     void          SpawnEffect(int count, int timealive);
     void          SpawnTempModel(int count);
