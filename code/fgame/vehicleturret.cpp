@@ -192,12 +192,19 @@ CLASS_DECLARATION(TurretGun, VehicleTurretGun, NULL) {
     {&EV_VehicleTurretGun_SetCollisionEntity,    &VehicleTurretGun::EventSetCollisionModel},
     {&EV_Damage,                                 &VehicleTurretGun::EventDamage           },
     {&EV_Killed,                                 &VehicleTurretGun::EventKilled           },
-    {&EV_Turret_AI_TurnSpeed,                    &VehicleTurretGun::EventTurnSpeed        },
     {&EV_VehicleTurretGun_Lock,                  &VehicleTurretGun::EventLock             },
     {&EV_VehicleTurretGun_Unlock,                &VehicleTurretGun::EventUnlock           },
     {&EV_VehicleTurretGun_SoundSet,              &VehicleTurretGun::SetSoundSet           },
     {&EV_VehicleTurretGun_CollisionEntitySetter, &VehicleTurretGun::EventSetCollisionModel},
     {&EV_VehicleTurretGun_CollisionEntityGetter, &VehicleTurretGun::EventGetCollisionModel},
+    {&EV_VehicleTurretGun_WarmupDelay,           &VehicleTurretGun::SetWarmupDelay        },
+    {&EV_VehicleTurretGun_FireWarmupDelay,       &VehicleTurretGun::SetFireWarmupDelay    },
+    {&EV_VehicleTurretGun_ReloadShots,           &VehicleTurretGun::SetReloadShots        },
+    {&EV_VehicleTurretGun_ReloadDelay,           &VehicleTurretGun::SetReloadDelay        },
+    {&EV_VehicleTurretGun_AimOffset,             &VehicleTurretGun::SetAimOffset          },
+    {&EV_VehicleTurretGun_AimTolerance,          &VehicleTurretGun::SetAimTolerance       },
+    {&EV_VehicleTurretGun_SetTargetEntity,       &VehicleTurretGun::SetTargetEntity       },
+    {&EV_VehicleTurretGun_PlayReloadSound,       &VehicleTurretGun::PlayReloadSound       },
     {NULL,                                       NULL                                     }
 };
 
@@ -1298,7 +1305,7 @@ void VehicleTurretGun::UpdateTimers(float& yawTimer, float& pitchTimer)
         yawTimer   = level.frametime * (m_fTurnSpeed * ((m_fWarmupDelay - m_fWarmupTimeRemaining) / m_fWarmupDelay));
         pitchTimer = level.frametime * (m_fAIPitchSpeed * ((m_fWarmupDelay - m_fWarmupTimeRemaining) / m_fWarmupDelay));
     } else {
-        yawTimer = m_fTurnSpeed * level.frametime;
+        yawTimer   = m_fTurnSpeed * level.frametime;
         pitchTimer = m_fAIPitchSpeed * level.frametime;
     }
 }
@@ -1696,12 +1703,9 @@ float VehicleTurretGun::GetWarmupFraction() const
         return 0;
     }
 
-    frac = ((m_fTargetReloadTime - level.time) / m_fFireWarmupDelay);
-    if (frac > 1.0) {
-        frac = 1.0;
-    } else if (frac < 0.0) {
-        frac = 0.0;
-    }
+    frac = (m_fTargetReloadTime - level.time) / m_fFireWarmupDelay;
+    // Clamp between [0,1]
+    frac = Q_clamp_float(frac, 0, 1);
 
     return 1.0 - frac;
 }
