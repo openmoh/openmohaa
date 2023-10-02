@@ -57,6 +57,8 @@ class UILabel : public UIWidget
     int                     m_iSoundState;
     int                     m_iLastEnterTime;
     int                     m_iLastDrawTime;
+
+protected:
     qboolean                m_bOutlinedText;
 
 public:
