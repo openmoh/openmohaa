@@ -51,9 +51,13 @@ public:
     void PrintJustified(
         const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, float *vVirtualScale
     );
+    void PrintOutlinedJustified(
+        const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char* text, const UColor& outlineColor, float* vVirtualScale
+    );
     void setColor(UColor col);
     void setAlpha(float alpha);
     void setFont(const char *fontname);
+    int  getMaxWidthIndex(const char* text, int maxlen);
     int  getWidth(const char *text, int maxlen);
     int  getCharWidth(unsigned short ch);
     int  getHeight(const char *text, int maxlen, qboolean bVirtual);

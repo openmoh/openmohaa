@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 qboolean UI_FontDBCSIsLeadByte(fontheader_t *font, unsigned short uch);
 int      UI_FontCodeSearch(const fontheader_t *font, unsigned short uch);
+int      UI_FontStringMaxWidth(fontheader_t* pFont, const char* pszString, int iMaxLen);
 
 UIFont::UIFont()
 {
@@ -37,13 +38,29 @@ UIFont::UIFont()
 }
 
 UIFont::UIFont(const char *fn)
-
 {
     setFont(fn);
 }
 
-void UIFont::Print(float x, float y, const char *text, size_t maxlen, qboolean bVirtualScreen)
+void UIFont::setColor(UColor col)
+{
+    color = col;
+}
 
+void UIFont::setAlpha(float alpha)
+{
+    color.a = alpha;
+}
+
+void UIFont::setFont(const char* fontname)
+{
+    m_font = uii.Rend_LoadFont(fontname);
+    if (!m_font) {
+        uii.Sys_Error(ERR_DROP, "Couldn't load font %s\n", fontname);
+    }
+}
+
+void UIFont::Print(float x, float y, const char *text, size_t maxlen, qboolean bVirtualScreen)
 {
     uii.Rend_SetColor(color);
     uii.Rend_DrawString(m_font, text, x, y, maxlen, bVirtualScreen);
@@ -52,7 +69,6 @@ void UIFont::Print(float x, float y, const char *text, size_t maxlen, qboolean b
 void UIFont::PrintJustified(
     const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, float *vVirtualScale
 )
-
 {
     float       newx, newy;
     int         textwidth, textheight;
@@ -113,16 +129,16 @@ void UIFont::PrintJustified(
 
         *dest = 0;
 
-        textwidth = getWidth(string, -1);
-
         switch (horz) {
         case FONT_JUSTHORZ_CENTER:
+            textwidth = getWidth(string, -1);
             newx = sizedRect.pos.x + (sizedRect.size.width - textwidth) * 0.5;
             break;
         case FONT_JUSTHORZ_LEFT:
             newx = sizedRect.pos.x;
             break;
         case FONT_JUSTHORZ_RIGHT:
+            textwidth = getWidth(string, -1);
             newx = sizedRect.pos.x + sizedRect.size.width - textwidth;
             break;
         default:
@@ -137,35 +153,122 @@ void UIFont::PrintJustified(
     }
 }
 
-void UIFont::setColor(UColor col)
-
+void UIFont::PrintOutlinedJustified(const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char* text, const UColor& outlineColor, float* vVirtualScale)
 {
-    color = col;
-}
+    float       newx, newy;
+    int         textwidth, textheight;
+    UIRect2D    sizedRect;
+    const char *source;
+    char       *dest;
+    char        string[2048];
 
-void UIFont::setAlpha(float alpha)
+    if (vVirtualScale) {
+        sizedRect.pos.x       = rect.pos.x / vVirtualScale[0];
+        sizedRect.pos.y       = rect.pos.y / vVirtualScale[1];
+        sizedRect.size.width  = rect.size.width / vVirtualScale[0];
+        sizedRect.size.height = rect.size.height / vVirtualScale[1];
+    } else {
+        sizedRect = rect;
+    }
 
-{
-    color.a = alpha;
-}
+    if (horz == FONT_JUSTHORZ_LEFT && vert == FONT_JUSTVERT_TOP) {
+        // no need to justify
+        Print(sizedRect.pos.x, sizedRect.pos.y, text, -1, vVirtualScale != NULL);
+        return;
+    }
 
-void UIFont::setFont(const char *fontname)
+    textheight = getHeight(text, -1, qfalse);
 
-{
-    m_font = uii.Rend_LoadFont(fontname);
-    if (!m_font) {
-        uii.Sys_Error(ERR_DROP, "Couldn't load font %s\n", fontname);
+    switch (vert) {
+    case FONT_JUSTVERT_TOP:
+        newy = sizedRect.pos.y + 2.0;
+        break;
+    case FONT_JUSTVERT_CENTER:
+        newy = sizedRect.pos.y + (sizedRect.size.height - textheight) * 0.5;
+        break;
+    case FONT_JUSTVERT_BOTTOM:
+        newy = sizedRect.pos.y + sizedRect.size.height - textheight - 2.0;
+        break;
+    default:
+        newy = 0;
+        break;
+    }
+
+    source = text;
+    while (*source) {
+        // skip new lines
+        while (*source == '\n') {
+            source++;
+        }
+
+        if (!*source) {
+            // don't print an empty string
+            return;
+        }
+
+        dest = string;
+
+        do {
+            *dest++ = *source++;
+        } while (*source && *source != '\n');
+
+        *dest = 0;
+
+        switch (horz) {
+        case FONT_JUSTHORZ_CENTER:
+            textwidth = getWidth(string, -1);
+            newx = sizedRect.pos.x + (sizedRect.size.width - textwidth) * 0.5;
+            break;
+        case FONT_JUSTHORZ_LEFT:
+            newx = sizedRect.pos.x + 2.0;
+            break;
+        case FONT_JUSTHORZ_RIGHT:
+            textwidth = getWidth(string, -1);
+            newx = sizedRect.pos.x + sizedRect.size.width - textwidth - 2.0;
+            break;
+        default:
+            newx = 0.0;
+            break;
+        }
+
+        //
+        // draw the outline
+        //
+        setColor(outlineColor);
+        Print(newx + 1, newy + 2, string, -1, vVirtualScale != NULL);
+        Print(newx + 2, newy + 1, string, -1, vVirtualScale != NULL);
+        Print(newx - 1, newy + 2, string, -1, vVirtualScale != NULL);
+        Print(newx - 2, newy + 1, string, -1, vVirtualScale != NULL);
+        Print(newx - 1, newy - 2, string, -1, vVirtualScale != NULL);
+        Print(newx - 2, newy - 1, string, -1, vVirtualScale != NULL);
+        Print(newx + 1, newy - 2, string, -1, vVirtualScale != NULL);
+        Print(newx + 2, newy - 1, string, -1, vVirtualScale != NULL);
+        Print(newx + 2, newy, string, -1, vVirtualScale != NULL);
+        Print(newx - 2, newy, string, -1, vVirtualScale != NULL);
+        Print(newx, newy + 2, string, -1, vVirtualScale != NULL);
+        Print(newx, newy - 2, string, -1, vVirtualScale != NULL);
+        //
+        // draw the text
+        //
+        setColor(color);
+        Print(newx, newy, string, -1, vVirtualScale != NULL);
+
+        // expand for newline
+        newy += getHeight(" ", -1, qfalse);
     }
 }
 
-int UIFont::getWidth(const char *text, int maxlen)
+int UIFont::getMaxWidthIndex(const char* text, int maxlen)
+{
+    return UI_FontStringMaxWidth(m_font, text, maxlen);
+}
 
+int UIFont::getWidth(const char *text, int maxlen)
 {
     return UI_FontStringWidth(m_font, text, maxlen);
 }
 
 int UIFont::getCharWidth(unsigned short ch)
-
 {
     int index;
     int indirected;
@@ -203,7 +306,6 @@ int UIFont::getCharWidth(unsigned short ch)
 }
 
 int UIFont::getHeight(const char *text, int maxlen, qboolean bVirtual)
-
 {
     float height;
     int   i;
@@ -228,7 +330,6 @@ int UIFont::getHeight(const char *text, int maxlen, qboolean bVirtual)
 }
 
 int UIFont::getHeight(qboolean bVirtual)
-
 {
     if (bVirtual) {
         if (m_font) {
@@ -341,7 +442,6 @@ float UI_FontgetCharWidthf(fontheader_t *font, unsigned short uch)
 }
 
 int UI_FontStringMaxWidth(fontheader_t *pFont, const char *pszString, int iMaxLen)
-
 {
     float widths    = 0.0;
     float maxwidths = iMaxLen / 256.0f;
@@ -383,7 +483,6 @@ int UI_FontStringMaxWidth(fontheader_t *pFont, const char *pszString, int iMaxLe
 }
 
 int UI_FontStringWidth(fontheader_t *pFont, const char *pszString, int iMaxLen)
-
 {
     float widths    = 0.0;
     float maxwidths = 0.0;
