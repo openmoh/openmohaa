@@ -3443,7 +3443,7 @@ void ClientGameCommandManager::BeginTagSpawnLinked(Event *ev)
     m_spawnthing->entnum   = current_entity->entityNumber;
     m_spawnthing->cgd.tiki = current_tiki;
     m_spawnthing->cgd.flags |= T_WAVE;
-    m_spawnthing->cgd.origin = Vector(0, 0, 0);
+    m_spawnthing->cgd.origin = current_entity->origin;
 
     ori = cgi.TIKI_Orientation(current_entity, tagnum);
 
