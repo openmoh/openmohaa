@@ -1304,13 +1304,25 @@ void UIFakkLabel::Draw(void)
     if (m_stat == -1 && m_itemindex == -1 && m_inventoryrendermodelindex == -1) {
         if (m_stat_configstring != -1) {
             m_font->setColor(m_foreground_color);
-            m_font->PrintJustified(
-                getClientFrame(),
-                m_iFontAlignmentHorizontal,
-                m_iFontAlignmentVertical,
-                Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(cl.snap.ps.stats[m_stat_configstring]))),
-                m_bVirtual ? m_vVirtualScale : NULL
-            );
+
+            if (m_bOutlinedText) {
+                m_font->PrintOutlinedJustified(
+                    getClientFrame(),
+                    m_iFontAlignmentHorizontal,
+                    m_iFontAlignmentVertical,
+                    Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(cl.snap.ps.stats[m_stat_configstring]))),
+                    UBlack,
+                    m_bVirtual ? m_vVirtualScale : NULL
+                );
+            } else {
+                m_font->PrintJustified(
+                    getClientFrame(),
+                    m_iFontAlignmentHorizontal,
+                    m_iFontAlignmentVertical,
+                    Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(cl.snap.ps.stats[m_stat_configstring]))),
+                    m_bVirtual ? m_vVirtualScale : NULL
+                );
+            }
 
             return;
         }
@@ -1323,13 +1335,25 @@ void UIFakkLabel::Draw(void)
 
     if (m_stat_configstring != -1) {
         m_font->setColor(m_foreground_color);
-        m_font->PrintJustified(
-            getClientFrame(),
-            m_iFontAlignmentHorizontal,
-            m_iFontAlignmentVertical,
-            Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(cl.snap.ps.stats[m_stat_configstring]))),
-            m_bVirtual ? m_vVirtualScale : NULL
-        );
+
+        if (m_bOutlinedText) {
+            m_font->PrintOutlinedJustified(
+                getClientFrame(),
+                m_iFontAlignmentHorizontal,
+                m_iFontAlignmentVertical,
+                Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(cl.snap.ps.stats[m_stat_configstring]))),
+                UBlack,
+                m_bVirtual ? m_vVirtualScale : NULL
+            );
+        } else {
+            m_font->PrintJustified(
+                getClientFrame(),
+                m_iFontAlignmentHorizontal,
+                m_iFontAlignmentVertical,
+                Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(cl.snap.ps.stats[m_stat_configstring]))),
+                m_bVirtual ? m_vVirtualScale : NULL
+            );
+        }
 
         return;
     }
@@ -1353,13 +1377,25 @@ void UIFakkLabel::Draw(void)
             }
 
             m_font->setColor(m_foreground_color);
-            m_font->PrintJustified(
-                getClientFrame(),
-                m_iFontAlignmentHorizontal,
-                m_iFontAlignmentVertical,
-                Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_itemindex]))),
-                m_bVirtual ? m_vVirtualScale : NULL
-            );
+
+            if (m_bOutlinedText) {
+                m_font->PrintOutlinedJustified(
+                    getClientFrame(),
+                    m_iFontAlignmentHorizontal,
+                    m_iFontAlignmentVertical,
+                    Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_itemindex]))),
+                    UBlack,
+                    m_bVirtual ? m_vVirtualScale : NULL
+                );
+            } else {
+                m_font->PrintJustified(
+                    getClientFrame(),
+                    m_iFontAlignmentHorizontal,
+                    m_iFontAlignmentVertical,
+                    Sys_LV_CL_ConvertString(va("%s", CL_ConfigString(CS_WEAPONS + cl.snap.ps.activeItems[m_itemindex]))),
+                    m_bVirtual ? m_vVirtualScale : NULL
+                );
+            }
 
             return;
         }
@@ -1543,11 +1579,23 @@ void UIFakkLabel::Draw(void)
     }
 
     m_font->setColor(m_foreground_color);
-    m_font->PrintJustified(
-        getClientFrame(),
-        m_iFontAlignmentHorizontal,
-        m_iFontAlignmentVertical,
-        va("%d", delta),
-        m_bVirtual ? m_vVirtualScale : NULL
-    );
+
+    if (m_bOutlinedText) {
+        m_font->PrintOutlinedJustified(
+            getClientFrame(),
+            m_iFontAlignmentHorizontal,
+            m_iFontAlignmentVertical,
+            va("%d", delta),
+            UBlack,
+            m_bVirtual ? m_vVirtualScale : NULL
+        );
+    } else {
+        m_font->PrintJustified(
+            getClientFrame(),
+            m_iFontAlignmentHorizontal,
+            m_iFontAlignmentVertical,
+            va("%d", delta),
+            m_bVirtual ? m_vVirtualScale : NULL
+        );
+    }
 }
