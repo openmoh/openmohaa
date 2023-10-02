@@ -68,6 +68,7 @@ public:
 	UIFakkLabel();
 
 	void		LayoutPlayerStat( Event *ev );
+	void		LayoutPlayerStatAlpha( Event *ev );
 	void		LayoutPlayerStatConfigstring( Event *ev );
 	void		LayoutMaxPlayerStat( Event *ev );
 	void		LayoutItemIndex( Event *ev );
@@ -78,6 +79,7 @@ public:
 	void		LayoutStatbarShader( Event *ev );
 	void		LayoutStatbarTileShader( Event *ev );
 	void		LayoutStatbarShader_Flash( Event *ev );
+	void		LayoutStatbarShader_Marker( Event *ev );
 	void		LayoutStatbarEndAngles( Event *ev );
 	void		LayoutStatbarNeedleWidth( Event *ev );
 	void		LayoutStatbarRotatorSize( Event *ev );

@@ -31,6 +31,14 @@ Event EV_Layout_PlayerStat
 	"playerstatValue",
 	"set playerstat for layout\n"
 	);
+Event EV_Layout_PlayerStatAlpha // Added in 2.0
+	(
+	"playerstatalpha",
+	EV_DEFAULT,
+	"i",
+	"playerstatValue",
+	"set playerstat to control alpha for layout\n"
+	);
 Event EV_Layout_PlayerStatConfigstring
 	(
 	"playerstatconfigstring",
@@ -102,6 +110,14 @@ Event EV_Layout_StatbarShader_Flash
 	"s",
 	"shader",
 	"set the flash shader for this statbar"
+	);
+Event EV_Layout_StatbarShader_Marker // Added in 2.0
+	(
+	"statbar_shader_marker",
+	EV_DEFAULT,
+	"s",
+	"shader",
+	"set the marker shader for this statbar\nThis is drawn at the end of the status bar"
 	);
 Event EV_Layout_Statbar_EndAngles
 	(
@@ -195,6 +211,7 @@ Event EV_ClearInvItemReference
 CLASS_DECLARATION( UILabel, UIFakkLabel, NULL )
 {
 	{ &EV_Layout_PlayerStat,					&UIFakkLabel::LayoutPlayerStat },
+	{ &EV_Layout_PlayerStatAlpha,				&UIFakkLabel::LayoutPlayerStatAlpha },
 	{ &EV_Layout_PlayerStatConfigstring,		&UIFakkLabel::LayoutPlayerStatConfigstring },
 	{ &EV_Layout_MaxPlayerStat,					&UIFakkLabel::LayoutMaxPlayerStat },
 	{ &EV_Layout_ItemIndex,						&UIFakkLabel::LayoutItemIndex },
@@ -202,7 +219,8 @@ CLASS_DECLARATION( UILabel, UIFakkLabel, NULL )
 	{ &EV_Layout_Statbar,						&UIFakkLabel::LayoutStatbar },
 	{ &EV_Layout_StatbarTileShader,				&UIFakkLabel::LayoutStatbarTileShader },
 	{ &EV_Layout_StatbarShader,					&UIFakkLabel::LayoutStatbarShader },
-	{ &EV_Layout_StatbarTileShader_Flash,		&UIFakkLabel::LayoutStatbarTileShader_Flash },
+    { &EV_Layout_StatbarTileShader_Flash,		&UIFakkLabel::LayoutStatbarTileShader_Flash },
+    { &EV_Layout_StatbarShader_Marker,			&UIFakkLabel::LayoutStatbarShader_Marker },
 	{ &EV_Layout_StatbarShader_Flash,			&UIFakkLabel::LayoutStatbarShader_Flash },
 	{ &EV_Layout_Statbar_EndAngles,				&UIFakkLabel::LayoutStatbarEndAngles },
 	{ &EV_Layout_Statbar_NeedleWidth,			&UIFakkLabel::LayoutStatbarNeedleWidth },
@@ -236,6 +254,11 @@ UIFakkLabel::UIFakkLabel()
 void UIFakkLabel::LayoutPlayerStat( Event *ev )
 {
 	m_stat = ev->GetInteger( 1 );
+}
+
+void UIFakkLabel::LayoutPlayerStatAlpha(Event* ev)
+{
+	// FIXME: unimplemented
 }
 
 void UIFakkLabel::LayoutPlayerStatConfigstring( Event *ev )
@@ -373,6 +396,11 @@ void UIFakkLabel::LayoutStatbarTileShader( Event *ev )
 void UIFakkLabel::LayoutStatbarShader_Flash( Event *ev )
 {
 	m_statbar_material_flash = uWinMan.RegisterShader( ev->GetString( 1 ) );
+}
+
+void UIFakkLabel::LayoutStatbarShader_Marker(Event* ev)
+{
+	// FIXME: unimplemented
 }
 
 void UIFakkLabel::LayoutStatbarEndAngles( Event *ev )
