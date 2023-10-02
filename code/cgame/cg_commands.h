@@ -337,12 +337,12 @@ inline cvssource_t::cvssource_t()
     , stindex(0)
     , lastRadius(0)
     , lastDensity(0)
-    , lastColor{0}
-    , lastLighting{0}
+    , lastColor {0}
+    , lastLighting {0}
     , newRadius(0)
     , newDensity(0)
-    , newColor{0}
-    , newLighting{0}
+    , newColor {0}
+    , newLighting {0}
     , ooRadius(0)
     , startAlpha(0)
     , roll(0)
@@ -358,9 +358,7 @@ inline cvssource_t::cvssource_t()
     , lastPhysicsTime(0)
     , lastLightingTime(0)
     , lastValid(qfalse)
-{
-
-}
+{}
 
 class cvssourcestate_t
 {
@@ -574,7 +572,7 @@ public:
 class commandthing_t : public enttracker_t
 {
     Container<commandtime_t> m_commandtimes; // A list of entity numbers and the last time they
-                                               // executed a command
+                                             // executed a command
 
 public:
     commandtime_t *GetLastCommandTime(int entnum, int commandnum);
@@ -602,13 +600,13 @@ inline void commandthing_t::RemoveEntity(int entnum)
 
 inline commandtime_t *commandthing_t::GetLastCommandTime(int entnum, int commandnum)
 {
-    int            num, count;
+    int num, count;
 
     // Search for this entity number
     count = m_commandtimes.NumObjects();
 
     for (num = 1; num <= count; num++) {
-        commandtime_t* ct = &m_commandtimes.ObjectAt(num);
+        commandtime_t *ct = &m_commandtimes.ObjectAt(num);
         if ((ct->entity_number == entnum) && (ct->command_number == commandnum)) {
             return ct;
         }
@@ -932,13 +930,13 @@ public:
     void UpdateEmitter(dtiki_t *tiki, vec3_t axis[3], int entity_number, int parent_number, Vector entity_origin);
     void UpdateBeam(dtiki_t *tiki, int entity_number, spawnthing_t *beamthing);
     void PlaySound(
-        str    sound_name,
+        str          sound_name,
         const vec3_t origin       = NULL,
-        int    channel            = CHAN_AUTO,
-        float  volume             = -1,
-        float  min_distance       = -1,
-        float  pitch              = -1,
-        int    argstype           = 0
+        int          channel      = CHAN_AUTO,
+        float        volume       = -1,
+        float        min_distance = -1,
+        float        pitch        = -1,
+        int          argstype     = 0
     );
 
     spawnthing_t *InitializeSpawnthing(spawnthing_t *ep);
@@ -952,7 +950,7 @@ public:
     void InitializeEmitters(void);
     void RemoveClientEntity(int number, dtiki_t *tiki, centity_t *cent, ctempmodel_t *p = NULL);
     void ClearSwipes(void);
-    void FreeSpawnthing(spawnthing_t* sp);
+    void FreeSpawnthing(spawnthing_t *sp);
     void ResetTempModels(void);
     void SpawnTempModel(int count, spawnthing_t *sp);
 
@@ -987,16 +985,16 @@ public:
     //
     // archive stuff
     //
-    int IdForTempModel(const ctempmodel_t* model);
-    ctempmodel_t* TempModelForId(int id);
-    int IdForSpawnThing(const spawnthing_t* sp);
-    spawnthing_t* SpawnThingForId(int id);
-    int IdForVssSource(const cvssource_t* source);
-    cvssource_t* VssSourceForId(int id);
-    
-    void ArchiveTempModelPointerToMemory(MemArchiver& archiver, ctempmodel_t** model);
-    void ArchiveSpawnThingPointerToMemory(MemArchiver& archiver, spawnthing_t** sp);
-    void ArchiveVssSourcePointerToMemory(MemArchiver& archiver, cvssource_t** source);
+    int           IdForTempModel(const ctempmodel_t *model);
+    ctempmodel_t *TempModelForId(int id);
+    int           IdForSpawnThing(const spawnthing_t *sp);
+    spawnthing_t *SpawnThingForId(int id);
+    int           IdForVssSource(const cvssource_t *source);
+    cvssource_t  *VssSourceForId(int id);
+
+    void ArchiveTempModelPointerToMemory(MemArchiver& archiver, ctempmodel_t **model);
+    void ArchiveSpawnThingPointerToMemory(MemArchiver& archiver, spawnthing_t **sp);
+    void ArchiveVssSourcePointerToMemory(MemArchiver& archiver, cvssource_t **source);
     void ArchiveToMemory(MemArchiver& archiver);
 };
 
