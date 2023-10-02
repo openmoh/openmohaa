@@ -45,14 +45,47 @@ void CacheResource(const char *stuff);
 
 ClientGameCommandManager commandManager;
 
-Event EV_Client_StartBlock("(", EV_DEFAULT, NULL, NULL, "Signals the beginning of a block of commands");
-Event EV_Client_EndBlock(")", EV_DEFAULT, NULL, NULL, "Signals the end of a block of commands");
-Event EV_Client_EmitterStartOff(
-    "startoff", EV_DEFAULT, NULL, NULL, "Signals an emitter to start in the off state (no tempmodels are emitted)"
+Event EV_Client_StartBlock
+(
+    "(",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Signals the beginning of a block of commands"
 );
-Event EV_Client_SetAlpha("alpha", EV_DEFAULT, "f", "alpha", "Set the alpha of the spawned tempmodel");
-Event EV_Client_SetDieTouch(
-    "dietouch", EV_DEFAULT, NULL, NULL, "Set the spawned tempmodels to die when they touch a solid"
+Event EV_Client_EndBlock
+(
+    ")",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Signals the end of a block of commands"
+);
+Event EV_Client_EmitterStartOff
+(
+    "startoff",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Signals an emitter to start in the off state (no tempmodels are emitted)"
+
+);
+Event EV_Client_SetAlpha
+(
+    "alpha",
+    EV_DEFAULT,
+    "f",
+    "alpha",
+    "Set the alpha of the spawned tempmodel"
+);
+Event EV_Client_SetDieTouch
+(
+    "dietouch",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set the spawned tempmodels to die when they touch a solid"
+
 );
 Event EV_Client_SetBounceFactor(
     "bouncefactor",
@@ -62,22 +95,55 @@ Event EV_Client_SetBounceFactor(
     "Set the bounciness of a tempmodel when it hits a solid.\n"
     "A factor > 1 will make the model bounce higher and higher on each hit"
 );
-Event EV_Client_SetBounceSound(
+Event EV_Client_SetBounceSound
+(
     "bouncesound",
     EV_DEFAULT,
     "sF",
     "sound [delay]",
     "When bouncing, what sound to play on impact and an option delay (default is 1 second) between playing this sound"
 );
-Event EV_Client_SetBounceSoundOnce(
-    "bouncesoundonce", EV_DEFAULT, "s", "sound", "When bouncing, what sound to play on impact one time"
+Event EV_Client_SetBounceSoundOnce
+(
+    "bouncesoundonce",
+    EV_DEFAULT,
+    "s",
+    "sound",
+    "When bouncing, what sound to play on impact one time"
 );
-Event EV_Client_SetScale("scale", EV_DEFAULT, "f", "scale", "Set the scale of a spawned tempmodel");
-Event EV_Client_SetScaleUpDown(
-    "scaleupdown", EV_DEFAULT, NULL, NULL, "Set the tempmodel to scale up to scale value and then down."
+Event EV_Client_SetScale
+(
+    "scale",
+    EV_DEFAULT,
+    "f",
+    "scale",
+    "Set the scale of a spawned tempmodel"
 );
-Event EV_Client_SetScaleMin("scalemin", EV_DEFAULT, "f", "scalemin", "Set the minimum scale of a spawned tempmodel");
-Event EV_Client_SetScaleMax("scalemax", EV_DEFAULT, "f", "scalemax", "Set the maximum scale of a spawned tempmodel");
+Event EV_Client_SetScaleUpDown
+(
+    "scaleupdown",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set the tempmodel to scale up to scale value and then down."
+
+);
+Event EV_Client_SetScaleMin
+(
+    "scalemin",
+    EV_DEFAULT,
+    "f",
+    "scalemin",
+    "Set the minimum scale of a spawned tempmodel"
+);
+Event EV_Client_SetScaleMax
+(
+    "scalemax",
+    EV_DEFAULT,
+    "f",
+    "scalemax",
+    "Set the maximum scale of a spawned tempmodel"
+);
 Event EV_Client_SetModel(
     "model",
     EV_DEFAULT,
@@ -86,9 +152,22 @@ Event EV_Client_SetModel(
     "Set the modelname of the tempmodel.  If more than 1 model is specified, it will\n"
     "be randomly chosen when spawned"
 );
-Event EV_Client_SetLife("life", EV_DEFAULT, "f", "life", "Set the life (in seconds) of the spawned tempmodel");
-Event EV_Client_SetColor(
-    "color", EV_DEFAULT, "fffF", "red green blue alpha", "Set the color (modulate) of the spawned tempmodel."
+Event EV_Client_SetLife
+(
+    "life",
+    EV_DEFAULT,
+    "f",
+    "life",
+    "Set the life (in seconds) of the spawned tempmodel"
+);
+Event EV_Client_SetColor
+(
+    "color",
+    EV_DEFAULT,
+    "fffF",
+    "red green blue alpha",
+    "Set the color (modulate) of the spawned tempmodel."
+
 );
 Event EV_Client_SetRadialVelocity(
     "radialvelocity",
@@ -98,14 +177,32 @@ Event EV_Client_SetRadialVelocity(
     "Subtracts the particle origin from origin and multiplies by scale, then adds additional velocity\n"
     "between min and max... negative values bring toward origin\n"
 );
-Event EV_Client_SetVelocity(
-    "velocity", EV_DEFAULT, "f", "forwardVelocity", "Set the forward velocity of the spawned tempmodel"
+Event EV_Client_SetVelocity
+(
+    "velocity",
+    EV_DEFAULT,
+    "f",
+    "forwardVelocity",
+    "Set the forward velocity of the spawned tempmodel"
+
 );
-Event EV_Client_SetAngularVelocity(
-    "avelocity", EV_DEFAULT, "fff", "yawVel pitchVel rollVel", "Set the angular velocity of the spawned tempmodel"
+Event EV_Client_SetAngularVelocity
+(
+    "avelocity",
+    EV_DEFAULT,
+    "fff",
+    "yawVel pitchVel rollVel",
+    "Set the angular velocity of the spawned tempmodel"
+
 );
-Event EV_Client_SetColorVelocity(
-    "colorvelocity", EV_DEFAULT, "fff", "rVel gVel bVel", "Set the color velocity of the spawned dlight tempmodel"
+Event EV_Client_SetColorVelocity
+(
+    "colorvelocity",
+    EV_DEFAULT,
+    "fff",
+    "rVel gVel bVel",
+    "Set the color velocity of the spawned dlight tempmodel"
+
 );
 Event EV_Client_SetRandomVelocity(
     "randvel",
@@ -136,13 +233,15 @@ Event EV_Client_SetRandomVelocityAlongAxis(
     "without randomness.\n"
     "This velocity is applied using the parent axis"
 );
-Event EV_Client_SetAccel(
+Event EV_Client_SetAccel
+(
     "accel",
     EV_DEFAULT,
     "fff",
     "xAcc yAcc zAcc",
     "Set the acceleration of the spawned tempmodel.\n"
     "This acceleration is applied using the world axis"
+
 );
 Event EV_Client_SetFriction(
     "friction",
@@ -152,20 +251,29 @@ Event EV_Client_SetFriction(
     "Set the friction as a fraction of velocity per second... exact effect depends on physics rate:\n"
     "slowdown per second = [1 - (friction / physicsrate)] ^ physicsrate; physicsrate defaults to 10"
 );
-Event EV_Client_SetSpin(
+Event EV_Client_SetSpin
+(
     "spin",
     EV_DEFAULT,
     "f",
     "rotations_per_second",
     "Sets counterclockwise rotations per second at which the emitter's x/y-axes rotate around its z-axis"
+
 );
 Event EV_Client_SetVaryColor(
     "varycolor", EV_DEFAULT, NULL, NULL, "Sets the color to vary by 0 to -20% of specified color"
 );
-Event EV_Client_SetSmokeParms(
-    "smokeparms", EV_DEFAULT, "fff", "typeinfo fademult scalemult", "Sets some misc parms for smoke"
+Event EV_Client_SetSmokeParms
+(
+    "smokeparms",
+    EV_DEFAULT,
+    "fff",
+    "typeinfo fademult scalemult",
+    "Sets some misc parms for smoke"
+
 );
-Event EV_Client_SetCount(
+Event EV_Client_SetCount
+(
     "count",
     EV_DEFAULT,
     "i",
@@ -174,18 +282,47 @@ Event EV_Client_SetCount(
     "This is only used for the originspawn and tagspawn commands,\n"
     "and not for emitters, use spawnrate instead"
 );
-Event EV_Client_SetFade("fade", EV_DEFAULT, NULL, NULL, "Set the tempmodel to fade out over it's life");
-Event EV_Client_SetFadeDelay("fadedelay", EV_DEFAULT, "f", "time", "Set the amount of time to delay a fade");
-Event EV_Client_SetFadeIn("fadein", EV_DEFAULT, "f", "time", "Set the tempmodel to fade in over the specified time");
-Event EV_Client_SetTwinkle(
+Event EV_Client_SetFade
+(
+    "fade",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set the tempmodel to fade out over it's life"
+);
+Event EV_Client_SetFadeDelay
+(
+    "fadedelay",
+    EV_DEFAULT,
+    "f",
+    "time",
+    "Set the amount of time to delay a fade"
+);
+Event EV_Client_SetFadeIn
+(
+    "fadein",
+    EV_DEFAULT,
+    "f",
+    "time",
+    "Set the tempmodel to fade in over the specified time"
+);
+Event EV_Client_SetTwinkle
+(
     "twinkle",
     EV_DEFAULT,
     "ffff",
     "mintimeoff maxtimeoff mintimeon maxtimeon",
     "Set the tempmodel to twinkle with the specified settings"
+
 );
-Event EV_Client_SetTrail(
-    "trail", EV_DEFAULT, "sssf", "shader startTag endTag life", "Set the tempmodel to have a swipe that follows it"
+Event EV_Client_SetTrail
+(
+    "trail",
+    EV_DEFAULT,
+    "sssf",
+    "shader startTag endTag life",
+    "Set the tempmodel to have a swipe that follows it"
+
 );
 Event EV_Client_SetSpawnRange(
     "spawnrange",
@@ -195,13 +332,15 @@ Event EV_Client_SetSpawnRange(
     "Sets the range in which this effect will spawn tempmodels.  If one number is specified, it is the max range\n"
     "and 0 is the min range; if two numbers are specified, the larger is the max range.\n"
 );
-Event EV_Client_SetSpawnRate(
+Event EV_Client_SetSpawnRate
+(
     "spawnrate",
     EV_DEFAULT,
     "f",
     "rate",
     "Set the spawnrate of the emitter (models per second).\n"
     "This is only used for emitters and not for the originspawn and tagspawn commands"
+
 );
 Event EV_Client_SetOriginOffset(
     "offset",
@@ -217,7 +356,8 @@ Event EV_Client_SetOriginOffset(
     "without randomness.\n"
     "This offset is applied using the world axis."
 );
-Event EV_Client_SetScaleRate(
+Event EV_Client_SetScaleRate
+(
     "scalerate",
     EV_DEFAULT,
     "f",
@@ -225,13 +365,15 @@ Event EV_Client_SetScaleRate(
     "Set the scaling rate of the spawned tempmodel\n"
     "If a negative rate is used, the model will shrink"
 );
-Event EV_Client_SetCircle(
+Event EV_Client_SetCircle
+(
     "circle",
     EV_DEFAULT,
     NULL,
     NULL,
     "Set the tempmodels to be spawned in a circle around the origin\n"
     "This circle will be generated in the X/Y axis of the model"
+
 );
 Event EV_Client_SetSphere(
     "sphere",
@@ -252,10 +394,17 @@ Event EV_Client_SetInwardSphere(
     "spehere radius and some velocity so the models look like they're heading toward the\n"
     "center of the sphere."
 );
-Event EV_Client_SetRadius(
-    "radius", EV_DEFAULT, "f", "radius", "Set the radius of the sphere for the inwardsphere amd sphere settings"
+Event EV_Client_SetRadius
+(
+    "radius",
+    EV_DEFAULT,
+    "f",
+    "radius",
+    "Set the radius of the sphere for the inwardsphere amd sphere settings"
+
 );
-Event EV_Client_SetSwarm(
+Event EV_Client_SetSwarm
+(
     "swarm",
     EV_DEFAULT,
     "iff",
@@ -265,6 +414,7 @@ Event EV_Client_SetSwarm(
     "maxspeed is how fast the tempmodel will move (it's randomly generated every\n"
     "time the frequency is hit\n"
     "delta is how much the tempmodel moves toward the origin every frame"
+
 );
 Event EV_Client_SetWavy(
     "wavy",
@@ -275,22 +425,34 @@ Event EV_Client_SetWavy(
     "If random is specified, the distance is between 0 and +specified distance\n"
     "If crandom is specified, the distance is between -specified and +specified distance"
 );
-Event EV_Client_SetAlign("align", EV_DEFAULT, NULL, NULL, "Align the tempmodels to the direction they are traveling");
-Event EV_Client_SetAlignOnce(
+Event EV_Client_SetAlign
+(
+    "align",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Align the tempmodels to the direction they are traveling"
+);
+Event EV_Client_SetAlignOnce
+(
     "alignonce",
     EV_DEFAULT,
     NULL,
     NULL,
     "Align the tempmodels to the direction they are traveling at the time they are initialized"
+
 );
-Event EV_Client_SetFlickerAlpha(
+Event EV_Client_SetFlickerAlpha
+(
     "flicker",
     EV_DEFAULT,
     NULL,
     NULL,
     "Set the tempmodel to change it's alpha every frame.  Creates a flickering effect"
+
 );
-Event EV_Client_SetCollision(
+Event EV_Client_SetCollision
+(
     "collision",
     EV_DEFAULT,
     "S",
@@ -298,13 +460,15 @@ Event EV_Client_SetCollision(
     "Turn on collision for the tempmodel.\n"
     "If the keyword water is specified, then the tempmodel will collide with water"
 );
-Event EV_Client_TagSpawn(
+Event EV_Client_TagSpawn
+(
     "tagspawn",
     EV_DEFAULT,
     "s",
     "tagName",
     "Spawn tempmodels from the specified tag.\n"
     "This command is followed by a ( to specify a block of commands that modify the tempmodels"
+
 );
 Event EV_Client_TagSpawnLinked(
     "tagspawnlinked",
@@ -314,96 +478,170 @@ Event EV_Client_TagSpawnLinked(
     "Spawn tempmodels from the specified tag, linked to the entity at the tag.\n"
     "This command is followed by a ( to specify a block of commands that modify the tempmodels"
 );
-Event EV_Client_OriginSpawn(
+Event EV_Client_OriginSpawn
+(
     "originspawn",
     EV_DEFAULT,
     NULL,
     NULL,
     "Spawn tempmodels from the origin.\n"
     "This command is followed by a ( to specify a block of commands that modify the tempmodels"
+
 );
-Event EV_Client_OriginBeamSpawn(
+Event EV_Client_OriginBeamSpawn
+(
     "originbeamspawn",
     EV_DEFAULT,
     NULL,
     NULL,
     "Spawn a beam from the origin.\n"
     "This command is followed by a ( to specify a block of commands that modify the beam"
+
 );
-Event EV_Client_OriginBeamEmitter(
+Event EV_Client_OriginBeamEmitter
+(
     "originbeamemitter",
     EV_DEFAULT,
     NULL,
     NULL,
     "Spawn beams from the origin.\n"
     "This command is followed by a ( to specify a block of commands that modify the beam"
+
 );
-Event EV_Client_TagEmitter(
+Event EV_Client_TagEmitter
+(
     "tagemitter",
     EV_DEFAULT,
     "ss",
     "tagName emitterName",
     "Create an emitter that spawns tempmodels from the specified tag.\n"
     "This command is followed by a ( to specify a block of commands that modify the tempmodels"
+
 );
-Event EV_Client_OriginEmitter(
+Event EV_Client_OriginEmitter
+(
     "originemitter",
     EV_DEFAULT,
     "s",
     "emitterName",
     "Create an emitter that spawns tempmodels from the origin.\n"
     "This command is followed by a ( to specify a block of commands that modify the tempmodels"
+
 );
-Event EV_Client_EmitterOn("emitteron", EV_DEFAULT, "s", "emitterName", "Turn the specified emitter on");
-Event EV_Client_EmitterOff("emitteroff", EV_DEFAULT, "s", "emitterName", "Turn the specified emitter off");
-Event EV_Client_Sound(
+Event EV_Client_EmitterOn
+(
+    "emitteron",
+    EV_DEFAULT,
+    "s",
+    "emitterName",
+    "Turn the specified emitter on"
+);
+Event EV_Client_EmitterOff
+(
+    "emitteroff",
+    EV_DEFAULT,
+    "s",
+    "emitterName",
+    "Turn the specified emitter off"
+);
+Event EV_Client_Sound
+(
     "sound",
     EV_DEFAULT,
     "sSFFFFS",
     "soundName channelName volume min_distance pitch randompitch randomvolume argstype",
     "Play the specified sound"
+
 );
-Event EV_Set_Current_Tiki(
+Event EV_Set_Current_Tiki
+(
     "settiki",
     EV_DEFAULT,
     "s",
     "settiki tikiname - all subsequent events are applied to this tiki",
     "sets the tiki the aliases should be on in the sound uberfile"
+
 );
-Event EV_Client_StopSound("stopsound", EV_DEFAULT, "i", "channel", "Stops the sound on the specified channel.");
-Event EV_Client_StopAliasChannel(
-    "stopaliaschannel", EV_DEFAULT, "s", "alias", "Stops the sound channel used by the specified alias."
+Event EV_Client_StopSound
+(
+    "stopsound",
+    EV_DEFAULT,
+    "i",
+    "channel",
+    "Stops the sound on the specified channel."
 );
-Event EV_Client_LoopSound(
-    "loopsound", EV_DEFAULT, "sFFf", "soundName volume min_distance pitch", "Play the specifed sound as a looping sound"
+Event EV_Client_StopAliasChannel
+(
+    "stopaliaschannel",
+    EV_DEFAULT,
+    "s",
+    "alias",
+    "Stops the sound channel used by the specified alias."
+
 );
-Event EV_Client_Cache("cache", EV_CACHE, "s", "resourceName", "Cache the specified resource");
-Event EV_Client_CacheImage(
+Event EV_Client_LoopSound
+(
+    "loopsound",
+    EV_DEFAULT,
+    "sFFf",
+    "soundName volume min_distance pitch",
+    "Play the specifed sound as a looping sound"
+
+);
+Event EV_Client_Cache
+(
+    "cache",
+    EV_CACHE,
+    "s",
+    "resourceName",
+    "Cache the specified resource"
+);
+Event EV_Client_CacheImage
+(
     "cacheimage",
     EV_CACHE,
     "s",
     "imageName",
     "Cache the specified image (For menu graphics that should never be picmiped)"
+
 );
-Event EV_Client_CacheFont("cachefont", EV_CACHE, "s", "resourceName", "Cache the specified resource");
-Event EV_Client_AliasCache(
+Event EV_Client_CacheFont
+(
+    "cachefont",
+    EV_CACHE,
+    "s",
+    "resourceName",
+    "Cache the specified resource"
+);
+Event EV_Client_AliasCache
+(
     "aliascache",
     EV_DEFAULT,
     "ssSSSSSS",
     "alias realPath arg1 arg2 arg3 arg4 arg5 arg6",
     "Create an alias to the specified path and cache the resource"
+
 );
-Event EV_Client_Alias(
+Event EV_Client_Alias
+(
     "alias",
     EV_DEFAULT,
     "ssSSSSSS",
     "alias realPath arg1 arg2 arg3 arg4 arg5 arg6",
     "Create an alias to the specified path"
+
 );
-Event EV_Client_CacheAlias(
-    "cachefromalias", EV_DEFAULT, "s", "alias", "Caches all data matching a previously specified alias"
+Event EV_Client_CacheAlias
+(
+    "cachefromalias",
+    EV_DEFAULT,
+    "s",
+    "alias",
+    "Caches all data matching a previously specified alias"
+
 );
-Event EV_Client_Footstep(
+Event EV_Client_Footstep
+(
     "footstep",
     EV_DEFAULT,
     "ssI",
@@ -411,22 +649,31 @@ Event EV_Client_Footstep(
     "Play a footstep sound that is appropriate to the surface we are currently stepping on\n"
     "sRunning should be set to run, walk, or ladder"
 );
-Event EV_Client_Landing(
+Event EV_Client_Landing
+(
     "landing",
     EV_DEFAULT,
     "FI",
     "fVolume iEquipment",
     "Play a landing sound that is appropriate to the surface we are landing on\n"
 );
-Event EV_Client_BodyFall(
+Event EV_Client_BodyFall
+(
     "bodyfall",
     EV_DEFAULT,
     "F",
     "fVolume",
     "Play a body fall sound that is appropriate to the surface we are falling on\n"
+
 );
-Event EV_Client_Client(
-    "client", EV_DEFAULT, "SSSSSS", "arg1 arg2 arg3 arg4 arg5 arg6", "Execute the specified command arg string"
+Event EV_Client_Client
+(
+    "client",
+    EV_DEFAULT,
+    "SSSSSS",
+    "arg1 arg2 arg3 arg4 arg5 arg6",
+    "Execute the specified command arg string"
+
 );
 Event EV_Client_OriginDynamicLight(
     "origindlight",
@@ -468,34 +715,73 @@ Event EV_Client_BlockDynamicLight(
     "The intensity is the radius of the light\n"
     "type is the type of light to create (lensflare,viewlensflare,additive)"
 );
-Event EV_Client_SetEntityColor(
-    "entcolor", EV_DEFAULT, "fffF", "red green blue alpha", "Set the color(modulate) of this entity"
+Event EV_Client_SetEntityColor
+(
+    "entcolor",
+    EV_DEFAULT,
+    "fffF",
+    "red green blue alpha",
+    "Set the color(modulate) of this entity"
+
 );
-Event EV_Client_SetTexAnimTime("texanimtime", EV_DEFAULT, "f", "time", "Set the texture animation speed");
-Event EV_Client_SetGlobalFade(
-    "globalfade", EV_DEFAULT, "S", "[in|out]", "Set the tempmodels to globally fade in or out together"
+Event EV_Client_SetTexAnimTime
+(
+    "texanimtime",
+    EV_DEFAULT,
+    "f",
+    "time",
+    "Set the texture animation speed"
 );
-Event EV_Client_SetParentLink(
-    "parentlink", EV_DEFAULT, NULL, NULL, "Set the tempmodels linked to the parent, so they move with the parent model"
+Event EV_Client_SetGlobalFade
+(
+    "globalfade",
+    EV_DEFAULT,
+    "S",
+    "[in|out]",
+    "Set the tempmodels to globally fade in or out together"
+
 );
-Event EV_Client_SetHardLink(
+Event EV_Client_SetParentLink
+(
+    "parentlink",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set the tempmodels linked to the parent, so they move with the parent model"
+);
+Event EV_Client_SetHardLink
+(
     "hardlink",
     EV_DEFAULT,
     NULL,
     NULL,
     "Set the tempmodels linked to the model they are spawned from, so they move with it"
 );
-Event EV_Client_SetRandomRoll(
-    "randomroll", EV_DEFAULT, NULL, NULL, "Set the tempmodels so they pick a random roll value every frame"
+Event EV_Client_SetRandomRoll
+(
+    "randomroll",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set the tempmodels so they pick a random roll value every frame"
 );
-Event EV_Client_ParentAngles("parentangles", EV_DEFAULT, NULL, NULL, "Set the tempmodels angles to that of its parent");
-Event EV_Client_EmitterAngles(
+Event EV_Client_ParentAngles
+(
+    "parentangles",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set the tempmodels angles to that of its parent"
+);
+Event EV_Client_EmitterAngles
+(
     "emitterangles",
     EV_DEFAULT,
     "FFF",
     "pitchofs yawofs rollofs",
     "Set the tempmodels angles to that of the emitter\n"
     "The three optional parameters are for setting an angle offset from the emitter"
+
 );
 Event EV_Client_SetAngles(
     "angles",
@@ -508,48 +794,118 @@ Event EV_Client_SetAngles(
     "from the first number to the first number plus the second number.\n"
     "If no keyword is explicitly specified, then the component will be just set\n"
 );
-Event EV_Client_SetRelativeAngles(
+Event EV_Client_SetRelativeAngles
+(
     "relativeangles",
     EV_DEFAULT,
     "",
     "",
     "makes the spawn angles get applied relative to the orientation of the model"
+
 );
-Event EV_Client_Swipe("swipe", EV_DEFAULT, "V", "origin", "Do a swipe and add it on to the swipe rendering list.");
-Event EV_Client_SwipeOn(
+Event EV_Client_Swipe
+(
+    "swipe",
+    EV_DEFAULT,
+    "V",
+    "origin",
+    "Do a swipe and add it on to the swipe rendering list."
+);
+Event EV_Client_SwipeOn
+(
     "swipeon",
     EV_DEFAULT,
     "ssff",
     "shader startTagName endTagNamelife life",
     "Signal the start of a swipe from the current tag"
+
 );
-Event EV_Client_SwipeOff("swipeoff", EV_DEFAULT, NULL, NULL, "Signal the end of a swipe");
-Event EV_Client_BeginTagBeamEmitter(
+Event EV_Client_SwipeOff
+(
+    "swipeoff",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Signal the end of a swipe"
+);
+Event EV_Client_BeginTagBeamEmitter
+(
     "tagbeamemitter",
     EV_DEFAULT,
     "sss",
     "tagstart tagend name",
     "Create a beam emitter that uses 2 tags to determine it's start and end position"
+
 );
-Event EV_Client_BeginTagBeamSpawn(
+Event EV_Client_BeginTagBeamSpawn
+(
     "tagbeamspawn",
     EV_DEFAULT,
     "sf",
     "tagstart name",
     "Create a beam emitter that uses the tag to determine it's starting position."
+
 );
-Event EV_Client_AnimateOnce(
-    "animateonce", EV_DEFAULT, NULL, NULL, "Set a tempmodel to animate once and then get removed"
+Event EV_Client_AnimateOnce
+(
+    "animateonce",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set a tempmodel to animate once and then get removed"
+
 );
-Event EV_Client_SetAnim("anim", EV_DEFAULT, "s", "animation", "Set a tempmodel the the specified animation");
-Event EV_Client_SetSubdivisions("numsegments", EV_DEFAULT, "i", "numsegments", "Set the number of segments in a beam");
-Event EV_Client_SetMinOffset("minoffset", EV_DEFAULT, "f", "minoffset", "Set the minimum offset from center in a beam");
-Event EV_Client_SetMaxOffset("maxoffset", EV_DEFAULT, "f", "maxoffset", "Set the maximum offset from center in a beam");
-Event EV_Client_SetBeamShader("beamshader", EV_DEFAULT, "s", "shadername", "Set the shader to use for the beam");
-Event EV_Client_SetBeamLength(
-    "beamlength", EV_DEFAULT, "f", "length", "Set the length of the beam or trace length (for decals)"
+Event EV_Client_SetAnim
+(
+    "anim",
+    EV_DEFAULT,
+    "s",
+    "animation",
+    "Set a tempmodel the the specified animation"
 );
-Event EV_Client_SetBeamDelay(
+Event EV_Client_SetSubdivisions
+(
+    "numsegments",
+    EV_DEFAULT,
+    "i",
+    "numsegments",
+    "Set the number of segments in a beam"
+);
+Event EV_Client_SetMinOffset
+(
+    "minoffset",
+    EV_DEFAULT,
+    "f",
+    "minoffset",
+    "Set the minimum offset from center in a beam"
+);
+Event EV_Client_SetMaxOffset
+(
+    "maxoffset",
+    EV_DEFAULT,
+    "f",
+    "maxoffset",
+    "Set the maximum offset from center in a beam"
+);
+Event EV_Client_SetBeamShader
+(
+    "beamshader",
+    EV_DEFAULT,
+    "s",
+    "shadername",
+    "Set the shader to use for the beam"
+);
+Event EV_Client_SetBeamLength
+(
+    "beamlength",
+    EV_DEFAULT,
+    "f",
+    "length",
+    "Set the length of the beam or trace length (for decals)"
+
+);
+Event EV_Client_SetBeamDelay
+(
     "beamdelay",
     EV_DEFAULT,
     "SF",
@@ -566,26 +922,49 @@ Event EV_Client_SetBeamToggleDelay(
     "If the keyword random is specified, the delay between toggling will occur randomly between 0 and the time "
     "specified"
 );
-Event EV_Client_SetBeamPersist("beampersist", EV_DEFAULT, NULL, NULL, "Make the beams persist instead of blinking out");
-Event EV_Client_SetBeamOffsetEndpoints(
-    "beam_offset_endpoints", EV_DEFAULT, NULL, NULL, "Make the beams endpoints offset to reduce the bunching up effect"
+Event EV_Client_SetBeamPersist
+(
+    "beampersist",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Make the beams persist instead of blinking out"
 );
-Event EV_Client_BeamSphere(
+Event EV_Client_SetBeamOffsetEndpoints
+(
+    "beam_offset_endpoints",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Make the beams endpoints offset to reduce the bunching up effect"
+
+);
+Event EV_Client_BeamSphere
+(
     "beamsphere",
     EV_DEFAULT,
     "i",
     "count",
     "Create a sphere shaped beam effect from the origin. Count is the number of beams"
+
 );
-Event EV_Client_Spread(
+Event EV_Client_Spread
+(
     "spread",
     EV_DEFAULT,
     "ff",
     "spreadx spready",
     "Add a random variance in the spawned beam in the forward direction by the amound specified in spreadx and spready"
+
 );
-Event EV_Client_UseLastTraceEnd(
-    "uselasttraceend", EV_DEFAULT, NULL, NULL, "Makes this trace command use the end results of the last trace command"
+Event EV_Client_UseLastTraceEnd
+(
+    "uselasttraceend",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Makes this trace command use the end results of the last trace command"
+
 );
 Event EV_Client_OffsetAlongAxis(
     "offsetalongaxis",
@@ -601,22 +980,34 @@ Event EV_Client_OffsetAlongAxis(
     "without randomness.\n"
     "This offset is applied using the model's local axis"
 );
-Event EV_Client_Cone(
+Event EV_Client_Cone
+(
     "cone",
     EV_DEFAULT,
     "ff",
     "height radius",
     "Randomly spawns the particle somewhere inside a cone along the model's local x axis"
+
 );
-Event EV_Client_SetEndAlpha("endalpha", EV_DEFAULT, "f", "alpha", "Set the alpha of the beam's endpoint");
-Event EV_Client_RandomChance(
+Event EV_Client_SetEndAlpha
+(
+    "endalpha",
+    EV_DEFAULT,
+    "f",
+    "alpha",
+    "Set the alpha of the beam's endpoint"
+);
+Event EV_Client_RandomChance
+(
     "randomchance",
     EV_DEFAULT,
     "fSSSSSS",
     "percentage [arg1] [arg2] [arg3] [arg4] [arg5] [arg6]",
     "Set the percentage chance that command will occur"
+
 );
-Event EV_Client_DelayedRepeat(
+Event EV_Client_DelayedRepeat
+(
     "delayedrepeat",
     EV_DEFAULT,
     "fiSSSSSS",
@@ -624,14 +1015,17 @@ Event EV_Client_DelayedRepeat(
     "Set the time delay between this command getting executed.  This requires a command number to be assigned here.\n"
     "This is internally used to keep track of the commands this entity executes and will resolve naming conflicts.\n"
     "This is only useful if the command gets called continuously but must execute at regular intervals.\n"
+
 );
-Event EV_Client_CommandDelay(
+Event EV_Client_CommandDelay
+(
     "commanddelay",
     EV_DEFAULT,
     "fiSSSSSS",
     "time commandnumber [arg1] [arg2] [arg3] [arg4] [arg5] [arg6]",
     "Set the time delay between this command getting executed.  This requires a command number to be assigned here.\n"
     "This is internally used to keep track of the commands this entity executes and will resolve naming conflicts."
+
 );
 Event EV_Client_BounceDecal(
     "bouncedecal",
@@ -643,27 +1037,57 @@ Event EV_Client_BounceDecal(
     "temporary = specify 1 for a temporary mark that only appears for a short time, 0 for a decal that stays aroung "
     "longer (default is 0)\n"
 );
-Event EV_Client_SetDecalRadius("decalradius", EV_DEFAULT, "f", "radius", "Set the radius of the decal");
-Event EV_Client_SetDecalOrientation(
+Event EV_Client_SetDecalRadius
+(
+    "decalradius",
+    EV_DEFAULT,
+    "f",
+    "radius",
+    "Set the radius of the decal"
+);
+Event EV_Client_SetDecalOrientation
+(
     "orientation",
     EV_DEFAULT,
     "f",
     "degrees",
     "Set the degrees to orient the decal.  Specify 'random' to use a random orientation"
+
 );
-Event EV_Client_SetDecalShader(
-    "decalshader", EV_DEFAULT, "s", "shadername", "Set the shader to use for the impact decal"
+Event EV_Client_SetDecalShader
+(
+    "decalshader",
+    EV_DEFAULT,
+    "s",
+    "shadername",
+    "Set the shader to use for the impact decal"
+
 );
-Event EV_Client_SetTraceLength("tracelength", EV_DEFAULT, "f", "length", "Set the length of the trace for the decal");
-Event EV_Client_TraceSpawn(
-    "tracespawn", EV_DEFAULT, "s", "modelname", "Spawn the specified model when the trace hits a solid object"
+Event EV_Client_SetTraceLength
+(
+    "tracelength",
+    EV_DEFAULT,
+    "f",
+    "length",
+    "Set the length of the trace for the decal"
 );
-Event EV_Client_TagList(
+Event EV_Client_TraceSpawn
+(
+    "tracespawn",
+    EV_DEFAULT,
+    "s",
+    "modelname",
+    "Spawn the specified model when the trace hits a solid object"
+
+);
+Event EV_Client_TagList
+(
     "taglist",
     EV_DEFAULT,
     "ssSSSSSS",
     "arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8",
     "Set the tag list to create a beam that travels between all the tags"
+
 );
 Event EV_Client_Lightstyle(
     "lightstyle",
@@ -673,92 +1097,156 @@ Event EV_Client_Lightstyle(
     "Set a lightstyle to determine the color of this tempmodel, the image\n"
     "specified is used to determine the look of the light style"
 );
-Event EV_Client_PhysicsRate(
+Event EV_Client_PhysicsRate
+(
     "physicsrate",
     EV_DEFAULT,
     "s",
     "rate",
     "Set the rate (in updates per second) for the tempmodel's physics to be updated"
+
 );
-Event EV_Client_Parallel("parallel", EV_DEFAULT, NULL, NULL, "Set tempmodel to be parallel to the viewer");
-Event EV_Client_AlwaysDraw(
+Event EV_Client_Parallel
+(
+    "parallel",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set tempmodel to be parallel to the viewer"
+);
+Event EV_Client_AlwaysDraw
+(
     "alwaysdraw",
     EV_DEFAULT,
     NULL,
     NULL,
     "Set emitter/tempmodel to be alwaysdraw. Which can be turned off by alwaysdraw"
+
 );
-Event EV_Client_Detail(
-    "detail", EV_DEFAULT, NULL, NULL, "Set emitter/tempmodel to be detail. Which can be turned off by detail"
+Event EV_Client_Detail
+(
+    "detail",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set emitter/tempmodel to be detail. Which can be turned off by detail"
+
 );
-Event EV_Client_Print("print", EV_DEFAULT, "s", "string", "Prints a string.");
-Event EV_Client_SetVolumetric(
-    "volumetric", EV_DEFAULT, NULL, NULL, "Set the effect to spawn volumetric sources rather than tempmodels"
+Event EV_Client_Print
+(
+    "print",
+    EV_DEFAULT,
+    "s",
+    "string",
+    "Prints a string."
 );
-Event EV_Client_Wind("wind", EV_DEFAULT, NULL, NULL, "Makes the temp model be affected by wind");
-Event
-    EV_Client_SpriteGridLighting("spritegridlighting", EV_DEFAULT, NULL, NULL, "Calculates grid lighting for a sprite");
-Event EV_Client_WaterOnly("wateronly", EV_DEFAULT, NULL, NULL, "makes the temp model remove itself if it leaves water");
-Event EV_Client_SetAlignStretch(
+Event EV_Client_SetVolumetric
+(
+    "volumetric",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Set the effect to spawn volumetric sources rather than tempmodels"
+
+);
+Event EV_Client_Wind
+(
+    "wind",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Makes the temp model be affected by wind"
+);
+Event EV_Client_SpriteGridLighting
+(
+    "spritegridlighting",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "Calculates grid lighting for a sprite"
+);
+Event EV_Client_WaterOnly
+(
+    "wateronly",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    "makes the temp model remove itself if it leaves water"
+);
+Event EV_Client_SetAlignStretch
+(
     "alignstretch",
     EV_DEFAULT,
     "F",
     "scaleMultiplier",
     "Aligns the temp model to the direction of travel, and stretches it betwen the last and current positions.\n"
 );
-Event EV_Client_SetClampVelocity(
+Event EV_Client_SetClampVelocity
+(
     "clampvel",
     EV_DEFAULT,
     "ffffff",
     "minX maxX minY maxY minZ maxZ",
     "sets the valid range for velocities along global axes.  Cannot be used with clampvelaxis."
 );
-Event EV_Client_SetClampVelocityAxis(
+Event EV_Client_SetClampVelocityAxis
+(
     "clampvelaxis",
     EV_DEFAULT,
     "ffffff",
     "minX maxX minY maxY minZ maxZ",
     "sets the valid range for velocities along oriented axes.  Cannot be used with clampvel."
 );
-Event EV_Client_Treads(
+Event EV_Client_Treads
+(
     "treads",
     EV_DEFAULT,
     "ssi",
     "tagName shader localrefnumber",
     "Spawn treads from the specified tag using the specified tread type."
 );
-Event EV_Client_Treads_Off(
-    "treadsoff", EV_DEFAULT, "si", "tagName localrefnumber", "Stops spawning treads from the specified tag."
+Event EV_Client_Treads_Off
+(
+    "treadsoff",
+    EV_DEFAULT,
+    "si",
+    "tagName localrefnumber",
+    "Stops spawning treads from the specified tag."
 );
-Event EV_Client_ViewKick(
+Event EV_Client_ViewKick
+(
     "viewkick",
     EV_DEFAULT,
     "fffffsff",
     "pitchmin pitchmax yawmin yawmax recenterspeed patters pitchmax yawmax scatterpitchmax",
     "Adds kick to the view of the owner when fired."
 );
-Event EV_Client_EyeLimits(
+Event EV_Client_EyeLimits
+(
     "eyelimits",
     EV_DEFAULT,
     "fff",
     "fPitchmax fYawmax fRollmax",
     "Set the max angle offsets for the eyes from the model's head"
 );
-Event EV_Client_EyeMovement(
+Event EV_Client_EyeMovement
+(
     "eyemovement",
     EV_DEFAULT,
     "f",
     "fMovement",
     "Sets the amount of the head's movement to apply to the players view. 1 is full, 0 is none"
 );
-Event EV_Client_SFXStart(
+Event EV_Client_SFXStart
+(
     "sfx",
     EV_DEFAULT,
     "sSSSSSSSS",
     "sCommand arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8",
     "Used for adding commands to a special effect"
 );
-Event EV_Client_SFXStartDelayed(
+Event EV_Client_SFXStartDelayed
+(
     "delayedsfx",
     EV_DEFAULT,
     "fsSSSSSSSS",
@@ -1194,7 +1682,7 @@ void ClientGameCommandManager::StartSFXCommand(Event *ev, qboolean bDelayed)
     if (bBlockCommand) {
         ProcessEvent(ev1);
         pCommand->endfcn = endblockfcn;
-        endblockfcn = NULL;
+        endblockfcn      = NULL;
     } else {
         pCommand->pEvent = ev1;
     }
@@ -2326,7 +2814,7 @@ void ClientGameCommandManager::SetAngles(Event *ev)
 //=============
 // SetRelativeAngles
 //=============
-void ClientGameCommandManager::SetRelativeAngles(Event* ev)
+void ClientGameCommandManager::SetRelativeAngles(Event *ev)
 {
     if (!m_spawnthing) {
         return;
@@ -2740,7 +3228,9 @@ void ClientGameCommandManager::BeginOriginSpawn(Event *ev)
     if (!m_pCurrentSfx) {
         m_spawnthing = &m_localemitter;
     }
-    if (!m_spawnthing) return;
+    if (!m_spawnthing) {
+        return;
+    }
     InitializeSpawnthing(m_spawnthing);
 
     // Set the origin based on the entity's origin
@@ -2998,15 +3488,16 @@ void ClientGameCommandManager::GetOrientation(int tagnum, spawnthing_t *sp)
 //===============
 // BeginTagSpawnLinked
 //===============
-void ClientGameCommandManager::BeginTagSpawnLinked(Event *ev) {
-    str tagname;
-    int tagnum;
-    int i;
+void ClientGameCommandManager::BeginTagSpawnLinked(Event *ev)
+{
+    str           tagname;
+    int           tagnum;
+    int           i;
     orientation_t ori;
 
     // Get the tagname and orientation
     tagname = ev->GetString(1);
-    tagnum = cgi.Tag_NumForName(current_tiki, tagname.c_str());
+    tagnum  = cgi.Tag_NumForName(current_tiki, tagname.c_str());
     if (tagnum == -1) {
         throw ScriptException("Tagname '%s' does not exist", tagname.c_str());
     }
@@ -3015,9 +3506,9 @@ void ClientGameCommandManager::BeginTagSpawnLinked(Event *ev) {
     endblockfcn = &ClientGameCommandManager::EndTagSpawn;
 
     // Create a new emitter
-    m_spawnthing = CreateNewEmitter();
-    m_spawnthing->tagnum = tagnum;
-    m_spawnthing->entnum = current_entity->entityNumber;
+    m_spawnthing           = CreateNewEmitter();
+    m_spawnthing->tagnum   = tagnum;
+    m_spawnthing->entnum   = current_entity->entityNumber;
     m_spawnthing->cgd.tiki = current_tiki;
     m_spawnthing->cgd.flags |= T_WAVE;
     m_spawnthing->cgd.origin = Vector(0, 0, 0);
@@ -4280,13 +4771,10 @@ void ClientGameCommandManager::UpdateEmitter(
     float          scale = 1.0f;
     int            entnum;
 
-    if (current_entity)
-    {
-        scale = current_entity->scale;
+    if (current_entity) {
+        scale  = current_entity->scale;
         entnum = current_entity->entityNumber;
-    }
-    else
-    {
+    } else {
         entnum = 1023;
     }
 
@@ -4312,17 +4800,19 @@ void ClientGameCommandManager::UpdateEmitter(
         if (m_spawnthing->cgd.flags & T_WAVE) {
             if (m_spawnthing->entnum == entnum) {
                 orientation_t ori;
-                int j;
+                int           j;
 
                 // Set the default origin (spawn from the parent's origin)
                 VectorCopy(entity_origin, m_spawnthing->cgd.origin);
-            
+
                 ori = cgi.TIKI_Orientation(current_entity, m_spawnthing->tagnum);
 
                 VectorCopy(current_entity->origin, m_spawnthing->linked_origin);
 
                 for (j = 0; j < 3; j++) {
-                    VectorMA(m_spawnthing->linked_origin, ori.origin[i], current_entity->axis[j], m_spawnthing->linked_origin);
+                    VectorMA(
+                        m_spawnthing->linked_origin, ori.origin[i], current_entity->axis[j], m_spawnthing->linked_origin
+                    );
                 }
                 MatrixMultiply(ori.axis, current_entity->axis, m_spawnthing->linked_axis);
             }
@@ -5102,7 +5592,14 @@ void CG_DumpAllClasses_f(void)
 
 EmitterLoader emitterLoader;
 
-Event EV_EmitterLoader_Emitter("emitter", EV_DEFAULT, "s", "emittername", "Create a new emitter");
+Event EV_EmitterLoader_Emitter
+(
+    "emitter",
+    EV_DEFAULT,
+    "s",
+    "emittername",
+    "Create a new emitter"
+);
 
 CLASS_DECLARATION(Listener, EmitterLoader, NULL) {
     {&EV_EmitterLoader_Emitter, &EmitterLoader::Emitter},
@@ -5387,7 +5884,7 @@ void ClientGameCommandManager::EventViewKick(Event *ev)
     }
 }
 
-int ClientGameCommandManager::IdForTempModel(const ctempmodel_t* model)
+int ClientGameCommandManager::IdForTempModel(const ctempmodel_t *model)
 {
     int index;
 
@@ -5411,7 +5908,7 @@ int ClientGameCommandManager::IdForTempModel(const ctempmodel_t* model)
     return model - m_tempmodels;
 }
 
-ctempmodel_t* ClientGameCommandManager::TempModelForId(int id)
+ctempmodel_t *ClientGameCommandManager::TempModelForId(int id)
 {
     if (id == -1) {
         return &m_active_tempmodels;
@@ -5424,7 +5921,7 @@ ctempmodel_t* ClientGameCommandManager::TempModelForId(int id)
     return &m_tempmodels[id];
 }
 
-int ClientGameCommandManager::IdForSpawnThing(const spawnthing_t* sp)
+int ClientGameCommandManager::IdForSpawnThing(const spawnthing_t *sp)
 {
     int i;
 
@@ -5441,7 +5938,7 @@ int ClientGameCommandManager::IdForSpawnThing(const spawnthing_t* sp)
     return 0;
 }
 
-spawnthing_t* ClientGameCommandManager::SpawnThingForId(int id)
+spawnthing_t *ClientGameCommandManager::SpawnThingForId(int id)
 {
     if (!id) {
         return 0;
@@ -5450,7 +5947,7 @@ spawnthing_t* ClientGameCommandManager::SpawnThingForId(int id)
     return m_emitters.ObjectAt(id);
 }
 
-int ClientGameCommandManager::IdForVssSource(const cvssource_t* source)
+int ClientGameCommandManager::IdForVssSource(const cvssource_t *source)
 {
     int index;
 
@@ -5474,7 +5971,7 @@ int ClientGameCommandManager::IdForVssSource(const cvssource_t* source)
     return source - m_vsssources;
 }
 
-cvssource_t* ClientGameCommandManager::VssSourceForId(int id)
+cvssource_t *ClientGameCommandManager::VssSourceForId(int id)
 {
     if (id == -1) {
         return &m_active_vsssources;
@@ -5487,7 +5984,7 @@ cvssource_t* ClientGameCommandManager::VssSourceForId(int id)
     return &m_vsssources[id];
 }
 
-void ClientGameCommandManager::ArchiveTempModelPointerToMemory(MemArchiver& archiver, ctempmodel_t** model)
+void ClientGameCommandManager::ArchiveTempModelPointerToMemory(MemArchiver& archiver, ctempmodel_t **model)
 {
     int id;
 
@@ -5500,7 +5997,7 @@ void ClientGameCommandManager::ArchiveTempModelPointerToMemory(MemArchiver& arch
     }
 }
 
-void ClientGameCommandManager::ArchiveSpawnThingPointerToMemory(MemArchiver& archiver, spawnthing_t** sp)
+void ClientGameCommandManager::ArchiveSpawnThingPointerToMemory(MemArchiver& archiver, spawnthing_t **sp)
 {
     int id;
 
@@ -5513,7 +6010,7 @@ void ClientGameCommandManager::ArchiveSpawnThingPointerToMemory(MemArchiver& arc
     }
 }
 
-void ClientGameCommandManager::ArchiveVssSourcePointerToMemory(MemArchiver& archiver, cvssource_t** source)
+void ClientGameCommandManager::ArchiveVssSourcePointerToMemory(MemArchiver& archiver, cvssource_t **source)
 {
     int id;
 
@@ -5528,9 +6025,9 @@ void ClientGameCommandManager::ArchiveVssSourcePointerToMemory(MemArchiver& arch
 
 void ClientGameCommandManager::ArchiveToMemory(MemArchiver& archiver)
 {
-    spawnthing_t* sp;
-    int num;
-    int i;
+    spawnthing_t *sp;
+    int           num;
+    int           i;
 
     m_localemitter.ArchiveToMemory(archiver);
 
@@ -5566,7 +6063,7 @@ void ClientGameCommandManager::ArchiveToMemory(MemArchiver& archiver)
         if (m_iAllocatedvsssources != num) {
             m_iAllocatedvsssources = num;
 
-            m_vsssources = (cvssource_t*)cgi.Malloc(m_iAllocatedvsssources * sizeof(cvssource_t));
+            m_vsssources = (cvssource_t *)cgi.Malloc(m_iAllocatedvsssources * sizeof(cvssource_t));
             // instead of using memset, call the constructor
             for (i = 0; i < m_iAllocatedvsssources; i++) {
                 new (&m_vsssources[i]) cvssource_t();
@@ -5579,7 +6076,7 @@ void ClientGameCommandManager::ArchiveToMemory(MemArchiver& archiver)
     ArchiveVssSourcePointerToMemory(archiver, &m_active_vsssources.prev);
     ArchiveVssSourcePointerToMemory(archiver, &m_active_vsssources.next);
     ArchiveVssSourcePointerToMemory(archiver, &m_free_vsssources);
-    
+
     for (i = 0; i < m_iAllocatedvsssources; i++) {
         m_vsssources[i].ArchiveToMemory(archiver);
     }
