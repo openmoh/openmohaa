@@ -50,86 +50,10 @@ Event EV_SetSyncTime
     "Set sync time for entity.",
     EV_NORMAL
 );
-Event EV_SetFrame
-(
-    "setframe",
-    EV_ZERO,
-    "iS",
-    "frameNumber animName",
-    "Set the frame on the legs, if anim is not specified, current is assumed.",
-    EV_NORMAL
-);
-Event EV_AnimDone
-(
-    "animdone", EV_ZERO,
-    NULL,
-    NULL,
-    "Legs animation has finished, not for script use.",
-    EV_NORMAL
-);
-Event EV_FrameDelta
-(
-    "setmovedelta", EV_ZERO,
-    "vf",
-    "moveDelta moveTime",
-    "movement from animation, not for script use.",
-    EV_NORMAL
-);
-Event EV_Torso_Anim
-(
-    "torso_anim",
-    EV_ZERO,
-    "s",
-    "animName",
-    "set the torso animation to animName.",
-    EV_NORMAL
-);
-Event EV_Torso_SetFrame
-(
-    "torso_setframe",
-    EV_ZERO,
-    "iS",
-    "frameNumber animName",
-    "Set the frame on the torso, if anim is not specified, current is assumed.",
-    EV_NORMAL
-);
-Event EV_Torso_AnimDone
-(
-    "torso_animdone", EV_ZERO,
-    NULL,
-    NULL,
-    "Torso animation has finished, not for script use.",
-    EV_NORMAL
-);
-Event EV_Torso_StopAnimating
-(
-    "torso_stopanimating",
-    EV_ZERO,
-    NULL,
-    NULL,
-    "stop the torso from animating.  Animation will end at the end of current cycle.",
-    EV_NORMAL
-);
-Event EV_NewAnim
-(
-    "animate_newanim", EV_ZERO,
-    "ii",
-    "animNum slot",
-    "Start a new animation, not for script use.",
-    EV_NORMAL
-);
-Event EV_ViewAnim
-(
-    "viewanim",
-    EV_DEFAULT,
-    "s",
-    "anim",
-    "testing",
-    EV_NORMAL
-);
 Event EV_Animate_IsLoopingAnim
 (
-    "isloopinganim", EV_DEFAULT,
+    "isloopinganim",
+    EV_DEFAULT,
     "s",
     "anim_name",
     "returns 1 if the anim is a looping anim, or 0 otherwise",
