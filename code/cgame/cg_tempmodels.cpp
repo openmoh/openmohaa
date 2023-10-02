@@ -178,6 +178,7 @@ void ClientGameCommandManager::ResetTempModels(void)
 }
 
 static int lastTempModelFrameTime = 0;
+int next_tempmodel_warning = 0;
 
 void CG_ResetTempModels(void)
 {
@@ -957,6 +958,7 @@ void ClientGameCommandManager::AddTempModels(void)
             Vector origin;
             float  axis[3][3];
 
+            origin = p->m_spawnthing->linked_origin;
             VectorMA(origin, newEnt.origin[0], p->m_spawnthing->linked_axis[0], origin);
             VectorMA(origin, newEnt.origin[1], p->m_spawnthing->linked_axis[1], origin);
             VectorMA(origin, newEnt.origin[2], p->m_spawnthing->linked_axis[2], origin);
@@ -1091,7 +1093,11 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
         p = AllocateTempModel();
 
         if (!p) {
-            cgi.DPrintf("Out of tempmodels\n");
+            if (cgi.Milliseconds() >= next_tempmodel_warning) {
+                // make sure to not spam the console with this message
+                cgi.DPrintf("Out of tempmodels\n");
+                next_tempmodel_warning = cgi.Milliseconds() + 1000;
+            }
             return;
         }
 
@@ -1115,9 +1121,11 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
 
         // Set up the origin of the tempmodel
         if (m_spawnthing->cgd.flags & T_SPHERE) {
-            // Create a random forward vector so the particles burst out in a
-            // sphere
-            newForward = Vector(crandom(), crandom(), crandom());
+            do {
+                // Create a random forward vector so the particles burst out in a
+                // sphere
+                newForward = Vector(crandom(), crandom(), crandom());
+            } while (newForward * newForward > 1.0);
         } else if (m_spawnthing->cgd.flags & T_CIRCLE) {
             if (m_spawnthing->sphereRadius != 0) // Offset by the radius
             {
@@ -1137,7 +1145,9 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
             // vector pointing back to the origin
             Vector dir, end;
 
-            dir = Vector(crandom(), crandom(), crandom());
+            do {
+                dir = Vector(crandom(), crandom(), crandom());
+            } while (dir * dir > 1.0);
 
             end = m_spawnthing->cgd.origin + dir * m_spawnthing->sphereRadius * current_entity_scale;
             VectorCopy(end, p->cgd.origin);
