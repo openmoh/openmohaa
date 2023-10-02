@@ -6212,14 +6212,15 @@ void Vehicle::CalculateAnimationData(Vector vAngles, Vector vOrigin)
 {
     float fLeft    = fEpsilon();
     float fRight   = fEpsilon();
-    float fForward = 0;
+    float fForward = fEpsilon();
     float fBack    = fEpsilon();
     float fLow     = fEpsilon();
+    float fHigh    = fEpsilon();
 
-    if (vAngles[1] < 0.0) {
-        fBack = vAngles[1] / m_fYawMin;
-    } else if (vAngles[1] > 0.0) {
-        fForward = vAngles[1] / m_fYawMax;
+    if (vAngles[0] < 0.0) {
+        fBack = vAngles[0] / m_fYawMin;
+    } else if (vAngles[0] > 0.0) {
+        fForward = vAngles[0] / m_fYawMax;
     }
 
     if (vAngles[2] < 0.0) {
@@ -6240,8 +6241,8 @@ void Vehicle::CalculateAnimationData(Vector vAngles, Vector vOrigin)
         NewAnim("lean_right", NULL, 4, fRight);
         NewAnim("lean_forward", NULL, 1, fForward);
         NewAnim("lean_back", NULL, 2, fBack);
-        NewAnim("high", NULL, 6, fEpsilon());
-        NewAnim("low", NULL, 5, fEpsilon());
+        NewAnim("high", NULL, 6, fLow);
+        NewAnim("low", NULL, 5, fHigh);
     }
 }
 
