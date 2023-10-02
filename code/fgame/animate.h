@@ -21,8 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 // animate.h -- Animate class
 
-#ifndef __ANIMATE_H__
-#define __ANIMATE_H__
+#pragma once
 
 #if defined(GAME_DLL)
 #    include "entity.h"
@@ -211,5 +210,3 @@ inline int Animate::NumFrames(int slot)
 {
     return gi.Anim_NumFrames(edict->tiki, edict->s.frameInfo[slot].index);
 }
-
-#endif /* animate.h */

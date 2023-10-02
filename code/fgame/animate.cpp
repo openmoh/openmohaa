@@ -32,9 +32,26 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 extern Event EV_Entity_Start;
 
 // Leg Animation events
-Event EV_SetAnim("anim", EV_ZERO, "s", "animName", "Exec anim commands on server or client.", EV_NORMAL);
-Event EV_SetSyncTime("setsynctime", EV_ZERO, "f", "synctime", "Set sync time for entity.");
-Event EV_SetFrame(
+Event EV_SetAnim
+(
+    "anim",
+    EV_ZERO,
+    "s",
+    "animName",
+    "Exec anim commands on server or client.",
+    EV_NORMAL
+);
+Event EV_SetSyncTime
+(
+    "setsynctime",
+    EV_ZERO,
+    "f",
+    "synctime",
+    "Set sync time for entity.",
+    EV_NORMAL
+);
+Event EV_SetFrame
+(
     "setframe",
     EV_ZERO,
     "iS",
@@ -42,12 +59,33 @@ Event EV_SetFrame(
     "Set the frame on the legs, if anim is not specified, current is assumed.",
     EV_NORMAL
 );
-Event EV_AnimDone("animdone", EV_ZERO, NULL, NULL, "Legs animation has finished, not for script use.", EV_NORMAL);
-Event EV_FrameDelta(
-    "setmovedelta", EV_ZERO, "vf", "moveDelta moveTime", "movement from animation, not for script use.", EV_NORMAL
+Event EV_AnimDone
+(
+    "animdone", EV_ZERO,
+    NULL,
+    NULL,
+    "Legs animation has finished, not for script use.",
+    EV_NORMAL
 );
-Event EV_Torso_Anim("torso_anim", EV_ZERO, "s", "animName", "set the torso animation to animName.", EV_NORMAL);
-Event EV_Torso_SetFrame(
+Event EV_FrameDelta
+(
+    "setmovedelta", EV_ZERO,
+    "vf",
+    "moveDelta moveTime",
+    "movement from animation, not for script use.",
+    EV_NORMAL
+);
+Event EV_Torso_Anim
+(
+    "torso_anim",
+    EV_ZERO,
+    "s",
+    "animName",
+    "set the torso animation to animName.",
+    EV_NORMAL
+);
+Event EV_Torso_SetFrame
+(
     "torso_setframe",
     EV_ZERO,
     "iS",
@@ -55,10 +93,16 @@ Event EV_Torso_SetFrame(
     "Set the frame on the torso, if anim is not specified, current is assumed.",
     EV_NORMAL
 );
-Event EV_Torso_AnimDone(
-    "torso_animdone", EV_ZERO, NULL, NULL, "Torso animation has finished, not for script use.", EV_NORMAL
+Event EV_Torso_AnimDone
+(
+    "torso_animdone", EV_ZERO,
+    NULL,
+    NULL,
+    "Torso animation has finished, not for script use.",
+    EV_NORMAL
 );
-Event EV_Torso_StopAnimating(
+Event EV_Torso_StopAnimating
+(
     "torso_stopanimating",
     EV_ZERO,
     NULL,
@@ -66,14 +110,33 @@ Event EV_Torso_StopAnimating(
     "stop the torso from animating.  Animation will end at the end of current cycle.",
     EV_NORMAL
 );
-Event EV_NewAnim(
-    "animate_newanim", EV_ZERO, "ii", "animNum slot", "Start a new animation, not for script use.", EV_NORMAL
+Event EV_NewAnim
+(
+    "animate_newanim", EV_ZERO,
+    "ii",
+    "animNum slot",
+    "Start a new animation, not for script use.",
+    EV_NORMAL
 );
-Event EV_ViewAnim("viewanim", EV_DEFAULT, "s", "anim", "testing");
-Event EV_Animate_IsLoopingAnim(
-    "isloopinganim", EV_DEFAULT, "s", "anim_name", "returns 1 if the anim is a looping anim, or 0 otherwise", EV_RETURN
+Event EV_ViewAnim
+(
+    "viewanim",
+    EV_DEFAULT,
+    "s",
+    "anim",
+    "testing",
+    EV_NORMAL
 );
-Event EV_Animate_SetYawfromBone(
+Event EV_Animate_IsLoopingAnim
+(
+    "isloopinganim", EV_DEFAULT,
+    "s",
+    "anim_name",
+    "returns 1 if the anim is a looping anim, or 0 otherwise",
+    EV_RETURN
+);
+Event EV_Animate_SetYawfromBone
+(
     "setyawfrombone",
     EV_DEFAULT,
     "s",
@@ -81,7 +144,8 @@ Event EV_Animate_SetYawfromBone(
     "Set the yaw of the model based on the current animation time",
     EV_NORMAL
 );
-Event EV_Animate_PlayerSpawn(
+Event EV_Animate_PlayerSpawn
+(
     "playerspawn",
     EV_DEFAULT,
     "sFVFF",
@@ -101,12 +165,33 @@ Event EV_Animate_PlayerSpawn(
     "one second later.",
     EV_NORMAL
 );
-Event EV_Animate_PlayerSpawn_Utility(
-    "testmojo", EV_DEFAULT, "sv", "model_name vector_offset", "INTERNAL EVENT", EV_NORMAL
+Event EV_Animate_PlayerSpawn_Utility
+(
+    "testmojo",
+    EV_DEFAULT,
+    "sv",
+    "model_name vector_offset",
+    "INTERNAL EVENT",
+    EV_NORMAL
 );
-Event EV_Animate_PauseAnim("pauseanims", EV_DEFAULT, "i", "pause", "Pause (or unpause) animations");
-
-Event EV_Animate_Client_Sound("_client_sound", EV_DEFAULT, NULL, NULL, NULL);
+Event EV_Animate_PauseAnim
+(
+    "pauseanims",
+    EV_DEFAULT,
+    "i",
+    "pause",
+    "Pause (or unpause) animations",
+    EV_NORMAL
+);
+Event EV_Animate_Client_Sound
+(
+    "_client_sound",
+    EV_DEFAULT,
+    NULL,
+    NULL,
+    NULL,
+    EV_NORMAL
+);
 
 CLASS_DECLARATION(Entity, Animate, "animate") {
     {&EV_SetControllerAngles,         &Animate::SetControllerAngles    },
@@ -121,14 +206,14 @@ CLASS_DECLARATION(Entity, Animate, "animate") {
     {NULL,                            NULL                             }
 };
 
-
-static size_t GetLongestClientCmdLength(const tiki_cmd_t& cmds) {
+static size_t GetLongestClientCmdLength(const tiki_cmd_t& cmds)
+{
     size_t ii;
     size_t longest = 0;
 
     for (ii = 0; ii < cmds.num_cmds; ii++) {
         const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
-        size_t length = strlen(single_cmd.args[0]);
+        size_t                  length     = strlen(single_cmd.args[0]);
         if (length > longest) {
             longest = length;
         }
@@ -137,10 +222,11 @@ static size_t GetLongestClientCmdLength(const tiki_cmd_t& cmds) {
     return longest;
 }
 
-static size_t GetLongestClientCmdAllFramesLength(dtiki_t* tiki, int animnum, int numframes) {
+static size_t GetLongestClientCmdAllFramesLength(dtiki_t *tiki, int animnum, int numframes)
+{
     tiki_cmd_t cmds;
-    size_t longest = 0;
-    int i;
+    size_t     longest = 0;
+    int        i;
 
     for (i = 0; i < numframes; i++) {
         // we want normal frame commands to occur right on the frame
@@ -200,7 +286,6 @@ void Animate::ForwardExec(Event *ev)
             getClassname()
         );
     }
-
 
     NewAnim(ev->GetString(1), 0);
     RestartAnimSlot(0);
@@ -266,7 +351,8 @@ void Animate::NewAnim(int animnum, int slot, float weight)
         edict->s.eType = ET_MODELANIM;
     }
 
-    qboolean hascommands = gi.Anim_HasCommands(edict->tiki, animnum) || gi.Anim_HasCommands_Client(edict->tiki, animnum);
+    qboolean hascommands =
+        gi.Anim_HasCommands(edict->tiki, animnum) || gi.Anim_HasCommands_Client(edict->tiki, animnum);
 
     // enter this animation
     if (newanim) {
@@ -295,14 +381,14 @@ void Animate::NewAnim(int animnum, int slot, float weight)
 
         if (gi.Frame_Commands_Client(edict->tiki, animnum, TIKI_FRAME_ENTRY, &cmds)) {
             size_t longest = GetLongestClientCmdLength(cmds);
-            int ii, j;
+            int    ii, j;
 
             if (longest) {
-                char* cmdName = (char*)alloca(longest + 8 + 1);
+                char *cmdName = (char *)alloca(longest + 8 + 1);
 
                 for (ii = 0; ii < cmds.num_cmds; ii++) {
                     const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
-                    int eventNum;
+                    int                     eventNum;
 
                     strcpy(cmdName, "_client_");
                     strcpy(cmdName + 8, single_cmd.args[0]);
@@ -364,7 +450,7 @@ void Animate::NewAnim(int animnum, int slot, float weight)
 
     const size_t longestAllFrames = GetLongestClientCmdAllFramesLength(edict->tiki, animnum, numframes);
     if (longestAllFrames) {
-        char* cmdName = (char*)alloca(longestAllFrames + 8 + 1);
+        char *cmdName = (char *)alloca(longestAllFrames + 8 + 1);
 
         for (i = 0; i < numframes; i++, time += frametimes[slot]) {
             // we want normal frame commands to occur right on the frame
@@ -373,7 +459,7 @@ void Animate::NewAnim(int animnum, int slot, float weight)
 
                 for (ii = 0; ii < cmds.num_cmds; ii++) {
                     const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
-                    int eventNum;
+                    int                     eventNum;
 
                     strcpy(cmdName, "_client_");
                     strcpy(cmdName + 8, single_cmd.args[0]);
@@ -401,20 +487,18 @@ void Animate::NewAnim(int animnum, int slot, float weight)
 
 void Animate::NewAnim(int animnum, Event& newevent, int slot, float weight)
 {
-    if (animnum == -1) {
+    if (animnum != -1) {
+        NewAnim(animnum, slot);
+        SetAnimDoneEvent(newevent, slot);
+    } else {
         PostEvent(newevent, level.frametime);
     }
-
-    NewAnim(animnum, slot);
-    SetAnimDoneEvent(newevent, slot);
 }
 
 void Animate::NewAnim(int animnum, Event *newevent, int slot, float weight)
 {
-    if (animnum == -1) {
-        if (newevent) {
-            PostEvent(newevent, level.frametime);
-        }
+    if (animnum == -1 && newevent) {
+        PostEvent(newevent, level.frametime);
     }
 
     NewAnim(animnum, slot);
@@ -423,7 +507,7 @@ void Animate::NewAnim(int animnum, Event *newevent, int slot, float weight)
 
 void Animate::NewAnim(const char *animname, int slot, float weight)
 {
-    int animnum = gi.Anim_Random(edict->tiki, animname);
+    int animnum = gi.Anim_NumForName(edict->tiki, animname);
 
     if (animnum != -1) {
         NewAnim(animnum, slot);
@@ -432,19 +516,25 @@ void Animate::NewAnim(const char *animname, int slot, float weight)
 
 void Animate::NewAnim(const char *animname, Event *endevent, int slot, float weight)
 {
-    int animnum = gi.Anim_Random(edict->tiki, animname);
+    int animnum = gi.Anim_NumForName(edict->tiki, animname);
 
     if (animnum != -1) {
-        NewAnim(animnum, endevent, slot);
+        NewAnim(animnum, slot, weight);
+        SetAnimDoneEvent(endevent, slot);
+    } else if (endevent) {
+        PostEvent(endevent, level.frametime);
     }
 }
 
 void Animate::NewAnim(const char *animname, Event& endevent, int slot, float weight)
 {
-    int animnum = gi.Anim_Random(edict->tiki, animname);
+    int animnum = gi.Anim_NumForName(edict->tiki, animname);
 
     if (animnum != -1) {
-        NewAnim(animnum, endevent, slot);
+        NewAnim(animnum, slot, weight);
+        SetAnimDoneEvent(endevent, slot);
+    } else {
+        PostEvent(endevent, level.frametime);
     }
 }
 
@@ -533,12 +623,12 @@ void Animate::DoExitCommands(int slot)
     if (gi.Frame_Commands_Client(edict->tiki, edict->s.frameInfo[slot].index, TIKI_FRAME_EXIT, &cmds)) {
         size_t longest = GetLongestClientCmdLength(cmds);
         if (longest) {
-            char* cmdName = (char*)alloca(longest + 8 + 1);
-            int ii, j;
+            char *cmdName = (char *)alloca(longest + 8 + 1);
+            int   ii, j;
 
             for (ii = 0; ii < cmds.num_cmds; ii++) {
                 const tiki_singlecmd_t& single_cmd = cmds.cmds[ii];
-                int eventNum;
+                int                     eventNum;
 
                 strcpy(cmdName, "_client_");
                 strcpy(cmdName + 8, single_cmd.args[0]);
@@ -610,12 +700,12 @@ void Animate::PreAnimate(void)
 
 void Animate::PostAnimate(void)
 {
-	float  startTime;
-	float  deltaSyncTime;
-	float  total_weight;
-	float  total_angular_delta;
-	Vector vFrameDelta;
-	bool   hasAction = false;
+    float  startTime;
+    float  deltaSyncTime;
+    float  total_weight;
+    float  total_angular_delta;
+    Vector vFrameDelta;
+    bool   hasAction = false;
 
     if (!edict->tiki) {
         return;
@@ -627,7 +717,7 @@ void Animate::PostAnimate(void)
         syncTime = 1.0f / syncRate * level.frametime + deltaSyncTime;
     }
 
-    total_weight = 0;
+    total_weight        = 0;
     total_angular_delta = 0;
 
     for (int i = 0; i < MAX_FRAMEINFOS; i++) {
@@ -662,16 +752,19 @@ void Animate::PostAnimate(void)
                     //
                     // Get the animation's delta position from start time
                     //
-                    gi.Anim_DeltaOverTime(edict->tiki, edict->s.frameInfo[i].index, startTime, edict->s.frameInfo[i].time, vDelta);
+                    gi.Anim_DeltaOverTime(
+                        edict->tiki, edict->s.frameInfo[i].index, startTime, edict->s.frameInfo[i].time, vDelta
+                    );
                     vFrameDelta += Vector(vDelta) * edict->s.frameInfo[i].weight;
                     total_weight += edict->s.frameInfo[i].weight;
 
                     //
                     // Get the animation's delta angle from start time
                     //
-                    gi.Anim_AngularDeltaOverTime(edict->tiki, edict->s.frameInfo[i].index, startTime, edict->s.frameInfo[i].time, &angleDelta);
+                    gi.Anim_AngularDeltaOverTime(
+                        edict->tiki, edict->s.frameInfo[i].index, startTime, edict->s.frameInfo[i].time, &angleDelta
+                    );
                     total_angular_delta += angleDelta * edict->s.frameInfo[i].weight;
-
                 }
             }
 
@@ -1025,7 +1118,7 @@ void Animate::DumpAnimInfo(void)
     MPrintf("actionWeight: %f\n", edict->s.actionWeight);
 }
 
-void Animate::ClientSound(Event* ev)
+void Animate::ClientSound(Event *ev)
 {
     PlayNonPvsSound(ev->GetString(1));
 }
