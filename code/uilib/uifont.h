@@ -20,36 +20,45 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#ifndef __UIFONT_H__
-#define __UIFONT_H__
+#pragma once
 
 class UIRect2D;
 
-typedef enum { FONT_JUSTHORZ_CENTER, FONT_JUSTHORZ_LEFT, FONT_JUSTHORZ_RIGHT } fonthorzjustify_t;
-typedef enum { FONT_JUSTVERT_TOP, FONT_JUSTVERT_CENTER, FONT_JUSTVERT_BOTTOM } fontvertjustify_t;
+typedef enum {
+    FONT_JUSTHORZ_CENTER,
+    FONT_JUSTHORZ_LEFT,
+    FONT_JUSTHORZ_RIGHT
+} fonthorzjustify_t;
 
-class UIFont {
+typedef enum {
+    FONT_JUSTVERT_TOP,
+    FONT_JUSTVERT_CENTER,
+    FONT_JUSTVERT_BOTTOM
+} fontvertjustify_t;
+
+class UIFont
+{
 protected:
-	unsigned int m_listbase;
-	UColor color;
-	fontheader_t *m_font;
+    unsigned int  m_listbase;
+    UColor        color;
+    fontheader_t *m_font;
 
 public:
-	UIFont();
-	UIFont( const char *fn );
+    UIFont();
+    UIFont(const char *fn);
 
-	void		Print( float x, float y, const char *text, size_t maxlen, qboolean bVirtualScreen );
-	void		PrintJustified( const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, float *vVirtualScale );
-	void		setColor( UColor col );
-	void		setAlpha( float alpha );
-	void		setFont( const char *fontname );
-	int			getWidth( const char *text, int maxlen );
-	int			getCharWidth( unsigned short ch );
-	int			getHeight( const char *text, int maxlen, qboolean bVirtual );
-	int			getHeight( qboolean bVirtual );
-	int			CodeSearch(unsigned short uch);
+    void Print(float x, float y, const char *text, size_t maxlen, qboolean bVirtualScreen);
+    void PrintJustified(
+        const UIRect2D& rect, fonthorzjustify_t horz, fontvertjustify_t vert, const char *text, float *vVirtualScale
+    );
+    void setColor(UColor col);
+    void setAlpha(float alpha);
+    void setFont(const char *fontname);
+    int  getWidth(const char *text, int maxlen);
+    int  getCharWidth(unsigned short ch);
+    int  getHeight(const char *text, int maxlen, qboolean bVirtual);
+    int  getHeight(qboolean bVirtual);
+    int  CodeSearch(unsigned short uch);
 };
 
-int UI_FontStringWidth( fontheader_t *pFont, const char *pszString, int iMaxLen );
-
-#endif
+int UI_FontStringWidth(fontheader_t *pFont, const char *pszString, int iMaxLen);
