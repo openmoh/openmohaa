@@ -161,6 +161,10 @@ void UIFont::PrintOutlinedJustified(const UIRect2D& rect, fonthorzjustify_t horz
     const char *source;
     char       *dest;
     char        string[2048];
+    UColor      originalColor;
+    bool        bVirtual;
+
+    textwidth = 0;
 
     if (vVirtualScale) {
         sizedRect.pos.x       = rect.pos.x / vVirtualScale[0];
@@ -194,6 +198,8 @@ void UIFont::PrintOutlinedJustified(const UIRect2D& rect, fonthorzjustify_t horz
         break;
     }
 
+    originalColor = color;
+    bVirtual = vVirtualScale != NULL;
     source = text;
     while (*source) {
         // skip new lines
@@ -214,20 +220,22 @@ void UIFont::PrintOutlinedJustified(const UIRect2D& rect, fonthorzjustify_t horz
 
         *dest = 0;
 
+        if (textwidth != FONT_JUSTHORZ_LEFT) {
+            textwidth = getWidth(string, -1);
+        }
+
         switch (horz) {
         case FONT_JUSTHORZ_CENTER:
-            textwidth = getWidth(string, -1);
             newx = sizedRect.pos.x + (sizedRect.size.width - textwidth) * 0.5;
             break;
         case FONT_JUSTHORZ_LEFT:
             newx = sizedRect.pos.x + 2.0;
             break;
         case FONT_JUSTHORZ_RIGHT:
-            textwidth = getWidth(string, -1);
             newx = sizedRect.pos.x + sizedRect.size.width - textwidth - 2.0;
             break;
         default:
-            newx = 0.0;
+            newx = 0;
             break;
         }
 
@@ -235,23 +243,23 @@ void UIFont::PrintOutlinedJustified(const UIRect2D& rect, fonthorzjustify_t horz
         // draw the outline
         //
         setColor(outlineColor);
-        Print(newx + 1, newy + 2, string, -1, vVirtualScale != NULL);
-        Print(newx + 2, newy + 1, string, -1, vVirtualScale != NULL);
-        Print(newx - 1, newy + 2, string, -1, vVirtualScale != NULL);
-        Print(newx - 2, newy + 1, string, -1, vVirtualScale != NULL);
-        Print(newx - 1, newy - 2, string, -1, vVirtualScale != NULL);
-        Print(newx - 2, newy - 1, string, -1, vVirtualScale != NULL);
-        Print(newx + 1, newy - 2, string, -1, vVirtualScale != NULL);
-        Print(newx + 2, newy - 1, string, -1, vVirtualScale != NULL);
-        Print(newx + 2, newy, string, -1, vVirtualScale != NULL);
-        Print(newx - 2, newy, string, -1, vVirtualScale != NULL);
-        Print(newx, newy + 2, string, -1, vVirtualScale != NULL);
-        Print(newx, newy - 2, string, -1, vVirtualScale != NULL);
+        Print(newx + 1, newy + 2, string, -1, bVirtual);
+        Print(newx + 2, newy + 1, string, -1, bVirtual);
+        Print(newx - 1, newy + 2, string, -1, bVirtual);
+        Print(newx - 2, newy + 1, string, -1, bVirtual);
+        Print(newx - 1, newy - 2, string, -1, bVirtual);
+        Print(newx - 2, newy - 1, string, -1, bVirtual);
+        Print(newx + 1, newy - 2, string, -1, bVirtual);
+        Print(newx + 2, newy - 1, string, -1, bVirtual);
+        Print(newx + 2, newy, string, -1, bVirtual);
+        Print(newx - 2, newy, string, -1, bVirtual);
+        Print(newx, newy + 2, string, -1, bVirtual);
+        Print(newx, newy - 2, string, -1, bVirtual);
         //
         // draw the text
         //
-        setColor(color);
-        Print(newx, newy, string, -1, vVirtualScale != NULL);
+        setColor(originalColor);
+        Print(newx, newy, string, -1, bVirtual);
 
         // expand for newline
         newy += getHeight(" ", -1, qfalse);
