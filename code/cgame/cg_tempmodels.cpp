@@ -834,16 +834,17 @@ void ClientGameCommandManager::AddTempModels(void)
     refEntity_t  *old_ent;
 
     // To counteract cg.time going backwards
-    if (lastTempModelFrameTime) {
-        if ((cg.time < lastTempModelFrameTime) || (cg.time - lastTempModelFrameTime > TOO_MUCH_TIME_PASSED)) {
-            p = m_active_tempmodels.prev;
-            for (; p != &m_active_tempmodels; p = next) {
-                next               = p->prev;
-                p->lastPhysicsTime = cg.time;
-            }
-            lastTempModelFrameTime = cg.time;
-            return;
+    if (lastTempModelFrameTime && ((cg.time < lastTempModelFrameTime) || (cg.time - lastTempModelFrameTime > TOO_MUCH_TIME_PASSED))) {
+        p = m_active_tempmodels.prev;
+        for (; p != &m_active_tempmodels; p = next) {
+            next = p->prev;
+            p->lastPhysicsTime = cg.time;
         }
+        lastTempModelFrameTime = cg.time;
+        return;
+    }
+
+    if (lastTempModelFrameTime) {
         frameTime = cg.time - lastTempModelFrameTime;
     } else {
         frameTime = 0;
@@ -856,6 +857,7 @@ void ClientGameCommandManager::AddTempModels(void)
     }
 
     memset(&newEnt, 0, sizeof(newEnt));
+    newEnt.parentEntity = ENTITYNUM_NONE;
     // Set this frame time for the next one
     effectTime  = (float)frameTime / 1000.0f;
     effectTime2 = effectTime * effectTime;
