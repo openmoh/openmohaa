@@ -83,12 +83,23 @@ void S_Respatialize(int entityNum, const vec3_t origin,
 {
     S_Respatialize(entityNum, origin, axis, 0);
 }
+
+/*
+=================
+S_StartLocalSoundChannel
+=================
+*/
+void S_StartLocalSound(const char* sound_name, qboolean force_load)
+{
+    // FIXME: unimplemented
+}
+
 /*
 =================
 S_StartLocalSound
 =================
 */
-void S_StartLocalSound(const char* sound_name, qboolean force_load)
+void S_StartLocalSoundChannel(const char* sound_name, qboolean force_load, int channel)
 {
     // FIXME: unimplemented
 }

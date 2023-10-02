@@ -30,6 +30,7 @@ void S_Respatialize(int entityNum, const vec3_t origin, vec3_t axis[3]);
 sfxHandle_t	S_RegisterSound(const char* sample, qboolean compressed, qboolean streamed);
 void S_AddLoopingSound(const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle, float volume, float minDist, float maxDist, float pitch, int flags);
 void S_StartLocalSound(const char* name, qboolean force_load);
+void S_StartLocalSoundChannel(const char* sound_name, qboolean force_load, int channel);
 void S_StartSound(const vec3_t origin, int entNum, int entChannel, sfxHandle_t sfxHandle, float volume, float minDist, float pitch, float maxDist, qboolean streamed);
 void S_ClearLoopingSounds(void);
 qboolean S_IsSoundRegistered(const char* name);
