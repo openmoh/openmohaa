@@ -136,6 +136,8 @@ public:
     void     ApplyFireKickback(const Vector    &org, float kickback) override;
     float    FireDelay(firemode_t mode) override;
 
+    // Added in 2.0
+    //====
     void      SetWarmupDelay(Event *ev);
     void      SetFireWarmupDelay(Event *ev);
     void      SetReloadDelay(Event *ev);
@@ -143,7 +145,8 @@ public:
     void      SetAimOffset(Event *ev);
     void      SetAimTolerance(Event *ev);
     void      SetTargetEntity(Event *ev);
-    void      PlayReloadSound(Event *ev);
+    //====
+    void      PlayReloadSound(Event *ev); // Added in 2.30
     void      SetTargetEntity(Entity *ent);
     void      UpdateAndMoveOwner();
     void      UpdateTimers(float     &yawTimer, float     &pitchTimer);
