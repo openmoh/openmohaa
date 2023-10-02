@@ -90,6 +90,9 @@ typedef struct uiimport_s {
 	void ( *File_WriteFile )( const char *qpath, const void *buffer, int size );
 	uihandle_t ( *Snd_RegisterSound )( const char *sample, qboolean streamed );
 	void ( *Snd_PlaySound )( const char *sound_name );
+	void ( *Snd_PlaySoundDialog )( const char *sound_name );
+	void ( *Snd_FadeSound )( float fTime );
+	void ( *Snd_StopAllSound )();
 	qboolean ( *Alias_Add )( const char *alias, const char *name, const char *parameters );
 	const char *( *Alias_FindRandom )( const char *alias, AliasListNode_t **ret );
 	const char *( *Cvar_GetString )( const char *name, const char *defval );

@@ -3716,12 +3716,49 @@ void CL_FillUIDef( void ) {
 	uid.uiHasMouse = in_guimouse != qfalse;
 }
 
+/*
+====================
+UI_RegisterSound
+====================
+*/
 sfxHandle_t UI_RegisterSound( const char *sample, qboolean streamed ) {
 	return S_RegisterSound( sample, streamed, qfalse );
 }
 
+/*
+====================
+UI_FadeSound
+====================
+*/
+void UI_FadeSound(float fTime) {
+	S_FadeSound(fTime);
+}
+
+/*
+====================
+UI_StopAll
+====================
+*/
+void UI_StopAll() {
+	S_StopAllSounds2(qtrue);
+}
+
+/*
+====================
+UI_StartLocalSound
+====================
+*/
 void UI_StartLocalSound( const char *sound_name ) {
 	S_StartLocalSound( sound_name, qtrue );
+}
+
+/*
+====================
+UI_StartLocalSoundDialog
+====================
+*/
+void UI_StartLocalSoundDialog(const char* sound_name) {
+    S_StartLocalSoundChannel(sound_name, qtrue, CHAN_DIALOG);
 }
 
 /*
@@ -3755,7 +3792,10 @@ void CL_FillUIImports( void ) {
 	uii.File_OpenFile					= FS_ReadFile;
 	uii.File_WriteFile					= FS_WriteTextFile;
 	uii.Snd_PlaySound					= UI_StartLocalSound;
+	uii.Snd_PlaySoundDialog				= UI_StartLocalSoundDialog;
 	uii.Snd_RegisterSound				= UI_RegisterSound;
+	uii.Snd_FadeSound					= UI_FadeSound;
+	uii.Snd_StopAllSound				= UI_StopAll;
 	uii.Alias_Add						= Alias_Add;
 	uii.Alias_FindRandom				= Alias_FindRandom;
 	uii.Sys_Error						= Com_Error;
