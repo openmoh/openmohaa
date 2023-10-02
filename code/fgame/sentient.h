@@ -338,6 +338,10 @@ public:
     bool IsSquadMate(Sentient *pFriendly);
 
     Vehicle* GetVehicle() const;
+    void SetVehicle(Vehicle* pVehicle);
+
+    TurretGun* GetTurret() const;
+    void SetTurret(TurretGun* pTurret);
 
     //
     // Custom openmohaa stuff

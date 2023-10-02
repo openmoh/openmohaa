@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_spawn.h"
 #include "object.h"
 #include "../qcommon/tiki.h"
+#include "weapturret.h"
 
 Event EV_Sentient_ReloadWeapon
 (
@@ -2936,6 +2937,21 @@ void Sentient::SetHolsteredByCode(bool holstered) {
 Vehicle* Sentient::GetVehicle() const
 {
     return m_pVehicle;
+}
+
+void Sentient::SetVehicle(Vehicle* pVehicle)
+{
+    m_pVehicle = NULL;
+}
+
+TurretGun* Sentient::GetTurret() const
+{
+    return m_pTurret;
+}
+
+void Sentient::SetTurret(TurretGun* pTurret)
+{
+    m_pTurret = pTurret;
 }
 
 #define GROUND_DISTANCE        8
