@@ -48,9 +48,9 @@ qboolean VehicleTank::Drive(usercmd_t *ucmd)
     Vector vTmp;
 
     vTmp = velocity;
-    VectorNormalize(vTmp);
+    vTmp.normalize();
 
-    if (!driver.ent || !driver.ent->client) {
+    if (!driver.ent || !driver.ent->isClient()) {
         return qfalse;
     }
 
@@ -65,12 +65,8 @@ qboolean VehicleTank::Drive(usercmd_t *ucmd)
     moveimpulse  = ucmd->forwardmove * (vTmp.length() + 1.0);
     m_bIsBraking = ucmd->forwardmove < 0;
     m_fAccelerator += ucmd->forwardmove * 0.005;
-
-    if (m_fAccelerator < 0) {
-        m_fAccelerator = 0.0;
-    } else if (m_fAccelerator > 1) {
-        m_fAccelerator = 1;
-    }
+    // acceleration must be an alpha value between [0, 1]
+    m_fAccelerator = Q_clamp_float(m_fAccelerator, 0, 1);
 
     turnimpulse = -ucmd->rightmove;
     jumpimpulse = ucmd->upmove;
