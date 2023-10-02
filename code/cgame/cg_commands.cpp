@@ -68,7 +68,6 @@ Event EV_Client_EmitterStartOff
     NULL,
     NULL,
     "Signals an emitter to start in the off state (no tempmodels are emitted)"
-
 );
 Event EV_Client_SetAlpha
 (
@@ -85,7 +84,6 @@ Event EV_Client_SetDieTouch
     NULL,
     NULL,
     "Set the spawned tempmodels to die when they touch a solid"
-
 );
 Event EV_Client_SetBounceFactor(
     "bouncefactor",
@@ -95,8 +93,7 @@ Event EV_Client_SetBounceFactor(
     "Set the bounciness of a tempmodel when it hits a solid.\n"
     "A factor > 1 will make the model bounce higher and higher on each hit"
 );
-Event EV_Client_SetBounceSound
-(
+Event EV_Client_SetBounceSound(
     "bouncesound",
     EV_DEFAULT,
     "sF",
@@ -126,7 +123,6 @@ Event EV_Client_SetScaleUpDown
     NULL,
     NULL,
     "Set the tempmodel to scale up to scale value and then down."
-
 );
 Event EV_Client_SetScaleMin
 (
@@ -167,7 +163,6 @@ Event EV_Client_SetColor
     "fffF",
     "red green blue alpha",
     "Set the color (modulate) of the spawned tempmodel."
-
 );
 Event EV_Client_SetRadialVelocity(
     "radialvelocity",
@@ -184,7 +179,6 @@ Event EV_Client_SetVelocity
     "f",
     "forwardVelocity",
     "Set the forward velocity of the spawned tempmodel"
-
 );
 Event EV_Client_SetAngularVelocity
 (
@@ -193,7 +187,6 @@ Event EV_Client_SetAngularVelocity
     "fff",
     "yawVel pitchVel rollVel",
     "Set the angular velocity of the spawned tempmodel"
-
 );
 Event EV_Client_SetColorVelocity
 (
@@ -202,7 +195,6 @@ Event EV_Client_SetColorVelocity
     "fff",
     "rVel gVel bVel",
     "Set the color velocity of the spawned dlight tempmodel"
-
 );
 Event EV_Client_SetRandomVelocity(
     "randvel",
@@ -241,7 +233,6 @@ Event EV_Client_SetAccel
     "xAcc yAcc zAcc",
     "Set the acceleration of the spawned tempmodel.\n"
     "This acceleration is applied using the world axis"
-
 );
 Event EV_Client_SetFriction(
     "friction",
@@ -258,7 +249,6 @@ Event EV_Client_SetSpin
     "f",
     "rotations_per_second",
     "Sets counterclockwise rotations per second at which the emitter's x/y-axes rotate around its z-axis"
-
 );
 Event EV_Client_SetVaryColor(
     "varycolor", EV_DEFAULT, NULL, NULL, "Sets the color to vary by 0 to -20% of specified color"
@@ -270,10 +260,8 @@ Event EV_Client_SetSmokeParms
     "fff",
     "typeinfo fademult scalemult",
     "Sets some misc parms for smoke"
-
 );
-Event EV_Client_SetCount
-(
+Event EV_Client_SetCount(
     "count",
     EV_DEFAULT,
     "i",
@@ -313,7 +301,6 @@ Event EV_Client_SetTwinkle
     "ffff",
     "mintimeoff maxtimeoff mintimeon maxtimeon",
     "Set the tempmodel to twinkle with the specified settings"
-
 );
 Event EV_Client_SetTrail
 (
@@ -322,7 +309,6 @@ Event EV_Client_SetTrail
     "sssf",
     "shader startTag endTag life",
     "Set the tempmodel to have a swipe that follows it"
-
 );
 Event EV_Client_SetSpawnRange(
     "spawnrange",
@@ -340,7 +326,6 @@ Event EV_Client_SetSpawnRate
     "rate",
     "Set the spawnrate of the emitter (models per second).\n"
     "This is only used for emitters and not for the originspawn and tagspawn commands"
-
 );
 Event EV_Client_SetOriginOffset(
     "offset",
@@ -356,8 +341,7 @@ Event EV_Client_SetOriginOffset(
     "without randomness.\n"
     "This offset is applied using the world axis."
 );
-Event EV_Client_SetScaleRate
-(
+Event EV_Client_SetScaleRate(
     "scalerate",
     EV_DEFAULT,
     "f",
@@ -373,7 +357,6 @@ Event EV_Client_SetCircle
     NULL,
     "Set the tempmodels to be spawned in a circle around the origin\n"
     "This circle will be generated in the X/Y axis of the model"
-
 );
 Event EV_Client_SetSphere(
     "sphere",
@@ -401,7 +384,6 @@ Event EV_Client_SetRadius
     "f",
     "radius",
     "Set the radius of the sphere for the inwardsphere amd sphere settings"
-
 );
 Event EV_Client_SetSwarm
 (
@@ -414,7 +396,6 @@ Event EV_Client_SetSwarm
     "maxspeed is how fast the tempmodel will move (it's randomly generated every\n"
     "time the frequency is hit\n"
     "delta is how much the tempmodel moves toward the origin every frame"
-
 );
 Event EV_Client_SetWavy(
     "wavy",
@@ -440,7 +421,6 @@ Event EV_Client_SetAlignOnce
     NULL,
     NULL,
     "Align the tempmodels to the direction they are traveling at the time they are initialized"
-
 );
 Event EV_Client_SetFlickerAlpha
 (
@@ -449,10 +429,8 @@ Event EV_Client_SetFlickerAlpha
     NULL,
     NULL,
     "Set the tempmodel to change it's alpha every frame.  Creates a flickering effect"
-
 );
-Event EV_Client_SetCollision
-(
+Event EV_Client_SetCollision(
     "collision",
     EV_DEFAULT,
     "S",
@@ -468,7 +446,6 @@ Event EV_Client_TagSpawn
     "tagName",
     "Spawn tempmodels from the specified tag.\n"
     "This command is followed by a ( to specify a block of commands that modify the tempmodels"
-
 );
 Event EV_Client_TagSpawnLinked(
     "tagspawnlinked",
@@ -486,7 +463,6 @@ Event EV_Client_OriginSpawn
     NULL,
     "Spawn tempmodels from the origin.\n"
     "This command is followed by a ( to specify a block of commands that modify the tempmodels"
-
 );
 Event EV_Client_OriginBeamSpawn
 (
@@ -496,7 +472,6 @@ Event EV_Client_OriginBeamSpawn
     NULL,
     "Spawn a beam from the origin.\n"
     "This command is followed by a ( to specify a block of commands that modify the beam"
-
 );
 Event EV_Client_OriginBeamEmitter
 (
@@ -506,7 +481,6 @@ Event EV_Client_OriginBeamEmitter
     NULL,
     "Spawn beams from the origin.\n"
     "This command is followed by a ( to specify a block of commands that modify the beam"
-
 );
 Event EV_Client_TagEmitter
 (
@@ -516,7 +490,6 @@ Event EV_Client_TagEmitter
     "tagName emitterName",
     "Create an emitter that spawns tempmodels from the specified tag.\n"
     "This command is followed by a ( to specify a block of commands that modify the tempmodels"
-
 );
 Event EV_Client_OriginEmitter
 (
@@ -526,7 +499,6 @@ Event EV_Client_OriginEmitter
     "emitterName",
     "Create an emitter that spawns tempmodels from the origin.\n"
     "This command is followed by a ( to specify a block of commands that modify the tempmodels"
-
 );
 Event EV_Client_EmitterOn
 (
@@ -551,7 +523,6 @@ Event EV_Client_Sound
     "sSFFFFS",
     "soundName channelName volume min_distance pitch randompitch randomvolume argstype",
     "Play the specified sound"
-
 );
 Event EV_Set_Current_Tiki
 (
@@ -560,7 +531,6 @@ Event EV_Set_Current_Tiki
     "s",
     "settiki tikiname - all subsequent events are applied to this tiki",
     "sets the tiki the aliases should be on in the sound uberfile"
-
 );
 Event EV_Client_StopSound
 (
@@ -577,7 +547,6 @@ Event EV_Client_StopAliasChannel
     "s",
     "alias",
     "Stops the sound channel used by the specified alias."
-
 );
 Event EV_Client_LoopSound
 (
@@ -586,7 +555,6 @@ Event EV_Client_LoopSound
     "sFFf",
     "soundName volume min_distance pitch",
     "Play the specifed sound as a looping sound"
-
 );
 Event EV_Client_Cache
 (
@@ -603,7 +571,6 @@ Event EV_Client_CacheImage
     "s",
     "imageName",
     "Cache the specified image (For menu graphics that should never be picmiped)"
-
 );
 Event EV_Client_CacheFont
 (
@@ -620,7 +587,6 @@ Event EV_Client_AliasCache
     "ssSSSSSS",
     "alias realPath arg1 arg2 arg3 arg4 arg5 arg6",
     "Create an alias to the specified path and cache the resource"
-
 );
 Event EV_Client_Alias
 (
@@ -629,7 +595,6 @@ Event EV_Client_Alias
     "ssSSSSSS",
     "alias realPath arg1 arg2 arg3 arg4 arg5 arg6",
     "Create an alias to the specified path"
-
 );
 Event EV_Client_CacheAlias
 (
@@ -638,10 +603,8 @@ Event EV_Client_CacheAlias
     "s",
     "alias",
     "Caches all data matching a previously specified alias"
-
 );
-Event EV_Client_Footstep
-(
+Event EV_Client_Footstep(
     "footstep",
     EV_DEFAULT,
     "ssI",
@@ -664,7 +627,6 @@ Event EV_Client_BodyFall
     "F",
     "fVolume",
     "Play a body fall sound that is appropriate to the surface we are falling on\n"
-
 );
 Event EV_Client_Client
 (
@@ -673,7 +635,6 @@ Event EV_Client_Client
     "SSSSSS",
     "arg1 arg2 arg3 arg4 arg5 arg6",
     "Execute the specified command arg string"
-
 );
 Event EV_Client_OriginDynamicLight(
     "origindlight",
@@ -722,7 +683,6 @@ Event EV_Client_SetEntityColor
     "fffF",
     "red green blue alpha",
     "Set the color(modulate) of this entity"
-
 );
 Event EV_Client_SetTexAnimTime
 (
@@ -739,18 +699,15 @@ Event EV_Client_SetGlobalFade
     "S",
     "[in|out]",
     "Set the tempmodels to globally fade in or out together"
-
 );
 Event EV_Client_SetParentLink
 (
-    "parentlink",
-    EV_DEFAULT,
+    "parentlink", EV_DEFAULT,
     NULL,
     NULL,
     "Set the tempmodels linked to the parent, so they move with the parent model"
 );
-Event EV_Client_SetHardLink
-(
+Event EV_Client_SetHardLink(
     "hardlink",
     EV_DEFAULT,
     NULL,
@@ -781,7 +738,6 @@ Event EV_Client_EmitterAngles
     "pitchofs yawofs rollofs",
     "Set the tempmodels angles to that of the emitter\n"
     "The three optional parameters are for setting an angle offset from the emitter"
-
 );
 Event EV_Client_SetAngles(
     "angles",
@@ -801,7 +757,6 @@ Event EV_Client_SetRelativeAngles
     "",
     "",
     "makes the spawn angles get applied relative to the orientation of the model"
-
 );
 Event EV_Client_Swipe
 (
@@ -818,7 +773,6 @@ Event EV_Client_SwipeOn
     "ssff",
     "shader startTagName endTagNamelife life",
     "Signal the start of a swipe from the current tag"
-
 );
 Event EV_Client_SwipeOff
 (
@@ -835,7 +789,6 @@ Event EV_Client_BeginTagBeamEmitter
     "sss",
     "tagstart tagend name",
     "Create a beam emitter that uses 2 tags to determine it's start and end position"
-
 );
 Event EV_Client_BeginTagBeamSpawn
 (
@@ -844,7 +797,6 @@ Event EV_Client_BeginTagBeamSpawn
     "sf",
     "tagstart name",
     "Create a beam emitter that uses the tag to determine it's starting position."
-
 );
 Event EV_Client_AnimateOnce
 (
@@ -853,7 +805,6 @@ Event EV_Client_AnimateOnce
     NULL,
     NULL,
     "Set a tempmodel to animate once and then get removed"
-
 );
 Event EV_Client_SetAnim
 (
@@ -902,10 +853,8 @@ Event EV_Client_SetBeamLength
     "f",
     "length",
     "Set the length of the beam or trace length (for decals)"
-
 );
-Event EV_Client_SetBeamDelay
-(
+Event EV_Client_SetBeamDelay(
     "beamdelay",
     EV_DEFAULT,
     "SF",
@@ -937,7 +886,6 @@ Event EV_Client_SetBeamOffsetEndpoints
     NULL,
     NULL,
     "Make the beams endpoints offset to reduce the bunching up effect"
-
 );
 Event EV_Client_BeamSphere
 (
@@ -946,7 +894,6 @@ Event EV_Client_BeamSphere
     "i",
     "count",
     "Create a sphere shaped beam effect from the origin. Count is the number of beams"
-
 );
 Event EV_Client_Spread
 (
@@ -955,7 +902,6 @@ Event EV_Client_Spread
     "ff",
     "spreadx spready",
     "Add a random variance in the spawned beam in the forward direction by the amound specified in spreadx and spready"
-
 );
 Event EV_Client_UseLastTraceEnd
 (
@@ -964,7 +910,6 @@ Event EV_Client_UseLastTraceEnd
     NULL,
     NULL,
     "Makes this trace command use the end results of the last trace command"
-
 );
 Event EV_Client_OffsetAlongAxis(
     "offsetalongaxis",
@@ -987,7 +932,6 @@ Event EV_Client_Cone
     "ff",
     "height radius",
     "Randomly spawns the particle somewhere inside a cone along the model's local x axis"
-
 );
 Event EV_Client_SetEndAlpha
 (
@@ -1004,7 +948,6 @@ Event EV_Client_RandomChance
     "fSSSSSS",
     "percentage [arg1] [arg2] [arg3] [arg4] [arg5] [arg6]",
     "Set the percentage chance that command will occur"
-
 );
 Event EV_Client_DelayedRepeat
 (
@@ -1015,7 +958,6 @@ Event EV_Client_DelayedRepeat
     "Set the time delay between this command getting executed.  This requires a command number to be assigned here.\n"
     "This is internally used to keep track of the commands this entity executes and will resolve naming conflicts.\n"
     "This is only useful if the command gets called continuously but must execute at regular intervals.\n"
-
 );
 Event EV_Client_CommandDelay
 (
@@ -1025,7 +967,6 @@ Event EV_Client_CommandDelay
     "time commandnumber [arg1] [arg2] [arg3] [arg4] [arg5] [arg6]",
     "Set the time delay between this command getting executed.  This requires a command number to be assigned here.\n"
     "This is internally used to keep track of the commands this entity executes and will resolve naming conflicts."
-
 );
 Event EV_Client_BounceDecal(
     "bouncedecal",
@@ -1052,7 +993,6 @@ Event EV_Client_SetDecalOrientation
     "f",
     "degrees",
     "Set the degrees to orient the decal.  Specify 'random' to use a random orientation"
-
 );
 Event EV_Client_SetDecalShader
 (
@@ -1061,7 +1001,6 @@ Event EV_Client_SetDecalShader
     "s",
     "shadername",
     "Set the shader to use for the impact decal"
-
 );
 Event EV_Client_SetTraceLength
 (
@@ -1078,7 +1017,6 @@ Event EV_Client_TraceSpawn
     "s",
     "modelname",
     "Spawn the specified model when the trace hits a solid object"
-
 );
 Event EV_Client_TagList
 (
@@ -1087,7 +1025,6 @@ Event EV_Client_TagList
     "ssSSSSSS",
     "arg1 arg2 arg3 arg4 arg5 arg6 arg7 arg8",
     "Set the tag list to create a beam that travels between all the tags"
-
 );
 Event EV_Client_Lightstyle(
     "lightstyle",
@@ -1121,7 +1058,6 @@ Event EV_Client_AlwaysDraw
     NULL,
     NULL,
     "Set emitter/tempmodel to be alwaysdraw. Which can be turned off by alwaysdraw"
-
 );
 Event EV_Client_Detail
 (
@@ -1130,7 +1066,6 @@ Event EV_Client_Detail
     NULL,
     NULL,
     "Set emitter/tempmodel to be detail. Which can be turned off by detail"
-
 );
 Event EV_Client_Print
 (
@@ -1147,7 +1082,6 @@ Event EV_Client_SetVolumetric
     NULL,
     NULL,
     "Set the effect to spawn volumetric sources rather than tempmodels"
-
 );
 Event EV_Client_Wind
 (
@@ -1173,8 +1107,7 @@ Event EV_Client_WaterOnly
     NULL,
     "makes the temp model remove itself if it leaves water"
 );
-Event EV_Client_SetAlignStretch
-(
+Event EV_Client_SetAlignStretch(
     "alignstretch",
     EV_DEFAULT,
     "F",
@@ -1229,8 +1162,7 @@ Event EV_Client_EyeLimits
     "fPitchmax fYawmax fRollmax",
     "Set the max angle offsets for the eyes from the model's head"
 );
-Event EV_Client_EyeMovement
-(
+Event EV_Client_EyeMovement(
     "eyemovement",
     EV_DEFAULT,
     "f",
@@ -5258,152 +5190,90 @@ void CG_ClientCommandDebugMessage(centity_t *cent, const char *fmt, ...)
 //=================
 void CG_ClientCommands(refEntity_t *ent, centity_t *cent, int slot)
 {
-#if 0
-    int anim;
-    int frame;
-
-    if (!tiki) {
-        return;
-    }
+    int      i;
+    int      iStartFrame, iEndFrame;
+    dtiki_t *tiki = ent->tiki;
+    int      iAnim;
+    float    fAnimLength;
+    int      iAnimFrames;
+    float    fAnimFrameMult;
+    int      iEntNumber;
+    float    time, lastTime;
+    int      lastAnim;
 
     if (paused->integer) {
         return;
     }
 
-    if (cent->currentState.eFlags & EF_DONT_PROCESS_COMMANDS) {
+    iAnim = ent->frameInfo[slot].index;
+
+    fAnimLength    = cgi.Anim_Time(tiki, iAnim);
+    iAnimFrames    = cgi.Anim_NumFrames(tiki, iAnim);
+    fAnimFrameMult = cgi.Anim_Frametime(tiki, iAnim);
+    iEntNumber     = cent->currentState.number;
+
+    time     = ent->frameInfo[slot].time;
+    lastTime = cent->animLastTimes[slot];
+    lastAnim = cent->animLast[slot];
+    cgi.Anim_NameForNum(tiki, iAnim);
+
+    if (time < 0 || time > fAnimLength) {
         return;
     }
 
-    assert(cent);
-
-    // don't do anything if the frame is illegal
-    if ((new_frame < 0) || (new_frame >= state->numframes)) {
+    if (time == fAnimLength && time < lastTime) {
         return;
     }
 
-#    if 0
-#        ifndef NDEBUG 
-   CG_ClientCommandDebugMessage( 
-      cent, 
-      "Client Commands: cg.time %d checking Entity %d anim %d frame %d\n", 
-      cg.time,
-      cent->currentState.number,
-      new_anim, 
-      new_frame
-      );
-#        endif
-#    endif
+    if (cgi.Anim_HasCommands(tiki, iAnim)) {
+        if (iAnim == lastAnim && time < lastTime) {
+            iStartFrame = (lastTime + 0.01) / fAnimFrameMult + 1.0;
+            iEndFrame   = (time + 0.01) / fAnimFrameMult + 1.0;
 
-    anim = state->last_cmd_anim - 1;
-    frame = state->last_cmd_frame;
+            for (i = iStartFrame; i < iAnimFrames; i++) {
+                CG_ProcessEntityCommands(i, iAnim, iEntNumber, ent, cent);
+            }
 
-    // if we had a last anim and it it wasn't same as ours then
-    // we need to run any exit commands from the last animation
-    if ((anim != new_anim) && (anim >= 0)) {
-        // play the exit command
-        CG_ProcessEntityCommands(TIKI_FRAME_EXIT, anim,
-                                 cent->currentState.number, ent, cent);
-#    ifndef NDEBUG
-        CG_ClientCommandDebugMessage(
-            cent, "Client Commands: Entity %d Exiting Anim: %s\n",
-            cent->currentState.number, cgi.Anim_NameForNum(tiki, anim));
-#    endif
-        frame = 0;
+            for (i = 0; i < iEndFrame; i++) {
+                CG_ProcessEntityCommands(i, iAnim, iEntNumber, ent, cent);
+            }
+        } else if (time >= 0.01) {
+            if (iAnim == lastAnim) {
+                iStartFrame = (lastTime + 0.01) / fAnimFrameMult + 1.0;
+            } else {
+                iStartFrame = 0;
+            }
+            iEndFrame = (time + 0.01) / fAnimFrameMult + 1.0;
 
-        // Reset the tiki looping sound if changing animation
-        cent->tikiLoopSound = NULL;
-    }
-
-    if (state->has_commands) {
-        // if we are entering a new animation, than
-        // we need to run any entry commands for the new animation
-        if (anim != new_anim) {
-            // play the exit command
-            CG_ProcessEntityCommands(TIKI_FRAME_ENTRY, new_anim,
-                                     cent->currentState.number, ent, cent);
-#    ifndef NDEBUG
-            CG_ClientCommandDebugMessage(
-                cent, "Client Commands: Entity %d Entering Anim: %s\n",
-                cent->currentState.number,
-                cgi.Anim_NameForNum(tiki, new_anim));
-#    endif
-        }
-
-        if (state->driven) {
-            // make sure we process this frame if we are on a new frame
-            // although this is a hack, it guarantees that the frame will be
-            // processed below.
-            frame %= state->numframes;
-            if (frame < new_frame) {
-                frame = new_frame;
+            for (i = iStartFrame; i < iEndFrame; i++) {
+                CG_ProcessEntityCommands(i, iAnim, iEntNumber, ent, cent);
             }
         } else {
-            //
-            // we need to catch up on the frames we haven't played yet
-            //
-            if ((new_frame != (frame - 1)) && (state->numframes > 1)) {
-                // and frame number so that it wraps properly
-                frame %= state->numframes;
-
-                // lerp to one minus the current frame
-                while (frame != new_frame) {
-#    ifndef NDEBUG
-                    CG_ClientCommandDebugMessage(
-                        cent,
-                        "Client Commands: cg.time %d Catching up Entity: %d "
-                        "Anim: %s frame: %d numframes: %d\n",
-                        cg.time, cent->currentState.number,
-                        cgi.Anim_NameForNum(tiki, new_anim), frame,
-                        state->numframes);
-#    endif
-                    state->last_cmd_time =
-                        cg.time + TIKI_FRAME_MAXFRAMERATE;
-                    CG_ProcessEntityCommands(frame, new_anim,
-                                             cent->currentState.number, ent,
-                                             cent);
-                    frame = (frame + 1) % state->numframes;
-                }
-            }
-        }
-
-        //
-        // handle the single frame and every frame case
-        //
-        if ((frame == new_frame) ||
-            ((cg.time > state->last_cmd_time) &&
-             (cent->currentState.eFlags & EF_EVERYFRAME))) {
-#    ifndef NDEBUG
-            CG_ClientCommandDebugMessage(
-                cent,
-                "Client Commands: cg.time %d Processing Entity: %d Anim: %s "
-                "frame: %d numframes: %d\n",
-                cg.time, cent->currentState.number,
-                cgi.Anim_NameForNum(tiki, new_anim), new_frame,
-                state->numframes);
-#    endif
-            state->last_cmd_time = cg.time + TIKI_FRAME_MAXFRAMERATE;
-            CG_ProcessEntityCommands(new_frame, new_anim,
-                                     cent->currentState.number, ent, cent);
+            CG_ProcessEntityCommands(TIKI_FRAME_FIRST, iAnim, iEntNumber, ent, cent);
         }
     }
 
     if (cent->clientFlags & CF_UPDATESWIPE) {
-        current_entity = ent;
-        current_centity = cent;
-        current_entity_number = cent->currentState.number;
-        current_tiki = tiki;
+        refEntity_t *old_entity = current_entity;
+        dtiki_t     *old_tiki   = current_tiki;
+        int          oldnum     = current_entity_number;
+        centity_t   *oldcent    = current_centity;
+
+        //
+        // swipe the entity
+        //
+        current_entity        = ent;
+        current_tiki          = ent->tiki;
+        current_centity       = cent;
+        current_entity_number = iEntNumber;
 
         commandManager.ProcessEvent(EV_Client_Swipe);
 
-        current_tiki = NULL;
-        current_entity_number = -1;
-        current_entity = NULL;
-        current_centity = NULL;
+        current_entity        = old_entity;
+        current_tiki          = old_tiki;
+        current_entity_number = oldnum;
+        current_centity       = oldcent;
     }
-
-    state->last_cmd_anim = new_anim + 1;
-    state->last_cmd_frame = new_frame + 1;
-#endif
 }
 
 //===============
