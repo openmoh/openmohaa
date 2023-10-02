@@ -241,6 +241,7 @@ UIFakkLabel::UIFakkLabel()
 {
     m_statbar_min = m_statbar_max = -1.0;
     m_stat                        = -1;
+    m_stat_alpha                  = -1;
     m_stat_configstring           = -1;
     m_maxstat                     = -1;
     m_itemindex                   = -1;
@@ -249,6 +250,7 @@ UIFakkLabel::UIFakkLabel()
     m_statbar_or                  = L_STATBAR_NONE;
     m_statbar_material            = NULL;
     m_statbar_material_flash      = NULL;
+    m_statbar_material_marker     = NULL;
     m_lastitemindex               = -1;
 }
 
@@ -259,7 +261,7 @@ void UIFakkLabel::LayoutPlayerStat(Event *ev)
 
 void UIFakkLabel::LayoutPlayerStatAlpha(Event *ev)
 {
-    // FIXME: unimplemented
+    m_stat_alpha = ev->GetInteger(1);
 }
 
 void UIFakkLabel::LayoutPlayerStatConfigstring(Event *ev)
@@ -371,7 +373,7 @@ void UIFakkLabel::LayoutStatbarShader_Flash(Event *ev)
 
 void UIFakkLabel::LayoutStatbarShader_Marker(Event *ev)
 {
-    // FIXME: unimplemented
+    m_statbar_material_marker = uWinMan.RegisterShader(ev->GetString(1));
 }
 
 void UIFakkLabel::LayoutStatbarEndAngles(Event *ev)
@@ -1290,6 +1292,15 @@ void UIFakkLabel::StatCircleTexCoord(float fAng, vec3_t vTexCoord)
 
 void UIFakkLabel::Draw(void)
 {
+    if (m_stat_alpha != -1) {
+        float frac;
+        
+        frac = cl.snap.ps.stats[m_stat_alpha] / 100.0;
+        frac = Q_clamp_float(frac, 0, 1);
+  
+        m_alpha = frac;
+    }
+
     if (m_stat == -1 && m_itemindex == -1 && m_inventoryrendermodelindex == -1) {
         if (m_stat_configstring != -1) {
             m_font->setColor(m_foreground_color);

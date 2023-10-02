@@ -43,6 +43,7 @@ protected:
     SafePtr<inventory_item_t> m_lastitem;
     int                       m_lastitemindex;
     int                       m_stat;
+    int                       m_stat_alpha;
     int                       m_stat_configstring;
     int                       m_maxstat;
     int                       m_itemindex;
@@ -61,6 +62,7 @@ protected:
     str                       m_anim;
     UIReggedMaterial         *m_statbar_material;
     UIReggedMaterial         *m_statbar_material_flash;
+	UIReggedMaterial         *m_statbar_material_marker;
 
 public:
     CLASS_PROTOTYPE(UIFakkLabel);
@@ -68,7 +70,7 @@ public:
     UIFakkLabel();
 
     void LayoutPlayerStat(Event *ev);
-    void LayoutPlayerStatAlpha(Event *ev);
+    void LayoutPlayerStatAlpha(Event *ev); // Added in 2.0
     void LayoutPlayerStatConfigstring(Event *ev);
     void LayoutMaxPlayerStat(Event *ev);
     void LayoutItemIndex(Event *ev);
@@ -79,7 +81,7 @@ public:
     void LayoutStatbarShader(Event *ev);
     void LayoutStatbarTileShader(Event *ev);
     void LayoutStatbarShader_Flash(Event *ev);
-    void LayoutStatbarShader_Marker(Event *ev);
+    void LayoutStatbarShader_Marker(Event *ev); // Added in 2.0
     void LayoutStatbarEndAngles(Event *ev);
     void LayoutStatbarNeedleWidth(Event *ev);
     void LayoutStatbarRotatorSize(Event *ev);
