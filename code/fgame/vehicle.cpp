@@ -2053,7 +2053,7 @@ bool Vehicle::FindExitPosition(Entity *pEnt, const Vector& vOrigin, const Vector
     for (i = 0; i < 128; i += 32) {
         for (j = 0; j < 360; j += 30) {
             yawAngles    = vec_zero;
-            yawAngles[1] = j + angles[1] * 180;
+            yawAngles[1] = j + angles[1] + 180;
             yawAngles.AngleVectorsLeft(&forward);
 
             offset = origin + forward * radius;
@@ -2075,6 +2075,7 @@ bool Vehicle::FindExitPosition(Entity *pEnt, const Vector& vOrigin, const Vector
 
                 offset = trace.endpos;
                 end    = offset;
+                end[2] -= 128;
 
                 trace = G_Trace(
                     offset,
@@ -3651,8 +3652,12 @@ void Vehicle::DriverUse(Event *ev)
     Vector  vExitAngles;
     bool    bHasExitAngles;
     Vector  vExitPosition;
+    bool    bHasExitPosition;
 
     ent = ev->GetEntity(1);
+
+    bHasExitAngles   = false;
+    bHasExitPosition = false;
 
     if (locked) {
         return;
@@ -3660,19 +3665,22 @@ void Vehicle::DriverUse(Event *ev)
 
     if (ev->NumArgs() == 2) {
         if (ev->IsVectorAt(2)) {
-            vExitPosition = ev->GetVector(2);
+            vExitPosition    = ev->GetVector(2);
+            bHasExitPosition = true;
         } else if (ev->IsEntityAt(2)) {
             Entity *pEnt = ev->GetEntity(2);
 
-            bHasExitAngles = true;
-            vExitAngles    = pEnt->angles;
-            vExitPosition  = pEnt->origin;
+            bHasExitAngles   = true;
+            vExitAngles      = pEnt->angles;
+            vExitPosition    = pEnt->origin;
+            bHasExitPosition = true;
         } else if (ev->IsSimpleEntityAt(2)) {
             SimpleEntity *pEnt = ev->GetSimpleEntity(2);
 
-            bHasExitAngles = true;
-            vExitAngles    = pEnt->angles;
-            vExitPosition  = pEnt->origin;
+            bHasExitAngles   = true;
+            vExitAngles      = pEnt->angles;
+            vExitPosition    = pEnt->origin;
+            bHasExitPosition = true;
         }
     }
 
@@ -3681,11 +3689,8 @@ void Vehicle::DriverUse(Event *ev)
     if (slot >= 0) {
         DetachDriverSlot(slot, vec_zero, NULL);
 
-        if (ent->IsSubclassOfVehicleTank() && Turrets[0].ent->IsSubclassOfVehicleTurretGun()) {
-            VehicleTurretGun *pTurret = (VehicleTurretGun *)Turrets[0].ent.Pointer();
-
-            pTurret->m_bUseRemoteControl = false;
-            pTurret->m_pRemoteOwner      = NULL;
+        if (IsSubclassOfVehicleTank() && Turrets[0].ent->IsSubclassOfVehicleTurretGun()) {
+            DetachRemoteOwner();
         }
 
         return;
@@ -3704,20 +3709,25 @@ void Vehicle::DriverUse(Event *ev)
         if (slot >= 0) {
             DetachTurretSlot(slot, vec_zero, NULL);
         }
-    } else if (ent->IsSubclassOfPlayer()) {
-        Player *player = (Player *)ent;
+    } else if (ent->IsSubclassOfSentient()) {
+        Sentient* sent = static_cast<Sentient*>(ent);
+        TurretGun* sentTurret = sent->GetTurret();
 
-        if (player->m_pTurret) {
-            slot = FindTurretSlotByEntity(player->m_pTurret);
+        if (sentTurret) {
+            slot = FindTurretSlotByEntity(sent->GetTurret());
 
             if (slot >= 0) {
-                if (bHasExitAngles) {
-                    AttachTurretSlot(slot, player->m_pTurret, vExitPosition, &vExitAngles);
+                if (bHasExitPosition) {
+                    if (bHasExitAngles) {
+                        AttachTurretSlot(slot, sentTurret, vExitPosition, &vExitAngles);
+                    } else {
+                        AttachTurretSlot(slot, sentTurret, vExitPosition, NULL);
+                    }
                 } else {
-                    AttachTurretSlot(slot, player->m_pTurret, vExitPosition, NULL);
+                    AttachTurretSlot(slot, sentTurret, vec_zero, NULL);
                 }
 
-                player->m_pVehicle = NULL;
+                sent->SetVehicle(NULL);
                 return;
             }
         }
@@ -3779,27 +3789,36 @@ void Vehicle::DriverUse(Event *ev)
 
     // Check for driver(s) slot(s)
     if (driver.flags & SLOT_FREE) {
+        float length;
+
         QueryDriverSlotPosition(slot, (float *)&pos);
 
         dist = pos - ent->origin;
 
-        if (dist.length() < min_length) {
+        length = dist.length();
+        if(ent->IsSubclassOfPlayer()) {
+            length /= 2.0;
+        }
+
+        if (length < min_length) {
             min_length = dist.length();
             min_type   = 2;
             min_slot   = slot;
         }
     }
 
-    switch (min_type) {
-    case 0:
-        AttachPassengerSlot(min_slot, ent, vec_zero);
-        break;
-    case 1:
-        AttachTurretSlot(min_slot, ent, vec_zero, NULL);
-        break;
-    case 2:
-        AttachDriverSlot(min_slot, ent, vec_zero);
-        break;
+    if (g_gametype->integer == GT_SINGLE_PLAYER || min_type == 2) {
+        switch (min_type) {
+        case 0:
+            AttachPassengerSlot(min_slot, ent, vec_zero);
+            break;
+        case 1:
+            AttachTurretSlot(min_slot, ent, vec_zero, NULL);
+            break;
+        case 2:
+            AttachDriverSlot(min_slot, ent, vec_zero);
+            break;
+        }
     }
 }
 
