@@ -2446,7 +2446,11 @@ void UIWidget::Display
 
 		if( m_material )
 		{
-			uii.Rend_SetColor( m_foreground_color );
+			col[0] = m_foreground_color.r;
+			col[1] = m_foreground_color.g;
+			col[2] = m_foreground_color.b;
+			col[3] = m_foreground_color.a * m_local_alpha;
+			uii.Rend_SetColor( col );
 
 			m_material->ReregisterMaterial();
 
