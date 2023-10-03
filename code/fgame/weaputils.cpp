@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "earthquake.h"
 #include "trigger.h"
 #include "debuglines.h"
+#include "smokegrenade.h"
 
 constexpr unsigned long MAX_TRAVEL_DIST = 16216;
 
@@ -3157,85 +3158,111 @@ void ExplosionAttack
     if( owner->IsDead() || owner == world )
         weap = NULL;
 
-    if( explosionModel.length() )
+    if( explosionModel.length() && gi.modeltiki(CanonicalTikiName(explosionModel)) )
     {
-        explosion = new Explosion;
+        SpawnArgs sp;
+        ClassDef* c;
 
-        // Create a new explosion entity and set it off
-        explosion->setModel( explosionModel );
+        sp.setArg("model", explosionModel);
+        c = sp.getClassDef();
+        if (c && c != Explosion::classinfostatic() && checkInheritance(Entity::classinfostatic(), c)) {
+            Entity* newent = static_cast<Entity*>(c->newInstance());
 
-        explosion->setSolidType( SOLID_NOT );
+            newent->setModel(explosionModel);
+            newent->setSolidType(SOLID_NOT);
+            newent->setOrigin(pos);
+            newent->setAngles(dir.toAngles());
+            newent->ProcessInitCommands();
 
-        // Process the INIT commands right away
-        explosion->ProcessInitCommands();
+            if (c == SmokeGrenade::classinfostatic()) {
+                //
+                // try to set the owner of the smoke grenade
+                //
+                SmokeGrenade* smoke = static_cast<SmokeGrenade*>(newent);
 
-        explosion->SetOwner( owner );
+                if (owner && owner->IsSubclassOfSentient()) {
+                    smoke->setOwner(static_cast<Sentient*>(owner));
+                }
+            }
+        } else {
+            explosion = new Explosion;
 
-        explosion->edict->r.ownerNum = owner->entnum;
-        explosion->angles = dir.toAngles();
-        explosion->velocity = dir * explosion->speed;
-        explosion->edict->s.scale = scale;
-        explosion->setAngles( explosion->angles );
-        explosion->setMoveType( MOVETYPE_FLYMISSILE );
-        explosion->edict->clipmask = MASK_PROJECTILE;
-        explosion->setSize( explosion->mins, explosion->maxs );
-        explosion->setOrigin( pos );
-        explosion->origin.copyTo( explosion->edict->s.origin2 );
-        explosion->hurtOwnerOnly = hurtOwnerOnly;
+            // Create a new explosion entity and set it off
+            explosion->setModel(explosionModel);
 
-        if( explosion->dlight_radius )
-        {
-            G_SetConstantLight( &explosion->edict->s.constantLight,
-                &explosion->dlight_color[ 0 ],
-                &explosion->dlight_color[ 1 ],
-                &explosion->dlight_color[ 2 ],
-                &explosion->dlight_radius
+            explosion->setSolidType(SOLID_NOT);
+
+            // Process the INIT commands right away
+            explosion->ProcessInitCommands();
+
+            explosion->SetOwner(owner);
+
+            explosion->edict->r.ownerNum = owner->entnum;
+            explosion->angles = dir.toAngles();
+            explosion->velocity = dir * explosion->speed;
+            explosion->edict->s.scale = scale;
+            explosion->setAngles(explosion->angles);
+            explosion->setMoveType(MOVETYPE_FLYMISSILE);
+            explosion->edict->clipmask = MASK_PROJECTILE;
+            explosion->setSize(explosion->mins, explosion->maxs);
+            explosion->setOrigin(pos);
+            explosion->origin.copyTo(explosion->edict->s.origin2);
+            explosion->hurtOwnerOnly = hurtOwnerOnly;
+
+            if (explosion->dlight_radius)
+            {
+                G_SetConstantLight(&explosion->edict->s.constantLight,
+                    &explosion->dlight_color[0],
+                    &explosion->dlight_color[1],
+                    &explosion->dlight_color[2],
+                    &explosion->dlight_radius
                 );
-        }
+            }
 
-        explosion->BroadcastAIEvent( AI_EVENT_WEAPON_FIRE );
-        explosion->NewAnim( "idle" );
+            explosion->BroadcastAIEvent(AI_EVENT_WEAPON_FIRE);
+            explosion->NewAnim("idle");
 
-        RadiusDamage( explosion->origin,
-            explosion,
-            owner,
-            explosion->radius_damage * scale,
-            ignore,
-            explosion->meansofdeath,
-            explosion->radius * scale,
-            explosion->knockback,
-            explosion->constant_damage,
-            weap,
-            explosion->hurtOwnerOnly
+            RadiusDamage(explosion->origin,
+                explosion,
+                owner,
+                explosion->radius_damage * scale,
+                ignore,
+                explosion->meansofdeath,
+                explosion->radius * scale,
+                explosion->knockback,
+                explosion->constant_damage,
+                weap,
+                explosion->hurtOwnerOnly
             );
 
-        if( explosion->flash_radius )
-        {
-            FlashPlayers( explosion->origin,
-                explosion->flash_r,
-                explosion->flash_g,
-                explosion->flash_b,
-                explosion->flash_a,
-                explosion->flash_radius * scale,
-                explosion->flash_time,
-                explosion->flash_type
+            if (explosion->flash_radius)
+            {
+                FlashPlayers(explosion->origin,
+                    explosion->flash_r,
+                    explosion->flash_g,
+                    explosion->flash_b,
+                    explosion->flash_a,
+                    explosion->flash_radius * scale,
+                    explosion->flash_time,
+                    explosion->flash_type
                 );
-        }
+            }
 
-        if( explosion->damage_every_frame )
-        {
-            explosion->PostEvent( EV_Explosion_DamageAgain, FRAMETIME );
-        }
+            if (explosion->damage_every_frame)
+            {
+                explosion->PostEvent(EV_Explosion_DamageAgain, FRAMETIME);
+            }
 
-        // Remove explosion after the life has expired
-        if( explosion->life || ( g_gametype->integer && explosion->dmlife ) )
-        {
-            ev = new Event( EV_Remove );
+            // Remove explosion after the life has expired
+            if (explosion->life || (g_gametype->integer && explosion->dmlife))
+            {
+                ev = new Event(EV_Remove);
 
-            if( g_gametype->integer && explosion->dmlife )
-                explosion->PostEvent( ev, explosion->dmlife );
-            else
-                explosion->PostEvent( ev, explosion->life );
+                if (g_gametype->integer && explosion->dmlife)
+                    explosion->PostEvent(ev, explosion->dmlife);
+                else
+                    explosion->PostEvent(ev, explosion->life);
+            }
         }
     }
 }
@@ -3354,7 +3381,7 @@ void RadiusDamage
 
         // Add this in for deathmatch maybe
 
-        if( ent->getContents() == CONTENTS_NOTTEAM1 ||
+        if( ent->getContents() == CONTENTS_CLAYPIDGEON ||
             G_SightTrace( origin, vec_zero, vec_zero, ent->centroid, inflictor, ent, MASK_EXPLOSION, false, "RadiusDamage" ) )
         {
             if( constant_damage )
@@ -3415,7 +3442,7 @@ void RadiusDamage
                     mod
                     );
 
-                if( !g_gametype->integer && weap )
+                if( g_gametype->integer == GT_SINGLE_PLAYER && weap )
                 {
                     if( ent->IsSubclassOfPlayer() ||
                         ent->IsSubclassOfVehicle() ||
@@ -3425,15 +3452,12 @@ void RadiusDamage
                         weap->m_iNumHits++;
                         weap->m_iNumTorsoShots++;
 
-                        if( attacker && attacker->IsSubclassOfPlayer() )
+                        if( attacker && attacker->IsSubclassOfPlayer() && weap->IsSubclassOfTurretGun())
                         {
-                            Player *player = ( Player * )attacker;
+                            Player* player = static_cast<Player*>(attacker);
 
-                            if( weap->IsSubclassOfTurretGun() )
-                            {
-                                player->m_iNumHits++;
-                                player->m_iNumTorsoShots++;
-                            }
+                            player->m_iNumHits++;
+                            player->m_iNumTorsoShots++;
                         }
                     }
                 }
