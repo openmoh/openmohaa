@@ -235,6 +235,37 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #endif
 
+//============================================================== MAC OS X ===
+
+#if defined(__APPLE__) || defined(__APPLE_CC__)
+
+#define OS_STRING "macosx"
+#define ID_INLINE inline
+#define PATH_SEP '/'
+
+#ifdef __ppc__
+#  define ARCH_STRING "ppc"
+#  define Q3_BIG_ENDIAN
+#elif defined __i386__
+#  define ARCH_STRING "x86"
+#  define Q3_LITTLE_ENDIAN
+#elif defined __x86_64__
+#  undef idx64
+#  define idx64 1
+#  define ARCH_STRING "x86_64"
+#  define Q3_LITTLE_ENDIAN
+#elif defined __aarch64__
+#  define ARCH_STRING "arm64"
+#  define Q3_LITTLE_ENDIAN
+#ifndef NO_VM_COMPILED
+#  define NO_VM_COMPILED
+#endif
+#endif
+
+#define DLL_EXT ".dylib"
+
+#endif
+
 //=================================================================== BSD ===
 
 #if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
