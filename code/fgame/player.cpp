@@ -10705,14 +10705,21 @@ void Player::RemoveFromVehiclesAndTurrets(void)
             RemoveFromVehiclesAndTurretsInternal();
         }
 
-        m_pVehicle->Lock();
+        // the vehicle might have been modified
+        if (m_pVehicle) {
+            m_pVehicle->Lock();
+        }
     } else if (m_pTurret && m_pTurret->IsSubclassOfVehicleTurretGun()) {
         VehicleTurretGun *turret = (VehicleTurretGun *)m_pTurret.Pointer();
 
         if (turret->isLocked()) {
             turret->UnLock();
             RemoveFromVehiclesAndTurretsInternal();
-            turret->Lock();
+
+            // the turret might have been modified
+            if (m_pTurret) {
+                turret->Lock();
+            }
         } else {
             RemoveFromVehiclesAndTurretsInternal();
         }
