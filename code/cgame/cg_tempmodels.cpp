@@ -1048,6 +1048,14 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
     Vector        delta;
     Vector        start;
     Vector        vForward, vLeft, vUp;
+    float         fDist;
+
+    delta = m_spawnthing->cgd.origin - cg.refdef.vieworg;
+    fDist = delta * delta * (cg.refdef.fov_x * cg.refdef.fov_x / 6400.0);
+    if (fDist >= m_spawnthing->fMaxRangeSquared || fDist < m_spawnthing->fMinRangeSquared) {
+        // don't draw above the distance
+        return;
+    }
 
     if (current_entity) {
         current_entity_scale = current_entity->scale;
