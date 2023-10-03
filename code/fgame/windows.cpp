@@ -151,7 +151,7 @@ void WindowObject::WindowKilled( Event *ev )
 	vCenter = origin + mins + maxs;
 
 	gi.SetBroadcastVisible( vCenter, vCenter );
-	gi.MSG_StartCGM(CGM_MAKE_WINDOW_DEBRIS);
+	gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_MAKE_WINDOW_DEBRIS));
 		gi.MSG_WriteCoord( vCenter[ 0 ] );
 		gi.MSG_WriteCoord( vCenter[ 1 ] );
 		gi.MSG_WriteCoord( vCenter[ 2 ] );
