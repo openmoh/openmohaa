@@ -45,12 +45,11 @@ VehicleCollisionEntity::VehicleCollisionEntity
 	m_pOwner = ent;
 	takedamage = DAMAGE_YES;
 
-	edict->s.renderfx &= ~RF_DONTDRAW;
-	edict->r.svFlags &= ~SVF_NOCLIENT;
-
+	showModel();
 	setMoveType( MOVETYPE_PUSH );
+	setSolidType(SOLID_NOT);
 
-	edict->clipmask |= MASK_CLIP;
+	edict->clipmask |= MASK_VEHICLE;
 	edict->s.eFlags |= EF_LINKANGLES;
 }
 
