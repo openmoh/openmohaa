@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "smokegrenade.h"
 #include "smokesprite.h"
 #include "level.h"
+#include "sentient.h"
 
 Event EV_SmokeGrenade_SetSpawnRate
 (
@@ -271,4 +272,14 @@ void SmokeGrenade::Think()
 
         G_AddSmokeSprite(&sp);
     }
+}
+
+void SmokeGrenade::setOwner(Sentient* other)
+{
+    owner = other;
+}
+
+Sentient* SmokeGrenade::getOwner() const
+{
+    return owner;
 }

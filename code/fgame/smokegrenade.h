@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "effectentity.h"
 
+class Sentient;
+
 class SmokeGrenade : public EffectEntity {
     CLASS_PROTOTYPE(SmokeGrenade);
 
@@ -45,6 +47,9 @@ public:
 
     void Think() override;
 
+    void setOwner(Sentient* other);
+    Sentient* getOwner() const;
+
 private:
     float nextRemoveTime;
     int spawnRate;
@@ -59,5 +64,5 @@ private:
     float fadeDelay;
     float maxAlpha;
     int lastSpawnTime;
-    SafePtr<class Sentient> owner;
+    SafePtr<Sentient> owner;
 };
