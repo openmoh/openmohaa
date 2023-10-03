@@ -1295,7 +1295,7 @@ void UIFakkLabel::Draw(void)
     if (m_stat_alpha != -1) {
         float frac;
         
-        frac = cl.snap.ps.stats[m_stat_alpha] / 100.0;
+        frac = (cl.snap.ps.stats[m_stat_alpha] + 1) / 100.0;
         frac = Q_clamp_float(frac, 0, 1);
   
         m_alpha = frac;
