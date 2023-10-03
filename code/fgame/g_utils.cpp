@@ -45,8 +45,8 @@ const char *means_of_death_strings[MOD_TOTAL_NUMBER] = {
     "explosion",
     "explodewall",
     "electric",
-    "electric_water",
-    "thrown_object",
+    "electricwater",
+    "thrownobject",
     "grenade",
     "beam",
     "rocket",
@@ -62,7 +62,8 @@ const char *means_of_death_strings[MOD_TOTAL_NUMBER] = {
     "bash",
     "shotgun",
     "aagun",
-    "landmine"};
+    "landmine"
+};
 
 int MOD_string_to_int(const str& immune_string)
 {
