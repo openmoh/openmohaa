@@ -1139,7 +1139,7 @@ Vehicle::Vehicle()
     edict->s.eFlags |= EF_LINKANGLES;
 
     m_bMovementLocked  = qfalse;
-    m_bRemoveOnDeath   = qfalse;
+    m_bRemoveOnDeath   = qtrue;
     m_sExplosionModel  = "fx/fx_explosion.tik";
     m_pCollisionEntity = NULL;
 
