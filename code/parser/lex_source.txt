@@ -92,42 +92,44 @@ static void TextEscapeValue( char *str, size_t len )
 	{
 		if( *str == '\\' )
 		{
-			len--;
-
-			if( !len )
+			if( len == 1 )
 				break;
 
-			str++;
-			if( *str == 'n' )
+			if( str[1] == 'n' )
 			{
 				*to = '\n';
+				to++;
 			}
-			else if( *str == 't' )
+			else if( str[1] == 't' )
 			{
 				*to = '\t';
+				to++;
 			}
-			else if( *str == '"' )
+			else if( str[1] == '"' )
 			{
 				*to = '\"';
+				to++;
 			}
 			else
 			{
-				*to = *str;
+				*to = str[1];
+				to++;
 			}
+
+			len -= 2;
+			str += 2;
 		}
 		else
 		{
 			*to = *str;
+			to++;
+			len--;
+			str++;
 		}
-
-		len--;
-		str++;
-		to++;
 	}
 
 	*to = 0;
 }
-
 
 static void TextValue( char *str, size_t len )
 {
@@ -186,7 +188,7 @@ static bool UseField( void )
 %x VARIABLES
 %x IDENTIFIER
 
-string		([^\\\"]|\\.)*
+string		([^\\\"\r\n]|\\.)*
 identifier	[^\{\}\(\)\[\]\r\n\,:; \t]
 alphanum	[a-zA-Z0-9_]+
 varname		[a-zA-Z0-9_\"]+
@@ -219,8 +221,8 @@ varname		[a-zA-Z0-9_\"]+
 									unput(yytext[yyleng - 1]);
 									yyreducepos(1);
 								}
-
-\"{string}\"					{ TextEscapeValue( yytext + 1, strlen( yytext ) - 2 ); YYLEX( TOKEN_STRING ); }
+								
+\"{string}\"					{ TextEscapeValue( yytext + 1, yyleng - 2 ); YYLEX( TOKEN_STRING ); }
 
 
 "?"								{ YYLEX( TOKEN_TERNARY ); }
