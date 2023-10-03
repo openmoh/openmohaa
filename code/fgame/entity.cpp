@@ -2697,14 +2697,33 @@ void Entity::DamageEvent(Event *ev)
     int     knockback, damageflags, meansofdeath, location;
     Event  *event;
     float   m;
+    EntityPtr This;
 
-    if ((takedamage == DAMAGE_NO) || (movetype == MOVETYPE_NOCLIP)) {
+    // Use a safe pointer because it might be deleted in Unregister
+    This = this;
+
+    if ((takedamage == DAMAGE_NO) || (movetype == MOVETYPE_NOCLIP) || health <= 0) {
         return;
     }
 
     attacker  = ev->GetEntity(1);
     damage    = ev->GetInteger(2);
     inflictor = ev->GetEntity(3);
+    meansofdeath = ev->GetInteger(9);
+
+    if (Immune(meansofdeath)) {
+        return;
+    }
+
+    if (!attacker) {
+        ScriptError("attacker is NULL");
+        return;
+    }
+
+    if (!inflictor) {
+        ScriptError("inflictor is NULL");
+        return;
+    }
 
     position  = ev->GetVector(4);
     direction = ev->GetVector(5);
@@ -2712,40 +2731,36 @@ void Entity::DamageEvent(Event *ev)
 
     knockback    = ev->GetInteger(7);
     damageflags  = ev->GetInteger(8);
-    meansofdeath = ev->GetInteger(9);
     location     = ev->GetInteger(10);
 
     // figure momentum add
     if ((inflictor != world) && (movetype != MOVETYPE_NONE) && (movetype != MOVETYPE_STATIONARY)
-        && (movetype != MOVETYPE_BOUNCE) && (movetype != MOVETYPE_PUSH) && (movetype != MOVETYPE_STOP)) {
+        && (movetype != MOVETYPE_BOUNCE) && (movetype != MOVETYPE_PUSH) && (movetype != MOVETYPE_STOP)
+        && (movetype != MOVETYPE_VEHICLE)) {
         dir = origin - (inflictor->origin + (inflictor->mins + inflictor->maxs) * 0.5);
         dir.normalize();
 
-        if (mass < 50) {
-            m = 50;
+        if (mass < 20) {
+            m = 20;
         } else {
             m = mass;
         }
 
-        momentum = dir * damage * (1700.0 / m);
+        momentum = dir * damage * (1000.0 / m);
         velocity += momentum;
     }
 
-    // check for godmode or invincibility
-    if (flags & FL_GODMODE) {
-        return;
-    }
-
-    // team play damage avoidance
-    //if ( ( global->teamplay == 1 ) && ( edict->team > 0 ) && ( edict->team == attacker->edict->team ) )
-    //	{
-    //	return;
-    //	}
-
-    if (!g_gametype->integer && IsSubclassOfPlayer()) {
+    if (!deathmatch->integer && IsSubclassOfPlayer()) {
         damage *= 0.15;
     }
 
+    // check for godmode or invincibility
+    if (!(flags & FL_GODMODE)) {
+        // do the damage
+        health -= damage;
+    }
+
+    /*
     if (deadflag) {
         // Check for gib.
         if (inflictor->IsSubclassOfProjectile()) {
@@ -2762,9 +2777,8 @@ void Entity::DamageEvent(Event *ev)
 
         return;
     }
+    */
 
-    // do the damage
-    health -= damage;
     if (health <= 0) {
         if (attacker) {
             event = new Event(EV_GotKill);
@@ -2775,6 +2789,10 @@ void Entity::DamageEvent(Event *ev)
             event->AddInteger(0);
 
             attacker->ProcessEvent(event);
+        }
+
+        if (!This) {
+            return;
         }
 
         event = new Event(EV_Killed);
@@ -2790,6 +2808,13 @@ void Entity::DamageEvent(Event *ev)
         event->AddInteger(location);
 
         ProcessEvent(event);
+
+        if (!This) {
+            return;
+        }
+
+        // Notify scripts
+        Unregister(STRING_DAMAGE);
         return;
     }
 
@@ -2806,6 +2831,13 @@ void Entity::DamageEvent(Event *ev)
     event->AddInteger(location);
 
     ProcessEvent(event);
+
+    if (!This) {
+        return;
+    }
+
+    // Notify scripts
+    Unregister(STRING_DAMAGE);
 }
 
 qboolean Entity::IsTouching(Entity *e1)
