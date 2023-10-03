@@ -538,24 +538,23 @@ qboolean ClientGameCommandManager::TempModelPhysics(ctempmodel_t *p, float ftime
 
     // If linked to the parent or hardlinked, get the parent's origin
     if ((p->cgd.flags & (T_PARENTLINK | T_HARDLINK)) && (p->cgd.parent != ENTITYNUM_NONE)) {
-        centity_t *pc;
+        centity_t* pc;
+        refEntity_t* e;
+
         pc = &cg_entities[p->cgd.parent];
-
-        if (pc->currentValid) {
-            refEntity_t *e;
-
-            e = cgi.R_GetRenderEntity(p->cgd.parent);
-
-            if (!e) {
-                return false;
-            }
-
-            parentOrigin = e->origin;
-            vectoangles(e->axis[0], parentAngles);
-        } else {
+        if (!pc->currentValid) {
             return false;
         }
-    } else if (p->cgd.flags & T_SWARM) {
+
+        e = cgi.R_GetRenderEntity(p->cgd.parent);
+        if (!e) {
+            return false;
+        }
+
+        parentOrigin = e->origin;
+        vectoangles(e->axis[0], parentAngles);
+    }
+    else if (p->cgd.flags & T_SWARM) {
         p->cgd.parentOrigin = p->cgd.velocity + p->cgd.accel * ftime * scale;
     }
 
@@ -774,7 +773,7 @@ qboolean ClientGameCommandManager::LerpTempModel(refEntity_t *newEnt, ctempmodel
         // Add the parent ent's origin to the local origin
         VectorAdd(newEnt->origin, parentOrigin, newEnt->origin);
     } else {
-        if (p->cgd.flags2 & (T2_MOVE | T2_ACCEL)) {
+        if (p->cgd.flags2 & (T2_MOVE | T2_ACCEL) || (p->cgd.flags & T_SWARM)) {
             // Lerp the ent's origin
             for (i = 0; i < 3; i++) {
                 newEnt->origin[i] = p->lastEnt.origin[i] + frac * (p->ent.origin[i] - p->lastEnt.origin[i]);
@@ -955,11 +954,10 @@ void ClientGameCommandManager::AddTempModels(void)
         }
 
         if (p->cgd.flags & T_WAVE) {
-            Vector origin;
+            vec3_t origin;
             float  axis[3][3];
 
-            origin = p->m_spawnthing->linked_origin;
-            VectorMA(origin, newEnt.origin[0], p->m_spawnthing->linked_axis[0], origin);
+            VectorMA(p->m_spawnthing->linked_origin, newEnt.origin[0], p->m_spawnthing->linked_axis[0], origin);
             VectorMA(origin, newEnt.origin[1], p->m_spawnthing->linked_axis[1], origin);
             VectorMA(origin, newEnt.origin[2], p->m_spawnthing->linked_axis[2], origin);
 
@@ -1190,7 +1188,7 @@ void ClientGameCommandManager::SpawnTempModel(int mcount)
             VectorCopy(end, p->cgd.origin);
             newForward = dir;
         } else {
-            VectorCopy(m_spawnthing->cgd.origin, p->cgd.origin);
+            VectorCopy(start, p->cgd.origin);
         }
 
         if (m_spawnthing->cgd.flags & T_SWARM && !(m_spawnthing->cgd.flags & (T_HARDLINK | T_PARENTLINK))) {

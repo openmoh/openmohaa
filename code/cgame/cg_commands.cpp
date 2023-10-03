@@ -4747,7 +4747,7 @@ void ClientGameCommandManager::UpdateEmitter(
 
                 for (j = 0; j < 3; j++) {
                     VectorMA(
-                        m_spawnthing->linked_origin, ori.origin[i], current_entity->axis[j], m_spawnthing->linked_origin
+                        m_spawnthing->linked_origin, ori.origin[j], current_entity->axis[j], m_spawnthing->linked_origin
                     );
                 }
                 MatrixMultiply(ori.axis, current_entity->axis, m_spawnthing->linked_axis);
