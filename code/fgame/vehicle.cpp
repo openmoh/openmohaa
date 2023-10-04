@@ -3130,7 +3130,7 @@ void Vehicle::AutoPilot(void)
 
             VectorNormalize(m_vIdealDir);
             angles.AngleVectorsLeft(&vDelta, NULL, NULL);
-            fCoef = ProjectLineOnPlane(vDelta, DotProduct(vDelta, origin), vPrev, vCur, NULL);
+            fCoef = ProjectLineOnPlane(vDelta, DotProduct(origin, vDelta), vPrev, vCur, NULL);
 
             if (g_showvehiclemovedebug->integer) {
                 Vector vColor;
@@ -3140,12 +3140,11 @@ void Vehicle::AutoPilot(void)
                 G_DebugArrow(vColor, m_vIdealDir * 1, fCoef * fTotal, 0, 0, 1, 1);
             }
 
-            vTmp             = m_pCurPath->GetByNode(m_iCurNode - (1 - fCoef), NULL);
+            vTmp             = m_pCurPath->GetByNode(m_iCurNode - (1.0 - fCoef), NULL);
             fCurPathPosition = vTmp[0];
-            ;
-            vTmp          = m_pCurPath->GetByNode(fCurPathPosition + m_fLookAhead, NULL);
+            vTmp          = m_pCurPath->Get(fCurPathPosition + m_fLookAhead, NULL);
             vWishPosition = vTmp + 1;
-            fDistToCurPos = (origin - (vTmp + 1)).length();
+            fDistToCurPos = Vector(origin[0] - vWishPosition[0], origin[1] - vWishPosition[1], 0).length();
 
             if (fCoef > 1 && !m_bBounceBackwards) {
                 m_iCurNode++;
@@ -3194,9 +3193,9 @@ void Vehicle::AutoPilot(void)
 
                     VectorNormalize(m_vIdealDir);
                     angles.AngleVectorsLeft(&vDelta, NULL, NULL);
-                    fCoef = ProjectLineOnPlane(vDelta, DotProduct(vDelta, origin), vPrev, vCur, NULL);
+                    fCoef = ProjectLineOnPlane(vDelta, DotProduct(origin, vDelta), vPrev, vCur, NULL);
 
-                    vTmp = m_pCurPath->GetByNode(m_iAlternateNode - (1 - fCoef), NULL);
+                    vTmp = m_pCurPath->GetByNode(m_iAlternateNode - (1.0 - fCoef), NULL);
                     // 2.30: bounce backward
                     if (m_bBounceBackwards) {
                         vTmp = m_pCurPath->Get(vTmp[0] - m_fLookAhead, NULL);
@@ -3389,17 +3388,15 @@ void Vehicle::EventDriveInternal(Event *ev, bool wait)
         m_fIdealAccel = ev->GetFloat(3);
     case 2:
         m_fIdealSpeed = ev->GetFloat(2);
-        break;
     case 1:
+        path = ev->GetSimpleEntity(1);
+        if (!path) {
+            ScriptError("Vehicle Given Drive Command with NULL path.");
+            return;
+        }
         break;
     default:
         ScriptError("wrong number of arguments");
-    }
-
-    path = ev->GetSimpleEntity(1);
-
-    if (path) {
-        ScriptError("Vehicle Given Drive Command with NULL path.");
     }
 
     if (!m_pCurPath) {
@@ -3442,7 +3439,7 @@ void Vehicle::SetupPath(cVehicleSpline *pPath, SimpleEntity *se)
 
     pPath->Reset();
 
-    if (!se->target.length() || !*se->target) {
+    if (!se->Target().length() || !se->Target()[0]) {
         return;
     }
 
@@ -3455,17 +3452,18 @@ void Vehicle::SetupPath(cVehicleSpline *pPath, SimpleEntity *se)
         if (vDelta.length() == 0.0f && i > 1) {
             Com_Printf("^~^~^Warning: Vehicle Driving with a Path that contains 2 equal points\n");
         } else {
-            vLastOrigin = ent->origin;
             fCurLength += vDelta.length();
 
             vTmp[0] = fCurLength;
-            VectorCopy(vTmp + 1, ent->origin);
+            VectorCopy(ent->origin, vTmp + 1);
 
             if (ent->IsSubclassOfVehiclePoint()) {
-                pPath->Add(vTmp, ((VehiclePoint *)ent)->spawnflags);
+                pPath->Add(vTmp, static_cast<VehiclePoint*>(ent)->spawnflags);
             } else {
                 pPath->Add(vTmp, 0);
             }
+
+            vLastOrigin = ent->origin;
         }
 
         if (ent == se && i > 1) {
