@@ -62,14 +62,19 @@ qboolean VehicleTank::Drive(usercmd_t *ucmd)
         return qfalse;
     }
 
-    moveimpulse  = ucmd->forwardmove * (vTmp.length() + 1.0);
-    m_bIsBraking = ucmd->forwardmove < 0;
-    m_fAccelerator += ucmd->forwardmove * 0.005;
-    // acceleration must be an alpha value between [0, 1]
-    m_fAccelerator = Q_clamp_float(m_fAccelerator, 0, 1);
+    if (!m_bAutoPilot) {
+        //
+        // ignore client's control if the vehicle is in auto-pilot mode
+        //
+        moveimpulse = ucmd->forwardmove * (vTmp.length() + 1.0);
+        m_bIsBraking = ucmd->forwardmove < 0;
+        m_fAccelerator += ucmd->forwardmove * 0.005;
+        // acceleration must be an alpha value between [0, 1]
+        m_fAccelerator = Q_clamp_float(m_fAccelerator, 0, 1);
 
-    turnimpulse = -ucmd->rightmove;
-    jumpimpulse = ucmd->upmove;
+        turnimpulse = -ucmd->rightmove;
+        jumpimpulse = ucmd->upmove;
+    }
 
     VehicleTurretGun *vtg = (VehicleTurretGun *)Turrets[0].ent.Pointer();
 
