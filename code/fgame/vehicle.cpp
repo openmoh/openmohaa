@@ -962,6 +962,10 @@ Vehicle::Vehicle()
 
     entflags |= EF_VEHICLE;
 
+    AddWaitTill(STRING_DRIVE);
+    AddWaitTill(STRING_VEHICLEANIMDONE);
+    AddWaitTill(STRING_ANIMDONE);
+
     g_showvehiclemovedebug   = gi.Cvar_Get("g_showvehiclemovedebug", "0", 0);
     g_showvehicleentrypoints = gi.Cvar_Get("g_showvehicleentrypoints", "0", 0);
     g_showvehicleslotpoints  = gi.Cvar_Get("g_showvehicleslotpoints", "0", 0);
