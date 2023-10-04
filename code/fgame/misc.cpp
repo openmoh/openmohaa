@@ -2539,7 +2539,7 @@ Event EV_VehiclePoint_SetSpawnFlags
 	"Sets the spawn flags."
 	);
 
-CLASS_DECLARATION( Waypoint, VehiclePoint, NULL )
+CLASS_DECLARATION( Waypoint, VehiclePoint, "info_vehiclepoint" )
 {
 	{ &EV_VehiclePoint_SetSpawnFlags,				&VehiclePoint::SetSpawnFlags },
 	{ NULL, NULL }
