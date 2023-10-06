@@ -60,8 +60,8 @@ void Sentient::ClearNewActiveWeapon(void)
 
 void Sentient::EventGiveAmmo(Event *ev)
 {
-    int         amount, maxamount = -1;
-    const char *type;
+    int amount, maxamount = -1;
+    str type;
 
     type   = ev->GetString(1);
     amount = ev->GetInteger(2);
@@ -1053,8 +1053,8 @@ void Sentient::useWeapon(Weapon *weapon, weaponhand_t hand)
 
 void Sentient::EventUseWeaponClass(Event *ev)
 {
-    const char *name;
-    int         weapon_class;
+    str name;
+    int weapon_class;
 
     if (deadflag) {
         return;

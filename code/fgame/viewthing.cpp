@@ -418,7 +418,7 @@ void ViewMaster::Spawn
 
 	{
 	Viewthing	*viewthing;
-   const char	*mdl;
+   str          mdl;
    Vector		forward;
 	Vector		up;
    Vector		delta;
@@ -480,7 +480,7 @@ void ViewMaster::SetModelEvent
 	)
 
 	{
-   const char	*mdl;
+   str          mdl;
    char			str[ 128 ];
 	Event			*event;
 	Viewthing	*viewthing;

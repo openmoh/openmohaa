@@ -861,7 +861,7 @@ void ScriptSlave::SetModelEvent
 	Event *ev
 	)
 {
-	const char *m;
+	str m;
 
 	m = ev->GetString( 1 );
 
@@ -1527,7 +1527,7 @@ void ScriptSlave::FollowPath
 {
 	int i, argnum;
 	Entity * ent;
-	const char * token;
+	str token;
 	SplinePath *path;
 	qboolean clamp;
 	float starttime;

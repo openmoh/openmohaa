@@ -1284,8 +1284,8 @@ void Sentient::EventTake(Event *ev)
 
 void Sentient::EventGiveItem(Event *ev)
 {
-    const char *type;
-    float       amount;
+    str   type;
+    float amount;
 
     type = ev->GetString(1);
     if (ev->NumArgs() > 1) {

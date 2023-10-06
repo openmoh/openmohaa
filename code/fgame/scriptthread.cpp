@@ -3418,10 +3418,10 @@ void ScriptThread::RemoveClass(Event *ev)
 
 void ScriptThread::CameraCommand(Event *ev)
 {
-    Event      *e;
-    const char *cmd;
-    int         i;
-    int         n;
+    Event *e;
+    str    cmd;
+    int    i;
+    int    n;
 
     if (!ev->NumArgs()) {
         throw ScriptException("Usage: cam [command] [arg 1]...[arg n]");
@@ -4285,7 +4285,7 @@ void ScriptThread::EventAddObjective(Event *ev)
 {
     int    index;
     int    status;
-    str    text = "";
+    str    text;
     Vector location;
 
     index  = ev->GetInteger(1) - 1;

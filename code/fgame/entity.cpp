@@ -4244,9 +4244,9 @@ void Entity::SurfaceCommand(const char *surf_name, const char *token)
 
 void Entity::SurfaceModelEvent(Event *ev)
 {
-    const char *surf_name;
-    const char *token;
-    int         i;
+    str surf_name;
+    str token;
+    int i;
 
     surf_name = ev->GetString(1);
 
@@ -4259,7 +4259,7 @@ void Entity::SurfaceModelEvent(Event *ev)
 void Entity::AttachEvent(Event *ev)
 {
     Entity     *parent;
-    const char *bone;
+    str         bone;
     int         tagnum;
     qboolean    use_angles = qtrue;
     Vector      offset;
@@ -4290,7 +4290,7 @@ void Entity::AttachEvent(Event *ev)
 void Entity::AttachModelEvent(Event *ev)
 {
     Animate    *obj;
-    const char *bone;
+    str         bone;
     str         modelname;
     int         tagnum;
     float       remove_time, fade_time, fade_delay;
@@ -4377,14 +4377,14 @@ void Entity::AttachModelEvent(Event *ev)
 
 void Entity::RemoveAttachedModelEvent(Event *ev)
 {
-    const char *tag_name;
-    int         tag_num;
-    int         num;
-    int         i;
-    Entity     *ent;
-    float       fade_rate = 0;
-    Event      *fade_event;
-    str         model_name;
+    str     tag_name;
+    int     tag_num;
+    int     num;
+    int     i;
+    Entity *ent;
+    float   fade_rate = 0;
+    Event  *fade_event;
+    str     model_name;
 
     tag_name = ev->GetString(1);
     tag_num  = gi.Tag_NumForName(edict->tiki, tag_name);
@@ -4601,7 +4601,7 @@ void Entity::Explosion(Event *ev)
 void Entity::Shader(Event *ev)
 
 {
-    const char *token;
+    str token;
 
     if (gi.modeltiki(model)) {
         gi.Printf("shader event being called on TIKI model\n");

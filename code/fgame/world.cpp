@@ -693,7 +693,7 @@ void World::UpdateSky(void)
 
 void World::SetSoundtrack(Event *ev)
 {
-    const char *text;
+    str text;
 
     text = ev->GetString(1);
     ChangeSoundtrack(text);
@@ -951,7 +951,7 @@ void World::SetNextMap(Event *ev)
 
 void World::SetMessage(Event *ev)
 {
-    const char *text;
+    str text;
 
     text             = ev->GetString(1);
     level.level_name = text;
