@@ -1231,17 +1231,8 @@ void VehicleTurretGun::SetTargetEntity(Entity *ent)
         }
     }
 
-    if (m_vLocalAngles[0] < m_fPitchUpCap) {
-        m_vLocalAngles[0] = m_fPitchUpCap;
-    } else if (m_vLocalAngles[0] > m_fPitchDownCap) {
-        m_vLocalAngles[0] = m_fPitchDownCap;
-    }
-
-    if (m_vLocalAngles[1] > m_fStartYaw + m_fMaxYawOffset) {
-        m_vLocalAngles[1] = m_fStartYaw + m_fMaxYawOffset;
-    } else if (m_vLocalAngles[1] < m_fStartYaw - m_fMaxYawOffset) {
-        m_vLocalAngles[1] = m_fStartYaw - m_fMaxYawOffset;
-    }
+    m_vLocalAngles[0] = Q_clamp_float(m_vLocalAngles[0], m_fPitchUpCap, m_fPitchDownCap);
+    m_vLocalAngles[1] = Q_clamp_float(m_vLocalAngles[1], -(m_fStartYaw + m_fMaxYawOffset), m_fStartYaw + m_fMaxYawOffset);
 
     UpdateOrientation(false);
 }
@@ -1256,18 +1247,10 @@ void VehicleTurretGun::UpdateAndMoveOwner()
 
     parentEnt = GetParent();
 
-    if (m_vUserViewAng[0] < m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET) {
-        m_vUserViewAng[0] = m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET;
-    } else if (m_vUserViewAng[0] > m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET) {
-        m_vUserViewAng[0] = m_fPitchUpCap + MAX_VT_PITCHCAP_OFFSET;
-    }
+    m_vUserViewAng[0] = Q_clamp_float(m_vUserViewAng[0], m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET, m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET);
 
     fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
-    if (fDiff > m_fMaxYawOffset + MAX_VT_YAW_OFFSET) {
-        fDiff = m_fMaxYawOffset + MAX_VT_YAW_OFFSET;
-    } else if (fDiff < -(m_fMaxYawOffset + MAX_VT_YAW_OFFSET)) {
-        fDiff = -(m_fMaxYawOffset + MAX_VT_YAW_OFFSET);
-    }
+    fDiff = Q_clamp_float(fDiff, -(m_fMaxYawOffset + MAX_VT_YAW_OFFSET), m_fMaxYawOffset + MAX_VT_YAW_OFFSET);
 
     owner->SetViewAngles(m_vUserViewAng + m_vBaseAngles);
     delta = owner->GunTarget() - origin;
@@ -1320,11 +1303,7 @@ void VehicleTurretGun::UpdateCaps(float maxYawOffset, float maxPitchOffset)
         m_vTargetAngles[0] += 360;
     }
 
-    if (m_vTargetAngles[0] < m_fPitchUpCap) {
-        m_vTargetAngles[0] = m_fPitchUpCap;
-    } else if (m_vTargetAngles[0] > m_fPitchDownCap) {
-        m_vTargetAngles[0] = m_fPitchDownCap;
-    }
+    m_vTargetAngles[0] = Q_clamp_float(m_vTargetAngles[0], m_fPitchUpCap, m_fPitchDownCap);
 
     if (m_fAIPitchSpeed > 1000) {
         m_vLocalAngles[0] = m_vTargetAngles[0];
@@ -1342,11 +1321,7 @@ void VehicleTurretGun::UpdateCaps(float maxYawOffset, float maxPitchOffset)
     }
 
     fDiff = AngleSubtract(m_vTargetAngles[1], m_fStartYaw);
-    if (fDiff > m_fMaxYawOffset) {
-        fDiff = m_fMaxYawOffset;
-    } else if (fDiff < -m_fMaxYawOffset) {
-        fDiff = m_fMaxYawOffset;
-    }
+    fDiff = Q_clamp_float(fDiff, -m_fMaxYawOffset, m_fMaxYawOffset);
 
     if (m_fTurnSpeed > 1000) {
         m_vLocalAngles[1] = m_vTargetAngles[1];
@@ -1551,11 +1526,7 @@ void VehicleTurretGun::UpdateCollisionEntity()
 
 void VehicleTurretGun::RestrictPitch()
 {
-    if (m_vUserViewAng[0] < m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET) {
-        m_vUserViewAng[0] = m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET;
-    } else if (m_vUserViewAng[0] > m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET) {
-        m_vUserViewAng[0] = m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET;
-    }
+    m_vUserViewAng[0] = Q_clamp_float(m_vUserViewAng[0], m_fPitchUpCap - MAX_VT_PITCHCAP_OFFSET, m_fPitchDownCap + MAX_VT_PITCHCAP_OFFSET);
 }
 
 void VehicleTurretGun::RestrictYaw()
@@ -1563,11 +1534,7 @@ void VehicleTurretGun::RestrictYaw()
     float fDiff;
 
     fDiff = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
-    if (fDiff > m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET) {
-        fDiff = m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET;
-    } else if (fDiff < -(m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET)) {
-        fDiff = -(m_fMaxYawOffset + MAX_VT_PITCHCAP_OFFSET);
-    }
+    fDiff = Q_clamp_float(fDiff, -(m_fMaxYawOffset + MAX_VT_YAW_OFFSET), m_fMaxYawOffset + MAX_VT_YAW_OFFSET);
 
     m_vUserViewAng[1] = m_fStartYaw + fDiff;
 }
@@ -1682,7 +1649,11 @@ SentientPtr VehicleTurretGun::GetRemoteOwner(void)
 
 SentientPtr VehicleTurretGun::GetSentientOwner()
 {
-    return m_pRemoteOwner;
+    if (IsRemoteControlled()) {
+        return GetRemoteOwner();
+    } else {
+        return owner;
+    }
 }
 
 void VehicleTurretGun::EndRemoteControl()
@@ -2142,11 +2113,7 @@ void VehicleTurretGunTandem::RestrictYaw()
     float delta;
 
     delta = AngleSubtract(m_vUserViewAng[1], m_fStartYaw);
-    if (delta > m_fMaxYawOffset + MAX_TANDEM_YAW_OFFSET) {
-        delta = m_fMaxYawOffset + MAX_TANDEM_YAW_OFFSET;
-    } else if (delta < -(m_fMaxYawOffset + MAX_TANDEM_YAW_OFFSET)) {
-        delta = -(m_fMaxYawOffset + MAX_TANDEM_YAW_OFFSET);
-    }
+    delta = Q_clamp_float(delta, -(m_fMaxYawOffset + MAX_VT_YAW_OFFSET), m_fMaxYawOffset + MAX_VT_YAW_OFFSET);
 
     m_vUserViewAng[1] = m_fStartYaw + delta;
 }
