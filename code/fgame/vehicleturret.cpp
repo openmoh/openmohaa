@@ -1812,7 +1812,7 @@ VehicleTurretGunTandem::VehicleTurretGunTandem()
     m_Slot.enter_boneindex = -1;
 
     m_PrimaryTurret = NULL;
-    m_HeadTurret    = NULL;
+    m_HeadTurret    = this;
     m_ActiveTurret  = NULL;
 
     m_fSwitchTimeRemaining = 0;
@@ -1970,21 +1970,19 @@ void VehicleTurretGunTandem::ThinkPrimary()
         m_fSwitchTimeRemaining -= level.frametime;
     }
 
-    if (m_ActiveTurret) {
-        if (m_ActiveTurret != m_HeadTurret) {
-            m_fSwitchTimeRemaining = m_fSwitchDelay;
-            m_HeadTurret->m_pUserCamera->PostEvent(EV_Remove, 0);
-            m_HeadTurret->m_pUserCamera = NULL;
+    if (m_ActiveTurret && m_ActiveTurret != m_HeadTurret) {
+        m_fSwitchTimeRemaining = m_fSwitchDelay;
+        m_HeadTurret->m_pUserCamera->PostEvent(EV_Remove, 0);
+        m_HeadTurret->m_pUserCamera = NULL;
 
-            // switch to the active turret
-            m_HeadTurret   = m_ActiveTurret;
-            m_ActiveTurret = NULL;
+        // switch to the active turret
+        m_HeadTurret   = m_ActiveTurret;
+        m_ActiveTurret = NULL;
 
-            // clear angles
-            m_vUserLastCmdAng               = vec_zero;
-            m_HeadTurret->m_vUserLastCmdAng = vec_zero;
-            m_vTargetAngles                 = m_vLocalAngles;
-        }
+        // clear angles
+        m_vUserLastCmdAng               = vec_zero;
+        m_HeadTurret->m_vUserLastCmdAng = vec_zero;
+        m_vTargetAngles                 = m_vLocalAngles;
     }
 
     if (m_pCollisionEntity) {
@@ -2105,16 +2103,18 @@ void VehicleTurretGunTandem::SwitchToLinkedTurret()
     VehicleTurretGunTandem *pTurret;
 
     if (GetPrimaryTurret()->m_fSwitchTimeRemaining > 0) {
-        if (m_Slot.ent) {
-            pTurret = static_cast<VehicleTurretGunTandem *>(m_Slot.ent.Pointer());
-            m_SwitchLabel.Execute(pTurret, NULL);
-        } else {
-            pTurret = m_PrimaryTurret;
-            m_PrimaryTurret->m_SwitchLabel.Execute(pTurret, NULL);
-        }
-
-        SetActiveTurret(pTurret);
+        return;
     }
+
+    if (m_Slot.ent) {
+        pTurret = static_cast<VehicleTurretGunTandem*>(m_Slot.ent.Pointer());
+        m_SwitchLabel.Execute(pTurret, NULL);
+    } else {
+        pTurret = m_PrimaryTurret;
+        m_PrimaryTurret->m_SwitchLabel.Execute(pTurret, NULL);
+    }
+
+    SetActiveTurret(pTurret);
 }
 
 void VehicleTurretGunTandem::SetActiveTurret(VehicleTurretGunTandem *pTurret)
@@ -2166,12 +2166,8 @@ VehicleTurretGunTandem *VehicleTurretGunTandem::GetPrimaryTurret()
 bool VehicleTurretGunTandem::IsActiveTurret() const
 {
     if (!m_PrimaryTurret) {
-        return m_HeadTurret;
+        return m_HeadTurret == this;
     }
 
-    if (m_PrimaryTurret == this) {
-        return true;
-    }
-
-    return false;
+    return m_PrimaryTurret->m_HeadTurret == this;
 }
