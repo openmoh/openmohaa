@@ -1820,7 +1820,16 @@ VehicleTurretGunTandem::VehicleTurretGunTandem()
     m_fSwitchDelay = 1;
 }
 
-VehicleTurretGunTandem::~VehicleTurretGunTandem() {}
+VehicleTurretGunTandem::~VehicleTurretGunTandem()
+{
+    //
+    // Added in 2.30
+    // Also remove linked turrets
+    //
+    if (m_Slot.ent) {
+        m_Slot.ent->PostEvent(EV_Remove, 0);
+    }
+}
 
 void VehicleTurretGunTandem::EventLinkTurret(Event *ev)
 {
