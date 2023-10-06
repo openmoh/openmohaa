@@ -443,6 +443,7 @@ void VehicleTank::UpdateSound()
         }
 
         LoopSound(m_sSoundSet + "snd_idle");
+        TurnOffVehicleSoundEntities();
         break;
     case ST_IDLE_TRANS_RUN:
         m_fNextSoundState = level.time;
@@ -460,7 +461,6 @@ void VehicleTank::UpdateSound()
         LoopSound(m_sSoundSet + "snd_run", volume, -1, -1, pitch);
         break;
     case ST_RUN_TRANS_IDLE:
-    case ST_TURN_TRANS_IDLE:
         m_fNextSoundState = level.time;
         m_eSoundState     = ST_IDLE;
         Sound(m_sSoundSet + "snd_revdown", CHAN_AUTO);
@@ -479,6 +479,12 @@ void VehicleTank::UpdateSound()
             m_eSoundState = ST_TURN_TRANS_IDLE;
         }
         LoopSound(m_sSoundSet + "snd_run", volume, -1, -1, pitch);
+        break;
+    case ST_TURN_TRANS_IDLE:
+        m_fNextSoundState = level.time;
+        m_eSoundState = ST_IDLE;
+        Sound(m_sSoundSet + "snd_revdown", CHAN_AUTO);
+        LoopSound(m_sSoundSet + "snd_idle");
         break;
     default:
         m_fNextSoundState = level.time;
