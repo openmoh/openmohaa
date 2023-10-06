@@ -47,9 +47,11 @@ void DrivableVehicleTandem::SpawnTurret(Event* ev)
     AttachTurretSlot(slot, pTurret, vec_zero, NULL);
     pTurret->SetVehicleOwner(this);
 
-    PostEvent(EV_TakeDamage, EV_POSTSPAWN);
+    pTurret->PostEvent(EV_TakeDamage, EV_POSTSPAWN);
 
     UpdateTurretSlot(slot);
+
+    pTurret->ProcessPendingEvents();
 }
 
 void DrivableVehicleTandem::UpdateTurretSlot(int iSlot)
