@@ -870,16 +870,29 @@ void ScriptSlave::SetModelEvent
 	if( !m || strstr( m, ".tik" ) )
 	{
 		setSolidType( SOLID_BBOX );
-		setModel( m );
+        setModel(m);
+        if (!edict->s.modelindex) {
+            hideModel();
+			setSolidType(SOLID_NOT);
+        }
 	}
 	else if( strstr( m, ".spr" ) )
 	{
 		setModel( m );
+		if (!edict->s.modelindex) {
+			hideModel();
+		}
 		setSolidType( SOLID_NOT );
 	}
 	else
 	{
 		setModel( m );
+		if (edict->s.modelindex) {
+			setSolidType(SOLID_BSP);
+		} else {
+			hideModel();
+			setSolidType(SOLID_NOT);
+		}
 	}
 
 	if( !edict->s.modelindex )
