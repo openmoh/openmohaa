@@ -123,7 +123,7 @@ const char *GetItemName(const char *prefix, qboolean *mohprefix)
         *mohprefix = false;
     }
 
-    return NULL;
+    return "";
 }
 
 const char *GetItemPrefix(const char *name, qboolean *mohprefix)
@@ -142,7 +142,7 @@ const char *GetItemPrefix(const char *name, qboolean *mohprefix)
         *mohprefix = false;
     }
 
-    return NULL;
+    return "";
 }
 
 Event EV_Item_Pickup
