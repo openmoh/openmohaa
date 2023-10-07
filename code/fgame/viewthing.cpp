@@ -467,7 +467,7 @@ void ViewMaster::Spawn
 
 	if( !gi.modeltiki( viewthing->model ) )
       {
-		ScriptError( "model %s not found, viewmodel not spawned.", mdl );
+		ScriptError( "model %s not found, viewmodel not spawned.", mdl.c_str() );
       delete viewthing;
       current_viewthing = NULL;
       return;

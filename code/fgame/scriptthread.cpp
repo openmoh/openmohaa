@@ -3438,7 +3438,7 @@ void ScriptThread::CameraCommand(Event *ev)
 
         CameraMan.ProcessEvent(e);
     } else {
-        throw ScriptException("Unknown camera command '%s'.\n", cmd);
+        throw ScriptException("Unknown camera command '%s'.\n", cmd.c_str());
     }
 }
 

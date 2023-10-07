@@ -1573,7 +1573,7 @@ void ScriptSlave::FollowPath
 		}
 		else
 		{
-			ScriptError( "Unknown followpath command %s.", token );
+			ScriptError( "Unknown followpath command %s.", token.c_str() );
 		}
 	}
 	if( ent && ent->IsSubclassOfSplinePath() )

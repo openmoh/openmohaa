@@ -4283,7 +4283,7 @@ void Entity::AttachEvent(Event *ev)
     if (tagnum >= 0) {
         attach(parent->entnum, tagnum, use_angles, offset);
     } else {
-        warning("AttachEvent", "Tag %s not found", bone);
+        warning("AttachEvent", "Tag %s not found", bone.c_str());
     }
 }
 
@@ -4371,7 +4371,7 @@ void Entity::AttachModelEvent(Event *ev)
             return;
         }
     } else {
-        warning("AttachModelEvent", "Tag %s not found", bone);
+        warning("AttachModelEvent", "Tag %s not found", bone.c_str());
     }
 }
 
