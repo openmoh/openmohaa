@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // actorenemy.cpp:
 
 #include "actorenemy.h"
-#include "world.h"
+#include "worldspawn.h"
 #include "sentient.h"
 #include "actor.h"
 

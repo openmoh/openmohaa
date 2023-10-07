@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 #include "g_utils.h"
 #include "ctype.h"
-#include "world.h"
+#include "worldspawn.h"
 #include "scriptmaster.h"
 #include "scriptthread.h"
 #include "player.h"

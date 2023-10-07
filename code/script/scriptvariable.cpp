@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #ifdef WITH_SCRIPT_ENGINE
-#    include "../fgame/world.h"
+#    include "../fgame/worldspawn.h"
 #    include "../fgame/scriptmaster.h"
 #    include "../fgame/simpleentity.h"
 #endif

@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "glb_local.h"
 #include "simpleentity.h"
-#include "world.h"
+#include "worldspawn.h"
 #include "level.h"
 #include "../script/scriptexception.h"
 

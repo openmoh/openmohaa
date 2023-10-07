@@ -830,6 +830,6 @@ inline str Entity::GetRandomAlias(str name, AliasListNode_t **ret)
     return realname;
 }
 
-#include "world.h"
+#include "worldspawn.h"
 
 #endif
