@@ -59,8 +59,7 @@ extern cvar_t *g_showvehiclepath;
 
 using cVehicleSpline = cSpline<4, 512>;
 
-class wheel_s
-{
+typedef struct wheel_s {
     Vector   vOrigin;
     Vector   vAcceleration;
     Vector   vVelocity;
@@ -85,7 +84,7 @@ class wheel_s
     qboolean bSkidding;
     qboolean bSpinning;
     int      iPowered;
-};
+} wheel_t;
 
 class VehicleBase : public Animate
 {
@@ -542,7 +541,7 @@ public:
 class VehicleWheelsX4 : public DrivableVehicle
 {
 private:
-    wheel_s m_sWheels[4];
+    wheel_t m_sWheels[4];
 
 public:
     CLASS_PROTOTYPE(VehicleWheelsX4);
@@ -561,7 +560,7 @@ public:
 class VehicleWheelsX2 : public DrivableVehicle
 {
 private:
-    wheel_s m_sWheels[2];
+    wheel_t m_sWheels[2];
 
 public:
     CLASS_PROTOTYPE(VehicleWheelsX2);

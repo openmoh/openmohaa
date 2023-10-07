@@ -2991,7 +2991,7 @@ qboolean Vehicle::Drive(usercmd_t *ucmd)
         jumpimpulse = 0;
     }
 
-    turnimpulse += 8 * angledist(SHORT2ANGLE(ucmd->angles[1]) - driver.ent->client->cmd_angles[1]);
+    turnimpulse += angledist(SHORT2ANGLE(ucmd->angles[1]) - driver.ent->client->cmd_angles[1]) * 8;
 
     return true;
 }
