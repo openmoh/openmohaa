@@ -51,10 +51,16 @@ private:
 
 public:
 	UICheckBox( void );
+	~UICheckBox( void );
 
 	void		UpdateData( void ) override;
 	bool		isChecked( void );
 };
+
+extern Event EV_UICheckBox_SetCheckedCommand;
+extern Event EV_UICheckBox_SetUncheckedCommand;
+extern Event EV_UICheckBox_SetCheckedShader;
+extern Event EV_UICheckBox_SetUncheckedShader;
 
 #endif
 
