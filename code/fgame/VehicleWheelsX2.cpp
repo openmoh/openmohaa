@@ -33,15 +33,15 @@ CLASS_DECLARATION(DrivableVehicle, VehicleWheelsX2, "VehicleWheelsX2") {
 
 VehicleWheelsX2::VehicleWheelsX2()
 {
+    gravity              = 1.0;
+    m_fDifferentialRatio = 4.88f;
+    m_fGearEfficiency    = 0.7f;
+    m_fGearRatio[0]      = -2.95f;
+    m_fGearRatio[1]      = 2.95f;
+    m_fGearRatio[2]      = 1.95f;
+    m_fGearRatio[3]      = 1.0f;
     m_iGear              = 1;
     m_iRPM               = 0;
-    gravity              = 1.0;
-    m_fDifferentialRatio = 4.8800001f;
-    m_fGearEfficiency    = 0.69999999f;
-    m_fGearRatio[0]      = -2.9400001f;
-    m_fGearRatio[1]      = 2.9400001f;
-    m_fGearRatio[2]      = 1.9400001f;
-    m_fGearRatio[3]      = 1.0f;
     m_fAccelerator       = 0.0f;
     m_bAutomatic         = qtrue;
     m_bBackSlipping      = qfalse;
@@ -194,9 +194,9 @@ void VehicleWheelsX2::UpdateVariables(
     m_fWheelFrontLoad = m_fMass * 9.81 * fabs(m_fWheelFrontDist / m_fWheelBase);
     m_fWheelBackLoad  = m_fMass * 9.81 * fabs(m_fWheelBackDist / m_fWheelBase);
 
-    longspeed          = m_vAcceleration.length() * 0.02 * m_fMass / m_fWheelBase;
-    m_fWheelFrontLoad  -= longspeed;
-    m_fWheelBackLoad   += longspeed;
+    longspeed = m_vAcceleration.length() * 0.02 * m_fMass / m_fWheelBase;
+    m_fWheelFrontLoad -= longspeed;
+    m_fWheelBackLoad += longspeed;
     m_sWheels[0].fLoad = m_fWheelBackLoad;
     m_sWheels[1].fLoad = m_fWheelFrontLoad;
 

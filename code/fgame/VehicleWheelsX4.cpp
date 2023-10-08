@@ -33,18 +33,18 @@ CLASS_DECLARATION(DrivableVehicle, VehicleWheelsX4, "VehicleWheelsX4") {
 
 VehicleWheelsX4::VehicleWheelsX4()
 {
+    gravity              = 1.0;
+    m_fDifferentialRatio = 4.88f;
+    m_fGearEfficiency    = 0.7f;
+    m_fGearRatio[0]      = -2.95f;
+    m_fGearRatio[1]      = 2.95f;
+    m_fGearRatio[2]      = 1.95f;
+    m_fGearRatio[3]      = 1.0f;
     m_iGear              = 1;
     m_iRPM               = 0;
-    gravity              = 1.0;
-    m_fDifferentialRatio = 4.8800001f;
-    m_fGearEfficiency    = 0.69999999f;
-    m_fGearRatio[0]      = -2.9400001f;
-    m_fGearRatio[1]      = 2.9400001f;
-    m_fGearRatio[2]      = 1.9400001f;
-    m_fGearRatio[3]      = 1.0f;
     m_fAccelerator       = 0.0f;
-    m_bBackSlipping      = qfalse;
     m_bAutomatic         = qtrue;
+    m_bBackSlipping      = qfalse;
     m_bFrontSlipping     = qfalse;
 }
 
