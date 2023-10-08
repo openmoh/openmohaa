@@ -70,7 +70,7 @@ This feature is a great way to test the gameplay and mods.
 
 ### Server
 
-The server version can be built successfully, but some features are not functional. For example, the Actor and Vehicle systems are almost fully implemented, but they are not yet stable. This means that they may not work as expected and could cause crashes.
+The server version can be built successfully, but some features are not functional. For example, the Actor system is almost fully implemented, but it is not yet stable. This means that Actor may not work as expected and could cause crashes.
 
 Overall, the server and the fgame components are almost fully implemented, but they may not be completely stable. There could be some minor bugs (and rare crashes), but the game should be playable.
 
@@ -89,7 +89,7 @@ The current operational status for each component is as follow:
 | Model/TIKI/Skeletor     | x    |        |      |       |     |             |                                                                   |
 | Renderer                |      | x      |      |       |     |             | Missing ghost, marks, sphere lights, sky portal, sun flare, swipe |
 | Server                  |      | x      |      |       |     |             | Probably a few bugs remaining                                     |
-| Server module (fgame)   |      | x      |      |       |     |             | Actor, vehicle, and few gameplay bugs                             |
+| Server module (fgame)   |      | x      |      |       |     |             | Actor, and few gameplay bugs                                      |
 | UI                      |      |        | x    |       |     |             | Has core features only (menu, widgets, console, hud, urc loading) |
 
 ## Compiling
