@@ -460,7 +460,6 @@ void Door::SetMessageSound(str sound)
 }
 
 void Door::SetLockedSound(str sound)
-
 {
     sound_locked = sound;
     if (sound_locked.length() > 1) {
@@ -526,7 +525,7 @@ void Door::EventTrySolid(Event *ev)
     int        touch[MAX_GENTITIES];
     int        num;
 
-    if (edict->r.contents == 1) {
+    if (getContents() == 1) {
         return;
     }
 
@@ -536,7 +535,10 @@ void Door::EventTrySolid(Event *ev)
             ent   = &g_entities[touch[i]];
             check = ent->entity;
 
-            if (check->getMoveType() > MOVETYPE_STOP) {
+            if (check->getMoveType() != MOVETYPE_NONE
+                && check->getMoveType() != MOVETYPE_NOCLIP
+                && check->getMoveType() != MOVETYPE_PUSH
+                && check->getMoveType() != MOVETYPE_STOP) {
                 if (edict->r.contents != CONTENTS_SHOOTONLY && edict->solid && IsTouching(check)) {
                     PostEvent(EV_Door_TrySolid, 1.0f);
                     return;
@@ -545,7 +547,7 @@ void Door::EventTrySolid(Event *ev)
         }
     }
 
-    edict->r.contents = CONTENTS_SOLID;
+    setContents(CONTENTS_SOLID);
     setSolidType(SOLID_BSP);
 }
 
@@ -566,7 +568,7 @@ void Door::GetIsOpen(Event *ev)
 
 void Door::OpenEnd(Event *ev)
 {
-    if (edict->r.contents != CONTENTS_SOLID) {
+    if (getContents() != CONTENTS_SOLID) {
         PostEvent(EV_Door_TrySolid, 1.0f);
     }
 
@@ -602,7 +604,7 @@ void Door::CloseEnd(Event *ev)
         gi.AdjustAreaPortalState(this->edict, false);
     }
 
-    edict->r.contents = CONTENTS_SOLID;
+    setContents(CONTENTS_SOLID);
     setSolidType(SOLID_BSP);
 
     previous_state = state;
@@ -612,6 +614,14 @@ void Door::CloseEnd(Event *ev)
 void Door::Close(Event *ev)
 {
     Door *door;
+
+    if (!(getContents() & CONTENTS_SOLID)) {
+        CancelEventsOfType(EV_Door_TrySolid);
+        PostEvent(EV_Door_TrySolid, 0);
+        // try again
+        PostEvent(new Event(*ev), 0.1f);
+        return;
+    }
 
     CancelEventsOfType(EV_Door_Close);
 
@@ -623,7 +633,10 @@ void Door::Close(Event *ev)
     if (sound_close_start.length() > 1) {
         BroadcastAIEvent();
         Sound(sound_close_start, CHAN_VOICE);
+    } else {
+        StopSound(CHAN_VOICE);
     }
+
     if (master == this) {
         if (max_health) {
             takedamage = DAMAGE_YES;
@@ -678,7 +691,10 @@ void Door::Open(Event *ev)
     if (sound_open_start.length() > 1) {
         BroadcastAIEvent();
         Sound(sound_open_start, CHAN_VOICE);
+    } else {
+        StopSound(CHAN_VOICE);
     }
+
     if (master == this) {
         // trigger all paired doors
         door = (Door *)G_GetEntity(nextdoor);
@@ -708,15 +724,15 @@ void Door::DoorUse(Event *ev)
 
     respond =
         (((respondto & TRIGGER_PLAYERS) && other->isClient())
-         || ((respondto & TRIGGER_MONSTERS) && other->isSubclassOf(Actor)));
+         || ((respondto & TRIGGER_MONSTERS) && other->IsSubclassOfActor()));
 
     if (!respond) {
         return;
     }
 
     // only allow use when not triggerd by other events
-    if (health || (spawnflags & (DOOR_AUTO_OPEN | DOOR_TARGETED))) {
-        if (other->isSubclassOf(Sentient) && (state == STATE_CLOSED)) {
+    if (health || (spawnflags & (DOOR_AUTO_OPEN | DOOR_TARGETED)) || other->IsSubclassOfActor()) {
+        if (other->IsSubclassOfSentient() && (state == STATE_CLOSED)) {
             if (health) {
                 gi.SendServerCommand(0, "print \"This door is jammed.\"");
             } else if (spawnflags & DOOR_TARGETED) {
@@ -724,7 +740,7 @@ void Door::DoorUse(Event *ev)
             }
         }
 
-        if (spawnflags & DOOR_AUTO_OPEN && locked && other->isSubclassOf(Player) && sound_locked.length()) {
+        if (spawnflags & DOOR_AUTO_OPEN && locked && other->IsSubclassOfPlayer() && sound_locked.length()) {
             other->Sound(sound_locked, CHAN_VOICE);
         }
 
@@ -749,7 +765,6 @@ void Door::DoorUse(Event *ev)
 }
 
 void Door::DoorFire(Event *ev)
-
 {
     Event  *e;
     Entity *other;
@@ -800,7 +815,7 @@ void Door::DoorBlocked(Event *ev)
     other = ev->GetEntity(1);
 
     if (other->IsSubclassOfActor()) {
-        edict->r.contents = CONTENTS_WEAPONCLIP;
+        setContents(CONTENTS_WEAPONCLIP);
         setSolidType(SOLID_BSP);
     } else {
         if (dmg) {
@@ -826,7 +841,6 @@ void Door::DoorBlocked(Event *ev)
 }
 
 void Door::FieldTouched(Event *ev)
-
 {
     Entity *other;
 
@@ -836,7 +850,41 @@ void Door::FieldTouched(Event *ev)
         return;
     }
 
-    if ((state != STATE_OPEN) && !(spawnflags & DOOR_AUTO_OPEN) && !other->isSubclassOf(Actor)) {
+    if (other->IsSubclassOfActor()) {
+        Actor* otherActor = static_cast<Actor*>(other);
+        float dist;
+
+        otherActor->m_Path.ForceShortLookahead();
+
+        if (state == STATE_OPENING) {
+            otherActor->m_maxspeed = speed * 64;
+        }
+
+        if ((state != STATE_OPEN) && !(spawnflags & DOOR_AUTO_OPEN) && !other->isSubclassOf(Actor)) {
+            return;
+        }
+
+        dist = VectorLength2D(other->velocity) * 0.25f;
+        if (absmin[0] > absmax[0] + dist) {
+            return;
+        }
+        if (absmin[1] > absmax[1] + dist) {
+            return;
+        }
+        if (absmin[2] > absmax[2] + dist) {
+            return;
+        }
+
+        if (absmin[0] - dist <= absmax[0]) {
+            return;
+        }
+        if (absmin[1] - dist <= absmax[1]) {
+            return;
+        }
+        if (absmin[2] - dist <= absmax[2]) {
+            return;
+        }
+    } else if ((state != STATE_OPEN) && !(spawnflags & DOOR_AUTO_OPEN) && !other->isSubclassOf(Actor)) {
         return;
     }
 
@@ -844,7 +892,6 @@ void Door::FieldTouched(Event *ev)
 }
 
 qboolean Door::CanBeOpenedBy(Entity *ent)
-
 {
     assert(master);
     if ((master) && (master != this)) {
@@ -859,12 +906,10 @@ qboolean Door::CanBeOpenedBy(Entity *ent)
 }
 
 void Door::TryOpen(Event *ev)
-
 {
     Entity *other;
     Event  *event;
 
-    //FIXME
     // hack so that doors aren't triggered by guys when game starts.
     // have to fix delay that guys go through before setting up their threads
     if (level.time < 0.4) {
@@ -887,9 +932,9 @@ void Door::TryOpen(Event *ev)
 
     if (locked) {
         if (next_locked_time <= level.time) {
-            if (sound_locked.length() > 1 && !other->isSubclassOf(Actor)) {
+            if (sound_locked.length() > 1 && !other->IsSubclassOfActor()) {
                 other->Sound(sound_locked, CHAN_VOICE);
-            } else if (other->isSubclassOf(Player)) {
+            } else if (other->IsSubclassOfPlayer()) {
                 other->Sound("snd_locked", CHAN_VOICE);
                 //         gi.centerprintf ( other->edict, "This door is locked." );
             }
@@ -918,7 +963,6 @@ void Door::TryOpen(Event *ev)
 }
 
 void Door::SpawnTriggerField(Vector fmins, Vector fmaxs)
-
 {
     TouchField *trig;
     Vector      min;
@@ -1058,7 +1102,6 @@ void Door::LinkDoors(Event *ev)
 }
 
 void Door::SetTime(Event *ev)
-
 {
     traveltime = ev->GetFloat(1);
     if (traveltime < FRAMETIME) {
@@ -1147,9 +1190,34 @@ qboolean Door::AIDontFace(void) const
     return (locked || state == STATE_OPEN);
 }
 
+static char* stateString[4] =
+{
+    "open",
+    "opening",
+    "closing",
+    "closed"
+};
+
 void Door::ShowInfo(float fDot, float fDist)
 {
-    // FIXME: unimplemented
+    int i;
+    char szText[512];
+
+    if (fDot <= 0.95f || fDist >= 1024 || fDist <= 64) {
+        return;
+    }
+
+    i = sprintf(szText, "%i:%i", entnum, radnum);
+    if (TargetName().c_str() && TargetName()[0]) {
+        i = sprintf(szText + i, ":%s", TargetName().c_str());
+    }
+
+    if (health != 0) {
+        i = sprintf(szText + i, ":%.1f", health);
+    }
+
+    G_DebugString(origin + Vector(0, 0, (mins.z + maxs.z) * 0.5f), 1, 1, 1, 1, szText);
+    G_DebugString(origin + Vector(0, 0, (mins.z + maxs.z) * 0.5f + 18), 1, 1, 1, 1, stateString[state - 1]);
 }
 
 /*****************************************************************************/
@@ -1262,7 +1330,6 @@ void RotatingDoor::DoClose(Event *ev)
 }
 
 void RotatingDoor::OpenAngle(Event *ev)
-
 {
     angle = ev->GetFloat(1);
 }
@@ -1362,7 +1429,6 @@ void SlidingDoor::SetMoveDir(Event *ev)
 }
 
 void SlidingDoor::DoOpen(Event *ev)
-
 {
     MoveTo(pos2, angles, speed * totalmove, EV_Door_OpenEnd);
 }
@@ -1530,7 +1596,6 @@ void ScriptDoor::DoInit(Event *ev)
 }
 
 void ScriptDoor::DoOpen(Event *ev)
-
 {
     if (openlabel.IsSet()) {
         openlabel.Execute(this);
