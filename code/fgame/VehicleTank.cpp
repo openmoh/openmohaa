@@ -305,7 +305,7 @@ void VehicleTank::Postthink()
     for (last = this; last->vlink; last = v) {
         v = last->vlink;
 
-        setOrigin(origin + i * v->offset.x + j * v->offset.y + k * v->offset.z);
+        v->setOrigin(origin + i * v->offset.x + j * v->offset.y + k * v->offset.z);
         v->avelocity = avelocity;
         v->velocity  = velocity;
 
