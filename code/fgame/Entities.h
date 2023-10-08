@@ -32,10 +32,11 @@ typedef enum {
 } eController;
 
 #define PT_SPAWNFLAG_PLAY_FIRE_SOUND    1
+#define PT_SPAWNFLAG_PLAY_MOTION_SOUND  2
 #define PT_SPAWNFLAG_TARGET_RANDOM      4
 #define PT_SPAWNFLAG_TURN_ON            8
-#define PT_SPAWNFLAG_SET_YAW            16
-#define PT_SPAWNFLAG_SET_ROLL           32
+#define PT_SPAWNFLAG_ROTATE_YAW         16
+#define PT_SPAWNFLAG_ROTATE_ROLL        32
 #define PT_SPAWNFLAG_TARGET_PLAYER      64
 #define PT_SPAWNFLAG_HIDDEN             128
 
@@ -101,20 +102,28 @@ public:
     bool ShouldStartOn() const;
     bool ShouldHideModel() const;
     bool ShouldPlayFireSound() const;
+    bool ShouldPlayMotionSound() const;
+    bool ShouldRotateYaw() const;
+    bool ShouldRotateRoll() const;
 
     void EventIsTurnedOn(Event *ev);
     void EventGetTargetEntity(Event *ev);
     void EventLaunchSound(Event *ev);
     void SetTarget(Event *ev);
+    void SetTarget(Entity* ent);
     void OnInitialize(Event *ev);
     void TurnOff(Event *ev);
     void TurnOn(Event *ev);
     bool ShouldTargetRandom() const;
-    void ChooseTarget();
+    Entity* ChooseTarget();
 
     void         GetLocalTargets();
     bool         ShouldTargetPlayer() const;
-    void         GetTargetPos(Entity *target);
+    Vector       GetTargetPos(Entity *target);
+    void         GetMuzzlePos(Vector& pos);
+    void         Fire();
+    void         TryLaunchSound();
+    void         SetWeaponAnim(const char* name, Event* ev);
     void         EventAccuracy(Event *ev);
     void         EventMaxDelay(Event *ev);
     void         EventMinDelay(Event *ev);
@@ -154,6 +163,7 @@ public:
     void PlayPreImpactSound(Event *ev);
     void SetProjectileModel(Event *ev);
 
+    float EstimateImpactTime(const Vector& targetOrigin, const Vector& fromOrigin, float speed) const;
     bool Attack(int count) override;
     void Archive(Archiver& arc) override;
 };
@@ -196,6 +206,7 @@ public:
     void SetBulletRange(Event *ev);
 
     bool Attack(int count) override;
+    bool TickWeaponAnim();
     void TickCycle(Event *ev) override;
     void Archive(Archiver& arc) override;
 };
@@ -237,6 +248,8 @@ public:
     CLASS_PROTOTYPE(ThrobbingBox_Explosive);
 
     ThrobbingBox_Explosive();
+
+    bool ShouldDoExplosion();
 
     void SetExplosionOffset(Event *ev);
     void SetExplosionEffect(Event *ev);

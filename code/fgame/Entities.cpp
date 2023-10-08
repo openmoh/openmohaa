@@ -80,8 +80,7 @@ Event EV_PG_MaxDuration
     "Sets the maximum duration of bursts(in seconds)\nDefault=3",
     EV_NORMAL
 );
-Event EV_PG_MinNumShots
-(
+Event EV_PG_MinNumShots(
     "MinNumShots",
     EV_DEFAULT,
     "i",
@@ -89,8 +88,7 @@ Event EV_PG_MinNumShots
     "Sets the minimum # of shots to fire in a cycle\nDefault=1",
     EV_NORMAL
 );
-Event EV_PG_MaxNumShots
-(
+Event EV_PG_MaxNumShots(
     "MaxNumShots",
     EV_DEFAULT,
     "i",
@@ -387,19 +385,19 @@ ProjectileGenerator::ProjectileGenerator()
     m_iTargetIndex   = -1;
     m_fLastShotTime  = 0;
     m_iAnimSlot      = 0;
-    m_bIsTurnedOn    = 0;
-    m_bFireOnStartUp = 1;
-    m_bIsDonut       = 0;
+    m_bIsTurnedOn    = false;
+    m_bFireOnStartUp = true;
+    m_bIsDonut       = false;
     m_fArcDonut      = 0;
     m_fMinDonut      = 0;
     m_fMaxDonut      = 0;
-    m_pTarget        = 0;
+    m_pTarget        = NULL;
 
     m_fCycleTime = 1;
     setMoveType(MOVETYPE_NONE);
     setSolidType(SOLID_NOT);
-    if (spawnflags & PT_SPAWNFLAG_PLAY_FIRE_SOUND) {
-        if (spawnflags & PT_SPAWNFLAG_HIDDEN) {
+    if (ShouldPlayFireSound()) {
+        if (ShouldHideModel()) {
             hideModel();
             edict->r.svFlags |= SVF_NOCLIENT;
         }
@@ -407,7 +405,7 @@ ProjectileGenerator::ProjectileGenerator()
         hideModel();
     }
 
-    if (!LoadingSavegame && spawnflags & PT_SPAWNFLAG_TURN_ON) {
+    if (!LoadingSavegame && ShouldStartOn()) {
         PostEvent(EV_TurnOn, 0.1f);
     }
 
@@ -432,6 +430,21 @@ bool ProjectileGenerator::ShouldPlayFireSound() const
     return (spawnflags & PT_SPAWNFLAG_PLAY_FIRE_SOUND) ? true : false;
 }
 
+bool ProjectileGenerator::ShouldPlayMotionSound() const
+{
+    return (spawnflags & PT_SPAWNFLAG_PLAY_MOTION_SOUND) ? true : false;
+}
+
+bool ProjectileGenerator::ShouldRotateYaw() const
+{
+    return (spawnflags & PT_SPAWNFLAG_ROTATE_YAW) ? true : false;
+}
+
+bool ProjectileGenerator::ShouldRotateRoll() const
+{
+    return (spawnflags & PT_SPAWNFLAG_ROTATE_ROLL) ? true : false;
+}
+
 void ProjectileGenerator::EventIsTurnedOn(Event *ev)
 {
     ev->AddInteger(m_bIsTurnedOn);
@@ -445,23 +458,25 @@ void ProjectileGenerator::EventGetTargetEntity(Event *ev)
 void ProjectileGenerator::EventLaunchSound(Event *ev)
 {
     m_sLaunchSound = ev->GetString(1);
-    ;
 }
 
 void ProjectileGenerator::SetTarget(Event *ev)
 {
-    m_pTarget = ev->GetEntity(1);
+    SetTarget(ev->GetEntity(1));
+}
+
+void ProjectileGenerator::SetTarget(Entity *ent)
+{
+    m_pTarget = ent;
 }
 
 void ProjectileGenerator::OnInitialize(Event *ev)
 {
-    if (spawnflags & PT_SPAWNFLAG_SET_YAW) {
-        angles.y += 180;
-        setAngles(angles);
+    if (ShouldRotateYaw()) {
+        angles.setYaw(angles.yaw() + 180);
     }
-    if (spawnflags & PT_SPAWNFLAG_SET_ROLL) {
-        angles.z += 180;
-        setAngles(angles);
+    if (ShouldRotateRoll()) {
+        angles.setRoll(angles.roll() + 180);
     }
 }
 
@@ -483,7 +498,32 @@ void ProjectileGenerator::TurnOn(Event *ev)
 
 void ProjectileGenerator::SetupNextCycle()
 {
-    // FIXME: unimplemented
+    float numShots;
+    float delay;
+
+    if (m_iCycles && m_iCurrentCycle >= m_iCycles) {
+        m_pCurrent = NULL;
+        TurnOff(NULL);
+        return;
+    }
+
+    // retrieve the target
+    m_pCurrent   = ChooseTarget();
+    m_fCycleTime = G_Random(m_fMaxDuration - m_fMinDuration) + m_fMinDuration;
+
+    // get a random number of shots
+    numShots = m_iMinNumShots;
+    if (numShots < m_iMaxNumShots) {
+        numShots = rand() % (m_iMaxNumShots - m_iMinNumShots) + m_iMinNumShots;
+    }
+
+    // get a random delay
+    m_fShotsPerSec = numShots / m_fCycleTime;
+    if (m_bIsTurnedOn || !m_bFireOnStartUp) {
+        delay = G_Random(m_fMaxDelay - m_fMinDelay) + m_fMinDelay;
+    }
+
+    PostEvent(EV_PG_BeginCycle, delay);
 }
 
 bool ProjectileGenerator::ShouldTargetRandom() const
@@ -491,9 +531,44 @@ bool ProjectileGenerator::ShouldTargetRandom() const
     return (spawnflags & PT_SPAWNFLAG_TARGET_RANDOM) ? true : false;
 }
 
-void ProjectileGenerator::ChooseTarget()
+Entity *ProjectileGenerator::ChooseTarget()
 {
-    // FIXME: unimplemented
+    int numTargets;
+
+    if (m_pTarget) {
+        m_vTargetOrg = GetTargetPos(m_pTarget);
+        return m_pTarget;
+    }
+
+    if (ShouldTargetPlayer()) {
+        Entity *target = G_FindTarget(this, "player");
+        if (target) {
+            m_vTargetOrg = GetTargetPos(target);
+            return target;
+        }
+    }
+
+    if (!m_projectileTargets.NumObjects()) {
+        GetLocalTargets();
+    }
+
+    numTargets = m_projectileTargets.NumObjects();
+    if (numTargets) {
+        ProjectileTarget *target;
+
+        if (ShouldTargetRandom()) {
+            target = m_projectileTargets.ObjectAt((rand() % numTargets) + 1);
+        } else {
+            m_iTargetIndex = (m_iTargetIndex + 1) % numTargets;
+            target         = m_projectileTargets.ObjectAt(m_iTargetIndex + 1);
+        }
+
+        m_vTargetOrg = GetTargetPos(target);
+        return target;
+    }
+
+    spawnflags |= PT_SPAWNFLAG_TARGET_PLAYER;
+    return ChooseTarget();
 }
 
 void ProjectileGenerator::GetLocalTargets()
@@ -514,9 +589,107 @@ bool ProjectileGenerator::ShouldTargetPlayer() const
     return (spawnflags & PT_SPAWNFLAG_TARGET_PLAYER) ? true : false;
 }
 
-void ProjectileGenerator::GetTargetPos(Entity *target)
+Vector ProjectileGenerator::GetTargetPos(Entity *target)
 {
-    // FIXME: unimplemented
+    Vector vOrg;
+    Vector vForward;
+    Vector vAngles;
+    float  fRandDonut;
+
+    if (!target) {
+        return Vector(0, 0, 0);
+    }
+
+    vOrg = target->origin;
+
+    if (target->IsSubclassOfActor()) {
+        vOrg += Vector(0, 0, 36);
+    }
+
+    if (m_bIsDonut) {
+        Entity *playerTarget = G_FindTarget(this, "player");
+
+        if (playerTarget) {
+            vAngles = playerTarget->client->ps.viewangles;
+        } else {
+            vAngles = target->angles;
+        }
+
+        if (rand() & 1) {
+            vAngles.setYaw(vAngles[1] + m_fArcDonut / 2.0);
+        } else {
+            vAngles.setYaw(vAngles[1] - m_fArcDonut / 2.0);
+        }
+
+        AngleVectors(vAngles, vForward, NULL, NULL);
+
+        fRandDonut = G_Random(m_fMaxDonut - m_fMinDonut) + m_fMinDonut;
+        vOrg += vForward * (fRandDonut * 16);
+    } else {
+        vAngles.setYaw(G_Random(360));
+        AngleVectors(vAngles, vForward, NULL, NULL);
+
+        fRandDonut = G_Random(m_fAccuracy) * 16;
+        vOrg += vForward * fRandDonut;
+    }
+
+    return vOrg;
+}
+
+void ProjectileGenerator::GetMuzzlePos(Vector& pos)
+{
+    orientation_t orient;
+
+    pos = origin;
+
+    if (GetRawTag("tag_barrel", &orient)) {
+        vec3_t axis[3];
+        int    i;
+
+        AnglesToAxis(angles, axis);
+        for (i = 0; i < 3; i++) {
+            VectorMA(pos, orient.origin[i], axis[i], pos);
+        }
+    }
+}
+
+void ProjectileGenerator::Fire()
+{
+    m_fLastShotTime = level.time;
+    SetWeaponAnim("Fire", 0);
+}
+
+void ProjectileGenerator::TryLaunchSound()
+{
+    if (m_sLaunchSound != "") {
+        Sound(m_sLaunchSound, CHAN_AUTO);
+    }
+}
+
+void ProjectileGenerator::SetWeaponAnim(const char *name, Event *ev)
+{
+    int animnum = gi.Anim_NumForName(edict->tiki, name);
+    if (animnum == -1) {
+        return;
+    }
+
+    StopAnimating(m_iAnimSlot);
+    RestartAnimSlot(m_iAnimSlot);
+
+    int idleanim = gi.Anim_NumForName(edict->tiki, "idle");
+
+    edict->s.frameInfo[m_iAnimSlot].index = idleanim;
+    m_iAnimSlot                           = (m_iAnimSlot + 1) & 3;
+    edict->s.frameInfo[m_iAnimSlot].index = idleanim;
+
+    if (ev) {
+        NewAnim(animnum, ev, m_iAnimSlot);
+    } else {
+        NewAnim(animnum, m_iAnimSlot);
+    }
+
+    SetOnceType(m_iAnimSlot);
+    RestartAnimSlot(m_iAnimSlot);
 }
 
 void ProjectileGenerator::EventAccuracy(Event *ev)
@@ -576,7 +749,25 @@ void ProjectileGenerator::EventSetId(Event *ev)
 
 void ProjectileGenerator::BeginCycle(Event *ev)
 {
-    // FIXME: unimplemented
+    if (!m_bIsTurnedOn) {
+        return;
+    }
+
+    if (!m_fShotsPerSec) {
+        SetupNextCycle();
+        return;
+    }
+
+    if (m_pCurrent) {
+        m_vTargetOrg = GetTargetPos(m_pCurrent);
+    }
+
+    m_iCurrentCycle++;
+    m_fCurrentTime = 0;
+
+    TickCycle(ev);
+
+    PostEvent(EV_EndCycle, m_fCycleTime);
 }
 
 void ProjectileGenerator::TickCycle(Event *ev)
@@ -748,9 +939,95 @@ void ProjectileGenerator_Projectile::SetProjectileModel(Event *ev)
     m_sProjectileModel = ev->GetString(1);
 }
 
+float ProjectileGenerator_Projectile::EstimateImpactTime(
+    const Vector& targetOrigin, const Vector& fromOrigin, float speed
+) const
+{
+    Vector delta = fromOrigin - targetOrigin;
+
+    return delta.length() / speed;
+}
+
 bool ProjectileGenerator_Projectile::Attack(int count)
 {
-    // FIXME: unimplemented
+    Projectile *proj;
+    static int  NukePlayer = 0;
+    Vector      dir(0, 0, 1);
+    float       speed = 500;
+
+    Vector muzzlePos = origin;
+    GetMuzzlePos(muzzlePos);
+
+    if (m_pCurrent) {
+        m_vTargetOrg = GetTargetPos(m_pCurrent);
+
+        if (m_bIsDonut) {
+            Entity *playerTarget = G_FindTarget(this, "player");
+
+            if (playerTarget) {
+                if (playerTarget->takedamage) {
+                    if (!Q_stricmp(targetname, "artillerykiller")) {
+                        NukePlayer++;
+                    }
+                } else {
+                    NukePlayer = 0;
+                }
+
+                if (NukePlayer > 2) {
+                    m_vTargetOrg = playerTarget->origin;
+                    muzzlePos    = playerTarget->origin;
+                    muzzlePos[2] += 256;
+                    NukePlayer = 0;
+                } else {
+                    muzzlePos = m_vTargetOrg;
+                    muzzlePos[2] += random() * 500.0 + 500.0;
+                }
+            } else {
+                muzzlePos = m_vTargetOrg;
+                muzzlePos[2] += 1000.0;
+            }
+        }
+
+        dir = m_vTargetOrg - muzzlePos;
+        dir.normalize();
+
+        Vector newAngles;
+        VectorToAngles(dir, newAngles);
+
+        if (ShouldRotateYaw()) {
+            newAngles.setYaw(newAngles.yaw() + 180);
+        }
+
+        if (ShouldRotateRoll()) {
+            newAngles.setRoll(newAngles.roll() + 180);
+        }
+
+        setAngles(newAngles);
+    } else {
+        AngleVectors(angles, dir, NULL, NULL);
+    }
+
+    Fire();
+    TryLaunchSound();
+
+    proj = ProjectileAttack(muzzlePos, dir, this, m_sProjectileModel, 1.0, speed);
+
+    if (proj->flags & FL_THINK) {
+        gi.DPrintf("Projectile used is thinking...pre-impact sound cannot be predicted.\n");
+        return true;
+    }
+
+    if (G_Random() <= m_fImpactSoundProbability && m_sPreImpactSound.length()) {
+        float time;
+
+        time = EstimateImpactTime(m_vTargetOrg, muzzlePos, speed);
+        time -= 1.0;
+
+        if (time > 0) {
+            PostEvent(EV_PG_PlayPreImpactSound, time);
+        }
+    }
+
     return true;
 }
 
@@ -906,25 +1183,111 @@ void ProjectileGenerator_Gun::SetBulletRange(Event *ev)
 
 bool ProjectileGenerator_Gun::Attack(int count)
 {
-    // FIXME: unimplemented
+    Vector dir;
+    Vector right, up;
+    Vector muzzlePos;
+    int    iTracerCount = 0;
+
+    if (ShouldPlayFireSound() && m_fLastShotTime + m_fFireDelay > level.time) {
+        return false;
+    }
+
+    GetMuzzlePos(muzzlePos);
+
+    if (m_pCurrent) {
+        dir = m_vTargetOrg - muzzlePos;
+        dir.normalize();
+
+        Vector newAngles;
+        VectorToAngles(dir, newAngles);
+
+        AngleVectors(newAngles, NULL, right, up);
+
+        if (ShouldRotateYaw()) {
+            newAngles.setYaw(newAngles.yaw() + 180);
+        }
+
+        if (ShouldRotateRoll()) {
+            newAngles.setRoll(newAngles.roll() + 180);
+        }
+
+        setAngles(newAngles);
+    } else {
+        AngleVectors(angles, dir, right, up);
+    }
+
+    int iTracerFrequency = 0;
+
+    m_iAttackCount += count;
+    if (!m_iTracerFrequency) {
+        m_iTracerFrequency = 4;
+    }
+
+    if (!(m_iAttackCount % m_iTracerFrequency)) {
+        m_iAttackCount   = 0;
+        iTracerFrequency = count;
+    }
+
+    if (ShouldPlayFireSound()) {
+        Fire();
+    }
+
+    TryLaunchSound();
+
+    if (m_bFakeBullets) {
+        FakeBulletAttack(
+            muzzlePos,
+            muzzlePos,
+            dir,
+            right,
+            up,
+            m_fBulletRange,
+            m_fBulletDamage,
+            m_iBulletLarge,
+            m_vBulletSpread,
+            count,
+            this,
+            iTracerFrequency,
+            &iTracerCount,
+            m_fTracerSpeed
+        );
+    } else {
+        BulletAttack(
+            muzzlePos,
+            muzzlePos,
+            dir,
+            right,
+            up,
+            m_fBulletRange,
+            m_fBulletDamage,
+            m_iBulletLarge,
+            m_iBulletKnockback,
+            0,
+            m_iMeansOfDeath,
+            m_vBulletSpread,
+            count,
+            this,
+            iTracerFrequency,
+            &iTracerCount,
+            m_fBulletThroughWood,
+            m_fBulletThroughMetal,
+            NULL,
+            m_fTracerSpeed
+        );
+    }
+
     return true;
+}
+
+bool ProjectileGenerator_Gun::TickWeaponAnim()
+{
+    return m_fLastShotTime + m_fFireDelay < level.time;
 }
 
 void ProjectileGenerator_Gun::TickCycle(Event *ev)
 {
-    if (!m_bIsTurnedOn) {
-        return;
-    }
-
-    m_fCurrentTime += level.frametime * m_fShotsPerSec;
-    if (m_fCurrentTime >= 1.f) {
-        float f = floor(m_fCurrentTime);
-        if (Attack(floor(f))) {
-            m_fCurrentTime -= floor(f);
-        }
-    }
-
-    PostEvent(EV_TickCycle, 0.01f);
+    ProjectileGenerator::TickCycle(ev);
+    TickWeaponAnim();
 }
 
 void ProjectileGenerator_Gun::Archive(Archiver& arc)
@@ -1004,7 +1367,66 @@ void ProjectileGenerator_Heavy::SetProjectileModel(Event *ev)
 
 bool ProjectileGenerator_Heavy::Attack(int count)
 {
-    // FIXME: unimplemented
+    static int NukePlayer = 0;
+    Vector     dir(0, 0, 1);
+    float      speed = 500;
+
+    Vector muzzlePos = origin;
+    GetMuzzlePos(muzzlePos);
+
+    if (m_pCurrent) {
+        m_vTargetOrg = GetTargetPos(m_pCurrent);
+
+        if (m_bIsDonut) {
+            Entity *playerTarget = G_FindTarget(this, "player");
+
+            if (playerTarget) {
+                if (playerTarget->takedamage) {
+                    if (!Q_stricmp(targetname, "artillerykiller")) {
+                        NukePlayer++;
+                    }
+                } else {
+                    NukePlayer = 0;
+                }
+
+                if (NukePlayer > 2) {
+                    m_vTargetOrg = playerTarget->origin;
+                    muzzlePos    = playerTarget->origin;
+                    muzzlePos[2] += 256;
+                    NukePlayer = 0;
+                } else {
+                    muzzlePos = m_vTargetOrg;
+                    muzzlePos[2] += random() * 1000.0 + 500.0;
+                }
+            } else {
+                muzzlePos = m_vTargetOrg;
+                muzzlePos[2] += 2000.0;
+            }
+        }
+
+        dir = m_vTargetOrg - muzzlePos;
+        dir.normalize();
+
+        Vector newAngles;
+        VectorToAngles(dir, newAngles);
+
+        if (ShouldRotateYaw()) {
+            newAngles.setYaw(newAngles.yaw() + 180);
+        }
+
+        if (ShouldRotateRoll()) {
+            newAngles.setRoll(newAngles.roll() + 180);
+        }
+
+        setAngles(newAngles);
+    } else {
+        AngleVectors(angles, dir, NULL, NULL);
+    }
+
+    TryLaunchSound();
+    // spawn the projectile
+    HeavyAttack(muzzlePos, dir, m_sProjectileModel, speed, this, NULL);
+
     return true;
 }
 
@@ -1221,6 +1643,11 @@ ThrobbingBox_Explosive::ThrobbingBox_Explosive()
     m_vOffset = Vector(0, 0, 0);
 }
 
+bool ThrobbingBox_Explosive::ShouldDoExplosion()
+{
+    return m_fStopwatchDuration;
+}
+
 void ThrobbingBox_Explosive::SetExplosionOffset(Event *ev)
 {
     m_vOffset = ev->GetVector(1);
@@ -1352,7 +1779,7 @@ void ThrobbingBox_Explosive::OnBlowUp(Event *ev)
             mdl = static_cast<ScriptModel *>(sp.Spawn());
             if (mdl) {
                 mdl->NewAnim("start");
-                mdl->setSolidType(targetEnt->edict->solid);
+                mdl->setSolidType(static_cast<solid_t>(targetEnt->getSolidType()));
             }
 
             if (targetEnt->IsSubclassOfVehicle()) {
@@ -1361,14 +1788,14 @@ void ThrobbingBox_Explosive::OnBlowUp(Event *ev)
                 int      i;
 
                 // remove all turrets
-                for (i = 0; i < 8; i++) {
+                for (i = 0; i < MAX_TURRETS; i++) {
                     ent = veh->QueryTurretSlotEntity(i);
                     if (ent) {
                         ent->PostEvent(EV_Remove, 0);
                     }
                 }
 
-                for (i = 0; i < 32; i++) {
+                for (i = 0; i < MAX_PASSENGERS; i++) {
                     ent = veh->QueryPassengerSlotEntity(i);
                     if (ent) {
                         ent->Damage(this, this, ent->health * 2.f, vec_zero, vec_zero, vec_zero, 50, 0, MOD_VEHICLE);
@@ -1387,28 +1814,8 @@ void ThrobbingBox_Explosive::OnBlowUp(Event *ev)
         }
     }
 
-    if (m_fStopwatchDuration) {
-        SpawnArgs sp;
-
-        sp.setArg("model", m_sEffect.c_str());
-        sp.setArg("origin", va("%f %f %f", origin.x, origin.y, origin.z));
-        sp.setArg("classname", "ScriptModel");
-
-        if (target.length() > 0 && (targetEnt = static_cast<Entity *>(G_FindTarget(NULL, target.c_str())))) {
-            sp.setArg("origin", va("%f %f %f", targetEnt->origin.x, targetEnt->origin.y, targetEnt->origin.z));
-        }
-
-        mdl = static_cast<ScriptModel *>(sp.Spawn());
-        if (mdl) {
-            mdl->NewAnim("start");
-            mdl->setSolidType(targetEnt->edict->solid);
-        }
-
-        RadiusDamage(Vector(), this, this, m_fExplosionDamage, this, MOD_EXPLOSION, m_fRadius);
-        Sound(m_sSound, CHAN_BODY);
-
-        m_thread.Execute(this);
-        PostEvent(EV_Remove, 0);
+    if (ShouldDoExplosion()) {
+        DoExplosion(NULL);
     }
 }
 
@@ -1585,6 +1992,7 @@ void ThrobbingBox_Stickybomb::OnStickyBombWet(Event *ev)
 
     CancelEventsOfType(EV_BlowUp);
     NewAnim("idle_fuse_wet");
+    StopLoopSound();
     Sound("stickybomb_fuse_out", CHAN_BODY);
 
     player = static_cast<Player *>(G_FindTarget(this, "player"));
@@ -1599,6 +2007,7 @@ void ThrobbingBox_Stickybomb::OnStickyBombUse(Event *ev)
     }
 
     setSolidType(SOLID_BBOX);
+    setContents(CONTENTS_BOTCLIP);
     takedamage = DAMAGE_YES;
     m_bUsed    = true;
 
@@ -1619,7 +2028,7 @@ void ThrobbingBox_Stickybomb::OnStickyBombUse(Event *ev)
     PostEvent(EV_BlowUp, m_fStopwatchDuration);
 
     if (spawnflags & TBE_SPAWNFLAG_MAKE_WET) {
-        PostEvent(EV_StickyBombWet, m_fStopwatchDuration * 0.5f * random() + m_fStopwatchDuration * 0.25f);
+        PostEvent(EV_StickyBombWet, G_Random(m_fStopwatchDuration / 2.0) + m_fStopwatchDuration / 4.0);
     }
 
     NewAnim("idle_fuse_lit");
@@ -1844,86 +2253,86 @@ Event EV_GetDontDropHealth
 );
 
 CLASS_DECLARATION(SimpleArchivedEntity, AISpawnPoint, "info_aispawnpoint") {
-    {&EV_Model, &AISpawnPoint::SetModel},
-    {&EV_GetModel, &AISpawnPoint::GetModel},
-    {&EV_SetHealth2, &AISpawnPoint::SetHealth},
-    {&EV_Entity_GetHealth, &AISpawnPoint::GetHealth},
-    {&EV_SetEnemyName, &AISpawnPoint::SetEnemyName},
-    {&EV_SetEnemyName2, &AISpawnPoint::SetEnemyName},
-    {&EV_GetEnemyName, &AISpawnPoint::GetEnemyName},
-    {&EV_Actor_SetAccuracy, &AISpawnPoint::SetAccuracy},
-    {&EV_Actor_GetAccuracy, &AISpawnPoint::GetAccuracy},
-    {&EV_Actor_SetAmmoGrenade, &AISpawnPoint::SetAmmoGrenade},
-    {&EV_Actor_GetAmmoGrenade, &AISpawnPoint::GetAmmoGrenade},
-    {&EV_Actor_SetBalconyHeight, &AISpawnPoint::SetBalconyHeight},
-    {&EV_Actor_GetBalconyHeight, &AISpawnPoint::GetBalconyHeight},
-    {&EV_Actor_SetDisguiseLevel, &AISpawnPoint::SetDisguiseLevel},
-    {&EV_Actor_GetDisguiseLevel, &AISpawnPoint::GetDisguiseLevel},
-    {&EV_Actor_SetDisguisePeriod2, &AISpawnPoint::SetDisguisePeriod},
-    {&EV_Actor_GetDisguisePeriod, &AISpawnPoint::GetDisguisePeriod},
-    {&EV_Actor_SetDisguiseRange2, &AISpawnPoint::SetDisguiseRange},
-    {&EV_Actor_GetDisguiseRange, &AISpawnPoint::GetDisguiseRange},
-    {&EV_Actor_SetEnemyShareRange2, &AISpawnPoint::SetEnemyShareRange},
-    {&EV_Actor_GetEnemyShareRange, &AISpawnPoint::GetEnemyShareRange},
-    {&EV_Actor_GetFixedLeash, &AISpawnPoint::GetFixedLeash},
-    {&EV_Actor_SetFixedLeash2, &AISpawnPoint::SetFixedLeash},
-    {&EV_Actor_SetGrenadeAwareness, &AISpawnPoint::SetGrenadeAwareness},
-    {&EV_Actor_GetGrenadeAwareness, &AISpawnPoint::GetGrenadeAwareness},
-    {&EV_Actor_SetGun, &AISpawnPoint::SetGun},
-    {&EV_Actor_GetGun, &AISpawnPoint::GetGun},
+    {&EV_Model,                       &AISpawnPoint::SetModel             },
+    {&EV_GetModel,                    &AISpawnPoint::GetModel             },
+    {&EV_SetHealth2,                  &AISpawnPoint::SetHealth            },
+    {&EV_Entity_GetHealth,            &AISpawnPoint::GetHealth            },
+    {&EV_SetEnemyName,                &AISpawnPoint::SetEnemyName         },
+    {&EV_SetEnemyName2,               &AISpawnPoint::SetEnemyName         },
+    {&EV_GetEnemyName,                &AISpawnPoint::GetEnemyName         },
+    {&EV_Actor_SetAccuracy,           &AISpawnPoint::SetAccuracy          },
+    {&EV_Actor_GetAccuracy,           &AISpawnPoint::GetAccuracy          },
+    {&EV_Actor_SetAmmoGrenade,        &AISpawnPoint::SetAmmoGrenade       },
+    {&EV_Actor_GetAmmoGrenade,        &AISpawnPoint::GetAmmoGrenade       },
+    {&EV_Actor_SetBalconyHeight,      &AISpawnPoint::SetBalconyHeight     },
+    {&EV_Actor_GetBalconyHeight,      &AISpawnPoint::GetBalconyHeight     },
+    {&EV_Actor_SetDisguiseLevel,      &AISpawnPoint::SetDisguiseLevel     },
+    {&EV_Actor_GetDisguiseLevel,      &AISpawnPoint::GetDisguiseLevel     },
+    {&EV_Actor_SetDisguisePeriod2,    &AISpawnPoint::SetDisguisePeriod    },
+    {&EV_Actor_GetDisguisePeriod,     &AISpawnPoint::GetDisguisePeriod    },
+    {&EV_Actor_SetDisguiseRange2,     &AISpawnPoint::SetDisguiseRange     },
+    {&EV_Actor_GetDisguiseRange,      &AISpawnPoint::GetDisguiseRange     },
+    {&EV_Actor_SetEnemyShareRange2,   &AISpawnPoint::SetEnemyShareRange   },
+    {&EV_Actor_GetEnemyShareRange,    &AISpawnPoint::GetEnemyShareRange   },
+    {&EV_Actor_GetFixedLeash,         &AISpawnPoint::GetFixedLeash        },
+    {&EV_Actor_SetFixedLeash2,        &AISpawnPoint::SetFixedLeash        },
+    {&EV_Actor_SetGrenadeAwareness,   &AISpawnPoint::SetGrenadeAwareness  },
+    {&EV_Actor_GetGrenadeAwareness,   &AISpawnPoint::GetGrenadeAwareness  },
+    {&EV_Actor_SetGun,                &AISpawnPoint::SetGun               },
+    {&EV_Actor_GetGun,                &AISpawnPoint::GetGun               },
     {&EV_Actor_GetMaxNoticeTimeScale, &AISpawnPoint::GetMaxNoticeTimeScale},
     {&EV_Actor_SetMaxNoticeTimeScale, &AISpawnPoint::SetMaxNoticeTimeScale},
-    {&EV_Actor_GetSoundAwareness, &AISpawnPoint::GetSoundAwareness},
-    {&EV_Actor_SetSoundAwareness, &AISpawnPoint::SetSoundAwareness},
-    {&EV_Actor_SetTypeAttack, &AISpawnPoint::SetTypeAttack},
-    {&EV_Actor_GetTypeAttack, &AISpawnPoint::GetTypeAttack},
-    {&EV_Actor_SetTypeDisguise, &AISpawnPoint::SetTypeDisguise},
-    {&EV_Actor_GetTypeDisguise, &AISpawnPoint::GetTypeDisguise},
-    {&EV_Actor_SetTypeGrenade, &AISpawnPoint::SetTypeGrenade},
-    {&EV_Actor_GetTypeGrenade, &AISpawnPoint::GetTypeGrenade},
-    {&EV_Actor_SetTypeIdle, &AISpawnPoint::SetTypeIdle},
-    {&EV_Actor_GetTypeIdle, &AISpawnPoint::GetTypeIdle},
-    {&EV_Actor_SetPatrolWaitTrigger, &AISpawnPoint::SetPatrolWaitTrigger},
-    {&EV_Actor_GetPatrolWaitTrigger, &AISpawnPoint::GetPatrolWaitTrigger},
-    {&EV_Actor_SetHearing, &AISpawnPoint::SetHearing},
-    {&EV_Actor_GetHearing, &AISpawnPoint::GetHearing},
-    {&EV_Actor_GetSight, &AISpawnPoint::GetSight},
-    {&EV_Actor_SetSight2, &AISpawnPoint::SetSight},
-    {&EV_Actor_SetFov, &AISpawnPoint::SetFov},
-    {&EV_Actor_GetFov, &AISpawnPoint::GetFov},
-    {&EV_Actor_SetLeash2, &AISpawnPoint::SetLeash},
-    {&EV_Actor_GetLeash, &AISpawnPoint::GetLeash},
-    {&EV_Actor_SetMinDistance, &AISpawnPoint::SetMinDistance},
-    {&EV_Actor_GetMinDistance, &AISpawnPoint::GetMinDistance},
-    {&EV_Actor_SetMaxDistance, &AISpawnPoint::SetMaxDistance},
-    {&EV_Actor_GetMaxDistance, &AISpawnPoint::GetMaxDistance},
-    {&EV_Actor_SetInterval2, &AISpawnPoint::SetInterval},
-    {&EV_Actor_GetInterval, &AISpawnPoint::GetInterval},
-    {&EV_Sentient_DontDropWeapons, &AISpawnPoint::SetDontDropWeapons},
-    {&EV_Sentient_GetDontDropWeapons, &AISpawnPoint::GetDontDropWeapons},
-    {&EV_SetDontDropHealth, &AISpawnPoint::SetDontDropHealth},
-    {&EV_GetDontDropHealth, &AISpawnPoint::GetDontDropHealth},
-    {&EV_Actor_GetFavoriteEnemy, &AISpawnPoint::GetFavoriteEnemy},
-    {&EV_Actor_SetFavoriteEnemy2, &AISpawnPoint::SetFavoriteEnemy},
-    {&EV_Actor_SetNoSurprise2, &AISpawnPoint::SetNoSurprise},
-    {&EV_Actor_GetNoSurprise, &AISpawnPoint::GetNoSurprise},
-    {&EV_Actor_SetPatrolPath, &AISpawnPoint::SetPatrolPath},
-    {&EV_Actor_GetPatrolPath, &AISpawnPoint::GetPatrolPath},
-    {&EV_Actor_SetTurret, &AISpawnPoint::SetTurret},
-    {&EV_Actor_GetTurret, &AISpawnPoint::GetTurret},
-    {&EV_Actor_SetAlarmNode, &AISpawnPoint::SetAlarmNode},
-    {&EV_Actor_GetAlarmNode, &AISpawnPoint::GetAlarmNode},
-    {&EV_Actor_SetWeapon, &AISpawnPoint::SetWeapon},
-    {&EV_Actor_GetWeapon, &AISpawnPoint::GetWeapon},
-    {&EV_SetTarget, &AISpawnPoint::SetTarget},
-    {&EV_GetTarget, &AISpawnPoint::GetTarget},
-    {&EV_Actor_SetVoiceType, &AISpawnPoint::SetVoiceType},
-    {&EV_Actor_GetVoiceType, &AISpawnPoint::GetVoiceType},
-    {&EV_Sentient_ForceDropWeapon, &AISpawnPoint::SetForceDropWeapon},
-    {&EV_Sentient_GetForceDropWeapon, &AISpawnPoint::GetForceDropWeapon},
-    {&EV_Sentient_ForceDropHealth, &AISpawnPoint::SetForceDropHealth},
-    {&EV_Sentient_GetForceDropHealth, &AISpawnPoint::GetForceDropHealth},
-    {NULL, NULL}
+    {&EV_Actor_GetSoundAwareness,     &AISpawnPoint::GetSoundAwareness    },
+    {&EV_Actor_SetSoundAwareness,     &AISpawnPoint::SetSoundAwareness    },
+    {&EV_Actor_SetTypeAttack,         &AISpawnPoint::SetTypeAttack        },
+    {&EV_Actor_GetTypeAttack,         &AISpawnPoint::GetTypeAttack        },
+    {&EV_Actor_SetTypeDisguise,       &AISpawnPoint::SetTypeDisguise      },
+    {&EV_Actor_GetTypeDisguise,       &AISpawnPoint::GetTypeDisguise      },
+    {&EV_Actor_SetTypeGrenade,        &AISpawnPoint::SetTypeGrenade       },
+    {&EV_Actor_GetTypeGrenade,        &AISpawnPoint::GetTypeGrenade       },
+    {&EV_Actor_SetTypeIdle,           &AISpawnPoint::SetTypeIdle          },
+    {&EV_Actor_GetTypeIdle,           &AISpawnPoint::GetTypeIdle          },
+    {&EV_Actor_SetPatrolWaitTrigger,  &AISpawnPoint::SetPatrolWaitTrigger },
+    {&EV_Actor_GetPatrolWaitTrigger,  &AISpawnPoint::GetPatrolWaitTrigger },
+    {&EV_Actor_SetHearing,            &AISpawnPoint::SetHearing           },
+    {&EV_Actor_GetHearing,            &AISpawnPoint::GetHearing           },
+    {&EV_Actor_GetSight,              &AISpawnPoint::GetSight             },
+    {&EV_Actor_SetSight2,             &AISpawnPoint::SetSight             },
+    {&EV_Actor_SetFov,                &AISpawnPoint::SetFov               },
+    {&EV_Actor_GetFov,                &AISpawnPoint::GetFov               },
+    {&EV_Actor_SetLeash2,             &AISpawnPoint::SetLeash             },
+    {&EV_Actor_GetLeash,              &AISpawnPoint::GetLeash             },
+    {&EV_Actor_SetMinDistance,        &AISpawnPoint::SetMinDistance       },
+    {&EV_Actor_GetMinDistance,        &AISpawnPoint::GetMinDistance       },
+    {&EV_Actor_SetMaxDistance,        &AISpawnPoint::SetMaxDistance       },
+    {&EV_Actor_GetMaxDistance,        &AISpawnPoint::GetMaxDistance       },
+    {&EV_Actor_SetInterval2,          &AISpawnPoint::SetInterval          },
+    {&EV_Actor_GetInterval,           &AISpawnPoint::GetInterval          },
+    {&EV_Sentient_DontDropWeapons,    &AISpawnPoint::SetDontDropWeapons   },
+    {&EV_Sentient_GetDontDropWeapons, &AISpawnPoint::GetDontDropWeapons   },
+    {&EV_SetDontDropHealth,           &AISpawnPoint::SetDontDropHealth    },
+    {&EV_GetDontDropHealth,           &AISpawnPoint::GetDontDropHealth    },
+    {&EV_Actor_GetFavoriteEnemy,      &AISpawnPoint::GetFavoriteEnemy     },
+    {&EV_Actor_SetFavoriteEnemy2,     &AISpawnPoint::SetFavoriteEnemy     },
+    {&EV_Actor_SetNoSurprise2,        &AISpawnPoint::SetNoSurprise        },
+    {&EV_Actor_GetNoSurprise,         &AISpawnPoint::GetNoSurprise        },
+    {&EV_Actor_SetPatrolPath,         &AISpawnPoint::SetPatrolPath        },
+    {&EV_Actor_GetPatrolPath,         &AISpawnPoint::GetPatrolPath        },
+    {&EV_Actor_SetTurret,             &AISpawnPoint::SetTurret            },
+    {&EV_Actor_GetTurret,             &AISpawnPoint::GetTurret            },
+    {&EV_Actor_SetAlarmNode,          &AISpawnPoint::SetAlarmNode         },
+    {&EV_Actor_GetAlarmNode,          &AISpawnPoint::GetAlarmNode         },
+    {&EV_Actor_SetWeapon,             &AISpawnPoint::SetWeapon            },
+    {&EV_Actor_GetWeapon,             &AISpawnPoint::GetWeapon            },
+    {&EV_SetTarget,                   &AISpawnPoint::SetTarget            },
+    {&EV_GetTarget,                   &AISpawnPoint::GetTarget            },
+    {&EV_Actor_SetVoiceType,          &AISpawnPoint::SetVoiceType         },
+    {&EV_Actor_GetVoiceType,          &AISpawnPoint::GetVoiceType         },
+    {&EV_Sentient_ForceDropWeapon,    &AISpawnPoint::SetForceDropWeapon   },
+    {&EV_Sentient_GetForceDropWeapon, &AISpawnPoint::GetForceDropWeapon   },
+    {&EV_Sentient_ForceDropHealth,    &AISpawnPoint::SetForceDropHealth   },
+    {&EV_Sentient_GetForceDropHealth, &AISpawnPoint::GetForceDropHealth   },
+    {NULL,                            NULL                                }
 };
 
 AISpawnPoint::AISpawnPoint()
