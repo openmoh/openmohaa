@@ -2007,7 +2007,7 @@ void ThrobbingBox_Stickybomb::OnStickyBombUse(Event *ev)
     }
 
     setSolidType(SOLID_BBOX);
-    setContents(CONTENTS_BOTCLIP);
+    setContents(CONTENTS_WEAPONCLIP);
     takedamage = DAMAGE_YES;
     m_bUsed    = true;
 
