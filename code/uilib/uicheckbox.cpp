@@ -74,8 +74,6 @@ CLASS_DECLARATION( UIWidget, UICheckBox, NULL )
 UICheckBox::UICheckBox()
 {
 	AllowActivate(qtrue);
-	m_checked_command = "";
-	m_unchecked_command = "";
 	m_check_height = 14.0;
 	m_check_width = 14.0;
 	m_indent = 8.0;
@@ -215,16 +213,4 @@ void UICheckBox::UpdateData(void)
 bool UICheckBox::isChecked()
 {
 	return m_checked;
-}
-
-UICheckBox::~UICheckBox()
-{
-	if (m_unchecked_command.length())
-	{
-		m_unchecked_command = "";
-	}
-	if (m_checked_command.length())
-	{
-		m_checked_command = "";
-	}
 }

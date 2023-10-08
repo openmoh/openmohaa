@@ -51,7 +51,6 @@ private:
 
 public:
 	UICheckBox( void );
-	~UICheckBox( void );
 
 	void		UpdateData( void ) override;
 	bool		isChecked( void );
