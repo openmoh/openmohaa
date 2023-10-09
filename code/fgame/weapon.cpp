@@ -1176,7 +1176,6 @@ Weapon::Weapon()
 //Weapon::Weapon
 //======================
 Weapon::Weapon(const char *file)
-
 {
     // The tik file holds all the information available for a weapon
     Weapon();
@@ -1188,6 +1187,11 @@ Weapon::Weapon(const char *file)
 Weapon::~Weapon()
 {
     DetachGun();
+
+    if (owner) {
+        RemoveFromOwner();
+    }
+
     entflags &= ~EF_WEAPON;
 }
 
@@ -1303,7 +1307,6 @@ void Weapon::SetDMStartAmmo(Event *ev)
 //Weapon::SetMaxChargeTime
 //======================
 void Weapon::SetMaxChargeTime(Event *ev)
-
 {
     assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
     max_charge_time[firemodeindex] = ev->GetFloat(1);
@@ -1377,7 +1380,6 @@ str Weapon::GetAmmoType(firemode_t mode)
 //Weapon::SetAmmoType
 //======================
 void Weapon::SetAmmoType(Event *ev)
-
 {
     assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
 
@@ -1699,7 +1701,6 @@ void Weapon::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forwar
 //Weapon::SetAmmoClipSize
 //======================
 void Weapon::SetAmmoClipSize(Event *ev)
-
 {
     assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
     ammo_clip_size[firemodeindex] = ev->GetInteger(1);
@@ -1709,7 +1710,6 @@ void Weapon::SetAmmoClipSize(Event *ev)
 //Weapon::SetAmmoInClip
 //======================
 void Weapon::SetAmmoInClip(Event *ev)
-
 {
     assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
     ammo_in_clip[firemodeindex] = ev->GetInteger(1);
@@ -2059,7 +2059,6 @@ void Weapon::ApplyFireKickback(const Vector& org, float kickback) {}
 //Weapon::SetAimAnim
 //======================
 void Weapon::SetAimAnim(Event *ev)
-
 {
     str anim;
 
@@ -2072,7 +2071,6 @@ void Weapon::SetAimAnim(Event *ev)
 //Weapon::SetOwner
 //======================
 void Weapon::SetOwner(Sentient *ent)
-
 {
     assert(ent);
     if (!ent) {
@@ -3152,7 +3150,6 @@ void Weapon::DoneRaising(Event *ev)
 //Weapon::ClientFireDone
 //======================
 void Weapon::ClientFireDone(void)
-
 {
     // This is called when the client's firing animation is done
 }
@@ -3380,7 +3377,6 @@ void Weapon::IdleInit(Event *ev)
 //Weapon::GetMaxRange
 //======================
 float Weapon::GetMaxRange(void)
-
 {
     return maxrange;
 }
@@ -3389,7 +3385,6 @@ float Weapon::GetMaxRange(void)
 //Weapon::GetMinRange
 //======================
 float Weapon::GetMinRange(void)
-
 {
     return minrange;
 }
@@ -3398,7 +3393,6 @@ float Weapon::GetMinRange(void)
 //Weapon::SetMaxRangeEvent
 //======================
 void Weapon::SetMaxRangeEvent(Event *ev)
-
 {
     maxrange = ev->GetFloat(1);
 }
@@ -3407,7 +3401,6 @@ void Weapon::SetMaxRangeEvent(Event *ev)
 //Weapon::SetMinRangeEvent
 //======================
 void Weapon::SetMinRangeEvent(Event *ev)
-
 {
     minrange = ev->GetFloat(1);
 }
@@ -3416,7 +3409,6 @@ void Weapon::SetMinRangeEvent(Event *ev)
 //Weapon::NotDroppableEvent
 //======================
 void Weapon::NotDroppableEvent(Event *ev)
-
 {
     notdroppable = true;
 }
@@ -3425,7 +3417,6 @@ void Weapon::NotDroppableEvent(Event *ev)
 //Weapon::SetMaxRange
 //======================
 void Weapon::SetMaxRange(float val)
-
 {
     maxrange = val;
 }
@@ -3434,7 +3425,6 @@ void Weapon::SetMaxRange(float val)
 //Weapon::SetMinRange
 //======================
 void Weapon::SetMinRange(float val)
-
 {
     minrange = val;
 }
@@ -3468,7 +3458,6 @@ void Weapon::WeaponSound(Event *ev)
 //Weapon::Removable
 //======================
 qboolean Weapon::Removable(void)
-
 {
     if (((int)(dmflags->integer) & DF_WEAPONS_STAY) && !(spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM))) {
         return false;
@@ -3481,7 +3470,6 @@ qboolean Weapon::Removable(void)
 //Weapon::Pickupable
 //======================
 qboolean Weapon::Pickupable(Entity *other)
-
 {
     Sentient *sen;
 
@@ -3511,7 +3499,6 @@ qboolean Weapon::Pickupable(Entity *other)
 //Weapon::AutoChange
 //======================
 qboolean Weapon::AutoChange(void)
-
 {
     return true;
 }
@@ -3616,7 +3603,6 @@ void Weapon::SetFireType(Event *ev)
 //Weapon::GetFireType
 //======================
 firetype_t Weapon::GetFireType(firemode_t mode)
-
 {
     return firetype[mode];
 }
@@ -3658,7 +3644,6 @@ void Weapon::SetDMProjectile(Event *ev)
 //Weapon::SetBulletDamage
 //======================
 void Weapon::SetBulletDamage(Event *ev)
-
 {
     assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
     bulletdamage[firemodeindex] = ev->GetFloat(1);
@@ -3668,7 +3653,6 @@ void Weapon::SetBulletDamage(Event *ev)
 //Weapon::SetBulletLarge
 //======================
 void Weapon::SetBulletLarge(Event *ev)
-
 {
     bulletlarge[firemodeindex] = ev->GetInteger(1);
 }
@@ -3677,7 +3661,6 @@ void Weapon::SetBulletLarge(Event *ev)
 //Weapon::SetBulletLarge
 //======================
 void Weapon::SetTracerSpeed(Event *ev)
-
 {
     tracerspeed[firemodeindex] = ev->GetFloat(1);
 }
@@ -3699,7 +3682,6 @@ void Weapon::SetDMBulletDamage(Event *ev)
 //Weapon::SetBulletKnockback
 //======================
 void Weapon::SetBulletKnockback(Event *ev)
-
 {
     assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
     bulletknockback[firemodeindex] = ev->GetFloat(1);
@@ -3921,7 +3903,6 @@ void Weapon::Secondary(Event *ev)
 //Weapon::AutoAim
 //====================
 void Weapon::AutoAim(Event *ev)
-
 {
     autoaim = true;
 }
@@ -3990,7 +3971,6 @@ void Weapon::SetHolsterAngles(Event *ev)
 //Weapon::SetHolsterScale
 //====================
 void Weapon::SetHolsterScale(Event *ev)
-
 {
     holsterScale = ev->GetFloat(1);
 }
@@ -4007,7 +3987,6 @@ void Weapon::SetQuiet(Event *ev)
 //Weapon::SetLoopFire
 //====================
 void Weapon::SetLoopFire(Event *ev)
-
 {
     assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
     loopfire[firemodeindex] = true;
@@ -4017,7 +3996,6 @@ void Weapon::SetLoopFire(Event *ev)
 //Weapon::SetMeansOfDeath
 //======================
 void Weapon::SetMeansOfDeath(Event *ev)
-
 {
     assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
     meansofdeath[firemodeindex] = (meansOfDeath_t)MOD_string_to_int(ev->GetString(1));
@@ -4042,7 +4020,6 @@ meansOfDeath_t Weapon::GetMeansOfDeath(firemode_t mode)
 //Weapon::SetAimTarget
 //======================
 void Weapon::SetAimTarget(Entity *ent)
-
 {
     aim_target = ent;
 }
@@ -4056,7 +4033,6 @@ void Weapon::WorldHitSpawn(firemode_t mode, Vector origin, Vector angles, float 
 //Weapon::SetWorldHitSpawn
 //======================
 void Weapon::SetWorldHitSpawn(Event *ev)
-
 {
     assert((firemodeindex >= 0) && (firemodeindex < MAX_FIREMODES));
     worldhitspawn[firemodeindex] = ev->GetString(1);
@@ -4364,7 +4340,6 @@ void Weapon::SetRank(int order, int rank)
 //Weapon::GetRank
 //======================
 int Weapon::GetRank(void)
-
 {
     return rank;
 }
@@ -4373,7 +4348,6 @@ int Weapon::GetRank(void)
 //Weapon::GetOrder
 //======================
 int Weapon::GetOrder(void)
-
 {
     return order;
 }
