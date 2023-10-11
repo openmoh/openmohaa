@@ -92,37 +92,3 @@ void Actor::IdleThink
 	PostThink(true);
 
 }
-
-
-/*
-===============
-Actor::PassesTransitionConditions_Idle
-
-Should actor transition think state to idle ?
-===============
-*/
-bool Actor::PassesTransitionConditions_Idle
-(
-	void
-)
-{
-	glbs.Printf("PassesTransitionConditions_Idle\n");
-
-	UpdateEnemy(500);
-
-	if (m_bLockThinkState)
-		return false;
-
-	if (!m_Enemy && !m_iCuriousTime)
-		return true;
-
-	return false;
-}
-
-bool Actor::IsIdleState
-(
-	int state
-)
-{
-	return state == THINKSTATE_IDLE;
-}

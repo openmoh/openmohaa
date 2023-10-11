@@ -752,6 +752,7 @@ protected:
 
 public:
 	Actor();
+	~Actor();
 	
 	virtual void setContentsSolid( void ) override;
 	void InitThinkStates( void );

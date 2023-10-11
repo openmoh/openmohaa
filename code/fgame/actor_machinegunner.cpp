@@ -102,22 +102,6 @@ void Actor::End_MachineGunner
 		}
 	}
 }
-void Actor::BecomeTurretGuy
-	(
-	void
-	)
-{
-	SetThinkIdle(THINK_IDLE);
-
-	SetThink(THINKSTATE_ATTACK, THINK_TURRET);
-	SetThink(THINKSTATE_DISGUISE, THINK_DISGUISE_SALUTE);
-	SetThink(THINKSTATE_GRENADE, THINK_GRENADE);
-
-	if (CurrentThink() == THINK_IDLE && Turret_DecideToSelectState())
-	{
-		TransitionState(100, 0);
-	}
-}
 
 void Actor::Think_MachineGunner
 	(

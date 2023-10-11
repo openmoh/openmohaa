@@ -249,6 +249,128 @@ void Actor::FinishedAnimation_BalconyAttack
 	if( m_State == 202 )
 		State_Balcony_PostShoot();
 }
+bool Actor::CalcFallPath
+    (
+    void
+    )
+{
+    float startTime, animTime, startDeltaTime, nextTime;
+    vec3_t vAbsDelta, vRelDelta, pos[200];
+    int anim, loop, /*currentPos,*/ i;
+    mmove_t mm;
+
+    SetMoveInfo(&mm);
+
+    mm.desired_speed = 80;
+    mm.tracemask &= 0xFDFFF4FF;
+
+    VectorCopy2D(orientation[0], mm.desired_dir);
+
+    anim = gi.Anim_NumForName(edict->tiki, "death_balcony_intro");
+    animTime = gi.Anim_Time(edict->tiki, anim);
+
+    startTime = 0.65F;
+
+    i = 0;
+    while (true)
+    {
+        MmoveSingle(&mm);
+        
+        i++;
+        VectorCopy(mm.origin, pos[i]);
+
+        if (i >= 200)
+        {
+            break;
+        }
+
+        if (mm.hit_obstacle)
+        {
+            for (float j = 0.65f; j < animTime; j = nextTime)
+            {
+                nextTime = j + level.frametime;
+                if (nextTime >= animTime - 0.01f)
+                    nextTime = animTime;
+                startDeltaTime = j;
+                gi.Anim_DeltaOverTime(
+                    edict->tiki,
+                    anim,
+                    startDeltaTime,
+                    nextTime,
+                    vAbsDelta);
+                MatrixTransformVector(vAbsDelta, orientation, vRelDelta);
+
+                i++;
+                
+                VectorAdd(vRelDelta, mm.origin, mm.origin);
+                VectorCopy(mm.origin, pos[i]);
+
+                if (i >= 200)
+                    return false;
+            }
+            mm.desired_speed = 0;
+            mm.groundPlane = qfalse;
+            mm.walking = qfalse;
+            mm.velocity[0] = 0;
+            mm.velocity[1] = 0;
+            mm.velocity[2] = -171;
+            
+            loop = i;
+
+            while (true)
+            {
+                MmoveSingle(&mm);
+
+                i++;
+                VectorCopy(mm.origin, pos[i]);
+
+                if (i >= 200)
+                {
+                    break;
+                }
+
+                if (mm.hit_obstacle)
+                    return false;
+
+                if (mm.groundPlane)
+                {
+                    if (m_fBalconyHeight > origin[2] - pos[i][2])
+                        return false;
+
+                    m_pFallPath = (FallPath *)gi.Malloc((sizeof(FallPath::pos)) * i + (sizeof(FallPath) - sizeof(FallPath::pos)));
+
+                    m_pFallPath->length = i;
+
+                    m_pFallPath->currentPos = 0;
+                    m_pFallPath->startTime = startTime;
+                    m_pFallPath->loop = loop;
+
+                    if (i > 0)
+                    {
+                        for (int j = i; j ; j--)
+                        {
+                            VectorCopy(pos[j], m_pFallPath->pos[j]);
+                        }
+                    }
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        if (mm.groundPlane)
+        {
+            startTime -= level.frametime;
+            if (startTime >= 0)
+                continue;
+        }
+        return false;
+    }
+    return false;
+
+}
 
 void Actor::Begin_BalconyKilled
 	(
