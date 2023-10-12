@@ -2954,7 +2954,14 @@ Destructor
 */
 Actor::~Actor()
 {
-    // FIXME: unimplemented
+    EndStates();
+    ClearPatrolCurrentNode();
+    ClearAimNode();
+    ClearLookEntity();
+    ClearPointEntity();
+    ClearTurnEntity();
+
+    entflags &= ~EF_ACTOR;
 }
 
 /*
