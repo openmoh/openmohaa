@@ -1270,6 +1270,12 @@ bool SimpleActor::UpdateSelectedAnimation(void)
     return false;
 }
 
+void SimpleActor::EventNoAnimLerp(Event* ev)
+{
+    edict->s.eFlags |= EF_NO_LERP;
+    NoLerpThisFrame();
+}
+
 const char *SimpleActor::DumpCallTrace(const char *pszFmt, ...) const
 {
     OVERLOADED_ERROR();

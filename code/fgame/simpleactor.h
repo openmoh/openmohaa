@@ -212,6 +212,7 @@ public:
     void                EventGetAnimMode(Event *ev);
     void                EventSetAnimMode(Event *ev);
     void                EventSetAnimFinal(Event *ev);
+    void                EventNoAnimLerp(Event *ev); // Added in 2.0
     const_str           GetRunAnim(void);
     const_str           GetWalkAnim(void);
     void                DesiredAnimation(int eAnimMode, const_str csAnimString);
@@ -223,6 +224,7 @@ public:
     void                SetPathGoalEndAnim(const_str csEndAnim);
     bool                UpdateSelectedAnimation(void);
     void                Anim_Attack(void);
+    void                Anim_Suppress(void); // Added in 2.0
     void                Anim_Sniper(void);
     void                Anim_Aim(void);
     void                Anim_Shoot(void);

@@ -49,6 +49,11 @@ void SimpleActor::Anim_Attack(void)
     DesiredAnimation(1, m_AttackHandler);
 }
 
+void SimpleActor::Anim_Suppress(void)
+{
+    DesiredAnimation(1, STRING_ANIM_SUPPRESS_SCR);
+}
+
 void SimpleActor::Anim_Sniper(void)
 {
     DesiredAnimation(1, m_SniperHandler);
