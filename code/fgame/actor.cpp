@@ -2707,178 +2707,241 @@ Constructor
 ===============
 */
 Actor::Actor()
+    : mVoiceType(-1)
 {
     entflags |= EF_ACTOR;
+
+    m_pszDebugState = "";
+    m_pFallPath = NULL;
+    m_iOriginTime = -1;
 
     if (LoadingSavegame) {
         return;
     }
+
+    m_PainState = 500;
+    m_iEnemyShowPapersTime = 0;
+    m_eGrenadeState = eGrenadeState::AI_GRENSTATE_FLEE;
 
     edict->s.eType = ET_MODELANIM;
     edict->r.svFlags |= SVF_MONSTER;
     edict->r.ownerNum = ENTITYNUM_NONE;
     edict->clipmask   = MASK_MONSTERSOLID;
     setMoveType(MOVETYPE_WALK);
+
     mass = 175;
     flags |= FL_THINK;
     flags &= ~FL_ANIMATE;
+
     setContentsSolid();
     setSolidType(SOLID_BBOX);
+
     m_fFov      = 90.0f;
     takedamage  = DAMAGE_AIM;
-    m_fFovDot   = cos(0.5 * m_fFov * M_PI / 180);
+    m_fFovDot   = cos(DEG2RAD(m_fFov / 2.0));
+
     m_eAnimMode = 0;
     Anim_Emotion(EMOTION_NONE);
+
     m_bDoPhysics          = true;
     path_failed_time      = 0;
+
     health                = 100;
     max_health            = 100;
+
     m_fAngleYawSpeed      = 360;
     m_fHeadMaxTurnSpeed   = 520;
     m_bHeadAnglesAchieved = true;
     VectorClear(m_vHeadDesiredAngles);
+
     m_fLUpperArmTurnSpeed      = 360;
     m_bLUpperArmAnglesAchieved = true;
     VectorClear(m_vLUpperArmDesiredAngles);
+
     m_fTorsoMaxTurnSpeed     = 120;
     m_fTorsoCurrentTurnSpeed = 0;
     m_bTorsoAnglesAchieved   = true;
     VectorClear(m_vTorsoDesiredAngles);
+
     m_pLookEntity  = NULL;
     m_pPointEntity = NULL;
     m_pTurnEntity  = NULL;
+
     VectorClear(edict->s.eyeVector);
+
     m_bDoAI                 = true;
     m_bTurretNoInitialCover = false;
     m_bThink                = false;
-    m_bAutoAvoidPlayer      = true;
+    m_fSight                = world->m_fAIVisionDistance;
     m_fHearing              = 2048;
     m_PainTime              = 0;
-    m_fSight                = world->m_fAIVisionDistance;
     m_bNoLongPain           = false;
     hit_obstacle_time       = 0;
     VectorClear2D(obstacle_vel);
-    m_bLockThinkState = false;
+
+    m_bLockThinkState       = false;
+    m_bAutoAvoidPlayer      = true;
+    m_bIsCurious            = true;
+
     InitThinkStates();
     SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+
     m_fMinDistance        = 128;
-    m_fMinDistanceSquared = Square(128);
+    m_fMinDistanceSquared = Square(m_fMinDistance);
     m_fMaxDistance        = 1024;
-    m_fMaxDistanceSquared = Square(1024);
+    m_fMaxDistanceSquared = Square(m_fMaxDistanceSquared);
     m_fLeash              = 512;
-    m_fLeashSquared       = Square(512);
+    m_fLeashSquared       = Square(m_fLeashSquared);
+
     m_iEyeUpdateTime      = level.inttime;
     if (m_iEyeUpdateTime < 1000) {
         m_iEyeUpdateTime = 1000;
     }
     m_iEyeUpdateTime += rand() % 100 + 100;
+
     m_vIntervalDir            = vec_zero;
     m_iIntervalDirTime        = 0;
     edict->r.lastNetTime      = -10000000;
+    
+    m_bNewEnemy               = false;
     m_iEnemyCheckTime         = 0;
     m_iEnemyChangeTime        = 0;
-    m_iEnemyVisibleCheckTime  = 0;
-    m_bNewEnemy               = false;
     m_bEnemyIsDisguised       = false;
     m_bEnemyVisible           = false;
+    m_iEnemyVisibleCheckTime  = 0;
     m_iEnemyVisibleChangeTime = 0;
     m_iLastEnemyVisibleTime   = 0;
+    m_fVisibilityAlpha        = 0;
+    m_fVisibilityThreshold    = 0.5f;
+    m_bHasVisibilityThreshold = false;
+
+    m_bEnemyInFOV             = false;
     m_iEnemyFovCheckTime      = 0;
     m_iEnemyFovChangeTime     = 0;
-    m_bEnemyInFOV             = false;
     m_iIgnoreSoundsMask       = 0;
+
     m_State                   = -1;
     m_iStateTime              = 0;
+
     m_iGunPositionCheckTime   = 0;
-    m_vLastEnemyPos           = vec_origin;
+    m_vLastEnemyPos           = vec3_origin;
     m_iLastEnemyPosChangeTime = 0;
-    m_vScriptGoal             = vec_origin;
+    m_vScriptGoal             = vec3_origin;
+    m_bScriptGoalValid        = false;
     m_iNextWatchStepTime      = 0;
+
     m_iCuriousTime            = 0;
     m_iCuriousLevel           = 0;
     SetCuriousAnimHint(0);
-    m_bScriptGoalValid = false;
+
     m_bNoSurprise      = false;
     memset(&m_pPotentialCoverNode, 0, sizeof(m_pPotentialCoverNode));
     m_iPotentialCoverCount    = 0;
     m_pCoverNode              = NULL;
+
     m_csSpecialAttack         = STRING_NULL;
-    m_sCurrentPathNodeIndex   = -1;
-    m_iDisguiseLevel          = 1;
-    m_iNextDisguiseTime       = 1;
-    m_iDisguisePeriod         = 30000;
     m_bNeedReload             = false;
     m_bInReload               = false;
     m_bFaceEnemy              = true;
+    m_sCurrentPathNodeIndex   = -1;
+
+    m_iNextDisguiseTime       = 1;
+    m_iDisguisePeriod         = 30000;
     m_fMaxDisguiseDistSquared = 256 * 256;
+    m_iDisguiseLevel          = 1;
+
     m_patrolCurrentNode       = NULL;
     m_csPatrolCurrentAnim     = STRING_ANIM_RUN_SCR;
-    m_iSquadStandTime         = 0;
     m_bPatrolWaitTrigger      = false;
     m_fInterval               = 128;
+    m_iSquadStandTime         = 0;
     m_aimNode                 = NULL;
-    m_vHome                   = vec_origin;
+
+    m_vHome                   = vec3_origin;
     m_bFixedLeash             = false;
     m_pTetherEnt              = NULL;
+
     m_pGrenade                = NULL;
-    m_vGrenadePos             = vec_origin;
-    m_eGrenadeMode            = AI_GREN_TOSS_NONE;
+    m_vGrenadePos             = vec3_origin;
     m_iFirstGrenadeTime       = 0;
     m_bGrenadeBounced         = false;
+    m_eGrenadeMode            = AI_GREN_TOSS_NONE;
     m_vGrenadeVel             = vec_zero;
     m_vKickDir                = vec_zero;
-    m_fNoticeTimeScale        = 1.0f;
-    m_iCanShootCheckTime      = 0;
-    m_csAnimScript            = STRING_ANIM_IDLE_SCR;
+    
     m_fSoundAwareness         = 100;
     m_fGrenadeAwareness       = 20;
     m_fMaxNoticeTimeScale     = 1.0f;
+    m_fNoticeTimeScale        = 1.0f;
+
+    m_iCanShootCheckTime      = 0;
     m_bCanShootEnemy          = false;
     m_bEnableEnemy            = true;
     m_bDesiredEnableEnemy     = true;
     m_bEnablePain             = true;
+
+    m_csAnimScript            = STRING_ANIM_IDLE_SCR;
     m_bAnimScriptSet          = false;
-    m_AnimMode                = 0;
+    m_AnimMode                = 1;
     m_csAnimName              = STRING_EMPTY;
     m_csSayAnim               = STRING_EMPTY;
     m_csUpperAnim             = STRING_EMPTY;
+
+    m_fRunAnimRate            = 1;
     m_fDfwRequestedYaw        = 0;
     m_fDfwDerivedYaw          = 0;
     m_vDfwPos                 = vec_zero;
     m_fDfwTime                = 0;
+
     m_AlarmNode               = NULL;
-    m_csHeadSkin              = STRING_EMPTY;
+
     m_iWallDodgeTimeout       = 0;
-    m_csHeadModel             = STRING_EMPTY;
-    m_csLoadOut               = STRING_EMPTY;
-    m_iRunHomeTime            = 0;
-    m_iLookFlags              = 0;
-    m_csWeapon                = STRING_EMPTY;
-    m_eDontFaceWallMode       = 0;
     m_WallDir                 = 0;
     VectorClear2D(m_PrevObstacleNormal);
-    m_bNoIdleAfterAnim       = false;
-    m_fMaxShareDistSquared   = 0;
+    
+    m_csHeadModel             = STRING_EMPTY;
+    m_csHeadSkin              = STRING_EMPTY;
+    m_bNoIdleAfterAnim        = false;
+    m_csWeapon                = STRING_EMPTY;
+    m_csLoadOut               = STRING_EMPTY;
+
+    m_fMaxShareDistSquared    = 0;
+    m_iRunHomeTime            = 0;
+    m_iSuppressChance         = 50;
+
     m_bBreathSteam           = false;
+
     m_fMoveDoneRadiusSquared = 0;
+
     m_bForceAttackPlayer     = false;
+
+    m_iLookFlags              = 0;
     m_iNextLookTime          = 0;
     m_fLookAroundFov         = 45;
     m_bHasDesiredLookDest    = false;
     m_bHasDesiredLookAngles  = false;
+
+    m_eDontFaceWallMode       = 0;
     m_iLastFaceDecideTime    = 0;
     m_iOriginTime            = -1;
     m_fTurnDoneError         = 0;
+
     m_fBalconyHeight         = 128;
     m_bNoPlayerCollision     = false;
-    m_pFallPath              = NULL;
     for (int i = 0; i < MAX_ORIGIN_HISTORY; i++) {
         VectorClear2D(m_vOriginHistory[i]);
     }
-    m_bAnimating      = false;
     m_iCurrentHistory = 0;
-    m_bDog            = false;
-    m_bBecomeRunner   = false;
+    m_bAnimating = false;
+    m_bIgnoreBadPlace = false;
+    m_bBecomeRunner = false;
+    m_bEnemySwitch = true;
+    m_iNationality = 0;
+
+    if (g_aistats) {
+        PostEvent(EV_Actor_WriteStats, 1.0);
+    }
+
     mVoiceType        = -1;
 }
 
