@@ -52,6 +52,69 @@ void ActorPath::Clear(void)
     m_delta[1]     = 0;
 }
 
+void ActorPath::ForceShortLookahead(void)
+{
+    m_fLookAhead = 4096.0f;
+}
+
+float ActorPath::PathLookAhead(float total_area, Vector& end, float *origin)
+{
+    float     area = total_area;
+    float     s;
+    float     t;
+    float     normal[2];
+    float     delta[2];
+    Vector    pos;
+    float     fallheight;
+    PathInfo *current_path = m_pathpos;
+
+    while (1) {
+        pos = current_path->point;
+
+        if (current_path == m_path) {
+            break;
+        }
+
+        fallheight = current_path->point[2] - origin[2];
+
+        if (fallheight > 94.0f || fallheight < -94.0f) {
+            VectorCopy(current_path->point, end);
+            m_HasCompleteLookahead = false;
+            return area;
+        }
+
+        current_path--;
+
+        normal[0] = current_path->point[1] - pos[1];
+        normal[1] = pos[0] - current_path->point[0];
+
+        VectorNormalize2D(normal);
+
+        delta[0] = current_path->point[0] - origin[0];
+        delta[1] = current_path->point[1] - origin[1];
+
+        t = fabs(DotProduct2D(delta, normal)) * current_path->dist;
+
+        if (t >= area) {
+            t = area / t;
+            s = 1.0f - t;
+
+            end[0]                 = current_path->point[0] * t + pos[0] * s;
+            end[1]                 = current_path->point[1] * t + pos[1] * s;
+            end[2]                 = current_path->point[2] * t + pos[2] * s;
+            m_HasCompleteLookahead = false;
+            return 0;
+        }
+
+        area -= t;
+    }
+
+    VectorCopy(current_path->point, end);
+    m_HasCompleteLookahead = true;
+
+    return area;
+}
+
 bool ActorPath::DoesTheoreticPathExist(
     float *start, float *end, class SimpleActor *ent, float maxPath, float *vLeashHome, float fLeashDistSquared
 )
@@ -184,64 +247,6 @@ void ActorPath::ReFindPath(float *start, Entity *ent)
     } else {
         Clear();
     }
-}
-
-float ActorPath::PathLookAhead(float total_area, Vector& end, float *origin)
-{
-    float     area = total_area;
-    float     s;
-    float     t;
-    float     normal[2];
-    float     delta[2];
-    Vector    pos;
-    float     fallheight;
-    PathInfo *current_path = m_pathpos;
-
-    while (1) {
-        pos = current_path->point;
-
-        if (current_path == m_path) {
-            break;
-        }
-
-        fallheight = current_path->point[2] - origin[2];
-
-        if (fallheight > 94.0f || fallheight < -94.0f) {
-            VectorCopy(current_path->point, end);
-            m_HasCompleteLookahead = false;
-            return area;
-        }
-
-        current_path--;
-
-        normal[0] = current_path->point[1] - pos[1];
-        normal[1] = pos[0] - current_path->point[0];
-
-        VectorNormalize2D(normal);
-
-        delta[0] = current_path->point[0] - origin[0];
-        delta[1] = current_path->point[1] - origin[1];
-
-        t = fabs(DotProduct2D(delta, normal)) * current_path->dist;
-
-        if (t >= area) {
-            t = area / t;
-            s = 1.0f - t;
-
-            end[0]                 = current_path->point[0] * t + pos[0] * s;
-            end[1]                 = current_path->point[1] * t + pos[1] * s;
-            end[2]                 = current_path->point[2] * t + pos[2] * s;
-            m_HasCompleteLookahead = false;
-            return 0;
-        }
-
-        area -= t;
-    }
-
-    VectorCopy(current_path->point, end);
-    m_HasCompleteLookahead = true;
-
-    return area;
 }
 
 void ActorPath::UpdatePos(float *origin, float fNodeRadius)
@@ -427,6 +432,37 @@ bool ActorPath::Complete(const float *origin) const
     return false;
 }
 
+void ActorPath::TrimPathFromEnd(int nNodesPop)
+{
+    int iLastPos = m_path - m_pathpos;
+
+    if (iLastPos - nNodesPop > 0) {
+        for (int i = 0; i < iLastPos; i++) {
+            m_path[i] = m_path[i + nNodesPop];
+        }
+    } else {
+        Clear();
+    }
+}
+
+void ActorPath::Shorten(float fDistRemove)
+{
+    if (m_path->dist > fDistRemove) {
+        m_path->point[0] += m_path->dir[0] * -fDistRemove;
+        m_path->point[1] += m_path->dir[1] * -fDistRemove;
+        m_path->point[2] += m_path->point[2] * -fDistRemove;
+        m_path->dist -= fDistRemove;
+    } else {
+        while (fDistRemove - m_path->dist > m_path->dist) {
+            TrimPathFromEnd(1);
+
+            if (!m_pathpos) {
+                return;
+            }
+        }
+    }
+}
+
 PathInfo *ActorPath::StartNode(void) const
 {
     return m_startpathpos;
@@ -477,11 +513,6 @@ bool ActorPath::IsAccurate(void) const
     return m_pathpos->bAccurate;
 }
 
-float ActorPath::TotalDist(void) const
-{
-    return m_TotalDist;
-}
-
 void ActorPath::SetFallHeight(float fHeight)
 {
     m_FallHeight = fHeight;
@@ -492,48 +523,17 @@ float ActorPath::GetFallHeight(void) const
     return m_FallHeight;
 }
 
-void ActorPath::TrimPathFromEnd(int nNodesPop)
-{
-    int iLastPos = m_path - m_pathpos;
-
-    if (iLastPos - nNodesPop > 0) {
-        for (int i = 0; i < iLastPos; i++) {
-            m_path[i] = m_path[i + nNodesPop];
-        }
-    } else {
-        Clear();
-    }
-}
-
-void ActorPath::Shorten(float fDistRemove)
-{
-    if (m_path->dist > fDistRemove) {
-        m_path->point[0] += m_path->dir[0] * -fDistRemove;
-        m_path->point[1] += m_path->dir[1] * -fDistRemove;
-        m_path->point[2] += m_path->point[2] * -fDistRemove;
-        m_path->dist -= fDistRemove;
-    } else {
-        while (fDistRemove - m_path->dist > m_path->dist) {
-            TrimPathFromEnd(1);
-
-            if (!m_pathpos) {
-                return;
-            }
-        }
-    }
-}
-
 bool ActorPath::HasCompleteLookahead(void) const
 {
     return m_HasCompleteLookahead;
 }
 
+float ActorPath::TotalDist(void) const
+{
+    return m_TotalDist;
+}
+
 bool ActorPath::IsSide(void) const
 {
     return m_Side;
-}
-
-void ActorPath::ForceShortLookahead(void)
-{
-    m_fLookAhead = 4096.0f;
 }

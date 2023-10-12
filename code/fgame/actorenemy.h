@@ -45,8 +45,6 @@ public:
     int               m_iLastSightChangeTime;
     bool              m_bVisible;
 
-    ActorEnemy();
-    virtual ~ActorEnemy();
     float     UpdateVisibility(Actor *pSelf, bool *pbInFovAndRange, bool *pbVisible);
     int       UpdateThreat(Actor *pSelf);
     Sentient *GetEnemy(void) const;
@@ -76,6 +74,26 @@ inline void ActorEnemy::Archive(Archiver& arc)
     arc.ArchiveBool(&m_bVisible);
 }
 
+inline Sentient *ActorEnemy::GetEnemy(void) const
+{
+    return m_pEnemy;
+}
+
+inline float ActorEnemy::GetVisibility(void) const
+{
+    return m_fVisibility;
+}
+
+inline int ActorEnemy::GetThreat(void) const
+{
+    return m_iThreat;
+}
+
+inline float ActorEnemy::GetRangeSquared(void) const
+{
+    return m_fCurrentRangeSquared;
+}
+
 class ActorEnemySet : public Class
 {
 protected:
@@ -87,7 +105,6 @@ protected:
 
 public:
     ActorEnemySet();
-    virtual ~ActorEnemySet();
 
     ActorEnemy *AddPotentialEnemy(Sentient *pEnemy);
     void        FlagBadEnemy(Sentient *pEnemy);
@@ -105,11 +122,31 @@ public:
     void Archive(Archiver& arc) override;
 };
 
+inline Sentient *ActorEnemySet::GetCurrentEnemy(void) const
+{
+    return m_pCurrentEnemy;
+}
+
+inline float ActorEnemySet::GetCurrentVisibility(void) const
+{
+    return m_fCurrentVisibility;
+}
+
+inline int ActorEnemySet::GetCurrentThreat(void) const
+{
+    return m_iCurrentThreat;
+}
+
+inline qboolean ActorEnemySet::IsEnemyConfirmed(void) const
+{
+    return m_fCurrentVisibility > 0.999f;
+}
+
 inline void ActorEnemySet::Archive(Archiver& arc)
 {
     Class::Archive(arc);
 
-    m_Enemies.Archive(arc, ArchiveClass<ActorEnemy>);
+    m_Enemies.Archive(arc);
     arc.ArchiveInteger(&m_iCheckCount);
     arc.ArchiveSafePointer(&m_pCurrentEnemy);
     arc.ArchiveFloat(&m_fCurrentVisibility);

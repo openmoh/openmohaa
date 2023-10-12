@@ -27,15 +27,65 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "sentient.h"
 #include "actor.h"
 
-ActorEnemy::ActorEnemy()
+float ActorEnemy::UpdateLMRF(Actor *pSelf, bool *pbInFovAndRange, bool *pbVisible)
 {
-    m_pEnemy        = NULL;
-    m_vLastKnownPos = vec_zero;
-}
+    //FIXME: variable names, I did my best
+    Vector vDelta;
+    float  fFarPlane, fLMRF, /*fMinSightTime,*/ fFovScale, fForward, /*fNormalizedRange,*/ fRangeScale,
+        fRange /*, fMaxRange*/;
+    float fTmp1, fTmp2, fTmp3;
 
-ActorEnemy::~ActorEnemy()
-{
-    //no need
+    *pbInFovAndRange = false;
+    *pbVisible       = false;
+
+    vDelta = pSelf->EyePosition() - GetEnemy()->origin;
+
+    fFarPlane = world->farplane_distance;
+
+    fRange = pSelf->m_fSight;
+
+    if (fFarPlane > 0) {
+        fRange = fFarPlane * 0.828;
+        if (pSelf->m_fSight <= fRange) {
+            fRange = pSelf->m_fSight;
+        }
+    }
+
+    if (vDelta.lengthXYSquared() > Square(fRange)) {
+        return 8.0;
+    }
+
+    fForward = vDelta.lengthXY();
+
+    if (-DotProduct2D(vDelta, pSelf->m_vEyeDir) < 0) {
+        return 8.0;
+    }
+
+    fTmp2 = 128.0 - DotProduct2D(vDelta, pSelf->m_vEyeDir);
+
+    if (fForward * pSelf->m_fFovDot > fTmp2) {
+        return 8.0;
+    }
+
+    *pbInFovAndRange = true;
+
+    if (!pSelf->CanSee(m_pEnemy, 0, 0, false)) {
+        return 8.0;
+    }
+
+    *pbVisible  = true;
+    fTmp1       = fForward + 128.0;
+    *pbVisible  = true;
+    fTmp3       = fTmp1 / fTmp2;
+    fRangeScale = fForward / fRange
+                * (((fForward / fRange * 16.0 + -16.0) * (fForward / fRange) + -1.0) * (fForward / fRange) + 7.0) / 3.0
+                * GetEnemy()->stealthMovementScale;
+    fFovScale = (1 / fTmp3 * -1.3 - (pSelf->m_fFovDot * 0.2 - 1.5)) / (1.0 - pSelf->m_fFovDot);
+    fLMRF     = g_ai_noticescale->value * pSelf->m_fNoticeTimeScale * (fTmp3 * fRangeScale + fTmp3 * fRangeScale);
+    if (fFovScale > fLMRF) {
+        fLMRF = fFovScale;
+    }
+    return fLMRF;
 }
 
 float ActorEnemy::UpdateVisibility(Actor *pSelf, bool *pbInFovAndRange, bool *pbVisible)
@@ -190,102 +240,13 @@ int ActorEnemy::UpdateThreat(Actor *pSelf)
     return m_iThreat;
 }
 
-Sentient *ActorEnemy::GetEnemy(void) const
-{
-    return m_pEnemy;
-}
-
-float ActorEnemy::GetVisibility(void) const
-{
-    return m_fVisibility;
-}
-
-int ActorEnemy::GetThreat(void) const
-{
-    return m_iThreat;
-}
-
-float ActorEnemy::GetRangeSquared(void) const
-{
-    return m_fCurrentRangeSquared;
-}
-
-float ActorEnemy::UpdateLMRF(Actor *pSelf, bool *pbInFovAndRange, bool *pbVisible)
-{
-    //FIXME: variable names, I did my best
-    Vector vDelta;
-    float  fFarPlane, fLMRF, /*fMinSightTime,*/ fFovScale, fForward, /*fNormalizedRange,*/ fRangeScale,
-        fRange /*, fMaxRange*/;
-    float fTmp1, fTmp2, fTmp3;
-
-    *pbInFovAndRange = false;
-    *pbVisible       = false;
-
-    vDelta = pSelf->EyePosition() - GetEnemy()->origin;
-
-    fFarPlane = world->farplane_distance;
-
-    fRange = pSelf->m_fSight;
-
-    if (fFarPlane > 0) {
-        fRange = fFarPlane * 0.828;
-        if (pSelf->m_fSight <= fRange) {
-            fRange = pSelf->m_fSight;
-        }
-    }
-
-    if (vDelta.lengthXYSquared() > Square(fRange)) {
-        return 8.0;
-    }
-
-    fForward = vDelta.lengthXY();
-
-    if (-DotProduct2D(vDelta, pSelf->m_vEyeDir) < 0) {
-        return 8.0;
-    }
-
-    fTmp2 = 128.0 - DotProduct2D(vDelta, pSelf->m_vEyeDir);
-
-    if (fForward * pSelf->m_fFovDot > fTmp2) {
-        return 8.0;
-    }
-
-    *pbInFovAndRange = true;
-
-    if (!pSelf->CanSee(m_pEnemy, 0, 0, false)) {
-        return 8.0;
-    }
-
-    *pbVisible  = true;
-    fTmp1       = fForward + 128.0;
-    *pbVisible  = true;
-    fTmp3       = fTmp1 / fTmp2;
-    fRangeScale = fForward / fRange
-                * (((fForward / fRange * 16.0 + -16.0) * (fForward / fRange) + -1.0) * (fForward / fRange) + 7.0) / 3.0
-                * GetEnemy()->stealthMovementScale;
-    fFovScale = (1 / fTmp3 * -1.3 - (pSelf->m_fFovDot * 0.2 - 1.5)) / (1.0 - pSelf->m_fFovDot);
-    fLMRF     = g_ai_noticescale->value * pSelf->m_fNoticeTimeScale * (fTmp3 * fRangeScale + fTmp3 * fRangeScale);
-    if (fFovScale > fLMRF) {
-        fLMRF = fFovScale;
-    }
-    return fLMRF;
-}
-
 ActorEnemySet::ActorEnemySet()
 {
-    m_pCurrentEnemy = NULL;
-    m_iCheckCount   = 0;
-
-    if (m_pCurrentEnemy) {
-        //delete m_pCurrentEnemy;
-        m_pCurrentEnemy = NULL;
-    }
-
+    m_iCheckCount        = 0;
+    m_pCurrentEnemy      = NULL;
     m_iCurrentThreat     = 0;
     m_fCurrentVisibility = 0.0;
 }
-
-ActorEnemySet::~ActorEnemySet() {}
 
 ActorEnemy *ActorEnemySet::AddPotentialEnemy(Sentient *pEnemy)
 {
@@ -463,27 +424,6 @@ void ActorEnemySet::CheckEnemies(Actor *pSelf)
             m_fCurrentVisibility = 0.0;
         }
     }
-}
-
-Sentient *ActorEnemySet::GetCurrentEnemy(void) const
-{
-    return m_pCurrentEnemy;
-}
-
-float ActorEnemySet::GetCurrentVisibility(void) const
-{
-    return m_fCurrentVisibility;
-}
-
-int ActorEnemySet::GetCurrentThreat(void) const
-{
-    return m_iCurrentThreat;
-}
-
-qboolean ActorEnemySet::IsEnemyConfirmed(void) const
-{
-    // not found in ida
-    return false;
 }
 
 bool ActorEnemySet::HasAlternateEnemy(void) const
