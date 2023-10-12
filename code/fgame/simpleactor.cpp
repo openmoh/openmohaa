@@ -122,114 +122,6 @@ SimpleActor::~SimpleActor()
     }
 }
 
-void SimpleActor::Archive(Archiver& arc)
-{
-    Sentient::Archive(arc);
-
-    arc.ArchiveInteger(&m_eAnimMode);
-    m_Anim.Archive(arc);
-
-    arc.ArchiveBool(&m_bHasDesiredLookDest);
-    arc.ArchiveBool(&m_bHasDesiredLookAngles);
-    arc.ArchiveVector(&m_vDesiredLookDest);
-    arc.ArchiveVec3(m_DesiredLookAngles);
-    arc.ArchiveVec3(m_DesiredGunDir);
-
-    m_Path.Archive(arc);
-    arc.ArchiveVec3(m_Dest);
-    arc.ArchiveVec3(m_NoClipDest);
-
-    arc.ArchiveFloat(&path_failed_time);
-    arc.ArchiveFloat(&m_fPathGoalTime);
-    arc.ArchiveBool(&m_bStartPathGoalEndAnim);
-    Director.ArchiveString(arc, m_csPathGoalEndAnimScript);
-
-    arc.ArchiveInteger(&m_eNextAnimMode);
-    Director.ArchiveString(arc, m_csNextAnimString);
-    m_NextAnimLabel.Archive(arc);
-    arc.ArchiveBool(&m_bNextForceStart);
-
-    arc.ArchiveBoolean(&m_walking);
-    arc.ArchiveBoolean(&m_groundPlane);
-    arc.ArchiveVec3(m_groundPlaneNormal);
-
-    arc.ArchiveVector(&watch_offset);
-    arc.ArchiveBool(&m_bThink);
-    arc.ArchiveInteger(&m_PainTime);
-
-    arc.ArchiveBool(&m_bAimAnimSet);
-    arc.ArchiveBool(&m_bActionAnimSet);
-
-    Director.ArchiveString(arc, m_csMood);
-    Director.ArchiveString(arc, m_csIdleMood);
-
-    ArchiveEnum(m_eEmotionMode, eEmotionMode);
-
-    arc.ArchiveFloat(&m_fAimLimit_up);
-    arc.ArchiveFloat(&m_fAimLimit_down);
-
-    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
-        arc.ArchiveUnsigned(&m_weightType[i]);
-    }
-
-    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
-        arc.ArchiveFloat(&m_weightBase[i]);
-    }
-
-    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
-        arc.ArchiveFloat(&m_weightCrossBlend[i]);
-    }
-
-    arc.ArchiveBool(&m_AnimMotionHigh);
-    arc.ArchiveBool(&m_AnimActionHigh);
-    arc.ArchiveBool(&m_AnimDialogHigh);
-
-    arc.ArchiveVec2(obstacle_vel);
-
-    Director.ArchiveString(arc, m_csCurrentPosition);
-
-    arc.ArchiveBool(&m_bMotionAnimSet);
-    arc.ArchiveBool(&m_bDoAI);
-
-    arc.ArchiveFloat(&m_fCrossblendTime);
-
-    arc.ArchiveSafePointer(&m_pAnimThread);
-
-    arc.ArchiveBool(&m_YawAchieved);
-    arc.ArchiveFloat(&m_DesiredYaw);
-
-    arc.ArchiveInteger(&m_iVoiceTime);
-    arc.ArchiveBool(&m_bSayAnimSet);
-
-    arc.ArchiveInteger(&hit_obstacle_time);
-
-    Director.ArchiveString(arc, m_csAnimName);
-
-    arc.ArchiveInteger(&m_bPathErrorTime);
-    arc.ArchiveInteger(&m_iMotionSlot);
-    arc.ArchiveInteger(&m_iActionSlot);
-    arc.ArchiveInteger(&m_iSaySlot);
-
-    arc.ArchiveBool(&m_bLevelMotionAnim);
-    arc.ArchiveBool(&m_bLevelActionAnim);
-    arc.ArchiveByte(&m_bLevelSayAnim);
-    arc.ArchiveByte(&m_bNextLevelSayAnim);
-
-    Director.ArchiveString(arc, m_csSayAnim);
-    Director.ArchiveString(arc, m_csUpperAnim);
-
-    m_PainHandler.Archive(arc);
-    m_DeathHandler.Archive(arc);
-    m_AttackHandler.Archive(arc);
-    m_SniperHandler.Archive(arc);
-
-    arc.ArchiveObjectPointer((Class **)&m_NearestNode);
-    arc.ArchiveVector(&m_vNearestNodePos);
-
-    arc.ArchiveFloat(&m_fCrouchWeight);
-    arc.ArchiveFloat(&m_maxspeed);
-}
-
 void SimpleActor::SetMoveInfo(mmove_t *)
 {
     OVERLOADED_ERROR();
@@ -240,28 +132,9 @@ void SimpleActor::GetMoveInfo(mmove_t *)
     OVERLOADED_ERROR();
 }
 
-void SimpleActor::StopAnimating(int slot)
+bool SimpleActor::CanSeeFrom(vec3_t pos, Entity *ent)
 {
-    int index = 0;
-
-    m_weightType[slot] = 0;
-    DoExitCommands(slot);
-
-    if (edict->s.frameInfo[slot].index || gi.TIKI_NumAnims(edict->tiki) <= 1) {
-        edict->s.frameInfo[slot].index = 0;
-    } else {
-        edict->s.frameInfo[slot].index = 1;
-    }
-
-    animFlags[slot]                 = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT | ANIM_PAUSED;
-    edict->s.frameInfo[slot].weight = 0;
-    animtimes[slot]                 = 0;
-    animFlags[slot]                 = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
-}
-
-void SimpleActor::AnimFinished(int slot)
-{
-    assert(!DumpCallTrace(""));
+    return false;
 }
 
 bool SimpleActor::CanTarget(void)
@@ -564,6 +437,21 @@ void SimpleActor::ShortenPathToAvoidSquadMates(void)
     }
 }
 
+Vector SimpleActor::PathGoal(void) const
+{
+    return LastPathNode()->point;
+}
+
+bool SimpleActor::PathGoalSlowdownStarted(void) const
+{
+    return m_fPathGoalTime >= level.time;
+}
+
+float *SimpleActor::PathDelta(void) const
+{
+    return m_Path.CurrentDelta();
+}
+
 PathInfo *SimpleActor::CurrentPathNode(void) const
 {
     return m_Path.CurrentNode();
@@ -582,53 +470,6 @@ float SimpleActor::PathDist(void) const
 bool SimpleActor::PathHasCompleteLookahead(void) const
 {
     return m_Path.HasCompleteLookahead();
-}
-
-Vector SimpleActor::PathGoal(void) const
-{
-    return LastPathNode()->point;
-}
-
-float *SimpleActor::PathDelta(void) const
-{
-    return m_Path.CurrentDelta();
-}
-
-bool SimpleActor::PathGoalSlowdownStarted(void) const
-{
-    return m_fPathGoalTime >= level.time;
-}
-
-void SimpleActor::SetDest(vec3_t dest)
-{
-    VectorCopy(dest, m_Dest);
-}
-
-void SimpleActor::StopTurning(void)
-{
-    m_YawAchieved = true;
-}
-
-void SimpleActor::SetDesiredYaw(float yaw)
-{
-    m_YawAchieved = false;
-    m_DesiredYaw  = yaw;
-}
-
-void SimpleActor::SetDesiredYawDir(vec3_t vec)
-{
-    m_YawAchieved = false;
-    m_DesiredYaw  = vectoyaw(vec);
-}
-
-void SimpleActor::SetDesiredYawDest(vec3_t vec)
-{
-    float facedir[2];
-    VectorSub2D(vec, origin, facedir);
-    if (facedir[0] == 0 || facedir[1] == 0) {
-        m_YawAchieved = false;
-        m_DesiredYaw  = vectoyaw(vec);
-    }
 }
 
 void SimpleActor::UpdateEmotion(void)
@@ -650,88 +491,38 @@ void SimpleActor::UpdateEmotion(void)
     }
 }
 
-int SimpleActor::GetEmotionAnim(void)
-{
-    const char *emotionanim = NULL;
-    int         anim;
-
-    if (m_eEmotionMode) {
-        switch (m_eEmotionMode) {
-        case EMOTION_NEUTRAL:
-        case EMOTION_AIMING:
-            emotionanim = "facial_idle_neutral";
-            break;
-        case EMOTION_WORRY:
-            emotionanim = "facial_idle_worry";
-            break;
-        case EMOTION_PANIC:
-            emotionanim = "facial_idle_panic";
-            break;
-        case EMOTION_FEAR:
-            emotionanim = "facial_idle_fear";
-            break;
-        case EMOTION_DISGUST:
-            emotionanim = "facial_idle_disgust";
-            break;
-        case EMOTION_ANGER:
-            emotionanim = "facial_idle_anger";
-            break;
-        case EMOTION_DETERMINED:
-        case EMOTION_CURIOUS:
-            emotionanim = "facial_idle_determined";
-            break;
-        case EMOTION_DEAD:
-            emotionanim = "facial_idle_dead";
-            break;
-        default:
-
-            char assertStr[16317] = {0};
-            strcpy(assertStr, "\"Unknown value for m_EmotionMode in SimpleActor::GetEmotionAnim\"\n\tMessage: ");
-            Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
-            assert(!assertStr);
-            return -1;
-            break;
-        }
-    } else {
-        if (m_csMood == STRING_NERVOUS) {
-            emotionanim = "facial_idle_determined";
-        } else if (m_csMood <= STRING_NERVOUS) {
-            if (m_csMood != STRING_BORED) {
-                assert(!"Unknown value for m_csMood");
-                return -1;
-            } else {
-                emotionanim = "facial_idle_neutral";
-            }
-
-        } else if (m_csMood == STRING_CURIOUS) {
-            emotionanim = "facial_idle_determined";
-        } else if (m_csMood != STRING_ALERT) {
-            assert(!"Unknown value for m_csMood");
-            return -1;
-        } else {
-        }
-    }
-
-    if (emotionanim == NULL) {
-        emotionanim = "facial_idle_anger";
-        //assert(!"Unexpected behaviour in SimpleActor::GetEmotionAnim");
-    }
-
-    anim = gi.Anim_NumForName(edict->tiki, emotionanim);
-    if (anim == -1) {
-        Com_Printf(
-            "^~^~^ SimpleActor::GetEmotionAnim: unknown animation '%s' in '%s'\n", emotionanim, edict->tiki->a->name
-        );
-    }
-    return anim;
-}
-
 int SimpleActor::GetMotionSlot(int slot)
 {
     if (m_AnimMotionHigh) {
         return slot + 3;
     } else {
         return slot;
+    }
+}
+
+void SimpleActor::ChangeMotionAnim(void)
+{
+    //int lastMotionSlot;
+    //int firstMotionSlot;
+    int iSlot;
+    int i;
+
+    m_bMotionAnimSet   = false;
+    m_iMotionSlot      = -1;
+    m_bLevelMotionAnim = false;
+
+    if (m_ChangeMotionAnimIndex != level.frame_skel_index) {
+        m_ChangeMotionAnimIndex = level.frame_skel_index;
+
+        MPrintf("Swapping motion channels....\n");
+        for (iSlot = GetMotionSlot(0), i = 0; i < 3; i++, iSlot++) {
+            StartCrossBlendAnimSlot(iSlot);
+        }
+        m_AnimDialogHigh = !m_AnimDialogHigh;
+    }
+
+    for (iSlot = GetMotionSlot(0), i = 0; i < 3; i++, iSlot++) {
+        StopAnimating(iSlot);
     }
 }
 
@@ -744,9 +535,132 @@ int SimpleActor::GetActionSlot(int slot)
     }
 }
 
+void SimpleActor::ChangeActionAnim(void)
+{
+    int iSlot;
+    int i;
+
+    m_bAimAnimSet      = false;
+    m_bActionAnimSet   = false;
+    m_iActionSlot      = -1;
+    m_bLevelActionAnim = false;
+
+    if (m_ChangeActionAnimIndex != level.frame_skel_index) {
+        m_ChangeActionAnimIndex = level.frame_skel_index;
+
+        MPrintf("Swapping action channels....\n");
+
+        iSlot = GetActionSlot(0);
+        for (i = iSlot; i < iSlot + 3; i++) {
+            animFlags[i] |= ANIM_NOACTION;
+            StartCrossBlendAnimSlot(i);
+        }
+        m_AnimDialogHigh = !m_AnimDialogHigh; // toggle
+    }
+
+    iSlot = GetActionSlot(0);
+    for (i = iSlot; i < iSlot + 3; i++) {
+        StopAnimating(iSlot);
+    }
+}
+
 int SimpleActor::GetSaySlot(void)
 {
     return m_AnimDialogHigh ? 13 : 12;
+}
+
+void SimpleActor::ChangeSayAnim(void)
+{
+    int iSlot;
+
+    m_bSayAnimSet   = false;
+    m_bLevelSayAnim = 0;
+    m_iVoiceTime    = level.inttime;
+    m_iSaySlot      = -1;
+
+    if (m_ChangeSayAnimIndex != level.frame_skel_index) {
+        m_ChangeSayAnimIndex = level.frame_skel_index;
+
+        MPrintf("Swapping dialog channel....\n");
+
+        iSlot = GetSaySlot();
+        StartCrossBlendAnimSlot(iSlot);
+
+        m_AnimDialogHigh = !m_AnimDialogHigh; // toggle
+    }
+
+    iSlot = GetSaySlot();
+    StopAnimating(iSlot);
+}
+
+void SimpleActor::StopAnimating(int slot)
+{
+    int index = 0;
+
+    m_weightType[slot] = 0;
+    DoExitCommands(slot);
+
+    if (edict->s.frameInfo[slot].index || gi.TIKI_NumAnims(edict->tiki) <= 1) {
+        edict->s.frameInfo[slot].index = 0;
+    } else {
+        edict->s.frameInfo[slot].index = 1;
+    }
+
+    animFlags[slot]                 = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT | ANIM_PAUSED;
+    edict->s.frameInfo[slot].weight = 0;
+    animtimes[slot]                 = 0;
+    animFlags[slot]                 = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
+}
+
+void SimpleActor::EventSetAnimLength(Event *ev)
+{
+    int   slot;
+    float length;
+
+    if (ev->NumArgs() != 1) {
+        ScriptError("bad number of arguments");
+    }
+
+    length = ev->GetFloat(1);
+
+    if (length <= 0) {
+        ScriptError("Positive lengths only allowed");
+    }
+
+    if (m_bMotionAnimSet) {
+        ScriptError("Must set anim before length");
+    }
+
+    slot = GetMotionSlot(0);
+
+    if (animFlags[slot] & ANIM_LOOP) {
+        gi.Anim_Frametime(edict->tiki, edict->s.frameInfo[slot].index);
+
+        animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
+
+        animtimes[slot] = Square(gi.Anim_NumFrames(edict->tiki, edict->s.frameInfo[slot].index) - 1);
+
+        SetOnceType(slot);
+    }
+
+    SetSyncTime(0);
+
+    if (length > animtimes[slot]) {
+        ScriptError("cannot lengthen animation which has length %f", animtimes[slot]);
+    }
+
+    animtimes[slot] = length;
+    animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
+}
+
+void SimpleActor::EventSetCrossblendTime(Event *ev)
+{
+    m_fCrossblendTime = ev->GetFloat(1);
+}
+
+void SimpleActor::EventGetCrossblendTime(Event *ev)
+{
+    ev->AddFloat(m_fCrossblendTime);
 }
 
 void SimpleActor::StartCrossBlendAnimSlot(int slot)
@@ -854,47 +768,6 @@ void SimpleActor::SetBlendedWeight(int slot)
     }
 }
 
-void SimpleActor::EventSetAnimLength(Event *ev)
-{
-    int   slot;
-    float length;
-
-    if (ev->NumArgs() != 1) {
-        ScriptError("bad number of arguments");
-    }
-
-    length = ev->GetFloat(1);
-
-    if (length <= 0) {
-        ScriptError("Positive lengths only allowed");
-    }
-
-    if (m_bMotionAnimSet) {
-        ScriptError("Must set anim before length");
-    }
-
-    slot = GetMotionSlot(0);
-
-    if (animFlags[slot] & ANIM_LOOP) {
-        gi.Anim_Frametime(edict->tiki, edict->s.frameInfo[slot].index);
-
-        animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
-
-        animtimes[slot] = Square(gi.Anim_NumFrames(edict->tiki, edict->s.frameInfo[slot].index) - 1);
-
-        SetOnceType(slot);
-    }
-
-    SetSyncTime(0);
-
-    if (length > animtimes[slot]) {
-        ScriptError("cannot lengthen animation which has length %f", animtimes[slot]);
-    }
-
-    animtimes[slot] = length;
-    animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
-}
-
 void SimpleActor::UpdateNormalAnimSlot(int slot)
 {
     m_weightCrossBlend[slot] += m_fCrossblendTime == 0.0 ? 1.0 : level.frametime / m_fCrossblendTime;
@@ -977,85 +850,6 @@ void SimpleActor::StopAllAnimating(void)
     }
 }
 
-void SimpleActor::ChangeMotionAnim(void)
-{
-    //int lastMotionSlot;
-    //int firstMotionSlot;
-    int iSlot;
-    int i;
-
-    m_bMotionAnimSet   = false;
-    m_iMotionSlot      = -1;
-    m_bLevelMotionAnim = false;
-
-    if (m_ChangeMotionAnimIndex != level.frame_skel_index) {
-        m_ChangeMotionAnimIndex = level.frame_skel_index;
-
-        MPrintf("Swapping motion channels....\n");
-        for (iSlot = GetMotionSlot(0), i = 0; i < 3; i++, iSlot++) {
-            StartCrossBlendAnimSlot(iSlot);
-        }
-        m_AnimDialogHigh = !m_AnimDialogHigh;
-    }
-
-    for (iSlot = GetMotionSlot(0), i = 0; i < 3; i++, iSlot++) {
-        StopAnimating(iSlot);
-    }
-}
-
-void SimpleActor::ChangeActionAnim(void)
-{
-    int iSlot;
-    int i;
-
-    m_bAimAnimSet      = false;
-    m_bActionAnimSet   = false;
-    m_iActionSlot      = -1;
-    m_bLevelActionAnim = false;
-
-    if (m_ChangeActionAnimIndex != level.frame_skel_index) {
-        m_ChangeActionAnimIndex = level.frame_skel_index;
-
-        MPrintf("Swapping action channels....\n");
-
-        iSlot = GetActionSlot(0);
-        for (i = iSlot; i < iSlot + 3; i++) {
-            animFlags[i] |= ANIM_NOACTION;
-            StartCrossBlendAnimSlot(i);
-        }
-        m_AnimDialogHigh = !m_AnimDialogHigh; // toggle
-    }
-
-    iSlot = GetActionSlot(0);
-    for (i = iSlot; i < iSlot + 3; i++) {
-        StopAnimating(iSlot);
-    }
-}
-
-void SimpleActor::ChangeSayAnim(void)
-{
-    int iSlot;
-
-    m_bSayAnimSet   = false;
-    m_bLevelSayAnim = 0;
-    m_iVoiceTime    = level.inttime;
-    m_iSaySlot      = -1;
-
-    if (m_ChangeSayAnimIndex != level.frame_skel_index) {
-        m_ChangeSayAnimIndex = level.frame_skel_index;
-
-        MPrintf("Swapping dialog channel....\n");
-
-        iSlot = GetSaySlot();
-        StartCrossBlendAnimSlot(iSlot);
-
-        m_AnimDialogHigh = !m_AnimDialogHigh; // toggle
-    }
-
-    iSlot = GetSaySlot();
-    StopAnimating(iSlot);
-}
-
 void SimpleActor::UpdateAim(void)
 {
     float dir;
@@ -1112,29 +906,137 @@ void SimpleActor::UpdateAimMotion(void)
     }
 }
 
-void SimpleActor::EventAIOn(Event *ev)
+void SimpleActor::EventGetPosition(Event *ev)
 {
-    m_bDoAI = true;
+    ev->AddConstString(m_csCurrentPosition);
 }
 
-void SimpleActor::EventAIOff(Event *ev)
+void SimpleActor::EventSetPosition(Event *ev)
 {
-    m_bDoAI = false;
+    m_csCurrentPosition = ev->GetConstString(1);
 }
 
-void SimpleActor::EventGetWeaponGroup(Event *ev)
+void SimpleActor::EventSetEmotion(Event *ev)
 {
-    const_str csWeaponGroup;
-    Weapon   *weapon = GetActiveWeapon(WEAPON_MAIN);
-    if (!weapon) {
-        csWeaponGroup = STRING_UNARMED;
+    switch (ev->GetConstString(1)) {
+    case STRING_EMOTION_NONE:
+        Anim_Emotion(EMOTION_NONE);
+        break;
+    case STRING_EMOTION_NEUTRAL:
+        Anim_Emotion(EMOTION_NEUTRAL);
+        break;
+    case STRING_EMOTION_WORRY:
+        Anim_Emotion(EMOTION_WORRY);
+        break;
+    case STRING_EMOTION_PANIC:
+        Anim_Emotion(EMOTION_PANIC);
+        break;
+    case STRING_EMOTION_FEAR:
+        Anim_Emotion(EMOTION_FEAR);
+        break;
+    case STRING_EMOTION_DISGUST:
+        Anim_Emotion(EMOTION_DISGUST);
+        break;
+    case STRING_EMOTION_ANGER:
+        Anim_Emotion(EMOTION_ANGER);
+        break;
+    case STRING_EMOTION_AIMING:
+        Anim_Emotion(EMOTION_AIMING);
+        break;
+    case STRING_EMOTION_DETERMINED:
+        Anim_Emotion(EMOTION_DETERMINED);
+        break;
+    case STRING_EMOTION_DEAD:
+        Anim_Emotion(EMOTION_DEAD);
+        break;
+    case STRING_EMOTION_CURIOUS:
+        Anim_Emotion(EMOTION_CURIOUS);
+        break;
+    default:
+        assert(!"Unknown emotion mode specified in script.");
+        break;
+    }
+}
+
+int SimpleActor::GetEmotionAnim(void)
+{
+    const char *emotionanim = NULL;
+    int         anim;
+
+    if (m_eEmotionMode) {
+        switch (m_eEmotionMode) {
+        case EMOTION_NEUTRAL:
+        case EMOTION_AIMING:
+            emotionanim = "facial_idle_neutral";
+            break;
+        case EMOTION_WORRY:
+            emotionanim = "facial_idle_worry";
+            break;
+        case EMOTION_PANIC:
+            emotionanim = "facial_idle_panic";
+            break;
+        case EMOTION_FEAR:
+            emotionanim = "facial_idle_fear";
+            break;
+        case EMOTION_DISGUST:
+            emotionanim = "facial_idle_disgust";
+            break;
+        case EMOTION_ANGER:
+            emotionanim = "facial_idle_anger";
+            break;
+        case EMOTION_DETERMINED:
+        case EMOTION_CURIOUS:
+            emotionanim = "facial_idle_determined";
+            break;
+        case EMOTION_DEAD:
+            emotionanim = "facial_idle_dead";
+            break;
+        default:
+
+            char assertStr[16317] = {0};
+            strcpy(assertStr, "\"Unknown value for m_EmotionMode in SimpleActor::GetEmotionAnim\"\n\tMessage: ");
+            Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
+            assert(!assertStr);
+            return -1;
+            break;
+        }
     } else {
-        csWeaponGroup = weapon->GetWeaponGroup();
-        if (csWeaponGroup == STRING_EMPTY) {
-            csWeaponGroup = STRING_UNARMED;
+        if (m_csMood == STRING_NERVOUS) {
+            emotionanim = "facial_idle_determined";
+        } else if (m_csMood <= STRING_NERVOUS) {
+            if (m_csMood != STRING_BORED) {
+                assert(!"Unknown value for m_csMood");
+                return -1;
+            } else {
+                emotionanim = "facial_idle_neutral";
+            }
+
+        } else if (m_csMood == STRING_CURIOUS) {
+            emotionanim = "facial_idle_determined";
+        } else if (m_csMood != STRING_ALERT) {
+            assert(!"Unknown value for m_csMood");
+            return -1;
+        } else {
         }
     }
-    ev->AddConstString(csWeaponGroup);
+
+    if (emotionanim == NULL) {
+        emotionanim = "facial_idle_anger";
+        //assert(!"Unexpected behaviour in SimpleActor::GetEmotionAnim");
+    }
+
+    anim = gi.Anim_NumForName(edict->tiki, emotionanim);
+    if (anim == -1) {
+        Com_Printf(
+            "^~^~^ SimpleActor::GetEmotionAnim: unknown animation '%s' in '%s'\n", emotionanim, edict->tiki->a->name
+        );
+    }
+    return anim;
+}
+
+void SimpleActor::EventSetAnimFinal(Event *ev)
+{
+    ScriptError("animfinal is obsolete");
 }
 
 void SimpleActor::EventGetWeaponType(Event *ev)
@@ -1192,6 +1094,36 @@ void SimpleActor::EventGetWeaponType(Event *ev)
     }
 
     ev->AddConstString(csWeaponType);
+}
+
+void SimpleActor::EventGetWeaponGroup(Event *ev)
+{
+    const_str csWeaponGroup;
+    Weapon   *weapon = GetActiveWeapon(WEAPON_MAIN);
+    if (!weapon) {
+        csWeaponGroup = STRING_UNARMED;
+    } else {
+        csWeaponGroup = weapon->GetWeaponGroup();
+        if (csWeaponGroup == STRING_EMPTY) {
+            csWeaponGroup = STRING_UNARMED;
+        }
+    }
+    ev->AddConstString(csWeaponGroup);
+}
+
+void SimpleActor::EventAIOn(Event *ev)
+{
+    m_bDoAI = true;
+}
+
+void SimpleActor::EventAIOff(Event *ev)
+{
+    m_bDoAI = false;
+}
+
+void SimpleActor::AnimFinished(int slot)
+{
+    assert(!DumpCallTrace(""));
 }
 
 void SimpleActor::EventGetPainHandler(Event *ev)
@@ -1255,171 +1187,6 @@ void SimpleActor::EventSetAttackHandler(Event *ev)
         str varString = ev->GetString(1);
         m_AttackHandler.SetScript(varString);
     }
-}
-
-void SimpleActor::EventGetSniperHandler(Event *ev)
-{
-    ScriptVariable var;
-
-    m_SniperHandler.GetScriptValue(&var);
-
-    ev->AddValue(var);
-}
-
-void SimpleActor::EventSetSniperHandler(Event *ev)
-{
-    if (ev->IsFromScript()) {
-        ScriptVariable var = ev->GetValue(1);
-
-        m_SniperHandler.SetScript(var);
-    } else {
-        str varString = ev->GetString(1);
-        m_SniperHandler.SetScript(varString);
-    }
-}
-
-void SimpleActor::EventSetCrossblendTime(Event *ev)
-{
-    m_fCrossblendTime = ev->GetFloat(1);
-}
-
-void SimpleActor::EventGetCrossblendTime(Event *ev)
-{
-    ev->AddFloat(m_fCrossblendTime);
-}
-
-void SimpleActor::EventSetEmotion(Event *ev)
-{
-    switch (ev->GetConstString(1)) {
-    case STRING_EMOTION_NONE:
-        Anim_Emotion(EMOTION_NONE);
-        break;
-    case STRING_EMOTION_NEUTRAL:
-        Anim_Emotion(EMOTION_NEUTRAL);
-        break;
-    case STRING_EMOTION_WORRY:
-        Anim_Emotion(EMOTION_WORRY);
-        break;
-    case STRING_EMOTION_PANIC:
-        Anim_Emotion(EMOTION_PANIC);
-        break;
-    case STRING_EMOTION_FEAR:
-        Anim_Emotion(EMOTION_FEAR);
-        break;
-    case STRING_EMOTION_DISGUST:
-        Anim_Emotion(EMOTION_DISGUST);
-        break;
-    case STRING_EMOTION_ANGER:
-        Anim_Emotion(EMOTION_ANGER);
-        break;
-    case STRING_EMOTION_AIMING:
-        Anim_Emotion(EMOTION_AIMING);
-        break;
-    case STRING_EMOTION_DETERMINED:
-        Anim_Emotion(EMOTION_DETERMINED);
-        break;
-    case STRING_EMOTION_DEAD:
-        Anim_Emotion(EMOTION_DEAD);
-        break;
-    case STRING_EMOTION_CURIOUS:
-        Anim_Emotion(EMOTION_CURIOUS);
-        break;
-    default:
-        assert(!"Unknown emotion mode specified in script.");
-        break;
-    }
-}
-
-void SimpleActor::EventGetPosition(Event *ev)
-{
-    ev->AddConstString(m_csCurrentPosition);
-}
-
-void SimpleActor::EventSetPosition(Event *ev)
-{
-    m_csCurrentPosition = ev->GetConstString(1);
-}
-
-void SimpleActor::EventGetAnimMode(Event *ev)
-{
-    // not found in ida
-}
-
-void SimpleActor::EventSetAnimMode(Event *ev)
-{
-    // not found in ida
-}
-
-void SimpleActor::EventSetAnimFinal(Event *ev)
-{
-    ScriptError("animfinal is obsolete");
-}
-
-void SimpleActor::DesiredAnimation(int eAnimMode, const_str csAnimString)
-{
-    //fixme: this is an inline function.
-    m_eNextAnimMode    = eAnimMode;
-    m_csNextAnimString = csAnimString;
-    m_bNextForceStart  = false;
-}
-
-void SimpleActor::StartAnimation(int eAnimMode, const_str csAnimString)
-{
-    //fixme: this is an inline function.
-    m_eNextAnimMode    = eAnimMode;
-    m_csNextAnimString = csAnimString;
-    m_bNextForceStart  = true;
-}
-
-void SimpleActor::DesiredAnimation(int eAnimMode, ScriptThreadLabel AnimLabel)
-{
-    //fixme: this is an inline function.
-    m_eNextAnimMode    = eAnimMode;
-    m_csNextAnimString = STRING_NULL;
-    m_NextAnimLabel    = AnimLabel;
-    m_bNextForceStart  = false;
-}
-
-void SimpleActor::StartAnimation(int eAnimMode, ScriptThreadLabel AnimLabel)
-{
-    //fixme: this is an inline function.
-    m_eNextAnimMode    = eAnimMode;
-    m_csNextAnimString = STRING_NULL;
-    m_NextAnimLabel    = AnimLabel;
-    m_bNextForceStart  = true;
-}
-
-void SimpleActor::ContinueAnimationAllowNoPath(void)
-{
-    if (m_eNextAnimMode < 0) {
-        m_bNextForceStart  = false;
-        m_csNextAnimString = STRING_NULL;
-        m_eNextAnimMode    = m_eAnimMode;
-        m_NextAnimLabel    = m_Anim;
-    }
-}
-
-void SimpleActor::ContinueAnimation(void)
-{
-    int eAnimMode = m_eNextAnimMode;
-    if (eAnimMode < 0) {
-        m_bNextForceStart  = false;
-        m_csNextAnimString = STRING_NULL;
-        m_eNextAnimMode    = m_eAnimMode;
-        m_NextAnimLabel    = m_Anim;
-        eAnimMode          = m_eAnimMode;
-    }
-
-    if (eAnimMode <= 3 && !PathExists()) {
-        //assert(!DumpCallTrace("ContinueAnimation() called on a pathed animation, but no path exists"));
-        Anim_Stand();
-    }
-}
-
-void SimpleActor::SetPathGoalEndAnim(const_str csEndAnim)
-{
-    //fixme: this is an inline function
-    m_csPathGoalEndAnimScript = csEndAnim;
 }
 
 bool SimpleActor::UpdateSelectedAnimation(void)
@@ -1507,4 +1274,242 @@ const char *SimpleActor::DumpCallTrace(const char *pszFmt, ...) const
 {
     OVERLOADED_ERROR();
     return "overloaded version should always get called";
+}
+
+void SimpleActor::Archive(Archiver& arc)
+{
+    Sentient::Archive(arc);
+
+    arc.ArchiveInteger(&m_eAnimMode);
+    m_Anim.Archive(arc);
+
+    arc.ArchiveBool(&m_bHasDesiredLookDest);
+    arc.ArchiveBool(&m_bHasDesiredLookAngles);
+    arc.ArchiveVector(&m_vDesiredLookDest);
+    arc.ArchiveVec3(m_DesiredLookAngles);
+    arc.ArchiveVec3(m_DesiredGunDir);
+
+    m_Path.Archive(arc);
+    arc.ArchiveVec3(m_Dest);
+    arc.ArchiveVec3(m_NoClipDest);
+
+    arc.ArchiveFloat(&path_failed_time);
+    arc.ArchiveFloat(&m_fPathGoalTime);
+    arc.ArchiveBool(&m_bStartPathGoalEndAnim);
+    Director.ArchiveString(arc, m_csPathGoalEndAnimScript);
+
+    arc.ArchiveInteger(&m_eNextAnimMode);
+    Director.ArchiveString(arc, m_csNextAnimString);
+    m_NextAnimLabel.Archive(arc);
+    arc.ArchiveBool(&m_bNextForceStart);
+
+    arc.ArchiveBoolean(&m_walking);
+    arc.ArchiveBoolean(&m_groundPlane);
+    arc.ArchiveVec3(m_groundPlaneNormal);
+
+    arc.ArchiveVector(&watch_offset);
+    arc.ArchiveBool(&m_bThink);
+    arc.ArchiveInteger(&m_PainTime);
+
+    arc.ArchiveBool(&m_bAimAnimSet);
+    arc.ArchiveBool(&m_bActionAnimSet);
+
+    Director.ArchiveString(arc, m_csMood);
+    Director.ArchiveString(arc, m_csIdleMood);
+
+    ArchiveEnum(m_eEmotionMode, eEmotionMode);
+
+    arc.ArchiveFloat(&m_fAimLimit_up);
+    arc.ArchiveFloat(&m_fAimLimit_down);
+
+    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+        arc.ArchiveUnsigned(&m_weightType[i]);
+    }
+
+    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+        arc.ArchiveFloat(&m_weightBase[i]);
+    }
+
+    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+        arc.ArchiveFloat(&m_weightCrossBlend[i]);
+    }
+
+    arc.ArchiveBool(&m_AnimMotionHigh);
+    arc.ArchiveBool(&m_AnimActionHigh);
+    arc.ArchiveBool(&m_AnimDialogHigh);
+
+    arc.ArchiveVec2(obstacle_vel);
+
+    Director.ArchiveString(arc, m_csCurrentPosition);
+
+    arc.ArchiveBool(&m_bMotionAnimSet);
+    arc.ArchiveBool(&m_bDoAI);
+
+    arc.ArchiveFloat(&m_fCrossblendTime);
+
+    arc.ArchiveSafePointer(&m_pAnimThread);
+
+    arc.ArchiveBool(&m_YawAchieved);
+    arc.ArchiveFloat(&m_DesiredYaw);
+
+    arc.ArchiveInteger(&m_iVoiceTime);
+    arc.ArchiveBool(&m_bSayAnimSet);
+
+    arc.ArchiveInteger(&hit_obstacle_time);
+
+    Director.ArchiveString(arc, m_csAnimName);
+
+    arc.ArchiveInteger(&m_bPathErrorTime);
+    arc.ArchiveInteger(&m_iMotionSlot);
+    arc.ArchiveInteger(&m_iActionSlot);
+    arc.ArchiveInteger(&m_iSaySlot);
+
+    arc.ArchiveBool(&m_bLevelMotionAnim);
+    arc.ArchiveBool(&m_bLevelActionAnim);
+    arc.ArchiveByte(&m_bLevelSayAnim);
+    arc.ArchiveByte(&m_bNextLevelSayAnim);
+
+    Director.ArchiveString(arc, m_csSayAnim);
+    Director.ArchiveString(arc, m_csUpperAnim);
+
+    m_PainHandler.Archive(arc);
+    m_DeathHandler.Archive(arc);
+    m_AttackHandler.Archive(arc);
+    m_SniperHandler.Archive(arc);
+
+    arc.ArchiveObjectPointer((Class **)&m_NearestNode);
+    arc.ArchiveVector(&m_vNearestNodePos);
+
+    arc.ArchiveFloat(&m_fCrouchWeight);
+    arc.ArchiveFloat(&m_maxspeed);
+}
+
+void SimpleActor::SetDest(vec3_t dest)
+{
+    VectorCopy(dest, m_Dest);
+}
+
+void SimpleActor::StopTurning(void)
+{
+    m_YawAchieved = true;
+}
+
+void SimpleActor::SetDesiredYaw(float yaw)
+{
+    m_YawAchieved = false;
+    m_DesiredYaw  = yaw;
+}
+
+void SimpleActor::SetDesiredYawDir(vec3_t vec)
+{
+    m_YawAchieved = false;
+    m_DesiredYaw  = vectoyaw(vec);
+}
+
+void SimpleActor::SetDesiredYawDest(vec3_t vec)
+{
+    float facedir[2];
+    VectorSub2D(vec, origin, facedir);
+    if (facedir[0] == 0 || facedir[1] == 0) {
+        m_YawAchieved = false;
+        m_DesiredYaw  = vectoyaw(vec);
+    }
+}
+
+void SimpleActor::EventGetSniperHandler(Event *ev)
+{
+    ScriptVariable var;
+
+    m_SniperHandler.GetScriptValue(&var);
+
+    ev->AddValue(var);
+}
+
+void SimpleActor::EventSetSniperHandler(Event *ev)
+{
+    if (ev->IsFromScript()) {
+        ScriptVariable var = ev->GetValue(1);
+
+        m_SniperHandler.SetScript(var);
+    } else {
+        str varString = ev->GetString(1);
+        m_SniperHandler.SetScript(varString);
+    }
+}
+
+void SimpleActor::EventGetAnimMode(Event *ev)
+{
+    // not found in ida
+}
+
+void SimpleActor::EventSetAnimMode(Event *ev)
+{
+    // not found in ida
+}
+
+void SimpleActor::DesiredAnimation(int eAnimMode, const_str csAnimString)
+{
+    //fixme: this is an inline function.
+    m_eNextAnimMode    = eAnimMode;
+    m_csNextAnimString = csAnimString;
+    m_bNextForceStart  = false;
+}
+
+void SimpleActor::StartAnimation(int eAnimMode, const_str csAnimString)
+{
+    //fixme: this is an inline function.
+    m_eNextAnimMode    = eAnimMode;
+    m_csNextAnimString = csAnimString;
+    m_bNextForceStart  = true;
+}
+
+void SimpleActor::DesiredAnimation(int eAnimMode, ScriptThreadLabel AnimLabel)
+{
+    //fixme: this is an inline function.
+    m_eNextAnimMode    = eAnimMode;
+    m_csNextAnimString = STRING_NULL;
+    m_NextAnimLabel    = AnimLabel;
+    m_bNextForceStart  = false;
+}
+
+void SimpleActor::StartAnimation(int eAnimMode, ScriptThreadLabel AnimLabel)
+{
+    //fixme: this is an inline function.
+    m_eNextAnimMode    = eAnimMode;
+    m_csNextAnimString = STRING_NULL;
+    m_NextAnimLabel    = AnimLabel;
+    m_bNextForceStart  = true;
+}
+
+void SimpleActor::ContinueAnimationAllowNoPath(void)
+{
+    if (m_eNextAnimMode < 0) {
+        m_bNextForceStart  = false;
+        m_csNextAnimString = STRING_NULL;
+        m_eNextAnimMode    = m_eAnimMode;
+        m_NextAnimLabel    = m_Anim;
+    }
+}
+
+void SimpleActor::ContinueAnimation(void)
+{
+    int eAnimMode = m_eNextAnimMode;
+    if (eAnimMode < 0) {
+        m_bNextForceStart  = false;
+        m_csNextAnimString = STRING_NULL;
+        m_eNextAnimMode    = m_eAnimMode;
+        m_NextAnimLabel    = m_Anim;
+        eAnimMode          = m_eAnimMode;
+    }
+
+    if (eAnimMode <= 3 && !PathExists()) {
+        //assert(!DumpCallTrace("ContinueAnimation() called on a pathed animation, but no path exists"));
+        Anim_Stand();
+    }
+}
+
+void SimpleActor::SetPathGoalEndAnim(const_str csEndAnim)
+{
+    //fixme: this is an inline function
+    m_csPathGoalEndAnimScript = csEndAnim;
 }
