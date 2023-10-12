@@ -24,6 +24,121 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
+bool Actor::Cover_IsValid(PathNode *node)
+{
+    if (!node->IsClaimedByOther(this)) {
+        if (node->nodeflags & AI_CONCEALMENT) {
+            return true;
+        } else if (CanSeeFrom(origin + eyeposition, m_Enemy)) {
+            if (!(node->nodeflags & AI_DUCK)) {
+                return false;
+            } else if (CanSeeFrom(origin + eyeposition - Vector(0, 0, 32), m_Enemy)) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    } else {
+        return false;
+    }
+}
+
+bool Actor::Cover_SetPath(PathNode *node)
+{
+    SetPathWithLeash(node, NULL, 0);
+
+    if (!PathExists()) {
+        return false;
+    }
+
+    float     origin_ratio;
+    Vector    enemy_offset;
+    PathInfo *current_node;
+    Vector    enemy_origin;
+    Vector    vDelta;
+    float     fMinDistSquared;
+    float     fPathDist;
+
+    fPathDist       = PathDist();
+    fMinDistSquared = fPathDist * fPathDist;
+    vDelta          = node->origin - origin;
+
+    if (fMinDistSquared >= vDelta.lengthSquared() * 4.0f) {
+        if (fPathDist > 128.0f) {
+            return false;
+        }
+    }
+
+    if (!PathComplete()) {
+        enemy_origin = m_Enemy->origin;
+        vDelta       = enemy_origin - origin;
+
+        if (VectorLength2DSquared(vDelta) * 0.64f > 192 * 192) {
+            origin_ratio = 192 * 192;
+        }
+
+        for (current_node = CurrentPathNode() - 1; current_node >= LastPathNode(); current_node--) {
+            vDelta[0] = origin[0] - current_node->point[0];
+            vDelta[1] = origin[1] - current_node->point[1];
+
+            if (origin_ratio >= VectorLength2DSquared(vDelta)) {
+                return false;
+            }
+
+            float fDot = DotProduct2D(vDelta, current_node->dir);
+            if (fDot < 0.0f && -current_node->dist <= fDot) {
+                if ((vDelta[0] * current_node->dir[0] - vDelta[1] * current_node->dir[1])
+                    * (vDelta[0] * current_node->dir[0] - vDelta[1] * current_node->dir[1])) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+void Actor::Cover_FindCover(bool bCheckAll)
+{
+    if (m_pCoverNode) {
+        if (Cover_IsValid(m_pCoverNode) && Cover_SetPath(m_pCoverNode)) {
+            return;
+        }
+
+        m_pCoverNode->Relinquish();
+        m_pCoverNode = NULL;
+    }
+
+    if (!m_iPotentialCoverCount) {
+        m_iPotentialCoverCount = PathManager.FindPotentialCover(this, origin, m_Enemy, m_pPotentialCoverNode, 16);
+    }
+
+    if (m_iPotentialCoverCount) {
+        PathNode *pNode = NULL;
+
+        while (m_iPotentialCoverCount) {
+            m_iPotentialCoverCount--;
+            pNode                                         = m_pPotentialCoverNode[m_iPotentialCoverCount];
+            m_pPotentialCoverNode[m_iPotentialCoverCount] = NULL;
+
+            if (Cover_IsValid(pNode) && Cover_SetPath(pNode)) {
+                break;
+            }
+
+            if (!bCheckAll) {
+                return;
+            }
+        }
+
+        m_pCoverNode = pNode;
+        m_pCoverNode->Claim(this);
+        memset(m_pPotentialCoverNode, 0, sizeof(m_pPotentialCoverNode));
+        m_iPotentialCoverCount = 0;
+    }
+}
+
 void Actor::InitCover(GlobalFuncs_t *func)
 {
     func->ThinkState                 = &Actor::Think_Cover;
@@ -620,119 +735,4 @@ void Actor::FinishedAnimation_Cover(void)
 void Actor::PathnodeClaimRevoked_Cover(void)
 {
     TransitionState(301, 0);
-}
-
-bool Actor::Cover_IsValid(PathNode *node)
-{
-    if (!node->IsClaimedByOther(this)) {
-        if (node->nodeflags & AI_CONCEALMENT) {
-            return true;
-        } else if (CanSeeFrom(origin + eyeposition, m_Enemy)) {
-            if (!(node->nodeflags & AI_DUCK)) {
-                return false;
-            } else if (CanSeeFrom(origin + eyeposition - Vector(0, 0, 32), m_Enemy)) {
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            return true;
-        }
-    } else {
-        return false;
-    }
-}
-
-bool Actor::Cover_SetPath(PathNode *node)
-{
-    SetPathWithLeash(node, NULL, 0);
-
-    if (!PathExists()) {
-        return false;
-    }
-
-    float     origin_ratio;
-    Vector    enemy_offset;
-    PathInfo *current_node;
-    Vector    enemy_origin;
-    Vector    vDelta;
-    float     fMinDistSquared;
-    float     fPathDist;
-
-    fPathDist       = PathDist();
-    fMinDistSquared = fPathDist * fPathDist;
-    vDelta          = node->origin - origin;
-
-    if (fMinDistSquared >= vDelta.lengthSquared() * 4.0f) {
-        if (fPathDist > 128.0f) {
-            return false;
-        }
-    }
-
-    if (!PathComplete()) {
-        enemy_origin = m_Enemy->origin;
-        vDelta       = enemy_origin - origin;
-
-        if (VectorLength2DSquared(vDelta) * 0.64f > 192 * 192) {
-            origin_ratio = 192 * 192;
-        }
-
-        for (current_node = CurrentPathNode() - 1; current_node >= LastPathNode(); current_node--) {
-            vDelta[0] = origin[0] - current_node->point[0];
-            vDelta[1] = origin[1] - current_node->point[1];
-
-            if (origin_ratio >= VectorLength2DSquared(vDelta)) {
-                return false;
-            }
-
-            float fDot = DotProduct2D(vDelta, current_node->dir);
-            if (fDot < 0.0f && -current_node->dist <= fDot) {
-                if ((vDelta[0] * current_node->dir[0] - vDelta[1] * current_node->dir[1])
-                    * (vDelta[0] * current_node->dir[0] - vDelta[1] * current_node->dir[1])) {
-                    return false;
-                }
-            }
-        }
-    }
-
-    return true;
-}
-
-void Actor::Cover_FindCover(bool bCheckAll)
-{
-    if (m_pCoverNode) {
-        if (Cover_IsValid(m_pCoverNode) && Cover_SetPath(m_pCoverNode)) {
-            return;
-        }
-
-        m_pCoverNode->Relinquish();
-        m_pCoverNode = NULL;
-    }
-
-    if (!m_iPotentialCoverCount) {
-        m_iPotentialCoverCount = PathManager.FindPotentialCover(this, origin, m_Enemy, m_pPotentialCoverNode, 16);
-    }
-
-    if (m_iPotentialCoverCount) {
-        PathNode *pNode = NULL;
-
-        while (m_iPotentialCoverCount) {
-            m_iPotentialCoverCount--;
-            pNode                                         = m_pPotentialCoverNode[m_iPotentialCoverCount];
-            m_pPotentialCoverNode[m_iPotentialCoverCount] = NULL;
-
-            if (Cover_IsValid(pNode) && Cover_SetPath(pNode)) {
-                break;
-            }
-
-            if (!bCheckAll) {
-                return;
-            }
-        }
-
-        m_pCoverNode = pNode;
-        m_pCoverNode->Claim(this);
-        memset(m_pPotentialCoverNode, 0, sizeof(m_pPotentialCoverNode));
-        m_iPotentialCoverCount = 0;
-    }
 }

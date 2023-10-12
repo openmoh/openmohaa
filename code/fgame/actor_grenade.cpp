@@ -25,18 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "actor.h"
 #include "weaputils.h"
 
-void Actor::InitGrenade(GlobalFuncs_t *func)
-{
-    func->ThinkState                 = &Actor::Think_Grenade;
-    func->BeginState                 = &Actor::Begin_Grenade;
-    func->EndState                   = &Actor::End_Grenade;
-    func->ResumeState                = &Actor::Resume_Grenade;
-    func->SuspendState               = &Actor::End_Grenade;
-    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Grenade;
-    func->FinishedAnimation          = &Actor::FinishedAnimation_Grenade;
-    func->IsState                    = &Actor::IsGrenadeState;
-}
-
 bool Actor::Grenade_Acquire(eGrenadeState eNextState, const_str csReturnAnim)
 {
     bool   bRetVal = false;
@@ -87,6 +75,18 @@ bool Actor::Grenade_Acquire(eGrenadeState eNextState, const_str csReturnAnim)
     }
 
     return bRetVal;
+}
+
+void Actor::InitGrenade(GlobalFuncs_t *func)
+{
+    func->ThinkState                 = &Actor::Think_Grenade;
+    func->BeginState                 = &Actor::Begin_Grenade;
+    func->EndState                   = &Actor::End_Grenade;
+    func->ResumeState                = &Actor::Resume_Grenade;
+    func->SuspendState               = &Actor::End_Grenade;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Grenade;
+    func->FinishedAnimation          = &Actor::FinishedAnimation_Grenade;
+    func->IsState                    = &Actor::IsGrenadeState;
 }
 
 void Actor::Grenade_Flee(void)
@@ -437,6 +437,30 @@ void Actor::Resume_Grenade(void)
     }
 }
 
+void Actor::FinishedAnimation_Grenade(void)
+{
+    switch (m_eGrenadeState) {
+    case AI_GRENSTATE_FLEE:
+    case AI_GRENSTATE_THROW_ACQUIRE:
+    case AI_GRENSTATE_KICK_ACQUIRE:
+    case AI_GRENSTATE_MARTYR_ACQUIRE:
+    case AI_GRENSTATE_MARTYR:
+    case AI_GRENSTATE_FLEE_SUCCESS:
+    case AI_GRENSTATE_FLEE_FAIL:
+        return;
+    case AI_GRENSTATE_THROW:
+    case AI_GRENSTATE_KICK:
+        Grenade_NextThinkState();
+        break;
+    default:
+        char assertStr[16317] = {0};
+        strcpy(assertStr, "\"invalid grenade state in FinishedAnimation()\"\n\tMessage: ");
+        Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("state = %i", m_eGrenadeState));
+        assert(!assertStr);
+        break;
+    }
+}
+
 void Actor::Think_Grenade(void)
 {
     if (m_bEnableEnemy) {
@@ -512,28 +536,4 @@ void Actor::Think_Grenade(void)
     }
 
     PostThink(false);
-}
-
-void Actor::FinishedAnimation_Grenade(void)
-{
-    switch (m_eGrenadeState) {
-    case AI_GRENSTATE_FLEE:
-    case AI_GRENSTATE_THROW_ACQUIRE:
-    case AI_GRENSTATE_KICK_ACQUIRE:
-    case AI_GRENSTATE_MARTYR_ACQUIRE:
-    case AI_GRENSTATE_MARTYR:
-    case AI_GRENSTATE_FLEE_SUCCESS:
-    case AI_GRENSTATE_FLEE_FAIL:
-        return;
-    case AI_GRENSTATE_THROW:
-    case AI_GRENSTATE_KICK:
-        Grenade_NextThinkState();
-        break;
-    default:
-        char assertStr[16317] = {0};
-        strcpy(assertStr, "\"invalid grenade state in FinishedAnimation()\"\n\tMessage: ");
-        Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("state = %i", m_eGrenadeState));
-        assert(!assertStr);
-        break;
-    }
 }

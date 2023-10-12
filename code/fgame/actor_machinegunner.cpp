@@ -37,6 +37,11 @@ void Actor::InitMachineGunner(GlobalFuncs_t *func)
     func->FinishedAnimation = &Actor::FinishedAnimation_MachineGunner;
 }
 
+bool Actor::IsMachineGunnerState(int state)
+{
+    return true;
+}
+
 void Actor::Begin_MachineGunner(void)
 {
     m_csMood     = STRING_ALERT;
@@ -92,75 +97,6 @@ void Actor::End_MachineGunner(void)
 }
 
 void Actor::ThinkHoldGun_TurretGun(void)
-{
-    // FIXME: unimplemented
-}
-
-void Actor::Think_MachineGunner_TurretGun(void)
-{
-    // FIXME: unimplemented
-}
-
-void Actor::Think_MachineGunner(void)
-{
-    if (RequireThink()) {
-        if (m_pTurret && m_pTurret->GetOwner() == this && !m_bNoPlayerCollision) {
-            if (!m_bEnableEnemy) {
-                ThinkHoldGun();
-                return;
-            }
-
-            if (level.inttime < m_iEnemyCheckTime + 200) {
-                ThinkHoldGun();
-                return;
-            }
-
-            m_iEnemyCheckTime = level.inttime;
-
-            if (m_pTurret->AI_CanTarget(G_GetEntity(0)->centroid)) {
-                ThinkHoldGun();
-                return;
-            }
-            if (!m_pGrenade || m_fGrenadeAwareness < rand() * 0.000000046566129) {
-                if (!G_SightTrace(
-                        EyePosition(),
-                        vec_zero,
-                        vec_zero,
-                        G_GetEntity(0)->centroid,
-                        this,
-                        G_GetEntity(0),
-                        33819417,
-                        qfalse,
-                        "Actor::Think_MachineGunner"
-                    )) {
-                    ThinkHoldGun();
-                    return;
-                }
-                if (m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_IDLE) {
-                    BecomeTurretGuy();
-                    return;
-                }
-
-                if (m_Enemy && !m_Enemy->IsSubclassOfActor() && !EnemyIsDisguised()
-                    && m_PotentialEnemies.GetCurrentVisibility() >= 1) {
-                    BecomeTurretGuy();
-                    return;
-                }
-
-                if (!m_Enemy || !m_Enemy->IsSubclassOfActor() || EnemyIsDisguised()
-                    || m_PotentialEnemies.GetCurrentVisibility() > 1) {
-                    ThinkHoldGun();
-                    return;
-                }
-
-                SetCuriousAnimHint(6);
-            }
-        }
-        BecomeTurretGuy();
-    }
-}
-
-void Actor::ThinkHoldGun(void)
 {
     Vector  end;
     trace_t trace;
@@ -252,7 +188,7 @@ void Actor::ThinkHoldGun(void)
     end   = start;
     end.z = origin.z - 94.0;
 
-    trace = G_Trace(start, MINS, MAXS, end, this, 1107437825, qfalse, "Actor::ThinkHoldGun");
+    trace = G_Trace(start, MINS, MAXS, end, this, 1107437825, qfalse, "Actor::ThinkHoldGun_TurretGun");
 
     if (trace.fraction != 1.0 && !trace.startsolid && !trace.allsolid && trace.ent) {
         SafeSetOrigin(trace.endpos);
@@ -262,6 +198,70 @@ void Actor::ThinkHoldGun(void)
 
     UpdateBoneControllers();
     UpdateFootsteps();
+}
+
+void Actor::Think_MachineGunner_TurretGun(void)
+{
+    // FIXME: unimplemented
+}
+
+void Actor::Think_MachineGunner(void)
+{
+    if (RequireThink()) {
+        if (m_pTurret && m_pTurret->GetOwner() == this && !m_bNoPlayerCollision) {
+            if (!m_bEnableEnemy) {
+                ThinkHoldGun_TurretGun();
+                return;
+            }
+
+            if (level.inttime < m_iEnemyCheckTime + 200) {
+                ThinkHoldGun_TurretGun();
+                return;
+            }
+
+            m_iEnemyCheckTime = level.inttime;
+
+            if (m_pTurret->AI_CanTarget(G_GetEntity(0)->centroid)) {
+                ThinkHoldGun_TurretGun();
+                return;
+            }
+            if (!m_pGrenade || m_fGrenadeAwareness < rand() * 0.000000046566129) {
+                if (!G_SightTrace(
+                        EyePosition(),
+                        vec_zero,
+                        vec_zero,
+                        G_GetEntity(0)->centroid,
+                        this,
+                        G_GetEntity(0),
+                        33819417,
+                        qfalse,
+                        "Actor::Think_MachineGunner"
+                    )) {
+                    ThinkHoldGun_TurretGun();
+                    return;
+                }
+                if (m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_IDLE) {
+                    BecomeTurretGuy();
+                    return;
+                }
+
+                if (m_Enemy && !m_Enemy->IsSubclassOfActor() && !EnemyIsDisguised()
+                    && m_PotentialEnemies.GetCurrentVisibility() >= 1) {
+                    BecomeTurretGuy();
+                    return;
+                }
+
+                if (!m_Enemy || !m_Enemy->IsSubclassOfActor() || EnemyIsDisguised()
+                    || m_PotentialEnemies.GetCurrentVisibility() > 1) {
+                    ThinkHoldGun_TurretGun();
+                    return;
+                }
+
+                SetCuriousAnimHint(6);
+            }
+        }
+        BecomeTurretGuy();
+    }
 }
 
 void Actor::FinishedAnimation_MachineGunner(void)

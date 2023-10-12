@@ -59,6 +59,40 @@ void Actor::Suspend_Weaponless(void)
     }
 }
 
+void Actor::State_Weaponless_Normal(void)
+{
+    int iStateTime;
+    if (m_bScriptGoalValid) {
+        SetPath(m_vScriptGoal, NULL, 0, NULL, 0);
+    }
+    if (PathExists() && !PathComplete()) {
+        FaceMotion();
+        Anim_RunToDanger(3);
+    } else {
+        m_bScriptGoalValid = false;
+
+        AimAtTargetPos();
+
+        Anim_Stand();
+        if (level.inttime >= m_iStateTime) {
+            if (DecideToThrowGrenade(m_Enemy->velocity + m_Enemy->origin, &m_vGrenadeVel, &m_eGrenadeMode)) {
+                SetDesiredYawDir(m_vGrenadeVel);
+
+                m_State           = 901;
+                m_eNextAnimMode   = 1;
+                m_bNextForceStart = false;
+                m_csNextAnimString =
+                    (m_eGrenadeMode == AI_GREN_TOSS_ROLL) ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
+                iStateTime = level.inttime;
+            } else {
+                m_State    = 900;
+                iStateTime = level.inttime + 1000;
+            }
+            m_iStateTime = iStateTime;
+        }
+    }
+}
+
 void Actor::Think_Weaponless(void)
 {
     if (RequireThink()) {
@@ -99,40 +133,6 @@ void Actor::FinishedAnimation_Weaponless(void)
 {
     if (m_State <= 902) {
         TransitionState(900, 4000);
-    }
-}
-
-void Actor::State_Weaponless_Normal(void)
-{
-    int iStateTime;
-    if (m_bScriptGoalValid) {
-        SetPath(m_vScriptGoal, NULL, 0, NULL, 0);
-    }
-    if (PathExists() && !PathComplete()) {
-        FaceMotion();
-        Anim_RunToDanger(3);
-    } else {
-        m_bScriptGoalValid = false;
-
-        AimAtTargetPos();
-
-        Anim_Stand();
-        if (level.inttime >= m_iStateTime) {
-            if (DecideToThrowGrenade(m_Enemy->velocity + m_Enemy->origin, &m_vGrenadeVel, &m_eGrenadeMode)) {
-                SetDesiredYawDir(m_vGrenadeVel);
-
-                m_State           = 901;
-                m_eNextAnimMode   = 1;
-                m_bNextForceStart = false;
-                m_csNextAnimString =
-                    (m_eGrenadeMode == AI_GREN_TOSS_ROLL) ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
-                iStateTime = level.inttime;
-            } else {
-                m_State    = 900;
-                iStateTime = level.inttime + 1000;
-            }
-            m_iStateTime = iStateTime;
-        }
     }
 }
 

@@ -4659,11 +4659,6 @@ void Actor::FireWeapon(Event *ev)
     Sentient::FireWeapon(WEAPON_MAIN, FIRE_PRIMARY);
 }
 
-bool Actor::IsMachineGunnerState(int state)
-{
-    return true;
-}
-
 bool Actor::IsDogState(int state)
 {
     return true;
@@ -11650,6 +11645,11 @@ bool Actor::IsPainState(int state)
 bool Actor::IsKilledState(int state)
 {
     return state == THINKSTATE_KILLED;
+}
+
+bool Actor::IsNoClipState(int state)
+{
+    return state == THINKSTATE_NOCLIP;
 }
 
 /*

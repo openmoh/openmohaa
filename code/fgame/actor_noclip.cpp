@@ -30,11 +30,6 @@ void Actor::InitNoClip(GlobalFuncs_t *func)
     func->IsState    = &Actor::IsIdleState;
 }
 
-bool Actor::IsNoClipState(int state)
-{
-    return state == THINKSTATE_NOCLIP;
-}
-
 void Actor::Think_NoClip(void)
 {
     //FIXME: not sure of naming

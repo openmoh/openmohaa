@@ -39,16 +39,6 @@ void Actor::Begin_Idle(void)
     ClearPath();
 }
 
-void Actor::Think_Idle(void)
-{
-    if (RequireThink()) {
-        UpdateEyeOrigin();
-        m_pszDebugState = "";
-        CheckForThinkStateTransition();
-        IdleThink();
-    }
-}
-
 void Actor::IdleThink(void)
 {
     IdlePoint();
@@ -73,4 +63,14 @@ void Actor::IdleThink(void)
     }
 
     PostThink(true);
+}
+
+void Actor::Think_Idle(void)
+{
+    if (RequireThink()) {
+        UpdateEyeOrigin();
+        m_pszDebugState = "";
+        CheckForThinkStateTransition();
+        IdleThink();
+    }
 }

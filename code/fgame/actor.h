@@ -832,7 +832,7 @@ public:
     void          State_Turret_Grenade(void);
     void          State_Turret_FakeEnemy(void);
     void          State_Turret_Wait(void);
-    void          State_Turret_Retarget_Shoot(void);    // Added in 2.0
+    void          State_Turret_Shoot(void);    // Added in 2.0
     void          State_Turret_Retarget_Suppress(void); // Added in 2.0
     void          State_Turret_Retarget_Sniper_Node(void);
     void          State_Turret_Retarget_Step_Side_Small(void);
@@ -983,7 +983,6 @@ public:
     void        ThinkHoldGun_TurretGun(void);        // Added in 2.0
     void        Think_MachineGunner_TurretGun(void); // Added in 2.0
     void        Think_MachineGunner(void);
-    void        ThinkHoldGun(void);
     void        FinishedAnimation_MachineGunner(void);
     bool        MachineGunner_CanSee(Entity *ent, float fov, float vision_distance);
     static void InitDogIdle(GlobalFuncs_t *func);

@@ -50,7 +50,6 @@ void Actor::End_Runner(void)
 
 void Actor::Resume_Runner(void)
 {
-    ;
 }
 
 void Actor::Think_Runner(void)

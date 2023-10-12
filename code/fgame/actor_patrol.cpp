@@ -49,7 +49,6 @@ void Actor::End_Patrol(void)
 
 void Actor::Resume_Patrol(void)
 {
-    ;
 }
 
 void Actor::Think_Patrol(void)

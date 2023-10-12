@@ -36,6 +36,11 @@ void Actor::InitCurious(GlobalFuncs_t *func)
     func->IsState                    = &Actor::IsCuriousState;
 }
 
+void Actor::SetCuriousAnimHint(int iAnimHint)
+{
+    m_iCuriousAnimHint = iAnimHint;
+}
+
 void Actor::Begin_Curious(void)
 {
     Vector vDelta;
@@ -324,11 +329,6 @@ void Actor::Think_Curious(void)
     }
 }
 
-void Actor::FinishedAnimation_Curious(void)
-{
-    FinishedAnimation_AnimCurious();
-}
-
 void Actor::LookAtCuriosity(void)
 {
     Vector       vAngles;
@@ -382,7 +382,7 @@ void Actor::TimeOutCurious(void)
     }
 }
 
-void Actor::SetCuriousAnimHint(int iAnimHint)
+void Actor::FinishedAnimation_Curious(void)
 {
-    m_iCuriousAnimHint = iAnimHint;
+    FinishedAnimation_AnimCurious();
 }
