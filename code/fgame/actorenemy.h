@@ -22,8 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // actorenemy.h
 
-#ifndef __ACTORENEMY_H__
-#define __ACTORENEMY_H__
+#pragma once
 
 #include "g_local.h"
 #include "class.h"
@@ -32,92 +31,87 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 class Actor;
 class Sentient;
 
-class ActorEnemy : public Class {
+class ActorEnemy : public Class
+{
 public:
-	int m_iAddTime;
-	float m_fLastLookTime;
-	float m_fVisibility;
-	float m_fTotalVisibility;
-	int m_iThreat;
-	SafePtr<Sentient> m_pEnemy;
-	float m_fCurrentRangeSquared;
-	Vector m_vLastKnownPos;
-	int m_iLastSightChangeTime;
-	bool m_bVisible;
+    int               m_iAddTime;
+    float             m_fLastLookTime;
+    float             m_fVisibility;
+    float             m_fTotalVisibility;
+    int               m_iThreat;
+    SafePtr<Sentient> m_pEnemy;
+    float             m_fCurrentRangeSquared;
+    Vector            m_vLastKnownPos;
+    int               m_iLastSightChangeTime;
+    bool              m_bVisible;
 
-	ActorEnemy();
-	virtual ~ActorEnemy();
-	float UpdateVisibility( Actor *pSelf, bool *pbInFovAndRange, bool *pbVisible );
-	int UpdateThreat( Actor *pSelf );
-	Sentient *GetEnemy( void ) const;
-	float GetVisibility( void ) const;
-	int GetThreat( void ) const;
-	float GetRangeSquared( void ) const;
+    ActorEnemy();
+    virtual ~ActorEnemy();
+    float     UpdateVisibility(Actor *pSelf, bool *pbInFovAndRange, bool *pbVisible);
+    int       UpdateThreat(Actor *pSelf);
+    Sentient *GetEnemy(void) const;
+    float     GetVisibility(void) const;
+    int       GetThreat(void) const;
+    float     GetRangeSquared(void) const;
 
-	void Archive( Archiver & ) override;
+    void Archive(Archiver&) override;
 
 protected:
-	float UpdateLMRF( Actor *pSelf, bool *pbInFovAndRange, bool *pbVisible );
+    float UpdateLMRF(Actor *pSelf, bool *pbInFovAndRange, bool *pbVisible);
 };
 
-inline void ActorEnemy::Archive
-	(
-	Archiver& arc
-	)
+inline void ActorEnemy::Archive(Archiver& arc)
 {
-	Class::Archive( arc );
+    Class::Archive(arc);
 
-	arc.ArchiveInteger( &m_iAddTime );
-	arc.ArchiveFloat( &m_fLastLookTime );
-	arc.ArchiveFloat( &m_fVisibility );
-	arc.ArchiveFloat( &m_fTotalVisibility );
-	arc.ArchiveInteger( &m_iThreat );
-	arc.ArchiveSafePointer( &m_pEnemy );
-	arc.ArchiveFloat( &m_fCurrentRangeSquared );
-	arc.ArchiveVector( &m_vLastKnownPos );
-	arc.ArchiveInteger( &m_iLastSightChangeTime );
-	arc.ArchiveBool( &m_bVisible );
+    arc.ArchiveInteger(&m_iAddTime);
+    arc.ArchiveFloat(&m_fLastLookTime);
+    arc.ArchiveFloat(&m_fVisibility);
+    arc.ArchiveFloat(&m_fTotalVisibility);
+    arc.ArchiveInteger(&m_iThreat);
+    arc.ArchiveSafePointer(&m_pEnemy);
+    arc.ArchiveFloat(&m_fCurrentRangeSquared);
+    arc.ArchiveVector(&m_vLastKnownPos);
+    arc.ArchiveInteger(&m_iLastSightChangeTime);
+    arc.ArchiveBool(&m_bVisible);
 }
 
-class ActorEnemySet : public Class {
+class ActorEnemySet : public Class
+{
 protected:
-	Container<ActorEnemy> m_Enemies;
-	int m_iCheckCount;
-	SafePtr<Sentient> m_pCurrentEnemy;
-	float m_fCurrentVisibility;
-	int m_iCurrentThreat;
+    Container<ActorEnemy> m_Enemies;
+    int                   m_iCheckCount;
+    SafePtr<Sentient>     m_pCurrentEnemy;
+    float                 m_fCurrentVisibility;
+    int                   m_iCurrentThreat;
+
 public:
-	ActorEnemySet();
-	virtual ~ActorEnemySet();
+    ActorEnemySet();
+    virtual ~ActorEnemySet();
 
-	ActorEnemy *AddPotentialEnemy( Sentient *pEnemy );
-	void FlagBadEnemy( Sentient *pEnemy );
-	void CheckEnemies( Actor *pSelf );
-	Sentient *GetCurrentEnemy( void ) const;
-	float GetCurrentVisibility( void ) const;
-	int GetCurrentThreat( void ) const;
-	qboolean IsEnemyConfirmed( void ) const;
-	bool HasAlternateEnemy( void ) const;
-	void RemoveAll( void );
-	void ConfirmEnemy( Actor *pSelf, Sentient *pEnemy );
-	void ConfirmEnemyIfCanSeeSharerOrEnemy( Actor *pSelf, Actor *pSharer, Sentient *pEnemy );
-	bool CaresAboutPerfectInfo( Sentient *pEnemy );
+    ActorEnemy *AddPotentialEnemy(Sentient *pEnemy);
+    void        FlagBadEnemy(Sentient *pEnemy);
+    void        CheckEnemies(Actor *pSelf);
+    Sentient   *GetCurrentEnemy(void) const;
+    float       GetCurrentVisibility(void) const;
+    int         GetCurrentThreat(void) const;
+    qboolean    IsEnemyConfirmed(void) const;
+    bool        HasAlternateEnemy(void) const;
+    void        RemoveAll(void);
+    void        ConfirmEnemy(Actor *pSelf, Sentient *pEnemy);
+    void        ConfirmEnemyIfCanSeeSharerOrEnemy(Actor *pSelf, Actor *pSharer, Sentient *pEnemy);
+    bool        CaresAboutPerfectInfo(Sentient *pEnemy);
 
-	void Archive( Archiver& arc ) override;
+    void Archive(Archiver& arc) override;
 };
 
-inline void ActorEnemySet::Archive
-	(
-	Archiver& arc
-	)
+inline void ActorEnemySet::Archive(Archiver& arc)
 {
-	Class::Archive( arc );
+    Class::Archive(arc);
 
-	m_Enemies.Archive( arc, ArchiveClass< ActorEnemy > );
-	arc.ArchiveInteger( &m_iCheckCount );
-	arc.ArchiveSafePointer( &m_pCurrentEnemy );
-	arc.ArchiveFloat( &m_fCurrentVisibility );
-	arc.ArchiveInteger( &m_iCurrentThreat );
+    m_Enemies.Archive(arc, ArchiveClass<ActorEnemy>);
+    arc.ArchiveInteger(&m_iCheckCount);
+    arc.ArchiveSafePointer(&m_pCurrentEnemy);
+    arc.ArchiveFloat(&m_fCurrentVisibility);
+    arc.ArchiveInteger(&m_iCurrentThreat);
 }
-
-#endif /* actorenemy.h */
