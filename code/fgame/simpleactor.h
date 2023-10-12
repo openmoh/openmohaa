@@ -256,3 +256,205 @@ public:
     void                Anim_FullBody(const_str csFullBodyAnim, int eAnimMode);
     virtual const char *DumpCallTrace(const char *pszFmt, ...) const;
 };
+
+inline void SimpleActor::DesiredAnimation(int eAnimMode, const_str csAnimString)
+{
+    m_eNextAnimMode    = eAnimMode;
+    m_csNextAnimString = csAnimString;
+    m_bNextForceStart  = false;
+}
+
+inline void SimpleActor::StartAnimation(int eAnimMode, const_str csAnimString)
+{
+    m_eNextAnimMode    = eAnimMode;
+    m_csNextAnimString = csAnimString;
+    m_bNextForceStart  = true;
+}
+
+inline void SimpleActor::DesiredAnimation(int eAnimMode, ScriptThreadLabel AnimLabel)
+{
+    m_eNextAnimMode    = eAnimMode;
+    m_csNextAnimString = STRING_NULL;
+    m_NextAnimLabel    = AnimLabel;
+    m_bNextForceStart  = false;
+}
+
+inline void SimpleActor::StartAnimation(int eAnimMode, ScriptThreadLabel AnimLabel)
+{
+    m_eNextAnimMode    = eAnimMode;
+    m_csNextAnimString = STRING_NULL;
+    m_NextAnimLabel    = AnimLabel;
+    m_bNextForceStart  = true;
+}
+
+inline void SimpleActor::ContinueAnimationAllowNoPath(void)
+{
+    if (m_eNextAnimMode < 0) {
+        m_bNextForceStart  = false;
+        m_csNextAnimString = STRING_NULL;
+        m_eNextAnimMode    = m_eAnimMode;
+        m_NextAnimLabel    = m_Anim;
+    }
+}
+
+inline void SimpleActor::ContinueAnimation(void)
+{
+    int eAnimMode = m_eNextAnimMode;
+    if (eAnimMode < 0) {
+        m_bNextForceStart  = false;
+        m_csNextAnimString = STRING_NULL;
+        m_eNextAnimMode    = m_eAnimMode;
+        m_NextAnimLabel    = m_Anim;
+        eAnimMode          = m_eAnimMode;
+    }
+
+    if (eAnimMode <= 3 && !PathExists()) {
+        assert(!"ContinueAnimation() called on a pathed animation, but no path exists");
+        Anim_Stand();
+    }
+}
+
+inline void SimpleActor::SetPathGoalEndAnim(const_str csEndAnim)
+{
+    m_csPathGoalEndAnimScript = csEndAnim;
+}
+
+inline void SimpleActor::Archive(Archiver& arc)
+{
+    Sentient::Archive(arc);
+
+    arc.ArchiveInteger(&m_eAnimMode);
+    m_Anim.Archive(arc);
+
+    arc.ArchiveBool(&m_bHasDesiredLookDest);
+    arc.ArchiveBool(&m_bHasDesiredLookAngles);
+    arc.ArchiveVector(&m_vDesiredLookDest);
+    arc.ArchiveVec3(m_DesiredLookAngles);
+    arc.ArchiveVec3(m_DesiredGunDir);
+
+    m_Path.Archive(arc);
+    arc.ArchiveVec3(m_Dest);
+    arc.ArchiveVec3(m_NoClipDest);
+
+    arc.ArchiveFloat(&path_failed_time);
+    arc.ArchiveFloat(&m_fPathGoalTime);
+    arc.ArchiveBool(&m_bStartPathGoalEndAnim);
+    Director.ArchiveString(arc, m_csPathGoalEndAnimScript);
+
+    arc.ArchiveInteger(&m_eNextAnimMode);
+    Director.ArchiveString(arc, m_csNextAnimString);
+    m_NextAnimLabel.Archive(arc);
+    arc.ArchiveBool(&m_bNextForceStart);
+
+    arc.ArchiveBoolean(&m_walking);
+    arc.ArchiveBoolean(&m_groundPlane);
+    arc.ArchiveVec3(m_groundPlaneNormal);
+
+    arc.ArchiveVector(&watch_offset);
+    arc.ArchiveBool(&m_bThink);
+    arc.ArchiveInteger(&m_PainTime);
+
+    arc.ArchiveBool(&m_bAimAnimSet);
+    arc.ArchiveBool(&m_bActionAnimSet);
+
+    Director.ArchiveString(arc, m_csMood);
+    Director.ArchiveString(arc, m_csIdleMood);
+
+    ArchiveEnum(m_eEmotionMode, eEmotionMode);
+
+    arc.ArchiveFloat(&m_fAimLimit_up);
+    arc.ArchiveFloat(&m_fAimLimit_down);
+
+    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+        arc.ArchiveUnsigned(&m_weightType[i]);
+    }
+
+    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+        arc.ArchiveFloat(&m_weightBase[i]);
+    }
+
+    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+        arc.ArchiveFloat(&m_weightCrossBlend[i]);
+    }
+
+    arc.ArchiveBool(&m_AnimMotionHigh);
+    arc.ArchiveBool(&m_AnimActionHigh);
+    arc.ArchiveBool(&m_AnimDialogHigh);
+
+    arc.ArchiveVec2(obstacle_vel);
+
+    Director.ArchiveString(arc, m_csCurrentPosition);
+
+    arc.ArchiveBool(&m_bMotionAnimSet);
+    arc.ArchiveBool(&m_bDoAI);
+
+    arc.ArchiveFloat(&m_fCrossblendTime);
+
+    arc.ArchiveSafePointer(&m_pAnimThread);
+
+    arc.ArchiveBool(&m_YawAchieved);
+    arc.ArchiveFloat(&m_DesiredYaw);
+
+    arc.ArchiveInteger(&m_iVoiceTime);
+    arc.ArchiveBool(&m_bSayAnimSet);
+
+    arc.ArchiveInteger(&hit_obstacle_time);
+
+    Director.ArchiveString(arc, m_csAnimName);
+
+    arc.ArchiveInteger(&m_bPathErrorTime);
+    arc.ArchiveInteger(&m_iMotionSlot);
+    arc.ArchiveInteger(&m_iActionSlot);
+    arc.ArchiveInteger(&m_iSaySlot);
+
+    arc.ArchiveBool(&m_bLevelMotionAnim);
+    arc.ArchiveBool(&m_bLevelActionAnim);
+    arc.ArchiveByte(&m_bLevelSayAnim);
+    arc.ArchiveByte(&m_bNextLevelSayAnim);
+
+    Director.ArchiveString(arc, m_csSayAnim);
+    Director.ArchiveString(arc, m_csUpperAnim);
+
+    m_PainHandler.Archive(arc);
+    m_DeathHandler.Archive(arc);
+    m_AttackHandler.Archive(arc);
+    m_SniperHandler.Archive(arc);
+
+    arc.ArchiveObjectPointer((Class **)&m_NearestNode);
+    arc.ArchiveVector(&m_vNearestNodePos);
+
+    arc.ArchiveFloat(&m_fCrouchWeight);
+    arc.ArchiveFloat(&m_maxspeed);
+}
+
+inline void SimpleActor::StopTurning(void)
+{
+    m_YawAchieved = true;
+}
+
+inline void SimpleActor::SetDesiredYaw(float yaw)
+{
+    m_YawAchieved = false;
+    m_DesiredYaw  = yaw;
+}
+
+inline void SimpleActor::SetDesiredYawDir(vec3_t vec)
+{
+    m_YawAchieved = false;
+    m_DesiredYaw  = vectoyaw(vec);
+}
+
+inline void SimpleActor::SetDesiredYawDest(vec3_t vec)
+{
+    float facedir[2];
+    VectorSub2D(vec, origin, facedir);
+    if (facedir[0] == 0 || facedir[1] == 0) {
+        m_YawAchieved = false;
+        m_DesiredYaw  = vectoyaw(vec);
+    }
+}
+
+inline void SimpleActor::SetDest(vec3_t dest)
+{
+    VectorCopy(dest, m_Dest);
+}
