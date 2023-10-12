@@ -91,6 +91,16 @@ void Actor::End_MachineGunner(void)
     }
 }
 
+void Actor::ThinkHoldGun_TurretGun(void)
+{
+    // FIXME: unimplemented
+}
+
+void Actor::Think_MachineGunner_TurretGun(void)
+{
+    // FIXME: unimplemented
+}
+
 void Actor::Think_MachineGunner(void)
 {
     if (RequireThink()) {

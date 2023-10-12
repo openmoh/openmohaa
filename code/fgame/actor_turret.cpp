@@ -726,6 +726,16 @@ void Actor::State_Turret_Wait(void)
     }
 }
 
+void Actor::State_Turret_Retarget_Shoot(void)
+{
+    // FIXME: unimplemented
+}
+
+void Actor::State_Turret_Retarget_Suppress(void)
+{
+    // FIXME: unimplemented
+}
+
 void Actor::State_Turret_Retarget_Sniper_Node(void)
 {
     PathNode *pSniperNode;

@@ -329,6 +329,7 @@ enum eThinkState {
     THINKSTATE_CURIOUS,
     THINKSTATE_DISGUISE,
     THINKSTATE_GRENADE,
+    THINKSTATE_BADPLACE, // Added in 2.0
     THINKSTATE_NOCLIP,
     NUM_THINKSTATES,
 };
@@ -382,6 +383,8 @@ enum eThinkNum {
     THINK_WEAPONLESS,
     THINK_NOCLIP,
     THINK_DEAD,
+    THINK_BADPLACE,      // Added in 2.0
+    THINK_RUN_AND_SHOOT, // Added in 2.30
     NUM_THINKS,
 };
 
@@ -458,6 +461,10 @@ public:
     bool m_bAnimating;
     /* Am I a doggo ? */
     bool m_bDog;
+    /* 2.0: ignore bad place? */
+    bool m_bIgnoreBadPlace;
+    /* 2.0: bad place index? (0=none) */
+    int m_iBadPlaceIndex;
     /* char refereing to voice type, chec gAmericanVoices and gGermanVoices */
     int mVoiceType;
     /* check EV_Actor_GetSilent, EV_Actor_SetSilent and EV_Actor_SetSilent2 */
@@ -488,6 +495,10 @@ public:
     int m_iEnemyVisibleChangeTime;
     /* last time a visible(CanSee) enemy was seen */
     int m_iLastEnemyVisibleTime;
+    /* 2.0: visibility alpha */
+    float m_fVisibilityAlpha;
+    /* 2.0: max visibility threshold */
+    float m_fVisibilityThreshold;
     /* last time a visible(CanSee + infov) enemy was checked */
     int m_iEnemyFovCheckTime;
     /* last time a visible(CanSee + infov) enemy was changed */
@@ -500,6 +511,8 @@ public:
     float m_fMaxShareDistSquared;
     /* can actor shoot enemy ? */
     bool m_bCanShootEnemy;
+    /* 2.0: does it has visibility threshold set? */
+    bool m_bHasVisibilityThreshold;
     /* last time m_bCanShootEnemy was changed */
     int m_iCanShootCheckTime;
     /* desired enable enemy(changed from script) */
@@ -530,6 +543,8 @@ public:
     const_str m_csAnimScript;
     /* anim mode */
     int m_AnimMode;
+    /* 2.0: the run anim rate */
+    float m_fRunAnimRate;
     /* Don't Face Wall request yaw. */
     float m_fDfwRequestedYaw;
     /* Don't Face Wall derived yaw. */
@@ -594,6 +609,10 @@ public:
     SafePtr<SimpleEntity> m_AlarmNode;
     /* alarm thread for actor */
     ScriptThreadLabel m_AlarmThread;
+    /* 2.30: pre-alarm thread for actor */
+    ScriptThreadLabel m_PreAlarmThread;
+    /* 2.0: Suppress chance */
+    int m_iSuppressChance;
     /* used for turret actot to run back to home Turret_SelectState() */
     int m_iRunHomeTime;
     /* no cover path for initial turret state */
@@ -612,6 +631,8 @@ public:
     bool m_bNeedReload;
     /* should break(stop) special attack ? */
     bool mbBreakSpecialAttack;
+    /* 2.30: is the AI curious? */
+    bool m_bIsCurious;
     /* grenade has bounced ? (usually means actor should flee) */
     bool m_bGrenadeBounced;
     /* current grenade */
@@ -723,6 +744,10 @@ public:
     float m_fLeashSquared;
     /* if true, leash will not change. */
     bool m_bFixedLeash;
+    /* 2.0: if true, enemy switch will be disabled. */
+    bool m_bEnemySwitch;
+    /* 2.30: the nationality index. */
+    int m_iNationality;
 
 public:
     CLASS_PROTOTYPE(Actor);
@@ -751,6 +776,7 @@ public:
     bool                RequireThink(void);
     void                UpdateEnemy(int iMaxDirtyTime);
     void                UpdateEnemyInternal(void);
+    void                DetectSmokeGrenades(void);
     void                SetEnemy(Sentient *pEnemy, bool bForceConfirmed);
     void                SetEnemyPos(Vector vPos);
     static void         ResetBodyQueue(void);
@@ -764,6 +790,7 @@ public:
     void                CheckForThinkStateTransition(void);
     bool                CheckForTransition(eThinkState state, eThinkLevel level);
     bool                PassesTransitionConditions_Grenade(void);
+    bool                PassesTransitionConditions_BadPlace(void); // Added in 2.0
     bool                PassesTransitionConditions_Attack(void);
     bool                PassesTransitionConditions_Disguise(void);
     bool                PassesTransitionConditions_Curious(void);
@@ -805,6 +832,8 @@ public:
     void          State_Turret_Grenade(void);
     void          State_Turret_FakeEnemy(void);
     void          State_Turret_Wait(void);
+    void          State_Turret_Retarget_Shoot(void);    // Added in 2.0
+    void          State_Turret_Retarget_Suppress(void); // Added in 2.0
     void          State_Turret_Retarget_Sniper_Node(void);
     void          State_Turret_Retarget_Step_Side_Small(void);
     void          State_Turret_Retarget_Path_Exact(void);
@@ -880,140 +909,159 @@ public:
     bool          CanGetGrenadeFromAToB(
                  const Vector         &vFrom, const Vector         &vTo, bool bDesperate, Vector *pvVel, eGrenadeTossMode *peMode
              );
-    bool         DecideToThrowGrenade(const Vector        &vTo, Vector *pvVel, eGrenadeTossMode *peMode);
-    void         Grenade_EventFire(Event *ev);
-    void         GenericGrenadeTossThink(void);
-    static void  InitGrenade(GlobalFuncs_t *func);
-    bool         Grenade_Acquire(eGrenadeState eNextState, const_str csReturnAnim);
-    void         Grenade_Flee(void);
-    void         Grenade_ThrowAcquire(void);
-    void         Grenade_Throw(void);
-    void         Grenade_KickAcquire(void);
-    void         Grenade_Kick(void);
-    void         Grenade_MartyrAcquire(void);
-    void         Grenade_Martyr(void);
-    void         Grenade_Wait(void);
-    void         Grenade_NextThinkState(void);
-    void         Grenade_EventAttach(Event *ev);
-    void         Grenade_EventDetach(Event *ev);
-    void         Begin_Grenade(void);
-    void         End_Grenade(void);
-    void         Resume_Grenade(void);
-    void         Think_Grenade(void);
-    void         FinishedAnimation_Grenade(void);
-    static void  InitCurious(GlobalFuncs_t *func);
-    void         SetCuriousAnimHint(int iAnimHint);
-    void         Begin_Curious(void);
-    void         End_Curious(void);
-    void         Resume_Curious(void);
-    void         Suspend_Curious(void);
-    void         Think_Curious(void);
-    void         FinishedAnimation_Curious(void);
-    void         LookAtCuriosity(void);
-    void         TimeOutCurious(void);
-    void         State_Disguise_Wait(void);
-    void         State_Disguise_Papers(void);
-    void         State_Disguise_Fake_Papers(void);
-    void         State_Disguise_Enemy(void);
-    void         State_Disguise_Halt(void);
-    void         State_Disguise_Accept(void);
-    void         State_Disguise_Deny(void);
-    static void  InitDisguiseSalute(GlobalFuncs_t *func);
-    void         Begin_DisguiseSalute(void);
-    void         End_DisguiseSalute(void);
-    void         Resume_DisguiseSalute(void);
-    void         Suspend_DisguiseSalute(void);
-    void         Think_DisguiseSalute(void);
-    void         FinishedAnimation_DisguiseSalute(void);
-    static void  InitDisguiseSentry(GlobalFuncs_t *func);
-    void         Begin_DisguiseSentry(void);
-    void         End_DisguiseSentry(void);
-    void         Resume_DisguiseSentry(void);
-    void         Suspend_DisguiseSentry(void);
-    void         Think_DisguiseSentry(void);
-    static void  InitDisguiseOfficer(GlobalFuncs_t *func);
-    void         Begin_DisguiseOfficer(void);
-    void         End_DisguiseOfficer(void);
-    void         Resume_DisguiseOfficer(void);
-    void         Suspend_DisguiseOfficer(void);
-    void         Think_DisguiseOfficer(void);
-    static void  InitDisguiseRover(GlobalFuncs_t *func);
-    void         Begin_DisguiseRover(void);
-    void         End_DisguiseRover(void);
-    void         Resume_DisguiseRover(void);
-    void         Suspend_DisguiseRover(void);
-    void         Think_DisguiseRover(void);
-    static void  InitDisguiseNone(GlobalFuncs_t *func);
-    static void  InitIdle(GlobalFuncs_t *func);
-    void         Begin_Idle(void);
-    void         Think_Idle(void);
-    static void  InitMachineGunner(GlobalFuncs_t *func);
-    void         Begin_MachineGunner(void);
-    void         End_MachineGunner(void);
-    void         BecomeTurretGuy(void);
-    void         Think_MachineGunner(void);
-    void         ThinkHoldGun(void);
-    void         FinishedAnimation_MachineGunner(void);
-    bool         MachineGunner_CanSee(Entity *ent, float fov, float vision_distance);
-    void         CanSee(Event *ev);
-    static void  InitDogIdle(GlobalFuncs_t *func);
-    static void  InitDogAttack(GlobalFuncs_t *func);
-    static void  InitDogCurious(GlobalFuncs_t *func);
-    void         Begin_Dog(void);
-    void         End_Dog(void);
-    void         Think_Dog_Idle(void);
-    void         Think_Dog_Attack(void);
-    void         Think_Dog_Curious(void);
-    static void  InitAnim(GlobalFuncs_t *func);
-    void         Begin_Anim(void);
-    void         Think_Anim(void);
-    void         FinishedAnimation_Anim(void);
-    void         ShowInfo_Anim(void);
-    static void  InitAnimCurious(GlobalFuncs_t *func);
-    void         Begin_AnimCurious(void);
-    void         Think_AnimCurious(void);
-    void         FinishedAnimation_AnimCurious(void);
-    static void  InitAim(GlobalFuncs_t *func);
-    void         Begin_Aim(void);
-    void         Think_Aim(void);
-    void         ShowInfo_Aim(void);
-    static void  InitBalconyIdle(GlobalFuncs_t *func);
-    static void  InitBalconyCurious(GlobalFuncs_t *func);
-    static void  InitBalconyAttack(GlobalFuncs_t *func);
-    static void  InitBalconyDisguise(GlobalFuncs_t *func);
-    static void  InitBalconyGrenade(GlobalFuncs_t *func);
-    static void  InitBalconyPain(GlobalFuncs_t *func);
-    static void  InitBalconyKilled(GlobalFuncs_t *func);
-    void         Pain_Balcony(Event *ev);
-    void         Killed_Balcony(Event *ev, bool bPlayDeathAnim);
-    void         Think_BalconyAttack(void);
-    void         Begin_BalconyAttack(void);
-    void         FinishedAnimation_BalconyAttack(void);
-    void         State_Balcony_PostShoot(void);
-    void         State_Balcony_FindEnemy(void);
-    void         State_Balcony_Target(void);
-    void         State_Balcony_Shoot(void);
-    void         Begin_BalconyKilled(void);
-    void         End_BalconyKilled(void);
-    void         Think_BalconyKilled(void);
-    void         FinishedAnimation_BalconyKilled(void);
-    bool         CalcFallPath(void);
-    static void  InitPain(GlobalFuncs_t *func);
-    void         Begin_Pain(void);
-    void         Think_Pain(void);
-    void         FinishedAnimation_Pain(void);
-    static void  InitDead(GlobalFuncs_t *func);
-    static void  InitKilled(GlobalFuncs_t *func);
-    void         Begin_Killed(void);
-    void         Think_Killed(void);
-    void         FinishedAnimation_Killed(void);
-    static void  InitWeaponless(GlobalFuncs_t *func);
-    void         Begin_Weaponless(void);
-    void         Suspend_Weaponless(void);
-    void         Think_Weaponless(void);
-    void         FinishedAnimation_Weaponless(void);
-    void         State_Weaponless_Normal(void);
-    void         State_Weaponless_Grenade(void);
+    bool        DecideToThrowGrenade(const Vector       &vTo, Vector *pvVel, eGrenadeTossMode *peMode);
+    void        Grenade_EventFire(Event *ev);
+    void        GenericGrenadeTossThink(void);
+    static void InitGrenade(GlobalFuncs_t *func);
+    bool        Grenade_Acquire(eGrenadeState eNextState, const_str csReturnAnim);
+    void        Grenade_Flee(void);
+    void        Grenade_ThrowAcquire(void);
+    void        Grenade_Throw(void);
+    void        Grenade_KickAcquire(void);
+    void        Grenade_Kick(void);
+    void        Grenade_MartyrAcquire(void);
+    void        Grenade_Martyr(void);
+    void        Grenade_Wait(void);
+    void        Grenade_NextThinkState(void);
+    void        Grenade_EventAttach(Event *ev);
+    void        Grenade_EventDetach(Event *ev);
+    void        Begin_Grenade(void);
+    void        End_Grenade(void);
+    void        Resume_Grenade(void);
+    void        Think_Grenade(void);
+    void        FinishedAnimation_Grenade(void);
+    static void InitCurious(GlobalFuncs_t *func);
+    void        SetCuriousAnimHint(int iAnimHint);
+    void        Begin_Curious(void);
+    void        End_Curious(void);
+    void        Resume_Curious(void);
+    void        Suspend_Curious(void);
+    void        Think_Curious(void);
+    void        FinishedAnimation_Curious(void);
+    void        LookAtCuriosity(void);
+    void        TimeOutCurious(void);
+    void        State_Disguise_Wait(void);
+    void        State_Disguise_Papers(void);
+    void        State_Disguise_Fake_Papers(void);
+    void        State_Disguise_Enemy(void);
+    void        State_Disguise_Halt(void);
+    void        State_Disguise_Accept(void);
+    void        State_Disguise_Deny(void);
+    static void InitDisguiseSalute(GlobalFuncs_t *func);
+    void        Begin_DisguiseSalute(void);
+    void        End_DisguiseSalute(void);
+    void        Resume_DisguiseSalute(void);
+    void        Suspend_DisguiseSalute(void);
+    void        Think_DisguiseSalute(void);
+    void        FinishedAnimation_DisguiseSalute(void);
+    static void InitDisguiseSentry(GlobalFuncs_t *func);
+    void        Begin_DisguiseSentry(void);
+    void        End_DisguiseSentry(void);
+    void        Resume_DisguiseSentry(void);
+    void        Suspend_DisguiseSentry(void);
+    void        Think_DisguiseSentry(void);
+    static void InitDisguiseOfficer(GlobalFuncs_t *func);
+    void        Begin_DisguiseOfficer(void);
+    void        End_DisguiseOfficer(void);
+    void        Resume_DisguiseOfficer(void);
+    void        Suspend_DisguiseOfficer(void);
+    void        Think_DisguiseOfficer(void);
+    static void InitDisguiseRover(GlobalFuncs_t *func);
+    void        Begin_DisguiseRover(void);
+    void        End_DisguiseRover(void);
+    void        Resume_DisguiseRover(void);
+    void        Suspend_DisguiseRover(void);
+    void        Think_DisguiseRover(void);
+    static void InitDisguiseNone(GlobalFuncs_t *func);
+    static void InitIdle(GlobalFuncs_t *func);
+    void        Begin_Idle(void);
+    void        Think_Idle(void);
+    static void InitMachineGunner(GlobalFuncs_t *func);
+    void        Begin_MachineGunner(void);
+    void        End_MachineGunner(void);
+    void        BecomeTurretGuy(void);
+    void        ThinkHoldGun_TurretGun(void);        // Added in 2.0
+    void        Think_MachineGunner_TurretGun(void); // Added in 2.0
+    void        Think_MachineGunner(void);
+    void        ThinkHoldGun(void);
+    void        FinishedAnimation_MachineGunner(void);
+    bool        MachineGunner_CanSee(Entity *ent, float fov, float vision_distance);
+    static void InitDogIdle(GlobalFuncs_t *func);
+    static void InitDogAttack(GlobalFuncs_t *func);
+    static void InitDogCurious(GlobalFuncs_t *func);
+    void        Begin_Dog(void);
+    void        End_Dog(void);
+    void        Think_Dog_Idle(void);
+    void        Think_Dog_Attack(void);
+    void        Think_Dog_Curious(void);
+    static void InitAnim(GlobalFuncs_t *func);
+    void        Begin_Anim(void);
+    void        Think_Anim(void);
+    void        FinishedAnimation_Anim(void);
+    void        ShowInfo_Anim(void);
+    static void InitAnimCurious(GlobalFuncs_t *func);
+    void        Begin_AnimCurious(void);
+    void        Think_AnimCurious(void);
+    void        FinishedAnimation_AnimCurious(void);
+    static void InitAim(GlobalFuncs_t *func);
+    void        Begin_Aim(void);
+    void        Think_Aim(void);
+    void        ShowInfo_Aim(void);
+    static void InitBalconyIdle(GlobalFuncs_t *func);
+    static void InitBalconyCurious(GlobalFuncs_t *func);
+    static void InitBalconyAttack(GlobalFuncs_t *func);
+    static void InitBalconyDisguise(GlobalFuncs_t *func);
+    static void InitBalconyGrenade(GlobalFuncs_t *func);
+    static void InitBalconyPain(GlobalFuncs_t *func);
+    static void InitBalconyKilled(GlobalFuncs_t *func);
+    void        Pain_Balcony(Event *ev);
+    void        Killed_Balcony(Event *ev, bool bPlayDeathAnim);
+    void        Think_BalconyAttack(void);
+    void        Begin_BalconyAttack(void);
+    void        FinishedAnimation_BalconyAttack(void);
+    void        State_Balcony_PostShoot(void);
+    void        State_Balcony_FindEnemy(void);
+    void        State_Balcony_Target(void);
+    void        State_Balcony_Shoot(void);
+    void        Begin_BalconyKilled(void);
+    void        End_BalconyKilled(void);
+    void        Think_BalconyKilled(void);
+    void        FinishedAnimation_BalconyKilled(void);
+    bool        CalcFallPath(void);
+    static void InitPain(GlobalFuncs_t *func);
+    void        Begin_Pain(void);
+    void        Think_Pain(void);
+    void        FinishedAnimation_Pain(void);
+    static void InitDead(GlobalFuncs_t *func);
+    static void InitKilled(GlobalFuncs_t *func);
+    void        Begin_Killed(void);
+    void        Think_Killed(void);
+    void        FinishedAnimation_Killed(void);
+    static void InitWeaponless(GlobalFuncs_t *func);
+    void        Begin_Weaponless(void);
+    void        Suspend_Weaponless(void);
+    void        Think_Weaponless(void);
+    void        FinishedAnimation_Weaponless(void);
+    void        State_Weaponless_Normal(void);
+    void        State_Weaponless_Grenade(void);
+    static void InitBadPlace(GlobalFuncs_t *func);
+    // Added in 2.0
+    //====
+    void Begin_BadPlace(void);
+    void End_BadPlace(void);
+    void Think_BadPlace(void);
+    //====
+    // Added in 2.30
+    //====
+    static void InitRunAndShot(GlobalFuncs_t *func);
+    void        Begin_RunAndShoot(void);
+    void        End_RunAndShoot(void);
+    void        Resume_RunAndShoot(void);
+    void        Think_RunAndShoot(void);
+    void        ShowInfo_RunAndShoot(void);
+    void        State_RunAndShoot_Running(void);
+    void        RunAndShoot_MoveToPatrolCurrentNode(void);
+    //====
     virtual void Think(void) override;
     void         PostThink(bool bDontFaceWall);
     virtual void SetMoveInfo(mmove_t *mm) override;
@@ -1025,6 +1073,8 @@ public:
     void         EventGiveWeapon(Event *ev);
     void         EventGetWeapon(Event *ev);
     void         FireWeapon(Event *ev);
+    bool         FriendlyInLineOfFire(Entity *other); // Added in 2.0
+    Vector       VirtualEyePosition();                // Added in 2.0
     virtual bool CanTarget(void) override;
     virtual bool IsImmortal(void) override;
     static bool  IsVoidState(int state);
@@ -1033,6 +1083,7 @@ public:
     static bool  IsDisguiseState(int state);
     static bool  IsAttackState(int state);
     static bool  IsGrenadeState(int state);
+    static bool  IsBadPlaceState(int state); // Added in 2.0
     static bool  IsPainState(int state);
     static bool  IsKilledState(int state);
     static bool  IsMachineGunnerState(int state);
@@ -1055,195 +1106,207 @@ public:
     void VoiceSound(int iType, vec3_t sound_origin, float fDistSquared, float fMaxDistSquared, Entity *originator);
     void GrenadeNotification(Entity *originator);
     void SetGrenade(Entity *pGrenade);
+    void UpdateBadPlaces(void); // Added in 2.0
     void NotifySquadmateKilled(Sentient *pSquadMate, Sentient *pAttacker);
     void RaiseAlertnessForEventType(int iType);
     void RaiseAlertness(float fAmount);
-    virtual bool     CanSee(Entity *e1, float fov, float vision_distance, bool bNoEnts) override;
-    virtual Vector   GunPosition(void) override;
-    bool             WithinVisionDistance(Entity *ent) const;
-    bool             InFOV(Vector pos, float check_fov, float check_fovdot);
-    bool             EnemyInFOV(int iMaxDirtyTime);
-    bool             InFOV(Vector pos);
-    bool             InFOV(Entity *ent);
-    bool             CanSeeNoFOV(Entity *ent);
-    bool             CanSeeFOV(Entity *ent);
-    bool             CanSeeEnemyFOV(int iMaxFovDirtyTime, int iMaxSightDirtyTime);
-    bool             CanShoot(Entity *ent);
-    virtual bool     CanSeeFrom(vec3_t pos, Entity *ent);
-    bool             CanSeeEnemy(int iMaxDirtyTime);
-    bool             CanShootEnemy(int iMaxDirtyTime);
-    void             ShowInfo(void);
-    virtual void     ShowInfo(float fDot, float fDist) override;
-    void             DefaultPain(Event *ev);
-    void             HandlePain(Event *ev);
-    void             EventPain(Event *ev);
-    void             DefaultKilled(Event *ev, bool bPlayDeathAnim);
-    void             HandleKilled(Event *ev, bool bPlayDeathAnim);
-    void             DispatchEventKilled(Event *ev, bool bPlayDeathAnim);
-    void             EventKilled(Event *ev);
-    void             EventBeDead(Event *ev);
-    void             DeathEmbalm(Event *ev);
-    void             DeathSinkStart(Event *ev);
-    bool             NoticeShot(Sentient *pShooter, Sentient *pTarget, float fDist);
-    bool             NoticeFootstep(Sentient *pPedestrian);
-    bool             NoticeVoice(Sentient *pVocallist);
-    void             ClearLookEntity(void);
-    void             LookAt(const Vector            &vec);
-    void             LookAt(Listener *l);
-    void             ForwardLook(void);
-    void             LookAtLookEntity(void);
-    void             IdleLook(void);
-    void             IdleLook(vec3_t dir);
-    void             SetDesiredLookDir(vec3_t dir);
-    void             SetDesiredLookAnglesRelative(vec3_t ang);
-    void             EventLookAt(Event *ev);
-    void             EventEyesLookAt(Event *ev);
-    void             NoPoint(void);
-    void             IdlePoint(void);
-    void             ClearPointEntity(void);
-    void             PointAt(const Vector            &vec);
-    void             PointAt(Listener *l);
-    void             EventPointAt(Event *ev);
-    void             ClearTurnEntity(void);
-    void             TurnTo(const Vector            &vec);
-    void             TurnTo(Listener *l);
-    void             IdleTurn(void);
-    void             EventTurnTo(Event *ev);
-    void             EventSetTurnDoneError(Event *ev);
-    void             EventGetTurnDoneError(Event *ev);
-    void             LookAround(float fFovAdd);
-    bool             SoundSayAnim(const_str name, byte bLevelSayAnim);
-    void             EventSetAnim(Event *ev);
-    void             EventIdleSayAnim(Event *ev);
-    void             EventSayAnim(Event *ev);
-    void             EventSetSayAnim(Event *ev);
-    void             EventSetMotionAnim(Event *ev);
-    void             EventSetAimMotionAnim(Event *ev);
-    void             EventSetActionAnim(Event *ev);
-    void             EventUpperAnim(Event *ev);
-    void             EventSetUpperAnim(Event *ev);
-    void             EventEndActionAnim(Event *ev);
-    void             EventDamagePuff(Event *ev);
-    void             SafeSetOrigin(vec3_t newOrigin);
-    void             DoMove(void);
-    void             AnimFinished(int slot, bool stop);
-    virtual void     AnimFinished(int slot) override;
-    void             PlayAnimation(Event *ev);
-    void             PlayScriptedAnimation(Event *ev);
-    void             PlayNoclipAnimation(Event *ev);
-    void             MoveDest(float fMoveSpeed);
-    void             MovePath(float fMoveSpeed);
-    void             MovePathGoal(float fMoveSpeed);
-    void             Dumb(Event *ev);
-    void             PhysicsOn(Event *ev);
-    void             PhysicsOff(Event *ev);
-    void             EventStart(Event *ev);
-    void             EventGetMood(Event *ev);
-    void             EventSetMood(Event *ev);
-    void             EventGetAngleYawSpeed(Event *ev);
-    void             EventSetAngleYawSpeed(Event *ev);
-    void             EventSetAimTarget(Event *ev);
-    void             UpdateAngles(void);
-    void             SetLeashHome(Vector vHome);
-    void             AimAtTargetPos(void);
-    void             AimAtAimNode(void);
-    void             AimAtEnemyBehavior(void);
-    void             FaceMotion(void);
-    void             FaceDirectionDuringMotion(vec3_t vLook);
-    float            PathDistanceAlongVector(vec3_t vDir);
-    void             FaceEnemyOrMotion(int iTimeIntoMove);
-    static int       NextUpdateTime(int iLastUpdateTime, int iUpdatePeriod);
-    void             ResetBoneControllers(void);
-    void             UpdateBoneControllers(void);
-    void             ReadyToFire(Event *ev);
-    void             EventGetSight(Event *ev);
-    void             EventSetSight(Event *ev);
-    void             EventGetHearing(Event *ev);
-    void             EventSetHearing(Event *ev);
-    void             ClearPatrolCurrentNode(void);
-    void             NextPatrolCurrentNode(void);
-    void             SetPatrolCurrentNode(Vector            &vec);
-    void             SetPatrolCurrentNode(Listener *l);
-    void             EventSetPatrolPath(Event *ev);
-    void             EventGetPatrolPath(Event *ev);
-    void             EventSetPatrolWaitTrigger(Event *ev);
-    void             EventGetPatrolWaitTrigger(Event *ev);
-    void             ShowInfo_PatrolCurrentNode(void);
-    bool             MoveOnPathWithSquad(void);
-    bool             MoveToWaypointWithPlayer(void);
-    bool             PatrolNextNodeExists(void);
-    void             UpdatePatrolCurrentNode(void);
-    bool             MoveToPatrolCurrentNode(void);
-    void             ClearAimNode(void);
-    void             SetAimNode(Vector            &vec);
-    void             SetAimNode(Listener *l);
-    void             ShowInfo_AimNode(void);
-    void             EventSetAccuracy(Event *ev);
-    void             EventGetAccuracy(Event *ev);
-    int              GetThinkType(const_str csName);
-    void             SetThink(eThinkState state, eThinkNum think);
-    void             SetThinkIdle(eThinkNum think_idle);
-    void             SetThinkState(eThinkState state, eThinkLevel level);
-    void             EndCurrentThinkState(void);
-    void             ClearThinkStates(void);
-    int              CurrentThink(void) const;
-    bool             IsAttacking(void) const;
-    void             EventGetFov(Event *ev);
-    void             EventSetFov(Event *ev);
-    void             EventSetDestIdle(Event *ev);
-    void             EventSetDestIdle2(Event *ev);
-    void             EventSetTypeIdle(Event *ev);
-    void             EventGetTypeIdle(Event *ev);
-    void             EventSetTypeAttack(Event *ev);
-    void             EventGetTypeAttack(Event *ev);
-    void             EventSetTypeDisguise(Event *ev);
-    void             EventGetTypeDisguise(Event *ev);
-    void             EventSetDisguiseLevel(Event *ev);
-    void             EventGetDisguiseLevel(Event *ev);
-    void             EventSetTypeGrenade(Event *ev);
-    void             EventGetTypeGrenade(Event *ev);
-    void             EventSetMinDistance(Event *ev);
-    void             EventGetMinDistance(Event *ev);
-    void             EventSetMaxDistance(Event *ev);
-    void             EventGetMaxDistance(Event *ev);
-    void             EventGetLeash(Event *ev);
-    void             EventSetLeash(Event *ev);
-    void             EventGetInterval(Event *ev);
-    void             EventSetInterval(Event *ev);
-    void             EventDistToEnemy(Event *ev);
-    void             EventGetRunAnim(Event *ev);
-    void             EventGetWalkAnim(Event *ev);
-    void             EventGetAnimName(Event *ev);
-    void             EventSetAnimName(Event *ev);
-    void             EventSetDisguiseRange(Event *ev);
-    void             EventGetDisguiseRange(Event *ev);
-    void             EventSetDisguisePeriod(Event *ev);
-    void             EventGetDisguisePeriod(Event *ev);
-    void             EventSetDisguiseAcceptThread(Event *ev);
-    void             EventGetDisguiseAcceptThread(Event *ev);
-    void             EventAttackPlayer(Event *ev);
-    void             ForceAttackPlayer(void);
-    void             EventSetAlarmNode(Event *ev);
-    void             EventGetAlarmNode(Event *ev);
-    void             EventSetAlarmThread(Event *ev);
-    void             EventGetAlarmThread(Event *ev);
-    void             EventSetSoundAwareness(Event *ev);
-    void             EventGetSoundAwareness(Event *ev);
-    void             EventSetGrenadeAwareness(Event *ev);
-    void             EventGetGrenadeAwareness(Event *ev);
-    str              ThinkName(void) const;
-    str              ThinkStateName(void) const;
-    void             EventSetTurret(Event *ev);
-    void             EventGetTurret(Event *ev);
-    void             EventEnableEnemy(Event *ev);
-    void             EventEnablePain(Event *ev);
-    void             EventActivate(Event *ev);
-    void             EventGetAmmoGrenade(Event *ev);
-    void             EventSetAmmoGrenade(Event *ev);
-    void             EventInterruptPoint(Event *ev);
+    virtual bool   CanSee(Entity *e1, float fov, float vision_distance, bool bNoEnts) override;
+    virtual Vector GunPosition(void) override;
+    bool           WithinVisionDistance(Entity *ent) const;
+    bool           InFOV(Vector pos, float check_fov, float check_fovdot);
+    bool           EnemyInFOV(int iMaxDirtyTime);
+    bool           InFOV(Vector pos);
+    bool           InFOV(Entity *ent);
+    bool           CanSeeNoFOV(Entity *ent);
+    bool           CanSeeFOV(Entity *ent);
+    bool           CanSeeEnemyFOV(int iMaxFovDirtyTime, int iMaxSightDirtyTime);
+    bool           CanShoot(Entity *ent);
+    virtual bool   CanSeeFrom(vec3_t pos, Entity *ent);
+    bool           CanSeeEnemy(int iMaxDirtyTime);
+    bool           CanShootEnemy(int iMaxDirtyTime);
+    void           ShowInfo(void);
+    virtual void   ShowInfo(float fDot, float fDist) override;
+    void           DefaultPain(Event *ev);
+    void           HandlePain(Event *ev);
+    void           EventPain(Event *ev);
+    void           DefaultKilled(Event *ev, bool bPlayDeathAnim);
+    void           HandleKilled(Event *ev, bool bPlayDeathAnim);
+    void           DispatchEventKilled(Event *ev, bool bPlayDeathAnim);
+    void           EventKilled(Event *ev);
+    void           EventBeDead(Event *ev);
+    void           DeathEmbalm(Event *ev);
+    void           DeathSinkStart(Event *ev);
+    bool           NoticeShot(Sentient *pShooter, Sentient *pTarget, float fDist);
+    bool           NoticeFootstep(Sentient *pPedestrian);
+    bool           NoticeVoice(Sentient *pVocallist);
+    void           ClearLookEntity(void);
+    void           LookAt(const Vector          &vec);
+    void           LookAt(Listener *l);
+    void           ForwardLook(void);
+    void           LookAtLookEntity(void);
+    void           IdleLook(void);
+    void           IdleLook(vec3_t dir);
+    void           SetDesiredLookDir(vec3_t dir);
+    void           SetDesiredLookAnglesRelative(vec3_t ang);
+    void           EventLookAt(Event *ev);
+    void           EventEyesLookAt(Event *ev);
+    void           NoPoint(void);
+    void           IdlePoint(void);
+    void           ClearPointEntity(void);
+    void           PointAt(const Vector          &vec);
+    void           PointAt(Listener *l);
+    void           EventPointAt(Event *ev);
+    void           ClearTurnEntity(void);
+    void           TurnTo(const Vector          &vec);
+    void           TurnTo(Listener *l);
+    void           IdleTurn(void);
+    void           EventTurnTo(Event *ev);
+    void           EventSetTurnDoneError(Event *ev);
+    void           EventGetTurnDoneError(Event *ev);
+    void           LookAround(float fFovAdd);
+    bool           SoundSayAnim(const_str name, byte bLevelSayAnim);
+    void           EventSetAnim(Event *ev);
+    void           EventIdleSayAnim(Event *ev);
+    void           EventSayAnim(Event *ev);
+    void           EventSetSayAnim(Event *ev);
+    void           EventSetMotionAnim(Event *ev);
+    void           EventSetAimMotionAnim(Event *ev);
+    void           EventSetActionAnim(Event *ev);
+    void           EventUpperAnim(Event *ev);
+    void           EventSetUpperAnim(Event *ev);
+    void           EventEndActionAnim(Event *ev);
+    void           EventDamagePuff(Event *ev);
+    void           SafeSetOrigin(vec3_t newOrigin);
+    void           DoMove(void);
+    void           AnimFinished(int slot, bool stop);
+    virtual void   AnimFinished(int slot) override;
+    void           PlayAnimation(Event *ev);
+    void           PlayScriptedAnimation(Event *ev);
+    void           PlayNoclipAnimation(Event *ev);
+    void           PlayAttachedAnimation(Event *ev); // Added in 2.0
+    void           MoveDest(float fMoveSpeed);
+    void           MovePath(float fMoveSpeed);
+    void           MovePathGoal(float fMoveSpeed);
+    void           Dumb(Event *ev);
+    void           PhysicsOn(Event *ev);
+    void           PhysicsOff(Event *ev);
+    void           EventStart(Event *ev);
+    void           EventGetMood(Event *ev);
+    void           EventSetMood(Event *ev);
+    void           EventGetAngleYawSpeed(Event *ev);
+    void           EventSetAngleYawSpeed(Event *ev);
+    void           EventSetAimTarget(Event *ev);
+    void           UpdateAngles(void);
+    void           SetLeashHome(Vector vHome);
+    void           AimAtTargetPos(void);
+    void           AimAtAimNode(void);
+    void           AimAtEnemyBehavior(void);
+    void           FaceMotion(void);
+    void           FaceDirectionDuringMotion(vec3_t vLook);
+    float          PathDistanceAlongVector(vec3_t vDir);
+    void           FaceEnemyOrMotion(int iTimeIntoMove);
+    static int     NextUpdateTime(int iLastUpdateTime, int iUpdatePeriod);
+    void           ResetBoneControllers(void);
+    void           UpdateBoneControllers(void);
+    void           ReadyToFire(Event *ev);
+    void           EventGetSight(Event *ev);
+    void           EventSetSight(Event *ev);
+    void           EventGetHearing(Event *ev);
+    void           EventSetHearing(Event *ev);
+    void           ClearPatrolCurrentNode(void);
+    void           NextPatrolCurrentNode(void);
+    void           SetPatrolCurrentNode(Vector          &vec);
+    void           SetPatrolCurrentNode(Listener *l);
+    void           EventSetPatrolPath(Event *ev);
+    void           EventGetPatrolPath(Event *ev);
+    void           EventSetPatrolWaitTrigger(Event *ev);
+    void           EventGetPatrolWaitTrigger(Event *ev);
+    void           ShowInfo_PatrolCurrentNode(void);
+    bool           MoveOnPathWithSquad(void);
+    bool           MoveToWaypointWithPlayer(void);
+    bool           PatrolNextNodeExists(void);
+    void           UpdatePatrolCurrentNode(void);
+    bool           MoveToPatrolCurrentNode(void);
+    void           ClearAimNode(void);
+    void           SetAimNode(Vector          &vec);
+    void           SetAimNode(Listener *l);
+    void           ShowInfo_AimNode(void);
+    void           EventSetAccuracy(Event *ev);
+    void           EventGetAccuracy(Event *ev);
+    int            GetThinkType(const_str csName);
+    void           SetThink(eThinkState state, eThinkNum think);
+    void           SetThinkIdle(eThinkNum think_idle);
+    void           SetThinkState(eThinkState state, eThinkLevel level);
+    void           EndCurrentThinkState(void);
+    void           ClearThinkStates(void);
+    int            CurrentThink(void) const;
+    bool           IsAttacking(void) const;
+    void           EventGetFov(Event *ev);
+    void           EventSetFov(Event *ev);
+    void           EventSetDestIdle(Event *ev);
+    void           EventSetDestIdle2(Event *ev);
+    void           EventSetTypeIdle(Event *ev);
+    void           EventGetTypeIdle(Event *ev);
+    void           EventSetTypeAttack(Event *ev);
+    void           EventGetTypeAttack(Event *ev);
+    void           EventSetTypeDisguise(Event *ev);
+    void           EventGetTypeDisguise(Event *ev);
+    void           EventSetDisguiseLevel(Event *ev);
+    void           EventGetDisguiseLevel(Event *ev);
+    void           EventSetTypeGrenade(Event *ev);
+    void           EventGetTypeGrenade(Event *ev);
+    void           EventSetMinDistance(Event *ev);
+    void           EventGetMinDistance(Event *ev);
+    void           EventSetMaxDistance(Event *ev);
+    void           EventGetMaxDistance(Event *ev);
+    void           EventGetLeash(Event *ev);
+    void           EventSetLeash(Event *ev);
+    void           EventGetInterval(Event *ev);
+    void           EventSetInterval(Event *ev);
+    void           EventDistToEnemy(Event *ev);
+    void           EventGetRunAnim(Event *ev);
+    void           EventGetWalkAnim(Event *ev);
+    void           EventGetAnimName(Event *ev);
+    void           EventSetAnimName(Event *ev);
+    void           EventSetDisguiseRange(Event *ev);
+    void           EventGetDisguiseRange(Event *ev);
+    void           EventSetDisguisePeriod(Event *ev);
+    void           EventGetDisguisePeriod(Event *ev);
+    void           EventSetDisguiseAcceptThread(Event *ev);
+    void           EventGetDisguiseAcceptThread(Event *ev);
+    void           EventAttackPlayer(Event *ev);
+    void           ForceAttackPlayer(void);
+    void           EventSetAlarmNode(Event *ev);
+    void           EventGetAlarmNode(Event *ev);
+    void           EventSetPreAlarmThread(Event *ev); // Added in 2.30
+    void           EventSetAlarmThread(Event *ev);
+    void           EventGetAlarmThread(Event *ev);
+    void           EventSetSoundAwareness(Event *ev);
+    void           EventGetSoundAwareness(Event *ev);
+    void           EventSetGrenadeAwareness(Event *ev);
+    void           EventGetGrenadeAwareness(Event *ev);
+    str            ThinkName(void) const;
+    str            ThinkStateName(void) const;
+    void           EventSetTurret(Event *ev);
+    void           EventGetTurret(Event *ev);
+    void           EventEnableEnemy(Event *ev);
+    void           EventEnablePain(Event *ev);
+    void           EventActivate(Event *ev);
+    void           EventGetAmmoGrenade(Event *ev);
+    void           EventSetAmmoGrenade(Event *ev);
+    void           EventInterruptPoint(Event *ev);
+    // Added in 2.0
+    //====
+    void EventGetVisibilityThreshold(Event *ev);
+    void EventSetVisibilityThreshold(Event *ev);
+    void EventSetDefaultVisibilityThreshold(Event *ev);
+    void EventGetSuppressChance(Event *ev);
+    void EventSetSuppressChance(Event *ev);
+    //====
     void             EventAnimScript(Event *ev);
     void             EventAnimScript_Scripted(Event *ev);
     void             EventAnimScript_Noclip(Event *ev);
+    void             EventAnimScript_Attached(Event *ev);
     void             EventReload_mg42(Event *ev);
     void             SetPathWithLeash(Vector vDestPos, const char *description, int iMaxDirtyTime);
     void             SetPathWithLeash(SimpleEntity *pDestNode, const char *description, int iMaxDirtyTime);
@@ -1267,7 +1330,9 @@ public:
     void             EventSetFixedLeash(Event *ev);
     void             EventGetFixedLeash(Event *ev);
     void             Holster(void);
+    void             HolsterOffHand(void); // Added in 2.0
     void             Unholster(void);
+    void             UnholsterOffHand(void); // Added in 2.0
     void             EventHolster(Event *ev);
     void             EventUnholster(Event *ev);
     void             EventSoundDone(Event *ev);
@@ -1290,11 +1355,13 @@ public:
     void             EventSetNoLongPain(Event *ev);
     void             EventGetFavoriteEnemy(Event *ev);
     void             EventSetFavoriteEnemy(Event *ev);
+    void             EventFindEnemy(Event *ev); // Added in 2.0
     void             EventGetMumble(Event *ev);
     void             EventSetMumble(Event *ev);
     void             EventGetBreathSteam(Event *ev);
     void             EventSetBreathSteam(Event *ev);
     void             EventSetNextBreathTime(Event *ev);
+    void             EventCalcGrenadeToss2(Event *ev);
     void             EventCalcGrenadeToss(Event *ev);
     void             EventGetNoSurprise(Event *ev);
     void             EventSetNoSurprise(Event *ev);
@@ -1317,24 +1384,45 @@ public:
     void             ResolveVoiceType(void);
     void             EventSetBalconyHeight(Event *ev);
     void             EventGetBalconyHeight(Event *ev);
-    PathNode        *FindSniperNodeAndSetPath(bool *pbTryAgain);
-    void             Remove(Event *ev);
-    void             DontFaceWall(void);
-    bool             AvoidingFacingWall(void) const;
-    void             EndStates(void);
-    void             ClearStates(void);
-    void             CheckUnregister(void);
-    void             BecomeCorpse(void);
-    virtual void     PathnodeClaimRevoked(PathNode *node) override;
-    void             SetPathToNotBlockSentient(Sentient *pOther);
-    void             EventSetMoveDoneRadius(Event *ev);
-    virtual void     ClearEnemies(void) override;
-    bool             EnemyIsDisguised(void);
-    virtual void     setOriginEvent(Vector org) override;
-    virtual void     DumpAnimInfo(void) override;
-    static void      ArchiveStatic(Archiver     &arc);
-    virtual void     Archive(Archiver    &arc) override;
-    virtual bool     AutoArchiveModel(void) override;
+    // Added in 2.0
+    //====
+    void EventSetIgnoreBadPlace(Event *ev);
+    void EventGetIgnoreBadPlace(Event *ev);
+    void EventEnableEnemySwitch(Event *ev);
+    void EventDisableEnemySwitch(Event *ev);
+    void EventSetRunAnimRate(Event *ev);
+    void EventGetRunAnimRate(Event *ev);
+    void Landed(Event *ev);
+    bool IsOnFloor(void);
+    //====
+    // Added in 2.30
+    //====
+    void GetNationality(Event *ev);
+    void SetNationality(Event *ev);
+    void EventWriteStats(Event *ev);
+    void EventCuriousOff(Event *ev);
+    void EventCuriousOn(Event *ev);
+    //====
+    PathNode    *FindSniperNodeAndSetPath(bool *pbTryAgain);
+    void         Remove(Event *ev);
+    void         DontFaceWall(void);
+    bool         AvoidingFacingWall(void) const;
+    void         EndStates(void);
+    void         ClearStates(void);
+    void         CheckUnregister(void);
+    void         BecomeCorpse(void);
+    virtual void PathnodeClaimRevoked(PathNode *node) override;
+    void         SetPathToNotBlockSentient(Sentient *pOther);
+    void         EventSetMoveDoneRadius(Event *ev);
+    void         EventGetMoveDoneRadius(Event *ev); // Added in 2.0
+    virtual void ClearEnemies(void) override;
+    bool         EnemyIsDisguised(void);
+    virtual void setOriginEvent(Vector org) override;
+    virtual void DumpAnimInfo(void) override;
+    static void  ArchiveStatic(Archiver &arc);
+    virtual void Archive(Archiver& arc) override;
+    virtual bool AutoArchiveModel(void) override;
+    virtual bool IsDisabled() const override; // Added in 2.30
 };
 
 #define SAVE_FLAG_NEW_ANIM        (1 << 0)
@@ -1360,6 +1448,213 @@ public:
 #define SAVE_FLAG_PICKUP_ENT      (1 << 20)
 #define SAVE_FLAG_PAIN            (1 << 21)
 #define SAVE_FLAG_SPAWN_ITEMS     (1 << 22)
+
+/*
+===============
+Actor::TransitionState
+
+===============
+*/
+inline void Actor::TransitionState(int iNewState, int iPadTime)
+{
+    //fixme: this is an inline function.
+    m_State      = iNewState;
+    m_iStateTime = level.inttime + iPadTime;
+}
+
+/*
+===============
+Actor::NextUpdateTime
+
+Returns next update time.
+===============
+*/
+inline int Actor::NextUpdateTime(int iLastUpdateTime, int iUpdatePeriod)
+{
+    int i = iLastUpdateTime;
+
+    do {
+        i += iUpdatePeriod;
+    } while (i < level.inttime);
+
+    return i;
+}
+
+/*
+===============
+Actor::InFOV
+
+Returns true if pos is within fov.
+===============
+*/
+inline bool Actor::InFOV(Vector pos)
+{
+    return InFOV(pos, m_fFov, m_fFovDot);
+}
+
+/*
+===============
+Actor::InFOV
+
+Returns true if ent is within fov.
+===============
+*/
+inline bool Actor::InFOV(Entity *ent)
+{
+    if (ent == m_Enemy) {
+        return EnemyInFOV(0);
+    } else {
+        return InFOV(ent->centroid, m_fFov, m_fFovDot);
+    }
+}
+
+inline bool Actor::CanSeeNoFOV(Entity *ent)
+{
+    if (ent == m_Enemy) {
+        return CanSeeEnemy(0);
+    } else {
+        bool bCanSee = false;
+        if (gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)) {
+            bCanSee = CanSeeFrom(EyePosition(), ent);
+        }
+        return bCanSee;
+    }
+}
+
+inline bool Actor::CanSeeFOV(Entity *ent)
+{
+    //fixme: this is an inline function.
+    if (ent == m_Enemy) {
+        return CanSeeEnemyFOV(0, 0);
+    } else {
+        bool bCanSee = false;
+        if (InFOV(ent->centroid, m_fFov, m_fFovDot) && gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)) {
+            bCanSee = CanSeeFrom(EyePosition(), ent);
+        }
+        return bCanSee;
+    }
+}
+
+inline bool Actor::CanSeeEnemyFOV(int iMaxFovDirtyTime, int iMaxSightDirtyTime)
+{
+    return EnemyInFOV(iMaxFovDirtyTime) && CanSeeEnemy(iMaxSightDirtyTime);
+}
+
+/*
+===============
+Actor::AimAtTargetPos
+
+Aim at mTargetPos.
+===============
+*/
+inline void Actor::AimAtTargetPos(void)
+{
+    Vector vDir = mTargetPos - EyePosition() + Vector(0, 0, 16);
+    SetDesiredLookDir(vDir);
+    m_DesiredGunDir[0] = 360.0f - vDir.toPitch();
+    m_DesiredGunDir[1] = vDir.toYaw();
+    m_DesiredGunDir[2] = 0;
+
+    SetDesiredYawDir(vDir);
+}
+
+/*
+===============
+Actor::AimAtAimNode
+
+Aim at m_aimNode.
+===============
+*/
+inline void Actor::AimAtAimNode(void)
+{
+    mTargetPos = m_aimNode->origin;
+
+    AimAtTargetPos();
+}
+
+/*
+===============
+Actor::IgnoreSoundSet
+
+Make actor ignore iType sound.
+===============
+*/
+inline void Actor::IgnoreSoundSet(int iType)
+{
+    m_iIgnoreSoundsMask |= 1 << iType;
+}
+
+/*
+===============
+Actor::IgnoreSoundSetAll
+
+Make actor ignore all types of sound.
+===============
+*/
+inline void Actor::IgnoreSoundSetAll(void)
+{
+    m_iIgnoreSoundsMask = ~AI_EVENT_NONE;
+}
+
+/*
+===============
+Actor::IgnoreSoundClear
+
+Don't ignore iType of sound.
+===============
+*/
+inline void Actor::IgnoreSoundClear(int iType)
+{
+    m_iIgnoreSoundsMask &= ~iType;
+}
+
+/*
+===============
+Actor::IgnoreSoundClearAll
+
+Make actor ignore no type of sound.
+===============
+*/
+inline void Actor::IgnoreSoundClearAll(void)
+{
+    m_iIgnoreSoundsMask = 0;
+}
+
+/*
+===============
+Actor::IgnoreSoundClearAll
+
+returns true if actor should ignore iType of sound.
+===============
+*/
+inline bool Actor::IgnoreSound(int iType)
+{
+    return (m_iIgnoreSoundsMask >> iType) & 1;
+}
+
+/*
+===============
+Actor::CurrentThink
+
+Current think.
+===============
+*/
+inline int Actor::CurrentThink(void) const
+{
+    return m_Think[m_ThinkLevel];
+}
+
+/*
+===============
+Actor::IsAttacking
+
+Returns true if actor is in attack state.
+===============
+*/
+inline bool Actor::IsAttacking(void) const
+{
+    return m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_ATTACK;
+}
 
 inline void Actor::ArchiveStatic(Archiver& arc)
 {
@@ -1567,6 +1862,54 @@ inline void Actor::Archive(Archiver& arc)
 
     // set the model
     setModel();
+}
+
+/*
+===============
+Actor::SetDesiredLookDir
+
+Change desired look direction.
+===============
+*/
+inline void Actor::SetDesiredLookDir(vec3_t dir)
+{
+    m_bHasDesiredLookAngles = true;
+    vectoangles(dir, m_DesiredLookAngles);
+    m_DesiredLookAngles[1] = m_DesiredLookAngles[1] - angles[1];
+    m_DesiredLookAngles[1] = AngleNormalize180(m_DesiredLookAngles[1]);
+    m_DesiredLookAngles[0] = AngleNormalize180(m_DesiredLookAngles[0]);
+}
+
+/*
+===============
+Actor::SetDesiredLookAnglesRelative
+
+Change desired look angles relatively.
+===============
+*/
+inline void Actor::SetDesiredLookAnglesRelative(vec3_t ang)
+{
+    m_bHasDesiredLookAngles = true;
+    m_DesiredLookAngles[0]  = AngleNormalize180(ang[0]);
+    m_DesiredLookAngles[1]  = AngleNormalize180(ang[1]);
+    m_DesiredLookAngles[2]  = AngleNormalize180(ang[2]);
+}
+
+/*
+===============
+Actor::ForwardLook
+
+
+===============
+*/
+inline void Actor::ForwardLook(void)
+{
+    m_bHasDesiredLookAngles = false;
+}
+
+inline bool Actor::AvoidingFacingWall(void) const
+{
+    return m_eDontFaceWallMode <= 8;
 }
 
 #if 0

@@ -2380,243 +2380,272 @@ Event EV_Actor_CuriousOn
 );
 
 CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
-    {&EV_Entity_Start,                    &Actor::EventStart                    },
-    {&EV_Actor_MoveTo,                    &Actor::MoveTo                        },
-    {&EV_Actor_WalkTo,                    &Actor::WalkTo                        },
-    {&EV_Actor_RunTo,                     &Actor::RunTo                         },
-    {&EV_Actor_CrouchTo,                  &Actor::CrouchTo                      },
-    {&EV_Actor_CrawlTo,                   &Actor::CrawlTo                       },
-    {&EV_Actor_AimAt,                     &Actor::AimAt                         },
-    {&EV_Pain,                            &Actor::EventPain                     },
-    {&EV_Killed,                          &Actor::EventKilled                   },
-    {&EV_Actor_DeathEmbalm,               &Actor::DeathEmbalm                   },
-    {&EV_Actor_Anim,                      &Actor::PlayAnimation                 },
-    {&EV_Actor_AnimLoop,                  &Actor::PlayAnimation                 },
-    {&EV_Actor_Anim_Scripted,             &Actor::PlayScriptedAnimation         },
-    {&EV_Actor_Anim_Noclip,               &Actor::PlayNoclipAnimation           },
-    {&EV_Actor_AnimScript,                &Actor::EventAnimScript               },
-    {&EV_Actor_AnimScript_Scripted,       &Actor::EventAnimScript_Scripted      },
-    {&EV_Actor_AnimScript_Noclip,         &Actor::EventAnimScript_Noclip        },
-    {&EV_Actor_Reload_mg42,               &Actor::EventReload_mg42              },
-    {&EV_Actor_Dumb,                      &Actor::Dumb                          },
-    {&EV_Actor_Physics_On,                &Actor::PhysicsOn                     },
-    {&EV_Actor_Physics_Off,               &Actor::PhysicsOff                    },
-    {&EV_Actor_SetAnim,                   &Actor::EventSetAnim                  },
-    {&EV_Actor_SetAnimLength,             &SimpleActor::EventSetAnimLength      },
-    {&EV_Actor_EndActionAnim,             &Actor::EventEndActionAnim            },
-    {&EV_Actor_SetMotionAnim,             &Actor::EventSetMotionAnim            },
-    {&EV_Actor_SetAimMotionAnim,          &Actor::EventSetAimMotionAnim         },
-    {&EV_Actor_SetActionAnim,             &Actor::EventSetActionAnim            },
-    {&EV_Actor_UpperAnim,                 &Actor::EventUpperAnim                },
-    {&EV_Actor_SetUpperAnim,              &Actor::EventSetUpperAnim             },
-    {&EV_Actor_SetCrossblendTime,         &SimpleActor::EventSetCrossblendTime  },
-    {&EV_Actor_GetCrossblendTime,         &SimpleActor::EventGetCrossblendTime  },
-    {&EV_Actor_GetPosition,               &SimpleActor::EventGetPosition        },
-    {&EV_Actor_SetPosition,               &SimpleActor::EventSetPosition        },
-    {&EV_Actor_SetEmotion,                &SimpleActor::EventSetEmotion         },
-    {&EV_Actor_SetAnimFinal,              &SimpleActor::EventSetAnimFinal       },
-    {&EV_Actor_GetWeaponType,             &SimpleActor::EventGetWeaponType      },
-    {&EV_Actor_GetWeaponGroup,            &SimpleActor::EventGetWeaponGroup     },
-    {&EV_Actor_LookAt,                    &Actor::EventLookAt                   },
-    {&EV_Actor_EyesLookAt,                &Actor::EventEyesLookAt               },
-    {&EV_Actor_PointAt,                   &Actor::EventPointAt                  },
-    {&EV_Actor_TurnTo,                    &Actor::EventTurnTo                   },
-    {&EV_Actor_SetTurnDoneError,          &Actor::EventSetTurnDoneError         },
-    {&EV_Actor_SetTurnDoneError2,         &Actor::EventSetTurnDoneError         },
-    {&EV_Actor_GetTurnDoneError,          &Actor::EventGetTurnDoneError         },
-    {&EV_Actor_IdleSayAnim,               &Actor::EventIdleSayAnim              },
-    {&EV_Actor_SayAnim,                   &Actor::EventSayAnim                  },
-    {&EV_Actor_SetSayAnim,                &Actor::EventSetSayAnim               },
-    {&EV_Sentient_UseItem,                &Actor::EventGiveWeapon               },
-    {&EV_Sentient_GiveWeapon,             &Actor::EventGiveWeapon               },
-    {&EV_Actor_SetWeapon,                 &Actor::EventGiveWeapon               },
-    {&EV_Actor_GetWeapon,                 &Actor::EventGetWeapon                },
-    {&EV_Actor_SetGun,                    &Actor::EventGiveWeapon               },
-    {&EV_Actor_SetGun2,                   &Actor::EventGiveWeapon               },
-    {&EV_Actor_GetGun,                    &Actor::EventGetWeapon                },
-    {&EV_Actor_WeaponInternal,            &Actor::EventGiveWeaponInternal       },
-    {&EV_Actor_DamagePuff,                &Actor::EventDamagePuff               },
-    {&EV_Actor_SetAngleYawSpeed,          &Actor::EventSetAngleYawSpeed         },
-    {&EV_Actor_SetAngleYawSpeed2,         &Actor::EventSetAngleYawSpeed         },
-    {&EV_Actor_GetAngleYawSpeed,          &Actor::EventGetAngleYawSpeed         },
-    {&EV_Actor_SetAimTarget,              &Actor::EventSetAimTarget             },
-    {&EV_Actor_ReadyToFire,               &Actor::ReadyToFire                   },
-    {&EV_Actor_AIOn,                      &SimpleActor::EventAIOn               },
-    {&EV_Actor_AIOff,                     &SimpleActor::EventAIOff              },
-    {&EV_DeathSinkStart,                  &Actor::DeathSinkStart                },
-    {&EV_Actor_GetSight,                  &Actor::EventGetSight                 },
-    {&EV_Actor_SetSight,                  &Actor::EventSetSight                 },
-    {&EV_Actor_SetSight2,                 &Actor::EventSetSight                 },
-    {&EV_Actor_GetHearing,                &Actor::EventGetHearing               },
-    {&EV_Actor_SetHearing,                &Actor::EventSetHearing               },
-    {&EV_Actor_SetHearing2,               &Actor::EventSetHearing               },
-    {&EV_Actor_SetFov,                    &Actor::EventSetFov                   },
-    {&EV_Actor_SetFov2,                   &Actor::EventSetFov                   },
-    {&EV_Actor_GetFov,                    &Actor::EventGetFov                   },
-    {&EV_Actor_DistToEnemy,               &Actor::EventDistToEnemy              },
-    {&EV_Actor_SetPatrolPath,             &Actor::EventSetPatrolPath            },
-    {&EV_Actor_SetPatrolPath2,            &Actor::EventSetPatrolPath            },
-    {&EV_Actor_GetPatrolPath,             &Actor::EventGetPatrolPath            },
-    {&EV_Actor_SetPatrolWaitTrigger,      &Actor::EventSetPatrolWaitTrigger     },
-    {&EV_Actor_SetPatrolWaitTrigger2,     &Actor::EventSetPatrolWaitTrigger     },
-    {&EV_Actor_GetPatrolWaitTrigger,      &Actor::EventGetPatrolWaitTrigger     },
-    {&EV_Actor_SetAccuracy,               &Actor::EventSetAccuracy              },
-    {&EV_Actor_SetAccuracy2,              &Actor::EventSetAccuracy              },
-    {&EV_Actor_GetAccuracy,               &Actor::EventGetAccuracy              },
-    {&EV_Actor_SetTypeIdle,               &Actor::EventSetTypeIdle              },
-    {&EV_Actor_SetTypeIdle2,              &Actor::EventSetTypeIdle              },
-    {&EV_Actor_GetTypeIdle,               &Actor::EventGetTypeIdle              },
-    {&EV_Actor_SetTypeAttack,             &Actor::EventSetTypeAttack            },
-    {&EV_Actor_SetTypeAttack2,            &Actor::EventSetTypeAttack            },
-    {&EV_Actor_GetTypeAttack,             &Actor::EventGetTypeAttack            },
-    {&EV_Actor_SetTypeDisguise,           &Actor::EventSetTypeDisguise          },
-    {&EV_Actor_SetTypeDisguise2,          &Actor::EventSetTypeDisguise          },
-    {&EV_Actor_GetTypeDisguise,           &Actor::EventGetTypeDisguise          },
-    {&EV_Actor_SetDisguiseLevel,          &Actor::EventSetDisguiseLevel         },
-    {&EV_Actor_SetDisguiseLevel2,         &Actor::EventSetDisguiseLevel         },
-    {&EV_Actor_GetDisguiseLevel,          &Actor::EventGetDisguiseLevel         },
-    {&EV_Actor_SetTypeGrenade,            &Actor::EventSetTypeGrenade           },
-    {&EV_Actor_SetTypeGrenade2,           &Actor::EventSetTypeGrenade           },
-    {&EV_Actor_GetTypeGrenade,            &Actor::EventGetTypeGrenade           },
-    {&EV_Actor_SetMinDistance,            &Actor::EventSetMinDistance           },
-    {&EV_Actor_SetMinDistance2,           &Actor::EventSetMinDistance           },
-    {&EV_Actor_GetMinDistance,            &Actor::EventGetMinDistance           },
-    {&EV_Actor_SetMaxDistance,            &Actor::EventSetMaxDistance           },
-    {&EV_Actor_SetMaxDistance2,           &Actor::EventSetMaxDistance           },
-    {&EV_Actor_GetMaxDistance,            &Actor::EventGetMaxDistance           },
-    {&EV_Actor_GetLeash,                  &Actor::EventGetLeash                 },
-    {&EV_Actor_SetLeash,                  &Actor::EventSetLeash                 },
-    {&EV_Actor_SetLeash2,                 &Actor::EventSetLeash                 },
-    {&EV_Actor_GetInterval,               &Actor::EventGetInterval              },
-    {&EV_Actor_SetInterval,               &Actor::EventSetInterval              },
-    {&EV_Actor_SetInterval2,              &Actor::EventSetInterval              },
-    {&EV_Actor_GetRunAnim,                &Actor::EventGetRunAnim               },
-    {&EV_Actor_GetWalkAnim,               &Actor::EventGetWalkAnim              },
-    {&EV_Actor_GetAnimName,               &Actor::EventGetAnimName              },
-    {&EV_Actor_SetAnimName,               &Actor::EventSetAnimName              },
-    {&EV_Actor_SetDisguiseRange,          &Actor::EventSetDisguiseRange         },
-    {&EV_Actor_SetDisguiseRange2,         &Actor::EventSetDisguiseRange         },
-    {&EV_Actor_GetDisguiseRange,          &Actor::EventGetDisguiseRange         },
-    {&EV_Actor_SetDisguisePeriod,         &Actor::EventSetDisguisePeriod        },
-    {&EV_Actor_SetDisguisePeriod2,        &Actor::EventSetDisguisePeriod        },
-    {&EV_Actor_GetDisguisePeriod,         &Actor::EventGetDisguisePeriod        },
-    {&EV_Actor_SetDisguiseAcceptThread,   &Actor::EventSetDisguiseAcceptThread  },
-    {&EV_Actor_SetDisguiseAcceptThread2,  &Actor::EventSetDisguiseAcceptThread  },
-    {&EV_Actor_GetDisguiseAcceptThread,   &Actor::EventGetDisguiseAcceptThread  },
-    {&EV_Actor_AttackPlayer,              &Actor::EventAttackPlayer             },
-    {&EV_Actor_SetAlarmNode,              &Actor::EventSetAlarmNode             },
-    {&EV_Actor_SetAlarmNode2,             &Actor::EventSetAlarmNode             },
-    {&EV_Actor_GetAlarmNode,              &Actor::EventGetAlarmNode             },
-    {&EV_Actor_SetAlarmThread,            &Actor::EventSetAlarmThread           },
-    {&EV_Actor_SetAlarmThread2,           &Actor::EventSetAlarmThread           },
-    {&EV_Actor_GetAlarmThread,            &Actor::EventGetAlarmThread           },
-    {&EV_Actor_SetSoundAwareness,         &Actor::EventSetSoundAwareness        },
-    {&EV_Actor_SetSoundAwareness2,        &Actor::EventSetSoundAwareness        },
-    {&EV_Actor_GetSoundAwareness,         &Actor::EventGetSoundAwareness        },
-    {&EV_Actor_SetGrenadeAwareness,       &Actor::EventSetGrenadeAwareness      },
-    {&EV_Actor_SetGrenadeAwareness2,      &Actor::EventSetGrenadeAwareness      },
-    {&EV_Actor_GetGrenadeAwareness,       &Actor::EventGetGrenadeAwareness      },
-    {&EV_Actor_SetTurret,                 &Actor::EventSetTurret                },
-    {&EV_Actor_SetTurret2,                &Actor::EventSetTurret                },
-    {&EV_Actor_GetTurret,                 &Actor::EventGetTurret                },
-    {&EV_Actor_AttachGrenade,             &Actor::Grenade_EventAttach           },
-    {&EV_Actor_DetachGrenade,             &Actor::Grenade_EventDetach           },
-    {&EV_Actor_FireGrenade,               &Actor::Grenade_EventFire             },
-    {&EV_Actor_EnableEnemy,               &Actor::EventEnableEnemy              },
-    {&EV_Actor_EnablePain,                &Actor::EventEnablePain               },
-    {&EV_Activate,                        &Actor::EventActivate                 },
-    {&EV_Actor_GetAmmoGrenade,            &Actor::EventGetAmmoGrenade           },
-    {&EV_Actor_SetAmmoGrenade,            &Actor::EventSetAmmoGrenade           },
-    {&EV_Actor_SetAmmoGrenade2,           &Actor::EventSetAmmoGrenade           },
-    {&EV_Actor_GetMood,                   &Actor::EventGetMood                  },
-    {&EV_Actor_SetMood,                   &Actor::EventSetMood                  },
-    {&EV_Actor_ShareEnemy,                &Actor::EventShareEnemy               },
-    {&EV_Actor_ShareGrenade,              &Actor::EventShareGrenade             },
-    {&EV_Actor_InterruptPoint,            &Actor::EventInterruptPoint           },
-    {&EV_Actor_GetPainHandler,            &SimpleActor::EventGetPainHandler     },
-    {&EV_Actor_SetPainHandler,            &SimpleActor::EventSetPainHandler     },
-    {&EV_Actor_GetDeathHandler,           &SimpleActor::EventGetDeathHandler    },
-    {&EV_Actor_SetDeathHandler,           &SimpleActor::EventSetDeathHandler    },
-    {&EV_Actor_GetAttackHandler,          &SimpleActor::EventGetAttackHandler   },
-    {&EV_Actor_SetAttackHandler,          &SimpleActor::EventSetAttackHandler   },
-    {&EV_Actor_SetHeadModel,              &Actor::EventSetHeadModel             },
-    {&EV_Actor_GetHeadModel,              &Actor::EventGetHeadModel             },
-    {&EV_Actor_SetHeadSkin,               &Actor::EventSetHeadSkin              },
-    {&EV_Actor_GetHeadSkin,               &Actor::EventGetHeadSkin              },
-    {&EV_Actor_SetNoIdle,                 &Actor::EventSetNoIdle                },
-    {&EV_Actor_GetNoIdle,                 &Actor::EventGetNoIdle                },
-    {&EV_Actor_GetEnemy,                  &Actor::EventGetEnemy                 },
-    {&EV_Actor_GetMaxNoticeTimeScale,     &Actor::EventGetMaxNoticeTimeScale    },
-    {&EV_Actor_SetMaxNoticeTimeScale,     &Actor::EventSetMaxNoticeTimeScale    },
-    {&EV_Actor_SetMaxNoticeTimeScale2,    &Actor::EventSetMaxNoticeTimeScale    },
-    {&EV_Actor_GetFixedLeash,             &Actor::EventGetFixedLeash            },
-    {&EV_Actor_SetFixedLeash,             &Actor::EventSetFixedLeash            },
-    {&EV_Actor_SetFixedLeash2,            &Actor::EventSetFixedLeash            },
-    {&EV_Actor_Holster,                   &Actor::EventHolster                  },
-    {&EV_Actor_Unholster,                 &Actor::EventUnholster                },
-    {&EV_SoundDone,                       &Actor::EventSoundDone                },
-    {&EV_Sound,                           &Actor::EventSound                    },
-    {&EV_Actor_IsEnemyVisible,            &Actor::EventIsEnemyVisible           },
-    {&EV_Actor_GetEnemyVisibleChangeTime, &Actor::EventGetEnemyVisibleChangeTime},
-    {&EV_Actor_GetLastEnemyVisibleTime,   &Actor::EventGetLastEnemyVisibleTime  },
-    {&EV_Actor_SetFallHeight,             &Actor::EventSetFallHeight            },
-    {&EV_Actor_GetFallHeight,             &Actor::EventGetFallHeight            },
-    {&EV_Actor_CanMoveTo,                 &Actor::EventCanMoveTo                },
-    {&EV_Actor_MoveDir,                   &Actor::EventMoveDir                  },
-    {&EV_Actor_IntervalDir,               &Actor::EventIntervalDir              },
-    {&EV_Actor_ResetLeash,                &Actor::EventResetLeash               },
-    {&EV_Actor_Tether,                    &Actor::EventTether                   },
-    {&EV_Actor_GetThinkState,             &Actor::EventGetThinkState            },
-    {&EV_Actor_GetEnemyShareRange,        &Actor::EventGetEnemyShareRange       },
-    {&EV_Actor_SetEnemyShareRange,        &Actor::EventSetEnemyShareRange       },
-    {&EV_Actor_SetEnemyShareRange2,       &Actor::EventSetEnemyShareRange       },
-    {&EV_Actor_GetVoiceType,              &Actor::GetVoiceType                  },
-    {&EV_Actor_SetVoiceType,              &Actor::SetVoiceType                  },
-    {&EV_Actor_SetVoiceType2,             &Actor::SetVoiceType                  },
-    {&EV_Remove,                          &Actor::Remove                        },
-    {&EV_Delete,                          &Actor::Remove                        },
-    {&EV_ScriptRemove,                    &Actor::Remove                        },
-    {&EV_Actor_KickDir,                   &Actor::EventGetKickDir               },
-    {&EV_Actor_GetNoLongPain,             &Actor::EventGetNoLongPain            },
-    {&EV_Actor_SetNoLongPain,             &Actor::EventSetNoLongPain            },
-    {&EV_Actor_SetNoLongPain2,            &Actor::EventSetNoLongPain            },
-    {&EV_Actor_GetFavoriteEnemy,          &Actor::EventGetFavoriteEnemy         },
-    {&EV_Actor_SetFavoriteEnemy,          &Actor::EventSetFavoriteEnemy         },
-    {&EV_Actor_SetFavoriteEnemy2,         &Actor::EventSetFavoriteEnemy         },
-    {&EV_Actor_GetMumble,                 &Actor::EventGetMumble                },
-    {&EV_Actor_SetMumble,                 &Actor::EventSetMumble                },
-    {&EV_Actor_SetMumble2,                &Actor::EventSetMumble                },
-    {&EV_Actor_GetBreathSteam,            &Actor::EventGetBreathSteam           },
-    {&EV_Actor_SetBreathSteam,            &Actor::EventSetBreathSteam           },
-    {&EV_Actor_SetBreathSteam2,           &Actor::EventSetBreathSteam           },
-    {&EV_Actor_CalcGrenadeToss,           &Actor::EventCalcGrenadeToss          },
-    {&EV_Actor_GetNoSurprise,             &Actor::EventGetNoSurprise            },
-    {&EV_Actor_SetNoSurprise,             &Actor::EventSetNoSurprise            },
-    {&EV_Actor_SetNoSurprise2,            &Actor::EventSetNoSurprise            },
-    {&EV_Actor_GetSilent,                 &Actor::EventGetSilent                },
-    {&EV_Actor_SetSilent,                 &Actor::EventSetSilent                },
-    {&EV_Actor_SetSilent2,                &Actor::EventSetSilent                },
-    {&EV_Actor_GetAvoidPlayer,            &Actor::EventGetAvoidPlayer           },
-    {&EV_Actor_SetAvoidPlayer,            &Actor::EventSetAvoidPlayer           },
-    {&EV_Actor_SetAvoidPlayer2,           &Actor::EventSetAvoidPlayer           },
-    {&EV_Actor_SetMoveDoneRadius,         &Actor::EventSetMoveDoneRadius        },
-    {&EV_Actor_BeDead,                    &Actor::EventBeDead                   },
-    {&EV_Actor_GetLookAroundAngle,        &Actor::EventGetLookAroundAngle       },
-    {&EV_Actor_SetLookAroundAngle,        &Actor::EventSetLookAroundAngle       },
-    {&EV_Actor_SetLookAroundAngle2,       &Actor::EventSetLookAroundAngle       },
-    {&EV_Actor_HasCompleteLookahead,      &Actor::EventHasCompleteLookahead     },
-    {&EV_Actor_PathDist,                  &Actor::EventPathDist                 },
-    {&EV_Actor_CanShootEnemyFrom,         &Actor::EventCanShootEnemyFrom        },
-    {&EV_Actor_CanShoot,                  &Actor::EventCanShoot                 },
-    {&EV_Actor_GetInReload,               &Actor::EventGetInReload              },
-    {&EV_Actor_SetInReload,               &Actor::EventSetInReload              },
-    {&EV_Actor_SetReloadCover,            &Actor::EventSetReloadCover           },
-    {&EV_Actor_BreakSpecial,              &Actor::EventBreakSpecial             },
-    {&EV_Actor_SetBalconyHeight,          &Actor::EventSetBalconyHeight         },
-    {&EV_Actor_SetBalconyHeight2,         &Actor::EventSetBalconyHeight         },
-    {&EV_Actor_GetBalconyHeight,          &Actor::EventGetBalconyHeight         },
-    {&EV_CanSee,                          &Actor::CanSee                        },
-    {NULL,                                NULL                                  }
+    {&EV_Entity_Start,                        &Actor::EventStart                              },
+    {&EV_Actor_MoveTo,                        &Actor::MoveTo                                  },
+    {&EV_Actor_WalkTo,                        &Actor::WalkTo                                  },
+    {&EV_Actor_RunTo,                         &Actor::RunTo                                   },
+    {&EV_Actor_CrouchTo,                      &Actor::CrouchTo                                },
+    {&EV_Actor_CrawlTo,                       &Actor::CrawlTo                                 },
+    {&EV_Actor_AimAt,                         &Actor::AimAt                                   },
+    {&EV_Pain,                                &Actor::EventPain                               },
+    {&EV_Killed,                              &Actor::EventKilled                             },
+    {&EV_Actor_DeathEmbalm,                   &Actor::DeathEmbalm                             },
+    {&EV_Actor_Anim,                          &Actor::PlayAnimation                           },
+    {&EV_Actor_AnimLoop,                      &Actor::PlayAnimation                           },
+    {&EV_Actor_Anim_Scripted,                 &Actor::PlayScriptedAnimation                   },
+    {&EV_Actor_Anim_Noclip,                   &Actor::PlayNoclipAnimation                     },
+    {&EV_Actor_Anim_Attached,                 &Actor::PlayAttachedAnimation                   },
+    {&EV_Actor_AnimScript,                    &Actor::EventAnimScript                         },
+    {&EV_Actor_AnimScript_Scripted,           &Actor::EventAnimScript_Scripted                },
+    {&EV_Actor_AnimScript_Noclip,             &Actor::EventAnimScript_Noclip                  },
+    {&EV_Actor_AnimScript_Attached,           &Actor::EventAnimScript_Attached                },
+    {&EV_Actor_Reload_mg42,                   &Actor::EventReload_mg42                        },
+    {&EV_Actor_Dumb,                          &Actor::Dumb                                    },
+    {&EV_Actor_Physics_On,                    &Actor::PhysicsOn                               },
+    {&EV_Actor_Physics_Off,                   &Actor::PhysicsOff                              },
+    {&EV_Actor_SetAnim,                       &Actor::EventSetAnim                            },
+    {&EV_Actor_SetAnimLength,                 &SimpleActor::EventSetAnimLength                },
+    {&EV_Actor_EndActionAnim,                 &Actor::EventEndActionAnim                      },
+    {&EV_Actor_SetMotionAnim,                 &Actor::EventSetMotionAnim                      },
+    {&EV_Actor_SetAimMotionAnim,              &Actor::EventSetAimMotionAnim                   },
+    {&EV_Actor_SetActionAnim,                 &Actor::EventSetActionAnim                      },
+    {&EV_Actor_UpperAnim,                     &Actor::EventUpperAnim                          },
+    {&EV_Actor_SetUpperAnim,                  &Actor::EventSetUpperAnim                       },
+    {&EV_Actor_SetCrossblendTime,             &SimpleActor::EventSetCrossblendTime            },
+    {&EV_Actor_GetCrossblendTime,             &SimpleActor::EventGetCrossblendTime            },
+    {&EV_Actor_GetPosition,                   &SimpleActor::EventGetPosition                  },
+    {&EV_Actor_SetPosition,                   &SimpleActor::EventSetPosition                  },
+    {&EV_Actor_SetEmotion,                    &SimpleActor::EventSetEmotion                   },
+    {&EV_Actor_SetAnimFinal,                  &SimpleActor::EventSetAnimFinal                 },
+    {&EV_Actor_GetWeaponType,                 &SimpleActor::EventGetWeaponType                },
+    {&EV_Actor_GetWeaponGroup,                &SimpleActor::EventGetWeaponGroup               },
+    {&EV_Actor_LookAt,                        &Actor::EventLookAt                             },
+    {&EV_Actor_EyesLookAt,                    &Actor::EventEyesLookAt                         },
+    {&EV_Actor_PointAt,                       &Actor::EventPointAt                            },
+    {&EV_Actor_TurnTo,                        &Actor::EventTurnTo                             },
+    {&EV_Actor_SetTurnDoneError,              &Actor::EventSetTurnDoneError                   },
+    {&EV_Actor_SetTurnDoneError2,             &Actor::EventSetTurnDoneError                   },
+    {&EV_Actor_GetTurnDoneError,              &Actor::EventGetTurnDoneError                   },
+    {&EV_Actor_IdleSayAnim,                   &Actor::EventIdleSayAnim                        },
+    {&EV_Actor_SayAnim,                       &Actor::EventSayAnim                            },
+    {&EV_Actor_SetSayAnim,                    &Actor::EventSetSayAnim                         },
+    {&EV_Sentient_UseItem,                    &Actor::EventGiveWeapon                         },
+    {&EV_Sentient_GiveWeapon,                 &Actor::EventGiveWeapon                         },
+    {&EV_Actor_SetWeapon,                     &Actor::EventGiveWeapon                         },
+    {&EV_Actor_GetWeapon,                     &Actor::EventGetWeapon                          },
+    {&EV_Actor_SetGun,                        &Actor::EventGiveWeapon                         },
+    {&EV_Actor_SetGun2,                       &Actor::EventGiveWeapon                         },
+    {&EV_Actor_GetGun,                        &Actor::EventGetWeapon                          },
+    {&EV_Actor_WeaponInternal,                &Actor::EventGiveWeaponInternal                 },
+    {&EV_Actor_DamagePuff,                    &Actor::EventDamagePuff                         },
+    {&EV_Actor_SetAngleYawSpeed,              &Actor::EventSetAngleYawSpeed                   },
+    {&EV_Actor_SetAngleYawSpeed2,             &Actor::EventSetAngleYawSpeed                   },
+    {&EV_Actor_GetAngleYawSpeed,              &Actor::EventGetAngleYawSpeed                   },
+    {&EV_Actor_SetAimTarget,                  &Actor::EventSetAimTarget                       },
+    {&EV_Actor_ReadyToFire,                   &Actor::ReadyToFire                             },
+    {&EV_Actor_AIOn,                          &SimpleActor::EventAIOn                         },
+    {&EV_Actor_AIOff,                         &SimpleActor::EventAIOff                        },
+    {&EV_DeathSinkStart,                      &Actor::DeathSinkStart                          },
+    {&EV_Actor_GetSight,                      &Actor::EventGetSight                           },
+    {&EV_Actor_SetSight,                      &Actor::EventSetSight                           },
+    {&EV_Actor_SetSight2,                     &Actor::EventSetSight                           },
+    {&EV_Actor_GetHearing,                    &Actor::EventGetHearing                         },
+    {&EV_Actor_SetHearing,                    &Actor::EventSetHearing                         },
+    {&EV_Actor_SetHearing2,                   &Actor::EventSetHearing                         },
+    {&EV_Actor_SetFov,                        &Actor::EventSetFov                             },
+    {&EV_Actor_SetFov2,                       &Actor::EventSetFov                             },
+    {&EV_Actor_GetFov,                        &Actor::EventGetFov                             },
+    {&EV_Actor_DistToEnemy,                   &Actor::EventDistToEnemy                        },
+    {&EV_Actor_SetPatrolPath,                 &Actor::EventSetPatrolPath                      },
+    {&EV_Actor_SetPatrolPath2,                &Actor::EventSetPatrolPath                      },
+    {&EV_Actor_GetPatrolPath,                 &Actor::EventGetPatrolPath                      },
+    {&EV_Actor_SetPatrolWaitTrigger,          &Actor::EventSetPatrolWaitTrigger               },
+    {&EV_Actor_SetPatrolWaitTrigger2,         &Actor::EventSetPatrolWaitTrigger               },
+    {&EV_Actor_GetPatrolWaitTrigger,          &Actor::EventGetPatrolWaitTrigger               },
+    {&EV_Actor_SetAccuracy,                   &Actor::EventSetAccuracy                        },
+    {&EV_Actor_SetAccuracy2,                  &Actor::EventSetAccuracy                        },
+    {&EV_Actor_GetAccuracy,                   &Actor::EventGetAccuracy                        },
+    {&EV_Actor_SetTypeIdle,                   &Actor::EventSetTypeIdle                        },
+    {&EV_Actor_SetTypeIdle2,                  &Actor::EventSetTypeIdle                        },
+    {&EV_Actor_GetTypeIdle,                   &Actor::EventGetTypeIdle                        },
+    {&EV_Actor_SetTypeAttack,                 &Actor::EventSetTypeAttack                      },
+    {&EV_Actor_SetTypeAttack2,                &Actor::EventSetTypeAttack                      },
+    {&EV_Actor_GetTypeAttack,                 &Actor::EventGetTypeAttack                      },
+    {&EV_Actor_SetTypeDisguise,               &Actor::EventSetTypeDisguise                    },
+    {&EV_Actor_SetTypeDisguise2,              &Actor::EventSetTypeDisguise                    },
+    {&EV_Actor_GetTypeDisguise,               &Actor::EventGetTypeDisguise                    },
+    {&EV_Actor_SetDisguiseLevel,              &Actor::EventSetDisguiseLevel                   },
+    {&EV_Actor_SetDisguiseLevel2,             &Actor::EventSetDisguiseLevel                   },
+    {&EV_Actor_GetDisguiseLevel,              &Actor::EventGetDisguiseLevel                   },
+    {&EV_Actor_SetTypeGrenade,                &Actor::EventSetTypeGrenade                     },
+    {&EV_Actor_SetTypeGrenade2,               &Actor::EventSetTypeGrenade                     },
+    {&EV_Actor_GetTypeGrenade,                &Actor::EventGetTypeGrenade                     },
+    {&EV_Actor_SetMinDistance,                &Actor::EventSetMinDistance                     },
+    {&EV_Actor_SetMinDistance2,               &Actor::EventSetMinDistance                     },
+    {&EV_Actor_GetMinDistance,                &Actor::EventGetMinDistance                     },
+    {&EV_Actor_SetMaxDistance,                &Actor::EventSetMaxDistance                     },
+    {&EV_Actor_SetMaxDistance2,               &Actor::EventSetMaxDistance                     },
+    {&EV_Actor_GetMaxDistance,                &Actor::EventGetMaxDistance                     },
+    {&EV_Actor_GetLeash,                      &Actor::EventGetLeash                           },
+    {&EV_Actor_SetLeash,                      &Actor::EventSetLeash                           },
+    {&EV_Actor_SetLeash2,                     &Actor::EventSetLeash                           },
+    {&EV_Actor_GetInterval,                   &Actor::EventGetInterval                        },
+    {&EV_Actor_SetInterval,                   &Actor::EventSetInterval                        },
+    {&EV_Actor_SetInterval2,                  &Actor::EventSetInterval                        },
+    {&EV_Actor_GetRunAnim,                    &Actor::EventGetRunAnim                         },
+    {&EV_Actor_GetWalkAnim,                   &Actor::EventGetWalkAnim                        },
+    {&EV_Actor_GetAnimName,                   &Actor::EventGetAnimName                        },
+    {&EV_Actor_SetAnimName,                   &Actor::EventSetAnimName                        },
+    {&EV_Actor_SetDisguiseRange,              &Actor::EventSetDisguiseRange                   },
+    {&EV_Actor_SetDisguiseRange2,             &Actor::EventSetDisguiseRange                   },
+    {&EV_Actor_GetDisguiseRange,              &Actor::EventGetDisguiseRange                   },
+    {&EV_Actor_SetDisguisePeriod,             &Actor::EventSetDisguisePeriod                  },
+    {&EV_Actor_SetDisguisePeriod2,            &Actor::EventSetDisguisePeriod                  },
+    {&EV_Actor_GetDisguisePeriod,             &Actor::EventGetDisguisePeriod                  },
+    {&EV_Actor_SetDisguiseAcceptThread,       &Actor::EventSetDisguiseAcceptThread            },
+    {&EV_Actor_SetDisguiseAcceptThread2,      &Actor::EventSetDisguiseAcceptThread            },
+    {&EV_Actor_GetDisguiseAcceptThread,       &Actor::EventGetDisguiseAcceptThread            },
+    {&EV_Actor_AttackPlayer,                  &Actor::EventAttackPlayer                       },
+    {&EV_Actor_SetAlarmNode,                  &Actor::EventSetAlarmNode                       },
+    {&EV_Actor_SetAlarmNode2,                 &Actor::EventSetAlarmNode                       },
+    {&EV_Actor_GetAlarmNode,                  &Actor::EventGetAlarmNode                       },
+    {&EV_Actor_SetPreAlarmThread,             &Actor::EventSetPreAlarmThread                  },
+    {&EV_Actor_SetPreAlarmThread2,            &Actor::EventSetPreAlarmThread                  },
+    {&EV_Actor_SetAlarmThread,                &Actor::EventSetAlarmThread                     },
+    {&EV_Actor_SetAlarmThread2,               &Actor::EventSetAlarmThread                     },
+    {&EV_Actor_GetAlarmThread,                &Actor::EventGetAlarmThread                     },
+    {&EV_Actor_SetSoundAwareness,             &Actor::EventSetSoundAwareness                  },
+    {&EV_Actor_SetSoundAwareness2,            &Actor::EventSetSoundAwareness                  },
+    {&EV_Actor_GetSoundAwareness,             &Actor::EventGetSoundAwareness                  },
+    {&EV_Actor_SetGrenadeAwareness,           &Actor::EventSetGrenadeAwareness                },
+    {&EV_Actor_SetGrenadeAwareness2,          &Actor::EventSetGrenadeAwareness                },
+    {&EV_Actor_GetGrenadeAwareness,           &Actor::EventGetGrenadeAwareness                },
+    {&EV_Actor_SetTurret,                     &Actor::EventSetTurret                          },
+    {&EV_Actor_SetTurret2,                    &Actor::EventSetTurret                          },
+    {&EV_Actor_GetTurret,                     &Actor::EventGetTurret                          },
+    {&EV_Actor_AttachGrenade,                 &Actor::Grenade_EventAttach                     },
+    {&EV_Actor_DetachGrenade,                 &Actor::Grenade_EventDetach                     },
+    {&EV_Actor_FireGrenade,                   &Actor::Grenade_EventFire                       },
+    {&EV_Actor_EnableEnemy,                   &Actor::EventEnableEnemy                        },
+    {&EV_Actor_EnablePain,                    &Actor::EventEnablePain                         },
+    {&EV_Activate,                            &Actor::EventActivate                           },
+    {&EV_Actor_GetAmmoGrenade,                &Actor::EventGetAmmoGrenade                     },
+    {&EV_Actor_SetAmmoGrenade,                &Actor::EventSetAmmoGrenade                     },
+    {&EV_Actor_SetAmmoGrenade2,               &Actor::EventSetAmmoGrenade                     },
+    {&EV_Actor_GetMood,                       &Actor::EventGetMood                            },
+    {&EV_Actor_SetMood,                       &Actor::EventSetMood                            },
+    {&EV_Actor_ShareEnemy,                    &Actor::EventShareEnemy                         },
+    {&EV_Actor_ShareGrenade,                  &Actor::EventShareGrenade                       },
+    {&EV_Actor_InterruptPoint,                &Actor::EventInterruptPoint                     },
+    {&EV_Actor_GetVisibilityThreshold,        &Actor::EventGetVisibilityThreshold             },
+    {&EV_Actor_SetVisibilityThreshold,        &Actor::EventSetVisibilityThreshold             },
+    {&EV_Actor_SetVisibilityThreshold2,       &Actor::EventSetVisibilityThreshold             },
+    {&EV_Actor_SetDefaultVisibilityThreshold, &Actor::EventSetDefaultVisibilityThreshold      },
+    {&EV_Actor_GetSuppressChance,             &Actor::EventGetSuppressChance                  },
+    {&EV_Actor_SetSuppressChance,             &Actor::EventSetSuppressChance                  },
+    {&EV_Actor_SetSuppressChance2,            &Actor::EventSetSuppressChance                  },
+    {&EV_Actor_GetPainHandler,                &Actor::EventGetPainHandler                     },
+    {&EV_Actor_SetPainHandler,                &Actor::EventSetPainHandler                     },
+    {&EV_Actor_GetDeathHandler,               &Actor::EventGetDeathHandler                    },
+    {&EV_Actor_SetDeathHandler,               &Actor::EventSetDeathHandler                    },
+    {&EV_Actor_GetAttackHandler,              &Actor::EventGetAttackHandler                   },
+    {&EV_Actor_SetAttackHandler,              &Actor::EventSetAttackHandler                   },
+    {&EV_Actor_SetHeadModel,                  &Actor::EventSetHeadModel                       },
+    {&EV_Actor_GetHeadModel,                  &Actor::EventGetHeadModel                       },
+    {&EV_Actor_SetHeadSkin,                   &Actor::EventSetHeadSkin                        },
+    {&EV_Actor_GetHeadSkin,                   &Actor::EventGetHeadSkin                        },
+    {&EV_Actor_SetNoIdle,                     &Actor::EventSetNoIdle                          },
+    {&EV_Actor_GetNoIdle,                     &Actor::EventGetNoIdle                          },
+    {&EV_Actor_GetEnemy,                      &Actor::EventGetEnemy                           },
+    {&EV_Actor_GetMaxNoticeTimeScale,         &Actor::EventGetMaxNoticeTimeScale              },
+    {&EV_Actor_SetMaxNoticeTimeScale,         &Actor::EventSetMaxNoticeTimeScale              },
+    {&EV_Actor_SetMaxNoticeTimeScale2,        &Actor::EventSetMaxNoticeTimeScale              },
+    {&EV_Actor_GetFixedLeash,                 &Actor::EventGetFixedLeash                      },
+    {&EV_Actor_SetFixedLeash,                 &Actor::EventSetFixedLeash                      },
+    {&EV_Actor_SetFixedLeash2,                &Actor::EventSetFixedLeash                      },
+    {&EV_Actor_Holster,                       &Actor::EventHolster                            },
+    {&EV_Actor_Unholster,                     &Actor::EventUnholster                          },
+    {&EV_SoundDone,                           &Actor::EventSoundDone                          },
+    {&EV_Sound,                               &Actor::EventSound                              },
+    {&EV_Actor_IsEnemyVisible,                &Actor::EventIsEnemyVisible                     },
+    {&EV_Actor_GetEnemyVisibleChangeTime,     &Actor::EventGetEnemyVisibleChangeTime          },
+    {&EV_Actor_GetLastEnemyVisibleTime,       &Actor::EventGetLastEnemyVisibleTime            },
+    {&EV_Actor_SetFallHeight,                 &Actor::EventSetFallHeight                      },
+    {&EV_Actor_GetFallHeight,                 &Actor::EventGetFallHeight                      },
+    {&EV_Actor_CanMoveTo,                     &Actor::EventCanMoveTo                          },
+    {&EV_Actor_MoveDir,                       &Actor::EventMoveDir                            },
+    {&EV_Actor_IntervalDir,                   &Actor::EventIntervalDir                        },
+    {&EV_Actor_ResetLeash,                    &Actor::EventResetLeash                         },
+    {&EV_Actor_Tether,                        &Actor::EventTether                             },
+    {&EV_Actor_GetThinkState,                 &Actor::EventGetThinkState                      },
+    {&EV_Actor_GetEnemyShareRange,            &Actor::EventGetEnemyShareRange                 },
+    {&EV_Actor_SetEnemyShareRange,            &Actor::EventSetEnemyShareRange                 },
+    {&EV_Actor_SetEnemyShareRange2,           &Actor::EventSetEnemyShareRange                 },
+    {&EV_Actor_GetVoiceType,                  &Actor::GetVoiceType                            },
+    {&EV_Actor_SetVoiceType,                  &Actor::SetVoiceType                            },
+    {&EV_Actor_SetVoiceType2,                 &Actor::SetVoiceType                            },
+    {&EV_Remove,                              &Actor::Remove                                  },
+    {&EV_Delete,                              &Actor::Remove                                  },
+    {&EV_ScriptRemove,                        &Actor::Remove                                  },
+    {&EV_Actor_KickDir,                       &Actor::EventGetKickDir                         },
+    {&EV_Actor_GetNoLongPain,                 &Actor::EventGetNoLongPain                      },
+    {&EV_Actor_SetNoLongPain,                 &Actor::EventSetNoLongPain                      },
+    {&EV_Actor_SetNoLongPain2,                &Actor::EventSetNoLongPain                      },
+    {&EV_Actor_GetFavoriteEnemy,              &Actor::EventGetFavoriteEnemy                   },
+    {&EV_Actor_SetFavoriteEnemy,              &Actor::EventSetFavoriteEnemy                   },
+    {&EV_Actor_SetFavoriteEnemy2,             &Actor::EventSetFavoriteEnemy                   },
+    {&EV_Actor_GetMumble,                     &Actor::EventGetMumble                          },
+    {&EV_Actor_SetMumble,                     &Actor::EventSetMumble                          },
+    {&EV_Actor_SetMumble2,                    &Actor::EventSetMumble                          },
+    // FIXME: removed since 2.0?
+    //{&EV_Actor_GetBreathSteam,                &Actor::EventGetBreathSteam                     },
+    //{&EV_Actor_SetBreathSteam,                &Actor::EventSetBreathSteam                     },
+    //{&EV_Actor_SetBreathSteam2,               &Actor::EventSetBreathSteam                     },
+    {&EV_Actor_CalcGrenadeToss,               &Actor::EventCalcGrenadeToss                    },
+    {&EV_Actor_CalcGrenadeToss2,              &Actor::EventCalcGrenadeToss                    },
+    {&EV_Actor_GetNoSurprise,                 &Actor::EventGetNoSurprise                      },
+    {&EV_Actor_SetNoSurprise,                 &Actor::EventSetNoSurprise                      },
+    {&EV_Actor_SetNoSurprise2,                &Actor::EventSetNoSurprise                      },
+    {&EV_Actor_GetSilent,                     &Actor::EventGetSilent                          },
+    {&EV_Actor_SetSilent,                     &Actor::EventSetSilent                          },
+    {&EV_Actor_SetSilent2,                    &Actor::EventSetSilent                          },
+    {&EV_Actor_GetAvoidPlayer,                &Actor::EventGetAvoidPlayer                     },
+    {&EV_Actor_SetAvoidPlayer,                &Actor::EventSetAvoidPlayer                     },
+    {&EV_Actor_SetAvoidPlayer2,               &Actor::EventSetAvoidPlayer                     },
+    {&EV_Actor_SetMoveDoneRadius,             &Actor::EventSetMoveDoneRadius                  },
+    {&EV_Actor_GetMoveDoneRadius,             &Actor::EventGetMoveDoneRadius                  },
+    {&EV_Actor_BeDead,                        &Actor::EventBeDead                             },
+    {&EV_Actor_GetLookAroundAngle,            &Actor::EventGetLookAroundAngle                 },
+    {&EV_Actor_SetLookAroundAngle,            &Actor::EventSetLookAroundAngle                 },
+    {&EV_Actor_SetLookAroundAngle2,           &Actor::EventSetLookAroundAngle                 },
+    {&EV_Actor_HasCompleteLookahead,          &Actor::EventHasCompleteLookahead               },
+    {&EV_Actor_PathDist,                      &Actor::EventPathDist                           },
+    {&EV_Actor_CanShootEnemyFrom,             &Actor::EventCanShootEnemyFrom                  },
+    {&EV_Actor_CanShoot,                      &Actor::EventCanShoot                           },
+    {&EV_Actor_GetInReload,                   &Actor::EventGetInReload                        },
+    {&EV_Actor_SetInReload,                   &Actor::EventSetInReload                        },
+    {&EV_Actor_SetReloadCover,                &Actor::EventSetReloadCover                     },
+    {&EV_Actor_BreakSpecial,                  &Actor::EventBreakSpecial                       },
+    {&EV_Actor_SetBalconyHeight,              &Actor::EventSetBalconyHeight                   },
+    {&EV_Actor_SetBalconyHeight2,             &Actor::EventSetBalconyHeight                   },
+    {&EV_Actor_GetBalconyHeight,              &Actor::EventGetBalconyHeight                   },
+    {&EV_Actor_SetIgnoreBadPlace,             &Actor::EventSetIgnoreBadPlace                  },
+    {&EV_Actor_SetIgnoreBadPlace2,            &Actor::EventSetIgnoreBadPlace                  },
+    {&EV_Actor_GetIgnoreBadPlace,             &Actor::EventGetIgnoreBadPlace                  },
+    {&EV_Actor_FindEnemy,                     &Actor::EventFindEnemy                          },
+    {&EV_Actor_EnableEnemySwitch,             &Actor::EventEnableEnemySwitch                  },
+    {&EV_Actor_DisableEnemySwitch,            &Actor::EventDisableEnemySwitch                 },
+    {&EV_Actor_SetRunAnimRate,                &Actor::EventSetRunAnimRate                     },
+    {&EV_Actor_SetRunAnimRate2,               &Actor::EventSetRunAnimRate                     },
+    {&EV_Actor_GetRunAnimRate,                &Actor::EventGetRunAnimRate                     },
+    {&EV_Stop,                                &Actor::Landed                                  },
+    {&EV_Actor_SetNationality,                &Actor::SetNationality                          },
+    {&EV_Actor_SetNationality2,               &Actor::SetNationality                          },
+    {&EV_Actor_GetNationality,                &Actor::GetNationality                          },
+    {&EV_Actor_WriteStats,                    &Actor::EventWriteStats                         },
+    {&EV_Actor_CuriousOff,                    &Actor::EventCuriousOff                         },
+    {&EV_Actor_CuriousOn,                     &Actor::EventCuriousOn                          },
+    {NULL,                                    NULL                                            }
 };
 
 Actor::GlobalFuncs_t Actor::GlobalFuncs[NUM_THINKS];
@@ -4376,6 +4405,31 @@ bool Actor::CanSee(Entity *e1, float fov, float vision_distance, bool bNoEnts)
 
 /*
 ===============
+Actor::InFOV
+
+Returns true if positin is within fov.
+===============
+*/
+bool Actor::InFOV(Vector pos, float check_fov, float check_fovdot)
+{
+    bool bInFov = true;
+    if (check_fov != 360.0) {
+        Vector delta = pos - EyePosition();
+        if (delta.x == 0 && delta.y == 0) {
+            return bInFov;
+        }
+        bInFov = false;
+
+        float fDot = DotProduct2D(delta, orientation[0]);
+        if (fDot >= 0) {
+            bInFov = Square(fDot) > delta.lengthXYSquared() * Square(check_fovdot);
+        }
+    }
+    return bInFov;
+}
+
+/*
+===============
 Actor::CanShoot
 
 Returns true if actor can shoot entity.
@@ -4507,70 +4561,16 @@ bool Actor::CanShootEnemy(int iMaxDirtyTime)
     return m_bCanShootEnemy;
 }
 
-/*
-===============
-Actor::TransitionState
-
-===============
-*/
-void Actor::TransitionState(int iNewState, int iPadTime)
+bool Actor::FriendlyInLineOfFire(Entity *other)
 {
-    //fixme: this is an inline function.
-    m_State      = iNewState;
-    m_iStateTime = level.inttime + iPadTime;
+    // FIXME: unimplemented
+    return false;
 }
 
-/*
-===============
-Actor::CanSee
-
-Returns true to script if actor cansee entity.
-===============
-*/
-void Actor::CanSee(Event *ev)
+Vector Actor::VirtualEyePosition()
 {
-    float fov             = 0;
-    float vision_distance = 0;
-
-    if (m_Think[m_ThinkLevel] != THINK_MACHINEGUNNER || !m_pTurret) {
-        return Entity::CanSee(ev);
-    }
-    switch (ev->NumArgs()) {
-    case 1:
-        {
-            //do nothing
-        }
-        break;
-    case 2:
-        {
-            fov = ev->GetFloat(2);
-            if (fov < 0 || fov > 360) {
-                ScriptError("fov must be in range 0 <= fov <= 360");
-            }
-        }
-        break;
-    case 3:
-        {
-            vision_distance = ev->GetFloat(3);
-            if (vision_distance < 0) {
-                ScriptError("vision distance must be >= 0");
-            }
-        }
-        break;
-    default:
-        {
-            ScriptError("cansee should have 1, 2, or 3 arguments");
-        }
-        break;
-    }
-
-    Entity *ent = ev->GetEntity(1);
-    if (!ent) {
-        ScriptError("NULL entity in parameter 1");
-    } else {
-        int cansee = MachineGunner_CanSee(ent, fov, vision_distance);
-        ev->AddInteger(cansee);
-    }
+    // FIXME: unimplemented
+    return Vector();
 }
 
 /*
@@ -4608,66 +4608,6 @@ bool Actor::IsDogState(int state)
 
 /*
 ===============
-Actor::IgnoreSoundSet
-
-Make actor ignore iType sound.
-===============
-*/
-void Actor::IgnoreSoundSet(int iType)
-{
-    m_iIgnoreSoundsMask |= 1 << iType;
-}
-
-/*
-===============
-Actor::IgnoreSoundSetAll
-
-Make actor ignore all types of sound.
-===============
-*/
-void Actor::IgnoreSoundSetAll(void)
-{
-    m_iIgnoreSoundsMask = ~AI_EVENT_NONE;
-}
-
-/*
-===============
-Actor::IgnoreSoundClear
-
-Don't ignore iType of sound.
-===============
-*/
-void Actor::IgnoreSoundClear(int iType)
-{
-    m_iIgnoreSoundsMask &= ~iType;
-}
-
-/*
-===============
-Actor::IgnoreSoundClearAll
-
-Make actor ignore no type of sound.
-===============
-*/
-void Actor::IgnoreSoundClearAll(void)
-{
-    m_iIgnoreSoundsMask = 0;
-}
-
-/*
-===============
-Actor::IgnoreSoundClearAll
-
-returns true if actor should ignore iType of sound.
-===============
-*/
-bool Actor::IgnoreSound(int iType)
-{
-    return (m_iIgnoreSoundsMask >> iType) & 1;
-}
-
-/*
-===============
 Actor::WithinVisionDistance
 
 Returns true if entity is witthin vision distance.
@@ -4691,91 +4631,6 @@ bool Actor::WithinVisionDistance(Entity *ent) const
     }
 
     return false;
-}
-
-/*
-===============
-Actor::InFOV
-
-Returns true if positin is within fov.
-===============
-*/
-bool Actor::InFOV(Vector pos, float check_fov, float check_fovdot)
-{
-    bool bInFov = true;
-    if (check_fov != 360.0) {
-        Vector delta = pos - EyePosition();
-        if (delta.x == 0 && delta.y == 0) {
-            return bInFov;
-        }
-        bInFov = false;
-
-        float fDot = DotProduct2D(delta, orientation[0]);
-        if (fDot >= 0) {
-            bInFov = Square(fDot) > delta.lengthXYSquared() * Square(check_fovdot);
-        }
-    }
-    return bInFov;
-}
-
-/*
-===============
-Actor::InFOV
-
-Returns true if pos is within fov.
-===============
-*/
-bool Actor::InFOV(Vector pos)
-{
-    return InFOV(pos, m_fFov, m_fFovDot);
-}
-
-/*
-===============
-Actor::InFOV
-
-Returns true if ent is within fov.
-===============
-*/
-bool Actor::InFOV(Entity *ent)
-{
-    if (ent == m_Enemy) {
-        return EnemyInFOV(0);
-    } else {
-        return InFOV(ent->centroid, m_fFov, m_fFovDot);
-    }
-}
-
-bool Actor::CanSeeNoFOV(Entity *ent)
-{
-    if (ent == m_Enemy) {
-        return CanSeeEnemy(0);
-    } else {
-        bool bCanSee = false;
-        if (gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)) {
-            bCanSee = CanSeeFrom(EyePosition(), ent);
-        }
-        return bCanSee;
-    }
-}
-
-bool Actor::CanSeeFOV(Entity *ent)
-{
-    //fixme: this is an inline function.
-    if (ent == m_Enemy) {
-        return CanSeeEnemyFOV(0, 0);
-    } else {
-        bool bCanSee = false;
-        if (InFOV(ent->centroid, m_fFov, m_fFovDot) && gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)) {
-            bCanSee = CanSeeFrom(EyePosition(), ent);
-        }
-        return bCanSee;
-    }
-}
-
-bool Actor::CanSeeEnemyFOV(int iMaxFovDirtyTime, int iMaxSightDirtyTime)
-{
-    return EnemyInFOV(iMaxFovDirtyTime) && CanSeeEnemy(iMaxSightDirtyTime);
 }
 
 /*
@@ -5902,6 +5757,21 @@ void Actor::PlayNoclipAnimation(Event *ev)
 {
     Event e1(EV_Listener_ExecuteScript);
     e1.AddConstString(STRING_GLOBAL_ANIM_NOCLIP_SCR);
+    e1.AddValue(ev->GetValue(1));
+    ExecuteScript(&e1);
+}
+
+/*
+===============
+Actor::PlayAttachedAnimation
+
+Play attached animation
+===============
+*/
+void Actor::PlayAttachedAnimation(Event *ev)
+{
+    Event e1(EV_Listener_ExecuteScript);
+    e1.AddConstString(STRING_GLOBAL_ANIM_ATTACHED_SCR);
     e1.AddValue(ev->GetValue(1));
     ExecuteScript(&e1);
 }
@@ -7113,6 +6983,16 @@ void Actor::UpdateEnemy(int iMaxDirtyTime)
     if (level.inttime > iMaxDirtyTime + m_iEnemyCheckTime) {
         UpdateEnemyInternal();
     }
+}
+
+/*
+===============
+Actor::DetectSmokeGrenades
+===============
+*/
+void Actor::DetectSmokeGrenades(void)
+{
+    // FIXME: unimplemented
 }
 
 /*
@@ -8341,6 +8221,15 @@ void Actor::EventGetAlarmNode(Event *ev)
     ev->AddListener(m_AlarmNode);
 }
 
+void Actor::EventSetPreAlarmThread(Event *ev)
+{
+    if (ev->IsFromScript()) {
+        m_PreAlarmThread.SetThread(ev->GetValue());
+    } else {
+        m_PreAlarmThread.Set(ev->GetString(1));
+    }
+}
+
 void Actor::EventSetAlarmThread(Event *ev)
 {
     if (ev->IsFromScript()) {
@@ -8963,6 +8852,22 @@ bool Actor::PassesTransitionConditions_Grenade(void)
     }
 
     return false;
+}
+
+/*
+===============
+Actor::PassesTransitionConditions_BadPlace
+
+Should actor transition think state to bad place?
+===============
+*/
+bool Actor::PassesTransitionConditions_BadPlace(void)
+{
+    if (m_bLockThinkState) {
+        return false;
+    }
+
+    return m_iBadPlaceIndex != 0;
 }
 
 /*
@@ -9762,6 +9667,25 @@ void Actor::SetGrenade(Entity *pGrenade)
     m_iFirstGrenadeTime = level.inttime;
 
     m_vGrenadePos = pGrenade->origin;
+}
+
+/*
+===============
+Actor::UpdateBadPlaces
+
+Update bad places, with a new path
+===============
+*/
+void Actor::UpdateBadPlaces(void)
+{
+    m_iBadPlaceIndex = 0;
+    if (!m_bIgnoreBadPlace) {
+        if (PathExists()) {
+            m_Path.ReFindPath(origin, this);
+        }
+
+        m_iBadPlaceIndex = level.GetNearestBadPlace(origin, 64, 1 << m_Team);
+    }
 }
 
 /*
@@ -10626,6 +10550,50 @@ void Actor::EventInterruptPoint(Event *ev)
     }
 }
 
+void Actor::EventGetVisibilityThreshold(Event *ev)
+{
+    ev->AddFloat(m_fVisibilityThreshold);
+}
+
+void Actor::EventSetVisibilityThreshold(Event *ev)
+{
+    float threshold;
+
+    threshold = ev->GetFloat(1);
+
+    if (threshold < 0 || threshold > 1) {
+        ScriptError("DefaultNonVisLevel must be in range 0-1");
+    }
+
+    m_bHasVisibilityThreshold = true;
+    m_fVisibilityThreshold    = threshold;
+}
+
+void Actor::EventSetDefaultVisibilityThreshold(Event *ev)
+{
+    float threshold;
+
+    threshold = ev->GetFloat(1);
+
+    if (threshold < 0 || threshold > 1) {
+        ScriptError("DefaultNonVisLevel must be in range 0-1");
+    }
+
+    if (!m_bHasVisibilityThreshold) {
+        m_fVisibilityThreshold = threshold;
+    }
+}
+
+void Actor::EventGetSuppressChance(Event *ev)
+{
+    ev->AddInteger(m_iSuppressChance);
+}
+
+void Actor::EventSetSuppressChance(Event *ev)
+{
+    // FIXME: unimplemented
+}
+
 void Actor::EventAnimScript(Event *ev)
 {
     m_bAnimScriptSet = true;
@@ -10656,6 +10624,11 @@ void Actor::EventAnimScript_Noclip(Event *ev)
     m_AnimMode = 6;
 
     SetThinkIdle(THINK_ANIM);
+}
+
+void Actor::EventAnimScript_Attached(Event *ev)
+{
+    // FIXME: unimplemented
 }
 
 void Actor::EventReload_mg42(Event *ev)
@@ -11094,14 +11067,34 @@ void Actor::Holster(void)
     }
 }
 
+void Actor::HolsterOffHand(void)
+{
+    if (activeWeaponList[WEAPON_OFFHAND]) {
+        DeactivateWeapon(WEAPON_OFFHAND);
+    }
+}
+
 void Actor::Unholster(void)
 {
     Weapon *weap;
 
-    if (!activeWeaponList[0]) {
+    if (!activeWeaponList[WEAPON_MAIN]) {
         weap = GetWeapon(WEAPON_MAIN);
         if (weap) {
             useWeapon(weap, WEAPON_MAIN);
+            ActivateNewWeapon();
+        }
+    }
+}
+
+void Actor::UnholsterOffHand(void)
+{
+    Weapon *weap;
+
+    if (!activeWeaponList[WEAPON_OFFHAND]) {
+        weap = GetWeapon(WEAPON_OFFHAND);
+        if (weap) {
+            useWeapon(weap, WEAPON_OFFHAND);
             ActivateNewWeapon();
         }
     }
@@ -11581,6 +11574,11 @@ bool Actor::IsGrenadeState(int state)
     return state == THINKSTATE_GRENADE;
 }
 
+bool Actor::IsBadPlaceState(int state)
+{
+    return state == THINKSTATE_BADPLACE;
+}
+
 bool Actor::IsPainState(int state)
 {
     return state == THINKSTATE_PAIN;
@@ -11629,6 +11627,15 @@ void Actor::EventSetFavoriteEnemy(Event *ev)
     m_FavoriteEnemy  = fEnemy;
 }
 
+void Actor::EventFindEnemy(Event *ev)
+{
+    if (level.inttime > m_iEnemyCheckTime + 200) {
+        UpdateEnemyInternal();
+    }
+
+    ev->AddEntity(m_Enemy);
+}
+
 void Actor::EventGetMumble(Event *ev)
 {
     ev->AddInteger(m_bMumble);
@@ -11637,6 +11644,11 @@ void Actor::EventGetMumble(Event *ev)
 void Actor::EventSetMumble(Event *ev)
 {
     m_bMumble = ev->GetInteger(1);
+}
+
+void Actor::EventCalcGrenadeToss2(Event *ev)
+{
+    // FIXME: unimplemented
 }
 
 void Actor::EventCalcGrenadeToss(Event *ev)
@@ -11982,6 +11994,11 @@ void Actor::EventSetMoveDoneRadius(Event *ev)
     m_fMoveDoneRadiusSquared = Square(moveDoneR);
 }
 
+void Actor::EventGetMoveDoneRadius(Event *ev)
+{
+    ev->AddFloat(sqrtf(m_fMoveDoneRadiusSquared));
+}
+
 /*
 ===============
 Actor::StoppedWaitFor
@@ -12063,6 +12080,22 @@ void Actor::EventSetBalconyHeight(Event *ev)
     m_fBalconyHeight = ev->GetFloat(1);
 }
 
+void Actor::EventSetIgnoreBadPlace(Event *ev)
+{
+    if (m_bIgnoreBadPlace != ev->GetBoolean(1)) {
+        m_bIgnoreBadPlace = ev->GetBoolean(1);
+
+        if (level.m_badPlaces.NumObjects() && m_bIgnoreBadPlace) {
+            UpdateBadPlaces();
+        }
+    }
+}
+
+void Actor::EventGetIgnoreBadPlace(Event *ev)
+{
+    ev->AddInteger(m_bIgnoreBadPlace);
+}
+
 void Actor::EventGetBalconyHeight(Event *ev)
 {
     ev->AddFloat(m_fBalconyHeight);
@@ -12098,96 +12131,110 @@ void Actor::AimAtEnemyBehavior(void)
 
 /*
 ===============
-Actor::ForwardLook
-
-
+Actor::EventEnableEnemySwitch
 ===============
 */
-void Actor::ForwardLook(void)
+void Actor::EventEnableEnemySwitch(Event *ev)
 {
-    //fixme: this is an inline function.
-    m_bHasDesiredLookAngles = false;
+    m_bEnemySwitch = true;
 }
 
 /*
 ===============
-Actor::SetDesiredLookDir
-
-Change desired look direction.
+Actor::EventDisableEnemySwitch
 ===============
 */
-void Actor::SetDesiredLookDir(vec3_t dir)
+void Actor::EventDisableEnemySwitch(Event *ev)
 {
-    m_bHasDesiredLookAngles = true;
-    vectoangles(dir, m_DesiredLookAngles);
-    m_DesiredLookAngles[1] = m_DesiredLookAngles[1] - angles[1];
-    m_DesiredLookAngles[1] = AngleNormalize180(m_DesiredLookAngles[1]);
-    m_DesiredLookAngles[0] = AngleNormalize180(m_DesiredLookAngles[0]);
+    m_bEnemySwitch = false;
 }
 
 /*
 ===============
-Actor::SetDesiredLookAnglesRelative
-
-Change desired look angles relatively.
+Actor::EventSetRunAnimRate
 ===============
 */
-void Actor::SetDesiredLookAnglesRelative(vec3_t ang)
+void Actor::EventSetRunAnimRate(Event *ev)
 {
-    m_bHasDesiredLookAngles = true;
-    m_DesiredLookAngles[0]  = AngleNormalize180(ang[0]);
-    m_DesiredLookAngles[1]  = AngleNormalize180(ang[1]);
-    m_DesiredLookAngles[2]  = AngleNormalize180(ang[2]);
+    m_fRunAnimRate = ev->GetFloat(1);
 }
 
 /*
 ===============
-Actor::AimAtTargetPos
-
-Aim at mTargetPos.
+Actor::EventGetRunAnimRate
 ===============
 */
-void Actor::AimAtTargetPos(void)
+void Actor::EventGetRunAnimRate(Event *ev)
 {
-    Vector vDir = mTargetPos - EyePosition() + Vector(0, 0, 16);
-    SetDesiredLookDir(vDir);
-    m_DesiredGunDir[0] = 360.0f - vDir.toPitch();
-    m_DesiredGunDir[1] = vDir.toYaw();
-    m_DesiredGunDir[2] = 0;
-
-    SetDesiredYawDir(vDir);
+    ev->AddFloat(m_fRunAnimRate);
 }
 
 /*
 ===============
-Actor::AimAtAimNode
-
-Aim at m_aimNode.
+Actor::Landed
 ===============
 */
-void Actor::AimAtAimNode(void)
+void Actor::Landed(Event *ev)
 {
-    mTargetPos = m_aimNode->origin;
+    // FIXME: unimplemented
+}
 
-    AimAtTargetPos();
+bool Actor::IsOnFloor(void)
+{
+    // FIXME: unimplemented
+    return false;
 }
 
 /*
 ===============
-Actor::NextUpdateTime
-
-Returns next update time.
+Actor::GetNationality
 ===============
 */
-int Actor::NextUpdateTime(int iLastUpdateTime, int iUpdatePeriod)
+void Actor::GetNationality(Event *ev)
 {
-    int i = iLastUpdateTime;
+    // FIXME: unimplemented
+}
 
-    do {
-        i += iUpdatePeriod;
-    } while (i < level.inttime);
+/*
+===============
+Actor::SetNationality
+===============
+*/
+void Actor::SetNationality(Event *ev)
+{
+    // FIXME: unimplemented
+}
 
-    return i;
+/*
+===============
+Actor::EventWriteStats
+===============
+*/
+void Actor::EventWriteStats(Event *ev)
+{
+    if (g_aistats->integer) {
+        level.OpenActorStats();
+    }
+}
+
+/*
+===============
+Actor::EventCuriousOff
+===============
+*/
+void Actor::EventCuriousOff(Event *ev)
+{
+    m_bIsCurious = false;
+}
+
+/*
+===============
+Actor::EventCuriousOn
+===============
+*/
+void Actor::EventCuriousOn(Event *ev)
+{
+    m_bIsCurious = true;
 }
 
 /*
@@ -12589,30 +12636,6 @@ void Actor::UpdateBoneControllers()
 
 */
 
-/*
-===============
-Actor::CurrentThink
-
-Current think.
-===============
-*/
-int Actor::CurrentThink(void) const
-{
-    return m_Think[m_ThinkLevel];
-}
-
-/*
-===============
-Actor::IsAttacking
-
-Returns true if actor is in attack state.
-===============
-*/
-bool Actor::IsAttacking(void) const
-{
-    return m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_ATTACK;
-}
-
 void Actor::EventSetDestIdle(Event *ev)
 {
     // not found in ida
@@ -12642,13 +12665,13 @@ void Actor::EventSetNextBreathTime(Event *ev)
     t->Execute(&sVar, 1);
 }
 
-bool Actor::AvoidingFacingWall(void) const
-{
-    return m_eDontFaceWallMode <= 8;
-}
-
 bool Actor::EnemyIsDisguised(void)
 {
     return (m_bEnemyIsDisguised || (m_Enemy && m_Enemy->m_bIsDisguised))
         && (!m_bForceAttackPlayer && m_ThinkState != THINKSTATE_ATTACK);
+}
+
+bool Actor::IsDisabled() const
+{
+    return !m_bDoAI;
 }
