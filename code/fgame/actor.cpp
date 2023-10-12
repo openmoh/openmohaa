@@ -2978,15 +2978,7 @@ void Actor::setContentsSolid(void)
 void Actor::EndStates(void)
 {
     for (int i = 0; i < NUM_THINKLEVELS; i++) {
-        GlobalFuncs_t *func = &GlobalFuncs[m_Think[i]];
-
-        if (func->EndState) {
-            (this->*func->EndState)();
-        }
-
-        if (m_pAnimThread) {
-            m_pAnimThread->AbortRegistration(STRING_EMPTY, this);
-        }
+        EndState(i);
     }
 }
 
@@ -4633,14 +4625,39 @@ bool Actor::CanShootEnemy(int iMaxDirtyTime)
 
 bool Actor::FriendlyInLineOfFire(Entity *other)
 {
-    // FIXME: unimplemented
+    Vector delta;
+    float inverseDot;
+
+    delta = other->origin - origin;
+    inverseDot = 1.0 / (delta * delta);
+
+    for (Sentient* pSquad = m_pNextSquadMate; pSquad != this; pSquad = pSquad->m_pNextSquadMate) {
+        Vector squadDelta;
+        float squadDot;
+
+        squadDelta = pSquad->origin - origin;
+        squadDot = squadDelta * delta;
+        if (squadDot >= 0) {
+            Vector org;
+
+            org = squadDot * inverseDot * delta - squadDelta;
+            if (org * org >= 4096) {
+                return true;
+            }
+        }
+    }
+
     return false;
 }
 
 Vector Actor::VirtualEyePosition()
 {
-    // FIXME: unimplemented
-    return Vector();
+    if (m_pTurret && CurrentThink() == THINK_MACHINEGUNNER) {
+        // return the turret eye position
+        return m_pTurret->EyePosition();
+    } else {
+        return EyePosition();
+    }
 }
 
 /*
@@ -6223,10 +6240,12 @@ Spawns a puff of 'blood' smoke at the speficied location in the specified direct
 */
 void Actor::EventDamagePuff(Event *ev)
 {
-    Vector pos = ev->GetVector(1), dir = ev->GetVector(2);
+    Vector pos = ev->GetVector(1);
+    Vector dir = ev->GetVector(2);
+
     gi.SetBroadcastVisible(pos, NULL);
-    //FIXME: macro
-    gi.MSG_StartCGM(7);
+
+    gi.MSG_StartCGM(BG_MapCGMToProtocol(g_protocol, CGM_BULLET_8));
     gi.MSG_WriteCoord(pos.x);
     gi.MSG_WriteCoord(pos.y);
     gi.MSG_WriteCoord(pos.z);
@@ -10672,9 +10691,8 @@ void Actor::EventAnimScript(Event *ev)
 
 void Actor::EventAnimScript_Scripted(Event *ev)
 {
-    m_bAnimScriptSet = true;
     m_csAnimScript   = ev->GetConstString(1);
-
+    m_bAnimScriptSet = true;
     //FIXME: macro
     m_AnimMode = 5;
 
@@ -10683,8 +10701,8 @@ void Actor::EventAnimScript_Scripted(Event *ev)
 
 void Actor::EventAnimScript_Noclip(Event *ev)
 {
+    m_csAnimScript = ev->GetConstString(1);
     m_bAnimScriptSet = true;
-    m_csAnimScript   = ev->GetConstString(1);
     //FIXME: macro
     m_AnimMode = 6;
 
@@ -10693,7 +10711,12 @@ void Actor::EventAnimScript_Noclip(Event *ev)
 
 void Actor::EventAnimScript_Attached(Event *ev)
 {
-    // FIXME: unimplemented
+    m_csAnimScript = ev->GetConstString(1);
+    m_bAnimScriptSet = true;
+    //FIXME: macro
+    m_AnimMode = 9;
+
+    SetThinkIdle(THINK_ANIM);
 }
 
 void Actor::EventReload_mg42(Event *ev)
@@ -12251,8 +12274,9 @@ void Actor::Landed(Event *ev)
 
 bool Actor::IsOnFloor(void)
 {
-    // FIXME: unimplemented
-    return false;
+    str name = AnimName(0);
+    name.toupper();
+    return strstr(name, "FLOOR") != NULL;
 }
 
 /*
@@ -12262,7 +12286,37 @@ Actor::GetNationality
 */
 void Actor::GetNationality(Event *ev)
 {
-    // FIXME: unimplemented
+    switch (m_iNationality) {
+    case ACTOR_NATIONALITY_DEFAULT:
+    default:
+        switch (m_Team) {
+        case TEAM_AMERICAN:
+            ev->AddString("usa");
+            break;
+        case TEAM_GERMAN:
+            ev->AddString("ger");
+            break;
+        default:
+            ev->AddString("unset");
+            break;
+        }
+        break;
+    case ACTOR_NATIONALITY_AMERICAN:
+        ev->AddString("usa");
+        break;
+    case ACTOR_NATIONALITY_GERMAN:
+        ev->AddString("ger");
+        break;
+    case ACTOR_NATIONALITY_ITALIAN:
+        ev->AddString("it");
+        break;
+    case ACTOR_NATIONALITY_BRITISH:
+        ev->AddString("uk");
+        break;
+    case ACTOR_NATIONALITY_RUSSIAN:
+        ev->AddString("ussr");
+        break;
+    }
 }
 
 /*
@@ -12272,7 +12326,29 @@ Actor::SetNationality
 */
 void Actor::SetNationality(Event *ev)
 {
-    // FIXME: unimplemented
+    str name;
+
+    if (ev->NumArgs() != 1) {
+        ScriptError("Bad bad nationality specified for '%s' at (%f %f %f)\n", TargetName().c_str(), origin[0], origin[1], origin[2]);
+    }
+
+    name = ev->GetString(1);
+
+    if (!str::icmpn(name, "default", 8)) {
+        m_iNationality = ACTOR_NATIONALITY_DEFAULT;
+    } else if (!str::icmpn(name, "ger", 4)) {
+        m_iNationality = ACTOR_NATIONALITY_GERMAN;
+    } else if (!str::icmpn(name, "it", 3)) {
+        m_iNationality = ACTOR_NATIONALITY_ITALIAN;
+    } else if (!str::icmpn(name, "usa", 4)) {
+        m_iNationality = ACTOR_NATIONALITY_AMERICAN;
+    } else if (!str::icmpn(name, "uk", 3)) {
+        m_iNationality = ACTOR_NATIONALITY_BRITISH;
+    } else if (!str::icmpn(name, "ussr", 5)) {
+        m_iNationality = ACTOR_NATIONALITY_RUSSIAN;
+    } else {
+        ScriptError("Bad bad nationality specified for '%s', must be one of: ger, it, usa, uk, ussr or default\n", TargetName().c_str());
+    }
 }
 
 /*
