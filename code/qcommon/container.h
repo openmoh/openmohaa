@@ -180,11 +180,11 @@ Type *Container<Type>::AddressOfObjectAt(int index)
     return &objlist[index - 1];
 }
 
-/*template< class Type >
+template< class Type >
 void Container<Type>::Archive( Archiver &arc )
 {
-
-}*/
+    Archive(arc, ArchiveClass<Type>);
+}
 
 template<class Type>
 void Container<Type>::ClearObjectList(void)
