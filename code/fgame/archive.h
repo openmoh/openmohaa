@@ -265,6 +265,12 @@ inline void ArchiveClass(Archiver& arc, c *obj)
     arc.ArchiveObject(obj);
 }
 
+template<typename Type>
+void Container<Type>::Archive(Archiver& arc)
+{
+    Archive(arc, ArchiveClass<Type>);
+}
+
 #ifndef NO_ARCHIVE
 
 template<typename key, typename value>
