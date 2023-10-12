@@ -2585,6 +2585,16 @@ void Level::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fLandmarkXDistMax);
 }
 
+void Level::OpenActorStats()
+{
+    // FIXME: unimplemented
+}
+
+void Level::WriteActorStats(Actor* actor)
+{
+    // FIXME: unimplemented
+}
+
 badplace_t::badplace_t()
     : m_fLifespan(FLT_MAX)
     , m_iTeamSide(TEAM_ALLIES)

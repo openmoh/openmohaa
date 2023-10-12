@@ -84,6 +84,7 @@ extern gclient_t *spawn_client;
 
 class Camera;
 class SimpleArchivedEntity;
+class Actor;
 
 class Level : public Listener
 {
@@ -368,6 +369,9 @@ public:
 
     void AddEarthquake(earthquake_t *);
     void DoEarthquakes(void);
+
+    void OpenActorStats();
+    void WriteActorStats(Actor* actor);
 
     void Archive(Archiver& arc) override;
 };
