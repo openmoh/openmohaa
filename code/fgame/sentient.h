@@ -337,6 +337,8 @@ public:
     void DisbandSquadMate(Sentient *pExFriendly);
     bool IsSquadMate(Sentient *pFriendly);
 
+    virtual bool IsDisabled() const; // Added in 2.30
+
     Vehicle* GetVehicle() const;
     void SetVehicle(Vehicle* pVehicle);
 

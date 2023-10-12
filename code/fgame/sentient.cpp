@@ -2789,6 +2789,11 @@ bool Sentient::IsSquadMate(Sentient *pFriendly)
     }
 }
 
+bool Sentient::IsDisabled() const
+{
+    return false;
+}
+
 VehicleTank *Sentient::GetVehicleTank(void)
 {
     if (m_pVehicle && m_pVehicle->IsSubclassOfVehicleTank()) {
