@@ -115,6 +115,13 @@ SimpleActor::SimpleActor()
     m_maxspeed = 1000000.0f;
 }
 
+SimpleActor::~SimpleActor()
+{
+    if (m_pAnimThread) {
+        delete m_pAnimThread->GetScriptClass();
+    }
+}
+
 void SimpleActor::Archive(Archiver& arc)
 {
     Sentient::Archive(arc);

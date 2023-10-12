@@ -133,6 +133,7 @@ public:
     CLASS_PROTOTYPE(SimpleActor);
 
     SimpleActor();
+    ~SimpleActor();
 
     void         Archive(Archiver        &arc) override;
     virtual void SetMoveInfo(mmove_t *mm);
