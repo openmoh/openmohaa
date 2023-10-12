@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,90 +24,67 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitRunner
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitRunner(GlobalFuncs_t *func)
 {
-	func->ThinkState					= &Actor::Think_Runner;
-	func->BeginState					= &Actor::Begin_Runner;
-	func->EndState						= &Actor::End_Runner;
-	func->ResumeState					= &Actor::Resume_Runner;
-	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Idle;
-	func->ShowInfo						= &Actor::ShowInfo_Runner;
-	func->IsState						= &Actor::IsIdleState;
+    func->ThinkState                 = &Actor::Think_Runner;
+    func->BeginState                 = &Actor::Begin_Runner;
+    func->EndState                   = &Actor::End_Runner;
+    func->ResumeState                = &Actor::Resume_Runner;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Idle;
+    func->ShowInfo                   = &Actor::ShowInfo_Runner;
+    func->IsState                    = &Actor::IsIdleState;
 }
 
-void Actor::Begin_Runner
-	(
-	void
-	)
+void Actor::Begin_Runner(void)
 {
-	m_csMood = STRING_NERVOUS;
-	m_csIdleMood = STRING_NERVOUS;
-	StopTurning();
-	ClearPath();
+    m_csMood     = STRING_NERVOUS;
+    m_csIdleMood = STRING_NERVOUS;
+    StopTurning();
+    ClearPath();
 }
 
-void Actor::End_Runner
-	(
-	void
-	)
+void Actor::End_Runner(void)
 {
-	parm.movefail = true;
+    parm.movefail = true;
 }
 
-void Actor::Resume_Runner
-	(
-	void
-	)
+void Actor::Resume_Runner(void)
 {
-	;
+    ;
 }
 
-void Actor::Think_Runner
-	(
-	void
-	)
+void Actor::Think_Runner(void)
 {
-	if (RequireThink())
-	{
-		parm.movefail = false;
+    if (RequireThink()) {
+        parm.movefail = false;
 
-		UpdateEyeOrigin();
-		NoPoint();
-		m_pszDebugState = "";
+        UpdateEyeOrigin();
+        NoPoint();
+        m_pszDebugState = "";
 
-		CheckForThinkStateTransition();
+        CheckForThinkStateTransition();
 
-		if (m_patrolCurrentNode)
-		{
-			if (!MoveToPatrolCurrentNode())
-			{
-				Unregister(STRING_MOVE);
-				PostThink(true);
-				return;
-			}
-		}
-		else
-		{
-			SetThinkIdle(THINK_IDLE);
-			m_bScriptGoalValid = false;
-		}
+        if (m_patrolCurrentNode) {
+            if (!MoveToPatrolCurrentNode()) {
+                Unregister(STRING_MOVE);
+                PostThink(true);
+                return;
+            }
+        } else {
+            SetThinkIdle(THINK_IDLE);
+            m_bScriptGoalValid = false;
+        }
 
-		parm.movedone = true;
-		Unregister(STRING_MOVEDONE);
+        parm.movedone = true;
+        Unregister(STRING_MOVEDONE);
 
-		Unregister(STRING_MOVE);
-		PostThink(true);
-		return;
-	}
+        Unregister(STRING_MOVE);
+        PostThink(true);
+        return;
+    }
 }
 
-void Actor::ShowInfo_Runner
-	(
-	void
-	)
+void Actor::ShowInfo_Runner(void)
 {
-	ShowInfo_PatrolCurrentNode();
+    ShowInfo_PatrolCurrentNode();
 }

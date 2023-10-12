@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,56 +24,44 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitAnimCurious
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitAnimCurious(GlobalFuncs_t *func)
 {
-	func->ThinkState					= &Actor::Think_AnimCurious;
-	func->BeginState					= &Actor::Begin_AnimCurious;
-	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Curious;
-	func->FinishedAnimation				= &Actor::FinishedAnimation_Anim;
-	func->ShowInfo						= &Actor::ShowInfo_Anim;
-	func->IsState						= &Actor::IsCuriousState;
+    func->ThinkState                 = &Actor::Think_AnimCurious;
+    func->BeginState                 = &Actor::Begin_AnimCurious;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Curious;
+    func->FinishedAnimation          = &Actor::FinishedAnimation_Anim;
+    func->ShowInfo                   = &Actor::ShowInfo_Anim;
+    func->IsState                    = &Actor::IsCuriousState;
 }
 
-void Actor::Begin_AnimCurious
-	(
-	void
-	)
+void Actor::Begin_AnimCurious(void)
 {
-	DoForceActivate();
+    DoForceActivate();
 
-	m_csMood = STRING_CURIOUS;
-	StartAnimation(m_AnimMode, m_csAnimScript);
-	StopTurning();
-	m_iCuriousTime = level.inttime;
+    m_csMood = STRING_CURIOUS;
+    StartAnimation(m_AnimMode, m_csAnimScript);
+    StopTurning();
+    m_iCuriousTime = level.inttime;
 }
 
-void Actor::Think_AnimCurious
-	(
-	void
-	)
+void Actor::Think_AnimCurious(void)
 {
-	if( !RequireThink() )
-		return;
+    if (!RequireThink()) {
+        return;
+    }
 
-	UpdateEyeOrigin();
-	m_pszDebugState = "";
-	LookAtCuriosity();
-	TimeOutCurious();
-	DesiredAnimation(m_AnimMode, m_csAnimScript);
-	CheckForThinkStateTransition();
-	PostThink( false );
+    UpdateEyeOrigin();
+    m_pszDebugState = "";
+    LookAtCuriosity();
+    TimeOutCurious();
+    DesiredAnimation(m_AnimMode, m_csAnimScript);
+    CheckForThinkStateTransition();
+    PostThink(false);
 }
 
-void Actor::FinishedAnimation_AnimCurious
-	(
-	void
-	)
+void Actor::FinishedAnimation_AnimCurious(void)
 {
-	if( m_State == 1101 )
-	{
-		TransitionState(1100, 0);
-	}
+    if (m_State == 1101) {
+        TransitionState(1100, 0);
+    }
 }

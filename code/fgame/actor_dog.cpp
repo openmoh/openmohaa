@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,176 +24,136 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitDogIdle
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitDogIdle(GlobalFuncs_t *func)
 {
-	func->BeginState					= &Actor::Begin_Dog;
-	func->EndState						= &Actor::End_Dog;
-	func->ThinkState					= &Actor::Think_Dog_Idle;
-	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Idle;
-	func->IsState						= &Actor::IsDogState;
+    func->BeginState                 = &Actor::Begin_Dog;
+    func->EndState                   = &Actor::End_Dog;
+    func->ThinkState                 = &Actor::Think_Dog_Idle;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Idle;
+    func->IsState                    = &Actor::IsDogState;
 }
 
-void Actor::InitDogAttack
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitDogAttack(GlobalFuncs_t *func)
 {
-	func->BeginState					= &Actor::Begin_Dog;
-	func->EndState						= &Actor::End_Dog;
-	func->ThinkState					= &Actor::Think_Dog_Attack;
-	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Attack;
-	func->IsState						= &Actor::IsDogState;
+    func->BeginState                 = &Actor::Begin_Dog;
+    func->EndState                   = &Actor::End_Dog;
+    func->ThinkState                 = &Actor::Think_Dog_Attack;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Attack;
+    func->IsState                    = &Actor::IsDogState;
 }
 
-void Actor::InitDogCurious
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitDogCurious(GlobalFuncs_t *func)
 {
-	func->BeginState					= &Actor::Begin_Dog;
-	func->EndState						= &Actor::End_Dog;
-	func->ThinkState					= &Actor::Think_Dog_Curious;
-	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Curious;
-	func->IsState						= &Actor::IsDogState;
+    func->BeginState                 = &Actor::Begin_Dog;
+    func->EndState                   = &Actor::End_Dog;
+    func->ThinkState                 = &Actor::Think_Dog_Curious;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Curious;
+    func->IsState                    = &Actor::IsDogState;
 }
 
-void Actor::Begin_Dog
-	(
-	void
-	)
+void Actor::Begin_Dog(void)
 {
-	m_bDog = true;
+    m_bDog = true;
 }
 
-void Actor::End_Dog
-	(
-	void
-	)
+void Actor::End_Dog(void)
 {
-	;
+    ;
 }
 
-void Actor::Think_Dog_Idle
-	(
-	void
-	)
+void Actor::Think_Dog_Idle(void)
 {
-	if( !RequireThink() )
-	{
-		return;
-	}
+    if (!RequireThink()) {
+        return;
+    }
 
-	UpdateEyeOrigin();
-	m_pszDebugState = "Dog_Idle";
-	m_bHasDesiredLookAngles = false;
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = STRING_ANIM_DOG_IDLE_SCR;
-	CheckForThinkStateTransition();
-	PostThink( false );
+    UpdateEyeOrigin();
+    m_pszDebugState         = "Dog_Idle";
+    m_bHasDesiredLookAngles = false;
+    m_eNextAnimMode         = 1;
+    m_csNextAnimString      = STRING_ANIM_DOG_IDLE_SCR;
+    CheckForThinkStateTransition();
+    PostThink(false);
 }
 
-void Actor::Think_Dog_Attack
-	(
-	void
-	)
+void Actor::Think_Dog_Attack(void)
 {
-	if (!RequireThink())
-	{
-		return;
-	}
+    if (!RequireThink()) {
+        return;
+    }
 
-	UpdateEyeOrigin();
-	m_pszDebugState = "Dog_Attack";
+    UpdateEyeOrigin();
+    m_pszDebugState = "Dog_Attack";
 
-	if (m_Enemy && !(m_Enemy->IsSubclassOfActor()))
-	{
+    if (m_Enemy && !(m_Enemy->IsSubclassOfActor())) {
+        SetPath(m_Enemy->origin, NULL, 0, NULL, 0.0);
+        if (PathExists()) {
+            vec2_t delta;
+            VectorSub2D(m_Enemy->origin, origin, delta);
 
-		SetPath(m_Enemy->origin, NULL, 0, NULL, 0.0);
-		if (PathExists())
-		{
-			vec2_t delta;
-			VectorSub2D(m_Enemy->origin, origin, delta);
+            if (VectorLength2DSquared(delta) >= 8000) {
+                FaceMotion();
+                m_csNextAnimString = STRING_ANIM_DOG_CHASE_SCR;
+                m_eNextAnimMode    = 2;
+            } else {
+                {
+                    vec2_t facedir;
+                    facedir[0] = m_Enemy->origin[0] - origin[0];
+                    facedir[1] = m_Enemy->origin[1] - origin[1];
+                    if (facedir[0] != 0 || facedir[1] != 0) {
+                        SetDesiredYawDir(facedir);
+                    }
+                }
+                SetDesiredLookDir(m_Enemy->origin - origin);
+                m_eNextAnimMode    = 1;
+                m_csNextAnimString = STRING_ANIM_DOG_ATTACK_SCR;
+            }
+            m_bNextForceStart = false;
+            CheckForThinkStateTransition();
+            PostThink(false);
+            return;
+        }
 
-			if (VectorLength2DSquared(delta) >= 8000)
-			{
-				FaceMotion();
-				m_csNextAnimString = STRING_ANIM_DOG_CHASE_SCR;
-				m_eNextAnimMode = 2;
-			}
-			else
-			{
-				{
-					vec2_t facedir;
-					facedir[0] = m_Enemy->origin[0] - origin[0];
-					facedir[1] = m_Enemy->origin[1] - origin[1];
-					if (facedir[0] != 0 || facedir[1] != 0)
-					{
-						SetDesiredYawDir(facedir);
-					}
+        {
+            vec2_t facedir;
+            facedir[0] = m_Enemy->origin[0] - origin[0];
+            facedir[1] = m_Enemy->origin[1] - origin[1];
+            if (facedir[0] != 0 || facedir[1] != 0) {
+                SetDesiredYawDir(facedir);
+            }
+        }
+        SetDesiredLookDir(m_Enemy->origin - origin);
+    }
+    m_bNextForceStart  = false;
+    m_eNextAnimMode    = 1;
+    m_csNextAnimString = STRING_ANIM_DOG_CURIOUS_SCR;
+    TransitionState(20, 0);
 
-				}
-				SetDesiredLookDir(m_Enemy->origin - origin);
-				m_eNextAnimMode = 1;
-				m_csNextAnimString = STRING_ANIM_DOG_ATTACK_SCR;
-			}
-			m_bNextForceStart = false;
-			CheckForThinkStateTransition();
-			PostThink(false);
-			return;
-		}
-
-		{
-			vec2_t facedir;
-			facedir[0] = m_Enemy->origin[0] - origin[0];
-			facedir[1] = m_Enemy->origin[1] - origin[1];
-			if (facedir[0] != 0 || facedir[1] != 0)
-			{
-				SetDesiredYawDir(facedir);
-			}
-
-		}
-		SetDesiredLookDir(m_Enemy->origin - origin);
-	}
-	m_bNextForceStart = false;
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = STRING_ANIM_DOG_CURIOUS_SCR;
-	TransitionState(20, 0);
-
-	CheckForThinkStateTransition();
-	PostThink(false);
+    CheckForThinkStateTransition();
+    PostThink(false);
 }
 
-void Actor::Think_Dog_Curious
-	(
-	void
-	)
+void Actor::Think_Dog_Curious(void)
 {
-	if (RequireThink())
-	{
-		UpdateEyeOrigin();
-		m_pszDebugState = "Dog_Curious";
+    if (RequireThink()) {
+        UpdateEyeOrigin();
+        m_pszDebugState = "Dog_Curious";
 
-		if (m_Enemy && !m_Enemy->IsSubclassOfActor())
-		{
-			vec2_t vDelta;
-			VectorSub2D(m_Enemy->origin, origin, vDelta);
+        if (m_Enemy && !m_Enemy->IsSubclassOfActor()) {
+            vec2_t vDelta;
+            VectorSub2D(m_Enemy->origin, origin, vDelta);
 
-			if (vDelta[0] != 0 || vDelta[1] != 0)
-			{
-				SetDesiredYawDir(vDelta);
-			}
+            if (vDelta[0] != 0 || vDelta[1] != 0) {
+                SetDesiredYawDir(vDelta);
+            }
 
-			SetDesiredLookDir(m_Enemy->origin - origin);
+            SetDesiredLookDir(m_Enemy->origin - origin);
+        }
+        m_bNextForceStart  = false;
+        m_eNextAnimMode    = 1;
+        m_csNextAnimString = STRING_ANIM_DOG_CURIOUS_SCR;
 
-		}
-		m_bNextForceStart = false;
-		m_eNextAnimMode = 1;
-		m_csNextAnimString = STRING_ANIM_DOG_CURIOUS_SCR;
-
-		CheckForThinkStateTransition();
-		PostThink(false);
-	}
+        CheckForThinkStateTransition();
+        PostThink(false);
+    }
 }

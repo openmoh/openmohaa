@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,143 +24,104 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitAlarm
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitAlarm(GlobalFuncs_t *func)
 {
-	func->BeginState					= &Actor::Begin_Alarm;
-	func->EndState						= &Actor::End_Alarm;
-	func->ThinkState					= &Actor::Think_Alarm;
-	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Attack;
-	func->IsState						= &Actor::IsAttackState;
+    func->BeginState                 = &Actor::Begin_Alarm;
+    func->EndState                   = &Actor::End_Alarm;
+    func->ThinkState                 = &Actor::Think_Alarm;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Attack;
+    func->IsState                    = &Actor::IsAttackState;
 }
 
-void Actor::Begin_Alarm
-	(
-	void
-	)
+void Actor::Begin_Alarm(void)
 {
-	DoForceActivate();
+    DoForceActivate();
 
-	m_csMood = STRING_ALERT;
-	m_csIdleMood = STRING_NERVOUS;
+    m_csMood     = STRING_ALERT;
+    m_csIdleMood = STRING_NERVOUS;
 
-	if( m_AlarmNode )
-	{
-		SetPath( m_AlarmNode, "Actor::Begin_Alarm", 0 );
+    if (m_AlarmNode) {
+        SetPath(m_AlarmNode, "Actor::Begin_Alarm", 0);
 
-		if( PathExists() )
-		{
-			TransitionState(601, 0);
-		}
-		else
-		{
-			TransitionState(600, 0);
-			parm.movefail = true;
-		}
-	}
-	else
-	{
-		SetLeashHome( origin );
-		TransitionState(600, 0);
-		m_AlarmThread.Execute( this );
-	}
+        if (PathExists()) {
+            TransitionState(601, 0);
+        } else {
+            TransitionState(600, 0);
+            parm.movefail = true;
+        }
+    } else {
+        SetLeashHome(origin);
+        TransitionState(600, 0);
+        m_AlarmThread.Execute(this);
+    }
 }
 
-void Actor::End_Alarm
-	(
-	void
-	)
+void Actor::End_Alarm(void)
 {
-	parm.movefail = true;
+    parm.movefail = true;
 }
 
-void Actor::State_Alarm_StartThread
-	(
-	void
-	)
+void Actor::State_Alarm_StartThread(void)
 {
-	if( m_AlarmNode )
-		SetLeashHome( m_AlarmNode->origin );
-	else
-		SetLeashHome( origin );
+    if (m_AlarmNode) {
+        SetLeashHome(m_AlarmNode->origin);
+    } else {
+        SetLeashHome(origin);
+    }
 
-	TransitionState(600, 0);
-	m_AlarmThread.Execute();
+    TransitionState(600, 0);
+    m_AlarmThread.Execute();
 }
 
-void Actor::State_Alarm_Move
-	(
-	void
-	)
+void Actor::State_Alarm_Move(void)
 {
-	if( PathExists() )
-	{
-		if( PathComplete() )
-		{
-			Anim_Aim();
-			AimAtTargetPos();
-		}
-		else
-		{
-			Anim_RunToAlarm( 2 );
-			FaceMotion();
-		}
-	}
-	else
-	{
-		TransitionState(600, 0);
-		parm.movefail = true;
+    if (PathExists()) {
+        if (PathComplete()) {
+            Anim_Aim();
+            AimAtTargetPos();
+        } else {
+            Anim_RunToAlarm(2);
+            FaceMotion();
+        }
+    } else {
+        TransitionState(600, 0);
+        parm.movefail = true;
 
-		Anim_Aim();
-		AimAtTargetPos();
-	}
+        Anim_Aim();
+        AimAtTargetPos();
+    }
 }
 
-void Actor::State_Alarm_Idle
-	(
-	void
-	)
+void Actor::State_Alarm_Idle(void)
 {
-	AimAtTargetPos();
-	SetThink(THINKSTATE_ATTACK, THINK_TURRET);
+    AimAtTargetPos();
+    SetThink(THINKSTATE_ATTACK, THINK_TURRET);
 }
 
-void Actor::Think_Alarm
-	(
-	void
-	)
+void Actor::Think_Alarm(void)
 {
-	if( !RequireThink() )
-		return;
+    if (!RequireThink()) {
+        return;
+    }
 
-	parm.movefail = false;
+    parm.movefail = false;
 
-	UpdateEyeOrigin();
-	NoPoint();
+    UpdateEyeOrigin();
+    NoPoint();
 
-	if( m_State == 600 )
-	{
-		m_pszDebugState = "idle";
-		State_Alarm_Idle();
-	}
-	else if( m_State == 601 )
-	{
-		m_pszDebugState = "move";
-		State_Alarm_Move();
-	}
-	else
-	{
-		Com_Printf( "Actor::Think_Alarm: invalid think state %i\n", m_State );
-	}
+    if (m_State == 600) {
+        m_pszDebugState = "idle";
+        State_Alarm_Idle();
+    } else if (m_State == 601) {
+        m_pszDebugState = "move";
+        State_Alarm_Move();
+    } else {
+        Com_Printf("Actor::Think_Alarm: invalid think state %i\n", m_State);
+    }
 }
 
-void Actor::FinishedAnimation_Alarm
-	(
-	void
-	)
+void Actor::FinishedAnimation_Alarm(void)
 {
-	// not needed
-	return;
+    // not needed
+    return;
 }

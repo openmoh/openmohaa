@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,71 +24,53 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitIdle
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitIdle(GlobalFuncs_t *func)
 {
-	func->BeginState					= &Actor::Begin_Idle;
-	func->ThinkState					= &Actor::Think_Idle;
-	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Idle;
-	func->IsState						= &Actor::IsIdleState;
+    func->BeginState                 = &Actor::Begin_Idle;
+    func->ThinkState                 = &Actor::Think_Idle;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Idle;
+    func->IsState                    = &Actor::IsIdleState;
 }
 
-void Actor::Begin_Idle
-	(
-	void
-	)
+void Actor::Begin_Idle(void)
 {
-	glbs.Printf("Begin_Idle\n");
-	m_csMood = m_csIdleMood;
-	ClearPath();
+    glbs.Printf("Begin_Idle\n");
+    m_csMood = m_csIdleMood;
+    ClearPath();
 }
 
-void Actor::Think_Idle
-	(
-	void
-	)
+void Actor::Think_Idle(void)
 {
-	if (RequireThink())
-	{
-		UpdateEyeOrigin();
-		m_pszDebugState = "";
-		CheckForThinkStateTransition();
-		IdleThink();
-	}
+    if (RequireThink()) {
+        UpdateEyeOrigin();
+        m_pszDebugState = "";
+        CheckForThinkStateTransition();
+        IdleThink();
+    }
 }
 
-void Actor::IdleThink
-(
-	void
-)
+void Actor::IdleThink(void)
 {
-	IdlePoint();
-	IdleLook();
-	if (PathExists() && PathComplete())
-	{
-		ClearPath();
-	}
-	if (m_bAutoAvoidPlayer && !PathExists())
-	{
-		SetPathToNotBlockSentient((Sentient *)G_GetEntity(0));
-	}
+    IdlePoint();
+    IdleLook();
+    if (PathExists() && PathComplete()) {
+        ClearPath();
+    }
+    if (m_bAutoAvoidPlayer && !PathExists()) {
+        SetPathToNotBlockSentient((Sentient *)G_GetEntity(0));
+    }
 
-	if (PathExists())
-	{
-		Anim_WalkTo(2);
-		if (PathDist() <= 128.0)
-			IdleTurn();
-		else
-			FaceMotion();
-	}
-	else
-	{
-		Anim_Idle();
-		IdleTurn();
-	}
+    if (PathExists()) {
+        Anim_WalkTo(2);
+        if (PathDist() <= 128.0) {
+            IdleTurn();
+        } else {
+            FaceMotion();
+        }
+    } else {
+        Anim_Idle();
+        IdleTurn();
+    }
 
-	PostThink(true);
-
+    PostThink(true);
 }

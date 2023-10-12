@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,92 +24,69 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitPatrol
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitPatrol(GlobalFuncs_t *func)
 {
-	func->ThinkState					= &Actor::Think_Patrol;
-	func->BeginState					= &Actor::Begin_Patrol;
-	func->EndState						= &Actor::End_Patrol;
-	func->ResumeState					= &Actor::Resume_Patrol;
-	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Idle;
-	func->ShowInfo						= &Actor::ShowInfo_Patrol;
-	func->IsState						= &Actor::IsIdleState;
+    func->ThinkState                 = &Actor::Think_Patrol;
+    func->BeginState                 = &Actor::Begin_Patrol;
+    func->EndState                   = &Actor::End_Patrol;
+    func->ResumeState                = &Actor::Resume_Patrol;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Idle;
+    func->ShowInfo                   = &Actor::ShowInfo_Patrol;
+    func->IsState                    = &Actor::IsIdleState;
 }
 
-void Actor::Begin_Patrol
-	(
-	void
-	)
+void Actor::Begin_Patrol(void)
 {
-	m_csMood = STRING_BORED;
-	StopTurning();
-	ClearPath();
+    m_csMood = STRING_BORED;
+    StopTurning();
+    ClearPath();
 }
 
-void Actor::End_Patrol
-	(
-	void
-	)
+void Actor::End_Patrol(void)
 {
-
-	parm.movefail = true;
+    parm.movefail = true;
 }
 
-void Actor::Resume_Patrol
-	(
-	void
-	)
+void Actor::Resume_Patrol(void)
 {
-	;
+    ;
 }
 
-void Actor::Think_Patrol
-	(
-	void
-	)
+void Actor::Think_Patrol(void)
 {
-	if (Actor::RequireThink())
-	{
-		parm.movefail = false;
+    if (Actor::RequireThink()) {
+        parm.movefail = false;
 
-		UpdateEyeOrigin();
-		NoPoint();
+        UpdateEyeOrigin();
+        NoPoint();
 
-		m_pszDebugState = "";
-		m_csPatrolCurrentAnim = STRING_ANIM_PATROL_SCR;
+        m_pszDebugState       = "";
+        m_csPatrolCurrentAnim = STRING_ANIM_PATROL_SCR;
 
-		if (m_fLookAroundFov > 1.0)
-			LookAround(m_fLookAroundFov);
+        if (m_fLookAroundFov > 1.0) {
+            LookAround(m_fLookAroundFov);
+        }
 
-		CheckForThinkStateTransition();
-		if (m_patrolCurrentNode)
-		{
-			if (!MoveToPatrolCurrentNode())
-			{
-				PostThink(true);
-				return;
-			}
-		}
-		else
-		{
-			SetThinkIdle(THINK_IDLE);
-			m_bScriptGoalValid = false;
-		}
-		parm.movedone = true;
+        CheckForThinkStateTransition();
+        if (m_patrolCurrentNode) {
+            if (!MoveToPatrolCurrentNode()) {
+                PostThink(true);
+                return;
+            }
+        } else {
+            SetThinkIdle(THINK_IDLE);
+            m_bScriptGoalValid = false;
+        }
+        parm.movedone = true;
 
-		Unregister(STRING_MOVEDONE);
+        Unregister(STRING_MOVEDONE);
 
-		PostThink(true);
-		return;
-	}
+        PostThink(true);
+        return;
+    }
 }
 
-void Actor::ShowInfo_Patrol
-	(
-	void
-	)
+void Actor::ShowInfo_Patrol(void)
 {
-	ShowInfo_PatrolCurrentNode();
+    ShowInfo_PatrolCurrentNode();
 }

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,52 +24,42 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitAim
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitAim(GlobalFuncs_t *func)
 {
-	func->BeginState					= &Actor::Begin_Aim;
-	func->ThinkState					= &Actor::Think_Aim;
-	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Idle;
-	func->ShowInfo						= &Actor::ShowInfo_Aim;
-	func->IsState						= &Actor::IsIdleState;
-}
-void Actor::Begin_Aim
-	(
-	void
-	)
-{
-	m_csMood = STRING_ALERT;
-	m_csIdleMood = STRING_NERVOUS;
-	ClearPath();
-}
-void Actor::Think_Aim
-	(
-	void
-	)
-{
-	if( !RequireThink() )
-		return;
-
-	UpdateEyeOrigin();
-	NoPoint();
-	m_pszDebugState = "";
-	Anim_Aim();
-
-	if( m_aimNode )
-	{
-		AimAtAimNode();
-	}
-
-	CheckForThinkStateTransition();
-	PostThink( true );
+    func->BeginState                 = &Actor::Begin_Aim;
+    func->ThinkState                 = &Actor::Think_Aim;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Idle;
+    func->ShowInfo                   = &Actor::ShowInfo_Aim;
+    func->IsState                    = &Actor::IsIdleState;
 }
 
-void Actor::ShowInfo_Aim
-	(
-	void
-	)
+void Actor::Begin_Aim(void)
 {
-	ShowInfo_AimNode();
+    m_csMood     = STRING_ALERT;
+    m_csIdleMood = STRING_NERVOUS;
+    ClearPath();
+}
+
+void Actor::Think_Aim(void)
+{
+    if (!RequireThink()) {
+        return;
+    }
+
+    UpdateEyeOrigin();
+    NoPoint();
+    m_pszDebugState = "";
+    Anim_Aim();
+
+    if (m_aimNode) {
+        AimAtAimNode();
+    }
+
+    CheckForThinkStateTransition();
+    PostThink(true);
+}
+
+void Actor::ShowInfo_Aim(void)
+{
+    ShowInfo_AimNode();
 }

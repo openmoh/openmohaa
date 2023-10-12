@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,87 +24,68 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitNoClip
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitNoClip(GlobalFuncs_t *func)
 {
-	func->ThinkState	= &Actor::Think_NoClip;
-	func->IsState		= &Actor::IsIdleState;
+    func->ThinkState = &Actor::Think_NoClip;
+    func->IsState    = &Actor::IsIdleState;
 }
 
-bool Actor::IsNoClipState
-	(
-	int state
-	)
+bool Actor::IsNoClipState(int state)
 {
-	return state == THINKSTATE_NOCLIP;
+    return state == THINKSTATE_NOCLIP;
 }
 
-void Actor::Think_NoClip
-	(
-	void
-	)
+void Actor::Think_NoClip(void)
 {
-	//FIXME: not sure of naming
-	bool done = false;
-	Vector newOrigin = vec_zero;
-	Vector total_offset;
-	Vector total_offset_unit;
-	float total_dist;
-	//vec3_t frame_offset;
-	float frame_dist;
+    //FIXME: not sure of naming
+    bool   done      = false;
+    Vector newOrigin = vec_zero;
+    Vector total_offset;
+    Vector total_offset_unit;
+    float  total_dist;
+    //vec3_t frame_offset;
+    float frame_dist;
 
-	m_pszDebugState = "";
+    m_pszDebugState = "";
 
-	ContinueAnimationAllowNoPath();
+    ContinueAnimationAllowNoPath();
 
-	CheckUnregister();
-	UpdateAngles();
-	UpdateAnim();
+    CheckUnregister();
+    UpdateAngles();
+    UpdateAnim();
 
-	total_offset = m_NoClipDest - origin;
-	total_dist = VectorNormalize2(total_offset, total_offset_unit);
+    total_offset = m_NoClipDest - origin;
+    total_dist   = VectorNormalize2(total_offset, total_offset_unit);
 
-	frame_dist = level.frametime * m_maxspeed;
+    frame_dist = level.frametime * m_maxspeed;
 
-	if (frame_dist >= frame_delta.lengthSquared())
-	{
-		frame_dist = frame_delta.lengthSquared();
-	}
+    if (frame_dist >= frame_delta.lengthSquared()) {
+        frame_dist = frame_delta.lengthSquared();
+    }
 
-	if (frame_dist < total_dist)
-	{
-		newOrigin = total_offset_unit * frame_dist + origin;
+    if (frame_dist < total_dist) {
+        newOrigin = total_offset_unit * frame_dist + origin;
 
-	}
-	else
-	{
-		done = true;
-		newOrigin = m_NoClipDest;
-	}
+    } else {
+        done      = true;
+        newOrigin = m_NoClipDest;
+    }
 
-	SafeSetOrigin(newOrigin);
-	
-	velocity = total_offset_unit / level.frametime;
+    SafeSetOrigin(newOrigin);
 
-	if (velocity.lengthSquared() < 1)
-	{
-		done = true;
-		velocity = vec_zero;
-	}
-	groundentity = NULL;
+    velocity = total_offset_unit / level.frametime;
 
-	if (done)
-	{
-		Com_Printf(
-			"(entnum %d, radnum %d) failsafe finished\n",
-			entnum,
-			radnum);
-		EndCurrentThinkState();
-	}
+    if (velocity.lengthSquared() < 1) {
+        done     = true;
+        velocity = vec_zero;
+    }
+    groundentity = NULL;
 
-	UpdateBoneControllers();
-	UpdateFootsteps();
+    if (done) {
+        Com_Printf("(entnum %d, radnum %d) failsafe finished\n", entnum, radnum);
+        EndCurrentThinkState();
+    }
 
+    UpdateBoneControllers();
+    UpdateFootsteps();
 }

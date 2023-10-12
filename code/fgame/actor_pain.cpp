@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,55 +24,41 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitPain
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitPain(GlobalFuncs_t *func)
 {
-	func->BeginState					= &Actor::Begin_Pain;
-	func->ThinkState					= &Actor::Think_Pain;
-	func->FinishedAnimation				= &Actor::FinishedAnimation_Pain;
-	func->IsState						= &Actor::IsPainState;
+    func->BeginState        = &Actor::Begin_Pain;
+    func->ThinkState        = &Actor::Think_Pain;
+    func->FinishedAnimation = &Actor::FinishedAnimation_Pain;
+    func->IsState           = &Actor::IsPainState;
 }
 
-void Actor::Begin_Pain
-	(
-	void
-	)
+void Actor::Begin_Pain(void)
 {
-	m_PainState = 500;
+    m_PainState = 500;
 }
 
-void Actor::Think_Pain
-	(
-	void
-	)
+void Actor::Think_Pain(void)
 {
-	NoPoint();
+    NoPoint();
 
-	m_bHasDesiredLookAngles = false;
+    m_bHasDesiredLookAngles = false;
 
-	UpdateEyeOrigin();
+    UpdateEyeOrigin();
 
-	if (m_PainState == 500)
-	{
-		m_pszDebugState = "initial";
-		Anim_StartPain();
-		m_PainState = 501;
-	}
-	else if (m_PainState == 501)
-	{
-		m_pszDebugState = "main";
-		Anim_Pain();
-	}
-	PostThink(false);
+    if (m_PainState == 500) {
+        m_pszDebugState = "initial";
+        Anim_StartPain();
+        m_PainState = 501;
+    } else if (m_PainState == 501) {
+        m_pszDebugState = "main";
+        Anim_Pain();
+    }
+    PostThink(false);
 }
 
-void Actor::FinishedAnimation_Pain
-	(
-	void
-	)
+void Actor::FinishedAnimation_Pain(void)
 {
-	if (m_PainState != 500)
-		EndCurrentThinkState();
+    if (m_PainState != 500) {
+        EndCurrentThinkState();
+    }
 }

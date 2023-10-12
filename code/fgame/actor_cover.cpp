@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,915 +24,715 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitCover
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitCover(GlobalFuncs_t *func)
 {
-	func->ThinkState					= &Actor::Think_Cover;
-	func->BeginState					= &Actor::Begin_Cover;
-	func->EndState						= &Actor::End_Cover;
-	func->SuspendState					= &Actor::Suspend_Cover;
-	func->FinishedAnimation				= &Actor::FinishedAnimation_Cover;
-	func->PassesTransitionConditions	= &Actor::PassesTransitionConditions_Attack;
-	func->IsState						= &Actor::IsAttackState;
-	func->PathnodeClaimRevoked			= &Actor::PathnodeClaimRevoked_Cover;
+    func->ThinkState                 = &Actor::Think_Cover;
+    func->BeginState                 = &Actor::Begin_Cover;
+    func->EndState                   = &Actor::End_Cover;
+    func->SuspendState               = &Actor::Suspend_Cover;
+    func->FinishedAnimation          = &Actor::FinishedAnimation_Cover;
+    func->PassesTransitionConditions = &Actor::PassesTransitionConditions_Attack;
+    func->IsState                    = &Actor::IsAttackState;
+    func->PathnodeClaimRevoked       = &Actor::PathnodeClaimRevoked_Cover;
 }
 
-void Actor::Begin_Cover
-	(
-	void
-	)
+void Actor::Begin_Cover(void)
 {
-	DoForceActivate();
-	m_csIdleMood = STRING_NERVOUS;
-	m_csMood = STRING_ALERT;
+    DoForceActivate();
+    m_csIdleMood = STRING_NERVOUS;
+    m_csMood     = STRING_ALERT;
 
-	if( m_pCoverNode )
-	{
-		TransitionState(302, 0);
-		return;
-	}
+    if (m_pCoverNode) {
+        TransitionState(302, 0);
+        return;
+    }
 
-	TransitionState(300, 0);
+    TransitionState(300, 0);
 
-	if( level.inttime < m_iEnemyChangeTime + 200 )
-	{
-		SetLeashHome( origin );
+    if (level.inttime < m_iEnemyChangeTime + 200) {
+        SetLeashHome(origin);
 
-		if( AttackEntryAnimation() )
-		{
-			m_bLockThinkState = true;
-			TransitionState(312, 0);
-		}
-	}
+        if (AttackEntryAnimation()) {
+            m_bLockThinkState = true;
+            TransitionState(312, 0);
+        }
+    }
 }
 
-void Actor::End_Cover
-	(
-	void
-	)
+void Actor::End_Cover(void)
 {
-	m_pszDebugState = "";
+    m_pszDebugState = "";
 
-	if( m_pCoverNode )
-	{
-		m_pCoverNode->Relinquish();
-		m_pCoverNode = NULL;
-	}
+    if (m_pCoverNode) {
+        m_pCoverNode->Relinquish();
+        m_pCoverNode = NULL;
+    }
 
-	TransitionState(-1, 0);
+    TransitionState(-1, 0);
 }
 
-void Actor::Suspend_Cover
-	(
-	void
-	)
+void Actor::Suspend_Cover(void)
 {
-	if( m_pCoverNode )
-	{
-		m_pCoverNode->Relinquish();
-		m_pCoverNode->MarkTemporarilyBad();
-		m_pCoverNode = NULL;
-	}
+    if (m_pCoverNode) {
+        m_pCoverNode->Relinquish();
+        m_pCoverNode->MarkTemporarilyBad();
+        m_pCoverNode = NULL;
+    }
 
-	TransitionState(301, 0);
+    TransitionState(301, 0);
 }
 
-void Actor::State_Cover_NewEnemy
-	(
-	void
-	)
+void Actor::State_Cover_NewEnemy(void)
 {
-	m_bHasDesiredLookAngles = true;
+    m_bHasDesiredLookAngles = true;
 
-	Cover_FindCover( true );
+    Cover_FindCover(true);
 
-	if( m_pCoverNode && PathExists() && PathComplete() )
-	{
-		Anim_RunToCover( 3 );
-		TransitionState(302, 0);
-	}
-	else
-	{
-		Anim_Aim();
-		AimAtTargetPos();
-		TransitionState(307, 0);
-	}
+    if (m_pCoverNode && PathExists() && PathComplete()) {
+        Anim_RunToCover(3);
+        TransitionState(302, 0);
+    } else {
+        Anim_Aim();
+        AimAtTargetPos();
+        TransitionState(307, 0);
+    }
 }
 
-void Actor::State_Cover_FindCover
-	(
-	void
-	)
+void Actor::State_Cover_FindCover(void)
 {
-	Anim_Aim();
-	AimAtTargetPos();
-	Cover_FindCover( false );
+    Anim_Aim();
+    AimAtTargetPos();
+    Cover_FindCover(false);
 
-	if( m_pCoverNode )
-	{
-		if( PathExists() && !PathComplete() )
-		{
-			Anim_RunToCover(3);
-			TransitionState(302, 0);
-		}
-		else
-		{
-			TransitionState(307, 0);
-		}
-	}
-	else
-	{
-		if( !m_iPotentialCoverCount )
-		{
-			SetThink( THINKSTATE_ATTACK, THINK_TURRET );
-		}
-	}
+    if (m_pCoverNode) {
+        if (PathExists() && !PathComplete()) {
+            Anim_RunToCover(3);
+            TransitionState(302, 0);
+        } else {
+            TransitionState(307, 0);
+        }
+    } else {
+        if (!m_iPotentialCoverCount) {
+            SetThink(THINKSTATE_ATTACK, THINK_TURRET);
+        }
+    }
 }
 
-void Actor::State_Cover_TakeCover
-	(
-	void
-	)
+void Actor::State_Cover_TakeCover(void)
 {
-	if( PathExists() && !PathComplete() )
-	{
-		FaceEnemyOrMotion( level.inttime - m_iStateTime );
-		Anim_RunToCover( 3 );
-		m_csPathGoalEndAnimScript = m_bInReload ? STRING_ANIM_RUNTO_COVER_SCR : STRING_ANIM_IDLE_SCR;
-	}
-	else
-	{
-		ClearPath();
-		m_eAnimMode = 1;
-		TransitionState(303, 0);
-		State_Cover_FinishReloading();
-	}
+    if (PathExists() && !PathComplete()) {
+        FaceEnemyOrMotion(level.inttime - m_iStateTime);
+        Anim_RunToCover(3);
+        m_csPathGoalEndAnimScript = m_bInReload ? STRING_ANIM_RUNTO_COVER_SCR : STRING_ANIM_IDLE_SCR;
+    } else {
+        ClearPath();
+        m_eAnimMode = 1;
+        TransitionState(303, 0);
+        State_Cover_FinishReloading();
+    }
 }
 
 static int Cover_HideTime(int iTeam)
 {
-	if (iTeam == TEAM_AMERICAN)
-	{
-		return rand() % 2001 + 2000;
-	}
-	else
-	{
-		return rand() % 11001 + 4000;
-	}
+    if (iTeam == TEAM_AMERICAN) {
+        return rand() % 2001 + 2000;
+    } else {
+        return rand() % 11001 + 4000;
+    }
 }
 
-void Actor::State_Cover_FinishReloading
-	(
-	void
-	)
+void Actor::State_Cover_FinishReloading(void)
 {
-	if( m_bInReload )
-	{
-		ContinueAnimation();
-		AimAtTargetPos();
-		return;
-	}
+    if (m_bInReload) {
+        ContinueAnimation();
+        AimAtTargetPos();
+        return;
+    }
 
-	Weapon *pWeap = GetWeapon( 0 );
+    Weapon *pWeap = GetWeapon(0);
 
-	if( !pWeap || pWeap->GetFireType( FIRE_PRIMARY ) == FT_PROJECTILE || pWeap->GetFireType( FIRE_PRIMARY ) == FT_SPECIAL_PROJECTILE )
-	{
-		if( m_pCoverNode->nodeflags & AI_DUCK )
-		{
-			Anim_Crouch();
-		}
-		else
-		{
-			Anim_Stand();
-		}
+    if (!pWeap || pWeap->GetFireType(FIRE_PRIMARY) == FT_PROJECTILE
+        || pWeap->GetFireType(FIRE_PRIMARY) == FT_SPECIAL_PROJECTILE) {
+        if (m_pCoverNode->nodeflags & AI_DUCK) {
+            Anim_Crouch();
+        } else {
+            Anim_Stand();
+        }
 
-		m_sCurrentPathNodeIndex = -1;
+        m_sCurrentPathNodeIndex = -1;
 
-		TransitionState(308, Cover_HideTime(m_Team));
+        TransitionState(308, Cover_HideTime(m_Team));
 
-		Anim_Aim();
-		AimAtTargetPos();
-		return;
-	}
+        Anim_Aim();
+        AimAtTargetPos();
+        return;
+    }
 
-	SetDesiredYaw(angles[1]);
-	
-	SafeSetOrigin( origin );
-	m_eNextAnimMode = 1;
-	m_bNextForceStart = false;
-	m_csNextAnimString = m_csSpecialAttack;
-	TransitionState(304, 0);
+    SetDesiredYaw(angles[1]);
+
+    SafeSetOrigin(origin);
+    m_eNextAnimMode    = 1;
+    m_bNextForceStart  = false;
+    m_csNextAnimString = m_csSpecialAttack;
+    TransitionState(304, 0);
 }
 
-void Actor::State_Cover_Target
-	(
-	void
-	)
+void Actor::State_Cover_Target(void)
 {
-	DontFaceWall();
+    DontFaceWall();
 
-	if( m_eDontFaceWallMode <= 8 )
-	{
-		TransitionState(305, 0);
-		State_Cover_FindEnemy();
-		return;
-	}
+    if (m_eDontFaceWallMode <= 8) {
+        TransitionState(305, 0);
+        State_Cover_FindEnemy();
+        return;
+    }
 
-	Anim_Aim();
-	AimAtTargetPos();
+    Anim_Aim();
+    AimAtTargetPos();
 
-	if( level.inttime > m_iStateTime + 300 && fabs( m_DesiredYaw - angles[ 1 ] ) < 0.001f )
-	{
-		Vector end = m_vLastEnemyPos + velocity;
-		if( DecideToThrowGrenade( end, &m_vGrenadeVel, &m_eGrenadeMode ) )
-		{
-			SetDesiredYawDir(m_vGrenadeVel);
-			m_eNextAnimMode = 1;
-			m_bNextForceStart = false;
-			m_csNextAnimString = m_eGrenadeMode == AI_GREN_TOSS_ROLL ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
-			TransitionState(310, 0);
-		}
-		else if( CanSeeEnemy( 500 ) && CanShootEnemy( 500 ) )
-		{
-			TransitionState(309, 0);
-		}
-		else
-		{
-			TransitionState(308, Cover_HideTime(m_Team));
-
-		}
-	}
+    if (level.inttime > m_iStateTime + 300 && fabs(m_DesiredYaw - angles[1]) < 0.001f) {
+        Vector end = m_vLastEnemyPos + velocity;
+        if (DecideToThrowGrenade(end, &m_vGrenadeVel, &m_eGrenadeMode)) {
+            SetDesiredYawDir(m_vGrenadeVel);
+            m_eNextAnimMode   = 1;
+            m_bNextForceStart = false;
+            m_csNextAnimString =
+                m_eGrenadeMode == AI_GREN_TOSS_ROLL ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
+            TransitionState(310, 0);
+        } else if (CanSeeEnemy(500) && CanShootEnemy(500)) {
+            TransitionState(309, 0);
+        } else {
+            TransitionState(308, Cover_HideTime(m_Team));
+        }
+    }
 }
 
-void Actor::State_Cover_Hide
-(
-	void
-)
+void Actor::State_Cover_Hide(void)
 {
-	if (m_Enemy)
-	{
-		SetEnemyPos(origin);
-	}
+    if (m_Enemy) {
+        SetEnemyPos(origin);
+    }
 
-	if (!m_pCoverNode)
-	{
-		TransitionState(301, 0);
-		State_Cover_FindCover();
-		return;
-	}
+    if (!m_pCoverNode) {
+        TransitionState(301, 0);
+        State_Cover_FindCover();
+        return;
+    }
 
-	m_csSpecialAttack = m_pCoverNode->GetSpecialAttack(this);
-	MPrintf("special: %d", m_csSpecialAttack);
+    m_csSpecialAttack = m_pCoverNode->GetSpecialAttack(this);
+    MPrintf("special: %d", m_csSpecialAttack);
 
-	if (m_csSpecialAttack)
-	{
-		SetDesiredYaw(m_pCoverNode->angles[1]);
-		SafeSetOrigin(m_pCoverNode->origin);
-		m_eNextAnimMode = 1;
-		m_bNextForceStart = false;
-		m_csNextAnimString = m_csSpecialAttack;
-		TransitionState(304, 0);
-		return;
-	}
+    if (m_csSpecialAttack) {
+        SetDesiredYaw(m_pCoverNode->angles[1]);
+        SafeSetOrigin(m_pCoverNode->origin);
+        m_eNextAnimMode    = 1;
+        m_bNextForceStart  = false;
+        m_csNextAnimString = m_csSpecialAttack;
+        TransitionState(304, 0);
+        return;
+    }
 
-	bool bCanShoot = CanShootEnemy(500);
-	if (CanSeeEnemy(500))
-	{
-		if (bCanShoot)
-		{
-			Vector vDelta = m_Enemy->origin - origin;
+    bool bCanShoot = CanShootEnemy(500);
+    if (CanSeeEnemy(500)) {
+        if (bCanShoot) {
+            Vector vDelta = m_Enemy->origin - origin;
 
-			if (VectorLength2DSquared(vDelta) * 0.75f <= Square(DotProduct2D(vDelta, orientation[0])))
-			{
-				TransitionState(307, 0);
-			}
-			else
-			{
-				TransitionState(309, 0);
-				State_Cover_Shoot();
-			}
-			return;
-		}
+            if (VectorLength2DSquared(vDelta) * 0.75f <= Square(DotProduct2D(vDelta, orientation[0]))) {
+                TransitionState(307, 0);
+            } else {
+                TransitionState(309, 0);
+                State_Cover_Shoot();
+            }
+            return;
+        }
 
+        m_pCoverNode->Relinquish();
+        m_pCoverNode->MarkTemporarilyBad();
+        m_pCoverNode = NULL;
+        TransitionState(305, 0);
+        State_Cover_FindEnemy();
+        return;
+    }
 
-		m_pCoverNode->Relinquish();
-		m_pCoverNode->MarkTemporarilyBad();
-		m_pCoverNode = NULL;
-		TransitionState(305, 0);
-		State_Cover_FindEnemy();
-		return;
-	}
+    if (bCanShoot) {
+        m_pCoverNode->Relinquish();
+        m_pCoverNode->MarkTemporarilyBad();
+        m_pCoverNode = NULL;
+        TransitionState(305, 0);
+        State_Cover_FindEnemy();
+        return;
+    }
 
-	if (bCanShoot)
-	{
-		m_pCoverNode->Relinquish();
-		m_pCoverNode->MarkTemporarilyBad();
-		m_pCoverNode = NULL;
-		TransitionState(305, 0);
-		State_Cover_FindEnemy();
-		return;
-	}
+    if (m_Team == TEAM_AMERICAN) {
+        if (level.inttime >= m_iLastFaceDecideTime + 1000) {
+            m_iLastFaceDecideTime = level.inttime;
+            PathNode *node        = PathManager.FindCornerNodeForExactPath(this, m_Enemy, m_fLeash + m_fMaxDistance);
 
-	if (m_Team == TEAM_AMERICAN)
-	{
-		if (level.inttime >= m_iLastFaceDecideTime + 1000)
-		{
-			m_iLastFaceDecideTime = level.inttime;
-			PathNode *node = PathManager.FindCornerNodeForExactPath(this, m_Enemy, m_fLeash + m_fMaxDistance);
+            if (!node) {
+                m_bHasDesiredLookAngles = false;
+                Anim_Stand();
+                m_PotentialEnemies.FlagBadEnemy(m_Enemy);
+                UpdateEnemy(-1);
+                return;
+            }
 
-			if (!node)
-			{
-				m_bHasDesiredLookAngles = false;
-				Anim_Stand();
-				m_PotentialEnemies.FlagBadEnemy(m_Enemy);
-				UpdateEnemy(-1);
-				return;
-			}
+            Vector vDelta = node->m_PathPos - origin;
 
-			Vector vDelta = node->m_PathPos - origin;
+            if (vDelta[0] || vDelta[1]) {
+                SetDesiredYawDir(vDelta);
+            }
+        }
 
-			if (vDelta[0] || vDelta[1])
-			{
-				SetDesiredYawDir(vDelta);
-			}
-		}
+        Anim_Aim();
+    } else {
+        if (level.inttime >= m_iLastFaceDecideTime + 1000) {
+            m_iLastFaceDecideTime = level.inttime;
+            Vector  eyepos        = EyePosition();
+            Vector  end           = m_vLastEnemyPos + eyeposition;
+            trace_t trace         = G_Trace(
+                eyepos,
+                vec_zero,
+                vec_zero,
+                end,
+                this,
+                (CONTENTS_SOLID | CONTENTS_SLIME | CONTENTS_LAVA),
+                false,
+                "State_Cover"
+            );
 
-		Anim_Aim();
-	}
-	else
-	{
-		if (level.inttime >= m_iLastFaceDecideTime + 1000)
-		{
-			m_iLastFaceDecideTime = level.inttime;
-			Vector eyepos = EyePosition();
-			Vector end = m_vLastEnemyPos + eyeposition;
-			trace_t trace = G_Trace(
-				eyepos,
-				vec_zero,
-				vec_zero,
-				end,
-				this,
-				(CONTENTS_SOLID | CONTENTS_SLIME | CONTENTS_LAVA),
-				false,
-				"State_Cover");
+            PathNode *node = PathManager.FindCornerNodeForWall(origin, m_vLastEnemyPos, this, 0.0f, trace.plane.normal);
 
-			PathNode *node = PathManager.FindCornerNodeForWall(origin, m_vLastEnemyPos, this, 0.0f, trace.plane.normal);
+            if (node) {
+                Vector vDelta = node->m_PathPos - origin;
 
-			if (node)
-			{
-				Vector vDelta = node->m_PathPos - origin;
+                if (vDelta[0] || vDelta[1]) {
+                    SetDesiredYawDir(vDelta);
+                }
 
-				if (vDelta[0] || vDelta[1])
-				{
-					SetDesiredYawDir(vDelta);
-				}
+                m_eDontFaceWallMode = 6;
+            } else {
+                AimAtTargetPos();
+                DontFaceWall();
+            }
+        }
 
-				m_eDontFaceWallMode = 6;
-			}
-			else
-			{
-				AimAtTargetPos();
-				DontFaceWall();
-			}
-		}
+        if (m_eDontFaceWallMode <= 8) {
+            Anim_Stand();
+        } else {
+            Anim_Aim();
+        }
+    }
 
-		if (m_eDontFaceWallMode <= 8)
-		{
-			Anim_Stand();
-		}
-		else
-		{
-			Anim_Aim();
-		}
-	}
+    if (level.inttime <= m_iStateTime) {
+        return;
+    }
 
-	if (level.inttime <= m_iStateTime)
-		return;
+    PathNode *pNode = (PathNode *)G_FindRandomSimpleTarget(m_pCoverNode->target);
 
-	PathNode *pNode = (PathNode *)G_FindRandomSimpleTarget(m_pCoverNode->target);
+    m_pCoverNode->Relinquish();
+    m_pCoverNode = NULL;
 
-	m_pCoverNode->Relinquish();
-	m_pCoverNode = NULL;
+    if (!pNode) {
+        Anim_Stand();
+        TransitionState(305, rand() & 0x7FF);
+        return;
+    }
 
-	if (!pNode)
-	{
-		Anim_Stand();
-		TransitionState(305, rand() & 0x7FF);
-		return;
-	}
+    assert(pNode->IsSubclassOfPathNode());
+    if (pNode->IsSubclassOfPathNode()) {
+        if (!pNode->IsClaimedByOther(this)) {
+            SetPath(pNode, "Actor::State_Cover_Target", 0);
 
-	assert(pNode->IsSubclassOfPathNode());
-	if (pNode->IsSubclassOfPathNode())
-	{
-		if (!pNode->IsClaimedByOther(this))
-		{
-			SetPath(pNode, "Actor::State_Cover_Target", 0);
-
-			if (PathExists())
-			{
-				m_pCoverNode = pNode;
-				pNode->Claim(this);
-				Anim_RunToDanger(3);
-				TransitionState(306, 0);
-			}
-		}
-	}
-
+            if (PathExists()) {
+                m_pCoverNode = pNode;
+                pNode->Claim(this);
+                Anim_RunToDanger(3);
+                TransitionState(306, 0);
+            }
+        }
+    }
 }
 
-void Actor::State_Cover_Shoot
-(
-	void
-)
+void Actor::State_Cover_Shoot(void)
 {
-	if (m_bNeedReload)
-	{
-		Cover_FindCover(true);
+    if (m_bNeedReload) {
+        Cover_FindCover(true);
 
-		if (m_pCoverNode)
-		{
-			Anim_RunToCover(3);
-			FaceEnemyOrMotion(0);
-			TransitionState(302, 0);
-			return;
-		}
-	}
+        if (m_pCoverNode) {
+            Anim_RunToCover(3);
+            FaceEnemyOrMotion(0);
+            TransitionState(302, 0);
+            return;
+        }
+    }
 
-	Anim_Shoot();
-	AimAtTargetPos();
+    Anim_Shoot();
+    AimAtTargetPos();
 
-	if (level.inttime > m_iStateTime + 10000)
-	{
-		gi.cvar_set("g_monitornum", va("%i", entnum));
-		assert(!"anim/shoot.scr took over 10 seconds");
-		Com_Error(ERR_DROP, "anim/shoot.scr took over 10 seconds, entnum = %i, targetname = %s", entnum, targetname.c_str());
-	}
+    if (level.inttime > m_iStateTime + 10000) {
+        gi.cvar_set("g_monitornum", va("%i", entnum));
+        assert(!"anim/shoot.scr took over 10 seconds");
+        Com_Error(
+            ERR_DROP, "anim/shoot.scr took over 10 seconds, entnum = %i, targetname = %s", entnum, targetname.c_str()
+        );
+    }
 }
 
-void Actor::State_Cover_Grenade
-	(
-	void
-	)
+void Actor::State_Cover_Grenade(void)
 {
-	GenericGrenadeTossThink();
+    GenericGrenadeTossThink();
 }
 
-void Actor::State_Cover_SpecialAttack
-	(
-	void
-	)
+void Actor::State_Cover_SpecialAttack(void)
 {
-	m_bHasDesiredLookAngles = false;
+    m_bHasDesiredLookAngles = false;
 
-	assert( m_pCoverNode );
-	if( !m_pCoverNode )
-	{
-		TransitionState(305, 0);
-		State_Cover_FindEnemy();
-		return;
-	}
+    assert(m_pCoverNode);
+    if (!m_pCoverNode) {
+        TransitionState(305, 0);
+        State_Cover_FindEnemy();
+        return;
+    }
 
-	if( mbBreakSpecialAttack )
-	{
-		if( m_pCoverNode )
-		{
-			m_pCoverNode->Relinquish();
-			m_pCoverNode = NULL;
-		}
+    if (mbBreakSpecialAttack) {
+        if (m_pCoverNode) {
+            m_pCoverNode->Relinquish();
+            m_pCoverNode = NULL;
+        }
 
-		TransitionState(305, 0);
-		State_Cover_FindEnemy();
-		return;
-	}
+        TransitionState(305, 0);
+        State_Cover_FindEnemy();
+        return;
+    }
 
-	if( level.inttime >= m_iLastEnemyPosChangeTime + level.intframetime || !m_csSpecialAttack )
-	{
-		m_csSpecialAttack = m_pCoverNode->GetSpecialAttack( this );
+    if (level.inttime >= m_iLastEnemyPosChangeTime + level.intframetime || !m_csSpecialAttack) {
+        m_csSpecialAttack = m_pCoverNode->GetSpecialAttack(this);
 
-		if( !m_csSpecialAttack )
-		{
-			TransitionState(305, 0);
-			State_Cover_FindEnemy();
-			return;
-		}
-	}
+        if (!m_csSpecialAttack) {
+            TransitionState(305, 0);
+            State_Cover_FindEnemy();
+            return;
+        }
+    }
 
-	SetDesiredYaw(angles[1]);
+    SetDesiredYaw(angles[1]);
 
-	m_eNextAnimMode = 1;
-	m_csNextAnimString = m_csSpecialAttack;
-	m_bNextForceStart = false;
+    m_eNextAnimMode    = 1;
+    m_csNextAnimString = m_csSpecialAttack;
+    m_bNextForceStart  = false;
 }
 
-void Actor::State_Cover_FindEnemy
-	(
-	void
-	)
+void Actor::State_Cover_FindEnemy(void)
 {
-	if( m_Team == TEAM_AMERICAN )
-	{
-		m_bHasDesiredLookAngles = false;
+    if (m_Team == TEAM_AMERICAN) {
+        m_bHasDesiredLookAngles = false;
 
-__setpath:
-		Anim_Stand();
-		SetPathWithLeash( m_vLastEnemyPos, NULL, 0 );
-		ShortenPathToAvoidSquadMates();
-		if( PathExists() && !PathComplete() && PathAvoidsSquadMates() )
-		{
-			TransitionState(311, 0);
-		}
-		else
-		{
-			m_bTurretNoInitialCover = true;
-			SetThink( THINKSTATE_ATTACK, THINK_TURRET );
-		}
+    __setpath:
+        Anim_Stand();
+        SetPathWithLeash(m_vLastEnemyPos, NULL, 0);
+        ShortenPathToAvoidSquadMates();
+        if (PathExists() && !PathComplete() && PathAvoidsSquadMates()) {
+            TransitionState(311, 0);
+        } else {
+            m_bTurretNoInitialCover = true;
+            SetThink(THINKSTATE_ATTACK, THINK_TURRET);
+        }
 
-		return;
-	}
+        return;
+    }
 
-	AimAtTargetPos();
-	Anim_Aim();
-	DontFaceWall();
+    AimAtTargetPos();
+    Anim_Aim();
+    DontFaceWall();
 
-	if( CanSeeEnemy( 200 ) )
-	{
-		if( m_eDontFaceWallMode > 8 )
-		{
-			TransitionState(307, 0);
-		}
+    if (CanSeeEnemy(200)) {
+        if (m_eDontFaceWallMode > 8) {
+            TransitionState(307, 0);
+        }
 
-		goto __setpath;
-	}
+        goto __setpath;
+    }
 
-	if( m_eDontFaceWallMode <= 8 || level.inttime > m_iStateTime + 500 )
-	{
-		goto __setpath;
-	}
+    if (m_eDontFaceWallMode <= 8 || level.inttime > m_iStateTime + 500) {
+        goto __setpath;
+    }
 }
 
-void Actor::State_Cover_SearchNode
-	(
-	void
-	)
+void Actor::State_Cover_SearchNode(void)
 {
-	m_bHasDesiredLookAngles = false;
+    m_bHasDesiredLookAngles = false;
 
-	if( CanSeeEnemy( 200 ) )
-	{
-		Anim_Aim();
-		AimAtTargetPos();
-		TransitionState(307, 0);
-		return;
-	}
+    if (CanSeeEnemy(200)) {
+        Anim_Aim();
+        AimAtTargetPos();
+        TransitionState(307, 0);
+        return;
+    }
 
-	if( PathExists() && !PathComplete() )
-	{
-		FaceEnemyOrMotion( level.inttime - m_iStateTime );
-		Anim_RunToDanger( 3 );
-	}
-	else
-	{
-		Anim_Aim();
-		AimAtTargetPos();
+    if (PathExists() && !PathComplete()) {
+        FaceEnemyOrMotion(level.inttime - m_iStateTime);
+        Anim_RunToDanger(3);
+    } else {
+        Anim_Aim();
+        AimAtTargetPos();
 
-		if( level.inttime > m_iStateTime + 3000 )
-		{
-			TransitionState(301, 0);
-		}
-	}
+        if (level.inttime > m_iStateTime + 3000) {
+            TransitionState(301, 0);
+        }
+    }
 }
 
-void Actor::State_Cover_HuntEnemy
-	(
-	void
-	)
+void Actor::State_Cover_HuntEnemy(void)
 {
-	FaceEnemyOrMotion( level.inttime - m_iStateTime );
-	MovePathWithLeash();
+    FaceEnemyOrMotion(level.inttime - m_iStateTime);
+    MovePathWithLeash();
 
-	if( PathExists() && !PathComplete() )
-	{
-		if( CanSeeEnemy( 300 ) )
-		{
-			TransitionState(307, 0);
-		}
-	}
-	else
-	{
-		TransitionState(305, rand() & 0x7FF);
+    if (PathExists() && !PathComplete()) {
+        if (CanSeeEnemy(300)) {
+            TransitionState(307, 0);
+        }
+    } else {
+        TransitionState(305, rand() & 0x7FF);
 
-		if( m_pCoverNode )
-		{
-			m_pCoverNode->Relinquish();
-			m_pCoverNode = NULL;
-		}
-	}
+        if (m_pCoverNode) {
+            m_pCoverNode->Relinquish();
+            m_pCoverNode = NULL;
+        }
+    }
 }
 
-void Actor::State_Cover_FakeEnemy
-	(
-	void
-	)
+void Actor::State_Cover_FakeEnemy(void)
 {
-	AimAtTargetPos();
-	Anim_Aim();
+    AimAtTargetPos();
+    Anim_Aim();
 
-	if( level.inttime >= m_iStateTime )
-	{
-		SetThinkState( THINKSTATE_IDLE, THINKLEVEL_NORMAL);
-	}
+    if (level.inttime >= m_iStateTime) {
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+    }
 }
 
-void Actor::Think_Cover
-	(
-	void
-	)
+void Actor::Think_Cover(void)
 {
-	if( !RequireThink() )
-	{
-		return;
-	}
+    if (!RequireThink()) {
+        return;
+    }
 
-	UpdateEyeOrigin();
-	NoPoint();
-	UpdateEnemy( 500 );
+    UpdateEyeOrigin();
+    NoPoint();
+    UpdateEnemy(500);
 
-	if( m_State == 312 )
-	{
-		ContinueAnimation();
-	}
-	else
-	{
-		m_bLockThinkState = false;
-		if( m_Enemy )
-		{
-			if( m_State == 313 )
-			{
-				TransitionState(300, 0);
-			}
-		}
-		else
-		{
-			if( m_State != 313 )
-			{
-				TransitionState(313, (rand() & 0x7FF) + 1000);
-			}
-		}
+    if (m_State == 312) {
+        ContinueAnimation();
+    } else {
+        m_bLockThinkState = false;
+        if (m_Enemy) {
+            if (m_State == 313) {
+                TransitionState(300, 0);
+            }
+        } else {
+            if (m_State != 313) {
+                TransitionState(313, (rand() & 0x7FF) + 1000);
+            }
+        }
 
-		switch( m_State )
-		{
-		case 300:
-			m_pszDebugState = "NewEnemy";
-			State_Cover_NewEnemy();
-			break;
-		case 301:
-			m_pszDebugState = "FindCover";
-			State_Cover_FindCover();
-			break;
-		case 302:
-			m_pszDebugState = "TakeCover";
-			State_Cover_TakeCover();
-			break;
-		case 303:
-			m_pszDebugState = "FinishReloading";
-			State_Cover_FinishReloading();
-			break;
-		case 304:
-			m_pszDebugState = "SpecialAttack";
-			State_Cover_SpecialAttack();
-			break;
-		case 305:
-			m_pszDebugState = "FindEnemy";
-			State_Cover_FindEnemy();
-			break;
-		case 306:
-			m_pszDebugState = "SearchNode";
-			State_Cover_SearchNode();
-			break;
-		case 307:
-			m_pszDebugState = "Target";
-			State_Cover_Target();
-			break;
-		case 308:
-			m_pszDebugState = "Hide";
-			State_Cover_Hide();
-			break;
-		case 309:
-			m_pszDebugState = "Shoot";
-			State_Cover_Shoot();
-			break;
-		case 310:
-			m_pszDebugState = "Grenade";
-			State_Cover_Grenade();
-			break;
-		case 311:
-			m_pszDebugState = "HuntEnemy";
-			State_Cover_HuntEnemy();
-			break;
-		case 313:
-			m_pszDebugState = "FakeEnemy";
-			State_Cover_FakeEnemy();
-			break;
-		default:
-			Com_Printf( "Actor::Think_Cover: invalid think state %i\n", m_State );
-			assert( 0 );
-			break;
-		}
+        switch (m_State) {
+        case 300:
+            m_pszDebugState = "NewEnemy";
+            State_Cover_NewEnemy();
+            break;
+        case 301:
+            m_pszDebugState = "FindCover";
+            State_Cover_FindCover();
+            break;
+        case 302:
+            m_pszDebugState = "TakeCover";
+            State_Cover_TakeCover();
+            break;
+        case 303:
+            m_pszDebugState = "FinishReloading";
+            State_Cover_FinishReloading();
+            break;
+        case 304:
+            m_pszDebugState = "SpecialAttack";
+            State_Cover_SpecialAttack();
+            break;
+        case 305:
+            m_pszDebugState = "FindEnemy";
+            State_Cover_FindEnemy();
+            break;
+        case 306:
+            m_pszDebugState = "SearchNode";
+            State_Cover_SearchNode();
+            break;
+        case 307:
+            m_pszDebugState = "Target";
+            State_Cover_Target();
+            break;
+        case 308:
+            m_pszDebugState = "Hide";
+            State_Cover_Hide();
+            break;
+        case 309:
+            m_pszDebugState = "Shoot";
+            State_Cover_Shoot();
+            break;
+        case 310:
+            m_pszDebugState = "Grenade";
+            State_Cover_Grenade();
+            break;
+        case 311:
+            m_pszDebugState = "HuntEnemy";
+            State_Cover_HuntEnemy();
+            break;
+        case 313:
+            m_pszDebugState = "FakeEnemy";
+            State_Cover_FakeEnemy();
+            break;
+        default:
+            Com_Printf("Actor::Think_Cover: invalid think state %i\n", m_State);
+            assert(0);
+            break;
+        }
 
-		CheckForTransition( THINKSTATE_GRENADE, THINKLEVEL_NORMAL );
-	}
+        CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
+    }
 
-	if( m_State != 305 && m_State != 307 && m_State != 308 && m_State != 309 )
-	{
-		PostThink( true );
-	}
-	else
-	{
-		PostThink( false );
-	}
+    if (m_State != 305 && m_State != 307 && m_State != 308 && m_State != 309) {
+        PostThink(true);
+    } else {
+        PostThink(false);
+    }
 }
 
-void Actor::FinishedAnimation_Cover
-	(
-	void
-	)
+void Actor::FinishedAnimation_Cover(void)
 {
-	if( m_State == 309 )
-	{
-		if( m_Enemy && !m_Enemy->IsDead() && CanSeeEnemy( 500 ) && CanShootEnemy( 500 ) )
-		{
-			TransitionState(309, 0);
-		}
-		else
-		{
-			TransitionState(301, 0);
-		}
-	}
-	else if( m_State == 310 || m_State == 312 )
-	{
-		TransitionState(301, 0);
-	}
+    if (m_State == 309) {
+        if (m_Enemy && !m_Enemy->IsDead() && CanSeeEnemy(500) && CanShootEnemy(500)) {
+            TransitionState(309, 0);
+        } else {
+            TransitionState(301, 0);
+        }
+    } else if (m_State == 310 || m_State == 312) {
+        TransitionState(301, 0);
+    }
 }
 
-void Actor::PathnodeClaimRevoked_Cover
-	(
-	void
-	)
+void Actor::PathnodeClaimRevoked_Cover(void)
 {
-	TransitionState(301, 0);
+    TransitionState(301, 0);
 }
 
-bool Actor::Cover_IsValid
-	(
-	PathNode *node
-	)
+bool Actor::Cover_IsValid(PathNode *node)
 {
-	if( !node->IsClaimedByOther( this ) )
-	{
-		if( node->nodeflags & AI_CONCEALMENT )
-		{
-			return true;
-		}
-		else if( CanSeeFrom( origin + eyeposition, m_Enemy ) )
-		{
-			if( !( node->nodeflags & AI_DUCK ) )
-			{
-				return false;
-			}
-			else if( CanSeeFrom( origin + eyeposition - Vector( 0, 0, 32 ), m_Enemy ) )
-			{
-				return false;
-			}
-			else
-			{
-				return true;
-			}
-		}
-		else
-		{
-			return true;
-		}
-	}
-	else
-	{
-		return false;
-	}
+    if (!node->IsClaimedByOther(this)) {
+        if (node->nodeflags & AI_CONCEALMENT) {
+            return true;
+        } else if (CanSeeFrom(origin + eyeposition, m_Enemy)) {
+            if (!(node->nodeflags & AI_DUCK)) {
+                return false;
+            } else if (CanSeeFrom(origin + eyeposition - Vector(0, 0, 32), m_Enemy)) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return true;
+        }
+    } else {
+        return false;
+    }
 }
-bool Actor::Cover_SetPath
-	(
-	PathNode *node
-	)
+
+bool Actor::Cover_SetPath(PathNode *node)
 {
-	SetPathWithLeash( node, NULL, 0 );
+    SetPathWithLeash(node, NULL, 0);
 
-	if( !PathExists() )
-	{
-		return false;
-	}
+    if (!PathExists()) {
+        return false;
+    }
 
-	float origin_ratio;
-	Vector enemy_offset;
-	PathInfo *current_node;
-	Vector enemy_origin;
-	Vector vDelta;
-	float fMinDistSquared;
-	float fPathDist;
+    float     origin_ratio;
+    Vector    enemy_offset;
+    PathInfo *current_node;
+    Vector    enemy_origin;
+    Vector    vDelta;
+    float     fMinDistSquared;
+    float     fPathDist;
 
-	fPathDist = PathDist();
-	fMinDistSquared = fPathDist * fPathDist;
-	vDelta = node->origin - origin;
+    fPathDist       = PathDist();
+    fMinDistSquared = fPathDist * fPathDist;
+    vDelta          = node->origin - origin;
 
-	if( fMinDistSquared >= vDelta.lengthSquared() * 4.0f )
-	{
-		if( fPathDist > 128.0f )
-		{
-			return false;
-		}
-	}
+    if (fMinDistSquared >= vDelta.lengthSquared() * 4.0f) {
+        if (fPathDist > 128.0f) {
+            return false;
+        }
+    }
 
-	if( !PathComplete() )
-	{
-		enemy_origin = m_Enemy->origin;
-		vDelta = enemy_origin - origin;
+    if (!PathComplete()) {
+        enemy_origin = m_Enemy->origin;
+        vDelta       = enemy_origin - origin;
 
-		if( VectorLength2DSquared( vDelta ) * 0.64f > 192 * 192 )
-		{
-			origin_ratio = 192 * 192;
-		}
+        if (VectorLength2DSquared(vDelta) * 0.64f > 192 * 192) {
+            origin_ratio = 192 * 192;
+        }
 
-		for( current_node = CurrentPathNode() - 1; current_node >= LastPathNode(); current_node-- )
-		{
-			vDelta[ 0 ] = origin[ 0 ] - current_node->point[ 0 ];
-			vDelta[ 1 ] = origin[ 1 ] - current_node->point[ 1 ];
+        for (current_node = CurrentPathNode() - 1; current_node >= LastPathNode(); current_node--) {
+            vDelta[0] = origin[0] - current_node->point[0];
+            vDelta[1] = origin[1] - current_node->point[1];
 
-			if( origin_ratio >= VectorLength2DSquared( vDelta ) )
-			{
-				return false;
-			}
+            if (origin_ratio >= VectorLength2DSquared(vDelta)) {
+                return false;
+            }
 
-			float fDot = DotProduct2D( vDelta, current_node->dir );
-			if( fDot < 0.0f && -current_node->dist <= fDot )
-			{
-				if( ( vDelta[ 0 ] * current_node->dir[ 0 ] - vDelta[ 1 ] * current_node->dir[ 1 ] ) * ( vDelta[ 0 ] * current_node->dir[ 0 ] - vDelta[ 1 ] * current_node->dir[ 1 ] ) )
-				{
-					return false;
-				}
-			}
-		}
-	}
+            float fDot = DotProduct2D(vDelta, current_node->dir);
+            if (fDot < 0.0f && -current_node->dist <= fDot) {
+                if ((vDelta[0] * current_node->dir[0] - vDelta[1] * current_node->dir[1])
+                    * (vDelta[0] * current_node->dir[0] - vDelta[1] * current_node->dir[1])) {
+                    return false;
+                }
+            }
+        }
+    }
 
-	return true;
+    return true;
 }
 
-void Actor::Cover_FindCover
-	(
-	bool bCheckAll
-	)
+void Actor::Cover_FindCover(bool bCheckAll)
 {
+    if (m_pCoverNode) {
+        if (Cover_IsValid(m_pCoverNode) && Cover_SetPath(m_pCoverNode)) {
+            return;
+        }
 
-	if( m_pCoverNode )
-	{
-		if( Cover_IsValid( m_pCoverNode ) && Cover_SetPath( m_pCoverNode ) )
-		{
-			return;
-		}
+        m_pCoverNode->Relinquish();
+        m_pCoverNode = NULL;
+    }
 
-		m_pCoverNode->Relinquish();
-		m_pCoverNode = NULL;
-	}
+    if (!m_iPotentialCoverCount) {
+        m_iPotentialCoverCount = PathManager.FindPotentialCover(this, origin, m_Enemy, m_pPotentialCoverNode, 16);
+    }
 
-	if( !m_iPotentialCoverCount )
-	{
-		m_iPotentialCoverCount = PathManager.FindPotentialCover( this, origin, m_Enemy, m_pPotentialCoverNode, 16 );
-	}
+    if (m_iPotentialCoverCount) {
+        PathNode *pNode = NULL;
 
-	if( m_iPotentialCoverCount )
-	{
-		PathNode *pNode = NULL;
+        while (m_iPotentialCoverCount) {
+            m_iPotentialCoverCount--;
+            pNode                                         = m_pPotentialCoverNode[m_iPotentialCoverCount];
+            m_pPotentialCoverNode[m_iPotentialCoverCount] = NULL;
 
-		while( m_iPotentialCoverCount )
-		{
-			m_iPotentialCoverCount--;
-			pNode = m_pPotentialCoverNode[ m_iPotentialCoverCount ];
-			m_pPotentialCoverNode[ m_iPotentialCoverCount ] = NULL;
+            if (Cover_IsValid(pNode) && Cover_SetPath(pNode)) {
+                break;
+            }
 
-			if( Cover_IsValid( pNode ) && Cover_SetPath( pNode ) )
-			{
-				break;
-			}
+            if (!bCheckAll) {
+                return;
+            }
+        }
 
-			if( !bCheckAll )
-			{
-				return;
-			}
-		}
-
-		m_pCoverNode = pNode;
-		m_pCoverNode->Claim( this );
-		memset( m_pPotentialCoverNode, 0, sizeof( m_pPotentialCoverNode ) );
-		m_iPotentialCoverCount = 0;
-	}
+        m_pCoverNode = pNode;
+        m_pCoverNode->Claim(this);
+        memset(m_pPotentialCoverNode, 0, sizeof(m_pPotentialCoverNode));
+        m_iPotentialCoverCount = 0;
+    }
 }
-

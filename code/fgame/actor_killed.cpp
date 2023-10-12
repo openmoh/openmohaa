@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -24,67 +24,47 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 
-void Actor::InitDead
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitDead(GlobalFuncs_t *func)
 {
-	func->IsState = &Actor::IsKilledState;
+    func->IsState = &Actor::IsKilledState;
 }
 
-void Actor::InitKilled
-	(
-	GlobalFuncs_t *func
-	)
+void Actor::InitKilled(GlobalFuncs_t *func)
 {
-	func->BeginState				= &Actor::Begin_Killed;
-	func->ThinkState				= &Actor::Think_Killed;
-	func->FinishedAnimation			= &Actor::FinishedAnimation_Killed;
-	func->IsState					= &Actor::IsKilledState;
+    func->BeginState        = &Actor::Begin_Killed;
+    func->ThinkState        = &Actor::Think_Killed;
+    func->FinishedAnimation = &Actor::FinishedAnimation_Killed;
+    func->IsState           = &Actor::IsKilledState;
 }
 
-void Actor::Begin_Killed
-	(
-	void
-	)
+void Actor::Begin_Killed(void)
 {
-	Event e1(EV_Actor_DeathEmbalm); // ebx
+    Event e1(EV_Actor_DeathEmbalm); // ebx
 
-	ClearPath();
-	ResetBoneControllers();
+    ClearPath();
+    ResetBoneControllers();
 
-	PostEvent(
-		e1,
-		0.05f);
-	TransitionState(700, 0);
+    PostEvent(e1, 0.05f);
+    TransitionState(700, 0);
 }
 
-void Actor::Think_Killed
-	(
-	void
-	)
+void Actor::Think_Killed(void)
 {
-	Unregister(STRING_ANIMDONE);
-	if (m_State == 700)
-	{
-		m_pszDebugState = "begin";
-		NoPoint();
-		m_bHasDesiredLookAngles = false;
-		StopTurning();
-		Anim_Killed();
-		PostThink(false);
-	}
-	else
-	{
-		m_pszDebugState = "end";
-	}
+    Unregister(STRING_ANIMDONE);
+    if (m_State == 700) {
+        m_pszDebugState = "begin";
+        NoPoint();
+        m_bHasDesiredLookAngles = false;
+        StopTurning();
+        Anim_Killed();
+        PostThink(false);
+    } else {
+        m_pszDebugState = "end";
+    }
 }
 
-void Actor::FinishedAnimation_Killed
-	(
-	void
-	)
+void Actor::FinishedAnimation_Killed(void)
 {
-	BecomeCorpse();
-	TransitionState(701, 0);
+    BecomeCorpse();
+    TransitionState(701, 0);
 }
