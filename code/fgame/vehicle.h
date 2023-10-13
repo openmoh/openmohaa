@@ -591,7 +591,8 @@ public:
     virtual void     Postthink() override;
     virtual void     CalculateOriginOffset() override;
     void             UpdateSound() override;
-    void             AttachDriverSlot(Event *ev) override;
+    //void             AttachDriverSlot(Event* ev) override;
+    void     AttachDriverSlot(int slot, Entity* ent, Vector vExitPosition) override;
 };
 
 class VehicleHalfTrack : public DrivableVehicle

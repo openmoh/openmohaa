@@ -493,6 +493,13 @@ void VehicleTank::UpdateSound()
     }
 }
 
+//
+// Fixed in OPM:
+//  This method only work when called from script.
+//  But it is not called automatically when the player actually uses the vehicle
+//  when that vehicle is unlocked.
+//  So the other native method is overriden instead
+/*
 void VehicleTank::AttachDriverSlot(Event *ev)
 {
     Vehicle::AttachDriverSlot(ev);
@@ -512,6 +519,32 @@ void VehicleTank::AttachDriverSlot(Event *ev)
 
     if (vtg && vtg->IsSubclassOfVehicleTurretGun() && driver.ent->IsSubclassOfSentient()) {
         vtg->SetRemoteOwner(static_cast<Sentient *>(driver.ent.Pointer()));
+        Think();
+        Postthink();
+        vtg->Think();
+    }
+}
+*/
+
+void VehicleTank::AttachDriverSlot(int slot, Entity* ent, Vector vExitPosition)
+{
+    Vehicle::AttachDriverSlot(slot, ent, vExitPosition);
+
+    if (!driver.ent) {
+        //
+        // Added in OPM.
+        // original mohaa doesn't check if driver.ent is valid, which can cause crash if the attached entity is null.
+        // on single-player, it would crash while loading m5l2a when sv_maxclients is above 1.
+        // The reason of the crash is that attachdriverslot is called with $player which can be NULL on prespawn.
+        // $player is not created on prespawn when sv_maxclients is above 1
+        //
+        return;
+    }
+
+    VehicleTurretGun* vtg = static_cast<VehicleTurretGun*>(Turrets[0].ent.Pointer());
+
+    if (vtg && vtg->IsSubclassOfVehicleTurretGun() && driver.ent->IsSubclassOfSentient()) {
+        vtg->SetRemoteOwner(static_cast<Sentient*>(driver.ent.Pointer()));
         Think();
         Postthink();
         vtg->Think();
