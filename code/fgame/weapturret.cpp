@@ -494,6 +494,15 @@ TurretGun::~TurretGun()
 {
     Unregister(STRING_ONTARGET);
 
+    //
+    // Added in OPM:
+    //  Remove the user camera if any.
+    //
+    if (m_pUserCamera) {
+        m_pUserCamera->PostEvent(EV_Remove, 0);
+        m_pUserCamera = NULL;
+    }
+
     entflags &= ~EF_TURRET;
 }
 
