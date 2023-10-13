@@ -239,7 +239,7 @@ void DamageModel::KillTrace(Event *ev)
             break;
         }
 
-        trace = G_Trace(transformed, mins, maxs, end, ent, MASK_DAMAGEMODEL, qfalse, "KillTrace");
+        trace = G_Trace(transformed, mins, maxs, end, ent, MASK_SOLID, qfalse, "KillTrace");
 
         if (trace.fraction >= 1 || trace.entityNum == ENTITYNUM_WORLD) {
             break;
