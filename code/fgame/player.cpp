@@ -4568,14 +4568,11 @@ void Player::Think(void)
                     SetPlayerSpectateRandom();
                 } else {
                     gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
-                    Player    *player;
-
+                    
                     if (!ent->inuse || !ent->entity) {
+                        // Invalid spectate entity
                         SetPlayerSpectateRandom();
-                    }
-
-                    player = static_cast<Player *>(ent->entity);
-                    if (player->deadflag >= DEAD_DEAD || player->IsSpectator() || !IsValidSpectatePlayer(player)) {
+                    } else if (ent->entity->deadflag >= DEAD_DEAD || static_cast<Player*>(ent->entity)->IsSpectator() || IsValidSpectatePlayer(static_cast<Player*>(ent->entity))) {
                         SetPlayerSpectateRandom();
                     }
                 }
@@ -4594,22 +4591,13 @@ void Player::Think(void)
 
                 if (m_iPlayerSpectating) {
                     gentity_t *ent = g_entities + m_iPlayerSpectating - 1;
-                    Player    *player;
-
+                    
                     if (!ent->inuse || !ent->entity) {
                         // Invalid spectate entity
                         SetPlayerSpectateRandom();
-                    }
-
-                    player = static_cast<Player *>(ent->entity);
-                    if (player->deadflag >= DEAD_DEAD || player->IsSpectator()) {
-                        // Dead player, spectate another player
+                    } else if (ent->entity->deadflag >= DEAD_DEAD || static_cast<Player*>(ent->entity)->IsSpectator() || IsValidSpectatePlayer(static_cast<Player*>(ent->entity))) {
                         SetPlayerSpectateRandom();
-                    }
-
-                    if (g_gametype->integer >= GT_TEAM && g_forceteamspectate->integer && GetTeam() > TEAM_FREEFORALL
-                        && GetTeam() != player->GetTeam()) {
-                        // Spectate another player if the target player switched teams
+                    } else if (g_gametype->integer >= GT_TEAM && GetTeam() > TEAM_FREEFORALL && static_cast<Player*>(ent->entity)->GetTeam() != GetTeam()) {
                         SetPlayerSpectateRandom();
                     }
                 }
@@ -8827,12 +8815,23 @@ bool Player::IsValidSpectatePlayer(Player *pPlayer)
         return true;
     }
 
-    if (GetTeam() <= TEAM_FREEFORALL || !g_forceteamspectate->integer || !GetDM_Team()->NumLivePlayers()
-        || pPlayer->GetTeam() == GetTeam()) {
+    if (GetTeam() <= TEAM_FREEFORALL) {
         return true;
-    } else {
+    }
+
+    if (g_forceteamspectate->integer) {
+        if (!GetDM_Team()->NumLivePlayers()) {
+            return true;
+        }
+
+        if (pPlayer->GetTeam() == GetTeam()) {
+            return true;
+        }
+
         return false;
     }
+
+    return true;
 }
 
 void Player::SetPlayerSpectate(bool bNext)
@@ -8910,6 +8909,10 @@ void Player::SetPlayerSpectateRandom(void)
 
     if (!numvalid) {
         // There is no valid player to spectate
+
+        // Added in OPM.
+        //  Clear the player spectating value
+        m_iPlayerSpectating = 0;
         return;
     }
 
