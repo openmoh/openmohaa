@@ -326,10 +326,15 @@ void VehicleTank::Postthink()
         setContents(CONTENTS_UNKNOWN2);
     }
 
-    if (driver.flags & SLOT_BUSY && driver.ent) {
+    if ((driver.flags & SLOT_BUSY) && driver.ent) {
         if (driver.ent->IsSubclassOfPlayer()) {
             driver.ent->takedamage = DAMAGE_YES;
-            setSolidType(SOLID_NOT);
+            // Fixed in OPM.
+            //  It's probably a mistake in moh 2.0 and above,
+            //  the tank was non-solid with a player driver,
+            //  instead of the driver being non-solid.
+            //setSolidType(SOLID_NOT);
+            driver.ent->setSolidType(SOLID_NOT);
         } else {
             driver.ent->takedamage = DAMAGE_NO;
             driver.ent->setSolidType(SOLID_NOT);
