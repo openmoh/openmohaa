@@ -1664,6 +1664,11 @@ void VehicleTurretGun::EndRemoteControl()
     m_iIdleHitCount     = 0;
     m_iFiring           = 0;
     m_vTargetAngles     = m_vLocalAngles;
+
+    //
+    // Added in OPM.
+    //  The camera must be removed after ending the remote control.
+    RemoveUserCamera();
 }
 
 float VehicleTurretGun::GetWarmupFraction() const
