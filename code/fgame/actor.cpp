@@ -6912,16 +6912,16 @@ void Actor::Init(void)
     InitCover(&GlobalFuncs[THINK_COVER]);
     InitPatrol(&GlobalFuncs[THINK_PATROL]);
     InitRunner(&GlobalFuncs[THINK_RUNNER]);
+    InitIdle(&GlobalFuncs[THINK_IDLE]);
     InitPain(&GlobalFuncs[THINK_PAIN]);
     InitKilled(&GlobalFuncs[THINK_KILLED]);
-    InitIdle(&GlobalFuncs[THINK_IDLE]);
     InitCurious(&GlobalFuncs[THINK_CURIOUS]);
+    InitAlarm(&GlobalFuncs[THINK_ALARM]);
     InitDisguiseSalute(&GlobalFuncs[THINK_DISGUISE_SALUTE]);
     InitDisguiseSentry(&GlobalFuncs[THINK_DISGUISE_SENTRY]);
     InitDisguiseOfficer(&GlobalFuncs[THINK_DISGUISE_OFFICER]);
     InitDisguiseRover(&GlobalFuncs[THINK_DISGUISE_ROVER]);
     InitDisguiseNone(&GlobalFuncs[THINK_DISGUISE_NONE]);
-    InitAlarm(&GlobalFuncs[THINK_ALARM]);
     InitGrenade(&GlobalFuncs[THINK_GRENADE]);
     InitMachineGunner(&GlobalFuncs[THINK_MACHINEGUNNER]);
     InitDogIdle(&GlobalFuncs[THINK_DOG_IDLE]);
@@ -6940,27 +6940,27 @@ void Actor::Init(void)
     InitWeaponless(&GlobalFuncs[THINK_WEAPONLESS]);
     InitNoClip(&GlobalFuncs[THINK_NOCLIP]);
     InitDead(&GlobalFuncs[THINK_DEAD]);
+    InitBadPlace(&GlobalFuncs[THINK_BADPLACE]);
+    InitRunAndShoot(&GlobalFuncs[THINK_RUN_AND_SHOOT]);
 
-    AddWaitTill(STRING_TRIGGER);
-    AddWaitTill(STRING_MOVE);
-    AddWaitTill(STRING_ANIMDONE);
     AddWaitTill(STRING_VISIBLE);
+    AddWaitTill(STRING_PAIN);
+    AddWaitTill(STRING_DEATH);
+    AddWaitTill(STRING_HASENEMY);
+    AddWaitTill(STRING_FLAGGEDANIMDONE);
     AddWaitTill(STRING_UPPERANIMDONE);
     AddWaitTill(STRING_SAYDONE);
-    AddWaitTill(STRING_FLAGGEDANIMDONE);
-    AddWaitTill(STRING_DEATH);
-    AddWaitTill(STRING_PAIN);
-    AddWaitTill(STRING_HASENEMY);
-    AddWaitTill(STRING_MOVEDONE);
     AddWaitTill(STRING_SOUNDDONE);
+    AddWaitTill(STRING_ANIMDONE);
+    AddWaitTill(STRING_MOVEDONE);
+    AddWaitTill(STRING_TRIGGER);
+    AddWaitTill(STRING_MOVE);
     AddWaitTill(STRING_TURNDONE);
-
-    gi.DPrintf("actor waittills registered\n");
 
     if (developer->integer) {
         Com_Printf("sizeof(Actor) == %zi\n", sizeof(Actor));
         //FIXME: magic ??
-        Com_Printf("Magic sizeof actor number: %zd\n", sizeof(Actor));
+        Com_Printf("Magic sizeof actor number: %zd\n", sizeof(Actor) - 64);
     }
 }
 
