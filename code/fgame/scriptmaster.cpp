@@ -343,7 +343,6 @@ const char *ScriptMaster::ConstStrings[] = {
     "anim/continue_last_anim.scr",
     "flagged",
     "anim/fullbody.scr",
-    "internal",
     "salute",
     "sentry",
     "officier",
