@@ -63,6 +63,10 @@ public:
     int  getHeight(const char *text, int maxlen, qboolean bVirtual);
     int  getHeight(qboolean bVirtual);
     int  CodeSearch(unsigned short uch);
+    bool DBCSIsLeadByte(unsigned short uch);
+    bool DBCSIsMaekin(unsigned short uch);
+    bool DBCSIsAtokin(unsigned short uch);
+    int DBCSGetWordBlockCount(const char* text, int maxlen);
 };
 
 int UI_FontStringWidth(fontheader_t *pFont, const char *pszString, int iMaxLen);
