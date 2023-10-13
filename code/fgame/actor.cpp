@@ -5581,9 +5581,7 @@ Default pain handler.
 */
 void Actor::DefaultPain(Event *ev)
 {
-    gi.Printf("DefaultPain event");
     SetThink(THINKSTATE_PAIN, THINK_PAIN);
-
     HandlePain(ev);
 }
 
@@ -5660,9 +5658,7 @@ Default killed handler.
 void Actor::DefaultKilled(Event *ev, bool bPlayDeathAnim)
 {
     ClearStates();
-
     SetThink(THINKSTATE_KILLED, THINK_KILLED);
-
     HandleKilled(ev, bPlayDeathAnim);
 }
 
@@ -9363,51 +9359,59 @@ void Actor::DefaultReceiveAIEvent(
     vec3_t event_origin, int iType, Entity *originator, float fDistSquared, float fMaxDistSquared
 )
 {
-    if (!IsDead()) {
-        if (!originator->IsDead() && originator->IsSubclassOfSentient() && ((Sentient *)originator)->m_Team == m_Team
-            && !IsSquadMate((Sentient *)originator)) {
-            MergeWithSquad((Sentient *)originator);
-        }
+    if (IsDead()) {
+        return;
+    }
 
-        switch (iType) {
-        case AI_EVENT_WEAPON_FIRE:
-        case AI_EVENT_WEAPON_IMPACT:
-            if (Square(m_fHearing) > fDistSquared) {
-                WeaponSound(iType, event_origin, fDistSquared, fMaxDistSquared, originator);
-            }
-            break;
-        case AI_EVENT_EXPLOSION:
-        case AI_EVENT_MISC:
-        case AI_EVENT_MISC_LOUD:
-            if (Square(m_fHearing) > fDistSquared) {
-                CuriousSound(iType, event_origin, fDistSquared, fMaxDistSquared);
-            }
-            break;
-        case AI_EVENT_AMERICAN_VOICE:
-        case AI_EVENT_GERMAN_VOICE:
-        case AI_EVENT_AMERICAN_URGENT:
-        case AI_EVENT_GERMAN_URGENT:
-            if (Square(m_fHearing) > fDistSquared) {
-                VoiceSound(iType, event_origin, fDistSquared, fMaxDistSquared, originator);
-            }
-            break;
-        case AI_EVENT_FOOTSTEP:
-            if (Square(m_fHearing) > fDistSquared) {
-                FootstepSound(event_origin, fDistSquared, fMaxDistSquared, originator);
-            }
-            break;
-        case AI_EVENT_GRENADE:
-            GrenadeNotification(originator);
-            break;
-        default:
-            {
-                char assertStr[16317] = {0};
-                strcpy(assertStr, "\"unknown ai_event type\"\n\tMessage: ");
-                Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("iType = %i", iType));
-                assert(false && assertStr);
-            }
-            break;
+    if (originator
+        && !originator->IsDead()
+        && originator->IsSubclassOfSentient()
+        && ((Sentient*)originator)->m_Team == m_Team
+        && !IsSquadMate((Sentient*)originator)) {
+        MergeWithSquad((Sentient*)originator);
+    }
+
+    switch (iType) {
+    case AI_EVENT_WEAPON_FIRE:
+    case AI_EVENT_WEAPON_IMPACT:
+        if (Square(m_fHearing) > fDistSquared) {
+            WeaponSound(iType, event_origin, fDistSquared, fMaxDistSquared, originator);
         }
+        break;
+    case AI_EVENT_EXPLOSION:
+    case AI_EVENT_MISC:
+    case AI_EVENT_MISC_LOUD:
+        if (Square(m_fHearing) > fDistSquared) {
+            CuriousSound(iType, event_origin, fDistSquared, fMaxDistSquared);
+        }
+        break;
+    case AI_EVENT_AMERICAN_VOICE:
+    case AI_EVENT_GERMAN_VOICE:
+    case AI_EVENT_AMERICAN_URGENT:
+    case AI_EVENT_GERMAN_URGENT:
+        if (Square(m_fHearing) > fDistSquared) {
+            VoiceSound(iType, event_origin, fDistSquared, fMaxDistSquared, originator);
+        }
+        break;
+    case AI_EVENT_FOOTSTEP:
+        if (Square(m_fHearing) > fDistSquared) {
+            FootstepSound(event_origin, fDistSquared, fMaxDistSquared, originator);
+        }
+        break;
+    case AI_EVENT_GRENADE:
+        GrenadeNotification(originator);
+        break;
+    case AI_EVENT_BADPLACE:
+        UpdateBadPlaces();
+        break;
+    default:
+    {
+        char assertStr[16317] = { 0 };
+        strcpy(assertStr, "\"unknown ai_event type\"\n\tMessage: ");
+        Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("iType = %i", iType));
+        assert(false && assertStr);
+    }
+    break;
     }
 }
 

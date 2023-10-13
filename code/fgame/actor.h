@@ -334,19 +334,6 @@ enum eThinkState {
     NUM_THINKSTATES,
 };
 
-#define AI_EVENT_NONE            0
-#define AI_EVENT_WEAPON_FIRE     1
-#define AI_EVENT_WEAPON_IMPACT   2
-#define AI_EVENT_EXPLOSION       3
-#define AI_EVENT_AMERICAN_VOICE  4
-#define AI_EVENT_GERMAN_VOICE    5
-#define AI_EVENT_AMERICAN_URGENT 6
-#define AI_EVENT_GERMAN_URGENT   7
-#define AI_EVENT_MISC            8
-#define AI_EVENT_MISC_LOUD       9
-#define AI_EVENT_FOOTSTEP        10
-#define AI_EVENT_GRENADE         11
-
 enum eThinkNum {
     THINK_VOID,
     THINK_TURRET,
@@ -394,6 +381,22 @@ enum eThinkLevel {
     THINKLEVEL_KILLED,
     THINKLEVEL_NOCLIP,
     NUM_THINKLEVELS
+};
+
+enum eAIEvent {
+    AI_EVENT_NONE,
+    AI_EVENT_WEAPON_FIRE,
+    AI_EVENT_WEAPON_IMPACT,
+    AI_EVENT_EXPLOSION,
+    AI_EVENT_AMERICAN_VOICE,
+    AI_EVENT_GERMAN_VOICE,
+    AI_EVENT_AMERICAN_URGENT,
+    AI_EVENT_GERMAN_URGENT,
+    AI_EVENT_MISC,
+    AI_EVENT_MISC_LOUD,
+    AI_EVENT_FOOTSTEP,
+    AI_EVENT_GRENADE,
+    AI_EVENT_BADPLACE // Added in 2.0
 };
 
 enum eActorNationality {
