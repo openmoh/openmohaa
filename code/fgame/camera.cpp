@@ -740,7 +740,7 @@ Camera::Camera()
 	AddWaitTill(STRING_START);
 	AddWaitTill(STRING_TRIGGER);
 
-	camera_fov = 90;
+	camera_fov = 80;
 	camera_speed = 1;
 	orbit_height = 128;
 	orbit_dotrace = qtrue;
@@ -749,13 +749,16 @@ Camera::Camera()
 	follow_dist = 128;
 	follow_mask = MASK_SOLID;
 	auto_fov = 0;
-	automatic_maxFOV = 90;
+	automatic_maxFOV = 80;
 
 	watchTime = 0;
 	followTime = 0;
 	fovTime = 0;
 
 	fadeTime = 2.0f;
+	fovFadeTime = 1.0f;
+	followFadeTime = 1.0f;
+	m_bShowquakes = false;
 
 	setSolidType( SOLID_NOT );
 	setMoveType( MOVETYPE_NONE );
