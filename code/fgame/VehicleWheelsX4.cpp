@@ -180,7 +180,7 @@ void VehicleWheelsX4::UpdateVariables(
     end = start;
     end[2] -= maxtracedist;
 
-    trace = G_Trace(start, t_mins, t_maxs, end, this, MASK_DAMAGEMODEL, qfalse, "Vehicle::PostThink Corners");
+    trace = G_Trace(start, t_mins, t_maxs, end, this, MASK_SOLID, qfalse, "Vehicle::PostThink Corners");
 
     m_fInertia        = m_fMass * 100;
     m_fWheelFrontLoad = m_fMass * 9.81 * fabs(m_fWheelFrontDist / m_fWheelBase);
@@ -444,7 +444,7 @@ void VehicleWheelsX4::Postthink()
             end   = start;
             end[2] -= maxtracedist;
 
-            trace = G_Trace(start, mins, maxs, end, this, MASK_DAMAGEMODEL, qfalse, "Vehicle::PostThink Corners");
+            trace = G_Trace(start, mins, maxs, end, this, MASK_SOLID, qfalse, "Vehicle::PostThink Corners");
 
             if (trace.fraction != 1 && !trace.startsolid) {
                 if (index > 2) {
@@ -544,7 +544,7 @@ void VehicleWheelsX4::Postthink()
             end   = start;
             end[2] -= maxtracedist;
 
-            trace = G_Trace(start, mins, maxs, end, this, MASK_DAMAGEMODEL, qfalse, "Vehicle::PostThink Corners");
+            trace = G_Trace(start, mins, maxs, end, this, MASK_SOLID, qfalse, "Vehicle::PostThink Corners");
 
             if (trace.fraction != 1.0) {
                 float fCoef;
