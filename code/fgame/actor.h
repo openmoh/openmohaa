@@ -1061,7 +1061,7 @@ public:
     //====
     // Added in 2.30
     //====
-    static void InitRunAndShot(GlobalFuncs_t *func);
+    static void InitRunAndShoot(GlobalFuncs_t *func);
     void        Begin_RunAndShoot(void);
     void        End_RunAndShoot(void);
     void        Resume_RunAndShoot(void);
