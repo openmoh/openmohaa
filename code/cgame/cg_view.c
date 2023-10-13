@@ -662,7 +662,8 @@ static int CG_CalcViewValues(void)
         // Set the aural axis to the camera's angles
         VectorCopy(cg.camera_angles, cg.refdefViewAngles);
 
-        if (cg_protocol >= PROTOCOL_MOHTA_MIN && ps->pm_flags & PMF_DAMAGE_ANGLES) {
+        if (cg_protocol >= PROTOCOL_MOHTA_MIN && (ps->pm_flags & PMF_DAMAGE_ANGLES)) {
+            // Handle camera shake
             VectorSubtract(cg.refdefViewAngles, cg.predicted_player_state.damage_angles, cg.refdefViewAngles);
         }
 
