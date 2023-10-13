@@ -48,6 +48,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "parm.h"
 #include "body.h"
 #include "playerstart.h"
+#include "camera.h"
 #include "weapturret.h"
 #include "vehicleturret.h"
 #include "portableturret.h"
@@ -6207,18 +6208,11 @@ void Player::SetPlayerView(
     Camera *camera, Vector position, float cameraoffset, Vector ang, Vector vel, float camerablend[4], float camerafov
 )
 {
-    client->ps.viewangles[0] = ang[0];
-    client->ps.viewangles[1] = ang[1];
-    client->ps.viewangles[2] = ang[2];
+    VectorCopy(ang, client->ps.viewangles);
     client->ps.viewheight    = cameraoffset;
 
-    client->ps.origin[0] = position[0];
-    client->ps.origin[1] = position[1];
-    client->ps.origin[2] = position[2];
-
-    client->ps.velocity[0] = vel[0];
-    client->ps.velocity[1] = vel[1];
-    client->ps.velocity[2] = vel[2];
+    VectorCopy(position, client->ps.origin);
+    VectorCopy(vel, client->ps.velocity);
 
     /*
     client->ps.blend[ 0 ] = camerablend[ 0 ];
@@ -6231,36 +6225,50 @@ void Player::SetPlayerView(
 
     if (camera) {
         if (camera->IsSubclassOfCamera()) {
-            client->ps.camera_angles[0] = camera->angles[0];
-            client->ps.camera_angles[1] = camera->angles[1];
-            client->ps.camera_angles[2] = camera->angles[2];
-
-            client->ps.camera_origin[0] = camera->origin[0];
-            client->ps.camera_origin[1] = camera->origin[1];
-            client->ps.camera_origin[2] = camera->origin[2];
+            VectorCopy(camera->angles, client->ps.camera_angles);
+            VectorCopy(camera->origin, client->ps.camera_origin);
 
             Vector vOfs = camera->GetPositionOffset();
             VectorCopy(vOfs, client->ps.camera_posofs);
 
             client->ps.pm_flags |= PMF_CAMERA_VIEW;
 
+            if (camera->ShowQuakes()) {
+                client->ps.pm_flags |= PMF_DAMAGE_ANGLES;
+            } else {
+                client->ps.pm_flags &= ~PMF_DAMAGE_ANGLES;
+            }
+
             //
             // clear out the flags, but preserve the CF_CAMERA_CUT_BIT
             //
             client->ps.camera_flags = client->ps.camera_flags & CF_CAMERA_CUT_BIT;
-        } else if (camera->IsSubclassOfPlayer()) {
-            Vector  vPos, vAng;
-            Player *pPlayer = (Player *)camera;
+        } else {
+            Vector vVec;
 
-            GetSpectateFollowOrientation(pPlayer, vPos, vAng);
+            if (camera->IsSubclassOfPlayer()) {
+                Vector  vPos;
+                Player* pPlayer = (Player*)camera;
 
-            VectorCopy(vPos, client->ps.camera_origin);
-            VectorCopy(vAng, client->ps.camera_angles);
+                GetSpectateFollowOrientation(pPlayer, vPos, vVec);
 
-            SetViewAngles(pPlayer->GetViewAngles());
-            setOrigin(pPlayer->origin);
+                VectorCopy(vVec, client->ps.camera_angles);
+                VectorCopy(vPos, client->ps.camera_origin);
 
-            VectorClear(client->ps.camera_posofs);
+                SetViewAngles(vVec);
+
+                vPos[2] -= viewheight;
+                setOrigin(vPos);
+
+                vVec.setXYZ(0, 0, 0);
+            } else {
+                VectorCopy(ang, client->ps.camera_angles);
+                VectorCopy(position, client->ps.camera_angles);
+
+                vVec.setXYZ(0, 0, 0);
+            }
+
+            VectorCopy(vVec, client->ps.camera_posofs);
             client->ps.pm_flags |= PMF_CAMERA_VIEW;
             client->ps.camera_flags = client->ps.camera_flags & CF_CAMERA_CUT_BIT;
         }
@@ -6274,7 +6282,11 @@ void Player::SetPlayerView(
             qboolean do_cut;
             int      camera_type;
 
-            camera_type = currentState_Torso->getCameraType();
+            if (currentState_Torso) {
+                camera_type = currentState_Torso->getCameraType();
+            } else {
+                camera_type = CAMERA_BEHIND;
+            }
             if (last_camera_type != camera_type) {
                 //
                 // clear out the flags, but preserve the CF_CAMERA_CUT_BIT
@@ -6345,6 +6357,8 @@ void Player::SetPlayerView(
                     CameraCut();
                 }
             }
+        } else {
+            client->ps.camera_flags = client->ps.camera_flags & CF_CAMERA_CUT_BIT;
         }
 
         //
@@ -8943,7 +8957,7 @@ void Player::GetSpectateFollowOrientation(Player *pPlayer, Vector& vPos, Vector&
         vCamOfs += up * g_spectatefollow_up->value;
 
         if (pPlayer->client->ps.fLeanAngle != 0.0f) {
-            vCamOfs += client->ps.fLeanAngle * 0.65f * right;
+            vCamOfs += pPlayer->client->ps.fLeanAngle * 0.65f * right;
         }
 
         start = pPlayer->origin;
