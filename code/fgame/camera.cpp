@@ -750,7 +750,6 @@ Camera::Camera()
 }
 
 void Camera::SetupCamera(Event *ev)
-
 {
     currentstate.Initialize(this);
     newstate.Initialize(this);
@@ -892,7 +891,6 @@ float Camera::AutomaticStop(Entity *player)
 }
 
 void Camera::UpdateStates(void)
-
 {
     if (followTime && watchTime) {
         newstate.Evaluate(this);
@@ -905,7 +903,6 @@ void Camera::UpdateStates(void)
 }
 
 Vector Camera::CalculatePosition(void)
-
 {
     int    i;
     float  t;
@@ -977,19 +974,19 @@ Vector Camera::CalculateOrientation(void)
                 );
             }
             /*
-			warning("", "%.2f a x%.0f y%.0f z%.0f c x%.0f y%.0f z%.0f n x%.0f y%.0f z%.0f\n",
-			t,
-			ang[ 0 ],
-			ang[ 1 ],
-			ang[ 2 ],
-			currentstate.watch.watchAngles[ 0 ],
-			currentstate.watch.watchAngles[ 1 ],
-			currentstate.watch.watchAngles[ 2 ],
-			newstate.watch.watchAngles[ 0 ],
-			newstate.watch.watchAngles[ 1 ],
-			newstate.watch.watchAngles[ 2 ]
-			);
-			*/
+            warning("", "%.2f a x%.0f y%.0f z%.0f c x%.0f y%.0f z%.0f n x%.0f y%.0f z%.0f\n",
+            t,
+            ang[ 0 ],
+            ang[ 1 ],
+            ang[ 2 ],
+            currentstate.watch.watchAngles[ 0 ],
+            currentstate.watch.watchAngles[ 1 ],
+            currentstate.watch.watchAngles[ 2 ],
+            newstate.watch.watchAngles[ 0 ],
+            newstate.watch.watchAngles[ 1 ],
+            newstate.watch.watchAngles[ 2 ]
+            );
+            */
         }
     } else {
         ang = currentstate.watch.watchAngles;
@@ -999,7 +996,6 @@ Vector Camera::CalculateOrientation(void)
 }
 
 float Camera::CalculateFov(void)
-
 {
     float fov;
     float t;
@@ -1133,7 +1129,6 @@ void Camera::CameraThink(Event *ev)
 }
 
 void Camera::LookAt(Event *ev)
-
 {
     Vector  pos, delta;
     Entity *ent;
@@ -1155,14 +1150,12 @@ void Camera::LookAt(Event *ev)
 }
 
 void Camera::TurnTo(Event *ev)
-
 {
     currentstate.watch.watchAngles = ev->GetVector(1);
     setAngles(currentstate.watch.watchAngles);
 }
 
 void Camera::MoveToEntity(Event *ev)
-
 {
     Entity *ent;
 
@@ -1174,14 +1167,12 @@ void Camera::MoveToEntity(Event *ev)
 }
 
 void Camera::MoveToPos(Event *ev)
-
 {
     currentstate.move.pos = ev->GetVector(1);
     setOrigin(currentstate.move.pos);
 }
 
 void Camera::Stop(void)
-
 {
     if (followTime) {
         currentstate.move = newstate.move;
@@ -1198,7 +1189,6 @@ void Camera::Stop(void)
 }
 
 void Camera::CreateOrbit(Vector pos, float radius, Vector& forward, Vector& left)
-
 {
     newstate.move.cameraPath.Clear();
     newstate.move.cameraPath.SetType(SPLINE_LOOP);
@@ -1210,7 +1200,6 @@ void Camera::CreateOrbit(Vector pos, float radius, Vector& forward, Vector& left
 }
 
 void Camera::CreatePath(SplinePath *path, splinetype_t type)
-
 {
     SplinePath *node;
     SplinePath *loop;
@@ -1243,7 +1232,6 @@ void Camera::CreatePath(SplinePath *path, splinetype_t type)
 }
 
 void Camera::FollowPath(SplinePath *path, qboolean loop, Entity *watch)
-
 {
     // make sure we process any setup events before continuing
     ProcessPendingEvents();
@@ -1279,7 +1267,6 @@ void Camera::FollowPath(SplinePath *path, qboolean loop, Entity *watch)
 }
 
 void Camera::Orbit(Entity *ent, float dist, Entity *watch, float yaw_offset, qboolean dotrace)
-
 {
     Vector ang, forward, left;
 
@@ -1324,7 +1311,6 @@ void Camera::Orbit(Entity *ent, float dist, Entity *watch, float yaw_offset, qbo
 }
 
 void Camera::FollowEntity(Entity *ent, float dist, int mask, Entity *watch)
-
 {
     // make sure we process any setup events before continuing
     ProcessPendingEvents();
@@ -1359,7 +1345,6 @@ void Camera::FollowEntity(Entity *ent, float dist, int mask, Entity *watch)
 }
 
 void Camera::StartMoving(Event *ev)
-
 {
     Entity     *targetEnt;
     Entity     *targetWatchEnt;
@@ -1411,7 +1396,6 @@ void Camera::StartMoving(Event *ev)
 }
 
 void Camera::SetAutoStateEvent(Event *ev)
-
 {
     int i;
 
@@ -1435,56 +1419,47 @@ void Camera::SetAutoStateEvent(Event *ev)
 }
 
 void Camera::SetMaximumAutoFOVEvent(Event *ev)
-
 {
     automatic_maxFOV = ev->GetFloat(1);
 }
 
 void Camera::SetAutoRadiusEvent(Event *ev)
-
 {
     automatic_radius = ev->GetFloat(1);
 }
 
 void Camera::SetAutoActiveEvent(Event *ev)
-
 {
     automatic_active = ev->GetBoolean(1);
 }
 
 void Camera::SetAutoStartTimeEvent(Event *ev)
-
 {
     automatic_startTime = ev->GetFloat(1);
 }
 
 void Camera::SetAutoStopTimeEvent(Event *ev)
-
 {
     automatic_stopTime = ev->GetFloat(1);
 }
 
 void Camera::StopMoving(Event *ev)
-
 {
     Stop();
 }
 
 void Camera::Pause(Event *ev)
-
 {
     CancelEventsOfType(EV_Camera_CameraThink);
 }
 
 void Camera::Continue(Event *ev)
-
 {
     CancelEventsOfType(EV_Camera_CameraThink);
     PostEvent(EV_Camera_CameraThink, 0);
 }
 
 void Camera::SetAnglesEvent(Event *ev)
-
 {
     Vector ang;
 
@@ -1493,49 +1468,41 @@ void Camera::SetAnglesEvent(Event *ev)
 }
 
 void Camera::SetSpeed(Event *ev)
-
 {
     camera_speed = ev->GetFloat(1);
 }
 
 void Camera::SetFollowDistance(Event *ev)
-
 {
     follow_dist = ev->GetFloat(1);
 }
 
 void Camera::SetOrbitHeight(float height)
-
 {
     orbit_height = height;
 }
 
 void Camera::SetOrbitHeight(Event *ev)
-
 {
     orbit_height = ev->GetFloat(1);
 }
 
 void Camera::SetFollowYaw(Event *ev)
-
 {
     follow_yaw = ev->GetFloat(1);
 }
 
 void Camera::AbsoluteYaw(Event *ev)
-
 {
     follow_yaw_fixed = true;
 }
 
 void Camera::RelativeYaw(Event *ev)
-
 {
     follow_yaw_fixed = false;
 }
 
 void Camera::SetNextCamera(Event *ev)
-
 {
     nextCamera = ev->GetString(1);
 }
@@ -1578,13 +1545,11 @@ void Camera::Cut(Event *ev)
 }
 
 void Camera::FadeTime(Event *ev)
-
 {
     fadeTime = ev->GetFloat(1);
 }
 
 void Camera::OrbitEvent(Event *ev)
-
 {
     Entity *ent;
 
@@ -1604,7 +1569,6 @@ void Camera::OrbitEvent(Event *ev)
 }
 
 void Camera::FollowEvent(Event *ev)
-
 {
     Entity *ent;
 
@@ -1624,7 +1588,6 @@ void Camera::FollowEvent(Event *ev)
 }
 
 void Camera::SetFOV(Event *ev)
-
 {
     float time;
 
@@ -1638,7 +1601,6 @@ void Camera::SetFOV(Event *ev)
 }
 
 void Camera::WatchEvent(Event *ev)
-
 {
     float time;
 
@@ -1676,7 +1638,6 @@ void Camera::EventShowQuakes(Event *ev)
 }
 
 Entity *GetWatchEntity(str watch)
-
 {
     const char *name;
     Entity     *ent;
@@ -1723,7 +1684,6 @@ Entity *GetWatchEntity(str watch)
 }
 
 void Camera::Watch(str watch, float time)
-
 {
     // make sure we process any setup events before continuing
     ProcessPendingEvents();
@@ -1771,7 +1731,6 @@ void Camera::Watch(str watch, float time)
 }
 
 void Camera::Watch(Entity *ent, float time)
-
 {
     //
     // clear out the watch variables
@@ -1784,7 +1743,6 @@ void Camera::Watch(Entity *ent, float time)
 }
 
 void Camera::SetFOV(float fov, float time)
-
 {
     // if it is less than 3, then we are setting an auto_fov state
     if (fov < 3) {
@@ -1801,7 +1759,6 @@ void Camera::SetFOV(float fov, float time)
 }
 
 void Camera::WatchPathEvent(Event *ev)
-
 {
     if (ev->NumArgs() > 1) {
         watchFadeTime = ev->GetFloat(2);
@@ -1816,7 +1773,6 @@ void Camera::WatchPathEvent(Event *ev)
 }
 
 void Camera::WatchNodesEvent(Event *ev)
-
 {
     if (ev->NumArgs() > 1) {
         watchFadeTime = ev->GetFloat(2);
@@ -1830,7 +1786,6 @@ void Camera::WatchNodesEvent(Event *ev)
 }
 
 void Camera::NoWatchEvent(Event *ev)
-
 {
     if (ev->NumArgs() > 1) {
         watchFadeTime = ev->GetFloat(2);
@@ -1844,7 +1799,6 @@ void Camera::NoWatchEvent(Event *ev)
 }
 
 void SetCamera(Entity *ent, float switchTime)
-
 {
     int        j;
     gentity_t *other;
@@ -1866,19 +1820,16 @@ void SetCamera(Entity *ent, float switchTime)
 }
 
 str& Camera::NextCamera(void)
-
 {
     return nextCamera;
 }
 
 float Camera::Fov(void)
-
 {
     return camera_fov;
 }
 
 void Camera::Reset(Vector org, Vector ang)
-
 {
     setOrigin(org);
     setAngles(ang);
@@ -1887,7 +1838,6 @@ void Camera::Reset(Vector org, Vector ang)
 }
 
 void Camera::bind(Entity *master, qboolean use_my_angles)
-
 {
     Entity::bind(master, use_my_angles);
 
@@ -1895,7 +1845,6 @@ void Camera::bind(Entity *master, qboolean use_my_angles)
 }
 
 void Camera::unbind(void)
-
 {
     Entity::unbind();
 
@@ -2197,7 +2146,6 @@ CLASS_DECLARATION(Listener, CameraManager, NULL) {
 };
 
 Player *CameraManager_GetPlayer(void)
-
 {
     assert(g_entities[0].entity && g_entities[0].entity->isSubclassOf(Player));
     if (!g_entities[0].entity || !(g_entities[0].entity->isSubclassOf(Player))) {
@@ -2314,14 +2262,12 @@ void CameraManager::UpdateEvent(Event *ev)
 }
 
 void CameraManager::SetPathName(str name)
-
 {
     pathName = name;
     UpdateUI();
 }
 
 void CameraManager::NewPath(Event *ev)
-
 {
     if (path) {
         cameraPath_dirty = qtrue;
@@ -2333,7 +2279,6 @@ void CameraManager::NewPath(Event *ev)
 }
 
 void CameraManager::RenamePath(Event *ev)
-
 {
     str name;
 
@@ -2363,7 +2308,6 @@ void CameraManager::RenamePath(Event *ev)
 }
 
 void CameraManager::SetPath(str pathName)
-
 {
     Entity     *ent;
     SplinePath *node;
@@ -2389,7 +2333,6 @@ void CameraManager::SetPath(str pathName)
 }
 
 void CameraManager::SetPath(Event *ev)
-
 {
     if (!ev->NumArgs()) {
         ScriptError("Usage: cam setpath [pathname]");
@@ -2400,7 +2343,6 @@ void CameraManager::SetPath(Event *ev)
 }
 
 void CameraManager::SetTargetName(Event *ev)
-
 {
     if (ev->NumArgs() != 1) {
         ScriptError("Usage: cam targetname [name]");
@@ -2417,7 +2359,6 @@ void CameraManager::SetTargetName(Event *ev)
 }
 
 void CameraManager::SetTarget(Event *ev)
-
 {
     if (ev->NumArgs() != 1) {
         ScriptError("Usage: cam target [name]");
@@ -2434,7 +2375,6 @@ void CameraManager::SetTarget(Event *ev)
 }
 
 void CameraManager::AddPoint(Event *ev)
-
 {
     Player     *player;
     SplinePath *prev;
@@ -2471,7 +2411,6 @@ void CameraManager::AddPoint(Event *ev)
 }
 
 void CameraManager::ReplacePoint(Event *ev)
-
 {
     Player *player;
     Vector  ang;
@@ -2490,7 +2429,6 @@ void CameraManager::ReplacePoint(Event *ev)
 }
 
 void CameraManager::DeletePoint(Event *ev)
-
 {
     SplinePath *node;
 
@@ -2512,7 +2450,6 @@ void CameraManager::DeletePoint(Event *ev)
 }
 
 void CameraManager::MovePlayer(Event *ev)
-
 {
     Player *player;
     Vector  pos;
@@ -2528,7 +2465,6 @@ void CameraManager::MovePlayer(Event *ev)
 }
 
 void CameraManager::NextPoint(Event *ev)
-
 {
     SplinePath *next;
 
@@ -2542,7 +2478,6 @@ void CameraManager::NextPoint(Event *ev)
 }
 
 void CameraManager::PreviousPoint(Event *ev)
-
 {
     SplinePath *prev;
 
@@ -2556,7 +2491,6 @@ void CameraManager::PreviousPoint(Event *ev)
 }
 
 void CameraManager::NextPath(Event *ev)
-
 {
     int index;
 
@@ -2575,7 +2509,6 @@ void CameraManager::NextPath(Event *ev)
 }
 
 void CameraManager::PreviousPath(Event *ev)
-
 {
     int index;
 
@@ -2594,7 +2527,6 @@ void CameraManager::PreviousPath(Event *ev)
 }
 
 void CameraManager::ShowingPath(Event *ev)
-
 {
     int         count;
     SplinePath *node;
@@ -2701,7 +2633,6 @@ void CameraManager::ShowingPath(Event *ev)
 }
 
 void CameraManager::ShowPath(void)
-
 {
     CancelEventsOfType(EV_CameraManager_ShowingPath);
     PostEvent(EV_CameraManager_ShowingPath, FRAMETIME);
@@ -2709,7 +2640,6 @@ void CameraManager::ShowPath(void)
 }
 
 void CameraManager::ShowPath(Event *ev)
-
 {
     if (ev->NumArgs()) {
         SetPath(ev->GetString(1));
@@ -2718,14 +2648,12 @@ void CameraManager::ShowPath(Event *ev)
 }
 
 void CameraManager::HidePath(Event *ev)
-
 {
     CancelEventsOfType(EV_CameraManager_ShowingPath);
     UpdateUI();
 }
 
 void CameraManager::StopPlayback(Event *ev)
-
 {
     if (cam) {
         cam->Stop();
@@ -2734,7 +2662,6 @@ void CameraManager::StopPlayback(Event *ev)
 }
 
 void CameraManager::PlayPath(Event *ev)
-
 {
     if (cam) {
         SetCamera(NULL, 0);
@@ -2759,7 +2686,6 @@ void CameraManager::PlayPath(Event *ev)
 }
 
 void CameraManager::LoopPath(Event *ev)
-
 {
     if (cam) {
         SetCamera(NULL, 0);
@@ -2784,7 +2710,6 @@ void CameraManager::LoopPath(Event *ev)
 }
 
 void CameraManager::Watch(Event *ev)
-
 {
     if (current) {
         current->SetWatch(ev->GetString(1));
@@ -2793,7 +2718,6 @@ void CameraManager::Watch(Event *ev)
 }
 
 void CameraManager::NoWatch(Event *ev)
-
 {
     if (current) {
         current->NoWatch();
@@ -2802,7 +2726,6 @@ void CameraManager::NoWatch(Event *ev)
 }
 
 void CameraManager::Fov(Event *ev)
-
 {
     if (current) {
         current->SetFov(ev->GetFloat(1));
@@ -2811,7 +2734,6 @@ void CameraManager::Fov(Event *ev)
 }
 
 void CameraManager::FadeTime(Event *ev)
-
 {
     if (current) {
         current->SetFadeTime(ev->GetFloat(1));
@@ -2820,7 +2742,6 @@ void CameraManager::FadeTime(Event *ev)
 }
 
 void CameraManager::Speed(Event *ev)
-
 {
     speed = ev->GetFloat(1);
     if (current) {
@@ -2936,7 +2857,6 @@ void CameraManager::SavePath(str pathName)
 }
 
 void CameraManager::Save(Event *ev)
-
 {
     str filename;
     str name;
@@ -2962,7 +2882,6 @@ void CameraManager::Save(Event *ev)
 }
 
 void CameraManager::Load(Event *ev)
-
 {
     qboolean show;
     str      filename;
@@ -3000,7 +2919,6 @@ void CameraManager::Load(Event *ev)
 }
 
 void CameraManager::SaveMap(Event *ev)
-
 {
     SplinePath *node;
     str         buf;
