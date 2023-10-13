@@ -1911,6 +1911,18 @@ SentientPtr VehicleTurretGunTandem::GetRemoteOwner()
     }
 }
 
+void VehicleTurretGunTandem::EndRemoteControl()
+{
+    //
+    // Added in OPM.
+    //  This cleanups remove control stuff from the main turret and linked turrets.
+    VehicleTurretGun::EndRemoteControl();
+
+    if (m_HeadTurret && m_HeadTurret != this) {
+        return m_HeadTurret->EndRemoteControl();
+    }
+}
+
 void VehicleTurretGunTandem::ThinkSecondary()
 {
     float     yawOffset, pitchOffset;

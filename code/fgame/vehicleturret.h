@@ -187,6 +187,7 @@ public:
     void        Think() override;
     bool        IsRemoteControlled() override;
     SentientPtr GetRemoteOwner() override;
+    void        EndRemoteControl() override; // Added in OPM
 
     virtual void            SetPrimaryTurret(VehicleTurretGunTandem *pTurret);
     virtual void            SetActiveTurret(VehicleTurretGunTandem *pTurret);
