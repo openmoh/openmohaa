@@ -1084,15 +1084,21 @@ void Camera::CameraThink(Event *ev)
 
     camera_fov = CalculateFov();
 
-    if (m_bShowquakes && level.earthquake_magnitude) {
-        Vector randomness;
+    if (g_protocol < protocol_e::PROTOCOL_MOHTA_MIN) {
+        //
+        // client protocol below version 15 doesn't handle
+        // damage angles properly
+        //
+        if (m_bShowquakes && level.earthquake_magnitude) {
+            Vector randomness;
 
-        // smooth earthquake
-        randomness[0] = G_CRandom(1.0f);
-        randomness[1] = G_CRandom(1.0f);
-        randomness[2] = G_CRandom(1.0f);
+            // smooth earthquake
+            randomness[0] = G_CRandom(1.0f);
+            randomness[1] = G_CRandom(1.0f);
+            randomness[2] = G_CRandom(1.0f);
 
-        angles += randomness * level.earthquake_magnitude;
+            angles += randomness * level.earthquake_magnitude;
+        }
     }
 
     //
