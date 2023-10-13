@@ -12269,7 +12269,11 @@ Actor::Landed
 */
 void Actor::Landed(Event *ev)
 {
-    // FIXME: unimplemented
+    if (groundentity && groundentity->entity != world) {
+        warning("Actor::Landed", "Actor %d has landed on an entity that might move\n", entnum);
+    }
+
+    setMoveType(MOVETYPE_NONE);
 }
 
 bool Actor::IsOnFloor(void)
