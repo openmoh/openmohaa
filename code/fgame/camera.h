@@ -301,11 +301,17 @@ public:
 
     void Reset(Vector org, Vector ang);
 
+    bool ShowQuakes(void) const;
     Vector GetPositionOffset(void);
     void   SetPositionOffset(Vector vNewOfs);
 
     void Archive(Archiver& arc) override;
 };
+
+inline bool Camera::ShowQuakes(void) const
+{
+    return m_bShowquakes;
+}
 
 inline Vector Camera::GetPositionOffset(void)
 {
