@@ -2993,14 +2993,7 @@ void Actor::ResolveVoiceType(void)
 {
     char validVoice[128];
 
-    if (mVoiceType == -1) {
-        int d = 3.0 * 0.99 * random();
-        if (m_Team == TEAM_AMERICAN) {
-            mVoiceType = gAmericanVoices[d][0];
-        } else {
-            mVoiceType = gGermanVoices[d][0];
-        }
-    } else {
+    if (mVoiceType != -1) {
         if (m_Team == TEAM_AMERICAN) {
             for (int i = 0; i < 3; i++) {
                 if (gAmericanVoices[i][0] == mVoiceType) {
@@ -3014,10 +3007,6 @@ void Actor::ResolveVoiceType(void)
                 strcat(validVoice, " ");
             }
             Com_Printf("ERROR: Bad voice type %c.  Valid American voicetypes are: %s\n", mVoiceType, validVoice);
-            mVoiceType = -1;
-
-            int d      = 3.0 * 0.99 * random();
-            mVoiceType = gAmericanVoices[d][0];
         } else {
             for (int i = 0; i < 3; i++) {
                 if (gGermanVoices[i][0] == mVoiceType) {
@@ -3031,9 +3020,17 @@ void Actor::ResolveVoiceType(void)
                 strcat(validVoice, " ");
             }
             Com_Printf("ERROR: Bad voice type %c.  Valid German voicetypes are: %s\n", mVoiceType, validVoice);
-            mVoiceType = -1;
+        }
 
-            int d      = 3.0 * 0.99 * random();
+        mVoiceType = -1;
+    }
+
+    if (mVoiceType == -1) {
+        int d = random() * 3.0 * 0.99;
+
+        if (m_Team == TEAM_AMERICAN) {
+            mVoiceType = gAmericanVoices[d][0];
+        } else {
             mVoiceType = gGermanVoices[d][0];
         }
     }
