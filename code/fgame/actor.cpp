@@ -3241,9 +3241,7 @@ void Actor::TouchStuff(mmove_t *mm)
         other = &g_entities[mm->touchents[i]];
 
         for (j = 0; j < i; j++) {
-            gentity_t *ge = &g_entities[j];
-
-            if (ge == other) {
+            if (&g_entities[j] == other) {
                 break;
             }
         }
@@ -3254,7 +3252,7 @@ void Actor::TouchStuff(mmove_t *mm)
         }
 
         // Don't bother touching the world
-        if ((!other->entity) || (other->entity == world)) {
+        if (!other->entity || other->entity == world) {
             continue;
         }
 
@@ -3298,916 +3296,255 @@ Reversed incorrectly, since decompiled output has different behaviour as reverse
 */
 void Actor::UpdateBoneControllers(void)
 {
-    int               v1;                 // eax
-    float             v2;                 // fst7
-    float             v3;                 // ebx
-    float             v4;                 // fst7
-    float             error;              // fst5
-    float             v6;                 // fst3
-    float             v7;                 // ST34_4
-    float             torsoYawError;      // edx
-    float             fErr1;              // fst7
-    float             v10;                // tt
-    float             v11;                // fst5
-    float             v12;                // fst7
-    float             v13;                // fst5
-    float             fErr2;              // fst3
-    float             fAng1;              // fst4
-    float             fAng2;              // fst5
-    float             v17;                // fst1
-    float             fAng3;              // fst4
-    float             v19;                // fst3
-    float             fAng3_;             // fst5
-    float             fFrameTorsoDist;    // fst4
-    float             fAng4;              // fst5
-    float             v23;                // fst4
-    float             fAng5;              // fst6
-    float             v25;                // ST48_4
-    float             v26;                // ST38_4
-    float             fAng6;              // fst6
-    float             v28;                // fst5
-    float             v29;                // fst4
-    float             fAng7;              // fst5
-    float             fAng8;              // fst2
-    float             v32;                // fst1
-    float             fAng9;              // fst6
-    float             v34;                // fst6
-    float             v35;                // fst3
-    float             v36;                // fst1
-    float             fAng10;             // fst5
-    float             v38;                // fst3
-    float             v39;                // fst6
-    float             v40;                // fst3
-    float             v41;                // fst5
-    float             v42;                // fst5
-    float             v43;                // t1
-    float             v44;                // fst4
-    float             v45;                // t2
-    float             v46;                // fst5
-    float             v47;                // fst7
-    float             v48;                // fst5
-    float             fAng11;             // fst5
-    float             v50;                // fst5
-    float             fAng12;             // fst5
-    float             v52;                // t0
-    float             v53;                // fst5
-    float             v54;                // fst7
-    float             v55;                // fst6
-    float             fAng13;             // fst7
-    float             v57;                // fst6
-    float             v58;                // fst7
-    float             v59;                // fst6
-    float             v60;                // fst7
-    float             v61;                // fst6
-    float             fAng15;             // fst7
-    float             v63;                // tt
-    float             v64;                // fst6
-    float             v65;                // t0
-    float             v66;                // fst6
-    float             v67;                // fst2
-    float             v68;                // tt
-    float             v69;                // fst4
-    float             v70;                // t1
-    float             v71;                // fst4
-    float             v72;                // t2
-    float             v73;                // fst4
-    float             v74;                // tt
-    float             v75;                // fst4
-    int16_t           tagnum;             // ax
-    signed int        v77;                // ebx
-    float             v78;                // fst7
-    float             v79;                // fst6
-    float             v80;                // fst5
-    int              *v81;                // eax
-    float             v82;                // fst4
-    float             v83;                // fst3
-    float             v84;                // fst4
-    float             v85;                // t2
-    float             v86;                // tt
-    float             v87;                // fst4
-    float             v88;                // fst5
-    float             v89;                // fst6
-    float             v90;                // t0
-    float             v91;                // eax
-    signed int        v92;                // edx
-    float            *v93;                // eax
-    float             v94;                // fst7
-    float             v95;                // fst5
-    float             v96;                // t0
-    float             v97;                // fst5
-    float             v98;                // t1
-    float             v99;                // fst5
-    float             v100;               // fst6
-    signed int        fAlpha;             // ebx
-    float             fAlpha2;            // ST34_4 MAPDST
-    int              *v104;               // eax
-    signed int        v105;               // edx
-    float             v106;               // fst6
-    float             v107;               // fst5
-    float             v108;               // fst4
-    float             v109;               // fst3
-    float             v110;               // fst7
-    float             v111;               // fst2
-    float             v112;               // fst0
-    float             v113;               // fst1
-    float             v114;               // fst2
-    float             v115;               // t1
-    float             v116;               // fst1
-    float             v117;               // fst3
-    float             v118;               // tt
-    float             v119;               // fst2
-    float             v120;               // fst5
-    float             v121;               // t0
-    float             v122;               // fst2
-    float             v123;               // fst7
-    float             v124;               // fst6
-    float             v125;               // t1
-    float             v126;               // fst3
-    float             v127;               // t2
-    float             v128;               // fst3
-    float             v129;               // tt
-    int              *v130;               // eax
-    signed int        v131;               // edx
-    float             v132;               // fst6
-    float             v133;               // fst5
-    float             v134;               // fst4
-    float             v135;               // fst3
-    float             v136;               // fst7
-    float             v137;               // fst2
-    float             v138;               // fst0
-    float             v139;               // fst1
-    float             v140;               // fst2
-    float             v141;               // tt
-    float             v142;               // fst1
-    float             v143;               // fst3
-    float             v144;               // t1
-    float             v145;               // fst2
-    float             v146;               // fst5
-    float             v147;               // t2
-    float             v148;               // fst2
-    float             v149;               // fst7
-    float             v150;               // fst6
-    float             v151;               // tt
-    float             v152;               // fst3
-    float             v153;               // t0
-    float             v154;               // fst3
-    float             v155;               // t1
-    signed int        v156;               // ebx
-    float             v157;               // fst7
-    float             v158;               // fst6
-    float             v159;               // fst5
-    int              *v160;               // eax
-    float             v161;               // fst4
-    float             v162;               // fst3
-    float             v163;               // fst4
-    float             v164;               // t1
-    float             v165;               // t2
-    float             v166;               // fst4
-    float             v167;               // fst5
-    float             v168;               // fst6
-    float             v169;               // tt
-    SimpleEntityPtr   v170;               // ecx
-    struct gentity_s *v171;               // esi
-    float             v172;               // [esp+2Ch] [ebp-20Ch]
-    float             v173;               // [esp+2Ch] [ebp-20Ch]
-    float             v174;               // [esp+7Ch] [ebp-1BCh]
-    float             v175;               // [esp+80h] [ebp-1B8h]
-    float             v176;               // [esp+84h] [ebp-1B4h]
-    Vector            v177;               // [esp+90h] [ebp-1A8h]
-    Vector            v178;               // [esp+A0h] [ebp-198h]
-    float             v179;               // [esp+B0h] [ebp-188h]
-    float             v180;               // [esp+B4h] [ebp-184h]
-    float             v181;               // [esp+B8h] [ebp-180h]
-    float             v182[3];            // [esp+C0h] [ebp-178h]
-    float             fDist;              // [esp+DCh] [ebp-15Ch]
-    float             v184;               // [esp+E0h] [ebp-158h]
-    float             v185;               // [esp+E4h] [ebp-154h]
-    float             v186;               // [esp+E8h] [ebp-150h]
-    float             v187[3];            // [esp+F0h] [ebp-148h]
-    float             v188;               // [esp+100h] [ebp-138h]
-    float             v189;               // [esp+104h] [ebp-134h]
-    float             v190;               // [esp+108h] [ebp-130h]
-    float             vLookDest[3];       // [esp+110h] [ebp-128h]
-    orientation_t     tag_or;             // [esp+120h] [ebp-118h]
-    float             v193[3];            // [esp+150h] [ebp-E8h]
-    float             v194[4];            // [esp+160h] [ebp-D8h]
-    float             v195[3];            // [esp+170h] [ebp-C8h]
-    float             lookAxis[3][3];     // [esp+180h] [ebp-B8h]
-    float             v197[3];            // [esp+1B0h] [ebp-88h]
-    float             myAxis[3][3];       // [esp+1C0h] [ebp-78h]
-    float             LocalLookAngles[3]; // [esp+1F0h] [ebp-48h]
-    float             torsoAngles[3];     // [esp+200h] [ebp-38h]
-    float             headAngles[3];      // [esp+210h] [ebp-28h]
-    int               v202;               // [esp+220h] [ebp-18h]
+    float pitchError, yawError, error;
+    float max_change, max_accel_change, min_accel_change;
+    Vector headAngles, torsoAngles;
+    float tolerable_error;
+    vec3_t LocalLookAngles;
+    float torsoYawError;
 
-    torsoAngles[2] = 0.0;
-    headAngles[0]  = 0.0;
-    headAngles[1]  = 0.0;
-    headAngles[2]  = 0.0;
-    torsoAngles[0] = 0.0;
-    torsoAngles[1] = 0.0;
     if (m_bHasDesiredLookAngles) {
-        v1 = g_showlookat->integer;
-        if (v1 != entnum && v1 != -1) {
-        ACTOR_UPDATEBONECONTROLLERS_4:
-            v2                 = m_DesiredLookAngles[0];
-            LocalLookAngles[0] = m_DesiredLookAngles[0];
-            LocalLookAngles[1] = m_DesiredLookAngles[1];
-            v3                 = m_DesiredLookAngles[2];
-            v178[0]            = 0.0;
-            LocalLookAngles[2] = v3;
-            v177[2]            = v3;
-            v178[1]            = 0.0;
-            v178[2]            = 0.0;
-            v177[0]            = v2;
-            v177[1]            = LocalLookAngles[1];
-            v177.AngleVectorsLeft(&v178);
-            edict->s.eyeVector[0] = v178[0];
-            edict->s.eyeVector[1] = v178[1];
-            edict->s.eyeVector[2] = v178[2];
-            goto ACTOR_UPDATEBONECONTROLLERS_5;
-        }
-        tagnum = gi.Tag_NumForName(edict->tiki, "eyes bone");
-        v77    = 0;
-        tag_or = G_TIKI_Orientation(edict, tagnum & 0x3FF);
-        AnglesToAxis(angles, myAxis);
-        v197[0] = origin[0];
-        v197[1] = origin[1];
-        v78     = v197[0];
-        v79     = v197[1];
-        v80     = origin[2];
-        v197[2] = origin[2];
-        v81     = &v202;
-        while (1) {
-            v82 = tag_or.origin[v77++];
-            v78 = v78 + *(v81 - 24) * v82;
-            v83 = v82;
-            v84 = *(v81 - 23) * v82;
-            v85 = v83 * *(v81 - 22);
-            v81 += 3;
-            v86 = v84 + v79;
-            v87 = v80;
-            v88 = v86;
-            v89 = v85 + v87;
-            if (v77 > 2) {
-                break;
+        vec3_t myAxis[3];
+        vec3_t eyePosition;
+        vec3_t lookAxis[3];
+        vec3_t endPosition;
+        vec3_t worldLookAngles;
+        vec3_t lineVec;
+        int tagnum;
+        orientation_t tag_or;
+        Vector vError;
+
+        if (g_showlookat->integer == entnum || g_showlookat->integer == -1)
+        {
+            tagnum = gi.Tag_NumForName(edict->tiki, "eyes bone");
+            tag_or = G_TIKI_Orientation(edict, tagnum & TAG_MASK);
+            AnglesToAxis(angles, myAxis);
+
+            VectorCopy(origin, eyePosition);
+
+            for (int i = 0; i < 3; i++) {
+                VectorMA(eyePosition, tag_or.origin[i], myAxis[i], eyePosition);
             }
-            v90 = v88;
-            v80 = v89;
-            v79 = v90;
-        }
-        v197[2]      = v89;
-        v197[1]      = v88;
-        v197[0]      = v78;
-        vLookDest[0] = 0.0;
-        vLookDest[1] = 0.0;
-        vLookDest[2] = 0.0;
-        if (m_bHasDesiredLookDest) {
-            v188 = m_vDesiredLookDest[0];
-            v189 = m_vDesiredLookDest[1];
-            v91  = m_vDesiredLookDest[2];
-        ACTOR_UPDATEBONECONTROLLERS_105:
-            v190         = v91;
-            vLookDest[0] = v188;
-            vLookDest[2] = v91;
-            vLookDest[1] = v189;
-            goto ACTOR_UPDATEBONECONTROLLERS_106;
-        }
-        v170 = this->m_pLookEntity;
-        if (v170) {
-            if (!v170->IsSubclassOfSentient()) {
-                v188 = v170->centroid[0];
-                v189 = v170->centroid[1];
-                v91  = v170->centroid[2];
-                goto ACTOR_UPDATEBONECONTROLLERS_105;
-            }
-            ((Sentient *)v170.Pointer())->EyePosition().copyTo(vLookDest);
-        }
-    ACTOR_UPDATEBONECONTROLLERS_106:
-        v92 = 0;
-        v93 = angles;
-        do {
-            v94 = *v93;
-            ++v93;
-            v194[v92] = v94 + m_DesiredLookAngles[v92];
-            ++v92;
-        } while (v92 <= 2);
-        AnglesToAxis(v194, lookAxis);
-        v188 = vLookDest[0] - v197[0];
-        v189 = vLookDest[1] - v197[1];
-        v190 = vLookDest[2] - v197[2];
-        VectorNormalize(&v188);
-        v187[0] = v188;
-        v187[1] = v189;
-        v187[2] = v190;
-        v95     = v188 - lookAxis[0][0];
-        v184    = v95;
-        v96     = v95 * v95;
-        v97     = v189 - lookAxis[0][1];
-        v185    = v97;
-        v98     = v97 * v97;
-        v99     = v190 - lookAxis[0][2];
-        v186    = v99;
-        v100    = v99 * v99 + v98 + v96;
-        fDist   = sqrt(v100);
-        if (fDist >= 0.1) {
-            v193[0] = 128.0;
-            v156    = 0;
-            v193[1] = 0.0;
-            v157    = v197[0];
-            v158    = v197[1];
-            v159    = v197[2];
-            v195[1] = v197[1];
-            v160    = &v202;
-            v193[2] = 0.0;
-            v195[0] = v197[0];
-            v195[2] = v197[2];
-            while (1) {
-                v161 = v193[v156++];
-                v157 = v157 + *(v160 - 40) * v161;
-                v162 = v161;
-                v163 = *(v160 - 39) * v161;
-                v164 = v162 * *(v160 - 38);
-                v160 += 3;
-                v165 = v163 + v158;
-                v166 = v159;
-                v167 = v165;
-                v168 = v164 + v166;
-                if (v156 > 2) {
-                    break;
+
+            Vector vEndPoint;
+
+            if (m_bHasDesiredLookDest) {
+                vEndPoint = m_vDesiredLookDest;
+            } else if (m_pLookEntity) {
+                if (m_pLookEntity->IsSubclassOfSentient()) {
+                    Sentient* sent = static_cast<Sentient*>(m_pLookEntity.Pointer());
+                    vEndPoint = sent->EyePosition();
+                } else {
+                    vEndPoint = m_pLookEntity->centroid;
                 }
-                v169 = v167;
-                v159 = v168;
-                v158 = v169;
             }
-            v195[2] = v168;
-            v195[1] = v167;
-            v195[0] = v157;
-        } else {
-            v195[0] = vLookDest[0];
-            v195[1] = vLookDest[1];
-            v195[2] = vLookDest[2];
-            fDist   = sqrt(v100);
-            if (fDist >= 0.039999999) {
-                fDist  = sqrt(v184 * v184 + v185 * v185 + v186 * v186);
-                fAlpha = ((0.1 - fDist) / 0.060000002);
+
+            for (int i = 0; i < 3; i++) {
+                worldLookAngles[i] = m_DesiredLookAngles[i] + angles[i];
+            }
+
+            AnglesToAxis(worldLookAngles, lookAxis);
+
+            Vector vEndPointDir = vEndPoint - eyePosition;
+            vEndPointDir.normalize();
+
+            // calculate the error
+            Vector vError = vEndPointDir - lookAxis[0];
+
+            if (vError.length() >= 0.1f) {
+                VectorSet(lineVec, 128, 0, 0);
+                VectorCopy(eyePosition, endPosition);
+
+                for (int i = 0; i < 3; i++) {
+                    VectorMA(endPosition, lineVec[i], lookAxis[i], endPosition);
+                }
             } else {
-                fAlpha = 1;
+                int boxalpha;
+
+                VectorCopy(vEndPoint, endPosition);
+
+                if (vError.length() >= 0.04f) {
+                    boxalpha = (vError.length() - 0.1f) / 0.06f;
+                } else {
+                    boxalpha = 1;
+                }
+
+                G_DebugLine(vEndPoint + Vector(8, 8, 8), vEndPoint + Vector(8, 8, -8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(8, -8, 8), vEndPoint + Vector(8, -8, -8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(-8, 8, 8), vEndPoint + Vector(-8, 8, -8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(-8, -8, 8), vEndPoint + Vector(-8, -8, -8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(8, 8, 8), vEndPoint + Vector(8, -8, 8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(8, 8, -8), vEndPoint + Vector(8, -8, -8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(-8, 8, 8), vEndPoint + Vector(-8, -8, 8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(-8, 8, -8), vEndPoint + Vector(-8, -8, -8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(8, 8, 8), vEndPoint + Vector(-8, 8, 8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(8, 8, -8), vEndPoint + Vector(-8, 8, -8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(8, -8, 8), vEndPoint + Vector(-8, -8, 8), 0, 0, boxalpha, boxalpha);
+                G_DebugLine(vEndPoint + Vector(8, -8, -8), vEndPoint + Vector(-8, -8, -8), 0, 0, boxalpha, boxalpha);
             }
-            v187[0] = vLookDest[0] + 8.0;
-            v182[0] = vLookDest[0] + 8.0;
-            v187[1] = vLookDest[1] + 8.0;
-            v187[2] = vLookDest[2] + -8.0;
-            fAlpha2 = fAlpha;
-            v182[1] = vLookDest[1] + 8.0;
-            v182[2] = vLookDest[2] + 8.0;
-            G_DebugLine(v182, v187, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[0] = vLookDest[0];
-            v187[1] = vLookDest[1];
-            v187[2] = vLookDest[2];
-            v177[0] = vLookDest[0] + 8.0;
-            v177[1] = vLookDest[1] + -8.0;
-            v177[2] = vLookDest[2] + -8.0;
-            v179    = 8.0;
-            v180    = -8.0;
-            v181    = -8.0;
-            v182[0] = 8.0;
-            v182[1] = -8.0;
-            v182[2] = 8.0;
-            v178[0] = vLookDest[0] + 8.0;
-            v178[1] = vLookDest[1] + -8.0;
-            v178[2] = vLookDest[2] + 8.0;
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[0] = vLookDest[0];
-            v187[1] = vLookDest[1];
-            v187[2] = vLookDest[2];
-            v177[0] = vLookDest[0] + -8.0;
-            v177[1] = vLookDest[1] + 8.0;
-            v177[2] = vLookDest[2] + -8.0;
-            v179    = -8.0;
-            v180    = 8.0;
-            v181    = -8.0;
-            v182[0] = -8.0;
-            v182[1] = 8.0;
-            v182[2] = 8.0;
-            v178[0] = vLookDest[0] + -8.0;
-            v178[1] = vLookDest[1] + 8.0;
-            v178[2] = vLookDest[2] + 8.0;
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[0] = vLookDest[0];
-            v187[1] = vLookDest[1];
-            v187[2] = vLookDest[2];
-            v177[0] = vLookDest[0] + -8.0;
-            v177[1] = vLookDest[1] + -8.0;
-            v177[2] = vLookDest[2] + -8.0;
-            v179    = -8.0;
-            v180    = -8.0;
-            v181    = -8.0;
-            v182[0] = -8.0;
-            v182[1] = -8.0;
-            v182[2] = 8.0;
-            v178[0] = vLookDest[0] + -8.0;
-            v178[1] = vLookDest[1] + -8.0;
-            v178[2] = vLookDest[2] + 8.0;
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[0] = vLookDest[0];
-            v187[1] = vLookDest[1];
-            v187[2] = vLookDest[2];
-            v177[0] = vLookDest[0] + 8.0;
-            v177[1] = vLookDest[1] + -8.0;
-            v177[2] = vLookDest[2] + 8.0;
-            v179    = 8.0;
-            v180    = -8.0;
-            v181    = 8.0;
-            v182[0] = 8.0;
-            v182[1] = 8.0;
-            v182[2] = 8.0;
-            v178[0] = vLookDest[0] + 8.0;
-            v178[1] = vLookDest[1] + 8.0;
-            v178[2] = vLookDest[2] + 8.0;
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[0] = vLookDest[0];
-            v187[1] = vLookDest[1];
-            v187[2] = vLookDest[2];
-            v177[0] = vLookDest[0] + 8.0;
-            v177[1] = vLookDest[1] + -8.0;
-            v177[2] = vLookDest[2] + -8.0;
-            v179    = 8.0;
-            v180    = -8.0;
-            v181    = -8.0;
-            v182[0] = 8.0;
-            v182[1] = 8.0;
-            v182[2] = -8.0;
-            v178[0] = vLookDest[0] + 8.0;
-            v178[1] = vLookDest[1] + 8.0;
-            v178[2] = vLookDest[2] + -8.0;
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[0] = vLookDest[0];
-            v187[1] = vLookDest[1];
-            v187[2] = vLookDest[2];
-            v177[0] = vLookDest[0] + -8.0;
-            v177[1] = vLookDest[1] + -8.0;
-            v177[2] = vLookDest[2] + 8.0;
-            v179    = -8.0;
-            v180    = -8.0;
-            v181    = 8.0;
-            v182[0] = -8.0;
-            v182[1] = 8.0;
-            v182[2] = 8.0;
-            v178[0] = vLookDest[0] + -8.0;
-            v178[1] = vLookDest[1] + 8.0;
-            v178[2] = vLookDest[2] + 8.0;
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[0] = vLookDest[0];
-            v187[1] = vLookDest[1];
-            v187[2] = vLookDest[2];
-            v177[0] = vLookDest[0] + -8.0;
-            v177[1] = vLookDest[1] + -8.0;
-            v177[2] = vLookDest[2] + -8.0;
-            v179    = -8.0;
-            v180    = -8.0;
-            v181    = -8.0;
-            v182[0] = -8.0;
-            v182[1] = 8.0;
-            v182[2] = -8.0;
-            v178[0] = vLookDest[0] + -8.0;
-            v178[1] = vLookDest[1] + 8.0;
-            v178[2] = vLookDest[2] + -8.0;
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[0] = vLookDest[0];
-            v187[1] = vLookDest[1];
-            v187[2] = vLookDest[2];
-            v177[0] = vLookDest[0] + -8.0;
-            v177[1] = vLookDest[1] + 8.0;
-            v177[2] = vLookDest[2] + 8.0;
-            v179    = -8.0;
-            v180    = 8.0;
-            v181    = 8.0;
-            v182[0] = 8.0;
-            v182[1] = 8.0;
-            v182[2] = 8.0;
-            v178[0] = vLookDest[0] + 8.0;
-            v178[1] = vLookDest[1] + 8.0;
-            v178[2] = vLookDest[2] + 8.0;
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[0] = vLookDest[0];
-            v187[1] = vLookDest[1];
-            v187[2] = vLookDest[2];
-            v177[0] = vLookDest[0] + -8.0;
-            v177[1] = vLookDest[1] + 8.0;
-            v177[2] = vLookDest[2] + -8.0;
-            v179    = -8.0;
-            v180    = 8.0;
-            v181    = -8.0;
-            v182[0] = 8.0;
-            v182[1] = 8.0;
-            v182[2] = -8.0;
-            v178[0] = vLookDest[0] + 8.0;
-            v178[1] = vLookDest[1] + 8.0;
-            v178[2] = vLookDest[2] + -8.0;
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[0] = vLookDest[0];
-            v187[1] = vLookDest[1];
-            v187[2] = vLookDest[2];
-            v177[0] = vLookDest[0] + -8.0;
-            v177[1] = vLookDest[1] + -8.0;
-            v177[2] = vLookDest[2] + 8.0;
-            v179    = -8.0;
-            v180    = -8.0;
-            v181    = 8.0;
-            v182[0] = 8.0;
-            v182[1] = -8.0;
-            v182[2] = 8.0;
-            v178[0] = vLookDest[0] + 8.0;
-            v178[1] = vLookDest[1] + -8.0;
-            v178[2] = vLookDest[2] + 8.0;
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-            v187[1] = vLookDest[1];
-            v177[0] = vLookDest[0] + -8.0;
-            v187[0] = vLookDest[0];
-            v187[2] = vLookDest[2];
-            v179    = -8.0;
-            v180    = -8.0;
-            v181    = -8.0;
-            v182[0] = 8.0;
-            v182[1] = -8.0;
-            v182[2] = -8.0;
-            v177[1] = vLookDest[1] + -8.0;
-            v177[2] = vLookDest[2] + -8.0;
-            v178[0] = 8.0 + vLookDest[0];
-            v178[1] = vLookDest[1] + -8.0;
-            v178[2] = -8.0 + vLookDest[2];
-            G_DebugLine(v178, v177, 0.0, 0.0, fAlpha2, fAlpha2);
-        }
-        G_DebugLine(v197, v195, 0.0, 0.0, 1.0, 1.0);
-        v104    = &v202;
-        v105    = 0;
-        v106    = v197[1];
-        v107    = v197[2];
-        v108    = v195[0];
-        v109    = v195[1];
-        v110    = v195[2];
-        v193[0] = 0.0;
-        v193[1] = 0.0;
-        v193[2] = -2.0;
-        v174    = v197[0];
-        while (1) {
-            v111 = v193[v105++];
-            v112 = *(v104 - 40) * v111;
-            v108 = v108 + v112;
-            v174 = v174 + v112;
-            v113 = v111;
-            v114 = *(v104 - 39) * v111;
-            v115 = v113 * *(v104 - 38);
-            v104 += 3;
-            v116 = v109;
-            v117 = v106 + v114;
-            v118 = v114 + v116;
-            v119 = v107;
-            v120 = v118;
-            v121 = v119 + v115;
-            v122 = v110;
-            v123 = v121;
-            v124 = v115 + v122;
-            if (v105 > 2) {
-                break;
+            G_DebugLine(eyePosition, endPosition, 0, 0, 1, 1);
+
+            VectorSet(lineVec, 0, 0, -2);
+            for (int i = 0; i < 3; i++) {
+                VectorMA(eyePosition, lineVec[i], lookAxis[i], eyePosition);
+                VectorMA(endPosition, lineVec[i], lookAxis[i], endPosition);
             }
-            v125 = v117;
-            v126 = v124;
-            v106 = v125;
-            v127 = v126;
-            v128 = v123;
-            v110 = v127;
-            v129 = v128;
-            v109 = v120;
-            v107 = v129;
-        }
-        v195[2] = v124;
-        v195[1] = v120;
-        v195[0] = v108;
-        v197[2] = v123;
-        v197[1] = v117;
-        v197[0] = v174;
-        G_DebugLine(v197, v195, 0.0, 0.0, 1.0, 1.0);
-        v130    = &v202;
-        v131    = 0;
-        v132    = v197[1];
-        v133    = v197[2];
-        v134    = v195[0];
-        v135    = v195[1];
-        v136    = v195[2];
-        v193[0] = 0.0;
-        v193[1] = 2.0;
-        v193[2] = 0.0;
-        v175    = v197[0];
-        while (1) {
-            v137 = v193[v131++];
-            v138 = *(v130 - 40) * v137;
-            v134 = v134 + v138;
-            v175 = v175 + v138;
-            v139 = v137;
-            v140 = *(v130 - 39) * v137;
-            v141 = v139 * *(v130 - 38);
-            v130 += 3;
-            v142 = v135;
-            v143 = v132 + v140;
-            v144 = v140 + v142;
-            v145 = v133;
-            v146 = v144;
-            v147 = v145 + v141;
-            v148 = v136;
-            v149 = v147;
-            v150 = v141 + v148;
-            if (v131 > 2) {
-                break;
+
+            G_DebugLine(eyePosition, endPosition, 0, 0, 1, 1);
+
+            VectorSet(lineVec, 0, 2, 0);
+            for (int i = 0; i < 3; i++) {
+                VectorMA(eyePosition, lineVec[i], lookAxis[i], eyePosition);
+                VectorMA(endPosition, lineVec[i], lookAxis[i], endPosition);
             }
-            v151 = v143;
-            v152 = v150;
-            v132 = v151;
-            v153 = v152;
-            v154 = v149;
-            v136 = v153;
-            v155 = v154;
-            v135 = v146;
-            v133 = v155;
+
+            G_DebugLine(eyePosition, endPosition, 0, 0, 1, 1);
         }
-        v195[2] = v150;
-        v195[1] = v146;
-        v195[0] = v134;
-        v197[2] = v149;
-        v197[1] = v143;
-        v197[0] = v175;
-        G_DebugLine(v197, v195, 0.0, 0.0, 1.0, 1.0);
-        goto ACTOR_UPDATEBONECONTROLLERS_4;
-    }
-    v171                 = edict;
-    v171->s.eyeVector[2] = 0.0;
-    v171->s.eyeVector[1] = 0.0;
-    v171->s.eyeVector[0] = 0.0;
-    LocalLookAngles[2]   = 0.0;
-    LocalLookAngles[1]   = 0.0;
-    LocalLookAngles[0]   = 0.0;
-ACTOR_UPDATEBONECONTROLLERS_5:
-    GetControllerAngles(1).copyTo(v177);
-    torsoAngles[2] = v177[2];
-    torsoAngles[0] = v177[0];
-    torsoAngles[1] = v177[1];
-    GetControllerAngles(0).copyTo(v177);
-    v4            = LocalLookAngles[0];
-    headAngles[2] = v177[2];
-    headAngles[1] = v177[1];
-    headAngles[0] = v177[0];
-    error         = LocalLookAngles[1] - (torsoAngles[1] + v177[1]);
-    v6            = LocalLookAngles[1] - torsoAngles[1];
-    v176          = LocalLookAngles[0] - v177[0];
-    v7            = v6;
-    torsoYawError = v7;
-    if (v6 > 180.0) {
-        v172 = v6 - 360.0;
-    ACTOR_UPDATEBONECONTROLLERS_7:
-        torsoYawError = v172;
-        goto ACTOR_UPDATEBONECONTROLLERS_8;
-    }
-    if (v6 < -180.0) {
-        v172 = v6 + 360.0;
-        goto ACTOR_UPDATEBONECONTROLLERS_7;
-    }
-ACTOR_UPDATEBONECONTROLLERS_8:
-    if (torsoYawError >= 0.0) {
-        if (error < -120.0) {
-            error = error + 360.0;
-        }
-    } else if (error > 120.0) {
-        error = error - 360.0;
-    }
-    if (!((((uint8_t)this->m_iLookFlags) ^ 1) & 1)) {
-        fAng6 = error;
-        goto ACTOR_UPDATEBONECONTROLLERS_25;
-    }
-    if (error <= 25.0) {
-        if (-25.0 <= error) {
-            v12 = error;
-            v13 = 0.0;
-            goto ACTOR_UPDATEBONECONTROLLERS_15;
-        }
-        fErr1 = 0.2 * (error + 25.0);
+
+        VectorCopy(m_DesiredLookAngles, LocalLookAngles);
+
+        Vector EyeDelta;
+        Vector fwd;
+
+        EyeDelta = LocalLookAngles;
+        EyeDelta.AngleVectorsLeft(&fwd, NULL, NULL);
+        VectorCopy(fwd, edict->s.eyeVector);
     } else {
-        fErr1 = (error - 25.0) * 0.2;
+        VectorClear(edict->s.eyeVector);
+        VectorClear(LocalLookAngles);
     }
-    v10   = error;
-    v11   = fErr1;
-    v12   = v10;
-    fDist = v11;
-    v13   = fDist;
-ACTOR_UPDATEBONECONTROLLERS_15:
-    fErr2 = v12 + headAngles[1];
-    fAng1 = -torsoAngles[1];
-    v173  = fErr2;
-    if (fErr2 > fAng1) {
-        fErr2 = fAng1;
-        fAng1 = v173;
+
+    torsoAngles = GetControllerAngles(TORSO_TAG);
+    headAngles = GetControllerAngles(HEAD_TAG);
+
+    yawError = LocalLookAngles[1] - (torsoAngles[1] + headAngles[1]);
+    pitchError = LocalLookAngles[0] - headAngles[0];
+    torsoYawError = LocalLookAngles[1] - torsoAngles[1];
+
+    if (torsoYawError > 180) {
+        torsoYawError -= 360;
+    } else if (torsoYawError < -180) {
+        torsoYawError += 360;
     }
-    if (fErr2 <= v13) {
-        v74   = fAng1;
-        v75   = v13;
-        fAng2 = v74;
-        if (v75 <= v74) {
-            fAng2 = v75;
+
+    if (torsoYawError >= 0) {
+        if (yawError < -120) {
+            yawError += 360;
         }
     } else {
-        fAng2 = fErr2;
-    }
-    v17   = level.frametime * 15.0;
-    fAng3 = this->m_fTorsoCurrentTurnSpeed + v17;
-    v19   = this->m_fTorsoCurrentTurnSpeed - v17;
-    if (fAng2 <= fAng3) {
-        fAng3 = fAng2;
-        if (v19 > fAng2) {
-            fAng3 = v19;
+        if (yawError > 120) {
+            yawError -= 360;
         }
     }
-    fAng3_          = fAng3;
-    fFrameTorsoDist = level.frametime * this->m_fTorsoMaxTurnSpeed;
-    if (-fFrameTorsoDist <= fAng3_) {
-        v72   = fFrameTorsoDist;
-        v73   = fAng3_;
-        fAng4 = v72;
-        if (v73 <= v72) {
-            fAng4 = v73;
-        }
-    } else {
-        fAng4 = -fFrameTorsoDist;
-    }
-    v23            = torsoAngles[1] + fAng4;
-    torsoAngles[1] = v23;
-    if (v23 <= 30.0) {
-        v71 = torsoAngles[1];
-        if (torsoAngles[1] >= -30.0) {
-            fAng5 = fAng4;
+
+    if (!(m_iLookFlags & 1)) {
+        if (yawError > 25) {
+            max_change = (yawError - 25) * 0.2f;
+        } else if (yawError < -25) {
+            max_change = (yawError + 25) * 0.2f;
         } else {
-            torsoAngles[1] = -30.0;
-            fAng5          = fAng4 - (v71 + 30.0);
+            max_change = 0;
         }
-    } else {
-        torsoAngles[1] = 30.0;
-        fAng5          = fAng4 - (v23 - 30.0);
-    }
-    this->m_fTorsoCurrentTurnSpeed = fAng5;
-    v25                            = fAng5;
-    v26                            = v12;
-    torsoAngles[0]                 = 0.0;
-    torsoAngles[2]                 = 0.0;
-    SetControllerAngles(1, torsoAngles);
-    v4    = LocalLookAngles[0];
-    fAng6 = v26 - v25;
-ACTOR_UPDATEBONECONTROLLERS_25:
-    if (fAng6 > 15.0) {
-        v28 = fAng6 - 15.0;
-    ACTOR_UPDATEBONECONTROLLERS_27:
-        v29   = level.frametime;
-        fAng7 = v28 * 4.0 * v29;
-        goto ACTOR_UPDATEBONECONTROLLERS_28;
-    }
-    if (-15.0 > fAng6) {
-        v28 = fAng6 + 15.0;
-        goto ACTOR_UPDATEBONECONTROLLERS_27;
-    }
-    v29   = level.frametime;
-    fAng7 = 0.0;
-ACTOR_UPDATEBONECONTROLLERS_28:
-    fAng8 = fAng6;
-    v32   = fAng6;
-    fAng9 = -headAngles[1];
-    if (v32 > fAng9) {
-        fAng8 = fAng9;
-        fAng9 = v32;
-    }
-    if (fAng8 <= fAng7) {
-        if (fAng7 <= fAng9) {
-            v34 = headAngles[1];
+
+        if (-torsoAngles[1] < yawError + headAngles[1]) {
+            max_change = Q_clamp_float(max_change, -torsoAngles[1], yawError + headAngles[1]);
         } else {
-            v68   = v29;
-            v69   = fAng9;
-            v34   = headAngles[1];
-            v70   = v69;
-            v29   = v68;
-            fAng7 = v70;
+            max_change = Q_clamp_float(max_change, yawError + headAngles[1], -torsoAngles[1]);
         }
-    } else {
-        fAng7 = fAng8;
-        v34   = headAngles[1];
-    }
-    v35 = this->m_fHeadMaxTurnSpeed;
-    v36 = -(v29 * v35);
-    if (v36 <= fAng7) {
-        v67    = fAng7;
-        fAng10 = v29 * v35;
-        if (v67 <= fAng10) {
-            fAng10 = v67;
+
+        max_accel_change = m_fTorsoCurrentTurnSpeed + level.frametime * 15;
+        min_accel_change = m_fTorsoCurrentTurnSpeed - level.frametime * 15;
+    
+        max_change = Q_clamp_float(max_change, min_accel_change, max_accel_change);
+        max_change = Q_clamp_float(max_change, level.frametime * -m_fTorsoCurrentTurnSpeed, level.frametime * m_fTorsoCurrentTurnSpeed);
+
+        torsoAngles[1] += max_change;
+
+        if (torsoAngles[1] > 30) {
+            max_change -= torsoAngles[1] - 30;
+            torsoAngles[1] = 30;
+        } else if (torsoAngles[1] < -30) {
+            max_change -= torsoAngles[1] + 30;
+            torsoAngles[1] = -30;
         }
+
+        m_fTorsoCurrentTurnSpeed = max_change;
+
+        // clear pitch/roll
+        torsoAngles[0] = 0;
+        torsoAngles[2] = 0;
+
+        SetControllerAngles(TORSO_TAG, torsoAngles);
+        yawError -= max_change;
+    }
+
+    if (yawError > 15.f) {
+        max_change = (yawError - 15.f) * level.frametime * 4.f;
+    } else if (yawError < -15.f) {
+        max_change = (yawError + 15.f) * level.frametime * 4.f;
     } else {
-        fAng10 = v36;
+        max_change = 0;
     }
-    v38           = v34;
-    v39           = this->m_fHeadMaxTurnSpeed;
-    v40           = fAng10 + v38;
-    v41           = 60.0;
-    headAngles[1] = v40;
-    if (v40 > 60.0) {
-        goto ACTOR_UPDATEBONECONTROLLERS_37;
-    }
-    v42 = v29;
-    if (headAngles[1] < -60.0) {
-        v41 = -60.0;
-    ACTOR_UPDATEBONECONTROLLERS_37:
-        v43           = v29;
-        v44           = v41;
-        v42           = v43;
-        headAngles[1] = v44;
-    }
-    v45 = v42;
-    v46 = v4;
-    v47 = v45;
-    v48 = fabs(v46);
-    if (v48 >= 15.0) {
-        fAng11 = 15.0;
+
+    if (-headAngles[1] < yawError) {
+        max_change = Q_clamp_float(max_change, -headAngles[1], yawError);
     } else {
-        fDist  = v48;
-        fAng11 = fDist;
+        max_change = Q_clamp_float(max_change, yawError, -headAngles[1]);
     }
-    if (v176 > fAng11) {
-        v50 = v176 - fAng11;
-    ACTOR_UPDATEBONECONTROLLERS_42:
-        fDist  = 0.2 * v50;
-        fAng12 = fDist;
-        goto ACTOR_UPDATEBONECONTROLLERS_43;
+
+    max_change = Q_clamp_float(max_change, level.frametime * -m_fHeadMaxTurnSpeed, level.frametime * m_fHeadMaxTurnSpeed);
+    
+    headAngles[1] += max_change;
+    // clamp head yaw to 60 degrees
+    headAngles[1] = Q_clamp_float(headAngles[1], -60, 60);
+
+    error = 15.f;
+
+    if (fabs(LocalLookAngles[0]) < 15) {
+        error = fabs(LocalLookAngles[0]);
     }
-    if (-fAng11 > v176) {
-        v50 = fAng11 + v176;
-        goto ACTOR_UPDATEBONECONTROLLERS_42;
-    }
-    fAng12 = 0.0;
-ACTOR_UPDATEBONECONTROLLERS_43:
-    v52 = fAng12;
-    v53 = v47;
-    v54 = v52;
-    v55 = v39 * v53;
-    if (-v55 <= v52) {
-        v65    = v55;
-        v66    = v54;
-        fAng13 = v65;
-        if (v66 <= v65) {
-            fAng13 = v66;
-        }
+
+    if (pitchError > error) {
+        max_change = (pitchError - error) * 0.2f;
+    } else if (pitchError < -error) {
+        max_change = (pitchError + error) * 0.2f;
     } else {
-        fAng13 = -v55;
+        max_change = 0;
     }
-    v57           = fAng13 + headAngles[0];
-    v58           = 35.0;
-    headAngles[0] = v57;
-    if (v57 > 35.0 || (v58 = -35.0, headAngles[0] < -35.0)) {
-        headAngles[0] = v58;
+
+    max_change = Q_clamp_float(max_change, level.frametime * -m_fHeadMaxTurnSpeed, level.frametime * m_fHeadMaxTurnSpeed);
+    headAngles[0] += max_change;
+    // clamp head pitch to 35 degrees
+    headAngles[0] = Q_clamp_float(headAngles[0], -35, 35);
+    headAngles[2] = 0;
+
+    if (m_iLookFlags & 1) {
+        // half view
+        headAngles[0] /= 2.f;
+        headAngles[1] /= 2.f;
     }
-    headAngles[2] = 0.0;
-    if (this->m_iLookFlags & 1) {
-        headAngles[0] = 0.5 * headAngles[0];
-        headAngles[1] = 0.5 * headAngles[1];
+
+    SetControllerAngles(HEAD_TAG, headAngles);
+
+    Vector tmp_angles;
+    Vector new_angles;
+
+    // arms
+    tmp_angles = GetControllerAngles(ARMS_TAG);
+
+    max_change = m_vLUpperArmDesiredAngles[1] - tmp_angles[1];
+    if (max_change > 180) {
+        max_change -= 360;
+    } else if (max_change < -180) {
+        max_change += 360;
     }
-    SetControllerAngles(0, headAngles);
-    v177[0] = 0.0;
-    v177[1] = 0.0;
-    v177[2] = 0.0;
-    v178[0] = 0.0;
-    v178[1] = 0.0;
-    v178[2] = 0.0;
-    GetControllerAngles(2).copyTo(v177);
-    v179 = v177[0];
-    v180 = v177[1];
-    v181 = v177[2];
-    v59  = m_vLUpperArmDesiredAngles[1] - v180;
-    v60  = v59;
-    if (v59 <= 180.0) {
-        if (v59 < -180.0) {
-            v60 = v59 + 360.0;
-        }
-    } else {
-        v60 = v59 - 360.0;
-    }
-    v61 = this->m_fLUpperArmTurnSpeed * level.frametime;
-    if (-v61 <= v60) {
-        v63    = v61;
-        v64    = v60;
-        fAng15 = v63;
-        if (v64 <= v63) {
-            fAng15 = v64;
-        }
-    } else {
-        fAng15 = -v61;
-    }
-    v178[0] = this->m_vLUpperArmDesiredAngles[0];
-    v178[1] = fAng15 + v177[1];
-    v178[2] = 0.0;
-    SetControllerAngles(2, v178);
+
+    max_change = Q_clamp_float(max_change, level.frametime * -m_fLUpperArmTurnSpeed, level.frametime * m_fLUpperArmTurnSpeed);
+    // set the new arms angles
+    new_angles[0] = m_vLUpperArmDesiredAngles[0];
+    new_angles[1] = tmp_angles[1] + max_change;
+    new_angles[2] = 0;
+    SetControllerAngles(ARMS_TAG, new_angles);
 }
 
 void Actor::setOriginEvent(Vector org)
