@@ -3051,7 +3051,7 @@ void Actor::EventStart(Event *ev)
     SetControllerTag(TORSO_TAG, gi.Tag_NumForName(edict->tiki, "Bip01"));
     SetControllerTag(ARMS_TAG, gi.Tag_NumForName(edict->tiki, "Bip01 L UpperArm"));
 
-    JoinNearbySquads();
+    JoinNearbySquads(1024);
 
     if (level.Spawned()) {
         Unregister(STRING_SPAWN);
@@ -3075,29 +3075,26 @@ void Actor::SetMoveInfo(mmove_t *mm)
 {
     memset(mm, 0, sizeof(mmove_t));
 
-    mm->velocity[0] = velocity.x;
-    mm->velocity[1] = velocity.y;
-    mm->velocity[2] = velocity.z;
-
-    mm->origin[0] = origin.x;
-    mm->origin[1] = origin.y;
-    mm->origin[2] = origin.z;
+    velocity.copyTo(mm->velocity);
+    origin.copyTo(mm->origin);
 
     mm->entityNum = entnum;
 
     mm->walking = m_walking;
-
-    mm->groundPlane          = m_groundPlane;
-    mm->groundPlaneNormal[0] = m_groundPlaneNormal[0];
-    mm->groundPlaneNormal[1] = m_groundPlaneNormal[1];
-    mm->groundPlaneNormal[2] = m_groundPlaneNormal[2];
+    mm->groundPlane = m_groundPlane;
+    VectorCopy(m_groundPlaneNormal, mm->groundPlaneNormal);
 
     mm->frametime = level.frametime;
 
+    if (m_bNoPlayerCollision) {
+        mm->tracemask = MASK_TARGETPATH;
+    } else {
+        mm->tracemask = MASK_PATHSOLID;
+    }
+
     VectorCopy(MINS, mm->mins);
     VectorCopy(MAXS, mm->maxs);
-
-    mm->tracemask = m_bNoPlayerCollision == false ? MASK_PATHSOLID : MASK_TARGETPATH;
+    mm->maxs[2] = 94;
 }
 
 /*
@@ -3127,7 +3124,7 @@ void Actor::GetMoveInfo(mmove_t *mm)
     //FIXME: macros
     m_walking           = mm->walking;
     m_groundPlane       = mm->groundPlane;
-    m_groundPlaneNormal = mm->groundPlaneNormal;
+    VectorCopy(mm->groundPlaneNormal, m_groundPlaneNormal);
     groundentity        = NULL;
 
     TouchStuff(mm);
@@ -5936,7 +5933,7 @@ void Actor::MovePath(float fMoveSpeed)
     origin.copyTo(mm.origin);
     mm.groundPlane = m_groundPlane;
     mm.walking     = m_walking;
-    m_groundPlaneNormal.copyTo(mm.groundPlaneNormal);
+    VectorCopy(m_groundPlaneNormal, mm.groundPlaneNormal);
     VectorCopy2D(mm.obstacle_normal, m_PrevObstacleNormal);
 
     m_Path.UpdatePos(mm.hit_origin);

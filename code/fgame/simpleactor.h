@@ -77,7 +77,7 @@ public:
     const_str             m_csPathGoalEndAnimScript;
     qboolean              m_walking;
     qboolean              m_groundPlane;
-    Vector                m_groundPlaneNormal;
+    vec3_t                m_groundPlaneNormal;
     Vector                watch_offset;
     bool                  m_bThink;
     int                   m_PainTime;
