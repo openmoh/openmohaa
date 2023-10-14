@@ -1243,7 +1243,7 @@ public:
     void           UpdatePatrolCurrentNode(void);
     bool           MoveToPatrolCurrentNode(void);
     void           ClearAimNode(void);
-    void           SetAimNode(Vector          &vec);
+    void           SetAimNode(const Vector &vec);
     void           SetAimNode(Listener *l);
     void           ShowInfo_AimNode(void);
     void           EventSetAccuracy(Event *ev);
