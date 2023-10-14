@@ -177,8 +177,8 @@ public:
     void                SetDest(vec3_t dest);
     void                StopTurning(void);
     void                SetDesiredYaw(float yaw);
-    void                SetDesiredYawDir(vec3_t vec);
-    void                SetDesiredYawDest(vec3_t vec);
+    void                SetDesiredYawDir(const vec2_t vec);
+    void                SetDesiredYawDest(const vec3_t vec);
     void                UpdateEmotion(void);
     int                 GetEmotionAnim(void);
     int                 GetMotionSlot(int slot);
@@ -452,19 +452,18 @@ inline void SimpleActor::SetDesiredYaw(float yaw)
     m_DesiredYaw  = yaw;
 }
 
-inline void SimpleActor::SetDesiredYawDir(vec3_t vec)
+inline void SimpleActor::SetDesiredYawDir(const vec2_t vec)
 {
-    m_YawAchieved = false;
-    m_DesiredYaw  = vectoyaw(vec);
+    SetDesiredYaw(vectoyaw(vec));
 }
 
-inline void SimpleActor::SetDesiredYawDest(vec3_t vec)
+inline void SimpleActor::SetDesiredYawDest(const vec3_t vec)
 {
-    float facedir[2];
+    vec2_t facedir;
     VectorSub2D(vec, origin, facedir);
-    if (facedir[0] == 0 || facedir[1] == 0) {
-        m_YawAchieved = false;
-        m_DesiredYaw  = vectoyaw(vec);
+
+    if (!facedir[0] || !facedir[1]) {
+        SetDesiredYawDir(facedir);
     }
 }
 
