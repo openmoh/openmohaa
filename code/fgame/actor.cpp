@@ -59,6 +59,9 @@ cvar_t *g_showinfo;
 const char *gAmericanVoices[] = {"a", "c", "h"};
 const char *gGermanVoices[]   = {"a", "c", "d"};
 
+static const float DEFAULT_NEARBY_SQUAD_DIST = 1024;
+static const float MIN_BADPLACE_UPDATE_DIST = 256;
+
 Event EV_Actor_SetGun
 (
     "gun",
@@ -3549,9 +3552,12 @@ void Actor::UpdateBoneControllers(void)
 
 void Actor::setOriginEvent(Vector org)
 {
+    float dist;
     bool bRejoin = false;
-    //FIXME: macro
-    if ((org - origin).lengthSquared() > Square(1024)) {
+
+    dist = (org - origin).lengthSquared();
+
+    if (dist > Square(DEFAULT_NEARBY_SQUAD_DIST)) {
         bRejoin = true;
         DisbandSquadMate(this);
     }
@@ -3561,6 +3567,7 @@ void Actor::setOriginEvent(Vector org)
     VectorCopy2D(org, m_vOriginHistory[0]);
     VectorCopy2D(org, m_vOriginHistory[1]);
     VectorCopy2D(org, m_vOriginHistory[2]);
+    VectorCopy2D(org, m_vOriginHistory[3]);
 
     VectorClear(velocity);
 
@@ -3573,8 +3580,11 @@ void Actor::setOriginEvent(Vector org)
     m_vHome = origin;
 
     if (bRejoin) {
-        //FIXME: macro
-        JoinNearbySquads();
+        JoinNearbySquads(DEFAULT_NEARBY_SQUAD_DIST);
+    }
+
+    if (dist > Square(MIN_BADPLACE_UPDATE_DIST)) {
+        UpdateBadPlaces();
     }
 }
 
@@ -3587,6 +3597,7 @@ Safe set origin.
 */
 void Actor::SafeSetOrigin(vec3_t newOrigin)
 {
+    // don't update the origin if it's the same
     if (newOrigin == origin) {
         return;
     }
@@ -3595,6 +3606,7 @@ void Actor::SafeSetOrigin(vec3_t newOrigin)
 
     if (!m_bNoPlayerCollision) {
         Player *p = (Player *)G_GetEntity(0);
+
         if (p && IsTouching(p)) {
             Com_Printf("(entnum %d, radnum %d) is going not solid to not get stuck in the player\n", entnum, radnum);
             m_bNoPlayerCollision = true;
@@ -3613,69 +3625,73 @@ Move the actor based on m_eAnimMode.
 void Actor::DoMove(void)
 {
     mmove_t mm;
+    trace_t trace;
 
-    if (m_bDoPhysics && m_iOriginTime != level.inttime && !m_pGlueMaster && !bindmaster) {
-        switch (m_eAnimMode) {
-        case ANIM_MODE_NORMAL:
-            {
-                SetMoveInfo(&mm);
-
-                VectorCopy2D(frame_delta, mm.desired_dir);
-                float frameDeltaLen = VectorNormalize2D(mm.desired_dir);
-
-                mm.desired_speed = frameDeltaLen / level.frametime;
-
-                if (mm.desired_speed > m_maxspeed) {
-                    mm.desired_speed = m_maxspeed;
-                }
-
-                MmoveSingle(&mm);
-                GetMoveInfo(&mm);
-            }
-            break;
-        case ANIM_MODE_PATH:
-            {
-                MovePath(frame_delta.length() / level.frametime);
-            }
-            break;
-        case ANIM_MODE_PATH_GOAL:
-            {
-                MovePathGoal(frame_delta.length() / level.frametime);
-            }
-            break;
-        case ANIM_MODE_DEST:
-            {
-                MoveDest(frame_delta.length() / level.frametime);
-            }
-            break;
-        case ANIM_MODE_SCRIPTED:
-            {
-                trace_t trace;
-                trace = G_Trace(
-                    origin, mins, maxs, frame_delta + origin, this, edict->clipmask & 0xF9FFE47D, qtrue, "Actor"
-                );
-                SafeSetOrigin(trace.endpos);
-                velocity = frame_delta / level.frametime;
-            }
-            break;
-        case ANIM_MODE_NOCLIP:
-            {
-                SafeSetOrigin(frame_delta + origin);
-                velocity = frame_delta / level.frametime;
-            }
-            break;
-        case ANIM_MODE_FALLING_PATH:
-            {
-                SafeSetOrigin(m_pFallPath->pos[m_pFallPath->currentPos]);
-                m_pFallPath->currentPos++;
-                velocity = vec_zero;
-            }
-            break;
-        default:
-            break;
-        }
-        m_maxspeed = 1000000.0f;
+    if (m_eAnimMode != ANIM_MODE_ATTACHED && (!m_bDoPhysics || m_iOriginTime == level.inttime || m_pGlueMaster || bindmaster)) {
+        return;
     }
+
+    switch (m_eAnimMode) {
+    case ANIM_MODE_NORMAL:
+        SetMoveInfo(&mm);
+
+        VectorCopy2D(frame_delta, mm.desired_dir);
+        mm.desired_speed = VectorNormalize2D(mm.desired_dir) / level.frametime;
+
+        if (mm.desired_speed > m_maxspeed) {
+            mm.desired_speed = m_maxspeed;
+        }
+
+        MmoveSingle(&mm);
+        GetMoveInfo(&mm);
+        break;
+    case ANIM_MODE_PATH:
+        MovePath(frame_delta.length() / level.frametime);
+        break;
+    case ANIM_MODE_PATH_GOAL:
+        MovePathGoal(frame_delta.length() / level.frametime);
+        break;
+    case ANIM_MODE_DEST:
+        MoveDest(frame_delta.length() / level.frametime);
+        break;
+    case ANIM_MODE_SCRIPTED:
+        trace = G_Trace(
+            origin, mins, maxs, origin + frame_delta, this, edict->clipmask & ~MASK_SCRIPT_SLAVE, qtrue, "Actor"
+        );
+        SafeSetOrigin(trace.endpos);
+        velocity = frame_delta / level.frametime;
+        break;
+    case ANIM_MODE_NOCLIP:
+        SafeSetOrigin(origin + frame_delta);
+        velocity = frame_delta / level.frametime;
+        break;
+    case ANIM_MODE_FALLING_PATH:
+        SafeSetOrigin(m_pFallPath->pos[m_pFallPath->currentPos]);
+        m_pFallPath->currentPos++;
+        velocity = vec_zero;
+        break;
+    case ANIM_MODE_ATTACHED:
+    {
+        Vector frame_offset;
+        Vector attach_angles;
+
+        frame_offset = edict->s.attach_offset;
+        frame_offset += frame_delta;
+        frame_offset.copyTo(edict->s.attach_offset);
+        setOrigin();
+
+        attach_angles = angles;
+        attach_angles[1] += angular_delta;
+        setAngles(attach_angles);
+
+        velocity = frame_delta / level.frametime;
+        break;
+    }
+    default:
+        break;
+    }
+
+    m_maxspeed = 1000000.0f;
 }
 
 /*
