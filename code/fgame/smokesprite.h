@@ -45,6 +45,6 @@ public:
 void G_ResetSmokeSprites();
 void G_ArchiveSmokeSprites(Archiver& arc);
 void G_UpdateSmokeSprites();
-float G_ObfuscationForSmokeSprites(float, const Vector& end, const Vector& start);
+float G_ObfuscationForSmokeSprites(float visibilityAlpha, const Vector& start, const Vector& end);
 SmokeSprite* G_GetRandomSmokeSprite();
 void G_AddSmokeSprite(const SmokeSprite* sprite);

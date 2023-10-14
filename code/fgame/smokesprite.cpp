@@ -112,7 +112,7 @@ void G_AddSmokeSprite(const SmokeSprite* sprite)
     g_Sprites.AddObject(*sprite);
 }
 
-float G_ObfuscationForSmokeSprites(float, const Vector& end, const Vector& start) {
+float G_ObfuscationForSmokeSprites(float visibilityAlpha, const Vector& start, const Vector& end) {
     // FIXME: unimplemented
     return 0;
 }
