@@ -140,7 +140,7 @@ void Actor::Turret_SelectState(void)
         m_bNextForceStart = false;
         SetDesiredYawDir(m_vGrenadeVel);
 
-        m_eNextAnimMode = 1;
+        m_eNextAnimMode = ANIM_MODE_NORMAL;
         m_csNextAnimString =
             (m_eGrenadeMode == AI_GREN_TOSS_ROLL) ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
         TransitionState(107, 0);

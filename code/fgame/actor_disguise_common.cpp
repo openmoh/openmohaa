@@ -35,7 +35,7 @@ void Actor::State_Disguise_Wait(void)
     float  fDistSquared;
     VectorSub2D(origin, m_Enemy->origin, vDelta);
 
-    m_eNextAnimMode    = 1;
+    m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_csNextAnimString = STRING_ANIM_DISGUISE_WAIT_SCR;
     m_bNextForceStart  = false;
 
@@ -59,7 +59,7 @@ void Actor::State_Disguise_Papers(void)
     vec2_t vDelta;
 
     m_csNextAnimString = STRING_ANIM_DISGUISE_PAPERS_SCR;
-    m_eNextAnimMode    = 1;
+    m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_bNextForceStart  = false;
     if (m_iEnemyShowPapersTime < m_Enemy->m_ShowPapersTime) {
         if (level.m_iPapersLevel < m_iDisguiseLevel) {
@@ -88,7 +88,7 @@ void Actor::State_Disguise_Fake_Papers(void)
     vec2_t vDelta;
 
     m_csNextAnimString = STRING_ANIM_DISGUISE_PAPERS_SCR;
-    m_eNextAnimMode    = 1;
+    m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_bNextForceStart  = false;
     if (m_iEnemyShowPapersTime < m_Enemy->m_ShowPapersTime || level.inttime > m_iStateTime + 12000) {
         TransitionState(3, 0);
@@ -103,7 +103,7 @@ void Actor::State_Disguise_Fake_Papers(void)
 
 void Actor::State_Disguise_Enemy(void)
 {
-    m_eNextAnimMode    = 1;
+    m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_csNextAnimString = STRING_ANIM_DISGUISE_ENEMY_SCR;
     m_bNextForceStart  = false;
 
@@ -114,7 +114,7 @@ void Actor::State_Disguise_Enemy(void)
 
 void Actor::State_Disguise_Halt(void)
 {
-    m_eNextAnimMode    = 1;
+    m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_csNextAnimString = STRING_ANIM_DISGUISE_HALT_SCR;
     m_bNextForceStart  = false;
 
@@ -125,7 +125,7 @@ void Actor::State_Disguise_Halt(void)
 
 void Actor::State_Disguise_Accept(void)
 {
-    m_eNextAnimMode    = 1;
+    m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_csNextAnimString = STRING_ANIM_DISGUISE_ACCEPT_SCR;
     m_bNextForceStart  = false;
 
@@ -137,7 +137,7 @@ void Actor::State_Disguise_Accept(void)
 
 void Actor::State_Disguise_Deny(void)
 {
-    m_eNextAnimMode    = 1;
+    m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_csNextAnimString = STRING_ANIM_DISGUISE_DENY_SCR;
     m_bNextForceStart  = false;
 

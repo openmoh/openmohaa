@@ -2737,7 +2737,7 @@ Actor::Actor()
     takedamage  = DAMAGE_AIM;
     m_fFovDot   = cos(DEG2RAD(m_fFov / 2.0));
 
-    m_eAnimMode = 0;
+    m_eAnimMode = ANIM_MODE_NONE;
     Anim_Emotion(EMOTION_NONE);
 
     m_bDoPhysics          = true;
@@ -2879,7 +2879,7 @@ Actor::Actor()
 
     m_csAnimScript            = STRING_ANIM_IDLE_SCR;
     m_bAnimScriptSet          = false;
-    m_AnimMode                = 1;
+    m_AnimMode                = ANIM_MODE_NORMAL;
     m_csAnimName              = STRING_EMPTY;
     m_csSayAnim               = STRING_EMPTY;
     m_csUpperAnim             = STRING_EMPTY;
@@ -3129,8 +3129,8 @@ void Actor::GetMoveInfo(mmove_t *mm)
 
     TouchStuff(mm);
 
-    if (m_eAnimMode >= 2) {
-        if (m_eAnimMode <= 3) {
+    if (m_eAnimMode >= ANIM_MODE_PATH) {
+        if (m_eAnimMode <= ANIM_MODE_PATH_GOAL) {
             if (mm->hit_temp_obstacle) {
                 if (mm->hit_temp_obstacle & 1) {
                     m_Path.Clear();
@@ -3180,7 +3180,7 @@ void Actor::GetMoveInfo(mmove_t *mm)
             } else if (velocity.lengthXYSquared() < -0.69999999 && level.inttime >= m_Path.Time() + 1000) {
                 m_Path.ReFindPath(origin, this);
             }
-        } else if (m_eAnimMode == 4) {
+        } else if (m_eAnimMode == ANIM_MODE_DEST) {
             if (mm->hit_temp_obstacle) {
                 if (mm->hit_temp_obstacle & 1) {
                     m_Path.Clear();
@@ -4282,10 +4282,10 @@ Move the actor based on m_eAnimMode.
 void Actor::DoMove(void)
 {
     mmove_t mm;
-    //FIXME: macros
+
     if (m_bDoPhysics && m_iOriginTime != level.inttime && !m_pGlueMaster && !bindmaster) {
         switch (m_eAnimMode) {
-        case 1: //normal i guess ?
+        case ANIM_MODE_NORMAL:
             {
                 SetMoveInfo(&mm);
 
@@ -4302,22 +4302,22 @@ void Actor::DoMove(void)
                 GetMoveInfo(&mm);
             }
             break;
-        case 2: //path
+        case ANIM_MODE_PATH:
             {
                 MovePath(frame_delta.length() / level.frametime);
             }
             break;
-        case 3: //path_goal (end) ?
+        case ANIM_MODE_PATH_GOAL:
             {
                 MovePathGoal(frame_delta.length() / level.frametime);
             }
             break;
-        case 4: //dest
+        case ANIM_MODE_DEST:
             {
                 MoveDest(frame_delta.length() / level.frametime);
             }
             break;
-        case 5: //scripted
+        case ANIM_MODE_SCRIPTED:
             {
                 trace_t trace;
                 trace = G_Trace(
@@ -4327,13 +4327,13 @@ void Actor::DoMove(void)
                 velocity = frame_delta / level.frametime;
             }
             break;
-        case 6: //noclip
+        case ANIM_MODE_NOCLIP:
             {
                 SafeSetOrigin(frame_delta + origin);
                 velocity = frame_delta / level.frametime;
             }
             break;
-        case 7: //falling path
+        case ANIM_MODE_FALLING_PATH:
             {
                 SafeSetOrigin(m_pFallPath->pos[m_pFallPath->currentPos]);
                 m_pFallPath->currentPos++;
@@ -6142,7 +6142,7 @@ void Actor::MovePathGoal(float fMoveSpeed)
     } else {
         MovePath(fSlowdownSpeed);
         if (level.time >= m_fPathGoalTime) {
-            m_eAnimMode = 1;
+            m_eAnimMode = ANIM_MODE_NORMAL;
             Com_Printf("m_eAnimMode MovePathGoal \n");
         }
     }
@@ -6705,7 +6705,7 @@ bool Actor::MoveToPatrolCurrentNode(void)
         if (m_patrolCurrentNode->IsSubclassOfWaypoint()) {
             if (MoveToWaypointWithPlayer()) {
                 m_bNextForceStart  = false;
-                m_eNextAnimMode    = 4;
+                m_eNextAnimMode    = ANIM_MODE_DEST;
                 m_csNextAnimString = m_csPatrolCurrentAnim;
                 FaceMotion();
             } else {
@@ -6730,9 +6730,9 @@ bool Actor::MoveToPatrolCurrentNode(void)
             }
             if (MoveOnPathWithSquad()) {
                 if (PatrolNextNodeExists()) {
-                    m_eNextAnimMode = 2;
+                    m_eNextAnimMode = ANIM_MODE_PATH;
                 } else {
-                    m_eNextAnimMode = 3;
+                    m_eNextAnimMode = ANIM_MODE_PATH_GOAL;
                 }
                 m_csNextAnimString = m_csPatrolCurrentAnim;
                 m_bNextForceStart  = false;
@@ -10673,9 +10673,7 @@ void Actor::EventAnimScript(Event *ev)
 {
     m_bAnimScriptSet = true;
     m_csAnimScript   = ev->GetConstString(1);
-
-    //FIXME: macro
-    m_AnimMode = 1;
+    m_AnimMode       = ANIM_MODE_NORMAL;
 
     SetThinkIdle(THINK_ANIM);
 }
@@ -10684,28 +10682,25 @@ void Actor::EventAnimScript_Scripted(Event *ev)
 {
     m_csAnimScript   = ev->GetConstString(1);
     m_bAnimScriptSet = true;
-    //FIXME: macro
-    m_AnimMode = 5;
+    m_AnimMode       = ANIM_MODE_SCRIPTED;
 
     SetThinkIdle(THINK_ANIM);
 }
 
 void Actor::EventAnimScript_Noclip(Event *ev)
 {
-    m_csAnimScript = ev->GetConstString(1);
+    m_csAnimScript   = ev->GetConstString(1);
     m_bAnimScriptSet = true;
-    //FIXME: macro
-    m_AnimMode = 6;
+    m_AnimMode       = ANIM_MODE_NOCLIP;
 
     SetThinkIdle(THINK_ANIM);
 }
 
 void Actor::EventAnimScript_Attached(Event *ev)
 {
-    m_csAnimScript = ev->GetConstString(1);
+    m_csAnimScript   = ev->GetConstString(1);
     m_bAnimScriptSet = true;
-    //FIXME: macro
-    m_AnimMode = 9;
+    m_AnimMode       = ANIM_MODE_ATTACHED;
 
     SetThinkIdle(THINK_ANIM);
 }

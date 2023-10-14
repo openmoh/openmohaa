@@ -1208,7 +1208,7 @@ bool SimpleActor::UpdateSelectedAnimation(void)
         if (m_bNextForceStart) {
             m_Anim      = m_NextAnimLabel;
             m_eAnimMode = m_eNextAnimMode;
-            if (m_eNextAnimMode != 3) {
+            if (m_eNextAnimMode != ANIM_MODE_PATH_GOAL) {
                 SetPathGoalEndAnim(STRING_EMPTY);
             }
             m_bStartPathGoalEndAnim = false;
@@ -1227,7 +1227,7 @@ bool SimpleActor::UpdateSelectedAnimation(void)
         }
         m_Anim      = m_NextAnimLabel;
         m_eAnimMode = m_eNextAnimMode;
-        if (m_eNextAnimMode != 3) {
+        if (m_eNextAnimMode != ANIM_MODE_PATH_GOAL) {
             SetPathGoalEndAnim(STRING_EMPTY);
         }
         m_bStartPathGoalEndAnim = false;
@@ -1239,7 +1239,7 @@ bool SimpleActor::UpdateSelectedAnimation(void)
         Com_Printf("UpdateSelectedAnimation\n");
         m_Anim.TrySetScript(m_csNextAnimString);
         m_eAnimMode = m_eNextAnimMode;
-        if (m_eNextAnimMode != 3) {
+        if (m_eNextAnimMode != ANIM_MODE_PATH_GOAL) {
             SetPathGoalEndAnim(STRING_EMPTY);
         }
         m_bStartPathGoalEndAnim = false;
@@ -1250,7 +1250,7 @@ bool SimpleActor::UpdateSelectedAnimation(void)
     if (!m_pAnimThread || m_eAnimMode != m_eNextAnimMode) {
         m_Anim.TrySetScript(m_csNextAnimString);
         m_eAnimMode = m_eNextAnimMode;
-        if (m_eNextAnimMode != 3) {
+        if (m_eNextAnimMode != ANIM_MODE_PATH_GOAL) {
             SetPathGoalEndAnim(STRING_EMPTY);
         }
         m_bStartPathGoalEndAnim = false;
@@ -1262,7 +1262,7 @@ bool SimpleActor::UpdateSelectedAnimation(void)
         if (!m_Anim.IsFile(m_csNextAnimString)) {
             m_Anim.TrySetScript(m_csNextAnimString);
             m_eAnimMode = m_eNextAnimMode;
-            if (m_eNextAnimMode != 3) {
+            if (m_eNextAnimMode != ANIM_MODE_PATH_GOAL) {
                 SetPathGoalEndAnim(STRING_EMPTY);
             }
             m_bStartPathGoalEndAnim = false;

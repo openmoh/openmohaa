@@ -97,7 +97,7 @@ void Actor::Begin_Curious(void)
 
         ShortenPathToAvoidSquadMates();
         if (m_iCuriousAnimHint <= 3) {
-            m_eNextAnimMode    = 1;
+            m_eNextAnimMode    = ANIM_MODE_NORMAL;
             m_csNextAnimString = STRING_ANIM_STANDFLINCH_SCR;
 
             m_bNextForceStart = true;
@@ -109,7 +109,7 @@ void Actor::Begin_Curious(void)
             if (vDel[0] != 0 || vDel[1] != 0) {
                 SetDesiredYawDir(vDel);
             }
-            m_eNextAnimMode    = 1;
+            m_eNextAnimMode    = ANIM_MODE_NORMAL;
             m_csNextAnimString = STRING_ANIM_SURPRISE_SCR;
 
             m_bNextForceStart = true;
@@ -200,10 +200,10 @@ void Actor::Think_Curious(void)
                 if (!InFOV(m_vLastEnemyPos, m_fFov, m_fFovDot)) {
                     if ((m_bScriptGoalValid || CanMovePathWithLeash()) && MoveOnPathWithSquad()) {
                         if (PatrolNextNodeExists()) {
-                            m_eNextAnimMode = 2;
+                            m_eNextAnimMode = ANIM_MODE_PATH;
                         } else {
                             //v11 = SimpleActor::GetRunAnim(this);
-                            m_eNextAnimMode = 3;
+                            m_eNextAnimMode = ANIM_MODE_PATH_GOAL;
                         }
                         m_csNextAnimString = GetRunAnim();
                         m_bNextForceStart  = false;
@@ -242,10 +242,10 @@ void Actor::Think_Curious(void)
                         )) {
                         if ((m_bScriptGoalValid || CanMovePathWithLeash()) && MoveOnPathWithSquad()) {
                             if (PatrolNextNodeExists()) {
-                                m_eNextAnimMode = 2;
+                                m_eNextAnimMode = ANIM_MODE_PATH;
                             } else {
                                 //v11 = SimpleActor::GetRunAnim(this);
-                                m_eNextAnimMode = 3;
+                                m_eNextAnimMode = ANIM_MODE_PATH_GOAL;
                             }
                             m_csNextAnimString = GetRunAnim();
                             m_bNextForceStart  = false;
@@ -286,10 +286,10 @@ void Actor::Think_Curious(void)
                 if ((PathGoal() - origin).lengthSquared() >= 2304) {
                     if ((m_bScriptGoalValid || CanMovePathWithLeash()) && MoveOnPathWithSquad()) {
                         if (PatrolNextNodeExists()) {
-                            m_eNextAnimMode = 2;
+                            m_eNextAnimMode = ANIM_MODE_PATH;
                         } else {
                             //v11 = SimpleActor::GetRunAnim(this);
-                            m_eNextAnimMode = 3;
+                            m_eNextAnimMode = ANIM_MODE_PATH_GOAL;
                         }
                         m_csNextAnimString = GetRunAnim();
                         m_bNextForceStart  = false;

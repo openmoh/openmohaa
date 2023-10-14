@@ -70,7 +70,7 @@ void Actor::Think_Dog_Idle(void)
     UpdateEyeOrigin();
     m_pszDebugState         = "Dog_Idle";
     m_bHasDesiredLookAngles = false;
-    m_eNextAnimMode         = 1;
+    m_eNextAnimMode         = ANIM_MODE_NORMAL;
     m_csNextAnimString      = STRING_ANIM_DOG_IDLE_SCR;
     CheckForThinkStateTransition();
     PostThink(false);
@@ -94,7 +94,7 @@ void Actor::Think_Dog_Attack(void)
             if (VectorLength2DSquared(delta) >= 8000) {
                 FaceMotion();
                 m_csNextAnimString = STRING_ANIM_DOG_CHASE_SCR;
-                m_eNextAnimMode    = 2;
+                m_eNextAnimMode    = ANIM_MODE_PATH;
             } else {
                 {
                     vec2_t facedir;
@@ -105,7 +105,7 @@ void Actor::Think_Dog_Attack(void)
                     }
                 }
                 SetDesiredLookDir(m_Enemy->origin - origin);
-                m_eNextAnimMode    = 1;
+                m_eNextAnimMode    = ANIM_MODE_NORMAL;
                 m_csNextAnimString = STRING_ANIM_DOG_ATTACK_SCR;
             }
             m_bNextForceStart = false;
@@ -125,7 +125,7 @@ void Actor::Think_Dog_Attack(void)
         SetDesiredLookDir(m_Enemy->origin - origin);
     }
     m_bNextForceStart  = false;
-    m_eNextAnimMode    = 1;
+    m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_csNextAnimString = STRING_ANIM_DOG_CURIOUS_SCR;
     TransitionState(20, 0);
 
@@ -150,7 +150,7 @@ void Actor::Think_Dog_Curious(void)
             SetDesiredLookDir(m_Enemy->origin - origin);
         }
         m_bNextForceStart  = false;
-        m_eNextAnimMode    = 1;
+        m_eNextAnimMode    = ANIM_MODE_NORMAL;
         m_csNextAnimString = STRING_ANIM_DOG_CURIOUS_SCR;
 
         CheckForThinkStateTransition();

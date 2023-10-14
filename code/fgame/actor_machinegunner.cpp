@@ -124,7 +124,7 @@ void Actor::ThinkHoldGun_TurretGun(void)
         m_csNextAnimString = STRING_ANIM_MG42_RELOAD_SCR;
         m_bAnimScriptSet   = false;
     }
-    m_eNextAnimMode   = 8;
+    m_eNextAnimMode   = ANIM_MODE_FROZEN;
     m_bNextForceStart = false;
 
     CheckUnregister();

@@ -43,7 +43,7 @@ bool Actor::Grenade_Acquire(eGrenadeState eNextState, const_str csReturnAnim)
             } else {
                 m_pGrenade->velocity = vec_zero;
 
-                m_eNextAnimMode    = 1;
+                m_eNextAnimMode    = ANIM_MODE_NORMAL;
                 m_eGrenadeState    = eNextState;
                 m_bNextForceStart  = false;
                 m_csNextAnimString = csReturnAnim;

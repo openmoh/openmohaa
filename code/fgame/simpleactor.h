@@ -46,6 +46,20 @@ enum eEmotionMode {
     EMOTION_DEAD,
     EMOTION_CURIOUS
 };
+
+enum eAnimMode {
+    ANIM_MODE_NONE,
+    ANIM_MODE_NORMAL,
+    ANIM_MODE_PATH,
+    ANIM_MODE_PATH_GOAL,
+    ANIM_MODE_DEST,
+    ANIM_MODE_SCRIPTED,
+    ANIM_MODE_NOCLIP,
+    ANIM_MODE_FALLING_PATH,
+    ANIM_MODE_FROZEN,
+    ANIM_MODE_ATTACHED,
+};
+
 class SimpleActor;
 
 typedef SafePtr<SimpleActor> SimpleActorPtr;
@@ -289,7 +303,7 @@ inline void SimpleActor::StartAnimation(int eAnimMode, ScriptThreadLabel AnimLab
 
 inline void SimpleActor::ContinueAnimationAllowNoPath(void)
 {
-    if (m_eNextAnimMode < 0) {
+    if (m_eNextAnimMode < ANIM_MODE_NONE) {
         m_bNextForceStart  = false;
         m_csNextAnimString = STRING_NULL;
         m_eNextAnimMode    = m_eAnimMode;
@@ -300,7 +314,7 @@ inline void SimpleActor::ContinueAnimationAllowNoPath(void)
 inline void SimpleActor::ContinueAnimation(void)
 {
     int eAnimMode = m_eNextAnimMode;
-    if (eAnimMode < 0) {
+    if (eAnimMode < ANIM_MODE_NONE) {
         m_bNextForceStart  = false;
         m_csNextAnimString = STRING_NULL;
         m_eNextAnimMode    = m_eAnimMode;

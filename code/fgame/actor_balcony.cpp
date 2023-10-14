@@ -337,7 +337,7 @@ void Actor::Think_BalconyKilled(void)
         switch (m_State) {
         case 800:
             m_bNextForceStart  = true;
-            m_eNextAnimMode    = 7;
+            m_eNextAnimMode    = ANIM_MODE_FALLING_PATH;
             m_pszDebugState    = "begin";
             m_csNextAnimString = STRING_ANIM_NO_KILLED_SCR;
 
@@ -359,7 +359,7 @@ void Actor::Think_BalconyKilled(void)
         case 801:
             m_bNextForceStart  = false;
             m_pszDebugState    = "intro";
-            m_eNextAnimMode    = 7;
+            m_eNextAnimMode    = ANIM_MODE_FALLING_PATH;
             m_csNextAnimString = STRING_ANIM_NO_KILLED_SCR;
             break;
         case 802:

@@ -53,7 +53,7 @@ void Actor::Begin_DisguiseSentry(void)
 
             SetDesiredLookDir(m_Enemy->origin - origin);
 
-            m_eNextAnimMode    = 1;
+            m_eNextAnimMode    = ANIM_MODE_NORMAL;
             m_csNextAnimString = STRING_ANIM_DISGUISE_WAIT_SCR;
             m_bNextForceStart  = false;
 

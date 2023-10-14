@@ -79,7 +79,7 @@ void Actor::State_Weaponless_Normal(void)
                 SetDesiredYawDir(m_vGrenadeVel);
 
                 m_State           = 901;
-                m_eNextAnimMode   = 1;
+                m_eNextAnimMode   = ANIM_MODE_NORMAL;
                 m_bNextForceStart = false;
                 m_csNextAnimString =
                     (m_eGrenadeMode == AI_GREN_TOSS_ROLL) ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;

@@ -241,7 +241,7 @@ void Actor::State_Cover_TakeCover(void)
         m_csPathGoalEndAnimScript = m_bInReload ? STRING_ANIM_RUNTO_COVER_SCR : STRING_ANIM_IDLE_SCR;
     } else {
         ClearPath();
-        m_eAnimMode = 1;
+        m_eAnimMode = ANIM_MODE_NORMAL;
         TransitionState(303, 0);
         State_Cover_FinishReloading();
     }
@@ -286,7 +286,7 @@ void Actor::State_Cover_FinishReloading(void)
     SetDesiredYaw(angles[1]);
 
     SafeSetOrigin(origin);
-    m_eNextAnimMode    = 1;
+    m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_bNextForceStart  = false;
     m_csNextAnimString = m_csSpecialAttack;
     TransitionState(304, 0);
@@ -309,7 +309,7 @@ void Actor::State_Cover_Target(void)
         Vector end = m_vLastEnemyPos + velocity;
         if (DecideToThrowGrenade(end, &m_vGrenadeVel, &m_eGrenadeMode)) {
             SetDesiredYawDir(m_vGrenadeVel);
-            m_eNextAnimMode   = 1;
+            m_eNextAnimMode   = ANIM_MODE_NORMAL;
             m_bNextForceStart = false;
             m_csNextAnimString =
                 m_eGrenadeMode == AI_GREN_TOSS_ROLL ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
@@ -340,7 +340,7 @@ void Actor::State_Cover_Hide(void)
     if (m_csSpecialAttack) {
         SetDesiredYaw(m_pCoverNode->angles[1]);
         SafeSetOrigin(m_pCoverNode->origin);
-        m_eNextAnimMode    = 1;
+        m_eNextAnimMode    = ANIM_MODE_NORMAL;
         m_bNextForceStart  = false;
         m_csNextAnimString = m_csSpecialAttack;
         TransitionState(304, 0);
@@ -532,7 +532,7 @@ void Actor::State_Cover_SpecialAttack(void)
 
     SetDesiredYaw(angles[1]);
 
-    m_eNextAnimMode    = 1;
+    m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_csNextAnimString = m_csSpecialAttack;
     m_bNextForceStart  = false;
 }
