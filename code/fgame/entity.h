@@ -286,10 +286,10 @@ public:
 
     virtual void ShowInfo(float fDot, float fDist);
 
-    qboolean DistanceTo(Vector pos);
-    qboolean DistanceTo(Entity *ent);
-    qboolean WithinDistance(Vector pos, float dist);
-    qboolean WithinDistance(Entity *ent, float dist);
+    qboolean DistanceTo(Vector pos) const;
+    qboolean DistanceTo(Entity *ent) const;
+    qboolean WithinDistance(Vector pos, float dist) const;
+    qboolean WithinDistance(Entity *ent, float dist) const;
 
     Vector   GetControllerAngles(int num);
     void     SetControllerAngles(int num, vec3_t angles);
@@ -647,7 +647,7 @@ inline int Entity::getSolidType(void)
     return edict->solid;
 }
 
-inline qboolean Entity::DistanceTo(Vector pos)
+inline qboolean Entity::DistanceTo(Vector pos) const
 
 {
     Vector delta;
@@ -656,7 +656,7 @@ inline qboolean Entity::DistanceTo(Vector pos)
     return delta.length() != 0 ? qtrue : qfalse;
 }
 
-inline qboolean Entity::DistanceTo(Entity *ent)
+inline qboolean Entity::DistanceTo(Entity *ent) const
 {
     Vector delta;
 
@@ -671,7 +671,7 @@ inline qboolean Entity::DistanceTo(Entity *ent)
     return delta.length() != 0 ? qtrue : qfalse;
 }
 
-inline qboolean Entity::WithinDistance(Vector pos, float dist)
+inline qboolean Entity::WithinDistance(Vector pos, float dist) const
 {
     Vector delta;
 
@@ -681,7 +681,7 @@ inline qboolean Entity::WithinDistance(Vector pos, float dist)
     return ((delta * delta) < (dist * dist)) ? qtrue : qfalse;
 }
 
-inline qboolean Entity::WithinDistance(Entity *ent, float dist)
+inline qboolean Entity::WithinDistance(Entity *ent, float dist) const
 
 {
     Vector delta;
@@ -828,6 +828,11 @@ inline str Entity::GetRandomAlias(str name, AliasListNode_t **ret)
     }
 
     return realname;
+}
+
+inline bool Entity::AreasConnected(const Entity* other)
+{
+    return gi.AreasConnected(edict->r.areanum, other->edict->r.areanum) != 0;
 }
 
 #include "worldspawn.h"
