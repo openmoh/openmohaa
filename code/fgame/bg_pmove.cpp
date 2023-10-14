@@ -48,6 +48,9 @@ float	pm_backspeed = 0.80f;
 float	pm_flightfriction = 3.0f;
 float	PM_NOCLIPfriction = 5.0f;
 
+const vec3_t MINS = { -15, -15, 0 };
+const vec3_t MAXS = { 15, 15, 0 };
+
 int		c_pmove = 0;
 
 /*

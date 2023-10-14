@@ -24,9 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "actor.h"
 #include "weapturret.h"
-
-extern Vector MINS;
-extern Vector MAXS;
+#include "bg_local.h"
 
 void Actor::InitMachineGunner(GlobalFuncs_t *func)
 {

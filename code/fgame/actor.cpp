@@ -49,9 +49,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cmath>
 
-Vector MINS(-15.0, -15.0, 0.0);
-Vector MAXS(15.0, 15.0, 96.0);
-
 extern Vector PLAYER_BASE_MIN;
 extern Vector PLAYER_BASE_MAX;
 
@@ -3097,12 +3094,8 @@ void Actor::SetMoveInfo(mmove_t *mm)
 
     mm->frametime = level.frametime;
 
-    mm->mins[0] = MINS.x;
-    mm->mins[1] = MINS.y;
-    mm->mins[2] = MINS.z;
-    mm->maxs[0] = MAXS.x;
-    mm->maxs[1] = MAXS.y;
-    mm->maxs[2] = MAXS.z;
+    VectorCopy(MINS, mm->mins);
+    VectorCopy(MAXS, mm->maxs);
 
     mm->tracemask = m_bNoPlayerCollision == false ? MASK_PATHSOLID : MASK_TARGETPATH;
 }

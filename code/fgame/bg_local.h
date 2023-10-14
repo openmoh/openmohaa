@@ -76,6 +76,9 @@ extern	float	pm_friction;
 extern	float	pm_waterfriction;
 extern	float	pm_flightfriction;
 
+extern	const vec3_t MINS;
+extern	const vec3_t MAXS;
+
 extern	int		c_pmove;
 
 void PM_ClipVelocity( vec3_t in, vec3_t normal, vec3_t out, float overbounce );
