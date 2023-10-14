@@ -3121,101 +3121,95 @@ Fetch current move information from mm.
 */
 void Actor::GetMoveInfo(mmove_t *mm)
 {
-    //FIXME: macros
+    trace_t trace;
+
     m_walking           = mm->walking;
     m_groundPlane       = mm->groundPlane;
     VectorCopy(mm->groundPlaneNormal, m_groundPlaneNormal);
     groundentity        = NULL;
 
     TouchStuff(mm);
+    
+    switch (m_eAnimMode) {
+    case ANIM_MODE_DEST:
+        if (!mm->hit_temp_obstacle && mm->hit_obstacle) {
+            trace = G_Trace(
+                m_Dest,
+                PLAYER_BASE_MIN,
+                PLAYER_BASE_MAX,
+                m_Dest - Vector(0, 0, 16384),
+                (Entity*)NULL,
+                MASK_MOVEINFO,
+                qfalse,
+                "Actor::GetMoveInfo"
+            );
 
-    if (m_eAnimMode >= ANIM_MODE_PATH) {
-        if (m_eAnimMode <= ANIM_MODE_PATH_GOAL) {
-            if (mm->hit_temp_obstacle) {
-                if (mm->hit_temp_obstacle & 1) {
-                    m_Path.Clear();
-                    Player *p = (Player *)G_GetEntity(0);
+            DoFailSafeMove(trace.endpos);
+        } else if (mm->hit_temp_obstacle & 1) {
+            Player* p;
 
-                    if (!IsTeamMate(p)) {
-                        if (!m_bEnableEnemy) {
-                            m_bDesiredEnableEnemy = true;
-                            m_bEnableEnemy        = true;
-                            SetLeashHome(origin);
-                        }
+            p = static_cast<Player*>(G_GetEntity(0));
 
-                        BecomeTurretGuy();
-
-                        m_PotentialEnemies.ConfirmEnemy(this, p);
-                        m_bForceAttackPlayer = true;
-                    }
+            if (!IsTeamMate(p)) {
+                if (!m_bEnableEnemy) {
+                    m_bDesiredEnableEnemy = true;
+                    UpdateEnableEnemy();
                 }
-                velocity = vec_zero;
-                return;
-            }
-            if (mm->hit_obstacle) {
-                if (level.inttime >= m_Path.Time() + 1000) {
-                    m_Path.ReFindPath(origin, this);
-                } else {
-                    if (!m_Path.NextNode()
-                        || (!(m_Path.NextNode()->bAccurate && m_Path.IsSide())
-                            && m_Path.NextNode() == m_Path.CurrentNode()
-                            && m_Path.CurrentNode() != m_Path.StartNode())) {
-                        m_Path.Clear();
-                        velocity = vec_zero;
-                        return;
-                    }
 
-                    if (m_Path.CurrentNode() == m_Path.StartNode()) {
-                        Com_Printf(
-                            "^~^~^ BAD FAILSAFE: %.2f %.2f %.2f, '%s'\n",
-                            origin[0],
-                            origin[1],
-                            origin[2],
-                            targetname.c_str()
-                        );
-                    }
-
-                    DoFailSafeMove(m_Path.NextNode()->point);
-                }
-            } else if (velocity.lengthXYSquared() < -0.69999999 && level.inttime >= m_Path.Time() + 1000) {
-                m_Path.ReFindPath(origin, this);
-            }
-        } else if (m_eAnimMode == ANIM_MODE_DEST) {
-            if (mm->hit_temp_obstacle) {
-                if (mm->hit_temp_obstacle & 1) {
-                    m_Path.Clear();
-                    Player *p = (Player *)G_GetEntity(0);
-
-                    if (!IsTeamMate(p)) {
-                        if (!m_bEnableEnemy) {
-                            m_bDesiredEnableEnemy = true;
-                            m_bEnableEnemy        = true;
-                            SetLeashHome(origin);
-                        }
-
-                        BecomeTurretGuy();
-
-                        m_PotentialEnemies.ConfirmEnemy(this, p);
-                        m_bForceAttackPlayer = true;
-                    }
-                }
-            } else if (mm->hit_obstacle) {
-                Vector end = m_Dest;
-                end.z -= 16384.0;
-                trace_t trace = G_Trace(
-                    Vector(m_Dest),
-                    Vector(PLAYER_BASE_MIN),
-                    Vector(PLAYER_BASE_MAX),
-                    Vector(end),
-                    NULL,
-                    1,
-                    qfalse,
-                    "Actor::GetMoveInfo"
-                );
-
-                DoFailSafeMove(trace.endpos);
+                BecomeTurretGuy();
+                ForceAttackPlayer();
             }
         }
+        break;
+    case ANIM_MODE_PATH:
+    case ANIM_MODE_PATH_GOAL:
+        if (mm->hit_temp_obstacle) {
+            if (mm->hit_temp_obstacle & 1) {
+                Player* p;
+
+                m_Path.Clear();
+                p = static_cast<Player*>(G_GetEntity(0));
+
+                if (!IsTeamMate(p)) {
+                    if (!m_bEnableEnemy) {
+                        m_bDesiredEnableEnemy = true;
+                        UpdateEnableEnemy();
+                    }
+
+                    BecomeTurretGuy();
+                    ForceAttackPlayer();
+                }
+            }
+
+            VectorClear(velocity);
+        } else if (mm->hit_obstacle) {
+            if (level.inttime >= m_Path.Time() + 1000) {
+                m_Path.ReFindPath(origin, this);
+            } else {
+                PathInfo* node = m_Path.NextNode();
+
+                if (!node || !m_Path.IsAccurate() && (node == m_Path.LastNode() && m_Path.CurrentNode() != m_Path.StartNode())) {
+                    m_Path.Clear();
+                    VectorClear(velocity);
+                    return;
+                }
+
+                if (m_Path.CurrentNode() == m_Path.StartNode()) {
+                    Com_Printf(
+                        "^~^~^ BAD FAILSAFE: %.2f %.2f %.2f, '%s'\n",
+                        origin[0],
+                        origin[1],
+                        origin[2],
+                        targetname.c_str()
+                    );
+                }
+
+                DoFailSafeMove(node->point);
+            }
+        } else if (DotProduct(mm->velocity, velocity) < -0.7f && level.inttime >= m_Path.Time() + 1000) {
+            m_Path.ReFindPath(origin, this);
+        }
+        break;
     }
 
     setOrigin(mm->origin);
@@ -8580,12 +8574,16 @@ void Actor::UpdateEnableEnemy(void)
 {
     if (m_bEnableEnemy != m_bDesiredEnableEnemy) {
         m_bEnableEnemy = m_bDesiredEnableEnemy;
-        if (m_bDesiredEnableEnemy) {
+
+        if (m_bEnableEnemy) {
             SetLeashHome(origin);
         } else {
-            if (m_ThinkStates[THINKLEVEL_NORMAL] <= THINKSTATE_DISGUISE) {
+            if (m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_ATTACK
+                || m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_CURIOUS
+                || m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_DISGUISE) {
                 SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
             }
+
             SetEnemy(NULL, false);
         }
     }
