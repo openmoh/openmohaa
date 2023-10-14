@@ -25,10 +25,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "cm_polylib.h"
 #include "cm_terrain.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define	MAX_SUBMODELS			1024
 #define	BOX_MODEL_HANDLE		(MAX_SUBMODELS-1)
 #define CAPSULE_MODEL_HANDLE	510
-
+#define MAX_OBFUSCATIONS		1024
 
 typedef struct {
 	cplane_t	*plane;
@@ -63,6 +67,8 @@ typedef struct {
 	int surfaceFlags;
 	int contentFlags;
 	cfencemask_t *mask;
+	float obfuscationWidthDensity;
+	float obfuscationHeightDensity;
 } cshader_t;
 
 typedef struct cmodel_s {
@@ -219,6 +225,12 @@ typedef struct leafList_s {
 	void	(*storeLeafs)( struct leafList_s *ll, int nodenum );
 } leafList_t;
 
+typedef struct {
+    char name[MAX_QPATH];
+    float widthDensity;
+    float heightDensity;
+} obfuscation_t;
+
 extern	clipMap_t	cm;
 extern	int			c_pointcontents;
 extern	int			c_traces, c_brush_traces, c_patch_traces, c_terrain_patch_traces;
@@ -260,3 +272,12 @@ qboolean CM_SightTraceThroughTerrainCollide( traceWork_t *tw, terrainCollide_t *
 // cm_fencemask.c
 cfencemask_t *CM_GetFenceMask( const char *szMaskName );
 qboolean CM_TraceThroughFence( traceWork_t *tw, cbrush_t *brush, cbrushside_t *side, float fTraceFraction );
+
+// cm_trace_obfuscation.cpp
+obfuscation_t* CM_SetupObfuscationMapping();
+void CM_ReleaseObfuscationMapping(obfuscation_t* obfuscation);
+void CM_ObfuscationForShader(obfuscation_t* list, const char* shaderName, float* widthDensity, float* heightDensity);
+
+#ifdef __cplusplus
+}
+#endif

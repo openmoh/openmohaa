@@ -97,6 +97,7 @@ CMod_LoadShaders
 void CMod_LoadShaders( gamelump_t *l, int **shaderSubdivisions ) {
 	dshader_t		*in;
 	cshader_t		*out;
+	obfuscation_t	*obfuscationList;
 	int				i, count;
 
 	*shaderSubdivisions = NULL;
@@ -116,6 +117,7 @@ void CMod_LoadShaders( gamelump_t *l, int **shaderSubdivisions ) {
 	cm.fencemasks = NULL;
 
 	*shaderSubdivisions = Hunk_AllocateTempMemory( count * sizeof( *shaderSubdivisions ) );
+	obfuscationList = CM_SetupObfuscationMapping();
 
 	out = cm.shaders;
 	for ( i=0 ; i<count ; i++, in++, out++ ) {
@@ -123,8 +125,14 @@ void CMod_LoadShaders( gamelump_t *l, int **shaderSubdivisions ) {
 		out->contentFlags = LittleLong( in->contentFlags );
 		out->surfaceFlags = LittleLong( in->surfaceFlags );
 		out->mask = CM_GetFenceMask( in->fenceMaskImage );
+		out->obfuscationWidthDensity = 0;
+		if (out->contentFlags & CONTENTS_DONOTENTER) {
+			CM_ObfuscationForShader(obfuscationList, out->shader, &out->obfuscationWidthDensity, &out->obfuscationHeightDensity);
+		}
 		( *shaderSubdivisions )[ i ] = LittleLong( in->subdivisions );
 	}
+
+	CM_ReleaseObfuscationMapping(obfuscationList);
 }
 
 

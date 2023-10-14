@@ -1588,6 +1588,7 @@ void SV_InitGameProgs( void ) {
 	import.SightTraceEntity				= SV_SightTraceEntity;
 	import.SightTrace					= SV_SightTrace;
 	import.trace						= SV_Trace;
+	import.CM_VisualObfuscation			= CM_VisualObfuscation;
 	import.GetShader					= SV_GetShaderPointer;
 	import.pointcontents				= SV_PointContents;
 	import.PointBrushnum				= CM_PointBrushNum;

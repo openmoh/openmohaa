@@ -105,6 +105,9 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *poin
 const char *CM_GetHitLocationInfo( int i_iLocation, float *o_fRadius, vec3_t o_vOffset );
 const char *CM_GetHitLocationInfoSecondary( int i_iLocation, float *o_fRadius, vec3_t o_vOffset );
 
+// cm_trace_obfuscation.cpp
+float CM_VisualObfuscation(const vec3_t start, const vec3_t end);
+
 #ifdef __cplusplus
 }
 #endif

@@ -40,20 +40,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // TTimo
 // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=551
-#define SVF_CLIENTMASK      0x00000002
+#define SVF_CLIENTMASK 0x00000002
 
-#define SVF_BROADCAST       0x00000004 // send to all connected clients
-#define SVF_SENDPVS         0x00000008
-#define SVF_PORTAL          0x00000010 // merge a second pvs at origin2
-#define SVF_NOTSINGLECLIENT 0x00000040 // send entity to everyone but one client
-                                       // (entityShared_t->singleClient)
-#define SVF_MONSTER      0x00000080    // set if the entity is a bot into snapshots
-#define SVF_SINGLECLIENT 0x00000100    // only send to a single client (entityShared_t->singleClient)
+#define SVF_BROADCAST  0x00000004 // send to all connected clients
+#define SVF_SENDPVS    0x00000008
+#define SVF_PORTAL     0x00000010 // merge a second pvs at origin2
+#define SVF_NOTSINGLECLIENT                                                   \
+    0x00000040                      // send entity to everyone but one client \
+                                    // (entityShared_t->singleClient)
+#define SVF_MONSTER      0x00000080 // set if the entity is a bot into snapshots
+#define SVF_SINGLECLIENT 0x00000100 // only send to a single client (entityShared_t->singleClient)
 #define SVF_USEBBOX      0x00000200
 #define SVF_NOFARPLANE   0x00000400
-#define SVF_NOSERVERINFO 0x00000800 // don't send CS_SERVERINFO updates to this client
-                                    // so that it can be updated for ping tools without
-                                    // lagging clients
+#define SVF_NOSERVERINFO                                           \
+    0x00000800 // don't send CS_SERVERINFO updates to this client  \
+               // so that it can be updated for ping tools without \
+               // lagging clients
 #define SVF_SENDONCE 0x00004000
 
 #define SVF_SENT     0x00008000
@@ -324,6 +326,7 @@ typedef struct gameImport_s {
         qboolean     cylinder,
         qboolean     traceDeep
     );
+    float (*CM_VisualObfuscation)(const vec3_t start, const vec3_t end);
     baseshader_t *(*GetShader)(int shaderNum);
     int (*pointcontents)(const vec3_t p, int passEntityNum);
     int (*PointBrushnum)(const vec3_t p, clipHandle_t model);

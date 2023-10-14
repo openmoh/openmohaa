@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "playerbot.h"
 #include "playerstart.h"
 #include "debuglines.h"
+#include "smokesprite.h"
 #include "../qcommon/tiki.h"
 
 const char *means_of_death_strings[MOD_TOTAL_NUMBER] = {
@@ -508,6 +509,22 @@ void G_TraceEntities(
             victimlist->AddObject(touch->entity);
         }
     }
+}
+
+float G_VisualObfuscation(const Vector& start, const Vector& end) {
+    float alpha;
+    
+    if (start == end) {
+        // no obfuscation
+        return 0;
+    }
+
+    alpha = gi.CM_VisualObfuscation(start, end);
+    if (alpha >= 1.f) {
+        return alpha;
+    }
+
+    return G_ObfuscationForSmokeSprites(alpha, start, end);
 }
 
 /*

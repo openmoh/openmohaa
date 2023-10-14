@@ -112,6 +112,7 @@ void G_TraceEntities(
     int                  contentmask,
     qboolean             bIncludeTriggers = qfalse
 );
+float G_VisualObfuscation(const Vector& start, const Vector& end);
 
 void SelectSpawnPoint(Vector& org, Vector& angles, str& thread);
 
