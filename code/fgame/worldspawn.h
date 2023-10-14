@@ -141,3 +141,5 @@ public:
 
 typedef SafePtr<World> WorldPtr;
 extern WorldPtr        world;
+
+bool WithinFarplaneDistance(const Vector& org);

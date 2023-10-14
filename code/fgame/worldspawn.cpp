@@ -1185,3 +1185,15 @@ void World::Archive(Archiver& arc)
     }
     UpdateConfigStrings();
 }
+
+bool WithinFarplaneDistance(const Vector& org)
+{
+    float distance = world->farplane_distance;
+
+    if (!distance) {
+        // no farplane
+        return true;
+    }
+
+    return org.lengthSquared() < (Square(distance) * Square(0.828f));
+}
