@@ -3705,28 +3705,28 @@ void Actor::UpdateAngles(void)
 {
     float max_change, error, dist;
 
-    if (!m_YawAchieved) {
-        error = m_DesiredYaw - angles[1];
-        if (error <= 180) {
-            if (error < -180.0) {
-                error += 360;
-            }
-        } else {
-            error -= 360;
-        }
-
-        dist = m_fAngleYawSpeed * level.frametime;
-        if (-dist <= error) {
-            max_change = dist;
-            if (error <= dist) {
-                max_change = error;
-                StopTurning();
-            }
-        } else {
-            max_change = -dist;
-        }
-        setAngles(Vector {0, angles[1] + max_change, 0});
+    if (m_YawAchieved) {
+        return;
     }
+
+    error = m_DesiredYaw - angles[1];
+    if (error > 180) {
+        error -= 360;
+    } else if (error < -180) {
+        error += 360;
+    }
+
+    dist = m_fAngleYawSpeed * level.frametime;
+    if (error < -dist) {
+        max_change = -dist;
+    } else if (error > dist) {
+        max_change = dist;
+    } else {
+        max_change = error;
+        StopTurning();
+    }
+
+    setAngles(Vector(0, angles[1] + max_change, 0));
 }
 
 /*
@@ -3773,30 +3773,59 @@ Returns true if actor cansee entity through fov and vision_distance.
 */
 bool Actor::CanSee(Entity *e1, float fov, float vision_distance, bool bNoEnts)
 {
-    bool canSee = Sentient::CanSee(e1, fov, vision_distance, false);
+    bool bCanSee = Sentient::CanSee(e1, fov, vision_distance, false);
     if (e1 == m_Enemy) {
         m_iEnemyVisibleCheckTime = level.inttime;
-        if (canSee) {
-            SetEnemyPos(e1->origin);
+        // Added in 2.0.
+        //  Check for obfuscation like smoke sprite
+        m_fVisibilityAlpha = 0;
+        if (bCanSee) {
+            m_fVisibilityAlpha = 1.0f - G_VisualObfuscation(VirtualEyePosition(), m_Enemy->EyePosition());
+            if (m_fVisibilityAlpha < m_fVisibilityThreshold) {
+                // enemy is obfuscated behind something
+                bCanSee = false;
+            }
+        }
+
+        if (bCanSee) {
+            SetEnemyPos(m_Enemy->origin);
             m_bEnemyIsDisguised     = m_Enemy->m_bIsDisguised;
-            m_iEnemyCheckTime       = level.inttime;
             m_iLastEnemyVisibleTime = level.inttime;
         }
 
-        if (canSee != m_bEnemyVisible) {
-            m_bEnemyVisible           = true;
+        if (bCanSee != m_bEnemyVisible) {
+            m_bEnemyVisible           = !m_bEnemyVisible;
             m_iEnemyVisibleChangeTime = level.inttime;
         }
 
         if (fov != 0) {
             m_iEnemyFovCheckTime = level.inttime;
-            if (canSee != m_bEnemyInFOV) {
-                m_bEnemyInFOV         = true;
+            if (bCanSee != m_bEnemyInFOV) {
+                m_bEnemyInFOV         = !m_bEnemyInFOV;
                 m_iEnemyFovChangeTime = level.inttime;
             }
         }
     }
-    return canSee;
+
+    return bCanSee;
+}
+
+/*
+===============
+Actor::WithinVisionDistance
+
+Returns true if entity is witthin vision distance.
+===============
+*/
+bool Actor::WithinVisionDistance(Entity *ent) const
+{
+    float distance = world->farplane_distance;
+
+    if (!distance || distance < m_fSight) {
+        return WithinDistance(ent, m_fSight);
+    }
+
+    return WithinDistance(ent, distance);
 }
 
 /*
@@ -3808,20 +3837,21 @@ Returns true if positin is within fov.
 */
 bool Actor::InFOV(Vector pos, float check_fov, float check_fovdot)
 {
-    bool bInFov = true;
-    if (check_fov != 360.0) {
-        Vector delta = pos - EyePosition();
-        if (delta.x == 0 && delta.y == 0) {
-            return bInFov;
-        }
-        bInFov = false;
-
-        float fDot = DotProduct2D(delta, orientation[0]);
-        if (fDot >= 0) {
-            bInFov = Square(fDot) > delta.lengthXYSquared() * Square(check_fovdot);
-        }
+    if (check_fov == 360) {
+        return true;
     }
-    return bInFov;
+
+    Vector delta = pos - VirtualEyePosition();
+    if (!delta.x && !delta.y) {
+        return true;
+    }
+
+    float fDot = DotProduct2D(delta, orientation[0]);
+    if (fDot < 0) {
+        return false;
+    }
+
+    return Square(fDot) > (delta.lengthXYSquared() * Square(check_fovdot));
 }
 
 /*
@@ -3833,52 +3863,58 @@ Returns true if actor can shoot entity.
 */
 bool Actor::CanShoot(Entity *ent)
 {
-    bool bCanShootEnemy = false;
-    if (ent->IsSubclassOfSentient()) {
-        Sentient *sen = (Sentient *)ent;
-        //FIXME: macro.
-        if (world->farplane_distance == 0
-            || Square(world->farplane_distance * 0.828) > (origin - sen->origin).lengthSquared()) {
-            if (gi.AreasConnected(edict->r.areanum, sen->edict->r.areanum)) {
-                if (G_SightTrace(
-                        GunPosition(),
-                        vec_zero,
-                        vec_zero,
-                        sen->centroid,
-                        this,
-                        sen,
-                        MASK_CANSEE,
-                        qfalse,
-                        "Actor::CanShoot centroid"
-                    )
-                    || G_SightTrace(
-                        GunPosition(),
-                        vec_zero,
-                        vec_zero,
-                        sen->EyePosition(),
-                        this,
-                        sen,
-                        MASK_CANSEE,
-                        qfalse,
-                        "Actor::CanShoot eyes"
-                    )) {
-                    bCanShootEnemy = true;
-                }
+    bool bCanShoot = false;
+    Vector vGunPos;
+
+    if (FriendlyInLineOfFire(ent)) {
+        bCanShoot = false;
+    } else if (ent->IsSubclassOfSentient()) {
+        Sentient* sen = static_cast<Sentient*>(ent);
+
+        vGunPos = GunPosition();
+        bCanShoot = false;
+
+        if (WithinFarplaneDistance(origin - ent->origin) && AreasConnected(ent)) {
+            if (G_SightTrace(
+                vGunPos,
+                vec_zero,
+                vec_zero,
+                sen->centroid,
+                this,
+                sen,
+                MASK_CANSEE,
+                qfalse,
+                "Actor::CanShoot centroid"
+            )) {
+                bCanShoot = true;
+            } else if (G_SightTrace(
+                vGunPos,
+                vec_zero,
+                vec_zero,
+                sen->EyePosition(),
+                this,
+                sen,
+                MASK_CANSEE,
+                qfalse,
+                "Actor::CanShoot eyes"
+            )) {
+                bCanShoot = true;
             }
-        }
-        if (m_Enemy) {
-            m_bCanShootEnemy     = bCanShootEnemy;
-            m_iCanShootCheckTime = level.inttime;
         }
     } else {
-        if (gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)) {
-            if (CanSeeFrom(GunPosition(), ent)) {
-                bCanShootEnemy = true;
-            }
+        bCanShoot = false;
+        if (AreasConnected(ent)) {
+            vGunPos = GunPosition();
+            bCanShoot = CanSeeFrom(vGunPos, ent);
         }
     }
 
-    return bCanShootEnemy;
+    if (ent == m_Enemy) {
+        m_iCanShootCheckTime = level.inttime;
+        m_bCanShootEnemy     = bCanShoot;
+    }
+
+    return bCanShoot;
 }
 
 /*
@@ -3890,18 +3926,17 @@ Returns true if actor can see entity from pos.
 */
 bool Actor::CanSeeFrom(vec3_t pos, Entity *ent)
 {
-    Vector vPos(pos);
-    bool   bCanSee = false;
-    if (world->farplane_distance == 0
-        || Square(world->farplane_distance * 0.828) > (origin - ent->origin).lengthSquared()) {
-        if (!ent->IsSubclassOfActor()
-            && G_SightTrace(
-                vPos, vec_zero, vec_zero, ent->centroid, this, ent, MASK_CANSEE, qfalse, "Actor::CanSeeFrom"
-            )) {
-            bCanSee = true;
-        }
+    if (!WithinFarplaneDistance(pos)) {
+        // outside the farplane
+        return false;
     }
-    return bCanSee;
+
+    if (ent->flags & FL_NOTARGET) {
+        // ent must be ignored by AI
+        return false;
+    }
+
+    return G_SightTrace(pos, vec_zero, vec_zero, ent->centroid, this, ent, MASK_CANSEE, qfalse, "Actor::CanSeeFrom");
 }
 
 /*
@@ -3914,14 +3949,14 @@ Returns true if enemy is within fov.
 bool Actor::EnemyInFOV(int iMaxDirtyTime)
 {
     if (level.inttime > iMaxDirtyTime + m_iEnemyFovCheckTime) {
-        bool bInFov = InFOV(m_Enemy->centroid, m_fFov, m_fFovDot);
-        if (m_bEnemyInFOV != bInFov) {
-            m_bEnemyInFOV         = !m_bEnemyInFOV;
+        if (m_bEnemyInFOV != InFOV(m_Enemy->centroid)) {
+            m_bEnemyInFOV = !m_bEnemyInFOV;
             m_iEnemyFovChangeTime = level.inttime;
         }
         m_iEnemyFovCheckTime = level.inttime;
     }
-    return m_iEnemyFovCheckTime;
+
+    return m_bEnemyInFOV;
 }
 
 /*
@@ -3933,9 +3968,8 @@ Returns true if actor can see enemy.
 */
 bool Actor::CanSeeEnemy(int iMaxDirtyTime)
 {
-    //FIXME: macro
     if (level.inttime > iMaxDirtyTime + m_iEnemyVisibleCheckTime) {
-        CanSee(m_Enemy, 0, 0.828 * world->farplane_distance, false);
+        CanSee(m_Enemy, 0, world->farplane_distance * 0.828f, false);
     }
 
     return m_bEnemyVisible;
@@ -4020,33 +4054,6 @@ void Actor::FireWeapon(Event *ev)
 bool Actor::IsDogState(int state)
 {
     return true;
-}
-
-/*
-===============
-Actor::WithinVisionDistance
-
-Returns true if entity is witthin vision distance.
-===============
-*/
-bool Actor::WithinVisionDistance(Entity *ent) const
-{
-    float fRadius = world->m_fAIVisionDistance;
-
-    if (fRadius == 0) {
-        fRadius = m_fSight;
-    } else if (m_fSight <= fRadius) {
-        fRadius = m_fSight;
-    }
-
-    if (ent) {
-        Vector vDelta = ent->origin - origin;
-        //it's basically the same as vDelta.length() < fRadius,
-        //but this is faster because sqrt in vDelta.length() is slower than multiplication.
-        return vDelta.lengthSquared() < Square(fRadius);
-    }
-
-    return false;
 }
 
 /*
