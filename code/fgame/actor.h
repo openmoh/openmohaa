@@ -283,6 +283,10 @@ typedef struct {
 #define ACTOR_FLAG_DAMAGE_ALLOWED            55
 #define ACTOR_FLAG_ALWAYS_GIVE_WATER         56
 
+// Look flags
+
+#define LOOK_FLAG_EYE (1 << 0)
+
 // The last actor_flag number and this one (ACTOR_FLAG_MAX) should match
 
 #define ACTOR_FLAG_MAX     56

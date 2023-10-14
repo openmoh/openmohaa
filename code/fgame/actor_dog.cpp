@@ -51,6 +51,11 @@ void Actor::InitDogCurious(GlobalFuncs_t *func)
     func->IsState                    = &Actor::IsDogState;
 }
 
+bool Actor::IsDogState(int state)
+{
+    return true;
+}
+
 void Actor::Begin_Dog(void)
 {
     m_bDog = true;

@@ -3449,10 +3449,11 @@ void Actor::UpdateBoneControllers(void)
             max_change = 0;
         }
 
-        if (-torsoAngles[1] < yawError + headAngles[1]) {
-            max_change = Q_clamp_float(max_change, -torsoAngles[1], yawError + headAngles[1]);
+        tolerable_error = yawError + headAngles[1];
+        if (-torsoAngles[1] < tolerable_error) {
+            max_change = Q_clamp_float(max_change, -torsoAngles[1], tolerable_error);
         } else {
-            max_change = Q_clamp_float(max_change, yawError + headAngles[1], -torsoAngles[1]);
+            max_change = Q_clamp_float(max_change, tolerable_error, -torsoAngles[1]);
         }
 
         max_accel_change = m_fTorsoCurrentTurnSpeed + level.frametime * 15;
@@ -4030,34 +4031,6 @@ Vector Actor::VirtualEyePosition()
 
 /*
 ===============
-Actor::ExtractConstraints
-
-===============
-*/
-void Actor::ExtractConstraints(mmove_t *mm)
-{
-    // not found in ida
-}
-
-/*
-===============
-Actor::FireWeapon
-
-Fire weapon from script.
-===============
-*/
-void Actor::FireWeapon(Event *ev)
-{
-    Sentient::FireWeapon(WEAPON_MAIN, FIRE_PRIMARY);
-}
-
-bool Actor::IsDogState(int state)
-{
-    return true;
-}
-
-/*
-===============
 Actor::CanTarget
 
 Actor can target.
@@ -4096,7 +4069,7 @@ void Actor::ShowInfo(void)
     Com_Printf("mindist: %f\n", m_fMinDistance);
     Com_Printf("maxdist: %f\n", m_fMaxDistance);
 
-    GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+    GlobalFuncs_t *func = &GlobalFuncs[CurrentThink()];
     if (func->ShowInfo) {
         (this->*func->ShowInfo)();
     }
@@ -4236,7 +4209,7 @@ void Actor::ShowInfo(float fDot, float fDist)
 
 str Actor::ThinkName(void) const
 {
-    return Director.GetString(m_csThinkNames[m_Think[m_ThinkLevel]]);
+    return Director.GetString(m_csThinkNames[CurrentThink()]);
 }
 
 str Actor::ThinkStateName(void) const
@@ -4279,7 +4252,7 @@ Walk to specific location.
 */
 void Actor::WalkTo(Event *ev)
 {
-    Event event = EV_Listener_ExecuteScript;
+    Event event = Event(EV_Listener_ExecuteScript, 2);
     event.AddConstString(STRING_GLOBAL_WALKTO_SCR);
     event.AddValue(ev->GetValue(1));
     ExecuteScript(&event);
@@ -4294,7 +4267,7 @@ Run to specific location.
 */
 void Actor::RunTo(Event *ev)
 {
-    Event event = EV_Listener_ExecuteScript;
+    Event event = Event(EV_Listener_ExecuteScript, 2);
     event.AddConstString(STRING_GLOBAL_RUNTO_SCR);
     event.AddValue(ev->GetValue(1));
     ExecuteScript(&event);
@@ -4309,7 +4282,7 @@ Crouch to specific location.
 */
 void Actor::CrouchTo(Event *ev)
 {
-    Event event = EV_Listener_ExecuteScript;
+    Event event = Event(EV_Listener_ExecuteScript, 2);
     event.AddConstString(STRING_GLOBAL_CROUCHTO_SCR);
     event.AddValue(ev->GetValue(1));
     ExecuteScript(&event);
@@ -4324,7 +4297,7 @@ Crawl to specific location.
 */
 void Actor::CrawlTo(Event *ev)
 {
-    Event event = EV_Listener_ExecuteScript;
+    Event event = Event(EV_Listener_ExecuteScript, 2);
     event.AddConstString(STRING_GLOBAL_CRAWLTO_SCR);
     event.AddValue(ev->GetValue(1));
     ExecuteScript(&event);
@@ -4399,21 +4372,12 @@ Aim at specified target.
 void Actor::AimAt(Event *ev)
 {
     if (ev->IsVectorAt(1)) {
-        Vector orig = ev->GetVector(1);
-        if (m_aimNode) {
-            if (m_aimNode->IsSubclassOfTempWaypoint()) {
-                delete m_aimNode;
-            }
-            m_aimNode = NULL;
-        }
-        TempWaypoint *twp = new TempWaypoint;
-        m_aimNode         = twp;
-        m_aimNode->setOrigin(orig);
+        SetAimNode(ev->GetVector(1));
     } else {
         SetAimNode(ev->GetListener(1));
     }
 
-    SetThinkIdle(m_aimNode != NULL ? THINK_AIM : THINK_IDLE);
+    SetThinkIdle(m_aimNode ? THINK_AIM : THINK_IDLE);
 }
 
 /*
@@ -4426,8 +4390,10 @@ Change current look entity.
 void Actor::LookAtLookEntity(void)
 {
     Vector dir;
+
     if (m_pLookEntity->IsSubclassOfSentient()) {
-        dir = ((Sentient *)m_pLookEntity.Pointer())->EyePosition() - EyePosition();
+        Sentient* sen = static_cast<Sentient*>(m_pLookEntity.Pointer());
+        dir = sen->EyePosition() - EyePosition();
     } else {
         dir = m_pLookEntity->centroid - EyePosition();
     }
@@ -4447,7 +4413,7 @@ void Actor::IdleLook(void)
     if (m_pLookEntity) {
         LookAtLookEntity();
     } else {
-        m_bHasDesiredLookAngles = false;
+        ForwardLook();
     }
 }
 
@@ -4523,32 +4489,36 @@ Change current look entity.
 void Actor::LookAt(Listener *l)
 {
     ClearLookEntity();
-    if (l) {
-        if (!l->inheritsFrom(&SimpleEntity::ClassInfo)) {
-            ScriptError(
-                "Bad look entity with classname '%s' specified for '%s' at (%f %f %f)\n",
-                l->getClassname(),
+    if (!l && (g_showlookat->integer == entnum || g_showlookat->integer == -1)) {
+        Com_Printf("Script lookat: %i %i %s cleared lookat\n", entnum, radnum, TargetName().c_str());
+        return;
+    }
+
+    if (!l->isSubclassOf(SimpleEntity)) {
+        ScriptError(
+            "Bad look entity with classname '%s' specified for '%s' at (%f %f %f)\n",
+            l->getClassname(),
+            targetname.c_str(),
+            origin.x,
+            origin.y,
+            origin.z
+        );
+    }
+
+    if (l != this) {
+        l = (SimpleEntity*)l;
+        if (g_showlookat->integer == entnum || g_showlookat->integer == -1) {
+            Com_Printf(
+                "Script lookat: %i %i %s looking at point %.0f %.0f %.0f\n",
+                entnum,
+                radnum,
                 targetname.c_str(),
-                origin.x,
-                origin.y,
-                origin.z
+                ((SimpleEntity*)l)->origin.x,
+                ((SimpleEntity*)l)->origin.y,
+                ((SimpleEntity*)l)->origin.z
             );
         }
-        if (l != this) {
-            l = (SimpleEntity *)l;
-            if (g_showlookat->integer == entnum || g_showlookat->integer == -1) {
-                Com_Printf(
-                    "Script lookat: %i %i %s looking at point %.0f %.0f %.0f\n",
-                    entnum,
-                    radnum,
-                    targetname.c_str(),
-                    ((SimpleEntity *)l)->origin.x,
-                    ((SimpleEntity *)l)->origin.y,
-                    ((SimpleEntity *)l)->origin.z
-                );
-            }
-            m_pLookEntity = (SimpleEntity *)l;
-        }
+        m_pLookEntity = (SimpleEntity*)l;
     }
 }
 
@@ -4567,7 +4537,7 @@ void Actor::EventLookAt(Event *ev)
         LookAt(ev->GetListener(1));
     }
 
-    m_iLookFlags = 0; //LOOK_NORMAL
+    m_iLookFlags = 0;
 }
 
 /*
@@ -4581,7 +4551,7 @@ void Actor::EventEyesLookAt(Event *ev)
 {
     EventLookAt(ev);
 
-    m_iLookFlags = 1; //LOOK_EYE
+    m_iLookFlags = LOOK_FLAG_EYE;
 }
 
 /*
@@ -4605,25 +4575,24 @@ Idle point behaviour.
 */
 void Actor::IdlePoint(void)
 {
-    if (m_pPointEntity) {
-        Vector delta = m_pPointEntity->centroid - origin;
-        Vector v2;
-        VectorNormalize(delta);
-        v2 = delta.toAngles();
-
-        float yaw = AngleNormalize180(v2[1] - angles[1] + 30);
-        if (yaw > 100) {
-            yaw = 100;
-        }
-        if (yaw < -80) {
-            yaw = -80;
-        }
-        m_vLUpperArmDesiredAngles[0] = v2[0];
-        m_vLUpperArmDesiredAngles[1] = yaw;
-        m_vLUpperArmDesiredAngles[2] = v2[2];
-    } else {
+    if (!m_pPointEntity) {
         NoPoint();
+        return;
     }
+
+    Vector delta = m_pPointEntity->centroid - origin;
+    delta.normalize();
+
+    Vector pointAngles = delta.toAngles();
+    pointAngles.y -= angles.y;
+
+    pointAngles += Vector(0, 30, 0);
+    pointAngles.y = AngleNormalize180(delta.y);
+    pointAngles.y = Q_clamp_float(pointAngles.y, -80, 100);
+
+    m_vLUpperArmDesiredAngles[0] = pointAngles[0];
+    m_vLUpperArmDesiredAngles[1] = pointAngles[1];
+    m_vLUpperArmDesiredAngles[2] = pointAngles[2];
 }
 
 /*
@@ -4669,8 +4638,9 @@ Change point entity.
 void Actor::PointAt(Listener *l)
 {
     ClearPointEntity();
+
     if (l) {
-        if (l->inheritsFrom(&SimpleEntity::ClassInfo)) {
+        if (l->isSubclassOf(SimpleEntity)) {
             ScriptError(
                 "Bad point entity with classname '%s' specified for '%s' at (%f %f %f)\n",
                 l->getClassname(),
@@ -4680,8 +4650,9 @@ void Actor::PointAt(Listener *l)
                 origin.z
             );
         }
+
         if (l != this) {
-            m_pPointEntity = (SimpleEntity *)l;
+            m_pPointEntity = static_cast<SimpleEntity*>(l);
         }
     }
 }
@@ -4711,34 +4682,38 @@ Idle turn behaviour.
 */
 void Actor::IdleTurn(void)
 {
-    if (m_pTurnEntity) {
-        for (int i = 0; i <= 1; i++) {
-            if (m_pTurnEntity == this) {
-                StopTurning();
-                m_pTurnEntity = NULL;
-                return;
-            }
-            vec2_t facedir;
-            VectorSub2D(m_pTurnEntity->centroid, origin, facedir);
-            if (facedir[0] || facedir[1]) {
-                SetDesiredYawDir(facedir);
-            }
+    if (!m_pTurnEntity) {
+        return;
+    }
 
-            float error = AngleNormalize180(m_DesiredYaw - angles[1]);
+    for (int i = 0; i < 2; i++) {
+        if (m_pTurnEntity == this) {
+            StopTurning();
+            m_pTurnEntity = NULL;
+            return;
+        }
 
-            if (error >= m_fTurnDoneError + 0.001 || -(m_fTurnDoneError + 0.001) >= error) {
-                return;
-            }
+        SetDesiredYawDest(m_pTurnEntity->centroid);
 
-            SafePtr<SimpleEntity> prevTurnEntity = m_pTurnEntity;
+        float error = m_DesiredYaw - angles[1];
+        if (error > 180) {
+            error -= 360;
+        } else if (error < -180) {
+            error += 360;
+        }
 
-            Director.Unpause();
-            Unregister(STRING_TURNDONE);
-            Director.Pause();
+        if (error >= m_fTurnDoneError + 0.001f || error <= -m_fTurnDoneError - 0.001f) {
+            return;
+        }
 
-            if (m_pTurnEntity == prevTurnEntity) {
-                break;
-            }
+        SafePtr<SimpleEntity> prevTurnEntity = m_pTurnEntity;
+
+        Director.Unpause();
+        Unregister(STRING_TURNDONE);
+        Director.Pause();
+
+        if (m_pTurnEntity == prevTurnEntity) {
+            break;
         }
     }
 }
@@ -4786,22 +4761,24 @@ Change turn entity.
 void Actor::TurnTo(Listener *l)
 {
     ClearTurnEntity();
-    if (l) {
-        if (!l->inheritsFrom(&SimpleEntity::ClassInfo)) {
-            ScriptError(
-                "Bad turn entity with classname '%s' specified for '%s' at (%f %f %f)\n",
-                l->getClassname(),
-                targetname.c_str(),
-                origin.x,
-                origin.y,
-                origin.z
-            );
-        }
 
-        m_pTurnEntity = (SimpleEntity *)l;
-    } else {
+    if (!l) {
         m_pTurnEntity = this;
+        return;
     }
+
+    if (!l->isSubclassOf(SimpleEntity)) {
+        ScriptError(
+            "Bad turn entity with classname '%s' specified for '%s' at (%f %f %f)\n",
+            l->getClassname(),
+            targetname.c_str(),
+            origin.x,
+            origin.y,
+            origin.z
+        );
+    }
+
+    m_pTurnEntity = (SimpleEntity*)l;
 }
 
 /*
@@ -4861,8 +4838,9 @@ void Actor::EventGiveWeaponInternal(Event *ev)
 {
     Holster();
     RemoveWeapons();
-    str weapName = ev->GetString(1);
-    if (giveItem(weapName)) {
+
+    const str weapName = ev->GetString(1);
+    if (weapName.length() > 0 && giveItem(weapName)) {
         Unholster();
     }
 }
@@ -4877,23 +4855,23 @@ Give weapon to actor.
 void Actor::EventGiveWeapon(Event *ev)
 {
     Event e1(EV_Listener_ExecuteScript);
-    str   weapName = ev->GetString(1);
+
+    str weapName = ev->GetString(1);
     weapName.tolower();
-    const_str csWeapName = Director.AddString(weapName);
 
-    m_csLoadOut = csWeapName;
+    m_csLoadOut = Director.AddString(weapName);
 
-    if (csWeapName == STRING_MG42) {
-        csWeapName = STRING_MP40;
+    if (m_csLoadOut == STRING_MG42) {
+        m_csWeapon = STRING_MP40;
+    } else {
+        m_csWeapon = m_csLoadOut;
     }
-
-    m_csWeapon = csWeapName;
 
     setModel();
 
     e1.AddConstString(STRING_GLOBAL_WEAPON_SCR);
     e1.AddString(weapName);
-    glbs.Printf(
+    gi.Printf(
         "EventGiveWeapon script: %s weapName: %s \n",
         Director.GetString(STRING_GLOBAL_WEAPON_SCR).c_str(),
         weapName.c_str()
@@ -4935,39 +4913,52 @@ Hangled pain event.
 */
 void Actor::HandlePain(Event *ev)
 {
-    gi.Printf("HandlePain");
-    Event e1(EV_Listener_ExecuteScript);
-    if (m_bEnablePain) {
-        e1.AddConstString(STRING_GLOBAL_PAIN_SCR);
+    int i;
+    Event event(EV_Listener_ExecuteScript);
+    int num;
+    Entity* attacker;
 
-        for (int i = 1; i <= ev->NumArgs(); i++) {
-            e1.AddValue(ev->GetValue(i));
-        }
-        ExecuteScript(&e1);
-
-        SetThinkState(THINKSTATE_PAIN, THINKLEVEL_PAIN);
-
-        RaiseAlertness(0.5);
-
-        m_PainTime = level.inttime;
-
-        Entity *ent = ev->GetEntity(1);
-        if (ent && ent->IsSubclassOfSentient() && !IsTeamMate((Sentient *)ent)) {
-            m_pLastAttacker = ent;
-
-            m_iCuriousLevel = 9;
-
-            //FIXME: macro
-            SetCuriousAnimHint(7);
-
-            if (m_bEnableEnemy && m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_IDLE) {
-                SetEnemyPos(ent->origin);
-                m_pszDebugState = "from_pain";
-                SetThinkState(THINKSTATE_CURIOUS, THINKLEVEL_NORMAL);
-            }
-        }
-        Unregister(STRING_PAIN);
+    if (!m_bEnablePain) {
+        return;
     }
+
+    attacker = ev->GetEntity(1);
+    if (attacker && attacker->IsSubclassOfSentient() && IsTeamMate(static_cast<Sentient*>(attacker))) {
+        return;
+    }
+
+    if (!m_bNoLongPain) {
+        event.AddConstString(STRING_GLOBAL_PAIN_SCR);
+
+        num = ev->NumArgs();
+        for (i = 1; i <= num; i++) {
+            event.AddValue(ev->GetValue(i));
+        }
+
+        ExecuteScript(&event);
+        SetThinkState(THINKSTATE_PAIN, THINKLEVEL_PAIN);
+    }
+
+    RaiseAlertness(0.5f);
+
+    m_PainTime = level.inttime;
+
+    if (attacker && attacker->IsSubclassOfSentient() && !IsTeamMate(static_cast<Sentient*>(attacker))) {
+        m_pLastAttacker = attacker;
+
+        m_iCuriousLevel = 9;
+
+        //FIXME: macro
+        SetCuriousAnimHint(7);
+
+        if (m_bEnableEnemy && m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_IDLE) {
+            SetEnemyPos(attacker->origin);
+            m_pszDebugState = "from_pain";
+            SetThinkState(THINKSTATE_CURIOUS, THINKLEVEL_NORMAL);
+        }
+    }
+
+    Unregister(STRING_PAIN);
 }
 
 /*
@@ -4979,11 +4970,12 @@ Pain event.
 */
 void Actor::EventPain(Event *ev)
 {
-    ShowInfo();
+    if (g_showinfo->integer) {
+        ShowInfo();
+    }
 
-    GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+    GlobalFuncs_t *func = &GlobalFuncs[CurrentThink()];
 
-    gi.Printf("pain event");
     if (func->Pain) {
         (this->*func->Pain)(ev);
     }
@@ -5014,13 +5006,14 @@ void Actor::HandleKilled(Event *ev, bool bPlayDeathAnim)
 {
     deadflag = DEAD_DEAD;
     health   = 0.0;
+
     if (bPlayDeathAnim) {
-        Event e1(EV_Listener_ExecuteScript);
-        e1.AddConstString(STRING_GLOBAL_KILLED_SCR);
+        Event event(EV_Listener_ExecuteScript);
+        event.AddConstString(STRING_GLOBAL_KILLED_SCR);
         for (int i = 1; i < ev->NumArgs(); i++) {
-            e1.AddValue(ev->GetValue(i));
+            event.AddValue(ev->GetValue(i));
         }
-        ExecuteScript(&e1);
+        ExecuteScript(&event);
     } else {
         SetThink(THINKSTATE_KILLED, THINK_DEAD);
     }
@@ -5029,7 +5022,6 @@ void Actor::HandleKilled(Event *ev, bool bPlayDeathAnim)
 
     SetThinkState(THINKSTATE_KILLED, THINKLEVEL_KILLED);
 
-    gi.DPrintf("Waittill death unregisterd\n");
     Unregister(STRING_DEATH);
     Unregister(STRING_PAIN);
 }
@@ -5043,7 +5035,7 @@ Dispatch killed event.
 */
 void Actor::DispatchEventKilled(Event *ev, bool bPlayDeathAnim)
 {
-    GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+    GlobalFuncs_t *func = &GlobalFuncs[CurrentThink()];
 
     if (func->Killed) {
         (this->*func->Killed)(ev, bPlayDeathAnim);
@@ -5066,20 +5058,28 @@ Killed event.
 */
 void Actor::EventKilled(Event *ev)
 {
+    Entity* attacker;
+    Sentient* pBuddy;
+    Sentient* sent;
+    Player* player;
+
     DispatchEventKilled(ev, true);
 
-    Player *p1 = (Player *)ev->GetEntity(1);
-    if (p1) {
-        if (p1->IsSubclassOfPlayer() && p1->m_Team == m_Team) {
-            p1->m_iNumEnemiesKilled++;
+    attacker = ev->GetEntity(1);
+    if (attacker && attacker->IsSubclassOfPlayer()) {
+        player = static_cast<Player*>(attacker);
+        if (player->m_Team != m_Team) {
+            player->m_iNumEnemiesKilled++;
         }
-        if (p1->IsSubclassOfSentient()) {
-            for (Sentient *pSent = level.m_HeadSentient[m_Team]; pSent; pSent = pSent->m_NextSentient) {
-                if (pSent != this) {
-                    if (pSent->IsSubclassOfActor()) {
-                        NotifySquadmateKilled(pSent, p1);
-                    }
-                }
+    }
+
+    if (attacker && attacker->IsSubclassOfSentient()) {
+        sent = static_cast<Sentient*>(attacker);
+
+        for (pBuddy = level.m_HeadSentient[m_Team]; pBuddy; pBuddy = pBuddy->m_NextSentient) {
+            if (pBuddy != this && pBuddy->IsSubclassOfActor()) {
+                Actor* actor = static_cast<Actor*>(pBuddy);
+                actor->NotifySquadmateKilled(this, sent);
             }
         }
     }
@@ -5094,6 +5094,7 @@ Become dead.
 */
 void Actor::EventBeDead(Event *ev)
 {
+    health = 0;
     DispatchEventKilled(ev, false);
 }
 
@@ -5106,13 +5107,13 @@ preps the dead actor for turning nonsolid gradually over time
 */
 void Actor::DeathEmbalm(Event *ev)
 {
-    if (maxs[2] > 8) {
-        maxs[2] -= 4;
-        if (maxs[2] > 8) {
-            Event e1(EV_Actor_DeathEmbalm);
-            PostEvent(e1, 0.5);
+    if (maxs.z > 8) {
+        maxs.z -= 4;
+
+        if (maxs.z > 8) {
+            PostEvent(EV_Actor_DeathEmbalm, 0.5f);
         } else {
-            maxs[2] = 8.0;
+            maxs.z = 8.0;
         }
 
         setSize(mins, maxs);
@@ -5128,11 +5129,26 @@ Makes the actor sink into the ground and then get removed(this starts it).
 */
 void Actor::DeathSinkStart(Event *ev)
 {
-    flags &= ~FL_BLOOD;
-
     setMoveType(MOVETYPE_NONE);
-
+    flags &= ~FL_THINK;
     Entity::DeathSinkStart(ev);
+}
+
+/*
+===============
+Actor::FireWeapon
+
+Fire weapon from script.
+===============
+*/
+void Actor::FireWeapon(Event *ev)
+{
+    if (ev->NumArgs() > 0 && ev->GetInteger(1) == WEAPON_OFFHAND) {
+        // shoot using off hand
+        Sentient::FireWeapon(WEAPON_OFFHAND, FIRE_PRIMARY);
+    } else {
+        Sentient::FireWeapon(WEAPON_MAIN, FIRE_PRIMARY);
+    }
 }
 
 /*
@@ -5144,10 +5160,10 @@ Play animation
 */
 void Actor::PlayAnimation(Event *ev)
 {
-    Event e1(EV_Listener_ExecuteScript);
-    e1.AddConstString(STRING_GLOBAL_ANIM_SCR);
-    e1.AddValue(ev->GetValue(1));
-    ExecuteScript(&e1);
+    Event event(EV_Listener_ExecuteScript, 2);
+    event.AddConstString(STRING_GLOBAL_ANIM_SCR);
+    event.AddValue(ev->GetValue(1));
+    ExecuteScript(&event);
 }
 
 /*
@@ -5159,10 +5175,10 @@ Play scripted animation
 */
 void Actor::PlayScriptedAnimation(Event *ev)
 {
-    Event e1(EV_Listener_ExecuteScript);
-    e1.AddConstString(STRING_GLOBAL_ANIM_SCRIPTED_SCR);
-    e1.AddValue(ev->GetValue(1));
-    ExecuteScript(&e1);
+    Event event(EV_Listener_ExecuteScript, 2);
+    event.AddConstString(STRING_GLOBAL_ANIM_SCRIPTED_SCR);
+    event.AddValue(ev->GetValue(1));
+    ExecuteScript(&event);
 }
 
 /*
@@ -5174,10 +5190,10 @@ Play noclip animation
 */
 void Actor::PlayNoclipAnimation(Event *ev)
 {
-    Event e1(EV_Listener_ExecuteScript);
-    e1.AddConstString(STRING_GLOBAL_ANIM_NOCLIP_SCR);
-    e1.AddValue(ev->GetValue(1));
-    ExecuteScript(&e1);
+    Event event(EV_Listener_ExecuteScript, 2);
+    event.AddConstString(STRING_GLOBAL_ANIM_NOCLIP_SCR);
+    event.AddValue(ev->GetValue(1));
+    ExecuteScript(&event);
 }
 
 /*
@@ -5189,10 +5205,10 @@ Play attached animation
 */
 void Actor::PlayAttachedAnimation(Event *ev)
 {
-    Event e1(EV_Listener_ExecuteScript);
-    e1.AddConstString(STRING_GLOBAL_ANIM_ATTACHED_SCR);
-    e1.AddValue(ev->GetValue(1));
-    ExecuteScript(&e1);
+    Event event(EV_Listener_ExecuteScript, 2);
+    event.AddConstString(STRING_GLOBAL_ANIM_ATTACHED_SCR);
+    event.AddValue(ev->GetValue(1));
+    ExecuteScript(&event);
 }
 
 /*
@@ -5209,15 +5225,14 @@ void Actor::MoveDest(float fMoveSpeed)
 
     SetMoveInfo(&mm);
 
-    if (fMoveSpeed > m_maxspeed) {
-        fMoveSpeed = m_maxspeed;
+    mm.desired_speed = fMoveSpeed;
+    if (mm.desired_speed > m_maxspeed) {
+        mm.desired_speed = m_maxspeed;
     }
 
-    mm.desired_speed = fMoveSpeed;
-
     VectorSub2D(m_Dest, origin, offset);
-
-    VectorNormalize2D2(offset, mm.desired_dir);
+    VectorNormalize2D(offset);
+    VectorCopy2D(offset, mm.desired_dir);
 
     MmoveSingle(&mm);
 
@@ -12168,4 +12183,15 @@ bool Actor::EnemyIsDisguised(void)
 bool Actor::IsDisabled() const
 {
     return !m_bDoAI;
+}
+
+/*
+===============
+Actor::ExtractConstraints
+
+===============
+*/
+void Actor::ExtractConstraints(mmove_t *mm)
+{
+    // not found in ida
 }
