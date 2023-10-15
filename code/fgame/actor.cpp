@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptexception.h"
 #include "parm.h"
 #include "../qcommon/tiki.h"
+#include "smokesprite.h"
 
 #include <cmath>
 
@@ -4331,9 +4332,7 @@ void Actor::SetAimNode(const Vector& vec)
 {
     ClearAimNode();
 
-    TempWaypoint *twp = new TempWaypoint();
-    m_aimNode         = twp;
-
+    m_aimNode = new TempWaypoint();
     m_aimNode->setOrigin(vec);
 }
 
@@ -4473,9 +4472,7 @@ void Actor::LookAt(const Vector& vec)
 
     ClearLookEntity();
 
-    TempWaypoint *twp = new TempWaypoint();
-    m_pLookEntity     = twp;
-
+    m_pLookEntity = new TempWaypoint();
     m_pLookEntity->setOrigin(vec);
 }
 
@@ -4623,8 +4620,7 @@ void Actor::PointAt(const Vector& vec)
 {
     ClearPointEntity();
 
-    TempWaypoint *twp = new TempWaypoint();
-    m_pPointEntity    = twp;
+    m_pPointEntity = new TempWaypoint();
     m_pPointEntity->setOrigin(vec);
 }
 
@@ -4746,8 +4742,7 @@ void Actor::TurnTo(const Vector& vec)
 {
     ClearTurnEntity();
 
-    TempWaypoint *twp = new TempWaypoint();
-    m_pTurnEntity     = twp;
+    m_pTurnEntity = new TempWaypoint();
     m_pTurnEntity->setOrigin(vec);
 }
 
@@ -5599,8 +5594,25 @@ Set current weapon's aim tagret.
 */
 void Actor::EventSetAimTarget(Event *ev)
 {
-    Weapon *weap = GetActiveWeapon(WEAPON_MAIN);
-    weap->SetAimTarget(ev->GetEntity(1));
+    Entity* ent;
+    Weapon* weap;
+
+    ent = ev->GetEntity(1);
+    if (!ent) {
+        // Added in 2.0
+        //  Check for NULL
+        ScriptError("EventSetAimTarget::NULL entity given as first argument.");
+        return;
+    }
+
+    weap = GetActiveWeapon(WEAPON_MAIN);
+    weap->SetAimTarget(ent);
+
+    // Added in 2.0
+    //  Make the ent an enemy
+    if (ev->NumArgs() > 1 && ev->GetInteger(2) == 1 && ent->IsSubclassOfSentient()) {
+        SetEnemy(static_cast<Sentient*>(ent), false);
+    }
 }
 
 /*
@@ -5612,13 +5624,12 @@ Returns true if weapon is ready to fire.
 */
 void Actor::ReadyToFire(Event *ev)
 {
-    bool ready;
-
     Weapon *weap = GetActiveWeapon(WEAPON_MAIN);
-
-    ready = weap && weap->ReadyToFire(FIRE_PRIMARY, true);
-
-    ev->AddInteger(ready);
+    if (weap) {
+        ev->AddInteger(weap->ReadyToFire(FIRE_PRIMARY, true));
+    } else {
+        ev->AddInteger(0);
+    }
 }
 
 /*
@@ -5695,7 +5706,7 @@ void Actor::EventSetFov(Event *ev)
         ScriptError("fov must be in the range [0,360]");
     }
     m_fFov    = fov;
-    m_fFovDot = cos(0.5 * fov * M_PI / 180.0);
+    m_fFovDot = cos(fov * 0.5f * M_PI / 180.0);
 }
 
 /*
@@ -5729,6 +5740,7 @@ void Actor::NextPatrolCurrentNode(void)
             m_bScriptGoalValid = false;
         }
     }
+
     if (m_patrolCurrentNode->IsSubclassOfTempWaypoint()) {
         ClearPatrolCurrentNode();
     } else {
@@ -5747,10 +5759,7 @@ void Actor::SetPatrolCurrentNode(Vector& vec)
 {
     ClearPatrolCurrentNode();
 
-    TempWaypoint *twp = new TempWaypoint();
-
-    m_patrolCurrentNode = twp;
-
+    m_patrolCurrentNode = new TempWaypoint();
     m_patrolCurrentNode->setOrigin(vec);
 }
 
@@ -5765,7 +5774,7 @@ void Actor::SetPatrolCurrentNode(Listener *l)
 {
     ClearPatrolCurrentNode();
 
-    if (l && !l->inheritsFrom(&SimpleEntity::ClassInfo)) {
+    if (l && !l->isSubclassOf(SimpleEntity)) {
         ScriptError(
             "Bad patrol path with classname '%s' specified for '%s' at (%f %f %f)\n",
             l->getClassname(),
@@ -5776,7 +5785,7 @@ void Actor::SetPatrolCurrentNode(Listener *l)
         );
     }
 
-    m_patrolCurrentNode = (SimpleEntity *)l;
+    m_patrolCurrentNode = static_cast<SimpleEntity*>(l);
 }
 
 /*
@@ -5868,59 +5877,75 @@ Move on path with squad.
 */
 bool Actor::MoveOnPathWithSquad(void)
 {
-    float   fDistSquared, fIntervalSquared;
-    vec2_t  vMyNormalDir, vDelta, vHisDir;
-    Player *p;
+    float* pvMyDir, *pvHisDir;
+    vec2_t vDelta;
+    Sentient* pSquadMate;
+    float fIntervalSquared;
+    vec2_t vMyNormalDir;
+    float fDistSquared;
 
-    //FIXMEL: macro
-    if (level.inttime < m_iSquadStandTime + 500 || !PathExists() || PathComplete()) {
+    if (level.inttime < m_iSquadStandTime + 500) {
         return false;
     }
+
+    if (!PathExists() || PathComplete()) {
+        return false;
+    }
+
+    pvMyDir = PathDelta();
     fIntervalSquared = Square(m_fInterval);
     if (m_iSquadStandTime) {
         fIntervalSquared *= 2;
     }
 
-    p = (Player *)G_GetEntity(0);
+    pSquadMate = static_cast<Sentient*>(G_GetEntity(0));
 
-    if (IsTeamMate(p)) {
-        VectorSub2D(p->origin, origin, vDelta);
+    if (IsTeamMate(pSquadMate)) {
+        VectorSub2D(pSquadMate->origin, origin, vDelta);
         fDistSquared = VectorLength2DSquared(vDelta);
-        if (fIntervalSquared > fDistSquared && DotProduct2D(vDelta, PathDelta()) > 0) {
-            VectorSub2D(velocity, p->velocity, vMyNormalDir);
+
+        if (fIntervalSquared > fDistSquared && DotProduct2D(vDelta, pvMyDir) > 0) {
+            VectorSub2D(velocity, pSquadMate->velocity, vMyNormalDir);
             VectorNormalize2D(vMyNormalDir);
-            if (fDistSquared - DotProduct2D(vDelta, vMyNormalDir) < 2304) {
+
+            if (fDistSquared - DotProduct2D(vDelta, vMyNormalDir) < Square(48)) {
                 m_iSquadStandTime = level.inttime;
                 return false;
             }
         }
     }
 
-    for (Actor *pSquadMate = (Actor *)m_pNextSquadMate.Pointer(); pSquadMate != this;
-         pSquadMate        = (Actor *)pSquadMate->m_pNextSquadMate.Pointer()) {
+    for (pSquadMate = m_pNextSquadMate; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate) {
         if (!pSquadMate->IsSubclassOfActor()) {
             continue;
         }
-        VectorSub2D(pSquadMate->origin, origin, vDelta);
+
+        Actor* pActorSquadMate = static_cast<Actor*>(pSquadMate);
+
+        VectorSub2D(pActorSquadMate->origin, origin, vDelta);
         fDistSquared = VectorLength2DSquared(vDelta);
-        if (fDistSquared >= fIntervalSquared || DotProduct2D(vDelta, PathDelta()) <= 0) {
+
+        if (fDistSquared >= fIntervalSquared || DotProduct2D(vDelta, pvMyDir) <= 0) {
             continue;
         }
-        if (pSquadMate->PathExists() || pSquadMate->PathComplete()) {
-            VectorCopy2D(pSquadMate->velocity, vHisDir);
-            if (VectorLength2DSquared(vHisDir) <= 8) {
+
+        if (!pActorSquadMate->PathExists() || pActorSquadMate->PathComplete()) {
+            pvHisDir = pActorSquadMate->velocity;
+
+            if (VectorLength2DSquared(pvHisDir) <= 8) {
                 continue;
             }
         } else {
-            VectorCopy2D(pSquadMate->PathDelta(), vHisDir);
+            pvHisDir = pActorSquadMate->PathDelta();
         }
 
-        if (DotProduct2D(PathDelta(), vHisDir) >= 0
-            && (entnum == pSquadMate->entnum || DotProduct2D(vHisDir, vDelta) >= 0)) {
+        if (DotProduct2D(pvMyDir, pvHisDir) >= 0
+            && (entnum == pActorSquadMate->entnum || DotProduct2D(pvHisDir, vDelta) >= 0)) {
             m_iSquadStandTime = level.inttime;
             return false;
         }
     }
+
     m_iSquadStandTime = 0;
     return true;
 }
@@ -5934,8 +5959,12 @@ Move to waypoint with player.
 */
 bool Actor::MoveToWaypointWithPlayer(void)
 {
-    float  fIntervalSquared, fDistSquared;
-    vec2_t vMyNormalDir, vDelta, vMyDir;
+    vec2_t pvMyDir;
+    vec2_t vDelta;
+    float fIntervalSquared;
+    vec2_t vMyNormalDir;
+    float fDistSquared;
+    Sentient* pSquadMate;
 
     if (level.inttime < m_iSquadStandTime + 500) {
         return false;
@@ -5946,34 +5975,35 @@ bool Actor::MoveToWaypointWithPlayer(void)
         fIntervalSquared += fIntervalSquared;
     }
 
-    Player *p = (Player *)G_GetEntity(0);
-    if (IsTeamMate(p)) {
-        vDelta[0]    = p->origin[0] - origin[0];
-        vDelta[1]    = p->origin[1] - origin[1];
-        fDistSquared = VectorLength2DSquared(vDelta);
-
-        if (fDistSquared >= fIntervalSquared) {
-            m_iSquadStandTime = 0;
-            return true;
-        }
-
-        vMyDir[0] = m_patrolCurrentNode->origin[0] - origin[0];
-        vMyDir[1] = m_patrolCurrentNode->origin[1] - origin[1];
-        if (DotProduct2D(vDelta, vMyDir) < 0) {
-            m_iSquadStandTime = 0;
-            return true;
-        }
-
-        vMyNormalDir[0] = velocity[0] - p->velocity[0];
-        vMyNormalDir[1] = velocity[1] - p->velocity[1];
-        VectorNormalize2D(vMyNormalDir);
-
-        if (fDistSquared - DotProduct2D(vDelta, vMyNormalDir) > 2304) {
-            m_iSquadStandTime = 0;
-            return true;
-        }
-        m_iSquadStandTime = level.inttime;
+    pSquadMate = static_cast<Sentient*>(G_GetEntity(0));
+    if (!IsTeamMate(pSquadMate)) {
+        return true;
     }
+
+    vDelta[0] = pSquadMate->origin[0] - origin[0];
+    vDelta[1] = pSquadMate->origin[1] - origin[1];
+    fDistSquared = VectorLength2DSquared(vDelta);
+
+    if (fDistSquared >= fIntervalSquared) {
+        m_iSquadStandTime = 0;
+        return true;
+    }
+
+    VectorSub2D(m_patrolCurrentNode->origin, origin, pvMyDir);
+    if (DotProduct2D(vDelta, pvMyDir) <= 0) {
+        m_iSquadStandTime = 0;
+        return true;
+    }
+
+    VectorSub2D(velocity, pSquadMate->velocity, vMyNormalDir);
+    VectorNormalize2D(vMyNormalDir);
+
+    if (fDistSquared - DotProduct2D(vDelta, vMyNormalDir) >= Square(48)) {
+        m_iSquadStandTime = 0;
+        return true;
+    }
+
+    m_iSquadStandTime = level.inttime;
     return false;
 }
 
@@ -5986,7 +6016,19 @@ Returns true if next patrol node exits.
 */
 bool Actor::PatrolNextNodeExists(void)
 {
-    return m_patrolCurrentNode && !(m_patrolCurrentNode->IsSubclassOfTempWaypoint()) && m_patrolCurrentNode->Next();
+    if (!m_patrolCurrentNode) {
+        return false;
+    }
+
+    if (m_patrolCurrentNode->IsSubclassOfTempWaypoint()) {
+        return false;
+    }
+
+    if (!m_patrolCurrentNode->Next()) {
+        return false;
+    }
+
+    return true;
 }
 
 /*
@@ -5998,18 +6040,18 @@ Update current patrol node.
 */
 void Actor::UpdatePatrolCurrentNode(void)
 {
-    bool next = false;
-    if (m_patrolCurrentNode) {
-        if (m_patrolCurrentNode->IsSubclassOfTempWaypoint()) {
-            if (fabs(origin[0] - m_patrolCurrentNode->origin[0]) < 16.0
-                && fabs(origin[1] - m_patrolCurrentNode->origin[1]) < 16.0) {
-                next = true;
-            }
-        } else if (PathExists() && PathComplete()) {
-            next = true;
-        }
+    if (!m_patrolCurrentNode) {
+        return;
     }
-    if (next) {
+
+    if (m_patrolCurrentNode->IsSubclassOfWaypoint()) {
+        vec2_t delta;
+        VectorSub2D(origin, m_patrolCurrentNode->origin, delta);
+
+        if (fabs(delta[0]) < 16.0 && fabs(delta[1]) < 16.0) {
+            NextPatrolCurrentNode();
+        }
+    } else if (PathExists() && PathComplete()) {
         NextPatrolCurrentNode();
     }
 }
@@ -6024,67 +6066,75 @@ Actor::MoveToPatrolCurrentNode
 bool Actor::MoveToPatrolCurrentNode(void)
 {
     UpdatePatrolCurrentNode();
-    if (m_patrolCurrentNode && !m_bPatrolWaitTrigger) {
-        Vector delta;
-        if (m_patrolCurrentNode->IsSubclassOfWaypoint()) {
-            if (MoveToWaypointWithPlayer()) {
-                m_bNextForceStart  = false;
-                m_eNextAnimMode    = ANIM_MODE_DEST;
-                m_csNextAnimString = m_csPatrolCurrentAnim;
-                FaceMotion();
-            } else {
-                Anim_Stand();
-                IdleLook();
-            }
 
-            SetDest(m_patrolCurrentNode->origin);
-
-            if (m_fMoveDoneRadiusSquared == 0.0 || m_patrolCurrentNode->Next()) {
-                return false;
-            }
-            delta = m_patrolCurrentNode->origin - origin;
-        } else {
-            SimpleActor::SetPath(m_patrolCurrentNode->origin, "Actor::MoveToPatrolCurrentNode", 0, NULL, 0);
-            if (!PathExists()) {
-                IdleLook();
-
-                Anim_Idle();
-                parm.movefail = qtrue;
-                return false;
-            }
-            if (MoveOnPathWithSquad()) {
-                if (PatrolNextNodeExists()) {
-                    m_eNextAnimMode = ANIM_MODE_PATH;
-                } else {
-                    m_eNextAnimMode = ANIM_MODE_PATH_GOAL;
-                }
-                m_csNextAnimString = m_csPatrolCurrentAnim;
-                m_bNextForceStart  = false;
-                FaceMotion();
-            } else {
-                Anim_Stand();
-                IdleLook();
-            }
-
-            if (m_fMoveDoneRadiusSquared == 0) {
-                return false;
-            }
-
-            if (PathComplete()) {
-                return true;
-            }
-
-            if (!m_Path.HasCompleteLookahead() || m_patrolCurrentNode->Next()) {
-                return false;
-            }
-            delta = PathDelta();
-        }
-        return m_fMoveDoneRadiusSquared >= delta.lengthXYSquared();
+    if (!m_patrolCurrentNode) {
+        IdleLook();
+        Anim_Idle();
+        return false;
     }
 
-    IdleLook();
-    Anim_Idle();
-    return false;
+    if (m_patrolCurrentNode->IsSubclassOfWaypoint()) {
+        if (MoveToWaypointWithPlayer()) {
+            DesiredAnimation(ANIM_MODE_DEST, m_csPatrolCurrentAnim);
+            FaceMotion();
+        } else {
+            Anim_Stand();
+            IdleLook();
+        }
+
+        SetDest(m_patrolCurrentNode->origin);
+
+        if (!m_fMoveDoneRadiusSquared || m_patrolCurrentNode->Next()) {
+            return false;
+        }
+
+        vec2_t delta;
+        VectorSub2D(m_patrolCurrentNode->origin, origin, delta);
+        return VectorLength2DSquared(delta) <= m_fMoveDoneRadiusSquared;
+    }
+    else {
+        SetPath(m_patrolCurrentNode->origin, "Actor::MoveToPatrolCurrentNode", 0, NULL, 0);
+      
+        if (!PathExists()) {
+            IdleLook();
+            Anim_Idle();
+            // tell scripts the move has failed
+            parm.movefail = qtrue;
+            return false;
+        }
+
+        if (MoveOnPathWithSquad()) {
+            if (PatrolNextNodeExists()) {
+                DesiredAnimation(ANIM_MODE_PATH, m_csPatrolCurrentAnim);
+            } else {
+                DesiredAnimation(ANIM_MODE_PATH_GOAL, m_csPatrolCurrentAnim);
+            }
+
+            FaceMotion();
+        } else {
+            Anim_Stand();
+            IdleLook();
+        }
+
+        if (!m_fMoveDoneRadiusSquared) {
+            return false;
+        }
+
+        if (PathComplete()) {
+            return true;
+        }
+
+        if (!m_Path.HasCompleteLookahead()) {
+            return false;
+        }
+        
+        if (m_patrolCurrentNode->Next()) {
+            return false;
+        }
+
+        float *delta = PathDelta();
+        return VectorLength2DSquared(delta) <= m_fMoveDoneRadiusSquared;
+    }
 }
 
 /*
@@ -6096,7 +6146,7 @@ Set current accuracy.
 */
 void Actor::EventSetAccuracy(Event *ev)
 {
-    mAccuracy = ev->GetFloat(1) / 100;
+    mAccuracy = ev->GetFloat(1) / 100.f;
 }
 
 /*
@@ -6108,7 +6158,7 @@ Get current accuracy.
 */
 void Actor::EventGetAccuracy(Event *ev)
 {
-    ev->AddFloat(mAccuracy * 100);
+    ev->AddFloat(mAccuracy * 100.f);
 }
 
 void Actor::EventSetMinDistance(Event *ev)
@@ -6121,10 +6171,11 @@ void Actor::EventSetMinDistance(Event *ev)
             "^~^~^ Warning: mindist negative, forcing to %g for entity %i, targetname '%s'\n",
             m_fMinDistance,
             entnum,
-            targetname.c_str()
+            TargetName().c_str()
         );
     }
-    m_fMinDistanceSquared = m_fMinDistance * m_fMinDistance;
+
+    m_fMinDistanceSquared = Square(m_fMinDistance);
 }
 
 void Actor::EventGetMinDistance(Event *ev)
@@ -6135,9 +6186,10 @@ void Actor::EventGetMinDistance(Event *ev)
 void Actor::EventSetMaxDistance(Event *ev)
 {
     m_fMaxDistance = ev->GetFloat(1);
-    //FIXME: macro
+
     if (m_fMaxDistance < 256) {
         m_fMaxDistance = 256;
+
         Com_Printf(
             "^~^~^ Warning: maxdist too small, forcing to %g for entity %i, targetname '%s'\n",
             m_fMaxDistance,
@@ -6145,7 +6197,8 @@ void Actor::EventSetMaxDistance(Event *ev)
             targetname.c_str()
         );
     }
-    m_fMaxDistanceSquared = m_fMaxDistance * m_fMaxDistance;
+
+    m_fMaxDistanceSquared = Square(m_fMaxDistance);
 }
 
 void Actor::EventGetMaxDistance(Event *ev)
@@ -6176,12 +6229,12 @@ void Actor::EventSetInterval(Event *ev)
 
 void Actor::EventDistToEnemy(Event *ev)
 {
-    float dist = 0;
-    if (m_Enemy) {
-        Vector distV = origin - m_Enemy->origin;
-        dist         = distV.length();
+    if (!m_Enemy) {
+        ev->AddFloat(0);
+        return;
     }
-    ev->AddFloat(dist);
+
+    ev->AddFloat((origin - m_Enemy->origin).length());
 }
 
 /*
@@ -6293,28 +6346,11 @@ void Actor::UpdateEyeOrigin(void)
         eyeposition = eyeTag - origin;
 
         m_vEyeDir[2] = 0.0;
-        VectorNormalizeFast(m_vEyeDir);
+        m_vEyeDir.normalizefast();
 
-        if (eyeposition[0] < -10.5) {
-            eyeposition[0] = -10.5;
-        }
-        if (eyeposition[0] > 10.5) {
-            eyeposition[0] = 10.5;
-        }
-
-        if (eyeposition[1] < -10.5) {
-            eyeposition[1] = -10.5;
-        }
-        if (eyeposition[1] > 10.5) {
-            eyeposition[1] = 10.5;
-        }
-
-        if (eyeposition[2] < 4.5) {
-            eyeposition[2] = 4.5;
-        }
-        if (eyeposition[2] > 89.5) {
-            eyeposition[2] = 89.5;
-        }
+        eyeposition[0] = Q_clamp_float(eyeposition[0], -10.5f, 10.5f);
+        eyeposition[1] = Q_clamp_float(eyeposition[1], -10.5f, 10.5f);
+        eyeposition[2] = Q_clamp_float(eyeposition[2], 4.5f, 89.5f);
     }
 }
 
@@ -6343,17 +6379,20 @@ Real update enemy.
 */
 void Actor::UpdateEnemyInternal(void)
 {
+    // Added in 2.0
+    DetectSmokeGrenades();
+
     for (Sentient *pSent = level.m_HeadSentient[1 - m_Team]; pSent; pSent = pSent->m_NextSentient) {
         m_PotentialEnemies.AddPotentialEnemy(pSent);
     }
 
     m_PotentialEnemies.CheckEnemies(this);
 
-    if (m_Enemy != m_PotentialEnemies.GetCurrentEnemy()) {
+    if (m_Enemy != m_PotentialEnemies.GetCurrentEnemy() && (m_bEnemySwitch || m_Enemy)) {
         SetEnemy(m_PotentialEnemies.GetCurrentEnemy(), false);
     }
 
-    m_fNoticeTimeScale += (level.inttime - m_iEnemyCheckTime) / 10000;
+    m_fNoticeTimeScale += (level.inttime - m_iEnemyCheckTime) / 10000.f;
 
     if (m_fNoticeTimeScale > m_fMaxNoticeTimeScale) {
         m_fNoticeTimeScale = m_fMaxNoticeTimeScale;
@@ -6383,7 +6422,25 @@ Actor::DetectSmokeGrenades
 */
 void Actor::DetectSmokeGrenades(void)
 {
-    // FIXME: unimplemented
+    SmokeSprite* sprite;
+
+    if (m_Enemy) {
+        return;
+    }
+
+    sprite = G_GetRandomSmokeSprite();
+    if (!sprite || !sprite->owner || sprite->owner->m_Team == m_Team) {
+        Vector eyePos;
+        float fDistSquared;
+
+        eyePos = VirtualEyePosition();
+        fDistSquared = (sprite->origin - eyePos).lengthSquared();
+        if (fDistSquared > 65536 || InFOV(sprite->origin) == true) {
+            if (G_SightTrace(eyePos, vec_zero, vec_zero, sprite->origin, this, NULL, MASK_CANSEE, qfalse, "Actor::DetectSmokeGrenades")) {
+                m_PotentialEnemies.ConfirmEnemy(this, sprite->owner);
+            }
+        }
+    }
 }
 
 /*
@@ -6403,29 +6460,16 @@ void Actor::SetEnemy(Sentient *pEnemy, bool bForceConfirmed)
         m_Enemy->m_iAttackerCount--;
     }
     m_bNewEnemy = m_Enemy == NULL;
-    //delete m_Enemy;
-
     m_Enemy = pEnemy;
 
     m_iEnemyChangeTime = level.inttime;
 
     if (m_Enemy) {
-        Event e1(EV_Actor_ShareEnemy);
-        //FIXME: macro
-        PostEvent(e1, 0.75);
+        PostEvent(EV_Actor_ShareEnemy, 0.75f);
 
-        if (m_Enemy->m_bHasDisguise) {
-            if (level.inttime > m_iEnemyVisibleCheckTime) {
-                //this cansee call changes m_bEnemyVisible and m_bEnemyInFOV
-                //FIXME: macro
-                CanSee(m_Enemy, 0, 0.828 * world->farplane_distance, false);
-            }
-        }
-
-        m_bEnemyIsDisguised = m_Enemy->m_bHasDisguise && (m_Enemy->m_bIsDisguised || !m_bEnemyVisible);
+        m_bEnemyIsDisguised = m_Enemy->m_bHasDisguise && (m_Enemy->m_bIsDisguised || !CanSeeEnemy(0));
 
         SetEnemyPos(m_Enemy->origin);
-
         m_Enemy->m_iAttackerCount++;
 
         if (bForceConfirmed) {
@@ -6443,19 +6487,24 @@ Update stored enemy position information.
 */
 void Actor::SetEnemyPos(Vector vPos)
 {
-    if (m_vLastEnemyPos != vPos) {
-        m_iLastEnemyPosChangeTime = level.inttime;
-        m_vLastEnemyPos           = vPos;
-        mTargetPos                = m_vLastEnemyPos;
-        if (m_Enemy) {
-            mTargetPos += m_Enemy->eyeposition;
-        } else {
-            mTargetPos.z += 88;
-        }
+    if (m_vLastEnemyPos == vPos) {
+        return;
+    }
+    
+    m_iLastEnemyPosChangeTime = level.inttime;
+    m_vLastEnemyPos           = vPos;
+    mTargetPos                = m_vLastEnemyPos;
 
-        if (mTargetPos.z - EyePosition().z < 128) {
-            mTargetPos.z -= 16;
-        }
+    if (!m_Enemy) {
+        mTargetPos.z += 88;
+    } else if (m_Enemy->m_bIsAnimal) {
+        mTargetPos.z += 10;
+    } else {
+        mTargetPos += m_Enemy->eyeposition;
+    }
+
+    if (mTargetPos.z - EyePosition().z < 128) {
+        mTargetPos.z -= 16;
     }
 }
 
