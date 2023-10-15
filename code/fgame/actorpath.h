@@ -77,26 +77,26 @@ public:
         float  *vLeashHome,
         float   fLeashDistSquared
     );
-    void      ReFindPath(float *start, Entity *ent);
-    void      UpdatePos(float *origin, float fNodeRadius = 0.0f);
-    bool      Complete(const float *origin) const;
-    PathInfo *StartNode(void) const;
-    PathInfo *CurrentNode(void) const;
-    int       CurrentNodeIndex(void) const;
-    PathInfo *NextNode(void) const;
-    PathInfo *LastNode(void) const;
-    Vector    CurrentPathDir(void) const;
-    float    *CurrentPathGoal(void) const;
-    int       Time(void) const;
-    Vector    CurrentDelta(void) const;
-    bool      IsAccurate(void) const;
-    float     TotalDist(void) const;
-    void      SetFallHeight(float fHeight);
-    float     GetFallHeight(void) const;
-    void      TrimPathFromEnd(int nNodesPop);
-    void      Shorten(float fDistRemove);
-    bool      HasCompleteLookahead(void) const;
-    void      ForceShortLookahead(void);
+    void         ReFindPath(float *start, Entity *ent);
+    void         UpdatePos(float *origin, float fNodeRadius = 0.0f);
+    bool         Complete(const float *origin) const;
+    PathInfo    *StartNode(void) const;
+    PathInfo    *CurrentNode(void) const;
+    int          CurrentNodeIndex(void) const;
+    PathInfo    *NextNode(void) const;
+    PathInfo    *LastNode(void) const;
+    const float *CurrentPathDir(void) const;
+    const float *CurrentPathGoal(void) const;
+    int          Time(void) const;
+    Vector       CurrentDelta(void) const;
+    bool         IsAccurate(void) const;
+    float        TotalDist(void) const;
+    void         SetFallHeight(float fHeight);
+    float        GetFallHeight(void) const;
+    void         TrimPathFromEnd(int nNodesPop);
+    void         Shorten(float fDistRemove);
+    bool         HasCompleteLookahead(void) const;
+    void         ForceShortLookahead(void);
 
     virtual void Archive(Archiver& arc);
 

@@ -488,12 +488,16 @@ PathInfo *ActorPath::LastNode(void) const
     return m_path;
 }
 
-Vector ActorPath::CurrentPathDir(void) const
+const float *ActorPath::CurrentPathDir(void) const
 {
-    return Vector(m_pathpos->dir[0], m_pathpos->dir[1], 0);
+    if (m_pathpos == m_path) {
+        return m_delta;
+    } else {
+        return m_pathpos[-1].dir;
+    }
 }
 
-float *ActorPath::CurrentPathGoal(void) const
+const float *ActorPath::CurrentPathGoal(void) const
 {
     return m_pathpos->point;
 }
