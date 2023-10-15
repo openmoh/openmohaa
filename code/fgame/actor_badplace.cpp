@@ -26,20 +26,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void Actor::InitBadPlace(GlobalFuncs_t *func)
 {
-    func->ThinkState = &Actor::Think_BadPlace;
-    func->BeginState = &Actor::Begin_BadPlace;
-    func->EndState = &Actor::End_BadPlace;
-    func->ResumeState = &Actor::Begin_BadPlace;
-    func->SuspendState = &Actor::End_BadPlace;
+    func->ThinkState                 = &Actor::Think_BadPlace;
+    func->BeginState                 = &Actor::Begin_BadPlace;
+    func->EndState                   = &Actor::End_BadPlace;
+    func->ResumeState                = &Actor::Begin_BadPlace;
+    func->SuspendState               = &Actor::End_BadPlace;
     func->PassesTransitionConditions = &Actor::PassesTransitionConditions_BadPlace;
-    func->IsState = &Actor::IsBadPlaceState;
+    func->IsState                    = &Actor::IsBadPlaceState;
 }
 
 void Actor::Begin_BadPlace(void)
 {
     DoForceActivate();
 
-    m_csMood = STRING_ALERT;
+    m_csMood     = STRING_ALERT;
     m_csIdleMood = STRING_NERVOUS;
 
     badplace_t& badplace = level.m_badPlaces.ObjectAt(m_iBadPlaceIndex);
