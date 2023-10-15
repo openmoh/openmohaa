@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "scriptexception.h"
 #include "scriptthread.h"
 #include "../script/scriptclass.h"
+#include "weapturret.h"
 #include <tiki.h>
 
 Event EV_NoAnimLerp
@@ -171,38 +172,49 @@ void SimpleActor::SetPath(
     Vector vDestPos, const char *description, int iMaxDirtyTime, float *vLeashHome, float fLeashDistSquared
 )
 {
-    if (!PathExists()
-        || ((level.inttime >= m_Path.Time() + iMaxDirtyTime || m_Path.Complete(origin)) && PathGoal() != vDestPos)) {
-        m_Path.FindPath(origin, vDestPos, this, 0.0, vLeashHome, fLeashDistSquared);
+    if (PathExists()) {
+        if (level.inttime < iMaxDirtyTime + m_Path.Time()) {
+            // Too soon
+            return;
+        }
 
-        if (!PathExists()) {
-            if (g_patherror->integer) {
-                if (description) {
-                    int thinkState = ((Actor *)this)->m_ThinkState;
-                    if (g_patherror->integer == 1
-                        || (g_patherror->integer == 2
-                            && (thinkState == THINKSTATE_IDLE || thinkState == THINKSTATE_CURIOUS))) {
-                        if (m_bPathErrorTime + 5000 < level.inttime) {
-                            m_bPathErrorTime = level.inttime;
-                            Com_Printf(
-                                "^~^~^ Path not found in '%s' for (entnum %d, radnum %d, targetname '%s') from (%f %f "
-                                "%f) to (%f %f %f)\n",
-                                description,
-                                entnum,
-                                radnum,
-                                targetname.c_str(),
-                                origin.x,
-                                origin.y,
-                                origin.z,
-                                vDestPos.x,
-                                vDestPos.y,
-                                vDestPos.z
-                            );
-                            Com_Printf("Reason: %s\n", PathSearch::last_error);
-                        }
-                    }
-                }
-            }
+        if (!m_Path.Complete(origin)) {
+            // The current path has not complete yet
+            return;
+        }
+
+        if (PathGoal() == vDestPos && PathIsValid()) {
+            // Still a valid path
+            return;
+        }
+    }
+
+    m_Path.FindPath(origin, vDestPos, this, 0.0, vLeashHome, fLeashDistSquared);
+
+    if (!PathExists()) {
+        if (g_patherror->integer && description
+            && (g_patherror->integer
+                || g_patherror->integer == 2
+                       && (static_cast<Actor *>(this)->m_ThinkState == THINKSTATE_IDLE
+                           || static_cast<Actor *>(this)->m_ThinkState == THINKSTATE_CURIOUS)
+                       && m_bPathErrorTime + 5000 < level.inttime)) {
+            m_bPathErrorTime = level.inttime;
+
+            Com_Printf(
+                "^~^~^ Path not found in '%s' for (entnum %d, radnum %d, targetname '%s') from (%f %f "
+                "%f) to (%f %f %f)\n",
+                description,
+                entnum,
+                radnum,
+                targetname.c_str(),
+                origin.x,
+                origin.y,
+                origin.z,
+                vDestPos.x,
+                vDestPos.y,
+                vDestPos.z
+            );
+            Com_Printf("Reason: %s\n", PathSearch::last_error);
         }
     }
 }
@@ -211,27 +223,70 @@ void SimpleActor::SetPath(SimpleEntity *pDestNode, const char *description, int 
 {
     if (pDestNode) {
         SetPath(pDestNode->origin, description, iMaxDirtyTime, NULL, 0.0);
-    } else {
-        if (m_bPathErrorTime + 5000 < level.inttime) {
-            m_bPathErrorTime = level.inttime;
-            Com_Printf(
-                "^~^~^ No destination node specified for '%s' at (%f %f %f)\n",
-                targetname.c_str(),
-                origin.x,
-                origin.y,
-                origin.z
-            );
-        }
-        ClearPath();
+        return;
     }
+
+    if (m_bPathErrorTime + 5000 < level.inttime) {
+        m_bPathErrorTime = level.inttime;
+        Com_Printf(
+            "^~^~^ No destination node specified for '%s' at (%f %f %f)\n",
+            targetname.c_str(),
+            origin.x,
+            origin.y,
+            origin.z
+        );
+    }
+
+    ClearPath();
 }
 
 void SimpleActor::SetPathWithinDistance(Vector vDestPos, char *description, float fMaxPath, int iMaxDirtyTime)
 {
-    SetPath(vDestPos, description, iMaxDirtyTime, NULL, 0);
+    if (PathExists()) {
+        if (level.inttime < iMaxDirtyTime + m_Path.Time()) {
+            // Too soon
+            return;
+        }
+
+        if (!m_Path.Complete(origin)) {
+            // The current path has not complete yet
+            return;
+        }
+
+        if (PathGoal() == vDestPos && PathIsValid()) {
+            // Still a valid path
+            return;
+        }
+    }
+
+    m_Path.FindPath(origin, vDestPos, this, fMaxPath, 0, 0);
+
+    if (!PathExists()) {
+        if (g_patherror->integer && description
+            && (g_patherror->integer
+                || g_patherror->integer == 2
+                       && (static_cast<Actor *>(this)->m_ThinkState == THINKSTATE_IDLE
+                           || static_cast<Actor *>(this)->m_ThinkState == THINKSTATE_CURIOUS)
+                       && m_bPathErrorTime + 5000 < level.inttime)) {
+            m_bPathErrorTime = level.inttime;
+
+            Com_Printf(
+                "^~^~^ Path not found in '%s' for '%s' from (%f %f %f) to (%f %f %f)\n",
+                description,
+                targetname.c_str(),
+                origin.x,
+                origin.y,
+                origin.z,
+                vDestPos.x,
+                vDestPos.y,
+                vDestPos.z
+            );
+            Com_Printf("Reason: %s\n", PathSearch::last_error);
+        }
+    }
 }
 
-void SimpleActor::FindPathAway(vec_t *vAwayFrom, vec_t *vDirPreferred, float fMinSafeDist)
+void SimpleActor::FindPathAway(vec3_t vAwayFrom, vec2_t vDirPreferred, float fMinSafeDist)
 {
     m_Path.FindPathAway(origin, vAwayFrom, vDirPreferred, this, fMinSafeDist, NULL, 0);
 
@@ -245,13 +300,11 @@ void SimpleActor::ClearPath(void)
 
 bool SimpleActor::PathComplete(void) const
 {
-    if (level.time >= m_fPathGoalTime) {
-        if (m_Path.Complete(origin)) {
-            return true;
-        }
+    if (level.time < m_fPathGoalTime) {
+        return false;
     }
 
-    return false;
+    return m_Path.Complete(origin);
 }
 
 bool SimpleActor::PathExists(void) const
@@ -267,86 +320,63 @@ bool SimpleActor::PathIsValid(void) const
 
 bool SimpleActor::PathAvoidsSquadMates(void) const
 {
-    Entity *player;
-    float   fDelta;
-    float   fDistSoFar;
-    float   fDistCap;
-    float   vDelta2[2];
-    float   vMins[3];
-    float   vMaxs[3];
-    float   vPos[3];
-    //Sentient *pOther;
+    Entity   *player;
+    float     fDelta;
+    float     fDistSoFar;
+    float     fDistCap;
+    vec2_t    vDelta2;
+    vec3_t    vMins, vMaxs;
+    vec3_t    vPos;
+    PathInfo *pNode;
+    Sentient *pOther;
     Sentient *pBuddy[256];
     int       iNumBuddies;
     int       i;
-    //float fRatio;
+    float     fRatio;
 
     if (ai_pathchecktime->value <= 0.0) {
         return true;
     }
-    player = G_GetEntity(0);
+
+    player = static_cast<Sentient *>(G_GetEntity(0));
     if (!player) {
         return true;
     }
 
-    //player = G_GetEntity(0);
-    //player = G_GetEntity(0);
     VectorSub2D(player->origin, origin, vDelta2);
     if (VectorLength2D(vDelta2) > Square(ai_pathcheckdist->value)) {
         return true;
     }
 
+    VectorCopy(vMins, CurrentPathNode()->point);
+    VectorCopy(vMaxs, CurrentPathNode()->point);
+
     fDistCap   = (ai_pathchecktime->value * 250.0);
     fDistSoFar = 0;
 
-    VectorCopy(vMins, CurrentPathNode()->point);
-    VectorCopy(vMaxs, CurrentPathNode()->point);
-    PathInfo *pNode = CurrentPathNode() - 1;
-
-    while (1) {
-        if (pNode < LastPathNode()) {
-            break;
-        }
-
+    for (pNode = CurrentPathNode() - 1; pNode >= LastPathNode(); pNode--) {
         if (fDistSoFar <= fDistCap) {
             break;
         }
 
         fDelta = fDistCap + 0.001 - fDistSoFar;
 
-        if (pNode->dist < fDelta) {
+        if (fDelta > pNode->dist) {
             VectorCopy(pNode->point, vPos);
         } else {
             VectorSubtract(pNode[1].point, pNode[0].point, vPos);
             VectorMA(pNode[1].point, fDelta / pNode->dist, vPos, vPos);
         }
 
-        if (vPos[0] > vMaxs[0]) {
-            vMaxs[0] = vPos[0];
-        } else {
-            if (vPos[0] < vMins[0]) {
-                vMins[0] = vPos[0];
-            }
-        }
-
-        if (vPos[1] > vMaxs[1]) {
-            vMaxs[1] = vPos[1];
-        } else {
-            if (vPos[1] < vMins[1]) {
-                vMins[1] = vPos[1];
-            }
-        }
-
-        if (vPos[2] > vMaxs[2]) {
-            vMaxs[2] = vPos[2];
-        } else {
-            if (vPos[2] < vMins[2]) {
-                vMins[2] = vPos[2];
-            }
-        }
-
         fDistSoFar += fDelta;
-        pNode--;
+
+        for (i = 0; i < 3; i++) {
+            if (vMaxs[i] < vPos[i]) {
+                vMaxs[i] = vPos[i];
+            } else if (vMins[i] > vPos[i]) {
+                vMins[i] = vPos[i];
+            }
+        }
     }
 
     vMins[0] -= 30;
@@ -358,101 +388,102 @@ bool SimpleActor::PathAvoidsSquadMates(void) const
     vMaxs[2] += 94;
 
     iNumBuddies = 0;
-    if ((Sentient *)m_pNextSquadMate != this) {
-        do {
-            if (m_pNextSquadMate->origin[0] > vMins[0] && m_pNextSquadMate->origin[0] < vMaxs[0]
-                && m_pNextSquadMate->origin[1] > vMins[1] && m_pNextSquadMate->origin[1] < vMaxs[1]
-                && m_pNextSquadMate->origin[2] > vMins[2] && m_pNextSquadMate->origin[2] < vMaxs[2]) {
-                VectorSub2D(m_pNextSquadMate->origin, origin, vDelta2);
-                if (vDelta2[0] <= -32 || vDelta2[0] >= 32 || vDelta2[1] <= -32 || vDelta2[1] >= 32) {
-                    if (DotProduct2D(vDelta2, m_pNextSquadMate->velocity) <= 0) {
-                        pBuddy[iNumBuddies++] = m_pNextSquadMate;
-                    }
-                }
+    for (pOther = m_pNextSquadMate; pOther != this && iNumBuddies < ARRAY_LEN(pBuddy);
+         pOther = pOther->m_pNextSquadMate) {
+        if (vMins[0] >= pOther->origin[0] || pOther->origin[0] >= vMaxs[0]) {
+            continue;
+        }
+        if (vMins[1] >= pOther->origin[1] || pOther->origin[1] >= vMaxs[1]) {
+            continue;
+        }
+        if (vMins[2] >= pOther->origin[2] || pOther->origin[2] >= vMaxs[2]) {
+            continue;
+        }
+
+        VectorSub2D(pOther->origin, origin, vDelta2);
+        if (vDelta2[0] <= -32 || vDelta2[0] >= 32 || vDelta2[1] <= -32 || vDelta2[1] >= 32) {
+            if (DotProduct2D(vDelta2, pOther->velocity) <= 0) {
+                pBuddy[iNumBuddies++] = pOther;
             }
-        } while ((Sentient *)m_pNextSquadMate != this && iNumBuddies <= 255);
+        }
     }
 
-    if (iNumBuddies == 0) {
+    if (!iNumBuddies) {
+        // No buddy, can safely avoid
         return true;
     }
-    float fDist;
-    while (1) {
-        i = 0;
 
-        if (iNumBuddies > 0) {
-            break;
+    do {
+        for (i = 0; i < iNumBuddies; i++) {
+            VectorSub2D(pOther->origin, vPos, vDelta2);
+
+            if (VectorLength2DSquared(vDelta2) <= 900) {
+                return false;
+            }
+
+            fRatio = DotProduct2D(vDelta2, pNode->dir);
+            if (fRatio < 0 && fRatio >= -fDelta) {
+                vec2_t vInvDelta2 = {vDelta2[1], vDelta2[0]};
+
+                if (Square(DotProduct2D(vInvDelta2, pNode->dir)) <= 900) {
+                    return false;
+                }
+            }
         }
-    weird_lbl:
+
         pNode++;
 
         VectorCopy2D(pNode->point, vPos);
-        fDist = pNode->dist;
+        fDelta = pNode->dist;
+    } while (pNode < CurrentPathNode());
 
-        if (pNode >= CurrentPathNode()) {
-            return true;
-        }
-    }
-    float fDot;
-    while (1) {
-        VectorSub2D(pBuddy[i]->origin, vPos, vDelta2);
-        if (VectorLength2D(vDelta2) <= 900) {
-            return false;
-        }
-        fDot = DotProduct2D(vDelta2, pNode->dir);
-        if (fDot < 0.0 && -fDist <= fDot) {
-            if (Square(CrossProduct2D(vDelta2, pNode->dir)) <= 900) {
-                return false;
-            }
-        }
-        if (++i >= iNumBuddies) {
-            goto weird_lbl;
-        }
-    }
+    return true;
 }
 
 void SimpleActor::ShortenPathToAvoidSquadMates(void)
 {
-    if (PathExists() && !PathComplete()) {
-        Vector vBuddyPos;
-        Vector vDelta;
-        Vector vGoal;
-        do {
-            vGoal             = PathGoal();
-            Actor *pSquadMate = (Actor *)m_pNextSquadMate.Pointer();
-            if (pSquadMate == this) {
-                break;
+    if (!PathExists() || PathComplete()) {
+        return;
+    }
+
+    Vector    vGoal;
+    Sentient *pBuddy;
+
+    vGoal = PathGoal();
+
+    do {
+        for (pBuddy = m_pNextSquadMate; pBuddy != this; pBuddy = pBuddy->m_pNextSquadMate) {
+            Vector vBuddyPos;
+            Vector vDelta;
+
+            vBuddyPos = pBuddy->origin;
+            if (pBuddy->IsSubclassOfActor()) {
+                Actor *pBuddyActor = static_cast<Actor *>(pBuddy);
+                if (pBuddyActor->PathExists()) {
+                    vBuddyPos = PathGoal();
+                }
             }
 
-            while (true) {
-                vGoal     = PathGoal();
-                vBuddyPos = pSquadMate->origin;
-                if (pSquadMate->IsSubclassOfActor() && pSquadMate->PathExists()) {
-                    vBuddyPos = pSquadMate->PathGoal();
-                }
-                vDelta.x = vGoal[0] - vBuddyPos.x;
-                if (vDelta.x >= -15.0 && vDelta.x <= 15.0) {
-                    vDelta.y = vGoal[1] - vBuddyPos.y;
-                    vDelta.z = vGoal[2] - vBuddyPos.z;
+            vDelta = vGoal - vBuddyPos;
 
-                    if (vDelta.y >= -15.0 && vDelta.y <= 15.0 && vDelta.z >= 0.0 && vDelta.z <= 94.0) {
-                        break;
-                    }
-                }
-                pSquadMate = (Actor *)pSquadMate->m_pNextSquadMate.Pointer();
-                if (pSquadMate == this) {
+            if (vDelta.x >= -15 && vDelta.x <= 15 && vDelta.y >= -15 && vDelta.y <= 15 && vDelta.z >= 0
+                && vDelta.z <= 94) {
+                m_Path.Shorten(45.0);
+
+                if (!PathExists()) {
                     return;
                 }
-            }
-            m_Path.Shorten(45.0);
 
-        } while (PathExists());
-    }
+                // retry
+                break;
+            }
+        }
+    } while (PathExists());
 }
 
 Vector SimpleActor::PathGoal(void) const
 {
-    return LastPathNode()->point;
+    return m_Path.CurrentPathGoal();
 }
 
 bool SimpleActor::PathGoalSlowdownStarted(void) const
@@ -488,20 +519,22 @@ bool SimpleActor::PathHasCompleteLookahead(void) const
 void SimpleActor::UpdateEmotion(void)
 {
     int anim;
-    if (IsDead()) {
-        Anim_Emotion(EMOTION_DEAD);
+
+    if (deadflag != DEAD_NO) {
+        m_eEmotionMode = EMOTION_DEAD;
     }
 
     anim = GetEmotionAnim();
 
     if (anim == -1) {
         Com_Printf(
-            "Failed to set emotion for (entnum %d, radnum %d, targetname '%s'\n", entnum, radnum, targetname.c_str()
+            "Failed to set emotion for (entnum %d, radnum %d, targetname '%s'\n", entnum, radnum, TargetName().c_str()
         );
-    } else {
-        m_bSayAnimSet = true;
-        StartSayAnimSlot(anim);
+        return;
     }
+
+    m_bSayAnimSet = true;
+    StartSayAnimSlot(anim);
 }
 
 int SimpleActor::GetMotionSlot(int slot)
@@ -515,10 +548,9 @@ int SimpleActor::GetMotionSlot(int slot)
 
 void SimpleActor::ChangeMotionAnim(void)
 {
-    //int lastMotionSlot;
-    //int firstMotionSlot;
-    int iSlot;
-    int i;
+    int slot;
+    int lastMotionSlot;
+    int firstMotionSlot;
 
     m_bMotionAnimSet   = false;
     m_iMotionSlot      = -1;
@@ -527,15 +559,31 @@ void SimpleActor::ChangeMotionAnim(void)
     if (m_ChangeMotionAnimIndex != level.frame_skel_index) {
         m_ChangeMotionAnimIndex = level.frame_skel_index;
 
+        firstMotionSlot = GetMotionSlot(0);
+        lastMotionSlot  = firstMotionSlot + 3;
+
         MPrintf("Swapping motion channels....\n");
-        for (iSlot = GetMotionSlot(0), i = 0; i < 3; i++, iSlot++) {
-            StartCrossBlendAnimSlot(iSlot);
+        for (slot = firstMotionSlot; slot < lastMotionSlot; slot++) {
+            StartCrossBlendAnimSlot(slot);
+
+            // Added in 2.0
+            //  Don't lerp animations
+            if (edict->s.eFlags & EF_NO_LERP) {
+                m_weightCrossBlend[slot] = 0;
+                m_weightBase[slot]       = 0;
+                // Next animation should lerp
+                edict->s.eFlags &= ~EF_NO_LERP;
+            }
         }
-        m_AnimDialogHigh = !m_AnimDialogHigh;
+
+        m_AnimMotionHigh = !m_AnimMotionHigh;
     }
 
-    for (iSlot = GetMotionSlot(0), i = 0; i < 3; i++, iSlot++) {
-        StopAnimating(iSlot);
+    firstMotionSlot = GetMotionSlot(0);
+    lastMotionSlot  = firstMotionSlot + 3;
+
+    for (slot = firstMotionSlot; slot < lastMotionSlot; slot++) {
+        StopAnimating(slot);
     }
 }
 
@@ -550,8 +598,9 @@ int SimpleActor::GetActionSlot(int slot)
 
 void SimpleActor::ChangeActionAnim(void)
 {
-    int iSlot;
-    int i;
+    int slot;
+    int firstActionSlot;
+    int lastActionSlot;
 
     m_bAimAnimSet      = false;
     m_bActionAnimSet   = false;
@@ -561,19 +610,22 @@ void SimpleActor::ChangeActionAnim(void)
     if (m_ChangeActionAnimIndex != level.frame_skel_index) {
         m_ChangeActionAnimIndex = level.frame_skel_index;
 
+        firstActionSlot = GetActionSlot(0);
+        lastActionSlot  = firstActionSlot + 3;
+
         MPrintf("Swapping action channels....\n");
 
-        iSlot = GetActionSlot(0);
-        for (i = iSlot; i < iSlot + 3; i++) {
-            animFlags[i] |= ANIM_NOACTION;
-            StartCrossBlendAnimSlot(i);
+        for (slot = firstActionSlot; slot < lastActionSlot; slot++) {
+            animFlags[slot] |= ANIM_NOACTION;
+            StartCrossBlendAnimSlot(slot);
         }
-        m_AnimDialogHigh = !m_AnimDialogHigh; // toggle
+
+        m_AnimActionHigh = !m_AnimActionHigh; // toggle
     }
 
-    iSlot = GetActionSlot(0);
-    for (i = iSlot; i < iSlot + 3; i++) {
-        StopAnimating(iSlot);
+    slot = GetActionSlot(0);
+    for (slot = firstActionSlot; slot < lastActionSlot; slot++) {
+        StopAnimating(slot);
     }
 }
 
@@ -584,26 +636,22 @@ int SimpleActor::GetSaySlot(void)
 
 void SimpleActor::ChangeSayAnim(void)
 {
-    int iSlot;
-
     m_bSayAnimSet   = false;
-    m_bLevelSayAnim = 0;
     m_iVoiceTime    = level.inttime;
     m_iSaySlot      = -1;
+    m_bLevelSayAnim = false;
 
     if (m_ChangeSayAnimIndex != level.frame_skel_index) {
         m_ChangeSayAnimIndex = level.frame_skel_index;
 
         MPrintf("Swapping dialog channel....\n");
 
-        iSlot = GetSaySlot();
-        StartCrossBlendAnimSlot(iSlot);
+        StartCrossBlendAnimSlot(GetSaySlot());
 
         m_AnimDialogHigh = !m_AnimDialogHigh; // toggle
     }
 
-    iSlot = GetSaySlot();
-    StopAnimating(iSlot);
+    StopAnimating(GetSaySlot());
 }
 
 void SimpleActor::StopAnimating(int slot)
@@ -619,10 +667,11 @@ void SimpleActor::StopAnimating(int slot)
         edict->s.frameInfo[slot].index = 1;
     }
 
-    animFlags[slot]                 = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT | ANIM_PAUSED;
-    edict->s.frameInfo[slot].weight = 0;
-    animtimes[slot]                 = 0;
-    animFlags[slot]                 = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
+    animFlags[slot] = ANIM_LOOP | ANIM_NODELTA | ANIM_NOEXIT | ANIM_PAUSED;
+    SetWeight(slot, 0);
+
+    animtimes[slot] = 0;
+    SlotChanged(slot);
 }
 
 void SimpleActor::EventSetAnimLength(Event *ev)
@@ -640,19 +689,19 @@ void SimpleActor::EventSetAnimLength(Event *ev)
         ScriptError("Positive lengths only allowed");
     }
 
-    if (m_bMotionAnimSet) {
+    if (!m_bMotionAnimSet) {
         ScriptError("Must set anim before length");
     }
 
     slot = GetMotionSlot(0);
 
-    if (animFlags[slot] & ANIM_LOOP) {
-        gi.Anim_Frametime(edict->tiki, edict->s.frameInfo[slot].index);
+    if (IsRepeatType(slot) && edict->tiki) {
+        int numframes;
 
-        animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
+        numframes       = gi.Anim_NumFrames(edict->tiki, edict->s.frameInfo[slot].index);
+        animtimes[slot] = gi.Anim_Frametime(edict->tiki, edict->s.frameInfo[slot].index) * numframes;
 
-        animtimes[slot] = Square(gi.Anim_NumFrames(edict->tiki, edict->s.frameInfo[slot].index) - 1);
-
+        SlotChanged(slot);
         SetOnceType(slot);
     }
 
@@ -663,7 +712,7 @@ void SimpleActor::EventSetAnimLength(Event *ev)
     }
 
     animtimes[slot] = length;
-    animFlags[slot] = (animFlags[slot] | ANIM_NODELTA) & ~ANIM_FINISHED;
+    SlotChanged(slot);
 }
 
 void SimpleActor::EventSetCrossblendTime(Event *ev)
@@ -678,143 +727,157 @@ void SimpleActor::EventGetCrossblendTime(Event *ev)
 
 void SimpleActor::StartCrossBlendAnimSlot(int slot)
 {
-    if (m_weightType[slot] == 1) {
-        m_weightType[slot] = 4;
-    } else {
-        if (m_weightType[slot] < 1) {
-            return;
-        }
-        if (m_weightType[slot] == 6) {
-            m_weightType[slot] = 5;
-        } else {
-            m_weightType[slot] = 3;
-        }
+    if (!m_weightType[slot]) {
+        return;
     }
+
+    switch (m_weightType[slot]) {
+    case ANIM_WEIGHT_AIM:
+        m_weightType[slot] = 4;
+        break;
+    case ANIM_WEIGHT_SAY:
+        m_weightType[slot] = 5;
+        break;
+    default:
+        m_weightType[slot] = 3;
+        break;
+    }
+
     m_weightCrossBlend[slot] = 1.0;
-    m_weightBase[slot]       = edict->s.frameInfo[slot].weight;
+    m_weightBase[slot]       = GetWeight(slot);
 }
 
 void SimpleActor::StartMotionAnimSlot(int slot, int anim, float weight)
 {
-    int iSlot = GetMotionSlot(slot);
+    slot = GetMotionSlot(slot);
 
-    m_weightCrossBlend[iSlot] = 0.0;
-    m_weightType[iSlot]       = 1;
-    m_weightBase[iSlot]       = weight;
+    m_weightType[slot]       = ANIM_WEIGHT_AIM;
+    m_weightCrossBlend[slot] = 0.0;
+    m_weightBase[slot]       = weight;
+    NewAnim(anim, slot, 1.0);
 
-    NewAnim(anim, iSlot, 1.0);
-    animFlags[iSlot] |= ANIM_NOACTION;
-
-    SetTime(iSlot, 0.0);
-
-    UpdateNormalAnimSlot(iSlot);
+    animFlags[slot] |= ANIM_NOACTION;
+    RestartAnimSlot(slot);
+    UpdateNormalAnimSlot(slot);
 }
 
 void SimpleActor::StartAimMotionAnimSlot(int slot, int anim)
 {
-    int iSlot = GetMotionSlot(slot);
+    slot = GetMotionSlot(slot);
 
-    m_weightCrossBlend[iSlot] = 0.0;
-    m_weightType[iSlot]       = 1;
+    m_weightType[slot]       = ANIM_WEIGHT_AIM;
+    m_weightCrossBlend[slot] = 0.0;
+    NewAnim(anim, slot, 1.0);
 
-    NewAnim(anim, iSlot, 1.0);
-    animFlags[iSlot] |= ANIM_NOACTION;
-
-    SetTime(iSlot, 0.0);
-
-    UpdateNormalAnimSlot(iSlot);
+    animFlags[slot] |= ANIM_NOACTION;
+    RestartAnimSlot(slot);
+    UpdateNormalAnimSlot(slot);
 }
 
 void SimpleActor::StartActionAnimSlot(int anim)
 {
-    int iSlot = GetActionSlot(0);
+    int slot = GetActionSlot(0);
 
-    m_weightCrossBlend[iSlot] = 0.0;
-    m_weightType[iSlot]       = 2;
-    m_weightBase[iSlot]       = 1.0;
+    m_weightType[slot]       = ANIM_WEIGHT_ACTION;
+    m_weightCrossBlend[slot] = 0.0;
+    m_weightBase[slot]       = 1.0;
+    NewAnim(anim, slot, 1.0);
 
-    NewAnim(anim, iSlot, 1.0);
-
-    SetTime(iSlot, 0.0);
-
-    UpdateNormalAnimSlot(iSlot);
+    RestartAnimSlot(slot);
+    UpdateNormalAnimSlot(slot);
 }
 
 void SimpleActor::StartSayAnimSlot(int anim)
 {
-    int iSlot = GetSaySlot();
+    int slot = GetSaySlot();
 
-    m_weightCrossBlend[iSlot] = 0.0;
-    m_weightType[iSlot]       = 6;
-    m_weightBase[iSlot]       = 1.0;
+    m_weightType[slot]       = ANIM_WEIGHT_SAY;
+    m_weightCrossBlend[slot] = 0.0;
+    m_weightBase[slot]       = 1.0;
+    NewAnim(anim, slot, 1.0);
 
-    NewAnim(anim, iSlot, 1.0);
-    animFlags[iSlot] |= ANIM_NOACTION;
-
-    SetTime(iSlot, 0.0);
-    UpdateSayAnimSlot(iSlot);
+    animFlags[slot] |= ANIM_NOACTION;
+    RestartAnimSlot(slot);
+    UpdateNormalAnimSlot(slot);
 }
 
 void SimpleActor::StartAimAnimSlot(int slot, int anim)
 {
-    int iSlot = GetActionSlot(slot);
+    slot = GetActionSlot(slot);
 
-    m_weightCrossBlend[iSlot] = 0.0;
-    m_weightType[iSlot]       = 7;
+    m_weightType[slot]       = ANIM_WEIGHT_AIM;
+    m_weightCrossBlend[slot] = 0.0;
+    m_weightBase[slot]       = 1.0;
+    NewAnim(anim, slot, 1.0);
 
-    NewAnim(anim, iSlot, 1.0);
-
-    SetTime(iSlot, 0.0);
-
-    UpdateNormalAnimSlot(iSlot);
+    RestartAnimSlot(slot);
+    UpdateNormalAnimSlot(slot);
 }
 
 void SimpleActor::SetBlendedWeight(int slot)
 {
     m_bUpdateAnimDoneFlags |= 1 << slot;
+
     if (m_weightCrossBlend[slot] < 1.0) {
-        edict->s.frameInfo[slot].weight = (3.0 - m_weightCrossBlend[slot] - m_weightCrossBlend[slot])
-                                        * Square(m_weightCrossBlend[slot]) * m_weightBase[slot];
+        float w;
+
+        w = (3.0 - m_weightCrossBlend[slot] * 2) * Square(m_weightCrossBlend[slot]);
+        SetWeight(slot, m_weightBase[slot] * w);
     } else {
-        m_weightCrossBlend[slot]        = 1.0;
-        edict->s.frameInfo[slot].weight = m_weightBase[slot];
+        m_weightCrossBlend[slot] = 1.0;
+        SetWeight(slot, m_weightBase[slot]);
     }
 }
 
 void SimpleActor::UpdateNormalAnimSlot(int slot)
 {
-    m_weightCrossBlend[slot] += m_fCrossblendTime == 0.0 ? 1.0 : level.frametime / m_fCrossblendTime;
-
+    if (m_fCrossblendTime) {
+        m_weightCrossBlend[slot] += level.frametime / m_fCrossblendTime;
+    } else {
+        m_weightCrossBlend[slot] += 1.f;
+    }
     SetBlendedWeight(slot);
 }
 
 void SimpleActor::UpdateCrossBlendAnimSlot(int slot)
 {
-    m_weightCrossBlend[slot] -= m_fCrossblendTime == 0.0 ? 1.0 : level.frametime / m_fCrossblendTime;
+    if (m_fCrossblendTime) {
+        m_weightCrossBlend[slot] -= level.frametime / m_fCrossblendTime;
+    } else {
+        m_weightCrossBlend[slot] -= 1.f;
+    }
 
-    if (m_weightCrossBlend[slot] > 0.0) {
+    if (m_weightCrossBlend[slot] > 0) {
         SetBlendedWeight(slot);
     } else {
-        m_weightType[slot]              = 8;
-        edict->s.frameInfo[slot].weight = 0.0;
+        m_weightType[slot] = ANIM_WEIGHT_LASTFRAME;
+        SetWeight(slot, 0);
     }
 }
 
 void SimpleActor::UpdateCrossBlendDialogAnimSlot(int slot)
 {
-    m_weightCrossBlend[slot] -= m_iSaySlot < 0 ? level.frametime + level.frametime : level.frametime / 0.1;
+    if (m_iSaySlot >= 0) {
+        m_weightCrossBlend[m_iSaySlot] -= level.frametime / 0.1f;
+    } else {
+        m_weightCrossBlend[m_iSaySlot] -= level.frametime / 0.5f;
+    }
 
     if (m_weightCrossBlend[slot] > 0.0) {
         SetBlendedWeight(slot);
     } else {
-        m_weightType[slot]              = 8;
-        edict->s.frameInfo[slot].weight = 0.0;
+        m_weightType[slot] = ANIM_WEIGHT_LASTFRAME;
+        SetWeight(slot, 0);
     }
 }
 
 void SimpleActor::UpdateSayAnimSlot(int slot)
 {
-    m_weightCrossBlend[slot] += m_iSaySlot < 0 ? level.frametime + level.frametime : level.frametime / 0.1;
+    if (m_iSaySlot >= 0) {
+        m_weightCrossBlend[m_iSaySlot] += level.frametime / 0.1f;
+    } else {
+        m_weightCrossBlend[m_iSaySlot] += level.frametime / 0.5f;
+    }
 
     SetBlendedWeight(slot);
 }
@@ -826,30 +889,29 @@ void SimpleActor::UpdateLastFrameSlot(int slot)
 
 void SimpleActor::UpdateAnimSlot(int slot)
 {
-    int weightType = m_weightType[slot];
-    switch (weightType) {
-    case 0:
+    switch (m_weightType[slot]) {
+    case ANIM_WEIGHT_NONE:
         break;
-    case 1:
-    case 2:
-    case 7:
+    case ANIM_WEIGHT_MOTION:
+    case ANIM_WEIGHT_ACTION:
+    case ANIM_WEIGHT_AIM:
         UpdateNormalAnimSlot(slot);
         break;
-    case 3:
-    case 4:
+    case ANIM_WEIGHT_CROSSBLEND_1:
+    case ANIM_WEIGHT_CROSSBLEND_2:
         UpdateCrossBlendAnimSlot(slot);
         break;
-    case 5:
+    case ANIM_WEIGHT_CROSSBLEND_DIALOG:
         UpdateCrossBlendDialogAnimSlot(slot);
         break;
-    case 6:
+    case ANIM_WEIGHT_SAY:
         UpdateSayAnimSlot(slot);
         break;
-    case 8:
+    case ANIM_WEIGHT_LASTFRAME:
         UpdateLastFrameSlot(slot);
         break;
     default:
-        assert(weightType && !"impleActor::UpdateAnimSlot: Bad weight type.");
+        assert(!"SimpleActor::UpdateAnimSlot: Bad weight type.");
         break;
     }
 }
@@ -865,57 +927,55 @@ void SimpleActor::StopAllAnimating(void)
 
 void SimpleActor::UpdateAim(void)
 {
+    int   aimUpSlot;
+    int   aimForwardSlot;
+    int   aimDownSlot;
     float dir;
 
-    int aimForwardSlot;
-    int aimUpSlot;
-    int aimDownSlot;
-
     if (m_bAimAnimSet) {
-        dir = AngleNormalize180(-m_DesiredGunDir[0]);
-
         aimForwardSlot = GetActionSlot(0);
         aimUpSlot      = aimForwardSlot + 1;
         aimDownSlot    = aimForwardSlot + 2;
+        dir            = -m_DesiredGunDir[0];
 
-        float factor;
+        if (dir > 180) {
+            dir -= 360;
+        } else if (dir < -180) {
+            dir += 360;
+        }
+
         if (dir < 0) {
             if (dir < m_fAimLimit_down) {
                 dir = m_fAimLimit_down;
             }
 
-            factor = dir / m_fAimLimit_down;
-
             m_weightBase[aimForwardSlot] = 0;
-            m_weightBase[aimUpSlot]      = 1 - factor;
-            m_weightBase[aimDownSlot]    = factor;
+            m_weightBase[aimUpSlot]      = 1 - dir / m_fAimLimit_down;
+            m_weightBase[aimDownSlot]    = dir / m_fAimLimit_down;
         } else {
             if (dir > m_fAimLimit_up) {
                 dir = m_fAimLimit_up;
             }
 
-            factor = dir / m_fAimLimit_up;
-
-            m_weightBase[aimForwardSlot] = factor;
-            m_weightBase[aimUpSlot]      = 1 - factor;
+            m_weightBase[aimForwardSlot] = dir / m_fAimLimit_up;
+            m_weightBase[aimUpSlot]      = 1 - dir / m_fAimLimit_up;
             m_weightBase[aimDownSlot]    = 0;
         }
+
         SetControllerAngles(TORSO_TAG, vec_origin);
     }
 }
 
 void SimpleActor::UpdateAimMotion(void)
 {
-    int slot = GetMotionSlot(0);
-
     if (m_fCrouchWeight < 0.0) {
-        m_weightBase[slot]     = 0.0;
-        m_weightBase[slot + 1] = m_fCrouchWeight + 1.0;
-        m_weightBase[slot + 2] = -m_fCrouchWeight;
+        m_weightBase[GetMotionSlot(0)] = 0.0;
+        m_weightBase[GetMotionSlot(1)] = m_fCrouchWeight + 1.0;
+        m_weightBase[GetMotionSlot(2)] = -m_fCrouchWeight;
     } else {
-        m_weightBase[slot]     = m_fCrouchWeight;
-        m_weightBase[slot + 1] = 1.0 - m_fCrouchWeight;
-        m_weightBase[slot + 2] = 0.0;
+        m_weightBase[GetMotionSlot(0)] = m_fCrouchWeight;
+        m_weightBase[GetMotionSlot(1)] = 1.0 - m_fCrouchWeight;
+        m_weightBase[GetMotionSlot(2)] = 0.0;
     }
 }
 
@@ -979,7 +1039,6 @@ int SimpleActor::GetEmotionAnim(void)
     if (m_eEmotionMode) {
         switch (m_eEmotionMode) {
         case EMOTION_NEUTRAL:
-        case EMOTION_AIMING:
             emotionanim = "facial_idle_neutral";
             break;
         case EMOTION_WORRY:
@@ -997,12 +1056,17 @@ int SimpleActor::GetEmotionAnim(void)
         case EMOTION_ANGER:
             emotionanim = "facial_idle_anger";
             break;
+        case EMOTION_AIMING:
+            emotionanim = "facial_idle_neutral";
+            break;
         case EMOTION_DETERMINED:
-        case EMOTION_CURIOUS:
             emotionanim = "facial_idle_determined";
             break;
         case EMOTION_DEAD:
             emotionanim = "facial_idle_dead";
+            break;
+        case EMOTION_CURIOUS:
+            emotionanim = "facial_idle_determined";
             break;
         default:
 
@@ -1014,29 +1078,31 @@ int SimpleActor::GetEmotionAnim(void)
             break;
         }
     } else {
-        if (m_csMood == STRING_NERVOUS) {
+        switch (m_csMood) {
+        case STRING_NERVOUS:
             emotionanim = "facial_idle_determined";
-        } else if (m_csMood <= STRING_NERVOUS) {
-            if (m_csMood != STRING_BORED) {
-                assert(!"Unknown value for m_csMood");
-                return -1;
-            } else {
-                emotionanim = "facial_idle_neutral";
-            }
+            break;
+        case STRING_CURIOUS:
+            emotionanim = "facial_idle_determined";
+            break;
+        case STRING_ALERT:
+            emotionanim = "facial_idle_anger";
+            break;
+        case STRING_BORED:
+            emotionanim = "facial_idle_neutral";
+            break;
+        default:
 
-        } else if (m_csMood == STRING_CURIOUS) {
-            emotionanim = "facial_idle_determined";
-        } else if (m_csMood != STRING_ALERT) {
-            assert(!"Unknown value for m_csMood");
+            char assertStr[16317] = {0};
+            strcpy(assertStr, "\"Unknown value for m_csMood in SimpleActor::GetEmotionAnim\"\n\tMessage: ");
+            Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
+            assert(!assertStr);
             return -1;
-        } else {
+            break;
         }
     }
 
-    if (emotionanim == NULL) {
-        emotionanim = "facial_idle_anger";
-        //assert(!"Unexpected behaviour in SimpleActor::GetEmotionAnim");
-    }
+    assert(emotionanim);
 
     anim = gi.Anim_NumForName(edict->tiki, emotionanim);
     if (anim == -1) {
@@ -1057,16 +1123,14 @@ void SimpleActor::EventGetWeaponType(Event *ev)
     Weapon   *weapon;
     const_str csWeaponType;
 
-    if (!m_pTurret) {
+    if (m_pTurret) {
+        weapon = m_pTurret;
+    } else {
         weapon = GetActiveWeapon(WEAPON_MAIN);
     }
 
-    if (!weapon) {
-        csWeaponType = STRING_RIFLE;
-    } else {
-        int iWeaponClass = weapon->GetWeaponClass();
-
-        switch (iWeaponClass) {
+    if (weapon) {
+        switch (weapon->GetWeaponClass()) {
         case WEAPON_CLASS_PISTOL:
             csWeaponType = STRING_PISTOL;
             break;
@@ -1104,6 +1168,8 @@ void SimpleActor::EventGetWeaponType(Event *ev)
             csWeaponType = STRING_EMPTY;
             break;
         }
+    } else {
+        csWeaponType = STRING_RIFLE;
     }
 
     ev->AddConstString(csWeaponType);
@@ -1113,14 +1179,16 @@ void SimpleActor::EventGetWeaponGroup(Event *ev)
 {
     const_str csWeaponGroup;
     Weapon   *weapon = GetActiveWeapon(WEAPON_MAIN);
-    if (!weapon) {
-        csWeaponGroup = STRING_UNARMED;
-    } else {
+
+    if (weapon) {
         csWeaponGroup = weapon->GetWeaponGroup();
         if (csWeaponGroup == STRING_EMPTY) {
             csWeaponGroup = STRING_UNARMED;
         }
+    } else {
+        csWeaponGroup = STRING_UNARMED;
     }
+
     ev->AddConstString(csWeaponGroup);
 }
 
@@ -1136,7 +1204,7 @@ void SimpleActor::EventAIOff(Event *ev)
 
 void SimpleActor::AnimFinished(int slot)
 {
-    assert(!DumpCallTrace(""));
+    assert(!DumpCallTrace("\"never should be called\"\n\tMessage: "));
 }
 
 void SimpleActor::EventGetPainHandler(Event *ev)
@@ -1144,19 +1212,15 @@ void SimpleActor::EventGetPainHandler(Event *ev)
     ScriptVariable var;
 
     m_PainHandler.GetScriptValue(&var);
-
     ev->AddValue(var);
 }
 
 void SimpleActor::EventSetPainHandler(Event *ev)
 {
     if (ev->IsFromScript()) {
-        ScriptVariable var = ev->GetValue(1);
-
-        m_PainHandler.SetScript(var);
+        m_PainHandler.SetScript(ev->GetValue(1));
     } else {
-        str varString = ev->GetString(1);
-        m_PainHandler.SetScript(varString);
+        m_PainHandler.SetScript(ev->GetString(1));
     }
 }
 
@@ -1165,19 +1229,15 @@ void SimpleActor::EventGetDeathHandler(Event *ev)
     ScriptVariable var;
 
     m_DeathHandler.GetScriptValue(&var);
-
     ev->AddValue(var);
 }
 
 void SimpleActor::EventSetDeathHandler(Event *ev)
 {
     if (ev->IsFromScript()) {
-        ScriptVariable var = ev->GetValue(1);
-
-        m_DeathHandler.SetScript(var);
+        m_DeathHandler.SetScript(ev->GetValue(1));
     } else {
-        str varString = ev->GetString(1);
-        m_DeathHandler.SetScript(varString);
+        m_DeathHandler.SetScript(ev->GetString(1));
     }
 }
 
@@ -1186,101 +1246,73 @@ void SimpleActor::EventGetAttackHandler(Event *ev)
     ScriptVariable var;
 
     m_AttackHandler.GetScriptValue(&var);
-
     ev->AddValue(var);
 }
 
 void SimpleActor::EventSetAttackHandler(Event *ev)
 {
     if (ev->IsFromScript()) {
-        ScriptVariable var = ev->GetValue(1);
-
-        m_AttackHandler.SetScript(var);
+        m_AttackHandler.SetScript(ev->GetValue(1));
     } else {
-        str varString = ev->GetString(1);
-        m_AttackHandler.SetScript(varString);
+        m_AttackHandler.SetScript(ev->GetString(1));
+    }
+}
+
+void SimpleActor::EventGetSniperHandler(Event *ev)
+{
+    ScriptVariable var;
+
+    m_SniperHandler.GetScriptValue(&var);
+    ev->AddValue(var);
+}
+
+void SimpleActor::EventSetSniperHandler(Event *ev)
+{
+    if (ev->IsFromScript()) {
+        m_SniperHandler.SetScript(ev->GetValue(1));
+    } else {
+        m_SniperHandler.SetScript(ev->GetString(1));
     }
 }
 
 bool SimpleActor::UpdateSelectedAnimation(void)
 {
-    if (m_csNextAnimString == STRING_NULL) {
-        if (m_bNextForceStart) {
-            m_Anim      = m_NextAnimLabel;
-            m_eAnimMode = m_eNextAnimMode;
-            if (m_eNextAnimMode != ANIM_MODE_PATH_GOAL) {
-                SetPathGoalEndAnim(STRING_EMPTY);
+    if (m_csNextAnimString != STRING_NULL) {
+        if (!m_bNextForceStart && m_pAnimThread && m_eAnimMode == m_eNextAnimMode
+            && (m_fPathGoalTime > level.time || m_Anim.IsFile(m_csNextAnimString))) {
+            m_eNextAnimMode = -1;
+            if (!m_bStartPathGoalEndAnim) {
+                return false;
             }
             m_bStartPathGoalEndAnim = false;
-            m_eNextAnimMode         = -1;
-            return true;
-        }
-
-        if (m_pAnimThread) {
-            if (m_eAnimMode == m_eNextAnimMode) {
-                if (m_Anim == m_NextAnimLabel) {
-                    m_bStartPathGoalEndAnim = false;
-                    m_eNextAnimMode         = -1;
-                    return false;
-                }
+            if (!m_Anim.IsFile(m_csPathGoalEndAnimScript)) {
+                return false;
             }
-        }
-        m_Anim      = m_NextAnimLabel;
-        m_eAnimMode = m_eNextAnimMode;
-        if (m_eNextAnimMode != ANIM_MODE_PATH_GOAL) {
-            SetPathGoalEndAnim(STRING_EMPTY);
-        }
-        m_bStartPathGoalEndAnim = false;
-        m_eNextAnimMode         = -1;
-        return true;
-    }
 
-    if (m_bNextForceStart) {
-        Com_Printf("UpdateSelectedAnimation\n");
-        m_Anim.TrySetScript(m_csNextAnimString);
-        m_eAnimMode = m_eNextAnimMode;
-        if (m_eNextAnimMode != ANIM_MODE_PATH_GOAL) {
-            SetPathGoalEndAnim(STRING_EMPTY);
-        }
-        m_bStartPathGoalEndAnim = false;
-        m_eNextAnimMode         = -1;
-        return true;
-    }
-
-    if (!m_pAnimThread || m_eAnimMode != m_eNextAnimMode) {
-        m_Anim.TrySetScript(m_csNextAnimString);
-        m_eAnimMode = m_eNextAnimMode;
-        if (m_eNextAnimMode != ANIM_MODE_PATH_GOAL) {
-            SetPathGoalEndAnim(STRING_EMPTY);
-        }
-        m_bStartPathGoalEndAnim = false;
-        m_eNextAnimMode         = -1;
-        return true;
-    }
-
-    if (m_fPathGoalTime <= level.time) {
-        if (!m_Anim.IsFile(m_csNextAnimString)) {
-            m_Anim.TrySetScript(m_csNextAnimString);
-            m_eAnimMode = m_eNextAnimMode;
-            if (m_eNextAnimMode != ANIM_MODE_PATH_GOAL) {
-                SetPathGoalEndAnim(STRING_EMPTY);
-            }
-            m_bStartPathGoalEndAnim = false;
-            m_eNextAnimMode         = -1;
-            return true;
-        }
-    }
-
-    m_eNextAnimMode = -1;
-    if (m_bStartPathGoalEndAnim) {
-        m_bStartPathGoalEndAnim = false;
-
-        if (!m_Anim.IsFile(m_csPathGoalEndAnimScript)) {
             m_Anim.TrySetScript(m_csPathGoalEndAnimScript);
             return true;
         }
+
+        m_Anim.TrySetScript(m_csNextAnimString);
+    } else {
+        if (!m_bNextForceStart && m_pAnimThread && m_eAnimMode == m_eNextAnimMode && m_Anim == m_NextAnimLabel) {
+            m_bStartPathGoalEndAnim = true;
+            m_eNextAnimMode         = -1;
+            return false;
+        }
+
+        m_Anim = m_NextAnimLabel;
     }
-    return false;
+
+    m_eAnimMode = m_eNextAnimMode;
+    if (m_eAnimMode != ANIM_MODE_PATH_GOAL) {
+        m_csPathGoalEndAnimScript = STRING_EMPTY;
+    }
+
+    m_bStartPathGoalEndAnim = false;
+    m_eNextAnimMode         = -1;
+
+    return true;
 }
 
 void SimpleActor::EventNoAnimLerp(Event *ev)
@@ -1293,27 +1325,6 @@ const char *SimpleActor::DumpCallTrace(const char *pszFmt, ...) const
 {
     OVERLOADED_ERROR();
     return "overloaded version should always get called";
-}
-
-void SimpleActor::EventGetSniperHandler(Event *ev)
-{
-    ScriptVariable var;
-
-    m_SniperHandler.GetScriptValue(&var);
-
-    ev->AddValue(var);
-}
-
-void SimpleActor::EventSetSniperHandler(Event *ev)
-{
-    if (ev->IsFromScript()) {
-        ScriptVariable var = ev->GetValue(1);
-
-        m_SniperHandler.SetScript(var);
-    } else {
-        str varString = ev->GetString(1);
-        m_SniperHandler.SetScript(varString);
-    }
 }
 
 void SimpleActor::EventGetAnimMode(Event *ev) {}

@@ -60,6 +60,18 @@ enum eAnimMode {
     ANIM_MODE_ATTACHED,
 };
 
+enum eAnimWeightType {
+    ANIM_WEIGHT_NONE,
+    ANIM_WEIGHT_MOTION,
+    ANIM_WEIGHT_ACTION,
+    ANIM_WEIGHT_CROSSBLEND_1,
+    ANIM_WEIGHT_CROSSBLEND_2,
+    ANIM_WEIGHT_CROSSBLEND_DIALOG,
+    ANIM_WEIGHT_SAY,
+    ANIM_WEIGHT_AIM,
+    ANIM_WEIGHT_LASTFRAME,
+};
+
 class SimpleActor;
 
 typedef SafePtr<SimpleActor> SimpleActorPtr;
@@ -120,7 +132,7 @@ public:
     int               m_bPathErrorTime;
     class PathNode   *m_NearestNode;
     Vector            m_vNearestNodePos;
-    short int         m_bUpdateAnimDoneFlags;
+    short             m_bUpdateAnimDoneFlags;
     float             m_maxspeed;
     const_str         m_csMood;
     const_str         m_csIdleMood;
@@ -160,7 +172,7 @@ public:
     SetPath(Vector vDestPos, const char *description, int iMaxDirtyTime, float *vLeashHome, float fLeashDistSquared);
     void                SetPath(SimpleEntity *pDestNode, const char *description, int iMaxDirtyTime);
     void                SetPathWithinDistance(Vector vDestPos, char *description, float fMaxPath, int iMaxDirtyTime);
-    void                FindPathAway(vec_t *vAwayFrom, vec_t *vDirPreferred, float fMinSafeDist);
+    void                FindPathAway(vec3_t vAwayFrom, vec2_t vDirPreferred, float fMinSafeDist);
     void                ClearPath(void);
     bool                PathComplete(void) const;
     bool                PathExists(void) const;
@@ -271,13 +283,6 @@ public:
     virtual const char *DumpCallTrace(const char *pszFmt, ...) const;
 };
 
-inline void SimpleActor::DesiredAnimation(int eAnimMode, const_str csAnimString)
-{
-    m_eNextAnimMode    = eAnimMode;
-    m_csNextAnimString = csAnimString;
-    m_bNextForceStart  = false;
-}
-
 inline void SimpleActor::StartAnimation(int eAnimMode, const_str csAnimString)
 {
     m_eNextAnimMode    = eAnimMode;
@@ -285,11 +290,10 @@ inline void SimpleActor::StartAnimation(int eAnimMode, const_str csAnimString)
     m_bNextForceStart  = true;
 }
 
-inline void SimpleActor::DesiredAnimation(int eAnimMode, ScriptThreadLabel AnimLabel)
+inline void SimpleActor::DesiredAnimation(int eAnimMode, const_str csAnimString)
 {
     m_eNextAnimMode    = eAnimMode;
-    m_csNextAnimString = STRING_NULL;
-    m_NextAnimLabel    = AnimLabel;
+    m_csNextAnimString = csAnimString;
     m_bNextForceStart  = false;
 }
 
@@ -301,28 +305,29 @@ inline void SimpleActor::StartAnimation(int eAnimMode, ScriptThreadLabel AnimLab
     m_bNextForceStart  = true;
 }
 
+inline void SimpleActor::DesiredAnimation(int eAnimMode, ScriptThreadLabel AnimLabel)
+{
+    m_eNextAnimMode    = eAnimMode;
+    m_csNextAnimString = STRING_NULL;
+    m_NextAnimLabel    = AnimLabel;
+    m_bNextForceStart  = false;
+}
+
 inline void SimpleActor::ContinueAnimationAllowNoPath(void)
 {
     if (m_eNextAnimMode < ANIM_MODE_NONE) {
-        m_bNextForceStart  = false;
-        m_csNextAnimString = STRING_NULL;
         m_eNextAnimMode    = m_eAnimMode;
+        m_csNextAnimString = STRING_NULL;
         m_NextAnimLabel    = m_Anim;
+        m_bNextForceStart  = false;
     }
 }
 
 inline void SimpleActor::ContinueAnimation(void)
 {
-    int eAnimMode = m_eNextAnimMode;
-    if (eAnimMode < ANIM_MODE_NONE) {
-        m_bNextForceStart  = false;
-        m_csNextAnimString = STRING_NULL;
-        m_eNextAnimMode    = m_eAnimMode;
-        m_NextAnimLabel    = m_Anim;
-        eAnimMode          = m_eAnimMode;
-    }
+    ContinueAnimationAllowNoPath();
 
-    if (eAnimMode <= 3 && !PathExists()) {
+    if ((m_eNextAnimMode == ANIM_MODE_PATH || m_eNextAnimMode == ANIM_MODE_PATH_GOAL) && !PathExists()) {
         assert(!"ContinueAnimation() called on a pathed animation, but no path exists");
         Anim_Stand();
     }
@@ -335,6 +340,8 @@ inline void SimpleActor::SetPathGoalEndAnim(const_str csEndAnim)
 
 inline void SimpleActor::Archive(Archiver& arc)
 {
+    int i;
+
     Sentient::Archive(arc);
 
     arc.ArchiveInteger(&m_eAnimMode);
@@ -379,15 +386,15 @@ inline void SimpleActor::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fAimLimit_up);
     arc.ArchiveFloat(&m_fAimLimit_down);
 
-    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
         arc.ArchiveUnsigned(&m_weightType[i]);
     }
 
-    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
         arc.ArchiveFloat(&m_weightBase[i]);
     }
 
-    for (int i = MAX_FRAMEINFOS - 1; i >= 0; i--) {
+    for (i = 0; i < MAX_FRAMEINFOS; i++) {
         arc.ArchiveFloat(&m_weightCrossBlend[i]);
     }
 
