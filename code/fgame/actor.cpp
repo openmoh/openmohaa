@@ -61,7 +61,7 @@ const char *gAmericanVoices[] = {"a", "c", "h"};
 const char *gGermanVoices[]   = {"a", "c", "d"};
 
 static const float DEFAULT_NEARBY_SQUAD_DIST = 1024;
-static const float MIN_BADPLACE_UPDATE_DIST = 256;
+static const float MIN_BADPLACE_UPDATE_DIST  = 256;
 
 Event EV_Actor_SetGun
 (
@@ -2381,272 +2381,272 @@ Event EV_Actor_CuriousOn
 );
 
 CLASS_DECLARATION(SimpleActor, Actor, "Actor") {
-    {&EV_Entity_Start,                        &Actor::EventStart                              },
-    {&EV_Actor_MoveTo,                        &Actor::MoveTo                                  },
-    {&EV_Actor_WalkTo,                        &Actor::WalkTo                                  },
-    {&EV_Actor_RunTo,                         &Actor::RunTo                                   },
-    {&EV_Actor_CrouchTo,                      &Actor::CrouchTo                                },
-    {&EV_Actor_CrawlTo,                       &Actor::CrawlTo                                 },
-    {&EV_Actor_AimAt,                         &Actor::AimAt                                   },
-    {&EV_Pain,                                &Actor::EventPain                               },
-    {&EV_Killed,                              &Actor::EventKilled                             },
-    {&EV_Actor_DeathEmbalm,                   &Actor::DeathEmbalm                             },
-    {&EV_Actor_Anim,                          &Actor::PlayAnimation                           },
-    {&EV_Actor_AnimLoop,                      &Actor::PlayAnimation                           },
-    {&EV_Actor_Anim_Scripted,                 &Actor::PlayScriptedAnimation                   },
-    {&EV_Actor_Anim_Noclip,                   &Actor::PlayNoclipAnimation                     },
-    {&EV_Actor_Anim_Attached,                 &Actor::PlayAttachedAnimation                   },
-    {&EV_Actor_AnimScript,                    &Actor::EventAnimScript                         },
-    {&EV_Actor_AnimScript_Scripted,           &Actor::EventAnimScript_Scripted                },
-    {&EV_Actor_AnimScript_Noclip,             &Actor::EventAnimScript_Noclip                  },
-    {&EV_Actor_AnimScript_Attached,           &Actor::EventAnimScript_Attached                },
-    {&EV_Actor_Reload_mg42,                   &Actor::EventReload_mg42                        },
-    {&EV_Actor_Dumb,                          &Actor::Dumb                                    },
-    {&EV_Actor_Physics_On,                    &Actor::PhysicsOn                               },
-    {&EV_Actor_Physics_Off,                   &Actor::PhysicsOff                              },
-    {&EV_Actor_SetAnim,                       &Actor::EventSetAnim                            },
-    {&EV_Actor_SetAnimLength,                 &SimpleActor::EventSetAnimLength                },
-    {&EV_Actor_EndActionAnim,                 &Actor::EventEndActionAnim                      },
-    {&EV_Actor_SetMotionAnim,                 &Actor::EventSetMotionAnim                      },
-    {&EV_Actor_SetAimMotionAnim,              &Actor::EventSetAimMotionAnim                   },
-    {&EV_Actor_SetActionAnim,                 &Actor::EventSetActionAnim                      },
-    {&EV_Actor_UpperAnim,                     &Actor::EventUpperAnim                          },
-    {&EV_Actor_SetUpperAnim,                  &Actor::EventSetUpperAnim                       },
-    {&EV_Actor_SetCrossblendTime,             &SimpleActor::EventSetCrossblendTime            },
-    {&EV_Actor_GetCrossblendTime,             &SimpleActor::EventGetCrossblendTime            },
-    {&EV_Actor_GetPosition,                   &SimpleActor::EventGetPosition                  },
-    {&EV_Actor_SetPosition,                   &SimpleActor::EventSetPosition                  },
-    {&EV_Actor_SetEmotion,                    &SimpleActor::EventSetEmotion                   },
-    {&EV_Actor_SetAnimFinal,                  &SimpleActor::EventSetAnimFinal                 },
-    {&EV_Actor_GetWeaponType,                 &SimpleActor::EventGetWeaponType                },
-    {&EV_Actor_GetWeaponGroup,                &SimpleActor::EventGetWeaponGroup               },
-    {&EV_Actor_LookAt,                        &Actor::EventLookAt                             },
-    {&EV_Actor_EyesLookAt,                    &Actor::EventEyesLookAt                         },
-    {&EV_Actor_PointAt,                       &Actor::EventPointAt                            },
-    {&EV_Actor_TurnTo,                        &Actor::EventTurnTo                             },
-    {&EV_Actor_SetTurnDoneError,              &Actor::EventSetTurnDoneError                   },
-    {&EV_Actor_SetTurnDoneError2,             &Actor::EventSetTurnDoneError                   },
-    {&EV_Actor_GetTurnDoneError,              &Actor::EventGetTurnDoneError                   },
-    {&EV_Actor_IdleSayAnim,                   &Actor::EventIdleSayAnim                        },
-    {&EV_Actor_SayAnim,                       &Actor::EventSayAnim                            },
-    {&EV_Actor_SetSayAnim,                    &Actor::EventSetSayAnim                         },
-    {&EV_Sentient_UseItem,                    &Actor::EventGiveWeapon                         },
-    {&EV_Sentient_GiveWeapon,                 &Actor::EventGiveWeapon                         },
-    {&EV_Actor_SetWeapon,                     &Actor::EventGiveWeapon                         },
-    {&EV_Actor_GetWeapon,                     &Actor::EventGetWeapon                          },
-    {&EV_Actor_SetGun,                        &Actor::EventGiveWeapon                         },
-    {&EV_Actor_SetGun2,                       &Actor::EventGiveWeapon                         },
-    {&EV_Actor_GetGun,                        &Actor::EventGetWeapon                          },
-    {&EV_Actor_WeaponInternal,                &Actor::EventGiveWeaponInternal                 },
-    {&EV_Actor_DamagePuff,                    &Actor::EventDamagePuff                         },
-    {&EV_Actor_SetAngleYawSpeed,              &Actor::EventSetAngleYawSpeed                   },
-    {&EV_Actor_SetAngleYawSpeed2,             &Actor::EventSetAngleYawSpeed                   },
-    {&EV_Actor_GetAngleYawSpeed,              &Actor::EventGetAngleYawSpeed                   },
-    {&EV_Actor_SetAimTarget,                  &Actor::EventSetAimTarget                       },
-    {&EV_Actor_ReadyToFire,                   &Actor::ReadyToFire                             },
-    {&EV_Actor_AIOn,                          &SimpleActor::EventAIOn                         },
-    {&EV_Actor_AIOff,                         &SimpleActor::EventAIOff                        },
-    {&EV_DeathSinkStart,                      &Actor::DeathSinkStart                          },
-    {&EV_Actor_GetSight,                      &Actor::EventGetSight                           },
-    {&EV_Actor_SetSight,                      &Actor::EventSetSight                           },
-    {&EV_Actor_SetSight2,                     &Actor::EventSetSight                           },
-    {&EV_Actor_GetHearing,                    &Actor::EventGetHearing                         },
-    {&EV_Actor_SetHearing,                    &Actor::EventSetHearing                         },
-    {&EV_Actor_SetHearing2,                   &Actor::EventSetHearing                         },
-    {&EV_Actor_SetFov,                        &Actor::EventSetFov                             },
-    {&EV_Actor_SetFov2,                       &Actor::EventSetFov                             },
-    {&EV_Actor_GetFov,                        &Actor::EventGetFov                             },
-    {&EV_Actor_DistToEnemy,                   &Actor::EventDistToEnemy                        },
-    {&EV_Actor_SetPatrolPath,                 &Actor::EventSetPatrolPath                      },
-    {&EV_Actor_SetPatrolPath2,                &Actor::EventSetPatrolPath                      },
-    {&EV_Actor_GetPatrolPath,                 &Actor::EventGetPatrolPath                      },
-    {&EV_Actor_SetPatrolWaitTrigger,          &Actor::EventSetPatrolWaitTrigger               },
-    {&EV_Actor_SetPatrolWaitTrigger2,         &Actor::EventSetPatrolWaitTrigger               },
-    {&EV_Actor_GetPatrolWaitTrigger,          &Actor::EventGetPatrolWaitTrigger               },
-    {&EV_Actor_SetAccuracy,                   &Actor::EventSetAccuracy                        },
-    {&EV_Actor_SetAccuracy2,                  &Actor::EventSetAccuracy                        },
-    {&EV_Actor_GetAccuracy,                   &Actor::EventGetAccuracy                        },
-    {&EV_Actor_SetTypeIdle,                   &Actor::EventSetTypeIdle                        },
-    {&EV_Actor_SetTypeIdle2,                  &Actor::EventSetTypeIdle                        },
-    {&EV_Actor_GetTypeIdle,                   &Actor::EventGetTypeIdle                        },
-    {&EV_Actor_SetTypeAttack,                 &Actor::EventSetTypeAttack                      },
-    {&EV_Actor_SetTypeAttack2,                &Actor::EventSetTypeAttack                      },
-    {&EV_Actor_GetTypeAttack,                 &Actor::EventGetTypeAttack                      },
-    {&EV_Actor_SetTypeDisguise,               &Actor::EventSetTypeDisguise                    },
-    {&EV_Actor_SetTypeDisguise2,              &Actor::EventSetTypeDisguise                    },
-    {&EV_Actor_GetTypeDisguise,               &Actor::EventGetTypeDisguise                    },
-    {&EV_Actor_SetDisguiseLevel,              &Actor::EventSetDisguiseLevel                   },
-    {&EV_Actor_SetDisguiseLevel2,             &Actor::EventSetDisguiseLevel                   },
-    {&EV_Actor_GetDisguiseLevel,              &Actor::EventGetDisguiseLevel                   },
-    {&EV_Actor_SetTypeGrenade,                &Actor::EventSetTypeGrenade                     },
-    {&EV_Actor_SetTypeGrenade2,               &Actor::EventSetTypeGrenade                     },
-    {&EV_Actor_GetTypeGrenade,                &Actor::EventGetTypeGrenade                     },
-    {&EV_Actor_SetMinDistance,                &Actor::EventSetMinDistance                     },
-    {&EV_Actor_SetMinDistance2,               &Actor::EventSetMinDistance                     },
-    {&EV_Actor_GetMinDistance,                &Actor::EventGetMinDistance                     },
-    {&EV_Actor_SetMaxDistance,                &Actor::EventSetMaxDistance                     },
-    {&EV_Actor_SetMaxDistance2,               &Actor::EventSetMaxDistance                     },
-    {&EV_Actor_GetMaxDistance,                &Actor::EventGetMaxDistance                     },
-    {&EV_Actor_GetLeash,                      &Actor::EventGetLeash                           },
-    {&EV_Actor_SetLeash,                      &Actor::EventSetLeash                           },
-    {&EV_Actor_SetLeash2,                     &Actor::EventSetLeash                           },
-    {&EV_Actor_GetInterval,                   &Actor::EventGetInterval                        },
-    {&EV_Actor_SetInterval,                   &Actor::EventSetInterval                        },
-    {&EV_Actor_SetInterval2,                  &Actor::EventSetInterval                        },
-    {&EV_Actor_GetRunAnim,                    &Actor::EventGetRunAnim                         },
-    {&EV_Actor_GetWalkAnim,                   &Actor::EventGetWalkAnim                        },
-    {&EV_Actor_GetAnimName,                   &Actor::EventGetAnimName                        },
-    {&EV_Actor_SetAnimName,                   &Actor::EventSetAnimName                        },
-    {&EV_Actor_SetDisguiseRange,              &Actor::EventSetDisguiseRange                   },
-    {&EV_Actor_SetDisguiseRange2,             &Actor::EventSetDisguiseRange                   },
-    {&EV_Actor_GetDisguiseRange,              &Actor::EventGetDisguiseRange                   },
-    {&EV_Actor_SetDisguisePeriod,             &Actor::EventSetDisguisePeriod                  },
-    {&EV_Actor_SetDisguisePeriod2,            &Actor::EventSetDisguisePeriod                  },
-    {&EV_Actor_GetDisguisePeriod,             &Actor::EventGetDisguisePeriod                  },
-    {&EV_Actor_SetDisguiseAcceptThread,       &Actor::EventSetDisguiseAcceptThread            },
-    {&EV_Actor_SetDisguiseAcceptThread2,      &Actor::EventSetDisguiseAcceptThread            },
-    {&EV_Actor_GetDisguiseAcceptThread,       &Actor::EventGetDisguiseAcceptThread            },
-    {&EV_Actor_AttackPlayer,                  &Actor::EventAttackPlayer                       },
-    {&EV_Actor_SetAlarmNode,                  &Actor::EventSetAlarmNode                       },
-    {&EV_Actor_SetAlarmNode2,                 &Actor::EventSetAlarmNode                       },
-    {&EV_Actor_GetAlarmNode,                  &Actor::EventGetAlarmNode                       },
-    {&EV_Actor_SetPreAlarmThread,             &Actor::EventSetPreAlarmThread                  },
-    {&EV_Actor_SetPreAlarmThread2,            &Actor::EventSetPreAlarmThread                  },
-    {&EV_Actor_SetAlarmThread,                &Actor::EventSetAlarmThread                     },
-    {&EV_Actor_SetAlarmThread2,               &Actor::EventSetAlarmThread                     },
-    {&EV_Actor_GetAlarmThread,                &Actor::EventGetAlarmThread                     },
-    {&EV_Actor_SetSoundAwareness,             &Actor::EventSetSoundAwareness                  },
-    {&EV_Actor_SetSoundAwareness2,            &Actor::EventSetSoundAwareness                  },
-    {&EV_Actor_GetSoundAwareness,             &Actor::EventGetSoundAwareness                  },
-    {&EV_Actor_SetGrenadeAwareness,           &Actor::EventSetGrenadeAwareness                },
-    {&EV_Actor_SetGrenadeAwareness2,          &Actor::EventSetGrenadeAwareness                },
-    {&EV_Actor_GetGrenadeAwareness,           &Actor::EventGetGrenadeAwareness                },
-    {&EV_Actor_SetTurret,                     &Actor::EventSetTurret                          },
-    {&EV_Actor_SetTurret2,                    &Actor::EventSetTurret                          },
-    {&EV_Actor_GetTurret,                     &Actor::EventGetTurret                          },
-    {&EV_Actor_AttachGrenade,                 &Actor::Grenade_EventAttach                     },
-    {&EV_Actor_DetachGrenade,                 &Actor::Grenade_EventDetach                     },
-    {&EV_Actor_FireGrenade,                   &Actor::Grenade_EventFire                       },
-    {&EV_Actor_EnableEnemy,                   &Actor::EventEnableEnemy                        },
-    {&EV_Actor_EnablePain,                    &Actor::EventEnablePain                         },
-    {&EV_Activate,                            &Actor::EventActivate                           },
-    {&EV_Actor_GetAmmoGrenade,                &Actor::EventGetAmmoGrenade                     },
-    {&EV_Actor_SetAmmoGrenade,                &Actor::EventSetAmmoGrenade                     },
-    {&EV_Actor_SetAmmoGrenade2,               &Actor::EventSetAmmoGrenade                     },
-    {&EV_Actor_GetMood,                       &Actor::EventGetMood                            },
-    {&EV_Actor_SetMood,                       &Actor::EventSetMood                            },
-    {&EV_Actor_ShareEnemy,                    &Actor::EventShareEnemy                         },
-    {&EV_Actor_ShareGrenade,                  &Actor::EventShareGrenade                       },
-    {&EV_Actor_InterruptPoint,                &Actor::EventInterruptPoint                     },
-    {&EV_Actor_GetVisibilityThreshold,        &Actor::EventGetVisibilityThreshold             },
-    {&EV_Actor_SetVisibilityThreshold,        &Actor::EventSetVisibilityThreshold             },
-    {&EV_Actor_SetVisibilityThreshold2,       &Actor::EventSetVisibilityThreshold             },
-    {&EV_Actor_SetDefaultVisibilityThreshold, &Actor::EventSetDefaultVisibilityThreshold      },
-    {&EV_Actor_GetSuppressChance,             &Actor::EventGetSuppressChance                  },
-    {&EV_Actor_SetSuppressChance,             &Actor::EventSetSuppressChance                  },
-    {&EV_Actor_SetSuppressChance2,            &Actor::EventSetSuppressChance                  },
-    {&EV_Actor_GetPainHandler,                &Actor::EventGetPainHandler                     },
-    {&EV_Actor_SetPainHandler,                &Actor::EventSetPainHandler                     },
-    {&EV_Actor_GetDeathHandler,               &Actor::EventGetDeathHandler                    },
-    {&EV_Actor_SetDeathHandler,               &Actor::EventSetDeathHandler                    },
-    {&EV_Actor_GetAttackHandler,              &Actor::EventGetAttackHandler                   },
-    {&EV_Actor_SetAttackHandler,              &Actor::EventSetAttackHandler                   },
-    {&EV_Actor_SetHeadModel,                  &Actor::EventSetHeadModel                       },
-    {&EV_Actor_GetHeadModel,                  &Actor::EventGetHeadModel                       },
-    {&EV_Actor_SetHeadSkin,                   &Actor::EventSetHeadSkin                        },
-    {&EV_Actor_GetHeadSkin,                   &Actor::EventGetHeadSkin                        },
-    {&EV_Actor_SetNoIdle,                     &Actor::EventSetNoIdle                          },
-    {&EV_Actor_GetNoIdle,                     &Actor::EventGetNoIdle                          },
-    {&EV_Actor_GetEnemy,                      &Actor::EventGetEnemy                           },
-    {&EV_Actor_GetMaxNoticeTimeScale,         &Actor::EventGetMaxNoticeTimeScale              },
-    {&EV_Actor_SetMaxNoticeTimeScale,         &Actor::EventSetMaxNoticeTimeScale              },
-    {&EV_Actor_SetMaxNoticeTimeScale2,        &Actor::EventSetMaxNoticeTimeScale              },
-    {&EV_Actor_GetFixedLeash,                 &Actor::EventGetFixedLeash                      },
-    {&EV_Actor_SetFixedLeash,                 &Actor::EventSetFixedLeash                      },
-    {&EV_Actor_SetFixedLeash2,                &Actor::EventSetFixedLeash                      },
-    {&EV_Actor_Holster,                       &Actor::EventHolster                            },
-    {&EV_Actor_Unholster,                     &Actor::EventUnholster                          },
-    {&EV_SoundDone,                           &Actor::EventSoundDone                          },
-    {&EV_Sound,                               &Actor::EventSound                              },
-    {&EV_Actor_IsEnemyVisible,                &Actor::EventIsEnemyVisible                     },
-    {&EV_Actor_GetEnemyVisibleChangeTime,     &Actor::EventGetEnemyVisibleChangeTime          },
-    {&EV_Actor_GetLastEnemyVisibleTime,       &Actor::EventGetLastEnemyVisibleTime            },
-    {&EV_Actor_SetFallHeight,                 &Actor::EventSetFallHeight                      },
-    {&EV_Actor_GetFallHeight,                 &Actor::EventGetFallHeight                      },
-    {&EV_Actor_CanMoveTo,                     &Actor::EventCanMoveTo                          },
-    {&EV_Actor_MoveDir,                       &Actor::EventMoveDir                            },
-    {&EV_Actor_IntervalDir,                   &Actor::EventIntervalDir                        },
-    {&EV_Actor_ResetLeash,                    &Actor::EventResetLeash                         },
-    {&EV_Actor_Tether,                        &Actor::EventTether                             },
-    {&EV_Actor_GetThinkState,                 &Actor::EventGetThinkState                      },
-    {&EV_Actor_GetEnemyShareRange,            &Actor::EventGetEnemyShareRange                 },
-    {&EV_Actor_SetEnemyShareRange,            &Actor::EventSetEnemyShareRange                 },
-    {&EV_Actor_SetEnemyShareRange2,           &Actor::EventSetEnemyShareRange                 },
-    {&EV_Actor_GetVoiceType,                  &Actor::GetVoiceType                            },
-    {&EV_Actor_SetVoiceType,                  &Actor::SetVoiceType                            },
-    {&EV_Actor_SetVoiceType2,                 &Actor::SetVoiceType                            },
-    {&EV_Remove,                              &Actor::Remove                                  },
-    {&EV_Delete,                              &Actor::Remove                                  },
-    {&EV_ScriptRemove,                        &Actor::Remove                                  },
-    {&EV_Actor_KickDir,                       &Actor::EventGetKickDir                         },
-    {&EV_Actor_GetNoLongPain,                 &Actor::EventGetNoLongPain                      },
-    {&EV_Actor_SetNoLongPain,                 &Actor::EventSetNoLongPain                      },
-    {&EV_Actor_SetNoLongPain2,                &Actor::EventSetNoLongPain                      },
-    {&EV_Actor_GetFavoriteEnemy,              &Actor::EventGetFavoriteEnemy                   },
-    {&EV_Actor_SetFavoriteEnemy,              &Actor::EventSetFavoriteEnemy                   },
-    {&EV_Actor_SetFavoriteEnemy2,             &Actor::EventSetFavoriteEnemy                   },
-    {&EV_Actor_GetMumble,                     &Actor::EventGetMumble                          },
-    {&EV_Actor_SetMumble,                     &Actor::EventSetMumble                          },
-    {&EV_Actor_SetMumble2,                    &Actor::EventSetMumble                          },
-    // FIXME: removed since 2.0?
-    //{&EV_Actor_GetBreathSteam,                &Actor::EventGetBreathSteam                     },
-    //{&EV_Actor_SetBreathSteam,                &Actor::EventSetBreathSteam                     },
-    //{&EV_Actor_SetBreathSteam2,               &Actor::EventSetBreathSteam                     },
-    {&EV_Actor_CalcGrenadeToss,               &Actor::EventCalcGrenadeToss                    },
-    {&EV_Actor_CalcGrenadeToss2,              &Actor::EventCalcGrenadeToss                    },
-    {&EV_Actor_GetNoSurprise,                 &Actor::EventGetNoSurprise                      },
-    {&EV_Actor_SetNoSurprise,                 &Actor::EventSetNoSurprise                      },
-    {&EV_Actor_SetNoSurprise2,                &Actor::EventSetNoSurprise                      },
-    {&EV_Actor_GetSilent,                     &Actor::EventGetSilent                          },
-    {&EV_Actor_SetSilent,                     &Actor::EventSetSilent                          },
-    {&EV_Actor_SetSilent2,                    &Actor::EventSetSilent                          },
-    {&EV_Actor_GetAvoidPlayer,                &Actor::EventGetAvoidPlayer                     },
-    {&EV_Actor_SetAvoidPlayer,                &Actor::EventSetAvoidPlayer                     },
-    {&EV_Actor_SetAvoidPlayer2,               &Actor::EventSetAvoidPlayer                     },
-    {&EV_Actor_SetMoveDoneRadius,             &Actor::EventSetMoveDoneRadius                  },
-    {&EV_Actor_GetMoveDoneRadius,             &Actor::EventGetMoveDoneRadius                  },
-    {&EV_Actor_BeDead,                        &Actor::EventBeDead                             },
-    {&EV_Actor_GetLookAroundAngle,            &Actor::EventGetLookAroundAngle                 },
-    {&EV_Actor_SetLookAroundAngle,            &Actor::EventSetLookAroundAngle                 },
-    {&EV_Actor_SetLookAroundAngle2,           &Actor::EventSetLookAroundAngle                 },
-    {&EV_Actor_HasCompleteLookahead,          &Actor::EventHasCompleteLookahead               },
-    {&EV_Actor_PathDist,                      &Actor::EventPathDist                           },
-    {&EV_Actor_CanShootEnemyFrom,             &Actor::EventCanShootEnemyFrom                  },
-    {&EV_Actor_CanShoot,                      &Actor::EventCanShoot                           },
-    {&EV_Actor_GetInReload,                   &Actor::EventGetInReload                        },
-    {&EV_Actor_SetInReload,                   &Actor::EventSetInReload                        },
-    {&EV_Actor_SetReloadCover,                &Actor::EventSetReloadCover                     },
-    {&EV_Actor_BreakSpecial,                  &Actor::EventBreakSpecial                       },
-    {&EV_Actor_SetBalconyHeight,              &Actor::EventSetBalconyHeight                   },
-    {&EV_Actor_SetBalconyHeight2,             &Actor::EventSetBalconyHeight                   },
-    {&EV_Actor_GetBalconyHeight,              &Actor::EventGetBalconyHeight                   },
-    {&EV_Actor_SetIgnoreBadPlace,             &Actor::EventSetIgnoreBadPlace                  },
-    {&EV_Actor_SetIgnoreBadPlace2,            &Actor::EventSetIgnoreBadPlace                  },
-    {&EV_Actor_GetIgnoreBadPlace,             &Actor::EventGetIgnoreBadPlace                  },
-    {&EV_Actor_FindEnemy,                     &Actor::EventFindEnemy                          },
-    {&EV_Actor_EnableEnemySwitch,             &Actor::EventEnableEnemySwitch                  },
-    {&EV_Actor_DisableEnemySwitch,            &Actor::EventDisableEnemySwitch                 },
-    {&EV_Actor_SetRunAnimRate,                &Actor::EventSetRunAnimRate                     },
-    {&EV_Actor_SetRunAnimRate2,               &Actor::EventSetRunAnimRate                     },
-    {&EV_Actor_GetRunAnimRate,                &Actor::EventGetRunAnimRate                     },
-    {&EV_Stop,                                &Actor::Landed                                  },
-    {&EV_Actor_SetNationality,                &Actor::SetNationality                          },
-    {&EV_Actor_SetNationality2,               &Actor::SetNationality                          },
-    {&EV_Actor_GetNationality,                &Actor::GetNationality                          },
-    {&EV_Actor_WriteStats,                    &Actor::EventWriteStats                         },
-    {&EV_Actor_CuriousOff,                    &Actor::EventCuriousOff                         },
-    {&EV_Actor_CuriousOn,                     &Actor::EventCuriousOn                          },
-    {NULL,                                    NULL                                            }
+    {&EV_Entity_Start,                        &Actor::EventStart                        },
+    {&EV_Actor_MoveTo,                        &Actor::MoveTo                            },
+    {&EV_Actor_WalkTo,                        &Actor::WalkTo                            },
+    {&EV_Actor_RunTo,                         &Actor::RunTo                             },
+    {&EV_Actor_CrouchTo,                      &Actor::CrouchTo                          },
+    {&EV_Actor_CrawlTo,                       &Actor::CrawlTo                           },
+    {&EV_Actor_AimAt,                         &Actor::AimAt                             },
+    {&EV_Pain,                                &Actor::EventPain                         },
+    {&EV_Killed,                              &Actor::EventKilled                       },
+    {&EV_Actor_DeathEmbalm,                   &Actor::DeathEmbalm                       },
+    {&EV_Actor_Anim,                          &Actor::PlayAnimation                     },
+    {&EV_Actor_AnimLoop,                      &Actor::PlayAnimation                     },
+    {&EV_Actor_Anim_Scripted,                 &Actor::PlayScriptedAnimation             },
+    {&EV_Actor_Anim_Noclip,                   &Actor::PlayNoclipAnimation               },
+    {&EV_Actor_Anim_Attached,                 &Actor::PlayAttachedAnimation             },
+    {&EV_Actor_AnimScript,                    &Actor::EventAnimScript                   },
+    {&EV_Actor_AnimScript_Scripted,           &Actor::EventAnimScript_Scripted          },
+    {&EV_Actor_AnimScript_Noclip,             &Actor::EventAnimScript_Noclip            },
+    {&EV_Actor_AnimScript_Attached,           &Actor::EventAnimScript_Attached          },
+    {&EV_Actor_Reload_mg42,                   &Actor::EventReload_mg42                  },
+    {&EV_Actor_Dumb,                          &Actor::Dumb                              },
+    {&EV_Actor_Physics_On,                    &Actor::PhysicsOn                         },
+    {&EV_Actor_Physics_Off,                   &Actor::PhysicsOff                        },
+    {&EV_Actor_SetAnim,                       &Actor::EventSetAnim                      },
+    {&EV_Actor_SetAnimLength,                 &SimpleActor::EventSetAnimLength          },
+    {&EV_Actor_EndActionAnim,                 &Actor::EventEndActionAnim                },
+    {&EV_Actor_SetMotionAnim,                 &Actor::EventSetMotionAnim                },
+    {&EV_Actor_SetAimMotionAnim,              &Actor::EventSetAimMotionAnim             },
+    {&EV_Actor_SetActionAnim,                 &Actor::EventSetActionAnim                },
+    {&EV_Actor_UpperAnim,                     &Actor::EventUpperAnim                    },
+    {&EV_Actor_SetUpperAnim,                  &Actor::EventSetUpperAnim                 },
+    {&EV_Actor_SetCrossblendTime,             &SimpleActor::EventSetCrossblendTime      },
+    {&EV_Actor_GetCrossblendTime,             &SimpleActor::EventGetCrossblendTime      },
+    {&EV_Actor_GetPosition,                   &SimpleActor::EventGetPosition            },
+    {&EV_Actor_SetPosition,                   &SimpleActor::EventSetPosition            },
+    {&EV_Actor_SetEmotion,                    &SimpleActor::EventSetEmotion             },
+    {&EV_Actor_SetAnimFinal,                  &SimpleActor::EventSetAnimFinal           },
+    {&EV_Actor_GetWeaponType,                 &SimpleActor::EventGetWeaponType          },
+    {&EV_Actor_GetWeaponGroup,                &SimpleActor::EventGetWeaponGroup         },
+    {&EV_Actor_LookAt,                        &Actor::EventLookAt                       },
+    {&EV_Actor_EyesLookAt,                    &Actor::EventEyesLookAt                   },
+    {&EV_Actor_PointAt,                       &Actor::EventPointAt                      },
+    {&EV_Actor_TurnTo,                        &Actor::EventTurnTo                       },
+    {&EV_Actor_SetTurnDoneError,              &Actor::EventSetTurnDoneError             },
+    {&EV_Actor_SetTurnDoneError2,             &Actor::EventSetTurnDoneError             },
+    {&EV_Actor_GetTurnDoneError,              &Actor::EventGetTurnDoneError             },
+    {&EV_Actor_IdleSayAnim,                   &Actor::EventIdleSayAnim                  },
+    {&EV_Actor_SayAnim,                       &Actor::EventSayAnim                      },
+    {&EV_Actor_SetSayAnim,                    &Actor::EventSetSayAnim                   },
+    {&EV_Sentient_UseItem,                    &Actor::EventGiveWeapon                   },
+    {&EV_Sentient_GiveWeapon,                 &Actor::EventGiveWeapon                   },
+    {&EV_Actor_SetWeapon,                     &Actor::EventGiveWeapon                   },
+    {&EV_Actor_GetWeapon,                     &Actor::EventGetWeapon                    },
+    {&EV_Actor_SetGun,                        &Actor::EventGiveWeapon                   },
+    {&EV_Actor_SetGun2,                       &Actor::EventGiveWeapon                   },
+    {&EV_Actor_GetGun,                        &Actor::EventGetWeapon                    },
+    {&EV_Actor_WeaponInternal,                &Actor::EventGiveWeaponInternal           },
+    {&EV_Actor_DamagePuff,                    &Actor::EventDamagePuff                   },
+    {&EV_Actor_SetAngleYawSpeed,              &Actor::EventSetAngleYawSpeed             },
+    {&EV_Actor_SetAngleYawSpeed2,             &Actor::EventSetAngleYawSpeed             },
+    {&EV_Actor_GetAngleYawSpeed,              &Actor::EventGetAngleYawSpeed             },
+    {&EV_Actor_SetAimTarget,                  &Actor::EventSetAimTarget                 },
+    {&EV_Actor_ReadyToFire,                   &Actor::ReadyToFire                       },
+    {&EV_Actor_AIOn,                          &SimpleActor::EventAIOn                   },
+    {&EV_Actor_AIOff,                         &SimpleActor::EventAIOff                  },
+    {&EV_DeathSinkStart,                      &Actor::DeathSinkStart                    },
+    {&EV_Actor_GetSight,                      &Actor::EventGetSight                     },
+    {&EV_Actor_SetSight,                      &Actor::EventSetSight                     },
+    {&EV_Actor_SetSight2,                     &Actor::EventSetSight                     },
+    {&EV_Actor_GetHearing,                    &Actor::EventGetHearing                   },
+    {&EV_Actor_SetHearing,                    &Actor::EventSetHearing                   },
+    {&EV_Actor_SetHearing2,                   &Actor::EventSetHearing                   },
+    {&EV_Actor_SetFov,                        &Actor::EventSetFov                       },
+    {&EV_Actor_SetFov2,                       &Actor::EventSetFov                       },
+    {&EV_Actor_GetFov,                        &Actor::EventGetFov                       },
+    {&EV_Actor_DistToEnemy,                   &Actor::EventDistToEnemy                  },
+    {&EV_Actor_SetPatrolPath,                 &Actor::EventSetPatrolPath                },
+    {&EV_Actor_SetPatrolPath2,                &Actor::EventSetPatrolPath                },
+    {&EV_Actor_GetPatrolPath,                 &Actor::EventGetPatrolPath                },
+    {&EV_Actor_SetPatrolWaitTrigger,          &Actor::EventSetPatrolWaitTrigger         },
+    {&EV_Actor_SetPatrolWaitTrigger2,         &Actor::EventSetPatrolWaitTrigger         },
+    {&EV_Actor_GetPatrolWaitTrigger,          &Actor::EventGetPatrolWaitTrigger         },
+    {&EV_Actor_SetAccuracy,                   &Actor::EventSetAccuracy                  },
+    {&EV_Actor_SetAccuracy2,                  &Actor::EventSetAccuracy                  },
+    {&EV_Actor_GetAccuracy,                   &Actor::EventGetAccuracy                  },
+    {&EV_Actor_SetTypeIdle,                   &Actor::EventSetTypeIdle                  },
+    {&EV_Actor_SetTypeIdle2,                  &Actor::EventSetTypeIdle                  },
+    {&EV_Actor_GetTypeIdle,                   &Actor::EventGetTypeIdle                  },
+    {&EV_Actor_SetTypeAttack,                 &Actor::EventSetTypeAttack                },
+    {&EV_Actor_SetTypeAttack2,                &Actor::EventSetTypeAttack                },
+    {&EV_Actor_GetTypeAttack,                 &Actor::EventGetTypeAttack                },
+    {&EV_Actor_SetTypeDisguise,               &Actor::EventSetTypeDisguise              },
+    {&EV_Actor_SetTypeDisguise2,              &Actor::EventSetTypeDisguise              },
+    {&EV_Actor_GetTypeDisguise,               &Actor::EventGetTypeDisguise              },
+    {&EV_Actor_SetDisguiseLevel,              &Actor::EventSetDisguiseLevel             },
+    {&EV_Actor_SetDisguiseLevel2,             &Actor::EventSetDisguiseLevel             },
+    {&EV_Actor_GetDisguiseLevel,              &Actor::EventGetDisguiseLevel             },
+    {&EV_Actor_SetTypeGrenade,                &Actor::EventSetTypeGrenade               },
+    {&EV_Actor_SetTypeGrenade2,               &Actor::EventSetTypeGrenade               },
+    {&EV_Actor_GetTypeGrenade,                &Actor::EventGetTypeGrenade               },
+    {&EV_Actor_SetMinDistance,                &Actor::EventSetMinDistance               },
+    {&EV_Actor_SetMinDistance2,               &Actor::EventSetMinDistance               },
+    {&EV_Actor_GetMinDistance,                &Actor::EventGetMinDistance               },
+    {&EV_Actor_SetMaxDistance,                &Actor::EventSetMaxDistance               },
+    {&EV_Actor_SetMaxDistance2,               &Actor::EventSetMaxDistance               },
+    {&EV_Actor_GetMaxDistance,                &Actor::EventGetMaxDistance               },
+    {&EV_Actor_GetLeash,                      &Actor::EventGetLeash                     },
+    {&EV_Actor_SetLeash,                      &Actor::EventSetLeash                     },
+    {&EV_Actor_SetLeash2,                     &Actor::EventSetLeash                     },
+    {&EV_Actor_GetInterval,                   &Actor::EventGetInterval                  },
+    {&EV_Actor_SetInterval,                   &Actor::EventSetInterval                  },
+    {&EV_Actor_SetInterval2,                  &Actor::EventSetInterval                  },
+    {&EV_Actor_GetRunAnim,                    &Actor::EventGetRunAnim                   },
+    {&EV_Actor_GetWalkAnim,                   &Actor::EventGetWalkAnim                  },
+    {&EV_Actor_GetAnimName,                   &Actor::EventGetAnimName                  },
+    {&EV_Actor_SetAnimName,                   &Actor::EventSetAnimName                  },
+    {&EV_Actor_SetDisguiseRange,              &Actor::EventSetDisguiseRange             },
+    {&EV_Actor_SetDisguiseRange2,             &Actor::EventSetDisguiseRange             },
+    {&EV_Actor_GetDisguiseRange,              &Actor::EventGetDisguiseRange             },
+    {&EV_Actor_SetDisguisePeriod,             &Actor::EventSetDisguisePeriod            },
+    {&EV_Actor_SetDisguisePeriod2,            &Actor::EventSetDisguisePeriod            },
+    {&EV_Actor_GetDisguisePeriod,             &Actor::EventGetDisguisePeriod            },
+    {&EV_Actor_SetDisguiseAcceptThread,       &Actor::EventSetDisguiseAcceptThread      },
+    {&EV_Actor_SetDisguiseAcceptThread2,      &Actor::EventSetDisguiseAcceptThread      },
+    {&EV_Actor_GetDisguiseAcceptThread,       &Actor::EventGetDisguiseAcceptThread      },
+    {&EV_Actor_AttackPlayer,                  &Actor::EventAttackPlayer                 },
+    {&EV_Actor_SetAlarmNode,                  &Actor::EventSetAlarmNode                 },
+    {&EV_Actor_SetAlarmNode2,                 &Actor::EventSetAlarmNode                 },
+    {&EV_Actor_GetAlarmNode,                  &Actor::EventGetAlarmNode                 },
+    {&EV_Actor_SetPreAlarmThread,             &Actor::EventSetPreAlarmThread            },
+    {&EV_Actor_SetPreAlarmThread2,            &Actor::EventSetPreAlarmThread            },
+    {&EV_Actor_SetAlarmThread,                &Actor::EventSetAlarmThread               },
+    {&EV_Actor_SetAlarmThread2,               &Actor::EventSetAlarmThread               },
+    {&EV_Actor_GetAlarmThread,                &Actor::EventGetAlarmThread               },
+    {&EV_Actor_SetSoundAwareness,             &Actor::EventSetSoundAwareness            },
+    {&EV_Actor_SetSoundAwareness2,            &Actor::EventSetSoundAwareness            },
+    {&EV_Actor_GetSoundAwareness,             &Actor::EventGetSoundAwareness            },
+    {&EV_Actor_SetGrenadeAwareness,           &Actor::EventSetGrenadeAwareness          },
+    {&EV_Actor_SetGrenadeAwareness2,          &Actor::EventSetGrenadeAwareness          },
+    {&EV_Actor_GetGrenadeAwareness,           &Actor::EventGetGrenadeAwareness          },
+    {&EV_Actor_SetTurret,                     &Actor::EventSetTurret                    },
+    {&EV_Actor_SetTurret2,                    &Actor::EventSetTurret                    },
+    {&EV_Actor_GetTurret,                     &Actor::EventGetTurret                    },
+    {&EV_Actor_AttachGrenade,                 &Actor::Grenade_EventAttach               },
+    {&EV_Actor_DetachGrenade,                 &Actor::Grenade_EventDetach               },
+    {&EV_Actor_FireGrenade,                   &Actor::Grenade_EventFire                 },
+    {&EV_Actor_EnableEnemy,                   &Actor::EventEnableEnemy                  },
+    {&EV_Actor_EnablePain,                    &Actor::EventEnablePain                   },
+    {&EV_Activate,                            &Actor::EventActivate                     },
+    {&EV_Actor_GetAmmoGrenade,                &Actor::EventGetAmmoGrenade               },
+    {&EV_Actor_SetAmmoGrenade,                &Actor::EventSetAmmoGrenade               },
+    {&EV_Actor_SetAmmoGrenade2,               &Actor::EventSetAmmoGrenade               },
+    {&EV_Actor_GetMood,                       &Actor::EventGetMood                      },
+    {&EV_Actor_SetMood,                       &Actor::EventSetMood                      },
+    {&EV_Actor_ShareEnemy,                    &Actor::EventShareEnemy                   },
+    {&EV_Actor_ShareGrenade,                  &Actor::EventShareGrenade                 },
+    {&EV_Actor_InterruptPoint,                &Actor::EventInterruptPoint               },
+    {&EV_Actor_GetVisibilityThreshold,        &Actor::EventGetVisibilityThreshold       },
+    {&EV_Actor_SetVisibilityThreshold,        &Actor::EventSetVisibilityThreshold       },
+    {&EV_Actor_SetVisibilityThreshold2,       &Actor::EventSetVisibilityThreshold       },
+    {&EV_Actor_SetDefaultVisibilityThreshold, &Actor::EventSetDefaultVisibilityThreshold},
+    {&EV_Actor_GetSuppressChance,             &Actor::EventGetSuppressChance            },
+    {&EV_Actor_SetSuppressChance,             &Actor::EventSetSuppressChance            },
+    {&EV_Actor_SetSuppressChance2,            &Actor::EventSetSuppressChance            },
+    {&EV_Actor_GetPainHandler,                &Actor::EventGetPainHandler               },
+    {&EV_Actor_SetPainHandler,                &Actor::EventSetPainHandler               },
+    {&EV_Actor_GetDeathHandler,               &Actor::EventGetDeathHandler              },
+    {&EV_Actor_SetDeathHandler,               &Actor::EventSetDeathHandler              },
+    {&EV_Actor_GetAttackHandler,              &Actor::EventGetAttackHandler             },
+    {&EV_Actor_SetAttackHandler,              &Actor::EventSetAttackHandler             },
+    {&EV_Actor_SetHeadModel,                  &Actor::EventSetHeadModel                 },
+    {&EV_Actor_GetHeadModel,                  &Actor::EventGetHeadModel                 },
+    {&EV_Actor_SetHeadSkin,                   &Actor::EventSetHeadSkin                  },
+    {&EV_Actor_GetHeadSkin,                   &Actor::EventGetHeadSkin                  },
+    {&EV_Actor_SetNoIdle,                     &Actor::EventSetNoIdle                    },
+    {&EV_Actor_GetNoIdle,                     &Actor::EventGetNoIdle                    },
+    {&EV_Actor_GetEnemy,                      &Actor::EventGetEnemy                     },
+    {&EV_Actor_GetMaxNoticeTimeScale,         &Actor::EventGetMaxNoticeTimeScale        },
+    {&EV_Actor_SetMaxNoticeTimeScale,         &Actor::EventSetMaxNoticeTimeScale        },
+    {&EV_Actor_SetMaxNoticeTimeScale2,        &Actor::EventSetMaxNoticeTimeScale        },
+    {&EV_Actor_GetFixedLeash,                 &Actor::EventGetFixedLeash                },
+    {&EV_Actor_SetFixedLeash,                 &Actor::EventSetFixedLeash                },
+    {&EV_Actor_SetFixedLeash2,                &Actor::EventSetFixedLeash                },
+    {&EV_Actor_Holster,                       &Actor::EventHolster                      },
+    {&EV_Actor_Unholster,                     &Actor::EventUnholster                    },
+    {&EV_SoundDone,                           &Actor::EventSoundDone                    },
+    {&EV_Sound,                               &Actor::EventSound                        },
+    {&EV_Actor_IsEnemyVisible,                &Actor::EventIsEnemyVisible               },
+    {&EV_Actor_GetEnemyVisibleChangeTime,     &Actor::EventGetEnemyVisibleChangeTime    },
+    {&EV_Actor_GetLastEnemyVisibleTime,       &Actor::EventGetLastEnemyVisibleTime      },
+    {&EV_Actor_SetFallHeight,                 &Actor::EventSetFallHeight                },
+    {&EV_Actor_GetFallHeight,                 &Actor::EventGetFallHeight                },
+    {&EV_Actor_CanMoveTo,                     &Actor::EventCanMoveTo                    },
+    {&EV_Actor_MoveDir,                       &Actor::EventMoveDir                      },
+    {&EV_Actor_IntervalDir,                   &Actor::EventIntervalDir                  },
+    {&EV_Actor_ResetLeash,                    &Actor::EventResetLeash                   },
+    {&EV_Actor_Tether,                        &Actor::EventTether                       },
+    {&EV_Actor_GetThinkState,                 &Actor::EventGetThinkState                },
+    {&EV_Actor_GetEnemyShareRange,            &Actor::EventGetEnemyShareRange           },
+    {&EV_Actor_SetEnemyShareRange,            &Actor::EventSetEnemyShareRange           },
+    {&EV_Actor_SetEnemyShareRange2,           &Actor::EventSetEnemyShareRange           },
+    {&EV_Actor_GetVoiceType,                  &Actor::GetVoiceType                      },
+    {&EV_Actor_SetVoiceType,                  &Actor::SetVoiceType                      },
+    {&EV_Actor_SetVoiceType2,                 &Actor::SetVoiceType                      },
+    {&EV_Remove,                              &Actor::Remove                            },
+    {&EV_Delete,                              &Actor::Remove                            },
+    {&EV_ScriptRemove,                        &Actor::Remove                            },
+    {&EV_Actor_KickDir,                       &Actor::EventGetKickDir                   },
+    {&EV_Actor_GetNoLongPain,                 &Actor::EventGetNoLongPain                },
+    {&EV_Actor_SetNoLongPain,                 &Actor::EventSetNoLongPain                },
+    {&EV_Actor_SetNoLongPain2,                &Actor::EventSetNoLongPain                },
+    {&EV_Actor_GetFavoriteEnemy,              &Actor::EventGetFavoriteEnemy             },
+    {&EV_Actor_SetFavoriteEnemy,              &Actor::EventSetFavoriteEnemy             },
+    {&EV_Actor_SetFavoriteEnemy2,             &Actor::EventSetFavoriteEnemy             },
+    {&EV_Actor_GetMumble,                     &Actor::EventGetMumble                    },
+    {&EV_Actor_SetMumble,                     &Actor::EventSetMumble                    },
+    {&EV_Actor_SetMumble2,                    &Actor::EventSetMumble                    },
+ // FIXME: removed since 2.0?
+  //{&EV_Actor_GetBreathSteam,                &Actor::EventGetBreathSteam                     },
+  //{&EV_Actor_SetBreathSteam,                &Actor::EventSetBreathSteam                     },
+  //{&EV_Actor_SetBreathSteam2,               &Actor::EventSetBreathSteam                     },
+    {&EV_Actor_CalcGrenadeToss,               &Actor::EventCalcGrenadeToss              },
+    {&EV_Actor_CalcGrenadeToss2,              &Actor::EventCalcGrenadeToss              },
+    {&EV_Actor_GetNoSurprise,                 &Actor::EventGetNoSurprise                },
+    {&EV_Actor_SetNoSurprise,                 &Actor::EventSetNoSurprise                },
+    {&EV_Actor_SetNoSurprise2,                &Actor::EventSetNoSurprise                },
+    {&EV_Actor_GetSilent,                     &Actor::EventGetSilent                    },
+    {&EV_Actor_SetSilent,                     &Actor::EventSetSilent                    },
+    {&EV_Actor_SetSilent2,                    &Actor::EventSetSilent                    },
+    {&EV_Actor_GetAvoidPlayer,                &Actor::EventGetAvoidPlayer               },
+    {&EV_Actor_SetAvoidPlayer,                &Actor::EventSetAvoidPlayer               },
+    {&EV_Actor_SetAvoidPlayer2,               &Actor::EventSetAvoidPlayer               },
+    {&EV_Actor_SetMoveDoneRadius,             &Actor::EventSetMoveDoneRadius            },
+    {&EV_Actor_GetMoveDoneRadius,             &Actor::EventGetMoveDoneRadius            },
+    {&EV_Actor_BeDead,                        &Actor::EventBeDead                       },
+    {&EV_Actor_GetLookAroundAngle,            &Actor::EventGetLookAroundAngle           },
+    {&EV_Actor_SetLookAroundAngle,            &Actor::EventSetLookAroundAngle           },
+    {&EV_Actor_SetLookAroundAngle2,           &Actor::EventSetLookAroundAngle           },
+    {&EV_Actor_HasCompleteLookahead,          &Actor::EventHasCompleteLookahead         },
+    {&EV_Actor_PathDist,                      &Actor::EventPathDist                     },
+    {&EV_Actor_CanShootEnemyFrom,             &Actor::EventCanShootEnemyFrom            },
+    {&EV_Actor_CanShoot,                      &Actor::EventCanShoot                     },
+    {&EV_Actor_GetInReload,                   &Actor::EventGetInReload                  },
+    {&EV_Actor_SetInReload,                   &Actor::EventSetInReload                  },
+    {&EV_Actor_SetReloadCover,                &Actor::EventSetReloadCover               },
+    {&EV_Actor_BreakSpecial,                  &Actor::EventBreakSpecial                 },
+    {&EV_Actor_SetBalconyHeight,              &Actor::EventSetBalconyHeight             },
+    {&EV_Actor_SetBalconyHeight2,             &Actor::EventSetBalconyHeight             },
+    {&EV_Actor_GetBalconyHeight,              &Actor::EventGetBalconyHeight             },
+    {&EV_Actor_SetIgnoreBadPlace,             &Actor::EventSetIgnoreBadPlace            },
+    {&EV_Actor_SetIgnoreBadPlace2,            &Actor::EventSetIgnoreBadPlace            },
+    {&EV_Actor_GetIgnoreBadPlace,             &Actor::EventGetIgnoreBadPlace            },
+    {&EV_Actor_FindEnemy,                     &Actor::EventFindEnemy                    },
+    {&EV_Actor_EnableEnemySwitch,             &Actor::EventEnableEnemySwitch            },
+    {&EV_Actor_DisableEnemySwitch,            &Actor::EventDisableEnemySwitch           },
+    {&EV_Actor_SetRunAnimRate,                &Actor::EventSetRunAnimRate               },
+    {&EV_Actor_SetRunAnimRate2,               &Actor::EventSetRunAnimRate               },
+    {&EV_Actor_GetRunAnimRate,                &Actor::EventGetRunAnimRate               },
+    {&EV_Stop,                                &Actor::Landed                            },
+    {&EV_Actor_SetNationality,                &Actor::SetNationality                    },
+    {&EV_Actor_SetNationality2,               &Actor::SetNationality                    },
+    {&EV_Actor_GetNationality,                &Actor::GetNationality                    },
+    {&EV_Actor_WriteStats,                    &Actor::EventWriteStats                   },
+    {&EV_Actor_CuriousOff,                    &Actor::EventCuriousOff                   },
+    {&EV_Actor_CuriousOn,                     &Actor::EventCuriousOn                    },
+    {NULL,                                    NULL                                      }
 };
 
 Actor::GlobalFuncs_t Actor::GlobalFuncs[NUM_THINKS];
@@ -2713,16 +2713,16 @@ Actor::Actor()
     entflags |= EF_ACTOR;
 
     m_pszDebugState = "";
-    m_pFallPath = NULL;
-    m_iOriginTime = -1;
+    m_pFallPath     = NULL;
+    m_iOriginTime   = -1;
 
     if (LoadingSavegame) {
         return;
     }
 
-    m_PainState = 500;
+    m_PainState            = 500;
     m_iEnemyShowPapersTime = 0;
-    m_eGrenadeState = eGrenadeState::AI_GRENSTATE_FLEE;
+    m_eGrenadeState        = eGrenadeState::AI_GRENSTATE_FLEE;
 
     edict->s.eType = ET_MODELANIM;
     edict->r.svFlags |= SVF_MONSTER;
@@ -2737,18 +2737,18 @@ Actor::Actor()
     setContentsSolid();
     setSolidType(SOLID_BBOX);
 
-    m_fFov      = 90.0f;
-    takedamage  = DAMAGE_AIM;
-    m_fFovDot   = cos(DEG2RAD(m_fFov / 2.0));
+    m_fFov     = 90.0f;
+    takedamage = DAMAGE_AIM;
+    m_fFovDot  = cos(DEG2RAD(m_fFov / 2.0));
 
     m_eAnimMode = ANIM_MODE_NONE;
     Anim_Emotion(EMOTION_NONE);
 
-    m_bDoPhysics          = true;
-    path_failed_time      = 0;
+    m_bDoPhysics     = true;
+    path_failed_time = 0;
 
-    health                = 100;
-    max_health            = 100;
+    health     = 100;
+    max_health = 100;
 
     m_fAngleYawSpeed      = 360;
     m_fHeadMaxTurnSpeed   = 520;
@@ -2780,9 +2780,9 @@ Actor::Actor()
     hit_obstacle_time       = 0;
     VectorClear2D(obstacle_vel);
 
-    m_bLockThinkState       = false;
-    m_bAutoAvoidPlayer      = true;
-    m_bIsCurious            = true;
+    m_bLockThinkState  = false;
+    m_bAutoAvoidPlayer = true;
+    m_bIsCurious       = true;
 
     InitThinkStates();
     SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
@@ -2794,16 +2794,16 @@ Actor::Actor()
     m_fLeash              = 512;
     m_fLeashSquared       = Square(m_fLeashSquared);
 
-    m_iEyeUpdateTime      = level.inttime;
+    m_iEyeUpdateTime = level.inttime;
     if (m_iEyeUpdateTime < 1000) {
         m_iEyeUpdateTime = 1000;
     }
     m_iEyeUpdateTime += rand() % 100 + 100;
 
-    m_vIntervalDir            = vec_zero;
-    m_iIntervalDirTime        = 0;
-    edict->r.lastNetTime      = -10000000;
-    
+    m_vIntervalDir       = vec_zero;
+    m_iIntervalDirTime   = 0;
+    edict->r.lastNetTime = -10000000;
+
     m_bNewEnemy               = false;
     m_iEnemyCheckTime         = 0;
     m_iEnemyChangeTime        = 0;
@@ -2816,13 +2816,13 @@ Actor::Actor()
     m_fVisibilityThreshold    = 0.5f;
     m_bHasVisibilityThreshold = false;
 
-    m_bEnemyInFOV             = false;
-    m_iEnemyFovCheckTime      = 0;
-    m_iEnemyFovChangeTime     = 0;
-    m_iIgnoreSoundsMask       = 0;
+    m_bEnemyInFOV         = false;
+    m_iEnemyFovCheckTime  = 0;
+    m_iEnemyFovChangeTime = 0;
+    m_iIgnoreSoundsMask   = 0;
 
-    m_State                   = -1;
-    m_iStateTime              = 0;
+    m_State      = -1;
+    m_iStateTime = 0;
 
     m_iGunPositionCheckTime   = 0;
     m_vLastEnemyPos           = vec3_origin;
@@ -2831,119 +2831,119 @@ Actor::Actor()
     m_bScriptGoalValid        = false;
     m_iNextWatchStepTime      = 0;
 
-    m_iCuriousTime            = 0;
-    m_iCuriousLevel           = 0;
+    m_iCuriousTime  = 0;
+    m_iCuriousLevel = 0;
     SetCuriousAnimHint(0);
 
-    m_bNoSurprise      = false;
+    m_bNoSurprise = false;
     memset(&m_pPotentialCoverNode, 0, sizeof(m_pPotentialCoverNode));
-    m_iPotentialCoverCount    = 0;
-    m_pCoverNode              = NULL;
+    m_iPotentialCoverCount = 0;
+    m_pCoverNode           = NULL;
 
-    m_csSpecialAttack         = STRING_NULL;
-    m_bNeedReload             = false;
-    m_bInReload               = false;
-    m_bFaceEnemy              = true;
-    m_sCurrentPathNodeIndex   = -1;
+    m_csSpecialAttack       = STRING_NULL;
+    m_bNeedReload           = false;
+    m_bInReload             = false;
+    m_bFaceEnemy            = true;
+    m_sCurrentPathNodeIndex = -1;
 
     m_iNextDisguiseTime       = 1;
     m_iDisguisePeriod         = 30000;
     m_fMaxDisguiseDistSquared = 256 * 256;
     m_iDisguiseLevel          = 1;
 
-    m_patrolCurrentNode       = NULL;
-    m_csPatrolCurrentAnim     = STRING_ANIM_RUN_SCR;
-    m_bPatrolWaitTrigger      = false;
-    m_fInterval               = 128;
-    m_iSquadStandTime         = 0;
-    m_aimNode                 = NULL;
+    m_patrolCurrentNode   = NULL;
+    m_csPatrolCurrentAnim = STRING_ANIM_RUN_SCR;
+    m_bPatrolWaitTrigger  = false;
+    m_fInterval           = 128;
+    m_iSquadStandTime     = 0;
+    m_aimNode             = NULL;
 
-    m_vHome                   = vec3_origin;
-    m_bFixedLeash             = false;
-    m_pTetherEnt              = NULL;
+    m_vHome       = vec3_origin;
+    m_bFixedLeash = false;
+    m_pTetherEnt  = NULL;
 
-    m_pGrenade                = NULL;
-    m_vGrenadePos             = vec3_origin;
-    m_iFirstGrenadeTime       = 0;
-    m_bGrenadeBounced         = false;
-    m_eGrenadeMode            = AI_GREN_TOSS_NONE;
-    m_vGrenadeVel             = vec_zero;
-    m_vKickDir                = vec_zero;
-    
-    m_fSoundAwareness         = 100;
-    m_fGrenadeAwareness       = 20;
-    m_fMaxNoticeTimeScale     = 1.0f;
-    m_fNoticeTimeScale        = 1.0f;
+    m_pGrenade          = NULL;
+    m_vGrenadePos       = vec3_origin;
+    m_iFirstGrenadeTime = 0;
+    m_bGrenadeBounced   = false;
+    m_eGrenadeMode      = AI_GREN_TOSS_NONE;
+    m_vGrenadeVel       = vec_zero;
+    m_vKickDir          = vec_zero;
 
-    m_iCanShootCheckTime      = 0;
-    m_bCanShootEnemy          = false;
-    m_bEnableEnemy            = true;
-    m_bDesiredEnableEnemy     = true;
-    m_bEnablePain             = true;
+    m_fSoundAwareness     = 100;
+    m_fGrenadeAwareness   = 20;
+    m_fMaxNoticeTimeScale = 1.0f;
+    m_fNoticeTimeScale    = 1.0f;
 
-    m_csAnimScript            = STRING_ANIM_IDLE_SCR;
-    m_bAnimScriptSet          = false;
-    m_AnimMode                = ANIM_MODE_NORMAL;
-    m_csAnimName              = STRING_EMPTY;
-    m_csSayAnim               = STRING_EMPTY;
-    m_csUpperAnim             = STRING_EMPTY;
+    m_iCanShootCheckTime  = 0;
+    m_bCanShootEnemy      = false;
+    m_bEnableEnemy        = true;
+    m_bDesiredEnableEnemy = true;
+    m_bEnablePain         = true;
 
-    m_fRunAnimRate            = 1;
-    m_fDfwRequestedYaw        = 0;
-    m_fDfwDerivedYaw          = 0;
-    m_vDfwPos                 = vec_zero;
-    m_fDfwTime                = 0;
+    m_csAnimScript   = STRING_ANIM_IDLE_SCR;
+    m_bAnimScriptSet = false;
+    m_AnimMode       = ANIM_MODE_NORMAL;
+    m_csAnimName     = STRING_EMPTY;
+    m_csSayAnim      = STRING_EMPTY;
+    m_csUpperAnim    = STRING_EMPTY;
 
-    m_AlarmNode               = NULL;
+    m_fRunAnimRate     = 1;
+    m_fDfwRequestedYaw = 0;
+    m_fDfwDerivedYaw   = 0;
+    m_vDfwPos          = vec_zero;
+    m_fDfwTime         = 0;
 
-    m_iWallDodgeTimeout       = 0;
-    m_WallDir                 = 0;
+    m_AlarmNode = NULL;
+
+    m_iWallDodgeTimeout = 0;
+    m_WallDir           = 0;
     VectorClear2D(m_PrevObstacleNormal);
-    
-    m_csHeadModel             = STRING_EMPTY;
-    m_csHeadSkin              = STRING_EMPTY;
-    m_bNoIdleAfterAnim        = false;
-    m_csWeapon                = STRING_EMPTY;
-    m_csLoadOut               = STRING_EMPTY;
 
-    m_fMaxShareDistSquared    = 0;
-    m_iRunHomeTime            = 0;
-    m_iSuppressChance         = 50;
+    m_csHeadModel      = STRING_EMPTY;
+    m_csHeadSkin       = STRING_EMPTY;
+    m_bNoIdleAfterAnim = false;
+    m_csWeapon         = STRING_EMPTY;
+    m_csLoadOut        = STRING_EMPTY;
 
-    m_bBreathSteam           = false;
+    m_fMaxShareDistSquared = 0;
+    m_iRunHomeTime         = 0;
+    m_iSuppressChance      = 50;
+
+    m_bBreathSteam = false;
 
     m_fMoveDoneRadiusSquared = 0;
 
-    m_bForceAttackPlayer     = false;
+    m_bForceAttackPlayer = false;
 
-    m_iLookFlags              = 0;
-    m_iNextLookTime          = 0;
-    m_fLookAroundFov         = 45;
-    m_bHasDesiredLookDest    = false;
-    m_bHasDesiredLookAngles  = false;
+    m_iLookFlags            = 0;
+    m_iNextLookTime         = 0;
+    m_fLookAroundFov        = 45;
+    m_bHasDesiredLookDest   = false;
+    m_bHasDesiredLookAngles = false;
 
-    m_eDontFaceWallMode       = 0;
-    m_iLastFaceDecideTime    = 0;
-    m_iOriginTime            = -1;
-    m_fTurnDoneError         = 0;
+    m_eDontFaceWallMode   = 0;
+    m_iLastFaceDecideTime = 0;
+    m_iOriginTime         = -1;
+    m_fTurnDoneError      = 0;
 
-    m_fBalconyHeight         = 128;
-    m_bNoPlayerCollision     = false;
+    m_fBalconyHeight     = 128;
+    m_bNoPlayerCollision = false;
     for (int i = 0; i < MAX_ORIGIN_HISTORY; i++) {
         VectorClear2D(m_vOriginHistory[i]);
     }
     m_iCurrentHistory = 0;
-    m_bAnimating = false;
+    m_bAnimating      = false;
     m_bIgnoreBadPlace = false;
-    m_bBecomeRunner = false;
-    m_bEnemySwitch = true;
-    m_iNationality = 0;
+    m_bBecomeRunner   = false;
+    m_bEnemySwitch    = true;
+    m_iNationality    = 0;
 
     if (g_aistats) {
         PostEvent(EV_Actor_WriteStats, 1.0);
     }
 
-    mVoiceType        = -1;
+    mVoiceType = -1;
 }
 
 /*
@@ -3084,7 +3084,7 @@ void Actor::SetMoveInfo(mmove_t *mm)
 
     mm->entityNum = entnum;
 
-    mm->walking = m_walking;
+    mm->walking     = m_walking;
     mm->groundPlane = m_groundPlane;
     VectorCopy(m_groundPlaneNormal, mm->groundPlaneNormal);
 
@@ -3127,13 +3127,13 @@ void Actor::GetMoveInfo(mmove_t *mm)
 {
     trace_t trace;
 
-    m_walking           = mm->walking;
-    m_groundPlane       = mm->groundPlane;
+    m_walking     = mm->walking;
+    m_groundPlane = mm->groundPlane;
     VectorCopy(mm->groundPlaneNormal, m_groundPlaneNormal);
-    groundentity        = NULL;
+    groundentity = NULL;
 
     TouchStuff(mm);
-    
+
     switch (m_eAnimMode) {
     case ANIM_MODE_DEST:
         if (!mm->hit_temp_obstacle && mm->hit_obstacle) {
@@ -3142,7 +3142,7 @@ void Actor::GetMoveInfo(mmove_t *mm)
                 PLAYER_BASE_MIN,
                 PLAYER_BASE_MAX,
                 m_Dest - Vector(0, 0, 16384),
-                (Entity*)NULL,
+                (Entity *)NULL,
                 MASK_MOVEINFO,
                 qfalse,
                 "Actor::GetMoveInfo"
@@ -3150,9 +3150,9 @@ void Actor::GetMoveInfo(mmove_t *mm)
 
             DoFailSafeMove(trace.endpos);
         } else if (mm->hit_temp_obstacle & 1) {
-            Player* p;
+            Player *p;
 
-            p = static_cast<Player*>(G_GetEntity(0));
+            p = static_cast<Player *>(G_GetEntity(0));
 
             if (!IsTeamMate(p)) {
                 if (!m_bEnableEnemy) {
@@ -3169,10 +3169,10 @@ void Actor::GetMoveInfo(mmove_t *mm)
     case ANIM_MODE_PATH_GOAL:
         if (mm->hit_temp_obstacle) {
             if (mm->hit_temp_obstacle & 1) {
-                Player* p;
+                Player *p;
 
                 m_Path.Clear();
-                p = static_cast<Player*>(G_GetEntity(0));
+                p = static_cast<Player *>(G_GetEntity(0));
 
                 if (!IsTeamMate(p)) {
                     if (!m_bEnableEnemy) {
@@ -3190,9 +3190,11 @@ void Actor::GetMoveInfo(mmove_t *mm)
             if (level.inttime >= m_Path.Time() + 1000) {
                 m_Path.ReFindPath(origin, this);
             } else {
-                PathInfo* node = m_Path.NextNode();
+                PathInfo *node = m_Path.NextNode();
 
-                if (!node || !m_Path.IsAccurate() && (node == m_Path.LastNode() && m_Path.CurrentNode() != m_Path.StartNode())) {
+                if (!node
+                    || !m_Path.IsAccurate()
+                           && (node == m_Path.LastNode() && m_Path.CurrentNode() != m_Path.StartNode())) {
                     m_Path.Clear();
                     VectorClear(velocity);
                     return;
@@ -3300,26 +3302,25 @@ Reversed incorrectly, since decompiled output has different behaviour as reverse
 */
 void Actor::UpdateBoneControllers(void)
 {
-    float pitchError, yawError, error;
-    float max_change, max_accel_change, min_accel_change;
+    float  pitchError, yawError, error;
+    float  max_change, max_accel_change, min_accel_change;
     Vector headAngles, torsoAngles;
-    float tolerable_error;
+    float  tolerable_error;
     vec3_t LocalLookAngles;
-    float torsoYawError;
+    float  torsoYawError;
 
     if (m_bHasDesiredLookAngles) {
-        vec3_t myAxis[3];
-        vec3_t eyePosition;
-        vec3_t lookAxis[3];
-        vec3_t endPosition;
-        vec3_t worldLookAngles;
-        vec3_t lineVec;
-        int tagnum;
+        vec3_t        myAxis[3];
+        vec3_t        eyePosition;
+        vec3_t        lookAxis[3];
+        vec3_t        endPosition;
+        vec3_t        worldLookAngles;
+        vec3_t        lineVec;
+        int           tagnum;
         orientation_t tag_or;
-        Vector vError;
+        Vector        vError;
 
-        if (g_showlookat->integer == entnum || g_showlookat->integer == -1)
-        {
+        if (g_showlookat->integer == entnum || g_showlookat->integer == -1) {
             tagnum = gi.Tag_NumForName(edict->tiki, "eyes bone");
             tag_or = G_TIKI_Orientation(edict, tagnum & TAG_MASK);
             AnglesToAxis(angles, myAxis);
@@ -3336,8 +3337,8 @@ void Actor::UpdateBoneControllers(void)
                 vEndPoint = m_vDesiredLookDest;
             } else if (m_pLookEntity) {
                 if (m_pLookEntity->IsSubclassOfSentient()) {
-                    Sentient* sent = static_cast<Sentient*>(m_pLookEntity.Pointer());
-                    vEndPoint = sent->EyePosition();
+                    Sentient *sent = static_cast<Sentient *>(m_pLookEntity.Pointer());
+                    vEndPoint      = sent->EyePosition();
                 } else {
                     vEndPoint = m_pLookEntity->centroid;
                 }
@@ -3419,10 +3420,10 @@ void Actor::UpdateBoneControllers(void)
     }
 
     torsoAngles = GetControllerAngles(TORSO_TAG);
-    headAngles = GetControllerAngles(HEAD_TAG);
+    headAngles  = GetControllerAngles(HEAD_TAG);
 
-    yawError = LocalLookAngles[1] - (torsoAngles[1] + headAngles[1]);
-    pitchError = LocalLookAngles[0] - headAngles[0];
+    yawError      = LocalLookAngles[1] - (torsoAngles[1] + headAngles[1]);
+    pitchError    = LocalLookAngles[0] - headAngles[0];
     torsoYawError = LocalLookAngles[1] - torsoAngles[1];
 
     if (torsoYawError > 180) {
@@ -3459,9 +3460,11 @@ void Actor::UpdateBoneControllers(void)
 
         max_accel_change = m_fTorsoCurrentTurnSpeed + level.frametime * 15;
         min_accel_change = m_fTorsoCurrentTurnSpeed - level.frametime * 15;
-    
+
         max_change = Q_clamp_float(max_change, min_accel_change, max_accel_change);
-        max_change = Q_clamp_float(max_change, level.frametime * -m_fTorsoCurrentTurnSpeed, level.frametime * m_fTorsoCurrentTurnSpeed);
+        max_change = Q_clamp_float(
+            max_change, level.frametime * -m_fTorsoCurrentTurnSpeed, level.frametime * m_fTorsoCurrentTurnSpeed
+        );
 
         torsoAngles[1] += max_change;
 
@@ -3497,8 +3500,9 @@ void Actor::UpdateBoneControllers(void)
         max_change = Q_clamp_float(max_change, yawError, -headAngles[1]);
     }
 
-    max_change = Q_clamp_float(max_change, level.frametime * -m_fHeadMaxTurnSpeed, level.frametime * m_fHeadMaxTurnSpeed);
-    
+    max_change =
+        Q_clamp_float(max_change, level.frametime * -m_fHeadMaxTurnSpeed, level.frametime * m_fHeadMaxTurnSpeed);
+
     headAngles[1] += max_change;
     // clamp head yaw to 60 degrees
     headAngles[1] = Q_clamp_float(headAngles[1], -60, 60);
@@ -3517,7 +3521,8 @@ void Actor::UpdateBoneControllers(void)
         max_change = 0;
     }
 
-    max_change = Q_clamp_float(max_change, level.frametime * -m_fHeadMaxTurnSpeed, level.frametime * m_fHeadMaxTurnSpeed);
+    max_change =
+        Q_clamp_float(max_change, level.frametime * -m_fHeadMaxTurnSpeed, level.frametime * m_fHeadMaxTurnSpeed);
     headAngles[0] += max_change;
     // clamp head pitch to 35 degrees
     headAngles[0] = Q_clamp_float(headAngles[0], -35, 35);
@@ -3544,7 +3549,8 @@ void Actor::UpdateBoneControllers(void)
         max_change += 360;
     }
 
-    max_change = Q_clamp_float(max_change, level.frametime * -m_fLUpperArmTurnSpeed, level.frametime * m_fLUpperArmTurnSpeed);
+    max_change =
+        Q_clamp_float(max_change, level.frametime * -m_fLUpperArmTurnSpeed, level.frametime * m_fLUpperArmTurnSpeed);
     // set the new arms angles
     new_angles[0] = m_vLUpperArmDesiredAngles[0];
     new_angles[1] = tmp_angles[1] + max_change;
@@ -3555,7 +3561,7 @@ void Actor::UpdateBoneControllers(void)
 void Actor::setOriginEvent(Vector org)
 {
     float dist;
-    bool bRejoin = false;
+    bool  bRejoin = false;
 
     dist = (org - origin).lengthSquared();
 
@@ -3629,7 +3635,8 @@ void Actor::DoMove(void)
     mmove_t mm;
     trace_t trace;
 
-    if (m_eAnimMode != ANIM_MODE_ATTACHED && (!m_bDoPhysics || m_iOriginTime == level.inttime || m_pGlueMaster || bindmaster)) {
+    if (m_eAnimMode != ANIM_MODE_ATTACHED
+        && (!m_bDoPhysics || m_iOriginTime == level.inttime || m_pGlueMaster || bindmaster)) {
         return;
     }
 
@@ -3673,22 +3680,22 @@ void Actor::DoMove(void)
         velocity = vec_zero;
         break;
     case ANIM_MODE_ATTACHED:
-    {
-        Vector frame_offset;
-        Vector attach_angles;
+        {
+            Vector frame_offset;
+            Vector attach_angles;
 
-        frame_offset = edict->s.attach_offset;
-        frame_offset += frame_delta;
-        frame_offset.copyTo(edict->s.attach_offset);
-        setOrigin();
+            frame_offset = edict->s.attach_offset;
+            frame_offset += frame_delta;
+            frame_offset.copyTo(edict->s.attach_offset);
+            setOrigin();
 
-        attach_angles = angles;
-        attach_angles[1] += angular_delta;
-        setAngles(attach_angles);
+            attach_angles = angles;
+            attach_angles[1] += angular_delta;
+            setAngles(attach_angles);
 
-        velocity = frame_delta / level.frametime;
-        break;
-    }
+            velocity = frame_delta / level.frametime;
+            break;
+        }
     default:
         break;
     }
@@ -3865,48 +3872,48 @@ Returns true if actor can shoot entity.
 */
 bool Actor::CanShoot(Entity *ent)
 {
-    bool bCanShoot = false;
+    bool   bCanShoot = false;
     Vector vGunPos;
 
     if (FriendlyInLineOfFire(ent)) {
         bCanShoot = false;
     } else if (ent->IsSubclassOfSentient()) {
-        Sentient* sen = static_cast<Sentient*>(ent);
+        Sentient *sen = static_cast<Sentient *>(ent);
 
-        vGunPos = GunPosition();
+        vGunPos   = GunPosition();
         bCanShoot = false;
 
         if (WithinFarplaneDistance(origin - ent->origin) && AreasConnected(ent)) {
             if (G_SightTrace(
-                vGunPos,
-                vec_zero,
-                vec_zero,
-                sen->centroid,
-                this,
-                sen,
-                MASK_CANSEE,
-                qfalse,
-                "Actor::CanShoot centroid"
-            )) {
+                    vGunPos,
+                    vec_zero,
+                    vec_zero,
+                    sen->centroid,
+                    this,
+                    sen,
+                    MASK_CANSEE,
+                    qfalse,
+                    "Actor::CanShoot centroid"
+                )) {
                 bCanShoot = true;
             } else if (G_SightTrace(
-                vGunPos,
-                vec_zero,
-                vec_zero,
-                sen->EyePosition(),
-                this,
-                sen,
-                MASK_CANSEE,
-                qfalse,
-                "Actor::CanShoot eyes"
-            )) {
+                           vGunPos,
+                           vec_zero,
+                           vec_zero,
+                           sen->EyePosition(),
+                           this,
+                           sen,
+                           MASK_CANSEE,
+                           qfalse,
+                           "Actor::CanShoot eyes"
+                       )) {
                 bCanShoot = true;
             }
         }
     } else {
         bCanShoot = false;
         if (AreasConnected(ent)) {
-            vGunPos = GunPosition();
+            vGunPos   = GunPosition();
             bCanShoot = CanSeeFrom(vGunPos, ent);
         }
     }
@@ -3952,7 +3959,7 @@ bool Actor::EnemyInFOV(int iMaxDirtyTime)
 {
     if (level.inttime > iMaxDirtyTime + m_iEnemyFovCheckTime) {
         if (m_bEnemyInFOV != InFOV(m_Enemy->centroid)) {
-            m_bEnemyInFOV = !m_bEnemyInFOV;
+            m_bEnemyInFOV         = !m_bEnemyInFOV;
             m_iEnemyFovChangeTime = level.inttime;
         }
         m_iEnemyFovCheckTime = level.inttime;
@@ -3996,17 +4003,17 @@ bool Actor::CanShootEnemy(int iMaxDirtyTime)
 bool Actor::FriendlyInLineOfFire(Entity *other)
 {
     Vector delta;
-    float inverseDot;
+    float  inverseDot;
 
-    delta = other->origin - origin;
+    delta      = other->origin - origin;
     inverseDot = 1.0 / (delta * delta);
 
-    for (Sentient* pSquad = m_pNextSquadMate; pSquad != this; pSquad = pSquad->m_pNextSquadMate) {
+    for (Sentient *pSquad = m_pNextSquadMate; pSquad != this; pSquad = pSquad->m_pNextSquadMate) {
         Vector squadDelta;
-        float squadDot;
+        float  squadDot;
 
         squadDelta = pSquad->origin - origin;
-        squadDot = squadDelta * delta;
+        squadDot   = squadDelta * delta;
         if (squadDot >= 0) {
             Vector org;
 
@@ -4391,8 +4398,8 @@ void Actor::LookAtLookEntity(void)
     Vector dir;
 
     if (m_pLookEntity->IsSubclassOfSentient()) {
-        Sentient* sen = static_cast<Sentient*>(m_pLookEntity.Pointer());
-        dir = sen->EyePosition() - EyePosition();
+        Sentient *sen = static_cast<Sentient *>(m_pLookEntity.Pointer());
+        dir           = sen->EyePosition() - EyePosition();
     } else {
         dir = m_pLookEntity->centroid - EyePosition();
     }
@@ -4503,19 +4510,19 @@ void Actor::LookAt(Listener *l)
     }
 
     if (l != this) {
-        l = (SimpleEntity*)l;
+        l = (SimpleEntity *)l;
         if (g_showlookat->integer == entnum || g_showlookat->integer == -1) {
             Com_Printf(
                 "Script lookat: %i %i %s looking at point %.0f %.0f %.0f\n",
                 entnum,
                 radnum,
                 targetname.c_str(),
-                ((SimpleEntity*)l)->origin.x,
-                ((SimpleEntity*)l)->origin.y,
-                ((SimpleEntity*)l)->origin.z
+                ((SimpleEntity *)l)->origin.x,
+                ((SimpleEntity *)l)->origin.y,
+                ((SimpleEntity *)l)->origin.z
             );
         }
-        m_pLookEntity = (SimpleEntity*)l;
+        m_pLookEntity = (SimpleEntity *)l;
     }
 }
 
@@ -4648,7 +4655,7 @@ void Actor::PointAt(Listener *l)
         }
 
         if (l != this) {
-            m_pPointEntity = static_cast<SimpleEntity*>(l);
+            m_pPointEntity = static_cast<SimpleEntity *>(l);
         }
     }
 }
@@ -4773,7 +4780,7 @@ void Actor::TurnTo(Listener *l)
         );
     }
 
-    m_pTurnEntity = (SimpleEntity*)l;
+    m_pTurnEntity = (SimpleEntity *)l;
 }
 
 /*
@@ -4908,17 +4915,17 @@ Hangled pain event.
 */
 void Actor::HandlePain(Event *ev)
 {
-    int i;
-    Event event(EV_Listener_ExecuteScript);
-    int num;
-    Entity* attacker;
+    int     i;
+    Event   event(EV_Listener_ExecuteScript);
+    int     num;
+    Entity *attacker;
 
     if (!m_bEnablePain) {
         return;
     }
 
     attacker = ev->GetEntity(1);
-    if (attacker && attacker->IsSubclassOfSentient() && IsTeamMate(static_cast<Sentient*>(attacker))) {
+    if (attacker && attacker->IsSubclassOfSentient() && IsTeamMate(static_cast<Sentient *>(attacker))) {
         return;
     }
 
@@ -4938,7 +4945,7 @@ void Actor::HandlePain(Event *ev)
 
     m_PainTime = level.inttime;
 
-    if (attacker && attacker->IsSubclassOfSentient() && !IsTeamMate(static_cast<Sentient*>(attacker))) {
+    if (attacker && attacker->IsSubclassOfSentient() && !IsTeamMate(static_cast<Sentient *>(attacker))) {
         m_pLastAttacker = attacker;
 
         m_iCuriousLevel = 9;
@@ -5053,27 +5060,27 @@ Killed event.
 */
 void Actor::EventKilled(Event *ev)
 {
-    Entity* attacker;
-    Sentient* pBuddy;
-    Sentient* sent;
-    Player* player;
+    Entity   *attacker;
+    Sentient *pBuddy;
+    Sentient *sent;
+    Player   *player;
 
     DispatchEventKilled(ev, true);
 
     attacker = ev->GetEntity(1);
     if (attacker && attacker->IsSubclassOfPlayer()) {
-        player = static_cast<Player*>(attacker);
+        player = static_cast<Player *>(attacker);
         if (player->m_Team != m_Team) {
             player->m_iNumEnemiesKilled++;
         }
     }
 
     if (attacker && attacker->IsSubclassOfSentient()) {
-        sent = static_cast<Sentient*>(attacker);
+        sent = static_cast<Sentient *>(attacker);
 
         for (pBuddy = level.m_HeadSentient[m_Team]; pBuddy; pBuddy = pBuddy->m_NextSentient) {
             if (pBuddy != this && pBuddy->IsSubclassOfActor()) {
-                Actor* actor = static_cast<Actor*>(pBuddy);
+                Actor *actor = static_cast<Actor *>(pBuddy);
                 actor->NotifySquadmateKilled(this, sent);
             }
         }
@@ -5243,9 +5250,9 @@ Move on path.
 */
 void Actor::MovePath(float fMoveSpeed)
 {
-    mmove_t mm;
-    const float* dir;
-    vec2_t delta;
+    mmove_t      mm;
+    const float *dir;
+    vec2_t       delta;
 
     SetMoveInfo(&mm);
 
@@ -5257,8 +5264,8 @@ void Actor::MovePath(float fMoveSpeed)
     m_Path.UpdatePos(origin);
 
     if (ai_debugpath->integer) {
-        Vector pos, dest;
-        PathInfo* current_path;
+        Vector    pos, dest;
+        PathInfo *current_path;
 
         pos = origin;
         pos.z += 32;
@@ -5286,7 +5293,7 @@ void Actor::MovePath(float fMoveSpeed)
                 m_WallDir = 0;
             } else if (DotProduct2D(mm.desired_dir, m_PrevObstacleNormal) > 0 && CrossProduct2D(mm.desired_dir, m_PrevObstacleNormal) < 0) {
                 m_iWallDodgeTimeout = level.inttime + 1000;
-                m_WallDir = -m_WallDir;
+                m_WallDir           = -m_WallDir;
             }
         }
         GetMoveInfo(&mm);
@@ -5309,11 +5316,10 @@ void Actor::MovePath(float fMoveSpeed)
         VectorSub2D(m_Path.NextNode()->point, mm.hit_origin, delta);
 
         if (delta[0] * dir[1] > delta[1] * dir[0]) {
-            m_WallDir = -1;
+            m_WallDir         = -1;
             mm.desired_dir[0] = -mm.obstacle_normal[1];
             mm.desired_dir[1] = mm.obstacle_normal[0];
-        }
-        else {
+        } else {
             mm.desired_dir[0] = mm.obstacle_normal[1];
             mm.desired_dir[1] = -mm.obstacle_normal[0];
         }
@@ -5329,7 +5335,7 @@ void Actor::MovePath(float fMoveSpeed)
         origin.copyTo(mm.origin);
 
         mm.groundPlane = m_groundPlane;
-        mm.walking = m_walking;
+        mm.walking     = m_walking;
         VectorCopy(m_groundPlaneNormal, mm.groundPlaneNormal);
         VectorCopy2D(mm.obstacle_normal, m_PrevObstacleNormal);
 
@@ -5378,19 +5384,18 @@ void Actor::MovePath(float fMoveSpeed)
             }
 
             if (dir[0] * mm.obstacle_normal[1] > dir[1] * mm.obstacle_normal[0]) {
-                m_WallDir = 1;
+                m_WallDir         = 1;
                 mm.desired_dir[0] = mm.obstacle_normal[1];
                 mm.desired_dir[1] = -mm.obstacle_normal[0];
-            }
-            else {
-                m_WallDir = -1;
+            } else {
+                m_WallDir         = -1;
                 mm.desired_dir[0] = -mm.obstacle_normal[1];
                 mm.desired_dir[1] = mm.obstacle_normal[0];
             }
 
             MmoveSingle(&mm);
             if (mm.hit_obstacle) {
-                m_WallDir = 0;
+                m_WallDir           = 0;
                 m_iWallDodgeTimeout = 0;
             } else {
                 m_iWallDodgeTimeout = level.inttime + 1000;
@@ -5409,7 +5414,7 @@ void Actor::MovePath(float fMoveSpeed)
             MmoveSingle(&mm);
 
             if (mm.hit_obstacle) {
-                m_WallDir = 0;
+                m_WallDir           = 0;
                 m_iWallDodgeTimeout = 0;
             }
         }
@@ -5426,9 +5431,9 @@ Move on path end(goal).
 void Actor::MovePathGoal(float fMoveSpeed)
 {
     vec2_t vDelta;
-    float fSlowdownSpeed;
-    float fTimeToGo;
-    float fDeltaSquareLen;
+    float  fSlowdownSpeed;
+    float  fTimeToGo;
+    float  fDeltaSquareLen;
 
     if (!m_Path.HasCompleteLookahead()) {
         MovePath(fMoveSpeed);
@@ -5438,7 +5443,7 @@ void Actor::MovePathGoal(float fMoveSpeed)
 
     VectorSub2D(origin, m_Path.CurrentPathGoal(), vDelta);
     fDeltaSquareLen = VectorLength2DSquared(vDelta);
-    fTimeToGo = m_fPathGoalTime - level.time;
+    fTimeToGo       = m_fPathGoalTime - level.time;
 
     if (fTimeToGo > -0.001f) {
         fSlowdownSpeed = sqrt(fDeltaSquareLen) * (2.f / (fTimeToGo + level.frametime));
@@ -5454,7 +5459,7 @@ void Actor::MovePathGoal(float fMoveSpeed)
             }
         }
     } else if (fDeltaSquareLen < Square(fMoveSpeed * 0.5f)) {
-        fTimeToGo = 0.5f;
+        fTimeToGo       = 0.5f;
         m_fPathGoalTime = level.time + fTimeToGo;
         if (m_csPathGoalEndAnimScript == STRING_EMPTY) {
             m_csPathGoalEndAnimScript = STRING_ANIM_IDLE_SCR;
@@ -5527,7 +5532,8 @@ Set current mood.
 void Actor::EventSetMood(Event *ev)
 {
     m_csMood = ev->GetConstString(1);
-    if (m_csMood != STRING_BORED && m_csMood != STRING_NERVOUS && m_csMood != STRING_CURIOUS && m_csMood != STRING_ALERT) {
+    if (m_csMood != STRING_BORED && m_csMood != STRING_NERVOUS && m_csMood != STRING_CURIOUS
+        && m_csMood != STRING_ALERT) {
         m_csMood = STRING_BORED;
         ScriptError("invalid mood - setting to bored");
     }
@@ -5594,8 +5600,8 @@ Set current weapon's aim tagret.
 */
 void Actor::EventSetAimTarget(Event *ev)
 {
-    Entity* ent;
-    Weapon* weap;
+    Entity *ent;
+    Weapon *weap;
 
     ent = ev->GetEntity(1);
     if (!ent) {
@@ -5611,7 +5617,7 @@ void Actor::EventSetAimTarget(Event *ev)
     // Added in 2.0
     //  Make the ent an enemy
     if (ev->NumArgs() > 1 && ev->GetInteger(2) == 1 && ent->IsSubclassOfSentient()) {
-        SetEnemy(static_cast<Sentient*>(ent), false);
+        SetEnemy(static_cast<Sentient *>(ent), false);
     }
 }
 
@@ -5785,7 +5791,7 @@ void Actor::SetPatrolCurrentNode(Listener *l)
         );
     }
 
-    m_patrolCurrentNode = static_cast<SimpleEntity*>(l);
+    m_patrolCurrentNode = static_cast<SimpleEntity *>(l);
 }
 
 /*
@@ -5877,12 +5883,12 @@ Move on path with squad.
 */
 bool Actor::MoveOnPathWithSquad(void)
 {
-    const float* pvMyDir, *pvHisDir;
-    vec2_t vDelta;
-    Sentient* pSquadMate;
-    float fIntervalSquared;
-    vec2_t vMyNormalDir;
-    float fDistSquared;
+    const float *pvMyDir, *pvHisDir;
+    vec2_t       vDelta;
+    Sentient    *pSquadMate;
+    float        fIntervalSquared;
+    vec2_t       vMyNormalDir;
+    float        fDistSquared;
 
     if (level.inttime < m_iSquadStandTime + 500) {
         return false;
@@ -5892,13 +5898,13 @@ bool Actor::MoveOnPathWithSquad(void)
         return false;
     }
 
-    pvMyDir = PathDelta();
+    pvMyDir          = PathDelta();
     fIntervalSquared = Square(m_fInterval);
     if (m_iSquadStandTime) {
         fIntervalSquared *= 2;
     }
 
-    pSquadMate = static_cast<Sentient*>(G_GetEntity(0));
+    pSquadMate = static_cast<Sentient *>(G_GetEntity(0));
 
     if (IsTeamMate(pSquadMate)) {
         VectorSub2D(pSquadMate->origin, origin, vDelta);
@@ -5920,7 +5926,7 @@ bool Actor::MoveOnPathWithSquad(void)
             continue;
         }
 
-        Actor* pActorSquadMate = static_cast<Actor*>(pSquadMate);
+        Actor *pActorSquadMate = static_cast<Actor *>(pSquadMate);
 
         VectorSub2D(pActorSquadMate->origin, origin, vDelta);
         fDistSquared = VectorLength2DSquared(vDelta);
@@ -5959,12 +5965,12 @@ Move to waypoint with player.
 */
 bool Actor::MoveToWaypointWithPlayer(void)
 {
-    vec2_t pvMyDir;
-    vec2_t vDelta;
-    float fIntervalSquared;
-    vec2_t vMyNormalDir;
-    float fDistSquared;
-    Sentient* pSquadMate;
+    vec2_t    pvMyDir;
+    vec2_t    vDelta;
+    float     fIntervalSquared;
+    vec2_t    vMyNormalDir;
+    float     fDistSquared;
+    Sentient *pSquadMate;
 
     if (level.inttime < m_iSquadStandTime + 500) {
         return false;
@@ -5975,13 +5981,12 @@ bool Actor::MoveToWaypointWithPlayer(void)
         fIntervalSquared += fIntervalSquared;
     }
 
-    pSquadMate = static_cast<Sentient*>(G_GetEntity(0));
+    pSquadMate = static_cast<Sentient *>(G_GetEntity(0));
     if (!IsTeamMate(pSquadMate)) {
         return true;
     }
 
-    vDelta[0] = pSquadMate->origin[0] - origin[0];
-    vDelta[1] = pSquadMate->origin[1] - origin[1];
+    VectorSub2D(pSquadMate->origin, origin, vDelta);
     fDistSquared = VectorLength2DSquared(vDelta);
 
     if (fDistSquared >= fIntervalSquared) {
@@ -6091,10 +6096,9 @@ bool Actor::MoveToPatrolCurrentNode(void)
         vec2_t delta;
         VectorSub2D(m_patrolCurrentNode->origin, origin, delta);
         return VectorLength2DSquared(delta) <= m_fMoveDoneRadiusSquared;
-    }
-    else {
+    } else {
         SetPath(m_patrolCurrentNode->origin, "Actor::MoveToPatrolCurrentNode", 0, NULL, 0);
-      
+
         if (!PathExists()) {
             IdleLook();
             Anim_Idle();
@@ -6127,7 +6131,7 @@ bool Actor::MoveToPatrolCurrentNode(void)
         if (!m_Path.HasCompleteLookahead()) {
             return false;
         }
-        
+
         if (m_patrolCurrentNode->Next()) {
             return false;
         }
@@ -6422,7 +6426,7 @@ Actor::DetectSmokeGrenades
 */
 void Actor::DetectSmokeGrenades(void)
 {
-    SmokeSprite* sprite;
+    SmokeSprite *sprite;
 
     if (m_Enemy) {
         return;
@@ -6431,12 +6435,22 @@ void Actor::DetectSmokeGrenades(void)
     sprite = G_GetRandomSmokeSprite();
     if (!sprite || !sprite->owner || sprite->owner->m_Team == m_Team) {
         Vector eyePos;
-        float fDistSquared;
+        float  fDistSquared;
 
-        eyePos = VirtualEyePosition();
+        eyePos       = VirtualEyePosition();
         fDistSquared = (sprite->origin - eyePos).lengthSquared();
         if (fDistSquared > 65536 || InFOV(sprite->origin) == true) {
-            if (G_SightTrace(eyePos, vec_zero, vec_zero, sprite->origin, this, NULL, MASK_CANSEE, qfalse, "Actor::DetectSmokeGrenades")) {
+            if (G_SightTrace(
+                    eyePos,
+                    vec_zero,
+                    vec_zero,
+                    sprite->origin,
+                    this,
+                    NULL,
+                    MASK_CANSEE,
+                    qfalse,
+                    "Actor::DetectSmokeGrenades"
+                )) {
                 m_PotentialEnemies.ConfirmEnemy(this, sprite->owner);
             }
         }
@@ -6460,7 +6474,7 @@ void Actor::SetEnemy(Sentient *pEnemy, bool bForceConfirmed)
         m_Enemy->m_iAttackerCount--;
     }
     m_bNewEnemy = m_Enemy == NULL;
-    m_Enemy = pEnemy;
+    m_Enemy     = pEnemy;
 
     m_iEnemyChangeTime = level.inttime;
 
@@ -6490,7 +6504,7 @@ void Actor::SetEnemyPos(Vector vPos)
     if (m_vLastEnemyPos == vPos) {
         return;
     }
-    
+
     m_iLastEnemyPosChangeTime = level.inttime;
     m_vLastEnemyPos           = vPos;
     mTargetPos                = m_vLastEnemyPos;
@@ -6523,78 +6537,54 @@ Set animation event.
 */
 void Actor::EventSetAnim(Event *ev)
 {
-    //"anim slot weight flagged"
-    int       numArgs = ev->NumArgs(), slot = 0, animnum;
+    const_str name   = 0;
     float     weight = 1;
-    const_str anim, flagVal;
-    qboolean  flagged = qfalse;
+    int       slot   = 0;
+    int       anim;
+    const_str flagVal;
+    qboolean  flagged;
 
-    //FIXME: better notation, but this works for now.
-    if (numArgs < 1 || numArgs > 4) {
-        ScriptError("bad number of arguments");
-    } else if (numArgs == 1) {
-        anim    = ev->GetConstString(1);
-        animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
-        if (animnum == -1) {
-            UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
-        }
-    } else if (numArgs == 2) {
-        anim    = ev->GetConstString(1);
-        animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
-        if (animnum == -1) {
-            UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
-        }
-        slot = ev->GetInteger(2);
-        if (slot > 2) {
-            ScriptError("Bad animation slot, only 0 and 1 supported");
-        }
-    } else if (numArgs == 3) {
-        weight = ev->GetFloat(3);
-        if (weight < 0) {
-            ScriptError("Negative anim weight not allowed");
-        }
-        if (weight != 0) {
-            slot = ev->GetInteger(2);
-            if (slot > 2) {
-                ScriptError("Bad animation slot, only 0 and 1 supported");
-            }
-        }
-
-        anim    = ev->GetConstString(1);
-        animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
-        if (animnum == -1) {
-            UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
-        }
-    } else if (numArgs == 4) {
+    switch (ev->NumArgs()) {
+    case 4:
         flagVal = ev->GetConstString(4);
         flagged = qtrue;
         if (flagVal != STRING_FLAGGED) {
             ScriptError("unknown keyword '%s', expected 'flagged'", Director.GetString(flagVal).c_str());
         }
+    case 3:
         weight = ev->GetFloat(3);
         if (weight < 0) {
             ScriptError("Negative anim weight not allowed");
         }
-        if (weight != 0) {
-            slot = ev->GetInteger(2);
-            if (slot > 2) {
-                ScriptError("Bad animation slot, only 0 and 1 supported");
-            }
-        }
 
-        anim    = ev->GetConstString(1);
-        animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
-        if (animnum == -1) {
-            UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
+        if (!weight) {
+            return;
         }
+    case 2:
+        slot = ev->GetInteger(2);
+        if (slot > 2) {
+            ScriptError("Bad animation slot, only 0 and 1 supported");
+        }
+    case 1:
+        name = ev->GetConstString(1);
+        anim = gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str());
+        if (anim == -1) {
+            UnknownAnim(Director.GetString(name).c_str(), edict->tiki);
+        }
+        break;
+    default:
+        ScriptError("bad number of arguments");
+        break;
     }
 
     if (!slot) {
         flagged = qtrue;
     }
+
     if (flagged) {
         parm.motionfail = qtrue;
     }
+
     if (!m_bLevelMotionAnim) {
         if (slot) {
             m_weightType[GetMotionSlot(slot)] = 0;
@@ -6602,7 +6592,8 @@ void Actor::EventSetAnim(Event *ev)
             ChangeMotionAnim();
             m_bMotionAnimSet = true;
         }
-        StartMotionAnimSlot(slot, animnum, weight);
+
+        StartMotionAnimSlot(slot, anim, weight);
         if (flagged) {
             m_iMotionSlot   = GetMotionSlot(slot);
             parm.motionfail = qfalse;
@@ -6635,26 +6626,31 @@ Set motion animation.
 */
 void Actor::EventSetMotionAnim(Event *ev)
 {
-    gi.DPrintf("Actor::EventSetMotionAnim\n");
+    int       anim;
+    const_str name;
 
     if (ev->NumArgs() != 1) {
         ScriptError("bad number of arguments");
     }
-    const_str anim    = ev->GetConstString(1);
-    str       animstr = Director.GetString(anim);
-    int       animnum = gi.Anim_NumForName(edict->tiki, animstr.c_str());
-    if (animnum == -1) {
-        UnknownAnim(animstr.c_str(), edict->tiki);
+
+    name = ev->GetConstString(1);
+    anim = gi.Anim_NumForName(edict->tiki, Director.GetString(name));
+
+    if (anim == -1) {
+        UnknownAnim(Director.GetString(name), edict->tiki);
     }
 
-    gi.DPrintf("Actor::EventSetMotionAnim %s %d\n", animstr.c_str(), animnum);
     parm.motionfail = qtrue;
 
     if (!m_bLevelMotionAnim) {
         ChangeMotionAnim();
+
+        // start the animation
         m_bMotionAnimSet = true;
-        StartMotionAnimSlot(0, animnum, 1.0);
-        m_iMotionSlot   = GetMotionSlot(0);
+        StartMotionAnimSlot(0, anim, 1.0);
+        // set the slot
+        m_iMotionSlot = GetMotionSlot(0);
+
         parm.motionfail = qfalse;
     }
 }
@@ -6668,41 +6664,43 @@ Set aim motion animation.
 */
 void Actor::EventSetAimMotionAnim(Event *ev)
 {
-    int       anim_crouch, anim_stand, anim_high;
     const_str name;
+    int       anim_crouch, anim_stand, anim_high;
+
     if (ev->NumArgs() != 3) {
         ScriptError("bad number of arguments");
     }
 
-    //FIXME: maybe inline func ?
-
     name        = ev->GetConstString(1);
-    anim_crouch = gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str());
+    anim_crouch = gi.Anim_NumForName(edict->tiki, Director.GetString(name));
     if (anim_crouch == -1) {
-        UnknownAnim(Director.GetString(name).c_str(), edict->tiki);
+        UnknownAnim(Director.GetString(name), edict->tiki);
     }
 
     name       = ev->GetConstString(2);
-    anim_stand = gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str());
+    anim_stand = gi.Anim_NumForName(edict->tiki, Director.GetString(name));
     if (anim_stand == -1) {
-        UnknownAnim(Director.GetString(name).c_str(), edict->tiki);
+        UnknownAnim(Director.GetString(name), edict->tiki);
     }
 
     name      = ev->GetConstString(3);
-    anim_high = gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str());
+    anim_high = gi.Anim_NumForName(edict->tiki, Director.GetString(name));
     if (anim_high == -1) {
-        UnknownAnim(Director.GetString(name).c_str(), edict->tiki);
+        UnknownAnim(Director.GetString(name), edict->tiki);
     }
 
     parm.motionfail = qtrue;
 
     if (!m_bLevelMotionAnim) {
         ChangeMotionAnim();
+
         m_bMotionAnimSet = true;
         UpdateAimMotion();
+
         StartAimMotionAnimSlot(0, anim_crouch);
         StartAimMotionAnimSlot(1, anim_stand);
         StartAimMotionAnimSlot(2, anim_high);
+
         m_iMotionSlot   = GetMotionSlot(1);
         parm.motionfail = qfalse;
     }
@@ -6717,12 +6715,17 @@ Set action animation.
 */
 void Actor::EventSetActionAnim(Event *ev)
 {
+    const_str name;
+    int       anim_forward, anim_up, anim_down;
+    str       derivedName;
+
     if (ev->NumArgs() != 3) {
         ScriptError("bad number of arguments");
     }
 
+    name             = ev->GetConstString(1);
     m_fAimLimit_down = ev->GetFloat(2);
-    if (m_fAimLimit_down > 0) {
+    if (m_fAimLimit_down >= 0) {
         m_fAimLimit_down = -0.001f;
         ScriptError("Positive lower_limit not allowed");
     }
@@ -6733,22 +6736,21 @@ void Actor::EventSetActionAnim(Event *ev)
         ScriptError("Negative upper_limit not allowed");
     }
 
-    const_str anim    = ev->GetConstString(1);
-    int       animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
-    if (animnum == -1) {
-        UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
+    anim_forward = gi.Anim_NumForName(edict->tiki, Director.GetString(name));
+    if (anim_forward == -1) {
+        UnknownAnim(Director.GetString(name), edict->tiki);
     }
 
-    const_str anim2    = ev->GetConstString(2);
-    int       animnum2 = gi.Anim_NumForName(edict->tiki, Director.GetString(anim2));
-    if (animnum2 == -1) {
-        UnknownAnim(Director.GetString(anim2).c_str(), edict->tiki);
+    derivedName = Director.GetString(name) + "_up";
+    anim_up     = gi.Anim_NumForName(edict->tiki, derivedName);
+    if (anim_up == -1) {
+        UnknownAnim(derivedName, edict->tiki);
     }
 
-    const_str anim3    = ev->GetConstString(3);
-    int       animnum3 = gi.Anim_NumForName(edict->tiki, Director.GetString(anim3));
-    if (animnum3 == -1) {
-        UnknownAnim(Director.GetString(anim3).c_str(), edict->tiki);
+    derivedName = Director.GetString(name) + "_down";
+    anim_down   = gi.Anim_NumForName(edict->tiki, derivedName);
+    if (anim_down == -1) {
+        UnknownAnim(derivedName, edict->tiki);
     }
 
     parm.upperfail = qtrue;
@@ -6758,9 +6760,9 @@ void Actor::EventSetActionAnim(Event *ev)
         m_bActionAnimSet = true;
         UpdateAim();
 
-        StartAimAnimSlot(0, animnum);
-        StartAimAnimSlot(1, anim2);
-        StartAimAnimSlot(2, anim3);
+        StartAimAnimSlot(0, anim_up);
+        StartAimAnimSlot(1, anim_forward);
+        StartAimAnimSlot(2, anim_down);
         m_iActionSlot  = GetActionSlot(0);
         parm.upperfail = qfalse;
     }
@@ -6775,17 +6777,21 @@ Set upper body.
 */
 void Actor::EventUpperAnim(Event *ev)
 {
+    int       anim;
+    const_str name;
+
     if (ev->NumArgs()) {
         if (ev->NumArgs() != 1) {
             ScriptError("bad number of arguments");
         }
-        const_str anim    = ev->GetConstString(1);
-        int       animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
-        if (animnum == -1) {
-            UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
+
+        name = ev->GetConstString(1);
+        anim = gi.Anim_NumForName(edict->tiki, Director.GetString(name));
+        if (anim == -1) {
+            UnknownAnim(Director.GetString(name), edict->tiki);
         }
 
-        m_csUpperAnim = anim;
+        m_csUpperAnim = name;
     } else if (m_bLevelActionAnim) {
         AnimFinished(m_iActionSlot, true);
     }
@@ -6800,21 +6806,24 @@ Set upper body animation.
 */
 void Actor::EventSetUpperAnim(Event *ev)
 {
+    int       anim;
+    const_str name;
+
     if (ev->NumArgs() != 1) {
         ScriptError("bad number of arguments");
     }
 
-    const_str anim    = ev->GetConstString(1);
-    int       animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(anim).c_str());
-    if (animnum == -1) {
-        UnknownAnim(Director.GetString(anim).c_str(), edict->tiki);
+    name = ev->GetConstString(1);
+    anim = gi.Anim_NumForName(edict->tiki, Director.GetString(name));
+    if (anim == -1) {
+        UnknownAnim(Director.GetString(name), edict->tiki);
     }
 
     parm.upperfail = qtrue;
     if (!m_bLevelActionAnim) {
         ChangeActionAnim();
         m_bActionAnimSet = true;
-        StartActionAnimSlot(animnum);
+        StartActionAnimSlot(anim);
         m_iActionSlot  = SimpleActor::GetActionSlot(0);
         parm.upperfail = qfalse;
     }
@@ -6829,24 +6838,24 @@ Returns true if animation not found.
 */
 bool Actor::SoundSayAnim(const_str name, byte bLevelSayAnim)
 {
-    int animnum = gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str());
-    if (animnum == -1) {
-        ChangeSayAnim();
-        m_bSayAnimSet   = true;
-        m_iSaySlot      = -2;
-        m_bLevelSayAnim = bLevelSayAnim;
-
-        Com_Printf(
-            "Couldn't find animation '%s' in '%s' - trying sound alias instead.\n",
-            Director.GetString(name).c_str(),
-            edict->tiki->a->name
-        );
-
-        Sound(Director.GetString(name), 0, 0, 0, NULL, 0, 1, 1, -1);
-
-        return true;
+    if (gi.Anim_NumForName(edict->tiki, Director.GetString(name).c_str()) != -1) {
+        return false;
     }
-    return false;
+
+    ChangeSayAnim();
+    m_bSayAnimSet   = true;
+    m_bLevelSayAnim = bLevelSayAnim;
+    m_iSaySlot      = -2;
+
+    Com_Printf(
+        "Couldn't find animation '%s' in '%s' - trying sound alias instead.\n",
+        Director.GetString(name).c_str(),
+        edict->tiki->a->name
+    );
+
+    Sound(Director.GetString(name), 0, 0, 0, NULL, 0, 1, 1, -1);
+
+    return true;
 }
 
 /*
@@ -6859,26 +6868,22 @@ Play idle say dialogue.
 void Actor::EventIdleSayAnim(Event *ev)
 {
     const_str name;
-    if (ev->NumArgs()) {
-        if (ev->NumArgs() != 1) {
-            ScriptError("bad number of arguments");
-        }
 
-        name = ev->GetConstString(1);
-
-        if (m_ThinkState <= THINKSTATE_ATTACK || IsGrenadeState(m_ThinkState)) {
-            m_csSayAnim = name;
-            //FIXME: macro
-            m_bNextLevelSayAnim = 1;
-        } else {
-            if (!SoundSayAnim(name, 1)) {
-                m_csSayAnim = name;
-                //FIXME: macro
-                m_bNextLevelSayAnim = 1;
-            }
-        }
-    } else if (m_bLevelSayAnim == 1) {
+    if (!ev->NumArgs() && m_bLevelSayAnim == 1) {
         AnimFinished(m_iSaySlot, true);
+        return;
+    }
+
+    if (ev->NumArgs() != 1) {
+        ScriptError("bad number of arguments");
+    }
+
+    name = ev->GetConstString(1);
+
+    if (m_ThinkState == THINKSTATE_KILLED || m_ThinkState == THINKSTATE_PAIN || m_ThinkState == THINKSTATE_ATTACK
+        || m_ThinkState == THINKSTATE_BADPLACE || !SoundSayAnim(name, 1)) {
+        m_csSayAnim         = name;
+        m_bNextLevelSayAnim = 1;
     }
 }
 
@@ -6892,25 +6897,22 @@ Play idle dialogue.
 void Actor::EventSayAnim(Event *ev)
 {
     const_str name;
-    if (ev->NumArgs()) {
-        if (ev->NumArgs() != 1) {
-            ScriptError("bad number of arguments");
-        }
 
-        name = ev->GetConstString(1);
-
-        if (m_ThinkState <= THINKSTATE_KILLED || !SoundSayAnim(name, 2)) {
-            m_csSayAnim = name;
-            //FIXME: macro
-            m_bNextLevelSayAnim = 2;
-            gi.DPrintf("Actor::EventSayAnim: 1 %s\n", targetname.c_str());
-        }
-        gi.DPrintf("Actor::EventSayAnim: 2 %s\n", targetname.c_str());
-    } else if (m_bLevelSayAnim == 1) {
+    if (!ev->NumArgs() && m_bLevelSayAnim) {
         AnimFinished(m_iSaySlot, true);
-        gi.DPrintf("Actor::EventSayAnim: 3 %s\n", targetname.c_str());
+        return;
     }
-    gi.DPrintf("Actor::EventSayAnim: 4 %s\n", targetname.c_str());
+
+    if (ev->NumArgs() != 1) {
+        ScriptError("bad number of arguments");
+    }
+
+    name = ev->GetConstString(1);
+
+    if (m_ThinkState == THINKSTATE_KILLED || m_ThinkState == THINKSTATE_PAIN || !SoundSayAnim(name, 2)) {
+        m_csSayAnim         = name;
+        m_bNextLevelSayAnim = 2;
+    }
 }
 
 /*
@@ -6922,59 +6924,76 @@ Set say animation.
 */
 void Actor::EventSetSayAnim(Event *ev)
 {
+    int       anim;
+    int       animflags;
     const_str name;
-    str       sName;
+
     if (ev->NumArgs() != 1) {
         ScriptError("bad number of arguments");
     }
 
-    if (m_bLevelSayAnim == 0) {
-        name = ev->GetConstString(1);
-
-        parm.sayfail = qtrue;
-        sName        = Director.GetString(name);
-        int animnum  = gi.Anim_NumForName(edict->tiki, sName.c_str());
-
-        Com_Printf("EventSetSayAnim sName: %s, animnum: %d, mVoiceType: %d\n", sName.c_str(), animnum, mVoiceType);
-        if (!SoundSayAnim(name, m_bLevelSayAnim)) {
-            int flags = gi.Anim_FlagsSkel(edict->tiki, animnum);
-            if (flags & TAF_HASUPPER) {
-                if (m_bLevelActionAnim) {
-                    if (!m_bSayAnimSet) {
-                        m_iSaySlot = m_iActionSlot;
-                    }
-                    return;
-                }
-                if (flags & TAF_HASDELTA) {
-                    if (m_bLevelMotionAnim) {
-                        if (!m_bSayAnimSet) {
-                            m_iSaySlot = m_iMotionSlot;
-                        }
-                        return;
-                    }
-                    ChangeActionAnim();
-                    ChangeMotionAnim();
-                    StartMotionAnimSlot(0, animnum, 1.0);
-
-                    m_iMotionSlot = m_iActionSlot = GetMotionSlot(0);
-                } else {
-                    ChangeActionAnim();
-                    m_bActionAnimSet = true;
-                    StartActionAnimSlot(animnum);
-                    m_iActionSlot = GetActionSlot(0);
-                }
-                ChangeSayAnim();
-                m_bSayAnimSet = true;
-                m_iSaySlot    = m_iActionSlot;
-            } else {
-                ChangeSayAnim();
-                m_bSayAnimSet = true;
-                StartSayAnimSlot(animnum);
-                m_iSaySlot = GetSaySlot();
-            }
-        }
-        parm.sayfail = qfalse;
+    if (m_bLevelSayAnim) {
+        return;
     }
+
+    name         = ev->GetConstString(1);
+    parm.sayfail = qtrue;
+    anim         = gi.Anim_NumForName(edict->tiki, Director.GetString(name));
+
+    if (anim == -1) {
+        ChangeSayAnim();
+        m_bSayAnimSet = true;
+        m_iSaySlot    = -2;
+
+        Com_Printf(
+            "Couldn't find animation '%s' in '%s' - trying sound alias instead.\n",
+            Director.GetString(name),
+            edict->tiki->a->name
+        );
+        Sound(Director.GetString(name), CHAN_AUTO, 0, 0, NULL, 0, 0, true, true);
+        return;
+    }
+
+    animflags = gi.Anim_FlagsSkel(edict->tiki, anim);
+    if (animflags & TAF_HASUPPER) {
+        if (m_bLevelActionAnim) {
+            if (!m_bSayAnimSet) {
+                m_iSaySlot = m_iActionSlot;
+            }
+            return;
+        }
+
+        if (flags & TAF_HASDELTA) {
+            if (m_bLevelMotionAnim) {
+                if (!m_bSayAnimSet) {
+                    m_iSaySlot = m_iMotionSlot;
+                }
+                return;
+            }
+
+            ChangeActionAnim();
+            ChangeMotionAnim();
+            StartMotionAnimSlot(0, anim, 1.0);
+
+            m_iMotionSlot = m_iActionSlot = GetMotionSlot(0);
+        } else {
+            ChangeActionAnim();
+            m_bActionAnimSet = true;
+            StartActionAnimSlot(anim);
+            m_iActionSlot = GetActionSlot(0);
+        }
+
+        ChangeSayAnim();
+        m_bSayAnimSet = true;
+        m_iSaySlot    = m_iActionSlot;
+    } else {
+        ChangeSayAnim();
+        m_bSayAnimSet = true;
+        StartSayAnimSlot(anim);
+        m_iSaySlot = GetSaySlot();
+    }
+
+    parm.sayfail = qfalse;
 }
 
 /*
@@ -6987,7 +7006,7 @@ Change current animation.
 
 void Actor::ChangeAnim(void)
 {
-    bool v3; // zf
+    bool v3;
 
     if (m_pAnimThread) {
         if (g_scripttrace->integer) {
@@ -8727,12 +8746,9 @@ void Actor::DefaultReceiveAIEvent(
         return;
     }
 
-    if (originator
-        && !originator->IsDead()
-        && originator->IsSubclassOfSentient()
-        && ((Sentient*)originator)->m_Team == m_Team
-        && !IsSquadMate((Sentient*)originator)) {
-        MergeWithSquad((Sentient*)originator);
+    if (originator && !originator->IsDead() && originator->IsSubclassOfSentient()
+        && ((Sentient *)originator)->m_Team == m_Team && !IsSquadMate((Sentient *)originator)) {
+        MergeWithSquad((Sentient *)originator);
     }
 
     switch (iType) {
@@ -8769,13 +8785,13 @@ void Actor::DefaultReceiveAIEvent(
         UpdateBadPlaces();
         break;
     default:
-    {
-        char assertStr[16317] = { 0 };
-        strcpy(assertStr, "\"unknown ai_event type\"\n\tMessage: ");
-        Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("iType = %i", iType));
-        assert(false && assertStr);
-    }
-    break;
+        {
+            char assertStr[16317] = {0};
+            strcpy(assertStr, "\"unknown ai_event type\"\n\tMessage: ");
+            Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("iType = %i", iType));
+            assert(false && assertStr);
+        }
+        break;
     }
 }
 
@@ -8869,8 +8885,7 @@ void Actor::CuriousSound(int iType, vec3_t sound_origin, float fDistSquared, flo
     float v7, v8, fRangeFactor = 1.0;
     int   iPriority;
     if (m_bEnableEnemy) {
-        if (m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE
-            || m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_CURIOUS) {
+        if (m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE || m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_CURIOUS) {
             //FIXME: name variables.
             if (fMaxDistSquared != 0.0) {
                 v7 = 1 * (1.0 / 3) - fDistSquared * (1 * (1.0 / 3)) / fMaxDistSquared;
@@ -9007,8 +9022,7 @@ Handles footstep sound.
 void Actor::FootstepSound(vec3_t sound_origin, float fDistSquared, float fMaxDistSquared, Entity *originator)
 {
     if (originator->IsSubclassOfSentient()) {
-        if ((m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE
-             || m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_CURIOUS)
+        if ((m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE || m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_CURIOUS)
             && m_bEnableEnemy) {
             if (NoticeFootstep((Sentient *)originator)) {
                 CuriousSound(AI_EVENT_FOOTSTEP, sound_origin, fDistSquared, fMaxDistSquared);
@@ -11696,7 +11710,13 @@ void Actor::SetNationality(Event *ev)
     str name;
 
     if (ev->NumArgs() != 1) {
-        ScriptError("Bad bad nationality specified for '%s' at (%f %f %f)\n", TargetName().c_str(), origin[0], origin[1], origin[2]);
+        ScriptError(
+            "Bad bad nationality specified for '%s' at (%f %f %f)\n",
+            TargetName().c_str(),
+            origin[0],
+            origin[1],
+            origin[2]
+        );
     }
 
     name = ev->GetString(1);
@@ -11714,7 +11734,10 @@ void Actor::SetNationality(Event *ev)
     } else if (!str::icmpn(name, "ussr", 5)) {
         m_iNationality = ACTOR_NATIONALITY_RUSSIAN;
     } else {
-        ScriptError("Bad bad nationality specified for '%s', must be one of: ger, it, usa, uk, ussr or default\n", TargetName().c_str());
+        ScriptError(
+            "Bad bad nationality specified for '%s', must be one of: ger, it, usa, uk, ussr or default\n",
+            TargetName().c_str()
+        );
     }
 }
 
