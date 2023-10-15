@@ -6947,7 +6947,7 @@ void Actor::EventSetSayAnim(Event *ev)
 
         Com_Printf(
             "Couldn't find animation '%s' in '%s' - trying sound alias instead.\n",
-            Director.GetString(name),
+            Director.GetString(name).c_str(),
             edict->tiki->a->name
         );
         Sound(Director.GetString(name), CHAN_AUTO, 0, 0, NULL, 0, 0, true, true);
