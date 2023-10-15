@@ -273,9 +273,9 @@ float CM_ObfuscationTraceThroughTree( traceWork_t *tw, int num, float p1f, float
 
 float CM_ObfuscationTrace(const vec3_t start, const vec3_t end, clipHandle_t model) {
 	// FIXME: unimplemented
-	return 1.f;
+	return 0.f;
 }
 
 float CM_VisualObfuscation(const vec3_t start, const vec3_t end) {	// FIXME: unimplemented
-	return 1.f;
+	return 0.f;
 }
