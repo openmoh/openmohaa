@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2015 the OpenMoHAA team
+Copyright (C) 2023 the OpenMoHAA team
 
 This file is part of OpenMoHAA source code.
 
@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ui_local.h"
+#include "localization.h"
 
 CLASS_DECLARATION( UIWidget, UIList, NULL )
 {
@@ -74,7 +75,76 @@ void UIList::Draw
 	)
 
 {
-	// FIXME: stub
+	// draw the item text
+	if (m_currentItem)
+	{
+		str itemText;
+		UIListItem *item = m_itemlist.ObjectAt(m_currentItem);
+		if (item->itemalias)
+		{
+			itemText = item->itemalias;
+		}
+		else if (item->itemname)
+		{
+			itemText = item->itemname;
+		}
+
+		float textX = 0.5f * m_frame.size.width - 0.5f * m_font->getWidth(itemText, -1);
+		float textY = 0.5f * (m_frame.size.height - m_font->getHeight(m_bVirtual)) - 1.0f;
+		m_font->setColor(m_foreground_color);
+		const char *text = Sys_LV_CL_ConvertString(itemText);
+		m_font->Print(textX, textY, text, -1, m_bVirtual);
+	}
+
+	// draw the previous arrow
+	Draw3DBox(
+		0.0f,
+		0.0f,
+		m_arrow_width,
+		m_frame.size.height,
+		m_prev_arrow_depressed,
+		m_border_color,
+		m_local_alpha);
+
+	m_prev_arrow->ReregisterMaterial();
+
+	float height = m_frame.size.height - 4.0;
+	float width = m_arrow_width - 4.0;
+	uii.Rend_DrawPicStretched(
+		2.0f,
+		2.0f,
+		width,
+		height,
+		0.0f,
+		0.0f,
+		1.0f,
+		1.0f,
+		m_prev_arrow->GetMaterial());
+
+	// draw the next arrow
+	float x = m_frame.size.width - m_arrow_width;
+	float y = 0.0f;
+	Draw3DBox(
+		x,
+		y,
+		m_arrow_width,
+		m_frame.size.height,
+		m_next_arrow_depressed,
+		m_border_color,
+		m_local_alpha);
+
+	m_next_arrow->ReregisterMaterial();
+
+	uii.Rend_DrawPicStretched(
+		x + 2.0f,
+		y + 2.0f,
+		width,
+		height,
+		0.0f,
+		0.0f,
+		1.0f,
+		1.0f,
+		m_next_arrow->GetMaterial());
 }
 
 qboolean UIList::KeyEvent
@@ -120,7 +190,27 @@ void UIList::Pressed
 	)
 
 {
-	// FIXME: stub
+	m_held = qtrue;
+	m_depressed = qtrue;
+
+	float mouse_xpos = ev->GetFloat(1);
+	float mouse_ypos = ev->GetFloat(2);
+	int buttons = ev->GetInteger(3); // unused
+
+	// previous arrow is clicked
+	if (m_prev_arrow_region->contains(mouse_xpos, mouse_ypos))
+	{
+		m_prev_arrow_depressed = qtrue;
+		ScrollPrev();
+		return;
+	}
+
+	// next arrow is clicked
+	if (m_next_arrow_region->contains(mouse_xpos, mouse_ypos))
+	{
+		m_next_arrow_depressed = qtrue;
+		ScrollNext();
+	}
 }
 
 void UIList::Released
@@ -129,7 +219,10 @@ void UIList::Released
 	)
 
 {
-	// FIXME: stub
+	m_held = qfalse;
+	m_depressed = qfalse;
+	m_prev_arrow_depressed = qfalse;
+	m_next_arrow_depressed = qfalse;
 }
 
 void UIList::ScrollNext
@@ -172,7 +265,14 @@ void UIList::LayoutAddListItem
 	)
 
 {
-	// FIXME: stub
+	str item = ev->GetString(1);
+	str alias;
+	if (ev->NumArgs() > 1)
+	{
+		alias = ev->GetString(2);
+	}
+
+	AddItem(item, alias);
 }
 
 void UIList::AddItem
@@ -182,7 +282,12 @@ str alias
 )
 
 {
-	// FIXME: stub
+	UIListItem *listItem = new UIListItem();
+	listItem->itemname = item;
+	listItem->itemalias = alias;
+
+	m_itemlist.AddObject(listItem);
+	m_currentItem = 1;
 }
 
 void UIList::UpdateUIElement
@@ -191,7 +296,27 @@ void UIList::UpdateUIElement
 	)
 
 {
-	// FIXME: stub
+	if (!m_cvarname)
+	{
+		return;
+	}
+
+	const char *cvarstring = UI_GetCvarString(m_cvarname, NULL);
+	if (!cvarstring)
+	{
+		m_currentItem = 1;
+		return;
+	}
+
+	for (int i = 1; i <= m_itemlist.NumObjects(); i++)
+	{
+		UIListItem *obj = m_itemlist.ObjectAt(i);
+		if (obj->itemname == cvarstring)
+		{
+			m_currentItem = i;
+			break;
+		}
+	}
 }
 
 void UIList::UpdateData
@@ -200,7 +325,28 @@ void UIList::UpdateData
 	)
 
 {
-	// FIXME: stub
+	if (!m_currentItem)
+	{
+		return;
+	}
+
+	if (m_cvarname)
+	{
+		UIListItem *item = m_itemlist.ObjectAt(m_currentItem);
+		if (item->itemname)
+		{
+			uii.Cvar_Set(m_cvarname, item->itemname);
+		}
+	}
+
+	if (m_command)
+	{
+		UIListItem *item = m_itemlist.ObjectAt(m_currentItem);
+		m_command.append(' ');
+		m_command.append(item->itemname);
+		m_command.append('\n');
+		Cbuf_AddText(m_command.c_str());
+	}
 }
 
 CLASS_DECLARATION( UIList, UIListIndex, NULL )
