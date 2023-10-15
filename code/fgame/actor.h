@@ -312,7 +312,7 @@ typedef enum {
     AI_GRENSTATE_MARTYR_ACQUIRE,
     AI_GRENSTATE_MARTYR,
     AI_GRENSTATE_UNK,
-    AI_GRENSTATE_FLEE_SUCCESS, //fled the grenade succesfully, i'm safe
+    AI_GRENSTATE_FLEE_SUCCESS, //fled the grenade successfully, I'm safe
     AI_GRENSTATE_FLEE_FAIL,    //failed to flee, I'm gonna get hurt or die :'(
 } eGrenadeState;
 
@@ -410,6 +410,115 @@ enum eActorNationality {
     ACTOR_NATIONALITY_ITALIAN,
     ACTOR_NATIONALITY_BRITISH,
     ACTOR_NATIONALITY_RUSSIAN,
+};
+
+//
+// Actor states
+//
+enum eActorState {
+    ACTOR_STATE_DISGUISE       = 0,
+    ACTOR_STATE_TURRET         = 100,
+    ACTOR_STATE_BALCONY_ATTACK = 200,
+    ACTOR_STATE_BALCONY_COVER  = 300,
+    ACTOR_STATE_BALCONY_ALARM  = 600,
+    ACTOR_STATE_KILLED         = 700,
+    ACTOR_STATE_BALCONY_KILLED = 800,
+    ACTOR_STATE_WEAPONLESS     = 900,
+    ACTOR_STATE_ANIMATION      = 1000,
+    ACTOR_STATE_CURIOUS        = 1100,
+    ACTOR_STATE_MACHINE_GUNNER = 1200,
+    // Added in 2.30
+    ACTOR_STATE_RUN_AND_SHOOT = 1300,
+};
+
+//
+// Disguise think state
+//
+enum eActorState_Disguise {
+    ACTOR_STATE_DISGUISE_START = ACTOR_STATE_DISGUISE,
+    ACTOR_STATE_DISGUISE_WAIT  = ACTOR_STATE_DISGUISE_START,
+    ACTOR_STATE_DISGUISE_PAPERS,
+    ACTOR_STATE_DISGUISE_ACCEPT,
+    ACTOR_STATE_DISGUISE_ENEMY,
+    ACTOR_STATE_DISGUISE_HALT,
+    ACTOR_STATE_DISGUISE_DENY,
+};
+
+//
+// Turret think state
+//
+enum eActorState_Turret {
+    ACTOR_STATE_TURRET_START = ACTOR_STATE_TURRET,
+};
+
+//
+// Balcony attack think state
+//
+enum eActorState_BalconyAttack {
+    ACTOR_STATE_BALCONY_ATTACK_START = ACTOR_STATE_BALCONY_ATTACK,
+};
+
+//
+// Balcony cover think state
+//
+enum eActorState_BalconyCover {
+    ACTOR_STATE_BALCONY_COVER_START = ACTOR_STATE_BALCONY_COVER,
+};
+
+//
+// Balcony alarm think state
+//
+enum eActorState_BalconyAlarm {
+    ACTOR_STATE_BALCONY_ALARM_START = ACTOR_STATE_BALCONY_ALARM,
+};
+
+//
+// Killed think state
+//
+enum eActorState_Killed {
+    ACTOR_STATE_KILLED_START = ACTOR_STATE_KILLED,
+};
+
+//
+// Balcony killed think state
+//
+enum eActorState_BalconyKilled {
+    ACTOR_STATE_BALCONY_KILLED_START = ACTOR_STATE_BALCONY_KILLED,
+};
+
+//
+// Weaponless think state
+//
+enum eActorState_WeaponLess {
+    ACTOR_STATE_WEAPONLESS_START = ACTOR_STATE_WEAPONLESS,
+};
+
+//
+// Animation think state
+//
+enum eActorState_Animation {
+    ACTOR_STATE_ANIMATION_START = ACTOR_STATE_ANIMATION,
+};
+
+//
+// Curious think state
+//
+enum eActorState_Curious {
+    ACTOR_STATE_CURIOUS_START = ACTOR_STATE_CURIOUS,
+};
+
+//
+// Machine gunner think state
+//
+enum eActorState_MachineGunner {
+    ACTOR_STATE_MACHINE_GUNNER_START = ACTOR_STATE_MACHINE_GUNNER,
+};
+
+//
+// Run and shoot think state
+//
+enum eActorState_RunAndShoot {
+    ACTOR_STATE_RUN_AND_SHOOT_START = ACTOR_STATE_RUN_AND_SHOOT,
 };
 
 class Actor;
@@ -848,7 +957,7 @@ public:
     void          State_Turret_Grenade(void);
     void          State_Turret_FakeEnemy(void);
     void          State_Turret_Wait(void);
-    void          State_Turret_Shoot(void);    // Added in 2.0
+    void          State_Turret_Shoot(void);             // Added in 2.0
     void          State_Turret_Retarget_Suppress(void); // Added in 2.0
     void          State_Turret_Retarget_Sniper_Node(void);
     void          State_Turret_Retarget_Step_Side_Small(void);
@@ -1243,7 +1352,7 @@ public:
     void           UpdatePatrolCurrentNode(void);
     bool           MoveToPatrolCurrentNode(void);
     void           ClearAimNode(void);
-    void           SetAimNode(const Vector &vec);
+    void           SetAimNode(const Vector          &vec);
     void           SetAimNode(Listener *l);
     void           ShowInfo_AimNode(void);
     void           EventSetAccuracy(Event *ev);
@@ -1472,7 +1581,6 @@ Actor::TransitionState
 */
 inline void Actor::TransitionState(int iNewState, int iPadTime)
 {
-    //fixme: this is an inline function.
     m_State      = iNewState;
     m_iStateTime = level.inttime + iPadTime;
 }
@@ -1882,7 +1990,8 @@ inline void Actor::Archive(Archiver& arc)
     arc.ArchiveByte(&length);
 
     if (arc.Loading() && length) {
-        m_pFallPath = (FallPath*)gi.Malloc((sizeof(FallPath::pos)) * length + (sizeof(FallPath) - sizeof(FallPath::pos)));
+        m_pFallPath =
+            (FallPath *)gi.Malloc((sizeof(FallPath::pos)) * length + (sizeof(FallPath) - sizeof(FallPath::pos)));
         m_pFallPath->length = length;
     }
 
