@@ -29,62 +29,73 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 float ActorEnemy::UpdateLMRF(Actor *pSelf, bool *pbInFovAndRange, bool *pbVisible)
 {
-    //FIXME: variable names, I did my best
+    float  fMaxRange, fRange, fRangeScale, fNormalizedRange;
+    float  fForward;
+    float  fFovScale;
+    float  fMinSightTime;
+    float  fLMRF;
+    float  fFarPlane;
     Vector vDelta;
-    float  fFarPlane, fLMRF, /*fMinSightTime,*/ fFovScale, fForward, /*fNormalizedRange,*/ fRangeScale,
-        fRange /*, fMaxRange*/;
-    float fTmp1, fTmp2, fTmp3;
+    float  fObfuscation;
 
     *pbInFovAndRange = false;
     *pbVisible       = false;
 
-    vDelta = pSelf->EyePosition() - GetEnemy()->origin;
+    vDelta    = pSelf->VirtualEyePosition() - GetEnemy()->origin;
+    vDelta[2] = 0;
 
-    fFarPlane = world->farplane_distance;
+    fRange    = vDelta.lengthXYSquared();
+    fMaxRange = pSelf->m_fSight;
 
-    fRange = pSelf->m_fSight;
+    if (world->farplane_distance > 0) {
+        fFarPlane = world->farplane_distance * 0.828f;
 
-    if (fFarPlane > 0) {
-        fRange = fFarPlane * 0.828;
-        if (pSelf->m_fSight <= fRange) {
-            fRange = pSelf->m_fSight;
+        if (fMaxRange > fFarPlane) {
+            fMaxRange = fFarPlane;
         }
     }
 
-    if (vDelta.lengthXYSquared() > Square(fRange)) {
+    if (fRange > Square(fMaxRange)) {
         return 8.0;
     }
 
-    fForward = vDelta.lengthXY();
+    fForward = sqrt(fRange);
 
-    if (-DotProduct2D(vDelta, pSelf->m_vEyeDir) < 0) {
+    fMinSightTime = -DotProduct2D(pSelf->m_vEyeDir, vDelta);
+    if (fMinSightTime < 0) {
         return 8.0;
     }
 
-    fTmp2 = 128.0 - DotProduct2D(vDelta, pSelf->m_vEyeDir);
-
-    if (fForward * pSelf->m_fFovDot > fTmp2) {
+    fMinSightTime += 128;
+    if (pSelf->m_fFovDot * fForward > fMinSightTime) {
         return 8.0;
     }
 
     *pbInFovAndRange = true;
-
     if (!pSelf->CanSee(m_pEnemy, 0, 0, false)) {
         return 8.0;
     }
 
-    *pbVisible  = true;
-    fTmp1       = fForward + 128.0;
-    *pbVisible  = true;
-    fTmp3       = fTmp1 / fTmp2;
-    fRangeScale = fForward / fRange
-                * (((fForward / fRange * 16.0 + -16.0) * (fForward / fRange) + -1.0) * (fForward / fRange) + 7.0) / 3.0
-                * GetEnemy()->stealthMovementScale;
-    fFovScale = (1 / fTmp3 * -1.3 - (pSelf->m_fFovDot * 0.2 - 1.5)) / (1.0 - pSelf->m_fFovDot);
-    fLMRF     = g_ai_noticescale->value * pSelf->m_fNoticeTimeScale * (fTmp3 * fRangeScale + fTmp3 * fRangeScale);
-    if (fFovScale > fLMRF) {
-        fLMRF = fFovScale;
+    // Added in 2.0.
+    //  Check for obfuscation
+    fObfuscation = G_VisualObfuscation(pSelf->VirtualEyePosition(), m_pEnemy->EyePosition());
+    if (fObfuscation >= 1.f) {
+        return 8.0;
     }
+
+    *pbVisible = true;
+
+    fFovScale = (fMinSightTime / (fForward + 128.0) * -1.3 - (pSelf->m_fFovDot * 0.2 - 1.5)) / (1.0 - pSelf->m_fFovDot);
+    fRangeScale      = fForward / fMaxRange;
+    fNormalizedRange = (((fRangeScale * 16.0 + -16.0) * fRangeScale + -1.0) * fRangeScale + 7.0) * fRangeScale;
+    fNormalizedRange = fNormalizedRange / 3.0;
+
+    fLMRF = Square(m_pEnemy->stealthMovementScale * fNormalizedRange) * (fForward + 128.0) / fMinSightTime;
+    fLMRF *= pSelf->m_fNoticeTimeScale * g_ai_noticescale->value;
+    if (fLMRF < fFovScale) {
+        return fFovScale;
+    }
+
     return fLMRF;
 }
 
@@ -99,12 +110,10 @@ float ActorEnemy::UpdateVisibility(Actor *pSelf, bool *pbInFovAndRange, bool *pb
     fLMRF = UpdateLMRF(pSelf, pbInFovAndRange, pbVisible);
     if (fLMRF < 8.0) {
         m_fVisibility += fFrameTime / fLMRF;
-    } else {
-        if (m_fVisibility < 1.0) {
-            m_fVisibility -= fFrameTime * 0.25;
-            if (m_fVisibility < 0.0) {
-                m_fVisibility = 0.0;
-            }
+    } else if (m_fVisibility < 1.0) {
+        m_fVisibility -= fFrameTime * 0.25;
+        if (m_fVisibility < 0.0) {
+            m_fVisibility = 0.0;
         }
     }
 
@@ -118,17 +127,40 @@ float ActorEnemy::UpdateVisibility(Actor *pSelf, bool *pbInFovAndRange, bool *pb
 
 int ActorEnemy::UpdateThreat(Actor *pSelf)
 {
-    //FIXME: macro
-    static float fRangeThreatSquared[15];
-    static int   iWeaponThreat[7][5];
-    int          iWeapon;
-    int          iZone;
-    Vector       vDelta;
+    static float fRangeThreatSquared[] = {
+        Square(2048),
+        Square(1400),
+        Square(1100),
+        Square(916),
+        Square(784),
+        Square(683),
+        Square(600),
+        Square(529),
+        Square(466),
+        Square(410),
+        Square(357),
+        Square(305),
+        Square(254),
+        Square(200),
+        Square(137)};
+    static int iWeaponThreat[7][5] = {
+        {5,  3,  1,  1, 1},
+        {8,  6,  4,  2, 1},
+        {10, 9,  7,  8, 4},
+        {12, 10, 8,  4, 3},
+        {12, 12, 9,  7, 4},
+        {12, 10, 5,  2, 1},
+        {10, 12, 10, 7, 5}
+    };
+    int    iWeapon;
+    int    iZone;
+    Vector vDelta;
+    int    i;
 
     m_iThreat              = 0;
     m_fCurrentRangeSquared = 1e38f;
 
-    if (m_pEnemy->m_bIsDisguised || m_fTotalVisibility < 1) {
+    if (m_pEnemy->m_bIsDisguised || m_fTotalVisibility < 0.999f || level.inttime < m_iNextEnemyTime) {
         return m_iThreat;
     }
 
@@ -140,22 +172,16 @@ int ActorEnemy::UpdateThreat(Actor *pSelf)
     vDelta                 = m_pEnemy->origin - pSelf->origin;
     m_fCurrentRangeSquared = vDelta.lengthSquared();
 
-    if (m_fCurrentRangeSquared >= 65536.0) {
-        if (m_fCurrentRangeSquared >= 589824.0) {
-            if (m_fCurrentRangeSquared >= 1638400.0) {
-                if (m_fCurrentRangeSquared >= 4194304.0) {
-                    iZone = 4;
-                } else {
-                    iZone = 3;
-                }
-            } else {
-                iZone = 2;
-            }
-        } else {
-            iZone = 1;
-        }
-    } else {
+    if (m_fCurrentRangeSquared < Square(256)) {
         iZone = 0;
+    } else if (m_fCurrentRangeSquared < Square(768)) {
+        iZone = 1;
+    } else if (m_fCurrentRangeSquared < Square(1280)) {
+        iZone = 2;
+    } else if (m_fCurrentRangeSquared < Square(2048)) {
+        iZone = 3;
+    } else {
+        iZone = 4;
     }
 
     Weapon *pEnemyWeapon = m_pEnemy->GetActiveWeapon(WEAPON_MAIN);
@@ -178,43 +204,41 @@ int ActorEnemy::UpdateThreat(Actor *pSelf)
         }
     }
 
-    int i = 0;
-    if (m_fCurrentRangeSquared > 4194304) {
-        for (; i < 15 && fRangeThreatSquared[i] > m_fCurrentRangeSquared; i++) {}
-    }
+    for (i = 0; i < ARRAY_LEN(fRangeThreatSquared) && fRangeThreatSquared[i] > m_fCurrentRangeSquared; i++) {}
 
-    m_iThreat += iWeaponThreat[iZone][iWeapon] + m_pEnemy->m_iThreatBias + i;
+    m_iThreat += iWeaponThreat[iWeapon][iZone] + m_pEnemy->m_iThreatBias + i;
 
     float fMinSafeDistSquared = 1.21 * pSelf->m_fMinDistanceSquared + 16384;
 
     if (m_fCurrentRangeSquared < fMinSafeDistSquared) {
-        m_iThreat -= (sqrt(m_fCurrentRangeSquared / fMinSafeDistSquared) * 500) + 500;
+        m_iThreat += 500 - (sqrt(m_fCurrentRangeSquared / fMinSafeDistSquared) * 500);
     }
 
-    Vector vLine = m_vLastKnownPos - pSelf->origin;
-    float  fDot  = DotProduct2D(vLine, m_vLastKnownPos);
-    for (Sentient *pSquadMate = m_pEnemy->m_pNextSquadMate; pSquadMate != m_pEnemy;
-         pSquadMate           = pSquadMate->m_pNextSquadMate) {
+    vec2_t vLine;
+    VectorSub2D(m_vLastKnownPos, pSelf->origin, vLine);
+    float     fDot = DotProduct2D(vLine, m_vLastKnownPos);
+    Sentient *pSquadMate;
+    for (pSquadMate = m_pEnemy->m_pNextSquadMate; pSquadMate != m_pEnemy; pSquadMate = pSquadMate->m_pNextSquadMate) {
         if (fDot > DotProduct2D(vLine, pSquadMate->origin)) {
             m_iThreat -= 4;
         }
     }
 
-    Actor *pAEnemy = (Actor *)m_pEnemy.Pointer();
-    if (pAEnemy->IsSubclassOfActor() && pAEnemy->m_ThinkState == THINKSTATE_PAIN) {
-        m_iThreat -= 2;
+    if (m_pEnemy->IsSubclassOfActor()) {
+        Actor *pActorEnemy = static_cast<Actor *>(m_pEnemy.Pointer());
+        if (pActorEnemy->m_ThinkState == THINKSTATE_PAIN) {
+            m_iThreat -= 2;
+        }
     }
 
-    fDot = Vector::Dot(vDelta, pSelf->orientation[0]);
-    if (fDot <= 0) {
-        if (m_fCurrentRangeSquared * 0.5 > Square(fDot)) {
+    fDot = vDelta * pSelf->orientation[0];
+    if (fDot > 0) {
+        if (m_fCurrentRangeSquared * 0.5 >= Square(fDot) && m_fCurrentRangeSquared * 0.5 > Square(fDot)) {
             m_iThreat++;
         }
     } else {
-        if (m_fCurrentRangeSquared * 0.5 >= Square(fDot)) {
-            if (m_fCurrentRangeSquared * 0.5 > Square(fDot)) {
-                m_iThreat++;
-            }
+        if (m_fCurrentRangeSquared * 0.5 > Square(fDot)) {
+            m_iThreat++;
         }
     }
     int iEnemyDiscount = m_pEnemy->m_iAttackerCount;
@@ -264,51 +288,50 @@ ActorEnemy *ActorEnemySet::AddPotentialEnemy(Sentient *pEnemy)
         }
     }
 
-    NewEnemy.m_fVisibility      = 0.0;
-    NewEnemy.m_fTotalVisibility = 0.0;
-    NewEnemy.m_iAddTime         = level.inttime;
-    NewEnemy.m_fLastLookTime    = level.time;
-    NewEnemy.m_iThreat          = 0;
-
-    NewEnemy.m_pEnemy = pEnemy;
-
+    NewEnemy.m_iAddTime             = level.inttime;
+    NewEnemy.m_iNextEnemyTime       = 0;
+    NewEnemy.m_fLastLookTime        = level.time;
+    NewEnemy.m_fVisibility          = 0.0;
+    NewEnemy.m_fTotalVisibility     = 0.0;
+    NewEnemy.m_iThreat              = 0;
+    NewEnemy.m_pEnemy               = pEnemy;
     NewEnemy.m_fCurrentRangeSquared = 1e38f;
-
-    NewEnemy.m_iLastSightChangeTime = 0;
     NewEnemy.m_vLastKnownPos        = vec_zero;
+    NewEnemy.m_iLastSightChangeTime = 0;
+    NewEnemy.m_bVisible             = false;
 
-    NewEnemy.m_bVisible = false;
-
-    return &m_Enemies[m_Enemies.AddObject(NewEnemy) - 1];
+    int index = m_Enemies.AddObject(NewEnemy);
+    return m_Enemies.AddressOfObjectAt(index);
 }
 
 void ActorEnemySet::FlagBadEnemy(Sentient *pEnemy)
 {
-    ActorEnemy *pActorEnemy;
-    for (int i = 0; i < m_Enemies.NumObjects(); i++) {
-        pActorEnemy = &m_Enemies[i];
-        if (pActorEnemy->m_pEnemy == pEnemy) {
-            break;
-        }
+    ActorEnemy *pActorEnemy = NULL;
 
-        if (i + 1 == m_Enemies.NumObjects()) {
-            return;
+    for (int i = 1; i <= m_Enemies.NumObjects(); i++) {
+        if (m_Enemies.ObjectAt(i).m_pEnemy == pEnemy) {
+            pActorEnemy = m_Enemies.AddressOfObjectAt(i);
+            break;
         }
     }
 
-    pActorEnemy->m_iThreat          = 0;
-    pActorEnemy->m_fVisibility      = 0.0;
-    pActorEnemy->m_fTotalVisibility = 0.0;
-    pActorEnemy->m_fLastLookTime    = level.time;
+    if (!pActorEnemy) {
+        return;
+    }
 
-    pActorEnemy->m_bVisible             = false;
+    // Added in 2.0.
+    //  Set the reaction time
+    pActorEnemy->m_iNextEnemyTime       = level.inttime + 5000;
+
+    pActorEnemy->m_fLastLookTime        = level.time;
+    pActorEnemy->m_fVisibility          = 0.0;
+    pActorEnemy->m_fTotalVisibility     = 0.0;
+    pActorEnemy->m_iThreat              = 0;
     pActorEnemy->m_iLastSightChangeTime = level.inttime;
+    pActorEnemy->m_bVisible             = false;
 
     if (pEnemy == m_pCurrentEnemy) {
-        if (m_pCurrentEnemy) {
-            //delete m_pCurrentEnemy;
-            m_pCurrentEnemy = NULL;
-        }
+        m_pCurrentEnemy      = NULL;
         m_fCurrentVisibility = 0.0;
         m_iCurrentThreat     = 0;
     }
@@ -316,122 +339,125 @@ void ActorEnemySet::FlagBadEnemy(Sentient *pEnemy)
 
 void ActorEnemySet::CheckEnemies(Actor *pSelf)
 {
-    float fRangeSquared;
-    bool  bVisible;
-    bool  bInFovAndRange;
-    //int nChecked;
-    //int iThreat;
     float fVisibility;
+    int   iThreat;
+    int   i;
+    int   nChecked;
+    bool  bInFovAndRange;
+    bool  bVisible;
+    float fRangeSquared;
 
     ActorEnemy *pActorEnemy;
 
-    for (int i = 1; i <= m_Enemies.NumObjects(); i++) {
+    for (i = 1; i <= m_Enemies.NumObjects();) {
         pActorEnemy = &m_Enemies[i - 1];
-        if (!pActorEnemy->m_pEnemy || pActorEnemy->m_pEnemy->m_Team == pSelf->m_Team || pActorEnemy->m_pEnemy->IsDead()
-            || level.inttime > pActorEnemy->m_iAddTime + 10000
-            || pActorEnemy->m_pEnemy->m_iThreatBias == THREATBIAS_IGNOREME) {
+        if (!pActorEnemy->GetEnemy() || pActorEnemy->GetEnemy()->m_Team == pSelf->m_Team
+            || pActorEnemy->GetEnemy()->IsDead() || level.inttime > pActorEnemy->m_iAddTime + 10000
+            || pActorEnemy->GetEnemy()->m_iThreatBias == THREATBIAS_IGNOREME) {
             m_Enemies.RemoveObjectAt(i);
-            i--; //decrease i in order to not miss next object in container.
+        } else {
+            i++;
         }
     }
 
     if (!m_Enemies.NumObjects()) {
         m_iCurrentThreat = 0;
-        if (m_pCurrentEnemy) {
-            //delete m_pCurrentEnemy;
-            m_pCurrentEnemy = NULL;
+        m_pCurrentEnemy  = NULL;
+        return;
+    }
+
+    bInFovAndRange = false;
+    for (nChecked = 0; nChecked < m_Enemies.NumObjects() && !bInFovAndRange; nChecked++) {
+        m_iCheckCount++;
+        if (m_iCheckCount > m_Enemies.NumObjects()) {
+            m_iCheckCount = 1;
         }
-    } else {
-        for (int i = 0; i < m_Enemies.NumObjects(); i++) {
-            m_iCheckCount++;
-            if (m_iCheckCount > m_Enemies.NumObjects()) {
-                m_iCheckCount = 1;
+
+        pActorEnemy = &m_Enemies[m_iCheckCount - 1];
+
+        fVisibility = pActorEnemy->UpdateVisibility(pSelf, &bInFovAndRange, &bVisible);
+        if (fVisibility > 0) {
+            if (fVisibility >= m_fCurrentVisibility) {
+                m_fCurrentVisibility = fVisibility;
+                m_pCurrentEnemy      = pActorEnemy->GetEnemy();
+            } else if (pActorEnemy->m_pEnemy == m_pCurrentEnemy) {
+                m_fCurrentVisibility = fVisibility;
             }
 
-            pActorEnemy = &m_Enemies[m_iCheckCount - 1];
-
-            fVisibility = pActorEnemy->UpdateVisibility(pSelf, &bInFovAndRange, &bVisible);
-            if (fVisibility <= 0.0) {
-                if (pActorEnemy->m_pEnemy == m_pCurrentEnemy) {
-                    m_iCurrentThreat     = 0;
-                    m_pCurrentEnemy      = NULL;
-                    m_fCurrentVisibility = 0.0;
-                }
-            } else {
-                if (fVisibility < m_fCurrentVisibility) {
-                    if (pActorEnemy->m_pEnemy == m_pCurrentEnemy) {
-                        m_fCurrentVisibility = fVisibility;
-                    }
-                } else {
-                    m_pCurrentEnemy      = pActorEnemy->m_pEnemy;
-                    m_fCurrentVisibility = fVisibility;
-                }
-
-                if (g_showawareness->integer) {
-                    Com_Printf(
-                        "ent #%3i: enemy #%i: awareness = %5.1f%%, threat = %i\n",
-                        pSelf->entnum,
-                        pActorEnemy->m_pEnemy->entnum,
-                        (fVisibility * 100.0),
-                        0
-                    );
-                }
+            if (g_showawareness->integer) {
+                Com_Printf(
+                    "ent #%3i: enemy #%i: awareness = %5.1f%%, threat = %i\n",
+                    pSelf->entnum,
+                    pActorEnemy->GetEnemy()->entnum,
+                    (fVisibility * 100.0),
+                    0
+                );
             }
+        } else if (pActorEnemy->m_pEnemy == m_pCurrentEnemy) {
+            m_iCurrentThreat     = 0;
+            m_pCurrentEnemy      = NULL;
+            m_fCurrentVisibility = 0;
+        }
 
-            if (bVisible) {
-                if (!pActorEnemy->m_bVisible) {
-                    pActorEnemy->m_bVisible             = true;
-                    pActorEnemy->m_iLastSightChangeTime = level.inttime;
-                }
-                pActorEnemy->m_vLastKnownPos = pActorEnemy->m_pEnemy->origin;
-            } else if (pActorEnemy->m_bVisible) {
-                pActorEnemy->m_bVisible             = false;
+        if (bVisible) {
+            if (!pActorEnemy->m_bVisible) {
+                pActorEnemy->m_bVisible             = true;
                 pActorEnemy->m_iLastSightChangeTime = level.inttime;
             }
-
-            if (bInFovAndRange) {
-                break;
-            }
+            pActorEnemy->m_vLastKnownPos = pActorEnemy->m_pEnemy->origin;
+        } else if (pActorEnemy->m_bVisible) {
+            pActorEnemy->m_bVisible             = false;
+            pActorEnemy->m_iLastSightChangeTime = level.inttime;
         }
+    }
 
-        if (m_pCurrentEnemy && m_pCurrentEnemy->IsDead()) {
-            m_pCurrentEnemy      = NULL;
-            m_iCurrentThreat     = 0;
-            m_fCurrentVisibility = 0.0;
-        }
+    if (m_pCurrentEnemy && m_pCurrentEnemy->IsDead()) {
+        m_pCurrentEnemy      = NULL;
+        m_iCurrentThreat     = 0;
+        m_fCurrentVisibility = 0;
+    }
 
-        m_iCurrentThreat = 0;
+    m_iCurrentThreat = 0;
+    fRangeSquared    = 1e37f;
 
-        fRangeSquared = 1e37f;
+    if (m_fCurrentVisibility >= 1) {
+        iThreat = 0;
 
-        if (m_fCurrentVisibility >= 1) {
-            for (int i = 1; i <= m_Enemies.NumObjects(); i++) {
-                pActorEnemy = &m_Enemies[i - 1];
-                pActorEnemy->UpdateThreat(pSelf);
-                if (m_iCurrentThreat < pActorEnemy->m_iThreat
-                    || (m_iCheckCount == pActorEnemy->m_iThreat && fRangeSquared > pActorEnemy->m_fCurrentRangeSquared
-                    )) {
-                    m_iCurrentThreat = pActorEnemy->m_iThreat;
-                    m_pCurrentEnemy  = pActorEnemy->m_pEnemy;
-                    fRangeSquared    = pActorEnemy->m_fCurrentRangeSquared;
+        for (i = 1; i <= m_Enemies.NumObjects(); i++) {
+            pActorEnemy = &m_Enemies.ObjectAt(i);
+            pActorEnemy->UpdateThreat(pSelf);
+
+            if (m_iCurrentThreat >= pActorEnemy->GetThreat()) {
+                if (m_iCheckCount != pActorEnemy->GetThreat()) {
+                    continue;
+                }
+
+                if (pActorEnemy->GetRangeSquared() < fRangeSquared) {
+                    continue;
                 }
             }
+
+            iThreat         = pActorEnemy->GetThreat();
+            m_pCurrentEnemy = pActorEnemy->GetEnemy();
+            fRangeSquared   = pActorEnemy->m_fCurrentRangeSquared;
         }
 
-        if ((!m_pCurrentEnemy || !m_pCurrentEnemy->m_bIsDisguised) && m_iCurrentThreat <= 0) {
-            m_pCurrentEnemy      = NULL;
-            m_iCurrentThreat     = 0;
-            m_fCurrentVisibility = 0.0;
-        }
+        m_iCurrentThreat = iThreat;
+    }
+
+    if ((!m_pCurrentEnemy || !m_pCurrentEnemy->m_bIsDisguised) && m_iCurrentThreat <= 0) {
+        m_pCurrentEnemy      = NULL;
+        m_iCurrentThreat     = 0;
+        m_fCurrentVisibility = 0;
     }
 }
 
 bool ActorEnemySet::HasAlternateEnemy(void) const
 {
-    ActorEnemy *pActorEnemy;
-    for (int i = 0; i < m_Enemies.NumObjects(); i++) {
-        pActorEnemy = &m_Enemies[i];
-        if (pActorEnemy->m_pEnemy != m_pCurrentEnemy) {
+    for (int i = 1; i <= m_Enemies.NumObjects(); i++) {
+        const ActorEnemy& actorEnemy = m_Enemies.ObjectAt(i);
+
+        if (actorEnemy.GetVisibility() >= 0.999f && actorEnemy.GetEnemy() != m_pCurrentEnemy) {
             return true;
         }
     }
@@ -441,64 +467,96 @@ bool ActorEnemySet::HasAlternateEnemy(void) const
 void ActorEnemySet::RemoveAll(void)
 {
     m_Enemies.ClearObjectList();
-    m_iCheckCount = 0;
-    if (m_pCurrentEnemy) {
-        //delete m_pCurrentEnemy;
-        m_pCurrentEnemy = NULL;
-    }
+    m_iCheckCount        = 0;
+    m_pCurrentEnemy      = NULL;
     m_fCurrentVisibility = 0.0;
     m_iCurrentThreat     = 0;
 }
 
 void ActorEnemySet::ConfirmEnemy(Actor *pSelf, Sentient *pEnemy)
 {
+    ActorEnemy *pActorEnemy;
+
     pSelf->m_bEnemyIsDisguised = false;
-    ActorEnemy *pActorEnemy    = ActorEnemySet::AddPotentialEnemy(pEnemy);
-    if (pActorEnemy) {
-        pActorEnemy->m_fVisibility      = 1.0;
-        pActorEnemy->m_fTotalVisibility = 1.0;
-        pActorEnemy->m_vLastKnownPos    = pEnemy->origin;
-        if (m_fCurrentVisibility < 1.0) {
-            m_iCurrentThreat     = pActorEnemy->UpdateThreat(pSelf);
-            m_fCurrentVisibility = 1.0;
-            m_pCurrentEnemy      = pEnemy;
-        }
+    pActorEnemy                = ActorEnemySet::AddPotentialEnemy(pEnemy);
+    if (!pActorEnemy) {
+        return;
+    }
+
+    // Added in 2.0.
+    //  Ignore if below reaction time
+    if (level.inttime < pActorEnemy->m_iNextEnemyTime) {
+        return;
+    }
+
+    pActorEnemy->m_fVisibility      = 1.0;
+    pActorEnemy->m_fTotalVisibility = 1.0;
+    pActorEnemy->m_vLastKnownPos    = pEnemy->origin;
+
+    if (m_fCurrentVisibility < 1.0) {
+        m_iCurrentThreat     = pActorEnemy->UpdateThreat(pSelf);
+        m_fCurrentVisibility = 1.0;
+        m_pCurrentEnemy      = pEnemy;
     }
 }
 
 void ActorEnemySet::ConfirmEnemyIfCanSeeSharerOrEnemy(Actor *pSelf, Actor *pSharer, Sentient *pEnemy)
 {
+    ActorEnemy *pActorEnemy;
+
     pSelf->m_bEnemyIsDisguised = false;
-    ActorEnemy *pActorEnemy    = ActorEnemySet::AddPotentialEnemy(pEnemy);
-    if (pActorEnemy) {
-        if (pActorEnemy->m_fTotalVisibility > 0) {
-            pActorEnemy->m_vLastKnownPos = pEnemy->origin;
-            return;
-        }
-        if (!pActorEnemy->m_bVisible) {
-            if (!pSelf->CanSee(pSharer, pSelf->m_bSilent ? 90.0f : 0, 0.828 * world->farplane_distance, false)) {
-                return;
-            }
-        }
-        pActorEnemy->m_fVisibility      = 1.0;
-        pActorEnemy->m_fTotalVisibility = 1.0;
-        pActorEnemy->m_vLastKnownPos    = pEnemy->origin;
-        if (m_fCurrentVisibility < 1.0) {
-            m_iCurrentThreat     = pActorEnemy->UpdateThreat(pSelf);
-            m_fCurrentVisibility = 1.0;
-            m_pCurrentEnemy      = pEnemy;
-        }
+    pActorEnemy                = ActorEnemySet::AddPotentialEnemy(pEnemy);
+    if (!pActorEnemy) {
+        return;
+    }
+
+    // Added in 2.0.
+    //  Ignore if below reaction time
+    if (level.inttime < pActorEnemy->m_iNextEnemyTime) {
+        return;
+    }
+
+    if (pActorEnemy->m_fTotalVisibility >= 1.f) {
+        pActorEnemy->m_vLastKnownPos = pEnemy->origin;
+        return;
+    }
+
+    if (!pActorEnemy->m_bVisible
+        && !pSelf->CanSee(pSharer, pSelf->m_bSilent ? 90 : 0, world->farplane_distance * 0.828f, false)) {
+        return;
+    }
+
+    pActorEnemy->m_fVisibility      = 1.0;
+    pActorEnemy->m_fTotalVisibility = 1.0;
+    pActorEnemy->m_vLastKnownPos    = pEnemy->origin;
+
+    if (m_fCurrentVisibility < 1.0) {
+        m_iCurrentThreat     = pActorEnemy->UpdateThreat(pSelf);
+        m_fCurrentVisibility = 1.0;
+        m_pCurrentEnemy      = pEnemy;
     }
 }
 
 bool ActorEnemySet::CaresAboutPerfectInfo(Sentient *pEnemy)
 {
     ActorEnemy *pActorEnemy = ActorEnemySet::AddPotentialEnemy(pEnemy);
-    if (pActorEnemy) {
-        if (pActorEnemy->m_fTotalVisibility < 1.0
-            || (pEnemy->origin - pActorEnemy->m_vLastKnownPos).lengthSquared() > 262144) {
-            return true;
-        }
+    if (!pActorEnemy) {
+        return false;
     }
-    return false;
+
+    // Added in 2.0.
+    //  Ignore if below reaction time
+    if (level.inttime < pActorEnemy->m_iNextEnemyTime) {
+        return false;
+    }
+
+    if (pActorEnemy->m_fTotalVisibility < 1.0f) {
+        return true;
+    }
+
+    if ((pEnemy->origin - pActorEnemy->m_vLastKnownPos).lengthSquared() <= Square(512)) {
+        return false;
+    }
+
+    return true;
 }

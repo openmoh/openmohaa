@@ -35,7 +35,7 @@ class ActorEnemy : public Class
 {
 public:
     int               m_iAddTime;
-    int               m_iNextEnemyTime;
+    int               m_iNextEnemyTime; // Added in 2.0
     float             m_fLastLookTime;
     float             m_fVisibility;
     float             m_fTotalVisibility;
