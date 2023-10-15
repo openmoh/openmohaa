@@ -5248,8 +5248,9 @@ Move on path.
 */
 void Actor::MovePath(float fMoveSpeed)
 {
-    //FIXME: macros
     mmove_t mm;
+    const float* dir;
+    vec2_t delta;
 
     SetMoveInfo(&mm);
 
@@ -5262,36 +5263,35 @@ void Actor::MovePath(float fMoveSpeed)
 
     if (ai_debugpath->integer) {
         Vector pos, dest;
+        PathInfo* current_path;
+
         pos = origin;
         pos.z += 32;
-        dest = m_Path.CurrentDelta();
-        dest += origin;
-        dest.z += 32;
-        G_DebugLine(pos, dest, 1, 0, 0, 1);
-        for (PathInfo *current_path = m_Path.CurrentNode(); current_path != m_Path.LastNode();
-             current_path           = m_Path.NextNode()) {
-            pos = current_path->point;
-            pos.z += 32;
 
-            dest = m_Path.NextNode()->point;
-            dest.z += 32;
-            G_DebugLine(pos, dest, 0, 1, 0, 1);
+        dest = m_Path.CurrentDelta() + origin;
+        dest.z += 32;
+
+        G_DebugLine(pos, dest, 1, 0, 0, 1);
+
+        for (current_path = m_Path.CurrentNode(); current_path != m_Path.LastNode(); current_path = m_Path.NextNode()) {
+            pos = current_path->point;
+            current_path--;
+            dest = current_path->point;
+
+            G_DebugLine(pos + Vector(0, 0, 32), dest + Vector(0, 0, 32), 0, 1, 0, 1);
         }
     }
 
     VectorCopy2D(m_Path.CurrentDelta(), mm.desired_dir);
-
     MmoveSingle(&mm);
+
     if (!mm.hit_obstacle) {
         if (m_WallDir) {
             if (level.inttime >= m_iWallDodgeTimeout) {
                 m_WallDir = 0;
-            } else {
-                if (DotProduct2D(mm.desired_dir, m_PrevObstacleNormal) > 0
-                    && CrossProduct2D(mm.desired_dir, m_PrevObstacleNormal) < 0) {
-                    m_iWallDodgeTimeout = level.inttime + 1000;
-                    m_WallDir           = -m_WallDir;
-                }
+            } else if (DotProduct2D(mm.desired_dir, m_PrevObstacleNormal) > 0 && CrossProduct2D(mm.desired_dir, m_PrevObstacleNormal) < 0) {
+                m_iWallDodgeTimeout = level.inttime + 1000;
+                m_WallDir = -m_WallDir;
             }
         }
         GetMoveInfo(&mm);
@@ -5306,164 +5306,119 @@ void Actor::MovePath(float fMoveSpeed)
     VectorCopy2D(mm.obstacle_normal, m_PrevObstacleNormal);
 
     m_Path.UpdatePos(mm.hit_origin);
-    if (!m_Path.NextNode()) {
-        if (!m_WallDir) {
-            auto dir = m_Path.CurrentDelta();
+
+    if (m_Path.NextNode() && m_Path.IsAccurate()) {
+        dir = m_Path.CurrentPathDir();
+
+        m_iWallDodgeTimeout = level.inttime + 1000;
+        VectorSub2D(m_Path.NextNode()->point, mm.hit_origin, delta);
+
+        if (delta[0] * dir[1] > delta[1] * dir[0]) {
+            m_WallDir = -1;
+            mm.desired_dir[0] = -mm.obstacle_normal[1];
+            mm.desired_dir[1] = mm.obstacle_normal[0];
+        }
+        else {
+            mm.desired_dir[0] = mm.obstacle_normal[1];
+            mm.desired_dir[1] = -mm.obstacle_normal[0];
+        }
+
+        MmoveSingle(&mm);
+
+        if (!mm.hit_obstacle) {
+            GetMoveInfo(&mm);
+            return;
+        }
+
+        velocity.copyTo(mm.velocity);
+        origin.copyTo(mm.origin);
+
+        mm.groundPlane = m_groundPlane;
+        mm.walking = m_walking;
+        VectorCopy(m_groundPlaneNormal, mm.groundPlaneNormal);
+        VectorCopy2D(mm.obstacle_normal, m_PrevObstacleNormal);
+
+        if (m_WallDir == -1) {
+            mm.desired_dir[0] = -mm.obstacle_normal[1];
+            mm.desired_dir[1] = mm.obstacle_normal[0];
+        } else {
+            mm.desired_dir[0] = mm.obstacle_normal[1];
+            mm.desired_dir[1] = -mm.obstacle_normal[0];
+        }
+
+        MmoveSingle(&mm);
+        GetMoveInfo(&mm);
+    } else {
+        if (m_Path.NextNode() && !m_Path.IsAccurate() && m_WallDir == 0) {
+            dir = m_Path.CurrentPathDir();
+
+            VectorSub2D(m_Path.NextNode()->point, mm.hit_origin, delta);
+
+            if (DotProduct2D(dir, delta) >= 0) {
+                float cross = CrossProduct2D(dir, delta);
+                if (cross <= -16) {
+                    mm.desired_dir[0] = -mm.obstacle_normal[1];
+                    mm.desired_dir[1] = mm.obstacle_normal[0];
+
+                    MmoveSingle(&mm);
+                    GetMoveInfo(&mm);
+                    return;
+
+                } else if (cross >= 16) {
+                    mm.desired_dir[0] = mm.obstacle_normal[1];
+                    mm.desired_dir[1] = -mm.obstacle_normal[0];
+
+                    MmoveSingle(&mm);
+                    GetMoveInfo(&mm);
+                    return;
+                }
+            }
+        }
+
+        if (m_WallDir == 0) {
+            dir = m_Path.CurrentPathDir();
+
             if (m_Path.NextNode()) {
                 dir = m_Path.NextNode()->dir;
             }
 
-            if (dir[1] * mm.obstacle_normal[0] < dir[0] * mm.obstacle_normal[1]) {
-                mm.desired_dir[0] = mm.obstacle_normal[0];
-                mm.desired_dir[1] = -mm.obstacle_normal[1];
-                m_WallDir         = 1;
-            } else {
-                mm.desired_dir[0] = -mm.obstacle_normal[0];
-                mm.desired_dir[1] = mm.obstacle_normal[1];
-                m_WallDir         = -1;
-            }
-            MmoveSingle(&mm);
-            if (!mm.hit_obstacle) {
-                m_iWallDodgeTimeout = level.inttime + 1000;
-            } else {
-                m_WallDir           = 0;
-                m_iWallDodgeTimeout = 0;
-            }
-            GetMoveInfo(&mm);
-            return;
-        }
-    }
-
-    if (!(m_Path.NextNode() && m_Path.NextNode()->bAccurate && m_Path.IsSide())) {
-        if (m_WallDir) {
-            if (m_WallDir < 0) {
-                mm.desired_dir[0] = -mm.obstacle_normal[1];
-                mm.desired_dir[1] = mm.obstacle_normal[0];
-            } else {
+            if (dir[0] * mm.obstacle_normal[1] > dir[1] * mm.obstacle_normal[0]) {
+                m_WallDir = 1;
                 mm.desired_dir[0] = mm.obstacle_normal[1];
                 mm.desired_dir[1] = -mm.obstacle_normal[0];
             }
+            else {
+                m_WallDir = -1;
+                mm.desired_dir[0] = -mm.obstacle_normal[1];
+                mm.desired_dir[1] = mm.obstacle_normal[0];
+            }
+
             MmoveSingle(&mm);
             if (mm.hit_obstacle) {
-                m_WallDir           = 0;
+                m_WallDir = 0;
                 m_iWallDodgeTimeout = 0;
-            }
-            GetMoveInfo(&mm);
-            return;
-        } else {
-            auto dir       = m_Path.CurrentDelta();
-            auto pNextNode = m_Path.NextNode();
-
-            if (pNextNode) {
-                dir = pNextNode->dir;
-            }
-
-            vec2_t vDelta;
-            vDelta[0] = pNextNode->point[1] - mm.hit_origin[0];
-            vDelta[1] = pNextNode->point[0] - mm.hit_origin[1];
-
-            if (DotProduct2D(dir, vDelta) >= 0) {
-                float fCross = CrossProduct2D(dir, vDelta);
-                if (fCross <= -16) {
-                    mm.desired_dir[1] = mm.obstacle_normal[0];
-                    mm.desired_dir[0] = -mm.obstacle_normal[1];
-                } else {
-                    if (fCross >= 16) {
-                        mm.desired_dir[0] = mm.obstacle_normal[1];
-                        mm.desired_dir[1] = -mm.obstacle_normal[0];
-                        MmoveSingle(&mm);
-                        GetMoveInfo(&mm);
-                        return;
-                    }
-                }
-            }
-            {
-                if (!m_WallDir) {
-                    auto dir = m_Path.CurrentDelta();
-                    if (m_Path.NextNode()) {
-                        dir = m_Path.NextNode()->dir;
-                    }
-
-                    if (dir[1] * mm.obstacle_normal[0] < dir[0] * mm.obstacle_normal[1]) {
-                        mm.desired_dir[0] = mm.obstacle_normal[1];
-                        mm.desired_dir[1] = -mm.obstacle_normal[0];
-                        m_WallDir         = 1;
-                    } else {
-                        mm.desired_dir[0] = -mm.obstacle_normal[1];
-                        mm.desired_dir[1] = mm.obstacle_normal[0];
-                        m_WallDir         = -1;
-                    }
-                    MmoveSingle(&mm);
-                    if (!mm.hit_obstacle) {
-                        m_iWallDodgeTimeout = level.inttime + 1000;
-                    } else {
-                        m_WallDir           = 0;
-                        m_iWallDodgeTimeout = 0;
-                    }
-                    GetMoveInfo(&mm);
-                    return;
-                } else if (m_WallDir < 0) {
-                    mm.desired_dir[0] = -mm.obstacle_normal[1];
-                    mm.desired_dir[1] = mm.obstacle_normal[0];
-                } else {
-                    mm.desired_dir[0] = mm.obstacle_normal[1];
-                    mm.desired_dir[1] = -mm.obstacle_normal[0];
-                }
-                MmoveSingle(&mm);
-                if (mm.hit_obstacle) {
-                    m_WallDir           = 0;
-                    m_iWallDodgeTimeout = 0;
-                }
-                GetMoveInfo(&mm);
-                return;
-            }
-        }
-    }
-
-    m_iWallDodgeTimeout = level.inttime + 1000;
-
-    {
-        auto dir       = m_Path.CurrentDelta();
-        auto pNextNode = m_Path.NextNode();
-
-        if (pNextNode) {
-            dir = pNextNode->dir;
-        }
-
-        vec2_t vDelta;
-        vDelta[0] = pNextNode->point[1] - mm.hit_origin[0];
-        vDelta[1] = pNextNode->point[0] - mm.hit_origin[1];
-
-        if (vDelta[0] * dir[1] <= vDelta[1] * dir[0]) {
-            mm.desired_dir[0] = mm.obstacle_normal[1];
-            mm.desired_dir[1] = -mm.obstacle_normal[0];
-            m_WallDir         = 1;
-        } else {
-            mm.desired_dir[0] = -mm.obstacle_normal[1];
-            mm.desired_dir[1] = mm.obstacle_normal[0];
-            m_WallDir         = -1;
-        }
-        MmoveSingle(&mm);
-        if (mm.hit_obstacle) {
-            VectorCopy(velocity, mm.velocity);
-            VectorCopy(origin, mm.origin);
-            mm.groundPlane = m_groundPlane;
-            mm.walking     = m_walking;
-            VectorCopy(m_groundPlaneNormal, mm.groundPlaneNormal);
-
-            VectorCopy2D(mm.obstacle_normal, m_PrevObstacleNormal);
-
-            if (m_WallDir == char(-1)) {
-                mm.desired_dir[0] = -mm.obstacle_normal[1];
-                mm.desired_dir[1] = mm.obstacle_normal[0];
             } else {
+                m_iWallDodgeTimeout = level.inttime + 1000;
+            }
+
+            GetMoveInfo(&mm);
+        } else {
+            if (m_WallDir >= 0) {
                 mm.desired_dir[0] = mm.obstacle_normal[1];
                 mm.desired_dir[1] = -mm.obstacle_normal[0];
+            } else {
+                mm.desired_dir[0] = -mm.obstacle_normal[1];
+                mm.desired_dir[1] = mm.obstacle_normal[0];
             }
+
             MmoveSingle(&mm);
+
+            if (mm.hit_obstacle) {
+                m_WallDir = 0;
+                m_iWallDodgeTimeout = 0;
+            }
         }
     }
-    GetMoveInfo(&mm);
 }
 
 /*
@@ -5475,45 +5430,45 @@ Move on path end(goal).
 */
 void Actor::MovePathGoal(float fMoveSpeed)
 {
-    float  fTimeToGo, fDeltaSquareLen, fSlowdownSpeed;
     vec2_t vDelta;
+    float fSlowdownSpeed;
+    float fTimeToGo;
+    float fDeltaSquareLen;
 
     if (!m_Path.HasCompleteLookahead()) {
         MovePath(fMoveSpeed);
         m_fPathGoalTime = 0;
         return;
     }
+
+    VectorSub2D(origin, m_Path.CurrentPathGoal(), vDelta);
+    fDeltaSquareLen = VectorLength2DSquared(vDelta);
     fTimeToGo = m_fPathGoalTime - level.time;
 
-    VectorSub2D(origin, m_Path.LastNode()->point, vDelta);
+    if (fTimeToGo > -0.001f) {
+        fSlowdownSpeed = sqrt(fDeltaSquareLen) * (2.f / (fTimeToGo + level.frametime));
 
-    fDeltaSquareLen = VectorLength2DSquared(vDelta);
-    if (fTimeToGo <= -0.001) {
-        if (fDeltaSquareLen < (Square(fMoveSpeed * Square(0.5)))) {
-            fTimeToGo       = 0.5;
-            m_fPathGoalTime = level.time + fTimeToGo;
-            if (m_csPathGoalEndAnimScript == STRING_EMPTY) {
-                m_csPathGoalEndAnimScript = STRING_ANIM_IDLE_SCR;
-            }
-            m_bStartPathGoalEndAnim = true;
-        } else {
-            MovePath(fMoveSpeed);
+        if (fSlowdownSpeed > (fMoveSpeed + 0.001f) && fSlowdownSpeed > sv_runspeed->value * 0.4f) {
             m_fPathGoalTime = 0;
-            return;
+            StartAnimation(3, m_Anim);
+            MovePath(fMoveSpeed);
+        } else {
+            MovePath(fSlowdownSpeed);
+            if (level.time >= m_fPathGoalTime) {
+                m_eAnimMode = ANIM_MODE_NORMAL;
+            }
         }
-    }
-
-    fSlowdownSpeed = sqrt(fDeltaSquareLen) * (2 / (fTimeToGo + level.frametime));
-    if (fSlowdownSpeed > fMoveSpeed + 0.001 && fSlowdownSpeed > 0.4 * sv_runspeed->value) {
-        m_fPathGoalTime = 0;
-        StartAnimation(3, m_Anim);
-        MovePath(fMoveSpeed);
+    } else if (fDeltaSquareLen < Square(fMoveSpeed * 0.5f)) {
+        fTimeToGo = 0.5f;
+        m_fPathGoalTime = level.time + fTimeToGo;
+        if (m_csPathGoalEndAnimScript == STRING_EMPTY) {
+            m_csPathGoalEndAnimScript = STRING_ANIM_IDLE_SCR;
+        }
+        m_bStartPathGoalEndAnim = true;
     } else {
-        MovePath(fSlowdownSpeed);
-        if (level.time >= m_fPathGoalTime) {
-            m_eAnimMode = ANIM_MODE_NORMAL;
-            Com_Printf("m_eAnimMode MovePathGoal \n");
-        }
+        MovePath(fMoveSpeed);
+        m_fPathGoalTime = 0;
+        return;
     }
 }
 
