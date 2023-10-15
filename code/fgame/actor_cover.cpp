@@ -622,7 +622,7 @@ void Actor::State_Cover_FakeEnemy(void)
     Anim_Aim();
 
     if (level.inttime >= m_iStateTime) {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
     }
 }
 
@@ -709,7 +709,7 @@ void Actor::Think_Cover(void)
             break;
         }
 
-        CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
+        CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
     }
 
     if (m_State != 305 && m_State != 307 && m_State != 308 && m_State != 309) {

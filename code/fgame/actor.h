@@ -380,7 +380,7 @@ enum eThinkNum {
 };
 
 enum eThinkLevel {
-    THINKLEVEL_NORMAL, //I think it should be THINKLEVEL_IDLE
+    THINKLEVEL_IDLE, //I think it should be THINKLEVEL_IDLE
     THINKLEVEL_PAIN,
     THINKLEVEL_KILLED,
     THINKLEVEL_NOCLIP,
@@ -1776,7 +1776,7 @@ Returns true if actor is in attack state.
 */
 inline bool Actor::IsAttacking(void) const
 {
-    return m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_ATTACK;
+    return m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_ATTACK;
 }
 
 inline void Actor::ArchiveStatic(Archiver& arc)

@@ -2785,7 +2785,7 @@ Actor::Actor()
     m_bIsCurious            = true;
 
     InitThinkStates();
-    SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+    SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
 
     m_fMinDistance        = 128;
     m_fMinDistanceSquared = Square(m_fMinDistance);
@@ -4946,10 +4946,10 @@ void Actor::HandlePain(Event *ev)
         //FIXME: macro
         SetCuriousAnimHint(7);
 
-        if (m_bEnableEnemy && m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_IDLE) {
+        if (m_bEnableEnemy && m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE) {
             SetEnemyPos(attacker->origin);
             m_pszDebugState = "from_pain";
-            SetThinkState(THINKSTATE_CURIOUS, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_CURIOUS, THINKLEVEL_IDLE);
         }
     }
 
@@ -7833,7 +7833,7 @@ void Actor::InitThinkStates(void)
     m_ThinkMap[THINKSTATE_GRENADE]  = THINK_GRENADE;
     m_ThinkMap[THINKSTATE_NOCLIP]   = THINK_NOCLIP;
 
-    m_ThinkLevel       = THINKLEVEL_NORMAL;
+    m_ThinkLevel       = THINKLEVEL_IDLE;
     m_ThinkState       = THINKSTATE_VOID;
     m_bDirtyThinkState = false;
 }
@@ -7957,10 +7957,10 @@ void Actor::UpdateEnableEnemy(void)
         if (m_bEnableEnemy) {
             SetLeashHome(origin);
         } else {
-            if (m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_ATTACK
-                || m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_CURIOUS
-                || m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_DISGUISE) {
-                SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+            if (m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_ATTACK
+                || m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_CURIOUS
+                || m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_DISGUISE) {
+                SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
             }
 
             SetEnemy(NULL, false);
@@ -8001,7 +8001,7 @@ void Actor::ThinkStateTransitions(void)
             RestartState();
         }
     } else {
-        if (newThinkLevel > THINKLEVEL_NORMAL) {
+        if (newThinkLevel > THINKLEVEL_IDLE) {
             for (int i = 0; i < newThinkLevel; i++) {
                 if (m_ThinkStates[i] == THINKSTATE_VOID) {
                     EndState(i);
@@ -8242,16 +8242,16 @@ Check for all thinkstates transitions.
 */
 void Actor::CheckForThinkStateTransition(void)
 {
-    if (!CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL)) {
+    if (!CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE)) {
         if (!m_bEnableEnemy) {
-            CheckForTransition(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+            CheckForTransition(THINKSTATE_IDLE, THINKLEVEL_IDLE);
         } else {
-            if (!CheckForTransition(THINKSTATE_ATTACK, THINKLEVEL_NORMAL)) {
-                if (!CheckForTransition(THINKSTATE_DISGUISE, THINKLEVEL_NORMAL)) {
-                    if (CheckForTransition(THINKSTATE_CURIOUS, THINKLEVEL_NORMAL)) {
+            if (!CheckForTransition(THINKSTATE_ATTACK, THINKLEVEL_IDLE)) {
+                if (!CheckForTransition(THINKSTATE_DISGUISE, THINKLEVEL_IDLE)) {
+                    if (CheckForTransition(THINKSTATE_CURIOUS, THINKLEVEL_IDLE)) {
                         m_pszDebugState = "from_sight";
                     } else {
-                        CheckForTransition(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+                        CheckForTransition(THINKSTATE_IDLE, THINKLEVEL_IDLE);
                     }
                 }
             }
@@ -8274,7 +8274,7 @@ bool Actor::CheckForTransition(eThinkState state, eThinkLevel level)
         func = &GlobalFuncs[m_ThinkMap[state]];
 
         if (func->PassesTransitionConditions && (this->*(func->PassesTransitionConditions))()) {
-            SetThinkState(state, THINKLEVEL_NORMAL);
+            SetThinkState(state, THINKLEVEL_IDLE);
             return true;
         }
     }
@@ -8869,8 +8869,8 @@ void Actor::CuriousSound(int iType, vec3_t sound_origin, float fDistSquared, flo
     float v7, v8, fRangeFactor = 1.0;
     int   iPriority;
     if (m_bEnableEnemy) {
-        if (m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_IDLE
-            || m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_CURIOUS) {
+        if (m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE
+            || m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_CURIOUS) {
             //FIXME: name variables.
             if (fMaxDistSquared != 0.0) {
                 v7 = 1 * (1.0 / 3) - fDistSquared * (1 * (1.0 / 3)) / fMaxDistSquared;
@@ -8911,7 +8911,7 @@ void Actor::CuriousSound(int iType, vec3_t sound_origin, float fDistSquared, flo
                     SetEnemyPos(sound_origin);
 
                     EndCurrentThinkState();
-                    SetThinkState(THINKSTATE_CURIOUS, THINKLEVEL_NORMAL);
+                    SetThinkState(THINKSTATE_CURIOUS, THINKLEVEL_IDLE);
 
                     m_pszDebugState = G_AIEventStringFromType(iType);
                 }
@@ -9007,8 +9007,8 @@ Handles footstep sound.
 void Actor::FootstepSound(vec3_t sound_origin, float fDistSquared, float fMaxDistSquared, Entity *originator)
 {
     if (originator->IsSubclassOfSentient()) {
-        if ((m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_IDLE
-             || m_ThinkStates[THINKLEVEL_NORMAL] == THINKSTATE_CURIOUS)
+        if ((m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_IDLE
+             || m_ThinkStates[THINKLEVEL_IDLE] == THINKSTATE_CURIOUS)
             && m_bEnableEnemy) {
             if (NoticeFootstep((Sentient *)originator)) {
                 CuriousSound(AI_EVENT_FOOTSTEP, sound_origin, fDistSquared, fMaxDistSquared);
@@ -9033,7 +9033,7 @@ void Actor::VoiceSound(int iType, vec3_t sound_origin, float fDistSquared, float
 {
     bool bFriendly;
     //FIXME: macros
-    if ((m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_IDLE && m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_CURIOUS)
+    if ((m_ThinkStates[THINKLEVEL_IDLE] != THINKSTATE_IDLE && m_ThinkStates[THINKLEVEL_IDLE] != THINKSTATE_CURIOUS)
         || !m_bEnableEnemy) {
         return;
     }

@@ -105,7 +105,7 @@ void Actor::Think_Weaponless(void)
         } else {
             m_bLockThinkState = false;
             if (!m_Enemy) {
-                SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+                SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
                 IdleThink();
                 return;
             }
@@ -120,7 +120,7 @@ void Actor::Think_Weaponless(void)
                 Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace("thinkstate = %i", m_State));
                 assert(!assertStr);
             }
-            CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
+            CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
         }
         PostThink(true);
         if (GetWeapon(WEAPON_MAIN)) {

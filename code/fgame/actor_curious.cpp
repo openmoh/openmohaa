@@ -171,7 +171,7 @@ void Actor::Think_Curious(void)
                         m_Enemy ? "true" : "false",
                         EnemyIsDisguised() ? "true" : "false"
                     );
-                    SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+                    SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
                     m_iCuriousTime = 0;
                 }
             }
@@ -187,7 +187,7 @@ void Actor::Think_Curious(void)
             LookAtCuriosity();
             if (!m_Enemy || EnemyIsDisguised()) {
                 if (level.inttime > m_iCuriousTime + 500) {
-                    SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+                    SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
                     m_iCuriousTime = 0;
                 }
             }
@@ -272,7 +272,7 @@ void Actor::Think_Curious(void)
                         LookAtCuriosity();
                         if (!m_Enemy || EnemyIsDisguised()) {
                             if (level.inttime > m_iCuriousTime + 500) {
-                                SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+                                SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
                                 m_iCuriousTime = 0;
                             }
                         }
@@ -317,7 +317,7 @@ void Actor::Think_Curious(void)
             LookAtCuriosity();
             if (!m_Enemy || EnemyIsDisguised()) {
                 if (level.inttime > m_iCuriousTime + 500) {
-                    SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+                    SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
                     m_iCuriousTime = 0;
                 }
             }
@@ -376,7 +376,7 @@ void Actor::TimeOutCurious(void)
     //FIXME: macros
     if (!m_Enemy || EnemyIsDisguised()) {
         if (level.inttime > m_iCuriousTime + 500) {
-            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
             m_iCuriousTime = 0;
         }
     }

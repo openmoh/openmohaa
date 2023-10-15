@@ -58,10 +58,10 @@ void Actor::Begin_DisguiseRover(void)
             m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
             TransitionState(1, 0);
         } else {
-            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         }
     } else {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
     }
 }
 
@@ -93,7 +93,7 @@ void Actor::Think_DisguiseRover(void)
     assert(m_Enemy != NULL);
 
     if (!m_Enemy) {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
         return;
     }
 
@@ -102,7 +102,7 @@ void Actor::Think_DisguiseRover(void)
     }
 
     if (level.m_bAlarm) {
-        SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         return;
     }
 
@@ -137,6 +137,6 @@ void Actor::Think_DisguiseRover(void)
         assert(!"invalid think state");
     }
 
-    CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
+    CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
     PostThink(true);
 }

@@ -60,10 +60,10 @@ void Actor::Begin_DisguiseSentry(void)
             m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
             TransitionState(1, 0);
         } else {
-            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         }
     } else {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
     }
 }
 
@@ -93,7 +93,7 @@ void Actor::Think_DisguiseSentry(void)
         assert(m_Enemy != NULL);
 
         if (!m_Enemy) {
-            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
             return;
         }
         if (!EnemyIsDisguised() && !m_Enemy->IsSubclassOfActor() && m_State != 3) {
@@ -101,7 +101,7 @@ void Actor::Think_DisguiseSentry(void)
         }
 
         if (level.m_bAlarm) {
-            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         } else {
             {
                 vec2_t facedir;
@@ -144,7 +144,7 @@ void Actor::Think_DisguiseSentry(void)
                 assert(!"invalid think state");
                 break;
             }
-            CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
+            CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
             PostThink(true);
         }
     }

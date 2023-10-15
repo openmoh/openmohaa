@@ -159,7 +159,7 @@ void Actor::Think_BalconyAttack(void)
     UpdateEnemy(500);
 
     if (!m_Enemy) {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
         IdleThink();
         return;
     }

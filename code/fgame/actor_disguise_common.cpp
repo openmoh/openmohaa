@@ -48,7 +48,7 @@ void Actor::State_Disguise_Wait(void)
             if (fDistSquared <= 65536) {
                 TransitionState(1, 0);
             } else {
-                SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+                SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
             }
         }
     }
@@ -108,7 +108,7 @@ void Actor::State_Disguise_Enemy(void)
     m_bNextForceStart  = false;
 
     if (level.inttime > m_iStateTime + 3000 && !m_Enemy->IsSubclassOfActor()) {
-        SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
     }
 }
 
@@ -119,7 +119,7 @@ void Actor::State_Disguise_Halt(void)
     m_bNextForceStart  = false;
 
     if (level.inttime > m_iStateTime + 1500 && !m_Enemy->IsSubclassOfActor()) {
-        SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
     }
 }
 
@@ -130,7 +130,7 @@ void Actor::State_Disguise_Accept(void)
     m_bNextForceStart  = false;
 
     if (level.inttime > m_iStateTime + 3000) {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
         SetThink(THINKSTATE_DISGUISE, THINK_DISGUISE_SALUTE);
     }
 }
@@ -142,6 +142,6 @@ void Actor::State_Disguise_Deny(void)
     m_bNextForceStart  = false;
 
     if (level.inttime > m_iStateTime + 3000) {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
     }
 }

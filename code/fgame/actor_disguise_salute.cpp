@@ -61,10 +61,10 @@ void Actor::Begin_DisguiseSalute(void)
             m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
             TransitionState(1, 0);
         } else {
-            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         }
     } else {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
     }
 }
 
@@ -105,14 +105,14 @@ void Actor::Think_DisguiseSalute(void)
 
             PostThink(true);
         } else {
-            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         }
     } else {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
     }
 }
 
 void Actor::FinishedAnimation_DisguiseSalute(void)
 {
-    SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+    SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
 }

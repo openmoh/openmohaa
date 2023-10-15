@@ -58,10 +58,10 @@ void Actor::Begin_DisguiseOfficer(void)
             m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
             TransitionState(1, 0);
         } else {
-            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         }
     } else {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
     }
 }
 
@@ -90,14 +90,14 @@ void Actor::Think_DisguiseOfficer(void)
         assert(m_Enemy);
 
         if (!m_Enemy) {
-            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
             return;
         }
         if (!EnemyIsDisguised() && !(m_Enemy->IsSubclassOfActor()) && m_State != 3) {
             TransitionState(3, 0);
         }
         if (level.m_bAlarm) {
-            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
             return;
         }
         vec2_t vDelta;
@@ -135,7 +135,7 @@ void Actor::Think_DisguiseOfficer(void)
                 assert(!assertStr);
             }
         }
-        CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
+        CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
         PostThink(true);
     }
 }

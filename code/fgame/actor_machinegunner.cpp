@@ -238,7 +238,7 @@ void Actor::Think_MachineGunner(void)
                     ThinkHoldGun_TurretGun();
                     return;
                 }
-                if (m_ThinkStates[THINKLEVEL_NORMAL] != THINKSTATE_IDLE) {
+                if (m_ThinkStates[THINKLEVEL_IDLE] != THINKSTATE_IDLE) {
                     BecomeTurretGuy();
                     return;
                 }

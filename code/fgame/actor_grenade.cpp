@@ -277,9 +277,9 @@ void Actor::Grenade_Wait(void)
 void Actor::Grenade_NextThinkState(void)
 {
     if (m_Enemy && !(m_Enemy->IsSubclassOfActor())) {
-        SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
     } else {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
     }
 }
 
@@ -412,9 +412,9 @@ void Actor::Begin_Grenade(void)
         }
     } else {
         if (m_Enemy && !m_Enemy->IsSubclassOfActor()) {
-            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         } else if (m_Team == TEAM_AMERICAN) {
-            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
         } else {
             if (!IsTeamMate((Sentient *)G_GetEntity(0))) {
                 ForceAttackPlayer();

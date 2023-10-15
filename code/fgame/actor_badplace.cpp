@@ -64,9 +64,9 @@ void Actor::Think_BadPlace(void)
     if (!PathExists() || PathComplete() || !m_iBadPlaceIndex) {
         m_iBadPlaceIndex = 0;
         if (!m_Enemy || (m_Enemy->flags & FL_NOTARGET)) {
-            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
         } else {
-            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_NORMAL);
+            SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         }
     }
 

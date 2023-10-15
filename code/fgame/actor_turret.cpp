@@ -583,7 +583,7 @@ void Actor::State_Turret_FakeEnemy(void)
     AimAtTargetPos();
     Anim_Aim();
     if (level.inttime >= m_iStateTime) {
-        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
     }
 }
 
@@ -693,7 +693,7 @@ void Actor::Think_Turret(void)
                     if (m_State != 104 || (origin - m_vHome).lengthXYSquared() <= 0.64f * m_fLeashSquared + 64.0f
                         || !State_Turret_RunHome(false)) {
                         m_pszDebugState = "Idle";
-                        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_NORMAL);
+                        SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
                         IdleThink();
                     } else {
                         m_pszDebugState = "Idle->RunHome";
@@ -798,7 +798,7 @@ void Actor::Think_Turret(void)
                 assert(!"invalid think state");
                 break;
             }
-            CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_NORMAL);
+            CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
         }
         if (m_State == 112) {
             PostThink(false);
