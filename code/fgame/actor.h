@@ -519,6 +519,8 @@ enum eActorState_MachineGunner {
 //
 enum eActorState_RunAndShoot {
     ACTOR_STATE_RUN_AND_SHOOT_START = ACTOR_STATE_RUN_AND_SHOOT,
+    ACTOR_STATE_RUN_AND_SHOOT_RUN   = ACTOR_STATE_RUN_AND_SHOOT_START,
+    ACTOR_STATE_RUN_AND_SHOOT_RUNNING
 };
 
 class Actor;
@@ -1184,7 +1186,7 @@ public:
     void        Think_RunAndShoot(void);
     void        ShowInfo_RunAndShoot(void);
     void        State_RunAndShoot_Running(void);
-    void        RunAndShoot_MoveToPatrolCurrentNode(void);
+    bool        RunAndShoot_MoveToPatrolCurrentNode(void);
     //====
     virtual void Think(void) override;
     void         PostThink(bool bDontFaceWall);
