@@ -29,7 +29,7 @@ ActorPath::ActorPath()
     m_FallHeight       = 96;
     m_path             = NULL;
     m_pathlen          = 0;
-    m_fLookAhead       = 4096.0f;
+    m_fLookAhead       = 4096;
     m_bChangeLookAhead = true;
 
     Clear();
@@ -44,12 +44,12 @@ ActorPath::~ActorPath()
 
 void ActorPath::Clear(void)
 {
-    m_startpathpos = 0;
-    m_pathpos      = 0;
+    m_startpathpos = NULL;
+    m_pathpos      = NULL;
     m_Side         = false;
     m_Time         = -10000000;
-    m_delta[0]     = 0;
-    m_delta[1]     = 0;
+    VectorClear2D(m_delta);
+    m_TotalDist = PathManager.total_dist;
 }
 
 void ActorPath::ForceShortLookahead(void)
@@ -62,57 +62,57 @@ float ActorPath::PathLookAhead(float total_area, Vector& end, float *origin)
     float     area = total_area;
     float     s;
     float     t;
-    float     normal[2];
-    float     delta[2];
+    vec2_t    normal;
+    vec2_t    delta;
     Vector    pos;
     float     fallheight;
     PathInfo *current_path = m_pathpos;
 
-    while (1) {
-        pos = current_path->point;
+    pos = current_path->point;
 
+    while (1) {
         if (current_path == m_path) {
-            break;
+            end                    = current_path->point;
+            m_HasCompleteLookahead = true;
+            return area;
         }
 
         fallheight = current_path->point[2] - origin[2];
 
         if (fallheight > 94.0f || fallheight < -94.0f) {
-            VectorCopy(current_path->point, end);
+            end                    = current_path->point;
             m_HasCompleteLookahead = false;
             return area;
         }
 
         current_path--;
 
+        // calculate the normal
         normal[0] = current_path->point[1] - pos[1];
         normal[1] = pos[0] - current_path->point[0];
-
         VectorNormalize2D(normal);
 
-        delta[0] = current_path->point[0] - origin[0];
-        delta[1] = current_path->point[1] - origin[1];
+        VectorSub2D(current_path->point, origin, delta);
 
         t = fabs(DotProduct2D(delta, normal)) * current_path->dist;
 
         if (t >= area) {
-            t = area / t;
-            s = 1.0f - t;
-
-            end[0]                 = current_path->point[0] * t + pos[0] * s;
-            end[1]                 = current_path->point[1] * t + pos[1] * s;
-            end[2]                 = current_path->point[2] * t + pos[2] * s;
-            m_HasCompleteLookahead = false;
-            return 0;
+            break;
         }
 
         area -= t;
+        pos = current_path->point;
     }
 
-    VectorCopy(current_path->point, end);
-    m_HasCompleteLookahead = true;
+    t = area / t;
+    s = 1.0f - t;
 
-    return area;
+    end[0] = current_path->point[0] * t + pos[0] * s;
+    end[1] = current_path->point[1] * t + pos[1] * s;
+    end[2] = current_path->point[2] * t + pos[2] * s;
+
+    m_HasCompleteLookahead = false;
+    return 0;
 }
 
 bool ActorPath::DoesTheoreticPathExist(
@@ -126,27 +126,30 @@ void ActorPath::FindPath(
     float *start, float *end, Entity *ent, float maxPath, float *vLeashHome, float fLeashDistSquared
 )
 {
-    int depth = PathManager.FindPath(start, end, ent, maxPath, vLeashHome, fLeashDistSquared, m_FallHeight);
+    int depth;
 
-    if (depth) {
-        if (depth > m_pathlen) {
-            if (m_path) {
-                delete[] m_path;
-            }
+    depth = PathManager.FindPath(start, end, ent, maxPath, vLeashHome, fLeashDistSquared, m_FallHeight);
 
-            m_pathlen = 10 * ((depth - 1) / 10) + 10;
-            m_path    = new PathInfo[m_pathlen];
+    if (!depth) {
+        Clear();
+        return;
+    }
+
+    if (depth > m_pathlen) {
+        if (m_path) {
+            delete[] m_path;
         }
 
-        m_startpathpos = PathManager.GeneratePath(m_path);
-        m_pathpos      = m_startpathpos;
-        m_TotalDist    = PathManager.total_dist;
-        m_Side         = false;
-        m_Time         = level.inttime;
-        UpdatePos(start);
-    } else {
-        Clear();
+        m_pathlen = 10 * ((depth - 1) / 10) + 10;
+        m_path    = new PathInfo[m_pathlen];
     }
+
+    m_startpathpos = PathManager.GeneratePath(m_path);
+    m_pathpos      = m_startpathpos;
+    m_TotalDist    = PathManager.total_dist;
+    m_Side         = false;
+    m_Time         = level.inttime;
+    UpdatePos(start);
 }
 
 void ActorPath::FindPathAway(
@@ -159,29 +162,32 @@ void ActorPath::FindPathAway(
     float   fLeashDistSquared
 )
 {
-    int depth = PathManager.FindPathAway(
+    int depth;
+
+    depth = PathManager.FindPathAway(
         start, avoid, vPreferredDir, ent, fMinSafeDist, vLeashHome, fLeashDistSquared, m_FallHeight
     );
 
-    if (depth) {
-        if (depth > m_pathlen) {
-            if (m_path) {
-                delete[] m_path;
-            }
+    if (!depth) {
+        Clear();
+        return;
+    }
 
-            m_pathlen = 10 * (depth - 1) / 10 + 10;
-            m_path    = new PathInfo[m_pathlen];
+    if (depth > m_pathlen) {
+        if (m_path) {
+            delete[] m_path;
         }
 
-        m_startpathpos = PathManager.GeneratePathAway(m_path);
-        m_pathpos      = m_startpathpos;
-        m_TotalDist    = PathManager.total_dist;
-        m_Side         = false;
-        m_Time         = level.inttime;
-        UpdatePos(start);
-    } else {
-        Clear();
+        m_pathlen = 10 * (depth - 1) / 10 + 10;
+        m_path    = new PathInfo[m_pathlen];
     }
+
+    m_startpathpos = PathManager.GeneratePathAway(m_path);
+    m_pathpos      = m_startpathpos;
+    m_TotalDist    = PathManager.total_dist;
+    m_Side         = false;
+    m_Time         = level.inttime;
+    UpdatePos(start);
 }
 
 void ActorPath::FindPathNear(
@@ -194,59 +200,65 @@ void ActorPath::FindPathNear(
     float   fLeashDistSquared
 )
 {
-    int depth = PathManager.FindPathNear(
+    int depth;
+
+    depth = PathManager.FindPathNear(
         start, nearby, ent, maxPath, fRadiusSquared, vLeashHome, fLeashDistSquared, m_FallHeight
     );
 
-    if (depth) {
-        if (depth > m_pathlen) {
-            if (m_path) {
-                delete[] m_path;
-            }
+    if (!depth) {
+        Clear();
+        return;
+    }
 
-            m_pathlen = 10 * (depth - 1) / 10 + 10;
-            m_path    = new PathInfo[m_pathlen];
+    if (depth > m_pathlen) {
+        if (m_path) {
+            delete[] m_path;
         }
 
-        m_startpathpos = PathManager.GeneratePathNear(m_path);
-        m_pathpos      = m_startpathpos;
-        m_TotalDist    = PathManager.total_dist;
-        m_Side         = false;
-        m_Time         = level.inttime;
-        UpdatePos(start);
-    } else {
-        Clear();
+        m_pathlen = 10 * (depth - 1) / 10 + 10;
+        m_path    = new PathInfo[m_pathlen];
     }
+
+    m_startpathpos = PathManager.GeneratePathNear(m_path);
+    m_pathpos      = m_startpathpos;
+    m_TotalDist    = PathManager.total_dist;
+    m_Side         = false;
+    m_Time         = level.inttime;
+    UpdatePos(start);
 }
 
 void ActorPath::ReFindPath(float *start, Entity *ent)
 {
+    int    depth;
     vec3_t point;
     // this is a critical bug in all versions of mohaa, it passes directly m_path->point
     // but m_path can be deleted afterwards, leaving a dangling pointer to the path_end
     // global variable
     VectorCopy(m_path->point, point);
-    int depth = PathManager.FindPath(start, point, ent, 0, NULL, 0, m_FallHeight);
 
-    if (depth) {
-        if (depth > m_pathlen) {
-            if (m_path) {
-                delete[] m_path;
-            }
+    depth = PathManager.FindPath(start, point, ent, 0, NULL, 0, m_FallHeight);
 
-            m_pathlen = 10 * (depth - 1) / 10 + 10;
-            m_path    = new PathInfo[m_pathlen];
+    if (!depth) {
+        Clear();
+        return;
+    }
+
+    if (depth > m_pathlen) {
+        if (m_path) {
+            delete[] m_path;
         }
 
-        m_startpathpos = PathManager.GeneratePath(m_path);
-        m_pathpos      = m_startpathpos;
-        m_TotalDist    = PathManager.total_dist;
-        m_Side         = false;
-        m_Time         = level.inttime;
-        UpdatePos(start);
-    } else {
-        Clear();
+        m_pathlen = 10 * (depth - 1) / 10 + 10;
+        m_path    = new PathInfo[m_pathlen];
     }
+
+    m_startpathpos = PathManager.GeneratePath(m_path);
+    m_pathpos      = m_startpathpos;
+    m_TotalDist    = PathManager.total_dist;
+    m_Side         = false;
+    m_Time         = level.inttime;
+    UpdatePos(start);
 }
 
 void ActorPath::UpdatePos(float *origin, float fNodeRadius)
@@ -268,76 +280,59 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
         end                    = m_pathpos->point;
         m_bChangeLookAhead     = true;
         m_HasCompleteLookahead = true;
-        m_delta[0]             = end[0] - origin[0];
-        m_delta[1]             = end[1] - origin[1];
+        VectorSub2D(end, origin, m_delta);
         VectorNormalize2D2(m_delta, dir);
     } else if (m_fLookAhead >= 4096.0f) {
-        if (m_fLookAhead - 4096.0f >= PathLookAhead(m_fLookAhead, end, origin)) {
-            Vector mins = Vector(-15, -15, 0);
-            Vector maxs = Vector(15, 15, 60);
-            Vector e    = end + Vector(0, 0, 32);
+        if (PathLookAhead(m_fLookAhead, end, origin) > m_fLookAhead - 4096.0f
+            || !G_SightTrace(
+                origin + Vector(0, 0, 32),
+                Vector(-15, -15, 0),
+                Vector(15, 15, 60),
+                end + Vector(0, 0, 32),
+                (gentity_t *)NULL, // g_entities[ 0 ].entity
+                0,
+                MASK_PLAYERSOLID,
+                false,
+                "Actor::UpdatePos 2"
+            )) {
+            m_fLookAhead += 1024.0f;
 
-            pos = origin + Vector(0, 0, 32);
-
-            if (G_SightTrace(
-                    pos,
-                    mins,
-                    maxs,
-                    e,
-                    (gentity_t *)NULL, // g_entities[ 0 ].entity
-                    0,
-                    MASK_PLAYERSOLID,
-                    false,
-                    "Actor::UpdatePos 2"
-                )
-                != true) {
-                if (m_bChangeLookAhead) {
-                    m_fLookAhead -= 2048.0f;
-                    m_bChangeLookAhead = false;
-                } else {
-                    m_fLookAhead *= 0.5f;
-                }
-
-                if (m_fLookAhead < 4096.0f) {
-                    m_fLookAhead = 4096.0f;
-                }
-
-                PathLookAhead(4096.0f, end, origin);
-                goto __setdelta;
+            if (m_fLookAhead > 65536.0f) {
+                m_fLookAhead = 65536.0f;
             }
+
+            m_bChangeLookAhead = true;
+        } else {
+            if (m_bChangeLookAhead) {
+                m_fLookAhead -= 2048.0f;
+                m_bChangeLookAhead = false;
+            } else {
+                m_fLookAhead /= 2.f;
+            }
+
+            if (m_fLookAhead < 4096.0f) {
+                m_fLookAhead = 4096.0f;
+            }
+
+            PathLookAhead(4096.0f, end, origin);
         }
 
-        m_fLookAhead += 1024.0f;
-
-        if (m_fLookAhead > 65536.0f) {
-            m_fLookAhead = 65536.0f;
-        }
-
-        m_bChangeLookAhead = true;
-
-    __setdelta:
-
-        m_delta[0] = end[0] - origin[0];
-        m_delta[1] = end[1] - origin[1];
-
+        VectorSub2D(end, origin, m_delta);
         VectorNormalize2D2(m_delta, dir);
     } else if (PathLookAhead(4096.0f, end, origin) < 4096.0f - m_fLookAhead) {
         PathLookAhead(m_fLookAhead, end2, origin);
 
-        Vector mins = Vector(-15, -15, 0);
-        Vector maxs = Vector(15, 15, 60);
-        Vector e    = end2 + Vector(0, 0, 32);
-
-        pos = origin + Vector(0, 0, 32);
-
-        if (G_SightTrace(pos, mins, maxs, e, (gentity_t *)NULL, 0, MASK_MONSTERSOLID, false, "Actor::UpdatePos 1")
-            != true) {
-            m_fLookAhead += 1024.0f;
-
-            if (m_fLookAhead > 4096.0f) {
-                m_fLookAhead = 4096.0f;
-            }
-        } else {
+        if (!G_SightTrace(
+                pos = origin + Vector(0, 0, 32),
+                Vector(-15, -15, 0),
+                Vector(15, 15, 60),
+                end2 + Vector(0, 0, 32),
+                (gentity_t *)NULL,
+                0,
+                MASK_MONSTERSOLID,
+                false,
+                "Actor::UpdatePos 1"
+            )) {
             m_fLookAhead -= 1024.0f;
 
             if (m_fLookAhead < 1024.0f) {
@@ -345,22 +340,25 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
             }
 
             PathLookAhead(m_fLookAhead, end2, origin);
+        } else {
+            m_fLookAhead += 1024.0f;
+
+            if (m_fLookAhead > 4096.0f) {
+                m_fLookAhead = 4096.0f;
+            }
         }
 
-        delta[0] = end2[0] - origin[0];
-        delta[1] = end2[1] - origin[1];
+        VectorSub2D(end2, origin, delta);
         VectorNormalize2D2(delta, dir2);
 
-        m_delta[0] = end[0] - origin[0];
-        m_delta[1] = end[1] - origin[1];
+        VectorSub2D(end, origin, delta);
         VectorNormalize2D2(m_delta, dir);
 
         if (DotProduct2D(dir, dir2) > 0.7f) {
             m_delta[0] = delta[0];
             m_delta[1] = delta[1];
+            VectorCopy2D(dir2, dir);
         }
-
-        m_bChangeLookAhead = true;
     } else {
         m_fLookAhead -= 1024.0f;
 
@@ -368,30 +366,32 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
             m_fLookAhead = 1024.0f;
         }
 
-        m_delta[0] = end[0] - origin[0];
-        m_delta[1] = end[1] - origin[1];
+        VectorSub2D(end, origin, m_delta);
         VectorNormalize2D2(m_delta, dir);
-
-        m_bChangeLookAhead = true;
     }
+
+    m_bChangeLookAhead = true;
 
     current_path = m_pathpos;
 
-    while (1) {
-        delta2[0]   = current_path->point[0] - origin[0];
-        delta2[1]   = current_path->point[1] - origin[1];
-        current_dot = DotProduct2D(delta2, dir) - fNodeRadius;
+    for (;;) {
+        VectorSub2D(current_path->point, origin, delta2);
+        //current_dot = DotProduct2D(delta2, dir) - fNodeRadius;
+        // Removed in 2.0
+        //  fNodeRadius is now unused?
+        current_dot = DotProduct2D(delta2, dir);
 
-        if (current_dot >= 0.0f) {
+        if (current_dot >= 0) {
             break;
         }
 
         previous_dot = current_dot;
 
+        // Added in OPM.
+        //  Make sure to stop if it's the last node
         if (current_path == LastNode()) {
             break;
         }
-
         current_path--;
     }
 
@@ -401,11 +401,9 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
         t = previous_dot / (previous_dot - current_dot);
         s = 1.0f - t;
 
-        /*m_pathpos->point[ 0 ] = m_pathpos->point[ 0 ] * s + current_path->point[ 0 ] * t;
-		m_pathpos->point[ 1 ] = m_pathpos->point[ 1 ] * s + current_path->point[ 1 ] * t;
-		m_pathpos->point[ 2 ] = m_pathpos->point[ 2 ] * s + current_path->point[ 2 ] * t;*/
-
-        VectorCopy(current_path->point, m_pathpos->point);
+        m_pathpos->point[0] = m_pathpos->point[0] * s + current_path->point[0] * t;
+        m_pathpos->point[1] = m_pathpos->point[1] * s + current_path->point[1] * t;
+        m_pathpos->point[2] = m_pathpos->point[2] * s + current_path->point[2] * t;
 
         current_path->dist *= s;
 
@@ -413,16 +411,18 @@ void ActorPath::UpdatePos(float *origin, float fNodeRadius)
     } else {
         m_Side = false;
     }
+
+    // Added in 2.0.
+    //  Make sure to clear the delta if it's invalid (NaN, infinite...)
+    if (!isfinite(m_delta[0]) || !isfinite(m_delta[1])) {
+        VectorClear2D(m_delta);
+    }
 }
 
 bool ActorPath::Complete(const float *origin) const
 {
     if (!m_HasCompleteLookahead) {
         return false;
-    }
-
-    if (!m_path) {
-        return true;
     }
 
     if (fabs(origin[0] - m_path->point[0]) < 16.0f && fabs(origin[1] - m_path->point[1]) < 16.0f) {
@@ -434,33 +434,36 @@ bool ActorPath::Complete(const float *origin) const
 
 void ActorPath::TrimPathFromEnd(int nNodesPop)
 {
-    int iLastPos = m_path - m_pathpos;
+    int iLastPos;
 
-    if (iLastPos - nNodesPop > 0) {
-        for (int i = 0; i < iLastPos; i++) {
-            m_path[i] = m_path[i + nNodesPop];
-        }
-    } else {
+    iLastPos = m_path - m_pathpos;
+    if (iLastPos < 0) {
         Clear();
+        return;
+    }
+
+    m_pathpos -= nNodesPop;
+    for (int i = 0; i < iLastPos; i++) {
+        m_path[i] = m_path[i + nNodesPop];
     }
 }
 
 void ActorPath::Shorten(float fDistRemove)
 {
-    if (m_path->dist > fDistRemove) {
-        m_path->point[0] += m_path->dir[0] * -fDistRemove;
-        m_path->point[1] += m_path->dir[1] * -fDistRemove;
-        m_path->point[2] += m_path->point[2] * -fDistRemove;
-        m_path->dist -= fDistRemove;
-    } else {
-        while (fDistRemove - m_path->dist > m_path->dist) {
-            TrimPathFromEnd(1);
-
-            if (!m_pathpos) {
-                return;
-            }
+    while (m_path->dist >= fDistRemove) {
+        fDistRemove -= m_path->dist;
+        TrimPathFromEnd(1);
+        if (!m_pathpos) {
+            return;
         }
     }
+
+    m_path->point[0] += m_path->dir[0] * -fDistRemove;
+    m_path->point[1] += m_path->dir[1] * -fDistRemove;
+    // Fixed in OPM.
+    //  This is a bug in mohaa as it can write past the end of the class instance
+    //m_path->point[2] += m_path->dir[2] * -fDistRemove;
+    m_path->dist -= fDistRemove;
 }
 
 PathInfo *ActorPath::StartNode(void) const
@@ -499,7 +502,7 @@ const float *ActorPath::CurrentPathDir(void) const
 
 const float *ActorPath::CurrentPathGoal(void) const
 {
-    return m_pathpos->point;
+    return m_path->point;
 }
 
 int ActorPath::Time(void) const
@@ -507,14 +510,26 @@ int ActorPath::Time(void) const
     return m_Time;
 }
 
-Vector ActorPath::CurrentDelta(void) const
+const float *ActorPath::CurrentDelta(void) const
 {
-    return Vector(m_delta[0], m_delta[1], 0);
+    return m_delta;
 }
 
 bool ActorPath::IsAccurate(void) const
 {
-    return m_pathpos->bAccurate;
+    if (m_pathpos == m_path) {
+        return false;
+    }
+
+    if (!m_pathpos[-1].bAccurate) {
+        return false;
+    }
+
+    if (!m_Side) {
+        return false;
+    }
+
+    return true;
 }
 
 void ActorPath::SetFallHeight(float fHeight)

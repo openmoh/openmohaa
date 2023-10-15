@@ -88,7 +88,7 @@ public:
     const float *CurrentPathDir(void) const;
     const float *CurrentPathGoal(void) const;
     int          Time(void) const;
-    Vector       CurrentDelta(void) const;
+    const float *CurrentDelta(void) const;
     bool         IsAccurate(void) const;
     float        TotalDist(void) const;
     void         SetFallHeight(float fHeight);
