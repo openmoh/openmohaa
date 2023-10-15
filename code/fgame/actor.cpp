@@ -5450,7 +5450,7 @@ void Actor::MovePathGoal(float fMoveSpeed)
 
         if (fSlowdownSpeed > (fMoveSpeed + 0.001f) && fSlowdownSpeed > sv_runspeed->value * 0.4f) {
             m_fPathGoalTime = 0;
-            StartAnimation(3, m_Anim);
+            StartAnimation(ANIM_MODE_PATH_GOAL, m_Anim);
             MovePath(fMoveSpeed);
         } else {
             MovePath(fSlowdownSpeed);
@@ -8164,7 +8164,7 @@ bool Actor::AttackEntryAnimation(void)
                 if (rand() > distSq * 0.0026041667) //rand() / 0x17F
                 {
                     //FIXME: macro
-                    StartAnimation(1, STRING_ANIM_STANDSHOCK_SCR);
+                    StartAnimation(ANIM_MODE_NORMAL, STRING_ANIM_STANDSHOCK_SCR);
                     m_bNoSurprise = true;
                     m_bNewEnemy   = false;
 

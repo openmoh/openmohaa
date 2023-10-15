@@ -103,7 +103,7 @@ void SimpleActor::Anim_Killed(void)
 void SimpleActor::Anim_StartPain(void)
 {
     Com_Printf("m_eAnimMode Anim_StartPain \n");
-    StartAnimation(1, m_PainHandler);
+    StartAnimation(ANIM_MODE_NORMAL, m_PainHandler);
 }
 
 void SimpleActor::Anim_Pain(void)
