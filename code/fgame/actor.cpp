@@ -5877,7 +5877,7 @@ Move on path with squad.
 */
 bool Actor::MoveOnPathWithSquad(void)
 {
-    float* pvMyDir, *pvHisDir;
+    const float* pvMyDir, *pvHisDir;
     vec2_t vDelta;
     Sentient* pSquadMate;
     float fIntervalSquared;
@@ -6132,7 +6132,7 @@ bool Actor::MoveToPatrolCurrentNode(void)
             return false;
         }
 
-        float *delta = PathDelta();
+        const float *delta = PathDelta();
         return VectorLength2DSquared(delta) <= m_fMoveDoneRadiusSquared;
     }
 }

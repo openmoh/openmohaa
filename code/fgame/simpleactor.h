@@ -172,7 +172,7 @@ public:
     float               PathDist(void) const;
     bool                PathHasCompleteLookahead(void) const;
     Vector              PathGoal(void) const;
-    float              *PathDelta(void) const;
+    const float        *PathDelta(void) const;
     bool                PathGoalSlowdownStarted(void) const;
     void                SetDest(vec3_t dest);
     void                StopTurning(void);

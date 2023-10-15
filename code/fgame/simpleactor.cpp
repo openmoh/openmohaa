@@ -460,7 +460,7 @@ bool SimpleActor::PathGoalSlowdownStarted(void) const
     return m_fPathGoalTime >= level.time;
 }
 
-float *SimpleActor::PathDelta(void) const
+const float *SimpleActor::PathDelta(void) const
 {
     return m_Path.CurrentDelta();
 }
