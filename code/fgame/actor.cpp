@@ -5481,21 +5481,9 @@ Make actor dumb.
 */
 void Actor::Dumb(Event *ev)
 {
-    Event e1(EV_Listener_ExecuteScript);
-    e1.AddConstString(STRING_GLOBAL_DISABLE_AI_SCR);
-    ExecuteScript(&e1);
-}
-
-/*
-===============
-Actor::PhysicsOn
-
-Enable physics.
-===============
-*/
-void Actor::PhysicsOn(Event *ev)
-{
-    m_bDoPhysics = true;
+    Event event(EV_Listener_ExecuteScript);
+    event.AddConstString(STRING_GLOBAL_DISABLE_AI_SCR);
+    ExecuteScript(&event);
 }
 
 /*
@@ -5508,6 +5496,18 @@ Disable PhysicsOff.
 void Actor::PhysicsOff(Event *ev)
 {
     m_bDoPhysics = false;
+}
+
+/*
+===============
+Actor::PhysicsOn
+
+Enable physics.
+===============
+*/
+void Actor::PhysicsOn(Event *ev)
+{
+    m_bDoPhysics = true;
 }
 
 /*
@@ -5532,7 +5532,7 @@ Set current mood.
 void Actor::EventSetMood(Event *ev)
 {
     m_csMood = ev->GetConstString(1);
-    if (m_csMood > STRING_ALERT) {
+    if (m_csMood != STRING_BORED && m_csMood != STRING_NERVOUS && m_csMood != STRING_CURIOUS && m_csMood != STRING_ALERT) {
         m_csMood = STRING_BORED;
         ScriptError("invalid mood - setting to bored");
     }
