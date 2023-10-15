@@ -1682,13 +1682,15 @@ inline void Actor::ArchiveStatic(Archiver& arc)
 
 inline void Actor::Archive(Archiver& arc)
 {
+    int i;
+
     SimpleActor::Archive(arc);
 
-    for (int i = NUM_THINKSTATES - 1; i >= 0; i--) {
+    for (i = 0; i < NUM_THINKSTATES; i++) {
         ArchiveEnum(m_ThinkMap[i], eThinkNum);
     }
 
-    for (int i = NUM_THINKLEVELS - 1; i >= 0; i--) {
+    for (i = 0; i < NUM_THINKLEVELS; i++) {
         ArchiveEnum(m_ThinkStates[i], eThinkState);
         ArchiveEnum(m_Think[i], eThinkNum);
     }
@@ -1699,22 +1701,33 @@ inline void Actor::Archive(Archiver& arc)
     arc.ArchiveInteger(&m_iStateTime);
     arc.ArchiveBool(&m_bLockThinkState);
     arc.ArchiveBool(&m_bDirtyThinkState);
+
+    arc.ArchiveBool(&m_bAnimating);
+
+    arc.ArchiveBool(&m_bIgnoreBadPlace);
+    arc.ArchiveInteger(&m_iBadPlaceIndex);
+
     arc.ArchiveInteger(&mVoiceType);
     arc.ArchiveBool(&m_bSilent);
+
     arc.ArchiveBool(&m_bNoSurprise);
     arc.ArchiveBool(&m_bMumble);
     arc.ArchiveBool(&m_bBreathSteam);
+    arc.ArchiveBool(&m_bIsCurious);
 
     Director.ArchiveString(arc, m_csHeadModel);
     Director.ArchiveString(arc, m_csHeadSkin);
     Director.ArchiveString(arc, m_csWeapon);
     Director.ArchiveString(arc, m_csLoadOut);
+
     arc.ArchiveSafePointer(&m_FavoriteEnemy);
     arc.ArchiveInteger(&m_iEnemyCheckTime);
     arc.ArchiveInteger(&m_iEnemyChangeTime);
     arc.ArchiveInteger(&m_iEnemyVisibleCheckTime);
     arc.ArchiveInteger(&m_iEnemyVisibleChangeTime);
     arc.ArchiveInteger(&m_iLastEnemyVisibleTime);
+    arc.ArchiveFloat(&m_fVisibilityAlpha);
+    arc.ArchiveFloat(&m_fVisibilityThreshold);
     arc.ArchiveInteger(&m_iEnemyFovCheckTime);
     arc.ArchiveInteger(&m_iEnemyFovChangeTime);
     arc.ArchiveVector(&m_vLastEnemyPos);
@@ -1722,6 +1735,7 @@ inline void Actor::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fMaxShareDistSquared);
     arc.ArchiveInteger(&m_iCanShootCheckTime);
     arc.ArchiveBool(&m_bCanShootEnemy);
+    arc.ArchiveBool(&m_bHasVisibilityThreshold);
     arc.ArchiveBool(&m_bDesiredEnableEnemy);
     arc.ArchiveBool(&m_bEnableEnemy);
     arc.ArchiveBool(&m_bEnablePain);
@@ -1732,21 +1746,25 @@ inline void Actor::Archive(Archiver& arc)
     arc.ArchiveBool(&m_bEnemyInFOV);
     arc.ArchiveBool(&m_bForceAttackPlayer);
     arc.ArchiveBool(&m_bAutoAvoidPlayer);
+
     arc.ArchiveBool(&m_bNoIdleAfterAnim);
     Director.ArchiveString(arc, m_csAnimScript);
     arc.ArchiveBool(&m_bAnimScriptSet);
     arc.ArchiveInteger(&m_AnimMode);
+    arc.ArchiveFloat(&m_fRunAnimRate);
     arc.ArchiveFloat(&m_fDfwRequestedYaw);
     arc.ArchiveFloat(&m_fDfwDerivedYaw);
     arc.ArchiveVector(&m_vDfwPos);
     arc.ArchiveFloat(&m_fDfwTime);
     arc.ArchiveInteger(&m_iGunPositionCheckTime);
     arc.ArchiveVector(&m_vGunPosition);
+
     arc.ArchiveInteger(&m_iWallDodgeTimeout);
     arc.ArchiveFloat(&m_PrevObstacleNormal[0]);
     arc.ArchiveFloat(&m_PrevObstacleNormal[1]);
     arc.ArchiveChar(&m_WallDir);
     arc.ArchiveFloat(&m_fMoveDoneRadiusSquared);
+
     arc.ArchiveBool(&m_bFaceEnemy);
     arc.ArchiveBool(&m_bDoPhysics);
     arc.ArchiveBool(&m_bPatrolWaitTrigger);
@@ -1754,6 +1772,7 @@ inline void Actor::Archive(Archiver& arc)
     arc.ArchiveBool(&m_bScriptGoalValid);
     arc.ArchiveVector(&m_vScriptGoal);
     arc.ArchiveInteger(&m_iNextWatchStepTime);
+
     arc.ArchiveSafePointer(&m_patrolCurrentNode);
     Director.ArchiveString(arc, m_csPatrolCurrentAnim);
     arc.ArchiveInteger(&m_iSquadStandTime);
@@ -1762,6 +1781,7 @@ inline void Actor::Archive(Archiver& arc)
     arc.ArchiveVector(&m_vIntervalDir);
     arc.ArchiveShort(&m_sCurrentPathNodeIndex);
     arc.ArchiveInteger(&m_PainState);
+
     arc.ArchiveInteger(&m_iCuriousTime);
     arc.ArchiveInteger(&m_iCuriousLevel);
     arc.ArchiveInteger(&m_iCuriousAnimHint);
@@ -1769,24 +1789,29 @@ inline void Actor::Archive(Archiver& arc)
     arc.ArchiveInteger(&m_iDisguisePeriod);
     arc.ArchiveFloat(&m_fMaxDisguiseDistSquared);
     arc.ArchiveInteger(&m_iEnemyShowPapersTime);
+
     m_DisguiseAcceptThread.Archive(arc);
     arc.ArchiveInteger(&m_iDisguiseLevel);
     arc.ArchiveSafePointer(&m_AlarmNode);
     m_AlarmThread.Archive(arc);
+    m_PreAlarmThread.Archive(arc);
+
+    arc.ArchiveInteger(&m_iSuppressChance);
     arc.ArchiveInteger(&m_iRunHomeTime);
     arc.ArchiveBool(&m_bTurretNoInitialCover);
     arc.ArchiveInteger(&m_iPotentialCoverCount);
 
-    for (int i = MAX_COVER_NODES - 1; i >= 0; i--) {
+    for (i = 0; i < MAX_COVER_NODES; i++) {
         arc.ArchiveObjectPointer((Class **)&m_pPotentialCoverNode[i]);
     }
 
     arc.ArchiveObjectPointer((Class **)&m_pCoverNode);
-    Director.ArchiveString(arc, m_csSpecialAttack);
 
+    Director.ArchiveString(arc, m_csSpecialAttack);
     arc.ArchiveBool(&m_bInReload);
     arc.ArchiveBool(&m_bNeedReload);
     arc.ArchiveBool(&mbBreakSpecialAttack);
+
     arc.ArchiveBool(&m_bGrenadeBounced);
     arc.ArchiveSafePointer(&m_pGrenade);
     arc.ArchiveVector(&m_vGrenadePos);
@@ -1795,14 +1820,17 @@ inline void Actor::Archive(Archiver& arc)
     ArchiveEnum(m_eGrenadeMode, eGrenadeTossMode);
     arc.ArchiveVector(&m_vGrenadeVel);
     arc.ArchiveVector(&m_vKickDir);
+
     arc.ArchiveFloat(&m_fNoticeTimeScale);
     arc.ArchiveFloat(&m_fMaxNoticeTimeScale);
     m_PotentialEnemies.Archive(arc);
+
     arc.ArchiveFloat(&m_fSight);
     arc.ArchiveFloat(&m_fHearing);
     arc.ArchiveFloat(&m_fSoundAwareness);
     arc.ArchiveFloat(&m_fGrenadeAwareness);
     arc.ArchiveInteger(&m_iIgnoreSoundsMask);
+
     arc.ArchiveFloat(&m_fFov);
     arc.ArchiveFloat(&m_fFovDot);
     arc.ArchiveInteger(&m_iEyeUpdateTime);
@@ -1818,6 +1846,7 @@ inline void Actor::Archive(Archiver& arc)
     arc.ArchiveSafePointer(&m_aimNode);
     arc.ArchiveInteger(&m_eDontFaceWallMode);
     arc.ArchiveInteger(&m_iLastFaceDecideTime);
+
     arc.ArchiveBool(&m_bHeadAnglesAchieved);
     arc.ArchiveBool(&m_bLUpperArmAnglesAchieved);
     arc.ArchiveBool(&m_bTorsoAnglesAchieved);
@@ -1828,17 +1857,18 @@ inline void Actor::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fTorsoMaxTurnSpeed);
     arc.ArchiveFloat(&m_fTorsoCurrentTurnSpeed);
     arc.ArchiveVec3(m_vTorsoDesiredAngles);
+
     arc.ArchiveVector(&m_vHome);
     arc.ArchiveSafePointer(&m_pTetherEnt);
+
     arc.ArchiveFloat(&m_fMinDistance);
     arc.ArchiveFloat(&m_fMinDistanceSquared);
     arc.ArchiveFloat(&m_fMaxDistance);
     arc.ArchiveFloat(&m_fMaxDistanceSquared);
+
     arc.ArchiveFloat(&m_fLeash);
     arc.ArchiveFloat(&m_fLeashSquared);
     arc.ArchiveBool(&m_bFixedLeash);
-    arc.ArchiveBool(&m_bAnimating);
-    arc.ArchiveBool(&m_bDog);
 
     byte length;
 
@@ -1851,17 +1881,16 @@ inline void Actor::Archive(Archiver& arc)
     }
     arc.ArchiveByte(&length);
 
-    if (length) {
-        if (arc.Loading()) {
-            m_pFallPath =
-                (FallPath *)gi.Malloc((sizeof(FallPath::pos)) * length + (sizeof(FallPath) - sizeof(FallPath::pos)));
-            m_pFallPath->length = length;
-        }
+    if (arc.Loading() && length) {
+        m_pFallPath = (FallPath*)gi.Malloc((sizeof(FallPath::pos)) * length + (sizeof(FallPath) - sizeof(FallPath::pos)));
+        m_pFallPath->length = length;
+    }
 
+    if (length) {
         arc.ArchiveByte(&m_pFallPath->currentPos);
         arc.ArchiveByte(&m_pFallPath->loop);
 
-        for (int i = 0; i < length; i++) {
+        for (i = 0; i < length; i++) {
             arc.ArchiveVec3(m_pFallPath->pos[i]);
         }
     }
@@ -1869,11 +1898,14 @@ inline void Actor::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fBalconyHeight);
     arc.ArchiveBool(&m_bNoPlayerCollision);
 
-    for (int i = MAX_ORIGIN_HISTORY - 1; i >= 0; i--) {
+    for (i = 0; i < MAX_ORIGIN_HISTORY; i++) {
         arc.ArchiveVec2(m_vOriginHistory[i]);
     }
 
     arc.ArchiveInteger(&m_iCurrentHistory);
+
+    arc.ArchiveBool(&m_bEnemySwitch);
+    arc.ArchiveInteger(&m_iNationality);
 
     // set the model
     setModel();
