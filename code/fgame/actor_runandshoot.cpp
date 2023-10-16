@@ -117,7 +117,7 @@ void Actor::State_RunAndShoot_Running(void)
 
     Unregister(STRING_MOVE);
 
-    CheckForTransition(THINKSTATE_BADPLACE, THINKLEVEL_IDLE);
+    CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
     PostThink(true);
 }
 
