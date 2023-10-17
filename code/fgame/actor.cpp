@@ -2937,7 +2937,7 @@ Actor::Actor()
     m_bIgnoreBadPlace = false;
     m_bBecomeRunner   = false;
     m_bEnemySwitch    = true;
-    m_iNationality    = 0;
+    m_iNationality    = ACTOR_NATIONALITY_DEFAULT;
 
     if (g_aistats) {
         PostEvent(EV_Actor_WriteStats, 1.0);
@@ -9277,112 +9277,119 @@ i.e grenade can get from vFrom to vTo with vVel with any obstacles.
 */
 bool Actor::ValidGrenadePath(const Vector& vFrom, const Vector& vTo, Vector& vVel)
 {
-    //FIXME: macros
-    float  fGravity, fTime1, fTime2, fTime3, fTimeLand;
-    Vector mins(-4, -4, -4);
-    Vector maxs(4, 4, 4);
-
+    vec3_t mins, maxs;
     Vector vPoint1, vPoint2, vPoint3;
+    float fTime, fTimeLand;
+    trace_t trace;
+    float fGravity;
 
-    if (vVel.lengthSquared() > 589824) {
+    VectorSet(mins, -4, -4, -4);
+    VectorSet(maxs, 4, 4, 4);
+
+    if (vVel.lengthSquared() > Square(768)) {
         return false;
     }
-    fGravity = 0.8 * sv_gravity->value;
 
-    fTime1 = vVel.z * fGravity / 0.5;
+    fGravity = sv_gravity->value * 0.8f;
 
-    vPoint1.x = vVel.x * fTime1 + vFrom.x;
-    vPoint1.y = vVel.y * fTime1 + vFrom.y;
-    vPoint1.z = vVel.z * fTime1 * 0.75 + vFrom.z;
+    fTime = vVel.z / fGravity * 0.5f;
 
-    maxs.z = fGravity * 0.125 * fTime1 * fTime1 + 4;
+    vPoint1.x = vVel.x * fTime + vFrom.x;
+    vPoint1.y = vVel.y * fTime + vFrom.y;
+    vPoint1.z = vVel.z * fTime * 0.75 + vFrom.z;
+    maxs[2] = fGravity / 8.0f * fTime * fTime + 4.0f;
 
     if (ai_debug_grenades->integer) {
         G_DebugLine(vFrom, vPoint1, 1.0, 0.5, 0.5, 1.0);
     }
 
-    if (G_SightTrace(
-            vFrom,
-            mins,
-            maxs,
-            vPoint1,
-            this,
-            NULL,
-            //FIXME: macro
-            1107569409,
-            qfalse,
-            "Actor::ValidGrenadePath 1"
-        )) {
-        fTime2 = fTime1 + fTime1;
+    if (!G_SightTrace(
+        vFrom,
+        mins,
+        maxs,
+        vPoint1,
+        this,
+        NULL,
+        MASK_GRENADEPATH,
+        qfalse,
+        "Actor::ValidGrenadePath 1"
+    )) {
+        return false;
+    }
 
-        vPoint2.x = vVel.x * fTime2 + vFrom.x;
-        vPoint2.y = vVel.y * fTime2 + vFrom.y;
-        vPoint2.z = vVel.z * fTime2 * 0.5 + vFrom.z;
+    fTime *= 2;
+    vPoint2.x = vVel.x * fTime + vFrom.x;
+    vPoint2.y = vVel.y * fTime + vFrom.y;
+    vPoint2.z = vVel.z * fTime * 0.5 + vFrom.z;
 
-        if (ai_debug_grenades->integer) {
-            G_DebugLine(vPoint1, vPoint2, 1.0, 0.5, 0.5, 1.0);
+    if (ai_debug_grenades->integer) {
+        G_DebugLine(vPoint1, vPoint2, 1.0, 0.5, 0.5, 1.0);
+    }
+
+    if (!G_SightTrace(
+        vPoint1,
+        mins,
+        maxs,
+        vPoint2,
+        this,
+        NULL,
+        MASK_GRENADEPATH,
+        qfalse,
+        "Actor::ValidGrenadePath 2"
+    )) {
+        return false;
+    }
+
+    if (fabs(vVel.x) > fabs(vVel.y)) {
+        fTimeLand = (vTo.x - vFrom.x) / vVel.x;
+    }
+    else {
+        fTimeLand = (vTo.y - vFrom.y) / vVel.y;
+    }
+
+    maxs[2] = fGravity / 32.f * (fTimeLand - fTime) * (fTimeLand - fTime) + 4;
+    fTime = (fTime + fTimeLand) * 0.5f;
+
+    vPoint3.x = vVel.x * fTime + vFrom.x;
+    vPoint3.y = vVel.y * fTime + vFrom.y;
+    vPoint3.z = vFrom.z + (vVel.z - fGravity * 0.5 * fTime) * fTime;
+
+    if (ai_debug_grenades->integer) {
+        G_DebugLine(vPoint2, vPoint3, 1.0, 0.5, 0.5, 1.0);
+    }
+    if (!G_SightTrace(
+        vPoint2,
+        mins,
+        maxs,
+        vPoint3,
+        this,
+        NULL,
+        MASK_GRENADEPATH,
+        qfalse,
+        "Actor::ValidGrenadePath 3"
+    )) {
+        return false;
+    }
+    if (ai_debug_grenades->integer) {
+        G_DebugLine(vPoint3, vTo, 1.0, 0.5, 0.5, 1.0);
+    }
+
+    trace = G_Trace(vPoint3, mins, maxs, vTo, this, MASK_GRENADEPATH, qfalse, "Actor::ValidGrenadePath 4");
+    if (!trace.allsolid) {
+        if (!trace.ent) {
+            return true;
         }
-        if (G_SightTrace(
-                vPoint1,
-                mins,
-                maxs,
-                vPoint2,
-                this,
-                NULL,
-                //FIXME: macro
-                1107569409,
-                qfalse,
-                "Actor::ValidGrenadePath 2"
-            )) {
-            if (fabs(vVel.y) >= fabs(vVel.x)) {
-                fTimeLand = (vTo.y - vFrom.y) / vVel.y;
-            } else {
-                fTimeLand = (vTo.x - vFrom.x) / vVel.x;
-            }
 
-            fTime3 = (fTime2 + fTimeLand) / 2;
-            maxs.z = fGravity * 0.03125 * (fTimeLand - fTime2) * (fTimeLand - fTime2) + 4;
-
-            vPoint3.x = vVel.x * fTime3 + vFrom.x;
-            vPoint3.y = vVel.y * fTime3 + vFrom.y;
-            vPoint3.z = (vVel.z - fGravity * 0.5 * fTime3) * fTime3 + vFrom.z;
-
-            if (ai_debug_grenades->integer) {
-                G_DebugLine(vPoint2, vPoint3, 1.0, 0.5, 0.5, 1.0);
-            }
-            if (G_SightTrace(
-                    vPoint2,
-                    mins,
-                    maxs,
-                    vPoint3,
-                    this,
-                    NULL,
-                    //FIXME: macro
-                    1107569409,
-                    qfalse,
-                    "Actor::ValidGrenadePath 3"
-                )) {
-                if (ai_debug_grenades->integer) {
-                    G_DebugLine(vPoint3, vTo, 1.0, 0.5, 0.5, 1.0);
-                }
-                trace_t trace =
-                    G_Trace(vPoint3, mins, maxs, vTo, this, 1107569409, qfalse, "Actor::ValidGrenadePath 4");
-                if (!trace.allsolid) {
-                    if (trace.ent) {
-                        if (trace.ent->entity->IsSubclassOfSentient()) {
-                            Sentient *sen = (Sentient *)trace.ent->entity;
-                            if (sen->m_Team != m_Team) {
-                                return true;
-                            }
-                        }
-                    }
-                } else if (trace.entityNum == 1022 && trace.plane.normal[2] >= 1) {
-                    return true;
-                }
-            }
+        if (trace.ent->entity->IsSubclassOfSentient() && static_cast<Sentient*>(trace.ent->entity)->m_Team != m_Team) {
+            return true;
         }
     }
-    return false;
+    
+    if (trace.entityNum != ENTITYNUM_WORLD || trace.plane.normal[2] < 0.999f) {
+        return false;
+    }
+
+    return true;
 }
 
 /*
@@ -9394,53 +9401,31 @@ Calculates required grenade throw velocity to get grenade from vFrom to vTo.
 */
 Vector Actor::CalcThrowVelocity(const Vector& vFrom, const Vector& vTo)
 {
-    Vector ret;
     Vector vDelta;
-    float  v10; // ST0C_4
-    float  v11; // fst3
-    //////
-    float fGravity;
-    float fVelHorz;
-    float fVelVert;
-    float fDeltaZ;
-    float fDistance;
-    float fHorzDistSquared;
-    float fOOTime;
-
-    fGravity = 0.8 * sv_gravity->value;
+    float fHorzDistSquared, fDistance;
+    float fVelHorz, fVelVert;
 
     vDelta = vTo - vFrom;
-
-    fVelHorz = vDelta.x;
-    fVelVert = vDelta.y;
-    fDeltaZ  = vDelta.z;
-
-    fHorzDistSquared = fVelVert * fVelVert + fVelHorz * fVelHorz;
-
-    fDistance = sqrt(fDeltaZ * fDeltaZ + fHorzDistSquared);
-
+    fHorzDistSquared = vDelta.lengthXYSquared();
+    fDistance = sqrt(fHorzDistSquared + vDelta.z * vDelta.z);
+    
     // original irl equation: v10 = sqrt(fGravity * 0.5 * fHorzDistSquared / (fDistance * trigMult ))
     // trigMult = (cos(th)/ tan(al) - sin(th)/tanSquared(al))
     // al = inital velocity angle with ground plane.
     // th = angle between vDelta and ground plane.
     // mohaa devs decided to let trigMult be 1, for the sake of simplicity I guess.
-    v10 = sqrt(fGravity * 0.5 * fHorzDistSquared / fDistance);
-
+    fVelVert = sqrt(sv_gravity->value * 0.8f * 0.5f * fHorzDistSquared / fDistance);
+    
     // no I dea what this means.
     // maybe it's related to their angle choice.
     // calculates the 1/distanceSquared necessary for fOOTime calculation.
-    v11 = (fDistance + fDeltaZ) / (fDistance - fDeltaZ) / fHorzDistSquared;
+    fVelHorz = sqrt((fDistance + vDelta.z) / (fDistance - vDelta.z) / fHorzDistSquared) * fVelVert;
 
     // 1/(speed * sqrt(1/distanceSquared))
     // 1/(speed * 1/distance)
     // 1/(1/time)
     // time
-    fOOTime = 1 / (v10 * sqrt(v11));
-
-    ret.z = v10;
-    ret.x = fVelHorz / fOOTime;
-    ret.y = fVelVert / fOOTime;
-    return ret;
+    return Vector(vDelta.x * fVelHorz, vDelta.y * fVelHorz, fVelVert);
 }
 
 /*
@@ -9453,13 +9438,14 @@ Or vec_zero if it's not possible.
 */
 Vector Actor::CanThrowGrenade(const Vector& vFrom, const Vector& vTo)
 {
-    Vector vVel = vec_zero;
+    Vector vVel;
 
     vVel = CalcThrowVelocity(vFrom, vTo);
-    if (vVel == vec_zero || !ValidGrenadePath(vFrom, vTo, vVel)) {
-        return vec_zero;
-    } else {
+
+    if (vVel != vec_zero && ValidGrenadePath(vFrom, vTo, vVel)) {
         return vVel;
+    } else {
+        return vec_zero;
     }
 }
 
@@ -9473,30 +9459,27 @@ Roll here means a low toss.
 */
 Vector Actor::CalcRollVelocity(const Vector& vFrom, const Vector& vTo)
 {
-    float  fOOTime, fVelVert, fVelHorz, fGravity;
-    Vector vDelta = vFrom - vTo, vRet;
+    Vector vDelta;
+    float fVelVert;
+    float fOOTime;
 
     // you must throw from above.
     // start point must be above (higher) than end point.
-    if (vDelta.z > 0) {
-        fGravity = 0.8 * sv_gravity->value;
-
-        // Required down velocity to hit the ground twice as fast as freefall time.
-        vRet.z = sqrt(vDelta.z * fGravity);
-
-        // accel = speed / time, hence : time = speed / accel, 0.21961521 is an arbitary scalar.
-        // since the scalar is way less than 1, it will take more time to hit the ground than to arrive to target dest.
-        // this is kinda like a low toss rather than a roll. if I understand correctly.
-        fOOTime = vRet.z / fGravity * 0.21961521;
-
-        // speed = distance / time
-        vRet.x = fVelHorz = -vDelta.x / fOOTime;
-        vRet.y = fVelVert = -vDelta.y / fOOTime;
-
-        return vRet;
-    } else {
+    if (vTo.z >= vFrom.z) {
         return vec_zero;
     }
+
+    vDelta = vTo - vFrom;
+    // Required down velocity to hit the ground twice as fast as freefall time.
+    fVelVert = sqrt(-vDelta.z * sv_gravity->value * 0.8f);
+
+    // accel = speed / time, hence : time = speed / accel, 0.21961521 is an arbitary scalar.
+    // since the scalar is way less than 1, it will take more time to hit the ground than to arrive to target dest.
+    // this is kinda like a low toss rather than a roll. if I understand correctly.
+    fOOTime = sv_gravity->value * 0.8f * 0.21961521f / fVelVert;
+
+    // speed = distance / time
+    return Vector(vDelta.x * fOOTime, vDelta.y * fOOTime, fVelVert);
 }
 
 /*
@@ -9510,12 +9493,14 @@ Roll here means a low toss.
 */
 Vector Actor::CanRollGrenade(const Vector& vFrom, const Vector& vTo)
 {
-    Vector vVel = vec_zero;
-    vVel        = CalcRollVelocity(vFrom, vTo);
-    if (vVel == vec_zero || !ValidGrenadePath(vFrom, vTo, vVel)) {
-        return vec_zero;
-    } else {
+    Vector vVel;
+
+    vVel = CalcRollVelocity(vFrom, vTo);
+
+    if (vVel != vec_zero && ValidGrenadePath(vFrom, vTo, vVel)) {
         return vVel;
+    } else {
+        return vec_zero;
     }
 }
 
@@ -9531,62 +9516,76 @@ bool Actor::CanTossGrenadeThroughHint(
     GrenadeHint *pHint, const Vector& vFrom, const Vector& vTo, bool bDesperate, Vector *pvVel, eGrenadeTossMode *peMode
 )
 {
-    float fGravity = 0.8 * sv_gravity->value;
-    float fAngle, fTemp, fTemp2, fTemp3, fTemp4, /*fVelVert, fVelHorz,*/ fRange, fRangeSquared, fDist, fDistSquared,
-        fHeight;
-    bool bSuccess = false;
+    Vector vDelta;
+    float fHeight;
+    float fDistSquared, fDist;
+    float fRangeSquared, fRange;
+    float fVelHorz, fVelVert;
+    float fTemp;
+    float fAngle;
+    bool bSuccess;
+    float fGravity;
 
-    Vector vDelta, vHintDelta;
+    fGravity = sv_gravity->value * 0.8f;
 
-    if (!bDesperate) {
-        vHintDelta = pHint->origin - vFrom;
-        vDelta     = vFrom - vTo;
+    if (bDesperate) {
+        vDelta = pHint->origin - vFrom;
 
-        fDist        = vDelta.lengthXY();
-        fDistSquared = fDist * fDist;
-
-        fRange = vHintDelta.z * fDist - vDelta.z * vHintDelta.lengthXY();
-
-        if (fRange == 0) {
-            return false;
-        }
-        fTemp4 = 1 / fRange;
-        fRange = (fDist - vHintDelta.lengthXY()) / fRange;
-
-        if (fRange <= 0) {
+        fDistSquared = vDelta.lengthXYSquared();
+        if (!fDistSquared) {
             return false;
         }
 
-        fTemp  = sqrt(fRange * (fDist * (fGravity * 0.5 * vHintDelta.lengthXY())));
-        fTemp2 = (vHintDelta.z * fDistSquared - vDelta.z * vHintDelta.lengthXYSquared()) * fGravity * 0.5;
-        fTemp3 = fTemp / vHintDelta.lengthXY();
+        fDist = sqrt(fDistSquared);
+        fRangeSquared = vDelta.z * vDelta.z + fDistSquared;
+        fRange = sqrt(fRangeSquared);
+        fHeight = fGravity * fDistSquared / Square(768) + vDelta.z;
 
-        pvVel->x = vHintDelta.x * fTemp3;
-        pvVel->y = vHintDelta.y * fTemp3;
-        pvVel->z = 0.5 * fTemp2 / fTemp * fTemp4;
+        if (fabs(fHeight) > fabs(fRange)) {
+            return false;
+        }
+
+        fAngle = (asin(fHeight / fRange) + atan(vDelta.z / fDist)) * 0.5f;
+        fVelVert = sin(fAngle) * 768.f;
+        fVelHorz = 768.f / fDist * cos(fAngle);
+
+        pvVel->x = fVelHorz * vDelta.x;
+        pvVel->y = fVelHorz * vDelta.y;
+        pvVel->z = fVelVert;
+
+        *peMode = AI_GREN_TOSS_HINT;
+        bSuccess = ValidGrenadePath(vFrom, pHint->origin, *pvVel);
+    } else {
+        vDelta = pHint->origin - vFrom;
+        fDistSquared = vDelta.lengthXYSquared();
+        fDist = sqrt(fDistSquared);
+
+        vDelta = vTo - vFrom;
+        fRangeSquared = vDelta.x * vDelta.x + vDelta.y * vDelta.y;
+        fRange = sqrt(fRangeSquared);
+        fHeight = vDelta.z * fRange - vDelta.z * fDist;
+
+        if (!fHeight) {
+            return false;
+        }
+
+        fHeight = 1.f / fHeight;
+        fVelHorz = (fRange - fDist) * fHeight;
+        if (fVelHorz <= 0) {
+            return false;
+        }
+
+        fTemp = sqrt(fGravity * 0.5f * fDist * fRange * fVelHorz);
+        fVelVert = (fRangeSquared * vDelta.z - fDistSquared * vDelta.z) * fGravity * 0.5f / fTemp * fHeight;
+        fVelHorz = fTemp / fDist;
+
+        pvVel->x = (pHint->origin.x - vFrom.x) * fVelHorz;
+        pvVel->y = (pHint->origin.y - vFrom.y) * fVelHorz;
+        pvVel->z = fVelVert;
 
         *peMode = AI_GREN_TOSS_HINT;
 
-        return ValidGrenadePath(vFrom, pHint->origin, *pvVel);
-    }
-
-    vHintDelta = pHint->origin - vFrom;
-
-    fRange        = vHintDelta.lengthXY();
-    fRangeSquared = fRange * fRange;
-
-    if (fRangeSquared != 0) {
-        fDist   = vHintDelta.length();
-        fHeight = fRangeSquared * fGravity / 589824.0 + vHintDelta.z;
-        if (-fHeight <= -fDist) {
-            fAngle = (atan2(vHintDelta.z / fRangeSquared, 1.0)
-                      + atan2(fHeight / fDist, sqrt(1.0 - fHeight / fDist * (fHeight / fDist))))
-                   / 2;
-            pvVel->x = vHintDelta.x * 768.0 / fRangeSquared * cos(fAngle);
-            pvVel->y = vHintDelta.y * 768.0 / fRangeSquared * cos(fAngle);
-            pvVel->z = 768.0 * cos(fAngle);
-            return ValidGrenadePath(vFrom, pHint->origin, *pvVel);
-        }
+        bSuccess = ValidGrenadePath(vFrom, pHint->origin, *pvVel);
     }
 
     return bSuccess;
@@ -9602,39 +9601,29 @@ Returns real grenade throw point.
 Vector Actor::GrenadeThrowPoint(const Vector& vFrom, const Vector& vDelta, const_str csAnim)
 {
     vec2_t axis;
-    Vector vRet;
 
     VectorCopy2D(vDelta, axis);
     VectorNormalize2D(axis);
 
-    if (csAnim == STRING_ANIM_GRENADEKICK_SCR) {
-        vRet = vFrom;
-        vRet.z += 8;
-        return vRet;
-    } else {
-        if (csAnim > STRING_ANIM_GRENADEKICK_SCR) {
-            if (csAnim != STRING_ANIM_GRENADETHROW_SCR && csAnim != STRING_ANIM_GRENADETOSS_SCR) {
-                vRet = vFrom;
-                vRet.z += 80;
-                return vRet;
-            } else {
-                vRet.x = vFrom.x - axis[0] * 34 + axis[1] * 8;
-                vRet.y = vFrom.y - axis[0] * 8 - axis[1] * 34;
-                vRet.z = 52 + vFrom.z;
-                return vRet;
-            }
-        } else {
-            if (csAnim != STRING_ANIM_GRENADERETURN_SCR) {
-                vRet = vFrom;
-                vRet.z += 80;
-                return vRet;
-            } else {
-                vRet.x = vFrom.x + axis[0] * 25 + axis[1] * 2;
-                vRet.y = vFrom.y - axis[0] * 2 + axis[1] * 25;
-                vRet.z = 89 + vFrom.z;
-                return vRet;
-            }
-        }
+    switch (csAnim) {
+    case STRING_ANIM_GRENADEKICK_SCR:
+        return Vector(vFrom.x, vFrom.y, vFrom.z + 8);
+    case STRING_ANIM_GRENADETHROW_SCR:
+    case STRING_ANIM_GRENADETOSS_SCR:
+        return  Vector(
+            axis[0] * -34.0 + vFrom.x - axis[1] * -8.0,
+            axis[1] * -34.0 + vFrom.y + axis[0] * -8.0,
+            vFrom.z + 52
+        );
+    case STRING_ANIM_GRENADERETURN_SCR:
+        return  Vector(
+            axis[0] * 25.0 + vFrom.x - axis[1] * -2.0,
+            axis[1] * 25.0 + vFrom.y + axis[0] * -2.0,
+            vFrom.z + 89
+        );
+        break;
+    default:
+        return vFrom + Vector(0, 0, 80);
     }
 }
 
@@ -9647,19 +9636,9 @@ Calculates required grenade kick velocity.
 */
 Vector Actor::CalcKickVelocity(Vector& vDelta, float fDist) const
 {
-    float  fScale, fGravity;
-    Vector ret;
-    float  v4;
+    float fScale = sqrt(sv_gravity->value * 0.8f * 0.5f / (fDist * 0.57735032 - vDelta.z));
 
-    fGravity = 0.8 * sv_gravity->value;
-
-    fScale = 0.57735032 * fDist;
-    v4     = sqrt(fGravity * 0.5 / (fScale - vDelta[2]));
-    ret[0] = vDelta[0] * v4;
-    ret[1] = vDelta[1] * v4;
-    ret[2] = fScale * v4;
-
-    return ret;
+    return Vector(vDelta.x * fScale, vDelta.y * fScale, fDist * 0.57735032 * fScale);
 }
 
 /*
@@ -9673,39 +9652,45 @@ pvVel is changed.
 */
 bool Actor::CanKickGrenade(Vector& vFrom, Vector& vTo, Vector& vFace, Vector *pvVel)
 {
-    Vector vEnd, vStart, vDelta, vVel;
-    float  fDist, fGravity, fScale;
-    fGravity = sv_gravity->value * 0.8;
-    if (fGravity <= 0.0) {
+    Vector vDelta, vStart, vEnd;
+    float fDist, fScale;
+
+    if (sv_gravity->value <= 0) {
         return false;
     }
 
     vStart = GrenadeThrowPoint(vFrom, vFace, STRING_ANIM_GRENADEKICK_SCR);
     vDelta = vTo - vStart;
+    if (vDelta.z >= 0) {
+        return false;
+    }
 
-    fDist = vDelta.lengthXY();
-    if (vDelta.z >= 0 || Vector::Dot(vDelta, vFace) < 0.0 || fDist < 256 || fDist >= 255401.28 / fGravity + 192.0) {
+    if (DotProduct(vDelta, vFace) < 0) {
+        return false;
+    }
+
+    fDist = VectorLength2D(vDelta);
+    if (fDist < 256 || fDist >= (255401.28f / sv_gravity->value * 0.8f + 192.f)) {
         return false;
     }
 
     if (fDist < 512) {
-        fScale = 192.0 / fDist + 0.25;
+        fScale = 192.0f / fDist + 0.25f;
     } else {
-        fScale = 1.0 - 192.0 / fDist;
+        fScale = 1.0f - 192.0f / fDist;
     }
 
+    vDelta.x *= fScale;
+    vDelta.y *= fScale;
     vEnd = vStart + vDelta;
 
-    vDelta[0] *= fScale;
-    vDelta[1] *= fScale;
-
-    *pvVel = CalcKickVelocity(vDelta, fScale * fDist);
+    *pvVel = CalcKickVelocity(vDelta, fDist);
 
     if (*pvVel == vec_zero || !ValidGrenadePath(vStart, vEnd, *pvVel)) {
         return false;
-    } else {
-        return true;
     }
+
+    return true;
 }
 
 /*
@@ -9717,16 +9702,13 @@ Returns true if grenade will hurt team at vTo.
 */
 bool Actor::GrenadeWillHurtTeamAt(const Vector& vTo)
 {
-    if (m_pNextSquadMate == this) {
-        return false;
-    }
-
-    for (Actor *pSquadMate = (Actor *)m_pNextSquadMate.Pointer(); pSquadMate != this;
-         pSquadMate        = (Actor *)pSquadMate->m_pNextSquadMate.Pointer()) {
-        if ((pSquadMate->origin - vTo).length() <= 65536) {
+    Sentient* pSquadMate;
+    for (pSquadMate = m_pNextSquadMate; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate) {
+        if ((pSquadMate->origin - vTo).length() < 65536) {
             return true;
         }
     }
+
     return false;
 }
 
@@ -9743,33 +9725,33 @@ bool Actor::CanGetGrenadeFromAToB(
     const Vector& vFrom, const Vector& vTo, bool bDesperate, Vector *pvVel, eGrenadeTossMode *peMode
 )
 {
-    float        fDot;
-    Vector       vHint;
-    Vector       vStart;
-    Vector       vAxisY;
-    Vector       vAxisX;
-    Vector       vDelta;
-    Vector       vDelta2 = vec_zero;
-    int          nHints;
-    GrenadeHint *apHint[4];
-    float        fRangeSquared;
+    static constexpr unsigned int MAX_GRENADE_HINTS = 4;
+
+    float fRangeSquared;
+    GrenadeHint* apHint[MAX_GRENADE_HINTS];
+    int nHints;
+    int i;
+    Vector vDelta;
+    Vector vAxisX, vAxisY;
+    Vector vStart;
+    Vector vHint;
+    float fDot;
 
     if (sv_gravity->value <= 0) {
         return false;
     }
 
-    vDelta        = vTo - vFrom;
+    vDelta = vTo - vFrom;
     fRangeSquared = vDelta.lengthSquared();
 
-    //range < 256
     if (fRangeSquared < Square(256)) {
         return false;
     }
+
     if (bDesperate) {
         vStart = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADERETURN_SCR);
     }
 
-    //range < 32
     if (fRangeSquared < Square(1024)) {
         if (!bDesperate) {
             vStart = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADETOSS_SCR);
@@ -9792,32 +9774,27 @@ bool Actor::CanGetGrenadeFromAToB(
             *peMode = AI_GREN_TOSS_THROW;
             return true;
         }
-    }
-
-    if (!bDesperate) {
+    } else if (!bDesperate) {
         return false;
     }
 
-    nHints = GrenadeHint::GetClosestSet(apHint, 4, vStart, Square(1024));
+    nHints = GrenadeHint::GetClosestSet(apHint, MAX_GRENADE_HINTS, vStart, Square(1024));
 
-    for (int i = 0; i <= nHints; i++) {
-        if (bDesperate) {
-            vStart = GrenadeThrowPoint(vFrom, vDelta2, STRING_ANIM_GRENADERETURN_SCR);
-            if (CanTossGrenadeThroughHint(apHint[i], vStart, vTo, bDesperate, pvVel, peMode)) {
-                return true;
+    for (i = 0; i < nHints; i++) {
+        if (!bDesperate) {
+            fDot = DotProduct2D(vHint, vDelta);
+            if (fDot < 0) {
+                continue;
             }
-            continue;
+
+            if ((vHint.lengthXYSquared() * 0.9f * vDelta.lengthXYSquared()) >= (fDot * fDot)) {
+                continue;
+            }
         }
 
-        vHint   = apHint[i]->origin;
-        vDelta2 = vHint - vFrom;
-
-        fDot = DotProduct2D(vDelta2, vDelta);
-        if (fDot >= 0 && fDot * fDot <= vDelta.lengthXYSquared() * vDelta2.lengthXYSquared() * 0.89999998) {
-            vStart = GrenadeThrowPoint(vFrom, vDelta2, STRING_ANIM_GRENADETOSS_SCR);
-            if (CanTossGrenadeThroughHint(apHint[i], vStart, vTo, bDesperate, pvVel, peMode)) {
-                return true;
-            }
+        vStart = GrenadeThrowPoint(vFrom, vHint, bDesperate ? STRING_ANIM_GRENADERETURN_SCR : STRING_ANIM_GRENADETOSS_SCR);
+        if (CanTossGrenadeThroughHint(apHint[i], vStart, vTo, bDesperate, pvVel, peMode)) {
+            return true;
         }
     }
 
@@ -9834,14 +9811,17 @@ pvVel is the kick/roll/throw velocity.
 peMode is the toss mode.
 ===============
 */
-bool Actor::DecideToThrowGrenade(const Vector& vTo, Vector *pvVel, eGrenadeTossMode *peMode)
+bool Actor::DecideToThrowGrenade(const Vector& vTo, Vector *pvVel, eGrenadeTossMode *peMode, bool bDesperate)
 {
-    if (Sentient::AmmoCount("grenade")) {
-        if (!GrenadeWillHurtTeamAt(vTo)) {
-            return CanGetGrenadeFromAToB(origin, vTo, false, pvVel, peMode);
-        }
+    if (!AmmoCount("grenade")) {
+        return false;
     }
-    return false;
+
+    if (GrenadeWillHurtTeamAt(vTo)) {
+        return false;
+    }
+
+    return CanGetGrenadeFromAToB(origin, vTo, bDesperate, pvVel, peMode);
 }
 
 /*
@@ -9878,40 +9858,67 @@ Throw grenade animation
 */
 void Actor::Grenade_EventFire(Event *ev)
 {
+    Vector dir;
+    Vector pos;
+    float speed;
+    str strGrenade;
     const_str csAnim;
-    str       strGrenade;
-    float     speed;
-    Vector    pos, dir, vStart;
 
     gi.Tag_NumForName(edict->tiki, "tag_weapon_right");
 
     if (m_eGrenadeMode == AI_GREN_TOSS_ROLL) {
-        csAnim = STRING_ANIM_GRENADETHROW_SCR;
-    } else {
         csAnim = STRING_ANIM_GRENADETOSS_SCR;
-    }
-
-    vStart = GrenadeThrowPoint(origin, orientation[0], csAnim);
-
-    dir = m_vGrenadeVel;
-
-    speed = VectorNormalize(dir);
-
-    if (m_Team == TEAM_AMERICAN) {
-        strGrenade = "models/projectiles/M2FGrenade.tik";
     } else {
-        strGrenade = "models/projectiles/steilhandgranate.tik";
+        csAnim = STRING_ANIM_GRENADETHROW_SCR;
     }
 
-    ProjectileAttack(vStart, dir, this, strGrenade, 0, speed);
+    pos = GrenadeThrowPoint(origin, orientation[0], csAnim);
+    dir = m_vGrenadeVel;
+    speed = dir.normalize();
 
+    if (g_protocol >= PROTOCOL_MOHTA_MIN) {
+        switch (m_iNationality) {
+        case ACTOR_NATIONALITY_ITALIAN:
+            strGrenade = "models/projectiles/Bomba_ai.tik";
+            break;
+        case ACTOR_NATIONALITY_RUSSIAN:
+            strGrenade = "models/projectiles/Russian_F1_grenade_ai.tik";
+            break;
+        case ACTOR_NATIONALITY_BRITISH:
+            strGrenade = "models/projectiles/Mills_grenade_ai.tik";
+            break;
+        case ACTOR_NATIONALITY_AMERICAN:
+            strGrenade = "models/projectiles/M2FGrenade_ai.tik";
+            break;
+        case ACTOR_NATIONALITY_GERMAN:
+            strGrenade = "models/projectiles/steilhandgranate_ai.tik";
+            break;
+        default:
+            // fallback to team
+            if (m_Team != TEAM_GERMAN) {
+                strGrenade = "models/projectiles/M2FGrenade_ai.tik";
+            }
+            else {
+                strGrenade = "models/projectiles/steilhandgranate_ai.tik";
+            }
+            break;
+        }
+    } else {
+        if (m_Team != TEAM_GERMAN) {
+            strGrenade = "models/projectiles/M2FGrenade.tik";
+        } else {
+            strGrenade = "models/projectiles/steilhandgranate.tik";
+        }
+    }
+
+    ProjectileAttack(pos, dir, this, strGrenade, 0, speed);
     UseAmmo("grenade", 1);
 }
 
 void Actor::EventSetTurret(Event *ev)
 {
     Listener *l = ev->GetListener(1);
-    if (l && l->inheritsFrom(&TurretGun::ClassInfo)) {
+    if (l && l->isSubclassOf(TurretGun)) {
         m_pTurret = (TurretGun *)l;
     }
 }
@@ -9939,6 +9946,9 @@ void Actor::EventEnableEnemy(Event *ev)
 void Actor::EventEnablePain(Event *ev)
 {
     m_bEnablePain = ev->GetBoolean(1);
+    if (!m_bEnablePain) {
+        SetThinkState(THINKSTATE_VOID, THINKLEVEL_PAIN);
+    }
 }
 
 void Actor::EventActivate(Event *ev)
@@ -9949,10 +9959,10 @@ void Actor::EventActivate(Event *ev)
 
 void Actor::EventInterruptPoint(Event *ev)
 {
-    GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+    GlobalFuncs_t *interrupt = &GlobalFuncs[m_Think[m_ThinkLevel]];
 
-    if (func->PostShoot) {
-        (this->*func->PostShoot)();
+    if (interrupt->PostShoot) {
+        (this->*interrupt->PostShoot)();
     }
 }
 
@@ -9997,7 +10007,30 @@ void Actor::EventGetSuppressChance(Event *ev)
 
 void Actor::EventSetSuppressChance(Event *ev)
 {
-    // FIXME: unimplemented
+    m_iSuppressChance = ev->GetInteger(1);
+    if (m_iSuppressChance != ev->GetFloat(1)) {
+        Com_Printf(
+            "WARNING: suppresschance should be an integer in the range 0 - 100, was set to %g for entnum %i (%s)\n",
+            (double)ev->GetFloat(1),
+            entnum,
+            TargetName().c_str()
+        );
+    }
+
+    if (m_iSuppressChance > 100) {
+        Com_Printf(
+            "WARNING: suppresschance should be in the range 0 - 100, was set to %i for entnum %i (%s)\n",
+            m_iSuppressChance,
+            entnum,
+            TargetName().c_str()
+        );
+
+        if (m_iSuppressChance >= 0) {
+            m_iSuppressChance = 100;
+        } else {
+            m_iSuppressChance = 0;
+        }
+    }
 }
 
 void Actor::EventAnimScript(Event *ev)
@@ -10038,11 +10071,10 @@ void Actor::EventAnimScript_Attached(Event *ev)
 
 void Actor::EventReload_mg42(Event *ev)
 {
-    //FIXME: macos/enum
-    if (m_State != 1201) {
-        if (m_State == 1200) {
+    if (m_State != ACTOR_STATE_MACHINE_GUNNER_RELOADING) {
+        if (m_State == ACTOR_STATE_MACHINE_GUNNER_READY) {
             m_bAnimScriptSet = true;
-            TransitionState(1201, 0);
+            TransitionState(ACTOR_STATE_MACHINE_GUNNER_RELOADING, 0);
         } else {
             Unregister(STRING_ANIMDONE);
         }
@@ -10053,34 +10085,49 @@ bool Actor::CanMovePathWithLeash(void) const
 {
     vec2_t delta;
 
-    if (PathExists()) {
-        delta[0] = origin[0] - m_vHome[0];
-        delta[1] = origin[1] - m_vHome[1];
-
-        return (VectorLength2DSquared(delta) < m_fLeashSquared) || (DotProduct2D(delta, m_Path.CurrentDelta()) < 0.0f);
+    if (!PathExists()) {
+        return false;
     }
 
-    return false;
+    VectorSub2D(origin, m_vHome, delta);
+    if (VectorLength2DSquared(delta) >= m_fLeashSquared) {
+        return true;
+    }
+
+    if (DotProduct2D(m_Path.CurrentDelta(), delta) >= 0) {
+        return false;
+    }
+
+    return true;
 }
 
 bool Actor::MovePathWithLeash(void)
 {
-    if (CanMovePathWithLeash()) {
-        Anim_RunToInOpen(2);
-        FaceMotion();
-        return true;
-    } else {
+    if (!CanMovePathWithLeash()) {
         Anim_Aim();
         return false;
     }
+
+    Anim_RunToInOpen(ANIM_MODE_PATH);
+    FaceMotion();
+
+    return true;
 }
 
-Vector Actor::GunTarget(bool bNoCollision)
+Vector Actor::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t forward)
 {
-    float          accuracy;
-    static bool    doInit = true;
-    static cvar_t *aiRanges[4];
-    Vector         vRet;
+    static cvar_t* aifSupressScatter = gi.Cvar_Get("g_aiSupressScatter", "2.0", 0);
+    static cvar_t* aifCoverFactor = gi.Cvar_Get("g_aimcoverfactor", "0.80", 0);
+    static cvar_t* aiMaxDeviation = gi.Cvar_Get("g_aimaxdeviation", "0.965", 0);
+    static cvar_t* aiMinAccuracy = gi.Cvar_Get("g_aiminaccuracy", "0.33", 0);
+    static cvar_t* aiScatterWide = gi.Cvar_Get("g_aiScatterWide", "16.0", 0);
+    static cvar_t* aiScatterHeight = gi.Cvar_Get("g_aiScatterHeight", "45.0", 0);
+    static cvar_t* aiRanges[4];
+    static qboolean doInit = qtrue;
+    float fAccuracy, fCoverFactor;
+    Vector aimDir;
+
+    fCoverFactor = mAccuracy * (1.0 - m_fVisibilityAlpha) * aiMinAccuracy->value + m_fVisibilityAlpha;
 
     if (doInit) {
         aiRanges[0] = gi.Cvar_Get("g_aishortrange", "500", 0);
@@ -10090,146 +10137,124 @@ Vector Actor::GunTarget(bool bNoCollision)
         doInit      = false;
     }
 
+    if (m_aimNode) {
+        Vector centroid = m_aimNode->centroid;
+
+        if (m_aimNode->IsSubclassOfActor()) {
+            Actor* pActor = static_cast<Actor*>(m_aimNode.Pointer());
+            if (pActor->IsOnFloor()) {
+                centroid = m_aimNode->origin + Vector(0, 0, 12);
+            }
+        }
+
+        aimDir = centroid - Vector(position);
+        aimDir.normalize();
+
+        if (DotProduct(forward, aimDir) < 0.866f) {
+            return centroid;
+        }
+    }
+
+    Vector dir = mTargetPos - EyePosition();
+    dir.normalize();
+
+    if (DotProduct2D(forward, dir) < aiMaxDeviation->value) {
+        Vector vOut;
+
+        VectorMA(position, 2048, forward, vOut);
+
+        return vOut;
+    }
+
     if (mTargetPos == vec_zero) {
-        AnglesToAxis(origin, orientation);
-        vRet = Vector(orientation[0]) * 2048 + EyePosition();
-        return vRet;
-    }
-    float scatterMult = 1;
+        Vector vOut;
 
-    Player *player = NULL;
+        AnglesToAxis(angles, orientation);
+
+        vOut = Vector(orientation[0]) * 2048;
+        vOut += EyePosition();
+
+        return vOut;
+    }
+
+    Player* player = NULL;
+    Weapon* weapon;
+    float scatterMult = 1.f;
+    Vector vPos;
+    Vector vDelta;
+
     if (m_Enemy) {
+        if (!m_Enemy->IsSubclassOfPlayer() && fabs(m_Enemy->origin.z - origin.z) >= 128) {
+            // half towards for the player
+            scatterMult = 0.5f;
+        }
+
+        vDelta = m_Enemy->centroid - centroid;
+        weapon = GetActiveWeapon(WEAPON_MAIN);
+        if (weapon) {
+            fAccuracy = vDelta.length() / aiRanges[weapon->mAIRange]->value;
+            if (fAccuracy < 1) {
+                fAccuracy = 1;
+            }
+
+            scatterMult = fAccuracy * 0.75f;
+        }
+
         if (m_Enemy->IsSubclassOfPlayer()) {
-            player = (Player *)m_Enemy.Pointer();
+            player = static_cast<Player*>(m_Enemy.Pointer());
+            vPos = player->centroid;
 
-            Weapon *weap = GetActiveWeapon(WEAPON_MAIN);
-            Vector  dir;
-            dir = player->centroid - centroid;
-
-            if (weap) {
-                MPrintf("WEAPON RANGE: %f  dist: %f\n", aiRanges[weap->mAIRange]->value, dir.length());
-                scatterMult = dir.length() / aiRanges[weap->mAIRange]->value;
-                if (dir.length() > aiRanges[weap->mAIRange]->value) {
-                    if (scatterMult > 1) {
-                        accuracy = mAccuracy / scatterMult;
-                    }
-                    MPrintf("OUT OF RANGE - scatterMult: %f\n", scatterMult);
-                }
-            } else {
-                char assertStr[16317] = {0};
-                strcpy(assertStr, "\"ERROR Actor::GunTarget without a weapon\\n\"\n\tMessage: ");
-                Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
-                assert(false && assertStr);
-            }
-        } else if (fabs(m_Enemy->origin[2] - origin[2]) >= 128) {
-            scatterMult = 0.5;
-        }
-    }
-
-    if (random2() > accuracy) {
-        MPrintf("MISS - scatterMult: %f\n", scatterMult);
-
-        if (player) {
-            static cvar_t *scatterHeight;
-            static cvar_t *scatterWide;
-            static bool    doInitScatters = false;
-            int            lastTrail;
-
-            lastTrail = player->mCurTrailOrigin - 1;
-            if (lastTrail < 0) {
-                lastTrail = 1;
-            }
-
-            vRet = player->mvTrail[lastTrail];
-            //continue here:
-            //Player *tPlayer = player + 12*lastTrail;//weird
             if (!G_SightTrace(
-                    GunPosition(),
-                    vec_zero,
-                    vec_zero,
-                    player->mvTrail[lastTrail],
-                    this,
-                    player,
-                    33819417,
-                    0,
-                    "Actor::GunTarget 1"
-                )) {
-                vRet = player->mvTrailEyes[lastTrail];
-            }
-            if (!doInitScatters) {
-                scatterWide    = gi.Cvar_Get("g_aiScatterWide", "16.0", 0);
-                scatterHeight  = gi.Cvar_Get("g_aiScatterHeight", "45.0", 0);
-                doInitScatters = true;
-            }
-            vRet.x += crandom() * scatterWide->value * scatterMult;
-            vRet.y += crandom() * scatterWide->value * scatterMult;
-            vRet.z += crandom() * scatterHeight->value * scatterMult;
-
-            if (player && player->GetVehicleTank()) {
-                vRet.z -= 128;
-            }
-        } else {
-            int sign;
-
-            if (random() > 0.5) {
-                sign = 1;
-            } else {
-                sign = -1;
-            }
-            vRet.x = sign * 32 * (random() + 1);
-
-            if (random() > 0.5) {
-                sign = 1;
-            } else {
-                sign = -1;
-            }
-            vRet.y = sign * 32 * (random() + 1);
-
-            if (random() > 0.5) {
-                sign = 1;
-            } else {
-                sign = -1;
-            }
-            vRet.z = sign * 48 * (random() + 1);
-
-            vRet += mTargetPos;
-
-            if (player && player->GetVehicleTank()) {
-                vRet.z -= 128;
+                GunPosition(),
+                vec_zero,
+                vec_zero,
+                vPos,
+                m_Enemy,
+                this,
+                MASK_CANSEE,
+                qfalse,
+                "Actor::GunTarget 1"
+            )) {
+                fCoverFactor *= aifCoverFactor->value;
+                vPos = m_Enemy->EyePosition();
             }
         }
-        return vRet;
     }
 
-    MPrintf("HIT\n");
+    if (m_State == ACTOR_STATE_TURRET_RETARGET_SNIPER_NODE) {
+        scatterMult = aifSupressScatter->value;
+    }
+
+    Vector error(0, 0, 0);
+
+    fAccuracy = (1.0 - fCoverFactor) * 2 * scatterMult;
+    if (fAccuracy < 0) {
+        fAccuracy = 0;
+    }
 
     if (player) {
-        vRet = player->centroid;
+        error[0] = fAccuracy * aiScatterWide->value * crandom();
+        error[1] = fAccuracy * aiScatterWide->value * crandom();
+        error[2] = fAccuracy * aiScatterHeight->value * crandom();
+        vPos = player->centroid;
     } else {
-        vRet = mTargetPos;
+        error[0] = fAccuracy * 32.0 * crandom();
+        error[1] = fAccuracy * 32.0 * crandom();
+        error[2] = fAccuracy * 48.0 * crandom();
+        vPos = mTargetPos;
     }
 
-    if (m_Enemy) {
-        if (!G_SightTrace(
-                GunPosition(), vec_zero, vec_zero, vRet, this, m_Enemy, 33819417, qfalse, "Actor::GunTarget 1"
-            )) {
-            vRet = EyePosition();
-        }
+    if (m_Enemy && m_Enemy->GetVehicleTank()) {
+        vPos.z -= 128;
     }
 
-    if (player && player->GetVehicleTank()) {
-        vRet.z -= 128;
-    }
-    return vRet;
+    return vPos + error;
 }
 
 qboolean Actor::setModel(void)
 {
-    str headModel, headSkin, weapon;
-    headModel = level.GetRandomHeadModel(model);
-    headSkin  = level.GetRandomHeadSkin(model);
-    //qboolean bSuccess;
-    str name = "", tempstr;
+    str name;
+    qboolean success;
 
     if (model != "") {
         if (m_csLoadOut != STRING_EMPTY) {
@@ -10249,19 +10274,16 @@ qboolean Actor::setModel(void)
         }
 
         if (m_csHeadSkin != STRING_EMPTY) {
-            name += "headskin|" + Director.GetString(m_csHeadSkin) + "|"; //FIXME: not sure of this last "|"
+            name += "headskin|" + Director.GetString(m_csHeadSkin) + "|";
         }
+
         name += model;
     }
-    gi.DPrintf2(
-        "Actor::setModel(): name: %s, model: %s, headModel: %s, headSkin: %s\n",
-        name.c_str(),
-        model.c_str(),
-        headModel.c_str(),
-        headSkin.c_str()
-    );
+
     level.skel_index[edict->s.number] = -1;
-    return gi.setmodel(edict, name);
+
+    success = gi.setmodel(edict, name);
+    return success;
 }
 
 void Actor::EventSetHeadModel(Event *ev)
@@ -10288,37 +10310,44 @@ void Actor::EventGetHeadSkin(Event *ev)
 
 void Actor::SetPathWithLeash(Vector vDestPos, const char *description, int iMaxDirtyTime)
 {
-    vec2_t dist   = {vDestPos[0] - m_vHome[0], vDestPos[1] - m_vHome[1]};
-    float  distSq = DotProduct2D(dist, dist);
-    if (distSq <= m_fLeashSquared) {
-        dist[0] = origin[0] - m_vHome[0];
-        dist[1] = origin[1] - m_vHome[1];
-        distSq  = DotProduct2D(dist, dist);
-        if (distSq <= m_fLeashSquared) {
-            SetPath(vDestPos, description, iMaxDirtyTime, m_vHome, m_fLeashSquared);
-        }
-    } else {
+    vec2_t vDelta;
+
+    VectorSub2D(vDestPos, m_vHome, vDelta);
+
+    if (VectorLength2DSquared(vDelta) > m_fLeashSquared) {
         ClearPath();
+        return;
     }
+
+    VectorSub2D(origin, m_vHome, vDelta);
+
+    if (VectorLength2DSquared(vDelta) > m_fLeashSquared) {
+        ClearPath();
+        return;
+    }
+
+    SetPath(vDestPos, description, iMaxDirtyTime, m_vHome, m_fLeashSquared);
 }
 
 void Actor::SetPathWithLeash(SimpleEntity *pDestNode, const char *description, int iMaxDirtyTime)
 {
-    if (pDestNode) {
-        SetPathWithLeash(pDestNode->origin, description, iMaxDirtyTime);
-    } else {
+    if (!pDestNode) {
         if (m_bPathErrorTime + 5000 < level.inttime) {
             m_bPathErrorTime = level.inttime;
             Com_Printf(
                 "^~^~^ No destination node specified for '%s' at (%f %f %f)\n",
-                targetname.c_str(),
+                TargetName().c_str(),
                 origin[0],
                 origin[1],
                 origin[2]
             );
         }
+
         ClearPath();
+        return;
     }
+
+    SetPathWithLeash(pDestNode->origin, description, iMaxDirtyTime);
 }
 
 void Actor::FindPathAwayWithLeash(vec3_t vAwayFrom, vec3_t vDirPreferred, float fMinSafeDist)
@@ -10329,18 +10358,22 @@ void Actor::FindPathAwayWithLeash(vec3_t vAwayFrom, vec3_t vDirPreferred, float 
 
 void Actor::FindPathNearWithLeash(vec3_t vNearbyTo, float fCloseDistSquared)
 {
-    vec2_t dist   = {vNearbyTo[0] - m_vHome[0], vNearbyTo[1] - m_vHome[1]};
-    float  distSq = DotProduct2D(dist, dist);
+    vec2_t vDelta;
 
-    if (distSq <= m_fLeashSquared + fCloseDistSquared + 2 * sqrt(m_fLeashSquared * fCloseDistSquared)) {
-        dist[0] = origin[0] - m_vHome[0];
-        dist[1] = origin[1] - m_vHome[1];
-        distSq  = DotProduct2D(dist, dist);
-        if (distSq <= m_fLeashSquared) {
-            m_Path.FindPathNear(origin, vNearbyTo, this, 0, fCloseDistSquared, m_vHome, m_fLeashSquared);
-            ShortenPathToAvoidSquadMates();
-        }
+    VectorSub2D(vNearbyTo, m_vHome, vDelta);
+
+    if ((sqrt(m_fLeashSquared * fCloseDistSquared) * 2 + m_fLeashSquared + fCloseDistSquared) < VectorLength2DSquared(vDelta)) {
+        return;
     }
+
+    VectorSub2D(origin, m_vHome, vDelta);
+
+    if (VectorLength2DSquared(vDelta) > m_fLeashSquared) {
+        return;
+    }
+
+    m_Path.FindPathNear(origin, vNearbyTo, this, 0, fCloseDistSquared, m_vHome, m_fLeashSquared);
+    ShortenPathToAvoidSquadMates();
 }
 
 /*
@@ -10351,29 +10384,40 @@ Actor::GetAntiBunchPoint
 */
 Vector Actor::GetAntiBunchPoint(void)
 {
-    int    count = 0;
-    Vector ret   = vec_origin;
-    if (m_pNextSquadMate != this) {
-        for (auto pSquadMate = m_pNextSquadMate; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate) {
-            Vector dist   = origin - pSquadMate->origin;
-            float  distSq = dist * dist;
-            if (distSq != 0) {
-                if (Square(m_fInterval) > distSq) {
-                    count++;
-                    ret += origin + (dist / sqrt(distSq)) * (m_fInterval - sqrt(distSq));
-                }
-            }
+    float fMinDistSquared;
+    Vector vDelta;
+    Sentient* pSquadMate;
+    Vector vFinalPos;
+    int nAvoid;
+
+    fMinDistSquared = m_fInterval * m_fInterval;
+    nAvoid = 0;
+
+    for (pSquadMate = m_pNextSquadMate; pSquadMate != this; pSquadMate = pSquadMate->m_pNextSquadMate) {
+        float fLengthSquared, fLength;
+        
+        fLengthSquared = vDelta.lengthSquared();
+        if (!fLengthSquared) {
+            continue;
         }
 
-        if (count) {
-            if (count != 1) {
-                ret /= count;
-            }
-        } else {
-            ret = origin;
+        if (fLengthSquared >= fMinDistSquared) {
+            continue;
         }
+
+        fLength = sqrt(fLengthSquared);
+        vDelta *= 1.0f / fLength;
+        vFinalPos += origin + vDelta * (m_fInterval - fLength);
     }
-    return ret;
+
+    if (!nAvoid) {
+        return origin;
+    } else if (nAvoid == 1) {
+        return vFinalPos;
+    } else {
+        vFinalPos *= 1.f / nAvoid;
+        return vFinalPos;
+    }
 }
 
 bool Actor::AutoArchiveModel(void)
@@ -10390,17 +10434,14 @@ Add this to body queue.
 */
 void Actor::AddToBodyQue(void)
 {
-    SafePtr<Actor> lastActor = mBodyQueue[mCurBody + 3];
-
-    if (lastActor) {
-        Event ev(EV_Remove);
-        lastActor->PostEvent(ev, 0);
+    if (mBodyQueue[mCurBody]) {
+        mBodyQueue[mCurBody]->PostEvent(EV_Remove, 0);
     }
 
     mBodyQueue[mCurBody] = this;
 
     //update current body index
-    mCurBody = (mCurBody + 1) % 5;
+    mCurBody = (mCurBody + 1) % MAX_BODYQUEUE;
 }
 
 /*
@@ -10415,7 +10456,7 @@ void Actor::ResetBodyQueue(void)
 {
     //weird useless loop ?
 
-    for (int i = MAX_BODYQUEUE - 1; i >= 0; i--) {
+    for (int i = 0; i < MAX_BODYQUEUE; i++) {
         //do nothing.
     }
     //mBodyQueue
@@ -11066,7 +11107,7 @@ void Actor::EventCalcGrenadeToss(Event *ev)
     //FIXME: macros
     Vector vTarget;
     vTarget = ev->GetVector(1);
-    if (DecideToThrowGrenade(vTarget, &m_vGrenadeVel, &m_eGrenadeMode)) {
+    if (DecideToThrowGrenade(vTarget, &m_vGrenadeVel, &m_eGrenadeMode, false)) {
         if (m_eGrenadeMode == AI_GREN_TOSS_ROLL) {
             ev->AddConstString(STRING_ANIM_GRENADETOSS_SCR);
         } else {
