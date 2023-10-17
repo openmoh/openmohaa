@@ -307,7 +307,7 @@ void Actor::State_Cover_Target(void)
 
     if (level.inttime > m_iStateTime + 300 && fabs(m_DesiredYaw - angles[1]) < 0.001f) {
         Vector end = m_vLastEnemyPos + velocity;
-        if (DecideToThrowGrenade(end, &m_vGrenadeVel, &m_eGrenadeMode)) {
+        if (DecideToThrowGrenade(end, &m_vGrenadeVel, &m_eGrenadeMode, false)) {
             SetDesiredYawDir(m_vGrenadeVel);
             m_eNextAnimMode   = ANIM_MODE_NORMAL;
             m_bNextForceStart = false;

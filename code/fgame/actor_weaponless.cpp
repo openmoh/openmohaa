@@ -75,7 +75,7 @@ void Actor::State_Weaponless_Normal(void)
 
         Anim_Stand();
         if (level.inttime >= m_iStateTime) {
-            if (DecideToThrowGrenade(m_Enemy->velocity + m_Enemy->origin, &m_vGrenadeVel, &m_eGrenadeMode)) {
+            if (DecideToThrowGrenade(m_Enemy->velocity + m_Enemy->origin, &m_vGrenadeVel, &m_eGrenadeMode, false)) {
                 SetDesiredYawDir(m_vGrenadeVel);
 
                 m_State           = 901;

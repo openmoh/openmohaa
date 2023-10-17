@@ -136,7 +136,7 @@ void Actor::Turret_SelectState(void)
         return;
     }
 
-    if (DecideToThrowGrenade(m_Enemy->velocity + m_vLastEnemyPos, &m_vGrenadeVel, &m_eGrenadeMode)) {
+    if (DecideToThrowGrenade(m_Enemy->velocity + m_vLastEnemyPos, &m_vGrenadeVel, &m_eGrenadeMode, false)) {
         m_bNextForceStart = false;
         SetDesiredYawDir(m_vGrenadeVel);
 

@@ -512,6 +512,8 @@ enum eActorState_Curious {
 //
 enum eActorState_MachineGunner {
     ACTOR_STATE_MACHINE_GUNNER_START = ACTOR_STATE_MACHINE_GUNNER,
+    ACTOR_STATE_MACHINE_GUNNER_READY = ACTOR_STATE_MACHINE_GUNNER_START,
+    ACTOR_STATE_MACHINE_GUNNER_RELOADING
 };
 
 //
@@ -1036,7 +1038,7 @@ public:
     bool          CanGetGrenadeFromAToB(
                  const Vector         &vFrom, const Vector         &vTo, bool bDesperate, Vector *pvVel, eGrenadeTossMode *peMode
              );
-    bool        DecideToThrowGrenade(const Vector       &vTo, Vector *pvVel, eGrenadeTossMode *peMode);
+    bool        DecideToThrowGrenade(const Vector       &vTo, Vector *pvVel, eGrenadeTossMode *peMode, bool bDesperate);
     void        Grenade_EventFire(Event *ev);
     void        GenericGrenadeTossThink(void);
     static void InitGrenade(GlobalFuncs_t *func);
@@ -1442,7 +1444,7 @@ public:
     bool             MovePathWithLeash(void);
     bool             ShortenPathToAttack(float fMinDist);
     void             StrafeToAttack(float fDist, vec3_t vDir);
-    virtual Vector   GunTarget(bool bNoCollision) override;
+    virtual Vector   GunTarget(bool bNoCollision, const vec3_t position, const vec3_t forward) override;
     virtual qboolean setModel(void) override;
     void             EventSetHeadModel(Event *ev);
     void             EventGetHeadModel(Event *ev);
