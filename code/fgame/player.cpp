@@ -3291,72 +3291,59 @@ void Player::DoUse(Event *ev)
     int        i;
 
     if (g_gametype->integer != GT_SINGLE_PLAYER && IsSpectator()) {
+        // Prevent using stuff while spectating
         return;
     }
 
     if (IsDead()) {
+        // Dead players mustn't use
         return;
     }
 
     if (m_pVehicle || m_pTurret) {
         RemoveFromVehiclesAndTurretsInternal();
-    } else if (!(buttons & BUTTON_ATTACKLEFT) && !(buttons & BUTTON_ATTACKRIGHT)) {
-        //
-        // Allow use if the player isn't holding attack buttons
-        //
-        num = getUseableEntities(touch, MAX_GENTITIES, true);
-
-        for (i = 0; i < num; i++) {
-            hit = &g_entities[touch[i]];
-
-            if (!hit->inuse) {
-                continue;
-            }
-
-            Event *event = new Event(EV_Use);
-            event->AddListener(this);
-
-            hit->entity->ProcessEvent(event);
-
-            if (m_pVehicle || m_pTurret)
-            {
-                if (m_pVehicle)
-                {
-                    //
-                    // transmit the godmode to the vehicle
-                    //
-                    if (flags & FL_GODMODE) {
-                        m_pVehicle->flags |= FL_GODMODE;
-                    } else {
-                        m_pVehicle->flags &= ~FL_GODMODE;
-                    }
-                }
-
-                return;
-            }
-        }
+        return;
     }
 
-    // FIXME: special game feature
-#if 0
+    if ((buttons & BUTTON_ATTACKLEFT) || (buttons & BUTTON_ATTACKRIGHT)) {
+        //
+        // Added in 2.0
+        //  Only allow use if the player isn't holding attack buttons
+        //
+        return;
+    }
 
-    // Now retrieve entities that doesn't require to look at
-    num = getUseableEntities( touch, MAX_GENTITIES, false );
+    num = getUseableEntities(touch, MAX_GENTITIES, true);
 
-    for( i = 0; i < num; i++ )
-    {
-        hit = &g_entities[ touch[ i ] ];
+    for (i = 0; i < num; i++) {
+        hit = &g_entities[touch[i]];
 
-        if( !hit->inuse || hit->entity == NULL || hit->entity == this ) {
+        if (!hit->inuse) {
             continue;
         }
 
-        Event *event = new Event( EV_Use );
-        event->AddListener( this );
+        Event* event = new Event(EV_Use);
+        event->AddListener(this);
 
-        hit->entity->ProcessEvent( event );
+        hit->entity->ProcessEvent(event);
+
+        if (m_pVehicle || m_pTurret) {
+            break;
+        }
     }
-#endif
+
+    if (i < num && m_pVehicle)
+    {
+        //
+        // Added in 2.30
+        //  Make the vehicle also invincible if the player is invincible
+        //
+        if (flags & FL_GODMODE) {
+            m_pVehicle->flags |= FL_GODMODE;
+        } else {
+            m_pVehicle->flags &= ~FL_GODMODE;
+        }
+    }
 }
 
 void Player::TouchStuff(pmove_t *pm)
@@ -5566,7 +5553,6 @@ void Player::GiveNewWeaponsCheat(Event *ev)
 }
 
 void Player::GodCheat(Event *ev)
-
 {
     const char *msg;
 
