@@ -2069,7 +2069,7 @@ void TurretGun::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t for
             VectorCopy(position, vBarrelPos);
         }
 
-        delta      = viewer->GunTarget() - position;
+        delta      = viewer->GunTarget(position) - position;
         aim_angles = delta.toAngles();
 
         if (IsSubclassOfVehicleTurretGun()) {

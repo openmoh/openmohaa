@@ -668,7 +668,7 @@ public:
 
     void   TestThread(Event *ev);
     Vector EyePosition(void) override;
-    Vector GunTarget(bool bNoCollision = false) override;
+    Vector GunTarget(bool bNoCollision, const vec3_t position, const vec3_t forward) override;
 
     void GotKill(Event *ev);
     void SetPowerupTimer(Event *ev);

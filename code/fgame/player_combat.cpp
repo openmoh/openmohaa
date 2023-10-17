@@ -95,7 +95,7 @@ static Entity *FindClosestEntityInRadius
    return bestent;
    }
 
-Vector Player::GunTarget(bool bNoCollision)
+Vector Player::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t forward)
 {
     Vector  vForward;
     Vector  vOut;

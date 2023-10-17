@@ -256,7 +256,7 @@ Vector Sentient::GunPosition(void)
     return vPos;
 }
 
-Vector Sentient::GunTarget(bool bNoCollision)
+Vector Sentient::GunTarget(bool bNoCollision, const vec3_t position, const vec3_t forward)
 {
     Vector vPos;
 

@@ -1669,7 +1669,7 @@ void Weapon::GetMuzzlePosition(vec3_t position, vec3_t vBarrelPos, vec3_t forwar
                 VectorCopy(position, vBarrelPos);
             }
 
-            delta      = owner->GunTarget() - position;
+            delta      = owner->GunTarget(false, position, weap_or.axis[0]) - position;
             aim_angles = delta.toAngles();
 
             if (forward || right || up) {
