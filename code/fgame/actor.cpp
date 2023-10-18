@@ -11849,12 +11849,6 @@ void Actor::EventSetDestIdle(Event *ev) {}
 
 void Actor::EventSetDestIdle2(Event *ev) {}
 
-bool Actor::EnemyIsDisguised(void)
-{
-    return (m_bEnemyIsDisguised || (m_Enemy && m_Enemy->m_bIsDisguised))
-        && (!m_bForceAttackPlayer && m_ThinkState != THINKSTATE_ATTACK);
-}
-
 bool Actor::IsDisabled() const
 {
     return !m_bDoAI;

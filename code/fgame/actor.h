@@ -448,7 +448,7 @@ enum eActorState_Disguise {
 // Turret think state
 //
 enum eActorState_Turret {
-    ACTOR_STATE_TURRET_START = ACTOR_STATE_TURRET,
+    ACTOR_STATE_TURRET_START  = ACTOR_STATE_TURRET,
     ACTOR_STATE_TURRET_COMBAT = ACTOR_STATE_TURRET_START,
     ACTOR_STATE_TURRET_REACQUIRE,
     ACTOR_STATE_TURRET_TAKE_SNIPER_NODE,
@@ -1650,35 +1650,42 @@ inline bool Actor::InFOV(Entity *ent)
     if (ent == m_Enemy) {
         return EnemyInFOV(0);
     } else {
-        return InFOV(ent->centroid, m_fFov, m_fFovDot);
+        return InFOV(ent->centroid);
     }
 }
 
 inline bool Actor::CanSeeNoFOV(Entity *ent)
 {
+    bool bCanSee;
+
     if (ent == m_Enemy) {
         return CanSeeEnemy(0);
-    } else {
-        bool bCanSee = false;
-        if (gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)) {
-            bCanSee = CanSeeFrom(EyePosition(), ent);
-        }
-        return bCanSee;
     }
+
+    bCanSee = false;
+
+    if (gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)) {
+        bCanSee = CanSee(ent, 0, 0, false);
+    }
+
+    return bCanSee;
 }
 
 inline bool Actor::CanSeeFOV(Entity *ent)
 {
-    //fixme: this is an inline function.
+    bool bCanSee;
+
     if (ent == m_Enemy) {
         return CanSeeEnemyFOV(0, 0);
-    } else {
-        bool bCanSee = false;
-        if (InFOV(ent->centroid, m_fFov, m_fFovDot) && gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)) {
-            bCanSee = CanSeeFrom(EyePosition(), ent);
-        }
-        return bCanSee;
     }
+
+    bCanSee = false;
+
+    if (InFOV(ent->centroid) && gi.AreasConnected(edict->r.areanum, ent->edict->r.areanum)) {
+        bCanSee = CanSee(ent, 0, 0, false);
+    }
+
+    return bCanSee;
 }
 
 inline bool Actor::CanSeeEnemyFOV(int iMaxFovDirtyTime, int iMaxSightDirtyTime)
@@ -1695,13 +1702,19 @@ Aim at mTargetPos.
 */
 inline void Actor::AimAtTargetPos(void)
 {
-    Vector vDir = mTargetPos - EyePosition() + Vector(0, 0, 16);
-    SetDesiredLookDir(vDir);
-    m_DesiredGunDir[0] = 360.0f - vDir.toPitch();
-    m_DesiredGunDir[1] = vDir.toYaw();
+    Vector v, v2;
+
+    v  = mTargetPos - EyePosition();
+    v2 = v;
+    v2[2] += 16;
+
+    SetDesiredLookDir(v2);
+
+    m_DesiredGunDir[0] = 360.0f - v.toPitch();
+    m_DesiredGunDir[1] = v.toYaw();
     m_DesiredGunDir[2] = 0;
 
-    SetDesiredYawDir(vDir);
+    SetDesiredYaw(m_DesiredGunDir[1]);
 }
 
 /*
@@ -1713,7 +1726,7 @@ Aim at m_aimNode.
 */
 inline void Actor::AimAtAimNode(void)
 {
-    mTargetPos = m_aimNode->origin;
+    mTargetPos = m_aimNode->centroid;
 
     AimAtTargetPos();
 }
@@ -1739,7 +1752,7 @@ Make actor ignore all types of sound.
 */
 inline void Actor::IgnoreSoundSetAll(void)
 {
-    m_iIgnoreSoundsMask = ~AI_EVENT_NONE;
+    m_iIgnoreSoundsMask = 0xffff;
 }
 
 /*
@@ -1751,7 +1764,7 @@ Don't ignore iType of sound.
 */
 inline void Actor::IgnoreSoundClear(int iType)
 {
-    m_iIgnoreSoundsMask &= ~iType;
+    m_iIgnoreSoundsMask &= ~(1 << iType);
 }
 
 /*
@@ -1804,7 +1817,7 @@ inline bool Actor::IsAttacking(void) const
 
 inline void Actor::ArchiveStatic(Archiver& arc)
 {
-    for (int i = MAX_BODYQUEUE - 1; i >= 0; i--) {
+    for (int i = 0; i < MAX_BODYQUEUE; i++) {
         arc.ArchiveSafePointer(&mBodyQueue[i]);
     }
 
@@ -2054,6 +2067,7 @@ inline void Actor::SetDesiredLookDir(vec3_t dir)
 {
     m_bHasDesiredLookAngles = true;
     vectoangles(dir, m_DesiredLookAngles);
+
     m_DesiredLookAngles[1] = m_DesiredLookAngles[1] - angles[1];
     m_DesiredLookAngles[1] = AngleNormalize180(m_DesiredLookAngles[1]);
     m_DesiredLookAngles[0] = AngleNormalize180(m_DesiredLookAngles[0]);
@@ -2077,13 +2091,28 @@ inline void Actor::SetDesiredLookAnglesRelative(vec3_t ang)
 /*
 ===============
 Actor::ForwardLook
-
-
 ===============
 */
 inline void Actor::ForwardLook(void)
 {
     m_bHasDesiredLookAngles = false;
+}
+
+inline bool Actor::EnemyIsDisguised(void)
+{
+    if (!m_bEnemyIsDisguised && !m_Enemy->m_bIsDisguised) {
+        return false;
+    }
+
+    if (m_bForceAttackPlayer) {
+        return false;
+    }
+
+    if (m_ThinkState == THINKSTATE_ATTACK) {
+        return false;
+    }
+
+    return true;
 }
 
 inline bool Actor::AvoidingFacingWall(void) const
