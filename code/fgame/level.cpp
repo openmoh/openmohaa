@@ -2585,14 +2585,89 @@ void Level::Archive(Archiver& arc)
     arc.ArchiveFloat(&m_fLandmarkXDistMax);
 }
 
+void WriteStatS(FILE* pFile, const char* value) {
+    fprintf(pFile, value);
+}
+
+void WriteStatI(FILE* pFile, int value) {
+    fprintf(pFile, "%d", value);
+}
+
+void WriteStatF(FILE* pFile, float value) {
+    fprintf(pFile, "%.2f", value);
+}
+
 void Level::OpenActorStats()
 {
-    // FIXME: unimplemented
+    str filename;
+
+    if (!g_aistats->integer) {
+        return;
+    }
+
+    filename = "aistats_" + mapname + ".csv";
+    m_pAIStats = fopen(filename, "wt");
+
+    if (m_pAIStats) {
+        fprintf((FILE*)m_pAIStats, "targetname,weapon,grenade ammo,health,accuracy,hearing,sight,fov,mindist,maxdist,leash,sound awareness,noticescale,enemyshare,grenade aware,model\n");
+    }
 }
 
 void Level::WriteActorStats(Actor* actor)
 {
-    // FIXME: unimplemented
+    const char* name;
+    str itemName;
+    Weapon* weapon;
+    Ammo* ammo;
+    int ammoAmount;
+    FILE* pFile;
+
+    if (!g_aistats->integer) {
+        return;
+    }
+
+    if (!m_pAIStats) {
+        OpenActorStats();
+    }
+
+    pFile = (FILE*)m_pAIStats;
+    if (!pFile) {
+        return;
+    }
+
+    name = actor->TargetName().c_str();
+    itemName = "none";
+
+    weapon = actor->GetActiveWeapon(WEAPON_MAIN);
+    if (weapon) {
+        itemName = weapon->GetItemName();
+    }
+
+    ammoAmount = 0;
+    ammo = actor->FindAmmoByName("grenade");
+    if (ammo) {
+        ammoAmount = ammo->getAmount();
+    }
+
+    WriteStatS(pFile, name);
+    WriteStatS(pFile, itemName);
+    WriteStatI(pFile, ammoAmount);
+    WriteStatF(pFile, actor->health);
+    WriteStatF(pFile, actor->mAccuracy * 100);
+    WriteStatF(pFile, actor->m_fHearing);
+    WriteStatF(pFile, actor->m_fSight);
+    WriteStatF(pFile, actor->m_fFov);
+    WriteStatF(pFile, actor->m_fMinDistance);
+    WriteStatF(pFile, actor->m_fMaxDistance);
+    WriteStatF(pFile, actor->m_fLeash);
+    WriteStatF(pFile, actor->m_fSoundAwareness);
+    WriteStatF(pFile, actor->m_fMaxNoticeTimeScale * 100);
+
+    WriteStatI(pFile, sqrt(actor->m_fMaxShareDistSquared));
+    WriteStatF(pFile, actor->m_fGrenadeAwareness);
+    WriteStatS(pFile, actor->model);
+
+    fprintf(pFile, "\n");
 }
 
 badplace_t::badplace_t()
