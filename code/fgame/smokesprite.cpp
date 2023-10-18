@@ -118,15 +118,10 @@ float G_ObfuscationForSmokeSprites(float visibilityAlpha, const Vector& start, c
 }
 
 SmokeSprite* G_GetRandomSmokeSprite() {
-    int randVal;
-    int numObjects;
 
-    if (g_Sprites.NumObjects()) {
+    if (!g_Sprites.NumObjects()) {
         return NULL;
     }
 
-    numObjects = g_Sprites.NumObjects();
-    randVal = rand();
-
-    return &g_Sprites.ObjectAt(randVal - randVal / numObjects * numObjects + 1);
+    return &g_Sprites.ObjectAt((rand() % g_Sprites.NumObjects()) + 1);
 }
