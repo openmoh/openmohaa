@@ -4493,8 +4493,10 @@ Change current look entity.
 void Actor::LookAt(Listener *l)
 {
     ClearLookEntity();
-    if (!l && (g_showlookat->integer == entnum || g_showlookat->integer == -1)) {
-        Com_Printf("Script lookat: %i %i %s cleared lookat\n", entnum, radnum, TargetName().c_str());
+    if (!l) {
+        if (g_showlookat->integer == entnum || g_showlookat->integer == -1) {
+            Com_Printf("Script lookat: %i %i %s cleared lookat\n", entnum, radnum, TargetName().c_str());
+        }
         return;
     }
 
@@ -4856,7 +4858,7 @@ Give weapon to actor.
 */
 void Actor::EventGiveWeapon(Event *ev)
 {
-    Event e1(EV_Listener_ExecuteScript);
+    Event event(EV_Listener_ExecuteScript);
 
     str weapName = ev->GetString(1);
     weapName.tolower();
@@ -4871,14 +4873,10 @@ void Actor::EventGiveWeapon(Event *ev)
 
     setModel();
 
-    e1.AddConstString(STRING_GLOBAL_WEAPON_SCR);
-    e1.AddString(weapName);
-    gi.Printf(
-        "EventGiveWeapon script: %s weapName: %s \n",
-        Director.GetString(STRING_GLOBAL_WEAPON_SCR).c_str(),
-        weapName.c_str()
-    );
-    ExecuteScript(&e1);
+    event.AddConstString(STRING_GLOBAL_WEAPON_SCR);
+    event.AddString(weapName);
+
+    ExecuteScript(&event);
 }
 
 /*
@@ -6433,26 +6431,30 @@ void Actor::DetectSmokeGrenades(void)
     }
 
     sprite = G_GetRandomSmokeSprite();
-    if (!sprite || !sprite->owner || sprite->owner->m_Team == m_Team) {
-        Vector eyePos;
-        float  fDistSquared;
+    if (!sprite || !sprite->owner) {
+        return;
+    }
 
-        eyePos       = VirtualEyePosition();
-        fDistSquared = (sprite->origin - eyePos).lengthSquared();
-        if (fDistSquared > 65536 || InFOV(sprite->origin) == true) {
-            if (G_SightTrace(
-                    eyePos,
-                    vec_zero,
-                    vec_zero,
-                    sprite->origin,
-                    this,
-                    NULL,
-                    MASK_CANSEE,
-                    qfalse,
-                    "Actor::DetectSmokeGrenades"
-                )) {
-                m_PotentialEnemies.ConfirmEnemy(this, sprite->owner);
-            }
+    if (sprite->owner->m_Team != m_Team) {
+        return;
+    }
+
+    const Vector eyePos = VirtualEyePosition();
+    const float fDistSquared = (sprite->origin - eyePos).lengthSquared();
+
+    if (fDistSquared > Square(256) || InFOV(sprite->origin)) {
+        if (G_SightTrace(
+            eyePos,
+            vec_zero,
+            vec_zero,
+            sprite->origin,
+            this,
+            NULL,
+            MASK_CANSEE,
+            qfalse,
+            "Actor::DetectSmokeGrenades"
+        )) {
+            m_PotentialEnemies.ConfirmEnemy(this, sprite->owner);
         }
     }
 }
