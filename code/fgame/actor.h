@@ -2088,7 +2088,7 @@ inline void Actor::ForwardLook(void)
 
 inline bool Actor::AvoidingFacingWall(void) const
 {
-    return m_eDontFaceWallMode <= 8;
+    return m_eDontFaceWallMode > 5 && m_eDontFaceWallMode <= 8;
 }
 
 #if 0

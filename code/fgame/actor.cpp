@@ -10881,13 +10881,14 @@ void Actor::EventSetNoLongPain(Event *ev)
 
 void Actor::DontFaceWall(void)
 {
-    //PathNode *pNode;
-    vec2_t                vDelta;
-    float /*fErrorLerp,*/ fEyeRadius, fCosAngle, fSinAngle, fAngle, fAngleRad, fTime;
-    Vector                start;
-    Vector                end;
+    trace_t   trace;
+    Vector    start, end;
+    float     fAngle, fSinAngle, fCosAngle;
+    float     fEyeRadius;
+    float     fErrorLerp;
+    vec2_t    vDelta;
+    PathNode *pNode;
 
-    //FIXME: macro: AI_*
     if (m_pCoverNode && m_pCoverNode->nodeflags & (AI_CORNER_LEFT | AI_CORNER_RIGHT | AI_SNIPER | AI_CRATE)) {
         m_eDontFaceWallMode = 1;
         return;
@@ -10900,80 +10901,88 @@ void Actor::DontFaceWall(void)
 
     fAngle = AngleNormalize360(m_YawAchieved ? angles.y : m_DesiredYaw);
 
-    fTime = (level.time - m_fDfwTime) * 0.5;
-    if (fTime > 1) {
-        fTime = 1;
+    fErrorLerp = (level.time - m_fDfwTime) * 0.5;
+    if (fErrorLerp > 1) {
+        fErrorLerp = 1;
     }
 
     VectorSub2D(m_vDfwPos, origin, vDelta);
 
-    if (Square(fTime * -14.0 + 16.0) > VectorLength2DSquared(vDelta)
-        && (fabs(AngleNormalize180(m_fDfwRequestedYaw - m_DesiredYaw)) <= fTime * -29.0 + 30.0
-            || fabs(AngleNormalize180(m_fDfwDerivedYaw - m_DesiredYaw)) <= fTime * -29.0 + 30.0)) {
-        if (m_eDontFaceWallMode <= 8) {
+    if (Square(fErrorLerp * -14.0 + 16.0) > VectorLength2DSquared(vDelta)) {
+        if (AvoidingFacingWall()) {
             SetDesiredYaw(m_fDfwDerivedYaw);
         }
-    } else {
-        m_vDfwPos          = origin;
-        m_fDfwRequestedYaw = fAngle;
-        m_fDfwTime         = level.time;
-
-        fAngleRad = fAngle * M_PI / 180;
-        fSinAngle = sin(fAngleRad);
-        fCosAngle = cos(fAngleRad);
-
-        VectorSub2D(EyePosition(), origin, vDelta);
-        fEyeRadius = VectorLength2D(vDelta);
-
-        start   = vec_zero;
-        start.x = fEyeRadius * fCosAngle + origin.x;
-        start.y = fEyeRadius * fSinAngle + origin.y;
-
-        end           = vec_zero;
-        end.x         = 64 * fCosAngle + start.x;
-        end.x         = 64 * fSinAngle + start.y;
-        trace_t trace = G_Trace(start, vec_zero, vec_zero, end, this, 33819417, qfalse, "Actor::DontFaceWall");
-        if (trace.entityNum == 1023 || trace.fraction >= 1 || trace.startsolid) {
-            m_eDontFaceWallMode = 3;
-        } else if (trace.entityNum == 1022 || trace.ent->entity->AIDontFace()) {
-            if (trace.plane.normal[2] < -0.69999999 || trace.plane.normal[2] > 0.69999999) {
-                m_eDontFaceWallMode = 5;
-            } else {
-                if (m_Enemy && Vector::Dot(trace.plane.normal, m_Enemy->origin) - trace.plane.dist < 0) {
-                    end = m_Enemy->origin;
-                } else {
-                    end = start + (end - start) * 128;
-                }
-
-                PathNode *node = PathManager.FindCornerNodeForWall(origin, end, this, 0.0f, trace.plane.normal);
-                if (node) {
-                    VectorSub2D(node->m_PathPos, origin, vDelta);
-                    if (vDelta[0] != 0 || vDelta[1] != 0) {
-                        SetDesiredYawDir(vDelta);
-                    }
-                    m_eDontFaceWallMode = 6;
-                } else if (trace.fraction <= 0.46875) {
-                    SetDesiredYawDir(trace.plane.normal);
-                    m_eDontFaceWallMode = 7;
-                } else {
-                    if (m_DesiredYaw < 90.0) {
-                        m_DesiredYaw += 270.0;
-                    } else {
-                        m_DesiredYaw -= 90.0;
-                    }
-
-                    m_YawAchieved       = false;
-                    m_eDontFaceWallMode = 8;
-                }
-                m_fDfwDerivedYaw = m_DesiredYaw;
-                return;
-            }
-        } else {
-            m_eDontFaceWallMode = 4;
-        }
-
-        m_fDfwDerivedYaw = m_fDfwRequestedYaw;
+        return;
     }
+
+    if (fabs(AngleNormalize180(m_fDfwRequestedYaw - m_DesiredYaw)) <= fErrorLerp * -29.0 + 30.0
+        && fabs(AngleNormalize180(m_fDfwRequestedYaw - m_DesiredYaw)) <= fErrorLerp * -29.0 + 30.0) {
+        if (AvoidingFacingWall()) {
+            SetDesiredYaw(m_fDfwDerivedYaw);
+        }
+        return;
+    }
+
+    m_vDfwPos          = origin;
+    m_fDfwRequestedYaw = fAngle;
+    m_fDfwTime         = level.time;
+
+    fSinAngle = sin(DEG2RAD(fAngle));
+    fCosAngle = cos(DEG2RAD(fAngle));
+
+    VectorSub2D(EyePosition(), origin, vDelta);
+    start = EyePosition();
+    start.x -= origin.x;
+    start.y -= origin.y;
+    fEyeRadius = VectorLength2D(start);
+    start.x    = origin.x + fEyeRadius * fCosAngle;
+    start.y    = origin.x + fEyeRadius * fSinAngle;
+    end.x      = start.x + fCosAngle * 64;
+    end.y      = start.y + fSinAngle * 64;
+    end.z      = start.z;
+
+    trace = G_Trace(start, vec_zero, vec_zero, end, this, MASK_CANSEE, qfalse, "Actor::DontFaceWall");
+
+    if (trace.entityNum == ENTITYNUM_NONE || trace.fraction > 0.999f || trace.startsolid) {
+        m_eDontFaceWallMode = 3;
+        m_fDfwDerivedYaw    = m_fDfwRequestedYaw;
+        return;
+    }
+
+    if (trace.entityNum != ENTITYNUM_WORLD && trace.ent->entity->AIDontFace()) {
+        m_eDontFaceWallMode = 4;
+        m_fDfwDerivedYaw    = m_fDfwRequestedYaw;
+        return;
+    }
+
+    if (trace.plane.normal[2] < -0.7f || trace.plane.normal[2] > 0.7f) {
+        m_eDontFaceWallMode = 5;
+        m_fDfwDerivedYaw    = m_fDfwRequestedYaw;
+        return;
+    }
+
+    if (m_Enemy && (m_Enemy->origin * trace.plane.normal - trace.plane.dist) < 0) {
+        end = m_Enemy->origin;
+    } else {
+        end = start + 128 * (end - start);
+    }
+
+    pNode = PathManager.FindCornerNodeForWall(origin, end, this, 0.0f, trace.plane.normal);
+    if (pNode) {
+        SetDesiredYawDest(pNode->m_PathPos);
+    } else if (trace.fraction > 0.46875f) {
+        if (m_DesiredYaw < 90.0) {
+            SetDesiredYaw(m_DesiredYaw + 270);
+        } else {
+            SetDesiredYaw(m_DesiredYaw - 90);
+        }
+        m_eDontFaceWallMode = 8;
+    } else {
+        SetDesiredYawDir(trace.plane.normal);
+        m_eDontFaceWallMode = 7;
+    }
+
+    m_fDfwDerivedYaw = m_DesiredYaw;
 }
 
 bool Actor::IsVoidState(int state)
@@ -11040,17 +11049,24 @@ void Actor::InitVoid(GlobalFuncs_t *func)
 
 void Actor::BecomeCorpse(void)
 {
-    Event e1(EV_DeathSinkStart);
-
     AddToBodyQue();
 
-    edict->r.contents = CONTENTS_TRIGGER;
+    setContents(CONTENTS_TRIGGER);
     edict->r.svFlags &= ~SVF_MONSTER;
     setSolidType(SOLID_NOT);
-    movetype = MOVETYPE_NONE;
+
+    CheckGround();
+    if (groundentity) {
+        setMoveType(MOVETYPE_NONE);
+    } else {
+        // enable physics if on air
+        setMoveType(MOVETYPE_TOSS);
+    }
+
+    // don't cast shadow
     edict->s.renderfx &= ~RF_SHADOW;
 
-    PostEvent(e1, 20);
+    PostEvent(EV_DeathSinkStart, 10);
 }
 
 void Actor::EventGetFavoriteEnemy(Event *ev)
@@ -11060,8 +11076,7 @@ void Actor::EventGetFavoriteEnemy(Event *ev)
 
 void Actor::EventSetFavoriteEnemy(Event *ev)
 {
-    Sentient *fEnemy = (Sentient *)ev->GetEntity(1);
-    m_FavoriteEnemy  = fEnemy;
+    m_FavoriteEnemy = static_cast<Sentient *>(ev->GetEntity(1));
 }
 
 void Actor::EventFindEnemy(Event *ev)
@@ -11080,38 +11095,121 @@ void Actor::EventGetMumble(Event *ev)
 
 void Actor::EventSetMumble(Event *ev)
 {
-    m_bMumble = ev->GetInteger(1);
+    m_bMumble = ev->GetInteger(1) != false;
+}
+
+void Actor::EventGetBreathSteam(Event *ev)
+{
+    ev->AddInteger(m_bBreathSteam);
+}
+
+void Actor::EventSetBreathSteam(Event *ev)
+{
+    m_bBreathSteam = ev->GetInteger(1) != false;
+}
+
+void Actor::EventSetNextBreathTime(Event *ev)
+{
+    ScriptVariable var;
+    ScriptThread  *thread;
+
+    thread = Director.CreateThread("global/breathe.scr", "nextbreathtime");
+
+    // pass the breath time as the first argument
+    var.setFloatValue(ev->GetFloat(1));
+    thread->Execute(&var, 1);
 }
 
 void Actor::EventCalcGrenadeToss2(Event *ev)
 {
-    // FIXME: unimplemented
+    Vector vTargetPos;
+    Vector vFrom;
+    Vector vPoint;
+    Vector vDelta;
+    Vector vVel;
+    Vector vPointTarget(0, 0, 0);
+    float  speed;
+    float  fDistSquared;
+
+    vFrom        = origin;
+    speed        = 0;
+    vTargetPos   = ev->GetVector(1);
+    vDelta       = vTargetPos - vFrom;
+    fDistSquared = vDelta.lengthSquared();
+
+    if (ev->NumArgs() > 1) {
+        speed = ev->GetFloat(2);
+    }
+
+    if (fDistSquared < Square(1024)) {
+        vPoint = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADETOSS_SCR);
+        vVel   = CanRollGrenade(vPoint, vTargetPos);
+        if (vVel != vPointTarget) {
+            m_vGrenadeVel  = vVel;
+            m_eGrenadeMode = AI_GREN_TOSS_ROLL;
+            ev->AddConstString(STRING_ANIM_GRENADETOSS_SCR);
+            SetDesiredYawDir(m_vGrenadeVel);
+            return;
+        }
+    }
+
+    if (!speed) {
+        vPoint = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADETHROW_SCR);
+        vVel   = CanThrowGrenade(vPoint, vTargetPos);
+        if (vVel != vec_zero) {
+            m_vGrenadeVel  = vVel;
+            m_eGrenadeMode = AI_GREN_TOSS_THROW;
+            ev->AddConstString(STRING_ANIM_GRENADETHROW_SCR);
+            SetDesiredYawDir(m_vGrenadeVel);
+        } else {
+            ev->AddConstString(STRING_ANIM_GRENADETOSS_SCR);
+        }
+        return;
+    }
+
+    vPoint = GrenadeThrowPoint(vFrom, vDelta, STRING_ANIM_GRENADETHROW_SCR);
+
+    vVel = vTargetPos - vPoint;
+    vVel.normalize();
+    vVel *= speed;
+    m_vGrenadeVel = vVel;
+
+    ev->AddConstString(STRING_ANIM_GRENADETOSS_SCR);
+    SetDesiredYawDir(m_vGrenadeVel);
 }
 
 void Actor::EventCalcGrenadeToss(Event *ev)
 {
-    //FIXME: macros
-    Vector vTarget;
-    vTarget = ev->GetVector(1);
-    if (DecideToThrowGrenade(vTarget, &m_vGrenadeVel, &m_eGrenadeMode, false)) {
-        if (m_eGrenadeMode == AI_GREN_TOSS_ROLL) {
-            ev->AddConstString(STRING_ANIM_GRENADETOSS_SCR);
-        } else {
-            if (m_eGrenadeMode > AI_GREN_TOSS_ROLL ? m_eGrenadeMode == AI_GREN_TOSS_HINT
-                                                   : m_eGrenadeMode == AI_GREN_TOSS_THROW) {
-                ev->AddConstString(STRING_ANIM_GRENADETHROW_SCR);
-            } else {
-                char assertStr[16317] = {0};
-                strcpy(assertStr, "\"invalid return condition for Actor::EventCalcGrenadeToss\"\n\tMessage: ");
-                Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
-                assert(false && assertStr);
-            }
-        }
+    bool bSuccess;
 
-        SetDesiredYawDir(m_vGrenadeVel);
-    } else {
-        ev->AddConstString(STRING_EMPTY);
+    if (ev->NumArgs() > 1) {
+        bSuccess = ev->GetBoolean(2);
     }
+
+    if (!DecideToThrowGrenade(ev->GetVector(1), &m_vGrenadeVel, &m_eGrenadeMode, bSuccess)) {
+        ev->AddConstString(STRING_EMPTY);
+        return;
+    }
+
+    switch (m_eGrenadeMode) {
+    case AI_GREN_TOSS_ROLL:
+        ev->AddConstString(STRING_ANIM_GRENADETOSS_SCR);
+        break;
+    case AI_GREN_TOSS_HINT:
+    case AI_GREN_TOSS_THROW:
+        ev->AddConstString(STRING_ANIM_GRENADETHROW_SCR);
+        break;
+    default:
+        {
+            char assertStr[16384] = {0};
+            strcpy(assertStr, "\"invalid return condition for Actor::EventCalcGrenadeToss\"\n\tMessage: ");
+            Q_strcat(assertStr, sizeof(assertStr), DumpCallTrace(""));
+            assert(false && assertStr);
+        }
+        break;
+    }
+
+    SetDesiredYawDir(m_vGrenadeVel);
 }
 
 void Actor::EventGetNoSurprise(Event *ev)
@@ -11146,102 +11244,87 @@ void Actor::EventSetAvoidPlayer(Event *ev)
 
 void Actor::PathnodeClaimRevoked(PathNode *node)
 {
-    for (int i = m_ThinkLevel; i >= 0; --i) {
-        GlobalFuncs_t *func = &GlobalFuncs[m_Think[i]];
+    int iThinkLevel;
+
+    for (iThinkLevel = m_ThinkLevel; iThinkLevel >= 0; --iThinkLevel) {
+        GlobalFuncs_t *func = &GlobalFuncs[m_Think[iThinkLevel]];
+
         if (func->PathnodeClaimRevoked) {
             (this->*func->PathnodeClaimRevoked)();
         }
     }
+
     node->Relinquish();
     m_pCoverNode = NULL;
 }
 
 void Actor::SetPathToNotBlockSentient(Sentient *pOther)
 {
-    Vector vDest, vPerp, vAway;
+    Vector vAway;
+    Vector vPerp;
+    Vector vDest;
 
-    if (pOther) {
-        if (!pOther->IsDead()) {
-            if (IsTeamMate(pOther)) {
-                if (pOther->velocity.lengthSquared() > 1) {
-                    vDest = origin - pOther->origin;
-                    if (vDest.lengthSquared() < 2304 && DotProduct2D(pOther->velocity, vDest) > 0) {
-                        if (CrossProduct2D(vDest, pOther->velocity) >= 0) {
-                            vPerp.x = -pOther->velocity.y;
-                            vPerp.y = pOther->velocity.x;
-                            vPerp.z = 0;
-                        } else {
-                            vPerp.x = pOther->velocity.y;
-                            vPerp.y = -pOther->velocity.x;
-                            vPerp.z = 0;
-                        }
-
-                        VectorNormalizeFast(vPerp);
-
-                        vAway = vPerp * 48 + origin;
-
-                        if (G_SightTrace(
-                                vAway,
-                                mins,
-                                maxs,
-                                vAway,
-                                this,
-                                pOther,
-                                33557249,
-                                0,
-                                "Actor::SetPathToNotBlockSentient 1"
-                            )) {
-                            SetPathWithinDistance(vAway, NULL, 96, 0);
-                        }
-
-                        if (!PathExists()) {
-                            vAway = vDest;
-                            VectorNormalizeFast(vAway);
-
-                            vAway = vAway * 48 + origin;
-                            if (G_SightTrace(
-                                    vAway,
-                                    mins,
-                                    maxs,
-                                    vAway,
-                                    this,
-                                    pOther,
-                                    33557249,
-                                    0,
-                                    "Actor::SetPathToNotBlockSentient 2"
-                                )) {
-                                SetPathWithinDistance(vAway, NULL, 96, 0);
-                            }
-
-                            if (!PathExists()) {
-                                vAway = vPerp * 48 - origin;
-                                if (G_SightTrace(
-                                        vAway,
-                                        mins,
-                                        maxs,
-                                        vAway,
-                                        this,
-                                        pOther,
-                                        33557249,
-                                        0,
-                                        "Actor::SetPathToNotBlockSentient 3"
-                                    )) {
-                                    SetPathWithinDistance(vAway, NULL, 96, 0);
-                                }
-
-                                if (!PathExists()) {
-                                    vAway = vDest;
-                                    VectorNormalizeFast(vAway);
-
-                                    FindPathAway(origin, vAway * 100, 96);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    if (!pOther) {
+        return;
     }
+
+    if (pOther->IsDead()) {
+        return;
+    }
+
+    if (!IsTeamMate(pOther)) {
+        return;
+    }
+
+    if (pOther->velocity.lengthSquared() <= 1) {
+        return;
+    }
+
+    vAway = origin - pOther->origin;
+
+    if (vAway.lengthSquared() >= Square(48)) {
+        return;
+    }
+
+    if (DotProduct2D(pOther->velocity, vAway) <= 0) {
+        return;
+    }
+
+    if (CrossProduct2D(pOther->velocity, vAway) >= 0) {
+        vPerp[0] = -pOther->velocity[1];
+        vPerp[1] = pOther->velocity[0];
+    } else {
+        vPerp[0] = pOther->velocity[1];
+        vPerp[1] = -pOther->velocity[0];
+    }
+    vPerp[2] = 0;
+    vPerp.normalizefast();
+
+    vDest = origin + vPerp * 48;
+
+    if (G_SightTrace(
+            vDest, mins, maxs, vDest, this, pOther, MASK_SOLID, qfalse, "Actor::SetPathToNotBlockSentient 1"
+        )) {
+        SetPathWithinDistance(vDest, NULL, 96, 0);
+    }
+
+    if (PathExists()) {
+        return;
+    }
+
+    vDest = origin - vPerp * 48;
+
+    if (G_SightTrace(
+            vDest, mins, maxs, vDest, this, pOther, MASK_SOLID, qfalse, "Actor::SetPathToNotBlockSentient 2"
+        )) {
+        SetPathWithinDistance(vDest, NULL, 96, 0);
+    }
+
+    if (PathExists()) {
+        return;
+    }
+
+    FindPathAway(pOther->origin, vAway * 100, 96);
 }
 
 /*
@@ -11253,24 +11336,28 @@ Look around behaviour.
 */
 void Actor::LookAround(float fFovAdd)
 {
-    Vector vDest, vAngle;
-    float  fModTime;
+    float   fModTime;
+    vec3_t  vAngle;
+    vec3_t  vDest;
+    trace_t trace;
 
     if (level.inttime >= m_iNextLookTime) {
-        fModTime = level.time;
-        vAngle   = angles;
+        VectorCopy(angles, vAngle);
+        fModTime = level.time / 8 - floor(level.time / 8);
 
-        vAngle.y += fFovAdd * (2 * (fModTime * 0.125 - floor(fModTime * 0.125)) - 1.0);
-        vAngle.x += (noise1(fModTime * 1.005309626678312 + entnum) + 1.0) * 15.0;
-
+        vAngle[1] = fFovAdd * (fModTime * 2 - 1) + vAngle[1];
+        vAngle[0] += (noise1(entnum + level.time * 1.005309626678312f) + 1) * 15;
         AngleVectors(vAngle, vDest, NULL, NULL);
 
-        vDest += EyePosition() * 1024;
-        trace_t trace = G_Trace(EyePosition(), vec_zero, vec_zero, vDest, this, 25, qfalse, "Actor::LookAround");
+        Vector vEyePos = EyePosition();
+
+        VectorMA(vEyePos, 1024, vDest, vDest);
+
+        trace = G_Trace(EyePosition(), vec_zero, vec_zero, vDest, this, MASK_LOOK, qfalse, "Actor::LookAround");
         if (trace.fraction > 0.125) {
             m_bHasDesiredLookDest = true;
             VectorCopy(trace.endpos, m_vDesiredLookDest);
-            m_iNextLookTime = level.inttime + rand() % 500 + 750;
+            m_iNextLookTime = level.inttime + (rand() % 500) + 750;
         } else {
             m_bHasDesiredLookDest = false;
             m_iNextLookTime       = level.inttime + 187;
@@ -11280,41 +11367,55 @@ void Actor::LookAround(float fFovAdd)
     if (m_bHasDesiredLookDest) {
         SetDesiredLookDir(m_vDesiredLookDest - EyePosition());
     } else {
-        m_bHasDesiredLookAngles = false;
+        ForwardLook();
     }
 }
 
 void Actor::EventGetLookAroundAngle(Event *ev)
 {
-    //FIXME: weird
+    // Fixed in OPM
+    //  Seems like a mistake in 2.40 and below, it should return a float instead
     //ev->GetFloat(m_fLookAroundFov);
+
     ev->AddFloat(m_fLookAroundFov);
 }
 
 void Actor::EventSetLookAroundAngle(Event *ev)
 {
-    float angle = ev->GetFloat(1);
-    if (angle < 0.0 || angle > 60.0) {
+    float fLookAroundFov;
+
+    fLookAroundFov = ev->GetFloat(1);
+    if (fLookAroundFov < 0.0 || fLookAroundFov > 60.0) {
         ScriptError("lookaroundangle must be >= 0 and <= 60");
     }
-    m_fLookAroundFov = angle;
+
+    m_fLookAroundFov = fLookAroundFov;
 }
 
 void Actor::DumpAnimInfo(void)
 {
+    vec3_t LocalLookAngles;
+    Vector actualHeadAngle, actualTorsoAngle;
+
     Animate::DumpAnimInfo();
-    Vector desiredLook = m_bHasDesiredLookAngles ? m_DesiredLookAngles : vec_zero;
-    //FIXME: macros: bones
-    Vector head  = GetControllerAngles(HEAD_TAG);
-    Vector torso = GetControllerAngles(TORSO_TAG);
+
+    if (m_bHasDesiredLookAngles) {
+        VectorCopy(m_DesiredLookAngles, LocalLookAngles);
+    } else {
+        VectorClear(LocalLookAngles);
+    }
+
+    actualHeadAngle  = GetControllerAngles(HEAD_TAG);
+    actualTorsoAngle = GetControllerAngles(TORSO_TAG);
+
     MPrintf(
         "Desired look yaw: %.1f, pitch: %.1f.  Head yaw: %.1f, pitch %.1f.  Torso yaw: %.1f, pitch: %.1f\n",
-        desiredLook.x,
-        desiredLook.y,
-        head.x,
-        head.y,
-        torso.x,
-        torso.y
+        LocalLookAngles[1],
+        LocalLookAngles[0],
+        actualHeadAngle[1],
+        actualHeadAngle[0],
+        actualTorsoAngle[1],
+        actualTorsoAngle[0]
     );
 }
 
@@ -11327,20 +11428,18 @@ Dump useful debug info.
 */
 const char *Actor::DumpCallTrace(const char *pszFmt, ...) const
 {
-    cvar_t *sv_mapname;
-    tm     *ptm;
+    char    szTemp[65536];
+    int     i;
+    int     i1, i2;
+    char    szFile[MAX_QPATH];
+    Vector  vPlayer;
     time_t  t;
-    Vector  vPlayer = vec_zero;
-    char    szFile[64];
-    int     i2;
-    //int i1;
-    int  i;
-    char szTemp[65536];
-    char szTemp2[1024];
+    tm     *ptm;
+    cvar_t *sv_mapname;
 
-    va_list va;
+    va_list args;
 
-    va_start(va, pszFmt);
+    va_start(args, pszFmt);
 
     sv_mapname = gi.Cvar_Get("mapname", "unknown", 0);
 
@@ -11349,7 +11448,7 @@ const char *Actor::DumpCallTrace(const char *pszFmt, ...) const
         vPlayer = p->origin;
     }
 
-    i = sprintf(
+    i1 = sprintf(
         szTemp,
         "map = %s\n"
         "time = %i (%i:%02i)\n"
@@ -11381,10 +11480,16 @@ const char *Actor::DumpCallTrace(const char *pszFmt, ...) const
         vPlayer[2]
     );
 
+    i2 = i1;
     if (pszFmt) {
-        i2 = i + vsprintf(&szTemp[i], pszFmt, va);
+        va_list args2;
+        va_copy(args2, args);
+        i2 = i1 + vsprintf(&szTemp[i1], pszFmt, args);
     }
-    if (i2 != i) {
+
+    va_end(args);
+
+    if (i1 != i2) {
         strcpy(&szTemp[i2], "\n--------------------------------------\n");
     }
 
@@ -11400,18 +11505,15 @@ const char *Actor::DumpCallTrace(const char *pszFmt, ...) const
         ptm->tm_min
     );
 
-    for (i = 0; szFile[i]; i++) {
+    for (i = 5; szFile[i]; i++) {
         if (szFile[i] == '\\' || szFile[i] == '/') {
             szFile[i] = '_';
         }
     }
-    sprintf(szTemp2, "Include '%s' in your bug report!", szFile);
-    //PreAssertMessage:
-    fprintf(stderr, "IMPORTANT: %s\n", szTemp2);
 
-    va_end(va);
+    fprintf(stderr, "IMPORTANT: Include '%s' in your bug report!\n", szFile);
 
-    return ::va(
+    return va(
         "\n"
         "\t-------------------------- IMPORTANT REMINDER --------------------------\n"
         "\n"
@@ -11421,14 +11523,14 @@ const char *Actor::DumpCallTrace(const char *pszFmt, ...) const
         "\n"
         "%s",
         szFile,
-        szTemp
+        &szTemp[i1]
     );
 }
 
 void Actor::EventSetMoveDoneRadius(Event *ev)
 {
-    float moveDoneR          = ev->GetFloat(1);
-    m_fMoveDoneRadiusSquared = Square(moveDoneR);
+    float radius             = ev->GetFloat(1);
+    m_fMoveDoneRadiusSquared = Square(radius);
 }
 
 void Actor::EventGetMoveDoneRadius(Event *ev)
@@ -11447,7 +11549,7 @@ void Actor::StoppedWaitFor(const_str name, bool bDeleting)
 {
     g_iInThinks++;
 
-    GlobalFuncs_t *func = &GlobalFuncs[m_Think[m_ThinkLevel]];
+    GlobalFuncs_t *func = &GlobalFuncs[CurrentThink()];
 
     if (func->FinishedAnimation) {
         (this->*func->FinishedAnimation)();
@@ -11458,27 +11560,27 @@ void Actor::StoppedWaitFor(const_str name, bool bDeleting)
 
 void Actor::EventHasCompleteLookahead(Event *ev)
 {
-    int completeLH = PathExists() && PathHasCompleteLookahead();
-
-    ev->AddInteger(completeLH);
+    ev->AddInteger(PathExists() && PathHasCompleteLookahead());
 }
 
 void Actor::EventPathDist(Event *ev)
 {
-    float dist = 0;
-    if (PathExists() && !PathComplete()) {
-        dist = PathDist();
+    if (!PathExists() || PathComplete()) {
+        ev->AddFloat(0);
+        return;
     }
-    ev->AddFloat(dist);
+
+    ev->AddFloat(PathDist());
 }
 
 void Actor::EventCanShootEnemyFrom(Event *ev)
 {
-    int canShoot = false;
-    if (m_Enemy) {
-        canShoot = CanSeeFrom(ev->GetVector(1), m_Enemy);
+    if (!m_Enemy) {
+        ev->AddInteger(false);
+        return;
     }
-    ev->AddInteger(canShoot);
+
+    ev->AddInteger(CanSeeFrom(ev->GetVector(1), m_Enemy));
 }
 
 void Actor::EventSetInReload(Event *ev)
@@ -11503,13 +11605,15 @@ void Actor::EventBreakSpecial(Event *ev)
 
 void Actor::EventCanShoot(Event *ev)
 {
-    Entity *target = ev->GetEntity(1);
+    Entity *ent;
 
-    if (!target) {
-        ScriptError("canshoot applied to null listener");
+    ent = ev->GetEntity(1);
+
+    if (!ent) {
+        ScriptError("canshoot applied to NULL listener");
     }
 
-    ev->AddInteger(CanShoot(target));
+    ev->AddInteger(CanShoot(ent));
 }
 
 void Actor::EventSetBalconyHeight(Event *ev)
@@ -11519,12 +11623,14 @@ void Actor::EventSetBalconyHeight(Event *ev)
 
 void Actor::EventSetIgnoreBadPlace(Event *ev)
 {
-    if (m_bIgnoreBadPlace != ev->GetBoolean(1)) {
-        m_bIgnoreBadPlace = ev->GetBoolean(1);
+    if (m_bIgnoreBadPlace == ev->GetBoolean(1)) {
+        return;
+    }
 
-        if (level.m_badPlaces.NumObjects() && m_bIgnoreBadPlace) {
-            UpdateBadPlaces();
-        }
+    m_bIgnoreBadPlace = ev->GetBoolean(1);
+
+    if (level.m_badPlaces.NumObjects() && m_bIgnoreBadPlace) {
+        UpdateBadPlaces();
     }
 }
 
@@ -11547,7 +11653,7 @@ void Actor::BecomeTurretGuy(void)
     SetThink(THINKSTATE_GRENADE, THINK_GRENADE);
 
     if (CurrentThink() == THINK_IDLE && Turret_DecideToSelectState()) {
-        TransitionState(100, 0);
+        TransitionState(ACTOR_STATE_TURRET_COMBAT, 0);
     }
 }
 
@@ -11562,7 +11668,6 @@ Usally called after SetEnemyPos()
 void Actor::AimAtEnemyBehavior(void)
 {
     AimAtTargetPos();
-
     Anim_Aim();
 }
 
@@ -11716,7 +11821,7 @@ Actor::EventWriteStats
 void Actor::EventWriteStats(Event *ev)
 {
     if (g_aistats->integer) {
-        level.OpenActorStats();
+        level.WriteActorStats(this);
     }
 }
 
@@ -11740,34 +11845,9 @@ void Actor::EventCuriousOn(Event *ev)
     m_bIsCurious = true;
 }
 
-void Actor::EventSetDestIdle(Event *ev)
-{
-    // not found in ida
-}
+void Actor::EventSetDestIdle(Event *ev) {}
 
-void Actor::EventSetDestIdle2(Event *ev)
-{
-    // not found in ida
-}
-
-void Actor::EventGetBreathSteam(Event *ev)
-{
-    ev->AddInteger(m_bBreathSteam);
-}
-
-void Actor::EventSetBreathSteam(Event *ev)
-{
-    m_bBreathSteam = ev->GetInteger(1);
-}
-
-void Actor::EventSetNextBreathTime(Event *ev)
-{
-    ScriptVariable sVar;
-    ScriptThread  *t = Director.CreateThread("global/breathe.scr", "nextbreathtime");
-
-    sVar.setFloatValue(ev->GetFloat(1));
-    t->Execute(&sVar, 1);
-}
+void Actor::EventSetDestIdle2(Event *ev) {}
 
 bool Actor::EnemyIsDisguised(void)
 {
@@ -11786,7 +11866,4 @@ Actor::ExtractConstraints
 
 ===============
 */
-void Actor::ExtractConstraints(mmove_t *mm)
-{
-    // not found in ida
-}
+void Actor::ExtractConstraints(mmove_t *mm) {}
