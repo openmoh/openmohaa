@@ -300,7 +300,7 @@ Event EV_PG_GetTargetEntity
     NULL,
     NULL,
     "Returns entity being targeted by the projectile generator,",
-    EV_GETTER
+    EV_RETURN
 );
 Event EV_PG_IsTurnedOn
 (
@@ -309,7 +309,7 @@ Event EV_PG_IsTurnedOn
     NULL,
     NULL,
     "Returns whether the generator is on or off.",
-    EV_GETTER
+    EV_RETURN
 );
 
 CLASS_DECLARATION(Entity, ProjectileTarget, "ProjectileGenerator_Target") {

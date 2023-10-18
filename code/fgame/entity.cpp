@@ -1432,7 +1432,7 @@ Event EV_Entity_GetLocalYawFromVector
     NULL,
     NULL,
     "Turn a worldspace vector into a local space yaw",
-    EV_GETTER
+    EV_RETURN
 );
 Event EV_ShootableOnly
 (
