@@ -135,7 +135,8 @@ typedef struct client_s {
 	int				messageAcknowledge;
 
 	int				gamestateMessageNum;	// netchan->outgoingSequence of gamestate
-	int				challenge;
+    int				challenge;
+    int				serverIdAcknowledge;
 
 	usercmd_t		lastUsercmd;
 
