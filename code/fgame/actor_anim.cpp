@@ -39,44 +39,48 @@ void Actor::Begin_Anim(void)
     m_csMood = m_csIdleMood;
     ClearPath();
     StopTurning();
-    TransitionState(1000, 0);
+    TransitionState(ACTOR_STATE_ANIMATION_INITIAL, 0);
 }
 
 void Actor::Think_Anim(void)
 {
-    if (RequireThink()) {
-        UpdateEyeOrigin();
-        IdlePoint();
-        IdleLook();
-        if (m_State == 1000) {
-            m_bNextForceStart = true;
-
-            m_bAnimScriptSet = false;
-            m_pszDebugState  = "initial";
-            TransitionState(1001, 0);
-        } else if (m_State == 1001) {
-            m_bNextForceStart = false;
-            m_pszDebugState   = "main";
-        }
-        m_eNextAnimMode    = m_AnimMode;
-        m_csNextAnimString = m_csAnimScript;
-
-        CheckForThinkStateTransition();
-        IdleTurn();
-        PostThink(false);
+    if (!RequireThink()) {
+        return;
     }
+
+    UpdateEyeOrigin();
+    IdlePoint();
+    IdleLook();
+
+    if (m_State == ACTOR_STATE_ANIMATION_INITIAL) {
+        m_pszDebugState = "initial";
+        m_bAnimScriptSet = false;
+        StartAnimation(m_AnimMode, m_csAnimScript);
+        TransitionState(ACTOR_STATE_ANIMATION_MAIN, 0);
+    } else if (m_State == ACTOR_STATE_ANIMATION_MAIN) {
+        m_bNextForceStart = false;
+        m_pszDebugState = "main";
+        DesiredAnimation(m_AnimMode, m_csAnimScript);
+    }
+
+    CheckForThinkStateTransition();
+    IdleTurn();
+    PostThink(false);
 }
 
 void Actor::FinishedAnimation_Anim(void)
 {
-    if (!m_bAnimScriptSet) {
-        if (m_bNoIdleAfterAnim) {
-            m_csAnimScript = STRING_ANIM_CONTINUE_LAST_ANIM_SCR;
-        } else {
-            SetThinkIdle(THINK_IDLE);
-        }
-        Unregister(STRING_ANIMDONE);
+    if (m_bAnimScriptSet) {
+        return;
     }
+
+    if (m_bNoIdleAfterAnim) {
+        m_csAnimScript = STRING_ANIM_CONTINUE_LAST_ANIM_SCR;
+    } else {
+        SetThinkIdle(THINK_IDLE);
+    }
+
+    Unregister(STRING_ANIMDONE);
 }
 
 void Actor::ShowInfo_Anim(void)
