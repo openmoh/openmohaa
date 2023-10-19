@@ -3238,25 +3238,25 @@ PathNode *PathSearch::FindCornerNodeForExactPath
 	)
 {
 	PathNode *pPathNode[4096];
+	PathNode *pParentNode;
+	size_t i, iDepth, index;
 
 	if (!PathSearch::FindPath(enemy->origin, pSelf->origin,	pSelf, fMaxPath, 0, 0.0, 100))
 		return NULL;
 
-	size_t iDepth = 0;
-	for (PathNode* pParentNode = Node->Parent; pParentNode; pParentNode = pParentNode->Parent, iDepth++)
+	for (pParentNode = Node->Parent, i = 0; pParentNode; pParentNode = pParentNode->Parent, i++)
 	{
-		pPathNode[iDepth] = pParentNode;
+		pPathNode[i] = pParentNode;
+	}
+
+	iDepth = i;
+	if (!iDepth) {
+		return NULL;
 	}
 
 	Node = pPathNode[iDepth -1];
 
-
-	if (iDepth == 0)
-	{
-		return NULL;
-	}
-	size_t i;
-	for (i = 0; i < iDepth; i += 2)
+	for (i = 1; i < iDepth; i += 2)
 	{
 		if (!G_SightTrace(
 			pSelf->EyePosition(),
@@ -3273,7 +3273,7 @@ PathNode *PathSearch::FindCornerNodeForExactPath
 		}
 	}
 
-	size_t index = i - 1;
+	index = i - 1;
 	if (index < iDepth)
 	{
 		if (index)
@@ -3282,7 +3282,7 @@ PathNode *PathSearch::FindCornerNodeForExactPath
 				pSelf->EyePosition(),
 				vec_zero,
 				vec_zero,
-				pSelf->EyePosition() - pSelf->origin + pPathNode[i]->m_PathPos,
+				pSelf->EyePosition() - pSelf->origin + pPathNode[index]->m_PathPos,
 				pSelf,
 				enemy,
 				0x2040B19,
