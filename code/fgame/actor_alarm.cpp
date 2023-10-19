@@ -40,19 +40,18 @@ void Actor::Begin_Alarm(void)
     m_csMood     = STRING_ALERT;
     m_csIdleMood = STRING_NERVOUS;
 
-    if (m_AlarmNode) {
-        SetPath(m_AlarmNode, "Actor::Begin_Alarm", 0);
+    if (!m_AlarmNode) {
+        State_Alarm_StartThread();
+        return;
+    }
 
-        if (PathExists()) {
-            TransitionState(601, 0);
-        } else {
-            TransitionState(600, 0);
-            parm.movefail = true;
-        }
+    SetPath(m_AlarmNode, "Actor::Begin_Alarm", 0);
+
+    if (PathExists()) {
+        TransitionState(ACTOR_STATE_ALARM_MOVE, 0);
     } else {
-        SetLeashHome(origin);
-        TransitionState(600, 0);
-        m_AlarmThread.Execute(this);
+        TransitionState(ACTOR_STATE_ALARM_IDLE, 0);
+        parm.movefail = true;
     }
 }
 
@@ -63,37 +62,36 @@ void Actor::End_Alarm(void)
 
 void Actor::State_Alarm_StartThread(void)
 {
-    if (m_AlarmNode) {
-        SetLeashHome(m_AlarmNode->origin);
-    } else {
-        SetLeashHome(origin);
-    }
+    SetLeashHome(m_AlarmNode ? m_AlarmNode->origin : origin);
+    // Added in 2.30.
+    //  Execute the pre-alarm thread
+    m_PreAlarmThread.Execute(this);
 
-    TransitionState(600, 0);
-    m_AlarmThread.Execute();
+    TransitionState(ACTOR_STATE_ALARM_IDLE, 0);
+    m_AlarmThread.Execute(this);
 }
 
 void Actor::State_Alarm_Move(void)
 {
-    if (PathExists()) {
-        if (PathComplete()) {
-            Anim_Aim();
-            AimAtTargetPos();
-        } else {
-            Anim_RunToAlarm(2);
-            FaceMotion();
-        }
-    } else {
-        TransitionState(600, 0);
+    if (!PathExists()) {
+        TransitionState(ACTOR_STATE_ALARM_IDLE, 0);
         parm.movefail = true;
 
         Anim_Aim();
         AimAtTargetPos();
+    } else if (PathComplete()) {
+        Anim_Aim();
+        AimAtTargetPos();
+        State_Alarm_StartThread();
+    } else {
+        Anim_RunToAlarm(ANIM_MODE_PATH);
+        FaceMotion();
     }
 }
 
 void Actor::State_Alarm_Idle(void)
 {
+    Anim_Aim();
     AimAtTargetPos();
     SetThink(THINKSTATE_ATTACK, THINK_TURRET);
 }
@@ -109,14 +107,18 @@ void Actor::Think_Alarm(void)
     UpdateEyeOrigin();
     NoPoint();
 
-    if (m_State == 600) {
+    switch (m_State) {
+    case ACTOR_STATE_ALARM_IDLE:
         m_pszDebugState = "idle";
         State_Alarm_Idle();
-    } else if (m_State == 601) {
+        break;
+    case ACTOR_STATE_ALARM_MOVE:
         m_pszDebugState = "move";
         State_Alarm_Move();
-    } else {
+        break;
+    default:
         Com_Printf("Actor::Think_Alarm: invalid think state %i\n", m_State);
+        break;
     }
 }
 
