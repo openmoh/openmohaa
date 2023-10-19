@@ -166,11 +166,6 @@ void Actor::Think_Curious(void)
 
             if (!m_Enemy || EnemyIsDisguised()) {
                 if (level.inttime > m_iCuriousTime + 500) {
-                    glbs.Printf(
-                        "Think_Curious m_Enemy: %s EnemyIsDisguised: %s\n",
-                        m_Enemy ? "true" : "false",
-                        EnemyIsDisguised() ? "true" : "false"
-                    );
                     SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
                     m_iCuriousTime = 0;
                 }
