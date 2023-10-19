@@ -803,8 +803,12 @@ PF_NumHeadModels
 */
 int PF_NumHeadModels( const char *model )
 {
-	dtikianim_t *tiki = PF_ModelTikiAnim( model );
-	return TIKI_NumHeadModels( tiki );
+    dtikianim_t* tiki = PF_ModelTikiAnim(model);
+    if (!tiki) {
+        return 0;
+    }
+
+    return TIKI_NumHeadModels(tiki);
 }
 
 /*
@@ -815,7 +819,11 @@ PF_GetHeadModel
 void PF_GetHeadModel( const char *model, int num, char *name )
 {
 	dtikianim_t *tiki = PF_ModelTikiAnim( model );
-	TIKI_GetHeadModel( tiki, num, name );
+    if (!tiki) {
+		return;
+    }
+
+    TIKI_GetHeadModel(tiki, num, name);
 }
 
 /*
@@ -826,6 +834,10 @@ PF_NumHeadSkins
 int PF_NumHeadSkins( const char *model )
 {
 	dtikianim_t *tiki = PF_ModelTikiAnim( model );
+	if (!tiki) {
+		return 0;
+	}
+
 	return TIKI_NumHeadSkins( tiki );
 }
 
@@ -837,6 +849,10 @@ PF_GetHeadSkin
 void PF_GetHeadSkin( const char *model, int num, char *name )
 {
 	dtikianim_t *tiki = PF_ModelTikiAnim( model );
+	if (!tiki) {
+		return;
+	}
+
 	TIKI_GetHeadSkin( tiki, num, name );
 }
 
@@ -847,6 +863,10 @@ PF_Anim_HasClientCommands
 */
 qboolean PF_Anim_HasClientCommands( dtiki_t *tiki, int animnum )
 {
+	if (!tiki) {
+		return qfalse;
+	}
+
 	return TIKI_Anim_HasClientCommands( tiki, animnum );
 }
 
@@ -857,6 +877,10 @@ PF_Frame_Commands
 */
 qboolean PF_Frame_Commands( dtiki_t *tiki, int animnum, int framenum, tiki_cmd_t *tiki_cmds )
 {
+    if (!tiki) {
+        return qfalse;
+    }
+
 	return TIKI_Frame_Commands_Server( tiki, animnum, framenum, tiki_cmds );
 }
 
@@ -867,6 +891,10 @@ PF_Frame_Commands
 */
 qboolean PF_Frame_Commands_Client( dtiki_t *tiki, int animnum, int framenum, tiki_cmd_t *tiki_cmds )
 {
+    if (!tiki) {
+        return qfalse;
+    }
+
 	return TIKI_Frame_Commands_Client( tiki, animnum, framenum, tiki_cmds );
 }
 
@@ -877,6 +905,10 @@ PF_Surface_NameToNum
 */
 int PF_Surface_NameToNum( dtiki_t *tiki, const char *name )
 {
+    if (!tiki) {
+        return -1;
+    }
+
 	return TIKI_Surface_NameToNum( tiki, name );
 }
 
@@ -887,6 +919,10 @@ PF_Surface_NumToName
 */
 const char *PF_Surface_NumToName( dtiki_t *tiki, int num )
 {
+    if (!tiki) {
+        return NULL;
+    }
+
 	return TIKI_Surface_NumToName( tiki, num );
 }
 
