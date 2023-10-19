@@ -23,86 +23,91 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // actor_animapi.cpp: Base actor animation script
 
 #include "actor.h"
+#include "scriptthread.h"
 
 const_str SimpleActor::GetRunAnim(void)
 {
-    if (m_csCurrentPosition != STRING_PRONE
-        && (m_csCurrentPosition < STRING_PRONE || m_csCurrentPosition > STRING_CROUCHRUN)) {
-        return STRING_ANIM_RUN_SCR;
-    } else {
+    if (m_csCurrentPosition == STRING_PRONE) {
         return STRING_ANIM_CROUCH_RUN_SCR;
+    }
+
+    if (m_csCurrentPosition >= STRING_PRONE && m_csCurrentPosition <= STRING_CROUCHRUN && m_csCurrentPosition >= STRING_CROUCH) {
+        return STRING_ANIM_CROUCH_RUN_SCR;
+    } else {
+        return STRING_ANIM_RUN_SCR;
     }
 }
 
 const_str SimpleActor::GetWalkAnim(void)
 {
-    if (m_csCurrentPosition != STRING_PRONE
-        && (m_csCurrentPosition < STRING_PRONE || m_csCurrentPosition > STRING_CROUCHRUN)) {
-        return STRING_ANIM_WALK_SCR;
-    } else {
+    if (m_csCurrentPosition == STRING_PRONE) {
         return STRING_ANIM_CROUCH_WALK_SCR;
+    }
+
+    if (m_csCurrentPosition >= STRING_PRONE && m_csCurrentPosition <= STRING_CROUCHRUN && m_csCurrentPosition >= STRING_CROUCH) {
+        return STRING_ANIM_CROUCH_WALK_SCR;
+    } else {
+        return STRING_ANIM_WALK_SCR;
     }
 }
 
 void SimpleActor::Anim_Attack(void)
 {
-    DesiredAnimation(1, m_AttackHandler);
+    DesiredAnimation(ANIM_MODE_NORMAL, m_AttackHandler);
 }
 
 void SimpleActor::Anim_Suppress(void)
 {
-    DesiredAnimation(1, STRING_ANIM_SUPPRESS_SCR);
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_SUPPRESS_SCR);
 }
 
 void SimpleActor::Anim_Sniper(void)
 {
-    DesiredAnimation(1, m_SniperHandler);
+    DesiredAnimation(ANIM_MODE_NORMAL, m_SniperHandler);
 }
 
 void SimpleActor::Anim_Aim(void)
 {
-    DesiredAnimation(1, STRING_ANIM_AIM_SCR);
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_AIM_SCR);
 }
 
 void SimpleActor::Anim_Shoot(void)
 {
-    DesiredAnimation(1, STRING_ANIM_SHOOT_SCR);
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_SHOOT_SCR);
 }
 
 void SimpleActor::Anim_Idle(void)
 {
-    DesiredAnimation(1, STRING_ANIM_IDLE_SCR);
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_IDLE_SCR);
 }
 
 void SimpleActor::Anim_Crouch(void)
 {
-    DesiredAnimation(1, STRING_ANIM_CROUCH_SCR);
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_CROUCH_SCR);
 }
 
 void SimpleActor::Anim_Prone(void)
 {
-    DesiredAnimation(1, STRING_ANIM_PRONE_SCR);
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_PRONE_SCR);
 }
 
 void SimpleActor::Anim_Stand(void)
 {
-    DesiredAnimation(1, STRING_ANIM_STAND_SCR);
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_STAND_SCR);
 }
 
 void SimpleActor::Anim_Cower(void)
 {
-    DesiredAnimation(1, STRING_ANIM_COWER_SCR);
+    DesiredAnimation(ANIM_MODE_NORMAL, STRING_ANIM_COWER_SCR);
 }
 
 void SimpleActor::Anim_Killed(void)
 {
-    Com_Printf("m_eAnimMode Anim_Killed \n");
-    DesiredAnimation(1, m_DeathHandler);
+    DesiredAnimation(ANIM_MODE_NORMAL, m_DeathHandler);
 }
 
 void SimpleActor::Anim_StartPain(void)
 {
-    Com_Printf("m_eAnimMode Anim_StartPain \n");
     StartAnimation(ANIM_MODE_NORMAL, m_PainHandler);
 }
 
@@ -134,11 +139,6 @@ void SimpleActor::Anim_StandWalkTo(int eAnimMode)
 void SimpleActor::Anim_RunTo(int eAnimMode)
 {
     DesiredAnimation(eAnimMode, GetRunAnim());
-}
-
-void SimpleActor::Anim_WalkTo(int eAnimMode)
-{
-    DesiredAnimation(eAnimMode, GetWalkAnim());
 }
 
 void SimpleActor::Anim_RunAwayFiring(int eAnimMode)
@@ -186,6 +186,11 @@ void SimpleActor::Anim_RunToInOpen(int eAnimMode)
     DesiredAnimation(eAnimMode, STRING_ANIM_RUNTO_INOPEN_SCR);
 }
 
+void SimpleActor::Anim_WalkTo(int eAnimMode)
+{
+    DesiredAnimation(eAnimMode, GetWalkAnim());
+}
+
 void SimpleActor::Anim_Emotion(eEmotionMode eEmotMode)
 {
     m_eEmotionMode = eEmotMode;
@@ -193,14 +198,18 @@ void SimpleActor::Anim_Emotion(eEmotionMode eEmotMode)
 
 void SimpleActor::Anim_Say(const_str csSayAnimScript, int iMinTimeSinceLastSay, bool bCanInterrupt)
 {
-    if (!m_bSayAnimSet || bCanInterrupt) {
-        if (level.inttime > m_iVoiceTime + iMinTimeSinceLastSay) {
-            ScriptThreadLabel label;
-
-            label.TrySetScript(csSayAnimScript);
-            label.Execute(this);
-        }
+    if (m_bSayAnimSet && !bCanInterrupt) {
+        return;
     }
+
+    if (level.inttime <= iMinTimeSinceLastSay + m_iVoiceTime) {
+        return;
+    }
+
+    ScriptThreadLabel label;
+
+    label.TrySetScript(csSayAnimScript);
+    label.Create(this)->Execute();
 }
 
 void SimpleActor::Anim_FullBody(const_str csFullBodyAnim, int eAnimMode)
