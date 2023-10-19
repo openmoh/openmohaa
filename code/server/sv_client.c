@@ -615,6 +615,10 @@ void SV_SendClientGameState( client_t *client ) {
 	msg_t		msg;
 	byte		msgBuffer[MAX_MSGLEN];
 
+    if (sv_serverid->integer != sv.serverId) {
+        Cvar_Set("sv_serverid", va("%i", sv.serverId));
+    }
+
 	if ( client->state != CS_CONNECTED && g_gametype->integer == GT_SINGLE_PLAYER ) {
 		Com_Printf( "SV_SendClientGameState: Aborting\n" );
 		return;
@@ -1723,7 +1727,8 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 
 	MSG_Bitstream(msg);
 
-	serverId = MSG_ReadLong( msg );
+	serverId = MSG_ReadLong(msg);
+	cl->serverIdAcknowledge = serverId;
 	cl->messageAcknowledge = MSG_ReadLong( msg );
 
 	if (cl->messageAcknowledge < 0) {
