@@ -2108,19 +2108,17 @@ void Level::EventGetObjectiveBased(Event *ev)
 
 str Level::GetRandomHeadModel(const char *model)
 {
-    //FIXME: macros
-    char s[1024];
-    int  num = random2() * gi.NumHeadModels(model);
-    gi.GetHeadModel(model, num, s);
+    char s[MAX_STRING_TOKENS];
+
+    gi.GetHeadModel(model, G_Random(gi.NumHeadModels(model)), s);
     return s;
 }
 
 str Level::GetRandomHeadSkin(const char *model)
 {
-    //FIXME: macros
-    char s[1024];
-    int  num = random2() * gi.NumHeadSkins(model);
-    gi.GetHeadSkin(model, num, s);
+    char s[MAX_STRING_TOKENS];
+
+    gi.GetHeadSkin(model, G_Random(gi.NumHeadSkins(model)), s);
     return s;
 }
 
