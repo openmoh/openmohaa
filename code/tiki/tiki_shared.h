@@ -87,6 +87,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TIKI_SURF_NOMIPMAPS			( 1 << 8 )
 #define TIKI_SURF_NOPICMIP			( 1 << 9 )
 
+#define MAX_SKELMODELS		12
+#define MAX_TIKI_SHADER		4
+
 typedef struct AliasList_s AliasList_t;
 typedef struct AliasListNode_s AliasListNode_t;
 
@@ -281,8 +284,6 @@ typedef struct tikiSurface_s {
 	int ofsXyzNormals;
 	int ofsEnd;
 } tikiSurface_t;
-
-#define MAX_TIKI_SHADER		4
 
 typedef struct dtikisurface_s {
 	char name[ MAX_QPATH ];
