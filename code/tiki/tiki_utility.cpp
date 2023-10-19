@@ -214,7 +214,7 @@ void TIKI_GetHeadSkin( dtikianim_t *tiki, int num, char *name )
 		return;
 	}
 
-	s = tiki->headmodels;
+	s = tiki->headskins;
 	for( num = num - 1; num >= 0; num-- )
 	{
 		s = strstr( s, "\n" );
