@@ -1250,8 +1250,8 @@ qboolean TIKI_ParseCase( dloaddef_t *ld )
 __newcase:
 	token = ld->tikiFile.GetToken( false );
 	WriteCaseKey( ld, token );
-	isheadmodel = ( !stricmp( token, "headmodel" ) ) ? true : false;
-	isheadskin = ( !stricmp( token, "headskin" ) ) ? true : false;
+	isheadmodel = !stricmp(token, "headmodel");
+	isheadskin = !stricmp(token, "headskin");
 
 	while( 1 )
 	{
@@ -1273,13 +1273,13 @@ __newcase:
 
 		WriteCaseValue( ld, token );
 
-		if( isheadmodel && TIKI_strstr( ld->headmodels, token ) )
+		if( isheadmodel && !TIKI_strstr( ld->headmodels, token ) )
 		{
 			strcat( ld->headmodels, token );
 			strcat( ld->headmodels, "\n" );
 		}
 	
-		if( isheadskin && TIKI_strstr( ld->headskins, token ) )
+		if( isheadskin && !TIKI_strstr( ld->headskins, token ) )
 		{
 			strcat( ld->headskins, token );
 			strcat( ld->headskins, "\n" );
