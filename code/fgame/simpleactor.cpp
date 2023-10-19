@@ -449,36 +449,33 @@ void SimpleActor::ShortenPathToAvoidSquadMates(void)
     Vector    vGoal;
     Sentient *pBuddy;
 
+retry:
     vGoal = PathGoal();
 
-    do {
-        for (pBuddy = m_pNextSquadMate; pBuddy != this; pBuddy = pBuddy->m_pNextSquadMate) {
-            Vector vBuddyPos;
-            Vector vDelta;
+    for (pBuddy = m_pNextSquadMate; pBuddy != this; pBuddy = pBuddy->m_pNextSquadMate) {
+        Vector vBuddyPos;
+        Vector vDelta;
 
-            vBuddyPos = pBuddy->origin;
-            if (pBuddy->IsSubclassOfActor()) {
-                Actor *pBuddyActor = static_cast<Actor *>(pBuddy);
-                if (pBuddyActor->PathExists()) {
-                    vBuddyPos = PathGoal();
-                }
-            }
-
-            vDelta = vGoal - vBuddyPos;
-
-            if (vDelta.x >= -15 && vDelta.x <= 15 && vDelta.y >= -15 && vDelta.y <= 15 && vDelta.z >= 0
-                && vDelta.z <= 94) {
-                m_Path.Shorten(45.0);
-
-                if (!PathExists()) {
-                    return;
-                }
-
-                // retry
-                break;
+        vBuddyPos = pBuddy->origin;
+        if (pBuddy->IsSubclassOfActor()) {
+            Actor* pBuddyActor = static_cast<Actor*>(pBuddy);
+            if (pBuddyActor->PathExists()) {
+                vBuddyPos = PathGoal();
             }
         }
-    } while (PathExists());
+
+        vDelta = vGoal - vBuddyPos;
+
+        if (vDelta.x >= -15 && vDelta.x <= 15 && vDelta.y >= -15 && vDelta.y <= 15 && vDelta.z >= 0 && vDelta.z <= 94) {
+            m_Path.Shorten(45.0);
+
+            if (!PathExists()) {
+                return;
+            }
+
+            goto retry;
+        }
+    }
 }
 
 Vector SimpleActor::PathGoal(void) const
