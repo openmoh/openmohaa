@@ -788,7 +788,7 @@ qboolean TIKI_LoadSetupCaseHeader( dtiki_t *tiki, const char *filename, dloadsur
 				break;
 
 			val = keyValues->find( key );
-			if( val && !stricmp( key.c_str(), val->c_str() ) )
+			if( val && !stricmp(val->c_str(), value) )
 			{
 				match = true;
 			}
@@ -853,7 +853,7 @@ qboolean TIKI_LoadSetupCase( dtiki_t *tiki, const char *filename, dloadsurface_t
 			if( skip )
 				break;
 
-			if( tiki->numMeshes >= 12 )
+			if( tiki->numMeshes >= MAX_SKELMODELS )
 			{
 				TIKI_Error( "^~^~^ TIKI_LoadSetup: too many skelmodels in %s.\n", filename );
 				return false;
