@@ -377,6 +377,13 @@ void Actor::TimeOutCurious(void)
     }
 }
 
+void Actor::FinishedAnimation_AnimCurious(void)
+{
+    if (m_State == 1101) {
+        TransitionState(1100, 0);
+    }
+}
+
 void Actor::FinishedAnimation_Curious(void)
 {
     FinishedAnimation_AnimCurious();
