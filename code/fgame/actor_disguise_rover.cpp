@@ -56,7 +56,7 @@ void Actor::Begin_DisguiseRover(void)
             m_bNextForceStart  = false;
 
             m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
-            TransitionState(1, 0);
+            TransitionState(ACTOR_STATE_DISGUISE_PAPERS, 0);
         } else {
             SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         }
@@ -97,8 +97,8 @@ void Actor::Think_DisguiseRover(void)
         return;
     }
 
-    if (!EnemyIsDisguised() && !m_Enemy->IsSubclassOfActor() && m_State != 3) {
-        TransitionState(3, 0);
+    if (!EnemyIsDisguised() && !m_Enemy->IsSubclassOfActor() && m_State != ACTOR_STATE_DISGUISE_ENEMY) {
+        TransitionState(ACTOR_STATE_DISGUISE_ENEMY, 0);
     }
 
     if (level.m_bAlarm) {
@@ -117,20 +117,20 @@ void Actor::Think_DisguiseRover(void)
 
     SetDesiredLookDir(m_Enemy->origin - origin);
 
-    if (m_State == 2) {
+    if (m_State == ACTOR_STATE_DISGUISE_ACCEPT) {
         m_pszDebugState = "accept";
         State_Disguise_Accept();
-    } else if (m_State > 2) {
-        if (m_State == 3) {
+    } else if (m_State > ACTOR_STATE_DISGUISE_ACCEPT) {
+        if (m_State == ACTOR_STATE_DISGUISE_ENEMY) {
             m_pszDebugState = "enemy";
             State_Disguise_Enemy();
-        } else if (m_State == 4) {
+        } else if (m_State == ACTOR_STATE_DISGUISE_HALT) {
             m_pszDebugState = "halt";
             State_Disguise_Halt();
         } else {
             assert(!"invalid think state");
         }
-    } else if (m_State == 1) {
+    } else if (m_State == ACTOR_STATE_DISGUISE_PAPERS) {
         m_pszDebugState = "papers";
         State_Disguise_Papers();
     } else {

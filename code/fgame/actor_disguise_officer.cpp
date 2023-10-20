@@ -56,7 +56,7 @@ void Actor::Begin_DisguiseOfficer(void)
             m_bNextForceStart  = false;
 
             m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
-            TransitionState(1, 0);
+            TransitionState(ACTOR_STATE_DISGUISE_PAPERS, 0);
         } else {
             SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         }
@@ -93,8 +93,8 @@ void Actor::Think_DisguiseOfficer(void)
             SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
             return;
         }
-        if (!EnemyIsDisguised() && !(m_Enemy->IsSubclassOfActor()) && m_State != 3) {
-            TransitionState(3, 0);
+        if (!EnemyIsDisguised() && !(m_Enemy->IsSubclassOfActor()) && m_State != ACTOR_STATE_DISGUISE_ENEMY) {
+            TransitionState(ACTOR_STATE_DISGUISE_ENEMY, 0);
         }
         if (level.m_bAlarm) {
             SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
@@ -110,11 +110,11 @@ void Actor::Think_DisguiseOfficer(void)
 
         SetDesiredLookDir(m_Enemy->origin - origin);
 
-        if (m_State == 3) {
+        if (m_State == ACTOR_STATE_DISGUISE_ENEMY) {
             m_pszDebugState = "enemy";
             State_Disguise_Enemy();
-        } else if (m_State > 3) {
-            if (m_State != 4) {
+        } else if (m_State > ACTOR_STATE_DISGUISE_ENEMY) {
+            if (m_State != ACTOR_STATE_DISGUISE_HALT) {
                 Com_Printf("Actor::Think_DisguiseOfficer: invalid think state %i\n", m_State);
                 char assertStr[16317] = {0};
                 strcpy(assertStr, "\"invalid think state\"\n\tMessage: ");
@@ -125,7 +125,7 @@ void Actor::Think_DisguiseOfficer(void)
                 Actor::State_Disguise_Halt();
             }
         } else {
-            if (m_State == 1) {
+            if (m_State == ACTOR_STATE_DISGUISE_PAPERS) {
                 m_pszDebugState = "papers";
                 State_Disguise_Fake_Papers();
             } else {

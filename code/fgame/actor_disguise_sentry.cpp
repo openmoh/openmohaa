@@ -58,7 +58,7 @@ void Actor::Begin_DisguiseSentry(void)
             m_bNextForceStart  = false;
 
             m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
-            TransitionState(1, 0);
+            TransitionState(ACTOR_STATE_DISGUISE_PAPERS, 0);
         } else {
             SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         }
@@ -96,8 +96,8 @@ void Actor::Think_DisguiseSentry(void)
             SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
             return;
         }
-        if (!EnemyIsDisguised() && !m_Enemy->IsSubclassOfActor() && m_State != 3) {
-            TransitionState(3, 0);
+        if (!EnemyIsDisguised() && !m_Enemy->IsSubclassOfActor() && m_State != ACTOR_STATE_DISGUISE_ENEMY) {
+            TransitionState(ACTOR_STATE_DISGUISE_ENEMY, 0);
         }
 
         if (level.m_bAlarm) {
@@ -115,27 +115,27 @@ void Actor::Think_DisguiseSentry(void)
             SetDesiredLookDir(m_Enemy->origin - origin);
 
             switch (m_State) {
-            case 0:
+            case ACTOR_STATE_DISGUISE_WAIT:
                 m_pszDebugState = "wait";
                 State_Disguise_Wait();
                 break;
-            case 1:
+            case ACTOR_STATE_DISGUISE_PAPERS:
                 m_pszDebugState = "papers";
                 State_Disguise_Papers();
                 break;
-            case 2:
+            case ACTOR_STATE_DISGUISE_ACCEPT:
                 m_pszDebugState = "accept";
                 State_Disguise_Accept();
                 break;
-            case 3:
+            case ACTOR_STATE_DISGUISE_ENEMY:
                 m_pszDebugState = "enemy";
                 State_Disguise_Enemy();
                 break;
-            case 4:
+            case ACTOR_STATE_DISGUISE_HALT:
                 m_pszDebugState = "halt";
                 State_Disguise_Halt();
                 break;
-            case 5:
+            case ACTOR_STATE_DISGUISE_DENY:
                 m_pszDebugState = "deny";
                 State_Disguise_Deny();
                 break;

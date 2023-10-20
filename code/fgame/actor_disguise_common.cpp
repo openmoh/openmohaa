@@ -42,11 +42,11 @@ void Actor::State_Disguise_Wait(void)
     fDistSquared = VectorLength2DSquared(vDelta);
 
     if (m_fMaxDisguiseDistSquared > fDistSquared * 4) {
-        TransitionState(1, 0);
+        TransitionState(ACTOR_STATE_DISGUISE_PAPERS, 0);
     } else {
         if (level.inttime > m_iStateTime + 3000) {
             if (fDistSquared <= 65536) {
-                TransitionState(1, 0);
+                TransitionState(ACTOR_STATE_DISGUISE_PAPERS, 0);
             } else {
                 SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
             }
@@ -63,21 +63,21 @@ void Actor::State_Disguise_Papers(void)
     m_bNextForceStart  = false;
     if (m_iEnemyShowPapersTime < m_Enemy->m_ShowPapersTime) {
         if (level.m_iPapersLevel < m_iDisguiseLevel) {
-            m_State = 5;
+            m_State = ACTOR_STATE_DISGUISE_DENY;
         } else {
             if (m_DisguiseAcceptThread.IsSet()) {
                 m_DisguiseAcceptThread.Execute(this);
             }
-            TransitionState(2, 0);
+            TransitionState(ACTOR_STATE_DISGUISE_ACCEPT, 0);
         }
     } else {
         if (level.inttime > m_iStateTime + 12000) {
-            TransitionState(3, 0);
+            TransitionState(ACTOR_STATE_DISGUISE_ENEMY, 0);
         } else {
             VectorSub2D(origin, m_Enemy->origin, vDelta);
 
             if (VectorLength2DSquared(vDelta) > 65536) {
-                TransitionState(4, 0);
+                TransitionState(ACTOR_STATE_DISGUISE_HALT, 0);
             }
         }
     }
@@ -91,12 +91,12 @@ void Actor::State_Disguise_Fake_Papers(void)
     m_eNextAnimMode    = ANIM_MODE_NORMAL;
     m_bNextForceStart  = false;
     if (m_iEnemyShowPapersTime < m_Enemy->m_ShowPapersTime || level.inttime > m_iStateTime + 12000) {
-        TransitionState(3, 0);
+        TransitionState(ACTOR_STATE_DISGUISE_ENEMY, 0);
     } else {
         VectorSub2D(origin, m_Enemy->origin, vDelta);
 
         if (VectorLength2DSquared(vDelta) > 65536) {
-            TransitionState(4, 0);
+            TransitionState(ACTOR_STATE_DISGUISE_HALT, 0);
         }
     }
 }

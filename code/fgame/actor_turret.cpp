@@ -41,21 +41,21 @@ void Actor::InitTurret(GlobalFuncs_t *func)
 
 bool Actor::Turret_IsRetargeting(void) const
 {
-    return m_State <= 120;
+    return m_State <= ACTOR_STATE_TURRET_RETARGET_STEP_FACE_LARGE;
 }
 
 bool Actor::Turret_DecideToSelectState(void)
 {
     switch (m_State) {
-    case 100:
+    case ACTOR_STATE_TURRET_COMBAT:
         if (level.inttime > m_iStateTime + 5000) {
             InterruptPoint_Turret();
         }
         return false;
-    case 101:
-    case 107:
-    case 102:
-    case 109:
+    case ACTOR_STATE_TURRET_REACQUIRE:
+    case ACTOR_STATE_TURRET_GRENADE:
+    case ACTOR_STATE_TURRET_TAKE_SNIPER_NODE:
+    case ACTOR_STATE_TURRET_FAKE_ENEMY:
         return false;
     }
     return !Turret_IsRetargeting();
@@ -66,14 +66,14 @@ void Actor::Turret_SelectState(void)
     vec2_t vDelta;
     float  fDistSquared;
     if (!m_Enemy) {
-        TransitionState(109, rand() & 0x7FF + 250);
+        TransitionState(ACTOR_STATE_TURRET_FAKE_ENEMY, rand() & 0x7FF + 250);
         return;
     }
 
     VectorSub2D(origin, m_vHome, vDelta);
     fDistSquared = VectorLength2DSquared(vDelta);
 
-    if (m_State == 104 && fDistSquared > m_fLeashSquared * 0.64 + 64.0) {
+    if (m_State == ACTOR_STATE_TURRET_RUN_HOME && fDistSquared > m_fLeashSquared * 0.64 + 64.0) {
         if (PathExists() && !PathComplete()) {
             return;
         }
@@ -89,7 +89,7 @@ void Actor::Turret_SelectState(void)
         ShortenPathToAvoidSquadMates();
 
         if (PathExists() && !PathComplete()) {
-            TransitionState(104, 0);
+            TransitionState(ACTOR_STATE_TURRET_RUN_HOME, 0);
             return;
         } else {
             Com_Printf(
@@ -104,7 +104,7 @@ void Actor::Turret_SelectState(void)
     VectorSub2D(origin, m_Enemy->origin, vDelta);
     fDistSquared = VectorLength2DSquared(vDelta);
 
-    if (m_State == 105) {
+    if (m_State == ACTOR_STATE_TURRET_RUN_AWAY) {
         if (m_fMinDistanceSquared * 2.25 > fDistSquared) {
             return;
         }
@@ -112,7 +112,7 @@ void Actor::Turret_SelectState(void)
 
     if (m_fMinDistanceSquared > fDistSquared) {
         ClearPath();
-        TransitionState(105, 0);
+        TransitionState(ACTOR_STATE_TURRET_RUN_AWAY, 0);
         return;
     }
 
@@ -125,13 +125,13 @@ void Actor::Turret_SelectState(void)
         }
         if (bSmthing) {
             ClearPath();
-            TransitionState(112, 0);
+            TransitionState(ACTOR_STATE_TURRET_WAIT, 0);
         } else {
-            if (m_State == 106) {
+            if (m_State == ACTOR_STATE_TURRET_CHARGE) {
                 return;
             }
             ClearPath();
-            TransitionState(106, 0);
+            TransitionState(ACTOR_STATE_TURRET_CHARGE, 0);
         }
         return;
     }
@@ -143,13 +143,13 @@ void Actor::Turret_SelectState(void)
         m_eNextAnimMode = ANIM_MODE_NORMAL;
         m_csNextAnimString =
             (m_eGrenadeMode == AI_GREN_TOSS_ROLL) ? STRING_ANIM_GRENADETOSS_SCR : STRING_ANIM_GRENADETHROW_SCR;
-        TransitionState(107, 0);
+        TransitionState(ACTOR_STATE_TURRET_GRENADE, 0);
         return;
     }
 
-    if (m_State != 100 && m_State != 103 && m_State != 112) {
+    if (m_State != ACTOR_STATE_TURRET_COMBAT && m_State != ACTOR_STATE_TURRET_SNIPER_NODE && m_State != ACTOR_STATE_TURRET_WAIT) {
         ClearPath();
-        TransitionState(100, 0);
+        TransitionState(ACTOR_STATE_TURRET_COMBAT, 0);
     }
 }
 
@@ -172,15 +172,15 @@ void Actor::Begin_Turret(void)
     ClearPath();
 
     if (m_Enemy) {
-        TransitionState(110, 0);
+        TransitionState(ACTOR_STATE_TURRET_COVER_INSTEAD, 0);
     } else {
-        TransitionState(109, (rand() & 0x7FF) + 250);
+        TransitionState(ACTOR_STATE_TURRET_FAKE_ENEMY, (rand() & 0x7FF) + 250);
     }
 }
 
 void Actor::End_Turret(void)
 {
-    if (m_pCoverNode && m_State != 111) {
+    if (m_pCoverNode && m_State != ACTOR_STATE_TURRET_BECOME_COVER) {
         m_pCoverNode->Relinquish();
         m_pCoverNode = NULL;
     }
@@ -190,12 +190,12 @@ void Actor::End_Turret(void)
 void Actor::Suspend_Turret(void)
 {
     if (!m_Enemy) {
-        TransitionState(110, 0);
+        TransitionState(ACTOR_STATE_TURRET_COVER_INSTEAD, 0);
     } else {
-        if (m_State <= 108) {
+        if (m_State <= ACTOR_STATE_TURRET_INTRO_AIM) {
             SetEnemyPos(m_Enemy->origin);
             AimAtEnemyBehavior();
-            TransitionState(113, 0);
+            TransitionState(ACTOR_STATE_TURRET_RETARGET_SNIPER_NODE, 0);
         }
     }
 }
@@ -239,7 +239,7 @@ void Actor::Turret_BeginRetarget(void)
     SetEnemyPos(m_Enemy->origin);
     AimAtEnemyBehavior();
 
-    TransitionState(113, 0);
+    TransitionState(ACTOR_STATE_TURRET_RETARGET_SNIPER_NODE, 0);
 }
 
 void Actor::Turret_NextRetarget(void)
@@ -261,7 +261,7 @@ void Actor::Turret_NextRetarget(void)
         SetPath(m_vHome, NULL, 0, NULL, 0.0);
         ShortenPathToAvoidSquadMates();
         if (PathExists() && !PathComplete()) {
-            TransitionState(104, 0);
+            TransitionState(ACTOR_STATE_TURRET_RUN_HOME, 0);
             State_Turret_RunHome(true);
             return;
         }
@@ -276,16 +276,16 @@ void Actor::Turret_NextRetarget(void)
             Anim_Stand();
             return;
         }
-        TransitionState(100, 0);
+        TransitionState(ACTOR_STATE_TURRET_COMBAT, 0);
         State_Turret_Combat();
 
     } else {
         if (CanSeeEnemy(200)) {
             m_pszDebugState = "Retarget->Combat";
-            TransitionState(100, 0);
+            TransitionState(ACTOR_STATE_TURRET_COMBAT, 0);
             State_Turret_Combat();
         } else {
-            TransitionState(112, 0);
+            TransitionState(ACTOR_STATE_TURRET_WAIT, 0);
             State_Turret_Wait();
         }
     }
@@ -298,7 +298,7 @@ void Actor::Turret_SideStep(int iStepSize, vec3_t vDir)
     StrafeToAttack(iStepSize, vDir);
     if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
         || ((StrafeToAttack(-iStepSize, vDir), PathExists()) && !PathComplete() && PathAvoidsSquadMates())) {
-        TransitionState(101, 0);
+        TransitionState(ACTOR_STATE_TURRET_REACQUIRE, 0);
     } else {
         Turret_NextRetarget();
     }
@@ -328,7 +328,7 @@ void Actor::State_Turret_Retarget_Sniper_Node(void)
     if (pSniperNode) {
         m_pCoverNode = pSniperNode;
         pSniperNode->Claim(this);
-        TransitionState(102, 0);
+        TransitionState(ACTOR_STATE_TURRET_TAKE_SNIPER_NODE, 0);
 
         State_Turret_TakeSniperNode();
     } else if (bTryAgain) {
@@ -348,7 +348,7 @@ void Actor::State_Turret_Retarget_Step_Side_Small(void)
     if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
         || ((Actor::StrafeToAttack(-iRand, orientation[1]), PathExists()) && !PathComplete() && PathAvoidsSquadMates()
         )) {
-        TransitionState(101, 0);
+        TransitionState(ACTOR_STATE_TURRET_REACQUIRE, 0);
     } else {
         Turret_NextRetarget();
     }
@@ -359,7 +359,7 @@ void Actor::State_Turret_Retarget_Path_Exact(void)
     AimAtEnemyBehavior();
     SetPathWithLeash(m_vLastEnemyPos, NULL, 0);
     if (ShortenPathToAttack(128) && (ShortenPathToAvoidSquadMates(), PathExists())) {
-        TransitionState(101, 0);
+        TransitionState(ACTOR_STATE_TURRET_REACQUIRE, 0);
     } else {
         Turret_NextRetarget();
     }
@@ -370,7 +370,7 @@ void Actor::State_Turret_Retarget_Path_Near(void)
     AimAtEnemyBehavior();
     FindPathNearWithLeash(m_vLastEnemyPos, m_fMinDistanceSquared);
     if (ShortenPathToAttack(128)) {
-        TransitionState(101, 0);
+        TransitionState(ACTOR_STATE_TURRET_REACQUIRE, 0);
     } else {
         Turret_NextRetarget();
     }
@@ -386,7 +386,7 @@ void Actor::State_Turret_Retarget_Step_Side_Medium(void)
     if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
         || ((Actor::StrafeToAttack(-iRand, orientation[1]), PathExists()) && !PathComplete() && PathAvoidsSquadMates()
         )) {
-        TransitionState(101, 0);
+        TransitionState(ACTOR_STATE_TURRET_REACQUIRE, 0);
     } else {
         Turret_NextRetarget();
     }
@@ -402,7 +402,7 @@ void Actor::State_Turret_Retarget_Step_Side_Large(void)
     if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
         || ((Actor::StrafeToAttack(-iRand, orientation[1]), PathExists()) && !PathComplete() && PathAvoidsSquadMates()
         )) {
-        TransitionState(101, 0);
+        TransitionState(ACTOR_STATE_TURRET_REACQUIRE, 0);
     } else {
         Turret_NextRetarget();
     }
@@ -418,7 +418,7 @@ void Actor::State_Turret_Retarget_Step_Face_Medium(void)
     if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
         || ((Actor::StrafeToAttack(-iRand, orientation[0]), PathExists()) && !PathComplete() && PathAvoidsSquadMates()
         )) {
-        TransitionState(101, 0);
+        TransitionState(ACTOR_STATE_TURRET_REACQUIRE, 0);
     } else {
         Turret_NextRetarget();
     }
@@ -434,7 +434,7 @@ void Actor::State_Turret_Retarget_Step_Face_Large(void)
     if ((PathExists() && !PathComplete() && PathAvoidsSquadMates())
         || ((Actor::StrafeToAttack(-iRand, orientation[0]), PathExists()) && !PathComplete() && PathAvoidsSquadMates()
         )) {
-        TransitionState(101, 0);
+        TransitionState(ACTOR_STATE_TURRET_REACQUIRE, 0);
     } else {
         Turret_NextRetarget();
     }
@@ -459,7 +459,7 @@ void Actor::State_Turret_Reacquire(void)
     } else {
         m_pszDebugState = "Retarget->Cheat";
         SetEnemyPos(m_Enemy->origin);
-        TransitionState(100, 0);
+        TransitionState(ACTOR_STATE_TURRET_COMBAT, 0);
         State_Turret_Combat();
     }
 }
@@ -471,7 +471,7 @@ void Actor::State_Turret_TakeSniperNode(void)
         Anim_RunToDanger(3);
     } else {
         AimAtEnemyBehavior();
-        TransitionState(103, 0);
+        TransitionState(ACTOR_STATE_TURRET_SNIPER_NODE, 0);
     }
 }
 
@@ -567,7 +567,7 @@ void Actor::State_Turret_Charge(void)
     }
     if (!MovePathWithLeash()) {
         m_pszDebugState = "charge->leash->combat";
-        TransitionState(100, 0);
+        TransitionState(ACTOR_STATE_TURRET_COMBAT, 0);
         State_Turret_Combat();
         return;
     }
@@ -597,7 +597,7 @@ void Actor::State_Turret_Wait(void)
         Cover_FindCover(true);
 
         if (m_pCoverNode) {
-            TransitionState(111, 0);
+            TransitionState(ACTOR_STATE_TURRET_BECOME_COVER, 0);
             SetThink(THINKSTATE_ATTACK, THINK_COVER);
             bSmth = true;
         } else {
@@ -612,7 +612,7 @@ void Actor::State_Turret_Wait(void)
             ContinueAnimation();
         } else {
             m_pszDebugState = "Wait->Combat";
-            TransitionState(100, 0);
+            TransitionState(ACTOR_STATE_TURRET_COMBAT, 0);
             State_Turret_Combat();
         }
     } else {
@@ -646,7 +646,7 @@ void Actor::Think_Turret(void)
         NoPoint();
         UpdateEnemy(200);
 
-        if (m_Enemy && m_State == 110) {
+        if (m_Enemy && m_State == ACTOR_STATE_TURRET_COVER_INSTEAD) {
             if (!m_bTurretNoInitialCover && Turret_TryToBecomeCoverGuy()) {
                 m_pszDebugState = "CoverInstead";
                 CheckUnregister();
@@ -661,7 +661,7 @@ void Actor::Think_Turret(void)
 
             Turret_SelectState();
 
-            if (m_State == 100 && !CanSeeEnemy(0)) {
+            if (m_State == ACTOR_STATE_TURRET_COMBAT && !CanSeeEnemy(0)) {
                 Turret_BeginRetarget();
             }
 
@@ -670,7 +670,7 @@ void Actor::Think_Turret(void)
             if (level.inttime < m_iEnemyChangeTime + 200) {
                 if (AttackEntryAnimation()) {
                     m_bLockThinkState = true;
-                    TransitionState(108, 0);
+                    TransitionState(ACTOR_STATE_TURRET_INTRO_AIM, 0);
                 }
             }
         }
@@ -679,18 +679,18 @@ void Actor::Think_Turret(void)
             Turret_SelectState();
         }
 
-        if (m_State == 108) {
+        if (m_State == ACTOR_STATE_TURRET_INTRO_AIM) {
             m_pszDebugState = "IntroAnim";
             AimAtTargetPos();
             ContinueAnimation();
         } else {
             m_bLockThinkState = false;
-            if (!m_Enemy && m_State != 109 && m_State != 104) {
-                TransitionState(109, ((rand() + 250) & 0x7FF));
+            if (!m_Enemy && m_State != ACTOR_STATE_TURRET_FAKE_ENEMY && m_State != ACTOR_STATE_TURRET_RUN_HOME) {
+                TransitionState(ACTOR_STATE_TURRET_FAKE_ENEMY, ((rand() + 250) & 0x7FF));
             }
             if (!m_Enemy) {
-                if (m_State != 109) {
-                    if (m_State != 104 || (origin - m_vHome).lengthXYSquared() <= 0.64f * m_fLeashSquared + 64.0f
+                if (m_State != ACTOR_STATE_TURRET_FAKE_ENEMY) {
+                    if (m_State != ACTOR_STATE_TURRET_RUN_HOME || (origin - m_vHome).lengthXYSquared() <= 0.64f * m_fLeashSquared + 64.0f
                         || !State_Turret_RunHome(false)) {
                         m_pszDebugState = "Idle";
                         SetThinkState(THINKSTATE_IDLE, THINKLEVEL_IDLE);
@@ -702,7 +702,7 @@ void Actor::Think_Turret(void)
                     return;
                 }
             }
-            if (m_Enemy && m_State == 109) {
+            if (m_Enemy && m_State == ACTOR_STATE_TURRET_FAKE_ENEMY) {
                 Turret_BeginRetarget();
             }
 
@@ -711,85 +711,85 @@ void Actor::Think_Turret(void)
             }
 
             switch (m_State) {
-            case 100:
+            case ACTOR_STATE_TURRET_COMBAT:
                 m_pszDebugState = "Combat";
                 State_Turret_Combat();
                 break;
-            case 101:
+            case ACTOR_STATE_TURRET_REACQUIRE:
                 m_pszDebugState = "Reacquire";
                 State_Turret_Reacquire();
                 break;
-            case 102:
+            case ACTOR_STATE_TURRET_TAKE_SNIPER_NODE:
                 m_pszDebugState = "TakeSniperNode";
                 if (!PathExists() || PathComplete()) {
                     AimAtEnemyBehavior();
-                    TransitionState(103, 0);
+                    TransitionState(ACTOR_STATE_TURRET_SNIPER_NODE, 0);
                 } else {
                     FaceMotion();
                     Anim_RunToDanger(3);
                 }
                 break;
-            case 103:
+            case ACTOR_STATE_TURRET_SNIPER_NODE:
                 m_pszDebugState = "SniperNode";
                 State_Turret_SniperNode();
                 break;
-            case 104:
+            case ACTOR_STATE_TURRET_RUN_HOME:
                 m_pszDebugState = "RunHome";
                 State_Turret_RunHome(true);
                 break;
-            case 105:
+            case ACTOR_STATE_TURRET_RUN_AWAY:
                 m_pszDebugState = "RunAway";
                 State_Turret_RunAway();
                 break;
-            case 106:
+            case ACTOR_STATE_TURRET_CHARGE:
                 m_pszDebugState = "Charge";
                 State_Turret_Charge();
                 break;
-            case 107:
+            case ACTOR_STATE_TURRET_GRENADE:
                 m_pszDebugState = "Grenade";
                 State_Turret_Grenade();
                 break;
-            case 109:
+            case ACTOR_STATE_TURRET_FAKE_ENEMY:
                 m_pszDebugState = "FakeEnemy";
                 State_Turret_FakeEnemy();
                 break;
-            case 111:
+            case ACTOR_STATE_TURRET_BECOME_COVER:
                 m_pszDebugState = "BecomeCover";
                 ContinueAnimation();
                 break;
-            case 112:
+            case ACTOR_STATE_TURRET_WAIT:
                 m_pszDebugState = "Wait";
                 State_Turret_Wait();
                 break;
-            case 113:
+            case ACTOR_STATE_TURRET_RETARGET_SNIPER_NODE:
                 m_pszDebugState = "Retarget_Sniper_Node";
                 State_Turret_Retarget_Sniper_Node();
                 break;
-            case 114:
+            case ACTOR_STATE_TURRET_RETARGET_STEP_SIDE_SMALL:
                 m_pszDebugState = "Retarget_Step_Side_Small";
                 State_Turret_Retarget_Step_Side_Small();
                 break;
-            case 115:
+            case ACTOR_STATE_TURRET_RETARGET_PATH_EXACT:
                 m_pszDebugState = "Retarget_Path_Exact";
                 State_Turret_Retarget_Path_Exact();
                 break;
-            case 116:
+            case ACTOR_STATE_TURRET_RETARGET_PATH_NEAR:
                 m_pszDebugState = "Retarget_Path_Near";
                 State_Turret_Retarget_Path_Near();
                 break;
-            case 117:
+            case ACTOR_STATE_TURRET_RETARGET_STEP_SIDE_MEDIUM:
                 m_pszDebugState = "Retarget_Step_Side_Medium";
                 State_Turret_Retarget_Step_Side_Medium();
                 break;
-            case 118:
+            case ACTOR_STATE_TURRET_RETARGET_STEP_SIDE_LARGE:
                 m_pszDebugState = "Retarget_Step_Side_Large";
                 State_Turret_Retarget_Step_Side_Large();
                 break;
-            case 119:
+            case ACTOR_STATE_TURRET_RETARGET_STEP_FACE_MEDIUM:
                 m_pszDebugState = "Retarget_Step_Face_Medium";
                 State_Turret_Retarget_Step_Face_Medium();
                 break;
-            case 120:
+            case ACTOR_STATE_TURRET_RETARGET_STEP_FACE_LARGE:
                 m_pszDebugState = "Retarget_Step_Face_Large";
                 State_Turret_Retarget_Step_Face_Large();
                 break;
@@ -800,7 +800,7 @@ void Actor::Think_Turret(void)
             }
             CheckForTransition(THINKSTATE_GRENADE, THINKLEVEL_IDLE);
         }
-        if (m_State == 112) {
+        if (m_State == ACTOR_STATE_TURRET_WAIT) {
             PostThink(false);
         } else {
             PostThink(true);
@@ -826,7 +826,7 @@ bool Actor::Turret_TryToBecomeCoverGuy(void)
     PathNode *pOldCover = m_pCoverNode;
     Cover_FindCover(true);
     if (m_pCoverNode) {
-        TransitionState(111, 0);
+        TransitionState(ACTOR_STATE_TURRET_BECOME_COVER, 0);
         SetThink(THINKSTATE_ATTACK, THINK_COVER);
         return true;
     } else {
@@ -840,14 +840,14 @@ bool Actor::Turret_TryToBecomeCoverGuy(void)
 
 void Actor::FinishedAnimation_Turret(void)
 {
-    if (m_State <= 108) {
+    if (m_State <= ACTOR_STATE_TURRET_INTRO_AIM) {
         Turret_SelectState();
     }
 }
 
 void Actor::InterruptPoint_Turret(void)
 {
-    if (m_Enemy && !Turret_TryToBecomeCoverGuy() && m_State == 100) {
+    if (m_Enemy && !Turret_TryToBecomeCoverGuy() && m_State == ACTOR_STATE_TURRET_COMBAT) {
         m_iStateTime = level.inttime;
         Turret_SelectState();
     }
@@ -856,7 +856,7 @@ void Actor::InterruptPoint_Turret(void)
 void Actor::PathnodeClaimRevoked_Turret(void)
 {
     if (m_Enemy == NULL) {
-        TransitionState(110, 0);
+        TransitionState(ACTOR_STATE_TURRET_COVER_INSTEAD, 0);
     } else {
         Turret_BeginRetarget();
     }

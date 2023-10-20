@@ -59,7 +59,7 @@ void Actor::Begin_DisguiseSalute(void)
             m_bNextForceStart  = false;
 
             m_iEnemyShowPapersTime = m_Enemy->m_ShowPapersTime;
-            TransitionState(1, 0);
+            TransitionState(ACTOR_STATE_DISGUISE_PAPERS, 0);
         } else {
             SetThinkState(THINKSTATE_ATTACK, THINKLEVEL_IDLE);
         }
