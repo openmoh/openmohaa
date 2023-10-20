@@ -108,13 +108,13 @@ void Actor::Killed_Balcony(Event *ev, bool bPlayDeathAnim)
 
 void Actor::Begin_BalconyAttack(void)
 {
-    TransitionState(200, 0);
+    TransitionState(ACTOR_STATE_BALCONY_ATTACK_FIND_ENEMY, 0);
 }
 
 void Actor::State_Balcony_PostShoot(void)
 {
     if (m_Enemy) {
-        TransitionState(201, 0);
+        TransitionState(ACTOR_STATE_BALCONY_ATTACK_TARGET, 0);
     }
 }
 
@@ -124,7 +124,7 @@ void Actor::State_Balcony_FindEnemy(void)
     Anim_Aim();
 
     if (CanSeeEnemy(200)) {
-        TransitionState(201, 0);
+        TransitionState(ACTOR_STATE_BALCONY_ATTACK_TARGET, 0);
     }
 }
 
@@ -135,10 +135,10 @@ void Actor::State_Balcony_Target(void)
 
     if (level.inttime > m_iStateTime + 1000) {
         if (CanSeeEnemy(0) && CanShootEnemy(0)) {
-            TransitionState(202, 0);
+            TransitionState(ACTOR_STATE_BALCONY_ATTACK_SHOOT, 0);
         } else {
             ClearPath();
-            TransitionState(200, 0);
+            TransitionState(ACTOR_STATE_BALCONY_ATTACK_FIND_ENEMY, 0);
         }
     }
 }
@@ -166,18 +166,23 @@ void Actor::Think_BalconyAttack(void)
 
     NoPoint();
 
-    if (m_State == 201) {
+    switch (m_State) {
+    case ACTOR_STATE_BALCONY_ATTACK_TARGET:
         m_pszDebugState = "target";
         State_Balcony_Target();
-    } else if (m_State == 202) {
+        break;
+    case ACTOR_STATE_BALCONY_ATTACK_SHOOT:
         m_pszDebugState = "shoot";
         State_Balcony_Shoot();
-    } else if (m_State == 200) {
+        break;
+    case ACTOR_STATE_BALCONY_ATTACK_FIND_ENEMY:
         m_pszDebugState = "findenemy";
         State_Balcony_FindEnemy();
-    } else {
+        break;
+    default:
         Com_Printf("Actor::Think_BalconyAttack: invalid think state %i\n", m_State);
         assert(0);
+        break;
     }
 
     PostThink(true);
@@ -185,118 +190,113 @@ void Actor::Think_BalconyAttack(void)
 
 void Actor::FinishedAnimation_BalconyAttack(void)
 {
-    if (m_State == 202) {
+    if (m_State == ACTOR_STATE_BALCONY_ATTACK_SHOOT) {
         State_Balcony_PostShoot();
     }
 }
 
 bool Actor::CalcFallPath(void)
 {
-    float   startTime, animTime, startDeltaTime, nextTime;
-    vec3_t  vAbsDelta, vRelDelta, pos[200];
-    int     anim, loop, /*currentPos,*/ i;
     mmove_t mm;
+    int currentPos = 0;
+    int loop;
+    vec3_t pos[200];
+    float startDeltaTime;
+    float nextTime;
+    vec3_t vRelDelta;
+    vec3_t vAbsDelta;
+    float animTime;
+    int anim;
+    int i;
+    float startTime;
 
     SetMoveInfo(&mm);
 
+    mm.tracemask &= ~(CONTENTS_BODY | CONTENTS_UNKNOWN2 | CONTENTS_NOBOTCLIP | CONTENTS_BBOX);
     mm.desired_speed = 80;
-    mm.tracemask &= 0xFDFFF4FF;
-
     VectorCopy2D(orientation[0], mm.desired_dir);
 
     anim     = gi.Anim_NumForName(edict->tiki, "death_balcony_intro");
     animTime = gi.Anim_Time(edict->tiki, anim);
+    startTime = 0.65f;
 
-    startTime = 0.65F;
-
-    i = 0;
-    while (true) {
+    for (;;) {
         MmoveSingle(&mm);
+        VectorCopy(mm.origin, pos[currentPos]);
 
-        i++;
-        VectorCopy(mm.origin, pos[i]);
-
-        if (i >= 200) {
-            break;
-        }
-
-        if (mm.hit_obstacle) {
-            for (float j = 0.65f; j < animTime; j = nextTime) {
-                nextTime = j + level.frametime;
-                if (nextTime >= animTime - 0.01f) {
-                    nextTime = animTime;
-                }
-                startDeltaTime = j;
-                gi.Anim_DeltaOverTime(edict->tiki, anim, startDeltaTime, nextTime, vAbsDelta);
-                MatrixTransformVector(vAbsDelta, orientation, vRelDelta);
-
-                i++;
-
-                VectorAdd(vRelDelta, mm.origin, mm.origin);
-                VectorCopy(mm.origin, pos[i]);
-
-                if (i >= 200) {
-                    return false;
-                }
-            }
-            mm.desired_speed = 0;
-            mm.groundPlane   = qfalse;
-            mm.walking       = qfalse;
-            mm.velocity[0]   = 0;
-            mm.velocity[1]   = 0;
-            mm.velocity[2]   = -171;
-
-            loop = i;
-
-            while (true) {
-                MmoveSingle(&mm);
-
-                i++;
-                VectorCopy(mm.origin, pos[i]);
-
-                if (i >= 200) {
-                    break;
-                }
-
-                if (mm.hit_obstacle) {
-                    return false;
-                }
-
-                if (mm.groundPlane) {
-                    if (m_fBalconyHeight > origin[2] - pos[i][2]) {
-                        return false;
-                    }
-
-                    m_pFallPath =
-                        (FallPath *)gi.Malloc((sizeof(FallPath::pos)) * i + (sizeof(FallPath) - sizeof(FallPath::pos)));
-
-                    m_pFallPath->length = i;
-
-                    m_pFallPath->currentPos = 0;
-                    m_pFallPath->startTime  = startTime;
-                    m_pFallPath->loop       = loop;
-
-                    if (i > 0) {
-                        for (int j = i; j; j--) {
-                            VectorCopy(pos[j], m_pFallPath->pos[j]);
-                        }
-                    }
-                    return true;
-                }
-            }
-
+        currentPos++;
+        if (currentPos >= ARRAY_LEN(pos)) {
             return false;
         }
 
-        if (mm.groundPlane) {
-            startTime -= level.frametime;
-            if (startTime >= 0) {
-                continue;
-            }
+        if (mm.hit_obstacle) {
+            break;
         }
+
+        if (!mm.groundPlane) {
+            return false;
+        }
+
+        startTime -= level.frametime;
+        if (startTime < 0) {
+            return false;
+        }
+    }
+
+    for (startDeltaTime = 0.65f; startDeltaTime < animTime; startDeltaTime = nextTime) {
+        nextTime = startDeltaTime + level.frametime;
+        if (nextTime >= animTime - 0.01f) {
+            nextTime = animTime;
+        }
+
+        gi.Anim_DeltaOverTime(edict->tiki, anim, startDeltaTime, nextTime, vRelDelta);
+        MatrixTransformVector(vRelDelta, orientation, vAbsDelta);
+
+        VectorAdd(mm.origin, vAbsDelta, mm.origin);
+        VectorCopy(mm.origin, pos[currentPos]);
+
+        currentPos++;
+        if (currentPos >= ARRAY_LEN(pos)) {
+            return false;
+        }
+    }
+
+    loop = currentPos;
+
+    mm.desired_speed = 0;
+    mm.groundPlane = NULL;
+    mm.walking = false;
+    VectorSet(mm.velocity, 0, 0, -171);
+
+    do {
+        MmoveSingle(&mm);
+        VectorCopy(mm.origin, pos[currentPos]);
+
+        currentPos++;
+        if (currentPos >= ARRAY_LEN(pos)) {
+            return false;
+        }
+
+        if (mm.hit_obstacle) {
+            return false;
+        }
+    } while (!mm.groundPlane);
+
+    if (origin[2] - pos[currentPos - 1][2] < m_fBalconyHeight) {
         return false;
     }
-    return false;
+
+    m_pFallPath = (FallPath*)gi.Malloc(sizeof(FallPath) + sizeof(FallPath::pos) * (currentPos - 1));
+    m_pFallPath->length = currentPos;
+    m_pFallPath->currentPos = 0;
+    m_pFallPath->startTime = startTime;
+    m_pFallPath->loop = loop;
+
+    for (i = 0; i < currentPos; i++) {
+        VectorCopy(pos[i], m_pFallPath->pos[i]);
+    }
+
+    return true;
 }
 
 void Actor::Begin_BalconyKilled(void)
@@ -307,9 +307,9 @@ void Actor::Begin_BalconyKilled(void)
     PostEvent(EV_Actor_DeathEmbalm, 0.05f);
 
     if (CalcFallPath()) {
-        TransitionState(800, 0);
+        TransitionState(ACTOR_STATE_BALCONY_KILLED_BEGIN, 0);
     } else {
-        TransitionState(806, 0);
+        TransitionState(ACTOR_STATE_BALCONY_KILLED_NORMAL, 0);
     }
 }
 
@@ -327,74 +327,75 @@ void Actor::Think_BalconyKilled(void)
 
     Unregister(STRING_ANIMDONE);
 
-    if (m_State == 805) {
-        m_pszDebugState = "end";
-    } else {
-        NoPoint();
-        m_bHasDesiredLookAngles = false;
-        StopTurning();
+    if (m_State == ACTOR_STATE_BALCONY_KILLED_END) {
+        m_pszDebugState = "";
+        return;
+    }
 
-        switch (m_State) {
-        case 800:
-            m_bNextForceStart  = true;
-            m_eNextAnimMode    = ANIM_MODE_FALLING_PATH;
-            m_pszDebugState    = "begin";
-            m_csNextAnimString = STRING_ANIM_NO_KILLED_SCR;
+    NoPoint();
+    ForwardLook();
 
-            animnum = gi.Anim_NumForName(edict->tiki, "death_balcony_intro");
+    switch (m_State) {
+    case ACTOR_STATE_BALCONY_KILLED_BEGIN:
+        m_bNextForceStart = true;
+        m_eNextAnimMode = ANIM_MODE_FALLING_PATH;
+        m_pszDebugState = "begin";
+        m_csNextAnimString = STRING_ANIM_NO_KILLED_SCR;
 
-            ChangeMotionAnim();
+        animnum = gi.Anim_NumForName(edict->tiki, "death_balcony_intro");
 
-            m_bMotionAnimSet                  = true;
-            m_iMotionSlot                     = GetMotionSlot(0);
-            m_weightType[m_iMotionSlot]       = 1;
-            m_weightCrossBlend[m_iMotionSlot] = 0.0;
-            m_weightBase[m_iMotionSlot]       = 1.0;
+        ChangeMotionAnim();
 
-            NewAnim(animnum, m_iMotionSlot);
-            SetTime(m_iMotionSlot, m_pFallPath->startTime);
-            UpdateNormalAnimSlot(m_iMotionSlot);
-            TransitionState(801, 0);
-            break;
-        case 801:
-            m_bNextForceStart  = false;
-            m_pszDebugState    = "intro";
-            m_eNextAnimMode    = ANIM_MODE_FALLING_PATH;
-            m_csNextAnimString = STRING_ANIM_NO_KILLED_SCR;
-            break;
-        case 802:
-            m_pszDebugState = "loop";
-            Anim_FullBody(STRING_DEATH_BALCONY_LOOP, 7);
-            break;
-        case 803:
-            TransitionState(804, 0);
-            StopAllAnimating();
-        case 804:
-            m_pszDebugState = "outtro";
-            Anim_FullBody(STRING_DEATH_BALCONY_OUTTRO, 1);
-            break;
-        case 806:
-            m_pszDebugState = "normal";
-            Anim_Killed();
-            break;
-        default:
-            Com_Printf("Actor::Think_BalconyKilled: invalid think state %i\n", m_State);
-            assert(0);
-        }
+        m_bMotionAnimSet = true;
+        m_iMotionSlot = GetMotionSlot(0);
+        m_weightType[m_iMotionSlot] = 1;
+        m_weightCrossBlend[m_iMotionSlot] = 0.0;
+        m_weightBase[m_iMotionSlot] = 1.0;
 
-        PostThink(false);
+        NewAnim(animnum, m_iMotionSlot);
+        SetTime(m_iMotionSlot, m_pFallPath->startTime);
+        UpdateNormalAnimSlot(m_iMotionSlot);
+        TransitionState(ACTOR_STATE_BALCONY_KILLED_INTRO, 0);
+        break;
+    case ACTOR_STATE_BALCONY_KILLED_INTRO:
+        m_bNextForceStart = false;
+        m_pszDebugState = "intro";
+        m_eNextAnimMode = ANIM_MODE_FALLING_PATH;
+        m_csNextAnimString = STRING_ANIM_NO_KILLED_SCR;
+        break;
+    case ACTOR_STATE_BALCONY_KILLED_LOOP:
+        m_pszDebugState = "loop";
+        Anim_FullBody(STRING_DEATH_BALCONY_LOOP, 7);
+        break;
+    case ACTOR_STATE_BALCONY_KILLED_LOOP_END:
+        TransitionState(804, 0);
+        StopAllAnimating();
+    case ACTOR_STATE_BALCONY_KILLED_OUTTRO:
+        m_pszDebugState = "outtro";
+        Anim_FullBody(STRING_DEATH_BALCONY_OUTTRO, 1);
+        break;
+    case ACTOR_STATE_BALCONY_KILLED_NORMAL:
+        m_pszDebugState = "normal";
+        Anim_Killed();
+        break;
+    default:
+        Com_Printf("Actor::Think_BalconyKilled: invalid think state %i\n", m_State);
+        assert(0);
+    }
 
-        if (m_State >= 800) {
-            if (m_State == 801) {
-                if (m_pFallPath->currentPos >= m_pFallPath->length) {
-                    TransitionState(803, 0);
-                } else if (m_pFallPath->currentPos >= m_pFallPath->loop) {
-                    TransitionState(802, 0);
-                }
-            } else if (m_State == 802) {
-                if (m_pFallPath->currentPos >= m_pFallPath->length) {
-                    TransitionState(803, 0);
-                }
+    PostThink(false);
+
+    if (m_State >= ACTOR_STATE_BALCONY_KILLED_BEGIN) {
+        if (m_State == ACTOR_STATE_BALCONY_KILLED_INTRO) {
+            if (m_pFallPath->currentPos >= m_pFallPath->length) {
+                TransitionState(ACTOR_STATE_BALCONY_KILLED_LOOP_END, 0);
+            }
+            else if (m_pFallPath->currentPos >= m_pFallPath->loop) {
+                TransitionState(ACTOR_STATE_BALCONY_KILLED_LOOP, 0);
+            }
+        } else if (m_State == ACTOR_STATE_BALCONY_KILLED_LOOP) {
+            if (m_pFallPath->currentPos >= m_pFallPath->length) {
+                TransitionState(ACTOR_STATE_BALCONY_KILLED_LOOP_END, 0);
             }
         }
     }
@@ -402,11 +403,15 @@ void Actor::Think_BalconyKilled(void)
 
 void Actor::FinishedAnimation_BalconyKilled(void)
 {
-    if (m_State == 804 || m_State == 806) {
+    switch (m_State) {
+    case ACTOR_STATE_BALCONY_KILLED_OUTTRO:
+    case ACTOR_STATE_BALCONY_KILLED_NORMAL:
         BecomeCorpse();
-        TransitionState(805, 0);
-    } else if (m_State == 801) {
-        TransitionState(802, 0);
+        TransitionState(ACTOR_STATE_BALCONY_KILLED_END, 0);
+        break;
+    case ACTOR_STATE_BALCONY_KILLED_INTRO:
+        TransitionState(ACTOR_STATE_BALCONY_KILLED_LOOP, 0);
         StopAllAnimating();
+        break;
     }
 }
