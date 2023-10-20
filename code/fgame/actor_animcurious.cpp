@@ -39,9 +39,9 @@ void Actor::Begin_AnimCurious(void)
     DoForceActivate();
 
     m_csMood = STRING_CURIOUS;
-    StartAnimation(m_AnimMode, m_csAnimScript);
-    StopTurning();
     m_iCuriousTime = level.inttime;
+    StopTurning();
+    StartAnimation(m_AnimMode, m_csAnimScript);
 }
 
 void Actor::Think_AnimCurious(void)
@@ -51,17 +51,14 @@ void Actor::Think_AnimCurious(void)
     }
 
     UpdateEyeOrigin();
+
+
     m_pszDebugState = "";
     LookAtCuriosity();
     TimeOutCurious();
+
     DesiredAnimation(m_AnimMode, m_csAnimScript);
     CheckForThinkStateTransition();
-    PostThink(false);
-}
 
-void Actor::FinishedAnimation_AnimCurious(void)
-{
-    if (m_State == 1101) {
-        TransitionState(1100, 0);
-    }
+    PostThink(false);
 }
