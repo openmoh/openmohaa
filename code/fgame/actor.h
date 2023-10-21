@@ -419,7 +419,7 @@ enum eActorState {
     ACTOR_STATE_DISGUISE       = 0,
     ACTOR_STATE_TURRET         = 100,
     ACTOR_STATE_BALCONY_ATTACK = 200,
-    ACTOR_STATE_BALCONY_COVER  = 300,
+    ACTOR_STATE_COVER          = 300,
     ACTOR_STATE_ALARM          = 600,
     ACTOR_STATE_KILLED         = 700,
     ACTOR_STATE_BALCONY_KILLED = 800,
@@ -448,7 +448,7 @@ enum eActorState_Disguise {
 // Turret think state
 //
 enum eActorState_Turret {
-    ACTOR_STATE_TURRET_START = ACTOR_STATE_TURRET,
+    ACTOR_STATE_TURRET_START  = ACTOR_STATE_TURRET,
     ACTOR_STATE_TURRET_COMBAT = ACTOR_STATE_TURRET_START,
     ACTOR_STATE_TURRET_REACQUIRE,
     ACTOR_STATE_TURRET_TAKE_SNIPER_NODE,
@@ -476,7 +476,7 @@ enum eActorState_Turret {
 // Balcony attack think state
 //
 enum eActorState_BalconyAttack {
-    ACTOR_STATE_BALCONY_ATTACK_START = ACTOR_STATE_BALCONY_ATTACK,
+    ACTOR_STATE_BALCONY_ATTACK_START      = ACTOR_STATE_BALCONY_ATTACK,
     ACTOR_STATE_BALCONY_ATTACK_FIND_ENEMY = ACTOR_STATE_BALCONY_ATTACK_START,
     ACTOR_STATE_BALCONY_ATTACK_TARGET,
     ACTOR_STATE_BALCONY_ATTACK_SHOOT
@@ -485,8 +485,22 @@ enum eActorState_BalconyAttack {
 //
 // Balcony cover think state
 //
-enum eActorState_BalconyCover {
-    ACTOR_STATE_BALCONY_COVER_START = ACTOR_STATE_BALCONY_COVER,
+enum eActorState_Cover {
+    ACTOR_STATE_COVER_START     = ACTOR_STATE_COVER,
+    ACTOR_STATE_COVER_NEW_ENEMY = ACTOR_STATE_COVER_START,
+    ACTOR_STATE_COVER_FIND_COVER,
+    ACTOR_STATE_COVER_TAKE_COVER,
+    ACTOR_STATE_COVER_FINISH_RELOADING,
+    ACTOR_STATE_COVER_SPECIAL_ATTACK,
+    ACTOR_STATE_COVER_FIND_ENEMY,
+    ACTOR_STATE_COVER_SEARCH_NODE,
+    ACTOR_STATE_COVER_TARGET,
+    ACTOR_STATE_COVER_HIDE,
+    ACTOR_STATE_COVER_SHOOT,
+    ACTOR_STATE_COVER_GRENADE,
+    ACTOR_STATE_COVER_HUNT_ENEMY,
+    ACTOR_STATE_COVER_LOOP,
+    ACTOR_STATE_COVER_FAKE_ENEMY,
 };
 
 //
@@ -494,7 +508,7 @@ enum eActorState_BalconyCover {
 //
 enum eActorState_BalconyAlarm {
     ACTOR_STATE_ALARM_START = ACTOR_STATE_ALARM,
-    ACTOR_STATE_ALARM_IDLE = ACTOR_STATE_ALARM_START,
+    ACTOR_STATE_ALARM_IDLE  = ACTOR_STATE_ALARM_START,
     ACTOR_STATE_ALARM_MOVE
 };
 
@@ -530,7 +544,7 @@ enum eActorState_WeaponLess {
 // Animation think state
 //
 enum eActorState_Animation {
-    ACTOR_STATE_ANIMATION_START = ACTOR_STATE_ANIMATION,
+    ACTOR_STATE_ANIMATION_START   = ACTOR_STATE_ANIMATION,
     ACTOR_STATE_ANIMATION_INITIAL = ACTOR_STATE_ANIMATION_START,
     ACTOR_STATE_ANIMATION_MAIN,
 };
@@ -963,7 +977,7 @@ public:
     bool                PassesTransitionConditions_Idle(void);
     void                UpdateEnableEnemy(void);
     void                ThinkStateTransitions(void);
-    void                TransitionState(int iNewState, int iPadTime);
+    void                TransitionState(int iNewState, int iPadTime = 0);
     void                ChangeAnim(void);
     void                UpdateSayAnim(void);
     void                UpdateUpperAnim(void);
@@ -1275,7 +1289,8 @@ public:
     void NotifySquadmateKilled(Sentient *pSquadMate, Sentient *pAttacker);
     void RaiseAlertnessForEventType(int iType);
     void RaiseAlertness(float fAmount);
-    virtual bool   CanSee(Entity *e1, float fov, float vision_distance, bool bNoEnts) override;
+    virtual bool CanSee(Entity *e1, float fov, float vision_distance, bool bNoEnts) override;
+    using Sentient::CanSee;
     virtual Vector GunPosition(void) override;
     bool           WithinVisionDistance(Entity *ent) const;
     bool           InFOV(Vector pos, float check_fov, float check_fovdot);
